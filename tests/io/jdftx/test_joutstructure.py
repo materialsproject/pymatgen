@@ -5,7 +5,7 @@ import pytest
 from pymatgen.core.units import Ha_to_eV, bohr_to_ang
 from pytest import approx
 
-from atomate2.jdftx.io.joutstructure import JOutStructure
+from pymatgen.io.jdftx.joutstructure import JOutStructure
 
 ex_files_dir = Path(__file__).parents[0] / "example_files"
 ex_slice_fname1 = ex_files_dir / "ex_text_slice_forJAtoms_latmin"

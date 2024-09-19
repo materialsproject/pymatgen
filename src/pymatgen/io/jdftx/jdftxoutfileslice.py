@@ -8,6 +8,7 @@ process a JDFTx out file.
 from __future__ import annotations
 
 import math
+import warnings
 from dataclasses import dataclass
 from typing import TYPE_CHECKING, ClassVar
 
@@ -17,9 +18,8 @@ if TYPE_CHECKING:
     from pymatgen.core import Structure
 from pymatgen.core.trajectory import Trajectory
 from pymatgen.core.units import Ha_to_eV, ang_to_bohr
-
-from atomate2.jdftx.io.data import atom_valence_electrons
-from atomate2.jdftx.io.jdftxoutfileslice_helpers import (
+from pymatgen.io.jdftx.data import atom_valence_electrons
+from pymatgen.io.jdftx.jdftxoutfileslice_helpers import (
     find_all_key,
     find_first_range_key,
     find_key,
@@ -27,13 +27,13 @@ from atomate2.jdftx.io.jdftxoutfileslice_helpers import (
     get_pseudo_read_section_bounds,
     key_exists,
 )
-from atomate2.jdftx.io.jminsettings import (
+from pymatgen.io.jdftx.jminsettings import (
     JMinSettingsElectronic,
     JMinSettingsFluid,
     JMinSettingsIonic,
     JMinSettingsLattice,
 )
-from atomate2.jdftx.io.joutstructures import JOutStructures
+from pymatgen.io.jdftx.joutstructures import JOutStructures
 
 
 class ClassPrintFormatter:
@@ -47,10 +47,7 @@ class ClassPrintFormatter:
         return (
             str(self.__class__)
             + "\n"
-            + "\n".join(
-                str(item) + " = " + str(self.__dict__[item])
-                for item in sorted(self.__dict__)
-            )
+            + "\n".join(str(item) + " = " + str(self.__dict__[item]) for item in sorted(self.__dict__))
         )
 
 
@@ -65,49 +62,33 @@ class JDFTXOutfileSlice(ClassPrintFormatter):
         see JDFTx documentation for tag info and typing
     """
 
-    prefix: str = None
+    prefix: str | None = None
 
-    jstrucs: JOutStructures = None
-    jsettings_fluid: (
-        JMinSettingsFluid
-        | JMinSettingsElectronic
-        | JMinSettingsLattice
-        | JMinSettingsIonic
-    ) = None
+    jstrucs: JOutStructures | None = None
+    jsettings_fluid: JMinSettingsFluid | JMinSettingsElectronic | JMinSettingsLattice | JMinSettingsIonic | None = None
     jsettings_electronic: (
-        JMinSettingsFluid
-        | JMinSettingsElectronic
-        | JMinSettingsLattice
-        | JMinSettingsIonic
+        JMinSettingsFluid | JMinSettingsElectronic | JMinSettingsLattice | JMinSettingsIonic | None
     ) = None
-    jsettings_lattice: (
-        JMinSettingsFluid
-        | JMinSettingsElectronic
-        | JMinSettingsLattice
-        | JMinSettingsIonic
-    ) = None
-    jsettings_ionic: (
-        JMinSettingsFluid
-        | JMinSettingsElectronic
-        | JMinSettingsLattice
-        | JMinSettingsIonic
-    ) = None
+    jsettings_lattice: JMinSettingsFluid | JMinSettingsElectronic | JMinSettingsLattice | JMinSettingsIonic | None = (
+        None
+    )
+    jsettings_ionic: JMinSettingsFluid | JMinSettingsElectronic | JMinSettingsLattice | JMinSettingsIonic | None = None
 
-    xc_func: str = None
+    xc_func: str | None = None
 
     # lattice_initial: list[list[float]] = None
     # lattice_final: list[list[float]] = None
     # lattice: list[list[float]] = None
-    lattice_initial: np.ndarray = None
-    lattice_final: np.ndarray = None
-    lattice: np.ndarray = None
-    a: float = None
-    b: float = None
-    c: float = None
+    lattice_initial: np.ndarray | None = None
+    lattice_final: np.ndarray | None = None
+    lattice: np.ndarray | None = None
+    a: float | None = None
+    b: float | None = None
+    c: float | None = None
 
-    fftgrid: list[int] = None
-    geom_opt: bool = None
-    geom_opt_type: str = None
+    fftgrid: list[int] | None = None
+    geom_opt: bool | None = None
+    geom_opt_type: str | None = None
 
     # grouping fields related to electronic parameters.
     # Used by the get_electronic_output() method
@@ -122,50 +103,50 @@ class JDFTXOutfileSlice(ClassPrintFormatter):
         "lumo_filling",
         "is_metal",
     ]
-    efermi: float = None
-    egap: float = None
-    emin: float = None
-    emax: float = None
-    homo: float = None
-    lumo: float = None
-    homo_filling: float = None
-    lumo_filling: float = None
-    is_metal: bool = None
-    etype: str = None
+    efermi: float | None = None
+    egap: float | None = None
+    emin: float | None = None
+    emax: float | None = None
+    homo: float | None = None
+    lumo: float | None = None
+    homo_filling: float | None = None
+    lumo_filling: float | None = None
+    is_metal: bool | None = None
+    etype: str | None = None
 
-    broadening_type: str = None
-    broadening: float = None
-    kgrid: list = None
-    truncation_type: str = None
-    truncation_radius: float = None
-    pwcut: float = None
-    rhocut: float = None
+    broadening_type: str | None = None
+    broadening: float | None = None
+    kgrid: list | None = None
+    truncation_type: str | None = None
+    truncation_radius: float | None = None
+    pwcut: float | None = None
+    rhocut: float | None = None
 
-    pp_type: str = None
-    total_electrons: float = None
-    semicore_electrons: int = None
-    valence_electrons: float = None
-    total_electrons_uncharged: int = None
-    semicore_electrons_uncharged: int = None
-    valence_electrons_uncharged: int = None
-    nbands: int = None
+    pp_type: str | None = None
+    total_electrons: float | None = None
+    semicore_electrons: int | None = None
+    valence_electrons: float | None = None
+    total_electrons_uncharged: int | None = None
+    semicore_electrons_uncharged: int | None = None
+    valence_electrons_uncharged: int | None = None
+    nbands: int | None = None
 
-    atom_elements: list = None
-    atom_elements_int: list = None
-    atom_types: list = None
-    spintype: str = None
-    nspin: int = None
-    nat: int = None
-    atom_coords_initial: list[list[float]] = None
-    atom_coords_final: list[list[float]] = None
-    atom_coords: list[list[float]] = None
+    atom_elements: list | None = None
+    atom_elements_int: list | None = None
+    atom_types: list | None = None
+    spintype: str | None = None
+    nspin: int | None = None
+    nat: int | None = None
+    atom_coords_initial: list[list[float]] | None = None
+    atom_coords_final: list[list[float]] | None = None
+    atom_coords: list[list[float]] | None = None
 
     has_solvation: bool = False
-    fluid: str = None
-    is_gc: bool = None
+    fluid: str | None = None
+    is_gc: bool | None = None
 
     @property
-    def t_s(self) -> float:
+    def t_s(self) -> float | None:
         """Return the total time in seconds for the calculation.
 
         Return the total time in seconds for the calculation.
@@ -181,7 +162,7 @@ class JDFTXOutfileSlice(ClassPrintFormatter):
         return t_s
 
     @property
-    def is_converged(self) -> bool:
+    def is_converged(self) -> bool | None:
         """Return True if calculation converged.
 
         Return True if the electronic and geometric optimization have converged
@@ -192,6 +173,8 @@ class JDFTXOutfileSlice(ClassPrintFormatter):
         converged: bool
             True if calculation converged
         """
+        if self.jstrucs is None:
+            return None
         converged = self.jstrucs.elec_converged
         if self.geom_opt:
             converged = converged and self.jstrucs.geom_converged
@@ -209,10 +192,13 @@ class JDFTXOutfileSlice(ClassPrintFormatter):
         traj: Trajectory
             pymatgen Trajectory object
         """
-        constant_lattice = self.jsettings_lattice.niterations == 0
-        return Trajectory.from_structures(
-            structures=self.jstrucs, constant_lattice=constant_lattice
-        )
+        constant_lattice = False
+        if self.jsettings_lattice is not None:
+            if self.jsettings_lattice.niterations is not None:
+                constant_lattice = self.jsettings_lattice.niterations == 0
+            else:
+                raise ValueError("Unknown issue due to partial initialization of settings objects.")
+        return Trajectory.from_structures(structures=self.jstrucs, constant_lattice=constant_lattice)
 
     @property
     def electronic_output(self) -> dict:
@@ -239,7 +225,9 @@ class JDFTXOutfileSlice(ClassPrintFormatter):
         structure: Structure
             pymatgen Structure object
         """
-        return self.jstrucs[-1]
+        if self.jstrucs is not None:
+            return self.jstrucs[-1]
+        raise ValueError("No structures found in out file.")
 
     @classmethod
     def from_out_slice(cls, text: list[str]) -> JDFTXOutfileSlice:
@@ -308,7 +296,7 @@ class JDFTXOutfileSlice(ClassPrintFormatter):
         line = find_key("elec-ex-corr", text)
         return text[line].strip().split()[-1].strip()
 
-    def get_prefix(self, text: list[str]) -> str:
+    def get_prefix(self, text: list[str]) -> str | None:
         """Get output prefix from the out file.
 
         Get output prefix from the out file.
@@ -384,7 +372,7 @@ class JDFTXOutfileSlice(ClassPrintFormatter):
             broadening = 0
         return broadening_type, broadening
 
-    def get_truncationvars(self, text: list[str]) -> tuple[str, float]:
+    def get_truncationvars(self, text: list[str]) -> tuple[str, float] | tuple[None, None]:
         """Get truncation type and value from out file text.
 
         Get truncation type and value from out file text.
@@ -430,6 +418,8 @@ class JDFTXOutfileSlice(ClassPrintFormatter):
             if truncation_type == "spherical":
                 line = find_key("Initialized spherical truncation of radius", text)
                 truncation_radius = float(text[line].split()[5]) / ang_to_bohr
+        else:
+            warnings.warn("No truncation type found in out file.", stacklevel=2)
         return truncation_type, truncation_radius
 
     def get_pw_cutoff(self, text: list[str]) -> float:
@@ -470,10 +460,9 @@ class JDFTXOutfileSlice(ClassPrintFormatter):
         if len(lsplit) == 3:
             rhocut = float(lsplit[2]) * Ha_to_eV
         else:
-            pwcut = self.pwcut
             if self.pwcut is None:
-                pwcut = self.get_pw_cutoff(text)
-            rhocut = float(pwcut * 4)
+                self.pwcut = self.get_pw_cutoff(text)
+            rhocut = float(self.pwcut * 4)
         return rhocut
 
     def get_fftgrid(self, text: list[str]) -> list[int]:
@@ -512,9 +501,7 @@ class JDFTXOutfileSlice(ClassPrintFormatter):
         line = find_key("kpoint-folding ", text)
         return [int(x) for x in text[line].split()[1:4]]
 
-    def get_eigstats_varsdict(
-        self, text: list[str], prefix: str | None
-    ) -> dict[str, float]:
+    def get_eigstats_varsdict(self, text: list[str], prefix: str | None) -> dict[str, float]:
         """Get the eigenvalue statistics from the out file text.
 
         Get the eigenvalue statistics from the out file text.
@@ -640,25 +627,17 @@ class JDFTXOutfileSlice(ClassPrintFormatter):
             endline = bounds[1]
             val_lines = [x for x in all_val_lines if x < endline and x > startline]
             val_line = val_lines[0]
-            val_elec = int(
-                text[val_line].split("valence electrons")[0].strip().split()[-1]
-            )
+            val_elec = int(text[val_line].split("valence electrons")[0].strip().split()[-1])
             atom_total_elec.append(val_elec)
-        total_elec_dict = dict(zip(self.atom_types, atom_total_elec))
-        element_total_electrons = np.array(
-            [total_elec_dict[x] for x in self.atom_elements]
-        )
-        element_valence_electrons = np.array(
-            [atom_valence_electrons[x] for x in self.atom_elements]
-        )
+        total_elec_dict = dict(zip(self.atom_types, atom_total_elec, strict=False))
+        element_total_electrons = np.array([total_elec_dict[x] for x in self.atom_elements])
+        element_valence_electrons = np.array([atom_valence_electrons[x] for x in self.atom_elements])
         element_semicore_electrons = element_total_electrons - element_valence_electrons
         self.total_electrons_uncharged = np.sum(element_total_electrons)
         self.valence_electrons_uncharged = np.sum(element_valence_electrons)
         self.semicore_electrons_uncharged = np.sum(element_semicore_electrons)
         self.semicore_electrons = self.semicore_electrons_uncharged
-        self.valence_electrons = (
-            self.total_electrons - self.semicore_electrons
-        )  # accounts for if system is charged
+        self.valence_electrons = self.total_electrons - self.semicore_electrons  # accounts for if system is charged
 
     def _collect_settings_lines(self, text: list[str], start_flag: str) -> list[int]:
         """Collect the lines of settings from the out file text.
@@ -721,18 +700,8 @@ class JDFTXOutfileSlice(ClassPrintFormatter):
     def get_settings_object(
         self,
         text: list[str],
-        settings_class: type[
-            JMinSettingsElectronic
-            | JMinSettingsFluid
-            | JMinSettingsIonic
-            | JMinSettingsLattice
-        ],
-    ) -> (
-        JMinSettingsElectronic
-        | JMinSettingsFluid
-        | JMinSettingsIonic
-        | JMinSettingsLattice
-    ):
+        settings_class: type[JMinSettingsElectronic | JMinSettingsFluid | JMinSettingsIonic | JMinSettingsLattice],
+    ) -> JMinSettingsElectronic | JMinSettingsFluid | JMinSettingsIonic | JMinSettingsLattice:
         """Get appropriate JMinSettings mutant.
 
         Get the settings object from the out file text
@@ -763,9 +732,7 @@ class JDFTXOutfileSlice(ClassPrintFormatter):
             output of read_file for out file
         """
         self.jsettings_fluid = self.get_settings_object(text, JMinSettingsFluid)
-        self.jsettings_electronic = self.get_settings_object(
-            text, JMinSettingsElectronic
-        )
+        self.jsettings_electronic = self.get_settings_object(text, JMinSettingsElectronic)
         self.jsettings_lattice = self.get_settings_object(text, JMinSettingsLattice)
         self.jsettings_ionic = self.get_settings_object(text, JMinSettingsIonic)
 
@@ -823,9 +790,7 @@ class JDFTXOutfileSlice(ClassPrintFormatter):
             self.homo_filling = 2 / self.nspin
             self.lumo_filling = 0
 
-    def set_fluid(
-        self, text: list[str]
-    ) -> None:  # Is this redundant to the fluid settings?
+    def set_fluid(self, text: list[str]) -> None:  # Is this redundant to the fluid settings?
         """Set the fluid class variable.
 
         Set the fluid class variable.
@@ -898,13 +863,11 @@ class JDFTXOutfileSlice(ClassPrintFormatter):
             if x not in atom_types:
                 atom_types.append(x)
         self.atom_elements = atom_elements
-        mapping_dict = dict(zip(atom_types, range(1, len(atom_types) + 1)))
+        mapping_dict = dict(zip(atom_types, range(1, len(atom_types) + 1), strict=False))
         self.atom_elements_int = [mapping_dict[x] for x in self.atom_elements]
         self.atom_types = atom_types
         line = find_key("# Ionic positions in", text) + 1
-        coords = np.array(
-            [text[i].split()[2:5] for i in range(line, line + self.nat)], dtype=float
-        )
+        coords = np.array([text[i].split()[2:5] for i in range(line, line + self.nat)], dtype=float)
         self.atom_coords_final = coords
         self.atom_coords = self.atom_coords_final.copy()
 
@@ -939,9 +902,7 @@ class JDFTXOutfileSlice(ClassPrintFormatter):
         # line = find_key("# Energy components:", text)
         self.ecomponents = ecomp
 
-    def calculate_filling(
-        self, broadening_type: str, broadening: float, eig: float, efermi: float
-    ) -> float:
+    def calculate_filling(self, broadening_type: str, broadening: float, eig: float, efermi: float) -> float:
         """Calculate the filling for a given eigenvalue.
 
         Use the broadening type, broadening value, eigenvalue, and fermi energy
@@ -974,10 +935,7 @@ class JDFTXOutfileSlice(ClassPrintFormatter):
         elif broadening_type == "MP1":
             filling = 0.5 * (1 - math.erf(x)) - x * np.exp(-1 * x**2) / (2 * np.pi**0.5)
         elif broadening_type == "Cold":
-            filling = (
-                0.5 * (1 - math.erf(x + 0.5**0.5))
-                + np.exp(-1 * (x + 0.5**0.5) ** 2) / (2 * np.pi) ** 0.5
-            )
+            filling = 0.5 * (1 - math.erf(x + 0.5**0.5)) + np.exp(-1 * (x + 0.5**0.5) ** 2) / (2 * np.pi) ** 0.5
         else:
             raise NotImplementedError("Have not added other broadening types")
 

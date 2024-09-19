@@ -8,23 +8,25 @@ from __future__ import annotations
 from dataclasses import dataclass, field
 from functools import wraps
 from pathlib import Path
-from typing import TYPE_CHECKING, Any, Callable
+from typing import TYPE_CHECKING, Any
 
 from monty.io import zopen
 
-from atomate2.jdftx.io.jdftxoutfileslice import JDFTXOutfileSlice
-from atomate2.jdftx.io.jdftxoutfileslice_helpers import get_start_lines
+from pymatgen.io.jdftx.jdftxoutfileslice import JDFTXOutfileSlice
+from pymatgen.io.jdftx.jdftxoutfileslice_helpers import get_start_lines
 
 if TYPE_CHECKING:
+    from collections.abc import Callable
+
     import numpy as np
 
-    from atomate2.jdftx.io.jminsettings import (
+    from pymatgen.io.jdftx.jminsettings import (
         JMinSettingsElectronic,
         JMinSettingsFluid,
         JMinSettingsIonic,
         JMinSettingsLattice,
     )
-    from atomate2.jdftx.io.joutstructures import JOutStructures
+    from pymatgen.io.jdftx.joutstructures import JOutStructures
 
 
 def check_file_exists(func: Callable) -> Any:
@@ -155,12 +157,7 @@ class JDFTXOutfile:
     @property
     def jsettings_fluid(
         self,
-    ) -> (
-        JMinSettingsFluid
-        | JMinSettingsElectronic
-        | JMinSettingsLattice
-        | JMinSettingsIonic
-    ):
+    ) -> JMinSettingsFluid | JMinSettingsElectronic | JMinSettingsLattice | JMinSettingsIonic:
         """
         Return jsettings_fluid from most recent JOutStructure.
 
@@ -176,12 +173,7 @@ class JDFTXOutfile:
     @property
     def jsettings_electronic(
         self,
-    ) -> (
-        JMinSettingsFluid
-        | JMinSettingsElectronic
-        | JMinSettingsLattice
-        | JMinSettingsIonic
-    ):
+    ) -> JMinSettingsFluid | JMinSettingsElectronic | JMinSettingsLattice | JMinSettingsIonic:
         """
         Return jsettings_electronic from most recent JOutStructure.
 
@@ -197,12 +189,7 @@ class JDFTXOutfile:
     @property
     def jsettings_lattice(
         self,
-    ) -> (
-        JMinSettingsFluid
-        | JMinSettingsElectronic
-        | JMinSettingsLattice
-        | JMinSettingsIonic
-    ):
+    ) -> JMinSettingsFluid | JMinSettingsElectronic | JMinSettingsLattice | JMinSettingsIonic:
         """
         Return jsettings_lattice from most recent JOutStructure.
 
@@ -218,12 +205,7 @@ class JDFTXOutfile:
     @property
     def jsettings_ionic(
         self,
-    ) -> (
-        JMinSettingsFluid
-        | JMinSettingsElectronic
-        | JMinSettingsLattice
-        | JMinSettingsIonic
-    ):
+    ) -> JMinSettingsFluid | JMinSettingsElectronic | JMinSettingsLattice | JMinSettingsIonic:
         """
         Return jsettings_ionic from most recent JOutStructure.
 

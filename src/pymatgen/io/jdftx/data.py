@@ -3,6 +3,8 @@
 This module contains reference data for JDFTx.
 """
 
+from __future__ import annotations
+
 atom_valence_electrons = {
     "H": 1,
     "He": 2,

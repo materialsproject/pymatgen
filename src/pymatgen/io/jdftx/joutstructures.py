@@ -6,18 +6,16 @@ JOutStructure.
 
 from __future__ import annotations
 
+import warnings
 from dataclasses import dataclass, field
 from typing import TYPE_CHECKING, Any
 
 if TYPE_CHECKING:
     import numpy as np
 
-    from atomate2.jdftx.io.jeiters import JEiters
-from atomate2.jdftx.io.joutstructure import JOutStructure
-from atomate2.jdftx.io.joutstructure_helpers import (
-    correct_iter_type,
-    is_lowdin_start_line,
-)
+    from pymatgen.io.jdftx.jeiters import JEiters
+from pymatgen.io.jdftx.joutstructure import JOutStructure
+from pymatgen.io.jdftx.joutstructure_helpers import correct_iter_type, is_lowdin_start_line
 
 elec_min_start_flag: str = "-------- Electronic minimization -----------"
 
@@ -40,6 +38,7 @@ def get_start_idx(
     i: int
         The index of the first line of the first structure in the out_slice
     """
+    i = None
     for i, line in enumerate(out_slice):
         if out_slice_start_flag in line:
             return i
@@ -76,10 +75,16 @@ def get_step_bounds(
             elif (bounds is not None) and (is_lowdin_start_line(line)):
                 end_started = True
         elif not len(line.strip()):
-            bounds.append(i)
-            bounds_list.append(bounds)
-            bounds = None
-            end_started = False
+            if bounds is not None:
+                bounds.append(i)
+                bounds_list.append(bounds)
+                bounds = None
+                end_started = False
+            else:
+                warnmsg = f"Line {i-1} ({out_slice[i-1]}) triggered \
+                    end_started, but following line is empty. Final step_bounds \
+                        may be incorrect. "
+                warnings.warn(warnmsg, stacklevel=2)
     return bounds_list
 
 
@@ -91,18 +96,16 @@ class JOutStructures:
     """
 
     out_slice_start_flag = "-------- Electronic minimization -----------"
-    iter_type: str = None
+    iter_type: str | None = None
     geom_converged: bool = False
-    geom_converged_reason: str = None
+    geom_converged_reason: str | None = None
     elec_converged: bool = False
-    elec_converged_reason: str = None
-    _t_s: float = None
+    elec_converged_reason: str | None = None
+    _t_s: float | None = None
     slices: list[JOutStructure] = field(default_factory=list)
 
     @classmethod
-    def from_out_slice(
-        cls, out_slice: list[str], iter_type: str = "IonicMinimize"
-    ) -> JOutStructures:
+    def from_out_slice(cls, out_slice: list[str], iter_type: str = "IonicMinimize") -> JOutStructures:
         """Return JStructures object.
 
         Create a JStructures object from a slice of an out file's text
@@ -127,7 +130,7 @@ class JOutStructures:
         return instance
 
     @property
-    def t_s(self) -> float:
+    def t_s(self) -> float | None:
         """Return time of calculation.
 
         Return the total time in seconds for the calculation.
@@ -140,10 +143,12 @@ class JOutStructures:
         if self._t_s is not None:
             return self._t_s
         if len(self):
-            if self.iter_type in ["single point", None]:
+            if (self.iter_type in ["single point", None]) and (isinstance(self[-1].elecmindata[-1].t_s, float)):
                 self._t_s = self[-1].elecmindata[-1].t_s
-            else:
+            elif isinstance(self[-1].t_s, float):
                 self._t_s = self[-1].t_s
+            else:
+                raise AttributeError("t_s not set in most recent JOutStructure")
         return self._t_s
 
     ###########################################################################
@@ -159,9 +164,7 @@ class JOutStructures:
         """
         if len(self.slices):
             return self.slices[-1].etype
-        raise AttributeError(
-            "Property etype inaccessible due to empty slices class field"
-        )
+        raise AttributeError("Property etype inaccessible due to empty slices class field")
 
     @property
     def eiter_type(self) -> str:
@@ -172,9 +175,7 @@ class JOutStructures:
         """
         if len(self.slices):
             return self.slices[-1].eiter_type
-        raise AttributeError(
-            "Property eiter_type inaccessible due to empty slices class field"
-        )
+        raise AttributeError("Property eiter_type inaccessible due to empty slices class field")
 
     @property
     def emin_flag(self) -> str:
@@ -185,9 +186,7 @@ class JOutStructures:
         """
         if len(self.slices):
             return self.slices[-1].emin_flag
-        raise AttributeError(
-            "Property emin_flag inaccessible due to empty slices class field"
-        )
+        raise AttributeError("Property emin_flag inaccessible due to empty slices class field")
 
     @property
     def ecomponents(self) -> dict:
@@ -198,9 +197,7 @@ class JOutStructures:
         """
         if len(self.slices):
             return self.slices[-1].ecomponents
-        raise AttributeError(
-            "Property ecomponents inaccessible due to empty slices class field"
-        )
+        raise AttributeError("Property ecomponents inaccessible due to empty slices class field")
 
     @property
     def elecmindata(self) -> JEiters:
@@ -211,9 +208,7 @@ class JOutStructures:
         """
         if len(self.slices):
             return self.slices[-1].elecmindata
-        raise AttributeError(
-            "Property elecmindata inaccessible due to empty slices class field"
-        )
+        raise AttributeError("Property elecmindata inaccessible due to empty slices class field")
 
     @property
     def stress(self) -> np.ndarray:
@@ -224,9 +219,7 @@ class JOutStructures:
         """
         if len(self.slices):
             return self.slices[-1].stress
-        raise AttributeError(
-            "Property stress inaccessible due to empty slices class field"
-        )
+        raise AttributeError("Property stress inaccessible due to empty slices class field")
 
     @property
     def strain(self) -> np.ndarray:
@@ -237,9 +230,7 @@ class JOutStructures:
         """
         if len(self.slices):
             return self.slices[-1].strain
-        raise AttributeError(
-            "Property strain inaccessible due to empty slices class field"
-        )
+        raise AttributeError("Property strain inaccessible due to empty slices class field")
 
     @property
     def iter(self) -> int:
@@ -250,9 +241,7 @@ class JOutStructures:
         """
         if len(self.slices):
             return self.slices[-1].iter
-        raise AttributeError(
-            "Property iter inaccessible due to empty slices class field"
-        )
+        raise AttributeError("Property iter inaccessible due to empty slices class field")
 
     @property
     def e(self) -> float:
@@ -274,9 +263,7 @@ class JOutStructures:
         """
         if len(self.slices):
             return self.slices[-1].grad_k
-        raise AttributeError(
-            "Property grad_k inaccessible due to empty slices class field"
-        )
+        raise AttributeError("Property grad_k inaccessible due to empty slices class field")
 
     @property
     def alpha(self) -> float:
@@ -287,9 +274,7 @@ class JOutStructures:
         """
         if len(self.slices):
             return self.slices[-1].alpha
-        raise AttributeError(
-            "Property alpha inaccessible due to empty slices class field"
-        )
+        raise AttributeError("Property alpha inaccessible due to empty slices class field")
 
     @property
     def linmin(self) -> float:
@@ -300,9 +285,7 @@ class JOutStructures:
         """
         if len(self.slices):
             return self.slices[-1].linmin
-        raise AttributeError(
-            "Property linmin inaccessible due to empty slices class field"
-        )
+        raise AttributeError("Property linmin inaccessible due to empty slices class field")
 
     ##
 
@@ -319,9 +302,7 @@ class JOutStructures:
         """
         out_bounds = get_step_bounds(out_slice)
         return [
-            JOutStructure.from_text_slice(
-                out_slice[bounds[0] : bounds[1]], iter_type=self.iter_type
-            )
+            JOutStructure.from_text_slice(out_slice[bounds[0] : bounds[1]], iter_type=self.iter_type)
             for bounds in out_bounds
         ]
 

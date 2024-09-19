@@ -5,6 +5,8 @@ and mutants for storing specific minimization settings read from a JDFTx out
 file.
 """
 
+from __future__ import annotations
+
 from dataclasses import dataclass
 
 
@@ -15,44 +17,44 @@ class JMinSettings:
     Store generic minimization settings read from a JDFTx out file.
     """
 
-    dirupdatescheme: str = None
-    linminmethod: str = None
-    niterations: int = None
-    history: int = None
-    knormthreshold: float = None
-    energydiffthreshold: float = None
-    nenergydiff: int = None
-    alphatstart: float = None
-    alphatmin: float = None
-    updateteststepsize: bool = None
-    alphatreducefactor: float = None
-    alphatincreasefactor: float = None
-    nalphaadjustmax: int = None
-    wolfeenergy: float = None
-    wolfegradient: float = None
-    fdtest: bool = None
-    maxthreshold: bool = None
-    start_flag: str = None
+    dirupdatescheme: str | None = None
+    linminmethod: str | None = None
+    niterations: int | None = None
+    history: int | None = None
+    knormthreshold: float | None = None
+    energydiffthreshold: float | None = None
+    nenergydiff: int | None = None
+    alphatstart: float | None = None
+    alphatmin: float | None = None
+    updateteststepsize: bool | None = None
+    alphatreducefactor: float | None = None
+    alphatincreasefactor: float | None = None
+    nalphaadjustmax: int | None = None
+    wolfeenergy: float | None = None
+    wolfegradient: float | None = None
+    fdtest: bool | None = None
+    maxthreshold: bool | None = None
+    start_flag: str | None = None
 
     def __init__(
         self,
-        dirupdatescheme: str = None,
-        linminmethod: str = None,
-        niterations: int = None,
-        history: int = None,
-        knormthreshold: float = None,
-        energydiffthreshold: float = None,
-        nenergydiff: int = None,
-        alphatstart: float = None,
-        alphatmin: float = None,
-        updateteststepsize: bool = None,
-        alphatreducefactor: float = None,
-        alphatincreasefactor: float = None,
-        nalphaadjustmax: int = None,
-        wolfeenergy: float = None,
-        wolfegradient: float = None,
-        fdtest: bool = None,
-        maxthreshold: bool = None,
+        dirupdatescheme: str | None = None,
+        linminmethod: str | None = None,
+        niterations: int | None = None,
+        history: int | None = None,
+        knormthreshold: float | None = None,
+        energydiffthreshold: float | None = None,
+        nenergydiff: int | None = None,
+        alphatstart: float | None = None,
+        alphatmin: float | None = None,
+        updateteststepsize: bool | None = None,
+        alphatreducefactor: float | None = None,
+        alphatincreasefactor: float | None = None,
+        nalphaadjustmax: int | None = None,
+        wolfeenergy: float | None = None,
+        wolfegradient: float | None = None,
+        fdtest: bool | None = None,
+        maxthreshold: bool | None = None,
     ) -> None:
         """Initialize a generic JMInSettings class.
 
@@ -99,21 +101,13 @@ class JMinSettings:
         self.niterations = None if niterations is None else int(niterations)
         self.history = None if history is None else int(history)
         self.knormthreshold = None if knormthreshold is None else float(knormthreshold)
-        self.energydiffthreshold = (
-            None if energydiffthreshold is None else float(energydiffthreshold)
-        )
+        self.energydiffthreshold = None if energydiffthreshold is None else float(energydiffthreshold)
         self.nenergydiff = None if nenergydiff is None else int(nenergydiff)
         self.alphatstart = None if alphatstart is None else float(alphatstart)
         self.alphatmin = None if alphatmin is None else float(alphatmin)
-        self.updateteststepsize = (
-            None if updateteststepsize is None else bool(updateteststepsize)
-        )
-        self.alphatreducefactor = (
-            None if alphatreducefactor is None else float(alphatreducefactor)
-        )
-        self.alphatincreasefactor = (
-            None if alphatincreasefactor is None else float(alphatincreasefactor)
-        )
+        self.updateteststepsize = None if updateteststepsize is None else bool(updateteststepsize)
+        self.alphatreducefactor = None if alphatreducefactor is None else float(alphatreducefactor)
+        self.alphatincreasefactor = None if alphatincreasefactor is None else float(alphatincreasefactor)
         self.nalphaadjustmax = None if nalphaadjustmax is None else int(nalphaadjustmax)
         self.wolfeenergy = None if wolfeenergy is None else float(wolfeenergy)
         self.wolfegradient = None if wolfegradient is None else float(wolfegradient)
@@ -133,23 +127,23 @@ class JMinSettingsElectronic(JMinSettings):
 
     def __init__(
         self,
-        dirupdatescheme: str = None,
-        linminmethod: str = None,
-        niterations: int = None,
-        history: int = None,
-        knormthreshold: float = None,
-        energydiffthreshold: float = None,
-        nenergydiff: int = None,
-        alphatstart: float = None,
-        alphatmin: float = None,
-        updateteststepsize: bool = None,
-        alphatreducefactor: float = None,
-        alphatincreasefactor: float = None,
-        nalphaadjustmax: int = None,
-        wolfeenergy: float = None,
-        wolfegradient: float = None,
-        fdtest: bool = None,
-        maxthreshold: bool = None,
+        dirupdatescheme: str | None = None,
+        linminmethod: str | None = None,
+        niterations: int | None = None,
+        history: int | None = None,
+        knormthreshold: float | None = None,
+        energydiffthreshold: float | None = None,
+        nenergydiff: int | None = None,
+        alphatstart: float | None = None,
+        alphatmin: float | None = None,
+        updateteststepsize: bool | None = None,
+        alphatreducefactor: float | None = None,
+        alphatincreasefactor: float | None = None,
+        nalphaadjustmax: int | None = None,
+        wolfeenergy: float | None = None,
+        wolfegradient: float | None = None,
+        fdtest: bool | None = None,
+        maxthreshold: bool | None = None,
     ) -> None:
         super().__init__(
             dirupdatescheme=dirupdatescheme,
@@ -184,23 +178,23 @@ class JMinSettingsFluid(JMinSettings):
 
     def __init__(
         self,
-        dirupdatescheme: str = None,
-        linminmethod: str = None,
-        niterations: int = None,
-        history: int = None,
-        knormthreshold: float = None,
-        energydiffthreshold: float = None,
-        nenergydiff: int = None,
-        alphatstart: float = None,
-        alphatmin: float = None,
-        updateteststepsize: bool = None,
-        alphatreducefactor: float = None,
-        alphatincreasefactor: float = None,
-        nalphaadjustmax: int = None,
-        wolfeenergy: float = None,
-        wolfegradient: float = None,
-        fdtest: bool = None,
-        maxthreshold: bool = None,
+        dirupdatescheme: str | None = None,
+        linminmethod: str | None = None,
+        niterations: int | None = None,
+        history: int | None = None,
+        knormthreshold: float | None = None,
+        energydiffthreshold: float | None = None,
+        nenergydiff: int | None = None,
+        alphatstart: float | None = None,
+        alphatmin: float | None = None,
+        updateteststepsize: bool | None = None,
+        alphatreducefactor: float | None = None,
+        alphatincreasefactor: float | None = None,
+        nalphaadjustmax: int | None = None,
+        wolfeenergy: float | None = None,
+        wolfegradient: float | None = None,
+        fdtest: bool | None = None,
+        maxthreshold: bool | None = None,
     ) -> None:
         super().__init__(
             dirupdatescheme=dirupdatescheme,
@@ -235,23 +229,23 @@ class JMinSettingsLattice(JMinSettings):
 
     def __init__(
         self,
-        dirupdatescheme: str = None,
-        linminmethod: str = None,
-        niterations: int = None,
-        history: int = None,
-        knormthreshold: float = None,
-        energydiffthreshold: float = None,
-        nenergydiff: int = None,
-        alphatstart: float = None,
-        alphatmin: float = None,
-        updateteststepsize: bool = None,
-        alphatreducefactor: float = None,
-        alphatincreasefactor: float = None,
-        nalphaadjustmax: int = None,
-        wolfeenergy: float = None,
-        wolfegradient: float = None,
-        fdtest: bool = None,
-        maxthreshold: bool = None,
+        dirupdatescheme: str | None = None,
+        linminmethod: str | None = None,
+        niterations: int | None = None,
+        history: int | None = None,
+        knormthreshold: float | None = None,
+        energydiffthreshold: float | None = None,
+        nenergydiff: int | None = None,
+        alphatstart: float | None = None,
+        alphatmin: float | None = None,
+        updateteststepsize: bool | None = None,
+        alphatreducefactor: float | None = None,
+        alphatincreasefactor: float | None = None,
+        nalphaadjustmax: int | None = None,
+        wolfeenergy: float | None = None,
+        wolfegradient: float | None = None,
+        fdtest: bool | None = None,
+        maxthreshold: bool | None = None,
     ) -> None:
         super().__init__(
             dirupdatescheme=dirupdatescheme,
@@ -286,23 +280,23 @@ class JMinSettingsIonic(JMinSettings):
 
     def __init__(
         self,
-        dirupdatescheme: str = None,
-        linminmethod: str = None,
-        niterations: int = None,
-        history: int = None,
-        knormthreshold: float = None,
-        energydiffthreshold: float = None,
-        nenergydiff: int = None,
-        alphatstart: float = None,
-        alphatmin: float = None,
-        updateteststepsize: bool = None,
-        alphatreducefactor: float = None,
-        alphatincreasefactor: float = None,
-        nalphaadjustmax: int = None,
-        wolfeenergy: float = None,
-        wolfegradient: float = None,
-        fdtest: bool = None,
-        maxthreshold: bool = None,
+        dirupdatescheme: str | None = None,
+        linminmethod: str | None = None,
+        niterations: int | None = None,
+        history: int | None = None,
+        knormthreshold: float | None = None,
+        energydiffthreshold: float | None = None,
+        nenergydiff: int | None = None,
+        alphatstart: float | None = None,
+        alphatmin: float | None = None,
+        updateteststepsize: bool | None = None,
+        alphatreducefactor: float | None = None,
+        alphatincreasefactor: float | None = None,
+        nalphaadjustmax: int | None = None,
+        wolfeenergy: float | None = None,
+        wolfegradient: float | None = None,
+        fdtest: bool | None = None,
+        maxthreshold: bool | None = None,
     ) -> None:
         super().__init__(
             dirupdatescheme=dirupdatescheme,

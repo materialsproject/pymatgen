@@ -7,21 +7,12 @@ This module contains;
     MASTER_TAG_LIST given a tag name.
 """
 
+from __future__ import annotations
+
 from copy import deepcopy
 from typing import Any
 
-from atomate2.jdftx.io.jdftxinfile_ref_options import (
-    func_c_options,
-    func_options,
-    func_x_options,
-    func_xc_options,
-    jdftxdumpfreqoptions,
-    jdftxdumpvaroptions,
-    jdftxfluid_subtagdict,
-    jdftxminimize_subtagdict,
-)
-
-from .generic_tags import (
+from pymatgen.io.jdftx.generic_tags import (
     AbstractTag,
     BoolTag,
     BoolTagContainer,
@@ -32,6 +23,16 @@ from .generic_tags import (
     MultiformatTag,
     StrTag,
     TagContainer,
+)
+from pymatgen.io.jdftx.jdftxinfile_ref_options import (
+    func_c_options,
+    func_options,
+    func_x_options,
+    func_xc_options,
+    jdftxdumpfreqoptions,
+    jdftxdumpvaroptions,
+    jdftxfluid_subtagdict,
+    jdftxminimize_subtagdict,
 )
 
 MASTER_TAG_LIST: dict[str, dict[str, Any]] = {
@@ -388,9 +389,7 @@ MASTER_TAG_LIST: dict[str, dict[str, Any]] = {
             subtags={
                 "Slab": TagContainer(
                     subtags={
-                        "dir": StrTag(
-                            options=["100", "010", "001"], write_tagname=False
-                        ),
+                        "dir": StrTag(options=["100", "010", "001"], write_tagname=False),
                     }
                 ),
                 "DtotFile": StrTag(write_tagname=False, optional=False),
@@ -457,9 +456,7 @@ MASTER_TAG_LIST: dict[str, dict[str, Any]] = {
                 ),
                 TagContainer(
                     subtags={
-                        "truncationType": StrTag(
-                            options=["Spherical"], write_tagname=False, optional=False
-                        ),
+                        "truncationType": StrTag(options=["Spherical"], write_tagname=False, optional=False),
                         "Rc": FloatTag(write_tagname=False),
                     }
                 ),
@@ -479,9 +476,7 @@ MASTER_TAG_LIST: dict[str, dict[str, Any]] = {
                 ),
                 TagContainer(
                     subtags={
-                        "truncationType": StrTag(
-                            options=["Cylindrical"], write_tagname=False, optional=False
-                        ),
+                        "truncationType": StrTag(options=["Cylindrical"], write_tagname=False, optional=False),
                         "dir": StrTag(
                             options=["001", "010", "100"],
                             write_tagname=False,
@@ -513,12 +508,8 @@ MASTER_TAG_LIST: dict[str, dict[str, Any]] = {
         ),
         "wavefunction": MultiformatTag(
             format_options=[
-                TagContainer(
-                    subtags={"lcao": BoolTag(write_value=False, optional=False)}
-                ),
-                TagContainer(
-                    subtags={"random": BoolTag(write_value=False, optional=False)}
-                ),
+                TagContainer(subtags={"lcao": BoolTag(write_value=False, optional=False)}),
+                TagContainer(subtags={"random": BoolTag(write_value=False, optional=False)}),
                 TagContainer(
                     subtags={
                         "read": StrTag(write_value=False, optional=False),
@@ -550,9 +541,7 @@ MASTER_TAG_LIST: dict[str, dict[str, Any]] = {
         "fix-electron-potential": StrTag(),
         "Vexternal": MultiformatTag(
             format_options=[
-                TagContainer(
-                    subtags={"filename": StrTag(write_value=False, optional=False)}
-                ),
+                TagContainer(subtags={"filename": StrTag(write_value=False, optional=False)}),
                 TagContainer(
                     subtags={
                         "filenameUp": StrTag(write_value=False, optional=False),
@@ -758,9 +747,7 @@ MASTER_TAG_LIST: dict[str, dict[str, Any]] = {
         ),
         "fluid-anion": TagContainer(
             subtags={
-                "name": StrTag(
-                    options=["Cl-", "ClO4-", "F-"], write_tagname=False, optional=False
-                ),
+                "name": StrTag(options=["Cl-", "ClO4-", "F-"], write_tagname=False, optional=False),
                 "concentration": FloatTag(write_tagname=False, optional=False),
                 "functional": StrTag(
                     options=[
@@ -776,9 +763,7 @@ MASTER_TAG_LIST: dict[str, dict[str, Any]] = {
         ),
         "fluid-cation": TagContainer(
             subtags={
-                "name": StrTag(
-                    options=["K+", "Na+"], write_tagname=False, optional=False
-                ),
+                "name": StrTag(options=["K+", "Na+"], write_tagname=False, optional=False),
                 "concentration": FloatTag(write_tagname=False, optional=False),
                 "functional": StrTag(
                     options=[
@@ -807,13 +792,9 @@ MASTER_TAG_LIST: dict[str, dict[str, Any]] = {
         ),
         "fluid-ex-corr": TagContainer(
             subtags={
-                "kinetic": StrTag(
-                    write_tagname=False, optional=False
-                ),  # TODO: add options from:
+                "kinetic": StrTag(write_tagname=False, optional=False),  # TODO: add options from:
                 # https://jdftx.org/CommandFluidExCorr.html
-                "exchange-correlation": StrTag(
-                    write_tagname=False
-                ),  # TODO: add same options as elec-ex-corr
+                "exchange-correlation": StrTag(write_tagname=False),  # TODO: add same options as elec-ex-corr
             }
         ),
         "fluid-mixing-functional": TagContainer(
@@ -855,9 +836,7 @@ MASTER_TAG_LIST: dict[str, dict[str, Any]] = {
                 ),
                 "energyScale": FloatTag(write_tagname=False, optional=False),
                 "lengthScale": FloatTag(write_tagname=False),
-                "FMixType": StrTag(
-                    options=["LJPotential", "GaussianKernel"], write_tagname=False
-                ),
+                "FMixType": StrTag(options=["LJPotential", "GaussianKernel"], write_tagname=False),
             },
         ),
         "fluid-vdwScale": FloatTag(),
@@ -1157,9 +1136,7 @@ MASTER_TAG_LIST: dict[str, dict[str, Any]] = {
                 ),
             },
         ),
-        "forces-output-coords": StrTag(
-            options=["Cartesian", "Contravariant", "Lattice", "Positions"]
-        ),
+        "forces-output-coords": StrTag(options=["Cartesian", "Contravariant", "Lattice", "Positions"]),
         "polarizability": TagContainer(
             subtags={
                 "eigenBasis": StrTag(
@@ -1221,9 +1198,7 @@ def get_dump_tag_container() -> DumpTagContainer:
         # subtags[freq] = BoolTagContainer(
         #     subtags=subsubtags, write_tagname=True, can_repeat=True
         # )
-        subtags2[freq] = BoolTagContainer(
-            subtags=subsubtags, write_tagname=True, can_repeat=True
-        )
+        subtags2[freq] = BoolTagContainer(subtags=subsubtags, write_tagname=True, can_repeat=True)
     return DumpTagContainer(subtags=subtags2, write_tagname=True, can_repeat=True)
 
 
@@ -1240,9 +1215,7 @@ __WANNIER_TAGS__: list[str] = [
     "defect-supercell",
 ]
 __TAG_LIST__ = [tag for group in MASTER_TAG_LIST for tag in MASTER_TAG_LIST[group]]
-__TAG_GROUPS__ = {
-    tag: group for group in MASTER_TAG_LIST for tag in MASTER_TAG_LIST[group]
-}
+__TAG_GROUPS__ = {tag: group for group in MASTER_TAG_LIST for tag in MASTER_TAG_LIST[group]}
 
 
 def get_tag_object(tag: str) -> AbstractTag:

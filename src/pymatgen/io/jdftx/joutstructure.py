@@ -8,11 +8,11 @@ from __future__ import annotations
 from typing import ClassVar, TypeVar
 
 import numpy as np
+
 from pymatgen.core.structure import Lattice, Structure
 from pymatgen.core.units import Ha_to_eV, bohr_to_ang
-
-from atomate2.jdftx.io.jeiters import JEiters
-from atomate2.jdftx.io.joutstructure_helpers import (
+from pymatgen.io.jdftx.jeiters import JEiters
+from pymatgen.io.jdftx.joutstructure_helpers import (
     _get_colon_var_t1,
     correct_iter_type,
     is_charges_line,
@@ -36,22 +36,22 @@ class JOutStructure(Structure):
     optimization data.
     """
 
-    iter_type: str = None
-    etype: str = None
-    eiter_type: str = None
-    emin_flag: str = None
-    ecomponents: dict = None
-    elecmindata: JEiters = None
-    stress: np.ndarray = None
-    strain: np.ndarray = None
-    iter: int = None
-    E: float = None
-    grad_k: float = None
-    alpha: float = None
-    linmin: float = None
-    t_s: float = None
+    iter_type: str | None = None
+    etype: str | None = None
+    eiter_type: str | None = None
+    emin_flag: str | None = None
+    ecomponents: dict | None = None
+    elecmindata: JEiters | None = None
+    stress: np.ndarray | None = None
+    strain: np.ndarray | None = None
+    iter: int | None = None
+    E: float | None = None
+    grad_k: float | None = None
+    alpha: float | None = None
+    linmin: float | None = None
+    t_s: float | None = None
     geom_converged: bool = False
-    geom_converged_reason: str = None
+    geom_converged_reason: str | None = None
     line_types: ClassVar[list[str]] = [
         "emin",
         "lattice",
@@ -116,9 +116,7 @@ class JOutStructure(Structure):
             for line_type in line_collections:
                 sdict = line_collections[line_type]
                 if sdict["collecting"]:
-                    lines, getting, got = instance.collect_generic_line(
-                        line, sdict["lines"]
-                    )
+                    lines, getting, got = instance.collect_generic_line(line, sdict["lines"])
                     sdict["lines"] = lines
                     sdict["collecting"] = getting
                     sdict["collected"] = got
@@ -126,9 +124,9 @@ class JOutStructure(Structure):
                     break
             if not read_line:
                 for line_type in line_collections:
-                    if (
-                        not line_collections[line_type]["collected"]
-                    ) and instance.is_generic_start_line(line, line_type):
+                    if (not line_collections[line_type]["collected"]) and instance.is_generic_start_line(
+                        line, line_type
+                    ):
                         line_collections[line_type]["collecting"] = True
                         line_collections[line_type]["lines"].append(line)
                         break
@@ -189,6 +187,8 @@ class JOutStructure(Structure):
             True if the line_text is the start of a log message for a JDFTx
             optimization step
         """
+        if self.emin_flag is None:
+            raise ValueError("emin_flag is not set")
         return self.emin_flag in line_text
 
     def is_opt_start_line(self, line_text: str) -> bool:
@@ -211,7 +211,7 @@ class JOutStructure(Structure):
         is_line = f"{self.iter_type}:" in line_text
         return is_line and "Iter:" in line_text
 
-    def get_etype_from_emin_lines(self, emin_lines: list[str]) -> str:
+    def get_etype_from_emin_lines(self, emin_lines: list[str]) -> str | None:
         """Return energy type string.
 
         Return the type of energy from the electronic minimization data of a
@@ -273,9 +273,7 @@ class JOutStructure(Structure):
         if len(emin_lines):
             if self.etype is None:
                 self.set_etype_from_emin_lines(emin_lines)
-            self.elecmindata = JEiters.from_text_slice(
-                emin_lines, iter_type=self.eiter_type, etype=self.etype
-            )
+            self.elecmindata = JEiters.from_text_slice(emin_lines, iter_type=self.eiter_type, etype=self.etype)
 
     def parse_lattice_lines(self, lattice_lines: list[str]) -> None:
         """Parse lattice lines.
@@ -382,9 +380,7 @@ class JOutStructure(Structure):
             forces.append(force)
         forces = np.array(forces)
         if coords_type.lower() != "cartesian":
-            forces = np.dot(
-                forces, self.lattice.matrix
-            )  # TODO: Double check this conversion
+            forces = np.dot(forces, self.lattice.matrix)  # TODO: Double check this conversion
             # (since self.cell is in Ang, and I need the forces in eV/ang, how
             # would you convert forces from direct coordinates into cartesian?)
         else:
@@ -404,13 +400,14 @@ class JOutStructure(Structure):
             A list of lines of text from a JDFTx out file
         """
         self.ecomponents = {}
+        key = None
         for line in ecomp_lines:
             if " = " in line:
                 lsplit = line.split(" = ")
                 key = lsplit[0].strip()
                 val = float(lsplit[1].strip())
                 self.ecomponents[key] = val * Ha_to_eV
-        if (self.etype is None) and (key in ["F", "G"]):
+        if key is not None and (self.etype is None) and (key in ["F", "G"]):
             self.etype = key
 
     def parse_lowdin_lines(self, lowdin_lines: list[str]) -> None:
@@ -449,9 +446,7 @@ class JOutStructure(Structure):
         self.charges = charges
         self.magnetic_moments = moments
 
-    def parse_lowdin_line(
-        self, lowdin_line: str, lowdin_dict: dict[str, list[float]]
-    ) -> dict[str, list[float]]:
+    def parse_lowdin_line(self, lowdin_line: str, lowdin_dict: dict[str, list[float]]) -> dict[str, list[float]]:
         """Parse Lowdin line.
 
         Parse a line of text from a JDFTx out file corresponding to a
@@ -520,9 +515,7 @@ class JOutStructure(Structure):
                     self.t_s = t_s
                 elif self.is_opt_conv_line(line):
                     self.geom_converged = True
-                    self.geom_converged_reason = (
-                        line.split("(")[1].split(")")[0].strip()
-                    )
+                    self.geom_converged_reason = line.split("(")[1].split(")")[0].strip()
 
     def is_generic_start_line(self, line_text: str, line_type: str) -> bool:
         # I am choosing to map line_type to a function this way because
@@ -566,9 +559,7 @@ class JOutStructure(Structure):
             return self.is_emin_start_line(line_text)
         raise ValueError(f"Unrecognized line type {line_type}")
 
-    def collect_generic_line(
-        self, line_text: str, generic_lines: list[str]
-    ) -> tuple[list[str], bool, bool]:
+    def collect_generic_line(self, line_text: str, generic_lines: list[str]) -> tuple[list[str], bool, bool]:
         """Collect generic log line.
 
         Collect a line of text into a list of lines if the line is not empty,
@@ -611,9 +602,7 @@ class JOutStructure(Structure):
         """
         return np.array([float(x) for x in line.split()[1:-1]])
 
-    def _brkt_list_of_3x3_to_nparray(
-        self, lines: list[str], i_start: int = 0
-    ) -> np.ndarray:
+    def _brkt_list_of_3x3_to_nparray(self, lines: list[str], i_start: int = 0) -> np.ndarray:
         """Return 3x3 numpy array.
 
         Convert a list of strings of the form "[ x y z ]" to a 3x3 numpy array

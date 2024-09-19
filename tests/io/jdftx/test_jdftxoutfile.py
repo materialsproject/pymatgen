@@ -1,11 +1,16 @@
+from __future__ import annotations
+
 from pathlib import Path
+from typing import TYPE_CHECKING
 
 import pytest
-from pymatgen.core.units import Ha_to_eV
-from pymatgen.util.typing import PathLike
 from pytest import approx
 
-from atomate2.jdftx.io.jdftxoutfile import JDFTXOutfile
+from pymatgen.core.units import Ha_to_eV
+from pymatgen.io.jdftx.jdftxoutfile import JDFTXOutfile
+
+if TYPE_CHECKING:
+    from pymatgen.util.typing import PathLike
 
 ex_files_dir = Path(__file__).parents[0] / "example_files"
 
@@ -116,7 +121,7 @@ example_ionmin_known = {
 
 
 @pytest.mark.parametrize(
-    "filename,known",
+    ("filename", "known"),
     [
         (ex_files_dir / Path("example_sp.out"), example_sp_known),
         (ex_files_dir / Path("example_latmin.out"), example_latmin_known),

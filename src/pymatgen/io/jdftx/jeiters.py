@@ -9,12 +9,10 @@ from __future__ import annotations
 from dataclasses import field
 from typing import Any
 
-from atomate2.jdftx.io.jeiter import JEiter
+from pymatgen.io.jdftx.jeiter import JEiter
 
 
-def gather_line_collections(
-    iter_type: str, text_slice: list[str]
-) -> tuple[list[list[str]], list[str]]:
+def gather_line_collections(iter_type: str, text_slice: list[str]) -> tuple[list[list[str]], list[str]]:
     """Gather line collections for JEiters initialization.
 
     Gathers list of line lists where each line list initializes a JEiter object,
@@ -60,17 +58,15 @@ class JEiters:
     geometric optimization steps.
     """
 
-    iter_type: str = None
-    etype: str = None
-    iter_flag: str = None
+    iter_type: str | None = None
+    etype: str | None = None
+    iter_flag: str | None = None
     converged: bool = False
-    converged_reason: str = None
+    converged_reason: str | None = None
     slices: list[JEiter] = field(default_factory=list)
 
     @classmethod
-    def from_text_slice(
-        cls, text_slice: list[str], iter_type: str = "ElecMinimize", etype: str = "F"
-    ) -> JEiters:
+    def from_text_slice(cls, text_slice: list[str], iter_type: str = "ElecMinimize", etype: str = "F") -> JEiters:
         """Return JEiters object.
 
         Create a JEiters object from a slice of an out file's text
@@ -94,9 +90,7 @@ class JEiters:
         instance.etype = etype
         instance.slices = []
         for _lines_collect in line_collections:
-            instance.slices.append(
-                JEiter.from_lines_collect(_lines_collect, iter_type, etype)
-            )
+            instance.slices.append(JEiter.from_lines_collect(_lines_collect, iter_type, etype))
         if len(lines_collect):
             instance.parse_ending_lines(lines_collect)
             lines_collect = []
@@ -120,11 +114,7 @@ class JEiters:
             if len(line_text.strip()):
                 lines_collect.append(line_text)
                 if _iter_flag in line_text:
-                    self.slices.append(
-                        JEiter.from_lines_collect(
-                            lines_collect, self.iter_type, self.etype
-                        )
-                    )
+                    self.slices.append(JEiter.from_lines_collect(lines_collect, self.iter_type, self.etype))
                     lines_collect = []
             else:
                 break

@@ -16,29 +16,25 @@ import numpy as np
 import scipy.constants as const
 from monty.io import zopen
 from monty.json import MSONable
-from pymatgen.core import Structure
-from pymatgen.util.io_utils import clean_lines
 
-from atomate2.jdftx.io.generic_tags import (
-    AbstractTag,
-    BoolTagContainer,
-    DumpTagContainer,
-    TagContainer,
-)
-from atomate2.jdftx.io.jdftxinfile_master_format import (
+from pymatgen.core import Structure
+from pymatgen.io.jdftx.generic_tags import AbstractTag, BoolTagContainer, DumpTagContainer, TagContainer
+from pymatgen.io.jdftx.jdftxinfile_master_format import (
     __PHONON_TAGS__,
     __TAG_LIST__,
     __WANNIER_TAGS__,
     MASTER_TAG_LIST,
     get_tag_object,
 )
+from pymatgen.util.io_utils import clean_lines
 
 if TYPE_CHECKING:
     from typing import Any
 
     from numpy.typing import ArrayLike
-    from pymatgen.util.typing import PathLike
     from typing_extensions import Self
+
+    from pymatgen.util.typing import PathLike
 
 __author__ = "Jacob Clary"
 
@@ -50,7 +46,7 @@ class JDFTXInfile(dict, MSONable):
     Essentially a dictionary with some helper functions.
     """
 
-    path_parent: str = None  # Only gets initialized if from_file
+    path_parent: str | None = None  # Only gets initialized if from_file
 
     def __init__(self, params: dict[str, Any] | None = None) -> None:
         """
@@ -193,9 +189,7 @@ class JDFTXInfile(dict, MSONable):
                     # if it is not a list, then the tag will still be printed by
                     #    the else this could be relevant if someone manually
                     #    sets the tag the can repeat's value to a non-list
-                    text += [
-                        tag_object.write(tag, entry) for entry in self_as_dict[tag]
-                    ]
+                    text += [tag_object.write(tag, entry) for entry in self_as_dict[tag]]
                     # for entry in self_as_dict[tag]:
                     #     text.append(tag_object.write(tag, entry))
                 else:
@@ -339,9 +333,7 @@ class JDFTXInfile(dict, MSONable):
                 # a list, but to combine alike subtags (ie the same dump freq)
                 # as they appear.
                 if not isinstance(value, dict):
-                    raise ValueError(
-                        f"The value for the {tag} tag should be a dictionary!"
-                    )
+                    raise ValueError(f"The value for the {tag} tag should be a dictionary!")
                 for freq in value:
                     inserted = False
                     for i, preex in enumerate(params[tag]):
@@ -384,9 +376,7 @@ class JDFTXInfile(dict, MSONable):
         gathered_strings = []
         for line in lines:
             if line[-1] == "\\":  # then tag is continued on next line
-                total_tag += (
-                    line[:-1].strip() + " "
-                )  # remove \ and any extra whitespace
+                total_tag += line[:-1].strip() + " "  # remove \ and any extra whitespace
             elif total_tag:  # then finished with line continuations
                 total_tag += line
                 gathered_strings.append(total_tag)
@@ -414,7 +404,7 @@ class JDFTXInfile(dict, MSONable):
         string: str,
         dont_require_structure: bool = False,
         sort_tags: bool = True,
-        path_parent: Path = None,
+        path_parent: Path | None = None,
     ) -> Self:
         """Read a JDFTXInfile object from a string.
 
@@ -445,9 +435,7 @@ class JDFTXInfile(dict, MSONable):
         for line in lines:
             tag_object, tag, value = cls._preprocess_line(line)
             processed_value = tag_object.read(tag, value)
-            params = cls._store_value(
-                params, tag_object, tag, processed_value
-            )  # this will change with tag categories
+            params = cls._store_value(params, tag_object, tag, processed_value)  # this will change with tag categories
 
         if "include" in params:
             for filename in params["include"]:
@@ -456,14 +444,8 @@ class JDFTXInfile(dict, MSONable):
                     if path_parent is not None:
                         _filename = path_parent / filename
                     if not Path(_filename).exists():
-                        raise ValueError(
-                            f"The include file {filename} ({_filename}) does not exist!"
-                        )
-                params.update(
-                    cls.from_file(
-                        _filename, dont_require_structure=True, assign_path_parent=False
-                    )
-                )
+                        raise ValueError(f"The include file {filename} ({_filename}) does not exist!")
+                params.update(cls.from_file(_filename, dont_require_structure=True, assign_path_parent=False))
             del params["include"]
 
         if (
@@ -478,9 +460,7 @@ class JDFTXInfile(dict, MSONable):
         return cls(params)
 
     @classmethod
-    def to_jdftxstructure(
-        cls, jdftxinfile: JDFTXInfile, sort_structure: bool = False
-    ) -> JDFTXStructure:
+    def to_jdftxstructure(cls, jdftxinfile: JDFTXInfile, sort_structure: bool = False) -> JDFTXStructure:
         """Convert JDFTXInfile to JDFTXStructure object.
 
         Converts JDFTx lattice, lattice-scale, ion tags into JDFTXStructure,
@@ -497,14 +477,10 @@ class JDFTXInfile(dict, MSONable):
         # use dict representation so it's easy to get the right column for
         # moveScale, rather than checking for velocities
         jdftxinfile_dict = cls.get_dict_representation(jdftxinfile)
-        return JDFTXStructure.from_jdftxinfile(
-            jdftxinfile_dict, sort_structure=sort_structure
-        )
+        return JDFTXStructure.from_jdftxinfile(jdftxinfile_dict, sort_structure=sort_structure)
 
     @classmethod
-    def to_pmg_structure(
-        cls, jdftxinfile: JDFTXInfile, sort_structure: bool = False
-    ) -> Structure:
+    def to_pmg_structure(cls, jdftxinfile: JDFTXInfile, sort_structure: bool = False) -> Structure:
         """Convert JDFTXInfile to pymatgen Structure object.
 
         Converts JDFTx lattice, lattice-scale, ion tags into pymatgen Structure.
@@ -534,9 +510,7 @@ class JDFTXInfile(dict, MSONable):
         # ).structure
 
     @staticmethod
-    def _needs_conversion(
-        conversion: str, value: dict | list[dict] | list | list[list]
-    ) -> bool:
+    def _needs_conversion(conversion: str, value: dict | list[dict] | list | list[list]) -> bool:
         """Determine if a value needs to be converted.
 
         Determine if a value needs to be converted.
@@ -566,7 +540,11 @@ class JDFTXInfile(dict, MSONable):
             flag = False
         elif conversion == "dict-to-list":
             flag = True
-
+        else:
+            raise ValueError(
+                f"Conversion type {conversion} is not 'list-to-dict' or \
+                    'dict-to-list'"
+            )
         if isinstance(value, dict) or all(isinstance(x, dict) for x in value):
             return flag
         return not flag
@@ -584,10 +562,7 @@ class JDFTXInfile(dict, MSONable):
         """
         reformatted_params = deepcopy(jdftxinfile.as_dict(skip_module_keys=True))
         # rest of code assumes lists are lists and not np.arrays
-        reformatted_params = {
-            k: v.tolist() if isinstance(v, np.ndarray) else v
-            for k, v in reformatted_params.items()
-        }
+        reformatted_params = {k: v.tolist() if isinstance(v, np.ndarray) else v for k, v in reformatted_params.items()}
         for tag, value in reformatted_params.items():
             tag_object = get_tag_object(tag)
             if all(
@@ -597,9 +572,7 @@ class JDFTXInfile(dict, MSONable):
                     cls._needs_conversion("dict-to-list", value),
                 ]
             ):
-                reformatted_params.update(
-                    {tag: tag_object.get_list_representation(tag, value)}
-                )
+                reformatted_params.update({tag: tag_object.get_list_representation(tag, value)})
         return cls(reformatted_params)
 
     @classmethod
@@ -616,8 +589,7 @@ class JDFTXInfile(dict, MSONable):
         reformatted_params = deepcopy(jdftxinfile.as_dict(skip_module_keys=True))
         # Just to make sure only passing lists and no more numpy arrays
         reformatted_params = {
-            k: v.tolist() if isinstance(v, np.ndarray) else v
-            for k, v in reformatted_params.items()
+            k: v.tolist() if isinstance(v, np.ndarray) else v for k, v in reformatted_params.items()
         }  # rest of code assumes lists are lists and not np.arrays
         for tag, value in reformatted_params.items():
             tag_object = get_tag_object(tag)
@@ -628,9 +600,7 @@ class JDFTXInfile(dict, MSONable):
                     cls._needs_conversion("list-to-dict", value),
                 ]
             ):
-                reformatted_params.update(
-                    {tag: tag_object.get_dict_representation(tag, value)}
-                )
+                reformatted_params.update({tag: tag_object.get_dict_representation(tag, value)})
         return cls(reformatted_params)
 
     def validate_tags(
@@ -673,10 +643,7 @@ class JDFTXInfile(dict, MSONable):
             if should_warn:
                 warnmsg = f"The {tag} tag with value:\n{self[tag]}\nhas \
                     incorrect typing!\n    Subtag IsValid?\n"
-                if any(
-                    isinstance(tag_object, tc)
-                    for tc in [TagContainer, DumpTagContainer, BoolTagContainer]
-                ):
+                if any(isinstance(tag_object, tc) for tc in [TagContainer, DumpTagContainer, BoolTagContainer]):
                     warnmsg += "(Check earlier warnings for more details)\n"
                 warnings.warn(warnmsg, stacklevel=2)
 
@@ -802,9 +769,7 @@ class JDFTXStructure(MSONable):
         return cls.from_jdftxinfile(JDFTXInfile.from_file(filename))
 
     @classmethod
-    def from_jdftxinfile(
-        cls, jdftxinfile: JDFTXInfile, sort_structure: bool = False
-    ) -> JDFTXStructure:
+    def from_jdftxinfile(cls, jdftxinfile: JDFTXInfile, sort_structure: bool = False) -> JDFTXStructure:
         """Get JDFTXStructure from JDFTXInfile.
 
         Get JDFTXStructure from JDFTXInfile.
@@ -819,14 +784,10 @@ class JDFTXStructure(MSONable):
         """
         lattice = np.array([jdftxinfile["lattice"][x] for x in jdftxinfile["lattice"]])
         if "latt-scale" in jdftxinfile:
-            latt_scale = np.array(
-                [[jdftxinfile["latt-scale"][x] for x in ["s0", "s1", "s2"]]]
-            )
+            latt_scale = np.array([[jdftxinfile["latt-scale"][x] for x in ["s0", "s1", "s2"]]])
             lattice *= latt_scale
         lattice = lattice.T  # convert to row vector format
-        lattice *= (
-            const.value("Bohr radius") * 10**10
-        )  # Bohr radius in Ang; convert to Ang
+        lattice *= const.value("Bohr radius") * 10**10  # Bohr radius in Ang; convert to Ang
 
         atomic_symbols = [x["species-id"] for x in jdftxinfile["ion"]]
         coords = np.array([[x["x0"], x["x1"], x["x2"]] for x in jdftxinfile["ion"]])
@@ -866,18 +827,13 @@ class JDFTXStructure(MSONable):
 
         lattice = np.copy(self.structure.lattice.matrix)
         lattice = lattice.T  # transpose to get into column-vector format
-        lattice /= (
-            const.value("Bohr radius") * 10**10
-        )  # Bohr radius in Ang; convert to Bohr
+        lattice /= const.value("Bohr radius") * 10**10  # Bohr radius in Ang; convert to Bohr
 
         jdftx_tag_dict["lattice"] = lattice
         jdftx_tag_dict["ion"] = []
         for i, site in enumerate(self.structure):
             coords = site.coords if in_cart_coords else site.frac_coords
-            if self.selective_dynamics is not None:
-                sd = self.selective_dynamics[i]
-            else:
-                sd = 1
+            sd = self.selective_dynamics[i] if self.selective_dynamics is not None else 1
             jdftx_tag_dict["ion"].append([site.label, *coords, sd])
 
         return str(JDFTXInfile.from_dict(jdftx_tag_dict))

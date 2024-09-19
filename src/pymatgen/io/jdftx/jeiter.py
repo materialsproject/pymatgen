@@ -15,26 +15,24 @@ class JEiter:
     SCF step.
     """
 
-    iter_type: str = None
-    etype: str = None
-    iter: int = None
-    E: float = None
-    grad_k: float = None
-    alpha: float = None
-    linmin: float = None
-    t_s: float = None
-    mu: float = None
-    nelectrons: float = None
-    abs_magneticmoment: float = None
-    tot_magneticmoment: float = None
-    subspacerotationadjust: float = None
+    iter_type: str | None = None
+    etype: str | None = None
+    iter: int | None = None
+    E: float | None = None
+    grad_k: float | None = None
+    alpha: float | None = None
+    linmin: float | None = None
+    t_s: float | None = None
+    mu: float | None = None
+    nelectrons: float | None = None
+    abs_magneticmoment: float | None = None
+    tot_magneticmoment: float | None = None
+    subspacerotationadjust: float | None = None
     converged: bool = False
-    converged_reason: str = None
+    converged_reason: str | None = None
 
     @classmethod
-    def from_lines_collect(
-        cls, lines_collect: list[str], iter_type: str, etype: str
-    ) -> JEiter:
+    def from_lines_collect(cls, lines_collect: list[str], iter_type: str, etype: str) -> JEiter:
         """Return JEiter object.
 
         Create a JEiter object from a list of lines of text from a JDFTx out
@@ -180,9 +178,7 @@ class JEiter:
             A line of text from a JDFTx out file containing the electronic
             minimization data
         """
-        self.subspacerotationadjust = self._get_colon_var_t1(
-            line_text, "SubspaceRotationAdjust: set factor to"
-        )
+        self.subspacerotationadjust = self._get_colon_var_t1(line_text, "SubspaceRotationAdjust: set factor to")
 
     def set_magdata(self, fillings_line: str) -> None:
         """Set class variables abs_magneticMoment, tot_magneticMoment.
@@ -196,13 +192,11 @@ class JEiter:
             A line of text from a JDFTx out file containing the electronic
             minimization data
         """
-        _fillings_line = (
-            fillings_line.split("magneticMoment: [ ")[1].split(" ]")[0].strip()
-        )
+        _fillings_line = fillings_line.split("magneticMoment: [ ")[1].split(" ]")[0].strip()
         self.abs_magneticmoment = self._get_colon_var_t1(_fillings_line, "Abs: ")
         self.tot_magneticmoment = self._get_colon_var_t1(_fillings_line, "Tot: ")
 
-    def _get_colon_var_t1(self, linetext: str, lkey: str) -> float | None:
+    def _get_colon_var_t1(self, linetext: str, lkey: str) -> float:
         """Return float val from '...lkey: val...' in linetext.
 
         Read a float from an elec minimization line assuming value appears as
@@ -223,6 +217,8 @@ class JEiter:
         colon_var = None
         if lkey in linetext:
             colon_var = float(linetext.split(lkey)[1].strip().split(" ")[0])
+        else:
+            raise ValueError(f"Could not find {lkey} in {linetext}")
         return colon_var
 
     def set_mu(self, fillings_line: str) -> None:

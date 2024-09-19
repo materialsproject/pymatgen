@@ -2,8 +2,8 @@ import pytest
 from pymatgen.core.units import Ha_to_eV
 from pytest import approx
 
-from atomate2.jdftx.io.jeiter import JEiter
-from atomate2.jdftx.io.jeiters import JEiters
+from pymatgen.io.jdftx.jeiter import JEiter
+from pymatgen.io.jdftx.jeiters import JEiters
 
 ex_fillings_line1 = "FillingsUpdate:  mu: +0.714406772  \
     nElectrons: 64.000000  magneticMoment: [ Abs: 0.00578  Tot: -0.00141 ]"

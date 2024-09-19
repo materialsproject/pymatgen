@@ -20,10 +20,11 @@ def get_start_lines(
         text: output of read_file for out file
     """
     start_lines = []
+    i = None
     for i, line in enumerate(text):
         if start_key in line:
             start_lines.append(i)
-    if add_end:
+    if add_end and i is not None:
         start_lines.append(i)
     return start_lines
 

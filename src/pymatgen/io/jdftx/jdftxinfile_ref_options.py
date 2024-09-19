@@ -4,13 +4,9 @@ This module contains reference data for JDFTx tags, such as valid options for
 functionals, pseudopotentials, etc.
 """
 
-from atomate2.jdftx.io.generic_tags import (
-    BoolTag,
-    FloatTag,
-    IntTag,
-    StrTag,
-    TagContainer,
-)
+from __future__ import annotations
+
+from pymatgen.io.jdftx.generic_tags import BoolTag, FloatTag, IntTag, StrTag, TagContainer
 
 func_options = [
     "gga",  # Perdew-Burke-Ernzerhof GGA
@@ -646,9 +642,7 @@ jdftxminimize_subtagdict = {
     "fdTest": BoolTag(),
     "history": IntTag(),
     "knormThreshold": FloatTag(),
-    "linminMethod": StrTag(
-        options=["CubicWolfe", "DirUpdateRecommended", "Quad", "Relax"]
-    ),
+    "linminMethod": StrTag(options=["CubicWolfe", "DirUpdateRecommended", "Quad", "Relax"]),
     "nAlphaAdjustMax": FloatTag(),
     "nEnergyDiff": IntTag(),
     "nIterations": IntTag(),
@@ -676,9 +670,7 @@ jdftxfluid_subtagdict = {
     "quad_nAlpha": FloatTag(),
     "quad_nBeta": FloatTag(),
     "quad_nGamma": FloatTag(),
-    "representation": TagContainer(
-        subtags={"MuEps": FloatTag(), "Pomega": FloatTag(), "PsiAlpha": FloatTag()}
-    ),
+    "representation": TagContainer(subtags={"MuEps": FloatTag(), "Pomega": FloatTag(), "PsiAlpha": FloatTag()}),
     "Res": FloatTag(),
     "Rvdw": FloatTag(),
     "s2quadType": StrTag(
