@@ -852,6 +852,10 @@ class TestOutcar(PymatgenTest):
         assert toten == approx(outcar.final_energy, abs=1e-6)
 
     def test_init_from_uncompressed(self):
+        """Test for both compressed and uncomressed versions,
+        because there was a bug in monty causing different
+        behaviour.
+        """
         with ScratchDir("."):
             copyfile(f"{VASP_OUT_DIR}/OUTCAR.gz", "./OUTCAR.gz")
             decompress_file("./OUTCAR.gz")
