@@ -5,7 +5,7 @@ A mutant of the pymatgen Structure class for flexibility in holding JDFTx
 
 from __future__ import annotations
 
-from typing import Any, ClassVar, TypeVar
+from typing import Any, ClassVar
 
 import numpy as np
 
@@ -25,8 +25,6 @@ from pymatgen.io.jdftx.joutstructure_helpers import (
     is_strain_start_line,
     is_stress_start_line,
 )
-
-T = TypeVar("T", bound="JOutStructure")
 
 
 class JOutStructure(Structure):
