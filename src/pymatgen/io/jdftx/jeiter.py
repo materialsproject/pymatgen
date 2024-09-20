@@ -110,7 +110,11 @@ class JEiter:
             A line of text from a JDFTx out file containing the electronic
             minimization data
         """
-        self.iter = int(self._get_colon_var_t1(line_text, "Iter: "))
+        iter_float = self._get_colon_var_t1(line_text, "Iter: ")
+        if isinstance(iter_float, float):
+            self.iter = int(iter_float)
+        elif iter_float is None:
+            raise ValueError("Could not find iter in line_text")
         self.E = self._get_colon_var_t1(line_text, f"{self.etype}: ") * Ha_to_eV
         self.grad_k = self._get_colon_var_t1(line_text, "|grad|_K: ")
         self.alpha = self._get_colon_var_t1(line_text, "alpha: ")
@@ -209,7 +213,7 @@ class JEiter:
         self.abs_magneticmoment = self._get_colon_var_t1(_fillings_line, "Abs: ")
         self.tot_magneticmoment = self._get_colon_var_t1(_fillings_line, "Tot: ")
 
-    def _get_colon_var_t1(self, linetext: str, lkey: str) -> float:
+    def _get_colon_var_t1(self, linetext: str, lkey: str) -> float | None:
         """Return float val from '...lkey: val...' in linetext.
 
         Read a float from an elec minimization line assuming value appears as
@@ -230,8 +234,8 @@ class JEiter:
         colon_var = None
         if lkey in linetext:
             colon_var = float(linetext.split(lkey)[1].strip().split(" ")[0])
-        else:
-            raise ValueError(f"Could not find {lkey} in {linetext}")
+        # else:
+        #     raise ValueError(f"Could not find {lkey} in {linetext}")
         return colon_var
 
     def set_mu(self, fillings_line: str) -> None:

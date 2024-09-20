@@ -14,17 +14,27 @@ from pymatgen.core.units import Ha_to_eV, bohr_to_ang
 from pymatgen.io.jdftx.jeiters import JEiters
 from pymatgen.io.jdftx.joutstructure_helpers import (
     _get_colon_var_t1,
-    correct_iter_type,
+    correct_geom_iter_type,
     is_charges_line,
     is_ecomp_start_line,
     is_forces_start_line,
     is_lattice_start_line,
     is_lowdin_start_line,
-    is_moments_line,
+    is_magnetic_moments_line,
     is_posns_start_line,
     is_strain_start_line,
     is_stress_start_line,
 )
+
+# from pymatgen.io.jdftx.utils import (
+#     correct_geom_iter_type,
+#     is_charges_line,
+#     is_ecomp_start_line,
+#     is_lowdin_start_line,
+#     is_magnetic_moments_line,
+#     is_posns_start_line,
+#     is_stress_start_line,
+# )
 
 
 class JOutStructure(Structure):
@@ -228,7 +238,7 @@ class JOutStructure(Structure):
         """
         instance = cls(lattice=np.eye(3), species=[], coords=[], site_properties={})
         if iter_type not in ["IonicMinimize", "LatticeMinimize"]:
-            iter_type = correct_iter_type(iter_type)
+            iter_type = correct_geom_iter_type(iter_type)
         instance.eiter_type = eiter_type
         instance.iter_type = iter_type
         instance.emin_flag = emin_flag
@@ -548,7 +558,7 @@ class JOutStructure(Structure):
         for line in lowdin_lines:
             if is_charges_line(line):
                 charges_dict = self.parse_lowdin_line(line, charges_dict)
-            elif is_moments_line(line):
+            elif is_magnetic_moments_line(line):
                 moments_dict = self.parse_lowdin_line(line, moments_dict)
         names = [s.name for s in self.species]
         charges = None

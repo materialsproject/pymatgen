@@ -6,86 +6,24 @@ JOutStructure.
 
 from __future__ import annotations
 
-import warnings
 from dataclasses import dataclass, field
 from typing import TYPE_CHECKING, Any
+
+from pymatgen.io.jdftx.joutstructure_helpers import (
+    correct_geom_iter_type,
+    get_joutstructure_step_bounds,
+    get_joutstructures_start_idx,
+)
 
 if TYPE_CHECKING:
     import numpy as np
 
     from pymatgen.io.jdftx.jeiters import JEiters
 from pymatgen.io.jdftx.joutstructure import JOutStructure
-from pymatgen.io.jdftx.joutstructure_helpers import correct_iter_type, is_lowdin_start_line
+
+# from pymatgen.io.jdftx.utils import correct_geom_iter_type
 
 elec_min_start_flag: str = "-------- Electronic minimization -----------"
-
-
-def get_start_idx(
-    out_slice: list[str],
-    out_slice_start_flag: str = elec_min_start_flag,
-) -> int:
-    """Return index of first line of first structure.
-
-    Return the index of the first line of the first structure in the out_slice.
-
-    Parameters
-    ----------
-    out_slice: list[str]
-        A slice of a JDFTx out file (individual call of JDFTx)
-
-    Returns
-    -------
-    i: int
-        The index of the first line of the first structure in the out_slice
-    """
-    i = None
-    for i, line in enumerate(out_slice):
-        if out_slice_start_flag in line:
-            return i
-    return i
-
-
-def get_step_bounds(
-    out_slice: list[str],
-    out_slice_start_flag: str = elec_min_start_flag,
-) -> list[list[int]]:
-    """Return list of boundary indices for each structure in out_slice.
-
-    Return a list of lists of integers where each sublist contains the start and end
-    of an individual optimization step (or SCF cycle if no optimization).
-
-    Parameters
-    ----------
-    out_slice: list[str]
-        A slice of a JDFTx out file (individual call of JDFTx)
-
-    Returns
-    -------
-    bounds_list: list[list[int, int]]
-        A list of lists of integers where each sublist contains the start and end
-        of an individual optimization step (or SCF cycle if no optimization)
-    """
-    bounds_list = []
-    bounds = None
-    end_started = False
-    for i, line in enumerate(out_slice):
-        if not end_started:
-            if out_slice_start_flag in line:
-                bounds = [i]
-            elif (bounds is not None) and (is_lowdin_start_line(line)):
-                end_started = True
-        elif not len(line.strip()):
-            if bounds is not None:
-                bounds.append(i)
-                bounds_list.append(bounds)
-                bounds = None
-                end_started = False
-            else:
-                warnmsg = f"Line {i-1} ({out_slice[i-1]}) triggered \
-                    end_started, but following line is empty. Final step_bounds \
-                        may be incorrect. "
-                warnings.warn(warnmsg, stacklevel=2)
-    return bounds_list
 
 
 @dataclass
@@ -118,9 +56,9 @@ class JOutStructures:
         """
         instance = cls()
         if iter_type not in ["IonicMinimize", "LatticeMinimize"]:
-            iter_type = correct_iter_type(iter_type)
+            iter_type = correct_geom_iter_type(iter_type)
         instance.iter_type = iter_type
-        start_idx = get_start_idx(out_slice)
+        start_idx = get_joutstructures_start_idx(out_slice)
         instance.set_joutstructure_list(out_slice[start_idx:])
         if instance.iter_type is None and len(instance) > 1:
             raise Warning(
@@ -255,7 +193,7 @@ class JOutStructures:
         raise AttributeError("Property E inaccessible due to empty slices class field")
 
     @property
-    def grad_k(self) -> float:
+    def grad_k(self) -> float | None:
         """
         Return grad_k from most recent JOutStructure.
 
@@ -266,7 +204,7 @@ class JOutStructures:
         raise AttributeError("Property grad_k inaccessible due to empty slices class field")
 
     @property
-    def alpha(self) -> float:
+    def alpha(self) -> float | None:
         """
         Return alpha from most recent JOutStructure.
 
@@ -277,7 +215,7 @@ class JOutStructures:
         raise AttributeError("Property alpha inaccessible due to empty slices class field")
 
     @property
-    def linmin(self) -> float:
+    def linmin(self) -> float | None:
         """
         Return linmin from most recent JOutStructure.
 
@@ -299,7 +237,7 @@ class JOutStructures:
         raise AttributeError("Property nelectrons inaccessible due to empty slices class field")
 
     @property
-    def abs_magneticmoment(self) -> float:
+    def abs_magneticmoment(self) -> float | None:
         """
         Return abs_magneticmoment from most recent JOutStructure.
 
@@ -310,7 +248,7 @@ class JOutStructures:
         raise AttributeError("Property abs_magneticmoment inaccessible due to empty slices class field")
 
     @property
-    def tot_magneticmoment(self) -> float:
+    def tot_magneticmoment(self) -> float | None:
         """
         Return tot_magneticmoment from most recent JOutStructure.
 
@@ -365,7 +303,7 @@ class JOutStructures:
         raise AttributeError("Property elec_e inaccessible due to empty slices class field")
 
     @property
-    def elec_grad_k(self) -> int:
+    def elec_grad_k(self) -> int | None:
         """Return the most recent electronic grad_k.
 
         Return the most recent electronic grad_k.
@@ -379,7 +317,7 @@ class JOutStructures:
         raise AttributeError("Property grad_k inaccessible due to empty slices class field")
 
     @property
-    def elec_alpha(self) -> int:
+    def elec_alpha(self) -> int | None:
         """Return the most recent electronic alpha.
 
         Return the most recent electronic alpha.
@@ -393,7 +331,7 @@ class JOutStructures:
         raise AttributeError("Property alpha inaccessible due to empty slices class field")
 
     @property
-    def elec_linmin(self) -> int:
+    def elec_linmin(self) -> int | None:
         """Return the most recent electronic linmin.
 
         Return the most recent electronic linmin.
@@ -417,7 +355,7 @@ class JOutStructures:
         out_slice: list[str]
             A slice of a JDFTx out file (individual call of JDFTx)
         """
-        out_bounds = get_step_bounds(out_slice)
+        out_bounds = get_joutstructure_step_bounds(out_slice)
         return [
             JOutStructure.from_text_slice(out_slice[bounds[0] : bounds[1]], iter_type=self.iter_type)
             for bounds in out_bounds
