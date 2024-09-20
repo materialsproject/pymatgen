@@ -20,6 +20,7 @@ if TYPE_CHECKING:
 
     import numpy as np
 
+    from pymatgen.io.jdftx.jeiters import JEiters
     from pymatgen.io.jdftx.jminsettings import (
         JMinSettingsElectronic,
         JMinSettingsFluid,
@@ -126,6 +127,7 @@ class JDFTXOutfile:
     ###########################################################################
     # Properties inherited from most recent JDFTXOutfileSlice
     ###########################################################################
+
     @property
     def prefix(self) -> str:
         """
@@ -882,6 +884,230 @@ class JDFTXOutfile:
         )
 
     ###########################################################################
+    # Properties inherited from most recent JDFTXOutfileSlice directly through
+    # the JDFTXOutfileSlice object's jstrucs class variable.
+    ###########################################################################
+
+    @property
+    def eiter_type(self) -> str:
+        """
+        Return eiter_type from most recent JOutStructure.
+
+        Return eiter_type from most recent JOutStructure.
+        """
+        if len(self.slices):
+            return self.slices[-1].eiter_type
+        raise AttributeError("Property eiter_type inaccessible due to empty jstrucs class field")
+
+    @property
+    def elecmindata(self) -> JEiters:
+        """
+        Return elecmindata from most recent JOutStructure.
+
+        Return elecmindata from most recent JOutStructure.
+        """
+        if len(self.slices):
+            return self.slices[-1].elecmindata
+        raise AttributeError("Property elecmindata inaccessible due to empty jstrucs class field")
+
+    @property
+    def stress(self) -> np.ndarray:
+        """
+        Return stress from most recent JOutStructure.
+
+        Return stress from most recent JOutStructure.
+        """
+        if len(self.slices):
+            return self.slices[-1].stress
+        raise AttributeError("Property stress inaccessible due to empty jstrucs class field")
+
+    @property
+    def strain(self) -> np.ndarray:
+        """
+        Return strain from most recent JOutStructure.
+
+        Return strain from most recent JOutStructure.
+        """
+        if len(self.slices):
+            return self.slices[-1].strain
+        raise AttributeError("Property strain inaccessible due to empty jstrucs class field")
+
+    @property
+    def iter(self) -> int:
+        """
+        Return (geometric) iter from most recent JOutStructure.
+
+        Return (geometric) iter from most recent JOutStructure.
+        """
+        if len(self.slices):
+            return self.slices[-1].iter
+        raise AttributeError("Property iter inaccessible due to empty jstrucs class field")
+
+    @property
+    def e(self) -> float:
+        """
+        Return E from most recent JOutStructure.
+
+        Return E from most recent JOutStructure.
+        """
+        if len(self.slices):
+            return self.slices[-1].e
+        raise AttributeError("Property e inaccessible due to empty jstrucs class field")
+
+    @property
+    def grad_k(self) -> float:
+        """
+        Return (geometric) grad_k from most recent JOutStructure.
+
+        Return (geometric) grad_k from most recent JOutStructure.
+        """
+        if len(self.slices):
+            return self.slices[-1].grad_k
+        raise AttributeError("Property grad_k inaccessible due to empty jstrucs class field")
+
+    @property
+    def alpha(self) -> float:
+        """
+        Return (geometric) alpha from most recent JOutStructure.
+
+        Return (geometric) alpha from most recent JOutStructure.
+        """
+        if len(self.slices):
+            return self.slices[-1].alpha
+        raise AttributeError("Property alpha inaccessible due to empty jstrucs class field")
+
+    @property
+    def linmin(self) -> float:
+        """
+        Return (geometric) linmin from most recent JOutStructure.
+
+        Return (geometric) linmin from most recent JOutStructure.
+        """
+        if len(self.slices):
+            return self.slices[-1].linmin
+        raise AttributeError("Property linmin inaccessible due to empty jstrucs class field")
+
+    @property
+    def nelectrons(self) -> float:
+        """
+        Return nelectrons from most recent JOutStructure.
+
+        Return nelectrons from most recent JOutStructure.
+        """
+        if len(self.slices):
+            return self.slices[-1].nelectrons
+        raise AttributeError("Property nelectrons inaccessible due to empty jstrucs class field")
+
+    @property
+    def abs_magneticmoment(self) -> float:
+        """
+        Return abs_magneticmoment from most recent JOutStructure.
+
+        Return abs_magneticmoment from most recent JOutStructure.
+        """
+        if len(self.slices):
+            return self.slices[-1].abs_magneticmoment
+        raise AttributeError("Property abs_magneticmoment inaccessible due to empty jstrucs class field")
+
+    @property
+    def tot_magneticmoment(self) -> float:
+        """
+        Return tot_magneticmoment from most recent JOutStructure.
+
+        Return tot_magneticmoment from most recent JOutStructure.
+        """
+        if len(self.slices):
+            return self.slices[-1].tot_magneticmoment
+        raise AttributeError("Property tot_magneticmoment inaccessible due to empty jstrucs class field")
+
+    @property
+    def mu(self) -> float:
+        """
+        Return mu from most recent JOutStructure.
+
+        Return mu from most recent JOutStructure. (Equivalent to efermi)
+        """
+        if len(self.slices):
+            return self.slices[-1].mu
+        raise AttributeError("Property mu inaccessible due to empty jstrucs class field")
+
+    ###########################################################################
+    # Electronic properties with symbol disambiguation inherited from most
+    # recent JDFTXOutfileSlice directly through the JDFTXOutfileSlice
+    # object's jstrucs class variable.
+    ###########################################################################
+
+    @property
+    def elec_iter(self) -> int:
+        """Return the most recent electronic iteration.
+
+        Return the most recent electronic iteration.
+
+        Returns
+        -------
+        elec_iter: int
+        """
+        if len(self.slices):
+            return self.slices[-1].elec_iter
+        raise AttributeError("Property elec_iter inaccessible due to empty jstrucs class field")
+
+    @property
+    def elec_e(self) -> int:
+        """Return the most recent electronic energy.
+
+        Return the most recent electronic energy.
+
+        Returns
+        -------
+        elec_e: float
+        """
+        if len(self.slices):
+            return self.slices[-1].elec_e
+        raise AttributeError("Property elec_e inaccessible due to empty jstrucs class field")
+
+    @property
+    def elec_grad_k(self) -> int:
+        """Return the most recent electronic grad_k.
+
+        Return the most recent electronic grad_k.
+
+        Returns
+        -------
+        grad_k: float
+        """
+        if len(self.slices):
+            return self.slices[-1].elec_grad_k
+        raise AttributeError("Property elec_grad_k inaccessible due to empty jstrucs class field")
+
+    @property
+    def elec_alpha(self) -> int:
+        """Return the most recent electronic alpha.
+
+        Return the most recent electronic alpha.
+
+        Returns
+        -------
+        alpha: float
+        """
+        if len(self.slices):
+            return self.slices[-1].elec_linmin
+        raise AttributeError("Property elec_alpha inaccessible due to empty jstrucs class field")
+
+    @property
+    def elec_linmin(self) -> int:
+        """Return the most recent electronic linmin.
+
+        Return the most recent electronic linmin.
+
+        Returns
+        -------
+        linmin: float
+        """
+        if len(self.slices):
+            return self.slices[-1].elec_linmin
+        raise AttributeError("Property elec_linmin inaccessible due to empty jstrucs class field")
+
+    ###########################################################################
     # Magic methods
     ###########################################################################
 
@@ -923,6 +1149,10 @@ class JDFTXOutfile:
         """
         return len(self.slices)
 
+    # This method is likely never going to be called as all (currently existing)
+    # attributes of the most recent slice are explicitly defined as a class
+    # property. However, it is included to reduce the likelihood of errors
+    # upon future changes to downstream code.
     def __getattr__(self, name: str) -> Any:
         """Return attribute.
 

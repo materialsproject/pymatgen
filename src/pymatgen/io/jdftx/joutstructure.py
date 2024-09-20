@@ -5,7 +5,7 @@ A mutant of the pymatgen Structure class for flexibility in holding JDFTx
 
 from __future__ import annotations
 
-from typing import ClassVar, TypeVar
+from typing import Any, ClassVar, TypeVar
 
 import numpy as np
 
@@ -63,6 +63,130 @@ class JOutStructure(Structure):
         "lowdin",
         "opt",
     ]
+
+    @property
+    def mu(self) -> float:
+        """Return the chemical potential.
+
+        Return the chemical potential.
+
+        Returns
+        -------
+        mu: float
+        """
+        if self.elecmindata is not None:
+            return self.elecmindata.mu
+        raise ValueError("elecmindata not set")
+
+    @property
+    def nelectrons(self) -> float:
+        """Return the number of electrons.
+
+        Return the number of electrons.
+
+        Returns
+        -------
+        nelectrons: float
+        """
+        if self.elecmindata is not None:
+            return self.elecmindata.nelectrons
+        raise ValueError("elecmindata not set")
+
+    @property
+    def abs_magneticmoment(self) -> float:
+        """Return the absolute magnetic moment.
+
+        Return the absolute magnetic moment.
+
+        Returns
+        -------
+        abs_magneticmoment: float"""
+        if self.elecmindata is not None:
+            return self.elecmindata.abs_magneticmoment
+        raise ValueError("elecmindata not set")
+
+    @property
+    def tot_magneticmoment(self) -> float:
+        """Return the total magnetic moment.
+
+        Return the total magnetic moment.
+
+        Returns
+        -------
+        tot_magneticmoment: float"""
+        if self.elecmindata is not None:
+            return self.elecmindata.tot_magneticmoment
+        raise ValueError("elecmindata not set")
+
+    @property
+    def elec_iter(self) -> int:
+        """Return the most recent electronic iteration.
+
+        Return the most recent electronic iteration.
+
+        Returns
+        -------
+        elec_iter: int
+        """
+        if self.elecmindata is not None:
+            return self.elecmindata.iter
+        raise ValueError("elecmindata not set")
+
+    @property
+    def elec_e(self) -> int:
+        """Return the most recent electronic energy.
+
+        Return the most recent electronic energy.
+
+        Returns
+        -------
+        elec_e: float
+        """
+        if self.elecmindata is not None:
+            return self.elecmindata.e
+        raise ValueError("elecmindata not set")
+
+    @property
+    def elec_grad_k(self) -> int:
+        """Return the most recent electronic grad_k.
+
+        Return the most recent electronic grad_k.
+
+        Returns
+        -------
+        grad_k: float
+        """
+        if self.elecmindata is not None:
+            return self.elecmindata.grad_k
+        raise ValueError("elecmindata not set")
+
+    @property
+    def elec_alpha(self) -> int:
+        """Return the most recent electronic alpha.
+
+        Return the most recent electronic alpha.
+
+        Returns
+        -------
+        alpha: float
+        """
+        if self.elecmindata is not None:
+            return self.elecmindata.alpha
+        raise ValueError("elecmindata not set")
+
+    @property
+    def elec_linmin(self) -> int:
+        """Return the most recent electronic linmin.
+
+        Return the most recent electronic linmin.
+
+        Returns
+        -------
+        linmin: float
+        """
+        if self.elecmindata is not None:
+            return self.elecmindata.linmin
+        raise ValueError("elecmindata not set")
 
     def __init__(
         self,
@@ -623,3 +747,28 @@ class JOutStructure(Structure):
         for i in range(3):
             out[i, :] += self._brkt_list_of_3_to_nparray(lines[i + i_start])
         return out
+
+    # This method is likely never going to be called as all (currently existing)
+    # attributes of the most recent slice are explicitly defined as a class
+    # property. However, it is included to reduce the likelihood of errors
+    # upon future changes to downstream code.
+    def __getattr__(self, name: str) -> Any:
+        """Return attribute value.
+
+        Return the value of an attribute.
+
+        Parameters
+        ----------
+        name: str
+            The name of the attribute
+
+        Returns
+        -------
+        value
+            The value of the attribute
+        """
+        if name not in self.__dict__:
+            if not hasattr(self.elecmindata, name):
+                raise AttributeError(f"{self.__class__.__name__} not found: {name}")
+            return getattr(self.elecmindata, name)
+        return self.__dict__[name]

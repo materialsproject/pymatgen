@@ -287,7 +287,124 @@ class JOutStructures:
             return self.slices[-1].linmin
         raise AttributeError("Property linmin inaccessible due to empty slices class field")
 
-    ##
+    @property
+    def nelectrons(self) -> float:
+        """
+        Return nelectrons from most recent JOutStructure.
+
+        Return nelectrons from most recent JOutStructure.
+        """
+        if len(self.slices):
+            return self.slices[-1].nelectrons
+        raise AttributeError("Property nelectrons inaccessible due to empty slices class field")
+
+    @property
+    def abs_magneticmoment(self) -> float:
+        """
+        Return abs_magneticmoment from most recent JOutStructure.
+
+        Return abs_magneticmoment from most recent JOutStructure.
+        """
+        if len(self.slices):
+            return self.slices[-1].mu
+        raise AttributeError("Property abs_magneticmoment inaccessible due to empty slices class field")
+
+    @property
+    def tot_magneticmoment(self) -> float:
+        """
+        Return tot_magneticmoment from most recent JOutStructure.
+
+        Return tot_magneticmoment from most recent JOutStructure.
+        """
+        if len(self.slices):
+            return self.slices[-1].tot_magneticmoment
+        raise AttributeError("Property tot_magneticmoment inaccessible due to empty slices class field")
+
+    @property
+    def mu(self) -> float:
+        """
+        Return mu from most recent JOutStructure.
+
+        Return mu from most recent JOutStructure.
+        """
+        if len(self.slices):
+            return self.slices[-1].mu
+        raise AttributeError("Property mu inaccessible due to empty slices class field")
+
+    ###########################################################################
+    # Electronic properties inherited from most recent JEiters with symbol
+    # disambiguation.
+    ###########################################################################
+
+    @property
+    def elec_iter(self) -> int:
+        """Return the most recent electronic iteration.
+
+        Return the most recent electronic iteration.
+
+        Returns
+        -------
+        elec_iter: int
+        """
+        if len(self.slices):
+            return self.slices[-1].elec_iter
+        raise AttributeError("Property elec_iter inaccessible due to empty slices class field")
+
+    @property
+    def elec_e(self) -> int:
+        """Return the most recent electronic energy.
+
+        Return the most recent electronic energy.
+
+        Returns
+        -------
+        elec_e: float
+        """
+        if len(self.slices):
+            return self.slices[-1].elec_e
+        raise AttributeError("Property elec_e inaccessible due to empty slices class field")
+
+    @property
+    def elec_grad_k(self) -> int:
+        """Return the most recent electronic grad_k.
+
+        Return the most recent electronic grad_k.
+
+        Returns
+        -------
+        grad_k: float
+        """
+        if len(self.slices):
+            return self.slices[-1].grad_k
+        raise AttributeError("Property grad_k inaccessible due to empty slices class field")
+
+    @property
+    def elec_alpha(self) -> int:
+        """Return the most recent electronic alpha.
+
+        Return the most recent electronic alpha.
+
+        Returns
+        -------
+        alpha: float
+        """
+        if len(self.slices):
+            return self.slices[-1].alpha
+        raise AttributeError("Property alpha inaccessible due to empty slices class field")
+
+    @property
+    def elec_linmin(self) -> int:
+        """Return the most recent electronic linmin.
+
+        Return the most recent electronic linmin.
+
+        Returns
+        -------
+        linmin: float
+        """
+        if len(self.slices):
+            return self.slices[-1].linmin
+        raise AttributeError("Property linmin inaccessible due to empty slices class field")
 
     def get_joutstructure_list(self, out_slice: list[str]) -> list[JOutStructure]:
         """Return list of JOutStructure objects.
@@ -334,6 +451,10 @@ class JOutStructures:
             self.geom_converged = True
             self.geom_converged_reason = jst.geom_converged_reason
 
+    # This method is likely never going to be called as all (currently existing)
+    # attributes of the most recent slice are explicitly defined as a class
+    # property. However, it is included to reduce the likelihood of errors
+    # upon future changes to downstream code.
     def __getattr__(self, name: str) -> Any:
         """Return attribute value.
 

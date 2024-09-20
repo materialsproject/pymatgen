@@ -61,6 +61,19 @@ class JEiter:
                 instance.read_subspaceadjust_line(line_text)
         return instance
 
+    @property
+    def e(self) -> float | None:
+        """Return the total energy.
+
+        Return the total energy.
+
+        Returns
+        -------
+        E: float
+            The total energy
+        """
+        return self.E
+
     def is_iter_line(self, i: int, line_text: str, _iter_flag: str) -> bool:
         """Return True if opt iter line.
 

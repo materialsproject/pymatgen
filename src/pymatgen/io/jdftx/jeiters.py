@@ -6,6 +6,7 @@ This module contains the JEiters class object for parsing a series of SCF steps.
 
 from __future__ import annotations
 
+import warnings
 from dataclasses import field
 from typing import Any
 
@@ -64,6 +65,206 @@ class JEiters:
     converged: bool = False
     converged_reason: str | None = None
     slices: list[JEiter] = field(default_factory=list)
+    #
+    # iter: int | None = None
+    # E: float | None = None
+    # grad_k: float | None = None
+    # alpha: float | None = None
+    # linmin: float | None = None
+    # t_s: float | None = None
+    # mu: float | None = None
+    # nelectrons: float | None = None
+    # abs_magneticmoment: float | None = None
+    # tot_magneticmoment: float | None = None
+    # subspacerotationadjust: float | None = None
+
+    @property
+    def iter(self) -> int:
+        """Return iter.
+
+        Return the iter attribute of the last JEiter object in the slices.
+
+        Returns
+        -------
+        iter: int
+            The iter attribute of the last JEiter object in the slices
+        """
+        if len(self.slices):
+            if self.slices[-1].iter is not None:
+                return self.slices[-1].iter
+            warnings.warn("No iter attribute in JEiter object. Returning number of JEiter objects.", stacklevel=2)
+            return len(self.slices)
+        raise ValueError("No JEiter objects in JEiters object slices class variable.")
+
+    @property
+    def e(self) -> float:
+        """Return total electronic energy.
+
+        Return the e attribute of the last JEiter object in the slices.
+
+        Returns
+        -------
+        e: float
+            The e attribute of the last JEiter object in the slices
+        """
+        if len(self.slices):
+            if self.slices[-1].E is not None:
+                return self.slices[-1].E
+            raise ValueError("No E attribute in final JEiter object.")
+        raise ValueError("No JEiter objects in JEiters object slices class variable.")
+
+    @property
+    def grad_k(self) -> float:
+        """Return most recent grad_k.
+
+        Return the grad_k attribute of the last JEiter object in the slices.
+
+        Returns
+        -------
+        grad_k: float
+            The grad_k attribute of the last JEiter object in the slices
+        """
+        if len(self.slices):
+            if self.slices[-1].grad_k is not None:
+                return self.slices[-1].grad_k
+            raise ValueError("No grad_k attribute in final JEiter object.")
+        raise ValueError("No JEiter objects in JEiters object slices class variable.")
+
+    @property
+    def alpha(self) -> float:
+        """Return most recent alpha.
+
+        Return the alpha attribute of the last JEiter object in the slices.
+
+        Returns
+        -------
+        alpha: float
+            The alpha attribute of the last JEiter object in the slices
+        """
+        if len(self.slices):
+            if self.slices[-1].alpha is not None:
+                return self.slices[-1].alpha
+            raise ValueError("No alpha attribute in final JEiter object.")
+        raise ValueError("No JEiter objects in JEiters object slices class variable.")
+
+    @property
+    def linmin(self) -> float:
+        """Return most recent linmin.
+
+        Return the linmin attribute of the last JEiter object in the slices.
+
+        Returns
+        -------
+        linmin: float
+            The linmin attribute of the last JEiter object in the slices
+        """
+        if len(self.slices):
+            if self.slices[-1].linmin is not None:
+                return self.slices[-1].linmin
+            raise ValueError("No linmin attribute in final JEiter object.")
+        raise ValueError("No JEiter objects in JEiters object slices class variable.")
+
+    @property
+    def t_s(self) -> float:
+        """Return most recent t_s.
+
+        Return the t_s attribute of the last JEiter object in the slices.
+
+        Returns
+        -------
+        t_s: float
+            The t_s attribute of the last JEiter object in the slices
+        """
+        if len(self.slices):
+            if self.slices[-1].t_s is not None:
+                return self.slices[-1].t_s
+            raise ValueError("No t_s attribute in final JEiter object.")
+        raise ValueError("No JEiter objects in JEiters object slices class variable.")
+
+    @property
+    def mu(self) -> float:
+        """Return most recent mu.
+
+        Return the mu attribute of the last JEiter object in the slices.
+
+        Returns
+        -------
+        mu: float
+            The mu attribute of the last JEiter object in the slices
+        """
+        if len(self.slices):
+            if self.slices[-1].mu is not None:
+                return self.slices[-1].mu
+            raise ValueError("No mu attribute in final JEiter object.")
+        raise ValueError("No JEiter objects in JEiters object slices class variable.")
+
+    @property
+    def nelectrons(self) -> float:
+        """Return most recent nelectrons.
+
+        Return the nelectrons attribute of the last JEiter object in the slices.
+
+        Returns
+        -------
+        nelectrons: float
+            The nelectrons attribute of the last JEiter object in the slices
+        """
+        if len(self.slices):
+            if self.slices[-1].nelectrons is not None:
+                return self.slices[-1].nelectrons
+            raise ValueError("No nelectrons attribute in final JEiter object.")
+        raise ValueError("No JEiter objects in JEiters object slices class variable.")
+
+    @property
+    def abs_magneticmoment(self) -> float:
+        """Return most recent abs_magneticmoment.
+
+        Return the abs_magneticmoment attribute of the last JEiter object in the slices.
+
+        Returns
+        -------
+        abs_magneticmoment: float
+            The abs_magneticmoment attribute of the last JEiter object in the slices
+        """
+        if len(self.slices):
+            if self.slices[-1].abs_magneticmoment is not None:
+                return self.slices[-1].abs_magneticmoment
+            raise ValueError("No abs_magneticmoment attribute in final JEiter object.")
+        raise ValueError("No JEiter objects in JEiters object slices class variable.")
+
+    @property
+    def tot_magneticmoment(self) -> float:
+        """Return most recent tot_magneticmoment.
+
+        Return the tot_magneticmoment attribute of the last JEiter object in the slices.
+
+        Returns
+        -------
+        tot_magneticmoment: float
+            The tot_magneticmoment attribute of the last JEiter object in the slices
+        """
+        if len(self.slices):
+            if self.slices[-1].tot_magneticmoment is not None:
+                return self.slices[-1].tot_magneticmoment
+            raise ValueError("No tot_magneticmoment attribute in final JEiter object.")
+        raise ValueError("No JEiter objects in JEiters object slices class variable.")
+
+    @property
+    def subspacerotationadjust(self) -> float:
+        """Return most recent subspacerotationadjust.
+
+        Return the subspacerotationadjust attribute of the last JEiter object in the slices.
+
+        Returns
+        -------
+        subspacerotationadjust: float
+            The subspacerotationadjust attribute of the last JEiter object in the slices
+        """
+        if len(self.slices):
+            if self.slices[-1].subspacerotationadjust is not None:
+                return self.slices[-1].subspacerotationadjust
+            raise ValueError("No subspacerotationadjust attribute in final JEiter object.")
+        raise ValueError("No JEiter objects in JEiters object slices class variable.")
 
     @classmethod
     def from_text_slice(cls, text_slice: list[str], iter_type: str = "ElecMinimize", etype: str = "F") -> JEiters:
@@ -173,7 +374,11 @@ class JEiters:
         self.converged = True
         self.converged_reason = line_text.split("(")[1].split(")")[0].strip()
 
-    def __getatr__(self, name: str) -> Any:
+    # This method is likely never going to be called as all (currently existing)
+    # attributes of the most recent slice are explicitly defined as a class
+    # property. However, it is included to reduce the likelihood of errors
+    # upon future changes to downstream code.
+    def __getattr__(self, name: str) -> Any:
         """Return attribute value.
 
         Return the value of an attribute.
@@ -188,11 +393,11 @@ class JEiters:
         value
             The value of the attribute
         """
-        if not hasattr(self, name):
+        if name not in self.__dict__:
             if not hasattr(self.slices[-1], name):
                 raise AttributeError(f"{self.__class__.__name__} not found: {name}")
             return getattr(self.slices[-1], name)
-        return getattr(self, name)
+        return self.__dict__[name]
 
     def __getitem__(self, key: int | str) -> JEiter | Any:
         """Return item.

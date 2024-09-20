@@ -10,12 +10,13 @@ from __future__ import annotations
 import math
 import warnings
 from dataclasses import dataclass
-from typing import TYPE_CHECKING, ClassVar
+from typing import TYPE_CHECKING, Any, ClassVar
 
 import numpy as np
 
 if TYPE_CHECKING:
     from pymatgen.core import Structure
+    from pymatgen.io.jdftx.jeiters import JEiters
 from pymatgen.core.trajectory import Trajectory
 from pymatgen.core.units import Ha_to_eV, ang_to_bohr
 from pymatgen.io.jdftx.data import atom_valence_electrons
@@ -228,6 +229,232 @@ class JDFTXOutfileSlice(ClassPrintFormatter):
         if self.jstrucs is not None:
             return self.jstrucs[-1]
         raise ValueError("No structures found in out file.")
+
+    ###########################################################################
+    # Properties inherited directly from jstrucs
+    ###########################################################################
+
+    @property
+    def eiter_type(self) -> str:
+        """
+        Return eiter_type from most recent JOutStructure.
+
+        Return eiter_type from most recent JOutStructure.
+        """
+        if self.jstrucs is not None:
+            return self.jstrucs.eiter_type
+        raise AttributeError("Property eiter_type inaccessible due to empty jstrucs class field")
+
+    @property
+    def elecmindata(self) -> JEiters:
+        """
+        Return elecmindata from most recent JOutStructure.
+
+        Return elecmindata from most recent JOutStructure.
+        """
+        if self.jstrucs is not None:
+            return self.jstrucs.elecmindata
+        raise AttributeError("Property elecmindata inaccessible due to empty jstrucs class field")
+
+    @property
+    def stress(self) -> np.ndarray:
+        """
+        Return stress from most recent JOutStructure.
+
+        Return stress from most recent JOutStructure.
+        """
+        if self.jstrucs is not None:
+            return self.jstrucs.stress
+        raise AttributeError("Property stress inaccessible due to empty jstrucs class field")
+
+    @property
+    def strain(self) -> np.ndarray:
+        """
+        Return strain from most recent JOutStructure.
+
+        Return strain from most recent JOutStructure.
+        """
+        if self.jstrucs is not None:
+            return self.jstrucs.strain
+        raise AttributeError("Property strain inaccessible due to empty jstrucs class field")
+
+    @property
+    def iter(self) -> int:
+        """
+        Return (geometric) iter from most recent JOutStructure.
+
+        Return (geometric) iter from most recent JOutStructure.
+        """
+        if self.jstrucs is not None:
+            return self.jstrucs.iter
+        raise AttributeError("Property iter inaccessible due to empty jstrucs class field")
+
+    @property
+    def e(self) -> float:
+        """
+        Return E from most recent JOutStructure.
+
+        Return E from most recent JOutStructure.
+        """
+        if self.jstrucs is not None:
+            return self.jstrucs.e
+        raise AttributeError("Property e inaccessible due to empty jstrucs class field")
+
+    @property
+    def grad_k(self) -> float:
+        """
+        Return (geometric) grad_k from most recent JOutStructure.
+
+        Return (geometric) grad_k from most recent JOutStructure.
+        """
+        if self.jstrucs is not None:
+            return self.jstrucs.grad_k
+        raise AttributeError("Property grad_k inaccessible due to empty jstrucs class field")
+
+    @property
+    def alpha(self) -> float:
+        """
+        Return (geometric) alpha from most recent JOutStructure.
+
+        Return (geometric) alpha from most recent JOutStructure.
+        """
+        if self.jstrucs is not None:
+            return self.jstrucs.alpha
+        raise AttributeError("Property alpha inaccessible due to empty jstrucs class field")
+
+    @property
+    def linmin(self) -> float:
+        """
+        Return (geometric) linmin from most recent JOutStructure.
+
+        Return (geometric) linmin from most recent JOutStructure.
+        """
+        if self.jstrucs is not None:
+            return self.jstrucs.linmin
+        raise AttributeError("Property linmin inaccessible due to empty jstrucs class field")
+
+    @property
+    def nelectrons(self) -> float:
+        """
+        Return nelectrons from most recent JOutStructure.
+
+        Return nelectrons from most recent JOutStructure.
+        """
+        if self.jstrucs is not None:
+            return self.jstrucs.nelectrons
+        raise AttributeError("Property nelectrons inaccessible due to empty jstrucs class field")
+
+    @property
+    def abs_magneticmoment(self) -> float:
+        """
+        Return abs_magneticmoment from most recent JOutStructure.
+
+        Return abs_magneticmoment from most recent JOutStructure.
+        """
+        if self.jstrucs is not None:
+            return self.jstrucs.abs_magneticmoment
+        raise AttributeError("Property abs_magneticmoment inaccessible due to empty jstrucs class field")
+
+    @property
+    def tot_magneticmoment(self) -> float:
+        """
+        Return tot_magneticmoment from most recent JOutStructure.
+
+        Return tot_magneticmoment from most recent JOutStructure.
+        """
+        if self.jstrucs is not None:
+            return self.jstrucs.tot_magneticmoment
+        raise AttributeError("Property tot_magneticmoment inaccessible due to empty jstrucs class field")
+
+    @property
+    def mu(self) -> float:
+        """
+        Return mu from most recent JOutStructure.
+
+        Return mu from most recent JOutStructure. (Equivalent to efermi)
+        """
+        if self.jstrucs is not None:
+            return self.jstrucs.mu
+        raise AttributeError("Property mu inaccessible due to empty jstrucs class field")
+
+    ###########################################################################
+    # Electronic properties inherited from most recent JEiters with symbol
+    # disambiguation.
+    ###########################################################################
+
+    @property
+    def elec_iter(self) -> int:
+        """Return the most recent electronic iteration.
+
+        Return the most recent electronic iteration.
+
+        Returns
+        -------
+        elec_iter: int
+        """
+        if self.jstrucs is not None:
+            return self.jstrucs.elec_iter
+        raise AttributeError("Property elec_iter inaccessible due to empty jstrucs class field")
+
+    @property
+    def elec_e(self) -> int:
+        """Return the most recent electronic energy.
+
+        Return the most recent electronic energy.
+
+        Returns
+        -------
+        elec_e: float
+        """
+        if self.jstrucs is not None:
+            return self.jstrucs.elec_e
+        raise AttributeError("Property elec_e inaccessible due to empty jstrucs class field")
+
+    @property
+    def elec_grad_k(self) -> int:
+        """Return the most recent electronic grad_k.
+
+        Return the most recent electronic grad_k.
+
+        Returns
+        -------
+        grad_k: float
+        """
+        if self.jstrucs is not None:
+            return self.jstrucs.elec_grad_k
+        raise AttributeError("Property elec_grad_k inaccessible due to empty jstrucs class field")
+
+    @property
+    def elec_alpha(self) -> int:
+        """Return the most recent electronic alpha.
+
+        Return the most recent electronic alpha.
+
+        Returns
+        -------
+        alpha: float
+        """
+        if self.jstrucs is not None:
+            return self.jstrucs.elec_linmin
+        raise AttributeError("Property elec_alpha inaccessible due to empty jstrucs class field")
+
+    @property
+    def elec_linmin(self) -> int:
+        """Return the most recent electronic linmin.
+
+        Return the most recent electronic linmin.
+
+        Returns
+        -------
+        linmin: float
+        """
+        if self.jstrucs is not None:
+            return self.jstrucs.elec_linmin
+        raise AttributeError("Property elec_linmin inaccessible due to empty jstrucs class field")
+
+    ###########################################################################
+    # Creation methods
+    ###########################################################################
 
     @classmethod
     def from_out_slice(cls, text: list[str]) -> JDFTXOutfileSlice:
@@ -629,7 +856,15 @@ class JDFTXOutfileSlice(ClassPrintFormatter):
             val_line = val_lines[0]
             val_elec = int(text[val_line].split("valence electrons")[0].strip().split()[-1])
             atom_total_elec.append(val_elec)
-        total_elec_dict = dict(zip(self.atom_types, atom_total_elec, strict=False))
+        total_elec_dict = {}
+        if self.atom_types is not None:
+            for i, atom in enumerate(self.atom_types):
+                total_elec_dict[atom] = atom_total_elec[i]
+        else:
+            raise ValueError("Pseuopotential data cannot be allocated without atom types.")
+        # total_elec_dict = dict(zip(self.atom_types, atom_total_elec, strict=False))
+        if self.atom_elements is None:
+            raise ValueError("Atom elements not set yet.")
         element_total_electrons = np.array([total_elec_dict[x] for x in self.atom_elements])
         element_valence_electrons = np.array([atom_valence_electrons[x] for x in self.atom_elements])
         element_semicore_electrons = element_total_electrons - element_valence_electrons
@@ -637,7 +872,10 @@ class JDFTXOutfileSlice(ClassPrintFormatter):
         self.valence_electrons_uncharged = np.sum(element_valence_electrons)
         self.semicore_electrons_uncharged = np.sum(element_semicore_electrons)
         self.semicore_electrons = self.semicore_electrons_uncharged
-        self.valence_electrons = self.total_electrons - self.semicore_electrons  # accounts for if system is charged
+        if (self.total_electrons is not None) and (self.semicore_electrons is not None):
+            self.valence_electrons = self.total_electrons - self.semicore_electrons  # accounts for if system is charged
+        else:
+            raise ValueError("Total electrons and semicore electrons must be set.")
 
     def _collect_settings_lines(self, text: list[str], start_flag: str) -> list[int]:
         """Collect the lines of settings from the out file text.
@@ -774,21 +1012,52 @@ class JDFTXOutfileSlice(ClassPrintFormatter):
         if self.etype is None:
             self.etype = self.jstrucs[-1].etype
 
+    def set_orb_fillings_nobroad(self, nspin: float) -> None:
+        """Set the orbital fillings without broadening.
+
+        Set the orbital fillings without broadening.
+
+        Parameters
+        ----------
+        nspin: float
+            number of spins in calculation
+        """
+        self.homo_filling = 2 / nspin
+        self.lumo_filling = 0
+
+    def set_orb_fillings_broad(
+        self, nspin: float, ehomo: float, elumo: float, efermi: float, broadening_type: str, broadening: float
+    ):
+        self.homo_filling = (2 / nspin) * self.calculate_filling(broadening_type, broadening, ehomo, efermi)
+        self.lumo_filling = (2 / nspin) * self.calculate_filling(broadening_type, broadening, elumo, efermi)
+
     def set_orb_fillings(self) -> None:
         """Set the orbital fillings.
 
         Calculate and set homo and lumo fillings
         """
-        if self.broadening_type is not None:
-            self.homo_filling = (2 / self.nspin) * self.calculate_filling(
-                self.broadening_type, self.broadening, self.homo, self.efermi
-            )
-            self.lumo_filling = (2 / self.nspin) * self.calculate_filling(
-                self.broadening_type, self.broadening, self.lumo, self.efermi
-            )
+        if self.nspin is not None:
+            if self.broadening_type is not None:
+                # vvvv This is what peak python looks like according to pre-commit vvvv
+                if self.broadening is not None:
+                    if self.efermi is not None:
+                        if self.homo is not None:
+                            if self.lumo is not None:
+                                self.set_orb_fillings_broad(
+                                    self.nspin, self.homo, self.lumo, self.efermi, self.broadening_type, self.broadening
+                                )
+                            else:
+                                raise ValueError("Cannot set orbital fillings with broadening with self.lumo as None")
+                        else:
+                            raise ValueError("Cannot set orbital fillings with broadening with self.homo as None")
+                    else:
+                        raise ValueError("Cannot set orbital fillings with broadening with self.efermi as None")
+                else:
+                    raise ValueError("Cannot set orbital fillings with broadening with self.broadening as None")
+            else:
+                self.set_orb_fillings_nobroad(self.nspin)
         else:
-            self.homo_filling = 2 / self.nspin
-            self.lumo_filling = 0
+            raise ValueError(" Cannot set homo/lumo filling with self.nspin as None")
 
     def set_fluid(self, text: list[str]) -> None:  # Is this redundant to the fluid settings?
         """Set the fluid class variable.
@@ -815,8 +1084,8 @@ class JDFTXOutfileSlice(ClassPrintFormatter):
         text: list[str]
             output of read_file for out file
         """
-        total_electrons = self.jstrucs[-1].elecmindata[-1].nelectrons
-        self.total_electrons = total_electrons
+        if self.jstrucs is not None:
+            self.total_electrons = self.jstrucs.nelectrons
 
     def set_nbands(self, text: list[str]) -> None:
         """Set the Nbands class variable.
@@ -863,13 +1132,16 @@ class JDFTXOutfileSlice(ClassPrintFormatter):
             if x not in atom_types:
                 atom_types.append(x)
         self.atom_elements = atom_elements
-        mapping_dict = dict(zip(atom_types, range(1, len(atom_types) + 1), strict=False))
+        mapping_dict = {}
+        for atom_type in atom_types:
+            mapping_dict[atom_type] = range(1, len(atom_types) + 1)
+        # mapping_dict = dict(zip(atom_types, range(1, len(atom_types) + 1), strict=False))
         self.atom_elements_int = [mapping_dict[x] for x in self.atom_elements]
         self.atom_types = atom_types
         line = find_key("# Ionic positions in", text) + 1
         coords = np.array([text[i].split()[2:5] for i in range(line, line + self.nat)], dtype=float)
         self.atom_coords_final = coords
-        self.atom_coords = self.atom_coords_final.copy()
+        self.atom_coords = coords.copy()
 
     def set_lattice_vars(self, text: list[str]) -> None:
         """Set the lattice variables.
@@ -881,10 +1153,13 @@ class JDFTXOutfileSlice(ClassPrintFormatter):
         text: list[str]
             output of read_file for out file
         """
-        self.lattice_initial = self.jstrucs[0].lattice.matrix
-        self.lattice_final = self.jstrucs[-1].lattice.matrix
-        self.lattice = self.lattice_final.copy()
-        self.a, self.b, self.c = np.sum(self.lattice**2, axis=1) ** 0.5
+        if self.jstrucs is not None:
+            self.lattice_initial = self.jstrucs[0].lattice.matrix
+            self.lattice_final = self.jstrucs[-1].lattice.matrix
+            self.lattice = self.jstrucs[-1].lattice.matrix.copy()
+            self.a, self.b, self.c = np.sum(self.jstrucs[-1].lattice.matrix ** 2, axis=1) ** 0.5
+        else:
+            raise ValueError("No structures found in out file.")
 
     def set_ecomponents(self, text: list[str]) -> None:
         """Set the energy components dictionary.
@@ -896,11 +1171,13 @@ class JDFTXOutfileSlice(ClassPrintFormatter):
         text: list[str]
             output of read_file for out file
         """
-        ecomp = self.jstrucs[-1].ecomponents
-        if self.etype not in ecomp:
-            ecomp[self.etype] = self.jstrucs[-1].E
-        # line = find_key("# Energy components:", text)
-        self.ecomponents = ecomp
+        if self.jstrucs is not None:
+            ecomp = self.jstrucs[-1].ecomponents
+            if self.etype not in ecomp:
+                ecomp[self.etype] = self.jstrucs[-1].E
+            self.ecomponents = ecomp
+        else:
+            raise ValueError("No structures found in out file.")
 
     def calculate_filling(self, broadening_type: str, broadening: float, eig: float, efermi: float) -> float:
         """Calculate the filling for a given eigenvalue.
@@ -941,6 +1218,9 @@ class JDFTXOutfileSlice(ClassPrintFormatter):
 
         return filling
 
+    def _determine_is_metal(self, tol_partial: float, nspin: int, homo_filling: float, lumo_filling: float) -> bool:
+        return not (homo_filling / (2 / nspin) > (1 - tol_partial) and lumo_filling / (2 / nspin) < tol_partial)
+
     def determine_is_metal(self) -> bool:
         """Determine if the system is a metal based.
 
@@ -953,13 +1233,13 @@ class JDFTXOutfileSlice(ClassPrintFormatter):
             True if system is metallic
         """
         tol_partial = 0.01
-        is_metal = True
-        if (
-            self.homo_filling / (2 / self.nspin) > (1 - tol_partial)
-            and self.lumo_filling / (2 / self.nspin) < tol_partial
-        ):
-            is_metal = False
-        return is_metal
+        if self.nspin is not None:
+            if self.homo_filling is not None:
+                if self.lumo_filling is not None:
+                    return self._determine_is_metal(tol_partial, self.nspin, self.homo_filling, self.lumo_filling)
+                raise ValueError("Cannot determine if system is metal - self.lumo_filling undefined")
+            raise ValueError("Cannot determine if system is metal - self.homo_fillig undefined")
+        raise ValueError("Cannot determine if system is metal - self.nspin undefined")
 
     def check_solvation(self) -> bool:
         """Check for implicit solvation.
@@ -997,3 +1277,28 @@ class JDFTXOutfileSlice(ClassPrintFormatter):
             value = getattr(self, field)
             dct[field] = value
         return dct
+
+    # This method is likely never going to be called as all (currently existing)
+    # attributes of the most recent slice are explicitly defined as a class
+    # property. However, it is included to reduce the likelihood of errors
+    # upon future changes to downstream code.
+    def __getattr__(self, name: str) -> Any:
+        """Return attribute value.
+
+        Return the value of an attribute.
+
+        Parameters
+        ----------
+        name: str
+            The name of the attribute
+
+        Returns
+        -------
+        value
+            The value of the attribute
+        """
+        if name not in self.__dict__:
+            if not hasattr(self.jstrucs, name):
+                raise AttributeError(f"{self.__class__.__name__} not found: {name}")
+            return getattr(self.jstrucs, name)
+        return self.__dict__[name]
