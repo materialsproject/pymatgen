@@ -615,7 +615,7 @@ class EwaldMinimizer:
                 1 - speedup_parameter
             )
 
-        return np.sum(matrix) + np.inner(sums[::-1], fractions - 1) + interaction_correction
+        return float(np.sum(matrix) + np.inner(sums[::-1], fractions - 1) + interaction_correction)
 
     @classmethod
     def get_next_index(cls, matrix, manipulation, indices_left):
