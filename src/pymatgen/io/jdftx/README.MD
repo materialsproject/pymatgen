@@ -4,8 +4,6 @@ This folder contains all class objects and methods used for io operations with J
 
 This includes:
 
-    - New line
-
     - JDFTXInfile:
         - Initializable from pre-existing JDFTx in files or dictionaries
         - Modifiable (acts as dictionary)
