@@ -21,6 +21,8 @@ if TYPE_CHECKING:
     from pymatgen.io.jdftx.jeiters import JEiters
 from pymatgen.io.jdftx.joutstructure import JOutStructure
 
+__author__ = "Ben Rich"
+
 # from pymatgen.io.jdftx.utils import correct_geom_iter_type
 
 elec_min_start_flag: str = "-------- Electronic minimization -----------"
