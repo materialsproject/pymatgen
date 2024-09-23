@@ -31,3 +31,11 @@ This includes:
         - JEiter: Per SCF update
             - Contains all electronic data logged in out file at SCF update
                 frequency.
+
+This folder is currently missing:
+- Broader output parsing
+    - Future versions will still have JDFTXOutfile and all subclasses. However, this class object will likely not be called directly, and will be a class property of a broader JDFTXOutput class capable of handling dumped output files (ie electronic density arrays or DOS text files) in tandem to the out file. 
+- File organization
+    - Future versions will streamline the user-end interface by having all output-related methods imported through the outputs.py module and input-related methods imported through the inputs.py module. Class objects may be moved to these modules from their standalone modules to keep the directory tidy. Helper functions will also be refactored into the utils module.
+- Sets
+    - Common input sets are currently missing from the sets module. 
