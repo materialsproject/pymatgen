@@ -25,6 +25,7 @@ from pymatgen.io.jdftx.generic_tags import (
     TagContainer,
 )
 from pymatgen.io.jdftx.jdftxinfile_ref_options import (
+    fluid_solvent_options,
     func_c_options,
     func_options,
     func_x_options,
@@ -663,32 +664,16 @@ MASTER_TAG_LIST: dict[str, dict[str, Any]] = {
             }
         ),
         "fluid-solvent": MultiformatTag(
-            can_repeat=True,
+            # can_repeat=False,
             format_options=[
                 TagContainer(
+                    # Must be True in order to pass tag validation
+                    # but
+                    # Must be false to be properly written as a string
+                    can_repeat=True,  # Would be better to have this option inherited from MultiformatTag
                     subtags={
                         "name": StrTag(
-                            options=[
-                                "CarbonDisulfide",
-                                "CCl4",
-                                "CH2Cl2",
-                                "CH3CN",
-                                "Chlorobenzene",
-                                "DMC",
-                                "DMF",
-                                "DMSO",
-                                "EC",
-                                "Ethanol",
-                                "EthyleneGlycol",
-                                "EthylEther",
-                                "Glyme",
-                                "H2O",
-                                "Isobutanol",
-                                "Methanol",
-                                "Octanol",
-                                "PC",
-                                "THF",
-                            ],
+                            options=fluid_solvent_options,
                             write_tagname=False,
                         ),
                         "concentration": FloatTag(write_tagname=False),
@@ -702,32 +687,13 @@ MASTER_TAG_LIST: dict[str, dict[str, Any]] = {
                             write_tagname=False,
                         ),
                         **deepcopy(jdftxfluid_subtagdict),
-                    }
+                    },
                 ),
                 TagContainer(
+                    can_repeat=True,  # Would be better to have this option inherited from MultiformatTag
                     subtags={
                         "name": StrTag(
-                            options=[
-                                "CarbonDisulfide",
-                                "CCl4",
-                                "CH2Cl2",
-                                "CH3CN",
-                                "Chlorobenzene",
-                                "DMC",
-                                "DMF",
-                                "DMSO",
-                                "EC",
-                                "Ethanol",
-                                "EthyleneGlycol",
-                                "EthylEther",
-                                "Glyme",
-                                "H2O",
-                                "Isobutanol",
-                                "Methanol",
-                                "Octanol",
-                                "PC",
-                                "THF",
-                            ],
+                            options=fluid_solvent_options,
                             write_tagname=False,
                         ),
                         "concentration": StrTag(options=["bulk"], write_tagname=False),
@@ -741,7 +707,7 @@ MASTER_TAG_LIST: dict[str, dict[str, Any]] = {
                             write_tagname=False,
                         ),
                         **deepcopy(jdftxfluid_subtagdict),
-                    }
+                    },
                 ),
             ],
         ),
@@ -1198,7 +1164,7 @@ def get_dump_tag_container() -> DumpTagContainer:
         # subtags[freq] = BoolTagContainer(
         #     subtags=subsubtags, write_tagname=True, can_repeat=True
         # )
-        subtags2[freq] = BoolTagContainer(subtags=subsubtags, write_tagname=True, can_repeat=True)
+        subtags2[freq] = BoolTagContainer(subtags=subsubtags, write_tagname=True)
     return DumpTagContainer(subtags=subtags2, write_tagname=True, can_repeat=True)
 
 

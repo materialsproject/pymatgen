@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 from pathlib import Path
 
 from pymatgen.core.units import Ha_to_eV
@@ -6,8 +8,10 @@ ex_files_dir = Path(__file__).parents[0] / "example_files"
 ex_outslice_fname1 = ex_files_dir / "ex_out_slice_latmin"
 ex_outslice1 = []
 with open(ex_outslice_fname1) as f:
-    for line in f:
-        ex_outslice1.append(line)
+    ex_outslice1 = list(f)
+# with open(ex_outslice_fname1) as f:
+#     for line in f:
+#         ex_outslice1.append(line)
 ex_outslice1_known = {
     "Nbands": 42,
     "broadening_type": "Fermi",

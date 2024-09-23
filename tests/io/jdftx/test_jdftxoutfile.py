@@ -137,7 +137,7 @@ def test_JDFTXOutfile_fromfile(filename: PathLike, known: dict):
     assert jout.broadening == approx(known["broadening"])
     assert jout.truncation_type == known["truncation_type"]
     assert jout.pwcut == approx(known["pwcut"])
-    # Don't bully me, I'm testing this way incase we flip-flop between lists and tuples
+    # Don't bully me, I'm testing this way in case we flip-flop between lists and tuples
     for i in range(3):
         assert jout.fftgrid[i] == known["fftgrid"][i]
     for i in range(3):

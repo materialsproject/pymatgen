@@ -8,6 +8,28 @@ from __future__ import annotations
 
 from pymatgen.io.jdftx.generic_tags import BoolTag, FloatTag, IntTag, StrTag, TagContainer
 
+fluid_solvent_options = [
+    "CarbonDisulfide",
+    "CCl4",
+    "CH2Cl2",
+    "CH3CN",
+    "Chlorobenzene",
+    "DMC",
+    "DMF",
+    "DMSO",
+    "EC",
+    "Ethanol",
+    "EthyleneGlycol",
+    "EthylEther",
+    "Glyme",
+    "H2O",
+    "Isobutanol",
+    "Methanol",
+    "Octanol",
+    "PC",
+    "THF",
+]
+
 func_options = [
     "gga",  # Perdew-Burke-Ernzerhof GGA
     "gga-PBE",  # Perdew-Burke-Ernzerhof GGA

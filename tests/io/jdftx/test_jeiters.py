@@ -1,7 +1,9 @@
+from __future__ import annotations
+
 import pytest
-from pymatgen.core.units import Ha_to_eV
 from pytest import approx
 
+from pymatgen.core.units import Ha_to_eV
 from pymatgen.io.jdftx.jeiter import JEiter
 from pymatgen.io.jdftx.jeiters import JEiters
 
@@ -70,8 +72,7 @@ ex_known2 = {
 
 
 @pytest.mark.parametrize(
-    "exfill_line,exfill_known,exiter_line,exiter_known,exsubspace_line,\
-        exsubspace_known",
+    ("exfill_line", "exfill_known", "exiter_line", "exiter_known", "exsubspace_line", "exsubspace_known"),
     [
         (
             ex_fillings_line1,
@@ -108,9 +109,7 @@ def test_jeiter(
     assert exsubspace_known["subspace"] == approx(jei.subspacerotationadjust)
 
 
-@pytest.mark.parametrize(
-    "ex_lines,ex_knowns", [([ex_lines1, ex_lines2], [ex_known1, ex_known2])]
-)
+@pytest.mark.parametrize(("ex_lines", "ex_knowns"), [([ex_lines1, ex_lines2], [ex_known1, ex_known2])])
 def test_jeiters(
     ex_lines: list[list[str]],
     ex_knowns: list[dict],
@@ -124,18 +123,12 @@ def test_jeiters(
     for i in range(len(ex_lines)):
         assert ex_knowns[i]["fill"]["mu"] == approx(jeis[i].mu)
         assert ex_knowns[i]["fill"]["nElectrons"] == approx(jeis[i].nelectrons)
-        assert ex_knowns[i]["fill"]["abs_magneticMoment"] == approx(
-            jeis[i].abs_magneticmoment
-        )
-        assert ex_knowns[i]["fill"]["tot_magneticMoment"] == approx(
-            jeis[i].tot_magneticmoment
-        )
+        assert ex_knowns[i]["fill"]["abs_magneticMoment"] == approx(jeis[i].abs_magneticmoment)
+        assert ex_knowns[i]["fill"]["tot_magneticMoment"] == approx(jeis[i].tot_magneticmoment)
         assert ex_knowns[i]["iter"]["iter"] == jeis[i].iter
         assert ex_knowns[i]["iter"]["E"] == approx(jeis[i].E)
         assert ex_knowns[i]["iter"]["grad_K"] == approx(jeis[i].grad_k)
         assert ex_knowns[i]["iter"]["alpha"] == approx(jeis[i].alpha)
         assert ex_knowns[i]["iter"]["linmin"] == approx(jeis[i].linmin)
         assert ex_knowns[i]["iter"]["t_s"] == approx(jeis[i].t_s)
-        assert ex_knowns[i]["subspace"]["subspace"] == approx(
-            jeis[i].subspacerotationadjust
-        )
+        assert ex_knowns[i]["subspace"]["subspace"] == approx(jeis[i].subspacerotationadjust)

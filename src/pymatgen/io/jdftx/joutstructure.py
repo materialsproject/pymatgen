@@ -71,6 +71,7 @@ class JOutStructure(Structure):
         "lowdin",
         "opt",
     ]
+    selective_dynamics: list[int] | None = None
 
     @property
     def mu(self) -> float:
@@ -475,14 +476,17 @@ class JOutStructure(Structure):
         natoms = len(posns_lines) - 1
         coords_type = posns_lines[0].split("positions in")[1]
         coords_type = coords_type.strip().split()[0].strip()
-        posns = []
-        names = []
+        posns: list[np.ndarray] = []
+        names: list[str] = []
+        selective_dynamics: list[int] = []
         for i in range(natoms):
             line = posns_lines[i + 1]
             name = line.split()[1].strip()
             posn = np.array([float(x.strip()) for x in line.split()[2:5]])
+            sd = int(line.split()[5])
             names.append(name)
             posns.append(posn)
+            selective_dynamics.append(sd)
         posns = np.array(posns)
         if coords_type.lower() != "cartesian":
             posns = np.dot(posns, self.lattice.matrix)
@@ -490,6 +494,7 @@ class JOutStructure(Structure):
             posns *= bohr_to_ang
         for i in range(natoms):
             self.append(species=names[i], coords=posns[i], coords_are_cartesian=True)
+        self.selective_dynamics = selective_dynamics
 
     def parse_forces_lines(self, forces_lines: list[str]) -> None:
         """Parse forces lines.

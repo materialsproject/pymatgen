@@ -18,7 +18,7 @@ from monty.io import zopen
 from monty.json import MSONable
 
 from pymatgen.core import Structure
-from pymatgen.io.jdftx.generic_tags import AbstractTag, BoolTagContainer, DumpTagContainer, TagContainer
+from pymatgen.io.jdftx.generic_tags import AbstractTag, BoolTagContainer, DumpTagContainer, MultiformatTag, TagContainer
 from pymatgen.io.jdftx.jdftxinfile_master_format import (
     __PHONON_TAGS__,
     __TAG_LIST__,
@@ -34,9 +34,11 @@ if TYPE_CHECKING:
     from numpy.typing import ArrayLike
     from typing_extensions import Self
 
+    from pymatgen.io.jdftx.jdftxoutfile import JDFTXOutfile
+    from pymatgen.io.jdftx.joutstructure import JOutStructure
     from pymatgen.util.typing import PathLike
 
-__author__ = "Jacob Clary"
+__author__ = "Jacob Clary, Ben Rich"
 
 
 class JDFTXInfile(dict, MSONable):
@@ -183,6 +185,10 @@ class JDFTXInfile(dict, MSONable):
 
                 added_tag_in_group = True
                 tag_object: AbstractTag = MASTER_TAG_LIST[tag_group][tag]
+                if isinstance(tag_object, MultiformatTag):
+                    i, _ = tag_object._determine_format_option(tag, self_as_dict[tag])
+                    # i = tag_object.get_format_index(tag, self_as_dict[tag])
+                    tag_object = tag_object.format_options[i]
                 if tag_object.can_repeat and isinstance(self_as_dict[tag], list):
                     # if a tag_object.can_repeat, it is assumed that self[tag]
                     #    is a list the 2nd condition ensures this
@@ -293,7 +299,9 @@ class JDFTXInfile(dict, MSONable):
                 f"The len(line.split(maxsplit=1)) of {line_list} should never \
                     not be 1 or 2"
             )
-
+        if isinstance(tag_object, MultiformatTag):
+            i = tag_object.get_format_index(tag, value)
+            tag_object = tag_object.format_options[i]
         return tag_object, tag, value
 
     @staticmethod
@@ -325,24 +333,25 @@ class JDFTXInfile(dict, MSONable):
         if tag_object.can_repeat:  # store tags that can repeat in a list
             if tag not in params:
                 params[tag] = []
-            if type(tag_object) not in [DumpTagContainer]:
-                params[tag].append(value)
-            else:  # The previous if statement will need to adapted to reference
-                # a tag object flag to be stored in this manner. This manner
-                # is to store all subtags as standalone dictionaries within
-                # a list, but to combine alike subtags (ie the same dump freq)
-                # as they appear.
-                if not isinstance(value, dict):
-                    raise ValueError(f"The value for the {tag} tag should be a dictionary!")
-                for freq in value:
-                    inserted = False
-                    for i, preex in enumerate(params[tag]):
-                        if freq in preex:
-                            params[tag][i][freq].update(value[freq])
-                            inserted = True
-                            break
-                    if not inserted:
-                        params[tag].append(value)
+            params[tag].append(value)
+            # if type(tag_object) not in [DumpTagContainer]:
+            #     params[tag].append(value)
+            # else:  # The previous if statement will need to adapted to reference
+            #     # a tag object flag to be stored in this manner. This manner
+            #     # is to store all subtags as standalone dictionaries within
+            #     # a list, but to combine alike subtags (ie the same dump freq)
+            #     # as they appear.
+            #     if not isinstance(value, dict):
+            #         raise ValueError(f"The value for the {tag} tag should be a dictionary!")
+            #     for freq in value:
+            #         inserted = False
+            #         for i, preex in enumerate(params[tag]):
+            #             if freq in preex:
+            #                 params[tag][i][freq].update(value[freq])
+            #                 inserted = True
+            #                 break
+            #         if not inserted:
+            #             params[tag].append(value)
         else:
             if tag in params:
                 raise ValueError(
@@ -535,7 +544,11 @@ class JDFTXInfile(dict, MSONable):
         #    list
         #    list[lists] (repeat tags in list representation or lattice in list
         #                 representation)
-
+        # Check if value is not iterable
+        try:
+            iter(value)
+        except TypeError:
+            return True
         if conversion == "list-to-dict":
             flag = False
         elif conversion == "dict-to-list":
@@ -646,6 +659,63 @@ class JDFTXInfile(dict, MSONable):
                 if any(isinstance(tag_object, tc) for tc in [TagContainer, DumpTagContainer, BoolTagContainer]):
                     warnmsg += "(Check earlier warnings for more details)\n"
                 warnings.warn(warnmsg, stacklevel=2)
+
+    def __setitem__(self, key: str, value: Any) -> None:
+        """Set an item in the JDFTXInfile.
+
+        Set an item in the JDFTXInfile.
+
+        Parameters
+        ----------
+        key : str
+            Key to set.
+        value : Any
+            Value to set.
+        """
+        if not isinstance(key, str):
+            raise TypeError(f"{key} is not a string!")
+        try:
+            tag_object = get_tag_object(key)
+        except KeyError:
+            raise KeyError(f"The {key} tag is not in MASTER_TAG_LIST")
+        if isinstance(tag_object, MultiformatTag):
+            if isinstance(value, str):
+                i = tag_object.get_format_index(key, value)
+            else:
+                i, value = tag_object._determine_format_option(key, value)
+            tag_object = tag_object.format_options[i]
+        if tag_object.can_repeat:
+            del self[key]
+        params: dict[str, Any] = {}
+        processed_value = tag_object.read(key, value) if isinstance(value, str) else value
+        params = self._store_value(params, tag_object, key, processed_value)
+        self.update(params)
+        self.validate_tags(try_auto_type_fix=True, error_on_failed_fix=True)
+
+    def append_tag(self, tag: str, value: Any) -> None:
+        """Append a value to a tag.
+
+        Append a value to a tag.
+
+        Parameters
+        ----------
+        tag : str
+            Tag to append to.
+        value : Any
+            Value to append.
+        """
+        tag_object = get_tag_object(tag)
+        if isinstance(tag_object, MultiformatTag):
+            if isinstance(value, str):
+                i = tag_object.get_format_index(tag, value)
+            else:
+                i, value = tag_object._determine_format_option(tag, value)
+            tag_object = tag_object.format_options[i]
+        if not tag_object.can_repeat:
+            raise ValueError(f"The {tag} tag cannot be repeated and thus cannot be appended")
+        params: dict[str, Any] = {}
+        processed_value = tag_object.read(tag, value) if isinstance(value, str) else value
+        params = self._store_value(params, tag_object, tag, processed_value)
 
 
 @dataclass
@@ -806,6 +876,45 @@ class JDFTXStructure(MSONable):
             coords_are_cartesian=coords_are_cartesian,
         )
         return cls(struct, selective_dynamics, sort_structure=sort_structure)
+
+    @classmethod
+    def from_jdftxoutfile(cls, jdftxoutfile: JDFTXOutfile) -> JDFTXStructure:
+        """Get JDFTXStructure from JDFTXOutfile.
+
+        Get JDFTXStructure from JDFTXOutfile.
+
+        Parameters
+        ----------
+        jdftxoutfile : JDFTXOutfile
+            JDFTXOutfile object
+
+        Returns
+        -------
+        JDFTXStructure
+        """
+        if not len(jdftxoutfile.jstrucs):
+            raise ValueError("No structures found in JDFTXOutfile")
+        joutstructure = jdftxoutfile.jstrucs[-1]
+        return cls.from_joutstructure(joutstructure)
+
+    @classmethod
+    def from_joutstructure(cls, joutstructure: JOutStructure) -> JDFTXStructure:
+        """Get JDFTXStructure from JOutStructure.
+
+        Get JDFTXStructure from JOutStructure.
+
+        Parameters
+        ----------
+        joutstructure : JOutStructure
+            JOutStructure object
+
+        Returns
+        -------
+        JDFTXStructure
+        """
+        struct = Structure(joutstructure.lattice, joutstructure.species, joutstructure.coords)
+        selective_dynamics = joutstructure.selective_dynamics
+        return cls(struct, selective_dynamics, sort_structure=False)
 
     def get_str(self, in_cart_coords: bool = False) -> str:
         """Return a string to be written as JDFTXInfile tags.

@@ -1,7 +1,7 @@
 # import pytest
+from __future__ import annotations
 
-from atomate2.jdftx.io.generic_tags import IntTag, TagContainer
-from atomate2.jdftx.io.jdftxinfile_master_format import *
+from pymatgen.io.jdftx.generic_tags import IntTag, TagContainer
 
 dummy_tagcontainer = TagContainer(
     allow_list_representation=True,
@@ -13,13 +13,3 @@ dummy_tagcontainer = TagContainer(
     },
 )
 dummy_tagcontainer.validate_value_type("s0", [[1]])
-
-
-# infile = Path(os.getcwd()) / "tests" / "jdftx" / "io" / "example_files" / "example_sp.in"
-# testwrite = Path(os.getcwd()) / "tests" / "jdftx" / "io" / "example_files" / "example_sp_copy.in"
-# jif = JDFTXInfile.from_file(infile)
-# jif.write_file(testwrite)
-# jiflist = jif.get_text_list()
-# tag_ex = "fluid-anion"
-
-# get_tag_object(tag_ex)

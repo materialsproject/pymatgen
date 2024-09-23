@@ -1,10 +1,12 @@
+from __future__ import annotations
+
 from pathlib import Path
 
 import numpy as np
 import pytest
-from pymatgen.core.units import Ha_to_eV, bohr_to_ang
 from pytest import approx
 
+from pymatgen.core.units import Ha_to_eV, bohr_to_ang
 from pymatgen.io.jdftx.joutstructure import JOutStructure
 
 ex_files_dir = Path(__file__).parents[0] / "example_files"
@@ -38,14 +40,10 @@ ex_slice1_known = {
     "strain_00": 10.0,
     "stress_00": -1.69853e-06,
     "nAtoms": 8,
-    "posn0": np.array([0.000011000000000, 2.394209000000000, 1.474913000000000])
-    * bohr_to_ang,
-    "force0": np.array([0.000003219385226, 0.000024941936105, -0.000004667309539])
-    * (Ha_to_eV / bohr_to_ang),
-    "posn-1": np.array([0.000007000000000, 9.175312000000002, 4.423851000000000])
-    * bohr_to_ang,
-    "force-1": np.array([0.000000021330734, -0.000015026361853, -0.000010315177459])
-    * (Ha_to_eV / bohr_to_ang),
+    "posn0": np.array([0.000011000000000, 2.394209000000000, 1.474913000000000]) * bohr_to_ang,
+    "force0": np.array([0.000003219385226, 0.000024941936105, -0.000004667309539]) * (Ha_to_eV / bohr_to_ang),
+    "posn-1": np.array([0.000007000000000, 9.175312000000002, 4.423851000000000]) * bohr_to_ang,
+    "force-1": np.array([0.000000021330734, -0.000015026361853, -0.000010315177459]) * (Ha_to_eV / bohr_to_ang),
     "ox0": 0.048,
     "mag0": 0.000,
     "ox-1": -0.034,
@@ -81,14 +79,10 @@ ex_slice2_known = {
     "strain_00": 10.0,
     "stress_00": -1.69853e-06,
     "nAtoms": 8,
-    "posn0": np.array([0.000011000000000, 2.394209000000000, 1.474913000000000])
-    * bohr_to_ang,
-    "force0": np.array([0.000003219385226, 0.000024941936105, -0.000004667309539])
-    * (Ha_to_eV / bohr_to_ang),
-    "posn-1": np.array([0.000007000000000, 9.175312000000002, 4.423851000000000])
-    * bohr_to_ang,
-    "force-1": np.array([0.000000021330734, -0.000015026361853, -0.000010315177459])
-    * (Ha_to_eV / bohr_to_ang),
+    "posn0": np.array([0.000011000000000, 2.394209000000000, 1.474913000000000]) * bohr_to_ang,
+    "force0": np.array([0.000003219385226, 0.000024941936105, -0.000004667309539]) * (Ha_to_eV / bohr_to_ang),
+    "posn-1": np.array([0.000007000000000, 9.175312000000002, 4.423851000000000]) * bohr_to_ang,
+    "force-1": np.array([0.000000021330734, -0.000015026361853, -0.000010315177459]) * (Ha_to_eV / bohr_to_ang),
     "ox0": 0.048,
     "mag0": 0.000,
     "ox-1": -0.034,
@@ -96,9 +90,7 @@ ex_slice2_known = {
 }
 
 
-@pytest.mark.parametrize(
-    "eslice,eknowns", [(ex_slice1, ex_slice1_known), (ex_slice2, ex_slice2_known)]
-)
+@pytest.mark.parametrize(("eslice", "eknowns"), [(ex_slice1, ex_slice1_known), (ex_slice2, ex_slice2_known)])
 def test_jstructure(eslice: list[str], eknowns: dict):
     jst = JOutStructure.from_text_slice(eslice, iter_type="lattice")
     assert jst.iter == eknowns["iter"]

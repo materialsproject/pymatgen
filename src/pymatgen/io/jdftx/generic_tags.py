@@ -330,7 +330,7 @@ class StrTag(AbstractTag):
     Tag for string values in JDFTx input files.
     """
 
-    options: list = field(default_factory=list)
+    options: list | None = None
 
     def validate_value_type(self, tag: str, value: Any, try_auto_type_fix: bool = False) -> tuple[str, bool, Any]:
         """Validate the type of the value for this tag.
@@ -1304,6 +1304,34 @@ class MultiformatTag(AbstractTag):
         ):  # format_options is a list of AbstractTag-inheriting objects
             try:
                 return trial_format.read(tag, value)
+            except (ValueError, TypeError) as e:
+                problem_log.append(f"Format {i}: {e}")
+        errormsg = f"No valid read format for '{tag} {value}' tag\nAdd option \
+            to format_options or double-check the value string and retry!\n\n"
+        errormsg += "Here is the log of errors for each known \
+            formatting option:\n"
+        errormsg += "\n".join([f"Format {x}: {problem_log[x]}" for x in range(len(problem_log))])
+        raise ValueError(errormsg)
+
+    def get_format_index(self, tag: str, value: str) -> int:
+        """Get the format index from string rep of value.
+
+        Get the format index from string rep of value.
+
+        Parameters
+        ----------
+        tag : str
+            The tag to read the value string for.
+        value : str
+            The value string to read.
+        """
+        problem_log = []
+        for i, trial_format in enumerate(
+            self.format_options
+        ):  # format_options is a list of AbstractTag-inheriting objects
+            try:
+                _ = trial_format.read(tag, value)
+                return i
             except (ValueError, TypeError) as e:
                 problem_log.append(f"Format {i}: {e}")
         errormsg = f"No valid read format for '{tag} {value}' tag\nAdd option \

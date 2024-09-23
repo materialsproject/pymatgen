@@ -1,9 +1,11 @@
+from __future__ import annotations
+
 from pathlib import Path
 
 import pytest
-from pymatgen.core.units import Ha_to_eV
 from pytest import approx
 
+from pymatgen.core.units import Ha_to_eV
 from pymatgen.io.jdftx.joutstructures import JOutStructure, JOutStructures
 
 ex_files_dir = Path(__file__).parents[0] / "example_files"
@@ -55,12 +57,10 @@ ex_outslice2_known = {
 
 
 @pytest.mark.parametrize(
-    "ex_slice, ex_slice_known,iter_type",
+    ("ex_slice", "ex_slice_known", "iter_type"),
     [(ex_outslice1, ex_outslice1_known, "lattice")],
 )
-def test_jstructures(
-    ex_slice: list[str], ex_slice_known: dict[str, float], iter_type: str
-):
+def test_jstructures(ex_slice: list[str], ex_slice_known: dict[str, float], iter_type: str):
     jstruct = JOutStructures.from_out_slice(ex_slice, iter_type=iter_type)
     assert isinstance(jstruct, JOutStructures)
     assert isinstance(jstruct[0], JOutStructure)
@@ -72,9 +72,7 @@ def test_jstructures(
     assert jstruct[0].elecmindata[0].nelectrons == approx(ex_slice_known["nelec0_0"])
     assert jstruct[0].elecmindata[-1].nelectrons == approx(ex_slice_known["nelec0_-1"])
     assert jstruct[-1].elecmindata[0].nelectrons == approx(ex_slice_known["nelec-1_0"])
-    assert jstruct[-1].elecmindata[-1].nelectrons == approx(
-        ex_slice_known["nelec-1_-1"]
-    )
+    assert jstruct[-1].elecmindata[-1].nelectrons == approx(ex_slice_known["nelec-1_-1"])
     assert jstruct.elecmindata[-1].nelectrons == approx(ex_slice_known["nelec-1_-1"])
     assert len(jstruct[0].elecmindata) == ex_slice_known["nEminSteps0"]
     assert len(jstruct[-1].elecmindata) == ex_slice_known["nEminSteps-1"]
