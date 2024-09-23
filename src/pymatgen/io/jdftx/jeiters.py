@@ -12,6 +12,8 @@ from typing import Any
 
 from pymatgen.io.jdftx.jeiter import JEiter
 
+__author__ = "Ben Rich"
+
 
 def gather_line_collections(iter_type: str, text_slice: list[str]) -> tuple[list[list[str]], list[str]]:
     """Gather line collections for JEiters initialization.

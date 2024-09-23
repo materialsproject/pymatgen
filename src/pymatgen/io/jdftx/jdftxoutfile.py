@@ -29,6 +29,8 @@ if TYPE_CHECKING:
     )
     from pymatgen.io.jdftx.joutstructures import JOutStructures
 
+__author__ = "Ben Rich, Jacob Clary"
+
 
 def check_file_exists(func: Callable) -> Any:
     """Check if file exists.

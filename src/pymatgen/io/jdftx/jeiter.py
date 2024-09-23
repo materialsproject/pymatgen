@@ -7,6 +7,8 @@ from __future__ import annotations
 
 from pymatgen.core.units import Ha_to_eV
 
+__author__ = "Ben Rich"
+
 
 class JEiter:
     """Electronic minimization data for a single SCF step.

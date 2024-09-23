@@ -18,7 +18,7 @@ import numpy as np
 if TYPE_CHECKING:
     from pymatgen.core import Structure
 
-__author__ = "Jacob Clary"
+__author__ = "Jacob Clary, Ben Rich"
 
 
 def flatten_list(tag: str, list_of_lists: list[Any]) -> list[Any]:

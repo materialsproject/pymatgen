@@ -36,6 +36,8 @@ from pymatgen.io.jdftx.jdftxinfile_ref_options import (
     jdftxminimize_subtagdict,
 )
 
+__author__ = "Jacob Clary, Ben Rich"
+
 MASTER_TAG_LIST: dict[str, dict[str, Any]] = {
     "extrafiles": {
         "include": StrTag(can_repeat=True),

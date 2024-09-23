@@ -36,6 +36,8 @@ from pymatgen.io.jdftx.jminsettings import (
 )
 from pymatgen.io.jdftx.joutstructures import JOutStructures
 
+__author__ = "Ben Rich"
+
 
 class ClassPrintFormatter:
     """Generic class object print formatter.
