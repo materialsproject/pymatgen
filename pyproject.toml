@@ -101,8 +101,7 @@ docs = ["invoke", "sphinx", "sphinx_markdown_builder", "sphinx_rtd_theme"]
 optional = [
     "ase>=3.23.0",
     "beautifulsoup4",
-    # TODO: why exclude windows for BoltzTraP2?
-    "BoltzTraP2>=24.9.1 ; platform_system != 'Windows'",
+    "BoltzTraP2>=24.9.1",
     "chemview>=0.6",
     "chgnet>=0.3.8",
     "f90nml>=1.1.2",
