@@ -3,6 +3,7 @@
 This folder contains all class objects and methods used for io operations with JDFTX.
 
 This includes:
+- JDFTXInfile:
 
     - JDFTXInfile:
         - Initializable from pre-existing JDFTx in files or dictionaries
