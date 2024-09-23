@@ -710,7 +710,6 @@ class TagContainer(AbstractTag):
     """
 
     # linebreak_nth_entry: int = None
-    # Hey pre-commit! Kill yourself! :)
     linebreak_nth_entry: int | None = None  # handles special formatting for matrix tags, e.g. lattice tag
     is_tag_container: bool = True  # used to ensure only TagContainers are
     # converted between list and dict representations
@@ -774,12 +773,10 @@ class TagContainer(AbstractTag):
             self._validate_repeat(tag, value_dict)
             results = [self._validate_single_entry(x, try_auto_type_fix=try_auto_type_fix) for x in value_dict]
             # tags, is_valids, updated_value = [list(x) for x in list(zip(*results, strict=False))]
-            # Stupid pre-commit
             if not all(len(lst) == len(results[0]) for lst in results):
                 raise ValueError("All iterables must have the same length")
             # tags, is_valids, updated_value = [list(x) for x in list(zip(*results, strict=False))]
             # Manually unpack the results
-            # Hey pre-commit! Literally kill yourself.
             tags_list_list: list[list[str]] = [result[0] for result in results]
             is_valids_list_list: list[list[bool]] = [result[1] for result in results]
             updated_value: Any = [result[2] for result in results]
@@ -800,7 +797,6 @@ class TagContainer(AbstractTag):
             is_valid_out = all(is_valids)
             if not is_valid_out:
                 warnmsg = "Invalid value(s) found for: "
-                # Hey pre-commit! I HAte you literally so much
                 for ii, xx in enumerate(is_valids):
                     if not xx:
                         warnmsg += f"{tags[ii]} "
@@ -1084,7 +1080,6 @@ class TagContainer(AbstractTag):
             tag_as_list = self._make_list(value)
         return tag_as_list
 
-    # Consider uninstalling and never using pre-commit again! :)
     @staticmethod
     def _check_for_mixed_nesting(tag: str, value: Any) -> None:
         has_nested_dict = any(isinstance(x, dict) for x in value)
