@@ -6,6 +6,14 @@ nav_order: 4
 
 # Changelog
 
+## v2024.9.17.1
+
+- Emergency release No. 2 to fix yet another regression in chempot diagram. (Thanks @yang-ruoxi for fixing.)
+
+## v2024.9.17
+
+- Emergency release to fix broken phase diagram plotting due to completely unnecessary refactoring. (Thanks @yang-ruoxi for fixing.)
+
 ## v2024.9.10
 
 💥 **Breaking**: NumPy/Cython integer type changed from `np.long`/`np.int_` to int64 on Windows to align with NumPy 2.x, [changing the default integer type to int64 on Windows 64-bit systems](https://numpy.org/doc/stable/release/2.0.0-notes.html) in favor of the platform-dependent `np.int_` type.
