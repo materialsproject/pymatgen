@@ -1,0 +1,48 @@
+#Testing JDFTx input file for CO molecule. Intended to test input parsers
+
+lattice \
+18.897261  0.000000  0.000000  \
+0.000000  18.897261  0.000000  \
+0.000000  0.000000  18.897261
+
+dump-name $VAR
+initial-state $VAR
+elec-ex-corr gga
+van-der-waals D3
+elec-cutoff 20 100
+elec-n-bands 15
+kpoint-folding 1 1 1
+electronic-minimize nIterations 100 energyDiffThreshold 1e-07
+elec-smearing Fermi 0.001
+spintype z-spin
+core-overlap-check none
+converge-empty-states yes
+latt-move-scale 0 0 0
+symmetries none
+fluid LinearPCM
+pcm-variant CANDLE
+fluid-solvent H2O
+fluid-cation Na+ 0.5
+fluid-anion F- 0.5
+vibrations useConstraints no rotationSym no
+dump End Dtot
+dump End BoundCharge
+dump End State
+dump End Forces
+dump End Ecomponents
+dump End VfluidTot
+dump End ElecDensity
+dump End KEdensity
+dump End EigStats
+dump End BandEigs
+dump End DOS
+
+coords-type Cartesian
+ion O -0.235981 -0.237621 2.242580 	 1
+ion C -0.011521 -0.011600 0.109935 	 1
+
+ion-species GBRV_v1.5/$ID_pbe_v1.uspp
+
+coulomb-interaction Periodic
+dump End Forces
+dump End Ecomponents

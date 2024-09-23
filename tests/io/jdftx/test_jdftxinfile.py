@@ -9,13 +9,16 @@ import pytest
 from pytest import approx
 
 from pymatgen.io.jdftx.jdftxinfile import JDFTXInfile
+from pymatgen.util.testing import TEST_FILES_DIR
 
 if TYPE_CHECKING:
     from collections.abc import Callable
 
     from pymatgen.util.typing import PathLike
 
-ex_files_dir = Path(__file__).parents[0] / "example_files"
+
+ex_files_dir = Path(TEST_FILES_DIR) / "io" / "jdftx" / "example_files"
+dump_files_dir = Path(TEST_FILES_DIR) / "io" / "jdftx" / "new_files"
 
 ex_infile1_fname = ex_files_dir / "CO.in"
 ex_infile1_knowns = {
@@ -116,7 +119,7 @@ def JDFTXInfile_self_consistency_tester(jif: JDFTXInfile):
     str_list_jif = jif.get_text_list()
     str_jif = "\n".join(str_list_jif)
     jif3 = JDFTXInfile.from_str(str_jif)
-    tmp_fname = ex_files_dir / "tmp.in"
+    tmp_fname = dump_files_dir / "tmp.in"
     jif.write_file(tmp_fname)
     jif4 = JDFTXInfile.from_file(tmp_fname)
     jifs = [jif, jif2, jif3, jif4]
@@ -152,6 +155,3 @@ def is_identical_jif_val(v1, v2):
     if True in [isinstance(v1, dict)]:
         return is_identical_jif(v1, v2)
     return None
-
-
-# test_JDFTXInfile_self_consistency(ex_infile1_fname)

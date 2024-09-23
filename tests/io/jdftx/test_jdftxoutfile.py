@@ -8,11 +8,12 @@ from pytest import approx
 
 from pymatgen.core.units import Ha_to_eV
 from pymatgen.io.jdftx.jdftxoutfile import JDFTXOutfile
+from pymatgen.util.testing import TEST_FILES_DIR
 
 if TYPE_CHECKING:
     from pymatgen.util.typing import PathLike
 
-ex_files_dir = Path(__file__).parents[0] / "example_files"
+ex_files_dir = Path(TEST_FILES_DIR) / "io" / "jdftx" / "example_files"
 
 test_read = JDFTXOutfile.from_file(ex_files_dir / Path("problem1.out"))
 
@@ -176,6 +177,3 @@ def test_JDFTXOutfile_fromfile(filename: PathLike, known: dict):
     assert len(jout.slices) == known["nSlices"]
     assert jout.t_s == approx(known["t_s"])
     assert jout.jstrucs.iter_type == known["iter_type"]
-
-
-test_JDFTXOutfile_fromfile(ex_files_dir / Path("example_sp.out"), example_sp_known)

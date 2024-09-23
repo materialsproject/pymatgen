@@ -8,8 +8,9 @@ from pytest import approx
 
 from pymatgen.core.units import Ha_to_eV, bohr_to_ang
 from pymatgen.io.jdftx.joutstructure import JOutStructure
+from pymatgen.util.testing import TEST_FILES_DIR
 
-ex_files_dir = Path(__file__).parents[0] / "example_files"
+ex_files_dir = Path(TEST_FILES_DIR) / "io" / "jdftx" / "example_files"
 ex_slice_fname1 = ex_files_dir / "ex_text_slice_forJAtoms_latmin"
 ex_slice1 = []
 with open(ex_slice_fname1) as f:

@@ -7,8 +7,9 @@ from pytest import approx
 
 from pymatgen.core.units import Ha_to_eV
 from pymatgen.io.jdftx.joutstructures import JOutStructure, JOutStructures
+from pymatgen.util.testing import TEST_FILES_DIR
 
-ex_files_dir = Path(__file__).parents[0] / "example_files"
+ex_files_dir = Path(TEST_FILES_DIR) / "io" / "jdftx" / "example_files"
 ex_outslice_fname1 = ex_files_dir / "ex_out_slice_latmin"
 ex_outslice1 = []
 with open(ex_outslice_fname1) as f:
