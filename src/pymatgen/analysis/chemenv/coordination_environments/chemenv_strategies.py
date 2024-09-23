@@ -8,11 +8,12 @@ fraction. The choice of the strategy depends on the purpose of the user.
 from __future__ import annotations
 
 import abc
-import os
 from typing import TYPE_CHECKING
 
 import numpy as np
 from monty.json import MSONable
+from scipy.stats import gmean
+
 from pymatgen.analysis.chemenv.coordination_environments.coordination_geometries import AllCoordinationGeometries
 from pymatgen.analysis.chemenv.coordination_environments.voronoi import DetailedVoronoiContainer
 from pymatgen.analysis.chemenv.utils.chemenv_errors import EquivalentSiteSearchError
@@ -27,7 +28,6 @@ from pymatgen.analysis.chemenv.utils.func_utils import (
 from pymatgen.core.operations import SymmOp
 from pymatgen.core.sites import PeriodicSite
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
-from scipy.stats import gmean
 
 if TYPE_CHECKING:
     from typing import ClassVar
@@ -41,8 +41,6 @@ __version__ = "2.0"
 __maintainer__ = "David Waroquiers"
 __email__ = "david.waroquiers@gmail.com"
 __date__ = "Feb 20, 2016"
-
-module_dir = os.path.dirname(os.path.abspath(__file__))
 
 MPSYMBOL_TO_CN = AllCoordinationGeometries().get_symbol_cn_mapping()
 ALLCG = AllCoordinationGeometries()
@@ -264,9 +262,9 @@ class AbstractChemenvStrategy(MSONable, abc.ABC):
                 uc_psite = psite.to_unit_cell()
                 site_idx = self.structure_environments.structure.index(uc_psite)
             except ValueError:
-                for isite2, site2 in enumerate(self.structure_environments.structure):
+                for site_idx2, site2 in enumerate(self.structure_environments.structure):
                     if psite.is_periodic_image(site2):
-                        site_idx = isite2
+                        site_idx = site_idx2
                         break
         # Get the translation between psite and its corresponding site in the unit cell (Translation I)
         this_site = self.structure_environments.structure[site_idx]

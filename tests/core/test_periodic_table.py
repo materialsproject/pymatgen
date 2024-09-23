@@ -8,12 +8,13 @@ from enum import Enum
 
 import numpy as np
 import pytest
+from pytest import approx
+
 from pymatgen.core import DummySpecies, Element, Species, get_el_sp
 from pymatgen.core.periodic_table import ElementBase, ElementType
 from pymatgen.core.units import Ha_to_eV
 from pymatgen.io.core import ParseError
 from pymatgen.util.testing import PymatgenTest
-from pytest import approx
 
 
 class TestElement(PymatgenTest):
@@ -365,10 +366,11 @@ class TestElement(PymatgenTest):
 
     def test_pickle(self):
         pickled = pickle.dumps(Element.Fe)
-        assert Element.Fe == pickle.loads(pickled)
+        assert Element.Fe == pickle.loads(pickled)  # noqa: S301
 
         # Test 5 random elements
-        for idx in np.random.randint(1, 104, size=5):
+        rng = np.random.default_rng()
+        for idx in rng.integers(1, 104, size=5):
             self.serialize_with_pickle(Element.from_Z(idx))
 
     def test_print_periodic_table(self):
@@ -427,7 +429,7 @@ class TestSpecies(PymatgenTest):
         assert elem_list == deepcopy(elem_list), "Deepcopy operation doesn't produce exact copy."
 
     def test_pickle(self):
-        assert self.specie1 == pickle.loads(pickle.dumps(self.specie1))
+        assert self.specie1 == pickle.loads(pickle.dumps(self.specie1))  # noqa: S301
         for idx in range(1, 5):
             self.serialize_with_pickle(getattr(self, f"specie{idx}"))
         cs = Species("Cs1+")
@@ -437,7 +439,7 @@ class TestSpecies(PymatgenTest):
             pickle.dump((cs, cl), file)
 
         with open(f"{self.tmp_path}/cscl.pickle", "rb") as file:
-            tup = pickle.load(file)
+            tup = pickle.load(file)  # noqa: S301
             assert tup == (cs, cl)
 
     def test_get_crystal_field_spin(self):
@@ -588,7 +590,7 @@ class TestDummySpecies:
     def test_pickle(self):
         el1 = DummySpecies("X", 3)
         pickled = pickle.dumps(el1)
-        assert el1 == pickle.loads(pickled)
+        assert el1 == pickle.loads(pickled)  # noqa: S301
 
     def test_sort(self):
         Fe, X = Element.Fe, DummySpecies("X")
@@ -678,9 +680,9 @@ class TestDummySpecies:
             for ox in el.common_oxidation_states:
                 if str(el) == "H" and ox == 1:
                     continue
-                n_electron_el = sum([orb[-1] for orb in el.full_electronic_structure])
-                n_electron_sp = sum([orb[-1] for orb in Species(el, ox).full_electronic_structure])
-                assert n_electron_el - n_electron_sp == ox, print(f"Failure for {el} {ox}")
+                n_electron_el = sum(orb[-1] for orb in el.full_electronic_structure)
+                n_electron_sp = sum(orb[-1] for orb in Species(el, ox).full_electronic_structure)
+                assert n_electron_el - n_electron_sp == ox, f"Failure for {el} {ox}"
 
 
 def test_get_el_sp():

@@ -1,16 +1,18 @@
 from __future__ import annotations
 
 import copy
+import platform
 from unittest import TestCase
 
 import pytest
+from pytest import approx
+
 from pymatgen.analysis.graphs import MoleculeGraph
 from pymatgen.analysis.molecule_matcher import MoleculeMatcher
 from pymatgen.core.structure import Molecule
 from pymatgen.io.babel import BabelMolAdaptor
 from pymatgen.io.xyz import XYZ
 from pymatgen.util.testing import TEST_FILES_DIR
-from pytest import approx
 
 pybel = pytest.importorskip("openbabel.pybel")
 
@@ -114,6 +116,7 @@ class TestBabelMolAdaptor(TestCase):
         for site in opt_mol[1:]:
             assert site.distance(opt_mol[0]) == approx(1.09216, abs=1e-1)
 
+    @pytest.mark.skipif(platform.system() == "Windows", reason="Tests for openbabel failing on Win")
     def test_confab_conformers(self):
         mol = pybel.readstring("smi", "CCCC").OBMol
         adaptor = BabelMolAdaptor(mol)

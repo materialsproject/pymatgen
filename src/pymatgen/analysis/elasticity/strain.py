@@ -12,6 +12,7 @@ from typing import TYPE_CHECKING
 
 import numpy as np
 import scipy
+
 from pymatgen.core.lattice import Lattice
 from pymatgen.core.tensors import SquareTensor, symmetry_reduce
 
@@ -20,8 +21,9 @@ if TYPE_CHECKING:
     from typing import Literal
 
     from numpy.typing import ArrayLike
-    from pymatgen.core.structure import Structure
     from typing_extensions import Self
+
+    from pymatgen.core.structure import Structure
 
 __author__ = "Joseph Montoya"
 __copyright__ = "Copyright 2012, The Materials Project"
@@ -41,7 +43,7 @@ class Deformation(SquareTensor):
     def __new__(cls, deformation_gradient) -> Self:
         """
         Create a Deformation object. Note that the constructor uses __new__ rather than
-        __init__ according to the standard method of subclassing numpy ndarrays.
+        __init__ according to the standard method of subclassing numpy arrays.
 
         Args:
             deformation_gradient (3x3 array-like): the 3x3 array-like
@@ -54,11 +56,11 @@ class Deformation(SquareTensor):
         """Check to determine whether the deformation is independent."""
         return len(self.get_perturbed_indices(tol)) == 1
 
-    def get_perturbed_indices(self, tol: float = 1e-8):
+    def get_perturbed_indices(self, tol: float = 1e-8) -> list[tuple[int, int]]:
         """Get indices of perturbed elements of the deformation gradient,
-        i. e. those that differ from the identity.
+        i.e. those that differ from the identity.
         """
-        return list(zip(*np.where(abs(self - np.eye(3)) > tol)))
+        return list(zip(*np.where(abs(self - np.eye(3)) > tol), strict=True))
 
     @property
     def green_lagrange_strain(self):

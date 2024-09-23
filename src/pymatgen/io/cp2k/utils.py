@@ -1,4 +1,4 @@
-"""Utility functions for assisting with cp2k IO."""
+"""Utility functions for assisting with CP2K IO."""
 
 from __future__ import annotations
 
@@ -52,9 +52,9 @@ def postprocessor(data: str) -> str | float | bool | None:
 
 def preprocessor(data: str, dir: str = ".") -> str:  # noqa: A002
     """
-    Cp2k contains internal preprocessor flags that are evaluated before execution. This helper
-    function recognizes those preprocessor flags and replaces them with an equivalent cp2k input
-    (this way everything is contained neatly in the cp2k input structure, even if the user preferred
+    CP2K contains internal preprocessor flags that are evaluated before execution. This helper
+    function recognizes those preprocessor flags and replaces them with an equivalent CP2K input
+    (this way everything is contained neatly in the CP2K input structure, even if the user preferred
     to use the flags.
 
     CP2K preprocessor flags (with arguments) are:
@@ -67,7 +67,7 @@ def preprocessor(data: str, dir: str = ".") -> str:  # noqa: A002
         @IF/@ELIF: Not implemented yet.
 
     Args:
-        data (str): cp2k input to preprocess
+        data (str): CP2K input to preprocess
         dir (str, optional): Path for include files. Default is '.' (current directory).
 
     Returns:
@@ -76,7 +76,8 @@ def preprocessor(data: str, dir: str = ".") -> str:  # noqa: A002
     includes = re.findall(r"(@include.+)", data, re.IGNORECASE)
     for incl in includes:
         inc = incl.split()
-        assert len(inc) == 2  # @include filename
+        if len(inc) != 2:  # @include filename
+            raise ValueError(f"length of inc should be 2, got {len(inc)}")
         inc = inc[1].strip("'")
         inc = inc.strip('"')
         with zopen(os.path.join(dir, inc)) as file:
@@ -84,7 +85,8 @@ def preprocessor(data: str, dir: str = ".") -> str:  # noqa: A002
     variable_sets = re.findall(r"(@SET.+)", data, re.IGNORECASE)
     for match in variable_sets:
         v = match.split()
-        assert len(v) == 3  # @SET VAR value
+        if len(v) != 3:  # @SET VAR value
+            raise ValueError(f"length of v should be 3, got {len(v)}")
         var, value = v[1:]
         data = re.sub(rf"{match}", "", data)
         data = re.sub(rf"\${{?{var}}}?", value, data)
@@ -92,12 +94,12 @@ def preprocessor(data: str, dir: str = ".") -> str:  # noqa: A002
     c1 = re.findall(r"@IF", data, re.IGNORECASE)
     c2 = re.findall(r"@ELIF", data, re.IGNORECASE)
     if len(c1) > 0 or len(c2) > 0:
-        raise NotImplementedError("This cp2k input processor does not currently support conditional blocks.")
+        raise NotImplementedError("This CP2K input processor does not currently support conditional blocks.")
     return data
 
 
 def chunk(string: str):
-    """Chunk the string from a cp2k basis or potential file."""
+    """Chunk the string from a CP2K basis or potential file."""
     lines = iter(line for line in (line.strip() for line in string.split("\n")) if line and not line.startswith("#"))
     chunks: list = []
     for line in lines:
@@ -161,15 +163,15 @@ def get_unique_site_indices(struct: Structure | Molecule):
         )
         for idx, site in enumerate(struct)
     ]
-    unique_itms = list(set(items))
-    _sites: dict[tuple, list] = {u: [] for u in unique_itms}
+    unique_items = list(set(items))
+    _sites: dict[tuple, list] = {u: [] for u in unique_items}
     for i, itm in enumerate(items):
         _sites[itm].append(i)
     sites = {}
     nums = dict.fromkeys(struct.symbol_set, 1)
-    for s in _sites:
-        sites[f"{s[0]}_{nums[s[0]]}"] = _sites[s]
-        nums[s[0]] += 1
+    for site, val in _sites.items():
+        sites[f"{site[0]}_{nums[site[0]]}"] = val
+        nums[site[0]] += 1
 
     return sites
 

@@ -32,7 +32,7 @@ __maintainer__ = "David Waroquiers"
 __email__ = "david.waroquiers@gmail.com"
 __date__ = "Feb 20, 2016"
 
-module_dir = os.path.dirname(os.path.abspath(__file__))
+MODULE_DIR = os.path.dirname(os.path.abspath(__file__))
 
 UNKNOWN_ENVIRONMENT_SYMBOL = "UNKNOWN"
 UNCLEAR_ENVIRONMENT_SYMBOL = "UNCLEAR"
@@ -668,8 +668,7 @@ class CoordinationGeometry:
             if self.ce_symbol in ["S:1", "L:2"]:
                 self._pauling_stability_ratio = 0.0
             else:
-                min_dist_anions = 1_000_000
-                min_dist_cation_anion = 1_000_000
+                min_dist_anions = min_dist_cation_anion = 1_000_000
                 for ipt1 in range(len(self.points)):
                     pt1 = np.array(self.points[ipt1])
                     min_dist_cation_anion = min(min_dist_cation_anion, np.linalg.norm(pt1 - self.central_site))
@@ -850,17 +849,17 @@ class AllCoordinationGeometries(dict):
         dict.__init__(self)
         self.cg_list: list[CoordinationGeometry] = []
         if only_symbols is None:
-            with open(f"{module_dir}/coordination_geometries_files/allcg.txt") as file:
+            with open(f"{MODULE_DIR}/coordination_geometries_files/allcg.txt") as file:
                 data = file.readlines()
             for line in data:
-                cg_file = f"{module_dir}/{line.strip()}"
+                cg_file = f"{MODULE_DIR}/{line.strip()}"
                 with open(cg_file) as file:
                     dd = json.load(file)
                 self.cg_list.append(CoordinationGeometry.from_dict(dd))
         else:
             for symbol in only_symbols:
                 fsymbol = symbol.replace(":", "#")
-                cg_file = f"{module_dir}/coordination_geometries_files/{fsymbol}.json"
+                cg_file = f"{MODULE_DIR}/coordination_geometries_files/{fsymbol}.json"
                 with open(cg_file) as file:
                     dd = json.load(file)
                 self.cg_list.append(CoordinationGeometry.from_dict(dd))

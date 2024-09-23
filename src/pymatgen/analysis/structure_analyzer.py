@@ -10,10 +10,11 @@ from warnings import warn
 
 import matplotlib.pyplot as plt
 import numpy as np
+from scipy.spatial import Voronoi
+
 from pymatgen.analysis.local_env import JmolNN, VoronoiNN
 from pymatgen.core import Composition, Element, PeriodicSite, Species
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
-from scipy.spatial import Voronoi
 
 if TYPE_CHECKING:
     from pymatgen.core import Structure
@@ -153,7 +154,7 @@ class VoronoiAnalyzer:
         Returns:
             plt.Axes: Matplotlib Axes object with the plotted Voronoi analysis.
         """
-        labels, val = zip(*voronoi_ensemble)
+        labels, val = zip(*voronoi_ensemble, strict=True)
         arr = np.array(val, dtype=float)
         arr /= np.sum(arr)
         pos = np.arange(len(arr)) + 0.5  # the bar centers on the y axis
@@ -394,7 +395,7 @@ def contains_peroxide(structure, relative_cutoff=1.1):
             atoms must be to each other to be considered a peroxide.
 
     Returns:
-        Boolean indicating if structure contains a peroxide anion.
+        bool: True if structure contains a peroxide anion.
     """
     return oxide_type(structure, relative_cutoff) == "peroxide"
 
@@ -456,9 +457,7 @@ class OxideType:
                 return "hydroxide", int(len(np.where(dist_matrix < relative_cutoff * 0.93)[0]) / 2)
         dist_matrix = lattice.get_all_distances(o_sites_frac_coords, o_sites_frac_coords)
         np.fill_diagonal(dist_matrix, 1000)
-        is_superoxide = False
-        is_peroxide = False
-        is_ozonide = False
+        is_superoxide = is_peroxide = is_ozonide = False
         bond_atoms = []
         if np.any(dist_matrix < relative_cutoff * 1.35):
             bond_atoms = np.where(dist_matrix < relative_cutoff * 1.35)[0]

@@ -17,6 +17,7 @@ from typing import TYPE_CHECKING
 
 import scipy.constants as const
 from monty.design_patterns import singleton
+
 from pymatgen.analysis.phase_diagram import PDEntry, PhaseDiagram
 from pymatgen.core import Composition, Element
 from pymatgen.util.provenance import is_valid_bibtex
@@ -31,7 +32,7 @@ __maintainer__ = "Anubhav Jain"
 __email__ = "ajain@lbl.gov"
 __date__ = "Aug 27, 2013"
 
-module_dir = os.path.dirname(os.path.abspath(__file__))
+MODULE_DIR = os.path.dirname(os.path.abspath(__file__))
 
 
 class CostEntry(PDEntry):
@@ -111,16 +112,16 @@ class CostDBElements(CostDBCSV):
     """Singleton that provides the cost data for elements."""
 
     def __init__(self):
-        CostDBCSV.__init__(self, f"{module_dir}/costdb_elements.csv")
+        CostDBCSV.__init__(self, f"{MODULE_DIR}/costdb_elements.csv")
 
 
 class CostAnalyzer:
     """Given a CostDB, figures out the minimum cost solutions via convex hull."""
 
-    def __init__(self, costdb):
+    def __init__(self, costdb: CostDB) -> None:
         """
         Args:
-            costdb (): Cost database.
+            costdb (CostDB): Cost database to use.
         """
         self.costdb = costdb
 

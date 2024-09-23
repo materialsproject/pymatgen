@@ -3,6 +3,7 @@ from __future__ import annotations
 from unittest import TestCase
 
 import pytest
+
 from pymatgen.analysis.quasirrho import QuasiRRHO, get_avg_mom_inertia
 from pymatgen.io.gaussian import GaussianOutput
 from pymatgen.io.qchem.outputs import QCOutput

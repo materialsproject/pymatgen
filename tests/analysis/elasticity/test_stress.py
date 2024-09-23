@@ -3,15 +3,16 @@ from __future__ import annotations
 import numpy as np
 import pytest
 from numpy.testing import assert_allclose
+from pytest import approx
+
 from pymatgen.analysis.elasticity.strain import Deformation
 from pymatgen.analysis.elasticity.stress import Stress
 from pymatgen.util.testing import PymatgenTest
-from pytest import approx
 
 
 class TestStress(PymatgenTest):
     def setUp(self):
-        self.rand_stress = Stress(np.random.randn(3, 3))
+        self.rand_stress = Stress(np.random.default_rng().standard_normal((3, 3)))
         self.symm_stress = Stress([[0.51, 2.29, 2.42], [2.29, 5.14, 5.07], [2.42, 5.07, 5.33]])
         self.non_symm = Stress([[0.1, 0.2, 0.3], [0.4, 0.5, 0.6], [0.2, 0.5, 0.5]])
 
@@ -51,4 +52,7 @@ class TestStress(PymatgenTest):
             UserWarning, match="Tensor is not symmetric, information may be lost in Voigt conversion"
         ) as warns:
             _ = self.non_symm.voigt
-        assert len(warns) == 1
+        assert (
+            sum("Tensor is not symmetric, information may be lost in Voigt conversion" in str(warn) for warn in warns)
+            == 1
+        )

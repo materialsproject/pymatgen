@@ -8,6 +8,7 @@ from typing import TYPE_CHECKING
 
 import matplotlib.pyplot as plt
 import numpy as np
+
 from pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies import (
     AngleNbSetWeight,
     CNBiasNbSetWeight,
@@ -50,7 +51,9 @@ class CoordinationEnvironmentMorphing:
         self.abstract_geometry = AbstractGeometry.from_cg(self.coordination_geometry)
 
     @classmethod
-    def simple_expansion(cls, initial_environment_symbol, expected_final_environment_symbol, neighbors_indices):
+    def simple_expansion(
+        cls, initial_environment_symbol, expected_final_environment_symbol, neighbors_indices
+    ) -> CoordinationEnvironmentMorphing:
         """Simple expansion of a coordination environment.
 
         Args:
@@ -62,8 +65,8 @@ class CoordinationEnvironmentMorphing:
             CoordinationEnvironmentMorphing
         """
         morphing_description = [
-            {"ineighbor": i_nb, "site_type": "neighbor", "expansion_origin": "central_site"}
-            for i_nb in neighbors_indices
+            {"ineighbor": nbr_idx, "site_type": "neighbor", "expansion_origin": "central_site"}
+            for nbr_idx in neighbors_indices
         ]
         return cls(
             initial_environment_symbol=initial_environment_symbol,
@@ -155,11 +158,11 @@ class CoordinationEnvironmentMorphing:
             if morphing["site_type"] != "neighbor":
                 raise ValueError(f"Key \"site_type\" is {morphing['site_type']} while it can only be neighbor")
 
-            i_site = morphing["ineighbor"] + 1
+            site_idx = morphing["ineighbor"] + 1
             if morphing["expansion_origin"] == "central_site":
                 origin = bare_points[0]
-            vector = bare_points[i_site] - origin
-            coords[i_site] += vector * (morphing_factor - 1.0)
+            vector = bare_points[site_idx] - origin
+            coords[site_idx] += vector * (morphing_factor - 1.0)
 
         return Structure(lattice=lattice, species=species, coords=coords, coords_are_cartesian=True)
 

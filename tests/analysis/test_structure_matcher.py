@@ -6,6 +6,8 @@ import numpy as np
 import pytest
 from monty.json import MontyDecoder
 from numpy.testing import assert_allclose
+from pytest import approx
+
 from pymatgen.analysis.structure_matcher import (
     ElementComparator,
     FrameworkComparator,
@@ -16,7 +18,6 @@ from pymatgen.analysis.structure_matcher import (
 from pymatgen.core import Element, Lattice, Structure, SymmOp
 from pymatgen.util.coord import find_in_coord_list_pbc
 from pymatgen.util.testing import TEST_FILES_DIR, VASP_IN_DIR, PymatgenTest
-from pytest import approx
 
 TEST_DIR = f"{TEST_FILES_DIR}/analysis/structure_matcher"
 
@@ -464,7 +465,7 @@ class TestStructureMatcher(PymatgenTest):
 
         # test when s1 is exact supercell of s2
         result = sm.get_s2_like_s1(s1, s2)
-        for a, b in zip(s1, result):
+        for a, b in zip(s1, result, strict=True):
             assert a.distance(b) < 0.08
             assert a.species == b.species
 
@@ -482,7 +483,7 @@ class TestStructureMatcher(PymatgenTest):
         del subset_supercell[0]
         result = sm.get_s2_like_s1(subset_supercell, s2)
         assert len(result) == 6
-        for a, b in zip(subset_supercell, result):
+        for a, b in zip(subset_supercell, result, strict=False):
             assert a.distance(b) < 0.08
             assert a.species == b.species
 
@@ -499,7 +500,7 @@ class TestStructureMatcher(PymatgenTest):
         s2_missing_site = s2.copy()
         del s2_missing_site[1]
         result = sm.get_s2_like_s1(s1, s2_missing_site)
-        for a, b in zip((s1[i] for i in (0, 2, 4, 5)), result):
+        for a, b in zip((s1[i] for i in (0, 2, 4, 5)), result, strict=True):
             assert a.distance(b) < 0.08
             assert a.species == b.species
 
@@ -533,7 +534,7 @@ class TestStructureMatcher(PymatgenTest):
 
         result = sm.get_s2_like_s1(s1, s2)
 
-        for x, y in zip(s1, result):
+        for x, y in zip(s1, result, strict=True):
             assert x.distance(y) < 0.08
 
     def test_get_mapping(self):

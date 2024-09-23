@@ -8,6 +8,7 @@ https://www.nature.com/articles/s41524-020-0319-4.
 from __future__ import annotations
 
 import numpy as np
+
 from pymatgen.io.vasp.outputs import Wavecar
 
 
@@ -41,7 +42,7 @@ class SOCSpillage:
         n_rows, n_cols = A.shape
         eps = np.finfo(float).eps
         tol = max(n_rows, n_cols) * np.amax(s) * eps
-        num = np.sum(s > tol, dtype=int)
+        num = np.sum(s > tol, dtype=np.int64)
         orthonormal_basis = u[:, :num]
         return orthonormal_basis, num
 

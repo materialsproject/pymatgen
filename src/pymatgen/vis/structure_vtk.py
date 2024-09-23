@@ -12,6 +12,7 @@ from typing import TYPE_CHECKING
 import numpy as np
 from monty.dev import requires
 from monty.serialization import loadfn
+
 from pymatgen.core import PeriodicSite, Species, Structure
 from pymatgen.util.coord import in_coord_list
 
@@ -27,8 +28,8 @@ if TYPE_CHECKING:
     from collections.abc import Sequence
     from typing import ClassVar
 
-module_dir = os.path.dirname(os.path.abspath(__file__))
-EL_COLORS = loadfn(f"{module_dir}/ElementColorSchemes.yaml")
+MODULE_DIR = os.path.dirname(os.path.abspath(__file__))
+EL_COLORS = loadfn(f"{MODULE_DIR}/ElementColorSchemes.yaml")
 
 
 class StructureVis:
@@ -256,7 +257,7 @@ class StructureVis:
                         exclude = True
                         break
                     max_radius = max(max_radius, sp.average_ionic_radius)
-                    color = color + occu * np.array(self.el_color_mapping.get(sp.symbol, [0, 0, 0]))
+                    color += occu * np.array(self.el_color_mapping.get(sp.symbol, [0, 0, 0]))
 
                 if not exclude:
                     max_radius = (1 + self.poly_radii_tol_factor) * (max_radius + anion_radius)
@@ -322,9 +323,7 @@ class StructureVis:
         Args:
             site: Site to add.
         """
-        start_angle = 0
-        radius = 0
-        total_occu = 0
+        start_angle = radius = total_occu = 0
 
         for specie, occu in site.species.items():
             radius += occu * (
@@ -360,7 +359,7 @@ class StructureVis:
         Args:
             coords (nd.array): Coordinates
             radius (float): Radius of sphere
-            color (): Color of sphere.
+            color (tuple): RGB color of sphere
             start (float): Starting angle.
             end (float): Ending angle.
             opacity (float): Opacity.
@@ -516,7 +515,7 @@ class StructureVis:
             color: Color for triangle as RGB.
             center: The "central atom" of the triangle
             opacity: opacity of the triangle
-            draw_edges: If set to True, the a line will be  drawn at each edge
+            draw_edges: If set to True, the a line will be drawn at each edge
             edges_color: Color of the line for the edges
             edges_linewidth: Width of the line drawn for the edges
         """
@@ -568,8 +567,8 @@ class StructureVis:
         Adding face of polygon.
 
         Args:
-            faces (): Coordinates of the faces.
-            color (): Color.
+            faces (list): Coordinates of the faces.
+            color (tuple): RGB color.
             opacity (float): Opacity
         """
         for face in faces:
@@ -628,13 +627,19 @@ class StructureVis:
             else:
                 raise ValueError("Number of points for a face should be >= 3")
 
-    def add_edges(self, edges, type="line", linewidth=2, color=(0.0, 0.0, 0.0)):  # noqa: A002
+    def add_edges(
+        self,
+        edges: Sequence[Sequence[Sequence[float]]],
+        type: str = "line",  # noqa: A002
+        linewidth: float = 2,
+        color: tuple[float, float, float] = (0.0, 0.0, 0.0),
+    ) -> None:
         """
         Args:
-            edges (): List of edges
-            type (): placeholder
-            linewidth (): Width of line
-            color (nd.array/tuple): RGB color.
+            edges (Sequence): List of edges. Each edge is a list of two points.
+            type (str): Type of the edge. Defaults to "line". Unused.
+            linewidth (float): Width of the line.
+            color (tuple[float, float, float]): RGB color.
         """
         points = vtk.vtkPoints()
         lines = vtk.vtkCellArray()
@@ -921,7 +926,7 @@ class MultiStructuresVis(StructureVis):
                 bonding determination. Defaults to an empty list. Useful
                 when trying to visualize a certain atom type in the
                 framework (e.g., Li in a Li-ion battery cathode material).
-            animated_movie_options (): Used for moving.
+            animated_movie_options (dict): Options for animated movie.
         """
         super().__init__(
             element_color_mapping=element_color_mapping,
@@ -941,12 +946,11 @@ class MultiStructuresVis(StructureVis):
         self.set_animated_movie_options(animated_movie_options=animated_movie_options)
 
     def set_structures(self, structures: Sequence[Structure], tags=None):
-        """
-        Add list of structures to the visualizer.
+        """Add list of structures to the visualizer.
 
         Args:
             structures (list[Structures]): structures to be visualized.
-            tags (): List of tags.
+            tags (list[dict]): List of tags to be applied to the structures.
         """
         self.structures = structures
         self.istruct = 0
@@ -1001,9 +1005,9 @@ class MultiStructuresVis(StructureVis):
             opacity = tag.get("opacity", 0.5)
             if site_index == "unit_cell_all":
                 struct_radii = self.all_vis_radii[self.istruct]
-                for isite, _site in enumerate(self.current_structure):
-                    vis_radius = 1.5 * tag.get("radius", struct_radii[isite])
-                    tags[(isite, (0, 0, 0))] = {
+                for site_idx in range(len(self.current_structure)):
+                    vis_radius = 1.5 * tag.get("radius", struct_radii[site_idx])
+                    tags[site_idx, (0, 0, 0)] = {
                         "radius": vis_radius,
                         "color": color,
                         "opacity": opacity,
@@ -1016,21 +1020,21 @@ class MultiStructuresVis(StructureVis):
                 vis_radius = tag["radius_factor"] * self.all_vis_radii[self.istruct][site_index]
             else:
                 vis_radius = 1.5 * self.all_vis_radii[self.istruct][site_index]
-            tags[(site_index, cell_index)] = {
+            tags[site_index, cell_index] = {
                 "radius": vis_radius,
                 "color": color,
                 "opacity": opacity,
             }
         for site_and_cell_index, tag_style in tags.items():
-            isite, cell_index = site_and_cell_index
-            site = self.current_structure[isite]
+            site_idx, cell_index = site_and_cell_index
+            site = self.current_structure[site_idx]
             if cell_index == (0, 0, 0):
                 coords = site.coords
             else:
-                fcoords = site.frac_coords + np.array(cell_index)
+                frac_coords = site.frac_coords + np.array(cell_index)
                 site_image = PeriodicSite(
                     site.species,
-                    fcoords,
+                    frac_coords,
                     self.current_structure.lattice,
                     to_unit_cell=False,
                     coords_are_cartesian=False,
@@ -1053,7 +1057,7 @@ class MultiStructuresVis(StructureVis):
     def set_animated_movie_options(self, animated_movie_options=None):
         """
         Args:
-            animated_movie_options (): animated movie options.
+            animated_movie_options (dict): Options for animated movie.
         """
         if animated_movie_options is None:
             self.animated_movie_options = self.DEFAULT_ANIMATED_MOVIE_OPTIONS.copy()
@@ -1091,20 +1095,20 @@ class MultiStructuresVis(StructureVis):
             warning (str): Warning.
         """
         self.warning_txt_mapper = vtk.vtkTextMapper()
-        tprops = self.warning_txt_mapper.GetTextProperty()
-        tprops.SetFontSize(14)
-        tprops.SetFontFamilyToTimes()
-        tprops.SetColor(1, 0, 0)
-        tprops.BoldOn()
-        tprops.SetJustificationToRight()
+        text_props = self.warning_txt_mapper.GetTextProperty()
+        text_props.SetFontSize(14)
+        text_props.SetFontFamilyToTimes()
+        text_props.SetColor(1, 0, 0)
+        text_props.BoldOn()
+        text_props.SetJustificationToRight()
         self.warning_txt = f"WARNING : {warning}"
         self.warning_txt_actor = vtk.vtkActor2D()
         self.warning_txt_actor.VisibilityOn()
         self.warning_txt_actor.SetMapper(self.warning_txt_mapper)
         self.ren.AddActor(self.warning_txt_actor)
         self.warning_txt_mapper.SetInput(self.warning_txt)
-        winsize = self.ren_win.GetSize()
-        self.warning_txt_actor.SetPosition(winsize[0] - 10, 10)
+        win_size = self.ren_win.GetSize()
+        self.warning_txt_actor.SetPosition(win_size[0] - 10, 10)
         self.warning_txt_actor.VisibilityOn()
 
     def erase_warning(self):
@@ -1117,20 +1121,20 @@ class MultiStructuresVis(StructureVis):
             info (str): Information.
         """
         self.info_txt_mapper = vtk.vtkTextMapper()
-        tprops = self.info_txt_mapper.GetTextProperty()
-        tprops.SetFontSize(14)
-        tprops.SetFontFamilyToTimes()
-        tprops.SetColor(0, 0, 1)
-        tprops.BoldOn()
-        tprops.SetVerticalJustificationToTop()
+        t_prop = self.info_txt_mapper.GetTextProperty()
+        t_prop.SetFontSize(14)
+        t_prop.SetFontFamilyToTimes()
+        t_prop.SetColor(0, 0, 1)
+        t_prop.BoldOn()
+        t_prop.SetVerticalJustificationToTop()
         self.info_txt = f"INFO : {info}"
         self.info_txt_actor = vtk.vtkActor2D()
         self.info_txt_actor.VisibilityOn()
         self.info_txt_actor.SetMapper(self.info_txt_mapper)
         self.ren.AddActor(self.info_txt_actor)
         self.info_txt_mapper.SetInput(self.info_txt)
-        winsize = self.ren_win.GetSize()
-        self.info_txt_actor.SetPosition(10, winsize[1] - 10)
+        win_size = self.ren_win.GetSize()
+        self.info_txt_actor.SetPosition(10, win_size[1] - 10)
         self.info_txt_actor.VisibilityOn()
 
     def erase_info(self):

@@ -7,6 +7,7 @@ from unittest import TestCase
 
 import numpy as np
 import pytest
+
 from pymatgen.core.structure import Molecule, Structure
 from pymatgen.util.provenance import Author, HistoryNode, StructureNL
 
@@ -19,14 +20,16 @@ __email__ = "ajain@lbl.gov"
 __date__ = "2/14/13"
 
 
-class StructureNLCase(TestCase):
+class TestStructureNL(TestCase):
     def setUp(self):
         # set up a Structure
         self.struct = Structure(np.eye(3, 3) * 3, ["Fe"], [[0, 0, 0]])
         self.s2 = Structure(np.eye(3, 3) * 3, ["Al"], [[0, 0, 0]])
         self.mol = Molecule(["He"], [[0, 0, 0]])
         # set up BibTeX strings
-        self.matproj = "@misc{MaterialsProject,\ntitle = {{Materials Project}},\nurl = {http://materialsproject.org}\n}"
+        self.matproj = (
+            "@misc{MaterialsProject,\ntitle = {{Materials Project}},\nurl = {https://materialsproject.org}\n}"
+        )
         self.pmg = (
             "@article{Ong2013,\n author = {Ong, "
             "Shyue Ping and Richards, William Davidson and Jain, "
@@ -213,8 +216,8 @@ class StructureNLCase(TestCase):
             {"_my_data": "string"},
             [self.valid_node, self.valid_node2],
         )
-        b = StructureNL.from_dict(struct_nl.as_dict())
-        assert struct_nl == b
+        round_trip_from_dict = StructureNL.from_dict(struct_nl.as_dict())
+        assert struct_nl == round_trip_from_dict
         # complicated objects in the 'data' and 'nodes' field
         complicated_node = {
             "name": "complicated node",
@@ -230,15 +233,15 @@ class StructureNLCase(TestCase):
             {"_my_data": {"structure": self.s2}},
             [complicated_node, self.valid_node],
         )
-        b = StructureNL.from_dict(struct_nl.as_dict())
+        round_trip_from_dict = StructureNL.from_dict(struct_nl.as_dict())
         assert (
-            struct_nl == b
+            struct_nl == round_trip_from_dict
         ), "to/from dict is broken when object embedding is used! Apparently MontyEncoding is broken..."
 
         # Test molecule
         mol_nl = StructureNL(self.mol, self.hulk, references=self.pmg)
-        b = StructureNL.from_dict(mol_nl.as_dict())
-        assert mol_nl == b
+        round_trip_from_dict = StructureNL.from_dict(mol_nl.as_dict())
+        assert mol_nl == round_trip_from_dict
 
     def test_from_structures(self):
         s1 = Structure(np.eye(3) * 5, ["Fe"], [[0, 0, 0]])

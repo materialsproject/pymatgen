@@ -11,6 +11,7 @@ from typing import TYPE_CHECKING
 
 import numpy as np
 from monty.serialization import loadfn
+
 from pymatgen.core import Element, Species, get_el_sp
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
 
@@ -21,15 +22,15 @@ if TYPE_CHECKING:
 # JACS, 1991, 113(9), 3226-3229. doi:10.1021/ja00009a002.
 ELECTRONEG = [Element(sym) for sym in "H B C Si N P As Sb O S Se Te F Cl Br I".split()]
 
-module_dir = os.path.dirname(os.path.abspath(__file__))
+MODULE_DIR = os.path.dirname(os.path.abspath(__file__))
 
 # Read in BV parameters.
 BV_PARAMS = {}
-for key, val in loadfn(f"{module_dir}/bvparam_1991.yaml").items():
+for key, val in loadfn(f"{MODULE_DIR}/bvparam_1991.yaml").items():
     BV_PARAMS[Element(key)] = val
 
 # Read in YAML containing data-mined ICSD BV data.
-all_data = loadfn(f"{module_dir}/icsd_bv.yaml")
+all_data = loadfn(f"{MODULE_DIR}/icsd_bv.yaml")
 ICSD_BV_DATA = {Species.from_str(sp): data for sp, data in all_data["bvsum"].items()}
 PRIOR_PROB = {Species.from_str(sp): data for sp, data in all_data["occurrence"].items()}
 
@@ -402,7 +403,7 @@ class BVAnalyzer:
         if self._best_vset:
             if structure.is_ordered:
                 assigned = {}
-                for val, sites in zip(self._best_vset, equi_sites):
+                for val, sites in zip(self._best_vset, equi_sites, strict=True):
                     for site in sites:
                         assigned[site] = val
 
@@ -413,14 +414,14 @@ class BVAnalyzer:
                 new_best_vset.append([])
             for ival, val in enumerate(self._best_vset):
                 new_best_vset[attrib[ival]].append(val)
-            for val, sites in zip(new_best_vset, equi_sites):
+            for val, sites in zip(new_best_vset, equi_sites, strict=True):
                 for site in sites:
                     assigned[site] = val
 
             return [[int(frac_site) for frac_site in assigned[site]] for site in structure]
         raise ValueError("Valences cannot be assigned!")
 
-    def get_oxi_state_decorated_structure(self, structure: Structure):
+    def get_oxi_state_decorated_structure(self, structure: Structure) -> Structure:
         """Get an oxidation state decorated structure. This currently works only
         for ordered structures only.
 
@@ -428,7 +429,7 @@ class BVAnalyzer:
             structure: Structure to analyze
 
         Returns:
-            A modified structure that is oxidation state decorated.
+            Structure: modified with oxidation state decorations.
 
         Raises:
             ValueError if the valences cannot be determined.
@@ -459,18 +460,18 @@ def get_z_ordered_elmap(comp):
     return sorted((elem, comp[elem]) for elem in comp)
 
 
-def add_oxidation_state_by_site_fraction(structure, oxidation_states):
+def add_oxidation_state_by_site_fraction(structure: Structure, oxidation_states: list[list[int]]) -> Structure:
     """
     Add oxidation states to a structure by fractional site.
 
     Args:
-        oxidation_states (list): List of list of oxidation states for each
+        oxidation_states (list[list[int]]): List of list of oxidation states for each
             site fraction for each site.
             e.g. [[2, 4], [3], [-2], [-2], [-2]]
     """
     try:
         for idx, site in enumerate(structure):
-            new_sp = defaultdict(float)
+            new_sp: dict[Species, float] = defaultdict(float)
             for j, (el, occu) in enumerate(get_z_ordered_elmap(site.species)):
                 specie = Species(el.symbol, oxidation_states[idx][j])
                 new_sp[specie] += occu

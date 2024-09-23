@@ -15,6 +15,7 @@ from random import shuffle
 
 import numpy as np
 import tabulate
+
 from pymatgen.analysis.chemenv.coordination_environments.coordination_geometries import AllCoordinationGeometries
 from pymatgen.analysis.chemenv.coordination_environments.coordination_geometry_finder import (
     AbstractGeometry,
@@ -397,9 +398,10 @@ if __name__ == "__main__":
                         perms_used[some_perm] += 1
                     else:
                         perms_used[some_perm] = 1
-                tcurrent = time.process_time()
-                assert n_permutations is not None
-                time_left = (n_permutations - idx_perm) * (tcurrent - t0) / idx_perm
+                t_now = time.process_time()
+                if n_permutations is None:
+                    raise ValueError(f"{n_permutations=}")
+                time_left = (n_permutations - idx_perm) * (t_now - t0) / idx_perm
                 time_left = f"{time_left:.1f}"
                 idx_perm += 1
             print(

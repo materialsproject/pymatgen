@@ -3,6 +3,8 @@ from __future__ import annotations
 import numpy as np
 import pytest
 from numpy.testing import assert_allclose, assert_array_equal
+from pytest import approx
+
 from pymatgen.core.structure import Molecule, Structure
 from pymatgen.io.cp2k.inputs import (
     BasisFile,
@@ -21,7 +23,6 @@ from pymatgen.io.cp2k.inputs import (
     SectionList,
 )
 from pymatgen.util.testing import TEST_FILES_DIR, PymatgenTest
-from pytest import approx
 
 TEST_DIR = f"{TEST_FILES_DIR}/io/cp2k"
 
@@ -125,8 +126,8 @@ class TestBasisAndPotential(PymatgenTest):
             )
 
         # Ensure keyword can be properly generated
-        kw = mol_opt.get_keyword()
-        assert kw.values[0] == "SZV-MOLOPT-GTH"  # noqa: PD011
+        kw: Keyword = mol_opt.get_keyword()
+        assert kw.values[0] == "SZV-MOLOPT-GTH"
         mol_opt.info.admm = True
         kw = mol_opt.get_keyword()
         assert_array_equal(kw.values, ["AUX_FIT", "SZV-MOLOPT-GTH"])
@@ -153,9 +154,9 @@ class TestBasisAndPotential(PymatgenTest):
 
         # Ensure keyword can be properly generated
         kw = pot.get_keyword()
-        assert kw.values[0] == "GTH-PBE-q1"  # noqa: PD011
+        assert kw.values[0] == "GTH-PBE-q1"
         kw = h_all_elec.get_keyword()
-        assert kw.values[0] == "ALL"  # noqa: PD011
+        assert kw.values[0] == "ALL"
 
 
 class TestInput(PymatgenTest):
@@ -181,9 +182,9 @@ class TestInput(PymatgenTest):
 
     def test_basic_keywords(self):
         kwd = Keyword("TEST1", 1, 2)
-        assert kwd.values == (1, 2)  # noqa: PD011
+        assert kwd.values == (1, 2)
         kwd = Keyword("TEST2", [1, 2, 3])
-        assert kwd.values == ([1, 2, 3],)  # noqa: PD011
+        assert kwd.values == ([1, 2, 3],)
         kwd = Keyword("TEST3", "xyz", description="testing", units="Ha")
         assert kwd.description == "testing"
         assert "[Ha]" in kwd.get_str()
@@ -192,7 +193,7 @@ class TestInput(PymatgenTest):
         for struct in [nonsense_struct, si_struct, ch_mol]:
             coords = Coord(struct)
             for val in coords.keywords.values():
-                assert isinstance(val, (Keyword, KeywordList))
+                assert isinstance(val, Keyword | KeywordList)
 
     def test_kind(self):
         for struct in [nonsense_struct, si_struct, ch_mol]:
@@ -201,9 +202,9 @@ class TestInput(PymatgenTest):
 
     def test_ci_file(self):
         # proper type retrieval
-        assert isinstance(self.ci["FORCE_EVAL"]["DFT"]["MGRID"]["NGRIDS"].values[0], int)  # noqa: PD011
-        assert isinstance(self.ci["FORCE_EVAL"]["DFT"]["UKS"].values[0], bool)  # noqa: PD011
-        assert isinstance(self.ci["FORCE_EVAL"]["DFT"]["QS"]["EPS_DEFAULT"].values[0], float)  # noqa: PD011
+        assert isinstance(self.ci["FORCE_EVAL"]["DFT"]["MGRID"]["NGRIDS"].values[0], int)
+        assert isinstance(self.ci["FORCE_EVAL"]["DFT"]["UKS"].values[0], bool)
+        assert isinstance(self.ci["FORCE_EVAL"]["DFT"]["QS"]["EPS_DEFAULT"].values[0], float)
 
         # description retrieval
         assert self.ci["FORCE_EVAL"]["SUBSYS"]["CELL"].description == "Input parameters needed to set up the CELL."
@@ -213,8 +214,9 @@ class TestInput(PymatgenTest):
 
     def test_odd_file(self):
         scramble = ""
+        rng = np.random.default_rng()
         for string in self.ci.get_str():
-            if np.random.rand(1) > 0.5:
+            if rng.choice((True, False)):
                 if string == "\t":
                     scramble += " "
                 elif string == " ":

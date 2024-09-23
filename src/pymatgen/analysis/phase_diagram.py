@@ -21,6 +21,11 @@ from matplotlib.cm import ScalarMappable
 from matplotlib.colors import LinearSegmentedColormap, Normalize
 from matplotlib.font_manager import FontProperties
 from monty.json import MontyDecoder, MSONable
+from scipy import interpolate
+from scipy.optimize import minimize
+from scipy.spatial import ConvexHull
+from tqdm import tqdm
+
 from pymatgen.analysis.reaction_calculator import Reaction, ReactionError
 from pymatgen.core import DummySpecies, Element, get_el_sp
 from pymatgen.core.composition import Composition
@@ -29,10 +34,6 @@ from pymatgen.util.coord import Simplex, in_coord_list
 from pymatgen.util.due import Doi, due
 from pymatgen.util.plotting import pretty_plot
 from pymatgen.util.string import htmlify, latexify
-from scipy import interpolate
-from scipy.optimize import minimize
-from scipy.spatial import ConvexHull
-from tqdm import tqdm
 
 if TYPE_CHECKING:
     from collections.abc import Collection, Iterator, Sequence
@@ -95,9 +96,7 @@ class PDEntry(Entry):
 
     def as_dict(self):
         """Get MSONable dict representation of PDEntry."""
-        return_dict = super().as_dict()
-        return_dict.update({"name": self.name, "attribute": self.attribute})
-        return return_dict
+        return super().as_dict() | {"name": self.name, "attribute": self.attribute}
 
     @classmethod
     def from_dict(cls, dct: dict) -> Self:
@@ -365,8 +364,10 @@ class PhaseDiagram(MSONable):
             computed_data = self._compute()
         else:
             computed_data = MontyDecoder().process_decoded(computed_data)
-            assert isinstance(computed_data, dict)
-            # update keys to be Element objects in case they are strings in pre-computed data
+            if not isinstance(computed_data, dict):
+                raise TypeError(f"computed_data should be dict, got {type(computed_data).__name__}")
+
+            # Update keys to be Element objects in case they are strings in pre-computed data
             computed_data["el_refs"] = [(Element(el_str), entry) for el_str, entry in computed_data["el_refs"]]
         self.computed_data = computed_data
         self.facets = computed_data["facets"]
@@ -528,7 +529,7 @@ class PhaseDiagram(MSONable):
         Returns:
             list[Entry]: stable entries in the space.
         """
-        return [e for e, s in zip(self._stable_entries, self._stable_spaces) if space.issuperset(s)]
+        return [e for e, s in zip(self._stable_entries, self._stable_spaces, strict=True) if space.issuperset(s)]
 
     def get_reference_energy(self, comp: Composition) -> float:
         """Sum of elemental reference energies over all elements in a composition.
@@ -595,7 +596,7 @@ class PhaseDiagram(MSONable):
             comp (Composition): A composition
         """
         coord = self.pd_coords(comp)
-        for facet, simplex in zip(self.facets, self.simplexes):
+        for facet, simplex in zip(self.facets, self.simplexes, strict=True):
             if simplex.in_simplex(coord, PhaseDiagram.numerical_tol / 10):
                 return facet, simplex
 
@@ -611,7 +612,7 @@ class PhaseDiagram(MSONable):
 
         all_facets = [
             facet
-            for facet, simplex in zip(self.facets, self.simplexes)
+            for facet, simplex in zip(self.facets, self.simplexes, strict=True)
             if simplex.in_simplex(coords, PhaseDiagram.numerical_tol / 10)
         ]
 
@@ -635,7 +636,7 @@ class PhaseDiagram(MSONable):
         atom_frac_mat = [[c.get_atomic_fraction(e) for e in self.elements] for c in comp_list]
         chempots = np.linalg.solve(atom_frac_mat, energy_list)
 
-        return dict(zip(self.elements, chempots))
+        return dict(zip(self.elements, chempots, strict=True))
 
     def _get_simplex_intersections(self, c1, c2):
         """Get coordinates of the intersection of the tie line between two compositions
@@ -669,7 +670,9 @@ class PhaseDiagram(MSONable):
         facet, simplex = self._get_facet_and_simplex(comp)
         decomp_amts = simplex.bary_coords(self.pd_coords(comp))
         return {
-            self.qhull_entries[f]: amt for f, amt in zip(facet, decomp_amts) if abs(amt) > PhaseDiagram.numerical_tol
+            self.qhull_entries[f]: amt
+            for f, amt in zip(facet, decomp_amts, strict=True)
+            if abs(amt) > PhaseDiagram.numerical_tol
         }
 
     def get_decomp_and_hull_energy_per_atom(self, comp: Composition) -> tuple[dict[PDEntry, float], float]:
@@ -854,7 +857,7 @@ class PhaseDiagram(MSONable):
             **kwargs: Passed to get_decomp_and_e_above_hull.
 
         Returns:
-            tuple[decomp, energy]: The decomposition  is given as a dict of {PDEntry, amount}
+            tuple[decomp, energy]: The decomposition is given as a dict of {PDEntry, amount}
                 for all entries in the decomp reaction where amount is the amount of the
                 fractional composition. The phase separation energy is given per atom.
         """
@@ -869,7 +872,9 @@ class PhaseDiagram(MSONable):
         if stable_only:
             compare_entries = self._get_stable_entries_in_space(entry_elems)
         else:
-            compare_entries = [e for e, s in zip(self.qhull_entries, self._qhull_spaces) if entry_elems.issuperset(s)]
+            compare_entries = [
+                e for e, s in zip(self.qhull_entries, self._qhull_spaces, strict=True) if entry_elems.issuperset(s)
+            ]
 
         # get memory ids of entries with the same composition.
         same_comp_mem_ids = [
@@ -1066,7 +1071,7 @@ class PhaseDiagram(MSONable):
         num_atoms = n1 + (n2 - n1) * x_unnormalized
         cs *= num_atoms[:, None]
 
-        return [Composition((elem, val) for elem, val in zip(pd_els, m)) for m in cs]
+        return [Composition((elem, val) for elem, val in zip(pd_els, m, strict=True)) for m in cs]
 
     def get_element_profile(self, element, comp, comp_tol=1e-5):
         """
@@ -1195,7 +1200,7 @@ class PhaseDiagram(MSONable):
 
         for elem in self.elements:
             if elem not in target_comp.elements:
-                target_comp = target_comp + Composition({elem: 0.0})
+                target_comp += Composition({elem: 0.0})
 
         coeff = [-target_comp[elem] for elem in self.elements if elem != dep_elt]
 
@@ -1248,7 +1253,7 @@ class PhaseDiagram(MSONable):
         chempot_ranges = self.get_chempot_range_map([elem for elem in self.elements if elem != open_elt])
         for elem in self.elements:
             if elem not in target_comp.elements:
-                target_comp = target_comp + Composition({elem: 0.0})
+                target_comp += Composition({elem: 0.0})
 
         coeff = [-target_comp[elem] for elem in self.elements if elem != open_elt]
         max_open = -float("inf")
@@ -1548,7 +1553,7 @@ class PatchedPhaseDiagram(PhaseDiagram):
             Note that this does not mean that all these entries are actually used in
             the phase diagram. For example, this includes the positive formation energy
             entries that are filtered out before Phase Diagram construction.
-        min_entries (list[PDEntry]): List of the  lowest energy entries for each composition
+        min_entries (list[PDEntry]): List of the lowest energy entries for each composition
             in the data provided for Phase Diagram construction.
         el_refs (list[PDEntry]): List of elemental references for the phase diagrams.
             These are entries corresponding to the lowest energy element entries for
@@ -1572,8 +1577,8 @@ class PatchedPhaseDiagram(PhaseDiagram):
                 the entries themselves and are sorted alphabetically.
                 If specified, element ordering (e.g. for pd coordinates)
                 is preserved.
-            keep_all_spaces (bool): Boolean control on whether to keep chemical spaces
-                that are subspaces of other spaces.
+            keep_all_spaces (bool): Pass True to keep chemical spaces that are subspaces
+                of other spaces.
             verbose (bool): Whether to show progress bar during convex hull construction.
         """
         if elements is None:
@@ -1668,7 +1673,7 @@ class PatchedPhaseDiagram(PhaseDiagram):
         to a dictionary.
 
         NOTE unlike PhaseDiagram the computation involved in constructing the
-        PatchedPhaseDiagram is not saved on serialisation. This is done because
+        PatchedPhaseDiagram is not saved on serialization. This is done because
         hierarchically calling the `PhaseDiagram.as_dict()` method would break the
         link in memory between entries in overlapping patches leading to a
         ballooning of the amount of memory used.
@@ -1689,10 +1694,10 @@ class PatchedPhaseDiagram(PhaseDiagram):
 
     @classmethod
     def from_dict(cls, dct: dict) -> Self:
-        """Reconstruct PatchedPhaseDiagram from dictionary serialisation.
+        """Reconstruct PatchedPhaseDiagram from dictionary serialization.
 
         NOTE unlike PhaseDiagram the computation involved in constructing the
-        PatchedPhaseDiagram is not saved on serialisation. This is done because
+        PatchedPhaseDiagram is not saved on serialization. This is done because
         hierarchically calling the `PhaseDiagram.as_dict()` method would break the
         link in memory between entries in overlapping patches leading to a
         ballooning of the amount of memory used.
@@ -1720,8 +1725,8 @@ class PatchedPhaseDiagram(PhaseDiagram):
         sorted_spaces = sorted(spaces, key=len, reverse=True)
 
         result = []
-        for i, space_i in enumerate(sorted_spaces):
-            if not any(space_i.issubset(larger_space) for larger_space in sorted_spaces[:i]):
+        for idx, space_i in enumerate(sorted_spaces):
+            if not any(space_i.issubset(larger_space) for larger_space in sorted_spaces[:idx]):
                 result.append(space_i)
 
         return result
@@ -1819,7 +1824,7 @@ class PatchedPhaseDiagram(PhaseDiagram):
         Returns:
             space, PhaseDiagram for the given chemical space
         """
-        space_entries = [e for e, s in zip(self.qhull_entries, self._qhull_spaces) if space.issuperset(s)]
+        space_entries = [e for e, s in zip(self.qhull_entries, self._qhull_spaces, strict=True) if space.issuperset(s)]
 
         return space, PhaseDiagram(space_entries)
 
@@ -1902,7 +1907,7 @@ class ReactionDiagram:
         """
         elem_set = set()
         for entry in [entry1, entry2]:
-            elem_set.update([el.symbol for el in entry.elements])
+            elem_set |= {el.symbol for el in entry.elements}
 
         elements = tuple(elem_set)  # Fix elements to ensure order.
 
@@ -1963,7 +1968,7 @@ class ReactionDiagram:
 
                         energy = -(x * entry1.energy_per_atom + (1 - x) * entry2.energy_per_atom)
 
-                        for c, entry in zip(coeffs[:-1], face_entries):
+                        for c, entry in zip(coeffs[:-1], face_entries, strict=True):
                             if c > tol:
                                 redu_comp = entry.composition.reduced_composition
                                 products.append(f"{fmt(c / redu_comp.num_atoms * factor)} {redu_comp.reduced_formula}")
@@ -1973,7 +1978,7 @@ class ReactionDiagram:
                         rxn_str += " + ".join(products)
                         comp = x * comp_vec1 + (1 - x) * comp_vec2
                         entry = PDEntry(
-                            Composition(dict(zip(elements, comp))),
+                            Composition(dict(zip(elements, comp, strict=True))),
                             energy=energy,
                             attribute=rxn_str,
                         )
@@ -2081,8 +2086,8 @@ def _get_slsqp_decomp(
             A_transpose[jj, ii] = amounts.get(el, 0)
 
     # NOTE normalize arrays to avoid calls to fractional_composition
-    b = b / np.sum(b)
-    A_transpose = A_transpose / np.sum(A_transpose, axis=0)
+    b /= np.sum(b)
+    A_transpose /= np.sum(A_transpose, axis=0)
 
     # Energies of competing entries
     Es = np.array([comp_entry.energy_per_atom for comp_entry in competing_entries])
@@ -2115,7 +2120,7 @@ def _get_slsqp_decomp(
             decomp_amts = solution.x
             return {
                 c: amt  # NOTE this is the amount of the fractional composition.
-                for c, amt in zip(competing_entries, decomp_amts)
+                for c, amt in zip(competing_entries, decomp_amts, strict=True)
                 if amt > PhaseDiagram.numerical_tol
             }
 
@@ -2403,8 +2408,7 @@ class PDPlotter:
 
         for entry, lines in chempot_ranges.items():
             comp = entry.composition
-            center_x = 0
-            center_y = 0
+            center_x = center_y = 0
             coords = []
             contain_zero = any(comp.get_atomic_fraction(el) == 0 for el in elements)
             is_boundary = (not contain_zero) and sum(comp.get_atomic_fraction(el) for el in elements) == 1
@@ -2556,9 +2560,9 @@ class PDPlotter:
             else:
                 coord = tet_coord(data[line, 0:3])
             lines.append(coord)
-            labelcoord = list(zip(*coord))
-            stable_entries[labelcoord[0]] = entry1
-            stable_entries[labelcoord[1]] = entry2
+            label_coord = list(zip(*coord, strict=True))
+            stable_entries[label_coord[0]] = entry1
+            stable_entries[label_coord[1]] = entry2
 
         all_entries = pd.all_entries
         all_data = np.array(pd.all_entries_hulldata)
@@ -2575,8 +2579,8 @@ class PDPlotter:
                     coord = triangular_coord([all_data[idx, 0:2], all_data[idx, 0:2]])
                 else:
                     coord = tet_coord([all_data[idx, 0:3], all_data[idx, 0:3], all_data[idx, 0:3]])
-                labelcoord = list(zip(*coord))
-                unstable_entries[entry] = labelcoord[0]
+                label_coord = list(zip(*coord, strict=True))
+                unstable_entries[entry] = label_coord[0]
 
         return lines, stable_entries, unstable_entries
 
@@ -2605,7 +2609,7 @@ class PDPlotter:
             layout["annotations"] = annotations
         elif self._dim == 3 and self.ternary_style == "2d":
             layout = plotly_layouts["default_ternary_2d_layout"].copy()
-            for el, axis in zip(self._pd.elements, ["a", "b", "c"]):
+            for el, axis in zip(self._pd.elements, ["a", "b", "c"], strict=True):
                 el_ref = self._pd.el_refs[el]
                 clean_formula = str(el_ref.elements[0])
                 if hasattr(el_ref, "original_entry"):  # for grand potential PDs, etc.
@@ -2662,14 +2666,14 @@ class PDPlotter:
                 if self._dim == 3:
                     form_enes = [
                         self._pd.get_form_energy_per_atom(self.pd_plot_data[1][coord])
-                        for coord in zip(line[0], line[1])
+                        for coord in zip(line[0], line[1], strict=True)
                     ]
                     z += [*form_enes, None]
 
                 elif self._dim == 4:
                     form_enes = [
                         self._pd.get_form_energy_per_atom(self.pd_plot_data[1][coord])
-                        for coord in zip(line[0], line[1], line[2])
+                        for coord in zip(line[0], line[1], line[2], strict=True)
                     ]
                     energies += [*form_enes, None]
                     z += [*line[2], None]
@@ -2738,7 +2742,10 @@ class PDPlotter:
         elif self._dim == 3 and self.ternary_style == "3d":
             facets = np.array(self._pd.facets)
             coords = np.array(
-                [triangular_coord(c) for c in zip(self._pd.qhull_data[:-1, 0], self._pd.qhull_data[:-1, 1])]
+                [
+                    triangular_coord(c)
+                    for c in zip(self._pd.qhull_data[:-1, 0], self._pd.qhull_data[:-1, 1], strict=True)
+                ]
             )
             energies = np.array([self._pd.get_form_energy_per_atom(entry) for entry in self._pd.qhull_entries])
 
@@ -2782,18 +2789,36 @@ class PDPlotter:
                     ys.append(y)
                     zs.append(z)
 
-                traces += [
-                    go.Mesh3d(
-                        x=xs,
-                        y=ys,
-                        z=zs,
-                        opacity=0.05,
-                        alphahull=-1,
-                        flatshading=True,
-                        hoverinfo="skip",
-                        color=next(fillcolors),
-                    )
-                ]
+                if _idx == 1:
+                    traces += [
+                        go.Mesh3d(
+                            x=xs,
+                            y=ys,
+                            z=zs,
+                            opacity=0.05,
+                            alphahull=-1,
+                            flatshading=True,
+                            hoverinfo="skip",
+                            color=next(fillcolors),
+                            legendgroup="facets",
+                            showlegend=True,
+                            name="Hull Surfaces (toggle to access points easier)",
+                        )
+                    ]
+                else:
+                    traces += [
+                        go.Mesh3d(
+                            x=xs,
+                            y=ys,
+                            z=zs,
+                            opacity=0.05,
+                            alphahull=-1,
+                            flatshading=True,
+                            hoverinfo="skip",
+                            color=next(fillcolors),
+                            legendgroup="facets",
+                        )
+                    ]
 
         return traces
 
@@ -2844,8 +2869,8 @@ class PDPlotter:
 
                 z.append(self._pd.get_form_energy_per_atom(entry) + energy_offset)
             elif self._dim == 4:
-                x_coord = x_coord - offset_3d
-                y_coord = y_coord - offset_3d
+                x_coord -= offset_3d
+                y_coord -= offset_3d
                 textposition = "bottom right"
                 z.append(coords[2])
 
@@ -2947,7 +2972,7 @@ class PDPlotter:
                 for d in ["xref", "yref"]:
                     annotation.pop(d)  # Scatter3d cannot contain xref, yref
                     if self._dim == 3:
-                        annotation.update({"x": y, "y": x})
+                        annotation.update(x=y, y=x)
                         if entry.composition.is_element:
                             z = 0.9 * self._min_energy  # place label 10% above base
 
@@ -2975,8 +3000,7 @@ class PDPlotter:
             x, y, z, texts, energies, uncertainties = [], [], [], [], [], []
 
             is_stable = [entry in self._pd.stable_entries for entry in entries]
-
-            for coord, entry, stable in zip(coords, entries, is_stable):
+            for coord, entry, stable in zip(coords, entries, is_stable, strict=True):
                 energy = round(self._pd.get_form_energy_per_atom(entry), 3)
 
                 entry_id = getattr(entry, "entry_id", "no ID")
@@ -2989,13 +3013,12 @@ class PDPlotter:
 
                 formula = comp.reduced_formula
                 clean_formula = htmlify(formula)
-                label = f"{clean_formula} ({entry_id}) <br> {energy} eV/atom"
-
+                label = f"{clean_formula} ({entry_id}) <br>  Formation energy: {energy} eV/atom <br> "
                 if not stable:
                     e_above_hull = round(self._pd.get_e_above_hull(entry), 3)
                     if e_above_hull > self.show_unstable:
                         continue
-                    label += f" ({e_above_hull:+} eV/atom)"
+                    label += f" Energy Above Hull: ({e_above_hull:+} eV/atom)"
                     energies.append(e_above_hull)
                 else:
                     uncertainty = 0
@@ -3003,23 +3026,45 @@ class PDPlotter:
                     if hasattr(entry, "correction_uncertainty_per_atom") and label_uncertainties:
                         uncertainty = round(entry.correction_uncertainty_per_atom, 4)
                         label += f"<br> (Error: +/- {uncertainty} eV/atom)"
-
                     uncertainties.append(uncertainty)
                     energies.append(energy)
 
-                texts.append(label)
-
                 if self._dim == 3 and self.ternary_style == "2d":
-                    for el, axis in zip(self._pd.elements, [x, y, z]):
-                        axis.append(entry.composition[el])
+                    label += "<br>"
+                    total_sum_el = sum(
+                        entry.composition[el] for el, _axis in zip(self._pd.elements, range(self._dim), strict=True)
+                    )
+                    for el, axis in zip(self._pd.elements, range(self._dim), strict=True):
+                        _cartesian_positions = [x, y, z]
+                        _cartesian_positions[axis].append(entry.composition[el])
+                        label += f"<br> {el}: {round(entry.composition[el] / total_sum_el, 6)}"
+                elif self._dim == 3 and self.ternary_style == "3d":
+                    x.append(coord[0])
+                    y.append(coord[1])
+                    z.append(energy)
+
+                    label += "<br>"
+                    total_sum_el = sum(
+                        entry.composition[el] for el, _axis in zip(self._pd.elements, range(self._dim), strict=True)
+                    )
+                    for el, _axis in zip(self._pd.elements, range(self._dim), strict=True):
+                        label += f"<br> {el}: {round(entry.composition[el] / total_sum_el, 6)}"
+                elif self._dim == 4:
+                    x.append(coord[0])
+                    y.append(coord[1])
+                    z.append(coord[2])
+
+                    label += "<br>"
+                    total_sum_el = sum(
+                        entry.composition[el] for el, _axis in zip(self._pd.elements, range(self._dim), strict=True)
+                    )
+                    for el, _axis in zip(self._pd.elements, range(self._dim), strict=True):
+                        label += f"<br> {el}: {round(entry.composition[el] / total_sum_el, 6)}"
                 else:
                     x.append(coord[0])
                     y.append(coord[1])
 
-                    if self._dim == 3:
-                        z.append(energy)
-                    elif self._dim == 4:
-                        z.append(coord[2])
+                texts.append(label)
 
             return {"x": x, "y": y, "z": z, "texts": texts, "energies": energies, "uncertainties": uncertainties}
 
@@ -3030,7 +3075,7 @@ class PDPlotter:
         unstable_coords, unstable_entries = [], []
         highlight_coords, highlight_ents = [], []
 
-        for coord, entry in zip(self.pd_plot_data[1], self.pd_plot_data[1].values()):
+        for coord, entry in zip(self.pd_plot_data[1], self.pd_plot_data[1].values(), strict=True):
             if entry in highlight_entries:
                 highlight_coords.append(coord)
                 highlight_ents.append(entry)
@@ -3038,7 +3083,7 @@ class PDPlotter:
                 stable_coords.append(coord)
                 stable_entries.append(entry)
 
-        for coord, entry in zip(self.pd_plot_data[2].values(), self.pd_plot_data[2]):
+        for coord, entry in zip(self.pd_plot_data[2].values(), self.pd_plot_data[2], strict=True):
             if entry in highlight_entries:
                 highlight_coords.append(coord)
                 highlight_ents.append(entry)
@@ -3095,26 +3140,24 @@ class PDPlotter:
             if highlight_entries:
                 highlight_markers = plotly_layouts["default_unary_marker_settings"].copy()
                 highlight_markers.update(
-                    {
-                        "x": [0] * len(highlight_props["y"]),
-                        "y": list(highlight_props["x"]),
-                        "name": "Highlighted",
-                        "marker": {
-                            "color": "mediumvioletred",
-                            "size": 22,
-                            "line": {"color": "black", "width": 2},
-                            "symbol": "square",
-                        },
-                        "opacity": 0.9,
-                        "hovertext": highlight_props["texts"],
-                        "error_y": {
-                            "array": list(highlight_props["uncertainties"]),
-                            "type": "data",
-                            "color": "gray",
-                            "thickness": 2.5,
-                            "width": 5,
-                        },
-                    }
+                    x=[0] * len(highlight_props["y"]),
+                    y=list(highlight_props["x"]),
+                    name="Highlighted",
+                    marker={
+                        "color": "mediumvioletred",
+                        "size": 22,
+                        "line": {"color": "black", "width": 2},
+                        "symbol": "square",
+                    },
+                    opacity=0.9,
+                    hovertext=highlight_props["texts"],
+                    error_y={
+                        "array": list(highlight_props["uncertainties"]),
+                        "type": "data",
+                        "color": "gray",
+                        "thickness": 2.5,
+                        "width": 5,
+                    },
                 )
 
         if self._dim == 2:
@@ -3136,22 +3179,20 @@ class PDPlotter:
                     "width": 5,
                 },
             )
-            unstable_markers.update(
-                {
-                    "x": list(unstable_props["x"]),
-                    "y": list(unstable_props["y"]),
-                    "name": "Above Hull",
-                    "marker": {
-                        "color": unstable_props["energies"],
-                        "colorscale": plotly_layouts["unstable_colorscale"],
-                        "size": 7,
-                        "symbol": "diamond",
-                        "line": {"color": "black", "width": 1},
-                        "opacity": 0.8,
-                    },
-                    "hovertext": unstable_props["texts"],
-                }
-            )
+            unstable_markers |= {
+                "x": list(unstable_props["x"]),
+                "y": list(unstable_props["y"]),
+                "name": "Above Hull",
+                "marker": {
+                    "color": unstable_props["energies"],
+                    "colorscale": plotly_layouts["unstable_colorscale"],
+                    "size": 7,
+                    "symbol": "diamond",
+                    "line": {"color": "black", "width": 1},
+                    "opacity": 0.8,
+                },
+                "hovertext": unstable_props["texts"],
+            }
             if highlight_entries:
                 highlight_markers = plotly_layouts["default_binary_marker_settings"].copy()
                 highlight_markers.update(
@@ -3179,209 +3220,191 @@ class PDPlotter:
             stable_markers = plotly_layouts["default_ternary_2d_marker_settings"].copy()
             unstable_markers = plotly_layouts["default_ternary_2d_marker_settings"].copy()
 
-            stable_markers.update(
-                {
-                    "a": list(stable_props["x"]),
-                    "b": list(stable_props["y"]),
-                    "c": list(stable_props["z"]),
-                    "name": "Stable",
-                    "hovertext": stable_props["texts"],
-                    "marker": {
-                        "color": "green",
-                        "line": {"width": 2.0, "color": "black"},
-                        "symbol": "circle",
-                        "size": 15,
+            stable_markers |= {
+                "a": list(stable_props["x"]),
+                "b": list(stable_props["y"]),
+                "c": list(stable_props["z"]),
+                "name": "Stable",
+                "hovertext": stable_props["texts"],
+                "marker": {
+                    "color": "green",
+                    "line": {"width": 2.0, "color": "black"},
+                    "symbol": "circle",
+                    "size": 15,
+                },
+            }
+            unstable_markers |= {
+                "a": unstable_props["x"],
+                "b": unstable_props["y"],
+                "c": unstable_props["z"],
+                "name": "Above Hull",
+                "hovertext": unstable_props["texts"],
+                "marker": {
+                    "color": unstable_props["energies"],
+                    "opacity": 0.8,
+                    "colorscale": plotly_layouts["unstable_colorscale"],
+                    "line": {"width": 1, "color": "black"},
+                    "size": 7,
+                    "symbol": "diamond",
+                    "colorbar": {
+                        "title": "Energy Above Hull<br>(eV/atom)",
+                        "x": 0,
+                        "y": 1,
+                        "yanchor": "top",
+                        "xpad": 0,
+                        "ypad": 0,
+                        "thickness": 0.02,
+                        "thicknessmode": "fraction",
+                        "len": 0.5,
                     },
-                }
-            )
-            unstable_markers.update(
-                {
-                    "a": unstable_props["x"],
-                    "b": unstable_props["y"],
-                    "c": unstable_props["z"],
-                    "name": "Above Hull",
-                    "hovertext": unstable_props["texts"],
-                    "marker": {
-                        "color": unstable_props["energies"],
-                        "opacity": 0.8,
-                        "colorscale": plotly_layouts["unstable_colorscale"],
-                        "line": {"width": 1, "color": "black"},
-                        "size": 7,
-                        "symbol": "diamond",
-                        "colorbar": {
-                            "title": "Energy Above Hull<br>(eV/atom)",
-                            "x": 0,
-                            "y": 1,
-                            "yanchor": "top",
-                            "xpad": 0,
-                            "ypad": 0,
-                            "thickness": 0.02,
-                            "thicknessmode": "fraction",
-                            "len": 0.5,
-                        },
-                    },
-                }
-            )
+                },
+            }
             if highlight_entries:
                 highlight_markers = plotly_layouts["default_ternary_2d_marker_settings"].copy()
-                highlight_markers.update(
-                    {
-                        "a": list(highlight_props["x"]),
-                        "b": list(highlight_props["y"]),
-                        "c": list(highlight_props["z"]),
-                        "name": "Highlighted",
-                        "hovertext": highlight_props["texts"],
-                        "marker": {
-                            "color": "mediumvioletred",
-                            "line": {"width": 2.0, "color": "black"},
-                            "symbol": "square",
-                            "size": 16,
-                        },
-                    }
-                )
+                highlight_markers |= {
+                    "a": list(highlight_props["x"]),
+                    "b": list(highlight_props["y"]),
+                    "c": list(highlight_props["z"]),
+                    "name": "Highlighted",
+                    "hovertext": highlight_props["texts"],
+                    "marker": {
+                        "color": "mediumvioletred",
+                        "line": {"width": 2.0, "color": "black"},
+                        "symbol": "square",
+                        "size": 16,
+                    },
+                }
 
         elif self._dim == 3 and self.ternary_style == "3d":
             stable_markers = plotly_layouts["default_ternary_3d_marker_settings"].copy()
             unstable_markers = plotly_layouts["default_ternary_3d_marker_settings"].copy()
 
-            stable_markers.update(
-                {
-                    "x": list(stable_props["y"]),
-                    "y": list(stable_props["x"]),
-                    "z": list(stable_props["z"]),
-                    "name": "Stable",
-                    "marker": {
-                        "color": "#1e1e1f",
-                        "size": 11,
-                        "opacity": 0.99,
+            stable_markers |= {
+                "x": list(stable_props["y"]),
+                "y": list(stable_props["x"]),
+                "z": list(stable_props["z"]),
+                "name": "Stable",
+                "marker": {
+                    "color": "#1e1e1f",
+                    "size": 11,
+                    "opacity": 0.99,
+                },
+                "hovertext": stable_props["texts"],
+                "error_z": {
+                    "array": list(stable_props["uncertainties"]),
+                    "type": "data",
+                    "color": "darkgray",
+                    "width": 10,
+                    "thickness": 5,
+                },
+            }
+            unstable_markers |= {
+                "x": unstable_props["y"],
+                "y": unstable_props["x"],
+                "z": unstable_props["z"],
+                "name": "Above Hull",
+                "hovertext": unstable_props["texts"],
+                "marker": {
+                    "color": unstable_props["energies"],
+                    "colorscale": plotly_layouts["unstable_colorscale"],
+                    "size": 5,
+                    "line": {"color": "black", "width": 1},
+                    "symbol": "diamond",
+                    "opacity": 0.7,
+                    "colorbar": {
+                        "title": "Energy Above Hull<br>(eV/atom)",
+                        "x": 0,
+                        "y": 1,
+                        "yanchor": "top",
+                        "xpad": 0,
+                        "ypad": 0,
+                        "thickness": 0.02,
+                        "thicknessmode": "fraction",
+                        "len": 0.5,
                     },
-                    "hovertext": stable_props["texts"],
+                },
+            }
+            if highlight_entries:
+                highlight_markers = plotly_layouts["default_ternary_3d_marker_settings"].copy()
+                highlight_markers |= {
+                    "x": list(highlight_props["y"]),
+                    "y": list(highlight_props["x"]),
+                    "z": list(highlight_props["z"]),
+                    "name": "Highlighted",
+                    "marker": {
+                        "size": 12,
+                        "opacity": 0.99,
+                        "symbol": "square",
+                        "color": "mediumvioletred",
+                    },
+                    "hovertext": highlight_props["texts"],
                     "error_z": {
-                        "array": list(stable_props["uncertainties"]),
+                        "array": list(highlight_props["uncertainties"]),
                         "type": "data",
                         "color": "darkgray",
                         "width": 10,
                         "thickness": 5,
                     },
                 }
-            )
-            unstable_markers.update(
-                {
-                    "x": unstable_props["y"],
-                    "y": unstable_props["x"],
-                    "z": unstable_props["z"],
-                    "name": "Above Hull",
-                    "hovertext": unstable_props["texts"],
-                    "marker": {
-                        "color": unstable_props["energies"],
-                        "colorscale": plotly_layouts["unstable_colorscale"],
-                        "size": 5,
-                        "line": {"color": "black", "width": 1},
-                        "symbol": "diamond",
-                        "opacity": 0.7,
-                        "colorbar": {
-                            "title": "Energy Above Hull<br>(eV/atom)",
-                            "x": 0,
-                            "y": 1,
-                            "yanchor": "top",
-                            "xpad": 0,
-                            "ypad": 0,
-                            "thickness": 0.02,
-                            "thicknessmode": "fraction",
-                            "len": 0.5,
-                        },
-                    },
-                }
-            )
-            if highlight_entries:
-                highlight_markers = plotly_layouts["default_ternary_3d_marker_settings"].copy()
-                highlight_markers.update(
-                    {
-                        "x": list(highlight_props["y"]),
-                        "y": list(highlight_props["x"]),
-                        "z": list(highlight_props["z"]),
-                        "name": "Highlighted",
-                        "marker": {
-                            "size": 12,
-                            "opacity": 0.99,
-                            "symbol": "square",
-                            "color": "mediumvioletred",
-                        },
-                        "hovertext": highlight_props["texts"],
-                        "error_z": {
-                            "array": list(highlight_props["uncertainties"]),
-                            "type": "data",
-                            "color": "darkgray",
-                            "width": 10,
-                            "thickness": 5,
-                        },
-                    }
-                )
 
         elif self._dim == 4:
             stable_markers = plotly_layouts["default_quaternary_marker_settings"].copy()
             unstable_markers = plotly_layouts["default_quaternary_marker_settings"].copy()
-            stable_markers.update(
-                {
-                    "x": stable_props["x"],
-                    "y": stable_props["y"],
-                    "z": stable_props["z"],
-                    "name": "Stable",
-                    "marker": {
-                        "size": 7,
-                        "opacity": 0.99,
-                        "color": "darkgreen",
-                        "line": {"color": "black", "width": 1},
+            stable_markers |= {
+                "x": stable_props["x"],
+                "y": stable_props["y"],
+                "z": stable_props["z"],
+                "name": "Stable",
+                "marker": {
+                    "size": 7,
+                    "opacity": 0.99,
+                    "color": "darkgreen",
+                    "line": {"color": "black", "width": 1},
+                },
+                "hovertext": stable_props["texts"],
+            }
+            unstable_markers |= {
+                "x": unstable_props["x"],
+                "y": unstable_props["y"],
+                "z": unstable_props["z"],
+                "name": "Above Hull",
+                "marker": {
+                    "color": unstable_props["energies"],
+                    "colorscale": plotly_layouts["unstable_colorscale"],
+                    "size": 5,
+                    "symbol": "diamond",
+                    "line": {"color": "black", "width": 1},
+                    "colorbar": {
+                        "title": "Energy Above Hull<br>(eV/atom)",
+                        "x": 0,
+                        "y": 1,
+                        "yanchor": "top",
+                        "xpad": 0,
+                        "ypad": 0,
+                        "thickness": 0.02,
+                        "thicknessmode": "fraction",
+                        "len": 0.5,
                     },
-                    "hovertext": stable_props["texts"],
-                }
-            )
-            unstable_markers.update(
-                {
-                    "x": unstable_props["x"],
-                    "y": unstable_props["y"],
-                    "z": unstable_props["z"],
-                    "name": "Above Hull",
-                    "marker": {
-                        "color": unstable_props["energies"],
-                        "colorscale": plotly_layouts["unstable_colorscale"],
-                        "size": 5,
-                        "symbol": "diamond",
-                        "line": {"color": "black", "width": 1},
-                        "colorbar": {
-                            "title": "Energy Above Hull<br>(eV/atom)",
-                            "x": 0,
-                            "y": 1,
-                            "yanchor": "top",
-                            "xpad": 0,
-                            "ypad": 0,
-                            "thickness": 0.02,
-                            "thicknessmode": "fraction",
-                            "len": 0.5,
-                        },
-                    },
-                    "hovertext": unstable_props["texts"],
-                    "visible": "legendonly",
-                }
-            )
+                },
+                "hovertext": unstable_props["texts"],
+                "visible": "legendonly",
+            }
             if highlight_entries:
                 highlight_markers = plotly_layouts["default_quaternary_marker_settings"].copy()
-                highlight_markers.update(
-                    {
-                        "x": highlight_props["x"],
-                        "y": highlight_props["y"],
-                        "z": highlight_props["z"],
-                        "name": "Highlighted",
-                        "marker": {
-                            "size": 9,
-                            "opacity": 0.99,
-                            "symbol": "square",
-                            "color": "mediumvioletred",
-                            "line": {"color": "black", "width": 1},
-                        },
-                        "hovertext": highlight_props["texts"],
-                    }
-                )
+                highlight_markers |= {
+                    "x": highlight_props["x"],
+                    "y": highlight_props["y"],
+                    "z": highlight_props["z"],
+                    "name": "Highlighted",
+                    "marker": {
+                        "size": 9,
+                        "opacity": 0.99,
+                        "symbol": "square",
+                        "color": "mediumvioletred",
+                        "line": {"color": "black", "width": 1},
+                    },
+                    "hovertext": highlight_props["texts"],
+                }
 
         highlight_marker_plot = None
 
@@ -3436,14 +3459,14 @@ class PDPlotter:
 
             # these steps trace out the boundary pts of the uncertainty window
             outline = points[:, :2].copy()
-            outline[:, 1] = outline[:, 1] + points[:, 2]
+            outline[:, 1] += points[:, 2]
 
             last = -1
             if transformed:
                 last = None  # allows for uncertainty in terminal compounds
 
             flipped_points = np.flip(points[:last, :].copy(), axis=0)
-            flipped_points[:, 1] = flipped_points[:, 1] - flipped_points[:, 2]
+            flipped_points[:, 1] -= flipped_points[:, 2]
             outline = np.vstack((outline, flipped_points[:, :2]))
 
             uncertainty_plot = go.Scatter(
@@ -3529,7 +3552,7 @@ class PDPlotter:
                 # whether an entry is a new compound or an existing (from the
                 #  ICSD or from the MP) one.
                 for x, y in labels:
-                    if labels[(x, y)].attribute is None or labels[(x, y)].attribute == "existing":
+                    if labels[x, y].attribute is None or labels[x, y].attribute == "existing":
                         plt.plot(x, y, "ko", **self.plotkwargs)
                     else:
                         plt.plot(x, y, "k*", **self.plotkwargs)
@@ -3557,7 +3580,7 @@ class PDPlotter:
             ii = 0
             if process_attributes:
                 for x, y in labels:
-                    if labels[(x, y)].attribute is None or labels[(x, y)].attribute == "existing":
+                    if labels[x, y].attribute is None or labels[x, y].attribute == "existing":
                         plt.plot(x, y, "o", markerfacecolor=vals_stable[ii], markersize=12)
                     else:
                         plt.plot(x, y, "*", markerfacecolor=vals_stable[ii], markersize=18)

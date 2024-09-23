@@ -16,6 +16,9 @@ from typing import TYPE_CHECKING, no_type_check
 
 import numpy as np
 from monty.json import MontyDecoder, MSONable
+from scipy.spatial import ConvexHull, HalfspaceIntersection
+from scipy.special import comb
+
 from pymatgen.analysis.phase_diagram import PDEntry, PhaseDiagram
 from pymatgen.analysis.reaction_calculator import Reaction, ReactionError
 from pymatgen.core import Composition, Element
@@ -26,8 +29,6 @@ from pymatgen.util.coord import Simplex
 from pymatgen.util.due import Doi, due
 from pymatgen.util.plotting import pretty_plot
 from pymatgen.util.string import Stringify
-from scipy.spatial import ConvexHull, HalfspaceIntersection
-from scipy.special import comb
 
 if TYPE_CHECKING:
     from typing import Any
@@ -84,10 +85,9 @@ class PourbaixEntry(MSONable, Stringify):
     def __init__(self, entry, entry_id=None, concentration=1e-6):
         """
         Args:
-            entry (ComputedEntry/ComputedStructureEntry/PDEntry/IonEntry): An
-                entry object
-            entry_id ():
-            concentration ():
+            entry (ComputedEntry | ComputedStructureEntry | PDEntry | IonEntry): An entry object
+            entry_id (str): A string id for the entry
+            concentration (float): Concentration of the entry in M. Defaults to 1e-6.
         """
         self.entry = entry
         if isinstance(entry, IonEntry):
@@ -101,7 +101,7 @@ class PourbaixEntry(MSONable, Stringify):
         self.uncorrected_energy = entry.energy
         if entry_id is not None:
             self.entry_id = entry_id
-        elif hasattr(entry, "entry_id") and entry.entry_id:
+        elif getattr(entry, "entry_id", None):
             self.entry_id = entry.entry_id
         else:
             self.entry_id = None
@@ -275,7 +275,9 @@ class MultiEntry(PourbaixEntry):
         if attr in ["energy", "npH", "nH2O", "nPhi", "conc_term", "composition", "uncorrected_energy", "elements"]:
             # TODO: Composition could be changed for compat with sum
             start = Composition() if attr == "composition" else 0
-            weighted_values = (getattr(entry, attr) * weight for entry, weight in zip(self.entry_list, self.weights))
+            weighted_values = (
+                getattr(entry, attr) * weight for entry, weight in zip(self.entry_list, self.weights, strict=True)
+            )
             return sum(weighted_values, start)
 
         # Attributes that are just lists of entry attributes
@@ -287,7 +289,7 @@ class MultiEntry(PourbaixEntry):
 
     @property
     def name(self):
-        """MultiEntry name, i. e. the name of each entry joined by ' + '."""
+        """MultiEntry name, i.e. the name of each entry joined by ' + '."""
         return " + ".join(entry.name for entry in self.entry_list)
 
     def __repr__(self):
@@ -604,8 +606,7 @@ class PourbaixDiagram(MSONable):
         else:
             # Serial processing of multi-entry generation
             for combo in all_combos:
-                multi_entry = self.process_multientry(combo, prod_comp=tot_comp)
-                if multi_entry:
+                if multi_entry := self.process_multientry(combo, prod_comp=tot_comp):
                     multi_entries.append(multi_entry)
 
         return multi_entries
@@ -694,7 +695,7 @@ class PourbaixDiagram(MSONable):
 
     @staticmethod
     def get_pourbaix_domains(pourbaix_entries, limits=None):
-        """Get a set of Pourbaix stable domains (i. e. polygons) in
+        """Get a set of Pourbaix stable domains (i.e. polygons) in
         pH-V space from a list of pourbaix_entries.
 
         This function works by using scipy's HalfspaceIntersection
@@ -745,7 +746,7 @@ class PourbaixDiagram(MSONable):
 
         # organize the boundary points by entry
         pourbaix_domains = {entry: [] for entry in pourbaix_entries}
-        for intersection, facet in zip(hs_int.intersections, hs_int.dual_facets):
+        for intersection, facet in zip(hs_int.intersections, hs_int.dual_facets, strict=True):
             for v in facet:
                 if v < len(pourbaix_entries):
                     this_entry = pourbaix_entries[v]
@@ -794,11 +795,11 @@ class PourbaixDiagram(MSONable):
         Args:
             entry (PourbaixEntry): PourbaixEntry corresponding to
                 compound to find the decomposition for
-            pH (float, [float]): pH at which to find the decomposition
-            V (float, [float]): voltage at which to find the decomposition
+            pH (float, list[float]): pH at which to find the decomposition
+            V (float, list[float]): voltage at which to find the decomposition
 
         Returns:
-            Decomposition energy for the entry, i. e. the energy above
+            Decomposition energy for the entry, i.e. the energy above
                 the "Pourbaix hull" in eV/atom at the given conditions
         """
         # Check composition consistency between entry and Pourbaix diagram:
@@ -817,13 +818,13 @@ class PourbaixDiagram(MSONable):
         decomposition_energy /= entry.composition.num_atoms
         return decomposition_energy
 
-    def get_hull_energy(self, pH, V):
+    def get_hull_energy(self, pH: float | list[float], V: float | list[float]) -> np.ndarray:
         """Get the minimum energy of the Pourbaix "basin" that is formed
         from the stable Pourbaix planes. Vectorized.
 
         Args:
-            pH (float or [float]): pH at which to find the hull energy
-            V (float or [float]): V at which to find the hull energy
+            pH (float | list[float]): pH at which to find the hull energy
+            V (float | list[float]): V at which to find the hull energy
 
         Returns:
             np.array: minimum Pourbaix energy at conditions

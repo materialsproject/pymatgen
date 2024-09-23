@@ -2,19 +2,21 @@ from __future__ import annotations
 
 import numpy as np
 from numpy.testing import assert_allclose
-from pymatgen.core.spectrum import Spectrum
-from pymatgen.util.testing import PymatgenTest
 from pytest import approx
 from scipy import stats
+
+from pymatgen.core.spectrum import Spectrum
+from pymatgen.util.testing import PymatgenTest
 
 
 class TestSpectrum(PymatgenTest):
     def setUp(self):
-        self.spec1 = Spectrum(np.arange(0, 10, 0.1), np.random.randn(100))
-        self.spec2 = Spectrum(np.arange(0, 10, 0.1), np.random.randn(100))
+        rng = np.random.default_rng()
+        self.spec1 = Spectrum(np.arange(0, 10, 0.1), rng.standard_normal(100))
+        self.spec2 = Spectrum(np.arange(0, 10, 0.1), rng.standard_normal(100))
 
-        self.multi_spec1 = Spectrum(np.arange(0, 10, 0.1), np.random.randn(100, 2))
-        self.multi_spec2 = Spectrum(np.arange(0, 10, 0.1), np.random.randn(100, 2))
+        self.multi_spec1 = Spectrum(np.arange(0, 10, 0.1), rng.standard_normal((100, 2)))
+        self.multi_spec2 = Spectrum(np.arange(0, 10, 0.1), rng.standard_normal((100, 2)))
 
     def test_normalize(self):
         self.spec1.normalize(mode="max")
@@ -80,6 +82,6 @@ class TestSpectrum(PymatgenTest):
 
     def test_copy(self):
         spec1copy = self.spec1.copy()
-        spec1copy.y[0] = spec1copy.y[0] + 1
+        spec1copy.y[0] += 1
         assert spec1copy.y[0] != self.spec1.y[0]
         assert spec1copy.y[1] == self.spec1.y[1]

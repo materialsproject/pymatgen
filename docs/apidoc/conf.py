@@ -362,4 +362,4 @@ def linkcode_resolve(domain, info):
         # no need to be relative to core here as module includes full path.
         filename = info["module"].replace(".", "/") + ".py"
 
-    return f"https://github.com/materialsproject/pymatgen/blob/v{__version__}/{filename}"
+    return f"https://github.com/materialsproject/pymatgen/blob/v{__version__}/src/{filename}"

@@ -12,9 +12,11 @@ from monty.collections import AttrDict
 from monty.dev import requires
 from monty.functools import lazy_property
 from monty.string import marquee
+
 from pymatgen.core.structure import Structure
 from pymatgen.core.units import ArrayWithUnit
 from pymatgen.core.xcfunc import XcFunc
+from pymatgen.electronic_structure.core import Magmom
 
 if TYPE_CHECKING:
     from typing_extensions import Self
@@ -71,7 +73,7 @@ class NetcdfReader:
     Wraps and extends netCDF4.Dataset. Read only mode. Supports with statements.
 
     Additional documentation available at:
-        http://netcdf4-python.googlecode.com/svn/trunk/docs/netCDF4-module.html
+        https://unidata.github.io/netcdf4-python/
     """
 
     Error = NetcdfReaderError
@@ -181,7 +183,8 @@ class NetcdfReader:
             except IndexError:
                 return var.getValue() if not var.shape else var[:]
 
-        assert var.shape[-1] == 2
+        if var.shape[-1] != 2:
+            raise ValueError(f"{var.shape[-1]=}, expect it to be 2")
         if cmode == "c":
             return var[..., 0] + 1j * var[..., 1]
         raise ValueError(f"Wrong value for {cmode=}")
@@ -315,6 +318,22 @@ def structure_from_ncdata(ncdata, site_properties=None, cls=Structure):
     # type_atom[:natom] --> index Between 1 and number of atom species
     type_atom = ncdata.read_value("atom_species")
 
+    try:
+        intgden = ncdata.read_value("intgden")
+        nspden = intgden.shape[1]
+    except NetcdfReaderError:
+        intgden = nspden = None
+
+    if intgden is not None:
+        if nspden == 2:
+            magmoms = Magmom(intgden[:, 1] - intgden[:, 0])
+        elif nspden == 4:
+            magmoms = [Magmom([intg_at[1], intg_at[2], intg_at[3]]) for intg_at in intgden]
+        else:
+            magmoms = None
+    else:
+        magmoms = None
+
     # Fortran to C index and float --> int conversion.
     species = n_atom * [None]
     for atom in range(n_atom):
@@ -325,6 +344,9 @@ def structure_from_ncdata(ncdata, site_properties=None, cls=Structure):
     if site_properties is not None:
         for prop in site_properties:
             dct[prop] = ncdata.read_value(prop)
+
+    if magmoms is not None and "magmom" not in dct:
+        dct["magmom"] = magmoms
 
     structure = cls(lattice, species, red_coords, site_properties=dct)
 

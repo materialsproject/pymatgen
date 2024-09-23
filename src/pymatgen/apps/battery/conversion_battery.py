@@ -5,18 +5,20 @@ from __future__ import annotations
 from dataclasses import dataclass
 from typing import TYPE_CHECKING
 
+from scipy.constants import N_A
+
 from pymatgen.analysis.phase_diagram import PhaseDiagram
 from pymatgen.analysis.reaction_calculator import BalancedReaction
 from pymatgen.apps.battery.battery_abc import AbstractElectrode, AbstractVoltagePair
 from pymatgen.core import Composition, Element
 from pymatgen.core.units import Charge, Time
-from scipy.constants import N_A
 
 if TYPE_CHECKING:
     from collections.abc import Iterable
 
-    from pymatgen.entries.computed_entries import ComputedEntry
     from typing_extensions import Self
+
+    from pymatgen.entries.computed_entries import ComputedEntry
 
 
 @dataclass
@@ -78,7 +80,8 @@ class ConversionElectrode(AbstractElectrode):
         if len(profile) < 2:
             return None
 
-        assert working_ion_entry is not None
+        if working_ion_entry is None:
+            raise ValueError("working_ion_entry is None.")
         working_ion_symbol = working_ion_entry.elements[0].symbol
         normalization_els = {el: amt for el, amt in comp.items() if el != Element(working_ion_symbol)}
         framework = comp.as_dict()

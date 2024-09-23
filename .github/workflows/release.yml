@@ -36,7 +36,7 @@ jobs:
           pip install build
           python -m build --sdist
 
-      - uses: actions/upload-artifact@v3
+      - uses: actions/upload-artifact@v4
         with:
           path: dist/*.tar.gz
 
@@ -45,7 +45,7 @@ jobs:
     strategy:
       matrix:
         os: [ubuntu-latest, macos-14, windows-latest]
-        python-version: ["39", "310", "311", "312"]
+        python-version: ["310", "311", "312"]
     runs-on: ${{ matrix.os }}
     steps:
       - name: Check out repo
@@ -57,8 +57,9 @@ jobs:
           CIBW_BUILD: cp${{ matrix.python-version }}-*
 
       - name: Save artifact
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
+          name: dist-${{ matrix.os }}-${{ matrix.python-version }}
           path: ./wheelhouse/*.whl
 
   release:
@@ -74,9 +75,10 @@ jobs:
           python-version: "3.12"
 
       - name: Get build artifacts
-        uses: actions/download-artifact@v3
+        uses: actions/download-artifact@v4
         with:
-          name: artifact
+          pattern: dist-*
+          merge-multiple: true
           path: dist
 
       - name: Publish to PyPi or TestPyPI

@@ -3,16 +3,16 @@
 from __future__ import annotations
 
 import abc
-from collections import namedtuple
 from collections.abc import Iterable
 from enum import Enum, unique
 from pprint import pformat
-from typing import TYPE_CHECKING, cast
+from typing import TYPE_CHECKING, NamedTuple, cast
 
 import numpy as np
 from monty.collections import AttrDict
 from monty.design_patterns import singleton
 from monty.json import MontyDecoder, MontyEncoder, MSONable
+
 from pymatgen.core import ArrayWithUnit, Lattice, Species, Structure, units
 
 if TYPE_CHECKING:
@@ -56,7 +56,7 @@ def lattice_from_abivars(cls=None, *args, **kwargs):
             raise ValueError(f"The sum of angdeg must be lower than 360, {ang_deg=}")
 
         # This code follows the implementation in ingeo.F90
-        # See also http://www.abinit.org/doc/helpfiles/for-v7.8/input_variables/varbas.html#angdeg
+        # See also https://docs.abinit.org/variables/basic/#angdeg
         tol12 = 1e-12
         pi, sin, cos, sqrt = np.pi, np.sin, np.cos, np.sqrt
         r_prim = np.zeros((3, 3))
@@ -149,7 +149,7 @@ def structure_from_abivars(cls=None, *args, **kwargs) -> Structure:
         raise ValueError(f"{len(typat)=} must equal {len(coords)=}")
 
     # Note conversion to int and Fortran --> C indexing
-    typat = np.array(typat, dtype=int)
+    typat = np.array(typat, dtype=np.int64)
     species = [znucl_type[typ - 1] for typ in typat]
 
     return cls(
@@ -265,10 +265,7 @@ def structure_to_abivars(
             # One should make sure that the orientation is preserved (see Curtarolo's settings)
 
     if geo_mode == "rprim":
-        dct.update(
-            acell=3 * [1.0],
-            rprim=r_prim,
-        )
+        dct.update(acell=3 * [1.0], rprim=r_prim)
 
     elif geo_mode == "angdeg":
         dct.update(
@@ -283,8 +280,9 @@ def structure_to_abivars(
 
 def contract(string):
     """
-    assert contract("1 1 1 2 2 3") == "3*1 2*2 1*3"
-    assert contract("1 1 3 2 3") == "2*1 1*3 1*2 1*3".
+    Examples:
+        assert contract("1 1 1 2 2 3") == "3*1 2*2 1*3"
+        assert contract("1 1 3 2 3") == "2*1 1*3 1*2 1*3".
     """
     if not string:
         return string
@@ -341,7 +339,14 @@ MANDATORY = MandatoryVariable()
 DEFAULT = DefaultVariable()
 
 
-class SpinMode(namedtuple("SpinMode", "mode nsppol nspinor nspden"), AbivarAble, MSONable):  # noqa: PYI024
+class SpinModeTuple(NamedTuple):
+    mode: str
+    nsppol: int
+    nspinor: int
+    nspden: int
+
+
+class SpinMode(SpinModeTuple, AbivarAble, MSONable):
     """
     Different configurations of the electron density as implemented in abinit:
     One can use as_spinmode to construct the object via SpinMode.as_spinmode
@@ -375,7 +380,7 @@ class SpinMode(namedtuple("SpinMode", "mode nsppol nspinor nspden"), AbivarAble,
     def as_dict(self):
         """JSON-friendly dict representation of SpinMode."""
         out = {k: getattr(self, k) for k in self._fields}
-        out.update({"@module": type(self).__module__, "@class": type(self).__name__})
+        out |= {"@module": type(self).__module__, "@class": type(self).__name__}
         return out
 
     @classmethod
@@ -384,7 +389,6 @@ class SpinMode(namedtuple("SpinMode", "mode nsppol nspinor nspden"), AbivarAble,
         return cls(**{key: dct[key] for key in dct if key in cls._fields})
 
 
-# An handy Multiton
 _mode_to_spin_vars = {
     "unpolarized": SpinMode("unpolarized", 1, 1, 1),
     "polarized": SpinMode("polarized", 2, 1, 2),
@@ -631,13 +635,7 @@ class Electrons(AbivarAble, MSONable):
         """Return dictionary with Abinit variables."""
         abivars = self.spin_mode.to_abivars()
 
-        abivars.update(
-            {
-                "nband": self.nband,
-                "fband": self.fband,
-                "charge": self.charge,
-            }
-        )
+        abivars |= {"nband": self.nband, "fband": self.fband, "charge": self.charge}
 
         if self.smearing:
             abivars.update(self.smearing.to_abivars())
@@ -727,7 +725,8 @@ class KSampling(AbivarAble, MSONable):
         abivars = {}
 
         if mode == KSamplingModes.monkhorst:
-            assert num_kpts == 0
+            if num_kpts != 0:
+                raise ValueError(f"expect num_kpts to be zero, got {num_kpts}")
             ngkpt = np.reshape(kpts, 3)
             shiftk = np.reshape(kpt_shifts, (-1, 3))
 
@@ -740,15 +739,13 @@ class KSampling(AbivarAble, MSONable):
             else:  # use_symmetries and not use_time_reversal
                 kptopt = 4
 
-            abivars.update(
-                {
-                    "ngkpt": ngkpt,
-                    "shiftk": shiftk,
-                    "nshiftk": len(shiftk),
-                    "kptopt": kptopt,
-                    "chksymbreak": chksymbreak,
-                }
-            )
+            abivars |= {
+                "ngkpt": ngkpt,
+                "shiftk": shiftk,
+                "nshiftk": len(shiftk),
+                "kptopt": kptopt,
+                "chksymbreak": chksymbreak,
+            }
 
         elif mode == KSamplingModes.path:
             if num_kpts <= 0:
@@ -756,29 +753,21 @@ class KSampling(AbivarAble, MSONable):
 
             kptbounds = np.reshape(kpts, (-1, 3))
 
-            abivars.update(
-                {
-                    "ndivsm": num_kpts,
-                    "kptbounds": kptbounds,
-                    "kptopt": -len(kptbounds) + 1,
-                }
-            )
+            abivars |= {"ndivsm": num_kpts, "kptbounds": kptbounds, "kptopt": -len(kptbounds) + 1}
 
         elif mode == KSamplingModes.automatic:
             kpts = np.reshape(kpts, (-1, 3))
             if len(kpts) != num_kpts:
                 raise ValueError("For Automatic mode, num_kpts must be specified.")
 
-            abivars.update(
-                {
-                    "kptopt": 0,
-                    "kpt": kpts,
-                    "nkpt": num_kpts,
-                    "kptnrm": np.ones(num_kpts),
-                    "wtk": kpts_weights,  # for iscf/=-2, wtk.
-                    "chksymbreak": chksymbreak,
-                }
-            )
+            abivars |= {
+                "kptopt": 0,
+                "kpt": kpts,
+                "nkpt": num_kpts,
+                "kptnrm": np.ones(num_kpts),
+                "wtk": kpts_weights,  # for iscf/=-2, wtk.
+                "chksymbreak": chksymbreak,
+            }
 
         else:
             raise ValueError(f"Unknown {mode=}")
@@ -1115,11 +1104,7 @@ class RelaxationMethod(AbivarAble, MSONable):
 
         # Atom relaxation.
         if self.move_atoms:
-            out_vars.update(
-                {
-                    "tolmxf": self.abivars.tolmxf,
-                }
-            )
+            out_vars["tolmxf"] = self.abivars.tolmxf
 
         if self.abivars.atoms_constraints:
             # Add input variables for constrained relaxation.
@@ -1482,7 +1467,8 @@ class SelfEnergy(AbivarAble):
         self.gwpara = gwpara
 
         if ppmodel is not None:
-            assert screening.use_hilbert is False
+            if screening.use_hilbert:
+                raise ValueError("cannot use hilbert for screening")
             self.ppmodel = PPModel.as_ppmodel(ppmodel)
 
         self.ecuteps = ecuteps if ecuteps is not None else screening.ecuteps
@@ -1546,7 +1532,8 @@ class SelfEnergy(AbivarAble):
         }
 
         # TODO: problem with the spin
-        # assert len(self.bdgw) == self.nkptgw
+        # if len(self.bdgw) != self.nkptgw:
+        #    raise ValueError("lengths of bdgw and nkptgw mismatch")
 
         # ppmodel variables
         if self.use_ppmodel:
@@ -1620,17 +1607,20 @@ class ExcHamiltonian(AbivarAble):
         self.nband = nband
         self.mbpt_sciss = mbpt_sciss
         self.coulomb_mode = coulomb_mode
-        assert coulomb_mode in self._COULOMB_MODES
+        if coulomb_mode not in self._COULOMB_MODES:
+            raise ValueError("coulomb_mode not in _COULOMB_MODES")
         self.ecuteps = ecuteps
 
         self.mdf_epsinf = mdf_epsinf
         self.exc_type = exc_type
-        assert exc_type in self._EXC_TYPES
+        if exc_type not in self._EXC_TYPES:
+            raise ValueError("exc_type not in _EXC_TYPES")
         self.algo = algo
-        assert algo in self._ALGO2VAR
+        if algo not in self._ALGO2VAR:
+            raise ValueError(f"{algo=} not in {self._ALGO2VAR=}")
         self.with_lf = with_lf
 
-        # if bs_freq_mesh is not given, abinit will select its own mesh.
+        # If bs_freq_mesh is not given, abinit will select its own mesh.
         self.bs_freq_mesh = np.array(bs_freq_mesh) if bs_freq_mesh is not None else bs_freq_mesh
         self.zcut = zcut
         self.optdriver = 99

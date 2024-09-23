@@ -5,14 +5,16 @@ from __future__ import annotations
 from typing import TYPE_CHECKING
 
 import numpy as np
-from pymatgen.core.structure import PeriodicSite, Structure
 from tabulate import tabulate
+
+from pymatgen.core.structure import PeriodicSite, Structure
 
 if TYPE_CHECKING:
     from collections.abc import Sequence
 
-    from pymatgen.symmetry.analyzer import SpacegroupOperations
     from typing_extensions import Self
+
+    from pymatgen.symmetry.analyzer import SpacegroupOperations
 
 
 class SymmetrizedStructure(Structure):
@@ -65,7 +67,7 @@ class SymmetrizedStructure(Structure):
         self.wyckoff_letters = wyckoff_letters
         self.wyckoff_symbols = [f"{len(symb)}{symb[0]}" for symb in wyckoff_symbols]
 
-    def copy(self) -> Self:  # type: ignore[override]
+    def copy(self) -> Self:
         """Make a copy of the SymmetrizedStructure."""
         return type(self)(
             self,
@@ -116,8 +118,7 @@ class SymmetrizedStructure(Structure):
             row = [str(idx), site.species_string]
             row.extend([f"{j:>10.6f}" for j in site.frac_coords])
             row.append(self.wyckoff_symbols[idx])
-            for key in keys:
-                row.append(props[key][idx])
+            row += [props[key][idx] for key in keys]
             data.append(row)
         outs.append(tabulate(data, headers=["#", "SP", "a", "b", "c", "Wyckoff", *keys]))
         return "\n".join(outs)
@@ -133,7 +134,7 @@ class SymmetrizedStructure(Structure):
         }
 
     @classmethod
-    def from_dict(cls, dct: dict) -> Self:  # type: ignore[override]
+    def from_dict(cls, dct: dict) -> Self:
         """
         Args:
             dct (dict): Dict representation.
