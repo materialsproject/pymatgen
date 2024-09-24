@@ -27,7 +27,8 @@ setuptools*
 .*_cache
 # VS Code
 .vscode/*
-codecov
+codecov*
+coverage.xml
 
 # Environments
 .env
