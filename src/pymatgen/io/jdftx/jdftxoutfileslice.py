@@ -8,7 +8,6 @@ process a JDFTx out file.
 from __future__ import annotations
 
 import math
-import warnings
 from dataclasses import dataclass
 from typing import TYPE_CHECKING, Any, ClassVar
 
@@ -347,7 +346,7 @@ class JDFTXOutfileSlice(ClassPrintFormatter):
         raise AttributeError("Property nelectrons inaccessible due to empty jstrucs class field")
 
     @property
-    def abs_magneticmoment(self) -> float:
+    def abs_magneticmoment(self) -> float | None:
         """
         Return abs_magneticmoment from most recent JOutStructure.
 
@@ -358,7 +357,7 @@ class JDFTXOutfileSlice(ClassPrintFormatter):
         raise AttributeError("Property abs_magneticmoment inaccessible due to empty jstrucs class field")
 
     @property
-    def tot_magneticmoment(self) -> float:
+    def tot_magneticmoment(self) -> float | None:
         """
         Return tot_magneticmoment from most recent JOutStructure.
 
@@ -399,7 +398,7 @@ class JDFTXOutfileSlice(ClassPrintFormatter):
         raise AttributeError("Property elec_iter inaccessible due to empty jstrucs class field")
 
     @property
-    def elec_e(self) -> int:
+    def elec_e(self) -> float:
         """Return the most recent electronic energy.
 
         Return the most recent electronic energy.
@@ -413,7 +412,7 @@ class JDFTXOutfileSlice(ClassPrintFormatter):
         raise AttributeError("Property elec_e inaccessible due to empty jstrucs class field")
 
     @property
-    def elec_grad_k(self) -> int:
+    def elec_grad_k(self) -> float | None:
         """Return the most recent electronic grad_k.
 
         Return the most recent electronic grad_k.
@@ -427,7 +426,7 @@ class JDFTXOutfileSlice(ClassPrintFormatter):
         raise AttributeError("Property elec_grad_k inaccessible due to empty jstrucs class field")
 
     @property
-    def elec_alpha(self) -> int:
+    def elec_alpha(self) -> float | None:
         """Return the most recent electronic alpha.
 
         Return the most recent electronic alpha.
@@ -437,11 +436,11 @@ class JDFTXOutfileSlice(ClassPrintFormatter):
         alpha: float
         """
         if self.jstrucs is not None:
-            return self.jstrucs.elec_linmin
+            return self.jstrucs.elec_alpha
         raise AttributeError("Property elec_alpha inaccessible due to empty jstrucs class field")
 
     @property
-    def elec_linmin(self) -> int:
+    def elec_linmin(self) -> float | None:
         """Return the most recent electronic linmin.
 
         Return the most recent electronic linmin.
@@ -540,12 +539,10 @@ class JDFTXOutfileSlice(ClassPrintFormatter):
             prefix: str
                 prefix of dump files for JDFTx calculation
         """
-        prefix = None
+        # prefix = None
         line = find_key("dump-name", text)
         dumpname = text[line].split()[1]
-        if "." in dumpname:
-            prefix = dumpname.split(".")[0]
-        return prefix
+        return dumpname.split(".")[0] if "." in dumpname else dumpname
 
     def get_spinvars(self, text: list[str]) -> tuple[str, int]:
         """Set spintype and nspin from out file text for instance.
@@ -567,7 +564,8 @@ class JDFTXOutfileSlice(ClassPrintFormatter):
         line = find_key("spintype ", text)
         spintype = text[line].split()[1]
         if spintype == "no-spin":
-            spintype = None
+            # vvv This causes many problems vvv
+            # spintype = None
             nspin = 1
         elif spintype == "z-spin":
             nspin = 2
@@ -618,8 +616,11 @@ class JDFTXOutfileSlice(ClassPrintFormatter):
         truncation_radius: float | None
             radius of truncation (if truncation_type is spherical)
         """
+        # TODO: Write tests to catch ValueErrors here
         maptypes = {
-            "Periodic": None,
+            # Technically periodic implied no truncation at all, but I'm the Olsen
+            # twin that thinks the opposite of fire is 'water', not 'no fire'.
+            "Periodic": "periodic",
             "Slab": "slab",
             "Cylindrical": "wire",
             "Wire": "wire",
@@ -648,7 +649,10 @@ class JDFTXOutfileSlice(ClassPrintFormatter):
                 line = find_key("Initialized spherical truncation of radius", text)
                 truncation_radius = float(text[line].split()[5]) / ang_to_bohr
         else:
-            warnings.warn("No truncation type found in out file.", stacklevel=2)
+            # coulomb-interaction tag is always present in out file, so red flag if we can't find it
+            raise ValueError("No truncation type found in out file.")
+        # else:
+        #     warnings.warn("No truncation type found in out file.", stacklevel=2)
         return truncation_type, truncation_radius
 
     def get_pw_cutoff(self, text: list[str]) -> float:
@@ -748,15 +752,22 @@ class JDFTXOutfileSlice(ClassPrintFormatter):
             dictionary of eigenvalue statistics
         """
         varsdict = {}
-        _prefix = ""
-        if prefix is not None:
-            _prefix = f"{prefix}."
-        line = find_key(f"Dumping '{_prefix}eigStats' ...", text)
-        if line is None:
+        # _prefix = ""
+        # if not "$" in prefix:
+        #     _prefix = f"{prefix}."
+        # elif "$ITER" in prefix:
+        #     _prefix = ""
+        # line = find_key(f"Dumping '{_prefix}eigStats' ...", text)
+        # vvv Turns out this is way easier vvv
+        lines1 = find_all_key("Dumping ", text)
+        lines2 = find_all_key("eigStats' ...", text)
+        lines3 = [lines1[i] for i in range(len(lines1)) if lines1[i] in lines2]
+        if not len(lines3):
             raise ValueError(
                 'Must run DFT job with "dump End EigStats" to get summary gap\
                       information!'
             )
+        line = lines3[-1]
         varsdict["emin"] = float(text[line + 1].split()[1]) * Ha_to_eV
         varsdict["homo"] = float(text[line + 2].split()[1]) * Ha_to_eV
         varsdict["efermi"] = float(text[line + 3].split()[2]) * Ha_to_eV
@@ -1073,8 +1084,8 @@ class JDFTXOutfileSlice(ClassPrintFormatter):
         """
         line = find_first_range_key("fluid ", text)
         self.fluid = text[line[0]].split()[1]
-        if self.fluid == "None":
-            self.fluid = None
+        # if self.fluid == "None":
+        #     self.fluid = None
 
     def set_total_electrons(self, text: list[str]) -> None:
         """Set the total_Electrons class variable.

@@ -19,7 +19,7 @@ test_read = JDFTXOutfile.from_file(ex_files_dir / Path("problem1.out"))
 
 example_sp_known = {
     "Nspin": 1,
-    "spintype": None,
+    "spintype": "no-spin",
     "broadening_type": "MP1",
     "broadening": 0.00367493,
     "truncation_type": "slab",
@@ -33,7 +33,7 @@ example_sp_known = {
     "Emax": 0.113409 * Ha_to_eV,
     "Egap": 0.003011 * Ha_to_eV,
     "is_metal": True,
-    "fluid": None,
+    "fluid": "None",
     "total_electrons": 288.0,
     "nbands": 174,
     "nat": 16,
@@ -51,6 +51,7 @@ example_sp_known = {
     "t_s": 165.87,
     "iter_type": None,
     "prefix": "jdft",
+    "etype": "F",
 }
 
 example_latmin_known = {
@@ -58,7 +59,7 @@ example_latmin_known = {
     "spintype": "z-spin",
     "broadening_type": "Fermi",
     "broadening": 0.001,
-    "truncation_type": None,
+    "truncation_type": "periodic",
     "pwcut": 20 * Ha_to_eV,
     "fftgrid": (28, 80, 28),
     "kgrid": (6, 2, 7),
@@ -69,7 +70,7 @@ example_latmin_known = {
     "Emax": 0.949497 * Ha_to_eV,
     "Egap": 0.000362 * Ha_to_eV,
     "is_metal": True,
-    "fluid": None,
+    "fluid": "None",
     "total_electrons": 64.0,
     "nbands": 42,
     "nat": 8,
@@ -86,6 +87,7 @@ example_latmin_known = {
     "t_s": 314.16,
     "iter_type": "LatticeMinimize",
     "prefix": "$VAR",
+    "etype": "F",
 }
 
 example_ionmin_known = {
@@ -121,6 +123,7 @@ example_ionmin_known = {
     "t_s": 2028.57,
     "iter_type": "IonicMinimize",
     "prefix": "$VAR",
+    "etype": "G",
 }
 
 
@@ -181,92 +184,119 @@ def test_JDFTXOutfile_fromfile(filename: PathLike, known: dict):
     assert jout.t_s == approx(known["t_s"])
     assert jout.jstrucs.iter_type == known["iter_type"]
     assert jout.prefix == known["prefix"]
+    assert jout.etype == known["etype"]
+    assert jout.e == approx(known[known["etype"]])
+
+
+empty_slice_exception_varnames = [
+    "prefix",
+    "jstrucs",
+    "jsettings_fluid",
+    "jsettings_electronic",
+    "jsettings_lattice",
+    "jsettings_ionic",
+    "xc_func",
+    "lattice_initial",
+    "lattice_final",
+    "lattice",
+    "a",
+    "b",
+    "c",
+    "fftgrid",
+    "geom_opt",
+    "geom_opt_type",
+    "efermi",
+    "egap",
+    "emin",
+    "emax",
+    "homo",
+    "lumo",
+    "homo_filling",
+    "lumo_filling",
+    "is_metal",
+    "etype",
+    "broadening_type",
+    "broadening",
+    "kgrid",
+    "truncation_type",
+    "truncation_radius",
+    "pwcut",
+    "rhocut",
+    "pp_type",
+    "total_electrons",
+    "semicore_electrons",
+    "valence_electrons",
+    "total_electrons_uncharged",
+    "semicore_electrons_uncharged",
+    "valence_electrons_uncharged",
+    "nbands",
+    "atom_elements",
+    "atom_elements_int",
+    "atom_types",
+    "spintype",
+    "nspin",
+    "nat",
+    "atom_coords_initial",
+    "atom_coords_final",
+    "atom_coords",
+    "has_solvation",
+    "fluid",
+    "is_gc",
+    "eiter_type",
+    "elecmindata",
+    "stress",
+    "strain",
+    "iter",
+    "e",
+    "grad_k",
+    "alpha",
+    "linmin",
+    "nelectrons",
+    "abs_magneticmoment",
+    "tot_magneticmoment",
+    "mu",
+    "elec_iter",
+    "elec_e",
+    "elec_grad_k",
+    "elec_alpha",
+    "elec_linmin",
+]
 
 
 @pytest.mark.parametrize(
-    ("varname"),
+    ("dummy_filename", "none_exceptions"),
     [
-        ("prefix"),
-        ("jstrucs"),
-        ("jsettings_fluid"),
-        ("jsettings_electronic"),
-        ("jsettings_lattice"),
-        ("jsettings_ionic"),
-        ("xc_func"),
-        ("lattice_initial"),
-        ("lattice_final"),
-        ("lattice"),
-        ("a"),
-        ("b"),
-        ("c"),
-        ("fftgrid"),
-        ("geom_opt"),
-        ("geom_opt_type"),
-        ("efermi"),
-        ("egap"),
-        ("emin"),
-        ("emax"),
-        ("homo"),
-        ("lumo"),
-        ("homo_filling"),
-        ("lumo_filling"),
-        ("is_metal"),
-        ("etype"),
-        ("broadening_type"),
-        ("broadening"),
-        ("kgrid"),
-        ("truncation_type"),
-        ("truncation_radius"),
-        ("pwcut"),
-        ("rhocut"),
-        ("pp_type"),
-        ("total_electrons"),
-        ("semicore_electrons"),
-        ("valence_electrons"),
-        ("total_electrons_uncharged"),
-        ("semicore_electrons_uncharged"),
-        ("valence_electrons_uncharged"),
-        ("nbands"),
-        ("atom_elements"),
-        ("atom_elements_int"),
-        ("atom_types"),
-        ("spintype"),
-        ("nspin"),
-        ("nat"),
-        ("atom_coords_initial"),
-        ("atom_coords_final"),
-        ("atom_coords"),
-        ("has_solvation"),
-        ("fluid"),
-        ("is_gc"),
-        ("eiter_type"),
-        ("elecmindata"),
-        ("stress"),
-        ("strain"),
-        ("iter"),
-        ("e"),
-        ("grad_k"),
-        ("alpha"),
-        ("linmin"),
-        ("nelectrons"),
-        ("abs_magneticmoment"),
-        ("tot_magneticmoment"),
-        ("mu"),
-        ("elec_iter"),
-        ("elec_e"),
-        ("elec_grad_k"),
-        ("elec_alpha"),
-        ("elec_linmin"),
+        (
+            ex_files_dir / Path("example_sp.out"),
+            [
+                "iter",
+                "stress",
+                "strain",
+                "linmin",
+                "alpha",
+                "truncation_radius",
+                "grad_k",
+            ],
+        )
     ],
 )
 def test_JDFTXOutfile_expected_exceptions_empty_slices(
-    varname: str, dummy_filename: PathLike = ex_files_dir / Path("example_sp.out")
+    dummy_filename: PathLike,
+    none_exceptions: list[str],
 ):
-    jout = JDFTXOutfile.from_file(dummy_filename)
+    for var in empty_slice_exception_varnames:
+        expected_exceptions_empty_slices_test_varname(dummy_filename, var, none_exceptions)
+
+
+def expected_exceptions_empty_slices_test_varname(jout_filename: str, varname: str, none_exceptions: list[str]):
+    jout = JDFTXOutfile.from_file(jout_filename)
     # First test that the attribute can be called
     val = getattr(jout, varname)
-    # Next test it was properly called
-    assert val is not None
+    # Next test it was properly called, or that its None if None is expected (but not both)
+    v1 = bool(val is not None)
+    v2 = bool(varname in none_exceptions)
+    assert v1 != v2
+    # assert bool(val is not None) != bool(val in none_exceptions)
     # Next test the error when slices is empty
     jout.slices = []
     with pytest.raises(AttributeError):

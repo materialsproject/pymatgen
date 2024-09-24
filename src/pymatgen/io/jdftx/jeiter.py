@@ -20,7 +20,7 @@ class JEiter:
     iter_type: str | None = None
     etype: str | None = None
     iter: int | None = None
-    E: float | None = None
+    e: float | None = None
     grad_k: float | None = None
     alpha: float | None = None
     linmin: float | None = None
@@ -63,18 +63,19 @@ class JEiter:
                 instance.read_subspaceadjust_line(line_text)
         return instance
 
-    @property
-    def e(self) -> float | None:
-        """Return the total energy.
+    # Easier to just give-in to the lowercase
+    # @property
+    # def e(self) -> float | None:
+    #     """Return the total energy.
 
-        Return the total energy.
+    #     Return the total energy.
 
-        Returns
-        -------
-        E: float
-            The total energy
-        """
-        return self.E
+    #     Returns
+    #     -------
+    #     E: float
+    #         The total energy
+    #     """
+    #     return self.E
 
     def is_iter_line(self, i: int, line_text: str, _iter_flag: str) -> bool:
         """Return True if opt iter line.
@@ -117,7 +118,7 @@ class JEiter:
             self.iter = int(iter_float)
         elif iter_float is None:
             raise ValueError("Could not find iter in line_text")
-        self.E = self._get_colon_var_t1(line_text, f"{self.etype}: ") * Ha_to_eV
+        self.e = self._get_colon_var_t1(line_text, f"{self.etype}: ") * Ha_to_eV
         self.grad_k = self._get_colon_var_t1(line_text, "|grad|_K: ")
         self.alpha = self._get_colon_var_t1(line_text, "alpha: ")
         self.linmin = self._get_colon_var_t1(line_text, "linmin: ")

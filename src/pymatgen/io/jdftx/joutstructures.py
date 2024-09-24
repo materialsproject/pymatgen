@@ -151,7 +151,7 @@ class JOutStructures:
         raise AttributeError("Property elecmindata inaccessible due to empty slices class field")
 
     @property
-    def stress(self) -> np.ndarray:
+    def stress(self) -> np.ndarray | None:
         """
         Return stress from most recent JOutStructure.
 
@@ -162,7 +162,7 @@ class JOutStructures:
         raise AttributeError("Property stress inaccessible due to empty slices class field")
 
     @property
-    def strain(self) -> np.ndarray:
+    def strain(self) -> np.ndarray | None:
         """
         Return strain from most recent JOutStructure.
 
@@ -246,7 +246,7 @@ class JOutStructures:
         Return abs_magneticmoment from most recent JOutStructure.
         """
         if len(self.slices):
-            return self.slices[-1].mu
+            return self.slices[-1].abs_magneticmoment
         raise AttributeError("Property abs_magneticmoment inaccessible due to empty slices class field")
 
     @property
@@ -291,7 +291,7 @@ class JOutStructures:
         raise AttributeError("Property elec_iter inaccessible due to empty slices class field")
 
     @property
-    def elec_e(self) -> int:
+    def elec_e(self) -> float:
         """Return the most recent electronic energy.
 
         Return the most recent electronic energy.
@@ -305,7 +305,7 @@ class JOutStructures:
         raise AttributeError("Property elec_e inaccessible due to empty slices class field")
 
     @property
-    def elec_grad_k(self) -> int | None:
+    def elec_grad_k(self) -> float | None:
         """Return the most recent electronic grad_k.
 
         Return the most recent electronic grad_k.
@@ -319,7 +319,7 @@ class JOutStructures:
         raise AttributeError("Property grad_k inaccessible due to empty slices class field")
 
     @property
-    def elec_alpha(self) -> int | None:
+    def elec_alpha(self) -> float | None:
         """Return the most recent electronic alpha.
 
         Return the most recent electronic alpha.
@@ -333,7 +333,7 @@ class JOutStructures:
         raise AttributeError("Property alpha inaccessible due to empty slices class field")
 
     @property
-    def elec_linmin(self) -> int | None:
+    def elec_linmin(self) -> float | None:
         """Return the most recent electronic linmin.
 
         Return the most recent electronic linmin.

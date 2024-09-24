@@ -110,13 +110,13 @@ class JEiters:
             The e attribute of the last JEiter object in the slices
         """
         if len(self.slices):
-            if self.slices[-1].E is not None:
-                return self.slices[-1].E
+            if self.slices[-1].e is not None:
+                return self.slices[-1].e
             raise ValueError("No E attribute in final JEiter object.")
         raise ValueError("No JEiter objects in JEiters object slices class variable.")
 
     @property
-    def grad_k(self) -> float:
+    def grad_k(self) -> float | None:
         """Return most recent grad_k.
 
         Return the grad_k attribute of the last JEiter object in the slices.
@@ -127,13 +127,11 @@ class JEiters:
             The grad_k attribute of the last JEiter object in the slices
         """
         if len(self.slices):
-            if self.slices[-1].grad_k is not None:
-                return self.slices[-1].grad_k
-            raise ValueError("No grad_k attribute in final JEiter object.")
+            return self.slices[-1].grad_k
         raise ValueError("No JEiter objects in JEiters object slices class variable.")
 
     @property
-    def alpha(self) -> float:
+    def alpha(self) -> float | None:
         """Return most recent alpha.
 
         Return the alpha attribute of the last JEiter object in the slices.
@@ -144,13 +142,11 @@ class JEiters:
             The alpha attribute of the last JEiter object in the slices
         """
         if len(self.slices):
-            if self.slices[-1].alpha is not None:
-                return self.slices[-1].alpha
-            raise ValueError("No alpha attribute in final JEiter object.")
+            return self.slices[-1].alpha
         raise ValueError("No JEiter objects in JEiters object slices class variable.")
 
     @property
-    def linmin(self) -> float:
+    def linmin(self) -> float | None:
         """Return most recent linmin.
 
         Return the linmin attribute of the last JEiter object in the slices.
@@ -161,9 +157,7 @@ class JEiters:
             The linmin attribute of the last JEiter object in the slices
         """
         if len(self.slices):
-            if self.slices[-1].linmin is not None:
-                return self.slices[-1].linmin
-            raise ValueError("No linmin attribute in final JEiter object.")
+            return self.slices[-1].linmin
         raise ValueError("No JEiter objects in JEiters object slices class variable.")
 
     @property
@@ -218,7 +212,7 @@ class JEiters:
         raise ValueError("No JEiter objects in JEiters object slices class variable.")
 
     @property
-    def abs_magneticmoment(self) -> float:
+    def abs_magneticmoment(self) -> float | None:
         """Return most recent abs_magneticmoment.
 
         Return the abs_magneticmoment attribute of the last JEiter object in the slices.
@@ -229,13 +223,11 @@ class JEiters:
             The abs_magneticmoment attribute of the last JEiter object in the slices
         """
         if len(self.slices):
-            if self.slices[-1].abs_magneticmoment is not None:
-                return self.slices[-1].abs_magneticmoment
-            raise ValueError("No abs_magneticmoment attribute in final JEiter object.")
+            return self.slices[-1].abs_magneticmoment
         raise ValueError("No JEiter objects in JEiters object slices class variable.")
 
     @property
-    def tot_magneticmoment(self) -> float:
+    def tot_magneticmoment(self) -> float | None:
         """Return most recent tot_magneticmoment.
 
         Return the tot_magneticmoment attribute of the last JEiter object in the slices.
@@ -246,9 +238,7 @@ class JEiters:
             The tot_magneticmoment attribute of the last JEiter object in the slices
         """
         if len(self.slices):
-            if self.slices[-1].tot_magneticmoment is not None:
-                return self.slices[-1].tot_magneticmoment
-            raise ValueError("No tot_magneticmoment attribute in final JEiter object.")
+            return self.slices[-1].tot_magneticmoment
         raise ValueError("No JEiter objects in JEiters object slices class variable.")
 
     @property

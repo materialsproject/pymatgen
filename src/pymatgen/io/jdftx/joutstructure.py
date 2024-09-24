@@ -104,7 +104,7 @@ class JOutStructure(Structure):
         raise ValueError("elecmindata not set")
 
     @property
-    def abs_magneticmoment(self) -> float:
+    def abs_magneticmoment(self) -> float | None:
         """Return the absolute magnetic moment.
 
         Return the absolute magnetic moment.
@@ -117,7 +117,7 @@ class JOutStructure(Structure):
         raise ValueError("elecmindata not set")
 
     @property
-    def tot_magneticmoment(self) -> float:
+    def tot_magneticmoment(self) -> float | None:
         """Return the total magnetic moment.
 
         Return the total magnetic moment.
@@ -158,7 +158,7 @@ class JOutStructure(Structure):
         raise ValueError("elecmindata not set")
 
     @property
-    def elec_grad_k(self) -> int:
+    def elec_grad_k(self) -> float | None:
         """Return the most recent electronic grad_k.
 
         Return the most recent electronic grad_k.
@@ -172,7 +172,7 @@ class JOutStructure(Structure):
         raise ValueError("elecmindata not set")
 
     @property
-    def elec_alpha(self) -> int:
+    def elec_alpha(self) -> float | None:
         """Return the most recent electronic alpha.
 
         Return the most recent electronic alpha.
@@ -186,7 +186,7 @@ class JOutStructure(Structure):
         raise ValueError("elecmindata not set")
 
     @property
-    def elec_linmin(self) -> int:
+    def elec_linmin(self) -> float | None:
         """Return the most recent electronic linmin.
 
         Return the most recent electronic linmin.
@@ -281,6 +281,21 @@ class JOutStructure(Structure):
         instance.parse_lowdin_lines(line_collections["lowdin"]["lines"])
         # Opt line must be parsed after ecomp
         instance.parse_opt_lines(line_collections["opt"]["lines"])
+
+        # In case of single-point calculation
+        if instance.E is None:
+            if instance.etype is not None:
+                if instance.ecomponents is not None:
+                    if instance.etype in instance.ecomponents:
+                        instance.E = instance.ecomponents[instance.etype]
+                    elif instance.elecmindata is not None:
+                        instance.E = instance.elecmindata.e
+                    else:
+                        raise ValueError("Could not determine total energy due to lack of elecmindata")
+                else:
+                    raise ValueError("Could not determine total energy due to lack of ecomponents")
+            else:
+                raise ValueError("Could not determine total energy due to lack of etype")
 
         return instance
 
