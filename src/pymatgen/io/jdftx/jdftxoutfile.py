@@ -1054,7 +1054,7 @@ class JDFTXOutfile:
         raise AttributeError("Property elec_iter inaccessible due to empty jstrucs class field")
 
     @property
-    def elec_e(self) -> int:
+    def elec_e(self) -> float:
         """Return the most recent electronic energy.
 
         Return the most recent electronic energy.
@@ -1082,7 +1082,7 @@ class JDFTXOutfile:
         raise AttributeError("Property elec_grad_k inaccessible due to empty jstrucs class field")
 
     @property
-    def elec_alpha(self) -> int:
+    def elec_alpha(self) -> float:
         """Return the most recent electronic alpha.
 
         Return the most recent electronic alpha.
@@ -1096,7 +1096,7 @@ class JDFTXOutfile:
         raise AttributeError("Property elec_alpha inaccessible due to empty jstrucs class field")
 
     @property
-    def elec_linmin(self) -> int:
+    def elec_linmin(self) -> float:
         """Return the most recent electronic linmin.
 
         Return the most recent electronic linmin.
@@ -1171,9 +1171,11 @@ class JDFTXOutfile:
             The value of the attribute
         """
         if name not in self.__dict__:
-            if not hasattr(self.slices[-1], name):
-                raise AttributeError(f"{self.__class__.__name__} not found: {name}")
-            return getattr(self.slices[-1], name)
+            if len(self.slices):
+                if not hasattr(self.slices[-1], name):
+                    raise AttributeError(f"{self.__class__.__name__} not found: {name}")
+                return getattr(self.slices[-1], name)
+            raise AttributeError(f"Property {name} inaccessible due to empty jstrucs class field")
         return self.__dict__[name]
 
     def __dir__(self) -> list:

@@ -50,6 +50,7 @@ example_sp_known = {
     "nSlices": 1,
     "t_s": 165.87,
     "iter_type": None,
+    "prefix": "jdft",
 }
 
 example_latmin_known = {
@@ -84,6 +85,7 @@ example_latmin_known = {
     "nSlices": 7,
     "t_s": 314.16,
     "iter_type": "LatticeMinimize",
+    "prefix": None,
 }
 
 example_ionmin_known = {
@@ -118,6 +120,7 @@ example_ionmin_known = {
     "nSlices": 1,
     "t_s": 2028.57,
     "iter_type": "IonicMinimize",
+    "prefix": None,
 }
 
 
@@ -177,3 +180,94 @@ def test_JDFTXOutfile_fromfile(filename: PathLike, known: dict):
     assert len(jout.slices) == known["nSlices"]
     assert jout.t_s == approx(known["t_s"])
     assert jout.jstrucs.iter_type == known["iter_type"]
+    assert jout.prefix == known["prefix"]
+
+
+@pytest.mark.parametrize(
+    ("varname"),
+    [
+        ("prefix"),
+        ("jstrucs"),
+        ("jsettings_fluid"),
+        ("jsettings_electronic"),
+        ("jsettings_lattice"),
+        ("jsettings_ionic"),
+        ("xc_func"),
+        ("lattice_initial"),
+        ("lattice_final"),
+        ("lattice"),
+        ("a"),
+        ("b"),
+        ("c"),
+        ("fftgrid"),
+        ("geom_opt"),
+        ("geom_opt_type"),
+        ("efermi"),
+        ("egap"),
+        ("emin"),
+        ("emax"),
+        ("homo"),
+        ("lumo"),
+        ("homo_filling"),
+        ("lumo_filling"),
+        ("is_metal"),
+        ("etype"),
+        ("broadening_type"),
+        ("broadening"),
+        ("kgrid"),
+        ("truncation_type"),
+        ("truncation_radius"),
+        ("pwcut"),
+        ("rhocut"),
+        ("pp_type"),
+        ("total_electrons"),
+        ("semicore_electrons"),
+        ("valence_electrons"),
+        ("total_electrons_uncharged"),
+        ("semicore_electrons_uncharged"),
+        ("valence_electrons_uncharged"),
+        ("nbands"),
+        ("atom_elements"),
+        ("atom_elements_int"),
+        ("atom_types"),
+        ("spintype"),
+        ("nspin"),
+        ("nat"),
+        ("atom_coords_initial"),
+        ("atom_coords_final"),
+        ("atom_coords"),
+        ("has_solvation"),
+        ("fluid"),
+        ("is_gc"),
+        ("eiter_type"),
+        ("elecmindata"),
+        ("stress"),
+        ("strain"),
+        ("iter"),
+        ("e"),
+        ("grad_k"),
+        ("alpha"),
+        ("linmin"),
+        ("nelectrons"),
+        ("abs_magneticmoment"),
+        ("tot_magneticmoment"),
+        ("mu"),
+        ("elec_iter"),
+        ("elec_e"),
+        ("elec_grad_k"),
+        ("elec_alpha"),
+        ("elec_linmin"),
+    ],
+)
+def test_JDFTXOutfile_expected_exceptions_empty_slices(
+    varname: str, dummy_filename: PathLike = ex_files_dir / Path("example_sp.out")
+):
+    jout = JDFTXOutfile.from_file(dummy_filename)
+    # First test that the attribute can be called
+    val = getattr(jout, varname)
+    # Next test it was properly called
+    assert val is not None
+    # Next test the error when slices is empty
+    jout.slices = []
+    with pytest.raises(AttributeError):
+        getattr(jout, varname)
