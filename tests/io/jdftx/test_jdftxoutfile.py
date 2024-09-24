@@ -85,7 +85,7 @@ example_latmin_known = {
     "nSlices": 7,
     "t_s": 314.16,
     "iter_type": "LatticeMinimize",
-    "prefix": None,
+    "prefix": "$VAR",
 }
 
 example_ionmin_known = {
@@ -120,7 +120,7 @@ example_ionmin_known = {
     "nSlices": 1,
     "t_s": 2028.57,
     "iter_type": "IonicMinimize",
-    "prefix": None,
+    "prefix": "$VAR",
 }
 
 
@@ -271,3 +271,10 @@ def test_JDFTXOutfile_expected_exceptions_empty_slices(
     jout.slices = []
     with pytest.raises(AttributeError):
         getattr(jout, varname)
+
+
+# Exception - trauncation_radius only set for some calculations and is thus None when unset
+# Linmin also None sometimes
+
+# Some only should be set for geometric optimizations and excluded from single point out file
+# stress, strain, iter
