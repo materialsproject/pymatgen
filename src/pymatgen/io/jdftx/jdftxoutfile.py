@@ -1001,7 +1001,7 @@ class JDFTXOutfile:
         raise AttributeError("Property nelectrons inaccessible due to empty jstrucs class field")
 
     @property
-    def abs_magneticmoment(self) -> float:
+    def abs_magneticmoment(self) -> float | None:
         """
         Return abs_magneticmoment from most recent JOutStructure.
 
@@ -1012,7 +1012,7 @@ class JDFTXOutfile:
         raise AttributeError("Property abs_magneticmoment inaccessible due to empty jstrucs class field")
 
     @property
-    def tot_magneticmoment(self) -> float:
+    def tot_magneticmoment(self) -> float | None:
         """
         Return tot_magneticmoment from most recent JOutStructure.
 
