@@ -40,5 +40,5 @@ venv.bak/
 .pdm-python
 
 # Local runners
-./actions-runner
-./actions-runner/*
+actions-runner/
+actions-runner/*
