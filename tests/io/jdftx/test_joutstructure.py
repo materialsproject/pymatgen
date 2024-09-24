@@ -96,7 +96,7 @@ def test_jstructure(eslice: list[str], eknowns: dict):
     jst = JOutStructure.from_text_slice(eslice, iter_type="lattice")
     assert jst.iter == eknowns["iter"]
     assert jst.etype == eknowns["etype"]
-    assert approx(eknowns["E"]) == jst.E
+    assert approx(eknowns["E"]) == jst.e
     assert jst.ecomponents["Eewald"] == approx(eknowns["Eewald"])
     assert jst.ecomponents["EH"] == approx(eknowns["EH"])
     assert jst.ecomponents["Eloc"] == approx(eknowns["Eloc"])
@@ -110,8 +110,8 @@ def test_jstructure(eslice: list[str], eknowns: dict):
     assert jst.ecomponents["F"] == approx(eknowns["F"])
     assert jst.elecmindata[0].mu == approx(eknowns["mu0"])
     assert jst.elecmindata[-1].mu == approx(eknowns["mu-1"])
-    assert approx(eknowns["E0"]) == jst.elecmindata[0].E
-    assert approx(eknowns["E-1"]) == jst.elecmindata[-1].E
+    assert approx(eknowns["E0"]) == jst.elecmindata[0].e
+    assert approx(eknowns["E-1"]) == jst.elecmindata[-1].e
     assert len(jst.elecmindata) == eknowns["nEminSteps"]
     assert len(jst.forces) == eknowns["nAtoms"]
     assert len(jst.cart_coords) == eknowns["nAtoms"]

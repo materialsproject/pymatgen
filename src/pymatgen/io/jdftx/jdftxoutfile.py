@@ -1170,13 +1170,20 @@ class JDFTXOutfile:
         val
             The value of the attribute
         """
-        if name not in self.__dict__:
-            if len(self.slices):
-                if not hasattr(self.slices[-1], name):
-                    raise AttributeError(f"{self.__class__.__name__} not found: {name}")
-                return getattr(self.slices[-1], name)
-            raise AttributeError(f"Property {name} inaccessible due to empty jstrucs class field")
-        return self.__dict__[name]
+        if len(self.slices):
+            if not hasattr(self.slices[-1], name):
+                raise AttributeError(f"{self.__class__.__name__} not found: {name}")
+            return getattr(self.slices[-1], name)
+        raise AttributeError(f"Property {name} inaccessible due to empty jstrucs class field")
+        # if name not in self.__dict__:
+        #     if len(self.slices):
+        #         if not hasattr(self.slices[-1], name):
+        #             raise AttributeError(f"{self.__class__.__name__} not found: {name}")
+        #         return getattr(self.slices[-1], name)
+        #     raise AttributeError(f"Property {name} inaccessible due to empty jstrucs class field")
+        # else:
+        #     # I believe this is unreachable code
+        #     return self.__dict__[name]
 
     def __dir__(self) -> list:
         """List attributes.

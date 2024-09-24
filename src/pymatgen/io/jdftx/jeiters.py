@@ -8,7 +8,7 @@ from __future__ import annotations
 
 import warnings
 from dataclasses import field
-from typing import Any
+from typing import Any, ClassVar
 
 from pymatgen.io.jdftx.jeiter import JEiter
 
@@ -67,6 +67,13 @@ class JEiters:
     converged: bool = False
     converged_reason: str | None = None
     slices: list[JEiter] = field(default_factory=list)
+    _getatr_ignore: ClassVar[list[str]] = [
+        "e",
+        "t_s",
+        "mu",
+        "nelectrons",
+        "subspacerotationadjust",
+    ]
     #
     # iter: int | None = None
     # E: float | None = None
@@ -95,8 +102,8 @@ class JEiters:
             if self.slices[-1].iter is not None:
                 return self.slices[-1].iter
             warnings.warn("No iter attribute in JEiter object. Returning number of JEiter objects.", stacklevel=2)
-            return len(self.slices)
-        raise ValueError("No JEiter objects in JEiters object slices class variable.")
+            return len(self.slices) - 1
+        raise AttributeError("No JEiter objects in JEiters object slices class variable.")
 
     @property
     def e(self) -> float:
@@ -112,8 +119,8 @@ class JEiters:
         if len(self.slices):
             if self.slices[-1].e is not None:
                 return self.slices[-1].e
-            raise ValueError("No E attribute in final JEiter object.")
-        raise ValueError("No JEiter objects in JEiters object slices class variable.")
+            raise AttributeError("No E attribute in final JEiter object.")
+        raise AttributeError("No JEiter objects in JEiters object slices class variable.")
 
     @property
     def grad_k(self) -> float | None:
@@ -128,7 +135,7 @@ class JEiters:
         """
         if len(self.slices):
             return self.slices[-1].grad_k
-        raise ValueError("No JEiter objects in JEiters object slices class variable.")
+        raise AttributeError("No JEiter objects in JEiters object slices class variable.")
 
     @property
     def alpha(self) -> float | None:
@@ -143,7 +150,7 @@ class JEiters:
         """
         if len(self.slices):
             return self.slices[-1].alpha
-        raise ValueError("No JEiter objects in JEiters object slices class variable.")
+        raise AttributeError("No JEiter objects in JEiters object slices class variable.")
 
     @property
     def linmin(self) -> float | None:
@@ -158,7 +165,7 @@ class JEiters:
         """
         if len(self.slices):
             return self.slices[-1].linmin
-        raise ValueError("No JEiter objects in JEiters object slices class variable.")
+        raise AttributeError("No JEiter objects in JEiters object slices class variable.")
 
     @property
     def t_s(self) -> float:
@@ -174,8 +181,8 @@ class JEiters:
         if len(self.slices):
             if self.slices[-1].t_s is not None:
                 return self.slices[-1].t_s
-            raise ValueError("No t_s attribute in final JEiter object.")
-        raise ValueError("No JEiter objects in JEiters object slices class variable.")
+            raise AttributeError("No t_s attribute in final JEiter object.")
+        raise AttributeError("No JEiter objects in JEiters object slices class variable.")
 
     @property
     def mu(self) -> float:
@@ -191,8 +198,8 @@ class JEiters:
         if len(self.slices):
             if self.slices[-1].mu is not None:
                 return self.slices[-1].mu
-            raise ValueError("No mu attribute in final JEiter object.")
-        raise ValueError("No JEiter objects in JEiters object slices class variable.")
+            raise AttributeError("No mu attribute in final JEiter object.")
+        raise AttributeError("No JEiter objects in JEiters object slices class variable.")
 
     @property
     def nelectrons(self) -> float:
@@ -208,8 +215,8 @@ class JEiters:
         if len(self.slices):
             if self.slices[-1].nelectrons is not None:
                 return self.slices[-1].nelectrons
-            raise ValueError("No nelectrons attribute in final JEiter object.")
-        raise ValueError("No JEiter objects in JEiters object slices class variable.")
+            raise AttributeError("No nelectrons attribute in final JEiter object.")
+        raise AttributeError("No JEiter objects in JEiters object slices class variable.")
 
     @property
     def abs_magneticmoment(self) -> float | None:
@@ -224,7 +231,7 @@ class JEiters:
         """
         if len(self.slices):
             return self.slices[-1].abs_magneticmoment
-        raise ValueError("No JEiter objects in JEiters object slices class variable.")
+        raise AttributeError("No JEiter objects in JEiters object slices class variable.")
 
     @property
     def tot_magneticmoment(self) -> float | None:
@@ -239,7 +246,7 @@ class JEiters:
         """
         if len(self.slices):
             return self.slices[-1].tot_magneticmoment
-        raise ValueError("No JEiter objects in JEiters object slices class variable.")
+        raise AttributeError("No JEiter objects in JEiters object slices class variable.")
 
     @property
     def subspacerotationadjust(self) -> float:
@@ -255,8 +262,8 @@ class JEiters:
         if len(self.slices):
             if self.slices[-1].subspacerotationadjust is not None:
                 return self.slices[-1].subspacerotationadjust
-            raise ValueError("No subspacerotationadjust attribute in final JEiter object.")
-        raise ValueError("No JEiter objects in JEiters object slices class variable.")
+            raise AttributeError("No subspacerotationadjust attribute in final JEiter object.")
+        raise AttributeError("No JEiter objects in JEiters object slices class variable.")
 
     @classmethod
     def from_text_slice(cls, text_slice: list[str], iter_type: str = "ElecMinimize", etype: str = "F") -> JEiters:
@@ -289,31 +296,31 @@ class JEiters:
             lines_collect = []
         return instance
 
-    def parse_text_slice(self, text_slice: list[str]) -> None:
-        """Parse text slice.
+    # def parse_text_slice(self, text_slice: list[str]) -> None:
+    #     """Parse text slice.
 
-        Parse a slice of text from a JDFTx out file corresponding to a series
-        of SCF steps.
+    #     Parse a slice of text from a JDFTx out file corresponding to a series
+    #     of SCF steps.
 
-        Parameters
-        ----------
-        text_slice: list[str]
-            A slice of text from a JDFTx out file corresponding to a series of
-            SCF steps
-        """
-        lines_collect = []
-        _iter_flag = f"{self.iter_type}: Iter:"
-        for line_text in text_slice:
-            if len(line_text.strip()):
-                lines_collect.append(line_text)
-                if _iter_flag in line_text:
-                    self.slices.append(JEiter.from_lines_collect(lines_collect, self.iter_type, self.etype))
-                    lines_collect = []
-            else:
-                break
-        if len(lines_collect):
-            self.parse_ending_lines(lines_collect)
-            lines_collect = []
+    #     Parameters
+    #     ----------
+    #     text_slice: list[str]
+    #         A slice of text from a JDFTx out file corresponding to a series of
+    #         SCF steps
+    #     """
+    #     lines_collect = []
+    #     _iter_flag = f"{self.iter_type}: Iter:"
+    #     for line_text in text_slice:
+    #         if len(line_text.strip()):
+    #             lines_collect.append(line_text)
+    #             if _iter_flag in line_text:
+    #                 self.slices.append(JEiter.from_lines_collect(lines_collect, self.iter_type, self.etype))
+    #                 lines_collect = []
+    #         else:
+    #             break
+    #     if len(lines_collect):
+    #         self.parse_ending_lines(lines_collect)
+    #         lines_collect = []
 
     def parse_ending_lines(self, ending_lines: list[str]) -> None:
         """Parse ending lines.
@@ -385,11 +392,18 @@ class JEiters:
         value
             The value of the attribute
         """
-        if name not in self.__dict__:
-            if not hasattr(self.slices[-1], name):
-                raise AttributeError(f"{self.__class__.__name__} not found: {name}")
-            return getattr(self.slices[-1], name)
-        return self.__dict__[name]
+        # if name not in self.__dict__:
+        #     if not hasattr(self.slices[-1], name):
+        #         raise AttributeError(f"{self.__class__.__name__} not found: {name}")
+        #     return getattr(self.slices[-1], name)
+        # return self.__dict__[name]
+        if len(self.slices):
+            if name not in self._getatr_ignore:
+                if not hasattr(self.slices[-1], name):
+                    raise AttributeError(f"{self.__class__.__name__} not found: {name}")
+                return getattr(self.slices[-1], name)
+            raise AttributeError(f"Property {name} inaccessible due to empty slices class field")
+        raise AttributeError(f"Property {name} inaccessible due to empty slices class field")
 
     def __getitem__(self, key: int | str) -> JEiter | Any:
         """Return item.

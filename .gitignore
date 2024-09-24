@@ -29,6 +29,8 @@ setuptools*
 .vscode/*
 codecov*
 coverage.xml
+jdftx*.xml
+.coverage*
 
 # Environments
 .env

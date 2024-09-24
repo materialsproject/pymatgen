@@ -229,7 +229,7 @@ class JDFTXOutfileSlice(ClassPrintFormatter):
         """
         if self.jstrucs is not None:
             return self.jstrucs[-1]
-        raise ValueError("No structures found in out file.")
+        raise AttributeError("Property structure inaccessible due to empty jstrucs class field")
 
     ###########################################################################
     # Properties inherited directly from jstrucs
@@ -1310,6 +1310,8 @@ class JDFTXOutfileSlice(ClassPrintFormatter):
         value
             The value of the attribute
         """
+        # The whole point of this is to be an unreached safety net, so expect hit
+        # to coverage here
         if name not in self.__dict__:
             if not hasattr(self.jstrucs, name):
                 raise AttributeError(f"{self.__class__.__name__} not found: {name}")

@@ -67,6 +67,7 @@ class JOutStructures:
                 "iter type interpreted as single-point calculation, but \
                            multiple structures found"
             )
+        instance.check_convergence()
         return instance
 
     @property
@@ -191,7 +192,7 @@ class JOutStructures:
         Return E from most recent JOutStructure.
         """
         if len(self.slices):
-            return self.slices[-1].E
+            return self.slices[-1].e
         raise AttributeError("Property E inaccessible due to empty slices class field")
 
     @property
@@ -410,11 +411,17 @@ class JOutStructures:
         value
             The value of the attribute
         """
-        if name not in self.__dict__:
+        if len(self.slices):
             if not hasattr(self.slices[-1], name):
                 raise AttributeError(f"{self.__class__.__name__} not found: {name}")
             return getattr(self.slices[-1], name)
-        return self.__dict__[name]
+        raise AttributeError(f"Property {name} inaccessible due to empty slices class field")
+        # if name not in self.__dict__:
+        #     if len(self.slices):
+        #         if not hasattr(self.slices[-1], name):
+        #             raise AttributeError(f"{self.__class__.__name__} not found: {name}")
+        #     return getattr(self.slices[-1], name)
+        # return self.__dict__[name]
 
     def __dir__(self) -> list:
         """List attributes.

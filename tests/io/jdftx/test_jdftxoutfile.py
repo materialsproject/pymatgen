@@ -8,6 +8,7 @@ from pytest import approx
 
 from pymatgen.core.units import Ha_to_eV
 from pymatgen.io.jdftx.jdftxoutfile import JDFTXOutfile
+from pymatgen.io.jdftx.jdftxoutfileslice import JDFTXOutfileSlice
 from pymatgen.util.testing import TEST_FILES_DIR
 
 if TYPE_CHECKING:
@@ -52,6 +53,7 @@ example_sp_known = {
     "iter_type": None,
     "prefix": "jdft",
     "etype": "F",
+    "converged": True,
 }
 
 example_latmin_known = {
@@ -88,6 +90,7 @@ example_latmin_known = {
     "iter_type": "LatticeMinimize",
     "prefix": "$VAR",
     "etype": "F",
+    "converged": True,
 }
 
 example_ionmin_known = {
@@ -125,6 +128,7 @@ example_ionmin_known = {
     "iter_type": "IonicMinimize",
     "prefix": "$VAR",
     "etype": "G",
+    "converged": True,
 }
 
 
@@ -140,6 +144,10 @@ def test_JDFTXOutfile_fromfile(filename: PathLike, known: dict):
     # filename = ex_files_dir / Path("jdftx.out")
     jout = JDFTXOutfile.from_file(filename)
     assert jout.nspin == known["Nspin"]
+    assert jout["nspin"] == known["Nspin"]  # Once for the coverage
+    assert isinstance(jout[-1], JDFTXOutfileSlice)
+    with pytest.raises(TypeError):
+        jout[{}]
     assert jout.spintype == known["spintype"]
     assert jout.broadening_type == known["broadening_type"]
     assert jout.broadening == approx(known["broadening"])
@@ -187,6 +195,13 @@ def test_JDFTXOutfile_fromfile(filename: PathLike, known: dict):
     assert jout.prefix == known["prefix"]
     assert jout.etype == known["etype"]
     assert jout.e == approx(known[known["etype"]])
+    assert jout.converged == known["converged"]
+    # Not testing values yet, just testing they dont raise errors
+    assert jout.trajectory is not None
+    assert jout.electronic_output is not None
+    assert jout.structure is not None
+    jout[-1].jstrucs = None
+    assert jout.is_converged is None
 
 
 empty_slice_exception_varnames = [

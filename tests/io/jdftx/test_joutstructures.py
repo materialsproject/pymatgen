@@ -70,6 +70,9 @@ def test_jstructures(ex_slice: list[str], ex_slice_known: dict[str, float], iter
     assert jstruct[-1].elecmindata[0].mu == approx(ex_slice_known["mu-1_0"])
     assert jstruct[-1].elecmindata[-1].mu == approx(ex_slice_known["mu-1_-1"])
     assert jstruct.elecmindata[-1].mu == approx(ex_slice_known["mu-1_-1"])
+    assert jstruct.elecmindata.mu == approx(ex_slice_known["mu-1_-1"])
+    assert jstruct.mu == approx(ex_slice_known["mu-1_-1"])
+    assert jstruct["mu"] == approx(ex_slice_known["mu-1_-1"])
     assert jstruct[0].elecmindata[0].nelectrons == approx(ex_slice_known["nelec0_0"])
     assert jstruct[0].elecmindata[-1].nelectrons == approx(ex_slice_known["nelec0_-1"])
     assert jstruct[-1].elecmindata[0].nelectrons == approx(ex_slice_known["nelec-1_0"])
@@ -79,11 +82,65 @@ def test_jstructures(ex_slice: list[str], ex_slice_known: dict[str, float], iter
     assert len(jstruct[-1].elecmindata) == ex_slice_known["nEminSteps-1"]
     assert len(jstruct.elecmindata) == ex_slice_known["nEminSteps-1"]
     assert jstruct[0].etype == ex_slice_known["etype0"]
-    assert approx(ex_slice_known["E0"]) == jstruct[0].E
+    assert approx(ex_slice_known["E0"]) == jstruct[0].e
     assert jstruct[-1].etype == ex_slice_known["etype-1"]
     assert jstruct.etype == ex_slice_known["etype-1"]
-    assert approx(ex_slice_known["E-1"]) == jstruct[-1].E
+    assert approx(ex_slice_known["E-1"]) == jstruct[-1].e
     assert jstruct[0].elecmindata.converged == ex_slice_known["conv0"]
     assert jstruct[-1].elecmindata.converged == ex_slice_known["conv-1"]
     assert jstruct.elecmindata.converged == ex_slice_known["conv-1"]
     assert len(jstruct) == ex_slice_known["nGeomSteps"]
+
+
+@pytest.mark.parametrize(
+    ("out_slice", "varname"),
+    [
+        (ex_outslice1, "etype"),
+        (ex_outslice1, "eiter_type"),
+        (ex_outslice1, "emin_flag"),
+        (ex_outslice1, "ecomponents"),
+        (ex_outslice1, "elecmindata"),
+        (ex_outslice1, "stress"),
+        (ex_outslice1, "strain"),
+        (ex_outslice1, "iter"),
+        (ex_outslice1, "e"),
+        (ex_outslice1, "grad_k"),
+        (ex_outslice1, "alpha"),
+        (ex_outslice1, "linmin"),
+        (ex_outslice1, "nelectrons"),
+        (ex_outslice1, "abs_magneticmoment"),
+        (ex_outslice1, "tot_magneticmoment"),
+        (ex_outslice1, "mu"),
+        (ex_outslice1, "elec_iter"),
+        (ex_outslice1, "elec_e"),
+        (ex_outslice1, "elec_grad_k"),
+        (ex_outslice1, "elec_alpha"),
+        (ex_outslice1, "elec_linmin"),
+    ],
+)
+def test_joutstructures_has_1layer_slice_freakout(out_slice: list[str], varname: str):
+    jstrucs = JOutStructures.from_out_slice(out_slice)
+    getattr(jstrucs, varname)  # No freakout here
+    jstrucs.slices = []
+    with pytest.raises(AttributeError):
+        getattr(jstrucs, varname)  # Freakout here
+
+
+# @pytest.mark.parametrize(
+#     ("out_slice", "varname"),
+#     [
+#         (ex_text_slice, "e"),
+#     ]
+# )
+# def jeiters_has_2layer_slice_freakout(out_slice: list[str], varname: str):
+#     jstrucs = JOutStructures.from_out_slice(out_slice)
+#     getattr(jstrucs, varname) # No freakout here
+#     setattr(jstrucs.slices[-1], varname, None)
+#     with pytest.raises(ValueError):
+#         jstrucs.iter # Freakout here
+#     # Reset
+#     jstrucs = JOutStructures.from_out_slice(out_slice)
+#     getattr(jstrucs, varname) # No freakout here
+#     jstrucs.slices = []
+#     with pytest.raises(ValueError):
+#         jstrucs.iter # Freakout here
