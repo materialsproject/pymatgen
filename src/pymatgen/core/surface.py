@@ -27,24 +27,26 @@ from typing import TYPE_CHECKING, cast
 
 import numpy as np
 from monty.fractions import lcm
+from scipy.cluster.hierarchy import fcluster, linkage
+from scipy.spatial.distance import squareform
+
 from pymatgen.analysis.structure_matcher import StructureMatcher
 from pymatgen.core import Lattice, PeriodicSite, Structure, get_el_sp
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
 from pymatgen.util.coord import in_coord_list
 from pymatgen.util.due import Doi, due
 from pymatgen.util.typing import Tuple3Ints
-from scipy.cluster.hierarchy import fcluster, linkage
-from scipy.spatial.distance import squareform
 
 if TYPE_CHECKING:
     from collections.abc import Sequence
     from typing import Any
 
     from numpy.typing import ArrayLike, NDArray
+    from typing_extensions import Self
+
     from pymatgen.core.composition import Element, Species
     from pymatgen.symmetry.groups import CrystalSystem
     from pymatgen.util.typing import MillerIndex
-    from typing_extensions import Self
 
 __author__ = "Richard Tran, Wenhao Sun, Zihan Xu, Shyue Ping Ong"
 
@@ -216,7 +218,7 @@ class Slab(Structure):
         return np.linalg.norm(np.cross(matrix[0], matrix[1]))
 
     @classmethod
-    def from_dict(cls, dct: dict[str, Any]) -> Self:  # type: ignore[override]
+    def from_dict(cls, dct: dict[str, Any]) -> Self:
         """
         Args:
             dct: dict.
@@ -240,7 +242,7 @@ class Slab(Structure):
             energy=dct["energy"],
         )
 
-    def as_dict(self, **kwargs) -> dict:  # type: ignore[override]
+    def as_dict(self, **kwargs) -> dict:
         """MSONable dict."""
         dct = super().as_dict(**kwargs)
         dct["@module"] = type(self).__module__
@@ -253,7 +255,7 @@ class Slab(Structure):
         dct["energy"] = self.energy
         return dct
 
-    def copy(self, site_properties: dict[str, Any] | None = None) -> Self:  # type: ignore[override]
+    def copy(self, site_properties: dict[str, Any] | None = None) -> Self:
         """Get a copy of the Slab, with options to update site properties.
 
         Args:
@@ -288,7 +290,7 @@ class Slab(Structure):
             symprec (float): Symmetry precision used for SpaceGroup analyzer.
 
         Returns:
-            bool: Whether surfaces are symmetric.
+            bool: True if surfaces are symmetric.
         """
         spg_analyzer = SpacegroupAnalyzer(self, symprec=symprec)
         symm_ops = spg_analyzer.get_point_group_operations()
@@ -552,10 +554,10 @@ class Slab(Structure):
                             break
                     else:
                         # Move unselected atom to the opposite surface.
-                        frac_coords.append(struct_matcher.frac_coords + [0, 0, shift])  # noqa: RUF005
+                        frac_coords.append(struct_matcher.frac_coords + np.array([0, 0, shift]))
 
                 # sort by species to put all similar species together.
-                sp_fcoord = sorted(zip(species, frac_coords), key=lambda x: x[0])
+                sp_fcoord = sorted(zip(species, frac_coords, strict=True), key=lambda x: x[0])
                 species = [x[0] for x in sp_fcoord]
                 frac_coords = [x[1] for x in sp_fcoord]
                 slab = type(self)(
@@ -826,10 +828,10 @@ def get_slab_regions(
     # If slab is noncontiguous
     if frac_coords:
         # Locate the lowest site within the upper Slab
-        last_fcoords = []
+        last_frac_coords = []
         last_indices = []
         while frac_coords:
-            last_fcoords = copy.copy(frac_coords)
+            last_frac_coords = copy.copy(frac_coords)
             last_indices = copy.copy(indices)
 
             site = slab[indices[frac_coords.index(min(frac_coords))]]
@@ -848,7 +850,7 @@ def get_slab_regions(
         for site in slab:
             if all(nn.index not in all_indices for nn in slab.get_neighbors(site, blength)):
                 upper_fcoords.append(site.frac_coords[2])
-        coords: list = copy.copy(frac_coords) if frac_coords else copy.copy(last_fcoords)
+        coords: list = copy.copy(frac_coords) if frac_coords else copy.copy(last_frac_coords)
         min_top = slab[last_indices[coords.index(min(coords))]].frac_coords[2]
         return [(0, max(upper_fcoords)), (min_top, 1)]
 
@@ -947,9 +949,9 @@ class SlabGenerator:
                 or "bulk_equivalent" not in initial_structure.site_properties
             ):
                 spg_analyzer = SpacegroupAnalyzer(initial_structure)
-                initial_structure.add_site_property("bulk_wyckoff", spg_analyzer.get_symmetry_dataset()["wyckoffs"])
+                initial_structure.add_site_property("bulk_wyckoff", spg_analyzer.get_symmetry_dataset().wyckoffs)
                 initial_structure.add_site_property(
-                    "bulk_equivalent", spg_analyzer.get_symmetry_dataset()["equivalent_atoms"].tolist()
+                    "bulk_equivalent", spg_analyzer.get_symmetry_dataset().equivalent_atoms.tolist()
                 )
 
         def calculate_surface_normal() -> np.ndarray:
@@ -969,7 +971,7 @@ class SlabGenerator:
             """
             slab_scale_factor = []
             non_orth_ind = []
-            eye = np.eye(3, dtype=int)
+            eye = np.eye(3, dtype=np.int64)
             for idx, miller_idx in enumerate(miller_index):
                 if miller_idx == 0:
                     # If lattice vector is perpendicular to surface normal, i.e.,
@@ -1110,7 +1112,7 @@ class SlabGenerator:
         frac_coords -= np.floor(frac_coords)  # wrap to the [0, 1) range
 
         # Scale down z-coordinate by the number of layers
-        frac_coords[:, 2] = frac_coords[:, 2] / n_layers
+        frac_coords[:, 2] /= n_layers
 
         # Duplicate atom layers by stacking along the z-axis
         all_coords = []
@@ -1132,10 +1134,10 @@ class SlabGenerator:
         if self.lll_reduce:
             # Sanitize Slab (LLL reduction + site sorting + map frac_coords)
             lll_slab = struct.copy(sanitize=True)
-            struct = lll_slab
 
             # Apply reduction on the scaling factor
             mapping = lll_slab.lattice.find_mapping(struct.lattice)
+            struct = lll_slab
             if mapping is None:
                 raise RuntimeError("LLL reduction has failed")
             scale_factor = np.dot(mapping[2], scale_factor)
@@ -1192,6 +1194,7 @@ class SlabGenerator:
         symmetrize: bool = False,
         repair: bool = False,
         ztol: float = 0,
+        filter_out_sym_slabs: bool = True,
     ) -> list[Slab]:
         """Generate slabs with shift values calculated from the internal
         gen_possible_terminations func. If the user decide to avoid breaking
@@ -1215,6 +1218,7 @@ class SlabGenerator:
                 can lead to many more possible slabs.
             ztol (float): Fractional tolerance for determine overlapping z-ranges,
                 smaller ztol might result in more possible Slabs.
+            filter_out_sym_slabs (bool): If True filter out identical slabs with different terminations.
 
         Returns:
             list[Slab]: All possible Slabs of a particular surface,
@@ -1340,22 +1344,25 @@ class SlabGenerator:
                 slabs.append(self.repair_broken_bonds(slab=slab, bonds=bonds))
 
         # Filter out surfaces that might be the same
-        matcher = StructureMatcher(ltol=tol, stol=tol, primitive_cell=False, scale=False)
+        if filter_out_sym_slabs:
+            matcher = StructureMatcher(ltol=tol, stol=tol, primitive_cell=False, scale=False)
 
-        final_slabs: list[Slab] = []
-        for group in matcher.group_structures(slabs):
-            # For each unique slab, symmetrize the
-            # surfaces by removing sites from the bottom
+            final_slabs: list[Slab] = []
+            for group in matcher.group_structures(slabs):
+                # For each unique slab, symmetrize the
+                # surfaces by removing sites from the bottom
+                if symmetrize:
+                    sym_slabs = self.nonstoichiometric_symmetrized_slab(group[0])
+                    final_slabs.extend(sym_slabs)
+                else:
+                    final_slabs.append(group[0])
+
+            # Filter out similar surfaces generated by symmetrization
             if symmetrize:
-                sym_slabs = self.nonstoichiometric_symmetrized_slab(group[0])
-                final_slabs.extend(sym_slabs)
-            else:
-                final_slabs.append(group[0])
-
-        # Filter out similar surfaces generated by symmetrization
-        if symmetrize:
-            matcher_sym = StructureMatcher(ltol=tol, stol=tol, primitive_cell=False, scale=False)
-            final_slabs = [group[0] for group in matcher_sym.group_structures(final_slabs)]
+                matcher_sym = StructureMatcher(ltol=tol, stol=tol, primitive_cell=False, scale=False)
+                final_slabs = [group[0] for group in matcher_sym.group_structures(final_slabs)]
+        else:
+            final_slabs = slabs
 
         return cast(list[Slab], sorted(final_slabs, key=lambda slab: slab.energy))
 
@@ -1678,8 +1685,8 @@ def generate_all_slabs(
 
 
 # Load the reconstructions_archive JSON file
-module_dir = os.path.dirname(os.path.abspath(__file__))
-with open(f"{module_dir}/reconstructions_archive.json", encoding="utf-8") as data_file:
+MODULE_DIR = os.path.dirname(os.path.abspath(__file__))
+with open(f"{MODULE_DIR}/reconstructions_archive.json", encoding="utf-8") as data_file:
     RECONSTRUCTIONS_ARCHIVE = json.load(data_file)
 
 
@@ -1689,7 +1696,7 @@ def get_d(slab: Slab) -> float:
     sorted_sites = sorted(slab, key=lambda site: site.frac_coords[2])
 
     distance = None
-    for site, next_site in zip(sorted_sites, sorted_sites[1:]):
+    for site, next_site in itertools.pairwise(sorted_sites):
         if not isclose(site.frac_coords[2], next_site.frac_coords[2], abs_tol=1e-6):
             distance = next_site.frac_coords[2] - site.frac_coords[2]
             break
@@ -2112,7 +2119,7 @@ def hkl_transformation(
     transf_hkl = np.array([idx // divisor for idx in transf_hkl])
 
     # Get positive Miller index
-    if len([i for i in transf_hkl if i < 0]) > 1:
+    if sum(idx < 0 for idx in transf_hkl) > 1:
         transf_hkl *= -1
 
     return tuple(transf_hkl)

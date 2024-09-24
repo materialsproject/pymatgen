@@ -18,6 +18,7 @@ from typing import TYPE_CHECKING, cast
 from monty.fractions import gcd, gcd_float
 from monty.json import MSONable
 from monty.serialization import loadfn
+
 from pymatgen.core.periodic_table import DummySpecies, Element, ElementType, Species, get_el_sp
 from pymatgen.core.units import Mass
 from pymatgen.util.string import Stringify, formula_double_format
@@ -26,10 +27,11 @@ if TYPE_CHECKING:
     from collections.abc import Generator, Iterator
     from typing import Any, ClassVar
 
-    from pymatgen.util.typing import SpeciesLike
     from typing_extensions import Self
 
-module_dir = os.path.dirname(os.path.abspath(__file__))
+    from pymatgen.util.typing import SpeciesLike
+
+MODULE_DIR = os.path.dirname(os.path.abspath(__file__))
 
 
 @total_ordering
@@ -179,7 +181,7 @@ class Composition(collections.abc.Hashable, collections.abc.Mapping, MSONable, S
         Args:
             other: Composition to compare to.
         """
-        if not isinstance(other, (type(self), dict)):
+        if not isinstance(other, type(self) | dict):
             return NotImplemented
 
         # elements with amounts < Composition.amount_tolerance don't show up
@@ -204,7 +206,6 @@ class Composition(collections.abc.Hashable, collections.abc.Mapping, MSONable, S
         for el in sorted(set(self.elements + other.elements)):
             if other[el] - self[el] >= type(self).amount_tolerance:
                 return False
-            # TODO @janosh 2024-04-29: is this a bug? why would we return True early?
             if self[el] - other[el] >= type(self).amount_tolerance:
                 return True
         return True
@@ -213,7 +214,7 @@ class Composition(collections.abc.Hashable, collections.abc.Mapping, MSONable, S
         """Add two compositions. For example, an Fe2O3 composition + an FeO
         composition gives a Fe3O4 composition.
         """
-        if not isinstance(other, (type(self), dict)):
+        if not isinstance(other, type(self) | dict):
             return NotImplemented
 
         new_el_map: dict[SpeciesLike, float] = defaultdict(float)
@@ -231,7 +232,7 @@ class Composition(collections.abc.Hashable, collections.abc.Mapping, MSONable, S
             original composition in any of its elements, unless allow_negative
             is True
         """
-        if not isinstance(other, (type(self), dict)):
+        if not isinstance(other, type(self) | dict):
             return NotImplemented
 
         new_el_map: dict[SpeciesLike, float] = defaultdict(float)
@@ -244,14 +245,14 @@ class Composition(collections.abc.Hashable, collections.abc.Mapping, MSONable, S
         """Multiply a Composition by an integer or a float.
         Fe2O3 * 4 -> Fe8O12.
         """
-        if not isinstance(other, (int, float)):
+        if not isinstance(other, int | float):
             return NotImplemented
         return type(self)({el: self[el] * other for el in self}, allow_negative=self.allow_negative)
 
     __rmul__ = __mul__
 
     def __truediv__(self, other: object) -> Self:
-        if not isinstance(other, (int, float)):
+        if not isinstance(other, int | float):
             return NotImplemented
         return type(self)({el: self[el] / other for el in self}, allow_negative=self.allow_negative)
 
@@ -487,7 +488,7 @@ class Composition(collections.abc.Hashable, collections.abc.Mapping, MSONable, S
         sorted alphabetically and joined by dashes, by convention for use
         in database keys.
         """
-        return "-".join(sorted(el.symbol for el in self.elements))
+        return "-".join(sorted(self.chemical_system_set))
 
     @property
     def num_atoms(self) -> float:
@@ -505,7 +506,7 @@ class Composition(collections.abc.Hashable, collections.abc.Mapping, MSONable, S
         """Calculate atomic fraction of an Element or Species.
 
         Args:
-            el (Element/Species): Element or Species to get fraction for.
+            el (SpeciesLike): Element or Species to get fraction for.
 
         Returns:
             Atomic fraction for element el in Composition
@@ -534,7 +535,7 @@ class Composition(collections.abc.Hashable, collections.abc.Mapping, MSONable, S
                 "actinoid", "radioactive", "quadrupolar", "s-block", "p-block", "d-block", "f-block".
 
         Returns:
-            bool: Whether any elements in Composition match category.
+            bool: True if any elements in Composition match category.
         """
         allowed_categories = [element.value for element in ElementType]
 
@@ -607,7 +608,7 @@ class Composition(collections.abc.Hashable, collections.abc.Mapping, MSONable, S
             reduced /= gcd(*(int(i) for i in self.values()))
 
         anon = ""
-        for elem, amt in zip(string.ascii_uppercase, sorted(reduced.values())):
+        for elem, amt in zip(string.ascii_uppercase, sorted(reduced.values()), strict=False):
             if amt == 1:
                 amt_str = ""
             elif abs(amt % 1) < 1e-8:
@@ -725,7 +726,7 @@ class Composition(collections.abc.Hashable, collections.abc.Mapping, MSONable, S
         if {*oxi_states} <= {0, None}:
             # all oxidation states are None or 0
             return None
-        return sum(oxi * amt for oxi, amt in zip(oxi_states, self.values()))
+        return sum(oxi * amt for oxi, amt in zip(oxi_states, self.values(), strict=True))
 
     @property
     def charge_balanced(self) -> bool | None:
@@ -957,7 +958,7 @@ class Composition(collections.abc.Hashable, collections.abc.Mapping, MSONable, S
 
         # Load prior probabilities of oxidation states, used to rank solutions
         if not type(self).oxi_prob:
-            all_data = loadfn(f"{module_dir}/../analysis/icsd_bv.yaml")
+            all_data = loadfn(f"{MODULE_DIR}/../analysis/icsd_bv.yaml")
             type(self).oxi_prob = {Species.from_str(sp): data for sp, data in all_data["occurrence"].items()}
         oxi_states_override = oxi_states_override or {}
         # Assert Composition only has integer amounts
@@ -1007,7 +1008,7 @@ class Composition(collections.abc.Hashable, collections.abc.Mapping, MSONable, S
         for x in product(*el_sums):
             # Each x is a trial of one possible oxidation sum for each element
             if sum(x) == target_charge:  # charge balance condition
-                el_sum_sol = dict(zip(elements, x))  # element->oxid_sum
+                el_sum_sol = dict(zip(elements, x, strict=True))  # element->oxid_sum
                 # Normalize oxid_sum by amount to get avg oxid state
                 sol = {el: v / el_amt[el] for el, v in el_sum_sol.items()}
                 # Add the solution to the list of solutions
@@ -1020,7 +1021,9 @@ class Composition(collections.abc.Hashable, collections.abc.Mapping, MSONable, S
                 all_scores.append(score)
 
                 # Collect the combination of oxidation states for each site
-                all_oxid_combo.append({e: el_best_oxid_combo[idx][v] for idx, (e, v) in enumerate(zip(elements, x))})
+                all_oxid_combo.append(
+                    {e: el_best_oxid_combo[idx][v] for idx, (e, v) in enumerate(zip(elements, x, strict=True))}
+                )
 
         # Sort the solutions from highest to lowest score
         if all_scores:
@@ -1028,11 +1031,12 @@ class Composition(collections.abc.Hashable, collections.abc.Mapping, MSONable, S
                 *(
                     (y, x)
                     for (z, y, x) in sorted(
-                        zip(all_scores, all_sols, all_oxid_combo),
+                        zip(all_scores, all_sols, all_oxid_combo, strict=True),
                         key=lambda pair: pair[0],
                         reverse=True,
                     )
-                )
+                ),
+                strict=True,
             )
         return tuple(all_sols), tuple(all_oxid_combo)
 
@@ -1095,7 +1099,7 @@ class Composition(collections.abc.Hashable, collections.abc.Mapping, MSONable, S
             factor: Coefficient for this parse, e.g. (PO4)2 will feed in PO4
                 as the fuzzy_formula with a coefficient of 2.
 
-        Returns:
+        Yields:
             list[tuple[Composition, int]]: A list of tuples, with the first element being a Composition
                 and the second element being the number of points awarded that Composition interpretation.
         """
@@ -1284,14 +1288,14 @@ class ChemicalPotential(dict, MSONable):
             raise ValueError("Duplicate potential specified")
 
     def __mul__(self, other: object) -> Self:
-        if isinstance(other, (int, float)):
+        if isinstance(other, int | float):
             return type(self)({key: val * other for key, val in self.items()})
         return NotImplemented
 
     __rmul__ = __mul__
 
     def __truediv__(self, other: object) -> Self:
-        if isinstance(other, (int, float)):
+        if isinstance(other, int | float):
             return type(self)({key: val / other for key, val in self.items()})
         return NotImplemented
 

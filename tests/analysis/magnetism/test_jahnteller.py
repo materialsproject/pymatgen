@@ -3,10 +3,11 @@ from __future__ import annotations
 from unittest import TestCase
 
 import numpy as np
+from pytest import approx
+
 from pymatgen.analysis.magnetism.jahnteller import JahnTellerAnalyzer, Species
 from pymatgen.core import Structure
 from pymatgen.util.testing import TEST_FILES_DIR
-from pytest import approx
 
 
 class TestJahnTeller(TestCase):

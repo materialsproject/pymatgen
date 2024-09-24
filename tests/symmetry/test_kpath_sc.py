@@ -1,11 +1,12 @@
 from __future__ import annotations
 
 import numpy as np
+from pytest import approx
+
 from pymatgen.core.lattice import Lattice
 from pymatgen.core.structure import Structure
 from pymatgen.symmetry.kpath import KPathSetyawanCurtarolo
 from pymatgen.util.testing import TEST_FILES_DIR, PymatgenTest
-from pytest import approx
 
 TEST_DIR = f"{TEST_FILES_DIR}/symmetry/space_group_structs"
 

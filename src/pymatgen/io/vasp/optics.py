@@ -10,14 +10,16 @@ import numpy as np
 import scipy.constants
 import scipy.special
 from monty.json import MSONable
+from tqdm import tqdm
+
 from pymatgen.electronic_structure.core import Spin
 from pymatgen.io.vasp.outputs import Vasprun, Waveder
-from tqdm import tqdm
 
 if TYPE_CHECKING:
     from numpy.typing import ArrayLike, NDArray
-    from pymatgen.util.typing import PathLike
     from typing_extensions import Self
+
+    from pymatgen.util.typing import PathLike
 
 __author__ = "Jimmy-Xuan Shen"
 __copyright__ = "Copyright 2022, The Materials Project"
@@ -330,7 +332,7 @@ def get_delta(x0: float, sigma: float, nx: int, dx: float, ismear: int = 3) -> N
         ismear: The smearing parameter used by the ``step_func``.
 
     Returns:
-        np.array: Array of size `nx` with delta function on the desired outputgrid.
+        np.ndarray: Array of size `nx` with delta function on the desired outputgrid.
     """
     xgrid = np.linspace(0, nx * dx, nx, endpoint=False)
     xgrid -= x0
@@ -354,7 +356,7 @@ def get_step(x0: float, sigma: float, nx: int, dx: float, ismear: int) -> float:
         ismear: The smearing parameter used by the ``step_func``.
 
     Returns:
-        np.array: Array of size `nx` with step function on the desired outputgrid.
+        np.ndarray: Array of size `nx` with step function on the desired outputgrid.
     """
     xgrid = np.linspace(0, nx * dx, nx, endpoint=False)
     xgrid -= x0
@@ -391,7 +393,7 @@ def epsilon_imag(
         mask: Mask for the bands/kpoint/spin index to include in the calculation
 
     Returns:
-        np.array: Array of size `nedos` with the imaginary part of the dielectric function.
+        np.ndarray: Array of size `nedos` with the imaginary part of the dielectric function.
     """
     norm_kweights = np.array(kweights) / np.sum(kweights)
     egrid = np.linspace(0, nedos * deltae, nedos, endpoint=False)
@@ -458,7 +460,7 @@ def kramers_kronig(
         cshift: The shift of the imaginary part of the dielectric function.
 
     Returns:
-        np.array: Array of size `nedos` with the complex dielectric function.
+        np.ndarray: Array of size `nedos` with the complex dielectric function.
     """
     egrid = np.linspace(0, deltae * nedos, nedos)
     csfhit = cshift * 1.0j

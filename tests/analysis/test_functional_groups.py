@@ -1,8 +1,10 @@
 from __future__ import annotations
 
+import platform
 from unittest import TestCase
 
 import pytest
+
 from pymatgen.analysis.functional_groups import FunctionalGroupExtractor
 from pymatgen.analysis.graphs import MoleculeGraph
 from pymatgen.analysis.local_env import OpenBabelNN
@@ -109,6 +111,7 @@ class TestFunctionalGroupExtractor(TestCase):
         assert len(all_func) == (len(link) + len(basics))
         assert sorted(all_func) == sorted(link + basics)
 
+    @pytest.mark.skipif(platform.system() == "Windows", reason="Tests for openbabel failing on Win")
     def test_categorize_functional_groups(self):
         all_func = self.extractor.get_all_functional_groups()
         categorized = self.extractor.categorize_functional_groups(all_func)

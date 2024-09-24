@@ -11,6 +11,7 @@ import warnings
 from typing import TYPE_CHECKING
 
 from monty.dev import requires
+
 from pymatgen.core.structure import IMolecule, Molecule
 
 try:
@@ -19,8 +20,9 @@ except Exception:
     openbabel = pybel = None
 
 if TYPE_CHECKING:
-    from pymatgen.analysis.graphs import MoleculeGraph
     from typing_extensions import Self
+
+    from pymatgen.analysis.graphs import MoleculeGraph
 
 
 __author__ = "Shyue Ping Ong, Qi Wang"
@@ -34,7 +36,7 @@ __date__ = "Apr 28, 2012"
 needs_openbabel = requires(
     openbabel,
     "BabelMolAdaptor requires openbabel to be installed with Python bindings. "
-    "Please get it at http://openbabel.org (version >=3.0.0).",
+    "Please get it at https://openbabel.org (version >=3.0.0).",
 )
 
 

@@ -4,6 +4,8 @@ import warnings
 
 import pytest
 from numpy.testing import assert_array_equal
+from pytest import approx
+
 from pymatgen.core.units import (
     ArrayWithUnit,
     Energy,
@@ -25,7 +27,6 @@ from pymatgen.core.units import (
     unitized,
 )
 from pymatgen.util.testing import PymatgenTest
-from pytest import approx
 
 
 def test_unit_conversions():
@@ -212,7 +213,7 @@ class TestArrayWithUnit(PymatgenTest):
         """Similar to FloatWithUnitTest.test_time.
         Check whether EnergyArray and FloatWithUnit have same behavior.
         """
-        # here there's a minor difference because we have a ndarray with dtype=int
+        # here there's a minor difference because we have a ndarray with dtype=np.int64
         a = TimeArray(20, "h")
         assert a.to("s") == 3600 * 20
         # Test left and right multiplication.

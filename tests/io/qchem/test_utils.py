@@ -1,17 +1,15 @@
 from __future__ import annotations
 
-import logging
 import struct
 
 import pytest
 from monty.io import zopen
+
 from pymatgen.io.qchem.utils import lower_and_check_unique, process_parsed_hess
 from pymatgen.util.testing import TEST_FILES_DIR, PymatgenTest
 
 __author__ = "Ryan Kingsbury, Samuel Blau"
 __copyright__ = "Copyright 2018-2022, The Materials Project"
-
-logger = logging.getLogger(__name__)
 
 
 TEST_DIR = f"{TEST_FILES_DIR}/io/qchem/new_qchem_files"

@@ -1,8 +1,11 @@
 from __future__ import annotations
 
+from importlib.metadata import PackageNotFoundError
+
 import numpy as np
 import pytest
 from monty.json import MontyDecoder, jsanitize
+
 from pymatgen.core import Composition, Lattice, Molecule, Structure
 from pymatgen.core.structure import StructureError
 from pymatgen.io.ase import AseAtomsAdaptor, MSONAtoms
@@ -354,8 +357,6 @@ def test_msonable_atoms():
 
 @pytest.mark.skipif(ase is not None, reason="ase is present")
 def test_no_ase_err():
-    from importlib.metadata import PackageNotFoundError
-
     import pymatgen.io.ase
 
     expected_msg = str(pymatgen.io.ase.NO_ASE_ERR)

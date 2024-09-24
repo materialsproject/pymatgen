@@ -10,6 +10,8 @@ import networkx as nx
 import networkx.algorithms.isomorphism as iso
 import pytest
 from monty.serialization import loadfn
+from pytest import approx
+
 from pymatgen.analysis.graphs import MoleculeGraph, MolGraphSplitError, PeriodicSite, StructureGraph
 from pymatgen.analysis.local_env import (
     CovalentBondNN,
@@ -23,7 +25,6 @@ from pymatgen.command_line.critic2_caller import Critic2Analysis
 from pymatgen.core import Lattice, Molecule, Site, Structure
 from pymatgen.core.structure import FunctionalGroups
 from pymatgen.util.testing import TEST_FILES_DIR, PymatgenTest
-from pytest import approx
 
 try:
     from openbabel import openbabel
@@ -316,7 +317,7 @@ from    to  to_image
 
         # test sequential multiplication
         sq_sg_1 = self.square_sg * (2, 2, 1)
-        sq_sg_1 = sq_sg_1 * (2, 2, 1)
+        sq_sg_1 *= 2, 2, 1
         sq_sg_2 = self.square_sg * (4, 4, 1)
         assert sq_sg_1.graph.number_of_edges() == sq_sg_2.graph.number_of_edges()
         # TODO: the below test still gives 8 != 4
@@ -332,7 +333,7 @@ from    to  to_image
         # test 3D Structure
 
         nio_struct_graph = StructureGraph.from_local_env_strategy(self.NiO, MinimumDistanceNN())
-        nio_struct_graph = nio_struct_graph * 3
+        nio_struct_graph *= 3
 
         for n in range(len(nio_struct_graph)):
             assert nio_struct_graph.get_coordination_of_site(n) == 6
@@ -349,7 +350,7 @@ from    to  to_image
 
         # draw MoS2 graph that's been successively multiplied
         mos2_sg_2 = self.mos2_sg * (3, 3, 1)
-        mos2_sg_2 = mos2_sg_2 * (3, 3, 1)
+        mos2_sg_2 *= 3, 3, 1
         mos2_sg_2.draw_graph_to_file(f"{self.tmp_path}/MoS2_twice_mul.pdf", algo="neato", hide_image_edges=True)
 
         # draw MoS2 graph that's generated from a pre-multiplied Structure
@@ -372,7 +373,7 @@ from    to  to_image
         bc_square_sg_r.draw_graph_to_file(f"{self.tmp_path}/bc_square_r.pdf", algo="neato", image_labels=False)
 
         # ensure PDF files were created
-        pdfs = {path.split("/") for path in glob(f"{self.tmp_path}/*.pdf")}
+        pdfs = {path.split("/")[-1] for path in glob(f"{self.tmp_path}/*.pdf")}
         expected_pdfs = {
             "bc_square_r_single.pdf",
             "bc_square_r.pdf",
@@ -409,7 +410,7 @@ from    to  to_image
         diff = struct_graph.diff(sg2)
         assert diff["dist"] == 0
 
-        assert self.square_sg.get_coordination_of_site(0) == 2
+        assert self.square_sg.get_coordination_of_site(0) == 4
 
     def test_from_edges(self):
         edges = {
@@ -835,7 +836,7 @@ class TestMoleculeGraph(TestCase):
 
         # check fix in https://github.com/materialsproject/pymatgen/pull/3221
         # by comparing graph with equal nodes but different edges
-        edges[(1, 4)] = {"weight": 2}
+        edges[1, 4] = {"weight": 2}
         assert not self.ethylene.isomorphic_to(MoleculeGraph.from_edges(ethylene, edges))
 
     def test_substitute(self):

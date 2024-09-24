@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import numpy as np
 from numpy.testing import assert_allclose
+
 from pymatgen.core.lattice import Lattice
 from pymatgen.symmetry.groups import SpaceGroup
 from pymatgen.symmetry.maggroups import MagneticSpaceGroup

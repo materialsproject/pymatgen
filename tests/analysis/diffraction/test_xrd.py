@@ -1,15 +1,12 @@
 from __future__ import annotations
 
 import pytest
+from pytest import approx
+
 from pymatgen.analysis.diffraction.xrd import XRDCalculator
 from pymatgen.core.lattice import Lattice
 from pymatgen.core.structure import Structure
 from pymatgen.util.testing import PymatgenTest
-from pytest import approx
-
-"""
-TODO: Modify unittest doc.
-"""
 
 __author__ = "Shyue Ping Ong"
 __copyright__ = "Copyright 2012, The Materials Project"
@@ -26,7 +23,7 @@ class TestXRDCalculator(PymatgenTest):
         with pytest.raises(TypeError) as exc:
             XRDCalculator(wavelength)
 
-        assert "type(wavelength)=<class 'list'> must be either float, int or str" in str(exc.value)
+        assert "wavelength_type='list' must be either float, int or str" in str(exc.value)
 
     def test_get_pattern(self):
         struct = self.get_structure("CsCl")

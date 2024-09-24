@@ -4,11 +4,13 @@ from __future__ import annotations
 
 import abc
 import itertools
-from typing import TYPE_CHECKING
+from functools import lru_cache
+from typing import TYPE_CHECKING, cast
 
 import numpy as np
 from monty.json import MSONable
-from pymatgen.core import Composition, Lattice, Structure, get_el_sp
+
+from pymatgen.core import SETTINGS, Composition, IStructure, Lattice, Structure, get_el_sp
 from pymatgen.optimization.linear_assignment import LinearAssignment
 from pymatgen.util.coord import lattice_points_in_supercell
 from pymatgen.util.coord_cython import is_coord_subset_pbc, pbc_shortest_vectors
@@ -17,8 +19,9 @@ if TYPE_CHECKING:
     from collections.abc import Mapping, Sequence
     from typing import Literal
 
-    from pymatgen.util.typing import SpeciesLike
     from typing_extensions import Self
+
+    from pymatgen.util.typing import SpeciesLike
 
 __author__ = "William Davidson Richards, Stephen Dacek, Shyue Ping Ong"
 __copyright__ = "Copyright 2011, The Materials Project"
@@ -27,6 +30,31 @@ __maintainer__ = "William Davidson Richards"
 __email__ = "wrichard@mit.edu"
 __status__ = "Production"
 __date__ = "Dec 3, 2012"
+LRU_CACHE_SIZE = SETTINGS.get("STRUCTURE_MATCHER_CACHE_SIZE", 300)
+
+
+class SiteOrderedIStructure(IStructure):
+    """
+    Imutable structure where the order of sites matters.
+
+    In caching reduced structures (see `StructureMatcher._get_reduced_structure`)
+    the order of input sites can be important.
+    In general, the order of sites in a structure does not matter, but when
+    a method like `StructureMatcher.get_s2_like_s1` tries to put s2's sites in
+    the same order as s1, the site order matters.
+    """
+
+    def __eq__(self, other: object) -> bool:
+        """Check for IStructure equality and same site order."""
+        if not super().__eq__(other):
+            return False
+        other = cast(SiteOrderedIStructure, other)  # make mypy happy
+
+        return list(self.sites) == list(other.sites)
+
+    def __hash__(self) -> int:
+        """Use the composition hash for now."""
+        return super().__hash__()
 
 
 class AbstractComparator(MSONable, abc.ABC):
@@ -51,7 +79,7 @@ class AbstractComparator(MSONable, abc.ABC):
                 definition in Site and PeriodicSite.
 
         Returns:
-            Boolean indicating whether species are considered equal.
+            bool: True if species are considered equal.
         """
         return False
 
@@ -120,7 +148,7 @@ class SpeciesComparator(AbstractComparator):
                 definition in Site and PeriodicSite.
 
         Returns:
-            Boolean indicating whether species are equal.
+            bool: True if species are equal.
         """
         return sp1 == sp2
 
@@ -149,7 +177,7 @@ class SpinComparator(AbstractComparator):
                 definition in Site and PeriodicSite.
 
         Returns:
-            Boolean indicating whether species are equal.
+            bool: True if species are equal.
         """
         for s1 in sp1:
             spin1 = getattr(s1, "spin", 0) or 0
@@ -186,8 +214,7 @@ class ElementComparator(AbstractComparator):
                 definition in Site and PeriodicSite.
 
         Returns:
-            Boolean indicating whether species are the same based on element
-            and amounts.
+            bool: True if species are the same based on element and amounts.
         """
         comp1 = Composition(sp1)
         comp2 = Composition(sp2)
@@ -558,7 +585,7 @@ class StructureMatcher(MSONable):
         if s1_supercell:
             # remove the symmetrically equivalent s1 indices
             inds = inds[::fu]
-        return np.array(mask, dtype=int), inds, idx
+        return np.array(mask, dtype=np.int64), inds, idx
 
     def fit(
         self, struct1: Structure, struct2: Structure, symmetric: bool = False, skip_structure_reduction: bool = False
@@ -912,7 +939,7 @@ class StructureMatcher(MSONable):
         s2_comp = struct2.composition
         matches = []
         for perm in itertools.permutations(sp2):
-            sp_mapping = dict(zip(sp1, perm))
+            sp_mapping = dict(zip(sp1, perm, strict=True))
 
             # do quick check that compositions are compatible
             mapped_comp = Composition({sp_mapping[k]: v for k, v in s1_comp.items()})
@@ -938,15 +965,25 @@ class StructureMatcher(MSONable):
                     break
         return matches
 
-    @classmethod
-    def _get_reduced_structure(cls, struct: Structure, primitive_cell: bool = True, niggli: bool = True) -> Structure:
-        """Helper method to find a reduced structure."""
+    @staticmethod
+    @lru_cache(maxsize=LRU_CACHE_SIZE)
+    def _get_reduced_istructure(
+        struct: SiteOrderedIStructure, primitive_cell: bool = True, niggli: bool = True
+    ) -> SiteOrderedIStructure:
+        """Helper method to find a reduced imutable structure."""
         reduced = struct.copy()
         if niggli:
             reduced = reduced.get_reduced_structure(reduction_algo="niggli")
         if primitive_cell:
             reduced = reduced.get_primitive_structure()
         return reduced
+
+    @classmethod
+    def _get_reduced_structure(cls, struct: Structure, primitive_cell: bool = True, niggli: bool = True) -> Structure:
+        """Helper method to find a reduced structure."""
+        return Structure.from_sites(
+            cls._get_reduced_istructure(SiteOrderedIStructure.from_sites(struct), primitive_cell, niggli)
+        )
 
     def get_rms_anonymous(self, struct1, struct2):
         """
@@ -967,8 +1004,7 @@ class StructureMatcher(MSONable):
         struct1, struct2 = self._process_species([struct1, struct2])
         struct1, struct2, fu, s1_supercell = self._preprocess(struct1, struct2)
 
-        matches = self._anonymous_match(struct1, struct2, fu, s1_supercell, use_rms=True, break_on_match=False)
-        if matches:
+        if matches := self._anonymous_match(struct1, struct2, fu, s1_supercell, use_rms=True, break_on_match=False):
             best = min(matches, key=lambda x: x[1][0])
             return best[1][0], best[0]
 
@@ -992,9 +1028,7 @@ class StructureMatcher(MSONable):
         struct1, struct2 = self._process_species([struct1, struct2])
         struct1, struct2, fu, s1_supercell = self._preprocess(struct1, struct2)
 
-        matches = self._anonymous_match(struct1, struct2, fu, s1_supercell, use_rms=True, break_on_match=True)
-
-        if matches:
+        if matches := self._anonymous_match(struct1, struct2, fu, s1_supercell, use_rms=True, break_on_match=True):
             min_X_diff = np.inf
             best = None
             for match in matches:
@@ -1026,8 +1060,7 @@ class StructureMatcher(MSONable):
         struct1, struct2 = self._process_species([struct1, struct2])
         struct1, struct2, fu, s1_supercell = self._preprocess(struct1, struct2, niggli)
 
-        matches = self._anonymous_match(struct1, struct2, fu, s1_supercell, break_on_match=not include_dist)
-        if matches:
+        if matches := self._anonymous_match(struct1, struct2, fu, s1_supercell, break_on_match=not include_dist):
             if include_dist:
                 return [(m[0], m[1][0]) for m in matches]
 
@@ -1050,7 +1083,7 @@ class StructureMatcher(MSONable):
                 If True, skip to get a primitive structure and perform Niggli reduction for struct1 and struct2
 
         Returns:
-            bool: Whether a species mapping can map struct1 to struct2
+            bool: True if a species mapping can map struct1 to struct2
         """
         struct1, struct2 = self._process_species([struct1, struct2])
         struct1, struct2, fu, s1_supercell = self._preprocess(struct1, struct2, niggli, skip_structure_reduction)

@@ -2,12 +2,13 @@ from __future__ import annotations
 
 import json
 import os
-import random
 import unittest
 
 import numpy as np
-import pymatgen
 from numpy.testing import assert_allclose
+from pytest import approx
+
+import pymatgen.core
 from pymatgen.analysis.structure_matcher import StructureMatcher
 from pymatgen.core import Lattice, Structure
 from pymatgen.core.surface import (
@@ -24,7 +25,8 @@ from pymatgen.core.surface import (
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
 from pymatgen.symmetry.groups import SpaceGroup
 from pymatgen.util.testing import TEST_FILES_DIR, PymatgenTest
-from pytest import approx
+
+PMG_CORE_DIR = os.path.dirname(pymatgen.core.__file__)
 
 
 class TestSlab(PymatgenTest):
@@ -159,7 +161,7 @@ class TestSlab(PymatgenTest):
             assert total_surf_sites / 2 == 4
 
             # Test if the ratio of surface sites per area is
-            # constant, ie are the surface energies the same
+            # constant, i.e. are the surface energies the same?
             r1 = total_surf_sites / (2 * slab.surface_area)
             slab_gen = SlabGenerator(self.ag_fcc, (3, 1, 0), 10, 10, primitive=False)
             slab = slab_gen.get_slabs()[0]
@@ -207,8 +209,7 @@ class TestSlab(PymatgenTest):
         all_slabs = [all_Ti_slabs, all_Ag_fcc_slabs]
 
         for slabs in all_slabs:
-            asymmetric_count = 0
-            symmetric_count = 0
+            asymmetric_count = symmetric_count = 0
 
             for slab in slabs:
                 sg = SpacegroupAnalyzer(slab)
@@ -250,7 +251,7 @@ class TestSlab(PymatgenTest):
             sorted_sites = sorted(slab, key=lambda site: site.frac_coords[2])
             site = sorted_sites[-1]
             point = np.array(site.frac_coords)
-            point[2] = point[2] + 0.1
+            point[2] += 0.1
             point2 = slab.get_symmetric_site(point)
             slab.append("O", point)
             slab.append("O", point2)
@@ -374,7 +375,8 @@ class TestSlabGenerator(PymatgenTest):
         assert len(slab_non_prim) == len(slab) * 4
 
         # Some randomized testing of cell vectors
-        for spg_int in np.random.randint(1, 230, 10):
+        rng = np.random.default_rng()
+        for spg_int in rng.integers(1, 230, 10):
             sg = SpaceGroup.from_int_number(spg_int)
             if sg.crystal_system == "hexagonal" or (
                 sg.crystal_system == "trigonal"
@@ -391,11 +393,7 @@ class TestSlabGenerator(PymatgenTest):
             struct = Structure.from_spacegroup(spg_int, lattice, ["H"], [[0, 0, 0]])
             miller = (0, 0, 0)
             while miller == (0, 0, 0):
-                miller = (
-                    random.randint(0, 6),
-                    random.randint(0, 6),
-                    random.randint(0, 6),
-                )
+                miller = tuple(rng.integers(0, 6, size=3, endpoint=True))
             gen = SlabGenerator(struct, miller, 10, 10)
             a_vec, b_vec, _c_vec = gen.oriented_unit_cell.lattice.matrix
             assert np.dot(a_vec, gen._normal) == approx(0)
@@ -611,8 +609,7 @@ class ReconstructionGeneratorTests(PymatgenTest):
         self.Fe = Structure.from_spacegroup("Im-3m", lattice, species, coords)
         self.Si = Structure.from_spacegroup("Fd-3m", Lattice.cubic(5.430500), ["Si"], [(0, 0, 0.5)])
 
-        pmg_core_dir = os.path.dirname(pymatgen.core.__file__)
-        with open(f"{pmg_core_dir}/reconstructions_archive.json") as data_file:
+        with open(f"{PMG_CORE_DIR}/reconstructions_archive.json") as data_file:
             self.rec_archive = json.load(data_file)
 
     def test_build_slab(self):
@@ -689,7 +686,7 @@ class ReconstructionGeneratorTests(PymatgenTest):
             assert any(len(match.group_structures([struct, slab])) == 1 for slab in slabs)
 
 
-class MillerIndexFinderTests(PymatgenTest):
+class TestMillerIndexFinder(PymatgenTest):
     def setUp(self):
         self.cscl = Structure.from_spacegroup("Pm-3m", Lattice.cubic(4.2), ["Cs", "Cl"], [[0, 0, 0], [0.5, 0.5, 0.5]])
         self.Fe = Structure.from_spacegroup("Im-3m", Lattice.cubic(2.82), ["Fe"], [[0, 0, 0]])

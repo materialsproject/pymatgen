@@ -9,8 +9,8 @@ Microporous and Mesoporous Materials, 149 (2012) 134-141.
 
 Zeo++ Installation Steps:
 ========================
-A stable version of Zeo++ can be obtained from http://zeoplusplus.org.
-Instructions can be found at http://www.zeoplusplus.org/download.html
+A stable version of Zeo++ can be obtained from https://zeoplusplus.org.
+Instructions can be found at https://www.zeoplusplus.org/download.html
 
 Zeo++ Post-Installation Checking:
 ==============================
@@ -31,6 +31,7 @@ from typing import TYPE_CHECKING
 from monty.dev import requires
 from monty.io import zopen
 from monty.tempfile import ScratchDir
+
 from pymatgen.core.lattice import Lattice
 from pymatgen.core.structure import Molecule, Structure
 from pymatgen.io.cssr import Cssr
