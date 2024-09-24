@@ -55,7 +55,7 @@ class JOutStructure(Structure):
     stress: np.ndarray | None = None
     strain: np.ndarray | None = None
     iter: int | None = None
-    E: float | None = None
+    e: float | None = None
     grad_k: float | None = None
     alpha: float | None = None
     linmin: float | None = None
@@ -283,13 +283,13 @@ class JOutStructure(Structure):
         instance.parse_opt_lines(line_collections["opt"]["lines"])
 
         # In case of single-point calculation
-        if instance.E is None:
+        if instance.e is None:
             if instance.etype is not None:
                 if instance.ecomponents is not None:
                     if instance.etype in instance.ecomponents:
-                        instance.E = instance.ecomponents[instance.etype]
+                        instance.e = instance.ecomponents[instance.etype]
                     elif instance.elecmindata is not None:
-                        instance.E = instance.elecmindata.e
+                        instance.e = instance.elecmindata.e
                     else:
                         raise ValueError("Could not determine total energy due to lack of elecmindata")
                 else:

@@ -1187,7 +1187,7 @@ class JDFTXOutfileSlice(ClassPrintFormatter):
         if self.jstrucs is not None:
             ecomp = self.jstrucs[-1].ecomponents
             if self.etype not in ecomp:
-                ecomp[self.etype] = self.jstrucs[-1].E
+                ecomp[self.etype] = self.jstrucs[-1].e
             self.ecomponents = ecomp
         else:
             raise ValueError("No structures found in out file.")
