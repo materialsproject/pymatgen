@@ -775,6 +775,8 @@ class TagContainer(AbstractTag):
             The value checked against the correct type, possibly fixed.
         """
         value_dict = self.get_dict_representation(tag, value)
+        # if isinstance(value, list):
+        #     value_dict = self.get_dict_representation(tag, value)
         if self.can_repeat:
             self._validate_repeat(tag, value_dict)
             results = [self._validate_single_entry(x, try_auto_type_fix=try_auto_type_fix) for x in value_dict]
@@ -864,7 +866,9 @@ class TagContainer(AbstractTag):
                 else:
                     tempdict[subtag] = []
                     for _ in range(subtag_count):
-                        idx_start = value.index(subtag)
+                        idx_start = value_list.index(subtag)
+                        # God knows how long that error had been there silently
+                        # idx_start = value.index(subtag)
                         idx_end = idx_start + subtag_type.get_token_len()
                         subtag_value = " ".join(
                             value_list[(idx_start + 1) : idx_end]
@@ -1011,6 +1015,8 @@ class TagContainer(AbstractTag):
     #     raise ValueError("Could not determine TagContainer representation, something is wrong")
 
     def _make_list(self, value: dict) -> list:
+        if not isinstance(value, dict):
+            raise TypeError(f"The value {value} is not a dict, so could not be converted")
         value_list = []
         for subtag in value:
             subtag_type = self.subtags[subtag]
@@ -1025,7 +1031,7 @@ class TagContainer(AbstractTag):
                     # 'ion' tag
                     value_list.append(subtag)
                 value_list.extend(subtag_value2)
-            elif not subtag_type.allow_list_representation and isinstance(value[subtag], dict):
+            elif isinstance(value[subtag], dict):
                 # this triggers if someone sets this tag using mixed dict/list
                 # representations
                 warnings.warn(
@@ -1071,6 +1077,8 @@ class TagContainer(AbstractTag):
         # can_repeat: list of lists (ion)
         # cannot repeat: list of bool/str/int/float (elec-cutoff)
         # cannot repeat: list of lists (lattice)
+        if self.can_repeat and not isinstance(value, list):
+            raise ValueError("Values for repeatable tags must be a list here")
         if self.can_repeat:
             if all(isinstance(entry, list) for entry in value):
                 return value  # no conversion needed
@@ -1138,7 +1146,10 @@ class TagContainer(AbstractTag):
         """
         # convert list or list of lists representation into string the
         # TagContainer can process back into (nested) dict
-        if self.can_repeat and len({len(x) for x in value}) > 1:  # repeated
+
+        if self.can_repeat and not isinstance(value, list):
+            raise ValueError("Values for repeatable tags must be a list here")
+        if self.can_repeat and len({len(x) for x in value}) > 1:
             # tags must be in same format
             raise ValueError(f"The values for {tag} {value} provided in a list of lists have different lengths")
         value = value.tolist() if isinstance(value, np.ndarray) else value
@@ -1283,20 +1294,76 @@ class MultiformatTag(AbstractTag):
         value : str
             The value string to read.
         """
-        problem_log = []
-        for i, trial_format in enumerate(
-            self.format_options
-        ):  # format_options is a list of AbstractTag-inheriting objects
-            try:
-                return trial_format.read(tag, value)
-            except (ValueError, TypeError) as e:
-                problem_log.append(f"Format {i}: {e}")
-        errormsg = f"No valid read format for '{tag} {value}' tag\nAdd option \
-            to format_options or double-check the value string and retry!\n\n"
-        errormsg += "Here is the log of errors for each known \
-            formatting option:\n"
-        errormsg += "\n".join([f"Format {x}: {problem_log[x]}" for x in range(len(problem_log))])
-        raise ValueError(errormsg)
+        err_str = "The read method is not supposed to be called directly on MultiformatTag."
+        err_str += " Get the proper format option first."
+        raise RuntimeError(err_str)
+
+    def write(self, tag: str, value: Any) -> str:
+        """Write the tag and its value as a string.
+
+        This method writes the tag and its value as a string.
+
+        Parameters
+        ----------
+        tag : str
+            The tag to write.
+        value : Any
+            The value to write.
+
+        Returns
+        -------
+        str
+        """
+        err_str = "The write method is not supposed to be called directly on MultiformatTag."
+        err_str += " Get the proper format option first."
+        raise RuntimeError(err_str)
+
+    # READ AND WRITE METHODS ARE COMMENTED OUT SINCE THEY ARE UNREACHABLE AT THE MOMENT
+    # def read(self, tag: str, value: str) -> None:
+    #     """Read the value string for this tag.
+
+    #     Read the value string for this tag.
+
+    #     Parameters
+    #     ----------
+    #     tag : str
+    #         The tag to read the value string for.
+    #     value : str
+    #         The value string to read.
+    #     """
+    #     problem_log = []
+    #     for i, trial_format in enumerate(
+    #         self.format_options
+    #     ):  # format_options is a list of AbstractTag-inheriting objects
+    #         try:
+    #             return trial_format.read(tag, value)
+    #         except (ValueError, TypeError) as e:
+    #             problem_log.append(f"Format {i}: {e}")
+    #     errormsg = f"No valid read format for '{tag} {value}' tag\nAdd option \
+    #         to format_options or double-check the value string and retry!\n\n"
+    #     errormsg += "Here is the log of errors for each known \
+    #         formatting option:\n"
+    #     errormsg += "\n".join([f"Format {x}: {problem_log[x]}" for x in range(len(problem_log))])
+    #     raise ValueError(errormsg)
+
+    # def write(self, tag: str, value: Any) -> str:
+    #     """Write the tag and its value as a string.
+
+    #     This method writes the tag and its value as a string.
+
+    #     Parameters
+    #     ----------
+    #     tag : str
+    #         The tag to write.
+    #     value : Any
+    #         The value to write.
+
+    #     Returns
+    #     -------
+    #     str
+    #     """
+    #     format_index, _ = self._determine_format_option(tag, value)
+    #     return self.format_options[format_index].write(tag, value)
 
     def get_format_index(self, tag: str, value: str) -> int:
         """Get the format index from string rep of value.
@@ -1319,11 +1386,10 @@ class MultiformatTag(AbstractTag):
                 return i
             except (ValueError, TypeError) as e:
                 problem_log.append(f"Format {i}: {e}")
-        errormsg = f"No valid read format for '{tag} {value}' tag\nAdd option \
-            to format_options or double-check the value string and retry!\n\n"
-        errormsg += "Here is the log of errors for each known \
-            formatting option:\n"
-        errormsg += "\n".join([f"Format {x}: {problem_log[x]}" for x in range(len(problem_log))])
+        errormsg = f"No valid read format for '{tag} {value}' tag\n"
+        errormsg += "Add option to format_options or double-check the value string and retry!\n\n"
+        # errormsg += "Here is the log of errors for each known formatting option:\n"
+        # errormsg += "\n".join([f"Format {x}: {problem_log[x]}" for x in range(len(problem_log))])
         raise ValueError(errormsg)
 
     def raise_invalid_format_option_error(self, tag: str, i: int) -> None:
@@ -1340,7 +1406,7 @@ class MultiformatTag(AbstractTag):
         """
         raise ValueError(f"{tag} option {i} is not it: validation failed")
 
-    def _determine_format_option(self, tag: str, value: Any, try_auto_type_fix: bool = False) -> tuple[int, Any]:
+    def _determine_format_option(self, tag: str, value_any: Any, try_auto_type_fix: bool = False) -> tuple[int, Any]:
         """Determine the format option for the value of this tag.
 
         This method determines the format option for the value of this tag.
@@ -1364,6 +1430,10 @@ class MultiformatTag(AbstractTag):
         """
         exceptions = []
         for i, format_option in enumerate(self.format_options):
+            if format_option.can_repeat:
+                value = [value_any] if not isinstance(value_any, list) else value_any
+            else:
+                value = value_any
             try:
                 _, is_tag_valid, value = format_option.validate_value_type(
                     tag, value, try_auto_type_fix=try_auto_type_fix
@@ -1375,30 +1445,9 @@ class MultiformatTag(AbstractTag):
             except (ValueError, TypeError) as e:  # TODO: Make sure these are all
                 # the possible exceptions
                 exceptions.append(e)
-        raise ValueError(
-            f"The format for {tag} for:\n{value}\ncould not be determined \
-                from the available options! Check your inputs and/or \
-                    MASTER_TAG_LIST! (exceptions: {exceptions})"
-        )
-
-    def write(self, tag: str, value: Any) -> str:
-        """Write the tag and its value as a string.
-
-        This method writes the tag and its value as a string.
-
-        Parameters
-        ----------
-        tag : str
-            The tag to write.
-        value : Any
-            The value to write.
-
-        Returns
-        -------
-        str
-        """
-        format_index, _ = self._determine_format_option(tag, value)
-        return self.format_options[format_index].write(tag, value)
+        err_str = f"The format for {tag} for:\n{value_any}\ncould not be determined from the available options!"
+        err_str += "Check your inputs and/or MASTER_TAG_LIST!"
+        raise ValueError(err_str)
 
     def get_token_len(self) -> int:
         """Get the token length of the tag.

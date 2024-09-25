@@ -1,6 +1,6 @@
 """Module for JDFTx utils."""
 
-from __future__ import annotations
+# from __future__ import annotations
 
 
 # from pymatgen.io.jdftx.joutstructures import elec_min_start_flag
