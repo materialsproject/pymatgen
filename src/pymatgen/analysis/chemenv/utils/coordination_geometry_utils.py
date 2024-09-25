@@ -724,7 +724,7 @@ class Plane:
         Returns:
             bool: True if pp is in the plane.
         """
-        return np.abs(np.dot(self.normal_vector, pp) + self._coefficients[3]) <= dist_tolerance
+        return bool(np.abs(np.dot(self.normal_vector, pp) + self._coefficients[3]) <= dist_tolerance)
 
     def is_same_plane_as(self, plane) -> bool:
         """
