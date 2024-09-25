@@ -102,7 +102,8 @@ optional = [
     "ase>=3.23.0",
     "beautifulsoup4",
     # BoltzTraP2 build fails on Windows GitHub runners
-    "BoltzTraP2>=24.9.3 ; platform_system != 'Windows'",
+    # "BoltzTraP2>=24.9.4 ; platform_system != 'Windows'",
+    "BoltzTraP2>=24.9.4",
     "chemview>=0.6",
     "chgnet>=0.3.8",
     "f90nml>=1.1.2",
