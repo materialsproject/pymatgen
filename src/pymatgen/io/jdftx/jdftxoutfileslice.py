@@ -146,6 +146,7 @@ class JDFTXOutfileSlice(ClassPrintFormatter):
     has_solvation: bool = False
     fluid: str | None = None
     is_gc: bool | None = None
+    is_bgw: bool = False
 
     @property
     def t_s(self) -> float | None:
@@ -632,19 +633,19 @@ class JDFTXOutfileSlice(ClassPrintFormatter):
         truncation_radius = None
         if line is not None:
             truncation_type = text[line].split()[1]
+            if truncation_type not in maptypes:
+                raise ValueError("Problem with this truncation!")
             truncation_type = maptypes[truncation_type]
             direc = None
             if len(text[line].split()) == 3:
                 direc = text[line].split()[2]
-            if truncation_type == "slab" and direc != "001":
-                raise ValueError("BGW slab Coulomb truncation must be along z!")
-            if truncation_type == "wire" and direc != "001":
-                raise ValueError(
-                    "BGW wire Coulomb truncation must be periodic \
-                                 in z!"
-                )
-            if truncation_type == "error":
-                raise ValueError("Problem with this truncation!")
+            if self.is_bgw:
+                if truncation_type == "slab" and direc != "001":
+                    raise ValueError("BGW slab Coulomb truncation must be along z!")
+                if truncation_type == "wire" and direc != "001":
+                    raise ValueError("BGW wire Coulomb truncation must be periodic in z!")
+            # if truncation_type == "error":
+            #     raise ValueError("Problem with this truncation!")
             if truncation_type == "spherical":
                 line = find_key("Initialized spherical truncation of radius", text)
                 truncation_radius = float(text[line].split()[5]) / ang_to_bohr
@@ -763,10 +764,7 @@ class JDFTXOutfileSlice(ClassPrintFormatter):
         lines2 = find_all_key("eigStats' ...", text)
         lines3 = [lines1[i] for i in range(len(lines1)) if lines1[i] in lines2]
         if not len(lines3):
-            raise ValueError(
-                'Must run DFT job with "dump End EigStats" to get summary gap\
-                      information!'
-            )
+            raise ValueError('Must run DFT job with "dump End EigStats" to get summary gap information!')
         line = lines3[-1]
         varsdict["emin"] = float(text[line + 1].split()[1]) * Ha_to_eV
         varsdict["homo"] = float(text[line + 2].split()[1]) * Ha_to_eV
@@ -811,7 +809,7 @@ class JDFTXOutfileSlice(ClassPrintFormatter):
         """
         skey = "Reading pseudopotential file"
         line = find_key(skey, text)
-        ppfile_example = text[line].split(skey)[1].split(":")[0].strip("'")
+        ppfile_example = text[line].split(skey)[1].split(":")[0].strip("'").strip()
         pptype = None
         readable = ["GBRV", "SG15"]
         for _pptype in readable:
@@ -824,10 +822,7 @@ class JDFTXOutfileSlice(ClassPrintFormatter):
                 else:
                     pptype = _pptype
         if pptype is None:
-            raise ValueError(
-                f"Could not determine pseudopotential type from file name\
-                      {ppfile_example}"
-            )
+            raise ValueError(f"Could not determine pseudopotential type from file name {ppfile_example}")
         return pptype
 
     def set_pseudo_vars(self, text: list[str]) -> None:
@@ -1070,7 +1065,7 @@ class JDFTXOutfileSlice(ClassPrintFormatter):
             else:
                 self.set_orb_fillings_nobroad(self.nspin)
         else:
-            raise ValueError(" Cannot set homo/lumo filling with self.nspin as None")
+            raise ValueError("Cannot set homo/lumo filling with self.nspin as None")
 
     def set_fluid(self, text: list[str]) -> None:  # Is this redundant to the fluid settings?
         """Set the fluid class variable.
@@ -1251,7 +1246,7 @@ class JDFTXOutfileSlice(ClassPrintFormatter):
                 if self.lumo_filling is not None:
                     return self._determine_is_metal(tol_partial, self.nspin, self.homo_filling, self.lumo_filling)
                 raise ValueError("Cannot determine if system is metal - self.lumo_filling undefined")
-            raise ValueError("Cannot determine if system is metal - self.homo_fillig undefined")
+            raise ValueError("Cannot determine if system is metal - self.homo_filling undefined")
         raise ValueError("Cannot determine if system is metal - self.nspin undefined")
 
     def check_solvation(self) -> bool:
