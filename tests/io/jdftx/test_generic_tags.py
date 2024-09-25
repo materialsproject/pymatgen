@@ -4,14 +4,30 @@ import re
 
 import pytest
 
-from pymatgen.io.jdftx.generic_tags import AbstractTag, BoolTag, FloatTag, InitMagMomTag, IntTag, StrTag, TagContainer
-from pymatgen.io.jdftx.jdftxinfile_master_format import get_tag_object
+from pymatgen.io.jdftx.generic_tags import (
+    AbstractTag,
+    BoolTag,
+    BoolTagContainer,
+    FloatTag,
+    InitMagMomTag,
+    IntTag,
+    StrTag,
+    TagContainer,
+)
+from pymatgen.io.jdftx.jdftxinfile_master_format import get_dump_tag_container, get_tag_object
 
 
 def test_abstract_tag():
     with pytest.raises(TypeError):
         # AbstractTag cannot be instantiated directly
         AbstractTag()
+
+
+def test_stringify():
+    str_tag = StrTag(options=["ken"])
+    out_str = str(str_tag)
+    assert isinstance(out_str, str)
+    assert len(out_str)
 
 
 def test_bool_tag():
@@ -27,6 +43,8 @@ def test_bool_tag():
     bool_tag = BoolTag(write_value=True)
     with pytest.raises(ValueError, match="Could not set 'not-appearing-in-read-TF-options' as True/False for barbie!"):
         bool_tag.read("barbie", "not-appearing-in-read-TF-options")
+    with pytest.raises(TypeError):
+        bool_tag._validate_repeat("barbie", "ken")
 
 
 class Unstringable:
@@ -125,6 +143,7 @@ def test_tagcontainer():
         ValueError, match="Subtag allan is not allowed to repeat repeats in barbie's value allan 1 allan 2"
     ):
         tagcontainer.read("barbie", "allan 1 allan 2")
+    ###
     tagcontainer = TagContainer(
         can_repeat=False,
         subtags={
@@ -137,6 +156,7 @@ def test_tagcontainer():
             "barbie",
             {"ken": "1", "allan": "barbie"},  # Raises a warning since barbie cannot be converted to int
         )
+    ###
     tagcontainer = TagContainer(
         can_repeat=True,
         subtags={
@@ -179,6 +199,62 @@ def test_tagcontainer():
     assert tagcontainer.get_token_len() == 3
     with pytest.raises(TypeError):
         tagcontainer.write("barbie", ["ken barbie"])
+    ###
     tagcontainer = get_tag_object("ion")
     with pytest.warns(Warning):
         tagcontainer.read("ion", "Fe 1 1 1 1 HyperPlane")
+    ###
+    tagcontainer = TagContainer(
+        can_repeat=True,
+        allow_list_representation=False,
+        subtags={
+            "ken": StrTag(),
+            "allan": IntTag(),
+        },
+    )
+    strmatch = str([{"ken": "b"}, [["allan", 1]]])
+    with pytest.raises(
+        ValueError,
+        match=re.escape(f"barbie with {strmatch} cannot have nested lists/dicts mixed with bool/str/int/floats!"),
+    ):
+        tagcontainer._check_for_mixed_nesting("barbie", [{"ken": "b"}, [["allan", 1]]])
+    strmatch = str([{"ken": "b"}, {"allan": 1}])
+    with pytest.raises(
+        ValueError,
+        match=re.escape(f"barbie with {strmatch} cannot have nested dicts mixed with bool/str/int/floats!"),
+    ):
+        tagcontainer._check_for_mixed_nesting("barbie", [{"ken": "b"}, {"allan": 1}])
+    strmatch = str([["ken", "b"], ["allan", 1]])
+    with pytest.raises(
+        ValueError,
+        match=re.escape(f"barbie with {strmatch} cannot have nested lists mixed with bool/str/int/floats!"),
+    ):
+        tagcontainer._check_for_mixed_nesting("barbie", [["ken", "b"], ["allan", 1]])
+
+
+# def test_multiformattagcontainer():
+
+
+def test_dumptagcontainer():
+    dtc = get_dump_tag_container()
+    with pytest.raises(
+        ValueError,
+        match=re.escape("Something is wrong in the JDFTXInfile formatting, some values were not processed: ['barbie']"),
+    ):
+        dtc.read("dump", "barbie End DOS")
+
+
+def test_booltagcontainer():
+    btc = BoolTagContainer(
+        subtags={
+            "ken": BoolTag(optional=False, write_tagname=True, write_value=False),
+            "allan": BoolTag(optional=True, write_tagname=True, write_value=False),
+        },
+    )
+    with pytest.raises(ValueError, match="The ken tag is not optional but was not populated during the read!"):
+        btc.read("barbie", "allan")
+    with pytest.raises(
+        ValueError,
+        match=re.escape("Something is wrong in the JDFTXInfile formatting, some values were not processed: ['aliah']"),
+    ):
+        btc.read("barbie", "ken aliah")

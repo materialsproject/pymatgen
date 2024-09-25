@@ -11,12 +11,9 @@ import warnings
 from abc import ABC, abstractmethod
 from copy import deepcopy
 from dataclasses import dataclass, field
-from typing import TYPE_CHECKING, Any
+from typing import Any
 
 import numpy as np
-
-if TYPE_CHECKING:
-    from pymatgen.core import Structure
 
 __author__ = "Jacob Clary, Ben Rich"
 
@@ -982,32 +979,36 @@ class TagContainer(AbstractTag):
                 min_token_len += subtag_token_len
         return min_token_len
 
-    def check_representation(self, tag: str, value: Any) -> str:
-        """Check the representation of the value.
+    # COMMENTING OUT THIS FUNCTION BREAKS NOTHING, KEEPING IT AS COMMENT FOR NOW
+    # TODO: get_list_representation gives something that get_dict_representation cannot parse, making this method
+    # only useful for asserting something is a dictionary. Figure out what list_representations are supposed to
+    # look like, or replace this function
+    # def check_representation(self, tag: str, value: Any) -> str:
+    #     """Check the representation of the value.
 
-        Check the representation of the value.
+    #     Check the representation of the value.
 
-        Parameters
-        ----------
-        tag : str
-            The tag to check the representation of the value for.
-        value : Any
-            The value to check the representation of.
+    #     Parameters
+    #     ----------
+    #     tag : str
+    #         The tag to check the representation of the value for.
+    #     value : Any
+    #         The value to check the representation of.
 
-        Returns
-        -------
-        str
-            The representation of the value.
-        """
-        if not self.allow_list_representation:
-            return "dict"
-        value_list = self.get_list_representation(tag, value)
-        value_dict = self.get_dict_representation(tag, value)
-        if value == value_list:
-            return "list"
-        if value == value_dict:
-            return "dict"
-        raise ValueError("Could not determine TagContainer representation, something is wrong")
+    #     Returns
+    #     -------
+    #     str
+    #         The representation of the value.
+    #     """
+    #     if not self.allow_list_representation:
+    #         return "dict"
+    #     value_list = self.get_list_representation(tag, value)
+    #     value_dict = self.get_dict_representation(tag, value)
+    #     if value == value_list:
+    #         return "list"
+    #     if value == value_dict:
+    #         return "dict"
+    #     raise ValueError("Could not determine TagContainer representation, something is wrong")
 
     def _make_list(self, value: dict) -> list:
         value_list = []
@@ -1074,8 +1075,7 @@ class TagContainer(AbstractTag):
             if all(isinstance(entry, list) for entry in value):
                 return value  # no conversion needed
             if any(not isinstance(entry, dict) for entry in value):
-                raise ValueError(f"The {tag} tag set to {value} must be a list \
-                                 of dict")
+                raise ValueError(f"The {tag} tag set to {value} must be a list of dict")
             tag_as_list = [self._make_list(entry) for entry in value]
         else:
             tag_as_list = self._make_list(value)
@@ -1163,76 +1163,77 @@ class TagContainer(AbstractTag):
         return self.read(tag, list_value)
 
 
-@dataclass
-class StructureDeferredTagContainer(TagContainer):
-    """Class for tags that require a Pymatgen structure to process the value.
+# COMMENTING THIS OUT UNTIL IT IS MADE USABLE
+# @dataclass
+# class StructureDeferredTagContainer(TagContainer):
+#     """Class for tags that require a Pymatgen structure to process the value.
 
-    This tag class accommodates tags that can have complicated values that
-    depend on the number and species of atoms present. The species labels do
-    not necessarily have to be elements, but just match the species given in
-    the ion/ion-species tag(s). We will use the set of labels provided by the
-    ion tag(s) because that is a well-defined token, while it may not be
-    explicitly defined in ion-species.
+#     This tag class accommodates tags that can have complicated values that
+#     depend on the number and species of atoms present. The species labels do
+#     not necessarily have to be elements, but just match the species given in
+#     the ion/ion-species tag(s). We will use the set of labels provided by the
+#     ion tag(s) because that is a well-defined token, while it may not be
+#     explicitly defined in ion-species.
 
-    Relevant tags: add-U, initial-magnetic-moments, initial-oxidation-states,
-    set-atomic-radius, setVDW
-    """
+#     Relevant tags: add-U, initial-magnetic-moments, initial-oxidation-states,
+#     set-atomic-radius, setVDW
+#     """
 
-    defer_until_struc: bool = True
+#     defer_until_struc: bool = True
 
-    def read(self, tag: str, value: str, structure: Structure = None) -> None:
-        """Read the value string for this tag.
+#     def read(self, tag: str, value: str, structure: Structure = None) -> None:
+#         """Read the value string for this tag.
 
-        Read the value string for this tag.
+#         Read the value string for this tag.
 
-        Parameters
-        ----------
-        tag : str
-            The tag to read the value string for.
-        value : str
-            The value string to read.
-        structure : Structure, optional
-            The Pymatgen structure to use for reading the value string,
-            by default None.
-        """
-        raise NotImplementedError
+#         Parameters
+#         ----------
+#         tag : str
+#             The tag to read the value string for.
+#         value : str
+#             The value string to read.
+#         structure : Structure, optional
+#             The Pymatgen structure to use for reading the value string,
+#             by default None.
+#         """
+#         raise NotImplementedError
 
-        # """This method is similar to StrTag.read(), but with less validation
-        # because usually will
-        # get a string like 'Fe 2.0 2.5 Ni 1.0 1.1' as the value to process later
+#         # """This method is similar to StrTag.read(), but with less validation
+#         # because usually will
+#         # get a string like 'Fe 2.0 2.5 Ni 1.0 1.1' as the value to process later
 
-        # If this method is called separately from the JDFTXInfile processing
-        # methods, a Pymatgen
-        # structure may be provided directly
-        # """
-        # try:
-        #     value = str(value)
-        # except:
-        #     raise ValueError(f"Could not set '{value}' to a str for {tag}!")
+#         # If this method is called separately from the JDFTXInfile processing
+#         # methods, a Pymatgen
+#         # structure may be provided directly
+#         # """
+#         # try:
+#         #     value = str(value)
+#         # except:
+#         #     raise ValueError(f"Could not set '{value}' to a str for {tag}!")
 
-        # if structure is not None:
-        #     value = self.read_with_structure(tag, value, structure)
-        # return value
+#         # if structure is not None:
+#         #     value = self.read_with_structure(tag, value, structure)
+#         # return value
 
-    def read_with_structure(self, tag: str, value: str, structure: Structure) -> None:
-        """Read tag/value pair with a Pymatgen structure provided.
+#     def read_with_structure(self, tag: str, value: str, structure: Structure) -> None:
+#         """Read tag/value pair with a Pymatgen structure provided.
 
-        Read tag/value pair with a Pymatgen structure provided.
+#         Read tag/value pair with a Pymatgen structure provided.
 
-        Parameters
-        ----------
-        tag : str
-            The tag to read the value string for.
-        value : str
-            The value string to read.
-        structure : Structure
-            The Pymatgen structure to use for reading the value string.
-        """
-        raise NotImplementedError
+#         Parameters
+#         ----------
+#         tag : str
+#             The tag to read the value string for.
+#         value : str
+#             The value string to read.
+#         structure : Structure
+#             The Pymatgen structure to use for reading the value string.
+#         """
+#         raise NotImplementedError
 
-        # """Fully process the value string using data from the Pymatgen
-        # structure"""
-        # return self._TC_read(tag, value, structure)
+#         # """Fully process the value string using data from the Pymatgen
+#         # structure"""
+#         # return self._TC_read(tag, value, structure)
 
 
 @dataclass
@@ -1500,9 +1501,10 @@ class DumpTagContainer(TagContainer):
         # reorder all tags to match order of __MASTER_TAG_LIST__ and do
         # coarse-grained validation of read
         subdict = {x: tempdict[x] for x in self.subtags if x in tempdict}
-        for subtag, subtag_type in self.subtags.items():
-            if not subtag_type.optional and subtag not in subdict:
-                raise ValueError(f"The {subtag} tag is not optional but was not populated during the read!")
+        # There are no forced subtags for dump
+        # for subtag, subtag_type in self.subtags.items():
+        #     if not subtag_type.optional and subtag not in subdict:
+        #         raise ValueError(f"The {subtag} tag is not optional but was not populated during the read!")
         if len(value) > 0:
             raise ValueError(
                 f"Something is wrong in the JDFTXInfile formatting, some values were not processed: {value}"
