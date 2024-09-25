@@ -17,6 +17,7 @@ from monty.io import zopen
 from monty.json import MSONable
 
 from pymatgen.core import Structure
+from pymatgen.io.jdftx.data import atom_valence_electrons
 from pymatgen.io.jdftx.generic_tags import AbstractTag, BoolTagContainer, DumpTagContainer, MultiformatTag, TagContainer
 from pymatgen.io.jdftx.jdftxinfile_master_format import (
     __PHONON_TAGS__,
@@ -92,10 +93,7 @@ class JDFTXInfile(dict, MSONable):
         params: dict[str, Any] = dict(self.items())
         for key, val in other.items():
             if key in self and val != self[key]:
-                raise ValueError(
-                    f"JDFTXInfiles have conflicting values for {key}: \
-                        {self[key]} != {val}"
-                )
+                raise ValueError(f"JDFTXInfiles have conflicting values for {key}: {self[key]} != {val}")
             params[key] = val
         return type(self)(params)
 
@@ -407,6 +405,52 @@ class JDFTXInfile(dict, MSONable):
         return self.to_pmg_structure(self)
 
     @classmethod
+    def from_structure(
+        cls,
+        structure: Structure,
+        selective_dynamics: ArrayLike | None = None,
+    ) -> JDFTXInfile:
+        """Create a JDFTXInfile object from a pymatgen Structure.
+
+        Create a JDFTXInfile object from a pymatgen Structure.
+
+        Parameters
+        ----------
+        structure : Structure
+            Structure to convert.
+        selective_dynamics : ArrayLike, optional
+            Selective dynamics attribute for each site if available. Shape Nx1,
+            by default None
+
+        Returns
+        -------
+        JDFTXInfile
+        """
+        jdftxstructure = JDFTXStructure(structure, selective_dynamics)
+        return cls.from_jdftxstructure(jdftxstructure)
+
+    @classmethod
+    def from_jdftxstructure(
+        cls,
+        jdftxstructure: JDFTXStructure,
+    ) -> JDFTXInfile:
+        """Create a JDFTXInfile object from a JDFTXStructure object.
+
+        Create a JDFTXInfile object from a JDFTXStructure object.
+
+        Parameters
+        ----------
+        jdftxstructure : JDFTXStructure
+            JDFTXStructure object to convert.
+
+        Returns
+        -------
+        JDFTXInfile
+        """
+        jstr = jdftxstructure.get_str()
+        return cls.from_str(jstr)
+
+    @classmethod
     def from_str(
         cls,
         string: str,
@@ -685,10 +729,37 @@ class JDFTXInfile(dict, MSONable):
         if tag_object.can_repeat and key in self:
             del self[key]
         params: dict[str, Any] = {}
+        if self._is_numeric(value):
+            value = str(value)
         processed_value = tag_object.read(key, value) if isinstance(value, str) else value
         params = self._store_value(params, tag_object, key, processed_value)
         self.update(params)
         self.validate_tags(try_auto_type_fix=True, error_on_failed_fix=True)
+
+    def _is_numeric(self, value: Any) -> bool:
+        """Check if a value is numeric.
+
+        Check if a value is numeric.
+
+        Parameters
+        ----------
+        value : Any
+            Value to check.
+
+        Returns
+        -------
+        bool
+            Whether the value is numeric.
+        """
+        # data-types that might accidentally be identified as numeric
+        if type(value) in [bool]:
+            return False
+        try:
+            float(value)
+            is_numeric = True
+        except (ValueError, TypeError):
+            is_numeric = False
+        return is_numeric
 
     def append_tag(self, tag: str, value: Any) -> None:
         """Append a value to a tag.
@@ -965,10 +1036,19 @@ class JDFTXStructure(MSONable):
 
         jdftx_tag_dict["lattice"] = lattice
         jdftx_tag_dict["ion"] = []
+        valid_labels = list(atom_valence_electrons.keys())
         for i, site in enumerate(self.structure):
             coords = site.coords if in_cart_coords else site.frac_coords
             sd = self.selective_dynamics[i] if self.selective_dynamics is not None else 1
-            jdftx_tag_dict["ion"].append([site.label, *coords, sd])
+            label = site.label
+            if label not in valid_labels:
+                for varname in ["species_string", "specie.name"]:  # Add more as I learn more about what 'site' can be
+                    if multi_hasattr(site, varname) and multi_getattr(site, varname) in valid_labels:
+                        label = multi_getattr(site, varname)
+                        break
+                if label not in valid_labels:
+                    raise ValueError(f"Could not correct site label {label} for site (index {i})")
+            jdftx_tag_dict["ion"].append([label, *coords, sd])
 
         return str(JDFTXInfile.from_dict(jdftx_tag_dict))
 
@@ -1017,3 +1097,56 @@ class JDFTXStructure(MSONable):
             Structure.from_dict(params["structure"]),
             selective_dynamics=params["selective_dynamics"],
         )
+
+
+def multi_hasattr(varbase: Any, varname: str):
+    """Check if object has an attribute (capable of nesting with . splits).
+
+    Check if object has an attribute (capable of nesting with . splits).
+
+    Parameters
+    ----------
+    varbase
+        Object to check.
+    varname
+        Attribute to check for.
+
+    Returns
+    -------
+    bool
+        Whether the object has the attribute.
+    """
+    varlist = varname.split(".")
+    for i, var in enumerate(varlist):
+        if i == len(varlist) - 1:
+            return hasattr(varbase, var)
+        if hasattr(varbase, var):
+            varbase = getattr(varbase, var)
+        else:
+            return False
+    return None
+
+
+def multi_getattr(varbase: Any, varname: str):
+    """Check if object has an attribute (capable of nesting with . splits).
+
+    Check if object has an attribute (capable of nesting with . splits).
+
+    Parameters
+    ----------
+    varbase
+        Object to check.
+    varname
+        Attribute to check for.
+
+    Returns
+    -------
+    Any
+        Attribute of the object.
+    """
+    if not multi_hasattr(varbase, varname):
+        raise AttributeError(f"{varbase} does not have attribute {varname}")
+    varlist = varname.split(".")
+    for var in varlist:
+        varbase = getattr(varbase, var)
+    return varbase

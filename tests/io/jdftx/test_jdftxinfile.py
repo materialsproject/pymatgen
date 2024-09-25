@@ -10,7 +10,7 @@ import pytest
 from pytest import approx
 
 from pymatgen.core.structure import Structure
-from pymatgen.io.jdftx.jdftxinfile import JDFTXInfile, JDFTXStructure
+from pymatgen.io.jdftx.jdftxinfile import JDFTXInfile, JDFTXStructure, multi_getattr, multi_hasattr
 from pymatgen.io.jdftx.jdftxinfile_master_format import get_tag_object
 from pymatgen.util.testing import TEST_FILES_DIR
 
@@ -171,6 +171,28 @@ def test_JDFTXInfile_niche_cases():
     assert len(jif["fluid-solvent"]) == 2
 
 
+def test_JDFTXInfile_add_method():
+    jif = JDFTXInfile.from_file(ex_infile1_fname)
+    jif2 = jif.copy()
+    jif3 = jif + jif2
+    assert is_identical_jif(jif, jif3)
+    key = "elec-ex-corr"
+    val_old = jif[key]
+    val_new = "lda"
+    assert val_old != val_new
+    jif2[key] = val_new
+    err_str = f"JDFTXInfiles have conflicting values for {key}: {val_old} != {val_new}"
+    with pytest.raises(ValueError, match=re.escape(err_str)):
+        jif3 = jif + jif2
+    key_add = "target-mu"
+    val_add = 0.5
+    assert key_add not in jif
+    jif2 = jif.copy()
+    jif2[key_add] = val_add
+    jif3 = jif + jif2
+    assert jif3[key_add]["mu"] == pytest.approx(val_add)
+
+
 @pytest.mark.parametrize(("infile_fname", "knowns"), [(ex_infile1_fname, ex_infile1_knowns)])
 def test_JDFTXInfile_knowns_simple(infile_fname: PathLike, knowns: dict):
     jif = JDFTXInfile.from_file(infile_fname)
@@ -248,6 +270,13 @@ def test_jdftxstructure():
     assert is_equiv_jdftxstructure(struc, struc3)
 
 
+def test_jdftxtructure_naming():
+    struc = Structure.from_file(ex_files_dir / "Si.cif")
+    jstruc = JDFTXStructure(structure=struc)
+    JDFTXInfile.from_jdftxstructure(jstruc)
+    JDFTXInfile.from_structure(struc)
+
+
 def is_equiv_jdftxstructure(struc1: JDFTXStructure, struc2: JDFTXStructure) -> bool:
     """Check if two JDFTXStructure objects are equivalent.
 
@@ -263,3 +292,41 @@ def is_equiv_jdftxstructure(struc1: JDFTXStructure, struc2: JDFTXStructure) -> b
     d1 = struc1.as_dict()
     d2 = struc2.as_dict()
     return is_identical_jif(d1, d2)
+
+
+def test_multihasattr():
+    class A:
+        def __init__(self):
+            self.v1: int = 1
+
+    class B:
+        def __init__(self):
+            self.a = A()
+            self.v2: int = 2
+
+    a = A()
+    b = B()
+    assert multi_hasattr(a, "v1")
+    assert multi_hasattr(b, "a")
+    assert multi_hasattr(b, "a.v1")
+    assert not multi_hasattr(b, "a.v2")
+    assert not multi_hasattr(b, "v1")
+
+
+def test_multigetattr():
+    class A:
+        def __init__(self):
+            self.v1: int = 1
+
+    class B:
+        def __init__(self):
+            self.a = A()
+            self.v2: int = 2
+
+    a = A()
+    b = B()
+    assert multi_getattr(a, "v1") == 1
+    assert multi_getattr(b, "v2") == 2
+    assert multi_getattr(b, "a.v1") == 1
+    with pytest.raises(AttributeError):
+        multi_getattr(b, "v1")
