@@ -775,6 +775,8 @@ class TagContainer(AbstractTag):
             The value checked against the correct type, possibly fixed.
         """
         value_dict = self.get_dict_representation(tag, value)
+        # if isinstance(value, list):
+        #     value_dict = self.get_dict_representation(tag, value)
         if self.can_repeat:
             self._validate_repeat(tag, value_dict)
             results = [self._validate_single_entry(x, try_auto_type_fix=try_auto_type_fix) for x in value_dict]
@@ -864,7 +866,9 @@ class TagContainer(AbstractTag):
                 else:
                     tempdict[subtag] = []
                     for _ in range(subtag_count):
-                        idx_start = value.index(subtag)
+                        idx_start = value_list.index(subtag)
+                        # God knows how long that error had been there silently
+                        # idx_start = value.index(subtag)
                         idx_end = idx_start + subtag_type.get_token_len()
                         subtag_value = " ".join(
                             value_list[(idx_start + 1) : idx_end]
@@ -1138,7 +1142,10 @@ class TagContainer(AbstractTag):
         """
         # convert list or list of lists representation into string the
         # TagContainer can process back into (nested) dict
-        if self.can_repeat and len({len(x) for x in value}) > 1:  # repeated
+
+        if self.can_repeat and not isinstance(value, list):
+            raise ValueError("Values for repeatable tags must be a list here")
+        if self.can_repeat and len({len(x) for x in value}) > 1:
             # tags must be in same format
             raise ValueError(f"The values for {tag} {value} provided in a list of lists have different lengths")
         value = value.tolist() if isinstance(value, np.ndarray) else value
@@ -1340,7 +1347,7 @@ class MultiformatTag(AbstractTag):
         """
         raise ValueError(f"{tag} option {i} is not it: validation failed")
 
-    def _determine_format_option(self, tag: str, value: Any, try_auto_type_fix: bool = False) -> tuple[int, Any]:
+    def _determine_format_option(self, tag: str, value_any: Any, try_auto_type_fix: bool = False) -> tuple[int, Any]:
         """Determine the format option for the value of this tag.
 
         This method determines the format option for the value of this tag.
@@ -1364,6 +1371,10 @@ class MultiformatTag(AbstractTag):
         """
         exceptions = []
         for i, format_option in enumerate(self.format_options):
+            if format_option.can_repeat:
+                value = [value_any] if not isinstance(value_any, list) else value_any
+            else:
+                value = value_any
             try:
                 _, is_tag_valid, value = format_option.validate_value_type(
                     tag, value, try_auto_type_fix=try_auto_type_fix
@@ -1375,11 +1386,9 @@ class MultiformatTag(AbstractTag):
             except (ValueError, TypeError) as e:  # TODO: Make sure these are all
                 # the possible exceptions
                 exceptions.append(e)
-        raise ValueError(
-            f"The format for {tag} for:\n{value}\ncould not be determined \
-                from the available options! Check your inputs and/or \
-                    MASTER_TAG_LIST! (exceptions: {exceptions})"
-        )
+        err_str = f"The format for {tag} for:\n{value_any}\ncould not be determined from the available options!"
+        err_str += f"Check your inputs and/or MASTER_TAG_LIST! (exceptions: {exceptions})"
+        raise ValueError(err_str)
 
     def write(self, tag: str, value: Any) -> str:
         """Write the tag and its value as a string.

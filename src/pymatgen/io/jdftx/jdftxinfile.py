@@ -5,7 +5,6 @@ Classes for reading/manipulating/writing JDFTx input files.
 
 from __future__ import annotations
 
-import itertools
 import warnings
 from copy import deepcopy
 from dataclasses import dataclass
@@ -181,8 +180,10 @@ class JDFTXInfile(dict, MSONable):
             for tag in MASTER_TAG_LIST[tag_group]:
                 if tag not in self:
                     continue
-                if tag in __WANNIER_TAGS__:
-                    raise ValueError("Wannier functionality has not been added!")
+                # This will never be raised until we add wannier tags to the master_tag_list (which
+                # won't happen for a while)
+                # if tag in __WANNIER_TAGS__:
+                #     raise ValueError("Wannier functionality has not been added!")
 
                 added_tag_in_group = True
                 tag_object: AbstractTag = MASTER_TAG_LIST[tag_group][tag]
@@ -282,10 +283,9 @@ class JDFTXInfile(dict, MSONable):
         if tag in __WANNIER_TAGS__:
             raise ValueError("Wannier functionality has not been added!")
         if tag not in __TAG_LIST__:
-            raise ValueError(
-                f"The {tag} tag in {line_list} is not in MASTER_TAG_LIST and is\
-                    not a comment, something is wrong with this input data!"
-            )
+            err_str = f"The {tag} tag in {line_list} is not in MASTER_TAG_LIST and is not a comment, "
+            err_str += "something is wrong with this input data!"
+            raise ValueError(err_str)
         tag_object = get_tag_object(tag)
         value: str = ""
         if len(line_list) == 2:
@@ -295,11 +295,12 @@ class JDFTXInfile(dict, MSONable):
                 ""  # exception for tags where only tagname is used,
                 # e.g. dump-only tag
             )
-        else:
-            raise ValueError(
-                f"The len(line.split(maxsplit=1)) of {line_list} should never \
-                    not be 1 or 2"
-            )
+        # Unreachable else statement
+        # else:
+        #     raise ValueError(
+        #         f"The len(line.split(maxsplit=1)) of {line_list} should never \
+        #             not be 1 or 2"
+        #     )
         if isinstance(tag_object, MultiformatTag):
             i = tag_object.get_format_index(tag, value)
             tag_object = tag_object.format_options[i]
@@ -355,10 +356,7 @@ class JDFTXInfile(dict, MSONable):
             #             params[tag].append(value)
         else:
             if tag in params:
-                raise ValueError(
-                    f"The '{tag}' tag appears multiple times in this input when\
-                        it should not!"
-                )
+                raise ValueError(f"The '{tag}' tag appears multiple times in this input when it should not!")
             params[tag] = value
         return params
 
@@ -555,10 +553,7 @@ class JDFTXInfile(dict, MSONable):
         elif conversion == "dict-to-list":
             flag = True
         else:
-            raise ValueError(
-                f"Conversion type {conversion} is not 'list-to-dict' or \
-                    'dict-to-list'"
-            )
+            raise ValueError(f"Conversion type {conversion} is not 'list-to-dict' or 'dict-to-list'")
         if isinstance(value, dict) or all(isinstance(x, dict) for x in value):
             return flag
         return not flag
@@ -617,6 +612,8 @@ class JDFTXInfile(dict, MSONable):
                 reformatted_params.update({tag: tag_object.get_dict_representation(tag, value)})
         return cls(reformatted_params)
 
+    # This method is called by setitem, but setitem is circumvented by update,
+    # so this method's parameters is still necessary
     def validate_tags(
         self,
         try_auto_type_fix: bool = False,
@@ -648,15 +645,11 @@ class JDFTXInfile(dict, MSONable):
             if return_list_rep and tag_object.allow_list_representation:
                 value = tag_object.get_list_representation(tag, value)
             if error_on_failed_fix and should_warn and try_auto_type_fix:
-                raise ValueError(
-                    f"The {tag} tag with value:\n{self[tag]}\ncould not be \
-                        fixed!"
-                )
+                raise ValueError(f"The {tag} tag with value:\n{self[tag]}\ncould not be fixed!")
             if try_auto_type_fix and is_tag_valid:
                 self.update({tag: value})
             if should_warn:
-                warnmsg = f"The {tag} tag with value:\n{self[tag]}\nhas \
-                    incorrect typing!\n    Subtag IsValid?\n"
+                warnmsg = f"The {tag} tag with value:\n{self[tag]}\nhas incorrect typing!"
                 if any(isinstance(tag_object, tc) for tc in [TagContainer, DumpTagContainer, BoolTagContainer]):
                     warnmsg += "(Check earlier warnings for more details)\n"
                 warnings.warn(warnmsg, stacklevel=2)
@@ -679,13 +672,17 @@ class JDFTXInfile(dict, MSONable):
             tag_object = get_tag_object(key)
         except KeyError:
             raise KeyError(f"The {key} tag is not in MASTER_TAG_LIST")
+        if tag_object.can_repeat and not isinstance(value, list):
+            value = [value]
         if isinstance(tag_object, MultiformatTag):
             if isinstance(value, str):
                 i = tag_object.get_format_index(key, value)
             else:
-                i, value = tag_object._determine_format_option(key, value)
+                # We don't want to change the value as repeatable tag objects
+                # will end up as lists and stored as nested lists unintentionally
+                i, _ = tag_object._determine_format_option(key, value)
             tag_object = tag_object.format_options[i]
-        if tag_object.can_repeat:
+        if tag_object.can_repeat and key in self:
             del self[key]
         params: dict[str, Any] = {}
         processed_value = tag_object.read(key, value) if isinstance(value, str) else value
@@ -710,13 +707,15 @@ class JDFTXInfile(dict, MSONable):
             if isinstance(value, str):
                 i = tag_object.get_format_index(tag, value)
             else:
-                i, value = tag_object._determine_format_option(tag, value)
+                i, _ = tag_object._determine_format_option(tag, value)
             tag_object = tag_object.format_options[i]
         if not tag_object.can_repeat:
             raise ValueError(f"The {tag} tag cannot be repeated and thus cannot be appended")
-        params: dict[str, Any] = {}
+        params: dict[str, Any] = self.as_dict(skip_module_keys=True)
         processed_value = tag_object.read(tag, value) if isinstance(value, str) else value
+        # self[tag].append(processed_value)
         params = self._store_value(params, tag_object, tag, processed_value)
+        self.update(params)
 
 
 @dataclass
@@ -806,11 +805,10 @@ class JDFTXStructure(MSONable):
         return self.get_str()
 
     @property
-    def natoms(self) -> list[int]:
-        """Return count for each atom type.
+    def natoms(self) -> int:
+        """Return number of atoms.
 
-        Return sequence of number of sites of each type associated with
-        JDFTXStructure
+        Return number of atoms
 
         Returns
         -------
@@ -818,8 +816,13 @@ class JDFTXStructure(MSONable):
             Sequence of number of sites of each type associated with
             JDFTXStructure
         """
-        syms: list[str] = [site.species.symbol for site in self.structure]
-        return [len(tuple(a[1])) for a in itertools.groupby(syms)]
+        # syms: list[str] = [site.species.symbol for site in self.structure]
+        # Why on earth would anyone willingly choose to use a word that is the
+        # identical in its plural and singular form to represent something that
+        # is frequently referenced in both forms????
+        # syms: list[str] = [specie.symbol for specie in self.species]
+        # return [len(tuple(a[1])) for a in itertools.groupby(syms)]
+        return len(self.structure.species)
 
     @classmethod
     def from_str(cls, data: str) -> JDFTXStructure:
@@ -869,9 +872,14 @@ class JDFTXStructure(MSONable):
             Whether to sort the structure. Useful if species are not grouped
             properly together as JDFTx output will have species sorted.
         """
-        lattice = np.array([jdftxinfile["lattice"][x] for x in jdftxinfile["lattice"]])
+        jl = jdftxinfile["lattice"]
+        lattice = np.zeros([3, 3])
+        for i in range(3):
+            for j in range(3):
+                lattice[i][j] += float(jl[f"R{i}{j}"])
+        # lattice = np.array([jdftxinfile["lattice"][x] for x in jdftxinfile["lattice"]])
         if "latt-scale" in jdftxinfile:
-            latt_scale = np.array([[jdftxinfile["latt-scale"][x] for x in ["s0", "s1", "s2"]]])
+            latt_scale = np.array([jdftxinfile["latt-scale"][x] for x in ["s0", "s1", "s2"]])
             lattice *= latt_scale
         lattice = lattice.T  # convert to row vector format
         lattice *= const.value("Bohr radius") * 10**10  # Bohr radius in Ang; convert to Ang
