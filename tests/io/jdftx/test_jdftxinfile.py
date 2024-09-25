@@ -8,7 +8,7 @@ import numpy as np
 import pytest
 from pytest import approx
 
-from pymatgen.io.jdftx.jdftxinfile import JDFTXInfile
+from pymatgen.io.jdftx.jdftxinfile import JDFTXInfile, JDFTXStructure
 from pymatgen.util.testing import TEST_FILES_DIR
 
 if TYPE_CHECKING:
@@ -42,6 +42,12 @@ ex_infile1_knowns = {
     "fluid-cation": {"name": "Na+", "concentration": 0.5},
     "fluid-anion": {"name": "F-", "concentration": 0.5},
 }
+
+
+def test_jdftxinfile_structuregen():
+    jif = JDFTXInfile.from_file(ex_infile1_fname)
+    jdftxstruc = jif.to_jdftxstructure(jif)
+    assert isinstance(jdftxstruc, JDFTXStructure)
 
 
 @pytest.mark.parametrize(

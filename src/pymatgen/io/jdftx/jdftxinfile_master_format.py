@@ -12,6 +12,7 @@ from __future__ import annotations
 from copy import deepcopy
 from typing import Any
 
+from pymatgen.io.jdftx.data import atom_valence_electrons
 from pymatgen.io.jdftx.generic_tags import (
     AbstractTag,
     BoolTag,
@@ -83,7 +84,11 @@ MASTER_TAG_LIST: dict[str, dict[str, Any]] = {
             optional=False,
             allow_list_representation=True,
             subtags={
-                "species-id": StrTag(write_tagname=False, optional=False),
+                "species-id": StrTag(
+                    write_tagname=False,
+                    optional=False,
+                    options=list(atom_valence_electrons.keys()),  # Required in case bad species names gets fed
+                ),
                 "x0": FloatTag(write_tagname=False, optional=False, prec=12),
                 "x1": FloatTag(write_tagname=False, optional=False, prec=12),
                 "x2": FloatTag(write_tagname=False, optional=False, prec=12),
