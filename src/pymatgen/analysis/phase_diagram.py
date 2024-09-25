@@ -2972,7 +2972,7 @@ class PDPlotter:
                 for d in ["xref", "yref"]:
                     annotation.pop(d)  # Scatter3d cannot contain xref, yref
                     if self._dim == 3:
-                        annotation.update(x=x, y=y)
+                        annotation.update(x=y, y=x)
                         if entry.composition.is_element:
                             z = 0.9 * self._min_energy  # place label 10% above base
 
