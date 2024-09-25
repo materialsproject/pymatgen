@@ -27,6 +27,7 @@ from pymatgen.io.jdftx.jdftxinfile_master_format import (
     get_tag_object,
 )
 from pymatgen.util.io_utils import clean_lines
+from pymatgen.util.typing import SpeciesLike
 
 if TYPE_CHECKING:
     from typing import Any
@@ -745,6 +746,22 @@ class JDFTXStructure(MSONable):
         Post init function for JDFTXStructure. Asserts self.structure is
         ordered, and adds selective dynamics if needed.
         """
+        # TODO: Remove integers from species name (ie convert Si0 -> Si)
+        # TODO: Test if this fix works
+        for i in range(len(self.structure.species)):
+            name = ""
+            if isinstance(self.structure.species[i], str):
+                name_str = self.structure.species[i]
+            elif isinstance(self.structure.species[i], SpeciesLike):
+                name_str = self.structure.species[i].symbol
+                if not isinstance(name_str, str):
+                    name_str = name_str.symbol
+            else:
+                raise TypeError("Species must be a string or SpeciesLike object")
+            for j in range(len(name_str)):
+                if not name_str[j].isdigit():
+                    name += name_str[j]
+            self.structure.species[i] = name
         if self.structure.is_ordered:
             site_properties = {}
             if self.selective_dynamics is not None:

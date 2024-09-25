@@ -133,7 +133,13 @@ class AbstractTag(ClassPrintFormatter, ABC):
                 value = [self.read(tag, str(x)) for x in value] if self.can_repeat else self.read(tag, str(value))
                 tag, is_valid, value = self._validate_value_type(type_check, tag, value)
             except (TypeError, ValueError):
-                warnings.warn(f"Could not fix the typing for {tag} {value}!", stacklevel=2)
+                warning = f"Could not fix the typing for {tag} "
+                try:
+                    warning += f"{value}!"
+                except (ValueError, TypeError):
+                    warning += "(unstringable value)!"
+                warnings.warn("warning", stacklevel=2)
+                # Required unless we want full stop on error
         return tag, is_valid, value
 
     def _validate_repeat(self, tag: str, value: Any) -> None:
@@ -165,13 +171,11 @@ class AbstractTag(ClassPrintFormatter, ABC):
 
     def get_list_representation(self, tag: str, value: Any) -> list | list[list]:
         """Convert the value to a list representation."""
-        raise ValueError(f"Tag object has no get_list_representation method: \
-                         {tag}")
+        raise ValueError(f"Tag object has no get_list_representation method: {tag}")
 
     def get_dict_representation(self, tag: str, value: Any) -> dict | list[dict]:
         """Convert the value to a dict representation."""
-        raise ValueError(f"Tag object has no get_dict_representation method: \
-                         {tag}")
+        raise ValueError(f"Tag object has no get_dict_representation method: {tag}")
 
 
 """
@@ -255,10 +259,7 @@ class BoolTag(AbstractTag):
         value : str
             The value string to raise the ValueError for.
         """
-        raise ValueError(
-            f"The value '{value}' was provided to {tag}, it is not \
-                acting like a boolean"
-        )
+        raise ValueError(f"The value '{value}' was provided to {tag}, it is not acting like a boolean")
 
     def read(self, tag: str, value: str) -> bool:
         """Read the value string for this tag.
@@ -288,7 +289,7 @@ class BoolTag(AbstractTag):
                 else:
                     self.raise_value_error(tag, value)
             return self._TF_options["read"][value]
-        except (ValueError, TypeError) as err:
+        except (ValueError, TypeError, KeyError) as err:
             raise ValueError(f"Could not set '{value}' as True/False for {tag}!") from err
 
     def write(self, tag: str, value: Any) -> str:
@@ -374,12 +375,13 @@ class StrTag(AbstractTag):
         -------
         str
         """
-        if len(value.split()) > 1:
-            raise ValueError(f"'{value}' for {tag} should not have a space in it!")
+        # This try except block needs to go before the value.split check
         try:
             value = str(value)
         except (ValueError, TypeError) as err:
-            raise ValueError(f"Could not set '{value}' to a str for {tag}!") from err
+            raise ValueError(f"Could not set (unstringable) to a str for {tag}!") from err
+        if len(value.split()) > 1:
+            raise ValueError(f"'{value}' for {tag} should not have a space in it!")
         if self.options is None or value in self.options:
             return value
         raise ValueError(f"The '{value}' string must be one of {self.options} for {tag}")
@@ -465,6 +467,8 @@ class IntTag(AbstractTag):
         -------
         int
         """
+        if not isinstance(value, str):
+            raise TypeError(f"Value {value} for {tag} should be a string!")
         if len(value.split()) > 1:
             raise ValueError(f"'{value}' for {tag} should not have a space in it!")
         try:
@@ -555,6 +559,8 @@ class FloatTag(AbstractTag):
         -------
         float
         """
+        if not isinstance(value, str):
+            raise TypeError(f"Value {value} for {tag} should be a string!")
         if len(value.split()) > 1:
             raise ValueError(f"'{value}' for {tag} should not have a space in it!")
         try:
@@ -664,7 +670,7 @@ class InitMagMomTag(AbstractTag):
         try:
             value = str(value)
         except (ValueError, TypeError) as err:
-            raise ValueError(f"Could not set '{value}' to a str for {tag}!") from err
+            raise ValueError(f"Could not set (unstringable) to a str for {tag}!") from err
         return value
 
     def write(self, tag: str, value: Any) -> str:
@@ -731,12 +737,15 @@ class TagContainer(AbstractTag):
             )
             if try_auto_type_fix:
                 updated_value[subtag] = subtag_value2
-            if isinstance(check, list):
-                tags_checked.extend(tag)
-                types_checks.extend(check)
-            else:
-                tags_checked.append(tag)
-                types_checks.append(check)
+            tags_checked.append(tag)
+            types_checks.append(check)
+            # Validate_value_type can never return lists anymore, it goes against the return signature
+            # if isinstance(check, list):
+            #     tags_checked.extend(tag)
+            #     types_checks.extend(check)
+            # else:
+            #     tags_checked.append(tag)
+            #     types_checks.append(check)
         return tags_checked, types_checks, updated_value
 
     # TODO: This method violates the return signature of the AbstractTag
@@ -773,8 +782,9 @@ class TagContainer(AbstractTag):
             self._validate_repeat(tag, value_dict)
             results = [self._validate_single_entry(x, try_auto_type_fix=try_auto_type_fix) for x in value_dict]
             # tags, is_valids, updated_value = [list(x) for x in list(zip(*results, strict=False))]
-            if not all(len(lst) == len(results[0]) for lst in results):
-                raise ValueError("All iterables must have the same length")
+            # The below error check is already checked by get_dict_representation
+            # if not all(len(lst) == len(results[0]) for lst in results):
+            #     raise ValueError("All iterables must have the same length")
             # tags, is_valids, updated_value = [list(x) for x in list(zip(*results, strict=False))]
             # Manually unpack the results
             tags_list_list: list[list[str]] = [result[0] for result in results]
@@ -789,6 +799,7 @@ class TagContainer(AbstractTag):
                         for j, y in enumerate(x):
                             if not y:
                                 warnmsg += f"{tags_list_list[i][j]} "
+                warnings.warn(warnmsg, stacklevel=2)
         else:
             tags, is_valids, updated_value = self._validate_single_entry(
                 value_dict, try_auto_type_fix=try_auto_type_fix
@@ -800,6 +811,7 @@ class TagContainer(AbstractTag):
                 for ii, xx in enumerate(is_valids):
                     if not xx:
                         warnmsg += f"{tags[ii]} "
+                warnings.warn(warnmsg, stacklevel=2)
         return tag_out, is_valid_out, updated_value
 
     # def read(self, tag: str, value: str | list | dict) -> dict:
@@ -843,10 +855,7 @@ class TagContainer(AbstractTag):
                 subtag_count = value_list.count(subtag)
                 if not subtag_type.can_repeat:
                     if subtag_count > 1:
-                        raise ValueError(
-                            f"Subtag {subtag} is not allowed to repeat but \
-                                appears more than once in {tag}'s value {value}"
-                        )
+                        raise ValueError(f"Subtag {subtag} is not allowed to repeat repeats in {tag}'s value {value}")
                     idx_start = value_list.index(subtag)
                     token_len = subtag_type.get_token_len()
                     idx_end = idx_start + token_len
@@ -893,14 +902,10 @@ class TagContainer(AbstractTag):
         subdict = {x: tempdict[x] for x in self.subtags if x in tempdict}
         for subtag, subtag_type in self.subtags.items():
             if not subtag_type.optional and subtag not in subdict:
-                raise ValueError(
-                    f"The {subtag} tag is not optional but was not populated \
-                        during the read!"
-                )
+                raise ValueError(f"The {subtag} tag is not optional but was not populated during the read!")
         if len(value_list) > 0:
             raise ValueError(
-                f"Something is wrong in the JDFTXInfile formatting, some \
-                    values were not processed: {value}"
+                f"Something is wrong in the JDFTXInfile formatting, some values were not processed: {value}"
             )
         return subdict
 
@@ -923,8 +928,7 @@ class TagContainer(AbstractTag):
         """
         if not isinstance(value, dict):
             raise TypeError(
-                f"value = {value}\nThe value to the {tag} write method must be \
-                    a dict since it is a TagContainer!"
+                f"value = {value}\nThe value to the {tag} write method must be a dict since it is a TagContainer!"
             )
 
         final_value = ""
@@ -1013,10 +1017,7 @@ class TagContainer(AbstractTag):
                 # this block deals with making list representations of any
                 # nested TagContainers
                 if not isinstance(value[subtag], dict):
-                    raise ValueError(
-                        f"The subtag {subtag} is not a dict: '{value[subtag]}',\
-                             so could not be converted"
-                    )
+                    raise ValueError(f"The subtag {subtag} is not a dict: '{value[subtag]}', so could not be converted")
                 subtag_value2 = subtag_type.get_list_representation(subtag, value[subtag])  # recursive list generation
 
                 if subtag_type.write_tagname:  # needed to write 'v' subtag in
@@ -1085,20 +1086,11 @@ class TagContainer(AbstractTag):
         has_nested_dict = any(isinstance(x, dict) for x in value)
         has_nested_list = any(isinstance(x, list) for x in value)
         if has_nested_dict and has_nested_list:
-            raise ValueError(
-                f"{tag} with {value} cannot have nested lists/dicts mixed with \
-                    bool/str/int/floats!"
-            )
+            raise ValueError(f"{tag} with {value} cannot have nested lists/dicts mixed with bool/str/int/floats!")
         if has_nested_dict:
-            raise ValueError(
-                f"{tag} with {value} cannot have nested dicts mixed with \
-                    bool/str/int/floats!"
-            )
+            raise ValueError(f"{tag} with {value} cannot have nested dicts mixed with bool/str/int/floats!")
         if has_nested_list:
-            raise ValueError(
-                f"{tag} with {value} cannot have nested lists mixed with \
-                    bool/str/int/floats!"
-            )
+            raise ValueError(f"{tag} with {value} cannot have nested lists mixed with bool/str/int/floats!")
         # if any(isinstance(x, dict | list) for x in value):
         #     raise ValueError(
         #         f"{tag} with {value} cannot have nested lists/dicts mixed with \
@@ -1148,10 +1140,7 @@ class TagContainer(AbstractTag):
         # TagContainer can process back into (nested) dict
         if self.can_repeat and len({len(x) for x in value}) > 1:  # repeated
             # tags must be in same format
-            raise ValueError(
-                f"The values for {tag} {value} provided in a list of lists \
-                    have different lengths"
-            )
+            raise ValueError(f"The values for {tag} {value} provided in a list of lists have different lengths")
         value = value.tolist() if isinstance(value, np.ndarray) else value
 
         # there are 4 types of TagContainers in the list representation:
@@ -1348,10 +1337,7 @@ class MultiformatTag(AbstractTag):
         i : int
             The index of the format option to raise the error for.
         """
-        raise ValueError(
-            f"{tag} option {i} is not it: validation \
-                                     failed"
-        )
+        raise ValueError(f"{tag} option {i} is not it: validation failed")
 
     def _determine_format_option(self, tag: str, value: Any, try_auto_type_fix: bool = False) -> tuple[int, Any]:
         """Determine the format option for the value of this tag.
@@ -1423,10 +1409,7 @@ class MultiformatTag(AbstractTag):
         int
             The token length of the tag.
         """
-        raise NotImplementedError(
-            "This method is not supposed to be called\
-                                  directonly on MultiformatTag objects!"
-        )
+        raise NotImplementedError("This method is not supposed to be called directly on MultiformatTag objects!")
 
 
 @dataclass
@@ -1471,14 +1454,10 @@ class BoolTagContainer(TagContainer):
         subdict = {x: tempdict[x] for x in self.subtags if x in tempdict}
         for subtag, subtag_type in self.subtags.items():
             if not subtag_type.optional and subtag not in subdict:
-                raise ValueError(
-                    f"The {subtag} tag is not optional but was not populated \
-                        during the read!"
-                )
+                raise ValueError(f"The {subtag} tag is not optional but was not populated during the read!")
         if len(value) > 0:
             raise ValueError(
-                f"Something is wrong in the JDFTXInfile formatting, some \
-                    values were not processed: {value}"
+                f"Something is wrong in the JDFTXInfile formatting, some values were not processed: {value}"
             )
         return subdict
 
@@ -1523,13 +1502,9 @@ class DumpTagContainer(TagContainer):
         subdict = {x: tempdict[x] for x in self.subtags if x in tempdict}
         for subtag, subtag_type in self.subtags.items():
             if not subtag_type.optional and subtag not in subdict:
-                raise ValueError(
-                    f"The {subtag} tag is not optional but was not populated \
-                        during the read!"
-                )
+                raise ValueError(f"The {subtag} tag is not optional but was not populated during the read!")
         if len(value) > 0:
             raise ValueError(
-                f"Something is wrong in the JDFTXInfile formatting, some \
-                    values were not processed: {value}"
+                f"Something is wrong in the JDFTXInfile formatting, some values were not processed: {value}"
             )
         return subdict
