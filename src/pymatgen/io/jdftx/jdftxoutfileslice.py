@@ -1261,13 +1261,13 @@ class JDFTXOutfileSlice(ClassPrintFormatter):
         """
         return self.fluid is not None
 
-    def write(self) -> NotImplementedError:
+    def write(self) -> None:
         """Return an error.
 
         Return an error. (pre-commit needs a docustring here)
         """
         # don't need a write method since will never do that
-        return NotImplementedError("There is no need to write a JDFTx out file")
+        raise NotImplementedError("There is no need to write a JDFTx out file")
 
     def to_dict(self) -> dict:
         """Convert dataclass to dictionary representation.
