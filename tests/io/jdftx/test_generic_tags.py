@@ -162,10 +162,23 @@ def test_tagcontainer():
         write_tagname=True,
         subtags={
             "ken": StrTag(optional=False, write_tagname=True, write_value=True),
-            "allan": IntTag(),
+            "allan": IntTag(optional=True, write_tagname=True, write_value=True),
         },
     )
+    with pytest.raises(
+        ValueError, match=re.escape("The ken tag is not optional but was not populated during the read!")
+    ):
+        tagcontainer.read("barbie", "allan 1")
+    with pytest.raises(
+        ValueError,
+        match=re.escape(
+            "Something is wrong in the JDFTXInfile formatting, some values were not processed: ken barbie fgfgfgf"
+        ),
+    ):
+        tagcontainer.read("barbie", "ken barbie fgfgfgf")
     assert tagcontainer.get_token_len() == 3
+    with pytest.raises(TypeError):
+        tagcontainer.write("barbie", ["ken barbie"])
     tagcontainer = get_tag_object("ion")
     with pytest.warns(Warning):
         tagcontainer.read("ion", "Fe 1 1 1 1 HyperPlane")
