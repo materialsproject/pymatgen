@@ -1290,20 +1290,76 @@ class MultiformatTag(AbstractTag):
         value : str
             The value string to read.
         """
-        problem_log = []
-        for i, trial_format in enumerate(
-            self.format_options
-        ):  # format_options is a list of AbstractTag-inheriting objects
-            try:
-                return trial_format.read(tag, value)
-            except (ValueError, TypeError) as e:
-                problem_log.append(f"Format {i}: {e}")
-        errormsg = f"No valid read format for '{tag} {value}' tag\nAdd option \
-            to format_options or double-check the value string and retry!\n\n"
-        errormsg += "Here is the log of errors for each known \
-            formatting option:\n"
-        errormsg += "\n".join([f"Format {x}: {problem_log[x]}" for x in range(len(problem_log))])
-        raise ValueError(errormsg)
+        err_str = "The read method is not supposed to be called directly on MultiformatTag."
+        err_str += " Get the proper format option first."
+        raise RuntimeError(err_str)
+
+    def write(self, tag: str, value: Any) -> str:
+        """Write the tag and its value as a string.
+
+        This method writes the tag and its value as a string.
+
+        Parameters
+        ----------
+        tag : str
+            The tag to write.
+        value : Any
+            The value to write.
+
+        Returns
+        -------
+        str
+        """
+        err_str = "The write method is not supposed to be called directly on MultiformatTag."
+        err_str += " Get the proper format option first."
+        raise RuntimeError(err_str)
+
+    # READ AND WRITE METHODS ARE COMMENTED OUT SINCE THEY ARE UNREACHABLE AT THE MOMENT
+    # def read(self, tag: str, value: str) -> None:
+    #     """Read the value string for this tag.
+
+    #     Read the value string for this tag.
+
+    #     Parameters
+    #     ----------
+    #     tag : str
+    #         The tag to read the value string for.
+    #     value : str
+    #         The value string to read.
+    #     """
+    #     problem_log = []
+    #     for i, trial_format in enumerate(
+    #         self.format_options
+    #     ):  # format_options is a list of AbstractTag-inheriting objects
+    #         try:
+    #             return trial_format.read(tag, value)
+    #         except (ValueError, TypeError) as e:
+    #             problem_log.append(f"Format {i}: {e}")
+    #     errormsg = f"No valid read format for '{tag} {value}' tag\nAdd option \
+    #         to format_options or double-check the value string and retry!\n\n"
+    #     errormsg += "Here is the log of errors for each known \
+    #         formatting option:\n"
+    #     errormsg += "\n".join([f"Format {x}: {problem_log[x]}" for x in range(len(problem_log))])
+    #     raise ValueError(errormsg)
+
+    # def write(self, tag: str, value: Any) -> str:
+    #     """Write the tag and its value as a string.
+
+    #     This method writes the tag and its value as a string.
+
+    #     Parameters
+    #     ----------
+    #     tag : str
+    #         The tag to write.
+    #     value : Any
+    #         The value to write.
+
+    #     Returns
+    #     -------
+    #     str
+    #     """
+    #     format_index, _ = self._determine_format_option(tag, value)
+    #     return self.format_options[format_index].write(tag, value)
 
     def get_format_index(self, tag: str, value: str) -> int:
         """Get the format index from string rep of value.
@@ -1389,25 +1445,6 @@ class MultiformatTag(AbstractTag):
         err_str = f"The format for {tag} for:\n{value_any}\ncould not be determined from the available options!"
         err_str += f"Check your inputs and/or MASTER_TAG_LIST! (exceptions: {exceptions})"
         raise ValueError(err_str)
-
-    def write(self, tag: str, value: Any) -> str:
-        """Write the tag and its value as a string.
-
-        This method writes the tag and its value as a string.
-
-        Parameters
-        ----------
-        tag : str
-            The tag to write.
-        value : Any
-            The value to write.
-
-        Returns
-        -------
-        str
-        """
-        format_index, _ = self._determine_format_option(tag, value)
-        return self.format_options[format_index].write(tag, value)
 
     def get_token_len(self) -> int:
         """Get the token length of the tag.
