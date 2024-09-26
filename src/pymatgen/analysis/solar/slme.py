@@ -264,9 +264,12 @@ def slme(
     efficiency = max_power / power_in
 
     if plot_current_voltage:
-        V = np.linspace(0, 2, 200)
-        plt.plot(V, J(V))
-        plt.plot(V, power(V), linestyle="--")
+        V = np.linspace(0, test_voltage + 0.1, 200)
+        plt.plot(V, J(V), label="Current Density (mA/cm$^2$)")
+        plt.plot(V, power(V), linestyle="--", label="Power Density (mW/cm$^2$)")
+        plt.xlabel("Voltage (V)")
+        plt.ylabel("Current / Power Density (mA/cm$^2$ / mW/cm$^2$)")
+        plt.legend()
         plt.savefig("pp.png")
         plt.close()
 
