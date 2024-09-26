@@ -26,7 +26,7 @@ __author__ = "Ben Rich"
 
 # from pymatgen.io.jdftx.utils import correct_geom_iter_type
 
-elec_min_start_flag: str = "-------- Electronic minimization -----------"
+# elec_min_start_flag: str = "-------- Electronic minimization -----------"
 
 
 @dataclass

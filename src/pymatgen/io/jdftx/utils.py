@@ -6,10 +6,51 @@ from functools import wraps
 from pathlib import Path
 from typing import TYPE_CHECKING, Any
 
+import numpy as np
 from monty.io import zopen
 
 if TYPE_CHECKING:
     from collections.abc import Callable
+
+
+def gather_jeiters_line_collections(iter_type: str, text_slice: list[str]) -> tuple[list[list[str]], list[str]]:
+    """Gather line collections for JEiters initialization.
+
+    Gathers list of line lists where each line list initializes a JEiter object,
+    and the remaining lines that do not initialize a JEiter object are used
+    for initialization unique to the JEiters object.
+
+    Parameters
+    ----------
+    iter_type: str
+        The type of electronic minimization step
+    text_slice: list[str]
+        A slice of text from a JDFTx out file corresponding to a series of
+        SCF steps
+
+    Returns
+    -------
+    line_collections: list[list[str]]
+        A list of lists of lines of text from a JDFTx out file corresponding to
+        a single SCF step
+    lines_collect: list[str]
+        A list of lines of text from a JDFTx out file corresponding to a single
+        SCF step
+
+    """
+    lines_collect = []
+    line_collections = []
+    _iter_flag = f"{iter_type}: Iter:"
+    for line_text in text_slice:
+        if len(line_text.strip()):
+            lines_collect.append(line_text)
+            if _iter_flag in line_text:
+                line_collections.append(lines_collect)
+                lines_collect = []
+        else:
+            break
+    return line_collections, lines_collect
+
 
 ############################################
 # HELPERS FOR JDFTXOUTFILE #
@@ -173,6 +214,43 @@ def flatten_list(tag: str, list_of_lists: list[Any]) -> list[Any]:
 ############################################
 # HELPERS FOR JOUTSTRUCTURE(S) #
 ############################################
+
+
+def _brkt_list_of_3_to_nparray(line: str) -> np.ndarray:
+    """Return 3x1 numpy array.
+
+    Convert a string of the form "[ x y z ]" to a 3x1 numpy array
+
+    Parameters
+    ----------
+    line: str
+        A string of the form "[ x y z ]"
+    """
+    return np.array([float(x) for x in line.split()[1:-1]])
+
+
+def _brkt_list_of_3x3_to_nparray(lines: list[str], i_start: int = 0) -> np.ndarray:
+    """Return 3x3 numpy array.
+
+    Convert a list of strings of the form "[ x y z ]" to a 3x3 numpy array
+
+    Parameters
+    ----------
+    lines: list[str]
+        A list of strings of the form "[ x y z ]"
+    i_start: int
+        The index of the first line in lines
+
+    Returns
+    -------
+    out: np.ndarray
+        A 3x3 numpy array
+    """
+    out = np.zeros([3, 3])
+    for i in range(3):
+        out[i, :] += _brkt_list_of_3_to_nparray(lines[i + i_start])
+    return out
+
 
 elec_min_start_flag: str = "-------- Electronic minimization -----------"
 

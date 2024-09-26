@@ -27,6 +27,7 @@ from pymatgen.io.jdftx.jeiters import JEiters
 #     is_stress_start_line,
 # )
 from pymatgen.io.jdftx.utils import (
+    _brkt_list_of_3x3_to_nparray,
     correct_geom_iter_type,
     get_colon_var_t1,
     is_charges_line,
@@ -453,7 +454,7 @@ class JOutStructure(Structure):
         """
         r = None
         if len(lattice_lines):
-            r = self._brkt_list_of_3x3_to_nparray(lattice_lines, i_start=2)
+            r = _brkt_list_of_3x3_to_nparray(lattice_lines, i_start=2)
             r = r.T * bohr_to_ang
             self.lattice = Lattice(r)
 
@@ -471,7 +472,7 @@ class JOutStructure(Structure):
         """
         st = None
         if len(strain_lines):
-            st = self._brkt_list_of_3x3_to_nparray(strain_lines, i_start=1)
+            st = _brkt_list_of_3x3_to_nparray(strain_lines, i_start=1)
             st = st.T * 1  # Conversion factor?
         self.strain = st
 
@@ -489,7 +490,7 @@ class JOutStructure(Structure):
         """
         st = None
         if len(stress_lines):
-            st = self._brkt_list_of_3x3_to_nparray(stress_lines, i_start=1)
+            st = _brkt_list_of_3x3_to_nparray(stress_lines, i_start=1)
             st = st.T * 1  # Conversion factor?
         self.stress = st
 
@@ -758,39 +759,39 @@ class JOutStructure(Structure):
             generic_lines.append(line_text)
         return generic_lines, collecting, collected
 
-    def _brkt_list_of_3_to_nparray(self, line: str) -> np.ndarray:
-        """Return 3x1 numpy array.
+    # def _brkt_list_of_3_to_nparray(self, line: str) -> np.ndarray:
+    #     """Return 3x1 numpy array.
 
-        Convert a string of the form "[ x y z ]" to a 3x1 numpy array
+    #     Convert a string of the form "[ x y z ]" to a 3x1 numpy array
 
-        Parameters
-        ----------
-        line: str
-            A string of the form "[ x y z ]"
-        """
-        return np.array([float(x) for x in line.split()[1:-1]])
+    #     Parameters
+    #     ----------
+    #     line: str
+    #         A string of the form "[ x y z ]"
+    #     """
+    #     return np.array([float(x) for x in line.split()[1:-1]])
 
-    def _brkt_list_of_3x3_to_nparray(self, lines: list[str], i_start: int = 0) -> np.ndarray:
-        """Return 3x3 numpy array.
+    # def _brkt_list_of_3x3_to_nparray(self, lines: list[str], i_start: int = 0) -> np.ndarray:
+    #     """Return 3x3 numpy array.
 
-        Convert a list of strings of the form "[ x y z ]" to a 3x3 numpy array
+    #     Convert a list of strings of the form "[ x y z ]" to a 3x3 numpy array
 
-        Parameters
-        ----------
-        lines: list[str]
-            A list of strings of the form "[ x y z ]"
-        i_start: int
-            The index of the first line in lines
+    #     Parameters
+    #     ----------
+    #     lines: list[str]
+    #         A list of strings of the form "[ x y z ]"
+    #     i_start: int
+    #         The index of the first line in lines
 
-        Returns
-        -------
-        out: np.ndarray
-            A 3x3 numpy array
-        """
-        out = np.zeros([3, 3])
-        for i in range(3):
-            out[i, :] += self._brkt_list_of_3_to_nparray(lines[i + i_start])
-        return out
+    #     Returns
+    #     -------
+    #     out: np.ndarray
+    #         A 3x3 numpy array
+    #     """
+    #     out = np.zeros([3, 3])
+    #     for i in range(3):
+    #         out[i, :] += _brkt_list_of_3_to_nparray(lines[i + i_start])
+    #     return out
 
     # This method is likely never going to be called as all (currently existing)
     # attributes of the most recent slice are explicitly defined as a class
