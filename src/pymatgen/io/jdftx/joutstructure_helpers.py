@@ -6,8 +6,6 @@ the output files of JDFTx calculations.
 
 from __future__ import annotations
 
-import warnings
-
 elec_min_start_flag: str = "-------- Electronic minimization -----------"
 
 
@@ -139,17 +137,16 @@ def get_joutstructure_step_bounds(
                 bounds = [i]
             elif (bounds is not None) and (is_lowdin_start_line(line)):
                 end_started = True
-        elif not len(line.strip()):
-            if bounds is not None:
-                bounds.append(i)
-                bounds_list.append(bounds)
-                bounds = None
-                end_started = False
-            else:
-                warnmsg = f"Line {i-1} ({out_slice[i-1]}) triggered \
-                    end_started, but following line is empty. Final step_bounds \
-                        may be incorrect. "
-                warnings.warn(warnmsg, stacklevel=2)
+        elif not len(line.strip()) and bounds is not None:
+            bounds.append(i)
+            bounds_list.append(bounds)
+            bounds = None
+            end_started = False
+            # else:
+            #     warnmsg = f"Line {i-1} ({out_slice[i-1]}) triggered \
+            #         end_started, but following line is empty. Final step_bounds \
+            #             may be incorrect. "
+            #     warnings.warn(warnmsg, stacklevel=2)
     return bounds_list
 
 
