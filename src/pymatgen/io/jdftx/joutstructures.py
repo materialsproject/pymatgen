@@ -9,11 +9,12 @@ from __future__ import annotations
 from dataclasses import dataclass, field
 from typing import TYPE_CHECKING, Any
 
-from pymatgen.io.jdftx.joutstructure_helpers import (
-    correct_geom_iter_type,
-    get_joutstructure_step_bounds,
-    get_joutstructures_start_idx,
-)
+# from pymatgen.io.jdftx.joutstructure_helpers import (
+#     correct_geom_iter_type,
+#     get_joutstructure_step_bounds,
+#     get_joutstructures_start_idx,
+# )
+from pymatgen.io.jdftx.utils import correct_geom_iter_type, get_joutstructure_step_bounds, get_joutstructures_start_idx
 
 if TYPE_CHECKING:
     import numpy as np

@@ -15,35 +15,37 @@ from typing import Any
 
 import numpy as np
 
+from pymatgen.io.jdftx.utils import flatten_list
+
 __author__ = "Jacob Clary, Ben Rich"
 
 
-def flatten_list(tag: str, list_of_lists: list[Any]) -> list[Any]:
-    """Flatten list of lists into a single list, then stop.
+# def flatten_list(tag: str, list_of_lists: list[Any]) -> list[Any]:
+#     """Flatten list of lists into a single list, then stop.
 
-    Flatten list of lists into a single list, then stop.
+#     Flatten list of lists into a single list, then stop.
 
-    Parameters
-    ----------
-    tag : str
-        The tag to flatten the list of lists for.
-    list_of_lists : list[Any]
-        The list of lists to flatten.
+#     Parameters
+#     ----------
+#     tag : str
+#         The tag to flatten the list of lists for.
+#     list_of_lists : list[Any]
+#         The list of lists to flatten.
 
-    Returns
-    -------
-    list[Any]
-        The flattened list.
-    """
-    if not isinstance(list_of_lists, list):
-        raise TypeError(f"{tag}: You must provide a list to flatten_list()!")
-    flist = []
-    for v in list_of_lists:
-        if isinstance(v, list):
-            flist.extend(flatten_list(tag, v))
-        else:
-            flist.append(v)
-    return flist
+#     Returns
+#     -------
+#     list[Any]
+#         The flattened list.
+#     """
+#     if not isinstance(list_of_lists, list):
+#         raise TypeError(f"{tag}: You must provide a list to flatten_list()!")
+#     flist = []
+#     for v in list_of_lists:
+#         if isinstance(v, list):
+#             flist.extend(flatten_list(tag, v))
+#         else:
+#             flist.append(v)
+#     return flist
 
 
 class ClassPrintFormatter:

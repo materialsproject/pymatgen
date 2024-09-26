@@ -1,238 +1,527 @@
 """Module for JDFTx utils."""
 
-# from __future__ import annotations
+from __future__ import annotations
+
+from typing import Any
+
+############################################
+# HELPERS FOR GENERIC_TAGS #
+############################################
 
 
-# from pymatgen.io.jdftx.joutstructures import elec_min_start_flag
+def flatten_list(tag: str, list_of_lists: list[Any]) -> list[Any]:
+    """Flatten list of lists into a single list, then stop.
+
+    Flatten list of lists into a single list, then stop.
+
+    Parameters
+    ----------
+    tag : str
+        The tag to flatten the list of lists for.
+    list_of_lists : list[Any]
+        The list of lists to flatten.
+
+    Returns
+    -------
+    list[Any]
+        The flattened list.
+    """
+    if not isinstance(list_of_lists, list):
+        raise TypeError(f"{tag}: You must provide a list to flatten_list()!")
+    flist = []
+    for v in list_of_lists:
+        if isinstance(v, list):
+            flist.extend(flatten_list(tag, v))
+        else:
+            flist.append(v)
+    return flist
 
 
-# def is_lowdin_start_line(line_text: str) -> bool:
-#     """Return True if the line_text is the start of Lowdin log message.
+############################################
+# HELPERS FOR JOUTSTRUCTURE(S) #
+############################################
 
-#     Return True if the line_text is the start of a Lowdin population analysis
-#     in a JDFTx out file.
-
-#     Parameters
-#     ----------
-#     line_text: str
-#         A line of text from a JDFTx out file
-
-#     Returns
-#     -------
-#     is_line: bool
-#         True if the line_text is the start of a Lowdin population analysis in a
-#         JDFTx out file
-#     """
-#     return "#--- Lowdin population analysis ---" in line_text
+elec_min_start_flag: str = "-------- Electronic minimization -----------"
 
 
-# def get_joutstructure_step_bounds(
-#     out_slice: list[str],
-#     out_slice_start_flag: str = elec_min_start_flag,
-# ) -> list[list[int]]:
-#     """Return list of boundary indices for each structure in out_slice.
+def get_colon_var_t1(linetext: str, lkey: str) -> float | None:
+    """Return float val from '...lkey: val...' in linetext.
 
-#     Return a list of lists of integers where each sublist contains the start and end
-#     of an individual optimization step (or SCF cycle if no optimization).
+    Read a float from an elec minimization line assuming value appears as
+    "... lkey value ...".
 
-#     Parameters
-#     ----------
-#     out_slice: list[str]
-#         A slice of a JDFTx out file (individual call of JDFTx)
-
-#     Returns
-#     -------
-#     bounds_list: list[list[int, int]]
-#         A list of lists of integers where each sublist contains the start and end
-#         of an individual optimization step (or SCF cycle if no optimization)
-#     """
-#     bounds_list = []
-#     bounds = None
-#     end_started = False
-#     for i, line in enumerate(out_slice):
-#         if not end_started:
-#             if out_slice_start_flag in line:
-#                 bounds = [i]
-#             elif (bounds is not None) and (is_lowdin_start_line(line)):
-#                 end_started = True
-#         elif not len(line.strip()):
-#             if bounds is not None:
-#                 bounds.append(i)
-#                 bounds_list.append(bounds)
-#                 bounds = None
-#                 end_started = False
-#             else:
-#                 warnmsg = f"Line {i-1} ({out_slice[i-1]}) triggered \
-#                     end_started, but following line is empty. Final step_bounds \
-#                         may be incorrect. "
-#                 warnings.warn(warnmsg, stacklevel=2)
-#     return bounds_list
+    Parameters
+    ----------
+    linetext: str
+        A line of text from a JDFTx out file
+    lkey: str
+        A string that appears before the float value in linetext
+    """
+    colon_var = None
+    if lkey in linetext:
+        colon_var = float(linetext.split(lkey)[1].strip().split(" ")[0])
+    return colon_var
 
 
-# def get_joutstructures_start_idx(
-#     out_slice: list[str],
-#     out_slice_start_flag: str = elec_min_start_flag,
-# ) -> int:
-#     """Return index of first line of first structure.
+def is_strain_start_line(line_text: str) -> bool:
+    """Return True if the line_text is the start of strain log message.
 
-#     Return the index of the first line of the first structure in the out_slice.
+    Return True if the line_text is the start of a log message for a JDFTx
+    optimization step.
 
-#     Parameters
-#     ----------
-#     out_slice: list[str]
-#         A slice of a JDFTx out file (individual call of JDFTx)
+    Parameters
+    ----------
+    line_text: str
+        A line of text from a JDFTx out file
 
-#     Returns
-#     -------
-#     i: int
-#         The index of the first line of the first structure in the out_slice
-#     """
-#     i = None
-#     for i, line in enumerate(out_slice):
-#         if out_slice_start_flag in line:
-#             return i
-#     return i
+    Returns
+    -------
+    is_line: bool
+        True if the line_text is the start of a log message for a JDFTx
+        optimization step
+    """
+    return "# Strain tensor in" in line_text
 
 
-# def _get_colon_var_t1(linetext: str, lkey: str) -> float | None:
-#     """Return float val from '...lkey: val...' in linetext.
+def is_lattice_start_line(line_text: str) -> bool:
+    """Return True if the line_text is the start of lattice log message.
 
-#     Read a float from an elec minimization line assuming value appears as
-#     "... lkey value ...".
+    Return True if the line_text is the start of a log message for a JDFTx
+    optimization step.
 
-#     Parameters
-#     ----------
-#     linetext: str
-#         A line of text from a JDFTx out file
-#     lkey: str
-#         A string that appears before the float value in linetext
-#     """
-#     colon_var = None
-#     if lkey in linetext:
-#         colon_var = float(linetext.split(lkey)[1].strip().split(" ")[0])
-#     return colon_var
+    Parameters
+    ----------
+    line_text: str
+        A line of text from a JDFTx out file
 
-
-# def correct_geom_iter_type(iter_type: str | None) -> str | None:
-#     """Return recognizable iter_type string.
-
-#     Correct the iter_type string to match the JDFTx convention.
-
-#     Parameters
-#     ----------
-#     iter_type:
-#         The type of optimization step
-
-#     Returns
-#     -------
-#     iter_type: str | None
-#         The corrected type of optimization step
-#     """
-#     if iter_type is not None:
-#         if "lattice" in iter_type.lower():
-#             iter_type = "LatticeMinimize"
-#         elif "ionic" in iter_type.lower():
-#             iter_type = "IonicMinimize"
-#         else:
-#             iter_type = None
-#     return iter_type
+    Returns
+    -------
+    is_line: bool
+        True if the line_text is the start of a log message for a JDFTx
+        optimization step
+    """
+    return "# Lattice vectors:" in line_text
 
 
-# def is_magnetic_moments_line(line_text: str) -> bool:
-#     """Return True if the line_text is start of moments log message.
+def is_forces_start_line(line_text: str) -> bool:
+    """Return True if the line_text is the start of forces log message.
 
-#     Return True if the line_text is a line of text from a JDFTx out file
-#     corresponding to a Lowdin population analysis.
+    Return True if the line_text is the start of a log message for a JDFTx
+    optimization step.
 
-#     Parameters
-#     ----------
-#     line_text: str
-#         A line of text from a JDFTx out file
+    Parameters
+    ----------
+    line_text: str
+        A line of text from a JDFTx out file
 
-#     Returns
-#     -------
-#     is_line: bool
-#         True if the line_text is a line of text from a JDFTx out file
-#         corresponding to a Lowdin population
-#     """
-#     return "magnetic-moments" in line_text
-
-
-# def is_charges_line(line_text: str) -> bool:
-#     """Return True if the line_text is start of charges log message.
-
-#     Return True if the line_text is a line of text from a JDFTx out file
-#     corresponding to a Lowdin population analysis.
-
-#     Parameters
-#     ----------
-#     line_text: str
-#         A line of text from a JDFTx out file
-
-#     Returns
-#     -------
-#     is_line: bool
-#         True if the line_text is a line of text from a JDFTx out file
-#         corresponding to a Lowdin population
-#     """
-#     return "oxidation-state" in line_text
+    Returns
+    -------
+    is_line: bool
+        True if the line_text is the start of a log message for a JDFTx
+        optimization step
+    """
+    return "# Forces in" in line_text
 
 
-# def is_ecomp_start_line(line_text: str) -> bool:
-#     """Return True if the line_text is the start of ecomp log message.
+def is_lowdin_start_line(line_text: str) -> bool:
+    """Return True if the line_text is the start of Lowdin log message.
 
-#     Return True if the line_text is the start of a log message for a JDFTx
-#     optimization step.
+    Return True if the line_text is the start of a Lowdin population analysis
+    in a JDFTx out file.
 
-#     Parameters
-#     ----------
-#     line_text: str
-#         A line of text from a JDFTx out file
+    Parameters
+    ----------
+    line_text: str
+        A line of text from a JDFTx out file
 
-#     Returns
-#     -------
-#     is_line: bool
-#         True if the line_text is the start of a log message for a JDFTx
-#         optimization step
-#     """
-#     return "# Energy components" in line_text
-
-
-# def is_posns_start_line(line_text: str) -> bool:
-#     """Return True if the line_text is the start of posns log message.
-
-#     Return True if the line_text is the start of a log message for a JDFTx
-#     optimization step.
-
-#     Parameters
-#     ----------
-#     line_text: str
-#         A line of text from a JDFTx out file containing the positions of atoms
-
-#     Returns
-#     -------
-#         is_line: bool
-#             True if the line_text is the start of a log message for a JDFTx
-#             optimization step
-#     """
-#     return "# Ionic positions" in line_text
+    Returns
+    -------
+    is_line: bool
+        True if the line_text is the start of a Lowdin population analysis in a
+        JDFTx out file
+    """
+    return "#--- Lowdin population analysis ---" in line_text
 
 
-# def is_stress_start_line(line_text: str) -> bool:
-#     """Return True if the line_text is the start of stress log message.
+def get_joutstructure_step_bounds(
+    out_slice: list[str],
+    out_slice_start_flag: str = elec_min_start_flag,
+) -> list[list[int]]:
+    """Return list of boundary indices for each structure in out_slice.
 
-#     Return True if the line_text is the start of a log message for a JDFTx
-#     optimization step.
+    Return a list of lists of integers where each sublist contains the start and end
+    of an individual optimization step (or SCF cycle if no optimization).
 
-#     Parameters
-#     ----------
-#     line_text: str
-#         A line of text from a JDFTx out file
+    Parameters
+    ----------
+    out_slice: list[str]
+        A slice of a JDFTx out file (individual call of JDFTx)
 
-#     Returns
-#     -------
-#     is_line: bool
-#         True if the line_text is the start of a log message for a JDFTx
-#         optimization step
-#     """
-#     return "# Stress tensor in" in line_text
+    Returns
+    -------
+    bounds_list: list[list[int, int]]
+        A list of lists of integers where each sublist contains the start and end
+        of an individual optimization step (or SCF cycle if no optimization)
+    """
+    bounds_list = []
+    bounds = None
+    end_started = False
+    for i, line in enumerate(out_slice):
+        if not end_started:
+            if out_slice_start_flag in line:
+                bounds = [i]
+            elif (bounds is not None) and (is_lowdin_start_line(line)):
+                end_started = True
+        elif not len(line.strip()) and bounds is not None:
+            bounds.append(i)
+            bounds_list.append(bounds)
+            bounds = None
+            end_started = False
+            # else:
+            #     warnmsg = f"Line {i-1} ({out_slice[i-1]}) triggered \
+            #         end_started, but following line is empty. Final step_bounds \
+            #             may be incorrect. "
+            #     warnings.warn(warnmsg, stacklevel=2)
+    return bounds_list
+
+
+def get_joutstructures_start_idx(
+    out_slice: list[str],
+    out_slice_start_flag: str = elec_min_start_flag,
+) -> int | None:
+    """Return index of first line of first structure.
+
+    Return the index of the first line of the first structure in the out_slice.
+
+    Parameters
+    ----------
+    out_slice: list[str]
+        A slice of a JDFTx out file (individual call of JDFTx)
+
+    Returns
+    -------
+    i: int
+        The index of the first line of the first structure in the out_slice
+    """
+    for i, line in enumerate(out_slice):
+        if out_slice_start_flag in line:
+            return i
+    return None
+
+
+def correct_geom_iter_type(iter_type: str | None) -> str | None:
+    """Return recognizable iter_type string.
+
+    Correct the iter_type string to match the JDFTx convention.
+
+    Parameters
+    ----------
+    iter_type:
+        The type of optimization step
+
+    Returns
+    -------
+    iter_type: str | None
+        The corrected type of optimization step
+    """
+    if iter_type is not None:
+        if "lattice" in iter_type.lower():
+            iter_type = "LatticeMinimize"
+        elif "ionic" in iter_type.lower():
+            iter_type = "IonicMinimize"
+        else:
+            iter_type = None
+    return iter_type
+
+
+def is_magnetic_moments_line(line_text: str) -> bool:
+    """Return True if the line_text is start of moments log message.
+
+    Return True if the line_text is a line of text from a JDFTx out file
+    corresponding to a Lowdin population analysis.
+
+    Parameters
+    ----------
+    line_text: str
+        A line of text from a JDFTx out file
+
+    Returns
+    -------
+    is_line: bool
+        True if the line_text is a line of text from a JDFTx out file
+        corresponding to a Lowdin population
+    """
+    return "magnetic-moments" in line_text
+
+
+def is_charges_line(line_text: str) -> bool:
+    """Return True if the line_text is start of charges log message.
+
+    Return True if the line_text is a line of text from a JDFTx out file
+    corresponding to a Lowdin population analysis.
+
+    Parameters
+    ----------
+    line_text: str
+        A line of text from a JDFTx out file
+
+    Returns
+    -------
+    is_line: bool
+        True if the line_text is a line of text from a JDFTx out file
+        corresponding to a Lowdin population
+    """
+    return "oxidation-state" in line_text
+
+
+def is_ecomp_start_line(line_text: str) -> bool:
+    """Return True if the line_text is the start of ecomp log message.
+
+    Return True if the line_text is the start of a log message for a JDFTx
+    optimization step.
+
+    Parameters
+    ----------
+    line_text: str
+        A line of text from a JDFTx out file
+
+    Returns
+    -------
+    is_line: bool
+        True if the line_text is the start of a log message for a JDFTx
+        optimization step
+    """
+    return "# Energy components" in line_text
+
+
+def is_posns_start_line(line_text: str) -> bool:
+    """Return True if the line_text is the start of posns log message.
+
+    Return True if the line_text is the start of a log message for a JDFTx
+    optimization step.
+
+    Parameters
+    ----------
+    line_text: str
+        A line of text from a JDFTx out file containing the positions of atoms
+
+    Returns
+    -------
+        is_line: bool
+            True if the line_text is the start of a log message for a JDFTx
+            optimization step
+    """
+    return "# Ionic positions" in line_text
+
+
+def is_stress_start_line(line_text: str) -> bool:
+    """Return True if the line_text is the start of stress log message.
+
+    Return True if the line_text is the start of a log message for a JDFTx
+    optimization step.
+
+    Parameters
+    ----------
+    line_text: str
+        A line of text from a JDFTx out file
+
+    Returns
+    -------
+    is_line: bool
+        True if the line_text is the start of a log message for a JDFTx
+        optimization step
+    """
+    return "# Stress tensor in" in line_text
+
+
+############################################
+# HELPERS FOR JDFTXOUTFILESLICE #
+############################################
+
+
+def get_start_lines(
+    text: list[str],
+    start_key: str = "*************** JDFTx",
+    add_end: bool = False,
+) -> list[int]:
+    """Get start line numbers for JDFTx calculations.
+
+    Get the line numbers corresponding to the beginning of separate JDFTx calculations
+    (in case of multiple calculations appending the same out file).
+
+    Args:
+        text: output of read_file for out file
+    """
+    start_lines = []
+    i = None
+    for i, line in enumerate(text):
+        if start_key in line:
+            start_lines.append(i)
+    if add_end and i is not None:
+        start_lines.append(i)
+    if i is None:
+        raise ValueError("Outfile parser fed an empty file.")
+    if not len(start_lines):
+        raise ValueError("No JDFTx calculations found in file.")
+    return start_lines
+
+
+def find_key_first(key_input: str, tempfile: list[str]) -> int | None:
+    """
+
+    Find first instance of key in output file.
+
+    Parameters
+    ----------
+    key_input: str
+        key string to match
+    tempfile: List[str]
+        output from readlines() function in read_file method
+    """
+    key_input = str(key_input)
+    line = None
+    for i in range(len(tempfile)):
+        if key_input in tempfile[i]:
+            line = i
+            break
+    return line
+
+
+def find_key(key_input: str, tempfile: list[str]) -> int | None:
+    """
+
+    Find last instance of key in output file.
+
+    Parameters
+    ----------
+    key_input: str
+        key string to match
+    tempfile: List[str]
+        output from readlines() function in read_file method
+    """
+    key_input = str(key_input)
+    line = None
+    lines = find_all_key(key_input, tempfile)
+    if len(lines):
+        line = lines[-1]
+    return line
+
+
+def find_first_range_key(
+    key_input: str,
+    tempfile: list[str],
+    startline: int = 0,
+    endline: int = -1,
+    skip_pound: bool = False,
+) -> list[int]:
+    """
+
+    Find all lines that exactly begin with key_input in a range of lines.
+
+    Parameters
+    ----------
+    key_input: str
+        key string to match
+    tempfile: List[str]
+        output from readlines() function in read_file method
+    startline: int
+        line to start searching from
+    endline: int
+        line to stop searching at
+    skip_pound: bool
+        whether to skip lines that begin with a pound sign
+
+    Returns
+    -------
+    L: list[int]
+        list of line numbers where key_input occurs
+
+    """
+    key_input = str(key_input)
+    startlen = len(key_input)
+    line_list = []
+
+    if endline == -1:
+        endline = len(tempfile)
+    for i in range(startline, endline):
+        line = tempfile[i]
+        if skip_pound:
+            for _ in range(10):  # repeat to make sure no really weird formatting
+                line = line.lstrip()
+                line = line.lstrip("#")
+        line = line[0:startlen]
+        if line == key_input:
+            line_list.append(i)
+    return line_list
+
+
+def key_exists(key_input: str, tempfile: list[str]) -> bool:
+    """Check if key_input exists in tempfile.
+
+    Search through tempfile for key_input. Return True if found,
+    False otherwise.
+
+    Parameters
+    ----------
+    key_input: str
+        key string to match
+    tempfile: List[str]
+        output from readlines() function in read_file method
+
+    Returns
+    -------
+    bool
+        True if key_input exists in tempfile, False otherwise
+    """
+    line = find_key(key_input, tempfile)
+    return line is not None
+
+
+def find_all_key(key_input: str, tempfile: list[str], startline: int = 0) -> list[int]:
+    """Find all lines containing key_input.
+
+    Search through tempfile for all lines containing key_input. Returns a list
+    of line numbers.
+
+    Parameters
+    ----------
+    key_input: str
+        key string to match
+    tempfile: List[str]
+        output from readlines() function in read_file method
+    startline: int
+        line to start searching from
+
+    Returns
+    -------
+    line_list: list[int]
+        list of line numbers where key_input occurs
+    """
+    return [i for i in range(startline, len(tempfile)) if key_input in tempfile[i]]
+
+
+def get_pseudo_read_section_bounds(text: list[str]) -> list[list[int]]:
+    """Get the boundary line numbers for the pseudopotential read section.
+
+    Get the boundary line numbers for the pseudopotential read section.
+
+    Parameters
+    ----------
+    text: list[str]
+        output of read_file for out file
+
+    Returns
+    -------
+    section_bounds: list[list[int]]
+        list of line numbers for the pseudopotential read sections
+    """
+    start_lines = find_all_key("Reading pseudopotential file", text)
+    section_bounds = []
+    for start_line in start_lines:
+        bounds = [start_line]
+        for i in range(start_line, len(text)):
+            if not len(text[i].strip()):
+                bounds.append(i)
+                break
+        section_bounds.append(bounds)
+    return section_bounds

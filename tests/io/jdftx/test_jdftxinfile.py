@@ -270,6 +270,15 @@ def test_jdftxstructure():
     assert is_equiv_jdftxstructure(struc, struc3)
 
 
+def test_pmg_struc():
+    jif = JDFTXInfile.from_file(ex_infile2_fname)
+    struc1 = jif.to_pmg_structure(jif)
+    struc2 = jif.structure
+    for s in [struc1, struc2]:
+        assert isinstance(s, Structure)
+    assert is_identical_jif(struc1.as_dict(), struc2.as_dict())
+
+
 def test_jdftxtructure_naming():
     struc = Structure.from_file(ex_files_dir / "Si.cif")
     jstruc = JDFTXStructure(structure=struc)

@@ -12,9 +12,23 @@ import numpy as np
 from pymatgen.core.structure import Lattice, Structure
 from pymatgen.core.units import Ha_to_eV, bohr_to_ang
 from pymatgen.io.jdftx.jeiters import JEiters
-from pymatgen.io.jdftx.joutstructure_helpers import (
-    _get_colon_var_t1,
+
+# from pymatgen.io.jdftx.joutstructure_helpers import (
+#     _get_colon_var_t1,
+#     correct_geom_iter_type,
+#     is_charges_line,
+#     is_ecomp_start_line,
+#     is_forces_start_line,
+#     is_lattice_start_line,
+#     is_lowdin_start_line,
+#     is_magnetic_moments_line,
+#     is_posns_start_line,
+#     is_strain_start_line,
+#     is_stress_start_line,
+# )
+from pymatgen.io.jdftx.utils import (
     correct_geom_iter_type,
+    get_colon_var_t1,
     is_charges_line,
     is_ecomp_start_line,
     is_forces_start_line,
@@ -655,17 +669,17 @@ class JOutStructure(Structure):
         if len(opt_lines):
             for line in opt_lines:
                 if self.is_opt_start_line(line):
-                    n_iter = int(_get_colon_var_t1(line, "Iter:"))
+                    n_iter = int(get_colon_var_t1(line, "Iter:"))
                     self.iter = n_iter
-                    en = _get_colon_var_t1(line, f"{self.etype}:")
+                    en = get_colon_var_t1(line, f"{self.etype}:")
                     self.E = en * Ha_to_eV
-                    grad_k = _get_colon_var_t1(line, "|grad|_K: ")
+                    grad_k = get_colon_var_t1(line, "|grad|_K: ")
                     self.grad_k = grad_k
-                    alpha = _get_colon_var_t1(line, "alpha: ")
+                    alpha = get_colon_var_t1(line, "alpha: ")
                     self.alpha = alpha
-                    linmin = _get_colon_var_t1(line, "linmin: ")
+                    linmin = get_colon_var_t1(line, "linmin: ")
                     self.linmin = linmin
-                    t_s = _get_colon_var_t1(line, "t[s]: ")
+                    t_s = get_colon_var_t1(line, "t[s]: ")
                     self.t_s = t_s
                 elif self.is_opt_conv_line(line):
                     self.geom_converged = True

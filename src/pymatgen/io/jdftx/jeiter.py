@@ -6,6 +6,7 @@ This module contains the JEiter class for parsing electronic minimization data.
 from __future__ import annotations
 
 from pymatgen.core.units import Ha_to_eV
+from pymatgen.io.jdftx.utils import get_colon_var_t1
 
 __author__ = "Ben Rich"
 
@@ -113,16 +114,16 @@ class JEiter:
             A line of text from a JDFTx out file containing the electronic
             minimization data
         """
-        iter_float = self._get_colon_var_t1(line_text, "Iter: ")
+        iter_float = get_colon_var_t1(line_text, "Iter: ")
         if isinstance(iter_float, float):
             self.iter = int(iter_float)
         elif iter_float is None:
             raise ValueError("Could not find iter in line_text")
-        self.e = self._get_colon_var_t1(line_text, f"{self.etype}: ") * Ha_to_eV
-        self.grad_k = self._get_colon_var_t1(line_text, "|grad|_K: ")
-        self.alpha = self._get_colon_var_t1(line_text, "alpha: ")
-        self.linmin = self._get_colon_var_t1(line_text, "linmin: ")
-        self.t_s = self._get_colon_var_t1(line_text, "t[s]: ")
+        self.e = get_colon_var_t1(line_text, f"{self.etype}: ") * Ha_to_eV
+        self.grad_k = get_colon_var_t1(line_text, "|grad|_K: ")
+        self.alpha = get_colon_var_t1(line_text, "alpha: ")
+        self.linmin = get_colon_var_t1(line_text, "linmin: ")
+        self.t_s = get_colon_var_t1(line_text, "t[s]: ")
 
     def is_fillings_line(self, i: int, line_text: str) -> bool:
         """Return True if fillings line.
@@ -198,7 +199,7 @@ class JEiter:
             A line of text from a JDFTx out file containing the electronic
             minimization data
         """
-        self.subspacerotationadjust = self._get_colon_var_t1(line_text, "SubspaceRotationAdjust: set factor to")
+        self.subspacerotationadjust = get_colon_var_t1(line_text, "SubspaceRotationAdjust: set factor to")
 
     def set_magdata(self, fillings_line: str) -> None:
         """Set class variables abs_magneticMoment, tot_magneticMoment.
@@ -213,33 +214,33 @@ class JEiter:
             minimization data
         """
         _fillings_line = fillings_line.split("magneticMoment: [ ")[1].split(" ]")[0].strip()
-        self.abs_magneticmoment = self._get_colon_var_t1(_fillings_line, "Abs: ")
-        self.tot_magneticmoment = self._get_colon_var_t1(_fillings_line, "Tot: ")
+        self.abs_magneticmoment = get_colon_var_t1(_fillings_line, "Abs: ")
+        self.tot_magneticmoment = get_colon_var_t1(_fillings_line, "Tot: ")
 
-    def _get_colon_var_t1(self, linetext: str, lkey: str) -> float | None:
-        """Return float val from '...lkey: val...' in linetext.
+    # def _get_colon_var_t1(self, linetext: str, lkey: str) -> float | None:
+    #     """Return float val from '...lkey: val...' in linetext.
 
-        Read a float from an elec minimization line assuming value appears as
-        "... lkey value ...".
+    #     Read a float from an elec minimization line assuming value appears as
+    #     "... lkey value ...".
 
-        Parameters
-        ----------
-        linetext: str
-            A line of text from a JDFTx out file
-        lkey: str
-            The key to search for in the line of text
+    #     Parameters
+    #     ----------
+    #     linetext: str
+    #         A line of text from a JDFTx out file
+    #     lkey: str
+    #         The key to search for in the line of text
 
-        Returns
-        -------
-        colon_var: float | None
-            The float value found in the line of text
-        """
-        colon_var = None
-        if lkey in linetext:
-            colon_var = float(linetext.split(lkey)[1].strip().split(" ")[0])
-        # else:
-        #     raise ValueError(f"Could not find {lkey} in {linetext}")
-        return colon_var
+    #     Returns
+    #     -------
+    #     colon_var: float | None
+    #         The float value found in the line of text
+    #     """
+    #     colon_var = None
+    #     if lkey in linetext:
+    #         colon_var = float(linetext.split(lkey)[1].strip().split(" ")[0])
+    #     # else:
+    #     #     raise ValueError(f"Could not find {lkey} in {linetext}")
+    #     return colon_var
 
     def set_mu(self, fillings_line: str) -> None:
         """Set mu class variable.
@@ -253,7 +254,7 @@ class JEiter:
             A line of text from a JDFTx out file containing the electronic
             minimization data
         """
-        self.mu = self._get_colon_var_t1(fillings_line, "mu: ") * Ha_to_eV
+        self.mu = get_colon_var_t1(fillings_line, "mu: ") * Ha_to_eV
 
     def set_nelectrons(self, fillings_line: str) -> None:
         """Set nelectrons class variable.
@@ -267,4 +268,4 @@ class JEiter:
             A line of text from a JDFTx out file containing the electronic
             minimization data
         """
-        self.nelectrons = self._get_colon_var_t1(fillings_line, "nElectrons: ")
+        self.nelectrons = get_colon_var_t1(fillings_line, "nElectrons: ")

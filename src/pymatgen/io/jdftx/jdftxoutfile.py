@@ -13,7 +13,9 @@ from typing import TYPE_CHECKING, Any
 from monty.io import zopen
 
 from pymatgen.io.jdftx.jdftxoutfileslice import JDFTXOutfileSlice
-from pymatgen.io.jdftx.jdftxoutfileslice_helpers import get_start_lines
+
+# from pymatgen.io.jdftx.jdftxoutfileslice_helpers import get_start_lines
+from pymatgen.io.jdftx.utils import get_start_lines
 
 if TYPE_CHECKING:
     from collections.abc import Callable

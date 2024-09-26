@@ -3,8 +3,10 @@ from __future__ import annotations
 import pytest
 
 from pymatgen.io.jdftx.generic_tags import flatten_list
-from pymatgen.io.jdftx.jdftxoutfileslice_helpers import find_first_range_key, get_start_lines
-from pymatgen.io.jdftx.joutstructure_helpers import get_joutstructures_start_idx
+
+# from pymatgen.io.jdftx.jdftxoutfileslice_helpers import find_first_range_key, get_start_lines
+# from pymatgen.io.jdftx.joutstructure_helpers import get_joutstructures_start_idx
+from pymatgen.io.jdftx.utils import find_first_range_key, get_joutstructures_start_idx, get_start_lines
 
 
 def test_flatten_list():
