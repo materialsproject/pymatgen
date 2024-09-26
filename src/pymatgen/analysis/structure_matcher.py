@@ -633,7 +633,7 @@ class StructureMatcher(MSONable):
         if match1 is None or match2 is None:
             return False
 
-        return max(match1[0], match2[0]) <= self.stol
+        return bool(max(match1[0], match2[0]) <= self.stol)
 
     def get_rms_dist(self, struct1, struct2):
         """
