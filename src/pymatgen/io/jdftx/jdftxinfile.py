@@ -26,6 +26,7 @@ from pymatgen.io.jdftx.jdftxinfile_master_format import (
     MASTER_TAG_LIST,
     get_tag_object,
 )
+from pymatgen.io.jdftx.utils import multi_getattr, multi_hasattr
 from pymatgen.util.io_utils import clean_lines
 from pymatgen.util.typing import SpeciesLike
 
@@ -1099,54 +1100,54 @@ class JDFTXStructure(MSONable):
         )
 
 
-def multi_hasattr(varbase: Any, varname: str):
-    """Check if object has an attribute (capable of nesting with . splits).
+# def multi_hasattr(varbase: Any, varname: str):
+#     """Check if object has an attribute (capable of nesting with . splits).
 
-    Check if object has an attribute (capable of nesting with . splits).
+#     Check if object has an attribute (capable of nesting with . splits).
 
-    Parameters
-    ----------
-    varbase
-        Object to check.
-    varname
-        Attribute to check for.
+#     Parameters
+#     ----------
+#     varbase
+#         Object to check.
+#     varname
+#         Attribute to check for.
 
-    Returns
-    -------
-    bool
-        Whether the object has the attribute.
-    """
-    varlist = varname.split(".")
-    for i, var in enumerate(varlist):
-        if i == len(varlist) - 1:
-            return hasattr(varbase, var)
-        if hasattr(varbase, var):
-            varbase = getattr(varbase, var)
-        else:
-            return False
-    return None
+#     Returns
+#     -------
+#     bool
+#         Whether the object has the attribute.
+#     """
+#     varlist = varname.split(".")
+#     for i, var in enumerate(varlist):
+#         if i == len(varlist) - 1:
+#             return hasattr(varbase, var)
+#         if hasattr(varbase, var):
+#             varbase = getattr(varbase, var)
+#         else:
+#             return False
+#     return None
 
 
-def multi_getattr(varbase: Any, varname: str):
-    """Check if object has an attribute (capable of nesting with . splits).
+# def multi_getattr(varbase: Any, varname: str):
+#     """Check if object has an attribute (capable of nesting with . splits).
 
-    Check if object has an attribute (capable of nesting with . splits).
+#     Check if object has an attribute (capable of nesting with . splits).
 
-    Parameters
-    ----------
-    varbase
-        Object to check.
-    varname
-        Attribute to check for.
+#     Parameters
+#     ----------
+#     varbase
+#         Object to check.
+#     varname
+#         Attribute to check for.
 
-    Returns
-    -------
-    Any
-        Attribute of the object.
-    """
-    if not multi_hasattr(varbase, varname):
-        raise AttributeError(f"{varbase} does not have attribute {varname}")
-    varlist = varname.split(".")
-    for var in varlist:
-        varbase = getattr(varbase, var)
-    return varbase
+#     Returns
+#     -------
+#     Any
+#         Attribute of the object.
+#     """
+#     if not multi_hasattr(varbase, varname):
+#         raise AttributeError(f"{varbase} does not have attribute {varname}")
+#     varlist = varname.split(".")
+#     for var in varlist:
+#         varbase = getattr(varbase, var)
+#     return varbase

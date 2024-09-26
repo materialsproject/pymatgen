@@ -10,8 +10,9 @@ import pytest
 from pytest import approx
 
 from pymatgen.core.structure import Structure
-from pymatgen.io.jdftx.jdftxinfile import JDFTXInfile, JDFTXStructure, multi_getattr, multi_hasattr
+from pymatgen.io.jdftx.jdftxinfile import JDFTXInfile, JDFTXStructure
 from pymatgen.io.jdftx.jdftxinfile_master_format import get_tag_object
+from pymatgen.io.jdftx.utils import multi_getattr, multi_hasattr
 from pymatgen.util.testing import TEST_FILES_DIR
 
 if TYPE_CHECKING:

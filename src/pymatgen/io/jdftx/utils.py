@@ -5,6 +5,64 @@ from __future__ import annotations
 from typing import Any
 
 ############################################
+# HELPERS FOR JDFTXINFILE #
+############################################
+
+
+def multi_hasattr(varbase: Any, varname: str):
+    """Check if object has an attribute (capable of nesting with . splits).
+
+    Check if object has an attribute (capable of nesting with . splits).
+
+    Parameters
+    ----------
+    varbase
+        Object to check.
+    varname
+        Attribute to check for.
+
+    Returns
+    -------
+    bool
+        Whether the object has the attribute.
+    """
+    varlist = varname.split(".")
+    for i, var in enumerate(varlist):
+        if i == len(varlist) - 1:
+            return hasattr(varbase, var)
+        if hasattr(varbase, var):
+            varbase = getattr(varbase, var)
+        else:
+            return False
+    return None
+
+
+def multi_getattr(varbase: Any, varname: str):
+    """Check if object has an attribute (capable of nesting with . splits).
+
+    Check if object has an attribute (capable of nesting with . splits).
+
+    Parameters
+    ----------
+    varbase
+        Object to check.
+    varname
+        Attribute to check for.
+
+    Returns
+    -------
+    Any
+        Attribute of the object.
+    """
+    if not multi_hasattr(varbase, varname):
+        raise AttributeError(f"{varbase} does not have attribute {varname}")
+    varlist = varname.split(".")
+    for var in varlist:
+        varbase = getattr(varbase, var)
+    return varbase
+
+
+############################################
 # HELPERS FOR GENERIC_TAGS #
 ############################################
 
