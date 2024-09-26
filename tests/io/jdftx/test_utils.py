@@ -4,6 +4,7 @@ import pytest
 
 from pymatgen.io.jdftx.generic_tags import flatten_list
 from pymatgen.io.jdftx.jdftxoutfileslice_helpers import find_first_range_key, get_start_lines
+from pymatgen.io.jdftx.joutstructure_helpers import get_joutstructures_start_idx
 
 
 def test_flatten_list():
@@ -37,3 +38,10 @@ def test_find_first_range_key():
     assert len(out1) == 2
     out1 = find_first_range_key("barbie", ["barbie", "ken", "barbie"], startline=1)
     assert len(out1) == 1
+
+
+def test_get_joutstructures_start_idx():
+    start_flag = "barbie"
+    assert get_joutstructures_start_idx(["ken", "barbie"], out_slice_start_flag=start_flag) == 1
+    assert get_joutstructures_start_idx(["barbie", "ken"], out_slice_start_flag=start_flag) == 0
+    assert get_joutstructures_start_idx(["ken", "ken"], out_slice_start_flag=start_flag) is None

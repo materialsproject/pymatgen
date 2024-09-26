@@ -153,7 +153,7 @@ def get_joutstructure_step_bounds(
 def get_joutstructures_start_idx(
     out_slice: list[str],
     out_slice_start_flag: str = elec_min_start_flag,
-) -> int:
+) -> int | None:
     """Return index of first line of first structure.
 
     Return the index of the first line of the first structure in the out_slice.
@@ -168,11 +168,10 @@ def get_joutstructures_start_idx(
     i: int
         The index of the first line of the first structure in the out_slice
     """
-    i = None
     for i, line in enumerate(out_slice):
         if out_slice_start_flag in line:
             return i
-    return i
+    return None
 
 
 def correct_geom_iter_type(iter_type: str | None) -> str | None:
