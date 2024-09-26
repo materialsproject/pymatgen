@@ -1443,10 +1443,24 @@ class TestOszicar(PymatgenTest):
 
 class TestGetBandStructureFromVaspMultipleBranches:
     def test_read_multi_branches(self):
-        pass
+        """TODO: use real multi-branch bandstructure calculation."""
+        with ScratchDir("."):
+            # Create branches
+            for idx in range(3):  # simulate 3 branches
+                branch_name = f"branch_{idx}"
+                os.makedirs(branch_name)
+                copyfile(f"{VASP_OUT_DIR}/vasprun.force_hybrid_like_calc.xml.gz", f"./{branch_name}/vasprun.xml.gz")
+                decompress_file(f"./{branch_name}/vasprun.xml.gz")
+
+            get_band_structure_from_vasp_multiple_branches(".")
 
     def test_missing_vasprun_in_branch_dir(self):
         """Test vasprun.xml missing from branch_*."""
+        with ScratchDir("."):
+            os.makedirs("no_vasp/branch_0", exist_ok=False)
+
+            with pytest.raises(FileNotFoundError, match="cannot find vasprun.xml in directory"):
+                get_band_structure_from_vasp_multiple_branches("no_vasp")
 
     def test_no_branch_head(self):
         """Test branch_0 is missing and read dir_name/vasprun.xml directly."""
