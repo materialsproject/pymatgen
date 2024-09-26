@@ -659,6 +659,19 @@ class CompoundPhaseDiagramTest(unittest.TestCase):
 
     def test_str(self):
         self.assertIsNotNone(str(self.pd))
+    
+    def test_num2str(self):
+
+        ret = set()
+
+        num = 100
+        for idx in range(num):
+            val = CompoundPhaseDiagram.num2str(idx)
+            assert val.isalpha()
+            assert ord(val[0]) >= ord('f')
+            ret.add(val)
+
+        assert len(ret) == num
 
 
 class ReactionDiagramTest(unittest.TestCase):
