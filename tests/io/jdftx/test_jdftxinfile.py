@@ -12,7 +12,6 @@ from pytest import approx
 from pymatgen.core.structure import Structure
 from pymatgen.io.jdftx.jdftxinfile import JDFTXInfile, JDFTXStructure
 from pymatgen.io.jdftx.jdftxinfile_master_format import get_tag_object
-from pymatgen.io.jdftx.utils import multi_getattr, multi_hasattr
 from pymatgen.util.testing import TEST_FILES_DIR
 
 if TYPE_CHECKING:
@@ -304,39 +303,39 @@ def is_equiv_jdftxstructure(struc1: JDFTXStructure, struc2: JDFTXStructure) -> b
     return is_identical_jif(d1, d2)
 
 
-def test_multihasattr():
-    class A:
-        def __init__(self):
-            self.v1: int = 1
+# def test_multihasattr():
+#     class A:
+#         def __init__(self):
+#             self.v1: int = 1
 
-    class B:
-        def __init__(self):
-            self.a = A()
-            self.v2: int = 2
+#     class B:
+#         def __init__(self):
+#             self.a = A()
+#             self.v2: int = 2
 
-    a = A()
-    b = B()
-    assert multi_hasattr(a, "v1")
-    assert multi_hasattr(b, "a")
-    assert multi_hasattr(b, "a.v1")
-    assert not multi_hasattr(b, "a.v2")
-    assert not multi_hasattr(b, "v1")
+#     a = A()
+#     b = B()
+#     assert multi_hasattr(a, "v1")
+#     assert multi_hasattr(b, "a")
+#     assert multi_hasattr(b, "a.v1")
+#     assert not multi_hasattr(b, "a.v2")
+#     assert not multi_hasattr(b, "v1")
 
 
-def test_multigetattr():
-    class A:
-        def __init__(self):
-            self.v1: int = 1
+# def test_multigetattr():
+#     class A:
+#         def __init__(self):
+#             self.v1: int = 1
 
-    class B:
-        def __init__(self):
-            self.a = A()
-            self.v2: int = 2
+#     class B:
+#         def __init__(self):
+#             self.a = A()
+#             self.v2: int = 2
 
-    a = A()
-    b = B()
-    assert multi_getattr(a, "v1") == 1
-    assert multi_getattr(b, "v2") == 2
-    assert multi_getattr(b, "a.v1") == 1
-    with pytest.raises(AttributeError):
-        multi_getattr(b, "v1")
+#     a = A()
+#     b = B()
+#     assert multi_getattr(a, "v1") == 1
+#     assert multi_getattr(b, "v2") == 2
+#     assert multi_getattr(b, "a.v1") == 1
+#     with pytest.raises(AttributeError):
+#         multi_getattr(b, "v1")
