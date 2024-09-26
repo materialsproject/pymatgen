@@ -117,8 +117,11 @@ def test_get_rho_cutoff():
 
 def test_get_eigstats_varsdict():
     joutslice = JDFTXOutfileSlice.from_out_slice(ex_slice1)
-    with pytest.raises(ValueError, match='Must run DFT job with "dump End EigStats" to get summary gap information!'):
-        joutslice.get_eigstats_varsdict([], "$VAR")
+    evardict = joutslice.get_eigstats_varsdict([], "$VAR")
+    for key in evardict:
+        assert evardict[key] is None
+    # with pytest.raises(ValueError, match='Must run DFT job with "dump End EigStats" to get summary gap information!'):
+    #     joutslice.get_eigstats_varsdict([], "$VAR")
 
 
 def test_get_pp_type():

@@ -735,7 +735,7 @@ class JDFTXOutfileSlice(ClassPrintFormatter):
         line = find_key("kpoint-folding ", text)
         return [int(x) for x in text[line].split()[1:4]]
 
-    def get_eigstats_varsdict(self, text: list[str], prefix: str | None) -> dict[str, float]:
+    def get_eigstats_varsdict(self, text: list[str], prefix: str | None) -> dict[str, float | None]:
         """Get the eigenvalue statistics from the out file text.
 
         Get the eigenvalue statistics from the out file text.
@@ -752,7 +752,7 @@ class JDFTXOutfileSlice(ClassPrintFormatter):
         varsdict: dict[str, float]
             dictionary of eigenvalue statistics
         """
-        varsdict = {}
+        varsdict: dict[str, float | None] = {}
         # _prefix = ""
         # if not "$" in prefix:
         #     _prefix = f"{prefix}."
@@ -764,14 +764,20 @@ class JDFTXOutfileSlice(ClassPrintFormatter):
         lines2 = find_all_key("eigStats' ...", text)
         lines3 = [lines1[i] for i in range(len(lines1)) if lines1[i] in lines2]
         if not len(lines3):
-            raise ValueError('Must run DFT job with "dump End EigStats" to get summary gap information!')
-        line = lines3[-1]
-        varsdict["emin"] = float(text[line + 1].split()[1]) * Ha_to_eV
-        varsdict["homo"] = float(text[line + 2].split()[1]) * Ha_to_eV
-        varsdict["efermi"] = float(text[line + 3].split()[2]) * Ha_to_eV
-        varsdict["lumo"] = float(text[line + 4].split()[1]) * Ha_to_eV
-        varsdict["emax"] = float(text[line + 5].split()[1]) * Ha_to_eV
-        varsdict["egap"] = float(text[line + 6].split()[2]) * Ha_to_eV
+            varsdict["emin"] = None
+            varsdict["homo"] = None
+            varsdict["efermi"] = None
+            varsdict["lumo"] = None
+            varsdict["emax"] = None
+            varsdict["egap"] = None
+        else:
+            line = lines3[-1]
+            varsdict["emin"] = float(text[line + 1].split()[1]) * Ha_to_eV
+            varsdict["homo"] = float(text[line + 2].split()[1]) * Ha_to_eV
+            varsdict["efermi"] = float(text[line + 3].split()[2]) * Ha_to_eV
+            varsdict["lumo"] = float(text[line + 4].split()[1]) * Ha_to_eV
+            varsdict["emax"] = float(text[line + 5].split()[1]) * Ha_to_eV
+            varsdict["egap"] = float(text[line + 6].split()[2]) * Ha_to_eV
         return varsdict
 
     def set_eigvars(self, text: list[str]) -> None:
