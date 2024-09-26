@@ -119,8 +119,6 @@ def find_first_range_key(
         line = line[0:startlen]
         if line == key_input:
             line_list.append(i)
-    if not line_list:
-        line_list = [len(tempfile)]
     return line_list
 
 

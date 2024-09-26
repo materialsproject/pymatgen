@@ -20,3 +20,20 @@ def test_get_start_lines():
         get_start_lines([])
     with pytest.raises(ValueError, match="No JDFTx calculations found in file."):
         get_start_lines(["\n", "\n"])
+
+
+# def test_find_first_range_key():
+#     out1 = find_first_range_key("barbie", ["barbie"])
+#     assert len(out1) == 1
+#     assert out1[0] == 0
+#     out1 = find_first_range_key("barbie", ["# barbie"])
+#     assert len(out1) == 0
+#     out1 = find_first_range_key("barbie", ["# barbie"], skip_pound=True)
+#     assert len(out1) == 1
+#     assert out1[0] == 0
+#     out1 = find_first_range_key("barbie", ["barbie", "barbie", "barbie"])
+#     assert len(out1) == 3
+#     out1 = find_first_range_key("barbie", ["barbie", "ken", "barbie"])
+#     assert len(out1) == 2
+#     out1 = find_first_range_key("barbie", ["barbie", "ken", "barbie"], startline=1)
+#     assert len(out1) == 1
