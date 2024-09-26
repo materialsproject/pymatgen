@@ -73,18 +73,6 @@ jobs:
         run: |
           micromamba install -n pmg -c conda-forge bader enumlib openff-toolkit packmol pygraphviz tblite --yes
 
-      - name: Install Visual Studio build tools on Windows
-        # TODO: remove this, as install these just to build
-        # a single package is too much
-        if: matrix.config.os == 'windows-latest'
-        run: |
-          choco install visualstudio2022buildtools --include-optional
-          choco install visualstudio2022-workload-vctools
-
-      - name: Setup MSVC for Windows
-        if: matrix.config.os == 'windows-latest'
-        uses: ilammy/msvc-dev-cmd@v1
-
       - name: Install pymatgen and dependencies via uv
         run: |
           micromamba activate pmg
