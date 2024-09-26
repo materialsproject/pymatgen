@@ -2,7 +2,82 @@
 
 from __future__ import annotations
 
-from typing import Any
+from functools import wraps
+from pathlib import Path
+from typing import TYPE_CHECKING, Any
+
+from monty.io import zopen
+
+if TYPE_CHECKING:
+    from collections.abc import Callable
+
+############################################
+# HELPERS FOR JDFTXOUTFILE #
+############################################
+
+
+def check_file_exists(func: Callable) -> Any:
+    """Check if file exists.
+
+    Check if file exists (and continue normally) or raise an exception if
+    it does not.
+    """
+
+    @wraps(func)
+    def wrapper(filename: str) -> Any:
+        filepath = Path(filename)
+        if not filepath.is_file():
+            raise OSError(f"'{filename}' file doesn't exist!")
+        return func(filename)
+
+    return wrapper
+
+
+@check_file_exists
+def read_file(file_name: str) -> list[str]:
+    """
+    Read file into a list of str.
+
+    Parameters
+    ----------
+    filename: Path or str
+        name of file to read
+
+    Returns
+    -------
+    text: list[str]
+        list of strings from file
+    """
+    with zopen(file_name, "r") as f:
+        text = f.readlines()
+    f.close()
+    return text
+
+
+def read_outfile_slices(file_name: str) -> list[list[str]]:
+    """
+    Read slice of out file into a list of str.
+
+    Parameters
+    ----------
+    filename: Path or str
+        name of file to read
+    out_slice_idx: int
+        index of slice to read from file
+
+    Returns
+    -------
+    texts: list[list[str]]
+        list of out file slices (individual calls of JDFTx)
+    """
+    _text = read_file(file_name)
+    start_lines = get_start_lines(_text, add_end=True)
+    texts = []
+    for i in range(len(start_lines) - 1):
+        text = _text[start_lines[i] : start_lines[i + 1]]
+        texts.append(text)
+    return texts
+
 
 ############################################
 # HELPERS FOR JDFTXINFILE #
