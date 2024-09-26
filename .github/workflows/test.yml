@@ -89,8 +89,6 @@ jobs:
       - name: Install optional Ubuntu dependencies
         if: matrix.config.os == 'ubuntu-latest'
         run: |
-          micromamba activate pmg
-
           # Install BoltzTraP
           wget -q -O BoltzTraP.tar.bz2 https://owncloud.tuwien.ac.at/index.php/s/s2d55LYlZnioa3s/download
           tar -jxf BoltzTraP.tar.bz2
