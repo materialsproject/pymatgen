@@ -210,6 +210,12 @@ noeigstats_known = {
 }
 
 
+@pytest.mark.parametrize(
+    ("outfilefname", "knowndict"),
+    [
+        (ex_files_dir / Path("noeigstats.out"), noeigstats_known),
+    ],
+)
 def test_jdftxoutfile_knowns_simple(outfilefname, knowndict):
     jout = JDFTXOutfile.from_file(outfilefname)
     for k, v in knowndict.items():

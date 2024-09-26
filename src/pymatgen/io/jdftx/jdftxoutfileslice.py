@@ -1059,28 +1059,36 @@ class JDFTXOutfileSlice(ClassPrintFormatter):
 
         Calculate and set homo and lumo fillings
         """
-        if self.nspin is not None:
-            if self.broadening_type is not None:
-                # vvvv This is what peak python looks like according to pre-commit vvvv
-                if self.broadening is not None:
-                    if self.efermi is not None:
-                        if self.homo is not None:
-                            if self.lumo is not None:
-                                self.set_orb_fillings_broad(
-                                    self.nspin, self.homo, self.lumo, self.efermi, self.broadening_type, self.broadening
-                                )
+        if self.has_eigstats:
+            if self.nspin is not None:
+                if self.broadening_type is not None:
+                    # vvvv This is what peak python looks like according to pre-commit vvvv
+                    if self.broadening is not None:
+                        if self.efermi is not None:
+                            if self.homo is not None:
+                                if self.lumo is not None:
+                                    self.set_orb_fillings_broad(
+                                        self.nspin,
+                                        self.homo,
+                                        self.lumo,
+                                        self.efermi,
+                                        self.broadening_type,
+                                        self.broadening,
+                                    )
+                                else:
+                                    raise ValueError(
+                                        "Cannot set orbital fillings with broadening with self.lumo as None"
+                                    )
                             else:
-                                raise ValueError("Cannot set orbital fillings with broadening with self.lumo as None")
+                                raise ValueError("Cannot set orbital fillings with broadening with self.homo as None")
                         else:
-                            raise ValueError("Cannot set orbital fillings with broadening with self.homo as None")
+                            raise ValueError("Cannot set orbital fillings with broadening with self.efermi as None")
                     else:
-                        raise ValueError("Cannot set orbital fillings with broadening with self.efermi as None")
+                        raise ValueError("Cannot set orbital fillings with broadening with self.broadening as None")
                 else:
-                    raise ValueError("Cannot set orbital fillings with broadening with self.broadening as None")
+                    self.set_orb_fillings_nobroad(self.nspin)
             else:
-                self.set_orb_fillings_nobroad(self.nspin)
-        else:
-            raise ValueError("Cannot set homo/lumo filling with self.nspin as None")
+                raise ValueError("Cannot set homo/lumo filling with self.nspin as None")
 
     def set_fluid(self, text: list[str]) -> None:  # Is this redundant to the fluid settings?
         """Set the fluid class variable.
@@ -1244,7 +1252,7 @@ class JDFTXOutfileSlice(ClassPrintFormatter):
     def _determine_is_metal(self, tol_partial: float, nspin: int, homo_filling: float, lumo_filling: float) -> bool:
         return not (homo_filling / (2 / nspin) > (1 - tol_partial) and lumo_filling / (2 / nspin) < tol_partial)
 
-    def determine_is_metal(self) -> bool:
+    def determine_is_metal(self) -> bool | None:
         """Determine if the system is a metal based.
 
         Determine if the system is a metal based on the fillings of
@@ -1256,13 +1264,15 @@ class JDFTXOutfileSlice(ClassPrintFormatter):
             True if system is metallic
         """
         tol_partial = 0.01
-        if self.nspin is not None:
-            if self.homo_filling is not None:
-                if self.lumo_filling is not None:
-                    return self._determine_is_metal(tol_partial, self.nspin, self.homo_filling, self.lumo_filling)
-                raise ValueError("Cannot determine if system is metal - self.lumo_filling undefined")
-            raise ValueError("Cannot determine if system is metal - self.homo_filling undefined")
-        raise ValueError("Cannot determine if system is metal - self.nspin undefined")
+        if self.has_eigstats:
+            if self.nspin is not None:
+                if self.homo_filling is not None:
+                    if self.lumo_filling is not None:
+                        return self._determine_is_metal(tol_partial, self.nspin, self.homo_filling, self.lumo_filling)
+                    raise ValueError("Cannot determine if system is metal - self.lumo_filling undefined")
+                raise ValueError("Cannot determine if system is metal - self.homo_filling undefined")
+            raise ValueError("Cannot determine if system is metal - self.nspin undefined")
+        return None
 
     def check_solvation(self) -> bool:
         """Check for implicit solvation.
