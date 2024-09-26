@@ -36,6 +36,7 @@ from pymatgen.io.jdftx.joutstructures import JOutStructures
 #     key_exists,
 # )
 from pymatgen.io.jdftx.utils import (
+    ClassPrintFormatter,
     find_all_key,
     find_first_range_key,
     find_key,
@@ -47,19 +48,19 @@ from pymatgen.io.jdftx.utils import (
 __author__ = "Ben Rich"
 
 
-class ClassPrintFormatter:
-    """Generic class object print formatter.
+# class ClassPrintFormatter:
+#     """Generic class object print formatter.
 
-    Generic class object print formatter.
-    """
+#     Generic class object print formatter.
+#     """
 
-    def __str__(self) -> str:
-        """Return class object as str for readable format in command line."""
-        return (
-            str(self.__class__)
-            + "\n"
-            + "\n".join(str(item) + " = " + str(self.__dict__[item]) for item in sorted(self.__dict__))
-        )
+#     def __str__(self) -> str:
+#         """Return class object as str for readable format in command line."""
+#         return (
+#             str(self.__class__)
+#             + "\n"
+#             + "\n".join(str(item) + " = " + str(self.__dict__[item]) for item in sorted(self.__dict__))
+#         )
 
 
 @dataclass
