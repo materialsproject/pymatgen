@@ -120,8 +120,12 @@ def test_get_eigstats_varsdict():
     evardict = joutslice.get_eigstats_varsdict([], "$VAR")
     for key in evardict:
         assert evardict[key] is None
-    # with pytest.raises(ValueError, match='Must run DFT job with "dump End EigStats" to get summary gap information!'):
-    #     joutslice.get_eigstats_varsdict([], "$VAR")
+    joutslice.set_eigvars([])
+    for key in evardict:
+        if key != "efermi":
+            assert getattr(joutslice, key) is None
+    for key in ["efermi", "mu"]:
+        assert getattr(joutslice, key) is not None
 
 
 def test_get_pp_type():

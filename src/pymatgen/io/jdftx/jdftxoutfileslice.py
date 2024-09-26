@@ -147,6 +147,7 @@ class JDFTXOutfileSlice(ClassPrintFormatter):
     fluid: str | None = None
     is_gc: bool | None = None
     is_bgw: bool = False
+    has_eigstats: bool = False
 
     @property
     def t_s(self) -> float | None:
@@ -770,6 +771,7 @@ class JDFTXOutfileSlice(ClassPrintFormatter):
             varsdict["lumo"] = None
             varsdict["emax"] = None
             varsdict["egap"] = None
+            self.has_eigstats = False
         else:
             line = lines3[-1]
             varsdict["emin"] = float(text[line + 1].split()[1]) * Ha_to_eV
@@ -778,6 +780,7 @@ class JDFTXOutfileSlice(ClassPrintFormatter):
             varsdict["lumo"] = float(text[line + 4].split()[1]) * Ha_to_eV
             varsdict["emax"] = float(text[line + 5].split()[1]) * Ha_to_eV
             varsdict["egap"] = float(text[line + 6].split()[2]) * Ha_to_eV
+            self.has_eigstats = True
         return varsdict
 
     def set_eigvars(self, text: list[str]) -> None:
@@ -797,6 +800,12 @@ class JDFTXOutfileSlice(ClassPrintFormatter):
         self.lumo = eigstats["lumo"]
         self.emax = eigstats["emax"]
         self.egap = eigstats["egap"]
+        if not self.has_eigstats:
+            # TODO: Check if any other variables need to be set
+            if self.mu is not None:
+                self.efermi = self.mu
+            else:
+                raise RuntimeError("Variable mu not found to replace variable efermi")
 
     def get_pp_type(self, text: list[str]) -> str:
         """Get the pseudopotential type used in calculation.

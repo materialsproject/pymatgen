@@ -204,6 +204,25 @@ def test_JDFTXOutfile_fromfile(filename: PathLike, known: dict):
     assert jout.is_converged is None
 
 
+noeigstats_known = {
+    "mu": -0.050095169 * Ha_to_eV,
+    "efermi": -0.050095169 * Ha_to_eV,
+}
+
+
+def test_jdftxoutfile_knowns_simple(outfilefname, knowndict):
+    jout = JDFTXOutfile.from_file(outfilefname)
+    for k, v in knowndict.items():
+        assert hasattr(jout, k)
+        val = getattr(jout, k)
+        if isinstance(v, float):
+            assert val == pytest.approx(v)
+        elif v is None:
+            assert val is None
+        else:
+            assert val == v
+
+
 empty_slice_exception_varnames = [
     "prefix",
     "jstrucs",
