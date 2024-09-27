@@ -584,7 +584,9 @@ class AimsControlIn(MSONable):
                 content += cube.control_block
 
         content += f"{lim}\n\n"
-        species_defaults = self._parameters.get("species_dir", "")
+        species_defaults = self._parameters.get(
+            "species_dir", SETTINGS.get("AIMS_SPECIES_DIR", "")
+        )
         if not species_defaults:
             raise KeyError("Species' defaults not specified in the parameters")
 
