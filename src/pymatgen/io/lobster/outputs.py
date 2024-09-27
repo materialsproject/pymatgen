@@ -2311,7 +2311,7 @@ class Bwdf(MSONable):
     Attributes:
         centers (NDArray): Bond length centers for the distribution.
         bwdf (dict[Spin, NDArray]): Bond weighted distribution function.
-        bin_width (float): Bin width for the distribution.
+        bin_width (float): Bin width used for computing the distribution by LOBSTER.
     """
 
     def __init__(
@@ -2326,7 +2326,7 @@ class Bwdf(MSONable):
             filename (PathLike): The "BWDF.lobster" file. Can also read BWDFCOHP.lobster.
             centers (NDArray): Bond length centers for the distribution.
             bwdf (dict[Spin, NDArray]): Bond weighted distribution function.
-            bin_width (float): Bin width for the distribution.
+            bin_width (float): Bin width used for computing the distribution by LOBSTER.
         """
         self._filename = filename
         self.centers = np.array([]) if centers is None else centers
