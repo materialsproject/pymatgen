@@ -294,12 +294,6 @@ class JDFTXInfile(dict, MSONable):
                 ""  # exception for tags where only tagname is used,
                 # e.g. dump-only tag
             )
-        # Unreachable else statement
-        # else:
-        #     raise ValueError(
-        #         f"The len(line.split(maxsplit=1)) of {line_list} should never \
-        #             not be 1 or 2"
-        #     )
         if isinstance(tag_object, MultiformatTag):
             i = tag_object.get_format_index(tag, value)
             tag_object = tag_object.format_options[i]
@@ -335,24 +329,6 @@ class JDFTXInfile(dict, MSONable):
             if tag not in params:
                 params[tag] = []
             params[tag].append(value)
-            # if type(tag_object) not in [DumpTagContainer]:
-            #     params[tag].append(value)
-            # else:  # The previous if statement will need to adapted to reference
-            #     # a tag object flag to be stored in this manner. This manner
-            #     # is to store all subtags as standalone dictionaries within
-            #     # a list, but to combine alike subtags (ie the same dump freq)
-            #     # as they appear.
-            #     if not isinstance(value, dict):
-            #         raise ValueError(f"The value for the {tag} tag should be a dictionary!")
-            #     for freq in value:
-            #         inserted = False
-            #         for i, preex in enumerate(params[tag]):
-            #             if freq in preex:
-            #                 params[tag][i][freq].update(value[freq])
-            #                 inserted = True
-            #                 break
-            #         if not inserted:
-            #             params[tag].append(value)
         else:
             if tag in params:
                 raise ValueError(f"The '{tag}' tag appears multiple times in this input when it should not!")
@@ -557,10 +533,6 @@ class JDFTXInfile(dict, MSONable):
             sort_structure=sort_structure,
         )
         return jdftxstructure.structure
-        # JDFTXInfile = cls.get_dict_representation(JDFTXInfile)
-        # return JDFTXStructure._from_jdftxinfile(
-        #     JDFTXInfile, sort_structure=sort_structure
-        # ).structure
 
     @staticmethod
     def _needs_conversion(conversion: str, value: dict | list[dict] | list | list[list]) -> bool:
@@ -817,8 +789,6 @@ class JDFTXStructure(MSONable):
         Post init function for JDFTXStructure. Asserts self.structure is
         ordered, and adds selective dynamics if needed.
         """
-        # TODO: Remove integers from species name (ie convert Si0 -> Si)
-        # TODO: Test if this fix works
         for i in range(len(self.structure.species)):
             name = ""
             if isinstance(self.structure.species[i], str):
@@ -884,16 +854,9 @@ class JDFTXStructure(MSONable):
 
         Returns
         -------
-        list[int]
-            Sequence of number of sites of each type associated with
-            JDFTXStructure
+        int
+            Number of sites
         """
-        # syms: list[str] = [site.species.symbol for site in self.structure]
-        # Why on earth would anyone willingly choose to use a word that is the
-        # identical in its plural and singular form to represent something that
-        # is frequently referenced in both forms????
-        # syms: list[str] = [specie.symbol for specie in self.species]
-        # return [len(tuple(a[1])) for a in itertools.groupby(syms)]
         return len(self.structure.species)
 
     @classmethod
@@ -1098,56 +1061,3 @@ class JDFTXStructure(MSONable):
             Structure.from_dict(params["structure"]),
             selective_dynamics=params["selective_dynamics"],
         )
-
-
-# def multi_hasattr(varbase: Any, varname: str):
-#     """Check if object has an attribute (capable of nesting with . splits).
-
-#     Check if object has an attribute (capable of nesting with . splits).
-
-#     Parameters
-#     ----------
-#     varbase
-#         Object to check.
-#     varname
-#         Attribute to check for.
-
-#     Returns
-#     -------
-#     bool
-#         Whether the object has the attribute.
-#     """
-#     varlist = varname.split(".")
-#     for i, var in enumerate(varlist):
-#         if i == len(varlist) - 1:
-#             return hasattr(varbase, var)
-#         if hasattr(varbase, var):
-#             varbase = getattr(varbase, var)
-#         else:
-#             return False
-#     return None
-
-
-# def multi_getattr(varbase: Any, varname: str):
-#     """Check if object has an attribute (capable of nesting with . splits).
-
-#     Check if object has an attribute (capable of nesting with . splits).
-
-#     Parameters
-#     ----------
-#     varbase
-#         Object to check.
-#     varname
-#         Attribute to check for.
-
-#     Returns
-#     -------
-#     Any
-#         Attribute of the object.
-#     """
-#     if not multi_hasattr(varbase, varname):
-#         raise AttributeError(f"{varbase} does not have attribute {varname}")
-#     varlist = varname.split(".")
-#     for var in varlist:
-#         varbase = getattr(varbase, var)
-#     return varbase
