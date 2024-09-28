@@ -287,7 +287,7 @@ empty_slice_exception_varnames = [
     "elecmindata",
     "stress",
     "strain",
-    "iter",
+    "niter",
     "e",
     "grad_k",
     "alpha",
@@ -296,7 +296,7 @@ empty_slice_exception_varnames = [
     "abs_magneticmoment",
     "tot_magneticmoment",
     "mu",
-    "elec_iter",
+    "elec_niter",
     "elec_e",
     "elec_grad_k",
     "elec_alpha",
@@ -310,7 +310,7 @@ empty_slice_exception_varnames = [
         (
             ex_files_dir / Path("example_sp.out"),
             [
-                "iter",
+                "niter",
                 "stress",
                 "strain",
                 "linmin",
@@ -347,10 +347,3 @@ def expected_exceptions_empty_slices_test_varname(jout_filename: str, varname: s
     jout.slices = []
     with pytest.raises(AttributeError):
         getattr(jout, varname)
-
-
-# Exception - trauncation_radius only set for some calculations and is thus None when unset
-# Linmin also None sometimes
-
-# Some only should be set for geometric optimizations and excluded from single point out file
-# stress, strain, iter

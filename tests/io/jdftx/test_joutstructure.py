@@ -16,7 +16,7 @@ ex_slice1 = []
 with open(ex_slice_fname1) as f:
     ex_slice1 = list.copy(list(f))
 ex_slice1_known = {
-    "iter": 0,
+    "niter": 0,
     "etype": "F",
     "E": -246.5310079002406667 * Ha_to_eV,
     "Eewald": -214.6559882144248945 * Ha_to_eV,
@@ -55,7 +55,7 @@ ex_slice2 = []
 with open(ex_slice_fname2) as f:
     ex_slice2 = list.copy(list(f))
 ex_slice2_known = {
-    "iter": 9,
+    "niter": 9,
     "etype": "F",
     "E": -246.5310079002406667 * Ha_to_eV,
     "Eewald": -214.6559882144248945 * Ha_to_eV,
@@ -94,7 +94,7 @@ ex_slice2_known = {
 @pytest.mark.parametrize(("eslice", "eknowns"), [(ex_slice1, ex_slice1_known), (ex_slice2, ex_slice2_known)])
 def test_jstructure(eslice: list[str], eknowns: dict):
     jst = JOutStructure.from_text_slice(eslice, iter_type="lattice")
-    assert jst.iter == eknowns["iter"]
+    assert jst.niter == eknowns["niter"]
     assert jst.etype == eknowns["etype"]
     assert approx(eknowns["E"]) == jst.e
     assert jst.ecomponents["Eewald"] == approx(eknowns["Eewald"])

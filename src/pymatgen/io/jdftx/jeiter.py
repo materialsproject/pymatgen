@@ -20,7 +20,7 @@ class JEiter:
 
     iter_type: str | None = None
     etype: str | None = None
-    iter: int | None = None
+    niter: int | None = None
     e: float | None = None
     grad_k: float | None = None
     alpha: float | None = None
@@ -64,20 +64,6 @@ class JEiter:
                 instance.read_subspaceadjust_line(line_text)
         return instance
 
-    # Easier to just give-in to the lowercase
-    # @property
-    # def e(self) -> float | None:
-    #     """Return the total energy.
-
-    #     Return the total energy.
-
-    #     Returns
-    #     -------
-    #     E: float
-    #         The total energy
-    #     """
-    #     return self.E
-
     def is_iter_line(self, i: int, line_text: str, _iter_flag: str) -> bool:
         """Return True if opt iter line.
 
@@ -114,11 +100,11 @@ class JEiter:
             A line of text from a JDFTx out file containing the electronic
             minimization data
         """
-        iter_float = get_colon_var_t1(line_text, "Iter: ")
-        if isinstance(iter_float, float):
-            self.iter = int(iter_float)
-        elif iter_float is None:
-            raise ValueError("Could not find iter in line_text")
+        niter_float = get_colon_var_t1(line_text, "Iter: ")
+        if isinstance(niter_float, float):
+            self.niter = int(niter_float)
+        elif niter_float is None:
+            raise ValueError("Could not find niter in line_text")
         self.e = get_colon_var_t1(line_text, f"{self.etype}: ") * Ha_to_eV
         self.grad_k = get_colon_var_t1(line_text, "|grad|_K: ")
         self.alpha = get_colon_var_t1(line_text, "alpha: ")
@@ -216,31 +202,6 @@ class JEiter:
         _fillings_line = fillings_line.split("magneticMoment: [ ")[1].split(" ]")[0].strip()
         self.abs_magneticmoment = get_colon_var_t1(_fillings_line, "Abs: ")
         self.tot_magneticmoment = get_colon_var_t1(_fillings_line, "Tot: ")
-
-    # def _get_colon_var_t1(self, linetext: str, lkey: str) -> float | None:
-    #     """Return float val from '...lkey: val...' in linetext.
-
-    #     Read a float from an elec minimization line assuming value appears as
-    #     "... lkey value ...".
-
-    #     Parameters
-    #     ----------
-    #     linetext: str
-    #         A line of text from a JDFTx out file
-    #     lkey: str
-    #         The key to search for in the line of text
-
-    #     Returns
-    #     -------
-    #     colon_var: float | None
-    #         The float value found in the line of text
-    #     """
-    #     colon_var = None
-    #     if lkey in linetext:
-    #         colon_var = float(linetext.split(lkey)[1].strip().split(" ")[0])
-    #     # else:
-    #     #     raise ValueError(f"Could not find {lkey} in {linetext}")
-    #     return colon_var
 
     def set_mu(self, fillings_line: str) -> None:
         """Set mu class variable.

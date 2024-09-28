@@ -102,7 +102,7 @@ def test_jstructures(ex_slice: list[str], ex_slice_known: dict[str, float], iter
         (ex_outslice1, "elecmindata"),
         (ex_outslice1, "stress"),
         (ex_outslice1, "strain"),
-        (ex_outslice1, "iter"),
+        (ex_outslice1, "niter"),
         (ex_outslice1, "e"),
         (ex_outslice1, "grad_k"),
         (ex_outslice1, "alpha"),
@@ -111,7 +111,7 @@ def test_jstructures(ex_slice: list[str], ex_slice_known: dict[str, float], iter
         (ex_outslice1, "abs_magneticmoment"),
         (ex_outslice1, "tot_magneticmoment"),
         (ex_outslice1, "mu"),
-        (ex_outslice1, "elec_iter"),
+        (ex_outslice1, "elec_niter"),
         (ex_outslice1, "elec_e"),
         (ex_outslice1, "elec_grad_k"),
         (ex_outslice1, "elec_alpha"),
@@ -124,23 +124,3 @@ def test_joutstructures_has_1layer_slice_freakout(out_slice: list[str], varname:
     jstrucs.slices = []
     with pytest.raises(AttributeError):
         getattr(jstrucs, varname)  # Freakout here
-
-
-# @pytest.mark.parametrize(
-#     ("out_slice", "varname"),
-#     [
-#         (ex_text_slice, "e"),
-#     ]
-# )
-# def jeiters_has_2layer_slice_freakout(out_slice: list[str], varname: str):
-#     jstrucs = JOutStructures.from_out_slice(out_slice)
-#     getattr(jstrucs, varname) # No freakout here
-#     setattr(jstrucs.slices[-1], varname, None)
-#     with pytest.raises(ValueError):
-#         jstrucs.iter # Freakout here
-#     # Reset
-#     jstrucs = JOutStructures.from_out_slice(out_slice)
-#     getattr(jstrucs, varname) # No freakout here
-#     jstrucs.slices = []
-#     with pytest.raises(ValueError):
-#         jstrucs.iter # Freakout here

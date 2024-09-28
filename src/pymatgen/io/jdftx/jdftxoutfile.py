@@ -28,69 +28,6 @@ if TYPE_CHECKING:
 __author__ = "Ben Rich, Jacob Clary"
 
 
-# def check_file_exists(func: Callable) -> Any:
-#     """Check if file exists.
-
-#     Check if file exists (and continue normally) or raise an exception if
-#     it does not.
-#     """
-
-#     @wraps(func)
-#     def wrapper(filename: str) -> Any:
-#         filepath = Path(filename)
-#         if not filepath.is_file():
-#             raise OSError(f"'{filename}' file doesn't exist!")
-#         return func(filename)
-
-#     return wrapper
-
-
-# @check_file_exists
-# def read_file(file_name: str) -> list[str]:
-#     """
-#     Read file into a list of str.
-
-#     Parameters
-#     ----------
-#     filename: Path or str
-#         name of file to read
-
-#     Returns
-#     -------
-#     text: list[str]
-#         list of strings from file
-#     """
-#     with zopen(file_name, "r") as f:
-#         text = f.readlines()
-#     f.close()
-#     return text
-
-
-# def read_outfile_slices(file_name: str) -> list[list[str]]:
-#     """
-#     Read slice of out file into a list of str.
-
-#     Parameters
-#     ----------
-#     filename: Path or str
-#         name of file to read
-#     out_slice_idx: int
-#         index of slice to read from file
-
-#     Returns
-#     -------
-#     texts: list[list[str]]
-#         list of out file slices (individual calls of JDFTx)
-#     """
-#     _text = read_file(file_name)
-#     start_lines = get_start_lines(_text, add_end=True)
-#     texts = []
-#     for i in range(len(start_lines) - 1):
-#         text = _text[start_lines[i] : start_lines[i + 1]]
-#         texts.append(text)
-#     return texts
-
-
 @dataclass
 class JDFTXOutfile:
     """JDFTx out file parsing class.
@@ -931,15 +868,15 @@ class JDFTXOutfile:
         raise AttributeError("Property strain inaccessible due to empty jstrucs class field")
 
     @property
-    def iter(self) -> int:
+    def niter(self) -> int:
         """
-        Return (geometric) iter from most recent JOutStructure.
+        Return (geometric) iter number from most recent JOutStructure.
 
-        Return (geometric) iter from most recent JOutStructure.
+        Return (geometric) iter number from most recent JOutStructure.
         """
         if len(self.slices):
-            return self.slices[-1].iter
-        raise AttributeError("Property iter inaccessible due to empty jstrucs class field")
+            return self.slices[-1].niter
+        raise AttributeError("Property niter inaccessible due to empty jstrucs class field")
 
     @property
     def e(self) -> float:
@@ -1036,18 +973,18 @@ class JDFTXOutfile:
     ###########################################################################
 
     @property
-    def elec_iter(self) -> int:
+    def elec_niter(self) -> int:
         """Return the most recent electronic iteration.
 
         Return the most recent electronic iteration.
 
         Returns
         -------
-        elec_iter: int
+        elec_niter: int
         """
         if len(self.slices):
-            return self.slices[-1].elec_iter
-        raise AttributeError("Property elec_iter inaccessible due to empty jstrucs class field")
+            return self.slices[-1].elec_niter
+        raise AttributeError("Property elec_inter inaccessible due to empty jstrucs class field")
 
     @property
     def elec_e(self) -> float:
@@ -1171,15 +1108,6 @@ class JDFTXOutfile:
                 raise AttributeError(f"{self.__class__.__name__} not found: {name}")
             return getattr(self.slices[-1], name)
         raise AttributeError(f"Property {name} inaccessible due to empty jstrucs class field")
-        # if name not in self.__dict__:
-        #     if len(self.slices):
-        #         if not hasattr(self.slices[-1], name):
-        #             raise AttributeError(f"{self.__class__.__name__} not found: {name}")
-        #         return getattr(self.slices[-1], name)
-        #     raise AttributeError(f"Property {name} inaccessible due to empty jstrucs class field")
-        # else:
-        #     # I believe this is unreachable code
-        #     return self.__dict__[name]
 
     def __dir__(self) -> list:
         """List attributes.

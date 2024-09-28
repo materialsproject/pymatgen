@@ -12,20 +12,6 @@ import numpy as np
 from pymatgen.core.structure import Lattice, Structure
 from pymatgen.core.units import Ha_to_eV, bohr_to_ang
 from pymatgen.io.jdftx.jeiters import JEiters
-
-# from pymatgen.io.jdftx.joutstructure_helpers import (
-#     _get_colon_var_t1,
-#     correct_geom_iter_type,
-#     is_charges_line,
-#     is_ecomp_start_line,
-#     is_forces_start_line,
-#     is_lattice_start_line,
-#     is_lowdin_start_line,
-#     is_magnetic_moments_line,
-#     is_posns_start_line,
-#     is_strain_start_line,
-#     is_stress_start_line,
-# )
 from pymatgen.io.jdftx.utils import (
     _brkt_list_of_3x3_to_nparray,
     correct_geom_iter_type,
@@ -43,16 +29,6 @@ from pymatgen.io.jdftx.utils import (
 
 __author__ = "Ben Rich"
 
-# from pymatgen.io.jdftx.utils import (
-#     correct_geom_iter_type,
-#     is_charges_line,
-#     is_ecomp_start_line,
-#     is_lowdin_start_line,
-#     is_magnetic_moments_line,
-#     is_posns_start_line,
-#     is_stress_start_line,
-# )
-
 
 class JOutStructure(Structure):
     """Class object for storing a single JDFTx optimization step.
@@ -69,7 +45,7 @@ class JOutStructure(Structure):
     elecmindata: JEiters | None = None
     stress: np.ndarray | None = None
     strain: np.ndarray | None = None
-    iter: int | None = None
+    niter: int | None = None
     e: float | None = None
     grad_k: float | None = None
     alpha: float | None = None
@@ -145,17 +121,17 @@ class JOutStructure(Structure):
         raise ValueError("elecmindata not set")
 
     @property
-    def elec_iter(self) -> int:
+    def elec_niter(self) -> int:
         """Return the most recent electronic iteration.
 
         Return the most recent electronic iteration.
 
         Returns
         -------
-        elec_iter: int
+        elec_niter: int
         """
         if self.elecmindata is not None:
-            return self.elecmindata.iter
+            return self.elecmindata.niter
         raise ValueError("elecmindata not set")
 
     @property
@@ -473,7 +449,7 @@ class JOutStructure(Structure):
         st = None
         if len(strain_lines):
             st = _brkt_list_of_3x3_to_nparray(strain_lines, i_start=1)
-            st = st.T * 1  # Conversion factor?
+            st = st.T
         self.strain = st
 
     def parse_stress_lines(self, stress_lines: list[str]) -> None:
@@ -491,7 +467,7 @@ class JOutStructure(Structure):
         st = None
         if len(stress_lines):
             st = _brkt_list_of_3x3_to_nparray(stress_lines, i_start=1)
-            st = st.T * 1  # Conversion factor?
+            st = st.T
         self.stress = st
 
     def parse_posns_lines(self, posns_lines: list[str]) -> None:
@@ -549,9 +525,8 @@ class JOutStructure(Structure):
             forces.append(force)
         forces = np.array(forces)
         if coords_type.lower() != "cartesian":
-            forces = np.dot(forces, self.lattice.matrix)  # TODO: Double check this conversion
-            # (since self.cell is in Ang, and I need the forces in eV/ang, how
-            # would you convert forces from direct coordinates into cartesian?)
+            # TODO: Double check conversion of forces from direct to cartesian
+            forces = np.dot(forces, self.lattice.matrix)
         else:
             forces *= 1 / bohr_to_ang
         forces *= Ha_to_eV
@@ -670,8 +645,8 @@ class JOutStructure(Structure):
         if len(opt_lines):
             for line in opt_lines:
                 if self.is_opt_start_line(line):
-                    n_iter = int(get_colon_var_t1(line, "Iter:"))
-                    self.iter = n_iter
+                    niter = int(get_colon_var_t1(line, "Iter:"))
+                    self.niter = niter
                     en = get_colon_var_t1(line, f"{self.etype}:")
                     self.E = en * Ha_to_eV
                     grad_k = get_colon_var_t1(line, "|grad|_K: ")
@@ -687,9 +662,6 @@ class JOutStructure(Structure):
                     self.geom_converged_reason = line.split("(")[1].split(")")[0].strip()
 
     def is_generic_start_line(self, line_text: str, line_type: str) -> bool:
-        # I am choosing to map line_type to a function this way because
-        # I've had horrible experiences with storing functions in dictionaries
-        # in the past
         """Return True if the line_text is start of line_type log message.
 
         Return True if the line_text is the start of a section of the
@@ -758,40 +730,6 @@ class JOutStructure(Structure):
         else:
             generic_lines.append(line_text)
         return generic_lines, collecting, collected
-
-    # def _brkt_list_of_3_to_nparray(self, line: str) -> np.ndarray:
-    #     """Return 3x1 numpy array.
-
-    #     Convert a string of the form "[ x y z ]" to a 3x1 numpy array
-
-    #     Parameters
-    #     ----------
-    #     line: str
-    #         A string of the form "[ x y z ]"
-    #     """
-    #     return np.array([float(x) for x in line.split()[1:-1]])
-
-    # def _brkt_list_of_3x3_to_nparray(self, lines: list[str], i_start: int = 0) -> np.ndarray:
-    #     """Return 3x3 numpy array.
-
-    #     Convert a list of strings of the form "[ x y z ]" to a 3x3 numpy array
-
-    #     Parameters
-    #     ----------
-    #     lines: list[str]
-    #         A list of strings of the form "[ x y z ]"
-    #     i_start: int
-    #         The index of the first line in lines
-
-    #     Returns
-    #     -------
-    #     out: np.ndarray
-    #         A 3x3 numpy array
-    #     """
-    #     out = np.zeros([3, 3])
-    #     for i in range(3):
-    #         out[i, :] += _brkt_list_of_3_to_nparray(lines[i + i_start])
-    #     return out
 
     # This method is likely never going to be called as all (currently existing)
     # attributes of the most recent slice are explicitly defined as a class

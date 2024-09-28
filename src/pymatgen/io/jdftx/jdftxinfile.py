@@ -75,7 +75,6 @@ class JDFTXInfile(dict, MSONable):
         """
         return "".join([line + "\n" for line in self.get_text_list()])
 
-    # def __add__(self, other: Self) -> Self:
     def __add__(self, other: JDFTXInfile) -> JDFTXInfile:
         """Add existing JDFTXInfile object to method caller JDFTXInfile object.
 
@@ -124,7 +123,7 @@ class JDFTXInfile(dict, MSONable):
         return params
 
     @classmethod
-    def from_dict(cls, dct: dict[str, Any]) -> Self:
+    def from_dict(cls, dct: dict[str, Any]) -> JDFTXInfile:
         """Parse a dictionary to create a JDFTXInfile object.
 
         Parse a dictionary to create a JDFTXInfile object.
@@ -179,16 +178,10 @@ class JDFTXInfile(dict, MSONable):
             for tag in MASTER_TAG_LIST[tag_group]:
                 if tag not in self:
                     continue
-                # This will never be raised until we add wannier tags to the master_tag_list (which
-                # won't happen for a while)
-                # if tag in __WANNIER_TAGS__:
-                #     raise ValueError("Wannier functionality has not been added!")
-
                 added_tag_in_group = True
                 tag_object: AbstractTag = MASTER_TAG_LIST[tag_group][tag]
                 if isinstance(tag_object, MultiformatTag):
                     i, _ = tag_object._determine_format_option(tag, self_as_dict[tag])
-                    # i = tag_object.get_format_index(tag, self_as_dict[tag])
                     tag_object = tag_object.format_options[i]
                 if tag_object.can_repeat and isinstance(self_as_dict[tag], list):
                     # if a tag_object.can_repeat, it is assumed that self[tag]
@@ -197,8 +190,6 @@ class JDFTXInfile(dict, MSONable):
                     #    the else this could be relevant if someone manually
                     #    sets the tag the can repeat's value to a non-list
                     text += [tag_object.write(tag, entry) for entry in self_as_dict[tag]]
-                    # for entry in self_as_dict[tag]:
-                    #     text.append(tag_object.write(tag, entry))
                 else:
                     text.append(tag_object.write(tag, self_as_dict[tag]))
 
@@ -295,7 +286,7 @@ class JDFTXInfile(dict, MSONable):
                 # e.g. dump-only tag
             )
         if isinstance(tag_object, MultiformatTag):
-            i = tag_object.get_format_index(tag, value)
+            i = tag_object.get_format_index_for_str_value(tag, value)
             tag_object = tag_object.format_options[i]
         return tag_object, tag, value
 
@@ -434,7 +425,7 @@ class JDFTXInfile(dict, MSONable):
         dont_require_structure: bool = False,
         sort_tags: bool = True,
         path_parent: Path | None = None,
-    ) -> Self:
+    ) -> JDFTXInfile:
         """Read a JDFTXInfile object from a string.
 
         Read a JDFTXInfile object from a string.
@@ -538,12 +529,13 @@ class JDFTXInfile(dict, MSONable):
     def _needs_conversion(conversion: str, value: dict | list[dict] | list | list[list]) -> bool:
         """Determine if a value needs to be converted.
 
-        Determine if a value needs to be converted.
+        Determine if a value needs to be converted. This method is only ever called by cls.get_list/dict_representation.
+
 
         Parameters
         ----------
         conversion : str
-            Conversion type.
+            Conversion type. ('dict-to-list' (value : dict | list[dict]) or 'list-to-dict' (value : list | list[list]))
         value : dict | list[dict] | list | list[list]
             Value to check.
 
@@ -552,19 +544,14 @@ class JDFTXInfile(dict, MSONable):
         bool
             Whether the value needs to be converted.
         """
-        # value will be in one of these formats:
-        #  dict-to-list:
-        #    dict
-        #    list[dicts] (repeat tags in dict representation)
-        #  list-to-dict:
-        #    list
-        #    list[lists] (repeat tags in list representation or lattice in list
-        #                 representation)
         # Check if value is not iterable
         try:
             iter(value)
         except TypeError:
-            return True
+            # This is triggered when JDFTXInfile is attempting to convert a non-tagcontainer to list/dict representation
+            # The return boolean is meaningless in this case, so just returning False to avoid the value hitting the
+            # "for x in value" loop below.
+            return False
         if conversion == "list-to-dict":
             flag = False
         elif conversion == "dict-to-list":
@@ -674,7 +661,8 @@ class JDFTXInfile(dict, MSONable):
     def __setitem__(self, key: str, value: Any) -> None:
         """Set an item in the JDFTXInfile.
 
-        Set an item in the JDFTXInfile.
+        Set an item in the JDFTXInfile. This magic method is set explicitly to immediately validate when a user sets a
+        a tag's value, and to perform any conversion necessary.
 
         Parameters
         ----------
@@ -693,10 +681,8 @@ class JDFTXInfile(dict, MSONable):
             value = [value]
         if isinstance(tag_object, MultiformatTag):
             if isinstance(value, str):
-                i = tag_object.get_format_index(key, value)
+                i = tag_object.get_format_index_for_str_value(key, value)
             else:
-                # We don't want to change the value as repeatable tag objects
-                # will end up as lists and stored as nested lists unintentionally
                 i, _ = tag_object._determine_format_option(key, value)
             tag_object = tag_object.format_options[i]
         if tag_object.can_repeat and key in self:
@@ -737,7 +723,8 @@ class JDFTXInfile(dict, MSONable):
     def append_tag(self, tag: str, value: Any) -> None:
         """Append a value to a tag.
 
-        Append a value to a tag.
+        Append a value to a tag. Use this method instead of directly appending the list contained in the tag, such
+        that the value is properly processed.
 
         Parameters
         ----------
@@ -749,7 +736,7 @@ class JDFTXInfile(dict, MSONable):
         tag_object = get_tag_object(tag)
         if isinstance(tag_object, MultiformatTag):
             if isinstance(value, str):
-                i = tag_object.get_format_index(tag, value)
+                i = tag_object.get_format_index_for_str_value(tag, value)
             else:
                 i, _ = tag_object._determine_format_option(tag, value)
             tag_object = tag_object.format_options[i]
@@ -757,7 +744,6 @@ class JDFTXInfile(dict, MSONable):
             raise ValueError(f"The {tag} tag cannot be repeated and thus cannot be appended")
         params: dict[str, Any] = self.as_dict(skip_module_keys=True)
         processed_value = tag_object.read(tag, value) if isinstance(value, str) else value
-        # self[tag].append(processed_value)
         params = self._store_value(params, tag_object, tag, processed_value)
         self.update(params)
 
