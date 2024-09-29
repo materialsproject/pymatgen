@@ -299,7 +299,7 @@ class Slab(Structure):
         # to surface (b) along the [hkl]-axis, surfaces are symmetric. Or because the
         # two surfaces of our slabs are always parallel to the (hkl) plane,
         # any operation where there's an (hkl) mirror plane has surface symmetry
-        return (
+        return bool(
             spg_analyzer.is_laue()
             or any(op.translation_vector[2] != 0 for op in symm_ops)
             or any(np.all(op.rotation_matrix[2] == np.array([0, 0, -1])) for op in symm_ops)
@@ -318,7 +318,7 @@ class Slab(Structure):
                 considered polar.
         """
         dip_per_unit_area = self.dipole / self.surface_area
-        return np.linalg.norm(dip_per_unit_area) > tol_dipole_per_unit_area
+        return bool(np.linalg.norm(dip_per_unit_area) > tol_dipole_per_unit_area)
 
     def get_surface_sites(self, tag: bool = False) -> dict[str, list]:
         """Get the surface sites and their indices in a dictionary.
