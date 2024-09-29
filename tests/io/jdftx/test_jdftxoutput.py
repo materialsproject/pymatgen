@@ -69,7 +69,3 @@ def test_jdftxoutput_outfile_consistency(setup_tmpdir, outfile_src: Path, known:
         jout = meth(var)
         jdftxoutfile_matches_known_simple(jout.outfile, known)
         del jout
-    # jout = JDFTxOutput.from_calc_dir(calc_dir)
-    # jdftxoutfile_matches_known_simple(jout.outfile, known)
-    # jout2 = JDFTxOutput.from_out_file(outfile_path)
-    # jdftxoutfile_matches_known_simple(jout2.outfile, known)

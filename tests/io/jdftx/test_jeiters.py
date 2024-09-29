@@ -170,11 +170,6 @@ ex_text_slice = [ex_fillings_line1, ex_subspace_line1, ex_iter_line1]
 )
 def test_jeiters_has_1layer_slice_freakout(text_slice: list[str], varname: str):
     assert_slices_1layer_attribute_error(JEiters.from_text_slice, text_slice, varname, "slices")
-    # jeis = JEiters.from_text_slice(text_slice)
-    # getattr(jeis, varname)  # No freakout here
-    # jeis.slices = []
-    # with pytest.raises(AttributeError):
-    #     getattr(jeis, varname)  # Freakout here
 
 
 @pytest.mark.parametrize(
@@ -189,14 +184,3 @@ def test_jeiters_has_1layer_slice_freakout(text_slice: list[str], varname: str):
 )
 def test_jeiters_has_2layer_slice_freakout(text_slice: list[str], varname: str):
     assert_slices_2layer_attribute_error(JEiters.from_text_slice, text_slice, varname, "slices")
-    # jeis = JEiters.from_text_slice(text_slice)
-    # getattr(jeis, varname)  # No freakout here
-    # setattr(jeis.slices[-1], varname, None)
-    # with pytest.raises(AttributeError):
-    #     getattr(jeis, varname)
-    # # Reset
-    # jeis = JEiters.from_text_slice(text_slice)
-    # getattr(jeis, varname)  # No freakout here
-    # jeis.slices = []
-    # with pytest.raises(AttributeError):
-    #     getattr(jeis, varname)
