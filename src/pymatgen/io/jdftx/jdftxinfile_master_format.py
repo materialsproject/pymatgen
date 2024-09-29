@@ -671,13 +671,9 @@ MASTER_TAG_LIST: dict[str, dict[str, Any]] = {
             }
         ),
         "fluid-solvent": MultiformatTag(
-            # can_repeat=False,
             format_options=[
                 TagContainer(
-                    # Must be True in order to pass tag validation
-                    # but
-                    # Must be false to be properly written as a string
-                    can_repeat=True,  # Would be better to have this option inherited from MultiformatTag
+                    can_repeat=True,
                     subtags={
                         "name": StrTag(
                             options=fluid_solvent_options,
@@ -697,7 +693,7 @@ MASTER_TAG_LIST: dict[str, dict[str, Any]] = {
                     },
                 ),
                 TagContainer(
-                    can_repeat=True,  # Would be better to have this option inherited from MultiformatTag
+                    can_repeat=True,
                     subtags={
                         "name": StrTag(
                             options=fluid_solvent_options,
@@ -1162,15 +1158,11 @@ def get_dump_tag_container() -> DumpTagContainer:
     DumpTagContainer
         The dump tag container.
     """
-    # subtags = {}
-    subtags2: dict[str, AbstractTag] = {}
+    subtags2: dict[str, AbstractTag] = {}  # Called "subtags2" to avoid name conflict with the "subtags" variable
     for freq in jdftxdumpfreqoptions:
         subsubtags: dict[str, AbstractTag] = {}
         for var in jdftxdumpvaroptions:
             subsubtags[var] = BoolTag(write_value=False)
-        # subtags[freq] = BoolTagContainer(
-        #     subtags=subsubtags, write_tagname=True, can_repeat=True
-        # )
         subtags2[freq] = BoolTagContainer(subtags=subsubtags, write_tagname=True)
     return DumpTagContainer(subtags=subtags2, write_tagname=True, can_repeat=True)
 
@@ -1192,16 +1184,6 @@ __TAG_GROUPS__ = {tag: group for group in MASTER_TAG_LIST for tag in MASTER_TAG_
 
 
 def get_tag_object(tag: str) -> AbstractTag:
-    #     BoolTag |
-    #     BoolTagContainer |
-    #     DumpTagContainer |
-    #     FloatTag |
-    #     InitMagMomTag |
-    #     IntTag |
-    #     MultiformatTag |
-    #     StrTag |
-    #     TagContainer
-    # ):
     """Get the tag object for a given tag name.
 
     Parameters

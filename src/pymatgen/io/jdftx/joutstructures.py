@@ -9,11 +9,7 @@ from __future__ import annotations
 from dataclasses import dataclass, field
 from typing import TYPE_CHECKING, Any
 
-from pymatgen.io.jdftx.joutstructure_helpers import (
-    correct_geom_iter_type,
-    get_joutstructure_step_bounds,
-    get_joutstructures_start_idx,
-)
+from pymatgen.io.jdftx.utils import correct_geom_iter_type, get_joutstructure_step_bounds, get_joutstructures_start_idx
 
 if TYPE_CHECKING:
     import numpy as np
@@ -22,10 +18,6 @@ if TYPE_CHECKING:
 from pymatgen.io.jdftx.joutstructure import JOutStructure
 
 __author__ = "Ben Rich"
-
-# from pymatgen.io.jdftx.utils import correct_geom_iter_type
-
-elec_min_start_flag: str = "-------- Electronic minimization -----------"
 
 
 @dataclass
@@ -63,10 +55,7 @@ class JOutStructures:
         start_idx = get_joutstructures_start_idx(out_slice)
         instance.set_joutstructure_list(out_slice[start_idx:])
         if instance.iter_type is None and len(instance) > 1:
-            raise Warning(
-                "iter type interpreted as single-point calculation, but \
-                           multiple structures found"
-            )
+            raise Warning("iter type interpreted as single-point calculation, but multiple structures found")
         instance.check_convergence()
         return instance
 
@@ -174,15 +163,15 @@ class JOutStructures:
         raise AttributeError("Property strain inaccessible due to empty slices class field")
 
     @property
-    def iter(self) -> int:
+    def niter(self) -> int:
         """
-        Return iter from most recent JOutStructure.
+        Return niter from most recent JOutStructure.
 
-        Return iter from most recent JOutStructure.
+        Return niter from most recent JOutStructure.
         """
         if len(self.slices):
-            return self.slices[-1].iter
-        raise AttributeError("Property iter inaccessible due to empty slices class field")
+            return self.slices[-1].niter
+        raise AttributeError("Property niter inaccessible due to empty slices class field")
 
     @property
     def e(self) -> float:
@@ -278,18 +267,18 @@ class JOutStructures:
     ###########################################################################
 
     @property
-    def elec_iter(self) -> int:
+    def elec_niter(self) -> int:
         """Return the most recent electronic iteration.
 
         Return the most recent electronic iteration.
 
         Returns
         -------
-        elec_iter: int
+        elec_niter: int
         """
         if len(self.slices):
-            return self.slices[-1].elec_iter
-        raise AttributeError("Property elec_iter inaccessible due to empty slices class field")
+            return self.slices[-1].elec_niter
+        raise AttributeError("Property elec_niter inaccessible due to empty slices class field")
 
     @property
     def elec_e(self) -> float:
@@ -416,12 +405,6 @@ class JOutStructures:
                 raise AttributeError(f"{self.__class__.__name__} not found: {name}")
             return getattr(self.slices[-1], name)
         raise AttributeError(f"Property {name} inaccessible due to empty slices class field")
-        # if name not in self.__dict__:
-        #     if len(self.slices):
-        #         if not hasattr(self.slices[-1], name):
-        #             raise AttributeError(f"{self.__class__.__name__} not found: {name}")
-        #     return getattr(self.slices[-1], name)
-        # return self.__dict__[name]
 
     def __dir__(self) -> list:
         """List attributes.

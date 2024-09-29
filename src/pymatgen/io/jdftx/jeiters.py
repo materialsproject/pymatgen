@@ -11,47 +11,48 @@ from dataclasses import field
 from typing import Any, ClassVar
 
 from pymatgen.io.jdftx.jeiter import JEiter
+from pymatgen.io.jdftx.utils import gather_jeiters_line_collections
 
 __author__ = "Ben Rich"
 
 
-def gather_line_collections(iter_type: str, text_slice: list[str]) -> tuple[list[list[str]], list[str]]:
-    """Gather line collections for JEiters initialization.
+# def gather_jeiters_line_collections(iter_type: str, text_slice: list[str]) -> tuple[list[list[str]], list[str]]:
+#     """Gather line collections for JEiters initialization.
 
-    Gathers list of line lists where each line list initializes a JEiter object,
-    and the remaining lines that do not initialize a JEiter object are used
-    for initialization unique to the JEiters object.
+#     Gathers list of line lists where each line list initializes a JEiter object,
+#     and the remaining lines that do not initialize a JEiter object are used
+#     for initialization unique to the JEiters object.
 
-    Parameters
-    ----------
-    iter_type: str
-        The type of electronic minimization step
-    text_slice: list[str]
-        A slice of text from a JDFTx out file corresponding to a series of
-        SCF steps
+#     Parameters
+#     ----------
+#     iter_type: str
+#         The type of electronic minimization step
+#     text_slice: list[str]
+#         A slice of text from a JDFTx out file corresponding to a series of
+#         SCF steps
 
-    Returns
-    -------
-    line_collections: list[list[str]]
-        A list of lists of lines of text from a JDFTx out file corresponding to
-        a single SCF step
-    lines_collect: list[str]
-        A list of lines of text from a JDFTx out file corresponding to a single
-        SCF step
+#     Returns
+#     -------
+#     line_collections: list[list[str]]
+#         A list of lists of lines of text from a JDFTx out file corresponding to
+#         a single SCF step
+#     lines_collect: list[str]
+#         A list of lines of text from a JDFTx out file corresponding to a single
+#         SCF step
 
-    """
-    lines_collect = []
-    line_collections = []
-    _iter_flag = f"{iter_type}: Iter:"
-    for line_text in text_slice:
-        if len(line_text.strip()):
-            lines_collect.append(line_text)
-            if _iter_flag in line_text:
-                line_collections.append(lines_collect)
-                lines_collect = []
-        else:
-            break
-    return line_collections, lines_collect
+#     """
+#     lines_collect = []
+#     line_collections = []
+#     _iter_flag = f"{iter_type}: Iter:"
+#     for line_text in text_slice:
+#         if len(line_text.strip()):
+#             lines_collect.append(line_text)
+#             if _iter_flag in line_text:
+#                 line_collections.append(lines_collect)
+#                 lines_collect = []
+#         else:
+#             break
+#     return line_collections, lines_collect
 
 
 class JEiters:
@@ -74,34 +75,22 @@ class JEiters:
         "nelectrons",
         "subspacerotationadjust",
     ]
-    #
-    # iter: int | None = None
-    # E: float | None = None
-    # grad_k: float | None = None
-    # alpha: float | None = None
-    # linmin: float | None = None
-    # t_s: float | None = None
-    # mu: float | None = None
-    # nelectrons: float | None = None
-    # abs_magneticmoment: float | None = None
-    # tot_magneticmoment: float | None = None
-    # subspacerotationadjust: float | None = None
 
     @property
-    def iter(self) -> int:
-        """Return iter.
+    def niter(self) -> int:
+        """Return niter.
 
-        Return the iter attribute of the last JEiter object in the slices.
+        Return the niter attribute of the last JEiter object in the slices.
 
         Returns
         -------
-        iter: int
-            The iter attribute of the last JEiter object in the slices
+        niter: int
+            The niter attribute of the last JEiter object in the slices
         """
         if len(self.slices):
-            if self.slices[-1].iter is not None:
-                return self.slices[-1].iter
-            warnings.warn("No iter attribute in JEiter object. Returning number of JEiter objects.", stacklevel=2)
+            if self.slices[-1].niter is not None:
+                return self.slices[-1].niter
+            warnings.warn("No niter attribute in JEiter object. Returning number of JEiter objects.", stacklevel=2)
             return len(self.slices) - 1
         raise AttributeError("No JEiter objects in JEiters object slices class variable.")
 
@@ -282,7 +271,7 @@ class JEiters:
         etype: str
             The type of energy component
         """
-        line_collections, lines_collect = gather_line_collections(iter_type, text_slice)
+        line_collections, lines_collect = gather_jeiters_line_collections(iter_type, text_slice)
         # instance = cls.from_lines_collect(line_collections[-1], iter_type, etype)
         instance = cls()
         instance.iter_flag = f"{iter_type}: Iter:"
@@ -295,32 +284,6 @@ class JEiters:
             instance.parse_ending_lines(lines_collect)
             lines_collect = []
         return instance
-
-    # def parse_text_slice(self, text_slice: list[str]) -> None:
-    #     """Parse text slice.
-
-    #     Parse a slice of text from a JDFTx out file corresponding to a series
-    #     of SCF steps.
-
-    #     Parameters
-    #     ----------
-    #     text_slice: list[str]
-    #         A slice of text from a JDFTx out file corresponding to a series of
-    #         SCF steps
-    #     """
-    #     lines_collect = []
-    #     _iter_flag = f"{self.iter_type}: Iter:"
-    #     for line_text in text_slice:
-    #         if len(line_text.strip()):
-    #             lines_collect.append(line_text)
-    #             if _iter_flag in line_text:
-    #                 self.slices.append(JEiter.from_lines_collect(lines_collect, self.iter_type, self.etype))
-    #                 lines_collect = []
-    #         else:
-    #             break
-    #     if len(lines_collect):
-    #         self.parse_ending_lines(lines_collect)
-    #         lines_collect = []
 
     def parse_ending_lines(self, ending_lines: list[str]) -> None:
         """Parse ending lines.
@@ -392,11 +355,6 @@ class JEiters:
         value
             The value of the attribute
         """
-        # if name not in self.__dict__:
-        #     if not hasattr(self.slices[-1], name):
-        #         raise AttributeError(f"{self.__class__.__name__} not found: {name}")
-        #     return getattr(self.slices[-1], name)
-        # return self.__dict__[name]
         if len(self.slices):
             if name not in self._getatr_ignore:
                 if not hasattr(self.slices[-1], name):

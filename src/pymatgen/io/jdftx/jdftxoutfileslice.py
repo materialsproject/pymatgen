@@ -19,7 +19,16 @@ if TYPE_CHECKING:
 from pymatgen.core.trajectory import Trajectory
 from pymatgen.core.units import Ha_to_eV, ang_to_bohr
 from pymatgen.io.jdftx.data import atom_valence_electrons
-from pymatgen.io.jdftx.jdftxoutfileslice_helpers import (
+from pymatgen.io.jdftx.jminsettings import (
+    JMinSettings,
+    JMinSettingsElectronic,
+    JMinSettingsFluid,
+    JMinSettingsIonic,
+    JMinSettingsLattice,
+)
+from pymatgen.io.jdftx.joutstructures import JOutStructures
+from pymatgen.io.jdftx.utils import (
+    ClassPrintFormatter,
     find_all_key,
     find_first_range_key,
     find_key,
@@ -27,30 +36,8 @@ from pymatgen.io.jdftx.jdftxoutfileslice_helpers import (
     get_pseudo_read_section_bounds,
     key_exists,
 )
-from pymatgen.io.jdftx.jminsettings import (
-    JMinSettingsElectronic,
-    JMinSettingsFluid,
-    JMinSettingsIonic,
-    JMinSettingsLattice,
-)
-from pymatgen.io.jdftx.joutstructures import JOutStructures
 
 __author__ = "Ben Rich"
-
-
-class ClassPrintFormatter:
-    """Generic class object print formatter.
-
-    Generic class object print formatter.
-    """
-
-    def __str__(self) -> str:
-        """Return class object as str for readable format in command line."""
-        return (
-            str(self.__class__)
-            + "\n"
-            + "\n".join(str(item) + " = " + str(self.__dict__[item]) for item in sorted(self.__dict__))
-        )
 
 
 @dataclass
@@ -67,20 +54,13 @@ class JDFTXOutfileSlice(ClassPrintFormatter):
     prefix: str | None = None
 
     jstrucs: JOutStructures | None = None
-    jsettings_fluid: JMinSettingsFluid | JMinSettingsElectronic | JMinSettingsLattice | JMinSettingsIonic | None = None
-    jsettings_electronic: (
-        JMinSettingsFluid | JMinSettingsElectronic | JMinSettingsLattice | JMinSettingsIonic | None
-    ) = None
-    jsettings_lattice: JMinSettingsFluid | JMinSettingsElectronic | JMinSettingsLattice | JMinSettingsIonic | None = (
-        None
-    )
-    jsettings_ionic: JMinSettingsFluid | JMinSettingsElectronic | JMinSettingsLattice | JMinSettingsIonic | None = None
+    jsettings_fluid: JMinSettings | None = None
+    jsettings_electronic: JMinSettings | None = None
+    jsettings_lattice: JMinSettings | None = None
+    jsettings_ionic: JMinSettings | None = None
 
     xc_func: str | None = None
 
-    # lattice_initial: list[list[float]] = None
-    # lattice_final: list[list[float]] = None
-    # lattice: list[list[float]] = None
     lattice_initial: np.ndarray | None = None
     lattice_final: np.ndarray | None = None
     lattice: np.ndarray | None = None
@@ -147,6 +127,7 @@ class JDFTXOutfileSlice(ClassPrintFormatter):
     fluid: str | None = None
     is_gc: bool | None = None
     is_bgw: bool = False
+    has_eigstats: bool = False
 
     @property
     def t_s(self) -> float | None:
@@ -281,15 +262,15 @@ class JDFTXOutfileSlice(ClassPrintFormatter):
         raise AttributeError("Property strain inaccessible due to empty jstrucs class field")
 
     @property
-    def iter(self) -> int:
+    def niter(self) -> int:
         """
-        Return (geometric) iter from most recent JOutStructure.
+        Return (geometric) niter from most recent JOutStructure.
 
-        Return (geometric) iter from most recent JOutStructure.
+        Return (geometric) niter from most recent JOutStructure.
         """
         if self.jstrucs is not None:
-            return self.jstrucs.iter
-        raise AttributeError("Property iter inaccessible due to empty jstrucs class field")
+            return self.jstrucs.niter
+        raise AttributeError("Property niter inaccessible due to empty jstrucs class field")
 
     @property
     def e(self) -> float:
@@ -385,18 +366,18 @@ class JDFTXOutfileSlice(ClassPrintFormatter):
     ###########################################################################
 
     @property
-    def elec_iter(self) -> int:
+    def elec_niter(self) -> int:
         """Return the most recent electronic iteration.
 
         Return the most recent electronic iteration.
 
         Returns
         -------
-        elec_iter: int
+        elec_niter: int
         """
         if self.jstrucs is not None:
-            return self.jstrucs.elec_iter
-        raise AttributeError("Property elec_iter inaccessible due to empty jstrucs class field")
+            return self.jstrucs.elec_niter
+        raise AttributeError("Property elec_niter inaccessible due to empty jstrucs class field")
 
     @property
     def elec_e(self) -> float:
@@ -644,16 +625,12 @@ class JDFTXOutfileSlice(ClassPrintFormatter):
                     raise ValueError("BGW slab Coulomb truncation must be along z!")
                 if truncation_type == "wire" and direc != "001":
                     raise ValueError("BGW wire Coulomb truncation must be periodic in z!")
-            # if truncation_type == "error":
-            #     raise ValueError("Problem with this truncation!")
             if truncation_type == "spherical":
                 line = find_key("Initialized spherical truncation of radius", text)
                 truncation_radius = float(text[line].split()[5]) / ang_to_bohr
         else:
             # coulomb-interaction tag is always present in out file, so red flag if we can't find it
             raise ValueError("No truncation type found in out file.")
-        # else:
-        #     warnings.warn("No truncation type found in out file.", stacklevel=2)
         return truncation_type, truncation_radius
 
     def get_pw_cutoff(self, text: list[str]) -> float:
@@ -735,7 +712,7 @@ class JDFTXOutfileSlice(ClassPrintFormatter):
         line = find_key("kpoint-folding ", text)
         return [int(x) for x in text[line].split()[1:4]]
 
-    def get_eigstats_varsdict(self, text: list[str], prefix: str | None) -> dict[str, float]:
+    def get_eigstats_varsdict(self, text: list[str], prefix: str | None) -> dict[str, float | None]:
         """Get the eigenvalue statistics from the out file text.
 
         Get the eigenvalue statistics from the out file text.
@@ -752,26 +729,27 @@ class JDFTXOutfileSlice(ClassPrintFormatter):
         varsdict: dict[str, float]
             dictionary of eigenvalue statistics
         """
-        varsdict = {}
-        # _prefix = ""
-        # if not "$" in prefix:
-        #     _prefix = f"{prefix}."
-        # elif "$ITER" in prefix:
-        #     _prefix = ""
-        # line = find_key(f"Dumping '{_prefix}eigStats' ...", text)
-        # vvv Turns out this is way easier vvv
+        varsdict: dict[str, float | None] = {}
         lines1 = find_all_key("Dumping ", text)
         lines2 = find_all_key("eigStats' ...", text)
         lines3 = [lines1[i] for i in range(len(lines1)) if lines1[i] in lines2]
         if not len(lines3):
-            raise ValueError('Must run DFT job with "dump End EigStats" to get summary gap information!')
-        line = lines3[-1]
-        varsdict["emin"] = float(text[line + 1].split()[1]) * Ha_to_eV
-        varsdict["homo"] = float(text[line + 2].split()[1]) * Ha_to_eV
-        varsdict["efermi"] = float(text[line + 3].split()[2]) * Ha_to_eV
-        varsdict["lumo"] = float(text[line + 4].split()[1]) * Ha_to_eV
-        varsdict["emax"] = float(text[line + 5].split()[1]) * Ha_to_eV
-        varsdict["egap"] = float(text[line + 6].split()[2]) * Ha_to_eV
+            varsdict["emin"] = None
+            varsdict["homo"] = None
+            varsdict["efermi"] = None
+            varsdict["lumo"] = None
+            varsdict["emax"] = None
+            varsdict["egap"] = None
+            self.has_eigstats = False
+        else:
+            line = lines3[-1]
+            varsdict["emin"] = float(text[line + 1].split()[1]) * Ha_to_eV
+            varsdict["homo"] = float(text[line + 2].split()[1]) * Ha_to_eV
+            varsdict["efermi"] = float(text[line + 3].split()[2]) * Ha_to_eV
+            varsdict["lumo"] = float(text[line + 4].split()[1]) * Ha_to_eV
+            varsdict["emax"] = float(text[line + 5].split()[1]) * Ha_to_eV
+            varsdict["egap"] = float(text[line + 6].split()[2]) * Ha_to_eV
+            self.has_eigstats = True
         return varsdict
 
     def set_eigvars(self, text: list[str]) -> None:
@@ -791,6 +769,12 @@ class JDFTXOutfileSlice(ClassPrintFormatter):
         self.lumo = eigstats["lumo"]
         self.emax = eigstats["emax"]
         self.egap = eigstats["egap"]
+        if not self.has_eigstats:
+            # TODO: Check if any other variables need to be set
+            if self.mu is not None:
+                self.efermi = self.mu
+            else:
+                raise RuntimeError("Variable mu not found to replace variable efermi")
 
     def get_pp_type(self, text: list[str]) -> str:
         """Get the pseudopotential type used in calculation.
@@ -870,9 +854,10 @@ class JDFTXOutfileSlice(ClassPrintFormatter):
                 total_elec_dict[atom] = atom_total_elec[i]
         else:
             raise ValueError("Pseuopotential data cannot be allocated without atom types.")
-        # total_elec_dict = dict(zip(self.atom_types, atom_total_elec, strict=False))
         if self.atom_elements is None:
             raise ValueError("Atom elements not set yet.")
+        # total_elec_dict = dict(zip(self.atom_types, atom_total_elec, strict=False))
+        # Explicit zipping due to pre-commit in three lines below
         element_total_electrons = np.array([total_elec_dict[x] for x in self.atom_elements])
         element_valence_electrons = np.array([atom_valence_electrons[x] for x in self.atom_elements])
         element_semicore_electrons = element_total_electrons - element_valence_electrons
@@ -899,23 +884,22 @@ class JDFTXOutfileSlice(ClassPrintFormatter):
 
         Returns
         -------
-        lines: list[int]
+        line_texts: list[int]
             list of line numbers where settings occur
         """
         started = False
-        lines = []
-        for i, line in enumerate(text):
+        line_texts = []
+        for i, line_text in enumerate(text):
             if started:
-                if line.strip().split()[-1].strip() == "\\":
-                    lines.append(i)
+                if line_text.strip().split()[-1].strip() == "\\":
+                    line_texts.append(i)
                 else:
                     started = False
-            elif start_flag in line:
+            elif start_flag in line_text:
                 started = True
-                # lines.append(i) # we DONT want to do this
-            elif len(lines):
+            elif len(line_texts):
                 break
-        return lines
+        return line_texts
 
     def _create_settings_dict(self, text: list[str], start_flag: str) -> dict:
         """Get a dictionary of settings from the out file text.
@@ -934,10 +918,10 @@ class JDFTXOutfileSlice(ClassPrintFormatter):
         settings_dict: dict
             dictionary of settings
         """
-        lines = self._collect_settings_lines(text, start_flag)
+        line_texts = self._collect_settings_lines(text, start_flag)
         settings_dict = {}
-        for line in lines:
-            line_text_list = text[line].strip().split()
+        for line_text in line_texts:
+            line_text_list = text[line_text].strip().split()
             key = line_text_list[0].lower()
             value = line_text_list[1]
             settings_dict[key] = value
@@ -992,8 +976,8 @@ class JDFTXOutfileSlice(ClassPrintFormatter):
             text: list[str]
                 output of read_file for out file
         """
-        if self.jsettings_ionic is None or self.jsettings_lattice is None:
-            self.set_min_settings(text)
+        # Attempts to set all self.jsettings_x class variables
+        self.set_min_settings(text)
         if self.jsettings_ionic is None or self.jsettings_lattice is None:
             raise ValueError("Unknown issue in setting settings objects")
         if self.jsettings_lattice.niterations > 0:
@@ -1044,28 +1028,35 @@ class JDFTXOutfileSlice(ClassPrintFormatter):
 
         Calculate and set homo and lumo fillings
         """
-        if self.nspin is not None:
-            if self.broadening_type is not None:
-                # vvvv This is what peak python looks like according to pre-commit vvvv
-                if self.broadening is not None:
-                    if self.efermi is not None:
-                        if self.homo is not None:
-                            if self.lumo is not None:
-                                self.set_orb_fillings_broad(
-                                    self.nspin, self.homo, self.lumo, self.efermi, self.broadening_type, self.broadening
-                                )
+        if self.has_eigstats:
+            if self.nspin is not None:
+                if self.broadening_type is not None:
+                    if self.broadening is not None:
+                        if self.efermi is not None:
+                            if self.homo is not None:
+                                if self.lumo is not None:
+                                    self.set_orb_fillings_broad(
+                                        self.nspin,
+                                        self.homo,
+                                        self.lumo,
+                                        self.efermi,
+                                        self.broadening_type,
+                                        self.broadening,
+                                    )
+                                else:
+                                    raise ValueError(
+                                        "Cannot set orbital fillings with broadening with self.lumo as None"
+                                    )
                             else:
-                                raise ValueError("Cannot set orbital fillings with broadening with self.lumo as None")
+                                raise ValueError("Cannot set orbital fillings with broadening with self.homo as None")
                         else:
-                            raise ValueError("Cannot set orbital fillings with broadening with self.homo as None")
+                            raise ValueError("Cannot set orbital fillings with broadening with self.efermi as None")
                     else:
-                        raise ValueError("Cannot set orbital fillings with broadening with self.efermi as None")
+                        raise ValueError("Cannot set orbital fillings with broadening with self.broadening as None")
                 else:
-                    raise ValueError("Cannot set orbital fillings with broadening with self.broadening as None")
+                    self.set_orb_fillings_nobroad(self.nspin)
             else:
-                self.set_orb_fillings_nobroad(self.nspin)
-        else:
-            raise ValueError("Cannot set homo/lumo filling with self.nspin as None")
+                raise ValueError("Cannot set homo/lumo filling with self.nspin as None")
 
     def set_fluid(self, text: list[str]) -> None:  # Is this redundant to the fluid settings?
         """Set the fluid class variable.
@@ -1078,9 +1069,10 @@ class JDFTXOutfileSlice(ClassPrintFormatter):
             output of read_file for out file
         """
         line = find_first_range_key("fluid ", text)
-        self.fluid = text[line[0]].split()[1]
-        # if self.fluid == "None":
-        #     self.fluid = None
+        self.fluid = text[line[0]].split()[
+            1
+        ]  # This allows self.fluid to be set to the string "None", which is distinct
+        # from the None built-in, as it signifies the fluid line was properly read but there is no fluid.
 
     def set_total_electrons(self, text: list[str]) -> None:
         """Set the total_Electrons class variable.
@@ -1140,10 +1132,11 @@ class JDFTXOutfileSlice(ClassPrintFormatter):
             if x not in atom_types:
                 atom_types.append(x)
         self.atom_elements = atom_elements
+        # mapping_dict = dict(zip(atom_types, range(1, len(atom_types) + 1), strict=False))
+        # Below sets mapping_dict identical to above line, but is allowed by pre-commit
         mapping_dict = {}
         for atom_type in atom_types:
             mapping_dict[atom_type] = atom_valence_electrons[atom_type]
-        # mapping_dict = dict(zip(atom_types, range(1, len(atom_types) + 1), strict=False))
         self.atom_elements_int = [mapping_dict[x] for x in self.atom_elements]
         self.atom_types = atom_types
         line = find_key("# Ionic positions in", text) + 1
@@ -1229,7 +1222,7 @@ class JDFTXOutfileSlice(ClassPrintFormatter):
     def _determine_is_metal(self, tol_partial: float, nspin: int, homo_filling: float, lumo_filling: float) -> bool:
         return not (homo_filling / (2 / nspin) > (1 - tol_partial) and lumo_filling / (2 / nspin) < tol_partial)
 
-    def determine_is_metal(self) -> bool:
+    def determine_is_metal(self) -> bool | None:
         """Determine if the system is a metal based.
 
         Determine if the system is a metal based on the fillings of
@@ -1241,13 +1234,15 @@ class JDFTXOutfileSlice(ClassPrintFormatter):
             True if system is metallic
         """
         tol_partial = 0.01
-        if self.nspin is not None:
-            if self.homo_filling is not None:
-                if self.lumo_filling is not None:
-                    return self._determine_is_metal(tol_partial, self.nspin, self.homo_filling, self.lumo_filling)
-                raise ValueError("Cannot determine if system is metal - self.lumo_filling undefined")
-            raise ValueError("Cannot determine if system is metal - self.homo_filling undefined")
-        raise ValueError("Cannot determine if system is metal - self.nspin undefined")
+        if self.has_eigstats:
+            if self.nspin is not None:
+                if self.homo_filling is not None:
+                    if self.lumo_filling is not None:
+                        return self._determine_is_metal(tol_partial, self.nspin, self.homo_filling, self.lumo_filling)
+                    raise ValueError("Cannot determine if system is metal - self.lumo_filling undefined")
+                raise ValueError("Cannot determine if system is metal - self.homo_filling undefined")
+            raise ValueError("Cannot determine if system is metal - self.nspin undefined")
+        return None
 
     def check_solvation(self) -> bool:
         """Check for implicit solvation.
@@ -1306,7 +1301,7 @@ class JDFTXOutfileSlice(ClassPrintFormatter):
             The value of the attribute
         """
         # The whole point of this is to be an unreached safety net, so expect hit
-        # to coverage here
+        # from coverage here
         if name not in self.__dict__:
             if not hasattr(self.jstrucs, name):
                 raise AttributeError(f"{self.__class__.__name__} not found: {name}")

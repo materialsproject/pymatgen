@@ -2,26 +2,21 @@ from __future__ import annotations
 
 import os
 import re
-from pathlib import Path
 from typing import TYPE_CHECKING, Any
 
 import numpy as np
 import pytest
-from pytest import approx
 
 from pymatgen.core.structure import Structure
-from pymatgen.io.jdftx.jdftxinfile import JDFTXInfile, JDFTXStructure, multi_getattr, multi_hasattr
+from pymatgen.io.jdftx.jdftxinfile import JDFTXInfile, JDFTXStructure
 from pymatgen.io.jdftx.jdftxinfile_master_format import get_tag_object
-from pymatgen.util.testing import TEST_FILES_DIR
+
+from .conftest import assert_same_value, dump_files_dir, ex_files_dir
 
 if TYPE_CHECKING:
     from collections.abc import Callable
 
     from pymatgen.util.typing import PathLike
-
-
-ex_files_dir = Path(TEST_FILES_DIR) / "io" / "jdftx" / "example_files"
-dump_files_dir = Path(TEST_FILES_DIR) / "io" / "jdftx" / "new_files"
 
 ex_infile1_fname = ex_files_dir / "CO.in"
 ex_infile1_knowns = {
@@ -175,7 +170,8 @@ def test_JDFTXInfile_add_method():
     jif = JDFTXInfile.from_file(ex_infile1_fname)
     jif2 = jif.copy()
     jif3 = jif + jif2
-    assert is_identical_jif(jif, jif3)
+    assert_idential_jif(jif, jif3)
+    # assert is_identical_jif(jif, jif3)
     key = "elec-ex-corr"
     val_old = jif[key]
     val_new = "lda"
@@ -197,7 +193,8 @@ def test_JDFTXInfile_add_method():
 def test_JDFTXInfile_knowns_simple(infile_fname: PathLike, knowns: dict):
     jif = JDFTXInfile.from_file(infile_fname)
     for key in knowns:
-        assert is_identical_jif_val(jif[key], knowns[key])
+        assert_same_value(jif[key], knowns[key])
+        # assert is_identical_jif_val(jif[key], knowns[key])
 
 
 @pytest.mark.parametrize("infile_fname", [ex_infile1_fname])
@@ -220,38 +217,45 @@ def JDFTXInfile_self_consistency_tester(jif: JDFTXInfile):
     for i in range(len(jifs)):
         for j in range(i + 1, len(jifs)):
             print(f"{i}, {j}")
-            assert is_identical_jif(jifs[i], jifs[j])
+            assert_idential_jif(jifs[i], jifs[j])
+            # assert is_identical_jif(jifs[i], jifs[j])
     os.remove(tmp_fname)
 
 
-def is_identical_jif(jif1: JDFTXInfile | dict, jif2: JDFTXInfile | dict):
-    for key in jif1:
-        if key not in jif2:
-            return False
-        v1 = jif1[key]
-        v2 = jif2[key]
-        if not is_identical_jif_val(v1, v2):
-            return False
-        # assert is_identical_jif_val(v1, v2)
-    return True
+def assert_idential_jif(jif1: JDFTXInfile | dict, jif2: JDFTXInfile | dict):
+    djif1 = jif1.as_dict() if isinstance(jif1, JDFTXInfile) else jif1
+    djif2 = jif2.as_dict() if isinstance(jif2, JDFTXInfile) else jif2
+    assert_same_value(djif1, djif2)
 
 
-def is_identical_jif_val(v1, v2):
-    if not isinstance(v1, type(v2)):
-        # if type(v1) != type(v2):
-        return False
-    if isinstance(v1, float):
-        return v1 == approx(v2)
-    if True in [isinstance(v1, str), isinstance(v1, int)]:
-        return v1 == v2
-    if True in [isinstance(v1, list), isinstance(v1, tuple)]:
-        if len(v1) != len(v2):
-            return False
-        sames = [is_identical_jif_val(v, v2[i]) for i, v in enumerate(v1)]
-        return all(sames)
-    if True in [isinstance(v1, dict)]:
-        return is_identical_jif(v1, v2)
-    return None
+# def is_identical_jif(jif1: JDFTXInfile | dict, jif2: JDFTXInfile | dict):
+#     for key in jif1:
+#         if key not in jif2:
+#             return False
+#         v1 = jif1[key]
+#         v2 = jif2[key]
+#         if not is_identical_jif_val(v1, v2):
+#             return False
+#         # assert is_identical_jif_val(v1, v2)
+#     return True
+
+
+# def is_identical_jif_val(v1, v2):
+#     if not isinstance(v1, type(v2)):
+#         # if type(v1) != type(v2):
+#         return False
+#     if isinstance(v1, float):
+#         return v1 == approx(v2)
+#     if True in [isinstance(v1, str), isinstance(v1, int)]:
+#         return v1 == v2
+#     if True in [isinstance(v1, list), isinstance(v1, tuple)]:
+#         if len(v1) != len(v2):
+#             return False
+#         sames = [is_identical_jif_val(v, v2[i]) for i, v in enumerate(v1)]
+#         return all(sames)
+#     if True in [isinstance(v1, dict)]:
+#         return is_identical_jif(v1, v2)
+#     return None
 
 
 def test_jdftxstructure():
@@ -265,9 +269,18 @@ def test_jdftxstructure():
         lines = list.copy(list(f))
     data = "\n".join(lines)
     struc2 = JDFTXStructure.from_str(data)
-    assert is_equiv_jdftxstructure(struc, struc2)
+    assert_equiv_jdftxstructure(struc, struc2)
     struc3 = JDFTXStructure.from_dict(struc.as_dict())
-    assert is_equiv_jdftxstructure(struc, struc3)
+    assert_equiv_jdftxstructure(struc, struc3)
+
+
+def test_pmg_struc():
+    jif = JDFTXInfile.from_file(ex_infile2_fname)
+    struc1 = jif.to_pmg_structure(jif)
+    struc2 = jif.structure
+    for s in [struc1, struc2]:
+        assert isinstance(s, Structure)
+    assert_idential_jif(struc1.as_dict(), struc2.as_dict())
 
 
 def test_jdftxtructure_naming():
@@ -277,7 +290,7 @@ def test_jdftxtructure_naming():
     JDFTXInfile.from_structure(struc)
 
 
-def is_equiv_jdftxstructure(struc1: JDFTXStructure, struc2: JDFTXStructure) -> bool:
+def assert_equiv_jdftxstructure(struc1: JDFTXStructure, struc2: JDFTXStructure) -> None:
     """Check if two JDFTXStructure objects are equivalent.
 
     Check if two JDFTXStructure objects are equivalent.
@@ -291,42 +304,21 @@ def is_equiv_jdftxstructure(struc1: JDFTXStructure, struc2: JDFTXStructure) -> b
     """
     d1 = struc1.as_dict()
     d2 = struc2.as_dict()
-    return is_identical_jif(d1, d2)
+    assert_idential_jif(d1, d2)
 
 
-def test_multihasattr():
-    class A:
-        def __init__(self):
-            self.v1: int = 1
+# def is_equiv_jdftxstructure(struc1: JDFTXStructure, struc2: JDFTXStructure) -> bool:
+#     """Check if two JDFTXStructure objects are equivalent.
 
-    class B:
-        def __init__(self):
-            self.a = A()
-            self.v2: int = 2
+#     Check if two JDFTXStructure objects are equivalent.
 
-    a = A()
-    b = B()
-    assert multi_hasattr(a, "v1")
-    assert multi_hasattr(b, "a")
-    assert multi_hasattr(b, "a.v1")
-    assert not multi_hasattr(b, "a.v2")
-    assert not multi_hasattr(b, "v1")
-
-
-def test_multigetattr():
-    class A:
-        def __init__(self):
-            self.v1: int = 1
-
-    class B:
-        def __init__(self):
-            self.a = A()
-            self.v2: int = 2
-
-    a = A()
-    b = B()
-    assert multi_getattr(a, "v1") == 1
-    assert multi_getattr(b, "v2") == 2
-    assert multi_getattr(b, "a.v1") == 1
-    with pytest.raises(AttributeError):
-        multi_getattr(b, "v1")
+#     Parameters:
+#     ----------
+#     struc1: JDFTXStructure
+#         The first JDFTXStructure object.
+#     struc2: JDFTXStructure
+#         The second JDFTXStructure object.
+#     """
+#     d1 = struc1.as_dict()
+#     d2 = struc2.as_dict()
+#     return is_identical_jif(d1, d2)
