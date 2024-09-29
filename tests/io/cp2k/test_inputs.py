@@ -159,7 +159,7 @@ class TestBasisAndPotential(PymatgenTest):
         assert kw.values[0] == "ALL"
 
 
-class TestInput(PymatgenTest):
+class TestCp2kInput(PymatgenTest):
     def setUp(self):
         self.ci = Cp2kInput.from_file(f"{TEST_DIR}/cp2k.inp")
 
