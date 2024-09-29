@@ -10,6 +10,7 @@ import re
 import warnings
 from glob import glob
 from itertools import chain
+from typing import TYPE_CHECKING
 
 import numpy as np
 import pandas as pd
@@ -27,6 +28,9 @@ from pymatgen.io.cp2k.sets import Cp2kInput
 from pymatgen.io.cp2k.utils import natural_keys, postprocessor
 from pymatgen.io.xyz import XYZ
 
+if TYPE_CHECKING:
+    from pymatgen.util.typing import PathLike
+
 __author__ = "Nicholas Winner"
 __version__ = "2.0"
 __status__ = "Production"
@@ -38,20 +42,20 @@ class Cp2kOutput:
     but other parsing features may be called depending on the run type.
     """
 
-    def __init__(self, filename, verbose=False, auto_load=False):
+    def __init__(self, filename: PathLike, verbose: bool = False, auto_load: bool = False) -> None:
         """
         Initialize the Cp2kOutput object.
 
         Args:
-            filename: (str) Name of the CP2K output file to parse
-            verbose: (bool) Whether or not to parse with verbosity (will parse lots of data that
-                may not be useful)
+            filename (PathLike): The CP2K output file to parse.
+            verbose (bool): Whether or not to parse with verbosity (will parse lots of data that
+                may not be useful).
             auto_load (bool): Whether or not to automatically load basic info like energies
                 and structures.
         """
         # IO Info
-        self.filename = filename
-        self.dir = os.path.dirname(filename)
+        self.filename = str(filename)
+        self.dir = os.path.dirname(self.filename)
         self.filenames: dict = {}
         self.parse_files()
         self.data: dict = {}
@@ -102,17 +106,17 @@ class Cp2kOutput:
         return c
 
     @property
-    def num_warnings(self):
+    def num_warnings(self) -> int:
         """How many warnings showed up during the run."""
         return self.data.get("num_warnings", 0)
 
     @property
-    def run_type(self):
+    def run_type(self) -> str:
         """What type of run (Energy, MD, etc.) was performed."""
-        return self.data.get("global").get("Run_type")
+        return self.data.get("global", {}).get("Run_type")
 
     @property
-    def calculation_type(self):
+    def calculation_type(self) -> str:
         """The calculation type (what io.vasp.outputs calls run_type)."""
         LDA_TYPES = {"LDA", "PADE", "BECKE88", "BECKE88_LR", "BECKE88_LR_ADIABATIC", "BECKE97"}
 
@@ -158,7 +162,7 @@ class Cp2kOutput:
 
         if self.is_hubbard:
             rt += "+U"
-        if self.data.get("dft").get("vdw"):
+        if self.data.get("dft", {}).get("vdw"):
             rt += "+VDW"
 
         return rt
@@ -177,11 +181,15 @@ class Cp2kOutput:
     @property
     def charge(self) -> float:
         """Charge from the input file."""
+        if self.input is None:
+            raise RuntimeError("input attribute is None.")
         return self.input["FORCE_EVAL"]["DFT"].get("CHARGE", Keyword("", 0)).values[0]
 
     @property
     def multiplicity(self) -> int:
         """The spin multiplicity from input file."""
+        if self.input is None:
+            raise RuntimeError("input attribute is None.")
         return self.input["FORCE_EVAL"]["DFT"].get("Multiplicity", Keyword("")).values[0]
 
     @property
@@ -194,8 +202,10 @@ class Cp2kOutput:
 
     @property
     def is_metal(self) -> bool:
-        """Was a band gap found? i.e. is it a metal."""
-        return True if self.band_gap is None else self.band_gap <= 0
+        """Whether it is a metal by checking the band gap."""
+        if self.band_gap is None:
+            return True
+        return self.band_gap <= 0
 
     @property
     def is_hubbard(self) -> bool:
@@ -205,7 +215,7 @@ class Cp2kOutput:
                 return True
         return False
 
-    def parse_files(self):
+    def parse_files(self) -> None:
         """
         Identify files present in the directory with the CP2K output file. Looks for trajectories,
         dos, and cubes.
@@ -312,7 +322,7 @@ class Cp2kOutput:
                 self.structures = mols
             self.final_structure = self.structures[-1]
 
-    def parse_initial_structure(self):
+    def parse_initial_structure(self) -> Structure | Molecule:
         """Parse the initial structure from the main CP2K output file."""
         patterns = {"num_atoms": re.compile(r"- Atoms:\s+(\d+)")}
         self.read_pattern(
@@ -365,13 +375,19 @@ class Cp2kOutput:
                 charge=self.charge,
             )
 
+        if self.initial_structure is None:
+            raise RuntimeError("initial structure is not parsed.")
         self.composition = self.initial_structure.composition
         return self.initial_structure
 
-    def ran_successfully(self):
-        """Sanity checks that the program ran successfully. Looks at the bottom of the CP2K output
-        file for the "PROGRAM ENDED" line, which is printed when successfully ran. Also grabs
-        the number of warnings issued.
+    def ran_successfully(self) -> None:
+        """Sanity checks that the program ran successfully.
+
+        Looks at the bottom of the CP2K output file for the "PROGRAM ENDED" line,
+        which is printed when successfully ran. Also grabs the number of warnings issued.
+
+        Raises:
+            ValueError: if CP2K job did not finish successfully.
         """
         program_ended_at = re.compile(r"PROGRAM ENDED AT\s+(\w+)")
         num_warnings = re.compile(r"The number of warnings for this run is : (\d+)")
@@ -391,7 +407,7 @@ class Cp2kOutput:
         if not self.completed:
             raise ValueError("The provided CP2K job did not finish running! Cannot parse the file reliably.")
 
-    def convergence(self):
+    def convergence(self) -> None:
         """Check whether or not the SCF and geometry optimization cycles converged."""
         # SCF Loops
         unconverged_inner_loop = re.compile(r"(Leaving inner SCF loop)")
@@ -429,7 +445,7 @@ class Cp2kOutput:
         if any(self.data["geo_opt_not_converged"]):
             warnings.warn("Geometry optimization did not converge", UserWarning)
 
-    def parse_energies(self):
+    def parse_energies(self) -> None:
         """Get the total energy from a CP2K calculation. Presently, the energy reported in the
         trajectory (pos.xyz) file takes precedence over the energy reported in the main output
         file. This is because the trajectory file keeps track of energies in between restarts,
@@ -437,7 +453,7 @@ class Cp2kOutput:
         overwrites or appends it.
         """
         if self.filenames.get("trajectory"):
-            toten_pattern = r".*E\s+\=\s+(-?\d+.\d+)"
+            toten_pattern: str | re.Pattern = r".*E\s+\=\s+(-?\d+.\d+)"
             matches = regrep(
                 self.filenames["trajectory"][-1],
                 {"total_energy": toten_pattern},
@@ -459,7 +475,7 @@ class Cp2kOutput:
             )
         self.final_energy = self.data.get("total_energy", [])[-1]
 
-    def parse_forces(self):
+    def parse_forces(self) -> None:
         """Get the forces from the forces file, or from the main output file."""
         if len(self.filenames["forces"]) == 1:
             self.data["forces"] = [
@@ -479,7 +495,7 @@ class Cp2kOutput:
                 last_one_only=False,
             )
 
-    def parse_stresses(self):
+    def parse_stresses(self) -> None:
         """Get the stresses from stress file, or from the main output file."""
         if len(self.filenames["stress"]) == 1:
             dat = np.genfromtxt(self.filenames["stress"][0], skip_header=1)
@@ -509,7 +525,7 @@ class Cp2kOutput:
             if d:
                 self.data["stress_tensor"] = list(chunks(d[0], 3))
 
-    def parse_ionic_steps(self):
+    def parse_ionic_steps(self) -> list:
         """Parse the ionic step info. If already parsed, this will just assimilate."""
         if not self.structures:
             self.parse_structures()
@@ -520,7 +536,7 @@ class Cp2kOutput:
         if not self.data.get("stress_tensor"):
             self.parse_stresses()
 
-        for i, (structure, energy) in enumerate(zip(self.structures, self.data.get("total_energy"), strict=False)):
+        for i, (structure, energy) in enumerate(zip(self.structures, self.data.get("total_energy", []), strict=False)):
             self.ionic_steps.append(
                 {
                     "structure": structure,
@@ -532,7 +548,7 @@ class Cp2kOutput:
 
         return self.ionic_steps
 
-    def parse_cp2k_params(self):
+    def parse_cp2k_params(self) -> None:
         """Parse the CP2K general parameters from CP2K output file into a dictionary."""
         version = re.compile(r"\s+CP2K\|.+version\s+(.+)")
         input_file = re.compile(r"\s+CP2K\|\s+Input file name\s+(.+)$")
@@ -543,7 +559,7 @@ class Cp2kOutput:
             postprocess=str,
         )
 
-    def parse_plus_u_params(self):
+    def parse_plus_u_params(self) -> None:
         """Parse the DFT+U params."""
         method = re.compile(r"\s+DFT\+U\|\s+Method\s+()$")
         self.read_pattern(
@@ -553,7 +569,7 @@ class Cp2kOutput:
             postprocess=postprocessor,
         )
 
-    def parse_input(self):
+    def parse_input(self) -> None:
         """Load in the input set from the input file (if it can be found)."""
         if len(self.data["input_filename"]) == 0:
             return
@@ -564,7 +580,7 @@ class Cp2kOutput:
                 return
         warnings.warn("Original input file not found. Some info may be lost.")
 
-    def parse_global_params(self):
+    def parse_global_params(self) -> None:
         """Parse the GLOBAL section parameters from CP2K output file into a dictionary."""
         pat = re.compile(r"\s+GLOBAL\|\s+([\w+\s]*)\s+(\w+)")
         self.read_pattern({"global": pat}, terminate_on_match=False, reverse=False)
@@ -659,7 +675,7 @@ class Cp2kOutput:
                 i += 1
         self.data["QS"]["Multi_grid_cutoffs_[a.u.]"] = tmp
 
-    def parse_overlap_condition(self):
+    def parse_overlap_condition(self) -> None:
         """Retrieve the overlap condition number."""
         overlap_condition = re.compile(r"\|A\|\*\|A\^-1\|.+=\s+(-?\d+\.\d+E[+\-]?\d+)\s+Log")
         self.read_pattern(
@@ -1269,6 +1285,8 @@ class Cp2kOutput:
         bands_data = np.loadtxt(bandstructure_filename)
         nkpts = int(lines[0].split()[6])
         nbands = int(lines[0].split()[-2])
+        if self.final_structure is None:
+            raise RuntimeError("cannot parse bandstructure without final structure.")
         rec_lat = (
             self.final_structure.lattice.reciprocal_lattice
             if self.final_structure
@@ -1513,7 +1531,7 @@ class Cp2kOutput:
         last_one_only=True,
         strip=None,
     ):
-        r"""This function originated in pymatgen.io.vasp.outputs.Outcar.
+        r"""This method originated in pymatgen.io.vasp.outputs.Outcar.
 
         Parse table-like data. A table composes of three parts: header,
         main body, footer. All the data matches "row pattern" in the main body
@@ -1644,9 +1662,11 @@ def parse_energy_file(energy_file):
     return {c: df_energies[c].to_numpy() for c in columns}
 
 
-# TODO: The DOS file that CP2K outputs as of 2022.1 seems to have a lot of problems.
 def parse_dos(dos_file=None):
-    """Parse a dos file. This format is different from the pdos files."""
+    """Parse a dos file. This format is different from the pdos files.
+
+    TODO: The DOS file that CP2K outputs as of 2022.1 seems to have a lot of problems.
+    """
     data = np.loadtxt(dos_file)
     data[:, 0] *= Ha_to_eV
     energies = data[:, 0]
