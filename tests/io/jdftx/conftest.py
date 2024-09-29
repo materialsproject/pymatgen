@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 from pathlib import Path
-from typing import Any
+from typing import TYPE_CHECKING, Any
 
 import pytest
 
@@ -9,6 +9,9 @@ from pymatgen.core.units import Ha_to_eV
 from pymatgen.io.jdftx.jdftxoutfile import JDFTXOutfile
 from pymatgen.io.jdftx.jdftxoutfileslice import JDFTXOutfileSlice
 from pymatgen.util.testing import TEST_FILES_DIR
+
+if TYPE_CHECKING:
+    from collections.abc import Callable
 
 ################################################################################
 # General methods and variables
@@ -26,10 +29,10 @@ def object_hasall_known_simple(obj: Any, knowndict: dict):
 def object_matchall_known_simple(obj: Any, knowndict: dict):
     for k, v in knowndict.items():
         val = getattr(obj, k)
-        _is_same_value(val, v)
+        assert_same_value(val, v)
 
 
-def _is_same_value(testval, knownval):
+def assert_same_value(testval, knownval):
     if type(testval) not in [tuple, list]:
         assert isinstance(testval, type(knownval))
         if isinstance(testval, float):
@@ -37,7 +40,7 @@ def _is_same_value(testval, knownval):
         elif isinstance(testval, dict):
             for k in knownval:
                 assert k in testval
-                _is_same_value(testval[k], knownval[k])
+                assert_same_value(testval[k], knownval[k])
         elif testval is None:
             assert knownval is None
         else:
@@ -45,7 +48,52 @@ def _is_same_value(testval, knownval):
     else:
         assert len(testval) == len(knownval)
         for i in range(len(testval)):
-            _is_same_value(testval[i], knownval[i])
+            assert_same_value(testval[i], knownval[i])
+
+
+def assert_slices_attribute_error(
+    init_meth: Callable, init_var: Any, varname: str, slicename: str, assert_2layer_error: bool = False
+):
+    """Assert raises AttributeError upon certain conditions for slices attribute.
+
+    Assert that varname property inherited from object's 'slices' type class variable
+    will always raise AttributeError if the 'slices' attribute is empty. If assert_2layer_error,
+    also assert that that final slice does not return None for that varname.
+
+    Parameters:
+    ----------
+    init_meth: callable
+        The method to initialize the object with.
+    init_var: Any
+        The variable to initialize the object with.
+    varname: str
+        The name of the attribute to test.
+    slicename: str
+        The name of the attribute that is a list of slices.
+    assert_2layer_error: bool
+        If True, assert that varname will raise AttributeError if the last slice's varname is None.
+        (The attribute will not accept None from the last slice)
+        (If returning None is okay as long as the slices are set, set this to False)
+    """
+    obj = init_meth(init_var)
+    getattr(obj, varname)  # No freakout here
+    setattr(getattr(obj, slicename)[-1], varname, None)
+    if assert_2layer_error:
+        with pytest.raises(AttributeError):
+            getattr(obj, varname)
+    else:
+        getattr(obj, varname)  # No freakout here
+    setattr(obj, slicename, [])
+    with pytest.raises(AttributeError):
+        getattr(obj, varname)
+
+
+def assert_slices_1layer_attribute_error(init_meth: Callable, init_var: Any, varname: str, slicename: str):
+    assert_slices_attribute_error(init_meth, init_var, varname, slicename, assert_2layer_error=False)
+
+
+def assert_slices_2layer_attribute_error(init_meth: Callable, init_var: Any, varname: str, slicename: str):
+    assert_slices_attribute_error(init_meth, init_var, varname, slicename, assert_2layer_error=True)
 
 
 ################################################################################
