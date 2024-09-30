@@ -10,7 +10,10 @@ class TestIsNpDictEqual:
         """Test two dicts with different keys."""
         dict1 = {"a": np.array([1, 2, 3])}
         dict2 = {"a": np.array([1, 2, 3]), "b": "hello"}
-        assert not is_np_dict_equal(dict1, dict2)
+        equal = is_np_dict_equal(dict1, dict2)
+        # make sure it's not a np.bool
+        assert isinstance(equal, bool)
+        assert not equal
 
     def test_both_list(self):
         """Test two dicts where both have lists as values."""
