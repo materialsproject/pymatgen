@@ -291,7 +291,6 @@ class Cohpcar:
             length = float(line_new[-1][:-1])
 
             sites = line_new[0].replace("->", ":").split(":")[1:3]
-            print(sites)
             site_indices = tuple(int(re.split(r"\D+", site)[1]) - 1 for site in sites)
             # TODO: get cells here as well
 
@@ -731,22 +730,22 @@ class Doscar:
         itdensities = {}
         with zopen(doscar, mode="rt") as file:
             n_atoms = int(file.readline().split()[0])
-            print(n_atoms)
             efermi = float([file.readline() for nn in range(4)][3].split()[17])
             dos = []
             orbitals = []
             for _atom in range(n_atoms + 1):
                 line = file.readline()
-                ndos = int(line.split()[2])
-                orbitals += [line.split(";")[-1].split()]
+                if line.split():
+                    ndos = int(line.split()[2])
+                    orbitals += [line.split(";")[-1].split()]
 
-                line = file.readline().split()
-                cdos = np.zeros((ndos, len(line)))
-                cdos[0] = np.array(line)
-                for nd in range(1, ndos):
-                    line_parts = file.readline().split()
-                    cdos[nd] = np.array(line_parts)
-                dos.append(cdos)
+                    line = file.readline().split()
+                    cdos = np.zeros((ndos, len(line)))
+                    cdos[0] = np.array(line)
+                    for nd in range(1, ndos):
+                        line_parts = file.readline().split()
+                        cdos[nd] = np.array(line_parts)
+                    dos.append(cdos)
 
         doshere = np.array(dos[0])
         if len(doshere[0, :]) == 5:
@@ -762,7 +761,7 @@ class Doscar:
             itdensities[Spin.up] = doshere[:, 2]
             pdoss = []
             spin = Spin.up
-            for atom in range(n_atoms):
+            for atom in range(len(dos) - 1):
                 pdos = defaultdict(dict)
                 data = dos[atom + 1]
                 _, ncol = data.shape
@@ -777,7 +776,7 @@ class Doscar:
             itdensities[Spin.up] = doshere[:, 3]
             itdensities[Spin.down] = doshere[:, 4]
             pdoss = []
-            for atom in range(n_atoms):
+            for atom in range(len(dos) - 1):
                 pdos = defaultdict(dict)
                 data = dos[atom + 1]
                 _, ncol = data.shape
