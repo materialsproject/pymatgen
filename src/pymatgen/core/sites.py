@@ -13,6 +13,7 @@ from pymatgen.core.composition import Composition
 from pymatgen.core.lattice import Lattice
 from pymatgen.core.periodic_table import DummySpecies, Element, Species, get_el_sp
 from pymatgen.util.coord import pbc_diff
+from pymatgen.util.misc import is_np_dict_equal
 
 if TYPE_CHECKING:
     from typing import Any
@@ -96,18 +97,10 @@ class Site(collections.abc.Hashable, MSONable):
         if not isinstance(other, type(self)):
             return NotImplemented
 
-        # Some properties could be np.array, and in these cases
-        # using "==" for dict equality check would fail
-        try:
-            np.testing.assert_equal(self.properties, other.properties)
-            prop_equal = True
-        except AssertionError:
-            prop_equal = False
-
         return (
             self.species == other.species
             and np.allclose(self.coords, other.coords, atol=type(self).position_atol)
-            and prop_equal
+            and is_np_dict_equal(self.properties, other.properties)
         )
 
     def __hash__(self) -> int:
@@ -368,17 +361,11 @@ class PeriodicSite(Site, MSONable):
         if not isinstance(other, type(self)):
             return NotImplemented
 
-        try:
-            np.testing.assert_equal(self.properties, other.properties)
-            prop_equal = True
-        except AssertionError:
-            prop_equal = False
-
         return (
             self.species == other.species
             and self.lattice == other.lattice
             and np.allclose(self.coords, other.coords, atol=Site.position_atol)
-            and prop_equal
+            and is_np_dict_equal(self.properties, other.properties)
         )
 
     def __repr__(self) -> str:
