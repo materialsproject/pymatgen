@@ -41,20 +41,7 @@ BASIS_FILE_STR = """
 """
 
 
-class TestBasisAndPotential(PymatgenTest):
-    all_hydrogen_str = """
-H ALLELECTRON ALL
-    1    0    0
-    0.20000000    0
-"""
-
-    pot_hydrogen_str = """
-H GTH-PBE-q1 GTH-PBE
-    1
-    0.20000000    2    -4.17890044     0.72446331
-    0
-"""
-
+class TestBasis(PymatgenTest):
     def test_basis_info(self):
         # Ensure basis metadata can be read from string
         basis_info = BasisInfo.from_str("cc-pc-DZVP-MOLOPT-q1-SCAN")
@@ -76,25 +63,13 @@ H GTH-PBE-q1 GTH-PBE
         assert basis_info3.polarization == 1
         assert basis_info3.contracted, True
 
-    def test_potential_info(self):
-        # Ensure potential metadata can be read from string
-        pot_info = PotentialInfo.from_str("GTH-PBE-q1-NLCC")
-        assert pot_info.potential_type == "GTH"
-        assert pot_info.xc == "PBE"
-        assert pot_info.nlcc
-
-        # Ensure one-way soft-matching works
-        pot_info2 = PotentialInfo.from_str("GTH-q1-NLCC")
-        assert pot_info2.softmatch(pot_info)
-        assert not pot_info.softmatch(pot_info2)
-
     def test_basis(self):
         # Ensure cp2k formatted string can be read for data correctly
         mol_opt = GaussianTypeOrbitalBasisSet.from_str(BASIS_FILE_STR)
         assert mol_opt.nexp == [7]
         # Basis file can read from strings
         bf = BasisFile.from_str(BASIS_FILE_STR)
-        for obj in [mol_opt, bf.objects[0]]:
+        for obj in (mol_opt, bf.objects[0]):
             assert_allclose(
                 obj.exponents[0],
                 [
@@ -115,6 +90,33 @@ H GTH-PBE-q1 GTH-PBE
         kw = mol_opt.get_keyword()
         assert_array_equal(kw.values, ["AUX_FIT", "SZV-MOLOPT-GTH"])
         mol_opt.info.admm = False
+
+
+class TestPotential(PymatgenTest):
+    all_hydrogen_str = """
+H ALLELECTRON ALL
+    1    0    0
+    0.20000000    0
+"""
+
+    pot_hydrogen_str = """
+H GTH-PBE-q1 GTH-PBE
+    1
+    0.20000000    2    -4.17890044     0.72446331
+    0
+"""
+
+    def test_potential_info(self):
+        # Ensure potential metadata can be read from string
+        pot_info = PotentialInfo.from_str("GTH-PBE-q1-NLCC")
+        assert pot_info.potential_type == "GTH"
+        assert pot_info.xc == "PBE"
+        assert pot_info.nlcc
+
+        # Ensure one-way soft-matching works
+        pot_info2 = PotentialInfo.from_str("GTH-q1-NLCC")
+        assert pot_info2.softmatch(pot_info)
+        assert not pot_info.softmatch(pot_info2)
 
     def test_potentials(self):
         # Ensure cp2k formatted string can be read for data correctly
