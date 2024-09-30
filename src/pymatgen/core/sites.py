@@ -90,16 +90,24 @@ class Site(collections.abc.Hashable, MSONable):
 
     def __eq__(self, other: object) -> bool:
         """Site is equal to another site if the species and occupancies are the
-        same, and the coordinates are the same to some tolerance. `numpy.allclose`
+        same, and the coordinates are the same to some tolerance. `np.allclose`
         is used to determine if coordinates are close.
         """
         if not isinstance(other, type(self)):
             return NotImplemented
 
+        # Some properties could be np.array, and in these cases
+        # using "==" for dict equality check would fail
+        try:
+            np.testing.assert_equal(self.properties, other.properties)
+            prop_equal = True
+        except AssertionError:
+            prop_equal = False
+
         return (
             self.species == other.species
             and np.allclose(self.coords, other.coords, atol=type(self).position_atol)
-            and self.properties == other.properties
+            and prop_equal
         )
 
     def __hash__(self) -> int:
@@ -360,11 +368,17 @@ class PeriodicSite(Site, MSONable):
         if not isinstance(other, type(self)):
             return NotImplemented
 
+        try:
+            np.testing.assert_equal(self.properties, other.properties)
+            prop_equal = True
+        except AssertionError:
+            prop_equal = False
+
         return (
             self.species == other.species
             and self.lattice == other.lattice
             and np.allclose(self.coords, other.coords, atol=Site.position_atol)
-            and self.properties == other.properties
+            and prop_equal
         )
 
     def __repr__(self) -> str:
