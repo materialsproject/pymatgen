@@ -168,6 +168,20 @@ class TestPeriodicSite(PymatgenTest):
         assert self.labeled_site.label != site.label
         assert self.labeled_site == site
 
+    def test_equality_prop_with_np_array(self):
+        """Some property (e.g.g selective dynamics for POSCAR) could be numpy arrays,
+        use "==" for equality check might fail in these cases.
+        """
+        site_0 = PeriodicSite(
+            "Fe", [0.25, 0.35, 0.45], self.lattice, properties={"selective_dynamics": np.array([True, True, False])}
+        )
+        assert site_0 == site_0
+
+        site_1 = PeriodicSite(
+            "Fe", [0.25, 0.35, 0.45], self.lattice, properties={"selective_dynamics": np.array([True, False, False])}
+        )
+        assert site_0 != site_1
+
     def test_as_from_dict(self):
         dct = self.site2.as_dict()
         site = PeriodicSite.from_dict(dct)
