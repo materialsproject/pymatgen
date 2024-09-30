@@ -729,14 +729,13 @@ class Doscar:
         tdensities = {}
         itdensities = {}
         with zopen(doscar, mode="rt") as file:
-            n_atoms = int(file.readline().split()[0])
+            # n_atoms = int(file.readline().split()[0])
+            file.readline()  # Skip the first line
             efermi = float([file.readline() for nn in range(4)][3].split()[17])
             dos = []
             orbitals = []
-            for _atom in range(
-                n_atoms + 1
-            ):  # Todo: need a better way to completely read the file (not reliable for LCFO DOSCAR files)
-                line = file.readline()
+            line = file.readline()  # Read the next line containing dos data
+            while line.strip():
                 if line.split():
                     ndos = int(line.split()[2])
                     orbitals += [line.split(";")[-1].split()]
@@ -744,10 +743,13 @@ class Doscar:
                     line = file.readline().split()
                     cdos = np.zeros((ndos, len(line)))
                     cdos[0] = np.array(line)
+
                     for nd in range(1, ndos):
                         line_parts = file.readline().split()
                         cdos[nd] = np.array(line_parts)
                     dos.append(cdos)
+
+                line = file.readline()  # Read the next line to continue the loop
 
         doshere = np.array(dos[0])
         if len(doshere[0, :]) == 5:
