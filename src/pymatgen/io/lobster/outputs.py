@@ -733,7 +733,9 @@ class Doscar:
             efermi = float([file.readline() for nn in range(4)][3].split()[17])
             dos = []
             orbitals = []
-            for _atom in range(n_atoms + 1):
+            for _atom in range(
+                n_atoms + 1
+            ):  # Todo: need a better way to compleletely read the file (not reliable for LCFO DOSCAR files)
                 line = file.readline()
                 if line.split():
                     ndos = int(line.split()[2])
