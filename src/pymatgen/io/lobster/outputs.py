@@ -735,7 +735,7 @@ class Doscar:
             orbitals = []
             for _atom in range(
                 n_atoms + 1
-            ):  # Todo: need a better way to compleletely read the file (not reliable for LCFO DOSCAR files)
+            ):  # Todo: need a better way to completely read the file (not reliable for LCFO DOSCAR files)
                 line = file.readline()
                 if line.split():
                     ndos = int(line.split()[2])
