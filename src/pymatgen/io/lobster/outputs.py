@@ -729,7 +729,6 @@ class Doscar:
         tdensities = {}
         itdensities = {}
         with zopen(doscar, mode="rt") as file:
-            # n_atoms = int(file.readline().split()[0])
             file.readline()  # Skip the first line
             efermi = float([file.readline() for nn in range(4)][3].split()[17])
             dos = []
