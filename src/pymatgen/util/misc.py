@@ -1,6 +1,4 @@
-"""The util package implements various utilities that are commonly used by various
-packages.
-"""
+"""Other util functions."""
 
 from __future__ import annotations
 

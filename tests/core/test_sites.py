@@ -169,7 +169,7 @@ class TestPeriodicSite(PymatgenTest):
         assert self.labeled_site == site
 
     def test_equality_prop_with_np_array(self):
-        """Some property (e.g.g selective dynamics for POSCAR) could be numpy arrays,
+        """Some property (e.g. selective dynamics for POSCAR) could be numpy arrays,
         use "==" for equality check might fail in these cases.
         """
         site_0 = PeriodicSite(
