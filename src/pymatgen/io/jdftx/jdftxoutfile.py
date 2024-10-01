@@ -28,69 +28,6 @@ if TYPE_CHECKING:
 __author__ = "Ben Rich, Jacob Clary"
 
 
-# def check_file_exists(func: Callable) -> Any:
-#     """Check if file exists.
-
-#     Check if file exists (and continue normally) or raise an exception if
-#     it does not.
-#     """
-
-#     @wraps(func)
-#     def wrapper(filename: str) -> Any:
-#         filepath = Path(filename)
-#         if not filepath.is_file():
-#             raise OSError(f"'{filename}' file doesn't exist!")
-#         return func(filename)
-
-#     return wrapper
-
-
-# @check_file_exists
-# def read_file(file_name: str) -> list[str]:
-#     """
-#     Read file into a list of str.
-
-#     Parameters
-#     ----------
-#     filename: Path or str
-#         name of file to read
-
-#     Returns
-#     -------
-#     text: list[str]
-#         list of strings from file
-#     """
-#     with zopen(file_name, "r") as f:
-#         text = f.readlines()
-#     f.close()
-#     return text
-
-
-# def read_outfile_slices(file_name: str) -> list[list[str]]:
-#     """
-#     Read slice of out file into a list of str.
-
-#     Parameters
-#     ----------
-#     filename: Path or str
-#         name of file to read
-#     out_slice_idx: int
-#         index of slice to read from file
-
-#     Returns
-#     -------
-#     texts: list[list[str]]
-#         list of out file slices (individual calls of JDFTx)
-#     """
-#     _text = read_file(file_name)
-#     start_lines = get_start_lines(_text, add_end=True)
-#     texts = []
-#     for i in range(len(start_lines) - 1):
-#         text = _text[start_lines[i] : start_lines[i + 1]]
-#         texts.append(text)
-#     return texts
-
-
 @dataclass
 class JDFTXOutfile:
     """JDFTx out file parsing class.
@@ -135,10 +72,7 @@ class JDFTXOutfile:
         """
         if len(self.slices):
             return self.slices[-1].prefix
-        raise AttributeError(
-            "Property prefix inaccessible due to \
-                             empty slices class field"
-        )
+        raise AttributeError("Property prefix inaccessible due to empty slices class field")
 
     @property
     def jstrucs(self) -> JOutStructures:
@@ -149,10 +83,7 @@ class JDFTXOutfile:
         """
         if len(self.slices):
             return self.slices[-1].jstrucs
-        raise AttributeError(
-            "Property jstrucs inaccessible due to \
-                             empty slices class field"
-        )
+        raise AttributeError("Property jstrucs inaccessible due to empty slices class field")
 
     @property
     def jsettings_fluid(
@@ -165,10 +96,7 @@ class JDFTXOutfile:
         """
         if len(self.slices):
             return self.slices[-1].jsettings_fluid
-        raise AttributeError(
-            "Property jsettings_fluid inaccessible due to \
-                             empty slices class field"
-        )
+        raise AttributeError("Property jsettings_fluid inaccessible due to empty slices class field")
 
     @property
     def jsettings_electronic(
@@ -181,10 +109,7 @@ class JDFTXOutfile:
         """
         if len(self.slices):
             return self.slices[-1].jsettings_electronic
-        raise AttributeError(
-            "Property jsettings_electronic inaccessible \
-                             due to empty slices class field"
-        )
+        raise AttributeError("Property jsettings_electronic inaccessible due to empty slices class field")
 
     @property
     def jsettings_lattice(
@@ -197,10 +122,7 @@ class JDFTXOutfile:
         """
         if len(self.slices):
             return self.slices[-1].jsettings_lattice
-        raise AttributeError(
-            "Property jsettings_lattice inaccessible \
-                             due to empty slices class field"
-        )
+        raise AttributeError("Property jsettings_lattice inaccessible due to empty slices class field")
 
     @property
     def jsettings_ionic(
@@ -213,10 +135,7 @@ class JDFTXOutfile:
         """
         if len(self.slices):
             return self.slices[-1].jsettings_ionic
-        raise AttributeError(
-            "Property jsettings_ionic inaccessible due to \
-                             empty slices class field"
-        )
+        raise AttributeError("Property jsettings_ionic inaccessible due to empty slices class field")
 
     @property
     def xc_func(self) -> str:
@@ -227,10 +146,7 @@ class JDFTXOutfile:
         """
         if len(self.slices):
             return self.slices[-1].xc_func
-        raise AttributeError(
-            "Property xc_func inaccessible due to empty \
-                             slices class field"
-        )
+        raise AttributeError("Property xc_func inaccessible due to empty slices class field")
 
     @property
     def lattice_initial(self) -> np.ndarray:
@@ -241,10 +157,7 @@ class JDFTXOutfile:
         """
         if len(self.slices):
             return self.slices[-1].lattice_initial
-        raise AttributeError(
-            "Property lattice_initial inaccessible due to \
-                             empty slices class field"
-        )
+        raise AttributeError("Property lattice_initial inaccessible due to empty slices class field")
 
     @property
     def lattice_final(self) -> np.ndarray:
@@ -255,10 +168,7 @@ class JDFTXOutfile:
         """
         if len(self.slices):
             return self.slices[-1].lattice_final
-        raise AttributeError(
-            "Property lattice_final inaccessible due to \
-                             empty slices class field"
-        )
+        raise AttributeError("Property lattice_final inaccessible due to empty slices class field")
 
     @property
     def lattice(self) -> np.ndarray:
@@ -269,10 +179,7 @@ class JDFTXOutfile:
         """
         if len(self.slices):
             return self.slices[-1].lattice
-        raise AttributeError(
-            "Property lattice inaccessible due to \
-                             empty slices class field"
-        )
+        raise AttributeError("Property lattice inaccessible due to empty slices class field")
 
     @property
     def a(self) -> float:
@@ -283,10 +190,7 @@ class JDFTXOutfile:
         """
         if len(self.slices):
             return self.slices[-1].a
-        raise AttributeError(
-            "Property a inaccessible due to empty slices \
-                             class field"
-        )
+        raise AttributeError("Property a inaccessible due to empty slices class field")
 
     @property
     def b(self) -> float:
@@ -297,10 +201,7 @@ class JDFTXOutfile:
         """
         if len(self.slices):
             return self.slices[-1].b
-        raise AttributeError(
-            "Property b inaccessible due to empty \
-                             slices class field"
-        )
+        raise AttributeError("Property b inaccessible due to empty slices class field")
 
     @property
     def c(self) -> float:
@@ -311,10 +212,7 @@ class JDFTXOutfile:
         """
         if len(self.slices):
             return self.slices[-1].c
-        raise AttributeError(
-            "Property c inaccessible due to empty \
-                             slices class field"
-        )
+        raise AttributeError("Property c inaccessible due to empty slices class field")
 
     @property
     def fftgrid(self) -> list[int]:
@@ -325,10 +223,7 @@ class JDFTXOutfile:
         """
         if len(self.slices):
             return self.slices[-1].fftgrid
-        raise AttributeError(
-            "Property fftgrid inaccessible due to empty \
-                             slices class field"
-        )
+        raise AttributeError("Property fftgrid inaccessible due to empty slices class field")
 
     @property
     def geom_opt(self) -> bool:
@@ -339,10 +234,7 @@ class JDFTXOutfile:
         """
         if len(self.slices):
             return self.slices[-1].geom_opt
-        raise AttributeError(
-            "Property geom_opt inaccessible due to \
-                             empty slices class field"
-        )
+        raise AttributeError("Property geom_opt inaccessible due to empty slices class field")
 
     @property
     def geom_opt_type(self) -> str:
@@ -353,10 +245,7 @@ class JDFTXOutfile:
         """
         if len(self.slices):
             return self.slices[-1].geom_opt_type
-        raise AttributeError(
-            "Property geom_opt_type inaccessible due to \
-                             empty slices class field"
-        )
+        raise AttributeError("Property geom_opt_type inaccessible due to empty slices class field")
 
     @property
     def efermi(self) -> float:
@@ -367,10 +256,7 @@ class JDFTXOutfile:
         """
         if len(self.slices):
             return self.slices[-1].efermi
-        raise AttributeError(
-            "Property efermi inaccessible due to \
-                             empty slices class field"
-        )
+        raise AttributeError("Property efermi inaccessible due to empty slices class field")
 
     @property
     def egap(self) -> float:
@@ -381,10 +267,7 @@ class JDFTXOutfile:
         """
         if len(self.slices):
             return self.slices[-1].egap
-        raise AttributeError(
-            "Property egap inaccessible due to \
-                             empty slices class field"
-        )
+        raise AttributeError("Property egap inaccessible due to empty slices class field")
 
     @property
     def emin(self) -> float:
@@ -395,10 +278,7 @@ class JDFTXOutfile:
         """
         if len(self.slices):
             return self.slices[-1].emin
-        raise AttributeError(
-            "Property emin inaccessible due to \
-                             empty slices class field"
-        )
+        raise AttributeError("Property emin inaccessible due to empty slices class field")
 
     @property
     def emax(self) -> float:
@@ -409,10 +289,7 @@ class JDFTXOutfile:
         """
         if len(self.slices):
             return self.slices[-1].emax
-        raise AttributeError(
-            "Property emax inaccessible due to \
-                             empty slices class field"
-        )
+        raise AttributeError("Property emax inaccessible due to empty slices class field")
 
     @property
     def homo(self) -> float:
@@ -423,10 +300,7 @@ class JDFTXOutfile:
         """
         if len(self.slices):
             return self.slices[-1].homo
-        raise AttributeError(
-            "Property homo inaccessible due to \
-                             empty slices class field"
-        )
+        raise AttributeError("Property homo inaccessible due to empty slices class field")
 
     @property
     def lumo(self) -> float:
@@ -437,10 +311,7 @@ class JDFTXOutfile:
         """
         if len(self.slices):
             return self.slices[-1].lumo
-        raise AttributeError(
-            "Property lumo inaccessible due to \
-                             empty slices class field"
-        )
+        raise AttributeError("Property lumo inaccessible due to empty slices class field")
 
     @property
     def homo_filling(self) -> float:
@@ -451,10 +322,7 @@ class JDFTXOutfile:
         """
         if len(self.slices):
             return self.slices[-1].homo_filling
-        raise AttributeError(
-            "Property homo_filling inaccessible due to \
-                             empty slices class field"
-        )
+        raise AttributeError("Property homo_filling inaccessible due to empty slices class field")
 
     @property
     def lumo_filling(self) -> float:
@@ -465,10 +333,7 @@ class JDFTXOutfile:
         """
         if len(self.slices):
             return self.slices[-1].lumo_filling
-        raise AttributeError(
-            "Property lumo_filling inaccessible due to \
-                             empty slices class field"
-        )
+        raise AttributeError("Property lumo_filling inaccessible due to empty slices class field")
 
     @property
     def is_metal(self) -> bool:
@@ -479,10 +344,7 @@ class JDFTXOutfile:
         """
         if len(self.slices):
             return self.slices[-1].is_metal
-        raise AttributeError(
-            "Property is_metal inaccessible due to \
-                             empty slices class field"
-        )
+        raise AttributeError("Property is_metal inaccessible due to empty slices class field")
 
     @property
     def etype(self) -> str:
@@ -493,10 +355,7 @@ class JDFTXOutfile:
         """
         if len(self.slices):
             return self.slices[-1].etype
-        raise AttributeError(
-            "Property etype inaccessible due to \
-                             empty slices class field"
-        )
+        raise AttributeError("Property etype inaccessible due to empty slices class field")
 
     @property
     def broadening_type(self) -> str:
@@ -507,10 +366,7 @@ class JDFTXOutfile:
         """
         if len(self.slices):
             return self.slices[-1].broadening_type
-        raise AttributeError(
-            "Property broadening_type inaccessible due \
-                             to empty slices class field"
-        )
+        raise AttributeError("Property broadening_type inaccessible due to empty slices class field")
 
     @property
     def broadening(self) -> float:
@@ -521,10 +377,7 @@ class JDFTXOutfile:
         """
         if len(self.slices):
             return self.slices[-1].broadening
-        raise AttributeError(
-            "Property broadening inaccessible \
-                             due to empty slices class field"
-        )
+        raise AttributeError("Property broadening inaccessible due to empty slices class field")
 
     @property
     def kgrid(self) -> list:
@@ -535,10 +388,7 @@ class JDFTXOutfile:
         """
         if len(self.slices):
             return self.slices[-1].kgrid
-        raise AttributeError(
-            "Property kgrid inaccessible \
-                             due to empty slices class field"
-        )
+        raise AttributeError("Property kgrid inaccessible due to empty slices class field")
 
     @property
     def truncation_type(self) -> str:
@@ -549,10 +399,7 @@ class JDFTXOutfile:
         """
         if len(self.slices):
             return self.slices[-1].truncation_type
-        raise AttributeError(
-            "Property truncation_type inaccessible \
-                             due to empty slices class field"
-        )
+        raise AttributeError("Property truncation_type inaccessible due to empty slices class field")
 
     @property
     def truncation_radius(self) -> float:
@@ -563,10 +410,7 @@ class JDFTXOutfile:
         """
         if len(self.slices):
             return self.slices[-1].truncation_radius
-        raise AttributeError(
-            "Property truncation_radius inaccessible \
-                             due to empty slices class field"
-        )
+        raise AttributeError("Property truncation_radius inaccessible due to empty slices class field")
 
     @property
     def pwcut(self) -> float:
@@ -577,10 +421,7 @@ class JDFTXOutfile:
         """
         if len(self.slices):
             return self.slices[-1].pwcut
-        raise AttributeError(
-            "Property pwcut inaccessible due to \
-                             empty slices class field"
-        )
+        raise AttributeError("Property pwcut inaccessible due to empty slices class field")
 
     @property
     def rhocut(self) -> float:
@@ -591,10 +432,7 @@ class JDFTXOutfile:
         """
         if len(self.slices):
             return self.slices[-1].rhocut
-        raise AttributeError(
-            "Property rhocut inaccessible due to empty \
-                             slices class field"
-        )
+        raise AttributeError("Property rhocut inaccessible due to empty slices class field")
 
     @property
     def pp_type(self) -> str:
@@ -605,10 +443,7 @@ class JDFTXOutfile:
         """
         if len(self.slices):
             return self.slices[-1].pp_type
-        raise AttributeError(
-            "Property pp_type inaccessible due to empty \
-                             slices class field"
-        )
+        raise AttributeError("Property pp_type inaccessible due to empty slices class field")
 
     @property
     def total_electrons(self) -> float:
@@ -619,10 +454,7 @@ class JDFTXOutfile:
         """
         if len(self.slices):
             return self.slices[-1].total_electrons
-        raise AttributeError(
-            "Property total_electrons inaccessible due to \
-                             empty slices class field"
-        )
+        raise AttributeError("Property total_electrons inaccessible due to empty slices class field")
 
     @property
     def semicore_electrons(self) -> int:
@@ -633,10 +465,7 @@ class JDFTXOutfile:
         """
         if len(self.slices):
             return self.slices[-1].semicore_electrons
-        raise AttributeError(
-            "Property semicore_electrons inaccessible due \
-                             to empty slices class field"
-        )
+        raise AttributeError("Property semicore_electrons inaccessible due to empty slices class field")
 
     @property
     def valence_electrons(self) -> float:
@@ -647,10 +476,7 @@ class JDFTXOutfile:
         """
         if len(self.slices):
             return self.slices[-1].valence_electrons
-        raise AttributeError(
-            "Property valence_electrons inaccessible due \
-                             to empty slices class field"
-        )
+        raise AttributeError("Property valence_electrons inaccessible due to empty slices class field")
 
     @property
     def total_electrons_uncharged(self) -> int:
@@ -661,10 +487,7 @@ class JDFTXOutfile:
         """
         if len(self.slices):
             return self.slices[-1].total_electrons_uncharged
-        raise AttributeError(
-            "Property total_electrons_uncharged \
-                             inaccessible due to empty slices class field"
-        )
+        raise AttributeError("Property total_electrons_uncharged inaccessible due to empty slices class field")
 
     @property
     def semicore_electrons_uncharged(self) -> int:
@@ -675,10 +498,7 @@ class JDFTXOutfile:
         """
         if len(self.slices):
             return self.slices[-1].semicore_electrons_uncharged
-        raise AttributeError(
-            "Property semicore_electrons_uncharged \
-                             inaccessible due to empty slices class field"
-        )
+        raise AttributeError("Property semicore_electrons_uncharged inaccessible due to empty slices class field")
 
     @property
     def valence_electrons_uncharged(self) -> int:
@@ -689,10 +509,7 @@ class JDFTXOutfile:
         """
         if len(self.slices):
             return self.slices[-1].valence_electrons_uncharged
-        raise AttributeError(
-            "Property valence_electrons_uncharged \
-                             inaccessible due to empty slices class field"
-        )
+        raise AttributeError("Property valence_electrons_uncharged inaccessible due to empty slices class field")
 
     @property
     def nbands(self) -> int:
@@ -703,10 +520,7 @@ class JDFTXOutfile:
         """
         if len(self.slices):
             return self.slices[-1].nbands
-        raise AttributeError(
-            "Property nbands inaccessible due to empty \
-                             slices class field"
-        )
+        raise AttributeError("Property nbands inaccessible due to empty slices class field")
 
     @property
     def atom_elements(self) -> list:
@@ -717,10 +531,7 @@ class JDFTXOutfile:
         """
         if len(self.slices):
             return self.slices[-1].atom_elements
-        raise AttributeError(
-            "Property atom_elements inaccessible due to \
-                             empty slices class field"
-        )
+        raise AttributeError("Property atom_elements inaccessible due to empty slices class field")
 
     @property
     def atom_elements_int(self) -> list:
@@ -731,10 +542,7 @@ class JDFTXOutfile:
         """
         if len(self.slices):
             return self.slices[-1].atom_elements_int
-        raise AttributeError(
-            "Property atom_elements_int inaccessible due \
-                             to empty slices class field"
-        )
+        raise AttributeError("Property atom_elements_int inaccessible due to empty slices class field")
 
     @property
     def atom_types(self) -> list:
@@ -745,10 +553,7 @@ class JDFTXOutfile:
         """
         if len(self.slices):
             return self.slices[-1].atom_types
-        raise AttributeError(
-            "Property atom_types inaccessible due to \
-                             empty slices class field"
-        )
+        raise AttributeError("Property atom_types inaccessible due to empty slices class field")
 
     @property
     def spintype(self) -> str:
@@ -759,10 +564,7 @@ class JDFTXOutfile:
         """
         if len(self.slices):
             return self.slices[-1].spintype
-        raise AttributeError(
-            "Property spintype inaccessible due to \
-                             empty slices class field"
-        )
+        raise AttributeError("Property spintype inaccessible due to empty slices class field")
 
     @property
     def nspin(self) -> int:
@@ -773,10 +575,7 @@ class JDFTXOutfile:
         """
         if len(self.slices):
             return self.slices[-1].nspin
-        raise AttributeError(
-            "Property nspin inaccessible due to \
-                             empty slices class field"
-        )
+        raise AttributeError("Property nspin inaccessible due to empty slices class field")
 
     @property
     def nat(self) -> int:
@@ -787,10 +586,7 @@ class JDFTXOutfile:
         """
         if len(self.slices):
             return self.slices[-1].nat
-        raise AttributeError(
-            "Property nat inaccessible due to \
-                             empty slices class field"
-        )
+        raise AttributeError("Property nat inaccessible due to empty slices class field")
 
     @property
     def atom_coords_initial(self) -> list[list[float]]:
@@ -801,10 +597,7 @@ class JDFTXOutfile:
         """
         if len(self.slices):
             return self.slices[-1].atom_coords_initial
-        raise AttributeError(
-            "Property atom_coords_initial inaccessible \
-                             due to empty slices class field"
-        )
+        raise AttributeError("Property atom_coords_initial inaccessible due to empty slices class field")
 
     @property
     def atom_coords_final(self) -> list[list[float]]:
@@ -815,10 +608,7 @@ class JDFTXOutfile:
         """
         if len(self.slices):
             return self.slices[-1].atom_coords_final
-        raise AttributeError(
-            "Property atom_coords_final inaccessible \
-                             due to empty slices class field"
-        )
+        raise AttributeError("Property atom_coords_final inaccessible due to empty slices class field")
 
     @property
     def atom_coords(self) -> list[list[float]]:
@@ -829,10 +619,7 @@ class JDFTXOutfile:
         """
         if len(self.slices):
             return self.slices[-1].atom_coords
-        raise AttributeError(
-            "Property atom_coords inaccessible \
-                             due to empty slices class field"
-        )
+        raise AttributeError("Property atom_coords inaccessible due to empty slices class field")
 
     @property
     def has_solvation(self) -> bool:
@@ -843,10 +630,7 @@ class JDFTXOutfile:
         """
         if len(self.slices):
             return self.slices[-1].has_solvation
-        raise AttributeError(
-            "Property has_solvation inaccessible \
-                             due to empty slices class field"
-        )
+        raise AttributeError("Property has_solvation inaccessible due to empty slices class field")
 
     @property
     def fluid(self) -> str:
@@ -857,10 +641,7 @@ class JDFTXOutfile:
         """
         if len(self.slices):
             return self.slices[-1].fluid
-        raise AttributeError(
-            "Property fluid inaccessible \
-                             due to empty slices class field"
-        )
+        raise AttributeError("Property fluid inaccessible due to empty slices class field")
 
     @property
     def is_gc(self) -> bool:
@@ -876,10 +657,7 @@ class JDFTXOutfile:
         """
         if len(self.slices):
             return self.slices[-1].is_gc
-        raise AttributeError(
-            "Property is_gc inaccessible \
-                             due to empty slices class field"
-        )
+        raise AttributeError("Property is_gc inaccessible due to empty slices class field")
 
     ###########################################################################
     # Properties inherited from most recent JDFTXOutfileSlice directly through
@@ -931,15 +709,15 @@ class JDFTXOutfile:
         raise AttributeError("Property strain inaccessible due to empty jstrucs class field")
 
     @property
-    def iter(self) -> int:
+    def niter(self) -> int:
         """
-        Return (geometric) iter from most recent JOutStructure.
+        Return (geometric) iter number from most recent JOutStructure.
 
-        Return (geometric) iter from most recent JOutStructure.
+        Return (geometric) iter number from most recent JOutStructure.
         """
         if len(self.slices):
-            return self.slices[-1].iter
-        raise AttributeError("Property iter inaccessible due to empty jstrucs class field")
+            return self.slices[-1].niter
+        raise AttributeError("Property niter inaccessible due to empty jstrucs class field")
 
     @property
     def e(self) -> float:
@@ -1036,18 +814,18 @@ class JDFTXOutfile:
     ###########################################################################
 
     @property
-    def elec_iter(self) -> int:
+    def elec_niter(self) -> int:
         """Return the most recent electronic iteration.
 
         Return the most recent electronic iteration.
 
         Returns
         -------
-        elec_iter: int
+        elec_niter: int
         """
         if len(self.slices):
-            return self.slices[-1].elec_iter
-        raise AttributeError("Property elec_iter inaccessible due to empty jstrucs class field")
+            return self.slices[-1].elec_niter
+        raise AttributeError("Property elec_inter inaccessible due to empty jstrucs class field")
 
     @property
     def elec_e(self) -> float:
@@ -1171,15 +949,6 @@ class JDFTXOutfile:
                 raise AttributeError(f"{self.__class__.__name__} not found: {name}")
             return getattr(self.slices[-1], name)
         raise AttributeError(f"Property {name} inaccessible due to empty jstrucs class field")
-        # if name not in self.__dict__:
-        #     if len(self.slices):
-        #         if not hasattr(self.slices[-1], name):
-        #             raise AttributeError(f"{self.__class__.__name__} not found: {name}")
-        #         return getattr(self.slices[-1], name)
-        #     raise AttributeError(f"Property {name} inaccessible due to empty jstrucs class field")
-        # else:
-        #     # I believe this is unreachable code
-        #     return self.__dict__[name]
 
     def __dir__(self) -> list:
         """List attributes.

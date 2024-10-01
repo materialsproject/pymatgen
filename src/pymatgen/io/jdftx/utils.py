@@ -751,3 +751,81 @@ def get_pseudo_read_section_bounds(text: list[str]) -> list[list[int]]:
                 break
         section_bounds.append(bounds)
     return section_bounds
+
+
+# #############################################
+# # HELPERS FOR JDFTXOUTPUT #
+# #############################################
+
+# def parse_kptsfile(kptsfile: Path) -> tuple[list[float], list[list[float]], int]:
+#     """ Parse kPts file.
+
+#     Parse kPts file to get kpt weights, k points and number of states.
+
+#     Parameters
+#     ----------
+#     kptsfile: Path
+#         Path to kPts file
+#     """
+#     wk_list = []
+#     k_points_list = []
+#     with open(kptsfile, "r") as f:
+#         for line in f:
+#             k_points = line.split("[")[1].split("]")[0].strip().split()
+#             k_points = [float(v) for v in k_points]
+#             k_points_list.append(k_points)
+#             wk = float(line.split("]")[1].strip().split()[0])
+#             wk_list.append(wk)
+#     nstates = len(wk_list)
+#     return wk_list, k_points_list, nstates
+
+# def get_kpts_info(nspin: int, kfolding: list[int], kpts_filename: Path | str, nstates: int) -> dict:
+#     """ Get k-points information.
+
+#     Get k-points information from kPts file. Assigns arbitrary MK-pack values for k-points if kPts file is not found.
+#     Assigns arbitrary values for k-point folding as well if nstates does not equal nspin * nk.
+#     """
+#     kpts_info = {}
+#     _nk = int(np.prod(kfolding))
+#     nk = int(np.prod(kfolding))
+#     if nspin != int(nstates / _nk):
+#         print(
+#             "WARNING: Internal inconsistency found with respect to input parameters (nSpin * nK-pts != nStates).")
+#         print(
+#             "No safety net for this which allows for tetrahedral integration currently implemented.")
+#         if not ope(kpts_filename):
+#             print(
+#                 "k-folding will be changed to arbitrary length 3 array to satisfy shaping criteria.")
+#         kpts_info["lti"] = False
+#         nk = int(nstates / nspin)
+#     else:
+#         kpts_info["lti"] = True
+#     if ope(kpts_filename):
+#         # TODO: Write a function that can un-reduce a reduced kpts mesh
+#         wk, ks, nStates = parse_kptsfile(kpts_filename)
+#         wk = np.array(wk)
+#         ks = np.array(ks)
+#         if (nk != _nk):
+#             if len(ks) == nk:  # length of kpt data matches interpolated nK value
+#                 kfolding = get_kfolding_from_kpts(kpts_filename, nk)
+#             else:
+#                 kfolding = get_arbitrary_kfolding(nk)
+#                 ks = np.ones([nk * nspin, 3]) * np.nan
+#                 wk = np.ones(nk * nspin)
+#                 wk *= (1 / nk)
+#     else:
+#         if nk != _nk:
+#             kfolding = get_arbitrary_kfolding(nk)
+#         ks = np.ones([nk * nspin, 3]) * np.nan
+#         wk = np.ones(nk * nspin)
+#         wk *= (1 / nk)
+#     wk_sabc = wk.reshape([nspin, kfolding[0], kfolding[1], kfolding[2]])
+#     ks_sabc = ks.reshape([nspin, kfolding[0], kfolding[1], kfolding[2], 3])
+#     kpts_info["wk_sabc"] = wk_sabc
+#     kpts_info["ks_sabc"] = ks_sabc
+#     kpts_info["kfolding"] = kfolding
+#     return kpts_info
+
+# def get_arbitrary_kfolding(nk: int) -> list[int]:
+#     kfolding = [1, 1, nk]
+#     return kfolding

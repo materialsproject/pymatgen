@@ -9,6 +9,8 @@ from pymatgen.core.units import Ha_to_eV
 from pymatgen.io.jdftx.jeiter import JEiter
 from pymatgen.io.jdftx.jeiters import JEiters
 
+from .conftest import assert_slices_1layer_attribute_error, assert_slices_2layer_attribute_error
+
 ex_fillings_line1 = "FillingsUpdate:  mu: +0.714406772  \
     nElectrons: 64.000000  magneticMoment: [ Abs: 0.00578  Tot: -0.00141 ]"
 ex_fillings_line1_known = {
@@ -37,7 +39,7 @@ ex_iter_line1 = "ElecMinimize: Iter:   6  F: -246.531038317370076\
         |grad|_K:  6.157e-08  alpha:  5.534e-01  linmin: -4.478e-06\
               t[s]:    248.68"
 ex_iter_line1_known = {
-    "iter": 6,
+    "niter": 6,
     "e": -246.531038317370076 * Ha_to_eV,
     "grad_k": 6.157e-08,
     "alpha": 5.534e-01,
@@ -49,7 +51,7 @@ ex_iter_line2 = "ElecMinimize: Iter:   7  F: -240.531038317370076\
         |grad|_K:  6.157e-07  alpha:  5.534e-02  linmin: -5.478e-06\
                 t[s]:    48.68"
 ex_iter_line2_known = {
-    "iter": 7,
+    "niter": 7,
     "e": -240.531038317370076 * Ha_to_eV,
     "grad_k": 6.157e-07,
     "alpha": 5.534e-02,
@@ -66,17 +68,6 @@ for known1 in [ex_fillings_line1_known, ex_iter_line1_known, ex_subspace_line1_k
 ex_known2 = {}
 for known2 in [ex_fillings_line2_known, ex_iter_line2_known, ex_subspace_line2_known]:
     ex_known2.update(known2)
-# ex_known1 = {
-#     "iter": ex_iter_line1_known,
-#     "fill": ex_fillings_line1_known,
-#     "subspace": ex_subspace_line1_known,
-# }
-
-# ex_known2 = {
-#     "iter": ex_iter_line2_known,
-#     "fill": ex_fillings_line2_known,
-#     "subspace": ex_subspace_line2_known,
-# }
 
 
 def is_right_known(val: Any, ex_known_val: Any):
@@ -120,7 +111,7 @@ def test_jeiter_known(
         "nelectrons",
         "abs_magneticmoment",
         "tot_magneticmoment",
-        "iter",
+        "niter",
         "e",
         "grad_k",
         "alpha",
@@ -148,7 +139,7 @@ def test_jeiters_known(
         "nelectrons",
         "abs_magneticmoment",
         "tot_magneticmoment",
-        "iter",
+        "niter",
         "e",
         "grad_k",
         "alpha",
@@ -169,7 +160,7 @@ ex_text_slice = [ex_fillings_line1, ex_subspace_line1, ex_iter_line1]
 @pytest.mark.parametrize(
     ("text_slice", "varname"),
     [
-        (ex_text_slice, "iter"),
+        (ex_text_slice, "niter"),
         (ex_text_slice, "grad_k"),
         (ex_text_slice, "alpha"),
         (ex_text_slice, "linmin"),
@@ -178,11 +169,7 @@ ex_text_slice = [ex_fillings_line1, ex_subspace_line1, ex_iter_line1]
     ],
 )
 def test_jeiters_has_1layer_slice_freakout(text_slice: list[str], varname: str):
-    jeis = JEiters.from_text_slice(text_slice)
-    getattr(jeis, varname)  # No freakout here
-    jeis.slices = []
-    with pytest.raises(AttributeError):
-        getattr(jeis, varname)  # Freakout here
+    assert_slices_1layer_attribute_error(JEiters.from_text_slice, text_slice, varname, "slices")
 
 
 @pytest.mark.parametrize(
@@ -196,14 +183,4 @@ def test_jeiters_has_1layer_slice_freakout(text_slice: list[str], varname: str):
     ],
 )
 def test_jeiters_has_2layer_slice_freakout(text_slice: list[str], varname: str):
-    jeis = JEiters.from_text_slice(text_slice)
-    getattr(jeis, varname)  # No freakout here
-    setattr(jeis.slices[-1], varname, None)
-    with pytest.raises(AttributeError):
-        getattr(jeis, varname)
-    # Reset
-    jeis = JEiters.from_text_slice(text_slice)
-    getattr(jeis, varname)  # No freakout here
-    jeis.slices = []
-    with pytest.raises(AttributeError):
-        getattr(jeis, varname)
+    assert_slices_2layer_attribute_error(JEiters.from_text_slice, text_slice, varname, "slices")

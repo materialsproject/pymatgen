@@ -326,10 +326,10 @@ def test_multiformattagcontainer():
     with pytest.raises(RuntimeError):
         mftg.write(tag, value)
     errormsg = f"No valid read format for '{tag} {value}' tag\n"
-    errormsg += "Add option to format_options or double-check the value string and retry!\n\n"
+    "Add option to format_options or double-check the value string and retry!\n\n"
     with pytest.raises(ValueError, match=re.escape(errormsg)):
-        mftg.get_format_index(tag, value)
+        mftg.get_format_index_for_str_value(tag, value)
     err_str = f"The format for {tag} for:\n{value}\ncould not be determined from the available options!"
-    err_str += "Check your inputs and/or MASTER_TAG_LIST!"
+    "Check your inputs and/or MASTER_TAG_LIST!"
     with pytest.raises(ValueError, match=re.escape(err_str)):
         mftg._determine_format_option(tag, value)

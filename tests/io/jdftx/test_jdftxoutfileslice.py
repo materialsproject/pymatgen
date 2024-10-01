@@ -30,7 +30,7 @@ with open(ex_slice2_fname) as f:
         (ex_slice1, "elecmindata"),
         (ex_slice1, "stress"),
         (ex_slice1, "strain"),
-        (ex_slice1, "iter"),
+        (ex_slice1, "niter"),
         (ex_slice1, "e"),
         (ex_slice1, "grad_k"),
         (ex_slice1, "alpha"),
@@ -38,7 +38,7 @@ with open(ex_slice2_fname) as f:
         (ex_slice1, "abs_magneticmoment"),
         (ex_slice1, "tot_magneticmoment"),
         (ex_slice1, "mu"),
-        (ex_slice1, "elec_iter"),
+        (ex_slice1, "elec_niter"),
         (ex_slice1, "elec_e"),
         (ex_slice1, "elec_grad_k"),
         (ex_slice1, "elec_alpha"),
@@ -254,23 +254,3 @@ def test_to_dict():
     joutslice = JDFTXOutfileSlice.from_out_slice(ex_slice1)
     out_dict = joutslice.to_dict()
     assert isinstance(out_dict, dict)
-
-
-# @pytest.mark.parametrize(
-#     ("out_slice", "varname"),
-#     [
-#         (ex_text_slice, "e"),
-#     ]
-# )
-# def jeiters_has_2layer_slice_freakout(out_slice: list[str], varname: str):
-#     jstrucs = JOutStructures.from_out_slice(out_slice)
-#     getattr(jstrucs, varname) # No freakout here
-#     setattr(jstrucs.slices[-1], varname, None)
-#     with pytest.raises(ValueError):
-#         jstrucs.iter # Freakout here
-#     # Reset
-#     jstrucs = JOutStructures.from_out_slice(out_slice)
-#     getattr(jstrucs, varname) # No freakout here
-#     jstrucs.slices = []
-#     with pytest.raises(ValueError):
-#         jstrucs.iter # Freakout here
