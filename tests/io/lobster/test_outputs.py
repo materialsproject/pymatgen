@@ -1405,9 +1405,16 @@ class TestBandoverlaps(TestCase):
 class TestGrosspop(TestCase):
     def setUp(self):
         self.grosspop1 = Grosspop(f"{TEST_DIR}/GROSSPOP.lobster")
+        self.grosspop_511_sp = Grosspop(f"{TEST_DIR}/GROSSPOP_511_sp.lobster.AlN")
+        self.grosspop_511_nsp = Grosspop(f"{TEST_DIR}/GROSSPOP_511_nsp.lobster.NaCl")
+        self.grosspop_511_lcfo = Grosspop(f"{TEST_DIR}/GROSSPOP.LCFO.lobster.AlN")
 
     def test_attributes(self):
         gross_pop_list = self.grosspop1.list_dict_grosspop
+        gross_pop_list_511_sp = self.grosspop_511_sp.list_dict_grosspop
+        gross_pop_list_511_nsp = self.grosspop_511_nsp.list_dict_grosspop
+        gross_pop_list_lcfo = self.grosspop_511_lcfo.list_dict_grosspop
+
         assert gross_pop_list[0]["Mulliken GP"]["3s"] == approx(0.52)
         assert gross_pop_list[0]["Mulliken GP"]["3p_y"] == approx(0.38)
         assert gross_pop_list[0]["Mulliken GP"]["3p_z"] == approx(0.37)
@@ -1425,6 +1432,18 @@ class TestGrosspop(TestCase):
         assert gross_pop_list[8]["Mulliken GP"]["2s"] == approx(1.80)
         assert gross_pop_list[8]["Loewdin GP"]["2s"] == approx(1.60)
         assert gross_pop_list[8]["element"] == "O"
+
+        # v5.1 spin polarized
+        assert gross_pop_list_511_sp[1]["Mulliken GP"]["3p_y"][Spin.up] == approx(0.19)
+        assert gross_pop_list_511_sp[3]["Loewdin GP"]["2s"][Spin.down] == approx(0.7)
+
+        # v5.1 non spin polarized
+        assert gross_pop_list_511_nsp[0]["Mulliken GP"]["3s"] == approx(0.22)
+        assert gross_pop_list_511_nsp[-1]["Loewdin GP"]["total"] == approx(7.67)
+
+        # v.5.1.1 LCFO
+        assert gross_pop_list_lcfo[0]["mol"] == "AlN"
+        assert gross_pop_list_lcfo[0]["Loewdin GP"]["4a1"][Spin.up] == approx(0.07)
 
     def test_structure_with_grosspop(self):
         struct_dict = {
