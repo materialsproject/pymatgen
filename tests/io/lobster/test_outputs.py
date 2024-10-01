@@ -1577,6 +1577,12 @@ class TestIcohplist(TestCase):
             filename=f"{TEST_DIR}/ICOHPLIST.lobster",
             are_coops=True,
         )
+        # ICOHPLIST.lobster from Lobster >v5
+        self.icohp_aln_511_sp = Icohplist(filename=f"{TEST_DIR}/ICOHPLIST_511_sp.lobster.AlN")
+        self.icohp_nacl_511_nsp = Icohplist(filename=f"{TEST_DIR}/ICOHPLIST_511_nsp.lobster.NaCl")
+
+        # ICOHPLIST.LCFO.lobster from Lobster v5.1.1
+        self.icohp_lcfo = Icohplist(filename=f"{TEST_DIR}/ICOHPLIST.LCFO.lobster.AlN")
         # ICOBIs and orbitalwise ICOBILIST.lobster
         self.icobi_orbitalwise = Icohplist(
             filename=f"{TEST_DIR}/ICOBILIST.lobster",

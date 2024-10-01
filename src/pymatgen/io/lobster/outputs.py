@@ -423,10 +423,7 @@ class Icohplist(MSONable):
 
             # Check if is orbital-wise ICOHPLIST
             # TODO: include case where there is only one ICOHP
-            if version != "5.1.0":
-                self.orbitalwise = len(lines) > 2 and "_" in lines[1].split()[1]
-            else:
-                self.orbitalwise = len(lines) > 2 and lines[1].split()[1].count("_") == 2
+            self.orbitalwise = len(lines) > 2 and "_" in lines[1].split()[1]
 
             data_orbitals: list[str] = []
             if self.orbitalwise:
@@ -434,10 +431,12 @@ class Icohplist(MSONable):
                 data_orbitals = []
                 for line in lines:
                     if (
-                        "_" not in line.split()[1]
-                        and version != "5.1.0"
-                        or line.split()[1].count("_") == 1
+                        ("_" not in line.split()[1] and version != "5.1.0")
+                        or "_" not in line.split()[1]
                         and version == "5.1.0"
+                        or (line.split()[1].count("_") == 1)
+                        and version == "5.1.0"
+                        and "LCFO" in self._filename  # type: ignore[operator]
                     ):
                         data_without_orbitals.append(line)
                     elif line.split()[1].count("_") == 2 and version == "5.1.0":
@@ -2371,8 +2370,8 @@ class Polarization(MSONable):
                     self.rel_mulliken_pol_vector[cleanlines[0]] = float(cleanlines[1])
                     self.rel_loewdin_pol_vector[cleanlines[0]] = float(cleanlines[2])
                 if cleanlines and len(cleanlines) == 4:
-                    self.rel_mulliken_pol_vector[cleanlines[0].replace(":", "")] = cleanlines[1].replace("μ", "u")
-                    self.rel_loewdin_pol_vector[cleanlines[2].replace(":", "")] = cleanlines[3].replace("μ", "u")
+                    self.rel_mulliken_pol_vector[cleanlines[0].replace(":", "")] = cleanlines[1].replace("\u03bc", "u")
+                    self.rel_loewdin_pol_vector[cleanlines[2].replace(":", "")] = cleanlines[3].replace("\u03bc", "u")
 
 
 class Bwdf(MSONable):
