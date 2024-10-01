@@ -14,6 +14,7 @@ from pymatgen.electronic_structure.cohp import IcohpCollection
 from pymatgen.electronic_structure.core import Orbital, Spin
 from pymatgen.io.lobster import (
     Bandoverlaps,
+    Bwdf,
     Charge,
     Cohpcar,
     Doscar,
@@ -24,6 +25,7 @@ from pymatgen.io.lobster import (
     Lobsterout,
     MadelungEnergies,
     NciCobiList,
+    Polarization,
     SitePotential,
     Wavefunction,
 )
@@ -37,6 +39,21 @@ __copyright__ = "Copyright 2017, The Materials Project"
 __version__ = "0.2"
 __email__ = "janine.george@uclouvain.be, esters@uoregon.edu"
 __date__ = "Dec 10, 2017"
+
+
+class TestBwdf(PymatgenTest):
+    def setUp(self):
+        self.bwdf_coop = Bwdf(filename=f"{TEST_DIR}/BWDF.lobster.AlN")
+        self.bwdf_cohp = Bwdf(filename=f"{TEST_DIR}/BWDFCOHP.lobster.NaCl")
+
+    def test_attributes(self):
+        assert self.bwdf_coop.bin_width == approx(0.02005000, abs=1e-4)
+        assert self.bwdf_cohp.bin_width == approx(0.02005000, abs=1e-4)
+        assert len(self.bwdf_coop.centers) == 201
+        assert len(self.bwdf_cohp.centers) == 143
+        assert self.bwdf_coop.bwdf[Spin.down][-2] == approx(0.00082, abs=1e-4)
+        assert self.bwdf_coop.bwdf[Spin.up][0] == approx(0.81161, abs=1e-4)
+        assert self.bwdf_cohp.bwdf[Spin.up][103] == approx(-0.01392, abs=1e-4)
 
 
 class TestCohpcar(PymatgenTest):
@@ -2081,3 +2098,24 @@ class TestLobsterMatrices(PymatgenTest):
             match="Please check provided input file, it seems to be empty",
         ):
             self.hamilton_matrices = LobsterMatrices(filename=f"{TEST_DIR}/hamiltonMatrices.lobster")
+
+
+class TestPolarization(PymatgenTest):
+    def setUp(self) -> None:
+        self.polarization = Polarization(filename=f"{TEST_DIR}/POLARIZATION.lobster.AlN")
+
+    def test_attributes(self):
+        assert self.polarization.rel_loewdin_pol_vector == {
+            "x": -0.0,
+            "y": -0.01,
+            "z": 45.62,
+            "abs": 45.62,
+            "unit": "μC/cm2",
+        }
+        assert self.polarization.rel_mulliken_pol_vector == {
+            "x": -0.0,
+            "y": -0.02,
+            "z": 56.14,
+            "abs": 56.14,
+            "unit": "μC/cm2",
+        }
