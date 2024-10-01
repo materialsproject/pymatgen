@@ -2359,7 +2359,7 @@ class Polarization(MSONable):
         self.rel_loewdin_pol_vector = {} if rel_loewdin_pol_vector is None else rel_loewdin_pol_vector
 
         if not self.rel_loewdin_pol_vector and not self.rel_mulliken_pol_vector:
-            with zopen(filename, mode="rt") as file:
+            with zopen(filename, mode="r", encoding="utf-8") as file:
                 lines = file.read().split("\n")
             if len(lines) == 0:
                 raise RuntimeError("Polarization file contains no data.")
