@@ -1,0 +1,25 @@
+Loewdin gross orbital population 
+
+   mol#     mol  basisfunction     Loewdin GP     Loewdin GP
+                                   for spin 1     for spin 2
+      1     AlN            1a1           0.81           0.81
+                           2a1           0.84           0.84
+                            1e           0.79           0.79
+                            2e           0.79           0.79
+                           3a1           0.27           0.27
+                            3e           0.22           0.22
+                            4e           0.21           0.21
+                           4a1           0.07           0.07
+                         total           4.00           4.00
+
+      2      Al             3s           0.29           0.29
+                          3p_y           0.23           0.23
+                          3p_z           0.23           0.23
+                          3p_x           0.23           0.23
+                         total           0.99           0.99
+
+      3       N             2s           0.70           0.70
+                          2p_y           0.77           0.77
+                          2p_z           0.77           0.77
+                          2p_x           0.77           0.77
+                         total           3.01           3.01

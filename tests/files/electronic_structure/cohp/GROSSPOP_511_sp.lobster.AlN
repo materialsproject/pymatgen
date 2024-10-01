@@ -1,0 +1,31 @@
+Mulliken and Loewdin gross orbital population 
+
+  atom#    atom   basisfunction    Mulliken GP    Mulliken GP     Loewdin GP     Loewdin GP
+                                    For spin 1     For spin 2     For spin 1     For spin 2
+      1      Al             3s           0.31           0.31           0.29           0.29
+                          3p_y           0.19           0.19           0.23           0.23
+                          3p_z           0.19           0.19           0.23           0.23
+                          3p_x           0.19           0.19           0.23           0.23
+                         total           0.87           0.87           0.99           0.99
+
+
+      2      Al             3s           0.31           0.31           0.29           0.29
+                          3p_y           0.19           0.19           0.23           0.23
+                          3p_z           0.19           0.19           0.23           0.23
+                          3p_x           0.19           0.19           0.23           0.23
+                         total           0.87           0.87           0.99           0.99
+
+
+      3       N             2s           0.84           0.84           0.70           0.70
+                          2p_y           0.76           0.76           0.77           0.77
+                          2p_z           0.77           0.77           0.77           0.77
+                          2p_x           0.76           0.76           0.77           0.77
+                         total           3.13           3.13           3.01           3.01
+
+
+      4       N             2s           0.84           0.84           0.70           0.70
+                          2p_y           0.76           0.76           0.77           0.77
+                          2p_z           0.77           0.77           0.77           0.77
+                          2p_x           0.76           0.76           0.77           0.77
+                         total           3.13           3.13           3.01           3.01
+

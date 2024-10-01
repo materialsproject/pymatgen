@@ -1,0 +1,8 @@
+Loewdin Charges of the LCFO basis
+
+ molecule#         molecule      Loewdin charge
+         1              AlN                0.00
+         2               Al                1.02
+         3                N               -1.02
+
+                      total               -0.00
