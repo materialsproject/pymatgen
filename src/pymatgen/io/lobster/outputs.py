@@ -2371,8 +2371,8 @@ class Polarization(MSONable):
                     self.rel_mulliken_pol_vector[cleanlines[0]] = float(cleanlines[1])
                     self.rel_loewdin_pol_vector[cleanlines[0]] = float(cleanlines[2])
                 if cleanlines and len(cleanlines) == 4:
-                    self.rel_mulliken_pol_vector[cleanlines[0].replace(":", "")] = cleanlines[1]
-                    self.rel_loewdin_pol_vector[cleanlines[2].replace(":", "")] = cleanlines[3]
+                    self.rel_mulliken_pol_vector[cleanlines[0].replace(":", "")] = cleanlines[1].replace("μ", "u")
+                    self.rel_loewdin_pol_vector[cleanlines[2].replace(":", "")] = cleanlines[3].replace("μ", "u")
 
 
 class Bwdf(MSONable):

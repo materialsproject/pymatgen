@@ -2110,12 +2110,12 @@ class TestPolarization(PymatgenTest):
             "y": -0.01,
             "z": 45.62,
             "abs": 45.62,
-            "unit": "μC/cm2",
+            "unit": "uC/cm2",
         }
         assert self.polarization.rel_mulliken_pol_vector == {
             "x": -0.0,
             "y": -0.02,
             "z": 56.14,
             "abs": 56.14,
-            "unit": "μC/cm2",
+            "unit": "uC/cm2",
         }
