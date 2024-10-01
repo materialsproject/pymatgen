@@ -800,9 +800,15 @@ class Doscar:
         self._itdensities = itdensities
         final_struct = self._final_structure
 
-        pdossneu = {final_struct[i]: pdos for i, pdos in enumerate(self._pdos)}
+        # for DOCAR.LCFO.lobster, pdos is different than for non-LCFO DOSCAR so we need to handle it differently
+        # for now we just set pdos_dict to be empty if LCFO is in the filename
+        # Todo: handle LCFO pdos properly in future when we have complete set of orbitals
+        if "LCFO" not in doscar:
+            pdoss_dict = {final_struct[i]: pdos for i, pdos in enumerate(self._pdos)}
+        else:
+            pdoss_dict = {final_struct[i]: {} for i, _ in enumerate(self._pdos)}
 
-        self._completedos = LobsterCompleteDos(final_struct, self._tdos, pdossneu)
+        self._completedos = LobsterCompleteDos(final_struct, self._tdos, pdoss_dict)
 
     @property
     def completedos(self) -> LobsterCompleteDos:
@@ -887,8 +893,11 @@ class Charge(MSONable):
                 line_parts = lines[atom_idx].split()
                 self.atomlist.append(line_parts[1] + line_parts[0])
                 self.types.append(line_parts[1])
-                self.mulliken.append(float(line_parts[2]))
-                self.loewdin.append(float(line_parts[3]))
+                if "LCFO" not in self._filename:
+                    self.mulliken.append(float(line_parts[2]))
+                    self.loewdin.append(float(line_parts[3]))
+                else:
+                    self.loewdin.append(float(line_parts[2]))
 
     def get_structure_with_charges(self, structure_filename: PathLike) -> Structure:
         """Get a Structure with Mulliken and Loewdin charges as site properties
@@ -900,9 +909,16 @@ class Charge(MSONable):
             Structure Object with Mulliken and Loewdin charges as site properties.
         """
         struct = Structure.from_file(structure_filename)
-        mulliken = self.mulliken
-        loewdin = self.loewdin
-        site_properties = {"Mulliken Charges": mulliken, "Loewdin Charges": loewdin}
+        site_properties = {}
+        if "LCFO" not in self._filename:
+            mulliken = self.mulliken
+            loewdin = self.loewdin
+            site_properties = {"Mulliken Charges": mulliken, "Loewdin Charges": loewdin}
+        else:
+            warnings.warn(
+                "CHARG.LCFO.lobster charges are not yet supported. Thus, the site properties are not added.",
+                stacklevel=1,
+            )
         return struct.copy(site_properties=site_properties)
 
     @property
@@ -1700,10 +1716,19 @@ class Grosspop(MSONable):
             small_dict: dict[str, Any] = {}
             for line in lines[3:]:
                 cleanlines = [idx for idx in line.split(" ") if idx != ""]
-                if len(cleanlines) == 5 and cleanlines[0].isdigit():
+                if len(cleanlines) == 5 and cleanlines[0].isdigit() and "LCFO" not in self._filename:
                     small_dict = {"Mulliken GP": {}, "Loewdin GP": {}, "element": cleanlines[1]}
                     small_dict["Mulliken GP"][cleanlines[2]] = float(cleanlines[3])
                     small_dict["Loewdin GP"][cleanlines[2]] = float(cleanlines[4])
+                elif len(cleanlines) == 4 and cleanlines[0].isdigit() and "LCFO" in self._filename:
+                    small_dict = {"Loewdin GP": {}, "mol": cleanlines[1]}
+                    small_dict["Loewdin GP"][cleanlines[2]] = float(cleanlines[3])
+                elif len(cleanlines) == 5 and cleanlines[0].isdigit() and "LCFO" in self._filename:
+                    small_dict = {"Loewdin GP": {}, "mol": cleanlines[1]}
+                    small_dict["Loewdin GP"][cleanlines[2]] = {
+                        Spin.up: float(cleanlines[3]),
+                        Spin.down: float(cleanlines[4]),
+                    }
                 elif len(cleanlines) == 5 and not cleanlines[0].isdigit():
                     small_dict["Mulliken GP"][cleanlines[0]] = {
                         Spin.up: float(cleanlines[1]),
@@ -1715,7 +1740,7 @@ class Grosspop(MSONable):
                     }
                     if "total" in cleanlines[0]:
                         self.list_dict_grosspop.append(small_dict)
-                elif len(cleanlines) == 7:
+                elif len(cleanlines) == 7 and cleanlines[0].isdigit():
                     small_dict = {"Mulliken GP": {}, "Loewdin GP": {}, "element": cleanlines[1]}
                     small_dict["Mulliken GP"][cleanlines[2]] = {
                         Spin.up: float(cleanlines[3]),
@@ -1726,6 +1751,16 @@ class Grosspop(MSONable):
                         Spin.down: float(cleanlines[6]),
                     }
 
+                elif len(cleanlines) > 0 and "spin" not in line and "LCFO" in self._filename:
+                    if len(cleanlines) == 2:
+                        small_dict["Loewdin GP"][cleanlines[0]] = float(cleanlines[1])
+                    else:
+                        small_dict["Loewdin GP"][cleanlines[0]] = {
+                            Spin.up: float(cleanlines[1]),
+                            Spin.down: float(cleanlines[2]),
+                        }
+                    if "total" in cleanlines[0]:
+                        self.list_dict_grosspop.append(small_dict)
                 elif len(cleanlines) > 0 and "spin" not in line:
                     small_dict["Mulliken GP"][cleanlines[0]] = float(cleanlines[1])
                     small_dict["Loewdin GP"][cleanlines[0]] = float(cleanlines[2])
@@ -1742,16 +1777,23 @@ class Grosspop(MSONable):
             Structure Object with Mulliken and Loewdin total grosspopulations as site properties.
         """
         struct = Structure.from_file(structure_filename)
-        mulliken_gps: list[dict] = []
-        loewdin_gps: list[dict] = []
-        for grosspop in self.list_dict_grosspop:
-            mulliken_gps.append(grosspop["Mulliken GP"]["total"])
-            loewdin_gps.append(grosspop["Loewdin GP"]["total"])
+        site_properties = {}
+        if "LCFO" not in self._filename:
+            mulliken_gps: list[dict] = []
+            loewdin_gps: list[dict] = []
+            for grosspop in self.list_dict_grosspop:
+                mulliken_gps.append(grosspop["Mulliken GP"]["total"])
+                loewdin_gps.append(grosspop["Loewdin GP"]["total"])
 
-        site_properties = {
-            "Total Mulliken GP": mulliken_gps,
-            "Total Loewdin GP": loewdin_gps,
-        }
+            site_properties = {
+                "Total Mulliken GP": mulliken_gps,
+                "Total Loewdin GP": loewdin_gps,
+            }
+        else:
+            warnings.warn(
+                "The GROSSPOP.LCFO.lobster file is not yet supported. Thus, the site properties are not added.",
+                stacklevel=1,
+            )
         return struct.copy(site_properties=site_properties)
 
 
