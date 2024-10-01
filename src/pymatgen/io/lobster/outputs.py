@@ -2418,5 +2418,9 @@ class Bwdf(MSONable):
                     self.bwdf[Spin.up] = np.append(self.bwdf[Spin.up], float(clean_line[1]))
                     self.bwdf[Spin.down] = np.append(self.bwdf[Spin.down], float(clean_line[2]))
                 else:
-                    self.bwdf[Spin.down] = np.append(self.bwdf[Spin.up], float(clean_line[1]))
+                    self.bwdf[Spin.up] = np.append(self.bwdf[Spin.up], float(clean_line[1]))
+
+            if len(self.bwdf[Spin.down]) == 0:  # remove down spin key if not spin polarized calculation
+                del self.bwdf[Spin.down]
+
             self.bin_width = np.diff(self.centers)[0]

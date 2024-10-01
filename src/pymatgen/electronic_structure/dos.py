@@ -1468,17 +1468,14 @@ class LobsterCompleteDos(CompleteDos):
         for s, atom_dos in self.pdos.items():
             if s == site:
                 for orb, pdos in atom_dos.items():
-                    try:
-                        orbital = _get_orb_lobster(str(orb))
-                        if orbital is None:
-                            raise ValueError("orbital is None")
+                    orbital = _get_orb_lobster(str(orb))
+                    if orbital is None:
+                        raise ValueError("orbital is None")
 
-                        if orbital in (Orbital.dxy, Orbital.dxz, Orbital.dyz):
-                            t2g_dos.append(pdos)
-                        elif orbital in (Orbital.dx2, Orbital.dz2):
-                            eg_dos.append(pdos)
-                    except (AttributeError, ValueError):
-                        pass
+                    if orbital in (Orbital.dxy, Orbital.dxz, Orbital.dyz):
+                        t2g_dos.append(pdos)
+                    elif orbital in (Orbital.dx2, Orbital.dz2):
+                        eg_dos.append(pdos)
         return {
             "t2g": Dos(self.efermi, self.energies, functools.reduce(add_densities, t2g_dos)),
             "e_g": Dos(self.efermi, self.energies, functools.reduce(add_densities, eg_dos)),
@@ -1497,14 +1494,11 @@ class LobsterCompleteDos(CompleteDos):
         orb = None
         for atom_dos in self.pdos.values():
             for orb, pdos in atom_dos.items():
-                try:
-                    orbital_type = _get_orb_type_lobster(str(orb))
-                    if orbital_type not in spd_dos:
-                        spd_dos[orbital_type] = pdos
-                    else:
-                        spd_dos[orbital_type] = add_densities(spd_dos[orbital_type], pdos)
-                except (AttributeError, ValueError):
-                    pass
+                orbital_type = _get_orb_type_lobster(str(orb))
+                if orbital_type not in spd_dos:
+                    spd_dos[orbital_type] = pdos
+                else:
+                    spd_dos[orbital_type] = add_densities(spd_dos[orbital_type], pdos)
 
         return {orb: Dos(self.efermi, self.energies, densities) for orb, densities in spd_dos.items()}  # type: ignore[misc]
 
@@ -1522,14 +1516,11 @@ class LobsterCompleteDos(CompleteDos):
         for site, atom_dos in self.pdos.items():
             if site.specie == el:
                 for orb, pdos in atom_dos.items():
-                    try:
-                        orbital_type = _get_orb_type_lobster(str(orb))
-                        if orbital_type not in el_dos:
-                            el_dos[orbital_type] = pdos
-                        else:
-                            el_dos[orbital_type] = add_densities(el_dos[orbital_type], pdos)
-                    except (AttributeError, ValueError):
-                        pass
+                    orbital_type = _get_orb_type_lobster(str(orb))
+                    if orbital_type not in el_dos:
+                        el_dos[orbital_type] = pdos
+                    else:
+                        el_dos[orbital_type] = add_densities(el_dos[orbital_type], pdos)
 
         return {orb: Dos(self.efermi, self.energies, densities) for orb, densities in el_dos.items()}  # type: ignore[misc]
 
