@@ -392,11 +392,17 @@ class TestDoscar(TestCase):
         doscar2 = f"{VASP_OUT_DIR}/DOSCAR.lobster.nonspin"
         poscar2 = f"{VASP_IN_DIR}/POSCAR.lobster.nonspin_DOS"
 
+        # DOSCAR.LCFO.lobster
+        doscar3 = f"{VASP_OUT_DIR}/DOSCAR.LCFO.lobster.AlN"
+        poscar3 = f"{VASP_IN_DIR}/POSCAR.AlN"
+
         self.DOSCAR_spin_pol = Doscar(doscar=doscar, structure_file=poscar)
         self.DOSCAR_nonspin_pol = Doscar(doscar=doscar2, structure_file=poscar2)
 
         self.DOSCAR_spin_pol = Doscar(doscar=doscar, structure_file=poscar)
         self.DOSCAR_nonspin_pol = Doscar(doscar=doscar2, structure_file=poscar2)
+
+        self.DOSCAR_lcfo = Doscar(doscar=doscar3, structure_file=poscar3)
 
         with open(f"{TEST_FILES_DIR}/electronic_structure/dos/structure_KF.json") as file:
             data = json.load(file)
@@ -496,6 +502,15 @@ class TestDoscar(TestCase):
         assert self.DOSCAR_nonspin_pol.pdos[0]["2p_z"][Spin.up].tolist() == pdos_f_2pz
         assert self.DOSCAR_nonspin_pol.pdos[0]["2p_x"][Spin.up].tolist() == pdos_f_2px
 
+        # test with DOSCAR.LCFO.lobster file
+        pdos_1a1_AlN = [0.0, 0.22594, 0.01335, 0.0, 0.0, 0.0, 0.00228, 0.02836, 0.03053, 0.01612, 0.02379]
+        pdos_3py_Al = [0.0, 0.02794, 0.00069, 0.0, 0.0, 0.0, 0.00216, 0.0682, 0.06966, 0.04402, 0.16579]
+        pdos_2s_N = [0.0, 0.25324, 0.0157, 0.0, 0.0, 0.0, 0.0006, 0.01747, 0.02247, 0.01589, 0.03565]
+
+        assert self.DOSCAR_lcfo.pdos[0]["1a1"][Spin.down].tolist() == pdos_1a1_AlN
+        assert self.DOSCAR_lcfo.pdos[1]["3p_y"][Spin.down].tolist() == pdos_3py_Al
+        assert self.DOSCAR_lcfo.pdos[2]["2s"][Spin.down].tolist() == pdos_2s_N
+
     def test_tdos(self):
         # first for spin polarized version
         energies_spin = [-11.25000, -7.50000, -3.75000, 0.00000, 3.75000, 7.50000]
@@ -536,6 +551,11 @@ class TestDoscar(TestCase):
         tdos_nonspin = [0.00000, 1.60000, 0.00000, 1.60000, 0.00000, 0.02418]
         assert tdos_nonspin == self.DOSCAR_nonspin_pol.tdensities[Spin.up].tolist()
 
+        # test with DOSCAR.LCFO.lobster file
+        tdos_up = [0.0, 1.75477, 0.11803, 0.0, 0.0, 0.0, 0.04156, 0.82291, 0.74449, 0.42481, 1.04535]
+
+        assert tdos_up == self.DOSCAR_lcfo.tdensities[Spin.up].tolist()
+
     def test_itdensities(self):
         itdos_up = [1.99997, 4.99992, 4.99992, 7.99987, 7.99987, 8.09650]
         itdos_down = [1.99997, 4.99992, 4.99992, 7.99987, 7.99987, 8.09685]
@@ -557,6 +577,7 @@ class TestCharge(PymatgenTest):
         self.charge2 = Charge(filename=f"{TEST_DIR}/CHARGE.lobster.MnO")
         # gzipped file
         self.charge = Charge(filename=f"{TEST_DIR}/CHARGE.lobster.MnO2.gz")
+        self.charge_lcfo = Charge(filename=f"{TEST_DIR}/CHARGE.LCFO.lobster.ALN")
 
     def test_attributes(self):
         charge_Loewdin = [-1.25, 1.25]
@@ -569,6 +590,13 @@ class TestCharge(PymatgenTest):
         assert atomlist == self.charge2.atomlist
         assert types == self.charge2.types
         assert num_atoms == self.charge2.num_atoms
+
+        # test with CHARG.LCFO.lobster file
+        assert self.charge_lcfo.num_atoms == 3
+        assert self.charge_lcfo.types == ["AlN", "Al", "N"]
+        assert self.charge_lcfo.atomlist == ["AlN1", "Al2", "N3"]
+        assert self.charge_lcfo.loewdin == [0.0, 1.02, -1.02]
+        assert not self.charge_lcfo.mulliken
 
     def test_get_structure_with_charges(self):
         structure_dict2 = {
