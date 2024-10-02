@@ -1357,8 +1357,8 @@ class MP24RelaxSet(VaspInputSet):
     dispersion: Literal["rVV10", "D4"] | None = None
     CONFIG = _load_yaml_config("MP24RelaxSet")
     auto_ismear: bool = True
-    auto_kspacing : bool = True
-    inherit_incar : bool = False
+    auto_kspacing: bool = True
+    inherit_incar: bool = False
 
     def __post_init__(self) -> None:
         super().__post_init__()
