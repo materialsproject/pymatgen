@@ -1583,6 +1583,8 @@ class TestIcohplist(TestCase):
 
         # ICOHPLIST.LCFO.lobster from Lobster v5.1.1
         self.icohp_lcfo = Icohplist(filename=f"{TEST_DIR}/ICOHPLIST.LCFO.lobster.AlN")
+        self.icohp_lcfo_non_orbitalwise = Icohplist(filename=f"{TEST_DIR}/ICOHPLIST_non_orbitalwise.LCFO.lobster.AlN")
+
         # ICOBIs and orbitalwise ICOBILIST.lobster
         self.icobi_orbitalwise = Icohplist(
             filename=f"{TEST_DIR}/ICOBILIST.lobster",
@@ -1636,6 +1638,18 @@ class TestIcohplist(TestCase):
 
         assert self.icobi_orbitalwise_add.orbitalwise
         assert self.icobi_orbitalwise_spinpolarized_add.orbitalwise
+
+        # >v5 ICOHPLIST
+        assert self.icohp_aln_511_sp.is_spin_polarized
+        assert len(self.icohp_aln_511_sp.icohplist) == 64
+        assert not self.icohp_nacl_511_nsp.is_spin_polarized
+        assert len(self.icohp_nacl_511_nsp.icohplist) == 152
+
+        # v5.1.1 LCFO
+        assert self.icohp_lcfo.is_spin_polarized
+        assert len(self.icohp_lcfo.icohplist) == 28
+        assert not self.icohp_lcfo_non_orbitalwise.orbitalwise
+        assert len(self.icohp_lcfo_non_orbitalwise.icohplist) == 27
 
     def test_values(self):
         icohplist_bise = {
@@ -1827,6 +1841,17 @@ class TestIcohplist(TestCase):
         assert self.icobi_orbitalwise_spinpolarized.icohplist["2"]["icohp"][Spin.down] == approx(0.58649 / 2, abs=1e-3)
         assert self.icobi.icohpcollection.extremum_icohpvalue() == 0.58649
         assert self.icobi_orbitalwise_spinpolarized.icohplist["2"]["orbitals"]["2s-6s"]["icohp"][Spin.up] == 0.0247
+
+        # >v5 ICOHPLIST
+        assert self.icohp_aln_511_sp.icohplist["2"]["icohp"][Spin.up] == approx(-0.21482)
+        assert self.icohp_aln_511_sp.icohplist["2"]["icohp"][Spin.down] == approx(-0.21493)
+        assert self.icohp_nacl_511_nsp.icohplist["13"]["icohp"][Spin.up] == approx(-0.03021)
+        assert self.icohp_nacl_511_nsp.icohplist["10"]["orbitals"]["3s-2py"]["icohp"][Spin.up] == approx(-0.00113)
+
+        # v5.1.1 LCFO
+        assert self.icohp_lcfo.icohplist["15"]["orbitals"]["3a1-3p"]["icohp"][Spin.up] == approx(-0.00586)
+        assert self.icohp_lcfo_non_orbitalwise.icohplist["16"]["icohp"][Spin.up] == approx(-0.2983)
+        assert self.icohp_lcfo_non_orbitalwise.icohplist["16"]["icohp"][Spin.down] == approx(-0.29842)
 
     def test_msonable(self):
         dict_data = self.icobi_orbitalwise_spinpolarized.as_dict()

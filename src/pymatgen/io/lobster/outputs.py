@@ -385,7 +385,7 @@ class Icohplist(MSONable):
 
         self.are_coops = are_coops
         self.are_cobis = are_cobis
-        if filename is None:
+        if self._filename is None:
             if are_coops:
                 self._filename = "ICOOPLIST.lobster"
             elif are_cobis:
@@ -423,7 +423,10 @@ class Icohplist(MSONable):
 
             # Check if is orbital-wise ICOHPLIST
             # TODO: include case where there is only one ICOHP
-            self.orbitalwise = len(lines) > 2 and "_" in lines[1].split()[1]
+            if "LCFO" not in self._filename:  # type: ignore[operator]
+                self.orbitalwise = len(lines) > 2 and "_" in lines[1].split()[1]
+            else:
+                self.orbitalwise = len(lines) > 2 and lines[1].split()[1].count("_") >= 2
 
             data_orbitals: list[str] = []
             if self.orbitalwise:
@@ -439,7 +442,7 @@ class Icohplist(MSONable):
                         and "LCFO" in self._filename  # type: ignore[operator]
                     ):
                         data_without_orbitals.append(line)
-                    elif line.split()[1].count("_") == 2 and version == "5.1.0":
+                    elif line.split()[1].count("_") >= 2 and version == "5.1.0":
                         data_orbitals.append(line)
                     else:
                         data_orbitals.append(line)
