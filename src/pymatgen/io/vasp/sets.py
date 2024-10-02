@@ -1369,17 +1369,18 @@ class MP24RelaxSet(VaspInputSet):
             "PBEsol": "PS",
         }
 
-        xc_func = self.xc_functional.upper()
         config_updates: dict[str, Any] = {}
-        if xc_func == "r2SCAN":
-            config_updates = {"METAGGA": to_func[xc_func], "GGA": None}
-        elif xc_func in ["PBE", "PBEsol"]:
-            config_updates = {"METAGGA": None, "GGA": to_func[xc_func]}
+        if self.xc_functional == "r2SCAN":
+            config_updates = {"METAGGA": to_func[self.xc_functional]}
+            self._config_dict["INCAR"].pop("GGA",None)
+        elif self.xc_functional in ["PBE", "PBEsol"]:
+            config_updates = {"GGA": to_func[self.xc_functional]}
+            self._config_dict["INCAR"].pop("METAGGA",None)
         else:
             raise ValueError(f"Unknown XC functional {self.xc_functional}!")
 
         if self.dispersion == "rVV10":
-            if xc_func == "r2SCAN":
+            if self.xc_functional == "r2SCAN":
                 config_updates = {"BPARAM": 11.95, "CPARAM": 0.0093}
             else:
                 raise ValueError("Use of rVV10 with functionals other than r2 / SCAN is not currently supported.")
@@ -1405,7 +1406,7 @@ class MP24RelaxSet(VaspInputSet):
                     "A2": 5.96771589,
                 },
             }
-            config_updates = {f"VDW_{k}": v for k, v in d4_pars[xc_func].items()}
+            config_updates = {f"VDW_{k}": v for k, v in d4_pars[self.xc_functional].items()}
 
         if len(config_updates) > 0:
             self._config_dict["INCAR"].update(config_updates)
@@ -1442,6 +1443,8 @@ class MP24RelaxSet(VaspInputSet):
 
     @property
     def kspacing_update(self):
+        if self.bandgap is None:
+            return 0.22
         return self._multi_sigmoid_interp(self.bandgap)
 
 
