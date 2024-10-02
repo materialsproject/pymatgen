@@ -17,6 +17,7 @@ import os
 import re
 import warnings
 from collections import defaultdict
+from pathlib import Path
 from typing import TYPE_CHECKING, cast
 
 import numpy as np
@@ -423,7 +424,7 @@ class Icohplist(MSONable):
 
             # Check if is orbital-wise ICOHPLIST
             # TODO: include case where there is only one ICOHP
-            if "LCFO" not in self._filename:  # type: ignore[operator]
+            if "LCFO" not in Path(self._filename).name:  # type: ignore[operator]
                 self.orbitalwise = len(lines) > 2 and "_" in lines[1].split()[1]
             else:
                 self.orbitalwise = len(lines) > 2 and lines[1].split()[1].count("_") >= 2
@@ -516,7 +517,7 @@ class Icohplist(MSONable):
                     icohp = {}
                     line_parts = data_orb.split()
                     label = line_parts[0]
-                    if "LCFO" not in self._filename:  # type: ignore[operator]
+                    if "LCFO" not in Path(self._filename).name:  # type: ignore[operator]
                         orbs = re.findall(r"_(.*?)(?=\s)", data_orb)
                         orb_label, orbitals = get_orb_from_str(orbs)
                         icohp[Spin.up] = float(line_parts[7])
@@ -805,7 +806,7 @@ class Doscar:
         # for DOCAR.LCFO.lobster, pdos is different than for non-LCFO DOSCAR so we need to handle it differently
         # for now we just set pdos_dict to be empty if LCFO is in the filename
         # Todo: handle LCFO pdos properly in future when we have complete set of orbitals
-        if "LCFO" not in doscar:
+        if "LCFO" not in Path(doscar).name:
             pdoss_dict = {final_struct[i]: pdos for i, pdos in enumerate(self._pdos)}
         else:
             pdoss_dict = {final_struct[i]: {} for i, _ in enumerate(self._pdos)}
@@ -895,7 +896,7 @@ class Charge(MSONable):
                 line_parts = lines[atom_idx].split()
                 self.atomlist.append(line_parts[1] + line_parts[0])
                 self.types.append(line_parts[1])
-                if "LCFO" not in self._filename:
+                if "LCFO" not in Path(self._filename).name:
                     self.mulliken.append(float(line_parts[2]))
                     self.loewdin.append(float(line_parts[3]))
                 else:
@@ -912,7 +913,7 @@ class Charge(MSONable):
         """
         struct = Structure.from_file(structure_filename)
         site_properties = {}
-        if "LCFO" not in self._filename:
+        if "LCFO" not in Path(self._filename).name:
             mulliken = self.mulliken
             loewdin = self.loewdin
             site_properties = {"Mulliken Charges": mulliken, "Loewdin Charges": loewdin}
@@ -1799,7 +1800,7 @@ class Grosspop(MSONable):
         """
         struct = Structure.from_file(structure_filename)
         site_properties = {}
-        if "LCFO" not in self._filename:
+        if "LCFO" not in Path(self._filename).name:
             mulliken_gps: list[dict] = []
             loewdin_gps: list[dict] = []
             for grosspop in self.list_dict_grosspop:
