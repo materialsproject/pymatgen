@@ -1353,38 +1353,40 @@ class MP24RelaxSet(VaspInputSet):
     By default, this uses r2SCAN as the xc functional.
     """
 
-    xc_functional: Literal["R2SCAN", "PBE", "PBESOL"] = "R2SCAN"
+    xc_functional: Literal["r2SCAN", "PBE", "PBEsol"] = "r2SCAN"
     dispersion: Literal["rVV10", "D4"] | None = None
     CONFIG = _load_yaml_config("MP24RelaxSet")
     auto_ismear: bool = True
+    auto_kspacing : bool = True
+    inherit_incar : bool = False
 
     def __post_init__(self) -> None:
         super().__post_init__()
 
         to_func = {
-            "R2SCAN": "R2SCAN",
+            "r2SCAN": "R2SCAN",
             "PBE": "PE",
-            "PBESOL": "PS",
+            "PBEsol": "PS",
         }
 
         xc_func = self.xc_functional.upper()
         config_updates: dict[str, Any] = {}
-        if xc_func == "R2SCAN":
+        if xc_func == "r2SCAN":
             config_updates = {"METAGGA": to_func[xc_func], "GGA": None}
-        elif xc_func in ["PBE", "PBESOL"]:
+        elif xc_func in ["PBE", "PBEsol"]:
             config_updates = {"METAGGA": None, "GGA": to_func[xc_func]}
         else:
             raise ValueError(f"Unknown XC functional {self.xc_functional}!")
 
         if self.dispersion == "rVV10":
-            if xc_func == "R2SCAN":
+            if xc_func == "r2SCAN":
                 config_updates = {"BPARAM": 11.95, "CPARAM": 0.0093}
             else:
                 raise ValueError("Use of rVV10 with functionals other than r2 / SCAN is not currently supported.")
 
         elif self.dispersion == "D4":
             d4_pars = {
-                "R2SCAN": {
+                "r2SCAN": {
                     "S6": 1.0,
                     "S8": 0.60187490,
                     "A1": 0.51559235,
@@ -1396,7 +1398,7 @@ class MP24RelaxSet(VaspInputSet):
                     "A1": 0.38574991,
                     "A2": 4.80688534,
                 },
-                "PBESOL": {
+                "PBEsol": {
                     "S6": 1.0,
                     "S8": 1.71885698,
                     "A1": 0.47901421,
@@ -1693,7 +1695,7 @@ class MP24StaticSet(MP24RelaxSet):
 
     lepsilon: bool = False
     lcalcpol: bool = False
-    inherit_incar: bool = True
+    inherit_incar: bool = False
     auto_kspacing: bool = True
 
     @property
