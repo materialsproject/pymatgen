@@ -295,10 +295,10 @@ class Cohpcar:
             site_indices = tuple(int(re.split(r"\D+", site)[1]) - 1 for site in sites)
             # TODO: get cells here as well
 
-            if "[" in sites[0] and "LCFO" not in filename:
+            if "[" in sites[0] and "LCFO" not in Path(filename).name:
                 orbs = [re.findall(r"\[(.*)\]", site)[0] for site in sites]
                 orb_label, orbitals = get_orb_from_str(orbs)
-            elif "[" in sites[0] and "LCFO" in filename:
+            elif "[" in sites[0] and "LCFO" in Path(filename).name:
                 orbs = [re.findall(r"\[(\d+[a-zA-Z]+\d*)", site)[0] for site in sites]
                 orb_label = "-".join(orbs)
                 orbitals = orbs
@@ -440,7 +440,7 @@ class Icohplist(MSONable):
                         and version == "5.1.0"
                         or (line.split()[1].count("_") == 1)
                         and version == "5.1.0"
-                        and "LCFO" in self._filename  # type: ignore[operator]
+                        and "LCFO" in Path(self._filename).name  # type: ignore[operator]
                     ):
                         data_without_orbitals.append(line)
                     elif line.split()[1].count("_") >= 2 and version == "5.1.0":
@@ -1738,14 +1738,14 @@ class Grosspop(MSONable):
             small_dict: dict[str, Any] = {}
             for line in lines[3:]:
                 cleanlines = [idx for idx in line.split(" ") if idx != ""]
-                if len(cleanlines) == 5 and cleanlines[0].isdigit() and "LCFO" not in self._filename:
+                if len(cleanlines) == 5 and cleanlines[0].isdigit() and "LCFO" not in Path(self._filename).name:
                     small_dict = {"Mulliken GP": {}, "Loewdin GP": {}, "element": cleanlines[1]}
                     small_dict["Mulliken GP"][cleanlines[2]] = float(cleanlines[3])
                     small_dict["Loewdin GP"][cleanlines[2]] = float(cleanlines[4])
-                elif len(cleanlines) == 4 and cleanlines[0].isdigit() and "LCFO" in self._filename:
+                elif len(cleanlines) == 4 and cleanlines[0].isdigit() and "LCFO" in Path(self._filename).name:
                     small_dict = {"Loewdin GP": {}, "mol": cleanlines[1]}
                     small_dict["Loewdin GP"][cleanlines[2]] = float(cleanlines[3])
-                elif len(cleanlines) == 5 and cleanlines[0].isdigit() and "LCFO" in self._filename:
+                elif len(cleanlines) == 5 and cleanlines[0].isdigit() and "LCFO" in Path(self._filename).name:
                     small_dict = {"Loewdin GP": {}, "mol": cleanlines[1]}
                     small_dict["Loewdin GP"][cleanlines[2]] = {
                         Spin.up: float(cleanlines[3]),
@@ -1773,7 +1773,7 @@ class Grosspop(MSONable):
                         Spin.down: float(cleanlines[6]),
                     }
 
-                elif len(cleanlines) > 0 and "spin" not in line and "LCFO" in self._filename:
+                elif len(cleanlines) > 0 and "spin" not in line and "LCFO" in Path(self._filename).name:
                     if len(cleanlines) == 2:
                         small_dict["Loewdin GP"][cleanlines[0]] = float(cleanlines[1])
                     else:
