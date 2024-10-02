@@ -1,6 +1,6 @@
-"""Module for parsing JDFTx electronic minimization data.
+"""Module for parsing single SCF step from JDFTx.
 
-This module contains the JEiter class for parsing electronic minimization data.
+This module contains the JEiter class for parsing single SCF step from a JDFTx out file.
 """
 
 from __future__ import annotations

@@ -16,9 +16,10 @@ import numpy as np
 if TYPE_CHECKING:
     from pymatgen.core import Structure
     from pymatgen.io.jdftx.jeiters import JEiters
+from pymatgen.core.periodic_table import Element
 from pymatgen.core.trajectory import Trajectory
 from pymatgen.core.units import Ha_to_eV, ang_to_bohr
-from pymatgen.io.jdftx.data import atom_valence_electrons
+from pymatgen.io.jdftx.data import get_atom_valence_electrons
 from pymatgen.io.jdftx.jminsettings import (
     JMinSettings,
     JMinSettingsElectronic,
@@ -859,7 +860,9 @@ class JDFTXOutfileSlice(ClassPrintFormatter):
         # total_elec_dict = dict(zip(self.atom_types, atom_total_elec, strict=False))
         # Explicit zipping due to pre-commit in three lines below
         element_total_electrons = np.array([total_elec_dict[x] for x in self.atom_elements])
-        element_valence_electrons = np.array([atom_valence_electrons[x] for x in self.atom_elements])
+        element_valence_electrons = np.array([get_atom_valence_electrons(x) for x in self.atom_elements])
+        # element_valence_electrons = np.array([Element(x).valence[1] for x in self.atom_elements])
+        # element_valence_electrons = np.array([atom_valence_electrons[x] for x in self.atom_elements])
         element_semicore_electrons = element_total_electrons - element_valence_electrons
         self.total_electrons_uncharged = np.sum(element_total_electrons)
         self.valence_electrons_uncharged = np.sum(element_valence_electrons)
@@ -1134,10 +1137,10 @@ class JDFTXOutfileSlice(ClassPrintFormatter):
         self.atom_elements = atom_elements
         # mapping_dict = dict(zip(atom_types, range(1, len(atom_types) + 1), strict=False))
         # Below sets mapping_dict identical to above line, but is allowed by pre-commit
-        mapping_dict = {}
-        for atom_type in atom_types:
-            mapping_dict[atom_type] = atom_valence_electrons[atom_type]
-        self.atom_elements_int = [mapping_dict[x] for x in self.atom_elements]
+        # mapping_dict = {}
+        # for atom_type in atom_types:
+        #     mapping_dict[atom_type] = atom_valence_electrons[atom_type]
+        self.atom_elements_int = [Element(x).Z for x in self.atom_elements]
         self.atom_types = atom_types
         line = find_key("# Ionic positions in", text) + 1
         coords = np.array([text[i].split()[2:5] for i in range(line, line + self.nat)], dtype=float)
