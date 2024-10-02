@@ -16,45 +16,6 @@ from pymatgen.io.jdftx.utils import gather_jeiters_line_collections
 __author__ = "Ben Rich"
 
 
-# def gather_jeiters_line_collections(iter_type: str, text_slice: list[str]) -> tuple[list[list[str]], list[str]]:
-#     """Gather line collections for JEiters initialization.
-
-#     Gathers list of line lists where each line list initializes a JEiter object,
-#     and the remaining lines that do not initialize a JEiter object are used
-#     for initialization unique to the JEiters object.
-
-#     Parameters
-#     ----------
-#     iter_type: str
-#         The type of electronic minimization step
-#     text_slice: list[str]
-#         A slice of text from a JDFTx out file corresponding to a series of
-#         SCF steps
-
-#     Returns
-#     -------
-#     line_collections: list[list[str]]
-#         A list of lists of lines of text from a JDFTx out file corresponding to
-#         a single SCF step
-#     lines_collect: list[str]
-#         A list of lines of text from a JDFTx out file corresponding to a single
-#         SCF step
-
-#     """
-#     lines_collect = []
-#     line_collections = []
-#     _iter_flag = f"{iter_type}: Iter:"
-#     for line_text in text_slice:
-#         if len(line_text.strip()):
-#             lines_collect.append(line_text)
-#             if _iter_flag in line_text:
-#                 line_collections.append(lines_collect)
-#                 lines_collect = []
-#         else:
-#             break
-#     return line_collections, lines_collect
-
-
 class JEiters:
     """Class object for series of SCF steps.
 
