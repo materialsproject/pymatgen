@@ -43,8 +43,8 @@ __date__ = "Dec 10, 2017"
 
 class TestBwdf(PymatgenTest):
     def setUp(self):
-        self.bwdf_coop = Bwdf(filename=f"{TEST_DIR}/BWDF.lobster.AlN")
-        self.bwdf_cohp = Bwdf(filename=f"{TEST_DIR}/BWDFCOHP.lobster.NaCl")
+        self.bwdf_coop = Bwdf(filename=f"{TEST_DIR}/BWDF.lobster.AlN.gz")
+        self.bwdf_cohp = Bwdf(filename=f"{TEST_DIR}/BWDFCOHP.lobster.NaCl.gz")
 
     def test_attributes(self):
         assert self.bwdf_coop.bin_width == approx(0.02005000, abs=1e-4)
@@ -116,6 +116,9 @@ class TestCohpcar(PymatgenTest):
             filename=f"{TEST_DIR}/COBICAR.lobster.B2H6.spin", are_cobis=False, are_multi_center_cobis=True
         )
 
+        # COHPCAR.LCFO.lobster from v5.1.1
+        self.cohp_nacl_lcfo = Cohpcar(filename=f"{TEST_DIR}/COHPCAR.LCFO.lobster.NaCl.gz")
+
     def test_attributes(self):
         assert not self.cohp_bise.are_coops
         assert self.coop_bise.are_coops
@@ -155,6 +158,13 @@ class TestCohpcar(PymatgenTest):
         assert not self.cobi2.are_cobis
         assert not self.cobi2.are_coops
         assert self.cobi2.are_multi_center_cobis
+
+        # test COHPCAR.LCFO.lobster v 5.1.1
+        assert len(self.cohp_nacl_lcfo.orb_res_cohp) == 16
+        assert not self.cohp_nacl_lcfo.is_spin_polarized
+        assert not self.cohp_nacl_lcfo.are_coops
+        assert not self.cohp_nacl_lcfo.are_cobis
+        assert len(self.cohp_nacl_lcfo.energies) == 11
 
     def test_energies(self):
         efermi_bise = 5.90043
@@ -577,7 +587,7 @@ class TestCharge(PymatgenTest):
         self.charge2 = Charge(filename=f"{TEST_DIR}/CHARGE.lobster.MnO")
         # gzipped file
         self.charge = Charge(filename=f"{TEST_DIR}/CHARGE.lobster.MnO2.gz")
-        self.charge_lcfo = Charge(filename=f"{TEST_DIR}/CHARGE.LCFO.lobster.ALN")
+        self.charge_lcfo = Charge(filename=f"{TEST_DIR}/CHARGE.LCFO.lobster.ALN.gz")
 
     def test_attributes(self):
         charge_Loewdin = [-1.25, 1.25]
@@ -664,6 +674,9 @@ class TestLobsterout(PymatgenTest):
 
         # TODO: implement skipping madelung/cobi
         self.lobsterout_skipping_cobi_madelung = Lobsterout(filename=f"{TEST_DIR}/lobsterout.skip_cobi_madelung")
+
+        # Lobster v5.1.1
+        self.lobsterout_v511 = Lobsterout(filename=f"{TEST_DIR}/lobsterout_v511.gz")
 
     def test_attributes(self):
         assert self.lobsterout_normal.basis_functions == [
@@ -1018,8 +1031,12 @@ class TestLobsterout(PymatgenTest):
             ],
             "has_doscar": True,
             "has_doscar_lso": False,
+            "has_doscar_lcfo": False,
             "has_cohpcar": True,
+            "has_cohpcar_lcfo": False,
             "has_coopcar": True,
+            "has_coopcar_lcfo": False,
+            "has_cobicar_lcfo": False,
             "has_charge": True,
             "has_projection": False,
             "has_bandoverlaps": True,
@@ -1027,6 +1044,7 @@ class TestLobsterout(PymatgenTest):
             "has_grosspopulation": False,
             "has_polarization": False,
             "has_density_of_energies": False,
+            "has_mofecar": False,
         }
         for key, item in self.lobsterout_normal.get_doc().items():
             if key not in ["has_cobicar", "has_madelung"]:
@@ -1038,6 +1056,71 @@ class TestLobsterout(PymatgenTest):
                     assert item[0] == approx(ref_data[key][0])
                 elif isinstance(item, list | dict):
                     assert item == ref_data[key]
+        ref_data_v511 = {
+            "restart_from_projection": False,
+            "lobster_version": "v5.1.1",
+            "threads": 8,
+            "dft_program": "VASP",
+            "charge_spilling": [0.0111, 0.0111],
+            "total_spilling": [],
+            "elements": ["N", "Al"],
+            "basis_type": ["pbevaspfit2015", "pbevaspfit2015"],
+            "basis_functions": [["2s", "2p_y", "2p_z", "2p_x"], ["3s", "3p_y", "3p_z", "3p_x"]],
+            "timing": {
+                "wall_time": {"h": "0", "min": "4", "s": "8", "ms": "368"},
+                "user_time": {"h": "0", "min": "22", "s": "34", "ms": "960"},
+                "sys_time": {"h": "0", "min": "0", "s": "4", "ms": "100"},
+            },
+            "warning_lines": [
+                "2 of 1354 k-points could not be orthonormalized with an accuracy of 1.0E-5.",
+                "Generally, this is not a critical error. But to help you analyze it,",
+                "I dumped the band overlap matrices to the file bandOverlaps.lobster.",
+                "Please check how much they deviate from the identity matrix and decide to",
+                "use your results only, if you are sure that this is ok.",
+            ],
+            "info_orthonormalization": ["2 of 1354 k-points could not be orthonormalized with an accuracy of 1.0E-5."],
+            "info_lines": [
+                "No errors detected in LCFO definition...",
+                "Some atoms were missing in the LCFO basis you defined.",
+                "In order to avoid problems with matrix handling later,",
+                "I added each remaining atom as a new fragment.",
+                "This is NOT an error.",
+                "You did not specify a value for the point density",
+                "using the gridDensityForPrinting keyword.",
+                "Therefore, I will use the default value of 0.05.",
+                "You did not specify a value for the point density",
+                "using the gridBufferForPrinting keyword.",
+                "Therefore, I will use the default value of 3.04 Angstroms.",
+            ],
+            "has_doscar": True,
+            "has_doscar_lso": False,
+            "has_doscar_lcfo": True,
+            "has_cohpcar": True,
+            "has_cohpcar_lcfo": True,
+            "has_coopcar": True,
+            "has_coopcar_lcfo": False,
+            "has_cobicar": True,
+            "has_cobicar_lcfo": True,
+            "has_charge": True,
+            "has_madelung": True,
+            "has_mofecar": True,
+            "has_projection": True,
+            "has_bandoverlaps": True,
+            "has_fatbands": False,
+            "has_grosspopulation": True,
+            "has_polarization": True,
+            "has_density_of_energies": False,
+        }
+
+        for key, item in self.lobsterout_v511.get_doc().items():
+            if isinstance(item, str):
+                assert ref_data_v511[key], item
+            elif isinstance(item, int):
+                assert ref_data_v511[key] == item
+            elif key == "charge_spilling":
+                assert item[0] == approx(ref_data_v511[key][0])
+            elif isinstance(item, list | dict):
+                assert item == ref_data_v511[key]
 
     def test_msonable(self):
         dict_data = self.lobsterout_normal.as_dict()
@@ -1450,9 +1533,9 @@ class TestBandoverlaps(TestCase):
 class TestGrosspop(TestCase):
     def setUp(self):
         self.grosspop1 = Grosspop(f"{TEST_DIR}/GROSSPOP.lobster")
-        self.grosspop_511_sp = Grosspop(f"{TEST_DIR}/GROSSPOP_511_sp.lobster.AlN")
-        self.grosspop_511_nsp = Grosspop(f"{TEST_DIR}/GROSSPOP_511_nsp.lobster.NaCl")
-        self.grosspop_511_lcfo = Grosspop(f"{TEST_DIR}/GROSSPOP.LCFO.lobster.AlN")
+        self.grosspop_511_sp = Grosspop(f"{TEST_DIR}/GROSSPOP_511_sp.lobster.AlN.gz")
+        self.grosspop_511_nsp = Grosspop(f"{TEST_DIR}/GROSSPOP_511_nsp.lobster.NaCl.gz")
+        self.grosspop_511_lcfo = Grosspop(f"{TEST_DIR}/GROSSPOP.LCFO.lobster.AlN.gz")
 
     def test_attributes(self):
         gross_pop_list = self.grosspop1.list_dict_grosspop
@@ -1606,12 +1689,14 @@ class TestIcohplist(TestCase):
             are_coops=True,
         )
         # ICOHPLIST.lobster from Lobster >v5
-        self.icohp_aln_511_sp = Icohplist(filename=f"{TEST_DIR}/ICOHPLIST_511_sp.lobster.AlN")
-        self.icohp_nacl_511_nsp = Icohplist(filename=f"{TEST_DIR}/ICOHPLIST_511_nsp.lobster.NaCl")
+        self.icohp_aln_511_sp = Icohplist(filename=f"{TEST_DIR}/ICOHPLIST_511_sp.lobster.AlN.gz")
+        self.icohp_nacl_511_nsp = Icohplist(filename=f"{TEST_DIR}/ICOHPLIST_511_nsp.lobster.NaCl.gz")
 
         # ICOHPLIST.LCFO.lobster from Lobster v5.1.1
-        self.icohp_lcfo = Icohplist(filename=f"{TEST_DIR}/ICOHPLIST.LCFO.lobster.AlN")
-        self.icohp_lcfo_non_orbitalwise = Icohplist(filename=f"{TEST_DIR}/ICOHPLIST_non_orbitalwise.LCFO.lobster.AlN")
+        self.icohp_lcfo = Icohplist(filename=f"{TEST_DIR}/ICOHPLIST.LCFO.lobster.AlN.gz")
+        self.icohp_lcfo_non_orbitalwise = Icohplist(
+            filename=f"{TEST_DIR}/ICOHPLIST_non_orbitalwise.LCFO.lobster.AlN.gz"
+        )
 
         # ICOBIs and orbitalwise ICOBILIST.lobster
         self.icobi_orbitalwise = Icohplist(
@@ -2161,7 +2246,7 @@ class TestLobsterMatrices(PymatgenTest):
 
 class TestPolarization(PymatgenTest):
     def setUp(self) -> None:
-        self.polarization = Polarization(filename=f"{TEST_DIR}/POLARIZATION.lobster.AlN")
+        self.polarization = Polarization(filename=f"{TEST_DIR}/POLARIZATION.lobster.AlN.gz")
 
     def test_attributes(self):
         assert self.polarization.rel_loewdin_pol_vector == {
