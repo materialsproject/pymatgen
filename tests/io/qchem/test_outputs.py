@@ -533,7 +533,17 @@ class TestQCOutput(PymatgenTest):
         qc_out = QCOutput(f"{TEST_DIR}/6.1.1.wb97xv.out.gz")
         assert qc_out.data["final_energy"] == -76.43205015
         n_vals = sum(1 for val in qc_out.data.values() if val is not None)
-        assert n_vals == 21
+        assert n_vals == 23
+
+        qc_out_read_optimization = QCOutput(f"{TEST_DIR}/6.1.1.opt.out.gz")
+        qc_out_read_optimization._read_optimization_data()
+        assert qc_out_read_optimization.data["SCF_energy_in_the_final_basis_set"][-1] == -76.36097614
+        assert qc_out_read_optimization.data["Total_energy_in_the_final_basis_set"][-1] == -76.36097614
+
+        qc_out_read_frequency = QCOutput(f"{TEST_DIR}/6.1.1.freq.out.gz")
+        qc_out_read_frequency._read_frequency_data()
+        assert qc_out_read_frequency.data["SCF_energy_in_the_final_basis_set"] == -76.36097614
+        assert qc_out_read_frequency.data["Total_energy_in_the_final_basis_set"] == -76.36097614
 
 
 def test_gradient(tmp_path):

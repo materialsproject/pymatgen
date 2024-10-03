@@ -101,9 +101,8 @@ docs = ["invoke", "sphinx", "sphinx_markdown_builder", "sphinx_rtd_theme"]
 optional = [
     "ase>=3.23.0",
     "beautifulsoup4",
-    # TODO: uv cannot install BoltzTraP2 at this moment
-    # track https://gitlab.com/sousaw/BoltzTraP2/-/merge_requests/21
-    # "BoltzTraP2>=24.7.2 ; platform_system != 'Windows'",
+    # BoltzTraP2 build fails on Windows GitHub runners
+    "BoltzTraP2>=24.9.4 ; platform_system != 'Windows'",
     "chemview>=0.6",
     "chgnet>=0.3.8",
     "f90nml>=1.1.2",
@@ -294,7 +293,8 @@ ignore_missing_imports = true
 ignore-words-list = """
 titel,alls,ans,nd,mater,nwo,te,hart,ontop,ist,ot,fo,nax,coo,
 coul,ser,leary,thre,fase,rute,reson,titels,ges,scalr,strat,
-struc,hda,nin,ons,pres,kno,loos,lamda,lew,atomate,nempty
+struc,hda,nin,ons,pres,kno,loos,lamda,lew,atomate,nempty,
+initalized,auxilliary,commun
 """
 skip = "pymatgen/analysis/aflow_prototypes.json"
 check-filenames = true
