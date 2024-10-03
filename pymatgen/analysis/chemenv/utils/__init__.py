@@ -1,3 +1,0 @@
-"""
-Utility package for chemenv
-"""

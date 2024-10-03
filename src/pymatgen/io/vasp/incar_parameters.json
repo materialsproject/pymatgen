@@ -1,0 +1,1448 @@
+{
+ "ADDGRID": {
+    "type": "bool"
+ },
+ "AEXX": {
+    "type": "float"
+ },
+ "AGGAC": {
+    "type": "float"
+ },
+ "AGGAX": {
+    "type": "float"
+ },
+ "ALDAC": {
+    "type": "float"
+ },
+ "ALGO": {
+   "type": "str",
+   "values": [
+      "Normal",
+      "VeryFast",
+      "Fast",
+      "Conjugate",
+      "All",
+      "Damped",
+      "Subrot",
+      "Eigenval",
+      "Exact",
+      "None",
+      "Nothing",
+      "CHI",
+      "G0W0",
+      "GW0",
+      "GW",
+      "scGW0",
+      "scGW",
+      "G0W0R",
+      "GW0R",
+      "GWR",
+      "scGW0R",
+      "scGWR",
+      "ACFDT",
+      "RPA",
+      "ACFDTR",
+      "RPAR",
+      "BSE",
+      "TDHF",
+      "Timeev",
+      "EVGW0",
+      "EVGW",
+      "QPGW0",
+      "QPGW",
+      "QPGW0R",
+      "QPGWR"
+     ]
+ },
+ "AMIN": {
+    "type": "float"
+ },
+ "AMIX": {
+    "type": "float"
+ },
+ "AMIX_MAG": {
+    "type": "float"
+ },
+ "ANDERSEN_PROB": {
+    "type": "float"
+ },
+ "ANTIRES": {
+      "type": "int",
+      "values": [
+      0,
+      1,
+      2
+     ]
+ },
+ "APACO": {
+    "type": "float"
+ },
+ "BMIX": {
+    "type": "float"
+ },
+ "BMIX_MAG": {
+    "type": "float"
+ },
+ "CH_LSPEC": {
+    "type": "bool"
+ },
+ "CH_NEDOS": {
+    "type": "int"
+ },
+ "CH_SIGMA": {
+    "type": "float"
+ },
+ "CLL": {
+    "type": "int"
+ },
+ "CLN": {
+    "type": "int"
+ },
+ "CLNT": {
+    "type": "int"
+ },
+ "CLZ": {
+    "type": "float"
+ },
+ "CMBJ": {
+    "type": "list"
+ },
+ "CMBJA": {
+    "type": "float"
+ },
+ "CMBJB": {
+    "type": "float"
+ },
+ "CSHIFT": {
+    "type": "float"
+ },
+ "DEPER": {
+    "type": "float"
+ },
+ "DIMER_DIST": {
+    "type": "float"
+ },
+ "DIPOL": {
+    "type": "list"
+ },
+ "DQ": {
+    "type": "float"
+ },
+ "EBREAK": {
+    "type": "float"
+ },
+ "EDIFF": {
+    "type": "float"
+ },
+ "EDIFFG": {
+    "type": "float"
+ },
+ "EFIELD": {
+    "type": "float"
+ },
+ "EFIELD_PEAD": {
+    "type": "list"
+ },
+ "EINT": {
+    "type": "list"
+ },
+ "EMAX": {
+    "type": "float"
+ },
+ "EMIN": {
+    "type": "float"
+ },
+ "ENAUG": {
+    "type": "float"
+ },
+ "ENCUT": {
+    "type": "float"
+ },
+ "ENCUTFOCK": {
+    "type": "float"
+ },
+ "ENCUTGW": {
+    "type": "float"
+ },
+ "ENCUTGWSOFT": {
+    "type": "float"
+ },
+ "ENINI": {
+    "type": "float"
+ },
+ "EPSILON": {
+    "type": "float"
+ },
+ "EVENONLY": {
+    "type": "bool"
+ },
+ "EVENONLYGW": {
+    "type": "bool"
+ },
+ "FERDO": {
+    "type": "list"
+ },
+ "FERWE": {
+    "type": "list"
+ },
+ "FINDIFF": {
+    "type": "int"
+ },
+ "GGA": {
+   "type": "str",
+   "values": [
+      "91",
+      "PE",
+      "AM",
+      "HL",
+      "CA",
+      "MK",
+      "RE",
+      "VW",
+      "B3",
+      "PZ",
+      "WI",
+      "RP",
+      "B5",
+      "BF",
+      "CO",
+      "PS",
+      "OR",
+      "BO",
+      "03",
+      "05",
+      "10",
+      "20",
+      "RA",
+      "PL"
+     ]
+ },
+ "GGA_COMPAT": {
+    "type": "bool"
+ },
+ "HFLMAX": {
+    "type": "int"
+ },
+ "HFRCUT": {
+    "type": "float"
+ },
+ "HFSCREEN": {
+    "type": "float"
+ },
+ "HILLS_BIN": {
+    "type": "int"
+ },
+ "HILLS_H": {
+    "type": "float"
+ },
+ "HILLS_W": {
+    "type": "float"
+ },
+ "HITOLER": {
+    "type": "float"
+ },
+ "I_CONSTRAINED_M": {
+   "type": "int",
+   "values": [
+      1,
+      2,
+      4
+     ]
+ },
+ "IALGO": {
+   "type": "int",
+   "values": [
+      -1,
+      2,
+      3,
+      4,
+      5,
+      6,
+      7,
+      8,
+      15,
+      16,
+      17,
+      18,
+      28,
+      38,
+      44,
+      45,
+      46,
+      47,
+      48,
+      53,
+      54,
+      55,
+      56,
+      57,
+      58
+     ]
+ },
+ "IBAND": {
+    "type": "list"
+ },
+ "IBRION": {
+   "type": "int",
+   "values": [
+      -1,
+      0,
+      1,
+      2,
+      3,
+      5,
+      6,
+      7,
+      8,
+      44
+     ]
+ },
+ "ICHARG": {
+   "type": "int",
+   "values": [
+      0,
+      1,
+      2,
+      4,
+      10,
+      11,
+      12,
+      14
+     ]
+ },
+ "ICHIBARE": {
+   "type": "int",
+   "values": [
+      1,
+      2,
+      3
+     ]
+ },
+ "ICORELEVEL": {
+   "type": "int",
+   "values": [
+      0,
+      1,
+      2
+     ]
+ },
+ "IDIPOL": {
+   "type": "int",
+   "values": [
+      1,
+      2,
+      3,
+      4
+     ]
+ },
+ "IEPSILON": {
+   "type": "int",
+   "values": [
+      1,
+      2,
+      3,
+      4
+     ]
+ },
+ "IGPAR": {
+   "type": "int",
+   "values": [
+      1,
+      2,
+      3
+     ]
+ },
+ "IMAGES": {
+    "type": "int"
+ },
+ "IMIX": {
+   "type": "int",
+   "values": [
+      0,
+      1,
+      2,
+      4
+     ]
+ },
+ "INCREM": {
+    "type": "list"
+ },
+ "INIMIX": {
+   "type": "int",
+   "values": [
+      0,
+      1,
+      2
+     ]
+ },
+ "INIWAV": {
+   "type": "int",
+   "values": [
+      0,
+      1
+     ]
+ },
+ "IPEAD": {
+   "type": "int",
+   "values": [
+      1,
+      2,
+      3,
+      4
+     ]
+ },
+ "ISIF": {
+   "type": "int",
+   "values": [
+      0,
+      1,
+      2,
+      3,
+      4,
+      5,
+      6,
+      7,
+      8
+     ]
+ },
+ "ISMEAR": {
+    "type": "int"
+ },
+ "ISPIN": {
+   "type": "int",
+   "values": [
+      1,
+      2
+     ]
+ },
+ "ISTART": {
+   "type": "int",
+   "values": [
+      0,
+      1,
+      2,
+      3
+     ]
+ },
+ "ISYM": {
+   "type": "int",
+   "values": [
+      -1,
+      0,
+      1,
+      2,
+      3
+     ]
+ },
+ "IVDW": {
+   "type": "int",
+   "values": [
+      0,
+      1,
+      10,
+      11,
+      12,
+      2,
+      20,
+      21,
+      202,
+      4
+     ]
+ },
+ "IWAVPR": {
+   "type": "int",
+   "values": [
+      0,
+      1,
+      2,
+      3,
+      10,
+      11,
+      12,
+      13
+     ]
+ },
+ "KBLOCK": {
+    "type": "int"
+ },
+ "KGAMMA": {
+    "type": "bool"
+ },
+ "KPAR": {
+    "type": "int"
+ },
+ "KPOINT_BSE": {
+    "type": "list"
+ },
+ "KPUSE": {
+    "type": "list"
+ },
+ "KSPACING": {
+    "type": "float"
+ },
+ "LADDER": {
+    "type": "bool"
+ },
+ "LAECHG": {
+    "type": "bool"
+ },
+ "LAMBDA": {
+    "type": "float"
+ },
+ "LANGEVIN_GAMMA": {
+    "type": "list"
+ },
+ "LANGEVIN_GAMMA_L": {
+    "type": "float"
+ },
+ "LASPH": {
+    "type": "bool"
+ },
+ "LASYNC": {
+    "type": "bool"
+ },
+ "LATTICE_CONSTRAINTS": {
+    "type": "list"
+ },
+ "LBERRY": {
+    "type": "bool"
+ },
+ "LBLUEOUT": {
+    "type": "bool"
+ },
+ "LBONE": {
+    "type": "bool"
+ },
+ "LCALCEPS": {
+    "type": "bool"
+ },
+ "LCALCPOL": {
+    "type": "bool"
+ },
+ "LCHARG": {
+    "type": "bool"
+ },
+ "LCHIMAG": {
+    "type": "bool"
+ },
+ "LCORR": {
+    "type": "bool"
+ },
+ "LDAU": {
+    "type": "bool"
+ },
+ "LDAUJ": {
+    "type": "list"
+ },
+ "LDAUL": {
+    "type": "list"
+ },
+ "LDAUPRINT": {
+   "type": "int",
+   "values": [
+      0,
+      1,
+      2
+     ]
+ },
+ "LDAUTYPE": {
+   "type": "int",
+   "values": [
+      1,
+      2,
+      4
+     ]
+ },
+ "LDAUU": {
+    "type": "list"
+ },
+ "LDIAG": {
+    "type": "bool"
+ },
+ "LDIPOL": {
+    "type": "bool"
+ },
+ "LEFG": {
+    "type": "bool"
+ },
+ "LELF": {
+    "type": "bool"
+ },
+ "LEPSILON": {
+    "type": "bool"
+ },
+ "LFOCKAEDFT": {
+    "type": "bool"
+ },
+ "LHARTREE": {
+    "type": "bool"
+ },
+ "LHFCALC": {
+    "type": "bool"
+ },
+ "LHYPERFINE": {
+    "type": "bool"
+ },
+ "LKPROJ": {
+    "type": "bool"
+ },
+ "LLRAUG": {
+    "type": "bool"
+ },
+ "LMAXFOCK": {
+    "type": "int"
+ },
+ "LMAXFOCKAE": {
+    "type": "int"
+ },
+ "LMAXMIX": {
+    "type": "int"
+ },
+ "LMAXPAW": {
+    "type": "int"
+ },
+ "LMAXTAU": {
+    "type": "int"
+ },
+ "LMIXTAU": {
+    "type": "bool"
+ },
+ "LMONO": {
+    "type": "bool"
+ },
+ "LNABLA": {
+    "type": "bool"
+ },
+ "LNMR_SYM_RED": {
+    "type": "bool"
+ },
+ "LNONCOLLINEAR": {
+    "type": "bool"
+ },
+ "LOCPROJ": {
+    "type": "list"
+ },
+ "LOPTICS": {
+    "type": "bool"
+ },
+ "LORBIT": {
+   "type": "int",
+   "values": [
+      0,
+      1,
+      2,
+      5,
+      10,
+      11,
+      12
+     ]
+ },
+ "LORBMOM": {
+    "type": "bool"
+ },
+ "LPARD": {
+    "type": "bool"
+ },
+ "LPEAD": {
+    "type": "bool"
+ },
+ "LPLANE": {
+    "type": "bool"
+ },
+ "LREAL": {
+   "type": "bool | str",
+   "values": [
+      false,
+      true,
+      "O",
+      "A",
+      "Auto",
+      "On"
+     ]
+ },
+ "LRPA": {
+    "type": "bool"
+ },
+ "LSCAAWARE": {
+    "type": "bool"
+ },
+ "LSCALAPACK": {
+    "type": "bool"
+ },
+ "LSCALU": {
+    "type": "bool"
+ },
+ "LSCSGRAD": {
+    "type": "bool"
+ },
+ "LSELFENERGY": {
+    "type": "bool"
+ },
+ "LSEPB": {
+    "type": "bool"
+ },
+ "LSEPK": {
+    "type": "bool"
+ },
+ "LSORBIT": {
+    "type": "bool"
+ },
+ "LSPECTRAL": {
+    "type": "bool"
+ },
+ "LSPECTRALGW": {
+    "type": "bool"
+ },
+ "LSPIRAL": {
+    "type": "bool"
+ },
+ "LSUBROT": {
+    "type": "bool"
+ },
+ "LTHOMAS": {
+    "type": "bool"
+ },
+ "LUSE_VDW": {
+    "type": "bool"
+ },
+ "LVDW_EWALD": {
+    "type": "bool"
+ },
+ "LVDWEXPANSION": {
+    "type": "bool"
+ },
+ "LVHAR": {
+    "type": "bool"
+ },
+ "LVTOT": {
+    "type": "bool"
+ },
+ "LWANNIER90": {
+    "type": "bool"
+ },
+ "LWANNIER90_RUN": {
+    "type": "bool"
+ },
+ "LWAVE": {
+    "type": "bool"
+ },
+ "LWRITE_MMN_AMN": {
+    "type": "bool"
+ },
+ "LWRITE_UNK": {
+    "type": "bool"
+ },
+ "LWRITE_WANPROJ": {
+    "type": "bool"
+ },
+ "LZEROZ": {
+    "type": "bool"
+ },
+ "M_CONSTR": {
+    "type": "list"
+ },
+ "MAGMOM": {
+    "type": "list"
+ },
+ "MAXMEM": {
+    "type": "int"
+ },
+ "MAXMIX": {
+    "type": "int"
+ },
+ "MDALGO": {
+   "type": "int",
+   "values": [
+      0,
+      1,
+      2,
+      3,
+      11,
+      21,
+      13
+     ]
+ },
+ "METAGGA": {
+   "type": "str",
+   "values": [
+      "TPSS",
+      "RTPSS",
+      "M06L",
+      "MBJ",
+      "SCAN",
+      "MS0",
+      "MS1",
+      "MS2"
+     ]
+ },
+ "MINROT": {
+      "type": "float"
+ },
+ "MIXPRE": {
+   "type": "int",
+   "values": [
+      0,
+      1,
+      2,
+      3
+      ]
+ },
+ "ML_FF_AFILT2_MB": {
+      "type": "float"
+ },
+ "ML_FF_CDOUB": {
+      "type": "float"
+ },
+ "ML_FF_CSF": {
+      "type": "float"
+ },
+ "ML_FF_CSIG": {
+      "type": "float"
+ },
+ "ML_FF_CSLOPE": {
+      "type": "float"
+ },
+ "ML_FF_CTIFOR": {
+      "type": "float"
+ },
+ "ML_FF_EATOM": {
+      "type": "list"
+ },
+ "ML_FF_IAFILT2_MB": {
+      "type": "int"
+ },
+ "ML_FF_IBROAD1_MB": {
+      "type": "int"
+ },
+ "ML_FF_IBROAD2_MB": {
+      "type": "int"
+ },
+ "ML_FF_ICOUPLE_MB": {
+      "type": "list"
+ },
+ "ML_FF_ICUT1_MB": {
+      "type": "int"
+ },
+ "ML_FF_ICUT2_MB": {
+      "type": "int"
+ },
+ "ML_FF_IERR": {
+      "type": "int"
+ },
+ "ML_FF_IREG_MB": {
+      "type": "int"
+ },
+ "ML_FF_ISAMPLE": {
+      "type": "int"
+ },
+ "ML_FF_ISCALE_TOTEN_MB": {
+      "type": "int"
+ },
+ "ML_FF_ISOAP1_MB": {
+      "type": "int"
+ },
+ "ML_FF_ISOAP2_MB": {
+      "type": "int"
+ },
+ "ML_FF_ISTART": {
+      "type": "int"
+ },
+ "ML_FF_IWEIGHT": {
+      "type": "int"
+ },
+ "ML_FF_LAFILT2_MB": {
+      "type": "bool"
+ },
+ "ML_FF_LBASIS_DISCARD": {
+      "type": "bool"
+ },
+ "ML_FF_LCONF_DISCARD": {
+      "type": "bool"
+ },
+ "ML_FF_LCOUPLE_MB": {
+      "type": "bool"
+ },
+ "ML_FF_LCRITERIA": {
+      "type": "bool"
+ },
+ "ML_FF_LEATOM_MB": {
+      "type": "bool"
+ },
+ "ML_FF_LHEAT_MB": {
+      "type": "bool"
+ },
+ "ML_FF_LMAX2_MB": {
+      "type": "int"
+ },
+ "ML_FF_LMLFF": {
+      "type": "bool"
+ },
+ "ML_FF_LMLMB": {
+      "type": "bool"
+ },
+ "ML_FF_LNORM1_MB": {
+      "type": "bool"
+ },
+ "ML_FF_LNORM2_MB": {
+      "type": "bool"
+ },
+ "ML_FF_MB_MB": {
+      "type": "int"
+ },
+ "ML_FF_MCONF": {
+      "type": "int"
+ },
+ "ML_FF_MCONF_NEW": {
+      "type": "int"
+ },
+ "ML_FF_MHIS": {
+      "type": "int"
+ },
+ "ML_FF_MRB1_MB": {
+      "type": "int"
+ },
+ "ML_FF_MRB2_MB": {
+      "type": "int"
+ },
+ "ML_FF_MSPL1_MB": {
+      "type": "int"
+ },
+ "ML_FF_MSPL2_MB": {
+      "type": "int"
+ },
+ "ML_FF_NATOM_COUPLED_MB": {
+      "type": "int"
+ },
+ "ML_FF_NDIM_SCALAPACK": {
+      "type": "int"
+ },
+ "ML_FF_NHYP1_MB": {
+      "type": "int"
+ },
+ "ML_FF_NHYP2_MB": {
+      "type": "int"
+ },
+ "ML_FF_NMDINT": {
+      "type": "int"
+ },
+ "ML_FF_NR1_MB": {
+      "type": "int"
+ },
+ "ML_FF_NR2_MB": {
+      "type": "int"
+ },
+ "ML_FF_NWRITE": {
+      "type": "int"
+ },
+ "ML_FF_RCOUPLE_MB": {
+      "type": "float"
+ },
+ "ML_FF_RCUT1_MB": {
+    "type": "float"
+ },
+ "ML_FF_RCUT2_MB": {
+    "type": "float"
+ },
+ "ML_FF_SIGV0_MB": {
+    "type": "float"
+ },
+ "ML_FF_SIGW0_MB": {
+    "type": "float"
+ },
+ "ML_FF_SION1_MB": {
+    "type": "float"
+ },
+ "ML_FF_SION2_MB": {
+    "type": "float"
+ },
+ "ML_FF_W1_MB": {
+    "type": "float"
+ },
+ "ML_FF_W2_MB": {
+    "type": "float"
+ },
+ "ML_FF_WTIFOR": {
+    "type": "float"
+ },
+ "ML_FF_WTOTEN": {
+    "type": "float"
+ },
+ "ML_FF_WTSIF": {
+    "type": "float"
+ },
+ "NBANDS": {
+    "type": "int"
+ },
+ "NBANDSGW": {
+    "type": "int"
+ },
+ "NBANDSO": {
+    "type": "int"
+ },
+ "NBANDSV": {
+    "type": "int"
+ },
+ "NBLK": {
+    "type": "int"
+ },
+ "NBLOCK": {
+    "type": "int"
+ },
+ "NBMOD": {
+    "type": "int"
+ },
+ "NBSEEIG": {
+    "type": "int"
+ },
+ "NCORE": {
+    "type": "int"
+ },
+ "NCRPA_BANDS": {
+    "type": "list"
+ },
+ "NDAV": {
+    "type": "int"
+ },
+ "NEDOS": {
+    "type": "int"
+ },
+ "NELECT": {
+    "type": "float"
+ },
+ "NELM": {
+    "type": "int"
+ },
+ "NELMDL": {
+    "type": "int"
+ },
+ "NELMIN": {
+    "type": "int"
+ },
+ "NFREE": {
+    "type": "int"
+ },
+ "NGX": {
+    "type": "int"
+ },
+ "NGXF": {
+    "type": "int"
+ },
+ "NGY": {
+    "type": "int"
+ },
+ "NGYF": {
+    "type": "int"
+ },
+ "NGYROMAG": {
+    "type": "list"
+ },
+ "NGZ": {
+    "type": "int"
+ },
+ "NGZF": {
+    "type": "int"
+ },
+ "NKRED": {
+    "type": "int"
+ },
+ "NKREDX": {
+    "type": "int"
+ },
+ "NKREDY": {
+    "type": "int"
+ },
+ "NKREDZ": {
+    "type": "int"
+ },
+ "NLSPLINE": {
+    "type": "bool"
+ },
+ "NMAXFOCKAE": {
+   "type": "int",
+   "values": [
+      1,
+      2
+     ]
+ },
+ "NOMEGA": {
+    "type": "int"
+ },
+ "NOMEGAPAR": {
+    "type": "int"
+ },
+ "NOMEGAR": {
+    "type": "int"
+ },
+ "NPACO": {
+    "type": "int"
+ },
+ "NPAR": {
+    "type": "int"
+ },
+ "NPPSTR": {
+    "type": "int"
+ },
+ "NSIM": {
+    "type": "int"
+ },
+ "NSUBSYS": {
+    "type": "list"
+ },
+ "NSW": {
+    "type": "int"
+ },
+ "NTARGET_STATES": {
+    "type": "list"
+ },
+ "NTAUPAR": {
+    "type": "int"
+ },
+ "NUPDOWN": {
+    "type": "int"
+ },
+ "NWRITE": {
+   "type": "int",
+   "values": [
+      0,
+      1,
+      2,
+      3,
+      4
+     ]
+ },
+ "ODDONLY": {
+    "type": "bool"
+ },
+ "ODDONLYGW": {
+    "type": "bool"
+ },
+ "OFIELD_A": {
+    "type": "float"
+ },
+ "OFIELD_KAPPA": {
+    "type": "float"
+ },
+ "OFIELD_Q6_FAR": {
+    "type": "float"
+ },
+ "OFIELD_Q6_NEAR": {
+    "type": "float"
+ },
+ "OMEGAMAX": {
+    "type": "float"
+ },
+ "OMEGAMIN": {
+    "type": "float"
+ },
+ "OMEGATL": {
+    "type": "float"
+ },
+ "PARAM1": {
+    "type": "float"
+ },
+ "PARAM2": {
+    "type": "float"
+ },
+ "PFLAT": {
+    "type": "bool"
+ },
+ "PHON_LBOSE": {
+    "type": "bool"
+ },
+ "PHON_LMC": {
+    "type": "bool"
+ },
+ "PHON_NSTRUCT": {
+    "type": "int"
+ },
+ "PHON_NTLIST": {
+    "type": "int"
+ },
+ "PHON_TLIST": {
+    "type": "list"
+ },
+ "PLEVEL": {
+    "type": "int"
+ },
+ "PMASS": {
+    "type": "float"
+ },
+ "POMASS": {
+    "type": "float"
+ },
+ "POTIM": {
+    "type": "float"
+ },
+ "PREC": {
+   "type": "str",
+   "values": [
+      "Low",
+      "Medium",
+      "High",
+      "Normal",
+      "Single",
+      "Accurate"
+     ]
+ },
+ "PRECFOCK": {
+   "type": "str",
+   "values": [
+      "Low",
+      "Medium",
+      "Fast",
+      "Normal",
+      "Accurate"
+     ]
+ },
+ "PROUTINE": {
+    "type": "int"
+ },
+ "PSTRESS": {
+    "type": "float"
+ },
+ "PSUBSYS": {
+    "type": "list"
+ },
+ "PTHRESHOLD": {
+    "type": "float"
+ },
+ "QMAXFOCKAE": {
+    "type": "list"
+ },
+ "QSPIRAL": {
+    "type": "list"
+ },
+ "QUAD_EFG": {
+    "type": "list"
+ },
+ "RANDOM_SEED": {
+    "type": "list"
+ },
+ "ROPT": {
+    "type": "list"
+ },
+ "RWIGS": {
+    "type": "list"
+ },
+ "SAXIS": {
+    "type": "list"
+ },
+ "SCSRAD": {
+    "type": "float"
+ },
+ "SHAKEMAXITER": {
+    "type": "int"
+ },
+ "SHAKETOL": {
+    "type": "float"
+ },
+ "SIGMA": {
+    "type": "float"
+ },
+ "SMASS": {
+    "type": "float"
+ },
+ "SMEARINGS": {
+    "type": "list"
+ },
+ "SPRING": {
+    "type": "int"
+ },
+ "STEP_MAX": {
+    "type": "float"
+ },
+ "STEP_SIZE": {
+    "type": "float"
+ },
+ "SYMPREC": {
+    "type": "float"
+ },
+ "SYSTEM": {
+   "type": "str"
+},
+ "TEBEG": {
+    "type": "float"
+ },
+ "TEEND": {
+    "type": "float"
+ },
+ "TIME": {
+    "type": "float"
+ },
+ "TSUBSYS": {
+    "type": "list"
+ },
+ "VALUE_MAX": {
+    "type": "list"
+ },
+ "VALUE_MIN": {
+    "type": "list"
+ },
+ "VCUTOFF": {
+    "type": "float"
+ },
+ "VDW_A1": {
+    "type": "float"
+ },
+ "VDW_A2": {
+    "type": "float"
+ },
+ "VDW_C6": {
+    "type": "list"
+ },
+ "VDW_CNRADIUS": {
+    "type": "float"
+ },
+ "VDW_D": {
+    "type": "float"
+ },
+ "VDW_R0": {
+    "type": "list"
+ },
+ "VDW_RADIUS": {
+    "type": "float"
+ },
+ "VDW_S6": {
+    "type": "float"
+ },
+ "VDW_S8": {
+    "type": "float"
+ },
+ "VDW_SR": {
+    "type": "float"
+ },
+ "VOSKOWN": {
+   "type": "int",
+   "values": [
+      0,
+      1
+     ]
+ },
+ "WC": {
+    "type": "float"
+ },
+ "WEIMIN": {
+    "type": "float"
+ },
+ "ZVAL": {
+    "type": "float"
+ },
+ "ISPIND": {
+   "type": "int",
+   "values": [
+      1,
+      2
+     ]
+ },
+ "LCOMPAT": {
+    "type": "bool"
+ },
+ "ENMAX": {
+   "type": "str"
+},
+ "LMETAGGA": {
+    "type": "bool"
+ },
+ "MIXFIRST": {
+    "type": "bool"
+ },
+ "LDOWNSAMPLE": {
+    "type": "bool"
+ },
+ "STM": {
+    "type": "bool"
+ },
+ "LORBITALREAL": {
+    "type": "bool"
+ },
+ "LMUSIC": {
+    "type": "bool"
+ },
+ "DARWINR": {
+    "type": "bool"
+ },
+ "DARWINV": {
+    "type": "bool"
+ },
+ "LSYMGRAD": {
+    "type": "bool"
+ },
+ "LHFONE": {
+    "type": "bool"
+ },
+ "LRHFCALC": {
+    "type": "bool"
+ },
+ "LMODELHF": {
+    "type": "bool"
+ },
+ "SHIFTRED": {
+    "type": "bool"
+ },
+ "HFSCREENC": {
+    "type": "bool"
+ },
+ "LVEL": {
+    "type": "bool"
+ },
+ "NUCIND": {
+    "type": "bool"
+ },
+ "MAGPOS": {
+    "type": "bool"
+ },
+ "LNICSALL": {
+    "type": "bool"
+ },
+ "ORBITALMAG": {
+    "type": "bool"
+ },
+ "LMAGBLOCH": {
+    "type": "bool"
+ },
+ "LGAUGE": {
+    "type": "bool"
+ },
+ "LRPAFORCE": {
+    "type": "bool"
+ },
+ "LFXC": {
+    "type": "bool"
+ },
+ "LTCTE": {
+    "type": "bool"
+ },
+ "LTETE": {
+    "type": "bool"
+ },
+ "LTRIPLET": {
+    "type": "bool"
+ },
+ "LFXCEPS": {
+    "type": "bool"
+ },
+ "LFXHEG": {
+    "type": "bool"
+ },
+ "LUSEW": {
+    "type": "bool"
+ },
+ "ENCUTLF": {
+    "type": "bool"
+ },
+ "SELFENERGY": {
+    "type": "bool"
+ },
+ "LSINGLES": {
+    "type": "bool"
+ },
+ "LFERMIGW": {
+    "type": "bool"
+ },
+ "LSOL": {
+    "type": "bool"
+ },
+ "MAGDIPOLOUT": {
+    "type": "bool"
+ }
+}

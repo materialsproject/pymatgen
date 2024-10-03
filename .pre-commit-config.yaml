@@ -1,56 +1,70 @@
-exclude: ^(docs|.*test_files|cmd_line|dev_scripts)
-
-default_language_version:
-  python: python3.8
+exclude: ^(docs|tests/files|tasks.py)
 
 ci:
   autoupdate_schedule: monthly
-  skip: [flake8, mypy]
+  skip: [mypy, pyright]
+  autofix_commit_msg: pre-commit auto-fixes
+  autoupdate_commit_msg: pre-commit autoupdate
 
 repos:
-
-  - repo: https://github.com/myint/autoflake
-    rev: v1.4
+  - repo: https://github.com/astral-sh/ruff-pre-commit
+    rev: v0.6.4
     hooks:
-      - id: autoflake
-        args:
-          - --in-place
-          - --remove-unused-variables
-          - --remove-all-unused-imports
-          - --expand-star-imports
-          - --ignore-init-module-imports
-
-  - repo: https://github.com/asottile/pyupgrade
-    rev: v2.31.1
-    hooks:
-      - id: pyupgrade
-        args: [--py38-plus]
+      - id: ruff
+        args: [--fix, --unsafe-fixes]
+      - id: ruff-format
 
   - repo: https://github.com/pre-commit/pre-commit-hooks
-    rev: v4.1.0
+    rev: v4.6.0
     hooks:
       - id: check-yaml
-        exclude: pymatgen/analysis/vesta_cutoffs.yaml
       - id: end-of-file-fixer
       - id: trailing-whitespace
 
-  - repo: https://github.com/PyCQA/isort
-    rev: 5.10.1
-    hooks:
-      - id: isort
-        args: ["--profile", "black"]
-
-  - repo: https://github.com/psf/black
-    rev: 22.3.0
-    hooks:
-      - id: black
-
-  - repo: https://github.com/PyCQA/flake8
-    rev: 4.0.1
-    hooks:
-      - id: flake8
-
   - repo: https://github.com/pre-commit/mirrors-mypy
-    rev: v0.942
+    rev: v1.11.2
     hooks:
       - id: mypy
+
+  - repo: https://github.com/codespell-project/codespell
+    rev: v2.3.0
+    hooks:
+      - id: codespell
+        stages: [commit, commit-msg]
+        exclude_types: [html]
+        additional_dependencies: [tomli] # needed to read pyproject.toml below py3.11
+        exclude: src/pymatgen/analysis/aflow_prototypes.json
+
+  - repo: https://github.com/MarcoGorelli/cython-lint
+    rev: v0.16.2
+    hooks:
+      - id: cython-lint
+        args: [--no-pycodestyle]
+      - id: double-quote-cython-strings
+
+  - repo: https://github.com/adamchainz/blacken-docs
+    rev: 1.18.0
+    hooks:
+      - id: blacken-docs
+
+  - repo: https://github.com/igorshubovych/markdownlint-cli
+    rev: v0.41.0
+    hooks:
+      - id: markdownlint
+        # MD013: line too long
+        # MD024: Multiple headings with the same content
+        # MD033: no inline HTML
+        # MD041: first line in a file should be a top-level heading
+        # MD025: single title
+        args: [--disable, MD013, MD024, MD025, MD033, MD041, "--"]
+
+  - repo: https://github.com/kynan/nbstripout
+    rev: 0.7.1
+    hooks:
+      - id: nbstripout
+        args: [--drop-empty-cells, --keep-output]
+
+  - repo: https://github.com/RobertCraigie/pyright-python
+    rev: v1.1.379
+    hooks:
+      - id: pyright

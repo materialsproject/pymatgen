@@ -1,0 +1,69 @@
+name: Report a Bug
+description: Use this template to report a Pymatgen-related bug
+labels: bug
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Try GitHub Codespaces for auto environment setup and streamlined info collection:
+
+        [![Open in Codespaces](https://github.com/codespaces/badge.svg)](https://codespaces.new/materialsproject/pymatgen?quickstart=1)
+
+  - type: input
+    id: python-version
+    attributes:
+      label: Python version
+      description: Use `python --version` to get Python version
+      placeholder: ex. Python 3.11.5
+    validations:
+      required: true
+
+  - type: input
+    id: pmg-version
+    attributes:
+      label: Pymatgen version
+      description: Use `pip show pymatgen | grep Version` to get Pymatgen version
+      placeholder: ex. 2023.12.18
+    validations:
+      required: true
+
+  - type: input
+    id: os
+    attributes:
+      label: Operating system version
+      placeholder: ex. Ubuntu 22.04 LTS
+    validations:
+      required: false
+
+  - type: textarea
+    id: current-behavior
+    attributes:
+      label: Current behavior
+      description: What bad behavior do you see?
+    validations:
+      required: true
+
+  - type: textarea
+    id: expected-behavior
+    attributes:
+      label: Expected Behavior
+      description: What did you expect to see?
+    validations:
+      required: true
+
+  - type: textarea
+    id: code-snippet
+    attributes:
+      label: Minimal example
+      description: Please provide a minimal code snippet to reproduce this bug.
+      render: Python
+    validations:
+      required: false
+
+  - type: textarea
+    id: files
+    attributes:
+      label: Relevant files to reproduce this bug
+      description: Please upload relevant files to help reproduce this bug, or logs if helpful.
+    validations:
+      required: false

@@ -1,0 +1,1 @@
+"""Coordination geometry files."""

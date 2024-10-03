@@ -1,0 +1,23 @@
+# 1) Initialization
+units $units
+atom_style $atom_style
+dimension $dimension
+boundary $boundary
+
+# 2) System definition
+read_data $read_data
+neigh_modify every 1 delay 5 check yes
+
+# 3) Simulation settings
+$force_field
+
+# 4) Thermalization
+thermo 100
+
+fix mynpt all npt temp $temperature $temperature 0.1 aniso 0.0 0.0 1
+timestep 0.001
+run 10000
+
+# 5) Write output data
+write_data run.data
+write_restart run.restart

@@ -1,0 +1,29 @@
+name: Feature Request
+description: Use this template to request a new feature
+labels: enhancement
+body:
+  - type: textarea
+    id: feature
+    attributes:
+      label: Feature Requested
+      description: Specify the feature and provide examples or use cases.
+    validations:
+      required: true
+
+  - type: textarea
+    id: solution
+    attributes:
+      label: Proposed Solution
+      description: Share your thoughts on how the feature could be implemented.
+      placeholder: Implement a new method that ...
+    validations:
+      required: true
+
+  - type: textarea
+    id: relevant
+    attributes:
+      label: Relevant Information
+      description: Additional context or links for understanding or implementing the feature.
+      placeholder: Use cases, related discussions, relevant literature, ...
+    validations:
+      required: false

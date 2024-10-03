@@ -1,85 +1,89 @@
-name: Release
+name: Release # makes PyPI releases
 
 on:
   release:
-    types: [created]
+    types: [published]
   workflow_dispatch:
+    inputs:
+      task:
+        type: choice
+        options: [release, test-release]
+        default: release
+        description: Release to PyPI or TestPyPI.
+
+permissions:
+  contents: read
 
 jobs:
   test:
-    # prevent this action from running on forks
-    if: github.repository == 'materialsproject/pymatgen'
+    # run test.yml first to ensure that the test suite is passing
+    uses: ./.github/workflows/test.yml
 
-    strategy:
-      max-parallel: 20
-      matrix:
-        # This distribution of tests is designed to ensure an approximately even time to finish for parallel jobs.
-        include:
-          - pkg: pymatgen/analysis/defects pymatgen/analysis/chemenv pymatgen/analysis/elasticity pymatgen/analysis/magnetism
-            pkg_id: 1
-          - pkg: pymatgen/analysis --ignore=pymatgen/analysis/defects --ignore=pymatgen/analysis/chemenv --ignore=pymatgen/analysis/elasticity --ignore=pymatgen/analysis/magnetism
-            pkg_id: 2
-          - pkg: pymatgen/electronic_structure pymatgen/symmetry pymatgen/command_line
-            pkg_id: 3
-          - pkg: pymatgen --ignore=pymatgen/analysis --ignore=pymatgen/electronic_structure --ignore=pymatgen/symmetry --ignore=pymatgen/ext --ignore=pymatgen/command_line
-            pkg_id: 4
-
-    runs-on: macos-latest
-
-    env:
-      PMG_MAPI_KEY: ${{ secrets.PMG_MAPI_KEY }}
-      MPLBACKEND: "Agg"
-      PMG_TEST_FILES_DIR: ${{ github.workspace }}/test_files
-      GULP_LIB: ${{ github.workspace }}/cmd_line/gulp/Libraries
-
+  build_sdist:
+    needs: test
+    runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
-      - name: Set up Python 3.9
-        uses: actions/setup-python@v3
-        with:
-          python-version: 3.9
-          cache: pip
-      - name: Install dependencies
-        run: |
-          pip install --upgrade pip wheel
-          pip install -r requirements.txt
-          pip install -r requirements-optional.txt -r requirements-dev.txt
-          pip install -e .
-      - name: pytest ${{ matrix.pkg }}
-        run: |
-          pytest ${{ matrix.pkg }}
+      - name: Check out repo
+        uses: actions/checkout@v4
 
-  release:
+      - uses: actions/setup-python@v5
+        name: Install Python
+        with:
+          python-version: "3.12"
+
+      - name: Build sdist
+        run: |
+          pip install build
+          python -m build --sdist
+
+      - uses: actions/upload-artifact@v4
+        with:
+          path: dist/*.tar.gz
+
+  build_wheels:
     needs: test
     strategy:
-      max-parallel: 2
       matrix:
-        os: [macos-latest, windows-latest]
-        python-version: ['3.8', '3.9', '3.10']
+        os: [ubuntu-latest, macos-14, windows-latest]
+        python-version: ["310", "311", "312"]
     runs-on: ${{ matrix.os }}
-
     steps:
-      - uses: actions/checkout@v3
-      - name: Set up Python ${{ matrix.python-version }}
-        uses: actions/setup-python@v3
-        with:
-          python-version: ${{ matrix.python-version }}
-          cache: pip
-          cache-dependency-path: |
-            requirements.txt
-            setup.py
-      - name: Install dependencies
-        run: |
-          pip install --upgrade pip wheel
-          pip install -r requirements.txt
-          pip install -e .
-      - name: Release
+      - name: Check out repo
+        uses: actions/checkout@v4
+
+      - name: Build wheels
+        uses: pypa/cibuildwheel@v2.16.5
         env:
-          TWINE_USERNAME: ${{ secrets.TWINE_USERNAME }}
-          TWINE_PASSWORD: ${{ secrets.TWINE_PASSWORD }}
-        run: |
-          pip install setuptools wheel twine
-          python setup.py sdist bdist_wheel
-          twine upload --skip-existing dist/*.whl
-          twine upload --skip-existing dist/*.tar.gz
-        continue-on-error: true
+          CIBW_BUILD: cp${{ matrix.python-version }}-*
+
+      - name: Save artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: dist-${{ matrix.os }}-${{ matrix.python-version }}
+          path: ./wheelhouse/*.whl
+
+  release:
+    needs: [build_wheels, build_sdist]
+    runs-on: ubuntu-latest
+    permissions:
+      # For pypi trusted publishing
+      id-token: write
+    steps:
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Get build artifacts
+        uses: actions/download-artifact@v4
+        with:
+          pattern: dist-*
+          merge-multiple: true
+          path: dist
+
+      - name: Publish to PyPi or TestPyPI
+        uses: pypa/gh-action-pypi-publish@release/v1
+        with:
+          skip-existing: true
+          verbose: true
+          repository-url: ${{ github.event_name == 'workflow_dispatch' && github.event.inputs.task == 'test-release' && 'https://test.pypi.org/legacy/' || '' }}

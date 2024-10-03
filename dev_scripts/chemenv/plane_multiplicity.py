@@ -1,9 +1,8 @@
-# Copyright (c) Pymatgen Development Team.
-# Distributed under the terms of the MIT License.
+"""Development script to get the multiplicity of the separation facets for some model coordination environments."""
 
-"""
-Development script to get the multiplicity of the separation facets for some model coordination environments
-"""
+from __future__ import annotations
+
+from pymatgen.analysis.chemenv.coordination_environments.coordination_geometries import AllCoordinationGeometries
 
 __author__ = "David Waroquiers"
 __copyright__ = "Copyright 2012, The Materials Project"
@@ -12,17 +11,12 @@ __maintainer__ = "David Waroquiers"
 __email__ = "david.waroquiers@gmail.com"
 __date__ = "Feb 20, 2016"
 
-from pymatgen.analysis.chemenv.coordination_environments.coordination_geometries import (
-    AllCoordinationGeometries,
-)
-
 if __name__ == "__main__":
-
-    allcg = AllCoordinationGeometries()
+    all_cg = AllCoordinationGeometries()
 
     cg_symbol = "I:12"
     all_plane_points = []
-    cg = allcg[cg_symbol]
+    cg = all_cg[cg_symbol]
 
     # I:12
     if cg_symbol == "I:12":
@@ -31,12 +25,10 @@ if __name__ == "__main__":
         for edge in edges:
             opposite_edge = [opposite_points[edge[0]], opposite_points[edge[1]]]
             equiv_plane = list(edge)
-            equiv_plane.extend(opposite_edge)
+            equiv_plane += opposite_edge
             equiv_plane.sort()
-            equiv_plane = tuple(equiv_plane)
-            all_plane_points.append(equiv_plane)
-        all_plane_points = list(set(all_plane_points))
-        all_plane_points = [list(equiv_plane) for equiv_plane in all_plane_points]
+            all_plane_points.append(tuple(equiv_plane))
+        all_plane_points = [tuple(equiv_plane) for equiv_plane in set(all_plane_points)]
 
-    print(f"All plane points ({len(all_plane_points):d}) for {cg_symbol} : ")
+    print(f"All plane points ({len(all_plane_points)}) for {cg_symbol} : ")
     print(all_plane_points)

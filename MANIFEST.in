@@ -1,4 +1,0 @@
-include *.rst requirements*.txt pyproject.toml
-recursive-include pymatgen *.py *.json *.yaml *.txt *.csv *.pyx
-recursive-exclude pymatgen **/tests/*.* */*/tests */*/*/tests */*/*/*/tests */*/*/*/*/tests
-prune test_files

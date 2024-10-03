@@ -1,0 +1,84 @@
+# Default VASP settings for static calculations in the MatPES Project
+# using the Regularized-Restored Strongly Constrained and Appropriately
+# Normed functional (default PBE, PBE+U or R2SCAN or R2SCAN+U).
+PARENT: PBE64Base
+INCAR:
+  ALGO: Normal # Normal for PBE, ALL for R2SCAN, included to have some reasonable default
+  EDIFF: 1.e-05
+  ENAUG: 1360
+  ENCUT: 680
+  GGA: PE # change R2SCAN to PBE as default
+  ISMEAR: 0 # change from 2 to 0, included to have some reasonable default
+  ISPIN: 2
+  KSPACING: 0.22 # included to have some reasonable default
+  LAECHG: True
+  LASPH: True
+  LCHARG: True
+  LMIXTAU: True
+  LORBIT: 11
+  LREAL: False
+  LWAVE: False
+  NELM: 200
+  NSW: 0 # static calculation
+  PREC: Accurate
+  SIGMA: 0.05 # change from 0.02 to 0.05, included to have some reasonable default
+  LDAU: false
+  LMAXMIX: 6
+  LDAUJ:
+    F:
+      Co: 0
+      Cr: 0
+      Fe: 0
+      Mn: 0
+      Mo: 0
+      Ni: 0
+      V: 0
+      W: 0
+    O:
+      Co: 0
+      Cr: 0
+      Fe: 0
+      Mn: 0
+      Mo: 0
+      Ni: 0
+      V: 0
+      W: 0
+  LDAUL:
+    F:
+      Co: 2
+      Cr: 2
+      Fe: 2
+      Mn: 2
+      Mo: 2
+      Ni: 2
+      V: 2
+      W: 2
+    O:
+      Co: 2
+      Cr: 2
+      Fe: 2
+      Mn: 2
+      Mo: 2
+      Ni: 2
+      V: 2
+      W: 2
+  LDAUTYPE: 2
+  LDAUU:
+    F:
+      Co: 3.32
+      Cr: 3.7
+      Fe: 5.3
+      Mn: 3.9
+      Mo: 4.38
+      Ni: 6.2
+      V: 3.25
+      W: 6.2
+    O:
+      Co: 3.32
+      Cr: 3.7
+      Fe: 5.3
+      Mn: 3.9
+      Mo: 4.38
+      Ni: 6.2
+      V: 3.25
+      W: 6.2

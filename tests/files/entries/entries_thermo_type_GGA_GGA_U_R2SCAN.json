@@ -1,0 +1,588 @@
+[
+    {
+        "@module": "pymatgen.entries.computed_entries",
+        "@class": "ComputedStructureEntry",
+        "energy": -22.24252073,
+        "composition": {
+            "Li": 12.0
+        },
+        "entry_id": "mp-1103107-GGA",
+        "correction": -5.733402560000003,
+        "energy_adjustments": [
+            {
+                "@module": "pymatgen.entries.computed_entries",
+                "@class": "ConstantEnergyAdjustment",
+                "@version": null,
+                "value": -5.733402560000003,
+                "uncertainty": 0.0,
+                "name": "MP GGA(+U)/R2SCAN mixing adjustment",
+                "cls": {
+                    "@module": "pymatgen.entries.mixing_scheme",
+                    "@class": "MaterialsProjectDFTMixingScheme",
+                    "@version": null,
+                    "structure_matcher": {
+                        "version": "1.0",
+                        "@module": "pymatgen.analysis.structure_matcher",
+                        "@class": "StructureMatcher",
+                        "comparator": {
+                            "version": "1.0",
+                            "@module": "pymatgen.analysis.structure_matcher",
+                            "@class": "SpeciesComparator"
+                        },
+                        "stol": 0.3,
+                        "ltol": 0.2,
+                        "angle_tol": 5,
+                        "primitive_cell": true,
+                        "scale": true,
+                        "attempt_supercell": false,
+                        "allow_subset": false,
+                        "supercell_size": "num_sites",
+                        "ignored_species": []
+                    },
+                    "run_type_1": "GGA(+U)",
+                    "run_type_2": "R2SCAN",
+                    "compat_1": {
+                        "@module": "pymatgen.entries.compatibility",
+                        "@class": "MaterialsProject2020Compatibility",
+                        "@version": null
+                    },
+                    "compat_2": null,
+                    "fuzzy_matching": true
+                },
+                "description": "Place GGA(+U) energy onto the R2SCAN hull"
+            }
+        ],
+        "parameters": {
+            "potcar_spec": [
+                {
+                    "titel": "PAW_PBE Li_sv 23Jan2001",
+                    "hash": "4799bab014a83a07c654d7196c8ecfa9"
+                }
+            ],
+            "is_hubbard": false,
+            "hubbards": {},
+            "run_type": "GGA"
+        },
+        "data": {
+            "oxide_type": "None",
+            "aspherical": true,
+            "last_updated": {
+                "@module": "datetime",
+                "@class": "datetime",
+                "string": "2021-02-09 22:00:53.699000"
+            },
+            "task_id": "mp-1927602",
+            "material_id": "mp-1103107",
+            "oxidation_states": {},
+            "run_type": "GGA"
+        },
+        "structure": {
+            "@module": "pymatgen.core.structure",
+            "@class": "Structure",
+            "charge": 0,
+            "lattice": {
+                "matrix": [
+                    [
+                        8.046617,
+                        2.787678,
+                        0.0
+                    ],
+                    [
+                        -8.046617,
+                        2.787678,
+                        0.0
+                    ],
+                    [
+                        0.0,
+                        0.0,
+                        5.406859
+                    ]
+                ],
+                "pbc": [
+                    true,
+                    true,
+                    true
+                ],
+                "a": 8.51582020573315,
+                "b": 8.51582020573315,
+                "c": 5.406859,
+                "alpha": 90.0,
+                "beta": 90.0,
+                "gamma": 141.78363463263804,
+                "volume": 242.5665872337491
+            },
+            "sites": [
+                {
+                    "species": [
+                        {
+                            "element": "Li",
+                            "occu": 1
+                        }
+                    ],
+                    "abc": [
+                        0.755953,
+                        0.755953,
+                        0.597809
+                    ],
+                    "xyz": [
+                        0.0,
+                        4.214707094268,
+                        3.232268971931
+                    ],
+                    "label": "Li",
+                    "properties": {
+                        "magmom": -0.0
+                    }
+                },
+                {
+                    "species": [
+                        {
+                            "element": "Li",
+                            "occu": 1
+                        }
+                    ],
+                    "abc": [
+                        0.244047,
+                        0.244047,
+                        0.402191
+                    ],
+                    "xyz": [
+                        0.0,
+                        1.360648905732,
+                        2.1745900280690003
+                    ],
+                    "label": "Li",
+                    "properties": {
+                        "magmom": -0.0
+                    }
+                },
+                {
+                    "species": [
+                        {
+                            "element": "Li",
+                            "occu": 1
+                        }
+                    ],
+                    "abc": [
+                        0.744047,
+                        0.744047,
+                        0.097809
+                    ],
+                    "xyz": [
+                        0.0,
+                        4.1483269057320005,
+                        0.528839471931
+                    ],
+                    "label": "Li",
+                    "properties": {
+                        "magmom": -0.0
+                    }
+                },
+                {
+                    "species": [
+                        {
+                            "element": "Li",
+                            "occu": 1
+                        }
+                    ],
+                    "abc": [
+                        0.255953,
+                        0.255953,
+                        0.902191
+                    ],
+                    "xyz": [
+                        0.0,
+                        1.427029094268,
+                        4.878019528068999
+                    ],
+                    "label": "Li",
+                    "properties": {
+                        "magmom": -0.0
+                    }
+                },
+                {
+                    "species": [
+                        {
+                            "element": "Li",
+                            "occu": 1
+                        }
+                    ],
+                    "abc": [
+                        0.781959,
+                        0.454821,
+                        0.753871
+                    ],
+                    "xyz": [
+                        2.6323541921459994,
+                        3.44774439684,
+                        4.076074201189
+                    ],
+                    "label": "Li",
+                    "properties": {
+                        "magmom": 0.0
+                    }
+                },
+                {
+                    "species": [
+                        {
+                            "element": "Li",
+                            "occu": 1
+                        }
+                    ],
+                    "abc": [
+                        0.545179,
+                        0.218041,
+                        0.246129
+                    ],
+                    "xyz": [
+                        2.6323541921459994,
+                        2.12761160316,
+                        1.330784798811
+                    ],
+                    "label": "Li",
+                    "properties": {
+                        "magmom": 0.0
+                    }
+                },
+                {
+                    "species": [
+                        {
+                            "element": "Li",
+                            "occu": 1
+                        }
+                    ],
+                    "abc": [
+                        0.045179,
+                        0.718041,
+                        0.253871
+                    ],
+                    "xyz": [
+                        -5.4142628078540005,
+                        2.12761160316,
+                        1.372644701189
+                    ],
+                    "label": "Li",
+                    "properties": {
+                        "magmom": 0.0
+                    }
+                },
+                {
+                    "species": [
+                        {
+                            "element": "Li",
+                            "occu": 1
+                        }
+                    ],
+                    "abc": [
+                        0.281959,
+                        0.954821,
+                        0.746129
+                    ],
+                    "xyz": [
+                        -5.414262807854,
+                        3.4477443968400006,
+                        4.034214298811
+                    ],
+                    "label": "Li",
+                    "properties": {
+                        "magmom": 0.0
+                    }
+                },
+                {
+                    "species": [
+                        {
+                            "element": "Li",
+                            "occu": 1
+                        }
+                    ],
+                    "abc": [
+                        0.218041,
+                        0.545179,
+                        0.246129
+                    ],
+                    "xyz": [
+                        -2.6323541921459994,
+                        2.12761160316,
+                        1.330784798811
+                    ],
+                    "label": "Li",
+                    "properties": {
+                        "magmom": 0.0
+                    }
+                },
+                {
+                    "species": [
+                        {
+                            "element": "Li",
+                            "occu": 1
+                        }
+                    ],
+                    "abc": [
+                        0.454821,
+                        0.781959,
+                        0.753871
+                    ],
+                    "xyz": [
+                        -2.6323541921459994,
+                        3.44774439684,
+                        4.076074201189
+                    ],
+                    "label": "Li",
+                    "properties": {
+                        "magmom": 0.0
+                    }
+                },
+                {
+                    "species": [
+                        {
+                            "element": "Li",
+                            "occu": 1
+                        }
+                    ],
+                    "abc": [
+                        0.954821,
+                        0.281959,
+                        0.746129
+                    ],
+                    "xyz": [
+                        5.414262807854,
+                        3.4477443968400006,
+                        4.034214298811
+                    ],
+                    "label": "Li",
+                    "properties": {
+                        "magmom": 0.0
+                    }
+                },
+                {
+                    "species": [
+                        {
+                            "element": "Li",
+                            "occu": 1
+                        }
+                    ],
+                    "abc": [
+                        0.718041,
+                        0.045179,
+                        0.253871
+                    ],
+                    "xyz": [
+                        5.4142628078540005,
+                        2.12761160316,
+                        1.372644701189
+                    ],
+                    "label": "Li",
+                    "properties": {
+                        "magmom": 0.0
+                    }
+                }
+            ]
+        },
+        "@version": null
+    },
+    {
+        "@module": "pymatgen.entries.computed_entries",
+        "@class": "ComputedStructureEntry",
+        "energy": -6.58849649,
+        "composition": {
+            "Li": 4.0
+        },
+        "entry_id": "mp-604313-GGA",
+        "correction": -1.9111341866666676,
+        "energy_adjustments": [
+            {
+                "@module": "pymatgen.entries.computed_entries",
+                "@class": "ConstantEnergyAdjustment",
+                "@version": null,
+                "value": -1.9111341866666676,
+                "uncertainty": 0.0,
+                "name": "MP GGA(+U)/R2SCAN mixing adjustment",
+                "cls": {
+                    "@module": "pymatgen.entries.mixing_scheme",
+                    "@class": "MaterialsProjectDFTMixingScheme",
+                    "@version": null,
+                    "structure_matcher": {
+                        "version": "1.0",
+                        "@module": "pymatgen.analysis.structure_matcher",
+                        "@class": "StructureMatcher",
+                        "comparator": {
+                            "version": "1.0",
+                            "@module": "pymatgen.analysis.structure_matcher",
+                            "@class": "SpeciesComparator"
+                        },
+                        "stol": 0.3,
+                        "ltol": 0.2,
+                        "angle_tol": 5,
+                        "primitive_cell": true,
+                        "scale": true,
+                        "attempt_supercell": false,
+                        "allow_subset": false,
+                        "supercell_size": "num_sites",
+                        "ignored_species": []
+                    },
+                    "run_type_1": "GGA(+U)",
+                    "run_type_2": "R2SCAN",
+                    "compat_1": {
+                        "@module": "pymatgen.entries.compatibility",
+                        "@class": "MaterialsProject2020Compatibility",
+                        "@version": null
+                    },
+                    "compat_2": null,
+                    "fuzzy_matching": true
+                },
+                "description": "Place GGA(+U) energy onto the R2SCAN hull"
+            }
+        ],
+        "parameters": {
+            "potcar_spec": [
+                {
+                    "titel": "PAW_PBE Li_sv 23Jan2001",
+                    "hash": "4799bab014a83a07c654d7196c8ecfa9"
+                }
+            ],
+            "is_hubbard": false,
+            "hubbards": {},
+            "run_type": "GGA"
+        },
+        "data": {
+            "oxide_type": "None",
+            "aspherical": true,
+            "last_updated": {
+                "@module": "datetime",
+                "@class": "datetime",
+                "string": "2020-05-04 00:04:19.858000"
+            },
+            "task_id": "mp-1418694",
+            "material_id": "mp-604313",
+            "oxidation_states": {},
+            "run_type": "GGA"
+        },
+        "structure": {
+            "@module": "pymatgen.core.structure",
+            "@class": "Structure",
+            "charge": 0,
+            "lattice": {
+                "matrix": [
+                    [
+                        4.457586,
+                        0.0,
+                        0.0
+                    ],
+                    [
+                        0.0,
+                        4.457586,
+                        0.0
+                    ],
+                    [
+                        0.0,
+                        0.0,
+                        4.457586
+                    ]
+                ],
+                "pbc": [
+                    true,
+                    true,
+                    true
+                ],
+                "a": 4.457586,
+                "b": 4.457586,
+                "c": 4.457586,
+                "alpha": 90.0,
+                "beta": 90.0,
+                "gamma": 90.0,
+                "volume": 88.57255898929115
+            },
+            "sites": [
+                {
+                    "species": [
+                        {
+                            "element": "Li",
+                            "occu": 1
+                        }
+                    ],
+                    "abc": [
+                        0.875,
+                        0.125,
+                        0.625
+                    ],
+                    "xyz": [
+                        3.90038775,
+                        0.55719825,
+                        2.78599125
+                    ],
+                    "label": "Li",
+                    "properties": {
+                        "magmom": 0.0
+                    }
+                },
+                {
+                    "species": [
+                        {
+                            "element": "Li",
+                            "occu": 1
+                        }
+                    ],
+                    "abc": [
+                        0.375,
+                        0.375,
+                        0.375
+                    ],
+                    "xyz": [
+                        1.6715947500000001,
+                        1.6715947500000001,
+                        1.6715947500000001
+                    ],
+                    "label": "Li",
+                    "properties": {
+                        "magmom": 0.0
+                    }
+                },
+                {
+                    "species": [
+                        {
+                            "element": "Li",
+                            "occu": 1
+                        }
+                    ],
+                    "abc": [
+                        0.125,
+                        0.625,
+                        0.875
+                    ],
+                    "xyz": [
+                        0.55719825,
+                        2.78599125,
+                        3.90038775
+                    ],
+                    "label": "Li",
+                    "properties": {
+                        "magmom": 0.0
+                    }
+                },
+                {
+                    "species": [
+                        {
+                            "element": "Li",
+                            "occu": 1
+                        }
+                    ],
+                    "abc": [
+                        0.625,
+                        0.875,
+                        0.125
+                    ],
+                    "xyz": [
+                        2.78599125,
+                        3.90038775,
+                        0.55719825
+                    ],
+                    "label": "Li",
+                    "properties": {
+                        "magmom": 0.0
+                    }
+                }
+            ]
+        },
+        "@version": null
+    }
+]
