@@ -1329,7 +1329,6 @@ class PointGroupAnalyzer:
         return generate_full_symmops(self.symmops, self.tol)
 
     def get_rotational_symmetry_number(self) -> int:
-
         if self.sch_symbol == "D*h":
             # Special case. H2 for example has rotational symmetry number 2
             return 2
