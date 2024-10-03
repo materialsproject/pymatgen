@@ -1484,13 +1484,13 @@ class CompoundPhaseDiagram(PhaseDiagram):
 
         # `f` letter was hard coded, do not modify. Alphabet consists of letters
         # between f and z.
-        letter = 'f'
-        code, z_code = ord(letter), ord('z') + 1
+        letter = "f"
+        code, z_code = ord(letter), ord("z") + 1
 
         rest_num_letters = z_code - code
         mult = num // rest_num_letters
 
-        ret = letter * mult if mult else ''
+        ret = letter * mult if mult else ""
 
         remainder = num % rest_num_letters + 1
 

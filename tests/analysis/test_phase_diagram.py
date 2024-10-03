@@ -702,14 +702,13 @@ class TestCompoundPhaseDiagram(TestCase):
         assert str(self.pd) == "Xf-Xg phase diagram\n4 stable phases: \nLiFeO2, Li2O, Li5FeO4, Fe2O3"
 
     def test_num2str(self):
-
         ret = set()
 
         num = 100
         for idx in range(num):
             val = CompoundPhaseDiagram.num2str(idx)
             assert val.isalpha()
-            assert ord(val[0]) >= ord('f')
+            assert ord(val[0]) >= ord("f")
             ret.add(val)
 
         assert len(ret) == num
