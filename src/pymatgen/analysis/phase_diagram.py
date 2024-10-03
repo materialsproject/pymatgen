@@ -1471,6 +1471,34 @@ class CompoundPhaseDiagram(PhaseDiagram):
         self.species_mapping = species_mapping
         super().__init__(p_entries, elements=species_mapping.values())
 
+    @staticmethod
+    def num2str(num):
+        """
+        Convert number to a list of letter(s). First letter must be `f`.
+
+        :param num int: Number to convert
+
+        :rtype: str
+        :return Converted string
+        """
+
+        # `f` letter was hard coded, do not modify. Alphabet consists of letters
+        # between f and z.
+        letter = 'f'
+        code, z_code = ord(letter), ord('z') + 1
+
+        rest_num_letters = z_code - code
+        mult = num // rest_num_letters
+
+        ret = letter * mult if mult else ''
+
+        remainder = num % rest_num_letters + 1
+
+        start = code - 1
+        ret += chr(start + remainder)
+
+        return ret
+
     def transform_entries(self, entries, terminal_compositions):
         """
         Method to transform all entries to the composition coordinate in the
@@ -1493,7 +1521,7 @@ class CompoundPhaseDiagram(PhaseDiagram):
         # Map terminal compositions to unique dummy species.
         sp_mapping = {}
         for idx, comp in enumerate(terminal_compositions):
-            sp_mapping[comp] = DummySpecies("X" + chr(102 + idx))
+            sp_mapping[comp] = DummySpecies("X" + self.num2str(idx))
 
         for entry in entries:
             if getattr(entry, "attribute", None) is None:
