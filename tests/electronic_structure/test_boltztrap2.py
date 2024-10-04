@@ -10,6 +10,7 @@ from monty.serialization import loadfn
 from monty.tempfile import ScratchDir
 from pytest import approx
 
+from pymatgen.electronic_structure.boltztrap import BoltztrapError
 from pymatgen.electronic_structure.core import OrbitalType, Spin
 from pymatgen.io.vasp import Vasprun
 from pymatgen.util.testing import TEST_FILES_DIR
@@ -25,7 +26,7 @@ try:
     )
 
     BOLTZTRAP2_PRESENT = True
-except Exception:
+except BoltztrapError:
     BOLTZTRAP2_PRESENT = False
 
 
@@ -254,7 +255,7 @@ class TestBztTransportProperties:
                 save_bztTranspProps=True,
                 fname=file_name,
             )
-            assert self.bztTransp_sp is not None
+        assert self.bztTransp_sp is not None
 
         bztInterp_sp = BztInterpolator(loader_sp, lpfac=2)
         self.bztTransp_sp = BztTransportProperties(bztInterp_sp, load_bztTranspProps=True, fname=BZT_TRANSP_FN)
