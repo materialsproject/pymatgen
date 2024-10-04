@@ -9,7 +9,6 @@ from monty.serialization import loadfn
 from monty.tempfile import ScratchDir
 from pytest import approx
 
-from pymatgen.electronic_structure.boltztrap import BoltztrapError
 from pymatgen.electronic_structure.core import OrbitalType, Spin
 from pymatgen.io.vasp import Vasprun
 from pymatgen.util.testing import TEST_FILES_DIR
@@ -24,7 +23,7 @@ try:
         VasprunLoader,
     )
 
-except BoltztrapError:
+except ImportError:
     pytest.skip("No boltztrap2", allow_module_level=True)
 
 TEST_DIR = f"{TEST_FILES_DIR}/electronic_structure/boltztrap2"
