@@ -255,11 +255,11 @@ class TestBztTransportProperties:
                 save_bztTranspProps=True,
                 fname=file_name,
             )
-        assert self.bztTransp_sp is not None
+            assert self.bztTransp_sp is not None
 
-        bztInterp_sp = BztInterpolator(loader_sp, lpfac=2)
-        self.bztTransp_sp = BztTransportProperties(bztInterp_sp, load_bztTranspProps=True, fname=BZT_TRANSP_FN)
-        assert self.bztTransp_sp is not None
+            bztInterp_sp = BztInterpolator(loader_sp, lpfac=2)
+            self.bztTransp_sp = BztTransportProperties(bztInterp_sp, load_bztTranspProps=True, fname=file_name)
+            assert self.bztTransp_sp is not None
 
     def test_properties(self):
         for p in (
