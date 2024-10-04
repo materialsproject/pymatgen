@@ -211,7 +211,8 @@ class TestBztInterpolator(TestCase):
 
 @pytest.mark.skipif(not BOLTZTRAP2_PRESENT, reason="No boltztrap2, skipping tests.")
 class TestBztTransportProperties:
-    def test_non_spin_polarized(self):
+    def setup(self):
+        # non spin polarized
         loader = VasprunBSLoader(VASP_RUN)
         bztInterp = BztInterpolator(loader, lpfac=2)
         self.bztTransp = BztTransportProperties(bztInterp, temp_r=np.arange(300, 600, 100))
@@ -236,7 +237,7 @@ class TestBztTransportProperties:
         self.bztTransp = BztTransportProperties(bztInterp, load_bztTranspProps=True, fname=BZT_TRANSP_FN)
         assert self.bztTransp is not None
 
-    def test_spin_polarized(self):
+        # spin polarized
         loader_sp = VasprunBSLoader(VASP_RUN_SPIN)
         bztInterp_sp = BztInterpolator(loader_sp, lpfac=2)
         self.bztTransp_sp = BztTransportProperties(bztInterp_sp, temp_r=np.arange(300, 600, 100))
