@@ -129,22 +129,24 @@ class TestVasprunLoader(TestCase):
 
 class TestBztInterpolator(TestCase):
     def setUp(self):
-        self.loader = VasprunBSLoader(VASP_RUN)
-        self.bztInterp = BztInterpolator(self.loader, lpfac=2)
-        assert self.bztInterp is not None
-        # TODO: following creates file locally, use temp dir
-        self.bztInterp = BztInterpolator(self.loader, lpfac=2, save_bztInterp=True, fname=BZT_INTERP_FN)
-        assert self.bztInterp is not None
-        self.bztInterp = BztInterpolator(self.loader, load_bztInterp=True, fname=BZT_INTERP_FN)
-        assert self.bztInterp is not None
+        with ScratchDir("."):
+            shutil.copy(BZT_INTERP_FN, ".")
 
-        self.loader_sp = VasprunBSLoader(VASP_RUN_SPIN)
-        self.bztInterp_sp = BztInterpolator(self.loader_sp, lpfac=2)
-        assert self.bztInterp_sp is not None
-        self.bztInterp_sp = BztInterpolator(self.loader_sp, lpfac=2, save_bztInterp=True, fname=BZT_INTERP_FN)
-        assert self.bztInterp_sp is not None
-        self.bztInterp_sp = BztInterpolator(self.loader_sp, lpfac=2, load_bztInterp=True, fname=BZT_INTERP_FN)
-        assert self.bztInterp_sp is not None
+            loader = VasprunBSLoader(VASP_RUN)
+            self.bztInterp = BztInterpolator(loader, lpfac=2)
+            assert self.bztInterp is not None
+            self.bztInterp = BztInterpolator(loader, lpfac=2, save_bztInterp=True)
+            assert self.bztInterp is not None
+            self.bztInterp = BztInterpolator(loader, load_bztInterp=True)
+            assert self.bztInterp is not None
+
+            loader_sp = VasprunBSLoader(VASP_RUN_SPIN)
+            self.bztInterp_sp = BztInterpolator(loader_sp, lpfac=2)
+            assert self.bztInterp_sp is not None
+            self.bztInterp_sp = BztInterpolator(loader_sp, lpfac=2, save_bztInterp=True)
+            assert self.bztInterp_sp is not None
+            self.bztInterp_sp = BztInterpolator(loader_sp, lpfac=2, load_bztInterp=True)
+            assert self.bztInterp_sp is not None
 
     def test_properties(self):
         assert self.bztInterp.cband.shape == (6, 3, 3, 3, 29791)
