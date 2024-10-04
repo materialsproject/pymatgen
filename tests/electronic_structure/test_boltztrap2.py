@@ -34,6 +34,7 @@ VASP_RUN = Vasprun(VASP_RUN_FILE, parse_projected_eigen=True)
 
 VASP_RUN_FILE_SPIN = f"{TEST_DIR}/vasprun_spin.xml"
 VASP_RUN_SPIN = Vasprun(VASP_RUN_FILE_SPIN, parse_projected_eigen=True)
+
 BAND_STRUCT = loadfn(f"{TEST_DIR}/PbTe_bandstructure.json")
 BAND_STRUCT_SPIN = loadfn(f"{TEST_DIR}/N2_bandstructure.json")
 
@@ -130,7 +131,7 @@ class TestVasprunLoader(TestCase):
 
 
 @pytest.mark.skipif(not BOLTZTRAP2_PRESENT, reason="No boltztrap2, skipping tests.")
-class TestBztInterpolator:
+class TestBztInterpolator(TestCase):
     def setUp(self):
         self.loader = VasprunBSLoader(VASP_RUN)
         self.bztInterp = BztInterpolator(self.loader, lpfac=2)
@@ -208,7 +209,7 @@ class TestBztInterpolator:
 
 
 @pytest.mark.skipif(not BOLTZTRAP2_PRESENT, reason="No boltztrap2, skipping tests.")
-class TestBztTransportProperties:
+class TestBztTransportProperties(TestCase):
     def setUp(self):
         # non spin polarized
         loader = VasprunBSLoader(VASP_RUN)
