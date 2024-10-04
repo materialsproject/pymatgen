@@ -1,13 +1,10 @@
 from __future__ import annotations
 
-import os
-import shutil
 from unittest import TestCase
 
 import numpy as np
 import pytest
 from monty.serialization import loadfn
-from monty.tempfile import ScratchDir
 from pytest import approx
 
 from pymatgen.electronic_structure.boltztrap import BoltztrapError
@@ -244,22 +241,19 @@ class TestBztTransportProperties:
         self.bztTransp_sp = BztTransportProperties(bztInterp_sp, temp_r=np.arange(300, 600, 100))
         assert self.bztTransp_sp is not None
 
-        with ScratchDir("."):
-            file_name = f"./{os.path.basename(BZT_TRANSP_FN)}"
-            shutil.copyfile(BZT_TRANSP_FN, file_name)
-            bztInterp_sp = BztInterpolator(loader_sp, lpfac=2)
+        bztInterp_sp = BztInterpolator(loader_sp, lpfac=2)
 
-            self.bztTransp_sp = BztTransportProperties(
-                bztInterp_sp,
-                temp_r=np.arange(300, 600, 100),
-                save_bztTranspProps=True,
-                fname=file_name,
-            )
-            assert self.bztTransp_sp is not None
+        self.bztTransp_sp = BztTransportProperties(
+            bztInterp_sp,
+            temp_r=np.arange(300, 600, 100),
+            save_bztTranspProps=True,
+            fname=BZT_TRANSP_FN,
+        )
+        assert self.bztTransp_sp is not None
 
-            bztInterp_sp = BztInterpolator(loader_sp, lpfac=2)
-            self.bztTransp_sp = BztTransportProperties(bztInterp_sp, load_bztTranspProps=True, fname=file_name)
-            assert self.bztTransp_sp is not None
+        bztInterp_sp = BztInterpolator(loader_sp, lpfac=2)
+        self.bztTransp_sp = BztTransportProperties(bztInterp_sp, load_bztTranspProps=True, fname=BZT_TRANSP_FN)
+        assert self.bztTransp_sp is not None
 
     def test_properties(self):
         for p in (
