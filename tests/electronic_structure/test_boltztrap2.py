@@ -1,13 +1,10 @@
 from __future__ import annotations
 
-import os
-import shutil
 from unittest import TestCase
 
 import numpy as np
 import pytest
 from monty.serialization import loadfn
-from monty.tempfile import ScratchDir
 from pytest import approx
 
 from pymatgen.electronic_structure.core import OrbitalType, Spin
@@ -223,50 +220,46 @@ class TestBztTransportProperties:
         assert self.bztTransp is not None
         assert self.bztTransp.contain_props_doping
 
-        with ScratchDir("."):
-            file_name = f"./{os.path.basename(BZT_TRANSP_FN)}"
-            shutil.copyfile(BZT_TRANSP_FN, file_name)
+        bztInterp = BztInterpolator(loader, lpfac=2)
+        self.bztTransp = BztTransportProperties(
+            bztInterp,
+            temp_r=np.arange(300, 600, 100),
+            save_bztTranspProps=True,
+            fname=BZT_TRANSP_FN,
+        )
+        assert self.bztTransp is not None
 
-            bztInterp = BztInterpolator(loader, lpfac=2)
-            self.bztTransp = BztTransportProperties(
-                bztInterp,
-                temp_r=np.arange(300, 600, 100),
-                save_bztTranspProps=True,
-                fname=file_name,
-            )
-            assert self.bztTransp is not None
+        bztInterp = BztInterpolator(loader, lpfac=2)
+        self.bztTransp = BztTransportProperties(bztInterp, load_bztTranspProps=True, fname=BZT_TRANSP_FN)
+        assert self.bztTransp is not None
 
-            bztInterp = BztInterpolator(loader, lpfac=2)
-            self.bztTransp = BztTransportProperties(bztInterp, load_bztTranspProps=True, fname=file_name)
-            assert self.bztTransp is not None
+        # Test properties
+        for p in (
+            self.bztTransp.Conductivity_mu,
+            self.bztTransp.Seebeck_mu,
+            self.bztTransp.Kappa_mu,
+            self.bztTransp.Effective_mass_mu,
+            self.bztTransp.Power_Factor_mu,
+        ):
+            assert p.shape == (3, 3686, 3, 3)
 
-            # Test properties
-            for p in (
-                self.bztTransp.Conductivity_mu,
-                self.bztTransp.Seebeck_mu,
-                self.bztTransp.Kappa_mu,
-                self.bztTransp.Effective_mass_mu,
-                self.bztTransp.Power_Factor_mu,
-            ):
-                assert p.shape == (3, 3686, 3, 3)
+        for p in (
+            self.bztTransp.Carrier_conc_mu,
+            self.bztTransp.Hall_carrier_conc_trace_mu,
+        ):
+            assert p.shape == (3, 3686)
 
-            for p in (
-                self.bztTransp.Carrier_conc_mu,
-                self.bztTransp.Hall_carrier_conc_trace_mu,
-            ):
-                assert p.shape == (3, 3686)
-
-            # test compute properties doping
-            self.bztTransp.compute_properties_doping(doping=10.0 ** np.arange(20, 22))
-            for p in (
-                self.bztTransp.Conductivity_doping,
-                self.bztTransp.Seebeck_doping,
-                self.bztTransp.Kappa_doping,
-                self.bztTransp.Effective_mass_doping,
-                self.bztTransp.Power_Factor_doping,
-            ):
-                assert p["n"].shape == (3, 2, 3, 3)
-                assert self.bztTransp.contain_props_doping
+        # test compute properties doping
+        self.bztTransp.compute_properties_doping(doping=10.0 ** np.arange(20, 22))
+        for p in (
+            self.bztTransp.Conductivity_doping,
+            self.bztTransp.Seebeck_doping,
+            self.bztTransp.Kappa_doping,
+            self.bztTransp.Effective_mass_doping,
+            self.bztTransp.Power_Factor_doping,
+        ):
+            assert p["n"].shape == (3, 2, 3, 3)
+            assert self.bztTransp.contain_props_doping
 
     def test_spin_polarized(self):
         loader_sp = VasprunBSLoader(VASP_RUN_SPIN)
@@ -274,51 +267,47 @@ class TestBztTransportProperties:
         self.bztTransp_sp = BztTransportProperties(bztInterp_sp, temp_r=np.arange(300, 600, 100))
         assert self.bztTransp_sp is not None
 
-        with ScratchDir("."):
-            file_name = f"./{os.path.basename(BZT_TRANSP_FN)}"
-            shutil.copyfile(BZT_TRANSP_FN, file_name)
+        bztInterp_sp = BztInterpolator(loader_sp, lpfac=2)
 
-            bztInterp_sp = BztInterpolator(loader_sp, lpfac=2)
+        self.bztTransp_sp = BztTransportProperties(
+            bztInterp_sp,
+            temp_r=np.arange(300, 600, 100),
+            save_bztTranspProps=True,
+            fname=BZT_TRANSP_FN,
+        )
+        assert self.bztTransp_sp is not None
 
-            self.bztTransp_sp = BztTransportProperties(
-                bztInterp_sp,
-                temp_r=np.arange(300, 600, 100),
-                save_bztTranspProps=True,
-                fname=file_name,
-            )
-            assert self.bztTransp_sp is not None
+        bztInterp_sp = BztInterpolator(loader_sp, lpfac=2)
+        self.bztTransp_sp = BztTransportProperties(bztInterp_sp, load_bztTranspProps=True, fname=BZT_TRANSP_FN)
+        assert self.bztTransp_sp is not None
 
-            bztInterp_sp = BztInterpolator(loader_sp, lpfac=2)
-            self.bztTransp_sp = BztTransportProperties(bztInterp_sp, load_bztTranspProps=True, fname=file_name)
-            assert self.bztTransp_sp is not None
+        # test properties
+        for p in (
+            self.bztTransp_sp.Conductivity_mu,
+            self.bztTransp_sp.Seebeck_mu,
+            self.bztTransp_sp.Kappa_mu,
+            self.bztTransp_sp.Effective_mass_mu,
+            self.bztTransp_sp.Power_Factor_mu,
+        ):
+            assert p.shape == (3, 3252, 3, 3)
 
-            # test properties
-            for p in (
-                self.bztTransp_sp.Conductivity_mu,
-                self.bztTransp_sp.Seebeck_mu,
-                self.bztTransp_sp.Kappa_mu,
-                self.bztTransp_sp.Effective_mass_mu,
-                self.bztTransp_sp.Power_Factor_mu,
-            ):
-                assert p.shape == (3, 3252, 3, 3)
+        for p in (
+            self.bztTransp_sp.Carrier_conc_mu,
+            self.bztTransp_sp.Hall_carrier_conc_trace_mu,
+        ):
+            assert p.shape == (3, 3252)
 
-            for p in (
-                self.bztTransp_sp.Carrier_conc_mu,
-                self.bztTransp_sp.Hall_carrier_conc_trace_mu,
-            ):
-                assert p.shape == (3, 3252)
-
-            # test compute properties doping
-            self.bztTransp_sp.compute_properties_doping(doping=10.0 ** np.arange(20, 22))
-            for p in (
-                self.bztTransp_sp.Conductivity_doping,
-                self.bztTransp_sp.Seebeck_doping,
-                self.bztTransp_sp.Kappa_doping,
-                self.bztTransp_sp.Effective_mass_doping,
-                self.bztTransp_sp.Power_Factor_doping,
-            ):
-                assert p["n"].shape == (3, 2, 3, 3)
-                assert self.bztTransp_sp.contain_props_doping
+        # test compute properties doping
+        self.bztTransp_sp.compute_properties_doping(doping=10.0 ** np.arange(20, 22))
+        for p in (
+            self.bztTransp_sp.Conductivity_doping,
+            self.bztTransp_sp.Seebeck_doping,
+            self.bztTransp_sp.Kappa_doping,
+            self.bztTransp_sp.Effective_mass_doping,
+            self.bztTransp_sp.Power_Factor_doping,
+        ):
+            assert p["n"].shape == (3, 2, 3, 3)
+            assert self.bztTransp_sp.contain_props_doping
 
 
 @pytest.mark.skipif(not BOLTZTRAP2_PRESENT, reason="No boltztrap2, skipping tests.")
