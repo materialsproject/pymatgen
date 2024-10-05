@@ -7,6 +7,8 @@ import numpy as np
 import pytest
 from monty.serialization import loadfn
 from numpy.testing import assert_allclose, assert_array_equal
+from pytest import approx
+
 from pymatgen.analysis.energy_models import IsingModel, SymmetryModel
 from pymatgen.analysis.gb.grain import GrainBoundaryGenerator
 from pymatgen.core import Lattice, Molecule, Species, Structure
@@ -39,17 +41,11 @@ from pymatgen.transformations.standard_transformations import (
     SubstitutionTransformation,
 )
 from pymatgen.util.testing import TEST_FILES_DIR, VASP_IN_DIR, PymatgenTest
-from pytest import approx
 
 try:
     import hiphive
 except ImportError:
     hiphive = None
-
-try:
-    import matgl
-except ImportError:
-    matgl = None
 
 
 def get_table():
@@ -186,7 +182,6 @@ class TestEnumerateStructureTransformation:
         for struct_trafo in alls:
             assert "energy" not in struct_trafo
 
-    @pytest.mark.skip("TODO remove skip once https://github.com/materialsvirtuallab/matgl/issues/238 is resolved")
     def test_m3gnet(self):
         pytest.importorskip("matgl")
         enum_trans = EnumerateStructureTransformation(refine_structure=True, sort_criteria="m3gnet_relax")
@@ -202,7 +197,6 @@ class TestEnumerateStructureTransformation:
         # Check ordering of energy/atom
         assert alls[0]["energy"] / alls[0]["num_sites"] <= alls[-1]["energy"] / alls[-1]["num_sites"]
 
-    @pytest.mark.skip("TODO remove skip once https://github.com/materialsvirtuallab/matgl/issues/238 is resolved")
     def test_callable_sort_criteria(self):
         matgl = pytest.importorskip("matgl")
         from matgl.ext.ase import Relaxer
@@ -600,7 +594,7 @@ class TestDisorderedOrderedTransformation(PymatgenTest):
 @pytest.mark.skipif(not mcsqs_cmd, reason="mcsqs not present.")
 class TestSQSTransformation(PymatgenTest):
     def test_apply_transformation(self):
-        pzt_structs = loadfn(f"{TEST_FILES_DIR}/mcsqs/pzt-structs.json")
+        pzt_structs = loadfn(f"{TEST_FILES_DIR}/io/atat/mcsqs/pzt-structs.json")
         trans = SQSTransformation(scaling=[2, 1, 1], search_time=0.01, instances=1, wd=0)
         # nonsensical example just for testing purposes
         struct = self.get_structure("Pb2TiZrO6").copy()
@@ -611,7 +605,7 @@ class TestSQSTransformation(PymatgenTest):
 
     def test_return_ranked_list(self):
         # list of structures
-        pzt_structs_2 = loadfn(f"{TEST_FILES_DIR}/mcsqs/pzt-structs-2.json")
+        pzt_structs_2 = loadfn(f"{TEST_FILES_DIR}/io/atat/mcsqs/pzt-structs-2.json")
 
         n_structs_expected = 1
         sqs_kwargs = {"scaling": 2, "search_time": 0.01, "instances": 8, "wd": 0}

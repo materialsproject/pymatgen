@@ -14,6 +14,7 @@ import itertools
 from typing import TYPE_CHECKING
 
 from monty.json import MSONable
+
 from pymatgen.util.due import Doi, due
 
 if TYPE_CHECKING:
@@ -193,7 +194,7 @@ class MoleculeStructureComparator(MSONable):
     def get_13_bonds(priority_bonds):
         """
         Args:
-            priority_bonds ():
+            priority_bonds (list[tuple]): 12 bonds
 
         Returns:
             tuple: 13 bonds
@@ -252,7 +253,7 @@ class MoleculeStructureComparator(MSONable):
             for p in all_pairs
         ]
 
-        return [bond for bond, dist, cap in zip(all_pairs, pair_dists, max_length) if dist <= cap]
+        return [bond for bond, dist, cap in zip(all_pairs, pair_dists, max_length, strict=True) if dist <= cap]
 
     def as_dict(self):
         """Get MSONable dict."""

@@ -13,6 +13,10 @@ from typing import TYPE_CHECKING, NamedTuple
 
 import numpy as np
 from monty.serialization import loadfn
+from ruamel.yaml.error import MarkedYAMLError
+from scipy.signal import argrelextrema
+from scipy.stats import gaussian_kde
+
 from pymatgen.core.structure import DummySpecies, Element, Species, Structure
 from pymatgen.electronic_structure.core import Magmom
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
@@ -20,9 +24,6 @@ from pymatgen.symmetry.groups import SpaceGroup
 from pymatgen.transformations.advanced_transformations import MagOrderingTransformation, MagOrderParameterConstraint
 from pymatgen.transformations.standard_transformations import AutoOxiStateDecorationTransformation
 from pymatgen.util.due import Doi, due
-from ruamel.yaml.error import MarkedYAMLError
-from scipy.signal import argrelextrema
-from scipy.stats import gaussian_kde
 
 if TYPE_CHECKING:
     from typing import Any
@@ -225,7 +226,7 @@ class CollinearMagneticStructureAnalyzer:
             else magmom
             if abs(magmom) > threshold_nonmag and site.species_string not in self.default_magmoms
             else 0
-            for magmom, site in zip(magmoms, structure)
+            for magmom, site in zip(magmoms, structure, strict=True)
         ]
 
         # overwrite existing magmoms with default_magmoms
@@ -475,7 +476,7 @@ class CollinearMagneticStructureAnalyzer:
         ferro/ferrimagnetic is self.threshold_ordering and defaults to 1e-8.
 
         Returns:
-            Ordering: Enum  with values FM: ferromagnetic, FiM: ferrimagnetic,
+            Ordering: Enum with values FM: ferromagnetic, FiM: ferrimagnetic,
                 AFM: antiferromagnetic, NM: non-magnetic or Unknown. Unknown is
                 returned if magnetic moments are not defined or structure is not collinear
                 (in which case a warning is issued).
@@ -790,14 +791,15 @@ class MagneticStructureEnumerator:
         sga = SpacegroupAnalyzer(structure)
         structure_sym = sga.get_symmetrized_structure()
         wyckoff = ["n/a"] * len(structure)
-        for indices, symbol in zip(structure_sym.equivalent_indices, structure_sym.wyckoff_symbols):
+        for indices, symbol in zip(structure_sym.equivalent_indices, structure_sym.wyckoff_symbols, strict=True):
             for index in indices:
                 wyckoff[index] = symbol
         is_magnetic_sites = [site.specie in types_mag_species for site in structure]
         # we're not interested in sites that we don't think are magnetic,
         # set these symbols to None to filter them out later
         wyckoff = [
-            symbol if is_magnetic_site else "n/a" for symbol, is_magnetic_site in zip(wyckoff, is_magnetic_sites)
+            symbol if is_magnetic_site else "n/a"
+            for symbol, is_magnetic_site in zip(wyckoff, is_magnetic_sites, strict=True)
         ]
         structure.add_site_property("wyckoff", wyckoff)
         wyckoff_symbols = set(wyckoff) - {"n/a"}

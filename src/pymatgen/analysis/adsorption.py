@@ -12,6 +12,8 @@ import numpy as np
 from matplotlib import patches
 from matplotlib.path import Path
 from monty.serialization import loadfn
+from scipy.spatial import Delaunay
+
 from pymatgen import vis
 from pymatgen.analysis.local_env import VoronoiNN
 from pymatgen.analysis.structure_matcher import StructureMatcher
@@ -20,13 +22,13 @@ from pymatgen.core.operations import SymmOp
 from pymatgen.core.surface import generate_all_slabs
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
 from pymatgen.util.coord import in_coord_list_pbc
-from scipy.spatial import Delaunay
 
 if TYPE_CHECKING:
     import matplotlib.pyplot as plt
     from numpy.typing import ArrayLike
-    from pymatgen.core.surface import Slab
     from typing_extensions import Self
+
+    from pymatgen.core.surface import Slab
 
 __author__ = "Joseph Montoya"
 __copyright__ = "Copyright 2016, The Materials Project"
@@ -176,7 +178,7 @@ class AdsorbateSiteFinder:
         surf_sites = [slab.sites[n] for n in np.where(mask)[0]]
         if xy_tol:
             # sort surface sites by height
-            surf_sites = [s for (h, s) in zip(m_projs[mask], surf_sites)]
+            surf_sites = [s for (h, s) in zip(m_projs[mask], surf_sites, strict=True)]
             surf_sites.reverse()
             unique_sites: list = []
             unique_perp_fracs: list = []
@@ -233,7 +235,7 @@ class AdsorbateSiteFinder:
 
         Args:
             distance (float): distance from the coordinating ensemble
-                of atoms along the miller index for the site (i. e.
+                of atoms along the miller index for the site (i.e.
                 the distance from the slab itself)
             put_inside (bool): whether to put the site inside the cell
             symm_reduce (float): symm reduction threshold
@@ -266,7 +268,7 @@ class AdsorbateSiteFinder:
             for v in dt.simplices:
                 if -1 not in v:
                     dots = []
-                    for i_corner, i_opp in zip(range(3), ((1, 2), (0, 2), (0, 1))):
+                    for i_corner, i_opp in zip(range(3), ((1, 2), (0, 2), (0, 1)), strict=True):
                         corner, opp = v[i_corner], [v[o] for o in i_opp]
                         vecs = [mesh[d].coords - mesh[corner].coords for d in opp]
                         vecs = [vec / np.linalg.norm(vec) for vec in vecs]
@@ -298,7 +300,7 @@ class AdsorbateSiteFinder:
             sites = [site + distance * np.asarray(self.mvec) for site in sites]
 
             ads_sites[key] = sites
-        ads_sites["all"] = sum(ads_sites.values(), [])  # noqa: RUF017
+        ads_sites["all"] = [item for sublist in ads_sites.values() for item in sublist]
         return ads_sites
 
     def symm_reduce(self, coords_set, threshold=1e-6):
@@ -346,8 +348,8 @@ class AdsorbateSiteFinder:
         sites. Helper method for the find_adsorption_sites algorithm.
 
         Args:
-            site_list (list of sites): list of sites
-            indices (list of ints): list of ints from which to select
+            site_list (list[Site]): sites from which to select
+            indices (list[int]): indices of sites from which to select
                 sites from site list
             cartesian (bool): whether to get average fractional or
                 Cartesian coordinate
@@ -541,7 +543,7 @@ class AdsorbateSiteFinder:
             atom (str): atom corresponding to substitutional dopant
             sub_both_sides (bool): If true, substitute an equivalent
                 site on the other surface
-            target_species (list): List of specific species to substitute
+            target_species (list): Specific species to substitute
             range_tol (float): Find viable substitution sites at a specific
                 distance from the surface +- this tolerance
             dist_from_surf (float): Distance from the surface to find viable
@@ -699,7 +701,7 @@ def plot_slab(
         ads_sites = asf.find_adsorption_sites()["all"]
         symm_op = get_rot(orig_slab)
         ads_sites = [symm_op.operate(ads_site)[:2].tolist() for ads_site in ads_sites]
-        ax.plot(*zip(*ads_sites), color="k", marker="x", markersize=10, mew=1, linestyle="", zorder=10000)
+        ax.plot(*zip(*ads_sites, strict=True), color="k", marker="x", markersize=10, mew=1, linestyle="", zorder=10000)
     # Draw unit cell
     if draw_unit_cell:
         vertices = np.insert(vertices, 1, lattice_sum, axis=0).tolist()

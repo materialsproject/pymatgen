@@ -6,9 +6,10 @@ from collections import defaultdict
 
 import pytest
 from monty.tempfile import ScratchDir
+from pytest import approx
+
 from pymatgen.io.abinit.pseudos import Pseudo, PseudoTable
 from pymatgen.util.testing import TEST_FILES_DIR, PymatgenTest
-from pytest import approx
 
 TEST_DIR = f"{TEST_FILES_DIR}/io/abinit"
 
@@ -98,7 +99,7 @@ class TestPseudo(PymatgenTest):
         file_name = f"{TEST_DIR}/28ni.paw.tar.xz"
         symbol = "Ni"
         with ScratchDir(".") as tmp_dir, tarfile.open(file_name, mode="r:xz") as t:
-            t.extractall(tmp_dir)
+            t.extractall(tmp_dir)  # noqa: S202
             path = os.path.join(tmp_dir, "28ni.paw")
             pseudo = Pseudo.from_file(path)
 

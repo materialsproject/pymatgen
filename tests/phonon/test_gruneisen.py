@@ -4,11 +4,12 @@ import matplotlib.pyplot as plt
 import numpy as np
 import pytest
 from matplotlib import colors
+from pytest import approx
+
 from pymatgen.io.phonopy import get_gruneisen_ph_bs_symm_line, get_gruneisenparameter
 from pymatgen.phonon.gruneisen import GruneisenParameter
 from pymatgen.phonon.plotter import GruneisenPhononBandStructureSymmLine, GruneisenPhononBSPlotter, GruneisenPlotter
 from pymatgen.util.testing import TEST_FILES_DIR, PymatgenTest
-from pytest import approx
 
 try:
     import phonopy
@@ -113,8 +114,8 @@ class TestGruneisenParameter(PymatgenTest):
         assert self.gruneisen_obj_small.gruneisen[5] == approx(1.7574050911)
 
     def test_tdos(self):
-        tdos = self.gruneisen_obj.tdos
-        assert isinstance(tdos, phonopy.phonon.dos.TotalDos)
+        tot_dos = self.gruneisen_obj.tdos
+        assert isinstance(tot_dos, phonopy.phonon.dos.TotalDos)
 
     def test_phdos(self):
         assert self.gruneisen_obj.phdos.cv(298.15) == approx(45.17772584681599)

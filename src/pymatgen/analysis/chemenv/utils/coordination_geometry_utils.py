@@ -7,13 +7,14 @@ from typing import TYPE_CHECKING
 
 import numpy as np
 from numpy.linalg import norm
-from pymatgen.analysis.chemenv.utils.chemenv_errors import SolidAngleError
 from scipy.integrate import quad
 from scipy.interpolate import UnivariateSpline
 from scipy.spatial import ConvexHull
 
+from pymatgen.analysis.chemenv.utils.chemenv_errors import SolidAngleError
+
 if TYPE_CHECKING:
-    from typing import Callable
+    from collections.abc import Callable
 
     from numpy.typing import ArrayLike
     from typing_extensions import Self
@@ -723,7 +724,7 @@ class Plane:
         Returns:
             bool: True if pp is in the plane.
         """
-        return np.abs(np.dot(self.normal_vector, pp) + self._coefficients[3]) <= dist_tolerance
+        return bool(np.abs(np.dot(self.normal_vector, pp) + self._coefficients[3]) <= dist_tolerance)
 
     def is_same_plane_as(self, plane) -> bool:
         """

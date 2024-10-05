@@ -1,10 +1,11 @@
 from __future__ import annotations
 
 import pytest
+from pytest import approx
+
 from pymatgen.core.structure import Molecule, Structure
 from pymatgen.io.cp2k.sets import SETTINGS, Cp2kValidationError, DftSet, GaussianTypeOrbitalBasisSet, GthPotential
 from pymatgen.util.testing import TEST_FILES_DIR, PymatgenTest
-from pytest import approx
 
 TEST_DIR = f"{TEST_FILES_DIR}/io/cp2k"
 
@@ -32,8 +33,8 @@ class TestDftSet(PymatgenTest):
         basis_and_potential = {"Si": {"basis": "SZV-GTH-q4", "potential": "GTH-PBE-q4", "aux_basis": "cFIT3"}}
         dft_set = DftSet(Si_structure, basis_and_potential=basis_and_potential, xc_functionals="PBE")
         basis_sets = dft_set["force_eval"]["subsys"]["Si_1"].get("basis_set")
-        assert any("AUX_FIT" in b.values for b in basis_sets)  # noqa: PD011
-        assert any("cFIT3" in b.values for b in basis_sets)  # noqa: PD011
+        assert any("AUX_FIT" in b.values for b in basis_sets)
+        assert any("cFIT3" in b.values for b in basis_sets)
 
         # Basis sets / potentials by hash value
         basis_and_potential = {
@@ -102,10 +103,10 @@ class TestDftSet(PymatgenTest):
         assert dft_set.check("force_eval/dft/auxiliary_density_matrix_method")
 
         # Validator will trip for kpoints + hfx
-        dft_set.update({"force_eval": {"dft": {"kpoints": {}}}})
+        dft_set |= {"force_eval": {"dft": {"kpoints": {}}}}
         with pytest.raises(Cp2kValidationError, match="CP2K v2022.1: Does not support hartree fock with kpoints"):
             dft_set.validate()
 
         dft_set = DftSet(molecule, basis_and_potential=basis_and_potential, xc_functionals="PBE")
         assert dft_set.check("force_eval/dft/poisson")
-        assert dft_set["force_eval"]["dft"]["poisson"].get("periodic").values[0].upper() == "NONE"  # noqa: PD011
+        assert dft_set["force_eval"]["dft"]["poisson"].get("periodic").values[0].upper() == "NONE"

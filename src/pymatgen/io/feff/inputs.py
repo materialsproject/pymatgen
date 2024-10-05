@@ -15,13 +15,14 @@ from typing import TYPE_CHECKING
 import numpy as np
 from monty.io import zopen
 from monty.json import MSONable
+from tabulate import tabulate
+
 from pymatgen.core import Element, Lattice, Molecule, Structure
 from pymatgen.io.cif import CifParser
 from pymatgen.io.core import ParseError
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
 from pymatgen.util.io_utils import clean_lines
 from pymatgen.util.string import str_delimited
-from tabulate import tabulate
 
 if TYPE_CHECKING:
     from typing_extensions import Self
@@ -374,7 +375,7 @@ class Atoms(MSONable):
         """
         Args:
             struct (Structure): input structure
-            absorbing_atom (str/int): Symbol for absorbing atom or site index
+            absorbing_atom (str | int): Symbol for absorbing atom or site index
             radius (float): radius of the atom cluster in Angstroms.
         """
         if not struct.is_ordered:
@@ -676,7 +677,7 @@ class Tags(dict):
             else:
                 eels_keys = ["BEAM_ENERGY", "ANGLES", "MESH", "POSITION"]
             eels_dict = {"ENERGY": Tags._stringify_val(eels_params[0].split()[1:])}
-            for k, v in zip(eels_keys, eels_params[1:]):
+            for k, v in zip(eels_keys, eels_params[1:], strict=True):
                 eels_dict[k] = str(v)
             params[str(eels_params[0].split()[0])] = eels_dict
 
@@ -777,7 +778,7 @@ class Potential(MSONable):
         """
         Args:
             struct (Structure): Structure object.
-            absorbing_atom (str/int): Absorbing atom symbol or site index.
+            absorbing_atom (str | int): Absorbing atom symbol or site index.
         """
         if not struct.is_ordered:
             raise ValueError("Structure with partial occupancies cannot be converted into atomic coordinates!")
@@ -927,7 +928,8 @@ class Paths(MSONable):
         self.atoms = atoms
         self.paths = paths
         self.degeneracies = degeneracies or [1] * len(paths)
-        assert len(self.degeneracies) == len(self.paths)
+        if len(self.degeneracies) != len(self.paths):
+            raise ValueError(f"{len(self.degeneracies)=} and {len(self.paths)=} mismatch")
 
     def __str__(self):
         lines = ["PATH", "---------------"]
@@ -983,7 +985,7 @@ def get_absorbing_atom_symbol_index(absorbing_atom, structure):
     """Get the absorbing atom symbol and site index in the given structure.
 
     Args:
-        absorbing_atom (str/int): symbol or site index
+        absorbing_atom (str | int): symbol or site index
         structure (Structure)
 
     Returns:

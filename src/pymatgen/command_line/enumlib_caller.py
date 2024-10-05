@@ -39,6 +39,7 @@ import numpy as np
 from monty.dev import requires
 from monty.fractions import lcm
 from monty.tempfile import ScratchDir
+
 from pymatgen.core import DummySpecies, PeriodicSite, Structure
 from pymatgen.io.vasp.inputs import Poscar
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
@@ -347,8 +348,7 @@ class EnumlibAdaptor:
             )
             inv_org_latt = np.linalg.inv(original_latt.matrix)
         else:
-            ordered_structure = None
-            inv_org_latt = None
+            ordered_structure = inv_org_latt = None
 
         for file in glob("vasp.*"):
             with open(file) as file:

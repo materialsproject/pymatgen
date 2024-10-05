@@ -12,6 +12,7 @@ from __future__ import annotations
 import sys
 
 from monty.serialization import dumpfn, loadfn
+
 from pymatgen.symmetry.groups import PointGroup
 
 __author__ = "Katharina Ueltzen @kaueltzen"
@@ -29,7 +30,7 @@ def convert_symmops_to_sg_encoding(symbol: str) -> str:
     Args:
         symbol (str): "hermann_mauguin" or "universal_h_m" key of symmops.json
     Returns:
-        symbol in the format of SYMM_DATA["space_group_encoding"] keys
+        str: symbol in the format of SYMM_DATA["space_group_encoding"] keys
     """
     symbol_representation = symbol.split(":")
     representation = ":" + "".join(symbol_representation[1].split(" ")) if len(symbol_representation) > 1 else ""
@@ -50,7 +51,7 @@ def remove_identity_from_full_hermann_mauguin(symbol: str) -> str:
     Args:
         symbol (str): "hermann_mauguin" key of symmops.json
     Returns:
-        short "hermann_mauguin" key
+        str: short "hermann_mauguin" key
     """
     if symbol in ("P 1", "C 1", "P 1 "):
         return symbol
@@ -75,13 +76,13 @@ for k, v in SYMM_DATA["space_group_encoding"].items():
 
 SYMM_DATA["space_group_encoding"] = new_symm_data
 
-for spg_idx, spg in enumerate(SYMM_OPS):
+for spg in SYMM_OPS:
     if "(" in spg["hermann_mauguin"]:
-        SYMM_OPS[spg_idx]["hermann_mauguin"] = spg["hermann_mauguin"].split("(")[0]
+        spg["hermann_mauguin"] = spg["hermann_mauguin"].split("(")[0]
 
-    short_h_m = remove_identity_from_full_hermann_mauguin(SYMM_OPS[spg_idx]["hermann_mauguin"])
-    SYMM_OPS[spg_idx]["short_h_m"] = convert_symmops_to_sg_encoding(short_h_m)
-    SYMM_OPS[spg_idx]["hermann_mauguin_u"] = convert_symmops_to_sg_encoding(spg["hermann_mauguin"])
+    short_h_m = remove_identity_from_full_hermann_mauguin(spg["hermann_mauguin"])
+    spg["short_h_m"] = convert_symmops_to_sg_encoding(short_h_m)
+    spg["hermann_mauguin_u"] = convert_symmops_to_sg_encoding(spg["hermann_mauguin"])
 
 for spg_idx, spg in enumerate(SYMM_OPS):
     try:

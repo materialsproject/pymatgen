@@ -20,6 +20,9 @@ from typing import TYPE_CHECKING
 
 import requests
 from monty.json import MontyDecoder, MontyEncoder
+from ruamel.yaml import YAML
+from tqdm import tqdm
+
 from pymatgen.core import SETTINGS, Composition, Element, Structure
 from pymatgen.core import __version__ as PMG_VERSION
 from pymatgen.core.surface import get_symmetrically_equivalent_miller_indices
@@ -28,16 +31,15 @@ from pymatgen.entries.computed_entries import ComputedEntry, ComputedStructureEn
 from pymatgen.entries.exp_entries import ExpEntry
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
 from pymatgen.util.due import Doi, due
-from ruamel.yaml import YAML
-from tqdm import tqdm
 
 if TYPE_CHECKING:
     from collections.abc import Sequence
     from typing import Any, Literal
 
+    from typing_extensions import Self
+
     from pymatgen.phonon.bandstructure import PhononBandStructureSymmLine
     from pymatgen.phonon.dos import CompletePhononDos
-    from typing_extensions import Self
 
 logger = logging.getLogger(__name__)
 MP_LOG_FILE = os.path.join(os.path.expanduser("~"), ".mprester.log.yaml")
@@ -533,7 +535,7 @@ class _MPResterLegacy:
             ]
             data = {"oxide_type": d["oxide_type"]}
             if property_data:
-                data.update({k: d[k] for k in property_data})
+                data |= {k: d[k] for k in property_data}
             if not inc_structure:
                 e = ComputedEntry(
                     d["unit_cell_formula"],
@@ -573,7 +575,7 @@ class _MPResterLegacy:
         a Pourbaix diagram from the rest interface.
 
         Args:
-            chemsys (str or [str]): Chemical system string comprising element
+            chemsys (str | list[str]): Chemical system string comprising element
                 symbols separated by dashes, e.g. "Li-Fe-O" or List of element
                 symbols, e.g. ["Li", "Fe", "O"].
             solid_compat: Compatibility scheme used to pre-process solid DFT energies prior to applying aqueous
@@ -779,7 +781,7 @@ class _MPResterLegacy:
                 (default). If False, return the uniform band structure.
 
         Returns:
-            A BandStructure object.
+            BandStructure
         """
         prop = "bandstructure" if line_mode else "bandstructure_uniform"
         data = self.get_data(material_id, prop=prop)
@@ -834,7 +836,7 @@ class _MPResterLegacy:
         phases. Extremely useful for creating phase diagrams of entire chemical systems.
 
         Args:
-            elements (str or [str]): Chemical system string comprising element
+            elements (str | list[str]): Chemical system string comprising element
                 symbols separated by dashes, e.g. "Li-Fe-O" or List of element
                 symbols, e.g. ["Li", "Fe", "O"].
             compatible_only (bool): Whether to return only "compatible"
@@ -999,7 +1001,7 @@ class _MPResterLegacy:
         progress_bar = tqdm(total=len(mids), disable=not show_progress_bar)
         for chunk in chunks:
             chunk_criteria = criteria.copy()
-            chunk_criteria.update({"material_id": {"$in": chunk}})
+            chunk_criteria |= {"material_id": {"$in": chunk}}
             n_tries = 0
             while n_tries < max_tries_per_chunk:
                 try:
@@ -1033,7 +1035,7 @@ class _MPResterLegacy:
         data=None,
         histories=None,
         created_at=None,
-    ):
+    ) -> list[str]:
         """Submits a list of structures to the Materials Project as SNL files.
         The argument list mirrors the arguments for the StructureNL object,
         except that a list of structures with the same metadata is used as an
@@ -1063,7 +1065,7 @@ class _MPResterLegacy:
             created_at (datetime): A datetime object
 
         Returns:
-            A list of inserted submission ids.
+            list[str]: Inserted submission ids.
         """
         from pymatgen.util.provenance import StructureNL
 
@@ -1077,7 +1079,7 @@ class _MPResterLegacy:
             histories,
             created_at,
         )
-        self.submit_snl(snl_list)
+        return self.submit_snl(snl_list)
 
     def submit_snl(self, snl):
         """Submits a list of StructureNL to the Materials Project site.
@@ -1091,10 +1093,10 @@ class _MPResterLegacy:
             of StructureNL objects
 
         Returns:
-            A list of inserted submission ids.
+            list[str]: Inserted submission ids.
 
         Raises:
-            MPRestError
+            MPRestError: If submission fails.
         """
         snl = snl if isinstance(snl, list) else [snl]
         json_data = [s.as_dict() for s in snl]
@@ -1391,7 +1393,7 @@ class _MPResterLegacy:
             # Prefer reconstructed surfaces, which have lower surface energies.
             if (miller not in miller_energy_map) or surf["is_reconstructed"]:
                 miller_energy_map[miller] = surf["surface_energy"]
-        millers, energies = zip(*miller_energy_map.items())
+        millers, energies = zip(*miller_energy_map.items(), strict=True)
         return WulffShape(lattice, millers, energies)
 
     def get_gb_data(
@@ -1568,14 +1570,14 @@ class _MPResterLegacy:
 
     @staticmethod
     def _check_nomad_exist(url) -> bool:
-        response = requests.get(url=url, timeout=600)
+        response = requests.get(url=url, timeout=60)
         if response.status_code != 200:
             return False
         content = json.loads(response.text)
         return content["pagination"]["total"] != 0
 
     @staticmethod
-    def parse_criteria(criteria_string):
+    def parse_criteria(criteria_string) -> dict:
         """Parse a powerful and simple string criteria and generates a proper
         mongo syntax criteria.
 

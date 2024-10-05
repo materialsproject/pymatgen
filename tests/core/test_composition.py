@@ -6,14 +6,14 @@ Created on Nov 10, 2012.
 
 from __future__ import annotations
 
-import random
-
+import numpy as np
 import pytest
 from numpy.testing import assert_allclose
+from pytest import approx
+
 from pymatgen.core import Composition, DummySpecies, Element, Species
 from pymatgen.core.composition import ChemicalPotential
 from pymatgen.util.testing import PymatgenTest
-from pytest import approx
 
 
 class TestComposition(PymatgenTest):
@@ -173,7 +173,7 @@ class TestComposition(PymatgenTest):
             1.21,
             2.43,
         )
-        for elem, val in zip(self.comps, electro_negs):
+        for elem, val in zip(self.comps, electro_negs, strict=True):
             assert elem.average_electroneg == approx(val)
 
     def test_total_electrons(self):
@@ -387,8 +387,8 @@ class TestComposition(PymatgenTest):
             "P": 0.222604831158,
             "O": 0.459943320496,
         }
-        for el in correct_wt_frac:
-            assert correct_wt_frac[el] == approx(self.comps[0].get_wt_fraction(el)), "Wrong computed weight fraction"
+        for el, expected in correct_wt_frac.items():
+            assert self.comps[0].get_wt_fraction(el) == approx(expected), "Wrong computed weight fraction"
         assert self.comps[0].get_wt_fraction(Element("S")) == 0, "Wrong computed weight fractions"
 
     def test_from_dict(self):
@@ -406,7 +406,7 @@ class TestComposition(PymatgenTest):
         ]
         formula_list = ["Ti87.6 V5.5 Al6.9", "Ti44.98 Ni55.02", "H2O"]
 
-        for weight_dict, formula in zip(weight_dict_list, formula_list):
+        for weight_dict, formula in zip(weight_dict_list, formula_list, strict=True):
             c1 = Composition(formula).fractional_composition
             c2 = Composition.from_weight_dict(weight_dict).fractional_composition
             assert set(c1.elements) == set(c2.elements)
@@ -474,15 +474,16 @@ class TestComposition(PymatgenTest):
     def test_equals(self):
         # generate randomized compositions for robustness (tests might pass for specific elements
         # but fail for others)
-        random_z = random.randint(1, 92)
+        rng = np.random.default_rng()
+        random_z = rng.integers(1, 92)
         fixed_el = Element.from_Z(random_z)
-        other_z = random.randint(1, 92)
+        other_z = rng.integers(1, 92)
         while other_z == random_z:
-            other_z = random.randint(1, 92)
+            other_z = rng.integers(1, 92)
         comp1 = Composition({fixed_el: 1, Element.from_Z(other_z): 0})
-        other_z = random.randint(1, 92)
+        other_z = rng.integers(1, 92)
         while other_z == random_z:
-            other_z = random.randint(1, 92)
+            other_z = rng.integers(1, 92)
         comp2 = Composition({fixed_el: 1, Element.from_Z(other_z): 0})
         assert comp1 == comp2, f"Composition equality test failed. {comp1.formula} should be equal to {comp2.formula}"
         assert hash(comp1) == hash(comp2), "Hash equality test failed!"
@@ -622,7 +623,7 @@ class TestComposition(PymatgenTest):
 
         # https://github.com/materialsproject/pymatgen/issues/3324
         # always expect 0 for oxi_state_guesses of elemental systems
-        for atomic_num in random.sample(range(1, 92), 10):  # try 10 random elements
+        for atomic_num in np.random.default_rng().choice(range(1, 92), 10):  # try 10 random elements
             elem = Element.from_Z(atomic_num).symbol
             assert Composition(f"{elem}2").oxi_state_guesses() == ({elem: 0},)
             assert Composition(f"{elem}3").oxi_state_guesses() == ({elem: 0},)

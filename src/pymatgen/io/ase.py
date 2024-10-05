@@ -12,6 +12,7 @@ from typing import TYPE_CHECKING
 
 import numpy as np
 from monty.json import MontyDecoder, MSONable, jsanitize
+
 from pymatgen.core.structure import Molecule, Structure
 
 try:
@@ -35,8 +36,9 @@ if TYPE_CHECKING:
     from typing import Any
 
     from numpy.typing import ArrayLike
-    from pymatgen.core.structure import SiteCollection
     from typing_extensions import Self
+
+    from pymatgen.core.structure import SiteCollection
 
 __author__ = "Shyue Ping Ong, Andrew S. Rosen"
 __copyright__ = "Copyright 2012, The Materials Project"
@@ -194,7 +196,7 @@ class AseAtomsAdaptor:
             atoms.set_array("oxi_states", np.array(oxi_states))
 
         # Atoms.info <---> Structure.properties
-        if properties := getattr(structure, "properties"):  # noqa: B009
+        if properties := structure.properties:
             atoms.info = properties
 
         # Regenerate Spacegroup object from `.todict()` representation

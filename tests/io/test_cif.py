@@ -2,13 +2,14 @@ from __future__ import annotations
 
 import numpy as np
 import pytest
+from pytest import approx
+
 from pymatgen.analysis.structure_matcher import StructureMatcher
 from pymatgen.core import Composition, DummySpecies, Element, Lattice, Species, Structure
 from pymatgen.electronic_structure.core import Magmom
 from pymatgen.io.cif import CifBlock, CifParser, CifWriter
 from pymatgen.symmetry.structure import SymmetrizedStructure
 from pymatgen.util.testing import TEST_FILES_DIR, VASP_IN_DIR, PymatgenTest
-from pytest import approx
 
 try:
     import pybtex
@@ -103,7 +104,7 @@ loop_
  _atom_site_attached_hydrogens
   C1  C0+  2  b  0  0  0.25  .  1.  0
   C2  C0+  2  c  0.3333  0.6667  0.25  .  1.  0"""
-        for l1, l2, l3 in zip(str(cif_block).split("\n"), cif_str.split("\n"), cif_str_2.split("\n")):
+        for l1, l2, l3 in zip(str(cif_block).split("\n"), cif_str.split("\n"), cif_str_2.split("\n"), strict=True):
             assert l1.strip() == l2.strip()
             assert l2.strip() == l3.strip()
 
@@ -256,7 +257,7 @@ class TestCifIO(PymatgenTest):
         assert {*struct.labels} == expected_site_names
 
         # check label of each site
-        for site, label in zip(struct, struct.labels):
+        for site, label in zip(struct, struct.labels, strict=True):
             assert site.label == label
             # Ensure the site label starts with the site species name
             assert site.label.startswith(site.specie.name)
@@ -462,7 +463,7 @@ loop_
   O  O2  8  0.16570974  0.04607233  0.28538394  1
   O  O3  4  0.04337231  0.75000000  0.70713767  1
   O  O4  4  0.09664244  0.25000000  0.74132035  1"""
-        for l1, l2 in zip(str(writer).split("\n"), answer.split("\n")):
+        for l1, l2 in zip(str(writer).split("\n"), answer.split("\n"), strict=False):
             assert l1.strip() == l2.strip()
 
     def test_symmetrized(self):
@@ -541,7 +542,7 @@ loop_
   Si  Si1  1  0.75000000  0.50000000  0.75000000  0.5
   N  N2  1  0.75000000  0.50000000  0.75000000  0.5"""
 
-        for l1, l2 in zip(str(writer).split("\n"), answer.split("\n")):
+        for l1, l2 in zip(str(writer).split("\n"), answer.split("\n"), strict=False):
             assert l1.strip() == l2.strip()
 
     def test_cif_writer_without_refinement(self):
@@ -603,7 +604,7 @@ loop_
   Si3+  Si2  1  0.75000000  0.50000000  0.75000000  0.5
   Si4+  Si3  1  0.00000000  0.00000000  0.00000000  1
 """
-        for l1, l2 in zip(str(writer).split("\n"), answer.split("\n")):
+        for l1, l2 in zip(str(writer).split("\n"), answer.split("\n"), strict=True):
             assert l1.strip() == l2.strip()
 
         # test that mixed valence works properly

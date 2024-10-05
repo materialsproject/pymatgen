@@ -9,6 +9,7 @@ import math
 from typing import TYPE_CHECKING
 
 import numpy as np
+
 from pymatgen.core.tensors import SquareTensor
 
 if TYPE_CHECKING:

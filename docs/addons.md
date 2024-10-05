@@ -43,3 +43,5 @@ look at [pymatgen dependents](https://github.com/materialsproject/pymatgen/netwo
 * [Matbench Discovery](https://github.com/janosh/matbench-discovery): Benchmark for machine learning crystal stability prediction.
 * [matgl](https://github.com/materialsvirtuallab/matgl): Graph deep learning library for materials. Implements M3GNet and MEGNet in DGL and Pytorch with more to come.
 * [chgnet](https://github.com/CederGroupHub/chgnet): Pretrained universal neural network potential for charge-informed atomistic modeling.
+* [DebyeCalculator](https://github.com/FrederikLizakJohansen/DebyeCalculator): A vectorised implementation of the Debye Scattering Equation on CPU and GPU.
+* [ramannoodle](https://github.com/wolearyc/ramannoodle): Efficiently compute off-resonance Raman spectra from first principles calculations (e.g. VASP) using polynomial and ML models. 

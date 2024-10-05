@@ -23,6 +23,7 @@ from typing import TYPE_CHECKING
 
 import numpy as np
 from numpy.linalg import norm, svd
+
 from pymatgen.analysis.bond_valence import BVAnalyzer
 from pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies import MultiWeightsChemenvStrategy
 from pymatgen.analysis.chemenv.coordination_environments.coordination_geometries import (
@@ -612,8 +613,8 @@ class LocalGeometryFinder:
             optimization: optimization algorithm
 
         Returns:
-            The StructureEnvironments object containing all the information about the coordination
-            environments in the structure.
+            StructureEnvironments: contains all the information about the coordination
+                environments in the structure.
         """
         time_init = time.process_time()
         if info is None:
@@ -676,7 +677,7 @@ class LocalGeometryFinder:
             ]
 
         if only_indices is not None:
-            sites_indices = [isite for isite in indices if isite in only_indices]
+            sites_indices = [*set(indices) & set(only_indices)]
 
         # Get the VoronoiContainer for the sites defined by their indices (sites_indices)
         logging.debug("Getting DetailedVoronoiContainer")
@@ -748,22 +749,22 @@ class LocalGeometryFinder:
             self.detailed_voronoi.separations = [None] * len(self.structure)
 
         # Loop on all the sites
-        for isite, site in enumerate(self.structure):
-            if isite not in sites_indices:
-                logging.debug(f" ... in site #{isite}/{len(self.structure)} ({site.species_string}) : skipped")
+        for site_idx, site in enumerate(self.structure):
+            if site_idx not in sites_indices:
+                logging.debug(f" ... in site #{site_idx}/{len(self.structure)} ({site.species_string}) : skipped")
                 continue
             if break_it:
                 logging.debug(
-                    f" ... in site #{isite}/{len(self.structure)} ({site.species_string}) : skipped (timelimit)"
+                    f" ... in site #{site_idx}/{len(self.structure)} ({site.species_string}) : skipped (timelimit)"
                 )
                 continue
-            logging.debug(f" ... in site #{isite}/{len(self.structure)} ({site.species_string})")
+            logging.debug(f" ... in site #{site_idx}/{len(self.structure)} ({site.species_string})")
             t1 = time.process_time()
             if optimization > 0:
-                self.detailed_voronoi.local_planes[isite] = {}
-                self.detailed_voronoi.separations[isite] = {}
+                self.detailed_voronoi.local_planes[site_idx] = {}
+                self.detailed_voronoi.separations[site_idx] = {}
             struct_envs.init_neighbors_sets(
-                isite=isite,
+                isite=site_idx,
                 additional_conditions=additional_conditions,
                 valences=valences,
             )
@@ -772,7 +773,7 @@ class LocalGeometryFinder:
             nb_sets_info = {}
             cn = 0
 
-            for cn, nb_sets in struct_envs.neighbors_sets[isite].items():
+            for cn, nb_sets in struct_envs.neighbors_sets[site_idx].items():
                 if cn not in all_cns:
                     continue
                 for inb_set, nb_set in enumerate(nb_sets):
@@ -780,7 +781,7 @@ class LocalGeometryFinder:
                     t_nbset1 = time.process_time()
                     ce = self.update_nb_set_environments(
                         se=struct_envs,
-                        isite=isite,
+                        isite=site_idx,
                         cn=cn,
                         inb_set=inb_set,
                         nb_set=nb_set,
@@ -808,7 +809,7 @@ class LocalGeometryFinder:
                                     logging.debug(f"           hint # {idx_new}")
                                     new_nb_set = struct_envs.NeighborsSet(
                                         structure=struct_envs.structure,
-                                        isite=isite,
+                                        isite=site_idx,
                                         detailed_voronoi=struct_envs.voronoi,
                                         site_voronoi_indices=new_nb_set_voronoi_indices,
                                         sources={
@@ -826,14 +827,14 @@ class LocalGeometryFinder:
                                         continue
                                     if new_nb_set in [ta["new_nb_set"] for ta in to_add_from_hints]:
                                         has_nb_set = True
-                                    elif cn_new_nb_set not in struct_envs.neighbors_sets[isite]:
+                                    elif cn_new_nb_set not in struct_envs.neighbors_sets[site_idx]:
                                         has_nb_set = False
                                     else:
-                                        has_nb_set = new_nb_set in struct_envs.neighbors_sets[isite][cn_new_nb_set]
+                                        has_nb_set = new_nb_set in struct_envs.neighbors_sets[site_idx][cn_new_nb_set]
                                     if not has_nb_set:
                                         to_add_from_hints.append(
                                             {
-                                                "isite": isite,
+                                                "isite": site_idx,
                                                 "new_nb_set": new_nb_set,
                                                 "cn_new_nb_set": cn_new_nb_set,
                                             }
@@ -843,7 +844,7 @@ class LocalGeometryFinder:
                                         logging.debug("              => already present")
             logging.debug("    ... getting environments for nb_sets added from hints")
             for missing_nb_set_to_add in to_add_from_hints:
-                struct_envs.add_neighbors_set(isite=isite, nb_set=missing_nb_set_to_add["new_nb_set"])
+                struct_envs.add_neighbors_set(isite=site_idx, nb_set=missing_nb_set_to_add["new_nb_set"])
             for missing_nb_set_to_add in to_add_from_hints:
                 isite_new_nb_set = missing_nb_set_to_add["isite"]
                 cn_new_nb_set = missing_nb_set_to_add["cn_new_nb_set"]
@@ -864,7 +865,7 @@ class LocalGeometryFinder:
                     nb_sets_info[cn] = {}
                 nb_sets_info[cn][inew_nb_set] = {"time": t_nbset2 - t_nbset1}
             t2 = time.process_time()
-            struct_envs.update_site_info(isite=isite, info_dict={"time": t2 - t1, "nb_sets_info": nb_sets_info})
+            struct_envs.update_site_info(isite=site_idx, info_dict={"time": t2 - t1, "nb_sets_info": nb_sets_info})
             if timelimit is not None:
                 time_elapsed = t2 - time_init
                 time_left = timelimit - time_elapsed
@@ -992,15 +993,17 @@ class LocalGeometryFinder:
             raise ValueError("Wrong mp_symbol to setup coordination geometry")
         neighb_coords = []
         _points = points if points is not None else cg.points
+        rng = np.random.default_rng()
+
         if randomness:
-            rv = np.random.random_sample(3)
+            rv = rng.random(3)
             while norm(rv) > 1.0:
-                rv = np.random.random_sample(3)
+                rv = rng.random(3)
             coords = [np.zeros(3, float) + max_random_dist * rv]
             for pp in _points:
-                rv = np.random.random_sample(3)
+                rv = rng.random(3)
                 while norm(rv) > 1.0:
-                    rv = np.random.random_sample(3)
+                    rv = rng.random(3)
                 neighb_coords.append(np.array(pp) + max_random_dist * rv)
         else:
             coords = [np.zeros(3, float)]
@@ -1015,7 +1018,7 @@ class LocalGeometryFinder:
 
         # Scaling the test environment
         if random_scale == "RANDOM":
-            scale = 0.1 * np.random.random_sample() + 0.95
+            scale = 0.1 * rng.random() + 0.95
         elif random_scale == "NONE":
             scale = 1.0
         else:
@@ -1025,9 +1028,9 @@ class LocalGeometryFinder:
 
         # Rotating the test environment
         if random_rotation == "RANDOM":
-            uu = np.random.random_sample(3) + 0.1
-            uu = uu / norm(uu)
-            theta = np.pi * np.random.random_sample()
+            uu = rng.random(3) + 0.1
+            uu /= norm(uu)
+            theta = np.pi * rng.random()
             cos_theta = np.cos(theta)
             sin_theta = np.sin(theta)
             ux = uu[0]
@@ -1067,7 +1070,7 @@ class LocalGeometryFinder:
 
         # Translating the test environment
         if random_translation == "RANDOM":
-            translation = 10.0 * (2.0 * np.random.random_sample(3) - 1.0)
+            translation = 10.0 * (2.0 * rng.random(3) - 1.0)
         elif random_translation == "NONE":
             translation = np.zeros(3, float)
         else:
@@ -1112,7 +1115,7 @@ class LocalGeometryFinder:
         bb = -0.2
         coords = []
         for _ in range(coordination + 1):
-            coords.append(aa * np.random.random_sample(3) + bb)
+            coords.append(aa * np.random.default_rng().random(3) + bb)
         self.set_structure(
             lattice=np.array(np.eye(3) * 10, float),
             species=["Si"] * (coordination + 1),
@@ -1129,7 +1132,7 @@ class LocalGeometryFinder:
         """
         self.icentral_site = 0
         self.indices = list(range(1, coordination + 1))
-        np.random.shuffle(self.indices)
+        np.random.default_rng().shuffle(self.indices)
 
     def setup_ordered_indices_local_geometry(self, coordination):
         """Set up ordered indices for the local geometry, for testing purposes.
@@ -1725,7 +1728,7 @@ class LocalGeometryFinder:
                         continue
                     if sep not in nb_set.separations:
                         nb_set.separations[sep] = {}
-                    _sep = [np.array(ss, dtype=int) for ss in separation]
+                    _sep = [np.array(ss, dtype=np.int64) for ss in separation]
                     nb_set.separations[sep][separation] = (plane, _sep)
                     if sep == separation_plane_algo.separation:
                         new_seps.append(_sep)
@@ -2048,8 +2051,9 @@ class LocalGeometryFinder:
         algos = []
         perfect2local_maps = []
         local2perfect_maps = []
+        rng = np.random.default_rng()
         for idx in range(n_random):
-            perm = np.random.permutation(coordination_geometry.coordination_number)
+            perm = rng.permutation(coordination_geometry.coordination_number)
             permutations.append(perm)
             p2l = {}
             l2p = {}

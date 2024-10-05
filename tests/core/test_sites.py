@@ -5,10 +5,11 @@ import pickle
 import numpy as np
 import pytest
 from numpy.testing import assert_allclose
+from pytest import approx
+
 from pymatgen.core import Composition, Element, Lattice, PeriodicSite, Site, Species
 from pymatgen.electronic_structure.core import Magmom
 from pymatgen.util.testing import PymatgenTest
-from pytest import approx
 
 
 class TestSite(PymatgenTest):
@@ -64,7 +65,7 @@ class TestSite(PymatgenTest):
 
     def test_pickle(self):
         dump = pickle.dumps(self.propertied_site)
-        assert pickle.loads(dump) == self.propertied_site
+        assert pickle.loads(dump) == self.propertied_site  # noqa: S301
 
     def test_setters(self):
         self.disordered_site.species = "Cu"
@@ -133,7 +134,7 @@ class TestPeriodicSite(PymatgenTest):
         site1 = PeriodicSite("Fe", np.array([0.01, 0.02, 0.03]), lattice)
         site2 = PeriodicSite("Fe", np.array([0.99, 0.98, 0.97]), lattice)
         assert get_distance_and_image_old(site1, site2)[0] > site1.distance_and_image(site2)[0]
-        site2 = PeriodicSite("Fe", np.random.rand(3), lattice)
+        site2 = PeriodicSite("Fe", np.random.default_rng().random(3), lattice)
         dist_old, jimage_old = get_distance_and_image_old(site1, site2)
         dist_new, jimage_new = site1.distance_and_image(site2)
         assert dist_old - dist_new > -1e-8, "New distance algo should give smaller answers!"
@@ -166,6 +167,20 @@ class TestPeriodicSite(PymatgenTest):
 
         assert self.labeled_site.label != site.label
         assert self.labeled_site == site
+
+    def test_equality_prop_with_np_array(self):
+        """Some property (e.g. selective dynamics for POSCAR) could be numpy arrays,
+        use "==" for equality check might fail in these cases.
+        """
+        site_0 = PeriodicSite(
+            "Fe", [0.25, 0.35, 0.45], self.lattice, properties={"selective_dynamics": np.array([True, True, False])}
+        )
+        assert site_0 == site_0
+
+        site_1 = PeriodicSite(
+            "Fe", [0.25, 0.35, 0.45], self.lattice, properties={"selective_dynamics": np.array([True, False, False])}
+        )
+        assert site_0 != site_1
 
     def test_as_from_dict(self):
         dct = self.site2.as_dict()

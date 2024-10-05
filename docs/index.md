@@ -12,7 +12,7 @@ nav_order: 1
 [![codecov](https://codecov.io/gh/materialsproject/pymatgen/branch/master/graph/badge.svg?token=XC47Un1LV2)](https://codecov.io/gh/materialsproject/pymatgen)
 [![PyPI Downloads](https://img.shields.io/pypi/dm/pymatgen?logo=pypi&logoColor=white&color=blue&label=PyPI)](https://pypi.org/project/pymatgen)
 [![Conda Downloads](https://img.shields.io/conda/dn/conda-forge/pymatgen?logo=condaforge&color=blue&label=Conda)](https://anaconda.org/conda-forge/pymatgen)
-[![Requires Python 3.9+](https://img.shields.io/badge/Python-3.9+-blue.svg?logo=python&logoColor=white)](https://python.org/downloads)
+[![Requires Python 3.10+](https://img.shields.io/badge/Python-3.10+-blue.svg?logo=python&logoColor=white)](https://python.org/downloads)
 [![Paper](https://img.shields.io/badge/J.ComMatSci-2012.10.028-blue?logo=elsevier&logoColor=white)](https://doi.org/10.1016/j.commatsci.2012.10.028)
 
 Pymatgen (Python Materials Genomics) is a robust, open-source Python library for materials analysis. These are some
@@ -63,8 +63,8 @@ DiffusionAnalyzer.*
 
     *The code is mightier than the pen.*
 
-As of 2022, pymatgen supports Python 3.9 and above. Our support schedule follows closely that of the Scientific
-Python software stack, i.e., when packages such as numpy drops support for Python versions, we will drop support for
+As of 2024, pymatgen supports Python 3.10 and above. Our support schedule follows closely that of the Scientific
+Python software stack, i.e., when packages such as NumPy drops support for Python versions, we will drop support for
 newer versions. Similarly, support for new Python versions will be adopted only when most of the core dependencies
 support the new Python versions.
 
@@ -178,31 +178,32 @@ perform further structure manipulation or analyses.
 Here are some quick examples of the core capabilities and objects:
 
 ```python
-import pymatgen.core as pmg
+from pymatgen.core import Element, Composition, Lattice, Structure, Molecule
 
 # Integrated symmetry analysis tools from spglib
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
 
-si = pmg.Element("Si")
+
+si = Element("Si")
 si.atomic_mass  # 28.0855
 print(si.melting_point)
 # 1687.0 K
 
-comp = pmg.Composition("Fe2O3")
+comp = Composition("Fe2O3")
 comp.weight  # 159.6882
 # Note that Composition conveniently allows strings to be treated just like an Element object.
 comp["Fe"]  # 2.0
 comp.get_atomic_fraction("Fe")  # 0.4
-lattice = pmg.Lattice.cubic(4.2)
-structure = pmg.Structure(lattice, ["Cs", "Cl"], ...[[0, 0, 0], [0.5, 0.5, 0.5]])
+lattice = Lattice.cubic(4.2)
+structure = Structure(lattice, ["Cs", "Cl"], ...[[0, 0, 0], [0.5, 0.5, 0.5]])
 # structure.volume
 # 74.088000000000008
 # structure[0]
 # PeriodicSite: Cs (0.0000, 0.0000, 0.0000) [0.0000, 0.0000, 0.0000]
 
 # You can create a Structure using spacegroup symmetry as well.
-li2o = pmg.Structure.from_spacegroup(
-    "Fm-3m", pmg.Lattice.cubic(3), ["Li", "O"], [[0.25, 0.25, 0.25], [0, 0, 0]]
+li2o = Structure.from_spacegroup(
+    "Fm-3m", Lattice.cubic(3), ["Li", "O"], [[0.25, 0.25, 0.25], [0, 0, 0]]
 )
 
 finder = SpacegroupAnalyzer(structure)
@@ -218,13 +219,13 @@ structure.to(filename="POSCAR")
 structure.to(filename="CsCl.cif")
 
 # Reading a structure is similarly easy.
-structure = pmg.Structure.from_str(open("CsCl.cif").read(), fmt="cif")
-structure = pmg.Structure.from_file("CsCl.cif")
+structure = Structure.from_str(open("CsCl.cif").read(), fmt="cif")
+structure = Structure.from_file("CsCl.cif")
 
 # Reading and writing a molecule from a file. Supports XYZ and
 # Gaussian input and output by default. Support for many other
 # formats via the optional openbabel dependency (if installed).
-methane = pmg.Molecule.from_file("methane.xyz")
+methane = Molecule.from_file("methane.xyz")
 methane.to("methane.gjf")
 
 # Pythonic API for editing Structures and Molecules (v2.9.1 onwards)

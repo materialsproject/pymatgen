@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 import abc
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Any
 
 from monty.json import MSONable
 
@@ -22,7 +22,7 @@ class AbstractTransformation(MSONable, abc.ABC):
     """Abstract transformation class."""
 
     @abc.abstractmethod
-    def apply_transformation(self, structure: Structure):
+    def apply_transformation(self, structure: Structure) -> Structure | list[dict[str, Any]]:
         """Apply the transformation to a structure. Depending on whether a
         transformation is one-to-many, there may be an option to return a
         ranked list of structures.
@@ -46,7 +46,6 @@ class AbstractTransformation(MSONable, abc.ABC):
             be stored in the transformation_parameters dictionary in the
             transmuted structure class.
         """
-        return
 
     @property
     def inverse(self) -> AbstractTransformation | None:

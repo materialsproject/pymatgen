@@ -15,6 +15,7 @@ import numpy as np
 from monty.json import MSONable
 from pandas import DataFrame
 from plotly.graph_objects import Figure, Scatter
+
 from pymatgen.analysis.phase_diagram import GrandPotentialPhaseDiagram, PhaseDiagram
 from pymatgen.analysis.reaction_calculator import Reaction
 from pymatgen.core.composition import Composition
@@ -110,7 +111,7 @@ class InterfacialReactivity(MSONable):
 
         # Factor is the compositional ratio between composition self.c1 and
         # processed composition self.comp1. For example, the factor for
-        # Composition('SiO2') and  Composition('O') is 2.0. This factor will be used
+        # Composition('SiO2') and Composition('O') is 2.0. This factor will be used
         # to convert mixing ratio in self.comp1 - self.comp2 tie line to that in
         # self.c1 - self.c2 tie line.
         self.factor1 = 1.0
@@ -185,7 +186,7 @@ class InterfacialReactivity(MSONable):
 
         index_kink = range(1, len(critical_comp) + 1)
 
-        return list(zip(index_kink, x_kink, energy_kink, react_kink, energy_per_rxt_formula))
+        return list(zip(index_kink, x_kink, energy_kink, react_kink, energy_per_rxt_formula, strict=True))
 
     def plot(self, backend: Literal["plotly", "matplotlib"] = "plotly") -> Figure | plt.Figure:
         """
@@ -325,7 +326,7 @@ class InterfacialReactivity(MSONable):
 
     def _get_plotly_figure(self) -> Figure:
         """Get a Plotly figure of reaction kinks diagram."""
-        kinks = map(list, zip(*self.get_kinks()))
+        kinks = map(list, zip(*self.get_kinks(), strict=True))
         _, x, energy, reactions, _ = kinks
 
         lines = Scatter(
@@ -346,7 +347,8 @@ class InterfacialReactivity(MSONable):
         rxn_min = reactions.pop(min_idx)
 
         labels = [
-            f"{htmlify(str(r))} <br>\u0394E<sub>rxn</sub> = {round(e, 3)} eV/atom" for r, e in zip(reactions, energy)
+            f"{htmlify(str(r))} <br>\u0394E<sub>rxn</sub> = {round(e, 3)} eV/atom"
+            for r, e in zip(reactions, energy, strict=True)
         ]
 
         markers = Scatter(
@@ -390,13 +392,13 @@ class InterfacialReactivity(MSONable):
         ax = pretty_plot(8, 5)
         plt.xlim([-0.05, 1.05])  # plot boundary is 5% wider on each side
 
-        kinks = list(zip(*self.get_kinks()))
+        kinks = list(zip(*self.get_kinks(), strict=True))
         _, x, energy, reactions, _ = kinks
 
         plt.plot(x, energy, "o-", markersize=8, c="navy", zorder=1)
         plt.scatter(self.minimum[0], self.minimum[1], marker="*", c="red", s=400, zorder=2)
 
-        for x_coord, y_coord, rxn in zip(x, energy, reactions):
+        for x_coord, y_coord, rxn in zip(x, energy, reactions, strict=True):
             products = ", ".join(
                 [latexify(p.reduced_formula) for p in rxn.products if not np.isclose(rxn.get_coeff(p), 0)]
             )
@@ -436,7 +438,7 @@ class InterfacialReactivity(MSONable):
     def _get_plotly_annotations(x: list[float], y: list[float], reactions: list[Reaction]):
         """Get dictionary of annotations for the Plotly figure layout."""
         annotations = []
-        for x_coord, y_coord, rxn in zip(x, y, reactions):
+        for x_coord, y_coord, rxn in zip(x, y, reactions, strict=True):
             products = ", ".join(
                 [htmlify(p.reduced_formula) for p in rxn.products if not np.isclose(rxn.get_coeff(p), 0)]
             )
@@ -579,7 +581,7 @@ class InterfacialReactivity(MSONable):
         """List of formulas of potential products. e.g. ['Li','O2','Mn']."""
         products = set()
         for _, _, _, react, _ in self.get_kinks():
-            products = products | {key.reduced_formula for key in react.products}
+            products |= {key.reduced_formula for key in react.products}
         return list(products)
 
 

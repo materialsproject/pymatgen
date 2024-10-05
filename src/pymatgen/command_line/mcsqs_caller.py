@@ -13,6 +13,7 @@ from subprocess import Popen, TimeoutExpired
 from typing import TYPE_CHECKING, NamedTuple
 
 from monty.dev import requires
+
 from pymatgen.core.structure import Structure
 
 if TYPE_CHECKING:
@@ -86,7 +87,7 @@ def run_mcsqs(
     directory = directory or tempfile.mkdtemp()
     os.chdir(directory)
 
-    if isinstance(scaling, (int, float)):
+    if isinstance(scaling, int | float):
         if scaling % 1 != 0:
             raise ValueError(f"{scaling=} should be an integer")
         mcsqs_find_sqs_cmd = ["mcsqs", f"-n {scaling * n_atoms}"]
@@ -95,15 +96,15 @@ def run_mcsqs(
         # Set supercell to identity (will make supercell with pymatgen)
         with open("sqscell.out", mode="w") as file:
             file.write("1\n1 0 0\n0 1 0\n0 0 1\n")
-        structure = structure * scaling
+        structure *= scaling
         mcsqs_find_sqs_cmd = ["mcsqs", "-rc", f"-n {n_atoms}"]
 
     structure.to(filename="rndstr.in")
 
     # Generate clusters
     mcsqs_generate_clusters_cmd = ["mcsqs"]
-    for num in clusters:
-        mcsqs_generate_clusters_cmd.append(f"-{num}={clusters[num]}")
+    for num, cutoff in clusters.items():
+        mcsqs_generate_clusters_cmd.append(f"-{num}={cutoff}")
 
     # Run mcsqs to find clusters
     with Popen(mcsqs_generate_clusters_cmd) as process:
@@ -177,7 +178,11 @@ def _parse_sqs_path(path) -> Sqs:
     detected_instances = len(list(path.glob("bestsqs*[0-9]*.out")))
 
     # Convert best SQS structure to CIF file and pymatgen Structure
-    with Popen("str2cif < bestsqs.out > bestsqs.cif", shell=True, cwd=path) as process:
+    with (
+        open(os.path.join(path, "bestsqs.out")) as input_file,
+        open(os.path.join(path, "bestsqs.cif"), "w") as output_file,
+    ):
+        process = Popen(["str2cif"], stdin=input_file, stdout=output_file, cwd=path)
         process.communicate()
 
     with warnings.catch_warnings():
@@ -196,12 +201,15 @@ def _parse_sqs_path(path) -> Sqs:
     all_sqs = []
 
     for idx in range(detected_instances):
-        sqs_out = f"bestsqs{idx + 1}.out"
-        sqs_cif = f"bestsqs{idx + 1}.cif"
-        corr_out = f"bestcorr{idx + 1}.out"
-        with Popen(f"str2cif < {sqs_out} > {sqs_cif}", shell=True, cwd=path) as process:
+        sqs_out = os.path.join(path, f"bestsqs{idx + 1}.out")
+        sqs_cif = os.path.join(path, f"bestsqs{idx + 1}.cif")
+
+        with open(sqs_out) as input_file, open(sqs_cif, "w") as output_file:
+            process = Popen(["str2cif"], stdin=input_file, stdout=output_file, cwd=path)
             process.communicate()
         sqs = Structure.from_file(path / sqs_out)
+
+        corr_out = f"bestcorr{idx + 1}.out"
         with open(path / corr_out) as file:
             lines = file.readlines()
 

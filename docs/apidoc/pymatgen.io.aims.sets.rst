@@ -32,3 +32,11 @@ pymatgen.io.aims.sets.core module
    :members:
    :undoc-members:
    :show-inheritance:
+
+pymatgen.io.aims.sets.magnetism module
+--------------------------------------
+
+.. automodule:: pymatgen.io.aims.sets.magnetism
+   :members:
+   :undoc-members:
+   :show-inheritance:

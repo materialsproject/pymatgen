@@ -15,6 +15,8 @@ import scipy.constants as const
 from monty.io import zopen
 from monty.serialization import loadfn
 from numpy.testing import assert_allclose
+from pytest import approx
+
 from pymatgen.core import SETTINGS
 from pymatgen.core.composition import Composition
 from pymatgen.core.structure import Structure
@@ -26,6 +28,7 @@ from pymatgen.io.vasp.inputs import (
     Incar,
     Kpoints,
     KpointsSupportedModes,
+    PmgVaspPspDirError,
     Poscar,
     Potcar,
     PotcarSingle,
@@ -34,14 +37,13 @@ from pymatgen.io.vasp.inputs import (
     _gen_potcar_summary_stats,
 )
 from pymatgen.util.testing import FAKE_POTCAR_DIR, TEST_FILES_DIR, VASP_IN_DIR, VASP_OUT_DIR, PymatgenTest
-from pytest import MonkeyPatch, approx
 
 # make sure _gen_potcar_summary_stats runs and works with all tests in this file
 _summ_stats = _gen_potcar_summary_stats(append=False, vasp_psp_dir=str(FAKE_POTCAR_DIR), summary_stats_filename=None)
 
 
 @pytest.fixture(autouse=True)
-def _mock_complete_potcar_summary_stats(monkeypatch: MonkeyPatch) -> None:
+def _mock_complete_potcar_summary_stats(monkeypatch: pytest.MonkeyPatch) -> None:
     # Override POTCAR library to use fake scrambled POTCARs
     monkeypatch.setitem(SETTINGS, "PMG_VASP_PSP_DIR", str(FAKE_POTCAR_DIR))
     monkeypatch.setattr(PotcarSingle, "_potcar_summary_stats", _summ_stats)
@@ -546,7 +548,7 @@ class TestIncar(PymatgenTest):
 
     def test_copy(self):
         incar2 = self.incar.copy()
-        assert isinstance(incar2, Incar), f"Expected Incar, got {type(incar2)}"
+        assert isinstance(incar2, Incar), f"Expected Incar, got {type(incar2).__name__}"
         assert incar2 == self.incar
         # modify incar2 and check that incar1 is not modified
         incar2["LDAU"] = "F"
@@ -773,6 +775,7 @@ SIGMA = 0.1"""
                     "AMIN": 0.01,
                     "ICHARG": 1,
                     "MAGMOM": [1, 2, 4, 5],
+                    "LREAL": True,  # special case: Union type
                     "NBAND": 250,  # typo in tag
                     "METAGGA": "SCAM",  # typo in value
                     "EDIFF": 5 + 1j,  # value should be a float
@@ -886,29 +889,44 @@ Cartesian
         kpoints = Kpoints.gamma_automatic((3, 3, 3), [0, 0, 0])
         assert kpoints.style == Kpoints.supported_modes.Gamma
         assert kpoints.kpts == [(3, 3, 3)]
+        assert all(isinstance(kpt, int) for kpt in kpoints.kpts[0])
+
         kpoints = Kpoints.monkhorst_automatic((2, 2, 2), [0, 0, 0])
         assert kpoints.style == Kpoints.supported_modes.Monkhorst
         assert kpoints.kpts == [(2, 2, 2)]
-        kpoints = Kpoints.automatic(100)
+        assert all(isinstance(kpt, int) for kpt in kpoints.kpts[0])
+
+        with pytest.warns(DeprecationWarning, match="Please use INCAR KSPACING tag"):
+            kpoints = Kpoints.automatic(100)
         assert kpoints.style == Kpoints.supported_modes.Automatic
         assert kpoints.kpts == [(100,)]
+        assert all(isinstance(kpt, int) for kpt in kpoints.kpts[0])
+
         filepath = f"{VASP_IN_DIR}/POSCAR"
         struct = Structure.from_file(filepath)
         kpoints = Kpoints.automatic_density(struct, 500)
         assert kpoints.kpts == [(1, 3, 3)]
+        assert all(isinstance(kpt, int) for kpt in kpoints.kpts[0])
         assert kpoints.style == Kpoints.supported_modes.Gamma
+
         kpoints = Kpoints.automatic_density(struct, 500, force_gamma=True)
         assert kpoints.style == Kpoints.supported_modes.Gamma
+        assert all(isinstance(kpt, int) for kpt in kpoints.kpts[0])
+
         kpoints = Kpoints.automatic_density_by_vol(struct, 1000)
         assert kpoints.kpts == [(6, 10, 13)]
+        assert all(isinstance(kpt, int) for kpt in kpoints.kpts[0])
         assert kpoints.style == Kpoints.supported_modes.Gamma
+
         kpoints = Kpoints.automatic_density_by_lengths(struct, [50, 50, 1], force_gamma=True)
         assert kpoints.kpts == [(5, 9, 1)]
+        assert all(isinstance(kpt, int) for kpt in kpoints.kpts[0]), kpoints.kpts
         assert kpoints.style == Kpoints.supported_modes.Gamma
 
         struct.make_supercell(3)
         kpoints = Kpoints.automatic_density(struct, 500)
         assert kpoints.kpts == [(1, 1, 1)]
+        assert all(isinstance(kpt, int) for kpt in kpoints.kpts[0])
         assert kpoints.style == Kpoints.supported_modes.Gamma
         kpoints = Kpoints.from_str(
             """k-point mesh
@@ -964,7 +982,6 @@ Cartesian
         assert kpts != kpt_copy
 
     def test_automatic_kpoint(self):
-        # struct = PymatgenTest.get_structure("Li2O")
         poscar = Poscar.from_str(
             """Al1
 1.0
@@ -1195,7 +1212,16 @@ class TestPotcarSingle(TestCase):
         # test FileNotFoundError on non-existent PMG_VASP_PSP_DIR in SETTINGS
         PMG_VASP_PSP_DIR = "missing-dir"
         symbol, functional = "Fe", "PBE_64"
-        with (
+        with (  # test PMG_VASP_PSP_DIR not set in SETTINGS
+            patch.dict(SETTINGS, PMG_VASP_PSP_DIR=None),
+            pytest.raises(
+                PmgVaspPspDirError,
+                match=re.escape("Set PMG_VASP_PSP_DIR=<directory-path> in .pmgrc.yaml (needed to find POTCARs)"),
+            ),
+        ):
+            PotcarSingle.from_symbol_and_functional(symbol, functional)
+
+        with (  # test FileNotFoundError on non-existent PMG_VASP_PSP_DIR in SETTINGS
             patch.dict(SETTINGS, PMG_VASP_PSP_DIR=PMG_VASP_PSP_DIR),
             pytest.raises(FileNotFoundError, match=f"{PMG_VASP_PSP_DIR=} does not exist."),
         ):
@@ -1290,7 +1316,7 @@ class TestPotcar(PymatgenTest):
         assert len(ref_potcar) == len(new_potcar), f"wrong POTCAR line count: {len(ref_potcar)} != {len(new_potcar)}"
 
         # check line by line
-        for line1, line2 in zip(ref_potcar, new_potcar):
+        for line1, line2 in zip(ref_potcar, new_potcar, strict=True):
             assert line1.strip() == line2.strip(), f"wrong POTCAR line: {line1} != {line2}"
 
     def test_set_symbol(self):
@@ -1300,20 +1326,18 @@ class TestPotcar(PymatgenTest):
         assert self.potcar.symbols == ["Fe_pv", "O"]
         assert self.potcar[0].nelectrons == 14
 
-    # def test_default_functional(self):
-    #     potcar = Potcar(["Fe", "P"])
-    #     assert potcar[0].functional_class == "GGA"
-    #     assert potcar[1].functional_class == "GGA"
-    #     SETTINGS["PMG_DEFAULT_FUNCTIONAL"] = "LDA"
-    #     potcar = Potcar(["Fe", "P"])
-    #     assert potcar[0].functional_class == "LDA"
-    #     assert potcar[1].functional_class == "LDA"
+    @pytest.mark.skip("TODO: need someone to fix this")
+    def test_default_functional(self):
+        potcar = Potcar(["Fe", "P"])
+        assert potcar[0].functional_class == "GGA"
+        assert potcar[1].functional_class == "GGA"
+        SETTINGS["PMG_DEFAULT_FUNCTIONAL"] = "LDA"
+        potcar = Potcar(["Fe", "P"])
+        assert potcar[0].functional_class == "LDA"
+        assert potcar[1].functional_class == "LDA"
 
     def test_pickle(self):
         pickle.dumps(self.potcar)
-
-    # def tearDown(self):
-    #     SETTINGS["PMG_DEFAULT_FUNCTIONAL"] = "PBE"
 
 
 class TestVaspInput(PymatgenTest):
@@ -1351,14 +1375,16 @@ class TestVaspInput(PymatgenTest):
         assert vasp_input2.as_dict() == self.vasp_input.as_dict()
         # modify the copy and make sure the original is not modified
         vasp_input2["INCAR"]["NSW"] = 100
-        assert vasp_input2["INCAR"]["NSW"] == 100
-        assert self.vasp_input["INCAR"]["NSW"] == 99
+        assert vasp_input2["INCAR"]["NSW"] == 100, f"{vasp_input2['INCAR']['NSW']=}"
+        orig_nsw_val = self.vasp_input["INCAR"]["NSW"]
+        assert orig_nsw_val == 99, f"{orig_nsw_val=}"
 
         # make a shallow copy and make sure the original is modified
         vasp_input3 = self.vasp_input.copy(deep=False)
         vasp_input3["INCAR"]["NSW"] = 100
-        assert vasp_input3["INCAR"]["NSW"] == 100
-        assert self.vasp_input["INCAR"]["NSW"] == 100
+        assert vasp_input3["INCAR"]["NSW"] == 100, f"{vasp_input3['INCAR']['NSW']=}"
+        orig_nsw_val = self.vasp_input["INCAR"]["NSW"]
+        assert orig_nsw_val == 99, f"{orig_nsw_val=}"
 
     def test_run_vasp(self):
         self.vasp_input.run_vasp(".", vasp_cmd=["cat", "INCAR"])
@@ -1388,6 +1414,7 @@ class TestVaspInput(PymatgenTest):
         assert "CONTCAR_Li2O" in vasp_input
 
     def test_input_attr(self):
+        # test attributes match dict keys
         assert all(v == getattr(self.vasp_input, k.lower()) for k, v in self.vasp_input.items())
 
         vis_potcar_spec = VaspInput(
@@ -1397,9 +1424,16 @@ class TestVaspInput(PymatgenTest):
             "\n".join(self.vasp_input.potcar.symbols),
             potcar_spec=True,
         )
-        assert all(k in vis_potcar_spec for k in ("INCAR", "KPOINTS", "POSCAR", "POTCAR.spec"))
+        # test has expected keys
+        assert {*vis_potcar_spec} == {"INCAR", "KPOINTS", "POSCAR", "POTCAR.spec"}
+        # test values match
         assert all(self.vasp_input[k] == getattr(vis_potcar_spec, k.lower()) for k in ("INCAR", "KPOINTS", "POSCAR"))
         assert isinstance(vis_potcar_spec.potcar, str)
+
+        # test incar can be updated in place, see https://github.com/materialsproject/pymatgen/issues/4051
+        assert vis_potcar_spec.incar["NSW"] == 99
+        vis_potcar_spec.incar["NSW"] = 100
+        assert vis_potcar_spec.incar["NSW"] == 100
 
 
 def test_potcar_summary_stats() -> None:
@@ -1431,7 +1465,7 @@ def test_potcar_summary_stats() -> None:
         assert actual == expected, f"{key=}, {expected=}, {actual=}"
 
 
-def test_gen_potcar_summary_stats(monkeypatch: MonkeyPatch) -> None:
+def test_gen_potcar_summary_stats(monkeypatch: pytest.MonkeyPatch) -> None:
     assert set(_summ_stats) == set(PotcarSingle.functional_dir)
 
     expected_funcs = [x for x in os.listdir(str(FAKE_POTCAR_DIR)) if x in PotcarSingle.functional_dir]

@@ -110,7 +110,9 @@ class TestPackmolOutput(TestCase):
         cls.packmol_config = [{"number": 1}, {"number": 15}]
 
     def test_packed_molecule(self):
-        assert len(self.cocktail) == sum(len(mol) * self.packmol_config[i]["number"] for i, mol in enumerate(self.mols))
+        assert len(self.cocktail) == sum(
+            len(mol) * self.packmol_config[idx]["number"] for idx, mol in enumerate(self.mols)
+        )
         atoms = (
             self.ethanol_atoms * self.packmol_config[0]["number"] + self.water_atoms * self.packmol_config[1]["number"]
         )

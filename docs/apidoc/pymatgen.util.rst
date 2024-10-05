@@ -57,6 +57,22 @@ pymatgen.util.io\_utils module
    :undoc-members:
    :show-inheritance:
 
+pymatgen.util.joblib module
+---------------------------
+
+.. automodule:: pymatgen.util.joblib
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+pymatgen.util.misc module
+-------------------------
+
+.. automodule:: pymatgen.util.misc
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
 pymatgen.util.num module
 ------------------------
 

@@ -7,6 +7,8 @@ from __future__ import annotations
 import argparse
 import itertools
 
+from tabulate import tabulate, tabulate_formats
+
 from pymatgen.cli.pmg_analyze import analyze
 from pymatgen.cli.pmg_config import configure_pmg
 from pymatgen.cli.pmg_plot import plot
@@ -15,7 +17,6 @@ from pymatgen.cli.pmg_structure import analyze_structures
 from pymatgen.core import SETTINGS
 from pymatgen.core.structure import Structure
 from pymatgen.io.vasp import Incar, Potcar
-from tabulate import tabulate, tabulate_formats
 
 
 def parse_view(args):
@@ -46,7 +47,7 @@ def diff_incar(args):
     incar2 = Incar.from_file(filepath2)
 
     def format_lists(v):
-        if isinstance(v, (tuple, list)):
+        if isinstance(v, tuple | list):
             return " ".join(f"{len(tuple(group))}*{i:.2f}" for (i, group) in itertools.groupby(v))
         return v
 
@@ -440,10 +441,10 @@ def main():
     args = parser.parse_args()
 
     try:
-        args.func  # noqa: B018
-    except AttributeError:
+        _ = args.func
+    except AttributeError as exc:
         parser.print_help()
-        raise SystemExit("Please specify a command.")
+        raise SystemExit("Please specify a command.") from exc
     return args.func(args)
 
 

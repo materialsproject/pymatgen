@@ -1,9 +1,11 @@
 from __future__ import annotations
 
+import re
 from itertools import starmap
 
 import pytest
 from monty.serialization import dumpfn, loadfn
+
 from pymatgen.core import Element
 from pymatgen.entries.computed_entries import ComputedEntry
 from pymatgen.entries.entry_tools import EntrySet, group_entries_by_composition, group_entries_by_structure
@@ -51,9 +53,10 @@ class TestEntrySet(PymatgenTest):
         entries = self.entry_set.get_subset_in_chemsys(["Li", "O"])
         for ent in entries:
             assert {Element.Li, Element.O}.issuperset(ent.composition)
-        with pytest.raises(ValueError) as exc:  # noqa: PT011
+        with pytest.raises(
+            ValueError, match=re.escape("['F', 'Fe'] is not a subset of ['Fe', 'Li', 'O', 'P'], extra: {'F'}")
+        ):
             self.entry_set.get_subset_in_chemsys(["Fe", "F"])
-        assert "['F', 'Fe'] is not a subset of ['Fe', 'Li', 'O', 'P'], extra: {'F'}" in str(exc.value)
 
     def test_remove_non_ground_states(self):
         length = len(self.entry_set)

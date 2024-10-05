@@ -15,11 +15,12 @@ from typing import TYPE_CHECKING
 import matplotlib.pyplot as plt
 import numpy as np
 from monty.json import MSONable, jsanitize
+from scipy.interpolate import CubicSpline
+
 from pymatgen.analysis.structure_matcher import StructureMatcher
 from pymatgen.core import Structure
 from pymatgen.io.vasp import Outcar
 from pymatgen.util.plotting import pretty_plot
-from scipy.interpolate import CubicSpline
 
 if TYPE_CHECKING:
     from typing_extensions import Self
@@ -108,7 +109,7 @@ class NEBAnalysis(MSONable):
         rms_dist = [0]
         prev = structures[0]
         for st in structures[1:]:
-            dists = np.array([s2.distance(s1) for s1, s2 in zip(prev, st)])
+            dists = np.array([s2.distance(s1) for s1, s2 in zip(prev, st, strict=True)])
             rms_dist.append(np.sqrt(np.sum(dists**2)))
             prev = st
         rms_dist = np.cumsum(rms_dist)
@@ -172,7 +173,7 @@ class NEBAnalysis(MSONable):
         ax.set_ylabel("Energy (meV)")
         ax.set_ylim((np.min(ys) - 10, np.max(ys) * 1.02 + 20))
         if label_barrier:
-            data = zip(xs * scale, ys)
+            data = zip(xs * scale, ys, strict=True)
             barrier = max(data, key=lambda d: d[1])
             ax.plot([0, barrier[0]], [barrier[1], barrier[1]], "k--", linewidth=0.5)
             ax.annotate(
@@ -247,8 +248,7 @@ class NEBAnalysis(MSONable):
             if terminal:
                 for ds in terminal_dirs:
                     od = ds[0] if idx == 0 else ds[1]
-                    outcar = glob(f"{od}/OUTCAR*")
-                    if outcar:
+                    if outcar := glob(f"{od}/OUTCAR*"):
                         outcar = sorted(outcar)
                         outcars.append(Outcar(outcar[-1]))
                         break
@@ -337,7 +337,7 @@ def combine_neb_plots(neb_analyses, arranged_neb_analyses=False, reverse_plot=Fa
                 + [(neb1_energies[-1] + neb2_energies[0]) / 2]
                 + neb2_energies[1:]
             )
-            neb1_structures = neb1_structures + neb2.structures[1:]
+            neb1_structures += neb2.structures[1:]
             neb1_forces = list(neb1_forces) + list(neb2.forces)[1:]
             neb1_r = list(neb1_r) + [i + neb1_r[-1] for i in list(neb2.r)[1:]]
 
@@ -356,14 +356,14 @@ def combine_neb_plots(neb_analyses, arranged_neb_analyses=False, reverse_plot=Fa
             neb1_r = list(neb2.r) + [i + list(neb2.r)[-1] for i in list(neb1_r)[1:]]
 
         elif abs(neb1_end_e - neb2_start_e) == min_e_diff:
-            neb1_energies = neb1_energies + neb2_energies[1:]
-            neb1_structures = neb1_structures + neb2.structures[1:]
+            neb1_energies += neb2_energies[1:]
+            neb1_structures += neb2.structures[1:]
             neb1_forces = list(neb1_forces) + list(neb2.forces)[1:]
             neb1_r = list(neb1_r) + [i + neb1_r[-1] for i in list(neb2.r)[1:]]
 
         else:
-            neb1_energies = neb1_energies + list(reversed(neb2_energies))[1:]
-            neb1_structures = neb1_structures + list(reversed(neb2.structures))[1:]
+            neb1_energies += list(reversed(neb2_energies))[1:]
+            neb1_structures += list(reversed(neb2.structures))[1:]
             neb1_forces = list(neb1_forces) + list(reversed(list(neb2.forces)))[1:]
             neb1_r = list(neb1_r) + list(
                 reversed([i * -1 - list(neb2.r)[-1] * -1 + list(neb1_r)[-1] for i in list(neb2.r)[:-1]])
