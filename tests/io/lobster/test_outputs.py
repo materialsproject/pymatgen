@@ -647,6 +647,11 @@ class TestCharge(PymatgenTest):
         s2 = Structure.from_dict(structure_dict2)
         assert s2 == self.charge2.get_structure_with_charges(f"{VASP_IN_DIR}/POSCAR_MnO")
 
+    def test_exception(self):
+        structure_file = f"{VASP_IN_DIR}/POSCAR.AlN"
+        with pytest.raises(ValueError, match="CHARGE.LCFO.lobster charges are not sorted site wise"):
+            self.charge_lcfo.get_structure_with_charges(structure_filename=structure_file)
+
     def test_msonable(self):
         dict_data = self.charge2.as_dict()
         charge_from_dict = Charge.from_dict(dict_data)
@@ -1665,6 +1670,11 @@ class TestGrosspop(TestCase):
 
         new_structure = self.grosspop1.get_structure_with_total_grosspop(f"{TEST_DIR}/POSCAR.SiO2")
         assert_allclose(new_structure.frac_coords, Structure.from_dict(struct_dict).frac_coords)
+
+    def test_exception(self):
+        structure_file = f"{VASP_IN_DIR}/POSCAR.AlN"
+        with pytest.raises(ValueError, match="The GROSSPOP.LCFO.lobster data is not site wise"):
+            self.grosspop_511_lcfo.get_structure_with_total_grosspop(structure_filename=structure_file)
 
     def test_msonable(self):
         dict_data = self.grosspop1.as_dict()
