@@ -117,7 +117,7 @@ class TestCohpcar(PymatgenTest):
         )
 
         # COHPCAR.LCFO.lobster from v5.1.1
-        self.cohp_nacl_lcfo = Cohpcar(filename=f"{TEST_DIR}/COHPCAR.LCFO.lobster.NaCl.gz")
+        self.cohp_nacl_lcfo = Cohpcar(filename=f"{TEST_DIR}/COHPCAR.LCFO.lobster.NaCl.gz", is_lcfo=True)
 
     def test_attributes(self):
         assert not self.cohp_bise.are_coops
@@ -161,6 +161,7 @@ class TestCohpcar(PymatgenTest):
 
         # test COHPCAR.LCFO.lobster v 5.1.1
         assert len(self.cohp_nacl_lcfo.orb_res_cohp) == 16
+        assert self.cohp_nacl_lcfo.is_lcfo
         assert not self.cohp_nacl_lcfo.is_spin_polarized
         assert not self.cohp_nacl_lcfo.are_coops
         assert not self.cohp_nacl_lcfo.are_cobis
@@ -412,7 +413,7 @@ class TestDoscar(TestCase):
         self.DOSCAR_spin_pol = Doscar(doscar=doscar, structure_file=poscar)
         self.DOSCAR_nonspin_pol = Doscar(doscar=doscar2, structure_file=poscar2)
 
-        self.DOSCAR_lcfo = Doscar(doscar=doscar3, structure_file=poscar3)
+        self.DOSCAR_lcfo = Doscar(doscar=doscar3, structure_file=poscar3, is_lcfo=True)
 
         with open(f"{TEST_FILES_DIR}/electronic_structure/dos/structure_KF.json") as file:
             data = json.load(file)
@@ -517,6 +518,7 @@ class TestDoscar(TestCase):
         pdos_3py_Al = [0.0, 0.02794, 0.00069, 0.0, 0.0, 0.0, 0.00216, 0.0682, 0.06966, 0.04402, 0.16579]
         pdos_2s_N = [0.0, 0.25324, 0.0157, 0.0, 0.0, 0.0, 0.0006, 0.01747, 0.02247, 0.01589, 0.03565]
 
+        assert self.DOSCAR_lcfo._is_lcfo
         assert self.DOSCAR_lcfo.pdos[0]["1a1"][Spin.down].tolist() == pdos_1a1_AlN
         assert self.DOSCAR_lcfo.pdos[1]["3p_y"][Spin.down].tolist() == pdos_3py_Al
         assert self.DOSCAR_lcfo.pdos[2]["2s"][Spin.down].tolist() == pdos_2s_N
@@ -587,7 +589,7 @@ class TestCharge(PymatgenTest):
         self.charge2 = Charge(filename=f"{TEST_DIR}/CHARGE.lobster.MnO")
         # gzipped file
         self.charge = Charge(filename=f"{TEST_DIR}/CHARGE.lobster.MnO2.gz")
-        self.charge_lcfo = Charge(filename=f"{TEST_DIR}/CHARGE.LCFO.lobster.ALN.gz")
+        self.charge_lcfo = Charge(filename=f"{TEST_DIR}/CHARGE.LCFO.lobster.ALN.gz", is_lcfo=True)
 
     def test_attributes(self):
         charge_Loewdin = [-1.25, 1.25]
@@ -602,6 +604,7 @@ class TestCharge(PymatgenTest):
         assert num_atoms == self.charge2.num_atoms
 
         # test with CHARG.LCFO.lobster file
+        assert self.charge_lcfo.is_lcfo
         assert self.charge_lcfo.num_atoms == 3
         assert self.charge_lcfo.types == ["AlN", "Al", "N"]
         assert self.charge_lcfo.atomlist == ["AlN1", "Al2", "N3"]
@@ -1540,7 +1543,7 @@ class TestGrosspop(TestCase):
         self.grosspop1 = Grosspop(f"{TEST_DIR}/GROSSPOP.lobster")
         self.grosspop_511_sp = Grosspop(f"{TEST_DIR}/GROSSPOP_511_sp.lobster.AlN.gz")
         self.grosspop_511_nsp = Grosspop(f"{TEST_DIR}/GROSSPOP_511_nsp.lobster.NaCl.gz")
-        self.grosspop_511_lcfo = Grosspop(f"{TEST_DIR}/GROSSPOP.LCFO.lobster.AlN.gz")
+        self.grosspop_511_lcfo = Grosspop(f"{TEST_DIR}/GROSSPOP.LCFO.lobster.AlN.gz", is_lcfo=True)
 
     def test_attributes(self):
         gross_pop_list = self.grosspop1.list_dict_grosspop
@@ -1575,6 +1578,7 @@ class TestGrosspop(TestCase):
         assert gross_pop_list_511_nsp[-1]["Loewdin GP"]["total"] == approx(7.67)
 
         # v.5.1.1 LCFO
+        assert self.grosspop_511_lcfo.is_lcfo
         assert gross_pop_list_lcfo[0]["mol"] == "AlN"
         assert gross_pop_list_lcfo[0]["Loewdin GP"]["4a1"][Spin.up] == approx(0.07)
 
@@ -1703,9 +1707,10 @@ class TestIcohplist(TestCase):
         self.icohp_nacl_511_nsp = Icohplist(filename=f"{TEST_DIR}/ICOHPLIST_511_nsp.lobster.NaCl.gz")
 
         # ICOHPLIST.LCFO.lobster from Lobster v5.1.1
-        self.icohp_lcfo = Icohplist(filename=f"{TEST_DIR}/ICOHPLIST.LCFO.lobster.AlN.gz")
+        self.icohp_lcfo = Icohplist(filename=f"{TEST_DIR}/ICOHPLIST.LCFO.lobster.AlN.gz", is_lcfo=True)
         self.icohp_lcfo_non_orbitalwise = Icohplist(
-            filename=f"{TEST_DIR}/ICOHPLIST_non_orbitalwise.LCFO.lobster.AlN.gz"
+            filename=f"{TEST_DIR}/ICOHPLIST_non_orbitalwise.LCFO.lobster.AlN.gz",
+            is_lcfo=True,
         )
 
         # ICOBIs and orbitalwise ICOBILIST.lobster
@@ -1769,6 +1774,7 @@ class TestIcohplist(TestCase):
         assert len(self.icohp_nacl_511_nsp.icohplist) == 152
 
         # v5.1.1 LCFO
+        assert self.icohp_lcfo.is_lcfo
         assert self.icohp_lcfo.is_spin_polarized
         assert len(self.icohp_lcfo.icohplist) == 28
         assert not self.icohp_lcfo_non_orbitalwise.orbitalwise

@@ -17,7 +17,6 @@ import os
 import re
 import warnings
 from collections import defaultdict
-from pathlib import Path
 from typing import TYPE_CHECKING, cast
 
 import numpy as np
@@ -86,6 +85,7 @@ class Cohpcar:
         are_coops: bool = False,
         are_cobis: bool = False,
         are_multi_center_cobis: bool = False,
+        is_lcfo: bool = False,
         filename: PathLike | None = None,
     ) -> None:
         """
@@ -96,6 +96,7 @@ class Cohpcar:
                 Default is False.
             are_multi_center_cobis (bool): Whether the file include multi-center COBIs (True)
                 or two-center COBIs (False). Default is False.
+            is_lcfo (bool): Whether the COXXCAR file is from LCFO analysis.
             filename (PathLike): The COHPCAR file. If it is None, the default
                 file name will be chosen, depending on the value of are_coops.
         """
@@ -109,6 +110,7 @@ class Cohpcar:
         self.are_coops = are_coops
         self.are_cobis = are_cobis
         self.are_multi_center_cobis = are_multi_center_cobis
+        self.is_lcfo = is_lcfo
         self._filename = filename
 
         if self._filename is None:
@@ -157,7 +159,7 @@ class Cohpcar:
         label = ""
         for bond in range(num_bonds):
             if not self.are_multi_center_cobis:
-                bond_data = self._get_bond_data(lines[3 + bond], filename=self._filename)
+                bond_data = self._get_bond_data(lines[3 + bond], is_lcfo=self.is_lcfo)
                 label = str(bond_num)
                 orbs = bond_data["orbitals"]
                 cohp = {spin: data[2 * (bond + s * (num_bonds + 1)) + 3] for s, spin in enumerate(spins)}
@@ -205,7 +207,7 @@ class Cohpcar:
 
             else:
                 bond_data = self._get_bond_data(
-                    lines[2 + bond], filename=self._filename, are_multi_center_cobis=self.are_multi_center_cobis
+                    lines[2 + bond], is_lcfo=self.is_lcfo, are_multi_center_cobis=self.are_multi_center_cobis
                 )
 
                 label = str(bond_num)
@@ -266,7 +268,7 @@ class Cohpcar:
         self.cohp_data = cohp_data
 
     @staticmethod
-    def _get_bond_data(line: str, filename: PathLike, are_multi_center_cobis: bool = False) -> dict[str, Any]:
+    def _get_bond_data(line: str, is_lcfo: bool, are_multi_center_cobis: bool = False) -> dict[str, Any]:
         """Extract bond label, site indices, and length from
         a LOBSTER header line. The site indices are zero-based, so they
         can be easily used with a Structure object.
@@ -278,7 +280,7 @@ class Cohpcar:
 
         Args:
             line: line in the COHPCAR header describing the bond.
-            filename: filename of the COXXCAR file
+            is_lcfo: indicates whether the COXXCAR file is from LCFO analysis.
             are_multi_center_cobis: indicates multi-center COBIs
 
         Returns:
@@ -295,10 +297,10 @@ class Cohpcar:
             site_indices = tuple(int(re.split(r"\D+", site)[1]) - 1 for site in sites)
             # TODO: get cells here as well
 
-            if "[" in sites[0] and "LCFO" not in Path(filename).name:
+            if "[" in sites[0] and not is_lcfo:
                 orbs = [re.findall(r"\[(.*)\]", site)[0] for site in sites]
                 orb_label, orbitals = get_orb_from_str(orbs)
-            elif "[" in sites[0] and "LCFO" in Path(filename).name:
+            elif "[" in sites[0] and is_lcfo:
                 orbs = [re.findall(r"\[(\d+[a-zA-Z]+\d*)", site)[0] for site in sites]
                 orb_label = "-".join(orbs)
                 orbitals = orbs
@@ -340,6 +342,7 @@ class Icohplist(MSONable):
 
     Attributes:
         are_coops (bool): Whether the file includes COOPs (True) or COHPs (False).
+        is_lcfo (bool): Whether the ICOXXLIST file is from LCFO analysis.
         is_spin_polarized (bool): Whether the calculation is spin polarized.
         Icohplist (dict[str, Dict[str, Union[float, int, Dict[Spin, float]]]]):
             The listfile data of the form: {
@@ -354,6 +357,7 @@ class Icohplist(MSONable):
 
     def __init__(
         self,
+        is_lcfo: bool = False,
         are_coops: bool = False,
         are_cobis: bool = False,
         filename: PathLike | None = None,
@@ -363,6 +367,7 @@ class Icohplist(MSONable):
     ) -> None:
         """
         Args:
+            is_lcfo (bool): Whether the ICOHPLIST file is from LCFO analysis.
             are_coops (bool): Whether the file includes COOPs (True) or COHPs (False).
                 Default is False.
             are_cobis (bool): Whether the file is COBIs (True) or COHPs (False).
@@ -378,6 +383,7 @@ class Icohplist(MSONable):
         from pymatgen.electronic_structure.cohp import IcohpCollection
 
         self._filename = filename
+        self.is_lcfo = is_lcfo
         self.is_spin_polarized = is_spin_polarized
         self.orbitalwise = orbitalwise
         self._icohpcollection = icohpcollection
@@ -399,7 +405,6 @@ class Icohplist(MSONable):
         if self._icohpcollection is None:
             with zopen(self._filename, mode="rt") as file:
                 all_lines = file.read().split("\n")
-                file_type = all_lines[0].split()[1]
                 lines = all_lines[1:-1] if "spin" not in all_lines[1] else all_lines[2:-1]
             if len(lines) == 0:
                 raise RuntimeError("ICOHPLIST file contains no data.")
@@ -425,7 +430,7 @@ class Icohplist(MSONable):
 
             # Check if is orbital-wise ICOHPLIST
             # TODO: include case where there is only one ICOHP
-            if file_type == "atomMU":  #  data consists of atomic orbital interactions
+            if not self.is_lcfo:  #  data consists of atomic orbital interactions
                 self.orbitalwise = len(lines) > 2 and "_" in lines[1].split()[1]
             else:  #  data consists of molecule or fragment orbital interactions
                 self.orbitalwise = len(lines) > 2 and lines[1].split()[1].count("_") >= 2
@@ -441,7 +446,7 @@ class Icohplist(MSONable):
                         and version == "5.1.0"
                         or (line.split()[1].count("_") == 1)
                         and version == "5.1.0"
-                        and file_type == "fragmentAlpha"
+                        and self.is_lcfo
                     ):
                         data_without_orbitals.append(line)
                     elif line.split()[1].count("_") >= 2 and version == "5.1.0":
@@ -518,7 +523,7 @@ class Icohplist(MSONable):
                     icohp = {}
                     line_parts = data_orb.split()
                     label = line_parts[0]
-                    if file_type == "atomMU":  #  data consists of atomic orbital interactions
+                    if not self.is_lcfo:  #  data consists of atomic orbital interactions
                         orbs = re.findall(r"_(.*?)(?=\s)", data_orb)
                         orb_label, orbitals = get_orb_from_str(orbs)
                         icohp[Spin.up] = float(line_parts[7])
@@ -711,17 +716,20 @@ class Doscar:
     def __init__(
         self,
         doscar: PathLike = "DOSCAR.lobster",
+        is_lcfo: bool = False,
         structure_file: PathLike | None = "POSCAR",
         structure: IStructure | Structure | None = None,
     ) -> None:
         """
         Args:
             doscar (PathLike): The DOSCAR file, typically "DOSCAR.lobster".
+            is_lcfo (bool): Whether the DOSCAR file is from LCFO analysis.
             structure_file (PathLike): For VASP, this is typically "POSCAR".
             structure (Structure): Instead of a structure file (preferred),
                 the Structure can be given directly.
         """
         self._doscar = doscar
+        self._is_lcfo = is_lcfo
 
         self._final_structure = Structure.from_file(structure_file) if structure_file is not None else structure
 
@@ -807,7 +815,7 @@ class Doscar:
         # for DOCAR.LCFO.lobster, pdos is different than for non-LCFO DOSCAR so we need to handle it differently
         # for now we just set pdos_dict to be empty if LCFO is in the filename
         # Todo: handle LCFO pdos properly in future when we have complete set of orbitals
-        if "LCFO" not in Path(doscar).name:
+        if not self._is_lcfo:
             pdoss_dict = {final_struct[i]: pdos for i, pdos in enumerate(self._pdos)}
         else:
             pdoss_dict = {final_struct[i]: {} for i, _ in enumerate(self._pdos)}
@@ -855,6 +863,7 @@ class Charge(MSONable):
 
     Attributes:
         atomlist (list[str]): List of atoms in CHARGE.lobster.
+        is_lcfo (bool): Whether the CHARGE file is from LCFO analysis. Default is False.
         types (list[str]): List of types of atoms in CHARGE.lobster.
         mulliken (list[float]): List of Mulliken charges of atoms in CHARGE.lobster.
         loewdin (list[float]): List of Loewdin charges of atoms in CHARGE.Loewdin.
@@ -864,6 +873,7 @@ class Charge(MSONable):
     def __init__(
         self,
         filename: PathLike = "CHARGE.lobster",
+        is_lcfo: bool = False,
         num_atoms: int | None = None,
         atomlist: list[str] | None = None,
         types: list[str] | None = None,
@@ -873,6 +883,7 @@ class Charge(MSONable):
         """
         Args:
             filename (PathLike): The CHARGE file, typically "CHARGE.lobster".
+            is_lcfo (bool): Whether the CHARGE file is from LCFO analysis. Default is False.
             num_atoms (int): Number of atoms in the structure.
             atomlist (list[str]): Atoms in the structure.
             types (list[str]): Unique species in the structure.
@@ -880,6 +891,7 @@ class Charge(MSONable):
             loewdin (list[float]): Loewdin charges.
         """
         self._filename = filename
+        self.is_lcfo = is_lcfo
         self.num_atoms = num_atoms
         self.types = [] if types is None else types
         self.atomlist = [] if atomlist is None else atomlist
@@ -888,9 +900,7 @@ class Charge(MSONable):
 
         if self.num_atoms is None:
             with zopen(filename, mode="rt") as file:
-                all_lines = file.read().split("\n")
-                file_type = all_lines[2].split()[0].strip("#")
-                lines = all_lines[3:-3]
+                lines = file.read().split("\n")[3:-3]
             if len(lines) == 0:
                 raise RuntimeError("CHARGES file contains no data.")
 
@@ -899,7 +909,7 @@ class Charge(MSONable):
                 line_parts = lines[atom_idx].split()
                 self.atomlist.append(line_parts[1] + line_parts[0])
                 self.types.append(line_parts[1])
-                if file_type != "molecule":
+                if not self.is_lcfo:
                     self.mulliken.append(float(line_parts[2]))
                     self.loewdin.append(float(line_parts[3]))
                 else:
@@ -910,13 +920,12 @@ class Charge(MSONable):
 
         Args:
             structure_filename (PathLike): The POSCAR file.
-            file_type (str): The type of file. Default is "atom".
 
         Returns:
             Structure Object with Mulliken and Loewdin charges as site properties.
         """
         struct = Structure.from_file(structure_filename)
-        if "LCFO" not in Path(self._filename).name:
+        if not self.is_lcfo:
             mulliken = self.mulliken
             loewdin = self.loewdin
             site_properties = {"Mulliken Charges": mulliken, "Loewdin Charges": loewdin}
@@ -1722,32 +1731,34 @@ class Grosspop(MSONable):
     def __init__(
         self,
         filename: PathLike = "GROSSPOP.lobster",
+        is_lcfo: bool = False,
         list_dict_grosspop: list[dict] | None = None,
     ) -> None:
         """
         Args:
             filename (PathLike): The "GROSSPOP.lobster" file.
+            is_lcfo (bool): Whether the GROSSPOP file is in LCFO format.
             list_dict_grosspop (list[dict]): All information about the gross populations.
         """
         self._filename = filename
+        self.is_lcfo = is_lcfo
         self.list_dict_grosspop = [] if list_dict_grosspop is None else list_dict_grosspop
         if not self.list_dict_grosspop:
             with zopen(filename, mode="rt") as file:
                 lines = file.read().split("\n")
-                file_type = lines[2].split()[0].strip("#")
 
             # Read file to list of dict
             small_dict: dict[str, Any] = {}
             for line in lines[3:]:
                 cleanlines = [idx for idx in line.split(" ") if idx != ""]
-                if len(cleanlines) == 5 and cleanlines[0].isdigit() and file_type == "atom":
+                if len(cleanlines) == 5 and cleanlines[0].isdigit() and not self.is_lcfo:
                     small_dict = {"Mulliken GP": {}, "Loewdin GP": {}, "element": cleanlines[1]}
                     small_dict["Mulliken GP"][cleanlines[2]] = float(cleanlines[3])
                     small_dict["Loewdin GP"][cleanlines[2]] = float(cleanlines[4])
-                elif len(cleanlines) == 4 and cleanlines[0].isdigit() and file_type == "mol":
+                elif len(cleanlines) == 4 and cleanlines[0].isdigit() and self.is_lcfo:
                     small_dict = {"Loewdin GP": {}, "mol": cleanlines[1]}
                     small_dict["Loewdin GP"][cleanlines[2]] = float(cleanlines[3])
-                elif len(cleanlines) == 5 and cleanlines[0].isdigit() and file_type == "mol":
+                elif len(cleanlines) == 5 and cleanlines[0].isdigit() and self.is_lcfo:
                     small_dict = {"Loewdin GP": {}, "mol": cleanlines[1]}
                     small_dict["Loewdin GP"][cleanlines[2]] = {
                         Spin.up: float(cleanlines[3]),
@@ -1775,7 +1786,7 @@ class Grosspop(MSONable):
                         Spin.down: float(cleanlines[6]),
                     }
 
-                elif len(cleanlines) > 0 and "spin" not in line and file_type == "mol":
+                elif len(cleanlines) > 0 and "spin" not in line and self.is_lcfo:
                     if len(cleanlines) == 2:
                         small_dict["Loewdin GP"][cleanlines[0]] = float(cleanlines[1])
                     else:
@@ -1801,7 +1812,7 @@ class Grosspop(MSONable):
             Structure Object with Mulliken and Loewdin total grosspopulations as site properties.
         """
         struct = Structure.from_file(structure_filename)
-        if "LCFO" not in Path(self._filename).name:
+        if not self.is_lcfo:
             mulliken_gps: list[dict] = []
             loewdin_gps: list[dict] = []
             for grosspop in self.list_dict_grosspop:
