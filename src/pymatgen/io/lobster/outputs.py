@@ -399,6 +399,7 @@ class Icohplist(MSONable):
         if self._icohpcollection is None:
             with zopen(self._filename, mode="rt") as file:
                 all_lines = file.read().split("\n")
+                file_type = all_lines[0].split()[1]
                 lines = all_lines[1:-1] if "spin" not in all_lines[1] else all_lines[2:-1]
             if len(lines) == 0:
                 raise RuntimeError("ICOHPLIST file contains no data.")
@@ -424,9 +425,9 @@ class Icohplist(MSONable):
 
             # Check if is orbital-wise ICOHPLIST
             # TODO: include case where there is only one ICOHP
-            if "LCFO" not in Path(self._filename).name:  # type: ignore[operator]
+            if file_type == "atomMU":  #  data consists of atomic orbital interactions
                 self.orbitalwise = len(lines) > 2 and "_" in lines[1].split()[1]
-            else:
+            else:  #  data consists of molecule or fragment orbital interactions
                 self.orbitalwise = len(lines) > 2 and lines[1].split()[1].count("_") >= 2
 
             data_orbitals: list[str] = []
@@ -440,7 +441,7 @@ class Icohplist(MSONable):
                         and version == "5.1.0"
                         or (line.split()[1].count("_") == 1)
                         and version == "5.1.0"
-                        and "LCFO" in Path(self._filename).name  # type: ignore[operator]
+                        and file_type == "fragmentAlpha"
                     ):
                         data_without_orbitals.append(line)
                     elif line.split()[1].count("_") >= 2 and version == "5.1.0":
@@ -517,11 +518,11 @@ class Icohplist(MSONable):
                     icohp = {}
                     line_parts = data_orb.split()
                     label = line_parts[0]
-                    if "LCFO" not in Path(self._filename).name:  # type: ignore[operator]
+                    if file_type == "atomMU":  #  data consists of atomic orbital interactions
                         orbs = re.findall(r"_(.*?)(?=\s)", data_orb)
                         orb_label, orbitals = get_orb_from_str(orbs)
                         icohp[Spin.up] = float(line_parts[7])
-                    else:
+                    else:  #  data consists of molecule or fragment orbital interactions
                         orbs = re.findall(r"_(\d+[a-zA-Z]+\d*)", data_orb)
                         orb_label = "-".join(orbs)
                         orbitals = orbs
@@ -887,7 +888,9 @@ class Charge(MSONable):
 
         if self.num_atoms is None:
             with zopen(filename, mode="rt") as file:
-                lines = file.read().split("\n")[3:-3]
+                all_lines = file.read().split("\n")
+                file_type = all_lines[2].split()[0].strip("#")
+                lines = all_lines[3:-3]
             if len(lines) == 0:
                 raise RuntimeError("CHARGES file contains no data.")
 
@@ -896,7 +899,7 @@ class Charge(MSONable):
                 line_parts = lines[atom_idx].split()
                 self.atomlist.append(line_parts[1] + line_parts[0])
                 self.types.append(line_parts[1])
-                if "LCFO" not in Path(self._filename).name:
+                if file_type != "molecule":
                     self.mulliken.append(float(line_parts[2]))
                     self.loewdin.append(float(line_parts[3]))
                 else:
@@ -907,22 +910,20 @@ class Charge(MSONable):
 
         Args:
             structure_filename (PathLike): The POSCAR file.
+            file_type (str): The type of file. Default is "atom".
 
         Returns:
             Structure Object with Mulliken and Loewdin charges as site properties.
         """
         struct = Structure.from_file(structure_filename)
-        site_properties = {}
         if "LCFO" not in Path(self._filename).name:
             mulliken = self.mulliken
             loewdin = self.loewdin
             site_properties = {"Mulliken Charges": mulliken, "Loewdin Charges": loewdin}
-        else:
-            warnings.warn(
-                "CHARG.LCFO.lobster charges are not yet supported. Thus, the site properties are not added.",
-                stacklevel=1,
-            )
-        return struct.copy(site_properties=site_properties)
+            return struct.copy(site_properties=site_properties)
+        raise ValueError(
+            "CHARG.LCFO.lobster charges are not sorted site wise. Thus, the site properties cannot be added.",
+        )
 
     @property
     @deprecated(message="Use `mulliken` instead.", category=DeprecationWarning)
@@ -1733,19 +1734,20 @@ class Grosspop(MSONable):
         if not self.list_dict_grosspop:
             with zopen(filename, mode="rt") as file:
                 lines = file.read().split("\n")
+                file_type = lines[2].split()[0].strip("#")
 
             # Read file to list of dict
             small_dict: dict[str, Any] = {}
             for line in lines[3:]:
                 cleanlines = [idx for idx in line.split(" ") if idx != ""]
-                if len(cleanlines) == 5 and cleanlines[0].isdigit() and "LCFO" not in Path(self._filename).name:
+                if len(cleanlines) == 5 and cleanlines[0].isdigit() and file_type == "atom":
                     small_dict = {"Mulliken GP": {}, "Loewdin GP": {}, "element": cleanlines[1]}
                     small_dict["Mulliken GP"][cleanlines[2]] = float(cleanlines[3])
                     small_dict["Loewdin GP"][cleanlines[2]] = float(cleanlines[4])
-                elif len(cleanlines) == 4 and cleanlines[0].isdigit() and "LCFO" in Path(self._filename).name:
+                elif len(cleanlines) == 4 and cleanlines[0].isdigit() and file_type == "mol":
                     small_dict = {"Loewdin GP": {}, "mol": cleanlines[1]}
                     small_dict["Loewdin GP"][cleanlines[2]] = float(cleanlines[3])
-                elif len(cleanlines) == 5 and cleanlines[0].isdigit() and "LCFO" in Path(self._filename).name:
+                elif len(cleanlines) == 5 and cleanlines[0].isdigit() and file_type == "mol":
                     small_dict = {"Loewdin GP": {}, "mol": cleanlines[1]}
                     small_dict["Loewdin GP"][cleanlines[2]] = {
                         Spin.up: float(cleanlines[3]),
@@ -1773,7 +1775,7 @@ class Grosspop(MSONable):
                         Spin.down: float(cleanlines[6]),
                     }
 
-                elif len(cleanlines) > 0 and "spin" not in line and "LCFO" in Path(self._filename).name:
+                elif len(cleanlines) > 0 and "spin" not in line and file_type == "mol":
                     if len(cleanlines) == 2:
                         small_dict["Loewdin GP"][cleanlines[0]] = float(cleanlines[1])
                     else:
@@ -1799,7 +1801,6 @@ class Grosspop(MSONable):
             Structure Object with Mulliken and Loewdin total grosspopulations as site properties.
         """
         struct = Structure.from_file(structure_filename)
-        site_properties = {}
         if "LCFO" not in Path(self._filename).name:
             mulliken_gps: list[dict] = []
             loewdin_gps: list[dict] = []
@@ -1811,12 +1812,10 @@ class Grosspop(MSONable):
                 "Total Mulliken GP": mulliken_gps,
                 "Total Loewdin GP": loewdin_gps,
             }
-        else:
-            warnings.warn(
-                "The GROSSPOP.LCFO.lobster file is not yet supported. Thus, the site properties are not added.",
-                stacklevel=1,
-            )
-        return struct.copy(site_properties=site_properties)
+            return struct.copy(site_properties=site_properties)
+        raise ValueError(
+            "The GROSSPOP.LCFO.lobster data is not site wise. Thus, the site properties cannot be added.",
+        )
 
 
 class Wavefunction:
