@@ -922,7 +922,7 @@ class Charge(MSONable):
             site_properties = {"Mulliken Charges": mulliken, "Loewdin Charges": loewdin}
             return struct.copy(site_properties=site_properties)
         raise ValueError(
-            "CHARG.LCFO.lobster charges are not sorted site wise. Thus, the site properties cannot be added.",
+            "CHARGE.LCFO.lobster charges are not sorted site wise. Thus, the site properties cannot be added.",
         )
 
     @property
