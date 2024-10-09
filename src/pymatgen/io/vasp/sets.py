@@ -1372,10 +1372,10 @@ class MP24RelaxSet(VaspInputSet):
         config_updates: dict[str, Any] = {}
         if self.xc_functional == "r2SCAN":
             config_updates = {"METAGGA": to_func[self.xc_functional]}
-            self._config_dict["INCAR"].pop("GGA",None)
+            self._config_dict["INCAR"].pop("GGA", None)
         elif self.xc_functional in ["PBE", "PBEsol"]:
             config_updates = {"GGA": to_func[self.xc_functional]}
-            self._config_dict["INCAR"].pop("METAGGA",None)
+            self._config_dict["INCAR"].pop("METAGGA", None)
         else:
             raise ValueError(f"Unknown XC functional {self.xc_functional}!")
 
