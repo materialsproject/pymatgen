@@ -1356,7 +1356,7 @@ class MP24RelaxSet(VaspInputSet):
     xc_functional: Literal["r2SCAN", "PBE", "PBEsol"] = "r2SCAN"
     dispersion: Literal["rVV10", "D4"] | None = None
     CONFIG = _load_yaml_config("MP24RelaxSet")
-    auto_ismear: bool = True
+    auto_ismear: bool = False
     auto_kspacing: bool = True
     inherit_incar: bool = False
 
