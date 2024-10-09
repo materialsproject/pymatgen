@@ -6,6 +6,14 @@ nav_order: 4
 
 # Changelog
 
+## v2024.10.3
+- Enable parsing of "SCF energy" and "Total energy" from QCOutput for Q-chem 6.1.1+. (@Jaebeom-P)
+- Fix dict equality check with numpy array (@DanielYang59)
+- Fix usage of strict=True for zip in cp2k.outputs (@DanielYang59)
+- Fix bug with species defaults (@tpurcell90)
+- SLME Bug Fixes (@kavanase)
+
+
 ## v2024.9.17.1
 
 - Emergency release No. 2 to fix yet another regression in chempot diagram. (Thanks @yang-ruoxi for fixing.)
