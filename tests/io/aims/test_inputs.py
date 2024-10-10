@@ -48,6 +48,12 @@ def test_read_write_si_in(tmp_path: Path):
 
     compare_files(TEST_DIR / "geometry.in.si.ref", f"{tmp_path}/geometry.in")
 
+    si.structure.to(tmp_path / "si.in", fmt="aims")
+    compare_files(TEST_DIR / "geometry.in.si.ref", f"{tmp_path}/si.in")
+
+    si_from_file = Structure.from_file(f"{tmp_path}/geometry.in")
+    assert all(sp.symbol == "Si" for sp in si_from_file.species)
+
     with gzip.open(f"{TEST_DIR}/si_ref.json.gz", mode="rt") as si_ref_json:
         si_from_dct = json.load(si_ref_json, cls=MontyDecoder)
 
