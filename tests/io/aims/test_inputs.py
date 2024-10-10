@@ -48,6 +48,9 @@ def test_read_write_si_in(tmp_path: Path):
 
     compare_files(TEST_DIR / "geometry.in.si.ref", f"{tmp_path}/geometry.in")
 
+    si.structure.to(tmp_path / "si.in", fmt="aims")
+    compare_files(TEST_DIR / "geometry.in.si.ref", f"{tmp_path}/si.in")
+
     with gzip.open(f"{TEST_DIR}/si_ref.json.gz", mode="rt") as si_ref_json:
         si_from_dct = json.load(si_ref_json, cls=MontyDecoder)
 
