@@ -3035,7 +3035,7 @@ class IStructure(SiteCollection, MSONable):
         elif fmt == "aims":
             from pymatgen.io.aims.inputs import AimsGeometryIn
 
-            struct = AimsGeometryIn.from_str(input_string)
+            struct = AimsGeometryIn.from_str(input_string).structure
         # fleur support implemented in external namespace pkg https://github.com/JuDFTteam/pymatgen-io-fleur
         elif fmt == "fleur-inpgen":
             from pymatgen.io.fleur import FleurInput
