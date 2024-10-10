@@ -922,7 +922,10 @@ class QCOutput(MSONable):
 
         temp_SCF_energy = read_pattern(self.text, {"key": r"SCF   energy in the final basis set =\s*([\d\-\.]+)"}).get(
             "key"
-        )
+        ) or read_pattern(  # support Q-Chem 6.1.1+
+            self.text, {"key": r"SCF   energy =\s*([\d\-\.]+)"}
+        ).get("key")
+
         if temp_SCF_energy is not None:
             if len(temp_SCF_energy) == 1:
                 self.data["SCF_energy_in_the_final_basis_set"] = float(temp_SCF_energy[0][0])
@@ -934,7 +937,10 @@ class QCOutput(MSONable):
 
         temp_Total_energy = read_pattern(
             self.text, {"key": r"Total energy in the final basis set =\s*([\d\-\.]+)"}
+        ).get("key") or read_pattern(  # support Q-Chem 6.1.1+
+            self.text, {"key": r"Total energy =\s*([\d\-\.]+)"}
         ).get("key")
+
         if temp_Total_energy is not None:
             if len(temp_Total_energy) == 1:
                 self.data["Total_energy_in_the_final_basis_set"] = float(temp_Total_energy[0][0])
