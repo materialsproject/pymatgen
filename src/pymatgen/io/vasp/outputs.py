@@ -4358,9 +4358,9 @@ class Xdatcar:
         coords_str: list = []
         structures: list = []
         preamble_done: bool = False
-        parse_poscar : bool = False
-        num_sites : int | None = None
-        restart_preamble : bool = False
+        parse_poscar: bool = False
+        num_sites: int | None = None
+        restart_preamble: bool = False
         if ionicstep_start < 1:
             raise ValueError("Start ionic step cannot be less than 1")
         if ionicstep_end is not None and ionicstep_end < 1:
@@ -4382,36 +4382,31 @@ class Xdatcar:
                     parse_poscar = True
                     restart_preamble = True
                     preamble_done = False
-                
+
                 elif not preamble_done:
                     if line == "" or "Direct configuration=" in line:
                         preamble_done = True
                     else:
                         preamble.append(line)
-                
+
                 elif line == "" or "Direct configuration=" in line and len(coords_str) > 0:
                     parse_poscar = True
                     restart_preamble = False
                 else:
                     coords_str.append(line)
 
-                if (
-                    (parse_poscar and (num_sites is None or len(coords_str) == num_sites))
-                    or iline == file_len - 1
-                ):
-
+                if (parse_poscar and (num_sites is None or len(coords_str) == num_sites)) or iline == file_len - 1:
                     if num_sites is None:
                         num_sites = len(coords_str)
 
                     poscar = Poscar.from_str("\n".join([*preamble, "Direct", *coords_str]))
-                    if (
-                        (ionicstep_end is None and ionicstep_cnt >= ionicstep_start)
-                        or (ionicstep_start <= ionicstep_cnt < ionicstep_end)
+                    if (ionicstep_end is None and ionicstep_cnt >= ionicstep_start) or (
+                        ionicstep_start <= ionicstep_cnt < ionicstep_end
                     ):
                         structures.append(poscar.structure)
                     elif ionicstep_cnt >= ionicstep_end:
                         break
-                    
+
                     ionicstep_cnt += 1
                     coords_str = []
                     parse_poscar = False
