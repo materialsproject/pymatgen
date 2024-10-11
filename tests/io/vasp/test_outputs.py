@@ -1718,6 +1718,10 @@ class TestXdatcar:
 
         assert structures[0].lattice != structures[-1].lattice
 
+        xdatcar = Xdatcar(f"{VASP_OUT_DIR}/XDATCAR_monatomic.gz")
+        assert len(xdatcar.structures) == 10
+        assert all(len(structure.composition) == 1 for structure in xdatcar.structures)
+
 
 class TestDynmat:
     def test_init(self):
