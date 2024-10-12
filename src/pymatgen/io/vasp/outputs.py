@@ -4368,6 +4368,7 @@ class Xdatcar:
 
         file_len = sum(1 for _ in zopen(filename, mode="rt"))
         ionicstep_cnt = 1
+        ionicstep_start = ionicstep_start or 0
         with zopen(filename, mode="rt") as file:
             title = None
             for iline, line in enumerate(file):
@@ -4401,10 +4402,10 @@ class Xdatcar:
 
                     poscar = Poscar.from_str("\n".join([*preamble, "Direct", *coords_str]))
                     if (ionicstep_end is None and ionicstep_cnt >= ionicstep_start) or (
-                        ionicstep_start <= ionicstep_cnt < ionicstep_end
+                        ionicstep_end is not None and ionicstep_start <= ionicstep_cnt < ionicstep_end
                     ):
                         structures.append(poscar.structure)
-                    elif ionicstep_cnt >= ionicstep_end:
+                    elif (ionicstep_end is not None) and ionicstep_cnt >= ionicstep_end:
                         break
 
                     ionicstep_cnt += 1
