@@ -23,6 +23,7 @@ try:
     from ase.spacegroup import Spacegroup
 
     NO_ASE_ERR = None
+
 except ImportError:
     NO_ASE_ERR = PackageNotFoundError("AseAtomsAdaptor requires the ASE package. Use `pip install ase`")
     encode = decode = FixAtoms = SinglePointDFTCalculator = Spacegroup = None
@@ -94,7 +95,7 @@ class AseAtomsAdaptor:
         Returns:
             Atoms: ASE Atoms object
         """
-        if NO_ASE_ERR:
+        if NO_ASE_ERR is not None:
             raise NO_ASE_ERR
         if not structure.is_ordered:
             raise ValueError("ASE Atoms only supports ordered structures")
