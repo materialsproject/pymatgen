@@ -1,0 +1,3 @@
+# DEBUG: test exclude a required file from sdist would lead to CI failure
+
+prune src/pymatgen/core/
