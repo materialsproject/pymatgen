@@ -85,7 +85,12 @@ jobs:
           # see: https://discuss.dgl.ai/t/filenotfounderror-cannot-find-dgl-c-graphbolt-library/4302
           pip install torch==2.2.1
 
-          uv pip install --editable '.[${{ matrix.config.extras }}]' --resolution=${{ matrix.config.resolution }}
+          # Install from sdist
+          uv pip install build
+          python -m build --sdist
+
+          uv pip install dist/*.tar.gz
+          uv pip install "pymatgen[${{ matrix.config.extras }}]" # --resolution=${{ matrix.config.resolution }}
 
       - name: Install optional Ubuntu dependencies
         if: matrix.config.os == 'ubuntu-latest'
