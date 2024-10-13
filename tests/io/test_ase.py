@@ -1,6 +1,8 @@
 from __future__ import annotations
 
+import importlib
 from importlib.metadata import PackageNotFoundError
+from unittest import mock
 
 import numpy as np
 import pytest
@@ -336,10 +338,14 @@ def test_msonable_atoms():
     assert isinstance(atoms, ase.Atoms)
 
 
-@pytest.mark.skip(reason="TODO: WIP")
 def test_no_ase_err():
-    import pymatgen.io.ase
+    import pymatgen
 
     expected_msg = str(pymatgen.io.ase.NO_ASE_ERR)
-    with pytest.raises(PackageNotFoundError, match=expected_msg):
-        pymatgen.io.ase.MSONAtoms()
+
+    # Mock the import statement to raise ImportError when 'ase' is imported
+    with mock.patch("builtins.__import__", side_effect=PackageNotFoundError(expected_msg)):
+        importlib.reload(pymatgen)
+
+        with pytest.raises(PackageNotFoundError, match=expected_msg):
+            from pymatgen.io.ase import MSONAtoms  # noqa: F401
