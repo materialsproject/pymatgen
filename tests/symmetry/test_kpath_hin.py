@@ -8,14 +8,10 @@ from pymatgen.core.structure import Structure
 from pymatgen.symmetry.kpath import KPathSeek
 from pymatgen.util.testing import PymatgenTest
 
-try:
-    from seekpath import get_path
-except ImportError:
-    get_path = None
+pytest.importorskip("seekpath")
 
 
 class TestKPathSeek(PymatgenTest):
-    @pytest.mark.skipif(get_path is None, reason="No seek path present.")
     def test_kpath_generation(self):
         triclinic = [1, 2]
         monoclinic = range(3, 16)
@@ -48,7 +44,6 @@ class TestKPathSeek(PymatgenTest):
             kpath = KPathSeek(struct)  # Throws error if something doesn't work, causing test to fail.
             _ = kpath.get_kpoints()
 
-    @pytest.mark.skipif(get_path is None, reason="No seek path present.")
     def test_kpath_acentered(self):
         species = ["K", "La", "Ti"]
         coords = [[0.345, 5, 0.77298], [0.1345, 5.1, 0.77298], [0.7, 0.8, 0.9]]
