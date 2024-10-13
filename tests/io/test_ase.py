@@ -339,7 +339,7 @@ def test_msonable_atoms():
 
 
 def test_no_ase_err():
-    import pymatgen
+    import pymatgen.io.ase
 
     with mock.patch.dict("sys.modules", {"ase.atoms": None}):
         importlib.reload(pymatgen.io.ase)
