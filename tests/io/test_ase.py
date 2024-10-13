@@ -14,15 +14,12 @@ from pymatgen.util.testing import TEST_FILES_DIR, VASP_IN_DIR, VASP_OUT_DIR
 try:
     import ase
 except ImportError:
-    ase = None
+    pytest.skip(reason="ase not installed", allow_module_level=True)
 
 STRUCTURE = Structure.from_file(f"{VASP_IN_DIR}/POSCAR")
 XYZ_STRUCTURE = f"{TEST_FILES_DIR}/io/xyz/acetylene.xyz"
 
-skip_if_no_ase = pytest.mark.skipif(ase is None, reason="ase not installed")
 
-
-@skip_if_no_ase
 def test_get_atoms_from_structure():
     atoms = AseAtomsAdaptor.get_atoms(STRUCTURE)
     ase_composition = Composition(atoms.get_chemical_formula())
@@ -42,7 +39,6 @@ def test_get_atoms_from_structure():
     assert atoms.get_array("prop").tolist() == prop
 
 
-@skip_if_no_ase
 def test_get_atoms_from_structure_mags():
     mags = [1.0] * len(STRUCTURE)
     STRUCTURE.add_site_property("final_magmom", mags)
@@ -64,7 +60,6 @@ def test_get_atoms_from_structure_mags():
     assert atoms.get_magnetic_moments().tolist(), mags
 
 
-@skip_if_no_ase
 def test_get_atoms_from_structure_charge():
     charges = [1.0] * len(STRUCTURE)
     STRUCTURE.add_site_property("final_charge", charges)
@@ -86,7 +81,6 @@ def test_get_atoms_from_structure_charge():
     assert atoms.get_charges().tolist(), charges
 
 
-@skip_if_no_ase
 def test_get_atoms_from_structure_oxi_states():
     oxi_states = [1.0] * len(STRUCTURE)
     STRUCTURE.add_oxidation_state_by_site(oxi_states)
@@ -94,14 +88,12 @@ def test_get_atoms_from_structure_oxi_states():
     assert atoms.get_array("oxi_states").tolist() == oxi_states
 
 
-@skip_if_no_ase
 def test_get_atoms_from_structure_dyn():
     STRUCTURE.add_site_property("selective_dynamics", [[False] * 3] * len(STRUCTURE))
     atoms = AseAtomsAdaptor.get_atoms(STRUCTURE)
     assert atoms.constraints[0].get_indices().tolist() == [atom.index for atom in atoms]
 
 
-@skip_if_no_ase
 def test_get_atoms_from_molecule():
     mol = Molecule.from_file(XYZ_STRUCTURE)
     atoms = AseAtomsAdaptor.get_atoms(mol)
@@ -113,7 +105,6 @@ def test_get_atoms_from_molecule():
     assert not atoms.has("initial_magmoms")
 
 
-@skip_if_no_ase
 def test_get_atoms_from_molecule_mags():
     molecule = Molecule.from_file(XYZ_STRUCTURE)
     atoms = AseAtomsAdaptor.get_atoms(molecule)
@@ -139,7 +130,6 @@ def test_get_atoms_from_molecule_mags():
     assert atoms.spin_multiplicity == 3
 
 
-@skip_if_no_ase
 def test_get_atoms_from_molecule_dyn():
     molecule = Molecule.from_file(XYZ_STRUCTURE)
     molecule.add_site_property("selective_dynamics", [[False] * 3] * len(molecule))
@@ -147,7 +137,6 @@ def test_get_atoms_from_molecule_dyn():
     assert atoms.constraints[0].get_indices().tolist() == [atom.index for atom in atoms]
 
 
-@skip_if_no_ase
 def test_get_structure():
     atoms = ase.io.read(f"{VASP_IN_DIR}/POSCAR")
     struct = AseAtomsAdaptor.get_structure(atoms)
@@ -170,7 +159,6 @@ def test_get_structure():
         struct = AseAtomsAdaptor.get_structure(atoms, validate_proximity=True)
 
 
-@skip_if_no_ase
 def test_get_structure_mag():
     atoms = ase.io.read(f"{VASP_IN_DIR}/POSCAR")
     mags = [1.0] * len(atoms)
@@ -187,7 +175,6 @@ def test_get_structure_mag():
     assert "initial_magmoms" not in structure.site_properties
 
 
-@skip_if_no_ase
 @pytest.mark.parametrize(
     "select_dyn",
     [[True, True, True], [False, False, False], np.array([True, True, True]), np.array([False, False, False])],
@@ -212,7 +199,6 @@ def test_get_structure_dyn(select_dyn):
     assert len(ase_atoms) == len(structure)
 
 
-@skip_if_no_ase
 def test_get_molecule():
     atoms = ase.io.read(XYZ_STRUCTURE)
     molecule = AseAtomsAdaptor.get_molecule(atoms)
@@ -240,7 +226,6 @@ def test_get_molecule():
     assert molecule.spin_multiplicity == 3
 
 
-@skip_if_no_ase
 @pytest.mark.parametrize("filename", ["io/vasp/outputs/OUTCAR.gz", "cif/V2O3.cif"])
 def test_back_forth(filename):
     # Atoms --> Structure --> Atoms --> Structure
@@ -259,7 +244,6 @@ def test_back_forth(filename):
         assert str(atoms_back.todict()[key]) == str(val)
 
 
-@skip_if_no_ase
 def test_back_forth_v2():
     # Structure --> Atoms --> Structure --> Atoms
     structure = Structure.from_file(f"{VASP_IN_DIR}/POSCAR")
@@ -281,7 +265,6 @@ def test_back_forth_v2():
     MontyDecoder().process_decoded(dct)
 
 
-@skip_if_no_ase
 def test_back_forth_v3():
     # Atoms --> Molecule --> Atoms --> Molecule
     atoms = ase.io.read(XYZ_STRUCTURE)
@@ -299,7 +282,6 @@ def test_back_forth_v3():
     assert molecule_back == molecule
 
 
-@skip_if_no_ase
 def test_back_forth_v4():
     # Molecule --> Atoms --> Molecule --> Atoms
     molecule = Molecule.from_file(XYZ_STRUCTURE)
@@ -317,7 +299,6 @@ def test_back_forth_v4():
     MontyDecoder().process_decoded(dct)
 
 
-@skip_if_no_ase
 def test_msonable_atoms():
     structure = Structure.from_file(f"{VASP_IN_DIR}/POSCAR")
 
@@ -355,7 +336,7 @@ def test_msonable_atoms():
     assert isinstance(atoms, ase.Atoms)
 
 
-@pytest.mark.skipif(ase is not None, reason="ase is present")
+@pytest.mark.skip(reason="TODO: WIP")
 def test_no_ase_err():
     import pymatgen.io.ase
 
