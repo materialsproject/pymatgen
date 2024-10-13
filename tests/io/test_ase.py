@@ -341,11 +341,9 @@ def test_msonable_atoms():
 def test_no_ase_err():
     import pymatgen
 
-    expected_msg = str(pymatgen.io.ase.NO_ASE_ERR)
+    with mock.patch.dict("sys.modules", {"ase.atoms": None}):
+        importlib.reload(pymatgen.io.ase)
+        from pymatgen.io.ase import MSONAtoms
 
-    # Mock the import statement to raise ImportError when 'ase' is imported
-    with mock.patch("builtins.__import__", side_effect=PackageNotFoundError(expected_msg)):
-        importlib.reload(pymatgen)
-
-        with pytest.raises(PackageNotFoundError, match=expected_msg):
-            from pymatgen.io.ase import MSONAtoms  # noqa: F401
+        with pytest.raises(PackageNotFoundError, match="AseAtomsAdaptor requires the ASE package."):
+            MSONAtoms()
