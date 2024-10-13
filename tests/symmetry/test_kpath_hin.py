@@ -8,7 +8,7 @@ from pymatgen.core.structure import Structure
 from pymatgen.symmetry.kpath import KPathSeek
 from pymatgen.util.testing import PymatgenTest
 
-pytest.importorskip("seekpath")
+pytest.importorskip("seekpath", reason="seekpath not installed")
 
 
 class TestKPathSeek(PymatgenTest):

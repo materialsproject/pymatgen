@@ -13,10 +13,7 @@ from pymatgen.core.structure import StructureError
 from pymatgen.io.ase import AseAtomsAdaptor, MSONAtoms
 from pymatgen.util.testing import TEST_FILES_DIR, VASP_IN_DIR, VASP_OUT_DIR
 
-try:
-    import ase
-except ImportError:
-    pytest.skip(reason="ase not installed", allow_module_level=True)
+ase = pytest.importorskip("ase", reason="ase not installed")
 
 STRUCTURE = Structure.from_file(f"{VASP_IN_DIR}/POSCAR")
 XYZ_STRUCTURE = f"{TEST_FILES_DIR}/io/xyz/acetylene.xyz"

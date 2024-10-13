@@ -1,6 +1,5 @@
 from __future__ import annotations
 
-import importlib
 import unittest
 from unittest import TestCase
 
@@ -18,8 +17,7 @@ from pymatgen.io.zeopp import (
 )
 from pymatgen.util.testing import TEST_FILES_DIR, VASP_IN_DIR
 
-if importlib.util.find_spec("zeo") is None:
-    pytest.skip(reason="zeo not present", allow_module_level=True)
+pytest.importorskip("zeo", reason="zeo not installed")
 
 TEST_DIR = f"{TEST_FILES_DIR}/io/zeopp"
 
