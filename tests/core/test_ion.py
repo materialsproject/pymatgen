@@ -39,6 +39,8 @@ class TestIon(TestCase):
         assert Ion.from_formula("Ca++").charge == 2
         assert Ion.from_formula("Ca[++]").charge == 2
         assert Ion.from_formula("Ca2+").charge == 1
+        assert Ion.from_formula("C2O4-2").charge == -2
+        assert Ion.from_formula("CO2").charge == 0
 
         assert Ion.from_formula("Cl-").charge == -1
         assert Ion.from_formula("Cl[-]").charge == -1
@@ -70,7 +72,9 @@ class TestIon(TestCase):
             ("CH3COOH", "CH3COOH(aq)"),
             ("CH3OH", "CH3OH(aq)"),
             ("H4CO", "CH3OH(aq)"),
-            ("CO2-", "C2O4[-2]"),
+            ("C2O4--", "C2O4[-2]"),
+            ("CO2", "CO2(aq)"),
+            ("CO3--", "CO3[-2]"),
             ("CH4", "CH4(aq)"),
             ("NH4+", "NH4[+1]"),
             ("NH3", "NH3(aq)"),
