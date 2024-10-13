@@ -107,6 +107,8 @@ jobs:
           echo "$(realpath vampire-5.0/)" >> $GITHUB_PATH
 
       - name: pytest split ${{ matrix.split }}
+        env:
+          PMG_TEST_FILES_DIR: "${{ github.workspace }}/tests/files"
         run: |
           micromamba activate pmg
           pytest --splits 10 --group ${{ matrix.split }} --durations-path tests/files/.pytest-split-durations tests
