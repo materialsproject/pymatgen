@@ -15,7 +15,7 @@ from pymatgen.util.plotting import pretty_plot
 
 
 def get_dos_plot(args) -> plt.Axes:
-    """Plot DOS.
+    """Plot DOS from vasprun.xml file.
 
     Args:
         args (dict): Args from argparse.
@@ -47,7 +47,7 @@ def get_dos_plot(args) -> plt.Axes:
 
 
 def get_chgint_plot(args, ax: plt.Axes | None = None) -> plt.Axes:
-    """Plot integrated charge.
+    """Plot integrated charge from CHGCAR file.
 
     Args:
         args (dict): args from argparse.
@@ -78,7 +78,7 @@ def get_chgint_plot(args, ax: plt.Axes | None = None) -> plt.Axes:
 
 
 def get_xrd_plot(args) -> plt.Axes:
-    """Plot XRD.
+    """Plot XRD from structure.
 
     Args:
         args (dict): Args from argparse
