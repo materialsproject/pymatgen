@@ -8,7 +8,7 @@ import logging
 import math
 import warnings
 from collections import Counter
-from typing import TYPE_CHECKING, cast
+from typing import TYPE_CHECKING, cast, no_type_check
 
 import matplotlib.lines as mlines
 import matplotlib.pyplot as plt
@@ -128,6 +128,7 @@ class DosPlotter:
         """
         return jsanitize(self._doses)
 
+    @no_type_check
     def get_plot(
         self,
         xlim: tuple[float, float] | None = None,
