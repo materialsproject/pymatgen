@@ -6,7 +6,6 @@ import copy
 import itertools
 import logging
 import math
-import typing
 import warnings
 from collections import Counter
 from typing import TYPE_CHECKING, cast
@@ -130,7 +129,6 @@ class DosPlotter:
         """
         return jsanitize(self._doses)
 
-    @typing.no_type_check
     def get_plot(
         self,
         xlim: tuple[float, float] | None = None,
