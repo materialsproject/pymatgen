@@ -4,6 +4,8 @@ import os
 import subprocess
 from typing import TYPE_CHECKING
 
+import pytest
+
 from pymatgen.util.testing import VASP_IN_DIR, VASP_OUT_DIR
 
 if TYPE_CHECKING:
@@ -35,3 +37,15 @@ def test_plot_chgint(cd_tmp_path: Path):
     )
     assert os.path.isfile("chg.png")
     assert os.path.getsize("chg.png") > 1024
+
+
+def test_plot_wrong_arg(cd_tmp_path: Path):
+    with pytest.raises(subprocess.CalledProcessError) as exc_info:
+        subprocess.run(
+            ["pmg", "plot", "--wrong", f"{VASP_OUT_DIR}/CHGCAR.Fe3O4.gz"],
+            check=True,
+            capture_output=True,
+        )
+
+    assert exc_info.value.returncode == 2
+    assert "one of the arguments -d/--dos -c/--chgint -x/--xrd is required" in exc_info.value.stderr.decode("utf-8")
