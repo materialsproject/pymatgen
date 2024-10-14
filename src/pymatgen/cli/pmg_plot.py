@@ -14,7 +14,7 @@ from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
 from pymatgen.util.plotting import pretty_plot
 
 
-def get_dos_plot(args):
+def get_dos_plot(args) -> plt.Axes:
     """Plot DOS.
 
     Args:
@@ -77,32 +77,32 @@ def get_chgint_plot(args, ax: plt.Axes = None) -> plt.Axes:
     return ax
 
 
-def get_xrd_plot(args):
+def get_xrd_plot(args) -> plt.Axes:
     """Plot XRD.
 
     Args:
         args (dict): Args from argparse
     """
     struct = Structure.from_file(args.xrd_structure_file)
-    c = XRDCalculator()
-    return c.get_plot(struct)
+    calculator = XRDCalculator()
+    return calculator.get_plot(struct)
 
 
-def plot(args):
-    """Master control method calling other plot methods based on args.
+def plot(args) -> None:
+    """Master control function calling other plot functions based on args.
 
     Args:
         args (dict): Args from argparse.
     """
     plt = None
     if args.chgcar_file:
-        plt = get_chgint_plot(args)
+        plt = get_chgint_plot(args).figure
     elif args.xrd_structure_file:
-        plt = get_xrd_plot(args)
+        plt = get_xrd_plot(args).figure
     elif args.dos_file:
-        plt = get_dos_plot(args)
+        plt = get_dos_plot(args).figure
 
-    if plt:
+    if plt is not None:
         if args.out_file:
             plt.savefig(args.out_file)
         else:
