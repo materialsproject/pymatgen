@@ -22,7 +22,8 @@ jobs:
 
       - name: Install dependencies
         run: |
-          pip install --upgrade ruff mypy pyright
+          # TODO: remove mypy pin once #4110 is finished
+          pip install --upgrade ruff mypy==1.11.2 pyright
 
       - name: ruff
         run: |
