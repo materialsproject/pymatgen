@@ -46,7 +46,7 @@ def get_dos_plot(args) -> plt.Axes:
     return plotter.get_plot()
 
 
-def get_chgint_plot(args, ax: plt.Axes = None) -> plt.Axes:
+def get_chgint_plot(args, ax: plt.Axes | None = None) -> plt.Axes:
     """Plot integrated charge.
 
     Args:
@@ -94,16 +94,17 @@ def plot(args) -> None:
     Args:
         args (dict): Args from argparse.
     """
-    plt = None
     if args.chgcar_file:
-        plt = get_chgint_plot(args).figure
+        fig: plt.Figure | None = get_chgint_plot(args).figure
     elif args.xrd_structure_file:
-        plt = get_xrd_plot(args).figure
+        fig = get_xrd_plot(args).figure
     elif args.dos_file:
-        plt = get_dos_plot(args).figure
+        fig = get_dos_plot(args).figure
+    else:
+        fig = None
 
-    if plt is not None:
+    if fig is not None:
         if args.out_file:
-            plt.savefig(args.out_file)
+            fig.savefig(args.out_file)
         else:
-            plt.show()
+            fig.show()
