@@ -12,7 +12,7 @@ import warnings
 from copy import deepcopy
 from functools import cmp_to_key, partial
 from multiprocessing import Pool
-from typing import TYPE_CHECKING, no_type_check
+from typing import TYPE_CHECKING
 
 import numpy as np
 from monty.json import MontyDecoder, MSONable
@@ -915,7 +915,6 @@ class PourbaixPlotter:
         plt = self.get_pourbaix_plot(*args, **kwargs)
         plt.show()
 
-    @no_type_check
     def get_pourbaix_plot(
         self,
         limits: tuple[float, float] | None = None,
@@ -983,7 +982,6 @@ class PourbaixPlotter:
         ax.set(xlabel="pH", ylabel="E (V)", xlim=xlim, ylim=ylim)
         return ax
 
-    @no_type_check
     def plot_entry_stability(
         self,
         entry: Any,

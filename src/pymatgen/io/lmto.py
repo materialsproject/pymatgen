@@ -7,7 +7,7 @@ Structure object in the pymatgen.electronic_structure.cohp.py module.
 from __future__ import annotations
 
 import re
-from typing import TYPE_CHECKING, no_type_check
+from typing import TYPE_CHECKING
 
 import numpy as np
 from monty.io import zopen
@@ -152,7 +152,6 @@ class LMTOCtrl:
         return cls.from_str(contents, **kwargs)
 
     @classmethod
-    @no_type_check
     def from_str(cls, data: str, sigfigs: int = 8) -> Self:
         """
         Creates a CTRL file object from a string. This will mostly be

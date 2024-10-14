@@ -11,7 +11,7 @@ import re
 import warnings
 from collections import defaultdict
 from functools import lru_cache
-from typing import TYPE_CHECKING, no_type_check
+from typing import TYPE_CHECKING
 
 import matplotlib.pyplot as plt
 import numpy as np
@@ -3518,7 +3518,6 @@ class PDPlotter:
             showlegend=False,
         )
 
-    @no_type_check
     def _get_matplotlib_2d_plot(
         self,
         label_stable=True,
@@ -3711,7 +3710,6 @@ class PDPlotter:
         plt.subplots_adjust(left=0.09, right=0.98, top=0.98, bottom=0.07)
         return ax
 
-    @no_type_check
     def _get_matplotlib_3d_plot(self, label_stable=True, ax: plt.Axes = None):
         """Show the plot using matplotlib.
 
