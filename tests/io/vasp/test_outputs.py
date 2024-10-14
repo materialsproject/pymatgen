@@ -1455,8 +1455,9 @@ class TestLocpot(PymatgenTest):
     def test_vasp_6x_style(self):
         filepath = f"{VASP_OUT_DIR}/LOCPOT.vasp642.gz"
         locpot = Locpot.from_file(filepath)
-        assert locpot.dim == (2,2,5)
-        assert set([str(ele) for ele in locpot.structure.composition]) == {"Mg", "Si"}
+        assert locpot.dim == (2, 2, 5)
+        assert {str(ele) for ele in locpot.structure.composition} == {"Mg", "Si"}
+
 
 class TestChgcar(PymatgenTest):
     @classmethod
