@@ -20,6 +20,7 @@ from pymatgen.util.num import round_to_sigfigs
 
 if TYPE_CHECKING:
     from pathlib import Path
+    from typing import Any
 
     from typing_extensions import Self
 
@@ -165,19 +166,19 @@ class LMTOCtrl:
             An LMTOCtrl object.
         """
         lines = data.split("\n")[:-1]
-        struct_lines = {"HEADER": [], "VERS": [], "SYMGRP": [], "STRUC": [], "CLASS": [], "SITE": []}
+        _struct_lines: dict[str, list] = {"HEADER": [], "VERS": [], "SYMGRP": [], "STRUC": [], "CLASS": [], "SITE": []}
         for line in lines:
             if line != "" and not line.isspace():
                 if not line[0].isspace():
                     cat = line.split()[0]
-                if cat in struct_lines:
-                    struct_lines[cat].append(line)
+                if cat in _struct_lines:
+                    _struct_lines[cat].append(line)
                 else:
                     pass
 
-        struct_lines = {k: " ".join(v).replace("= ", "=") for k, v in struct_lines.items()}
+        struct_lines: dict[str, str] = {k: " ".join(v).replace("= ", "=") for k, v in _struct_lines.items()}
 
-        structure_tokens = {"ALAT": None, "PLAT": [], "CLASS": [], "SITE": []}
+        structure_tokens: dict[str, Any] = {"ALAT": None, "PLAT": [], "CLASS": [], "SITE": []}
 
         for cat in ("STRUC", "CLASS", "SITE"):
             fields = struct_lines[cat].split("=")
@@ -221,7 +222,7 @@ class LMTOCtrl:
                 structure_tokens[token] = value.strip()
             except IndexError:
                 pass
-        return LMTOCtrl.from_dict(structure_tokens)
+        return cls.from_dict(structure_tokens)
 
     @classmethod
     def from_dict(cls, dct: dict) -> Self:
