@@ -286,7 +286,7 @@ class NearNeighbors:
         n: int,
         use_weights: bool = False,
         on_disorder: on_disorder_options = "take_majority_strict",
-    ) -> int:
+    ) -> float:
         """Get coordination number, CN, of site with index n in structure.
 
         Args:
@@ -647,7 +647,7 @@ class NearNeighbors:
         """
         # code from @nisse3000, moved here from graphs to avoid circular
         # import, also makes sense to have this as a general NN method
-        cn = self.get_cn(structure, n)
+        cn: int = int(self.get_cn(structure, n))
         int_cn: list[int] = [int(k_cn) for k_cn in CN_OPT_PARAMS]
         if cn in int_cn:
             names = list(CN_OPT_PARAMS[cn])
@@ -659,7 +659,7 @@ class NearNeighbors:
                 params.append(tmp)
             lsops = LocalStructOrderParams(types, parameters=params)
             sites = [structure[n], *self.get_nn(structure, n)]
-            lostop_vals = lsops.get_order_parameters(sites, 0, indices_neighs=list(range(1, cn + 1)))  # type: ignore[call-overload, arg-type]
+            lostop_vals = lsops.get_order_parameters(sites, 0, indices_neighs=list(range(1, cn + 1)))
             dct = {}
             for idx, lsop in enumerate(lostop_vals):
                 dct[names[idx]] = lsop
