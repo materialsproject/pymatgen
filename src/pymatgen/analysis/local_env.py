@@ -54,10 +54,10 @@ __date__ = "August 17, 2017"
 MODULE_DIR = os.path.dirname(os.path.abspath(__file__))
 
 with open(f"{MODULE_DIR}/op_params.yaml", encoding="utf-8") as file:
-    DEFAULT_OP_PARAMS = YAML().load(file)
+    DEFAULT_OP_PARAMS: dict[str, dict | None] = YAML().load(file)
 
 with open(f"{MODULE_DIR}/cn_opt_params.yaml", encoding="utf-8") as file:
-    CN_OPT_PARAMS = YAML().load(file)
+    CN_OPT_PARAMS: dict[int, dict[str, list]] = YAML().load(file)
 
 with open(f"{MODULE_DIR}/ionic_radii.json", encoding="utf-8") as file:
     _ION_RADII = json.load(file)
@@ -286,7 +286,7 @@ class NearNeighbors:
         n: int,
         use_weights: bool = False,
         on_disorder: on_disorder_options = "take_majority_strict",
-    ) -> float:
+    ) -> int:
         """Get coordination number, CN, of site with index n in structure.
 
         Args:
@@ -648,7 +648,7 @@ class NearNeighbors:
         # code from @nisse3000, moved here from graphs to avoid circular
         # import, also makes sense to have this as a general NN method
         cn = self.get_cn(structure, n)
-        int_cn = [int(k_cn) for k_cn in CN_OPT_PARAMS]
+        int_cn: list[int] = [int(k_cn) for k_cn in CN_OPT_PARAMS]
         if cn in int_cn:
             names = list(CN_OPT_PARAMS[cn])
             types = []
@@ -2271,12 +2271,13 @@ class LocalStructOrderParams:
         for typ in types:
             if typ not in LocalStructOrderParams.__supported_types:
                 raise ValueError(f"Unknown order parameter type ({typ})!")
+
         self._types = tuple(types)
 
         self._comp_azi = False
-        self._params = []
+        self._params: list[dict | None] = []
         for idx, typ in enumerate(self._types):
-            dct = deepcopy(DEFAULT_OP_PARAMS[typ]) if DEFAULT_OP_PARAMS[typ] is not None else None
+            dct: dict | None = deepcopy(DEFAULT_OP_PARAMS[typ]) if DEFAULT_OP_PARAMS[typ] is not None else None
             if parameters is None or parameters[idx] is None:
                 self._params.append(dct)
             else:
@@ -2290,7 +2291,7 @@ class LocalStructOrderParams:
         if "sgl_bd" in self._types:
             self._computerijs = True
         if not set(self._types).isdisjoint(
-            [
+            {
                 "tet",
                 "oct",
                 "bcc",
@@ -2319,15 +2320,16 @@ class LocalStructOrderParams:
                 "see_saw_rect",
                 "hex_plan_max",
                 "sq_face_cap_trig_pris",
-            ]
+            }
         ):
             self._computerijs = self._geomops = True
         if "sq_face_cap_trig_pris" in self._types:
             self._comp_azi = True
-        if not set(self._types).isdisjoint(["reg_tri", "sq"]):
+        if not set(self._types).isdisjoint({"reg_tri", "sq"}):
             self._computerijs = self._computerjks = self._geomops2 = True
-        if not set(self._types).isdisjoint(["q2", "q4", "q6"]):
+        if not set(self._types).isdisjoint({"q2", "q4", "q6"}):
             self._computerijs = self._boops = True
+
         if "q2" in self._types:
             self._max_trig_order = 2
         if "q4" in self._types:
@@ -2763,10 +2765,8 @@ class LocalStructOrderParams:
         return self._types[index]
 
     def get_parameters(self, index: int) -> list[float]:
-        """Get list of floats that represents
-        the parameters associated
-        with calculation of the order
-        parameter that was defined at the index provided.
+        """Get list of floats that represents the parameters associated
+        with calculation of the order parameter that was defined at the index provided.
         Attention: the parameters do not need to equal those originally
         inputted because of processing out of efficiency reasons.
 
@@ -2781,7 +2781,12 @@ class LocalStructOrderParams:
         return self._params[index]
 
     def get_order_parameters(
-        self, structure: Structure, n: int, indices_neighs: list[int] | None = None, tol: float = 0.0, target_spec=None
+        self,
+        structure: Structure,
+        n: int,
+        indices_neighs: list[int] | None = None,
+        tol: float = 0.0,
+        target_spec=None,
     ):
         """
         Compute all order parameters of site n.
@@ -4102,7 +4107,7 @@ class CrystalNN(NearNeighbors):
 
 def _get_default_radius(site) -> float:
     """
-    An internal method to get a "default" covalent/element radius.
+    An internal function to get a "default" covalent/element radius.
 
     Args:
         site: (Site)
@@ -4118,7 +4123,7 @@ def _get_default_radius(site) -> float:
 
 def _get_radius(site):
     """
-    An internal method to get the expected radius for a site with
+    An internal function to get the expected radius for a site with
     oxidation state.
 
     Args:
