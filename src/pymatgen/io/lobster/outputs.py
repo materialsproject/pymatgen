@@ -1942,14 +1942,14 @@ class SitePotential(MSONable):
             madelungenergies_loewdin (float): Madelung energy based on the Loewdin approach.
         """
         self._filename = filename
-        self.ewald_splitting = [] if ewald_splitting is None else ewald_splitting
-        self.num_atoms = num_atoms
-        self.types = [] if types is None else types
-        self.atomlist = [] if atomlist is None else atomlist
-        self.sitepotentials_loewdin = [] if sitepotentials_loewdin is None else sitepotentials_loewdin
-        self.sitepotentials_mulliken = [] if sitepotentials_mulliken is None else sitepotentials_mulliken
-        self.madelungenergies_loewdin = [] if madelungenergies_loewdin is None else madelungenergies_loewdin
-        self.madelungenergies_mulliken = [] if madelungenergies_mulliken is None else madelungenergies_mulliken
+        self.ewald_splitting: list | float = ewald_splitting or []
+        self.num_atoms: int | None = num_atoms
+        self.types: list[str] = types or []
+        self.atomlist: list[str] = atomlist or []
+        self.sitepotentials_loewdin: list[float] = sitepotentials_loewdin or []
+        self.sitepotentials_mulliken: list[float] = sitepotentials_mulliken or []
+        self.madelungenergies_loewdin: list | float = madelungenergies_loewdin or []
+        self.madelungenergies_mulliken: list | float = madelungenergies_mulliken or []
 
         if self.num_atoms is None:
             with zopen(filename, mode="rt") as file:
