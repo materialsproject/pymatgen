@@ -15,7 +15,7 @@ from collections import defaultdict
 from copy import deepcopy
 from functools import lru_cache
 from itertools import pairwise
-from typing import TYPE_CHECKING, Literal, NamedTuple, get_args
+from typing import TYPE_CHECKING, Literal, NamedTuple, get_args, overload
 
 import numpy as np
 from monty.dev import deprecated, requires
@@ -279,6 +279,26 @@ class NearNeighbors:
         for which molecules_allowed is False.
         """
         raise NotImplementedError("extend_structures_molecule is not defined!")
+
+    @overload
+    def get_cn(
+        self,
+        structure: Structure,
+        n: int,
+        use_weights: Literal[False] = False,
+        on_disorder: on_disorder_options = "take_majority_strict",
+    ) -> int:
+        pass
+
+    @overload
+    def get_cn(
+        self,
+        structure: Structure,
+        n: int,
+        use_weights: Literal[True] = True,
+        on_disorder: on_disorder_options = "take_majority_strict",
+    ) -> float:
+        pass
 
     def get_cn(
         self,
@@ -647,7 +667,7 @@ class NearNeighbors:
         """
         # code from @nisse3000, moved here from graphs to avoid circular
         # import, also makes sense to have this as a general NN method
-        cn: int = int(self.get_cn(structure, n))
+        cn: int = self.get_cn(structure, n)
         int_cn: list[int] = [int(k_cn) for k_cn in CN_OPT_PARAMS]
         if cn in int_cn:
             names = list(CN_OPT_PARAMS[cn])
