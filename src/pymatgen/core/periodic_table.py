@@ -1476,7 +1476,7 @@ class DummySpecies(Species):
             return self.symbol < other.symbol
         other_oxi = 0 if isinstance(other, Element) else other.oxi_state
         if self.oxi_state is not None and other_oxi is not None:
-            return self.oxi_state <  other_oxi
+            return self.oxi_state < other_oxi
 
         raise RuntimeError("oxi_state for both species are None")
 
