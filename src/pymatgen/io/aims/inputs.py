@@ -7,6 +7,7 @@ from __future__ import annotations
 
 import os
 import re
+import textwrap
 import time
 from copy import deepcopy
 from dataclasses import dataclass, field
@@ -183,6 +184,20 @@ class AimsGeometryIn(MSONable):
         """Access the contents of the file."""
         return self._content
 
+    def get_header(self, filename: str) -> str:
+        """A header of geometry.in file
+
+        Args:
+            filename (str): A name of the file for the header
+        """
+        return textwrap.dedent(f"""\
+        #{'=' * 72}
+        # FHI-aims geometry file: {filename}
+        # File generated from pymatgen
+        # {time.asctime()}
+        #{'=' * 72}
+        """)
+
     def write_file(self, directory: str | Path | None = None, overwrite: bool = False) -> None:
         """Write the geometry.in file.
 
@@ -191,16 +206,13 @@ class AimsGeometryIn(MSONable):
             overwrite (bool): If True allow to overwrite existing files
         """
         directory = directory or Path.cwd()
+        file_name = Path(directory) / "geometry.in"
 
-        if not overwrite and (Path(directory) / "geometry.in").exists():
+        if not overwrite and file_name.exists():
             raise ValueError(f"geometry.in file exists in {directory}")
 
         with open(f"{directory}/geometry.in", mode="w") as file:
-            file.write(f"#{'=' * 72}\n")
-            file.write(f"# FHI-aims geometry file: {directory}/geometry.in\n")
-            file.write("# File generated from pymatgen\n")
-            file.write(f"# {time.asctime()}\n")
-            file.write(f"#{'=' * 72}\n")
+            file.write(self.get_header(file_name.as_posix()))
             file.write(self.content)
             file.write("\n")
 
@@ -584,7 +596,7 @@ class AimsControlIn(MSONable):
                 content += cube.control_block
 
         content += f"{lim}\n\n"
-        species_defaults = self._parameters.get("species_dir", "")
+        species_defaults = self._parameters.get("species_dir", SETTINGS.get("AIMS_SPECIES_DIR", ""))
         if not species_defaults:
             raise KeyError("Species' defaults not specified in the parameters")
 

@@ -39,7 +39,7 @@ jobs:
             resolution: highest
             extras: ci,optional,numpy-v1 # Test NP1 on Windows (quite buggy ATM)
           - os: ubuntu-latest
-            python: ">3.10"
+            python: "3.12"
             resolution: lowest-direct
             extras: ci,optional
           - os: macos-latest
@@ -92,12 +92,6 @@ jobs:
       - name: Install optional Ubuntu dependencies
         if: matrix.config.os == 'ubuntu-latest'
         run: |
-          micromamba activate pmg
-
-          # TODO: uv cannot install BoltzTraP2 at this moment,
-          # track https://gitlab.com/sousaw/BoltzTraP2/-/merge_requests/21
-          pip install BoltzTraP2
-
           # Install BoltzTraP
           wget -q -O BoltzTraP.tar.bz2 https://owncloud.tuwien.ac.at/index.php/s/s2d55LYlZnioa3s/download
           tar -jxf BoltzTraP.tar.bz2
