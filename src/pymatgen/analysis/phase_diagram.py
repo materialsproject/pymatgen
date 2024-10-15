@@ -3573,7 +3573,9 @@ class PDPlotter:
                 cmap = energy_colormap
             norm = Normalize(vmin=vmin, vmax=vmax)
             _map = ScalarMappable(norm=norm, cmap=cmap)
-            _energies = [self._pd.get_equilibrium_reaction_energy(entry) for coord, entry in labels.items()]
+            _energies: list[float] = list(
+                filter(None, (self._pd.get_equilibrium_reaction_energy(entry) for entry in labels.values()))
+            )
             energies = [en if en < 0 else -0.000_000_01 for en in _energies]
             vals_stable = _map.to_rgba(energies)
             ii = 0
@@ -3653,14 +3655,14 @@ class PDPlotter:
         if self.show_unstable:
             font = FontProperties()
             font.set_size(16)
-            energies_unstable = [self._pd.get_e_above_hull(entry) for entry, coord in unstable.items()]
+            energies_unstable = list(filter(None, (self._pd.get_e_above_hull(entry) for entry in unstable)))
             if energy_colormap is not None:
                 energies.extend(energies_unstable)
                 vals_unstable = _map.to_rgba(energies_unstable)
             ii = 0
             for entry, coords in unstable.items():
                 ehull = self._pd.get_e_above_hull(entry)
-                if ehull < self.show_unstable:
+                if ehull is not None and ehull < self.show_unstable:
                     vec = np.array(coords) - center
                     vec = vec / np.linalg.norm(vec) * 10 if np.linalg.norm(vec) != 0 else vec
                     label = entry.name
