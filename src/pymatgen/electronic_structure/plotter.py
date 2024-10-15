@@ -19,6 +19,7 @@ from matplotlib.collections import LineCollection
 from matplotlib.gridspec import GridSpec
 from monty.dev import requires
 from monty.json import jsanitize
+from numpy.typing import ArrayLike
 
 from pymatgen.core import Element
 from pymatgen.electronic_structure.bandstructure import BandStructureSymmLine
@@ -34,8 +35,6 @@ except ImportError:
 if TYPE_CHECKING:
     from collections.abc import Sequence
     from typing import Literal
-
-    from numpy.typing import ArrayLike
 
     from pymatgen.electronic_structure.dos import CompleteDos, Dos
 
@@ -161,8 +160,8 @@ class DosPlotter:
         # Note that this complicated processing of energies is to allow for
         # stacked plots in matplotlib.
         for dos in self._doses.values():
-            energies = dos["energies"]
-            densities = dos["densities"]
+            energies = cast(ArrayLike, dos["energies"])
+            densities = cast(ArrayLike, dos["densities"])
             if not ys:
                 ys = {
                     Spin.up: np.zeros(energies.shape),
@@ -209,10 +208,14 @@ class DosPlotter:
             ax.set_ylim(ylim)
         elif not invert_axes:
             xlim = ax.get_xlim()
+            if xlim is None:
+                raise RuntimeError("xlim cannot be None.")
             relevant_y = [p[1] for p in all_pts if xlim[0] < p[0] < xlim[1]]
             ax.set_ylim((min(relevant_y), max(relevant_y)))
         if not xlim and invert_axes:
             ylim = ax.get_ylim()
+            if ylim is None:
+                raise RuntimeError("ylim cannot be None.")
             relevant_y = [p[0] for p in all_pts if ylim[0] < p[1] < ylim[1]]
             ax.set_xlim((min(relevant_y), max(relevant_y)))
 
