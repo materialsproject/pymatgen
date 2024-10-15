@@ -3037,7 +3037,7 @@ class LocalStructOrderParams:
                                     raise RuntimeError(f"param of {idx=} is None")
                                 tmp = param["IGW_TA"] * (thetak * ipi - param["TA"])
                                 gaussthetak[idx] = math.exp(-0.5 * tmp * tmp)
-                                if typ in ["tri_plan_max", "tet_max"]:
+                                if typ in {"tri_plan_max", "tet_max"}:
                                     qsp_theta[idx][j][kc] += gaussthetak[idx]
                                     norms[idx][j][kc] += 1
 
@@ -3157,7 +3157,7 @@ class LocalStructOrderParams:
                                                 raise RuntimeError(f"param of {idx=} is None")
                                             tmp = param["IGW_TA"] * (thetam * ipi - param["TA"])
                                             tmp2 = math.cos(param["fac_AA"] * phi) ** param["exp_cos_AA"]
-                                            tmp3 = 1 if typ in ["tri_plan_max", "tet_max"] else gaussthetak[idx]
+                                            tmp3 = 1 if typ in {"tri_plan_max", "tet_max"} else gaussthetak[idx]
                                             qsp_theta[idx][j][kc] += tmp3 * math.exp(-0.5 * tmp * tmp) * tmp2
                                             norms[idx][j][kc] += 1
 
