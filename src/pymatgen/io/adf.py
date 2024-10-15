@@ -22,15 +22,6 @@ if TYPE_CHECKING:
 __author__ = "Xin Chen, chenxin13@mails.tsinghua.edu.cn"
 
 
-def is_numeric(string) -> bool:
-    """True if input string is numeric and can be converted to an int or a float."""
-    try:
-        float(string)
-        return True
-    except ValueError:
-        return False
-
-
 class AdfInputError(Exception):
     """The default error class for ADF."""
 
@@ -302,21 +293,30 @@ class AdfKey(MSONable):
             Only the first block key will be returned.
         """
 
-        def is_float(s) -> bool:
-            return "." in s or "E" in s or "e" in s
+        def is_float(string: str) -> bool:
+            return "." in string or "E" in string or "e" in string
+
+        def is_numeric(string: str) -> bool:
+            """True if input string is numeric and can be converted to an int or a float."""
+            try:
+                float(string)
+                return True
+            except ValueError:
+                return False
 
         if "\n" not in string:
-            el = string.split()
+            el: list[str] = string.split()
             if len(el) > 1:
-                options: list = [s.split("=") for s in el[1:]] if "=" in string else el[1:]
+                options: list[list[str]] | list[str] = [s.split("=") for s in el[1:]] if "=" in string else el[1:]
                 for idx, op in enumerate(options):
-                    if isinstance(op, list) and is_numeric(op[1]):
-                        op[1] = float(op[1]) if is_float(op[1]) else int(op[1])
-                    elif is_numeric(op):
-                        options[idx] = float(op) if is_float(op) else int(op)
-            else:
-                options = None
-            return cls(el[0], options)
+                    if isinstance(op, list):
+                        if is_numeric(op[1]):
+                            op[1] = float(op[1]) if is_float(op[1]) else int(op[1])
+                    elif isinstance(op, str) and is_numeric(op):
+                        options[idx] = float(op) if is_float(op) else int(op)  # type: ignore[call-overload]
+                return cls(el[0], options)
+
+            return cls(el[0], None)
 
         if "subend" in string:
             raise ValueError("Nested subkeys are not supported!")
