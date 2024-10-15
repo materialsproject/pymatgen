@@ -5,7 +5,7 @@ import os
 from typing import TYPE_CHECKING
 
 import pytest
-from monty.serialization import MontyDecoder
+from monty.json import MontyDecoder
 
 from pymatgen.core.structure import Structure
 from pymatgen.io.cif import CifParser, CifWriter
