@@ -167,6 +167,8 @@ class LMTOCtrl:
         """
         lines = data.split("\n")[:-1]
         _struct_lines: dict[str, list] = {"HEADER": [], "VERS": [], "SYMGRP": [], "STRUC": [], "CLASS": [], "SITE": []}
+
+        cat = None
         for line in lines:
             if line != "" and not line.isspace():
                 if not line[0].isspace():
@@ -180,6 +182,7 @@ class LMTOCtrl:
 
         structure_tokens: dict[str, Any] = {"ALAT": None, "PLAT": [], "CLASS": [], "SITE": []}
 
+        atom = None
         for cat in ("STRUC", "CLASS", "SITE"):
             fields = struct_lines[cat].split("=")
             for idx, field in enumerate(fields):
@@ -187,6 +190,7 @@ class LMTOCtrl:
                 if token == "ALAT":  # noqa: S105
                     a_lat = round(float(fields[idx + 1].split()[0]), sigfigs)
                     structure_tokens["ALAT"] = a_lat
+
                 elif token == "ATOM":  # noqa: S105
                     atom = fields[idx + 1].split()[0]
                     if not bool(re.match("E[0-9]*$", atom)):
@@ -196,19 +200,22 @@ class LMTOCtrl:
                             structure_tokens["SITE"].append({"ATOM": atom})
                     else:
                         pass
+
                 elif token in {"PLAT", "POS"}:
                     try:
                         arr = np.array([round(float(i), sigfigs) for i in fields[idx + 1].split()])
                     except ValueError:
                         arr = np.array([round(float(i), sigfigs) for i in fields[idx + 1].split()[:-1]])
+
                     if token == "PLAT":  # noqa: S105
                         structure_tokens["PLAT"] = arr.reshape([3, 3])
-                    elif not bool(re.match("E[0-9]*$", atom)):
+                    elif atom is not None and not bool(re.match("E[0-9]*$", atom)):
                         structure_tokens["SITE"][-1]["POS"] = arr
                     else:
                         pass
                 else:
                     pass
+
         try:
             spc_grp_index = struct_lines["SYMGRP"].index("SPCGRP")
             spc_grp = struct_lines["SYMGRP"][spc_grp_index : spc_grp_index + 12]
