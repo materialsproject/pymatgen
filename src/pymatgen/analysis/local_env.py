@@ -34,7 +34,7 @@ except Exception:
     openbabel = None
 
 if TYPE_CHECKING:
-    from typing import Any
+    from typing import Any, TypeAlias
 
     from typing_extensions import Self
 
@@ -52,16 +52,15 @@ __status__ = "Production"
 __date__ = "August 17, 2017"
 
 MODULE_DIR = os.path.dirname(os.path.abspath(__file__))
-yaml = YAML()
 
-with open(f"{MODULE_DIR}/op_params.yaml") as file:
-    default_op_params = yaml.load(file)
+with open(f"{MODULE_DIR}/op_params.yaml", encoding="utf-8") as file:
+    DEFAULT_OP_PARAMS = YAML().load(file)
 
-with open(f"{MODULE_DIR}/cn_opt_params.yaml") as file:
-    cn_opt_params = yaml.load(file)
+with open(f"{MODULE_DIR}/cn_opt_params.yaml", encoding="utf-8") as file:
+    CN_OPT_PARAMS = YAML().load(file)
 
-with open(f"{MODULE_DIR}/ionic_radii.json") as file:
-    _ion_radii = json.load(file)
+with open(f"{MODULE_DIR}/ionic_radii.json", encoding="utf-8") as file:
+    _ION_RADII = json.load(file)
 
 
 class ValenceIonicRadiusEvaluator:
@@ -131,16 +130,16 @@ class ValenceIonicRadiusEvaluator:
             oxi_state = int(round(site.specie.oxi_state))
             coord_no = int(round(vnn.get_cn(self._structure, idx)))
             try:
-                tab_oxi_states = sorted(map(int, _ion_radii[el]))
+                tab_oxi_states = sorted(map(int, _ION_RADII[el]))
                 oxi_state = nearest_key(tab_oxi_states, oxi_state)
-                radius = _ion_radii[el][str(oxi_state)][str(coord_no)]
+                radius = _ION_RADII[el][str(oxi_state)][str(coord_no)]
             except KeyError:
                 new_coord_no = coord_no + (1 if vnn.get_cn(self._structure, idx) - coord_no > 0 else -1)
                 try:
-                    radius = _ion_radii[el][str(oxi_state)][str(new_coord_no)]
+                    radius = _ION_RADII[el][str(oxi_state)][str(new_coord_no)]
                     coord_no = new_coord_no
                 except Exception:
-                    tab_coords = sorted(map(int, _ion_radii[el][str(oxi_state)]))
+                    tab_coords = sorted(map(int, _ION_RADII[el][str(oxi_state)]))
                     new_coord_no = nearest_key(tab_coords, coord_no)
                     idx = 0
                     for val in tab_coords:
@@ -149,15 +148,15 @@ class ValenceIonicRadiusEvaluator:
                         idx += 1
                     if idx == len(tab_coords):
                         key = str(tab_coords[-1])
-                        radius = _ion_radii[el][str(oxi_state)][key]
+                        radius = _ION_RADII[el][str(oxi_state)][key]
                     elif idx == 0:
                         key = str(tab_coords[0])
-                        radius = _ion_radii[el][str(oxi_state)][key]
+                        radius = _ION_RADII[el][str(oxi_state)][key]
                     else:
                         key = str(tab_coords[idx - 1])
-                        radius1 = _ion_radii[el][str(oxi_state)][key]
+                        radius1 = _ION_RADII[el][str(oxi_state)][key]
                         key = str(tab_coords[idx])
-                        radius2 = _ion_radii[el][str(oxi_state)][key]
+                        radius2 = _ION_RADII[el][str(oxi_state)][key]
                         radius = (radius1 + radius2) / 2
 
             # implement complex checks later
@@ -197,7 +196,7 @@ class ValenceIonicRadiusEvaluator:
         return valences
 
 
-on_disorder_options = Literal["take_majority_strict", "take_majority_drop", "take_max_species", "error"]
+on_disorder_options: TypeAlias = Literal["take_majority_strict", "take_majority_drop", "take_max_species", "error"]  # noqa: PYI042
 
 
 def _handle_disorder(structure: Structure, on_disorder: on_disorder_options):
@@ -649,14 +648,14 @@ class NearNeighbors:
         # code from @nisse3000, moved here from graphs to avoid circular
         # import, also makes sense to have this as a general NN method
         cn = self.get_cn(structure, n)
-        int_cn = [int(k_cn) for k_cn in cn_opt_params]
+        int_cn = [int(k_cn) for k_cn in CN_OPT_PARAMS]
         if cn in int_cn:
-            names = list(cn_opt_params[cn])
+            names = list(CN_OPT_PARAMS[cn])
             types = []
             params = []
             for name in names:
-                types.append(cn_opt_params[cn][name][0])
-                tmp = cn_opt_params[cn][name][1] if len(cn_opt_params[cn][name]) > 1 else None
+                types.append(CN_OPT_PARAMS[cn][name][0])
+                tmp = CN_OPT_PARAMS[cn][name][1] if len(CN_OPT_PARAMS[cn][name]) > 1 else None
                 params.append(tmp)
             lsops = LocalStructOrderParams(types, parameters=params)
             sites = [structure[n], *self.get_nn(structure, n)]
@@ -1212,10 +1211,8 @@ class JmolNN(NearNeighbors):
         self.min_bond_distance = min_bond_distance
 
         # Load elemental radii table
-        bonds_file = f"{MODULE_DIR}/bonds_jmol_ob.yaml"
-        with open(bonds_file) as file:
-            yaml = YAML()
-            self.el_radius = yaml.load(file)
+        with open(f"{MODULE_DIR}/bonds_jmol_ob.yaml", encoding="utf-8") as file:
+            self.el_radius = YAML().load(file)
 
         # Update any user preference elemental radii
         if el_radius_updates:
@@ -2279,7 +2276,7 @@ class LocalStructOrderParams:
         self._comp_azi = False
         self._params = []
         for idx, typ in enumerate(self._types):
-            dct = deepcopy(default_op_params[typ]) if default_op_params[typ] is not None else None
+            dct = deepcopy(DEFAULT_OP_PARAMS[typ]) if DEFAULT_OP_PARAMS[typ] is not None else None
             if parameters is None or parameters[idx] is None:
                 self._params.append(dct)
             else:
