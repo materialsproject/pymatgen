@@ -367,7 +367,7 @@ class Vasprun(MSONable):
         self.incar: dict[str, Any] = {}
         self.kpoints_opt_props: KpointOptProps | None = None
 
-        ionic_steps: list = []
+        ionic_steps: list[dict[str, Any]] = []
 
         md_data: list[dict] = []
         parsed_header: bool = False
@@ -534,6 +534,7 @@ class Vasprun(MSONable):
             warnings.warn(
                 "XML is malformed. Parsing has stopped but partial data is available.",
                 UserWarning,
+                stacklevel=2,
             )
 
         self.ionic_steps = ionic_steps
@@ -614,10 +615,13 @@ class Vasprun(MSONable):
     @property
     def converged_electronic(self) -> bool:
         """Whether electronic step converged in the final ionic step."""
-        final_elec_steps = (
+        final_elec_steps: list[dict[str, Any]] | Literal[0] = (
             self.ionic_steps[-1]["electronic_steps"] if self.incar.get("ALGO", "").lower() != "chi" else 0
         )
-        # In a response function run there is no ionic steps, there is no scf step
+        # In a response function run there is no ionic steps, there is no SCF step
+        if final_elec_steps == 0:
+            raise ValueError("there is no ionic step in response function ALGO=CHI.")
+
         if self.incar.get("LEPSILON"):
             idx = 1
             to_check = {"e_wo_entrp", "e_fr_energy", "e_0_energy"}
