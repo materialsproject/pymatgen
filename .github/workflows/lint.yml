@@ -22,7 +22,7 @@ jobs:
 
       - name: Install dependencies
         run: |
-          pip install --upgrade ruff mypy==1.11.2 pyright
+          pip install --upgrade ruff mypy pyright
 
       - name: ruff
         run: |
