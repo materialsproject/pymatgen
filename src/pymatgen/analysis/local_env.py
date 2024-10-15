@@ -672,7 +672,7 @@ class NearNeighbors:
         if cn in int_cn:
             names = list(CN_OPT_PARAMS[cn])
             types: list[str] = []
-            params: list[dict[str | int, float] | None] = []
+            params: list[dict[str, float] | None] = []
             for name in names:
                 types.append(CN_OPT_PARAMS[cn][name][0])
                 tmp: dict[str, float] | None = CN_OPT_PARAMS[cn][name][1] if len(CN_OPT_PARAMS[cn][name]) > 1 else None
@@ -842,7 +842,7 @@ class VoronoiNN(NearNeighbors):
 
         # Get the non-duplicates (using the site indices for numerical stability)
         indices = np.array(indices, dtype=np.int64)
-        indices, uniq_inds = np.unique(indices, return_index=True, axis=0)  # type: ignore[assignment]
+        indices, uniq_inds = np.unique(indices, return_index=True, axis=0)
         sites = [sites[idx] for idx in uniq_inds]
 
         # Sort array such that atoms in the root image are first
@@ -2188,7 +2188,7 @@ class LocalStructOrderParams:
     def __init__(
         self,
         types: list[str],
-        parameters: list[dict[str | int, float] | None] | None = None,
+        parameters: list[dict[str, float] | None] | None = None,
         cutoff: float = -10.0,
     ) -> None:
         """
@@ -2306,7 +2306,7 @@ class LocalStructOrderParams:
             if parameters is None or parameters[idx] is None:
                 self._params.append(dct)
             else:
-                self._params.append(deepcopy(parameters[idx]))
+                self._params.append(deepcopy(parameters[idx]))  # type: ignore[arg-type]
 
         self._computerijs = self._computerjks = self._geomops = False
         self._geomops2 = self._boops = False
@@ -3208,18 +3208,15 @@ class LocalStructOrderParams:
                                             "hex_plan_max",
                                         }:
                                             if (
-                                                thetam < self._params[idx]["min_SPP"]
-                                                and thetak < self._params[idx]["min_SPP"]
+                                                (param := self._params[idx]) is not None
+                                                and thetam < param["min_SPP"]
+                                                and thetak < param["min_SPP"]
                                             ):
-                                                tmp = (
-                                                    math.cos(self._params[idx]["fac_AA"] * phi)
-                                                    ** self._params[idx]["exp_cos_AA"]
-                                                )
+                                                tmp = math.cos(param["fac_AA"] * phi) ** param["exp_cos_AA"]
                                                 tmp2 = (
-                                                    self._params[idx]["IGW_EP"] * (thetam * ipi - 0.5)
+                                                    param["IGW_EP"] * (thetam * ipi - 0.5)
                                                     if typ != "hex_plan_max"
-                                                    else self._params[idx]["IGW_TA"]
-                                                    * (math.fabs(thetam * ipi - 0.5) - self._params[idx]["TA"])
+                                                    else param["IGW_TA"] * (math.fabs(thetam * ipi - 0.5) - param["TA"])
                                                 )
                                                 qsp_theta[idx][j][kc] += tmp * math.exp(-0.5 * tmp2 * tmp2)
                                                 norms[idx][j][kc] += 1
@@ -3330,7 +3327,7 @@ class LocalStructOrderParams:
                     "hex_plan_max",
                     "sq_face_cap_trig_pris",
                 }:
-                    ops[idx] = None  # type: ignore[call-overload]
+                    ops[idx] = None
                     if n_neighbors > 1:
                         for j in range(n_neighbors):
                             for k in range(len(qsp_theta[idx][j])):
@@ -3346,21 +3343,23 @@ class LocalStructOrderParams:
                     if n_neighbors > 3:
                         ops[idx] /= float(0.5 * float(n_neighbors * (6 + (n_neighbors - 2) * (n_neighbors - 3))))  # type: ignore[operator]
                     else:
-                        ops[idx] = None  # type: ignore[call-overload]
+                        ops[idx] = None
 
                 elif typ == "sq_pyr_legacy":
                     if n_neighbors > 1:
                         dmean = np.mean(dist)
                         acc = 0.0
                         for d in dist:
-                            tmp = self._params[idx][2] * (d - dmean)
+                            if (param := self._params[idx]) is None:
+                                raise RuntimeError(f"param of {idx=} is None")
+                            tmp = param[2] * (d - dmean)
                             acc += math.exp(-0.5 * tmp * tmp)
                         for j in range(n_neighbors):
                             ops[idx] = max(qsp_theta[idx][j]) if j == 0 else max(ops[idx], *qsp_theta[idx][j])
                         ops[idx] = acc * ops[idx] / float(n_neighbors)  # type: ignore[operator]
                         # nneigh * (nneigh - 1))
                     else:
-                        ops[idx] = None  # type: ignore[call-overload]
+                        ops[idx] = None
 
         # Then, deal with the new-style OPs that require vectors between
         # neighbors.
@@ -3385,7 +3384,7 @@ class LocalStructOrderParams:
             for idx, typ in enumerate(self._types):
                 if typ in {"reg_tri", "sq"}:
                     if n_neighbors < 3:
-                        ops[idx] = None  # type: ignore[call-overload]
+                        ops[idx] = None
                     else:
                         ops[idx] = 1.0
                         if typ == "reg_tri":
@@ -3397,7 +3396,9 @@ class LocalStructOrderParams:
                             nmax = 4
 
                         for j in range(min([n_neighbors, nmax])):
-                            ops[idx] *= math.exp(-0.5 * ((aijs[j] - a) * self._params[idx][0]) ** 2)  # type: ignore[operator]
+                            if (param := self._params[idx]) is None:
+                                raise RuntimeError(f"param of {idx=} is None")
+                            ops[idx] *= math.exp(-0.5 * ((aijs[j] - a) * param[0]) ** 2)  # type: ignore[operator]
 
         return ops
 
