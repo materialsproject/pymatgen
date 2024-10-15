@@ -1492,6 +1492,12 @@ class TestLocpot(PymatgenTest):
         l2 = Locpot(poscar=poscar, data=data, data_aug=None)
         assert l2.data_aug == {}
 
+    def test_vasp_6x_style(self):
+        filepath = f"{VASP_OUT_DIR}/LOCPOT.vasp642.gz"
+        locpot = Locpot.from_file(filepath)
+        assert locpot.dim == (2, 2, 5)
+        assert {str(ele) for ele in locpot.structure.composition} == {"Mg", "Si"}
+
 
 class TestChgcar(PymatgenTest):
     @classmethod
@@ -1757,6 +1763,10 @@ class TestXdatcar:
         structures = xdatcar.structures
 
         assert structures[0].lattice != structures[-1].lattice
+
+        xdatcar = Xdatcar(f"{VASP_OUT_DIR}/XDATCAR_monatomic.gz")
+        assert len(xdatcar.structures) == 10
+        assert all(len(structure.composition) == 1 for structure in xdatcar.structures)
 
 
 class TestDynmat:

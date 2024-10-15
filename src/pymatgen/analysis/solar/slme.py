@@ -169,8 +169,9 @@ def slme(
     e = constants.e  # Coulomb
 
     # Make sure the absorption coefficient has the right units (m^{-1})
+    absorbance_data = material_absorbance_data.copy()  # don't overwrite
     if absorbance_in_inverse_centimeters:
-        material_absorbance_data *= 100
+        absorbance_data *= 100
 
     # Load the Air Mass 1.5 Global tilt solar spectrum
     solar_spectrum_data_file = str(os.path.join(os.path.dirname(__file__), "am1.5G.dat"))
@@ -210,11 +211,11 @@ def slme(
 
     # creates cubic spline interpolating function, set up to use end values
     #  as the guesses if leaving the region where data exists
-    material_absorbance_data_function = interp1d(
+    absorbance_data_function = interp1d(
         material_wavelength_for_absorbance_data,
-        material_absorbance_data,
+        absorbance_data,
         kind="cubic",
-        fill_value=(material_absorbance_data[0], material_absorbance_data[-1]),
+        fill_value=(absorbance_data[0], absorbance_data[-1]),
         bounds_error=False,
     )
 
@@ -227,7 +228,7 @@ def slme(
             solar_spectra_wavelength[i] < 1e9 * ((c * h_e) / material_direct_allowed_gap)
             or cut_off_absorbance_below_direct_allowed_gap is False
         ):
-            material_interpolated_absorbance[i] = material_absorbance_data_function(solar_spectra_wavelength[i])
+            material_interpolated_absorbance[i] = absorbance_data_function(solar_spectra_wavelength[i])
 
     absorbed_by_wavelength = 1.0 - np.exp(-2.0 * material_interpolated_absorbance * thickness)
 
@@ -263,9 +264,12 @@ def slme(
     efficiency = max_power / power_in
 
     if plot_current_voltage:
-        V = np.linspace(0, 2, 200)
-        plt.plot(V, J(V))
-        plt.plot(V, power(V), linestyle="--")
+        V = np.linspace(0, test_voltage + 0.1, 200)
+        plt.plot(V, J(V), label="Current Density (mA/cm$^2$)")
+        plt.plot(V, power(V), linestyle="--", label="Power Density (mW/cm$^2$)")
+        plt.xlabel("Voltage (V)")
+        plt.ylabel("Current / Power Density (mA/cm$^2$ / mW/cm$^2$)")
+        plt.legend()
         plt.savefig("pp.png")
         plt.close()
 
