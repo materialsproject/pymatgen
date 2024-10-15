@@ -4922,7 +4922,7 @@ class Wavecar:
                         else:
                             self.coeffs[i_nk][inb] = np.array(list(data) + extra_coeffs, dtype=np.complex128)
 
-                        if self.vasp_type.lower()[0] == "n":
+                        if self.vasp_type is not None and self.vasp_type.lower()[0] == "n":
                             self.coeffs[i_nk][inb].shape = (2, nplane // 2)  # type: ignore[union-attr]
 
     def _generate_nbmax(self) -> None:
