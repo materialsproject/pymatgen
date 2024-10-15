@@ -1,7 +1,5 @@
 """This module tests types are as expected and can be imported without circular ImportError."""
 
-# mypy: disable-error-code="misc"
-
 from __future__ import annotations
 
 import sys
