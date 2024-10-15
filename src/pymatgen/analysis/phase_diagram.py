@@ -3541,6 +3541,9 @@ class PDPlotter:
         else:
             _lines, _labels, _unstable = self.pd_plot_data
             lines, labels, unstable = order_phase_diagram(_lines, _labels, _unstable, ordering)
+
+        energies: list[float] | None = None
+        _map = None
         if energy_colormap is None:
             if process_attributes:
                 for x, y in lines:
@@ -3613,6 +3616,8 @@ class PDPlotter:
             plt.xlabel("Fraction", fontsize=28, fontweight="bold")
             plt.ylabel("Formation energy (eV/atom)", fontsize=28, fontweight="bold")
 
+        halign = "center"
+        valign = "bottom"
         for coords in sorted(labels, key=lambda x: -x[1]):
             entry = labels[coords]
             label = entry.name
@@ -3656,9 +3661,12 @@ class PDPlotter:
             font = FontProperties()
             font.set_size(16)
             energies_unstable = list(filter(None, (self._pd.get_e_above_hull(entry) for entry in unstable)))
-            if energy_colormap is not None:
+            if energy_colormap is not None and energies is not None and _map is not None:
                 energies.extend(energies_unstable)
                 vals_unstable = _map.to_rgba(energies_unstable)
+            else:
+                vals_unstable = None
+
             ii = 0
             for entry, coords in unstable.items():
                 ehull = self._pd.get_e_above_hull(entry)
@@ -3698,7 +3706,8 @@ class PDPlotter:
                             fontproperties=font,
                         )
                     ii += 1
-        if energy_colormap is not None and show_colorbar:
+
+        if energy_colormap is not None and show_colorbar and energies is not None and _map is not None:
             _map.set_array(energies)
             cbar = plt.colorbar(_map)
             cbar.set_label(
