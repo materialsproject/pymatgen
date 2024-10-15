@@ -54,7 +54,7 @@ __date__ = "August 17, 2017"
 MODULE_DIR = os.path.dirname(os.path.abspath(__file__))
 
 with open(f"{MODULE_DIR}/op_params.yaml", encoding="utf-8") as file:
-    DEFAULT_OP_PARAMS: dict[str, dict | None] = YAML().load(file)
+    DEFAULT_OP_PARAMS: dict[str, dict[str, float] | None] = YAML().load(file)
 
 with open(f"{MODULE_DIR}/cn_opt_params.yaml", encoding="utf-8") as file:
     CN_OPT_PARAMS: dict[int, dict[str, list]] = YAML().load(file)
@@ -671,11 +671,11 @@ class NearNeighbors:
         int_cn: list[int] = [int(k_cn) for k_cn in CN_OPT_PARAMS]
         if cn in int_cn:
             names = list(CN_OPT_PARAMS[cn])
-            types = []
-            params = []
+            types: list[str] = []
+            params: list[dict[str, float] | None] = []
             for name in names:
                 types.append(CN_OPT_PARAMS[cn][name][0])
-                tmp = CN_OPT_PARAMS[cn][name][1] if len(CN_OPT_PARAMS[cn][name]) > 1 else None
+                tmp: dict[str, float] | None = CN_OPT_PARAMS[cn][name][1] if len(CN_OPT_PARAMS[cn][name]) > 1 else None
                 params.append(tmp)
             lsops = LocalStructOrderParams(types, parameters=params)
             sites = [structure[n], *self.get_nn(structure, n)]
@@ -2147,7 +2147,7 @@ class LocalStructOrderParams:
     structure order parameters.
     """
 
-    __supported_types = (
+    __supported_types: tuple[str, ...] = (
         "cn",
         "sgl_bd",
         "bent",
@@ -2185,13 +2185,17 @@ class LocalStructOrderParams:
         "sq_face_cap_trig_pris",
     )
 
-    def __init__(self, types, parameters=None, cutoff=-10.0) -> None:
+    def __init__(
+        self,
+        types: list[str],
+        parameters: list[dict[str, float] | None] | None = None,
+        cutoff: float = -10.0,
+    ) -> None:
         """
         Args:
-            types ([string]): list of strings representing the types of
-                order parameters to be calculated. Note that multiple
-                mentions of the same type may occur. Currently available
-                types recognize following environments:
+            types (list[str]): the types of order parameters to be calculated.
+                Note that multiple mentions of the same type may occur.
+                Currently available types recognize following environments:
                   "cn": simple coordination number---normalized
                         if desired;
                   "sgl_bd": single bonds;
@@ -2232,8 +2236,7 @@ class LocalStructOrderParams:
                                 137, 13352-13361, 2015) that can, however,
                                 produce small negative values sometimes.
                   "sq_pyr_legacy": square pyramids (legacy);
-            parameters ([dict]): list of dictionaries
-                that store float-type parameters associated with the
+            parameters (list[dict]): float-type parameters associated with the
                 definitions of the different order parameters
                 (length of list = number of OPs). If an entry
                 is None, default values are used that are read from
@@ -2294,10 +2297,12 @@ class LocalStructOrderParams:
 
         self._types = tuple(types)
 
-        self._comp_azi = False
-        self._params: list[dict | None] = []
+        self._comp_azi: bool = False
+        self._params: list[dict[str, float] | None] = []
         for idx, typ in enumerate(self._types):
-            dct: dict | None = deepcopy(DEFAULT_OP_PARAMS[typ]) if DEFAULT_OP_PARAMS[typ] is not None else None
+            dct: dict[str, float] | None = (
+                deepcopy(DEFAULT_OP_PARAMS[typ]) if DEFAULT_OP_PARAMS[typ] is not None else None
+            )
             if parameters is None or parameters[idx] is None:
                 self._params.append(dct)
             else:
@@ -2784,9 +2789,10 @@ class LocalStructOrderParams:
             raise ValueError("Index for getting order parameter type out-of-bounds!")
         return self._types[index]
 
-    def get_parameters(self, index: int) -> list[float]:
-        """Get list of floats that represents the parameters associated
-        with calculation of the order parameter that was defined at the index provided.
+    def get_parameters(self, index: int) -> dict[str, float]:
+        """Get parameters associated with calculation of the order
+        parameter that was defined at the index provided.
+
         Attention: the parameters do not need to equal those originally
         inputted because of processing out of efficiency reasons.
 
@@ -2794,7 +2800,7 @@ class LocalStructOrderParams:
             index (int): index of order parameter for which to return associated params.
 
         Returns:
-            list[float]: parameters of a given OP.
+            dict[str, float]: parameters of a given OP.
         """
         if index < 0 or index >= len(self._types):
             raise ValueError("Index for getting parameters associated with order parameter calculation out-of-bounds!")
