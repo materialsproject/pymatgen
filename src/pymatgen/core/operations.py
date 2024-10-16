@@ -244,7 +244,9 @@ class SymmOp(MSONable):
     def inverse(self) -> Self:
         """Inverse of transformation."""
         inverse = np.linalg.inv(self.affine_matrix)
-        return type(self)(inverse)
+        if isinstance(self, MagSymmOp):
+            return MagSymmOp(inverse, self.time_reversal, self.tol)
+        return type(self)(inverse, self.tol)
 
     @staticmethod
     def from_axis_angle_and_translation(
@@ -505,10 +507,10 @@ class MagSymmOp(SymmOp):
             tol (float): Tolerance for determining if matrices are equal.
         """
         super().__init__(affine_transformation_matrix, tol=tol)
-        if time_reversal in {-1, 1}:
-            self.time_reversal = time_reversal
-        else:
+        if time_reversal not in {-1, 1}:
             raise RuntimeError(f"Invalid {time_reversal=}, must be 1 or -1")
+
+        self.time_reversal = time_reversal
 
     def __eq__(self, other: object) -> bool:
         if not isinstance(other, type(self)):
