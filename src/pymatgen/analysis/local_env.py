@@ -15,7 +15,7 @@ from collections import defaultdict
 from copy import deepcopy
 from functools import lru_cache
 from itertools import pairwise
-from typing import TYPE_CHECKING, Literal, NamedTuple, get_args, overload
+from typing import TYPE_CHECKING, Literal, NamedTuple, cast, get_args, overload
 
 import numpy as np
 from monty.dev import deprecated, requires
@@ -57,7 +57,7 @@ with open(f"{MODULE_DIR}/op_params.yaml", encoding="utf-8") as file:
     DEFAULT_OP_PARAMS: dict[str, dict[str | int, float] | None] = YAML().load(file)
 
 with open(f"{MODULE_DIR}/cn_opt_params.yaml", encoding="utf-8") as file:
-    CN_OPT_PARAMS: dict[int, dict[str, list]] = YAML().load(file)
+    CN_OPT_PARAMS: dict[int, dict[str, list[str | dict[str, float]]]] = YAML().load(file)
 
 with open(f"{MODULE_DIR}/ionic_radii.json", encoding="utf-8") as file:
     _ION_RADII = json.load(file)
@@ -674,8 +674,10 @@ class NearNeighbors:
             types: list[str] = []
             params: list[dict[str, float] | None] = []
             for name in names:
-                types.append(CN_OPT_PARAMS[cn][name][0])
-                tmp: dict[str, float] | None = CN_OPT_PARAMS[cn][name][1] if len(CN_OPT_PARAMS[cn][name]) > 1 else None
+                types.append(cast(str, CN_OPT_PARAMS[cn][name][0]))
+                tmp: dict[str, float] | None = (
+                    cast(dict[str, float], CN_OPT_PARAMS[cn][name][1]) if len(CN_OPT_PARAMS[cn][name]) > 1 else None
+                )
                 params.append(tmp)
             lsops = LocalStructOrderParams(types, parameters=params)
             sites = [structure[n], *self.get_nn(structure, n)]
