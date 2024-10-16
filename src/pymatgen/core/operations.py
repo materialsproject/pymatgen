@@ -244,8 +244,6 @@ class SymmOp(MSONable):
     def inverse(self) -> Self:
         """Inverse of transformation."""
         inverse = np.linalg.inv(self.affine_matrix)
-        if isinstance(self, MagSymmOp):
-            return MagSymmOp(inverse, self.time_reversal, self.tol)
         return type(self)(inverse, self.tol)
 
     @staticmethod
@@ -538,6 +536,12 @@ class MagSymmOp(SymmOp):
         """Useful for obtaining a set of unique MagSymmOps."""
         hashable_value = (*tuple(self.affine_matrix.flatten()), self.time_reversal)
         return hash(hashable_value)
+
+    @property
+    def inverse(self) -> Self:
+        """Inverse of transformation."""
+        inverse = np.linalg.inv(self.affine_matrix)
+        return type(self)(inverse, self.time_reversal, self.tol)
 
     @due.dcite(
         Doi("10.1051/epjconf/20122200010"),
