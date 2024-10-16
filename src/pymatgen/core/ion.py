@@ -233,7 +233,7 @@ class Ion(Composition, MSONable, Stringify):
         elif formula == "HCOO":
             formula = "HCO2"
         # oxalate
-        elif formula == "CO2":
+        elif formula == "CO2" and self.charge == -2:
             formula = "C2O4"
             factor /= 2
         # diatomic gases
