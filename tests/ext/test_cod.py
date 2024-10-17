@@ -8,8 +8,8 @@ import requests
 
 from pymatgen.ext.cod import COD
 
-# Sse a tighter timeout in CI
-TIMEOUT = 10 if "CI" in os.environ else 60
+# Set a tighter timeout in CI
+TIMEOUT = 10 if os.getenv("CI") else 60
 
 
 try:

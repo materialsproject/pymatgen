@@ -75,17 +75,23 @@ class COD:
 
         return [int(entry["file"]) for entry in response.json()]
 
-    def get_structure_by_id(self, cod_id: int, **kwargs) -> Structure:
+    def get_structure_by_id(self, cod_id: int, timeout: int | None = None, **kwargs) -> Structure:
         """Query the COD for a structure by ID.
 
         Args:
             cod_id (int): COD ID.
+            timeout (int): DEPRECATED. request timeout in seconds.
             kwargs: kwargs passed to Structure.from_str.
 
         Returns:
             A Structure.
         """
-        response = requests.get(f"{self.url}/cod/{cod_id}.cif", timeout=self.timeout)
+        # TODO: remove timeout arg and use class level timeout after 2025-10-17
+        if timeout is not None:
+            warnings.warn("separate timeout arg is deprecated, please use class level timeout", DeprecationWarning)
+        timeout = timeout or self.timeout
+
+        response = requests.get(f"{self.url}/cod/{cod_id}.cif", timeout=timeout)
         return Structure.from_str(response.text, fmt="cif", **kwargs)
 
     def get_structure_by_formula(
