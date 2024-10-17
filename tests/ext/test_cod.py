@@ -8,7 +8,8 @@ import requests
 
 from pymatgen.ext.cod import COD
 
-TIMEOUT = 10  # use a tighter timeout in CI
+# Sse a tighter timeout in CI
+TIMEOUT = 10 if "CI" in os.environ else 60
 
 
 try:
@@ -21,6 +22,8 @@ if WEBSITE_DOWN:
 
 
 def skip_on_timeout(func):
+    """Skip test in CI when time out."""
+
     @wraps(func)
     def wrapper(*args, **kwargs):
         try:
