@@ -46,9 +46,11 @@ class TestCOD:
 
     @skip_on_timeout
     def test_get_structure_by_formula(self):
-        data = COD(timeout=TIMEOUT).get_structure_by_formula("Li2O")
-        assert len(data) > 15
-        assert data[0]["structure"].reduced_formula == "Li2O"
+        # This formula has only one match (as of 2024-10-17) therefore
+        # the runtime is shorter (~ 2s for each match)
+        data = COD(timeout=TIMEOUT).get_structure_by_formula("C3 H18 F6 Fe N9")
+        assert len(data) >= 1
+        assert data[0]["structure"].reduced_formula == "FeH18C3(N3F2)3"
 
     @skip_on_timeout
     def test_get_structure_by_id(self):
