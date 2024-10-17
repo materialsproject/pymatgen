@@ -30,13 +30,15 @@ from __future__ import annotations
 import re
 import subprocess
 import warnings
-from shutil import which
+from typing import TYPE_CHECKING
 
 import requests
-from monty.dev import requires
 
 from pymatgen.core.composition import Composition
 from pymatgen.core.structure import Structure
+
+if TYPE_CHECKING:
+    from typing import Literal
 
 
 class COD:
@@ -56,19 +58,15 @@ class COD:
         response = subprocess.check_output(["mysql", "-u", "cod_reader", "-h", self.url, "-e", sql, "cod"])
         return response.decode("utf-8")
 
-    @requires(which("mysql"), "mysql must be installed to use this query.")
     def get_cod_ids(self, formula) -> list[int]:
-        """Query the COD for all cod ids associated with a formula. Requires
-        mysql executable to be in the path.
+        """Query the COD for all COD IDs associated with a formula.
 
         Args:
             formula (str): Formula.
 
         Returns:
-            List of cod ids.
+            List of COD IDs.
         """
-        # TODO: Remove dependency on external mysql call. MySQL-python package does not support Py3!
-
         # Standardize formula to the version used by COD
         cod_formula = Composition(formula).hill_formula
         sql = f'select file from data where formula="- {cod_formula} -"'  # noqa: S608
@@ -80,10 +78,10 @@ class COD:
         return cod_ids
 
     def get_structure_by_id(self, cod_id: int, timeout: int = 600, **kwargs) -> Structure:
-        """Query the COD for a structure by id.
+        """Query the COD for a structure by ID.
 
         Args:
-            cod_id (int): COD id.
+            cod_id (int): COD ID.
             timeout (int): Timeout for the request in seconds. Default = 600.
             kwargs: All kwargs supported by Structure.from_str.
 
@@ -93,10 +91,12 @@ class COD:
         response = requests.get(f"https://{self.url}/cod/{cod_id}.cif", timeout=timeout)
         return Structure.from_str(response.text, fmt="cif", **kwargs)
 
-    @requires(which("mysql"), "mysql must be installed to use this query.")
-    def get_structure_by_formula(self, formula: str, **kwargs) -> list[dict[str, str | int | Structure]]:
-        """Query the COD for structures by formula. Requires mysql executable to
-        be in the path.
+    def get_structure_by_formula(
+        self,
+        formula: str,
+        **kwargs,
+    ) -> list[dict[Literal["structure", "cod_id", "sg"], str | int | Structure]]:
+        """Query the COD for structures by formula.
 
         Args:
             formula (str): Chemical formula.
@@ -105,7 +105,7 @@ class COD:
         Returns:
             A list of dict of the format [{"structure": Structure, "cod_id": int, "sg": "P n m a"}]
         """
-        structures: list[dict[str, str | int | Structure]] = []
+        structures: list[dict[Literal["structure", "cod_id", "sg"], str | int | Structure]] = []
         sql = f'select file, sg from data where formula="- {Composition(formula).hill_formula} -"'  # noqa: S608
         text = self.query(sql).split("\n")
         text.pop(0)
