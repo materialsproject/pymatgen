@@ -77,12 +77,12 @@ class COD:
                 cod_ids.append(int(match[1]))
         return cod_ids
 
-    def get_structure_by_id(self, cod_id: int, timeout: int = 600, **kwargs) -> Structure:
+    def get_structure_by_id(self, cod_id: int, timeout: int = 60, **kwargs) -> Structure:
         """Query the COD for a structure by ID.
 
         Args:
             cod_id (int): COD ID.
-            timeout (int): Timeout for the request in seconds. Default = 600.
+            timeout (int): Timeout for the request in seconds. Default is 60.
             kwargs: All kwargs supported by Structure.from_str.
 
         Returns:
