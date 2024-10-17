@@ -182,6 +182,7 @@ class TestEnumerateStructureTransformation:
         for struct_trafo in alls:
             assert "energy" not in struct_trafo
 
+    @pytest.mark.skip("matgl is not working for torch 2.4.1, see #4101")
     def test_m3gnet(self):
         pytest.importorskip("matgl")
         enum_trans = EnumerateStructureTransformation(refine_structure=True, sort_criteria="m3gnet_relax")
@@ -197,6 +198,7 @@ class TestEnumerateStructureTransformation:
         # Check ordering of energy/atom
         assert alls[0]["energy"] / alls[0]["num_sites"] <= alls[-1]["energy"] / alls[-1]["num_sites"]
 
+    @pytest.mark.skip("matgl is not working for torch 2.4.1, see #4101")
     def test_callable_sort_criteria(self):
         matgl = pytest.importorskip("matgl")
         from matgl.ext.ase import Relaxer
