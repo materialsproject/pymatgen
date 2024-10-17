@@ -238,6 +238,7 @@ CELL_PARAMETERS angstrom
   smearing = 'cold'
 /
 &ELECTRONS
+  conv_thr = 5.3E-5,
 /
 &IONS
 /
@@ -375,6 +376,7 @@ CELL_PARAMETERS angstrom
 
         assert_allclose(lattice, pw_in.structure.lattice.matrix)
         assert pw_in.sections["system"]["smearing"] == "cold"
+        assert pw_in.sections["electrons"]["conv_thr"] == 5.3e-5
 
     def test_write_and_read_str(self):
         struct = self.get_structure("Graphite")
