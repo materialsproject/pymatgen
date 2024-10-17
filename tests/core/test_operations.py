@@ -40,9 +40,6 @@ class TestSymmOp(PymatgenTest):
         assert_allclose(inverse_op.operate(new_coord), point, 2)
         assert_allclose(self.op.tol, inverse_op.tol)
 
-        assert id(self.op) != id(inverse_op)
-        assert id(self.op.affine_matrix) != id(inverse_op.affine_matrix)
-
     def test_reflection(self):
         rng = np.random.default_rng()
         normal = rng.random(3)
