@@ -1,7 +1,6 @@
 from __future__ import annotations
 
 import os
-from shutil import which
 from unittest import TestCase
 
 import pytest
@@ -15,19 +14,19 @@ if "CI" in os.environ:  # test is slow and flaky, skip in CI. see
     pytest.skip(allow_module_level=True, reason="Skip COD test in CI")
 
 try:
-    WEBSITE_DOWN = requests.get("https://www.crystallography.net", timeout=60).status_code != 200
+    WEBSITE_DOWN = requests.get("https://www.crystallography.net", timeout=10).status_code != 200
 except (requests.exceptions.ConnectionError, urllib3.exceptions.ConnectTimeoutError):
     WEBSITE_DOWN = True
 
+if WEBSITE_DOWN:
+    pytest.skip(reason="www.crystallography.net is down", allow_module_level=True)
 
-@pytest.mark.skipif(WEBSITE_DOWN, reason="www.crystallography.net is down")
+
 class TestCOD(TestCase):
-    @pytest.mark.skipif(not which("mysql"), reason="No mysql")
     def test_get_cod_ids(self):
         ids = COD().get_cod_ids("Li2O")
         assert len(ids) > 15
 
-    @pytest.mark.skipif(not which("mysql"), reason="No mysql")
     def test_get_structure_by_formula(self):
         data = COD().get_structure_by_formula("Li2O")
         assert len(data) > 15
