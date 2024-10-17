@@ -33,11 +33,15 @@ class TestSymmOp(PymatgenTest):
     def test_inverse(self):
         point = np.random.default_rng().random(3)
         new_coord = self.op.operate(point)
-        assert_allclose(self.op.inverse.operate(new_coord), point, 2)
 
         # Make sure tol is passed correctly
         self.op.tol = 0.02  # non-default
-        assert_allclose(self.op.tol, self.op.inverse.tol)
+        inverse_op = self.op.inverse
+        assert_allclose(inverse_op.operate(new_coord), point, 2)
+        assert_allclose(self.op.tol, inverse_op.tol)
+
+        assert id(self.op) != id(inverse_op)
+        assert id(self.op.affine_matrix) != id(inverse_op.affine_matrix)
 
     def test_reflection(self):
         rng = np.random.default_rng()

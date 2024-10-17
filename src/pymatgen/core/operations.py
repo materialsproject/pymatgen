@@ -244,7 +244,7 @@ class SymmOp(MSONable):
     @property
     def inverse(self) -> Self:
         """Inverse of transformation."""
-        new_instance = copy.copy(self)
+        new_instance = copy.deepcopy(self)
         new_instance.affine_matrix = np.linalg.inv(self.affine_matrix)
         return new_instance
 
