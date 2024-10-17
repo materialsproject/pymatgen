@@ -20,7 +20,7 @@ from monty.io import zopen
 from monty.json import MontyDecoder, MSONable
 from monty.os.path import zpath
 
-from pymatgen.core import SETTINGS, Element, Lattice, Molecule, Species, Structure
+from pymatgen.core import SETTINGS, Element, Lattice, Molecule, Structure
 
 if TYPE_CHECKING:
     from collections.abc import Sequence
@@ -865,15 +865,12 @@ class SpeciesDefaults(list, MSONable):
         """Initialize species defaults from a structure."""
         labels = []
         elements = {}
-        for label, el in sorted(zip(struct.labels, struct.species, strict=True)):
-            if isinstance(el, Species):
-                el = el.element
-            if (label is None) or (el is None):
-                raise ValueError("Something is terribly wrong with the structure")
-            if label not in labels:
-                labels.append(label)
-                elements[label] = el.name
-        return SpeciesDefaults(labels, basis_set, species_dir=species_dir, elements=elements)
+        for site in struct:
+            el = site.specie
+            if site.species_string not in labels:
+                labels.append(site.species_string)
+                elements[site.species_string] = el.name
+        return SpeciesDefaults(sorted(labels), basis_set, species_dir=species_dir, elements=elements)
 
     def to_dict(self):
         """Dictionary representation of the species' defaults"""
