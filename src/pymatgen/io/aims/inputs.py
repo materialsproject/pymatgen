@@ -164,7 +164,7 @@ class AimsGeometryIn(MSONable):
                 content_lines.append(f"     initial_charge {charge:.12e}")
             if (spin is not None) and (spin != 0):
                 content_lines.append(f"     initial_moment {spin:.12e}")
-            if any(v_i != 0.0 for v_i in v):
+            if (v is not None) and any(v_i != 0.0 for v_i in v):
                 content_lines.append(f"     velocity   {'  '.join([f'{v_i:.12e}' for v_i in v])}")
 
         return cls(_content="\n".join(content_lines), _structure=structure)
