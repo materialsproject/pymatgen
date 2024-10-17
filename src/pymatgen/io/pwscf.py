@@ -355,9 +355,10 @@ class PWInput:
                     pseudo[match[2].strip()] = match[4].strip()
 
             elif mode[0] == "kpoints":
-                if match := re.match(r"(\d+)\s+(\d+)\s+(\d+)\s+(\d+)\s+(\d+)\s+(\d+)", line):
-                    kpoints_grid = (int(match[1]), int(match[2]), int(match[3]))
-                    kpoints_shift = (int(match[4]), int(match[5]), int(match[6]))
+                if match := re.match(r"^(\s*)(\d+)\s+(\d+)\s+(\d+)\s+(\d+)\s+(\d+)\s+(\d+)", line):
+                    format_options["indent"] = len(match[1])
+                    kpoints_grid = (int(match[2]), int(match[3]), int(match[4]))
+                    kpoints_shift = (int(match[5]), int(match[6]), int(match[7]))
                 else:
                     kpoints_mode = mode[1]
 
