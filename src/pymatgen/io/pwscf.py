@@ -537,7 +537,7 @@ class PWInput:
                 raise ValueError(f"{key} should be a boolean type!")
 
             if key in float_keys:
-                return float(re.search(r"^-?\d*\.?\d*d?-?\d*", val.lower())[0].replace("d", "e"))
+                return float(re.search(r"^-?\d*\.?\d*[de]?-?\d*", val.lower())[0].replace("d", "e"))
 
             if key in int_keys:
                 return int(re.match(r"^-?[0-9]+", val)[0])
