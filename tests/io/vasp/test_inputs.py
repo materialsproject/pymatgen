@@ -14,6 +14,7 @@ import pytest
 import scipy.constants as const
 from monty.io import zopen
 from monty.serialization import loadfn
+from monty.tempfile import ScratchDir
 from numpy.testing import assert_allclose
 from pytest import approx
 
@@ -549,8 +550,26 @@ class TestIncar(PymatgenTest):
     def test_from_file_and_from_dict(self):
         """
         Init Incar from file (from str) should yield the same results as from dict.
-        TODO: WIP
         """
+        # Init from dict
+        incar_dict = {"ENCUT": 500, "GGA": "PS"}
+        incar_from_dict = Incar(incar_dict)
+
+        # Init from file (from string)
+        incar_str = """\
+        ENCUT = 500
+        GGA = PS
+        """
+
+        with ScratchDir("."):
+            with open("INCAR", "w", encoding="utf-8") as f:
+                f.write(incar_str)
+
+            incar_from_file = Incar.from_file("INCAR")
+
+        assert incar_from_dict == incar_from_file
+        for key in incar_from_dict:
+            assert type(incar_from_dict[key]) is type(incar_from_file[key])
 
     def test_copy(self):
         incar2 = self.incar.copy()
