@@ -546,6 +546,12 @@ class TestIncar(PymatgenTest):
         assert float(incar["EDIFF"]) == 1e-4, "Wrong EDIFF"
         assert isinstance(incar["LORBIT"], int)
 
+    def test_from_file_and_from_dict(self):
+        """
+        Init Incar from file (from str) should yield the same results as from dict.
+        TODO: WIP
+        """
+
     def test_copy(self):
         incar2 = self.incar.copy()
         assert isinstance(incar2, Incar), f"Expected Incar, got {type(incar2).__name__}"
@@ -648,7 +654,7 @@ class TestIncar(PymatgenTest):
         incar_str = self.incar.get_str(pretty=True, sort_keys=True)
         expected = """ALGO       =  Damped
 EDIFF      =  0.0001
-ENCUT      =  500
+ENCUT      =  500.0
 ENCUTFOCK  =  0.0
 HFSCREEN   =  0.207
 IBRION     =  2
@@ -775,6 +781,8 @@ SIGMA = 0.1"""
                     "AMIN": 0.01,
                     "ICHARG": 1,
                     "MAGMOM": [1, 2, 4, 5],
+                    "ENCUT": 500,  # make sure float key is casted
+                    "GGA": "PS",  # test string case insensitivity
                     "LREAL": True,  # special case: Union type
                     "NBAND": 250,  # typo in tag
                     "METAGGA": "SCAM",  # typo in value
