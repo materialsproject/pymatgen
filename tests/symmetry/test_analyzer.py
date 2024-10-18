@@ -510,6 +510,7 @@ class TestPointGroupAnalyzer(PymatgenTest):
         mol = Molecule.from_file(f"{TEST_DIR}/dh.xyz")
         pg_analyzer = PointGroupAnalyzer(mol, 0.1)
         assert pg_analyzer.sch_symbol == "D*h"
+        assert pg_analyzer.get_rotational_symmetry_number() == 2
 
     def test_linear(self):
         coords = [
@@ -520,9 +521,12 @@ class TestPointGroupAnalyzer(PymatgenTest):
         mol = Molecule(["C", "H", "H"], coords)
         pg_analyzer = PointGroupAnalyzer(mol)
         assert pg_analyzer.sch_symbol == "D*h"
+        assert pg_analyzer.get_rotational_symmetry_number() == 2
+
         mol = Molecule(["C", "H", "N"], coords)
         pg_analyzer = PointGroupAnalyzer(mol)
         assert pg_analyzer.sch_symbol == "C*v"
+        assert pg_analyzer.get_rotational_symmetry_number() == 1
 
     def test_asym_top(self):
         coords = [
