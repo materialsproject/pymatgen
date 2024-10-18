@@ -14,6 +14,7 @@ import os
 import re
 import subprocess
 import warnings
+from collections import Counter
 from enum import Enum, unique
 from glob import glob
 from hashlib import sha256
@@ -854,13 +855,12 @@ class Incar(dict, MSONable):
         Returns:
             Incar object
         """
-        lines: list[str] = list(clean_lines(string.splitlines()))
         params: dict[str, Any] = {}
-        for line in lines:
+        for line in clean_lines(string.splitlines()):
             for sline in line.split(";"):
                 if match := re.match(r"(\w+)\s*=\s*(.*)", sline.strip()):
                     key: str = match[1].strip()
-                    val: Any = match[2].strip()
+                    val: str = match[2].strip()
                     params[key] = cls.proc_val(key, val)
         return cls(params)
 
@@ -870,7 +870,7 @@ class Incar(dict, MSONable):
         like ints, floats, lists, etc.
 
         Args:
-            key (str): INCAR parameter key
+            key (str): INCAR parameter key.
             val (Any): Value of INCAR parameter.
         """
         list_keys = (
@@ -906,6 +906,7 @@ class Incar(dict, MSONable):
             "AGGAC",
             "PARAM1",
             "PARAM2",
+            "ENCUT",
         )
         int_keys = (
             "NSW",
@@ -921,7 +922,6 @@ class Incar(dict, MSONable):
             "NPAR",
             "LDAUPRINT",
             "LMAXMIX",
-            "ENCUT",
             "NSIM",
             "NKRED",
             "NUPDOWN",
@@ -931,7 +931,7 @@ class Incar(dict, MSONable):
         )
         lower_str_keys = ("ML_MODE",)
 
-        def smart_int_or_float(num_str: str) -> str | float:
+        def smart_int_or_float(num_str: str) -> float:
             """Determine whether a string represents an integer or a float."""
             if "." in num_str or "e" in num_str.lower():
                 return float(num_str)
@@ -1022,6 +1022,13 @@ class Incar(dict, MSONable):
         If a tag doesn't exist, calculation will still run, however VASP
         will ignore the tag and set it as default without letting you know.
         """
+        # Check for duplicate
+        key_counts = Counter(key.upper() for key in self)
+        duplicates = [key for key, count in key_counts.items() if count > 1]
+
+        if duplicates:
+            warnings.warn(f"Duplicate keys found: {', '.join(duplicates)}", BadIncarWarning, stacklevel=2)
+
         # Load INCAR tag/value check reference file
         with open(os.path.join(MODULE_DIR, "incar_parameters.json"), encoding="utf-8") as json_file:
             incar_params = json.loads(json_file.read())
@@ -1032,7 +1039,7 @@ class Incar(dict, MSONable):
                 warnings.warn(f"Cannot find {tag} in the list of INCAR tags", BadIncarWarning, stacklevel=2)
                 continue
 
-            # Check value and its type
+            # Check value type
             param_type: str = incar_params[tag].get("type")
             allowed_values: list[Any] = incar_params[tag].get("values")
 
@@ -1041,8 +1048,19 @@ class Incar(dict, MSONable):
 
             # Only check value when it's not None,
             # meaning there is recording for corresponding value
-            if allowed_values is not None and val not in allowed_values:
-                warnings.warn(f"{tag}: Cannot find {val} in the list of values", BadIncarWarning, stacklevel=2)
+            if allowed_values is not None:
+                original_val = val
+
+                # Remove case sensitivitiy for string keywords
+                # Note: param_type could be a Union type, e.g. "str | bool"
+                if "str" in param_type:
+                    val = val.lower() if isinstance(val, str) else val
+                    allowed_values = [item.lower() if isinstance(item, str) else item for item in allowed_values]
+
+                if val not in allowed_values:
+                    warnings.warn(
+                        f"{tag}: Cannot find {original_val} in the list of values", BadIncarWarning, stacklevel=2
+                    )
 
 
 class BadIncarWarning(UserWarning):
@@ -1712,6 +1730,7 @@ def _parse_int(string: str) -> int:
 
 
 def _parse_list(string: str) -> list[float]:
+    """Parse a list of floats from a string."""
     return [float(y) for y in re.split(r"\s+", string.strip()) if not y.isalpha()]
 
 

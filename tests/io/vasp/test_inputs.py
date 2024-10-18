@@ -14,6 +14,7 @@ import pytest
 import scipy.constants as const
 from monty.io import zopen
 from monty.serialization import loadfn
+from monty.tempfile import ScratchDir
 from numpy.testing import assert_allclose
 from pytest import approx
 
@@ -39,25 +40,25 @@ from pymatgen.io.vasp.inputs import (
 from pymatgen.util.testing import FAKE_POTCAR_DIR, TEST_FILES_DIR, VASP_IN_DIR, VASP_OUT_DIR, PymatgenTest
 
 # make sure _gen_potcar_summary_stats runs and works with all tests in this file
-_summ_stats = _gen_potcar_summary_stats(append=False, vasp_psp_dir=str(FAKE_POTCAR_DIR), summary_stats_filename=None)
+_SUMM_STATS = _gen_potcar_summary_stats(append=False, vasp_psp_dir=str(FAKE_POTCAR_DIR), summary_stats_filename=None)
 
 
 @pytest.fixture(autouse=True)
 def _mock_complete_potcar_summary_stats(monkeypatch: pytest.MonkeyPatch) -> None:
     # Override POTCAR library to use fake scrambled POTCARs
     monkeypatch.setitem(SETTINGS, "PMG_VASP_PSP_DIR", str(FAKE_POTCAR_DIR))
-    monkeypatch.setattr(PotcarSingle, "_potcar_summary_stats", _summ_stats)
+    monkeypatch.setattr(PotcarSingle, "_potcar_summary_stats", _SUMM_STATS)
 
     # The fake POTCAR library is pretty big even with just a few sub-libraries
     # just copying over entries to work with PotcarSingle.is_valid
     for func in PotcarSingle.functional_dir:
-        if func in _summ_stats:
+        if func in _SUMM_STATS:
             continue
         if "pbe" in func.lower() or "pw91" in func.lower():
             # Generate POTCAR hashes on the fly
-            _summ_stats[func] = _summ_stats["PBE_54_W_HASH"].copy()
+            _SUMM_STATS[func] = _SUMM_STATS["PBE_54_W_HASH"].copy()
         elif "lda" in func.lower() or "perdew_zunger81" in func.lower():
-            _summ_stats[func] = _summ_stats["LDA_64"].copy()
+            _SUMM_STATS[func] = _SUMM_STATS["LDA_64"].copy()
 
 
 class TestPoscar(PymatgenTest):
@@ -638,6 +639,33 @@ class TestIncar(PymatgenTest):
         incar3 = Incar.from_dict(dct)
         assert incar3["MAGMOM"] == [Magmom([1, 2, 3])]
 
+    def test_from_file_and_from_dict(self):
+        """
+        Init from file (from str) should yield the same results as from dict.
+
+        Setter method should capitalize string keys ("GGA" in this case),
+        and cast unknown keys to expected type ("ENCUT" should be float).
+        """
+        # Init from dict
+        incar_dict = {"ENCUT": 500, "GGA": "PS"}
+        incar_from_dict = Incar(incar_dict)
+
+        # Init from file (from string)
+        incar_str = """\
+        ENCUT = 500
+        GGA = PS
+        """
+
+        with ScratchDir("."):
+            with open("INCAR", "w", encoding="utf-8") as f:
+                f.write(incar_str)
+
+            incar_from_file = Incar.from_file("INCAR")
+
+        assert incar_from_dict == incar_from_file
+        for key in incar_from_dict:
+            assert type(incar_from_dict[key]) is type(incar_from_file[key])
+
     def test_write(self):
         tmp_file = f"{self.tmp_path}/INCAR.testing"
         self.incar.write_file(tmp_file)
@@ -648,7 +676,7 @@ class TestIncar(PymatgenTest):
         incar_str = self.incar.get_str(pretty=True, sort_keys=True)
         expected = """ALGO       =  Damped
 EDIFF      =  0.0001
-ENCUT      =  500
+ENCUT      =  500.0
 ENCUTFOCK  =  0.0
 HFSCREEN   =  0.207
 IBRION     =  2
@@ -777,23 +805,25 @@ SIGMA = 0.1"""
 
     def test_check_params(self):
         # Triggers warnings when running into invalid parameters
+        incar = Incar(
+            {
+                "ADDGRID": True,
+                "ALGO": "Normal",
+                "AMIN": 0.01,
+                "ICHARG": 1,
+                "MAGMOM": [1, 2, 4, 5],
+                "ENCUT": 500,  # make sure float key is casted
+                "GGA": "PS",  # test string case insensitivity
+                "LREAL": True,  # special case: Union type
+                "NBAND": 250,  # typo in tag
+                "METAGGA": "SCAM",  # typo in value
+                "EDIFF": 5 + 1j,  # value should be a float
+                "ISIF": 9,  # value out of range
+                "LASPH": 5,  # value should be bool
+                "PHON_TLIST": "is_a_str",  # value should be a list
+            }
+        )
         with pytest.warns(BadIncarWarning) as record:
-            incar = Incar(
-                {
-                    "ADDGRID": True,
-                    "ALGO": "Normal",
-                    "AMIN": 0.01,
-                    "ICHARG": 1,
-                    "MAGMOM": [1, 2, 4, 5],
-                    "LREAL": True,  # special case: Union type
-                    "NBAND": 250,  # typo in tag
-                    "METAGGA": "SCAM",  # typo in value
-                    "EDIFF": 5 + 1j,  # value should be a float
-                    "ISIF": 9,  # value out of range
-                    "LASPH": 5,  # value should be bool
-                    "PHON_TLIST": "is_a_str",  # value should be a list
-                }
-            )
             incar.check_params()
 
         assert record[0].message.args[0] == "Cannot find NBAND in the list of INCAR tags"
@@ -802,6 +832,18 @@ SIGMA = 0.1"""
         assert record[3].message.args[0] == "ISIF: Cannot find 9 in the list of values"
         assert record[4].message.args[0] == "LASPH: 5 is not a bool"
         assert record[5].message.args[0] == "PHON_TLIST: is_a_str is not a list"
+
+    def test_check_params_check_duplicate(self):
+        incar = Incar(
+            {
+                "ENCUT": 500,
+                "encut": 400,
+            }
+        )
+        with pytest.warns(BadIncarWarning) as record:
+            incar.check_params()
+
+        assert record[0].message.args[0] == "Duplicate keys found: ENCUT"
 
 
 class TestKpointsSupportedModes:
@@ -1475,8 +1517,8 @@ def test_potcar_summary_stats() -> None:
         assert actual == expected, f"{key=}, {expected=}, {actual=}"
 
 
-def test_gen_potcar_summary_stats(monkeypatch: pytest.MonkeyPatch) -> None:
-    assert set(_summ_stats) == set(PotcarSingle.functional_dir)
+def test_gen_potcar_summary_stats() -> None:
+    assert set(_SUMM_STATS) == set(PotcarSingle.functional_dir)
 
     expected_funcs = [x for x in os.listdir(str(FAKE_POTCAR_DIR)) if x in PotcarSingle.functional_dir]
 
