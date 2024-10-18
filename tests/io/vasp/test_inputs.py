@@ -547,33 +547,6 @@ class TestIncar(PymatgenTest):
         assert float(incar["EDIFF"]) == 1e-4, "Wrong EDIFF"
         assert isinstance(incar["LORBIT"], int)
 
-    def test_from_file_and_from_dict(self):
-        """
-        Init from file (from str) should yield the same results as from dict.
-
-        Setter method should capitalize string keys ("GGA" in this case),
-        and cast unknown keys to expected type ("ENCUT" should be float).
-        """
-        # Init from dict
-        incar_dict = {"ENCUT": 500, "GGA": "PS"}
-        incar_from_dict = Incar(incar_dict)
-
-        # Init from file (from string)
-        incar_str = """\
-        ENCUT = 500
-        GGA = PS
-        """
-
-        with ScratchDir("."):
-            with open("INCAR", "w", encoding="utf-8") as f:
-                f.write(incar_str)
-
-            incar_from_file = Incar.from_file("INCAR")
-
-        assert incar_from_dict == incar_from_file
-        for key in incar_from_dict:
-            assert type(incar_from_dict[key]) is type(incar_from_file[key])
-
     def test_copy(self):
         incar2 = self.incar.copy()
         assert isinstance(incar2, Incar), f"Expected Incar, got {type(incar2).__name__}"
@@ -665,6 +638,33 @@ class TestIncar(PymatgenTest):
         dct["MAGMOM"] = [Magmom([1, 2, 3]).as_dict()]
         incar3 = Incar.from_dict(dct)
         assert incar3["MAGMOM"] == [Magmom([1, 2, 3])]
+
+    def test_from_file_and_from_dict(self):
+        """
+        Init from file (from str) should yield the same results as from dict.
+
+        Setter method should capitalize string keys ("GGA" in this case),
+        and cast unknown keys to expected type ("ENCUT" should be float).
+        """
+        # Init from dict
+        incar_dict = {"ENCUT": 500, "GGA": "PS"}
+        incar_from_dict = Incar(incar_dict)
+
+        # Init from file (from string)
+        incar_str = """\
+        ENCUT = 500
+        GGA = PS
+        """
+
+        with ScratchDir("."):
+            with open("INCAR", "w", encoding="utf-8") as f:
+                f.write(incar_str)
+
+            incar_from_file = Incar.from_file("INCAR")
+
+        assert incar_from_dict == incar_from_file
+        for key in incar_from_dict:
+            assert type(incar_from_dict[key]) is type(incar_from_file[key])
 
     def test_write(self):
         tmp_file = f"{self.tmp_path}/INCAR.testing"
