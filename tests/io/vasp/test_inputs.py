@@ -817,11 +817,11 @@ SIGMA = 0.1"""
             incar.check_params()
 
         assert record[0].message.args[0] == "Cannot find NBAND in the list of INCAR tags"
-        assert record[1].message.args[0] == "METAGGA: Cannot find Scam in the list of values"
+        assert record[1].message.args[0] == "METAGGA: Cannot find SCAM in the list of values"
         assert record[2].message.args[0] == "EDIFF: (5+1j) is not a float"
         assert record[3].message.args[0] == "ISIF: Cannot find 9 in the list of values"
         assert record[4].message.args[0] == "LASPH: 5 is not a bool"
-        assert record[5].message.args[0] == "PHON_TLIST: Is_a_str is not a list"
+        assert record[5].message.args[0] == "PHON_TLIST: is_a_str is not a list"
 
     def test_check_params_check_duplicate(self):
         incar = Incar(
