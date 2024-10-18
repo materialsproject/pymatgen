@@ -369,7 +369,7 @@ class SpacegroupAnalyzer:
         if keep_site_properties:
             site_properties = {}
             for k, v in self._site_props.items():
-                site_properties[k] = [v[i - 1] for i in numbers]
+                site_properties[k] = [v[self._numbers.index(i)] for i in numbers]
         else:
             site_properties = None
         struct = Structure(lattice, species, scaled_positions, site_properties=site_properties)
@@ -398,7 +398,7 @@ class SpacegroupAnalyzer:
         if keep_site_properties:
             site_properties = {}
             for key, val in self._site_props.items():
-                site_properties[key] = [val[i - 1] for i in numbers]
+                site_properties[key] = [val[self._numbers.index(i)] for i in numbers]
         else:
             site_properties = None
 
