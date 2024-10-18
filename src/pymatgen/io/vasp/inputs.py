@@ -1042,6 +1042,8 @@ class Incar(dict, MSONable):
             # Only check value when it's not None,
             # meaning there is recording for corresponding value
             if allowed_values is not None:
+                original_val = val
+
                 # Remove case sensitivitiy for string keywords
                 # Note: param_type could be a Union type, e.g. "str | bool"
                 if "str" in param_type:
@@ -1049,7 +1051,9 @@ class Incar(dict, MSONable):
                     allowed_values = [item.lower() if isinstance(item, str) else item for item in allowed_values]
 
                 if val not in allowed_values:
-                    warnings.warn(f"{tag}: Cannot find {val} in the list of values", BadIncarWarning, stacklevel=2)
+                    warnings.warn(
+                        f"{tag}: Cannot find {original_val} in the list of values", BadIncarWarning, stacklevel=2
+                    )
 
 
 class BadIncarWarning(UserWarning):
