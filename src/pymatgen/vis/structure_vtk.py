@@ -229,7 +229,7 @@ class StructureVis:
 
         matrix = struct.lattice.matrix if has_lattice else None
 
-        if self.show_unit_cell and has_lattice:
+        if self.show_unit_cell and has_lattice and matrix is not None:
             self.add_text([0, 0, 0], "o")
             for vec in matrix:
                 self.add_line((0, 0, 0), vec, colors[count])
@@ -283,7 +283,7 @@ class StructureVis:
 
         camera = self.ren.GetActiveCamera()
         if reset_camera:
-            if has_lattice:
+            if has_lattice and matrix is not None:
                 # Adjust the camera for best viewing
                 lengths = struct.lattice.abc
                 pos = (matrix[1] + matrix[2]) * 0.5 + matrix[0] * max(lengths) / lengths[0] * 3.5

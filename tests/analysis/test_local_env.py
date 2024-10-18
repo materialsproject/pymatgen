@@ -961,6 +961,7 @@ class TestLocalStructOrderParams(PymatgenTest):
         parameters = [{"norm": 2}]
         lostops = LocalStructOrderParams(["cn"], parameters=parameters)
         tmp = lostops.get_parameters(0)
+        assert tmp == {"norm": 2}
         parameters[0]["norm"] = 3
         assert tmp == lostops.get_parameters(0)
 
