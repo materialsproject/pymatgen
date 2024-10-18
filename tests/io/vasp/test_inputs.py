@@ -1507,7 +1507,7 @@ def test_potcar_summary_stats() -> None:
         assert actual == expected, f"{key=}, {expected=}, {actual=}"
 
 
-def test_gen_potcar_summary_stats(monkeypatch: pytest.MonkeyPatch) -> None:
+def test_gen_potcar_summary_stats() -> None:
     assert set(_summ_stats) == set(PotcarSingle.functional_dir)
 
     expected_funcs = [x for x in os.listdir(str(FAKE_POTCAR_DIR)) if x in PotcarSingle.functional_dir]
