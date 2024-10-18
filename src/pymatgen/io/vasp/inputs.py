@@ -931,7 +931,7 @@ class Incar(dict, MSONable):
         )
         lower_str_keys = ("ML_MODE",)
 
-        def smart_int_or_float(num_str: str) -> str | float:  # TODO: fix wrong return type
+        def smart_int_or_float(num_str: str) -> float:
             """Determine whether a string represents an integer or a float."""
             if "." in num_str or "e" in num_str.lower():
                 return float(num_str)
