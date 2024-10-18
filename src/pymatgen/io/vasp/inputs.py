@@ -735,7 +735,8 @@ class Incar(dict, MSONable):
                     val.append(params["MAGMOM"][idx * 3 : (idx + 1) * 3])
                 params["MAGMOM"] = val
 
-            self.update(params)
+            for key, value in params.items():
+                self[key] = value
 
     def __setitem__(self, key: str, val: Any) -> None:
         """
@@ -745,7 +746,7 @@ class Incar(dict, MSONable):
         """
         super().__setitem__(
             key.strip(),
-            type(self).proc_val(key.strip(), val.strip()) if isinstance(val, str) else val,
+            val if isinstance(val, list) else type(self).proc_val(key.strip(), str(val).strip()),
         )
 
     def __str__(self) -> str:
