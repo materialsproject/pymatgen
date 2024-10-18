@@ -186,10 +186,14 @@ class AimsInputGenerator(InputGenerator):
             parameters for the FHI-aims calculator
         user_kpoints_settings (dict[str, Any]):  The settings
             used to create the k-grid parameters for FHI-aims
+        use_structure_charge (bool): If set to True, then the overall charge of the
+            structure (structure.charge) is used to set the `charge` variable in the
+            `control.in`. Default is False.
     """
 
     user_params: dict[str, Any] = field(default_factory=dict)
     user_kpoints_settings: dict[str, Any] = field(default_factory=dict)
+    use_structure_charge: bool = False
 
     def get_input_set(
         self,
@@ -321,6 +325,9 @@ class AimsInputGenerator(InputGenerator):
 
         parameter_updates = self.get_parameter_updates(structure, prev_parameters)
         params = recursive_update(params, parameter_updates)
+        # Add the structure charge (useful for defect workflows)
+        if self.use_structure_charge:
+            params["charge"] = structure.charge
 
         # Override default parameters with user_params
         params = recursive_update(params, self.user_params)
