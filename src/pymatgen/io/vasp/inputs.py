@@ -1730,6 +1730,7 @@ def _parse_int(string: str) -> int:
 
 
 def _parse_list(string: str) -> list[float]:
+    """Parse a list of floats from a string."""
     return [float(y) for y in re.split(r"\s+", string.strip()) if not y.isalpha()]
 
 
