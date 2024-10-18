@@ -855,9 +855,8 @@ class Incar(dict, MSONable):
         Returns:
             Incar object
         """
-        lines: list[str] = list(clean_lines(string.splitlines()))
         params: dict[str, Any] = {}
-        for line in lines:
+        for line in clean_lines(string.splitlines()):
             for sline in line.split(";"):
                 if match := re.match(r"(\w+)\s*=\s*(.*)", sline.strip()):
                     key: str = match[1].strip()
