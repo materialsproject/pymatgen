@@ -773,25 +773,25 @@ SIGMA = 0.1"""
 
     def test_check_params(self):
         # Triggers warnings when running into invalid parameters
+        incar = Incar(
+            {
+                "ADDGRID": True,
+                "ALGO": "Normal",
+                "AMIN": 0.01,
+                "ICHARG": 1,
+                "MAGMOM": [1, 2, 4, 5],
+                "ENCUT": 500,  # make sure float key is casted
+                "GGA": "PS",  # test string case insensitivity
+                "LREAL": True,  # special case: Union type
+                "NBAND": 250,  # typo in tag
+                "METAGGA": "SCAM",  # typo in value
+                "EDIFF": 5 + 1j,  # value should be a float
+                "ISIF": 9,  # value out of range
+                "LASPH": 5,  # value should be bool
+                "PHON_TLIST": "is_a_str",  # value should be a list
+            }
+        )
         with pytest.warns(BadIncarWarning) as record:
-            incar = Incar(
-                {
-                    "ADDGRID": True,
-                    "ALGO": "Normal",
-                    "AMIN": 0.01,
-                    "ICHARG": 1,
-                    "MAGMOM": [1, 2, 4, 5],
-                    "ENCUT": 500,  # make sure float key is casted
-                    "GGA": "PS",  # test string case insensitivity
-                    "LREAL": True,  # special case: Union type
-                    "NBAND": 250,  # typo in tag
-                    "METAGGA": "SCAM",  # typo in value
-                    "EDIFF": 5 + 1j,  # value should be a float
-                    "ISIF": 9,  # value out of range
-                    "LASPH": 5,  # value should be bool
-                    "PHON_TLIST": "is_a_str",  # value should be a list
-                }
-            )
             incar.check_params()
 
         assert record[0].message.args[0] == "Cannot find NBAND in the list of INCAR tags"
@@ -800,6 +800,18 @@ SIGMA = 0.1"""
         assert record[3].message.args[0] == "ISIF: Cannot find 9 in the list of values"
         assert record[4].message.args[0] == "LASPH: 5 is not a bool"
         assert record[5].message.args[0] == "PHON_TLIST: is_a_str is not a list"
+
+    def test_check_params_check_duplicate(self):
+        incar = Incar(
+            {
+                "ENCUT": 500,
+                "encut": 400,
+            }
+        )
+        with pytest.warns(BadIncarWarning) as record:
+            incar.check_params()
+
+        assert record[0].message.args[0] == "Duplicate keys found: ENCUT"
 
 
 class TestKpointsSupportedModes:
