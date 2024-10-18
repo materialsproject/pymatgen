@@ -33,7 +33,12 @@ class TestSymmOp(PymatgenTest):
     def test_inverse(self):
         point = np.random.default_rng().random(3)
         new_coord = self.op.operate(point)
-        assert_allclose(self.op.inverse.operate(new_coord), point, 2)
+
+        # Make sure tol is passed correctly
+        self.op.tol = 0.02  # non-default
+        inverse_op = self.op.inverse
+        assert_allclose(inverse_op.operate(new_coord), point, 2)
+        assert_allclose(self.op.tol, inverse_op.tol)
 
     def test_reflection(self):
         rng = np.random.default_rng()
@@ -237,7 +242,6 @@ class TestMagSymmOp(PymatgenTest):
 
         magop = MagSymmOp.from_symmop(op, -1)
         magop_str = magop.as_xyzt_str()
-        assert magop.time_reversal == -1
         assert magop_str == "3x-2y-z+1/2, -x+12/13, z+1/2, -1"
 
     def test_as_from_dict(self):
@@ -263,3 +267,11 @@ class TestMagSymmOp(PymatgenTest):
             for magmom in magmoms:
                 op = MagSymmOp.from_xyzt_str(xyzt_string)
                 assert_allclose(transformed_magmom, op.operate_magmom(magmom).global_moment)
+
+    def test_inverse(self):
+        op = SymmOp([[3, -2, -1, 0.5], [-1, 0, 0, 12.0 / 13], [0, 0, 1, 0.5 + 1e-7], [0, 0, 0, 1]], tol=0.02)
+
+        magop = MagSymmOp.from_symmop(op, -1)
+        assert magop.time_reversal == -1
+        assert magop.tol == 0.02
+        assert_allclose(magop.inverse.affine_matrix, np.linalg.inv(magop.affine_matrix))
