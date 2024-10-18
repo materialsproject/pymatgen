@@ -906,6 +906,7 @@ class Incar(dict, MSONable):
             "AGGAC",
             "PARAM1",
             "PARAM2",
+            "ENCUT",
         )
         int_keys = (
             "NSW",
@@ -921,7 +922,6 @@ class Incar(dict, MSONable):
             "NPAR",
             "LDAUPRINT",
             "LMAXMIX",
-            "ENCUT",
             "NSIM",
             "NKRED",
             "NUPDOWN",
