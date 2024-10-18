@@ -40,25 +40,25 @@ from pymatgen.io.vasp.inputs import (
 from pymatgen.util.testing import FAKE_POTCAR_DIR, TEST_FILES_DIR, VASP_IN_DIR, VASP_OUT_DIR, PymatgenTest
 
 # make sure _gen_potcar_summary_stats runs and works with all tests in this file
-_summ_stats = _gen_potcar_summary_stats(append=False, vasp_psp_dir=str(FAKE_POTCAR_DIR), summary_stats_filename=None)
+_SUMM_STATS = _gen_potcar_summary_stats(append=False, vasp_psp_dir=str(FAKE_POTCAR_DIR), summary_stats_filename=None)
 
 
 @pytest.fixture(autouse=True)
 def _mock_complete_potcar_summary_stats(monkeypatch: pytest.MonkeyPatch) -> None:
     # Override POTCAR library to use fake scrambled POTCARs
     monkeypatch.setitem(SETTINGS, "PMG_VASP_PSP_DIR", str(FAKE_POTCAR_DIR))
-    monkeypatch.setattr(PotcarSingle, "_potcar_summary_stats", _summ_stats)
+    monkeypatch.setattr(PotcarSingle, "_potcar_summary_stats", _SUMM_STATS)
 
     # The fake POTCAR library is pretty big even with just a few sub-libraries
     # just copying over entries to work with PotcarSingle.is_valid
     for func in PotcarSingle.functional_dir:
-        if func in _summ_stats:
+        if func in _SUMM_STATS:
             continue
         if "pbe" in func.lower() or "pw91" in func.lower():
             # Generate POTCAR hashes on the fly
-            _summ_stats[func] = _summ_stats["PBE_54_W_HASH"].copy()
+            _SUMM_STATS[func] = _SUMM_STATS["PBE_54_W_HASH"].copy()
         elif "lda" in func.lower() or "perdew_zunger81" in func.lower():
-            _summ_stats[func] = _summ_stats["LDA_64"].copy()
+            _SUMM_STATS[func] = _SUMM_STATS["LDA_64"].copy()
 
 
 class TestPoscar(PymatgenTest):
@@ -1508,7 +1508,7 @@ def test_potcar_summary_stats() -> None:
 
 
 def test_gen_potcar_summary_stats() -> None:
-    assert set(_summ_stats) == set(PotcarSingle.functional_dir)
+    assert set(_SUMM_STATS) == set(PotcarSingle.functional_dir)
 
     expected_funcs = [x for x in os.listdir(str(FAKE_POTCAR_DIR)) if x in PotcarSingle.functional_dir]
 
