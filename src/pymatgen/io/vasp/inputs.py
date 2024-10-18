@@ -861,7 +861,7 @@ class Incar(dict, MSONable):
             for sline in line.split(";"):
                 if match := re.match(r"(\w+)\s*=\s*(.*)", sline.strip()):
                     key: str = match[1].strip()
-                    val: Any = match[2].strip()
+                    val: str = match[2].strip()
                     params[key] = cls.proc_val(key, val)
         return cls(params)
 
