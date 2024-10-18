@@ -870,7 +870,7 @@ class Incar(dict, MSONable):
         like ints, floats, lists, etc.
 
         Args:
-            key (str): INCAR parameter key
+            key (str): INCAR parameter key.
             val (Any): Value of INCAR parameter.
         """
         list_keys = (
@@ -931,7 +931,7 @@ class Incar(dict, MSONable):
         )
         lower_str_keys = ("ML_MODE",)
 
-        def smart_int_or_float(num_str: str) -> str | float:
+        def smart_int_or_float(num_str: str) -> str | float:  # TODO: fix wrong return type
             """Determine whether a string represents an integer or a float."""
             if "." in num_str or "e" in num_str.lower():
                 return float(num_str)
@@ -1032,7 +1032,7 @@ class Incar(dict, MSONable):
                 warnings.warn(f"Cannot find {tag} in the list of INCAR tags", BadIncarWarning, stacklevel=2)
                 continue
 
-            # Check value and its type
+            # Check value type
             param_type: str = incar_params[tag].get("type")
             allowed_values: list[Any] = incar_params[tag].get("values")
 
@@ -1041,8 +1041,15 @@ class Incar(dict, MSONable):
 
             # Only check value when it's not None,
             # meaning there is recording for corresponding value
-            if allowed_values is not None and val not in allowed_values:
-                warnings.warn(f"{tag}: Cannot find {val} in the list of values", BadIncarWarning, stacklevel=2)
+            if allowed_values is not None:
+                # Remove case sensitivitiy for string keywords
+                # Note: param_type could be a Union type, e.g. "str | bool"
+                if "str" in param_type:
+                    val = val.lower() if isinstance(val, str) else val
+                    allowed_values = [item.lower() if isinstance(item, str) else item for item in allowed_values]
+
+                if val not in allowed_values:
+                    warnings.warn(f"{tag}: Cannot find {val} in the list of values", BadIncarWarning, stacklevel=2)
 
 
 class BadIncarWarning(UserWarning):
