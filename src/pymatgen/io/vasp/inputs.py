@@ -712,10 +712,11 @@ class BadPoscarWarning(UserWarning):
 
 class Incar(UserDict, MSONable):
     """
-    Read and write INCAR files.
-    Essentially a dictionary with helper functions, where keys are
-    case-insensitive by being stored in uppercase. This ensures
-    case-insensitive access for set, get, del, update, and setdefault operations.
+    A case-insensitive dictionary to read/write INCAR files with additional helper functions.
+
+    - Keys are stored in uppercase to allow case-insensitive access (set, get, del, update, setdefault).
+    - String values are capitalized by default, except for keys specified
+        in the `lower_str_keys` of the `proc_val` method.
     """
 
     def __init__(self, params: dict[str, Any] | None = None) -> None:
