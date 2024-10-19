@@ -142,7 +142,7 @@ def _parse_from_incar(filename: PathLike, key: str) -> Any:
         if re.search("INCAR", fn):
             warnings.warn(f"INCAR found. Using {key} from INCAR.", stacklevel=2)
             incar = Incar.from_file(os.path.join(dirname, fn))
-            return incar.get(key, None)
+            return incar.get(key)
     return None
 
 
