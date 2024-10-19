@@ -738,9 +738,8 @@ class Incar(dict, MSONable):
 
     def __setitem__(self, key: str, val: Any) -> None:
         """
-        Add parameter-val pair to Incar. Warn if parameter is not in list of
-        valid INCAR tags. Also clean the parameter and val by stripping
-        leading and trailing white spaces.
+        Add parameter-val pair to Incar. Also clean the parameter and val
+        by stripping leading and trailing white spaces.
         """
         super().__setitem__(
             key.strip().upper(),
