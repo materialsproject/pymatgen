@@ -833,18 +833,6 @@ SIGMA = 0.1"""
         assert record[4].message.args[0] == "LASPH: 5 is not a bool"
         assert record[5].message.args[0] == "PHON_TLIST: is_a_str is not a list"
 
-    def test_check_params_check_duplicate(self):
-        incar = Incar(
-            {
-                "ENCUT": 500,
-                "encut": 400,
-            }
-        )
-        with pytest.warns(BadIncarWarning) as record:
-            incar.check_params()
-
-        assert record[0].message.args[0] == "Duplicate keys found: ENCUT"
-
 
 class TestKpointsSupportedModes:
     def test_from_str(self):

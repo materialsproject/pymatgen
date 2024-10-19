@@ -14,7 +14,6 @@ import os
 import re
 import subprocess
 import warnings
-from collections import Counter
 from enum import Enum, unique
 from glob import glob
 from hashlib import sha256
@@ -1022,13 +1021,6 @@ class Incar(dict, MSONable):
         If a tag doesn't exist, calculation will still run, however VASP
         will ignore the tag and set it as default without letting you know.
         """
-        # Check for duplicate
-        key_counts = Counter(key.upper() for key in self)
-        duplicates = [key for key, count in key_counts.items() if count > 1]
-
-        if duplicates:
-            warnings.warn(f"Duplicate keys found: {', '.join(duplicates)}", BadIncarWarning, stacklevel=2)
-
         # Load INCAR tag/value check reference file
         with open(os.path.join(MODULE_DIR, "incar_parameters.json"), encoding="utf-8") as json_file:
             incar_params = json.loads(json_file.read())
