@@ -14,7 +14,7 @@ import os
 import re
 import subprocess
 import warnings
-from collections import Counter, UserDict
+from collections import UserDict
 from enum import Enum, unique
 from glob import glob
 from hashlib import sha256
@@ -724,16 +724,8 @@ class Incar(UserDict, MSONable):
 
         Args:
             params (dict): INCAR parameters as a dictionary.
-
-        Warnings:
-            BadIncarWarning: If there are duplicate in keys (case insensitive).
         """
         params = params or {}
-
-        # Check for case-insensitive duplicate keys
-        key_counter = Counter(key.strip().upper() for key in params)
-        if duplicates := [key for key, count in key_counter.items() if count > 1]:
-            warnings.warn(f"Duplicate keys found (case-insensitive): {duplicates}", BadIncarWarning, stacklevel=2)
 
         # If INCAR contains vector-like MAGMOMS given as a list
         # of floats, convert to a list of lists
@@ -753,9 +745,15 @@ class Incar(UserDict, MSONable):
         - Clean the parameter and val by stripping leading
             and trailing white spaces.
         - Cast keys to upper case.
+
+        Warnings:
+            BadIncarWarning: If there are duplicate in keys (case insensitive).
         """
-        key = key.strip().upper()
-        # Cast float/int to str and feed into proc_val to clean up their types
+        # Check for case-insensitive duplicate keys
+        if (key := key.strip().upper()) in self:
+            warnings.warn(f"Duplicate key found (case-insensitive): {key}", BadIncarWarning, stacklevel=2)
+
+        # Cast float/int to str such that proc_val would clean up their types
         val = self.proc_val(key, str(val)) if isinstance(val, str | float | int) else val
         super().__setitem__(key, val)
 

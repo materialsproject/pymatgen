@@ -552,8 +552,12 @@ class TestIncar(PymatgenTest):
         ENCUT = 500
         """
 
-        with pytest.warns(BadIncarWarning, match=re.escape("Duplicate keys found (case-insensitive): ['ENCUT']")):
+        with pytest.warns(BadIncarWarning, match=re.escape("Duplicate key found (case-insensitive): ENCUT")):
             Incar.from_str(incar_str)
+
+        incar_dict = {"ALGO": "Fast", "algo": "fast"}
+        with pytest.warns(BadIncarWarning, match=re.escape("Duplicate key found (case-insensitive): ALGO")):
+            Incar.from_dict(incar_dict)
 
     def test_key_case_insensitive(self):
         """Verify that keys are case-insensitive by internally converting
