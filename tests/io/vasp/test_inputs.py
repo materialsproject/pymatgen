@@ -764,7 +764,7 @@ TIME       =  0.4"""
 
     def test_types(self):
         incar_str = """ALGO = Fast
-ECUT = 510
+ENCUT = 510
 EDIFF = 1e-07
 EINT = -0.85 0.85
 IBRION = -1
@@ -789,13 +789,13 @@ SIGMA = 0.1"""
 
     def test_upper_keys(self):
         incar_str = """ALGO = Fast
-        ECUT = 510
+        ENCUT = 510
         EDIFF = 1e-07
         """
         incar = Incar.from_str(incar_str)
-        incar["ecut"] = 480
-        assert "ecut" not in incar
-        assert incar["ECUT"] == 480
+        incar["encut"] = 480
+        assert "encut" not in incar
+        assert incar["ENCUT"] == 480
 
     def test_proc_types(self):
         assert Incar.proc_val("HELLO", "-0.85 0.85") == "-0.85 0.85"
