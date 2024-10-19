@@ -755,7 +755,8 @@ class Incar(UserDict, MSONable):
         - Cast keys to upper case.
         """
         key = key.strip().upper()
-        val = self.proc_val(key, val) if isinstance(val, str) else val
+        # Cast float/int to str and feed into proc_val to clean up their types
+        val = self.proc_val(key, str(val)) if isinstance(val, str | float | int) else val
         super().__setitem__(key, val)
 
     def __getitem__(self, key: str) -> Any:
@@ -893,13 +894,13 @@ class Incar(UserDict, MSONable):
         return cls(params)
 
     @staticmethod
-    def proc_val(key: str, val: Any) -> list | bool | float | int | str:
+    def proc_val(key: str, val: str) -> list | bool | float | int | str:
         """Helper method to convert INCAR parameters to proper types
         like ints, floats, lists, etc.
 
         Args:
             key (str): INCAR parameter key.
-            val (Any): Value of INCAR parameter.
+            val (str): Value of INCAR parameter.
         """
         list_keys = (
             "LDAUU",
