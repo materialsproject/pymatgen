@@ -758,11 +758,11 @@ class Incar(UserDict, MSONable):
         """
         return super().__getitem__(key.strip().upper())
 
-    def get(self, key: str, default: Any = None) -> Any:
-        """
-        Get a value for a case-insensitive key, return default if not found.
-        """
-        return super().get(key.strip().upper(), default)
+    def __delitem__(self, key: str) -> None:
+        super().__delitem__(key.strip().upper())
+
+    def __contains__(self, key: str) -> bool:
+        return super().__contains__(key.upper().strip())
 
     def __str__(self) -> str:
         return self.get_str(sort_keys=True, pretty=False)
@@ -778,6 +778,12 @@ class Incar(UserDict, MSONable):
                 raise ValueError(f"INCARs have conflicting values for {key}: {self[key]} != {val}")
             params[key] = val
         return type(self)(params)
+
+    def get(self, key: str, default: Any = None) -> Any:
+        """
+        Get a value for a case-insensitive key, return default if not found.
+        """
+        return super().get(key.strip().upper(), default)
 
     def as_dict(self) -> dict:
         """MSONable dict."""

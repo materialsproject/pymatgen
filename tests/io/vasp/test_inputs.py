@@ -572,6 +572,14 @@ class TestIncar(PymatgenTest):
         incar[test_tag.upper()] = 500
         assert incar[test_tag.lower()] == 500
 
+        # Test delete
+        del incar["algo"]
+        assert "ALGO" not in incar
+
+        # Test membership check
+        assert test_tag.upper() in incar
+        assert test_tag.lower() in incar
+
         # Test update
         incar.update({test_tag.lower(): 510})
         assert incar[test_tag] == 510
