@@ -699,7 +699,7 @@ class TestIncar(PymatgenTest):
         Init from file (from str) should yield the same results as from dict.
 
         Setter method should capitalize string keys ("GGA" in this case),
-        and cast unknown keys to expected type ("ENCUT" should be float).
+        and cast known keys to expected type ("ENCUT" should be float).
         """
         # Init from dict
         incar_dict = {"ENCUT": 500, "GGA": "PS"}

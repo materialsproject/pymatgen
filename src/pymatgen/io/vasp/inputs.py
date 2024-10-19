@@ -740,7 +740,7 @@ class Incar(UserDict, MSONable):
         if (params.get("MAGMOM") and isinstance(params["MAGMOM"][0], int | float)) and (
             params.get("LSORBIT") or params.get("LNONCOLLINEAR")
         ):
-            val = []
+            val: list[list] = []
             for idx in range(len(params["MAGMOM"]) // 3):
                 val.append(params["MAGMOM"][idx * 3 : (idx + 1) * 3])
             params["MAGMOM"] = val
@@ -760,7 +760,7 @@ class Incar(UserDict, MSONable):
 
     def __getitem__(self, key: str) -> Any:
         """
-        Retrieve a value using a case-insensitive key.
+        Get value using a case-insensitive key.
         """
         return super().__getitem__(key.strip().upper())
 
