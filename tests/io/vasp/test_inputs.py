@@ -698,17 +698,18 @@ class TestIncar(PymatgenTest):
         """
         Init from file (from str) should yield the same results as from dict.
 
-        Setter method should capitalize string keys ("GGA" in this case),
-        and cast known keys to expected type ("ENCUT" should be float).
+        Previously init Incar from dict would bypass the proc_val method for
+        float/int, and might yield values in wrong type.
         """
         # Init from dict
-        incar_dict = {"ENCUT": 500, "GGA": "PS"}
+        incar_dict = {"ENCUT": 500, "GGA": "PS", "NELM": 60.0}
         incar_from_dict = Incar(incar_dict)
 
         # Init from file (from string)
         incar_str = """\
         ENCUT = 500
         GGA = PS
+        NELM = 60
         """
 
         with ScratchDir("."):
@@ -872,11 +873,11 @@ SIGMA = 0.1"""
             incar.check_params()
 
         assert record[0].message.args[0] == "Cannot find NBAND in the list of INCAR tags"
-        assert record[1].message.args[0] == "METAGGA: Cannot find SCAM in the list of values"
+        assert record[1].message.args[0] == "METAGGA: Cannot find Scam in the list of values"
         assert record[2].message.args[0] == "EDIFF: (5+1j) is not a float"
         assert record[3].message.args[0] == "ISIF: Cannot find 9 in the list of values"
         assert record[4].message.args[0] == "LASPH: 5 is not a bool"
-        assert record[5].message.args[0] == "PHON_TLIST: is_a_str is not a list"
+        assert record[5].message.args[0] == "PHON_TLIST: Is_a_str is not a list"
 
 
 class TestKpointsSupportedModes:
