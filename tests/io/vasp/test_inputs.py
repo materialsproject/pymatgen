@@ -547,6 +547,45 @@ class TestIncar(PymatgenTest):
         assert float(incar["EDIFF"]) == 1e-4, "Wrong EDIFF"
         assert isinstance(incar["LORBIT"], int)
 
+    def test_key_case_insensitive(self):
+        """Verify that keys are case-insensitive by internally converting
+        all keys to upper case. This includes operations such as:
+        - set/get: Keys can be set and retrieved with any case.
+        - update: Keys in updates are case-insensitive.
+        - setdefault: Defaults are set and retrieved case-insensitively.
+        """
+        test_tag: str = "ENCUT"
+
+        incar_str: str = f"""ALGO = Fast
+        {test_tag} = 480
+        EDIFF = 1e-07
+        """
+
+        # Test setter and getter
+        incar: Incar = Incar.from_str(incar_str)
+        incar[test_tag.lower()] = 490
+        assert incar[test_tag.lower()] == 490
+        assert incar[test_tag.upper()] == 490
+        assert incar.get(test_tag.lower()) == 490
+        assert incar.get(test_tag.upper()) == 490
+
+        incar[test_tag.upper()] = 500
+        assert incar[test_tag.lower()] == 500
+
+        # Test update
+        incar.update({test_tag.lower(): 510})
+        assert incar[test_tag] == 510
+
+        incar.update({test_tag.upper(): 520})
+        assert incar[test_tag] == 520
+
+        # Test setdefault
+        incar.setdefault("ismear", 0)
+        assert incar["ISMEAR"] == 0
+
+        incar.setdefault("NPAR", 4)
+        assert incar["npar"] == 4
+
     def test_copy(self):
         incar2 = self.incar.copy()
         assert isinstance(incar2, Incar), f"Expected Incar, got {type(incar2).__name__}"
@@ -786,16 +825,6 @@ SIGMA = 0.1"""
         assert incar["LHFCALC"]
         assert incar["HFSCREEN"] == 0.2
         assert incar["ALGO"] == "All"
-
-    def test_upper_keys(self):
-        incar_str = """ALGO = Fast
-        ENCUT = 510
-        EDIFF = 1e-07
-        """
-        incar = Incar.from_str(incar_str)
-        incar["encut"] = 480
-        assert "encut" not in incar
-        assert incar["ENCUT"] == 480
 
     def test_proc_types(self):
         assert Incar.proc_val("HELLO", "-0.85 0.85") == "-0.85 0.85"

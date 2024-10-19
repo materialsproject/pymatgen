@@ -14,6 +14,7 @@ import os
 import re
 import subprocess
 import warnings
+from collections import UserDict
 from enum import Enum, unique
 from glob import glob
 from hashlib import sha256
@@ -709,10 +710,12 @@ class BadPoscarWarning(UserWarning):
     """Warning class for bad POSCAR entries."""
 
 
-class Incar(dict, MSONable):
+class Incar(UserDict, MSONable):
     """
     Read and write INCAR files.
-    Essentially a dictionary with some helper functions.
+    Essentially a dictionary with helper functions, where keys are
+    case-insensitive by being stored in uppercase. This ensures
+    case-insensitive access for set, get, update, and setdefault operations.
     """
 
     def __init__(self, params: dict[str, Any] | None = None) -> None:
@@ -724,6 +727,8 @@ class Incar(dict, MSONable):
         """
         super().__init__()
         params = params if params is not None else {}
+        # TODO: Check for duplicate in params
+
         # If INCAR contains vector-like MAGMOMS given as a list
         # of floats, convert to a list of lists
         if (params.get("MAGMOM") and isinstance(params["MAGMOM"][0], int | float)) and (
@@ -738,13 +743,26 @@ class Incar(dict, MSONable):
 
     def __setitem__(self, key: str, val: Any) -> None:
         """
-        Add parameter-val pair to Incar. Also clean the parameter and val
-        by stripping leading and trailing white spaces.
+        Add parameter-val pair to Incar.
+        - Clean the parameter and val by stripping leading
+            and trailing white spaces.
+        - Cast keys to upper case.
         """
-        super().__setitem__(
-            key.strip().upper(),
-            type(self).proc_val(key.strip(), val.strip()) if isinstance(val, str) else val,
-        )
+        key = key.strip().upper()
+        val = self.proc_val(key, val) if isinstance(val, str) else val
+        super().__setitem__(key, val)
+
+    def __getitem__(self, key: str) -> Any:
+        """
+        Retrieve a value using a case-insensitive key.
+        """
+        return super().__getitem__(key.strip().upper())
+
+    def get(self, key: str, default: Any = None) -> Any:
+        """
+        Get a value for a case-insensitive key, return default if not found.
+        """
+        return super().get(key.strip().upper(), default)
 
     def __str__(self) -> str:
         return self.get_str(sort_keys=True, pretty=False)
