@@ -547,6 +547,14 @@ class TestIncar(PymatgenTest):
         assert float(incar["EDIFF"]) == 1e-4, "Wrong EDIFF"
         assert isinstance(incar["LORBIT"], int)
 
+    def test_check_for_duplicate(self):
+        incar_str: str = """encut = 400
+        ENCUT = 500
+        """
+
+        with pytest.warns(UserWarning, match="Duplicate keys found"):
+            Incar.from_str(incar_str)
+
     def test_key_case_insensitive(self):
         """Verify that keys are case-insensitive by internally converting
         all keys to upper case. This includes operations such as:

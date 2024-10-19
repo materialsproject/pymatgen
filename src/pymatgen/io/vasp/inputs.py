@@ -14,7 +14,7 @@ import os
 import re
 import subprocess
 import warnings
-from collections import UserDict
+from collections import Counter, UserDict
 from enum import Enum, unique
 from glob import glob
 from hashlib import sha256
@@ -715,19 +715,26 @@ class Incar(UserDict, MSONable):
     Read and write INCAR files.
     Essentially a dictionary with helper functions, where keys are
     case-insensitive by being stored in uppercase. This ensures
-    case-insensitive access for set, get, update, and setdefault operations.
+    case-insensitive access for set, get, del, update, and setdefault operations.
     """
 
     def __init__(self, params: dict[str, Any] | None = None) -> None:
         """
-        Create an Incar object.
+        Clean up params and create an Incar object.
 
         Args:
             params (dict): Input parameters as a dictionary.
+
+        Warnings:
+            BadIncarWarning: If there are duplicate in keys (case insensitive).
         """
-        super().__init__()
-        params = params if params is not None else {}
-        # TODO: Check for duplicate in params
+        params = params or {}
+
+        # Check for case-insensitive duplicate keys
+        key_counter = Counter(key.strip().upper() for key in params)
+        duplicates = [key for key, count in key_counter.items() if count > 1]
+        if duplicates:
+            warnings.warn(f"Duplicate keys found (case-insensitive): {duplicates}", BadIncarWarning, stacklevel=2)
 
         # If INCAR contains vector-like MAGMOMS given as a list
         # of floats, convert to a list of lists
@@ -739,7 +746,7 @@ class Incar(UserDict, MSONable):
                 val.append(params["MAGMOM"][idx * 3 : (idx + 1) * 3])
             params["MAGMOM"] = val
 
-        self.update(params)
+        super().__init__(params)
 
     def __setitem__(self, key: str, val: Any) -> None:
         """
