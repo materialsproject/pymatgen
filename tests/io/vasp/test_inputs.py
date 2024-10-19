@@ -712,7 +712,7 @@ class TestIncar(PymatgenTest):
         incar_str = """\
         ENCUT = 500
         GGA = PS
-        NELM = 60
+        NELM = 60.0
         """
 
         with ScratchDir("."):
@@ -720,6 +720,11 @@ class TestIncar(PymatgenTest):
                 f.write(incar_str)
 
             incar_from_file = Incar.from_file("INCAR")
+
+        # Make sure int/float is cast to correct type when init from dict
+        assert incar_from_dict["GGA"] == "Ps"
+        assert isinstance(incar_from_dict["ENCUT"], float)
+        assert isinstance(incar_from_dict["NELM"], int)
 
         assert incar_from_dict == incar_from_file
         for key in incar_from_dict:
