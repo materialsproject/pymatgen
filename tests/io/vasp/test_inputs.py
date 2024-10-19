@@ -551,12 +551,11 @@ class TestIncar(PymatgenTest):
         incar_str: str = """encut = 400
         ENCUT = 500
         """
-
-        with pytest.warns(BadIncarWarning, match=re.escape("Duplicate key found (case-insensitive): ENCUT")):
+        with pytest.warns(BadIncarWarning, match=re.escape("Duplicate keys found (case-insensitive): ['ENCUT']")):
             Incar.from_str(incar_str)
 
         incar_dict = {"ALGO": "Fast", "algo": "fast"}
-        with pytest.warns(BadIncarWarning, match=re.escape("Duplicate key found (case-insensitive): ALGO")):
+        with pytest.warns(BadIncarWarning, match=re.escape("Duplicate keys found (case-insensitive): ['ALGO']")):
             Incar.from_dict(incar_dict)
 
     def test_key_case_insensitive(self):
