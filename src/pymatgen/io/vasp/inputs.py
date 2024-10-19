@@ -723,18 +723,18 @@ class Incar(dict, MSONable):
             params (dict): Input parameters as a dictionary.
         """
         super().__init__()
-        if params is not None:
-            # If INCAR contains vector-like MAGMOMS given as a list
-            # of floats, convert to a list of lists
-            if (params.get("MAGMOM") and isinstance(params["MAGMOM"][0], int | float)) and (
-                params.get("LSORBIT") or params.get("LNONCOLLINEAR")
-            ):
-                val = []
-                for idx in range(len(params["MAGMOM"]) // 3):
-                    val.append(params["MAGMOM"][idx * 3 : (idx + 1) * 3])
-                params["MAGMOM"] = val
+        params = params if params is not None else {}
+        # If INCAR contains vector-like MAGMOMS given as a list
+        # of floats, convert to a list of lists
+        if (params.get("MAGMOM") and isinstance(params["MAGMOM"][0], int | float)) and (
+            params.get("LSORBIT") or params.get("LNONCOLLINEAR")
+        ):
+            val = []
+            for idx in range(len(params["MAGMOM"]) // 3):
+                val.append(params["MAGMOM"][idx * 3 : (idx + 1) * 3])
+            params["MAGMOM"] = val
 
-            self.update(params)
+        self.update(params)
 
     def __setitem__(self, key: str, val: Any) -> None:
         """
