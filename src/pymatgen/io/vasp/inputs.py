@@ -723,7 +723,7 @@ class Incar(UserDict, MSONable):
         Clean up params and create an Incar object.
 
         Args:
-            params (dict): Input parameters as a dictionary.
+            params (dict): INCAR parameters as a dictionary.
 
         Warnings:
             BadIncarWarning: If there are duplicate in keys (case insensitive).
@@ -732,8 +732,7 @@ class Incar(UserDict, MSONable):
 
         # Check for case-insensitive duplicate keys
         key_counter = Counter(key.strip().upper() for key in params)
-        duplicates = [key for key, count in key_counter.items() if count > 1]
-        if duplicates:
+        if duplicates := [key for key, count in key_counter.items() if count > 1]:
             warnings.warn(f"Duplicate keys found (case-insensitive): {duplicates}", BadIncarWarning, stacklevel=2)
 
         # If INCAR contains vector-like MAGMOMS given as a list

@@ -552,7 +552,7 @@ class TestIncar(PymatgenTest):
         ENCUT = 500
         """
 
-        with pytest.warns(UserWarning, match="Duplicate keys found"):
+        with pytest.warns(BadIncarWarning, match=re.escape("Duplicate keys found (case-insensitive): ['ENCUT']")):
             Incar.from_str(incar_str)
 
     def test_key_case_insensitive(self):
