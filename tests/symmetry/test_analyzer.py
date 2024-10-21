@@ -201,6 +201,15 @@ class TestSpacegroupAnalyzer(PymatgenTest):
         refined_struct = sg.get_refined_structure(keep_site_properties=False)
         assert refined_struct.site_properties.get("magmom") is None
 
+        structure = Structure.from_file(f"{TEST_FILES_DIR}/cif/bcc_1927.cif")
+        for site in structure:
+            site.properties["magmom"] = 1.0 if site.specie.name == "Dy" else -1.0
+        sg = SpacegroupAnalyzer(structure, symprec=1e-2)
+        refined_struct = sg.get_refined_structure(keep_site_properties=True)
+        assert len(refined_struct) != len(structure), "this test is only interesting if the number of sites changes"
+        for site in refined_struct:
+            assert (1.0 if site.specie.name == "Dy" else -1.0) == site.properties["magmom"]
+
     def test_symmetrized_structure(self):
         symm_struct = self.sg.get_symmetrized_structure()
         assert symm_struct.lattice.angles == (90, 90, 90)
@@ -245,6 +254,17 @@ class TestSpacegroupAnalyzer(PymatgenTest):
         spga = SpacegroupAnalyzer(structure)
         primitive_structure = spga.find_primitive(keep_site_properties=False)
         assert primitive_structure.site_properties.get("magmom") is None
+
+        structure = Structure.from_spacegroup("Fm-3m", np.eye(3) * 5.6, ["Na", "Cl"], [[0, 0, 0], [0.5, 0.5, 0.5]])
+        for site in structure:
+            site.properties["magmom"] = 1.0 if site.specie.name == "Na" else -1.0
+        sg = SpacegroupAnalyzer(structure, symprec=1e-2)
+        primitive_structure = sg.find_primitive(keep_site_properties=True)
+        assert len(primitive_structure) != len(
+            structure
+        ), "this test is only interesting if the number of sites changes"
+        for site in primitive_structure:
+            assert (1.0 if site.specie.name == "Na" else -1.0) == site.properties["magmom"]
 
     def test_get_ir_reciprocal_mesh(self):
         grid = self.sg.get_ir_reciprocal_mesh()
