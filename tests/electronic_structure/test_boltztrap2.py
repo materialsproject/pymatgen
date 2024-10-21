@@ -7,6 +7,7 @@ import pytest
 from monty.serialization import loadfn
 from pytest import approx
 
+from pymatgen.electronic_structure.boltztrap import BoltztrapError
 from pymatgen.electronic_structure.core import OrbitalType, Spin
 from pymatgen.io.vasp import Vasprun
 from pymatgen.util.testing import TEST_FILES_DIR
@@ -21,9 +22,8 @@ try:
         VasprunLoader,
     )
 
-    BOLTZTRAP2_PRESENT = True
-except Exception:
-    BOLTZTRAP2_PRESENT = False
+except BoltztrapError:
+    pytest.skip("No boltztrap2.", allow_module_level=True)
 
 
 TEST_DIR = f"{TEST_FILES_DIR}/electronic_structure/boltztrap2"
@@ -40,7 +40,6 @@ BZT_INTERP_FN = f"{TEST_DIR}/bztInterp.json.gz"
 BZT_TRANSP_FN = f"{TEST_DIR}/bztTranspProps.json.gz"
 
 
-@pytest.mark.skipif(not BOLTZTRAP2_PRESENT, reason="No boltztrap2, skipping tests.")
 class TestVasprunBSLoader(TestCase):
     def setUp(self):
         self.loader = VasprunBSLoader(VASP_RUN)
@@ -80,7 +79,6 @@ class TestVasprunBSLoader(TestCase):
         assert self.loader.get_volume() == approx(477.6256714925874, abs=1e-5)
 
 
-@pytest.mark.skipif(not BOLTZTRAP2_PRESENT, reason="No boltztrap2, skipping tests.")
 class TestBandstructureLoader(TestCase):
     def setUp(self):
         self.loader = BandstructureLoader(BAND_STRUCT, VASP_RUN.structures[-1])
@@ -108,7 +106,6 @@ class TestBandstructureLoader(TestCase):
         assert self.loader_sp_dn.ebands.shape == (14, 198)
 
 
-@pytest.mark.skipif(not BOLTZTRAP2_PRESENT, reason="No boltztrap2, skipping tests.")
 class TestVasprunLoader(TestCase):
     def setUp(self):
         self.loader = VasprunLoader(VASP_RUN)
@@ -128,7 +125,6 @@ class TestVasprunLoader(TestCase):
         assert self.loader is not None
 
 
-@pytest.mark.skipif(not BOLTZTRAP2_PRESENT, reason="No boltztrap2, skipping tests.")
 class TestBztInterpolator(TestCase):
     def setUp(self):
         self.loader = VasprunBSLoader(VASP_RUN)
@@ -206,7 +202,6 @@ class TestBztInterpolator(TestCase):
         assert pdos == approx(272.194174, abs=1e-5)
 
 
-@pytest.mark.skipif(not BOLTZTRAP2_PRESENT, reason="No boltztrap2, skipping tests.")
 class TestBztTransportProperties(TestCase):
     def setUp(self):
         loader = VasprunBSLoader(VASP_RUN)
@@ -307,7 +302,6 @@ class TestBztTransportProperties(TestCase):
             assert self.bztTransp_sp.contain_props_doping
 
 
-@pytest.mark.skipif(not BOLTZTRAP2_PRESENT, reason="No boltztrap2, skipping tests.")
 class TestBztPlotter(TestCase):
     def test_plot(self):
         loader = VasprunBSLoader(VASP_RUN)
