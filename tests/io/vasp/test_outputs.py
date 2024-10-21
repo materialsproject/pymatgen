@@ -357,7 +357,7 @@ class TestVasprun(PymatgenTest):
     def test_chi(self):
         filepath = f"{VASP_OUT_DIR}/vasprun.chi.xml.gz"
         vasprun_chi = Vasprun(filepath, parse_potcar_file=False)
-        assert vasprun_chi.incar.get("ALGO", ""), "CHI"
+        assert vasprun_chi.incar.get("ALGO") == "CHI"
 
     def test_uniform(self):
         vasprun_uniform = Vasprun(f"{VASP_OUT_DIR}/vasprun.uniform.xml.gz", parse_potcar_file=False)

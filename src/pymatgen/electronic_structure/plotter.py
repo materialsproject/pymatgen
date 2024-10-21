@@ -2390,7 +2390,7 @@ class BSDOSPlotter:
         # set basic axes limits for the plot
         bs_ax.set_xlim(0, x_distances_list[-1][-1])
         bs_ax.set_ylim(emin, emax)
-        if dos:
+        if dos and dos_ax is not None:
             dos_ax.set_ylim(emin, emax)
 
         # add BS xticks, labels, etc.
@@ -2405,7 +2405,7 @@ class BSDOSPlotter:
         bs_ax.set_yticklabels(np.arange(emin, emax + 1e-5, self.egrid_interval), size=self.tick_fontsize)
         bs_ax.set_axisbelow(b=True)
         bs_ax.grid(color=[0.5, 0.5, 0.5], linestyle="dotted", linewidth=1)
-        if dos:
+        if dos and dos_ax is not None:
             dos_ax.set_yticks(np.arange(emin, emax + 1e-5, self.egrid_interval))
             dos_ax.set_yticklabels([])
             dos_ax.grid(color=[0.5, 0.5, 0.5], linestyle="dotted", linewidth=1)
@@ -2446,7 +2446,7 @@ class BSDOSPlotter:
 
                         current_pos += len(x_distances)
 
-        if dos:
+        if dos and dos_ax is not None:
             # Plot the DOS and projected DOS
             for spin in (Spin.up, Spin.down):
                 if spin in dos.densities:
@@ -2547,7 +2547,7 @@ class BSDOSPlotter:
             elif len(elements) == 4:
                 self._cmyk_triangle(bs_ax, elements[1], elements[2], elements[0], elements[3], loc=self.bs_legend)
         # add legend for DOS
-        if dos and self.dos_legend:
+        if dos and self.dos_legend and dos_ax is not None:
             dos_ax.legend(
                 fancybox=True,
                 prop={"size": self.legend_fontsize, "family": self.font},
@@ -2555,7 +2555,7 @@ class BSDOSPlotter:
             )
 
         plt.subplots_adjust(wspace=0.1)
-        if dos:
+        if dos and dos_ax is not None:
             return bs_ax, dos_ax
         return bs_ax
 
