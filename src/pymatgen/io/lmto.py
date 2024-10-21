@@ -7,7 +7,7 @@ Structure object in the pymatgen.electronic_structure.cohp.py module.
 from __future__ import annotations
 
 import re
-from typing import TYPE_CHECKING, no_type_check
+from typing import TYPE_CHECKING
 
 import numpy as np
 from monty.io import zopen
@@ -20,6 +20,7 @@ from pymatgen.util.num import round_to_sigfigs
 
 if TYPE_CHECKING:
     from pathlib import Path
+    from typing import Any
 
     from typing_extensions import Self
 
@@ -152,7 +153,6 @@ class LMTOCtrl:
         return cls.from_str(contents, **kwargs)
 
     @classmethod
-    @no_type_check
     def from_str(cls, data: str, sigfigs: int = 8) -> Self:
         """
         Creates a CTRL file object from a string. This will mostly be
@@ -166,20 +166,23 @@ class LMTOCtrl:
             An LMTOCtrl object.
         """
         lines = data.split("\n")[:-1]
-        struct_lines = {"HEADER": [], "VERS": [], "SYMGRP": [], "STRUC": [], "CLASS": [], "SITE": []}
+        _struct_lines: dict[str, list] = {"HEADER": [], "VERS": [], "SYMGRP": [], "STRUC": [], "CLASS": [], "SITE": []}
+
+        cat = None
         for line in lines:
             if line != "" and not line.isspace():
                 if not line[0].isspace():
                     cat = line.split()[0]
-                if cat in struct_lines:
-                    struct_lines[cat].append(line)
+                if cat in _struct_lines:
+                    _struct_lines[cat].append(line)
                 else:
                     pass
 
-        struct_lines = {k: " ".join(v).replace("= ", "=") for k, v in struct_lines.items()}
+        struct_lines: dict[str, str] = {k: " ".join(v).replace("= ", "=") for k, v in _struct_lines.items()}
 
-        structure_tokens = {"ALAT": None, "PLAT": [], "CLASS": [], "SITE": []}
+        structure_tokens: dict[str, Any] = {"ALAT": None, "PLAT": [], "CLASS": [], "SITE": []}
 
+        atom = None
         for cat in ("STRUC", "CLASS", "SITE"):
             fields = struct_lines[cat].split("=")
             for idx, field in enumerate(fields):
@@ -187,6 +190,7 @@ class LMTOCtrl:
                 if token == "ALAT":  # noqa: S105
                     a_lat = round(float(fields[idx + 1].split()[0]), sigfigs)
                     structure_tokens["ALAT"] = a_lat
+
                 elif token == "ATOM":  # noqa: S105
                     atom = fields[idx + 1].split()[0]
                     if not bool(re.match("E[0-9]*$", atom)):
@@ -196,19 +200,22 @@ class LMTOCtrl:
                             structure_tokens["SITE"].append({"ATOM": atom})
                     else:
                         pass
+
                 elif token in {"PLAT", "POS"}:
                     try:
                         arr = np.array([round(float(i), sigfigs) for i in fields[idx + 1].split()])
                     except ValueError:
                         arr = np.array([round(float(i), sigfigs) for i in fields[idx + 1].split()[:-1]])
+
                     if token == "PLAT":  # noqa: S105
                         structure_tokens["PLAT"] = arr.reshape([3, 3])
-                    elif not bool(re.match("E[0-9]*$", atom)):
+                    elif atom is not None and not bool(re.match("E[0-9]*$", atom)):
                         structure_tokens["SITE"][-1]["POS"] = arr
                     else:
                         pass
                 else:
                     pass
+
         try:
             spc_grp_index = struct_lines["SYMGRP"].index("SPCGRP")
             spc_grp = struct_lines["SYMGRP"][spc_grp_index : spc_grp_index + 12]
@@ -222,7 +229,7 @@ class LMTOCtrl:
                 structure_tokens[token] = value.strip()
             except IndexError:
                 pass
-        return LMTOCtrl.from_dict(structure_tokens)
+        return cls.from_dict(structure_tokens)
 
     @classmethod
     def from_dict(cls, dct: dict) -> Self:

@@ -18,15 +18,14 @@ jobs:
       - name: Set up Python
         uses: actions/setup-python@v5
         with:
-          python-version: '3.11'
+          python-version: '3.x'
 
       - name: Install dependencies
         run: |
-          pip install --upgrade ruff 'mypy<1.12' pyright
+          pip install --upgrade ruff mypy pyright
 
       - name: ruff
         run: |
-          ruff --version
           ruff check .
           ruff format --check .
 
