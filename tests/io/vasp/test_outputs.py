@@ -34,6 +34,7 @@ from pymatgen.io.vasp.outputs import (
     Outcar,
     Procar,
     UnconvergedVASPWarning,
+    VaspDir,
     VaspParseError,
     Vasprun,
     Wavecar,
@@ -2101,3 +2102,14 @@ class TestWSWQ(PymatgenTest):
                 assert np.linalg.norm([r, i]) > 0.999
             else:
                 assert np.linalg.norm([r, i]) < 0.001
+
+
+class TestVaspDir(PymatgenTest):
+    def test_getitem(self):
+        # Some simple testing of loading and reading since all these were tested in other classes.
+        d = VaspDir(f"{TEST_FILES_DIR}/io/vasp/fixtures/relaxation")
+        assert len(d) == 5
+        assert d["OUTCAR"].run_stats["cores"] == 8
+        d = VaspDir(f"{TEST_FILES_DIR}/io/vasp/fixtures/scan_relaxation")
+        assert len(d) == 2
+        assert d["vasprun.xml.gz"].incar["METAGGA"] == "R2scan"

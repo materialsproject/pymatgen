@@ -2,10 +2,12 @@
 
 from __future__ import annotations
 
+import collections
 import itertools
 import math
 import os
 import re
+import typing
 import warnings
 import xml.etree.ElementTree as ET
 from collections import defaultdict
@@ -5602,3 +5604,72 @@ class WSWQ(MSONable):
 
 class UnconvergedVASPWarning(Warning):
     """Warning for unconverged VASP run."""
+
+
+class VaspDir(collections.abc.Mapping):
+    """
+    User-friendly class to access all files in a VASP calculation directory as pymatgen objects in a dict.
+    Note that the files are lazily parsed to minimize initialization costs since not all files will be needed by all
+    users.
+
+    Example:
+
+    ```
+    d = VaspDir(".")
+    print(d["INCAR"]["NELM"])
+    print(d["vasprun.xml"].parameters)
+    ```
+    """
+
+    FILE_MAPPINGS: typing.ClassVar = {
+        "INCAR": Incar,
+        "POSCAR": Poscar,
+        "CONTCAR": Poscar,
+        "KPOINTS": Kpoints,
+        "POTCAR": Potcar,
+        "vasprun.xml": Vasprun,
+        "OUTCAR": Outcar,
+        "OSZICAR": Oszicar,
+        "CHGCAR": Chgcar,
+        "WAVECAR": Wavecar,
+        "WAVEDER": Waveder,
+        "LOCPOT": Locpot,
+        "XDATCAR": Xdatcar,
+        "EIGENVAL": Eigenval,
+        "PROCAR": Procar,
+    }
+
+    def __init__(self, dirname: str | Path):
+        """
+        Args:
+            dirname: The directory containing the VASP calculation as a string or Path.
+        """
+        self.path = Path(dirname)
+        self.files = [f.name for f in self.path.iterdir() if f.is_file()]
+        self._parsed_files: dict[str, Any] = {}
+
+    def reparse(self):
+        """
+        Reset all loaded files and recheck the directory for files. Use this when the contents of the directory has
+        changed.
+        """
+        self.files = [f for f in self.path.iterdir() if f.is_file()]
+        self._parsed_files = {}
+
+    def __len__(self):
+        return len(self.files)
+
+    def __iter__(self):
+        return iter(self.files)
+
+    def __getitem__(self, item):
+        if item in self._parsed_files:
+            return self._parsed_files[item]
+        for k, cls_ in VaspDir.FILE_MAPPINGS.items():
+            if k in item:
+                try:
+                    self._parsed_files[item] = cls_.from_file(self.path / item)
+                except AttributeError:
+                    self._parsed_files[item] = cls_(self.path / item)
+                return self._parsed_files[item]
+        raise ValueError(f"{item} not found in {self.path}. List of files are {self.files}.")
