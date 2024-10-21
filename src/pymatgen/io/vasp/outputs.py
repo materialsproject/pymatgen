@@ -5627,7 +5627,7 @@ class VaspDir(collections.abc.Mapping):
         "CONTCAR": Poscar,
         "KPOINTS": Kpoints,
         "POTCAR": Potcar,
-        "vasprun.xml": Vasprun,
+        "vasprun": Vasprun,
         "OUTCAR": Outcar,
         "OSZICAR": Oszicar,
         "CHGCAR": Chgcar,
@@ -5637,6 +5637,9 @@ class VaspDir(collections.abc.Mapping):
         "XDATCAR": Xdatcar,
         "EIGENVAL": Eigenval,
         "PROCAR": Procar,
+        "ELFCAR": Elfcar,
+        "DYNMAT": Dynmat,
+        "WSWQ": WSWQ,
     }
 
     def __init__(self, dirname: str | Path):
@@ -5648,7 +5651,7 @@ class VaspDir(collections.abc.Mapping):
         self.files = [f.name for f in self.path.iterdir() if f.is_file()]
         self._parsed_files: dict[str, Any] = {}
 
-    def reparse(self):
+    def reset(self):
         """
         Reset all loaded files and recheck the directory for files. Use this when the contents of the directory has
         changed.
@@ -5671,5 +5674,9 @@ class VaspDir(collections.abc.Mapping):
                     self._parsed_files[item] = cls_.from_file(self.path / item)
                 except AttributeError:
                     self._parsed_files[item] = cls_(self.path / item)
+
                 return self._parsed_files[item]
+        if (self.path / item).exists():
+            raise RuntimeError(f"Unable to parse {item}. Supported files are {list(VaspDir.FILE_MAPPINGS.keys())}.")
+
         raise ValueError(f"{item} not found in {self.path}. List of files are {self.files}.")
