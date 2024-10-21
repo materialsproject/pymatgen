@@ -1711,8 +1711,6 @@ class TestStructure(PymatgenTest):
         assert not hasattr(calculator, "dynamics")
         assert self.cu_structure == struct_copy, "original structure was modified"
 
-    @pytest.mark.skip(reason="chgnet is failing with Numpy 1, see #3992")
-    @pytest.mark.skipif(int(np.__version__[0]) >= 2, reason="chgnet is not built against NumPy 2.0")
     def test_relax_chgnet(self):
         pytest.importorskip("chgnet")
         struct_copy = self.cu_structure.copy()
@@ -1736,8 +1734,6 @@ class TestStructure(PymatgenTest):
         assert custom_relaxed.calc.results.get("energy") == approx(-6.0151076, abs=1e-4)
         assert custom_relaxed.volume == approx(40.044794644, abs=1e-4)
 
-    @pytest.mark.skip(reason="chgnet is failing with Numpy 1, see #3992")
-    @pytest.mark.skipif(int(np.__version__[0]) >= 2, reason="chgnet is not built against NumPy 2.0")
     def test_calculate_chgnet(self):
         pytest.importorskip("chgnet")
         struct = self.get_structure("Si")
@@ -1804,7 +1800,7 @@ class TestStructure(PymatgenTest):
         assert traj[0] != traj[-1]
         assert os.path.isfile(traj_file)
 
-    @pytest.mark.skip("TODO: #3958 wait for matgl resolve of torch dependency")
+    @pytest.mark.skip("matgl is not working for torch 2.4.1, see #4101")
     def test_calculate_m3gnet(self):
         pytest.importorskip("matgl")
         calculator = self.get_structure("Si").calculate()
@@ -1816,7 +1812,7 @@ class TestStructure(PymatgenTest):
         assert np.linalg.norm(calculator.results["forces"]) == approx(7.8123485e-06, abs=0.2)
         assert np.linalg.norm(calculator.results["stress"]) == approx(1.7861567, abs=2)
 
-    @pytest.mark.skip("TODO: #3958 wait for matgl resolve of torch dependency")
+    @pytest.mark.skip("matgl is not working for torch 2.4.1, see #4101")
     def test_relax_m3gnet(self):
         matgl = pytest.importorskip("matgl")
         struct = self.get_structure("Si")
@@ -1827,7 +1823,7 @@ class TestStructure(PymatgenTest):
             actual = relaxed.dynamics[key]
             assert actual == val, f"expected {key} to be {val}, {actual=}"
 
-    @pytest.mark.skip("TODO: #3958 wait for matgl resolve of torch dependency")
+    @pytest.mark.skip("matgl is not working for torch 2.4.1, see #4101")
     def test_relax_m3gnet_fixed_lattice(self):
         matgl = pytest.importorskip("matgl")
         struct = self.get_structure("Si")
@@ -1836,7 +1832,7 @@ class TestStructure(PymatgenTest):
         assert isinstance(relaxed.calc, matgl.ext.ase.M3GNetCalculator)
         assert relaxed.dynamics["optimizer"] == "BFGS"
 
-    @pytest.mark.skip("TODO: #3958 wait for matgl resolve of torch dependency")
+    @pytest.mark.skip("matgl is not working for torch 2.4.1, see #4101")
     def test_relax_m3gnet_with_traj(self):
         pytest.importorskip("matgl")
         struct = self.get_structure("Si")
