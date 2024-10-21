@@ -142,9 +142,9 @@ def _parse_from_incar(filename: PathLike, key: str) -> Any:
     dirname = os.path.dirname(filename)
     for fn in os.listdir(dirname):
         if re.search("INCAR", fn):
-            warnings.warn(f"INCAR found. Using {key} from INCAR.")
+            warnings.warn(f"INCAR found. Using {key} from INCAR.", stacklevel=2)
             incar = Incar.from_file(os.path.join(dirname, fn))
-            return incar.get(key, None)
+            return incar.get(key)
     return None
 
 
@@ -347,7 +347,7 @@ class Vasprun(MSONable):
                 self.update_potcar_spec(parse_potcar_file)
                 self.update_charge_from_potcar(parse_potcar_file)
 
-        if self.incar.get("ALGO") not in {"CHI", "BSE"} and not self.converged and self.parameters.get("IBRION") != 0:
+        if self.incar.get("ALGO") not in {"Chi", "Bse"} and not self.converged and self.parameters.get("IBRION") != 0:
             msg = f"{filename} is an unconverged VASP run.\n"
             msg += f"Electronic convergence reached: {self.converged_electronic}.\n"
             msg += f"Ionic convergence reached: {self.converged_ionic}."
@@ -366,10 +366,10 @@ class Vasprun(MSONable):
         self.projected_magnetisation: NDArray | None = None
         self.dielectric_data: dict[str, tuple] = {}
         self.other_dielectric: dict[str, tuple] = {}
-        self.incar: dict[str, Any] = {}
+        self.incar: Incar = {}
         self.kpoints_opt_props: KpointOptProps | None = None
 
-        ionic_steps: list = []
+        ionic_steps: list[dict] = []
 
         md_data: list[dict] = []
         parsed_header: bool = False
@@ -1357,9 +1357,9 @@ class Vasprun(MSONable):
         dct["output"] = vout
         return jsanitize(dct, strict=True)
 
-    def _parse_params(self, elem: XML_Element) -> dict:
-        """Parse INCAR parameters."""
-        params: dict = {}
+    def _parse_params(self, elem: XML_Element) -> Incar[str, Any]:
+        """Parse INCAR parameters and more."""
+        params: dict[str, Any] = {}
         for c in elem:
             # VASP 6.4.3 can add trailing whitespace
             # for example, <i type="string" name="GGA    ">PE</i>
@@ -1371,6 +1371,7 @@ class Vasprun(MSONable):
                     # which overrides the values in the root params.
                     p = {k: v for k, v in p.items() if k not in params}
                 params |= p
+
             else:
                 ptype = c.attrib.get("type", "")
                 val = c.text.strip() if c.text else ""
