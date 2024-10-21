@@ -3901,7 +3901,7 @@ class CohpPlotter:
         plt.show()
 
 
-@requires(mlab is not None, "MayAvi mlab not imported! Please install mayavi.")
+@requires(mlab is not None, "MayAvi mlab not installed! Please install mayavi.")
 def plot_fermi_surface(
     data,
     structure,
