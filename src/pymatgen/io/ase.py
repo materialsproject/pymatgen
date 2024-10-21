@@ -13,7 +13,7 @@ from typing import TYPE_CHECKING
 import numpy as np
 from monty.json import MontyDecoder, MSONable, jsanitize
 
-from pymatgen.core.structure import Molecule, Structure
+from pymatgen.core.structure import Lattice, Molecule, Structure
 
 try:
     from ase.atoms import Atoms
@@ -103,7 +103,7 @@ class AseAtomsAdaptor:
         symbols = [str(site.specie.symbol) for site in structure]
         positions = [site.coords for site in structure]
         if hasattr(structure, "lattice"):
-            pbc = True
+            pbc = getattr(structure.lattice, "pbc", True)
             cell = structure.lattice.matrix
         else:  # Molecule without lattice
             pbc = False
@@ -284,7 +284,7 @@ class AseAtomsAdaptor:
             structure = cls(symbols, positions, properties=properties, **cls_kwargs)
         else:
             structure = cls(
-                lattice,
+                Lattice(lattice, pbc=atoms.pbc),
                 symbols,
                 positions,
                 coords_are_cartesian=True,
