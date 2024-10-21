@@ -743,7 +743,7 @@ class Incar(dict, MSONable):
         leading and trailing white spaces.
         """
         super().__setitem__(
-            key.strip().capitalize(),
+            key.strip().upper(),
             type(self).proc_val(key.strip(), val.strip()) if isinstance(val, str) else val,
         )
 
