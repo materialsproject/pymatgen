@@ -350,7 +350,18 @@ class Poscar(MSONable):
 
         except ValueError:
             vasp5_symbols = True
-            symbols: list[str] = [symbol.split("/")[0] for symbol in lines[5].split()]
+
+            # In VASP 6.x.x, part of the POTCAR hash is written to POSCAR-style strings
+            # In VASP 6.4.2 and up, the POTCAR symbol is also written, ex.:
+            # ```MgSi
+            # 1.0
+            # -0.000011    4.138704    0.000002
+            # -2.981238    2.069353    3.675251
+            # 2.942054    2.069351    4.865237
+            # Mg_pv/f474ac0d  Si/79d9987ad87```
+            # whereas older VASP 5.x.x POSCAR strings would just have `Mg Si` on the last line
+
+            symbols: list[str] = [symbol.split("/")[0].split("_")[0] for symbol in lines[5].split()]
 
             # Atoms and number of atoms in POSCAR written with VASP appear on
             # multiple lines when atoms of the same type are not grouped together
@@ -732,7 +743,7 @@ class Incar(dict, MSONable):
         leading and trailing white spaces.
         """
         super().__setitem__(
-            key.strip(),
+            key.strip().upper(),
             type(self).proc_val(key.strip(), val.strip()) if isinstance(val, str) else val,
         )
 
