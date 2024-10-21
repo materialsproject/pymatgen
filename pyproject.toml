@@ -21,7 +21,7 @@ Python Materials Genomics is a robust materials analysis code that defines core 
 and molecules with support for many electronic structure codes. It is currently the core analysis code powering the
 Materials Project (https://materialsproject.org)."""
 readme = "README.md"
-requires-python = ">=3.10"
+requires-python = ">=3.10,<3.13"
 keywords = [
     "ABINIT",
     "VASP",
@@ -57,7 +57,7 @@ dependencies = [
     "joblib>=1",
     "matplotlib>=3.8",
     "monty>=2024.7.29",
-    "networkx>=2.2",
+    "networkx>=2.7",  # PR #4116
     "palettable>=3.3.3",
     "pandas>=2",
     "plotly>=4.5.0",

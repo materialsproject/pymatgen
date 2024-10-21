@@ -14,6 +14,7 @@ import os
 import re
 import subprocess
 import warnings
+from collections import Counter, UserDict
 from enum import Enum, unique
 from glob import glob
 from hashlib import sha256
@@ -709,43 +710,67 @@ class BadPoscarWarning(UserWarning):
     """Warning class for bad POSCAR entries."""
 
 
-class Incar(dict, MSONable):
+class Incar(UserDict, MSONable):
     """
-    Read and write INCAR files.
-    Essentially a dictionary with some helper functions.
+    A case-insensitive dictionary to read/write INCAR files with additional helper functions.
+
+    - Keys are stored in uppercase to allow case-insensitive access (set, get, del, update, setdefault).
+    - String values are capitalized by default, except for keys specified
+        in the `lower_str_keys` of the `proc_val` method.
     """
 
     def __init__(self, params: dict[str, Any] | None = None) -> None:
         """
-        Create an Incar object.
+        Clean up params and create an Incar object.
 
         Args:
-            params (dict): Input parameters as a dictionary.
-        """
-        super().__init__()
-        if params is not None:
-            # If INCAR contains vector-like MAGMOMS given as a list
-            # of floats, convert to a list of lists
-            if (params.get("MAGMOM") and isinstance(params["MAGMOM"][0], int | float)) and (
-                params.get("LSORBIT") or params.get("LNONCOLLINEAR")
-            ):
-                val = []
-                for idx in range(len(params["MAGMOM"]) // 3):
-                    val.append(params["MAGMOM"][idx * 3 : (idx + 1) * 3])
-                params["MAGMOM"] = val
+            params (dict): INCAR parameters as a dictionary.
 
-            self.update(params)
+        Warnings:
+            BadIncarWarning: If there are duplicate in keys (case insensitive).
+        """
+        params = params or {}
+
+        # Check for case-insensitive duplicate keys
+        key_counter = Counter(key.strip().upper() for key in params)
+        if duplicates := [key for key, count in key_counter.items() if count > 1]:
+            warnings.warn(f"Duplicate keys found (case-insensitive): {duplicates}", BadIncarWarning, stacklevel=2)
+
+        # If INCAR contains vector-like MAGMOMS given as a list
+        # of floats, convert to a list of lists
+        if (params.get("MAGMOM") and isinstance(params["MAGMOM"][0], int | float)) and (
+            params.get("LSORBIT") or params.get("LNONCOLLINEAR")
+        ):
+            val: list[list] = []
+            for idx in range(len(params["MAGMOM"]) // 3):
+                val.append(params["MAGMOM"][idx * 3 : (idx + 1) * 3])
+            params["MAGMOM"] = val
+
+        super().__init__(params)
 
     def __setitem__(self, key: str, val: Any) -> None:
         """
-        Add parameter-val pair to Incar. Warn if parameter is not in list of
-        valid INCAR tags. Also clean the parameter and val by stripping
-        leading and trailing white spaces.
+        Add parameter-val pair to Incar.
+        - Clean the parameter and val by stripping leading
+            and trailing white spaces.
+        - Cast keys to upper case.
         """
-        super().__setitem__(
-            key.strip(),
-            type(self).proc_val(key.strip(), val.strip()) if isinstance(val, str) else val,
-        )
+        key = key.strip().upper()
+        # Cast float/int to str such that proc_val would clean up their types
+        val = self.proc_val(key, str(val)) if isinstance(val, str | float | int) else val
+        super().__setitem__(key, val)
+
+    def __getitem__(self, key: str) -> Any:
+        """
+        Get value using a case-insensitive key.
+        """
+        return super().__getitem__(key.strip().upper())
+
+    def __delitem__(self, key: str) -> None:
+        super().__delitem__(key.strip().upper())
+
+    def __contains__(self, key: str) -> bool:
+        return super().__contains__(key.upper().strip())
 
     def __str__(self) -> str:
         return self.get_str(sort_keys=True, pretty=False)
@@ -761,6 +786,12 @@ class Incar(dict, MSONable):
                 raise ValueError(f"INCARs have conflicting values for {key}: {self[key]} != {val}")
             params[key] = val
         return type(self)(params)
+
+    def get(self, key: str, default: Any = None) -> Any:
+        """
+        Get a value for a case-insensitive key, return default if not found.
+        """
+        return super().get(key.strip().upper(), default)
 
     def as_dict(self) -> dict:
         """MSONable dict."""
@@ -854,24 +885,23 @@ class Incar(dict, MSONable):
         Returns:
             Incar object
         """
-        lines: list[str] = list(clean_lines(string.splitlines()))
         params: dict[str, Any] = {}
-        for line in lines:
+        for line in clean_lines(string.splitlines()):
             for sline in line.split(";"):
                 if match := re.match(r"(\w+)\s*=\s*(.*)", sline.strip()):
                     key: str = match[1].strip()
-                    val: Any = match[2].strip()
+                    val: str = match[2].strip()
                     params[key] = cls.proc_val(key, val)
         return cls(params)
 
     @staticmethod
-    def proc_val(key: str, val: Any) -> list | bool | float | int | str:
+    def proc_val(key: str, val: str) -> list | bool | float | int | str:
         """Helper method to convert INCAR parameters to proper types
         like ints, floats, lists, etc.
 
         Args:
-            key (str): INCAR parameter key
-            val (Any): Value of INCAR parameter.
+            key (str): INCAR parameter key.
+            val (str): Value of INCAR parameter.
         """
         list_keys = (
             "LDAUU",
@@ -906,6 +936,7 @@ class Incar(dict, MSONable):
             "AGGAC",
             "PARAM1",
             "PARAM2",
+            "ENCUT",
         )
         int_keys = (
             "NSW",
@@ -921,7 +952,6 @@ class Incar(dict, MSONable):
             "NPAR",
             "LDAUPRINT",
             "LMAXMIX",
-            "ENCUT",
             "NSIM",
             "NKRED",
             "NUPDOWN",
@@ -931,7 +961,7 @@ class Incar(dict, MSONable):
         )
         lower_str_keys = ("ML_MODE",)
 
-        def smart_int_or_float(num_str: str) -> str | float:
+        def smart_int_or_float(num_str: str) -> float:
             """Determine whether a string represents an integer or a float."""
             if "." in num_str or "e" in num_str.lower():
                 return float(num_str)
@@ -1032,7 +1062,7 @@ class Incar(dict, MSONable):
                 warnings.warn(f"Cannot find {tag} in the list of INCAR tags", BadIncarWarning, stacklevel=2)
                 continue
 
-            # Check value and its type
+            # Check value type
             param_type: str = incar_params[tag].get("type")
             allowed_values: list[Any] = incar_params[tag].get("values")
 
@@ -1041,8 +1071,13 @@ class Incar(dict, MSONable):
 
             # Only check value when it's not None,
             # meaning there is recording for corresponding value
-            if allowed_values is not None and val not in allowed_values:
-                warnings.warn(f"{tag}: Cannot find {val} in the list of values", BadIncarWarning, stacklevel=2)
+            if allowed_values is not None:
+                # Note: param_type could be a Union type, e.g. "str | bool"
+                if "str" in param_type:
+                    allowed_values = [item.capitalize() if isinstance(item, str) else item for item in allowed_values]
+
+                if val not in allowed_values:
+                    warnings.warn(f"{tag}: Cannot find {val} in the list of values", BadIncarWarning, stacklevel=2)
 
 
 class BadIncarWarning(UserWarning):
@@ -1712,6 +1747,7 @@ def _parse_int(string: str) -> int:
 
 
 def _parse_list(string: str) -> list[float]:
+    """Parse a list of floats from a string."""
     return [float(y) for y in re.split(r"\s+", string.strip()) if not y.isalpha()]
 
 
