@@ -298,6 +298,19 @@ def test_back_forth_v4():
     MontyDecoder().process_decoded(dct)
 
 
+def test_back_forth_v5():
+    # Structure --> Atoms --> Structure --> Atoms
+    structure = Structure.from_file(f"{VASP_IN_DIR}/POSCAR")
+    # 2D structure; test if PBC is preserved in all conversions
+    structure.lattice.pbc = (True, True, False)
+    atoms = AseAtomsAdaptor.get_atoms(structure)
+    structure_back = AseAtomsAdaptor.get_structure(atoms)
+    atoms_back = AseAtomsAdaptor.get_atoms(structure_back)
+    assert structure_back == structure
+    for key, val in atoms.todict().items():
+        assert str(atoms_back.todict()[key]) == str(val)
+
+
 def test_msonable_atoms():
     structure = Structure.from_file(f"{VASP_IN_DIR}/POSCAR")
 
