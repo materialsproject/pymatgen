@@ -306,9 +306,9 @@ class GaussianInput:
                 route += f" {line}"
                 route_index = idx
             # This condition allows for route cards spanning multiple lines
-            elif (line == "" or line.isspace()) and route_index:
+            elif (line == "" or line.isspace()) and route_index is not None:
                 break
-            if route_index:
+            if route_index is not None:
                 route += f" {line}"
                 route_index = idx
         functional, basis_set, route_paras, dieze_tag = read_route_line(route)

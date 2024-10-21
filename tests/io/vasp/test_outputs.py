@@ -34,6 +34,7 @@ from pymatgen.io.vasp.outputs import (
     Outcar,
     Procar,
     UnconvergedVASPWarning,
+    VaspDir,
     VaspParseError,
     Vasprun,
     Wavecar,
@@ -356,7 +357,7 @@ class TestVasprun(PymatgenTest):
     def test_chi(self):
         filepath = f"{VASP_OUT_DIR}/vasprun.chi.xml.gz"
         vasprun_chi = Vasprun(filepath, parse_potcar_file=False)
-        assert vasprun_chi.incar.get("ALGO", ""), "CHI"
+        assert vasprun_chi.incar.get("ALGO") == "CHI"
 
     def test_uniform(self):
         vasprun_uniform = Vasprun(f"{VASP_OUT_DIR}/vasprun.uniform.xml.gz", parse_potcar_file=False)
@@ -1452,6 +1453,12 @@ class TestLocpot(PymatgenTest):
         l2 = Locpot(poscar=poscar, data=data, data_aug=None)
         assert l2.data_aug == {}
 
+    def test_vasp_6x_style(self):
+        filepath = f"{VASP_OUT_DIR}/LOCPOT.vasp642.gz"
+        locpot = Locpot.from_file(filepath)
+        assert locpot.dim == (2, 2, 5)
+        assert {str(ele) for ele in locpot.structure.composition} == {"Mg", "Si"}
+
 
 class TestChgcar(PymatgenTest):
     @classmethod
@@ -1717,6 +1724,10 @@ class TestXdatcar:
         structures = xdatcar.structures
 
         assert structures[0].lattice != structures[-1].lattice
+
+        xdatcar = Xdatcar(f"{VASP_OUT_DIR}/XDATCAR_monatomic.gz")
+        assert len(xdatcar.structures) == 10
+        assert all(len(structure.composition) == 1 for structure in xdatcar.structures)
 
 
 class TestDynmat:
@@ -2091,3 +2102,20 @@ class TestWSWQ(PymatgenTest):
                 assert np.linalg.norm([r, i]) > 0.999
             else:
                 assert np.linalg.norm([r, i]) < 0.001
+
+
+class TestVaspDir(PymatgenTest):
+    def test_getitem(self):
+        # Some simple testing of loading and reading since all these were tested in other classes.
+        d = VaspDir(f"{TEST_FILES_DIR}/io/vasp/fixtures/relaxation")
+        assert len(d) == 5
+        assert d["OUTCAR"].run_stats["cores"] == 8
+        d = VaspDir(f"{TEST_FILES_DIR}/io/vasp/outputs")
+        with pytest.raises(RuntimeError, match=r"Unable to parse IBZKPT.*"):
+            d["IBZKPT.lobster"]
+        d = VaspDir(f"{TEST_FILES_DIR}/io/vasp/fixtures/scan_relaxation")
+        assert len(d) == 2
+        assert d["vasprun.xml.gz"].incar["METAGGA"] == "R2scan"
+
+        with pytest.raises(ValueError, match="hello not found"):
+            d["hello"]

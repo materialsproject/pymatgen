@@ -13,7 +13,7 @@ from typing import TYPE_CHECKING
 import numpy as np
 from monty.json import MontyDecoder, MSONable, jsanitize
 
-from pymatgen.core.structure import Molecule, Structure
+from pymatgen.core.structure import Lattice, Molecule, Structure
 
 try:
     from ase.atoms import Atoms
@@ -23,6 +23,7 @@ try:
     from ase.spacegroup import Spacegroup
 
     NO_ASE_ERR = None
+
 except ImportError:
     NO_ASE_ERR = PackageNotFoundError("AseAtomsAdaptor requires the ASE package. Use `pip install ase`")
     encode = decode = FixAtoms = SinglePointDFTCalculator = Spacegroup = None
@@ -94,7 +95,7 @@ class AseAtomsAdaptor:
         Returns:
             Atoms: ASE Atoms object
         """
-        if NO_ASE_ERR:
+        if NO_ASE_ERR is not None:
             raise NO_ASE_ERR
         if not structure.is_ordered:
             raise ValueError("ASE Atoms only supports ordered structures")
@@ -103,7 +104,7 @@ class AseAtomsAdaptor:
         symbols = [str(site.specie.symbol) for site in structure]
         positions = [site.coords for site in structure]
         if hasattr(structure, "lattice"):
-            pbc = True
+            pbc = getattr(structure.lattice, "pbc", True)
             cell = structure.lattice.matrix
         else:  # Molecule without lattice
             pbc = False
@@ -284,7 +285,7 @@ class AseAtomsAdaptor:
             structure = cls(symbols, positions, properties=properties, **cls_kwargs)
         else:
             structure = cls(
-                lattice,
+                Lattice(lattice, pbc=atoms.pbc),
                 symbols,
                 positions,
                 coords_are_cartesian=True,
