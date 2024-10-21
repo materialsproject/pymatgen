@@ -759,6 +759,16 @@ SIGMA = 0.1"""
         assert incar["HFSCREEN"] == 0.2
         assert incar["ALGO"] == "All"
 
+    def test_upper_keys(self):
+        incar_str = """ALGO = Fast
+        ECUT = 510
+        EDIFF = 1e-07
+        """
+        incar = Incar.from_str(incar_str)
+        incar["ecut"] = 480
+        assert "ecut" not in incar
+        assert incar["ECUT"] == 480
+
     def test_proc_types(self):
         assert Incar.proc_val("HELLO", "-0.85 0.85") == "-0.85 0.85"
         assert Incar.proc_val("ML_MODE", "train") == "train"

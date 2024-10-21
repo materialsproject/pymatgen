@@ -70,6 +70,8 @@ class Lobsterin(UserDict, MSONable):
         "useDecimalPlaces",
         "COHPSteps",
         "basisRotation",
+        "gridDensityForPrinting",
+        "gridBufferForPrinting",
     )
 
     # These keywords need an additional string suffix
@@ -87,10 +89,13 @@ class Lobsterin(UserDict, MSONable):
     # The keywords themselves (without suffix) can trigger additional functionalities
     _BOOLEAN_KEYWORDS: tuple[str, ...] = (
         "saveProjectionToFile",
+        "skipCar",
         "skipdos",
         "skipcohp",
         "skipcoop",
         "skipcobi",
+        "skipMOFE",
+        "skipMolecularOrbitals",
         "skipMadelungEnergy",
         "loadProjectionFromFile",
         "printTotalSpilling",
@@ -103,6 +108,9 @@ class Lobsterin(UserDict, MSONable):
         "userecommendedbasisfunctions",
         "skipProjection",
         "printLmosOnAtoms",
+        "printMofeAtomWise",
+        "printMofeMoleculeWise",
+        "writeAtomicOrbitals",
         "writeBasisFunctions",
         "writeMatricesToFile",
         "noFFTforVisualization",
@@ -131,6 +139,7 @@ class Lobsterin(UserDict, MSONable):
         "createFatband",
         "customSTOforAtom",
         "cobiBetween",
+        "printLmosOnAtomswriteAtomicDensities",
     )
 
     # Generate {lowered: original} mappings
