@@ -20,13 +20,14 @@ from monty.json import MSONable
 from pymatgen.core.units import SUPPORTED_UNIT_NAMES, FloatWithUnit, Ha_to_eV, Length, Mass, Unit
 from pymatgen.io.core import ParseError
 from pymatgen.util.string import Stringify, formula_double_format
-from pymatgen.util.typing import SpeciesLike
 
 if TYPE_CHECKING:
     from collections.abc import Callable
     from typing import Any, Literal
 
     from typing_extensions import Self
+
+    from pymatgen.util.typing import SpeciesLike
 
 
 # Load element data from JSON file
@@ -1651,12 +1652,26 @@ def get_el_sp(obj: int | SpeciesLike) -> Element | Species | DummySpecies:
             of properties that can be determined.
     """
     # If obj is already an Element or Species, return as is
-    # Roundabout way to check if obj is Element | Soecies | DummySpecies without angering the mypy bug
-    if isinstance(obj, SpeciesLike) and not isinstance(obj, str):
-        # if isinstance(obj, Element | Species | DummySpecies):
+    # Note: the below three if statements are functionally equivalent to the commented out
+    # code. They only exist due to a bug in mypy that doesn't allow the commented out code.
+    # This should be fixed once mypy fixes this bug.
+    if isinstance(obj, Element):
         if getattr(obj, "_is_named_isotope", None):
-            return Element(obj.name) if isinstance(obj, Element) else Species(str(obj))
+            return Element(obj.name)
         return obj
+    if isinstance(obj, Species):
+        if getattr(obj, "_is_named_isotope", None):
+            return Species(str(obj))
+        return obj
+    if isinstance(obj, Species):
+        if getattr(obj, "_is_named_isotope", None):
+            return Species(str(obj))
+        return obj
+    # if isinstance(obj, Element | Species | DummySpecies):
+    # if type(obj) in [Element, Species, DummySpecies]:
+    #     if getattr(obj, "_is_named_isotope", None):
+    #         return Element(obj.name) if isinstance(obj, Element) else Species(str(obj))
+    #     return obj
 
     # If obj is an integer, return the Element with atomic number obj
     try:
