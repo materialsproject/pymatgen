@@ -7,6 +7,7 @@ from __future__ import annotations
 
 import os
 import re
+import textwrap
 import time
 from copy import deepcopy
 from dataclasses import dataclass, field
@@ -147,28 +148,23 @@ class AimsGeometryIn(MSONable):
             for lv in structure.lattice.matrix:
                 content_lines.append(f"lattice_vector {lv[0]: .12e} {lv[1]: .12e} {lv[2]: .12e}")
 
-        charges = structure.site_properties.get("charge", np.zeros(structure.num_sites))
-        magmoms = structure.site_properties.get("magmom", [None] * structure.num_sites)
-        velocities = structure.site_properties.get("velocity", [None for _ in structure.species])
-
-        for species, coord, charge, magmom, v in zip(
-            structure.species, structure.cart_coords, charges, magmoms, velocities, strict=True
-        ):
-            if isinstance(species, Element):
-                spin = magmom
-                element = species
-            else:
-                spin = species.spin
-                element = species.element
-                if magmom is not None and magmom != spin:
+        for site in structure:
+            element = site.species_string
+            charge = site.properties.get("charge", 0)
+            spin = site.properties.get("magmom", None)
+            coord = site.coords
+            v = site.properties.get("velocity", [0.0, 0.0, 0.0])
+            if isinstance(site.specie, Species) and site.specie.spin is not None:
+                if spin is not None and spin != site.specie.spin:
                     raise ValueError("species.spin and magnetic moments don't agree. Please only define one")
+                spin = site.specie.spin
 
             content_lines.append(f"atom {coord[0]: .12e} {coord[1]: .12e} {coord[2]: .12e} {element}")
             if charge != 0:
                 content_lines.append(f"     initial_charge {charge:.12e}")
             if (spin is not None) and (spin != 0):
                 content_lines.append(f"     initial_moment {spin:.12e}")
-            if v is not None and any(v_i != 0.0 for v_i in v):
+            if (v is not None) and any(v_i != 0.0 for v_i in v):
                 content_lines.append(f"     velocity   {'  '.join([f'{v_i:.12e}' for v_i in v])}")
 
         return cls(_content="\n".join(content_lines), _structure=structure)
@@ -183,6 +179,20 @@ class AimsGeometryIn(MSONable):
         """Access the contents of the file."""
         return self._content
 
+    def get_header(self, filename: str) -> str:
+        """A header of geometry.in file
+
+        Args:
+            filename (str): A name of the file for the header
+        """
+        return textwrap.dedent(f"""\
+        #{'=' * 72}
+        # FHI-aims geometry file: {filename}
+        # File generated from pymatgen
+        # {time.asctime()}
+        #{'=' * 72}
+        """)
+
     def write_file(self, directory: str | Path | None = None, overwrite: bool = False) -> None:
         """Write the geometry.in file.
 
@@ -191,16 +201,13 @@ class AimsGeometryIn(MSONable):
             overwrite (bool): If True allow to overwrite existing files
         """
         directory = directory or Path.cwd()
+        file_name = Path(directory) / "geometry.in"
 
-        if not overwrite and (Path(directory) / "geometry.in").exists():
+        if not overwrite and file_name.exists():
             raise ValueError(f"geometry.in file exists in {directory}")
 
         with open(f"{directory}/geometry.in", mode="w") as file:
-            file.write(f"#{'=' * 72}\n")
-            file.write(f"# FHI-aims geometry file: {directory}/geometry.in\n")
-            file.write("# File generated from pymatgen\n")
-            file.write(f"# {time.asctime()}\n")
-            file.write(f"#{'=' * 72}\n")
+            file.write(self.get_header(file_name.as_posix()))
             file.write(self.content)
             file.write("\n")
 
@@ -853,15 +860,12 @@ class SpeciesDefaults(list, MSONable):
         """Initialize species defaults from a structure."""
         labels = []
         elements = {}
-        for label, el in sorted(zip(struct.labels, struct.species, strict=True)):
-            if isinstance(el, Species):
-                el = el.element
-            if (label is None) or (el is None):
-                raise ValueError("Something is terribly wrong with the structure")
-            if label not in labels:
-                labels.append(label)
-                elements[label] = el.name
-        return SpeciesDefaults(labels, basis_set, species_dir=species_dir, elements=elements)
+        for site in struct:
+            el = site.specie
+            if site.species_string not in labels:
+                labels.append(site.species_string)
+                elements[site.species_string] = el.name
+        return SpeciesDefaults(sorted(labels), basis_set, species_dir=species_dir, elements=elements)
 
     def to_dict(self):
         """Dictionary representation of the species' defaults"""

@@ -42,3 +42,8 @@ This folder is currently missing:
 - Sets
   - Common input sets are currently missing from the sets module.
 """
+
+from __future__ import annotations
+
+from pymatgen.io.jdftx.jdftxinfile import JDFTXInfile
+from pymatgen.io.jdftx.jdftxoutfile import JDFTXOutfile

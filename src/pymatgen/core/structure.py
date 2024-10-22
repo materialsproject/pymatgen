@@ -62,7 +62,7 @@ if TYPE_CHECKING:
 
     from pymatgen.util.typing import CompositionLike, MillerIndex, PathLike, PbcLike, SpeciesLike
 
-FileFormats = Literal["cif", "poscar", "cssr", "json", "yaml", "yml", "xsf", "mcsqs", "res", "pwmat", ""]
+FileFormats = Literal["cif", "poscar", "cssr", "json", "yaml", "yml", "xsf", "mcsqs", "res", "pwmat", "aims", ""]
 StructureSources = Literal["Materials Project", "COD"]
 
 
@@ -796,7 +796,21 @@ class SiteCollection(collections.abc.Sequence, ABC):
         self,
         calculator: Literal["M3GNet", "gfn2-xtb"] | Calculator,
         relax_cell: bool = True,
-        optimizer: str | Optimizer = "FIRE",
+        optimizer: Literal[
+            "BFGS",
+            "BFGSLineSearch",
+            "CellAwareBFGS",
+            "FIRE",
+            "FIRE2",
+            "GPMin",
+            "GoodOldQuasiNewton",
+            "LBFGS",
+            "LBFGSLineSearch",
+            "MDMin",
+            "ODE12r",
+            "QuasiNewton",
+        ]
+        | Optimizer = "FIRE",
         steps: int = 500,
         fmax: float = 0.1,
         stress_weight: float = 0.01,
@@ -825,7 +839,7 @@ class SiteCollection(collections.abc.Sequence, ABC):
             Structure | Molecule: Relaxed structure or molecule
         """
         from ase import optimize
-        from ase.constraints import ExpCellFilter
+        from ase.filters import FrechetCellFilter
         from ase.io import read
         from ase.optimize.optimize import Optimizer
 
@@ -874,7 +888,7 @@ class SiteCollection(collections.abc.Sequence, ABC):
             if relax_cell:
                 if is_molecule:
                     raise ValueError("Can't relax cell for a Molecule")
-                ecf = ExpCellFilter(atoms)
+                ecf = FrechetCellFilter(atoms)
                 dyn = opt_class(ecf, **opt_kwargs)
             else:
                 dyn = opt_class(atoms, **opt_kwargs)
@@ -2847,7 +2861,8 @@ class IStructure(SiteCollection, MSONable):
             fmt (str): Format to output to. Defaults to JSON unless filename
                 is provided. If fmt is specifies, it overrides whatever the
                 filename is. Options include "cif", "poscar", "cssr", "json",
-                "xsf", "mcsqs", "prismatic", "yaml", "yml", "fleur-inpgen", "pwmat".
+                "xsf", "mcsqs", "prismatic", "yaml", "yml", "fleur-inpgen", "pwmat",
+                "aims".
                 Non-case sensitive.
             **kwargs: Kwargs passthru to relevant methods. e.g. This allows
                 the passing of parameters like symprec to the
@@ -2915,6 +2930,16 @@ class IStructure(SiteCollection, MSONable):
                 with zopen(filename, mode="wt") as file:
                     file.write(yaml_str)
             return yaml_str
+        elif fmt == "aims" or fnmatch(filename, "geometry.in"):
+            from pymatgen.io.aims.inputs import AimsGeometryIn
+
+            geom_in = AimsGeometryIn.from_structure(self)
+            if filename:
+                with zopen(filename, mode="w") as file:
+                    file.write(geom_in.get_header(filename))
+                    file.write(geom_in.content)
+                    file.write("\n")
+            return geom_in.content
         # fleur support implemented in external namespace pkg https://github.com/JuDFTteam/pymatgen-io-fleur
         elif fmt == "fleur-inpgen" or fnmatch(filename, "*.in*"):
             from pymatgen.io.fleur import FleurInput
@@ -3021,6 +3046,10 @@ class IStructure(SiteCollection, MSONable):
             from pymatgen.io.atat import Mcsqs
 
             struct = Mcsqs.structure_from_str(input_string, **kwargs)
+        elif fmt == "aims":
+            from pymatgen.io.aims.inputs import AimsGeometryIn
+
+            struct = AimsGeometryIn.from_str(input_string).structure
         # fleur support implemented in external namespace pkg https://github.com/JuDFTteam/pymatgen-io-fleur
         elif fmt == "fleur-inpgen":
             from pymatgen.io.fleur import FleurInput
@@ -3117,6 +3146,8 @@ class IStructure(SiteCollection, MSONable):
             from pymatgen.io.lmto import LMTOCtrl
 
             return LMTOCtrl.from_file(filename=filename, **kwargs).structure
+        elif fnmatch(fname, "geometry.in*"):
+            return cls.from_str(contents, fmt="aims", primitive=primitive, sort=sort, merge_tol=merge_tol, **kwargs)
         elif fnmatch(fname, "inp*.xml") or fnmatch(fname, "*.in*") or fnmatch(fname, "inp_*"):
             from pymatgen.io.fleur import FleurInput
 
