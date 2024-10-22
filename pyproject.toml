@@ -87,7 +87,7 @@ Issues = "https://github.com/materialsproject/pymatgen/issues"
 Pypi = "https://pypi.org/project/pymatgen"
 
 [project.optional-dependencies]
-abinit = ["netcdf4>=1.6.5"]
+abinit = ["netcdf4>=1.7.1.post1", "delvewheel>=1.7.4"]  # DEBUG: #3894
 ase = ["ase>=3.23.0"]
 ci = ["pytest-cov>=4", "pytest-split>=0.8", "pytest>=8"]
 docs = ["invoke", "sphinx", "sphinx_markdown_builder", "sphinx_rtd_theme"]
