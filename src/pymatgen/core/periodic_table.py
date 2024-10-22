@@ -29,6 +29,7 @@ if TYPE_CHECKING:
 
     from pymatgen.util.typing import SpeciesLike
 
+
 # Load element data from JSON file
 with open(Path(__file__).absolute().parent / "periodic_table.json", encoding="utf-8") as ptable_json:
     _pt_data = json.load(ptable_json)
@@ -204,7 +205,8 @@ class ElementBase(Enum):
             if val is None or str(val).startswith("no data"):
                 warnings.warn(f"No data available for {item} for {self.symbol}")
                 val = None
-            elif isinstance(val, list | dict):
+            # elif isinstance(val, dict | list):
+            elif type(val) in [list, dict]:  # pre-commit fix
                 pass
             else:
                 try:
@@ -475,28 +477,35 @@ class ElementBase(Enum):
         return sum(t[-1] for t in self.full_electronic_structure)
 
     @property
-    def valence(self) -> tuple[int | np.nan, int]:
+    def valences(self) -> list[tuple[int | np.nan, int]]:
         """Valence subshell angular moment (L) and number of valence e- (v_e),
         obtained from full electron config, where L=0, 1, 2, or 3 for s, p, d,
         and f orbitals, respectively.
         """
         if self.group == 18:
-            return np.nan, 0  # The number of valence of noble gas is 0
+            return [(np.nan, 0)]  # The number of valence of noble gas is 0
 
         L_symbols = "SPDFGHIKLMNOQRTUVWXYZ"
-        valence: list[tuple[int, int]] = []
+        valences: list[tuple[int | np.nan, int]] = []
         full_electron_config = self.full_electronic_structure
         last_orbital = full_electron_config[-1]
         for n, l_symbol, ne in full_electron_config:
             idx = L_symbols.lower().index(l_symbol)
             if ne < (2 * idx + 1) * 2 or (
-                (n, l_symbol, ne) == last_orbital and ne == (2 * idx + 1) * 2 and len(valence) == 0
+                (n, l_symbol, ne) == last_orbital and ne == (2 * idx + 1) * 2 and len(valences) == 0
             ):  # check for full last shell (e.g. column 2)
-                valence.append((idx, ne))
-        if len(valence) > 1:
-            raise ValueError(f"{self} has ambiguous valence")
+                valences.append((idx, ne))
+        return valences
 
-        return valence[0]
+    @property
+    def valence(self) -> tuple[int | np.nan, int]:
+        """Valence subshell angular moment (L) and number of valence e- (v_e),
+        obtained from full electron config, where L=0, 1, 2, or 3 for s, p, d,
+        and f orbitals, respectively.
+        """
+        if len(self.valences) > 1:
+            raise ValueError(f"{self} has ambiguous valence")
+        return self.valences[0]
 
     @property
     def term_symbols(self) -> list[list[str]]:
@@ -523,7 +532,8 @@ class ElementBase(Enum):
         # Total ML = sum(ml1, ml2), Total MS = sum(ms1, ms2)
         TL = [sum(ml_ms[comb[e]][0] for e in range(v_e)) for comb in e_config_combs]
         TS = [sum(ml_ms[comb[e]][1] for e in range(v_e)) for comb in e_config_combs]
-        comb_counter = Counter(zip(TL, TS, strict=True))
+        # comb_counter: Counter = Counter(zip(TL, TS, strict=True))
+        comb_counter: Counter = Counter([(TL[i], TS[i]) for i in range(len(TL))])  # pre-commit edit
 
         term_symbols = []
         L_symbols = "SPDFGHIKLMNOQRTUVWXYZ"
@@ -1181,28 +1191,39 @@ class Species(MSONable, Stringify):
     # NOTE - copied exactly from Element. Refactoring / inheritance may improve
     # robustness
     @property
+    def valences(self) -> list[tuple[int | np.nan, int]]:
+        """List of valence subshell angular moment (L) and number of valence e- (v_e),
+        obtained from full electron config, where L=0, 1, 2, or 3 for s, p, d,
+        and f orbitals, respectively.
+
+
+        """
+        return self.element.valences
+        # if self.group == 18:
+        #     return [(np.nan, 0)]  # The number of valence of noble gas is 0
+
+        # L_symbols = "SPDFGHIKLMNOQRTUVWXYZ"
+        # valences: list[tuple[int, int]] = []
+        # full_electron_config = self.full_electronic_structure
+        # last_orbital = full_electron_config[-1]
+        # for n, l_symbol, ne in full_electron_config:
+        #     idx = L_symbols.lower().index(l_symbol)
+        #     if ne < (2 * idx + 1) * 2 or (
+        #         (n, l_symbol, ne) == last_orbital and ne == (2 * idx + 1) * 2 and len(valences) == 0
+        #     ):  # check for full last shell (e.g. column 2)
+        #         valences.append((idx, ne))
+        # return valences
+
+    @property
     def valence(self) -> tuple[int | np.nan, int]:
         """Valence subshell angular moment (L) and number of valence e- (v_e),
         obtained from full electron config, where L=0, 1, 2, or 3 for s, p, d,
         and f orbitals, respectively.
         """
-        if self.group == 18:
-            return np.nan, 0  # The number of valence of noble gas is 0
-
-        L_symbols = "SPDFGHIKLMNOQRTUVWXYZ"
-        valence: list[tuple[int, int]] = []
-        full_electron_config = self.full_electronic_structure
-        last_orbital = full_electron_config[-1]
-        for n, l_symbol, ne in full_electron_config:
-            idx = L_symbols.lower().index(l_symbol)
-            if ne < (2 * idx + 1) * 2 or (
-                (n, l_symbol, ne) == last_orbital and ne == (2 * idx + 1) * 2 and len(valence) == 0
-            ):  # check for full last shell (e.g. column 2)
-                valence.append((idx, ne))
-        if len(valence) > 1:
-            raise ValueError(f"{self} has ambiguous valence")
-
-        return valence[0]
+        return self.element.valence
+        # if len(self.valences) > 1:
+        #     raise ValueError(f"{self} has ambiguous valence")
+        # return self.valences[0]
 
     @property
     def ionic_radius(self) -> float | None:
@@ -1631,10 +1652,26 @@ def get_el_sp(obj: int | SpeciesLike) -> Element | Species | DummySpecies:
             of properties that can be determined.
     """
     # If obj is already an Element or Species, return as is
-    if isinstance(obj, Element | Species | DummySpecies):
+    # Note: the below three if statements are functionally equivalent to the commented out
+    # code. They only exist due to a bug in mypy that doesn't allow the commented out code.
+    # This should be fixed once mypy fixes this bug.
+    if isinstance(obj, Element):
         if getattr(obj, "_is_named_isotope", None):
-            return Element(obj.name) if isinstance(obj, Element) else Species(str(obj))
+            return Element(obj.name)
         return obj
+    if isinstance(obj, Species):
+        if getattr(obj, "_is_named_isotope", None):
+            return Species(str(obj))
+        return obj
+    if isinstance(obj, Species):
+        if getattr(obj, "_is_named_isotope", None):
+            return Species(str(obj))
+        return obj
+    # if isinstance(obj, Element | Species | DummySpecies):
+    # if type(obj) in [Element, Species, DummySpecies]:
+    #     if getattr(obj, "_is_named_isotope", None):
+    #         return Element(obj.name) if isinstance(obj, Element) else Species(str(obj))
+    #     return obj
 
     # If obj is an integer, return the Element with atomic number obj
     try:
