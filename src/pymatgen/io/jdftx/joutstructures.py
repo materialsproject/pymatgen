@@ -14,7 +14,7 @@ from pymatgen.io.jdftx.utils import correct_geom_iter_type, get_joutstructure_st
 if TYPE_CHECKING:
     import numpy as np
 
-    from pymatgen.io.jdftx.jeiters import JEiters
+    from pymatgen.io.jdftx.jelstep import JElSteps
 from pymatgen.io.jdftx.joutstructure import JOutStructure
 
 __author__ = "Ben Rich"
@@ -130,7 +130,7 @@ class JOutStructures:
         raise AttributeError("Property ecomponents inaccessible due to empty slices class field")
 
     @property
-    def elecmindata(self) -> JEiters:
+    def elecmindata(self) -> JElSteps:
         """
         Return elecmindata from most recent JOutStructure.
 
@@ -262,7 +262,7 @@ class JOutStructures:
         raise AttributeError("Property mu inaccessible due to empty slices class field")
 
     ###########################################################################
-    # Electronic properties inherited from most recent JEiters with symbol
+    # Electronic properties inherited from most recent JElSteps with symbol
     # disambiguation.
     ###########################################################################
 

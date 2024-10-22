@@ -24,9 +24,9 @@ This includes:
         - Inheritor of Structure object (contains structural data), also contains electronic minimization data
             (see below) and convergence data relevant to the geometric optimization
             (forces and Wolfe minimization variables)
-      - JEiters: Per geometric optimization update (same frequency as parent)
-        - List of JEiter as well as convergence data relevant to electronic optimization.
-      - JEiter: Per SCF update
+      - JElSteps: Per geometric optimization update (same frequency as parent)
+        - List of JElStep as well as convergence data relevant to electronic optimization.
+      - JElStep: Per SCF update
             - Contains all electronic data logged in out file at SCF update frequency.
 
 This folder is currently missing:

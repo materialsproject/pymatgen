@@ -15,7 +15,7 @@ import numpy as np
 
 if TYPE_CHECKING:
     from pymatgen.core import Structure
-    from pymatgen.io.jdftx.jeiters import JEiters
+    from pymatgen.io.jdftx.jelstep import JElSteps
 from pymatgen.core.periodic_table import Element
 from pymatgen.core.trajectory import Trajectory
 from pymatgen.core.units import Ha_to_eV, ang_to_bohr
@@ -229,7 +229,7 @@ class JDFTXOutfileSlice(ClassPrintFormatter):
         raise AttributeError("Property eiter_type inaccessible due to empty jstrucs class field")
 
     @property
-    def elecmindata(self) -> JEiters:
+    def elecmindata(self) -> JElSteps:
         """
         Return elecmindata from most recent JOutStructure.
 
@@ -361,7 +361,7 @@ class JDFTXOutfileSlice(ClassPrintFormatter):
         raise AttributeError("Property mu inaccessible due to empty jstrucs class field")
 
     ###########################################################################
-    # Electronic properties inherited from most recent JEiters with symbol
+    # Electronic properties inherited from most recent JElSteps with symbol
     # disambiguation.
     ###########################################################################
 

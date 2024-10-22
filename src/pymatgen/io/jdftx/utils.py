@@ -13,12 +13,12 @@ if TYPE_CHECKING:
     from collections.abc import Callable
 
 
-def gather_jeiters_line_collections(iter_type: str, text_slice: list[str]) -> tuple[list[list[str]], list[str]]:
-    """Gather line collections for JEiters initialization.
+def gather_JElSteps_line_collections(iter_type: str, text_slice: list[str]) -> tuple[list[list[str]], list[str]]:
+    """Gather line collections for JElSteps initialization.
 
-    Gathers list of line lists where each line list initializes a JEiter object,
-    and the remaining lines that do not initialize a JEiter object are used
-    for initialization unique to the JEiters object.
+    Gathers list of line lists where each line list initializes a JElStep object,
+    and the remaining lines that do not initialize a JElStep object are used
+    for initialization unique to the JElSteps object.
 
     Parameters
     ----------
