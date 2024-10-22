@@ -34,6 +34,7 @@ from pymatgen.io.vasp.outputs import (
     Outcar,
     Procar,
     UnconvergedVASPWarning,
+    VaspDir,
     VaspParseError,
     Vasprun,
     Wavecar,
@@ -356,7 +357,7 @@ class TestVasprun(PymatgenTest):
     def test_chi(self):
         filepath = f"{VASP_OUT_DIR}/vasprun.chi.xml.gz"
         vasprun_chi = Vasprun(filepath, parse_potcar_file=False)
-        assert vasprun_chi.incar.get("ALGO", ""), "CHI"
+        assert vasprun_chi.incar.get("ALGO") == "Chi"
 
     def test_uniform(self):
         vasprun_uniform = Vasprun(f"{VASP_OUT_DIR}/vasprun.uniform.xml.gz", parse_potcar_file=False)
@@ -2101,3 +2102,20 @@ class TestWSWQ(PymatgenTest):
                 assert np.linalg.norm([r, i]) > 0.999
             else:
                 assert np.linalg.norm([r, i]) < 0.001
+
+
+class TestVaspDir(PymatgenTest):
+    def test_getitem(self):
+        # Some simple testing of loading and reading since all these were tested in other classes.
+        d = VaspDir(f"{TEST_FILES_DIR}/io/vasp/fixtures/relaxation")
+        assert len(d) == 5
+        assert d["OUTCAR"].run_stats["cores"] == 8
+        d = VaspDir(f"{TEST_FILES_DIR}/io/vasp/outputs")
+        with pytest.raises(RuntimeError, match=r"Unable to parse IBZKPT.*"):
+            d["IBZKPT.lobster"]
+        d = VaspDir(f"{TEST_FILES_DIR}/io/vasp/fixtures/scan_relaxation")
+        assert len(d) == 2
+        assert d["vasprun.xml.gz"].incar["METAGGA"] == "R2scan"
+
+        with pytest.raises(ValueError, match="hello not found"):
+            d["hello"]

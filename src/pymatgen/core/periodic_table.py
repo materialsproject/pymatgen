@@ -1475,7 +1475,10 @@ class DummySpecies(Species):
             # We then sort by symbol.
             return self.symbol < other.symbol
         other_oxi = 0 if isinstance(other, Element) else other.oxi_state
-        return self.oxi_state < other_oxi
+        if self.oxi_state is not None and other_oxi is not None:
+            return self.oxi_state < other_oxi
+
+        raise RuntimeError("oxi_state for both species are None")
 
     def __repr__(self) -> str:
         return f"DummySpecies {self}"

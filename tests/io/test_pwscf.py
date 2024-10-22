@@ -238,6 +238,7 @@ CELL_PARAMETERS angstrom
   smearing = 'cold'
 /
 &ELECTRONS
+  conv_thr = 5.3E-5,
 /
 &IONS
 /
@@ -300,7 +301,8 @@ O        0.833411466   0.499764601   0.833411466
 O        0.833534457   0.833534457   0.166465543
 O        0.833411466   0.833411466   0.499764601
 O        0.833411466   0.833411466   0.833411466
-K_POINTS gamma
+K_POINTS automatic
+  4 4 4 1 1 1
 CELL_PARAMETERS angstrom
   0.000000 6.373854 6.373854
   6.373854 0.000000 6.373854
@@ -375,6 +377,10 @@ CELL_PARAMETERS angstrom
 
         assert_allclose(lattice, pw_in.structure.lattice.matrix)
         assert pw_in.sections["system"]["smearing"] == "cold"
+        assert pw_in.sections["electrons"]["conv_thr"] == 5.3e-5
+        assert pw_in.kpoints_mode == "automatic"
+        assert pw_in.kpoints_grid == (4, 4, 4)
+        assert pw_in.kpoints_shift == (1, 1, 1)
 
     def test_write_and_read_str(self):
         struct = self.get_structure("Graphite")
@@ -384,6 +390,8 @@ CELL_PARAMETERS angstrom
             pseudo={"C": "C.pbe-n-kjpaw_psl.1.0.0.UPF"},
             control={"calculation": "scf", "pseudo_dir": "./"},
             system={"ecutwfc": 45},
+            kpoints_grid=(4, 4, 4),
+            kpoints_shift=(1, 1, 1),
         )
         pw_str = str(pw)
         assert pw_str.strip() == str(PWInput.from_str(pw_str)).strip()
@@ -402,7 +410,7 @@ CELL_PARAMETERS angstrom
         pw_str = str(pw)
         assert pw_str.strip() == str(PWInput.from_str(pw_str)).strip()
 
-    def test_custom_decimal_precision(self):
+    def test_custom_decimal_precision_and_indent(self):
         struct = self.get_structure("Li2O")
         pw = PWInput(
             struct,

@@ -15,7 +15,7 @@ from collections import defaultdict
 from copy import deepcopy
 from functools import lru_cache
 from itertools import pairwise
-from typing import TYPE_CHECKING, Literal, NamedTuple, get_args
+from typing import TYPE_CHECKING, Literal, NamedTuple, cast, get_args, overload
 
 import numpy as np
 from monty.dev import deprecated, requires
@@ -34,7 +34,7 @@ except Exception:
     openbabel = None
 
 if TYPE_CHECKING:
-    from typing import Any
+    from typing import Any, TypeAlias
 
     from typing_extensions import Self
 
@@ -52,16 +52,15 @@ __status__ = "Production"
 __date__ = "August 17, 2017"
 
 MODULE_DIR = os.path.dirname(os.path.abspath(__file__))
-yaml = YAML()
 
-with open(f"{MODULE_DIR}/op_params.yaml") as file:
-    default_op_params = yaml.load(file)
+with open(f"{MODULE_DIR}/op_params.yaml", encoding="utf-8") as file:
+    DEFAULT_OP_PARAMS: dict[str, dict[str | int, float] | None] = YAML().load(file)
 
-with open(f"{MODULE_DIR}/cn_opt_params.yaml") as file:
-    cn_opt_params = yaml.load(file)
+with open(f"{MODULE_DIR}/cn_opt_params.yaml", encoding="utf-8") as file:
+    CN_OPT_PARAMS: dict[int, dict[str, list[str | dict[str, float]]]] = YAML().load(file)
 
-with open(f"{MODULE_DIR}/ionic_radii.json") as file:
-    _ion_radii = json.load(file)
+with open(f"{MODULE_DIR}/ionic_radii.json", encoding="utf-8") as file:
+    _ION_RADII = json.load(file)
 
 
 class ValenceIonicRadiusEvaluator:
@@ -131,16 +130,16 @@ class ValenceIonicRadiusEvaluator:
             oxi_state = int(round(site.specie.oxi_state))
             coord_no = int(round(vnn.get_cn(self._structure, idx)))
             try:
-                tab_oxi_states = sorted(map(int, _ion_radii[el]))
+                tab_oxi_states = sorted(map(int, _ION_RADII[el]))
                 oxi_state = nearest_key(tab_oxi_states, oxi_state)
-                radius = _ion_radii[el][str(oxi_state)][str(coord_no)]
+                radius = _ION_RADII[el][str(oxi_state)][str(coord_no)]
             except KeyError:
                 new_coord_no = coord_no + (1 if vnn.get_cn(self._structure, idx) - coord_no > 0 else -1)
                 try:
-                    radius = _ion_radii[el][str(oxi_state)][str(new_coord_no)]
+                    radius = _ION_RADII[el][str(oxi_state)][str(new_coord_no)]
                     coord_no = new_coord_no
                 except Exception:
-                    tab_coords = sorted(map(int, _ion_radii[el][str(oxi_state)]))
+                    tab_coords = sorted(map(int, _ION_RADII[el][str(oxi_state)]))
                     new_coord_no = nearest_key(tab_coords, coord_no)
                     idx = 0
                     for val in tab_coords:
@@ -149,15 +148,15 @@ class ValenceIonicRadiusEvaluator:
                         idx += 1
                     if idx == len(tab_coords):
                         key = str(tab_coords[-1])
-                        radius = _ion_radii[el][str(oxi_state)][key]
+                        radius = _ION_RADII[el][str(oxi_state)][key]
                     elif idx == 0:
                         key = str(tab_coords[0])
-                        radius = _ion_radii[el][str(oxi_state)][key]
+                        radius = _ION_RADII[el][str(oxi_state)][key]
                     else:
                         key = str(tab_coords[idx - 1])
-                        radius1 = _ion_radii[el][str(oxi_state)][key]
+                        radius1 = _ION_RADII[el][str(oxi_state)][key]
                         key = str(tab_coords[idx])
-                        radius2 = _ion_radii[el][str(oxi_state)][key]
+                        radius2 = _ION_RADII[el][str(oxi_state)][key]
                         radius = (radius1 + radius2) / 2
 
             # implement complex checks later
@@ -197,7 +196,7 @@ class ValenceIonicRadiusEvaluator:
         return valences
 
 
-on_disorder_options = Literal["take_majority_strict", "take_majority_drop", "take_max_species", "error"]
+on_disorder_options: TypeAlias = Literal["take_majority_strict", "take_majority_drop", "take_max_species", "error"]  # noqa: PYI042
 
 
 def _handle_disorder(structure: Structure, on_disorder: on_disorder_options):
@@ -280,6 +279,26 @@ class NearNeighbors:
         for which molecules_allowed is False.
         """
         raise NotImplementedError("extend_structures_molecule is not defined!")
+
+    @overload
+    def get_cn(
+        self,
+        structure: Structure,
+        n: int,
+        use_weights: Literal[False] = False,
+        on_disorder: on_disorder_options = "take_majority_strict",
+    ) -> int:
+        pass
+
+    @overload
+    def get_cn(
+        self,
+        structure: Structure,
+        n: int,
+        use_weights: Literal[True] = True,
+        on_disorder: on_disorder_options = "take_majority_strict",
+    ) -> float:
+        pass
 
     def get_cn(
         self,
@@ -648,19 +667,21 @@ class NearNeighbors:
         """
         # code from @nisse3000, moved here from graphs to avoid circular
         # import, also makes sense to have this as a general NN method
-        cn = self.get_cn(structure, n)
-        int_cn = [int(k_cn) for k_cn in cn_opt_params]
+        cn: int = self.get_cn(structure, n)
+        int_cn: list[int] = [int(k_cn) for k_cn in CN_OPT_PARAMS]
         if cn in int_cn:
-            names = list(cn_opt_params[cn])
-            types = []
-            params = []
+            names = list(CN_OPT_PARAMS[cn])
+            types: list[str] = []
+            params: list[dict[str, float] | None] = []
             for name in names:
-                types.append(cn_opt_params[cn][name][0])
-                tmp = cn_opt_params[cn][name][1] if len(cn_opt_params[cn][name]) > 1 else None
+                types.append(cast(str, CN_OPT_PARAMS[cn][name][0]))
+                tmp: dict[str, float] | None = (
+                    cast(dict[str, float], CN_OPT_PARAMS[cn][name][1]) if len(CN_OPT_PARAMS[cn][name]) > 1 else None
+                )
                 params.append(tmp)
             lsops = LocalStructOrderParams(types, parameters=params)
             sites = [structure[n], *self.get_nn(structure, n)]
-            lostop_vals = lsops.get_order_parameters(sites, 0, indices_neighs=list(range(1, cn + 1)))  # type: ignore[call-overload, arg-type]
+            lostop_vals = lsops.get_order_parameters(sites, 0, indices_neighs=list(range(1, cn + 1)))
             dct = {}
             for idx, lsop in enumerate(lostop_vals):
                 dct[names[idx]] = lsop
@@ -823,7 +844,7 @@ class VoronoiNN(NearNeighbors):
 
         # Get the non-duplicates (using the site indices for numerical stability)
         indices = np.array(indices, dtype=np.int64)
-        indices, uniq_inds = np.unique(indices, return_index=True, axis=0)  # type: ignore[assignment]
+        indices, uniq_inds = np.unique(indices, return_index=True, axis=0)
         sites = [sites[idx] for idx in uniq_inds]
 
         # Sort array such that atoms in the root image are first
@@ -1212,10 +1233,8 @@ class JmolNN(NearNeighbors):
         self.min_bond_distance = min_bond_distance
 
         # Load elemental radii table
-        bonds_file = f"{MODULE_DIR}/bonds_jmol_ob.yaml"
-        with open(bonds_file) as file:
-            yaml = YAML()
-            self.el_radius = yaml.load(file)
+        with open(f"{MODULE_DIR}/bonds_jmol_ob.yaml", encoding="utf-8") as file:
+            self.el_radius = YAML().load(file)
 
         # Update any user preference elemental radii
         if el_radius_updates:
@@ -2130,7 +2149,7 @@ class LocalStructOrderParams:
     structure order parameters.
     """
 
-    __supported_types = (
+    __supported_types: tuple[str, ...] = (
         "cn",
         "sgl_bd",
         "bent",
@@ -2168,13 +2187,17 @@ class LocalStructOrderParams:
         "sq_face_cap_trig_pris",
     )
 
-    def __init__(self, types, parameters=None, cutoff=-10.0) -> None:
+    def __init__(
+        self,
+        types: list[str],
+        parameters: list[dict[str, float] | None] | None = None,
+        cutoff: float = -10.0,
+    ) -> None:
         """
         Args:
-            types ([string]): list of strings representing the types of
-                order parameters to be calculated. Note that multiple
-                mentions of the same type may occur. Currently available
-                types recognize following environments:
+            types (list[str]): the types of order parameters to be calculated.
+                Note that multiple mentions of the same type may occur.
+                Currently available types recognize following environments:
                   "cn": simple coordination number---normalized
                         if desired;
                   "sgl_bd": single bonds;
@@ -2215,8 +2238,7 @@ class LocalStructOrderParams:
                                 137, 13352-13361, 2015) that can, however,
                                 produce small negative values sometimes.
                   "sq_pyr_legacy": square pyramids (legacy);
-            parameters ([dict]): list of dictionaries
-                that store float-type parameters associated with the
+            parameters (list[dict]): float-type parameters associated with the
                 definitions of the different order parameters
                 (length of list = number of OPs). If an entry
                 is None, default values are used that are read from
@@ -2274,16 +2296,19 @@ class LocalStructOrderParams:
         for typ in types:
             if typ not in LocalStructOrderParams.__supported_types:
                 raise ValueError(f"Unknown order parameter type ({typ})!")
+
         self._types = tuple(types)
 
-        self._comp_azi = False
-        self._params = []
+        self._comp_azi: bool = False
+        self._params: list[dict[str | int, float] | None] = []
         for idx, typ in enumerate(self._types):
-            dct = deepcopy(default_op_params[typ]) if default_op_params[typ] is not None else None
+            dct: dict[str | int, float] | None = (
+                deepcopy(DEFAULT_OP_PARAMS[typ]) if DEFAULT_OP_PARAMS[typ] is not None else None
+            )
             if parameters is None or parameters[idx] is None:
                 self._params.append(dct)
             else:
-                self._params.append(deepcopy(parameters[idx]))
+                self._params.append(deepcopy(parameters[idx]))  # type: ignore[arg-type]
 
         self._computerijs = self._computerjks = self._geomops = False
         self._geomops2 = self._boops = False
@@ -2293,7 +2318,7 @@ class LocalStructOrderParams:
         if "sgl_bd" in self._types:
             self._computerijs = True
         if not set(self._types).isdisjoint(
-            [
+            {
                 "tet",
                 "oct",
                 "bcc",
@@ -2322,15 +2347,16 @@ class LocalStructOrderParams:
                 "see_saw_rect",
                 "hex_plan_max",
                 "sq_face_cap_trig_pris",
-            ]
+            }
         ):
             self._computerijs = self._geomops = True
         if "sq_face_cap_trig_pris" in self._types:
             self._comp_azi = True
-        if not set(self._types).isdisjoint(["reg_tri", "sq"]):
+        if not set(self._types).isdisjoint({"reg_tri", "sq"}):
             self._computerijs = self._computerjks = self._geomops2 = True
-        if not set(self._types).isdisjoint(["q2", "q4", "q6"]):
+        if not set(self._types).isdisjoint({"q2", "q4", "q6"}):
             self._computerijs = self._boops = True
+
         if "q2" in self._types:
             self._max_trig_order = 2
         if "q4" in self._types:
@@ -2765,11 +2791,10 @@ class LocalStructOrderParams:
             raise ValueError("Index for getting order parameter type out-of-bounds!")
         return self._types[index]
 
-    def get_parameters(self, index: int) -> list[float]:
-        """Get list of floats that represents
-        the parameters associated
-        with calculation of the order
+    def get_parameters(self, index: int) -> dict[str | int, float] | None:
+        """Get parameters associated with calculation of the order
         parameter that was defined at the index provided.
+
         Attention: the parameters do not need to equal those originally
         inputted because of processing out of efficiency reasons.
 
@@ -2777,14 +2802,19 @@ class LocalStructOrderParams:
             index (int): index of order parameter for which to return associated params.
 
         Returns:
-            list[float]: parameters of a given OP.
+            dict[str, float]: parameters of a given OP.
         """
         if index < 0 or index >= len(self._types):
             raise ValueError("Index for getting parameters associated with order parameter calculation out-of-bounds!")
         return self._params[index]
 
     def get_order_parameters(
-        self, structure: Structure, n: int, indices_neighs: list[int] | None = None, tol: float = 0.0, target_spec=None
+        self,
+        structure: Structure,
+        n: int,
+        indices_neighs: list[int] | None = None,
+        tol: float = 0.0,
+        target_spec: Species | None = None,
     ):
         """
         Compute all order parameters of site n.
@@ -2902,14 +2932,16 @@ class LocalStructOrderParams:
                         rjknorm[j].append(rjk[j][kk] / distjk[j][kk])
                         kk += 1
         # Initialize OP list and, then, calculate OPs.
-        ops: list[float | None] = [0.0 for t in self._types]
+        ops: list[float | None] = [0.0 for _t in self._types]
         # norms = [[[] for j in range(nneigh)] for t in self._types]
 
         # First, coordination number and distance-based OPs.
         typ = ""
         for idx, typ in enumerate(self._types):
             if typ == "cn":
-                ops[idx] = n_neighbors / self._params[idx]["norm"]
+                if (param := self._params[idx]) is None:
+                    raise RuntimeError(f"param of {idx=} is None")
+                ops[idx] = n_neighbors / param["norm"]
             elif typ == "sgl_bd":
                 dist_sorted = sorted(dist)
                 if len(dist_sorted) == 1:
@@ -2996,19 +3028,28 @@ class LocalStructOrderParams:
                         # central atom and j and k two of the neighbors.
                         for idx, typ in enumerate(self._types):
                             if typ in {"bent", "sq_pyr_legacy"}:
-                                tmp = self._params[idx]["IGW_TA"] * (thetak * ipi - self._params[idx]["TA"])
+                                if (param := self._params[idx]) is None:
+                                    raise RuntimeError(f"param of {idx=} is None")
+                                tmp = param["IGW_TA"] * (thetak * ipi - param["TA"])
                                 qsp_theta[idx][j][kc] += math.exp(-0.5 * tmp * tmp)
                                 norms[idx][j][kc] += 1
+
                             elif typ in {"tri_plan", "tri_plan_max", "tet", "tet_max"}:
-                                tmp = self._params[idx]["IGW_TA"] * (thetak * ipi - self._params[idx]["TA"])
+                                if (param := self._params[idx]) is None:
+                                    raise RuntimeError(f"param of {idx=} is None")
+                                tmp = param["IGW_TA"] * (thetak * ipi - param["TA"])
                                 gaussthetak[idx] = math.exp(-0.5 * tmp * tmp)
-                                if typ in ["tri_plan_max", "tet_max"]:
+                                if typ in {"tri_plan_max", "tet_max"}:
                                     qsp_theta[idx][j][kc] += gaussthetak[idx]
                                     norms[idx][j][kc] += 1
+
                             elif typ in {"T", "tri_pyr", "sq_pyr", "pent_pyr", "hex_pyr"}:
-                                tmp = self._params[idx]["IGW_EP"] * (thetak * ipi - 0.5)
+                                if (param := self._params[idx]) is None:
+                                    raise RuntimeError(f"param of {idx=} is None")
+                                tmp = param["IGW_EP"] * (thetak * ipi - 0.5)
                                 qsp_theta[idx][j][kc] += math.exp(-0.5 * tmp * tmp)
                                 norms[idx][j][kc] += 1
+
                             elif typ in {
                                 "sq_plan",
                                 "oct",
@@ -3016,10 +3057,11 @@ class LocalStructOrderParams:
                                 "cuboct",
                                 "cuboct_max",
                             }:
-                                if thetak >= self._params[idx]["min_SPP"]:
-                                    tmp = self._params[idx]["IGW_SPP"] * (thetak * ipi - 1.0)
-                                    qsp_theta[idx][j][kc] += self._params[idx]["w_SPP"] * math.exp(-0.5 * tmp * tmp)
-                                    norms[idx][j][kc] += self._params[idx]["w_SPP"]
+                                if (param := self._params[idx]) is not None and thetak >= param["min_SPP"]:
+                                    tmp = param["IGW_SPP"] * (thetak * ipi - 1.0)
+                                    qsp_theta[idx][j][kc] += param["w_SPP"] * math.exp(-0.5 * tmp * tmp)
+                                    norms[idx][j][kc] += param["w_SPP"]
+
                             elif typ in {
                                 "see_saw_rect",
                                 "tri_bipyr",
@@ -3030,29 +3072,37 @@ class LocalStructOrderParams:
                                 "sq_plan_max",
                                 "hex_plan_max",
                             }:
-                                if thetak < self._params[idx]["min_SPP"]:
+                                if (param := self._params[idx]) is not None and thetak < param["min_SPP"]:
                                     tmp = (
-                                        self._params[idx]["IGW_EP"] * (thetak * ipi - 0.5)
+                                        param["IGW_EP"] * (thetak * ipi - 0.5)
                                         if typ != "hex_plan_max"
-                                        else self._params[idx]["IGW_TA"]
-                                        * (math.fabs(thetak * ipi - 0.5) - self._params[idx]["TA"])
+                                        else param["IGW_TA"] * (math.fabs(thetak * ipi - 0.5) - param["TA"])
                                     )
                                     qsp_theta[idx][j][kc] += math.exp(-0.5 * tmp * tmp)
                                     norms[idx][j][kc] += 1
-                            elif typ in ["pent_plan", "pent_plan_max"]:
-                                tmp = 0.4 if thetak <= self._params[idx]["TA"] * math.pi else 0.8
-                                tmp2 = self._params[idx]["IGW_TA"] * (thetak * ipi - tmp)
+
+                            elif typ in {"pent_plan", "pent_plan_max"}:
+                                if (param := self._params[idx]) is None:
+                                    raise RuntimeError(f"param of {idx=} is None")
+                                tmp = 0.4 if thetak <= param["TA"] * math.pi else 0.8
+                                tmp2 = param["IGW_TA"] * (thetak * ipi - tmp)
                                 gaussthetak[idx] = math.exp(-0.5 * tmp2 * tmp2)
                                 if typ == "pent_plan_max":
                                     qsp_theta[idx][j][kc] += gaussthetak[idx]
                                     norms[idx][j][kc] += 1
+
                             elif typ == "bcc" and j < k:
-                                if thetak >= self._params[idx]["min_SPP"]:
-                                    tmp = self._params[idx]["IGW_SPP"] * (thetak * ipi - 1.0)
-                                    qsp_theta[idx][j][kc] += self._params[idx]["w_SPP"] * math.exp(-0.5 * tmp * tmp)
-                                    norms[idx][j][kc] += self._params[idx]["w_SPP"]
-                            elif typ == "sq_face_cap_trig_pris" and thetak < self._params[idx]["TA3"]:
-                                tmp = self._params[idx]["IGW_TA1"] * (thetak * ipi - self._params[idx]["TA1"])
+                                if (param := self._params[idx]) is not None and thetak >= param["min_SPP"]:
+                                    tmp = param["IGW_SPP"] * (thetak * ipi - 1.0)
+                                    qsp_theta[idx][j][kc] += param["w_SPP"] * math.exp(-0.5 * tmp * tmp)
+                                    norms[idx][j][kc] += param["w_SPP"]
+
+                            elif (
+                                typ == "sq_face_cap_trig_pris"
+                                and (param := self._params[idx]) is not None
+                                and thetak < param["TA3"]
+                            ):
+                                tmp = param["IGW_TA1"] * (thetak * ipi - param["TA1"])
                                 qsp_theta[idx][j][kc] += math.exp(-0.5 * tmp * tmp)
                                 norms[idx][j][kc] += 1
 
@@ -3088,9 +3138,10 @@ class LocalStructOrderParams:
                                         "hex_plan_max",
                                         "see_saw_rect",
                                     }
-                                    and thetam >= self._params[idx]["min_SPP"]
+                                    and (param := self._params[idx]) is not None
+                                    and thetam >= param["min_SPP"]
                                 ):
-                                    tmp = self._params[idx]["IGW_SPP"] * (thetam * ipi - 1.0)
+                                    tmp = param["IGW_SPP"] * (thetam * ipi - 1.0)
                                     qsp_theta[idx][j][kc] += math.exp(-0.5 * tmp * tmp)
                                     norms[idx][j][kc] += 1
 
@@ -3104,21 +3155,24 @@ class LocalStructOrderParams:
                                             "tet",
                                             "tet_max",
                                         }:
-                                            tmp = self._params[idx]["IGW_TA"] * (thetam * ipi - self._params[idx]["TA"])
-                                            tmp2 = (
-                                                math.cos(self._params[idx]["fac_AA"] * phi)
-                                                ** self._params[idx]["exp_cos_AA"]
-                                            )
-                                            tmp3 = 1 if typ in ["tri_plan_max", "tet_max"] else gaussthetak[idx]
+                                            if (param := self._params[idx]) is None:
+                                                raise RuntimeError(f"param of {idx=} is None")
+                                            tmp = param["IGW_TA"] * (thetam * ipi - param["TA"])
+                                            tmp2 = math.cos(param["fac_AA"] * phi) ** param["exp_cos_AA"]
+                                            tmp3 = 1 if typ in {"tri_plan_max", "tet_max"} else gaussthetak[idx]
                                             qsp_theta[idx][j][kc] += tmp3 * math.exp(-0.5 * tmp * tmp) * tmp2
                                             norms[idx][j][kc] += 1
-                                        elif typ in ["pent_plan", "pent_plan_max"]:
-                                            tmp = 0.4 if thetam <= self._params[idx]["TA"] * math.pi else 0.8
-                                            tmp2 = self._params[idx]["IGW_TA"] * (thetam * ipi - tmp)
+
+                                        elif typ in {"pent_plan", "pent_plan_max"}:
+                                            if (param := self._params[idx]) is None:
+                                                raise RuntimeError(f"param of {idx=} is None")
+                                            tmp = 0.4 if thetam <= param["TA"] * math.pi else 0.8
+                                            tmp2 = param["IGW_TA"] * (thetam * ipi - tmp)
                                             tmp3 = math.cos(phi)
                                             tmp4 = 1 if typ == "pent_plan_max" else gaussthetak[idx]
                                             qsp_theta[idx][j][kc] += tmp4 * math.exp(-0.5 * tmp2 * tmp2) * tmp3 * tmp3
                                             norms[idx][j][kc] += 1
+
                                         elif typ in {
                                             "T",
                                             "tri_pyr",
@@ -3126,29 +3180,26 @@ class LocalStructOrderParams:
                                             "pent_pyr",
                                             "hex_pyr",
                                         }:
-                                            tmp = (
-                                                math.cos(self._params[idx]["fac_AA"] * phi)
-                                                ** self._params[idx]["exp_cos_AA"]
-                                            )
-                                            tmp3 = self._params[idx]["IGW_EP"] * (thetam * ipi - 0.5)
+                                            if (param := self._params[idx]) is None:
+                                                raise RuntimeError(f"param of {idx=} is None")
+                                            tmp = math.cos(param["fac_AA"] * phi) ** param["exp_cos_AA"]
+                                            tmp3 = param["IGW_EP"] * (thetam * ipi - 0.5)
                                             qsp_theta[idx][j][kc] += tmp * math.exp(-0.5 * tmp3 * tmp3)
                                             norms[idx][j][kc] += 1
-                                        elif typ in ["sq_plan", "oct", "oct_legacy"]:
+
+                                        elif typ in {"sq_plan", "oct", "oct_legacy"}:
                                             if (
-                                                thetak < self._params[idx]["min_SPP"]
-                                                and thetam < self._params[idx]["min_SPP"]
+                                                (param := self._params[idx]) is not None
+                                                and thetak < param["min_SPP"]
+                                                and thetam < param["min_SPP"]
                                             ):
-                                                tmp = (
-                                                    math.cos(self._params[idx]["fac_AA"] * phi)
-                                                    ** self._params[idx]["exp_cos_AA"]
-                                                )
-                                                tmp2 = self._params[idx]["IGW_EP"] * (thetam * ipi - 0.5)
+                                                tmp = math.cos(param["fac_AA"] * phi) ** param["exp_cos_AA"]
+                                                tmp2 = param["IGW_EP"] * (thetam * ipi - 0.5)
                                                 qsp_theta[idx][j][kc] += tmp * math.exp(-0.5 * tmp2 * tmp2)
                                                 if typ == "oct_legacy":
-                                                    qsp_theta[idx][j][kc] -= (
-                                                        tmp * self._params[idx][6] * self._params[idx][7]
-                                                    )
+                                                    qsp_theta[idx][j][kc] -= tmp * param[6] * param[7]
                                                 norms[idx][j][kc] += 1
+
                                         elif typ in {
                                             "tri_bipyr",
                                             "sq_bipyr",
@@ -3159,90 +3210,81 @@ class LocalStructOrderParams:
                                             "hex_plan_max",
                                         }:
                                             if (
-                                                thetam < self._params[idx]["min_SPP"]
-                                                and thetak < self._params[idx]["min_SPP"]
+                                                (param := self._params[idx]) is not None
+                                                and thetam < param["min_SPP"]
+                                                and thetak < param["min_SPP"]
                                             ):
-                                                tmp = (
-                                                    math.cos(self._params[idx]["fac_AA"] * phi)
-                                                    ** self._params[idx]["exp_cos_AA"]
-                                                )
+                                                tmp = math.cos(param["fac_AA"] * phi) ** param["exp_cos_AA"]
                                                 tmp2 = (
-                                                    self._params[idx]["IGW_EP"] * (thetam * ipi - 0.5)
+                                                    param["IGW_EP"] * (thetam * ipi - 0.5)
                                                     if typ != "hex_plan_max"
-                                                    else self._params[idx]["IGW_TA"]
-                                                    * (math.fabs(thetam * ipi - 0.5) - self._params[idx]["TA"])
+                                                    else param["IGW_TA"] * (math.fabs(thetam * ipi - 0.5) - param["TA"])
                                                 )
                                                 qsp_theta[idx][j][kc] += tmp * math.exp(-0.5 * tmp2 * tmp2)
                                                 norms[idx][j][kc] += 1
+
                                         elif typ == "bcc" and j < k:
-                                            if thetak < self._params[idx]["min_SPP"]:
+                                            if (param := self._params[idx]) is not None and thetak < param["min_SPP"]:
                                                 fac = 1 if thetak > piover2 else -1
                                                 tmp = (thetam - piover2) / math.asin(1 / 3)
                                                 qsp_theta[idx][j][kc] += (
                                                     fac * math.cos(3 * phi) * fac_bcc * tmp * math.exp(-0.5 * tmp * tmp)
                                                 )
                                                 norms[idx][j][kc] += 1
+
                                         elif typ == "see_saw_rect":
                                             if (
-                                                thetam < self._params[idx]["min_SPP"]
-                                                and thetak < self._params[idx]["min_SPP"]
+                                                (param := self._params[idx]) is not None
+                                                and thetam < param["min_SPP"]
+                                                and thetak < param["min_SPP"]
                                                 and phi < 0.75 * math.pi
                                             ):
-                                                tmp = (
-                                                    math.cos(self._params[idx]["fac_AA"] * phi)
-                                                    ** self._params[idx]["exp_cos_AA"]
-                                                )
-                                                tmp2 = self._params[idx]["IGW_EP"] * (thetam * ipi - 0.5)
+                                                tmp = math.cos(param["fac_AA"] * phi) ** param["exp_cos_AA"]
+                                                tmp2 = param["IGW_EP"] * (thetam * ipi - 0.5)
                                                 qsp_theta[idx][j][kc] += tmp * math.exp(-0.5 * tmp2 * tmp2)
                                                 norms[idx][j][kc] += 1.0
-                                        elif typ in ["cuboct", "cuboct_max"]:
+
+                                        elif typ in {"cuboct", "cuboct_max"}:
                                             if (
-                                                thetam < self._params[idx]["min_SPP"]
-                                                and self._params[idx][4] < thetak < self._params[idx][2]
+                                                (param := self._params[idx]) is not None
+                                                and thetam < param["min_SPP"]
+                                                and param[4] < thetak < param[2]
                                             ):
-                                                if self._params[idx][4] < thetam < self._params[idx][2]:
+                                                if param[4] < thetam < param[2]:
                                                     tmp = math.cos(phi)
-                                                    tmp2 = self._params[idx][5] * (thetam * ipi - 0.5)
+                                                    tmp2 = param[5] * (thetam * ipi - 0.5)
                                                     qsp_theta[idx][j][kc] += tmp * tmp * math.exp(-0.5 * tmp2 * tmp2)
                                                     norms[idx][j][kc] += 1.0
-                                                elif thetam < self._params[idx][4]:
+                                                elif thetam < param[4]:
                                                     tmp = 0.0556 * (math.cos(phi - 0.5 * math.pi) - 0.81649658)
-                                                    tmp2 = self._params[idx][6] * (thetam * ipi - onethird)
+                                                    tmp2 = param[6] * (thetam * ipi - onethird)
                                                     qsp_theta[idx][j][kc] += math.exp(-0.5 * tmp * tmp) * math.exp(
                                                         -0.5 * tmp2 * tmp2
                                                     )
                                                     norms[idx][j][kc] += 1.0
-                                                elif thetam > self._params[idx][2]:
+                                                elif thetam > param[2]:
                                                     tmp = 0.0556 * (math.cos(phi - 0.5 * math.pi) - 0.81649658)
-                                                    tmp2 = self._params[idx][6] * (thetam * ipi - twothird)
+                                                    tmp2 = param[6] * (thetam * ipi - twothird)
                                                     qsp_theta[idx][j][kc] += math.exp(-0.5 * tmp * tmp) * math.exp(
                                                         -0.5 * tmp2 * tmp2
                                                     )
                                                     norms[idx][j][kc] += 1.0
+
                                         elif (
                                             typ == "sq_face_cap_trig_pris"
                                             and not flag_yaxis
-                                            and thetak < self._params[idx]["TA3"]
+                                            and (param := self._params[idx]) is not None
+                                            and thetak < param["TA3"]
                                         ):
-                                            if thetam < self._params[idx]["TA3"]:
-                                                tmp = (
-                                                    math.cos(self._params[idx]["fac_AA1"] * phi2)
-                                                    ** self._params[idx]["exp_cos_AA1"]
-                                                )
-                                                tmp2 = self._params[idx]["IGW_TA1"] * (
-                                                    thetam * ipi - self._params[idx]["TA1"]
-                                                )
+                                            if thetam < param["TA3"]:
+                                                tmp = math.cos(param["fac_AA1"] * phi2) ** param["exp_cos_AA1"]
+                                                tmp2 = param["IGW_TA1"] * (thetam * ipi - param["TA1"])
                                             else:
                                                 tmp = (
-                                                    math.cos(
-                                                        self._params[idx]["fac_AA2"]
-                                                        * (phi2 + self._params[idx]["shift_AA2"])
-                                                    )
-                                                    ** self._params[idx]["exp_cos_AA2"]
+                                                    math.cos(param["fac_AA2"] * (phi2 + param["shift_AA2"]))
+                                                    ** param["exp_cos_AA2"]
                                                 )
-                                                tmp2 = self._params[idx]["IGW_TA2"] * (
-                                                    thetam * ipi - self._params[idx]["TA2"]
-                                                )
+                                                tmp2 = param["IGW_TA2"] * (thetam * ipi - param["TA2"])
 
                                             qsp_theta[idx][j][kc] += tmp * math.exp(-0.5 * tmp2 * tmp2)
                                             norms[idx][j][kc] += 1
@@ -3287,7 +3329,7 @@ class LocalStructOrderParams:
                     "hex_plan_max",
                     "sq_face_cap_trig_pris",
                 }:
-                    ops[idx] = None  # type: ignore[call-overload]
+                    ops[idx] = None
                     if n_neighbors > 1:
                         for j in range(n_neighbors):
                             for k in range(len(qsp_theta[idx][j])):
@@ -3303,21 +3345,23 @@ class LocalStructOrderParams:
                     if n_neighbors > 3:
                         ops[idx] /= float(0.5 * float(n_neighbors * (6 + (n_neighbors - 2) * (n_neighbors - 3))))  # type: ignore[operator]
                     else:
-                        ops[idx] = None  # type: ignore[call-overload]
+                        ops[idx] = None
 
                 elif typ == "sq_pyr_legacy":
                     if n_neighbors > 1:
                         dmean = np.mean(dist)
                         acc = 0.0
                         for d in dist:
-                            tmp = self._params[idx][2] * (d - dmean)
+                            if (param := self._params[idx]) is None:
+                                raise RuntimeError(f"param of {idx=} is None")
+                            tmp = param[2] * (d - dmean)
                             acc += math.exp(-0.5 * tmp * tmp)
                         for j in range(n_neighbors):
                             ops[idx] = max(qsp_theta[idx][j]) if j == 0 else max(ops[idx], *qsp_theta[idx][j])
                         ops[idx] = acc * ops[idx] / float(n_neighbors)  # type: ignore[operator]
                         # nneigh * (nneigh - 1))
                     else:
-                        ops[idx] = None  # type: ignore[call-overload]
+                        ops[idx] = None
 
         # Then, deal with the new-style OPs that require vectors between
         # neighbors.
@@ -3342,7 +3386,7 @@ class LocalStructOrderParams:
             for idx, typ in enumerate(self._types):
                 if typ in {"reg_tri", "sq"}:
                     if n_neighbors < 3:
-                        ops[idx] = None  # type: ignore[call-overload]
+                        ops[idx] = None
                     else:
                         ops[idx] = 1.0
                         if typ == "reg_tri":
@@ -3354,7 +3398,9 @@ class LocalStructOrderParams:
                             nmax = 4
 
                         for j in range(min([n_neighbors, nmax])):
-                            ops[idx] *= math.exp(-0.5 * ((aijs[j] - a) * self._params[idx][0]) ** 2)  # type: ignore[operator]
+                            if (param := self._params[idx]) is None:
+                                raise RuntimeError(f"param of {idx=} is None")
+                            ops[idx] *= math.exp(-0.5 * ((aijs[j] - a) * param[0]) ** 2)  # type: ignore[operator]
 
         return ops
 
@@ -4105,7 +4151,7 @@ class CrystalNN(NearNeighbors):
 
 def _get_default_radius(site) -> float:
     """
-    An internal method to get a "default" covalent/element radius.
+    An internal function to get a "default" covalent/element radius.
 
     Args:
         site: (Site)
@@ -4121,7 +4167,7 @@ def _get_default_radius(site) -> float:
 
 def _get_radius(site):
     """
-    An internal method to get the expected radius for a site with
+    An internal function to get the expected radius for a site with
     oxidation state.
 
     Args:
