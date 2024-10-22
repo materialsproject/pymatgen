@@ -369,7 +369,7 @@ class SpacegroupAnalyzer:
         if keep_site_properties:
             site_properties = {}
             for k, v in self._site_props.items():
-                site_properties[k] = [v[i - 1] for i in numbers]
+                site_properties[k] = [v[self._numbers.index(i)] for i in numbers]
         else:
             site_properties = None
         struct = Structure(lattice, species, scaled_positions, site_properties=site_properties)
@@ -398,7 +398,7 @@ class SpacegroupAnalyzer:
         if keep_site_properties:
             site_properties = {}
             for key, val in self._site_props.items():
-                site_properties[key] = [val[i - 1] for i in numbers]
+                site_properties[key] = [val[self._numbers.index(i)] for i in numbers]
         else:
             site_properties = None
 
@@ -1329,6 +1329,15 @@ class PointGroupAnalyzer:
         return generate_full_symmops(self.symmops, self.tol)
 
     def get_rotational_symmetry_number(self) -> int:
+        """Get rotational symmetry number.
+
+        Returns:
+            int: Rotational symmetry number.
+        """
+        if self.sch_symbol == "D*h":
+            # Special case. H2 for example has rotational symmetry number 2
+            return 2
+
         """Get the rotational symmetry number."""
         symm_ops = self.get_symmetry_operations()
         symm_number = 0

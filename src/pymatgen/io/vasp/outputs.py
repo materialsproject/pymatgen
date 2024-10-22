@@ -2,10 +2,12 @@
 
 from __future__ import annotations
 
+import collections
 import itertools
 import math
 import os
 import re
+import typing
 import warnings
 import xml.etree.ElementTree as ET
 from collections import defaultdict
@@ -140,9 +142,9 @@ def _parse_from_incar(filename: PathLike, key: str) -> Any:
     dirname = os.path.dirname(filename)
     for fn in os.listdir(dirname):
         if re.search("INCAR", fn):
-            warnings.warn(f"INCAR found. Using {key} from INCAR.")
+            warnings.warn(f"INCAR found. Using {key} from INCAR.", stacklevel=2)
             incar = Incar.from_file(os.path.join(dirname, fn))
-            return incar.get(key, None)
+            return incar.get(key)
     return None
 
 
@@ -345,7 +347,7 @@ class Vasprun(MSONable):
                 self.update_potcar_spec(parse_potcar_file)
                 self.update_charge_from_potcar(parse_potcar_file)
 
-        if self.incar.get("ALGO") not in {"CHI", "BSE"} and not self.converged and self.parameters.get("IBRION") != 0:
+        if self.incar.get("ALGO") not in {"Chi", "Bse"} and not self.converged and self.parameters.get("IBRION") != 0:
             msg = f"{filename} is an unconverged VASP run.\n"
             msg += f"Electronic convergence reached: {self.converged_electronic}.\n"
             msg += f"Ionic convergence reached: {self.converged_ionic}."
@@ -364,10 +366,9 @@ class Vasprun(MSONable):
         self.projected_magnetisation: NDArray | None = None
         self.dielectric_data: dict[str, tuple] = {}
         self.other_dielectric: dict[str, tuple] = {}
-        self.incar: dict[str, Any] = {}
+        self.incar: Incar = {}
         self.kpoints_opt_props: KpointOptProps | None = None
-
-        ionic_steps: list = []
+        ionic_steps: list[dict[str, Any]] = []
 
         md_data: list[dict] = []
         parsed_header: bool = False
@@ -534,6 +535,7 @@ class Vasprun(MSONable):
             warnings.warn(
                 "XML is malformed. Parsing has stopped but partial data is available.",
                 UserWarning,
+                stacklevel=2,
             )
 
         self.ionic_steps = ionic_steps
@@ -614,10 +616,13 @@ class Vasprun(MSONable):
     @property
     def converged_electronic(self) -> bool:
         """Whether electronic step converged in the final ionic step."""
-        final_elec_steps = (
+        final_elec_steps: list[dict[str, Any]] | Literal[0] = (
             self.ionic_steps[-1]["electronic_steps"] if self.incar.get("ALGO", "").lower() != "chi" else 0
         )
-        # In a response function run there is no ionic steps, there is no scf step
+        # In a response function run there is no ionic steps, there is no SCF step
+        if final_elec_steps == 0:
+            raise ValueError("there is no ionic step in response function ALGO=CHI.")
+
         if self.incar.get("LEPSILON"):
             idx = 1
             to_check = {"e_wo_entrp", "e_fr_energy", "e_0_energy"}
@@ -1355,9 +1360,9 @@ class Vasprun(MSONable):
         dct["output"] = vout
         return jsanitize(dct, strict=True)
 
-    def _parse_params(self, elem: XML_Element) -> dict:
-        """Parse INCAR parameters."""
-        params: dict = {}
+    def _parse_params(self, elem: XML_Element) -> Incar[str, Any]:
+        """Parse INCAR parameters and more."""
+        params: dict[str, Any] = {}
         for c in elem:
             # VASP 6.4.3 can add trailing whitespace
             # for example, <i type="string" name="GGA    ">PE</i>
@@ -1369,6 +1374,7 @@ class Vasprun(MSONable):
                     # which overrides the values in the root params.
                     p = {k: v for k, v in p.items() if k not in params}
                 params |= p
+
             else:
                 ptype = c.attrib.get("type", "")
                 val = c.text.strip() if c.text else ""
@@ -4925,7 +4931,7 @@ class Wavecar:
                         else:
                             self.coeffs[i_nk][inb] = np.array(list(data) + extra_coeffs, dtype=np.complex128)
 
-                        if self.vasp_type.lower()[0] == "n":
+                        if self.vasp_type is not None and self.vasp_type.lower()[0] == "n":
                             self.coeffs[i_nk][inb].shape = (2, nplane // 2)  # type: ignore[union-attr]
 
     def _generate_nbmax(self) -> None:
@@ -5609,3 +5615,79 @@ class WSWQ(MSONable):
 
 class UnconvergedVASPWarning(Warning):
     """Warning for unconverged VASP run."""
+
+
+class VaspDir(collections.abc.Mapping):
+    """
+    User-friendly class to access all files in a VASP calculation directory as pymatgen objects in a dict.
+    Note that the files are lazily parsed to minimize initialization costs since not all files will be needed by all
+    users.
+
+    Example:
+
+    ```
+    d = VaspDir(".")
+    print(d["INCAR"]["NELM"])
+    print(d["vasprun.xml"].parameters)
+    ```
+    """
+
+    FILE_MAPPINGS: typing.ClassVar = {
+        "INCAR": Incar,
+        "POSCAR": Poscar,
+        "CONTCAR": Poscar,
+        "KPOINTS": Kpoints,
+        "POTCAR": Potcar,
+        "vasprun": Vasprun,
+        "OUTCAR": Outcar,
+        "OSZICAR": Oszicar,
+        "CHGCAR": Chgcar,
+        "WAVECAR": Wavecar,
+        "WAVEDER": Waveder,
+        "LOCPOT": Locpot,
+        "XDATCAR": Xdatcar,
+        "EIGENVAL": Eigenval,
+        "PROCAR": Procar,
+        "ELFCAR": Elfcar,
+        "DYNMAT": Dynmat,
+        "WSWQ": WSWQ,
+    }
+
+    def __init__(self, dirname: str | Path):
+        """
+        Args:
+            dirname: The directory containing the VASP calculation as a string or Path.
+        """
+        self.path = Path(dirname)
+        self.files = [f.name for f in self.path.iterdir() if f.is_file()]
+        self._parsed_files: dict[str, Any] = {}
+
+    def reset(self):
+        """
+        Reset all loaded files and recheck the directory for files. Use this when the contents of the directory has
+        changed.
+        """
+        self.files = [f for f in self.path.iterdir() if f.is_file()]
+        self._parsed_files = {}
+
+    def __len__(self):
+        return len(self.files)
+
+    def __iter__(self):
+        return iter(self.files)
+
+    def __getitem__(self, item):
+        if item in self._parsed_files:
+            return self._parsed_files[item]
+        for k, cls_ in VaspDir.FILE_MAPPINGS.items():
+            if k in item:
+                try:
+                    self._parsed_files[item] = cls_.from_file(self.path / item)
+                except AttributeError:
+                    self._parsed_files[item] = cls_(self.path / item)
+
+                return self._parsed_files[item]
+        if (self.path / item).exists():
+            raise RuntimeError(f"Unable to parse {item}. Supported files are {list(VaspDir.FILE_MAPPINGS.keys())}.")
+
+        raise ValueError(f"{item} not found in {self.path}. List of files are {self.files}.")
