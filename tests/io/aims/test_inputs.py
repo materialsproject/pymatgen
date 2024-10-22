@@ -9,7 +9,7 @@ import pytest
 from monty.json import MontyDecoder, MontyEncoder
 from numpy.testing import assert_allclose
 
-from pymatgen.core import SETTINGS, Lattice, Species, Structure
+from pymatgen.core import SETTINGS, Composition, Lattice, Species, Structure
 from pymatgen.io.aims.inputs import (
     ALLOWED_AIMS_CUBE_TYPES,
     ALLOWED_AIMS_CUBE_TYPES_STATE,
@@ -297,9 +297,9 @@ def test_species_defaults(monkeypatch: pytest.MonkeyPatch):
     ]
     assert species_defaults.elements == {"Si": "Si"}
 
-    si.relabel_sites()
+    si[0].species = Composition({"Si0+": 1}, strict=True)
     species_defaults = SpeciesDefaults.from_structure(si, "light")
-    assert species_defaults.labels == ["Si_1", "Si_2"]
-    assert species_defaults.elements == {"Si_1": "Si", "Si_2": "Si"}
-    assert "Si_1" in str(species_defaults)
-    assert "Si_2" in str(species_defaults)
+    assert species_defaults.labels == ["Si", "Si0+"]
+    assert species_defaults.elements == {"Si": "Si", "Si0+": "Si"}
+    assert "Si0+" in str(species_defaults)
+    assert "Si" in str(species_defaults)
