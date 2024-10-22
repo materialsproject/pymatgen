@@ -16,6 +16,7 @@ from typing import TYPE_CHECKING, cast
 import numpy as np
 from monty.dev import deprecated
 from monty.json import MSONable
+from scipy.spatial import Voronoi
 
 from pymatgen.util.coord import pbc_shortest_vectors
 from pymatgen.util.due import Doi, due
@@ -1262,9 +1263,6 @@ class Lattice(MSONable):
             Wigner Seitz cell. For instance, a list of four coordinates will
             represent a square facet.
         """
-        # Import scipy is expensive
-        from scipy.spatial import Voronoi
-
         vec1, vec2, vec3 = self._matrix
 
         list_k_points = []
