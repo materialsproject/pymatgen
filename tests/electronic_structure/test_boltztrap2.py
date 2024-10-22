@@ -9,6 +9,7 @@ from monty.serialization import loadfn
 from monty.tempfile import ScratchDir
 from pytest import approx
 
+from pymatgen.electronic_structure.boltztrap import BoltztrapError
 from pymatgen.electronic_structure.core import OrbitalType, Spin
 from pymatgen.io.vasp import Vasprun
 from pymatgen.util.testing import TEST_FILES_DIR
@@ -323,6 +324,7 @@ class TestBztTransportProperties(TestCase):
 
 
 class TestBztPlotter:
+
     def test_plot(self):
         loader = VasprunBSLoader(VASP_RUN)
         bztInterp = BztInterpolator(loader, lpfac=2)

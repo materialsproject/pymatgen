@@ -16,6 +16,17 @@ def test_static_si(tmp_path):
     comp_system(Si, parameters, "static-si", tmp_path, REF_PATH, StaticSetGenerator)
 
 
+def test_static_o2_charge(tmp_path):
+    parameters = {
+        "species_dir": "light",
+        "k_grid": [2, 2, 2],
+    }
+    Si.set_charge(1)
+    generator = StaticSetGenerator(parameters, use_structure_charge=True)
+    input_set = generator.get_input_set(Si)
+    assert "charge                             1" in input_set.control_in
+
+
 def test_static_si_no_kgrid(tmp_path):
     parameters = {"species_dir": "light"}
     Si_supercell = Si.make_supercell([1, 2, 3], in_place=False)
