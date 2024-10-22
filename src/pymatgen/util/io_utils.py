@@ -9,7 +9,7 @@ from typing import TYPE_CHECKING
 from monty.io import zopen
 
 if TYPE_CHECKING:
-    from collections.abc import Generator
+    from collections.abc import Iterator
 
 __author__ = "Shyue Ping Ong, Rickard Armiento, Anubhav Jain, G Matteo, Ioannis Petousis"
 __copyright__ = "Copyright 2011, The Materials Project"
@@ -21,31 +21,31 @@ __date__ = "Sep 23, 2011"
 
 
 def clean_lines(
-    string_list,
-    remove_empty_lines=True,
-    rstrip_only=False,
-) -> Generator[str, None, None]:
+    string_list: list[str],
+    remove_empty_lines: bool = True,
+    rstrip_only: bool = False,
+) -> Iterator[str]:
     """Strips whitespace, carriage returns and empty lines from a list of strings.
 
     Args:
-        string_list: List of strings
-        remove_empty_lines: Set to True to skip lines which are empty after
+        string_list (list[str]): List of strings.
+        remove_empty_lines (bool): Set to True to skip lines which are empty after
             stripping.
-        rstrip_only: Set to True to strip trailing whitespaces only (i.e.,
+        rstrip_only (bool): Set to True to strip trailing whitespaces only (i.e.,
             to retain leading whitespaces). Defaults to False.
 
     Yields:
-        list: clean strings with no whitespaces. If rstrip_only == True,
-            clean strings with no trailing whitespaces.
+        str: clean strings with no whitespaces.
     """
-    for s in string_list:
-        clean_s = s
-        if "#" in s:
-            ind = s.index("#")
-            clean_s = s[:ind]
-        clean_s = clean_s.rstrip() if rstrip_only else clean_s.strip()
-        if (not remove_empty_lines) or clean_s != "":
-            yield clean_s
+    for string in string_list:
+        clean_string = string
+        if "#" in string:
+            clean_string = string[: string.index("#")]
+
+        clean_string = clean_string.rstrip() if rstrip_only else clean_string.strip()
+
+        if (not remove_empty_lines) or clean_string != "":
+            yield clean_string
 
 
 def micro_pyawk(filename, search, results=None, debug=None, postdebug=None):
