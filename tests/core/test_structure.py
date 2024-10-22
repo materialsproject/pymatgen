@@ -1785,7 +1785,7 @@ class TestStructure(PymatgenTest):
         assert {*relaxed.calc.results} >= {"energy", "energies", "free_energy"}
         assert relaxed.calc.parameters == {"asap_cutoff": False}
         assert relaxed.dynamics["optimizer"] == "FIRE"
-        assert len(traj) == 7
+        assert len(traj) == 15
         assert traj[0] != traj[-1]
         os.remove("opt.traj")  # fails if file missing
 
