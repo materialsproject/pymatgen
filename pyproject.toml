@@ -56,8 +56,8 @@ classifiers = [
 dependencies = [
     "joblib>=1",
     "matplotlib>=3.8",
-    "monty==2024.7.30",  # DEBUG
-    "networkx>=2.7",  # PR #4116
+    "monty==2024.10.21",  # DEBUG
+    "networkx>=3",  # PR #4116
     "palettable>=3.3.3",
     "pandas>=2",
     "plotly>=4.5.0",
@@ -69,7 +69,7 @@ dependencies = [
     # https://github.com/scipy/scipy/issues/21052
     "scipy>=1.14.1; platform_system == 'Windows'",
     "spglib>=2.5.0",
-    "sympy>=1.3",  # PR #4116
+    "sympy>=1.2",
     "tabulate>=0.9",
     "tqdm>=4.60",
     "uncertainties>=3.1.4",
@@ -87,34 +87,40 @@ Issues = "https://github.com/materialsproject/pymatgen/issues"
 Pypi = "https://pypi.org/project/pymatgen"
 
 [project.optional-dependencies]
-abinit = ["netcdf4>=1.7.1"]
 ase = ["ase>=3.23.0"]
+# tblite only support Python 3.12+ through conda-forge
+# https://github.com/tblite/tblite/issues/175
+tblite = ["tblite[ase]>=0.3.0; python_version<'3.12'"]
+vis = ["vtk>=6.0.0"]
+abinit = ["netcdf4>=1.7.1"]
+mlp = ["chgnet>=0.3.8", "matgl>=1.1.3"]
+electronic_structure = ["fdint>=2.0.2"]
 ci = ["pytest-cov>=4", "pytest-split>=0.8", "pytest>=8"]
 docs = ["invoke", "sphinx", "sphinx_markdown_builder", "sphinx_rtd_theme"]
-electronic_structure = ["fdint>=2.0.2"]
-mlp = ["chgnet>=0.3.8", "matgl>=1.1.3"]
-numba = ["numba>=0.55"]
-numpy-v1 = ["numpy>=1.25.0,<2"] # Test NP1 on Windows (quite buggy ATM)
 optional = [
-    "pymatgen[abinit,ase,mlp,tblite]",
-    "beautifulsoup4>=4.6.0",
+    "ase>=3.23.0",
+    "beautifulsoup4",
     # BoltzTraP2 build fails on Windows GitHub runners
     "BoltzTraP2>=24.9.4 ; platform_system != 'Windows'",
     "chemview>=0.6",
+    "chgnet>=0.3.8",
     "f90nml>=1.1.2",
     "galore>=0.6.1",
     "h5py>=3.11.0",
     "jarvis-tools>=2020.7.14",
+    "matgl>=1.1.3",
     "matplotlib>=3.8",
+    "netCDF4>=1.6.5",
     "phonopy>=2.23",
     "seekpath>=2.0.1",
+    # tblite only support Python 3.12+ through conda-forge
+    # https://github.com/tblite/tblite/issues/175
     "hiphive>=1.3.1",
     "openbabel-wheel>=3.1.1.20",
+    "tblite[ase]>=0.3.0; platform_system=='Linux' and python_version<'3.12'",
 ]
-# tblite only support Python 3.12+ through conda-forge
-# https://github.com/tblite/tblite/issues/175
-tblite = ["tblite[ase]>=0.3.0; platform_system=='Linux' and python_version<'3.12'"]
-vis = ["vtk>=6.0.0"]
+numba = ["numba>=0.55"]
+numpy-v1 = ["numpy>=1.25.0,<2"] # Test NP1 on Windows (quite buggy ATM)
 
 [project.scripts]
 pmg = "pymatgen.cli.pmg:main"
