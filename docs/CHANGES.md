@@ -20,6 +20,7 @@ nav_order: 4
 - Fix: Volumetric data and XDATCAR parsing for monatomic structures (@esoteric-ephemera)
 - Support to aims format from Structure instance (@ansobolev)
 - Fix: Bugfix for Ion CO2(aq) reduced formula (@rkingsbury)
+- Replace deprecated ExpCellFilter with FrechetCellFilter (@ab5424)
 
 ## v2024.10.3
 - Enable parsing of "SCF energy" and "Total energy" from QCOutput for Q-chem 6.1.1+. (@Jaebeom-P)
