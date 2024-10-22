@@ -11,7 +11,7 @@ import numpy as np
 
 from pymatgen.core.structure import Lattice, Structure
 from pymatgen.core.units import Ha_to_eV, bohr_to_ang
-from pymatgen.io.jdftx.jeiters import JEiters
+from pymatgen.io.jdftx.jelstep import JElSteps
 from pymatgen.io.jdftx.utils import (
     _brkt_list_of_3x3_to_nparray,
     correct_geom_iter_type,
@@ -42,7 +42,7 @@ class JOutStructure(Structure):
     eiter_type: str | None = None
     emin_flag: str | None = None
     ecomponents: dict | None = None
-    elecmindata: JEiters | None = None
+    elecmindata: JElSteps | None = None
     stress: np.ndarray | None = None
     strain: np.ndarray | None = None
     niter: int | None = None
@@ -414,7 +414,7 @@ class JOutStructure(Structure):
         if len(emin_lines):
             if self.etype is None:
                 self.set_etype_from_emin_lines(emin_lines)
-            self.elecmindata = JEiters.from_text_slice(emin_lines, iter_type=self.eiter_type, etype=self.etype)
+            self.elecmindata = JElSteps.from_text_slice(emin_lines, iter_type=self.eiter_type, etype=self.etype)
 
     def parse_lattice_lines(self, lattice_lines: list[str]) -> None:
         """Parse lattice lines.

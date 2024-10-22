@@ -16,7 +16,7 @@ from pymatgen.io.jdftx.utils import read_outfile_slices
 if TYPE_CHECKING:
     import numpy as np
 
-    from pymatgen.io.jdftx.jeiters import JEiters
+    from pymatgen.io.jdftx.jelstep import JElSteps
     from pymatgen.io.jdftx.jminsettings import (
         JMinSettingsElectronic,
         JMinSettingsFluid,
@@ -676,7 +676,7 @@ class JDFTXOutfile:
         raise AttributeError("Property eiter_type inaccessible due to empty jstrucs class field")
 
     @property
-    def elecmindata(self) -> JEiters:
+    def elecmindata(self) -> JElSteps:
         """
         Return elecmindata from most recent JOutStructure.
 
