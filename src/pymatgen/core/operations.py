@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import copy
 import re
 import string
 import warnings
@@ -51,7 +52,7 @@ class SymmOp(MSONable):
         Raises:
             ValueError: if matrix is not 4x4.
         """
-        affine_transformation_matrix = np.array(affine_transformation_matrix)
+        affine_transformation_matrix = np.asarray(affine_transformation_matrix)
         shape = affine_transformation_matrix.shape
         if shape != (4, 4):
             raise ValueError(f"Affine Matrix must be a 4x4 numpy array, got {shape=}")
@@ -96,8 +97,8 @@ class SymmOp(MSONable):
         Returns:
             SymmOp object
         """
-        rotation_matrix = np.array(rotation_matrix)
-        translation_vec = np.array(translation_vec)
+        rotation_matrix = np.asarray(rotation_matrix)
+        translation_vec = np.asarray(translation_vec)
         if rotation_matrix.shape != (3, 3):
             raise ValueError("Rotation Matrix must be a 3x3 numpy array.")
         if translation_vec.shape != (3,):
@@ -117,7 +118,7 @@ class SymmOp(MSONable):
         Returns:
             Coordinates of point after operation.
         """
-        affine_point = np.array([*point, 1])
+        affine_point = np.asarray([*point, 1])
         return np.dot(self.affine_matrix, affine_point)[:3]
 
     def operate_multi(self, points: ArrayLike) -> np.ndarray:
@@ -129,7 +130,7 @@ class SymmOp(MSONable):
         Returns:
             Numpy array of coordinates after operation
         """
-        points = np.array(points)
+        points = np.asarray(points)
         affine_points = np.concatenate([points, np.ones(points.shape[:-1] + (1,))], axis=-1)
         return np.inner(affine_points, self.affine_matrix)[..., :-1]
 
@@ -243,12 +244,16 @@ class SymmOp(MSONable):
     @property
     def inverse(self) -> Self:
         """Inverse of transformation."""
-        inverse = np.linalg.inv(self.affine_matrix)
-        return type(self)(inverse)
+        new_instance = copy.deepcopy(self)
+        new_instance.affine_matrix = np.linalg.inv(self.affine_matrix)
+        return new_instance
 
     @staticmethod
     def from_axis_angle_and_translation(
-        axis: ArrayLike, angle: float, angle_in_radians: bool = False, translation_vec: ArrayLike = (0, 0, 0)
+        axis: ArrayLike,
+        angle: float,
+        angle_in_radians: bool = False,
+        translation_vec: ArrayLike = (0, 0, 0),
     ) -> SymmOp:
         """Generate a SymmOp for a rotation about a given axis plus translation.
 
@@ -266,7 +271,7 @@ class SymmOp(MSONable):
         if isinstance(axis, tuple | list):
             axis = np.array(axis)
 
-        vec = np.array(translation_vec)
+        vec = np.asarray(translation_vec)
 
         ang = angle if angle_in_radians else angle * pi / 180
         cos_a = cos(ang)
@@ -368,7 +373,7 @@ class SymmOp(MSONable):
         u, v, w = normal
 
         translation = np.eye(4)
-        translation[:3, 3] = -np.array(origin)
+        translation[:3, 3] = -np.asarray(origin)
 
         xx = 1 - 2 * u**2
         yy = 1 - 2 * v**2
@@ -395,7 +400,7 @@ class SymmOp(MSONable):
         """
         mat = -np.eye(4)
         mat[3, 3] = 1
-        mat[:3, 3] = 2 * np.array(origin)
+        mat[:3, 3] = 2 * np.asarray(origin)
         return SymmOp(mat)
 
     @staticmethod
@@ -505,10 +510,10 @@ class MagSymmOp(SymmOp):
             tol (float): Tolerance for determining if matrices are equal.
         """
         super().__init__(affine_transformation_matrix, tol=tol)
-        if time_reversal in {-1, 1}:
-            self.time_reversal = time_reversal
-        else:
+        if time_reversal not in {-1, 1}:
             raise RuntimeError(f"Invalid {time_reversal=}, must be 1 or -1")
+
+        self.time_reversal = time_reversal
 
     def __eq__(self, other: object) -> bool:
         if not isinstance(other, type(self)):

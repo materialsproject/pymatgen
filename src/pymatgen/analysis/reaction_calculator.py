@@ -4,7 +4,7 @@ from __future__ import annotations
 
 import re
 from itertools import chain, combinations
-from typing import TYPE_CHECKING, no_type_check, overload
+from typing import TYPE_CHECKING, overload
 
 import numpy as np
 from monty.fractions import gcd_float
@@ -37,7 +37,6 @@ class BalancedReaction(MSONable):
     # Tolerance for determining if a particular component fraction is > 0.
     TOLERANCE = 1e-6
 
-    @no_type_check
     def __init__(
         self,
         reactants_coeffs: Mapping[CompositionLike, int | float],

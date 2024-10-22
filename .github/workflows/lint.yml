@@ -26,7 +26,6 @@ jobs:
 
       - name: ruff
         run: |
-          ruff --version
           ruff check .
           ruff format --check .
 

@@ -6,6 +6,22 @@ nav_order: 4
 
 # Changelog
 
+## v2024.10.21
+- New `pyamtgen.io.vasp.VaspDir` class for easy navigation of VASP directories as pymatgen objects.
+- Fix gaussian input parser (@sio-salt)
+- Fix: preserve site properties over cell transform (@Lattay)
+- Make Incar keys case insensitive, fix init Incar from dict val processing for str/float/int (@DanielYang59)
+- Fix: Preserve PBC info in AseAtomsAdaptor (@jsukpark)
+- Migrate ext.COD from mysql to REST API (@DanielYang59)
+- Fix: Parsing bugs in io.pwscf.PWInput (@jsukpark)
+- Fix arg passing in inverse property of SymmOp (@DanielYang59)
+- Add support for use_structure_charge keyword in FHI-aims input generator (@ansobolev)
+- Fix: savefig in pmg.cli.plot (@DanielYang59)
+- Fix: Volumetric data and XDATCAR parsing for monatomic structures (@esoteric-ephemera)
+- Support to aims format from Structure instance (@ansobolev)
+- Fix: Bugfix for Ion CO2(aq) reduced formula (@rkingsbury)
+- Replace deprecated ExpCellFilter with FrechetCellFilter (@ab5424)
+
 ## v2024.10.3
 - Enable parsing of "SCF energy" and "Total energy" from QCOutput for Q-chem 6.1.1+. (@Jaebeom-P)
 - Fix dict equality check with numpy array (@DanielYang59)

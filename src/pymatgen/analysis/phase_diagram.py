@@ -11,7 +11,7 @@ import re
 import warnings
 from collections import defaultdict
 from functools import lru_cache
-from typing import TYPE_CHECKING, no_type_check
+from typing import TYPE_CHECKING
 
 import matplotlib.pyplot as plt
 import numpy as np
@@ -1471,6 +1471,34 @@ class CompoundPhaseDiagram(PhaseDiagram):
         self.species_mapping = species_mapping
         super().__init__(p_entries, elements=species_mapping.values())
 
+    @staticmethod
+    def num2str(num):
+        """
+        Convert number to a list of letter(s). First letter must be `f`.
+
+        :param num int: Number to convert
+
+        :rtype: str
+        :return Converted string
+        """
+
+        # `f` letter was hard coded, do not modify. Alphabet consists of letters
+        # between f and z.
+        letter = "f"
+        code, z_code = ord(letter), ord("z") + 1
+
+        rest_num_letters = z_code - code
+        mult = num // rest_num_letters
+
+        ret = letter * mult if mult else ""
+
+        remainder = num % rest_num_letters + 1
+
+        start = code - 1
+        ret += chr(start + remainder)
+
+        return ret
+
     def transform_entries(self, entries, terminal_compositions):
         """
         Method to transform all entries to the composition coordinate in the
@@ -1493,7 +1521,7 @@ class CompoundPhaseDiagram(PhaseDiagram):
         # Map terminal compositions to unique dummy species.
         sp_mapping = {}
         for idx, comp in enumerate(terminal_compositions):
-            sp_mapping[comp] = DummySpecies("X" + chr(102 + idx))
+            sp_mapping[comp] = DummySpecies("X" + self.num2str(idx))
 
         for entry in entries:
             if getattr(entry, "attribute", None) is None:
@@ -3518,7 +3546,6 @@ class PDPlotter:
             showlegend=False,
         )
 
-    @no_type_check
     def _get_matplotlib_2d_plot(
         self,
         label_stable=True,
@@ -3542,6 +3569,9 @@ class PDPlotter:
         else:
             _lines, _labels, _unstable = self.pd_plot_data
             lines, labels, unstable = order_phase_diagram(_lines, _labels, _unstable, ordering)
+
+        energies: list[float] | None = None
+        _map = None
         if energy_colormap is None:
             if process_attributes:
                 for x, y in lines:
@@ -3574,7 +3604,9 @@ class PDPlotter:
                 cmap = energy_colormap
             norm = Normalize(vmin=vmin, vmax=vmax)
             _map = ScalarMappable(norm=norm, cmap=cmap)
-            _energies = [self._pd.get_equilibrium_reaction_energy(entry) for coord, entry in labels.items()]
+            _energies: list[float] = list(
+                filter(None, (self._pd.get_equilibrium_reaction_energy(entry) for entry in labels.values()))
+            )
             energies = [en if en < 0 else -0.000_000_01 for en in _energies]
             vals_stable = _map.to_rgba(energies)
             ii = 0
@@ -3612,6 +3644,8 @@ class PDPlotter:
             plt.xlabel("Fraction", fontsize=28, fontweight="bold")
             plt.ylabel("Formation energy (eV/atom)", fontsize=28, fontweight="bold")
 
+        halign = "center"
+        valign = "bottom"
         for coords in sorted(labels, key=lambda x: -x[1]):
             entry = labels[coords]
             label = entry.name
@@ -3654,14 +3688,17 @@ class PDPlotter:
         if self.show_unstable:
             font = FontProperties()
             font.set_size(16)
-            energies_unstable = [self._pd.get_e_above_hull(entry) for entry, coord in unstable.items()]
-            if energy_colormap is not None:
+            energies_unstable = list(filter(None, (self._pd.get_e_above_hull(entry) for entry in unstable)))
+            if energy_colormap is not None and energies is not None and _map is not None:
                 energies.extend(energies_unstable)
                 vals_unstable = _map.to_rgba(energies_unstable)
+            else:
+                vals_unstable = None
+
             ii = 0
             for entry, coords in unstable.items():
                 ehull = self._pd.get_e_above_hull(entry)
-                if ehull < self.show_unstable:
+                if ehull is not None and ehull < self.show_unstable:
                     vec = np.array(coords) - center
                     vec = vec / np.linalg.norm(vec) * 10 if np.linalg.norm(vec) != 0 else vec
                     label = entry.name
@@ -3697,7 +3734,8 @@ class PDPlotter:
                             fontproperties=font,
                         )
                     ii += 1
-        if energy_colormap is not None and show_colorbar:
+
+        if energy_colormap is not None and show_colorbar and energies is not None and _map is not None:
             _map.set_array(energies)
             cbar = plt.colorbar(_map)
             cbar.set_label(
@@ -3711,7 +3749,6 @@ class PDPlotter:
         plt.subplots_adjust(left=0.09, right=0.98, top=0.98, bottom=0.07)
         return ax
 
-    @no_type_check
     def _get_matplotlib_3d_plot(self, label_stable=True, ax: plt.Axes = None):
         """Show the plot using matplotlib.
 

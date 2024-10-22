@@ -796,7 +796,21 @@ class SiteCollection(collections.abc.Sequence, ABC):
         self,
         calculator: Literal["M3GNet", "gfn2-xtb"] | Calculator,
         relax_cell: bool = True,
-        optimizer: str | Optimizer = "FIRE",
+        optimizer: Literal[
+            "BFGS",
+            "BFGSLineSearch",
+            "CellAwareBFGS",
+            "FIRE",
+            "FIRE2",
+            "GPMin",
+            "GoodOldQuasiNewton",
+            "LBFGS",
+            "LBFGSLineSearch",
+            "MDMin",
+            "ODE12r",
+            "QuasiNewton",
+        ]
+        | Optimizer = "FIRE",
         steps: int = 500,
         fmax: float = 0.1,
         stress_weight: float = 0.01,
@@ -825,7 +839,7 @@ class SiteCollection(collections.abc.Sequence, ABC):
             Structure | Molecule: Relaxed structure or molecule
         """
         from ase import optimize
-        from ase.constraints import ExpCellFilter
+        from ase.filters import FrechetCellFilter
         from ase.io import read
         from ase.optimize.optimize import Optimizer
 
@@ -874,7 +888,7 @@ class SiteCollection(collections.abc.Sequence, ABC):
             if relax_cell:
                 if is_molecule:
                     raise ValueError("Can't relax cell for a Molecule")
-                ecf = ExpCellFilter(atoms)
+                ecf = FrechetCellFilter(atoms)
                 dyn = opt_class(ecf, **opt_kwargs)
             else:
                 dyn = opt_class(atoms, **opt_kwargs)
