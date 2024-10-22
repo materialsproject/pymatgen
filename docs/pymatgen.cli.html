@@ -1,15 +1,13 @@
 <!DOCTYPE html>
-<html class="writer-html5" lang="en" data-content_root="./">
+<html class="writer-html5" lang="en" >
 <head>
   <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>pymatgen.cli package &mdash; pymatgen 2024.10.3 documentation</title>
-      <link rel="stylesheet" type="text/css" href="assets/pygments.css?v=fa44fd50" />
-      <link rel="stylesheet" type="text/css" href="assets/css/theme.css?v=19f00094" />
-      <link rel="stylesheet" type="text/css" href="assets/css/custom.css" />
-
-  
+      <link rel="stylesheet" href="assets/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="assets/css/theme.css" type="text/css" />
+      <link rel="stylesheet" href="assets/css/custom.css" type="text/css" />
     <link rel="canonical" href="https://pymatgen.orgpymatgen.cli.html"/>
   <!--[if lt IE 9]>
     <script src="assets/js/html5shiv.min.js"></script>
@@ -18,7 +16,7 @@
         <script src="assets/jquery.js?v=5d32c60e"></script>
         <script src="assets/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
         <script src="assets/documentation_options.js?v=13bb8ce4"></script>
-        <script src="assets/doctools.js?v=9a2dae69"></script>
+        <script src="assets/doctools.js?v=9bcbadda"></script>
         <script src="assets/sphinx_highlight.js?v=dc90522c"></script>
     <script src="assets/js/theme.js"></script>
     <link rel="index" title="Index" href="genindex.html" />
@@ -320,8 +318,8 @@ of vasprun.xml</p></li>
 <p>Implementation for <cite>pmg plot</cite> CLI.</p>
 <dl class="py function">
 <dt class="sig sig-object py" id="pymatgen.cli.pmg_plot.get_chgint_plot">
-<span class="sig-name descname"><span class="pre">get_chgint_plot</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ax</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Axes</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Axes</span></span></span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2024.10.3/src/pymatgen/core/../cli/pmg_plot.py#L49-L77"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.cli.pmg_plot.get_chgint_plot" title="Link to this definition"></a></dt>
-<dd><p>Plot integrated charge.</p>
+<span class="sig-name descname"><span class="pre">get_chgint_plot</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ax</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Axes</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Axes</span></span></span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2024.10.3/src/pymatgen/core/../cli/pmg_plot.py#L49-L77"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.cli.pmg_plot.get_chgint_plot" title="Link to this definition"></a></dt>
+<dd><p>Plot integrated charge from CHGCAR file.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
@@ -340,8 +338,8 @@ of vasprun.xml</p></li>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="pymatgen.cli.pmg_plot.get_dos_plot">
-<span class="sig-name descname"><span class="pre">get_dos_plot</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">args</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2024.10.3/src/pymatgen/core/../cli/pmg_plot.py#L17-L46"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.cli.pmg_plot.get_dos_plot" title="Link to this definition"></a></dt>
-<dd><p>Plot DOS.</p>
+<span class="sig-name descname"><span class="pre">get_dos_plot</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">args</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Axes</span></span></span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2024.10.3/src/pymatgen/core/../cli/pmg_plot.py#L17-L46"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.cli.pmg_plot.get_dos_plot" title="Link to this definition"></a></dt>
+<dd><p>Plot DOS from vasprun.xml file.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><p><strong>args</strong> (<em>dict</em>) – Args from argparse.</p>
@@ -351,8 +349,8 @@ of vasprun.xml</p></li>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="pymatgen.cli.pmg_plot.get_xrd_plot">
-<span class="sig-name descname"><span class="pre">get_xrd_plot</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">args</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2024.10.3/src/pymatgen/core/../cli/pmg_plot.py#L80-L88"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.cli.pmg_plot.get_xrd_plot" title="Link to this definition"></a></dt>
-<dd><p>Plot XRD.</p>
+<span class="sig-name descname"><span class="pre">get_xrd_plot</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">args</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Axes</span></span></span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2024.10.3/src/pymatgen/core/../cli/pmg_plot.py#L80-L88"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.cli.pmg_plot.get_xrd_plot" title="Link to this definition"></a></dt>
+<dd><p>Plot XRD from structure.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><p><strong>args</strong> (<em>dict</em>) – Args from argparse</p>
@@ -362,8 +360,8 @@ of vasprun.xml</p></li>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="pymatgen.cli.pmg_plot.plot">
-<span class="sig-name descname"><span class="pre">plot</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">args</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2024.10.3/src/pymatgen/core/../cli/pmg_plot.py#L91-L109"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.cli.pmg_plot.plot" title="Link to this definition"></a></dt>
-<dd><p>Master control method calling other plot methods based on args.</p>
+<span class="sig-name descname"><span class="pre">plot</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">args</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2024.10.3/src/pymatgen/core/../cli/pmg_plot.py#L91-L110"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.cli.pmg_plot.plot" title="Link to this definition"></a></dt>
+<dd><p>Master control function calling other plot functions based on args.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><p><strong>args</strong> (<em>dict</em>) – Args from argparse.</p>
