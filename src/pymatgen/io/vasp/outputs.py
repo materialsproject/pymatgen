@@ -5672,15 +5672,20 @@ class VaspDir(collections.abc.Mapping):
     def __getitem__(self, item):
         if item in self._parsed_files:
             return self._parsed_files[item]
+        fpath = self.path / item
+
+        if not (self.path / item).exists():
+            raise ValueError(f"{item} not found in {self.path}. List of files are {self.files}.")
+
         for k, cls_ in VaspDir.FILE_MAPPINGS.items():
             if k in item:
                 try:
-                    self._parsed_files[item] = cls_.from_file(self.path / item)
+                    self._parsed_files[item] = cls_.from_file(fpath)
                 except AttributeError:
-                    self._parsed_files[item] = cls_(self.path / item)
+                    self._parsed_files[item] = cls_(fpath)
 
                 return self._parsed_files[item]
-        if (self.path / item).exists():
-            raise RuntimeError(f"Unable to parse {item}. Supported files are {list(VaspDir.FILE_MAPPINGS.keys())}.")
 
-        raise ValueError(f"{item} not found in {self.path}. List of files are {self.files}.")
+        warnings.warn(f"No parser defined for {item}. Full text of file is returned as a string.", UserWarning)
+        with zopen(fpath, "rt") as f:
+            return f.read()

@@ -2110,12 +2110,14 @@ class TestVaspDir(PymatgenTest):
         d = VaspDir(f"{TEST_FILES_DIR}/io/vasp/fixtures/relaxation")
         assert len(d) == 5
         assert d["OUTCAR"].run_stats["cores"] == 8
-        d = VaspDir(f"{TEST_FILES_DIR}/io/vasp/outputs")
-        with pytest.raises(RuntimeError, match=r"Unable to parse IBZKPT.*"):
-            d["IBZKPT.lobster"]
+
         d = VaspDir(f"{TEST_FILES_DIR}/io/vasp/fixtures/scan_relaxation")
         assert len(d) == 2
         assert d["vasprun.xml.gz"].incar["METAGGA"] == "R2scan"
 
         with pytest.raises(ValueError, match="hello not found"):
             d["hello"]
+
+        d = VaspDir(f"{TEST_FILES_DIR}/io/vasp/outputs")
+        with pytest.warns(UserWarning, match=r"No parser defined for IBZKPT.*"):
+            assert isinstance(d["IBZKPT.lobster"], str)
