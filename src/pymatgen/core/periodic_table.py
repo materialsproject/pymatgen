@@ -362,7 +362,8 @@ class ElementBase(Enum):
             June 3]. National Institute of Standards and Technology, Gaithersburg,
             MD. DOI: https://doi.org/10.18434/T4W30F
         """
-        return re.sub("</*sup>", "", self._data["Electronic structure"]["0"])
+        return Species(self.symbol, 0).electronic_structure
+        # return re.sub("</*sup>", "", self._data["Electronic structure"]["0"])
 
     @property
     def average_ionic_radius(self) -> FloatWithUnit:
@@ -482,6 +483,7 @@ class ElementBase(Enum):
         obtained from full electron config, where L=0, 1, 2, or 3 for s, p, d,
         and f orbitals, respectively.
         """
+        # return Species(self.symbol, 0).valences
         if self.group == 18:
             return [(np.nan, 0)]  # The number of valence of noble gas is 0
 
@@ -1198,7 +1200,20 @@ class Species(MSONable, Stringify):
 
 
         """
-        return self.element.valences
+        if self.group == 18:
+            return [(np.nan, 0)]  # The number of valence of noble gas is 0
+
+        L_symbols = "SPDFGHIKLMNOQRTUVWXYZ"
+        valences: list[tuple[int | np.nan, int]] = []
+        full_electron_config = self.full_electronic_structure
+        last_orbital = full_electron_config[-1]
+        for n, l_symbol, ne in full_electron_config:
+            idx = L_symbols.lower().index(l_symbol)
+            if ne < (2 * idx + 1) * 2 or (
+                (n, l_symbol, ne) == last_orbital and ne == (2 * idx + 1) * 2 and len(valences) == 0
+            ):  # check for full last shell (e.g. column 2)
+                valences.append((idx, ne))
+        return valences
         # if self.group == 18:
         #     return [(np.nan, 0)]  # The number of valence of noble gas is 0
 
@@ -1220,7 +1235,9 @@ class Species(MSONable, Stringify):
         obtained from full electron config, where L=0, 1, 2, or 3 for s, p, d,
         and f orbitals, respectively.
         """
-        return self.element.valence
+        if len(self.valences) > 1:
+            raise ValueError(f"{self} has ambiguous valence")
+        return self.valences[0]
         # if len(self.valences) > 1:
         #     raise ValueError(f"{self} has ambiguous valence")
         # return self.valences[0]
@@ -1654,7 +1671,7 @@ def get_el_sp(obj: int | SpeciesLike) -> Element | Species | DummySpecies:
     # If obj is already an Element or Species, return as is
     # Note: the below three if statements are functionally equivalent to the commented out
     # code. They only exist due to a bug in mypy that doesn't allow the commented out code.
-    # This should be fixed once mypy fixes this bug.
+    # This should be fixed once mypy fixes this
     if isinstance(obj, Element):
         if getattr(obj, "_is_named_isotope", None):
             return Element(obj.name)
