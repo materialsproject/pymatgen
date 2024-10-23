@@ -176,7 +176,12 @@ def test_get_structure_mag():
 
 @pytest.mark.parametrize(
     "select_dyn",
-    [[True, True, True], [False, False, False], np.array([True, True, True]), np.array([False, False, False])],
+    [
+        [True, True, True],
+        [False, False, False],
+        np.array([True, True, True]),
+        np.array([False, False, False]),
+    ],
 )
 def test_get_structure_dyn(select_dyn):
     atoms = ase.io.read(f"{VASP_IN_DIR}/POSCAR")

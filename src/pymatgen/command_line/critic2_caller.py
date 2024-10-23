@@ -655,9 +655,9 @@ class Critic2Analysis(MSONable):
                 p["multiplicity"],
                 p["field"],
                 p["gradient"],
-                coords=[x * bohr_to_angstrom for x in p["cartesian_coordinates"]]
-                if cpreport["units"] == "bohr"
-                else None,
+                coords=(
+                    [x * bohr_to_angstrom for x in p["cartesian_coordinates"]] if cpreport["units"] == "bohr" else None
+                ),
                 field_hessian=p["hessian"],
             )
             for p in cpreport["critical_points"]["nonequivalent_cps"]

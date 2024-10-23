@@ -114,7 +114,14 @@ class Cp2kOutput:
     @property
     def calculation_type(self):
         """The calculation type (what io.vasp.outputs calls run_type)."""
-        LDA_TYPES = {"LDA", "PADE", "BECKE88", "BECKE88_LR", "BECKE88_LR_ADIABATIC", "BECKE97"}
+        LDA_TYPES = {
+            "LDA",
+            "PADE",
+            "BECKE88",
+            "BECKE88_LR",
+            "BECKE88_LR_ADIABATIC",
+            "BECKE97",
+        }
 
         GGA_TYPES = {"PBE", "PW92"}
 
@@ -525,8 +532,8 @@ class Cp2kOutput:
                 {
                     "structure": structure,
                     "E": energy,
-                    "forces": self.data["forces"][i] if self.data.get("forces") else None,
-                    "stress_tensor": self.data["stress_tensor"][i] if self.data.get("stress_tensor") else None,
+                    "forces": (self.data["forces"][i] if self.data.get("forces") else None),
+                    "stress_tensor": (self.data["stress_tensor"][i] if self.data.get("stress_tensor") else None),
                 }
             )
 
@@ -611,7 +618,12 @@ class Cp2kOutput:
 
         # HF exchange info
         hfx = re.compile(r"\s+HFX_INFO\|\s+(.+):\s+(.*)$")
-        self.read_pattern({"hfx": hfx}, terminate_on_match=False, postprocess=postprocessor, reverse=False)
+        self.read_pattern(
+            {"hfx": hfx},
+            terminate_on_match=False,
+            postprocess=postprocessor,
+            reverse=False,
+        )
         self.data["dft"]["hfx"] = dict(self.data.pop("hfx"))
 
         # Van der waals correction
@@ -1765,6 +1777,10 @@ def parse_pdos(dos_file=None, spin_channel=None, total=False):
             }
         }
         if total:
-            tdos = Dos(efermi=efermi, energies=energies, densities={spin: np.sum(data[:, 1:], axis=1)})
+            tdos = Dos(
+                efermi=efermi,
+                energies=energies,
+                densities={spin: np.sum(data[:, 1:], axis=1)},
+            )
             return pdos, tdos
         return pdos

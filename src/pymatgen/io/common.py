@@ -398,12 +398,19 @@ class VolumetricData(MSONable):
             sites.append(Site(line[0], np.multiply(bohr_to_angstrom, list(map(float, line[2:])))))
 
         structure = Structure(
-            lattice=[voxel_x * num_x_voxels, voxel_y * num_y_voxels, voxel_z * num_z_voxels],
+            lattice=[
+                voxel_x * num_x_voxels,
+                voxel_y * num_y_voxels,
+                voxel_z * num_z_voxels,
+            ],
             species=[s.specie for s in sites],
             coords=[s.coords for s in sites],
             coords_are_cartesian=True,
         )
 
         # Volumetric data
-        data = np.reshape(np.array(file.read().split()).astype(float), (num_x_voxels, num_y_voxels, num_z_voxels))
+        data = np.reshape(
+            np.array(file.read().split()).astype(float),
+            (num_x_voxels, num_y_voxels, num_z_voxels),
+        )
         return cls(structure=structure, data={"total": data})

@@ -178,7 +178,11 @@ class ChemicalPotentialDiagram(MSONable):
                 elems = elems[:3]  # default to first three elements
 
         if len(elems) == 2 and self.dim == 2:
-            fig = self._get_2d_plot(elements=elems, label_stable=label_stable, element_padding=element_padding)
+            fig = self._get_2d_plot(
+                elements=elems,
+                label_stable=label_stable,
+                element_padding=element_padding,
+            )
         elif len(elems) == 2 and self.dim > 2:
             entries = [e for e in self.entries if set(e.elements).issubset(elems)]
             cpd = ChemicalPotentialDiagram(
@@ -257,7 +261,12 @@ class ChemicalPotentialDiagram(MSONable):
 
         return hyperplanes, hyperplane_entries
 
-    def _get_2d_plot(self, elements: list[Element], label_stable: bool | None, element_padding: float | None) -> Figure:
+    def _get_2d_plot(
+        self,
+        elements: list[Element],
+        label_stable: bool | None,
+        element_padding: float | None,
+    ) -> Figure:
         """Get a Plotly figure for a 2-dimensional chemical potential diagram."""
         domains = self.domains.copy()
         elem_indices = [self.elements.index(e) for e in elements]

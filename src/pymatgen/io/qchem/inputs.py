@@ -835,7 +835,12 @@ class QCInput(InputFile):
             if charge is None:
                 mol = Molecule(species=species, coords=coords)
             else:
-                mol = Molecule(species=species, coords=coords, charge=charge, spin_multiplicity=spin_mult)
+                mol = Molecule(
+                    species=species,
+                    coords=coords,
+                    charge=charge,
+                    spin_multiplicity=spin_mult,
+                )
             return mol
 
         header = r"\s*(?:\-)*\d+\s+(?:\-)*\d+"
@@ -898,7 +903,12 @@ class QCInput(InputFile):
             c_header = r"^\s*CONSTRAINT\n"
             c_row = r"(\w.*)\n"
             c_footer = r"^\s*ENDCONSTRAINT\n"
-            c_table = read_table_pattern(string, header_pattern=c_header, row_pattern=c_row, footer_pattern=c_footer)
+            c_table = read_table_pattern(
+                string,
+                header_pattern=c_header,
+                row_pattern=c_row,
+                footer_pattern=c_footer,
+            )
             opt["CONSTRAINT"] = [val[0] for val in c_table[0]]
         if "FIXED" in opt_sections:
             f_header = r"^\s*FIXED\n"

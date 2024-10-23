@@ -19,7 +19,8 @@ def test_get_optimade_structure_roundtrip():
     assert optimade_structure["attributes"]["chemical_formula_reduced"] == "FeO4P"
     assert optimade_structure["attributes"]["species_at_sites"] == 4 * ["Fe"] + 4 * ["P"] + 16 * ["O"]
     np.testing.assert_array_almost_equal(
-        np.abs(optimade_structure["attributes"]["lattice_vectors"]), np.abs(STRUCTURE.lattice.matrix)
+        np.abs(optimade_structure["attributes"]["lattice_vectors"]),
+        np.abs(STRUCTURE.lattice.matrix),
     )
 
     # Set an OPTIMADE ID and some custom properties and ensure they are preserved in the properties

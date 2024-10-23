@@ -105,7 +105,12 @@ class FiestaRun(MSONable):
         otherwise it breaks.
     """
 
-    def __init__(self, folder: str | None = None, grid: Tuple3Ints = (2, 2, 2), log_file: str = "log") -> None:
+    def __init__(
+        self,
+        folder: str | None = None,
+        grid: Tuple3Ints = (2, 2, 2),
+        log_file: str = "log",
+    ) -> None:
         """
         Args:
             folder: Folder to look for runs.
@@ -323,7 +328,11 @@ class FiestaInput(MSONable):
             "resMethod": "V",
             "scf_cohsex_wf": "0",
         }
-        self.GW_options = gw_options or {"nc_corr": "10", "nit_gw": "3", "nv_corr": "10"}
+        self.GW_options = gw_options or {
+            "nc_corr": "10",
+            "nit_gw": "3",
+            "nv_corr": "10",
+        }
         self.bse_tddft_options = bse_tddft_options or {
             "do_bse": "1",
             "do_tddft": "0",

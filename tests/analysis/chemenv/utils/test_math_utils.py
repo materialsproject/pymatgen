@@ -43,7 +43,28 @@ class TestMathUtils(PymatgenTest):
         ff = prime_factors(250)
         assert ff == [5, 5, 5, 2]
         div = divisors(560)
-        assert div == [1, 2, 4, 5, 7, 8, 10, 14, 16, 20, 28, 35, 40, 56, 70, 80, 112, 140, 280, 560]
+        assert div == [
+            1,
+            2,
+            4,
+            5,
+            7,
+            8,
+            10,
+            14,
+            16,
+            20,
+            28,
+            35,
+            40,
+            56,
+            70,
+            80,
+            112,
+            140,
+            280,
+            560,
+        ]
         center = get_center_of_arc([0.0, 0.0], [1.0, 0.0], 0.5)
         assert center == (0.5, 0.0)
 
@@ -80,7 +101,16 @@ class TestMathUtils(PymatgenTest):
     def test_smoothstep(self):
         vals = np.linspace(5.0, 12.0, num=8)
         assert smoothstep(vals, edges=[0.0, 1.0]).tolist() == [1.0] * 8
-        assert smoothstep(vals, edges=[7.0, 11.0]).tolist() == [0.0, 0.0, 0.0, 0.15625, 0.5, 0.84375, 1.0, 1.0]
+        assert smoothstep(vals, edges=[7.0, 11.0]).tolist() == [
+            0.0,
+            0.0,
+            0.0,
+            0.15625,
+            0.5,
+            0.84375,
+            1.0,
+            1.0,
+        ]
 
     def test_smootherstep(self):
         vals = np.linspace(5.0, 12.0, num=8)
@@ -99,7 +129,16 @@ class TestMathUtils(PymatgenTest):
     def test_power3_step(self):
         vals = np.linspace(5.0, 12.0, num=8)
         assert power3_step(vals, edges=[0.0, 1.0]).tolist() == [1.0] * 8
-        assert power3_step(vals, edges=[7.0, 11.0]).tolist() == [0.0, 0.0, 0.0, 0.15625, 0.5, 0.84375, 1.0, 1.0]
+        assert power3_step(vals, edges=[7.0, 11.0]).tolist() == [
+            0.0,
+            0.0,
+            0.0,
+            0.15625,
+            0.5,
+            0.84375,
+            1.0,
+            1.0,
+        ]
 
     def test_cosinus_step(self):
         vals = np.linspace(5.0, 12.0, num=8)
@@ -115,7 +154,16 @@ class TestMathUtils(PymatgenTest):
         assert powern_parts_step(vals, edges=[0.0, 1.0], nn=2).tolist() == [1.0] * 8
         assert powern_parts_step(vals, edges=[0.0, 1.0], nn=3).tolist() == [1.0] * 8
         assert powern_parts_step(vals, edges=[0.0, 1.0], nn=4).tolist() == [1.0] * 8
-        assert powern_parts_step(vals, edges=[7.0, 11.0], nn=2).tolist() == [0.0, 0.0, 0.0, 0.125, 0.5, 0.875, 1.0, 1.0]
+        assert powern_parts_step(vals, edges=[7.0, 11.0], nn=2).tolist() == [
+            0.0,
+            0.0,
+            0.0,
+            0.125,
+            0.5,
+            0.875,
+            1.0,
+            1.0,
+        ]
         assert powern_parts_step(vals, edges=[7.0, 11.0], nn=3).tolist() == [
             0.0,
             0.0,

@@ -70,7 +70,11 @@ class TestExcitingInput(PymatgenTest):
             ],
         )
         exc_in = ExcitingInput(structure)
-        for l1, l2 in zip(input_string.split("\n"), exc_in.write_string("unchanged").split("\n"), strict=True):
+        for l1, l2 in zip(
+            input_string.split("\n"),
+            exc_in.write_string("unchanged").split("\n"),
+            strict=True,
+        ):
             if not l1.strip().startswith("<crystal scale"):
                 assert l1.strip() == l2.strip()
 
@@ -101,7 +105,24 @@ class TestExcitingInput(PymatgenTest):
             [0.5, 0.5, 0.0],
             [0.5, 0.5, 0.5],
         ]
-        label_ref = ["GAMMA", "X", "S", "Y", "GAMMA", "Z", "U", "R", "T", "Z", "Y", "T", "U", "X", "S", "R"]
+        label_ref = [
+            "GAMMA",
+            "X",
+            "S",
+            "Y",
+            "GAMMA",
+            "Z",
+            "U",
+            "R",
+            "T",
+            "Z",
+            "Y",
+            "T",
+            "U",
+            "X",
+            "S",
+            "R",
+        ]
         root = ET.fromstring(band_str)
         for plot1d in root.iter("plot1d"):
             for point in plot1d.iter("point"):

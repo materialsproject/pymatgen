@@ -67,7 +67,10 @@ enumlib_present = enum_cmd and makestr_cmd
 class TestSuperTransformation:
     def test_apply_transformation(self):
         trafo = SuperTransformation(
-            [SubstitutionTransformation({"Li+": "Na+"}), SubstitutionTransformation({"Li+": "K+"})]
+            [
+                SubstitutionTransformation({"Li+": "Na+"}),
+                SubstitutionTransformation({"Li+": "K+"}),
+            ]
         )
         coords = [
             [0, 0, 0],
@@ -669,7 +672,10 @@ class TestSQSTransformationIcet(PymatgenTest):
 
     def test_monte_carlo(self):
         sqs = SQSTransformation(
-            scaling=self.scaling, sqs_method="icet-monte_carlo", icet_sqs_kwargs={"n_steps": 5}, instances=2
+            scaling=self.scaling,
+            sqs_method="icet-monte_carlo",
+            icet_sqs_kwargs={"n_steps": 5},
+            instances=2,
         )
         sqs_structure = sqs.apply_transformation(self.stored_run["disordered_structure"], return_ranked_list=False)
         assert isinstance(sqs_structure, Structure)
@@ -745,7 +751,10 @@ class TestCubicSupercellTransformation(PymatgenTest):
 
         # Test the transformation without constraining trans_mat to be diagonal
         supercell_generator = CubicSupercellTransformation(
-            min_atoms=min_atoms, max_atoms=max_atoms, min_length=10.0, force_90_degrees=True
+            min_atoms=min_atoms,
+            max_atoms=max_atoms,
+            min_length=10.0,
+            force_90_degrees=True,
         )
         transformed_structure = supercell_generator.apply_transformation(structure)
         assert_allclose(list(transformed_structure.lattice.angles), [90.0, 90.0, 90.0])
@@ -784,7 +793,8 @@ class TestCubicSupercellTransformation(PymatgenTest):
 
         # make sure that the orthorhombic supercell is different from the cubic cell
         assert not np.array_equal(
-            supercell_generator_cubic.transformation_matrix, supercell_generator_orthorhombic.transformation_matrix
+            supercell_generator_cubic.transformation_matrix,
+            supercell_generator_orthorhombic.transformation_matrix,
         )
         assert transformed_cubic.lattice.angles != transformed_orthorhombic.lattice.angles
         assert transformed_orthorhombic.lattice.abc != transformed_cubic.lattice.abc
@@ -822,7 +832,8 @@ class TestCubicSupercellTransformation(PymatgenTest):
 
         # make sure that the orthorhombic supercell is different from the cubic cell
         assert not np.array_equal(
-            supercell_generator_cubic.transformation_matrix, supercell_generator_orthorhombic.transformation_matrix
+            supercell_generator_cubic.transformation_matrix,
+            supercell_generator_orthorhombic.transformation_matrix,
         )
         assert transformed_orthorhombic.lattice.abc != transformed_cubic.lattice.abc
         # only angels are expected to be the same because of force_90_degrees = True

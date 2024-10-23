@@ -574,7 +574,13 @@ class GrainBoundaryGenerator:
                     for idx in range(3):
                         if ratio[idx] is None:
                             ratio[idx] = 1
-                    metric = np.array([[1, 0, 0], [0, ratio[1] / ratio[2], 0], [0, 0, ratio[0] / ratio[2]]])
+                    metric = np.array(
+                        [
+                            [1, 0, 0],
+                            [0, ratio[1] / ratio[2], 0],
+                            [0, 0, ratio[0] / ratio[2]],
+                        ]
+                    )
                 else:
                     raise RuntimeError("Lattice type is not implemented.")
 
@@ -1015,7 +1021,10 @@ class GrainBoundaryGenerator:
                 surface = np.matmul(r_axis, metric)
                 fractions = [Fraction(x).limit_denominator() for x in surface]
                 least_mul = reduce(lcm, [fraction.denominator for fraction in fractions])
-                surface = cast(Tuple3Ints | Tuple4Ints, tuple(round(x * least_mul) for x in surface))
+                surface = cast(
+                    Tuple3Ints | Tuple4Ints,
+                    tuple(round(x * least_mul) for x in surface),
+                )
 
         if reduce(math.gcd, surface) != 1:
             index = reduce(math.gcd, surface)
@@ -2021,7 +2030,9 @@ class GrainBoundaryGenerator:
             if ratio is None:
                 logger.info("Make sure this is for irrational c2/a2 ratio")
             sigma_dict = GrainBoundaryGenerator.enum_sigma_tet(
-                cutoff=sigma, r_axis=cast(Tuple3Ints, r_axis), c2_a2_ratio=cast(tuple[int, int], ratio)
+                cutoff=sigma,
+                r_axis=cast(Tuple3Ints, r_axis),
+                c2_a2_ratio=cast(tuple[int, int], ratio),
             )
 
         elif lat_type == "o":
@@ -2045,7 +2056,9 @@ class GrainBoundaryGenerator:
             if ratio is None:
                 logger.info("Make sure this is for irrational (1+2*cos(alpha)/cos(alpha) ratio")
             sigma_dict = GrainBoundaryGenerator.enum_sigma_rho(
-                cutoff=sigma, r_axis=cast(Tuple3Ints, r_axis), ratio_alpha=cast(tuple[int, int], ratio)
+                cutoff=sigma,
+                r_axis=cast(Tuple3Ints, r_axis),
+                ratio_alpha=cast(tuple[int, int], ratio),
             )
 
         else:
@@ -2664,7 +2677,9 @@ class Interface(Structure):
     def film_layers(self) -> int:
         """Number of layers of the minimum element in the film composition."""
         sorted_element_list = sorted(
-            self.film.composition.element_composition.items(), key=lambda x: x[1], reverse=True
+            self.film.composition.element_composition.items(),
+            key=lambda x: x[1],
+            reverse=True,
         )
         return count_layers(self.film, sorted_element_list[0][0])
 
@@ -2672,7 +2687,9 @@ class Interface(Structure):
     def substrate_layers(self) -> int:
         """Number of layers of the minimum element in the substrate composition."""
         sorted_element_list = sorted(
-            self.substrate.composition.element_composition.items(), key=lambda x: x[1], reverse=True
+            self.substrate.composition.element_composition.items(),
+            key=lambda x: x[1],
+            reverse=True,
         )
         return count_layers(self.substrate, sorted_element_list[0][0])
 
@@ -2821,7 +2838,10 @@ class Interface(Structure):
         site_props_in_both = set(substrate_slab.site_properties) & set(film_slab.site_properties)
 
         for key in site_props_in_both:
-            site_properties[key] = [*substrate_slab.site_properties[key], *film_slab.site_properties[key]]
+            site_properties[key] = [
+                *substrate_slab.site_properties[key],
+                *film_slab.site_properties[key],
+            ]
 
         site_properties["interface_label"] = ["substrate"] * len(substrate_slab) + ["film"] * len(film_slab)
 

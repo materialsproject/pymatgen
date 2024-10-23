@@ -15,7 +15,10 @@ class TestChemenvConfig(PymatgenTest):
 
         assert config.has_materials_project_access == bool(SETTINGS.get("PMG_MAPI_KEY"))
 
-        package_options = {**ChemEnvConfig.DEFAULT_PACKAGE_OPTIONS, "default_max_distance_factor": 1.8}
+        package_options = {
+            **ChemEnvConfig.DEFAULT_PACKAGE_OPTIONS,
+            "default_max_distance_factor": 1.8,
+        }
 
         config = ChemEnvConfig(package_options=package_options)
 

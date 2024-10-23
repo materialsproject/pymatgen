@@ -66,7 +66,10 @@ class TestRLSVolumePredictor(PymatgenTest):
         na_cl.replace_species({"Cs": "Na"})
         na_cl.scale_lattice(184.384551033)
         vol_pred = RLSVolumePredictor(radii_type="ionic", use_bv=False)
-        with pytest.raises(ValueError, match="Cannot find volume scaling based on radii choices specified"):
+        with pytest.raises(
+            ValueError,
+            match="Cannot find volume scaling based on radii choices specified",
+        ):
             vol_pred.predict(cs_cl, na_cl)
         vol_pred = RLSVolumePredictor(radii_type="ionic-atomic", use_bv=False)
         assert vol_pred.predict(cs_cl, na_cl) == approx(391.884366481)

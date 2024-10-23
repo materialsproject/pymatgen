@@ -33,7 +33,14 @@ def test_static_si_no_kgrid(tmp_path):
     for site in Si_supercell:
         # round site.coords to ignore floating point errors
         site.coords = [round(x, 15) for x in site.coords]
-    comp_system(Si_supercell, parameters, "static-no-kgrid-si", tmp_path, REF_PATH, StaticSetGenerator)
+    comp_system(
+        Si_supercell,
+        parameters,
+        "static-no-kgrid-si",
+        tmp_path,
+        REF_PATH,
+        StaticSetGenerator,
+    )
 
 
 def test_static_o2(tmp_path):

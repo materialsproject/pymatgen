@@ -137,6 +137,7 @@ class TestBaderAnalysis(PymatgenTest):
             monkeypatch.setenv("PATH", "")
 
             with pytest.raises(
-                RuntimeError, match="Requires bader or bader.exe to be in the PATH or the absolute path"
+                RuntimeError,
+                match="Requires bader or bader.exe to be in the PATH or the absolute path",
             ):
                 BaderAnalysis(chgcar_filename=f"{VASP_OUT_DIR}/CHGCAR.Fe3O4.gz")

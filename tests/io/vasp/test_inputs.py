@@ -471,7 +471,10 @@ Cartesian
 0.000000   0.00000000   0.00000000 Si T T F
 3.840198   1.50000000   2.35163175 F T T F
 """
-        with pytest.warns(BadPoscarWarning, match="Selective dynamics values must be either 'T' or 'F'."):
+        with pytest.warns(
+            BadPoscarWarning,
+            match="Selective dynamics values must be either 'T' or 'F'.",
+        ):
             Poscar.from_str(invalid_poscar_str)
 
     def test_selective_dynamics_with_fluorine(self):
@@ -518,7 +521,8 @@ Cartesian
 3.840198   1.50000000   2.35163175 T T T
 """
         with pytest.warns(
-            BadPoscarWarning, match="Ignoring selective dynamics tag, as no ionic degrees of freedom were fixed."
+            BadPoscarWarning,
+            match="Ignoring selective dynamics tag, as no ionic degrees of freedom were fixed.",
         ):
             Poscar.from_str(poscar_str_all_dof_relaxed)
 
@@ -551,11 +555,17 @@ class TestIncar(PymatgenTest):
         incar_str: str = """encut = 400
         ENCUT = 500
         """
-        with pytest.warns(BadIncarWarning, match=re.escape("Duplicate keys found (case-insensitive): ['ENCUT']")):
+        with pytest.warns(
+            BadIncarWarning,
+            match=re.escape("Duplicate keys found (case-insensitive): ['ENCUT']"),
+        ):
             Incar.from_str(incar_str)
 
         incar_dict = {"ALGO": "Fast", "algo": "fast"}
-        with pytest.warns(BadIncarWarning, match=re.escape("Duplicate keys found (case-insensitive): ['ALGO']")):
+        with pytest.warns(
+            BadIncarWarning,
+            match=re.escape("Duplicate keys found (case-insensitive): ['ALGO']"),
+        ):
             Incar.from_dict(incar_dict)
 
     def test_key_case_insensitive(self):
@@ -909,7 +919,11 @@ class TestKpoints:
         assert kpoints.kpts == [(10,)], "Wrong kpoint lattice read"
         filepath = f"{VASP_IN_DIR}/KPOINTS_cartesian"
         kpoints = Kpoints.from_file(filepath)
-        assert kpoints.kpts == [(0.25, 0, 0), (0, 0.25, 0), (0, 0, 0.25)], "Wrong kpoint lattice read"
+        assert kpoints.kpts == [
+            (0.25, 0, 0),
+            (0, 0.25, 0),
+            (0, 0, 0.25),
+        ], "Wrong kpoint lattice read"
         assert kpoints.kpts_shift == (0.5, 0.5, 0.5)
 
         filepath = f"{VASP_IN_DIR}/KPOINTS"
@@ -1210,7 +1224,11 @@ class TestPotcarSingle(TestCase):
         assert self.psingle_Fe.nelectrons == 8
 
     def test_electron_config(self):
-        assert self.psingle_Mn_pv.electron_configuration == [(3, "d", 5), (4, "s", 2), (3, "p", 6)]
+        assert self.psingle_Mn_pv.electron_configuration == [
+            (3, "d", 5),
+            (4, "s", 2),
+            (3, "p", 6),
+        ]
         assert self.psingle_Fe.electron_configuration == [(3, "d", 6), (4, "s", 2)]
 
     def test_attributes(self):
@@ -1268,7 +1286,10 @@ class TestPotcarSingle(TestCase):
 
     def test_unknown_potcar_warning(self):
         filename = f"{FAKE_POTCAR_DIR}/modified_potcars_data/POT_GGA_PAW_PBE/POTCAR.Fe_pv.gz"
-        with pytest.warns(UnknownPotcarWarning, match="POTCAR data with symbol Fe_pv is not known to pymatgen. "):
+        with pytest.warns(
+            UnknownPotcarWarning,
+            match="POTCAR data with symbol Fe_pv is not known to pymatgen. ",
+        ):
             PotcarSingle.from_file(filename)
 
     def test_faulty_potcar_has_wrong_hash(self):
@@ -1377,12 +1398,20 @@ class TestPotcar(PymatgenTest):
         self.potcar = Potcar.from_file(self.filepath)
 
     def test_init(self):
-        assert self.potcar.symbols == ["Fe", "P", "O"], "Wrong symbols read in for POTCAR"
+        assert self.potcar.symbols == [
+            "Fe",
+            "P",
+            "O",
+        ], "Wrong symbols read in for POTCAR"
         potcar = Potcar(["Fe_pv", "O"])
         assert potcar[0].enmax == 293.238
 
     def test_from_file(self):
-        assert {d.header for d in self.potcar} == {"PAW_PBE O 08Apr2002", "PAW_PBE P 17Jan2003", "PAW_PBE Fe 06Sep2000"}
+        assert {d.header for d in self.potcar} == {
+            "PAW_PBE O 08Apr2002",
+            "PAW_PBE P 17Jan2003",
+            "PAW_PBE Fe 06Sep2000",
+        }
 
     def test_potcar_map(self):
         fe_potcar = zopen(f"{FAKE_POTCAR_DIR}/POT_GGA_PAW_PBE/POTCAR.Fe_pv.gz").read().decode("utf-8")
@@ -1403,7 +1432,10 @@ class TestPotcar(PymatgenTest):
         potcar = Potcar.from_file(tmp_file)
         assert potcar.symbols == self.potcar.symbols
 
-        with zopen(self.filepath, mode="rt", encoding="utf-8") as f_ref, open(tmp_file, encoding="utf-8") as f_new:
+        with (
+            zopen(self.filepath, mode="rt", encoding="utf-8") as f_ref,
+            open(tmp_file, encoding="utf-8") as f_new,
+        ):
             ref_potcar = f_ref.readlines()
             new_potcar = f_new.readlines()
 

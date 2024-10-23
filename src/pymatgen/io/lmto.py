@@ -127,7 +127,12 @@ class LMTOCtrl:
                 classes.append({"ATOM": atom.symbol, "Z": atom.Z})
             sites.append({"ATOM": classes[label_index]["ATOM"], "POS": site.coords / a_len})
 
-        update = {"ALAT": a_len / bohr_to_angstrom, "PLAT": plat, "CLASS": classes, "SITE": sites}
+        update = {
+            "ALAT": a_len / bohr_to_angstrom,
+            "PLAT": plat,
+            "CLASS": classes,
+            "SITE": sites,
+        }
         return {**ctrl_dict, **update}
 
     def write_file(self, filename="CTRL", **kwargs):
@@ -166,7 +171,14 @@ class LMTOCtrl:
             An LMTOCtrl object.
         """
         lines = data.split("\n")[:-1]
-        _struct_lines: dict[str, list] = {"HEADER": [], "VERS": [], "SYMGRP": [], "STRUC": [], "CLASS": [], "SITE": []}
+        _struct_lines: dict[str, list] = {
+            "HEADER": [],
+            "VERS": [],
+            "SYMGRP": [],
+            "STRUC": [],
+            "CLASS": [],
+            "SITE": [],
+        }
 
         cat = None
         for line in lines:
@@ -180,7 +192,12 @@ class LMTOCtrl:
 
         struct_lines: dict[str, str] = {k: " ".join(v).replace("= ", "=") for k, v in _struct_lines.items()}
 
-        structure_tokens: dict[str, Any] = {"ALAT": None, "PLAT": [], "CLASS": [], "SITE": []}
+        structure_tokens: dict[str, Any] = {
+            "ALAT": None,
+            "PLAT": [],
+            "CLASS": [],
+            "SITE": [],
+        }
 
         atom = None
         for cat in ("STRUC", "CLASS", "SITE"):
@@ -271,7 +288,13 @@ class LMTOCtrl:
                     dct["SPCGRP"], plat, species, positions, coords_are_cartesian=True
                 )
             except ValueError:
-                structure = Structure(plat, species, positions, coords_are_cartesian=True, to_unit_cell=True)
+                structure = Structure(
+                    plat,
+                    species,
+                    positions,
+                    coords_are_cartesian=True,
+                    to_unit_cell=True,
+                )
         else:
             structure = Structure(plat, species, positions, coords_are_cartesian=True, to_unit_cell=True)
 
@@ -347,7 +370,12 @@ class LMTOCopl:
                     lab = f"{label}-{idx}"
                 label = lab
 
-            cohp_data[label] = {"COHP": cohp, "ICOHP": icohp, "length": length, "sites": sites}
+            cohp_data[label] = {
+                "COHP": cohp,
+                "ICOHP": icohp,
+                "length": length,
+                "sites": sites,
+            }
         self.cohp_data = cohp_data
 
     @staticmethod

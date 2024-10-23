@@ -32,7 +32,10 @@ class TestCollinearMagneticStructureAnalyzer(TestCase):
 
         self.Fe3O4 = Structure.from_file(f"{TEST_FILES_DIR}/cif/Fe3O4.cif", primitive=True)
 
-        self.GdB4 = Structure.from_file(f"{TEST_FILES_DIR}/io/cif/mcif/magnetic.ncl.example.GdB4.mcif", primitive=True)
+        self.GdB4 = Structure.from_file(
+            f"{TEST_FILES_DIR}/io/cif/mcif/magnetic.ncl.example.GdB4.mcif",
+            primitive=True,
+        )
 
         self.NiO_expt = Structure.from_file(f"{TEST_FILES_DIR}/io/cif/mcif/magnetic.example.NiO.mcif", primitive=True)
 
@@ -243,7 +246,12 @@ Magmoms Sites
         # Species.spin=None. This previously raised an error upon construction
         # of the analyzer).
         lattice = Lattice([[2.085, 2.085, 0.0], [0.0, -2.085, -2.085], [-2.085, 2.085, -4.17]])
-        species = [Species("Ni", spin=-5), Species("Ni", spin=5), Species("O", spin=None), Species("O", spin=None)]
+        species = [
+            Species("Ni", spin=-5),
+            Species("Ni", spin=5),
+            Species("O", spin=None),
+            Species("O", spin=None),
+        ]
         coords = [[0.5, 0, 0.5], [0, 0, 0], [0.25, 0.5, 0.25], [0.75, 0.5, 0.75]]
         struct = Structure(lattice, species, coords)
 
