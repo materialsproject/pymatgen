@@ -1,13 +1,14 @@
 from __future__ import annotations
 
+import shutil
 from unittest import TestCase
 
 import numpy as np
 import pytest
 from monty.serialization import loadfn
+from monty.tempfile import ScratchDir
 from pytest import approx
 
-from pymatgen.electronic_structure.boltztrap import BoltztrapError
 from pymatgen.electronic_structure.core import OrbitalType, Spin
 from pymatgen.io.vasp import Vasprun
 from pymatgen.util.testing import TEST_FILES_DIR
@@ -22,9 +23,8 @@ try:
         VasprunLoader,
     )
 
-except BoltztrapError:
-    pytest.skip("No boltztrap2.", allow_module_level=True)
-
+except ImportError:
+    pytest.skip("No boltztrap2", allow_module_level=True)
 
 TEST_DIR = f"{TEST_FILES_DIR}/electronic_structure/boltztrap2"
 
@@ -33,6 +33,7 @@ VASP_RUN = Vasprun(VASP_RUN_FILE, parse_projected_eigen=True)
 
 VASP_RUN_FILE_SPIN = f"{TEST_DIR}/vasprun_spin.xml"
 VASP_RUN_SPIN = Vasprun(VASP_RUN_FILE_SPIN, parse_projected_eigen=True)
+
 BAND_STRUCT = loadfn(f"{TEST_DIR}/PbTe_bandstructure.json")
 BAND_STRUCT_SPIN = loadfn(f"{TEST_DIR}/N2_bandstructure.json")
 
@@ -127,22 +128,24 @@ class TestVasprunLoader(TestCase):
 
 class TestBztInterpolator(TestCase):
     def setUp(self):
-        self.loader = VasprunBSLoader(VASP_RUN)
-        self.bztInterp = BztInterpolator(self.loader, lpfac=2)
-        assert self.bztInterp is not None
-        # TODO: following creates file locally, use temp dir
-        self.bztInterp = BztInterpolator(self.loader, lpfac=2, save_bztInterp=True, fname=BZT_INTERP_FN)
-        assert self.bztInterp is not None
-        self.bztInterp = BztInterpolator(self.loader, load_bztInterp=True, fname=BZT_INTERP_FN)
-        assert self.bztInterp is not None
+        with ScratchDir("."):
+            shutil.copy(BZT_INTERP_FN, ".")
 
-        self.loader_sp = VasprunBSLoader(VASP_RUN_SPIN)
-        self.bztInterp_sp = BztInterpolator(self.loader_sp, lpfac=2)
-        assert self.bztInterp_sp is not None
-        self.bztInterp_sp = BztInterpolator(self.loader_sp, lpfac=2, save_bztInterp=True, fname=BZT_INTERP_FN)
-        assert self.bztInterp_sp is not None
-        self.bztInterp_sp = BztInterpolator(self.loader_sp, lpfac=2, load_bztInterp=True, fname=BZT_INTERP_FN)
-        assert self.bztInterp_sp is not None
+            loader = VasprunBSLoader(VASP_RUN)
+            self.bztInterp = BztInterpolator(loader, lpfac=2)
+            assert self.bztInterp is not None
+            self.bztInterp = BztInterpolator(loader, lpfac=2, save_bztInterp=True)
+            assert self.bztInterp is not None
+            self.bztInterp = BztInterpolator(loader, load_bztInterp=True)
+            assert self.bztInterp is not None
+
+            loader_sp = VasprunBSLoader(VASP_RUN_SPIN)
+            self.bztInterp_sp = BztInterpolator(loader_sp, lpfac=2)
+            assert self.bztInterp_sp is not None
+            self.bztInterp_sp = BztInterpolator(loader_sp, lpfac=2, save_bztInterp=True)
+            assert self.bztInterp_sp is not None
+            self.bztInterp_sp = BztInterpolator(loader_sp, lpfac=2, load_bztInterp=True)
+            assert self.bztInterp_sp is not None
 
     def test_properties(self):
         assert self.bztInterp.cband.shape == (6, 3, 3, 3, 29791)
@@ -204,105 +207,122 @@ class TestBztInterpolator(TestCase):
 
 class TestBztTransportProperties(TestCase):
     def setUp(self):
+        with ScratchDir("."):
+            shutil.copy(BZT_TRANSP_FN, ".")
+
+            # non spin polarized
+            loader = VasprunBSLoader(VASP_RUN)
+            bztInterp = BztInterpolator(loader, lpfac=2)
+
+            self.bztTransp = BztTransportProperties(
+                bztInterp,
+                temp_r=np.arange(300, 600, 100),
+                save_bztTranspProps=True,
+            )
+            assert self.bztTransp is not None
+
+            bztInterp = BztInterpolator(loader, lpfac=2)
+            self.bztTransp = BztTransportProperties(
+                bztInterp,
+                load_bztTranspProps=True,
+            )
+            assert self.bztTransp is not None
+
+            # spin polarized
+            loader_sp = VasprunBSLoader(VASP_RUN_SPIN)
+            bztInterp_sp = BztInterpolator(loader_sp, lpfac=2)
+
+            self.bztTransp_sp = BztTransportProperties(
+                bztInterp_sp,
+                temp_r=np.arange(300, 600, 100),
+                save_bztTranspProps=True,
+            )
+            assert self.bztTransp_sp is not None
+
+            bztInterp_sp = BztInterpolator(loader_sp, lpfac=2)
+            self.bztTransp_sp = BztTransportProperties(
+                bztInterp_sp,
+                load_bztTranspProps=True,
+            )
+            assert self.bztTransp_sp is not None
+
+    def test_init(self):
+        # non spin polarized
         loader = VasprunBSLoader(VASP_RUN)
         bztInterp = BztInterpolator(loader, lpfac=2)
         self.bztTransp = BztTransportProperties(bztInterp, temp_r=np.arange(300, 600, 100))
         assert self.bztTransp is not None
 
         self.bztTransp = BztTransportProperties(
-            bztInterp, doping=10.0 ** np.arange(20, 22), temp_r=np.arange(300, 600, 100)
+            bztInterp,
+            doping=10.0 ** np.arange(20, 22),
+            temp_r=np.arange(300, 600, 100),
         )
         assert self.bztTransp is not None
         assert self.bztTransp.contain_props_doping
 
-        bztInterp = BztInterpolator(loader, lpfac=2)
-        self.bztTransp = BztTransportProperties(
-            bztInterp,
-            temp_r=np.arange(300, 600, 100),
-            save_bztTranspProps=True,
-            fname=BZT_TRANSP_FN,
-        )
-        assert self.bztTransp is not None
-
-        bztInterp = BztInterpolator(loader, lpfac=2)
-        self.bztTransp = BztTransportProperties(bztInterp, load_bztTranspProps=True, fname=BZT_TRANSP_FN)
-        assert self.bztTransp is not None
-
+        # spin polarized
         loader_sp = VasprunBSLoader(VASP_RUN_SPIN)
         bztInterp_sp = BztInterpolator(loader_sp, lpfac=2)
         self.bztTransp_sp = BztTransportProperties(bztInterp_sp, temp_r=np.arange(300, 600, 100))
         assert self.bztTransp_sp is not None
 
-        bztInterp_sp = BztInterpolator(loader_sp, lpfac=2)
-        # TODO: following creates file locally, use temp dir
-        self.bztTransp_sp = BztTransportProperties(
-            bztInterp_sp,
-            temp_r=np.arange(300, 600, 100),
-            save_bztTranspProps=True,
-            fname=BZT_TRANSP_FN,
-        )
-        assert self.bztTransp_sp is not None
-
-        bztInterp_sp = BztInterpolator(loader_sp, lpfac=2)
-        self.bztTransp_sp = BztTransportProperties(bztInterp_sp, load_bztTranspProps=True, fname=BZT_TRANSP_FN)
-        assert self.bztTransp_sp is not None
-
     def test_properties(self):
-        for p in [
+        for p in (
             self.bztTransp.Conductivity_mu,
             self.bztTransp.Seebeck_mu,
             self.bztTransp.Kappa_mu,
             self.bztTransp.Effective_mass_mu,
             self.bztTransp.Power_Factor_mu,
-        ]:
+        ):
             assert p.shape == (3, 3686, 3, 3)
 
-        for p in [
+        for p in (
             self.bztTransp.Carrier_conc_mu,
             self.bztTransp.Hall_carrier_conc_trace_mu,
-        ]:
+        ):
             assert p.shape == (3, 3686)
 
-        for p in [
+        for p in (
             self.bztTransp_sp.Conductivity_mu,
             self.bztTransp_sp.Seebeck_mu,
             self.bztTransp_sp.Kappa_mu,
             self.bztTransp_sp.Effective_mass_mu,
             self.bztTransp_sp.Power_Factor_mu,
-        ]:
+        ):
             assert p.shape == (3, 3252, 3, 3)
 
-        for p in [
+        for p in (
             self.bztTransp_sp.Carrier_conc_mu,
             self.bztTransp_sp.Hall_carrier_conc_trace_mu,
-        ]:
+        ):
             assert p.shape == (3, 3252)
 
     def test_compute_properties_doping(self):
         self.bztTransp.compute_properties_doping(doping=10.0 ** np.arange(20, 22))
-        for p in [
+        for p in (
             self.bztTransp.Conductivity_doping,
             self.bztTransp.Seebeck_doping,
             self.bztTransp.Kappa_doping,
             self.bztTransp.Effective_mass_doping,
             self.bztTransp.Power_Factor_doping,
-        ]:
+        ):
             assert p["n"].shape == (3, 2, 3, 3)
             assert self.bztTransp.contain_props_doping
 
         self.bztTransp_sp.compute_properties_doping(doping=10.0 ** np.arange(20, 22))
-        for p in [
+        for p in (
             self.bztTransp_sp.Conductivity_doping,
             self.bztTransp_sp.Seebeck_doping,
             self.bztTransp_sp.Kappa_doping,
             self.bztTransp_sp.Effective_mass_doping,
             self.bztTransp_sp.Power_Factor_doping,
-        ]:
+        ):
             assert p["n"].shape == (3, 2, 3, 3)
             assert self.bztTransp_sp.contain_props_doping
 
 
-class TestBztPlotter(TestCase):
+class TestBztPlotter:
     def test_plot(self):
         loader = VasprunBSLoader(VASP_RUN)
         bztInterp = BztInterpolator(loader, lpfac=2)
