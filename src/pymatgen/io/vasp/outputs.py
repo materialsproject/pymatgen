@@ -5765,6 +5765,7 @@ class VaspDir(collections.abc.Mapping):
         "POSCAR": Poscar,
         "CONTCAR": Poscar,
         "KPOINTS": Kpoints,
+        "IBZKPT": Kpoints,
         "POTCAR": Potcar,
         "vasprun": Vasprun,
         "OUTCAR": Outcar,
@@ -5786,8 +5787,8 @@ class VaspDir(collections.abc.Mapping):
         Args:
             dirname: The directory containing the VASP calculation as a string or Path.
         """
-        self.path = Path(dirname)
-        self.files = [f.name for f in self.path.iterdir() if f.is_file()]
+        self.path = Path(dirname).absolute()
+        self.files = [Path(d) / f for d, subd, fnames in os.walk(self.path) for f in fnames]
         self._parsed_files: dict[str, Any] = {}
 
     def reset(self):
@@ -5795,7 +5796,7 @@ class VaspDir(collections.abc.Mapping):
         Reset all loaded files and recheck the directory for files. Use this when the contents of the directory has
         changed.
         """
-        self.files = [f for f in self.path.iterdir() if f.is_file()]
+        self.files = [Path(d) / f for d, subd, fnames in os.walk(self.path) for f in fnames]
         self._parsed_files = {}
 
     def __len__(self):
