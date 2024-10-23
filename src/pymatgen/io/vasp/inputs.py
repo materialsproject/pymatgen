@@ -1310,7 +1310,7 @@ class Kpoints(MSONable):
         Args:
             subdivisions (int): Number of subdivisions along
                 each reciprocal lattice vector.
-            comment (str): comment in Kpoints.
+            comment (str): Comment in Kpoints.
 
         Returns:
             Kpoints
@@ -1340,7 +1340,7 @@ class Kpoints(MSONable):
             kpts: Subdivisions N_1, N_2 and N_3 along reciprocal lattice
                 vectors. Defaults to (1, 1, 1)
             shift: Shift to be applied to the kpoints. Defaults to (0, 0, 0).
-            comment (str): comment in Kpoints.
+            comment (str): Comment in Kpoints.
 
         Returns:
             Kpoints
@@ -1367,7 +1367,7 @@ class Kpoints(MSONable):
             kpts: Subdivisions N_1, N_2, N_3 along reciprocal lattice
                 vectors. Defaults to (2, 2, 2)
             shift: Shift to be applied to the kpoints. Defaults to (0, 0, 0).
-            comment (str): comment in Kpoints.
+            comment (str): Comment in Kpoints.
 
         Returns:
             Kpoints
@@ -1401,7 +1401,7 @@ class Kpoints(MSONable):
             kppa (float): Grid density.
             force_gamma (bool): Force a gamma centered mesh (default is to
                 use gamma only for hexagonal cells or odd meshes).
-            comment (str): comment in Kpoints.
+            comment (str): Comment in Kpoints.
 
         Returns:
             Kpoints
@@ -1451,7 +1451,7 @@ class Kpoints(MSONable):
         Args:
             structure (Structure): Input structure
             kppa (float): Grid density
-            comment (str): comment in Kpoints.
+            comment (str): Comment in Kpoints.
         """
         if comment is None:
             comment = f"pymatgen with grid density = {kppa:.0f} / number of atoms"
@@ -1498,7 +1498,7 @@ class Kpoints(MSONable):
             structure (Structure): Input structure.
             kppvol (int): Grid density per Angstrom^(-3) of reciprocal cell.
             force_gamma (bool): Force a gamma centered mesh.
-            comment (str): comment in Kpoints.
+            comment (str): Comment in Kpoints.
 
         Returns:
             Kpoints
@@ -1528,7 +1528,7 @@ class Kpoints(MSONable):
             length_densities (list[float]): Defines the density of k-points in each.
             dimension, e.g. [50.0, 50.0, 1.0].
             force_gamma (bool): Force a gamma centered mesh.
-            comment (str): comment in Kpoints.
+            comment (str): Comment in Kpoints.
 
         Returns:
             Kpoints
@@ -1578,7 +1578,7 @@ class Kpoints(MSONable):
         Args:
             divisions (int): Parameter determining the number of k-points along each high symmetry line.
             ibz (HighSymmKpath): HighSymmKpath object (pymatgen.symmetry.bandstructure).
-            comment (str): comment in Kpoints.
+            comment (str): Comment in Kpoints.
 
         Returns:
             Kpoints object
@@ -1762,7 +1762,7 @@ class Kpoints(MSONable):
         with zopen(filename, mode="wt") as file:
             file.write(str(self))
 
-    def as_dict(self) -> dict:
+    def as_dict(self) -> dict[str, Any]:
         """MSONable dict."""
         dct = {
             "@module": type(self).__module__,
@@ -1787,7 +1787,7 @@ class Kpoints(MSONable):
         return dct
 
     @classmethod
-    def from_dict(cls, dct: dict) -> Self:
+    def from_dict(cls, dct: dict[str, Any]) -> Self:
         """
         Args:
             dct (dict): Dict representation.
@@ -1856,9 +1856,9 @@ class OrbitalDescription(NamedTuple):
 
 
 # Hashes computed from the full POTCAR file contents by pymatgen (not 1st-party VASP hashes)
-PYMATGEN_POTCAR_HASHES = loadfn(f"{MODULE_DIR}/vasp_potcar_pymatgen_hashes.json")
+PYMATGEN_POTCAR_HASHES: dict = loadfn(f"{MODULE_DIR}/vasp_potcar_pymatgen_hashes.json")
 # Written to some newer POTCARs by VASP
-VASP_POTCAR_HASHES = loadfn(f"{MODULE_DIR}/vasp_potcar_file_hashes.json")
+VASP_POTCAR_HASHES: dict = loadfn(f"{MODULE_DIR}/vasp_potcar_file_hashes.json")
 POTCAR_STATS_PATH: str = os.path.join(MODULE_DIR, "potcar-summary-stats.json.bz2")
 
 
