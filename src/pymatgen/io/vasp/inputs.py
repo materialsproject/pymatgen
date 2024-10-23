@@ -1591,7 +1591,9 @@ class Kpoints(MSONable):
 
         # Fully automatic KPOINTS
         if style == "a":
-            return cls.automatic(int(lines[3].split()[0].strip()))
+            inst = cls.automatic(int(lines[3].split()[0].strip()))
+            inst.comment = comment
+            return inst
 
         coord_pattern = re.compile(r"^\s*([\d+.\-Ee]+)\s+([\d+.\-Ee]+)\s+([\d+.\-Ee]+)")
 
@@ -1614,7 +1616,9 @@ class Kpoints(MSONable):
 
                 kpts_shift = cast(Vector3D, tuple(_kpts_shift))
 
-            return cls.gamma_automatic(kpt, kpts_shift) if style == "g" else cls.monkhorst_automatic(kpt, kpts_shift)
+            inst = cls.gamma_automatic(kpt, kpts_shift) if style == "g" else cls.monkhorst_automatic(kpt, kpts_shift)
+            inst.comment = comment
+            return inst
 
         # Automatic kpoints with basis
         if num_kpts <= 0:
