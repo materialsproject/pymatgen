@@ -41,7 +41,11 @@ def test_energy_adjustment():
 def test_energy_adjustment_repr():
     comp_cls = MaterialsProject2020Compatibility()
     cls_name = type(comp_cls).__name__
-    for cls, label in ((None, "unknown"), (comp_cls, cls_name), ({"@class": cls_name}, cls_name)):
+    for cls, label in (
+        (None, "unknown"),
+        (comp_cls, cls_name),
+        ({"@class": cls_name}, cls_name),
+    ):
         ea = EnergyAdjustment(10, cls=cls)
         assert (
             repr(ea) == "EnergyAdjustment(name='Manual adjustment', value=10.0, uncertainty=nan, description='', "

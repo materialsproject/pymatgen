@@ -131,7 +131,15 @@ def pretty_plot_two_axis(
         fig.set_dpi(dpi)
     if isinstance(y1, dict):
         for idx, (key, val) in enumerate(y1.items()):
-            ax1.plot(x, val, c=c1, marker="s", ls=styles[idx % len(styles)], label=key, **plot_kwargs)
+            ax1.plot(
+                x,
+                val,
+                c=c1,
+                marker="s",
+                ls=styles[idx % len(styles)],
+                label=key,
+                **plot_kwargs,
+            )
         ax1.legend(fontsize=label_size)
     else:
         ax1.plot(x, y1, c=c1, marker="s", ls="-", **plot_kwargs)
@@ -444,7 +452,12 @@ def van_arkel_triangle(list_of_materials: Sequence, annotate: bool = True):
     pt1 = np.array([(Element("F").X + Element("Fr").X) / 2, abs(Element("F").X - Element("Fr").X)])
     # Cs-Fr has the lowest average X. We set this as our
     # bottom left corner of the triangle (most metallic)
-    pt2 = np.array([(Element("Cs").X + Element("Fr").X) / 2, abs(Element("Cs").X - Element("Fr").X)])
+    pt2 = np.array(
+        [
+            (Element("Cs").X + Element("Fr").X) / 2,
+            abs(Element("Cs").X - Element("Fr").X),
+        ]
+    )
     # O-F has the highest average X. We set this as our
     # bottom right corner of the triangle (most covalent)
     pt3 = np.array([(Element("O").X + Element("F").X) / 2, abs(Element("O").X - Element("F").X)])

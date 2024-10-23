@@ -86,7 +86,12 @@ class BalancedReaction(MSONable):
 
     def __hash__(self) -> int:
         # Necessity for hash method is unclear (see gh-3673)
-        return hash((frozenset(self.reactants_coeffs.items()), frozenset(self.products_coeffs.items())))
+        return hash(
+            (
+                frozenset(self.reactants_coeffs.items()),
+                frozenset(self.products_coeffs.items()),
+            )
+        )
 
     def __str__(self):
         return self._str_from_comp(self._coeffs, self._all_comp)[0]
@@ -423,7 +428,11 @@ class ComputedReaction(Reaction):
     energies.
     """
 
-    def __init__(self, reactant_entries: list[ComputedEntry], product_entries: list[ComputedEntry]) -> None:
+    def __init__(
+        self,
+        reactant_entries: list[ComputedEntry],
+        product_entries: list[ComputedEntry],
+    ) -> None:
         """
         Args:
             reactant_entries ([ComputedEntry]): List of reactant_entries.

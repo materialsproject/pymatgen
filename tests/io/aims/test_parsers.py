@@ -232,11 +232,17 @@ def test_header_transfer_initial_lattice(empty_calc_chunk, initial_lattice):
 def test_header_transfer_initial_structure(empty_calc_chunk, initial_lattice):
     initial_positions = np.array([[0.000, 1.000, 2.000], [2.703, 3.703, 4.703]])
 
-    assert_allclose(empty_calc_chunk.initial_structure.lattice.matrix, empty_calc_chunk.initial_lattice.matrix)
+    assert_allclose(
+        empty_calc_chunk.initial_structure.lattice.matrix,
+        empty_calc_chunk.initial_lattice.matrix,
+    )
     assert len(empty_calc_chunk.initial_structure) == 2
     assert_allclose(empty_calc_chunk.initial_structure.lattice.matrix, initial_lattice)
     assert_allclose(empty_calc_chunk.initial_structure.cart_coords, initial_positions, atol=1e-12)
-    assert [sp.symbol for sp in empty_calc_chunk.initial_structure.species] == ["Na", "Cl"]
+    assert [sp.symbol for sp in empty_calc_chunk.initial_structure.species] == [
+        "Na",
+        "Cl",
+    ]
 
 
 def test_header_transfer_electronic_temperature(empty_calc_chunk):
@@ -460,7 +466,11 @@ def test_molecular_header_n_bands(molecular_header_chunk):
 
 def test_molecular_header_initial_structure(molecular_header_chunk, molecular_positions):
     assert len(molecular_header_chunk.initial_structure) == 3
-    assert [sp.symbol for sp in molecular_header_chunk.initial_structure.species] == ["O", "H", "H"]
+    assert [sp.symbol for sp in molecular_header_chunk.initial_structure.species] == [
+        "O",
+        "H",
+        "H",
+    ]
     assert_allclose(
         molecular_header_chunk.initial_structure.cart_coords,
         [[0, 0, 0], [0.95840000, 0, 0], [-0.24000000, 0.92790000, 0]],
@@ -479,13 +489,23 @@ def molecular_calc_chunk(molecular_header_chunk):
 
 @pytest.fixture
 def molecular_positions():
-    return np.array([[-0.00191785, -0.00243279, 0], [0.97071531, -0.00756333, 0], [-0.25039746, 0.93789612, 0]])
+    return np.array(
+        [
+            [-0.00191785, -0.00243279, 0],
+            [0.97071531, -0.00756333, 0],
+            [-0.25039746, 0.93789612, 0],
+        ]
+    )
 
 
 def test_molecular_calc_atoms(molecular_calc_chunk, molecular_positions):
     assert len(molecular_calc_chunk.structure.species) == 3
     assert_allclose(molecular_calc_chunk.structure.cart_coords, molecular_positions)
-    assert [sp.symbol for sp in molecular_calc_chunk.structure.species] == ["O", "H", "H"]
+    assert [sp.symbol for sp in molecular_calc_chunk.structure.species] == [
+        "O",
+        "H",
+        "H",
+    ]
 
 
 def test_molecular_calc_forces(molecular_calc_chunk):
@@ -555,7 +575,11 @@ def test_molecular_calc_hirshfeld_volumes(molecular_calc_chunk):
 
 def test_molecular_calc_hirshfeld_atomic_dipoles(molecular_calc_chunk):
     hirshfeld_atomic_dipoles = np.array(
-        [[0.04249319, 0.05486053, 0], [0.13710134, -0.00105126, 0], [-0.03534982, 0.13248706, 0]]
+        [
+            [0.04249319, 0.05486053, 0],
+            [0.13710134, -0.00105126, 0],
+            [-0.03534982, 0.13248706, 0],
+        ]
     )
     assert_allclose(molecular_calc_chunk.hirshfeld_atomic_dipoles, hirshfeld_atomic_dipoles)
     assert_allclose(

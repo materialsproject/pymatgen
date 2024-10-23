@@ -90,10 +90,18 @@ class OptimadeRester:
     }
 
     # The set of OPTIMADE fields that are required to define a `pymatgen.core.Structure`
-    mandatory_response_fields = ("lattice_vectors", "cartesian_site_positions", "species", "species_at_sites")
+    mandatory_response_fields = (
+        "lattice_vectors",
+        "cartesian_site_positions",
+        "species",
+        "species_at_sites",
+    )
 
     def __init__(
-        self, aliases_or_resource_urls: str | list[str] | None = None, refresh_aliases: bool = False, timeout: int = 5
+        self,
+        aliases_or_resource_urls: str | list[str] | None = None,
+        refresh_aliases: bool = False,
+        timeout: int = 5,
     ):
         """OPTIMADE is an effort to provide a standardized interface to retrieve information
         from many different materials science databases.
@@ -342,7 +350,11 @@ class OptimadeRester:
 
                 structures = self._get_snls_from_resource(json, url, identifier)
 
-                pbar = tqdm(total=json["meta"].get("data_returned", 0), desc=identifier, initial=len(structures))
+                pbar = tqdm(
+                    total=json["meta"].get("data_returned", 0),
+                    desc=identifier,
+                    initial=len(structures),
+                )
 
                 # TODO: check spec for `more_data_available` boolean, may simplify this conditional
                 while next_link := json.get("links", {}).get("next"):
@@ -405,7 +417,13 @@ class OptimadeRester:
                 snl = StructureNL(
                     structure,
                     authors={},
-                    history=[{"name": identifier, "url": url, "description": {"id": data["id"]}}],
+                    history=[
+                        {
+                            "name": identifier,
+                            "url": url,
+                            "description": {"id": data["id"]},
+                        }
+                    ],
                     data={"_optimade": namespaced_data},
                 )
 
@@ -425,14 +443,26 @@ class OptimadeRester:
                     namespaced_data = {
                         k: v
                         for k, v in data["attributes"].items()
-                        if k.startswith("_") or k not in {"lattice_vectors", "species", "cartesian_site_positions"}
+                        if k.startswith("_")
+                        or k
+                        not in {
+                            "lattice_vectors",
+                            "species",
+                            "cartesian_site_positions",
+                        }
                     }
 
                     # TODO: follow `references` to add reference information here
                     snl = StructureNL(
                         structure,
                         authors={},
-                        history=[{"name": identifier, "url": url, "description": {"id": data["id"]}}],
+                        history=[
+                            {
+                                "name": identifier,
+                                "url": url,
+                                "description": {"id": data["id"]},
+                            }
+                        ],
                         data={"_optimade": namespaced_data},
                     )
 

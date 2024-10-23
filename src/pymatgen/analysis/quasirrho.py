@@ -131,7 +131,13 @@ class QuasiRRHO:
         self.entropy_ho = None  # Ha/K
         self.free_energy_ho = None  # Ha
 
-        self._get_quasirrho_thermo(mol=mol, mult=mult, frequencies=frequencies, elec_energy=energy, sigma_r=sigma_r)
+        self._get_quasirrho_thermo(
+            mol=mol,
+            mult=mult,
+            frequencies=frequencies,
+            elec_energy=energy,
+            sigma_r=sigma_r,
+        )
 
     @classmethod
     def from_gaussian_output(cls, output: GaussianOutput, **kwargs) -> Self:
@@ -172,7 +178,12 @@ class QuasiRRHO:
         description="Supramolecular Binding Thermodynamics by Dispersion-Corrected Density Functional Theory",
     )
     def _get_quasirrho_thermo(
-        self, mol: Molecule, mult: int, sigma_r: int, frequencies: list[float], elec_energy: float
+        self,
+        mol: Molecule,
+        mult: int,
+        sigma_r: int,
+        frequencies: list[float],
+        elec_energy: float,
     ) -> None:
         """
         Calculate Quasi-RRHO thermochemistry.

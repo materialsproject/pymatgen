@@ -88,7 +88,10 @@ class COD:
         """
         # TODO: remove timeout arg and use class level timeout after 2025-10-17
         if timeout is not None:
-            warnings.warn("separate timeout arg is deprecated, please use class level timeout", DeprecationWarning)
+            warnings.warn(
+                "separate timeout arg is deprecated, please use class level timeout",
+                DeprecationWarning,
+            )
         timeout = timeout or self.timeout
 
         response = requests.get(f"{self.url}/cod/{cod_id}.cif", timeout=timeout)
@@ -129,7 +132,10 @@ class COD:
                 structures.append({"structure": struct, "cod_id": int(cod_id), "sg": sg})
 
             except Exception:
-                warnings.warn(f"Structure.from_str failed while parsing CIF file for COD ID {cod_id}", stacklevel=2)
+                warnings.warn(
+                    f"Structure.from_str failed while parsing CIF file for COD ID {cod_id}",
+                    stacklevel=2,
+                )
                 raise
 
         return structures

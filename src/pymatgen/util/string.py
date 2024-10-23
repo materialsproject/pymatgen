@@ -5,7 +5,18 @@ from __future__ import annotations
 import re
 from fractions import Fraction
 
-SUBSCRIPT_UNICODE = {"0": "₀", "1": "₁", "2": "₂", "3": "₃", "4": "₄", "5": "₅", "6": "₆", "7": "₇", "8": "₈", "9": "₉"}
+SUBSCRIPT_UNICODE = {
+    "0": "₀",
+    "1": "₁",
+    "2": "₂",
+    "3": "₃",
+    "4": "₄",
+    "5": "₅",
+    "6": "₆",
+    "7": "₇",
+    "8": "₈",
+    "9": "₉",
+}
 
 SUPERSCRIPT_UNICODE = {
     "0": "⁰",
@@ -64,7 +75,11 @@ class Stringify:
         """
         str_ = re.sub(r"\$_\{([^}]+)\}\$", r"<sub>\1</sub>", self.to_latex_string())
         str_ = re.sub(r"\$\^\{([^}]+)\}\$", r"<sup>\1</sup>", str_)
-        return re.sub(r"\$\\overline\{([^}]+)\}\$", r'<span style="text-decoration:overline">\1</span>', str_)
+        return re.sub(
+            r"\$\\overline\{([^}]+)\}\$",
+            r'<span style="text-decoration:overline">\1</span>',
+            str_,
+        )
 
     def to_unicode_string(self):
         """Unicode string with proper sub and superscripts. Note that this works only
@@ -159,7 +174,11 @@ def latexify(formula: str, bold: bool = False):
     Returns:
         Formula suitable for display as in LaTeX with proper subscripts.
     """
-    return re.sub(r"([A-Za-z\(\)])([\d\.]+)", r"\1$_{\\mathbf{\2}}$" if bold else r"\1$_{\2}$", formula)
+    return re.sub(
+        r"([A-Za-z\(\)])([\d\.]+)",
+        r"\1$_{\\mathbf{\2}}$" if bold else r"\1$_{\2}$",
+        formula,
+    )
 
 
 def htmlify(formula: str) -> str:

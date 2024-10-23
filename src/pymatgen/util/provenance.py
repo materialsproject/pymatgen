@@ -374,7 +374,16 @@ class StructureNL:
 
     def __eq__(self, other: object) -> bool:
         """Check for equality between two StructureNL objects."""
-        needed_attrs = ("structure", "authors", "projects", "references", "remarks", "data", "history", "created_at")
+        needed_attrs = (
+            "structure",
+            "authors",
+            "projects",
+            "references",
+            "remarks",
+            "data",
+            "history",
+            "created_at",
+        )
 
         if not all(hasattr(other, attr) for attr in needed_attrs):
             return NotImplemented

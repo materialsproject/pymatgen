@@ -67,7 +67,11 @@ class TestPackmolSet(PymatgenTest):
         """Test coords input as strings."""
         pw = PackmolBoxGen().get_input_set(
             molecules=[
-                {"name": "EMC", "number": 10, "coords": f"{TEST_DIR}/subdir with spaces/EMC.xyz"},
+                {
+                    "name": "EMC",
+                    "number": 10,
+                    "coords": f"{TEST_DIR}/subdir with spaces/EMC.xyz",
+                },
                 {"name": "LiTFSi", "number": 20, "coords": f"{TEST_DIR}/LiTFSi.xyz"},
             ],
         )
@@ -220,7 +224,9 @@ class TestPackmolSet(PymatgenTest):
         """
         os.mkdir(f"{self.tmp_path}/subdirectory with spaces")
         pw = PackmolBoxGen(
-            inputfile="input.in", outputfile=Path("output.xyz"), stdoutfile=Path("stdout.txt")
+            inputfile="input.in",
+            outputfile=Path("output.xyz"),
+            stdoutfile=Path("stdout.txt"),
         ).get_input_set(
             molecules=[
                 {"name": "water", "number": 10, "coords": water},

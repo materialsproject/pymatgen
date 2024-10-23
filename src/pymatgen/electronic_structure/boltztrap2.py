@@ -476,7 +476,13 @@ class BztInterpolator:
         """
         if bands:
             dumpfn(
-                [self.equivalences, [self.coeffs.real, self.coeffs.imag], self.eband, self.vvband, self.cband],
+                [
+                    self.equivalences,
+                    [self.coeffs.real, self.coeffs.imag],
+                    self.eband,
+                    self.vvband,
+                    self.cband,
+                ],
                 fname,
             )
         else:
@@ -778,7 +784,12 @@ class BztTransportProperties:
         if temp_r is None:
             temp_r = self.temp_r
 
-        self.Conductivity_doping, self.Seebeck_doping, self.Kappa_doping, self.Carriers_conc_doping = {}, {}, {}, {}
+        (
+            self.Conductivity_doping,
+            self.Seebeck_doping,
+            self.Kappa_doping,
+            self.Carriers_conc_doping,
+        ) = ({}, {}, {}, {})
 
         self.Power_Factor_doping, self.Effective_mass_doping = {}, {}
 
@@ -818,7 +829,13 @@ class BztTransportProperties:
                 )
 
                 cond[idx_t], sbk[idx_t], kappa[idx_t], hall[idx_t] = BL.calc_Onsager_coefficients(
-                    L0, L1, L2, mu_doping[dop_type][idx_t], np.array([temp]), self.volume, Lm11
+                    L0,
+                    L1,
+                    L2,
+                    mu_doping[dop_type][idx_t],
+                    np.array([temp]),
+                    self.volume,
+                    Lm11,
                 )
 
                 dc[idx_t] = self.nelect + N

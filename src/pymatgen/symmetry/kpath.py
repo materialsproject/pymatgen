@@ -43,7 +43,15 @@ class KPathBase(abc.ABC):
     """
 
     @abc.abstractmethod
-    def __init__(self, structure: Structure, symprec: float = 0.01, angle_tolerance=5, atol=1e-5, *args, **kwargs):
+    def __init__(
+        self,
+        structure: Structure,
+        symprec: float = 0.01,
+        angle_tolerance=5,
+        atol=1e-5,
+        *args,
+        **kwargs,
+    ):
         """
         Args:
             structure (Structure): Structure object.
@@ -873,7 +881,14 @@ class KPathSeek(KPathBase):
         get_path is not None,
         "SeeK-path needs to be installed to use the convention of Hinuma et al. (2015)",
     )
-    def __init__(self, structure: Structure, symprec: float = 0.01, angle_tolerance=5, atol=1e-5, system_is_tri=True):
+    def __init__(
+        self,
+        structure: Structure,
+        symprec: float = 0.01,
+        angle_tolerance=5,
+        atol=1e-5,
+        system_is_tri=True,
+    ):
         """
         Args:
             structure (Structure): Structure object
@@ -1433,7 +1448,13 @@ class KPathLatimerMunro(KPathBase):
         return key_points, bz_as_key_point_inds, face_center_inds
 
     def _get_key_point_orbits(self, key_points):
-        key_points_copy = dict(zip(range(len(key_points) - 1), key_points[0 : len(key_points) - 1], strict=True))
+        key_points_copy = dict(
+            zip(
+                range(len(key_points) - 1),
+                key_points[0 : len(key_points) - 1],
+                strict=True,
+            )
+        )
         # gamma not equivalent to any in BZ and is last point added to
         # key_points
         key_points_inds_orbits = []
