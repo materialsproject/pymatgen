@@ -279,3 +279,9 @@ noeigstats_outfile_known_simple = {
     "mu": -0.050095169 * Ha_to_eV,
     "efermi": -0.050095169 * Ha_to_eV,
 }
+
+
+problem2_outfile_path = ex_files_dir / Path("problem2.out")
+problem2_outfile_known_simple = {
+    "mu": 0.464180124 * Ha_to_eV,
+}
