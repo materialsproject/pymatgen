@@ -5761,24 +5761,28 @@ class VaspDir(collections.abc.Mapping):
     """
 
     FILE_MAPPINGS: typing.ClassVar = {
-        "INCAR": Incar,
-        "POSCAR": Poscar,
+        n: globals()[n.capitalize()]
+        for n in [
+            "INCAR",
+            "POSCAR",
+            "KPOINTS",
+            "POTCAR",
+            "vasprun",
+            "OUTCAR",
+            "OSZICAR",
+            "CHGCAR",
+            "WAVECAR",
+            "WAVEDER",
+            "LOCPOT",
+            "XDATCAR",
+            "EIGENVAL",
+            "PROCAR",
+            "ELFCAR",
+            "DYNMAT",
+        ]
+    } | {
         "CONTCAR": Poscar,
-        "KPOINTS": Kpoints,
         "IBZKPT": Kpoints,
-        "POTCAR": Potcar,
-        "vasprun": Vasprun,
-        "OUTCAR": Outcar,
-        "OSZICAR": Oszicar,
-        "CHGCAR": Chgcar,
-        "WAVECAR": Wavecar,
-        "WAVEDER": Waveder,
-        "LOCPOT": Locpot,
-        "XDATCAR": Xdatcar,
-        "EIGENVAL": Eigenval,
-        "PROCAR": Procar,
-        "ELFCAR": Elfcar,
-        "DYNMAT": Dynmat,
         "WSWQ": WSWQ,
     }
 
