@@ -194,7 +194,16 @@ def test_add_atoms():
     assert sorted(modified["bond"]["1_bond"]["atom_inds"]) == [3, 14]
 
     # Test that bonds and atoms are being connected reasonably to rings
-    assert sorted(modified["ring"]["13_ring"]["atom_inds"]) == [35, 36, 37, 38, 39, 40, 42, 46]
+    assert sorted(modified["ring"]["13_ring"]["atom_inds"]) == [
+        35,
+        36,
+        37,
+        38,
+        39,
+        40,
+        42,
+        46,
+    ]
     assert sorted(modified["ring"]["13_ring"]["bond_names"]) == [
         "11_bond",
         "23_bond",
@@ -206,7 +215,19 @@ def test_add_atoms():
     ]
 
     # Test that rings, bonds, and atoms are being connected reasonably to cages
-    assert sorted(modified["cage"]["67_cage"]["atom_inds"]) == [0, 20, 22, 23, 24, 25, 27, 50, 51, 52, 55]
+    assert sorted(modified["cage"]["67_cage"]["atom_inds"]) == [
+        0,
+        20,
+        22,
+        23,
+        24,
+        25,
+        27,
+        50,
+        51,
+        52,
+        55,
+    ]
     assert sorted(modified["cage"]["67_cage"]["bond_names"]) == [
         "100_bond",
         "121_bond",
@@ -230,7 +251,11 @@ def test_add_atoms():
         "94_bond",
         "95_bond",
     ]
-    assert sorted(modified["cage"]["67_cage"]["ring_names"]) == ["62_ring", "66_ring", "70_ring"]
+    assert sorted(modified["cage"]["67_cage"]["ring_names"]) == [
+        "62_ring",
+        "66_ring",
+        "70_ring",
+    ]
 
     # Test with QTAIM-defined bonds
     remapped_atoms, _ = map_atoms_cps(mol, separated["atom"])
@@ -266,7 +291,16 @@ def test_process_multiwfn_qtaim():
     # Checking that atom info has been added
     assert sorted(descriptors["bond"]["1_bond"]["atom_inds"]) == [3, 14]
 
-    assert sorted(descriptors["ring"]["13_ring"]["atom_inds"]) == [35, 36, 37, 38, 39, 40, 42, 46]
+    assert sorted(descriptors["ring"]["13_ring"]["atom_inds"]) == [
+        35,
+        36,
+        37,
+        38,
+        39,
+        40,
+        42,
+        46,
+    ]
     assert sorted(descriptors["ring"]["13_ring"]["bond_names"]) == [
         "11_bond",
         "23_bond",
@@ -276,7 +310,19 @@ def test_process_multiwfn_qtaim():
         "5_bond",
         "8_bond",
     ]
-    assert sorted(descriptors["cage"]["67_cage"]["atom_inds"]) == [0, 20, 22, 23, 24, 25, 27, 50, 51, 52, 55]
+    assert sorted(descriptors["cage"]["67_cage"]["atom_inds"]) == [
+        0,
+        20,
+        22,
+        23,
+        24,
+        25,
+        27,
+        50,
+        51,
+        52,
+        55,
+    ]
     assert sorted(descriptors["cage"]["67_cage"]["bond_names"]) == [
         "100_bond",
         "121_bond",
@@ -300,4 +346,8 @@ def test_process_multiwfn_qtaim():
         "94_bond",
         "95_bond",
     ]
-    assert sorted(descriptors["cage"]["67_cage"]["ring_names"]) == ["62_ring", "66_ring", "70_ring"]
+    assert sorted(descriptors["cage"]["67_cage"]["ring_names"]) == [
+        "62_ring",
+        "66_ring",
+        "70_ring",
+    ]

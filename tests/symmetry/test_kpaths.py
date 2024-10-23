@@ -30,7 +30,15 @@ class TestHighSymmKpath(PymatgenTest):
 
         species = ["K", "La", "Ti"]
         coords = [[0.345, 5, 0.77298], [0.1345, 5.1, 0.77298], [0.7, 0.8, 0.9]]
-        for c in (triclinic, monoclinic, orthorhombic, tetragonal, rhombohedral, hexagonal, cubic):
+        for c in (
+            triclinic,
+            monoclinic,
+            orthorhombic,
+            tetragonal,
+            rhombohedral,
+            hexagonal,
+            cubic,
+        ):
             sg_num = np.random.default_rng().choice(c, 1)[0]
             if sg_num in triclinic:
                 lattice = Lattice(

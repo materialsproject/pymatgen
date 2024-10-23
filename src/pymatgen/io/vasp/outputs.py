@@ -403,9 +403,11 @@ class Vasprun(MSONable):
                             self.incar = self._parse_params(elem)
                         elif tag == "kpoints":
                             if not hasattr(self, "kpoints"):
-                                self.kpoints, self.actual_kpoints, self.actual_kpoints_weights = self._parse_kpoints(
-                                    elem
-                                )
+                                (
+                                    self.kpoints,
+                                    self.actual_kpoints,
+                                    self.actual_kpoints_weights,
+                                ) = self._parse_kpoints(elem)
                         elif tag == "parameters":
                             self.parameters = self._parse_params(elem)
                         elif tag == "structure" and elem.attrib.get("name") == "initialpos":
@@ -428,9 +430,11 @@ class Vasprun(MSONable):
                         if elem.get("comment") == "kpoints_opt":
                             kpoints_opt_props = self.kpoints_opt_props = self.kpoints_opt_props or KpointOptProps()
                             try:
-                                kpoints_opt_props.tdos, kpoints_opt_props.idos, kpoints_opt_props.pdos = (
-                                    self._parse_dos(elem)
-                                )
+                                (
+                                    kpoints_opt_props.tdos,
+                                    kpoints_opt_props.idos,
+                                    kpoints_opt_props.pdos,
+                                ) = self._parse_dos(elem)
                                 kpoints_opt_props.efermi = kpoints_opt_props.tdos.efermi
                                 kpoints_opt_props.dos_has_errors = False
                             except Exception:
@@ -608,7 +612,13 @@ class Vasprun(MSONable):
 
             return list(
                 itertools.starmap(
-                    optical_absorb_coeff, zip(self.dielectric_data["density"][0], real_avg, imag_avg, strict=True)
+                    optical_absorb_coeff,
+                    zip(
+                        self.dielectric_data["density"][0],
+                        real_avg,
+                        imag_avg,
+                        strict=True,
+                    ),
                 )
             )
         return None
@@ -871,10 +881,18 @@ class Vasprun(MSONable):
 
         if inc_structure:
             return ComputedStructureEntry(
-                self.final_structure, self.final_energy, parameters=params, data=data, entry_id=entry_id
+                self.final_structure,
+                self.final_energy,
+                parameters=params,
+                data=data,
+                entry_id=entry_id,
             )
         return ComputedEntry(
-            self.final_structure.composition, self.final_energy, parameters=params, data=data, entry_id=entry_id
+            self.final_structure.composition,
+            self.final_energy,
+            parameters=params,
+            data=data,
+            entry_id=entry_id,
         )
 
     def get_band_structure(
@@ -925,7 +943,10 @@ class Vasprun(MSONable):
         """
         use_kpoints_opt = not ignore_kpoints_opt and (getattr(self, "kpoints_opt_props", None) is not None)
         if not kpoints_filename:
-            kpts_path = os.path.join(os.path.dirname(self.filename), "KPOINTS_OPT" if use_kpoints_opt else "KPOINTS")
+            kpts_path = os.path.join(
+                os.path.dirname(self.filename),
+                "KPOINTS_OPT" if use_kpoints_opt else "KPOINTS",
+            )
             kpoints_filename = zpath(kpts_path)
         if kpoints_filename and not os.path.isfile(kpoints_filename) and line_mode:
             name = "KPOINTS_OPT" if use_kpoints_opt else "KPOINTS"
@@ -1062,7 +1083,12 @@ class Vasprun(MSONable):
         self,
     ) -> (
         tuple[float, float, float, bool]
-        | tuple[tuple[float, float], tuple[float, float], tuple[float, float], tuple[bool, bool]]
+        | tuple[
+            tuple[float, float],
+            tuple[float, float],
+            tuple[float, float],
+            tuple[bool, bool],
+        ]
     ):
         """Band properties from the eigenvalues as a tuple,
         (band gap, cbm, vbm, is_band_gap_direct).
@@ -1105,10 +1131,16 @@ class Vasprun(MSONable):
                 cbm_spins_kpoints.append(cbm_kpoint)
         if self.separate_spins:
             return (
-                (max(cbm_spins[0] - vbm_spins[0], 0), max(cbm_spins[1] - vbm_spins[1], 0)),
+                (
+                    max(cbm_spins[0] - vbm_spins[0], 0),
+                    max(cbm_spins[1] - vbm_spins[1], 0),
+                ),
                 (cbm_spins[0], cbm_spins[1]),
                 (vbm_spins[0], vbm_spins[1]),
-                (vbm_spins_kpoints[0] == cbm_spins_kpoints[0], vbm_spins_kpoints[1] == cbm_spins_kpoints[1]),
+                (
+                    vbm_spins_kpoints[0] == cbm_spins_kpoints[0],
+                    vbm_spins_kpoints[1] == cbm_spins_kpoints[1],
+                ),
             )
         return max(cbm - vbm, 0), cbm, vbm, vbm_kpoint == cbm_kpoint
 
@@ -1218,7 +1250,11 @@ class Vasprun(MSONable):
         """
         if potcar := self.get_potcars(path):
             self.potcar_spec = [
-                {"titel": sym, "hash": ps.md5_header_hash, "summary_stats": ps._summary_stats}
+                {
+                    "titel": sym,
+                    "hash": ps.md5_header_hash,
+                    "summary_stats": ps._summary_stats,
+                }
                 for sym in self.potcar_symbols
                 for ps in potcar
                 if ps.symbol == sym.split()[1]
@@ -1232,7 +1268,12 @@ class Vasprun(MSONable):
         """
         potcar = self.get_potcars(path)
 
-        if potcar and self.incar.get("ALGO", "").upper() not in {"GW0", "G0W0", "GW", "BSE"}:
+        if potcar and self.incar.get("ALGO", "").upper() not in {
+            "GW0",
+            "G0W0",
+            "GW",
+            "BSE",
+        }:
             nelect = self.parameters["NELECT"]
             if len(potcar) == len(self.initial_structure.composition.element_composition):
                 potcar_nelect = sum(
@@ -1423,7 +1464,9 @@ class Vasprun(MSONable):
         return [parse_atomic_symbol(sym) for sym in atomic_symbols], potcar_symbols
 
     @staticmethod
-    def _parse_kpoints(elem: XML_Element) -> tuple[Kpoints, list[Tuple3Floats], list[float]]:
+    def _parse_kpoints(
+        elem: XML_Element,
+    ) -> tuple[Kpoints, list[Tuple3Floats], list[float]]:
         """Parse Kpoints."""
         e = elem if elem.find("generation") is None else elem.find("generation")
         kpoint = Kpoints("Kpoints from vasprun.xml")
@@ -1467,8 +1510,9 @@ class Vasprun(MSONable):
         lattice = _parse_vasp_array(elem.find("crystal").find("varray"))  # type: ignore[union-attr]
         pos = _parse_vasp_array(elem.find("varray"))
         struct = Structure(lattice, self.atomic_symbols, pos)
+        selective_dyn = elem.find("varray/[@name='selective']")
 
-        if selective_dyn := elem.find("varray/[@name='selective']"):
+        if selective_dyn is not None:
             struct.add_site_property("selective_dynamics", _parse_vasp_array(selective_dyn))
         return struct
 
@@ -1599,7 +1643,11 @@ class Vasprun(MSONable):
 
         if energies is None:
             raise ValueError("energies is None")
-        return Dos(efermi, energies, tdensities), Dos(efermi, energies, idensities), pdoss
+        return (
+            Dos(efermi, energies, tdensities),
+            Dos(efermi, energies, idensities),
+            pdoss,
+        )
 
     @staticmethod
     def _parse_eigen(elem: XML_Element) -> dict[Spin, NDArray]:
@@ -1614,7 +1662,9 @@ class Vasprun(MSONable):
         return eigenvalues
 
     @staticmethod
-    def _parse_projected_eigen(elem: XML_Element) -> tuple[dict[Spin, NDArray], NDArray | None]:
+    def _parse_projected_eigen(
+        elem: XML_Element,
+    ) -> tuple[dict[Spin, NDArray], NDArray | None]:
         """Parse projected eigenvalues."""
         root = elem.find("array").find("set")  # type: ignore[union-attr]
         _proj_eigen: dict[int, np.ndarray] = defaultdict(list)
@@ -1726,7 +1776,11 @@ class BSVasprun(Vasprun):
                     elif tag == "incar":
                         self.incar = self._parse_params(elem)
                     elif tag == "kpoints":
-                        self.kpoints, self.actual_kpoints, self.actual_kpoints_weights = self._parse_kpoints(elem)
+                        (
+                            self.kpoints,
+                            self.actual_kpoints,
+                            self.actual_kpoints_weights,
+                        ) = self._parse_kpoints(elem)
                     elif tag == "parameters":
                         self.parameters = self._parse_params(elem)
                     elif tag == "atominfo":
@@ -1820,7 +1874,10 @@ class BSVasprun(Vasprun):
         vin["lattice_rec"] = self.final_structure.lattice.reciprocal_lattice.as_dict()
         dct["input"] = vin
 
-        vout: dict[str, Any] = {"crystal": self.final_structure.as_dict(), "efermi": self.efermi}
+        vout: dict[str, Any] = {
+            "crystal": self.final_structure.as_dict(),
+            "efermi": self.efermi,
+        }
 
         if self.eigenvalues:
             eigen: dict[Any, Any] = defaultdict(dict)
@@ -2091,9 +2148,11 @@ class Outcar:
             for [n] in self.read_table_pattern(
                 r"\n{3}-{104}\n{3}",
                 r".+plane waves:\s+(\*{6,}|\d+)",
-                r"maximum number of plane-waves"
-                if serial_compilation
-                else r"maximum and minimum number of plane-waves",
+                (
+                    r"maximum number of plane-waves"
+                    if serial_compilation
+                    else r"maximum and minimum number of plane-waves"
+                ),
                 last_one_only=False,
                 first_one_only=True,
             )
@@ -2758,7 +2817,13 @@ class Outcar:
                 results.er_bp[Spin.up] = np.array([float(match[1]), float(match[2]), float(match[3])])
 
             spin_bp_pattern = r"^ *e<r>_bp=\( *([-0-9.Ee+]*) *([-0-9.Ee+]*) *([-0-9.Ee+]*) *\)"
-            search.append([spin_bp_pattern, lambda results, _line: results.context == Spin.up, er_bp_up])
+            search.append(
+                [
+                    spin_bp_pattern,
+                    lambda results, _line: results.context == Spin.up,
+                    er_bp_up,
+                ]
+            )
 
             def er_ev_dn(results, match):
                 results.er_ev[Spin.down] = np.array([float(match[1]), float(match[2]), float(match[3])])
@@ -2771,7 +2836,13 @@ class Outcar:
                 results.er_bp[Spin.down] = np.array([float(match[i]) for i in range(1, 4)])
 
             e_r_bp_pattern = r"^ *e<r>_bp=\( *([-0-9.Ee+]*) *([-0-9.Ee+]*) *([-0-9.Ee+]*) *\)"
-            search.append([e_r_bp_pattern, lambda results, _line: results.context == Spin.down, er_bp_dn])
+            search.append(
+                [
+                    e_r_bp_pattern,
+                    lambda results, _line: results.context == Spin.down,
+                    er_bp_dn,
+                ]
+            )
 
             # Always present spin/non-spin
             def p_elc(results, match):
@@ -2890,9 +2961,9 @@ class Outcar:
             search.append(
                 [
                     r"^ *([-0-9.Ee+]+) +([-0-9.Ee+]+) +([-0-9.Ee+]+) *$",
-                    lambda results, _line: results.dielectric_index >= 0
-                    if results.dielectric_index is not None
-                    else None,
+                    lambda results, _line: (
+                        results.dielectric_index >= 0 if results.dielectric_index is not None else None
+                    ),
                     dielectric_data,
                 ]
             )
@@ -2903,9 +2974,9 @@ class Outcar:
             search.append(
                 [
                     r"-------------------------------------",
-                    lambda results, _line: results.dielectric_index >= 1
-                    if results.dielectric_index is not None
-                    else None,
+                    lambda results, _line: (
+                        results.dielectric_index >= 1 if results.dielectric_index is not None else None
+                    ),
                     dielectric_section_stop,
                 ]
             )
@@ -2932,7 +3003,7 @@ class Outcar:
                 [
                     r"^ *[xyz] +([-0-9.Ee+]+) +([-0-9.Ee+]+)"
                     r" +([-0-9.Ee+]+) *([-0-9.Ee+]+) +([-0-9.Ee+]+) +([-0-9.Ee+]+)*$",
-                    lambda results, _line: results.piezo_index >= 0 if results.piezo_index is not None else None,
+                    lambda results, _line: (results.piezo_index >= 0 if results.piezo_index is not None else None),
                     piezo_data,
                 ]
             )
@@ -2943,7 +3014,7 @@ class Outcar:
             search.append(
                 [
                     r"-------------------------------------",
-                    lambda results, _line: results.piezo_index >= 1 if results.piezo_index is not None else None,
+                    lambda results, _line: (results.piezo_index >= 1 if results.piezo_index is not None else None),
                     piezo_section_stop,
                 ]
             )
@@ -2974,7 +3045,9 @@ class Outcar:
             search.append(
                 [
                     r"^ *([1-3]+) +([-0-9.Ee+]+) +([-0-9.Ee+]+) +([-0-9.Ee+]+)$",
-                    lambda results, _line: results.born_ion >= 0 if results.born_ion is not None else results.born_ion,
+                    lambda results, _line: (
+                        results.born_ion >= 0 if results.born_ion is not None else results.born_ion
+                    ),
                     born_data,
                 ]
             )
@@ -2985,7 +3058,9 @@ class Outcar:
             search.append(
                 [
                     r"-------------------------------------",
-                    lambda results, _line: results.born_ion >= 1 if results.born_ion is not None else results.born_ion,
+                    lambda results, _line: (
+                        results.born_ion >= 1 if results.born_ion is not None else results.born_ion
+                    ),
                     born_section_stop,
                 ]
             )
@@ -3028,9 +3103,11 @@ class Outcar:
             search.append(
                 [
                     r"-------------------------------------",
-                    lambda results, _line: results.dielectric_ionic_index == -1
-                    if results.dielectric_ionic_index is not None
-                    else results.dielectric_ionic_index,
+                    lambda results, _line: (
+                        results.dielectric_ionic_index == -1
+                        if results.dielectric_ionic_index is not None
+                        else results.dielectric_ionic_index
+                    ),
                     dielectric_section_start2,
                 ]
             )
@@ -3044,9 +3121,11 @@ class Outcar:
             search.append(
                 [
                     r"^ *([-0-9.Ee+]+) +([-0-9.Ee+]+) +([-0-9.Ee+]+) *$",
-                    lambda results, _line: results.dielectric_ionic_index >= 0
-                    if results.dielectric_ionic_index is not None
-                    else results.dielectric_ionic_index,
+                    lambda results, _line: (
+                        results.dielectric_ionic_index >= 0
+                        if results.dielectric_ionic_index is not None
+                        else results.dielectric_ionic_index
+                    ),
                     dielectric_data,
                 ]
             )
@@ -3057,9 +3136,11 @@ class Outcar:
             search.append(
                 [
                     r"-------------------------------------",
-                    lambda results, _line: results.dielectric_ionic_index >= 1
-                    if results.dielectric_ionic_index is not None
-                    else results.dielectric_ionic_index,
+                    lambda results, _line: (
+                        results.dielectric_ionic_index >= 1
+                        if results.dielectric_ionic_index is not None
+                        else results.dielectric_ionic_index
+                    ),
                     dielectric_section_stop,
                 ]
             )
@@ -3070,7 +3151,13 @@ class Outcar:
             def piezo_section_start(results, _match):
                 results.piezo_ionic_index = 0
 
-            search.append(["PIEZOELECTRIC TENSOR IONIC CONTR  for field in x, y, z        ", None, piezo_section_start])
+            search.append(
+                [
+                    "PIEZOELECTRIC TENSOR IONIC CONTR  for field in x, y, z        ",
+                    None,
+                    piezo_section_start,
+                ]
+            )
 
             def piezo_data(results, match):
                 results.piezo_ionic_tensor[results.piezo_ionic_index, :] = np.array(
@@ -3082,9 +3169,11 @@ class Outcar:
                 [
                     r"^ *[xyz] +([-0-9.Ee+]+) +([-0-9.Ee+]+)"
                     r" +([-0-9.Ee+]+) *([-0-9.Ee+]+) +([-0-9.Ee+]+) +([-0-9.Ee+]+)*$",
-                    lambda results, _line: results.piezo_ionic_index >= 0
-                    if results.piezo_ionic_index is not None
-                    else results.piezo_ionic_index,
+                    lambda results, _line: (
+                        results.piezo_ionic_index >= 0
+                        if results.piezo_ionic_index is not None
+                        else results.piezo_ionic_index
+                    ),
                     piezo_data,
                 ]
             )
@@ -3095,9 +3184,11 @@ class Outcar:
             search.append(
                 [
                     "-------------------------------------",
-                    lambda results, _line: results.piezo_ionic_index >= 1
-                    if results.piezo_ionic_index is not None
-                    else results.piezo_ionic_index,
+                    lambda results, _line: (
+                        results.piezo_ionic_index >= 1
+                        if results.piezo_ionic_index is not None
+                        else results.piezo_ionic_index
+                    ),
                     piezo_section_stop,
                 ]
             )
@@ -3233,7 +3324,12 @@ class Outcar:
                 results.zvals = map(float, re.findall(r"-?\d+\.\d*", zvals))
 
             search: list[list] = []
-            search.extend((["(?<=VRHFIN =)(.*)(?=:)", None, atom_symbols], ["^\\s+ZVAL.*=(.*)", None, zvals]))
+            search.extend(
+                (
+                    ["(?<=VRHFIN =)(.*)(?=:)", None, atom_symbols],
+                    ["^\\s+ZVAL.*=(.*)", None, zvals],
+                )
+            )
 
             micro_pyawk(self.filename, search, self)
 
@@ -3847,9 +3943,15 @@ class Procar(MSONable):
         eigenvalues_list, data_list, xyz_data_list = [], [], []
         phase_factors_list = []
         for filename in tqdm(filenames, desc="Reading PROCARs", unit="file", disable=len(filenames) == 1):
-            kpoints, weights, eigenvalues, occupancies, data, phase_factors, xyz_data = self._read(
-                filename, parsed_kpoints=parsed_kpoints
-            )
+            (
+                kpoints,
+                weights,
+                eigenvalues,
+                occupancies,
+                data,
+                phase_factors,
+                xyz_data,
+            ) = self._read(filename, parsed_kpoints=parsed_kpoints)
 
             # Append to respective lists
             occupancies_list.append(occupancies)
@@ -3864,7 +3966,11 @@ class Procar(MSONable):
         # nbands (axis = 2) could differ between arrays, so set missing values to zero:
         max_nbands = max(eig_dict[Spin.up].shape[1] for eig_dict in eigenvalues_list)
         for dict_array in itertools.chain(
-            occupancies_list, eigenvalues_list, data_list, xyz_data_list, phase_factors_list
+            occupancies_list,
+            eigenvalues_list,
+            data_list,
+            xyz_data_list,
+            phase_factors_list,
         ):
             if dict_array:
                 for key, array in dict_array.items():
@@ -4057,7 +4163,11 @@ class Procar(MSONable):
 
                     data = defaultdict(lambda: np.zeros((n_kpoints, n_bands, n_ions, len(headers))))
                     phase_factors = defaultdict(
-                        lambda: np.full((n_kpoints, n_bands, n_ions, len(headers)), np.nan, dtype=np.complex128)
+                        lambda: np.full(
+                            (n_kpoints, n_bands, n_ions, len(headers)),
+                            np.nan,
+                            dtype=np.complex128,
+                        )
                     )
                     if self.is_soc:  # dict keys are now "x", "y", "z" rather than Spin.up/down
                         xyz_data = defaultdict(lambda: np.zeros((n_kpoints, n_bands, n_ions, len(headers))))
@@ -4132,7 +4242,15 @@ class Procar(MSONable):
             # Update the parsed kpoints
             parsed_kpoints.update({kvec_spin_tuple[0] for kvec_spin_tuple in this_procar_parsed_kpoints})
 
-            return kpoints, weights, eigenvalues, occupancies, data, phase_factors, xyz_data
+            return (
+                kpoints,
+                weights,
+                eigenvalues,
+                occupancies,
+                data,
+                phase_factors,
+                xyz_data,
+            )
 
     def get_projection_on_elements(self, structure: Structure) -> dict[Spin, list[list[dict[str, float]]]]:
         """Get a dict of projections on elements.
@@ -5315,7 +5433,12 @@ class Eigenval:
         self,
     ) -> (
         tuple[float, float, float, bool]
-        | tuple[tuple[float, float], tuple[float, float], tuple[float, float], tuple[bool, bool]]
+        | tuple[
+            tuple[float, float],
+            tuple[float, float],
+            tuple[float, float],
+            tuple[bool, bool],
+        ]
     ):
         """Band properties from the eigenvalues as a tuple of
         (band gap, cbm, vbm, is_band_gap_direct).
@@ -5355,10 +5478,16 @@ class Eigenval:
 
         if self.separate_spins:
             return (
-                (max(cbm_spins[0] - vbm_spins[0], 0), max(cbm_spins[1] - vbm_spins[1], 0)),
+                (
+                    max(cbm_spins[0] - vbm_spins[0], 0),
+                    max(cbm_spins[1] - vbm_spins[1], 0),
+                ),
                 (cbm_spins[0], cbm_spins[1]),
                 (vbm_spins[0], vbm_spins[1]),
-                (vbm_spins_kpoints[0] == cbm_spins_kpoints[0], vbm_spins_kpoints[1] == cbm_spins_kpoints[1]),
+                (
+                    vbm_spins_kpoints[0] == cbm_spins_kpoints[0],
+                    vbm_spins_kpoints[1] == cbm_spins_kpoints[1],
+                ),
             )
         return max(cbm - vbm, 0), cbm, vbm, vbm_kpoint == cbm_kpoint
 
@@ -5603,7 +5732,13 @@ class WSWQ(MSONable):
         # NOTE: loop order (slow->fast) spin -> kpoint -> j -> i
         data = data.reshape((nspin, nkpoints, nbands, nbands))
         data = np.swapaxes(data, 2, 3)  # swap i and j
-        return cls(nspin=nspin, nkpoints=nkpoints, nbands=nbands, me_real=np.real(data), me_imag=np.imag(data))
+        return cls(
+            nspin=nspin,
+            nkpoints=nkpoints,
+            nbands=nbands,
+            me_real=np.real(data),
+            me_imag=np.imag(data),
+        )
 
 
 class UnconvergedVASPWarning(Warning):
@@ -5626,23 +5761,28 @@ class VaspDir(collections.abc.Mapping):
     """
 
     FILE_MAPPINGS: typing.ClassVar = {
-        "INCAR": Incar,
-        "POSCAR": Poscar,
+        n: globals()[n.capitalize()]
+        for n in [
+            "INCAR",
+            "POSCAR",
+            "KPOINTS",
+            "POTCAR",
+            "vasprun",
+            "OUTCAR",
+            "OSZICAR",
+            "CHGCAR",
+            "WAVECAR",
+            "WAVEDER",
+            "LOCPOT",
+            "XDATCAR",
+            "EIGENVAL",
+            "PROCAR",
+            "ELFCAR",
+            "DYNMAT",
+        ]
+    } | {
         "CONTCAR": Poscar,
-        "KPOINTS": Kpoints,
-        "POTCAR": Potcar,
-        "vasprun": Vasprun,
-        "OUTCAR": Outcar,
-        "OSZICAR": Oszicar,
-        "CHGCAR": Chgcar,
-        "WAVECAR": Wavecar,
-        "WAVEDER": Waveder,
-        "LOCPOT": Locpot,
-        "XDATCAR": Xdatcar,
-        "EIGENVAL": Eigenval,
-        "PROCAR": Procar,
-        "ELFCAR": Elfcar,
-        "DYNMAT": Dynmat,
+        "IBZKPT": Kpoints,
         "WSWQ": WSWQ,
     }
 
@@ -5651,8 +5791,10 @@ class VaspDir(collections.abc.Mapping):
         Args:
             dirname: The directory containing the VASP calculation as a string or Path.
         """
-        self.path = Path(dirname)
-        self.files = [f.name for f in self.path.iterdir() if f.is_file()]
+        self.path = Path(dirname).absolute()
+
+        # Note that py3.12 has Path.walk(). But we need to use os.walk to ensure backwards compatibility for now.
+        self.files = [Path(d) / f for d, _, fnames in os.walk(self.path) for f in fnames]
         self._parsed_files: dict[str, Any] = {}
 
     def reset(self):
@@ -5660,7 +5802,7 @@ class VaspDir(collections.abc.Mapping):
         Reset all loaded files and recheck the directory for files. Use this when the contents of the directory has
         changed.
         """
-        self.files = [f for f in self.path.iterdir() if f.is_file()]
+        self.files = [Path(d) / f for d, subd, fnames in os.walk(self.path) for f in fnames]
         self._parsed_files = {}
 
     def __len__(self):
@@ -5672,15 +5814,23 @@ class VaspDir(collections.abc.Mapping):
     def __getitem__(self, item):
         if item in self._parsed_files:
             return self._parsed_files[item]
+        fpath = self.path / item
+
+        if not (self.path / item).exists():
+            raise ValueError(f"{item} not found in {self.path}. List of files are {self.files}.")
+
         for k, cls_ in VaspDir.FILE_MAPPINGS.items():
             if k in item:
                 try:
-                    self._parsed_files[item] = cls_.from_file(self.path / item)
+                    self._parsed_files[item] = cls_.from_file(fpath)
                 except AttributeError:
-                    self._parsed_files[item] = cls_(self.path / item)
+                    self._parsed_files[item] = cls_(fpath)
 
                 return self._parsed_files[item]
-        if (self.path / item).exists():
-            raise RuntimeError(f"Unable to parse {item}. Supported files are {list(VaspDir.FILE_MAPPINGS.keys())}.")
 
-        raise ValueError(f"{item} not found in {self.path}. List of files are {self.files}.")
+        warnings.warn(
+            f"No parser defined for {item}. Contents are returned as a string.",
+            UserWarning,
+        )
+        with zopen(fpath, "rt") as f:
+            return f.read()

@@ -43,7 +43,12 @@ all_cg = AllCoordinationGeometries()
 class CoordinationEnvironmentMorphing:
     """Morph a coordination environment into another one."""
 
-    def __init__(self, initial_environment_symbol, expected_final_environment_symbol, morphing_description):
+    def __init__(
+        self,
+        initial_environment_symbol,
+        expected_final_environment_symbol,
+        morphing_description,
+    ):
         self.initial_environment_symbol = initial_environment_symbol
         self.expected_final_environment_symbol = expected_final_environment_symbol
         self.morphing_description = morphing_description
@@ -52,7 +57,10 @@ class CoordinationEnvironmentMorphing:
 
     @classmethod
     def simple_expansion(
-        cls, initial_environment_symbol, expected_final_environment_symbol, neighbors_indices
+        cls,
+        initial_environment_symbol,
+        expected_final_environment_symbol,
+        neighbors_indices,
     ) -> CoordinationEnvironmentMorphing:
         """Simple expansion of a coordination environment.
 
@@ -65,7 +73,11 @@ class CoordinationEnvironmentMorphing:
             CoordinationEnvironmentMorphing
         """
         morphing_description = [
-            {"ineighbor": nbr_idx, "site_type": "neighbor", "expansion_origin": "central_site"}
+            {
+                "ineighbor": nbr_idx,
+                "site_type": "neighbor",
+                "expansion_origin": "central_site",
+            }
             for nbr_idx in neighbors_indices
         ]
         return cls(
@@ -111,7 +123,10 @@ class CoordinationEnvironmentMorphing:
             se = lgf.compute_structure_environments(only_indices=[0], valences=fake_valences)
             strategy.set_structure_environments(structure_environments=se)
             result = strategy.get_site_coordination_environments_fractions(
-                site=se.structure[0], isite=0, return_strategy_dict_info=True, return_all=True
+                site=se.structure[0],
+                isite=0,
+                return_strategy_dict_info=True,
+                return_all=True,
             )
             for res in result:
                 if res["ce_symbol"] == self.initial_environment_symbol:
@@ -167,7 +182,10 @@ class CoordinationEnvironmentMorphing:
         return Structure(lattice=lattice, species=species, coords=coords, coords_are_cartesian=True)
 
     def estimate_parameters(self, dist_factor_min, dist_factor_max, symmetry_measure_type="csm_wcs_ctwcc"):
-        only_symbols = [self.initial_environment_symbol, self.expected_final_environment_symbol]
+        only_symbols = [
+            self.initial_environment_symbol,
+            self.expected_final_environment_symbol,
+        ]
         # Set up the local geometry finder
         lgf = LocalGeometryFinder()
         lgf.setup_parameters(structure_refinement=lgf.STRUCTURE_REFINEMENT_NONE)
@@ -211,10 +229,16 @@ class CoordinationEnvironmentMorphing:
         if not np.isclose(csm_final, 0.0, rtol=0.0, atol=1e-10):
             raise ValueError("Final coordination is not perfect !")
 
-        return {"delta_csm_min": csm_initial_min_dist, "self_weight_max_csm": csm_initial_max_dist}
+        return {
+            "delta_csm_min": csm_initial_min_dist,
+            "self_weight_max_csm": csm_initial_max_dist,
+        }
 
     def get_weights(self, weights_options):
-        effective_csm_estimator = {"function": "power2_inverse_decreasing", "options": {"max_csm": 8.0}}
+        effective_csm_estimator = {
+            "function": "power2_inverse_decreasing",
+            "options": {"max_csm": 8.0},
+        }
 
         self_weight_estimator = {
             "function": "power2_decreasing_exp",
@@ -222,7 +246,8 @@ class CoordinationEnvironmentMorphing:
         }
 
         self_csm_weight = SelfCSMNbSetWeight(
-            effective_csm_estimator=effective_csm_estimator, weight_estimator=self_weight_estimator
+            effective_csm_estimator=effective_csm_estimator,
+            weight_estimator=self_weight_estimator,
         )
 
         surface_definition = {
@@ -239,7 +264,10 @@ class CoordinationEnvironmentMorphing:
             additional_condition=DistanceAngleAreaNbSetWeight.AC.ONLY_ACB,
         )
 
-        weight_estimator = {"function": "smootherstep", "options": {"delta_csm_min": 0.5, "delta_csm_max": 3.0}}
+        weight_estimator = {
+            "function": "smootherstep",
+            "options": {"delta_csm_min": 0.5, "delta_csm_max": 3.0},
+        }
 
         symmetry_measure_type = "csm_wcs_ctwcc"
         delta_csm_weight = DeltaCSMNbSetWeight(
@@ -294,7 +322,9 @@ if __name__ == "__main__":
         min_dist = ce_pair_dict["dist_factor_min"]
         max_dist = ce_pair_dict["dist_factor_max"]
         morph = CoordinationEnvironmentMorphing.simple_expansion(
-            initial_environment_symbol=ce1, expected_final_environment_symbol=ce2, neighbors_indices=n_indices
+            initial_environment_symbol=ce1,
+            expected_final_environment_symbol=ce2,
+            neighbors_indices=n_indices,
         )
         params = morph.estimate_parameters(dist_factor_min=min_dist, dist_factor_max=max_dist)
         print(f"For pair {ce1} to {ce2}, parameters are : ")
@@ -311,7 +341,11 @@ if __name__ == "__main__":
     for idx, cn_pair in enumerate(all_cn_pairs):
         if len(self_weight_max_csms[cn_pair]) == 0:
             continue
-        ax.plot(idx * np.ones_like(self_weight_max_csms[cn_pair]), self_weight_max_csms[cn_pair], "rx")
+        ax.plot(
+            idx * np.ones_like(self_weight_max_csms[cn_pair]),
+            self_weight_max_csms[cn_pair],
+            "rx",
+        )
         ax.plot(idx * np.ones_like(delta_csm_mins[cn_pair]), delta_csm_mins[cn_pair], "b+")
 
     ax.set_xticks(range(len(all_cn_pairs)))
@@ -323,7 +357,9 @@ if __name__ == "__main__":
 
     for cn in range(1, 14):
         subplot2.plot(
-            cn * np.ones_like(self_weight_max_csms_per_cn[str(cn)]), self_weight_max_csms_per_cn[str(cn)], "rx"
+            cn * np.ones_like(self_weight_max_csms_per_cn[str(cn)]),
+            self_weight_max_csms_per_cn[str(cn)],
+            "rx",
         )
 
     subplot2.set_xticks(range(1, 14))

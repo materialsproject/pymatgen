@@ -113,7 +113,12 @@ class AimsGeometryIn(MSONable):
             structure = Molecule(species, coords, np.sum(charge), site_properties=site_props)
         else:
             structure = Structure(
-                lattice, species, coords, np.sum(charge), coords_are_cartesian=True, site_properties=site_props
+                lattice,
+                species,
+                coords,
+                np.sum(charge),
+                coords_are_cartesian=True,
+                site_properties=site_props,
             )
 
         return cls(_content="\n".join(content_lines), _structure=structure)
@@ -185,13 +190,15 @@ class AimsGeometryIn(MSONable):
         Args:
             filename (str): A name of the file for the header
         """
-        return textwrap.dedent(f"""\
+        return textwrap.dedent(
+            f"""\
         #{'=' * 72}
         # FHI-aims geometry file: {filename}
         # File generated from pymatgen
         # {time.asctime()}
         #{'=' * 72}
-        """)
+        """
+        )
 
     def write_file(self, directory: str | Path | None = None, overwrite: bool = False) -> None:
         """Write the geometry.in file.
@@ -415,7 +422,17 @@ class AimsCube(MSONable):
         Returns:
             AimsCube
         """
-        attrs = ("type", "origin", "edges", "points", "format", "spin_state", "kpoint", "filename", "elf_type")
+        attrs = (
+            "type",
+            "origin",
+            "edges",
+            "points",
+            "format",
+            "spin_state",
+            "kpoint",
+            "filename",
+            "elf_type",
+        )
         decoded = {key: MontyDecoder().process_decoded(dct[key]) for key in attrs}
 
         return cls(**decoded)
@@ -512,7 +529,10 @@ class AimsControlIn(MSONable):
         return f"{key:35s}{fmt % value}\n"
 
     def get_content(
-        self, structure: Structure | Molecule, verbose_header: bool = False, directory: str | Path | None = None
+        self,
+        structure: Structure | Molecule,
+        verbose_header: bool = False,
+        directory: str | Path | None = None,
     ) -> str:
         """Get the content of the file.
 
@@ -543,7 +563,10 @@ class AimsControlIn(MSONable):
             and np.all(magmom == 0.0)
             and ("default_initial_moment" not in parameters)
         ):
-            warn("Removing spin from parameters since no spin information is in the structure", RuntimeWarning)
+            warn(
+                "Removing spin from parameters since no spin information is in the structure",
+                RuntimeWarning,
+            )
             parameters.pop("spin")
 
         cubes = parameters.pop("cubes", None)
@@ -652,7 +675,10 @@ class AimsControlIn(MSONable):
             file.write(content)
 
     def get_species_block(
-        self, structure: Structure | Molecule, basis_set: str | dict[str, str], species_dir: str | Path | None = None
+        self,
+        structure: Structure | Molecule,
+        basis_set: str | dict[str, str],
+        species_dir: str | Path | None = None,
     ) -> str:
         """Get the basis set information for a structure
 
@@ -731,7 +757,12 @@ class AimsSpeciesFile:
 
     @classmethod
     def from_element_and_basis_name(
-        cls, element: str, basis: str, *, species_dir: str | Path | None = None, label: str | None = None
+        cls,
+        element: str,
+        basis: str,
+        *,
+        species_dir: str | Path | None = None,
+        label: str | None = None,
     ) -> Self:
         """Initialize from element and basis names.
 
@@ -777,7 +808,12 @@ class AimsSpeciesFile:
 
     def __str__(self) -> str:
         """String representation of the species' defaults file"""
-        return re.sub(r"^ *species +\w+", f"  species        {self.label}", self.data, flags=re.MULTILINE)
+        return re.sub(
+            r"^ *species +\w+",
+            f"  species        {self.label}",
+            self.data,
+            flags=re.MULTILINE,
+        )
 
     @property
     def element(self) -> str:
@@ -787,7 +823,12 @@ class AimsSpeciesFile:
 
     def as_dict(self) -> dict[str, Any]:
         """Dictionary representation of the species' defaults file."""
-        return {"label": self.label, "data": self.data, "@module": type(self).__module__, "@class": type(self).__name__}
+        return {
+            "label": self.label,
+            "data": self.data,
+            "@module": type(self).__module__,
+            "@class": type(self).__name__,
+        }
 
     @classmethod
     def from_dict(cls, dct: dict[str, Any]) -> Self:
@@ -855,7 +896,10 @@ class SpeciesDefaults(list, MSONable):
 
     @classmethod
     def from_structure(
-        cls, struct: Structure | Molecule, basis_set: str | dict[str, str], species_dir: str | Path | None = None
+        cls,
+        struct: Structure | Molecule,
+        basis_set: str | dict[str, str],
+        species_dir: str | Path | None = None,
     ):
         """Initialize species defaults from a structure."""
         labels = []

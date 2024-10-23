@@ -245,7 +245,14 @@ class TestPlanesUtils(PymatgenTest):
         distances, indices_sorted = self.plane.distances_indices_sorted(plist)
         assert_allclose(
             distances,
-            [0.5, 0, 1.16666666666666, 21.1666666666666, 3.8333333333333, 67.1666666666666],
+            [
+                0.5,
+                0,
+                1.16666666666666,
+                21.1666666666666,
+                3.8333333333333,
+                67.1666666666666,
+            ],
             atol=1e-9,
         )
         assert indices_sorted == [1, 0, 2, 4, 3, 5]
@@ -287,7 +294,18 @@ class TestPlanesUtils(PymatgenTest):
         assert groups == [[5, 0, 1, 2, 6, 7], [9, 4, 3], [8]]
         assert_allclose(distances, zzs)
         distances, indices_sorted, groups = plane.distances_indices_groups(points=plist, delta_factor=0.1, sign=True)
-        assert indices_sorted == [(5, 0), (0, 1), (1, -1), (2, 1), (6, -1), (7, -1), (9, 1), (4, -1), (3, -1), (8, -1)]
+        assert indices_sorted == [
+            (5, 0),
+            (0, 1),
+            (1, -1),
+            (2, 1),
+            (6, -1),
+            (7, -1),
+            (9, 1),
+            (4, -1),
+            (3, -1),
+            (8, -1),
+        ]
         assert groups == [
             [(5, 0), (0, 1), (1, -1), (2, 1), (6, -1), (7, -1)],
             [(9, 1), (4, -1), (3, -1)],

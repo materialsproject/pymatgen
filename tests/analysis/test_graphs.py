@@ -183,13 +183,19 @@ class TestStructureGraph(PymatgenTest):
         assert struct_copy == square_copy.structure
 
         square_copy.insert_node(
-            1, "O", [0.5, 0.5, 0.5], edges=[{"from_index": 1, "to_index": 0, "to_jimage": (0, 0, 0)}]
+            1,
+            "O",
+            [0.5, 0.5, 0.5],
+            edges=[{"from_index": 1, "to_index": 0, "to_jimage": (0, 0, 0)}],
         )
         assert square_copy.get_coordination_of_site(1) == 1
 
         # Test that StructureGraph.graph is correctly updated
         square_copy.insert_node(
-            1, "H", [0.5, 0.5, 0.75], edges=[{"from_index": 1, "to_index": 2, "to_jimage": (0, 0, 0)}]
+            1,
+            "H",
+            [0.5, 0.5, 0.75],
+            edges=[{"from_index": 1, "to_index": 2, "to_jimage": (0, 0, 0)}],
         )
         square_copy.remove_nodes([1])
 
@@ -344,7 +350,11 @@ from    to  to_image
     )
     def test_draw(self):
         # draw MoS2 graph
-        self.mos2_sg.draw_graph_to_file(f"{self.tmp_path}/MoS2_single.pdf", image_labels=True, hide_image_edges=False)
+        self.mos2_sg.draw_graph_to_file(
+            f"{self.tmp_path}/MoS2_single.pdf",
+            image_labels=True,
+            hide_image_edges=False,
+        )
         mos2_sg = self.mos2_sg * (9, 9, 1)
         mos2_sg.draw_graph_to_file(f"{self.tmp_path}/MoS2.pdf", algo="neato")
 
@@ -360,7 +370,12 @@ from    to  to_image
         # draw graph for a square lattice
         self.square_sg.draw_graph_to_file(f"{self.tmp_path}/square_single.pdf", hide_image_edges=False)
         square_sg = self.square_sg * (5, 5, 1)
-        square_sg.draw_graph_to_file(f"{self.tmp_path}/square.pdf", algo="neato", image_labels=True, node_labels=False)
+        square_sg.draw_graph_to_file(
+            f"{self.tmp_path}/square.pdf",
+            algo="neato",
+            image_labels=True,
+            node_labels=False,
+        )
 
         # draw graph for a body-centered square lattice
         self.bc_square_sg.draw_graph_to_file(f"{self.tmp_path}/bc_square_single.pdf", hide_image_edges=False)
@@ -463,7 +478,11 @@ from    to  to_image
 
     def test_no_duplicate_hops(self):
         test_structure = Structure(
-            lattice=[[2.990355, -5.149042, 0.0], [2.990355, 5.149042, 0.0], [0.0, 0.0, 24.51998]],
+            lattice=[
+                [2.990355, -5.149042, 0.0],
+                [2.990355, 5.149042, 0.0],
+                [0.0, 0.0, 24.51998],
+            ],
             species=["Ba"],
             coords=[[0.005572, 0.994428, 0.151095]],
         )
@@ -597,7 +616,8 @@ class TestMoleculeGraph(TestCase):
         # Check error message on using inappropriate strategy for molecules
         strategy = VoronoiNN()
         with pytest.raises(
-            ValueError, match=re.escape(f"{strategy=} is not designed for use with molecules! Choose another strategy")
+            ValueError,
+            match=re.escape(f"{strategy=} is not designed for use with molecules! Choose another strategy"),
         ):
             MoleculeGraph.from_local_env_strategy(self.pc, strategy)
 
@@ -689,7 +709,13 @@ class TestMoleculeGraph(TestCase):
 
         no_he = Molecule(
             ["C", "H", "H", "H", "H"],
-            [[0, 0, 0], [-0.3633, -0.5138, -0.8900], [1.0900, 0, 0], [-0.3633, 1.0277, 0], [-0.3633, -0.5138, -0.8900]],
+            [
+                [0, 0, 0],
+                [-0.3633, -0.5138, -0.8900],
+                [1.0900, 0, 0],
+                [-0.3633, 1.0277, 0],
+                [-0.3633, -0.5138, -0.8900],
+            ],
         )
 
         just_he = Molecule(["He"], [[5, 5, 5]])
@@ -735,7 +761,10 @@ class TestMoleculeGraph(TestCase):
         assert reactants[0] == self.ethylene
         assert reactants[1] == self.butadiene
 
-        with pytest.raises(MolGraphSplitError, match="Cannot split molecule; MoleculeGraph is still connected."):
+        with pytest.raises(
+            MolGraphSplitError,
+            match="Cannot split molecule; MoleculeGraph is still connected.",
+        ):
             self.cyclohexene.split_molecule_subgraphs([(0, 1)])
 
         # Test naive charge redistribution
@@ -881,7 +910,16 @@ class TestMoleculeGraph(TestCase):
         assert eth_copy_repl.get_coordination_of_site(5) == 4
         # Now swap one functional group for another
         eth_copy_repl.replace_group(5, "amine", MinimumDistanceNN)
-        assert list(map(str, eth_copy_repl.molecule.species)) == ["C", "C", "H", "H", "H", "N", "H", "H"]
+        assert list(map(str, eth_copy_repl.molecule.species)) == [
+            "C",
+            "C",
+            "H",
+            "H",
+            "H",
+            "N",
+            "H",
+            "H",
+        ]
         assert len(eth_copy_repl.graph.nodes) == 8
         # Amine nitrogen should have coordination 3
         assert eth_copy_repl.get_coordination_of_site(5) == 3
@@ -896,6 +934,18 @@ class TestMoleculeGraph(TestCase):
         sg = copy.deepcopy(self.ethylene)
         # insert an unsorted edge, don't use sg.add_edge as it auto-sorts
 
-        assert list(sg.graph.edges) == [(0, 1, 0), (0, 2, 0), (0, 3, 0), (1, 4, 0), (1, 5, 0)]
+        assert list(sg.graph.edges) == [
+            (0, 1, 0),
+            (0, 2, 0),
+            (0, 3, 0),
+            (1, 4, 0),
+            (1, 5, 0),
+        ]
         sg.sort()
-        assert list(sg.graph.edges) == [(4, 5, 0), (0, 4, 0), (1, 4, 0), (2, 5, 0), (3, 5, 0)]
+        assert list(sg.graph.edges) == [
+            (4, 5, 0),
+            (0, 4, 0),
+            (1, 4, 0),
+            (2, 5, 0),
+            (3, 5, 0),
+        ]

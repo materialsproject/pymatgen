@@ -43,7 +43,8 @@ class TestTransformedStructure(PymatgenTest):
         t_struct = TransformedStructure(struct, [])
         t_struct.append_transformation(SupercellTransformation.from_scaling_factors(2, 1, 1))
         alt = t_struct.append_transformation(
-            PartialRemoveSpecieTransformation("Si4+", 0.5, algo=PartialRemoveSpecieTransformation.ALGO_COMPLETE), 5
+            PartialRemoveSpecieTransformation("Si4+", 0.5, algo=PartialRemoveSpecieTransformation.ALGO_COMPLETE),
+            5,
         )
         assert len(alt) == 2
 

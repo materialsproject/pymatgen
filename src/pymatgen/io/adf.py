@@ -696,7 +696,12 @@ class AdfOutput:
                             parse_final = True
                     elif parse_cycle:
                         if match := coord_patt.search(line):
-                            sites.append([match.groups()[1], list(map(float, match.groups()[2:]))])
+                            sites.append(
+                                [
+                                    match.groups()[1],
+                                    list(map(float, match.groups()[2:])),
+                                ]
+                            )
                         elif match := energy_patt.search(line):
                             self.energies.append(float(match[1]))
                             mol = self._sites_to_mol(sites)

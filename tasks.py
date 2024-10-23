@@ -160,7 +160,8 @@ def update_changelog(ctx: Context, version: str | None = None, dry_run: bool = F
             pr_number = re_match[1]
             contributor, pr_name = re_match[2].split("/", 1)
             response = requests.get(
-                f"https://api.github.com/repos/materialsproject/pymatgen/pulls/{pr_number}", timeout=60
+                f"https://api.github.com/repos/materialsproject/pymatgen/pulls/{pr_number}",
+                timeout=60,
             )
             lines += [f"* PR #{pr_number} from @{contributor} {pr_name}"]
             json_resp = response.json()

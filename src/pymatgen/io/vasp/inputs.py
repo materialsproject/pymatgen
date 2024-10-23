@@ -261,7 +261,10 @@ class Poscar(MSONable):
             Poscar object.
         """
         if "check_for_POTCAR" in kwargs:
-            warnings.warn("check_for_POTCAR is deprecated. Use check_for_potcar instead.", DeprecationWarning)
+            warnings.warn(
+                "check_for_POTCAR is deprecated. Use check_for_potcar instead.",
+                DeprecationWarning,
+            )
             check_for_potcar = cast(bool, kwargs.pop("check_for_POTCAR"))
 
         dirname: str = os.path.dirname(os.path.abspath(filename))
@@ -455,7 +458,10 @@ class Poscar(MSONable):
             if selective_dynamics is not None:
                 # Warn when values contain suspicious entries
                 if any(value not in {"T", "F"} for value in tokens[3:6]):
-                    warnings.warn("Selective dynamics values must be either 'T' or 'F'.", BadPoscarWarning)
+                    warnings.warn(
+                        "Selective dynamics values must be either 'T' or 'F'.",
+                        BadPoscarWarning,
+                    )
 
                 # Warn when elements contains Fluorine (F) (#3539)
                 if atomic_symbols[idx] == "F" and len(tokens[3:]) >= 4 and "F" in tokens[3:7]:
@@ -472,7 +478,8 @@ class Poscar(MSONable):
         # Warn when ALL degrees of freedom relaxed (#3539)
         if selective_dynamics is not None and all(all(i is True for i in in_list) for in_list in selective_dynamics):
             warnings.warn(
-                "Ignoring selective dynamics tag, as no ionic degrees of freedom were fixed.", BadPoscarWarning
+                "Ignoring selective dynamics tag, as no ionic degrees of freedom were fixed.",
+                BadPoscarWarning,
             )
 
         struct = Structure(
@@ -734,7 +741,11 @@ class Incar(UserDict, MSONable):
         # Check for case-insensitive duplicate keys
         key_counter = Counter(key.strip().upper() for key in params)
         if duplicates := [key for key, count in key_counter.items() if count > 1]:
-            warnings.warn(f"Duplicate keys found (case-insensitive): {duplicates}", BadIncarWarning, stacklevel=2)
+            warnings.warn(
+                f"Duplicate keys found (case-insensitive): {duplicates}",
+                BadIncarWarning,
+                stacklevel=2,
+            )
 
         # If INCAR contains vector-like MAGMOMS given as a list
         # of floats, convert to a list of lists
@@ -1059,7 +1070,11 @@ class Incar(UserDict, MSONable):
         for tag, val in self.items():
             # Check if the tag exists
             if tag not in incar_params:
-                warnings.warn(f"Cannot find {tag} in the list of INCAR tags", BadIncarWarning, stacklevel=2)
+                warnings.warn(
+                    f"Cannot find {tag} in the list of INCAR tags",
+                    BadIncarWarning,
+                    stacklevel=2,
+                )
                 continue
 
             # Check value type
@@ -1077,7 +1092,11 @@ class Incar(UserDict, MSONable):
                     allowed_values = [item.capitalize() if isinstance(item, str) else item for item in allowed_values]
 
                 if val not in allowed_values:
-                    warnings.warn(f"{tag}: Cannot find {val} in the list of values", BadIncarWarning, stacklevel=2)
+                    warnings.warn(
+                        f"{tag}: Cannot find {val} in the list of values",
+                        BadIncarWarning,
+                        stacklevel=2,
+                    )
 
 
 class BadIncarWarning(UserWarning):
@@ -1315,7 +1334,13 @@ class Kpoints(MSONable):
         Returns:
             Kpoints
         """
-        return cls("Automatic kpoint scheme", 0, cls.supported_modes.Gamma, kpts=[kpts], kpts_shift=shift)
+        return cls(
+            "Automatic kpoint scheme",
+            0,
+            cls.supported_modes.Gamma,
+            kpts=[kpts],
+            kpts_shift=shift,
+        )
 
     @classmethod
     def monkhorst_automatic(cls, kpts: Tuple3Ints = (2, 2, 2), shift: Vector3D = (0, 0, 0)) -> Self:
@@ -1330,7 +1355,13 @@ class Kpoints(MSONable):
         Returns:
             Kpoints
         """
-        return cls("Automatic kpoint scheme", 0, cls.supported_modes.Monkhorst, kpts=[kpts], kpts_shift=shift)
+        return cls(
+            "Automatic kpoint scheme",
+            0,
+            cls.supported_modes.Monkhorst,
+            kpts=[kpts],
+            kpts_shift=shift,
+        )
 
     @classmethod
     def automatic_density(cls, structure: Structure, kppa: float, force_gamma: bool = False) -> Self:
@@ -1438,7 +1469,10 @@ class Kpoints(MSONable):
 
     @classmethod
     def automatic_density_by_lengths(
-        cls, structure: Structure, length_densities: Sequence[float], force_gamma: bool = False
+        cls,
+        structure: Structure,
+        length_densities: Sequence[float],
+        force_gamma: bool = False,
     ) -> Self:
         """Get an automatic Kpoints object based on a structure and a k-point
         density normalized by lattice constants.
@@ -1908,7 +1942,13 @@ class PotcarSingle:
             for line in lines[3:]:
                 if orbit := array_search.findall(line):
                     orbitals.append(
-                        Orbital(int(orbit[0]), int(orbit[1]), float(orbit[2]), float(orbit[3]), float(orbit[4]))
+                        Orbital(
+                            int(orbit[0]),
+                            int(orbit[1]),
+                            float(orbit[2]),
+                            float(orbit[3]),
+                            float(orbit[4]),
+                        )
                     )
             PSCTR["Orbitals"] = tuple(orbitals)
 
@@ -2168,7 +2208,11 @@ class PotcarSingle:
                 if self.TITEL.replace(" ", "") == titel_no_spc:
                     for potcar_subvariant in self._potcar_summary_stats[func][titel_no_spc]:
                         if self.VRHFIN.replace(" ", "") == potcar_subvariant["VRHFIN"]:
-                            possible_match = {"POTCAR_FUNCTIONAL": func, "TITEL": titel_no_spc, **potcar_subvariant}
+                            possible_match = {
+                                "POTCAR_FUNCTIONAL": func,
+                                "TITEL": titel_no_spc,
+                                **potcar_subvariant,
+                            }
                             possible_potcar_matches.append(possible_match)
 
         def parse_fortran_style_str(input_str: str) -> str | bool | float | int:
@@ -2788,7 +2832,14 @@ class VaspInput(dict, MSONable):
         """
         super().__init__(**kwargs)
         self._potcar_filename = "POTCAR" + (".spec" if potcar_spec else "")
-        self.update({"INCAR": Incar(incar), "KPOINTS": kpoints, "POSCAR": poscar, self._potcar_filename: potcar})
+        self.update(
+            {
+                "INCAR": Incar(incar),
+                "KPOINTS": kpoints,
+                "POSCAR": poscar,
+                self._potcar_filename: potcar,
+            }
+        )
         if optional_files is not None:
             self.update(optional_files)
 
@@ -2873,7 +2924,10 @@ class VaspInput(dict, MSONable):
 
         files_to_transfer = files_to_transfer or {}
         for key, val in files_to_transfer.items():
-            with zopen(val, "rb") as fin, zopen(str(Path(output_dir) / key), "wb") as fout:
+            with (
+                zopen(val, "rb") as fin,
+                zopen(str(Path(output_dir) / key), "wb") as fout,
+            ):
                 copyfileobj(fin, fout)
 
     @classmethod

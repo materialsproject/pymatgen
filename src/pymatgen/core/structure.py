@@ -62,7 +62,20 @@ if TYPE_CHECKING:
 
     from pymatgen.util.typing import CompositionLike, MillerIndex, PathLike, PbcLike, SpeciesLike
 
-FileFormats = Literal["cif", "poscar", "cssr", "json", "yaml", "yml", "xsf", "mcsqs", "res", "pwmat", "aims", ""]
+FileFormats = Literal[
+    "cif",
+    "poscar",
+    "cssr",
+    "json",
+    "yaml",
+    "yml",
+    "xsf",
+    "mcsqs",
+    "res",
+    "pwmat",
+    "aims",
+    "",
+]
 StructureSources = Literal["Materials Project", "COD"]
 
 
@@ -697,7 +710,11 @@ class SiteCollection(collections.abc.Sequence, ABC):
             for sp, occu in site.species.items():
                 sym = sp.symbol
                 oxi_state = getattr(sp, "oxi_state", None)
-                species = Species(sym, oxidation_state=oxi_state, spin=spins.get(str(sp), spins.get(sym)))
+                species = Species(
+                    sym,
+                    oxidation_state=oxi_state,
+                    spin=spins.get(str(sp), spins.get(sym)),
+                )
                 new_species[species] = occu
             site.species = Composition(new_species)
 
@@ -796,21 +813,23 @@ class SiteCollection(collections.abc.Sequence, ABC):
         self,
         calculator: Literal["M3GNet", "gfn2-xtb"] | Calculator,
         relax_cell: bool = True,
-        optimizer: Literal[
-            "BFGS",
-            "BFGSLineSearch",
-            "CellAwareBFGS",
-            "FIRE",
-            "FIRE2",
-            "GPMin",
-            "GoodOldQuasiNewton",
-            "LBFGS",
-            "LBFGSLineSearch",
-            "MDMin",
-            "ODE12r",
-            "QuasiNewton",
-        ]
-        | Optimizer = "FIRE",
+        optimizer: (
+            Literal[
+                "BFGS",
+                "BFGSLineSearch",
+                "CellAwareBFGS",
+                "FIRE",
+                "FIRE2",
+                "GPMin",
+                "GoodOldQuasiNewton",
+                "LBFGS",
+                "LBFGSLineSearch",
+                "MDMin",
+                "ODE12r",
+                "QuasiNewton",
+            ]
+            | Optimizer
+        ) = "FIRE",
         steps: int = 500,
         fmax: float = 0.1,
         stress_weight: float = 0.01,
@@ -848,7 +867,10 @@ class SiteCollection(collections.abc.Sequence, ABC):
         opt_kwargs = opt_kwargs or {}
         is_molecule = isinstance(self, Molecule)
         # UIP=universal interatomic potential
-        run_uip = isinstance(calculator, str) and calculator.lower() in ("m3gnet", "chgnet")
+        run_uip = isinstance(calculator, str) and calculator.lower() in (
+            "m3gnet",
+            "chgnet",
+        )
 
         calc_params = {} if is_molecule else dict(stress_weight=stress_weight)
         calculator = self._prep_calculator(calculator, **calc_params)
@@ -1454,7 +1476,13 @@ class IStructure(SiteCollection, MSONable):
 
         all_site_properties["magmom"] = all_magmoms
 
-        return cls(lattice, all_sp, all_coords, site_properties=all_site_properties, labels=all_labels)
+        return cls(
+            lattice,
+            all_sp,
+            all_coords,
+            site_properties=all_site_properties,
+            labels=all_labels,
+        )
 
     def unset_charge(self) -> None:
         """Reset the charge to None. E.g. to compute it dynamically based on oxidation states."""
@@ -1546,7 +1574,10 @@ class IStructure(SiteCollection, MSONable):
         from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
 
         spg_analyzer = SpacegroupAnalyzer(self, symprec=symprec, angle_tolerance=angle_tolerance)
-        return spg_analyzer.get_space_group_symbol(), spg_analyzer.get_space_group_number()
+        return (
+            spg_analyzer.get_space_group_symbol(),
+            spg_analyzer.get_space_group_number(),
+        )
 
     def matches(
         self,
@@ -1805,7 +1836,12 @@ class IStructure(SiteCollection, MSONable):
             if exclude_self:
                 self_pair = (center_indices == points_indices) & (distances <= numerical_tol)
                 cond = ~self_pair
-            return center_indices[cond], points_indices[cond], images[cond], distances[cond]
+            return (
+                center_indices[cond],
+                points_indices[cond],
+                images[cond],
+                distances[cond],
+            )
 
     def get_symmetric_neighbor_list(
         self,
@@ -1892,7 +1928,12 @@ class IStructure(SiteCollection, MSONable):
             # Delete the redundant neighbors
             m = ~np.isin(np.arange(len(bonds[0])), redundant)
             idcs_dist = np.argsort(bonds[3][m])
-            bonds = (bonds[0][m][idcs_dist], bonds[1][m][idcs_dist], bonds[2][m][idcs_dist], bonds[3][m][idcs_dist])
+            bonds = (
+                bonds[0][m][idcs_dist],
+                bonds[1][m][idcs_dist],
+                bonds[2][m][idcs_dist],
+                bonds[3][m][idcs_dist],
+            )
 
         # Expand the output tuple by symmetry_indices and symmetry_ops.
         n_bonds = len(bonds[0])
@@ -1931,14 +1972,22 @@ class IStructure(SiteCollection, MSONable):
                             elif are_related:
                                 symmetry_indices[jdx] = symmetry_index
                                 symmetry_ops[jdx] = op
-                                bonds[0][jdx], bonds[1][jdx] = bonds[1][jdx], bonds[0][jdx]
+                                bonds[0][jdx], bonds[1][jdx] = (
+                                    bonds[1][jdx],
+                                    bonds[0][jdx],
+                                )
                                 bonds[2][jdx] = -bonds[2][jdx]
 
                 symmetry_index += 1
 
         # The bonds are ordered by their symmetry index
         idcs_symid = np.argsort(symmetry_indices)
-        bonds = (bonds[0][idcs_symid], bonds[1][idcs_symid], bonds[2][idcs_symid], bonds[3][idcs_symid])
+        bonds = (
+            bonds[0][idcs_symid],
+            bonds[1][idcs_symid],
+            bonds[2][idcs_symid],
+            bonds[3][idcs_symid],
+        )
         symmetry_indices = symmetry_indices[idcs_symid]
         symmetry_ops = symmetry_ops[idcs_symid]
 
@@ -1951,7 +2000,10 @@ class IStructure(SiteCollection, MSONable):
             first_idx = np.argmax(symmetry_indices == symmetry_idx)
             for second_idx in identity_idcs:
                 if symmetry_indices[second_idx] == symmetry_idx:
-                    idcs_symop[first_idx], idcs_symop[second_idx] = idcs_symop[second_idx], idcs_symop[first_idx]
+                    idcs_symop[first_idx], idcs_symop[second_idx] = (
+                        idcs_symop[second_idx],
+                        idcs_symop[first_idx],
+                    )
 
         return (
             bonds[0][idcs_symop],
@@ -2458,7 +2510,13 @@ class IStructure(SiteCollection, MSONable):
                 lattice = self.lattice
             frac_coords = start_coords + x * vec
             structs.append(
-                type(self)(lattice, sp, frac_coords, site_properties=self.site_properties, labels=self.labels)
+                type(self)(
+                    lattice,
+                    sp,
+                    frac_coords,
+                    site_properties=self.site_properties,
+                    labels=self.labels,
+                )
             )
         return structs
 
@@ -2683,7 +2741,9 @@ class IStructure(SiteCollection, MSONable):
 
                     # Default behavior
                     primitive = struct.get_primitive_structure(
-                        tolerance=tolerance, use_site_props=use_site_props, constrain_latt=constrain_latt
+                        tolerance=tolerance,
+                        use_site_props=use_site_props,
+                        constrain_latt=constrain_latt,
                     ).get_reduced_structure()
                     if not constrain_latt:
                         return primitive
@@ -3116,9 +3176,23 @@ class IStructure(SiteCollection, MSONable):
         with zopen(filename, mode="rt", errors="replace") as file:
             contents = file.read()
         if fnmatch(fname.lower(), "*.cif*") or fnmatch(fname.lower(), "*.mcif*"):
-            return cls.from_str(contents, fmt="cif", primitive=primitive, sort=sort, merge_tol=merge_tol, **kwargs)
+            return cls.from_str(
+                contents,
+                fmt="cif",
+                primitive=primitive,
+                sort=sort,
+                merge_tol=merge_tol,
+                **kwargs,
+            )
         if fnmatch(fname, "*POSCAR*") or fnmatch(fname, "*CONTCAR*") or fnmatch(fname, "*.vasp"):
-            struct = cls.from_str(contents, fmt="poscar", primitive=primitive, sort=sort, merge_tol=merge_tol, **kwargs)
+            struct = cls.from_str(
+                contents,
+                fmt="poscar",
+                primitive=primitive,
+                sort=sort,
+                merge_tol=merge_tol,
+                **kwargs,
+            )
 
         elif fnmatch(fname, "CHGCAR*") or fnmatch(fname, "LOCPOT*"):
             from pymatgen.io.vasp import Chgcar
@@ -3129,25 +3203,67 @@ class IStructure(SiteCollection, MSONable):
 
             struct = Vasprun(filename, **kwargs).final_structure
         elif fnmatch(fname.lower(), "*.cssr*"):
-            return cls.from_str(contents, fmt="cssr", primitive=primitive, sort=sort, merge_tol=merge_tol, **kwargs)
+            return cls.from_str(
+                contents,
+                fmt="cssr",
+                primitive=primitive,
+                sort=sort,
+                merge_tol=merge_tol,
+                **kwargs,
+            )
         elif fnmatch(fname, "*.json*") or fnmatch(fname, "*.mson*"):
-            return cls.from_str(contents, fmt="json", primitive=primitive, sort=sort, merge_tol=merge_tol, **kwargs)
+            return cls.from_str(
+                contents,
+                fmt="json",
+                primitive=primitive,
+                sort=sort,
+                merge_tol=merge_tol,
+                **kwargs,
+            )
         elif fnmatch(fname, "*.yaml*") or fnmatch(fname, "*.yml*"):
-            return cls.from_str(contents, fmt="yaml", primitive=primitive, sort=sort, merge_tol=merge_tol, **kwargs)
+            return cls.from_str(
+                contents,
+                fmt="yaml",
+                primitive=primitive,
+                sort=sort,
+                merge_tol=merge_tol,
+                **kwargs,
+            )
         elif fnmatch(fname, "*.xsf"):
-            return cls.from_str(contents, fmt="xsf", primitive=primitive, sort=sort, merge_tol=merge_tol, **kwargs)
+            return cls.from_str(
+                contents,
+                fmt="xsf",
+                primitive=primitive,
+                sort=sort,
+                merge_tol=merge_tol,
+                **kwargs,
+            )
         elif fnmatch(fname, "input*.xml"):
             from pymatgen.io.exciting import ExcitingInput
 
             return ExcitingInput.from_file(fname, **kwargs).structure
         elif fnmatch(fname, "*rndstr.in*") or fnmatch(fname, "*lat.in*") or fnmatch(fname, "*bestsqs*"):
-            return cls.from_str(contents, fmt="mcsqs", primitive=primitive, sort=sort, merge_tol=merge_tol, **kwargs)
+            return cls.from_str(
+                contents,
+                fmt="mcsqs",
+                primitive=primitive,
+                sort=sort,
+                merge_tol=merge_tol,
+                **kwargs,
+            )
         elif fnmatch(fname, "CTRL*"):
             from pymatgen.io.lmto import LMTOCtrl
 
             return LMTOCtrl.from_file(filename=filename, **kwargs).structure
         elif fnmatch(fname, "geometry.in*"):
-            return cls.from_str(contents, fmt="aims", primitive=primitive, sort=sort, merge_tol=merge_tol, **kwargs)
+            return cls.from_str(
+                contents,
+                fmt="aims",
+                primitive=primitive,
+                sort=sort,
+                merge_tol=merge_tol,
+                **kwargs,
+            )
         elif fnmatch(fname, "inp*.xml") or fnmatch(fname, "*.in*") or fnmatch(fname, "inp_*"):
             from pymatgen.io.fleur import FleurInput
 
@@ -3517,7 +3633,13 @@ class IMolecule(SiteCollection, MSONable):
                 angle = self.get_angle(idx, nn[0], nn[1])
                 dih = self.get_dihedral(idx, nn[0], nn[1], nn[2])
                 output.append(f"{sp} {nn[0] + 1} B{idx} {nn[1] + 1} A{idx} {nn[2] + 1} D{idx}")
-                output_var.extend((f"B{idx}={bond_length:.6f}", f"A{idx}={angle:.6f}", f"D{idx}={dih:.6f}"))
+                output_var.extend(
+                    (
+                        f"B{idx}={bond_length:.6f}",
+                        f"A{idx}={angle:.6f}",
+                        f"D{idx}={dih:.6f}",
+                    )
+                )
         return "\n".join(output) + "\n\n" + "\n".join(output_var)
 
     def as_dict(self) -> dict:
@@ -3551,7 +3673,12 @@ class IMolecule(SiteCollection, MSONable):
         charge = dct.get("charge", 0)
         spin_multiplicity = dct.get("spin_multiplicity")
         properties = dct.get("properties")
-        return cls.from_sites(sites, charge=charge, spin_multiplicity=spin_multiplicity, properties=properties)
+        return cls.from_sites(
+            sites,
+            charge=charge,
+            spin_multiplicity=spin_multiplicity,
+            properties=properties,
+        )
 
     def get_distance(self, i: int, j: int) -> float:
         """Get distance between site i and j.
@@ -3579,7 +3706,16 @@ class IMolecule(SiteCollection, MSONable):
         for idx, site in enumerate(self._sites):
             dist = site.distance_from_point(pt)
             if dist <= r:
-                neighbors.append(Neighbor(site.species, site.coords, site.properties, dist, idx, label=site.label))
+                neighbors.append(
+                    Neighbor(
+                        site.species,
+                        site.coords,
+                        site.properties,
+                        dist,
+                        idx,
+                        label=site.label,
+                    )
+                )
         return neighbors
 
     def get_neighbors(self, site: Site, r: float) -> list[Neighbor]:
@@ -3827,7 +3963,10 @@ class IMolecule(SiteCollection, MSONable):
         Returns:
             IMolecule or Molecule.
         """
-        fmt = cast(Literal["xyz", "gjf", "g03", "g09", "com", "inp", "json", "yaml"], fmt.lower())
+        fmt = cast(
+            Literal["xyz", "gjf", "g03", "g09", "com", "inp", "json", "yaml"],
+            fmt.lower(),
+        )
 
         if fmt == "xyz":
             from pymatgen.io.xyz import XYZ
@@ -4261,7 +4400,13 @@ class Structure(IStructure, collections.abc.MutableSequence):
         # group.
         del self[index]
         for site in fgroup[1:]:
-            s_new = PeriodicSite(site.species, site.coords, self.lattice, coords_are_cartesian=True, label=site.label)
+            s_new = PeriodicSite(
+                site.species,
+                site.coords,
+                self.lattice,
+                coords_are_cartesian=True,
+                label=site.label,
+            )
             self._sites.append(s_new)
 
         return self
@@ -4335,6 +4480,7 @@ class Structure(IStructure, collections.abc.MutableSequence):
                     skip_checks=True,
                     label=site.label,
                 )
+
         else:
             self._lattice = Lattice([symm_op.apply_rotation_only(row) for row in self._lattice.matrix])
 
@@ -4710,29 +4856,54 @@ class Structure(IStructure, collections.abc.MutableSequence):
                 return cls.from_spacegroup("Im-3m", Lattice.cubic(kwargs["a"]), species, [[0, 0, 0]])
             if prototype == "hcp":
                 return cls.from_spacegroup(
-                    "P6_3/mmc", Lattice.hexagonal(kwargs["a"], kwargs["c"]), species, [[1 / 3, 2 / 3, 1 / 4]]
+                    "P6_3/mmc",
+                    Lattice.hexagonal(kwargs["a"], kwargs["c"]),
+                    species,
+                    [[1 / 3, 2 / 3, 1 / 4]],
                 )
             if prototype == "diamond":
                 return cls.from_spacegroup("Fd-3m", Lattice.cubic(kwargs["a"]), species, [[0, 0, 0]])
             if prototype == "rocksalt":
-                return cls.from_spacegroup("Fm-3m", Lattice.cubic(kwargs["a"]), species, [[0, 0, 0], [0.5, 0.5, 0]])
+                return cls.from_spacegroup(
+                    "Fm-3m",
+                    Lattice.cubic(kwargs["a"]),
+                    species,
+                    [[0, 0, 0], [0.5, 0.5, 0]],
+                )
             if prototype == "perovskite":
                 return cls.from_spacegroup(
-                    "Pm-3m", Lattice.cubic(kwargs["a"]), species, [[0, 0, 0], [0.5, 0.5, 0.5], [0.5, 0.5, 0]]
+                    "Pm-3m",
+                    Lattice.cubic(kwargs["a"]),
+                    species,
+                    [[0, 0, 0], [0.5, 0.5, 0.5], [0.5, 0.5, 0]],
                 )
             if prototype == "cscl":
-                return cls.from_spacegroup("Pm-3m", Lattice.cubic(kwargs["a"]), species, [[0, 0, 0], [0.5, 0.5, 0.5]])
+                return cls.from_spacegroup(
+                    "Pm-3m",
+                    Lattice.cubic(kwargs["a"]),
+                    species,
+                    [[0, 0, 0], [0.5, 0.5, 0.5]],
+                )
             if prototype in {"fluorite", "caf2"}:
                 return cls.from_spacegroup(
-                    "Fm-3m", Lattice.cubic(kwargs["a"]), species, [[0, 0, 0], [1 / 4, 1 / 4, 1 / 4]]
+                    "Fm-3m",
+                    Lattice.cubic(kwargs["a"]),
+                    species,
+                    [[0, 0, 0], [1 / 4, 1 / 4, 1 / 4]],
                 )
             if prototype == "antifluorite":
                 return cls.from_spacegroup(
-                    "Fm-3m", Lattice.cubic(kwargs["a"]), species, [[1 / 4, 1 / 4, 1 / 4], [0, 0, 0]]
+                    "Fm-3m",
+                    Lattice.cubic(kwargs["a"]),
+                    species,
+                    [[1 / 4, 1 / 4, 1 / 4], [0, 0, 0]],
                 )
             if prototype == "zincblende":
                 return cls.from_spacegroup(
-                    "F-43m", Lattice.cubic(kwargs["a"]), species, [[0, 0, 0], [1 / 4, 1 / 4, 3 / 4]]
+                    "F-43m",
+                    Lattice.cubic(kwargs["a"]),
+                    species,
+                    [[0, 0, 0], [1 / 4, 1 / 4, 3 / 4]],
                 )
 
         except KeyError as exc:
@@ -4956,7 +5127,14 @@ class Molecule(IMolecule, collections.abc.MutableSequence):
         for site in self:
             new_sp_occu = {sp: amt for sp, amt in site.species.items() if sp not in species}
             if len(new_sp_occu) > 0:
-                new_sites.append(Site(new_sp_occu, site.coords, properties=site.properties, label=site.label))
+                new_sites.append(
+                    Site(
+                        new_sp_occu,
+                        site.coords,
+                        properties=site.properties,
+                        label=site.label,
+                    )
+                )
         self.sites = new_sites
         return self
 
@@ -4994,7 +5172,12 @@ class Molecule(IMolecule, collections.abc.MutableSequence):
             vector = [0, 0, 0]
         for idx in indices:
             site = self[idx]
-            new_site = Site(site.species, site.coords + vector, properties=site.properties, label=site.label)
+            new_site = Site(
+                site.species,
+                site.coords + vector,
+                properties=site.properties,
+                label=site.label,
+            )
             self[idx] = new_site
         return self
 
@@ -5147,7 +5330,10 @@ class Molecule(IMolecule, collections.abc.MutableSequence):
             functional_group = functional_group.copy()
             vec = functional_group[0].coords - functional_group[1].coords
             vec /= np.linalg.norm(vec)
-            functional_group[0] = "X", functional_group[1].coords + float(bond_len) * vec
+            functional_group[0] = (
+                "X",
+                functional_group[1].coords + float(bond_len) * vec,
+            )
 
         # Align X to the origin.
         x = functional_group[0]

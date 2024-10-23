@@ -139,9 +139,21 @@ class TestTensor(PymatgenTest):
         assert_allclose(
             new_tensor,
             [
-                [[-0.871, -2.884, -1.928], [-2.152, -6.665, -4.196], [-1.026, -2.830, -1.572]],
-                [[0.044, 1.531, 1.804], [4.263, 21.008, 17.928], [5.170, 23.026, 18.722]],
-                [[1.679, 7.268, 5.821], [9.268, 38.321, 29.919], [8.285, 33.651, 26.000]],
+                [
+                    [-0.871, -2.884, -1.928],
+                    [-2.152, -6.665, -4.196],
+                    [-1.026, -2.830, -1.572],
+                ],
+                [
+                    [0.044, 1.531, 1.804],
+                    [4.263, 21.008, 17.928],
+                    [5.170, 23.026, 18.722],
+                ],
+                [
+                    [1.679, 7.268, 5.821],
+                    [9.268, 38.321, 29.919],
+                    [8.285, 33.651, 26.000],
+                ],
             ],
             3,
         )
@@ -226,7 +238,10 @@ class TestTensor(PymatgenTest):
         assert_allclose(rotated, transformed)
 
     def test_from_voigt(self):
-        with pytest.raises(ValueError, match="The requested array has an inhomogeneous shape after 1 dimensions."):
+        with pytest.raises(
+            ValueError,
+            match="The requested array has an inhomogeneous shape after 1 dimensions.",
+        ):
             Tensor.from_voigt(
                 [
                     [59.33, 28.08, 28.08, 0],
@@ -482,7 +497,10 @@ class TestSquareTensor(PymatgenTest):
             match="Pymatgen only supports 3-dimensional tensors, and default tensor constructor uses standard notation",
         ):
             SquareTensor(non_sq_matrix)
-        with pytest.raises(ValueError, match="The requested array has an inhomogeneous shape after 1 dimensions."):
+        with pytest.raises(
+            ValueError,
+            match="The requested array has an inhomogeneous shape after 1 dimensions.",
+        ):
             SquareTensor(bad_matrix)
         with pytest.raises(ValueError, match="SquareTensor input must be rank 2"):
             SquareTensor(too_high_rank)

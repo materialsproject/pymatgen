@@ -39,7 +39,7 @@ class TransformedStructure(MSONable):
     def __init__(
         self,
         structure: Structure,
-        transformations: AbstractTransformation | Sequence[AbstractTransformation] | None = None,
+        transformations: (AbstractTransformation | Sequence[AbstractTransformation] | None) = None,
         history: list[AbstractTransformation | dict[str, Any]] | None = None,
         other_parameters: dict[str, Any] | None = None,
     ) -> None:
