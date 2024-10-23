@@ -952,7 +952,7 @@ class JDFTXOutfileSlice(ClassPrintFormatter):
             settings object
         """
         settings_dict = self._create_settings_dict(text, settings_class.start_flag)
-        return settings_class(**settings_dict) if len(settings_dict) else None
+        return settings_class(params=settings_dict) if len(settings_dict) else None
 
     def set_min_settings(self, text: list[str]) -> None:
         """Set the settings objects from the out file text.
@@ -983,10 +983,11 @@ class JDFTXOutfileSlice(ClassPrintFormatter):
         self.set_min_settings(text)
         if self.jsettings_ionic is None or self.jsettings_lattice is None:
             raise ValueError("Unknown issue in setting settings objects")
-        if self.jsettings_lattice.niterations > 0:
+        if int(self.jsettings_lattice.params["niterations"]) > 0:
             self.geom_opt = True
             self.geom_opt_type = "lattice"
-        elif self.jsettings_ionic.niterations > 0:
+        elif int(self.jsettings_ionic.params["niterations"]) > 0:
+            # elif self.jsettings_ionic.niterations > 0:
             self.geom_opt = True
             self.geom_opt_type = "ionic"
         else:
