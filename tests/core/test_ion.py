@@ -39,6 +39,8 @@ class TestIon(TestCase):
         assert Ion.from_formula("Ca++").charge == 2
         assert Ion.from_formula("Ca[++]").charge == 2
         assert Ion.from_formula("Ca2+").charge == 1
+        assert Ion.from_formula("C2O4-2").charge == -2
+        assert Ion.from_formula("CO2").charge == 0
 
         assert Ion.from_formula("Cl-").charge == -1
         assert Ion.from_formula("Cl[-]").charge == -1
@@ -70,7 +72,9 @@ class TestIon(TestCase):
             ("CH3COOH", "CH3COOH(aq)"),
             ("CH3OH", "CH3OH(aq)"),
             ("H4CO", "CH3OH(aq)"),
-            ("CO2-", "C2O4[-2]"),
+            ("C2O4--", "C2O4[-2]"),
+            ("CO2", "CO2(aq)"),
+            ("CO3--", "CO3[-2]"),
             ("CH4", "CH4(aq)"),
             ("NH4+", "NH4[+1]"),
             ("NH3", "NH3(aq)"),
@@ -89,7 +93,10 @@ class TestIon(TestCase):
 
         assert Ion.from_formula("Fe(OH)4+").get_reduced_formula_and_factor(hydrates=True) == ("FeO2.2H2O", 1)
         assert Ion.from_formula("Zr(OH)4").get_reduced_formula_and_factor(hydrates=True) == ("ZrO2.2H2O", 1)
-        assert Ion.from_formula("O").get_reduced_formula_and_factor(hydrates=False) == ("O", 1)
+        assert Ion.from_formula("O").get_reduced_formula_and_factor(hydrates=False) == (
+            "O",
+            1,
+        )
         assert Ion.from_formula("O2").get_reduced_formula_and_factor(hydrates=False) == ("O2", 1)
         assert Ion.from_formula("O3").get_reduced_formula_and_factor(hydrates=False) == ("O3", 1)
         assert Ion.from_formula("O6").get_reduced_formula_and_factor(hydrates=False) == ("O3", 2)

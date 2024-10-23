@@ -124,7 +124,13 @@ class NEBAnalysis(MSONable):
                 forces.append(outcar.data["tangent_force"])
         forces = np.array(forces)
         rms_dist = np.array(rms_dist)
-        return cls(r=rms_dist, energies=energies, forces=forces, structures=structures, **kwargs)
+        return cls(
+            r=rms_dist,
+            energies=energies,
+            forces=forces,
+            structures=structures,
+            **kwargs,
+        )
 
     def get_extrema(self, normalize_rxn_coordinate=True):
         """Get the positions of the extrema along the MEP. Both local
@@ -167,7 +173,16 @@ class NEBAnalysis(MSONable):
         xs = np.arange(0, np.max(self.r), 0.01)
         ys = self.spline(xs) * 1000
         relative_energies = self.energies - self.energies[0]
-        ax.plot(self.r * scale, relative_energies * 1000, "ro", xs * scale, ys, "k-", linewidth=2, markersize=10)
+        ax.plot(
+            self.r * scale,
+            relative_energies * 1000,
+            "ro",
+            xs * scale,
+            ys,
+            "k-",
+            linewidth=2,
+            markersize=10,
+        )
 
         ax.set_xlabel("Reaction Coordinate")
         ax.set_ylabel("Energy (meV)")

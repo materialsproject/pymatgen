@@ -237,7 +237,11 @@ class DftSet(Cp2kInput):
         self.insert(global_sec)
 
         # Build the QS Section
-        qs = QS(method=self.qs_method, eps_default=eps_default, eps_pgf_orb=kwargs.get("eps_pgf_orb"))
+        qs = QS(
+            method=self.qs_method,
+            eps_default=eps_default,
+            eps_pgf_orb=kwargs.get("eps_pgf_orb"),
+        )
         max_scf = max_scf or 20 if ot else 400  # If ot, max_scf is for inner loop
         scf = Scf(eps_scf=eps_scf, max_scf=max_scf, subsections={})
 
@@ -395,7 +399,8 @@ class DftSet(Cp2kInput):
         functional = basis_and_potential.get("functional", SETTINGS.get("PMG_DEFAULT_CP2K_FUNCTIONAL"))
         basis_type = basis_and_potential.get("basis_type", SETTINGS.get("PMG_DEFAULT_CP2K_BASIS_TYPE"))
         potential_type = basis_and_potential.get(
-            "potential_type", SETTINGS.get("PMG_DEFAULT_POTENTIAL_TYPE", "Pseudopotential")
+            "potential_type",
+            SETTINGS.get("PMG_DEFAULT_POTENTIAL_TYPE", "Pseudopotential"),
         )
         aux_basis_type = basis_and_potential.get("aux_basis_type", SETTINGS.get("PMG_DEFAULT_CP2K_AUX_BASIS_TYPE"))
 
@@ -408,7 +413,10 @@ class DftSet(Cp2kInput):
 
             # Necessary if matching data to CP2K data files
             if have_element_file:
-                with open(os.path.join(SETTINGS.get("PMG_CP2K_DATA_DIR", "."), el), encoding="utf-8") as file:
+                with open(
+                    os.path.join(SETTINGS.get("PMG_CP2K_DATA_DIR", "."), el),
+                    encoding="utf-8",
+                ) as file:
                     yaml = YAML(typ="unsafe", pure=True)
                     DATA = yaml.load(file)
                     if not DATA.get("basis_sets"):
@@ -465,7 +473,9 @@ class DftSet(Cp2kInput):
                         info=BasisInfo.from_str(f"{basis_type}-{functional}"),
                     )
                     desired_potential = GthPotential(
-                        element=Element(el), potential=potential_type, info=PotentialInfo(xc=functional)
+                        element=Element(el),
+                        potential=potential_type,
+                        info=PotentialInfo(xc=functional),
                     )
                 if aux_basis_type and have_element_file:
                     desired_aux_basis = GaussianTypeOrbitalBasisSet(info=BasisInfo.from_str(aux_basis_type))
@@ -490,10 +500,14 @@ class DftSet(Cp2kInput):
                         possible_potentials.append(possible_potential)
 
             possible_basis_sets = sorted(
-                filter(lambda x: x.info.electrons, possible_basis_sets), key=lambda x: x.info.electrons, reverse=True
+                filter(lambda x: x.info.electrons, possible_basis_sets),
+                key=lambda x: x.info.electrons,
+                reverse=True,
             )
             possible_potentials = sorted(
-                filter(lambda x: x.info.electrons, possible_potentials), key=lambda x: x.info.electrons, reverse=True
+                filter(lambda x: x.info.electrons, possible_potentials),
+                key=lambda x: x.info.electrons,
+                reverse=True,
             )
 
             def match_elecs(x):
@@ -1013,11 +1027,19 @@ class DftSet(Cp2kInput):
             }
             opt = Section(run_type, subsections={}, keywords=opt_params)
             if optimizer.upper() == "CG":
-                ls = Section("LINE_SEARCH", subsections={}, keywords={"TYPE": Keyword("TYPE", line_search)})
+                ls = Section(
+                    "LINE_SEARCH",
+                    subsections={},
+                    keywords={"TYPE": Keyword("TYPE", line_search)},
+                )
                 cg = Section("CG", subsections={"LINE_SEARCH": ls}, keywords={})
                 opt.insert(cg)
             elif optimizer.upper() == "BFGS":
-                bfgs = Section("BFGS", subsections={}, keywords={"TRUST_RADIUS": Keyword("TRUST_RADIUS", trust_radius)})
+                bfgs = Section(
+                    "BFGS",
+                    subsections={},
+                    keywords={"TRUST_RADIUS": Keyword("TRUST_RADIUS", trust_radius)},
+                )
                 opt.insert(bfgs)
 
             self["MOTION"].insert(opt)
@@ -1139,7 +1161,12 @@ class DftSet(Cp2kInput):
             self["FORCE_EVAL"]["PROPERTIES"].insert(Section("LINRES"))
 
         self["FORCE_EVAL"]["PROPERTIES"]["LINRES"].insert(
-            Section("LOCALIZE", PRECONDITIONER=preconditioner, STATES=states, RESTART=restart)
+            Section(
+                "LOCALIZE",
+                PRECONDITIONER=preconditioner,
+                STATES=states,
+                RESTART=restart,
+            )
         )
         self["FORCE_EVAL"]["PROPERTIES"]["LINRES"]["LOCALIZE"].insert(Section("PRINT"))
         self["FORCE_EVAL"]["PROPERTIES"]["LINRES"]["LOCALIZE"]["PRINT"].insert(Section("LOC_RESTART"))
@@ -1159,7 +1186,8 @@ class DftSet(Cp2kInput):
                 Options: DFTD2, DFTD3, DFTD3(BJ), DRSLL, LMKLL, RVV10
         """
         vdw = Section(
-            "VDW_POTENTIAL", keywords={"DISPERSION_FUNCTIONAL": Keyword("DISPERSION_FUNCTIONAL", dispersion_functional)}
+            "VDW_POTENTIAL",
+            keywords={"DISPERSION_FUNCTIONAL": Keyword("DISPERSION_FUNCTIONAL", dispersion_functional)},
         )
         keywords = {"TYPE": Keyword("TYPE", potential_type)}
         if dispersion_functional.upper() == "PAIR_POTENTIAL":
@@ -1303,9 +1331,12 @@ class DftSet(Cp2kInput):
             raise ValueError(f"add_list should be no/numeric/symbolic, got {add_last.lower()}")
 
         run_type = self["global"].get("run_type", Keyword("run_type", "energy")).values[0].upper()
-        if run_type not in ["ENERGY_FORCE", "ENERGY", "WAVEFUNCTION_OPTIMIZATION", "WFN_OPT"] and self.check(
-            "FORCE_EVAL/DFT/PRINT"
-        ):
+        if run_type not in [
+            "ENERGY_FORCE",
+            "ENERGY",
+            "WAVEFUNCTION_OPTIMIZATION",
+            "WFN_OPT",
+        ] and self.check("FORCE_EVAL/DFT/PRINT"):
             for v in self["force_eval"]["dft"]["print"].subsections.values():
                 if v.name.upper() in [
                     "ACTIVE_SPACE",
@@ -1317,7 +1348,13 @@ class DftSet(Cp2kInput):
                 ]:
                     continue
 
-                v.insert(Section("EACH", subsections=None, keywords={run_type: Keyword(run_type, iters)}))
+                v.insert(
+                    Section(
+                        "EACH",
+                        subsections=None,
+                        keywords={run_type: Keyword(run_type, iters)},
+                    )
+                )
                 v.keywords["ADD_LAST"] = Keyword("ADD_LAST", add_last)
 
     def validate(self):

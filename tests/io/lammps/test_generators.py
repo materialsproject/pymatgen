@@ -86,13 +86,24 @@ class TestLammpsMinimization(PymatgenTest):
         assert lmp_min.inputfile.stages == [
             {
                 "stage_name": "1) Initialization",
-                "commands": [("units", "metal"), ("atom_style", "full"), ("dimension", "3"), ("boundary", "p p p")],
+                "commands": [
+                    ("units", "metal"),
+                    ("atom_style", "full"),
+                    ("dimension", "3"),
+                    ("boundary", "p p p"),
+                ],
             },
             {
                 "stage_name": "2) System definition",
-                "commands": [("read_data", "system.data"), ("neigh_modify", "every 1 delay 5 check yes")],
+                "commands": [
+                    ("read_data", "system.data"),
+                    ("neigh_modify", "every 1 delay 5 check yes"),
+                ],
             },
-            {"stage_name": "3) Simulation settings", "commands": [("Unspecified", "force field!")]},
+            {
+                "stage_name": "3) Simulation settings",
+                "commands": [("Unspecified", "force field!")],
+            },
             {
                 "stage_name": "4) Energy minimization",
                 "commands": [
@@ -111,7 +122,10 @@ class TestLammpsMinimization(PymatgenTest):
             },
             {
                 "stage_name": "5) Write output data",
-                "commands": [("write_data", "run.data"), ("write_restart", "run.restart")],
+                "commands": [
+                    ("write_data", "run.data"),
+                    ("write_restart", "run.restart"),
+                ],
             },
         ]
 

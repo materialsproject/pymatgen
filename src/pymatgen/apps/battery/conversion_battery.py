@@ -216,8 +216,16 @@ class ConversionElectrode(AbstractElectrode):
         return 7
 
     def __repr__(self):
-        cls_name, formula, n_steps = type(self).__name__, self.initial_comp.reduced_formula, self.num_steps
-        avg_voltage, min_voltage, max_voltage = self.get_average_voltage(), self.min_voltage, self.max_voltage
+        cls_name, formula, n_steps = (
+            type(self).__name__,
+            self.initial_comp.reduced_formula,
+            self.num_steps,
+        )
+        avg_voltage, min_voltage, max_voltage = (
+            self.get_average_voltage(),
+            self.min_voltage,
+            self.max_voltage,
+        )
         output = [
             f"{cls_name} with {formula=} and {n_steps=}, {avg_voltage=:.3f} V, "
             f"{min_voltage=:.3f} V, {max_voltage=:.3f} V",

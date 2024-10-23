@@ -770,7 +770,12 @@ class HeisenbergScreener:
         n_below_1ub = [sum(abs(m) < 1 for m in ms) for ms in magmoms]
 
         df_mag = pd.DataFrame(
-            {"structure": structures, "energy": energies, "magmoms": magmoms, "n_below_1ub": n_below_1ub}
+            {
+                "structure": structures,
+                "energy": energies,
+                "magmoms": magmoms,
+                "n_below_1ub": n_below_1ub,
+            }
         )
 
         # keep the ground and first excited state fixed to capture the

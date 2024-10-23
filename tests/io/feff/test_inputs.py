@@ -149,7 +149,11 @@ class TestFeffTags(TestCase):
         parameters = Tags.from_file(filepath)
         parameters["RPATH"] = 10
         assert parameters["COREHOLE"] == "Fsr", "Failed to read PARAMETERS file"
-        assert parameters["LDOS"] == [-30.0, 15.0, 0.1], "Failed to read PARAMETERS file"
+        assert parameters["LDOS"] == [
+            -30.0,
+            15.0,
+            0.1,
+        ], "Failed to read PARAMETERS file"
 
     def test_diff(self):
         filepath1 = f"{FEFF_TEST_DIR}/PARAMETERS"

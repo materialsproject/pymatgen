@@ -9,7 +9,7 @@ import pytest
 from monty.json import MontyDecoder, MontyEncoder
 from numpy.testing import assert_allclose
 
-from pymatgen.core import SETTINGS, Lattice, Species, Structure
+from pymatgen.core import SETTINGS, Composition, Lattice, Species, Structure
 from pymatgen.io.aims.inputs import (
     ALLOWED_AIMS_CUBE_TYPES,
     ALLOWED_AIMS_CUBE_TYPES_STATE,
@@ -47,6 +47,12 @@ def test_read_write_si_in(tmp_path: Path):
         si_test_from_struct.write_file(directory=tmp_path, overwrite=False)
 
     compare_files(TEST_DIR / "geometry.in.si.ref", f"{tmp_path}/geometry.in")
+
+    si.structure.to(tmp_path / "si.in", fmt="aims")
+    compare_files(TEST_DIR / "geometry.in.si.ref", f"{tmp_path}/si.in")
+
+    si_from_file = Structure.from_file(f"{tmp_path}/geometry.in")
+    assert all(sp.symbol == "Si" for sp in si_from_file.species)
 
     with gzip.open(f"{TEST_DIR}/si_ref.json.gz", mode="rt") as si_ref_json:
         si_from_dct = json.load(si_ref_json, cls=MontyDecoder)
@@ -139,7 +145,10 @@ def test_write_spins(tmp_path: Path):
         coords=mg2mn4o8.frac_coords,
         site_properties={"magmom": np.zeros(mg2mn4o8.num_sites)},
     )
-    with pytest.raises(ValueError, match="species.spin and magnetic moments don't agree. Please only define one"):
+    with pytest.raises(
+        ValueError,
+        match="species.spin and magnetic moments don't agree. Please only define one",
+    ):
         geo_in = AimsGeometryIn.from_structure(mg2mn4o8)
 
 
@@ -184,7 +193,10 @@ def test_aims_cube():
             edges=[[0, 0, 0.1], [0.1, 0, 0], [0.1, 0]],
         )
 
-    with pytest.raises(ValueError, match="elf_type is only used when the cube type is elf. Otherwise it must be None"):
+    with pytest.raises(
+        ValueError,
+        match="elf_type is only used when the cube type is elf. Otherwise it must be None",
+    ):
         AimsCube(type=ALLOWED_AIMS_CUBE_TYPES[0], elf_type=1)
 
     with pytest.raises(ValueError, match="The number of points per edge must have 3 components"):
@@ -291,9 +303,9 @@ def test_species_defaults(monkeypatch: pytest.MonkeyPatch):
     ]
     assert species_defaults.elements == {"Si": "Si"}
 
-    si.relabel_sites()
+    si[0].species = Composition({"Si0+": 1}, strict=True)
     species_defaults = SpeciesDefaults.from_structure(si, "light")
-    assert species_defaults.labels == ["Si_1", "Si_2"]
-    assert species_defaults.elements == {"Si_1": "Si", "Si_2": "Si"}
-    assert "Si_1" in str(species_defaults)
-    assert "Si_2" in str(species_defaults)
+    assert species_defaults.labels == ["Si", "Si0+"]
+    assert species_defaults.elements == {"Si": "Si", "Si0+": "Si"}
+    assert "Si0+" in str(species_defaults)
+    assert "Si" in str(species_defaults)

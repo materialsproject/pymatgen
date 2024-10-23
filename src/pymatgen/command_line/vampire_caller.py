@@ -378,7 +378,16 @@ class VampireCaller:
             parsed_out (DataFrame): MSONable vampire output.
             critical_temp (float): Calculated critical temp.
         """
-        names = ["T", "m_total", *[f"m_{idx + 1}" for idx in range(n_mats)], "X_x", "X_y", "X_z", "X_m", "nan"]
+        names = [
+            "T",
+            "m_total",
+            *[f"m_{idx + 1}" for idx in range(n_mats)],
+            "X_x",
+            "X_y",
+            "X_z",
+            "X_m",
+            "nan",
+        ]
 
         # Parsing vampire MC output
         df_stdout = pd.read_csv(vamp_stdout, sep="\t", skiprows=9, header=None, names=names).drop("nan", axis=1)

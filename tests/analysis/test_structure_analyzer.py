@@ -34,7 +34,10 @@ class TestVoronoiAnalyzer(PymatgenTest):
         # Check for the presence of a Voronoi index and its frequency in
         # a ensemble (list) of Structures
         ensemble = self.va.analyze_structures(self.structs, step_freq=2, most_frequent_polyhedra=10)
-        assert ("[1 3 4 7 1 0 0 0]", 3) in ensemble, "Cannot find the right polyhedron in ensemble."
+        assert (
+            "[1 3 4 7 1 0 0 0]",
+            3,
+        ) in ensemble, "Cannot find the right polyhedron in ensemble."
 
 
 class TestRelaxationAnalyzer(TestCase):

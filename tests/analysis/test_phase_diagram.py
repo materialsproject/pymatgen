@@ -138,7 +138,13 @@ class TestTransformedPDEntry(TestCase):
 
     def test_composition(self):
         comp = self.transformed_entry.composition
-        expected_comp = Composition({DummySpecies("Xf"): 14 / 30, DummySpecies("Xg"): 1.0, DummySpecies("Xh"): 2 / 30})
+        expected_comp = Composition(
+            {
+                DummySpecies("Xf"): 14 / 30,
+                DummySpecies("Xg"): 1.0,
+                DummySpecies("Xh"): 2 / 30,
+            }
+        )
         assert comp == expected_comp
 
     def test_elements(self):
@@ -164,7 +170,11 @@ class TestTransformedPDEntry(TestCase):
     def test_normalize(self):
         norm_entry = self.transformed_entry.normalize(mode="atom")
         expected_comp = Composition(
-            {DummySpecies("Xf"): 7 / 23, DummySpecies("Xg"): 15 / 23, DummySpecies("Xh"): 1 / 23}
+            {
+                DummySpecies("Xf"): 7 / 23,
+                DummySpecies("Xg"): 15 / 23,
+                DummySpecies("Xh"): 1 / 23,
+            }
         )
         assert norm_entry.composition == expected_comp
 
@@ -181,7 +191,10 @@ class TestPhaseDiagram(PymatgenTest):
             lambda e: (not e.composition.is_element) or e.elements[0] != Element("Li"),
             self.entries,
         )
-        with pytest.raises(ValueError, match=r"Missing terminal entries for elements \['Fe', 'Li', 'O'\]"):
+        with pytest.raises(
+            ValueError,
+            match=r"Missing terminal entries for elements \['Fe', 'Li', 'O'\]",
+        ):
             PhaseDiagram(entries)
 
     def test_repr(self):
@@ -306,7 +319,10 @@ class TestPhaseDiagram(PymatgenTest):
         ):
             # test raises ValueError on entry with element not in the phase diagram
             U_entry = PDEntry("U", 0)
-            with pytest.raises(ValueError, match="Unable to get decomposition for PDEntry : U1 with energy"):
+            with pytest.raises(
+                ValueError,
+                match="Unable to get decomposition for PDEntry : U1 with energy",
+            ):
                 method(U_entry)
 
             # test raises ValueError on entry with very negative energy
@@ -442,9 +458,17 @@ class TestPhaseDiagram(PymatgenTest):
                     assert len(self.pd.get_element_profile(el, entry.composition)) <= len(self.pd.facets)
 
         expected = [
-            {"evolution": 1.0, "chempot": -4.2582781416666666, "reaction": "Li2O + 0.5 O2 -> Li2O2"},
+            {
+                "evolution": 1.0,
+                "chempot": -4.2582781416666666,
+                "reaction": "Li2O + 0.5 O2 -> Li2O2",
+            },
             {"evolution": 0, "chempot": -5.08859066, "reaction": "Li2O -> Li2O"},
-            {"evolution": -1.0, "chempot": -10.48758201, "reaction": "Li2O -> 2 Li + 0.5 O2"},
+            {
+                "evolution": -1.0,
+                "chempot": -10.48758201,
+                "reaction": "Li2O -> 2 Li + 0.5 O2",
+            },
         ]
         result = self.pd.get_element_profile(Element("O"), Composition("Li2O"))
         for d1, d2 in zip(expected, result, strict=True):
@@ -550,7 +574,10 @@ class TestPhaseDiagram(PymatgenTest):
         # For the moment, should also fail even if compositions are in the gppd
         # because it isn't handled properly
         gppd = GrandPotentialPhaseDiagram(self.pd.all_entries, {"Xe": 1}, [*self.pd.elements, Element("Xe")])
-        with pytest.raises(ValueError, match="Li3 Fe1 O4 Xe1 has elements not in the phase diagram O, Fe, Li"):
+        with pytest.raises(
+            ValueError,
+            match="Li3 Fe1 O4 Xe1 has elements not in the phase diagram O, Fe, Li",
+        ):
             gppd.get_critical_compositions(Composition("Fe2O3"), Composition("Li3FeO4Xe"))
 
         # check that the function still works though
@@ -700,6 +727,18 @@ class TestCompoundPhaseDiagram(TestCase):
 
     def test_str(self):
         assert str(self.pd) == "Xf-Xg phase diagram\n4 stable phases: \nLiFeO2, Li2O, Li5FeO4, Fe2O3"
+
+    def test_num2str(self):
+        ret = set()
+
+        num = 100
+        for idx in range(num):
+            val = CompoundPhaseDiagram.num2str(idx)
+            assert val.isalpha()
+            assert ord(val[0]) >= ord("f")
+            ret.add(val)
+
+        assert len(ret) == num
 
 
 class TestPatchedPhaseDiagram(TestCase):
@@ -941,7 +980,11 @@ class TestPDPlotter(TestCase):
 
     def test_matplotlib_plots(self):
         # Some very basic ("non")-tests. Just to make sure the methods are callable.
-        for plotter in (self.plotter_binary_mpl, self.plotter_ternary_mpl, self.plotter_quaternary_mpl):
+        for plotter in (
+            self.plotter_binary_mpl,
+            self.plotter_ternary_mpl,
+            self.plotter_quaternary_mpl,
+        ):
             ax = plotter.get_plot()
             assert isinstance(ax, plt.Axes)
 

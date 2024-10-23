@@ -173,12 +173,18 @@ class TestPeriodicSite(PymatgenTest):
         use "==" for equality check might fail in these cases.
         """
         site_0 = PeriodicSite(
-            "Fe", [0.25, 0.35, 0.45], self.lattice, properties={"selective_dynamics": np.array([True, True, False])}
+            "Fe",
+            [0.25, 0.35, 0.45],
+            self.lattice,
+            properties={"selective_dynamics": np.array([True, True, False])},
         )
         assert site_0 == site_0
 
         site_1 = PeriodicSite(
-            "Fe", [0.25, 0.35, 0.45], self.lattice, properties={"selective_dynamics": np.array([True, False, False])}
+            "Fe",
+            [0.25, 0.35, 0.45],
+            self.lattice,
+            properties={"selective_dynamics": np.array([True, False, False])},
         )
         assert site_0 != site_1
 

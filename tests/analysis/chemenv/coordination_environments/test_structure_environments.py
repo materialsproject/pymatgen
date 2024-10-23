@@ -39,15 +39,33 @@ class TestStructureEnvironments(PymatgenTest):
         _envs_fig, envs_ax = struct_envs.get_environments_figure(isite=isite)
         assert_allclose(
             envs_ax.patches[0].get_xy(),
-            [[1, 1], [1, 0.99301365], [1.00179228, 0.99301365], [1.00179228, 1], [1, 1]],
+            [
+                [1, 1],
+                [1, 0.99301365],
+                [1.00179228, 0.99301365],
+                [1.00179228, 1],
+                [1, 1],
+            ],
         )
         assert_allclose(
             envs_ax.patches[1].get_xy(),
-            [[1, 0.99301365], [1, 0], [1.00179228, 0], [1.00179228, 0.99301365], [1, 0.99301365]],
+            [
+                [1, 0.99301365],
+                [1, 0],
+                [1.00179228, 0],
+                [1.00179228, 0.99301365],
+                [1, 0.99301365],
+            ],
         )
         assert_allclose(
             envs_ax.patches[2].get_xy(),
-            [[1.00179228, 1], [1.00179228, 0.99301365], [2.25, 0.99301365], [2.25, 1], [1.00179228, 1]],
+            [
+                [1.00179228, 1],
+                [1.00179228, 0.99301365],
+                [2.25, 0.99301365],
+                [2.25, 1],
+                [1.00179228, 1],
+            ],
         )
         assert_allclose(
             envs_ax.patches[3].get_xy(),
@@ -64,7 +82,13 @@ class TestStructureEnvironments(PymatgenTest):
         )
         assert_allclose(
             envs_ax.patches[4].get_xy(),
-            [[2.22376156, 0.0060837], [2.22376156, 0], [2.25, 0], [2.25, 0.0060837], [2.22376156, 0.0060837]],
+            [
+                [2.22376156, 0.0060837],
+                [2.22376156, 0],
+                [2.25, 0],
+                [2.25, 0.0060837],
+                [2.22376156, 0.0060837],
+            ],
             atol=1e-8,
         )
 
@@ -212,7 +236,9 @@ class TestStructureEnvironments(PymatgenTest):
         multi_strategy = MultiWeightsChemenvStrategy.stats_article_weights_parameters()
 
         lse_multi = LightStructureEnvironments.from_structure_environments(
-            strategy=multi_strategy, structure_environments=struct_envs, valences="undefined"
+            strategy=multi_strategy,
+            structure_environments=struct_envs,
+            valences="undefined",
         )
         assert lse_multi.coordination_environments[isite][0]["csm"] == approx(0.009887784240541068)
         assert lse_multi.coordination_environments[isite][0]["ce_fraction"] == approx(1)

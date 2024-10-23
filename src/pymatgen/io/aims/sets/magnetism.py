@@ -33,7 +33,10 @@ class MagneticStaticSetGenerator(StaticSetGenerator):
         Returns:
             dict: The updated for the parameters for the output section of FHI-aims
         """
-        updates = {"spin": "collinear", "output": [*prev_parameters.get("output", []), "mulliken"]}
+        updates = {
+            "spin": "collinear",
+            "output": [*prev_parameters.get("output", []), "mulliken"],
+        }
         prev_parameters.update(updates)
         return prev_parameters
 
@@ -60,6 +63,9 @@ class MagneticRelaxSetGenerator(RelaxSetGenerator):
             dict: The updated for the parameters for the output section of FHI-aims
         """
         prev_parameters = super().get_parameter_updates(structure=structure, prev_parameters=prev_parameters)
-        updates = {"spin": "collinear", "output": [*prev_parameters.get("output", []), "mulliken"]}
+        updates = {
+            "spin": "collinear",
+            "output": [*prev_parameters.get("output", []), "mulliken"],
+        }
         prev_parameters.update(updates)
         return prev_parameters

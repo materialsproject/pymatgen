@@ -14,6 +14,7 @@ import os
 import re
 import subprocess
 import warnings
+from collections import Counter, UserDict
 from enum import Enum, unique
 from glob import glob
 from hashlib import sha256
@@ -260,7 +261,10 @@ class Poscar(MSONable):
             Poscar object.
         """
         if "check_for_POTCAR" in kwargs:
-            warnings.warn("check_for_POTCAR is deprecated. Use check_for_potcar instead.", DeprecationWarning)
+            warnings.warn(
+                "check_for_POTCAR is deprecated. Use check_for_potcar instead.",
+                DeprecationWarning,
+            )
             check_for_potcar = cast(bool, kwargs.pop("check_for_POTCAR"))
 
         dirname: str = os.path.dirname(os.path.abspath(filename))
@@ -350,7 +354,18 @@ class Poscar(MSONable):
 
         except ValueError:
             vasp5_symbols = True
-            symbols: list[str] = [symbol.split("/")[0] for symbol in lines[5].split()]
+
+            # In VASP 6.x.x, part of the POTCAR hash is written to POSCAR-style strings
+            # In VASP 6.4.2 and up, the POTCAR symbol is also written, ex.:
+            # ```MgSi
+            # 1.0
+            # -0.000011    4.138704    0.000002
+            # -2.981238    2.069353    3.675251
+            # 2.942054    2.069351    4.865237
+            # Mg_pv/f474ac0d  Si/79d9987ad87```
+            # whereas older VASP 5.x.x POSCAR strings would just have `Mg Si` on the last line
+
+            symbols: list[str] = [symbol.split("/")[0].split("_")[0] for symbol in lines[5].split()]
 
             # Atoms and number of atoms in POSCAR written with VASP appear on
             # multiple lines when atoms of the same type are not grouped together
@@ -443,7 +458,10 @@ class Poscar(MSONable):
             if selective_dynamics is not None:
                 # Warn when values contain suspicious entries
                 if any(value not in {"T", "F"} for value in tokens[3:6]):
-                    warnings.warn("Selective dynamics values must be either 'T' or 'F'.", BadPoscarWarning)
+                    warnings.warn(
+                        "Selective dynamics values must be either 'T' or 'F'.",
+                        BadPoscarWarning,
+                    )
 
                 # Warn when elements contains Fluorine (F) (#3539)
                 if atomic_symbols[idx] == "F" and len(tokens[3:]) >= 4 and "F" in tokens[3:7]:
@@ -460,7 +478,8 @@ class Poscar(MSONable):
         # Warn when ALL degrees of freedom relaxed (#3539)
         if selective_dynamics is not None and all(all(i is True for i in in_list) for in_list in selective_dynamics):
             warnings.warn(
-                "Ignoring selective dynamics tag, as no ionic degrees of freedom were fixed.", BadPoscarWarning
+                "Ignoring selective dynamics tag, as no ionic degrees of freedom were fixed.",
+                BadPoscarWarning,
             )
 
         struct = Structure(
@@ -698,43 +717,71 @@ class BadPoscarWarning(UserWarning):
     """Warning class for bad POSCAR entries."""
 
 
-class Incar(dict, MSONable):
+class Incar(UserDict, MSONable):
     """
-    Read and write INCAR files.
-    Essentially a dictionary with some helper functions.
+    A case-insensitive dictionary to read/write INCAR files with additional helper functions.
+
+    - Keys are stored in uppercase to allow case-insensitive access (set, get, del, update, setdefault).
+    - String values are capitalized by default, except for keys specified
+        in the `lower_str_keys` of the `proc_val` method.
     """
 
     def __init__(self, params: dict[str, Any] | None = None) -> None:
         """
-        Create an Incar object.
+        Clean up params and create an Incar object.
 
         Args:
-            params (dict): Input parameters as a dictionary.
-        """
-        super().__init__()
-        if params is not None:
-            # If INCAR contains vector-like MAGMOMS given as a list
-            # of floats, convert to a list of lists
-            if (params.get("MAGMOM") and isinstance(params["MAGMOM"][0], int | float)) and (
-                params.get("LSORBIT") or params.get("LNONCOLLINEAR")
-            ):
-                val = []
-                for idx in range(len(params["MAGMOM"]) // 3):
-                    val.append(params["MAGMOM"][idx * 3 : (idx + 1) * 3])
-                params["MAGMOM"] = val
+            params (dict): INCAR parameters as a dictionary.
 
-            self.update(params)
+        Warnings:
+            BadIncarWarning: If there are duplicate in keys (case insensitive).
+        """
+        params = params or {}
+
+        # Check for case-insensitive duplicate keys
+        key_counter = Counter(key.strip().upper() for key in params)
+        if duplicates := [key for key, count in key_counter.items() if count > 1]:
+            warnings.warn(
+                f"Duplicate keys found (case-insensitive): {duplicates}",
+                BadIncarWarning,
+                stacklevel=2,
+            )
+
+        # If INCAR contains vector-like MAGMOMS given as a list
+        # of floats, convert to a list of lists
+        if (params.get("MAGMOM") and isinstance(params["MAGMOM"][0], int | float)) and (
+            params.get("LSORBIT") or params.get("LNONCOLLINEAR")
+        ):
+            val: list[list] = []
+            for idx in range(len(params["MAGMOM"]) // 3):
+                val.append(params["MAGMOM"][idx * 3 : (idx + 1) * 3])
+            params["MAGMOM"] = val
+
+        super().__init__(params)
 
     def __setitem__(self, key: str, val: Any) -> None:
         """
-        Add parameter-val pair to Incar. Warn if parameter is not in list of
-        valid INCAR tags. Also clean the parameter and val by stripping
-        leading and trailing white spaces.
+        Add parameter-val pair to Incar.
+        - Clean the parameter and val by stripping leading
+            and trailing white spaces.
+        - Cast keys to upper case.
         """
-        super().__setitem__(
-            key.strip(),
-            type(self).proc_val(key.strip(), val.strip()) if isinstance(val, str) else val,
-        )
+        key = key.strip().upper()
+        # Cast float/int to str such that proc_val would clean up their types
+        val = self.proc_val(key, str(val)) if isinstance(val, str | float | int) else val
+        super().__setitem__(key, val)
+
+    def __getitem__(self, key: str) -> Any:
+        """
+        Get value using a case-insensitive key.
+        """
+        return super().__getitem__(key.strip().upper())
+
+    def __delitem__(self, key: str) -> None:
+        super().__delitem__(key.strip().upper())
+
+    def __contains__(self, key: str) -> bool:
+        return super().__contains__(key.upper().strip())
 
     def __str__(self) -> str:
         return self.get_str(sort_keys=True, pretty=False)
@@ -750,6 +797,12 @@ class Incar(dict, MSONable):
                 raise ValueError(f"INCARs have conflicting values for {key}: {self[key]} != {val}")
             params[key] = val
         return type(self)(params)
+
+    def get(self, key: str, default: Any = None) -> Any:
+        """
+        Get a value for a case-insensitive key, return default if not found.
+        """
+        return super().get(key.strip().upper(), default)
 
     def as_dict(self) -> dict:
         """MSONable dict."""
@@ -843,24 +896,23 @@ class Incar(dict, MSONable):
         Returns:
             Incar object
         """
-        lines: list[str] = list(clean_lines(string.splitlines()))
         params: dict[str, Any] = {}
-        for line in lines:
+        for line in clean_lines(string.splitlines()):
             for sline in line.split(";"):
                 if match := re.match(r"(\w+)\s*=\s*(.*)", sline.strip()):
                     key: str = match[1].strip()
-                    val: Any = match[2].strip()
+                    val: str = match[2].strip()
                     params[key] = cls.proc_val(key, val)
         return cls(params)
 
     @staticmethod
-    def proc_val(key: str, val: Any) -> list | bool | float | int | str:
+    def proc_val(key: str, val: str) -> list | bool | float | int | str:
         """Helper method to convert INCAR parameters to proper types
         like ints, floats, lists, etc.
 
         Args:
-            key (str): INCAR parameter key
-            val (Any): Value of INCAR parameter.
+            key (str): INCAR parameter key.
+            val (str): Value of INCAR parameter.
         """
         list_keys = (
             "LDAUU",
@@ -895,6 +947,7 @@ class Incar(dict, MSONable):
             "AGGAC",
             "PARAM1",
             "PARAM2",
+            "ENCUT",
         )
         int_keys = (
             "NSW",
@@ -910,7 +963,6 @@ class Incar(dict, MSONable):
             "NPAR",
             "LDAUPRINT",
             "LMAXMIX",
-            "ENCUT",
             "NSIM",
             "NKRED",
             "NUPDOWN",
@@ -920,7 +972,7 @@ class Incar(dict, MSONable):
         )
         lower_str_keys = ("ML_MODE",)
 
-        def smart_int_or_float(num_str: str) -> str | float:
+        def smart_int_or_float(num_str: str) -> float:
             """Determine whether a string represents an integer or a float."""
             if "." in num_str or "e" in num_str.lower():
                 return float(num_str)
@@ -1018,10 +1070,14 @@ class Incar(dict, MSONable):
         for tag, val in self.items():
             # Check if the tag exists
             if tag not in incar_params:
-                warnings.warn(f"Cannot find {tag} in the list of INCAR tags", BadIncarWarning, stacklevel=2)
+                warnings.warn(
+                    f"Cannot find {tag} in the list of INCAR tags",
+                    BadIncarWarning,
+                    stacklevel=2,
+                )
                 continue
 
-            # Check value and its type
+            # Check value type
             param_type: str = incar_params[tag].get("type")
             allowed_values: list[Any] = incar_params[tag].get("values")
 
@@ -1030,8 +1086,17 @@ class Incar(dict, MSONable):
 
             # Only check value when it's not None,
             # meaning there is recording for corresponding value
-            if allowed_values is not None and val not in allowed_values:
-                warnings.warn(f"{tag}: Cannot find {val} in the list of values", BadIncarWarning, stacklevel=2)
+            if allowed_values is not None:
+                # Note: param_type could be a Union type, e.g. "str | bool"
+                if "str" in param_type:
+                    allowed_values = [item.capitalize() if isinstance(item, str) else item for item in allowed_values]
+
+                if val not in allowed_values:
+                    warnings.warn(
+                        f"{tag}: Cannot find {val} in the list of values",
+                        BadIncarWarning,
+                        stacklevel=2,
+                    )
 
 
 class BadIncarWarning(UserWarning):
@@ -1269,7 +1334,13 @@ class Kpoints(MSONable):
         Returns:
             Kpoints
         """
-        return cls("Automatic kpoint scheme", 0, cls.supported_modes.Gamma, kpts=[kpts], kpts_shift=shift)
+        return cls(
+            "Automatic kpoint scheme",
+            0,
+            cls.supported_modes.Gamma,
+            kpts=[kpts],
+            kpts_shift=shift,
+        )
 
     @classmethod
     def monkhorst_automatic(cls, kpts: Tuple3Ints = (2, 2, 2), shift: Vector3D = (0, 0, 0)) -> Self:
@@ -1284,7 +1355,13 @@ class Kpoints(MSONable):
         Returns:
             Kpoints
         """
-        return cls("Automatic kpoint scheme", 0, cls.supported_modes.Monkhorst, kpts=[kpts], kpts_shift=shift)
+        return cls(
+            "Automatic kpoint scheme",
+            0,
+            cls.supported_modes.Monkhorst,
+            kpts=[kpts],
+            kpts_shift=shift,
+        )
 
     @classmethod
     def automatic_density(cls, structure: Structure, kppa: float, force_gamma: bool = False) -> Self:
@@ -1392,7 +1469,10 @@ class Kpoints(MSONable):
 
     @classmethod
     def automatic_density_by_lengths(
-        cls, structure: Structure, length_densities: Sequence[float], force_gamma: bool = False
+        cls,
+        structure: Structure,
+        length_densities: Sequence[float],
+        force_gamma: bool = False,
     ) -> Self:
         """Get an automatic Kpoints object based on a structure and a k-point
         density normalized by lattice constants.
@@ -1701,6 +1781,7 @@ def _parse_int(string: str) -> int:
 
 
 def _parse_list(string: str) -> list[float]:
+    """Parse a list of floats from a string."""
     return [float(y) for y in re.split(r"\s+", string.strip()) if not y.isalpha()]
 
 
@@ -1861,7 +1942,13 @@ class PotcarSingle:
             for line in lines[3:]:
                 if orbit := array_search.findall(line):
                     orbitals.append(
-                        Orbital(int(orbit[0]), int(orbit[1]), float(orbit[2]), float(orbit[3]), float(orbit[4]))
+                        Orbital(
+                            int(orbit[0]),
+                            int(orbit[1]),
+                            float(orbit[2]),
+                            float(orbit[3]),
+                            float(orbit[4]),
+                        )
                     )
             PSCTR["Orbitals"] = tuple(orbitals)
 
@@ -2121,7 +2208,11 @@ class PotcarSingle:
                 if self.TITEL.replace(" ", "") == titel_no_spc:
                     for potcar_subvariant in self._potcar_summary_stats[func][titel_no_spc]:
                         if self.VRHFIN.replace(" ", "") == potcar_subvariant["VRHFIN"]:
-                            possible_match = {"POTCAR_FUNCTIONAL": func, "TITEL": titel_no_spc, **potcar_subvariant}
+                            possible_match = {
+                                "POTCAR_FUNCTIONAL": func,
+                                "TITEL": titel_no_spc,
+                                **potcar_subvariant,
+                            }
                             possible_potcar_matches.append(possible_match)
 
         def parse_fortran_style_str(input_str: str) -> str | bool | float | int:
@@ -2741,7 +2832,14 @@ class VaspInput(dict, MSONable):
         """
         super().__init__(**kwargs)
         self._potcar_filename = "POTCAR" + (".spec" if potcar_spec else "")
-        self.update({"INCAR": Incar(incar), "KPOINTS": kpoints, "POSCAR": poscar, self._potcar_filename: potcar})
+        self.update(
+            {
+                "INCAR": Incar(incar),
+                "KPOINTS": kpoints,
+                "POSCAR": poscar,
+                self._potcar_filename: potcar,
+            }
+        )
         if optional_files is not None:
             self.update(optional_files)
 
@@ -2826,7 +2924,10 @@ class VaspInput(dict, MSONable):
 
         files_to_transfer = files_to_transfer or {}
         for key, val in files_to_transfer.items():
-            with zopen(val, "rb") as fin, zopen(str(Path(output_dir) / key), "wb") as fout:
+            with (
+                zopen(val, "rb") as fin,
+                zopen(str(Path(output_dir) / key), "wb") as fout,
+            ):
                 copyfileobj(fin, fout)
 
     @classmethod

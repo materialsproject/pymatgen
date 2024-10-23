@@ -191,7 +191,11 @@ class SupercellTransformation(AbstractTransformation):
 
     @classmethod
     def from_boundary_distance(
-        cls, structure: Structure, min_boundary_dist: float = 6, allow_rotation: bool = False, max_atoms: float = -1
+        cls,
+        structure: Structure,
+        min_boundary_dist: float = 6,
+        allow_rotation: bool = False,
+        max_atoms: float = -1,
     ) -> Self:
         """Get a SupercellTransformation according to the desired minimum distance between periodic
         boundaries of the resulting supercell.
@@ -263,7 +267,9 @@ class SubstitutionTransformation(AbstractTransformation):
 
     def __init__(
         self,
-        species_map: dict[SpeciesLike, SpeciesLike | dict[SpeciesLike, float]] | list[tuple[SpeciesLike, SpeciesLike]],
+        species_map: (
+            dict[SpeciesLike, SpeciesLike | dict[SpeciesLike, float]] | list[tuple[SpeciesLike, SpeciesLike]]
+        ),
     ) -> None:
         """
         Args:

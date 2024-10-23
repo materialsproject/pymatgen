@@ -1,15 +1,13 @@
 <!DOCTYPE html>
-<html class="writer-html5" lang="en" data-content_root="./">
+<html class="writer-html5" lang="en" >
 <head>
   <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>pymatgen.util package &mdash; pymatgen 2024.10.3 documentation</title>
-      <link rel="stylesheet" type="text/css" href="assets/pygments.css?v=fa44fd50" />
-      <link rel="stylesheet" type="text/css" href="assets/css/theme.css?v=19f00094" />
-      <link rel="stylesheet" type="text/css" href="assets/css/custom.css" />
-
-  
+      <link rel="stylesheet" href="assets/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="assets/css/theme.css" type="text/css" />
+      <link rel="stylesheet" href="assets/css/custom.css" type="text/css" />
     <link rel="canonical" href="https://pymatgen.orgpymatgen.util.html"/>
   <!--[if lt IE 9]>
     <script src="assets/js/html5shiv.min.js"></script>
@@ -18,7 +16,7 @@
         <script src="assets/jquery.js?v=5d32c60e"></script>
         <script src="assets/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
         <script src="assets/documentation_options.js?v=13bb8ce4"></script>
-        <script src="assets/doctools.js?v=9a2dae69"></script>
+        <script src="assets/doctools.js?v=9bcbadda"></script>
         <script src="assets/sphinx_highlight.js?v=dc90522c"></script>
     <script src="assets/js/theme.js"></script>
     <link rel="index" title="Index" href="genindex.html" />
@@ -1053,24 +1051,20 @@ Distributed Representations of Graphs. arXiv. 2017
 <p>This module provides utility classes for io operations.</p>
 <dl class="py function">
 <dt class="sig sig-object py" id="pymatgen.util.io_utils.clean_lines">
-<span class="sig-name descname"><span class="pre">clean_lines</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">string_list</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">remove_empty_lines</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">rstrip_only</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Generator</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">None</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">None</span><span class="p"><span class="pre">]</span></span></span></span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2024.10.3/src/pymatgen/core/../util/io_utils.py#L23-L48"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.util.io_utils.clean_lines" title="Link to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">clean_lines</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">string_list</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">list</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">remove_empty_lines</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">rstrip_only</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Iterator</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span></span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2024.10.3/src/pymatgen/core/../util/io_utils.py#L23-L48"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.util.io_utils.clean_lines" title="Link to this definition"></a></dt>
 <dd><p>Strips whitespace, carriage returns and empty lines from a list of strings.</p>
-<dl class="field-list">
+<dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>string_list</strong> – List of strings</p></li>
-<li><p><strong>remove_empty_lines</strong> – Set to True to skip lines which are empty after
+<li><p><strong>string_list</strong> (<em>list</em><em>[</em><em>str</em><em>]</em>) – List of strings.</p></li>
+<li><p><strong>remove_empty_lines</strong> (<em>bool</em>) – Set to True to skip lines which are empty after
 stripping.</p></li>
-<li><p><strong>rstrip_only</strong> – Set to True to strip trailing whitespaces only (i.e.,
+<li><p><strong>rstrip_only</strong> (<em>bool</em>) – Set to True to strip trailing whitespaces only (i.e.,
 to retain leading whitespaces). Defaults to False.</p></li>
 </ul>
 </dd>
 <dt class="field-even">Yields<span class="colon">:</span></dt>
-<dd class="field-even"><p><em>list</em> –</p>
-<dl class="simple">
-<dt>clean strings with no whitespaces. If rstrip_only == True,</dt><dd><p>clean strings with no trailing whitespaces.</p>
-</dd>
-</dl>
+<dd class="field-even"><p><em>str</em> – clean strings with no whitespaces.</p>
 </dd>
 </dl>
 </dd></dl>
@@ -1129,7 +1123,7 @@ as argument.</p>
 <dl class="py function">
 <dt class="sig sig-object py" id="pymatgen.util.misc.is_np_dict_equal">
 <span class="sig-name descname"><span class="pre">is_np_dict_equal</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">dict1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dict2</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">/</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">bool</span></span></span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2024.10.3/src/pymatgen/core/../util/misc.py#L8-L21"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.util.misc.is_np_dict_equal" title="Link to this definition"></a></dt>
-<dd><p>Compare two dict whose value could be np arrays.</p>
+<dd><p>Compare two dict whose value could be NumPy arrays.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">

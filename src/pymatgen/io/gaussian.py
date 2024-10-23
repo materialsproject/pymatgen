@@ -306,9 +306,9 @@ class GaussianInput:
                 route += f" {line}"
                 route_index = idx
             # This condition allows for route cards spanning multiple lines
-            elif (line == "" or line.isspace()) and route_index:
+            elif (line == "" or line.isspace()) and route_index is not None:
                 break
-            if route_index:
+            if route_index is not None:
                 route += f" {line}"
                 route_index = idx
         functional, basis_set, route_paras, dieze_tag = read_route_line(route)
@@ -418,7 +418,12 @@ class GaussianInput:
             # don't use the slash if either or both are set as empty
             func_bset_str = f" {func_str}{bset_str}".rstrip()
 
-        output += (f"{self.dieze_tag}{func_bset_str} {para_dict_to_str(self.route_parameters)}", "", self.title, "")
+        output += (
+            f"{self.dieze_tag}{func_bset_str} {para_dict_to_str(self.route_parameters)}",
+            "",
+            self.title,
+            "",
+        )
 
         charge_str = "" if self.charge is None else f"{self.charge:.0f}"
         multip_str = "" if self.spin_multiplicity is None else f" {self.spin_multiplicity:.0f}"

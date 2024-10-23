@@ -225,7 +225,12 @@ class HighSymmKpath(KPathBase):
         n_op = len(rpg)
 
         pairs = itertools.permutations(
-            [{"setyawan_curtarolo": sc_path}, {"latimer_munro": lm_path}, {"hinuma": hin_path}], r=2
+            [
+                {"setyawan_curtarolo": sc_path},
+                {"latimer_munro": lm_path},
+                {"hinuma": hin_path},
+            ],
+            r=2,
         )
         labels = {"setyawan_curtarolo": {}, "latimer_munro": {}, "hinuma": {}}
 

@@ -57,7 +57,13 @@ class TestValenceIonicRadiusEvaluator(PymatgenTest):
             [0, 0, 0.5],
             [0.5, 0.5, 0.5],
         ]
-        self._mgo_uc = Structure(mgo_latt, mgo_specie, mgo_frac_cord, validate_proximity=True, to_unit_cell=True)
+        self._mgo_uc = Structure(
+            mgo_latt,
+            mgo_specie,
+            mgo_frac_cord,
+            validate_proximity=True,
+            to_unit_cell=True,
+        )
         self._mgo_val_rad_evaluator = ValenceIonicRadiusEvaluator(self._mgo_uc)
 
     def test_valences_ionic_structure(self):
@@ -401,7 +407,14 @@ class TestMiniDistNN(PymatgenTest):
         assert MinimumDistanceNN(tol=0.1).get_cn(self.mos2, 0) == 6
 
         for image in MinimumDistanceNN(tol=0.1).get_nn_images(self.mos2, 0):
-            assert image in [(0, 0, 0), (0, 1, 0), (-1, 0, 0), (0, 0, 0), (0, 1, 0), (-1, 0, 0)]
+            assert image in [
+                (0, 0, 0),
+                (0, 1, 0),
+                (-1, 0, 0),
+                (0, 0, 0),
+                (0, 1, 0),
+                (-1, 0, 0),
+            ]
 
         okeeffe_nn = MinimumOKeeffeNN(tol=0.01)
         assert okeeffe_nn.get_cn(self.diamond, 0) == 4
@@ -961,6 +974,7 @@ class TestLocalStructOrderParams(PymatgenTest):
         parameters = [{"norm": 2}]
         lostops = LocalStructOrderParams(["cn"], parameters=parameters)
         tmp = lostops.get_parameters(0)
+        assert tmp == {"norm": 2}
         parameters[0]["norm"] = 3
         assert tmp == lostops.get_parameters(0)
 
@@ -1006,7 +1020,12 @@ class TestLocalStructOrderParams(PymatgenTest):
         op_params = [None] * len(op_types)
         op_params[1] = {"TA": 1, "IGW_TA": 1.0 / 0.0667}
         op_params[2] = {"TA": 45.0 / 180, "IGW_TA": 1.0 / 0.0667}
-        op_params[33] = {"TA": 0.6081734479693927, "IGW_TA": 18.33, "fac_AA": 1.5, "exp_cos_AA": 2}
+        op_params[33] = {
+            "TA": 0.6081734479693927,
+            "IGW_TA": 18.33,
+            "fac_AA": 1.5,
+            "exp_cos_AA": 2,
+        }
         ops_044 = LocalStructOrderParams(op_types, parameters=op_params, cutoff=0.44)
         ops_071 = LocalStructOrderParams(op_types, parameters=op_params, cutoff=0.71)
         ops_087 = LocalStructOrderParams(op_types, parameters=op_params, cutoff=0.87)
@@ -1159,7 +1178,9 @@ class TestCrystalNN(PymatgenTest):
         self.he_bcc.add_oxidation_state_by_guess()
 
         self.disordered_struct = Structure(
-            Lattice.cubic(3), [{"Fe": 0.4, "C": 0.3, "Mn": 0.3}, "O"], [[0, 0, 0], [0.5, 0.5, 0.5]]
+            Lattice.cubic(3),
+            [{"Fe": 0.4, "C": 0.3, "Mn": 0.3}, "O"],
+            [[0, 0, 0], [0.5, 0.5, 0.5]],
         )
         self.disordered_struct_with_majority = Structure(
             Lattice.cubic(3), [{"Fe": 0.6, "C": 0.4}, "O"], [[0, 0, 0], [0.5, 0.5, 0.5]]
@@ -1260,11 +1281,13 @@ class TestCrystalNN(PymatgenTest):
         assert site_0_coord_num == site_0_coord_num_strict_majority
 
         with pytest.raises(
-            ValueError, match="Site 0 has no majority species, the max species is Fe with occupancy 0.4"
+            ValueError,
+            match="Site 0 has no majority species, the max species is Fe with occupancy 0.4",
         ):
             cnn.get_cn(self.disordered_struct, 0, on_disorder="take_majority_strict")
         with pytest.raises(
-            ValueError, match="enerating StructureGraphs for disordered Structures is unsupported. Pass on_disorder="
+            ValueError,
+            match="enerating StructureGraphs for disordered Structures is unsupported. Pass on_disorder=",
         ):
             cnn.get_cn(self.disordered_struct, 0, on_disorder="error")
 
@@ -1284,7 +1307,8 @@ class TestCrystalNN(PymatgenTest):
         assert structure_graph == structure_graph_strict_majority == structure_graph_drop_majority
 
         with pytest.raises(
-            ValueError, match="Site 0 has no majority species, the max species is Fe with occupancy 0.4"
+            ValueError,
+            match="Site 0 has no majority species, the max species is Fe with occupancy 0.4",
         ):
             cnn.get_bonded_structure(self.disordered_struct, 0, on_disorder="take_majority_strict")
 

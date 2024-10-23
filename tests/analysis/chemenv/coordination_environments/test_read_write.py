@@ -64,7 +64,11 @@ class TestReadWriteChemenv(PymatgenTest):
         )
 
         with open(f"{self.tmp_path}/lse.json", mode="w") as file:
-            json.dump(lse.as_dict(), file, default=lambda obj: getattr(obj, "tolist", lambda: obj)())
+            json.dump(
+                lse.as_dict(),
+                file,
+                default=lambda obj: getattr(obj, "tolist", lambda: obj)(),
+            )
 
         with open(f"{self.tmp_path}/lse.json") as file:
             LightStructureEnvironments.from_dict(json.load(file))

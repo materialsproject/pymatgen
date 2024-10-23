@@ -189,7 +189,13 @@ class AbstractDiffractionPatternCalculator(abc.ABC):
         fig, axes = plt.subplots(nrows=n_rows, ncols=1, sharex=True, squeeze=False)
 
         for idx, (ax, structure) in enumerate(zip(axes.ravel(), structures, strict=True)):
-            self.get_plot(structure, fontsize=fontsize, ax=ax, with_labels=idx == n_rows - 1, **kwargs)
+            self.get_plot(
+                structure,
+                fontsize=fontsize,
+                ax=ax,
+                with_labels=idx == n_rows - 1,
+                **kwargs,
+            )
             spg_symbol, spg_number = structure.get_space_group_info()
             ax.set_title(f"{structure.formula} {spg_symbol} ({spg_number}) ")
 

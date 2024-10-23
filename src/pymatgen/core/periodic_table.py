@@ -748,7 +748,11 @@ class ElementBase(Enum):
         return self.is_lanthanoid or self.is_actinoid or self.symbol in {"Sc", "Y"}
 
     @property
-    @deprecated(is_rare_earth, message="is_rare_earth is corrected to include Y and Sc.", deadline=(2025, 1, 1))
+    @deprecated(
+        is_rare_earth,
+        message="is_rare_earth is corrected to include Y and Sc.",
+        deadline=(2025, 1, 1),
+    )
     def is_rare_earth_metal(self) -> bool:
         """True if element is a rare earth metal, Lanthanides (La) series and Actinides (Ac) series.
 
@@ -831,7 +835,11 @@ class ElementBase(Enum):
 
     def as_dict(self) -> dict[Literal["element", "@module", "@class"], str]:
         """Serialize to MSONable dict representation e.g. to write to disk as JSON."""
-        return {"@module": type(self).__module__, "@class": type(self).__name__, "element": self.symbol}
+        return {
+            "@module": type(self).__module__,
+            "@class": type(self).__name__,
+            "element": self.symbol,
+        }
 
     @staticmethod
     def from_dict(dct: dict) -> Element:
@@ -1475,7 +1483,10 @@ class DummySpecies(Species):
             # We then sort by symbol.
             return self.symbol < other.symbol
         other_oxi = 0 if isinstance(other, Element) else other.oxi_state
-        return self.oxi_state < other_oxi
+        if self.oxi_state is not None and other_oxi is not None:
+            return self.oxi_state < other_oxi
+
+        raise RuntimeError("oxi_state for both species are None")
 
     def __repr__(self) -> str:
         return f"DummySpecies {self}"

@@ -12,7 +12,7 @@ import warnings
 from copy import deepcopy
 from functools import cmp_to_key, partial
 from multiprocessing import Pool
-from typing import TYPE_CHECKING, no_type_check
+from typing import TYPE_CHECKING
 
 import numpy as np
 from monty.json import MontyDecoder, MSONable
@@ -246,7 +246,13 @@ class PourbaixEntry(MSONable, Stringify):
         return self.entry.name
 
     def __repr__(self):
-        energy, npH, nPhi, nH2O, entry_id = self.energy, self.npH, self.nPhi, self.nH2O, self.entry_id
+        energy, npH, nPhi, nH2O, entry_id = (
+            self.energy,
+            self.npH,
+            self.nPhi,
+            self.nH2O,
+            self.entry_id,
+        )
         return (
             f"{type(self).__name__}({self.entry.composition} with {energy=:.4f}, {npH=}, "
             f"{nPhi=}, {nH2O=}, {entry_id=})"
@@ -272,7 +278,16 @@ class MultiEntry(PourbaixEntry):
         we save some space by having a set of conditionals to define the attributes.
         """
         # Attributes that are weighted averages of entry attributes
-        if attr in ["energy", "npH", "nH2O", "nPhi", "conc_term", "composition", "uncorrected_energy", "elements"]:
+        if attr in [
+            "energy",
+            "npH",
+            "nH2O",
+            "nPhi",
+            "conc_term",
+            "composition",
+            "uncorrected_energy",
+            "elements",
+        ]:
             # TODO: Composition could be changed for compat with sum
             start = Composition() if attr == "composition" else 0
             weighted_values = (
@@ -293,7 +308,13 @@ class MultiEntry(PourbaixEntry):
         return " + ".join(entry.name for entry in self.entry_list)
 
     def __repr__(self):
-        energy, npH, nPhi, nH2O, entry_id = self.energy, self.npH, self.nPhi, self.nH2O, self.entry_id
+        energy, npH, nPhi, nH2O, entry_id = (
+            self.energy,
+            self.npH,
+            self.nPhi,
+            self.nH2O,
+            self.entry_id,
+        )
         cls_name, species = type(self).__name__, self.name
         return f"Pourbaix{cls_name}({energy=:.4f}, {npH=}, {nPhi=}, {nH2O=}, {entry_id=}, {species=})"
 
@@ -349,7 +370,12 @@ class IonEntry(PDEntry):
     @classmethod
     def from_dict(cls, dct: dict) -> Self:
         """Get an IonEntry object from a dict."""
-        return cls(Ion.from_dict(dct["ion"]), dct["energy"], dct.get("name"), dct.get("attribute"))
+        return cls(
+            Ion.from_dict(dct["ion"]),
+            dct["energy"],
+            dct.get("name"),
+            dct.get("attribute"),
+        )
 
     def as_dict(self):
         """Create a dict of composition, energy, and ion name."""
@@ -915,10 +941,9 @@ class PourbaixPlotter:
         plt = self.get_pourbaix_plot(*args, **kwargs)
         plt.show()
 
-    @no_type_check
     def get_pourbaix_plot(
         self,
-        limits: tuple[float, float] | None = None,
+        limits: tuple[tuple[float, float], tuple[float, float]] | None = None,
         title: str = "",
         label_domains: bool = True,
         label_fontsize: int = 20,
@@ -930,8 +955,8 @@ class PourbaixPlotter:
         Plot Pourbaix diagram.
 
         Args:
-            limits: 2D list containing limits of the Pourbaix diagram
-                of the form [[xlo, xhi], [ylo, yhi]]
+            limits: tuple containing limits of the Pourbaix diagram
+                of the form ((xlo, xhi), (ylo, yhi)).
             title (str): Title to display on plot
             label_domains (bool): whether to label Pourbaix domains
             label_fontsize: font size for domain labels
@@ -945,7 +970,7 @@ class PourbaixPlotter:
             Axes: matplotlib Axes object with Pourbaix diagram
         """
         if limits is None:
-            limits = [[-2, 16], [-3, 3]]
+            limits = ((-2, 16), (-3, 3))
 
         ax = ax or pretty_plot(16)
 
@@ -954,7 +979,12 @@ class PourbaixPlotter:
 
         if show_water_lines:
             h_line = np.transpose([[xlim[0], -xlim[0] * PREFAC], [xlim[1], -xlim[1] * PREFAC]])
-            o_line = np.transpose([[xlim[0], -xlim[0] * PREFAC + 1.23], [xlim[1], -xlim[1] * PREFAC + 1.23]])
+            o_line = np.transpose(
+                [
+                    [xlim[0], -xlim[0] * PREFAC + 1.23],
+                    [xlim[1], -xlim[1] * PREFAC + 1.23],
+                ]
+            )
             ax.plot(h_line[0], h_line[1], "r--", linewidth=lw)
             ax.plot(o_line[0], o_line[1], "r--", linewidth=lw)
 
@@ -983,7 +1013,6 @@ class PourbaixPlotter:
         ax.set(xlabel="pH", ylabel="E (V)", xlim=xlim, ylim=ylim)
         return ax
 
-    @no_type_check
     def plot_entry_stability(
         self,
         entry: Any,
@@ -1016,8 +1045,8 @@ class PourbaixPlotter:
         # Plot the Pourbaix diagram
         ax = self.get_pourbaix_plot(ax=ax, **kwargs)
         pH, V = np.mgrid[
-            pH_range[0] : pH_range[1] : pH_resolution * 1j,
-            V_range[0] : V_range[1] : V_resolution * 1j,
+            pH_range[0] : pH_range[1] : pH_resolution * 1j,  # type: ignore[misc]
+            V_range[0] : V_range[1] : V_resolution * 1j,  # type: ignore[misc]
         ]
 
         stability = self._pbx.get_decomposition_energy(entry, pH, V)

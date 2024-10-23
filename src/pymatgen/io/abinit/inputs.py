@@ -1035,7 +1035,13 @@ class BasicMultiDataset:
 
     Error = BasicAbinitInputError
 
-    def __init__(self, structure: Structure | Sequence[Structure], pseudos, pseudo_dir="", ndtset=1):
+    def __init__(
+        self,
+        structure: Structure | Sequence[Structure],
+        pseudos,
+        pseudo_dir="",
+        ndtset=1,
+    ):
         """
         Args:
             structure: file with the structure, |Structure| object or dictionary with ABINIT geo variable

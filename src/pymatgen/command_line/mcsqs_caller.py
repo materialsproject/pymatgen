@@ -111,7 +111,13 @@ def run_mcsqs(
         process.communicate()
 
     # Generate SQS structures
-    add_ons = [f"-T {temperature}", f"-wr {wr}", f"-wn {wn}", f"-wd {wd}", f"-tol {tol}"]
+    add_ons = [
+        f"-T {temperature}",
+        f"-wr {wr}",
+        f"-wn {wn}",
+        f"-wd {wd}",
+        f"-tol {tol}",
+    ]
 
     mcsqs_find_sqs_processes = []
     if instances and instances > 1:
