@@ -5788,7 +5788,9 @@ class VaspDir(collections.abc.Mapping):
             dirname: The directory containing the VASP calculation as a string or Path.
         """
         self.path = Path(dirname).absolute()
-        self.files = [Path(d) / f for d, subd, fnames in os.walk(self.path) for f in fnames]
+
+        # Note that py3.12 has Path.walk(). But we need to use os.walk to ensure backwards compatibility for now.
+        self.files = [Path(d) / f for d, _, fnames in os.walk(self.path) for f in fnames]
         self._parsed_files: dict[str, Any] = {}
 
     def reset(self):
@@ -5823,7 +5825,7 @@ class VaspDir(collections.abc.Mapping):
                 return self._parsed_files[item]
 
         warnings.warn(
-            f"No parser defined for {item}. Full text of file is returned as a string.",
+            f"No parser defined for {item}. Contents are returned as a string.",
             UserWarning,
         )
         with zopen(fpath, "rt") as f:
