@@ -899,14 +899,14 @@ SIGMA = 0.1"""
 
 
 class TestKpointsSupportedModes:
-    def test_from_str(self):
-        test_cases = "Automatic Gamma Monkhorst Line_mode Cartesian Reciprocal".split()
-        for input_str in test_cases:
-            expected = getattr(KpointsSupportedModes, input_str)
-            assert KpointsSupportedModes.from_str(input_str) == expected
-            assert KpointsSupportedModes.from_str(input_str.lower()) == expected  # case insensitive
-            assert KpointsSupportedModes.from_str(input_str[0]) == expected  # only first letter matters
+    @pytest.mark.parametrize("mode", ["Automatic", "Gamma", "Monkhorst", "Line_mode", "Cartesian", "Reciprocal"])
+    def test_from_str(self, mode):
+        expected = getattr(KpointsSupportedModes, mode)
+        assert KpointsSupportedModes.from_str(mode) == expected
+        assert KpointsSupportedModes.from_str(mode.lower()) == expected  # case insensitive
+        assert KpointsSupportedModes.from_str(mode[0]) == expected  # only first letter matters
 
+    def test_invalid_mode(self):
         mode = "InvalidMode"
         with pytest.raises(ValueError, match=f"Invalid Kpoint {mode=}"):
             KpointsSupportedModes.from_str(mode)
@@ -914,8 +914,10 @@ class TestKpointsSupportedModes:
 
 class TestKpoints:
     def test_init(self):
+        # Automatic KPOINT grid
         filepath = f"{VASP_IN_DIR}/KPOINTS_auto"
         kpoints = Kpoints.from_file(filepath)
+        assert kpoints.comment == "Automatic mesh"
         assert kpoints.kpts == [(10,)], "Wrong kpoint lattice read"
         filepath = f"{VASP_IN_DIR}/KPOINTS_cartesian"
         kpoints = Kpoints.from_file(filepath)
@@ -926,17 +928,27 @@ class TestKpoints:
         ], "Wrong kpoint lattice read"
         assert kpoints.kpts_shift == (0.5, 0.5, 0.5)
 
+        # Gamma-centered Kpoint grid
+        filepath = f"{VASP_IN_DIR}/KPOINTS_gamma"
+        kpoints = Kpoints.from_file(filepath)
+        assert kpoints.comment == "Gamma centered mesh"
+        assert kpoints.kpts == [(4, 4, 4)]
+
+        # Monkhorst-Pack Kpoint grid
         filepath = f"{VASP_IN_DIR}/KPOINTS"
         kpoints = Kpoints.from_file(filepath)
+        assert kpoints.comment == "Auto-generated kpoints file: VaspIO.writeKPOINTS(XX,XX,500)"
         self.kpoints = kpoints
         assert kpoints.kpts == [(2, 4, 6)]
 
+        # Line mode
         filepath = f"{VASP_IN_DIR}/KPOINTS_band"
         kpoints = Kpoints.from_file(filepath)
         assert kpoints.labels is not None
         assert kpoints.style == Kpoints.supported_modes.Line_mode
         assert str(kpoints).split("\n")[3] == "Reciprocal"
 
+        # Explicit K-point mode
         filepath = f"{VASP_IN_DIR}/KPOINTS_explicit"
         kpoints = Kpoints.from_file(filepath)
         assert kpoints.kpts_weights is not None
@@ -949,8 +961,10 @@ Cartesian
 0.5 0.5 0.5 4 None"""
         assert str(kpoints).strip() == expected_kpt_str
 
+        # Explicit tetrahedra method
         filepath = f"{VASP_IN_DIR}/KPOINTS_explicit_tet"
         kpoints = Kpoints.from_file(filepath)
+        assert kpoints.comment == "Example file"
         assert kpoints.tet_connections == [(6, [1, 2, 3, 4])]
 
     def test_property_kpts(self):
