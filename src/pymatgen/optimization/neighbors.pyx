@@ -78,8 +78,9 @@ def find_points_in_spheres(
             mask]
 
     cdef:
-        int i, j, k, l
+        int i, j, k
         int i_dim  # index of dimension
+        int i_pt  # index of point in all_coords (n_total)
         double[3] max_r  # maximum repetitions in each direction
 
         # Valid boundary, that is the minimum in center_coords - (r + tol)
@@ -148,15 +149,15 @@ def find_points_in_spheres(
 
     # Process PBC
     get_frac_coords(lattice, inv_lattice, all_coords, offset_correction)
-    for i in range(n_total):
-        for j in range(3):
-            if pbc[j]:
+    for i_pt in range(n_total):
+        for i_dim in range(3):
+            if pbc[i_dim]:
                 # Only wrap atoms when this dimension is PBC
-                all_frac_coords[i, j] = offset_correction[i, j] % 1
-                offset_correction[i, j] = offset_correction[i, j] - all_frac_coords[i, j]
+                all_frac_coords[i_pt, i_dim] = offset_correction[i_pt, i_dim] % 1
+                offset_correction[i_pt, i_dim] = offset_correction[i_pt, i_dim] - all_frac_coords[i_pt, i_dim]
             else:
-                all_frac_coords[i, j] = offset_correction[i, j]
-                offset_correction[i, j] = 0
+                all_frac_coords[i_pt, i_dim] = offset_correction[i_pt, i_dim]
+                offset_correction[i_pt, i_dim] = 0
 
     # Compute the reciprocal lattice in place
     get_reciprocal_lattice(lattice, reciprocal_lattice)
@@ -168,20 +169,20 @@ def find_points_in_spheres(
 
     get_bounds(frac_coords, max_r, &pbc[0], max_bounds, min_bounds)
 
-    for i in range(3):
-        nlattice *= (max_bounds[i] - min_bounds[i])
+    for i_dim in range(3):
+        nlattice *= (max_bounds[i_dim] - min_bounds[i_dim])
     matmul(all_frac_coords, lattice, coords_in_cell)
 
     # Get translated images, coordinates and indices
     for i in range(min_bounds[0], max_bounds[0]):
         for j in range(min_bounds[1], max_bounds[1]):
             for k in range(min_bounds[2], max_bounds[2]):
-                for l in range(n_total):
+                for i_pt in range(n_total):
                     for i_dim in range(3):
-                        coord_temp[m] = <double>i * lattice[0, i_dim] + \
+                        coord_temp[i_dim] = <double>i * lattice[0, i_dim] + \
                                         <double>j * lattice[1, i_dim] + \
                                         <double>k * lattice[2, i_dim] + \
-                                        coords_in_cell[l, i_dim]
+                                        coords_in_cell[i_pt, i_dim]
                     if (
                             (coord_temp[0] > valid_min[0]) &
                             (coord_temp[0] < valid_max[0]) &
@@ -193,7 +194,7 @@ def find_points_in_spheres(
                         offsets_p_temp[3*count] = i
                         offsets_p_temp[3*count+1] = j
                         offsets_p_temp[3*count+2] = k
-                        indices_p_temp[count] = l
+                        indices_p_temp[count] = i_pt
                         expanded_coords_p_temp[3*count] = coord_temp[0]
                         expanded_coords_p_temp[3*count+1] = coord_temp[1]
                         expanded_coords_p_temp[3*count+2] = coord_temp[2]
@@ -277,8 +278,8 @@ def find_points_in_spheres(
             n_atoms * sizeof(np.int64_t)
         )
 
-    for i in range(3):
-        ncube[i] = <np.int64_t>(ceil((valid_max[i] - valid_min[i]) / ledge))
+    for i_dim in range(3):
+        ncube[i_dim] = <np.int64_t>(ceil((valid_max[i_dim] - valid_min[i_dim]) / ledge))
 
     compute_cube_index(expanded_coords, valid_min, ledge, all_indices3)
     three_to_one(all_indices3, ncube[1], ncube[2], all_indices1)
@@ -295,9 +296,9 @@ def find_points_in_spheres(
     memset(<void*>atom_indices, -1, n_atoms*sizeof(np.int64_t))
 
     get_cube_neighbors(ncube, neighbor_map)
-    for i in range(n_atoms):
-        atom_indices[i] = head[all_indices1[i]]
-        head[all_indices1[i]] = i
+    for i_pt in range(n_atoms):
+        atom_indices[i_pt] = head[all_indices1[i_pt]]
+        head[all_indices1[i_pt]] = i_pt
 
     # Get center atoms' cube indices
     compute_cube_index(center_coords, valid_min, ledge, center_indices3)
