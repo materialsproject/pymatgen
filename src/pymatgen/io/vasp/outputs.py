@@ -5761,23 +5761,28 @@ class VaspDir(collections.abc.Mapping):
     """
 
     FILE_MAPPINGS: typing.ClassVar = {
-        "INCAR": Incar,
-        "POSCAR": Poscar,
+        n: globals()[n.capitalize()]
+        for n in [
+            "INCAR",
+            "POSCAR",
+            "KPOINTS",
+            "POTCAR",
+            "vasprun",
+            "OUTCAR",
+            "OSZICAR",
+            "CHGCAR",
+            "WAVECAR",
+            "WAVEDER",
+            "LOCPOT",
+            "XDATCAR",
+            "EIGENVAL",
+            "PROCAR",
+            "ELFCAR",
+            "DYNMAT",
+        ]
+    } | {
         "CONTCAR": Poscar,
-        "KPOINTS": Kpoints,
-        "POTCAR": Potcar,
-        "vasprun": Vasprun,
-        "OUTCAR": Outcar,
-        "OSZICAR": Oszicar,
-        "CHGCAR": Chgcar,
-        "WAVECAR": Wavecar,
-        "WAVEDER": Waveder,
-        "LOCPOT": Locpot,
-        "XDATCAR": Xdatcar,
-        "EIGENVAL": Eigenval,
-        "PROCAR": Procar,
-        "ELFCAR": Elfcar,
-        "DYNMAT": Dynmat,
+        "IBZKPT": Kpoints,
         "WSWQ": WSWQ,
     }
 
@@ -5786,8 +5791,10 @@ class VaspDir(collections.abc.Mapping):
         Args:
             dirname: The directory containing the VASP calculation as a string or Path.
         """
-        self.path = Path(dirname)
-        self.files = [f.name for f in self.path.iterdir() if f.is_file()]
+        self.path = Path(dirname).absolute()
+
+        # Note that py3.12 has Path.walk(). But we need to use os.walk to ensure backwards compatibility for now.
+        self.files = [Path(d) / f for d, _, fnames in os.walk(self.path) for f in fnames]
         self._parsed_files: dict[str, Any] = {}
 
     def reset(self):
@@ -5795,7 +5802,7 @@ class VaspDir(collections.abc.Mapping):
         Reset all loaded files and recheck the directory for files. Use this when the contents of the directory has
         changed.
         """
-        self.files = [f for f in self.path.iterdir() if f.is_file()]
+        self.files = [Path(d) / f for d, subd, fnames in os.walk(self.path) for f in fnames]
         self._parsed_files = {}
 
     def __len__(self):
@@ -5822,7 +5829,7 @@ class VaspDir(collections.abc.Mapping):
                 return self._parsed_files[item]
 
         warnings.warn(
-            f"No parser defined for {item}. Full text of file is returned as a string.",
+            f"No parser defined for {item}. Contents are returned as a string.",
             UserWarning,
         )
         with zopen(fpath, "rt") as f:
