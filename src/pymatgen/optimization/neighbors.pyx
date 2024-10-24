@@ -78,9 +78,11 @@ def find_points_in_spheres(
             mask]
 
     cdef:
-        int i, j, k, l, m
-        double[3] maxr
-        # Valid boundary, that is the minimum in center_coords - r
+        int i, j, k, l
+        int i_dim  # index of dimension
+        double[3] max_r  # maximum repetitions in each direction
+
+        # Valid boundary, that is the minimum in center_coords - (r + tol)
         double[3] valid_min
         double[3] valid_max
         double ledge
@@ -138,12 +140,13 @@ def find_points_in_spheres(
         ledge = 0.1
     else:
         ledge = r
-    max_and_min(center_coords, valid_max, valid_min)
-    for i in range(3):
-        valid_max[i] = valid_max[i] + r + tol
-        valid_min[i] = valid_min[i] - r - tol
 
-    # Process pbc
+    get_max_and_min(center_coords, valid_max, valid_min)
+    for i_dim in range(3):
+        valid_max[i_dim] = valid_max[i_dim] + r + tol
+        valid_min[i_dim] = valid_min[i_dim] - r - tol
+
+    # Process PBC
     get_frac_coords(lattice, inv_lattice, all_coords, offset_correction)
     for i in range(n_total):
         for j in range(3):
@@ -157,11 +160,13 @@ def find_points_in_spheres(
 
     # Compute the reciprocal lattice in place
     get_reciprocal_lattice(lattice, reciprocal_lattice)
-    get_max_r(reciprocal_lattice, maxr, r)
+
+    get_max_r(reciprocal_lattice, max_r, r)
 
     # Get fractional coordinates of center points in place
     get_frac_coords(lattice, inv_lattice, center_coords, frac_coords)
-    get_bounds(frac_coords, maxr, &pbc[0], max_bounds, min_bounds)
+
+    get_bounds(frac_coords, max_r, &pbc[0], max_bounds, min_bounds)
 
     for i in range(3):
         nlattice *= (max_bounds[i] - min_bounds[i])
@@ -172,11 +177,11 @@ def find_points_in_spheres(
         for j in range(min_bounds[1], max_bounds[1]):
             for k in range(min_bounds[2], max_bounds[2]):
                 for l in range(n_total):
-                    for m in range(3):
-                        coord_temp[m] = <double>i * lattice[0, m] + \
-                                        <double>j * lattice[1, m] + \
-                                        <double>k * lattice[2, m] + \
-                                        coords_in_cell[l, m]
+                    for i_dim in range(3):
+                        coord_temp[m] = <double>i * lattice[0, i_dim] + \
+                                        <double>j * lattice[1, i_dim] + \
+                                        <double>k * lattice[2, i_dim] + \
+                                        coords_in_cell[l, i_dim]
                     if (
                             (coord_temp[0] > valid_min[0]) &
                             (coord_temp[0] < valid_max[0]) &
@@ -249,7 +254,7 @@ def find_points_in_spheres(
 
     n_atoms = count
     cdef:
-        # Delete those beyond (min_center_coords - r, max_center_coords + r)
+        # Delete those beyond (min_center_coords - r - tol, max_center_coords + r + tol)
         double *offsets_p = <double*> safe_realloc(
             offsets_p_temp, count * 3 * sizeof(double)
         )
@@ -316,7 +321,7 @@ def find_points_in_spheres(
                     distances[count] = sqrt(d_temp2)
 
                     count += 1
-                    # increasing the memory size by allocating incrementally
+                    # Increasing the memory size by allocating incrementally
                     # malloc_chunk more memory locations, I found it 3x faster to do so
                     # compared to using vectors in cpp
                     if count >= malloc_chunk:
@@ -354,19 +359,19 @@ def find_points_in_spheres(
         py_offsets = np.array([[], [], []], dtype=float).T
         py_distances = np.array([], dtype=float)
     else:
-        # resize to the actual size
+        # Resize to the actual size
         index_1 = <np.int64_t*>safe_realloc(index_1, count * sizeof(np.int64_t))
         index_2 = <np.int64_t*>safe_realloc(index_2, count*sizeof(np.int64_t))
         offset_final = <double*>safe_realloc(offset_final, 3*count*sizeof(double))
         distances = <double*>safe_realloc(distances, count*sizeof(double))
 
-        # convert to python objects
+        # Convert to python objects
         py_index_1 = np.array(<np.int64_t[:count]>index_1)
         py_index_2 = np.array(<np.int64_t[:count]>index_2)
         py_offsets = np.array(<double[:count, :3]>offset_final)
         py_distances = np.array(<double[:count]>distances)
 
-    # free allocated memories
+    # Free allocated memory
     free(index_1)
     free(index_2)
     free(offset_final)
@@ -510,30 +515,30 @@ cdef double distance2(
 
 cdef void get_bounds(
         const double[:, ::1] frac_coords,
-        const double[3] maxr,
+        const double[3] max_r,
         const np.int64_t[3] pbc,
         np.int64_t[3] max_bounds,
         np.int64_t[3] min_bounds
     ) nogil:
     """
     Given the fractional coordinates and the number of repeation needed in each
-    direction, maxr, compute the translational bounds in each dimension.
+    direction (max_r), compute the translational bounds in each dimension.
     """
     cdef:
-        int i
+        int i_dim
         double[3] max_fcoords
         double[3] min_fcoords
 
-    max_and_min(frac_coords, max_fcoords, min_fcoords)
+    get_max_and_min(frac_coords, max_fcoords, min_fcoords)
 
-    for i in range(3):
-        min_bounds[i] = 0
-        max_bounds[i] = 1
+    for i_dim in range(3):
+        min_bounds[i_dim] = 0
+        max_bounds[i_dim] = 1
 
-    for i in range(3):
-        if pbc[i]:
-            min_bounds[i] = <np.int64_t>(floor(min_fcoords[i] - maxr[i] - 1e-8))
-            max_bounds[i] = <np.int64_t>(ceil(max_fcoords[i] + maxr[i] + 1e-8))
+    for i_dim in range(3):
+        if pbc[i_dim]:
+            min_bounds[i_dim] = <np.int64_t>(floor(min_fcoords[i_dim] - max_r[i_dim] - 1e-8))
+            max_bounds[i_dim] = <np.int64_t>(ceil(max_fcoords[i_dim] + max_r[i_dim] + 1e-8))
 
 cdef void get_frac_coords(
         const double[:, ::1] lattice,
@@ -590,19 +595,19 @@ cdef double matrix_det(const double[:, ::1] matrix) nogil:
 
 cdef void get_max_r(
         const double[:, ::1] reciprocal_lattice,
-        double[3] maxr,
+        double[3] max_r,
         double r
     ) nogil:
     """
     Get maximum repetition in each directions.
     """
     cdef:
-        int i
+        int i_dim
         double recp_len
 
-    for i in range(3):  # TODO: is it ever not 3x3 for our cases?
-        recp_len = norm(reciprocal_lattice[i, :])
-        maxr[i] = ceil((r + 0.15) * recp_len / (2 * pi))
+    for i_dim in range(3):  # TODO: is it ever not 3x3 for our cases?
+        recp_len = norm(reciprocal_lattice[i_dim, :])
+        max_r[i_dim] = ceil((r + 0.15) * recp_len / (2 * pi))
 
 cdef void get_reciprocal_lattice(
         const double[:, ::1] lattice,
@@ -671,28 +676,29 @@ cdef double norm(const double[::1] vec) nogil:
         sum += vec[i] * vec[i]
     return sqrt(sum)
 
-cdef void max_and_min(
+cdef void get_max_and_min(
         const double[:, ::1] coords,
         double[3] max_coords,
         double[3] min_coords
     ) nogil:
     """
-    Compute the min and max of coords.
+    Compute the lower (min_coords) and upper (max_coords) boundaries along each dimension.
     """
     cdef:
-        int i, j
-        int M = coords.shape[0]
-        int N = coords.shape[1]
+        int i_dim, i_pt
+        int n_points = coords.shape[0]
+        int n_dims = coords.shape[1]
 
-    for i in range(N):
-        max_coords[i] = coords[0, i]
-        min_coords[i] = coords[0, i]
-    for i in range(M):
-        for j in range(N):
-            if coords[i, j] >= max_coords[j]:
-                max_coords[j] = coords[i, j]
-            if coords[i, j] <= min_coords[j]:
-                min_coords[j] = coords[i, j]
+    for i_dim in range(n_dims):
+        max_coords[i_dim] = coords[0, i_dim]
+        min_coords[i_dim] = coords[0, i_dim]
+
+    for i_dim in range(n_points):
+        for i_pt in range(n_dims):
+            if coords[i_dim, i_pt] >= max_coords[i_pt]:
+                max_coords[i_pt] = coords[i_dim, i_pt]
+            if coords[i_dim, i_pt] <= min_coords[i_pt]:
+                min_coords[i_pt] = coords[i_dim, i_pt]
 
 cdef void compute_cube_index(
         const double[:, ::1] coords,
