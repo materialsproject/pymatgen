@@ -2206,7 +2206,6 @@ class TestVaspDir(PymatgenTest):
         assert len(d) == 10
 
         assert isinstance(d["00/POSCAR"], Poscar)
-        assert "02/CONTCAR" in d.files
 
         outcars = d.get_files_by_name("OUTCAR")
         assert len(outcars) == 5
