@@ -46,7 +46,8 @@ def find_points_in_spheres(
         const np.int64_t[::1] pbc,
         const double[:, ::1] lattice,
         const double tol=1e-8,
-        const double min_r=1.0):
+        const double min_r=1.0
+    ):
     """For each point in `center_coords`, get all the neighboring points in `all_coords`
     that are within the cutoff radius `r`. All the coordinates should be Cartesian.
 
@@ -397,7 +398,10 @@ def find_points_in_spheres(
     return py_index_1, py_index_2, py_offsets, py_distances
 
 
-cdef void get_cube_neighbors(np.int64_t[3] ncube, np.int64_t[:, ::1] neighbor_map):
+cdef void get_cube_neighbors(
+        np.int64_t[3] ncube,
+        np.int64_t[:, ::1] neighbor_map
+    ):
     """
     Get {cube_index: cube_neighbor_indices} map.
     """
@@ -467,7 +471,10 @@ cdef void get_cube_neighbors(np.int64_t[3] ncube, np.int64_t[:, ::1] neighbor_ma
     free(ovectors_p)
 
 
-cdef int compute_offset_vectors(np.int64_t* ovectors, np.int64_t n) nogil:
+cdef int compute_offset_vectors(
+        np.int64_t* ovectors,
+        np.int64_t n
+    ) nogil:
     cdef:
         int i, j, k, ind
         int count = 0
@@ -571,7 +578,10 @@ cdef void matmul(
             for k in range(n):
                 out[i, j] += m1[i, k] * m2[k, j]
 
-cdef void matrix_inv(const double[:, ::1] matrix, double[:, ::1] inv) nogil:
+cdef void matrix_inv(
+        const double[:, ::1] matrix,
+        double[:, ::1] inv
+    ) nogil:
     """
     Matrix inversion.
     """
@@ -584,7 +594,9 @@ cdef void matrix_inv(const double[:, ::1] matrix, double[:, ::1] inv) nogil:
             inv[i, j] = (matrix[(j+1)%3, (i+1)%3] * matrix[(j+2)%3, (i+2)%3] -
                 matrix[(j+2)%3, (i+1)%3] * matrix[(j+1)%3, (i+2)%3]) / det
 
-cdef double matrix_det(const double[:, ::1] matrix) nogil:
+cdef double matrix_det(
+        const double[:, ::1] matrix
+    ) nogil:
     """
     Matrix determinant.
     """
@@ -644,7 +656,10 @@ cdef void recip_component(
     for i in range(3):
         out[i] = 2 * pi * ai_cross_aj[i] / prod
 
-cdef double inner(const double[3] x, const double[3] y) nogil:
+cdef double inner(
+    const double[3] x,
+    const double[3] y
+    ) nogil:
     """
     Compute inner product of 3d vectors.
     """
@@ -656,7 +671,11 @@ cdef double inner(const double[3] x, const double[3] y) nogil:
         sum += x[i] * y[i]
     return sum
 
-cdef void cross(const double[3] x, const double[3] y, double[3] out) nogil:
+cdef void cross(
+        const double[3] x,
+        const double[3] y,
+        double[3] out
+    ) nogil:
     """
     Cross product of vector x and y, output in out.
     """
@@ -664,7 +683,9 @@ cdef void cross(const double[3] x, const double[3] y, double[3] out) nogil:
     out[1] = x[2] * y[0] - x[0] * y[2]
     out[2] = x[0] * y[1] - x[1] * y[0]
 
-cdef double norm(const double[::1] vec) nogil:
+cdef double norm(
+        const double[::1] vec
+    ) nogil:
     """
     Vector norm.
     """
@@ -704,18 +725,25 @@ cdef void get_max_and_min(
 cdef void compute_cube_index(
         const double[:, ::1] coords,
         const double[3] global_min,
-        double radius, np.int64_t[:, ::1] return_indices
+        double radius,
+        np.int64_t[:, ::1] return_indices
     ) nogil:
-    cdef int i, j
-    for i in range(coords.shape[0]):
-        for j in range(coords.shape[1]):
-            return_indices[i, j] = <np.int64_t>(
-                floor((coords[i, j] - global_min[j] + 1e-8) / radius)
+    """
+    Computes the cube indices for a set of coordinates based on radius.
+    """
+    cdef int i_pt, i_dim
+
+    for i_pt in range(coords.shape[0]):
+        for i_dim in range(coords.shape[1]):
+            return_indices[i_pt, i_dim] = <np.int64_t>(
+                floor((coords[i_pt, i_dim] - global_min[i_dim] + 1e-8) / radius)
             )
 
-
 cdef void three_to_one(
-        const np.int64_t[:, ::1] label3d, np.int64_t ny, np.int64_t nz, np.int64_t[::1] label1d
+        const np.int64_t[:, ::1] label3d,
+        np.int64_t ny,
+        np.int64_t nz,
+        np.int64_t[::1] label1d
     ) nogil:
     """
     3D vector representation to 1D.
@@ -727,9 +755,10 @@ cdef void three_to_one(
     for i in range(n):
         label1d[i] = label3d[i, 0] * ny * nz + label3d[i, 1] * nz + label3d[i, 2]
 
-
 cdef bint distance_vertices(
-        const double[8][3] center, const double[8][3] off, double r
+        const double[8][3] center,
+        const double[8][3] off,
+        double r
     ) nogil:
     cdef:
         int i, j
@@ -747,10 +776,13 @@ cdef bint distance_vertices(
 
 cdef void offset_cube(
         const double[8][3] center,
-        np.int64_t n, np.int64_t m, np.int64_t l,
+        np.int64_t n,
+        np.int64_t m,
+        np.int64_t l,
         const double[8][3] (&offsetted)
     ) nogil:
     cdef int i, j, k
+
     for i in range(2):
         for j in range(2):
             for k in range(2):
