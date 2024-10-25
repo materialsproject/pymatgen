@@ -209,12 +209,13 @@ class Vasprun(MSONable):
             shape (nkpoints, nbands, natoms, norbitals, 3). Where the last axis is the contribution in the
             3 Cartesian directions. This attribute is only set if spin-orbit coupling (LSORBIT = True) or
             non-collinear magnetism (LNONCOLLINEAR = True) is turned on in the INCAR.
-        other_dielectric (dict): Dictionary, with the tag comment as key, containing other variants of
+        dielectric_data (dict): Dictionary, with the tag comment as key, containing other variants of
             the real and imaginary part of the dielectric constant (e.g., computed by RPA) in function of
             the energy (frequency). Optical properties (e.g. absorption coefficient) can be obtained through this.
             The data is given as a tuple of 3 values containing each of them the energy, the real part tensor,
             and the imaginary part tensor ([energies],[[real_partxx,real_partyy,real_partzz,real_partxy,
             real_partyz,real_partxz]],[[imag_partxx,imag_partyy,imag_partzz,imag_partxy, imag_partyz, imag_partxz]]).
+            The data can be the current, density or freq_dependent (BSE) dielectric data.
         nionic_steps (int): The total number of ionic steps. This number is always equal to the total number
             of steps in the actual run even if ionic_step_skip is used.
         force_constants (np.array): Force constants computed in phonon DFPT run(IBRION = 8).
