@@ -80,8 +80,8 @@ def find_points_in_spheres(
 
     cdef:
         int i, j, k
-        int i_dim  # index of dimension
-        int i_pt  # index of point in all_coords (n_total)
+        unsigned int i_dim  # index of dimension
+        unsigned int i_pt  # index of point in all_coords (n_total)
         double[3] max_rep  # maximum repetitions in each direction
 
         # Valid boundary, that is the minimum in center_coords - (r + tol)
@@ -90,8 +90,8 @@ def find_points_in_spheres(
 
         double ledge
 
-        int n_center = center_coords.shape[0]
-        int n_total = all_coords.shape[0]
+        unsigned int n_center = center_coords.shape[0]
+        unsigned int n_total = all_coords.shape[0]
         np.int64_t nlattice = 1
 
         np.int64_t[3] max_bounds = [1, 1, 1]
@@ -113,8 +113,8 @@ def find_points_in_spheres(
         double[3][3] reciprocal_lattice_arr = [[1, 0, 0], [0, 1, 0], [0, 0, 1]]
         double[:, ::1] reciprocal_lattice = reciprocal_lattice_arr
 
-        int count = 0
-        int n_atoms = n_total
+        unsigned int count = 0
+        unsigned int n_atoms = n_total
         double *offsets_p_temp = <double*> safe_malloc(n_atoms * 3 * sizeof(double))
         double *expanded_coords_p_temp = <double*> safe_malloc(
             n_atoms * 3 * sizeof(double)
@@ -128,8 +128,8 @@ def find_points_in_spheres(
         )
         np.int64_t[::1] center_indices1 = <np.int64_t[:n_center]> safe_malloc(n_center*sizeof(np.int64_t))
 
-        int malloc_chunk = 10000  # size of memory chunks to re-allocate dynamically
-        int failed_malloc = 0  # flag for failed reallocation within loops
+        unsigned int malloc_chunk = 10000  # size of memory chunks to re-allocate dynamically
+        unsigned int failed_malloc = 0  # flag for failed reallocation within loops
         np.int64_t *index_1 = <np.int64_t*> safe_malloc(malloc_chunk*sizeof(np.int64_t))
         np.int64_t *index_2 = <np.int64_t*> safe_malloc(malloc_chunk*sizeof(np.int64_t))
         double *offset_final = <double*> safe_malloc(3*malloc_chunk*sizeof(double))
@@ -408,7 +408,7 @@ cdef void get_cube_neighbors(
     """
     cdef:
         int i, j, k
-        int count = 0
+        unsigned int count = 0
         np.int64_t ncubes = ncube[0] * ncube[1] * ncube[2]
         np.int64_t[::1] counts = <np.int64_t[:ncubes]> safe_malloc(ncubes * sizeof(np.int64_t))
         np.int64_t[:, ::1] cube_indices_3d = <np.int64_t[:ncubes, :3]> safe_malloc(
@@ -428,7 +428,7 @@ cdef void get_cube_neighbors(
         np.int64_t ntotal = (2 * n + 1) * (2 * n + 1) * (2 * n + 1)
         np.int64_t[:, ::1] ovectors
         np.int64_t *ovectors_p = <np.int64_t *> safe_malloc(ntotal * 3 * sizeof(np.int64_t))
-        int n_ovectors = compute_offset_vectors(ovectors_p, n)
+        unsigned int n_ovectors = compute_offset_vectors(ovectors_p, n)
 
     # Resize to the actual size
     ovectors_p = <np.int64_t *> safe_realloc(ovectors_p, n_ovectors * 3 * sizeof(np.int64_t))
@@ -616,7 +616,7 @@ cdef void get_max_rep(
     Get maximum repetition in each directions.
     """
     cdef:
-        int i_dim
+        unsigned int i_dim
         double recp_len
 
     for i_dim in range(3):  # TODO: is it ever not 3x3 for our cases?
@@ -630,7 +630,7 @@ cdef void get_reciprocal_lattice(
     """
     Compute the reciprocal lattice.
     """
-    cdef int i
+    cdef unsigned int i
     for i in range(3):
         recip_component(
             lattice[i, :], lattice[(i+1)%3, :],
@@ -648,7 +648,7 @@ cdef void recip_component(
     Compute the reciprocal lattice vector.
     """
     cdef:
-        int i
+        unsigned int i
         double prod
         double ai_cross_aj[3]
 
@@ -666,7 +666,7 @@ cdef double inner(
     """
     cdef:
         double sum = 0
-        int i
+        unsigned int i
 
     for i in range(3):
         sum += x[i] * y[i]
@@ -691,8 +691,8 @@ cdef double norm(
     Vector norm.
     """
     cdef:
-        int i
-        int n = vec.shape[0]
+        unsigned int i
+        unsigned int n = vec.shape[0]
         double sum = 0
 
     for i in range(n):
@@ -708,9 +708,9 @@ cdef void get_max_and_min(
     Compute the lower (min_coords) and upper (max_coords) boundaries along each dimension.
     """
     cdef:
-        int i_dim, i_pt
-        int n_points = coords.shape[0]
-        int n_dims = coords.shape[1]
+        unsigned int i_dim, i_pt
+        unsigned int n_points = coords.shape[0]
+        unsigned int n_dims = coords.shape[1]
 
     for i_dim in range(n_dims):
         max_coords[i_dim] = coords[0, i_dim]
@@ -732,7 +732,7 @@ cdef void compute_cube_index(
     """
     Computes the cube indices for a set of coordinates based on radius.
     """
-    cdef int i_pt, i_dim
+    cdef unsigned int i_pt, i_dim
 
     for i_pt in range(coords.shape[0]):
         for i_dim in range(coords.shape[1]):
@@ -750,8 +750,8 @@ cdef void three_to_one(
     3D vector representation to 1D.
     """
     cdef:
-        int i
-        int n = label3d.shape[0]
+        unsigned int i
+        unsigned int n = label3d.shape[0]
 
     for i in range(n):
         label1d[i] = label3d[i, 0] * ny * nz + label3d[i, 1] * nz + label3d[i, 2]
@@ -762,7 +762,7 @@ cdef bint distance_vertices(
         double r
     ) nogil:
     cdef:
-        int i, j
+        unsigned int i, j
         double d2
         double r2 = r * r
 
@@ -782,7 +782,7 @@ cdef void offset_cube(
         np.int64_t l,
         const double[8][3] (&offsetted)
     ) nogil:
-    cdef int i, j, k
+    cdef unsigned int i, j, k
 
     for i in range(2):
         for j in range(2):
