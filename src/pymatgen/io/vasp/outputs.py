@@ -5803,18 +5803,16 @@ class VaspDir(collections.abc.Mapping):
             dirname: The directory containing the VASP calculation as a string or Path.
         """
         self.path = Path(dirname).absolute()
-
-        # Note that py3.12 has Path.walk(). But we need to use os.walk to ensure backwards compatibility for now.
-        self.files = [str(Path(d) / f).lstrip(str(self.path)) for d, _, fnames in os.walk(self.path) for f in fnames]
-        self._parsed_files: dict[str, Any] = {}
+        self.reset()
 
     def reset(self):
         """
         Reset all loaded files and recheck the directory for files. Use this when the contents of the directory has
         changed.
         """
+        # Note that py3.12 has Path.walk(). But we need to use os.walk to ensure backwards compatibility for now.
         self.files = [str(Path(d) / f).lstrip(str(self.path)) for d, _, fnames in os.walk(self.path) for f in fnames]
-        self._parsed_files = {}
+        self._parsed_files: dict[str, Any] = {}
 
     def __len__(self):
         return len(self.files)
