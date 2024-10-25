@@ -255,6 +255,7 @@ class Vasprun(MSONable):
         occu_tol: float = 1e-8,
         separate_spins: bool = False,
         exception_on_bad_xml: bool = True,
+        ignore_dielectric: bool = False,
     ) -> None:
         """
         Args:
@@ -303,6 +304,8 @@ class Vasprun(MSONable):
                 proper vasprun.xml are parsed. You can set to False if you want
                 partial results (e.g., if you are monitoring a calculation during a
                 run), but use the results with care. A warning is issued.
+            ignore_dielectric (bool): Whether to ignore the parsing errors related to the dielectric function. This
+                is because the dielectric function can usually be parsed from the OUTCAR instead.
         """
         self.filename = filename
         self.ionic_step_skip = ionic_step_skip
@@ -310,6 +313,7 @@ class Vasprun(MSONable):
         self.occu_tol = occu_tol
         self.separate_spins = separate_spins
         self.exception_on_bad_xml = exception_on_bad_xml
+        self.ignore_dielectric = ignore_dielectric
 
         with zopen(filename, mode="rt") as file:
             if ionic_step_skip or ionic_step_offset:
@@ -485,7 +489,7 @@ class Vasprun(MSONable):
                                 # "velocity-velocity" is also named
                                 # "current-current" in OUTCAR
                                 self.dielectric_data["velocity"] = self._parse_diel(elem)
-                            else:
+                            elif not self.ignore_dielectric:
                                 raise NotImplementedError("This vasprun.xml has >2 unlabelled dielectric functions")
                         else:
                             comment = elem.attrib["comment"]
@@ -1273,6 +1277,13 @@ class Vasprun(MSONable):
             "G0W0",
             "GW",
             "BSE",
+            # VASP renamed the GW tags in v6.
+            "QPGW",
+            "QPGW0",
+            "EVGW",
+            "EVGW0",
+            "GWR",
+            "GW0R",
         }:
             nelect = self.parameters["NELECT"]
             if len(potcar) == len(self.initial_structure.composition.element_composition):
@@ -5794,7 +5805,7 @@ class VaspDir(collections.abc.Mapping):
         self.path = Path(dirname).absolute()
 
         # Note that py3.12 has Path.walk(). But we need to use os.walk to ensure backwards compatibility for now.
-        self.files = [Path(d) / f for d, _, fnames in os.walk(self.path) for f in fnames]
+        self.files = [str(Path(d) / f).lstrip(str(self.path)) for d, _, fnames in os.walk(self.path) for f in fnames]
         self._parsed_files: dict[str, Any] = {}
 
     def reset(self):
@@ -5802,7 +5813,7 @@ class VaspDir(collections.abc.Mapping):
         Reset all loaded files and recheck the directory for files. Use this when the contents of the directory has
         changed.
         """
-        self.files = [Path(d) / f for d, subd, fnames in os.walk(self.path) for f in fnames]
+        self.files = [str(Path(d) / f).lstrip(str(self.path)) for d, _, fnames in os.walk(self.path) for f in fnames]
         self._parsed_files = {}
 
     def __len__(self):
@@ -5834,3 +5845,12 @@ class VaspDir(collections.abc.Mapping):
         )
         with zopen(fpath, "rt") as f:
             return f.read()
+
+    def get_files_by_name(self, name: str) -> dict[str, Any]:
+        """
+        Returns all files with a given name. E.g., if you want all the OUTCAR files, set name="OUTCAR".
+
+        Returns:
+            {filename: object from VaspDir[filename]}
+        """
+        return {f: self[f] for f in self.files if name in f}
