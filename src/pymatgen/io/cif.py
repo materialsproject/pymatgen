@@ -1008,7 +1008,7 @@ class CifParser:
 
         # Check lattice volume
         if lattice is not None and lattice.volume < min_vol:
-            raise ValueError(f"{lattice.volume=} Å³ below threshold, double check your structure.")
+            raise ValueError(f"{lattice.volume=:.4f} Å³ below threshold, double check your structure.")
 
         # If magCIF, get magnetic symmetry moments and magmoms
         # else standard CIF, and use empty magmom dict
