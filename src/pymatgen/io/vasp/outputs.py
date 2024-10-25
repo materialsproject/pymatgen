@@ -483,7 +483,7 @@ class Vasprun(MSONable):
                             or elem.attrib["comment"]
                             == "INVERSE MACROSCOPIC DIELECTRIC TENSOR (including local field effects in RPA (Hartree))"
                         ):
-                            if self.incar["ALGO"].upper() == "BSE":
+                            if self.incar.get("ALGO", "Normal").upper() == "BSE":
                                 self.dielectric_data["freq_dependent"] = self._parse_diel(elem)
                             elif "density" not in self.dielectric_data:
                                 self.dielectric_data["density"] = self._parse_diel(elem)
