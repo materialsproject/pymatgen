@@ -82,11 +82,12 @@ def find_points_in_spheres(
         int i, j, k
         int i_dim  # index of dimension
         int i_pt  # index of point in all_coords (n_total)
-        double[3] max_r  # maximum repetitions in each direction
+        double[3] max_rep  # maximum repetitions in each direction
 
         # Valid boundary, that is the minimum in center_coords - (r + tol)
         double[3] valid_min
         double[3] valid_max
+
         double ledge
 
         int n_center = center_coords.shape[0]
@@ -163,12 +164,12 @@ def find_points_in_spheres(
     # Compute the reciprocal lattice in place
     get_reciprocal_lattice(lattice, reciprocal_lattice)
 
-    get_max_r(reciprocal_lattice, max_r, r)
+    get_max_rep(reciprocal_lattice, max_rep, r)
 
     # Get fractional coordinates of center points in place
     get_frac_coords(lattice, inv_lattice, center_coords, frac_coords)
 
-    get_bounds(frac_coords, max_r, &pbc[0], max_bounds, min_bounds)
+    get_bounds(frac_coords, max_rep, &pbc[0], max_bounds, min_bounds)
 
     for i_dim in range(3):
         nlattice *= (max_bounds[i_dim] - min_bounds[i_dim])
@@ -523,14 +524,14 @@ cdef double distance2(
 
 cdef void get_bounds(
         const double[:, ::1] frac_coords,
-        const double[3] max_r,
+        const double[3] max_rep,
         const np.int64_t[3] pbc,
         np.int64_t[3] max_bounds,
         np.int64_t[3] min_bounds
     ) nogil:
     """
     Given the fractional coordinates and the number of repeation needed in each
-    direction (max_r), compute the translational bounds in each dimension.
+    direction (max_rep), compute the translational bounds in each dimension.
     """
     cdef:
         int i_dim
@@ -545,8 +546,8 @@ cdef void get_bounds(
 
     for i_dim in range(3):
         if pbc[i_dim]:
-            min_bounds[i_dim] = <np.int64_t>(floor(min_fcoords[i_dim] - max_r[i_dim] - 1e-8))
-            max_bounds[i_dim] = <np.int64_t>(ceil(max_fcoords[i_dim] + max_r[i_dim] + 1e-8))
+            min_bounds[i_dim] = <np.int64_t>(floor(min_fcoords[i_dim] - max_rep[i_dim] - 1e-8))
+            max_bounds[i_dim] = <np.int64_t>(ceil(max_fcoords[i_dim] + max_rep[i_dim] + 1e-8))
 
 cdef void get_frac_coords(
         const double[:, ::1] lattice,
@@ -606,9 +607,9 @@ cdef double matrix_det(
         matrix[0, 2] * (matrix[1, 0] * matrix[2, 1] - matrix[1, 1] * matrix[2, 0])
     )
 
-cdef void get_max_r(
+cdef void get_max_rep(
         const double[:, ::1] reciprocal_lattice,
-        double[3] max_r,
+        double[3] max_rep,
         double r
     ) nogil:
     """
@@ -620,7 +621,7 @@ cdef void get_max_r(
 
     for i_dim in range(3):  # TODO: is it ever not 3x3 for our cases?
         recp_len = norm(reciprocal_lattice[i_dim, :])
-        max_r[i_dim] = ceil((r + 0.15) * recp_len / (2 * pi))
+        max_rep[i_dim] = ceil((r + 0.15) * recp_len / (2 * pi))
 
 cdef void get_reciprocal_lattice(
         const double[:, ::1] lattice,
