@@ -483,13 +483,15 @@ class Vasprun(MSONable):
                             or elem.attrib["comment"]
                             == "INVERSE MACROSCOPIC DIELECTRIC TENSOR (including local field effects in RPA (Hartree))"
                         ):
-                            if "density" not in self.dielectric_data:
+                            if self.incar["ALGO"].upper() == "BSE":
+                                self.dielectric_data["freq_dependent"] = self._parse_diel(elem)
+                            elif "density" not in self.dielectric_data:
                                 self.dielectric_data["density"] = self._parse_diel(elem)
                             elif "velocity" not in self.dielectric_data:
                                 # "velocity-velocity" is also named
                                 # "current-current" in OUTCAR
                                 self.dielectric_data["velocity"] = self._parse_diel(elem)
-                            elif not self.ignore_dielectric:
+                            else:
                                 raise NotImplementedError("This vasprun.xml has >2 unlabelled dielectric functions")
                         else:
                             comment = elem.attrib["comment"]
@@ -597,15 +599,10 @@ class Vasprun(MSONable):
         Note that this method is only implemented for optical properties
         calculated with GGA and BSE.
         """
-        if self.dielectric_data["density"]:
-            real_avg = [
-                sum(self.dielectric_data["density"][1][i][:3]) / 3
-                for i in range(len(self.dielectric_data["density"][0]))
-            ]
-            imag_avg = [
-                sum(self.dielectric_data["density"][2][i][:3]) / 3
-                for i in range(len(self.dielectric_data["density"][0]))
-            ]
+        diel_data = self.dielectric_data.get("freq_dependent") or self.dielectric_data["density"]
+        if diel_data:
+            real_avg = [sum(diel_data[1][i][:3]) / 3 for i in range(len(diel_data[0]))]
+            imag_avg = [sum(diel_data[2][i][:3]) / 3 for i in range(len(diel_data[0]))]
 
             def optical_absorb_coeff(freq: float, real: float, imag: float) -> float:
                 """Calculate optical absorption coefficient,
@@ -618,7 +615,7 @@ class Vasprun(MSONable):
                 itertools.starmap(
                     optical_absorb_coeff,
                     zip(
-                        self.dielectric_data["density"][0],
+                        diel_data[0],
                         real_avg,
                         imag_avg,
                         strict=True,
