@@ -969,7 +969,7 @@ class CifParser:
         primitive: bool,
         symmetrized: bool,
         check_occu: bool = False,
-        min_vol: float = 0.5,
+        min_vol: float = 1.0,
     ) -> Structure | None:
         """Generate structure from part of the CIF.
 
@@ -979,8 +979,8 @@ class CifParser:
             symmetrized (bool): Whether to return SymmetrizedStructure.
             check_occu (bool): Whether to check site for unphysical occupancy > 1.
             min_vol (float): Minimum volume in Angstrom^3 to consider structure as valid.
-                This is added to guard against 2D-like structure, which could result in
-                infinite loop for searching near neighbours.
+                This is added to guard against unphysical 2D-like structure,
+                which could result in infinite loop for searching near neighbours.
 
         Returns:
             Structure or None if not found.
@@ -1007,7 +1007,7 @@ class CifParser:
         lattice = self.get_lattice(data)
 
         # Check lattice volume
-        if min_vol > 0 and lattice is not None and lattice.volume < min_vol:
+        if lattice is not None and lattice.volume < min_vol:
             raise ValueError(f"{lattice.volume=} Å³ below threshold, double check your structure.")
 
         # If magCIF, get magnetic symmetry moments and magmoms
