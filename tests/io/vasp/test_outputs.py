@@ -2196,6 +2196,20 @@ class TestVaspDir(PymatgenTest):
         with pytest.raises(ValueError, match="hello not found"):
             d["hello"]
 
-        d = VaspDir(f"{TEST_FILES_DIR}/io/vasp/outputs")
-        with pytest.warns(UserWarning, match=r"No parser defined for IBZKPT.*"):
-            assert isinstance(d["IBZKPT.lobster"], str)
+        d = VaspDir(f"{TEST_FILES_DIR}/io/pwscf")
+        with pytest.warns(UserWarning, match=r"No parser defined for Si.pwscf.out"):
+            assert isinstance(d["Si.pwscf.out"], str)
+
+        # Test NEB directories.
+        d = VaspDir(f"{TEST_FILES_DIR}/io/vasp/fixtures/neb_analysis/neb1/neb")
+
+        assert len(d) == 10
+
+        assert isinstance(d["00/POSCAR"], Poscar)
+
+        outcars = d.get_files_by_name("OUTCAR")
+        assert len(outcars) == 5
+        assert all("OUTCAR" for k in outcars)
+
+        d.reset()
+        assert len(d._parsed_files) == 0

@@ -1006,7 +1006,7 @@ class CifParser:
 
         lattice = self.get_lattice(data)
 
-        # Check lattice
+        # Check lattice volume
         if min_vol > 0 and lattice is not None and lattice.volume < min_vol:
             raise ValueError(f"{lattice.volume=} Å³ below threshold, double check your structure.")
 
