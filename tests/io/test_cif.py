@@ -219,6 +219,18 @@ class TestCifIO(PymatgenTest):
         assert len(parser.parse_structures(primitive=False)[0]) == 2
         assert not parser.has_errors
 
+    def test_parse_bad_superflat(self):
+        """
+        Test unphysically "flat" structure with volume near zero,
+        which would originally lead to infinite loop (PR4133).
+        """
+        parser = CifParser(f"{TEST_FILES_DIR}/cif/bad_superflat_inf_loop.cif")
+        with (
+            pytest.raises(ValueError, match="Invalid CIF file with no structures"),
+            pytest.warns(UserWarning, match="lattice.volume=0.0000 Å³ below threshold"),
+        ):
+            parser.parse_structures()
+
     def test_get_symmetrized_structure(self):
         parser = CifParser(f"{TEST_FILES_DIR}/cif/Li2O.cif")
         sym_structure = parser.parse_structures(primitive=False, symmetrized=True)[0]
