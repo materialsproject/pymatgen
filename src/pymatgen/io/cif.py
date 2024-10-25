@@ -969,8 +969,22 @@ class CifParser:
         primitive: bool,
         symmetrized: bool,
         check_occu: bool = False,
+        min_vol: float = 0.5,
     ) -> Structure | None:
-        """Generate structure from part of the CIF."""
+        """Generate structure from part of the CIF.
+
+        Args:
+            data (CifBlock): The data block to parse.
+            primitive (bool): Whether to return primitive unit cells.
+            symmetrized (bool): Whether to return SymmetrizedStructure.
+            check_occu (bool): Whether to check site for unphysical occupancy > 1.
+            min_vol (float): Minimum volume in Angstrom^3 to consider structure as valid.
+                This is added to guard against 2D-like structure, which could result in
+                infinite loop for searching near neighbours.
+
+        Returns:
+            Structure or None if not found.
+        """
 
         def get_num_implicit_hydrogens(symbol: str) -> int:
             """Get number of implicit hydrogens."""
@@ -991,6 +1005,10 @@ class CifParser:
             return False
 
         lattice = self.get_lattice(data)
+
+        # Check lattice
+        if min_vol > 0 and lattice is not None and lattice.volume < min_vol:
+            raise ValueError(f"{lattice.volume=} Å³ below threshold, double check your structure.")
 
         # If magCIF, get magnetic symmetry moments and magmoms
         # else standard CIF, and use empty magmom dict
