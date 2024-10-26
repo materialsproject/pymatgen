@@ -2,7 +2,6 @@
 
 from __future__ import annotations
 
-import math
 from itertools import product
 from typing import TYPE_CHECKING
 
@@ -101,12 +100,12 @@ class CoherentInterfaceBuilder:
         for match in self.zsl_matches:
             xform = get_2d_transform(film_vectors, match.film_vectors)
             strain, _rot = polar(xform)
-            if not np.isclose(strain, np.round(strain), atol=1e-12):
+            if not np.allclose(strain, np.round(strain), atol=1e-12):
                 raise ValueError("Film lattice vectors changed during ZSL match, check your ZSL Generator parameters")
 
             xform = get_2d_transform(substrate_vectors, match.substrate_vectors)
             strain, _rot = polar(xform)
-            if not np.isclose(strain, strain.astype(int), atol=1e-12):
+            if not np.allclose(strain, strain.astype(int), atol=1e-12):
                 raise ValueError(
                     "Substrate lattice vectors changed during ZSL match, check your ZSL Generator parameters"
                 )
@@ -220,11 +219,11 @@ class CoherentInterfaceBuilder:
             ).astype(int)
             film_sl_slab = film_slab.copy()
             film_sl_slab.make_supercell(super_film_transform)
-            if not math.isclose(film_sl_slab.lattice.matrix[2], film_slab.lattice.matrix[2], abs_tol=1e-08):
+            if not np.allclose(film_sl_slab.lattice.matrix[2], film_slab.lattice.matrix[2], atol=1e-08):
                 raise ValueError(
                     "2D transformation affected C-axis for Film transformation",
                 )
-            if not np.isclose(film_sl_slab.lattice.matrix[:2], match.film_sl_vectors, atol=1e-08):
+            if not np.allclose(film_sl_slab.lattice.matrix[:2], match.film_sl_vectors, atol=1e-08):
                 raise ValueError("Transformation didn't make proper supercell for film")
 
             # Build substrate superlattice
@@ -233,9 +232,9 @@ class CoherentInterfaceBuilder:
             ).astype(int)
             sub_sl_slab = sub_slab.copy()
             sub_sl_slab.make_supercell(super_sub_transform)
-            if not math.isclose(sub_sl_slab.lattice.matrix[2], sub_slab.lattice.matrix[2], abs_tol=1e-08):
+            if not np.allclose(sub_sl_slab.lattice.matrix[2], sub_slab.lattice.matrix[2], atol=1e-08):
                 raise ValueError("2D transformation affected C-axis for Film transformation")
-            if not np.isclose(sub_sl_slab.lattice.matrix[:2], match.substrate_sl_vectors, atol=1e-08):
+            if not np.allclose(sub_sl_slab.lattice.matrix[:2], match.substrate_sl_vectors, atol=1e-08):
                 raise ValueError("Transformation didn't make proper supercell for substrate")
 
             # Add extra info
