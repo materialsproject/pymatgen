@@ -1,7 +1,9 @@
 """
 Test the import time of several important modules.
+
+NOTE:
+    - Toggle the "GEN_REF_TIME" to generate reference import time.
 """
-# ruff: noqa: T201 (check for print statement)
 
 from __future__ import annotations
 
@@ -9,17 +11,20 @@ import json
 import os
 import subprocess
 import time
+import warnings
 from typing import TYPE_CHECKING
 
 import pytest
 
+from pymatgen.util.testing import TEST_FILES_DIR
+
 if TYPE_CHECKING:
     from typing import Literal
 
-# Toggle this to generate reference import times
-GEN_REF_TIME = True
+# NOTE: Toggle this to generate reference import time
+GEN_REF_TIME: bool = False
 
-MODULES_TO_TEST = (
+MODULES_TO_TEST: tuple[str, ...] = (
     "from pymatgen.core.bonds import CovalentBond",
     "from pymatgen.core.composition import Composition",
     "from pymatgen.core.interface import Interface",
@@ -42,7 +47,8 @@ MODULES_TO_TEST = (
 # Get runner OS and reference file
 RUNNER_OS: Literal["linux", "windows", "macos"] = os.getenv("RUNNER_OS", "").lower()  # type: ignore[assignment]
 assert RUNNER_OS in {"linux", "windows", "macos"}
-REF_FILE = os.path.join(os.path.dirname(os.path.abspath(__file__)), f"import_time_{RUNNER_OS}.json")
+
+REF_FILE: str = f"{TEST_FILES_DIR}/performance/import_time_{RUNNER_OS}.json"
 
 
 @pytest.mark.skipif(not GEN_REF_TIME, reason="Set GEN_REF_TIME to generate reference import time.")
@@ -69,11 +75,9 @@ def test_import_time(grace_percent: float = 0.20, hard_percent: float = 0.50) ->
         hard_percent (float): Maximum allowed percentage increase in import time
             before the test fails.
     """
-    try:
-        with open(REF_FILE, encoding="utf-8") as file:
-            ref_import_times = json.load(file)
-    except FileNotFoundError:
-        pytest.fail(f"Reference file {REF_FILE} not found. Please generate it.")
+
+    with open(REF_FILE, encoding="utf-8") as file:
+        ref_import_times = json.load(file)
 
     for module_import_cmd, ref_time in ref_import_times.items():
         current_time = _measure_import_time_in_ms(module_import_cmd)
@@ -86,9 +90,9 @@ def test_import_time(grace_percent: float = 0.20, hard_percent: float = 0.50) ->
             if current_time > hard_threshold:
                 pytest.fail(f"{module_import_cmd} import too slow! {hard_threshold=:.2f} ms")
             else:
-                pytest.warns(
-                    UserWarning,
+                warnings.warn(
                     f"{module_import_cmd} import slightly slower than reference: {grace_threshold=:.2f} ms",
+                    stacklevel=2,
                 )
 
 
