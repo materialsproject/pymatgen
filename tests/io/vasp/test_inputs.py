@@ -742,7 +742,7 @@ class TestIncar(PymatgenTest):
         assert incar_from_dict == incar_from_file
         for key in incar_from_dict:
             assert type(incar_from_dict[key]) is type(incar_from_file[key])
-        assert incar_from_file["SYSTEM"] == "This should not be capitalized"
+        assert incar_from_file["SYSTEM"] == "This should NOT BE capitalized"
 
     def test_write(self):
         tmp_file = f"{self.tmp_path}/INCAR.testing"
