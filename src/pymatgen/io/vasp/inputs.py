@@ -2281,7 +2281,7 @@ class PotcarSingle:
             input_str = input_str.strip()
 
             if input_str.lower() in {"t", "f", "true", "false"}:
-                return input_str.startswith(("t", "T"))
+                return input_str[0].lower() == "t"
 
             if input_str.upper() == input_str.lower() and input_str[0].isnumeric():
                 # NB: fortran style floats always include a decimal point.
