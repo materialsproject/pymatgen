@@ -255,8 +255,11 @@ docstring-code-format = true
 addopts = "--durations=30 --quiet -r xXs --color=yes --import-mode=importlib"
 filterwarnings = [
     "ignore::Warning",  # Ignore all warnings
-    "default::FutureWarning",  # Show FutureWarnings
-    "default::DeprecationWarning"  # Show DeprecationWarnings
+    # "default::FutureWarning",  # Show FutureWarnings
+    # "default::DeprecationWarning",  # Show DeprecationWarnings
+    # TODO: WIP, remove afterwards
+    "error::FutureWarning",  # Show FutureWarnings
+    "error::DeprecationWarning",  # Show DeprecationWarnings
 ]
 
 [tool.coverage.run]
