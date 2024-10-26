@@ -971,6 +971,8 @@ class Incar(UserDict, MSONable):
             "IVDW",
         )
         lower_str_keys = ("ML_MODE",)
+        # String keywords that would be read as is (no casing, only stripped)
+        as_is_str_keys = ("SYSTEM",)
 
         def smart_int_or_float(num_str: str) -> float:
             """Determine whether a string represents an integer or a float."""
@@ -1005,6 +1007,9 @@ class Incar(UserDict, MSONable):
 
             if key in lower_str_keys:
                 return val.strip().lower()
+
+            if key in as_is_str_keys:
+                return val.strip()
 
         except ValueError:
             pass
@@ -2276,7 +2281,7 @@ class PotcarSingle:
             input_str = input_str.strip()
 
             if input_str.lower() in {"t", "f", "true", "false"}:
-                return input_str[0].lower() == "t"
+                return input_str.startswith(("t", "T"))
 
             if input_str.upper() == input_str.lower() and input_str[0].isnumeric():
                 # NB: fortran style floats always include a decimal point.
