@@ -370,7 +370,6 @@ class Vasprun(MSONable):
         self.projected_eigenvalues: dict[Any, NDArray] | None = None
         self.projected_magnetisation: NDArray | None = None
         self.dielectric_data: dict[str, tuple] = {}
-        self.other_dielectric: dict[str, tuple] = {}
         self.incar: Incar = {}
         self.kpoints_opt_props: KpointOptProps | None = None
         ionic_steps: list[dict[str, Any]] = []
@@ -479,12 +478,9 @@ class Vasprun(MSONable):
                             ) = self._parse_projected_eigen(elem)
 
                     elif tag == "dielectricfunction":
-                        if (
-                            "comment" not in elem.attrib
-                            or elem.attrib["comment"]
-                            == "INVERSE MACROSCOPIC DIELECTRIC TENSOR (including local field effects in RPA (Hartree))"
-                        ):
+                        if "comment" not in elem.attrib:
                             if self.incar.get("ALGO", "Normal").upper() == "BSE":
+                                # BSE calculations do not label the dielectric function with comments.
                                 self.dielectric_data["freq_dependent"] = self._parse_diel(elem)
                             elif "density" not in self.dielectric_data:
                                 self.dielectric_data["density"] = self._parse_diel(elem)
@@ -493,7 +489,7 @@ class Vasprun(MSONable):
                                 # "current-current" in OUTCAR
                                 self.dielectric_data["velocity"] = self._parse_diel(elem)
                             else:
-                                raise NotImplementedError("This vasprun.xml has >2 unlabelled dielectric functions")
+                                warnings.warn("Additional unlabelled dielectric data in vasprun.xml are ignored.")
                         else:
                             comment = elem.attrib["comment"]
                             # VASP 6+ has labels for the density and current
@@ -503,7 +499,8 @@ class Vasprun(MSONable):
                             elif comment == "current-current":
                                 self.dielectric_data["velocity"] = self._parse_diel(elem)
                             else:
-                                self.other_dielectric[comment] = self._parse_diel(elem)
+                                # All other kinds of dielectric data are just dumped with the comment as the key.
+                                self.dielectric_data[comment] = self._parse_diel(elem)
 
                     elif tag == "varray" and elem.attrib.get("name") == "opticaltransitions":
                         self.optical_transition = np.array(_parse_vasp_array(elem))
