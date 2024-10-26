@@ -122,11 +122,12 @@ class TestVasprun(PymatgenTest):
         assert "freq_dependent" in vasp_run.dielectric_data
 
     def test_vasprun_with_more_than_two_unlabelled_dielectric_functions(self):
-        with pytest.raises(
-            NotImplementedError,
-            match="This vasprun.xml has >2 unlabelled dielectric functions",
+        with pytest.warns(
+            UserWarning,
+            match="Additional unlabelled dielectric data in vasprun.xml are stored as unlabelled.",
         ):
-            Vasprun(f"{VASP_OUT_DIR}/vasprun.dielectric_bad.xml.gz")
+            vr = Vasprun(f"{VASP_OUT_DIR}/vasprun.dielectric_bad.xml.gz")
+            assert "unlabelled" in vr.dielectric_data
 
     def test_bad_vasprun(self):
         with pytest.raises(ET.ParseError):
