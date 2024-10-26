@@ -723,7 +723,7 @@ class Incar(UserDict, MSONable):
 
     - Keys are stored in uppercase to allow case-insensitive access (set, get, del, update, setdefault).
     - String values are capitalized by default, except for keys specified
-        in the `lower_str_keys` of the `proc_val` method.
+        in the `lower_str_keys/as_is_str_keys` of the `proc_val` method.
     """
 
     def __init__(self, params: dict[str, Any] | None = None) -> None:
@@ -971,7 +971,7 @@ class Incar(UserDict, MSONable):
             "IVDW",
         )
         lower_str_keys = ("ML_MODE",)
-        # String keywords that would be read as is (no casing, only stripped)
+        # String keywords to read "as is" (no case transformation, only stripped)
         as_is_str_keys = ("SYSTEM",)
 
         def smart_int_or_float(num_str: str) -> float:
