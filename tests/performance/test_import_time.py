@@ -4,7 +4,7 @@ Test the import time of several important modules.
 NOTE:
     - Toggle the "GEN_REF_TIME" to generate reference import time.
 
-Last update: 2024-10-26
+Last update: 2024-10-26 (PR 4128)
 
 Runner specs:
 Linux:   4 CPU
