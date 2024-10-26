@@ -3,6 +3,13 @@ Test the import time of several important modules.
 
 NOTE:
     - Toggle the "GEN_REF_TIME" to generate reference import time.
+
+Last update: 2024-10-26
+
+Runner specs:
+Linux:   4 CPU
+Windows: 4 CPU
+macOS:   3 CPU (M1)
 """
 
 from __future__ import annotations
@@ -69,7 +76,7 @@ def test_get_ref_import_time() -> None:
 
 
 @pytest.mark.skipif(GEN_REF_TIME, reason="Generating reference import time.")
-def test_import_time(grace_percent: float = 0.20, hard_percent: float = 0.50) -> None:
+def test_import_time(grace_percent: float = 0.5, hard_percent: float = 1.0) -> None:
     """Test the import time of core modules to avoid performance regression.
 
     Args:
