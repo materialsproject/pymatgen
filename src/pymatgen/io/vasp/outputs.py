@@ -256,7 +256,6 @@ class Vasprun(MSONable):
         occu_tol: float = 1e-8,
         separate_spins: bool = False,
         exception_on_bad_xml: bool = True,
-        ignore_dielectric: bool = False,
     ) -> None:
         """
         Args:
@@ -305,8 +304,6 @@ class Vasprun(MSONable):
                 proper vasprun.xml are parsed. You can set to False if you want
                 partial results (e.g., if you are monitoring a calculation during a
                 run), but use the results with care. A warning is issued.
-            ignore_dielectric (bool): Whether to ignore the parsing errors related to the dielectric function. This
-                is because the dielectric function can usually be parsed from the OUTCAR instead.
         """
         self.filename = filename
         self.ionic_step_skip = ionic_step_skip
@@ -314,7 +311,6 @@ class Vasprun(MSONable):
         self.occu_tol = occu_tol
         self.separate_spins = separate_spins
         self.exception_on_bad_xml = exception_on_bad_xml
-        self.ignore_dielectric = ignore_dielectric
 
         with zopen(filename, mode="rt") as file:
             if ionic_step_skip or ionic_step_offset:
@@ -478,29 +474,30 @@ class Vasprun(MSONable):
                             ) = self._parse_projected_eigen(elem)
 
                     elif tag == "dielectricfunction":
-                        if "comment" not in elem.attrib:
+                        label = elem.attrib.get("comment", None)
+                        if label is None:
                             if self.incar.get("ALGO", "Normal").upper() == "BSE":
-                                # BSE calculations do not label the dielectric function with comments.
-                                self.dielectric_data["freq_dependent"] = self._parse_diel(elem)
+                                label = "freq_dependent"
                             elif "density" not in self.dielectric_data:
-                                self.dielectric_data["density"] = self._parse_diel(elem)
+                                label = "density"
                             elif "velocity" not in self.dielectric_data:
                                 # "velocity-velocity" is also named
                                 # "current-current" in OUTCAR
-                                self.dielectric_data["velocity"] = self._parse_diel(elem)
+                                label = "velocity"
                             else:
-                                warnings.warn("Additional unlabelled dielectric data in vasprun.xml are ignored.")
-                        else:
-                            comment = elem.attrib["comment"]
-                            # VASP 6+ has labels for the density and current
-                            # derived dielectric constants
-                            if comment == "density-density":
-                                self.dielectric_data["density"] = self._parse_diel(elem)
-                            elif comment == "current-current":
-                                self.dielectric_data["velocity"] = self._parse_diel(elem)
-                            else:
-                                # All other kinds of dielectric data are just dumped with the comment as the key.
-                                self.dielectric_data[comment] = self._parse_diel(elem)
+                                warnings.warn(
+                                    "Additional unlabelled dielectric data in vasprun.xml are stored as unlabelled."
+                                )
+                                label = "unlabelled"
+                        # VASP 6+ has labels for the density and current
+                        # derived dielectric constants
+
+                        if label == "density-density":
+                            label = "density"
+                        elif label == "current-current":
+                            label = "velocity"
+
+                        self.dielectric_data[label] = self._parse_diel(elem)
 
                     elif tag == "varray" and elem.attrib.get("name") == "opticaltransitions":
                         self.optical_transition = np.array(_parse_vasp_array(elem))
