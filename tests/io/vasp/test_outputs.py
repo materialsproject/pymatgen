@@ -97,7 +97,8 @@ class TestVasprun(PymatgenTest):
 
     def test_multiple_dielectric(self):
         vasp_run = Vasprun(f"{VASP_OUT_DIR}/vasprun.GW0.xml.gz")
-        assert len(vasp_run.other_dielectric) == 3
+        assert len(vasp_run.dielectric_data) == 4
+        assert "HEAD OF MICROSCOPIC DIELECTRIC TENSOR (INDEPENDENT PARTICLE)" in vasp_run.dielectric_data
 
     def test_charge_charge_dielectric(self):
         """
@@ -395,7 +396,7 @@ class TestVasprun(PymatgenTest):
         assert approx(vasprun_diel.dielectric_data["density"][1][51][0]) == 5.267
         assert approx(vasprun_diel.dielectric_data["velocity"][0][10]) == 0.4338
         assert approx(vasprun_diel.dielectric_data["velocity"][1][51][0]) == 1.0741
-        assert len(vasprun_diel.other_dielectric) == 0
+        assert len(vasprun_diel.dielectric_data) == 2
 
     def test_indirect_vasprun(self):
         vasp_run = Vasprun(f"{VASP_OUT_DIR}/vasprun.indirect.xml.gz")
