@@ -209,12 +209,13 @@ class Vasprun(MSONable):
             shape (nkpoints, nbands, natoms, norbitals, 3). Where the last axis is the contribution in the
             3 Cartesian directions. This attribute is only set if spin-orbit coupling (LSORBIT = True) or
             non-collinear magnetism (LNONCOLLINEAR = True) is turned on in the INCAR.
-        other_dielectric (dict): Dictionary, with the tag comment as key, containing other variants of
+        dielectric_data (dict): Dictionary, with the tag comment as key, containing other variants of
             the real and imaginary part of the dielectric constant (e.g., computed by RPA) in function of
             the energy (frequency). Optical properties (e.g. absorption coefficient) can be obtained through this.
             The data is given as a tuple of 3 values containing each of them the energy, the real part tensor,
             and the imaginary part tensor ([energies],[[real_partxx,real_partyy,real_partzz,real_partxy,
             real_partyz,real_partxz]],[[imag_partxx,imag_partyy,imag_partzz,imag_partxy, imag_partyz, imag_partxz]]).
+            The data can be the current, density or freq_dependent (BSE) dielectric data.
         nionic_steps (int): The total number of ionic steps. This number is always equal to the total number
             of steps in the actual run even if ionic_step_skip is used.
         force_constants (np.array): Force constants computed in phonon DFPT run(IBRION = 8).
@@ -483,13 +484,15 @@ class Vasprun(MSONable):
                             or elem.attrib["comment"]
                             == "INVERSE MACROSCOPIC DIELECTRIC TENSOR (including local field effects in RPA (Hartree))"
                         ):
-                            if "density" not in self.dielectric_data:
+                            if self.incar.get("ALGO", "Normal").upper() == "BSE":
+                                self.dielectric_data["freq_dependent"] = self._parse_diel(elem)
+                            elif "density" not in self.dielectric_data:
                                 self.dielectric_data["density"] = self._parse_diel(elem)
                             elif "velocity" not in self.dielectric_data:
                                 # "velocity-velocity" is also named
                                 # "current-current" in OUTCAR
                                 self.dielectric_data["velocity"] = self._parse_diel(elem)
-                            elif not self.ignore_dielectric:
+                            else:
                                 raise NotImplementedError("This vasprun.xml has >2 unlabelled dielectric functions")
                         else:
                             comment = elem.attrib["comment"]
@@ -597,15 +600,10 @@ class Vasprun(MSONable):
         Note that this method is only implemented for optical properties
         calculated with GGA and BSE.
         """
-        if self.dielectric_data["density"]:
-            real_avg = [
-                sum(self.dielectric_data["density"][1][i][:3]) / 3
-                for i in range(len(self.dielectric_data["density"][0]))
-            ]
-            imag_avg = [
-                sum(self.dielectric_data["density"][2][i][:3]) / 3
-                for i in range(len(self.dielectric_data["density"][0]))
-            ]
+        diel_data = self.dielectric_data.get("freq_dependent") or self.dielectric_data["density"]
+        if diel_data:
+            real_avg = [sum(diel_data[1][i][:3]) / 3 for i in range(len(diel_data[0]))]
+            imag_avg = [sum(diel_data[2][i][:3]) / 3 for i in range(len(diel_data[0]))]
 
             def optical_absorb_coeff(freq: float, real: float, imag: float) -> float:
                 """Calculate optical absorption coefficient,
@@ -618,7 +616,7 @@ class Vasprun(MSONable):
                 itertools.starmap(
                     optical_absorb_coeff,
                     zip(
-                        self.dielectric_data["density"][0],
+                        diel_data[0],
                         real_avg,
                         imag_avg,
                         strict=True,
@@ -5803,18 +5801,16 @@ class VaspDir(collections.abc.Mapping):
             dirname: The directory containing the VASP calculation as a string or Path.
         """
         self.path = Path(dirname).absolute()
-
-        # Note that py3.12 has Path.walk(). But we need to use os.walk to ensure backwards compatibility for now.
-        self.files = [str(Path(d) / f).lstrip(str(self.path)) for d, _, fnames in os.walk(self.path) for f in fnames]
-        self._parsed_files: dict[str, Any] = {}
+        self.reset()
 
     def reset(self):
         """
         Reset all loaded files and recheck the directory for files. Use this when the contents of the directory has
         changed.
         """
+        # Note that py3.12 has Path.walk(). But we need to use os.walk to ensure backwards compatibility for now.
         self.files = [str(Path(d) / f).lstrip(str(self.path)) for d, _, fnames in os.walk(self.path) for f in fnames]
-        self._parsed_files = {}
+        self._parsed_files: dict[str, Any] = {}
 
     def __len__(self):
         return len(self.files)

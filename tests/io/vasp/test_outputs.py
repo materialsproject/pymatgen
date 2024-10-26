@@ -113,11 +113,12 @@ class TestVasprun(PymatgenTest):
         assert "density" in vasp_run.dielectric_data
         assert "velocity" in vasp_run.dielectric_data
 
-    def test_optical_absorption_coeff(self):
+    def test_BSE(self):
         vasp_run = Vasprun(f"{VASP_OUT_DIR}/vasprun.BSE.xml.gz")
         absorption_coeff = vasp_run.optical_absorption_coeff
         assert absorption_coeff[1] == 0.8327903762077188
         assert vasp_run.final_structure == vasp_run.initial_structure
+        assert "freq_dependent" in vasp_run.dielectric_data
 
     def test_vasprun_with_more_than_two_unlabelled_dielectric_functions(self):
         with pytest.raises(
