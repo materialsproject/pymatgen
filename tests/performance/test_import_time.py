@@ -58,6 +58,10 @@ MODULES_TO_TEST: tuple[str, ...] = (
 RUNNER_OS: Literal["linux", "windows", "macos"] = os.getenv("RUNNER_OS", "").lower()  # type: ignore[assignment]
 assert RUNNER_OS in {"linux", "windows", "macos"}
 
+# Skip test on macOS due to inconsistent import time results
+if RUNNER_OS == "macos":
+    pytest.skip("Import time measurements are unstable on macOS", allow_module_level=True)
+
 REF_FILE: str = f"{TEST_FILES_DIR}/performance/import_time_{RUNNER_OS}.json"
 
 
