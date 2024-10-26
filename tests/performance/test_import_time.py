@@ -123,8 +123,8 @@ def _measure_import_time_in_ms(module_import_cmd: str, count: int = 3) -> float:
     total_time = 0.0
 
     for _ in range(count):
-        start_time = time.perf_counter()
+        start_time = time.perf_counter_ns()
         subprocess.run(["python", "-c", f"{module_import_cmd}"], check=True)
-        total_time += time.perf_counter() - start_time
+        total_time += time.perf_counter_ns() - start_time
 
-    return (total_time / count) * 1000
+    return (total_time / count) / 1e6
