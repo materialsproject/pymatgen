@@ -113,11 +113,12 @@ class TestVasprun(PymatgenTest):
         assert "density" in vasp_run.dielectric_data
         assert "velocity" in vasp_run.dielectric_data
 
-    def test_optical_absorption_coeff(self):
+    def test_BSE(self):
         vasp_run = Vasprun(f"{VASP_OUT_DIR}/vasprun.BSE.xml.gz")
         absorption_coeff = vasp_run.optical_absorption_coeff
         assert absorption_coeff[1] == 0.8327903762077188
         assert vasp_run.final_structure == vasp_run.initial_structure
+        assert "freq_dependent" in vasp_run.dielectric_data
 
     def test_vasprun_with_more_than_two_unlabelled_dielectric_functions(self):
         with pytest.raises(
@@ -2196,6 +2197,20 @@ class TestVaspDir(PymatgenTest):
         with pytest.raises(ValueError, match="hello not found"):
             d["hello"]
 
-        d = VaspDir(f"{TEST_FILES_DIR}/io/vasp/outputs")
-        with pytest.warns(UserWarning, match=r"No parser defined for IBZKPT.*"):
-            assert isinstance(d["IBZKPT.lobster"], str)
+        d = VaspDir(f"{TEST_FILES_DIR}/io/pwscf")
+        with pytest.warns(UserWarning, match=r"No parser defined for Si.pwscf.out"):
+            assert isinstance(d["Si.pwscf.out"], str)
+
+        # Test NEB directories.
+        d = VaspDir(f"{TEST_FILES_DIR}/io/vasp/fixtures/neb_analysis/neb1/neb")
+
+        assert len(d) == 10
+
+        assert isinstance(d["00/POSCAR"], Poscar)
+
+        outcars = d.get_files_by_name("OUTCAR")
+        assert len(outcars) == 5
+        assert all("OUTCAR" for k in outcars)
+
+        d.reset()
+        assert len(d._parsed_files) == 0
