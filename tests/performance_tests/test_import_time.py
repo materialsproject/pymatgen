@@ -12,13 +12,13 @@ class TestCore:
     def test_composition(self):
         pass
 
-    def test_interface(self):
+    def test_interface(self):  # TODO
         pass
 
     def test_ion(self):
         pass
 
-    def test_lattice(self):
+    def test_lattice(self):  # TODO
         pass
 
     def test_libxcfunc(self):
@@ -33,22 +33,19 @@ class TestCore:
     def test_peridict_table(self):
         pass
 
-    def test_settings(self):
-        pass
-
     def test_sites(self):
         pass
 
-    def test_spectrum(self):
+    def test_spectrum(self):  # TODO
         pass
 
-    def test_structure(self):
+    def test_structure(self):  # TODO
         pass
 
-    def test_surface(self):
+    def test_surface(self):  # TODO
         pass
 
-    def test_tensors(self):
+    def test_tensors(self):  # TODO
         pass
 
     def test_trajectory(self):
