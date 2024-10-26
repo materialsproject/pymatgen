@@ -98,7 +98,7 @@ class JonesFaithfulTransformation:
         Returns:
             tuple[list[list[float]] | np.ndarray, list[float]]: transformation matrix & vector
         """
-        # Import sympy is expensive
+        # Import sympy is expensive (PR4128)
         from sympy import Matrix
         from sympy.parsing.sympy_parser import parse_expr
 
