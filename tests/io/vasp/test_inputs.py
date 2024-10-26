@@ -717,7 +717,7 @@ class TestIncar(PymatgenTest):
         float/int, and might yield values in wrong type.
         """
         # Init from dict
-        incar_dict = {"ENCUT": 500, "GGA": "PS", "NELM": 60.0, "SYSTEM": "This should not be capitalized"}
+        incar_dict = {"ENCUT": 500, "GGA": "PS", "NELM": 60.0, "SYSTEM": "This should NOT BE capitalized"}
         incar_from_dict = Incar(incar_dict)
 
         # Init from file (from string)
@@ -725,7 +725,7 @@ class TestIncar(PymatgenTest):
         ENCUT = 500
         GGA = PS
         NELM = 60.0
-        SYSTEM = This should not be capitalized
+        SYSTEM = This should NOT BE capitalized
         """
 
         with ScratchDir("."):
