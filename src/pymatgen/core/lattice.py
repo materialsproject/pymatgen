@@ -1418,12 +1418,13 @@ class Lattice(MSONable):
             from pymatgen.optimization.neighbors import find_points_in_spheres
         except ImportError:
             return self.get_points_in_sphere_py(frac_points=frac_points, center=center, r=r, zip_results=zip_results)
+
         else:
             frac_points = np.ascontiguousarray(frac_points, dtype=float)
-            latt_matrix = np.ascontiguousarray(self.matrix, dtype=float)
             cart_coords = np.ascontiguousarray(self.get_cartesian_coords(frac_points), dtype=float)
-            pbc = np.ascontiguousarray(self.pbc, dtype=np.int64)
             center_coords = np.ascontiguousarray([center], dtype=float)
+            pbc = np.ascontiguousarray(self.pbc, dtype=np.int64)
+            latt_matrix = np.ascontiguousarray(self.matrix, dtype=float)
 
             _, indices, images, distances = find_points_in_spheres(
                 all_coords=cart_coords,
@@ -1433,6 +1434,7 @@ class Lattice(MSONable):
                 lattice=latt_matrix,
                 tol=1e-8,
             )
+
             if len(indices) < 1:
                 # Return empty np.array (not list or tuple) to ensure consistent return type
                 # whether sphere contains points or not
