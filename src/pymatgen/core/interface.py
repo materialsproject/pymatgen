@@ -14,7 +14,6 @@ from typing import TYPE_CHECKING, Literal, cast
 
 import numpy as np
 from monty.fractions import lcm
-from numpy.testing import assert_allclose
 from scipy.cluster.hierarchy import fcluster, linkage
 from scipy.spatial.distance import squareform
 
@@ -2784,10 +2783,16 @@ class Interface(Structure):
             substrate_slab = substrate_slab.get_orthogonal_c_slab()
         if isinstance(film_slab, Slab):
             film_slab = film_slab.get_orthogonal_c_slab()
-        assert_allclose(film_slab.lattice.alpha, 90, 0.1)
-        assert_allclose(film_slab.lattice.beta, 90, 0.1)
-        assert_allclose(substrate_slab.lattice.alpha, 90, 0.1)
-        assert_allclose(substrate_slab.lattice.beta, 90, 0.1)
+
+        if not math.isclose(film_slab.lattice.alpha, 90, rel_tol=0.1) or not math.isclose(
+            film_slab.lattice.beta, 90, rel_tol=0.1
+        ):
+            raise ValueError("The lattice angles alpha or beta of the film slab are not approximately 90 degrees.")
+
+        if not math.isclose(substrate_slab.lattice.alpha, 90, rel_tol=0.1) or not math.isclose(
+            substrate_slab.lattice.beta, 90, rel_tol=0.1
+        ):
+            raise ValueError("The lattice angles alpha or beta of the substrate slab are not approximately 90 degrees.")
 
         # Ensure sub is right-handed
         # IE sub has surface facing "up"
