@@ -64,7 +64,7 @@ REF_FILE: str = f"{TEST_FILES_DIR}/performance/import_time_{RUNNER_OS}.json"
 @pytest.mark.skipif(not GEN_REF_TIME, reason="Set GEN_REF_TIME to generate reference import time.")
 def test_get_ref_import_time() -> None:
     """A dummy test that would always fail, used to generate copyable reference time."""
-    import_times = {
+    import_times: dict[str, float] = {
         module_import_cmd: _measure_import_time_in_ms(module_import_cmd) for module_import_cmd in MODULES_TO_TEST
     }
 
@@ -87,10 +87,10 @@ def test_import_time(grace_percent: float = 0.5, hard_percent: float = 1.0) -> N
     """
 
     with open(REF_FILE, encoding="utf-8") as file:
-        ref_import_times = json.load(file)
+        ref_import_times: dict[str, float] = json.load(file)
 
     for module_import_cmd, ref_time in ref_import_times.items():
-        current_time = _measure_import_time_in_ms(module_import_cmd)
+        current_time: float = _measure_import_time_in_ms(module_import_cmd)
 
         # Calculate thresholds for grace and hard limits
         grace_threshold = ref_time * (1 + grace_percent)

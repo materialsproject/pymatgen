@@ -24,6 +24,7 @@ __author__ = "Pymatgen Development Team"
 __email__ = "pymatgen@googlegroups.com"
 __maintainer__ = "Shyue Ping Ong, Matthew Horton, Janosh Riebesell"
 __maintainer_email__ = "shyuep@gmail.com"
+
 try:
     __version__ = version("pymatgen")
 except PackageNotFoundError:  # pragma: no cover
