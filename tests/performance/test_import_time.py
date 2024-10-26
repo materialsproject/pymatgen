@@ -21,6 +21,9 @@ from pymatgen.util.testing import TEST_FILES_DIR
 if TYPE_CHECKING:
     from typing import Literal
 
+if not os.getenv("CI"):
+    pytest.skip("ref time only comparable in CI runner", allow_module_level=True)
+
 # NOTE: Toggle this to generate reference import time
 GEN_REF_TIME: bool = False
 
