@@ -3,6 +3,8 @@
 from __future__ import annotations
 
 import warnings
+import copy
+from collections import defaultdict
 from pathlib import Path
 
 import numpy as np
@@ -24,7 +26,40 @@ except ImportError:
     )
 
 
-def mol_graph_to_openff_mol(mol_graph: MoleculeGraph) -> tk.Molecule:
+def coerce_formal_charges(
+    badly_charged_mol: tk.Molecule, template_mol: tk.Molecule
+) -> tk.Molecule:
+    """Coerce formal charges on a molecule to match a template molecule.
+
+    This is quite a hacky approach but is better than not fitting the formal charges at all.
+
+    Args:
+        badly_charged_mol (tk.Molecule): The molecule with incorrectly assigned formal charges.
+        template_mol (tk.Molecule): The template molecule with the correct formal charges.
+
+    Returns:
+        tk.Molecule: The molecule with correctly assigned formal charges.
+    """
+    badly_charged_mol = copy.deepcopy(badly_charged_mol)
+
+    atom_template_charges: dict[tuple[int, int], list[Quantity]] = defaultdict(list)
+
+    # load list of formal charges
+    for atom in template_mol.atoms:
+        element_n_bonds = (atom.atomic_number, len(atom.bonds))
+        atom_template_charges[element_n_bonds].append(atom.formal_charge)
+
+    # apply formal charges
+    for atom in badly_charged_mol.atoms:
+        element_n_bonds = (atom.atomic_number, len(atom.bonds))
+        atom.formal_charge = atom_template_charges[element_n_bonds].pop()
+
+    return badly_charged_mol
+
+
+def mol_graph_to_openff_mol(
+    mol_graph: MoleculeGraph, template_mol: tk.Molecule = None
+) -> tk.Molecule:
     """
     Convert a Pymatgen MoleculeGraph to an OpenFF Molecule.
 
@@ -43,12 +78,19 @@ def mol_graph_to_openff_mol(mol_graph: MoleculeGraph) -> tk.Molecule:
     # TODO: should assert that there is only one molecule
     for i_node in range(len(mol_graph.graph.nodes)):
         node = mol_graph.graph.nodes[i_node]
-        atomic_number = node.get("atomic_number") or p_table[mol_graph.molecule[i_node].species_string]
+        atomic_number = (
+            node.get("atomic_number")
+            or p_table[mol_graph.molecule[i_node].species_string]
+        )
 
         # put formal charge on first atom if there is none present
         formal_charge = node.get("formal_charge")
         if formal_charge is None:
-            formal_charge = (i_node == 0) * int(round(mol_graph.molecule.charge, 0)) * unit.elementary_charge
+            formal_charge = (
+                (i_node == 0)
+                * int(round(mol_graph.molecule.charge, 0))
+                * unit.elementary_charge
+            )
 
         # assume not aromatic if no info present
         is_aromatic = node.get("is_aromatic") or False
@@ -72,6 +114,10 @@ def mol_graph_to_openff_mol(mol_graph: MoleculeGraph) -> tk.Molecule:
         openff_mol.add_bond(i_node, j, bond_order, is_aromatic=is_aromatic)
 
     openff_mol.add_conformer(mol_graph.molecule.cart_coords * unit.angstrom)
+
+    if template_mol:
+        openff_mol = coerce_formal_charges(openff_mol, template_mol)
+
     return openff_mol
 
 
@@ -89,7 +135,11 @@ def mol_graph_from_openff_mol(molecule: tk.Molecule) -> MoleculeGraph:
     p_table = {el.Z: str(el) for el in Element}
     total_charge = cum_atoms = 0
 
-    coords = molecule.conformers[0].magnitude if molecule.conformers is not None else np.zeros((molecule.n_atoms, 3))
+    coords = (
+        molecule.conformers[0].magnitude
+        if molecule.conformers is not None
+        else np.zeros((molecule.n_atoms, 3))
+    )
     for idx, atom in enumerate(molecule.atoms):
         mol_graph.insert_node(
             cum_atoms + idx,
@@ -100,7 +150,9 @@ def mol_graph_from_openff_mol(molecule: tk.Molecule) -> MoleculeGraph:
         mol_graph.graph.nodes[cum_atoms + idx]["is_aromatic"] = atom.is_aromatic
         mol_graph.graph.nodes[cum_atoms + idx]["stereochemistry"] = atom.stereochemistry
         # set partial charge as a pure float
-        partial_charge = None if atom.partial_charge is None else atom.partial_charge.magnitude
+        partial_charge = (
+            None if atom.partial_charge is None else atom.partial_charge.magnitude
+        )
         mol_graph.graph.nodes[cum_atoms + idx]["partial_charge"] = partial_charge
         # set formal charge as a pure float
         formal_charge = atom.formal_charge.magnitude
@@ -120,7 +172,9 @@ def mol_graph_from_openff_mol(molecule: tk.Molecule) -> MoleculeGraph:
     return mol_graph
 
 
-def get_atom_map(inferred_mol: tk.Molecule, openff_mol: tk.Molecule) -> tuple[bool, dict[int, int]]:
+def get_atom_map(
+    inferred_mol: tk.Molecule, openff_mol: tk.Molecule
+) -> tuple[bool, dict[int, int]]:
     """
     Compute an atom mapping between two OpenFF Molecules.
 
@@ -141,25 +195,32 @@ def get_atom_map(inferred_mol: tk.Molecule, openff_mol: tk.Molecule) -> tuple[bo
         "return_atom_map": True,
         "formal_charge_matching": False,
     }
-    isomorphic, atom_map = tk.topology.Molecule.are_isomorphic(openff_mol, inferred_mol, **kwargs)
+    isomorphic, atom_map = tk.topology.Molecule.are_isomorphic(
+        openff_mol, inferred_mol, **kwargs
+    )
     if isomorphic:
         return True, atom_map
     # relax stereochemistry restrictions
     kwargs["atom_stereochemistry_matching"] = False
     kwargs["bond_stereochemistry_matching"] = False
-    isomorphic, atom_map = tk.topology.Molecule.are_isomorphic(openff_mol, inferred_mol, **kwargs)
+    isomorphic, atom_map = tk.topology.Molecule.are_isomorphic(
+        openff_mol, inferred_mol, **kwargs
+    )
     if isomorphic:
         return True, atom_map
     # relax bond order restrictions
     kwargs["bond_order_matching"] = False
-    isomorphic, atom_map = tk.topology.Molecule.are_isomorphic(openff_mol, inferred_mol, **kwargs)
+    isomorphic, atom_map = tk.topology.Molecule.are_isomorphic(
+        openff_mol, inferred_mol, **kwargs
+    )
     if isomorphic:
         return True, atom_map
     return False, {}
 
 
 def infer_openff_mol(
-    mol_geometry: Molecule,
+    mol_geometry: MoleculeGraph | Molecule,
+    template_mol: tk.Molecule = None,
 ) -> tk.Molecule:
     """Infer an OpenFF Molecule from a Pymatgen Molecule.
 
@@ -173,13 +234,19 @@ def infer_openff_mol(
     Returns:
         tk.Molecule: The inferred OpenFF Molecule.
     """
-    mol_graph = MoleculeGraph.with_local_env_strategy(mol_geometry, OpenBabelNN())
-    mol_graph = metal_edge_extender(mol_graph)
-    return mol_graph_to_openff_mol(mol_graph)
+    if isinstance(mol_geometry, Molecule):
+        mol_graph = MoleculeGraph.with_local_env_strategy(mol_geometry, OpenBabelNN())
+        mol_graph = metal_edge_extender(mol_graph)
+    else:
+        mol_graph = mol_geometry
+    return mol_graph_to_openff_mol(mol_graph, template_mol=template_mol)
 
 
-def add_conformer(openff_mol: tk.Molecule, geometry: Molecule | None) -> tuple[tk.Molecule, dict[int, int]]:
+def add_conformer(
+    openff_mol: tk.Molecule, geometry: MoleculeGraph | Molecule | None
+) -> tuple[tk.Molecule, dict[int, int]]:
     """
+
     Add conformers to an OpenFF Molecule based on the provided geometry.
 
     If a geometry is provided, infers an OpenFF Molecule from it,
@@ -199,16 +266,18 @@ def add_conformer(openff_mol: tk.Molecule, geometry: Molecule | None) -> tuple[t
     """
     # TODO: test this
     if geometry:
-        # for geometry in geometries:
-        inferred_mol = infer_openff_mol(geometry)
+        inferred_mol = infer_openff_mol(geometry, template_mol=openff_mol)
         is_isomorphic, atom_map = get_atom_map(inferred_mol, openff_mol)
         if not is_isomorphic:
             raise ValueError(
                 f"An isomorphism cannot be found between smile {openff_mol.to_smiles()}"
                 f"and the provided molecule {geometry}."
             )
-        new_mol = Molecule.from_sites([geometry.sites[i] for i in atom_map.values()])
-        openff_mol.add_conformer(new_mol.cart_coords * unit.angstrom)
+        original_mol = geometry if isinstance(geometry, Molecule) else geometry.molecule
+        ordered_mol = Molecule.from_sites(
+            [original_mol.sites[i] for i in atom_map.values()]
+        )
+        openff_mol.add_conformer(ordered_mol.cart_coords * unit.angstrom)
     else:
         atom_map = {i: i for i in range(openff_mol.n_atoms)}
         openff_mol.generate_conformers(n_conformers=1)
@@ -247,7 +316,9 @@ def assign_partial_charges(
         chargs = partial_charges[list(atom_map.values())]  # type: ignore[index, call-overload]
         openff_mol.partial_charges = chargs * unit.elementary_charge
     elif openff_mol.n_atoms == 1:
-        openff_mol.partial_charges = np.array([openff_mol.total_charge.magnitude]) * unit.elementary_charge
+        openff_mol.partial_charges = (
+            np.array([openff_mol.total_charge.magnitude]) * unit.elementary_charge
+        )
     else:
         openff_mol.assign_partial_charges(charge_method)
     return openff_mol
@@ -255,7 +326,7 @@ def assign_partial_charges(
 
 def create_openff_mol(
     smile: str,
-    geometry: Molecule | str | Path | None = None,
+    geometry: MoleculeGraph | Molecule | str | Path | None = None,
     charge_scaling: float = 1,
     partial_charges: list[float] | None = None,
     backup_charge_method: str = "am1bcc",
@@ -289,7 +360,9 @@ def create_openff_mol(
         if geometry is None:
             raise ValueError("geometries must be set if partial_charges is set")
         if len(partial_charges) != len(geometry):
-            raise ValueError("partial charges must have same length & order as geometry")
+            raise ValueError(
+                "partial charges must have same length & order as geometry"
+            )
 
     openff_mol = tk.Molecule.from_smiles(smile, allow_undefined_stereo=True)
 
