@@ -691,7 +691,7 @@ run             10000
 
 
 class TestFunc(PymatgenTest):
-    @pytest.mark.filterwarnings("ignore:write_lammps_inputs")
+    @pytest.mark.filterwarnings("ignore:write_lammps_inputs is deprecated")
     def test_write_lammps_inputs(self):
         # script template
         with open(f"{TEST_DIR}/kappa.txt") as file:
