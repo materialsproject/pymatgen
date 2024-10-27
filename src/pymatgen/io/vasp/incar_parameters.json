@@ -981,6 +981,17 @@
  "ML_FF_WTSIF": {
     "type": "float"
  },
+ "ML_MODE": {
+   "type": "str",
+   "values": [
+      "train",
+      "select",
+      "refit",
+      "refitbayesian",
+      "run",
+      "none"
+   ]
+ },
  "NBANDS": {
     "type": "int"
  },

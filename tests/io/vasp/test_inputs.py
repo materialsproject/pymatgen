@@ -888,6 +888,8 @@ SIGMA = 0.1"""
                 "AMIN": 0.01,
                 "ICHARG": 1,
                 "MAGMOM": [1, 2, 4, 5],
+                "ML_MODE": "RUN",  # lower case string
+                "SYSTEM": "Hello world",  # as is string
                 "ENCUT": 500,  # make sure float key is casted
                 "GGA": "PS",  # test string case insensitivity
                 "LREAL": True,  # special case: Union type
