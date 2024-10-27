@@ -260,6 +260,7 @@ filterwarnings = [
     # TODO: WIP, remove afterwards
     "error::FutureWarning",  # Show FutureWarnings
     "error::DeprecationWarning",  # Show DeprecationWarnings
+    "ignore::DeprecationWarning:pybtex",  # Suppress DeprecationWarnings on pkg_resources from pybtex
 ]
 
 [tool.coverage.run]
