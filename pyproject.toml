@@ -254,14 +254,9 @@ docstring-code-format = true
 [tool.pytest.ini_options]
 addopts = "--durations=30 --quiet -r xXs --color=yes --import-mode=importlib"
 filterwarnings = [
-    "ignore::UserWarning",  # Ignore all warnings
-    # # "default::FutureWarning",  # Show FutureWarnings
-    # # "default::DeprecationWarning",  # Show DeprecationWarnings
-    # # TODO: WIP, remove afterwards
-    # "default::FutureWarning",  # Show FutureWarnings
-    # "default::DeprecationWarning",  # Show DeprecationWarnings
-    # TODO: for some reason filter doesn't work on MacOS
-    # ref: https://github.com/pytest-dev/pytest/issues/11630
+    "ignore::Warning",               # Ignore all other warnings
+    "default::FutureWarning",        # Show FutureWarnings
+    "default::DeprecationWarning",   # Show DeprecationWarnings
     'ignore:pkg_resources is deprecated as an API:DeprecationWarning',
     'ignore:distutils Version classes are deprecated:DeprecationWarning',
     'ignore:Deprecated call to `pkg_resources.declare_namespace:DeprecationWarning',
