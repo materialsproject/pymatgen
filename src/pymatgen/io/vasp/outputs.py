@@ -1523,7 +1523,7 @@ class Vasprun(MSONable):
     @staticmethod
     def _parse_diel(elem: XML_Element) -> tuple[list, list, list]:
         """Parse dielectric properties."""
-        if elem.find("real") and elem.find("imag"):
+        if elem.find("real") is not None and elem.find("imag") is not None:
             imag = [
                 [_vasprun_float(line) for line in r.text.split()]  # type: ignore[union-attr]
                 for r in elem.find("imag").find("array").find("set").findall("r")  # type: ignore[union-attr]
