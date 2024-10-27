@@ -895,8 +895,8 @@ SIGMA = 0.1"""
                 "LREAL": True,  # special case: Union type
                 "NBAND": 250,  # typo in tag
                 "METAGGA": "SCAM",  # typo in value
-                "EDIFF": 5 + 1j,  # value should be a float
-                "ISIF": 9,  # value out of range
+                "EDIFF": 5 + 1j,  # value should be float
+                "ISIF": 9,  # value not unknown
                 "LASPH": 5,  # value should be bool
                 "PHON_TLIST": "is_a_str",  # value should be a list
             }
