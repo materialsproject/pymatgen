@@ -11,12 +11,13 @@ See the following papers for more info:
 from __future__ import annotations
 
 import logging
+import warnings
 from collections import defaultdict
 
 import numpy as np
 from monty.dev import deprecated
 from scipy.constants import physical_constants
-from scipy.integrate import quadrature
+from scipy.integrate import quad
 from scipy.misc import derivative
 from scipy.optimize import minimize
 
@@ -261,7 +262,7 @@ class QuasiHarmonicDebyeApprox:
         # 6.4939394 (from wolfram alpha).
         factor = 3.0 / y**3
         if y < 155:
-            integral = quadrature(lambda x: x**3 / (np.exp(x) - 1.0), 0, y)
+            integral = quad(lambda x: x**3 / (np.exp(x) - 1.0), 0, y)
             return next(iter(integral)) * factor
         return 6.493939 * factor
 
@@ -299,9 +300,18 @@ class QuasiHarmonicDebyeApprox:
             d3EdV3 = np.polyder(p, 3)(volume)
         else:
             func = self.ev_eos_fit.func
-            dEdV = derivative(func, volume, dx=1e-3)
-            d2EdV2 = derivative(func, volume, dx=1e-3, n=2, order=5)
-            d3EdV3 = derivative(func, volume, dx=1e-3, n=3, order=7)
+            with warnings.catch_warnings():
+                # TODO: scipy.misc.derivative is deprecated in SciPy v1.10.0;
+                # and will be completely removed in SciPy v1.12.0.
+                # You may consider using findiff: https://github.com/maroba/findiff
+                # or numdifftools: https://github.com/pbrod/numdifftools
+                warnings.filterwarnings(
+                    "ignore", message="scipy.misc.derivative is deprecated", category=DeprecationWarning
+                )
+
+                dEdV = derivative(func, volume, dx=1e-3)
+                d2EdV2 = derivative(func, volume, dx=1e-3, n=2, order=5)
+                d3EdV3 = derivative(func, volume, dx=1e-3, n=3, order=7)
 
         # Mie-gruneisen formulation
         if self.use_mie_gruneisen:
