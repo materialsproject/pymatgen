@@ -256,7 +256,6 @@ class Vasprun(MSONable):
         occu_tol: float = 1e-8,
         separate_spins: bool = False,
         exception_on_bad_xml: bool = True,
-        ignore_dielectric: bool = False,
     ) -> None:
         """
         Args:
@@ -305,8 +304,6 @@ class Vasprun(MSONable):
                 proper vasprun.xml are parsed. You can set to False if you want
                 partial results (e.g., if you are monitoring a calculation during a
                 run), but use the results with care. A warning is issued.
-            ignore_dielectric (bool): Whether to ignore the parsing errors related to the dielectric function. This
-                is because the dielectric function can usually be parsed from the OUTCAR instead.
         """
         self.filename = filename
         self.ionic_step_skip = ionic_step_skip
@@ -314,7 +311,6 @@ class Vasprun(MSONable):
         self.occu_tol = occu_tol
         self.separate_spins = separate_spins
         self.exception_on_bad_xml = exception_on_bad_xml
-        self.ignore_dielectric = ignore_dielectric
 
         with zopen(filename, mode="rt") as file:
             if ionic_step_skip or ionic_step_offset:
@@ -370,7 +366,6 @@ class Vasprun(MSONable):
         self.projected_eigenvalues: dict[Any, NDArray] | None = None
         self.projected_magnetisation: NDArray | None = None
         self.dielectric_data: dict[str, tuple] = {}
-        self.other_dielectric: dict[str, tuple] = {}
         self.incar: Incar = {}
         self.kpoints_opt_props: KpointOptProps | None = None
         ionic_steps: list[dict[str, Any]] = []
@@ -479,31 +474,31 @@ class Vasprun(MSONable):
                             ) = self._parse_projected_eigen(elem)
 
                     elif tag == "dielectricfunction":
-                        if (
-                            "comment" not in elem.attrib
-                            or elem.attrib["comment"]
-                            == "INVERSE MACROSCOPIC DIELECTRIC TENSOR (including local field effects in RPA (Hartree))"
-                        ):
+                        label = elem.attrib.get("comment", None)
+                        if label is None:
                             if self.incar.get("ALGO", "Normal").upper() == "BSE":
-                                self.dielectric_data["freq_dependent"] = self._parse_diel(elem)
+                                label = "freq_dependent"
                             elif "density" not in self.dielectric_data:
-                                self.dielectric_data["density"] = self._parse_diel(elem)
+                                label = "density"
                             elif "velocity" not in self.dielectric_data:
                                 # "velocity-velocity" is also named
                                 # "current-current" in OUTCAR
-                                self.dielectric_data["velocity"] = self._parse_diel(elem)
+                                label = "velocity"
                             else:
-                                raise NotImplementedError("This vasprun.xml has >2 unlabelled dielectric functions")
-                        else:
-                            comment = elem.attrib["comment"]
-                            # VASP 6+ has labels for the density and current
-                            # derived dielectric constants
-                            if comment == "density-density":
-                                self.dielectric_data["density"] = self._parse_diel(elem)
-                            elif comment == "current-current":
-                                self.dielectric_data["velocity"] = self._parse_diel(elem)
-                            else:
-                                self.other_dielectric[comment] = self._parse_diel(elem)
+                                warnings.warn(
+                                    "Additional unlabelled dielectric data in vasprun.xml are stored as unlabelled.",
+                                    UserWarning,
+                                )
+                                label = "unlabelled"
+                        # VASP 6+ has labels for the density and current
+                        # derived dielectric constants
+
+                        if label == "density-density":
+                            label = "density"
+                        elif label == "current-current":
+                            label = "velocity"
+
+                        self.dielectric_data[label] = self._parse_diel(elem)
 
                     elif tag == "varray" and elem.attrib.get("name") == "opticaltransitions":
                         self.optical_transition = np.array(_parse_vasp_array(elem))
@@ -1528,16 +1523,18 @@ class Vasprun(MSONable):
     @staticmethod
     def _parse_diel(elem: XML_Element) -> tuple[list, list, list]:
         """Parse dielectric properties."""
-        imag = [
-            [_vasprun_float(line) for line in r.text.split()]  # type: ignore[union-attr]
-            for r in elem.find("imag").find("array").find("set").findall("r")  # type: ignore[union-attr]
-        ]
-        real = [
-            [_vasprun_float(line) for line in r.text.split()]  # type: ignore[union-attr]
-            for r in elem.find("real").find("array").find("set").findall("r")  # type: ignore[union-attr]
-        ]
-        elem.clear()
-        return [e[0] for e in imag], [e[1:] for e in real], [e[1:] for e in imag]
+        if elem.find("real") and elem.find("imag"):
+            imag = [
+                [_vasprun_float(line) for line in r.text.split()]  # type: ignore[union-attr]
+                for r in elem.find("imag").find("array").find("set").findall("r")  # type: ignore[union-attr]
+            ]
+            real = [
+                [_vasprun_float(line) for line in r.text.split()]  # type: ignore[union-attr]
+                for r in elem.find("real").find("array").find("set").findall("r")  # type: ignore[union-attr]
+            ]
+            elem.clear()
+            return [e[0] for e in imag], [e[1:] for e in real], [e[1:] for e in imag]
+        return [], [], []
 
     @staticmethod
     def _parse_optical_transition(elem: XML_Element) -> tuple[NDArray, NDArray]:
