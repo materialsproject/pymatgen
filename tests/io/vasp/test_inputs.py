@@ -615,6 +615,14 @@ class TestIncar(PymatgenTest):
         incar.setdefault("NPAR", 4)
         assert incar["npar"] == 4
 
+        # Test pop
+        assert incar.pop(test_tag.lower()) == 520
+        assert test_tag.upper() not in incar
+        assert test_tag.lower() not in incar
+
+        # Test pop with default value
+        assert incar.pop("missing_key", 42) == 42
+
     def test_copy(self):
         incar2 = self.incar.copy()
         assert isinstance(incar2, Incar), f"Expected Incar, got {type(incar2).__name__}"
