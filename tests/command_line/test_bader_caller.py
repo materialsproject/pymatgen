@@ -116,18 +116,16 @@ class TestBaderAnalysis(PymatgenTest):
         assert summary["reference_used"]
         assert sum(summary["magmom"]) == approx(28, abs=1e-1)
 
+    @pytest.mark.filterwarnings("ignore:_parse_atomic_densities is deprecated")
     def test_atom_parsing(self):
         """TODO: Deprecated, remove after 2025-2-26, see PR3652."""
         # test with reference file
-        with warnings.catch_warnings():
-            warnings.filterwarnings("ignore", "_parse_atomic_densities is deprecated", FutureWarning)
-
-            analysis = BaderAnalysis(
-                chgcar_filename=f"{VASP_OUT_DIR}/CHGCAR.Fe3O4.gz",
-                potcar_filename=f"{VASP_IN_DIR}/POTCAR_Fe3O4.gz",
-                chgref_filename=f"{VASP_OUT_DIR}/CHGCAR.Fe3O4_ref.gz",
-                parse_atomic_densities=True,
-            )
+        analysis = BaderAnalysis(
+            chgcar_filename=f"{VASP_OUT_DIR}/CHGCAR.Fe3O4.gz",
+            potcar_filename=f"{VASP_IN_DIR}/POTCAR_Fe3O4.gz",
+            chgref_filename=f"{VASP_OUT_DIR}/CHGCAR.Fe3O4_ref.gz",
+            parse_atomic_densities=True,
+        )
 
         assert len(analysis.atomic_densities) == len(analysis.chgcar.structure)
 
