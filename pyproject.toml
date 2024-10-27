@@ -254,7 +254,7 @@ docstring-code-format = true
 [tool.pytest.ini_options]
 addopts = "--durations=30 --quiet -r xXs --color=yes --import-mode=importlib"
 filterwarnings = [
-    # "ignore::Warning",  # Ignore all warnings
+    "ignore::UserWarning",  # Ignore all warnings
     # # "default::FutureWarning",  # Show FutureWarnings
     # # "default::DeprecationWarning",  # Show DeprecationWarnings
     # # TODO: WIP, remove afterwards
