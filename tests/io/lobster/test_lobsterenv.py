@@ -337,6 +337,7 @@ class TestLobsterNeighbors(TestCase):
     def test_molecules_allowed(self):
         assert not self.chem_env_lobster1.molecules_allowed
 
+    @pytest.mark.filterwarnings("ignore:get_anion_types is deprecated")
     def test_get_anion_types(self):
         assert self.chem_env_lobster0_second.get_anion_types() == {Element("O")}
         assert self.chem_env_lobster0_second.anion_types == {Element("O")}
