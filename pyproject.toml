@@ -254,14 +254,17 @@ docstring-code-format = true
 [tool.pytest.ini_options]
 addopts = "--durations=30 --quiet -r xXs --color=yes --import-mode=importlib"
 filterwarnings = [
-    "ignore::Warning",  # Ignore all warnings
+    # "ignore::Warning",  # Ignore all warnings
+    # # "default::FutureWarning",  # Show FutureWarnings
+    # # "default::DeprecationWarning",  # Show DeprecationWarnings
+    # # TODO: WIP, remove afterwards
     # "default::FutureWarning",  # Show FutureWarnings
     # "default::DeprecationWarning",  # Show DeprecationWarnings
-    # TODO: WIP, remove afterwards
-    "error::FutureWarning",  # Show FutureWarnings
-    "error::DeprecationWarning",  # Show DeprecationWarnings
-    # pybtex hasn't been updated since Jan 2021 and has a lot of warnings
-    "ignore:pybtex:Warning",
+    # TODO: for some reason filter doesn't work on MacOS
+    # ref: https://github.com/pytest-dev/pytest/issues/11630
+    'ignore:pkg_resources is deprecated as an API:DeprecationWarning',
+    'ignore:distutils Version classes are deprecated:DeprecationWarning',
+    'ignore:Deprecated call to `pkg_resources.declare_namespace:DeprecationWarning',
 ]
 
 [tool.coverage.run]
