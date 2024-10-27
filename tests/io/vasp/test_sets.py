@@ -2284,4 +2284,4 @@ def test_dict_set_alias():
         match="DictSet is deprecated, and will be removed on 2025-12-31\nUse VaspInputSet",
     ):
         DictSet()
-    assert isinstance(DictSet(), VaspInputSet)
+        assert isinstance(DictSet(), VaspInputSet)
