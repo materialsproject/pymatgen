@@ -254,9 +254,12 @@ docstring-code-format = true
 [tool.pytest.ini_options]
 addopts = "--durations=30 --quiet -r xXs --color=yes --import-mode=importlib"
 filterwarnings = [
-    "ignore::Warning",               # Ignore all other warnings
+    # NOTE: the last matching option is used
+    "ignore::UserWarning",
+    "ignore::Warning",
     "default::FutureWarning",        # Show FutureWarnings
     "default::DeprecationWarning",   # Show DeprecationWarnings
+    # TODO: pybtex (perhaps some others) emits the following warnings
     'ignore:pkg_resources is deprecated as an API:DeprecationWarning',
     'ignore:distutils Version classes are deprecated:DeprecationWarning',
     'ignore:Deprecated call to `pkg_resources.declare_namespace:DeprecationWarning',
