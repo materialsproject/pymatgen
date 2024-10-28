@@ -436,12 +436,6 @@ class Poscar(MSONable):
                     atomic_symbols.extend([default_names[idx]] * n_atom)
                 vasp5_symbols = True
             except IndexError as exc:
-                # TODO: need discussion on exception handling
-                warnings.warn(
-                    f"Elements in {default_names=} (likely from POTCAR) don't match POSCAR {symbols}",
-                    BadPoscarWarning,
-                    stacklevel=2,
-                )
                 raise ValueError(
                     f"Elements in {default_names=} (likely from POTCAR) don't match POSCAR {symbols}"
                 ) from exc
