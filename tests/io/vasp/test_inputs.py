@@ -175,6 +175,46 @@ direct
         ]
         assert [site.specie.symbol for site in poscar.structure] == ordered_expected_elements
 
+    def test_from_file_bad_potcar(self):
+        """Make test incompatible POSCAR and POTCAR trigger error."""
+        copyfile(f"{VASP_IN_DIR}/POSCAR_Fe3O4", tmp_poscar_path := f"{self.tmp_path}/POSCAR")
+        copyfile(f"{VASP_IN_DIR}/fake_potcars/POTCAR.gz", f"{self.tmp_path}/POTCAR.gz")
+
+        with pytest.raises(
+            ValueError,
+            match=re.escape(
+                "Elements in default_names=['Fe', 'P', 'O'] (likely from POTCAR) don't match POSCAR ['Fe', 'O']"
+            ),
+        ):
+            _poscar = Poscar.from_file(tmp_poscar_path)
+
+        # Make sure this could be turned off
+        _poscar = Poscar.from_file(tmp_poscar_path, check_for_potcar=False)
+
+    def test_from_str_bad_default_names(self):
+        """Similar to test_from_file_bad_potcar, ensure bad
+        "default_names" (likely read from POTCAR) triggers errors.
+        """
+        poscar_str = """bad default names
+1.1
+3.840198 0.000000 0.000000
+1.920099 3.325710 0.000000
+0.000000 -2.217138 3.135509
+Si F
+1 1
+cart
+0.000000   0.00000000   0.00000000
+3.840198   1.50000000   2.35163175
+"""
+        for bad_name in (["Si"], ["Si", "O"], ["Si", "F", "O"]):
+            with pytest.raises(ValueError, match=re.escape("(likely from POTCAR) don't match POSCAR ['Si', 'F']")):
+                _poscar = Poscar.from_str(poscar_str, default_names=bad_name)
+
+        _poscar = Poscar.from_str(poscar_str, default_names=["Si", "F"])
+
+        # Make sure it could be bypassed (by using None, when not check_for_potcar)
+        _poscar = Poscar.from_str(poscar_str, default_names=None)
+
     def test_as_from_dict(self):
         poscar_str = """Test3
 1.0
