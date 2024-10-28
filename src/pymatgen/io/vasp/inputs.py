@@ -275,7 +275,10 @@ class Poscar(MSONable):
             and (potcars := glob(f"{dirname}/*POTCAR*"))
         ):
             try:
-                potcar = Potcar.from_file(min(potcars))
+                # Make sure exact match has highest priority
+                potcar_path = next((f for f in potcars if f == f"{dirname}/POTCAR"), min(potcars))
+
+                potcar = Potcar.from_file(potcar_path)
                 names = [sym.split("_")[0] for sym in potcar.symbols]
                 map(get_el_sp, names)  # ensure valid names
             except Exception:
@@ -357,6 +360,7 @@ class Poscar(MSONable):
         # symbols is ["H", "O"]
         atomic_symbols: list[str] = []
         vasp5or6_symbols: bool = False
+        # TODO: symbols are not parsed for VASP 4
         symbols: list[str] | None = None
 
         try:
@@ -429,7 +433,6 @@ class Poscar(MSONable):
         # If default_names is specified (usually coming from a POTCAR), use them.
         # This is in line with VASP's parsing order that the POTCAR
         # specified is the default used.
-        # TODO: what about non-vasp5_symbols (VASP 4)?
         if default_names is not None and vasp5or6_symbols and default_names != symbols:
             raise ValueError(f"Elements in {default_names=} (likely from POTCAR) don't match POSCAR {symbols}")
 
