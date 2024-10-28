@@ -5807,7 +5807,10 @@ class VaspDir(collections.abc.Mapping):
         changed.
         """
         # Note that py3.12 has Path.walk(). But we need to use os.walk to ensure backwards compatibility for now.
-        self.files = [str(Path(d) / f).lstrip(str(self.path)) for d, _, fnames in os.walk(self.path) for f in fnames]
+        self.files = [
+            str(Path(d) / f)[len(str(self.path)) + 1 :] for d, _, fnames in os.walk(self.path) for f in fnames
+        ]
+
         self._parsed_files: dict[str, Any] = {}
 
     def __contains__(self, item):
@@ -5851,3 +5854,6 @@ class VaspDir(collections.abc.Mapping):
             {filename: object from VaspDir[filename]}
         """
         return {f: self[f] for f in self.files if name in f}
+
+    def __repr__(self):
+        return f"VaspDir({self.path})"
