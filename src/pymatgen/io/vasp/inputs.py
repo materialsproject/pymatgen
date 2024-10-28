@@ -346,7 +346,7 @@ class Poscar(MSONable):
             lattice *= scale
 
         vasp5_symbols: bool = False
-        # "atomic_symbols" is the "fully extended" list of symbols,
+        # "atomic_symbols" is the "fully expanded" list of symbols,
         # while "symbols" is the list as shown in POSCAR.
         # For example with a POSCAR:
         # ... (comment/scale/lattice)
