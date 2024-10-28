@@ -435,6 +435,11 @@ class Poscar(MSONable):
                 for idx, n_atom in enumerate(n_atoms):
                     atomic_symbols.extend([default_names[idx]] * n_atom)
                 vasp5_symbols = True
+            # TODO: 1- IndexError would NOT be triggered for an incompatible POTCAR
+            # whose "default_names" is equal or longer than "symbols"
+            # TODO: 2- This check doesn't not really check the elements, only the length
+            # of these two lists
+            # TODO: 3- might need to test not "vasp5_symbols" cases?
             except IndexError as exc:
                 raise ValueError(
                     f"Elements in {default_names=} (likely from POTCAR) don't match POSCAR {symbols}"
