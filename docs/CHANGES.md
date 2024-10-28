@@ -6,6 +6,13 @@ nav_order: 4
 
 # Changelog
 
+## v2024.10.27
+- Bug fix for parsing of dielectric calculations from vasprun.xml.
+
+## v2024.10.25
+- VaspDir now supports nested directories. Also, supports returning strings where a parser is not defined.
+- Bug fix for parsing of BSE vaspruns.xml.
+
 ## v2024.10.21
 - New `pyamtgen.io.vasp.VaspDir` class for easy navigation of VASP directories as pymatgen objects.
 - Fix gaussian input parser (@sio-salt)

@@ -97,7 +97,8 @@ class TestVasprun(PymatgenTest):
 
     def test_multiple_dielectric(self):
         vasp_run = Vasprun(f"{VASP_OUT_DIR}/vasprun.GW0.xml.gz")
-        assert len(vasp_run.other_dielectric) == 3
+        assert len(vasp_run.dielectric_data) == 4
+        assert "HEAD OF MICROSCOPIC DIELECTRIC TENSOR (INDEPENDENT PARTICLE)" in vasp_run.dielectric_data
 
     def test_charge_charge_dielectric(self):
         """
@@ -113,18 +114,20 @@ class TestVasprun(PymatgenTest):
         assert "density" in vasp_run.dielectric_data
         assert "velocity" in vasp_run.dielectric_data
 
-    def test_optical_absorption_coeff(self):
+    def test_BSE(self):
         vasp_run = Vasprun(f"{VASP_OUT_DIR}/vasprun.BSE.xml.gz")
         absorption_coeff = vasp_run.optical_absorption_coeff
         assert absorption_coeff[1] == 0.8327903762077188
         assert vasp_run.final_structure == vasp_run.initial_structure
+        assert "freq_dependent" in vasp_run.dielectric_data
 
     def test_vasprun_with_more_than_two_unlabelled_dielectric_functions(self):
-        with pytest.raises(
-            NotImplementedError,
-            match="This vasprun.xml has >2 unlabelled dielectric functions",
+        with pytest.warns(
+            UserWarning,
+            match="Additional unlabelled dielectric data in vasprun.xml are stored as unlabelled.",
         ):
-            Vasprun(f"{VASP_OUT_DIR}/vasprun.dielectric_bad.xml.gz")
+            vr = Vasprun(f"{VASP_OUT_DIR}/vasprun.dielectric_bad.xml.gz")
+            assert "unlabelled" in vr.dielectric_data
 
     def test_bad_vasprun(self):
         with pytest.raises(ET.ParseError):
@@ -394,7 +397,7 @@ class TestVasprun(PymatgenTest):
         assert approx(vasprun_diel.dielectric_data["density"][1][51][0]) == 5.267
         assert approx(vasprun_diel.dielectric_data["velocity"][0][10]) == 0.4338
         assert approx(vasprun_diel.dielectric_data["velocity"][1][51][0]) == 1.0741
-        assert len(vasprun_diel.other_dielectric) == 0
+        assert len(vasprun_diel.dielectric_data) == 2
 
     def test_indirect_vasprun(self):
         vasp_run = Vasprun(f"{VASP_OUT_DIR}/vasprun.indirect.xml.gz")
@@ -2191,6 +2194,8 @@ class TestVaspDir(PymatgenTest):
 
         d = VaspDir(f"{TEST_FILES_DIR}/io/vasp/fixtures/scan_relaxation")
         assert len(d) == 2
+        assert "vasprun.xml.gz" in d.files
+        assert "OUTCAR" in d
         assert d["vasprun.xml.gz"].incar["METAGGA"] == "R2scan"
 
         with pytest.raises(ValueError, match="hello not found"):
@@ -2213,3 +2218,6 @@ class TestVaspDir(PymatgenTest):
 
         d.reset()
         assert len(d._parsed_files) == 0
+
+        d = VaspDir(f"{TEST_FILES_DIR}/cif")
+        assert isinstance(d["CuCl.cif"], Structure)

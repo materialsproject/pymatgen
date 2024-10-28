@@ -209,12 +209,13 @@ class Vasprun(MSONable):
             shape (nkpoints, nbands, natoms, norbitals, 3). Where the last axis is the contribution in the
             3 Cartesian directions. This attribute is only set if spin-orbit coupling (LSORBIT = True) or
             non-collinear magnetism (LNONCOLLINEAR = True) is turned on in the INCAR.
-        other_dielectric (dict): Dictionary, with the tag comment as key, containing other variants of
+        dielectric_data (dict): Dictionary, with the tag comment as key, containing other variants of
             the real and imaginary part of the dielectric constant (e.g., computed by RPA) in function of
             the energy (frequency). Optical properties (e.g. absorption coefficient) can be obtained through this.
             The data is given as a tuple of 3 values containing each of them the energy, the real part tensor,
             and the imaginary part tensor ([energies],[[real_partxx,real_partyy,real_partzz,real_partxy,
             real_partyz,real_partxz]],[[imag_partxx,imag_partyy,imag_partzz,imag_partxy, imag_partyz, imag_partxz]]).
+            The data can be the current, density or freq_dependent (BSE) dielectric data.
         nionic_steps (int): The total number of ionic steps. This number is always equal to the total number
             of steps in the actual run even if ionic_step_skip is used.
         force_constants (np.array): Force constants computed in phonon DFPT run(IBRION = 8).
@@ -255,7 +256,6 @@ class Vasprun(MSONable):
         occu_tol: float = 1e-8,
         separate_spins: bool = False,
         exception_on_bad_xml: bool = True,
-        ignore_dielectric: bool = False,
     ) -> None:
         """
         Args:
@@ -304,8 +304,6 @@ class Vasprun(MSONable):
                 proper vasprun.xml are parsed. You can set to False if you want
                 partial results (e.g., if you are monitoring a calculation during a
                 run), but use the results with care. A warning is issued.
-            ignore_dielectric (bool): Whether to ignore the parsing errors related to the dielectric function. This
-                is because the dielectric function can usually be parsed from the OUTCAR instead.
         """
         self.filename = filename
         self.ionic_step_skip = ionic_step_skip
@@ -313,7 +311,6 @@ class Vasprun(MSONable):
         self.occu_tol = occu_tol
         self.separate_spins = separate_spins
         self.exception_on_bad_xml = exception_on_bad_xml
-        self.ignore_dielectric = ignore_dielectric
 
         with zopen(filename, mode="rt") as file:
             if ionic_step_skip or ionic_step_offset:
@@ -369,7 +366,6 @@ class Vasprun(MSONable):
         self.projected_eigenvalues: dict[Any, NDArray] | None = None
         self.projected_magnetisation: NDArray | None = None
         self.dielectric_data: dict[str, tuple] = {}
-        self.other_dielectric: dict[str, tuple] = {}
         self.incar: Incar = {}
         self.kpoints_opt_props: KpointOptProps | None = None
         ionic_steps: list[dict[str, Any]] = []
@@ -478,29 +474,31 @@ class Vasprun(MSONable):
                             ) = self._parse_projected_eigen(elem)
 
                     elif tag == "dielectricfunction":
-                        if (
-                            "comment" not in elem.attrib
-                            or elem.attrib["comment"]
-                            == "INVERSE MACROSCOPIC DIELECTRIC TENSOR (including local field effects in RPA (Hartree))"
-                        ):
-                            if "density" not in self.dielectric_data:
-                                self.dielectric_data["density"] = self._parse_diel(elem)
+                        label = elem.attrib.get("comment", None)
+                        if label is None:
+                            if self.incar.get("ALGO", "Normal").upper() == "BSE":
+                                label = "freq_dependent"
+                            elif "density" not in self.dielectric_data:
+                                label = "density"
                             elif "velocity" not in self.dielectric_data:
                                 # "velocity-velocity" is also named
                                 # "current-current" in OUTCAR
-                                self.dielectric_data["velocity"] = self._parse_diel(elem)
-                            elif not self.ignore_dielectric:
-                                raise NotImplementedError("This vasprun.xml has >2 unlabelled dielectric functions")
-                        else:
-                            comment = elem.attrib["comment"]
-                            # VASP 6+ has labels for the density and current
-                            # derived dielectric constants
-                            if comment == "density-density":
-                                self.dielectric_data["density"] = self._parse_diel(elem)
-                            elif comment == "current-current":
-                                self.dielectric_data["velocity"] = self._parse_diel(elem)
+                                label = "velocity"
                             else:
-                                self.other_dielectric[comment] = self._parse_diel(elem)
+                                warnings.warn(
+                                    "Additional unlabelled dielectric data in vasprun.xml are stored as unlabelled.",
+                                    UserWarning,
+                                )
+                                label = "unlabelled"
+                        # VASP 6+ has labels for the density and current
+                        # derived dielectric constants
+
+                        if label == "density-density":
+                            label = "density"
+                        elif label == "current-current":
+                            label = "velocity"
+
+                        self.dielectric_data[label] = self._parse_diel(elem)
 
                     elif tag == "varray" and elem.attrib.get("name") == "opticaltransitions":
                         self.optical_transition = np.array(_parse_vasp_array(elem))
@@ -597,15 +595,10 @@ class Vasprun(MSONable):
         Note that this method is only implemented for optical properties
         calculated with GGA and BSE.
         """
-        if self.dielectric_data["density"]:
-            real_avg = [
-                sum(self.dielectric_data["density"][1][i][:3]) / 3
-                for i in range(len(self.dielectric_data["density"][0]))
-            ]
-            imag_avg = [
-                sum(self.dielectric_data["density"][2][i][:3]) / 3
-                for i in range(len(self.dielectric_data["density"][0]))
-            ]
+        diel_data = self.dielectric_data.get("freq_dependent") or self.dielectric_data["density"]
+        if diel_data:
+            real_avg = [sum(diel_data[1][i][:3]) / 3 for i in range(len(diel_data[0]))]
+            imag_avg = [sum(diel_data[2][i][:3]) / 3 for i in range(len(diel_data[0]))]
 
             def optical_absorb_coeff(freq: float, real: float, imag: float) -> float:
                 """Calculate optical absorption coefficient,
@@ -618,7 +611,7 @@ class Vasprun(MSONable):
                 itertools.starmap(
                     optical_absorb_coeff,
                     zip(
-                        self.dielectric_data["density"][0],
+                        diel_data[0],
                         real_avg,
                         imag_avg,
                         strict=True,
@@ -1530,16 +1523,18 @@ class Vasprun(MSONable):
     @staticmethod
     def _parse_diel(elem: XML_Element) -> tuple[list, list, list]:
         """Parse dielectric properties."""
-        imag = [
-            [_vasprun_float(line) for line in r.text.split()]  # type: ignore[union-attr]
-            for r in elem.find("imag").find("array").find("set").findall("r")  # type: ignore[union-attr]
-        ]
-        real = [
-            [_vasprun_float(line) for line in r.text.split()]  # type: ignore[union-attr]
-            for r in elem.find("real").find("array").find("set").findall("r")  # type: ignore[union-attr]
-        ]
-        elem.clear()
-        return [e[0] for e in imag], [e[1:] for e in real], [e[1:] for e in imag]
+        if elem.find("real") and elem.find("imag"):
+            imag = [
+                [_vasprun_float(line) for line in r.text.split()]  # type: ignore[union-attr]
+                for r in elem.find("imag").find("array").find("set").findall("r")  # type: ignore[union-attr]
+            ]
+            real = [
+                [_vasprun_float(line) for line in r.text.split()]  # type: ignore[union-attr]
+                for r in elem.find("real").find("array").find("set").findall("r")  # type: ignore[union-attr]
+            ]
+            elem.clear()
+            return [e[0] for e in imag], [e[1:] for e in real], [e[1:] for e in imag]
+        return [], [], []
 
     @staticmethod
     def _parse_optical_transition(elem: XML_Element) -> tuple[NDArray, NDArray]:
@@ -5795,6 +5790,7 @@ class VaspDir(collections.abc.Mapping):
         "CONTCAR": Poscar,
         "IBZKPT": Kpoints,
         "WSWQ": WSWQ,
+        "cif": Structure.from_file,
     }
 
     def __init__(self, dirname: str | Path):
@@ -5811,8 +5807,12 @@ class VaspDir(collections.abc.Mapping):
         changed.
         """
         # Note that py3.12 has Path.walk(). But we need to use os.walk to ensure backwards compatibility for now.
-        self.files = [str(Path(d) / f).lstrip(str(self.path)) for d, _, fnames in os.walk(self.path) for f in fnames]
+        self.files = [str((Path(d) / f).relative_to(self.path)) for d, _, fnames in os.walk(self.path) for f in fnames]
+
         self._parsed_files: dict[str, Any] = {}
+
+    def __contains__(self, item):
+        return item in self.files
 
     def __len__(self):
         return len(self.files)
@@ -5852,3 +5852,6 @@ class VaspDir(collections.abc.Mapping):
             {filename: object from VaspDir[filename]}
         """
         return {f: self[f] for f in self.files if name in f}
+
+    def __repr__(self):
+        return f"VaspDir({self.path})"
