@@ -356,13 +356,12 @@ class Poscar(MSONable):
         # atomic_symbols is ["H", "H", "O"]
         # symbols is ["H", "O"]
         atomic_symbols: list[str] = []
+        vasp5or6_symbols: bool = False
+        symbols: list[str] | None = None
 
         try:
             n_atoms: list[int] = [int(i) for i in lines[5].split()]
             ipos: int = 6
-
-            symbols: list[str] | None = None  # None for VASP 4
-            vasp5or6_symbols: bool = False
 
         except ValueError:
             vasp5or6_symbols = True
