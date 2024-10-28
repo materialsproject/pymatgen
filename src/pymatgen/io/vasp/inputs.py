@@ -360,10 +360,11 @@ class Poscar(MSONable):
         # symbols is ["H", "O"]
         atomic_symbols: list[str] = []
         vasp5or6_symbols: bool = False
-        # TODO: symbols are not parsed for VASP 4
-        symbols: list[str] | None = None
 
         try:
+            # Symbols are not parsed for VASP 4
+            symbols: list[str] | None = None
+
             n_atoms: list[int] = [int(i) for i in lines[5].split()]
             ipos: int = 6
 
