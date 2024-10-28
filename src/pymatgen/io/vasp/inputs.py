@@ -438,9 +438,13 @@ class Poscar(MSONable):
             except IndexError as exc:
                 # TODO: need discussion on exception handling
                 warnings.warn(
-                    f"Elements in POTCAR {default_names} don't match POSCAR {symbols}", BadPoscarWarning, stacklevel=2
+                    f"Elements in {default_names=} (likely from POTCAR) don't match POSCAR {symbols}",
+                    BadPoscarWarning,
+                    stacklevel=2,
                 )
-                raise ValueError(f"Elements in POTCAR {default_names} don't match POSCAR {symbols}") from exc
+                raise ValueError(
+                    f"Elements in {default_names=} (likely from POTCAR) don't match POSCAR {symbols}"
+                ) from exc
 
         if not vasp5_symbols:
             ind: Literal[3, 6] = 6 if has_selective_dynamics else 3
