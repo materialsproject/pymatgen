@@ -176,12 +176,29 @@ direct
         ]
         assert [site.specie.symbol for site in poscar.structure] == ordered_expected_elements
 
-    def test_from_file_bad_potcar(self):
-        """Make sure incompatible POSCAR and POTCAR:
-        - Warning when overwrite triggered and successful.
-        - Raise ValueError if
-        TODO:
-        """
+    def test_from_file_potcar_overwrite_elements(self):
+        # Make sure overwriting elements triggers warning
+        # The following POTCAR has elements as ["Fe", "P", "O"]
+        copyfile(f"{VASP_IN_DIR}/POSCAR_Fe3O4", tmp_poscar_path := f"{self.tmp_path}/POSCAR")
+        copyfile(f"{VASP_IN_DIR}/fake_potcars/POTCAR.gz", f"{self.tmp_path}/POTCAR.gz")
+
+        with pytest.warns(UserWarning, match="Elements in POSCAR would be overwritten"):
+            _poscar = Poscar.from_file(tmp_poscar_path)
+
+        # Make sure ValueError is raised when POTCAR has fewer elements
+        copyfile(f"{VASP_IN_DIR}/POSCAR_Fe3O4", tmp_poscar_path := f"{self.tmp_path}/POSCAR")
+        copyfile(f"{VASP_IN_DIR}/POTCAR_C2.gz", f"{self.tmp_path}/POTCAR.gz")
+
+        with pytest.raises(ValueError, match="has fewer elements than POSCAR"):
+            _poscar = Poscar.from_file(tmp_poscar_path)
+
+        # Make sure no warning/error is triggered for compatible elements
+        copyfile(f"{VASP_IN_DIR}/POSCAR_C2", tmp_poscar_path := f"{self.tmp_path}/POSCAR")
+        copyfile(f"{VASP_IN_DIR}/POTCAR_C2.gz", f"{self.tmp_path}/POTCAR.gz")
+
+        with warnings.catch_warnings(record=True) as record:
+            _poscar = Poscar.from_file(tmp_poscar_path)
+        assert not any("Elements in POSCAR would be overwritten" in str(warning.message) for warning in record)
 
     def test_from_str_default_names(self):
         """Similar to test_from_file_bad_potcar, ensure "default_names"
