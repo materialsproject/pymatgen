@@ -2216,3 +2216,6 @@ class TestVaspDir(PymatgenTest):
 
         d.reset()
         assert len(d._parsed_files) == 0
+
+        d = VaspDir(f"{TEST_FILES_DIR}/cif")
+        assert isinstance(d["CuCl.cif"], Structure)

@@ -5790,6 +5790,7 @@ class VaspDir(collections.abc.Mapping):
         "CONTCAR": Poscar,
         "IBZKPT": Kpoints,
         "WSWQ": WSWQ,
+        "cif": Structure.from_file,
     }
 
     def __init__(self, dirname: str | Path):
@@ -5808,6 +5809,9 @@ class VaspDir(collections.abc.Mapping):
         # Note that py3.12 has Path.walk(). But we need to use os.walk to ensure backwards compatibility for now.
         self.files = [str(Path(d) / f).lstrip(str(self.path)) for d, _, fnames in os.walk(self.path) for f in fnames]
         self._parsed_files: dict[str, Any] = {}
+
+    def __contains__(self, item):
+        return item in self.files
 
     def __len__(self):
         return len(self.files)
