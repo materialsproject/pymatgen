@@ -346,11 +346,22 @@ class Poscar(MSONable):
             lattice *= scale
 
         vasp5_symbols: bool = False
+        # "atomic_symbols" is the "fully extended" list of symbols,
+        # while "symbols" is the list as shown in POSCAR.
+        # For example with a POSCAR:
+        # ... (comment/scale/lattice)
+        # H O
+        # 2 1
+        # ...
+        # atomic_symbols is ["H", "H", "O"]
+        # symbols is ["H", "O"]
         atomic_symbols: list[str] = []
 
         try:
             n_atoms: list[int] = [int(i) for i in lines[5].split()]
             ipos: int = 6
+
+            symbols: list[str] = []
 
         except ValueError:
             vasp5_symbols = True
@@ -365,7 +376,7 @@ class Poscar(MSONable):
             # Mg_pv/f474ac0d  Si/79d9987ad87```
             # whereas older VASP 5.x.x POSCAR strings would just have `Mg Si` on the last line
 
-            symbols: list[str] = [symbol.split("/")[0].split("_")[0] for symbol in lines[5].split()]
+            symbols = [symbol.split("/")[0].split("_")[0] for symbol in lines[5].split()]
 
             # Atoms and number of atoms in POSCAR written with VASP appear on
             # multiple lines when atoms of the same type are not grouped together
@@ -425,7 +436,9 @@ class Poscar(MSONable):
                     atomic_symbols.extend([default_names[idx]] * n_atom)
                 vasp5_symbols = True
             except IndexError:
-                pass
+                warnings.warn(
+                    f"Elements in POTCAR {default_names} don't match POSCAR {symbols}", BadPoscarWarning, stacklevel=2
+                )
 
         if not vasp5_symbols:
             ind: Literal[3, 6] = 6 if has_selective_dynamics else 3
