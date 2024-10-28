@@ -299,11 +299,6 @@ class QuasiHarmonicDebyeApprox:
             d3EdV3 = np.polyder(p, 3)(volume)
         else:
             func = self.ev_eos_fit.func
-
-            # TODO: scipy.misc.derivative is deprecated in SciPy v1.10.0;
-            # and will be completely removed in SciPy v1.12.0.
-            # You may consider using findiff: https://github.com/maroba/findiff
-            # or numdifftools: https://github.com/pbrod/numdifftools
             dEdV = derivative(func, volume, dx=1e-3)
             d2EdV2 = derivative(func, volume, dx=1e-3, n=2, order=5)
             d3EdV3 = derivative(func, volume, dx=1e-3, n=3, order=7)

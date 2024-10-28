@@ -465,10 +465,6 @@ class TestDiffFit(PymatgenTest):
             backward_26,
             [137 / 180, -27 / 5, 33 / 2, -254 / 9, 117 / 4, -87 / 5, 203 / 45],
         )
-        # TODO: scipy.misc.central_diff_weights is deprecated in SciPy v1.10.0;
-        # and will be completely removed in SciPy v1.12.0.
-        # You may consider using findiff: https://github.com/maroba/findiff
-        # or numdifftools: https://github.com/pbrod/numdifftools
         assert_allclose(central_29, central_diff_weights(9, 2))
 
     def test_generate_pseudo(self):
