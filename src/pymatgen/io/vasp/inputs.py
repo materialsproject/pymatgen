@@ -435,10 +435,12 @@ class Poscar(MSONable):
                 for idx, n_atom in enumerate(n_atoms):
                     atomic_symbols.extend([default_names[idx]] * n_atom)
                 vasp5_symbols = True
-            except IndexError:
+            except IndexError as exc:
+                # TODO: need discussion on exception handling
                 warnings.warn(
                     f"Elements in POTCAR {default_names} don't match POSCAR {symbols}", BadPoscarWarning, stacklevel=2
                 )
+                raise ValueError(f"Elements in POTCAR {default_names} don't match POSCAR {symbols}") from exc
 
         if not vasp5_symbols:
             ind: Literal[3, 6] = 6 if has_selective_dynamics else 3
