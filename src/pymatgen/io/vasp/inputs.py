@@ -433,7 +433,7 @@ class Poscar(MSONable):
         # If default_names is specified (usually coming from a POTCAR), use them.
         # This is in line with VASP's parsing order that the POTCAR
         # specified is the default used.
-        if default_names is not None and vasp5or6_symbols and default_names != symbols:
+        if default_names is not None:
             try:
                 _atomic_symbols: list[str] = []
                 for idx, n_atom in enumerate(n_atoms):
