@@ -88,10 +88,12 @@ class TestEtsfReader(PymatgenTest):
     def test_read_fe(self):
         with ScratchDir(".") as tmp_dir:
             with tarfile.open(f"{TEST_DIR}/Fe_magmoms_collinear_GSR.tar.xz", mode="r:xz") as t:
-                # TODO: DeprecationWarning: Python 3.14 will, by default,
-                # filter extracted tar archives and reject files or modify their metadata.
-                # Use the filter argument to control this behavior.
-                t.extractall(tmp_dir)  # noqa: S202
+                # TODO: remove attr check after only 3.12+
+                if hasattr(tarfile, "data_filter"):
+                    t.extractall(tmp_dir, filter="data")
+                else:
+                    t.extractall(tmp_dir)  # noqa: S202
+
                 ref_magmom_collinear = [-0.5069359730980665]
                 path = os.path.join(tmp_dir, "Fe_magmoms_collinear_GSR.nc")
 
@@ -100,10 +102,11 @@ class TestEtsfReader(PymatgenTest):
                     assert structure.site_properties["magmom"] == ref_magmom_collinear
 
             with tarfile.open(f"{TEST_DIR}/Fe_magmoms_noncollinear_GSR.tar.xz", mode="r:xz") as t:
-                # TODO: DeprecationWarning: Python 3.14 will, by default,
-                # filter extracted tar archives and reject files or modify their metadata.
-                # Use the filter argument to control this behavior.
-                t.extractall(tmp_dir)  # noqa: S202
+                # TODO: remove attr check after only 3.12+
+                if hasattr(tarfile, "data_filter"):
+                    t.extractall(tmp_dir, filter="data")
+                else:
+                    t.extractall(tmp_dir)  # noqa: S202
                 ref_magmom_noncollinear = [[0.357939487, 0.357939487, 0]]
                 path = os.path.join(tmp_dir, "Fe_magmoms_noncollinear_GSR.nc")
 
