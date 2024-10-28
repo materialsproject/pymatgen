@@ -332,8 +332,9 @@ class Poscar(MSONable):
         except IndexError:
             raise ValueError("Empty POSCAR")
 
-        # Parse positions
         lines: list[str] = list(clean_lines(chunks[0].split("\n"), remove_empty_lines=False))
+
+        # Parse comment/scale/lattice
         comment: str = lines[0]
         scale: float = float(lines[1])
         lattice: np.ndarray = np.array([[float(i) for i in line.split()] for line in lines[2:5]])
@@ -345,7 +346,6 @@ class Poscar(MSONable):
         else:
             lattice *= scale
 
-        vasp5_symbols: bool = False
         # "atomic_symbols" is the "fully expanded" list of symbols,
         # while "symbols" is the list as shown in POSCAR.
         # For example with a POSCAR:
@@ -361,10 +361,11 @@ class Poscar(MSONable):
             n_atoms: list[int] = [int(i) for i in lines[5].split()]
             ipos: int = 6
 
-            symbols: list[str] = []
+            symbols: list[str] | None = None  # None for VASP 4
+            vasp5or6_symbols: bool = False
 
         except ValueError:
-            vasp5_symbols = True
+            vasp5or6_symbols = True
 
             # In VASP 6.x.x, part of the POTCAR hash is written to POSCAR-style strings
             # In VASP 6.4.2 and up, the POTCAR symbol is also written, ex.:
@@ -426,26 +427,14 @@ class Poscar(MSONable):
         cart: bool = pos_type[0] in "cCkK"
         n_sites: int = sum(n_atoms)
 
-        # If default_names is specified (usually coming from a POTCAR), use
-        # them. This is in line with VASP's parsing order that the POTCAR
+        # If default_names is specified (usually coming from a POTCAR), use them.
+        # This is in line with VASP's parsing order that the POTCAR
         # specified is the default used.
-        if default_names is not None:
-            try:
-                atomic_symbols = []
-                for idx, n_atom in enumerate(n_atoms):
-                    atomic_symbols.extend([default_names[idx]] * n_atom)
-                vasp5_symbols = True
-            # TODO: 1- IndexError would NOT be triggered for an incompatible POTCAR
-            # whose "default_names" is equal or longer than "symbols"
-            # TODO: 2- This check doesn't not really check the elements, only the length
-            # of these two lists
-            # TODO: 3- might need to test not "vasp5_symbols" cases?
-            except IndexError as exc:
-                raise ValueError(
-                    f"Elements in {default_names=} (likely from POTCAR) don't match POSCAR {symbols}"
-                ) from exc
+        # TODO: what about non-vasp5_symbols (VASP 4)?
+        if default_names is not None and vasp5or6_symbols and default_names != symbols:
+            raise ValueError(f"Elements in {default_names=} (likely from POTCAR) don't match POSCAR {symbols}")
 
-        if not vasp5_symbols:
+        if not vasp5or6_symbols:
             ind: Literal[3, 6] = 6 if has_selective_dynamics else 3
             try:
                 # Check if names are appended at the end of the coordinates
@@ -453,7 +442,7 @@ class Poscar(MSONable):
                 # Ensure symbols are valid elements
                 if not all(Element.is_valid_symbol(sym) for sym in atomic_symbols):
                     raise ValueError("Non-valid symbols detected.")
-                vasp5_symbols = True
+                vasp5or6_symbols = True
 
             except (ValueError, IndexError):
                 # Defaulting to false names
@@ -551,7 +540,7 @@ class Poscar(MSONable):
             struct,
             comment,
             selective_dynamics,
-            vasp5_symbols,
+            vasp5or6_symbols,
             velocities=velocities,
             predictor_corrector=predictor_corrector,
             predictor_corrector_preamble=predictor_corrector_preamble,
