@@ -6,7 +6,7 @@ nav_order: 4
 
 # Changelog
 
-## v2024.10.26
+## v2024.10.27
 - Bug fix for parsing of dielectric calculations from vasprun.xml.
 
 ## v2024.10.25
