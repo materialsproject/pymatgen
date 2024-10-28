@@ -420,14 +420,12 @@ direct
         assert_allclose(poscar.structure.lattice.abc, poscar.structure.lattice.abc, 5)
 
     def test_selective_dynamics(self):
-        # TODO: the following error should be fixed after we fix the glob logic
         # Previously, this test relied on the existence of a file named POTCAR
         # that was sorted to the top of a list of POTCARs for the test to work.
         # That's far too brittle - isolating requisite files here
-        copyfile(f"{VASP_IN_DIR}/POSCAR_Fe3O4", tmp_poscar_path := f"{self.tmp_path}/POSCAR")
+        copyfile(f"{VASP_IN_DIR}/POSCAR_Fe3PO3", tmp_poscar_path := f"{self.tmp_path}/POSCAR")
         copyfile(f"{VASP_IN_DIR}/fake_potcars/POTCAR.gz", f"{self.tmp_path}/POTCAR.gz")
 
-        # DEBUG: the elements in POTCAR.gz (Fe/P/O) indeed doesn't match POSCAR (Fe/O)
         poscar = Poscar.from_file(tmp_poscar_path)
         structure = poscar.structure
 
