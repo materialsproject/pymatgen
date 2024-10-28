@@ -40,6 +40,13 @@ from pymatgen.io.vasp.inputs import (
 )
 from pymatgen.util.testing import FAKE_POTCAR_DIR, TEST_FILES_DIR, VASP_IN_DIR, VASP_OUT_DIR, PymatgenTest
 
+# Filter some expected warnings
+warnings.filterwarnings(
+    "ignore", message=r"POTCAR data with symbol .* is not known to pymatgen", category=UnknownPotcarWarning
+)
+warnings.filterwarnings("ignore", message=r"missing .* POTCAR directory", category=UserWarning)
+
+
 # make sure _gen_potcar_summary_stats runs and works with all tests in this file
 _SUMM_STATS = _gen_potcar_summary_stats(append=False, vasp_psp_dir=str(FAKE_POTCAR_DIR), summary_stats_filename=None)
 
@@ -62,6 +69,9 @@ def _mock_complete_potcar_summary_stats(monkeypatch: pytest.MonkeyPatch) -> None
             _SUMM_STATS[func] = _SUMM_STATS["LDA_64"].copy()
 
 
+@pytest.mark.filterwarnings(
+    "ignore:POTCAR data with symbol .* is not known to pymatgen:pymatgen.io.vasp.inputs.UnknownPotcarWarning"
+)
 class TestPoscar(PymatgenTest):
     def test_init(self):
         comp = Structure.from_file(f"{VASP_IN_DIR}/POSCAR").composition
@@ -96,8 +106,10 @@ direct
 0.000000 0.000000 0.000000
 0.750000 0.500000 0.750000
 """
-        poscar = Poscar.from_str(poscar_str)
+        with pytest.warns(BadPoscarWarning, match="Elements in POSCAR cannot be determined"):
+            poscar = Poscar.from_str(poscar_str)
         assert poscar.structure.composition == Composition("HHe")
+
         # VASP 4 style file with default names, i.e. no element symbol found.
         poscar_str = """Test3
 1.0
@@ -530,9 +542,12 @@ Cartesian
 0.000000   0.00000000   0.00000000 Si T T F
 3.840198   1.50000000   2.35163175 F T T F
 """
-        with pytest.warns(
-            BadPoscarWarning,
-            match="Selective dynamics values must be either 'T' or 'F'.",
+        with (
+            pytest.warns(
+                BadPoscarWarning,
+                match="Selective dynamics values must be either 'T' or 'F'.",
+            ),
+            pytest.warns(BadPoscarWarning, match="Selective dynamics toggled with Fluorine"),
         ):
             Poscar.from_str(invalid_poscar_str)
 
@@ -553,12 +568,15 @@ Cartesian
 0.000000   0.00000000   0.00000000 Si T T F
 3.840198   1.50000000   2.35163175 F T T F
 """
-        with pytest.warns(
-            BadPoscarWarning,
-            match=(
-                "Selective dynamics toggled with Fluorine element detected. "
-                "Make sure the 4th-6th entry each position line is selective dynamics info."
+        with (
+            pytest.warns(
+                BadPoscarWarning,
+                match=(
+                    "Selective dynamics toggled with Fluorine element detected. "
+                    "Make sure the 4th-6th entry each position line is selective dynamics info."
+                ),
             ),
+            pytest.warns(BadPoscarWarning, match="Selective dynamics values must be either"),
         ):
             Poscar.from_str(poscar_str_with_fluorine)
 
@@ -975,9 +993,11 @@ class TestKpoints:
     def test_init(self):
         # Automatic KPOINT grid
         filepath = f"{VASP_IN_DIR}/KPOINTS_auto"
-        kpoints = Kpoints.from_file(filepath)
+        with pytest.warns(DeprecationWarning, match="Please use INCAR KSPACING tag"):
+            kpoints = Kpoints.from_file(filepath)
         assert kpoints.comment == "Automatic mesh"
         assert kpoints.kpts == [(10,)], "Wrong kpoint lattice read"
+
         filepath = f"{VASP_IN_DIR}/KPOINTS_cartesian"
         kpoints = Kpoints.from_file(filepath)
         assert kpoints.kpts == [
@@ -1227,6 +1247,9 @@ direct
                     assert kpoints.style == Kpoints.supported_modes.Gamma
 
 
+@pytest.mark.filterwarnings(
+    "ignore:POTCAR data with symbol .* is not known to pymatgen:pymatgen.io.vasp.inputs.UnknownPotcarWarning"
+)
 class TestPotcarSingle(TestCase):
     def setUp(self):
         self.psingle_Mn_pv = PotcarSingle.from_file(f"{FAKE_POTCAR_DIR}/POT_GGA_PAW_PBE/POTCAR.Mn_pv.gz")
@@ -1464,6 +1487,9 @@ class TestPotcarSingle(TestCase):
         assert psingle is not self.psingle_Mn_pv
 
 
+@pytest.mark.filterwarnings(
+    "ignore:POTCAR data with symbol .* is not known to pymatgen:pymatgen.io.vasp.inputs.UnknownPotcarWarning"
+)
 class TestPotcar(PymatgenTest):
     def setUp(self):
         SETTINGS.setdefault("PMG_VASP_PSP_DIR", str(TEST_FILES_DIR))
@@ -1539,6 +1565,10 @@ class TestPotcar(PymatgenTest):
         pickle.dumps(self.potcar)
 
 
+@pytest.mark.filterwarnings("ignore:Please use INCAR KSPACING tag:DeprecationWarning")
+@pytest.mark.filterwarnings(
+    "ignore:POTCAR data with symbol .* is not known to pymatgen:pymatgen.io.vasp.inputs.UnknownPotcarWarning"
+)
 class TestVaspInput(PymatgenTest):
     def setUp(self):
         filepath = f"{VASP_IN_DIR}/INCAR"
