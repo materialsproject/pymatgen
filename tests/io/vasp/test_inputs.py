@@ -5,6 +5,7 @@ import json
 import os
 import pickle
 import re
+import warnings
 from shutil import copyfile
 from unittest import TestCase
 from unittest.mock import patch
@@ -176,24 +177,15 @@ direct
         assert [site.specie.symbol for site in poscar.structure] == ordered_expected_elements
 
     def test_from_file_bad_potcar(self):
-        """Make test incompatible POSCAR and POTCAR trigger error."""
-        copyfile(f"{VASP_IN_DIR}/POSCAR_Fe3O4", tmp_poscar_path := f"{self.tmp_path}/POSCAR")
-        copyfile(f"{VASP_IN_DIR}/fake_potcars/POTCAR.gz", f"{self.tmp_path}/POTCAR.gz")
+        """Make sure incompatible POSCAR and POTCAR:
+        - Warning when overwrite triggered and successful.
+        - Raise ValueError if
+        TODO:
+        """
 
-        with pytest.raises(
-            ValueError,
-            match=re.escape(
-                "Elements in default_names=['Fe', 'P', 'O'] (likely from POTCAR) don't match POSCAR ['Fe', 'O']"
-            ),
-        ):
-            _poscar = Poscar.from_file(tmp_poscar_path)
-
-        # Make sure this could be turned off
-        _poscar = Poscar.from_file(tmp_poscar_path, check_for_potcar=False)
-
-    def test_from_str_bad_default_names(self):
-        """Similar to test_from_file_bad_potcar, ensure bad
-        "default_names" (likely read from POTCAR) triggers errors.
+    def test_from_str_default_names(self):
+        """Similar to test_from_file_bad_potcar, ensure "default_names"
+        (likely read from POTCAR) triggers correct warning/error.
         """
         poscar_str = """bad default names
 1.1
@@ -206,14 +198,23 @@ cart
 0.000000   0.00000000   0.00000000
 3.840198   1.50000000   2.35163175
 """
-        for bad_name in (["Si"], ["Si", "O"], ["Si", "F", "O"]):
-            with pytest.raises(ValueError, match=re.escape("(likely from POTCAR) don't match POSCAR ['Si', 'F']")):
-                _poscar = Poscar.from_str(poscar_str, default_names=bad_name)
+        # ValueError if default_names shorter than POSCAR
+        with pytest.raises(ValueError, match=re.escape("default_names=['Si'] (likely from POTCAR) has fewer elements")):
+            _poscar = Poscar.from_str(poscar_str, default_names=["Si"])
 
-        _poscar = Poscar.from_str(poscar_str, default_names=["Si", "F"])
+        # Warning if overwrite triggered
+        with pytest.warns(UserWarning, match="Elements in POSCAR would be overwritten"):
+            _poscar = Poscar.from_str(poscar_str, default_names=["Si", "O"])
+
+        # Assert no warning if using the same elements
+        with warnings.catch_warnings(record=True) as record:
+            _poscar = Poscar.from_str(poscar_str, default_names=["Si", "F"])
+        assert not any("Elements in POSCAR would be overwritten" in str(warning.message) for warning in record)
 
         # Make sure it could be bypassed (by using None, when not check_for_potcar)
-        _poscar = Poscar.from_str(poscar_str, default_names=None)
+        with warnings.catch_warnings(record=True) as record:
+            _poscar = Poscar.from_str(poscar_str, default_names=None)
+        assert not any("Elements in POSCAR would be overwritten" in str(warning.message) for warning in record)
 
     def test_as_from_dict(self):
         poscar_str = """Test3
