@@ -979,7 +979,7 @@ class CifParser:
             symmetrized (bool): Whether to return SymmetrizedStructure.
             check_occu (bool): Whether to check site for unphysical occupancy > 1.
             min_thickness (float): Minimum thickness in Angstrom to consider structure as valid.
-                This is added to guard against unphysical 2D-like structure,
+                This is added to guard against unphysical small/thin structure,
                 which could result in infinite loop for searching near neighbours.
 
         Returns:
