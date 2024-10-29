@@ -439,16 +439,10 @@ class Poscar(MSONable):
             if len(n_atoms) > len(default_names):
                 raise ValueError(f"{default_names=} (likely from POTCAR) has fewer elements than POSCAR {symbols}")
 
-            if symbols is None:
+            if symbols is None or default_names[: len(symbols)] != symbols:
                 # After this VASP 4.x POSCAR would be converted to VASP 5/6 format
                 vasp5or6_symbols = True
-                warnings.warn("VASP 4 POSCAR converted to VASP 5/6 format.", stacklevel=2)
 
-                atomic_symbols = []
-                for idx, n_atom in enumerate(n_atoms):
-                    atomic_symbols.extend([default_names[idx]] * n_atom)
-
-            elif default_names[: len(symbols)] != symbols:
                 atomic_symbols = []
                 for idx, n_atom in enumerate(n_atoms):
                     atomic_symbols.extend([default_names[idx]] * n_atom)

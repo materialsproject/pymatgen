@@ -266,7 +266,7 @@ cart
 3.840198   1.50000000   2.35163175
 """
         # Test overwrite warning
-        with pytest.warns(UserWarning, match="VASP 4 POSCAR converted to VASP 5/6 format"):
+        with pytest.warns(UserWarning, match="Elements in POSCAR would be overwritten"):
             poscar_vasp4 = Poscar.from_str(poscar_str_vasp4, default_names=["H", "He"])
         assert poscar_vasp4.site_symbols == ["H", "He"]
 
