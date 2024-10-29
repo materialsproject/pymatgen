@@ -224,7 +224,7 @@ class TestCifIO(PymatgenTest):
         Test unphysically "flat" structure with volume near zero,
         which would originally lead to infinite loop (PR4133).
         """
-        parser = CifParser(f"{TEST_FILES_DIR}/cif/bad_superflat_inf_loop.cif")
+        parser = CifParser(f"{TEST_FILES_DIR}/cif/bad_superflat_inf_loop.cif.gz")
         with (
             pytest.raises(ValueError, match="Invalid CIF file with no structures"),
             pytest.warns(UserWarning, match="Å below threshold, double check your structure."),
