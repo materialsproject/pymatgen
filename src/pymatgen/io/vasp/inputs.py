@@ -434,21 +434,17 @@ class Poscar(MSONable):
         # If default_names is specified (usually coming from a POTCAR), use them.
         # This is in line with VASP's parsing order that the POTCAR
         # specified is the default used.
-        if default_names is not None:
-            try:
-                _atomic_symbols: list[str] = []
+        if default_names is not None and symbols is not None:
+            if len(symbols) > len(default_names):
+                raise ValueError(f"{default_names=} (likely from POTCAR) has fewer elements than POSCAR {symbols}")
+
+            # Overwrite only when elements are different
+            if default_names[: len(symbols)] != symbols:
+                atomic_symbols = []
                 for idx, n_atom in enumerate(n_atoms):
-                    _atomic_symbols.extend([default_names[idx]] * n_atom)
-                vasp5or6_symbols = True
+                    atomic_symbols.extend([default_names[idx]] * n_atom)
 
-                if _atomic_symbols != atomic_symbols:
-                    warnings.warn(f"Elements in POSCAR would be overwritten by {default_names=}", stacklevel=2)
-                    atomic_symbols = _atomic_symbols
-
-            except IndexError as exc:
-                raise ValueError(
-                    f"{default_names=} (likely from POTCAR) has fewer elements than POSCAR {symbols}"
-                ) from exc
+                warnings.warn(f"Elements in POSCAR would be overwritten by {default_names=}", stacklevel=2)
 
         if not vasp5or6_symbols:
             ind: Literal[3, 6] = 6 if has_selective_dynamics else 3
