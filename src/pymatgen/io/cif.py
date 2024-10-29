@@ -969,7 +969,7 @@ class CifParser:
         primitive: bool,
         symmetrized: bool,
         check_occu: bool = False,
-        min_thickness: float = 0.1,
+        min_thickness: float = 0.01,
     ) -> Structure | None:
         """Generate structure from part of the CIF.
 
