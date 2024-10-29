@@ -270,6 +270,10 @@ cart
             poscar_vasp4 = Poscar.from_str(poscar_str_vasp4, default_names=["H", "He"])
         assert poscar_vasp4.site_symbols == ["H", "He"]
 
+        # Test default names longer than need but should work the same
+        poscar_vasp4 = Poscar.from_str(poscar_str_vasp4, default_names=["H", "He", "Li"])
+        assert poscar_vasp4.site_symbols == ["H", "He"]
+
         with pytest.raises(ValueError, match=re.escape("default_names=['H'] (likely from POTCAR) has fewer elements")):
             _poscar_vasp4 = Poscar.from_str(poscar_str_vasp4, default_names=["H"])
 
