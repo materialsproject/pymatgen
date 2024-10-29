@@ -33,6 +33,8 @@ class TestPMGDir:
 
         d = PMGDir(f"{TEST_FILES_DIR}/io/vasp/fixtures/scan_relaxation")
         assert len(d) == 2
+        assert "vasprun.xml.gz" in d.files
+        assert "OUTCAR" in d
         assert d["vasprun.xml.gz"].incar["METAGGA"] == "R2scan"
 
         with pytest.raises(ValueError, match="hello not found"):

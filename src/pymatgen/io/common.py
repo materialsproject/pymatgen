@@ -475,8 +475,12 @@ class PMGDir(collections.abc.Mapping):
         changed.
         """
         # Note that py3.12 has Path.walk(). But we need to use os.walk to ensure backwards compatibility for now.
-        self.files = [str(Path(d) / f).lstrip(str(self.path)) for d, _, fnames in os.walk(self.path) for f in fnames]
+        self.files = [str((Path(d) / f).relative_to(self.path)) for d, _, fnames in os.walk(self.path) for f in fnames]
+
         self._parsed_files: dict[str, Any] = {}
+
+    def __contains__(self, item):
+        return item in self.files
 
     def __len__(self):
         return len(self.files)
@@ -519,3 +523,6 @@ class PMGDir(collections.abc.Mapping):
             {filename: object from PMGDir[filename]}
         """
         return {f: self[f] for f in self.files if name in f}
+
+    def __repr__(self):
+        return f"PMGDir({self.path})"
