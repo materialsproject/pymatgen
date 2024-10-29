@@ -8,7 +8,7 @@ import numpy as np
 import pytest
 from numpy.testing import assert_allclose
 from pytest import approx
-from scipy.misc import central_diff_weights
+from scipy import linalg
 
 from pymatgen.analysis.elasticity.elastic import (
     ComplianceTensor,
@@ -455,6 +455,48 @@ class TestDiffFit(PymatgenTest):
         assert_allclose(test_stresses[3], eq_stress)
 
     def test_get_diff_coeff(self):
+        def central_diff_weights(Np, ndiv):
+            """
+            Notes
+            -----
+            This function is taken from SciPy's deprecated implementation of
+            central difference weights. The original code can be found at:
+            https://github.com/scipy/scipy/blob/ea916c6f7f487bd53e98de08264
+            9d542cc6106ed/scipy/_lib/_finite_differences.py
+
+            License: This code is distributed under the BSD 3-Clause license.
+
+            Copyright (c) 2001-2002 Enthought, Inc. 2003-2024, SciPy Developers.
+            All rights reserved.
+
+            Return weights for an Np-point central derivative.
+
+            Assumes equally-spaced function points.
+
+            If weights are in the vector w, then
+            derivative is w[0] * f(x-ho*dx) + ... + w[-1] * f(x+h0*dx)
+
+            Parameters
+            ----------
+            Np : int
+                Number of points for the central derivative.
+            ndiv : int, optional
+                Number of divisions. Default is 1.
+
+            Returns
+            -------
+            w : ndarray
+                Weights for an Np-point central derivative. Its size is `Np`.
+            """
+
+            ho = Np >> 1
+            x = np.arange(-ho, ho + 1.0)
+            x = x[:, np.newaxis]
+            X = x**0.0
+            for k in range(1, Np):
+                X = np.hstack([X, x**k])
+            return np.prod(np.arange(1, ndiv + 1), axis=0) * linalg.inv(X)[ndiv]
+
         forward_11 = get_diff_coeff([0, 1], 1)
         forward_13 = get_diff_coeff([0, 1, 2, 3], 1)
         backward_26 = get_diff_coeff(np.arange(-6, 1), 2)
