@@ -435,6 +435,8 @@ class Poscar(MSONable):
         # This is in line with VASP's parsing order that the POTCAR
         # specified is the default used.
         if default_names is not None and symbols is not None:
+            vasp5or6_symbols = True
+
             if len(symbols) > len(default_names):
                 raise ValueError(f"{default_names=} (likely from POTCAR) has fewer elements than POSCAR {symbols}")
 
