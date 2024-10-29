@@ -442,6 +442,7 @@ class Poscar(MSONable):
             if symbols is None:
                 # After this VASP 4.x POSCAR would be converted to VASP 5/6 format
                 vasp5or6_symbols = True
+                warnings.warn("VASP 4 POSCAR converted to VASP 5/6 format.", stacklevel=2)
 
                 atomic_symbols = []
                 for idx, n_atom in enumerate(n_atoms):

@@ -254,9 +254,6 @@ cart
         """Poscar.from_str with default_names given could also be used to
         convert a VASP 4 formatted POSCAR to VASP 5/6, by inserting
         elements to the 5th (0-indexed) line.
-
-        TODO:
-        - Add test for defaults_names not long enough.
         """
         poscar_str_vasp4 = """vasp 4
 1.1
@@ -268,8 +265,13 @@ cart
 0.000000   0.00000000   0.00000000
 3.840198   1.50000000   2.35163175
 """
-        poscar_vasp4 = Poscar.from_str(poscar_str_vasp4, default_names=["H", "He"])
+        # Test overwrite warning
+        with pytest.warns(UserWarning, match="VASP 4 POSCAR converted to VASP 5/6 format"):
+            poscar_vasp4 = Poscar.from_str(poscar_str_vasp4, default_names=["H", "He"])
         assert poscar_vasp4.site_symbols == ["H", "He"]
+
+        with pytest.raises(ValueError, match=re.escape("default_names=['H'] (likely from POTCAR) has fewer elements")):
+            _poscar_vasp4 = Poscar.from_str(poscar_str_vasp4, default_names=["H"])
 
     def test_as_from_dict(self):
         poscar_str = """Test3
