@@ -319,7 +319,8 @@ class Poscar(MSONable):
         Args:
             data (str): String containing Poscar data.
             default_names ([str]): Default symbols for the POSCAR file,
-                usually coming from a POTCAR in the same directory.
+                usually coming from a POTCAR in the same directory. This
+                could be used to convert a VASP 4 POSCAR to POSCAR 5/6 format.
             read_velocities (bool): Whether to read or not velocities if they
                 are present in the POSCAR. Default is True.
 
@@ -434,14 +435,19 @@ class Poscar(MSONable):
         # If default_names is specified (usually coming from a POTCAR), use them.
         # This is in line with VASP's parsing order that the POTCAR
         # specified is the default used.
-        if default_names is not None and symbols is not None:
-            vasp5or6_symbols = True
-
-            if len(symbols) > len(default_names):
+        if default_names is not None:
+            # Use len(n_atoms) over len(symbols) as symbols is None for VASP 4 format
+            if len(n_atoms) > len(default_names):
                 raise ValueError(f"{default_names=} (likely from POTCAR) has fewer elements than POSCAR {symbols}")
 
-            # Overwrite only when elements are different
-            if default_names[: len(symbols)] != symbols:
+            if symbols is None:
+                # After this VASP 4.x POSCAR would be converted to VASP 5/6 format
+                vasp5or6_symbols = True
+
+                atomic_symbols = []
+                for idx, n_atom in enumerate(n_atoms):
+                    atomic_symbols.extend([default_names[idx]] * n_atom)
+            elif default_names[: len(symbols)] != symbols:
                 atomic_symbols = []
                 for idx, n_atom in enumerate(n_atoms):
                     atomic_symbols.extend([default_names[idx]] * n_atom)
