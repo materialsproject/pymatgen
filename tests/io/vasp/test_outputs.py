@@ -34,7 +34,6 @@ from pymatgen.io.vasp.outputs import (
     Outcar,
     Procar,
     UnconvergedVASPWarning,
-    VaspDir,
     VaspParseError,
     Vasprun,
     Wavecar,
@@ -2184,36 +2183,3 @@ class TestWSWQ(PymatgenTest):
                 assert np.linalg.norm([r, i]) > 0.999
             else:
                 assert np.linalg.norm([r, i]) < 0.001
-
-
-class TestVaspDir(PymatgenTest):
-    def test_getitem(self):
-        # Some simple testing of loading and reading since all these were tested in other classes.
-        d = VaspDir(f"{TEST_FILES_DIR}/io/vasp/fixtures/relaxation")
-        assert len(d) == 5
-        assert d["OUTCAR"].run_stats["cores"] == 8
-
-        d = VaspDir(f"{TEST_FILES_DIR}/io/vasp/fixtures/scan_relaxation")
-        assert len(d) == 2
-        assert d["vasprun.xml.gz"].incar["METAGGA"] == "R2scan"
-
-        with pytest.raises(ValueError, match="hello not found"):
-            d["hello"]
-
-        d = VaspDir(f"{TEST_FILES_DIR}/io/pwscf")
-        with pytest.warns(UserWarning, match=r"No parser defined for Si.pwscf.out"):
-            assert isinstance(d["Si.pwscf.out"], str)
-
-        # Test NEB directories.
-        d = VaspDir(f"{TEST_FILES_DIR}/io/vasp/fixtures/neb_analysis/neb1/neb")
-
-        assert len(d) == 10
-
-        assert isinstance(d["00/POSCAR"], Poscar)
-
-        outcars = d.get_files_by_name("OUTCAR")
-        assert len(outcars) == 5
-        assert all("OUTCAR" for k in outcars)
-
-        d.reset()
-        assert len(d._parsed_files) == 0

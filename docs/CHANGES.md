@@ -6,6 +6,11 @@ nav_order: 4
 
 # Changelog
 
+## 2024.10.28
+- VaspDir has been renamed and moved to pymatgen.io.common.PMGDir for more general support of all IO classes. Note that
+  this is a backwards incompatible change. It should not affect many users since VaspDir was introduced only in the last
+  one week.
+
 ## v2024.10.27
 - Bug fix for parsing of dielectric calculations from vasprun.xml.
 
