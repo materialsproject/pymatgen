@@ -238,6 +238,7 @@ cart
         # Assert no warning if using the same elements
         with warnings.catch_warnings(record=True) as record:
             _poscar = Poscar.from_str(poscar_str, default_names=["Si", "F"])
+            _poscar = Poscar.from_str(poscar_str, default_names=["Si", "F", "O"])
         assert not any("Elements in POSCAR would be overwritten" in str(warning.message) for warning in record)
 
         # Make sure it could be bypassed (by using None, when not check_for_potcar)
