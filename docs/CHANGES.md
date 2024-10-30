@@ -6,10 +6,13 @@ nav_order: 4
 
 # Changelog
 
-## 2024.10.28
+## 2024.10.29
 - VaspDir has been renamed and moved to pymatgen.io.common.PMGDir for more general support of all IO classes. Note that
   this is a backwards incompatible change. It should not affect many users since VaspDir was introduced only in the last
   one week.
+- Fixed execution of packmol in relative path. (@davidwaroquiers)
+- VaspDoc.get_incar_tags: Use Mediawiki API (@yantar92)
+- Fix comment pass in Kpoints constructors (@DanielYang59)
 
 ## v2024.10.27
 - Bug fix for parsing of dielectric calculations from vasprun.xml.
