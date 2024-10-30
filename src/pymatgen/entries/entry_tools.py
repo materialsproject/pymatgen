@@ -42,7 +42,17 @@ def _get_host(structure, species_to_remove):
 
 
 def _perform_grouping(args):
-    entries_json, hosts_json, ltol, stol, angle_tol, primitive_cell, scale, comparator, groups = args
+    (
+        entries_json,
+        hosts_json,
+        ltol,
+        stol,
+        angle_tol,
+        primitive_cell,
+        scale,
+        comparator,
+        groups,
+    ) = args
 
     entries = json.loads(entries_json, cls=MontyDecoder)
     hosts = json.loads(hosts_json, cls=MontyDecoder)
@@ -312,7 +322,7 @@ class EntrySet(collections.abc.MutableSet, MSONable):
             )
             writer.writerow(["Name"] + [el.symbol for el in elements] + ["Energy"])
             for entry in self.entries:
-                row: list[str] = [entry.name if not latexify_names else re.sub(r"([0-9]+)", r"_{\1}", entry.name)]
+                row: list[str] = [(entry.name if not latexify_names else re.sub(r"([0-9]+)", r"_{\1}", entry.name))]
                 row.extend([str(entry.composition[el]) for el in elements])
                 row.append(str(entry.energy))
                 writer.writerow(row)

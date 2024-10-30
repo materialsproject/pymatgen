@@ -17,7 +17,6 @@ from .outputs import (
     Oszicar,
     Outcar,
     Procar,
-    VaspDir,
     Vasprun,
     VolumetricData,
     Wavecar,

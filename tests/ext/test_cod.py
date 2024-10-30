@@ -14,7 +14,11 @@ TIMEOUT = 10 if os.getenv("CI") else 60
 
 try:
     WEBSITE_DOWN = requests.get("https://www.crystallography.net", timeout=TIMEOUT).status_code != 200
-except (requests.exceptions.ConnectionError, requests.exceptions.Timeout, requests.exceptions.ReadTimeout):
+except (
+    requests.exceptions.ConnectionError,
+    requests.exceptions.Timeout,
+    requests.exceptions.ReadTimeout,
+):
     WEBSITE_DOWN = True
 
 if WEBSITE_DOWN:
@@ -28,7 +32,11 @@ def skip_on_timeout(func):
     def wrapper(*args, **kwargs):
         try:
             return func(*args, **kwargs)
-        except (requests.exceptions.ConnectionError, requests.exceptions.Timeout, requests.exceptions.ReadTimeout):
+        except (
+            requests.exceptions.ConnectionError,
+            requests.exceptions.Timeout,
+            requests.exceptions.ReadTimeout,
+        ):
             if os.getenv("CI"):
                 pytest.skip("Request timeout in CI environment")
             else:

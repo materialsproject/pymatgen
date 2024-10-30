@@ -425,7 +425,10 @@ class ElasticTensor(NthOrderElasticTensor):
         return {prop: getattr(self, prop) for prop in props}
 
     def get_structure_property_dict(
-        self, structure: Structure, include_base_props: bool = True, ignore_errors: bool = False
+        self,
+        structure: Structure,
+        include_base_props: bool = True,
+        ignore_errors: bool = False,
     ) -> dict[str, float | Structure | None]:
         """Get a dictionary of properties derived from the elastic tensor
         and an associated structure.
@@ -689,7 +692,10 @@ class ElasticTensorExpansion(TensorCollection):
         return vel / l0
 
     def thermal_expansion_coeff(
-        self, structure: Structure, temperature: float, mode: Literal["dulong - petit", "debye"] = "debye"
+        self,
+        structure: Structure,
+        temperature: float,
+        mode: Literal["dulong - petit", "debye"] = "debye",
     ):
         """Get thermal expansion coefficient from third-order constants.
 

@@ -269,7 +269,12 @@ class TestPiezoSensitivity(PymatgenTest):
     def test_rand_piezo(self):
         pytest.importorskip("phonopy")
         rand_BEC, rand_IST, rand_FCM, _piezo = rand_piezo(
-            self.piezo_struct, self.point_ops, self.shared_ops, self.BEC, self.IST, self.FCM
+            self.piezo_struct,
+            self.point_ops,
+            self.shared_ops,
+            self.BEC,
+            self.IST,
+            self.FCM,
         )
 
         for ii in range(len(self.BEC_operations)):

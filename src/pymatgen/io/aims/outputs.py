@@ -54,7 +54,10 @@ class AimsOutput(MSONable):
 
     def as_dict(self) -> dict[str, Any]:
         """Create a dict representation of the outputs for MSONable."""
-        dct: dict[str, Any] = {"@module": type(self).__module__, "@class": type(self).__name__}
+        dct: dict[str, Any] = {
+            "@module": type(self).__module__,
+            "@class": type(self).__name__,
+        }
 
         dct["results"] = self._results
         dct["metadata"] = self._metadata

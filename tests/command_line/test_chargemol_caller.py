@@ -51,7 +51,11 @@ class TestChargemolAnalysis:
         test_dir = f"{TEST_DIR}/spin_polarized"
         ca = ChargemolAnalysis(path=test_dir, run_chargemol=False)
         assert ca.ddec_spin_moments == [0.201595, 0.399203, 0.399203]
-        assert ca.dipoles == [[-0.0, 0.0, -0.127251], [0.0, -0.027857, -0.010944], [0.0, 0.027857, -0.010944]]
+        assert ca.dipoles == [
+            [-0.0, 0.0, -0.127251],
+            [0.0, -0.027857, -0.010944],
+            [0.0, 0.027857, -0.010944],
+        ]
         assert ca.summary["ddec"]["bond_order_dict"][0]["bonded_to"][0]["spin_polarization"] == 0.0490
         assert ca.summary["ddec"]["spin_moments"] == ca.ddec_spin_moments
         assert ca.natoms is None

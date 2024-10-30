@@ -347,7 +347,11 @@ class ACstrExtractor(ACExtractorBase):
         for tmp_idx in [aim_idx + 1, aim_idx + 2, aim_idx + 3]:
             # tmp_str_lst = ['0.120972E+02', '0.483925E+01', '0.242063E+01']
             tmp_str_lst = self.strs_lst[tmp_idx].split()[-3:]
-            virial_tensor += (float(tmp_str_lst[0]), float(tmp_str_lst[1]), float(tmp_str_lst[2]))
+            virial_tensor += (
+                float(tmp_str_lst[0]),
+                float(tmp_str_lst[1]),
+                float(tmp_str_lst[2]),
+            )
 
         return np.array(virial_tensor)
 
@@ -549,10 +553,12 @@ class GenKpt(MSONable):
                 float: The distance between two high symmetry points. With factor of 2*pi.
             """
             hsp1_coord: np.ndarray = np.dot(
-                np.array(self.kpath["kpoints"][hsp1]).reshape(1, 3), self.reciprocal_lattice
+                np.array(self.kpath["kpoints"][hsp1]).reshape(1, 3),
+                self.reciprocal_lattice,
             )
             hsp2_coord: np.ndarray = np.dot(
-                np.array(self.kpath["kpoints"][hsp2]).reshape(1, 3), self.reciprocal_lattice
+                np.array(self.kpath["kpoints"][hsp2]).reshape(1, 3),
+                self.reciprocal_lattice,
             )
             return float(np.linalg.norm(hsp2_coord - hsp1_coord))
 
@@ -589,7 +595,13 @@ class GenKpt(MSONable):
 class HighSymmetryPoint(MSONable):
     """Read and write HIGH_SYMMETRY_POINTS file which generate line-mode kpoints."""
 
-    def __init__(self, reciprocal_lattice: np.ndarray, kpts: dict[str, list], path: list[list[str]], density: float):
+    def __init__(
+        self,
+        reciprocal_lattice: np.ndarray,
+        kpts: dict[str, list],
+        path: list[list[str]],
+        density: float,
+    ):
         """Initialization function.
 
         Args:
@@ -616,7 +628,12 @@ class HighSymmetryPoint(MSONable):
         """
         reciprocal_lattice: np.ndarray = structure.lattice.reciprocal_lattice.matrix
         gen_kpt = GenKpt.from_structure(structure=structure, dim=dim, density=density)
-        return cls(reciprocal_lattice, gen_kpt.kpath["kpoints"], gen_kpt.kpath["path"], density * 2 * np.pi)
+        return cls(
+            reciprocal_lattice,
+            gen_kpt.kpath["kpoints"],
+            gen_kpt.kpath["path"],
+            density * 2 * np.pi,
+        )
 
     def get_str(self) -> str:
         """Get a string describing high symmetry points in HIGH_SYMMETRY_POINTS format."""
@@ -628,10 +645,12 @@ class HighSymmetryPoint(MSONable):
                 float: The distance between two high symmetry points with factor of 2*pi.
             """
             hsp1_coord: np.ndarray = np.dot(
-                np.array(self.kpath["kpoints"][hsp1]).reshape(1, 3), self.reciprocal_lattice
+                np.array(self.kpath["kpoints"][hsp1]).reshape(1, 3),
+                self.reciprocal_lattice,
             )
             hsp2_coord: np.ndarray = np.dot(
-                np.array(self.kpath["kpoints"][hsp2]).reshape(1, 3), self.reciprocal_lattice
+                np.array(self.kpath["kpoints"][hsp2]).reshape(1, 3),
+                self.reciprocal_lattice,
             )
             return float(np.linalg.norm(hsp2_coord - hsp1_coord))
 

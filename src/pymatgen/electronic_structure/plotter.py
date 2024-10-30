@@ -84,7 +84,11 @@ class DosPlotter:
         self.sigma = sigma
         self._norm_val = True
         self._doses: dict[
-            str, dict[Literal["energies", "densities", "efermi"], float | ArrayLike | dict[Spin, ArrayLike]]
+            str,
+            dict[
+                Literal["energies", "densities", "efermi"],
+                float | ArrayLike | dict[Spin, ArrayLike],
+            ],
         ] = {}
 
     def add_dos(self, label: str, dos: Dos) -> None:
@@ -198,9 +202,22 @@ class DosPlotter:
                     if self.stack:
                         ax.fill(x, y, color=colors[idx % n_colors], label=str(key))
                     elif spin == Spin.down and beta_dashed:
-                        ax.plot(x, y, color=colors[idx % n_colors], label=str(key), linestyle="--", linewidth=3)
+                        ax.plot(
+                            x,
+                            y,
+                            color=colors[idx % n_colors],
+                            label=str(key),
+                            linestyle="--",
+                            linewidth=3,
+                        )
                     else:
-                        ax.plot(x, y, color=colors[idx % n_colors], label=str(key), linewidth=3)
+                        ax.plot(
+                            x,
+                            y,
+                            color=colors[idx % n_colors],
+                            label=str(key),
+                            linewidth=3,
+                        )
 
         if xlim:
             ax.set_xlim(xlim)
@@ -222,7 +239,7 @@ class DosPlotter:
         if self.zero_at_efermi:
             xlim = ax.get_xlim()
             ylim = ax.get_ylim()
-            ax.plot(xlim, [0, 0], "k--", linewidth=2) if invert_axes else ax.plot([0, 0], ylim, "k--", linewidth=2)
+            (ax.plot(xlim, [0, 0], "k--", linewidth=2) if invert_axes else ax.plot([0, 0], ylim, "k--", linewidth=2))
 
         if invert_axes:
             ax.set_ylabel("Energies (eV)")
@@ -484,7 +501,7 @@ class BSPlotter:
                 cbm_plot.append(
                     (
                         bs.distance[index],
-                        cbm["energy"] - zero_energy if zero_to_efermi else cbm["energy"],
+                        (cbm["energy"] - zero_energy if zero_to_efermi else cbm["energy"]),
                     )
                 )
 
@@ -492,7 +509,7 @@ class BSPlotter:
                 vbm_plot.append(
                     (
                         bs.distance[index],
-                        vbm["energy"] - zero_energy if zero_to_efermi else vbm["energy"],
+                        (vbm["energy"] - zero_energy if zero_to_efermi else vbm["energy"]),
                     )
                 )
 
@@ -1248,7 +1265,10 @@ class BSPlotterProjected(BSPlotter):
 
                         ax.plot(
                             [data["distances"][b][j], data["distances"][b][j + 1]],
-                            [data["energy"][str(spin)][b][band_idx][j], data["energy"][str(spin)][b][band_idx][j + 1]],
+                            [
+                                data["energy"][str(spin)][b][band_idx][j],
+                                data["energy"][str(spin)][b][band_idx][j + 1],
+                            ],
                             sign,
                             color=color,
                             linewidth=band_linewidth,
@@ -2545,7 +2565,14 @@ class BSDOSPlotter:
             elif len(elements) == 3:
                 self._rgb_triangle(bs_ax, elements[1], elements[2], elements[0], loc=self.bs_legend)
             elif len(elements) == 4:
-                self._cmyk_triangle(bs_ax, elements[1], elements[2], elements[0], elements[3], loc=self.bs_legend)
+                self._cmyk_triangle(
+                    bs_ax,
+                    elements[1],
+                    elements[2],
+                    elements[0],
+                    elements[3],
+                    loc=self.bs_legend,
+                )
         # add legend for DOS
         if dos and self.dos_legend and dos_ax is not None:
             dos_ax.legend(
@@ -2584,7 +2611,10 @@ class BSDOSPlotter:
         blue = [0.5 * (blue[i] + blue[i + 1]) for i in range(n_seg)]
         alpha = np.ones(n_seg, float) * alpha
         lc = LineCollection(
-            seg, colors=list(zip(red, green, blue, alpha, strict=True)), linewidth=2, linestyles=linestyles
+            seg,
+            colors=list(zip(red, green, blue, alpha, strict=True)),
+            linewidth=2,
+            linestyles=linestyles,
         )
         ax.add_collection(lc)
 
@@ -2630,7 +2660,11 @@ class BSDOSPlotter:
                             ]  # prefer blue, then red, then green or magenta, then yellow, then cyan, then black
                             if len(elements) == 4:
                                 # convert cmyk to rgb
-                                c = [(1 - c[0]) * (1 - c[3]), ((1 - c[1]) * (1 - c[3])), ((1 - c[2]) * (1 - c[3]))]
+                                c = [
+                                    (1 - c[0]) * (1 - c[3]),
+                                    ((1 - c[1]) * (1 - c[3])),
+                                    ((1 - c[2]) * (1 - c[3])),
+                                ]
                             else:
                                 c = [c[0], c[1], c[2]]
 
@@ -2681,9 +2715,23 @@ class BSDOSPlotter:
         # add the labels
         common = {"fontsize": 13, "family": "Times New Roman"}
         inset_ax.text(0.70, -0.2, m_label, **common, color=(0, 0, 0), horizontalalignment="left")
-        inset_ax.text(0.325, 0.70, c_label, **common, color=(0, 0, 0), horizontalalignment="center")
+        inset_ax.text(
+            0.325,
+            0.70,
+            c_label,
+            **common,
+            color=(0, 0, 0),
+            horizontalalignment="center",
+        )
         inset_ax.text(-0.05, -0.2, y_label, **common, color=(0, 0, 0), horizontalalignment="right")
-        inset_ax.text(0.325, 0.22, k_label, **common, color=(1, 1, 1), horizontalalignment="center")
+        inset_ax.text(
+            0.325,
+            0.22,
+            k_label,
+            **common,
+            color=(1, 1, 1),
+            horizontalalignment="center",
+        )
 
         inset_ax.axis("off")
 
@@ -2961,7 +3009,12 @@ class BoltztrapPlotter:
         plt.tight_layout()
         return ax
 
-    def plot_seebeck_mu(self, temp: float = 600, output: str = "eig", xlim: Sequence[float] | None = None):
+    def plot_seebeck_mu(
+        self,
+        temp: float = 600,
+        output: str = "eig",
+        xlim: Sequence[float] | None = None,
+    ):
         """Plot the seebeck coefficient in function of Fermi level.
 
         Args:
@@ -3155,7 +3208,10 @@ class BoltztrapPlotter:
         return ax
 
     def plot_conductivity_temp(
-        self, doping="all", output: Literal["average", "eigs"] = "average", relaxation_time=1e-14
+        self,
+        doping="all",
+        output: Literal["average", "eigs"] = "average",
+        relaxation_time=1e-14,
     ):
         """Plot the conductivity in function of temperature for different doping levels.
 
@@ -3210,7 +3266,10 @@ class BoltztrapPlotter:
         return ax
 
     def plot_power_factor_temp(
-        self, doping="all", output: Literal["average", "eigs"] = "average", relaxation_time=1e-14
+        self,
+        doping="all",
+        output: Literal["average", "eigs"] = "average",
+        relaxation_time=1e-14,
     ):
         """Plot the Power Factor in function of temperature for different doping levels.
 
@@ -3263,7 +3322,12 @@ class BoltztrapPlotter:
         plt.tight_layout()
         return ax
 
-    def plot_zt_temp(self, doping="all", output: Literal["average", "eigs"] = "average", relaxation_time=1e-14):
+    def plot_zt_temp(
+        self,
+        doping="all",
+        output: Literal["average", "eigs"] = "average",
+        relaxation_time=1e-14,
+    ):
         """Plot the figure of merit zT in function of temperature for different doping levels.
 
         Args:
@@ -3392,7 +3456,12 @@ class BoltztrapPlotter:
                             label=f"{xyz} {temp} K",
                         )
                 elif output == "average":
-                    ax.semilogx(self._bz.doping[dop_type], sbk[dop_type][temp], marker="s", label=f"{temp} K")
+                    ax.semilogx(
+                        self._bz.doping[dop_type],
+                        sbk[dop_type][temp],
+                        marker="s",
+                        label=f"{temp} K",
+                    )
             ax.set_title(f"{dop_type}-type", fontsize=20)
             if idx == 0:
                 ax.set_ylabel("Seebeck coefficient ($\\mu$V/K)", fontsize=30.0)
@@ -3408,7 +3477,12 @@ class BoltztrapPlotter:
 
         return ax
 
-    def plot_conductivity_dop(self, temps="all", output: Literal["average", "eigs"] = "average", relaxation_time=1e-14):
+    def plot_conductivity_dop(
+        self,
+        temps="all",
+        output: Literal["average", "eigs"] = "average",
+        relaxation_time=1e-14,
+    ):
         """Plot the conductivity in function of doping levels for different
         temperatures.
 
@@ -3461,7 +3535,12 @@ class BoltztrapPlotter:
 
         return ax
 
-    def plot_power_factor_dop(self, temps="all", output: Literal["average", "eigs"] = "average", relaxation_time=1e-14):
+    def plot_power_factor_dop(
+        self,
+        temps="all",
+        output: Literal["average", "eigs"] = "average",
+        relaxation_time=1e-14,
+    ):
         """Plot the Power Factor in function of doping levels for different temperatures.
 
         Args:
@@ -3493,7 +3572,12 @@ class BoltztrapPlotter:
                             label=f"{xyz} {temp} K",
                         )
                 elif output == "average":
-                    ax.semilogx(self._bz.doping[dop_type], pow_factor[dop_type][temp], marker="s", label=f"{temp} K")
+                    ax.semilogx(
+                        self._bz.doping[dop_type],
+                        pow_factor[dop_type][temp],
+                        marker="s",
+                        label=f"{temp} K",
+                    )
             ax.set_title(f"{dop_type}-type", fontsize=20)
             if idx == 0:
                 ax.set_ylabel("Power Factor  ($\\mu$W/(mK$^2$))", fontsize=30.0)
@@ -3509,7 +3593,12 @@ class BoltztrapPlotter:
 
         return ax
 
-    def plot_zt_dop(self, temps="all", output: Literal["average", "eigs"] = "average", relaxation_time=1e-14):
+    def plot_zt_dop(
+        self,
+        temps="all",
+        output: Literal["average", "eigs"] = "average",
+        relaxation_time=1e-14,
+    ):
         """Plot the figure of merit zT in function of doping levels for different
         temperatures.
 
@@ -3820,7 +3909,13 @@ class CohpPlotter:
                             linewidth=3,
                         )
                     else:
-                        ax.plot(x, y, color=colors[idx % ncolors], linestyle="--", linewidth=3)
+                        ax.plot(
+                            x,
+                            y,
+                            color=colors[idx % ncolors],
+                            linestyle="--",
+                            linewidth=3,
+                        )
 
         if xlim:
             ax.set_xlim(xlim)
@@ -4259,7 +4354,14 @@ def fold_point(p, lattice, coords_are_cartesian=False):
     return p
 
 
-def plot_points(points, lattice=None, coords_are_cartesian=False, fold=False, ax: plt.Axes = None, **kwargs):
+def plot_points(
+    points,
+    lattice=None,
+    coords_are_cartesian=False,
+    fold=False,
+    ax: plt.Axes = None,
+    **kwargs,
+):
     """Add Points to a matplotlib Axes.
 
     Args:

@@ -748,7 +748,11 @@ class ElementBase(Enum):
         return self.is_lanthanoid or self.is_actinoid or self.symbol in {"Sc", "Y"}
 
     @property
-    @deprecated(is_rare_earth, message="is_rare_earth is corrected to include Y and Sc.", deadline=(2025, 1, 1))
+    @deprecated(
+        is_rare_earth,
+        message="is_rare_earth is corrected to include Y and Sc.",
+        deadline=(2025, 1, 1),
+    )
     def is_rare_earth_metal(self) -> bool:
         """True if element is a rare earth metal, Lanthanides (La) series and Actinides (Ac) series.
 
@@ -831,7 +835,11 @@ class ElementBase(Enum):
 
     def as_dict(self) -> dict[Literal["element", "@module", "@class"], str]:
         """Serialize to MSONable dict representation e.g. to write to disk as JSON."""
-        return {"@module": type(self).__module__, "@class": type(self).__name__, "element": self.symbol}
+        return {
+            "@module": type(self).__module__,
+            "@class": type(self).__name__,
+            "element": self.symbol,
+        }
 
     @staticmethod
     def from_dict(dct: dict) -> Element:

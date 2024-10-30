@@ -14,7 +14,14 @@ if TYPE_CHECKING:
 
 def test_plot_xrd(cd_tmp_path: Path):
     subprocess.run(
-        ["pmg", "plot", "--xrd", f"{VASP_IN_DIR}/POSCAR_Fe3O4", "--out_file", "xrd.png"],
+        [
+            "pmg",
+            "plot",
+            "--xrd",
+            f"{VASP_IN_DIR}/POSCAR_Fe3O4",
+            "--out_file",
+            "xrd.png",
+        ],
         check=True,
     )
     assert os.path.isfile("xrd.png")
@@ -23,7 +30,14 @@ def test_plot_xrd(cd_tmp_path: Path):
 
 def test_plot_dos(cd_tmp_path: Path):
     subprocess.run(
-        ["pmg", "plot", "--dos", f"{VASP_OUT_DIR}/vasprun_Li_no_projected.xml.gz", "--out_file", "dos.png"],
+        [
+            "pmg",
+            "plot",
+            "--dos",
+            f"{VASP_OUT_DIR}/vasprun_Li_no_projected.xml.gz",
+            "--out_file",
+            "dos.png",
+        ],
         check=True,
     )
     assert os.path.isfile("dos.png")
@@ -32,7 +46,14 @@ def test_plot_dos(cd_tmp_path: Path):
 
 def test_plot_chgint(cd_tmp_path: Path):
     subprocess.run(
-        ["pmg", "plot", "--chgint", f"{VASP_OUT_DIR}/CHGCAR.Fe3O4.gz", "--out_file", "chg.png"],
+        [
+            "pmg",
+            "plot",
+            "--chgint",
+            f"{VASP_OUT_DIR}/CHGCAR.Fe3O4.gz",
+            "--out_file",
+            "chg.png",
+        ],
         check=True,
     )
     assert os.path.isfile("chg.png")

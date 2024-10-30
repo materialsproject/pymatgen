@@ -141,7 +141,7 @@ class QChemDictSet(QCInput):
         pcm_dielectric: float | None = None,
         isosvp_dielectric: float | None = None,
         smd_solvent: str | None = None,
-        cmirs_solvent: Literal["water", "acetonitrile", "dimethyl sulfoxide", "cyclohexane", "benzene"] | None = None,
+        cmirs_solvent: (Literal["water", "acetonitrile", "dimethyl sulfoxide", "cyclohexane", "benzene"] | None) = None,
         custom_smd: str | None = None,
         opt_variables: dict[str, list] | None = None,
         scan_variables: dict[str, list] | None = None,
@@ -386,7 +386,12 @@ class QChemDictSet(QCInput):
             "vdwscale": "1.1",
         }
 
-        svp_defaults: dict[str, Any] = {"rhoiso": "0.001", "nptleb": "1202", "itrngr": "2", "irotgr": "2"}
+        svp_defaults: dict[str, Any] = {
+            "rhoiso": "0.001",
+            "nptleb": "1202",
+            "itrngr": "2",
+            "irotgr": "2",
+        }
 
         plots_defaults = {"grid_spacing": "0.05", "total_density": "0"}
 
@@ -437,7 +442,12 @@ class QChemDictSet(QCInput):
             rem["write_wfn"] = "wavefunction"
 
         solvent_def = 0
-        for a in [self.pcm_dielectric, self.isosvp_dielectric, self.smd_solvent, self.cmirs_solvent]:
+        for a in [
+            self.pcm_dielectric,
+            self.isosvp_dielectric,
+            self.smd_solvent,
+            self.cmirs_solvent,
+        ]:
             if a is not None:
                 solvent_def += 1
         if solvent_def > 1:
@@ -543,7 +553,10 @@ class QChemDictSet(QCInput):
                 if sec == "solvent":
                     solvent |= lower_and_check_unique(sec_dict)
                     if rem["solvent_method"] != "pcm":
-                        warnings.warn("The solvent section will be ignored unless solvent_method=pcm!", UserWarning)
+                        warnings.warn(
+                            "The solvent section will be ignored unless solvent_method=pcm!",
+                            UserWarning,
+                        )
                 if sec == "smx":
                     smx |= lower_and_check_unique(sec_dict)
                 if sec == "scan":
@@ -575,7 +588,8 @@ class QChemDictSet(QCInput):
                         if k == "idefesr":
                             if self.cmirs_solvent is not None and v == "0":
                                 warnings.warn(
-                                    "Setting IDEFESR=0 will disable the CMIRS calculation you requested!", UserWarning
+                                    "Setting IDEFESR=0 will disable the CMIRS calculation you requested!",
+                                    UserWarning,
                                 )
                             if self.cmirs_solvent is None and v == "1":
                                 warnings.warn(
@@ -646,7 +660,7 @@ class SinglePointSet(QChemDictSet):
         pcm_dielectric: float | None = None,
         isosvp_dielectric: float | None = None,
         smd_solvent: str | None = None,
-        cmirs_solvent: Literal["water", "acetonitrile", "dimethyl sulfoxide", "cyclohexane", "benzene"] | None = None,
+        cmirs_solvent: (Literal["water", "acetonitrile", "dimethyl sulfoxide", "cyclohexane", "benzene"] | None) = None,
         custom_smd: str | None = None,
         max_scf_cycles: int = 100,
         plot_cubes: bool = False,
@@ -874,7 +888,7 @@ class OptSet(QChemDictSet):
         pcm_dielectric: float | None = None,
         isosvp_dielectric: float | None = None,
         smd_solvent: str | None = None,
-        cmirs_solvent: Literal["water", "acetonitrile", "dimethyl sulfoxide", "cyclohexane", "benzene"] | None = None,
+        cmirs_solvent: (Literal["water", "acetonitrile", "dimethyl sulfoxide", "cyclohexane", "benzene"] | None) = None,
         custom_smd: str | None = None,
         max_scf_cycles: int = 100,
         plot_cubes: bool = False,
@@ -1087,7 +1101,7 @@ class TransitionStateSet(QChemDictSet):
         pcm_dielectric: float | None = None,
         isosvp_dielectric: float | None = None,
         smd_solvent: str | None = None,
-        cmirs_solvent: Literal["water", "acetonitrile", "dimethyl sulfoxide", "cyclohexane", "benzene"] | None = None,
+        cmirs_solvent: (Literal["water", "acetonitrile", "dimethyl sulfoxide", "cyclohexane", "benzene"] | None) = None,
         custom_smd: str | None = None,
         max_scf_cycles: int = 100,
         plot_cubes: bool = False,
@@ -1225,7 +1239,7 @@ class ForceSet(QChemDictSet):
         pcm_dielectric: float | None = None,
         isosvp_dielectric: float | None = None,
         smd_solvent: str | None = None,
-        cmirs_solvent: Literal["water", "acetonitrile", "dimethyl sulfoxide", "cyclohexane", "benzene"] | None = None,
+        cmirs_solvent: (Literal["water", "acetonitrile", "dimethyl sulfoxide", "cyclohexane", "benzene"] | None) = None,
         custom_smd: str | None = None,
         max_scf_cycles: int = 100,
         plot_cubes: bool = False,
@@ -1418,7 +1432,7 @@ class FreqSet(QChemDictSet):
         pcm_dielectric: float | None = None,
         isosvp_dielectric: float | None = None,
         smd_solvent: str | None = None,
-        cmirs_solvent: Literal["water", "acetonitrile", "dimethyl sulfoxide", "cyclohexane", "benzene"] | None = None,
+        cmirs_solvent: (Literal["water", "acetonitrile", "dimethyl sulfoxide", "cyclohexane", "benzene"] | None) = None,
         custom_smd: str | None = None,
         max_scf_cycles: int = 100,
         plot_cubes: bool = False,
@@ -1619,7 +1633,7 @@ class PESScanSet(QChemDictSet):
         pcm_dielectric: float | None = None,
         isosvp_dielectric: float | None = None,
         smd_solvent: str | None = None,
-        cmirs_solvent: Literal["water", "acetonitrile", "dimethyl sulfoxide", "cyclohexane", "benzene"] | None = None,
+        cmirs_solvent: (Literal["water", "acetonitrile", "dimethyl sulfoxide", "cyclohexane", "benzene"] | None) = None,
         custom_smd: str | None = None,
         max_scf_cycles: int = 100,
         plot_cubes: bool = False,

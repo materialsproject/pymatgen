@@ -451,7 +451,11 @@ class JahnTellerAnalyzer:
         return "unknown"
 
     @staticmethod
-    def mu_so(species: str | Species, motif: Literal["oct", "tet"], spin_state: Literal["high", "low"]) -> float | None:
+    def mu_so(
+        species: str | Species,
+        motif: Literal["oct", "tet"],
+        spin_state: Literal["high", "low"],
+    ) -> float | None:
         """Calculate the spin-only magnetic moment for a given species. Only supports transition metals.
 
         Args:

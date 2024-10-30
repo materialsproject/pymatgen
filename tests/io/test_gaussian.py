@@ -38,7 +38,8 @@ class TestGaussianInput(TestCase):
         gau = GaussianInput(mol, route_parameters={"SP": "", "SCF": "Tight"})
         assert gau.spin_multiplicity == 2
         with pytest.raises(
-            ValueError, match="Charge of -1 and spin multiplicity of 1 is not possible for this molecule"
+            ValueError,
+            match="Charge of -1 and spin multiplicity of 1 is not possible for this molecule",
         ):
             GaussianInput(mol, spin_multiplicity=1)
 
@@ -341,7 +342,17 @@ class TestGaussianOutput(TestCase):
             0.00,
             0.00,
         ]
-        assert ch2o_co2.frequencies[1][3]["mode"] == [0.00, 0.00, 0.88, 0.00, 0.00, -0.33, 0.00, 0.00, -0.33]
+        assert ch2o_co2.frequencies[1][3]["mode"] == [
+            0.00,
+            0.00,
+            0.88,
+            0.00,
+            0.00,
+            -0.33,
+            0.00,
+            0.00,
+            -0.33,
+        ]
         assert ch2o_co2.frequencies[1][3]["symmetry"] == "SGU"
         assert ch2o_co2.eigenvalues[Spin.up][3] == -1.18394
 
@@ -405,7 +416,17 @@ class TestGaussianOutput(TestCase):
             -1.00532,
         ]
 
-        assert gau.atom_basis_labels[0] == ["1S", "2S", "2PX", "2PY", "2PZ", "3S", "3PX", "3PY", "3PZ"]
+        assert gau.atom_basis_labels[0] == [
+            "1S",
+            "2S",
+            "2PX",
+            "2PY",
+            "2PZ",
+            "3S",
+            "3PX",
+            "3PY",
+            "3PZ",
+        ]
         assert gau.atom_basis_labels[2] == ["1S", "2S"]
 
         gau = GaussianOutput(f"{TEST_DIR}/H2O_gau_vib.out")

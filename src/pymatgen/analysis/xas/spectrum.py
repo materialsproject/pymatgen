@@ -70,7 +70,9 @@ class XAS(Spectrum):
         self.e0 = self.x[np.argmax(np.gradient(self.y) / np.gradient(self.x))]
         # Wavenumber, k is calculated based on equation
         #             k^2=2*m/(hbar)^2*(E-E0)
-        self.k = [np.sqrt((i - self.e0) / 3.8537) if i > self.e0 else -np.sqrt((self.e0 - i) / 3.8537) for i in self.x]
+        self.k = [
+            (np.sqrt((i - self.e0) / 3.8537) if i > self.e0 else -np.sqrt((self.e0 - i) / 3.8537)) for i in self.x
+        ]
         self.absorbing_index = absorbing_index
         # check for empty spectra and negative intensities
         if sum(1 for i in self.y if i <= 0) / len(self.y) > 0.05:

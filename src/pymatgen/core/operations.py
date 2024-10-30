@@ -71,7 +71,14 @@ class SymmOp(MSONable):
         return f"{type(self).__name__}({self.affine_matrix=})"
 
     def __str__(self) -> str:
-        return "\n".join(["Rot:", str(self.affine_matrix[:3][:, :3]), "tau", str(self.affine_matrix[:3][:, 3])])
+        return "\n".join(
+            [
+                "Rot:",
+                str(self.affine_matrix[:3][:, :3]),
+                "tau",
+                str(self.affine_matrix[:3][:, 3]),
+            ]
+        )
 
     def __mul__(self, other) -> Self:
         """Get a new SymmOp which is equivalent to apply the "other" SymmOp
@@ -352,7 +359,14 @@ class SymmOp(MSONable):
             + (a * ax_v - b * ax_u) * lsqrt * sin_t
         ) / l2
 
-        return SymmOp([[m11, m12, m13, m14], [m21, m22, m23, m24], [m31, m32, m33, m34], [0, 0, 0, 1]])
+        return SymmOp(
+            [
+                [m11, m12, m13, m14],
+                [m21, m22, m23, m24],
+                [m31, m32, m33, m34],
+                [0, 0, 0, 1],
+            ]
+        )
 
     @staticmethod
     def reflection(normal: ArrayLike, origin: ArrayLike = (0, 0, 0)) -> SymmOp:

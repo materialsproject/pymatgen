@@ -227,7 +227,12 @@ class FEFFDictSet(AbstractFeffInputSet):
         Returns:
             Header
         """
-        return Header(self.structure, source, comment, spacegroup_analyzer_settings=self.spacegroup_analyzer_settings)
+        return Header(
+            self.structure,
+            source,
+            comment,
+            spacegroup_analyzer_settings=self.spacegroup_analyzer_settings,
+        )
 
     @property
     def tags(self) -> Tags:
@@ -312,7 +317,12 @@ class FEFFDictSet(AbstractFeffInputSet):
             from math import ceil
 
             radius = int(
-                ceil(input_atoms.get_distance(input_atoms.index(input_atoms[0]), input_atoms.index(input_atoms[-1])))
+                ceil(
+                    input_atoms.get_distance(
+                        input_atoms.index(input_atoms[0]),
+                        input_atoms.index(input_atoms[-1]),
+                    )
+                )
             )
 
             for site_index, site in enumerate(sub_d["header"].struct):
