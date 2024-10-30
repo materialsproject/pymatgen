@@ -74,6 +74,8 @@ jobs:
           micromamba install -n pmg -c conda-forge bader enumlib openff-toolkit packmol pygraphviz tblite --yes
 
       - name: Install pymatgen and dependencies via uv
+        env:
+          UV_HTTP_TIMEOUT: 300  # torch could easily timeout
         run: |
           micromamba activate pmg
 
