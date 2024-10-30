@@ -15,13 +15,13 @@ Note that PACKMOL versions prior to 20.3.0 do not support paths with spaces.
 
 from __future__ import annotations
 
-import os
 import subprocess
 from pathlib import Path
 from shutil import which
 from typing import TYPE_CHECKING
 
 import numpy as np
+from monty.os import cd
 
 from pymatgen.core import Molecule
 from pymatgen.io.core import InputGenerator, InputSet
@@ -50,42 +50,39 @@ class PackmolSet(InputSet):
             ValueError: if packmol does not succeed in packing the box.
             TimeoutExpiredError: if packmol does not finish within the timeout.
         """
-        wd = os.getcwd()
         if not which("packmol"):
             raise RuntimeError(
                 "Running a PackmolSet requires the executable 'packmol' to be in the path. Please "
                 "download packmol from https://github.com/leandromartinez98/packmol and follow the "
                 "instructions in the README to compile. Don't forget to add the packmol binary to your path"
             )
-        try:
-            os.chdir(path)
-            with open(self.inputfile, encoding="utf-8") as infile:
-                proc = subprocess.run(
-                    ["packmol"],
-                    stdin=infile,
-                    check=True,
-                    timeout=timeout,
-                    capture_output=True,
-                )
-            # This workaround is needed because packmol can fail to find
-            # a solution but still return a zero exit code.
-            # See https://github.com/m3g/packmol/issues/28
-            if "ERROR" in proc.stdout.decode():
-                if "Could not open file." in proc.stdout.decode():
-                    raise ValueError(
-                        "Your packmol might be too old to handle paths with spaces."
-                        "Please try again with a newer version or use paths without spaces."
+        with cd(path):
+            try:
+                with open(self.inputfile, encoding="utf-8") as infile:
+                    proc = subprocess.run(
+                        ["packmol"],
+                        stdin=infile,
+                        check=True,
+                        timeout=timeout,
+                        capture_output=True,
                     )
-                msg = proc.stdout.decode().split("ERROR")[-1]
-                raise ValueError(f"Packmol failed with return code 0 and stdout: {msg}")
+                # This workaround is needed because packmol can fail to find
+                # a solution but still return a zero exit code.
+                # See https://github.com/m3g/packmol/issues/28
+                if "ERROR" in proc.stdout.decode():
+                    if "Could not open file." in proc.stdout.decode():
+                        raise ValueError(
+                            "Your packmol might be too old to handle paths with spaces."
+                            "Please try again with a newer version or use paths without spaces."
+                        )
+                    msg = proc.stdout.decode().split("ERROR")[-1]
+                    raise ValueError(f"Packmol failed with return code 0 and stdout: {msg}")
 
-        except subprocess.CalledProcessError as exc:
-            raise ValueError(f"Packmol failed with error code {exc.returncode} and stderr: {exc.stderr}") from exc
-        else:
-            with open(Path(path, self.stdoutfile), mode="w", encoding="utf-8") as out:
-                out.write(proc.stdout.decode())
-        finally:
-            os.chdir(wd)
+            except subprocess.CalledProcessError as exc:
+                raise ValueError(f"Packmol failed with error code {exc.returncode} and stderr: {exc.stderr}") from exc
+            else:
+                with open(self.stdoutfile, mode="w", encoding="utf-8") as out:
+                    out.write(proc.stdout.decode())
 
     @classmethod
     def from_directory(cls, directory: PathLike) -> None:
