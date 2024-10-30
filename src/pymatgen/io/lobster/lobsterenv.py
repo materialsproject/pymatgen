@@ -790,14 +790,9 @@ class LobsterNeighbors(NearNeighbors):
             raise ValueError("Please give two limits or leave them both at None")
 
         # Find environments based on ICOHP values
-        (
-            list_icohps,
-            list_keys,
-            list_lengths,
-            list_neighisite,
-            list_neighsite,
-            list_coords
-        ) = self._find_environments(additional_condition, lowerlimit, upperlimit, only_bonds_to)
+        (list_icohps, list_keys, list_lengths, list_neighisite, list_neighsite, list_coords) = self._find_environments(
+            additional_condition, lowerlimit, upperlimit, only_bonds_to
+        )
 
         self.list_icohps = list_icohps
         self.list_lengths = list_lengths
@@ -944,8 +939,8 @@ class LobsterNeighbors(NearNeighbors):
 
             if len(neighbors_from_ICOHPs) > 0:
                 centralsite = site
-                copysite=copy.copy(centralsite)
-                cell_start=centralsite.frac_coords-copysite.to_unit_cell().frac_coords
+                copysite = copy.copy(centralsite)
+                cell_start = centralsite.frac_coords - copysite.to_unit_cell().frac_coords
                 print(cell_start)
                 neighbors_by_distance_start = self.structure.get_sites_in_sphere(
                     pt=centralsite.coords,
@@ -958,7 +953,7 @@ class LobsterNeighbors(NearNeighbors):
                 list_distances = []
                 index_here_list = []
                 coords = []
-                translations_by_distance=[]
+                translations_by_distance = []
                 for neigh_new in sorted(neighbors_by_distance_start, key=lambda x: x[1]):
                     site_here = neigh_new[0].to_unit_cell()
                     index_here = neigh_new[2]
@@ -990,7 +985,24 @@ class LobsterNeighbors(NearNeighbors):
                         if (
                             np.isclose(dist, list_distances[neigh_idx], rtol=1e-4)
                             and copied_neighbors_from_ICOHPs[dist_idx] == index_here2
-                            and ((copied_translations_from_ICOHPs[dist_idx][0] == -translations_by_distance[neigh_idx][0] and copied_translations_from_ICOHPs[dist_idx][1] == -translations_by_distance[neigh_idx][1] and copied_translations_from_ICOHPs[dist_idx][2] == -translations_by_distance[neigh_idx][2]) or (copied_translations_from_ICOHPs[dist_idx][0] == translations_by_distance[neigh_idx][0] and copied_translations_from_ICOHPs[dist_idx][1] == translations_by_distance[neigh_idx][1] and copied_translations_from_ICOHPs[dist_idx][2] == translations_by_distance[neigh_idx][2]))
+                            and (
+                                (
+                                    copied_translations_from_ICOHPs[dist_idx][0]
+                                    == -translations_by_distance[neigh_idx][0]
+                                    and copied_translations_from_ICOHPs[dist_idx][1]
+                                    == -translations_by_distance[neigh_idx][1]
+                                    and copied_translations_from_ICOHPs[dist_idx][2]
+                                    == -translations_by_distance[neigh_idx][2]
+                                )
+                                or (
+                                    copied_translations_from_ICOHPs[dist_idx][0]
+                                    == translations_by_distance[neigh_idx][0]
+                                    and copied_translations_from_ICOHPs[dist_idx][1]
+                                    == translations_by_distance[neigh_idx][1]
+                                    and copied_translations_from_ICOHPs[dist_idx][2]
+                                    == translations_by_distance[neigh_idx][2]
+                                )
+                            )
                         ):
                             _list_neighsite.append(neigh)
                             _list_neighisite.append(index_here2)
@@ -1049,7 +1061,7 @@ class LobsterNeighbors(NearNeighbors):
         lengths_from_ICOHPs: list[float] = []
         neighbors_from_ICOHPs: list[int] = []
         icohps_from_ICOHPs: list[IcohpValue] = []
-        translation_from_ICOHPs: list[list[int,int,int]]=[]
+        translation_from_ICOHPs: list[list[int, int, int]] = []
 
         for key, icohp in icohps.items():
             atomnr1 = self._get_atomnumber(icohp._atom1)
@@ -1187,7 +1199,7 @@ class LobsterNeighbors(NearNeighbors):
             lengths_from_ICOHPs,
             neighbors_from_ICOHPs,
             icohps_from_ICOHPs,
-            translation_from_ICOHPs
+            translation_from_ICOHPs,
         )
 
     @staticmethod
