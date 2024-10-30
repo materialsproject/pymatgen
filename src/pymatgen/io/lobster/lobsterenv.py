@@ -796,7 +796,7 @@ class LobsterNeighbors(NearNeighbors):
             list_lengths,
             list_neighisite,
             list_neighsite,
-            list_coords,
+            list_coords
         ) = self._find_environments(additional_condition, lowerlimit, upperlimit, only_bonds_to)
 
         self.list_icohps = list_icohps
@@ -939,11 +939,14 @@ class LobsterNeighbors(NearNeighbors):
                 lengths_from_ICOHPs,
                 neighbors_from_ICOHPs,
                 selected_ICOHPs,
+                translations_ICOHPs,
             ) = additional_conds
 
             if len(neighbors_from_ICOHPs) > 0:
                 centralsite = site
-
+                copysite=copy.copy(centralsite)
+                cell_start=centralsite.frac_coords-copysite.to_unit_cell().frac_coords
+                print(cell_start)
                 neighbors_by_distance_start = self.structure.get_sites_in_sphere(
                     pt=centralsite.coords,
                     r=np.max(lengths_from_ICOHPs) + 0.5,
@@ -955,11 +958,13 @@ class LobsterNeighbors(NearNeighbors):
                 list_distances = []
                 index_here_list = []
                 coords = []
+                translations_by_distance=[]
                 for neigh_new in sorted(neighbors_by_distance_start, key=lambda x: x[1]):
                     site_here = neigh_new[0].to_unit_cell()
                     index_here = neigh_new[2]
                     index_here_list.append(index_here)
                     cell_here = neigh_new[3]
+
                     new_coords = [
                         site_here.frac_coords[0] + float(cell_here[0]),
                         site_here.frac_coords[1] + float(cell_here[1]),
@@ -967,38 +972,40 @@ class LobsterNeighbors(NearNeighbors):
                     ]
                     coords.append(site_here.lattice.get_cartesian_coords(new_coords))
 
-                    # new_site = PeriodicSite(
-                    #     species=site_here.species_string,
-                    #     coords=site_here.lattice.get_cartesian_coords(new_coords),
-                    #     lattice=site_here.lattice,
-                    #     to_unit_cell=False,
-                    #     coords_are_cartesian=True,
-                    # )
                     neighbors_by_distance.append(neigh_new[0])
                     list_distances.append(neigh_new[1])
+                    translations_by_distance.append(cell_here)
                 _list_neighsite = []
                 _list_neighisite = []
                 copied_neighbors_from_ICOHPs = copy.copy(neighbors_from_ICOHPs)
                 copied_distances_from_ICOHPs = copy.copy(lengths_from_ICOHPs)
+                copied_translations_from_ICOHPs = copy.copy(translations_ICOHPs)
                 _neigh_coords = []
                 _neigh_frac_coords = []
 
                 for neigh_idx, neigh in enumerate(neighbors_by_distance):
                     index_here2 = index_here_list[neigh_idx]
-
+                    print(index_here2)
                     for dist_idx, dist in enumerate(copied_distances_from_ICOHPs):
                         if (
                             np.isclose(dist, list_distances[neigh_idx], rtol=1e-4)
                             and copied_neighbors_from_ICOHPs[dist_idx] == index_here2
+                            and ((copied_translations_from_ICOHPs[dist_idx][0] == -translations_by_distance[neigh_idx][0] and copied_translations_from_ICOHPs[dist_idx][1] == -translations_by_distance[neigh_idx][1] and copied_translations_from_ICOHPs[dist_idx][2] == -translations_by_distance[neigh_idx][2]) or (copied_translations_from_ICOHPs[dist_idx][0] == translations_by_distance[neigh_idx][0] and copied_translations_from_ICOHPs[dist_idx][1] == translations_by_distance[neigh_idx][1] and copied_translations_from_ICOHPs[dist_idx][2] == translations_by_distance[neigh_idx][2]))
                         ):
                             _list_neighsite.append(neigh)
                             _list_neighisite.append(index_here2)
                             _neigh_coords.append(coords[neigh_idx])
                             _neigh_frac_coords.append(neigh.frac_coords)
+                            print("test")
+                            print(copied_translations_from_ICOHPs[dist_idx])
+                            print(translations_by_distance[neigh_idx])
+                            print(cell_start)
                             del copied_distances_from_ICOHPs[dist_idx]
                             del copied_neighbors_from_ICOHPs[dist_idx]
+                            del copied_translations_from_ICOHPs[dist_idx]
                             break
 
+                print(_list_neighsite)
                 list_neighisite.append(_list_neighisite)
                 list_neighsite.append(_list_neighsite)
                 list_lengths.append(lengths_from_ICOHPs)
@@ -1042,6 +1049,7 @@ class LobsterNeighbors(NearNeighbors):
         lengths_from_ICOHPs: list[float] = []
         neighbors_from_ICOHPs: list[int] = []
         icohps_from_ICOHPs: list[IcohpValue] = []
+        translation_from_ICOHPs: list[list[int,int,int]]=[]
 
         for key, icohp in icohps.items():
             atomnr1 = self._get_atomnumber(icohp._atom1)
@@ -1062,11 +1070,14 @@ class LobsterNeighbors(NearNeighbors):
                     lengths_from_ICOHPs.append(icohp._length)
                     icohps_from_ICOHPs.append(icohp.summed_icohp)
                     keys_from_ICOHPs.append(key)
+                    # add translation to icohp value
+                    translation_from_ICOHPs.append(icohp.translation)
                 elif atomnr2 == site_idx:
                     neighbors_from_ICOHPs.append(atomnr1)
                     lengths_from_ICOHPs.append(icohp._length)
                     icohps_from_ICOHPs.append(icohp.summed_icohp)
                     keys_from_ICOHPs.append(key)
+                    translation_from_ICOHPs.append(icohp.translation)
 
             # ONLY_ANION_CATION_BONDS
             elif additional_condition == 1:
@@ -1076,12 +1087,14 @@ class LobsterNeighbors(NearNeighbors):
                         lengths_from_ICOHPs.append(icohp._length)
                         icohps_from_ICOHPs.append(icohp.summed_icohp)
                         keys_from_ICOHPs.append(key)
+                        translation_from_ICOHPs.append(icohp.translation)
 
                     elif atomnr2 == site_idx:
                         neighbors_from_ICOHPs.append(atomnr1)
                         lengths_from_ICOHPs.append(icohp._length)
                         icohps_from_ICOHPs.append(icohp.summed_icohp)
                         keys_from_ICOHPs.append(key)
+                        translation_from_ICOHPs.append(icohp.translation)
 
             # NO_ELEMENT_TO_SAME_ELEMENT_BONDS
             elif additional_condition == 2:
@@ -1091,12 +1104,14 @@ class LobsterNeighbors(NearNeighbors):
                         lengths_from_ICOHPs.append(icohp._length)
                         icohps_from_ICOHPs.append(icohp.summed_icohp)
                         keys_from_ICOHPs.append(key)
+                        translation_from_ICOHPs.append(icohp.translation)
 
                     elif atomnr2 == site_idx:
                         neighbors_from_ICOHPs.append(atomnr1)
                         lengths_from_ICOHPs.append(icohp._length)
                         icohps_from_ICOHPs.append(icohp.summed_icohp)
                         keys_from_ICOHPs.append(key)
+                        translation_from_ICOHPs.append(icohp.translation)
 
             # ONLY_ANION_CATION_BONDS_AND_NO_ELEMENT_TO_SAME_ELEMENT_BONDS
             elif additional_condition == 3:
@@ -1108,12 +1123,14 @@ class LobsterNeighbors(NearNeighbors):
                         lengths_from_ICOHPs.append(icohp._length)
                         icohps_from_ICOHPs.append(icohp.summed_icohp)
                         keys_from_ICOHPs.append(key)
+                        translation_from_ICOHPs.append(icohp.translation)
 
                     elif atomnr2 == site_idx:
                         neighbors_from_ICOHPs.append(atomnr1)
                         lengths_from_ICOHPs.append(icohp._length)
                         icohps_from_ICOHPs.append(icohp.summed_icohp)
                         keys_from_ICOHPs.append(key)
+                        translation_from_ICOHPs.append(icohp.translation)
 
             # ONLY_ELEMENT_TO_OXYGEN_BONDS
             elif additional_condition == 4:
@@ -1123,12 +1140,14 @@ class LobsterNeighbors(NearNeighbors):
                         lengths_from_ICOHPs.append(icohp._length)
                         icohps_from_ICOHPs.append(icohp.summed_icohp)
                         keys_from_ICOHPs.append(key)
+                        translation_from_ICOHPs.append(icohp.translation)
 
                     elif atomnr2 == site_idx:
                         neighbors_from_ICOHPs.append(atomnr1)
                         lengths_from_ICOHPs.append(icohp._length)
                         icohps_from_ICOHPs.append(icohp.summed_icohp)
                         keys_from_ICOHPs.append(key)
+                        translation_from_ICOHPs.append(icohp.translation)
 
             # DO_NOT_CONSIDER_ANION_CATION_BONDS
             elif additional_condition == 5:
@@ -1138,12 +1157,14 @@ class LobsterNeighbors(NearNeighbors):
                         lengths_from_ICOHPs.append(icohp._length)
                         icohps_from_ICOHPs.append(icohp.summed_icohp)
                         keys_from_ICOHPs.append(key)
+                        translation_from_ICOHPs.append(icohp.translation)
 
                     elif atomnr2 == site_idx:
                         neighbors_from_ICOHPs.append(atomnr1)
                         lengths_from_ICOHPs.append(icohp._length)
                         icohps_from_ICOHPs.append(icohp.summed_icohp)
                         keys_from_ICOHPs.append(key)
+                        translation_from_ICOHPs.append(icohp.translation)
 
             # ONLY_CATION_CATION_BONDS
             elif additional_condition == 6 and val1 > 0.0 and val2 > 0.0:  # type: ignore[operator]
@@ -1152,18 +1173,21 @@ class LobsterNeighbors(NearNeighbors):
                     lengths_from_ICOHPs.append(icohp._length)
                     icohps_from_ICOHPs.append(icohp.summed_icohp)
                     keys_from_ICOHPs.append(key)
+                    translation_from_ICOHPs.append(icohp.translation)
 
                 elif atomnr2 == site_idx:
                     neighbors_from_ICOHPs.append(atomnr1)
                     lengths_from_ICOHPs.append(icohp._length)
                     icohps_from_ICOHPs.append(icohp.summed_icohp)
                     keys_from_ICOHPs.append(key)
+                    translation_from_ICOHPs.append(icohp.translation)
 
         return (
             keys_from_ICOHPs,
             lengths_from_ICOHPs,
             neighbors_from_ICOHPs,
             icohps_from_ICOHPs,
+            translation_from_ICOHPs
         )
 
     @staticmethod
