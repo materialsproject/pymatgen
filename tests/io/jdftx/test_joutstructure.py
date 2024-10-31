@@ -129,3 +129,46 @@ def test_jstructure(eslice: list[str], eknowns: dict):
     assert jst.magnetic_moments[0] == approx(eknowns["mag0"])
     assert jst.charges[-1] == approx(eknowns["ox-1"])
     assert jst.magnetic_moments[-1] == approx(eknowns["mag-1"])
+
+
+@pytest.mark.parametrize(("eslices", "eknownss"), [([ex_slice1, ex_slice2], [ex_slice1_known, ex_slice2_known])])
+def test_jstructure_instance_vars(eslices: list[list[str]], eknownss: list[dict]):
+    jsts = [JOutStructure.from_text_slice(eslice, iter_type="lattice") for eslice in eslices]
+    for i, jst in enumerate(jsts):
+        eknowns = eknownss[i]
+        jst = JOutStructure.from_text_slice(eslices[i], iter_type="lattice")
+        assert jst.niter == eknowns["niter"]
+        assert jst.etype == eknowns["etype"]
+        assert approx(eknowns["E"]) == jst.e
+        assert jst.ecomponents["Eewald"] == approx(eknowns["Eewald"])
+        assert jst.ecomponents["EH"] == approx(eknowns["EH"])
+        assert jst.ecomponents["Eloc"] == approx(eknowns["Eloc"])
+        assert jst.ecomponents["Enl"] == approx(eknowns["Enl"])
+        assert jst.ecomponents["EvdW"] == approx(eknowns["EvdW"])
+        assert jst.ecomponents["Exc"] == approx(eknowns["Exc"])
+        assert jst.ecomponents["Exc_core"] == approx(eknowns["Exc_core"])
+        assert jst.ecomponents["KE"] == approx(eknowns["KE"])
+        assert jst.ecomponents["Etot"] == approx(eknowns["Etot"])
+        assert jst.ecomponents["TS"] == approx(eknowns["TS"])
+        assert jst.ecomponents["F"] == approx(eknowns["F"])
+        assert jst.elecmindata[0].mu == approx(eknowns["mu0"])
+        assert jst.elecmindata[-1].mu == approx(eknowns["mu-1"])
+        assert approx(eknowns["E0"]) == jst.elecmindata[0].e
+        assert approx(eknowns["E-1"]) == jst.elecmindata[-1].e
+        assert len(jst.elecmindata) == eknowns["nEminSteps"]
+        assert len(jst.forces) == eknowns["nAtoms"]
+        assert len(jst.cart_coords) == eknowns["nAtoms"]
+        assert jst.elecmindata.converged_reason == eknowns["EconvReason"]
+        assert jst.elecmindata.converged == eknowns["conv"]
+        assert jst.lattice.matrix[0, 0] == approx(eknowns["cell_00"])
+        assert jst.strain[0, 0] == approx(eknowns["strain_00"])
+        assert jst.stress[0, 0] == approx(eknowns["stress_00"])
+        for i in range(3):
+            assert jst.cart_coords[0][i] == approx(eknowns["posn0"][i])
+            assert jst.forces[0][i] == approx(eknowns["force0"][i])
+            assert jst.cart_coords[-1][i] == approx(eknowns["posn-1"][i])
+            assert jst.forces[-1][i] == approx(eknowns["force-1"][i])
+        assert jst.charges[0] == approx(eknowns["ox0"])
+        assert jst.magnetic_moments[0] == approx(eknowns["mag0"])
+        assert jst.charges[-1] == approx(eknowns["ox-1"])
+        assert jst.magnetic_moments[-1] == approx(eknowns["mag-1"])
