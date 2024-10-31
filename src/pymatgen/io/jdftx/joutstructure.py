@@ -378,6 +378,13 @@ class JOutStructure(Structure):
             if "G:" in line:
                 etype = "G"
                 break
+            if "Etot:" in line:
+                etype = "Etot"
+        if etype is None:
+            for line in emin_lines:
+                if "Iter:" in line:
+                    # Assume line will have etype in "... Iter: n <etype>: num ..."
+                    etype = line.split("Iter:")[1].split(":")[0].strip().split()[-1].strip()
         return etype
 
     def set_etype_from_emin_lines(self, emin_lines: list[str]) -> None:

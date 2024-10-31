@@ -133,7 +133,7 @@ def test_jstructure(eslice: list[str], eknowns: dict):
 
 @pytest.mark.parametrize(("eslices", "eknownss"), [([ex_slice1, ex_slice2], [ex_slice1_known, ex_slice2_known])])
 def test_jstructure_instance_vars(eslices: list[list[str]], eknownss: list[dict]):
-    jsts = [JOutStructure(eslice, iter_type="lattice") for eslice in eslices]
+    jsts = [JOutStructure.from_text_slice(eslice, iter_type="lattice") for eslice in eslices]
     for i, jst in enumerate(jsts):
         eknowns = eknownss[i]
         jst = JOutStructure.from_text_slice(eslices[i], iter_type="lattice")
