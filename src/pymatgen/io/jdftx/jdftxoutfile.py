@@ -347,9 +347,7 @@ class JDFTXOutfile:
         """
         texts = read_outfile_slices(file_path)
         slices = [JDFTXOutfileSlice.from_out_slice(text) for text in texts]
-        instance = cls()
-        instance.slices = slices
-        return instance
+        return cls(slices=slices)
 
     ###########################################################################
     # Properties inherited from most recent JDFTXOutfileSlice
@@ -358,7 +356,7 @@ class JDFTXOutfile:
     @property
     def prefix(self) -> str:
         """
-        Return prefix from most recent JOutStructure.
+        The prefix of the most recent JDFTx call.
 
         Return prefix from most recent JOutStructure.
         """
@@ -369,7 +367,6 @@ class JDFTXOutfile:
     @property
     def jstrucs(self) -> JOutStructures:
         """
-        Return jstrucs from most recent JOutStructure.
 
         Return jstrucs from most recent JOutStructure.
         """

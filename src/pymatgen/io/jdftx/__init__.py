@@ -4,13 +4,16 @@ This module contains all class objects and methods used for io operations with J
 
 This includes:
 
-- JDFTXInfile:
-  - Initializable from pre-existing JDFTx in files or dictionaries
-  - Modifiable (acts as dictionary)
-  - Writes new in files
+- JDFTXInfile in jdfxinfile.py:
+  - Mutable, sub-classes dictionary
+  - Initializable from pre-existing JDFTx "in" files or dictionaries
+  - Writes new "in" files
   - Extracts Structure objects
-- JDFTXOutfile:
-  - Parses JDFTx out file
+  - Depends on:
+     - jdftxinfile_master_format.py which contains information on allowed keys
+     - jdftxinfile_ref_options.py which contains lists of valid options
+- JDFTXOutfile in jdftxoutfile.py:
+  - Parses JDFTx "out" file
   - Contains all typically relevant output variables from a JDFTx geometric optimization or single-point calculation.
   - Contains hierarchy of class objects (each contained by the former) for storing data at the following
     call frequencies.
@@ -27,7 +30,7 @@ This includes:
       - JElSteps: Per geometric optimization update (same frequency as parent)
         - List of JElStep as well as convergence data relevant to electronic optimization.
       - JElStep: Per SCF update
-            - Contains all electronic data logged in out file at SCF update frequency.
+        - Contains all electronic data logged in out file at SCF update frequency.
 
 This folder is currently missing:
 
