@@ -41,15 +41,22 @@ from pymatgen.io.jdftx.utils import (
 __author__ = "Ben Rich"
 
 
+# TODO: Copy-paste the docustrings for jdftxoutfile properties below.
 @dataclass
 class JDFTXOutfileSlice(ClassPrintFormatter):
     """A class to read and process a JDFTx out file.
 
     A class to read and process a JDFTx out file.
 
+    Methods
+    ----------
+    from_out_slice(text: list[str])
+        Read slice of out file into a JDFTXOutfileSlice instance.
+
     Attributes
     ----------
-        see JDFTx documentation for tag info and typing
+    prefix: str | None
+        prefix of dump files for JDFTx calculation
     """
 
     prefix: str | None = None

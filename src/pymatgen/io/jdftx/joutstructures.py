@@ -25,9 +25,17 @@ class JOutStructures:
     """Class for storing a series of JStructure objects.
 
     A class for storing a series of JStructure objects.
+
+    Attributes
+    ----------
+    out_slice_start_flag: str
+        The string that marks the beginning of the portion of an out file slice
+        that contains data for a JOutStructures object.
+
     """
 
     out_slice_start_flag = "-------- Electronic minimization -----------"
+    # TODO: Rename "iter_type" to "geom_opt_type"
     iter_type: str | None = None
     geom_converged: bool = False
     geom_converged_reason: str | None = None
