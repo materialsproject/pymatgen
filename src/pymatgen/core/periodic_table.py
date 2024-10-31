@@ -483,7 +483,6 @@ class ElementBase(Enum):
         obtained from full electron config, where L=0, 1, 2, or 3 for s, p, d,
         and f orbitals, respectively.
         """
-        # return Species(self.symbol, 0).valences
         if self.group == 18:
             return [(np.nan, 0)]  # The number of valence of noble gas is 0
 
@@ -1205,8 +1204,6 @@ class Species(MSONable, Stringify):
         """List of valence subshell angular moment (L) and number of valence e- (v_e),
         obtained from full electron config, where L=0, 1, 2, or 3 for s, p, d,
         and f orbitals, respectively.
-
-
         """
         if self.group == 18:
             return [(np.nan, 0)]  # The number of valence of noble gas is 0
@@ -1222,20 +1219,6 @@ class Species(MSONable, Stringify):
             ):  # check for full last shell (e.g. column 2)
                 valences.append((idx, ne))
         return valences
-        # if self.group == 18:
-        #     return [(np.nan, 0)]  # The number of valence of noble gas is 0
-
-        # L_symbols = "SPDFGHIKLMNOQRTUVWXYZ"
-        # valences: list[tuple[int, int]] = []
-        # full_electron_config = self.full_electronic_structure
-        # last_orbital = full_electron_config[-1]
-        # for n, l_symbol, ne in full_electron_config:
-        #     idx = L_symbols.lower().index(l_symbol)
-        #     if ne < (2 * idx + 1) * 2 or (
-        #         (n, l_symbol, ne) == last_orbital and ne == (2 * idx + 1) * 2 and len(valences) == 0
-        #     ):  # check for full last shell (e.g. column 2)
-        #         valences.append((idx, ne))
-        # return valences
 
     @property
     def valence(self) -> tuple[int | np.nan, int]:
@@ -1246,9 +1229,6 @@ class Species(MSONable, Stringify):
         if len(self.valences) > 1:
             raise ValueError(f"{self} has ambiguous valence")
         return self.valences[0]
-        # if len(self.valences) > 1:
-        #     raise ValueError(f"{self} has ambiguous valence")
-        # return self.valences[0]
 
     @property
     def ionic_radius(self) -> float | None:
