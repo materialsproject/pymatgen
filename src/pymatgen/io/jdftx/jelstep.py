@@ -21,11 +21,20 @@ class JElStep:
 
     Class object for storing logged electronic minimization data for a single
     SCF step.
+
+    Attributes
+    iter_type: str | None
+        The type of electronic minimization step (almost always ElecMinimize)
+
+    etype: str | None
+        The type of energy component (G, F, or Etot)
+
+
     """
 
     iter_type: str | None = None
     etype: str | None = None
-    niter: int | None = None
+    nstep: int | None = None
     e: float | None = None
     grad_k: float | None = None
     alpha: float | None = None
@@ -105,11 +114,11 @@ class JElStep:
             A line of text from a JDFTx out file containing the electronic
             minimization data
         """
-        niter_float = get_colon_var_t1(line_text, "Iter: ")
-        if isinstance(niter_float, float):
-            self.niter = int(niter_float)
-        elif niter_float is None:
-            raise ValueError("Could not find niter in line_text")
+        nstep_float = get_colon_var_t1(line_text, "Iter: ")
+        if isinstance(nstep_float, float):
+            self.nstep = int(nstep_float)
+        elif nstep_float is None:
+            raise ValueError("Could not find nstep in line_text")
         self.e = get_colon_var_t1(line_text, f"{self.etype}: ") * Ha_to_eV
         self.grad_k = get_colon_var_t1(line_text, "|grad|_K: ")
         self.alpha = get_colon_var_t1(line_text, "alpha: ")
@@ -259,20 +268,20 @@ class JElSteps:
     ]
 
     @property
-    def niter(self) -> int:
-        """Return niter.
+    def nstep(self) -> int:
+        """Return nstep.
 
-        Return the niter attribute of the last JElStep object in the slices.
+        Return the nstep attribute of the last JElStep object in the slices.
 
         Returns
         -------
-        niter: int
-            The niter attribute of the last JElStep object in the slices
+        nstep: int
+            The nstep attribute of the last JElStep object in the slices
         """
         if len(self.slices):
-            if self.slices[-1].niter is not None:
-                return self.slices[-1].niter
-            warnings.warn("No niter attribute in JElStep object. Returning number of JElStep objects.", stacklevel=2)
+            if self.slices[-1].nstep is not None:
+                return self.slices[-1].nstep
+            warnings.warn("No nstep attribute in JElStep object. Returning number of JElStep objects.", stacklevel=2)
             return len(self.slices) - 1
         raise AttributeError("No JElStep objects in JElSteps object slices class variable.")
 

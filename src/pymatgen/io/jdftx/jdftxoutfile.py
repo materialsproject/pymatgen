@@ -262,7 +262,7 @@ class JDFTXOutfile:
     strain: np.ndarray
         The strain tensor of the most recent JDFTx call as a 3x3 numpy array.
 
-    niter: int
+    nstep: int
         The number of geometric optiization steps in the most recent JDFTx call.
 
     e: float
@@ -294,7 +294,7 @@ class JDFTXOutfile:
     elec_e: float
         The final energy of the most recent electronic optimization step.
 
-    elec_niter: int
+    elec_nstep: int
         The number of electronic optimization steps in the most recent JDFTx call.
 
     elec_grad_k: float
@@ -1010,15 +1010,15 @@ class JDFTXOutfile:
         raise AttributeError("Property strain inaccessible due to empty jstrucs class field")
 
     @property
-    def niter(self) -> int:
+    def nstep(self) -> int:
         """
         Return (geometric) iter number from most recent JOutStructure.
 
         Return (geometric) iter number from most recent JOutStructure.
         """
         if len(self.slices):
-            return self.slices[-1].niter
-        raise AttributeError("Property niter inaccessible due to empty jstrucs class field")
+            return self.slices[-1].nstep
+        raise AttributeError("Property nstep inaccessible due to empty jstrucs class field")
 
     @property
     def e(self) -> float:
@@ -1115,17 +1115,17 @@ class JDFTXOutfile:
     ###########################################################################
 
     @property
-    def elec_niter(self) -> int:
+    def elec_nstep(self) -> int:
         """Return the most recent electronic iteration.
 
         Return the most recent electronic iteration.
 
         Returns
         -------
-        elec_niter: int
+        elec_nstep: int
         """
         if len(self.slices):
-            return self.slices[-1].elec_niter
+            return self.slices[-1].elec_nstep
         raise AttributeError("Property elec_inter inaccessible due to empty jstrucs class field")
 
     @property

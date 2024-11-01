@@ -270,15 +270,15 @@ class JDFTXOutfileSlice(ClassPrintFormatter):
         raise AttributeError("Property strain inaccessible due to empty jstrucs class field")
 
     @property
-    def niter(self) -> int:
+    def nstep(self) -> int:
         """
-        Return (geometric) niter from most recent JOutStructure.
+        Return (geometric) nstep from most recent JOutStructure.
 
-        Return (geometric) niter from most recent JOutStructure.
+        Return (geometric) nstep from most recent JOutStructure.
         """
         if self.jstrucs is not None:
-            return self.jstrucs.niter
-        raise AttributeError("Property niter inaccessible due to empty jstrucs class field")
+            return self.jstrucs.nstep
+        raise AttributeError("Property nstep inaccessible due to empty jstrucs class field")
 
     @property
     def e(self) -> float:
@@ -374,18 +374,18 @@ class JDFTXOutfileSlice(ClassPrintFormatter):
     ###########################################################################
 
     @property
-    def elec_niter(self) -> int:
+    def elec_nstep(self) -> int:
         """Return the most recent electronic iteration.
 
         Return the most recent electronic iteration.
 
         Returns
         -------
-        elec_niter: int
+        elec_nstep: int
         """
         if self.jstrucs is not None:
-            return self.jstrucs.elec_niter
-        raise AttributeError("Property elec_niter inaccessible due to empty jstrucs class field")
+            return self.jstrucs.elec_nstep
+        raise AttributeError("Property elec_nstep inaccessible due to empty jstrucs class field")
 
     @property
     def elec_e(self) -> float:
