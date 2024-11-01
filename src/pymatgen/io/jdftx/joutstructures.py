@@ -163,15 +163,15 @@ class JOutStructures:
         raise AttributeError("Property strain inaccessible due to empty slices class field")
 
     @property
-    def niter(self) -> int | None:
+    def nstep(self) -> int | None:
         """
-        Return niter from most recent JOutStructure.
+        Return nstep from most recent JOutStructure.
 
-        Return niter from most recent JOutStructure.
+        Return nstep from most recent JOutStructure.
         """
         if len(self.slices):
-            return self.slices[-1].niter
-        raise AttributeError("Property niter inaccessible due to empty slices class field")
+            return self.slices[-1].nstep
+        raise AttributeError("Property nstep inaccessible due to empty slices class field")
 
     @property
     def e(self) -> float | None:
@@ -267,18 +267,18 @@ class JOutStructures:
     ###########################################################################
 
     @property
-    def elec_niter(self) -> int | None:
+    def elec_nstep(self) -> int | None:
         """Return the most recent electronic iteration.
 
         Return the most recent electronic iteration.
 
         Returns
         -------
-        elec_niter: int
+        elec_nstep: int
         """
         if len(self.slices):
-            return self.slices[-1].elec_niter
-        raise AttributeError("Property elec_niter inaccessible due to empty slices class field")
+            return self.slices[-1].elec_nstep
+        raise AttributeError("Property elec_nstep inaccessible due to empty slices class field")
 
     @property
     def elec_e(self) -> float | None:

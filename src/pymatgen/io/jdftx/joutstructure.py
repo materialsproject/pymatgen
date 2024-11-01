@@ -45,7 +45,7 @@ class JOutStructure(Structure):
     elecmindata: JElSteps | None = None
     stress: np.ndarray | None = None
     strain: np.ndarray | None = None
-    niter: int | None = None
+    nstep: int | None = None
     e: float | None = None
     grad_k: float | None = None
     alpha: float | None = None
@@ -121,17 +121,17 @@ class JOutStructure(Structure):
         return None
 
     @property
-    def elec_niter(self) -> int | None:
+    def elec_nstep(self) -> int | None:
         """Return the most recent electronic iteration.
 
         Return the most recent electronic iteration.
 
         Returns
         -------
-        elec_niter: int
+        elec_nstep: int
         """
         if self.elecmindata is not None:
-            return self.elecmindata.niter
+            return self.elecmindata.nstep
         return None
 
     @property
@@ -647,8 +647,8 @@ class JOutStructure(Structure):
         if len(opt_lines):
             for line in opt_lines:
                 if self.is_opt_start_line(line):
-                    niter = int(get_colon_var_t1(line, "Iter:"))
-                    self.niter = niter
+                    nstep = int(get_colon_var_t1(line, "Iter:"))
+                    self.nstep = nstep
                     en = get_colon_var_t1(line, f"{self.etype}:")
                     self.E = en * Ha_to_eV
                     grad_k = get_colon_var_t1(line, "|grad|_K: ")
