@@ -86,7 +86,7 @@ class JOutStructures:
     ###########################################################################
 
     @property
-    def etype(self) -> str:
+    def etype(self) -> str | None:
         """
         Return etype from most recent JOutStructure.
 
@@ -97,7 +97,7 @@ class JOutStructures:
         raise AttributeError("Property etype inaccessible due to empty slices class field")
 
     @property
-    def eiter_type(self) -> str:
+    def eiter_type(self) -> str | None:
         """
         Return eiter_type from most recent JOutStructure.
 
@@ -108,7 +108,7 @@ class JOutStructures:
         raise AttributeError("Property eiter_type inaccessible due to empty slices class field")
 
     @property
-    def emin_flag(self) -> str:
+    def emin_flag(self) -> str | None:
         """
         Return emin_flag from most recent JOutStructure.
 
@@ -119,7 +119,7 @@ class JOutStructures:
         raise AttributeError("Property emin_flag inaccessible due to empty slices class field")
 
     @property
-    def ecomponents(self) -> dict:
+    def ecomponents(self) -> dict | None:
         """
         Return ecomponents from most recent JOutStructure.
 
@@ -130,7 +130,7 @@ class JOutStructures:
         raise AttributeError("Property ecomponents inaccessible due to empty slices class field")
 
     @property
-    def elecmindata(self) -> JElSteps:
+    def elecmindata(self) -> JElSteps | None:
         """
         Return elecmindata from most recent JOutStructure.
 
@@ -163,7 +163,7 @@ class JOutStructures:
         raise AttributeError("Property strain inaccessible due to empty slices class field")
 
     @property
-    def niter(self) -> int:
+    def niter(self) -> int | None:
         """
         Return niter from most recent JOutStructure.
 
@@ -174,7 +174,7 @@ class JOutStructures:
         raise AttributeError("Property niter inaccessible due to empty slices class field")
 
     @property
-    def e(self) -> float:
+    def e(self) -> float | None:
         """
         Return E from most recent JOutStructure.
 
@@ -218,7 +218,7 @@ class JOutStructures:
         raise AttributeError("Property linmin inaccessible due to empty slices class field")
 
     @property
-    def nelectrons(self) -> float:
+    def nelectrons(self) -> float | None:
         """
         Return nelectrons from most recent JOutStructure.
 
@@ -251,7 +251,7 @@ class JOutStructures:
         raise AttributeError("Property tot_magneticmoment inaccessible due to empty slices class field")
 
     @property
-    def mu(self) -> float:
+    def mu(self) -> float | None:
         """
         Return mu from most recent JOutStructure.
 
@@ -267,7 +267,7 @@ class JOutStructures:
     ###########################################################################
 
     @property
-    def elec_niter(self) -> int:
+    def elec_niter(self) -> int | None:
         """Return the most recent electronic iteration.
 
         Return the most recent electronic iteration.
@@ -281,7 +281,7 @@ class JOutStructures:
         raise AttributeError("Property elec_niter inaccessible due to empty slices class field")
 
     @property
-    def elec_e(self) -> float:
+    def elec_e(self) -> float | None:
         """Return the most recent electronic energy.
 
         Return the most recent electronic energy.
