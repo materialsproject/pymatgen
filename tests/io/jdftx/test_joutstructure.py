@@ -172,3 +172,4 @@ def test_jstructure_instance_vars(eslices: list[list[str]], eknownss: list[dict]
         assert jst.magnetic_moments[0] == approx(eknowns["mag0"])
         assert jst.charges[-1] == approx(eknowns["ox-1"])
         assert jst.magnetic_moments[-1] == approx(eknowns["mag-1"])
+        assert jst.mu is not None

@@ -90,6 +90,7 @@ def test_jstructures(ex_slice: list[str], ex_slice_known: dict[str, float], iter
     assert jstruct[-1].elecmindata.converged == ex_slice_known["conv-1"]
     assert jstruct.elecmindata.converged == ex_slice_known["conv-1"]
     assert len(jstruct) == ex_slice_known["nGeomSteps"]
+    assert jstruct.selective_dynamics is not None
 
 
 @pytest.mark.parametrize(
