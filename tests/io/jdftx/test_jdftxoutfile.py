@@ -114,7 +114,7 @@ empty_slice_exception_varnames = [
     "elecmindata",
     "stress",
     "strain",
-    "niter",
+    "nstep",
     "e",
     "grad_k",
     "alpha",
@@ -123,7 +123,7 @@ empty_slice_exception_varnames = [
     "abs_magneticmoment",
     "tot_magneticmoment",
     "mu",
-    "elec_niter",
+    "elec_nstep",
     "elec_e",
     "elec_grad_k",
     "elec_alpha",
@@ -137,7 +137,7 @@ empty_slice_exception_varnames = [
         (
             ex_files_dir / Path("example_sp.out"),
             [
-                "niter",
+                "nstep",
                 "stress",
                 "strain",
                 "linmin",

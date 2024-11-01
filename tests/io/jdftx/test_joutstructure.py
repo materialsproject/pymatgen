@@ -16,7 +16,7 @@ ex_slice1 = []
 with open(ex_slice_fname1) as f:
     ex_slice1 = list.copy(list(f))
 ex_slice1_known = {
-    "niter": 0,
+    "nstep": 0,
     "etype": "F",
     "E": -246.5310079002406667 * Ha_to_eV,
     "Eewald": -214.6559882144248945 * Ha_to_eV,
@@ -55,7 +55,7 @@ ex_slice2 = []
 with open(ex_slice_fname2) as f:
     ex_slice2 = list.copy(list(f))
 ex_slice2_known = {
-    "niter": 9,
+    "nstep": 9,
     "etype": "F",
     "E": -246.5310079002406667 * Ha_to_eV,
     "Eewald": -214.6559882144248945 * Ha_to_eV,
@@ -94,7 +94,7 @@ ex_slice2_known = {
 @pytest.mark.parametrize(("eslice", "eknowns"), [(ex_slice1, ex_slice1_known), (ex_slice2, ex_slice2_known)])
 def test_jstructure(eslice: list[str], eknowns: dict):
     jst = JOutStructure.from_text_slice(eslice, iter_type="lattice")
-    assert jst.niter == eknowns["niter"]
+    assert jst.nstep == eknowns["nstep"]
     assert jst.etype == eknowns["etype"]
     assert approx(eknowns["E"]) == jst.e
     assert jst.ecomponents["Eewald"] == approx(eknowns["Eewald"])
@@ -137,7 +137,7 @@ def test_jstructure_instance_vars(eslices: list[list[str]], eknownss: list[dict]
     for i, jst in enumerate(jsts):
         eknowns = eknownss[i]
         jst = JOutStructure.from_text_slice(eslices[i], iter_type="lattice")
-        assert jst.niter == eknowns["niter"]
+        assert jst.nstep == eknowns["nstep"]
         assert jst.etype == eknowns["etype"]
         assert approx(eknowns["E"]) == jst.e
         assert jst.ecomponents["Eewald"] == approx(eknowns["Eewald"])
@@ -172,3 +172,4 @@ def test_jstructure_instance_vars(eslices: list[list[str]], eknownss: list[dict]
         assert jst.magnetic_moments[0] == approx(eknowns["mag0"])
         assert jst.charges[-1] == approx(eknowns["ox-1"])
         assert jst.magnetic_moments[-1] == approx(eknowns["mag-1"])
+        assert jst.mu is not None

@@ -171,15 +171,15 @@ class JOutStructures:
         raise AttributeError("Property strain inaccessible due to empty slices class field")
 
     @property
-    def niter(self) -> int:
+    def nstep(self) -> int:
         """
-        Return niter from most recent JOutStructure.
+        Return nstep from most recent JOutStructure.
 
-        Return niter from most recent JOutStructure.
+        Return nstep from most recent JOutStructure.
         """
         if len(self.slices):
-            return self.slices[-1].niter
-        raise AttributeError("Property niter inaccessible due to empty slices class field")
+            return self.slices[-1].nstep
+        raise AttributeError("Property nstep inaccessible due to empty slices class field")
 
     @property
     def e(self) -> float:
@@ -275,18 +275,18 @@ class JOutStructures:
     ###########################################################################
 
     @property
-    def elec_niter(self) -> int:
+    def elec_nstep(self) -> int:
         """Return the most recent electronic iteration.
 
         Return the most recent electronic iteration.
 
         Returns
         -------
-        elec_niter: int
+        elec_nstep: int
         """
         if len(self.slices):
-            return self.slices[-1].elec_niter
-        raise AttributeError("Property elec_niter inaccessible due to empty slices class field")
+            return self.slices[-1].elec_nstep
+        raise AttributeError("Property elec_nstep inaccessible due to empty slices class field")
 
     @property
     def elec_e(self) -> float:
@@ -413,6 +413,40 @@ class JOutStructures:
                 raise AttributeError(f"{self.__class__.__name__} not found: {name}")
             return getattr(self.slices[-1], name)
         raise AttributeError(f"Property {name} inaccessible due to empty slices class field")
+
+    # # This method is likely never going to be called as all (currently existing)
+    # # attributes of the most recent slice are explicitly defined as a class
+    # # property. However, it is included to reduce the likelihood of errors
+    # # upon future changes to downstream code.
+    # def __getattr__(self, name: str) -> Any:
+    #     """Return attribute value.
+
+    #     Return the value of an attribute.
+
+    #     Parameters
+    #     ----------
+    #     name: str
+    #         The name of the attribute
+
+    #     Returns
+    #     -------
+    #     value
+    #         The value of the attribute
+    #     """
+    #     if name in self.__dict__:
+    #         return self.__dict__[name]
+
+    #     # Check if the attribute is a property of the class
+    #     for cls in inspect.getmro(self.__class__):
+    #         if name in cls.__dict__ and isinstance(cls.__dict__[name], property):
+    #             return cls.__dict__[name].__get__(self)
+
+    #     # Check if the attribute is in self.jstrucs
+    #     if hasattr(self.slices[-1], name):
+    #         return getattr(self.slices[-1], name)
+
+    #     # If the attribute is not found in either, raise an AttributeError
+    #     raise AttributeError(f"{self.__class__.__name__} not found: {name}")
 
     def __dir__(self) -> list:
         """List attributes.

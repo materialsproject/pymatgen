@@ -90,6 +90,7 @@ def test_jstructures(ex_slice: list[str], ex_slice_known: dict[str, float], iter
     assert jstruct[-1].elecmindata.converged == ex_slice_known["conv-1"]
     assert jstruct.elecmindata.converged == ex_slice_known["conv-1"]
     assert len(jstruct) == ex_slice_known["nGeomSteps"]
+    assert jstruct.selective_dynamics is not None
 
 
 @pytest.mark.parametrize(
@@ -102,7 +103,7 @@ def test_jstructures(ex_slice: list[str], ex_slice_known: dict[str, float], iter
         (ex_outslice1, "elecmindata"),
         (ex_outslice1, "stress"),
         (ex_outslice1, "strain"),
-        (ex_outslice1, "niter"),
+        (ex_outslice1, "nstep"),
         (ex_outslice1, "e"),
         (ex_outslice1, "grad_k"),
         (ex_outslice1, "alpha"),
@@ -111,7 +112,7 @@ def test_jstructures(ex_slice: list[str], ex_slice_known: dict[str, float], iter
         (ex_outslice1, "abs_magneticmoment"),
         (ex_outslice1, "tot_magneticmoment"),
         (ex_outslice1, "mu"),
-        (ex_outslice1, "elec_niter"),
+        (ex_outslice1, "elec_nstep"),
         (ex_outslice1, "elec_e"),
         (ex_outslice1, "elec_grad_k"),
         (ex_outslice1, "elec_alpha"),
