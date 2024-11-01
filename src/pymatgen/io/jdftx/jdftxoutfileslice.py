@@ -1135,11 +1135,6 @@ class JDFTXOutfileSlice(ClassPrintFormatter):
             if x not in atom_types:
                 atom_types.append(x)
         self.atom_elements = atom_elements
-        # mapping_dict = dict(zip(atom_types, range(1, len(atom_types) + 1), strict=False))
-        # Below sets mapping_dict identical to above line, but is allowed by pre-commit
-        # mapping_dict = {}
-        # for atom_type in atom_types:
-        #     mapping_dict[atom_type] = atom_valence_electrons[atom_type]
         self.atom_elements_int = [Element(x).Z for x in self.atom_elements]
         self.atom_types = atom_types
         line = find_key("# Ionic positions in", text) + 1
