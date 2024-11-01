@@ -29,6 +29,39 @@ class JElStep:
     etype: str | None
         The type of energy component (G, F, or Etot)
 
+    nstep: int | None
+        The SCF step number
+
+    e: float | None
+        The total electronic energy in eV
+
+    grad_k: float | None
+        The gradient of the Kohn-Sham energy (along line minimization direction)
+
+    alpha: float | None
+        The step length
+
+    linmin: float | None
+        Normalized line minimization direction / energy gradient projection
+        (-1 for perfectly opposite, 1 for perfectly aligned)
+
+    t_s: float | None
+        Time in seconds for the SCF step
+
+    mu: float | None
+        The chemical potential in eV
+
+    nelectrons: float | None
+        The number of electrons
+
+    abs_magneticmoment: float | None
+        The absolute magnetic moment
+
+    tot_magneticmoment: float | None
+        The total magnetic moment
+
+    subspacerotationadjust: float | None
+        The subspace rotation adjustment factor
 
     """
 
@@ -463,7 +496,6 @@ class JElSteps:
             The type of energy component
         """
         line_collections, lines_collect = gather_JElSteps_line_collections(iter_type, text_slice)
-        # instance = cls.from_lines_collect(line_collections[-1], iter_type, etype)
         instance = cls()
         instance.iter_flag = f"{iter_type}: Iter:"
         instance.iter_type = iter_type

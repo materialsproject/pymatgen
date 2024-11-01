@@ -1316,16 +1316,6 @@ class JDFTXOutfileSlice(ClassPrintFormatter):
         value
             The value of the attribute
         """
-        # The whole point of this is to be an unreached safety net, so expect hit
-        # from coverage here
-        # if name not in self.__dict__:
-        # if name not in inspect.getmembers(self):
-        #     if not hasattr(self.jstrucs, name):
-        #         raise AttributeError(f"{self.__class__.__name__} not found: {name}")
-        #     return getattr(self.jstrucs, name)
-        # return self.__dict__[name]
-        # Check if the attribute is in self.__dict__
-        # Check if the attribute is in self.__dict__
         if name in self.__dict__:
             return self.__dict__[name]
 

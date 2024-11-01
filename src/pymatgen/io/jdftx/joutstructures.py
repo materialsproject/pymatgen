@@ -414,6 +414,40 @@ class JOutStructures:
             return getattr(self.slices[-1], name)
         raise AttributeError(f"Property {name} inaccessible due to empty slices class field")
 
+    # # This method is likely never going to be called as all (currently existing)
+    # # attributes of the most recent slice are explicitly defined as a class
+    # # property. However, it is included to reduce the likelihood of errors
+    # # upon future changes to downstream code.
+    # def __getattr__(self, name: str) -> Any:
+    #     """Return attribute value.
+
+    #     Return the value of an attribute.
+
+    #     Parameters
+    #     ----------
+    #     name: str
+    #         The name of the attribute
+
+    #     Returns
+    #     -------
+    #     value
+    #         The value of the attribute
+    #     """
+    #     if name in self.__dict__:
+    #         return self.__dict__[name]
+
+    #     # Check if the attribute is a property of the class
+    #     for cls in inspect.getmro(self.__class__):
+    #         if name in cls.__dict__ and isinstance(cls.__dict__[name], property):
+    #             return cls.__dict__[name].__get__(self)
+
+    #     # Check if the attribute is in self.jstrucs
+    #     if hasattr(self.slices[-1], name):
+    #         return getattr(self.slices[-1], name)
+
+    #     # If the attribute is not found in either, raise an AttributeError
+    #     raise AttributeError(f"{self.__class__.__name__} not found: {name}")
+
     def __dir__(self) -> list:
         """List attributes.
 
