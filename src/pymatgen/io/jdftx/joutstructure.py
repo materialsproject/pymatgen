@@ -67,7 +67,7 @@ class JOutStructure(Structure):
     selective_dynamics: list[int] | None = None
 
     @property
-    def mu(self) -> float:
+    def mu(self) -> float | None:
         """Return the chemical potential.
 
         Return the chemical potential.
@@ -78,10 +78,10 @@ class JOutStructure(Structure):
         """
         if self.elecmindata is not None:
             return self.elecmindata.mu
-        raise ValueError("elecmindata not set")
+        return None
 
     @property
-    def nelectrons(self) -> float:
+    def nelectrons(self) -> float | None:
         """Return the number of electrons.
 
         Return the number of electrons.
@@ -92,7 +92,7 @@ class JOutStructure(Structure):
         """
         if self.elecmindata is not None:
             return self.elecmindata.nelectrons
-        raise ValueError("elecmindata not set")
+        return None
 
     @property
     def abs_magneticmoment(self) -> float | None:
@@ -105,7 +105,7 @@ class JOutStructure(Structure):
         abs_magneticmoment: float"""
         if self.elecmindata is not None:
             return self.elecmindata.abs_magneticmoment
-        raise ValueError("elecmindata not set")
+        return None
 
     @property
     def tot_magneticmoment(self) -> float | None:
@@ -118,10 +118,10 @@ class JOutStructure(Structure):
         tot_magneticmoment: float"""
         if self.elecmindata is not None:
             return self.elecmindata.tot_magneticmoment
-        raise ValueError("elecmindata not set")
+        return None
 
     @property
-    def elec_niter(self) -> int:
+    def elec_niter(self) -> int | None:
         """Return the most recent electronic iteration.
 
         Return the most recent electronic iteration.
@@ -132,10 +132,10 @@ class JOutStructure(Structure):
         """
         if self.elecmindata is not None:
             return self.elecmindata.niter
-        raise ValueError("elecmindata not set")
+        return None
 
     @property
-    def elec_e(self) -> int:
+    def elec_e(self) -> int | None:
         """Return the most recent electronic energy.
 
         Return the most recent electronic energy.
@@ -146,7 +146,7 @@ class JOutStructure(Structure):
         """
         if self.elecmindata is not None:
             return self.elecmindata.e
-        raise ValueError("elecmindata not set")
+        return None
 
     @property
     def elec_grad_k(self) -> float | None:
@@ -160,7 +160,7 @@ class JOutStructure(Structure):
         """
         if self.elecmindata is not None:
             return self.elecmindata.grad_k
-        raise ValueError("elecmindata not set")
+        return None
 
     @property
     def elec_alpha(self) -> float | None:
@@ -174,7 +174,7 @@ class JOutStructure(Structure):
         """
         if self.elecmindata is not None:
             return self.elecmindata.alpha
-        raise ValueError("elecmindata not set")
+        return None
 
     @property
     def elec_linmin(self) -> float | None:
@@ -188,7 +188,7 @@ class JOutStructure(Structure):
         """
         if self.elecmindata is not None:
             return self.elecmindata.linmin
-        raise ValueError("elecmindata not set")
+        return None
 
     def __init__(
         self,
@@ -378,6 +378,11 @@ class JOutStructure(Structure):
             if "G:" in line:
                 etype = "G"
                 break
+        if etype is None:
+            for line in emin_lines:
+                if "Etot:" in line:
+                    etype = "Etot"
+                    break
         return etype
 
     def set_etype_from_emin_lines(self, emin_lines: list[str]) -> None:
@@ -393,11 +398,6 @@ class JOutStructure(Structure):
             electronic minimization data
         """
         self.etype = self.get_etype_from_emin_lines(emin_lines)
-        if self.etype is None:
-            raise ValueError(
-                "Could not determine energy type from electronic minimization \
-                    data"
-            )
 
     def parse_emin_lines(self, emin_lines: list[str]) -> None:
         """Parse electronic minimization lines.
@@ -481,28 +481,29 @@ class JOutStructure(Structure):
         posns_lines: list[str]
             A list of lines of text from a JDFTx out file
         """
-        natoms = len(posns_lines) - 1
-        coords_type = posns_lines[0].split("positions in")[1]
-        coords_type = coords_type.strip().split()[0].strip()
-        posns: list[np.ndarray] = []
-        names: list[str] = []
-        selective_dynamics: list[int] = []
-        for i in range(natoms):
-            line = posns_lines[i + 1]
-            name = line.split()[1].strip()
-            posn = np.array([float(x.strip()) for x in line.split()[2:5]])
-            sd = int(line.split()[5])
-            names.append(name)
-            posns.append(posn)
-            selective_dynamics.append(sd)
-        posns = np.array(posns)
-        if coords_type.lower() != "cartesian":
-            posns = np.dot(posns, self.lattice.matrix)
-        else:
-            posns *= bohr_to_ang
-        for i in range(natoms):
-            self.append(species=names[i], coords=posns[i], coords_are_cartesian=True)
-        self.selective_dynamics = selective_dynamics
+        if len(posns_lines):
+            natoms = len(posns_lines) - 1
+            coords_type = posns_lines[0].split("positions in")[1]
+            coords_type = coords_type.strip().split()[0].strip()
+            posns: list[np.ndarray] = []
+            names: list[str] = []
+            selective_dynamics: list[int] = []
+            for i in range(natoms):
+                line = posns_lines[i + 1]
+                name = line.split()[1].strip()
+                posn = np.array([float(x.strip()) for x in line.split()[2:5]])
+                sd = int(line.split()[5])
+                names.append(name)
+                posns.append(posn)
+                selective_dynamics.append(sd)
+            posns = np.array(posns)
+            if coords_type.lower() != "cartesian":
+                posns = np.dot(posns, self.lattice.matrix)
+            else:
+                posns *= bohr_to_ang
+            for i in range(natoms):
+                self.append(species=names[i], coords=posns[i], coords_are_cartesian=True)
+            self.selective_dynamics = selective_dynamics
 
     def parse_forces_lines(self, forces_lines: list[str]) -> None:
         """Parse forces lines.
@@ -515,22 +516,23 @@ class JOutStructure(Structure):
         forces_lines: list[str]
             A list of lines of text from a JDFTx out file containing the forces
         """
-        natoms = len(forces_lines) - 1
-        coords_type = forces_lines[0].split("Forces in")[1]
-        coords_type = coords_type.strip().split()[0].strip()
-        forces = []
-        for i in range(natoms):
-            line = forces_lines[i + 1]
-            force = np.array([float(x.strip()) for x in line.split()[2:5]])
-            forces.append(force)
-        forces = np.array(forces)
-        if coords_type.lower() != "cartesian":
-            # TODO: Double check conversion of forces from direct to cartesian
-            forces = np.dot(forces, self.lattice.matrix)
-        else:
-            forces *= 1 / bohr_to_ang
-        forces *= Ha_to_eV
-        self.forces = forces
+        if len(forces_lines):
+            natoms = len(forces_lines) - 1
+            coords_type = forces_lines[0].split("Forces in")[1]
+            coords_type = coords_type.strip().split()[0].strip()
+            forces = []
+            for i in range(natoms):
+                line = forces_lines[i + 1]
+                force = np.array([float(x.strip()) for x in line.split()[2:5]])
+                forces.append(force)
+            forces = np.array(forces)
+            if coords_type.lower() != "cartesian":
+                # TODO: Double check conversion of forces from direct to cartesian
+                forces = np.dot(forces, self.lattice.matrix)
+            else:
+                forces *= 1 / bohr_to_ang
+            forces *= Ha_to_eV
+            self.forces = forces
 
     def parse_ecomp_lines(self, ecomp_lines: list[str]) -> None:
         """Parse energy component lines.
