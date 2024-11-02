@@ -146,7 +146,11 @@ H GTH-PBE-q1 GTH-PBE
 
 class TestCp2kInput(PymatgenTest):
     si_struct = Structure(
-        lattice=[[0, 2.734364, 2.734364], [2.734364, 0, 2.734364], [2.734364, 2.734364, 0]],
+        lattice=[
+            [0, 2.734364, 2.734364],
+            [2.734364, 0, 2.734364],
+            [2.734364, 2.734364, 0],
+        ],
         species=["Si", "Si"],
         coords=[[0, 0, 0], [0.25, 0.25, 0.25]],
     )

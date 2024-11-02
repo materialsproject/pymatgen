@@ -342,7 +342,11 @@ class CifParser:
             """Check if a file is a magCIF file (heuristic)."""
             # Doesn't seem to be a canonical way to test if file is magCIF or
             # not, so instead check for magnetic symmetry datanames
-            prefixes = ["_space_group_magn", "_atom_site_moment", "_space_group_symop_magn"]
+            prefixes = [
+                "_space_group_magn",
+                "_atom_site_moment",
+                "_space_group_symop_magn",
+            ]
             for data in self._cif.data.values():
                 for key in data.data:
                     for prefix in prefixes:
@@ -658,12 +662,18 @@ class CifParser:
         """
         try:
             return self.get_lattice_no_exception(
-                data=data, angle_strings=angle_strings, lattice_type=lattice_type, length_strings=length_strings
+                data=data,
+                angle_strings=angle_strings,
+                lattice_type=lattice_type,
+                length_strings=length_strings,
             )
 
         except KeyError:
             # Missing Key search for cell setting
-            for lattice_label in ("_symmetry_cell_setting", "_space_group_crystal_system"):
+            for lattice_label in (
+                "_symmetry_cell_setting",
+                "_space_group_crystal_system",
+            ):
                 if data.data.get(lattice_label):
                     lattice_type = data.data.get(lattice_label, "").lower()
                     try:
@@ -770,7 +780,11 @@ class CifParser:
 
                     try:
                         cod_data = loadfn(
-                            os.path.join(os.path.dirname(os.path.dirname(__file__)), "symmetry", "symm_ops.json")
+                            os.path.join(
+                                os.path.dirname(os.path.dirname(__file__)),
+                                "symmetry",
+                                "symm_ops.json",
+                            )
                         )
                         for _data in cod_data:
                             if sg == re.sub(r"\s+", "", _data["hermann_mauguin"]):
@@ -1533,7 +1547,10 @@ class CifWriter:
         spacegroup: tuple[str, int] = ("P 1", 1)
         if symprec is not None:
             spg_analyzer = SpacegroupAnalyzer(struct, symprec, angle_tolerance=angle_tolerance)
-            spacegroup = (spg_analyzer.get_space_group_symbol(), spg_analyzer.get_space_group_number())
+            spacegroup = (
+                spg_analyzer.get_space_group_symbol(),
+                spg_analyzer.get_space_group_number(),
+            )
 
             if refine_struct:
                 # Need the refined structure when using symprec. This converts
@@ -1636,7 +1653,10 @@ class CifWriter:
         else:
             # The following just presents a deterministic ordering
             unique_sites = [
-                (min(sites, key=lambda site: tuple(abs(x) for x in site.frac_coords)), len(sites))
+                (
+                    min(sites, key=lambda site: tuple(abs(x) for x in site.frac_coords)),
+                    len(sites),
+                )
                 for sites in spg_analyzer.get_symmetrized_structure().equivalent_sites  # type: ignore[reportPossiblyUnboundVariable]
             ]
             for site, mult in sorted(

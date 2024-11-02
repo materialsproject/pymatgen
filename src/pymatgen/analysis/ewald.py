@@ -408,7 +408,7 @@ class EwaldSummation(MSONable):
             f"Reciprocal = {self.reciprocal_space_energy}",
             f"Point = {self.point_energy}",
             f"Total = {self.total_energy}",
-            f"Forces:\n{self.forces}" if self._compute_forces else "Forces were not computed",
+            (f"Forces:\n{self.forces}" if self._compute_forces else "Forces were not computed"),
         ]
         return "\n".join(output)
 

@@ -165,10 +165,14 @@ class TestElasticTensor(PymatgenTest):
         for attr_name in struct_prop_dict:
             if attr_name not in ([*prop_dict, "structure"]):
                 with pytest.raises(
-                    ValueError, match="Bulk or shear modulus is negative, property cannot be determined"
+                    ValueError,
+                    match="Bulk or shear modulus is negative, property cannot be determined",
                 ):
                     getattr(test_et, attr_name)(struct)
-        with pytest.raises(ValueError, match="Bulk or shear modulus is negative, property cannot be determined"):
+        with pytest.raises(
+            ValueError,
+            match="Bulk or shear modulus is negative, property cannot be determined",
+        ):
             test_et.get_structure_property_dict(struct)
         noval_sprop_dict = test_et.get_structure_property_dict(struct, ignore_errors=True)
         assert noval_sprop_dict["snyder_ac"] is None
@@ -178,7 +182,8 @@ class TestElasticTensor(PymatgenTest):
         non_symm = self.ft
         non_symm[0, 1, 2, 2] += 1.0
         with pytest.warns(
-            UserWarning, match="Input elastic tensor does not satisfy standard Voigt symmetries"
+            UserWarning,
+            match="Input elastic tensor does not satisfy standard Voigt symmetries",
         ) as warns:
             ElasticTensor(non_symm)
         assert (

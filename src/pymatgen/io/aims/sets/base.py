@@ -28,7 +28,15 @@ PARAMS_JSON_FILE_NAME: str = "parameters.json"
 GEOMETRY_FILE_NAME: str = "geometry.in"
 
 
-DEFAULT_AIMS_PROPERTIES = ("energy", "free_energy", "forces", "stress", "stresses", "dipole", "magmom")
+DEFAULT_AIMS_PROPERTIES = (
+    "energy",
+    "free_energy",
+    "forces",
+    "stress",
+    "stresses",
+    "dipole",
+    "magmom",
+)
 
 
 class AimsInputSet(InputSet):

@@ -758,7 +758,11 @@ class ElementBase(Enum):
         return self.is_lanthanoid or self.is_actinoid or self.symbol in {"Sc", "Y"}
 
     @property
-    @deprecated(is_rare_earth, message="is_rare_earth is corrected to include Y and Sc.", deadline=(2025, 1, 1))
+    @deprecated(
+        is_rare_earth,
+        message="is_rare_earth is corrected to include Y and Sc.",
+        deadline=(2025, 1, 1),
+    )
     def is_rare_earth_metal(self) -> bool:
         """True if element is a rare earth metal, Lanthanides (La) series and Actinides (Ac) series.
 
@@ -841,7 +845,11 @@ class ElementBase(Enum):
 
     def as_dict(self) -> dict[Literal["element", "@module", "@class"], str]:
         """Serialize to MSONable dict representation e.g. to write to disk as JSON."""
-        return {"@module": type(self).__module__, "@class": type(self).__name__, "element": self.symbol}
+        return {
+            "@module": type(self).__module__,
+            "@class": type(self).__name__,
+            "element": self.symbol,
+        }
 
     @staticmethod
     def from_dict(dct: dict) -> Element:
@@ -1195,24 +1203,21 @@ class Species(MSONable, Stringify):
         """List of valence subshell angular moment (L) and number of valence e- (v_e),
         obtained from full electron config, where L=0, 1, 2, or 3 for s, p, d,
         and f orbitals, respectively.
-
-
         """
-        return self.element.valences
-        # if self.group == 18:
-        #     return [(np.nan, 0)]  # The number of valence of noble gas is 0
+        if self.group == 18:
+            return [(np.nan, 0)]  # The number of valence of noble gas is 0
 
-        # L_symbols = "SPDFGHIKLMNOQRTUVWXYZ"
-        # valences: list[tuple[int, int]] = []
-        # full_electron_config = self.full_electronic_structure
-        # last_orbital = full_electron_config[-1]
-        # for n, l_symbol, ne in full_electron_config:
-        #     idx = L_symbols.lower().index(l_symbol)
-        #     if ne < (2 * idx + 1) * 2 or (
-        #         (n, l_symbol, ne) == last_orbital and ne == (2 * idx + 1) * 2 and len(valences) == 0
-        #     ):  # check for full last shell (e.g. column 2)
-        #         valences.append((idx, ne))
-        # return valences
+        L_symbols = "SPDFGHIKLMNOQRTUVWXYZ"
+        valences: list[tuple[int | np.nan, int]] = []
+        full_electron_config = self.full_electronic_structure
+        last_orbital = full_electron_config[-1]
+        for n, l_symbol, ne in full_electron_config:
+            idx = L_symbols.lower().index(l_symbol)
+            if ne < (2 * idx + 1) * 2 or (
+                (n, l_symbol, ne) == last_orbital and ne == (2 * idx + 1) * 2 and len(valences) == 0
+            ):  # check for full last shell (e.g. column 2)
+                valences.append((idx, ne))
+        return valences
 
     @property
     def valence(self) -> tuple[int | np.nan, int]:
@@ -1220,10 +1225,9 @@ class Species(MSONable, Stringify):
         obtained from full electron config, where L=0, 1, 2, or 3 for s, p, d,
         and f orbitals, respectively.
         """
-        return self.element.valence
-        # if len(self.valences) > 1:
-        #     raise ValueError(f"{self} has ambiguous valence")
-        # return self.valences[0]
+        if len(self.valences) > 1:
+            raise ValueError(f"{self} has ambiguous valence")
+        return self.valences[0]
 
     @property
     def ionic_radius(self) -> float | None:
@@ -1652,9 +1656,7 @@ def get_el_sp(obj: int | SpeciesLike) -> Element | Species | DummySpecies:
             of properties that can be determined.
     """
     # If obj is already an Element or Species, return as is
-    # Note: the below three if statements are functionally equivalent to the commented out
-    # code. They only exist due to a bug in mypy that doesn't allow the commented out code.
-    # This should be fixed once mypy fixes this bug.
+    # TODO: Why do we need to check "_is_named_isotope"?
     if isinstance(obj, Element):
         if getattr(obj, "_is_named_isotope", None):
             return Element(obj.name)
@@ -1667,11 +1669,6 @@ def get_el_sp(obj: int | SpeciesLike) -> Element | Species | DummySpecies:
         if getattr(obj, "_is_named_isotope", None):
             return Species(str(obj))
         return obj
-    # if isinstance(obj, Element | Species | DummySpecies):
-    # if type(obj) in [Element, Species, DummySpecies]:
-    #     if getattr(obj, "_is_named_isotope", None):
-    #         return Element(obj.name) if isinstance(obj, Element) else Species(str(obj))
-    #     return obj
 
     # If obj is an integer, return the Element with atomic number obj
     try:

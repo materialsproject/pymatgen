@@ -49,7 +49,7 @@ class MaterialsProjectDFTMixingScheme(Compatibility):
         structure_matcher: StructureMatcher | None = None,
         run_type_1: str = "GGA(+U)",
         run_type_2: str = "R2SCAN",
-        compat_1: Compatibility | None = MaterialsProject2020Compatibility(),  # noqa: B008
+        compat_1: (Compatibility | None) = MaterialsProject2020Compatibility(),  # noqa: B008
         compat_2: Compatibility | None = None,
         fuzzy_matching: bool = True,
         check_potcar: bool = True,
@@ -550,7 +550,15 @@ class MaterialsProjectDFTMixingScheme(Compatibility):
                     for idx, site_group in groupby(sorted(l_pre_group, key=len), key=len):
                         l_sitegroup = list(site_group)
                         row_list.append(
-                            self._populate_df_row(l_sitegroup, comp, sg, idx, pd_type_1, pd_type_2, all_entries)
+                            self._populate_df_row(
+                                l_sitegroup,
+                                comp,
+                                sg,
+                                idx,
+                                pd_type_1,
+                                pd_type_2,
+                                all_entries,
+                            )
                         )
                 else:
                     for group in self.structure_matcher.group_structures(l_pre_group):

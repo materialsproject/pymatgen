@@ -162,10 +162,14 @@ class ZSLGenerator(MSONable):
         """
         for film_transformations, substrate_transformations in transformation_sets:
             # Apply transformations and reduce using Zur reduce methodology
-            films = np.array([reduce_vectors(*v) for v in np.dot(film_transformations, film_vectors)], dtype=float)
+            films = np.array(
+                [reduce_vectors(*v) for v in np.dot(film_transformations, film_vectors)],
+                dtype=float,
+            )
 
             substrates = np.array(
-                [reduce_vectors(*v) for v in np.dot(substrate_transformations, substrate_vectors)], dtype=float
+                [reduce_vectors(*v) for v in np.dot(substrate_transformations, substrate_vectors)],
+                dtype=float,
             )
 
             # Check if equivalent super lattices
@@ -349,7 +353,10 @@ def is_same_vectors(vec_set1, vec_set2, bidirectional=False, max_length_tol=0.03
     """
     if bidirectional:
         return _bidirectional_same_vectors(
-            vec_set1, vec_set2, max_length_tol=max_length_tol, max_angle_tol=max_angle_tol
+            vec_set1,
+            vec_set2,
+            max_length_tol=max_length_tol,
+            max_angle_tol=max_angle_tol,
         )
 
     return _unidirectional_is_same_vectors(

@@ -94,7 +94,12 @@ class EnergyAdjustment(MSONable):
         """Return an explanation of how the energy adjustment is calculated."""
 
     def __repr__(self):
-        name, value, uncertainty, description = self.name, float(self.value), self.uncertainty, self.description
+        name, value, uncertainty, description = (
+            self.name,
+            float(self.value),
+            self.uncertainty,
+            self.description,
+        )
         # self.cls might not be a dict if monty decoding is enabled in the new MPRester
         # which hydrates all dicts with @class and @module keys into classes in which case
         # we expect a Compatibility subclass
@@ -383,7 +388,7 @@ class ComputedEntry(Entry):
         """
         # adds to ufloat(0.0, 0.0) to ensure that no corrections still result in ufloat object
         unc = ufloat(0.0, 0.0) + sum(
-            ufloat(ea.value, ea.uncertainty) if not np.isnan(ea.uncertainty) else ufloat(ea.value, 0)
+            (ufloat(ea.value, ea.uncertainty) if not np.isnan(ea.uncertainty) else ufloat(ea.value, 0))
             for ea in self.energy_adjustments
         )
 

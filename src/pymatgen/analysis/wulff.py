@@ -329,7 +329,12 @@ class WulffShape:
                         break
             # make sure the lines are connected one by one.
             # find the way covering all pts and facets
-            pt.extend((self.wulff_pt_list[line[0]].tolist(), self.wulff_pt_list[line[1]].tolist()))
+            pt.extend(
+                (
+                    self.wulff_pt_list[line[0]].tolist(),
+                    self.wulff_pt_list[line[1]].tolist(),
+                )
+            )
             prev = line[1]
 
         return pt
@@ -378,7 +383,13 @@ class WulffShape:
         from mpl_toolkits.mplot3d import art3d
 
         colors = self._get_colors(color_set, alpha, off_color, custom_colors=custom_colors or {})
-        color_list, color_proxy, color_proxy_on_wulff, miller_on_wulff, e_surf_on_wulff = colors
+        (
+            color_list,
+            color_proxy,
+            color_proxy_on_wulff,
+            miller_on_wulff,
+            e_surf_on_wulff,
+        ) = colors
 
         if not direction:
             # If direction is not specified, use the miller indices of
@@ -495,9 +506,13 @@ class WulffShape:
             (plotly.graph_objects.Figure)
         """
         units = "Jm⁻²" if units_in_JPERM2 else "eVÅ⁻²"
-        color_list, _color_proxy, _color_proxy_on_wulff, _miller_on_wulff, e_surf_on_wulff = self._get_colors(
-            color_set, alpha, off_color, custom_colors=custom_colors or {}
-        )
+        (
+            color_list,
+            _color_proxy,
+            _color_proxy_on_wulff,
+            _miller_on_wulff,
+            e_surf_on_wulff,
+        ) = self._get_colors(color_set, alpha, off_color, custom_colors=custom_colors or {})
 
         planes_data, color_scale, ticktext, tickvals = [], [], [], []
         for plane in self.facets:

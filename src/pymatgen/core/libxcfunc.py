@@ -489,7 +489,11 @@ class LibxcFunc(Enum):
         """Serialize to MSONable dict representation,
         e.g. to write to disk as JSON.
         """
-        return {"name": self.name, "@module": type(self).__module__, "@class": type(self).__name__}
+        return {
+            "name": self.name,
+            "@module": type(self).__module__,
+            "@class": type(self).__name__,
+        }
 
     @classmethod
     def from_dict(cls, dct: dict) -> Self:

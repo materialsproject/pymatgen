@@ -159,7 +159,13 @@ CELL_PARAMETERS angstrom
     def test_write_str_with_kpoints(self):
         struct = self.get_structure("Li2O")
         struct.remove_oxidation_states()
-        kpoints = [[0.0, 0.0, 0.0], [0.0, 0.5, 0.5], [0.5, 0.0, 0.0], [0.0, 0.0, 0.5], [0.5, 0.5, 0.5]]
+        kpoints = [
+            [0.0, 0.0, 0.0],
+            [0.0, 0.5, 0.5],
+            [0.5, 0.0, 0.0],
+            [0.0, 0.0, 0.5],
+            [0.5, 0.5, 0.5],
+        ]
         pw = PWInput(
             struct,
             control={"calculation": "scf", "pseudo_dir": "./"},
@@ -308,7 +314,13 @@ CELL_PARAMETERS angstrom
   6.373854 0.000000 6.373854
   6.373854 6.373854 0.000000
         """
-        lattice = np.array([[0.0, 6.373854, 6.373854], [6.373854, 0.0, 6.373854], [6.373854, 6.373854, 0.0]])
+        lattice = np.array(
+            [
+                [0.0, 6.373854, 6.373854],
+                [6.373854, 0.0, 6.373854],
+                [6.373854, 6.373854, 0.0],
+            ]
+        )
 
         sites = np.array(
             [
@@ -457,7 +469,13 @@ CELL_PARAMETERS angstrom
     def test_custom_decimal_precision_kpoint_grid_crystal_b(self):
         struct = self.get_structure("Li2O")
         struct.remove_oxidation_states()
-        kpoints = [[0.0, 0.0, 0.0], [0.0, 0.5, 0.5], [0.5, 0.0, 0.0], [0.0, 0.0, 0.5], [0.5, 0.5, 0.5]]
+        kpoints = [
+            [0.0, 0.0, 0.0],
+            [0.0, 0.5, 0.5],
+            [0.5, 0.0, 0.0],
+            [0.0, 0.0, 0.5],
+            [0.5, 0.5, 0.5],
+        ]
         pw = PWInput(
             struct,
             control={"calculation": "scf", "pseudo_dir": "./"},

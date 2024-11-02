@@ -93,7 +93,10 @@ class TestIon(TestCase):
 
         assert Ion.from_formula("Fe(OH)4+").get_reduced_formula_and_factor(hydrates=True) == ("FeO2.2H2O", 1)
         assert Ion.from_formula("Zr(OH)4").get_reduced_formula_and_factor(hydrates=True) == ("ZrO2.2H2O", 1)
-        assert Ion.from_formula("O").get_reduced_formula_and_factor(hydrates=False) == ("O", 1)
+        assert Ion.from_formula("O").get_reduced_formula_and_factor(hydrates=False) == (
+            "O",
+            1,
+        )
         assert Ion.from_formula("O2").get_reduced_formula_and_factor(hydrates=False) == ("O2", 1)
         assert Ion.from_formula("O3").get_reduced_formula_and_factor(hydrates=False) == ("O3", 1)
         assert Ion.from_formula("O6").get_reduced_formula_and_factor(hydrates=False) == ("O3", 2)

@@ -58,7 +58,11 @@ class AdsorbateSiteFinder:
     """
 
     def __init__(
-        self, slab: Slab, selective_dynamics: bool = False, height: float = 0.9, mi_vec: ArrayLike | None = None
+        self,
+        slab: Slab,
+        selective_dynamics: bool = False,
+        height: float = 0.9,
+        mi_vec: ArrayLike | None = None,
     ) -> None:
         """Create an AdsorbateSiteFinder object.
 
@@ -150,7 +154,10 @@ class AdsorbateSiteFinder:
                 surf_props += ["surface"]
             else:
                 surf_props += ["subsurface"]
-        new_site_properties = {"surface_properties": surf_props, "undercoords": under_coords}
+        new_site_properties = {
+            "surface_properties": surf_props,
+            "undercoords": under_coords,
+        }
         new_slab = this_slab.copy(site_properties=new_site_properties)
         return cls(new_slab, selective_dynamics)
 
@@ -413,7 +420,7 @@ class AdsorbateSiteFinder:
         """
         sd_list = []
         sd_list = [
-            [False, False, False] if site.properties["surface_properties"] == "subsurface" else [True, True, True]
+            ([False, False, False] if site.properties["surface_properties"] == "subsurface" else [True, True, True])
             for site in slab
         ]
         new_sp = slab.site_properties
@@ -678,7 +685,14 @@ def plot_slab(
     # Draw circles at sites and stack them accordingly
     for idx, coord in enumerate(coords):
         radius = sites[idx].species.elements[0].atomic_radius * scale
-        ax.add_patch(patches.Circle(coord[:2] - lattice_sum * (repeat // 2), radius, color="w", zorder=2 * idx))
+        ax.add_patch(
+            patches.Circle(
+                coord[:2] - lattice_sum * (repeat // 2),
+                radius,
+                color="w",
+                zorder=2 * idx,
+            )
+        )
         color = color_dict[sites[idx].species.elements[0].symbol]
         ax.add_patch(
             patches.Circle(
@@ -701,7 +715,15 @@ def plot_slab(
         ads_sites = asf.find_adsorption_sites()["all"]
         symm_op = get_rot(orig_slab)
         ads_sites = [symm_op.operate(ads_site)[:2].tolist() for ads_site in ads_sites]
-        ax.plot(*zip(*ads_sites, strict=True), color="k", marker="x", markersize=10, mew=1, linestyle="", zorder=10000)
+        ax.plot(
+            *zip(*ads_sites, strict=True),
+            color="k",
+            marker="x",
+            markersize=10,
+            mew=1,
+            linestyle="",
+            zorder=10000,
+        )
     # Draw unit cell
     if draw_unit_cell:
         vertices = np.insert(vertices, 1, lattice_sum, axis=0).tolist()

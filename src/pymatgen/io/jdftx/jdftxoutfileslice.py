@@ -42,15 +42,22 @@ from pymatgen.io.jdftx.utils import (
 __author__ = "Ben Rich"
 
 
+# TODO: Copy-paste the docustrings for jdftxoutfile properties below.
 @dataclass
 class JDFTXOutfileSlice(ClassPrintFormatter):
     """A class to read and process a JDFTx out file.
 
     A class to read and process a JDFTx out file.
 
+    Methods
+    ----------
+    from_out_slice(text: list[str])
+        Read slice of out file into a JDFTXOutfileSlice instance.
+
     Attributes
     ----------
-        see JDFTx documentation for tag info and typing
+    prefix: str | None
+        prefix of dump files for JDFTx calculation
     """
 
     prefix: str | None = None
@@ -185,8 +192,8 @@ class JDFTXOutfileSlice(ClassPrintFormatter):
         """
         constant_lattice = False
         if self.jsettings_lattice is not None:
-            if self.jsettings_lattice.niterations is not None:
-                constant_lattice = self.jsettings_lattice.niterations == 0
+            if "niterations" in self.jsettings_lattice.params:
+                constant_lattice = int(self.jsettings_lattice.params["niterations"]) == 0
             else:
                 raise ValueError("Unknown issue due to partial initialization of settings objects.")
         return Trajectory.from_structures(structures=self.jstrucs, constant_lattice=constant_lattice)
@@ -968,7 +975,7 @@ class JDFTXOutfileSlice(ClassPrintFormatter):
             settings object
         """
         settings_dict = self._create_settings_dict(text, settings_class.start_flag)
-        return settings_class(**settings_dict) if len(settings_dict) else None
+        return settings_class(params=settings_dict) if len(settings_dict) else None
 
     def set_min_settings(self, text: list[str]) -> None:
         """Set the settings objects from the out file text.
@@ -999,10 +1006,11 @@ class JDFTXOutfileSlice(ClassPrintFormatter):
         self.set_min_settings(text)
         if self.jsettings_ionic is None or self.jsettings_lattice is None:
             raise ValueError("Unknown issue in setting settings objects")
-        if self.jsettings_lattice.niterations > 0:
+        if int(self.jsettings_lattice.params["niterations"]) > 0:
             self.geom_opt = True
             self.geom_opt_type = "lattice"
-        elif self.jsettings_ionic.niterations > 0:
+        elif int(self.jsettings_ionic.params["niterations"]) > 0:
+            # elif self.jsettings_ionic.niterations > 0:
             self.geom_opt = True
             self.geom_opt_type = "ionic"
         else:
@@ -1337,6 +1345,10 @@ class JDFTXOutfileSlice(ClassPrintFormatter):
         for field in self.__dataclass_fields__:
             value = getattr(self, field)
             dct[field] = value
+
+        # Include properties in the dictionary representation
+        for name, _obj in inspect.getmembers(type(self), lambda o: isinstance(o, property)):
+            dct[name] = getattr(self, name)
         return dct
 
     # This method is likely never going to be called as all (currently existing)
@@ -1358,13 +1370,6 @@ class JDFTXOutfileSlice(ClassPrintFormatter):
         value
             The value of the attribute
         """
-        # The whole point of this is to be an unreached safety net, so expect hit
-        # from coverage here
-        # if name not in self.__dict__:
-        #     if not hasattr(self.jstrucs, name):
-        #         raise AttributeError(f"{self.__class__.__name__} not found: {name}")
-        #     return getattr(self.jstrucs, name)
-        # return self.__dict__[name]
         if name in self.__dict__:
             return self.__dict__[name]
 

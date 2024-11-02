@@ -29,10 +29,18 @@ class TestStress(PymatgenTest):
         )
         assert_allclose(
             self.non_symm.deviator_stress,
-            [[-0.2666666667, 0.2, 0.3], [0.4, 0.133333333, 0.6], [0.2, 0.5, 0.133333333]],
+            [
+                [-0.2666666667, 0.2, 0.3],
+                [0.4, 0.133333333, 0.6],
+                [0.2, 0.5, 0.133333333],
+            ],
         )
         # deviator_principal_invariants
-        assert_allclose(self.symm_stress.dev_principal_invariants, [0, 44.2563, 111.953628], atol=1e-9)
+        assert_allclose(
+            self.symm_stress.dev_principal_invariants,
+            [0, 44.2563, 111.953628],
+            atol=1e-9,
+        )
         # von_mises
         assert self.symm_stress.von_mises == approx(11.52253878275)
         # piola_kirchoff 1, 2
@@ -49,7 +57,8 @@ class TestStress(PymatgenTest):
         assert list(self.symm_stress.voigt) == [0.51, 5.14, 5.33, 5.07, 2.42, 2.29]
 
         with pytest.warns(
-            UserWarning, match="Tensor is not symmetric, information may be lost in Voigt conversion"
+            UserWarning,
+            match="Tensor is not symmetric, information may be lost in Voigt conversion",
         ) as warns:
             _ = self.non_symm.voigt
         assert (

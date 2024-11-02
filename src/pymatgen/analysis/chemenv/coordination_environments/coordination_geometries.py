@@ -285,12 +285,16 @@ class SeparationPlane(AbstractChemenvAlgorithm):
             "ordered_plane": self.ordered_plane,
             "point_groups": self.point_groups,
             "ordered_point_groups": self.ordered_point_groups,
-            "explicit_permutations": [eperm.tolist() for eperm in self.explicit_permutations]
-            if self.explicit_permutations is not None
-            else None,
-            "explicit_optimized_permutations": [eoperm.tolist() for eoperm in self.explicit_optimized_permutations]
-            if self.explicit_optimized_permutations is not None
-            else None,
+            "explicit_permutations": (
+                [eperm.tolist() for eperm in self.explicit_permutations]
+                if self.explicit_permutations is not None
+                else None
+            ),
+            "explicit_optimized_permutations": (
+                [eoperm.tolist() for eoperm in self.explicit_optimized_permutations]
+                if self.explicit_optimized_permutations is not None
+                else None
+            ),
             "multiplicity": self.multiplicity,
             "other_plane_points": self.other_plane_points,
             "minimum_number_of_points": self.minimum_number_of_points,
@@ -415,7 +419,11 @@ class CoordinationGeometry:
             new_site_voronoi_indices2.remove(second_cap_voronoi_index)
             new_site_voronoi_indices3.remove(first_cap_voronoi_index)
             new_site_voronoi_indices3.remove(second_cap_voronoi_index)
-            return new_site_voronoi_indices1, new_site_voronoi_indices2, new_site_voronoi_indices3
+            return (
+                new_site_voronoi_indices1,
+                new_site_voronoi_indices2,
+                new_site_voronoi_indices3,
+            )
 
         def triple_cap_hints(self, hints_info):
             """Return hints for an additional neighbors set, i.e. the voronoi indices that
@@ -558,9 +566,11 @@ class CoordinationGeometry:
             "_edges": self._edges,
             "_algorithms": [algo.as_dict for algo in (self._algorithms or [])] or None,
             "equivalent_indices": self.equivalent_indices,
-            "neighbors_sets_hints": [nbsh.as_dict() for nbsh in self.neighbors_sets_hints]
-            if self.neighbors_sets_hints is not None
-            else None,
+            "neighbors_sets_hints": (
+                [nbsh.as_dict() for nbsh in self.neighbors_sets_hints]
+                if self.neighbors_sets_hints is not None
+                else None
+            ),
         }
 
     @classmethod
@@ -591,9 +601,11 @@ class CoordinationGeometry:
             deactivate=dct["deactivate"],
             faces=dct["_faces"],
             edges=dct["_edges"],
-            algorithms=[MontyDecoder().process_decoded(algo_d) for algo_d in dct["_algorithms"]]
-            if dct["_algorithms"] is not None
-            else None,
+            algorithms=(
+                [MontyDecoder().process_decoded(algo_d) for algo_d in dct["_algorithms"]]
+                if dct["_algorithms"] is not None
+                else None
+            ),
             equivalent_indices=dct.get("equivalent_indices"),
             neighbors_sets_hints=[
                 cls.NeighborsSetsHints.from_dict(nb_sets_hints)

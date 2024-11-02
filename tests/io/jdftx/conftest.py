@@ -280,6 +280,11 @@ noeigstats_outfile_known_simple = {
     "efermi": -0.050095169 * Ha_to_eV,
 }
 
+problem2_outfile_path = ex_files_dir / Path("problem2.out")
+problem2_outfile_known_simple = {
+    "mu": 0.464180124 * Ha_to_eV,
+}
+
 etot_etype_outfile_path = ex_files_dir / Path("etot_etype.out")
 etot_etype_outfile_known_simple = {
     "e": -17.265553748795949 * Ha_to_eV,

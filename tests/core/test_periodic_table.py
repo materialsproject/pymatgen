@@ -385,7 +385,11 @@ class TestElement(PymatgenTest):
         assert list(map(str, elems)) == ["H", "H", "H"]
         assert [el.A for el in elems] == [1, 2, 3]
         assert all(abs(el.atomic_mass - idx - 1) < 0.1 for idx, el in enumerate(elems))
-        assert [el.atomic_mass for el in elems] == [1.00794, 2.013553212712, 3.0155007134]
+        assert [el.atomic_mass for el in elems] == [
+            1.00794,
+            2.013553212712,
+            3.0155007134,
+        ]
 
 
 class TestSpecies(PymatgenTest):
@@ -673,7 +677,20 @@ class TestDummySpecies:
         for el in ["Ca", "Mg", "Ba", "Sr"]:
             assert Species(el, 2).electronic_structure.split(".")[-1][1::] == "p6", f"Failure for {el} +2"
         # valence shell should be f (l=3) for all lanthanide ions except La+3 and Lu+3
-        for el in ["Ce", "Nd", "Sm", "Eu", "Gd", "Tb", "Dy", "Ho", "Er", "Tm", "Yb", "Lu"]:
+        for el in [
+            "Ce",
+            "Nd",
+            "Sm",
+            "Eu",
+            "Gd",
+            "Tb",
+            "Dy",
+            "Ho",
+            "Er",
+            "Tm",
+            "Yb",
+            "Lu",
+        ]:
             assert Species(el, 3).valence[0] == 3, f"Failure for {el} +3"
 
         for el in Element:

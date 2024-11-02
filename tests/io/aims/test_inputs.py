@@ -145,7 +145,10 @@ def test_write_spins(tmp_path: Path):
         coords=mg2mn4o8.frac_coords,
         site_properties={"magmom": np.zeros(mg2mn4o8.num_sites)},
     )
-    with pytest.raises(ValueError, match="species.spin and magnetic moments don't agree. Please only define one"):
+    with pytest.raises(
+        ValueError,
+        match="species.spin and magnetic moments don't agree. Please only define one",
+    ):
         geo_in = AimsGeometryIn.from_structure(mg2mn4o8)
 
 
@@ -190,7 +193,10 @@ def test_aims_cube():
             edges=[[0, 0, 0.1], [0.1, 0, 0], [0.1, 0]],
         )
 
-    with pytest.raises(ValueError, match="elf_type is only used when the cube type is elf. Otherwise it must be None"):
+    with pytest.raises(
+        ValueError,
+        match="elf_type is only used when the cube type is elf. Otherwise it must be None",
+    ):
         AimsCube(type=ALLOWED_AIMS_CUBE_TYPES[0], elf_type=1)
 
     with pytest.raises(ValueError, match="The number of points per edge must have 3 components"):

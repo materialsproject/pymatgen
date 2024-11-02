@@ -289,9 +289,6 @@ def test_tagcontainer():
         tagcontainer.get_list_representation("barbie", value)
 
 
-# def test_multiformattagcontainer():
-
-
 def test_dumptagcontainer():
     dtc = get_dump_tag_container()
     with pytest.raises(

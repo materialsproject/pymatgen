@@ -365,7 +365,12 @@ class GaussianToComputedEntryDrone(AbstractDrone):
         for d in self._data:
             data[d] = getattr(gau_run, d)
         if self._inc_structure:
-            entry = ComputedStructureEntry(gau_run.final_structure, gau_run.final_energy, parameters=param, data=data)
+            entry = ComputedStructureEntry(
+                gau_run.final_structure,
+                gau_run.final_energy,
+                parameters=param,
+                data=data,
+            )
         else:
             entry = ComputedEntry(
                 gau_run.final_structure.composition,

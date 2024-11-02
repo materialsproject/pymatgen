@@ -83,7 +83,12 @@ class Control(MSONable, dict):
         "espresso",
     )
 
-    def __init__(self, ngrid: list[int] | None = None, temperature: float | dict[str, float] = 300, **kwargs):
+    def __init__(
+        self,
+        ngrid: list[int] | None = None,
+        temperature: float | dict[str, float] = 300,
+        **kwargs,
+    ):
         """
         Args:
             ngrid: Reciprocal space grid density as a list of 3 ints.

@@ -732,7 +732,11 @@ class Cp2kInput(Section):
                 )
                 alias = f"{name} {' '.join(subsection_params)}" if subsection_params else None
                 sec = Section(
-                    name, section_parameters=subsection_params, alias=alias, subsections={}, description=description
+                    name,
+                    section_parameters=subsection_params,
+                    alias=alias,
+                    subsections={},
+                    description=description,
                 )
                 description = ""
                 if tmp := self.by_path(current).get_section(sec.alias or sec.name):
@@ -908,7 +912,13 @@ class Subsys(Section):
         keywords = keywords or {}
         subsections = subsections or {}
         description = "A subsystem: coordinates, topology, molecules and cell"
-        super().__init__("SUBSYS", keywords=keywords, description=description, subsections=subsections, **kwargs)
+        super().__init__(
+            "SUBSYS",
+            keywords=keywords,
+            description=description,
+            subsections=subsections,
+            **kwargs,
+        )
 
 
 class QS(Section):
@@ -952,9 +962,15 @@ class QS(Section):
 
         _keywords = {
             "METHOD": Keyword("METHOD", self.method),
-            "EPS_DEFAULT": Keyword("EPS_DEFAULT", self.eps_default, description="Base precision level (in Ha)"),
+            "EPS_DEFAULT": Keyword(
+                "EPS_DEFAULT",
+                self.eps_default,
+                description="Base precision level (in Ha)",
+            ),
             "EXTRAPOLATION": Keyword(
-                "EXTRAPOLATION", self.extrapolation, description="WFN extrapolation between steps"
+                "EXTRAPOLATION",
+                self.extrapolation,
+                description="WFN extrapolation between steps",
             ),
         }
         if eps_pgf_orb:
@@ -1011,9 +1027,17 @@ class Scf(Section):
         description = "Parameters needed to perform an SCF run."
 
         _keywords = {
-            "MAX_SCF": Keyword("MAX_SCF", max_scf, description="Max number of steps for an inner SCF loop"),
+            "MAX_SCF": Keyword(
+                "MAX_SCF",
+                max_scf,
+                description="Max number of steps for an inner SCF loop",
+            ),
             "EPS_SCF": Keyword("EPS_SCF", eps_scf, description="Convergence threshold for SCF"),
-            "SCF_GUESS": Keyword("SCF_GUESS", scf_guess, description="How to initialize the density matrix"),
+            "SCF_GUESS": Keyword(
+                "SCF_GUESS",
+                scf_guess,
+                description="How to initialize the density matrix",
+            ),
             "MAX_ITER_LUMO": Keyword(
                 "MAX_ITER_LUMO",
                 kwargs.get("max_iter_lumo", 400),
@@ -1072,7 +1096,11 @@ class Mgrid(Section):
         )
 
         _keywords = {
-            "CUTOFF": Keyword("CUTOFF", cutoff, description="Cutoff in [Ry] for finest level of the MG."),
+            "CUTOFF": Keyword(
+                "CUTOFF",
+                cutoff,
+                description="Cutoff in [Ry] for finest level of the MG.",
+            ),
             "REL_CUTOFF": Keyword(
                 "REL_CUTOFF",
                 rel_cutoff,
@@ -1353,7 +1381,27 @@ class Kind(Section):
         description = "The description of this kind of atom including basis sets, element, etc."
 
         # Special case for closed-shell elements. Cannot impose magnetization in CP2K.
-        closed_shell_elems = {2, 4, 10, 12, 18, 20, 30, 36, 38, 48, 54, 56, 70, 80, 86, 88, 102, 112, 118}
+        closed_shell_elems = {
+            2,
+            4,
+            10,
+            12,
+            18,
+            20,
+            30,
+            36,
+            38,
+            48,
+            54,
+            56,
+            70,
+            80,
+            86,
+            88,
+            102,
+            112,
+            118,
+        }
         if Element(self.specie).Z in closed_shell_elems:
             self.magnetization = 0
 
@@ -1440,7 +1488,13 @@ class DftPlusU(Section):
             "U_RAMPING": Keyword("U_RAMPING", u_ramping),
         }
         keywords.update(_keywords)
-        super().__init__(name=name, subsections=None, description=description, keywords=keywords, **kwargs)
+        super().__init__(
+            name=name,
+            subsections=None,
+            description=description,
+            keywords=keywords,
+            **kwargs,
+        )
 
 
 class Coord(Section):
@@ -1476,7 +1530,10 @@ class Coord(Section):
             aliases = {index: kind for kind, indices in aliases.items() for index in indices}
 
         keywords = {
-            i: Keyword(aliases[i] if aliases else structure[i].species_string, *structure[i].coords)
+            i: Keyword(
+                aliases[i] if aliases else structure[i].species_string,
+                *structure[i].coords,
+            )
             for i in range(len(structure))
         }
         super().__init__(
@@ -1491,7 +1548,13 @@ class Coord(Section):
 class DOS(Section):
     """Controls printing of the density of states."""
 
-    def __init__(self, ndigits: int = 6, keywords: dict | None = None, subsections: dict | None = None, **kwargs):
+    def __init__(
+        self,
+        ndigits: int = 6,
+        keywords: dict | None = None,
+        subsections: dict | None = None,
+        **kwargs,
+    ):
         """
         Initialize the DOS section.
 
@@ -1507,7 +1570,13 @@ class DOS(Section):
         description = "Controls printing of the overall density of states"
         _keywords = {"NDIGITS": Keyword("NDIGITS", ndigits)}
         keywords.update(_keywords)
-        super().__init__("DOS", description=description, keywords=keywords, subsections=subsections, **kwargs)
+        super().__init__(
+            "DOS",
+            description=description,
+            keywords=keywords,
+            subsections=subsections,
+            **kwargs,
+        )
 
 
 class PDOS(Section):
@@ -1516,7 +1585,13 @@ class PDOS(Section):
     (elemental decomposed DOS).
     """
 
-    def __init__(self, nlumo: int = -1, keywords: dict | None = None, subsections: dict | None = None, **kwargs):
+    def __init__(
+        self,
+        nlumo: int = -1,
+        keywords: dict | None = None,
+        subsections: dict | None = None,
+        **kwargs,
+    ):
         """
         Initialize the PDOS section.
 
@@ -1530,9 +1605,18 @@ class PDOS(Section):
         subsections = subsections or {}
         description = "Controls printing of the projected density of states"
 
-        _keywords = {"NLUMO": Keyword("NLUMO", nlumo), "COMPONENTS": Keyword("COMPONENTS")}
+        _keywords = {
+            "NLUMO": Keyword("NLUMO", nlumo),
+            "COMPONENTS": Keyword("COMPONENTS"),
+        }
         keywords.update(_keywords)
-        super().__init__("PDOS", description=description, keywords=keywords, subsections=subsections, **kwargs)
+        super().__init__(
+            "PDOS",
+            description=description,
+            keywords=keywords,
+            subsections=subsections,
+            **kwargs,
+        )
 
 
 class LDOS(Section):
@@ -1559,7 +1643,10 @@ class LDOS(Section):
         keywords = keywords or {}
         subsections = subsections or {}
         description = "Controls printing of the projected density of states decomposed by atom type"
-        _keywords = {"COMPONENTS": Keyword("COMPONENTS"), "LIST": Keyword("LIST", index)}
+        _keywords = {
+            "COMPONENTS": Keyword("COMPONENTS"),
+            "LIST": Keyword("LIST", index),
+        }
         keywords.update(_keywords)
         super().__init__(
             "LDOS",
@@ -2076,7 +2163,14 @@ class KpointSet(Section):
             "NPOINTS": Keyword("NPOINTS", npoints),
             "UNITS": Keyword("UNITS", units),
             "SPECIAL_POINT": KeywordList(
-                [Keyword("SPECIAL_POINT", "Gamma" if key.upper() == "\\GAMMA" else key, *kpt) for key, kpt in kpoints]
+                [
+                    Keyword(
+                        "SPECIAL_POINT",
+                        "Gamma" if key.upper() == "\\GAMMA" else key,
+                        *kpt,
+                    )
+                    for key, kpt in kpoints
+                ]
             ),
         }
 
@@ -2164,7 +2258,7 @@ class BandStructure(Section):
                 KpointSet(
                     npoints=1,
                     kpoints=[("None", kpts) for kpts in kpoints.kpts],
-                    units="B_VECTOR" if kpoints.coord_type == "Reciprocal" else "CART_ANGSTROM",
+                    units=("B_VECTOR" if kpoints.coord_type == "Reciprocal" else "CART_ANGSTROM"),
                 )
             ]
         else:
@@ -2238,7 +2332,19 @@ class BasisInfo(MSONable):
         string = string.replace("SR", "")
         data["molopt"] = "MOLOPT" in string
         string = string.replace("MOLOPT", "")
-        for x in ("LDA", "PADE", "MGGA", "GGA", "HF", "PBE0", "PBE", "BP", "BLYP", "B3LYP", "SCAN"):
+        for x in (
+            "LDA",
+            "PADE",
+            "MGGA",
+            "GGA",
+            "HF",
+            "PBE0",
+            "PBE",
+            "BP",
+            "BLYP",
+            "B3LYP",
+            "SCAN",
+        ):
             if x in string:
                 data["xc"] = x
                 string = string.replace(x, "")
@@ -2536,7 +2642,19 @@ class PotentialInfo(MSONable):
             if char == "Q" and string[idx + 1].isnumeric():
                 data["electrons"] = int("".join(_ for _ in string[(idx + 1) :] if _.isnumeric()))
 
-        for x in ("LDA", "PADA", "MGGA", "GGA", "HF", "PBE0", "PBE", "BP", "BLYP", "B3LYP", "SCAN"):
+        for x in (
+            "LDA",
+            "PADA",
+            "MGGA",
+            "GGA",
+            "HF",
+            "PBE0",
+            "PBE",
+            "BP",
+            "BLYP",
+            "B3LYP",
+            "SCAN",
+        ):
             if x in string:
                 data["xc"] = x
                 break

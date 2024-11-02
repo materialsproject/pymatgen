@@ -124,7 +124,8 @@ class StrategyWeights(PymatgenTest):
         with pytest.raises(ValueError, match="Both exponents are 0."):
             NormalizedAngleDistanceNbSetWeight(average_type="arithmetic", aa=0, bb=0)
         with pytest.raises(
-            ValueError, match="Average type is 'arithmetix' while it should be 'geometric' or 'arithmetic'"
+            ValueError,
+            match="Average type is 'arithmetix' while it should be 'geometric' or 'arithmetic'",
         ):
             NormalizedAngleDistanceNbSetWeight(average_type="arithmetix", aa=1, bb=1)
 

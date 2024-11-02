@@ -215,7 +215,10 @@ class TestComposition(PymatgenTest):
         assert Composition("(C)((C)0.9(B)0.1)") == Composition("C1.9 B0.1")
 
         assert Composition("NaN").reduced_formula == "NaN"
-        with pytest.raises(ValueError, match=r"float\('NaN'\) is not a valid Composition, did you mean 'NaN'\?"):
+        with pytest.raises(
+            ValueError,
+            match=r"float\('NaN'\) is not a valid Composition, did you mean 'NaN'\?",
+        ):
             Composition(float("NaN"))
 
         # test bad formulas raise ValueError
@@ -255,7 +258,12 @@ class TestComposition(PymatgenTest):
             ["Co2 O3", "C1 O5"],
             ["N1 Ca1 Lu1", "U1 Al1 C1 N1"],
             ["N1 Ca1 Lu1", "U1 Al1 C1 N1"],
-            ["Li1 Co1 P2 N1 O10", "Li1 Co1 Po8 N1 O2", "Li1 P2 C1 N1 O11", "Li1 Po8 C1 N1 O3"],
+            [
+                "Li1 Co1 P2 N1 O10",
+                "Li1 Co1 Po8 N1 O2",
+                "Li1 P2 C1 N1 O11",
+                "Li1 Po8 C1 N1 O3",
+            ],
             ["Co2 P4 O4", "Co2 Po4", "P4 C2 O6", "Po4 C2 O2"],
             [],
         ]

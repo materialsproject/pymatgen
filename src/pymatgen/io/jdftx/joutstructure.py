@@ -420,6 +420,11 @@ class JOutStructure(Structure):
                 if "Etot:" in line:
                     etype = "Etot"
                     break
+        if etype is None:
+            for line in emin_lines:
+                if "Iter:" in line:
+                    # Assume line will have etype in "... Iter: n <etype>: num ..."
+                    etype = line.split("Iter:")[1].split(":")[0].strip().split()[-1].strip()
         return etype
 
     def set_etype_from_emin_lines(self, emin_lines: list[str]) -> None:
@@ -457,7 +462,9 @@ class JOutStructure(Structure):
         """Parse lattice lines.
 
         Parse the lines of text corresponding to the lattice vectors of a
-        JDFTx out file.
+        JDFTx out file. Collects the lattice matrix "r" as a 3x3 numpy array first
+        in column-major order (vec i = r[:,i]), then transposes it to row-major
+        order (vec i = r[i,:]) and converts from Bohr to Angstroms.
 
         Parameters
         ----------
@@ -475,7 +482,7 @@ class JOutStructure(Structure):
         """Parse strain lines.
 
         Parse the lines of text corresponding to the strain tensor of a
-        JDFTx out file.
+        JDFTx out file. Converts from column-major to row-major order.
 
         Parameters
         ----------
@@ -483,6 +490,8 @@ class JOutStructure(Structure):
             A list of lines of text from a JDFTx out file containing the
             strain tensor
         """
+        # TODO: Strain is a unitless quantity, so column to row-major conversion
+        # should cover all unit conversion. Double check if this is true.
         st = None
         if len(strain_lines):
             st = _brkt_list_of_3x3_to_nparray(strain_lines, i_start=1)
@@ -501,6 +510,9 @@ class JOutStructure(Structure):
             A list of lines of text from a JDFTx out file containing the
             stress tensor
         """
+        # TODO: Lattice optimizations dump stress in cartesian coordinates in units
+        # "[Eh/a0^3]" (Hartree per bohr cubed). Check if this changes for direct
+        # coordinates before writing in proper unit conversion to eV/A^3.
         st = None
         if len(stress_lines):
             st = _brkt_list_of_3x3_to_nparray(stress_lines, i_start=1)
@@ -516,7 +528,12 @@ class JOutStructure(Structure):
         Parameters
         ----------
         posns_lines: list[str]
-            A list of lines of text from a JDFTx out file
+            A list of lines of text from a JDFTx out file. Collected lines will
+            start with the string "# Ionic positions in ..." (specifying either
+            cartesian or direct coordinates), followed by a line for each ion (atom)
+            in the format "ion_name x y z sd", where ion_name is the name of the element,
+            and sd is a flag indicating whether the ion is excluded from optimization (1)
+             or not (0).
         """
         if len(posns_lines):
             natoms = len(posns_lines) - 1
@@ -580,7 +597,10 @@ class JOutStructure(Structure):
         Parameters
         ----------
         ecomp_lines: list[str]
-            A list of lines of text from a JDFTx out file
+            A list of lines of text from a JDFTx out file. All lines will either be
+            the header line, a break line of only "...---...", or a line of the form
+            "component = value" where component is the name of the energy component
+            and value is the value of the energy component in Hartrees.
         """
         self.ecomponents = {}
         key = None

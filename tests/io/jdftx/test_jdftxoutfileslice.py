@@ -70,7 +70,8 @@ def test_jdftxoutfileslice_trajectory():
     joutslice = JDFTXOutfileSlice.from_out_slice(ex_slice1)
     traj = joutslice.trajectory
     assert isinstance(traj, Trajectory)
-    joutslice.jsettings_lattice.niterations = None
+    del joutslice.jsettings_lattice.params["niterations"]
+    # joutslice.jsettings_lattice.params["niterations"] = None
     with pytest.raises(ValueError, match=re.escape("Unknown issue due to partial initialization of settings objects.")):
         traj = joutslice.trajectory
 

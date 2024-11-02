@@ -9,7 +9,8 @@ SRC_TXT_PATH = "src/pymatgen.egg-info/SOURCES.txt"
 
 
 @pytest.mark.skipif(
-    not os.path.isfile(SRC_TXT_PATH), reason=f"{SRC_TXT_PATH=} not found. Run `pip install .` to create"
+    not os.path.isfile(SRC_TXT_PATH),
+    reason=f"{SRC_TXT_PATH=} not found. Run `pip install .` to create",
 )
 def test_egg_sources_txt_is_complete():
     """Check that all source and data files in pymatgen/ are listed in pymatgen.egg-info/SOURCES.txt."""
