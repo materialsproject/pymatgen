@@ -24,7 +24,7 @@ from ruamel.yaml import YAML
 from scipy.spatial import Voronoi
 
 from pymatgen.analysis.bond_valence import BV_PARAMS, BVAnalyzer
-from pymatgen.analysis.graphs import MoleculeGraph, StructureGraph
+from pymatgen.analysis.graphs import StructureGraph
 from pymatgen.analysis.molecule_structure_comparator import CovalentRadius
 from pymatgen.core import Element, IStructure, PeriodicNeighbor, PeriodicSite, Site, Species, Structure
 
@@ -38,6 +38,7 @@ if TYPE_CHECKING:
 
     from typing_extensions import Self
 
+    from pymatgen.analysis.graphs import MoleculeGraph
     from pymatgen.core.composition import SpeciesLike
     from pymatgen.util.typing import Tuple3Ints
 
@@ -1526,6 +1527,9 @@ class OpenBabelNN(NearNeighbors):
         Returns:
             MoleculeGraph: object from pymatgen.analysis.graphs
         """
+        # requires optional dependency which is why it's not a top-level import
+        from pymatgen.analysis.graphs import MoleculeGraph
+
         if decorate:
             # Decorate all sites in the underlying structure
             # with site properties that provides information on the
@@ -1678,6 +1682,9 @@ class CovalentBondNN(NearNeighbors):
         Returns:
             MoleculeGraph: object from pymatgen.analysis.graphs
         """
+        # requires optional dependency which is why it's not a top-level import
+        from pymatgen.analysis.graphs import MoleculeGraph
+
         if decorate:
             # Decorate all sites in the underlying structure
             # with site properties that provides information on the
