@@ -34,6 +34,7 @@ from pymatgen.io.jdftx.utils import (
     find_first_range_key,
     find_key,
     find_key_first,
+    get_colon_var_t1,
     get_pseudo_read_section_bounds,
     key_exists,
 )
@@ -113,7 +114,7 @@ class JDFTXOutfileSlice(ClassPrintFormatter):
     rhocut: float | None = None
 
     pp_type: str | None = None
-    total_electrons: float | None = None
+    # total_electrons: float | None = None
     semicore_electrons: int | None = None
     valence_electrons: float | None = None
     total_electrons_uncharged: int | None = None
@@ -136,6 +137,11 @@ class JDFTXOutfileSlice(ClassPrintFormatter):
     is_gc: bool | None = None
     is_bgw: bool = False
     has_eigstats: bool = False
+    parsable_pseudos: ClassVar[list[str]] = ["GBRV", "SG15"]
+    has_parsable_pseudo: bool = False
+
+    total_electrons_backup: int | None = None
+    mu_backup: int | None = None
 
     @property
     def t_s(self) -> float | None:
@@ -226,7 +232,7 @@ class JDFTXOutfileSlice(ClassPrintFormatter):
     ###########################################################################
 
     @property
-    def eiter_type(self) -> str:
+    def eiter_type(self) -> str | None:
         """
         Return eiter_type from most recent JOutStructure.
 
@@ -248,7 +254,7 @@ class JDFTXOutfileSlice(ClassPrintFormatter):
         raise AttributeError("Property elecmindata inaccessible due to empty jstrucs class field")
 
     @property
-    def stress(self) -> np.ndarray:
+    def stress(self) -> np.ndarray | None:
         """
         Return stress from most recent JOutStructure.
 
@@ -259,7 +265,7 @@ class JDFTXOutfileSlice(ClassPrintFormatter):
         raise AttributeError("Property stress inaccessible due to empty jstrucs class field")
 
     @property
-    def strain(self) -> np.ndarray:
+    def strain(self) -> np.ndarray | None:
         """
         Return strain from most recent JOutStructure.
 
@@ -270,7 +276,7 @@ class JDFTXOutfileSlice(ClassPrintFormatter):
         raise AttributeError("Property strain inaccessible due to empty jstrucs class field")
 
     @property
-    def nstep(self) -> int:
+    def nstep(self) -> int | None:
         """
         Return (geometric) nstep from most recent JOutStructure.
 
@@ -281,7 +287,7 @@ class JDFTXOutfileSlice(ClassPrintFormatter):
         raise AttributeError("Property nstep inaccessible due to empty jstrucs class field")
 
     @property
-    def e(self) -> float:
+    def e(self) -> float | None:
         """
         Return E from most recent JOutStructure.
 
@@ -292,7 +298,7 @@ class JDFTXOutfileSlice(ClassPrintFormatter):
         raise AttributeError("Property e inaccessible due to empty jstrucs class field")
 
     @property
-    def grad_k(self) -> float:
+    def grad_k(self) -> float | None:
         """
         Return (geometric) grad_k from most recent JOutStructure.
 
@@ -303,7 +309,7 @@ class JDFTXOutfileSlice(ClassPrintFormatter):
         raise AttributeError("Property grad_k inaccessible due to empty jstrucs class field")
 
     @property
-    def alpha(self) -> float:
+    def alpha(self) -> float | None:
         """
         Return (geometric) alpha from most recent JOutStructure.
 
@@ -314,7 +320,7 @@ class JDFTXOutfileSlice(ClassPrintFormatter):
         raise AttributeError("Property alpha inaccessible due to empty jstrucs class field")
 
     @property
-    def linmin(self) -> float:
+    def linmin(self) -> float | None:
         """
         Return (geometric) linmin from most recent JOutStructure.
 
@@ -325,7 +331,7 @@ class JDFTXOutfileSlice(ClassPrintFormatter):
         raise AttributeError("Property linmin inaccessible due to empty jstrucs class field")
 
     @property
-    def nelectrons(self) -> float:
+    def nelectrons(self) -> float | None:
         """
         Return nelectrons from most recent JOutStructure.
 
@@ -358,15 +364,19 @@ class JDFTXOutfileSlice(ClassPrintFormatter):
         raise AttributeError("Property tot_magneticmoment inaccessible due to empty jstrucs class field")
 
     @property
-    def mu(self) -> float:
+    def mu(self) -> float | None:
         """
         Return mu from most recent JOutStructure.
 
         Return mu from most recent JOutStructure. (Equivalent to efermi)
         """
+        _mu = None
         if self.jstrucs is not None:
-            return self.jstrucs.mu
-        raise AttributeError("Property mu inaccessible due to empty jstrucs class field")
+            _mu = self.jstrucs.mu
+        if _mu is None:
+            _mu = self.mu_backup
+        return _mu
+        # raise AttributeError("Property mu inaccessible due to empty jstrucs class field")
 
     ###########################################################################
     # Electronic properties inherited from most recent JElSteps with symbol
@@ -374,7 +384,7 @@ class JDFTXOutfileSlice(ClassPrintFormatter):
     ###########################################################################
 
     @property
-    def elec_nstep(self) -> int:
+    def elec_nstep(self) -> int | None:
         """Return the most recent electronic iteration.
 
         Return the most recent electronic iteration.
@@ -388,7 +398,7 @@ class JDFTXOutfileSlice(ClassPrintFormatter):
         raise AttributeError("Property elec_nstep inaccessible due to empty jstrucs class field")
 
     @property
-    def elec_e(self) -> float:
+    def elec_e(self) -> float | None:
         """Return the most recent electronic energy.
 
         Return the most recent electronic energy.
@@ -463,6 +473,7 @@ class JDFTXOutfileSlice(ClassPrintFormatter):
         instance.set_min_settings(text)
         instance.set_geomopt_vars(text)
         instance.set_jstrucs(text)
+        instance.set_backup_vars(text)
         instance.prefix = instance.get_prefix(text)
         spintype, nspin = instance.get_spinvars(text)
         instance.xc_func = instance.get_xc_func(text)
@@ -482,7 +493,7 @@ class JDFTXOutfileSlice(ClassPrintFormatter):
         instance.set_orb_fillings()
         instance.is_metal = instance.determine_is_metal()
         instance.set_fluid(text)
-        instance.set_total_electrons(text)
+        # instance.set_total_electrons(text)
         instance.set_nbands(text)
         instance.set_atom_vars(text)
         instance.set_pseudo_vars(text)
@@ -492,11 +503,10 @@ class JDFTXOutfileSlice(ClassPrintFormatter):
         # @ Cooper added @#
         instance.is_gc = key_exists("target-mu", text)
         instance.set_ecomponents(text)
-        # instance._build_trajectory(templines)
 
         return instance
 
-    def get_xc_func(self, text: list[str]) -> str:
+    def get_xc_func(self, text: list[str]) -> str | None:
         """Get the exchange-correlation functional used in the calculation.
 
         Get the exchange-correlation functional used in the calculation.
@@ -512,6 +522,8 @@ class JDFTXOutfileSlice(ClassPrintFormatter):
             exchange-correlation functional used
         """
         line = find_key("elec-ex-corr", text)
+        if line is None:
+            return None
         return text[line].strip().split()[-1].strip()
 
     def get_prefix(self, text: list[str]) -> str | None:
@@ -531,6 +543,8 @@ class JDFTXOutfileSlice(ClassPrintFormatter):
         """
         # prefix = None
         line = find_key("dump-name", text)
+        if line is None:
+            return None
         dumpname = text[line].split()[1]
         return dumpname.split(".")[0] if "." in dumpname else dumpname
 
@@ -618,6 +632,8 @@ class JDFTXOutfileSlice(ClassPrintFormatter):
             "Isolated": "box",
         }
         line = find_key("coulomb-interaction", text)
+        if line is None:
+            return None, None
         truncation_type = None
         truncation_radius = None
         if line is not None:
@@ -641,7 +657,7 @@ class JDFTXOutfileSlice(ClassPrintFormatter):
             raise ValueError("No truncation type found in out file.")
         return truncation_type, truncation_radius
 
-    def get_pw_cutoff(self, text: list[str]) -> float:
+    def get_pw_cutoff(self, text: list[str]) -> float | None:
         """Get the electron cutoff from the out file text.
 
         Get the electron cutoff from the out file text.
@@ -657,9 +673,11 @@ class JDFTXOutfileSlice(ClassPrintFormatter):
             plane wave cutoff used in calculation
         """
         line = find_key("elec-cutoff ", text)
+        if line is None:
+            return None
         return float(text[line].split()[1]) * Ha_to_eV
 
-    def get_rho_cutoff(self, text: list[str]) -> float:
+    def get_rho_cutoff(self, text: list[str]) -> float | None:
         """Get the electron cutoff from the out file text.
 
         Get the electron cutoff from the out file text.
@@ -675,16 +693,18 @@ class JDFTXOutfileSlice(ClassPrintFormatter):
             electron density cutoff used in calculation
         """
         line = find_key("elec-cutoff ", text)
+        if line is None:
+            return None
         lsplit = text[line].split()
         if len(lsplit) == 3:
             rhocut = float(lsplit[2]) * Ha_to_eV
         else:
             if self.pwcut is None:
                 self.pwcut = self.get_pw_cutoff(text)
-            rhocut = float(self.pwcut * 4)
+            rhocut = None if self.pwcut is None else float(self.pwcut * 4)
         return rhocut
 
-    def get_fftgrid(self, text: list[str]) -> list[int]:
+    def get_fftgrid(self, text: list[str]) -> list[int] | None:
         """Get the FFT grid from the out file text.
 
         Get the FFT grid from the out file text.
@@ -700,9 +720,11 @@ class JDFTXOutfileSlice(ClassPrintFormatter):
             FFT grid used in calculation
         """
         line = find_key_first("Chosen fftbox size", text)
+        if line is None:
+            return None
         return [int(x) for x in text[line].split()[6:9]]
 
-    def get_kgrid(self, text: list[str]) -> list[int]:
+    def get_kgrid(self, text: list[str]) -> list[int] | None:
         """Get the kpoint grid from the out file text.
 
         Get the kpoint grid from the out file text.
@@ -718,6 +740,8 @@ class JDFTXOutfileSlice(ClassPrintFormatter):
             kpoint grid used in calculation
         """
         line = find_key("kpoint-folding ", text)
+        if line is None:
+            return None
         return [int(x) for x in text[line].split()[1:4]]
 
     def get_eigstats_varsdict(self, text: list[str], prefix: str | None) -> dict[str, float | None]:
@@ -777,14 +801,10 @@ class JDFTXOutfileSlice(ClassPrintFormatter):
         self.lumo = eigstats["lumo"]
         self.emax = eigstats["emax"]
         self.egap = eigstats["egap"]
-        if not self.has_eigstats:
-            # TODO: Check if any other variables need to be set
-            if self.mu is not None:
-                self.efermi = self.mu
-            else:
-                raise RuntimeError("Variable mu not found to replace variable efermi")
+        if (not self.has_eigstats) and (self.mu is not None):
+            self.efermi = self.mu
 
-    def get_pp_type(self, text: list[str]) -> str:
+    def get_pp_type(self, text: list[str]) -> str | None:
         """Get the pseudopotential type used in calculation.
 
         Get the pseudopotential type used in calculation.
@@ -797,13 +817,14 @@ class JDFTXOutfileSlice(ClassPrintFormatter):
         Returns
         -------
         pptype: str
-            Pseudopotential library used
+            Pseudopotential library used. Returns None if not GBRV or SG15
+            (pseudopotentials parsable by this parser)
         """
         skey = "Reading pseudopotential file"
         line = find_key(skey, text)
         ppfile_example = text[line].split(skey)[1].split(":")[0].strip("'").strip()
         pptype = None
-        readable = ["GBRV", "SG15"]
+        readable = self.parsable_pseudos
         for _pptype in readable:
             if _pptype in ppfile_example:
                 if pptype is not None:
@@ -813,8 +834,8 @@ class JDFTXOutfileSlice(ClassPrintFormatter):
                         pass
                 else:
                     pptype = _pptype
-        if pptype is None:
-            raise ValueError(f"Could not determine pseudopotential type from file name {ppfile_example}")
+        if pptype is not None:
+            self.has_parsable_pseudo = True
         return pptype
 
     def set_pseudo_vars(self, text: list[str]) -> None:
@@ -828,18 +849,15 @@ class JDFTXOutfileSlice(ClassPrintFormatter):
             output of read_file for out file
         """
         self.pp_type = self.get_pp_type(text)
-        if self.pp_type in ["SG15", "GBRV"]:
+        if self.has_parsable_pseudo and self.pp_type in ["GBRV", "SG15"]:
             self.set_pseudo_vars_t1(text)
-        else:
-            raise NotImplementedError(
-                "Outfile parsing requires SG15 or\
-                                       GBRV pseudos"
-            )
+        # Otherwise variables requiring parsing pseudopotential output will
+        # be kept as None
 
     def set_pseudo_vars_t1(self, text: list[str]) -> None:
-        """Set the pseudopotential variables for SG15 pseudopotentials.
+        """Set the pseudopotential variables for SG15 and GBRV pseudopotentials.
 
-        Set the pseudopotential variables for SG15 pseudopotentials.
+        Set the pseudopotential variables for SG15 and GBRV pseudopotentials.
 
         Parameters
         ----------
@@ -864,13 +882,10 @@ class JDFTXOutfileSlice(ClassPrintFormatter):
             raise ValueError("Pseuopotential data cannot be allocated without atom types.")
         if self.atom_elements is None:
             raise ValueError("Atom elements not set yet.")
-        # total_elec_dict = dict(zip(self.atom_types, atom_total_elec, strict=False))
         # Explicit zipping due to pre-commit in three lines below
         element_total_electrons = np.array([total_elec_dict[x] for x in self.atom_elements])
         pmg_elements = [Element(x) for x in self.atom_elements]
-        # element_valence_electrons = np.array([get_atom_valence_electrons(x) for x in self.atom_elements])
         element_valence_electrons = np.array([np.sum(np.array([v[1] for v in el.valences])) for el in pmg_elements])
-        # element_valence_electrons = np.array([atom_valence_electrons[x] for x in self.atom_elements])
         element_semicore_electrons = element_total_electrons - element_valence_electrons
         self.total_electrons_uncharged = np.sum(element_total_electrons)
         self.valence_electrons_uncharged = np.sum(element_valence_electrons)
@@ -1016,6 +1031,35 @@ class JDFTXOutfileSlice(ClassPrintFormatter):
         if self.etype is None:
             self.etype = self.jstrucs[-1].etype
 
+    def set_backup_vars(self, text: list[str]) -> None:
+        """Set backups for important variables.
+
+        Set backup versions of critical variables if missing from constructed
+        jstrucs (that can be easily fetched through type-casting strings)
+
+        Parameters
+        ----------
+            text: list[str]
+                output of read_file for out file
+        """
+        if self.total_electrons is None:
+            lines = find_all_key("nElectrons", text)
+            val = None
+            for line in lines[::-1]:
+                val = get_colon_var_t1(text[line], "nElectrons:")
+                if val is not None:
+                    break
+            self.total_electrons_backup = val
+
+        if self.mu is None:
+            lines = find_all_key("mu", text)
+            val = None
+            for line in lines[::-1]:
+                val = get_colon_var_t1(text[line], "mu:")
+                if val is not None:
+                    break
+            self.mu_backup = val
+
     def set_orb_fillings_nobroad(self, nspin: float) -> None:
         """Set the orbital fillings without broadening.
 
@@ -1086,18 +1130,34 @@ class JDFTXOutfileSlice(ClassPrintFormatter):
         ]  # This allows self.fluid to be set to the string "None", which is distinct
         # from the None built-in, as it signifies the fluid line was properly read but there is no fluid.
 
-    def set_total_electrons(self, text: list[str]) -> None:
-        """Set the total_Electrons class variable.
+    # def set_total_electrons(self, text: list[str]) -> None:
+    #     """Set the total_Electrons class variable.
 
-        Set the total_electrons class variable.
+    #     Set the total_electrons class variable.
 
-        Parameters
-        ----------
-        text: list[str]
-            output of read_file for out file
+    #     Parameters
+    #     ----------
+    #     text: list[str]
+    #         output of read_file for out file
+    #     """
+    #     if (self.jstrucs is not None) and (self.total_electrons is None):
+    #         self.total_electrons = self.nelectrons
+
+    @property
+    def total_electrons(self) -> float | None:
         """
+        Return total_electrons from most recent JOutStructure.
+
+        Return total_electrons from most recent JOutStructure.
+        """
+        tot_elec = None
         if self.jstrucs is not None:
-            self.total_electrons = self.jstrucs.nelectrons
+            _tot_elec = self.jstrucs.nelectrons
+            if _tot_elec is not None:
+                tot_elec = _tot_elec
+        if (tot_elec is None) and (self.total_electrons_backup is not None):
+            tot_elec = self.total_electrons_backup
+        return tot_elec
 
     def set_nbands(self, text: list[str]) -> None:
         """Set the Nbands class variable.
@@ -1144,11 +1204,6 @@ class JDFTXOutfileSlice(ClassPrintFormatter):
             if x not in atom_types:
                 atom_types.append(x)
         self.atom_elements = atom_elements
-        # mapping_dict = dict(zip(atom_types, range(1, len(atom_types) + 1), strict=False))
-        # Below sets mapping_dict identical to above line, but is allowed by pre-commit
-        # mapping_dict = {}
-        # for atom_type in atom_types:
-        #     mapping_dict[atom_type] = atom_valence_electrons[atom_type]
         self.atom_elements_int = [Element(x).Z for x in self.atom_elements]
         self.atom_types = atom_types
         line = find_key("# Ionic positions in", text) + 1
@@ -1228,7 +1283,6 @@ class JDFTXOutfileSlice(ClassPrintFormatter):
             filling = 0.5 * (1 - math.erf(x + 0.5**0.5)) + np.exp(-1 * (x + 0.5**0.5) ** 2) / (2 * np.pi) ** 0.5
         else:
             raise NotImplementedError("Have not added other broadening types")
-
         return filling
 
     def _determine_is_metal(self, tol_partial: float, nspin: int, homo_filling: float, lumo_filling: float) -> bool:

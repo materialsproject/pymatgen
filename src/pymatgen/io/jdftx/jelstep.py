@@ -5,6 +5,7 @@ This module contains the JElStep class for parsing single SCF step from a JDFTx 
 
 from __future__ import annotations
 
+import inspect
 import warnings
 from dataclasses import dataclass, field
 from typing import Any, ClassVar
@@ -301,7 +302,7 @@ class JElSteps:
     ]
 
     @property
-    def nstep(self) -> int:
+    def nstep(self) -> int | None:
         """Return nstep.
 
         Return the nstep attribute of the last JElStep object in the slices.
@@ -319,7 +320,7 @@ class JElSteps:
         raise AttributeError("No JElStep objects in JElSteps object slices class variable.")
 
     @property
-    def e(self) -> float:
+    def e(self) -> float | None:
         """Return total electronic energy.
 
         Return the e attribute of the last JElStep object in the slices.
@@ -330,9 +331,7 @@ class JElSteps:
             The e attribute of the last JElStep object in the slices
         """
         if len(self.slices):
-            if self.slices[-1].e is not None:
-                return self.slices[-1].e
-            raise AttributeError("No E attribute in final JElStep object.")
+            return self.slices[-1].e
         raise AttributeError("No JElStep objects in JElSteps object slices class variable.")
 
     @property
@@ -381,7 +380,7 @@ class JElSteps:
         raise AttributeError("No JElStep objects in JElSteps object slices class variable.")
 
     @property
-    def t_s(self) -> float:
+    def t_s(self) -> float | None:
         """Return most recent t_s.
 
         Return the t_s attribute of the last JElStep object in the slices.
@@ -392,13 +391,11 @@ class JElSteps:
             The t_s attribute of the last JElStep object in the slices
         """
         if len(self.slices):
-            if self.slices[-1].t_s is not None:
-                return self.slices[-1].t_s
-            raise AttributeError("No t_s attribute in final JElStep object.")
+            return self.slices[-1].t_s
         raise AttributeError("No JElStep objects in JElSteps object slices class variable.")
 
     @property
-    def mu(self) -> float:
+    def mu(self) -> float | None:
         """Return most recent mu.
 
         Return the mu attribute of the last JElStep object in the slices.
@@ -409,13 +406,11 @@ class JElSteps:
             The mu attribute of the last JElStep object in the slices
         """
         if len(self.slices):
-            if self.slices[-1].mu is not None:
-                return self.slices[-1].mu
-            raise AttributeError("No mu attribute in final JElStep object.")
+            return self.slices[-1].mu
         raise AttributeError("No JElStep objects in JElSteps object slices class variable.")
 
     @property
-    def nelectrons(self) -> float:
+    def nelectrons(self) -> float | None:
         """Return most recent nelectrons.
 
         Return the nelectrons attribute of the last JElStep object in the slices.
@@ -426,9 +421,7 @@ class JElSteps:
             The nelectrons attribute of the last JElStep object in the slices
         """
         if len(self.slices):
-            if self.slices[-1].nelectrons is not None:
-                return self.slices[-1].nelectrons
-            raise AttributeError("No nelectrons attribute in final JElStep object.")
+            return self.slices[-1].nelectrons
         raise AttributeError("No JElStep objects in JElSteps object slices class variable.")
 
     @property
@@ -462,7 +455,7 @@ class JElSteps:
         raise AttributeError("No JElStep objects in JElSteps object slices class variable.")
 
     @property
-    def subspacerotationadjust(self) -> float:
+    def subspacerotationadjust(self) -> float | None:
         """Return most recent subspacerotationadjust.
 
         Return the subspacerotationadjust attribute of the last JElStep object in the slices.
@@ -473,9 +466,7 @@ class JElSteps:
             The subspacerotationadjust attribute of the last JElStep object in the slices
         """
         if len(self.slices):
-            if self.slices[-1].subspacerotationadjust is not None:
-                return self.slices[-1].subspacerotationadjust
-            raise AttributeError("No subspacerotationadjust attribute in final JElStep object.")
+            return self.slices[-1].subspacerotationadjust
         raise AttributeError("No JElStep objects in JElSteps object slices class variable.")
 
     @classmethod
@@ -578,13 +569,27 @@ class JElSteps:
         value
             The value of the attribute
         """
-        if len(self.slices):
-            if name not in self._getatr_ignore:
-                if not hasattr(self.slices[-1], name):
-                    raise AttributeError(f"{self.__class__.__name__} not found: {name}")
-                return getattr(self.slices[-1], name)
-            raise AttributeError(f"Property {name} inaccessible due to empty slices class field")
-        raise AttributeError(f"Property {name} inaccessible due to empty slices class field")
+        # if len(self.slices):
+        #     if name not in self._getatr_ignore:
+        #         if not hasattr(self.slices[-1], name):
+        #             raise AttributeError(f"{self.__class__.__name__} not found: {name}")
+        #         return getattr(self.slices[-1], name)
+        #     raise AttributeError(f"Property {name} inaccessible due to empty slices class field")
+        # raise AttributeError(f"Property {name} inaccessible due to empty slices class field")
+        if name in self.__dict__:
+            return self.__dict__[name]
+
+        # Check if the attribute is a property of the class
+        for cls in inspect.getmro(self.__class__):
+            if name in cls.__dict__ and isinstance(cls.__dict__[name], property):
+                return cls.__dict__[name].__get__(self)
+
+        # Check if the attribute is in self.jstrucs
+        if hasattr(self.slices[-1], name):
+            return getattr(self.slices[-1], name)
+
+        # If the attribute is not found in either, raise an AttributeError
+        raise AttributeError(f"{self.__class__.__name__} not found: {name}")
 
     def __getitem__(self, key: int | str) -> JElStep | Any:
         """Return item.

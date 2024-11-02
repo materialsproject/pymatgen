@@ -6,6 +6,7 @@ JOutStructure.
 
 from __future__ import annotations
 
+import inspect
 from dataclasses import dataclass, field
 from typing import TYPE_CHECKING, Any
 
@@ -94,7 +95,7 @@ class JOutStructures:
     ###########################################################################
 
     @property
-    def etype(self) -> str:
+    def etype(self) -> str | None:
         """
         Return etype from most recent JOutStructure.
 
@@ -105,7 +106,7 @@ class JOutStructures:
         raise AttributeError("Property etype inaccessible due to empty slices class field")
 
     @property
-    def eiter_type(self) -> str:
+    def eiter_type(self) -> str | None:
         """
         Return eiter_type from most recent JOutStructure.
 
@@ -116,7 +117,7 @@ class JOutStructures:
         raise AttributeError("Property eiter_type inaccessible due to empty slices class field")
 
     @property
-    def emin_flag(self) -> str:
+    def emin_flag(self) -> str | None:
         """
         Return emin_flag from most recent JOutStructure.
 
@@ -127,7 +128,7 @@ class JOutStructures:
         raise AttributeError("Property emin_flag inaccessible due to empty slices class field")
 
     @property
-    def ecomponents(self) -> dict:
+    def ecomponents(self) -> dict | None:
         """
         Return ecomponents from most recent JOutStructure.
 
@@ -138,7 +139,7 @@ class JOutStructures:
         raise AttributeError("Property ecomponents inaccessible due to empty slices class field")
 
     @property
-    def elecmindata(self) -> JElSteps:
+    def elecmindata(self) -> JElSteps | None:
         """
         Return elecmindata from most recent JOutStructure.
 
@@ -171,7 +172,7 @@ class JOutStructures:
         raise AttributeError("Property strain inaccessible due to empty slices class field")
 
     @property
-    def nstep(self) -> int:
+    def nstep(self) -> int | None:
         """
         Return nstep from most recent JOutStructure.
 
@@ -182,7 +183,7 @@ class JOutStructures:
         raise AttributeError("Property nstep inaccessible due to empty slices class field")
 
     @property
-    def e(self) -> float:
+    def e(self) -> float | None:
         """
         Return E from most recent JOutStructure.
 
@@ -226,7 +227,7 @@ class JOutStructures:
         raise AttributeError("Property linmin inaccessible due to empty slices class field")
 
     @property
-    def nelectrons(self) -> float:
+    def nelectrons(self) -> float | None:
         """
         Return nelectrons from most recent JOutStructure.
 
@@ -259,7 +260,7 @@ class JOutStructures:
         raise AttributeError("Property tot_magneticmoment inaccessible due to empty slices class field")
 
     @property
-    def mu(self) -> float:
+    def mu(self) -> float | None:
         """
         Return mu from most recent JOutStructure.
 
@@ -275,7 +276,7 @@ class JOutStructures:
     ###########################################################################
 
     @property
-    def elec_nstep(self) -> int:
+    def elec_nstep(self) -> int | None:
         """Return the most recent electronic iteration.
 
         Return the most recent electronic iteration.
@@ -289,7 +290,7 @@ class JOutStructures:
         raise AttributeError("Property elec_nstep inaccessible due to empty slices class field")
 
     @property
-    def elec_e(self) -> float:
+    def elec_e(self) -> float | None:
         """Return the most recent electronic energy.
 
         Return the most recent electronic energy.
@@ -313,7 +314,7 @@ class JOutStructures:
         grad_k: float
         """
         if len(self.slices):
-            return self.slices[-1].grad_k
+            return self.slices[-1].elec_grad_k
         raise AttributeError("Property grad_k inaccessible due to empty slices class field")
 
     @property
@@ -327,7 +328,7 @@ class JOutStructures:
         alpha: float
         """
         if len(self.slices):
-            return self.slices[-1].alpha
+            return self.slices[-1].elec_alpha
         raise AttributeError("Property alpha inaccessible due to empty slices class field")
 
     @property
@@ -341,7 +342,7 @@ class JOutStructures:
         linmin: float
         """
         if len(self.slices):
-            return self.slices[-1].linmin
+            return self.slices[-1].elec_linmin
         raise AttributeError("Property linmin inaccessible due to empty slices class field")
 
     def get_joutstructure_list(self, out_slice: list[str]) -> list[JOutStructure]:
@@ -408,16 +409,21 @@ class JOutStructures:
         value
             The value of the attribute
         """
-        if len(self.slices):
-            if not hasattr(self.slices[-1], name):
-                raise AttributeError(f"{self.__class__.__name__} not found: {name}")
-            return getattr(self.slices[-1], name)
-        raise AttributeError(f"Property {name} inaccessible due to empty slices class field")
+        if name in self.__dict__:
+            return self.__dict__[name]
 
-    # # This method is likely never going to be called as all (currently existing)
-    # # attributes of the most recent slice are explicitly defined as a class
-    # # property. However, it is included to reduce the likelihood of errors
-    # # upon future changes to downstream code.
+        # Check if the attribute is a property of the class
+        for cls in inspect.getmro(self.__class__):
+            if name in cls.__dict__ and isinstance(cls.__dict__[name], property):
+                return cls.__dict__[name].__get__(self)
+
+        # Check if the attribute is in self.jstrucs
+        if hasattr(self.slices[-1], name):
+            return getattr(self.slices[-1], name)
+
+        # If the attribute is not found in either, raise an AttributeError
+        raise AttributeError(f"{self.__class__.__name__} not found: {name}")
+
     # def __getattr__(self, name: str) -> Any:
     #     """Return attribute value.
 
@@ -433,38 +439,29 @@ class JOutStructures:
     #     value
     #         The value of the attribute
     #     """
-    #     if name in self.__dict__:
-    #         return self.__dict__[name]
-
-    #     # Check if the attribute is a property of the class
-    #     for cls in inspect.getmro(self.__class__):
-    #         if name in cls.__dict__ and isinstance(cls.__dict__[name], property):
-    #             return cls.__dict__[name].__get__(self)
-
-    #     # Check if the attribute is in self.jstrucs
-    #     if hasattr(self.slices[-1], name):
+    #     if len(self.slices):
+    #         if not hasattr(self.slices[-1], name):
+    #             raise AttributeError(f"{self.__class__.__name__} not found: {name}")
     #         return getattr(self.slices[-1], name)
+    #     raise AttributeError(f"Property {name} inaccessible due to empty slices class field")
 
-    #     # If the attribute is not found in either, raise an AttributeError
-    #     raise AttributeError(f"{self.__class__.__name__} not found: {name}")
+    # def __dir__(self) -> list:
+    #     """List attributes.
 
-    def __dir__(self) -> list:
-        """List attributes.
+    #     Returns a list of attributes for the object, including those from
+    #     self.slices[-1].
 
-        Returns a list of attributes for the object, including those from
-        self.slices[-1].
-
-        Returns
-        -------
-        list
-            A list of attribute names
-        """
-        # Get the default attributes
-        default_attrs = dir(self)
-        # Get the attributes from self.slices[-1] if slices is not empty
-        slice_attrs = dir(self.slices[-1]) if self.slices else []
-        # Combine and return unique attributes
-        return list(set(default_attrs + slice_attrs))
+    #     Returns
+    #     -------
+    #     list
+    #         A list of attribute names
+    #     """
+    #     # Get the default attributes
+    #     default_attrs = dir(self)
+    #     # Get the attributes from self.slices[-1] if slices is not empty
+    #     slice_attrs = dir(self.slices[-1]) if self.slices else []
+    #     # Combine and return unique attributes
+    #     return list(set(default_attrs + slice_attrs))
 
     def __getitem__(self, key: int | str) -> JOutStructure | Any:
         """Return item.

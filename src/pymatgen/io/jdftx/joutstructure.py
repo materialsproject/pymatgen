@@ -5,6 +5,7 @@ A mutant of the pymatgen Structure class for flexibility in holding JDFTx
 
 from __future__ import annotations
 
+import inspect
 from typing import Any, ClassVar
 
 import numpy as np
@@ -67,7 +68,7 @@ class JOutStructure(Structure):
     selective_dynamics: list[int] | None = None
 
     @property
-    def mu(self) -> float:
+    def mu(self) -> float | None:
         """Return the chemical potential.
 
         Return the chemical potential.
@@ -78,10 +79,10 @@ class JOutStructure(Structure):
         """
         if self.elecmindata is not None:
             return self.elecmindata.mu
-        raise ValueError("elecmindata not set")
+        return None
 
     @property
-    def nelectrons(self) -> float:
+    def nelectrons(self) -> float | None:
         """Return the number of electrons.
 
         Return the number of electrons.
@@ -92,7 +93,7 @@ class JOutStructure(Structure):
         """
         if self.elecmindata is not None:
             return self.elecmindata.nelectrons
-        raise ValueError("elecmindata not set")
+        return None
 
     @property
     def abs_magneticmoment(self) -> float | None:
@@ -105,7 +106,7 @@ class JOutStructure(Structure):
         abs_magneticmoment: float"""
         if self.elecmindata is not None:
             return self.elecmindata.abs_magneticmoment
-        raise ValueError("elecmindata not set")
+        return None
 
     @property
     def tot_magneticmoment(self) -> float | None:
@@ -118,10 +119,10 @@ class JOutStructure(Structure):
         tot_magneticmoment: float"""
         if self.elecmindata is not None:
             return self.elecmindata.tot_magneticmoment
-        raise ValueError("elecmindata not set")
+        return None
 
     @property
-    def elec_nstep(self) -> int:
+    def elec_nstep(self) -> int | None:
         """Return the most recent electronic iteration.
 
         Return the most recent electronic iteration.
@@ -132,10 +133,10 @@ class JOutStructure(Structure):
         """
         if self.elecmindata is not None:
             return self.elecmindata.nstep
-        raise ValueError("elecmindata not set")
+        return None
 
     @property
-    def elec_e(self) -> int:
+    def elec_e(self) -> int | None:
         """Return the most recent electronic energy.
 
         Return the most recent electronic energy.
@@ -146,7 +147,7 @@ class JOutStructure(Structure):
         """
         if self.elecmindata is not None:
             return self.elecmindata.e
-        raise ValueError("elecmindata not set")
+        return None
 
     @property
     def elec_grad_k(self) -> float | None:
@@ -160,7 +161,7 @@ class JOutStructure(Structure):
         """
         if self.elecmindata is not None:
             return self.elecmindata.grad_k
-        raise ValueError("elecmindata not set")
+        return None
 
     @property
     def elec_alpha(self) -> float | None:
@@ -174,7 +175,7 @@ class JOutStructure(Structure):
         """
         if self.elecmindata is not None:
             return self.elecmindata.alpha
-        raise ValueError("elecmindata not set")
+        return None
 
     @property
     def elec_linmin(self) -> float | None:
@@ -188,7 +189,7 @@ class JOutStructure(Structure):
         """
         if self.elecmindata is not None:
             return self.elecmindata.linmin
-        raise ValueError("elecmindata not set")
+        return None
 
     def __init__(
         self,
@@ -237,25 +238,26 @@ class JOutStructure(Structure):
         instance.iter_type = iter_type
         instance.emin_flag = emin_flag
         line_collections = instance.init_line_collections()
-        for line in text_slice:
-            read_line = False
-            for line_type in line_collections:
-                sdict = line_collections[line_type]
-                if sdict["collecting"]:
-                    lines, getting, got = instance.collect_generic_line(line, sdict["lines"])
-                    sdict["lines"] = lines
-                    sdict["collecting"] = getting
-                    sdict["collected"] = got
-                    read_line = True
-                    break
-            if not read_line:
-                for line_type in line_collections:
-                    if (not line_collections[line_type]["collected"]) and instance.is_generic_start_line(
-                        line, line_type
-                    ):
-                        line_collections[line_type]["collecting"] = True
-                        line_collections[line_type]["lines"].append(line)
-                        break
+        line_collections = instance.gather_line_collections(line_collections, text_slice)
+        # for line in text_slice:
+        #     read_line = False
+        #     for line_type in line_collections:
+        #         sdict = line_collections[line_type]
+        #         if sdict["collecting"]:
+        #             lines, getting, got = instance.collect_generic_line(line, sdict["lines"])
+        #             sdict["lines"] = lines
+        #             sdict["collecting"] = getting
+        #             sdict["collected"] = got
+        #             read_line = True
+        #             break
+        #     if not read_line:
+        #         for line_type in line_collections:
+        #             if (not line_collections[line_type]["collected"]) and instance.is_generic_start_line(
+        #                 line, line_type
+        #             ):
+        #                 line_collections[line_type]["collecting"] = True
+        #                 line_collections[line_type]["lines"].append(line)
+        #                 break
 
         # ecomponents needs to be parsed before emin to set etype
         instance.parse_ecomp_lines(line_collections["ecomp"]["lines"])
@@ -274,7 +276,7 @@ class JOutStructure(Structure):
         instance.parse_opt_lines(line_collections["opt"]["lines"])
 
         # In case of single-point calculation
-        if instance.e is None:
+        if instance.e is None:  # This doesn't defer to elecmindata.e due to the existence of a class variable e
             if instance.etype is not None:
                 if instance.ecomponents is not None:
                     if instance.etype in instance.ecomponents:
@@ -309,6 +311,41 @@ class JOutStructure(Structure):
                 "collecting": False,
                 "collected": False,
             }
+        return line_collections
+
+    def gather_line_collections(self, line_collections: dict, text_slice: list[str]) -> dict:
+        """Gather line collections.
+
+        Gather lines of text from a JDFTx out file into a dictionary of line collections.
+
+        Parameters
+        ----------
+        line_collections: dict
+            A dictionary of line collections for each type of line in a JDFTx
+            out file. Assumed pre-initialized (there exists sdict["lines"]: list[str],
+            sdict["collecting"]: bool, sdict["collected"]: bool for every sdict = line_collections[line_type])
+
+        text_slice: list[str]
+            A slice of text from a JDFTx out file corresponding to a single
+            optimization step / SCF cycle
+        """
+        for line in text_slice:
+            read_line = False
+            for line_type in line_collections:
+                sdict = line_collections[line_type]
+                if sdict["collecting"]:
+                    lines, getting, got = self.collect_generic_line(line, sdict["lines"])
+                    sdict["lines"] = lines
+                    sdict["collecting"] = getting
+                    sdict["collected"] = got
+                    read_line = True
+                    break
+            if not read_line:
+                for line_type in line_collections:
+                    if (not line_collections[line_type]["collected"]) and self.is_generic_start_line(line, line_type):
+                        line_collections[line_type]["collecting"] = True
+                        line_collections[line_type]["lines"].append(line)
+                        break
         return line_collections
 
     def is_emin_start_line(self, line_text: str) -> bool:
@@ -378,8 +415,11 @@ class JOutStructure(Structure):
             if "G:" in line:
                 etype = "G"
                 break
-            if "Etot:" in line:
-                etype = "Etot"
+        if etype is None:
+            for line in emin_lines:
+                if "Etot:" in line:
+                    etype = "Etot"
+                    break
         if etype is None:
             for line in emin_lines:
                 if "Iter:" in line:
@@ -400,11 +440,6 @@ class JOutStructure(Structure):
             electronic minimization data
         """
         self.etype = self.get_etype_from_emin_lines(emin_lines)
-        if self.etype is None:
-            raise ValueError(
-                "Could not determine energy type from electronic minimization \
-                    data"
-            )
 
     def parse_emin_lines(self, emin_lines: list[str]) -> None:
         """Parse electronic minimization lines.
@@ -500,35 +535,29 @@ class JOutStructure(Structure):
             and sd is a flag indicating whether the ion is excluded from optimization (1)
              or not (0).
         """
-        # One line for each atom + 1 header line
-        natoms = len(posns_lines) - 1
-        # "Cartesian coordinates" or "Direct coordinates"
-        coords_type = posns_lines[0].split("positions in")[1]
-        # "Cartesian" or "Direct"
-        coords_type = coords_type.strip().split()[0].strip()
-        posns: list[np.ndarray] = []
-        names: list[str] = []
-        selective_dynamics: list[int] = []
-        for i in range(natoms):
-            line = posns_lines[i + 1]
-            name = line.split()[1].strip()
-            posn = np.array([float(x.strip()) for x in line.split()[2:5]])
-            sd = int(line.split()[5])
-            names.append(name)
-            posns.append(posn)
-            selective_dynamics.append(sd)
-        posns = np.array(posns)
-        # Convert to cartesian coordinates by taking dot product of direct coords
-        # with lattice matrix (collected in Angstroms).
-        if coords_type.lower() != "cartesian":
-            posns = np.dot(posns, self.lattice.matrix)
-        else:
-            # Convert Bohr cartesian coordinates to Angstroms
-            posns *= bohr_to_ang
-        for i in range(natoms):
-            # Append the collected sites to the structure
-            self.append(species=names[i], coords=posns[i], coords_are_cartesian=True)
-        self.selective_dynamics = selective_dynamics
+        if len(posns_lines):
+            natoms = len(posns_lines) - 1
+            coords_type = posns_lines[0].split("positions in")[1]
+            coords_type = coords_type.strip().split()[0].strip()
+            posns: list[np.ndarray] = []
+            names: list[str] = []
+            selective_dynamics: list[int] = []
+            for i in range(natoms):
+                line = posns_lines[i + 1]
+                name = line.split()[1].strip()
+                posn = np.array([float(x.strip()) for x in line.split()[2:5]])
+                sd = int(line.split()[5])
+                names.append(name)
+                posns.append(posn)
+                selective_dynamics.append(sd)
+            posns = np.array(posns)
+            if coords_type.lower() != "cartesian":
+                posns = np.dot(posns, self.lattice.matrix)
+            else:
+                posns *= bohr_to_ang
+            for i in range(natoms):
+                self.append(species=names[i], coords=posns[i], coords_are_cartesian=True)
+            self.selective_dynamics = selective_dynamics
 
     def parse_forces_lines(self, forces_lines: list[str]) -> None:
         """Parse forces lines.
@@ -541,22 +570,23 @@ class JOutStructure(Structure):
         forces_lines: list[str]
             A list of lines of text from a JDFTx out file containing the forces
         """
-        natoms = len(forces_lines) - 1
-        coords_type = forces_lines[0].split("Forces in")[1]
-        coords_type = coords_type.strip().split()[0].strip()
-        forces = []
-        for i in range(natoms):
-            line = forces_lines[i + 1]
-            force = np.array([float(x.strip()) for x in line.split()[2:5]])
-            forces.append(force)
-        forces = np.array(forces)
-        if coords_type.lower() != "cartesian":
-            # TODO: Double check if forces are ever given in direct coordinates.
-            forces = np.dot(forces, self.lattice.matrix)
-        else:
-            forces *= 1 / bohr_to_ang
-        forces *= Ha_to_eV
-        self.forces = forces
+        if len(forces_lines):
+            natoms = len(forces_lines) - 1
+            coords_type = forces_lines[0].split("Forces in")[1]
+            coords_type = coords_type.strip().split()[0].strip()
+            forces = []
+            for i in range(natoms):
+                line = forces_lines[i + 1]
+                force = np.array([float(x.strip()) for x in line.split()[2:5]])
+                forces.append(force)
+            forces = np.array(forces)
+            if coords_type.lower() != "cartesian":
+                # TODO: Double check conversion of forces from direct to cartesian
+                forces = np.dot(forces, self.lattice.matrix)
+            else:
+                forces *= 1 / bohr_to_ang
+            forces *= Ha_to_eV
+            self.forces = forces
 
     def parse_ecomp_lines(self, ecomp_lines: list[str]) -> None:
         """Parse energy component lines.
@@ -779,8 +809,22 @@ class JOutStructure(Structure):
         value
             The value of the attribute
         """
-        if name not in self.__dict__:
-            if not hasattr(self.elecmindata, name):
-                raise AttributeError(f"{self.__class__.__name__} not found: {name}")
+        # if name not in self.__dict__:
+        #     if not hasattr(self.elecmindata, name):
+        #         raise AttributeError(f"{self.__class__.__name__} not found: {name}")
+        #     return getattr(self.elecmindata, name)
+        # return self.__dict__[name]
+        if name in self.__dict__:
+            return self.__dict__[name]
+
+        # Check if the attribute is a property of the class
+        for cls in inspect.getmro(self.__class__):
+            if name in cls.__dict__ and isinstance(cls.__dict__[name], property):
+                return cls.__dict__[name].__get__(self)
+
+        # Check if the attribute is in self.jstrucs
+        if hasattr(self.elecmindata, name):
             return getattr(self.elecmindata, name)
-        return self.__dict__[name]
+
+        # If the attribute is not found in either, raise an AttributeError
+        raise AttributeError(f"{self.__class__.__name__} not found: {name}")
