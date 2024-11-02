@@ -698,7 +698,7 @@ class JOutStructure(Structure):
                     nstep = int(get_colon_var_t1(line, "Iter:"))
                     self.nstep = nstep
                     en = get_colon_var_t1(line, f"{self.etype}:")
-                    self.E = en * Ha_to_eV
+                    self.e = en * Ha_to_eV
                     grad_k = get_colon_var_t1(line, "|grad|_K: ")
                     self.grad_k = grad_k
                     alpha = get_colon_var_t1(line, "alpha: ")
