@@ -39,7 +39,7 @@ ex_slice1_known = {
     "conv": True,
     "cell_00": 6.16844 * bohr_to_ang,
     "strain_00": 10.0,
-    "stress_00": -1.69853e-06,
+    "stress_00": -1.69853e-06 * Ha_to_eV / bohr_to_ang**3,
     "nAtoms": 8,
     "posn0": np.array([0.000011000000000, 2.394209000000000, 1.474913000000000]) * bohr_to_ang,
     "force0": np.array([0.000003219385226, 0.000024941936105, -0.000004667309539]) * (Ha_to_eV / bohr_to_ang),
@@ -78,7 +78,7 @@ ex_slice2_known = {
     "conv": True,
     "cell_00": 6.16844 * bohr_to_ang,
     "strain_00": 10.0,
-    "stress_00": -1.69853e-06,
+    "stress_00": -1.69853e-06 * Ha_to_eV / bohr_to_ang**3,
     "nAtoms": 8,
     "posn0": np.array([0.000011000000000, 2.394209000000000, 1.474913000000000]) * bohr_to_ang,
     "force0": np.array([0.000003219385226, 0.000024941936105, -0.000004667309539]) * (Ha_to_eV / bohr_to_ang),
@@ -93,7 +93,7 @@ ex_slice2_known = {
 
 @pytest.mark.parametrize(("eslice", "eknowns"), [(ex_slice1, ex_slice1_known), (ex_slice2, ex_slice2_known)])
 def test_jstructure(eslice: list[str], eknowns: dict):
-    jst = JOutStructure.from_text_slice(eslice, iter_type="lattice")
+    jst = JOutStructure.from_text_slice(eslice, opt_type="lattice")
     assert jst.nstep == eknowns["nstep"]
     assert jst.etype == eknowns["etype"]
     assert approx(eknowns["E"]) == jst.e
@@ -133,10 +133,10 @@ def test_jstructure(eslice: list[str], eknowns: dict):
 
 @pytest.mark.parametrize(("eslices", "eknownss"), [([ex_slice1, ex_slice2], [ex_slice1_known, ex_slice2_known])])
 def test_jstructure_instance_vars(eslices: list[list[str]], eknownss: list[dict]):
-    jsts = [JOutStructure.from_text_slice(eslice, iter_type="lattice") for eslice in eslices]
+    jsts = [JOutStructure.from_text_slice(eslice, opt_type="lattice") for eslice in eslices]
     for i, jst in enumerate(jsts):
         eknowns = eknownss[i]
-        jst = JOutStructure.from_text_slice(eslices[i], iter_type="lattice")
+        jst = JOutStructure.from_text_slice(eslices[i], opt_type="lattice")
         assert jst.nstep == eknowns["nstep"]
         assert jst.etype == eknowns["etype"]
         assert approx(eknowns["E"]) == jst.e

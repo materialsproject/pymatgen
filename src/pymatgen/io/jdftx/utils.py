@@ -13,7 +13,7 @@ if TYPE_CHECKING:
     from collections.abc import Callable
 
 
-def gather_JElSteps_line_collections(iter_type: str, text_slice: list[str]) -> tuple[list[list[str]], list[str]]:
+def gather_JElSteps_line_collections(opt_type: str, text_slice: list[str]) -> tuple[list[list[str]], list[str]]:
     """Gather line collections for JElSteps initialization.
 
     Gathers list of line lists where each line list initializes a JElStep object,
@@ -22,7 +22,7 @@ def gather_JElSteps_line_collections(iter_type: str, text_slice: list[str]) -> t
 
     Parameters
     ----------
-    iter_type: str
+    opt_type: str
         The type of electronic minimization step
     text_slice: list[str]
         A slice of text from a JDFTx out file corresponding to a series of
@@ -40,7 +40,7 @@ def gather_JElSteps_line_collections(iter_type: str, text_slice: list[str]) -> t
     """
     lines_collect = []
     line_collections = []
-    _iter_flag = f"{iter_type}: Iter:"
+    _iter_flag = f"{opt_type}: Iter:"
     for line_text in text_slice:
         if len(line_text.strip()):
             lines_collect.append(line_text)
@@ -420,29 +420,29 @@ def get_joutstructures_start_idx(
     return None
 
 
-def correct_geom_iter_type(iter_type: str | None) -> str | None:
-    """Return recognizable iter_type string.
+def correct_geom_opt_type(opt_type: str | None) -> str | None:
+    """Return recognizable opt_type string.
 
-    Correct the iter_type string to match the JDFTx convention.
+    Correct the opt_type string to match the JDFTx convention.
 
     Parameters
     ----------
-    iter_type:
+    opt_type:
         The type of optimization step
 
     Returns
     -------
-    iter_type: str | None
+    opt_type: str | None
         The corrected type of optimization step
     """
-    if iter_type is not None:
-        if "lattice" in iter_type.lower():
-            iter_type = "LatticeMinimize"
-        elif "ionic" in iter_type.lower():
-            iter_type = "IonicMinimize"
+    if opt_type is not None:
+        if "lattice" in opt_type.lower():
+            opt_type = "LatticeMinimize"
+        elif "ionic" in opt_type.lower():
+            opt_type = "IonicMinimize"
         else:
-            iter_type = None
-    return iter_type
+            opt_type = None
+    return opt_type
 
 
 def is_magnetic_moments_line(line_text: str) -> bool:

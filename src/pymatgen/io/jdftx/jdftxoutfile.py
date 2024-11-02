@@ -249,7 +249,7 @@ class JDFTXOutfile:
     is_gc: bool
         True if the most recent slice is a grand canonical calculation.
 
-    eiter_type: str
+    eopt_type: str
         The type of energy iteration used in the most recent JDFTx call.
 
     elecmindata: JElSteps
@@ -967,15 +967,15 @@ class JDFTXOutfile:
     ###########################################################################
 
     @property
-    def eiter_type(self) -> str:
+    def eopt_type(self) -> str:
         """
-        Return eiter_type from most recent JOutStructure.
+        Return eopt_type from most recent JOutStructure.
 
-        Return eiter_type from most recent JOutStructure.
+        Return eopt_type from most recent JOutStructure.
         """
         if len(self.slices):
-            return self.slices[-1].eiter_type
-        raise AttributeError("Property eiter_type inaccessible due to empty jstrucs class field")
+            return self.slices[-1].eopt_type
+        raise AttributeError("Property eopt_type inaccessible due to empty jstrucs class field")
 
     @property
     def elecmindata(self) -> JElSteps:

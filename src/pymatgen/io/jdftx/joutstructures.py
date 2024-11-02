@@ -10,7 +10,7 @@ import inspect
 from dataclasses import dataclass, field
 from typing import TYPE_CHECKING, Any
 
-from pymatgen.io.jdftx.utils import correct_geom_iter_type, get_joutstructure_step_bounds, get_joutstructures_start_idx
+from pymatgen.io.jdftx.utils import correct_geom_opt_type, get_joutstructure_step_bounds, get_joutstructures_start_idx
 
 if TYPE_CHECKING:
     import numpy as np
@@ -36,8 +36,8 @@ class JOutStructures:
     """
 
     out_slice_start_flag = "-------- Electronic minimization -----------"
-    # TODO: Rename "iter_type" to "geom_opt_type"
-    iter_type: str | None = None
+    # TODO: Rename "opt_type" to "geom_opt_type"
+    opt_type: str | None = None
     geom_converged: bool = False
     geom_converged_reason: str | None = None
     elec_converged: bool = False
@@ -46,7 +46,7 @@ class JOutStructures:
     slices: list[JOutStructure] = field(default_factory=list)
 
     @classmethod
-    def from_out_slice(cls, out_slice: list[str], iter_type: str = "IonicMinimize") -> JOutStructures:
+    def from_out_slice(cls, out_slice: list[str], opt_type: str = "IonicMinimize") -> JOutStructures:
         """Return JStructures object.
 
         Create a JStructures object from a slice of an out file's text
@@ -58,12 +58,12 @@ class JOutStructures:
             A slice of a JDFTx out file (individual call of JDFTx)
         """
         instance = cls()
-        if iter_type not in ["IonicMinimize", "LatticeMinimize"]:
-            iter_type = correct_geom_iter_type(iter_type)
-        instance.iter_type = iter_type
+        if opt_type not in ["IonicMinimize", "LatticeMinimize"]:
+            opt_type = correct_geom_opt_type(opt_type)
+        instance.opt_type = opt_type
         start_idx = get_joutstructures_start_idx(out_slice)
         instance.set_joutstructure_list(out_slice[start_idx:])
-        if instance.iter_type is None and len(instance) > 1:
+        if instance.opt_type is None and len(instance) > 1:
             raise Warning("iter type interpreted as single-point calculation, but multiple structures found")
         instance.check_convergence()
         return instance
@@ -82,7 +82,7 @@ class JOutStructures:
         if self._t_s is not None:
             return self._t_s
         if len(self):
-            if (self.iter_type in ["single point", None]) and (isinstance(self[-1].elecmindata[-1].t_s, float)):
+            if (self.opt_type in ["single point", None]) and (isinstance(self[-1].elecmindata[-1].t_s, float)):
                 self._t_s = self[-1].elecmindata[-1].t_s
             elif isinstance(self[-1].t_s, float):
                 self._t_s = self[-1].t_s
@@ -106,15 +106,15 @@ class JOutStructures:
         raise AttributeError("Property etype inaccessible due to empty slices class field")
 
     @property
-    def eiter_type(self) -> str | None:
+    def eopt_type(self) -> str | None:
         """
-        Return eiter_type from most recent JOutStructure.
+        Return eopt_type from most recent JOutStructure.
 
-        Return eiter_type from most recent JOutStructure.
+        Return eopt_type from most recent JOutStructure.
         """
         if len(self.slices):
-            return self.slices[-1].eiter_type
-        raise AttributeError("Property eiter_type inaccessible due to empty slices class field")
+            return self.slices[-1].eopt_type
+        raise AttributeError("Property eopt_type inaccessible due to empty slices class field")
 
     @property
     def emin_flag(self) -> str | None:
@@ -358,7 +358,7 @@ class JOutStructures:
         """
         out_bounds = get_joutstructure_step_bounds(out_slice)
         return [
-            JOutStructure.from_text_slice(out_slice[bounds[0] : bounds[1]], iter_type=self.iter_type)
+            JOutStructure.from_text_slice(out_slice[bounds[0] : bounds[1]], opt_type=self.opt_type)
             for bounds in out_bounds
         ]
 

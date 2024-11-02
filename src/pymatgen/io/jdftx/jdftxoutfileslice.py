@@ -232,15 +232,15 @@ class JDFTXOutfileSlice(ClassPrintFormatter):
     ###########################################################################
 
     @property
-    def eiter_type(self) -> str | None:
+    def eopt_type(self) -> str | None:
         """
-        Return eiter_type from most recent JOutStructure.
+        Return eopt_type from most recent JOutStructure.
 
-        Return eiter_type from most recent JOutStructure.
+        Return eopt_type from most recent JOutStructure.
         """
         if self.jstrucs is not None:
-            return self.jstrucs.eiter_type
-        raise AttributeError("Property eiter_type inaccessible due to empty jstrucs class field")
+            return self.jstrucs.eopt_type
+        raise AttributeError("Property eopt_type inaccessible due to empty jstrucs class field")
 
     @property
     def elecmindata(self) -> JElSteps:
@@ -1027,7 +1027,7 @@ class JDFTXOutfileSlice(ClassPrintFormatter):
             text: list[str]
                 output of read_file for out file
         """
-        self.jstrucs = JOutStructures.from_out_slice(text, iter_type=self.geom_opt_type)
+        self.jstrucs = JOutStructures.from_out_slice(text, opt_type=self.geom_opt_type)
         if self.etype is None:
             self.etype = self.jstrucs[-1].etype
 

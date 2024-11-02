@@ -58,11 +58,11 @@ ex_outslice2_known = {
 
 
 @pytest.mark.parametrize(
-    ("ex_slice", "ex_slice_known", "iter_type"),
+    ("ex_slice", "ex_slice_known", "opt_type"),
     [(ex_outslice1, ex_outslice1_known, "lattice")],
 )
-def test_jstructures(ex_slice: list[str], ex_slice_known: dict[str, float], iter_type: str):
-    jstruct = JOutStructures.from_out_slice(ex_slice, iter_type=iter_type)
+def test_jstructures(ex_slice: list[str], ex_slice_known: dict[str, float], opt_type: str):
+    jstruct = JOutStructures.from_out_slice(ex_slice, opt_type=opt_type)
     assert isinstance(jstruct, JOutStructures)
     assert isinstance(jstruct[0], JOutStructure)
     assert jstruct[0].elecmindata[0].mu == approx(ex_slice_known["mu0_0"])
@@ -92,11 +92,12 @@ def test_jstructures(ex_slice: list[str], ex_slice_known: dict[str, float], iter
     assert len(jstruct) == ex_slice_known["nGeomSteps"]
     assert jstruct.selective_dynamics is not None
 
+
 # @pytest.mark.parametrize(
 #     ("out_slice", "varname"),
 #     [
 #         (ex_outslice1, "etype"),
-#         (ex_outslice1, "eiter_type"),
+#         (ex_outslice1, "eopt_type"),
 #         (ex_outslice1, "emin_flag"),
 #         (ex_outslice1, "ecomponents"),
 #         (ex_outslice1, "elecmindata"),

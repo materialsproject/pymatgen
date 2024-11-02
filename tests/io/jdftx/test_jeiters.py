@@ -130,7 +130,7 @@ def test_JElSteps_known(
     text_slice = []
     for exl in ex_lines:
         text_slice += exl
-    jeis = JElSteps.from_text_slice(text_slice, iter_type=eitertype, etype=etype)
+    jeis = JElSteps.from_text_slice(text_slice, opt_type=eitertype, etype=etype)
     for var in [
         "mu",
         "nelectrons",

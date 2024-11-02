@@ -26,7 +26,7 @@ with open(ex_slice2_fname) as f:
 #     ("out_slice", "varname"),
 #     [
 #         (ex_slice1, "structure"),
-#         (ex_slice1, "eiter_type"),
+#         (ex_slice1, "eopt_type"),
 #         (ex_slice1, "elecmindata"),
 #         (ex_slice1, "stress"),
 #         (ex_slice1, "strain"),
