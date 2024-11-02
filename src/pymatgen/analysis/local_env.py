@@ -1679,9 +1679,6 @@ class CovalentBondNN(NearNeighbors):
         Returns:
             MoleculeGraph: object from pymatgen.analysis.graphs
         """
-        # requires optional dependency which is why it's not a top-level import
-        from pymatgen.analysis.graphs import MoleculeGraph
-
         if decorate:
             # Decorate all sites in the underlying structure
             # with site properties that provides information on the
@@ -2510,7 +2507,7 @@ class LocalStructOrderParams:
             imag += pre_y_2_2[idx] * self._sin_n_p[2][idx]
         acc += real * real + imag * imag
 
-        return math.sqrt(4 * math.pi * acc / (5 * float(n_nn * n_nn)))
+        return math.sqrt(4 * math.pi * acc / (5 * float(n_nn**2)))
 
     def get_q4(self, thetas=None, phis=None):
         """
@@ -2619,7 +2616,7 @@ class LocalStructOrderParams:
             imag += pre_y_4_4[idx] * self._sin_n_p[4][idx]
         acc += real * real + imag * imag
 
-        return math.sqrt(4 * math.pi * acc / (9 * float(n_nn * n_nn)))
+        return math.sqrt(4 * math.pi * acc / (9 * float(n_nn**2)))
 
     def get_q6(self, thetas=None, phis=None):
         """
@@ -2790,7 +2787,7 @@ class LocalStructOrderParams:
             imag += pre_y_6_6[idx] * self._sin_n_p[6][idx]
         acc += real * real + imag * imag
 
-        return math.sqrt(4 * math.pi * acc / (13 * float(n_nn * n_nn)))
+        return math.sqrt(4 * math.pi * acc / (13 * float(n_nn**2)))
 
     def get_type(self, index):
         """Get type of order parameter at the index provided and
