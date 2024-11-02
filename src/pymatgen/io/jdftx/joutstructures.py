@@ -67,6 +67,8 @@ class JOutStructures:
         instance.check_convergence()
         return instance
 
+    # TODO: This currently returns the most recent t_s, which is not at all helpful.
+    # Correct this to be the total time in seconds for the series of structures.
     @property
     def t_s(self) -> float | None:
         """Return time of calculation.
@@ -98,7 +100,8 @@ class JOutStructures:
         """
         Return etype from most recent JOutStructure.
 
-        Return etype from most recent JOutStructure.
+        Return etype from most recent JOutStructure, where etype corresponds to the string
+        representation of the ensemble potential - (ie "F" for Helmholtz, "G" for Grand-Canonical Potential).
         """
         if len(self.slices):
             return self.slices[-1].etype
@@ -109,7 +112,8 @@ class JOutStructures:
         """
         Return eopt_type from most recent JOutStructure.
 
-        Return eopt_type from most recent JOutStructure.
+        Return eopt_type from most recent JOutStructure, where eopt_type corresponds to the
+        JDFTx string representation for the minimization program used to minimize the electron density.
         """
         if len(self.slices):
             return self.slices[-1].eopt_type
@@ -120,7 +124,9 @@ class JOutStructures:
         """
         Return emin_flag from most recent JOutStructure.
 
-        Return emin_flag from most recent JOutStructure.
+        Return emin_flag from most recent JOutStructure, where emin_flag corresponds to the
+        flag string used to mark the beginning of a section of the out file containing the
+        data to construct a JOutStructure object.
         """
         if len(self.slices):
             return self.slices[-1].emin_flag
@@ -131,7 +137,8 @@ class JOutStructures:
         """
         Return ecomponents from most recent JOutStructure.
 
-        Return ecomponents from most recent JOutStructure.
+        Return ecomponents from most recent JOutStructure, where ecomponents is a dictionary
+        mapping string representation of system energy types to their values in eV.
         """
         if len(self.slices):
             return self.slices[-1].ecomponents
@@ -142,18 +149,22 @@ class JOutStructures:
         """
         Return elecmindata from most recent JOutStructure.
 
-        Return elecmindata from most recent JOutStructure.
+        Return elecmindata from most recent JOutStructure, where elecmindata is a JElSteps object
+        created to hold electronic minimization data on the electronic density for this JOuStructure.
         """
         if len(self.slices):
             return self.slices[-1].elecmindata
         raise AttributeError("Property elecmindata inaccessible due to empty slices class field")
 
+    # TODO: Figure out how JDFTx defines the equilibrium lattice parameters and
+    # incorporate into this docustring.
     @property
     def stress(self) -> np.ndarray | None:
         """
         Return stress from most recent JOutStructure.
 
-        Return stress from most recent JOutStructure.
+        Return stress from most recent JOutStructure, where stress is the 3x3 unitless
+        stress tensor.
         """
         if len(self.slices):
             return self.slices[-1].stress
@@ -164,7 +175,8 @@ class JOutStructures:
         """
         Return strain from most recent JOutStructure.
 
-        Return strain from most recent JOutStructure.
+        Return strain from most recent JOutStructure, where strain is the 3x3 strain
+        tensor in units eV/A^3.
         """
         if len(self.slices):
             return self.slices[-1].strain
@@ -175,7 +187,8 @@ class JOutStructures:
         """
         Return nstep from most recent JOutStructure.
 
-        Return nstep from most recent JOutStructure.
+        Return nstep from most recent JOutStructure, where nstep corresponds to the step
+        number of the geometric optimization.
         """
         if len(self.slices):
             return self.slices[-1].nstep
@@ -184,20 +197,22 @@ class JOutStructures:
     @property
     def e(self) -> float | None:
         """
-        Return E from most recent JOutStructure.
+        Return e from most recent JOutStructure.
 
-        Return E from most recent JOutStructure.
+        Return e from most recent JOutStructure, where e corresponds to the system energy
+        of the system's "etype" in eV.
         """
         if len(self.slices):
             return self.slices[-1].e
-        raise AttributeError("Property E inaccessible due to empty slices class field")
+        raise AttributeError("Property e inaccessible due to empty slices class field")
 
     @property
     def grad_k(self) -> float | None:
         """
         Return grad_k from most recent JOutStructure.
 
-        Return grad_k from most recent JOutStructure.
+        Return grad_k from most recent JOutStructure, where grad_k corresponds to the geometric
+        gradient along the geometric line minimization.
         """
         if len(self.slices):
             return self.slices[-1].grad_k
@@ -208,7 +223,8 @@ class JOutStructures:
         """
         Return alpha from most recent JOutStructure.
 
-        Return alpha from most recent JOutStructure.
+        Return alpha from most recent JOutStructure, where alpha corresponds to the geometric
+        step size along the geometric line minimization.
         """
         if len(self.slices):
             return self.slices[-1].alpha
@@ -219,7 +235,8 @@ class JOutStructures:
         """
         Return linmin from most recent JOutStructure.
 
-        Return linmin from most recent JOutStructure.
+        Return linmin from most recent JOutStructure, where linmin corresponds to the normalized
+        projection of the geometric gradient to the step direction within the line minimization.
         """
         if len(self.slices):
             return self.slices[-1].linmin
@@ -230,7 +247,8 @@ class JOutStructures:
         """
         Return nelectrons from most recent JOutStructure.
 
-        Return nelectrons from most recent JOutStructure.
+        Return nelectrons from most recent JOutStructure, where nelectrons corresponds to the
+        number of electrons in the electron density.
         """
         if len(self.slices):
             return self.slices[-1].nelectrons
@@ -241,7 +259,8 @@ class JOutStructures:
         """
         Return abs_magneticmoment from most recent JOutStructure.
 
-        Return abs_magneticmoment from most recent JOutStructure.
+        Return abs_magneticmoment from most recent JOutStructure, where abs_magneticmoment corresponds
+        to the absolute magnetic moment of the electron density.
         """
         if len(self.slices):
             return self.slices[-1].abs_magneticmoment
@@ -252,7 +271,8 @@ class JOutStructures:
         """
         Return tot_magneticmoment from most recent JOutStructure.
 
-        Return tot_magneticmoment from most recent JOutStructure.
+        Return tot_magneticmoment from most recent JOutStructure, where tot_magneticmoment corresponds
+        to the total magnetic moment of the electron density.
         """
         if len(self.slices):
             return self.slices[-1].tot_magneticmoment
@@ -263,7 +283,8 @@ class JOutStructures:
         """
         Return mu from most recent JOutStructure.
 
-        Return mu from most recent JOutStructure.
+        Return mu from most recent JOutStructure, where mu corresponds to the electron chemical potential
+        (Fermi level) in eV.
         """
         if len(self.slices):
             return self.slices[-1].mu
