@@ -55,11 +55,11 @@ MODULE_DIR = os.path.dirname(os.path.abspath(__file__))
 
 with open(f"{MODULE_DIR}/op_params.yaml", encoding="utf-8") as file:
     DEFAULT_OP_PARAMS: dict[str, dict[str | int, float] | None] = YAML().load(file)
-    default_op_params = DEFAULT_OP_PARAMS  # needed externally
+default_op_params = DEFAULT_OP_PARAMS  # needed externally
 
 with open(f"{MODULE_DIR}/cn_opt_params.yaml", encoding="utf-8") as file:
     CN_OPT_PARAMS: dict[int, dict[str, list[str | dict[str, float]]]] = YAML().load(file)
-    cn_opt_params = CN_OPT_PARAMS  # needed externally
+cn_opt_params = CN_OPT_PARAMS  # needed externally
 
 with open(f"{MODULE_DIR}/ionic_radii.json", encoding="utf-8") as file:
     _ION_RADII = json.load(file)
