@@ -216,26 +216,26 @@ def _handle_disorder(structure: Structure, on_disorder: on_disorder_options):
             "example since Fe and O have equal occupancy and Fe comes first). 'error' raises an error in case "
             f"of disordered structure. Offending {structure = }"
         )
-    if on_disorder.startswith("take_"):
-        # disordered structures raise AttributeError when passed to NearNeighbors.get_cn()
-        # or NearNeighbors.get_bonded_structure() (and probably others too, see GH-2070).
-        # As a workaround, we create a new structure with majority species on each site.
-        structure = structure.copy()  # make a copy so we don't mutate the original structure
-        for idx, site in enumerate(structure):
-            max_specie = max(site.species, key=site.species.get)
-            max_val = site.species[max_specie]
-            if max_val <= 0.5:
-                if on_disorder == "take_majority_strict":
-                    raise ValueError(
-                        f"Site {idx} has no majority species, the max species is {max_specie} with occupancy {max_val}"
-                    )
-                if on_disorder == "take_majority_drop":
-                    continue
-
-            # this is the take_max_species case
-            site.species = max_specie  # set site species in copied structure to max specie
-    else:
+    if not on_disorder.startswith("take_"):
         raise ValueError(f"Unexpected {on_disorder = }, should be one of {get_args(on_disorder_options)}")
+
+    # disordered structures raise AttributeError when passed to NearNeighbors.get_cn()
+    # or NearNeighbors.get_bonded_structure() (and probably others too, see GH-2070).
+    # As a workaround, we create a new structure with majority species on each site.
+    structure = structure.copy()  # make a copy so we don't mutate the original structure
+    for idx, site in enumerate(structure):
+        max_specie = max(site.species, key=site.species.get)
+        max_val = site.species[max_specie]
+        if max_val <= 0.5:
+            if on_disorder == "take_majority_strict":
+                raise ValueError(
+                    f"Site {idx} has no majority species, the max species is {max_specie} with occupancy {max_val}"
+                )
+            if on_disorder == "take_majority_drop":
+                continue
+
+        # this is the take_max_species case
+        site.species = max_specie  # set site species in copied structure to max specie
 
     return structure
 
