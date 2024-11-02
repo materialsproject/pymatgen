@@ -36,7 +36,6 @@ class JOutStructures:
     """
 
     out_slice_start_flag = "-------- Electronic minimization -----------"
-    # TODO: Rename "opt_type" to "geom_opt_type"
     opt_type: str | None = None
     geom_converged: bool = False
     geom_converged_reason: str | None = None
