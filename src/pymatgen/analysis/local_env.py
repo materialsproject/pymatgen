@@ -112,9 +112,8 @@ class ValenceIonicRadiusEvaluator:
                 return sorted_vals[0]
             before = sorted_vals[idx - 1]
             after = sorted_vals[idx]
-            if after - skey < skey - before:
-                return after
-            return before
+
+            return after if after - skey < skey - before else before
 
         for idx, site in enumerate(self._structure):
             if isinstance(site.specie, Element):
