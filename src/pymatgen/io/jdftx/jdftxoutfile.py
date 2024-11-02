@@ -5,6 +5,7 @@ A class to read and process a JDFTx out file.
 
 from __future__ import annotations
 
+import inspect
 from dataclasses import dataclass, field
 from typing import TYPE_CHECKING, Any
 
@@ -944,11 +945,26 @@ class JDFTXOutfile:
         val
             The value of the attribute
         """
-        if len(self.slices):
-            if not hasattr(self.slices[-1], name):
-                raise AttributeError(f"{self.__class__.__name__} not found: {name}")
+        if name in self.__dict__:
+            return self.__dict__[name]
+
+        # Check if the attribute is a property of the class
+        for cls in inspect.getmro(self.__class__):
+            if name in cls.__dict__ and isinstance(cls.__dict__[name], property):
+                return cls.__dict__[name].__get__(self)
+
+        # Check if the attribute is in self.jstrucs
+        if hasattr(self.slices[-1], name):
             return getattr(self.slices[-1], name)
-        raise AttributeError(f"Property {name} inaccessible due to empty jstrucs class field")
+
+        # If the attribute is not found in either, raise an AttributeError
+        raise AttributeError(f"{self.__class__.__name__} not found: {name}")
+
+        # if len(self.slices):
+        #     if not hasattr(self.slices[-1], name):
+        #         raise AttributeError(f"{self.__class__.__name__} not found: {name}")
+        #     return getattr(self.slices[-1], name)
+        # raise AttributeError(f"Property {name} inaccessible due to empty jstrucs class field")
 
     def __dir__(self) -> list:
         """List attributes.

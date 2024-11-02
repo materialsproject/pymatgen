@@ -5,6 +5,7 @@ A mutant of the pymatgen Structure class for flexibility in holding JDFTx
 
 from __future__ import annotations
 
+import inspect
 from typing import Any, ClassVar
 
 import numpy as np
@@ -237,25 +238,26 @@ class JOutStructure(Structure):
         instance.iter_type = iter_type
         instance.emin_flag = emin_flag
         line_collections = instance.init_line_collections()
-        for line in text_slice:
-            read_line = False
-            for line_type in line_collections:
-                sdict = line_collections[line_type]
-                if sdict["collecting"]:
-                    lines, getting, got = instance.collect_generic_line(line, sdict["lines"])
-                    sdict["lines"] = lines
-                    sdict["collecting"] = getting
-                    sdict["collected"] = got
-                    read_line = True
-                    break
-            if not read_line:
-                for line_type in line_collections:
-                    if (not line_collections[line_type]["collected"]) and instance.is_generic_start_line(
-                        line, line_type
-                    ):
-                        line_collections[line_type]["collecting"] = True
-                        line_collections[line_type]["lines"].append(line)
-                        break
+        line_collections = instance.gather_line_collections(line_collections, text_slice)
+        # for line in text_slice:
+        #     read_line = False
+        #     for line_type in line_collections:
+        #         sdict = line_collections[line_type]
+        #         if sdict["collecting"]:
+        #             lines, getting, got = instance.collect_generic_line(line, sdict["lines"])
+        #             sdict["lines"] = lines
+        #             sdict["collecting"] = getting
+        #             sdict["collected"] = got
+        #             read_line = True
+        #             break
+        #     if not read_line:
+        #         for line_type in line_collections:
+        #             if (not line_collections[line_type]["collected"]) and instance.is_generic_start_line(
+        #                 line, line_type
+        #             ):
+        #                 line_collections[line_type]["collecting"] = True
+        #                 line_collections[line_type]["lines"].append(line)
+        #                 break
 
         # ecomponents needs to be parsed before emin to set etype
         instance.parse_ecomp_lines(line_collections["ecomp"]["lines"])
@@ -274,7 +276,7 @@ class JOutStructure(Structure):
         instance.parse_opt_lines(line_collections["opt"]["lines"])
 
         # In case of single-point calculation
-        if instance.e is None:
+        if instance.e is None:  # This doesn't defer to elecmindata.e due to the existence of a class variable e
             if instance.etype is not None:
                 if instance.ecomponents is not None:
                     if instance.etype in instance.ecomponents:
@@ -309,6 +311,41 @@ class JOutStructure(Structure):
                 "collecting": False,
                 "collected": False,
             }
+        return line_collections
+
+    def gather_line_collections(self, line_collections: dict, text_slice: list[str]) -> dict:
+        """Gather line collections.
+
+        Gather lines of text from a JDFTx out file into a dictionary of line collections.
+
+        Parameters
+        ----------
+        line_collections: dict
+            A dictionary of line collections for each type of line in a JDFTx
+            out file. Assumed pre-initialized (there exists sdict["lines"]: list[str],
+            sdict["collecting"]: bool, sdict["collected"]: bool for every sdict = line_collections[line_type])
+
+        text_slice: list[str]
+            A slice of text from a JDFTx out file corresponding to a single
+            optimization step / SCF cycle
+        """
+        for line in text_slice:
+            read_line = False
+            for line_type in line_collections:
+                sdict = line_collections[line_type]
+                if sdict["collecting"]:
+                    lines, getting, got = self.collect_generic_line(line, sdict["lines"])
+                    sdict["lines"] = lines
+                    sdict["collecting"] = getting
+                    sdict["collected"] = got
+                    read_line = True
+                    break
+            if not read_line:
+                for line_type in line_collections:
+                    if (not line_collections[line_type]["collected"]) and self.is_generic_start_line(line, line_type):
+                        line_collections[line_type]["collecting"] = True
+                        line_collections[line_type]["lines"].append(line)
+                        break
         return line_collections
 
     def is_emin_start_line(self, line_text: str) -> bool:
@@ -752,8 +789,22 @@ class JOutStructure(Structure):
         value
             The value of the attribute
         """
-        if name not in self.__dict__:
-            if not hasattr(self.elecmindata, name):
-                raise AttributeError(f"{self.__class__.__name__} not found: {name}")
+        # if name not in self.__dict__:
+        #     if not hasattr(self.elecmindata, name):
+        #         raise AttributeError(f"{self.__class__.__name__} not found: {name}")
+        #     return getattr(self.elecmindata, name)
+        # return self.__dict__[name]
+        if name in self.__dict__:
+            return self.__dict__[name]
+
+        # Check if the attribute is a property of the class
+        for cls in inspect.getmro(self.__class__):
+            if name in cls.__dict__ and isinstance(cls.__dict__[name], property):
+                return cls.__dict__[name].__get__(self)
+
+        # Check if the attribute is in self.jstrucs
+        if hasattr(self.elecmindata, name):
             return getattr(self.elecmindata, name)
-        return self.__dict__[name]
+
+        # If the attribute is not found in either, raise an AttributeError
+        raise AttributeError(f"{self.__class__.__name__} not found: {name}")

@@ -7,6 +7,7 @@ process a JDFTx out file.
 
 from __future__ import annotations
 
+import inspect
 import math
 from dataclasses import dataclass
 from typing import TYPE_CHECKING, Any, ClassVar
@@ -33,6 +34,7 @@ from pymatgen.io.jdftx.utils import (
     find_first_range_key,
     find_key,
     find_key_first,
+    get_colon_var_t1,
     get_pseudo_read_section_bounds,
     key_exists,
 )
@@ -105,7 +107,7 @@ class JDFTXOutfileSlice(ClassPrintFormatter):
     rhocut: float | None = None
 
     pp_type: str | None = None
-    total_electrons: float | None = None
+    # total_electrons: float | None = None
     semicore_electrons: int | None = None
     valence_electrons: float | None = None
     total_electrons_uncharged: int | None = None
@@ -130,6 +132,9 @@ class JDFTXOutfileSlice(ClassPrintFormatter):
     has_eigstats: bool = False
     parsable_pseudos: ClassVar[list[str]] = ["GBRV", "SG15"]
     has_parsable_pseudo: bool = False
+
+    total_electrons_backup: int | None = None
+    mu_backup: int | None = None
 
     @property
     def t_s(self) -> float | None:
@@ -358,9 +363,13 @@ class JDFTXOutfileSlice(ClassPrintFormatter):
 
         Return mu from most recent JOutStructure. (Equivalent to efermi)
         """
+        _mu = None
         if self.jstrucs is not None:
-            return self.jstrucs.mu
-        raise AttributeError("Property mu inaccessible due to empty jstrucs class field")
+            _mu = self.jstrucs.mu
+        if _mu is None:
+            _mu = self.mu_backup
+        return _mu
+        # raise AttributeError("Property mu inaccessible due to empty jstrucs class field")
 
     ###########################################################################
     # Electronic properties inherited from most recent JElSteps with symbol
@@ -457,6 +466,7 @@ class JDFTXOutfileSlice(ClassPrintFormatter):
         instance.set_min_settings(text)
         instance.set_geomopt_vars(text)
         instance.set_jstrucs(text)
+        instance.set_backup_vars(text)
         instance.prefix = instance.get_prefix(text)
         spintype, nspin = instance.get_spinvars(text)
         instance.xc_func = instance.get_xc_func(text)
@@ -476,7 +486,7 @@ class JDFTXOutfileSlice(ClassPrintFormatter):
         instance.set_orb_fillings()
         instance.is_metal = instance.determine_is_metal()
         instance.set_fluid(text)
-        instance.set_total_electrons(text)
+        # instance.set_total_electrons(text)
         instance.set_nbands(text)
         instance.set_atom_vars(text)
         instance.set_pseudo_vars(text)
@@ -784,12 +794,8 @@ class JDFTXOutfileSlice(ClassPrintFormatter):
         self.lumo = eigstats["lumo"]
         self.emax = eigstats["emax"]
         self.egap = eigstats["egap"]
-        if not self.has_eigstats:
-            # TODO: Check if any other variables need to be set
-            if self.mu is not None:
-                self.efermi = self.mu
-            else:
-                raise RuntimeError("Variable mu not found to replace variable efermi")
+        if (not self.has_eigstats) and (self.mu is not None):
+            self.efermi = self.mu
 
     def get_pp_type(self, text: list[str]) -> str | None:
         """Get the pseudopotential type used in calculation.
@@ -1017,6 +1023,35 @@ class JDFTXOutfileSlice(ClassPrintFormatter):
         if self.etype is None:
             self.etype = self.jstrucs[-1].etype
 
+    def set_backup_vars(self, text: list[str]) -> None:
+        """Set backups for important variables.
+
+        Set backup versions of critical variables if missing from constructed
+        jstrucs (that can be easily fetched through type-casting strings)
+
+        Parameters
+        ----------
+            text: list[str]
+                output of read_file for out file
+        """
+        if self.total_electrons is None:
+            lines = find_all_key("nElectrons", text)
+            val = None
+            for line in lines[::-1]:
+                val = get_colon_var_t1(text[line], "nElectrons:")
+                if val is not None:
+                    break
+            self.total_electrons_backup = val
+
+        if self.mu is None:
+            lines = find_all_key("mu", text)
+            val = None
+            for line in lines[::-1]:
+                val = get_colon_var_t1(text[line], "mu:")
+                if val is not None:
+                    break
+            self.mu_backup = val
+
     def set_orb_fillings_nobroad(self, nspin: float) -> None:
         """Set the orbital fillings without broadening.
 
@@ -1087,18 +1122,34 @@ class JDFTXOutfileSlice(ClassPrintFormatter):
         ]  # This allows self.fluid to be set to the string "None", which is distinct
         # from the None built-in, as it signifies the fluid line was properly read but there is no fluid.
 
-    def set_total_electrons(self, text: list[str]) -> None:
-        """Set the total_Electrons class variable.
+    # def set_total_electrons(self, text: list[str]) -> None:
+    #     """Set the total_Electrons class variable.
 
-        Set the total_electrons class variable.
+    #     Set the total_electrons class variable.
 
-        Parameters
-        ----------
-        text: list[str]
-            output of read_file for out file
+    #     Parameters
+    #     ----------
+    #     text: list[str]
+    #         output of read_file for out file
+    #     """
+    #     if (self.jstrucs is not None) and (self.total_electrons is None):
+    #         self.total_electrons = self.nelectrons
+
+    @property
+    def total_electrons(self) -> float | None:
         """
+        Return total_electrons from most recent JOutStructure.
+
+        Return total_electrons from most recent JOutStructure.
+        """
+        tot_elec = None
         if self.jstrucs is not None:
-            self.total_electrons = self.jstrucs.nelectrons
+            _tot_elec = self.jstrucs.nelectrons
+            if _tot_elec is not None:
+                tot_elec = _tot_elec
+        if (tot_elec is None) and (self.total_electrons_backup is not None):
+            tot_elec = self.total_electrons_backup
+        return tot_elec
 
     def set_nbands(self, text: list[str]) -> None:
         """Set the Nbands class variable.
@@ -1309,8 +1360,22 @@ class JDFTXOutfileSlice(ClassPrintFormatter):
         """
         # The whole point of this is to be an unreached safety net, so expect hit
         # from coverage here
-        if name not in self.__dict__:
-            if not hasattr(self.jstrucs, name):
-                raise AttributeError(f"{self.__class__.__name__} not found: {name}")
+        # if name not in self.__dict__:
+        #     if not hasattr(self.jstrucs, name):
+        #         raise AttributeError(f"{self.__class__.__name__} not found: {name}")
+        #     return getattr(self.jstrucs, name)
+        # return self.__dict__[name]
+        if name in self.__dict__:
+            return self.__dict__[name]
+
+        # Check if the attribute is a property of the class
+        for cls in inspect.getmro(self.__class__):
+            if name in cls.__dict__ and isinstance(cls.__dict__[name], property):
+                return cls.__dict__[name].__get__(self)
+
+        # Check if the attribute is in self.jstrucs
+        if hasattr(self.jstrucs, name):
             return getattr(self.jstrucs, name)
-        return self.__dict__[name]
+
+        # If the attribute is not found in either, raise an AttributeError
+        raise AttributeError(f"{self.__class__.__name__} not found: {name}")

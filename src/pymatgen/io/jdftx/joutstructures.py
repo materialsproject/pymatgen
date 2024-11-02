@@ -6,6 +6,7 @@ JOutStructure.
 
 from __future__ import annotations
 
+import inspect
 from dataclasses import dataclass, field
 from typing import TYPE_CHECKING, Any
 
@@ -305,7 +306,7 @@ class JOutStructures:
         grad_k: float
         """
         if len(self.slices):
-            return self.slices[-1].grad_k
+            return self.slices[-1].elec_grad_k
         raise AttributeError("Property grad_k inaccessible due to empty slices class field")
 
     @property
@@ -319,7 +320,7 @@ class JOutStructures:
         alpha: float
         """
         if len(self.slices):
-            return self.slices[-1].alpha
+            return self.slices[-1].elec_alpha
         raise AttributeError("Property alpha inaccessible due to empty slices class field")
 
     @property
@@ -333,7 +334,7 @@ class JOutStructures:
         linmin: float
         """
         if len(self.slices):
-            return self.slices[-1].linmin
+            return self.slices[-1].elec_linmin
         raise AttributeError("Property linmin inaccessible due to empty slices class field")
 
     def get_joutstructure_list(self, out_slice: list[str]) -> list[JOutStructure]:
@@ -400,29 +401,59 @@ class JOutStructures:
         value
             The value of the attribute
         """
-        if len(self.slices):
-            if not hasattr(self.slices[-1], name):
-                raise AttributeError(f"{self.__class__.__name__} not found: {name}")
+        if name in self.__dict__:
+            return self.__dict__[name]
+
+        # Check if the attribute is a property of the class
+        for cls in inspect.getmro(self.__class__):
+            if name in cls.__dict__ and isinstance(cls.__dict__[name], property):
+                return cls.__dict__[name].__get__(self)
+
+        # Check if the attribute is in self.jstrucs
+        if hasattr(self.slices[-1], name):
             return getattr(self.slices[-1], name)
-        raise AttributeError(f"Property {name} inaccessible due to empty slices class field")
 
-    def __dir__(self) -> list:
-        """List attributes.
+        # If the attribute is not found in either, raise an AttributeError
+        raise AttributeError(f"{self.__class__.__name__} not found: {name}")
 
-        Returns a list of attributes for the object, including those from
-        self.slices[-1].
+    # def __getattr__(self, name: str) -> Any:
+    #     """Return attribute value.
 
-        Returns
-        -------
-        list
-            A list of attribute names
-        """
-        # Get the default attributes
-        default_attrs = dir(self)
-        # Get the attributes from self.slices[-1] if slices is not empty
-        slice_attrs = dir(self.slices[-1]) if self.slices else []
-        # Combine and return unique attributes
-        return list(set(default_attrs + slice_attrs))
+    #     Return the value of an attribute.
+
+    #     Parameters
+    #     ----------
+    #     name: str
+    #         The name of the attribute
+
+    #     Returns
+    #     -------
+    #     value
+    #         The value of the attribute
+    #     """
+    #     if len(self.slices):
+    #         if not hasattr(self.slices[-1], name):
+    #             raise AttributeError(f"{self.__class__.__name__} not found: {name}")
+    #         return getattr(self.slices[-1], name)
+    #     raise AttributeError(f"Property {name} inaccessible due to empty slices class field")
+
+    # def __dir__(self) -> list:
+    #     """List attributes.
+
+    #     Returns a list of attributes for the object, including those from
+    #     self.slices[-1].
+
+    #     Returns
+    #     -------
+    #     list
+    #         A list of attribute names
+    #     """
+    #     # Get the default attributes
+    #     default_attrs = dir(self)
+    #     # Get the attributes from self.slices[-1] if slices is not empty
+    #     slice_attrs = dir(self.slices[-1]) if self.slices else []
+    #     # Combine and return unique attributes
+    #     return list(set(default_attrs + slice_attrs))
 
     def __getitem__(self, key: int | str) -> JOutStructure | Any:
         """Return item.
