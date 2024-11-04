@@ -475,26 +475,26 @@ class PMGDir(collections.abc.Mapping):
         changed.
         """
         # Note that py3.12 has Path.walk(). But we need to use os.walk to ensure backwards compatibility for now.
-        self.files = [str((Path(d) / f).relative_to(self.path)) for d, _, fnames in os.walk(self.path) for f in fnames]
-
-        self._parsed_files: dict[str, Any] = {}
+        self._files: dict[str, Any] = {
+            str((Path(d) / f).relative_to(self.path)): None for d, _, fnames in os.walk(self.path) for f in fnames
+        }
 
     def __contains__(self, item):
-        return item in self.files
+        return item in self._files
 
     def __len__(self):
-        return len(self.files)
+        return len(self._files)
 
     def __iter__(self):
-        return iter(self.files)
+        return iter(self._files)
 
     def __getitem__(self, item):
-        if item in self._parsed_files:
-            return self._parsed_files[item]
+        if self._files.get(item):
+            return self._files.get(item)
         fpath = self.path / item
 
         if not (self.path / item).exists():
-            raise ValueError(f"{item} not found in {self.path}. List of files are {self.files}.")
+            raise ValueError(f"{item} not found in {self.path}. List of files are {self._files.keys()}.")
 
         for k, cls_ in PMGDir.FILE_MAPPINGS.items():
             if k in item:
@@ -502,11 +502,11 @@ class PMGDir(collections.abc.Mapping):
                 module = importlib.import_module(modname)
                 class_ = getattr(module, classname)
                 try:
-                    self._parsed_files[item] = class_.from_file(fpath)
+                    self._files[item] = class_.from_file(fpath)
                 except AttributeError:
-                    self._parsed_files[item] = class_(fpath)
+                    self._files[item] = class_(fpath)
 
-                return self._parsed_files[item]
+                return self._files[item]
 
         warnings.warn(
             f"No parser defined for {item}. Contents are returned as a string.",
@@ -522,7 +522,7 @@ class PMGDir(collections.abc.Mapping):
         Returns:
             {filename: object from PMGDir[filename]}
         """
-        return {f: self[f] for f in self.files if name in f}
+        return {f: self[f] for f in self._files if name in f}
 
     def __repr__(self):
         return f"PMGDir({self.path})"
