@@ -297,9 +297,10 @@ class JOutStructures:
 
     @property
     def elec_nstep(self) -> int | None:
-        """Return the most recent electronic iteration.
+        """Return the most recent electronic step number.
 
-        Return the most recent electronic iteration.
+        Return the most recent elec_nstep, where elec_nstep corresponds to the SCF
+        step number.
 
         Returns
         -------
@@ -311,9 +312,10 @@ class JOutStructures:
 
     @property
     def elec_e(self) -> float | None:
-        """Return the most recent electronic energy.
+        """Return the most recent elec_e.
 
-        Return the most recent electronic energy.
+        Return the most recent elec_e, where elec_e corresponds to the system's "etype"
+        energy as printed within the SCF log.
 
         Returns
         -------
@@ -325,9 +327,10 @@ class JOutStructures:
 
     @property
     def elec_grad_k(self) -> float | None:
-        """Return the most recent electronic grad_k.
+        """Return the most recent elec_grad_k.
 
-        Return the most recent electronic grad_k.
+        Return the most recent elec_grad_k, where elec_grad_k corresponds to the electronic
+        gradient along the line minimization (equivalent to grad_k for a JElSteps object).
 
         Returns
         -------
@@ -339,9 +342,10 @@ class JOutStructures:
 
     @property
     def elec_alpha(self) -> float | None:
-        """Return the most recent electronic alpha.
+        """Return the most recent elec_alpha.
 
-        Return the most recent electronic alpha.
+        Return the most recent elec_alpha, where elec_alpha corresponds to the step size
+        of the electronic optimization (equivalent to alpha for a JElSteps object).
 
         Returns
         -------
@@ -353,9 +357,11 @@ class JOutStructures:
 
     @property
     def elec_linmin(self) -> float | None:
-        """Return the most recent electronic linmin.
+        """Return the most recent elec_linmin.
 
-        Return the most recent electronic linmin.
+        Return the most recent elec_linmin, where elec_linmin corresponds to the normalized
+        projection of the electronic gradient on the electronic line minimization direction
+        (equivalent to linmin for a JElSteps object).
 
         Returns
         -------
@@ -368,8 +374,8 @@ class JOutStructures:
     def get_joutstructure_list(self, out_slice: list[str]) -> list[JOutStructure]:
         """Return list of JOutStructure objects.
 
-        Set relevant variables for the JStructures object by parsing the
-        out_slice.
+        Get list of JStructure objects by splitting out_slice into slices and constructing
+        a JOuStructure object for each slice. Used in initialization.
 
         Parameters
         ----------
@@ -444,49 +450,11 @@ class JOutStructures:
         # If the attribute is not found in either, raise an AttributeError
         raise AttributeError(f"{self.__class__.__name__} not found: {name}")
 
-    # def __getattr__(self, name: str) -> Any:
-    #     """Return attribute value.
-
-    #     Return the value of an attribute.
-
-    #     Parameters
-    #     ----------
-    #     name: str
-    #         The name of the attribute
-
-    #     Returns
-    #     -------
-    #     value
-    #         The value of the attribute
-    #     """
-    #     if len(self.slices):
-    #         if not hasattr(self.slices[-1], name):
-    #             raise AttributeError(f"{self.__class__.__name__} not found: {name}")
-    #         return getattr(self.slices[-1], name)
-    #     raise AttributeError(f"Property {name} inaccessible due to empty slices class field")
-
-    # def __dir__(self) -> list:
-    #     """List attributes.
-
-    #     Returns a list of attributes for the object, including those from
-    #     self.slices[-1].
-
-    #     Returns
-    #     -------
-    #     list
-    #         A list of attribute names
-    #     """
-    #     # Get the default attributes
-    #     default_attrs = dir(self)
-    #     # Get the attributes from self.slices[-1] if slices is not empty
-    #     slice_attrs = dir(self.slices[-1]) if self.slices else []
-    #     # Combine and return unique attributes
-    #     return list(set(default_attrs + slice_attrs))
-
     def __getitem__(self, key: int | str) -> JOutStructure | Any:
         """Return item.
 
-        Return the value of an item.
+        Return the value of an item given an integer or string as a key (Otherwise
+        returns None).
 
         Parameters
         ----------
@@ -506,7 +474,7 @@ class JOutStructures:
         return val
 
     def getitem_int(self, key: int) -> JOutStructure:
-        """Return JOutStructure object.
+        """Return a JOutStructure object.
 
         Return the JOutStructure object at the key index.
 

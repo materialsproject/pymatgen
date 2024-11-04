@@ -331,7 +331,7 @@ class JDFTXOutfile:
     slices: list[JDFTXOutfileSlice] = field(default_factory=list)
 
     @classmethod
-    def from_file(cls, file_path: str | Path) -> JDFTXOutfile:
+    def from_file(cls, file_path: str | Path, is_bgw: bool = False) -> JDFTXOutfile:
         """Return JDFTXOutfile object.
 
         Create a JDFTXOutfile object from a JDFTx out file.
@@ -340,6 +340,10 @@ class JDFTXOutfile:
         ----------
         file_path: str | Path
             The path to the JDFTx out file
+
+        is_bgw: bool
+            Mark True if data must be usable for BGW calculations. This will change
+            the behavior of the parser to be stricter with certain criteria.
 
         Returns
         -------
