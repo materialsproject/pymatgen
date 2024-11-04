@@ -161,7 +161,7 @@ def test_set_pseudo_vars_t1():
         "10 valence electrons ",
         "",
     ]
-    joutslice.total_electrons_backup = None
+    joutslice._total_electrons_backup = None
     joutslice.jstrucs = None
     with pytest.raises(ValueError, match="Total electrons and semicore electrons must be set."):
         joutslice.set_pseudo_vars_t1(text)

@@ -650,9 +650,8 @@ class JDFTXOutfileSlice(ClassPrintFormatter):
         if self.jstrucs is not None:
             _mu = self.jstrucs.mu
         if _mu is None:
-            _mu = self.mu_backup
+            _mu = self._mu_backup
         return _mu
-        # raise AttributeError("Property mu inaccessible due to empty jstrucs class field")
 
     ###########################################################################
     # Electronic properties inherited from most recent JElSteps with symbol
@@ -821,7 +820,6 @@ class JDFTXOutfileSlice(ClassPrintFormatter):
             prefix: str
                 prefix of dump files for JDFTx calculation
         """
-        # prefix = None
         line = find_key("dump-name", text)
         if line is None:
             return None
@@ -848,8 +846,6 @@ class JDFTXOutfileSlice(ClassPrintFormatter):
         line = find_key("spintype ", text)
         spintype = text[line].split()[1]
         if spintype == "no-spin":
-            # vvv This causes many problems vvv
-            # spintype = None
             nspin = 1
         elif spintype == "z-spin":
             nspin = 2
@@ -1290,7 +1286,6 @@ class JDFTXOutfileSlice(ClassPrintFormatter):
             self.geom_opt = True
             self.geom_opt_type = "lattice"
         elif int(self.jsettings_ionic.params["niterations"]) > 0:
-            # elif self.jsettings_ionic.niterations > 0:
             self.geom_opt = True
             self.geom_opt_type = "ionic"
         else:
@@ -1329,7 +1324,7 @@ class JDFTXOutfileSlice(ClassPrintFormatter):
                 val = get_colon_var_t1(text[line], "nElectrons:")
                 if val is not None:
                     break
-            self.total_electrons_backup = val
+            self._total_electrons_backup = val
 
         if self.mu is None:
             lines = find_all_key("mu", text)
@@ -1338,7 +1333,7 @@ class JDFTXOutfileSlice(ClassPrintFormatter):
                 val = get_colon_var_t1(text[line], "mu:")
                 if val is not None:
                     break
-            self.mu_backup = val
+            self._mu_backup = val
 
     def set_orb_fillings_nobroad(self, nspin: float) -> None:
         """Set the orbital fillings without broadening.
@@ -1435,8 +1430,8 @@ class JDFTXOutfileSlice(ClassPrintFormatter):
             _tot_elec = self.jstrucs.nelectrons
             if _tot_elec is not None:
                 tot_elec = _tot_elec
-        if (tot_elec is None) and (self.total_electrons_backup is not None):
-            tot_elec = self.total_electrons_backup
+        if (tot_elec is None) and (self._total_electrons_backup is not None):
+            tot_elec = self._total_electrons_backup
         return tot_elec
 
     def set_nbands(self, text: list[str]) -> None:
