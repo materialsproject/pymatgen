@@ -10,7 +10,7 @@ import inspect
 from dataclasses import dataclass, field
 from typing import TYPE_CHECKING, Any
 
-from pymatgen.io.jdftx.utils import correct_geom_opt_type, get_joutstructure_step_bounds, get_joutstructures_start_idx
+from pymatgen.io.jdftx.utils import correct_geom_opt_type, is_lowdin_start_line
 
 if TYPE_CHECKING:
     import numpy as np
@@ -520,3 +520,67 @@ class JOutStructures:
             object
         """
         return len(self.slices)
+
+
+elec_min_start_flag: str = "-------- Electronic minimization -----------"
+
+
+def get_joutstructure_step_bounds(
+    out_slice: list[str],
+    out_slice_start_flag: str = elec_min_start_flag,
+) -> list[list[int]]:
+    """Return list of boundary indices for each structure in out_slice.
+
+    Return a list of lists of integers where each sublist contains the start and end
+    of an individual optimization step (or SCF cycle if no optimization).
+
+    Parameters
+    ----------
+    out_slice: list[str]
+        A slice of a JDFTx out file (individual call of JDFTx)
+
+    Returns
+    -------
+    bounds_list: list[list[int, int]]
+        A list of lists of integers where each sublist contains the start and end
+        of an individual optimization step (or SCF cycle if no optimization)
+    """
+    bounds_list = []
+    bounds = None
+    end_started = False
+    for i, line in enumerate(out_slice):
+        if not end_started:
+            if out_slice_start_flag in line:
+                bounds = [i]
+            elif (bounds is not None) and (is_lowdin_start_line(line)):
+                end_started = True
+        elif not len(line.strip()) and bounds is not None:
+            bounds.append(i)
+            bounds_list.append(bounds)
+            bounds = None
+            end_started = False
+    return bounds_list
+
+
+def get_joutstructures_start_idx(
+    out_slice: list[str],
+    out_slice_start_flag: str = elec_min_start_flag,
+) -> int | None:
+    """Return index of first line of first structure.
+
+    Return the index of the first line of the first structure in the out_slice.
+
+    Parameters
+    ----------
+    out_slice: list[str]
+        A slice of a JDFTx out file (individual call of JDFTx)
+
+    Returns
+    -------
+    i: int
+        The index of the first line of the first structure in the out_slice
+    """
+    for i, line in enumerate(out_slice):
+        if out_slice_start_flag in line:
+            return i
+    return None

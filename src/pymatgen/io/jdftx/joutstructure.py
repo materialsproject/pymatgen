@@ -17,15 +17,7 @@ from pymatgen.io.jdftx.utils import (
     _brkt_list_of_3x3_to_nparray,
     correct_geom_opt_type,
     get_colon_var_t1,
-    is_charges_line,
-    is_ecomp_start_line,
-    is_forces_start_line,
-    is_lattice_start_line,
     is_lowdin_start_line,
-    is_magnetic_moments_line,
-    is_posns_start_line,
-    is_strain_start_line,
-    is_stress_start_line,
 )
 
 __author__ = "Ben Rich"
@@ -815,3 +807,163 @@ class JOutStructure(Structure):
 
         # If the attribute is not found in either, raise an AttributeError
         raise AttributeError(f"{self.__class__.__name__} not found: {name}")
+
+
+def is_stress_start_line(line_text: str) -> bool:
+    """Return True if the line_text is the start of stress log message.
+
+    Return True if the line_text is the start of a log message for a JDFTx
+    optimization step.
+
+    Parameters
+    ----------
+    line_text: str
+        A line of text from a JDFTx out file
+
+    Returns
+    -------
+    is_line: bool
+        True if the line_text is the start of a log message for a JDFTx
+        optimization step
+    """
+    return "# Stress tensor in" in line_text
+
+
+def is_strain_start_line(line_text: str) -> bool:
+    """Return True if the line_text is the start of strain log message.
+
+    Return True if the line_text is the start of a log message for a JDFTx
+    optimization step.
+
+    Parameters
+    ----------
+    line_text: str
+        A line of text from a JDFTx out file
+
+    Returns
+    -------
+    is_line: bool
+        True if the line_text is the start of a log message for a JDFTx
+        optimization step
+    """
+    return "# Strain tensor in" in line_text
+
+
+def is_posns_start_line(line_text: str) -> bool:
+    """Return True if the line_text is the start of posns log message.
+
+    Return True if the line_text is the start of a log message for a JDFTx
+    optimization step.
+
+    Parameters
+    ----------
+    line_text: str
+        A line of text from a JDFTx out file containing the positions of atoms
+
+    Returns
+    -------
+        is_line: bool
+            True if the line_text is the start of a log message for a JDFTx
+            optimization step
+    """
+    return "# Ionic positions" in line_text
+
+
+def is_ecomp_start_line(line_text: str) -> bool:
+    """Return True if the line_text is the start of ecomp log message.
+
+    Return True if the line_text is the start of a log message for a JDFTx
+    optimization step.
+
+    Parameters
+    ----------
+    line_text: str
+        A line of text from a JDFTx out file
+
+    Returns
+    -------
+    is_line: bool
+        True if the line_text is the start of a log message for a JDFTx
+        optimization step
+    """
+    return "# Energy components" in line_text
+
+
+def is_charges_line(line_text: str) -> bool:
+    """Return True if the line_text is start of charges log message.
+
+    Return True if the line_text is a line of text from a JDFTx out file
+    corresponding to a Lowdin population analysis.
+
+    Parameters
+    ----------
+    line_text: str
+        A line of text from a JDFTx out file
+
+    Returns
+    -------
+    is_line: bool
+        True if the line_text is a line of text from a JDFTx out file
+        corresponding to a Lowdin population
+    """
+    return "oxidation-state" in line_text
+
+
+def is_magnetic_moments_line(line_text: str) -> bool:
+    """Return True if the line_text is start of moments log message.
+
+    Return True if the line_text is a line of text from a JDFTx out file
+    corresponding to a Lowdin population analysis.
+
+    Parameters
+    ----------
+    line_text: str
+        A line of text from a JDFTx out file
+
+    Returns
+    -------
+    is_line: bool
+        True if the line_text is a line of text from a JDFTx out file
+        corresponding to a Lowdin population
+    """
+    return "magnetic-moments" in line_text
+
+
+def is_forces_start_line(line_text: str) -> bool:
+    """Return True if the line_text is the start of forces log message.
+
+    Return True if the line_text is the start of a log message for a JDFTx
+    optimization step.
+
+    Parameters
+    ----------
+    line_text: str
+        A line of text from a JDFTx out file
+
+    Returns
+    -------
+    is_line: bool
+        True if the line_text is the start of a log message for a JDFTx
+        optimization step
+    """
+    return "# Forces in" in line_text
+
+
+def is_lattice_start_line(line_text: str) -> bool:
+    """Return True if the line_text is the start of lattice log message.
+
+    Return True if the line_text is the start of a log message for a JDFTx
+    optimization step.
+
+    Parameters
+    ----------
+    line_text: str
+        A line of text from a JDFTx out file
+
+    Returns
+    -------
+    is_line: bool
+        True if the line_text is the start of a log message for a JDFTx
+        optimization step
+    """
+    return "# Lattice vectors:" in line_text
