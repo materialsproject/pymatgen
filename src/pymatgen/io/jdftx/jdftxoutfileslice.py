@@ -35,7 +35,6 @@ from pymatgen.io.jdftx.utils import (
     find_key,
     find_key_first,
     get_colon_var_t1,
-    get_pseudo_read_section_bounds,
     key_exists,
 )
 
@@ -1645,3 +1644,30 @@ class JDFTXOutfileSlice(ClassPrintFormatter):
 
         # If the attribute is not found in either, raise an AttributeError
         raise AttributeError(f"{self.__class__.__name__} not found: {name}")
+
+
+def get_pseudo_read_section_bounds(text: list[str]) -> list[list[int]]:
+    """Get the boundary line numbers for the pseudopotential read section.
+
+    Get the boundary line numbers for the pseudopotential read section.
+
+    Parameters
+    ----------
+    text: list[str]
+        output of read_file for out file
+
+    Returns
+    -------
+    section_bounds: list[list[int]]
+        list of line numbers for the pseudopotential read sections
+    """
+    start_lines = find_all_key("Reading pseudopotential file", text)
+    section_bounds = []
+    for start_line in start_lines:
+        bounds = [start_line]
+        for i in range(start_line, len(text)):
+            if not len(text[i].strip()):
+                bounds.append(i)
+                break
+        section_bounds.append(bounds)
+    return section_bounds

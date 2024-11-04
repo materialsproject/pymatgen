@@ -724,30 +724,3 @@ def find_all_key(key_input: str, tempfile: list[str], startline: int = 0) -> lis
         list of line numbers where key_input occurs
     """
     return [i for i in range(startline, len(tempfile)) if key_input in tempfile[i]]
-
-
-def get_pseudo_read_section_bounds(text: list[str]) -> list[list[int]]:
-    """Get the boundary line numbers for the pseudopotential read section.
-
-    Get the boundary line numbers for the pseudopotential read section.
-
-    Parameters
-    ----------
-    text: list[str]
-        output of read_file for out file
-
-    Returns
-    -------
-    section_bounds: list[list[int]]
-        list of line numbers for the pseudopotential read sections
-    """
-    start_lines = find_all_key("Reading pseudopotential file", text)
-    section_bounds = []
-    for start_line in start_lines:
-        bounds = [start_line]
-        for i in range(start_line, len(text)):
-            if not len(text[i].strip()):
-                bounds.append(i)
-                break
-        section_bounds.append(bounds)
-    return section_bounds
