@@ -12,7 +12,6 @@ from __future__ import annotations
 from copy import deepcopy
 from typing import Any
 
-# from pymatgen.io.jdftx.data import atom_valence_electrons
 from pymatgen.core.periodic_table import Element
 from pymatgen.io.jdftx.generic_tags import (
     AbstractTag,

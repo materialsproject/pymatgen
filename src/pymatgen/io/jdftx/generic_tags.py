@@ -736,8 +736,6 @@ class TagContainer(AbstractTag):
         if self.can_repeat:
             self._validate_repeat(tag, value_dict)
             results = [self._validate_single_entry(x, try_auto_type_fix=try_auto_type_fix) for x in value_dict]
-            # tags, is_valids, updated_value = [list(x) for x in list(zip(*results, strict=False))]
-            # Below three lines does the above line, but is allowed by pre-commit
             tags_list_list: list[list[str]] = [result[0] for result in results]
             is_valids_list_list: list[list[bool]] = [result[1] for result in results]
             updated_value: Any = [result[2] for result in results]
@@ -927,37 +925,6 @@ class TagContainer(AbstractTag):
                 min_token_len += subtag_token_len
         return min_token_len
 
-    # COMMENTING OUT THIS FUNCTION BREAKS NOTHING, KEEPING IT AS COMMENT FOR NOW
-    # TODO: get_list_representation gives something that get_dict_representation cannot parse, making this method
-    # only useful for asserting something is a dictionary. Figure out what list_representations are supposed to
-    # look like, or replace this function
-    # def check_representation(self, tag: str, value: Any) -> str:
-    #     """Check the representation of the value.
-
-    #     Check the representation of the value.
-
-    #     Parameters
-    #     ----------
-    #     tag : str
-    #         The tag to check the representation of the value for.
-    #     value : Any
-    #         The value to check the representation of.
-
-    #     Returns
-    #     -------
-    #     str
-    #         The representation of the value.
-    #     """
-    #     if not self.allow_list_representation:
-    #         return "dict"
-    #     value_list = self.get_list_representation(tag, value)
-    #     value_dict = self.get_dict_representation(tag, value)
-    #     if value == value_list:
-    #         return "list"
-    #     if value == value_dict:
-    #         return "dict"
-    #     raise ValueError("Could not determine TagContainer representation, something is wrong")
-
     def _make_list(self, value: dict) -> list:
         if not isinstance(value, dict):
             raise TypeError(f"The value {value} is not a dict, so could not be converted")
@@ -1114,80 +1081,8 @@ class TagContainer(AbstractTag):
         return self.read(tag, list_value)
 
 
-####################################################################################################
-# COMMENTING OUT StructureDeferredTagContainer UNTIL IT IS MADE USABLE
-####################################################################################################
-
-# @dataclass
-# class StructureDeferredTagContainer(TagContainer):
-#     """Class for tags that require a Pymatgen structure to process the value.
-
-#     This tag class accommodates tags that can have complicated values that
-#     depend on the number and species of atoms present. The species labels do
-#     not necessarily have to be elements, but just match the species given in
-#     the ion/ion-species tag(s). We will use the set of labels provided by the
-#     ion tag(s) because that is a well-defined token, while it may not be
-#     explicitly defined in ion-species.
-
-#     Relevant tags: add-U, initial-magnetic-moments, initial-oxidation-states,
-#     set-atomic-radius, setVDW
-#     """
-
-#     defer_until_struc: bool = True
-
-#     def read(self, tag: str, value: str, structure: Structure = None) -> None:
-#         """Read the value string for this tag.
-
-#         Read the value string for this tag.
-
-#         Parameters
-#         ----------
-#         tag : str
-#             The tag to read the value string for.
-#         value : str
-#             The value string to read.
-#         structure : Structure, optional
-#             The Pymatgen structure to use for reading the value string,
-#             by default None.
-#         """
-#         raise NotImplementedError
-
-#         # """This method is similar to StrTag.read(), but with less validation
-#         # because usually will
-#         # get a string like 'Fe 2.0 2.5 Ni 1.0 1.1' as the value to process later
-
-#         # If this method is called separately from the JDFTXInfile processing
-#         # methods, a Pymatgen
-#         # structure may be provided directly
-#         # """
-#         # try:
-#         #     value = str(value)
-#         # except:
-#         #     raise ValueError(f"Could not set '{value}' to a str for {tag}!")
-
-#         # if structure is not None:
-#         #     value = self.read_with_structure(tag, value, structure)
-#         # return value
-
-#     def read_with_structure(self, tag: str, value: str, structure: Structure) -> None:
-#         """Read tag/value pair with a Pymatgen structure provided.
-
-#         Read tag/value pair with a Pymatgen structure provided.
-
-#         Parameters
-#         ----------
-#         tag : str
-#             The tag to read the value string for.
-#         value : str
-#             The value string to read.
-#         structure : Structure
-#             The Pymatgen structure to use for reading the value string.
-#         """
-#         raise NotImplementedError
-
-#         # """Fully process the value string using data from the Pymatgen
-#         # structure"""
-#         # return self._TC_read(tag, value, structure)
+# TODO: Write StructureDefferedTagContainer back in (commented out code block removed
+# on 11/4/24) and make usable for tags like initial-magnetic-moments
 
 
 @dataclass

@@ -42,7 +42,6 @@ from pymatgen.io.jdftx.utils import (
 __author__ = "Ben Rich"
 
 
-# TODO: Copy-paste the docustrings for jdftxoutfile properties below.
 @dataclass
 class JDFTXOutfileSlice(ClassPrintFormatter):
     """A class to read and process a JDFTx out file.
@@ -1404,19 +1403,6 @@ class JDFTXOutfileSlice(ClassPrintFormatter):
             1
         ]  # This allows self.fluid to be set to the string "None", which is distinct
         # from the None built-in, as it signifies the fluid line was properly read but there is no fluid.
-
-    # def set_total_electrons(self, text: list[str]) -> None:
-    #     """Set the total_Electrons class variable.
-
-    #     Set the total_electrons class variable.
-
-    #     Parameters
-    #     ----------
-    #     text: list[str]
-    #         output of read_file for out file
-    #     """
-    #     if (self.jstrucs is not None) and (self.total_electrons is None):
-    #         self.total_electrons = self.nelectrons
 
     @property
     def total_electrons(self) -> float | None:
