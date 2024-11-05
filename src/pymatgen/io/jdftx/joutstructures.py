@@ -2,6 +2,8 @@
 
 This module contains the JOutStructures class for storing a series of
 JOutStructure.
+
+@mkhorton - this file is ready to review.
 """
 
 from __future__ import annotations

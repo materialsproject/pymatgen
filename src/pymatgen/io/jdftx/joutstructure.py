@@ -1,6 +1,8 @@
-"""Class object for storing a single JDFTx optimization step.
+"""Class object for storing a single JDFTx geometric optimization step.
 
-A mutant of the pymatgen Structure class for flexibility in holding JDFTx
+A mutant of the pymatgen Structure class for flexibility in holding JDFTx.
+
+@mkhorton - this file is ready to review.
 """
 
 from __future__ import annotations
@@ -473,8 +475,6 @@ class JOutStructure(Structure):
             A list of lines of text from a JDFTx out file containing the
             strain tensor
         """
-        # TODO: Strain is a unitless quantity, so column to row-major conversion
-        # should cover all unit conversion. Double check if this is true.
         st = None
         if len(strain_lines):
             st = _brkt_list_of_3x3_to_nparray(strain_lines, i_start=1)
@@ -565,7 +565,7 @@ class JOutStructure(Structure):
                 forces.append(force)
             forces = np.array(forces)
             if coords_type.lower() != "cartesian":
-                # TODO: Double check conversion of forces from direct to cartesian
+                # TODO: Double check if forces are ever actually given in direct coordinates.
                 forces = np.dot(forces, self.lattice.matrix)
             else:
                 forces *= 1 / bohr_to_ang
@@ -810,6 +810,8 @@ class JOutStructure(Structure):
         raise AttributeError(f"{self.__class__.__name__} not found: {name}")
 
     # TODO: Add string representation for JOutStructure-specific meta-data
+    # This method currently only returns the Structure Summary as inherited from
+    # the pymatgen Structure class.
     def __str__(self) -> str:
         """Return string representation.
 

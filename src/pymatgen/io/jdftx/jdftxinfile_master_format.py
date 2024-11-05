@@ -35,6 +35,7 @@ from pymatgen.io.jdftx.jdftxinfile_ref_options import (
     jdftxdumpvaroptions,
     jdftxfluid_subtagdict,
     jdftxminimize_subtagdict,
+    kinetic_functionals,
 )
 
 __author__ = "Jacob Clary, Ben Rich"
@@ -229,10 +230,6 @@ MASTER_TAG_LIST: dict[str, dict[str, Any]] = {
                         ),
                     }
                 ),
-                # TODO: add all XC options from here:
-                # https://jdftx.org/CommandElecExCorr.html
-                # note: use a separate variable elsewhere for this to not
-                # dominate this dictionary
                 TagContainer(
                     subtags={
                         "funcXC": StrTag(
@@ -765,9 +762,8 @@ MASTER_TAG_LIST: dict[str, dict[str, Any]] = {
         ),
         "fluid-ex-corr": TagContainer(
             subtags={
-                "kinetic": StrTag(write_tagname=False, optional=False),  # TODO: add options from:
-                # https://jdftx.org/CommandFluidExCorr.html
-                "exchange-correlation": StrTag(write_tagname=False),  # TODO: add same options as elec-ex-corr
+                "kinetic": StrTag(write_tagname=False, optional=False, options=deepcopy(kinetic_functionals)),
+                "exchange-correlation": StrTag(write_tagname=False, options=deepcopy(func_options)),
             }
         ),
         "fluid-mixing-functional": TagContainer(
