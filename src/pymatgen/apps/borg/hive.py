@@ -19,7 +19,10 @@ from pymatgen.io.vasp.inputs import Incar, Poscar, Potcar
 from pymatgen.io.vasp.outputs import Dynmat, Oszicar, Vasprun
 
 if TYPE_CHECKING:
+    from typing import Any, Literal
+
     from typing_extensions import Self
+
 
 logger = logging.getLogger(__name__)
 
@@ -196,7 +199,7 @@ class SimpleVaspToComputedEntryDrone(VaspToComputedEntryDrone):
     compared to the standard VaspToComputedEntryDrone.
     """
 
-    def __init__(self, inc_structure=False):
+    def __init__(self, inc_structure: bool = False) -> None:
         """
         Args:
             inc_structure (bool): Set to True if you want ComputedStructureEntries to be returned instead of
@@ -204,6 +207,9 @@ class SimpleVaspToComputedEntryDrone(VaspToComputedEntryDrone):
         """
         self._inc_structure = inc_structure
         self._parameters = {"is_hubbard", "hubbards", "potcar_spec", "run_type"}
+
+    def __str__(self) -> Literal["SimpleVaspToComputedEntryDrone"]:
+        return "SimpleVaspToComputedEntryDrone"
 
     def assimilate(self, path):
         """Assimilate data in a directory path into a ComputedEntry object.
@@ -228,7 +234,10 @@ class SimpleVaspToComputedEntryDrone(VaspToComputedEntryDrone):
             else:
                 for filename in filenames:
                     files = sorted(glob(os.path.join(path, f"{filename}*")))
-                    if len(files) == 1 or filename in ("INCAR", "POTCAR") or (len(files) == 1 and filename == "DYNMAT"):
+                    if len(files) == 0:
+                        continue
+
+                    if len(files) == 1 or filename in {"INCAR", "POTCAR"} or (len(files) == 1 and filename == "DYNMAT"):
                         files_to_parse[filename] = files[0]
                     elif len(files) > 1:
                         # Since multiple files are ambiguous, we will always
@@ -270,14 +279,15 @@ class SimpleVaspToComputedEntryDrone(VaspToComputedEntryDrone):
                 return ComputedStructureEntry(structure, energy, parameters=param, data=data)
             return ComputedEntry(structure.composition, energy, parameters=param, data=data)
 
+        except ValueError as exc:
+            if "not all necessary files are present" in str(exc):
+                raise
+
         except Exception as exc:
             logger.debug(f"error in {path}: {exc}")
             return None
 
-    def __str__(self):
-        return "SimpleVaspToComputedEntryDrone"
-
-    def as_dict(self):
+    def as_dict(self) -> dict[str, Any]:
         """Get MSONable dict."""
         return {
             "init_args": {"inc_structure": self._inc_structure},
