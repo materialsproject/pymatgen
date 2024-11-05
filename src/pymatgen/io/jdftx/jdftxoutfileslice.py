@@ -332,6 +332,14 @@ class JDFTXOutfileSlice:
         attributes to the "jstrucs" class field. This referring behavior is ideally
         never used as (currently) all referrable attributes are defined properties,
         but is included to prevent errors in the case of future changes.
+
+    __str__() -> str
+        Return a string representation of the class instance using pprint module.
+
+    __repr__() -> str
+        Create string representation of the class instance. Overwritten from default
+        behavior for dataclass so that properties are included in the string, and
+        verbose attributes with redundant information are trimmed.
     """
 
     prefix: str | None = None

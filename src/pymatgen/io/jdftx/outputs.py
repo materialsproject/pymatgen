@@ -92,22 +92,24 @@ class JDFTXOutfile:
 
     lattice_initial: np.ndarray
         The initial lattice vectors of the most recent JDFTx call as a 3x3 numpy array.
+        In units of Angstroms.
 
     lattice_final: np.ndarray
         The final lattice vectors of the most recent JDFTx call as a 3x3 numpy array.
+        In units of Angstroms.
 
     lattice: np.ndarray
         The lattice vectors of the most recent JDFTx call as a 3x3 numpy array
         (redundant to lattice_final).
 
     a: float
-        Length of the first lattice vector.
+        Length of the first lattice vector. In units of Angstroms.
 
     b: float
-        Length of the second lattice vector.
+        Length of the second lattice vector. In units of Angstroms.
 
     c: float
-        Length of the third lattice vector.
+        Length of the third lattice vector. In units of Angstroms.
 
     fftgrid: list[int]
         The FFT grid shape used in the most recent JDFTx call. Can be used to properly
@@ -123,25 +125,25 @@ class JDFTXOutfile:
         positions are given in direct coordinates).
 
     efermi: float
-        The Fermi energy of the most recent JDFTx call. Equivalent to "mu".
+        The Fermi energy in eV of the most recent JDFTx call. Equivalent to "mu".
 
     egap: float
-        The band gap of the most recent JDFTx call. (Only available if eigstats was dumped).
+        The band gap in eV of the most recent JDFTx call. (Only available if eigstats was dumped).
 
     emin: float
-        The minimum energy (smallest Kohn-Sham eigenvalue) of the most recent JDFTx call.
+        The minimum energy in eV (smallest Kohn-Sham eigenvalue) of the most recent JDFTx call.
         (Only available if eigstats was dumped).
 
     emax: float
-        The maximum energy (largest Kohn-Sham eigenvalue) of the most recent JDFTx call.
+        The maximum energy in eV (largest Kohn-Sham eigenvalue) of the most recent JDFTx call.
         (Only available if eigstats was dumped).
 
     homo: float
-        The energy of the band-gap lower bound (Highest Occupied Molecular Orbital)
+        The energy in eV of the band-gap lower bound (Highest Occupied Molecular Orbital)
         (Only available if eigstats was dumped).
 
     lumo: float
-        The energy of the band-gap upper bound (Lowet Unoccupied Molecular Orbital)
+        The energy in eV of the band-gap upper bound (Lowet Unoccupied Molecular Orbital)
         (Only available if eigstats was dumped).
 
     homo_filling: float
@@ -261,6 +263,7 @@ class JDFTXOutfile:
 
     stress: np.ndarray
         The stress tensor of the most recent JDFTx call as a 3x3 numpy array.
+        In units of eV/Angstrom^3.
 
     strain: np.ndarray
         The strain tensor of the most recent JDFTx call as a 3x3 numpy array.
@@ -269,8 +272,8 @@ class JDFTXOutfile:
         The number of geometric optiization steps in the most recent JDFTx call.
 
     e: float
-        The final energy of the most recent JDFTx call (equivalent to the call's
-        etype. Use "Etot" for total internal energy).
+        The final energy in eV of the most recent JDFTx call (equivalent to the call's
+        etype).
 
     grad_k: float
         The final norm of the preconditioned gradient for geometric optimization
@@ -292,10 +295,10 @@ class JDFTXOutfile:
         The total magnetic moment of the most recent JDFTx call.
 
     mu: float
-        The Fermi energy of the most recent JDFTx call.
+        The Fermi energy in eV of the most recent JDFTx call.
 
     elec_e: float
-        The final energy of the most recent electronic optimization step.
+        The final energy in eV of the most recent electronic optimization step.
 
     elec_nstep: int
         The number of electronic optimization steps in the most recent JDFTx call.
@@ -328,6 +331,9 @@ class JDFTXOutfile:
 
     __dir__() -> list[str]
         Returns a list of all the properties of the JDFTXOutfile object.
+
+    __str__() -> str
+        Returns a string representation of the JDFTXOutfile object.
     """
 
     slices: list[JDFTXOutfileSlice] = field(default_factory=list)
