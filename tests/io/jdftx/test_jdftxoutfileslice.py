@@ -26,7 +26,7 @@ with open(ex_slice2_fname) as f:
 #     ("out_slice", "varname"),
 #     [
 #         (ex_slice1, "structure"),
-#         (ex_slice1, "eiter_type"),
+#         (ex_slice1, "eopt_type"),
 #         (ex_slice1, "elecmindata"),
 #         (ex_slice1, "stress"),
 #         (ex_slice1, "strain"),
@@ -140,6 +140,8 @@ def test_get_pp_type():
 
 def test_set_pseudo_vars_t1():
     joutslice = JDFTXOutfileSlice.from_out_slice(ex_slice1)
+    str(joutslice)
+    repr(joutslice)
     # Just need more bound sets than there are atom types
     text = [
         "Reading pseudopotential file not_SG15/GBRV",
@@ -161,7 +163,7 @@ def test_set_pseudo_vars_t1():
         "10 valence electrons ",
         "",
     ]
-    joutslice.total_electrons_backup = None
+    joutslice._total_electrons_backup = None
     joutslice.jstrucs = None
     with pytest.raises(ValueError, match="Total electrons and semicore electrons must be set."):
         joutslice.set_pseudo_vars_t1(text)

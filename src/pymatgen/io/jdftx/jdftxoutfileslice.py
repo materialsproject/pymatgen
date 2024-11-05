@@ -9,6 +9,7 @@ from __future__ import annotations
 
 import inspect
 import math
+import pprint
 from dataclasses import dataclass
 from typing import TYPE_CHECKING, Any, ClassVar
 
@@ -29,22 +30,19 @@ from pymatgen.io.jdftx.jminsettings import (
 )
 from pymatgen.io.jdftx.joutstructures import JOutStructures
 from pymatgen.io.jdftx.utils import (
-    ClassPrintFormatter,
     find_all_key,
     find_first_range_key,
     find_key,
     find_key_first,
     get_colon_var_t1,
-    get_pseudo_read_section_bounds,
     key_exists,
 )
 
 __author__ = "Ben Rich"
 
 
-# TODO: Copy-paste the docustrings for jdftxoutfile properties below.
 @dataclass
-class JDFTXOutfileSlice(ClassPrintFormatter):
+class JDFTXOutfileSlice:
     """A class to read and process a JDFTx out file.
 
     A class to read and process a JDFTx out file.
@@ -58,6 +56,290 @@ class JDFTXOutfileSlice(ClassPrintFormatter):
     ----------
     prefix: str | None
         prefix of dump files for JDFTx calculation
+
+    jstrucs: JOutStructures | None
+        JOutStructures instance containing intermediate structures. Holds a "slices" attribute,
+        which is a list of JOutStructure instances. (A JOutStructure instance functions as a
+        Structure object, along with a JElSteps instance (stored as elecmindata) and
+        other JDFTx-calculation-specific data.)
+
+    jsettings_fluid: JMinSettings | None
+        JMinSettings instance containing fluid optimization settings
+
+    jsettings_electronic: JMinSettings | None
+        JMinSettings instance containing electronic optimization settings
+
+    jsettings_lattice: JMinSettings | None
+        JMinSettings instance containing lattice optimization settings
+
+    jsettings_ionic: JMinSettings | None
+        JMinSettings instance containing ionic optimization settings
+
+    xc_func: str | None
+        exchange-correlation functional used in the calculation
+
+    lattice_initial: np.ndarray | None
+        initial lattice matrix in Angstroms
+
+    lattice_final: np.ndarray | None
+        final lattice matrix in Angstroms
+
+    lattice: np.ndarray | None
+        current lattice matrix in Angstroms
+
+    a: float | None
+        lattice parameter a in Angstroms
+
+    b: float | None
+        lattice parameter b in Angstroms
+
+    c: float | None
+        lattice parameter c in Angstroms
+
+    fftgrid: list[int] | None
+        Shape of FFT grid used in calculation (3 integers)
+
+    geom_opt: bool | None
+        True if geometric (lattice or ionic) optimization was performed
+
+    geom_opt_type: str | None
+        Type of geometric optimization performed (lattice or ionic, where lattice
+        implies ionic as well unless geometry was given in direct coordinates)
+
+    efermi: float | None
+        Fermi energy in eV (may be None if eigstats are not dumped)
+
+    egap: float | None
+        Band gap in eV (None if eigstats are not dumped)
+
+    emin: float | None
+        Minimum energy in eV (None if eigstats are not dumped)
+
+    emax: float | None
+        Maximum energy in eV (None if eigstats are not dumped
+
+    homo: float | None
+        Energy of last band-state before Fermi level (acronym for Highest Occupied Molecular
+        Orbital, even though these are not molecular orbitals and this state may not be
+        entirely occupied)
+        (None if eigstats are not dumped)
+
+    lumo: float | None
+        Energy of first band-state after Fermi level (acronym for Lowest Unoccupied Molecular
+        Orbital, even though these are not molecular orbitals, and this state may not be
+        entirely unoccupied)
+        (None if eigstats are not dumped)
+
+    homo_filling: float | None
+        Filling of "homo" band-state as calculated within this class object from the homo
+        energy, Fermi level, electronic broadening type and electronic broadening
+        parameter. (None if eigstats are not dumped)
+
+    lumo_filling: float | None
+        Filling of "lumo" band-state as calculated within this class object from the homo
+        energy, Fermi level, electronic broadening type and electronic broadening
+        parameter. (None if eigstats are not dumped)
+
+    is_metal: bool | None
+        True if fillings of homo and lumo band-states are off-set by 1 and 0
+        by at least an arbitrary tolerance of 0.01 (ie 1 - 0.015 and 0.012 for
+        homo/lumo fillings would be metallic, while 1-0.001 and 0 would not be).
+        (Only available if eigstats was dumped).
+
+    etype: str | None
+        String representation of total energy-type of system. Commonly "G"
+        (grand-canonical potential) for GC calculations, and "F" for canonical
+        (fixed electron count) calculations.
+
+    broadening_type: str
+        Type of broadening for electronic filling about Fermi-level requested. Either
+        "Fermi", "Cold", "MP1", or "Gauss".
+
+    broadening: float
+        Magnitude of broadening for electronic filling.
+
+    kgrid: list[int]
+        Shape of k-point grid used in calculation. (equivalent to k-point folding)
+
+    truncation_type: str
+        Type of coulomb truncation used to prevent interaction between periodic images
+        along certain directions. "periodic" means no coulomb truncation was used.
+
+    truncation_radius: float | None
+        If spherical truncation_type, this is the radius of the coulomb truncation sphere.
+
+    pwcut: float
+        The plane-wave cutoff energy in Hartrees used in the most recent JDFTx call.
+
+    rhocut: float
+        The density cutoff energy in Hartrees used in the most recent JDFTx call.
+
+    pp_type: str
+        The pseudopotential library used in the most recent JDFTx call.
+        Currently only "GBRV" and "SG15" are supported by this output parser.
+
+    total_electrons: float
+        The total number of electrons in the most recent JDFTx call (redundant
+        to nelectrons).
+
+    semicore_electrons: int
+        The number of semicore electrons in the most recent JDFTx call.
+
+    valence_electrons: float
+        The number of valence electrons in the most recent JDFTx call.
+
+    total_electrons_uncharged: int
+        The total number of electrons in the most recent JDFTx call, uncorrected for
+        charge. (ie total_electrons + charge)
+
+    semicore_electrons_uncharged: int
+        The number of semicore electrons in the most recent JDFTx call, uncorrected for
+        charge. (ie semicore_electrons + charge)
+
+    valence_electrons_uncharged: int
+        The number of valence electrons in the most recent JDFTx call, uncorrected for
+        charge. (ie valence_electrons + charge)
+
+    nbands: int
+        The number of bands used in the most recent JDFTx call.
+
+    atom_elements: list[str]
+        The list of each ion's element symbol in the most recent JDFTx call.
+
+    atom_elements_int: list[int]
+        The list of ion's atomic numbers in the most recent JDFTx call.
+
+    atom_types: list[str]
+        Non-repeating list of each ion's element symbol in the most recent JDFTx call.
+
+    spintype: str
+        The spin type used in the most recent JDFTx call. Options are "none", "collinear",
+
+    nspin: int
+        The number of spins used in the most recent JDFTx call.
+
+    nat: int
+        The number of atoms in the most recent JDFTx call.
+
+    atom_coords_initial: list[list[float]]
+        The initial atomic coordinates of the most recent JDFTx call.
+
+    atom_coords_final: list[list[float]]
+        The final atomic coordinates of the most recent JDFTx call.
+
+    atom_coords: list[list[float]]
+        The atomic coordinates of the most recent JDFTx call.
+
+    has_solvation: bool
+        True if the most recent JDFTx call included a solvation calculation.
+
+    fluid: str
+        The fluid used in the most recent JDFTx call.
+
+    is_gc: bool
+        True if the most recent slice is a grand canonical calculation.
+
+    is_bgw: bool
+        True if data must be usable for a BerkeleyGW calculation (user-set)
+
+    has_eigstats: bool
+        True if eigstats were dumped in the most recent JDFTx call.
+
+    has_parsable_pseudo: bool
+        True if the most recent JDFTx call used a pseudopotential that can be parsed
+        by this output parser. Options are currently "GBRV" and "SG15".
+
+    Properties
+    ----------
+    t_s: float | None
+        The total time in seconds for the calculation.
+
+    is_converged: bool | None
+        True if calculation converged.
+
+    trajectory: Trajectory
+        pymatgen Trajectory object containing intermediate Structure's of outfile slice calculation.
+
+    electronic_output: dict
+        Dictionary with all relevant electronic information dumped from an eigstats log.
+
+    structure: Structure
+        Calculation result as pymatgen Structure.
+
+    eopt_type: str | None
+        eopt_type from most recent JOutStructure.
+
+    elecmindata: JElSteps
+        elecmindata from most recent JOutStructure.
+
+    stress: np.ndarray | None
+        stress tensor from most recent JOutStructure in units eV/Ang^3.
+
+    strain: np.ndarray | None
+        strain tensor from most recent JOutStructure (unitless).
+
+    nstep: int | None
+        (geometric) nstep from most recent JOutStructure.
+
+    e: float | None
+        Energy of system "etype" from most recent JOutStructure.
+
+    grad_k: float
+        The final norm of the preconditioned gradient for geometric optimization
+        of the most recent JDFTx call (evaluated as dot(g, Kg), where g is the gradient
+        and Kg is the preconditioned gradient).
+        (written as "|grad|_K" in JDFTx output).
+
+    alpha: float
+        The step size of the final geometric step in the most recent JDFTx call.
+
+    linmin: float
+        The final normalized projection of the geometric step direction onto the
+        gradient for the most recent JDFTx call.
+
+    abs_magneticmoment: float | None
+        The absolute magnetic moment of the most recent JDFTx call.
+
+    tot_magneticmoment: float | None
+        The total magnetic moment of the most recent JDFTx call.
+
+    mu: float
+        The Fermi energy of the most recent JDFTx call.
+
+    elec_e: float
+        The final energy of the most recent electronic optimization step.
+
+    elec_nstep: int
+        The number of electronic optimization steps in the most recent JDFTx call.
+
+    elec_grad_k: float
+        The final norm of the preconditioned gradient for electronic optimization
+        of the most recent JDFTx call (evaluated as dot(g, Kg), where g is the gradient
+        and Kg is the preconditioned gradient).
+        (written as "|grad|_K" in JDFTx output).
+
+    elec_alpha: float
+        The step size of the final electronic step in the most recent JDFTx call.
+
+    elec_linmin: float
+        The final normalized projection of the electronic step direction onto the
+        gradient for the most recent JDFTx call.
+
+    Magic Methods
+    -------------
+    __getattr__(name: str) -> Any
+        Overwrite of default __getattr__ method to allow for reference of un-defined
+        attributes to the "jstrucs" class field. This referring behavior is ideally
+        never used as (currently) all referrable attributes are defined properties,
+        but is included to prevent errors in the case of future changes.
+
+    __str__() -> str
+        Return a string representation of the class instance using pprint module.
+
+    __repr__() -> str
+        Create string representation of the class instance. Overwritten from default
+        behavior for dataclass so that properties are included in the string, and
+        verbose attributes with redundant information are trimmed.
     """
 
     prefix: str | None = None
@@ -100,6 +382,7 @@ class JDFTXOutfileSlice(ClassPrintFormatter):
     emax: float | None = None
     homo: float | None = None
     lumo: float | None = None
+    # TODO: Change homo_filling, lumo_filling, and is_metal to properties
     homo_filling: float | None = None
     lumo_filling: float | None = None
     is_metal: bool | None = None
@@ -114,7 +397,6 @@ class JDFTXOutfileSlice(ClassPrintFormatter):
     rhocut: float | None = None
 
     pp_type: str | None = None
-    # total_electrons: float | None = None
     semicore_electrons: int | None = None
     valence_electrons: float | None = None
     total_electrons_uncharged: int | None = None
@@ -140,8 +422,8 @@ class JDFTXOutfileSlice(ClassPrintFormatter):
     parsable_pseudos: ClassVar[list[str]] = ["GBRV", "SG15"]
     has_parsable_pseudo: bool = False
 
-    total_electrons_backup: int | None = None
-    mu_backup: int | None = None
+    _total_electrons_backup: int | None = None
+    _mu_backup: int | None = None
 
     @property
     def t_s(self) -> float | None:
@@ -232,15 +514,15 @@ class JDFTXOutfileSlice(ClassPrintFormatter):
     ###########################################################################
 
     @property
-    def eiter_type(self) -> str | None:
+    def eopt_type(self) -> str | None:
         """
-        Return eiter_type from most recent JOutStructure.
+        Return eopt_type from most recent JOutStructure.
 
-        Return eiter_type from most recent JOutStructure.
+        Return eopt_type from most recent JOutStructure.
         """
         if self.jstrucs is not None:
-            return self.jstrucs.eiter_type
-        raise AttributeError("Property eiter_type inaccessible due to empty jstrucs class field")
+            return self.jstrucs.eopt_type
+        raise AttributeError("Property eopt_type inaccessible due to empty jstrucs class field")
 
     @property
     def elecmindata(self) -> JElSteps:
@@ -374,9 +656,8 @@ class JDFTXOutfileSlice(ClassPrintFormatter):
         if self.jstrucs is not None:
             _mu = self.jstrucs.mu
         if _mu is None:
-            _mu = self.mu_backup
+            _mu = self._mu_backup
         return _mu
-        # raise AttributeError("Property mu inaccessible due to empty jstrucs class field")
 
     ###########################################################################
     # Electronic properties inherited from most recent JElSteps with symbol
@@ -458,7 +739,7 @@ class JDFTXOutfileSlice(ClassPrintFormatter):
     ###########################################################################
 
     @classmethod
-    def from_out_slice(cls, text: list[str]) -> JDFTXOutfileSlice:
+    def from_out_slice(cls, text: list[str], is_bgw: bool = False) -> JDFTXOutfileSlice:
         """Read slice of out file into a JDFTXOutfileSlice instance.
 
         Read slice of out file into a JDFTXOutfileSlice instance.
@@ -467,8 +748,12 @@ class JDFTXOutfileSlice(ClassPrintFormatter):
         ----------
         text: list[str]
             file to read
+
+        is_bgw: bool
+            True if data must be usable for a BerkeleyGW calculation
         """
         instance = cls()
+        instance.is_bgw = is_bgw
 
         instance.set_min_settings(text)
         instance.set_geomopt_vars(text)
@@ -541,7 +826,6 @@ class JDFTXOutfileSlice(ClassPrintFormatter):
             prefix: str
                 prefix of dump files for JDFTx calculation
         """
-        # prefix = None
         line = find_key("dump-name", text)
         if line is None:
             return None
@@ -568,8 +852,6 @@ class JDFTXOutfileSlice(ClassPrintFormatter):
         line = find_key("spintype ", text)
         spintype = text[line].split()[1]
         if spintype == "no-spin":
-            # vvv This causes many problems vvv
-            # spintype = None
             nspin = 1
         elif spintype == "z-spin":
             nspin = 2
@@ -1010,7 +1292,6 @@ class JDFTXOutfileSlice(ClassPrintFormatter):
             self.geom_opt = True
             self.geom_opt_type = "lattice"
         elif int(self.jsettings_ionic.params["niterations"]) > 0:
-            # elif self.jsettings_ionic.niterations > 0:
             self.geom_opt = True
             self.geom_opt_type = "ionic"
         else:
@@ -1027,7 +1308,7 @@ class JDFTXOutfileSlice(ClassPrintFormatter):
             text: list[str]
                 output of read_file for out file
         """
-        self.jstrucs = JOutStructures.from_out_slice(text, iter_type=self.geom_opt_type)
+        self.jstrucs = JOutStructures.from_out_slice(text, opt_type=self.geom_opt_type)
         if self.etype is None:
             self.etype = self.jstrucs[-1].etype
 
@@ -1049,7 +1330,7 @@ class JDFTXOutfileSlice(ClassPrintFormatter):
                 val = get_colon_var_t1(text[line], "nElectrons:")
                 if val is not None:
                     break
-            self.total_electrons_backup = val
+            self._total_electrons_backup = val
 
         if self.mu is None:
             lines = find_all_key("mu", text)
@@ -1058,7 +1339,7 @@ class JDFTXOutfileSlice(ClassPrintFormatter):
                 val = get_colon_var_t1(text[line], "mu:")
                 if val is not None:
                     break
-            self.mu_backup = val
+            self._mu_backup = val
 
     def set_orb_fillings_nobroad(self, nspin: float) -> None:
         """Set the orbital fillings without broadening.
@@ -1130,19 +1411,6 @@ class JDFTXOutfileSlice(ClassPrintFormatter):
         ]  # This allows self.fluid to be set to the string "None", which is distinct
         # from the None built-in, as it signifies the fluid line was properly read but there is no fluid.
 
-    # def set_total_electrons(self, text: list[str]) -> None:
-    #     """Set the total_Electrons class variable.
-
-    #     Set the total_electrons class variable.
-
-    #     Parameters
-    #     ----------
-    #     text: list[str]
-    #         output of read_file for out file
-    #     """
-    #     if (self.jstrucs is not None) and (self.total_electrons is None):
-    #         self.total_electrons = self.nelectrons
-
     @property
     def total_electrons(self) -> float | None:
         """
@@ -1155,8 +1423,8 @@ class JDFTXOutfileSlice(ClassPrintFormatter):
             _tot_elec = self.jstrucs.nelectrons
             if _tot_elec is not None:
                 tot_elec = _tot_elec
-        if (tot_elec is None) and (self.total_electrons_backup is not None):
-            tot_elec = self.total_electrons_backup
+        if (tot_elec is None) and (self._total_electrons_backup is not None):
+            tot_elec = self._total_electrons_backup
         return tot_elec
 
     def set_nbands(self, text: list[str]) -> None:
@@ -1384,3 +1652,67 @@ class JDFTXOutfileSlice(ClassPrintFormatter):
 
         # If the attribute is not found in either, raise an AttributeError
         raise AttributeError(f"{self.__class__.__name__} not found: {name}")
+
+    def __repr__(self) -> str:
+        """Return string representation.
+
+        Return a string representation of the JDFTXOutfileSlice.
+
+        Returns
+        -------
+        str
+            String representation of the JDFTXOutfileSlice
+        """
+        out_str = f"{self.__class__.__name__}("
+        for cls in inspect.getmro(self.__class__):
+            for key, value in cls.__dict__.items():
+                if not key.startswith("_") and (not callable(value) or isinstance(value, property)):
+                    pref = ""
+                    suff = ", \n"
+                    val = repr(getattr(self, key))
+                    if "jsettings" in key:
+                        pref = "\n    "
+                    if key == "jstrucs":
+                        val = "(... JOutStructures object ...)"
+                    out_str += f"{pref}{key}={val}{suff}"
+        out_str += ")"
+        return out_str
+
+    def __str__(self) -> str:
+        """Return string representation.
+
+        Return a string representation of the JDFTXOutfileSlice.
+
+        Returns
+        -------
+        str
+            String representation of the JDFTXOutfileSlice
+        """
+        return pprint.pformat(self)
+
+
+def get_pseudo_read_section_bounds(text: list[str]) -> list[list[int]]:
+    """Get the boundary line numbers for the pseudopotential read section.
+
+    Get the boundary line numbers for the pseudopotential read section.
+
+    Parameters
+    ----------
+    text: list[str]
+        output of read_file for out file
+
+    Returns
+    -------
+    section_bounds: list[list[int]]
+        list of line numbers for the pseudopotential read sections
+    """
+    start_lines = find_all_key("Reading pseudopotential file", text)
+    section_bounds = []
+    for start_line in start_lines:
+        bounds = [start_line]
+        for i in range(start_line, len(text)):
+            if not len(text[i].strip()):
+                bounds.append(i)
+                break
+        section_bounds.append(bounds)
+    return section_bounds

@@ -6,6 +6,7 @@ This module contains the JElStep class for parsing single SCF step from a JDFTx 
 from __future__ import annotations
 
 import inspect
+import pprint
 import warnings
 from dataclasses import dataclass, field
 from typing import Any, ClassVar
@@ -24,7 +25,7 @@ class JElStep:
     SCF step.
 
     Attributes
-    iter_type: str | None
+    opt_type: str | None
         The type of electronic minimization step (almost always ElecMinimize)
 
     etype: str | None
@@ -63,10 +64,9 @@ class JElStep:
 
     subspacerotationadjust: float | None
         The subspace rotation adjustment factor
-
     """
 
-    iter_type: str | None = None
+    opt_type: str | None = None
     etype: str | None = None
     nstep: int | None = None
     e: float | None = None
@@ -83,7 +83,7 @@ class JElStep:
     converged_reason: str | None = None
 
     @classmethod
-    def from_lines_collect(cls, lines_collect: list[str], iter_type: str, etype: str) -> JElStep:
+    def from_lines_collect(cls, lines_collect: list[str], opt_type: str, etype: str) -> JElStep:
         """Return JElStep object.
 
         Create a JElStep object from a list of lines of text from a JDFTx out
@@ -94,15 +94,15 @@ class JElStep:
         lines_collect: list[str]
             A list of lines of text from a JDFTx out file corresponding to a
             single SCF step
-        iter_type: str
+        opt_type: str
             The type of electronic minimization step
         etype: str
             The type of energy component
         """
         instance = cls()
-        instance.iter_type = iter_type
+        instance.opt_type = opt_type
         instance.etype = etype
-        _iter_flag = f"{iter_type}: Iter: "
+        _iter_flag = f"{opt_type}: Iter: "
         for i, line_text in enumerate(lines_collect):
             if instance.is_iter_line(i, line_text, _iter_flag):
                 instance.read_iter_line(line_text)
@@ -279,7 +279,18 @@ class JElStep:
         """
         self.nelectrons = get_colon_var_t1(fillings_line, "nElectrons: ")
 
+    def __str__(self) -> str:
+        """Return string representation of JElStep object.
 
+        Returns
+        -------
+        str: str
+            String representation of JElStep object
+        """
+        return pprint.pformat(self)
+
+
+@dataclass
 class JElSteps:
     """Class object for series of SCF steps.
 
@@ -287,7 +298,7 @@ class JElSteps:
     geometric optimization steps.
     """
 
-    iter_type: str | None = None
+    opt_type: str | None = None
     etype: str | None = None
     iter_flag: str | None = None
     converged: bool = False
@@ -305,7 +316,8 @@ class JElSteps:
     def nstep(self) -> int | None:
         """Return nstep.
 
-        Return the nstep attribute of the last JElStep object in the slices.
+        Return the nstep attribute of the last JElStep object in the slices, where
+        nstep signifies the SCF step number.
 
         Returns
         -------
@@ -323,7 +335,8 @@ class JElSteps:
     def e(self) -> float | None:
         """Return total electronic energy.
 
-        Return the e attribute of the last JElStep object in the slices.
+        Return the e attribute of the last JElStep object in the slices, where e
+        signifies the total electronic energy in eV.
 
         Returns
         -------
@@ -338,7 +351,8 @@ class JElSteps:
     def grad_k(self) -> float | None:
         """Return most recent grad_k.
 
-        Return the grad_k attribute of the last JElStep object in the slices.
+        Return the grad_k attribute of the last JElStep object in the slices, where
+        grad_k signifies the gradient of the Kohn-Sham energy (along line minimization direction).
 
         Returns
         -------
@@ -353,7 +367,8 @@ class JElSteps:
     def alpha(self) -> float | None:
         """Return most recent alpha.
 
-        Return the alpha attribute of the last JElStep object in the slices.
+        Return the alpha attribute of the last JElStep object in the slices, where
+        alpha signifies the step length in the electronic minimization.
 
         Returns
         -------
@@ -368,7 +383,8 @@ class JElSteps:
     def linmin(self) -> float | None:
         """Return most recent linmin.
 
-        Return the linmin attribute of the last JElStep object in the slices.
+        Return the linmin attribute of the last JElStep object in the slices, where
+        linmin signifies the normalized line minimization direction / energy gradient projection.
 
         Returns
         -------
@@ -383,7 +399,8 @@ class JElSteps:
     def t_s(self) -> float | None:
         """Return most recent t_s.
 
-        Return the t_s attribute of the last JElStep object in the slices.
+        Return the t_s attribute of the last JElStep object in the slices, where
+        t_s signifies the time in seconds for the SCF step.
 
         Returns
         -------
@@ -398,7 +415,8 @@ class JElSteps:
     def mu(self) -> float | None:
         """Return most recent mu.
 
-        Return the mu attribute of the last JElStep object in the slices.
+        Return the mu attribute of the last JElStep object in the slices, where
+        mu signifies the chemical potential (Fermi level) in eV.
 
         Returns
         -------
@@ -413,7 +431,8 @@ class JElSteps:
     def nelectrons(self) -> float | None:
         """Return most recent nelectrons.
 
-        Return the nelectrons attribute of the last JElStep object in the slices.
+        Return the nelectrons attribute of the last JElStep object in the slices, where
+        nelectrons signifies the total number of electrons being evaluated in the SCF step.
 
         Returns
         -------
@@ -428,7 +447,8 @@ class JElSteps:
     def abs_magneticmoment(self) -> float | None:
         """Return most recent abs_magneticmoment.
 
-        Return the abs_magneticmoment attribute of the last JElStep object in the slices.
+        Return the abs_magneticmoment attribute of the last JElStep object in the slices, where
+        abs_magneticmoment signifies the absolute magnetic moment of the electron density.
 
         Returns
         -------
@@ -443,7 +463,8 @@ class JElSteps:
     def tot_magneticmoment(self) -> float | None:
         """Return most recent tot_magneticmoment.
 
-        Return the tot_magneticmoment attribute of the last JElStep object in the slices.
+        Return the tot_magneticmoment attribute of the last JElStep object in the slices, where
+        tot_magneticmoment signifies the total magnetic moment of the electron density.
 
         Returns
         -------
@@ -458,7 +479,8 @@ class JElSteps:
     def subspacerotationadjust(self) -> float | None:
         """Return most recent subspacerotationadjust.
 
-        Return the subspacerotationadjust attribute of the last JElStep object in the slices.
+        Return the subspacerotationadjust attribute of the last JElStep object in the slices, where
+        subspacerotationadjust signifies the amount by which the subspace was rotated in the SCF step.
 
         Returns
         -------
@@ -470,7 +492,7 @@ class JElSteps:
         raise AttributeError("No JElStep objects in JElSteps object slices class variable.")
 
     @classmethod
-    def from_text_slice(cls, text_slice: list[str], iter_type: str = "ElecMinimize", etype: str = "F") -> JElSteps:
+    def from_text_slice(cls, text_slice: list[str], opt_type: str = "ElecMinimize", etype: str = "F") -> JElSteps:
         """Return JElSteps object.
 
         Create a JElSteps object from a slice of an out file's text
@@ -481,19 +503,19 @@ class JElSteps:
         text_slice : list[str]
             A slice of text from a JDFTx out file corresponding to a series of
             SCF steps
-        iter_type: str
+        opt_type: str
             The type of electronic minimization step
         etype: str
             The type of energy component
         """
-        line_collections, lines_collect = gather_JElSteps_line_collections(iter_type, text_slice)
+        line_collections, lines_collect = gather_JElSteps_line_collections(opt_type, text_slice)
         instance = cls()
-        instance.iter_flag = f"{iter_type}: Iter:"
-        instance.iter_type = iter_type
+        instance.iter_flag = f"{opt_type}: Iter:"
+        instance.opt_type = opt_type
         instance.etype = etype
         instance.slices = []
         for _lines_collect in line_collections:
-            instance.slices.append(JElStep.from_lines_collect(_lines_collect, iter_type, etype))
+            instance.slices.append(JElStep.from_lines_collect(_lines_collect, opt_type, etype))
         if len(lines_collect):
             instance.parse_ending_lines(lines_collect)
             lines_collect = []
@@ -534,7 +556,7 @@ class JElSteps:
             True if the line_text is the start of a log message about
             convergence for a JDFTx optimization step
         """
-        return f"{self.iter_type}: Converged" in line_text
+        return f"{self.opt_type}: Converged" in line_text
 
     def read_converged_line(self, line_text: str) -> None:
         """Set class variables converged and converged_reason.
@@ -569,13 +591,6 @@ class JElSteps:
         value
             The value of the attribute
         """
-        # if len(self.slices):
-        #     if name not in self._getatr_ignore:
-        #         if not hasattr(self.slices[-1], name):
-        #             raise AttributeError(f"{self.__class__.__name__} not found: {name}")
-        #         return getattr(self.slices[-1], name)
-        #     raise AttributeError(f"Property {name} inaccessible due to empty slices class field")
-        # raise AttributeError(f"Property {name} inaccessible due to empty slices class field")
         if name in self.__dict__:
             return self.__dict__[name]
 
@@ -658,3 +673,13 @@ class JElSteps:
             The number of SCF steps in the JElSteps object
         """
         return len(self.slices)
+
+    def __str__(self) -> str:
+        """Return string representation of JElSteps object.
+
+        Returns
+        -------
+        str: str
+            String representation of JElSteps object
+        """
+        return pprint.pformat(self)

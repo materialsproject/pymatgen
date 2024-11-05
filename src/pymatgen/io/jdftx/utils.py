@@ -13,7 +13,7 @@ if TYPE_CHECKING:
     from collections.abc import Callable
 
 
-def gather_JElSteps_line_collections(iter_type: str, text_slice: list[str]) -> tuple[list[list[str]], list[str]]:
+def gather_JElSteps_line_collections(opt_type: str, text_slice: list[str]) -> tuple[list[list[str]], list[str]]:
     """Gather line collections for JElSteps initialization.
 
     Gathers list of line lists where each line list initializes a JElStep object,
@@ -22,7 +22,7 @@ def gather_JElSteps_line_collections(iter_type: str, text_slice: list[str]) -> t
 
     Parameters
     ----------
-    iter_type: str
+    opt_type: str
         The type of electronic minimization step
     text_slice: list[str]
         A slice of text from a JDFTx out file corresponding to a series of
@@ -40,7 +40,7 @@ def gather_JElSteps_line_collections(iter_type: str, text_slice: list[str]) -> t
     """
     lines_collect = []
     line_collections = []
-    _iter_flag = f"{iter_type}: Iter:"
+    _iter_flag = f"{opt_type}: Iter:"
     for line_text in text_slice:
         if len(line_text.strip()):
             lines_collect.append(line_text)
@@ -252,7 +252,7 @@ def _brkt_list_of_3x3_to_nparray(lines: list[str], i_start: int = 0) -> np.ndarr
     return out
 
 
-elec_min_start_flag: str = "-------- Electronic minimization -----------"
+# elec_min_start_flag: str = "-------- Electronic minimization -----------"
 
 
 def get_colon_var_t1(linetext: str, lkey: str) -> float | None:
@@ -274,66 +274,10 @@ def get_colon_var_t1(linetext: str, lkey: str) -> float | None:
     return colon_var
 
 
-def is_strain_start_line(line_text: str) -> bool:
-    """Return True if the line_text is the start of strain log message.
-
-    Return True if the line_text is the start of a log message for a JDFTx
-    optimization step.
-
-    Parameters
-    ----------
-    line_text: str
-        A line of text from a JDFTx out file
-
-    Returns
-    -------
-    is_line: bool
-        True if the line_text is the start of a log message for a JDFTx
-        optimization step
-    """
-    return "# Strain tensor in" in line_text
-
-
-def is_lattice_start_line(line_text: str) -> bool:
-    """Return True if the line_text is the start of lattice log message.
-
-    Return True if the line_text is the start of a log message for a JDFTx
-    optimization step.
-
-    Parameters
-    ----------
-    line_text: str
-        A line of text from a JDFTx out file
-
-    Returns
-    -------
-    is_line: bool
-        True if the line_text is the start of a log message for a JDFTx
-        optimization step
-    """
-    return "# Lattice vectors:" in line_text
-
-
-def is_forces_start_line(line_text: str) -> bool:
-    """Return True if the line_text is the start of forces log message.
-
-    Return True if the line_text is the start of a log message for a JDFTx
-    optimization step.
-
-    Parameters
-    ----------
-    line_text: str
-        A line of text from a JDFTx out file
-
-    Returns
-    -------
-    is_line: bool
-        True if the line_text is the start of a log message for a JDFTx
-        optimization step
-    """
-    return "# Forces in" in line_text
-
-
+# This function matches the format of the generic "is_<x>_start_line" functions specific to
+# the JOutStructure object initialization, but is not moved to the joutstructure module
+# as it is also used in methods for other JDFTx IO modules (e.g. JOutStructures) so it
+# is kept here to avoid circular imports.
 def is_lowdin_start_line(line_text: str) -> bool:
     """Return True if the line_text is the start of Lowdin log message.
 
@@ -354,195 +298,29 @@ def is_lowdin_start_line(line_text: str) -> bool:
     return "#--- Lowdin population analysis ---" in line_text
 
 
-def get_joutstructure_step_bounds(
-    out_slice: list[str],
-    out_slice_start_flag: str = elec_min_start_flag,
-) -> list[list[int]]:
-    """Return list of boundary indices for each structure in out_slice.
+def correct_geom_opt_type(opt_type: str | None) -> str | None:
+    """Return recognizable opt_type string.
 
-    Return a list of lists of integers where each sublist contains the start and end
-    of an individual optimization step (or SCF cycle if no optimization).
+    Correct the opt_type string to match the JDFTx convention.
 
     Parameters
     ----------
-    out_slice: list[str]
-        A slice of a JDFTx out file (individual call of JDFTx)
-
-    Returns
-    -------
-    bounds_list: list[list[int, int]]
-        A list of lists of integers where each sublist contains the start and end
-        of an individual optimization step (or SCF cycle if no optimization)
-    """
-    bounds_list = []
-    bounds = None
-    end_started = False
-    for i, line in enumerate(out_slice):
-        if not end_started:
-            if out_slice_start_flag in line:
-                bounds = [i]
-            elif (bounds is not None) and (is_lowdin_start_line(line)):
-                end_started = True
-        elif not len(line.strip()) and bounds is not None:
-            bounds.append(i)
-            bounds_list.append(bounds)
-            bounds = None
-            end_started = False
-            # else:
-            #     warnmsg = f"Line {i-1} ({out_slice[i-1]}) triggered \
-            #         end_started, but following line is empty. Final step_bounds \
-            #             may be incorrect. "
-            #     warnings.warn(warnmsg, stacklevel=2)
-    return bounds_list
-
-
-def get_joutstructures_start_idx(
-    out_slice: list[str],
-    out_slice_start_flag: str = elec_min_start_flag,
-) -> int | None:
-    """Return index of first line of first structure.
-
-    Return the index of the first line of the first structure in the out_slice.
-
-    Parameters
-    ----------
-    out_slice: list[str]
-        A slice of a JDFTx out file (individual call of JDFTx)
-
-    Returns
-    -------
-    i: int
-        The index of the first line of the first structure in the out_slice
-    """
-    for i, line in enumerate(out_slice):
-        if out_slice_start_flag in line:
-            return i
-    return None
-
-
-def correct_geom_iter_type(iter_type: str | None) -> str | None:
-    """Return recognizable iter_type string.
-
-    Correct the iter_type string to match the JDFTx convention.
-
-    Parameters
-    ----------
-    iter_type:
+    opt_type:
         The type of optimization step
 
     Returns
     -------
-    iter_type: str | None
+    opt_type: str | None
         The corrected type of optimization step
     """
-    if iter_type is not None:
-        if "lattice" in iter_type.lower():
-            iter_type = "LatticeMinimize"
-        elif "ionic" in iter_type.lower():
-            iter_type = "IonicMinimize"
+    if opt_type is not None:
+        if "lattice" in opt_type.lower():
+            opt_type = "LatticeMinimize"
+        elif "ionic" in opt_type.lower():
+            opt_type = "IonicMinimize"
         else:
-            iter_type = None
-    return iter_type
-
-
-def is_magnetic_moments_line(line_text: str) -> bool:
-    """Return True if the line_text is start of moments log message.
-
-    Return True if the line_text is a line of text from a JDFTx out file
-    corresponding to a Lowdin population analysis.
-
-    Parameters
-    ----------
-    line_text: str
-        A line of text from a JDFTx out file
-
-    Returns
-    -------
-    is_line: bool
-        True if the line_text is a line of text from a JDFTx out file
-        corresponding to a Lowdin population
-    """
-    return "magnetic-moments" in line_text
-
-
-def is_charges_line(line_text: str) -> bool:
-    """Return True if the line_text is start of charges log message.
-
-    Return True if the line_text is a line of text from a JDFTx out file
-    corresponding to a Lowdin population analysis.
-
-    Parameters
-    ----------
-    line_text: str
-        A line of text from a JDFTx out file
-
-    Returns
-    -------
-    is_line: bool
-        True if the line_text is a line of text from a JDFTx out file
-        corresponding to a Lowdin population
-    """
-    return "oxidation-state" in line_text
-
-
-def is_ecomp_start_line(line_text: str) -> bool:
-    """Return True if the line_text is the start of ecomp log message.
-
-    Return True if the line_text is the start of a log message for a JDFTx
-    optimization step.
-
-    Parameters
-    ----------
-    line_text: str
-        A line of text from a JDFTx out file
-
-    Returns
-    -------
-    is_line: bool
-        True if the line_text is the start of a log message for a JDFTx
-        optimization step
-    """
-    return "# Energy components" in line_text
-
-
-def is_posns_start_line(line_text: str) -> bool:
-    """Return True if the line_text is the start of posns log message.
-
-    Return True if the line_text is the start of a log message for a JDFTx
-    optimization step.
-
-    Parameters
-    ----------
-    line_text: str
-        A line of text from a JDFTx out file containing the positions of atoms
-
-    Returns
-    -------
-        is_line: bool
-            True if the line_text is the start of a log message for a JDFTx
-            optimization step
-    """
-    return "# Ionic positions" in line_text
-
-
-def is_stress_start_line(line_text: str) -> bool:
-    """Return True if the line_text is the start of stress log message.
-
-    Return True if the line_text is the start of a log message for a JDFTx
-    optimization step.
-
-    Parameters
-    ----------
-    line_text: str
-        A line of text from a JDFTx out file
-
-    Returns
-    -------
-    is_line: bool
-        True if the line_text is the start of a log message for a JDFTx
-        optimization step
-    """
-    return "# Stress tensor in" in line_text
+            opt_type = None
+    return opt_type
 
 
 ############################################
@@ -724,108 +502,3 @@ def find_all_key(key_input: str, tempfile: list[str], startline: int = 0) -> lis
         list of line numbers where key_input occurs
     """
     return [i for i in range(startline, len(tempfile)) if key_input in tempfile[i]]
-
-
-def get_pseudo_read_section_bounds(text: list[str]) -> list[list[int]]:
-    """Get the boundary line numbers for the pseudopotential read section.
-
-    Get the boundary line numbers for the pseudopotential read section.
-
-    Parameters
-    ----------
-    text: list[str]
-        output of read_file for out file
-
-    Returns
-    -------
-    section_bounds: list[list[int]]
-        list of line numbers for the pseudopotential read sections
-    """
-    start_lines = find_all_key("Reading pseudopotential file", text)
-    section_bounds = []
-    for start_line in start_lines:
-        bounds = [start_line]
-        for i in range(start_line, len(text)):
-            if not len(text[i].strip()):
-                bounds.append(i)
-                break
-        section_bounds.append(bounds)
-    return section_bounds
-
-
-# #############################################
-# # HELPERS FOR JDFTXOUTPUT #
-# #############################################
-
-# def parse_kptsfile(kptsfile: Path) -> tuple[list[float], list[list[float]], int]:
-#     """ Parse kPts file.
-
-#     Parse kPts file to get kpt weights, k points and number of states.
-
-#     Parameters
-#     ----------
-#     kptsfile: Path
-#         Path to kPts file
-#     """
-#     wk_list = []
-#     k_points_list = []
-#     with open(kptsfile, "r") as f:
-#         for line in f:
-#             k_points = line.split("[")[1].split("]")[0].strip().split()
-#             k_points = [float(v) for v in k_points]
-#             k_points_list.append(k_points)
-#             wk = float(line.split("]")[1].strip().split()[0])
-#             wk_list.append(wk)
-#     nstates = len(wk_list)
-#     return wk_list, k_points_list, nstates
-
-# def get_kpts_info(nspin: int, kfolding: list[int], kpts_filename: Path | str, nstates: int) -> dict:
-#     """ Get k-points information.
-
-#     Get k-points information from kPts file. Assigns arbitrary MK-pack values for k-points if kPts file is not found.
-#     Assigns arbitrary values for k-point folding as well if nstates does not equal nspin * nk.
-#     """
-#     kpts_info = {}
-#     _nk = int(np.prod(kfolding))
-#     nk = int(np.prod(kfolding))
-#     if nspin != int(nstates / _nk):
-#         print(
-#             "WARNING: Internal inconsistency found with respect to input parameters (nSpin * nK-pts != nStates).")
-#         print(
-#             "No safety net for this which allows for tetrahedral integration currently implemented.")
-#         if not ope(kpts_filename):
-#             print(
-#                 "k-folding will be changed to arbitrary length 3 array to satisfy shaping criteria.")
-#         kpts_info["lti"] = False
-#         nk = int(nstates / nspin)
-#     else:
-#         kpts_info["lti"] = True
-#     if ope(kpts_filename):
-#         # TODO: Write a function that can un-reduce a reduced kpts mesh
-#         wk, ks, nStates = parse_kptsfile(kpts_filename)
-#         wk = np.array(wk)
-#         ks = np.array(ks)
-#         if (nk != _nk):
-#             if len(ks) == nk:  # length of kpt data matches interpolated nK value
-#                 kfolding = get_kfolding_from_kpts(kpts_filename, nk)
-#             else:
-#                 kfolding = get_arbitrary_kfolding(nk)
-#                 ks = np.ones([nk * nspin, 3]) * np.nan
-#                 wk = np.ones(nk * nspin)
-#                 wk *= (1 / nk)
-#     else:
-#         if nk != _nk:
-#             kfolding = get_arbitrary_kfolding(nk)
-#         ks = np.ones([nk * nspin, 3]) * np.nan
-#         wk = np.ones(nk * nspin)
-#         wk *= (1 / nk)
-#     wk_sabc = wk.reshape([nspin, kfolding[0], kfolding[1], kfolding[2]])
-#     ks_sabc = ks.reshape([nspin, kfolding[0], kfolding[1], kfolding[2], 3])
-#     kpts_info["wk_sabc"] = wk_sabc
-#     kpts_info["ks_sabc"] = ks_sabc
-#     kpts_info["kfolding"] = kfolding
-#     return kpts_info
-
-# def get_arbitrary_kfolding(nk: int) -> list[int]:
-#     kfolding = [1, 1, nk]
-#     return kfolding

@@ -109,7 +109,7 @@ empty_slice_exception_varnames = [
     "has_solvation",
     "fluid",
     "is_gc",
-    "eiter_type",
+    "eopt_type",
     "elecmindata",
     "stress",
     "strain",

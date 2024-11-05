@@ -6,8 +6,8 @@ from typing import TYPE_CHECKING, Any
 import pytest
 
 from pymatgen.core.units import Ha_to_eV
-from pymatgen.io.jdftx.jdftxoutfile import JDFTXOutfile
 from pymatgen.io.jdftx.jdftxoutfileslice import JDFTXOutfileSlice
+from pymatgen.io.jdftx.outputs import JDFTXOutfile
 from pymatgen.util.testing import TEST_FILES_DIR
 
 if TYPE_CHECKING:
@@ -103,6 +103,7 @@ def assert_slices_2layer_attribute_error(init_meth: Callable, init_var: Any, var
 
 def jdftxoutfile_fromfile_matches_known_simple(outfilefname: Path, knowndict: dict):
     joutfile = JDFTXOutfile.from_file(outfilefname)
+    str(joutfile)
     jdftxoutfile_matches_known_simple(joutfile, knowndict)
     del joutfile
 
@@ -112,9 +113,9 @@ def jdftxoutfile_matches_known_simple(joutfile: JDFTXOutfile, knowndict: dict):
     object_matchall_known_simple(joutfile, knowndict)
 
 
-# @pytest.fixture(autouse=True)
 def jdftxoutfile_fromfile_matches_known(filename: Path, known: dict):
     joutfile = JDFTXOutfile.from_file(filename)
+    str(joutfile)
     jdftxoutfile_matches_known(joutfile, known)
     del joutfile
 
@@ -178,7 +179,7 @@ example_sp_outfile_known_simple = {
     "nbands": 174,
     "nat": 16,
     "t_s": 165.87,
-    "iter_type": None,
+    "opt_type": None,
     "prefix": "jdft",
     "etype": "F",
     "converged": True,
@@ -222,7 +223,7 @@ example_latmin_outfile_known_simple = {
     "nbands": 42,
     "nat": 8,
     "t_s": 314.16,
-    "iter_type": "LatticeMinimize",
+    "opt_type": "LatticeMinimize",
     "prefix": "$VAR",
     "etype": "F",
     "converged": True,
@@ -267,7 +268,7 @@ example_ionmin_outfile_known_simple = {
     "nbands": 195,
     "nat": 41,
     "t_s": 2028.57,
-    "iter_type": "IonicMinimize",
+    "opt_type": "IonicMinimize",
     "prefix": "$VAR",
     "etype": "G",
     "converged": True,

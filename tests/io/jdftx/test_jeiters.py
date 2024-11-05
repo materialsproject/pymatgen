@@ -100,6 +100,7 @@ def test_JElStep_known(
 ):
     ex_lines_collect = [exiter_line, exfill_line, exsubspace_line, ""]  # Empty line added for coverage
     jei = JElStep.from_lines_collect(ex_lines_collect, eitertype, etype)
+    str(jei)
     ex_known = {}
     for dictlike in [exfill_known, exiter_known, exsubspace_known]:
         ex_known.update(dictlike)
@@ -130,7 +131,7 @@ def test_JElSteps_known(
     text_slice = []
     for exl in ex_lines:
         text_slice += exl
-    jeis = JElSteps.from_text_slice(text_slice, iter_type=eitertype, etype=etype)
+    jeis = JElSteps.from_text_slice(text_slice, opt_type=eitertype, etype=etype)
     for var in [
         "mu",
         "nelectrons",
@@ -152,32 +153,3 @@ def test_JElSteps_known(
 
 
 ex_text_slice = [ex_fillings_line1, ex_subspace_line1, ex_iter_line1]
-
-
-# @pytest.mark.parametrize(
-#     ("text_slice", "varname"),
-#     [
-#         (ex_text_slice, "nstep"),
-#         (ex_text_slice, "grad_k"),
-#         (ex_text_slice, "alpha"),
-#         (ex_text_slice, "linmin"),
-#         (ex_text_slice, "abs_magneticmoment"),
-#         (ex_text_slice, "tot_magneticmoment"),
-#     ],
-# )
-# def test_JElSteps_has_1layer_slice_freakout(text_slice: list[str], varname: str):
-#     assert_slices_1layer_attribute_error(JElSteps.from_text_slice, text_slice, varname, "slices")
-
-
-# @pytest.mark.parametrize(
-#     ("text_slice", "varname"),
-#     [
-#         (ex_text_slice, "e"),
-#         (ex_text_slice, "t_s"),
-#         (ex_text_slice, "mu"),
-#         (ex_text_slice, "nelectrons"),
-#         (ex_text_slice, "subspacerotationadjust"),
-#     ],
-# )
-# def test_JElSteps_has_2layer_slice_freakout(text_slice: list[str], varname: str):
-#     assert_slices_2layer_attribute_error(JElSteps.from_text_slice, text_slice, varname, "slices")

@@ -48,5 +48,5 @@ This folder is currently missing:
 
 from __future__ import annotations
 
-from pymatgen.io.jdftx.jdftxinfile import JDFTXInfile
-from pymatgen.io.jdftx.jdftxoutfile import JDFTXOutfile
+from pymatgen.io.jdftx.inputs import JDFTXInfile
+from pymatgen.io.jdftx.outputs import JDFTXOutfile
