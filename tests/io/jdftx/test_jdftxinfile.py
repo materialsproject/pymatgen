@@ -26,13 +26,11 @@ ex_infile1_knowns = {
     "van-der-waals": "D3",
     "elec-cutoff": {"Ecut": 20.0, "EcutRho": 100.0},
     "elec-n-bands": 15,
-    # "kpoint-folding": [1,1,1],
     "kpoint-folding": {"n0": 1, "n1": 1, "n2": 1},
     "spintype": "z-spin",
     "core-overlap-check": "none",
     "converge-empty-states": True,
     "latt-move-scale": {"s0": 0.0, "s1": 0.0, "s2": 0.0},
-    # "latt-move-scale": [0,0,0],
     "symmetries": "none",
     "fluid": {"type": "LinearPCM"},
     "pcm-variant": "CANDLE",
@@ -159,10 +157,8 @@ def test_JDFTXInfile_niche_cases():
     noneout = jif.validate_tags(return_list_rep=True)
     assert noneout is None
     jif["fluid-solvent"] = {"name": "H2O", "concentration": 0.5}
-    # jif["fluid-solvent"] = {"name": "H2O", "concentration": 0.5}
     assert len(jif["fluid-solvent"]) == 1
     jif.append_tag("fluid-solvent", {"name": "H2O", "concentration": 0.5})
-    # jif["fluid-solvent"].append({"name": "H2O", "concentration": 0.5})
     assert len(jif["fluid-solvent"]) == 2
 
 
@@ -171,7 +167,6 @@ def test_JDFTXInfile_add_method():
     jif2 = jif.copy()
     jif3 = jif + jif2
     assert_idential_jif(jif, jif3)
-    # assert is_identical_jif(jif, jif3)
     key = "elec-ex-corr"
     val_old = jif[key]
     val_new = "lda"
@@ -194,7 +189,6 @@ def test_JDFTXInfile_knowns_simple(infile_fname: PathLike, knowns: dict):
     jif = JDFTXInfile.from_file(infile_fname)
     for key in knowns:
         assert_same_value(jif[key], knowns[key])
-        # assert is_identical_jif_val(jif[key], knowns[key])
 
 
 @pytest.mark.parametrize("infile_fname", [ex_infile1_fname])
@@ -218,7 +212,6 @@ def JDFTXInfile_self_consistency_tester(jif: JDFTXInfile):
         for j in range(i + 1, len(jifs)):
             print(f"{i}, {j}")
             assert_idential_jif(jifs[i], jifs[j])
-            # assert is_identical_jif(jifs[i], jifs[j])
     os.remove(tmp_fname)
 
 
@@ -226,36 +219,6 @@ def assert_idential_jif(jif1: JDFTXInfile | dict, jif2: JDFTXInfile | dict):
     djif1 = jif1.as_dict() if isinstance(jif1, JDFTXInfile) else jif1
     djif2 = jif2.as_dict() if isinstance(jif2, JDFTXInfile) else jif2
     assert_same_value(djif1, djif2)
-
-
-# def is_identical_jif(jif1: JDFTXInfile | dict, jif2: JDFTXInfile | dict):
-#     for key in jif1:
-#         if key not in jif2:
-#             return False
-#         v1 = jif1[key]
-#         v2 = jif2[key]
-#         if not is_identical_jif_val(v1, v2):
-#             return False
-#         # assert is_identical_jif_val(v1, v2)
-#     return True
-
-
-# def is_identical_jif_val(v1, v2):
-#     if not isinstance(v1, type(v2)):
-#         # if type(v1) != type(v2):
-#         return False
-#     if isinstance(v1, float):
-#         return v1 == approx(v2)
-#     if True in [isinstance(v1, str), isinstance(v1, int)]:
-#         return v1 == v2
-#     if True in [isinstance(v1, list), isinstance(v1, tuple)]:
-#         if len(v1) != len(v2):
-#             return False
-#         sames = [is_identical_jif_val(v, v2[i]) for i, v in enumerate(v1)]
-#         return all(sames)
-#     if True in [isinstance(v1, dict)]:
-#         return is_identical_jif(v1, v2)
-#     return None
 
 
 def test_jdftxstructure():
@@ -305,20 +268,3 @@ def assert_equiv_jdftxstructure(struc1: JDFTXStructure, struc2: JDFTXStructure) 
     d1 = struc1.as_dict()
     d2 = struc2.as_dict()
     assert_idential_jif(d1, d2)
-
-
-# def is_equiv_jdftxstructure(struc1: JDFTXStructure, struc2: JDFTXStructure) -> bool:
-#     """Check if two JDFTXStructure objects are equivalent.
-
-#     Check if two JDFTXStructure objects are equivalent.
-
-#     Parameters:
-#     ----------
-#     struc1: JDFTXStructure
-#         The first JDFTXStructure object.
-#     struc2: JDFTXStructure
-#         The second JDFTXStructure object.
-#     """
-#     d1 = struc1.as_dict()
-#     d2 = struc2.as_dict()
-#     return is_identical_jif(d1, d2)
