@@ -6,8 +6,8 @@ from typing import TYPE_CHECKING, Any
 import pytest
 
 from pymatgen.core.units import Ha_to_eV
-from pymatgen.io.jdftx.jdftxoutfile import JDFTXOutfile
 from pymatgen.io.jdftx.jdftxoutfileslice import JDFTXOutfileSlice
+from pymatgen.io.jdftx.outputs import JDFTXOutfile
 from pymatgen.util.testing import TEST_FILES_DIR
 
 if TYPE_CHECKING:
