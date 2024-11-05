@@ -1,6 +1,6 @@
-"""JDFTx out file parsing class.
+"""JDFTx outputs parsing module.
 
-A class to read and process a JDFTx out file.
+Module for parsing outputs of JDFTx.
 
 Note: JDFTXOutfile will be moved back to its own module once a more broad outputs
 class is written.
