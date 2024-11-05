@@ -6,6 +6,7 @@ A mutant of the pymatgen Structure class for flexibility in holding JDFTx
 from __future__ import annotations
 
 import inspect
+import pprint
 from typing import Any, ClassVar
 
 import numpy as np
@@ -807,6 +808,19 @@ class JOutStructure(Structure):
 
         # If the attribute is not found in either, raise an AttributeError
         raise AttributeError(f"{self.__class__.__name__} not found: {name}")
+
+    # TODO: Add string representation for JOutStructure-specific meta-data
+    def __str__(self) -> str:
+        """Return string representation.
+
+        Return a string representation of the JOutStructure object.
+
+        Returns
+        -------
+        str
+            A string representation of the JOutStructure object
+        """
+        return pprint.pformat(self)
 
 
 def is_stress_start_line(line_text: str) -> bool:

@@ -6,6 +6,7 @@ This module contains the JElStep class for parsing single SCF step from a JDFTx 
 from __future__ import annotations
 
 import inspect
+import pprint
 import warnings
 from dataclasses import dataclass, field
 from typing import Any, ClassVar
@@ -278,7 +279,18 @@ class JElStep:
         """
         self.nelectrons = get_colon_var_t1(fillings_line, "nElectrons: ")
 
+    def __str__(self) -> str:
+        """Return string representation of JElStep object.
 
+        Returns
+        -------
+        str: str
+            String representation of JElStep object
+        """
+        return pprint.pformat(self)
+
+
+@dataclass
 class JElSteps:
     """Class object for series of SCF steps.
 
@@ -661,3 +673,13 @@ class JElSteps:
             The number of SCF steps in the JElSteps object
         """
         return len(self.slices)
+
+    def __str__(self) -> str:
+        """Return string representation of JElSteps object.
+
+        Returns
+        -------
+        str: str
+            String representation of JElSteps object
+        """
+        return pprint.pformat(self)

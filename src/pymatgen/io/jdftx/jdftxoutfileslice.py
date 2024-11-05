@@ -9,6 +9,7 @@ from __future__ import annotations
 
 import inspect
 import math
+import pprint
 from dataclasses import dataclass
 from typing import TYPE_CHECKING, Any, ClassVar
 
@@ -29,7 +30,6 @@ from pymatgen.io.jdftx.jminsettings import (
 )
 from pymatgen.io.jdftx.joutstructures import JOutStructures
 from pymatgen.io.jdftx.utils import (
-    ClassPrintFormatter,
     find_all_key,
     find_first_range_key,
     find_key,
@@ -42,7 +42,7 @@ __author__ = "Ben Rich"
 
 
 @dataclass
-class JDFTXOutfileSlice(ClassPrintFormatter):
+class JDFTXOutfileSlice:
     """A class to read and process a JDFTx out file.
 
     A class to read and process a JDFTx out file.
@@ -1644,6 +1644,43 @@ class JDFTXOutfileSlice(ClassPrintFormatter):
 
         # If the attribute is not found in either, raise an AttributeError
         raise AttributeError(f"{self.__class__.__name__} not found: {name}")
+
+    def __repr__(self) -> str:
+        """Return string representation.
+
+        Return a string representation of the JDFTXOutfileSlice.
+
+        Returns
+        -------
+        str
+            String representation of the JDFTXOutfileSlice
+        """
+        out_str = f"{self.__class__.__name__}("
+        for cls in inspect.getmro(self.__class__):
+            for key, value in cls.__dict__.items():
+                if not key.startswith("_") and (not callable(value) or isinstance(value, property)):
+                    pref = ""
+                    suff = ", \n"
+                    val = repr(getattr(self, key))
+                    if "jsettings" in key:
+                        pref = "\n    "
+                    if key == "jstrucs":
+                        val = "(... JOutStructures object ...)"
+                    out_str += f"{pref}{key}={val}{suff}"
+        out_str += ")"
+        return out_str
+
+    def __str__(self) -> str:
+        """Return string representation.
+
+        Return a string representation of the JDFTXOutfileSlice.
+
+        Returns
+        -------
+        str
+            String representation of the JDFTXOutfileSlice
+        """
+        return pprint.pformat(self)
 
 
 def get_pseudo_read_section_bounds(text: list[str]) -> list[list[int]]:

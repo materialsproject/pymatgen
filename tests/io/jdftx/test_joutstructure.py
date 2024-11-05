@@ -94,6 +94,7 @@ ex_slice2_known = {
 @pytest.mark.parametrize(("eslice", "eknowns"), [(ex_slice1, ex_slice1_known), (ex_slice2, ex_slice2_known)])
 def test_jstructure(eslice: list[str], eknowns: dict):
     jst = JOutStructure.from_text_slice(eslice, opt_type="lattice")
+    str(jst)
     assert jst.nstep == eknowns["nstep"]
     assert jst.etype == eknowns["etype"]
     assert approx(eknowns["E"]) == jst.e

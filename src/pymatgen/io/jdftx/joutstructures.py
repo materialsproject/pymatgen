@@ -7,6 +7,7 @@ JOutStructure.
 from __future__ import annotations
 
 import inspect
+import pprint
 from dataclasses import dataclass, field
 from typing import TYPE_CHECKING, Any
 
@@ -520,6 +521,18 @@ class JOutStructures:
             object
         """
         return len(self.slices)
+
+    def __str__(self) -> str:
+        """Return string representation.
+
+        Return a string representation of the JOutStructures object.
+
+        Returns
+        -------
+        str
+            A string representation of the JOutStructures object
+        """
+        return pprint.pformat(self)
 
 
 elec_min_start_flag: str = "-------- Electronic minimization -----------"

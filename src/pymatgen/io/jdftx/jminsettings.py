@@ -7,6 +7,7 @@ file.
 
 from __future__ import annotations
 
+import pprint
 from dataclasses import dataclass
 from typing import Any
 
@@ -33,6 +34,10 @@ class JMinSettings:
         """
         # pre-commit was not a fan of the _assign_type method
         self.params = None if params is None else dict(params)
+
+    def __str__(self) -> str:
+        """Return a string representation of the minimization settings."""
+        return pprint.pformat(self)
 
 
 @dataclass

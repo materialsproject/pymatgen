@@ -6,12 +6,11 @@ A class to read and process a JDFTx out file.
 from __future__ import annotations
 
 import inspect
+import pprint
 from dataclasses import dataclass, field
 from typing import TYPE_CHECKING, Any
 
 from pymatgen.io.jdftx.jdftxoutfileslice import JDFTXOutfileSlice
-
-# from pymatgen.io.jdftx.jdftxoutfileslice_helpers import get_start_lines
 from pymatgen.io.jdftx.utils import read_outfile_slices
 
 if TYPE_CHECKING:
@@ -1288,3 +1287,15 @@ class JDFTXOutfile:
         slice_attrs = dir(self.slices[-1]) if self.slices else []
         # Combine and return unique attributes
         return list(set(default_attrs + slice_attrs))
+
+    def __str__(self) -> str:
+        """Return string representation of JDFTXOutfile object.
+
+        Return a string representation of the JDFTXOutfile object.
+
+        Returns
+        -------
+        str
+            The string representation of the JDFTXOutfile object
+        """
+        return pprint.pformat(self)

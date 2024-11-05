@@ -140,6 +140,8 @@ def test_get_pp_type():
 
 def test_set_pseudo_vars_t1():
     joutslice = JDFTXOutfileSlice.from_out_slice(ex_slice1)
+    str(joutslice)
+    repr(joutslice)
     # Just need more bound sets than there are atom types
     text = [
         "Reading pseudopotential file not_SG15/GBRV",
