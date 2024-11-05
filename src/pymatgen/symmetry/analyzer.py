@@ -77,7 +77,7 @@ def _get_symmetry_dataset(cell, symprec, angle_tolerance):
     """
     dataset = spglib.get_symmetry_dataset(cell, symprec=symprec, angle_tolerance=angle_tolerance)
     if dataset is None:
-        raise SymmetryUndeterminedError
+        raise SymmetryUndeterminedError(spglib.get_error_message())
     return dataset
 
 
