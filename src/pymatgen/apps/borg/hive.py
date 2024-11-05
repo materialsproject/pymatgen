@@ -362,6 +362,9 @@ class GaussianToComputedEntryDrone(AbstractDrone):
 
         self._file_extensions = file_extensions
 
+    def __str__(self) -> Literal["GaussianToComputedEntryDrone"]:
+        return "GaussianToComputedEntryDrone"
+
     def assimilate(self, path):
         """Assimilate data in a directory path into a ComputedEntry object.
 
@@ -411,10 +414,7 @@ class GaussianToComputedEntryDrone(AbstractDrone):
         parent, _subdirs, files = path
         return [os.path.join(parent, file) for file in files if os.path.splitext(file)[1] in self._file_extensions]
 
-    def __str__(self):
-        return " GaussianToComputedEntryDrone"
-
-    def as_dict(self):
+    def as_dict(self) -> dict[str, Any]:
         """Get MSONable dict."""
         return {
             "init_args": {
@@ -428,7 +428,7 @@ class GaussianToComputedEntryDrone(AbstractDrone):
         }
 
     @classmethod
-    def from_dict(cls, dct: dict) -> Self:
+    def from_dict(cls, dct: dict[str, Any]) -> Self:
         """
         Args:
             dct (dict): Dict Representation.
