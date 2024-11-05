@@ -23,6 +23,8 @@ if TYPE_CHECKING:
 
     from typing_extensions import Self
 
+    from pymatgen.util.typing import PathLike
+
 
 logger = logging.getLogger(__name__)
 
@@ -82,12 +84,16 @@ class VaspToComputedEntryDrone(AbstractDrone):
     3. The drone parses only the vasprun.xml file.
     """
 
-    def __init__(self, inc_structure=False, parameters=None, data=None):
+    def __init__(
+        self,
+        inc_structure: bool = False,
+        parameters: list[str] | None = None,
+        data: list | None = None,
+    ) -> None:
         """
         Args:
-            inc_structure (bool): Set to True if you want
-                ComputedStructureEntries to be returned instead of
-                ComputedEntries.
+            inc_structure (bool): Set to True if you want ComputedStructureEntries
+                to be returned instead of ComputedEntries.
             parameters (list): Input parameters to include. It has to be one of
                 the properties supported by the Vasprun object. See
                 pymatgen.io.vasp.Vasprun. If parameters is None,
@@ -111,7 +117,7 @@ class VaspToComputedEntryDrone(AbstractDrone):
     def __str__(self) -> Literal["VaspToComputedEntryDrone"]:
         return "VaspToComputedEntryDrone"
 
-    def assimilate(self, path):
+    def assimilate(self, path: PathLike) -> ComputedStructureEntry | ComputedEntry | None:
         """Assimilate data in a directory path into a ComputedEntry object.
 
         Args:
@@ -144,7 +150,7 @@ class VaspToComputedEntryDrone(AbstractDrone):
 
         # entry.parameters["history"] = _get_transformation_history(path)
 
-    def get_valid_paths(self, path):
+    def get_valid_paths(self, path: tuple[str, str, str]) -> list[str]:
         """Check if paths contains vasprun.xml or (POSCAR+OSZICAR).
 
         Args:
@@ -168,7 +174,7 @@ class VaspToComputedEntryDrone(AbstractDrone):
             return [parent]
         return []
 
-    def as_dict(self):
+    def as_dict(self) -> dict[str, Any]:
         """Get MSONable dict."""
         return {
             "init_args": {
@@ -181,7 +187,7 @@ class VaspToComputedEntryDrone(AbstractDrone):
         }
 
     @classmethod
-    def from_dict(cls, dct: dict) -> Self:
+    def from_dict(cls, dct: dict[str, Any]) -> Self:
         """
         Args:
             dct (dict): Dict Representation.
@@ -211,7 +217,7 @@ class SimpleVaspToComputedEntryDrone(VaspToComputedEntryDrone):
     def __str__(self) -> Literal["SimpleVaspToComputedEntryDrone"]:
         return "SimpleVaspToComputedEntryDrone"
 
-    def assimilate(self, path):
+    def assimilate(self, path: PathLike) -> ComputedStructureEntry | ComputedEntry | None:
         """Assimilate data in a directory path into a ComputedEntry object.
 
         Args:
@@ -260,7 +266,7 @@ class SimpleVaspToComputedEntryDrone(VaspToComputedEntryDrone):
             potcar = Potcar.from_file(files_to_parse["POTCAR"])
             oszicar = Oszicar(files_to_parse["OSZICAR"])
 
-            param = {"hubbards": {}}
+            param: dict[str, Any] = {"hubbards": {}}
             if "LDAUU" in incar:
                 param["hubbards"] = dict(zip(poscar.site_symbols, incar["LDAUU"], strict=True))
             param["is_hubbard"] = incar.get("LDAU", True) and sum(param["hubbards"].values()) > 0
@@ -298,7 +304,7 @@ class SimpleVaspToComputedEntryDrone(VaspToComputedEntryDrone):
         }
 
     @classmethod
-    def from_dict(cls, dct: dict) -> Self:
+    def from_dict(cls, dct: dict[str, Any]) -> Self:
         """
         Args:
             dct (dict): Dict Representation.
