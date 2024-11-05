@@ -108,6 +108,9 @@ class VaspToComputedEntryDrone(AbstractDrone):
             self._parameters.update(parameters)
         self._data = data or []
 
+    def __str__(self) -> Literal["VaspToComputedEntryDrone"]:
+        return "VaspToComputedEntryDrone"
+
     def assimilate(self, path):
         """Assimilate data in a directory path into a ComputedEntry object.
 
@@ -164,9 +167,6 @@ class VaspToComputedEntryDrone(AbstractDrone):
         ):
             return [parent]
         return []
-
-    def __str__(self):
-        return " VaspToComputedEntryDrone"
 
     def as_dict(self):
         """Get MSONable dict."""
@@ -282,6 +282,8 @@ class SimpleVaspToComputedEntryDrone(VaspToComputedEntryDrone):
         except ValueError as exc:
             if "not all necessary files are present" in str(exc):
                 raise
+
+            # TODO: other value error should be suppressed?
 
         except Exception as exc:
             logger.debug(f"error in {path}: {exc}")
@@ -432,7 +434,7 @@ class GaussianToComputedEntryDrone(AbstractDrone):
 
 
 def _get_transformation_history(path):
-    """Check for a transformations.json* file and returns the history."""
+    """Check for a transformations.json* file and return the history."""
     if trans_json := glob(f"{path}/transformations.json*"):
         try:
             with zopen(trans_json[0]) as file:
