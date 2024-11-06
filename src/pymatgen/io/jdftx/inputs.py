@@ -45,6 +45,9 @@ if TYPE_CHECKING:
 
 __author__ = "Jacob Clary, Ben Rich"
 
+# TODO: Add check for whether all ions have or lack velocities.
+# TODO: Add default value filling like JDFTx does.
+
 
 class JDFTXInfile(dict, MSONable):
     """Class for reading/writing JDFtx input files.
@@ -284,10 +287,7 @@ class JDFTXInfile(dict, MSONable):
         if len(line_list) == 2:
             value = line_list[1].strip()
         elif len(line_list) == 1:
-            value = (
-                ""  # exception for tags where only tagname is used,
-                # e.g. dump-only tag
-            )
+            value = ""  # exception for tags where only tagname is used, e.g. dump-only tag
         if isinstance(tag_object, MultiformatTag):
             i = tag_object.get_format_index_for_str_value(tag, value)
             tag_object = tag_object.format_options[i]
@@ -347,8 +347,7 @@ class JDFTXInfile(dict, MSONable):
             List of strings with tags broken across lines combined into single
             string.
         """
-        # gather all tags broken across lines into single string for processing
-        # later
+        # gather all tags broken across lines into single string for processing later
         total_tag = ""
         gathered_strings = []
         for line in lines:
@@ -453,8 +452,7 @@ class JDFTXInfile(dict, MSONable):
         lines = cls._gather_tags(lines)
 
         params: dict[str, Any] = {}
-        # process all tag value lines using specified tag formats in
-        # MASTER_TAG_LIST
+        # process all tag value lines using specified tag formats in MASTER_TAG_LIST
         for line in lines:
             tag_object, tag, value = cls._preprocess_line(line)
             processed_value = tag_object.read(tag, value)
@@ -497,8 +495,8 @@ class JDFTXInfile(dict, MSONable):
             Whether to sort the structure. Useful if species are not grouped
             properly together. Defaults to False.
         """
-        # use dict representation so it's easy to get the right column for
-        # moveScale, rather than checking for velocities
+        # use dict representation so it's easy to get the right column for moveScale,
+        # rather than checking for velocities
         jdftxinfile_dict = cls.get_dict_representation(jdftxinfile)
         return JDFTXStructure.from_jdftxinfile(jdftxinfile_dict, sort_structure=sort_structure)
 
@@ -799,17 +797,13 @@ class JDFTXStructure(MSONable):
                 if not selective_dynamics.all():
                     site_properties["selective_dynamics"] = selective_dynamics
 
-            # create new copy of structure so can add selective dynamics and
-            # sort atoms if needed
+            # create new copy of structure so can add selective dynamics and sort atoms if needed
             structure = Structure.from_sites(self.structure)
             self.structure = structure.copy(site_properties=site_properties)
             if self.sort_structure:
                 self.structure = self.structure.get_sorted_structure()
         else:
-            raise ValueError(
-                "Disordered structure with partial occupancies cannot be \
-                    converted into JDFTXStructure!"
-            )
+            raise ValueError("Disordered structure with partial occupancies cannot be converted into JDFTXStructure!")
 
     def __repr__(self) -> str:
         """Return representation of JDFTXStructure file.

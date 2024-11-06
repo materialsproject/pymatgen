@@ -49,10 +49,7 @@ class AbstractTag(ClassPrintFormatter, ABC):
     multiline_tag: bool = False  # set to True if what to print tags across
     # multiple lines, typically like electronic-minimize
     can_repeat: bool = False  # set to True for tags that can appear on multiple lines, like ion
-    write_tagname: bool = (
-        True  # set to False to not print the tagname, like for subtags of
-        # elec-cutoff
-    )
+    write_tagname: bool = True  # set to False to not print the tagname, like for subtags of elec-cutoff
     write_value: bool = True  # set to False to not print any value, like for dump-interval
     optional: bool = True  # set to False if tag (usually a subtag of a
     # TagContainer) must be set for the JDFTXInfile to be valid.
@@ -113,7 +110,6 @@ class AbstractTag(ClassPrintFormatter, ABC):
                 except (ValueError, TypeError):
                     warning += "(unstringable value)!"
                 warnings.warn("warning", stacklevel=2)
-                # Required unless we want full stop on error
         return tag, is_valid, value
 
     def _validate_repeat(self, tag: str, value: Any) -> None:
@@ -150,10 +146,6 @@ class AbstractTag(ClassPrintFormatter, ABC):
     def get_dict_representation(self, tag: str, value: Any) -> dict | list[dict]:
         """Convert the value to a dict representation."""
         raise ValueError(f"Tag object has no get_dict_representation method: {tag}")
-
-
-# TODO: Add check for whether all ions have or lack velocities.
-# TODO: Add default value filling like JDFTx does.
 
 
 @dataclass
@@ -239,8 +231,7 @@ class BoolTag(AbstractTag):
             if not self.write_value:
                 # accounts for exceptions where only the tagname is used, e.g.
                 # dump-only or dump-fermi-density (sometimes) tags
-                if not value:  # then the string '' was passed in because no
-                    # value was provided but the tag was present
+                if not value:  # then the string '' was passed in because no value was provided but the tag was present
                     value = "yes"
                 else:
                     self.raise_value_error(tag, value)
@@ -789,9 +780,8 @@ class TagContainer(AbstractTag):
         for subtag, subtag_type in (
             (subtag, subtag_type) for subtag, subtag_type in self.subtags.items() if subtag_type.write_tagname
         ):
-            # every subtag with write_tagname=True in a TagContainer has a
-            # fixed length and can be immediately read in this loop if it is
-            # present
+            # every subtag with write_tagname=True in a TagContainer has a fixed length and can be immediately read in
+            # this loop if it is present
             if subtag in value_list:  # this subtag is present in the value string
                 subtag_count = value_list.count(subtag)  # Get number of times subtag appears in line
                 if not subtag_type.can_repeat:

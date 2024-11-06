@@ -5,6 +5,8 @@ This module contains;
     tag names to AbstractTag-type objects.
 - get_tag_object: a function that returns an AbstractTag-type object from
     MASTER_TAG_LIST given a tag name.
+
+@mkhorton - this file is ready to review.
 """
 
 from __future__ import annotations
@@ -62,8 +64,7 @@ MASTER_TAG_LIST: dict[str, dict[str, Any]] = {
             },
         ),
         "coords-type": StrTag(options=["Cartesian", "Lattice"]),
-        # TODO: change lattice tag into MultiformatTag for different
-        # symmetry options
+        # TODO: change lattice tag into MultiformatTag for different symmetry options
         "lattice": TagContainer(
             linebreak_nth_entry=3,
             optional=False,
