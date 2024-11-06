@@ -3,6 +3,8 @@
 This module contains class objects for containing JDFTx tags. These class objects
 are used to validate the type of the value for the tag, read the value string for
 the tag, write the tag and its value as a string, and get the token length of the tag.
+
+@mkhorton - This file is ready to review.
 """
 
 from __future__ import annotations
