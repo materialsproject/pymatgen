@@ -19,6 +19,7 @@ from pymatgen.io.vasp.inputs import Incar, Poscar, Potcar
 from pymatgen.io.vasp.outputs import Dynmat, Oszicar, Vasprun
 
 if TYPE_CHECKING:
+    from collections.abc import Sequence
     from typing import Any, Literal
 
     from typing_extensions import Self
@@ -208,8 +209,8 @@ class SimpleVaspToComputedEntryDrone(VaspToComputedEntryDrone):
     def __init__(self, inc_structure: bool = False) -> None:
         """
         Args:
-            inc_structure (bool): Set to True if you want ComputedStructureEntries to be returned instead of
-                ComputedEntries. Structure will be parsed from the CONTCAR.
+            inc_structure (bool): Return ComputedStructureEntries (True) instead of
+                ComputedEntries (False). Structure will be parsed from the CONTCAR.
         """
         self._inc_structure = inc_structure
         self._parameters = {"is_hubbard", "hubbards", "potcar_spec", "run_type"}
@@ -285,13 +286,10 @@ class SimpleVaspToComputedEntryDrone(VaspToComputedEntryDrone):
                 return ComputedStructureEntry(structure, energy, parameters=param, data=data)
             return ComputedEntry(structure.composition, energy, parameters=param, data=data)
 
-        except ValueError as exc:
-            if "not all necessary files are present" in str(exc):
+        except Exception as exc:
+            if isinstance(exc, ValueError) and "not all necessary files are present" in str(exc):
                 raise
 
-            # TODO: other value error should be suppressed?
-
-        except Exception as exc:
             logger.debug(f"error in {path}: {exc}")
             return None
 
@@ -324,7 +322,13 @@ class GaussianToComputedEntryDrone(AbstractDrone):
         Like the GaussianOutput class, this is still in early beta.
     """
 
-    def __init__(self, inc_structure=False, parameters=None, data=None, file_extensions=(".log",)):
+    def __init__(
+        self,
+        inc_structure: bool = False,
+        parameters: list[str] | None = None,
+        data: list[str] | None = None,
+        file_extensions: Sequence[str] = (".log",),
+    ) -> None:
         """
         Args:
             inc_structure (bool): Set to True if you want
@@ -365,7 +369,7 @@ class GaussianToComputedEntryDrone(AbstractDrone):
     def __str__(self) -> Literal["GaussianToComputedEntryDrone"]:
         return "GaussianToComputedEntryDrone"
 
-    def assimilate(self, path):
+    def assimilate(self, path: PathLike) -> ComputedStructureEntry | ComputedEntry | None:
         """Assimilate data in a directory path into a ComputedEntry object.
 
         Args:
@@ -379,29 +383,25 @@ class GaussianToComputedEntryDrone(AbstractDrone):
         except Exception as exc:
             logger.debug(f"error in {path}: {exc}")
             return None
-        param = {}
-        for p in self._parameters:
-            param[p] = getattr(gau_run, p)
-        data = {}
-        for d in self._data:
-            data[d] = getattr(gau_run, d)
+
+        param = {p: getattr(gau_run, p) for p in self._parameters}
+        data = {d: getattr(gau_run, d) for d in self._data}
+
         if self._inc_structure:
-            entry = ComputedStructureEntry(
+            return ComputedStructureEntry(
                 gau_run.final_structure,
                 gau_run.final_energy,
                 parameters=param,
                 data=data,
             )
-        else:
-            entry = ComputedEntry(
-                gau_run.final_structure.composition,
-                gau_run.final_energy,
-                parameters=param,
-                data=data,
-            )
-        return entry
+        return ComputedEntry(
+            gau_run.final_structure.composition,
+            gau_run.final_energy,
+            parameters=param,
+            data=data,
+        )
 
-    def get_valid_paths(self, path):
+    def get_valid_paths(self, path: tuple[str, str, str]) -> list[str]:
         """Check if path contains files with define extensions.
 
         Args:
