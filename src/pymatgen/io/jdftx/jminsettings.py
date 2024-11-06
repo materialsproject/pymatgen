@@ -3,6 +3,8 @@
 This module contains the JMinSettings class for storing generic minimization
 and mutants for storing specific minimization settings read from a JDFTx out
 file.
+
+@mkhorton - this file is ready to review.
 """
 
 from __future__ import annotations
@@ -32,7 +34,6 @@ class JMinSettings:
         params : dict
             A dictionary of minimization settings.
         """
-        # pre-commit was not a fan of the _assign_type method
         self.params = None if params is None else dict(params)
 
     def __str__(self) -> str:

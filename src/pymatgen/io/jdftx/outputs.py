@@ -4,6 +4,8 @@ Module for parsing outputs of JDFTx.
 
 Note: JDFTXOutfile will be moved back to its own module once a more broad outputs
 class is written.
+
+@mkhorton - this file is ready to review
 """
 
 from __future__ import annotations
@@ -444,7 +446,8 @@ class JDFTXOutfile:
         """
         Return xc_func from most recent JOutStructure.
 
-        Return xc_func from most recent JOutStructure.
+        Return xc_func from most recent JOutStructure, where xc_func is the name of the exchange
+        correlation functional used for the calculation.
         """
         if len(self.slices):
             return self.slices[-1].xc_func
@@ -488,7 +491,8 @@ class JDFTXOutfile:
         """
         Return a from most recent JOutStructure.
 
-        Return a from most recent JOutStructure.
+        Return a from most recent JOutStructure, where a is the length of first lattice vector
+        in Angstroms.
         """
         if len(self.slices):
             return self.slices[-1].a
@@ -499,7 +503,8 @@ class JDFTXOutfile:
         """
         Return b from most recent JOutStructure.
 
-        Return b from most recent JOutStructure.
+        Return b from most recent JOutStructure, where b is the length of the second lattice vector
+        in Angstroms.
         """
         if len(self.slices):
             return self.slices[-1].b
@@ -510,7 +515,8 @@ class JDFTXOutfile:
         """
         Return c from most recent JOutStructure.
 
-        Return c from most recent JOutStructure.
+        Return c from most recent JOutStructure, where c is the length of the second lattice vector
+        in Angstroms.
         """
         if len(self.slices):
             return self.slices[-1].c
@@ -521,7 +527,8 @@ class JDFTXOutfile:
         """
         Return fftgrid from most recent JOutStructure.
 
-        Return fftgrid from most recent JOutStructure.
+        Return fftgrid from most recent JOutStructure, where fftgrid is the shape of electronic density
+        array (as needed for reshaping binary files of real-space arrays).
         """
         if len(self.slices):
             return self.slices[-1].fftgrid
@@ -532,7 +539,8 @@ class JDFTXOutfile:
         """
         Return geom_opt from most recent JOutStructure.
 
-        Return geom_opt from most recent JOutStructure.
+        Return geom_opt from most recent JOutStructure, where geom_opt is True if calculation
+        included some type of geometric optimization, and False if not (ie single point calculation).
         """
         if len(self.slices):
             return self.slices[-1].geom_opt
@@ -543,129 +551,135 @@ class JDFTXOutfile:
         """
         Return geom_opt_type from most recent JOutStructure.
 
-        Return geom_opt_type from most recent JOutStructure.
+        Return geom_opt_type from most recent JOutStructure, where geom_opt_type is the type of geometric
+        optimization performed (lattice, ionic, or single point).
         """
         if len(self.slices):
             return self.slices[-1].geom_opt_type
         raise AttributeError("Property geom_opt_type inaccessible due to empty slices class field")
 
-    # TODO: The following properties may be None if eigstats was not dumped. Change
-    # return signature to float | None for these properties.
-    # - efermi
-    # - egap
-    # - emin
-    # - emax
-    # - homo
-    # - lumo
-    # - homo_filling
-    # - lumo_filling
-    # - is_metal
-
     @property
-    def efermi(self) -> float:
+    def efermi(self) -> float | None:
         """
         Return efermi from most recent JOutStructure.
 
-        Return efermi from most recent JOutStructure.
+        Return efermi from most recent JOutStructure, where efermi is the energy of the Fermi level
+        in eV.
         """
         if len(self.slices):
             return self.slices[-1].efermi
         raise AttributeError("Property efermi inaccessible due to empty slices class field")
 
     @property
-    def egap(self) -> float:
+    def egap(self) -> float | None:
         """
         Return egap from most recent JOutStructure.
 
-        Return egap from most recent JOutStructure.
+        Return egap from most recent JOutStructure, where egap is the size of the band gap in eV.
         """
         if len(self.slices):
             return self.slices[-1].egap
         raise AttributeError("Property egap inaccessible due to empty slices class field")
 
     @property
-    def emin(self) -> float:
+    def emin(self) -> float | None:
         """
         Return emin from most recent JOutStructure.
 
-        Return emin from most recent JOutStructure.
+        Return emin from most recent JOutStructure, where emin is the lowest Kohn-Sham eigenvalue
+        in eV.
         """
         if len(self.slices):
             return self.slices[-1].emin
         raise AttributeError("Property emin inaccessible due to empty slices class field")
 
     @property
-    def emax(self) -> float:
+    def emax(self) -> float | None:
         """
         Return emax from most recent JOutStructure.
 
-        Return emax from most recent JOutStructure.
+        Return emax from most recent JOutStructure, where emax is the highest Kohn-Sham eigenvalue
+        in eV.
         """
         if len(self.slices):
             return self.slices[-1].emax
         raise AttributeError("Property emax inaccessible due to empty slices class field")
 
     @property
-    def homo(self) -> float:
+    def homo(self) -> float | None:
         """
         Return homo from most recent JOutStructure.
 
-        Return homo from most recent JOutStructure.
+        Return homo from most recent JOutStructure, where homo is the energy of last band-state before Fermi level
+        (acronym for Highest Occupied Molecular Orbital, even though these are not molecular orbitals and this
+        state may not be entirely occupied).
+        (None if eigstats are not dumped)
         """
         if len(self.slices):
             return self.slices[-1].homo
         raise AttributeError("Property homo inaccessible due to empty slices class field")
 
     @property
-    def lumo(self) -> float:
+    def lumo(self) -> float | None:
         """
         Return lumo from most recent JOutStructure.
 
-        Return lumo from most recent JOutStructure.
+        Return lumo from most recent JOutStructure, where lumo is the energy of first band-state
+        after Fermi level (acronym for Lowest Unoccupied Molecular Orbital, even though these
+        are not molecular orbitals, and this state may not be entirely unoccupied)
+        (None if eigstats are not dumped)
         """
         if len(self.slices):
             return self.slices[-1].lumo
         raise AttributeError("Property lumo inaccessible due to empty slices class field")
 
     @property
-    def homo_filling(self) -> float:
+    def homo_filling(self) -> float | None:
         """
         Return homo_filling from most recent JOutStructure.
 
-        Return homo_filling from most recent JOutStructure.
+        Return homo_filling from most recent JOutStructure, where homo_filling is the filling at the "homo"
+        energy level.
         """
         if len(self.slices):
             return self.slices[-1].homo_filling
         raise AttributeError("Property homo_filling inaccessible due to empty slices class field")
 
     @property
-    def lumo_filling(self) -> float:
+    def lumo_filling(self) -> float | None:
         """
         Return lumo_filling from most recent JOutStructure.
 
-        Return lumo_filling from most recent JOutStructure.
+        Return lumo_filling from most recent JOutStructure, where lumo_filling is the filling at the "lumo"
+        energy level.
         """
         if len(self.slices):
             return self.slices[-1].lumo_filling
         raise AttributeError("Property lumo_filling inaccessible due to empty slices class field")
 
     @property
-    def is_metal(self) -> bool:
+    def is_metal(self) -> bool | None:
         """
         Return is_metal from most recent JOutStructure.
 
-        Return is_metal from most recent JOutStructure.
+        Return is_metal from most recent JOutStructure, where is_metal is true if fillings of
+        homo and lumo band-states are off-set by 1 and 0 by at least an arbitrary tolerance of
+        0.01 (ie 1 - 0.015 and 0.012 for homo/lumo fillings would be metallic, while 1-0.001
+        and 0 would not be).
+        (Only available if eigstats was dumped).
         """
         if len(self.slices):
             return self.slices[-1].is_metal
         raise AttributeError("Property is_metal inaccessible due to empty slices class field")
 
     @property
-    def etype(self) -> str:
+    def etype(self) -> str | None:
         """
         Return etype from most recent JOutStructure.
 
-        Return etype from most recent JOutStructure.
+        Return etype from most recent JOutStructure, where etype is the string representation of the
+        energy type by which the electronic ensemble was minimized (G, grand-canonical potential for
+        grand-canonical ensemble; F, Helmholtz, for canonical ensemble).
         """
         if len(self.slices):
             return self.slices[-1].etype
@@ -676,7 +690,8 @@ class JDFTXOutfile:
         """
         Return broadening_type from most recent JOutStructure.
 
-        Return broadening_type from most recent JOutStructure.
+        Return broadening_type from most recent JOutStructure, where broadening_type is the function used for
+        smearing electronic filling about the Fermi level.
         """
         if len(self.slices):
             return self.slices[-1].broadening_type
@@ -687,7 +702,8 @@ class JDFTXOutfile:
         """
         Return broadening from most recent JOutStructure.
 
-        Return broadening from most recent JOutStructure.
+        Return broadening from most recent JOutStructure, where broadening is the parameter controlling
+        the magnitude of broadening of electronic filling about the Fermi level.
         """
         if len(self.slices):
             return self.slices[-1].broadening
@@ -698,7 +714,8 @@ class JDFTXOutfile:
         """
         Return kgrid from most recent JOutStructure.
 
-        Return kgrid from most recent JOutStructure.
+        Return kgrid from most recent JOutStructure, where kgrid is the shape of the k-point mesh used to
+        sample the Brillouin-zone of the unit cell (equivalent to kpoint folding).
         """
         if len(self.slices):
             return self.slices[-1].kgrid
@@ -709,18 +726,20 @@ class JDFTXOutfile:
         """
         Return truncation_type from most recent JOutStructure.
 
-        Return truncation_type from most recent JOutStructure.
+        Return truncation_type from most recent JOutStructure, where truncation type is the type of Coloumb
+        truncation used to avoid interaction with neighboring periodic images. ("Periodic" if no truncation)
         """
         if len(self.slices):
             return self.slices[-1].truncation_type
         raise AttributeError("Property truncation_type inaccessible due to empty slices class field")
 
     @property
-    def truncation_radius(self) -> float:
+    def truncation_radius(self) -> float | None:
         """
         Return truncation_radius from most recent JOutStructure.
 
-        Return truncation_radius from most recent JOutStructure.
+        Return truncation_radius from most recent JOutStructure, where truncation_radius is the radius of coloumb
+        truncation boundary in Bohr (not None iff truncation_type is spherical).
         """
         if len(self.slices):
             return self.slices[-1].truncation_radius
@@ -731,7 +750,8 @@ class JDFTXOutfile:
         """
         Return pwcut from most recent JOutStructure.
 
-        Return pwcut from most recent JOutStructure.
+        Return pwcut from most recent JOutStructure, where pwcut is the energy cutoff for planewaves entering
+        the basis set in Hartree.
         """
         if len(self.slices):
             return self.slices[-1].pwcut
@@ -742,18 +762,21 @@ class JDFTXOutfile:
         """
         Return rhocut from most recent JOutStructure.
 
-        Return rhocut from most recent JOutStructure.
+        Return rhocut from most recent JOutStructure, where rhocut is the energy cutoff for the resolution
+        of the real-space grid in Hartree.
         """
         if len(self.slices):
             return self.slices[-1].rhocut
         raise AttributeError("Property rhocut inaccessible due to empty slices class field")
 
     @property
-    def pp_type(self) -> str:
+    def pp_type(self) -> str | None:
         """
         Return pp_type from most recent JOutStructure.
 
-        Return pp_type from most recent JOutStructure.
+        Return pp_type from most recent JOutStructure, where pp_type is the name of the pseudopotential
+        library used for the calculation. Only "GBRV" and "SG15" are supported by this output parser,
+        otherwise pp_type is None.
         """
         if len(self.slices):
             return self.slices[-1].pp_type
@@ -775,7 +798,8 @@ class JDFTXOutfile:
         """
         Return semicore_electrons from most recent JOutStructure.
 
-        Return semicore_electrons from most recent JOutStructure.
+        Return semicore_electrons from most recent JOutStructure, where semicore_electrons are electrons
+        discluded from pseudopotentials but not part of the atom's valence shell.
         """
         if len(self.slices):
             return self.slices[-1].semicore_electrons
@@ -797,7 +821,8 @@ class JDFTXOutfile:
         """
         Return total_electrons_uncharged from most recent JOutStructure.
 
-        Return total_electrons_uncharged from most recent JOutStructure.
+        Return total_electrons_uncharged from most recent JOutStructure, where total_electrons_uncharged indicates
+        the number of electrons required to reach a neutral cell charge.
         """
         if len(self.slices):
             return self.slices[-1].total_electrons_uncharged
@@ -828,31 +853,33 @@ class JDFTXOutfile:
     @property
     def nbands(self) -> int:
         """
-        Return Nbands from most recent JOutStructure.
+        Return nbands from most recent JOutStructure.
 
-        Return Nbands from most recent JOutStructure.
+        Return nbands from most recent JOutStructure, where nbands is the number of bands used in the calculation.
         """
         if len(self.slices):
             return self.slices[-1].nbands
         raise AttributeError("Property nbands inaccessible due to empty slices class field")
 
     @property
-    def atom_elements(self) -> list:
+    def atom_elements(self) -> list[str]:
         """
         Return atom_elements from most recent JOutStructure.
 
-        Return atom_elements from most recent JOutStructure.
+        Return atom_elements from most recent JOutStructure, where atom_elements is the list of each ion's element
+        symbol in the most recent JDFTx call.
         """
         if len(self.slices):
             return self.slices[-1].atom_elements
         raise AttributeError("Property atom_elements inaccessible due to empty slices class field")
 
     @property
-    def atom_elements_int(self) -> list:
+    def atom_elements_int(self) -> list[int]:
         """
         Return atom_elements_int from most recent JOutStructure.
 
-        Return atom_elements_int from most recent JOutStructure.
+        Return atom_elements_int from most recent JOutStructure, where atom_elements_int is the list of ion's atomic
+        numbers in the most recent JDFTx call.
         """
         if len(self.slices):
             return self.slices[-1].atom_elements_int
@@ -863,7 +890,8 @@ class JDFTXOutfile:
         """
         Return atom_types from most recent JOutStructure.
 
-        Return atom_types from most recent JOutStructure.
+        Return atom_types from most recent JOutStructure, where atom_types is the non-repeating list of each ion's
+        element symbol in the most recent JDFTx call.
         """
         if len(self.slices):
             return self.slices[-1].atom_types
@@ -874,7 +902,7 @@ class JDFTXOutfile:
         """
         Return spintype from most recent JOutStructure.
 
-        Return spintype from most recent JOutStructure.
+        Return spintype from most recent JOutStructure, where spintype indicates the way spin was incorporated.
         """
         if len(self.slices):
             return self.slices[-1].spintype
@@ -885,7 +913,7 @@ class JDFTXOutfile:
         """
         Return nspin from most recent JOutStructure.
 
-        Return nspin from most recent JOutStructure.
+        Return nspin from most recent JOutStructure, where nspin indicates the number of spins used in the calculation.
         """
         if len(self.slices):
             return self.slices[-1].nspin
@@ -896,7 +924,7 @@ class JDFTXOutfile:
         """
         Return nat from most recent JOutStructure.
 
-        Return nat from most recent JOutStructure.
+        Return nat from most recent JOutStructure, where nat is the number of atoms in the most recent JDFTx call.
         """
         if len(self.slices):
             return self.slices[-1].nat
@@ -951,7 +979,8 @@ class JDFTXOutfile:
         """
         Return fluid from most recent JOutStructure.
 
-        Return fluid from most recent JOutStructure.
+        Return fluid from most recent JOutStructure, where fluid is the name of the implicit solvent used in the
+        calculation.
         """
         if len(self.slices):
             return self.slices[-1].fluid
@@ -962,7 +991,8 @@ class JDFTXOutfile:
         """
         Return is_gc from most recent JOutStructure.
 
-        Return is_gc from most recent JOutStructure.
+        Return is_gc from most recent JOutStructure, where is_gc is True if the most recent slice is a grand
+        canonical calculation.
 
         Returns
         -------
@@ -1005,7 +1035,8 @@ class JDFTXOutfile:
         """
         Return stress from most recent JOutStructure.
 
-        Return stress from most recent JOutStructure.
+        Return stress from most recent JOutStructure, where stress is the stress tensor of the unit cell
+        in units eV/A^3.
         """
         if len(self.slices):
             return self.slices[-1].stress
@@ -1016,7 +1047,7 @@ class JDFTXOutfile:
         """
         Return strain from most recent JOutStructure.
 
-        Return strain from most recent JOutStructure.
+        Return strain from most recent JOutStructure, where strain is the unitless strain tensor.
         """
         if len(self.slices):
             return self.slices[-1].strain
@@ -1025,9 +1056,9 @@ class JDFTXOutfile:
     @property
     def nstep(self) -> int:
         """
-        Return (geometric) iter number from most recent JOutStructure.
+        Return (geometric) step number from most recent JOutStructure.
 
-        Return (geometric) iter number from most recent JOutStructure.
+        Return (geometric) step number from most recent JOutStructure.
         """
         if len(self.slices):
             return self.slices[-1].nstep
@@ -1036,9 +1067,9 @@ class JDFTXOutfile:
     @property
     def e(self) -> float:
         """
-        Return E from most recent JOutStructure.
+        Return e from most recent JOutStructure.
 
-        Return E from most recent JOutStructure.
+        Return e from most recent JOutStructure, where e is the energy of the system's etype in eV.
         """
         if len(self.slices):
             return self.slices[-1].e
@@ -1049,7 +1080,10 @@ class JDFTXOutfile:
         """
         Return (geometric) grad_k from most recent JOutStructure.
 
-        Return (geometric) grad_k from most recent JOutStructure.
+        Return (geometric) grad_k from most recent JOutStructure, where grad_k is the final
+        norm of the preconditioned gradient for geometric optimization of the most recent JDFTx
+        call (evaluated as dot(g, Kg), where g is the gradient and Kg is the preconditioned gradient).
+        (written as "|grad|_K" in JDFTx output)..
         """
         if len(self.slices):
             return self.slices[-1].grad_k
@@ -1060,7 +1094,8 @@ class JDFTXOutfile:
         """
         Return (geometric) alpha from most recent JOutStructure.
 
-        Return (geometric) alpha from most recent JOutStructure.
+        Return (geometric) alpha from most recent JOutStructure, where alpha is the geometric step size
+        along the line minimization.
         """
         if len(self.slices):
             return self.slices[-1].alpha
@@ -1071,7 +1106,8 @@ class JDFTXOutfile:
         """
         Return (geometric) linmin from most recent JOutStructure.
 
-        Return (geometric) linmin from most recent JOutStructure.
+        Return (geometric) linmin from most recent JOutStructure, where linmin is the final normalized
+        projection of the geometric step direction onto the gradient for the most recent JDFTx call.
         """
         if len(self.slices):
             return self.slices[-1].linmin
@@ -1082,7 +1118,8 @@ class JDFTXOutfile:
         """
         Return nelectrons from most recent JOutStructure.
 
-        Return nelectrons from most recent JOutStructure.
+        Return nelectrons from most recent JOutStructure, where nelectrons is the number of electron
+        (equivalent to total_electrons).
         """
         if len(self.slices):
             return self.slices[-1].nelectrons
@@ -1093,7 +1130,8 @@ class JDFTXOutfile:
         """
         Return abs_magneticmoment from most recent JOutStructure.
 
-        Return abs_magneticmoment from most recent JOutStructure.
+        Return abs_magneticmoment from most recent JOutStructure, where abs_magnetic_moment is the absolute
+        magnetic moment of electronic density. (None if restricted spin)
         """
         if len(self.slices):
             return self.slices[-1].abs_magneticmoment
@@ -1104,7 +1142,8 @@ class JDFTXOutfile:
         """
         Return tot_magneticmoment from most recent JOutStructure.
 
-        Return tot_magneticmoment from most recent JOutStructure.
+        Return tot_magneticmoment from most recent JOutStructure, where tot_magnetic_moment is the total
+        magnetic moment of the electronic density. (None if restricted spin)
         """
         if len(self.slices):
             return self.slices[-1].tot_magneticmoment
@@ -1129,9 +1168,9 @@ class JDFTXOutfile:
 
     @property
     def elec_nstep(self) -> int:
-        """Return the most recent electronic iteration.
+        """Return the most recent electronic step number.
 
-        Return the most recent electronic iteration.
+        Return the most recent electronic step number.
 
         Returns
         -------
@@ -1159,7 +1198,7 @@ class JDFTXOutfile:
     def elec_grad_k(self) -> int:
         """Return the most recent electronic grad_k.
 
-        Return the most recent electronic grad_k.
+        Return the most recent electronic grad_k. (Equivalent to grad_k but for electronic line minimization)
 
         Returns
         -------
@@ -1173,7 +1212,7 @@ class JDFTXOutfile:
     def elec_alpha(self) -> float:
         """Return the most recent electronic alpha.
 
-        Return the most recent electronic alpha.
+        Return the most recent electronic alpha.  (Equivalent to alpha but for electronic line minimization)
 
         Returns
         -------
@@ -1187,7 +1226,7 @@ class JDFTXOutfile:
     def elec_linmin(self) -> float:
         """Return the most recent electronic linmin.
 
-        Return the most recent electronic linmin.
+        Return the most recent electronic linmin.  (Equivalent to linmin but for electronic line minimization)
 
         Returns
         -------

@@ -48,5 +48,6 @@ This folder is currently missing:
 
 from __future__ import annotations
 
+# Importing these within in __init__ so that surface-level imports can be made from the module itself
 from pymatgen.io.jdftx.inputs import JDFTXInfile
 from pymatgen.io.jdftx.outputs import JDFTXOutfile

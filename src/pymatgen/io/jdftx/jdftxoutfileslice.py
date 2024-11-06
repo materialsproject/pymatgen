@@ -3,6 +3,7 @@
 This module defines the JDFTxOutfileSlice class, which is used to read and
 process a JDFTx out file.
 
+@mkhorton - This file is ready to review
 """
 
 from __future__ import annotations
@@ -43,9 +44,10 @@ __author__ = "Ben Rich"
 
 @dataclass
 class JDFTXOutfileSlice:
-    """A class to read and process a JDFTx out file.
+    """A class to read and process a slice of a JDFTx out file.
 
-    A class to read and process a JDFTx out file.
+    A class to read and process a slice of a JDFTx out file, where a "slice" is a segment
+    of an out file corresponding to a single call of JDFTx.
 
     Methods
     ----------
@@ -382,7 +384,6 @@ class JDFTXOutfileSlice:
     emax: float | None = None
     homo: float | None = None
     lumo: float | None = None
-    # TODO: Change homo_filling, lumo_filling, and is_metal to properties
     homo_filling: float | None = None
     lumo_filling: float | None = None
     is_metal: bool | None = None
@@ -778,7 +779,6 @@ class JDFTXOutfileSlice:
         instance.set_orb_fillings()
         instance.is_metal = instance.determine_is_metal()
         instance.set_fluid(text)
-        # instance.set_total_electrons(text)
         instance.set_nbands(text)
         instance.set_atom_vars(text)
         instance.set_pseudo_vars(text)
@@ -1539,7 +1539,6 @@ class JDFTXOutfileSlice:
         """
         # most broadening implementations do not have the denominator factor
         # of 2, but JDFTx does currently.
-        # Remove if use this for other code outfile reading
         x = (eig - efermi) / (2.0 * broadening)
         if broadening_type == "Fermi":
             filling = 0.5 * (1 - np.tanh(x))

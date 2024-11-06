@@ -4,6 +4,8 @@ Classes for reading/manipulating/writing JDFTx input files.
 
 Note: JDFTXInfile will be moved back to its own module once a more broad inputs
 class is written.
+
+@mkhorton - This file is ready to review.
 """
 
 from __future__ import annotations
@@ -45,6 +47,9 @@ if TYPE_CHECKING:
 
 __author__ = "Jacob Clary, Ben Rich"
 
+# TODO: Add check for whether all ions have or lack velocities.
+# TODO: Add default value filling like JDFTx does.
+
 
 class JDFTXInfile(dict, MSONable):
     """Class for reading/writing JDFtx input files.
@@ -53,7 +58,7 @@ class JDFTXInfile(dict, MSONable):
     Essentially a dictionary with some helper functions.
     """
 
-    path_parent: str | None = None  # Only gets initialized if from_file
+    path_parent: str | None = None  # Only gets a value if JDFTXInfile is initializedf with from_file
 
     def __init__(self, params: dict[str, Any] | None = None) -> None:
         """
@@ -188,22 +193,21 @@ class JDFTXInfile(dict, MSONable):
                     tag_object = tag_object.format_options[i]
                 if tag_object.can_repeat and isinstance(self_as_dict[tag], list):
                     # if a tag_object.can_repeat, it is assumed that self[tag]
-                    #    is a list the 2nd condition ensures this
+                    #    is a list (the 2nd condition ensures this)
                     # if it is not a list, then the tag will still be printed by
                     #    the else this could be relevant if someone manually
                     #    sets the tag the can repeat's value to a non-list
                     text += [tag_object.write(tag, entry) for entry in self_as_dict[tag]]
                 else:
                     text.append(tag_object.write(tag, self_as_dict[tag]))
-
             if added_tag_in_group:
                 text.append("")
         return text
 
     def write_file(self, filename: PathLike) -> None:
-        """Write JDFTXInfile to a file.
+        """Write JDFTXInfile to an in file.
 
-        Write JDFTXInfile to a file.
+        Write JDFTXInfile to an in file.
 
         Parameters
         ----------
@@ -221,9 +225,9 @@ class JDFTXInfile(dict, MSONable):
         sort_tags: bool = True,
         assign_path_parent: bool = True,
     ) -> Self:
-        """Read an JDFTXInfile object from a file.
+        """Read a JDFTXInfile object from a file.
 
-        Read an JDFTXInfile object from a file.
+        Read a JDFTXInfile object from a file.
 
         Parameters
         ----------
@@ -284,10 +288,7 @@ class JDFTXInfile(dict, MSONable):
         if len(line_list) == 2:
             value = line_list[1].strip()
         elif len(line_list) == 1:
-            value = (
-                ""  # exception for tags where only tagname is used,
-                # e.g. dump-only tag
-            )
+            value = ""  # exception for tags where only tagname is used, e.g. dump-only tag
         if isinstance(tag_object, MultiformatTag):
             i = tag_object.get_format_index_for_str_value(tag, value)
             tag_object = tag_object.format_options[i]
@@ -309,7 +310,8 @@ class JDFTXInfile(dict, MSONable):
         params : dict
             Dictionary to store the value in.
         tag_object : AbstractTag
-            Tag object.
+            Tag object for holding tag/value pair. This tag object should be the tag object which the "tag" string maps
+            to in MASTER_TAG_LIST.
         tag : str
             Tag name.
         value : Any
@@ -347,12 +349,10 @@ class JDFTXInfile(dict, MSONable):
             List of strings with tags broken across lines combined into single
             string.
         """
-        # gather all tags broken across lines into single string for processing
-        # later
         total_tag = ""
         gathered_strings = []
         for line in lines:
-            if line[-1] == "\\":  # then tag is continued on next line
+            if line[-1] == "\\":  # "\" indicates line continuation (the first "\" needed to be escaped)
                 total_tag += line[:-1].strip() + " "  # remove \ and any extra whitespace
             elif total_tag:  # then finished with line continuations
                 total_tag += line
@@ -453,8 +453,7 @@ class JDFTXInfile(dict, MSONable):
         lines = cls._gather_tags(lines)
 
         params: dict[str, Any] = {}
-        # process all tag value lines using specified tag formats in
-        # MASTER_TAG_LIST
+        # process all tag value lines using specified tag formats in MASTER_TAG_LIST
         for line in lines:
             tag_object, tag, value = cls._preprocess_line(line)
             processed_value = tag_object.read(tag, value)
@@ -497,8 +496,8 @@ class JDFTXInfile(dict, MSONable):
             Whether to sort the structure. Useful if species are not grouped
             properly together. Defaults to False.
         """
-        # use dict representation so it's easy to get the right column for
-        # moveScale, rather than checking for velocities
+        # use dict representation so it's easy to get the right column for moveScale,
+        # rather than checking for velocities
         jdftxinfile_dict = cls.get_dict_representation(jdftxinfile)
         return JDFTXStructure.from_jdftxinfile(jdftxinfile_dict, sort_structure=sort_structure)
 
@@ -799,17 +798,13 @@ class JDFTXStructure(MSONable):
                 if not selective_dynamics.all():
                     site_properties["selective_dynamics"] = selective_dynamics
 
-            # create new copy of structure so can add selective dynamics and
-            # sort atoms if needed
+            # create new copy of structure so can add selective dynamics and sort atoms if needed
             structure = Structure.from_sites(self.structure)
             self.structure = structure.copy(site_properties=site_properties)
             if self.sort_structure:
                 self.structure = self.structure.get_sorted_structure()
         else:
-            raise ValueError(
-                "Disordered structure with partial occupancies cannot be \
-                    converted into JDFTXStructure!"
-            )
+            raise ValueError("Disordered structure with partial occupancies cannot be converted into JDFTXStructure!")
 
     def __repr__(self) -> str:
         """Return representation of JDFTXStructure file.

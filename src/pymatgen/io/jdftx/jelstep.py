@@ -1,6 +1,8 @@
 """Module for parsing single SCF step from JDFTx.
 
 This module contains the JElStep class for parsing single SCF step from a JDFTx out file.
+
+@mkhorton - this file is ready to review.
 """
 
 from __future__ import annotations
@@ -12,7 +14,7 @@ from dataclasses import dataclass, field
 from typing import Any, ClassVar
 
 from pymatgen.core.units import Ha_to_eV
-from pymatgen.io.jdftx.utils import gather_JElSteps_line_collections, get_colon_var_t1
+from pymatgen.io.jdftx.utils import get_colon_var_t1
 
 __author__ = "Ben Rich"
 
@@ -683,3 +685,42 @@ class JElSteps:
             String representation of JElSteps object
         """
         return pprint.pformat(self)
+
+
+def gather_JElSteps_line_collections(opt_type: str, text_slice: list[str]) -> tuple[list[list[str]], list[str]]:
+    """Gather line collections for JElSteps initialization.
+
+    Gathers list of line lists where each line list initializes a JElStep object,
+    and the remaining lines that do not initialize a JElStep object are used
+    for initialization unique to the JElSteps object.
+
+    Parameters
+    ----------
+    opt_type: str
+        The type of electronic minimization step
+    text_slice: list[str]
+        A slice of text from a JDFTx out file corresponding to a series of
+        SCF steps
+
+    Returns
+    -------
+    line_collections: list[list[str]]
+        A list of lists of lines of text from a JDFTx out file corresponding to
+        a single SCF step
+    lines_collect: list[str]
+        A list of lines of text from a JDFTx out file corresponding to a single
+        SCF step
+
+    """
+    lines_collect = []
+    line_collections = []
+    _iter_flag = f"{opt_type}: Iter:"
+    for line_text in text_slice:
+        if len(line_text.strip()):
+            lines_collect.append(line_text)
+            if _iter_flag in line_text:
+                line_collections.append(lines_collect)
+                lines_collect = []
+        else:
+            break
+    return line_collections, lines_collect

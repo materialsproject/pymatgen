@@ -3,6 +3,8 @@
 This module contains class objects for containing JDFTx tags. These class objects
 are used to validate the type of the value for the tag, read the value string for
 the tag, write the tag and its value as a string, and get the token length of the tag.
+
+@mkhorton - This file is ready to review.
 """
 
 from __future__ import annotations
@@ -20,6 +22,9 @@ from pymatgen.io.jdftx.utils import flatten_list
 __author__ = "Jacob Clary, Ben Rich"
 
 
+# This inheritable class is kept for use by AbstractTag instead of using pprint as
+# the type conversions for tags are incredibly delicate and require strings to be
+# printed in a very exact way.
 class ClassPrintFormatter:
     """Generic class for printing to command line in readable format.
 
@@ -46,10 +51,7 @@ class AbstractTag(ClassPrintFormatter, ABC):
     multiline_tag: bool = False  # set to True if what to print tags across
     # multiple lines, typically like electronic-minimize
     can_repeat: bool = False  # set to True for tags that can appear on multiple lines, like ion
-    write_tagname: bool = (
-        True  # set to False to not print the tagname, like for subtags of
-        # elec-cutoff
-    )
+    write_tagname: bool = True  # set to False to not print the tagname, like for subtags of elec-cutoff
     write_value: bool = True  # set to False to not print any value, like for dump-interval
     optional: bool = True  # set to False if tag (usually a subtag of a
     # TagContainer) must be set for the JDFTXInfile to be valid.
@@ -110,7 +112,6 @@ class AbstractTag(ClassPrintFormatter, ABC):
                 except (ValueError, TypeError):
                     warning += "(unstringable value)!"
                 warnings.warn("warning", stacklevel=2)
-                # Required unless we want full stop on error
         return tag, is_valid, value
 
     def _validate_repeat(self, tag: str, value: Any) -> None:
@@ -147,20 +148,6 @@ class AbstractTag(ClassPrintFormatter, ABC):
     def get_dict_representation(self, tag: str, value: Any) -> dict | list[dict]:
         """Convert the value to a dict representation."""
         raise ValueError(f"Tag object has no get_dict_representation method: {tag}")
-
-
-"""
-
-check that all ions either have or lack velocities
-add validation of which tags require/forbid presence of other tags according to
-JDFTx docs?
-
-choose how DeferredTags inherit from TagContainer?? same functionality once
-process the values "for real"
-
-#possible TODO: add defaults like JDFTx does
-
-"""
 
 
 @dataclass
@@ -246,8 +233,7 @@ class BoolTag(AbstractTag):
             if not self.write_value:
                 # accounts for exceptions where only the tagname is used, e.g.
                 # dump-only or dump-fermi-density (sometimes) tags
-                if not value:  # then the string '' was passed in because no
-                    # value was provided but the tag was present
+                if not value:  # then the string '' was passed in because no value was provided but the tag was present
                     value = "yes"
                 else:
                     self.raise_value_error(tag, value)
@@ -791,15 +777,13 @@ class TagContainer(AbstractTag):
                     stacklevel=2,
                 )
 
-        tempdict = {}  # temporarily store read tags out of order they are
-        # processed
+        tempdict = {}  # temporarily store read tags out of order they are processed
 
         for subtag, subtag_type in (
             (subtag, subtag_type) for subtag, subtag_type in self.subtags.items() if subtag_type.write_tagname
         ):
-            # every subtag with write_tagname=True in a TagContainer has a
-            # fixed length and can be immediately read in this loop if it is
-            # present
+            # every subtag with write_tagname=True in a TagContainer has a fixed length and can be immediately read in
+            # this loop if it is present
             if subtag in value_list:  # this subtag is present in the value string
                 subtag_count = value_list.count(subtag)  # Get number of times subtag appears in line
                 if not subtag_type.can_repeat:
@@ -820,8 +804,7 @@ class TagContainer(AbstractTag):
                         idx_end = idx_start + subtag_type.get_token_len()
                         subtag_value = " ".join(
                             value_list[(idx_start + 1) : idx_end]
-                        )  # add 1 so the subtag value string excludes the
-                        # subtagname
+                        )  # add 1 so the subtag value string excludes the subtagname
                         tempdict[subtag].append(subtag_type.read(subtag, subtag_value))
                         del value_list[idx_start:idx_end]
 
@@ -902,8 +885,7 @@ class TagContainer(AbstractTag):
             else:
                 final_value += f"{print_str}"
         if self.multiline_tag or self.linebreak_nth_entry is not None:  # handles special formatting for lattice tag
-            final_value = final_value[:-2]  # exclude final \\n from final
-            # print call
+            final_value = final_value[:-2]  # exclude final \\n from final print call
 
         return self._write(tag, final_value, self.linebreak_nth_entry is not None)
 
@@ -917,8 +899,7 @@ class TagContainer(AbstractTag):
         int
             The token length of the tag.
         """
-        min_token_len = int(self.write_tagname)  # length of value subtags
-        # added next
+        min_token_len = int(self.write_tagname)  # length of value subtags added next
         for subtag_type in self.subtags.values():
             subtag_token_len = subtag_type.get_token_len()  # recursive for nested TagContainers
             if not subtag_type.optional:  # TagContainers could be longer with optional subtags included
@@ -932,19 +913,16 @@ class TagContainer(AbstractTag):
         for subtag in value:
             subtag_type = self.subtags[subtag]
             if subtag_type.allow_list_representation:
-                # this block deals with making list representations of any
-                # nested TagContainers
+                # this block deals with making list representations of any nested TagContainers
                 if not isinstance(value[subtag], dict):
                     raise ValueError(f"The subtag {subtag} is not a dict: '{value[subtag]}', so could not be converted")
                 subtag_value2 = subtag_type.get_list_representation(subtag, value[subtag])  # recursive list generation
 
-                if subtag_type.write_tagname:  # needed to write 'v' subtag in
-                    # 'ion' tag
+                if subtag_type.write_tagname:  # needed to write 'v' subtag in 'ion' tag
                     value_list.append(subtag)
                 value_list.extend(subtag_value2)
             elif isinstance(value[subtag], dict):
-                # this triggers if someone sets this tag using mixed dict/list
-                # representations
+                # this triggers if someone sets this tag using mixed dict/list representations
                 warnings.warn(
                     f"The {subtag} subtag does not allow list representation with a value "
                     f"{value[subtag]}.\n I added the dict to the list. Is this correct? "
@@ -953,8 +931,7 @@ class TagContainer(AbstractTag):
                 )
                 value_list.append(value[subtag])
             else:
-                # the subtag is simply of form {'subtag': subtag_value} and now
-                # adds concrete values to the list
+                # the subtag is simply of form {'subtag': subtag_value} and now adds concrete values to the list
                 value_list.append(value[subtag])
 
         # return list of lists for tags in matrix format, e.g. lattice tag
@@ -1049,8 +1026,7 @@ class TagContainer(AbstractTag):
         dict | list[dict]
             The value converted to a dict representation.
         """
-        # convert list or list of lists representation into string the
-        # TagContainer can process back into (nested) dict
+        # convert list or list of lists representation into string the TagContainer can process back into (nested) dict
 
         if self.can_repeat and not isinstance(value, list):
             raise ValueError("Values for repeatable tags must be a list here")
@@ -1156,53 +1132,6 @@ class MultiformatTag(AbstractTag):
         err_str += " Get the proper format option first."
         raise RuntimeError(err_str)
 
-    # READ AND WRITE METHODS ARE COMMENTED OUT SINCE THEY ARE UNREACHABLE AT THE MOMENT
-    # def read(self, tag: str, value: str) -> None:
-    #     """Read the value string for this tag.
-
-    #     Read the value string for this tag.
-
-    #     Parameters
-    #     ----------
-    #     tag : str
-    #         The tag to read the value string for.
-    #     value : str
-    #         The value string to read.
-    #     """
-    #     problem_log = []
-    #     for i, trial_format in enumerate(
-    #         self.format_options
-    #     ):  # format_options is a list of AbstractTag-inheriting objects
-    #         try:
-    #             return trial_format.read(tag, value)
-    #         except (ValueError, TypeError) as e:
-    #             problem_log.append(f"Format {i}: {e}")
-    #     errormsg = f"No valid read format for '{tag} {value}' tag\nAdd option \
-    #         to format_options or double-check the value string and retry!\n\n"
-    #     errormsg += "Here is the log of errors for each known \
-    #         formatting option:\n"
-    #     errormsg += "\n".join([f"Format {x}: {problem_log[x]}" for x in range(len(problem_log))])
-    #     raise ValueError(errormsg)
-
-    # def write(self, tag: str, value: Any) -> str:
-    #     """Write the tag and its value as a string.
-
-    #     This method writes the tag and its value as a string.
-
-    #     Parameters
-    #     ----------
-    #     tag : str
-    #         The tag to write.
-    #     value : Any
-    #         The value to write.
-
-    #     Returns
-    #     -------
-    #     str
-    #     """
-    #     format_index, _ = self._determine_format_option(tag, value)
-    #     return self.format_options[format_index].write(tag, value)
-
     def get_format_index_for_str_value(self, tag: str, value: str) -> int:
         """Get the format index from string rep of value.
 
@@ -1307,10 +1236,6 @@ class BoolTagContainer(TagContainer):
     are read given the existence of their "var" name.
     """
 
-    # Leaving this as a warning, it confuses the hell out of pre-commit
-    # even if it is correct.
-    # subtags: dict[str, BoolTag] = None
-
     def read(self, tag: str, value_str: str) -> dict:
         """Read the value string for this tag.
 
@@ -1355,8 +1280,6 @@ class DumpTagContainer(TagContainer):
     This class is used to handle the "dump" tag.
     """
 
-    # subtags: dict[str, BoolTagContainer] = None
-
     def read(self, tag: str, value_str: str) -> dict:
         """Read the value string for this tag.
 
@@ -1387,9 +1310,6 @@ class DumpTagContainer(TagContainer):
         # coarse-grained validation of read
         subdict = {x: tempdict[x] for x in self.subtags if x in tempdict}
         # There are no forced subtags for dump
-        # for subtag, subtag_type in self.subtags.items():
-        #     if not subtag_type.optional and subtag not in subdict:
-        #         raise ValueError(f"The {subtag} tag is not optional but was not populated during the read!")
         if len(value) > 0:
             raise ValueError(
                 f"Something is wrong in the JDFTXInfile formatting, some values were not processed: {value}"
