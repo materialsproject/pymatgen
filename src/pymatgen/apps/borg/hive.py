@@ -89,7 +89,7 @@ class VaspToComputedEntryDrone(AbstractDrone):
         self,
         inc_structure: bool = False,
         parameters: list[str] | None = None,
-        data: list | None = None,
+        data: list[str] | None = None,
     ) -> None:
         """
         Args:
@@ -233,10 +233,10 @@ class SimpleVaspToComputedEntryDrone(VaspToComputedEntryDrone):
             filenames = {"INCAR", "POTCAR", "CONTCAR", "OSZICAR", "POSCAR", "DYNMAT"}
             if "relax1" in files and "relax2" in files:
                 for filename in ("INCAR", "POTCAR", "POSCAR"):
-                    search_str = f"{path}/relax1", f"{filename}*"
+                    search_str = f"{path}/relax1/{filename}*"
                     files_to_parse[filename] = glob(search_str)[0]
                 for filename in ("CONTCAR", "OSZICAR"):
-                    search_str = f"{path}/relax2", f"{filename}*"
+                    search_str = f"{path}/relax2/{filename}*"
                     files_to_parse[filename] = glob(search_str)[-1]
             else:
                 for filename in filenames:
@@ -439,9 +439,9 @@ class GaussianToComputedEntryDrone(AbstractDrone):
         return cls(**dct["init_args"])
 
 
-def _get_transformation_history(path):
+def _get_transformation_history(path: PathLike):
     """Check for a transformations.json* file and return the history."""
-    if trans_json := glob(f"{path}/transformations.json*"):
+    if trans_json := glob(f"{path!s}/transformations.json*"):
         try:
             with zopen(trans_json[0]) as file:
                 return json.load(file)["history"]
