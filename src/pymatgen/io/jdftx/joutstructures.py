@@ -35,7 +35,6 @@ class JOutStructures:
     out_slice_start_flag: str
         The string that marks the beginning of the portion of an out file slice
         that contains data for a JOutStructures object.
-
     """
 
     out_slice_start_flag = "-------- Electronic minimization -----------"

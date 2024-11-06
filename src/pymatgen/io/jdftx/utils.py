@@ -1,4 +1,11 @@
-"""Module for JDFTx utils."""
+"""Module for JDFTx IO module utils.
+
+Module for JDFTx IO module utils. Functions kept in this module are here if they are
+used by multiple submodules, or if they are anticipated to be used by multiple
+submodules in the future.
+
+@mkhorton - this file is ready to review.
+"""
 
 from __future__ import annotations
 
@@ -11,50 +18,6 @@ from monty.io import zopen
 
 if TYPE_CHECKING:
     from collections.abc import Callable
-
-
-def gather_JElSteps_line_collections(opt_type: str, text_slice: list[str]) -> tuple[list[list[str]], list[str]]:
-    """Gather line collections for JElSteps initialization.
-
-    Gathers list of line lists where each line list initializes a JElStep object,
-    and the remaining lines that do not initialize a JElStep object are used
-    for initialization unique to the JElSteps object.
-
-    Parameters
-    ----------
-    opt_type: str
-        The type of electronic minimization step
-    text_slice: list[str]
-        A slice of text from a JDFTx out file corresponding to a series of
-        SCF steps
-
-    Returns
-    -------
-    line_collections: list[list[str]]
-        A list of lists of lines of text from a JDFTx out file corresponding to
-        a single SCF step
-    lines_collect: list[str]
-        A list of lines of text from a JDFTx out file corresponding to a single
-        SCF step
-
-    """
-    lines_collect = []
-    line_collections = []
-    _iter_flag = f"{opt_type}: Iter:"
-    for line_text in text_slice:
-        if len(line_text.strip()):
-            lines_collect.append(line_text)
-            if _iter_flag in line_text:
-                line_collections.append(lines_collect)
-                lines_collect = []
-        else:
-            break
-    return line_collections, lines_collect
-
-
-############################################
-# HELPERS FOR JDFTXOUTFILE #
-############################################
 
 
 def check_file_exists(func: Callable) -> Any:
@@ -120,11 +83,6 @@ def read_outfile_slices(file_name: str) -> list[list[str]]:
     return texts
 
 
-############################################
-# HELPERS FOR JDFTXINFILE #
-############################################
-
-
 def multi_hasattr(varbase: Any, varname: str):
     """Check if object has an attribute (capable of nesting with . splits).
 
@@ -178,11 +136,6 @@ def multi_getattr(varbase: Any, varname: str):
     return varbase
 
 
-############################################
-# HELPERS FOR GENERIC_TAGS #
-############################################
-
-
 def flatten_list(tag: str, list_of_lists: list[Any]) -> list[Any]:
     """Flatten list of lists into a single list, then stop.
 
@@ -209,11 +162,6 @@ def flatten_list(tag: str, list_of_lists: list[Any]) -> list[Any]:
         else:
             flist.append(v)
     return flist
-
-
-############################################
-# HELPERS FOR JOUTSTRUCTURE(S) #
-############################################
 
 
 def _brkt_list_of_3_to_nparray(line: str) -> np.ndarray:
@@ -252,9 +200,8 @@ def _brkt_list_of_3x3_to_nparray(lines: list[str], i_start: int = 0) -> np.ndarr
     return out
 
 
-# elec_min_start_flag: str = "-------- Electronic minimization -----------"
-
-
+# Named "t1" in unmet anticipation of multiple ways that a float would be needed
+# to be read following the variable string with a colon.
 def get_colon_var_t1(linetext: str, lkey: str) -> float | None:
     """Return float val from '...lkey: val...' in linetext.
 
@@ -266,7 +213,8 @@ def get_colon_var_t1(linetext: str, lkey: str) -> float | None:
     linetext: str
         A line of text from a JDFTx out file
     lkey: str
-        A string that appears before the float value in linetext
+        A string that appears before the float value in linetext. Must include
+        the colon.
     """
     colon_var = None
     if lkey in linetext:
@@ -323,26 +271,6 @@ def correct_geom_opt_type(opt_type: str | None) -> str | None:
     return opt_type
 
 
-############################################
-# HELPERS FOR JDFTXOUTFILESLICE #
-############################################
-
-
-class ClassPrintFormatter:
-    """Generic class object print formatter.
-
-    Generic class object print formatter.
-    """
-
-    def __str__(self) -> str:
-        """Return class object as str for readable format in command line."""
-        return (
-            str(self.__class__)
-            + "\n"
-            + "\n".join(str(item) + " = " + str(self.__dict__[item]) for item in sorted(self.__dict__))
-        )
-
-
 def get_start_lines(
     text: list[str],
     start_key: str = "*************** JDFTx",
@@ -371,7 +299,7 @@ def get_start_lines(
 
 
 def find_key_first(key_input: str, tempfile: list[str]) -> int | None:
-    """
+    """Find first instance of key in output file.
 
     Find first instance of key in output file.
 
@@ -392,7 +320,7 @@ def find_key_first(key_input: str, tempfile: list[str]) -> int | None:
 
 
 def find_key(key_input: str, tempfile: list[str]) -> int | None:
-    """
+    """Find last instance of key in output file.
 
     Find last instance of key in output file.
 
@@ -418,7 +346,7 @@ def find_first_range_key(
     endline: int = -1,
     skip_pound: bool = False,
 ) -> list[int]:
-    """
+    """Find all lines that exactly begin with key_input in a range of lines.
 
     Find all lines that exactly begin with key_input in a range of lines.
 

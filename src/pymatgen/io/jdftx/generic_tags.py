@@ -20,6 +20,9 @@ from pymatgen.io.jdftx.utils import flatten_list
 __author__ = "Jacob Clary, Ben Rich"
 
 
+# This inheritable class is kept for use by AbstractTag instead of using pprint as
+# the type conversions for tags are incredibly delicate and require strings to be
+# printed in a very exact way.
 class ClassPrintFormatter:
     """Generic class for printing to command line in readable format.
 
@@ -149,18 +152,8 @@ class AbstractTag(ClassPrintFormatter, ABC):
         raise ValueError(f"Tag object has no get_dict_representation method: {tag}")
 
 
-"""
-
-check that all ions either have or lack velocities
-add validation of which tags require/forbid presence of other tags according to
-JDFTx docs?
-
-choose how DeferredTags inherit from TagContainer?? same functionality once
-process the values "for real"
-
-#possible TODO: add defaults like JDFTx does
-
-"""
+# TODO: Add check for whether all ions have or lack velocities.
+# TODO: Add default value filling like JDFTx does.
 
 
 @dataclass
