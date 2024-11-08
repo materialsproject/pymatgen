@@ -607,7 +607,10 @@ class BoltztrapRunner(MSONable):
                         bt_exe.append("-so")
 
                     with subprocess.Popen(
-                        bt_exe, stdout=subprocess.PIPE, stdin=subprocess.PIPE, stderr=subprocess.PIPE
+                        bt_exe,
+                        stdout=subprocess.PIPE,
+                        stdin=subprocess.PIPE,
+                        stderr=subprocess.PIPE,
                     ) as process:
                         process.wait()
 
@@ -876,7 +879,11 @@ class BoltztrapAnalyzer:
             bands_dict = {Spin.up: bz_bands_in_eV[:, idx_list[:, 1]].tolist()}
 
             return BandStructureSymmLine(
-                kpt_line, bands_dict, structure.lattice.reciprocal_lattice, efermi, labels_dict=labels_dict
+                kpt_line,
+                bands_dict,
+                structure.lattice.reciprocal_lattice,
+                efermi,
+                labels_dict=labels_dict,
             )
 
         except Exception:
@@ -1353,7 +1360,11 @@ class BoltztrapAnalyzer:
         return sbk_mass
 
     def get_complexity_factor(
-        self, output: Literal["average", "tensor"] = "average", temp=300, doping_levels=False, Lambda=0.5
+        self,
+        output: Literal["average", "tensor"] = "average",
+        temp=300,
+        doping_levels=False,
+        Lambda=0.5,
     ):
         """Fermi surface complexity factor respect to calculated as explained in Ref.
         Gibbs, Z. M. et al., Effective mass and fermi surface complexity factor
@@ -1611,7 +1622,10 @@ class BoltztrapAnalyzer:
             total_dos = Dos(
                 self.dos.efermi,
                 self.dos.energies,
-                {spin_1: self.dos.densities[spin_1], spin_2: analyzer_for_second_spin.dos.densities[spin_2]},
+                {
+                    spin_1: self.dos.densities[spin_1],
+                    spin_2: analyzer_for_second_spin.dos.densities[spin_2],
+                },
             )
         else:
             total_dos = self.dos

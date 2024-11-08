@@ -261,7 +261,12 @@ class BVAnalyzer:
                     # Sort valences in order of decreasing probability.
                     val = sorted(val, key=lambda v: -prob[elem.symbol][v])
                     # Retain probabilities that are at least 1/100 of highest prob.
-                    filtered = list(filter(lambda v: prob[elem.symbol][v] > 0.001 * prob[elem.symbol][val[0]], val))
+                    filtered = list(
+                        filter(
+                            lambda v: prob[elem.symbol][v] > 0.001 * prob[elem.symbol][val[0]],
+                            val,
+                        )
+                    )
                     vals.append(filtered)
                 valences.append(vals)
 

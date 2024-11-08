@@ -216,7 +216,10 @@ class XcFunc(MSONable):
 
     def as_dict(self) -> dict:
         """Serialize to MSONable dict representation e.g. to write to disk as JSON."""
-        dct: dict[str, Any] = {"@module": type(self).__module__, "@class": type(self).__name__}
+        dct: dict[str, Any] = {
+            "@module": type(self).__module__,
+            "@class": type(self).__name__,
+        }
         if self.x is not None:
             dct["x"] = self.x.as_dict()
         if self.c is not None:

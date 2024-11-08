@@ -128,9 +128,19 @@ class PhononBandStructure(MSONable):
                 if np.linalg.norm(q_pt - np.array(labels_dict[key])) < 0.0001:
                     label = key
                     self.labels_dict[label] = Kpoint(
-                        q_pt, lattice, label=label, coords_are_cartesian=coords_are_cartesian
+                        q_pt,
+                        lattice,
+                        label=label,
+                        coords_are_cartesian=coords_are_cartesian,
                     )
-            self.qpoints += [Kpoint(q_pt, lattice, label=label, coords_are_cartesian=coords_are_cartesian)]
+            self.qpoints += [
+                Kpoint(
+                    q_pt,
+                    lattice,
+                    label=label,
+                    coords_are_cartesian=coords_are_cartesian,
+                )
+            ]
         self.bands = np.asarray(frequencies)
         self.nb_bands = len(self.bands)
         self.nb_qpoints = len(self.qpoints)
@@ -397,7 +407,11 @@ class PhononBandStructureSymmLine(PhononBandStructure):
         return f"{type(self).__name__}({bands=}, {labels=})"
 
     def _reuse_init(
-        self, eigendisplacements: ArrayLike, frequencies: ArrayLike, has_nac: bool, qpoints: Sequence[Kpoint]
+        self,
+        eigendisplacements: ArrayLike,
+        frequencies: ArrayLike,
+        has_nac: bool,
+        qpoints: Sequence[Kpoint],
     ) -> None:
         self.distance = []
         self.branches = []
@@ -500,7 +514,12 @@ class PhononBandStructureSymmLine(PhononBandStructure):
                 start_idx, end_idx = branch["start_index"], branch["end_index"]
                 if start_idx <= pt_idx <= end_idx:
                     lst.append(
-                        {"name": branch["name"], "start_index": start_idx, "end_index": end_idx, "index": pt_idx}
+                        {
+                            "name": branch["name"],
+                            "start_index": start_idx,
+                            "end_index": end_idx,
+                            "index": pt_idx,
+                        }
                     )
         return lst
 
@@ -652,7 +671,7 @@ class PhononBandStructureSymmLine(PhononBandStructure):
             dct["has_nac"],
             eigendisplacements,
             dct["labels_dict"],
-            structure=Structure.from_dict(dct["structure"]) if "structure" in dct else None,
+            structure=(Structure.from_dict(dct["structure"]) if "structure" in dct else None),
         )
 
     def __eq__(self, other: object) -> bool:

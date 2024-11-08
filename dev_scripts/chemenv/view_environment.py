@@ -95,16 +95,42 @@ if __name__ == "__main__":
 
             if algo.minimum_number_of_points == 2:
                 vis.add_partial_sphere(
-                    coords=cg_central_site, radius=radius, color=[1, 0, 0], start=0, end=360, opacity=0.5
+                    coords=cg_central_site,
+                    radius=radius,
+                    color=[1, 0, 0],
+                    start=0,
+                    end=360,
+                    opacity=0.5,
                 )
             for pp in pts:
-                vis.add_partial_sphere(coords=pp, radius=radius, color=[1, 0, 0], start=0, end=360, opacity=0.5)
+                vis.add_partial_sphere(
+                    coords=pp,
+                    radius=radius,
+                    color=[1, 0, 0],
+                    start=0,
+                    end=360,
+                    opacity=0.5,
+                )
 
             ps1 = [cg_points[ii] for ii in algo.point_groups[0]]
             ps2 = [cg_points[ii] for ii in algo.point_groups[1]]
 
             for pp in ps1:
-                vis.add_partial_sphere(coords=pp, radius=radius, color=[0, 1, 0], start=0, end=360, opacity=0.5)
+                vis.add_partial_sphere(
+                    coords=pp,
+                    radius=radius,
+                    color=[0, 1, 0],
+                    start=0,
+                    end=360,
+                    opacity=0.5,
+                )
             for pp in ps2:
-                vis.add_partial_sphere(coords=pp, radius=radius, color=[0, 0, 1], start=0, end=360, opacity=0.5)
+                vis.add_partial_sphere(
+                    coords=pp,
+                    radius=radius,
+                    color=[0, 0, 1],
+                    start=0,
+                    end=360,
+                    opacity=0.5,
+                )
         vis.show()

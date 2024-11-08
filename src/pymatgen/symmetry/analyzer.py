@@ -44,7 +44,15 @@ if TYPE_CHECKING:
     from pymatgen.symmetry.groups import CrystalSystem
     from pymatgen.util.typing import Kpoint
 
-    LatticeType = Literal["cubic", "hexagonal", "monoclinic", "orthorhombic", "rhombohedral", "tetragonal", "triclinic"]
+    LatticeType = Literal[
+        "cubic",
+        "hexagonal",
+        "monoclinic",
+        "orthorhombic",
+        "rhombohedral",
+        "tetragonal",
+        "triclinic",
+    ]
 
 logger = logging.getLogger(__name__)
 
@@ -403,7 +411,11 @@ class SpacegroupAnalyzer:
             site_properties = None
 
         return Structure(
-            lattice, species, scaled_positions, to_unit_cell=True, site_properties=site_properties
+            lattice,
+            species,
+            scaled_positions,
+            to_unit_cell=True,
+            site_properties=site_properties,
         ).get_reduced_structure()
 
     def get_ir_reciprocal_mesh(
@@ -531,7 +543,8 @@ class SpacegroupAnalyzer:
             The structure in a primitive standardized cell
         """
         conv = self.get_conventional_standard_structure(
-            international_monoclinic=international_monoclinic, keep_site_properties=keep_site_properties
+            international_monoclinic=international_monoclinic,
+            keep_site_properties=keep_site_properties,
         )
         lattice = self.get_lattice_type()
 
@@ -635,7 +648,14 @@ class SpacegroupAnalyzer:
                 transf[2] = [0, 0, 1]
                 a, b = sorted(lattice.abc[:2])
                 sorted_dic = sorted(
-                    ({"vec": lattice.matrix[i], "length": lattice.abc[i], "orig_index": i} for i in (0, 1)),
+                    (
+                        {
+                            "vec": lattice.matrix[i],
+                            "length": lattice.abc[i],
+                            "orig_index": i,
+                        }
+                        for i in (0, 1)
+                    ),
                     key=lambda k: k["length"],
                 )
                 for idx in range(2):
@@ -647,7 +667,14 @@ class SpacegroupAnalyzer:
                 transf[2] = [1, 0, 0]
                 a, b = sorted(lattice.abc[1:])
                 sorted_dic = sorted(
-                    ({"vec": lattice.matrix[i], "length": lattice.abc[i], "orig_index": i} for i in (1, 2)),
+                    (
+                        {
+                            "vec": lattice.matrix[i],
+                            "length": lattice.abc[i],
+                            "orig_index": i,
+                        }
+                        for i in (1, 2)
+                    ),
                     key=lambda k: k["length"],
                 )
                 for idx in range(2):
@@ -701,7 +728,14 @@ class SpacegroupAnalyzer:
                 transf = np.zeros(shape=(3, 3))
                 transf[2] = [0, 0, 1]
                 sorted_dic = sorted(
-                    ({"vec": lattice.matrix[i], "length": lattice.abc[i], "orig_index": i} for i in (0, 1)),
+                    (
+                        {
+                            "vec": lattice.matrix[i],
+                            "length": lattice.abc[i],
+                            "orig_index": i,
+                        }
+                        for i in (0, 1)
+                    ),
                     key=lambda k: k["length"],
                 )
                 a = sorted_dic[0]["length"]
@@ -956,7 +990,19 @@ class SpacegroupAnalyzer:
 
     def is_laue(self) -> bool:
         """Check if the point group of the structure has Laue symmetry (centrosymmetry)."""
-        laue = {"-1", "2/m", "mmm", "4/m", "4/mmm", "-3", "-3m", "6/m", "6/mmm", "m-3", "m-3m"}
+        laue = {
+            "-1",
+            "2/m",
+            "mmm",
+            "4/m",
+            "4/mmm",
+            "-3",
+            "-3m",
+            "6/m",
+            "6/mmm",
+            "m-3",
+            "m-3m",
+        }
 
         return str(self.get_point_group_symbol()) in laue
 
@@ -1329,6 +1375,15 @@ class PointGroupAnalyzer:
         return generate_full_symmops(self.symmops, self.tol)
 
     def get_rotational_symmetry_number(self) -> int:
+        """Get rotational symmetry number.
+
+        Returns:
+            int: Rotational symmetry number.
+        """
+        if self.sch_symbol == "D*h":
+            # Special case. H2 for example has rotational symmetry number 2
+            return 2
+
         """Get the rotational symmetry number."""
         symm_ops = self.get_symmetry_operations()
         symm_number = 0

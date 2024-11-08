@@ -306,7 +306,14 @@ class AbinitTimerParser(collections.abc.Iterable):
 
     def summarize(self, **kwargs):
         """Return pandas DataFrame with the most important results stored in the timers."""
-        col_names = ["fname", "wall_time", "cpu_time", "mpi_nprocs", "omp_nthreads", "mpi_rank"]
+        col_names = [
+            "fname",
+            "wall_time",
+            "cpu_time",
+            "mpi_nprocs",
+            "omp_nthreads",
+            "mpi_rank",
+        ]
 
         frame = pd.DataFrame(columns=col_names)
         for timer in self.timers():
@@ -651,7 +658,12 @@ class AbinitTimer:
         self.fname = info["fname"].strip()
 
     def __repr__(self):
-        file, wall_time, mpi_nprocs, omp_nthreads = self.fname, self.wall_time, self.mpi_nprocs, self.omp_nthreads
+        file, wall_time, mpi_nprocs, omp_nthreads = (
+            self.fname,
+            self.wall_time,
+            self.mpi_nprocs,
+            self.omp_nthreads,
+        )
         return f"{type(self).__name__}({file=}, {wall_time=:.3}, {mpi_nprocs=}, {omp_nthreads=})"
 
     @property

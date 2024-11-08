@@ -144,5 +144,8 @@ def test_err_msg_on_seekpath_not_installed():
 
         from pymatgen.io.pwmat.inputs import GenKpt
 
-        with pytest.raises(RuntimeError, match="SeeK-path needs to be installed to use the convention of Hinuma et al"):
+        with pytest.raises(
+            RuntimeError,
+            match="SeeK-path needs to be installed to use the convention of Hinuma et al",
+        ):
             GenKpt.from_structure(Structure.from_file(f"{TEST_DIR}/atom.config"), dim=2, density=0.01)

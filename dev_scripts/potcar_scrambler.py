@@ -168,7 +168,10 @@ def generate_fake_potcar_libraries() -> None:
             for potcar_path in paths_to_try:
                 if os.path.isfile(potcar_path):
                     os.makedirs(rebase_dir, exist_ok=True)
-                    PotcarScrambler.from_file(input_filename=potcar_path, output_filename=f"{rebase_dir}/POTCAR.gz")
+                    PotcarScrambler.from_file(
+                        input_filename=potcar_path,
+                        output_filename=f"{rebase_dir}/POTCAR.gz",
+                    )
                     break
 
 

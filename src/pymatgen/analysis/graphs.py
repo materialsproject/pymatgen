@@ -271,7 +271,11 @@ class StructureGraph(MSONable):
 
     @classmethod
     def from_local_env_strategy(
-        cls, structure: Structure, strategy: NearNeighbors, weights: bool = False, edge_properties: bool = False
+        cls,
+        structure: Structure,
+        strategy: NearNeighbors,
+        weights: bool = False,
+        edge_properties: bool = False,
     ) -> Self:
         """
         Constructor for StructureGraph, using a strategy
@@ -300,7 +304,7 @@ class StructureGraph(MSONable):
                     to_index=neighbor["site_index"],
                     to_jimage=neighbor["image"],
                     weight=neighbor["weight"] if weights else None,
-                    edge_properties=neighbor["edge_properties"] if edge_properties else None,
+                    edge_properties=(neighbor["edge_properties"] if edge_properties else None),
                     warn_duplicates=False,
                 )
 
@@ -582,7 +586,11 @@ class StructureGraph(MSONable):
                 self.graph[from_index][to_index][edge_index][prop] = new_edge_properties[prop]
 
     def break_edge(
-        self, from_index: int, to_index: int, to_jimage: tuple | None = None, allow_reverse: bool = False
+        self,
+        from_index: int,
+        to_index: int,
+        to_jimage: tuple | None = None,
+        allow_reverse: bool = False,
     ) -> None:
         """
         Remove an edge from the StructureGraph. If no image is given, this method will fail.

@@ -855,7 +855,15 @@ class StructureInteractorStyle(TrackballCamera):
         self.OnKeyPress()
 
 
-def make_movie(structures, output_filename="movie.mp4", zoom=1.0, fps=20, bitrate="10000k", quality=1, **kwargs):
+def make_movie(
+    structures,
+    output_filename="movie.mp4",
+    zoom=1.0,
+    fps=20,
+    bitrate="10000k",
+    quality=1,
+    **kwargs,
+):
     """
     Generate a movie from a sequence of structures using vtk and ffmpeg.
 
@@ -881,7 +889,19 @@ def make_movie(structures, output_filename="movie.mp4", zoom=1.0, fps=20, bitrat
         vis.set_structure(site)
         vis.write_image(filename.format(idx), 3)
     filename = f"image%0{sig_fig}d.png"
-    args = ["ffmpeg", "-y", "-i", filename, "-q:v", str(quality), "-r", str(fps), "-b:v", str(bitrate), output_filename]
+    args = [
+        "ffmpeg",
+        "-y",
+        "-i",
+        filename,
+        "-q:v",
+        str(quality),
+        "-r",
+        str(fps),
+        "-b:v",
+        str(bitrate),
+        output_filename,
+    ]
     with subprocess.Popen(args) as process:
         process.communicate()
 

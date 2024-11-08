@@ -148,7 +148,10 @@ class TestInterfaceReaction(TestCase):
             "class for interfacial reactions with open elements!",
         ):
             _ = InterfacialReactivity(Composition("Li2O2"), Composition("Li"), pd=self.gpd, norm=True)
-        with pytest.raises(TypeError, match="Please provide non-grand phase diagram to compute no_mixing_energy!"):
+        with pytest.raises(
+            TypeError,
+            match="Please provide non-grand phase diagram to compute no_mixing_energy!",
+        ):
             _ = GrandPotentialInterfacialReactivity(
                 Composition("O2"),
                 Composition("Mn"),
@@ -158,7 +161,21 @@ class TestInterfaceReaction(TestCase):
                 # include_no_mixing_energy=True,
             )
 
-        self.irs = [ir_0, ir_1, ir_2, ir_3, ir_4, ir_5, ir_6, ir_7, ir_8, ir_9, ir_10, ir_11, ir_12]
+        self.irs = [
+            ir_0,
+            ir_1,
+            ir_2,
+            ir_3,
+            ir_4,
+            ir_5,
+            ir_6,
+            ir_7,
+            ir_8,
+            ir_9,
+            ir_10,
+            ir_11,
+            ir_12,
+        ]
 
     def test_get_entry_energy(self):
         comp = Composition("MnO3")
@@ -243,7 +260,9 @@ class TestInterfaceReaction(TestCase):
         result = [InterfacialReactivity._convert(x, f1, f2) for x, f1, f2 in test_array]
         answer = [0.75, 0.5, 0, 1]
         assert_allclose(
-            result, answer, err_msg=f"_convert: conversion gets error! {answer} expected, but gets {result}"
+            result,
+            answer,
+            err_msg=f"_convert: conversion gets error! {answer} expected, but gets {result}",
         )
 
     def test_reverse_convert(self):
@@ -251,7 +270,9 @@ class TestInterfaceReaction(TestCase):
         result = [InterfacialReactivity._reverse_convert(x, f1, f2) for x, f1, f2 in test_array]
         answer = [0.25, 0.3076923, 0, 1]
         assert_allclose(
-            result, answer, err_msg=f"_convert: conversion gets error! {answer} expected, but gets {result}"
+            result,
+            answer,
+            err_msg=f"_convert: conversion gets error! {answer} expected, but gets {result}",
         )
 
     def test_products_property(self):

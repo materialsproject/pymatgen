@@ -150,7 +150,14 @@ class ResParser:
                 nmin = rest.find("n -")
                 nap = rest[nmin + 4 :]
             return AirssTITL(
-                seed, float(pressure), float(volume), float(energy), float(spin), float(abs_spin), spg, int(nap)
+                seed,
+                float(pressure),
+                float(volume),
+                float(energy),
+                float(spin),
+                float(abs_spin),
+                spg,
+                int(nap),
             )
         # there should at least be the first 6 fields if it's an AIRSS res file
         # if it doesn't have them, then just stop looking
@@ -253,7 +260,15 @@ class ResWriter:
     @classmethod
     def _cell_from_lattice(cls, lattice: Lattice) -> ResCELL:
         """Produce CELL entry from a pymatgen Lattice."""
-        return ResCELL(1.0, lattice.a, lattice.b, lattice.c, lattice.alpha, lattice.beta, lattice.gamma)
+        return ResCELL(
+            1.0,
+            lattice.a,
+            lattice.b,
+            lattice.c,
+            lattice.alpha,
+            lattice.beta,
+            lattice.gamma,
+        )
 
     @classmethod
     def _sfac_from_sites(cls, sites: list[PeriodicSite]) -> ResSFAC:
@@ -279,7 +294,12 @@ class ResWriter:
     @classmethod
     def _res_from_structure(cls, structure: Structure) -> Res:
         """Produce a res file structure from a pymatgen Structure."""
-        return Res(None, [], cls._cell_from_lattice(structure.lattice), cls._sfac_from_sites(list(structure)))
+        return Res(
+            None,
+            [],
+            cls._cell_from_lattice(structure.lattice),
+            cls._sfac_from_sites(list(structure)),
+        )
 
     @classmethod
     def _res_from_entry(cls, entry: ComputedStructureEntry) -> Res:
@@ -487,7 +507,9 @@ class AirssProvider(ResProvider):
         self._raise_or_none(ResParseError("Could not find line with cut-off energy."))
         return None
 
-    def get_mpgrid_offset_nkpts_spacing(self) -> tuple[Tuple3Ints, Vector3D, int, float] | None:
+    def get_mpgrid_offset_nkpts_spacing(
+        self,
+    ) -> tuple[Tuple3Ints, Vector3D, int, float] | None:
         """
         Retrieves the MP grid, the grid offsets, number of kpoints, and maximum kpoint spacing.
 

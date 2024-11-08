@@ -186,7 +186,16 @@ class InterfacialReactivity(MSONable):
 
         index_kink = range(1, len(critical_comp) + 1)
 
-        return list(zip(index_kink, x_kink, energy_kink, react_kink, energy_per_rxt_formula, strict=True))
+        return list(
+            zip(
+                index_kink,
+                x_kink,
+                energy_kink,
+                react_kink,
+                energy_per_rxt_formula,
+                strict=True,
+            )
+        )
 
     def plot(self, backend: Literal["plotly", "matplotlib"] = "plotly") -> Figure | plt.Figure:
         """
@@ -442,7 +451,14 @@ class InterfacialReactivity(MSONable):
             products = ", ".join(
                 [htmlify(p.reduced_formula) for p in rxn.products if not np.isclose(rxn.get_coeff(p), 0)]
             )
-            annotation = {"x": x_coord, "y": y_coord, "text": products, "font": {"size": 18}, "ax": -25, "ay": 55}
+            annotation = {
+                "x": x_coord,
+                "y": y_coord,
+                "text": products,
+                "font": {"size": 18},
+                "ax": -25,
+                "ay": 55,
+            }
             annotations.append(annotation)
         return annotations
 
@@ -574,7 +590,10 @@ class InterfacialReactivity(MSONable):
         """The minimum reaction energy E_min and corresponding mixing ratio x_min
         as tuple[float, float]: (x_min, E_min).
         """
-        return min(((x, energy) for _, x, energy, _, _ in self.get_kinks()), key=lambda tup: tup[1])
+        return min(
+            ((x, energy) for _, x, energy, _, _ in self.get_kinks()),
+            key=lambda tup: tup[1],
+        )
 
     @property
     def products(self):
@@ -631,7 +650,12 @@ class GrandPotentialInterfacialReactivity(InterfacialReactivity):
             raise TypeError("Please provide non-grand phase diagram to compute no_mixing_energy!")
 
         super().__init__(
-            c1=c1, c2=c2, pd=grand_pd, norm=norm, use_hull_energy=use_hull_energy, bypass_grand_warning=True
+            c1=c1,
+            c2=c2,
+            pd=grand_pd,
+            norm=norm,
+            use_hull_energy=use_hull_energy,
+            bypass_grand_warning=True,
         )
 
         self.pd_non_grand = pd_non_grand

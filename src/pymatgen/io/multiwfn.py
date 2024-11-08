@@ -56,7 +56,9 @@ QTAIM_CONDITIONALS = {
 
 
 def extract_info_from_cp_text(
-    lines_split: list[list[str]], cp_type: Literal["atom", "bond", "ring", "cage"], conditionals: dict[str, list[str]]
+    lines_split: list[list[str]],
+    cp_type: Literal["atom", "bond", "ring", "cage"],
+    conditionals: dict[str, list[str]],
 ) -> tuple[str, dict[str, Any]]:
     """
     Extract specific information from a Multiwfn QTAIM output.
@@ -239,7 +241,10 @@ def separate_cps_by_type(qtaim_descs: dict[Any, dict[str, Any]]) -> dict[str, di
 
 
 def match_atom_cp(
-    molecule: Molecule, index: int, atom_cp_dict: dict[str, dict[str, Any]], max_distance: float = 0.5
+    molecule: Molecule,
+    index: int,
+    atom_cp_dict: dict[str, dict[str, Any]],
+    max_distance: float = 0.5,
 ) -> tuple[str | None, dict]:
     """
     From a dictionary with an atom's position and element symbol, find the corresponding cp in the atom CP dictionary
@@ -276,7 +281,9 @@ def match_atom_cp(
 
 
 def map_atoms_cps(
-    molecule: Molecule, atom_cp_dict: dict[str, dict[str, Any]], max_distance: float = 0.5
+    molecule: Molecule,
+    atom_cp_dict: dict[str, dict[str, Any]],
+    max_distance: float = 0.5,
 ) -> tuple[
     dict[int, dict[str, Any]],
     list[int],

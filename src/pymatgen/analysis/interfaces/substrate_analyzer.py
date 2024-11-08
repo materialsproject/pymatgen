@@ -111,7 +111,11 @@ class SubstrateAnalyzer(ZSLGenerator):
         super().__init__(**kwargs)
 
     def generate_surface_vectors(
-        self, film: Structure, substrate: Structure, film_millers: ArrayLike, substrate_millers: ArrayLike
+        self,
+        film: Structure,
+        substrate: Structure,
+        film_millers: ArrayLike,
+        substrate_millers: ArrayLike,
     ):
         """Generate the film/substrate slab combinations for a set of given
         miller indices.
@@ -129,7 +133,8 @@ class SubstrateAnalyzer(ZSLGenerator):
         for f_miller in film_millers:
             film_slab = SlabGenerator(film, f_miller, 20, 15, primitive=False).get_slab()
             film_vectors = reduce_vectors(
-                film_slab.oriented_unit_cell.lattice.matrix[0], film_slab.oriented_unit_cell.lattice.matrix[1]
+                film_slab.oriented_unit_cell.lattice.matrix[0],
+                film_slab.oriented_unit_cell.lattice.matrix[1],
             )
 
             for s_miller in substrate_millers:

@@ -22,7 +22,13 @@ TEST_DIR = f"{TEST_FILES_DIR}/io/lammps"
 class TestLammpsBox(PymatgenTest):
     @classmethod
     def setUpClass(cls):
-        cls.peptide = LammpsBox(bounds=[[36.840194, 64.211560], [41.013691, 68.385058], [29.768095, 57.139462]])
+        cls.peptide = LammpsBox(
+            bounds=[
+                [36.840194, 64.211560],
+                [41.013691, 68.385058],
+                [29.768095, 57.139462],
+            ]
+        )
         cls.quartz = LammpsBox(
             bounds=[[0, 4.913400], [0, 4.255129], [0, 5.405200]],
             tilt=[-2.456700, 0.0, 0.0],
@@ -352,7 +358,17 @@ class TestLammpsData(PymatgenTest):
         # header stats and Nos. of columns
         assert pep.masses.shape == (14, 1)
         assert pep.atoms.shape == (2004, 9)
-        assert list(pep.atoms.columns) == ["molecule-ID", "type", "q", "x", "y", "z", "nx", "ny", "nz"]
+        assert list(pep.atoms.columns) == [
+            "molecule-ID",
+            "type",
+            "q",
+            "x",
+            "y",
+            "z",
+            "nx",
+            "ny",
+            "nz",
+        ]
         topo = pep.topology
         assert topo["Bonds"].shape == (1365, 3)
         assert topo["Angles"].shape == (786, 4)
@@ -471,7 +487,11 @@ class TestLammpsData(PymatgenTest):
             15,
             lattice,
             ["Os", "O", "O"],
-            [[0, 0.25583, 0.75], [0.11146, 0.46611, 0.91631], [0.11445, 0.04564, 0.69518]],
+            [
+                [0, 0.25583, 0.75],
+                [0.11146, 0.46611, 0.91631],
+                [0.11445, 0.04564, 0.69518],
+            ],
         )
         rng = np.random.default_rng()
         velocities = rng.standard_normal((20, 3)) * 0.1
@@ -677,7 +697,12 @@ class TestForceField(PymatgenTest):
 
     def test_init(self):
         v = self.virus
-        assert v.mass_info == [("A", 1.00794), ("B", 12.0107), ("C", 15.9994), ("D", 1.00794)]
+        assert v.mass_info == [
+            ("A", 1.00794),
+            ("B", 12.0107),
+            ("C", 15.9994),
+            ("D", 1.00794),
+        ]
         assert v.masses.loc[3, "mass"] == 15.9994
         v_ff = v.force_field
         assert isinstance(v_ff, dict)
@@ -714,7 +739,11 @@ class TestForceField(PymatgenTest):
         e_maps = self.ethane.maps
         assert e_maps["Atoms"] == {"c4": 1, "h1": 2}
         assert e_maps["Bonds"] == {("c4", "c4"): 1, ("c4", "h1"): 2, ("h1", "c4"): 2}
-        assert e_maps["Angles"] == {("c4", "c4", "h1"): 1, ("h1", "c4", "c4"): 1, ("h1", "c4", "h1"): 2}
+        assert e_maps["Angles"] == {
+            ("c4", "c4", "h1"): 1,
+            ("h1", "c4", "c4"): 1,
+            ("h1", "c4", "h1"): 2,
+        }
         assert e_maps["Impropers"] == {
             ("c4", "c4", "h1", "h1"): 1,
             ("c4", "h1", "c4", "h1"): 1,
@@ -980,9 +1009,15 @@ class TestCombinedData(TestCase):
         for key in ("Bonds", "Angles", "Dihedrals", "Impropers"):
             pd.testing.assert_frame_equal(ec_li_minimal.topology[key], ec_li_minimal.topology[key])
         pd.testing.assert_frame_equal(
-            ec_li_minimal.force_field["Pair Coeffs"], ec_li.force_field["Pair Coeffs"].loc[1:5]
+            ec_li_minimal.force_field["Pair Coeffs"],
+            ec_li.force_field["Pair Coeffs"].loc[1:5],
         )
-        for key in ("Bond Coeffs", "Angle Coeffs", "Dihedral Coeffs", "Improper Coeffs"):
+        for key in (
+            "Bond Coeffs",
+            "Angle Coeffs",
+            "Dihedral Coeffs",
+            "Improper Coeffs",
+        ):
             pd.testing.assert_frame_equal(ec_li_minimal.force_field[key], ec_li.force_field[key])
 
     def test_get_str(self):

@@ -96,7 +96,9 @@ class TestCohpcar(PymatgenTest):
         )
         # 4 center
         self.cobi3 = Cohpcar(
-            filename=f"{TEST_DIR}/COBICAR.lobster.GeTe_4center", are_cobis=False, are_multi_center_cobis=True
+            filename=f"{TEST_DIR}/COBICAR.lobster.GeTe_4center",
+            are_cobis=False,
+            are_multi_center_cobis=True,
         )
         # partially orbital-resolved
         self.cobi4 = Cohpcar(
@@ -113,7 +115,9 @@ class TestCohpcar(PymatgenTest):
         # spin polarized
         # fully orbital-resolved
         self.cobi6 = Cohpcar(
-            filename=f"{TEST_DIR}/COBICAR.lobster.B2H6.spin", are_cobis=False, are_multi_center_cobis=True
+            filename=f"{TEST_DIR}/COBICAR.lobster.B2H6.spin",
+            are_cobis=False,
+            are_multi_center_cobis=True,
         )
 
         # COHPCAR.LCFO.lobster from v5.1.1
@@ -514,9 +518,45 @@ class TestDoscar(TestCase):
         assert self.DOSCAR_nonspin_pol.pdos[0]["2p_x"][Spin.up].tolist() == pdos_f_2px
 
         # test with DOSCAR.LCFO.lobster file
-        pdos_1a1_AlN = [0.0, 0.22594, 0.01335, 0.0, 0.0, 0.0, 0.00228, 0.02836, 0.03053, 0.01612, 0.02379]
-        pdos_3py_Al = [0.0, 0.02794, 0.00069, 0.0, 0.0, 0.0, 0.00216, 0.0682, 0.06966, 0.04402, 0.16579]
-        pdos_2s_N = [0.0, 0.25324, 0.0157, 0.0, 0.0, 0.0, 0.0006, 0.01747, 0.02247, 0.01589, 0.03565]
+        pdos_1a1_AlN = [
+            0.0,
+            0.22594,
+            0.01335,
+            0.0,
+            0.0,
+            0.0,
+            0.00228,
+            0.02836,
+            0.03053,
+            0.01612,
+            0.02379,
+        ]
+        pdos_3py_Al = [
+            0.0,
+            0.02794,
+            0.00069,
+            0.0,
+            0.0,
+            0.0,
+            0.00216,
+            0.0682,
+            0.06966,
+            0.04402,
+            0.16579,
+        ]
+        pdos_2s_N = [
+            0.0,
+            0.25324,
+            0.0157,
+            0.0,
+            0.0,
+            0.0,
+            0.0006,
+            0.01747,
+            0.02247,
+            0.01589,
+            0.03565,
+        ]
 
         assert self.DOSCAR_lcfo._is_lcfo
         assert self.DOSCAR_lcfo.pdos[0]["1a1"][Spin.down].tolist() == pdos_1a1_AlN
@@ -564,7 +604,19 @@ class TestDoscar(TestCase):
         assert tdos_nonspin == self.DOSCAR_nonspin_pol.tdensities[Spin.up].tolist()
 
         # test with DOSCAR.LCFO.lobster file
-        tdos_up = [0.0, 1.75477, 0.11803, 0.0, 0.0, 0.0, 0.04156, 0.82291, 0.74449, 0.42481, 1.04535]
+        tdos_up = [
+            0.0,
+            1.75477,
+            0.11803,
+            0.0,
+            0.0,
+            0.0,
+            0.04156,
+            0.82291,
+            0.74449,
+            0.42481,
+            1.04535,
+        ]
 
         assert tdos_up == self.DOSCAR_lcfo.tdensities[Spin.up].tolist()
 
@@ -688,7 +740,18 @@ class TestLobsterout(PymatgenTest):
 
     def test_attributes(self):
         assert self.lobsterout_normal.basis_functions == [
-            ["3s", "4s", "3p_y", "3p_z", "3p_x", "3d_xy", "3d_yz", "3d_z^2", "3d_xz", "3d_x^2-y^2"]
+            [
+                "3s",
+                "4s",
+                "3p_y",
+                "3p_z",
+                "3p_x",
+                "3d_xy",
+                "3d_yz",
+                "3d_z^2",
+                "3d_xz",
+                "3d_x^2-y^2",
+            ]
         ]
         assert self.lobsterout_normal.basis_type == ["pbeVaspFit2015"]
         assert self.lobsterout_normal.charge_spilling == [0.0268]
@@ -730,7 +793,18 @@ class TestLobsterout(PymatgenTest):
         ]
 
         assert self.lobsterout_fatband_grosspop_densityofenergies.basis_functions == [
-            ["3s", "4s", "3p_y", "3p_z", "3p_x", "3d_xy", "3d_yz", "3d_z^2", "3d_xz", "3d_x^2-y^2"]
+            [
+                "3s",
+                "4s",
+                "3p_y",
+                "3p_z",
+                "3p_x",
+                "3d_xy",
+                "3d_yz",
+                "3d_z^2",
+                "3d_xz",
+                "3d_x^2-y^2",
+            ]
         ]
         assert self.lobsterout_fatband_grosspop_densityofenergies.basis_type == ["pbeVaspFit2015"]
         assert self.lobsterout_fatband_grosspop_densityofenergies.charge_spilling == [0.0268]
@@ -772,7 +846,18 @@ class TestLobsterout(PymatgenTest):
         ]
 
         assert self.lobsterout_saveprojection.basis_functions == [
-            ["3s", "4s", "3p_y", "3p_z", "3p_x", "3d_xy", "3d_yz", "3d_z^2", "3d_xz", "3d_x^2-y^2"]
+            [
+                "3s",
+                "4s",
+                "3p_y",
+                "3p_z",
+                "3p_x",
+                "3d_xy",
+                "3d_yz",
+                "3d_z^2",
+                "3d_xz",
+                "3d_x^2-y^2",
+            ]
         ]
         assert self.lobsterout_saveprojection.basis_type == ["pbeVaspFit2015"]
         assert self.lobsterout_saveprojection.charge_spilling == [0.0268]
@@ -814,7 +899,18 @@ class TestLobsterout(PymatgenTest):
         ]
 
         assert self.lobsterout_skipping_all.basis_functions == [
-            ["3s", "4s", "3p_y", "3p_z", "3p_x", "3d_xy", "3d_yz", "3d_z^2", "3d_xz", "3d_x^2-y^2"]
+            [
+                "3s",
+                "4s",
+                "3p_y",
+                "3p_z",
+                "3p_x",
+                "3d_xy",
+                "3d_yz",
+                "3d_z^2",
+                "3d_xz",
+                "3d_x^2-y^2",
+            ]
         ]
         assert self.lobsterout_skipping_all.basis_type == ["pbeVaspFit2015"]
         assert self.lobsterout_skipping_all.charge_spilling == [0.0268]
@@ -1073,7 +1169,10 @@ class TestLobsterout(PymatgenTest):
             "total_spilling": [],
             "elements": ["N", "Al"],
             "basis_type": ["pbevaspfit2015", "pbevaspfit2015"],
-            "basis_functions": [["2s", "2p_y", "2p_z", "2p_x"], ["3s", "3p_y", "3p_z", "3p_x"]],
+            "basis_functions": [
+                ["2s", "2p_y", "2p_z", "2p_x"],
+                ["3s", "3p_y", "3p_z", "3p_x"],
+            ],
             "timing": {
                 "wall_time": {"h": "0", "min": "4", "s": "8", "ms": "368"},
                 "user_time": {"h": "0", "min": "22", "s": "34", "ms": "960"},
@@ -1249,7 +1348,8 @@ class TestFatband(PymatgenTest):
                 structure=self.structure,
             )
         with pytest.raises(
-            ValueError, match="The are two FATBAND files for the same atom and orbital. The program will stop"
+            ValueError,
+            match="The are two FATBAND files for the same atom and orbital. The program will stop",
         ):
             self.fatband_SiO2_p_x = Fatband(
                 filenames=[
@@ -2102,8 +2202,20 @@ class TestSitePotentials(PymatgenTest):
         self.sitepotential = SitePotential(filename=f"{TEST_DIR}/SitePotentials.lobster.perovskite")
 
     def test_attributes(self):
-        assert self.sitepotential.sitepotentials_Loewdin == [-8.77, -17.08, 9.57, 9.57, 8.45]
-        assert self.sitepotential.sitepotentials_Mulliken == [-11.38, -19.62, 11.18, 11.18, 10.09]
+        assert self.sitepotential.sitepotentials_Loewdin == [
+            -8.77,
+            -17.08,
+            9.57,
+            9.57,
+            8.45,
+        ]
+        assert self.sitepotential.sitepotentials_Mulliken == [
+            -11.38,
+            -19.62,
+            11.18,
+            11.18,
+            10.09,
+        ]
         assert self.sitepotential.madelungenergies_Loewdin == approx(-28.64)
         assert self.sitepotential.madelungenergies_Mulliken == approx(-40.02)
         assert self.sitepotential.atomlist == ["La1", "Ta2", "N3", "N4", "O5"]
@@ -2113,8 +2225,20 @@ class TestSitePotentials(PymatgenTest):
 
     def test_get_structure(self):
         structure = self.sitepotential.get_structure_with_site_potentials(f"{TEST_DIR}/POSCAR.perovskite")
-        assert structure.site_properties["Loewdin Site Potentials (eV)"] == [-8.77, -17.08, 9.57, 9.57, 8.45]
-        assert structure.site_properties["Mulliken Site Potentials (eV)"] == [-11.38, -19.62, 11.18, 11.18, 10.09]
+        assert structure.site_properties["Loewdin Site Potentials (eV)"] == [
+            -8.77,
+            -17.08,
+            9.57,
+            9.57,
+            8.45,
+        ]
+        assert structure.site_properties["Mulliken Site Potentials (eV)"] == [
+            -11.38,
+            -19.62,
+            11.18,
+            11.18,
+            10.09,
+        ]
 
     def test_msonable(self):
         dict_data = self.sitepotential.as_dict()
@@ -2153,7 +2277,12 @@ class TestLobsterMatrices(PymatgenTest):
     def test_attributes(self):
         # hamilton matrices
         assert self.hamilton_matrices.average_onsite_energies == pytest.approx(
-            {"Na1_3s": 0.58855353, "Na1_2p_y": -25.72719646, "Na1_2p_z": -25.72719646, "Na1_2p_x": -25.72719646}
+            {
+                "Na1_3s": 0.58855353,
+                "Na1_2p_y": -25.72719646,
+                "Na1_2p_z": -25.72719646,
+                "Na1_2p_x": -25.72719646,
+            }
         )
         ref_onsite_energies = [
             [-0.22519646, -25.76989646, -25.76989646, -25.76989646],
@@ -2163,7 +2292,10 @@ class TestLobsterMatrices(PymatgenTest):
 
         ref_imag_mat_spin_up = np.zeros((4, 4))
 
-        assert_allclose(self.hamilton_matrices.hamilton_matrices["1"][Spin.up].imag, ref_imag_mat_spin_up)
+        assert_allclose(
+            self.hamilton_matrices.hamilton_matrices["1"][Spin.up].imag,
+            ref_imag_mat_spin_up,
+        )
 
         ref_real_mat_spin_up = [
             [-3.0217, 0.0, 0.0, 0.0],
@@ -2171,11 +2303,19 @@ class TestLobsterMatrices(PymatgenTest):
             [0.0, 0.0, -28.5664, 0.0],
             [0.0, 0.0, 0.0, -28.5664],
         ]
-        assert_allclose(self.hamilton_matrices.hamilton_matrices["1"][Spin.up].real, ref_real_mat_spin_up)
+        assert_allclose(
+            self.hamilton_matrices.hamilton_matrices["1"][Spin.up].real,
+            ref_real_mat_spin_up,
+        )
 
         # overlap matrices
         assert self.overlap_matrices.average_onsite_overlaps == pytest.approx(
-            {"Si1_3s": 1.00000009, "Si1_3p_y": 0.99999995, "Si1_3p_z": 0.99999995, "Si1_3p_x": 0.99999995}
+            {
+                "Si1_3s": 1.00000009,
+                "Si1_3p_y": 0.99999995,
+                "Si1_3p_z": 0.99999995,
+                "Si1_3p_x": 0.99999995,
+            }
         )
         ref_onsite_ovelaps = [[1.00000009, 0.99999995, 0.99999995, 0.99999995]]
 
@@ -2209,7 +2349,10 @@ class TestLobsterMatrices(PymatgenTest):
             [0.0, -0.12220894, -0.09749622, -0.53739499],
         ]
 
-        assert_allclose(self.transfer_matrices.transfer_matrices["1"][Spin.down].imag, ref_imag_mat_spin_down)
+        assert_allclose(
+            self.transfer_matrices.transfer_matrices["1"][Spin.down].imag,
+            ref_imag_mat_spin_down,
+        )
 
         ref_real_mat_spin_down = [
             [-0.03735031, 0.0, 0.0, 0.0],
@@ -2218,10 +2361,16 @@ class TestLobsterMatrices(PymatgenTest):
             [0.0, 0.11473763, 0.09742773, 0.80648063],
         ]
 
-        assert_allclose(self.transfer_matrices.transfer_matrices["1"][Spin.down].real, ref_real_mat_spin_down)
+        assert_allclose(
+            self.transfer_matrices.transfer_matrices["1"][Spin.down].real,
+            ref_real_mat_spin_down,
+        )
 
         # coefficient matrices
-        assert list(self.coeff_matrices.coefficient_matrices["1"]) == [Spin.up, Spin.down]
+        assert list(self.coeff_matrices.coefficient_matrices["1"]) == [
+            Spin.up,
+            Spin.down,
+        ]
         assert self.coeff_matrices.average_onsite_coefficient == pytest.approx(
             {
                 "Si1_3s": 0.6232626450000001,
@@ -2238,7 +2387,10 @@ class TestLobsterMatrices(PymatgenTest):
             [0.0, 0.47836456, 0.00476861, 0.50184424],
         ]
 
-        assert_allclose(self.coeff_matrices.coefficient_matrices["1"][Spin.up].imag, ref_imag_mat_spin_up)
+        assert_allclose(
+            self.coeff_matrices.coefficient_matrices["1"][Spin.up].imag,
+            ref_imag_mat_spin_up,
+        )
 
         ref_real_mat_spin_up = [
             [0.80226096, 0.0, 0.0, 0.0],
@@ -2247,7 +2399,10 @@ class TestLobsterMatrices(PymatgenTest):
             [0.0, -0.32075579, -0.00405544, 0.64528776],
         ]
 
-        assert_allclose(self.coeff_matrices.coefficient_matrices["1"][Spin.up].real, ref_real_mat_spin_up)
+        assert_allclose(
+            self.coeff_matrices.coefficient_matrices["1"][Spin.up].real,
+            ref_real_mat_spin_up,
+        )
 
     def test_raises(self):
         with pytest.raises(ValueError, match="Please provide the fermi energy in eV"):

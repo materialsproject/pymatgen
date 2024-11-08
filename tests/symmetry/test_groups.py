@@ -74,7 +74,13 @@ class TestSpaceGroup:
     def test_renamed_e_symbols(self):
         assert SpaceGroup.from_int_number(64).symbol == "Cmce"
 
-        for sym, num in (("Aem2", 39), ("Aea2", 41), ("Cmce", 64), ("Cmme", 67), ("Ccce", 68)):
+        for sym, num in (
+            ("Aem2", 39),
+            ("Aea2", 41),
+            ("Cmce", 64),
+            ("Cmme", 67),
+            ("Ccce", 68),
+        ):
             assert SpaceGroup(sym).int_number == num
 
     def test_abbrev_symbols(self):
@@ -109,9 +115,26 @@ class TestSpaceGroup:
     def test_get_settings(self):
         assert SpaceGroup.get_settings("Fm-3m") == {"Fm-3m(a-1/4,b-1/4,c-1/4)", "Fm-3m"}
 
-        pmmn_settings = {"Pmmn", "Pmnm:1", "Pnmm:2", "Pmnm:2", "Pnmm", "Pnmm:1", "Pmmn:1", "Pmnm", "Pmmn:2"}
+        pmmn_settings = {
+            "Pmmn",
+            "Pmnm:1",
+            "Pnmm:2",
+            "Pmnm:2",
+            "Pnmm",
+            "Pnmm:1",
+            "Pmmn:1",
+            "Pmnm",
+            "Pmmn:2",
+        }
         assert SpaceGroup.get_settings("Pmmn") == pmmn_settings
-        assert SpaceGroup.get_settings("Pmna") == {"Pnmb", "Pman", "Pncm", "Pmna", "Pcnm", "Pbmn"}
+        assert SpaceGroup.get_settings("Pmna") == {
+            "Pnmb",
+            "Pman",
+            "Pncm",
+            "Pmna",
+            "Pcnm",
+            "Pbmn",
+        }
 
     def test_crystal_system(self):
         sg = SpaceGroup("R-3c")
@@ -250,5 +273,8 @@ class TestSpaceGroup:
 
     def test_raises_on_bad_int_number(self):
         for num in (-5, 0, 231, 1000):
-            with pytest.raises(ValueError, match=f"International number must be between 1 and 230, got {num}"):
+            with pytest.raises(
+                ValueError,
+                match=f"International number must be between 1 and 230, got {num}",
+            ):
                 SpaceGroup.from_int_number(num)
