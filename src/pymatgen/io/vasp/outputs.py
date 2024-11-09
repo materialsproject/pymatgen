@@ -1927,51 +1927,54 @@ class Outcar:
     are always present.
 
     Attributes:
-        magnetization (tuple): Magnetization on each ion as a tuple of dict, e.g.
-            ({"d": 0.0, "p": 0.003, "s": 0.002, "tot": 0.005}, ... )
-        chemical_shielding (dict): Chemical shielding on each ion as a dictionary with core and valence contributions.
-        unsym_cs_tensor (list): Unsymmetrized chemical shielding tensor matrixes on each ion as a list.
+        magnetization (tuple[dict]): Magnetization on each ion, e.g.
+            ({"d": 0.0, "p": 0.003, "s": 0.002, "tot": 0.005}, ... ).
+        chemical_shielding (dict): Chemical shielding on each ion with core and valence contributions.
+        unsym_cs_tensor (list): Unsymmetrized chemical shielding tensor matrixes on each ion.
             e.g. [[[sigma11, sigma12, sigma13], [sigma21, sigma22, sigma23], [sigma31, sigma32, sigma33]], ...]
-        cs_g0_contribution (np.array): G=0 contribution to chemical shielding. 2D rank 3 matrix.
-        cs_core_contribution (dict): Core contribution to chemical shielding. dict. e.g.
+        cs_g0_contribution (NDArray): G=0 contribution to chemical shielding. 2D rank 3 matrix.
+        cs_core_contribution (dict): Core contribution to chemical shielding. e.g.
             {'Mg': -412.8, 'C': -200.5, 'O': -271.1}
-        efg (tuple): Electric Field Gradient (EFG) tensor on each ion as a tuple of dict, e.g.
+        efg (tuple[dict]): Electric Field Gradient (EFG) tensor on each ion, e.g.
             ({"cq": 0.1, "eta", 0.2, "nuclear_quadrupole_moment": 0.3}, {"cq": 0.7, "eta", 0.8,
             "nuclear_quadrupole_moment": 0.9}, ...)
-        charge (tuple): Charge on each ion as a tuple of dict, e.g.
+        charge (tuple[dict]): Charge on each ion, e.g.
             ({"p": 0.154, "s": 0.078, "d": 0.0, "tot": 0.232}, ...)
         is_stopped (bool): True if OUTCAR is from a stopped run (using STOPCAR, see VASP Manual).
-        run_stats (dict): Various useful run stats as a dict including "System time (sec)", "Total CPU time used (sec)",
-            "Elapsed time (sec)", "Maximum memory used (kb)", "Average memory used (kb)", "User time (sec)", "cores".
-        elastic_tensor (np.array): Total elastic moduli (Kbar) is given in a 6x6 array matrix.
-        drift (np.array): Total drift for each step in eV/Atom.
+        run_stats (dict[str, float | None]): Various useful run stats including "System time (sec)",
+            "Total CPU time used (sec)", "Elapsed time (sec)", "Maximum memory used (kb)",
+            "Average memory used (kb)", "User time (sec)", "cores".
+        elastic_tensor (NDArray): Total elastic moduli (Kbar) is given in a 6x6 array matrix.
+        drift (NDArray): Total drift for each step in eV/Atom.
         ngf (tuple): Dimensions for the Augmentation grid.
-        sampling_radii (np.array): Size of the sampling radii in VASP for the test charges for the electrostatic
+        sampling_radii (NDArray): Size of the sampling radii in VASP for the test charges for the electrostatic
             potential at each atom. Total array size is the number of elements present in the calculation.
-        electrostatic_potential (np.array): Average electrostatic potential at each atomic position in order of
+        electrostatic_potential (NDArray): Average electrostatic potential at each atomic position in order of
             the atoms in POSCAR.
-        final_energy_contribs (dict): Individual contributions to the total final energy as a dictionary.
+        final_energy_contribs (dict[str, float]): Individual contributions to the total final energy.
             Include contributions from keys, e.g.:
             {'DENC': -505778.5184347, 'EATOM': 15561.06492564, 'EBANDS': -804.53201231, 'EENTRO': -0.08932659,
             'EXHF': 0.0, 'Ediel_sol': 0.0, 'PAW double counting': 664.6726974100002, 'PSCENC': 742.48691646,
             'TEWEN': 489742.86847338, 'XCENC': -169.64189814}
         efermi (float): Fermi energy.
-        filename (str): Filename.
+        filename (PathLike): Filename.
         final_energy (float): Final energy after extrapolation of sigma back to 0, i.e. energy(sigma->0).
         final_energy_wo_entrp (float): Final energy before extrapolation of sigma, i.e. energy without entropy.
         final_fr_energy (float): Final "free energy", i.e. free energy TOTEN.
         has_onsite_density_matrices (bool): Whether onsite density matrices have been set.
         lcalcpol (bool): If LCALCPOL has been set.
         lepsilon (bool): If LEPSILON has been set.
-        nelect (float): Returns the number of electrons in the calculation.
-        spin (bool): If spin-polarization was enabled via ISPIN.
+        nelect (float): The number of electrons in the calculation.
+        spin (bool): If spin-polarization is enabled via ISPIN.
         total_mag (float): Total magnetization (in terms of the number of unpaired electrons).
 
-    One can then call a specific reader depending on the type of run being
-    performed. These are currently: read_igpar(), read_lepsilon() and
-    read_lcalcpol(), read_core_state_eign(), read_avg_core_pot().
-
-    See the documentation of those methods for more documentation.
+    One can then call a specific reader depending on the type of run being performed.
+    These are currently (see the documentation of those methods for more details):
+        - read_igpar
+        - read_lepsilon
+        - read_lcalcpol
+        - read_core_state_eign
+        - read_avg_core_pot
 
     Authors: Rickard Armiento, Shyue Ping Ong
     """
@@ -2287,7 +2290,7 @@ class Outcar:
         arguments.
 
         Args:
-            patterns (dict): A dict of patterns, e.g.
+            patterns (dict[str, str]): A dict of patterns, e.g.
                 {"energy": r"energy\\(sigma->0\\)\\s+=\\s+([\\d\\-.]+)"}.
             reverse (bool): Read files in reverse. Defaults to false. Useful for
                 large files, esp OUTCARs, especially when used with
@@ -2297,12 +2300,12 @@ class Outcar:
             postprocess (Callable): A post processing function to convert all
                 matches. Defaults to str, i.e., no change.
 
-        Renders accessible:
+        Renders accessible from self.data:
             Any attribute in patterns. For example,
             {"energy": r"energy\\(sigma->0\\)\\s+=\\s+([\\d\\-.]+)"} will set the
             value of self.data["energy"] = [[-1234], [-3453], ...], to the
-            results from regex and postprocess. Note that the returned values
-            are lists of lists, because you can grep multiple items on one line.
+            results from regex and postprocess. Note that the values
+            are list[list], because you can grep multiple items on one line.
         """
         matches = regrep(
             self.filename,
@@ -2323,7 +2326,7 @@ class Outcar:
         attribute_name: str | None = None,
         last_one_only: bool = True,
         first_one_only: bool = False,
-    ) -> list:
+    ) -> list:  # TODO: clarify table-like data type
         r"""Parse table-like data. A table composes of three parts: header,
         main body, footer. All the data matches "row pattern" in the main body
         will be returned.
@@ -2392,7 +2395,14 @@ class Outcar:
         return retained_data
 
     def read_electrostatic_potential(self) -> None:
-        """Parse the eletrostatic potential for the last ionic step."""
+        """Parse the eletrostatic potential for the last ionic step.
+
+        Renders accessible as attributes:  TODO:
+            ngf: TODO: double check
+            sampling_radii: TODO: double check
+            radii: TODO: double check
+            electrostatic_potential:
+        """
         pattern = {"ngf": r"\s+dimension x,y,z NGXF=\s+([\.\-\d]+)\sNGYF=\s+([\.\-\d]+)\sNGZF=\s+([\.\-\d]+)"}
         self.read_pattern(pattern, postprocess=int)
         self.ngf = self.data.get("ngf", [[]])[0]
@@ -2423,7 +2433,7 @@ class Outcar:
             line: line to parse.
 
         Returns:
-            list[float]: numbers if found, empty if not.
+            list[float]: numbers if found, empty list if not.
         """
         if match := re.findall(r"[\.\-\d]+E[\+\-]\d{2}", line):
             return [float(t) for t in match]
@@ -2434,6 +2444,10 @@ class Outcar:
         Parse the frequency dependent dielectric function (obtained with
         LOPTICS). Frequencies (in eV) are in self.frequencies, and dielectric
         tensor function is given as self.dielectric_tensor_function.
+
+        Renders accessible as attributes:  TODO:
+            frequencies:
+            dielectric_tensor_function:
         """
         plasma_pattern = r"plasma frequency squared.*"
         dielectric_pattern = (
@@ -2492,8 +2506,9 @@ class Outcar:
         """Parse the NMR chemical shieldings data. Only the second part "absolute, valence and core"
         will be parsed. And only the three right most field (ISO_SHIELDING, SPAN, SKEW) will be retrieved.
 
-        Set self.data["chemical_shielding"] as:
-            List of chemical shieldings in the order of atoms from the OUTCAR. Maryland notation is adopted.
+        Renders accessible from self.data:
+            chemical_shielding (list): Chemical shieldings in the order of atoms
+                from the OUTCAR. Maryland notation is adopted.
         """
         header_pattern = (
             r"\s+CSA tensor \(J\. Mason, Solid State Nucl\. Magn\. Reson\. 2, "
@@ -2524,8 +2539,8 @@ class Outcar:
     def read_cs_g0_contribution(self) -> None:
         """Parse the G0 contribution of NMR chemical shielding.
 
-        Set self.data["cs_g0_contribution"] as:
-            list[list]: G0 contribution matrix.
+        Renders accessible from self.data:
+            cs_g0_contribution (list[list]): G0 contribution matrix.
         """
         header_pattern = (
             r"^\s+G\=0 CONTRIBUTION TO CHEMICAL SHIFT \(field along BDIR\)\s+$\n"
@@ -2547,8 +2562,8 @@ class Outcar:
     def read_cs_core_contribution(self) -> None:
         """Parse the core contribution of NMR chemical shielding.
 
-        Set self.data["cs_core_contribution"] as:
-            list[list]: G0 contribution matrix.
+        Renders accessible from self.data:
+            cs_core_contribution (list[list]): G0 contribution matrix.
         """
         header_pattern = r"^\s+Core NMR properties\s*$\n\n^\s+typ\s+El\s+Core shift \(ppm\)\s*$\n^\s+-{20,}$\n"
         row_pattern = r"\d+\s+(?P<element>[A-Z][a-z]?\w?)\s+(?P<shift>[-]?\d+\.\d+)"
@@ -2567,8 +2582,8 @@ class Outcar:
     def read_cs_raw_symmetrized_tensors(self) -> None:
         """Parse the matrix form of NMR tensor before corrected to table.
 
-        Returns:
-            nsymmetrized tensors list in the order of atoms.
+        Renders accessible from self.data: TODO:
+            unsym_cs_tensor (list[list]): nsymmetrized tensors in the order of atoms.
         """
         header_pattern = r"\s+-{50,}\s+\s+Absolute Chemical Shift tensors\s+\s+-{50,}$"
         first_part_pattern = r"\s+UNSYMMETRIZED TENSORS\s+$"
@@ -2605,7 +2620,7 @@ class Outcar:
         """Parses the NMR Electric Field Gradient Raw Tensors.
 
         Returns:
-            A list of Electric Field Gradient Tensors in the order of Atoms from OUTCAR.
+            list[NDArray]: Electric Field Gradient Tensors in the order of atoms.
         """
         header_pattern = (
             r"Electric field gradients \(V/A\^2\)\n-*\n ion\s+V_xx\s+V_yy\s+V_zz\s+V_xy\s+V_xz\s+V_yz\n-*\n"
@@ -2622,9 +2637,9 @@ class Outcar:
     def read_nmr_efg(self) -> None:
         """Parse the NMR Electric Field Gradient interpreted values.
 
-        Set self.data["efg"] as:
-            Electric Field Gradient tensors as a list of dict in the order of atoms from OUTCAR.
-            Each dict key/value pair corresponds to a component of the tensors.
+        Renders accessible from self.data:
+            efg (list[dict]): Electric Field Gradient tensors in the order of atoms.
+                Each dict key/value pair corresponds to a component of the tensors.
         """
         header_pattern = (
             r"^\s+NMR quadrupolar parameters\s+$\n"
@@ -2652,8 +2667,8 @@ class Outcar:
         """
         Parse the elastic tensor data.
 
-        Set self.data["elastic_tensor"] as:
-            6x6 array corresponding to the elastic tensor from the OUTCAR.
+        Renders accessible from self.data:
+            elastic_tensor: 6x6 array corresponding to the elastic tensor.
         """
         header_pattern = r"TOTAL ELASTIC MODULI \(kBar\)\s+Direction\s+([X-Z][X-Z]\s+)+\-+"
         row_pattern = r"[X-Z][X-Z]\s+" + r"\s+".join([r"(\-*[\.\d]+)"] * 6)
@@ -2662,7 +2677,11 @@ class Outcar:
         self.data["elastic_tensor"] = et_table
 
     def read_piezo_tensor(self) -> None:
-        """Parse the piezo tensor data."""
+        """Parse the piezo tensor data.
+
+        Renders accessible from self.data:
+            piezo_tensor: TODO: fill value type.
+        """
         header_pattern = r"PIEZOELECTRIC TENSOR  for field in x, y, z\s+\(C/m\^2\)\s+([X-Z][X-Z]\s+)+\-+"
         row_pattern = r"[x-z]\s+" + r"\s+".join([r"(\-*[\.\d]+)"] * 6)
         footer_pattern = r"BORN EFFECTIVE"
@@ -2672,8 +2691,8 @@ class Outcar:
     def read_onsite_density_matrices(self) -> None:
         """Parse the onsite density matrices.
 
-        Set self.data["onsite_density_matrices"] as:
-            List with index corresponding to atom index in Structure.
+        Renders accessible from self.data: TODO:
+            onsite_density_matrices (list[dict]): List with index corresponding to atom index in Structure.
         """
         # Matrix size will vary depending on if d or f orbitals are present.
         # Therefore regex assumes f, but filter out None values if d.
@@ -2714,12 +2733,14 @@ class Outcar:
         reverse: bool = True,
         terminate_on_match: bool = True,
     ) -> None:
-        """Read the dipol qudropol corrections into
-        self.data["dipol_quadrupol_correction"].
+        """Read the dipol qudropol corrections.
 
         Args:
             reverse (bool): Whether to start from end of OUTCAR. Defaults to True.
             terminate_on_match (bool): Whether to terminate once match is found. Defaults to True.
+
+        Renders accessible from self.data:
+            dipol_quadrupol_correction: TODO: fill details.
         """
         patterns = {"dipol_quadrupol_correction": r"dipol\+quadrupol energy correction\s+([\d\-\.]+)"}
         self.read_pattern(
@@ -2742,17 +2763,15 @@ class Outcar:
 
         Args:
             reverse (bool): Read files in reverse. Defaults to false. Useful for
-                large files, esp OUTCARs, especially when used with
-                terminate_on_match. Defaults to True here since we usually
-                want only the final value.
+                large files, especially when used with terminate_on_match.
+                Defaults to True here since we usually want only the final value.
             terminate_on_match (bool): Whether to terminate when there is at
                 least one match in each key in pattern. Defaults to True here
                 since we usually want only the final value.
 
-        Renders accessible:
-            tangent_force - Final tangent force.
-            energy - Final energy.
-            These can be accessed under Outcar.data[key]
+        Renders accessible from self.data:
+            tangent_force (float): Final tangent force.
+            energy (float): Final energy.
         """
         patterns = {
             "energy": r"energy\(sigma->0\)\s+=\s+([\d\-\.]+)",
@@ -2775,17 +2794,18 @@ class Outcar:
         See VASP sections "LBERRY, IGPAR, NPPSTR, DIPOL" for info on
         what these are.
 
-        Renders accessible:
-            er_ev = e<r>_ev (dictionary with Spin.up/Spin.down as keys)
-            er_bp = e<r>_bp (dictionary with Spin.up/Spin.down as keys)
-            er_ev_tot = spin up + spin down summed
-            er_bp_tot = spin up + spin down summed
-            p_elc = spin up + spin down summed
-            p_ion = spin up + spin down summed.
+        Renders accessible as attributes: # TODO: double check type
+            er_ev (dict): e<r>_ev (Spin.up/Spin.down as keys).
+            er_bp (dict): e<r>_bp (Spin.up/Spin.down as keys).
+            er_ev_tot: spin up + spin down summed.
+            er_bp_tot: spin up + spin down summed.
+            p_elec (int): spin up + spin down summed.
+            p_ion (int): spin up + spin down summed.
         """
         # Variables to be filled
-        self.er_ev = {}  # dict (Spin.up/down) of array(3*float)
-        self.er_bp = {}  # dict (Spin.up/down) of array(3*float)
+        # TODO: double check type
+        self.er_ev: dict = {}  # (Spin.up/down) of array(3*float)
+        self.er_bp: dict = {}  # (Spin.up/down) of array(3*float)
         self.er_ev_tot = None  # array(3*float)
         self.er_bp_tot = None  # array(3*float)
         self.p_elec: int | None = None
@@ -2880,10 +2900,12 @@ class Outcar:
         except Exception as exc:
             raise RuntimeError("IGPAR OUTCAR could not be parsed.") from exc
 
-    def read_internal_strain_tensor(self):
-        """Read the internal strain tensor and populates
-        self.internal_strain_tensor with an array of voigt notation
-        tensors for each site.
+    def read_internal_strain_tensor(self) -> None:
+        """Read the internal strain tensor.
+
+        Renders accessible as attributes:
+            # TODO: add type
+            internal_strain_tensor: an array of voigt notation tensors for each site.
         """
         search = []
 
@@ -2929,7 +2951,8 @@ class Outcar:
     def read_lepsilon(self) -> None:
         """Read a LEPSILON run.
 
-        TODO: Document the actual variables.
+        Renders accessible as attributes:
+            TODO:
         """
         try:
             search = []
@@ -3085,7 +3108,8 @@ class Outcar:
     def read_lepsilon_ionic(self) -> None:
         """Read the ionic component of a LEPSILON run.
 
-        TODO: Document the actual variables.
+        Renders accessible as attributes:
+            TODO:
         """
         try:
             search = []
@@ -3211,7 +3235,8 @@ class Outcar:
     def read_lcalcpol(self) -> None:
         """Read the LCALCPOL.
 
-        TODO: Document the actual variables.
+        Renders accessible as attributes:
+            TODO:
         """
         self.p_elec = None
         self.p_sp1: int | None = None
@@ -3314,7 +3339,11 @@ class Outcar:
             raise RuntimeError("LCALCPOL OUTCAR could not be parsed.") from exc
 
     def read_pseudo_zval(self) -> None:
-        """Create a pseudopotential ZVAL dictionary."""
+        """Create a pseudopotential ZVAL dictionary.
+
+        Renders accessible as attributes:
+            TODO:
+        """
         try:
 
             def atom_symbols(results, match):
@@ -3340,6 +3369,7 @@ class Outcar:
             self.zval_dict = dict(zip(self.atom_symbols, self.zvals, strict=True))  # type: ignore[attr-defined]
 
             # Clean up
+            # TODO: is del necessary (need benchmark)?
             del self.atom_symbols  # type: ignore[attr-defined]
             del self.zvals  # type: ignore[attr-defined]
 
@@ -3350,7 +3380,7 @@ class Outcar:
         """Read the core state eigenenergies at each ionic step.
 
         Returns:
-            A list of dict over the atom such as [{"AO":[core state eig]}].
+            list[dict]: The atom such as [{"AO":[core state eig]}].
             The core state eigenenergie list for each AO is over all ionic
             step.
 
@@ -3393,8 +3423,9 @@ class Outcar:
         """Read the core potential at each ionic step.
 
         Returns:
-            A list for each ionic step containing a list of the average core
-            potentials for each atom: [[avg core pot]].
+            list[list]: A list for each ionic step containing a list of
+                the average core potentials for each atom: [[avg core pot]].
+                TODO: what is "[avg core pot]", is it an array of 3 or "avg_core_pot"?
 
         Example:
             The average core potential of the 2nd atom of the structure at the
@@ -3427,7 +3458,7 @@ class Outcar:
 
         return aps
 
-    def as_dict(self) -> dict:
+    def as_dict(self) -> dict[str, Any]:
         """MSONable dict."""
         dct = {
             "@module": type(self).__module__,
