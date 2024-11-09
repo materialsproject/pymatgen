@@ -498,7 +498,7 @@ class TestDopingTransformation(PymatgenTest):
             ss = trafo.apply_transformation(structure, 1000)
             assert len(ss) == n_structures
             for d in ss:
-                assert d["structure"].charge == 0
+                assert d["structure"].charge == pytest.approx(0)
 
         # Aliovalent doping with codopant
         for dopant, n_structures in [("Al3+", 3), ("N3-", 37), ("Cl-", 37)]:
@@ -512,7 +512,7 @@ class TestDopingTransformation(PymatgenTest):
             ss = trafo.apply_transformation(structure, 1000)
             assert len(ss) == n_structures
             for d in ss:
-                assert d["structure"].charge == 0
+                assert d["structure"].charge == pytest.approx(0)
 
         # Make sure compensation is done with lowest oxi state
         structure = PymatgenTest.get_structure("SrTiO3")
