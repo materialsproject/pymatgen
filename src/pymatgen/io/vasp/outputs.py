@@ -1917,14 +1917,22 @@ class BSVasprun(Vasprun):
 
 
 class Outcar:
-    """Parser for data in OUTCAR that is not available in Vasprun.xml.
+    """Parser for data in OUTCAR that is not available in vasprun.xml.
 
     Note, this class works a bit differently than most of the other
-    VASP objects, since OUTCAR can be very different depending on which
+    VASP readers, since OUTCAR can be very different depending on which
     "type of run" performed.
 
-    Create the OUTCAR class with a filename reads "regular parameters" that
-    are always present.
+    Creating an Outcar instance with a filename reads "regular parameters" that
+    are always present. One can then call a specific reader method depending on the
+    type of run being performed, including (see the docstring of corresponding
+    method for more details):
+    # TODO: this seem pretty outdated?
+        - read_igpar
+        - read_lepsilon
+        - read_lcalcpol
+        - read_core_state_eign
+        - read_avg_core_pot
 
     Attributes:
         magnetization (tuple[dict]): Magnetization on each ion, e.g.
@@ -1967,15 +1975,6 @@ class Outcar:
         nelect (float): The number of electrons in the calculation.
         spin (bool): If spin-polarization is enabled via ISPIN.
         total_mag (float): Total magnetization (in terms of the number of unpaired electrons).
-
-    One can then call a specific reader depending on the type of run being performed.
-    These are currently (see the documentation of those methods for more details):
-    # TODO: this seem pretty outdated?
-        - read_igpar
-        - read_lepsilon
-        - read_lcalcpol
-        - read_core_state_eign
-        - read_avg_core_pot
 
     Authors: Rickard Armiento, Shyue Ping Ong
     """
@@ -2326,14 +2325,14 @@ class Outcar:
             are list[list], because you can grep multiple items on one line.
         """
         matches = regrep(
-            self.filename,
-            patterns,
+            filename=self.filename,
+            patterns=patterns,
             reverse=reverse,
             terminate_on_match=terminate_on_match,
             postprocess=postprocess,
         )
-        for k in patterns:
-            self.data[k] = [i[0] for i in matches.get(k, [])]
+        for key in patterns:
+            self.data[key] = [i[0] for i in matches.get(key, [])]
 
     def read_table_pattern(
         self,
