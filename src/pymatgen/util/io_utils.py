@@ -78,7 +78,7 @@ def micro_pyawk(
         postdebug (Callable): Another "run" after debug "run".
 
     Returns:
-        dict[str, Any]: The results dictionary.
+        Any: The results object.
 
     Author: Rickard Armiento, Ioannis Petousis
     """
