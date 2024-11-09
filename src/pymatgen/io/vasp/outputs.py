@@ -18,7 +18,6 @@ from pathlib import Path
 from typing import TYPE_CHECKING, cast
 
 import numpy as np
-from monty.dev import deprecated
 from monty.io import reverse_readfile, zopen
 from monty.json import MSONable, jsanitize
 from monty.os.path import zpath
@@ -2159,7 +2158,7 @@ class Outcar:
         self.data: dict = {}
 
         # Read NPLWV (total number of plane waves)
-        self._parse_pattern(
+        self.read_pattern(
             {"nplwv": r"total plane-waves  NPLWV =\s+(\*{6}|\d+)"},
             terminate_on_match=True,
         )
@@ -2170,7 +2169,7 @@ class Outcar:
 
         nplwvs_at_kpoints = [
             n
-            for [n] in self._parse_table_pattern(
+            for [n] in self.read_table_pattern(
                 r"\n{3}-{104}\n{3}",
                 r".+plane waves:\s+(\*{6,}|\d+)",
                 (
@@ -2190,7 +2189,7 @@ class Outcar:
                 pass
 
         # Read the drift
-        self._parse_pattern(
+        self.read_pattern(
             {"drift": r"total drift:\s+([\.\-\d]+)\s+([\.\-\d]+)\s+([\.\-\d]+)"},
             terminate_on_match=False,
             postprocess=float,
@@ -2198,15 +2197,15 @@ class Outcar:
         self.drift = self.data.get("drift", [])
 
         # Check if calculation is spin polarized
-        self._parse_pattern({"spin": r"ISPIN\s*=\s*2"})
+        self.read_pattern({"spin": r"ISPIN\s*=\s*2"})
         self.spin = bool(self.data.get("spin", []))
 
         # Check if calculation is non-collinear
-        self._parse_pattern({"noncollinear": r"LNONCOLLINEAR\s*=\s*T"})
+        self.read_pattern({"noncollinear": r"LNONCOLLINEAR\s*=\s*T"})
         self.noncollinear = bool(self.data.get("noncollinear", []))
 
         # Check if the calculation type is DFPT
-        self._parse_pattern(
+        self.read_pattern(
             {"ibrion": r"IBRION =\s+([\-\d]+)"},
             terminate_on_match=True,
             postprocess=int,
@@ -2218,7 +2217,7 @@ class Outcar:
             self.dfpt = False
 
         # Check if LEPSILON is True and read piezo data if so
-        self._parse_pattern({"epsilon": r"LEPSILON\s*=\s*T"})
+        self.read_pattern({"epsilon": r"LEPSILON\s*=\s*T"})
         if self.data.get("epsilon", []):
             self.lepsilon = True
             self.read_lepsilon()
@@ -2229,7 +2228,7 @@ class Outcar:
             self.lepsilon = False
 
         # Check if LCALCPOL is True and read polarization data if so
-        self._parse_pattern({"calcpol": r"LCALCPOL\s*=\s*T"})
+        self.read_pattern({"calcpol": r"LCALCPOL\s*=\s*T"})
         if self.data.get("calcpol", []):
             self.lcalcpol = True
             self.read_lcalcpol()
@@ -2241,11 +2240,11 @@ class Outcar:
         self.electrostatic_potential: list[float] | None = None
         self.ngf = None
         self.sampling_radii: list[float] | None = None
-        self._parse_pattern({"electrostatic": r"average \(electrostatic\) potential at core"})
+        self.read_pattern({"electrostatic": r"average \(electrostatic\) potential at core"})
         if self.data.get("electrostatic", []):
             self.read_electrostatic_potential()
 
-        self._parse_pattern({"nmr_cs": r"LCHIMAG\s*=\s*(T)"})
+        self.read_pattern({"nmr_cs": r"LCHIMAG\s*=\s*(T)"})
         if self.data.get("nmr_cs"):
             self.nmr_cs = True
             self.read_chemical_shielding()
@@ -2255,7 +2254,7 @@ class Outcar:
         else:
             self.nmr_cs = False
 
-        self._parse_pattern({"nmr_efg": r"NMR quadrupolar parameters"})
+        self.read_pattern({"nmr_efg": r"NMR quadrupolar parameters"})
         if self.data.get("nmr_efg"):
             self.nmr_efg = True
             self.read_nmr_efg()
@@ -2263,7 +2262,7 @@ class Outcar:
         else:
             self.nmr_efg = False
 
-        self._parse_pattern(
+        self.read_pattern(
             {"has_onsite_density_matrices": r"onsite density matrix"},
             terminate_on_match=True,
         )
@@ -2288,9 +2287,9 @@ class Outcar:
             "Ediel_sol",
         ):
             if key == "PAW double counting":
-                self._parse_pattern({key: rf"{key}\s+=\s+([\.\-\d]+)\s+([\.\-\d]+)"})
+                self.read_pattern({key: rf"{key}\s+=\s+([\.\-\d]+)\s+([\.\-\d]+)"})
             else:
-                self._parse_pattern({key: rf"{key}\s+=\s+([\d\-\.]+)"})
+                self.read_pattern({key: rf"{key}\s+=\s+([\d\-\.]+)"})
             if not self.data[key]:
                 continue
             final_energy_contribs[key] = sum(map(float, self.data[key][-1]))
@@ -2313,7 +2312,7 @@ class Outcar:
             return [float(t) for t in match]
         return []
 
-    def _parse_pattern(
+    def read_pattern(
         self,
         patterns: dict[str, str],
         reverse: bool = False,
@@ -2321,7 +2320,7 @@ class Outcar:
         postprocess: Callable = str,
     ) -> None:
         r"""
-        General pattern parser. Use monty's regrep method and take the same
+        General pattern reading. Use monty's regrep method and take the same
         arguments.
 
         Args:
@@ -2352,7 +2351,7 @@ class Outcar:
         for key in patterns:
             self.data[key] = [i[0] for i in matches.get(key, [])]
 
-    def _parse_table_pattern(
+    def read_table_pattern(
         self,
         header_pattern: str,
         row_pattern: str,
@@ -2428,14 +2427,6 @@ class Outcar:
         if attribute_name is not None:
             self.data[attribute_name] = retained_data
         return retained_data
-
-    @deprecated(_parse_pattern)
-    def read_pattern(self, *args, **kwargs):
-        self._parse_pattern(*args, **kwargs)
-
-    @deprecated(_parse_table_pattern)
-    def read_table_pattern(self, *args, **kwargs):
-        return self._parse_table_pattern(*args, **kwargs)
 
     def as_dict(self) -> dict[str, Any]:
         """MSONable dict."""
@@ -2514,18 +2505,18 @@ class Outcar:
             electrostatic_potential (list[float]): The eletrostatic potential.
         """
         pattern = {"ngf": r"\s+dimension x,y,z NGXF=\s+([\.\-\d]+)\sNGYF=\s+([\.\-\d]+)\sNGZF=\s+([\.\-\d]+)"}
-        self._parse_pattern(pattern, postprocess=int)
+        self.read_pattern(pattern, postprocess=int)
         self.ngf = self.data.get("ngf", [[]])[0]
 
         pattern = {"radii": r"the test charge radii are((?:\s+[\.\-\d]+)+)"}
-        self._parse_pattern(pattern, reverse=True, terminate_on_match=True, postprocess=str)
+        self.read_pattern(pattern, reverse=True, terminate_on_match=True, postprocess=str)
         self.sampling_radii = [*map(float, self.data["radii"][0][0].split())]
 
         header_pattern = r"\(the norm of the test charge is\s+[\.\-\d]+\)"
         table_pattern = r"((?:\s+\d+\s*[\.\-\d]+)+)"
         footer_pattern = r"\s+E-fermi :"
 
-        pot_patterns: list = self._parse_table_pattern(header_pattern, table_pattern, footer_pattern)
+        pot_patterns: list = self.read_table_pattern(header_pattern, table_pattern, footer_pattern)
         pot_patterns_str: str = "".join(itertools.chain.from_iterable(pot_patterns))
         pots: list = re.findall(r"\s+\d+\s*([\.\-\d]+)+", pot_patterns_str)
 
@@ -2616,11 +2607,11 @@ class Outcar:
         row_pattern = r"\d+(?:\s+[-]?\d+\.\d+){3}\s+" + r"\s+".join([r"([-]?\d+\.\d+)"] * 3)
         footer_pattern = r"-{50,}\s*$"
         h1 = header_pattern + first_part_pattern
-        cs_valence_only = self._parse_table_pattern(
+        cs_valence_only = self.read_table_pattern(
             h1, row_pattern, footer_pattern, postprocess=float, last_one_only=True
         )
         h2 = header_pattern + swallon_valence_body_pattern
-        cs_valence_and_core = self._parse_table_pattern(
+        cs_valence_and_core = self.read_table_pattern(
             h2, row_pattern, footer_pattern, postprocess=float, last_one_only=True
         )
         self.data["chemical_shielding"] = {
@@ -2642,7 +2633,7 @@ class Outcar:
         )
         row_pattern = r"(?:\d+)\s+" + r"\s+".join([r"([-]?\d+\.\d+)"] * 3)
         footer_pattern = r"\s+-{50,}\s*$"
-        self._parse_table_pattern(
+        self.read_table_pattern(
             header_pattern,
             row_pattern,
             footer_pattern,
@@ -2660,7 +2651,7 @@ class Outcar:
         header_pattern = r"^\s+Core NMR properties\s*$\n\n^\s+typ\s+El\s+Core shift \(ppm\)\s*$\n^\s+-{20,}$\n"
         row_pattern = r"\d+\s+(?P<element>[A-Z][a-z]?\w?)\s+(?P<shift>[-]?\d+\.\d+)"
         footer_pattern = r"\s+-{20,}\s*$"
-        self._parse_table_pattern(
+        self.read_table_pattern(
             header_pattern,
             row_pattern,
             footer_pattern,
@@ -2721,7 +2712,7 @@ class Outcar:
         row_pattern = r"\d+\s+([-\d\.]+)\s+([-\d\.]+)\s+([-\d\.]+)\s+([-\d\.]+)\s+([-\d\.]+)\s+([-\d\.]+)"
         footer_pattern = r"-*\n"
 
-        data = self._parse_table_pattern(header_pattern, row_pattern, footer_pattern, postprocess=float)
+        data = self.read_table_pattern(header_pattern, row_pattern, footer_pattern, postprocess=float)
         tensors = [make_symmetric_matrix_from_upper_tri(d) for d in data]
         self.data["unsym_efg_tensor"] = tensors
         return tensors
@@ -2746,7 +2737,7 @@ class Outcar:
             r"\d+\s+(?P<cq>[-]?\d+\.\d+)\s+(?P<eta>[-]?\d+\.\d+)\s+(?P<nuclear_quadrupole_moment>[-]?\d+\.\d+)"
         )
         footer_pattern = r"-{50,}\s*$"
-        self._parse_table_pattern(
+        self.read_table_pattern(
             header_pattern,
             row_pattern,
             footer_pattern,
@@ -2765,7 +2756,7 @@ class Outcar:
         header_pattern = r"TOTAL ELASTIC MODULI \(kBar\)\s+Direction\s+([X-Z][X-Z]\s+)+\-+"
         row_pattern = r"[X-Z][X-Z]\s+" + r"\s+".join([r"(\-*[\.\d]+)"] * 6)
         footer_pattern = r"\-+"
-        et_table = self._parse_table_pattern(header_pattern, row_pattern, footer_pattern, postprocess=float)
+        et_table = self.read_table_pattern(header_pattern, row_pattern, footer_pattern, postprocess=float)
         self.data["elastic_tensor"] = et_table
 
     def read_piezo_tensor(self) -> None:
@@ -2777,7 +2768,7 @@ class Outcar:
         header_pattern = r"PIEZOELECTRIC TENSOR  for field in x, y, z\s+\(C/m\^2\)\s+([X-Z][X-Z]\s+)+\-+"
         row_pattern = r"[x-z]\s+" + r"\s+".join([r"(\-*[\.\d]+)"] * 6)
         footer_pattern = r"BORN EFFECTIVE"
-        pt_table = self._parse_table_pattern(header_pattern, row_pattern, footer_pattern, postprocess=float)
+        pt_table = self.read_table_pattern(header_pattern, row_pattern, footer_pattern, postprocess=float)
         self.data["piezo_tensor"] = pt_table
 
     def read_onsite_density_matrices(self) -> None:
@@ -2791,7 +2782,7 @@ class Outcar:
         header_pattern = r"spin component  1\n"
         row_pattern = r"[^\S\r\n]*(?:(-?[\d.]+))" + r"(?:[^\S\r\n]*(-?[\d.]+)[^\S\r\n]*)?" * 6 + r".*?"
         footer_pattern = r"\nspin component  2"
-        spin1_component = self._parse_table_pattern(
+        spin1_component = self.read_table_pattern(
             header_pattern,
             row_pattern,
             footer_pattern,
@@ -2806,7 +2797,7 @@ class Outcar:
         header_pattern = r"spin component  2\n"
         row_pattern = r"[^\S\r\n]*(?:([\d.-]+))" + r"(?:[^\S\r\n]*(-?[\d.]+)[^\S\r\n]*)?" * 6 + r".*?"
         footer_pattern = r"\n occupancies and eigenvectors"
-        spin2_component = self._parse_table_pattern(
+        spin2_component = self.read_table_pattern(
             header_pattern,
             row_pattern,
             footer_pattern,
@@ -2835,7 +2826,7 @@ class Outcar:
             dipol_quadrupol_correction: TODO: fill details.
         """
         patterns = {"dipol_quadrupol_correction": r"dipol\+quadrupol energy correction\s+([\d\-\.]+)"}
-        self._parse_pattern(
+        self.read_pattern(
             patterns,
             reverse=reverse,
             terminate_on_match=terminate_on_match,
@@ -2870,7 +2861,7 @@ class Outcar:
             "tangent_force": r"(NEB: projections on to tangent \(spring, REAL\)\s+\S+|tangential force \(eV/A\))\s+"
             r"([\d\-\.]+)",
         }
-        self._parse_pattern(
+        self.read_pattern(
             patterns,
             reverse=reverse,
             terminate_on_match=terminate_on_match,
@@ -3577,7 +3568,7 @@ class Outcar:
         )
         row_pattern1 = r"(?:\d+)\s+" + r"\s+".join([r"([-]?\d+\.\d+)"] * 5)
         footer_pattern = r"\-+"
-        fch_table = self._parse_table_pattern(
+        fch_table = self.read_table_pattern(
             header_pattern1,
             row_pattern1,
             footer_pattern,
@@ -3593,7 +3584,7 @@ class Outcar:
             r"\s*\-+"
         )
         row_pattern2 = r"(?:\d+)\s+" + r"\s+".join([r"([-]?\d+\.\d+)"] * 6)
-        dh_table = self._parse_table_pattern(
+        dh_table = self.read_table_pattern(
             header_pattern2,
             row_pattern2,
             footer_pattern,
@@ -3610,7 +3601,7 @@ class Outcar:
             r"\s*\-+"
         )
         row_pattern3 = r"(?:\d+)\s+" + r"\s+".join([r"([-]?\d+\.\d+)"] * 4)
-        th_table = self._parse_table_pattern(
+        th_table = self.read_table_pattern(
             header_pattern3,
             row_pattern3,
             footer_pattern,
