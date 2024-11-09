@@ -99,7 +99,7 @@ def micro_pyawk(
             for regex, test, run in search:
                 match = re.search(regex, line)
 
-                if match and (test is None or test(results, line)):
+                if match is not None and (test is None or test(results, line)):
                     if debug is not None:
                         debug(results, match)
 
