@@ -1921,19 +1921,36 @@ class Outcar:
     """Parser for data in OUTCAR that is not available in vasprun.xml.
 
     Note, this class works a bit differently than most of the other
-    VASP readers, since OUTCAR can be very different depending on which
+    VASP parsers, since OUTCAR can be very different depending on which
     "type of run" performed.
 
     Creating an Outcar instance with a filename reads "regular parameters" that
     are always present. One can then call a specific reader method depending on the
     type of run being performed, including (see the docstring of corresponding
     method for more details):
-    # TODO: this seem pretty outdated?
+        - read_avg_core_poten
+        - read_chemical_shielding
+        - read_core_state_eigen
+        - read_corrections
+        - read_cs_core_contribution
+        - read_cs_g0_contribution
+        - read_cs_raw_symmetrized_tensors
+        - read_elastic_tensor
+        - read_electrostatic_potential
+        - read_fermi_contact_shift
+        - read_freq_dielectric
         - read_igpar
-        - read_lepsilon
+        - read_internal_strain_tensor
         - read_lcalcpol
-        - read_core_state_eign
-        - read_avg_core_pot
+        - read_lepsilon
+        - read_lepsilon_ionic
+        - read_neb
+        - read_nmr_efg
+        - read_nmr_efg_tensor
+        - read_onsite_density_matrices
+        - read_piezo_tensor
+        - read_pseudo_zval
+        - read_table_pattern
 
     Attributes:
         magnetization (tuple[dict]): Magnetization on each ion, e.g.
@@ -2141,7 +2158,7 @@ class Outcar:
         self.final_fr_energy = e_fr_energy
         self.data: dict = {}
 
-        # Read "total number of plane waves", NPLWV:
+        # Read NPLWV (total number of plane waves)
         self._parse_pattern(
             {"nplwv": r"total plane-waves  NPLWV =\s+(\*{6}|\d+)"},
             terminate_on_match=True,
@@ -2490,11 +2507,11 @@ class Outcar:
     def read_electrostatic_potential(self) -> None:
         """Parse the eletrostatic potential for the last ionic step.
 
-        Renders accessible as attributes:  TODO:
+        Renders accessible as attributes:
             ngf: TODO: double check
-            sampling_radii: TODO: double check
             radii: TODO: double check
-            electrostatic_potential:
+            sampling_radii: TODO: double check
+            electrostatic_potential (list[float]): The eletrostatic potential.
         """
         pattern = {"ngf": r"\s+dimension x,y,z NGXF=\s+([\.\-\d]+)\sNGYF=\s+([\.\-\d]+)\sNGZF=\s+([\.\-\d]+)"}
         self._parse_pattern(pattern, postprocess=int)
@@ -2508,10 +2525,9 @@ class Outcar:
         table_pattern = r"((?:\s+\d+\s*[\.\-\d]+)+)"
         footer_pattern = r"\s+E-fermi :"
 
-        pots: list = self._parse_table_pattern(header_pattern, table_pattern, footer_pattern)
-        _pots: str = "".join(itertools.chain.from_iterable(pots))
-
-        pots = re.findall(r"\s+\d+\s*([\.\-\d]+)+", _pots)
+        pot_patterns: list = self._parse_table_pattern(header_pattern, table_pattern, footer_pattern)
+        pot_patterns_str: str = "".join(itertools.chain.from_iterable(pot_patterns))
+        pots: list = re.findall(r"\s+\d+\s*([\.\-\d]+)+", pot_patterns_str)
 
         self.electrostatic_potential = [*map(float, pots)]
 
