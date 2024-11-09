@@ -1881,9 +1881,7 @@ def _proj(b: NDArray, a: NDArray) -> NDArray:
     """Get vector projection (np.ndarray) of vector b (np.ndarray)
     onto vector a (np.ndarray).
     """
-    # TODO: replace with following, need benchmark
-    # return (np.dot(b, a) / np.dot(a, a)) * a
-    return (b.T @ (a / np.linalg.norm(a))) * (a / np.linalg.norm(a))
+    return (np.dot(b, a) / np.dot(a, a)) * a
 
 
 class SQSTransformation(AbstractTransformation):
