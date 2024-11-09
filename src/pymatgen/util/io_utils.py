@@ -2,7 +2,6 @@
 
 from __future__ import annotations
 
-import os
 import re
 import warnings
 from typing import TYPE_CHECKING
@@ -108,8 +107,3 @@ def micro_pyawk(
                         postdebug(results, match)
 
     return results
-
-
-# TODO: this seem to do nothing, remove it?
-umask = os.umask(0)
-os.umask(umask)
