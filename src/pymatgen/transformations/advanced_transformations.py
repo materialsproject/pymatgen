@@ -992,8 +992,8 @@ class DopingTransformation(AbstractTransformation):
         """
         Args:
             structure (Structure): Input structure to dope.
-            return_ranked_list (bool | int, optional): If is int, that number of structures.
-                is returned. If False, only the single lowest energy structure is returned. Defaults to False.
+            return_ranked_list (bool | int, optional): If is int, that number of structures is returned.
+                If False, only the single lowest energy structure is returned. Defaults to False.
 
         Returns:
             list[dict] | Structure: each dict as {"structure": Structure, "energy": float}.
