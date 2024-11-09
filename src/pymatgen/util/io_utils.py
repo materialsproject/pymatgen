@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import os
 import re
+import warnings
 from typing import TYPE_CHECKING
 
 from monty.io import zopen
@@ -65,8 +66,6 @@ def micro_pyawk(
     run(results, match), where match is the Match object from running
     Pattern.match.
 
-    TODO: deprecate and remove debug/postdebug?
-
     Args:
         filename (PathLike): The file to search through.
         search (list[tuple[Pattern | str, Callable, Callable]]): The "search program" of
@@ -76,12 +75,20 @@ def micro_pyawk(
         results: An object to store results. Default as an empty dictionary.
             Passing a results object let you interact with it via "run" and "test".
             Hence, in many occasions it is clever to use the instance itself as results.
+        debug (Callable): Debug "run".
+        postdebug (Callable): Another "run" after debug "run".
 
     Returns:
         dict[str, Any]: The results dictionary.
 
     Author: Rickard Armiento, Ioannis Petousis
     """
+    # TODO: remove debug and postdebug after 2025-11-09 if no one is opposing
+    if debug is not None:
+        warnings.warn("arg debug is scheduled for removal, see PR4160", DeprecationWarning, stacklevel=2)
+    if postdebug is not None:
+        warnings.warn("arg postdebug is scheduled for removal, see PR4160", DeprecationWarning, stacklevel=2)
+
     if results is None:
         results = {}
 
