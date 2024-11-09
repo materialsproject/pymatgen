@@ -1382,21 +1382,21 @@ class TestOutcar(PymatgenTest):
         assert outcar.final_energy_wo_entrp == approx(-15.83863167)
         assert outcar.final_fr_energy == approx(-15.92115453)
 
-    def test_read_table_pattern(self):
+    def test_parse_table_pattern(self):
         outcar = Outcar(f"{VASP_OUT_DIR}/OUTCAR.gz")
 
         header_pattern = r"\(the norm of the test charge is\s+[\.\-\d]+\)"
         table_pattern = r"((?:\s+\d+\s*[\.\-\d]+)+)"
         footer_pattern = r"\s+E-fermi :"
 
-        pots = outcar.read_table_pattern(header_pattern, table_pattern, footer_pattern, last_one_only=True)
+        pots = outcar._parse_table_pattern(header_pattern, table_pattern, footer_pattern, last_one_only=True)
         ref_last = [
             ["       1 -26.0704       2 -45.5046       3 -45.5046       4 -72.9539       5 -73.0621"],
             ["       6 -72.9539       7 -73.0621"],
         ]
         assert pots == ref_last
 
-        pots = outcar.read_table_pattern(
+        pots = outcar._parse_table_pattern(
             header_pattern,
             table_pattern,
             footer_pattern,
@@ -1413,7 +1413,7 @@ class TestOutcar(PymatgenTest):
             ValueError,
             match="last_one_only and first_one_only options are incompatible",
         ):
-            outcar.read_table_pattern(
+            outcar._parse_table_pattern(
                 header_pattern,
                 table_pattern,
                 footer_pattern,
