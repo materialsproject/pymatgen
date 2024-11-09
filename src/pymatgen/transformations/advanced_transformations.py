@@ -1878,9 +1878,10 @@ class SubstituteSurfaceSiteTransformation(AbstractTransformation):
 
 
 def _proj(b: NDArray, a: NDArray) -> NDArray:
-    """Get vector projection (np.ndarray) of vector b (np.ndarray)
-    onto vector a (np.ndarray).
-    """
+    """Get vector projection of vector b onto vector a."""
+    a = np.asarray(a)
+    b = np.asarray(b)
+
     return (np.dot(b, a) / np.dot(a, a)) * a
 
 
