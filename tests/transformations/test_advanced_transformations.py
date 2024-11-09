@@ -7,7 +7,6 @@ import numpy as np
 import pytest
 from monty.serialization import loadfn
 from numpy.testing import assert_allclose, assert_array_equal
-from pytest import approx
 
 from pymatgen.analysis.energy_models import IsingModel, SymmetryModel
 from pymatgen.analysis.gb.grain import GrainBoundaryGenerator
@@ -150,7 +149,7 @@ class TestChargeBalanceTransformation:
         struct = Structure(lattice, ["Li+", "Li+", "Li+", "Li+", "Li+", "Li+", "O2-", "O2-"], coords)
         struct_trafo = trafo.apply_transformation(struct)
 
-        assert struct_trafo.charge == approx(0, abs=1e-5)
+        assert struct_trafo.charge == pytest.approx(0, abs=1e-5)
 
 
 @pytest.mark.skipif(not enumlib_present, reason="enum_lib not present.")
@@ -242,7 +241,7 @@ class TestEnumerateStructureTransformation:
         trans = EnumerateStructureTransformation()
         dct = trans.as_dict()
         trans = EnumerateStructureTransformation.from_dict(dct)
-        assert trans.symm_prec == 0.1
+        assert trans.symm_prec == pytest.approx(0.1)
 
 
 class TestSubstitutionPredictorTransformation:
@@ -796,8 +795,8 @@ class TestCubicSupercellTransformation(PymatgenTest):
             supercell_generator_cubic.transformation_matrix,
             supercell_generator_orthorhombic.transformation_matrix,
         )
-        assert transformed_cubic.lattice.angles != transformed_orthorhombic.lattice.angles
-        assert transformed_orthorhombic.lattice.abc != transformed_cubic.lattice.abc
+        assert not np.allclose(transformed_cubic.lattice.angles, transformed_orthorhombic.lattice.angles)
+        assert not np.allclose(transformed_orthorhombic.lattice.abc, transformed_cubic.lattice.abc)
 
         structure = self.get_structure("Si")
         min_atoms = 100
@@ -835,9 +834,9 @@ class TestCubicSupercellTransformation(PymatgenTest):
             supercell_generator_cubic.transformation_matrix,
             supercell_generator_orthorhombic.transformation_matrix,
         )
-        assert transformed_orthorhombic.lattice.abc != transformed_cubic.lattice.abc
-        # only angels are expected to be the same because of force_90_degrees = True
-        assert transformed_cubic.lattice.angles == transformed_orthorhombic.lattice.angles
+        assert not np.allclose(transformed_orthorhombic.lattice.abc, transformed_cubic.lattice.abc)
+        # only angels are expected to be the same because of `force_90_degrees = True`
+        assert_allclose(transformed_cubic.lattice.angles, transformed_orthorhombic.lattice.angles)
 
 
 class TestAddAdsorbateTransformation(PymatgenTest):
