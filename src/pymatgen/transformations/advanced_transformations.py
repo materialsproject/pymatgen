@@ -145,7 +145,7 @@ class SuperTransformation(AbstractTransformation):
         return structures
 
     @property
-    def is_one_to_many(self) -> bool:
+    def is_one_to_many(self) -> Literal[True]:
         """Transform one structure to many."""
         return True
 
@@ -240,7 +240,7 @@ class MultipleSubstitutionTransformation:
         return outputs
 
     @property
-    def is_one_to_many(self) -> bool:
+    def is_one_to_many(self) -> Literal[True]:
         """Transform one structure to many."""
         return True
 
@@ -474,7 +474,7 @@ class EnumerateStructureTransformation(AbstractTransformation):
         return self._all_structures[0]["structure"]
 
     @property
-    def is_one_to_many(self) -> bool:
+    def is_one_to_many(self) -> Literal[True]:
         """Transform one structure to many."""
         return True
 
@@ -534,7 +534,7 @@ class SubstitutionPredictorTransformation(AbstractTransformation):
         return outputs
 
     @property
-    def is_one_to_many(self) -> bool:
+    def is_one_to_many(self) -> Literal[True]:
         """Transform one structure to many."""
         return True
 
@@ -895,7 +895,7 @@ class MagOrderingTransformation(AbstractTransformation):
         return self._all_structures[:num_to_return]  # type: ignore[return-value]
 
     @property
-    def is_one_to_many(self) -> bool:
+    def is_one_to_many(self) -> Literal[True]:
         """Transform one structure to many."""
         return True
 
@@ -1257,7 +1257,7 @@ class DisorderOrderedTransformation(AbstractTransformation):
         return disordered_structures
 
     @property
-    def is_one_to_many(self) -> bool:
+    def is_one_to_many(self) -> Literal[True]:
         """Transform one structure to many."""
         return True
 
@@ -1718,7 +1718,7 @@ class AddAdsorbateTransformation(AbstractTransformation):
         return [{"structure": structure} for structure in structures[:return_ranked_list]]
 
     @property
-    def is_one_to_many(self) -> bool:
+    def is_one_to_many(self) -> Literal[True]:
         """Transform one structure to many."""
         return True
 
@@ -1872,13 +1872,21 @@ class SubstituteSurfaceSiteTransformation(AbstractTransformation):
         return [{"structure": structure} for structure in structures[:return_ranked_list]]
 
     @property
-    def is_one_to_many(self) -> bool:
+    def is_one_to_many(self) -> Literal[True]:
         """Transform one structure to many."""
         return True
 
 
 def _proj(b: NDArray, a: NDArray) -> NDArray:
-    """Get vector projection of vector b onto vector a."""
+    """Get vector projection of vector b onto vector a.
+
+    Args:
+        b (NDArray): Vector to be projected.
+        a (NDArray): Vector onto which `b` is projected.
+
+    Returns:
+        NDArray: Projection of `b` onto `a`.
+    """
     a = np.asarray(a)
     b = np.asarray(b)
 
@@ -2151,7 +2159,7 @@ class SQSTransformation(AbstractTransformation):
         return to_return
 
     @property
-    def is_one_to_many(self) -> bool:
+    def is_one_to_many(self) -> Literal[True]:
         """Transform one structure to many."""
         return True
 
