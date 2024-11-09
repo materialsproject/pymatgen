@@ -9,7 +9,10 @@ from typing import TYPE_CHECKING
 from monty.io import zopen
 
 if TYPE_CHECKING:
-    from collections.abc import Iterator
+    from collections.abc import Callable, Iterator
+    from typing import Any
+
+    from pymatgen.util.typing import PathLike
 
 __author__ = "Shyue Ping Ong, Rickard Armiento, Anubhav Jain, G Matteo, Ioannis Petousis"
 __copyright__ = "Copyright 2011, The Materials Project"
@@ -48,36 +51,41 @@ def clean_lines(
             yield clean_string
 
 
-def micro_pyawk(filename, search, results=None, debug=None, postdebug=None):
+def micro_pyawk(
+    filename: PathLike,
+    search: list[tuple[re.Pattern | str, Callable, Callable]],
+    results: Any | None = None,
+    debug: Callable | None = None,
+    postdebug: Callable | None = None,
+) -> Any:
     """Small awk-mimicking search routine.
 
-    'file' is file to search through.
-    'search' is the "search program", a list of lists/tuples with 3 elements;
-    i.e. [[regex, test, run], [regex, test, run], ...]
-    'results' is a an object that your search program will have access to for
-    storing results.
+    This function goes through each line in the file, and if regex matches that
+    line AND test(results, line) is True (OR test is None) we execute
+    run(results, match), where match is the Match object from running
+    Pattern.match.
 
-    Here regex is either as a Regex object, or a string that we compile into a
-    Regex. test and run are callable objects.
+    TODO: deprecate and remove debug/postdebug?
 
-    This function goes through each line in filename, and if regex matches that
-    line *and* test(results,line)==True (or test is None) we execute
-    run(results,match), where match is the match object from running
-    Regex.match.
-
-    The default results is an empty dictionary. Passing a results object let
-    you interact with it in run() and test(). Hence, in many occasions it is
-    thus clever to use results=self.
-
-    Author: Rickard Armiento, Ioannis Petousis
+    Args:
+        filename (PathLike): The file to search through.
+        search (list[tuple[Pattern | str, Callable, Callable]]): The "search program" of
+            3 elements, i.e. [(regex, test, run), ...].
+            Here "regex" is either a Pattern object, or a string that we compile
+            into a Pattern.
+        results: An object to store results. Default as an empty dictionary.
+            Passing a results object let you interact with it via "run" and "test".
+            Hence, in many occasions it is clever to use the instance itself as results.
 
     Returns:
         dict[str, Any]: The results dictionary.
+
+    Author: Rickard Armiento, Ioannis Petousis
     """
     if results is None:
         results = {}
 
-    # Compile regex strings
+    # Compile regex strings to Pattern
     for entry in search:
         entry[0] = re.compile(entry[0])
 
@@ -95,5 +103,6 @@ def micro_pyawk(filename, search, results=None, debug=None, postdebug=None):
     return results
 
 
+# TODO: this seem to do nothing, remove it?
 umask = os.umask(0)
 os.umask(umask)
