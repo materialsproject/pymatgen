@@ -92,8 +92,7 @@ def micro_pyawk(
         results = {}
 
     # Compile regex strings to Pattern
-    for entry in search:
-        entry[0] = re.compile(entry[0])
+    search = [(re.compile(pattern), test, run) for pattern, test, run in search]
 
     with zopen(filename, mode="rt") as file:
         for line in file:
