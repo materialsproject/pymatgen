@@ -69,6 +69,9 @@ class ChargeBalanceTransformation(AbstractTransformation):
         """
         self.charge_balance_sp = str(charge_balance_sp)
 
+    def __repr__(self):
+        return f"Charge Balance Transformation : Species to remove = {self.charge_balance_sp}"
+
     def apply_transformation(self, structure: Structure):
         """Apply the transformation.
 
@@ -87,9 +90,6 @@ class ChargeBalanceTransformation(AbstractTransformation):
             raise ValueError("addition of specie not yet supported by ChargeBalanceTransformation")
         trans = SubstitutionTransformation({self.charge_balance_sp: {self.charge_balance_sp: 1 - removal_fraction}})
         return trans.apply_transformation(structure)
-
-    def __repr__(self):
-        return f"Charge Balance Transformation : Species to remove = {self.charge_balance_sp}"
 
 
 class SuperTransformation(AbstractTransformation):
@@ -111,6 +111,9 @@ class SuperTransformation(AbstractTransformation):
         """
         self._transformations = transformations
         self.nstructures_per_trans = nstructures_per_trans
+
+    def __repr__(self):
+        return f"Super Transformation : Transformations = {' '.join(map(str, self._transformations))}"
 
     def apply_transformation(self, structure: Structure, return_ranked_list: bool | int = False):
         """Apply the transformation.
@@ -140,9 +143,6 @@ class SuperTransformation(AbstractTransformation):
                     }
                 )
         return structures
-
-    def __repr__(self):
-        return f"Super Transformation : Transformations = {' '.join(map(str, self._transformations))}"
 
     @property
     def is_one_to_many(self) -> bool:
@@ -193,6 +193,9 @@ class MultipleSubstitutionTransformation:
         self.charge_balance_species = charge_balance_species
         self.order = order
 
+    def __repr__(self):
+        return f"Multiple Substitution Transformation : Substitution on {self.sp_to_replace}"
+
     def apply_transformation(self, structure: Structure, return_ranked_list: bool | int = False):
         """Apply the transformation.
 
@@ -235,9 +238,6 @@ class MultipleSubstitutionTransformation:
                 new_structure = st.apply_transformation(dummy_structure)
                 outputs.append({"structure": new_structure})
         return outputs
-
-    def __repr__(self):
-        return f"Multiple Substitution Transformation : Substitution on {self.sp_to_replace}"
 
     @property
     def is_one_to_many(self) -> bool:
@@ -324,6 +324,9 @@ class EnumerateStructureTransformation(AbstractTransformation):
 
         if max_cell_size and max_disordered_sites:
             raise ValueError("Cannot set both max_cell_size and max_disordered_sites!")
+
+    def __repr__(self):
+        return "EnumerateStructureTransformation"
 
     def apply_transformation(
         self, structure: Structure, return_ranked_list: bool | int = False
@@ -470,9 +473,6 @@ class EnumerateStructureTransformation(AbstractTransformation):
             return self._all_structures[:num_to_return]
         return self._all_structures[0]["structure"]
 
-    def __repr__(self):
-        return "EnumerateStructureTransformation"
-
     @property
     def is_one_to_many(self) -> bool:
         """Transform one structure to many."""
@@ -495,6 +495,9 @@ class SubstitutionPredictorTransformation(AbstractTransformation):
         self.threshold = threshold
         self.scale_volumes = scale_volumes
         self._substitutor = SubstitutionPredictor(threshold=threshold, **kwargs)
+
+    def __repr__(self):
+        return "SubstitutionPredictorTransformation"
 
     def apply_transformation(self, structure: Structure, return_ranked_list: bool | int = False):
         """Apply the transformation.
@@ -529,9 +532,6 @@ class SubstitutionPredictorTransformation(AbstractTransformation):
                 output["substitutions"][str(key)] = str(value)
             outputs.append(output)
         return outputs
-
-    def __repr__(self):
-        return "SubstitutionPredictorTransformation"
 
     @property
     def is_one_to_many(self) -> bool:
@@ -2201,6 +2201,9 @@ class MonteCarloRattleTransformation(AbstractTransformation):
         self.random_state = np.random.RandomState(seed)
         self.kwargs = kwargs
 
+    def __repr__(self):
+        return f"{__name__} : rattle_std = {self.rattle_std}"
+
     def apply_transformation(self, structure: Structure) -> Structure:
         """Apply the transformation.
 
@@ -2222,6 +2225,3 @@ class MonteCarloRattleTransformation(AbstractTransformation):
             structure.cart_coords + displacements,
             coords_are_cartesian=True,
         )
-
-    def __repr__(self):
-        return f"{__name__} : rattle_std = {self.rattle_std}"
