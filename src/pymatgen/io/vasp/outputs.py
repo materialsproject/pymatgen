@@ -1970,6 +1970,7 @@ class Outcar:
 
     One can then call a specific reader depending on the type of run being performed.
     These are currently (see the documentation of those methods for more details):
+    # TODO: this seem pretty outdated?
         - read_igpar
         - read_lepsilon
         - read_lcalcpol
@@ -2278,6 +2279,23 @@ class Outcar:
             final_energy_contribs[key] = sum(map(float, self.data[key][-1]))
         self.final_energy_contribs = final_energy_contribs
 
+    @staticmethod
+    def _parse_sci_notation(line: str) -> list[float]:
+        """
+        Parse lines with values in scientific notation and potentially
+        without spaces in between the values. This assumes that the scientific
+        notation always lists two digits for the exponent, e.g. 3.535E-02.
+
+        Args:
+            line: line to parse.
+
+        Returns:
+            list[float]: numbers if found, empty list if not.
+        """
+        if match := re.findall(r"[\.\-\d]+E[\+\-]\d{2}", line):
+            return [float(t) for t in match]
+        return []
+
     def read_pattern(
         self,
         patterns: dict[str, str],
@@ -2394,6 +2412,73 @@ class Outcar:
             self.data[attribute_name] = retained_data
         return retained_data
 
+    def as_dict(self) -> dict[str, Any]:
+        """MSONable dict."""
+        dct = {
+            "@module": type(self).__module__,
+            "@class": type(self).__name__,
+            "efermi": self.efermi,
+            "run_stats": self.run_stats,
+            "magnetization": self.magnetization,
+            "charge": self.charge,
+            "total_magnetization": self.total_mag,
+            "nelect": self.nelect,
+            "is_stopped": self.is_stopped,
+            "drift": self.drift,
+            "ngf": self.ngf,
+            "sampling_radii": self.sampling_radii,
+            "electrostatic_potential": self.electrostatic_potential,
+        }
+
+        if self.lepsilon:
+            dct |= {
+                "piezo_tensor": self.piezo_tensor,
+                "dielectric_tensor": self.dielectric_tensor,
+                "born": self.born,
+            }
+
+        if self.dfpt:
+            dct["internal_strain_tensor"] = self.internal_strain_tensor
+
+        if self.dfpt and self.lepsilon:
+            dct |= {
+                "piezo_ionic_tensor": self.piezo_ionic_tensor,
+                "dielectric_ionic_tensor": self.dielectric_ionic_tensor,
+            }
+
+        if self.lcalcpol:
+            dct |= {"p_elec": self.p_elec, "p_ion": self.p_ion}
+            if self.spin and not self.noncollinear:
+                dct |= {"p_sp1": self.p_sp1, "p_sp2": self.p_sp2}
+            dct["zval_dict"] = self.zval_dict
+
+        if self.nmr_cs:
+            dct.update(
+                nmr_cs={
+                    "valence and core": self.data["chemical_shielding"]["valence_and_core"],
+                    "valence_only": self.data["chemical_shielding"]["valence_only"],
+                    "g0": self.data["cs_g0_contribution"],
+                    "core": self.data["cs_core_contribution"],
+                    "raw": self.data["unsym_cs_tensor"],
+                }
+            )
+
+        if self.nmr_efg:
+            dct.update(
+                nmr_efg={
+                    "raw": self.data["unsym_efg_tensor"],
+                    "parameters": self.data["efg"],
+                }
+            )
+
+        if self.has_onsite_density_matrices:
+            # Cast Spin to str for consistency with electronic_structure
+            # TODO: improve handling of Enum (de)serialization in monty
+            onsite_density_matrices = [{str(k): v for k, v in d.items()} for d in self.data["onsite_density_matrices"]]
+            dct["onsite_density_matrices"] = onsite_density_matrices
+
+        return dct
+
     def read_electrostatic_potential(self) -> None:
         """Parse the eletrostatic potential for the last ionic step.
 
@@ -2421,23 +2506,6 @@ class Outcar:
         pots = re.findall(r"\s+\d+\s*([\.\-\d]+)+", _pots)
 
         self.electrostatic_potential = [*map(float, pots)]
-
-    @staticmethod
-    def _parse_sci_notation(line: str) -> list[float]:
-        """
-        Parse lines with values in scientific notation and potentially
-        without spaces in between the values. This assumes that the scientific
-        notation always lists two digits for the exponent, e.g. 3.535E-02.
-
-        Args:
-            line: line to parse.
-
-        Returns:
-            list[float]: numbers if found, empty list if not.
-        """
-        if match := re.findall(r"[\.\-\d]+E[\+\-]\d{2}", line):
-            return [float(t) for t in match]
-        return []
 
     def read_freq_dielectric(self) -> None:
         """
@@ -3381,6 +3449,7 @@ class Outcar:
 
         Returns:
             list[dict]: The atom such as [{"AO":[core state eig]}].
+            # TODO: what is "[core state eig]"? array or "core_state_eig" likely the latter
             The core state eigenenergie list for each AO is over all ionic
             step.
 
@@ -3457,73 +3526,6 @@ class Outcar:
                             ap.append(float(line[start + 8 : start + 17]))
 
         return aps
-
-    def as_dict(self) -> dict[str, Any]:
-        """MSONable dict."""
-        dct = {
-            "@module": type(self).__module__,
-            "@class": type(self).__name__,
-            "efermi": self.efermi,
-            "run_stats": self.run_stats,
-            "magnetization": self.magnetization,
-            "charge": self.charge,
-            "total_magnetization": self.total_mag,
-            "nelect": self.nelect,
-            "is_stopped": self.is_stopped,
-            "drift": self.drift,
-            "ngf": self.ngf,
-            "sampling_radii": self.sampling_radii,
-            "electrostatic_potential": self.electrostatic_potential,
-        }
-
-        if self.lepsilon:
-            dct |= {
-                "piezo_tensor": self.piezo_tensor,
-                "dielectric_tensor": self.dielectric_tensor,
-                "born": self.born,
-            }
-
-        if self.dfpt:
-            dct["internal_strain_tensor"] = self.internal_strain_tensor
-
-        if self.dfpt and self.lepsilon:
-            dct |= {
-                "piezo_ionic_tensor": self.piezo_ionic_tensor,
-                "dielectric_ionic_tensor": self.dielectric_ionic_tensor,
-            }
-
-        if self.lcalcpol:
-            dct |= {"p_elec": self.p_elec, "p_ion": self.p_ion}
-            if self.spin and not self.noncollinear:
-                dct |= {"p_sp1": self.p_sp1, "p_sp2": self.p_sp2}
-            dct["zval_dict"] = self.zval_dict
-
-        if self.nmr_cs:
-            dct.update(
-                nmr_cs={
-                    "valence and core": self.data["chemical_shielding"]["valence_and_core"],
-                    "valence_only": self.data["chemical_shielding"]["valence_only"],
-                    "g0": self.data["cs_g0_contribution"],
-                    "core": self.data["cs_core_contribution"],
-                    "raw": self.data["unsym_cs_tensor"],
-                }
-            )
-
-        if self.nmr_efg:
-            dct.update(
-                nmr_efg={
-                    "raw": self.data["unsym_efg_tensor"],
-                    "parameters": self.data["efg"],
-                }
-            )
-
-        if self.has_onsite_density_matrices:
-            # Cast Spin to str for consistency with electronic_structure
-            # TODO: improve handling of Enum (de)serialization in monty
-            onsite_density_matrices = [{str(k): v for k, v in d.items()} for d in self.data["onsite_density_matrices"]]
-            dct["onsite_density_matrices"] = onsite_density_matrices
-
-        return dct
 
     def read_fermi_contact_shift(self) -> None:
         """Read Fermi contact (isotropic) hyperfine coupling parameter.
