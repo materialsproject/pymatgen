@@ -7,7 +7,6 @@ import math
 import warnings
 from fractions import Fraction
 from itertools import groupby, product
-from math import gcd
 from string import ascii_lowercase
 from typing import TYPE_CHECKING
 
@@ -48,6 +47,8 @@ except ImportError:
 if TYPE_CHECKING:
     from collections.abc import Callable, Iterable, Sequence
     from typing import Any, Literal
+
+    from numpy.typing import NDArray
 
 
 __author__ = "Shyue Ping Ong, Stephen Dacek, Anubhav Jain, Matthew Horton, Alex Ganose"
@@ -660,7 +661,7 @@ class MagOrderingTransformation(AbstractTransformation):
 
         def lcm(n1, n2):
             """Find least common multiple of two numbers."""
-            return n1 * n2 / gcd(n1, n2)
+            return n1 * n2 / math.gcd(n1, n2)
 
         # assumes all order parameters for a given species are the same
         mag_species_order_parameter = {}
@@ -683,7 +684,7 @@ class MagOrderingTransformation(AbstractTransformation):
         for sp, order_parameter in mag_species_order_parameter.items():
             denom = Fraction(order_parameter).limit_denominator(100).denominator
             num_atom_per_specie = mag_species_occurrences[sp]
-            n_gcd = gcd(denom, num_atom_per_specie)
+            n_gcd = math.gcd(denom, num_atom_per_specie)
             smallest_n.append(lcm(int(n_gcd), denom) / n_gcd)
 
         return max(smallest_n)
@@ -1876,10 +1877,12 @@ class SubstituteSurfaceSiteTransformation(AbstractTransformation):
         return True
 
 
-def _proj(b, a):
+def _proj(b: NDArray, a: NDArray) -> NDArray:
     """Get vector projection (np.ndarray) of vector b (np.ndarray)
     onto vector a (np.ndarray).
     """
+    # TODO: replace with following, need benchmark
+    # return (np.dot(b, a) / np.dot(a, a)) * a
     return (b.T @ (a / np.linalg.norm(a))) * (a / np.linalg.norm(a))
 
 
