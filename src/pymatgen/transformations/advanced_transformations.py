@@ -983,15 +983,19 @@ class DopingTransformation(AbstractTransformation):
         self.allowed_doping_species = allowed_doping_species
         self.kwargs = kwargs
 
-    def apply_transformation(self, structure: Structure, return_ranked_list: bool | int = False):
+    def apply_transformation(
+        self,
+        structure: Structure,
+        return_ranked_list: bool | int = False,
+    ) -> list[dict[Literal["structure", "energy"], Structure | float]] | Structure:
         """
         Args:
-            structure (Structure): Input structure to dope
-            return_ranked_list (bool | int, optional): If return_ranked_list is int, that number of structures.
+            structure (Structure): Input structure to dope.
+            return_ranked_list (bool | int, optional): If is int, that number of structures.
                 is returned. If False, only the single lowest energy structure is returned. Defaults to False.
 
         Returns:
-            list[dict] | Structure: each dict has shape {"structure": Structure, "energy": float}.
+            list[dict] | Structure: each dict as {"structure": Structure, "energy": float}.
         """
         comp = structure.composition
         logger.info(f"Composition: {comp}")
@@ -1124,7 +1128,7 @@ class DopingTransformation(AbstractTransformation):
         return all_structures[0]["structure"]
 
     @property
-    def is_one_to_many(self) -> bool:
+    def is_one_to_many(self) -> Literal[True]:
         """Transform one structure to many."""
         return True
 
