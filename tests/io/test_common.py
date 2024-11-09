@@ -33,7 +33,7 @@ class TestPMGDir:
 
         d = PMGDir(f"{TEST_FILES_DIR}/io/vasp/fixtures/scan_relaxation")
         assert len(d) == 2
-        assert "vasprun.xml.gz" in d.files
+        assert "vasprun.xml.gz" in d
         assert "OUTCAR" in d
         assert d["vasprun.xml.gz"].incar["METAGGA"] == "R2scan"
 
@@ -57,4 +57,5 @@ class TestPMGDir:
         assert all("OUTCAR" for k in outcars)
 
         d.reset()
-        assert len(d._parsed_files) == 0
+        for v in d._files.values():
+            assert v is None
