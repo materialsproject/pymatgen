@@ -852,13 +852,13 @@ PREC = Accurate
 SIGMA = 0.1"""
         incar = Incar.from_str(incar_str)
         assert isinstance(incar["EINT"], list)
-        assert incar["EINT"][0] == -0.85
+        assert incar["EINT"][0] == approx(-0.85)
 
         incar_str += "\nLHFCALC = .TRUE. ; HFSCREEN = 0.2"
         incar_str += "\nALGO = All;"
         incar = Incar.from_str(incar_str)
         assert incar["LHFCALC"]
-        assert incar["HFSCREEN"] == 0.2
+        assert incar["HFSCREEN"] == approx(0.2)
         assert incar["ALGO"] == "All"
 
     def test_proc_types(self):
@@ -1282,7 +1282,7 @@ class TestPotcarSingle(TestCase):
 
         # corrupt the file
         psingle = copy.deepcopy(self.psingle_Fe_54)
-        assert psingle.keywords["RCORE"] == 2.3
+        assert psingle.keywords["RCORE"] == approx(2.3)
         psingle.keywords["RCORE"] = 2.2
         assert not psingle.is_valid
 

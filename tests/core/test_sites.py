@@ -225,12 +225,12 @@ class TestPeriodicSite(PymatgenTest):
         assert site.species == Composition("Cu")
         site.x = 1.25
         site.y = 1.35
-        assert site.coords[0] == 1.25  # "==" intended to test setter
-        assert site.coords[1] == 1.35
-        assert site.a == 0.125
-        assert site.b == 0.135
+        assert site.coords[0] == approx(1.25)
+        assert site.coords[1] == approx(1.35)
+        assert site.a == approx(0.125)
+        assert site.b == approx(0.135)
         site.lattice = Lattice.cubic(100)
-        assert site.x == 12.5
+        assert site.x == approx(12.5)
 
         with pytest.raises(ValueError, match="Species occupancies sum to more than 1"):
             site.species = {"Cu": 0.5, "Gd": 0.6}

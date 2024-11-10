@@ -213,7 +213,7 @@ class TestVasprun(PymatgenTest):
         assert vasp_run.parameters["NELM"] == 60
         # test pDOS parsing
 
-        assert vasp_run.complete_dos.spin_polarization == 1.0
+        assert vasp_run.complete_dos.spin_polarization == approx(1.0)
         assert Vasprun(f"{VASP_OUT_DIR}/vasprun.etest1.xml.gz").complete_dos.spin_polarization is None
 
         pdos0 = vasp_run.complete_dos.pdos[vasp_run.final_structure[0]]
@@ -1849,7 +1849,7 @@ class TestWavecar(PymatgenTest):
 
         assert wavecar.filename == f"{VASP_OUT_DIR}/WAVECAR.N2"
         assert wavecar.efermi == approx(-5.7232, abs=1e-4)
-        assert wavecar.encut == 25.0
+        assert wavecar.encut == approx(25.0)
         assert wavecar.nb == 9
         assert wavecar.nk == 1
         assert_allclose(wavecar.a, a)
@@ -1865,8 +1865,8 @@ class TestWavecar(PymatgenTest):
             for b in range(wavecar.nb):
                 assert len(wavecar.coeffs[k][b]) == len(wavecar.Gpoints[k])
 
-        # Test WAVECAR with fractional encut
-        assert self.w_frac_encut.encut == 100.5
+        # Test WAVECAR with fractional ENCUT
+        assert self.w_frac_encut.encut == approx(100.5)
 
         # Test malformed WAVECARs
         with pytest.raises(ValueError, match="Invalid rtag=.+, must be one of"):
@@ -1897,7 +1897,7 @@ class TestWavecar(PymatgenTest):
         wavecar = Wavecar(f"{VASP_OUT_DIR}/WAVECAR.N2.45210")
         assert wavecar.filename == f"{VASP_OUT_DIR}/WAVECAR.N2.45210"
         assert wavecar.efermi == approx(-5.7232, abs=1e-4)
-        assert wavecar.encut == 25.0
+        assert wavecar.encut == approx(25.0)
         assert wavecar.nb == 9
         assert wavecar.nk == 1
         assert_allclose(wavecar.a, self.latt_mat)

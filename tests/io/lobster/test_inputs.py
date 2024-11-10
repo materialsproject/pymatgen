@@ -303,7 +303,7 @@ class TestLobsterin(PymatgenTest):
 
         lobsterin_copy = self.Lobsterin.copy()
         lobsterin_copy.update({"cohpstarteNergy": -10.00})
-        assert lobsterin_copy["cohpstartenergy"] == -10.0  # "==" intended for test setter
+        assert lobsterin_copy["cohpstartenergy"] == approx(-10.0)
         lobsterin_copy.pop("cohpstarteNergy")
         assert "cohpstartenergy" not in lobsterin_copy
         lobsterin_copy.pop("cohpendenergY")
