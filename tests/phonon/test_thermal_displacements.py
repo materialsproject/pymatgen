@@ -120,7 +120,7 @@ class TestThermalDisplacement(PymatgenTest):
         )
 
     def test_u1_u2_u3(self):
-        assert_allclose(self.thermal.U1U2U3[0].sort(), np.array([2.893872e-03, 5.691239e-03, 6.854889e-03]).sort())
+        assert self.thermal.U1U2U3[0].sort() == approx(np.array([2.893872e-03, 5.691239e-03, 6.854889e-03]).sort())
 
     def test_ustar(self):
         Ustar = self.thermal.Ustar
