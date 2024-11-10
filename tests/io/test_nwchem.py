@@ -404,17 +404,17 @@ class TestNwOutput:
         assert nwo[0]["charge"] == 0
         assert nwo[-1]["charge"] == -1
         assert len(nwo) == 5
-        assert approx(nwo[0]["energies"][-1], abs=1e-2) == -1102.6224491715582
-        assert approx(nwo[2]["energies"][-1], abs=1e-3) == -1102.9986291578023
-        assert approx(nwo_cosmo[5]["energies"][0]["cosmo scf"], abs=1e-3) == -11156.354030653656
-        assert approx(nwo_cosmo[5]["energies"][0]["gas phase"], abs=1e-3) == -11153.374133394364
-        assert approx(nwo_cosmo[5]["energies"][0]["sol phase"], abs=1e-2) == -11156.353632962995
-        assert approx(nwo_cosmo[6]["energies"][0]["cosmo scf"], abs=1e-2) == -11168.818934311605
-        assert approx(nwo_cosmo[6]["energies"][0]["gas phase"], abs=1e-2) == -11166.3624424611462
-        assert approx(nwo_cosmo[6]["energies"][0]["sol phase"], abs=1e-2) == -11168.818934311605
-        assert approx(nwo_cosmo[7]["energies"][0]["cosmo scf"], abs=1e-2) == -11165.227959110889
-        assert approx(nwo_cosmo[7]["energies"][0]["gas phase"], abs=1e-2) == -11165.025443612385
-        assert approx(nwo_cosmo[7]["energies"][0]["sol phase"], abs=1e-2) == -11165.227959110154
+        assert nwo[0]["energies"][-1] == approx(-1102.6224491715582, abs=1e-2)
+        assert nwo[2]["energies"][-1] == approx(-1102.9986291578023, abs=1e-3)
+        assert nwo_cosmo[5]["energies"][0]["cosmo scf"] == approx(-11156.354030653656, abs=1e-3)
+        assert nwo_cosmo[5]["energies"][0]["gas phase"] == approx(-11153.374133394364, abs=1e-3)
+        assert nwo_cosmo[5]["energies"][0]["sol phase"] == approx(-11156.353632962995, abs=1e-2)
+        assert nwo_cosmo[6]["energies"][0]["cosmo scf"] == approx(-11168.818934311605, abs=1e-2)
+        assert nwo_cosmo[6]["energies"][0]["gas phase"] == approx(-11166.3624424611462, abs=1e-2)
+        assert nwo_cosmo[6]["energies"][0]["sol phase"] == approx(-11168.818934311605, abs=1e-2)
+        assert nwo_cosmo[7]["energies"][0]["cosmo scf"] == approx(-11165.227959110889, abs=1e-2)
+        assert nwo_cosmo[7]["energies"][0]["gas phase"] == approx(-11165.025443612385, abs=1e-2)
+        assert nwo_cosmo[7]["energies"][0]["sol phase"] == approx(-11165.227959110154, abs=1e-2)
 
         assert nwo[1]["hessian"][0][0] == approx(4.60187e01)
         assert nwo[1]["hessian"][1][2] == approx(-1.14030e-08)
