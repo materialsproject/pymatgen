@@ -1996,7 +1996,11 @@ class ReactionDiagram:
 
                     x = coeffs[-1]
 
-                    if all(c >= -tol for c in coeffs) and (abs(sum(coeffs[:-1]) - 1) < tol) and (tol < x < 1 - tol):
+                    if (
+                        all(c >= -tol for c in coeffs)
+                        and (math.isclose(sum(coeffs[:-1]), 1, abs_tol=tol, rel_tol=0))
+                        and (tol < x < 1 - tol)
+                    ):
                         c1 = x / r1.num_atoms
                         c2 = (1 - x) / r2.num_atoms
                         factor = 1 / (c1 + c2)

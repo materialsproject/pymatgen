@@ -521,7 +521,7 @@ class Slab(Structure):
             to_move = []
             fixed = []
             for site in sites:
-                if abs(site.c - surface_site.c) < tol and (
+                if math.isclose(site.c, surface_site.c, abs_tol=tol) and (
                     (not same_species_only) or site.species == surface_site.species
                 ):
                     to_move.append(site)

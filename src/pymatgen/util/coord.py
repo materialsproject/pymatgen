@@ -456,6 +456,7 @@ class Simplex(MSONable):
                 found = False
                 # don't return duplicate points
                 for b in barys:
+                    # TODO: the following might could use np.allclose
                     if np.all(np.abs(b - p) < tolerance):
                         found = True
                         break

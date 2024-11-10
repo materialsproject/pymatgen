@@ -38,6 +38,7 @@ class PiezoTensor(Tensor):
                 representing the piezo tensor
         """
         obj = super().__new__(cls, input_array, check_rank=3)
+        # TODO: the following might could use np.allclose
         if not (obj - np.transpose(obj, (0, 2, 1)) < tol).all():
             warnings.warn("Input piezo tensor does not satisfy standard symmetries")
         return obj.view(cls)

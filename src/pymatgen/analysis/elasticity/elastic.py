@@ -214,7 +214,7 @@ class ElasticTensor(NthOrderElasticTensor):
             tol (float): tolerance for testing of orthogonality
         """
         n, m = get_uvec(n), get_uvec(m)
-        if not np.abs(np.dot(n, m)) < tol:
+        if np.abs(np.dot(n, m)) >= tol:
             raise ValueError("n and m must be orthogonal")
         v = self.compliance_tensor.einsum_sequence([n] * 2 + [m] * 2)
         v *= -1 / self.compliance_tensor.einsum_sequence([n] * 4)

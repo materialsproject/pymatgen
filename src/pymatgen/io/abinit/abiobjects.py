@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import abc
+import math
 from collections.abc import Iterable
 from enum import Enum, unique
 from pprint import pformat
@@ -61,8 +62,8 @@ def lattice_from_abivars(cls=None, *args, **kwargs):
         pi, sin, cos, sqrt = np.pi, np.sin, np.cos, np.sqrt
         r_prim = np.zeros((3, 3))
         if (
-            abs(ang_deg[0] - ang_deg[1]) < tol12
-            and abs(ang_deg[1] - ang_deg[2]) < tol12
+            math.isclose(ang_deg[0], ang_deg[1], abs_tol=tol12, rel_tol=0)
+            and math.isclose(ang_deg[1], ang_deg[2], abs_tol=tol12, rel_tol=0)
             and abs(ang_deg[0] - 90.0) + abs(ang_deg[1] - 90.0) + abs(ang_deg[2] - 90) > tol12
         ):
             # Treat the case of equal angles (except all right angles):

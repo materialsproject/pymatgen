@@ -8,6 +8,7 @@ from __future__ import annotations
 
 import copy
 import logging
+import math
 from ast import literal_eval
 from typing import TYPE_CHECKING
 
@@ -185,7 +186,7 @@ class HeisenbergMapper:
         all_dists = sorted(set(all_dists))
         rm_list = []
         for idx, d in enumerate(all_dists[:-1], start=1):
-            if abs(d - all_dists[idx]) < tol:
+            if math.isclose(d, all_dists[idx], abs_tol=tol, rel_tol=0):
                 rm_list.append(idx)
 
         all_dists = [d for idx, d in enumerate(all_dists) if idx not in rm_list]
@@ -212,11 +213,11 @@ class HeisenbergMapper:
                 for key, value in unique_site_ids.items():
                     if j in key:
                         j_key = value
-                if abs(dist - dists["nn"]) <= tol:
+                if math.isclose(dist, dists["nn"], abs_tol=tol, rel_tol=0):
                     nn_dict[i_key] = j_key
-                elif abs(dist - dists["nnn"]) <= tol:
+                elif math.isclose(dist, dists["nnn"], abs_tol=tol, rel_tol=0):
                     nnn_dict[i_key] = j_key
-                elif abs(dist - dists["nnnn"]) <= tol:
+                elif math.isclose(dist, dists["nnnn"], abs_tol=tol, rel_tol=0):
                     nnnn_dict[i_key] = j_key
 
         nn_interactions = {"nn": nn_dict, "nnn": nnn_dict, "nnnn": nnnn_dict}
@@ -303,11 +304,11 @@ class HeisenbergMapper:
                                 j_index = v
 
                         # Determine order of connection
-                        if abs(dist - dists["nn"]) <= tol:
+                        if math.isclose(dist, dists["nn"], abs_tol=tol, rel_tol=0):
                             order = "-nn"
-                        elif abs(dist - dists["nnn"]) <= tol:
+                        elif math.isclose(dist, dists["nnn"], abs_tol=tol, rel_tol=0):
                             order = "-nnn"
-                        elif abs(dist - dists["nnnn"]) <= tol:
+                        elif math.isclose(dist, dists["nnnn"], abs_tol=tol, rel_tol=0):
                             order = "-nnnn"
 
                         j_ij = f"{i_index}-{j_index}{order}"
