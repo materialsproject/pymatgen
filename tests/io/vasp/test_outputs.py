@@ -12,7 +12,7 @@ from xml.etree import ElementTree as ET
 import numpy as np
 import pytest
 from monty.io import zopen
-from numpy.testing import assert_allclose
+from numpy.testing import assert_allclose, assert_array_equal
 from pytest import approx
 
 from pymatgen.core import Element
@@ -1004,7 +1004,7 @@ class TestOutcar(PymatgenTest):
         assert outcar.dielectric_tensor_function[0][0, 0] == approx(8.96938800)
         assert outcar.dielectric_tensor_function[-1][0, 0] == approx(7.36167000e-01 + 1.53800000e-03j)
         assert len(outcar.dielectric_energies) == len(outcar.dielectric_tensor_function)
-        np.testing.assert_array_equal(
+        assert_array_equal(
             outcar.dielectric_tensor_function[0],
             outcar.dielectric_tensor_function[0].transpose(),
         )
@@ -1029,7 +1029,7 @@ class TestOutcar(PymatgenTest):
         assert outcar.dielectric_tensor_function[0][0, 0] == approx(12.769435 + 0j)
         assert outcar.dielectric_tensor_function[-1][0, 0] == approx(0.828615 + 0.016594j)
         assert len(outcar.dielectric_energies) == len(outcar.dielectric_tensor_function)
-        np.testing.assert_array_equal(
+        assert_array_equal(
             outcar.dielectric_tensor_function[0],
             outcar.dielectric_tensor_function[0].transpose(),
         )

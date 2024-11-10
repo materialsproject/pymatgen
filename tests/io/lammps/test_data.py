@@ -8,7 +8,7 @@ import numpy as np
 import pandas as pd
 import pytest
 from monty.json import MontyDecoder, MontyEncoder
-from numpy.testing import assert_allclose
+from numpy.testing import assert_allclose, assert_array_equal
 from pytest import approx
 from ruamel.yaml import YAML
 
@@ -303,18 +303,18 @@ class TestLammpsData(PymatgenTest):
             ("O3", 15.9994),
         ]
         assert c_ff.mass_info == mass_info
-        np.testing.assert_array_equal(c_ff.nonbond_coeffs, c.force_field["Pair Coeffs"].values)
+        assert_array_equal(c_ff.nonbond_coeffs, c.force_field["Pair Coeffs"].values)
         base_kws = ["Bond", "Angle", "Dihedral", "Improper"]
         rng = np.random.default_rng()
         for kw in base_kws:
             ff_kw = f"{kw} Coeffs"
             idx = rng.integers(0, len(c_ff.topo_coeffs[ff_kw]) - 1)
             sample_coeff = c_ff.topo_coeffs[ff_kw][idx]
-            np.testing.assert_array_equal(sample_coeff["coeffs"], c.force_field[ff_kw].iloc[idx].values, ff_kw)
+            assert_array_equal(sample_coeff["coeffs"], c.force_field[ff_kw].iloc[idx].values, ff_kw)
         topo = topos[-1]
         atoms = c.atoms[c.atoms["molecule-ID"] == 46]
         assert_allclose(topo.sites.cart_coords, atoms[["x", "y", "z"]])
-        np.testing.assert_array_equal(topo.charges, atoms["q"])
+        assert_array_equal(topo.charges, atoms["q"])
         atom_labels = [m[0] for m in mass_info]
         assert topo.sites.site_properties["ff_map"] == [atom_labels[i - 1] for i in atoms["type"]]
         shift = min(atoms.index)
@@ -325,7 +325,7 @@ class TestLammpsData(PymatgenTest):
             topos_df = c.topology[topo_kw]
             topo_df: pd.DataFrame = topos_df[topos_df["atom1"] >= shift]
             topo_arr = topo_df.drop("type", axis=1)
-            np.testing.assert_array_equal(topo.topologies[topo_kw], topo_arr - shift, topo_kw)
+            assert_array_equal(topo.topologies[topo_kw], topo_arr - shift, topo_kw)
             sample_topo = rng.choice(list(topo_df.itertuples(index=False, name=None)), 1)[0]
             topo_type_idx = sample_topo[0] - 1
             topo_type = tuple(atom_labels[i - 1] for i in atoms.loc[list(sample_topo[1:])]["type"])
@@ -336,7 +336,7 @@ class TestLammpsData(PymatgenTest):
         _, v_ff, _ = virus.disassemble(guess_element=False)
         assert v_ff.maps["Atoms"] == {"Qa1": 1, "Qb1": 2, "Qc1": 3, "Qa2": 4}
         pair_ij_coeffs = virus.force_field["PairIJ Coeffs"].drop(["id1", "id2"], axis=1)
-        np.testing.assert_array_equal(v_ff.nonbond_coeffs, pair_ij_coeffs.values)
+        assert_array_equal(v_ff.nonbond_coeffs, pair_ij_coeffs.values)
         # test class2 ff
         _, e_ff, _ = self.ethane.disassemble()
         e_topo_coeffs = e_ff.topo_coeffs
@@ -381,7 +381,7 @@ class TestLammpsData(PymatgenTest):
         assert ff["Dihedral Coeffs"].shape == (21, 4)
         assert ff["Improper Coeffs"].shape == (2, 2)
         # header box
-        np.testing.assert_array_equal(
+        assert_array_equal(
             pep.box.bounds,
             [[36.840194, 64.211560], [41.013691, 68.385058], [29.768095, 57.139462]],
         )
@@ -431,7 +431,7 @@ class TestLammpsData(PymatgenTest):
         assert class2["AngleTorsion Coeffs"].loc[1, "coeff8"] == approx(110.7700)
         # tilt box and another atom_style
         quartz = self.quartz
-        np.testing.assert_array_equal(quartz.box.tilt, [-2.456700, 0.0, 0.0])
+        assert_array_equal(quartz.box.tilt, [-2.456700, 0.0, 0.0])
         assert list(quartz.atoms.columns) == ["type", "x", "y", "z"]
         assert quartz.atoms.loc[7, "x"] == approx(0.299963)
         # PairIJ Coeffs section
@@ -462,17 +462,17 @@ class TestLammpsData(PymatgenTest):
         atoms = ice.atoms
         bonds = ice.topology["Bonds"]
         angles = ice.topology["Angles"]
-        np.testing.assert_array_equal(atoms.index.values, np.arange(1, len(atoms) + 1))
-        np.testing.assert_array_equal(bonds.index.values, np.arange(1, len(bonds) + 1))
-        np.testing.assert_array_equal(angles.index.values, np.arange(1, len(angles) + 1))
+        assert_array_equal(atoms.index.values, np.arange(1, len(atoms) + 1))
+        assert_array_equal(bonds.index.values, np.arange(1, len(bonds) + 1))
+        assert_array_equal(angles.index.values, np.arange(1, len(angles) + 1))
 
         idx = np.random.default_rng().integers(0, len(topologies) - 1)
         sample = topologies[idx]
         in_atoms = ice.atoms[ice.atoms["molecule-ID"] == idx + 1]
-        np.testing.assert_array_equal(in_atoms.index.values, np.arange(3 * idx + 1, 3 * idx + 4))
-        np.testing.assert_array_equal(in_atoms["type"].values, [2, 1, 1])
-        np.testing.assert_array_equal(in_atoms["q"].values, sample.charges)
-        np.testing.assert_array_equal(in_atoms[["x", "y", "z"]].values, sample.sites.cart_coords)
+        assert_array_equal(in_atoms.index.values, np.arange(3 * idx + 1, 3 * idx + 4))
+        assert_array_equal(in_atoms["type"].values, [2, 1, 1])
+        assert_array_equal(in_atoms["q"].values, sample.charges)
+        assert_array_equal(in_atoms[["x", "y", "z"]].values, sample.sites.cart_coords)
         broken_topo_coeffs = {
             "Bond Coeffs": [{"coeffs": [176.864, 0.9611], "types": [("H", "O")]}],
             "Angle Coeffs": [{"coeffs": [42.1845, 109.4712], "types": [("H", "H", "H")]}],
@@ -503,7 +503,7 @@ class TestLammpsData(PymatgenTest):
         assert v_a == approx(lammps_data.velocities.loc[idx + 1, "vx"])
         assert velocities[idx, 1] == approx(lammps_data.velocities.loc[idx + 1, "vy"])
         assert_allclose(lammps_data.masses["mass"], [22.989769, 190.23, 15.9994])
-        np.testing.assert_array_equal(lammps_data.atoms["type"], [2] * 4 + [3] * 16)
+        assert_array_equal(lammps_data.atoms["type"], [2] * 4 + [3] * 16)
 
     def test_set_charge_atom(self):
         peptide = self.peptide
@@ -562,18 +562,18 @@ class TestTopology(TestCase):
         # q and v from site properties, while type from species_string
         topo = Topology(sites=mol)
         assert topo.type_by_sites == ["H"] * 10
-        np.testing.assert_array_equal(topo.charges, inner_charge)
-        np.testing.assert_array_equal(topo.velocities, inner_velo)
+        assert_array_equal(topo.charges, inner_charge)
+        assert_array_equal(topo.velocities, inner_velo)
         # q and v from overriding, while type from site property
         topo_override = Topology(sites=mol, ff_label="ff_map", charges=outer_charge, velocities=outer_velo)
         assert topo_override.type_by_sites == ["D"] * 10
-        np.testing.assert_array_equal(topo_override.charges, outer_charge)
-        np.testing.assert_array_equal(topo_override.velocities, outer_velo)
+        assert_array_equal(topo_override.charges, outer_charge)
+        assert_array_equal(topo_override.velocities, outer_velo)
         # test using a list of sites instead of SiteCollection
         topo_from_list = Topology(sites=mol.sites)
         assert topo_from_list.type_by_sites == topo.type_by_sites
-        np.testing.assert_array_equal(topo_from_list.charges, topo.charges)
-        np.testing.assert_array_equal(topo_from_list.velocities, topo.velocities)
+        assert_array_equal(topo_from_list.charges, topo.charges)
+        assert_array_equal(topo_from_list.velocities, topo.velocities)
 
     def test_from_bonding(self):
         # He: no bonding topologies
@@ -620,7 +620,7 @@ class TestTopology(TestCase):
         tp_etoh = topo_etoh.topologies
         assert len(tp_etoh["Bonds"]) == 8
         etoh_bonds = [[0, 1], [0, 4], [0, 5], [0, 6], [1, 2], [1, 7], [1, 8], [2, 3]]
-        np.testing.assert_array_equal(tp_etoh["Bonds"], etoh_bonds)
+        assert_array_equal(tp_etoh["Bonds"], etoh_bonds)
         assert len(tp_etoh["Angles"]) == 13
         etoh_angles = [
             [1, 0, 4],
@@ -637,7 +637,7 @@ class TestTopology(TestCase):
             [7, 1, 8],
             [1, 2, 3],
         ]
-        np.testing.assert_array_equal(tp_etoh["Angles"], etoh_angles)
+        assert_array_equal(tp_etoh["Angles"], etoh_angles)
         assert len(tp_etoh["Dihedrals"]) == 12
         etoh_dihedrals = [
             [4, 0, 1, 2],
@@ -653,7 +653,7 @@ class TestTopology(TestCase):
             [7, 1, 2, 3],
             [8, 1, 2, 3],
         ]
-        np.testing.assert_array_equal(tp_etoh["Dihedrals"], etoh_dihedrals)
+        assert_array_equal(tp_etoh["Dihedrals"], etoh_dihedrals)
         assert json.dumps(topo_etoh.as_dict()) is not None
         # bond flag to off
         topo_etoh0 = Topology.from_bonding(molecule=etoh, bond=False, angle=True, dihedral=True)
@@ -869,7 +869,7 @@ class TestCombinedData(TestCase):
         assert ff["Dihedral Coeffs"].shape == (39, 6)
         assert ff["Improper Coeffs"].shape == (2, 3)
         # header box
-        np.testing.assert_array_equal(
+        assert_array_equal(
             ec_fec.box.bounds,
             [[-0.597365, 54.56835], [-0.597365, 54.56835], [-0.597365, 54.56835]],
         )
@@ -920,7 +920,7 @@ class TestCombinedData(TestCase):
         assert ff["Dihedral Coeffs"].shape == (39, 6)
         assert ff["Improper Coeffs"].shape == (2, 3)
         # header box
-        np.testing.assert_array_equal(
+        assert_array_equal(
             ec_fec.box.bounds,
             [[-0.597365, 54.56835], [-0.597365, 54.56835], [-0.597365, 54.56835]],
         )
@@ -1079,12 +1079,12 @@ class TestCombinedData(TestCase):
             ("Li1", 6.94),
         ]
         assert cd_ff.mass_info == mass_info
-        np.testing.assert_array_equal(cd_ff.nonbond_coeffs, cd.force_field["Pair Coeffs"].values)
+        assert_array_equal(cd_ff.nonbond_coeffs, cd.force_field["Pair Coeffs"].values)
 
         topo = topos[-1]
         atoms = ld.atoms[ld.atoms["molecule-ID"] == 1]
         assert_allclose(topo.sites.cart_coords, atoms[["x", "y", "z"]])
-        np.testing.assert_array_equal(topo.charges, atoms["q"])
+        assert_array_equal(topo.charges, atoms["q"])
         atom_labels = [m[0] for m in mass_info]
         assert topo.sites.site_properties["ff_map"] == [atom_labels[i - 1] for i in atoms["type"]]
 
@@ -1145,7 +1145,7 @@ class TestCombinedData(TestCase):
         assert ff["Dihedral Coeffs"].shape == (39, 6)
         assert ff["Improper Coeffs"].shape == (2, 3)
         # header box
-        np.testing.assert_array_equal(
+        assert_array_equal(
             ec_fec.box.bounds,
             [[-0.597365, 54.56835], [-0.597365, 54.56835], [-0.597365, 54.56835]],
         )

@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from unittest import TestCase
 
-import numpy as np
+from numpy.testing import assert_allclose
 from pytest import approx
 
 from pymatgen.analysis.quasirrho import QuasiRRHO, get_avg_mom_inertia
@@ -83,4 +83,4 @@ class TestQuasiRRHO(TestCase):
         mol = self.gout.final_structure
         avg_mom_inertia, inertia_eigen_vals = get_avg_mom_inertia(mol)
         assert avg_mom_inertia == approx(0)
-        np.testing.assert_allclose(inertia_eigen_vals, [0, 0, 0], rtol=1e-6, atol=1e-12)
+        assert_allclose(inertia_eigen_vals, [0, 0, 0], rtol=1e-6, atol=1e-12)
