@@ -14,17 +14,17 @@ from pymatgen.util.testing import TEST_FILES_DIR, PymatgenTest
 
 TEST_DIR = f"{TEST_FILES_DIR}/analysis/spectrum_test"
 
-with open(f"{TEST_DIR}/LiCoO2_k_xanes.json") as file:
+with open(f"{TEST_DIR}/LiCoO2_k_xanes.json", encoding="utf-8") as file:
     k_xanes_dict = json.load(file, cls=MontyDecoder)
-with open(f"{TEST_DIR}/LiCoO2_k_exafs.json") as file:
+with open(f"{TEST_DIR}/LiCoO2_k_exafs.json", encoding="utf-8") as file:
     k_exafs_dict = json.load(file, cls=MontyDecoder)
-with open(f"{TEST_DIR}/ZnO_l2_xanes.json") as file:
+with open(f"{TEST_DIR}/ZnO_l2_xanes.json", encoding="utf-8") as file:
     l2_xanes_dict = json.load(file, cls=MontyDecoder)
-with open(f"{TEST_DIR}/ZnO_l3_xanes.json") as file:
+with open(f"{TEST_DIR}/ZnO_l3_xanes.json", encoding="utf-8") as file:
     l3_xanes_dict = json.load(file, cls=MontyDecoder)
-with open(f"{TEST_DIR}/site1_k_xanes.json") as file:
+with open(f"{TEST_DIR}/site1_k_xanes.json", encoding="utf-8") as file:
     site1_xanes_dict = json.load(file, cls=MontyDecoder)
-with open(f"{TEST_DIR}/site2_k_xanes.json") as file:
+with open(f"{TEST_DIR}/site2_k_xanes.json", encoding="utf-8") as file:
     site2_xanes_dict = json.load(file, cls=MontyDecoder)
 
 
@@ -38,7 +38,7 @@ class TestXAS(PymatgenTest):
         self.site2_xanes = XAS.from_dict(site2_xanes_dict)
 
     def test_e0(self):
-        assert approx(self.k_xanes.e0) == 7728.565
+        assert self.k_xanes.e0 == approx(7728.565)
 
     def test_k(self):
         assert len(self.k_xanes.x) == len(self.k_xanes.k)
@@ -46,14 +46,14 @@ class TestXAS(PymatgenTest):
 
     def test_normalization(self):
         self.k_xanes.normalize(mode="sum")
-        assert approx(np.sum(self.k_xanes.y)) == 1.0
+        assert np.sum(self.k_xanes.y) == approx(1.0)
 
     def test_add_mul(self):
         scaled_spect = self.k_xanes + self.k_xanes
         scaled_spect2 = self.k_xanes * 3
         assert_allclose(scaled_spect.y, 2 * self.k_xanes.y)
         assert_allclose(scaled_spect2.y, 3 * self.k_xanes.y)
-        assert approx(self.k_xanes.get_interpolated_value(7720.422), abs=1e-3) == 0.274302
+        assert self.k_xanes.get_interpolated_value(7720.422) == approx(0.274302, abs=1e-3)
 
     def test_as_from_dict(self):
         xas = XAS.from_dict(self.k_xanes.as_dict())

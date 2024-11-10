@@ -2,6 +2,7 @@ from __future__ import annotations
 
 from unittest import TestCase
 
+import numpy as np
 import pytest
 
 from pymatgen.analysis.quasirrho import QuasiRRHO, get_avg_mom_inertia
@@ -75,11 +76,11 @@ class TestQuasiRRHO(TestCase):
 
     def test_extreme_temperature_and_pressure(self):
         qrrho = QuasiRRHO.from_gaussian_output(self.gout, temp=0.1, press=1e9)
-        assert qrrho.temp == 0.1
-        assert qrrho.press == 1e9
+        assert qrrho.temp == pytest.approx(0.1)
+        assert qrrho.press == pytest.approx(1e9)
 
     def test_get_avg_mom_inertia(self):
         mol = self.gout.final_structure
         avg_mom_inertia, inertia_eigen_vals = get_avg_mom_inertia(mol)
         assert avg_mom_inertia == pytest.approx(0)
-        assert inertia_eigen_vals == pytest.approx([0, 0, 0])
+        np.testing.assert_allclose(inertia_eigen_vals, [0, 0, 0], rtol=1e-6, atol=1e-12)

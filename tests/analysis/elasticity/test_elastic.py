@@ -311,7 +311,7 @@ class TestElasticTensorExpansion(PymatgenTest):
 
         # Get heat capacity
         c0 = self.exp_cu.get_heat_capacity(0, self.cu, [1, 0, 0], [0, 1, 0])
-        assert c0 == 0.0
+        assert c0 == approx(0.0)
         c = self.exp_cu.get_heat_capacity(300, self.cu, [1, 0, 0], [0, 1, 0])
         assert c == approx(8.285611958)
 
