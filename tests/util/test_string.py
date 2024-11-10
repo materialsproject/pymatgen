@@ -74,11 +74,14 @@ class TestFunc:
         assert str(formula_double_format(2.00)) == "2"
         assert str(formula_double_format(2.10)) == "2.1"
 
-        # Test tolerance (default as 1E-8)
+        # Test tolerance boundary
         assert str(formula_double_format(2.00 + 1e-8)) == "2"
-        assert str(formula_double_format(3.00 - 1e-9)) == "3"
-        assert str(formula_double_format(2.00 + 2e-8)) == "2.00000002"
+        assert str(formula_double_format(2.00 - 1e-8)) == "2"
+
+        # Test within tolerance
         assert str(formula_double_format(2.1 + 1e-9)) == "2.1"
+
+        assert str(formula_double_format(2.00 + 2e-8)) == "2.00000002"
 
     def test_charge_string(self):
         assert charge_string(1) == "[+1]"
