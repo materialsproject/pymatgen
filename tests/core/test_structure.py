@@ -1352,10 +1352,13 @@ class TestStructure(PymatgenTest):
         initial_coord = struct[1].coords
         returned = struct.apply_strain(0.01)
         assert returned is struct
-        assert approx(struct.lattice.abc) == (
-            3.8785999130369997,
-            3.878600984287687,
-            3.8785999130549516,
+        assert_allclose(
+            struct.lattice.abc,
+            (
+                3.8785999130369997,
+                3.878600984287687,
+                3.8785999130549516,
+            ),
         )
         assert_allclose(struct[1].coords, initial_coord * 1.01)
         a1, b1, c1 = struct.lattice.abc

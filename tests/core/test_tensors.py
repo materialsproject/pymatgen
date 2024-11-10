@@ -287,7 +287,7 @@ class TestTensor(PymatgenTest):
         tkey = Tensor.from_values_indices([0.01], [(0, 0)])
         tval = reduced[tkey]
         for tens_1, tens_2 in zip(tval, reduced[tbs[0]], strict=True):
-            assert approx(tens_1) == tens_2
+            assert tens_1 == approx(tens_2)
         # Test set
         reduced[tkey] = "test_val"
         assert reduced[tkey] == "test_val"
