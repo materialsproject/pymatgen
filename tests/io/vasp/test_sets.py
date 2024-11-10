@@ -206,7 +206,7 @@ class TestMITMPRelaxSet(PymatgenTest):
         assert vis.structure is None
         inputs = vis.get_input_set(structure=self.structure)
         assert {*inputs} == {"INCAR", "KPOINTS", "POSCAR", "POTCAR"}
-        assert vis.incar["LDAUU"] == [5.3, 0, 0]
+        assert_allclose(vis.incar["LDAUU"], [5.3, 0, 0])
         assert vis.as_dict()["structure"] is not None
         assert "structure" not in vis.as_dict(verbosity=1)
 
@@ -356,11 +356,11 @@ class TestMITMPRelaxSet(PymatgenTest):
     def test_get_incar(self):
         incar = self.mp_set.incar
 
-        assert incar["LDAUU"] == [5.3, 0, 0]
+        assert_allclose(incar["LDAUU"], [5.3, 0, 0])
         assert incar["EDIFF"] == approx(0.0012)
 
         incar = self.mit_set.incar
-        assert incar["LDAUU"] == [4.0, 0, 0]
+        assert_allclose(incar["LDAUU"], [4.0, 0, 0])
         assert incar["EDIFF"] == approx(1e-5)
 
         si = 14
@@ -391,42 +391,42 @@ class TestMITMPRelaxSet(PymatgenTest):
         # check fluorides
         struct = Structure(lattice, ["Fe", "F"], coords)
         incar = MPRelaxSet(struct).incar
-        assert incar["LDAUU"] == [5.3, 0]
-        assert incar["MAGMOM"] == [5, 0.6]
+        assert_allclose(incar["LDAUU"], [5.3, 0])
+        assert_allclose(incar["MAGMOM"], [5, 0.6])
 
         struct = Structure(lattice, ["Fe", "F"], coords)
         incar = self.set(struct).incar
-        assert incar["LDAUU"] == [4.0, 0]
+        assert_allclose(incar["LDAUU"], [4.0, 0])
 
         # This seems counterintuitive at first, but even if the prior INCAR has a MAGMOM flag,
         # because the structure has no site properties, the default MAGMOM is assigned from the
         # config dictionary.
         struct = Structure(lattice, ["Fe", "F"], coords)
         incar = MPStaticSet(struct, prev_incar=f"{VASP_IN_DIR}/INCAR").incar
-        assert incar["MAGMOM"] == [5, 0.6]
+        assert_allclose(incar["MAGMOM"], [5, 0.6])
 
         # Make sure this works with species.
         struct = Structure(lattice, ["Fe2+", "O2-"], coords)
         incar = MPRelaxSet(struct).incar
-        assert incar["LDAUU"] == [5.3, 0]
+        assert_allclose(incar["LDAUU"], [5.3, 0])
 
         struct = Structure(lattice, ["Fe", "Mn"], coords, site_properties={"magmom": (5.2, -4.5)})
         incar = MPRelaxSet(struct).incar
-        assert incar["MAGMOM"] == [-4.5, 5.2]
+        assert_allclose(incar["MAGMOM"], [-4.5, 5.2])
 
         incar = self.set(struct, sort_structure=False).incar
-        assert incar["MAGMOM"] == [5.2, -4.5]
+        assert_allclose(incar["MAGMOM"], [5.2, -4.5])
 
         struct = Structure(lattice, [Species("Fe2+", spin=4.1), "Mn"], coords)
         incar = MPRelaxSet(struct).incar
-        assert incar["MAGMOM"] == [5, 4.1]
+        assert_allclose(incar["MAGMOM"], [5, 4.1])
 
         struct = Structure(lattice, ["Mn3+", "Mn4+"], coords)
         incar = self.set(struct).incar
         assert incar["MAGMOM"] == [4, 3]
 
         user_set = MPRelaxSet(struct, user_incar_settings={"MAGMOM": {"Fe": 10, "S": -5, "Mn3+": 100}})
-        assert user_set.incar["MAGMOM"] == [100, 0.6]
+        assert_allclose(user_set.incar["MAGMOM"], [100, 0.6])
 
         no_encut_set = MPRelaxSet(struct, user_incar_settings={"ENCUT": None})
         assert "ENCUT" not in no_encut_set.incar
@@ -436,26 +436,26 @@ class TestMITMPRelaxSet(PymatgenTest):
 
         struct = Structure(lattice, ["Fe", "Fe", "S"], coords)
         incar = self.set(struct).incar
-        assert incar["LDAUU"] == [1.9, 0]
+        assert_allclose(incar["LDAUU"], [1.9, 0])
 
         # Make sure MP sulfides are ok.
         assert "LDAUU" not in MPRelaxSet(struct).incar
 
         struct = Structure(lattice, ["Fe", "S", "O"], coords)
         incar = self.set(struct).incar
-        assert incar["LDAUU"] == [4.0, 0, 0]
+        assert_allclose(incar["LDAUU"], [4.0, 0, 0])
 
         # Make sure MP sulfates are ok.
-        assert MPRelaxSet(struct).incar["LDAUU"] == [5.3, 0, 0]
+        assert_allclose(MPRelaxSet(struct).incar["LDAUU"], [5.3, 0, 0])
 
         # test for default LDAUU value
         user_set_ldauu_fallback = MPRelaxSet(struct, user_incar_settings={"LDAUU": {"Fe": 5.0, "S": 0}})
-        assert user_set_ldauu_fallback.incar["LDAUU"] == [5.0, 0, 0]
+        assert_allclose(user_set_ldauu_fallback.incar["LDAUU"], [5.0, 0, 0])
 
         # Expected to be oxide (O is the most electronegative atom)
         struct = Structure(lattice, ["Fe", "O", "S"], coords)
         incar = self.set(struct).incar
-        assert incar["LDAUU"] == [4.0, 0, 0]
+        assert_allclose(incar["LDAUU"], [4.0, 0, 0])
 
         # Expected to be chloride (Cl is the most electronegative atom)
         struct = Structure(lattice, ["Fe", "Cl", "S"], coords)
@@ -472,8 +472,8 @@ class TestMITMPRelaxSet(PymatgenTest):
                 "LDAUU": {"Fe": 1.8},
             },
         ).incar
-        assert incar["LDAUL"] == [3.0, 0, 0]
-        assert incar["LDAUU"] == [1.8, 0, 0]
+        assert_allclose(incar["LDAUL"], [3.0, 0, 0])
+        assert_allclose(incar["LDAUU"], [1.8, 0, 0])
 
         # test that van-der-Waals parameters are parsed correctly
 
@@ -510,10 +510,10 @@ class TestMITMPRelaxSet(PymatgenTest):
 
         struct = Structure(lattice, ["Co", "O"], coords)
         mpr = MPRelaxSet(struct)
-        assert mpr.incar["MAGMOM"] == [0.6, 0.6]
+        assert_allclose(mpr.incar["MAGMOM"], [0.6, 0.6])
         struct = Structure(lattice, ["Co4+", "O"], coords)
         mpr = MPRelaxSet(struct)
-        assert mpr.incar["MAGMOM"] == [1, 0.6]
+        assert_allclose(mpr.incar["MAGMOM"], [1, 0.6])
 
         # test passing user_incar_settings and user_kpoint_settings of None
         for set_cls in [MPRelaxSet, MPStaticSet, MPNonSCFSet]:
@@ -681,7 +681,7 @@ class TestMITMPRelaxSet(PymatgenTest):
         #     vis.get_vasp_input()
 
         vis = MPRelaxSet(struct, user_potcar_settings={"Fe": "Fe"}, validate_magmom=True)
-        assert vis.get_vasp_input()["INCAR"]["MAGMOM"] == [1.0] * len(struct)
+        assert_allclose(vis.get_vasp_input()["INCAR"]["MAGMOM"], [1.0] * len(struct))
 
         # Test the behavior of constraining the net magnetic moment with a non-integer
         struct = self.structure.copy()
@@ -961,7 +961,7 @@ class TestMatPESStaticSet(PymatgenTest):
         assert incar_u["GGA"] == "Pe"
         assert incar_u["ALGO"] == "Normal"
         # test POTCAR files are default PBE_64 PSPs and functional
-        assert incar_u["LDAUU"] == [5.3, 0, 0]
+        assert_allclose(incar_u["LDAUU"], [5.3, 0, 0])
         assert default_u.potcar_symbols == ["Fe_pv", "P", "O"]
         assert default_u.potcar_functional == "PBE_64"
         assert default_u.kpoints is None
@@ -1404,14 +1404,14 @@ class TestMPNMRSet(PymatgenTest):
 
         vis = MPNMRSet(structure, mode="efg")
         assert not vis.incar.get("LCHIMAG")
-        assert vis.incar.get("QUAD_EFG") == [-0.808]
+        assert_allclose(vis.incar.get("QUAD_EFG"), [-0.808])
         for q in vis.incar["QUAD_EFG"]:
             assert isinstance(q, float)
             assert not isinstance(q, FloatWithUnit)
 
         vis = MPNMRSet(structure, mode="efg", isotopes=["Li-7"])
         assert not vis.incar.get("LCHIMAG")
-        assert vis.incar.get("QUAD_EFG") == [-40.1]
+        assert_allclose(vis.incar.get("QUAD_EFG"), [-40.1])
 
 
 @skip_if_no_psp_dir

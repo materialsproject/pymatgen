@@ -380,7 +380,7 @@ class TestLattice(PymatgenTest):
         ws_cell = Lattice(np.diag([10, 5, 1])).get_wigner_seitz_cell()
         assert len(ws_cell) == 6
         for vec in ws_cell[3]:
-            assert [abs(i) for i in vec] == [5.0, 2.5, 0.5]
+            assert_allclose([abs(i) for i in vec], [5.0, 2.5, 0.5])
 
     def test_dot_and_norm(self):
         frac_basis = np.eye(3)

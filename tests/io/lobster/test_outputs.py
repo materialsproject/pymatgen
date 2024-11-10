@@ -179,13 +179,13 @@ class TestCohpcar(PymatgenTest):
         efermi_KF = -2.87475
         elim_KF = (-11.25000 + efermi_KF, 7.5000 + efermi_KF)
 
-        assert self.cohp_bise.efermi == efermi_bise
-        assert self.coop_bise.efermi == efermi_bise
-        assert self.cohp_fe.efermi == efermi_fe
-        assert self.coop_fe.efermi == efermi_fe
+        assert self.cohp_bise.efermi == approx(efermi_bise)
+        assert self.coop_bise.efermi == approx(efermi_bise)
+        assert self.cohp_fe.efermi == approx(efermi_fe)
+        assert self.coop_fe.efermi == approx(efermi_fe)
         # Lobster 3.1
-        assert self.cohp_KF.efermi == efermi_KF
-        assert self.coop_KF.efermi == efermi_KF
+        assert self.cohp_KF.efermi == approx(efermi_KF)
+        assert self.coop_KF.efermi == approx(efermi_KF)
 
         assert self.cohp_bise.energies[0] + self.cohp_bise.efermi == approx(elim_bise[0], abs=1e-4)
         assert self.cohp_bise.energies[-1] + self.cohp_bise.efermi == approx(elim_bise[1], abs=1e-4)
@@ -443,9 +443,9 @@ class TestDoscar(TestCase):
         pdos_f_2px_up = [0.00000, 0.00160, 0.00000, 0.25805, 0.00000, 0.00029]
         pdos_f_2px_down = [0.00000, 0.00161, 0.00000, 0.25814, 0.00000, 0.00029]
 
-        assert energies_spin == self.DOSCAR_spin_pol.completedos.energies.tolist()
-        assert tdos_up == self.DOSCAR_spin_pol.completedos.densities[Spin.up].tolist()
-        assert tdos_down == self.DOSCAR_spin_pol.completedos.densities[Spin.down].tolist()
+        assert_allclose(energies_spin, self.DOSCAR_spin_pol.completedos.energies)
+        assert_allclose(tdos_up, self.DOSCAR_spin_pol.completedos.densities[Spin.up])
+        assert_allclose(tdos_down, self.DOSCAR_spin_pol.completedos.densities[Spin.down])
         assert fermi == approx(self.DOSCAR_spin_pol.completedos.efermi)
 
         assert_allclose(
@@ -456,14 +456,14 @@ class TestDoscar(TestCase):
             self.DOSCAR_spin_pol2.completedos.structure.frac_coords,
             self.structure.frac_coords,
         )
-        assert self.DOSCAR_spin_pol.completedos.pdos[self.structure[0]]["2s"][Spin.up].tolist() == pdos_f_2s_up
-        assert self.DOSCAR_spin_pol.completedos.pdos[self.structure[0]]["2s"][Spin.down].tolist() == pdos_f_2s_down
-        assert self.DOSCAR_spin_pol.completedos.pdos[self.structure[0]]["2p_y"][Spin.up].tolist() == pdos_f_2py_up
-        assert self.DOSCAR_spin_pol.completedos.pdos[self.structure[0]]["2p_y"][Spin.down].tolist() == pdos_f_2py_down
-        assert self.DOSCAR_spin_pol.completedos.pdos[self.structure[0]]["2p_z"][Spin.up].tolist() == pdos_f_2pz_up
-        assert self.DOSCAR_spin_pol.completedos.pdos[self.structure[0]]["2p_z"][Spin.down].tolist() == pdos_f_2pz_down
-        assert self.DOSCAR_spin_pol.completedos.pdos[self.structure[0]]["2p_x"][Spin.up].tolist() == pdos_f_2px_up
-        assert self.DOSCAR_spin_pol.completedos.pdos[self.structure[0]]["2p_x"][Spin.down].tolist() == pdos_f_2px_down
+        assert_allclose(self.DOSCAR_spin_pol.completedos.pdos[self.structure[0]]["2s"][Spin.up], pdos_f_2s_up)
+        assert_allclose(self.DOSCAR_spin_pol.completedos.pdos[self.structure[0]]["2s"][Spin.down], pdos_f_2s_down)
+        assert_allclose(self.DOSCAR_spin_pol.completedos.pdos[self.structure[0]]["2p_y"][Spin.up], pdos_f_2py_up)
+        assert_allclose(self.DOSCAR_spin_pol.completedos.pdos[self.structure[0]]["2p_y"][Spin.down], pdos_f_2py_down)
+        assert_allclose(self.DOSCAR_spin_pol.completedos.pdos[self.structure[0]]["2p_z"][Spin.up], pdos_f_2pz_up)
+        assert_allclose(self.DOSCAR_spin_pol.completedos.pdos[self.structure[0]]["2p_z"][Spin.down], pdos_f_2pz_down)
+        assert_allclose(self.DOSCAR_spin_pol.completedos.pdos[self.structure[0]]["2p_x"][Spin.up], pdos_f_2px_up)
+        assert_allclose(self.DOSCAR_spin_pol.completedos.pdos[self.structure[0]]["2p_x"][Spin.down], pdos_f_2px_down)
 
         energies_nonspin = [-11.25000, -7.50000, -3.75000, 0.00000, 3.75000, 7.50000]
         tdos_nonspin = [0.00000, 1.60000, 0.00000, 1.60000, 0.00000, 0.02418]
@@ -472,18 +472,18 @@ class TestDoscar(TestCase):
         pdos_f_2pz = [0.00000, 0.00322, 0.00000, 0.51636, 0.00000, 0.00037]
         pdos_f_2px = [0.00000, 0.00322, 0.00000, 0.51634, 0.00000, 0.00037]
 
-        assert energies_nonspin == self.DOSCAR_nonspin_pol.completedos.energies.tolist()
+        assert_allclose(energies_nonspin, self.DOSCAR_nonspin_pol.completedos.energies)
 
-        assert tdos_nonspin == self.DOSCAR_nonspin_pol.completedos.densities[Spin.up].tolist()
+        assert_allclose(tdos_nonspin, self.DOSCAR_nonspin_pol.completedos.densities[Spin.up])
 
         assert fermi == approx(self.DOSCAR_nonspin_pol.completedos.efermi)
 
         assert self.DOSCAR_nonspin_pol.completedos.structure == self.structure
 
-        assert self.DOSCAR_nonspin_pol.completedos.pdos[self.structure[0]]["2s"][Spin.up].tolist() == pdos_f_2s
-        assert self.DOSCAR_nonspin_pol.completedos.pdos[self.structure[0]]["2p_y"][Spin.up].tolist() == pdos_f_2py
-        assert self.DOSCAR_nonspin_pol.completedos.pdos[self.structure[0]]["2p_z"][Spin.up].tolist() == pdos_f_2pz
-        assert self.DOSCAR_nonspin_pol.completedos.pdos[self.structure[0]]["2p_x"][Spin.up].tolist() == pdos_f_2px
+        assert_allclose(self.DOSCAR_nonspin_pol.completedos.pdos[self.structure[0]]["2s"][Spin.up], pdos_f_2s)
+        assert_allclose(self.DOSCAR_nonspin_pol.completedos.pdos[self.structure[0]]["2p_y"][Spin.up], pdos_f_2py)
+        assert_allclose(self.DOSCAR_nonspin_pol.completedos.pdos[self.structure[0]]["2p_z"][Spin.up], pdos_f_2pz)
+        assert_allclose(self.DOSCAR_nonspin_pol.completedos.pdos[self.structure[0]]["2p_x"][Spin.up], pdos_f_2px)
 
     def test_pdos(self):
         # first for spin polarized version
@@ -497,14 +497,14 @@ class TestDoscar(TestCase):
         pdos_f_2px_up = [0.00000, 0.00160, 0.00000, 0.25805, 0.00000, 0.00029]
         pdos_f_2px_down = [0.00000, 0.00161, 0.00000, 0.25814, 0.00000, 0.00029]
 
-        assert self.DOSCAR_spin_pol.pdos[0]["2s"][Spin.up].tolist() == pdos_f_2s_up
-        assert self.DOSCAR_spin_pol.pdos[0]["2s"][Spin.down].tolist() == pdos_f_2s_down
-        assert self.DOSCAR_spin_pol.pdos[0]["2p_y"][Spin.up].tolist() == pdos_f_2py_up
-        assert self.DOSCAR_spin_pol.pdos[0]["2p_y"][Spin.down].tolist() == pdos_f_2py_down
-        assert self.DOSCAR_spin_pol.pdos[0]["2p_z"][Spin.up].tolist() == pdos_f_2pz_up
-        assert self.DOSCAR_spin_pol.pdos[0]["2p_z"][Spin.down].tolist() == pdos_f_2pz_down
-        assert self.DOSCAR_spin_pol.pdos[0]["2p_x"][Spin.up].tolist() == pdos_f_2px_up
-        assert self.DOSCAR_spin_pol.pdos[0]["2p_x"][Spin.down].tolist() == pdos_f_2px_down
+        assert_allclose(self.DOSCAR_spin_pol.pdos[0]["2s"][Spin.up], pdos_f_2s_up)
+        assert_allclose(self.DOSCAR_spin_pol.pdos[0]["2s"][Spin.down], pdos_f_2s_down)
+        assert_allclose(self.DOSCAR_spin_pol.pdos[0]["2p_y"][Spin.up], pdos_f_2py_up)
+        assert_allclose(self.DOSCAR_spin_pol.pdos[0]["2p_y"][Spin.down], pdos_f_2py_down)
+        assert_allclose(self.DOSCAR_spin_pol.pdos[0]["2p_z"][Spin.up], pdos_f_2pz_up)
+        assert_allclose(self.DOSCAR_spin_pol.pdos[0]["2p_z"][Spin.down], pdos_f_2pz_down)
+        assert_allclose(self.DOSCAR_spin_pol.pdos[0]["2p_x"][Spin.up], pdos_f_2px_up)
+        assert_allclose(self.DOSCAR_spin_pol.pdos[0]["2p_x"][Spin.down], pdos_f_2px_down)
 
         # non spin
         pdos_f_2s = [0.00000, 0.00320, 0.00000, 0.00017, 0.00000, 0.00060]
@@ -512,10 +512,10 @@ class TestDoscar(TestCase):
         pdos_f_2pz = [0.00000, 0.00322, 0.00000, 0.51636, 0.00000, 0.00037]
         pdos_f_2px = [0.00000, 0.00322, 0.00000, 0.51634, 0.00000, 0.00037]
 
-        assert self.DOSCAR_nonspin_pol.pdos[0]["2s"][Spin.up].tolist() == pdos_f_2s
-        assert self.DOSCAR_nonspin_pol.pdos[0]["2p_y"][Spin.up].tolist() == pdos_f_2py
-        assert self.DOSCAR_nonspin_pol.pdos[0]["2p_z"][Spin.up].tolist() == pdos_f_2pz
-        assert self.DOSCAR_nonspin_pol.pdos[0]["2p_x"][Spin.up].tolist() == pdos_f_2px
+        assert_allclose(self.DOSCAR_nonspin_pol.pdos[0]["2s"][Spin.up], pdos_f_2s)
+        assert_allclose(self.DOSCAR_nonspin_pol.pdos[0]["2p_y"][Spin.up], pdos_f_2py)
+        assert_allclose(self.DOSCAR_nonspin_pol.pdos[0]["2p_z"][Spin.up], pdos_f_2pz)
+        assert_allclose(self.DOSCAR_nonspin_pol.pdos[0]["2p_x"][Spin.up], pdos_f_2px)
 
         # test with DOSCAR.LCFO.lobster file
         pdos_1a1_AlN = [
@@ -559,9 +559,9 @@ class TestDoscar(TestCase):
         ]
 
         assert self.DOSCAR_lcfo._is_lcfo
-        assert self.DOSCAR_lcfo.pdos[0]["1a1"][Spin.down].tolist() == pdos_1a1_AlN
-        assert self.DOSCAR_lcfo.pdos[1]["3p_y"][Spin.down].tolist() == pdos_3py_Al
-        assert self.DOSCAR_lcfo.pdos[2]["2s"][Spin.down].tolist() == pdos_2s_N
+        assert_allclose(self.DOSCAR_lcfo.pdos[0]["1a1"][Spin.down], pdos_1a1_AlN)
+        assert_allclose(self.DOSCAR_lcfo.pdos[1]["3p_y"][Spin.down], pdos_3py_Al)
+        assert_allclose(self.DOSCAR_lcfo.pdos[2]["2s"][Spin.down], pdos_2s_N)
 
     def test_tdos(self):
         # first for spin polarized version
@@ -570,38 +570,38 @@ class TestDoscar(TestCase):
         tdos_down = [0.00000, 0.79999, 0.00000, 0.79999, 0.00000, 0.02586]
         fermi = 0.0
 
-        assert energies_spin == self.DOSCAR_spin_pol.tdos.energies.tolist()
-        assert tdos_up == self.DOSCAR_spin_pol.tdos.densities[Spin.up].tolist()
-        assert tdos_down == self.DOSCAR_spin_pol.tdos.densities[Spin.down].tolist()
+        assert_allclose(energies_spin, self.DOSCAR_spin_pol.tdos.energies)
+        assert_allclose(tdos_up, self.DOSCAR_spin_pol.tdos.densities[Spin.up])
+        assert_allclose(tdos_down, self.DOSCAR_spin_pol.tdos.densities[Spin.down])
         assert fermi == approx(self.DOSCAR_spin_pol.tdos.efermi)
 
         energies_nonspin = [-11.25000, -7.50000, -3.75000, 0.00000, 3.75000, 7.50000]
         tdos_nonspin = [0.00000, 1.60000, 0.00000, 1.60000, 0.00000, 0.02418]
         fermi = 0.0
 
-        assert energies_nonspin == self.DOSCAR_nonspin_pol.tdos.energies.tolist()
-        assert tdos_nonspin == self.DOSCAR_nonspin_pol.tdos.densities[Spin.up].tolist()
+        assert_allclose(energies_nonspin, self.DOSCAR_nonspin_pol.tdos.energies)
+        assert_allclose(tdos_nonspin, self.DOSCAR_nonspin_pol.tdos.densities[Spin.up])
         assert fermi == approx(self.DOSCAR_nonspin_pol.tdos.efermi)
 
     def test_energies(self):
         # first for spin polarized version
         energies_spin = [-11.25000, -7.50000, -3.75000, 0.00000, 3.75000, 7.50000]
 
-        assert energies_spin == self.DOSCAR_spin_pol.energies.tolist()
+        assert_allclose(energies_spin, self.DOSCAR_spin_pol.energies)
 
         energies_nonspin = [-11.25000, -7.50000, -3.75000, 0.00000, 3.75000, 7.50000]
-        assert energies_nonspin == self.DOSCAR_nonspin_pol.energies.tolist()
+        assert_allclose(energies_nonspin, self.DOSCAR_nonspin_pol.energies)
 
     def test_tdensities(self):
         # first for spin polarized version
         tdos_up = [0.00000, 0.79999, 0.00000, 0.79999, 0.00000, 0.02577]
         tdos_down = [0.00000, 0.79999, 0.00000, 0.79999, 0.00000, 0.02586]
 
-        assert tdos_up == self.DOSCAR_spin_pol.tdensities[Spin.up].tolist()
-        assert tdos_down == self.DOSCAR_spin_pol.tdensities[Spin.down].tolist()
+        assert_allclose(tdos_up, self.DOSCAR_spin_pol.tdensities[Spin.up])
+        assert_allclose(tdos_down, self.DOSCAR_spin_pol.tdensities[Spin.down])
 
         tdos_nonspin = [0.00000, 1.60000, 0.00000, 1.60000, 0.00000, 0.02418]
-        assert tdos_nonspin == self.DOSCAR_nonspin_pol.tdensities[Spin.up].tolist()
+        assert_allclose(tdos_nonspin, self.DOSCAR_nonspin_pol.tdensities[Spin.up])
 
         # test with DOSCAR.LCFO.lobster file
         tdos_up = [
@@ -618,16 +618,16 @@ class TestDoscar(TestCase):
             1.04535,
         ]
 
-        assert tdos_up == self.DOSCAR_lcfo.tdensities[Spin.up].tolist()
+        assert_allclose(tdos_up, self.DOSCAR_lcfo.tdensities[Spin.up])
 
     def test_itdensities(self):
         itdos_up = [1.99997, 4.99992, 4.99992, 7.99987, 7.99987, 8.09650]
         itdos_down = [1.99997, 4.99992, 4.99992, 7.99987, 7.99987, 8.09685]
-        assert itdos_up == self.DOSCAR_spin_pol.itdensities[Spin.up].tolist()
-        assert itdos_down == self.DOSCAR_spin_pol.itdensities[Spin.down].tolist()
+        assert_allclose(itdos_up, self.DOSCAR_spin_pol.itdensities[Spin.up])
+        assert_allclose(itdos_down, self.DOSCAR_spin_pol.itdensities[Spin.down])
 
         itdos_nonspin = [4.00000, 10.00000, 10.00000, 16.00000, 16.00000, 16.09067]
-        assert itdos_nonspin == self.DOSCAR_nonspin_pol.itdensities[Spin.up].tolist()
+        assert_allclose(itdos_nonspin, self.DOSCAR_nonspin_pol.itdensities[Spin.up])
 
     def test_is_spin_polarized(self):
         # first for spin polarized version
@@ -660,7 +660,7 @@ class TestCharge(PymatgenTest):
         assert self.charge_lcfo.num_atoms == 3
         assert self.charge_lcfo.types == ["AlN", "Al", "N"]
         assert self.charge_lcfo.atomlist == ["AlN1", "Al2", "N3"]
-        assert self.charge_lcfo.loewdin == [0.0, 1.02, -1.02]
+        assert_allclose(self.charge_lcfo.loewdin, [0.0, 1.02, -1.02])
         assert not self.charge_lcfo.mulliken
 
     def test_get_structure_with_charges(self):
@@ -754,7 +754,7 @@ class TestLobsterout(PymatgenTest):
             ]
         ]
         assert self.lobsterout_normal.basis_type == ["pbeVaspFit2015"]
-        assert self.lobsterout_normal.charge_spilling == [0.0268]
+        assert_allclose(self.lobsterout_normal.charge_spilling, [0.0268])
         assert self.lobsterout_normal.dft_program == "VASP"
         assert self.lobsterout_normal.elements == ["Ti"]
         assert self.lobsterout_normal.has_charge
@@ -807,7 +807,7 @@ class TestLobsterout(PymatgenTest):
             ]
         ]
         assert self.lobsterout_fatband_grosspop_densityofenergies.basis_type == ["pbeVaspFit2015"]
-        assert self.lobsterout_fatband_grosspop_densityofenergies.charge_spilling == [0.0268]
+        assert_allclose(self.lobsterout_fatband_grosspop_densityofenergies.charge_spilling, [0.0268])
         assert self.lobsterout_fatband_grosspop_densityofenergies.dft_program == "VASP"
         assert self.lobsterout_fatband_grosspop_densityofenergies.elements == ["Ti"]
         assert self.lobsterout_fatband_grosspop_densityofenergies.has_charge
@@ -860,7 +860,7 @@ class TestLobsterout(PymatgenTest):
             ]
         ]
         assert self.lobsterout_saveprojection.basis_type == ["pbeVaspFit2015"]
-        assert self.lobsterout_saveprojection.charge_spilling == [0.0268]
+        assert_allclose(self.lobsterout_saveprojection.charge_spilling, [0.0268])
         assert self.lobsterout_saveprojection.dft_program == "VASP"
         assert self.lobsterout_saveprojection.elements == ["Ti"]
         assert self.lobsterout_saveprojection.has_charge
@@ -913,7 +913,7 @@ class TestLobsterout(PymatgenTest):
             ]
         ]
         assert self.lobsterout_skipping_all.basis_type == ["pbeVaspFit2015"]
-        assert self.lobsterout_skipping_all.charge_spilling == [0.0268]
+        assert_allclose(self.lobsterout_skipping_all.charge_spilling, [0.0268])
         assert self.lobsterout_skipping_all.dft_program == "VASP"
         assert self.lobsterout_skipping_all.elements == ["Ti"]
         assert not self.lobsterout_skipping_all.has_charge
@@ -1077,7 +1077,7 @@ class TestLobsterout(PymatgenTest):
             "user_time": {"h": "0", "min": "0", "s": "12", "ms": "370"},
             "sys_time": {"h": "0", "min": "0", "s": "0", "ms": "180"},
         }
-        assert self.lobsterout_GaAs.total_spilling[0] == approx([0.0859][0])
+        assert self.lobsterout_GaAs.total_spilling[0] == approx(0.0859)
 
         assert self.lobsterout_onethread.number_of_threads == 1
         # Test lobsterout of lobster-4.1.0

@@ -38,12 +38,12 @@ class TestKpoint(TestCase):
         assert self.kpoint != Kpoint([0.1, 0.4, -0.5], Lattice.cubic(20.0), label="X")
 
     def test_properties(self):
-        assert list(self.kpoint.frac_coords) == [0.1, 0.4, -0.5]
+        assert_allclose(self.kpoint.frac_coords, [0.1, 0.4, -0.5])
         assert self.kpoint.a == approx(0.1)
         assert self.kpoint.b == approx(0.4)
         assert self.kpoint.c == approx(-0.5)
         assert self.lattice == Lattice.cubic(10.0)
-        assert list(self.kpoint.cart_coords) == [1.0, 4.0, -5.0]
+        assert_allclose(self.kpoint.cart_coords, [1.0, 4.0, -5.0])
         assert self.kpoint.label == "X"
 
     def test_as_dict(self):
@@ -59,12 +59,12 @@ class TestKpoint(TestCase):
 
         kpoint = Kpoint.from_dict(dct)
 
-        assert list(kpoint.frac_coords) == [0.1, 0.4, -0.5]
+        assert_allclose(kpoint.frac_coords, [0.1, 0.4, -0.5])
         assert kpoint.a == approx(0.1)
         assert kpoint.b == approx(0.4)
         assert kpoint.c == approx(-0.5)
         assert kpoint.lattice == Lattice.cubic(10.0)
-        assert list(kpoint.cart_coords) == [1.0, 4.0, -5.0]
+        assert_allclose(kpoint.cart_coords, [1.0, 4.0, -5.0])
         assert kpoint.label == "X"
 
 
@@ -103,7 +103,7 @@ class TestBandStructureSymmLine(PymatgenTest):
 
     def test_properties(self):
         self.one_kpoint = self.bs2.kpoints[31]
-        assert list(self.one_kpoint.frac_coords) == [0.5, 0.25, 0.75]
+        assert_allclose(self.one_kpoint.frac_coords, [0.5, 0.25, 0.75])
         assert self.one_kpoint.cart_coords == approx([0.64918757, 1.29837513, 0.0])
         assert self.one_kpoint.label == "W"
 
