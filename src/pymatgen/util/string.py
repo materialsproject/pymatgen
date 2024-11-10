@@ -451,16 +451,16 @@ def disordered_formula(
     else:
         raise ValueError("Unsupported output format, choose from: LaTeX, HTML, plain")
 
-    disordered_formula = []
+    disordered_formulas = []
     for sp, occu in disordered_comp:
-        disordered_formula.append(sp)
+        disordered_formulas.append(sp)
         if occu:  # can be empty string if 1
             if fmt != "plain":
-                disordered_formula.append(sub_start)
-            disordered_formula.append(occu)
+                disordered_formulas.append(sub_start)
+            disordered_formulas.append(occu)
             if fmt != "plain":
-                disordered_formula.append(sub_end)
-    disordered_formula.append(" ")
-    disordered_formula += [f"{key}={formula_double_format(val)} " for key, val in variable_map.items()]
+                disordered_formulas.append(sub_end)
+    disordered_formulas.append(" ")
+    disordered_formulas += [f"{key}={formula_double_format(val)} " for key, val in variable_map.items()]
 
-    return "".join(map(str, disordered_formula))[:-1]
+    return "".join(map(str, disordered_formulas))[:-1]
