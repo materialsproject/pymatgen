@@ -59,7 +59,7 @@ class TestFunc:
         assert obtain_all_bond_lengths("C", Element("Br"), 1.76) == {1: approx(1.76)}
         bond_lengths_dict = obtain_all_bond_lengths("C", "N")
         bond_lengths_dict[4] = 999
-        assert obtain_all_bond_lengths("C", "N") == {1.0: approx(1.47), approx(2.0): 1.3, 3.0: approx(1.16)}
+        assert obtain_all_bond_lengths("C", "N") == {1.0: approx(1.47), 2.0: approx(1.3), 3.0: approx(1.16)}
 
     def test_get_bond_order(self):
         assert get_bond_order("C", "C", 1) == approx(3)
