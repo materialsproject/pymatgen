@@ -716,7 +716,7 @@ class TestCubicSupercellTransformation(PymatgenTest):
         assert len(superstructure) == 448
         assert_array_equal(
             supercell_generator.transformation_matrix,
-            np.array([[4, 0, 0], [1, 4, -4], [0, 0, 1]]),
+            [[4, 0, 0], [1, 4, -4], [0, 0, 1]],
         )
 
         # Test the diagonal transformation
@@ -788,7 +788,7 @@ class TestCubicSupercellTransformation(PymatgenTest):
 
         assert_array_equal(
             supercell_generator_orthorhombic.transformation_matrix,
-            np.array([[0, -2, 1], [-2, 0, 0], [0, 0, -2]]),
+            [[0, -2, 1], [-2, 0, 0], [0, 0, -2]],
         )
 
         # make sure that the orthorhombic supercell is different from the cubic cell
@@ -827,7 +827,7 @@ class TestCubicSupercellTransformation(PymatgenTest):
 
         assert_array_equal(
             supercell_generator_orthorhombic.transformation_matrix,
-            np.array([[3, 0, 0], [-2, 4, 0], [-2, 4, 6]]),
+            [[3, 0, 0], [-2, 4, 0], [-2, 4, 6]],
         )
 
         # make sure that the orthorhombic supercell is different from the cubic cell
