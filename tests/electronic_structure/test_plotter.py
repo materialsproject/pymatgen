@@ -165,7 +165,7 @@ class TestBSPlotter(PymatgenTest):
         # vbm_cbm_marker = False, smooth_tol = None
 
         ax = self.plotter.get_plot()
-        assert ax.get_ylim() == (-4.0, 7.6348), "wrong ylim"
+        assert_allclose(ax.get_ylim(), (-4.0, 7.6348)), "wrong ylim"
         ax = self.plotter.get_plot(smooth=True)
         ax = self.plotter.get_plot(vbm_cbm_marker=True)
         self.plotter.save_plot(f"{self.tmp_path}/bsplot.png")
@@ -175,9 +175,9 @@ class TestBSPlotter(PymatgenTest):
         # test plotter with 2 bandstructures
         ax = self.plotter_multi.get_plot()
         assert len(ax.get_lines()) == 874, "wrong number of lines"
-        assert ax.get_ylim() == (-10.0, 10.0), "wrong ylim"
+        assert_allclose(ax.get_ylim(), (-10.0, 10.0)), "wrong ylim"
         ax = self.plotter_multi.get_plot(zero_to_efermi=False)
-        assert ax.get_ylim() == (-15.2379, 12.67141266), "wrong ylim"
+        assert_allclose(ax.get_ylim(), (-15.2379, 12.67141266)), "wrong ylim"
         ax = self.plotter_multi.get_plot(smooth=True)
         self.plotter_multi.save_plot(f"{self.tmp_path}/bsplot.png")
         assert os.path.isfile(f"{self.tmp_path}/bsplot.png")

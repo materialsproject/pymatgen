@@ -807,7 +807,7 @@ TIME       =  0.4"""
         assert ans_string4_lsorbit == str(incar)
 
         incar = Incar.from_str(ans_string1)
-        assert incar["MAGMOM"] == [[0.0, 0.0, 3.0], [0, 1, 0], [2, 1, 2]]
+        assert_allclose(incar["MAGMOM"], [[0.0, 0.0, 3.0], [0, 1, 0], [2, 1, 2]])
         assert incar["LANGEVIN_GAMMA"] == [10, 10, 10]
 
         incar = Incar.from_str(ans_string2)
@@ -921,12 +921,18 @@ class TestKpoints:
         assert kpoints.kpts == [(10,)], "Wrong kpoint lattice read"
         filepath = f"{VASP_IN_DIR}/KPOINTS_cartesian"
         kpoints = Kpoints.from_file(filepath)
-        assert kpoints.kpts == [
-            (0.25, 0, 0),
-            (0, 0.25, 0),
-            (0, 0, 0.25),
-        ], "Wrong kpoint lattice read"
-        assert kpoints.kpts_shift == (0.5, 0.5, 0.5)
+        (
+            assert_allclose(
+                kpoints.kpts,
+                [
+                    (0.25, 0, 0),
+                    (0, 0.25, 0),
+                    (0, 0, 0.25),
+                ],
+            ),
+            "Wrong kpoint lattice read",
+        )
+        assert_allclose(kpoints.kpts_shift, (0.5, 0.5, 0.5))
 
         # Gamma-centered Kpoint grid
         filepath = f"{VASP_IN_DIR}/KPOINTS_gamma"

@@ -4,6 +4,7 @@ import json
 from unittest import TestCase
 
 import pytest
+from numpy.testing import assert_allclose
 from pytest import approx
 
 from pymatgen.core.structure import Molecule
@@ -456,10 +457,10 @@ class TestNwOutput:
         assert nwo[1]["frequencies"][0][0] == approx(-70.47)
         assert len(nwo[1]["frequencies"][0][1]) == 27
         assert nwo[1]["frequencies"][-1][0] == approx(3696.74)
-        assert nwo[1]["frequencies"][-1][1][-1] == (0.20498, -0.94542, -0.00073)
+        assert_allclose(nwo[1]["frequencies"][-1][1][-1], (0.20498, -0.94542, -0.00073))
         assert nwo[1]["normal_frequencies"][1][0] == approx(-70.72)
         assert nwo[1]["normal_frequencies"][3][0] == approx(-61.92)
-        assert nwo[1]["normal_frequencies"][1][1][-1] == (0.00056, 0.00042, 0.06781)
+        assert_allclose(nwo[1]["normal_frequencies"][1][1][-1], (0.00056, 0.00042, 0.06781))
 
     def test_parse_tddft(self):
         nwo = NwOutput(f"{TEST_DIR}/phen_tddft.log")

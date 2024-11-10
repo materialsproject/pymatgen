@@ -763,8 +763,8 @@ class TestForceField(PymatgenTest):
         assert dct["nonbond_coeffs"] == self.virus.nonbond_coeffs
 
     def test_from_file(self):
-        assert self.ethane.mass_info == [("c4", 12.01115), ("h1", 1.00797)]
-        np.testing.assert_array_equal(self.ethane.nonbond_coeffs, [[0.062, 3.854], [0.023, 2.878]])
+        assert_allclose(self.ethane.mass_info, [("c4", 12.01115), ("h1", 1.00797)])
+        assert_allclose(self.ethane.nonbond_coeffs, [[0.062, 3.854], [0.023, 2.878]])
         e_tc = self.ethane.topo_coeffs
         assert "Bond Coeffs" in e_tc
         assert "BondAngle Coeffs" in e_tc["Angle Coeffs"][0]

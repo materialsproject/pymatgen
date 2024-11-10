@@ -66,7 +66,7 @@ class TestMathUtils(PymatgenTest):
             560,
         ]
         center = get_center_of_arc([0.0, 0.0], [1.0, 0.0], 0.5)
-        assert center == (0.5, 0.0)
+        assert_allclose(center, (0.5, 0.0))
 
     def test_linearly_independent_vectors(self):
         v1, v2, v3 = np.eye(3)
