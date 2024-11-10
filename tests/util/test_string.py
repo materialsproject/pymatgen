@@ -70,9 +70,10 @@ class TestFunc:
 
     def test_formula_double_format(self):
         assert formula_double_format(1.00) == ""
-        assert formula_double_format(2.00) == 2
-        assert formula_double_format(2.10) == 2.1
-        assert formula_double_format(2.10000000002) == 2.1
+        assert str(formula_double_format(2.00)) == "2"
+        assert str(formula_double_format(2.00 + 1e-8)) == "2"
+        assert str(formula_double_format(2.10)) == "2.1"
+        assert str(formula_double_format(2.1 + 2e-9)) == "2.1"
 
     def test_charge_string(self):
         assert charge_string(1) == "[+1]"

@@ -7,6 +7,7 @@ a community need.
 
 from __future__ import annotations
 
+import math
 import re
 from fractions import Fraction
 from typing import TYPE_CHECKING
@@ -143,17 +144,14 @@ def formula_double_format(
     Args:
         afloat (float): a float.
         ignore_ones (bool): if true, floats of 1.0 are ignored.
-        tol (float): Tolerance to round to nearest int. i.e. 2.0000000001 -> 2.
+        tol (float): Absolute tolerance to round to nearest int. i.e. 2.0000000001 -> 2.
 
     Returns:
         str | float: A string representation of the float for formulas.
-
-    Todo:
-        return signature doesn't agree with docstring (could return float/int).
     """
-    if ignore_ones and afloat == 1:  # TODO: this should use isclose with tol
+    if ignore_ones and math.isclose(afloat, 1, abs_tol=tol):
         return ""
-    if abs(afloat - int(afloat)) < tol:
+    if abs(afloat - int(afloat)) <= tol:
         return int(afloat)
     return round(afloat, 8)
 
