@@ -76,6 +76,7 @@ class TestFunc:
 
         # Test tolerance (default as 1E-8)
         assert str(formula_double_format(2.00 + 1e-8)) == "2"
+        assert str(formula_double_format(3.00 - 1e-9)) == "3"
         assert str(formula_double_format(2.00 + 2e-8)) == "2.00000002"
         assert str(formula_double_format(2.1 + 1e-9)) == "2.1"
 
