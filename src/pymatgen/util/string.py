@@ -16,7 +16,7 @@ if TYPE_CHECKING:
     from collections.abc import Sequence
     from typing import Literal, TextIO
 
-    from pymatgen.core import IStructure
+    from pymatgen.core import Structure
     from pymatgen.util.typing import Vector3D
 
 SUBSCRIPT_UNICODE: dict[str, str] = {
@@ -365,7 +365,7 @@ def transformation_to_string(
 
 
 def disordered_formula(
-    disordered_struct: IStructure,  # TODO: double check type
+    disordered_struct: Structure,
     symbols: Sequence[str] = ("x", "y", "z"),
     fmt: Literal["plain", "HTML", "LaTex"] = "plain",
 ) -> str:
@@ -375,7 +375,7 @@ def disordered_formula(
     kind of disordered site at present.
 
     Args:
-        disordered_struct (IStructure): a disordered structure.
+        disordered_struct (Structure): a disordered structure.
         symbols (Sequence[str]): Characters to use for subscripts,
             by default this is ('x', 'y', 'z') but if you have more than three
             disordered species more symbols will need to be added.
