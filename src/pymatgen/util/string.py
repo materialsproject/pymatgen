@@ -119,26 +119,19 @@ def str_delimited(results, header=None, delimiter="\t"):
     return out + "\n".join(delimiter.join([str(m) for m in result]) for result in results)
 
 
-def formula_double_format(
-    afloat: float,
-    ignore_ones: bool = True,
-    tol: float = 1e-8,
-) -> float | str:
-    """Make pretty formulas by formatting the amounts.
-    E.g. "Li1.0 Fe1.0 P1.0 O4.0" -> "LiFePO4".
+def formula_double_format(afloat, ignore_ones=True, tol: float = 1e-8):
+    """This function is used to make pretty formulas by formatting the amounts.
+    Instead of Li1.0 Fe1.0 P1.0 O4.0, you get LiFePO4.
 
     Args:
-        afloat (float): a float.
-        ignore_ones (bool): if true, floats of 1.0 are ignored.
-        tol (float): Tolerance to round to nearest int. i.e. 2.0000000001 -> 2.
+        afloat (float): a float
+        ignore_ones (bool): if true, floats of 1 are ignored.
+        tol (float): Tolerance to round to nearest int. i.e. 2.0000000001 -> 2
 
     Returns:
-        str | float: A string representation of the float for formulas.
-
-    Todo:
-        return signature doesn't agree with docstring (could return float/int).
+        A string representation of the float for formulas.
     """
-    if ignore_ones and afloat == 1:  # TODO: this should use isclose with tol
+    if ignore_ones and afloat == 1:
         return ""
     if abs(afloat - int(afloat)) < tol:
         return int(afloat)
