@@ -16,6 +16,8 @@ if TYPE_CHECKING:
     from collections.abc import Sequence
     from typing import Any, Literal, TextIO
 
+    from numpy.typing import ArrayLike
+
     from pymatgen.core import Structure
     from pymatgen.util.typing import Vector3D
 
@@ -320,7 +322,7 @@ def stream_has_colors(stream: TextIO) -> bool:
 
 
 def transformation_to_string(
-    matrix,
+    matrix: ArrayLike,
     translation_vec: Vector3D = (0, 0, 0),
     components: tuple[str, str, str] = ("x", "y", "z"),
     c: str = "",
@@ -329,7 +331,7 @@ def transformation_to_string(
     """Convenience method. Given matrix returns string, e.g. x+2y+1/4.
 
     Args:
-        matrix: A 3x3 matrix.
+        matrix (ArrayLike): A 3x3 matrix.
         translation_vec (Vector3D): The translation vector. Defaults to (0, 0, 0).
         components(tuple[str, str, str]): The components. Either ('x', 'y', 'z') or ('a', 'b', 'c').
             Defaults to ('x', 'y', 'z').
