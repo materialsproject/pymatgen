@@ -145,8 +145,8 @@ class TestAdfKey:
         assert k4.key == "SCF"
         assert k4.subkeys[0].key == "iterations"
         assert k4.subkeys[1].key == "converge"
-        assert k4.subkeys[1].options[0] == 1e-7
-        assert k4.subkeys[2].options[0] == 0.2
+        assert k4.subkeys[1].options[0] == approx(1e-7)
+        assert k4.subkeys[2].options[0] == approx(0.2)
 
     def test_option_operations(self):
         k1 = AdfKey("Charge", [-1, 0])

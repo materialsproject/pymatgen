@@ -41,8 +41,8 @@ class TestCohp(TestCase):
 
     def test_attributes(self):
         assert len(self.cohp.energies) == 301
-        assert self.cohp.efermi == 9.75576
-        assert self.coop.efermi == 5.90043
+        assert self.cohp.efermi == approx(9.75576)
+        assert self.coop.efermi == approx(5.90043)
         assert not self.cohp.are_coops
         assert self.coop.are_coops
         assert not self.coop.are_cobis
@@ -146,18 +146,18 @@ class TestIcohpValue(TestCase):
 
     def test_icohpvalue(self):
         # without spin polarization
-        assert self.icohpvalue.icohpvalue(spin=Spin.up) == -2.0
+        assert self.icohpvalue.icohpvalue(spin=Spin.up) == approx(-2.0)
 
         # with spin polarization
-        assert self.icohpvalue_sp.icohpvalue(spin=Spin.up) == -1.1
-        assert self.icohpvalue_sp.icohpvalue(spin=Spin.down) == -1.0
+        assert self.icohpvalue_sp.icohpvalue(spin=Spin.up) == approx(-1.1)
+        assert self.icohpvalue_sp.icohpvalue(spin=Spin.down) == approx(-1.0)
 
     def test_summed_icohp(self):
         # without spin polarization
-        assert self.icohpvalue.summed_icohp == -2.0
+        assert self.icohpvalue.summed_icohp == approx(-2.0)
 
         # with spin polarization
-        assert self.icohpvalue_sp.summed_icohp == -2.1
+        assert self.icohpvalue_sp.summed_icohp == approx(-2.1)
 
     def test_str(self):
         # without spin polarization
@@ -313,49 +313,44 @@ class TestCombinedIcohp(TestCase):
         # without spin polarization
 
         # ICOHPs
-        assert self.icohpcollection_KF.get_icohp_by_label("1") == -0.40075
-        assert self.icohpcollection_KF.get_icohp_by_label("2") == -0.40074
-        assert self.icohpcollection_KF.get_icohp_by_label("3") == -0.40079
-        assert self.icohpcollection_KF.get_icohp_by_label("4") == -0.40079
-        assert self.icohpcollection_KF.get_icohp_by_label("5") == -0.40074
-        assert self.icohpcollection_KF.get_icohp_by_label("6") == -0.40075
+        assert self.icohpcollection_KF.get_icohp_by_label("1") == approx(-0.40075)
+        assert self.icohpcollection_KF.get_icohp_by_label("2") == approx(-0.40074)
+        assert self.icohpcollection_KF.get_icohp_by_label("3") == approx(-0.40079)
+        assert self.icohpcollection_KF.get_icohp_by_label("4") == approx(-0.40079)
+        assert self.icohpcollection_KF.get_icohp_by_label("5") == approx(-0.40074)
+        assert self.icohpcollection_KF.get_icohp_by_label("6") == approx(-0.40075)
 
         # with spin polarization
         # summed spin
         # ICOHPs
-        assert self.icohpcollection_Fe.get_icohp_by_label("1") == -0.10218 - 0.19701
-        assert self.icohpcollection_Fe.get_icohp_by_label("2") == -0.28485 - 0.58279
+        assert self.icohpcollection_Fe.get_icohp_by_label("1") == approx(-0.10218 - 0.19701)
+        assert self.icohpcollection_Fe.get_icohp_by_label("2") == approx(-0.28485 - 0.58279)
 
         # Spin up
         # ICOHPs
-        assert self.icohpcollection_Fe.get_icohp_by_label("1", summed_spin_channels=False) == -0.10218
-        assert self.icohpcollection_Fe.get_icohp_by_label("2", summed_spin_channels=False) == -0.28485
+        assert self.icohpcollection_Fe.get_icohp_by_label("1", summed_spin_channels=False) == approx(-0.10218)
+        assert self.icohpcollection_Fe.get_icohp_by_label("2", summed_spin_channels=False) == approx(-0.28485)
 
         # Spin down
         # ICOHPs
-        assert self.icohpcollection_Fe.get_icohp_by_label("1", summed_spin_channels=False, spin=Spin.down) == -0.19701
-        assert self.icohpcollection_Fe.get_icohp_by_label("2", summed_spin_channels=False, spin=Spin.down) == -0.58279
+        assert self.icohpcollection_Fe.get_icohp_by_label("1", summed_spin_channels=False, spin=Spin.down) == approx(
+            -0.19701
+        )
+        assert self.icohpcollection_Fe.get_icohp_by_label("2", summed_spin_channels=False, spin=Spin.down) == approx(
+            -0.58279
+        )
 
         # orbitalwise
-        assert self.icohpcollection_orbitalwise.get_icohp_by_label("1", orbitals="2s-6s") == 0.0494
-        assert (
-            self.icohpcollection_orbitalwise.get_icohp_by_label(
-                "1", orbitals="2s-6s", spin=Spin.up, summed_spin_channels=False
-            )
-            == 0.0247
-        )
-        assert (
-            self.icohpcollection_orbitalwise.get_icohp_by_label(
-                "1", orbitals="2s-6s", spin=Spin.down, summed_spin_channels=False
-            )
-            == 0.0247
-        )
-        assert (
-            self.icohpcollection_orbitalwise.get_icohp_by_label(
-                "2", orbitals="2s-5py", spin=Spin.up, summed_spin_channels=False
-            )
-            == 0.5
-        )
+        assert self.icohpcollection_orbitalwise.get_icohp_by_label("1", orbitals="2s-6s") == approx(0.0494)
+        assert self.icohpcollection_orbitalwise.get_icohp_by_label(
+            "1", orbitals="2s-6s", spin=Spin.up, summed_spin_channels=False
+        ) == approx(0.0247)
+        assert self.icohpcollection_orbitalwise.get_icohp_by_label(
+            "1", orbitals="2s-6s", spin=Spin.down, summed_spin_channels=False
+        ) == approx(0.0247)
+        assert self.icohpcollection_orbitalwise.get_icohp_by_label(
+            "2", orbitals="2s-5py", spin=Spin.up, summed_spin_channels=False
+        ) == approx(0.5)
 
     def test_get_summed_icohp_by_label_list(self):
         # without spin polarization
@@ -776,25 +771,29 @@ class TestCombinedIcohp(TestCase):
     def test_extremum_icohpvalue(self):
         # without spin polarization
         # ICOHPs
-        assert self.icohpcollection_KF.extremum_icohpvalue() == -0.40079
+        assert self.icohpcollection_KF.extremum_icohpvalue() == approx(-0.40079)
         # ICOOPs
-        assert self.icoopcollection_KF.extremum_icohpvalue() == 0.02343
+        assert self.icoopcollection_KF.extremum_icohpvalue() == approx(0.02343)
         # with spin polarization
         # summed spin
         # ICOHPs
-        assert self.icohpcollection_Fe.extremum_icohpvalue() == -0.86764
+        assert self.icohpcollection_Fe.extremum_icohpvalue() == approx(-0.86764)
         assert self.icoopcollection_Fe.extremum_icohpvalue() == approx(-0.09842999999999999)
         # ICOOPs
         # spin up
         # ICOHPs
-        assert self.icohpcollection_Fe.extremum_icohpvalue(summed_spin_channels=False) == -0.28485
+        assert self.icohpcollection_Fe.extremum_icohpvalue(summed_spin_channels=False) == approx(-0.28485)
         # ICOOPs
-        assert self.icoopcollection_Fe.extremum_icohpvalue(summed_spin_channels=False) == -0.04087
+        assert self.icoopcollection_Fe.extremum_icohpvalue(summed_spin_channels=False) == approx(-0.04087)
         # spin down
         # ICOHPs
-        assert self.icohpcollection_Fe.extremum_icohpvalue(summed_spin_channels=False, spin=Spin.down) == -0.58279
+        assert self.icohpcollection_Fe.extremum_icohpvalue(summed_spin_channels=False, spin=Spin.down) == approx(
+            -0.58279
+        )
         # ICOOPs
-        assert self.icoopcollection_Fe.extremum_icohpvalue(summed_spin_channels=False, spin=Spin.down) == -0.05756
+        assert self.icoopcollection_Fe.extremum_icohpvalue(summed_spin_channels=False, spin=Spin.down) == approx(
+            -0.05756
+        )
 
 
 class TestCompleteCohp(PymatgenTest):
@@ -897,16 +896,16 @@ class TestCompleteCohp(PymatgenTest):
         assert len(self.coop_lobster.energies) == 241
         assert len(self.cohp_lobster_forb.energies) == 7
 
-        assert self.cohp_lobster.efermi == 9.75576
-        assert self.cohp_lmto.efermi == -2.3433
-        assert self.coop_lobster.efermi == 5.90043
-        assert self.cohp_lobster_forb.efermi == 4.12875
+        assert self.cohp_lobster.efermi == approx(9.75576)
+        assert self.cohp_lmto.efermi == approx(-2.3433)
+        assert self.coop_lobster.efermi == approx(5.90043)
+        assert self.cohp_lobster_forb.efermi == approx(4.12875)
 
         assert self.cobi.are_cobis
         assert not self.cobi.are_coops
 
-        assert self.cohp_lobster_forb.cohp[Spin.up][0] == 0.00000
-        assert self.cohp_lobster_forb.icohp[Spin.up][0] == -0.09040
+        assert self.cohp_lobster_forb.cohp[Spin.up][0] == approx(0.00000)
+        assert self.cohp_lobster_forb.icohp[Spin.up][0] == approx(-0.09040)
 
     def test_average_multi_center_cobi(self):
         # tests if the averages for a mult-center cobi are computed in the same way as in Lobster

@@ -30,7 +30,7 @@ class TestAirssProvider:
         assert grid == (6, 6, 8)
         assert offset == (0, 0, 0)
         assert nkpts == 144
-        assert spacing == 0.05
+        assert spacing == approx(0.05)
 
     def test_pspots(self, provider: AirssProvider):
         ps_pots = provider.get_pspots()

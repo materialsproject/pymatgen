@@ -235,7 +235,7 @@ class TestSpacegroupAnalyzer(PymatgenTest):
         s1 = symm_struct.equivalent_sites[1][1]
         s2 = symm_struct[symm_struct.equivalent_indices[1][1]]
         assert s1 == s2
-        assert self.sg4.get_symmetrized_structure()[0].magmom == 0.1
+        assert self.sg4.get_symmetrized_structure()[0].magmom == approx(0.1)
         assert symm_struct.wyckoff_symbols[0] == "16h"
 
         # Check copying

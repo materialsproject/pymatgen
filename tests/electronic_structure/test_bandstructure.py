@@ -51,8 +51,8 @@ class TestKpoint(TestCase):
         assert isinstance(self.kpoint.as_dict()["ccoords"], list)
         assert not isinstance(self.kpoint.as_dict()["fcoords"][0], np.float64)
         assert not isinstance(self.kpoint.as_dict()["ccoords"][0], np.float64)
-        assert self.kpoint.as_dict()["fcoords"] == [0.1, 0.4, -0.5]
-        assert self.kpoint.as_dict()["ccoords"] == [1.0, 4.0, -5.0]
+        assert_allclose(self.kpoint.as_dict()["fcoords"], [0.1, 0.4, -0.5])
+        assert_allclose(self.kpoint.as_dict()["ccoords"], [1.0, 4.0, -5.0])
 
     def test_from_dict(self):
         dct = self.kpoint.as_dict()
@@ -114,7 +114,7 @@ class TestBandStructureSymmLine(PymatgenTest):
 
     def test_get_direct_band_gap_dict(self):
         direct_dict = self.bs_diff_spins.get_direct_band_gap_dict()
-        assert direct_dict[Spin.down]["value"] == 4.5365
+        assert direct_dict[Spin.down]["value"] == approx(4.5365)
 
         for bs in [self.bs2, self.bs_spin]:
             dg_dict = bs.get_direct_band_gap_dict()
