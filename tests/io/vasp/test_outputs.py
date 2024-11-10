@@ -982,11 +982,11 @@ class TestOutcar(PymatgenTest):
     def test_pseudo_zval(self):
         filepath = f"{VASP_OUT_DIR}/OUTCAR.BaTiO3.polar"
         outcar = Outcar(filepath)
-        assert outcar.zval_dict == {"Ba": 10.00, "Ti": 10.00, "O": 6.00}
+        assert outcar.zval_dict == {"Ba": approx(10.0), "Ti": approx(10.0), "O": approx(6.0)}
 
         filepath = f"{VASP_OUT_DIR}/OUTCAR.LaSnNO2.polar"
         outcar = Outcar(filepath)
-        assert outcar.zval_dict == {"La": 11.0, "N": 5.0, "O": 6.0, "Sn": 14.0}
+        assert outcar.zval_dict == {"La": approx(11.0), "N": approx(5.0), "O": approx(6.0), "Sn": approx(14.0)}
 
     def test_dielectric(self):
         filepath = f"{VASP_OUT_DIR}/OUTCAR.dielectric"

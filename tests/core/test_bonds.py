@@ -53,13 +53,13 @@ class TestFunc:
         assert get_bond_length("C", "Br", 1) == approx(1.85)
 
     def test_obtain_all_bond_lengths(self):
-        assert obtain_all_bond_lengths("C", "C") == {1.0: 1.54, 2.0: 1.34, 3.0: 1.2}
+        assert obtain_all_bond_lengths("C", "C") == {1.0: approx(1.54), 2.0: approx(1.34), 3.0: approx(1.2)}
         with pytest.raises(ValueError, match="No bond data for elements Br - C"):
             obtain_all_bond_lengths("Br", Element("C"))
-        assert obtain_all_bond_lengths("C", Element("Br"), 1.76) == {1: 1.76}
+        assert obtain_all_bond_lengths("C", Element("Br"), 1.76) == {1: approx(1.76)}
         bond_lengths_dict = obtain_all_bond_lengths("C", "N")
         bond_lengths_dict[4] = 999
-        assert obtain_all_bond_lengths("C", "N") == {1.0: 1.47, 2.0: 1.3, 3.0: 1.16}
+        assert obtain_all_bond_lengths("C", "N") == {1.0: approx(1.47), approx(2.0): 1.3, 3.0: approx(1.16)}
 
     def test_get_bond_order(self):
         assert get_bond_order("C", "C", 1) == approx(3)

@@ -136,13 +136,13 @@ class TestIcohpValue(TestCase):
         assert self.icohpvalue_sp.num_bonds == 1
         assert self.icohpvalue_sp.are_coops is False
         assert self.icohpvalue_sp.is_spin_polarized
-        assert self.icohpvalue.icohp == {Spin.up: -2.0}
+        assert self.icohpvalue.icohp == {Spin.up: approx(-2.0)}
 
         # with spin polarization
         assert self.icohpvalue_sp.num_bonds == 1
         assert self.icohpvalue_sp.are_coops is False
         assert self.icohpvalue_sp.is_spin_polarized
-        assert self.icohpvalue_sp.icohp == {Spin.up: -1.1, Spin.down: -1.0}
+        assert self.icohpvalue_sp.icohp == {Spin.up: approx(-1.1), Spin.down: approx(-1.0)}
 
     def test_icohpvalue(self):
         # without spin polarization

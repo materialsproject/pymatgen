@@ -134,7 +134,10 @@ def obtain_all_bond_lengths(
             If None, a ValueError will be thrown.
 
     Returns:
-        A dict mapping bond order to bond length in angstrom
+        dict[float, float]: mapping bond order to bond length in Angstrom.
+
+    Todo:
+        it's better to avoid using float as dict keys.
     """
     if isinstance(sp1, Element):
         sp1 = sp1.symbol

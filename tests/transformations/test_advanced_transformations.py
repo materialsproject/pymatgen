@@ -7,6 +7,7 @@ import numpy as np
 import pytest
 from monty.serialization import loadfn
 from numpy.testing import assert_allclose, assert_array_equal
+from pytest import approx
 
 from pymatgen.analysis.energy_models import IsingModel, SymmetryModel
 from pymatgen.analysis.gb.grain import GrainBoundaryGenerator
@@ -590,7 +591,7 @@ class TestDisorderedOrderedTransformation(PymatgenTest):
         output = trans.apply_transformation(struct)
 
         assert not output.is_ordered
-        assert output[-1].species.as_dict() == {"Ni": 0.5, "Ba": 0.5}
+        assert output[-1].species.as_dict() == {"Ni": approx(0.5), "Ba": approx(0.5)}
 
 
 @pytest.mark.skipif(not mcsqs_cmd, reason="mcsqs not present.")
