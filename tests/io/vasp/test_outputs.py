@@ -50,7 +50,7 @@ except ImportError:
 
 TEST_DIR = f"{TEST_FILES_DIR}/io/vasp"
 
-kpts_opt_vrun_path = f"{TEST_DIR}/fixtures/kpoints_opt/vasprun.xml.gz"
+KPTS_OPT_VRUN_PATH = f"{TEST_DIR}/fixtures/kpoints_opt/vasprun.xml.gz"
 
 
 class TestVasprun(PymatgenTest):
@@ -756,7 +756,7 @@ class TestVasprun(PymatgenTest):
         assert props[3][1]
 
     def test_kpoints_opt(self):
-        vasp_run = Vasprun(kpts_opt_vrun_path, parse_projected_eigen=True)
+        vasp_run = Vasprun(KPTS_OPT_VRUN_PATH, parse_projected_eigen=True)
         # This calculation was run using KPOINTS_OPT
         kpt_opt_props = vasp_run.kpoints_opt_props
         # Check the k-points were read correctly.
@@ -783,7 +783,7 @@ class TestVasprun(PymatgenTest):
         assert vasp_run_dct["output"]["eigenvalues_kpoints_opt"]["1"][0][0][0] == approx(-6.1536)
 
     def test_kpoints_opt_band_structure(self):
-        vasp_run = Vasprun(kpts_opt_vrun_path, parse_potcar_file=False, parse_projected_eigen=True)
+        vasp_run = Vasprun(KPTS_OPT_VRUN_PATH, parse_potcar_file=False, parse_projected_eigen=True)
         bs = vasp_run.get_band_structure(f"{TEST_DIR}/fixtures/kpoints_opt/KPOINTS_OPT")
         assert isinstance(bs, BandStructureSymmLine)
         cbm = bs.get_cbm()
@@ -1444,7 +1444,7 @@ class TestBSVasprun(PymatgenTest):
         assert "eigenvalues" in dct["output"]
 
     def test_kpoints_opt(self):
-        vasp_run = BSVasprun(kpts_opt_vrun_path, parse_potcar_file=False, parse_projected_eigen=True)
+        vasp_run = BSVasprun(KPTS_OPT_VRUN_PATH, parse_potcar_file=False, parse_projected_eigen=True)
         bs = vasp_run.get_band_structure(f"{TEST_DIR}/fixtures/kpoints_opt/KPOINTS_OPT")
         assert isinstance(bs, BandStructureSymmLine)
         cbm = bs.get_cbm()
