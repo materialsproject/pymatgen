@@ -154,7 +154,7 @@ def formula_double_format(
     if ignore_ones and math.isclose(afloat, 1, abs_tol=tol):
         return ""
 
-    if math.isclose(afloat, round(afloat), abs_tol=tol):
+    if math.isclose(afloat, round(afloat), abs_tol=tol, rel_tol=0):
         return round(afloat)
     return round(afloat, 8)
 
