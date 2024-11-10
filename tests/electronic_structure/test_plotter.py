@@ -326,7 +326,7 @@ class TestBoltztrapPlotter(TestCase):
     def test_plot_conductivity_dop(self):
         ax = self.plotter.plot_conductivity_dop()
         assert len(ax.get_lines()) == 8, "wrong number of lines"
-        assert ax.get_lines()[0].get_data()[0][0] == approx(1000000000000000.0), "wrong 0 data in line 0"
+        assert ax.get_lines()[0].get_data()[0][0] == approx(1e15), "wrong 0 data in line 0"
         assert ax.get_lines()[0].get_data()[1][0] == approx(0.3801957596666667), "wrong 1 data in line 0"
         plt.close()
 
@@ -354,7 +354,7 @@ class TestBoltztrapPlotter(TestCase):
     def test_plot_eff_mass_dop(self):
         ax = self.plotter.plot_eff_mass_dop()
         assert len(ax.get_lines()) == 8, "wrong number of lines"
-        assert ax.get_lines()[0].get_data()[0][0] == approx(1000000000000000.0), "wrong 0 data in line 0"
+        assert ax.get_lines()[0].get_data()[0][0] == approx(1e15), "wrong 0 data in line 0"
         assert ax.get_lines()[0].get_data()[1][0] == approx(1.4231240011719886), "wrong 1 data in line 0"
         plt.close()
 
@@ -375,7 +375,7 @@ class TestBoltztrapPlotter(TestCase):
     def test_plot_power_factor_dop(self):
         ax = self.plotter.plot_power_factor_dop()
         assert len(ax.get_lines()) == 8, "wrong number of lines"
-        assert ax.get_lines()[0].get_data()[0][0] == approx(1000000000000000.0), "wrong 0 data in line 0"
+        assert ax.get_lines()[0].get_data()[0][0] == approx(1e15), "wrong 0 data in line 0"
         assert ax.get_lines()[0].get_data()[1][0] == approx(0.40606868935796925), "wrong 1 data in line 0"
         plt.close()
 
@@ -396,7 +396,7 @@ class TestBoltztrapPlotter(TestCase):
     def test_plot_seebeck_dop(self):
         ax = self.plotter.plot_seebeck_dop()
         assert len(ax.get_lines()) == 8, "wrong number of lines"
-        assert ax.get_lines()[0].get_data()[0][0] == approx(1000000000000000.0), "wrong 0 data in line 0"
+        assert ax.get_lines()[0].get_data()[0][0] == approx(1e15), "wrong 0 data in line 0"
         assert ax.get_lines()[0].get_data()[1][0] == approx(1050.8197666666667), "wrong 1 data in line 0"
         plt.close()
 
@@ -425,7 +425,7 @@ class TestBoltztrapPlotter(TestCase):
     def test_plot_zt_dop(self):
         ax = self.plotter.plot_zt_dop()
         assert len(ax.get_lines()) == 8, "wrong number of lines"
-        assert ax.get_lines()[0].get_data()[0][0] == approx(1000000000000000.0), "wrong 0 data in line 0"
+        assert ax.get_lines()[0].get_data()[0][0] == approx(1e15), "wrong 0 data in line 0"
         assert ax.get_lines()[0].get_data()[1][0] == approx(4.060682863129955e-05), "wrong 1 data in line 0"
         plt.close()
 
