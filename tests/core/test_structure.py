@@ -1682,7 +1682,7 @@ class TestStructure(PymatgenTest):
         navs2.insert(0, "Na", coords[0], properties={"prop1": 100.0})
         navs2.merge_sites(mode="a")
         assert len(navs2) == 12
-        assert 51.5 in [itr.properties["prop1"] for itr in navs2]
+        assert any(itr.properties["prop1"] == approx(51.5) for itr in navs2)
 
     def test_properties(self):
         assert self.struct.num_sites == len(self.struct)
