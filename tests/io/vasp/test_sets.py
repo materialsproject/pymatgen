@@ -715,7 +715,7 @@ class TestMITMPRelaxSet(PymatgenTest):
         # no `prev_vasprun` --> default value of NEDOS
         assert vis._get_nedos(0.1) == 2000
         vis.prev_vasprun = vrun
-        assert vis._get_nedos(0.1) == pytest.approx(741, abs=1)
+        assert vis._get_nedos(0.1) == approx(741, abs=1)
 
 
 class TestMPStaticSet(PymatgenTest):
@@ -1590,15 +1590,15 @@ class TestMPHSERelaxSet(PymatgenTest):
     def test_vdw_and_lasph_dftd3(self):
         vis = self.set(self.structure, vdw="dftd3")
         assert vis.incar["LASPH"], "LASPH is not set to True"
-        assert vis.incar["VDW_SR"] == pytest.approx(1.129), "VDW_SR is not set correctly"
-        assert vis.incar["VDW_S8"] == pytest.approx(0.109), "VDW_S8 is not set correctly"
+        assert vis.incar["VDW_SR"] == approx(1.129), "VDW_SR is not set correctly"
+        assert vis.incar["VDW_S8"] == approx(0.109), "VDW_S8 is not set correctly"
 
     def test_vdw_and_lasph_dftd3_bj(self):
         vis = self.set(self.structure, vdw="dftd3-bj")
         assert vis.incar["LASPH"], "LASPH is not set to True"
-        assert vis.incar["VDW_A1"] == pytest.approx(0.383), "VDW_A1 is not set correctly"
-        assert vis.incar["VDW_S8"] == pytest.approx(2.310), "VDW_S8 is not set correctly"
-        assert vis.incar["VDW_A2"] == pytest.approx(5.685), "VDW_A2 is not set correctly"
+        assert vis.incar["VDW_A1"] == approx(0.383), "VDW_A1 is not set correctly"
+        assert vis.incar["VDW_S8"] == approx(2.310), "VDW_S8 is not set correctly"
+        assert vis.incar["VDW_A2"] == approx(5.685), "VDW_A2 is not set correctly"
 
     def test_user_incar_settings(self):
         user_incar_settings = {"LASPH": False, "VDW_SR": 1.5}

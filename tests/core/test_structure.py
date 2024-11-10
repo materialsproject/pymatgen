@@ -586,7 +586,7 @@ class TestIStructure(PymatgenTest):
         struct = Structure.from_file(f"{TEST_FILES_DIR}/core/structure/Fe310.json.gz")
         constraints = {"a": 2.83133, "b": 4.69523, "gamma": 107.54840}
         prim_struct = struct.get_primitive_structure(constrain_latt=constraints)
-        assert {key: getattr(prim_struct.lattice, key) for key in constraints} == pytest.approx(constraints)
+        assert {key: getattr(prim_struct.lattice, key) for key in constraints} == approx(constraints)
 
     def test_primitive_with_similar_constraints(self):
         struct = Structure.from_file(f"{TEST_FILES_DIR}/core/structure/Fe310.json.gz")
@@ -789,7 +789,7 @@ Direct
         struct = Structure.from_spacegroup(100, [[1, 0, 0], [0, 1, 0], [0, 0, 2]], ["Fe"], [[0.0, 0.0, 0.0]])
         c_indices, p_indices, offsets, distances, s_indices, sym_ops = struct.get_symmetric_neighbor_list(0.8, sg=100)
         assert len(c_indices) == len(p_indices) == len(offsets) == len(distances) == 8
-        assert c_indices == pytest.approx([0, 1, 1, 1, 0, 0, 0, 0])
+        assert c_indices == approx([0, 1, 1, 1, 0, 0, 0, 0])
         assert len(np.unique(s_indices)) == 1
         assert s_indices[0] == 0
         assert all(~np.isnan(s_indices))

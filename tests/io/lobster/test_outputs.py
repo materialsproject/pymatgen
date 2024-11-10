@@ -2278,7 +2278,7 @@ class TestLobsterMatrices(PymatgenTest):
 
     def test_attributes(self):
         # hamilton matrices
-        assert self.hamilton_matrices.average_onsite_energies == pytest.approx(
+        assert self.hamilton_matrices.average_onsite_energies == approx(
             {
                 "Na1_3s": 0.58855353,
                 "Na1_2p_y": -25.72719646,
@@ -2311,7 +2311,7 @@ class TestLobsterMatrices(PymatgenTest):
         )
 
         # overlap matrices
-        assert self.overlap_matrices.average_onsite_overlaps == pytest.approx(
+        assert self.overlap_matrices.average_onsite_overlaps == approx(
             {
                 "Si1_3s": 1.00000009,
                 "Si1_3p_y": 0.99999995,
@@ -2373,7 +2373,7 @@ class TestLobsterMatrices(PymatgenTest):
             Spin.up,
             Spin.down,
         ]
-        assert self.coeff_matrices.average_onsite_coefficient == pytest.approx(
+        assert self.coeff_matrices.average_onsite_coefficient == approx(
             {
                 "Si1_3s": 0.6232626450000001,
                 "Si1_3p_y": -0.029367565000000012,

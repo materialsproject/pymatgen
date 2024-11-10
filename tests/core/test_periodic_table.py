@@ -548,7 +548,7 @@ class TestSpecies(PymatgenTest):
 def test_symbol_oxi_state_str(symbol_oxi, expected_element, expected_oxi_state):
     species = Species(symbol_oxi)
     assert species._el.symbol == expected_element
-    assert species._oxi_state == pytest.approx(expected_oxi_state, rel=1.0e-6)
+    assert species._oxi_state == approx(expected_oxi_state, rel=1.0e-6)
 
 
 def test_symbol_oxi_state_str_raises():
