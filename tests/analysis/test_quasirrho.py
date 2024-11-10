@@ -29,7 +29,7 @@ class TestQuasiRRHO(TestCase):
         correct_g = -884.776886
         correct_stot = 141.584080
         qrrho = QuasiRRHO.from_gaussian_output(self.gout)
-        assert correct_stot == approx(qrrho.entropy_quasiRRHO, 0.1), "Incorrect total entropy"
+        assert correct_stot == approx(qrrho.entropy_quasiRRHO, rel=0.1), "Incorrect total entropy"
         assert correct_g == approx(qrrho.free_energy_quasiRRHO), "Incorrect Quasi-RRHO free energy"
 
     def test_qrrho_qchem(self):
@@ -43,7 +43,7 @@ class TestQuasiRRHO(TestCase):
         # HO total entropy from QChem = 106.521
 
         qrrho = QuasiRRHO.from_qc_output(self.qout)
-        assert correct_stot == approx(qrrho.entropy_quasiRRHO, 0.1), "Incorrect total entropy"
+        assert correct_stot == approx(qrrho.entropy_quasiRRHO, rel=0.1), "Incorrect total entropy"
         assert correct_g == approx(qrrho.free_energy_quasiRRHO), "Incorrect Quasi-RRHO free energy"
 
     def test_rrho_manual(self):
@@ -57,7 +57,7 @@ class TestQuasiRRHO(TestCase):
         correct_g = -884.776886
         correct_stot = 141.584080
         qrrho = QuasiRRHO(mol=mol, energy=e_final, frequencies=vib_freqs, mult=1)
-        assert correct_stot == approx(qrrho.entropy_quasiRRHO, 0.1), "Incorrect total entropy"
+        assert correct_stot == approx(qrrho.entropy_quasiRRHO, rel=0.1), "Incorrect total entropy"
         assert correct_g == approx(qrrho.free_energy_quasiRRHO), "Incorrect Quasi-RRHO free energy"
 
     def test_rrho_linear(self):
