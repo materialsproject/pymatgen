@@ -789,7 +789,7 @@ Direct
         struct = Structure.from_spacegroup(100, [[1, 0, 0], [0, 1, 0], [0, 0, 2]], ["Fe"], [[0.0, 0.0, 0.0]])
         c_indices, p_indices, offsets, distances, s_indices, sym_ops = struct.get_symmetric_neighbor_list(0.8, sg=100)
         assert len(c_indices) == len(p_indices) == len(offsets) == len(distances) == 8
-        assert c_indices == approx([0, 1, 1, 1, 0, 0, 0, 0])
+        assert_array_equal(c_indices, [0, 1, 1, 1, 0, 0, 0, 0])
         assert len(np.unique(s_indices)) == 1
         assert s_indices[0] == 0
         assert all(~np.isnan(s_indices))
