@@ -1824,7 +1824,7 @@ class TestMPScanRelaxSet(PymatgenTest):
             incar = MPScanRelaxSet(self.struct, bandgap=0.01, bandgap_tol=bandgap_tol).incar
             assert incar["KSPACING"] == approx(expected_kspacing, abs=1e-5), f"{bandgap_tol=}, {bandgap=}"
             assert incar["ISMEAR"] == -5 if bandgap > bandgap_tol else 2
-            assert incar["SIGMA"] == approx(0.05) if bandgap > bandgap_tol else approx(0.2)
+            assert incar["SIGMA"] == approx(0.05 if bandgap > bandgap_tol else 0.2)
 
     def test_kspacing(self):
         # Test that KSPACING is capped at 0.44 for insulators
@@ -1840,7 +1840,7 @@ class TestMPScanRelaxSet(PymatgenTest):
             incar = MPScanRelaxSet(struct, bandgap=bandgap).incar
             assert incar["KSPACING"] == approx(expected, abs=1e-5)
             assert incar["ISMEAR"] == -5 if bandgap > 1e-4 else 2
-            assert incar["SIGMA"] == approx(0.05) if bandgap > 1e-4 else approx(0.2)
+            assert incar["SIGMA"] == approx(0.05 if bandgap > 1e-4 else 0.2)
 
     def test_incar_overrides(self):
         # use 'user_incar_settings' to override the KSPACING, ISMEAR, and SIGMA
