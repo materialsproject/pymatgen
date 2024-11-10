@@ -150,7 +150,7 @@ class TestChargeBalanceTransformation:
         struct = Structure(lattice, ["Li+", "Li+", "Li+", "Li+", "Li+", "Li+", "O2-", "O2-"], coords)
         struct_trafo = trafo.apply_transformation(struct)
 
-        assert struct_trafo.charge == pytest.approx(0, abs=1e-5)
+        assert struct_trafo.charge == approx(0, abs=1e-5)
 
 
 @pytest.mark.skipif(not enumlib_present, reason="enum_lib not present.")
@@ -242,7 +242,7 @@ class TestEnumerateStructureTransformation:
         trans = EnumerateStructureTransformation()
         dct = trans.as_dict()
         trans = EnumerateStructureTransformation.from_dict(dct)
-        assert trans.symm_prec == pytest.approx(0.1)
+        assert trans.symm_prec == approx(0.1)
 
 
 class TestSubstitutionPredictorTransformation:
@@ -499,7 +499,7 @@ class TestDopingTransformation(PymatgenTest):
             ss = trafo.apply_transformation(structure, 1000)
             assert len(ss) == n_structures
             for d in ss:
-                assert d["structure"].charge == pytest.approx(0)
+                assert d["structure"].charge == approx(0)
 
         # Aliovalent doping with codopant
         for dopant, n_structures in [("Al3+", 3), ("N3-", 37), ("Cl-", 37)]:
@@ -513,7 +513,7 @@ class TestDopingTransformation(PymatgenTest):
             ss = trafo.apply_transformation(structure, 1000)
             assert len(ss) == n_structures
             for d in ss:
-                assert d["structure"].charge == pytest.approx(0)
+                assert d["structure"].charge == approx(0)
 
         # Make sure compensation is done with lowest oxi state
         structure = PymatgenTest.get_structure("SrTiO3")
