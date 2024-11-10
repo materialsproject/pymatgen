@@ -1176,10 +1176,10 @@ class TestStructure(PymatgenTest):
         struct = self.struct
         returned = struct.add_site_property("charge", [4.1, -5])
         assert returned is struct
-        assert struct[0].charge == 4.1
-        assert struct[1].charge == -5
+        assert struct[0].charge == approx(4.1)
+        assert struct[1].charge == approx(-5)
         struct.add_site_property("magmom", [3, 2])
-        assert struct[0].charge == 4.1
+        assert struct[0].charge == approx(4.1)
         assert struct[0].magmom == 3
         returned = struct.remove_site_property("magmom")
         assert returned is struct
@@ -2123,8 +2123,8 @@ Site: H (-0.5134, 0.8892, -0.3630)"""
             self.coords,
             site_properties={"magmom": [0.5, -0.5, 1, 2, 3]},
         )
-        assert propertied_mol[0].magmom == 0.5
-        assert propertied_mol[1].magmom == -0.5
+        assert propertied_mol[0].magmom == approx(0.5)
+        assert propertied_mol[1].magmom == approx(-0.5)
 
     def test_chemical_system(self):
         assert self.mol.chemical_system == "C-H"
@@ -2279,10 +2279,10 @@ Site: H (-0.5134, 0.8892, -0.3630)"""
             properties={"test_properties": "test"},
         )
         dct = propertied_mol.as_dict()
-        assert dct["sites"][0]["properties"]["magmom"] == 0.5
+        assert dct["sites"][0]["properties"]["magmom"] == approx(0.5)
         mol = Molecule.from_dict(dct)
         assert propertied_mol == mol
-        assert mol[0].magmom == 0.5
+        assert mol[0].magmom == approx(0.5)
         assert mol.formula == "H4 C1"
         assert mol.charge == 1
         assert mol.properties == {"test_properties": "test"}
@@ -2409,11 +2409,11 @@ class TestMolecule(PymatgenTest):
     def test_add_remove_site_property(self):
         returned = self.mol.add_site_property("charge", [4.1, -2, -2, -2, -2])
         assert returned is self.mol
-        assert self.mol[0].charge == 4.1
-        assert self.mol[1].charge == -2
+        assert self.mol[0].charge == approx(4.1)
+        assert self.mol[1].charge == approx(-2)
 
         self.mol.add_site_property("magmom", [3, 2, 2, 2, 2])
-        assert self.mol[0].charge == 4.1
+        assert self.mol[0].charge == approx(4.1)
         assert self.mol[0].magmom == 3
         returned = self.mol.remove_site_property("magmom")
         assert returned is self.mol

@@ -517,8 +517,8 @@ class TestSquareTensor(PymatgenTest):
 
         # determinant
         assert self.rand_sqtensor.det == np.linalg.det(self.rand_sqtensor)
-        assert self.non_invertible.det == 0.0
-        assert self.non_symm.det == 0.009
+        assert self.non_invertible.det == approx(0)
+        assert self.non_symm.det == approx(0.009)
 
         # symmetrized
         assert self.rand_sqtensor.symmetrized == approx(0.5 * (self.rand_sqtensor + self.rand_sqtensor.trans))
