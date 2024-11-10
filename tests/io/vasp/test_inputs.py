@@ -293,14 +293,14 @@ direct
         # Parsing from an MD type run with velocities and predictor corrector data
         poscar = Poscar.from_file(f"{VASP_OUT_DIR}/CONTCAR.MD", check_for_potcar=False)
         assert np.sum(poscar.velocities) == approx(0.0065417961324)
-        assert poscar.predictor_corrector[0][0][0] == 0.33387820e00
-        assert poscar.predictor_corrector[0][1][1] == -0.10583589e-02
+        assert poscar.predictor_corrector[0][0][0] == approx(0.33387820e00)
+        assert poscar.predictor_corrector[0][1][1] == approx(-0.10583589e-02)
         assert poscar.lattice_velocities is None
 
         # Parsing from an MD type run with velocities, predictor corrector data and lattice velocities
         poscar = Poscar.from_file(f"{VASP_OUT_DIR}/CONTCAR.MD.npt", check_for_potcar=False)
         assert np.sum(poscar.velocities) == approx(-0.06193299494)
-        assert poscar.predictor_corrector[0][0][0] == 0.63981833
+        assert poscar.predictor_corrector[0][0][0] == approx(0.63981833)
         assert poscar.lattice_velocities.sum() == approx(16.49411358474)
 
     def test_write_md_poscar(self):
@@ -1418,7 +1418,7 @@ class TestPotcar(PymatgenTest):
             "O",
         ], "Wrong symbols read in for POTCAR"
         potcar = Potcar(["Fe_pv", "O"])
-        assert potcar[0].enmax == 293.238
+        assert potcar[0].enmax == approx(293.238)
 
     def test_from_file(self):
         assert {d.header for d in self.potcar} == {

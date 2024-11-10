@@ -1009,17 +1009,17 @@ class TestCompleteCohp(PymatgenTest):
             assert val == icoop_ef
 
     def test_get_cohp_by_label(self):
-        assert self.cohp_orb.get_cohp_by_label("1").energies[0] == -11.7225
-        assert self.cohp_orb.get_cohp_by_label("1").energies[5] == -11.47187
+        assert self.cohp_orb.get_cohp_by_label("1").energies[0] == approx(-11.7225)
+        assert self.cohp_orb.get_cohp_by_label("1").energies[5] == approx(-11.47187)
         assert not self.cohp_orb.get_cohp_by_label("1").are_coops
-        assert self.cohp_orb.get_cohp_by_label("1").cohp[Spin.up][0] == 0.0
-        assert self.cohp_orb.get_cohp_by_label("1").cohp[Spin.up][300] == 0.03392
-        assert self.cohp_orb.get_cohp_by_label("average").cohp[Spin.up][230] == -0.08792
-        assert self.cohp_orb.get_cohp_by_label("average").energies[230] == -0.19368000000000007
+        assert self.cohp_orb.get_cohp_by_label("1").cohp[Spin.up][0] == approx(0.0)
+        assert self.cohp_orb.get_cohp_by_label("1").cohp[Spin.up][300] == approx(0.03392)
+        assert self.cohp_orb.get_cohp_by_label("average").cohp[Spin.up][230] == approx(-0.08792)
+        assert self.cohp_orb.get_cohp_by_label("average").energies[230] == approx(-0.19368000000000007)
         assert not self.cohp_orb.get_cohp_by_label("average").are_coops
         # test methods from super class that could be overwritten
-        assert self.cohp_orb.get_icohp()[Spin.up][3] == 0.0
-        assert self.cohp_orb.get_cohp()[Spin.up][3] == 0.0
+        assert self.cohp_orb.get_icohp()[Spin.up][3] == approx(0.0)
+        assert self.cohp_orb.get_cohp()[Spin.up][3] == approx(0.0)
 
     def test_get_cohp_by_label_summed_spin(self):
         # files without spin polarization
@@ -1056,37 +1056,39 @@ class TestCompleteCohp(PymatgenTest):
         assert not self.cohp_lobster_spin_polarized.get_cohp_by_label("1", summed_spin_channels=True).are_coops
 
     def test_get_summed_cohp_by_label_list(self):
-        assert self.cohp_orb.get_summed_cohp_by_label_list(["1"]).energies[0] == -11.7225
-        assert self.cohp_orb.get_summed_cohp_by_label_list(["1", "1"]).energies[0] == -11.7225
-        assert self.cohp_orb.get_summed_cohp_by_label_list(["1"]).energies[5] == -11.47187
+        assert self.cohp_orb.get_summed_cohp_by_label_list(["1"]).energies[0] == approx(-11.7225)
+        assert self.cohp_orb.get_summed_cohp_by_label_list(["1", "1"]).energies[0] == approx(-11.7225)
+        assert self.cohp_orb.get_summed_cohp_by_label_list(["1"]).energies[5] == approx(-11.47187)
         assert not self.cohp_orb.get_summed_cohp_by_label_list(["1"]).are_coops
-        assert self.cohp_orb.get_summed_cohp_by_label_list(["1"]).cohp[Spin.up][0] == 0.0
-        assert self.cohp_orb.get_summed_cohp_by_label_list(["1", "1"]).cohp[Spin.up][0] == 0.0
-        assert self.cohp_orb.get_summed_cohp_by_label_list(["1", "1"]).cohp[Spin.up][300] == 0.03392 * 2.0
-        assert self.cohp_orb.get_summed_cohp_by_label_list(["1", "1"], divisor=2).cohp[Spin.up][300] == 0.03392
+        assert self.cohp_orb.get_summed_cohp_by_label_list(["1"]).cohp[Spin.up][0] == approx(0.0)
+        assert self.cohp_orb.get_summed_cohp_by_label_list(["1", "1"]).cohp[Spin.up][0] == approx(0.0)
+        assert self.cohp_orb.get_summed_cohp_by_label_list(["1", "1"]).cohp[Spin.up][300] == approx(0.03392 * 2.0)
+        assert self.cohp_orb.get_summed_cohp_by_label_list(["1", "1"], divisor=2).cohp[Spin.up][300] == approx(0.03392)
 
     def test_get_summed_cohp_by_label_list_summed_spin(self):
         # files without spin polarization
-        assert self.cohp_orb.get_summed_cohp_by_label_list(["1"], summed_spin_channels=True).energies[0] == -11.7225
-        assert (
-            self.cohp_orb.get_summed_cohp_by_label_list(["1", "1"], summed_spin_channels=True).energies[0] == -11.7225
+        assert self.cohp_orb.get_summed_cohp_by_label_list(["1"], summed_spin_channels=True).energies[0] == approx(
+            -11.7225
         )
-        assert self.cohp_orb.get_summed_cohp_by_label_list(["1"], summed_spin_channels=True).energies[5] == -11.47187
+        assert self.cohp_orb.get_summed_cohp_by_label_list(["1", "1"], summed_spin_channels=True).energies[0] == approx(
+            -11.7225
+        )
+        assert self.cohp_orb.get_summed_cohp_by_label_list(["1"], summed_spin_channels=True).energies[5] == approx(
+            -11.47187
+        )
         assert not self.cohp_orb.get_summed_cohp_by_label_list(["1"], summed_spin_channels=True).are_coops
-        assert self.cohp_orb.get_summed_cohp_by_label_list(["1"], summed_spin_channels=True).cohp[Spin.up][0] == 0.0
-        assert (
-            self.cohp_orb.get_summed_cohp_by_label_list(["1", "1"], summed_spin_channels=True).cohp[Spin.up][0] == 0.0
+        assert self.cohp_orb.get_summed_cohp_by_label_list(["1"], summed_spin_channels=True).cohp[Spin.up][0] == approx(
+            0.0
         )
-        assert (
-            self.cohp_orb.get_summed_cohp_by_label_list(["1", "1"], summed_spin_channels=True).cohp[Spin.up][300]
-            == 0.03392 * 2.0
-        )
-        assert (
-            self.cohp_orb.get_summed_cohp_by_label_list(["1", "1"], summed_spin_channels=True, divisor=2).cohp[Spin.up][
-                300
-            ]
-            == 0.03392
-        )
+        assert self.cohp_orb.get_summed_cohp_by_label_list(["1", "1"], summed_spin_channels=True).cohp[Spin.up][
+            0
+        ] == approx(0.0)
+        assert self.cohp_orb.get_summed_cohp_by_label_list(["1", "1"], summed_spin_channels=True).cohp[Spin.up][
+            300
+        ] == approx(0.03392 * 2.0)
+        assert self.cohp_orb.get_summed_cohp_by_label_list(["1", "1"], summed_spin_channels=True, divisor=2).cohp[
+            Spin.up
+        ][300] == approx(0.03392)
 
         # file with spin polarization
         assert self.cohp_lobster_spin_polarized.get_summed_cohp_by_label_list(["1"], summed_spin_channels=False).cohp[

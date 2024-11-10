@@ -1291,35 +1291,35 @@ class TestFatband(PymatgenTest):
         self.bs_symmline_spin = self.vasprun_SiO2_p.get_band_structure(line_mode=True, force_hybrid_mode=True)
 
     def test_attributes(self):
-        assert list(self.fatband_SiO2_p_x.label_dict["M"]) == approx([0.5, 0.0, 0.0])
+        assert_allclose(list(self.fatband_SiO2_p_x.label_dict["M"]), [0.5, 0.0, 0.0])
         assert self.fatband_SiO2_p_x.efermi == self.vasprun_SiO2_p_x.efermi
         lattice1 = self.bs_symmline.lattice_rec.as_dict()
         lattice2 = self.fatband_SiO2_p_x.lattice.as_dict()
         for idx in range(3):
             assert lattice1["matrix"][idx] == approx(lattice2["matrix"][idx])
-        assert self.fatband_SiO2_p_x.eigenvals[Spin.up][1][1] - self.fatband_SiO2_p_x.efermi == -18.245
+        assert self.fatband_SiO2_p_x.eigenvals[Spin.up][1][1] - self.fatband_SiO2_p_x.efermi == approx(-18.245)
         assert self.fatband_SiO2_p_x.is_spinpolarized is False
-        assert self.fatband_SiO2_p_x.kpoints_array[3] == approx([0.03409091, 0, 0])
+        assert_allclose(self.fatband_SiO2_p_x.kpoints_array[3], [0.03409091, 0, 0])
         assert self.fatband_SiO2_p_x.nbands == 36
-        assert self.fatband_SiO2_p_x.p_eigenvals[Spin.up][2][1]["Si1"]["3p_x"] == 0.002
-        assert self.fatband_SiO2_p_x.structure[0].frac_coords == approx([0.0, 0.47634315, 0.666667])
+        assert self.fatband_SiO2_p_x.p_eigenvals[Spin.up][2][1]["Si1"]["3p_x"] == approx(0.002)
+        assert_allclose(self.fatband_SiO2_p_x.structure[0].frac_coords, [0.0, 0.47634315, 0.666667])
         assert self.fatband_SiO2_p_x.structure[0].species_string == "Si"
-        assert self.fatband_SiO2_p_x.structure[0].coords == approx([-1.19607309, 2.0716597, 3.67462144])
+        assert_allclose(self.fatband_SiO2_p_x.structure[0].coords, [-1.19607309, 2.0716597, 3.67462144])
 
-        assert list(self.fatband_SiO2_p.label_dict["M"]) == approx([0.5, 0.0, 0.0])
+        assert_allclose(list(self.fatband_SiO2_p.label_dict["M"]), [0.5, 0.0, 0.0])
         assert self.fatband_SiO2_p.efermi == self.vasprun_SiO2_p.efermi
         lattice1 = self.bs_symmline2.lattice_rec.as_dict()
         lattice2 = self.fatband_SiO2_p.lattice.as_dict()
         for idx in range(3):
             assert lattice1["matrix"][idx] == approx(lattice2["matrix"][idx])
-        assert self.fatband_SiO2_p.eigenvals[Spin.up][1][1] - self.fatband_SiO2_p.efermi == -18.245
+        assert self.fatband_SiO2_p.eigenvals[Spin.up][1][1] - self.fatband_SiO2_p.efermi == approx(-18.245)
         assert self.fatband_SiO2_p.is_spinpolarized is False
-        assert self.fatband_SiO2_p.kpoints_array[3] == approx([0.03409091, 0, 0])
+        assert_allclose(self.fatband_SiO2_p.kpoints_array[3], [0.03409091, 0, 0])
         assert self.fatband_SiO2_p.nbands == 36
-        assert self.fatband_SiO2_p.p_eigenvals[Spin.up][2][1]["Si1"]["3p"] == 0.042
-        assert self.fatband_SiO2_p.structure[0].frac_coords == approx([0.0, 0.47634315, 0.666667])
+        assert self.fatband_SiO2_p.p_eigenvals[Spin.up][2][1]["Si1"]["3p"] == approx(0.042)
+        assert_allclose(self.fatband_SiO2_p.structure[0].frac_coords, [0.0, 0.47634315, 0.666667])
         assert self.fatband_SiO2_p.structure[0].species_string == "Si"
-        assert self.fatband_SiO2_p.structure[0].coords == approx([-1.19607309, 2.0716597, 3.67462144])
+        assert_allclose(self.fatband_SiO2_p.structure[0].coords, [-1.19607309, 2.0716597, 3.67462144])
         assert self.fatband_SiO2_p.efermi == approx(1.0647039)
 
         assert list(self.fatband_SiO2_spin.label_dict["M"]) == approx([0.5, 0.0, 0.0])
@@ -1328,16 +1328,16 @@ class TestFatband(PymatgenTest):
         lattice2 = self.fatband_SiO2_spin.lattice.as_dict()
         for idx in range(3):
             assert lattice1["matrix"][idx] == approx(lattice2["matrix"][idx])
-        assert self.fatband_SiO2_spin.eigenvals[Spin.up][1][1] - self.fatband_SiO2_spin.efermi == -18.245
-        assert self.fatband_SiO2_spin.eigenvals[Spin.down][1][1] - self.fatband_SiO2_spin.efermi == -18.245
+        assert self.fatband_SiO2_spin.eigenvals[Spin.up][1][1] - self.fatband_SiO2_spin.efermi == approx(-18.245)
+        assert self.fatband_SiO2_spin.eigenvals[Spin.down][1][1] - self.fatband_SiO2_spin.efermi == approx(-18.245)
         assert self.fatband_SiO2_spin.is_spinpolarized
-        assert self.fatband_SiO2_spin.kpoints_array[3] == approx([0.03409091, 0, 0])
+        assert_allclose(self.fatband_SiO2_spin.kpoints_array[3], [0.03409091, 0, 0])
         assert self.fatband_SiO2_spin.nbands == 36
 
-        assert self.fatband_SiO2_spin.p_eigenvals[Spin.up][2][1]["Si1"]["3p"] == 0.042
-        assert self.fatband_SiO2_spin.structure[0].frac_coords == approx([0.0, 0.47634315, 0.666667])
+        assert self.fatband_SiO2_spin.p_eigenvals[Spin.up][2][1]["Si1"]["3p"] == approx(0.042)
+        assert_allclose(self.fatband_SiO2_spin.structure[0].frac_coords, [0.0, 0.47634315, 0.666667])
         assert self.fatband_SiO2_spin.structure[0].species_string == "Si"
-        assert self.fatband_SiO2_spin.structure[0].coords == approx([-1.19607309, 2.0716597, 3.67462144])
+        assert_allclose(self.fatband_SiO2_spin.structure[0].coords, [-1.19607309, 2.0716597, 3.67462144])
 
     def test_raises(self):
         with pytest.raises(ValueError, match="vasprun_file or efermi have to be provided"):
@@ -2057,19 +2057,21 @@ class TestIcohplist(TestCase):
         }
 
         assert icohplist_bise == self.icohp_bise.icohplist
-        assert self.icohp_bise.icohpcollection.extremum_icohpvalue() == -2.38796
+        assert self.icohp_bise.icohpcollection.extremum_icohpvalue() == approx(-2.38796)
         assert icooplist_fe == self.icoop_fe.icohplist
-        assert self.icoop_fe.icohpcollection.extremum_icohpvalue() == -0.29919
+        assert self.icoop_fe.icohpcollection.extremum_icohpvalue() == approx(-0.29919)
         assert icooplist_bise == self.icoop_bise.icohplist
-        assert self.icoop_bise.icohpcollection.extremum_icohpvalue() == 0.24714
+        assert self.icoop_bise.icohpcollection.extremum_icohpvalue() == approx(0.24714)
         assert self.icobi.icohplist["1"]["icohp"][Spin.up] == approx(0.58649)
         assert self.icobi_orbitalwise.icohplist["2"]["icohp"][Spin.up] == approx(0.58649)
         assert self.icobi_orbitalwise.icohplist["1"]["icohp"][Spin.up] == approx(0.58649)
         assert self.icobi_orbitalwise_spinpolarized.icohplist["1"]["icohp"][Spin.up] == approx(0.58649 / 2, abs=1e-3)
         assert self.icobi_orbitalwise_spinpolarized.icohplist["1"]["icohp"][Spin.down] == approx(0.58649 / 2, abs=1e-3)
         assert self.icobi_orbitalwise_spinpolarized.icohplist["2"]["icohp"][Spin.down] == approx(0.58649 / 2, abs=1e-3)
-        assert self.icobi.icohpcollection.extremum_icohpvalue() == 0.58649
-        assert self.icobi_orbitalwise_spinpolarized.icohplist["2"]["orbitals"]["2s-6s"]["icohp"][Spin.up] == 0.0247
+        assert self.icobi.icohpcollection.extremum_icohpvalue() == approx(0.58649)
+        assert self.icobi_orbitalwise_spinpolarized.icohplist["2"]["orbitals"]["2s-6s"]["icohp"][Spin.up] == approx(
+            0.0247
+        )
 
         # >v5 ICOHPLIST
         assert self.icohp_aln_511_sp.icohplist["2"]["icohp"][Spin.up] == approx(-0.21482)

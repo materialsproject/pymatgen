@@ -433,8 +433,8 @@ class TestNwOutput:
 
         ie = nwo[4]["energies"][-1] - nwo[2]["energies"][-1]
         ea = nwo[2]["energies"][-1] - nwo[3]["energies"][-1]
-        assert approx(ie) == 0.7575358648355177
-        assert approx(ea, abs=1e-3) == -14.997877958701338
+        assert ie == approx(0.7575358648355177)
+        assert ea == approx(-14.997877958701338, abs=1e-3)
         assert nwo[4]["basis_set"]["C"]["description"] == "6-311++G**"
 
         nwo = NwOutput(f"{TEST_DIR}/H4C3O3_1.nwout")
@@ -453,12 +453,12 @@ class TestNwOutput:
         assert nwo[-1]["has_error"]
         assert nwo[-1]["errors"][0] == "Geometry optimization failed"
         nwo = NwOutput(f"{TEST_DIR}/anthrachinon_wfs_15_carboxyl.nwout")
-        assert nwo[1]["frequencies"][0][0] == -70.47
+        assert nwo[1]["frequencies"][0][0] == approx(-70.47)
         assert len(nwo[1]["frequencies"][0][1]) == 27
-        assert nwo[1]["frequencies"][-1][0] == 3696.74
+        assert nwo[1]["frequencies"][-1][0] == approx(3696.74)
         assert nwo[1]["frequencies"][-1][1][-1] == (0.20498, -0.94542, -0.00073)
-        assert nwo[1]["normal_frequencies"][1][0] == -70.72
-        assert nwo[1]["normal_frequencies"][3][0] == -61.92
+        assert nwo[1]["normal_frequencies"][1][0] == approx(-70.72)
+        assert nwo[1]["normal_frequencies"][3][0] == approx(-61.92)
         assert nwo[1]["normal_frequencies"][1][1][-1] == (0.00056, 0.00042, 0.06781)
 
     def test_parse_tddft(self):

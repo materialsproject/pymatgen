@@ -486,7 +486,7 @@ class TestMITMPRelaxSet(PymatgenTest):
         incar = self.set(struct, vdw="optB86b").incar
         assert incar["GGA"] == "Mk"
         assert incar["LUSE_VDW"]
-        assert incar["PARAM1"] == 0.1234
+        assert incar["PARAM1"] == approx(0.1234)
 
         # Test that NELECT is updated when a charge is present
         si = 14
