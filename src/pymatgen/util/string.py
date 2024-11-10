@@ -138,16 +138,16 @@ def formula_double_format(
     ignore_ones: bool = True,
     tol: float = 1e-8,
 ) -> float | str:
-    """Make pretty formulas by formatting the amounts.
+    """Format a float for pretty formulas.
     E.g. "Li1.0 Fe1.0 P1.0 O4.0" -> "LiFePO4".
 
     Args:
-        afloat (float): a float.
+        afloat (float): The float to be formatted.
         ignore_ones (bool): if true, floats of 1.0 are ignored.
-        tol (float): Absolute tolerance to round to nearest int. i.e. 2.0000000001 -> 2.
+        tol (float): Absolute tolerance to round to nearest int. i.e. (2 + 1E-9) -> 2.
 
     Returns:
-        str | float: A string representation of the float for formulas.
+        str | float: Formatted float for formulas.
     """
     if ignore_ones and math.isclose(afloat, 1, abs_tol=tol):
         return ""
