@@ -5,7 +5,7 @@ import json
 import numpy as np
 import pytest
 from monty.json import MontyDecoder
-from numpy.testing import assert_allclose, assert_array_equal
+from numpy.testing import assert_allclose
 from pytest import approx
 
 from pymatgen.analysis.xas.spectrum import XAS, site_weighted_spectrum
@@ -60,8 +60,8 @@ class TestXAS(PymatgenTest):
         assert_allclose(xas.y, self.k_xanes.y)
 
     def test_attributes(self):
-        assert_array_equal(self.k_xanes.energy, self.k_xanes.x)
-        assert_array_equal(self.k_xanes.intensity, self.k_xanes.y)
+        assert_allclose(self.k_xanes.energy, self.k_xanes.x)
+        assert_allclose(self.k_xanes.intensity, self.k_xanes.y)
 
     def test_str(self):
         assert str(self.k_xanes) == "Co K Edge XANES for LiCoO2: <super: <class 'XAS'>, <XAS object>>"

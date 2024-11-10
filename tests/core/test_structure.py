@@ -381,14 +381,14 @@ class TestIStructure(PymatgenTest):
         for inter_struct in interpolated_structs:
             assert inter_struct is not None, "Interpolation Failed!"
             assert interpolated_structs[0].lattice == inter_struct.lattice
-        assert_array_equal(interpolated_structs[1][1].frac_coords, [0.725, 0.5, 0.725])
+        assert_allclose(interpolated_structs[1][1].frac_coords, [0.725, 0.5, 0.725])
 
         # test ximages
         interpolated_structs = struct.interpolate(struct2, nimages=np.linspace(0.0, 1.0, 3))
         for inter_struct in interpolated_structs:
             assert inter_struct is not None, "Interpolation Failed!"
             assert interpolated_structs[0].lattice == inter_struct.lattice
-        assert_array_equal(interpolated_structs[1][1].frac_coords, [0.625, 0.5, 0.625])
+        assert_allclose(interpolated_structs[1][1].frac_coords, [0.625, 0.5, 0.625])
 
         bad_lattice = np.eye(3)
         struct2 = IStructure(bad_lattice, ["Si"] * 2, coords2)
@@ -452,30 +452,30 @@ class TestIStructure(PymatgenTest):
         for inter_struct in interpolated_structs:
             assert inter_struct is not None, "Interpolation Failed!"
             assert interpolated_structs[0].lattice == inter_struct.lattice
-        assert_array_equal(interpolated_structs[0][1].frac_coords, [0.75, 0.5, 0.75])
-        assert_array_equal(interpolated_structs[10][1].frac_coords, [0.5, 0.5, 0.5])
-        assert_array_equal(interpolated_structs[20][1].frac_coords, [0.25, 0.5, 0.25])
+        assert_allclose(interpolated_structs[0][1].frac_coords, [0.75, 0.5, 0.75])
+        assert_allclose(interpolated_structs[10][1].frac_coords, [0.5, 0.5, 0.5])
+        assert_allclose(interpolated_structs[20][1].frac_coords, [0.25, 0.5, 0.25])
         # testing large negative values
         interpolated_structs = struct.interpolate(struct2, 20, end_amplitude=-2)
         for inter_struct in interpolated_structs:
             assert inter_struct is not None, "Interpolation Failed!"
             assert interpolated_structs[0].lattice == inter_struct.lattice
-        assert_array_equal(interpolated_structs[0][1].frac_coords, [0.75, 0.5, 0.75])
-        assert_array_equal(interpolated_structs[10][1].frac_coords, [1.0, 0.5, 1.0])
-        assert_array_equal(interpolated_structs[20][1].frac_coords, [1.25, 0.5, 1.25])
+        assert_allclose(interpolated_structs[0][1].frac_coords, [0.75, 0.5, 0.75])
+        assert_allclose(interpolated_structs[10][1].frac_coords, [1.0, 0.5, 1.0])
+        assert_allclose(interpolated_structs[20][1].frac_coords, [1.25, 0.5, 1.25])
         # testing partial interpolation
         interpolated_structs = struct.interpolate(struct2, 5, end_amplitude=-0.5)
         for inter_struct in interpolated_structs:
             assert inter_struct is not None, "Interpolation Failed!"
             assert interpolated_structs[0].lattice == inter_struct.lattice
-        assert_array_equal(interpolated_structs[0][1].frac_coords, [0.75, 0.5, 0.75])
-        assert_array_equal(interpolated_structs[5][1].frac_coords, [0.875, 0.5, 0.875])
+        assert_allclose(interpolated_structs[0][1].frac_coords, [0.75, 0.5, 0.75])
+        assert_allclose(interpolated_structs[5][1].frac_coords, [0.875, 0.5, 0.875])
         # testing end_amplitude=0
         interpolated_structs = struct.interpolate(struct2, 5, end_amplitude=0)
         for inter_struct in interpolated_structs:
             assert inter_struct is not None, "Interpolation Failed!"
             assert interpolated_structs[0].lattice == inter_struct.lattice
-            assert_array_equal(inter_struct[1].frac_coords, [0.75, 0.5, 0.75])
+            assert_allclose(inter_struct[1].frac_coords, [0.75, 0.5, 0.75])
 
     def test_interpolate_lattice(self):
         coords = [[0, 0, 0], [0.75, 0.5, 0.75]]
@@ -521,8 +521,8 @@ class TestIStructure(PymatgenTest):
         # Assert that volume is monotonic (should be shrinking for negative end_amplitude)
         assert int_s[1].volume <= struct.volume
         # Assert that coordinate shift is reversed
-        assert_array_equal(int_s[1][1].frac_coords, [0.875, 0.5, 0.875])
-        assert_array_equal(int_s[2][1].frac_coords, [1.0, 0.5, 1.0])
+        assert_allclose(int_s[1][1].frac_coords, [0.875, 0.5, 0.875])
+        assert_allclose(int_s[2][1].frac_coords, [1.0, 0.5, 1.0])
 
     def test_interpolate_lattice_rotation(self):
         l1 = Lattice(np.eye(3))

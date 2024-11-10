@@ -431,7 +431,7 @@ class TestLammpsData(PymatgenTest):
         assert class2["AngleTorsion Coeffs"].loc[1, "coeff8"] == approx(110.7700)
         # tilt box and another atom_style
         quartz = self.quartz
-        assert_array_equal(quartz.box.tilt, [-2.456700, 0.0, 0.0])
+        assert_allclose(quartz.box.tilt, [-2.456700, 0.0, 0.0])
         assert list(quartz.atoms.columns) == ["type", "x", "y", "z"]
         assert quartz.atoms.loc[7, "x"] == approx(0.299963)
         # PairIJ Coeffs section

@@ -290,7 +290,7 @@ class TestArrayWithUnit(PymatgenTest):
 
     def test_as_base_units(self):
         pressure_arr = ArrayWithUnit([5, 10], "MPa")
-        assert_array_equal(ArrayWithUnit([5000000, 10000000], "Pa"), pressure_arr.as_base_units)
+        assert_array_equal(ArrayWithUnit([5e6, 1e7], "Pa"), pressure_arr.as_base_units)
 
 
 class TestDataPersistence(PymatgenTest):

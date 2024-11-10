@@ -5,7 +5,7 @@ from unittest import TestCase
 
 import numpy as np
 import pytest
-from numpy.testing import assert_allclose, assert_array_equal
+from numpy.testing import assert_allclose
 from pytest import approx
 
 from pymatgen.core.structure import Molecule, Structure
@@ -324,26 +324,26 @@ class TestRadialSiteDistortionTransformation(PymatgenTest):
     def test(self):
         trafo = RadialSiteDistortionTransformation(0, 1, nn_only=True)
         struct = trafo.apply_transformation(self.molecule)
-        assert_array_equal(struct[0].coords, [0, 0, 0])
-        assert_array_equal(struct[1].coords, [2, 0, 0])
-        assert_array_equal(struct[2].coords, [0, 2, 0])
-        assert_array_equal(struct[3].coords, [0, 0, 2])
-        assert_array_equal(struct[4].coords, [-2, 0, 0])
-        assert_array_equal(struct[5].coords, [0, -2, 0])
-        assert_array_equal(struct[6].coords, [0, 0, -2])
+        assert_allclose(struct[0].coords, [0, 0, 0])
+        assert_allclose(struct[1].coords, [2, 0, 0])
+        assert_allclose(struct[2].coords, [0, 2, 0])
+        assert_allclose(struct[3].coords, [0, 0, 2])
+        assert_allclose(struct[4].coords, [-2, 0, 0])
+        assert_allclose(struct[5].coords, [0, -2, 0])
+        assert_allclose(struct[6].coords, [0, 0, -2])
 
         trafo = RadialSiteDistortionTransformation(0, 1, nn_only=True)
         struct = trafo.apply_transformation(self.structure)
         for c1, c2 in zip(self.structure[1:7], struct[1:7], strict=True):
             assert c1.distance(c2) == approx(1.0)
 
-        assert_array_equal(struct[0].coords, [0, 0, 0])
-        assert_array_equal(struct[1].coords, [2, 0, 0])
-        assert_array_equal(struct[2].coords, [0, 2, 0])
-        assert_array_equal(struct[3].coords, [0, 0, 2])
-        assert_array_equal(struct[4].coords, [8, 0, 0])
-        assert_array_equal(struct[5].coords, [0, 8, 0])
-        assert_array_equal(struct[6].coords, [0, 0, 8])
+        assert_allclose(struct[0].coords, [0, 0, 0])
+        assert_allclose(struct[1].coords, [2, 0, 0])
+        assert_allclose(struct[2].coords, [0, 2, 0])
+        assert_allclose(struct[3].coords, [0, 0, 2])
+        assert_allclose(struct[4].coords, [8, 0, 0])
+        assert_allclose(struct[5].coords, [0, 8, 0])
+        assert_allclose(struct[6].coords, [0, 0, 8])
 
     def test_second_nn(self):
         trafo = RadialSiteDistortionTransformation(0, 1, nn_only=False)

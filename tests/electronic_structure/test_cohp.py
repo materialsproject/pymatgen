@@ -4,7 +4,7 @@ import json
 from unittest import TestCase
 
 import pytest
-from numpy.testing import assert_allclose, assert_array_equal
+from numpy.testing import assert_allclose
 from pytest import approx
 
 from pymatgen.electronic_structure.cohp import (
@@ -1125,13 +1125,13 @@ class TestCompleteCohp(PymatgenTest):
         )
         cohp_label3 = self.cohp_orb.get_summed_cohp_by_label_and_orbital_list(["1", "1"], ["4px-4pz", "4s-4px"])
 
-        assert_array_equal(cohp_label.cohp[Spin.up], ref["COHP"][Spin.up])
-        assert_array_equal(cohp_label2.cohp[Spin.up], ref["COHP"][Spin.up] * 2.0)
-        assert_array_equal(cohp_label3.cohp[Spin.up], ref["COHP"][Spin.up] + ref2["COHP"][Spin.up])
-        assert_array_equal(cohp_label.icohp[Spin.up], ref["ICOHP"][Spin.up])
-        assert_array_equal(cohp_label2.icohp[Spin.up], ref["ICOHP"][Spin.up] * 2.0)
-        assert_array_equal(cohp_label2x.icohp[Spin.up], ref["ICOHP"][Spin.up])
-        assert_array_equal(cohp_label3.icohp[Spin.up], ref["ICOHP"][Spin.up] + ref2["ICOHP"][Spin.up])
+        assert_allclose(cohp_label.cohp[Spin.up], ref["COHP"][Spin.up])
+        assert_allclose(cohp_label2.cohp[Spin.up], ref["COHP"][Spin.up] * 2.0)
+        assert_allclose(cohp_label3.cohp[Spin.up], ref["COHP"][Spin.up] + ref2["COHP"][Spin.up])
+        assert_allclose(cohp_label.icohp[Spin.up], ref["ICOHP"][Spin.up])
+        assert_allclose(cohp_label2.icohp[Spin.up], ref["ICOHP"][Spin.up] * 2.0)
+        assert_allclose(cohp_label2x.icohp[Spin.up], ref["ICOHP"][Spin.up])
+        assert_allclose(cohp_label3.icohp[Spin.up], ref["ICOHP"][Spin.up] + ref2["ICOHP"][Spin.up])
         expected_msg = "label_list and orbital_list don't have the same length"
         with pytest.raises(ValueError, match=expected_msg):
             self.cohp_orb.get_summed_cohp_by_label_and_orbital_list(["1"], ["4px-4pz", "4s-4px"])
@@ -1154,13 +1154,13 @@ class TestCompleteCohp(PymatgenTest):
             ["1", "1"], ["4px-4pz", "4s-4px"], summed_spin_channels=True
         )
 
-        assert_array_equal(cohp_label.cohp[Spin.up], ref["COHP"][Spin.up])
-        assert_array_equal(cohp_label2.cohp[Spin.up], ref["COHP"][Spin.up] * 2.0)
-        assert_array_equal(cohp_label3.cohp[Spin.up], ref["COHP"][Spin.up] + ref2["COHP"][Spin.up])
-        assert_array_equal(cohp_label.icohp[Spin.up], ref["ICOHP"][Spin.up])
-        assert_array_equal(cohp_label2.icohp[Spin.up], ref["ICOHP"][Spin.up] * 2.0)
-        assert_array_equal(cohp_label2x.icohp[Spin.up], ref["ICOHP"][Spin.up])
-        assert_array_equal(cohp_label3.icohp[Spin.up], ref["ICOHP"][Spin.up] + ref2["ICOHP"][Spin.up])
+        assert_allclose(cohp_label.cohp[Spin.up], ref["COHP"][Spin.up])
+        assert_allclose(cohp_label2.cohp[Spin.up], ref["COHP"][Spin.up] * 2.0)
+        assert_allclose(cohp_label3.cohp[Spin.up], ref["COHP"][Spin.up] + ref2["COHP"][Spin.up])
+        assert_allclose(cohp_label.icohp[Spin.up], ref["ICOHP"][Spin.up])
+        assert_allclose(cohp_label2.icohp[Spin.up], ref["ICOHP"][Spin.up] * 2.0)
+        assert_allclose(cohp_label2x.icohp[Spin.up], ref["ICOHP"][Spin.up])
+        assert_allclose(cohp_label3.icohp[Spin.up], ref["ICOHP"][Spin.up] + ref2["ICOHP"][Spin.up])
         expected_msg = "label_list and orbital_list don't have the same length"
         with pytest.raises(ValueError, match=expected_msg):
             self.cohp_orb.get_summed_cohp_by_label_and_orbital_list(
