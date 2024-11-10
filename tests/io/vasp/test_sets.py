@@ -586,7 +586,7 @@ class TestMITMPRelaxSet(PymatgenTest):
     def test_hubbard_off_and_ediff_override(self):
         input_set = MPRelaxSet(self.structure, user_incar_settings={"LDAU": False, "EDIFF": 1e-10})
         assert "LDAUU" not in input_set.incar
-        assert input_set.incar["EDIFF"] == 1e-10
+        assert input_set.incar["EDIFF"] == approx(1e-10)
         # after testing, we have determined LMAXMIX should still be 4 for d-block
         # even if U is turned off (thanks Andrew Rosen for reporting)
         assert input_set.incar["LMAXMIX"] == 4
@@ -755,7 +755,7 @@ class TestMPStaticSet(PymatgenTest):
         leps_vis = self.set.from_prev_calc(prev_calc_dir=prev_run, lepsilon=True)
         assert leps_vis.incar["LEPSILON"]
         assert leps_vis.incar["IBRION"] == 8
-        assert leps_vis.incar["EDIFF"] == 1e-5
+        assert leps_vis.incar["EDIFF"] == approx(1e-5)
         assert "NPAR" not in leps_vis.incar
         assert leps_vis.incar["NSW"] == 1
         assert non_prev_vis.kpoints.kpts == [(11, 10, 10)]
@@ -1129,7 +1129,7 @@ class TestMPNonSCFSet(PymatgenTest):
         assert vis.incar["ISYM"] == 2
 
         # Check OPTICS=True INCAR settings, LREAL needs to be False when LOPTICS=True
-        assert vis.incar["CSHIFT"] == 1e-5
+        assert vis.incar["CSHIFT"] == approx(1e-5)
         assert vis.incar["LREAL"] is False
         assert vis.incar["LOPTICS"]
 
@@ -1443,7 +1443,7 @@ class TestMVLSlabSet(PymatgenTest):
         poscar_bulk = self.d_bulk["POSCAR"]
 
         assert incar_bulk["ISIF"] == 3
-        assert incar_bulk["EDIFF"] == 1e-4
+        assert incar_bulk["EDIFF"] == approx(1e-4)
         assert incar_bulk["EDIFFG"] == approx(-0.02)
         assert poscar_bulk.structure.formula == self.bulk.formula
 
@@ -2115,7 +2115,7 @@ class TestLobsterSet(PymatgenTest):
         assert incar1["ISMEAR"] == -5
         assert incar1["ISYM"] == -1
         assert incar1["ALGO"] == "Normal"
-        assert incar1["EDIFF"] == 1e-6
+        assert incar1["EDIFF"] == approx(1e-6)
         incar2 = self.lobsterset2.incar
         assert incar2["ISYM"] == 0
         assert incar2["ISMEAR"] == 0

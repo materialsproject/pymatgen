@@ -548,7 +548,7 @@ class TestIncar(PymatgenTest):
         incar = self.incar
         incar["LDAU"] = "T"
         assert incar["ALGO"] == "Damped", "Wrong Algo"
-        assert float(incar["EDIFF"]) == 1e-4, "Wrong EDIFF"
+        assert float(incar["EDIFF"]) == approx(1e-4), "Wrong EDIFF"
         assert isinstance(incar["LORBIT"], int)
 
     def test_check_for_duplicate(self):

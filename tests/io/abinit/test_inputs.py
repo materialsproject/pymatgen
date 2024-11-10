@@ -6,6 +6,7 @@ import tempfile
 import numpy as np
 import pytest
 from numpy.testing import assert_array_equal
+from pytest import approx
 
 from pymatgen.core.structure import Structure
 from pymatgen.io.abinit.inputs import (
@@ -105,7 +106,7 @@ class TestAbinitInput(PymatgenTest):
 
         removed = inp.pop_tolerances()
         assert len(removed) == 1
-        assert removed["toldfe"] == 1e-6
+        assert removed["toldfe"] == approx(1e-6)
 
         # Test set_spin_mode
         old_vars = inp.set_spin_mode("polarized")

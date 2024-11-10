@@ -87,7 +87,7 @@ class TestVasprun(PymatgenTest):
         assert vasp_run.converged_electronic is True
         assert vasp_run.converged is True
         assert vasp_run.parameters["EDIFFG"] == 0
-        assert vasp_run.parameters["EDIFF"] == 1e-5
+        assert vasp_run.parameters["EDIFF"] == approx(1e-5)
 
     def test_bad_random_seed(self):
         vasp_run = Vasprun(f"{VASP_OUT_DIR}/vasprun.bad_random_seed.xml.gz")
