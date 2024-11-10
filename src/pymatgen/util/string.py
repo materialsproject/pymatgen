@@ -14,7 +14,7 @@ from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
     from collections.abc import Sequence
-    from typing import Literal, TextIO
+    from typing import Any, Literal, TextIO
 
     from pymatgen.core import Structure
     from pymatgen.util.typing import Vector3D
@@ -108,7 +108,7 @@ class Stringify:
 
 
 def str_delimited(
-    results: Sequence[Sequence],
+    results: Sequence[Sequence[Any]],
     header: Sequence[str] | None = None,
     delimiter: str = "\t",
 ) -> str:
@@ -120,7 +120,7 @@ def str_delimited(
         1,2,3.
 
     Args:
-        results (Sequence[Sequence]): 2d sequence of arbitrary types.
+        results (Sequence[Sequence[Any]]): 2D sequence of arbitrary types.
         header (Sequence[str]): optional headers.
         delimiter (str): Defaults to "\t" for tab-delimited output.
 
@@ -137,7 +137,7 @@ def formula_double_format(
     afloat: float,
     ignore_ones: bool = True,
     tol: float = 1e-8,
-) -> float | str:
+) -> float | Literal[""]:
     """Format a float for pretty formulas.
     E.g. "Li1.0 Fe1.0 P1.0 O4.0" -> "LiFePO4".
 
@@ -147,7 +147,7 @@ def formula_double_format(
         tol (float): Absolute tolerance to round to nearest int. i.e. (2 + 1E-9) -> 2.
 
     Returns:
-        str | float: Formatted float for formulas.
+        float | "": Formatted float for formulas.
     """
     if ignore_ones and math.isclose(afloat, 1, abs_tol=tol):
         return ""
@@ -163,10 +163,10 @@ def charge_string(charge: float, brackets: bool = True, explicit_one: bool = Tru
     '[+2]'. For uncharged species, the string returned is '(aq)'.
 
     Args:
-        charge (float): the charge of the Ion
-        brackets (bool): whether to enclose the charge in brackets, e.g. [+2]. Default is True.
-        explicit_one (bool): whether to include the number one for monovalent ions, e.g.
-            +1 rather than +. Default is True.
+        charge (float): The charge of the ion.
+        brackets (bool): Whether to enclose the charge in brackets, e.g. [+2]. Default is True.
+        explicit_one (bool): whether to include the number one for monovalent ions,
+            e.g. "+1" rather than "+". Default is True.
     """
     chg_str = "(aq)" if charge == 0 else f"{formula_double_format(charge, ignore_ones= False):+}"
 
@@ -183,7 +183,7 @@ def latexify(formula: str, bold: bool = False) -> str:
     """Generate a LaTeX formatted formula. e.g. Fe2O3 is transformed to
     Fe$_{2}$O$_{3}$.
 
-    Note that Composition now has a to_latex_string() method that may
+    Note that Composition now has `to_latex_string` method that may
     be used instead.
 
     Args:
@@ -191,7 +191,7 @@ def latexify(formula: str, bold: bool = False) -> str:
         bold (bool): Whether to make the subscripts bold. Defaults to False.
 
     Returns:
-        Formula suitable for display as in LaTeX with proper subscripts.
+        str: Formula suitable for display as in LaTeX with proper subscripts.
     """
     return re.sub(
         r"([A-Za-z\(\)])([\d\.]+)",
@@ -208,7 +208,7 @@ def htmlify(formula: str) -> str:
     be used instead.
 
     Args:
-        formula: The string to format.
+        formula (str): The string to format.
     """
     return re.sub(r"([A-Za-z\(\)])([\d\.]+)", r"\1<sub>\2</sub>", formula)
 
@@ -221,7 +221,7 @@ def unicodeify(formula: str) -> str:
     be used instead.
 
     Args:
-        formula: The string to format.
+        formula (str): The string to format.
     """
     if "." in formula:
         raise ValueError("No unicode character exists for subscript period.")
@@ -243,7 +243,7 @@ def latexify_spacegroup(spacegroup_symbol: str) -> str:
         spacegroup_symbol (str): A spacegroup symbol
 
     Returns:
-        A latex formatted spacegroup with proper subscripts and overlines.
+        str: A latex formatted spacegroup with proper subscripts and overlines.
     """
     sym = re.sub(r"_(\d+)", r"$_{\1}$", spacegroup_symbol)
     return re.sub(r"-(\d)", r"$\\overline{\1}$", sym)
@@ -257,10 +257,10 @@ def unicodeify_spacegroup(spacegroup_symbol: str) -> str:
     may be called instead.
 
     Args:
-        spacegroup_symbol (str): A spacegroup symbol as LaTeX
+        spacegroup_symbol (str): A spacegroup symbol as LaTeX.
 
     Returns:
-        A unicode spacegroup with proper subscripts and overlines.
+        str: A unicode spacegroup with proper subscripts and overlines.
     """
     if not spacegroup_symbol:
         return ""
@@ -284,14 +284,14 @@ def unicodeify_species(specie_string: str) -> str:
     """Generate a unicode formatted species string, with appropriate
     superscripts for oxidation states.
 
-    Note that Species now has a to_unicode_string() method that
+    Note that Species now has `to_unicode_string` method that
     may be used instead.
 
     Args:
-        specie_string (str): Species string, e.g. O2-
+        specie_string (str): Species string, e.g. "O2-"
 
     Returns:
-        Species string, e.g. O²⁻
+        str: Species string, e.g. "O²⁻"
     """
     if not specie_string:
         return ""
@@ -337,7 +337,7 @@ def transformation_to_string(
         delim (str): A delimiter. Defaults to ",".
 
     Returns:
-        xyz string.
+        str: xyz string.
     """
     parts = []
     for idx in range(3):
@@ -401,18 +401,18 @@ def disordered_formula(
         )
     disordered_site_composition = disordered_site_compositions.pop()
 
-    disordered_species = {str(sp) for sp, occu in disordered_site_composition.items()}
+    disordered_species = {str(sp) for sp, _occu in disordered_site_composition.items()}
 
     if len(disordered_species) > len(symbols):
         # this probably won't happen too often either
         raise ValueError(f"Not enough symbols to describe disordered composition: {symbols}")
-    symbols = list(symbols)[0 : len(disordered_species) - 1]
+    symbols = list(symbols)[: len(disordered_species) - 1]
 
     comp = disordered_struct.composition.get_el_amt_dict().items()
     # sort by electronegativity, as per composition
     comp = sorted(comp, key=lambda x: get_el_sp(x[0]).X)
 
-    disordered_comp = []
+    disordered_comp: list[tuple[str, str]] = []
     variable_map = {}
 
     total_disordered_occu = sum(occu for sp, occu in comp if str(sp) in disordered_species)
@@ -431,7 +431,7 @@ def disordered_formula(
     for sp, occu in comp:
         species = str(sp)
         if species not in disordered_species:
-            disordered_comp.append((species, formula_double_format(occu / factor)))
+            disordered_comp.append((species, str(formula_double_format(occu / factor))))
         elif len(symbols) > 0:
             symbol = symbols.pop(0)
             disordered_comp.append((species, symbol))
