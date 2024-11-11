@@ -263,7 +263,7 @@ class BVAnalyzer:
                     # Retain probabilities that are at least 1/100 of highest prob.
                     filtered = list(
                         filter(
-                            lambda v: prob[elem.symbol][v] > 0.001 * prob[elem.symbol][val[0]],
+                            lambda v: prob[elem.symbol][v] > 1e-3 * prob[elem.symbol][val[0]],
                             val,
                         )
                     )
