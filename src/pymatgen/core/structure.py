@@ -1514,7 +1514,7 @@ class IStructure(SiteCollection, MSONable):
         formal_charge = super().charge
         if self._charge is None:
             return super().charge
-        if not math.isclose(formal_charge, self._charge, abs_tol=1e-8, rel_tol=0):
+        if abs(formal_charge - self._charge) > 1e-8:
             warnings.warn(
                 f"Structure charge ({self._charge}) is set to be not equal to the sum of oxidation states"
                 f" ({formal_charge}). Use Structure.unset_charge() to reset the charge to None."
@@ -4390,7 +4390,7 @@ class Structure(IStructure, collections.abc.MutableSequence):
             axis = np.cross(v1, v2)
             op = SymmOp.from_origin_axis_angle(origin, axis, angle)
             fgroup.apply_operation(op)
-        elif math.isclose(abs(angle), 180, abs_tol=1, rel_tol=0):
+        elif abs(abs(angle) - 180) < 1:
             # We have a 180 degree angle. Simply do an inversion about the
             # origin
             for i, fg in enumerate(fgroup):
@@ -5351,7 +5351,7 @@ class Molecule(IMolecule, collections.abc.MutableSequence):
             axis = np.cross(v1, v2)
             op = SymmOp.from_origin_axis_angle(origin, axis, angle)
             functional_group.apply_operation(op)
-        elif math.isclose(abs(angle), 180, abs_tol=1, rel_tol=0):
+        elif abs(abs(angle) - 180) < 1:
             # We have a 180 degree angle. Simply do an inversion about the
             # origin
             for i, fg in enumerate(functional_group):

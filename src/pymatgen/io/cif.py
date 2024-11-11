@@ -1477,7 +1477,7 @@ class CifParser:
                 ratios = {elt: struct_comp[elt] / orig_comp[elt] for elt in orig_comp_elts}
 
                 same_stoich = all(
-                    math.isclose(ratios[elt_a], ratios[elt_b], abs_tol=self.comp_tol, rel_tol=0)
+                    abs(ratios[elt_a] - ratios[elt_b]) < self.comp_tol
                     for elt_a in orig_comp_elts
                     for elt_b in orig_comp_elts
                 )

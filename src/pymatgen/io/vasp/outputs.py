@@ -681,7 +681,7 @@ class Vasprun(MSONable):
             final_estep = final_istep["electronic_steps"][-1]
             electronic_energy_diff = final_estep["e_0_energy"] - final_estep["e_fr_energy"]
             total_energy_bugfix = np.round(electronic_energy_diff + final_istep["e_fr_energy"], 8)
-            if not np.isclose(total_energy, total_energy_bugfix, atol=1e-7, rtol=0):
+            if np.abs(total_energy - total_energy_bugfix) > 1e-7:
                 return total_energy_bugfix
 
             return total_energy
@@ -1570,7 +1570,7 @@ class Vasprun(MSONable):
                     calculation[-1]["electronic_steps"].append(e_steps_dict)
                 else:
                     last_ene = calculation[-1]["electronic_steps"][-1]["e_fr_energy"]  # type: ignore[call-overload]
-                    if math.isclose(cur_ene, last_ene, abs_tol=1, rel_tol=0):
+                    if abs(cur_ene - last_ene) < 1.0:
                         calculation[-1]["electronic_steps"].append(e_steps_dict)
                     else:
                         calculation.append({"electronic_steps": [e_steps_dict]})

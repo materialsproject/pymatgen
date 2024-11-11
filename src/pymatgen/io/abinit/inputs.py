@@ -10,7 +10,6 @@ import abc
 import copy
 import json
 import logging
-import math
 import os
 from collections.abc import Mapping, MutableMapping, Sequence
 from enum import Enum, unique
@@ -550,7 +549,7 @@ def calc_shiftk(structure, symprec: float = 0.01, angle_tolerance=5):
         elif lattice_type == "hexagonal":
             # Find the hexagonal axis and set the shift along it.
             for i, angle in enumerate(structure.lattice.angles, start=1):
-                if math.isclose(angle, 120, abs_tol=1, rel_tol=0):
+                if abs(angle - 120) < 1.0:
                     j = i % 3
                     k = (i + 1) % 3
                     hex_ax = next(ax for ax in range(3) if ax not in [j, k])
