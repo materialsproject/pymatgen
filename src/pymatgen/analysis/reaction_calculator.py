@@ -81,7 +81,7 @@ class BalancedReaction(MSONable):
             return NotImplemented
         for comp in self._all_comp:
             coeff2 = other.get_coeff(comp) if comp in other._all_comp else 0
-            if abs(self.get_coeff(comp) - coeff2) > self.TOLERANCE:
+            if not math.isclose(self.get_coeff(comp), coeff2, abs_tol=self.TOLERANCE, rel_tol=0):
                 return False
         return True
 

@@ -6,11 +6,11 @@ All transformations should inherit the AbstractTransformation ABC.
 
 from __future__ import annotations
 
+import math
 from fractions import Fraction
 from typing import TYPE_CHECKING
 
 import numpy as np
-from numpy import around
 
 from pymatgen.analysis.bond_valence import BVAnalyzer
 from pymatgen.analysis.elasticity.strain import Deformation
@@ -525,7 +525,7 @@ class OrderDisorderedStructureTransformation(AbstractTransformation):
             )
             # round total occupancy to possible values
             for key, val in total_occupancy.items():
-                if abs(val - round(val)) > 0.25:
+                if not math.isclose(val, round(val), abs_tol=0.25, rel_tol=0):
                     raise ValueError("Occupancy fractions not consistent with size of unit cell")
                 total_occupancy[key] = int(round(val))
             # start with an ordered structure
@@ -771,7 +771,7 @@ class DiscretizeOccupanciesTransformation(AbstractTransformation):
                 old_occ = sp[k]
                 new_occ = float(Fraction(old_occ).limit_denominator(self.max_denominator))
                 if self.fix_denominator:
-                    new_occ = around(old_occ * self.max_denominator) / self.max_denominator
+                    new_occ = np.around(old_occ * self.max_denominator) / self.max_denominator
                 if round(abs(old_occ - new_occ), 6) > self.tol:
                     raise RuntimeError("Cannot discretize structure within tolerance!")
                 sp[k] = new_occ

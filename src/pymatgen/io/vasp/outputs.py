@@ -1570,7 +1570,7 @@ class Vasprun(MSONable):
                     calculation[-1]["electronic_steps"].append(e_steps_dict)
                 else:
                     last_ene = calculation[-1]["electronic_steps"][-1]["e_fr_energy"]  # type: ignore[call-overload]
-                    if abs(cur_ene - last_ene) < 1.0:
+                    if math.isclose(cur_ene, last_ene, abs_tol=1, rel_tol=0):
                         calculation[-1]["electronic_steps"].append(e_steps_dict)
                     else:
                         calculation.append({"electronic_steps": [e_steps_dict]})

@@ -383,14 +383,14 @@ class QCOutput(MSONable):
                 self.data["S2"] = None
             elif len(temp_S2) == 1:
                 self.data["S2"] = float(temp_S2[0][0])
-                if abs(correct_s2 - self.data["S2"]) > 0.01:
+                if not math.isclose(correct_s2, self.data["S2"], abs_tol=0.01, rel_tol=0):
                     self.data["warnings"]["spin_contamination"] = abs(correct_s2 - self.data["S2"])
             else:
                 real_S2 = np.zeros(len(temp_S2))
                 have_spin_contamination = False
                 for ii, entry in enumerate(temp_S2):
                     real_S2[ii] = float(entry[0])
-                    if abs(correct_s2 - real_S2[ii]) > 0.01:
+                    if not math.isclose(correct_s2, real_S2[ii], abs_tol=0.01, rel_tol=0):
                         have_spin_contamination = True
                 self.data["S2"] = real_S2
                 if have_spin_contamination:

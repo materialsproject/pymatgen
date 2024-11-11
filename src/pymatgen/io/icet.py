@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import math
 import multiprocessing as multiproc
 import warnings
 from string import ascii_uppercase
@@ -255,7 +256,7 @@ class IcetSQS:
 
         # Check to be sure...
         c_sum = sum(c[0] for c in cr.values())
-        if abs(c_sum - 1) >= self.sqs_kwargs["tol"]:
+        if not math.isclose(c_sum, 1, abs_tol=self.sqs_kwargs["tol"], rel_tol=0):
             raise ValueError(f"Site occupancies sum to {abs(c_sum - 1)} instead of 1!")
 
         sizes = list(range(1, self.scaling + 1)) if self.sqs_kwargs["include_smaller_cells"] else [self.scaling]

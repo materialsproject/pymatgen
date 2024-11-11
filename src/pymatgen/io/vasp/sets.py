@@ -30,6 +30,7 @@ from __future__ import annotations
 
 import abc
 import itertools
+import math
 import os
 import re
 import warnings
@@ -663,7 +664,7 @@ class VaspInputSet(InputGenerator, abc.ABC):
 
         if self.constrain_total_magmom:
             nupdown = sum(mag if abs(mag) > 0.6 else 0 for mag in incar["MAGMOM"])
-            if abs(nupdown - round(nupdown)) > 1e-5:
+            if not math.isclose(nupdown, round(nupdown), abs_tol=1e-5, rel_tol=0):
                 warnings.warn(
                     "constrain_total_magmom was set to True, but the sum of MAGMOM "
                     "values is not an integer. NUPDOWN is meant to set the spin "
@@ -671,7 +672,7 @@ class VaspInputSet(InputGenerator, abc.ABC):
                     "better off changing the values of MAGMOM or simply setting "
                     "NUPDOWN directly in your INCAR settings.",
                     UserWarning,
-                    stacklevel=1,
+                    stacklevel=2,
                 )
             auto_updates["NUPDOWN"] = nupdown
 

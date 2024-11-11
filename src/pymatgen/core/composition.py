@@ -5,6 +5,7 @@ and a ChemicalPotential class to represent potentials.
 from __future__ import annotations
 
 import collections
+import math
 import os
 import re
 import string
@@ -12,7 +13,6 @@ import warnings
 from collections import defaultdict
 from functools import total_ordering
 from itertools import combinations_with_replacement, product
-from math import isnan
 from typing import TYPE_CHECKING, cast
 
 from monty.fractions import gcd, gcd_float
@@ -129,7 +129,7 @@ class Composition(collections.abc.Hashable, collections.abc.Mapping, MSONable, S
             elem_map = args[0]
         elif len(args) == 1 and isinstance(args[0], str):
             elem_map = self._parse_formula(args[0])  # type: ignore[assignment]
-        elif len(args) == 1 and isinstance(args[0], float) and isnan(args[0]):
+        elif len(args) == 1 and isinstance(args[0], float) and math.isnan(args[0]):
             raise ValueError("float('NaN') is not a valid Composition, did you mean 'NaN'?")
         else:
             elem_map = dict(*args, **kwargs)  # type: ignore[assignment]
@@ -305,7 +305,7 @@ class Composition(collections.abc.Hashable, collections.abc.Mapping, MSONable, S
             a = self[sp]
             b = other[sp]
             tol = atol + rtol * (abs(a) + abs(b)) / 2
-            if abs(b - a) > tol:
+            if not math.isclose(a, b, abs_tol=tol, rel_tol=0):
                 return False
         return True
 

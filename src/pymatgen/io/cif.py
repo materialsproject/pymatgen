@@ -583,7 +583,7 @@ class CifParser:
                         continue
 
                     for comparison_frac in important_fracs:
-                        if abs(1 - frac / comparison_frac) < self._frac_tolerance:
+                        if math.isclose(frac / comparison_frac, 1, abs_tol=self._frac_tolerance, rel_tol=0):
                             fracs_to_change[label, idx] = str(comparison_frac)
 
         if fracs_to_change:
@@ -1477,7 +1477,7 @@ class CifParser:
                 ratios = {elt: struct_comp[elt] / orig_comp[elt] for elt in orig_comp_elts}
 
                 same_stoich = all(
-                    abs(ratios[elt_a] - ratios[elt_b]) < self.comp_tol
+                    math.isclose(ratios[elt_a], ratios[elt_b], abs_tol=self.comp_tol, rel_tol=0)
                     for elt_a in orig_comp_elts
                     for elt_b in orig_comp_elts
                 )
