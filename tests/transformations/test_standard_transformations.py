@@ -9,6 +9,7 @@ from unittest import TestCase
 import numpy as np
 import pytest
 from monty.json import MontyDecoder
+from numpy.testing import assert_allclose
 from pytest import approx
 
 from pymatgen.core import Element, PeriodicSite
@@ -59,7 +60,7 @@ class TestRotationTransformations(TestCase):
         trafo = RotationTransformation([0, 1, 0], 30)
         s2 = trafo.apply_transformation(self.struct)
         s1 = trafo.inverse.apply_transformation(s2)
-        assert (abs(s1.lattice.matrix - self.struct.lattice.matrix) < 1e-8).all()
+        assert_allclose(s1.lattice.matrix, self.struct.lattice.matrix, atol=1e-8)
 
 
 class TestRemoveSpeciesTransformation:
