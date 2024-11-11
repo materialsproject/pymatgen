@@ -889,9 +889,10 @@ class PhaseDiagram(MSONable):
             # NOTE use this construction to avoid calls to fractional_composition
             if (
                 len(entry_frac) == len(c.composition)
-                # TODO: replace this
                 and all(
-                    abs(v - c.composition.get_atomic_fraction(el)) <= Composition.amount_tolerance
+                    math.isclose(
+                        v, c.composition.get_atomic_fraction(el), abs_tol=Composition.amount_tolerance, rel_tol=0
+                    )
                     for el, v in entry_frac.items()
                 )
             )

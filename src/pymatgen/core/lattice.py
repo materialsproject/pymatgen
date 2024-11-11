@@ -1641,15 +1641,18 @@ class Lattice(MSONable):
         """
         lengths = self.lengths
         angles = self.angles
-        right_angles = [i for i in range(3) if abs(angles[i] - 90) < hex_angle_tol]
+        right_angles = [i for i in range(3) if math.isclose(angles[i], 90, abs_tol=hex_angle_tol, rel_tol=0)]
         hex_angles = [
-            idx for idx in range(3) if abs(angles[idx] - 60) < hex_angle_tol or abs(angles[idx] - 120) < hex_angle_tol
+            idx
+            for idx in range(3)
+            if math.isclose(angles[idx], 60, abs_tol=hex_angle_tol, rel_tol=0)
+            or math.isclose(angles[idx], 120, abs_tol=hex_angle_tol, rel_tol=0)
         ]
 
         return (
             len(right_angles) == 2
             and len(hex_angles) == 1
-            and abs(lengths[right_angles[0]] - lengths[right_angles[1]]) < hex_length_tol
+            and math.isclose(lengths[right_angles[0]], lengths[right_angles[1]], abs_tol=hex_length_tol, rel_tol=0)
         )
 
     def get_distance_and_image(

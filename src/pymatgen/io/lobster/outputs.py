@@ -1715,6 +1715,7 @@ class Bandoverlaps(MSONable):
                 for iband2, band2 in enumerate(band1):
                     if iband1 < number_occ_bands_spin_up and iband2 < number_occ_bands_spin_up:
                         if iband1 == iband2:
+                            # TODO: double check following
                             if abs(band2 - 1.0).all() > limit_deviation:
                                 return False
                         elif band2.all() > limit_deviation:

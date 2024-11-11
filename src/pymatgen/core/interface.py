@@ -1047,7 +1047,7 @@ class GrainBoundaryGenerator:
                 mu = round(mu / temp)
                 mv = round(mv / temp)
             d = (u**2 + v**2 - u * v) * mv + w**2 * mu
-            if abs(angle - 180.0) < 1.0e0:
+            if abs(angle - 180.0) < 1:
                 m = 0
                 n = 1
             else:
@@ -1106,7 +1106,7 @@ class GrainBoundaryGenerator:
                 mu = round(mu / temp)
                 mv = round(mv / temp)
             d = (u**2 + v**2 + w**2) * (mu - 2 * mv) + 2 * mv * (v * w + w * u + u * v)
-            if abs(angle - 180.0) < 1.0e0:
+            if abs(angle - 180.0) < 1:
                 m = 0
                 n = 1
             else:
@@ -1224,7 +1224,7 @@ class GrainBoundaryGenerator:
                 mv = round(mv / temp)
                 lam = round(lam / temp)
             d = (mv * u**2 + lam * v**2) * mv + w**2 * mu * mv
-            if abs(angle - 180.0) < 1.0e0:
+            if abs(angle - 180.0) < 1:
                 m = 0
                 n = 1
             else:
@@ -2207,7 +2207,7 @@ class GrainBoundaryGenerator:
         for ii in combination:  # type: ignore[assignment]
             if reduce(math.gcd, ii) == 1:
                 temp = np.dot(np.array(ii), csl)
-                if abs(np.dot(temp, surface) - 0) < 1.0e-8:
+                if math.isclose(np.dot(temp, surface), 0, abs_tol=1.0e-8, rel_tol=0):
                     ab_vector.append(temp)
                 else:
                     # c vector length along the direction perpendicular to surface
@@ -2225,7 +2225,9 @@ class GrainBoundaryGenerator:
                                 c_norm = c_norm_temp
                                 normal_init = True
                                 t_matrix[2] = temp
-                    elif c_len_temp < c_length or (abs(c_len_temp - c_length) < 1.0e-8 and c_norm_temp < c_norm):
+                    elif c_len_temp < c_length or (
+                        math.isclose(c_len_temp, c_length, abs_tol=1.0e-8, rel_tol=0) and c_norm_temp < c_norm
+                    ):
                         t_matrix[2] = temp
                         c_norm = c_norm_temp
                         c_length = c_len_temp
@@ -2256,7 +2258,7 @@ class GrainBoundaryGenerator:
                 for ii in combination:  # type: ignore[assignment]
                     if reduce(math.gcd, ii) == 1:
                         temp = np.dot(np.array(ii), csl)
-                        if abs(np.dot(temp, surface) - 0) > 1.0e-8:
+                        if abs(np.dot(temp, surface)) > 1.0e-8:
                             c_cross = np.cross(np.matmul(temp, trans), np.matmul(surface, ctrans))
                             if np.linalg.norm(c_cross) < 1.0e-8:
                                 # c vector length itself
@@ -2276,7 +2278,7 @@ class GrainBoundaryGenerator:
         ab_norm = None
         for ii in combinations(ab_vector, 2):
             area_temp = np.linalg.norm(np.cross(np.matmul(ii[0], trans), np.matmul(ii[1], trans)))
-            if abs(area_temp - 0) > 1.0e-8:
+            if abs(area_temp) > 1.0e-8:
                 ab_norm_temp = np.linalg.norm(np.matmul(ii[0], trans)) + np.linalg.norm(np.matmul(ii[1], trans))
                 if area is None:
                     area = area_temp
@@ -2284,7 +2286,9 @@ class GrainBoundaryGenerator:
                     t_matrix[0] = ii[0]
                     t_matrix[1] = ii[1]
 
-                elif area_temp < area or (abs(area - area_temp) < 1.0e-8 and ab_norm_temp < ab_norm):
+                elif area_temp < area or (
+                    math.isclose(area, area_temp, abs_tol=1.0e-8, rel_tol=0) and ab_norm_temp < ab_norm
+                ):
                     t_matrix[0] = ii[0]
                     t_matrix[1] = ii[1]
                     area = area_temp
