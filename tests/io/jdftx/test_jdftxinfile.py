@@ -81,7 +81,6 @@ def test_JDFTXInfile_set_values(val_key: str, val: Any):
 @pytest.mark.parametrize(
     ("val_key", "val"),
     [
-        # ("fluid-solvent", "H2O 0.5"), # Causes issues with the list representation
         ("fluid-solvent", "H2O"),
         ("dump", "End DOS"),
         ("dump", "End DOS BandEigs"),
@@ -127,9 +126,8 @@ def test_JDFTXInfile_expected_exceptions():
     value = {"blockSize": 1, "nOuterVxx": "barbie"}
     err_str = str(f"The {tag} tag with value:\n{value}\ncould not be fixed!")
     with pytest.raises(ValueError, match=re.escape(err_str)):
-        # Cannot set item without calling validate_tags
+        # Implicitly tests validate_tags
         jif[tag] = value
-        # jif.validate_tags()
     jif2 = jif.copy()
     jif2.update({tag: value})
     with pytest.raises(ValueError, match=re.escape(err_str)):

@@ -34,7 +34,6 @@ def test_jdftxoutfileslice_trajectory():
     traj = joutslice.trajectory
     assert isinstance(traj, Trajectory)
     del joutslice.jsettings_lattice.params["niterations"]
-    # joutslice.jsettings_lattice.params["niterations"] = None
     with pytest.raises(ValueError, match=re.escape("Unknown issue due to partial initialization of settings objects.")):
         traj = joutslice.trajectory
 
@@ -54,8 +53,6 @@ def test_get_broadeningvars():
 
 def test_get_truncationvars():
     joutslice = JDFTXOutfileSlice.from_out_slice(ex_slice1)
-    # with pytest.raises(ValueError, match="No truncation type found in out file."):
-    #     joutslice.get_truncationvars([])
     joutslice.is_bgw = True
     with pytest.raises(ValueError, match="BGW slab Coulomb truncation must be along z!"):
         joutslice.get_truncationvars(["coulomb-interaction Slab 010"])
@@ -94,8 +91,6 @@ def test_get_eigstats_varsdict():
 
 def test_get_pp_type():
     joutslice = JDFTXOutfileSlice.from_out_slice(ex_slice1)
-    # with pytest.raises(ValueError, match="Could not determine pseudopotential type from file name root/PAW"):
-    #     joutslice.get_pp_type(["Reading pseudopotential file root/PAW:"])
     assert joutslice.get_pp_type(["Reading pseudopotential file root/PAW:"]) is None
     assert joutslice.get_pp_type(["Reading pseudopotential file not_SG15/GBRV"]) == "GBRV"
     assert joutslice.get_pp_type(["Reading pseudopotential file not_GBRV/SG15"]) == "SG15"
@@ -103,8 +98,6 @@ def test_get_pp_type():
 
 def test_set_pseudo_vars_t1():
     joutslice = JDFTXOutfileSlice.from_out_slice(ex_slice1)
-    str(joutslice)
-    repr(joutslice)
     # Just need more bound sets than there are atom types
     text = [
         "Reading pseudopotential file not_SG15/GBRV",

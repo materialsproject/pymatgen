@@ -82,9 +82,6 @@ def test_JElSteps_known(
     etype: str = "F",
     eitertype="ElecMinimize",
 ):
-    # text_slice = []
-    # for exl in ex_lines:
-    #     text_slice += exl
     text_slice = [line for exl in ex_lines for line in exl]
     jeis = JElSteps.from_text_slice(text_slice, opt_type=eitertype, etype=etype)
     for var in [
