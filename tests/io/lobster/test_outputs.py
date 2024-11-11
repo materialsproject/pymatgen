@@ -1524,6 +1524,8 @@ class TestBandoverlaps(TestCase):
             limit_deviation=0.1,
             spin_polarized=True,
         )
+        pytest.fail("test")
+
         assert not self.band_overlaps1_new.has_good_quality_check_occupied_bands(
             number_occ_bands_spin_up=9,
             number_occ_bands_spin_down=5,

@@ -971,10 +971,9 @@ class Lattice(MSONable):
         f_a, f_b, f_c = (frac[i] for i in inds)
         l_a, l_b, l_c = (np.sum(c**2, axis=-1) ** 0.5 for c in (c_a, c_b, c_c))
 
-        # TODO: use np.isclose
-        alpha_b = np.abs(get_angles(c_b, c_c, l_b, l_c) - alpha) < atol
-        beta_b = np.abs(get_angles(c_a, c_c, l_a, l_c) - beta) < atol
-        gamma_b = np.abs(get_angles(c_a, c_b, l_a, l_b) - gamma) < atol
+        alpha_b = np.isclose(get_angles(c_b, c_c, l_b, l_c), alpha, atol=atol, rtol=0)
+        beta_b = np.isclose(get_angles(c_a, c_c, l_a, l_c), beta, atol=atol, rtol=0)
+        gamma_b = np.isclose(get_angles(c_a, c_b, l_a, l_b), gamma, atol=atol, rtol=0)
 
         for idx, all_j in enumerate(gamma_b):
             inds = np.logical_and(all_j[:, None], np.logical_and(alpha_b, beta_b[idx][None, :]))

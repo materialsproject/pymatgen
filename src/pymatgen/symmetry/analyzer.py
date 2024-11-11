@@ -1389,7 +1389,7 @@ class PointGroupAnalyzer:
         symm_number = 0
         for symm in symm_ops:
             rot = symm.rotation_matrix
-            if np.abs(np.linalg.det(rot) - 1) < 1e-4:
+            if math.isclose(np.linalg.det(rot), 1, abs_tol=1e-4, rel_tol=0):
                 symm_number += 1
         return symm_number
 
