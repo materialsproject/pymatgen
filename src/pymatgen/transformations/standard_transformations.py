@@ -6,7 +6,6 @@ All transformations should inherit the AbstractTransformation ABC.
 
 from __future__ import annotations
 
-import math
 from fractions import Fraction
 from typing import TYPE_CHECKING
 
@@ -525,7 +524,7 @@ class OrderDisorderedStructureTransformation(AbstractTransformation):
             )
             # round total occupancy to possible values
             for key, val in total_occupancy.items():
-                if not math.isclose(val, round(val), abs_tol=0.25, rel_tol=0):
+                if abs(val - round(val)) > 0.25:
                     raise ValueError("Occupancy fractions not consistent with size of unit cell")
                 total_occupancy[key] = int(round(val))
             # start with an ordered structure

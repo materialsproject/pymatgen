@@ -499,7 +499,7 @@ class SpacegroupAnalyzer:
             # Check if the conventional representation is hexagonal or
             # rhombohedral
             lengths = conv.lattice.lengths
-            if math.isclose(lengths[0], lengths[2], abs_tol=0.0001, rel_tol=0):
+            if abs(lengths[0] - lengths[2]) < 1e-4:
                 return np.eye
             return np.array([[-1, 1, 1], [2, 1, 1], [-1, -2, 1]], dtype=np.float64) / 3
 
@@ -1131,9 +1131,9 @@ class PointGroupAnalyzer:
         More complex handling required to look for R2 axes perpendicular to this unique
         axis.
         """
-        if math.isclose(self.eigvals[0], self.eigvals[1], abs_tol=self.eig_tol, rel_tol=0):
+        if abs(self.eigvals[0] - self.eigvals[1]) < self.eig_tol:
             ind = 2
-        elif math.isclose(self.eigvals[1], self.eigvals[2], abs_tol=self.eig_tol, rel_tol=0):
+        elif abs(self.eigvals[1] - self.eigvals[2]) < self.eig_tol:
             ind = 0
         else:
             ind = 1
@@ -1389,7 +1389,7 @@ class PointGroupAnalyzer:
         symm_number = 0
         for symm in symm_ops:
             rot = symm.rotation_matrix
-            if math.isclose(np.linalg.det(rot), 1, abs_tol=1e-4, rel_tol=0):
+            if np.abs(np.linalg.det(rot) - 1) < 1e-4:
                 symm_number += 1
         return symm_number
 

@@ -225,7 +225,7 @@ class SymmOp(MSONable):
         to_c = self.operate(to_a)
 
         floored = np.floor([from_c, to_c])
-        is_too_close = ~np.isclose([from_c, to_c], floored, atol=1 - tol, rtol=0)
+        is_too_close = np.abs([from_c, to_c] - floored) > 1 - tol
         floored[is_too_close] += 1
 
         r_c = self.apply_rotation_only(r_a) - floored[0] + floored[1]
