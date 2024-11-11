@@ -928,7 +928,7 @@ class BoltztrapAnalyzer:
                 bnd_around_efermi = []
                 for nb in range(len(sbs_bz.bands[spin])):
                     for kp in range(len(sbs_bz.bands[spin][nb])):
-                        if abs(sbs_bz.bands[spin][nb][kp] - sbs_bz.efermi) < delta:
+                        if math.isclose(sbs_bz.bands[spin][nb][kp], sbs_bz.efermi, abs_tol=delta, rel_tol=0):
                             bnd_around_efermi.append(nb)
                             break
             if len(bnd_around_efermi) < 8:
@@ -1468,7 +1468,7 @@ class BoltztrapAnalyzer:
             return bool(
                 all([st[0], st[1], st[2]])
                 and (abs((st[1] - st[0]) / st[1]) <= isotropy_tolerance)
-                and (abs(st[2] - st[0]) / st[2] <= isotropy_tolerance)
+                and (abs((st[2] - st[0]) / st[2]) <= isotropy_tolerance)
                 and (abs((st[2] - st[1]) / st[2]) <= isotropy_tolerance)
             )
 
