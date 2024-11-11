@@ -199,7 +199,6 @@ class XAS(Spectrum):
             mu = [i + j for i, j in zip([max(i, 0) for i in l2_f(energy)], l3_f(energy), strict=True)]
             # check for jumps at the onset of L2-edge XANES
             idx = energy.index(min(energy, key=lambda x: (abs(x - l2_xanes.x[0]))))
-            # TODO: is the following a bug? should abs be called on difference?
             if abs(mu[idx] - mu[idx - 1]) / (mu[idx - 1]) > 0.1:
                 warnings.warn(
                     "There might exist a jump at the L2 and L3-edge junction.",
