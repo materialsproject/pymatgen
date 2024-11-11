@@ -3750,7 +3750,7 @@ class EconNN(NearNeighbors):
 
         # iteratively solve MEFIR; follows equation 4 in Hoppe's EconN paper
         prev_mefir = float("inf")
-        while not math.isclose(prev_mefir, mefir, abs_tol=1e-4, rel_tol=0):
+        while abs(prev_mefir - mefir) > 1e-4:
             # this is guaranteed to converge
             prev_mefir = mefir
             mefir = _get_mean_fictive_ionic_radius(firs, minimum_fir=mefir)
