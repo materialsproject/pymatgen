@@ -973,7 +973,7 @@ class SquareTensor(Tensor):
         det = np.abs(np.linalg.det(self))
         if include_improper:
             det = np.abs(det)
-        return np.allclose(self.inv, self.trans, atol=tol, rtol=0) and bool(np.abs(det - 1.0) < tol)
+        return np.allclose(self.inv, self.trans, atol=tol, rtol=0) and np.allclose(det, 1.0, atol=tol, rtol=0)
 
     def refine_rotation(self) -> Self:
         """Helper method for refining rotation matrix by ensuring
