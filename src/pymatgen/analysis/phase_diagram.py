@@ -1230,7 +1230,7 @@ class PhaseDiagram(MSONable):
                         for di in all_coords:
                             dict_equals = True
                             for k in di:
-                                if not math.isclose(di[k], res[k], abs_tol=tol_en, rel_tol=0):
+                                if abs(di[k] - res[k]) > tol_en:
                                     dict_equals = False
                                     break
                             if dict_equals:

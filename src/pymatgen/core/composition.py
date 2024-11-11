@@ -305,7 +305,7 @@ class Composition(collections.abc.Hashable, collections.abc.Mapping, MSONable, S
             a = self[sp]
             b = other[sp]
             tol = atol + rtol * (abs(a) + abs(b)) / 2
-            if not math.isclose(a, b, abs_tol=tol, rel_tol=0):
+            if abs(b - a) > tol:
                 return False
         return True
 

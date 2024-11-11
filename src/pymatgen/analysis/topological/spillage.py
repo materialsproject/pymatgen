@@ -7,8 +7,6 @@ https://www.nature.com/articles/s41524-020-0319-4.
 
 from __future__ import annotations
 
-import math
-
 import numpy as np
 
 from pymatgen.io.vasp.outputs import Wavecar
@@ -35,7 +33,7 @@ class SOCSpillage:
     @staticmethod
     def isclose(n1, n2, rel_tol=1e-7):
         """Checking if the numbers are close enough."""
-        return math.isclose(n1, n2, abs_tol=rel_tol, rel_tol=0)
+        return abs(n1 - n2) < rel_tol
 
     @staticmethod
     def orth(A):

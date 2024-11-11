@@ -211,7 +211,7 @@ class BalancedReaction(MSONable):
         for amt, formula in zip(coeffs, formulas, strict=True):
             if math.isclose(amt, -1, abs_tol=cls.TOLERANCE, rel_tol=0):
                 reactant_str.append(formula)
-            elif math.isclose(amt, 1, abs_tol=cls.TOLERANCE, rel_tol=0):
+            elif abs(amt - 1) < cls.TOLERANCE:
                 product_str.append(formula)
             elif amt < -cls.TOLERANCE:
                 reactant_str.append(f"{-amt:.4g} {formula}")
