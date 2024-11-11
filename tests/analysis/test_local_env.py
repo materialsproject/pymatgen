@@ -1,6 +1,5 @@
 from __future__ import annotations
 
-from math import pi
 from shutil import which
 from typing import get_args
 
@@ -113,7 +112,7 @@ class TestVoronoiNN(PymatgenTest):
             for nn in self.nn.get_voronoi_polyhedra(self.struct, n).values():
                 angle += nn["solid_angle"]
             assert 4 * np.pi == approx(angle)
-        assert solid_angle([0, 0, 0], [[1, 0, 0], [-1, 0, 0], [0, 1, 0]]) == pi
+        assert solid_angle([0, 0, 0], [[1, 0, 0], [-1, 0, 0], [0, 1, 0]]) == np.pi
 
     def test_nn_shell(self):
         # First, make a SC lattice. Make my math easier

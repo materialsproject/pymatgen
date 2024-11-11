@@ -10,7 +10,6 @@ that employed core-shell models.
 from __future__ import annotations
 
 import re
-from math import fabs
 from typing import TYPE_CHECKING
 
 import numpy as np
@@ -107,12 +106,12 @@ class Xr:
             mat[i] = np.array([float(w) for w in tokens])
         lattice = Lattice(mat)
         if (
-            fabs(lattice.a - lengths[0]) / fabs(lattice.a) > thresh
-            or fabs(lattice.b - lengths[1]) / fabs(lattice.b) > thresh
-            or fabs(lattice.c - lengths[2]) / fabs(lattice.c) > thresh
-            or fabs(lattice.alpha - angles[0]) / fabs(lattice.alpha) > thresh
-            or fabs(lattice.beta - angles[1]) / fabs(lattice.beta) > thresh
-            or fabs(lattice.gamma - angles[2]) / fabs(lattice.gamma) > thresh
+            abs(lattice.a - lengths[0]) / abs(lattice.a) > thresh
+            or abs(lattice.b - lengths[1]) / abs(lattice.b) > thresh
+            or abs(lattice.c - lengths[2]) / abs(lattice.c) > thresh
+            or abs(lattice.alpha - angles[0]) / abs(lattice.alpha) > thresh
+            or abs(lattice.beta - angles[1]) / abs(lattice.beta) > thresh
+            or abs(lattice.gamma - angles[2]) / abs(lattice.gamma) > thresh
         ):
             raise RuntimeError(
                 f"cell parameters in header ({lengths}, {angles}) are not consistent with Cartesian "

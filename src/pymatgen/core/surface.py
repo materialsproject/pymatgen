@@ -22,7 +22,6 @@ import math
 import os
 import warnings
 from functools import reduce
-from math import gcd, isclose
 from typing import TYPE_CHECKING, cast
 
 import numpy as np
@@ -425,7 +424,7 @@ class Slab(Structure):
         for op in ops:
             slab = self.copy()
             site_other = op.operate(point)
-            if isclose(site_other[2], point[2], abs_tol=1e-6):
+            if math.isclose(site_other[2], point[2], abs_tol=1e-6):
                 continue
 
             # Add dummy sites to check if the overall structure is symmetric
@@ -948,7 +947,7 @@ class SlabGenerator:
 
         def reduce_vector(vector: MillerIndex) -> MillerIndex:
             """Helper function to reduce vectors."""
-            divisor = abs(reduce(gcd, vector))  # type: ignore[arg-type]
+            divisor = abs(reduce(math.gcd, vector))  # type: ignore[arg-type]
             return cast(Tuple3Ints, tuple(int(idx / divisor) for idx in vector))
 
         def add_site_types() -> None:
@@ -1025,7 +1024,7 @@ class SlabGenerator:
                     cosine = abs(np.dot(vec, normal) / osdm)
                     candidates.append((uvw, cosine, osdm))
                     # Stop searching if cosine equals 1 or -1
-                    if isclose(abs(cosine), 1, abs_tol=1e-8):
+                    if math.isclose(abs(cosine), 1, abs_tol=1e-8):
                         break
                 # We want the indices with the maximum absolute cosine,
                 # but smallest possible length.
@@ -1323,7 +1322,7 @@ class SlabGenerator:
                                     z_ranges.extend([(0, z_range[1]), (z_range[0] + 1, 1)])
 
                                 # Neglect overlapping positions
-                                elif not isclose(z_range[0], z_range[1], abs_tol=ztol):
+                                elif not math.isclose(z_range[0], z_range[1], abs_tol=ztol):
                                     z_ranges.append(z_range)
 
             return z_ranges
@@ -1707,7 +1706,7 @@ def get_d(slab: Slab) -> float:
 
     distance = None
     for site, next_site in itertools.pairwise(sorted_sites):
-        if not isclose(site.frac_coords[2], next_site.frac_coords[2], abs_tol=1e-6):
+        if not math.isclose(site.frac_coords[2], next_site.frac_coords[2], abs_tol=1e-6):
             distance = next_site.frac_coords[2] - site.frac_coords[2]
             break
 
@@ -2070,7 +2069,7 @@ def get_symmetrically_distinct_miller_indices(
     unique_millers_conv: list = []
 
     for idx, miller in enumerate(miller_list):
-        denom = abs(reduce(gcd, miller))  # type: ignore[arg-type]
+        denom = abs(reduce(math.gcd, miller))  # type: ignore[arg-type]
         miller = cast(Tuple3Ints, tuple(int(idx / denom) for idx in miller))
         if not _is_in_miller_family(miller, unique_millers, symm_ops):
             if spg_analyzer.get_crystal_system() == "trigonal":
@@ -2078,7 +2077,7 @@ def get_symmetrically_distinct_miller_indices(
                 # the primitive symmetry operations and their
                 # corresponding hkls in the conventional setting
                 unique_millers.append(miller)
-                denom = abs(reduce(gcd, conv_hkl_list[idx]))  # type: ignore[arg-type]
+                denom = abs(reduce(math.gcd, conv_hkl_list[idx]))  # type: ignore[arg-type]
                 cmiller = tuple(int(idx / denom) for idx in conv_hkl_list[idx])
                 unique_millers_conv.append(cmiller)
             else:
@@ -2129,7 +2128,7 @@ def hkl_transformation(
 
     # Perform the transformation
     transf_hkl = np.dot(reduced_transf, miller_index)
-    divisor = abs(reduce(gcd, transf_hkl))  # type: ignore[arg-type]
+    divisor = abs(reduce(math.gcd, transf_hkl))  # type: ignore[arg-type]
     transf_hkl = np.array([idx // divisor for idx in transf_hkl])
 
     # Get positive Miller index
