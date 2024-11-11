@@ -331,9 +331,6 @@ class JDFTXOutfile:
     __getattr__(name: str) -> Any
         Returns the value of the property with the same name as the input string.
 
-    __dir__() -> list[str]
-        Returns a list of all the properties of the JDFTXOutfile object.
-
     __str__() -> str
         Returns a string representation of the JDFTXOutfile object.
     """
@@ -1311,24 +1308,6 @@ class JDFTXOutfile:
 
         # If the attribute is not found in either, raise an AttributeError
         raise AttributeError(f"{self.__class__.__name__} not found: {name}")
-
-    def __dir__(self) -> list:
-        """List attributes.
-
-        Returns a list of attributes for the object, including those from
-        self.slices[-1].
-
-        Returns
-        -------
-        list
-            A list of attribute names
-        """
-        # Get the default attributes
-        default_attrs = dir(self)
-        # Get the attributes from self.slices[-1] if slices is not empty
-        slice_attrs = dir(self.slices[-1]) if self.slices else []
-        # Combine and return unique attributes
-        return list(set(default_attrs + slice_attrs))
 
     def __str__(self) -> str:
         """Return string representation of JDFTXOutfile object.

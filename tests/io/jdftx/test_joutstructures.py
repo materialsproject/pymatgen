@@ -91,37 +91,3 @@ def test_jstructures(ex_slice: list[str], ex_slice_known: dict[str, float], opt_
     assert jstruct.elecmindata.converged == ex_slice_known["conv-1"]
     assert len(jstruct) == ex_slice_known["nGeomSteps"]
     assert jstruct.selective_dynamics is not None
-
-
-# @pytest.mark.parametrize(
-#     ("out_slice", "varname"),
-#     [
-#         (ex_outslice1, "etype"),
-#         (ex_outslice1, "eopt_type"),
-#         (ex_outslice1, "emin_flag"),
-#         (ex_outslice1, "ecomponents"),
-#         (ex_outslice1, "elecmindata"),
-#         (ex_outslice1, "stress"),
-#         (ex_outslice1, "strain"),
-#         (ex_outslice1, "nstep"),
-#         (ex_outslice1, "e"),
-#         (ex_outslice1, "grad_k"),
-#         (ex_outslice1, "alpha"),
-#         (ex_outslice1, "linmin"),
-#         (ex_outslice1, "nelectrons"),
-#         (ex_outslice1, "abs_magneticmoment"),
-#         (ex_outslice1, "tot_magneticmoment"),
-#         (ex_outslice1, "mu"),
-#         (ex_outslice1, "elec_nstep"),
-#         (ex_outslice1, "elec_e"),
-#         (ex_outslice1, "elec_grad_k"),
-#         (ex_outslice1, "elec_alpha"),
-#         (ex_outslice1, "elec_linmin"),
-#     ],
-# )
-# def test_joutstructures_has_1layer_slice_freakout(out_slice: list[str], varname: str):
-#     jstrucs = JOutStructures.from_out_slice(out_slice)
-#     getattr(jstrucs, varname)  # No freakout here
-#     jstrucs.slices = []
-#     with pytest.raises(AttributeError):
-#         getattr(jstrucs, varname)  # Freakout here

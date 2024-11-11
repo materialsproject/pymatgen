@@ -10,11 +10,10 @@ from pymatgen.core.units import Ha_to_eV, bohr_to_ang
 from pymatgen.io.jdftx.joutstructure import JOutStructure
 from pymatgen.util.testing import TEST_FILES_DIR
 
+from .conftest import ex_jstruc_slice1 as ex_slice1
+from .conftest import ex_jstruc_slice2 as ex_slice2
+
 ex_files_dir = Path(TEST_FILES_DIR) / "io" / "jdftx" / "example_files"
-ex_slice_fname1 = ex_files_dir / "ex_text_slice_forJAtoms_latmin"
-ex_slice1 = []
-with open(ex_slice_fname1) as f:
-    ex_slice1 = list.copy(list(f))
 ex_slice1_known = {
     "nstep": 0,
     "etype": "F",
@@ -50,10 +49,6 @@ ex_slice1_known = {
     "ox-1": -0.034,
     "mag-1": 0.000,
 }
-ex_slice_fname2 = ex_files_dir / "ex_text_slice_forJAtoms_latmin2"
-ex_slice2 = []
-with open(ex_slice_fname2) as f:
-    ex_slice2 = list.copy(list(f))
 ex_slice2_known = {
     "nstep": 9,
     "etype": "F",
