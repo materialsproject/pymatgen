@@ -2009,7 +2009,7 @@ class MPNMRSet(VaspInputSet):
         if self.mode.lower() == "cs":
             updates.update(
                 LCHIMAG=True,
-                EDIFF=-1.0e-10,
+                EDIFF=-1e-10,
                 ISYM=0,
                 LCHARG=False,
                 LNMR_SYM_RED=True,
@@ -2026,7 +2026,7 @@ class MPNMRSet(VaspInputSet):
             ]
             updates.update(
                 ALGO="FAST",
-                EDIFF=-1.0e-10,
+                EDIFF=-1e-10,
                 ISYM=0,
                 LCHARG=False,
                 LEFG=True,
@@ -3173,7 +3173,7 @@ class MPAbsorptionSet(VaspInputSet):
         """Updates to the INCAR config for this calculation type."""
         updates = {
             "ALGO": "Exact",
-            "EDIFF": 1.0e-8,
+            "EDIFF": 1e-8,
             "IBRION": -1,
             "ICHARG": 1,
             "ISMEAR": 0,

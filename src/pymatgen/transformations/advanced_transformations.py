@@ -1333,7 +1333,7 @@ class GrainBoundaryTransformation(AbstractTransformation):
         ratio=True,
         plane=None,
         max_search=20,
-        tol_coi=1.0e-8,
+        tol_coi=1e-8,
         rm_ratio=0.7,
         quick_gen=False,
     ):

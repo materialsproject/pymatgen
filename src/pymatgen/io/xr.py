@@ -73,7 +73,7 @@ class Xr:
             file.write(str(self) + "\n")
 
     @classmethod
-    def from_str(cls, string: str, use_cores: bool = True, thresh: float = 1.0e-4) -> Self:
+    def from_str(cls, string: str, use_cores: bool = True, thresh: float = 1e-4) -> Self:
         """
         Creates an Xr object from a string representation.
 
@@ -139,7 +139,7 @@ class Xr:
         return cls(Structure(lattice, sp, coords, coords_are_cartesian=True))
 
     @classmethod
-    def from_file(cls, filename: str | Path, use_cores: bool = True, thresh: float = 1.0e-4) -> Self:
+    def from_file(cls, filename: str | Path, use_cores: bool = True, thresh: float = 1e-4) -> Self:
         """
         Reads an xr-formatted file to create an Xr object.
 

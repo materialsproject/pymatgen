@@ -98,9 +98,9 @@ class T(NamedTuple):
 
 
 _tolerances = {
-    "toldfe": T(1.0e-7, 1.0e-8, 1.0e-9),
-    "tolvrs": T(1.0e-7, 1.0e-8, 1.0e-9),
-    "tolwfr": T(1.0e-15, 1.0e-17, 1.0e-19),
+    "toldfe": T(1e-7, 1e-8, 1e-9),
+    "tolvrs": T(1e-7, 1e-8, 1e-9),
+    "tolwfr": T(1e-15, 1e-17, 1e-19),
     "tolrff": T(0.04, 0.02, 0.01),
 }
 del T
