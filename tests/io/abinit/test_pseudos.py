@@ -161,7 +161,7 @@ class TestPseudo(PymatgenTest):
         ger.as_tmpfile()
 
         assert ger.symbol == "Ge"
-        assert ger.Z == approx(32.0)  # noqa: SIM300 (ruff bug?)
+        assert ger.Z == approx(32.0)  # noqa: SIM300
         assert ger.Z_val == approx(4.0)
         assert ger.isnc
         assert not ger.ispaw
@@ -185,7 +185,7 @@ class TestPseudo(PymatgenTest):
         self.assert_msonable(pb)
 
         assert pb.symbol == "Pb"
-        assert pb.Z == approx(82.0)  # noqa: SIM300 (ruff bug?)
+        assert pb.Z == approx(82.0)  # noqa: SIM300
         assert pb.Z_val == approx(14.0)
         assert pb.isnc
         assert not pb.ispaw
