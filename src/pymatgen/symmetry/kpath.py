@@ -4,7 +4,8 @@ from __future__ import annotations
 
 import abc
 import itertools
-from math import ceil, cos, e, pi, sin, tan
+import math
+from math import cos, pi, sin
 from typing import TYPE_CHECKING
 from warnings import warn
 
@@ -102,7 +103,7 @@ class KPathBase(abc.ABC):
                 distance = np.linalg.norm(
                     self._rec_lattice.get_cartesian_coords(start) - self._rec_lattice.get_cartesian_coords(end)
                 )
-                nb = ceil(distance * line_density)
+                nb = math.ceil(distance * line_density)
                 if nb == 0:
                     continue
                 sym_point_labels.extend([k_path[path_step - 1]] + [""] * (nb - 1) + [k_path[path_step]])
@@ -603,7 +604,7 @@ class KPathSetyawanCurtarolo(KPathBase):
     def rhl2(self, alpha):
         """RHL2 Path."""
         self.name = "RHL2"
-        eta = 1 / (2 * tan(alpha / 2.0) ** 2)
+        eta = 1 / (2 * math.tan(alpha / 2.0) ** 2)
         nu = 3 / 4 - eta / 2.0
         kpoints = {
             "\\Gamma": np.array([0.0, 0.0, 0.0]),
@@ -1387,7 +1388,7 @@ class KPathLatimerMunro(KPathBase):
         return point_orbits_in_path, line_orbits_in_path
 
     def _get_key_points(self):
-        decimals = ceil(-1 * np.log10(self._atol)) - 1
+        decimals = math.ceil(-1 * np.log10(self._atol)) - 1
         bz = self._rec_lattice.get_wigner_seitz_cell()
 
         key_points = []
@@ -1537,7 +1538,7 @@ class KPathLatimerMunro(KPathBase):
             to_pop = []
             p00 = key_points[l0[0]]
             p01 = key_points[l0[1]]
-            pmid0 = p00 + e / pi * (p01 - p00)
+            pmid0 = p00 + math.e / pi * (p01 - p00)
             for ind_key, l1 in key_lines_copy.items():
                 p10 = key_points[l1[0]]
                 p11 = key_points[l1[1]]
@@ -1555,7 +1556,7 @@ class KPathLatimerMunro(KPathBase):
                     equivptsperp = True
 
                 if equivptspar:
-                    pmid1 = p10 + e / pi * (p11 - p10)
+                    pmid1 = p10 + math.e / pi * (p11 - p10)
                     for op in self._rpg:
                         if not equivline:
                             p00pr = np.dot(op, p00)
@@ -1569,7 +1570,7 @@ class KPathLatimerMunro(KPathBase):
                                     equivline = True
 
                 elif equivptsperp:
-                    pmid1 = p11 + e / pi * (p10 - p11)
+                    pmid1 = p11 + math.e / pi * (p10 - p11)
                     for op in self._rpg:
                         if not equivline:
                             p00pr = np.dot(op, p00)
@@ -1739,7 +1740,9 @@ class KPathLatimerMunro(KPathBase):
         if len(pos1) != len(pos2):
             return False
         for idx, p1 in enumerate(pos1):
-            if abs(p1 - pos2[idx]) > tolerance[idx] and abs(p1 - pos2[idx]) < 1 - tolerance[idx]:
+            if not math.isclose(p1, pos2[idx], abs_tol=tolerance[idx], rel_tol=0) and math.isclose(
+                p1, pos2[idx], abs_tol=1 - tolerance[idx], rel_tol=0
+            ):
                 return False
         return True
 
