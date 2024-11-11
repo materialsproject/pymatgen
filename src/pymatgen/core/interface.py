@@ -2207,7 +2207,7 @@ class GrainBoundaryGenerator:
         for ii in combination:  # type: ignore[assignment]
             if reduce(math.gcd, ii) == 1:
                 temp = np.dot(np.array(ii), csl)
-                if math.isclose(np.dot(temp, surface), 0, abs_tol=1.0e-8, rel_tol=0):
+                if abs(np.dot(temp, surface)) < 1e-8:
                     ab_vector.append(temp)
                 else:
                     # c vector length along the direction perpendicular to surface
