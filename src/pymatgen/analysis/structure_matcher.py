@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import abc
 import itertools
+import math
 from functools import lru_cache
 from typing import TYPE_CHECKING, cast
 
@@ -463,7 +464,7 @@ class StructureMatcher(MSONable):
             skip_rotation_matrix=True,
         )
         for latt, _, scale_m in lattices:
-            if abs(abs(np.linalg.det(scale_m)) - supercell_size) < 0.5:
+            if math.isclose(abs(np.linalg.det(scale_m)), supercell_size, abs_tol=0.5, rel_tol=0):
                 yield latt, scale_m
 
     def _get_supercells(self, struct1, struct2, fu, s1_supercell):

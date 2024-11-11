@@ -36,6 +36,7 @@ from __future__ import annotations
 
 import copy
 import itertools
+import math
 import warnings
 from typing import TYPE_CHECKING
 
@@ -1569,10 +1570,10 @@ class WorkFunctionAnalyzer:
         all_flat = []
         for i in range(len(self.along_c)):
             if peak_i - min_points < i < peak_i + min_points:
-                if abs(self.vacuum_locpot - self.locpot_along_c[i]) > conv_within:
-                    all_flat.append(False)
-                else:
+                if math.isclose(self.vacuum_locpot, self.locpot_along_c[i], abs_tol=conv_within, rel_tol=0):
                     all_flat.append(True)
+                else:
+                    all_flat.append(False)
         return all(all_flat)
 
     @classmethod

@@ -596,11 +596,11 @@ class HeisenbergMapper:
 
         # Determine order of interaction
         order = ""
-        if abs(dist - self.dists["nn"]) <= self.tol:
+        if math.isclose(dist, self.dists["nn"], abs_tol=self.tol, rel_tol=0):
             order = "-nn"
-        elif abs(dist - self.dists["nnn"]) <= self.tol:
+        elif math.isclose(dist, self.dists["nnn"], abs_tol=self.tol, rel_tol=0):
             order = "-nnn"
-        elif abs(dist - self.dists["nnnn"]) <= self.tol:
+        elif math.isclose(dist, self.dists["nnnn"], abs_tol=self.tol, rel_tol=0):
             order = "-nnnn"
 
         j_ij = f"{i_index}-{j_index}{order}"
@@ -961,11 +961,11 @@ class HeisenbergModel(MSONable):
 
         # Determine order of interaction
         order = ""
-        if abs(dist - self.dists["nn"]) <= self.tol:
+        if math.isclose(dist, self.dists["nn"], abs_tol=self.tol, rel_tol=0):
             order = "-nn"
-        elif abs(dist - self.dists["nnn"]) <= self.tol:
+        elif math.isclose(dist, self.dists["nnn"], abs_tol=self.tol, rel_tol=0):
             order = "-nnn"
-        elif abs(dist - self.dists["nnnn"]) <= self.tol:
+        elif math.isclose(dist, self.dists["nnnn"], abs_tol=self.tol, rel_tol=0):
             order = "-nnnn"
 
         j_ij = f"{i_index}-{j_index}{order}"

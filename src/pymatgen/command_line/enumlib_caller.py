@@ -268,7 +268,7 @@ class EnumlibAdaptor:
         for amt in index_amounts:
             conc = amt / total_amounts
 
-            if abs(conc * base - round(conc * base)) < 1e-5:
+            if math.isclose(conc * base, round(conc * base), abs_tol=1e-5, rel_tol=0):
                 output.append(f"{int(round(conc * base))} {int(round(conc * base))} {base}")
             else:
                 min_conc = math.floor(conc * base)

@@ -889,6 +889,7 @@ class PhaseDiagram(MSONable):
             # NOTE use this construction to avoid calls to fractional_composition
             if (
                 len(entry_frac) == len(c.composition)
+                # TODO: replace this
                 and all(
                     abs(v - c.composition.get_atomic_fraction(el)) <= Composition.amount_tolerance
                     for el, v in entry_frac.items()
@@ -1014,7 +1015,9 @@ class PhaseDiagram(MSONable):
 
         clean_pots = []
         for c in sorted(critical_chempots):
-            if len(clean_pots) == 0 or abs(c - clean_pots[-1]) > PhaseDiagram.numerical_tol:
+            if len(clean_pots) == 0 or not math.isclose(
+                c, clean_pots[-1], abs_tol=PhaseDiagram.numerical_tol, rel_tol=0
+            ):
                 clean_pots.append(c)
         clean_pots.reverse()
         return tuple(clean_pots)
@@ -1226,7 +1229,7 @@ class PhaseDiagram(MSONable):
                         for di in all_coords:
                             dict_equals = True
                             for k in di:
-                                if abs(di[k] - res[k]) > tol_en:
+                                if not math.isclose(di[k], res[k], abs_tol=tol_en, rel_tol=0):
                                     dict_equals = False
                                     break
                             if dict_equals:

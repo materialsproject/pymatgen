@@ -907,6 +907,7 @@ def find_eq_stress(strains, stresses, tol: float = 1e-10):
     eq_stress = stress_array[np.all(abs(strain_array) < tol, axis=(1, 2))]
 
     if eq_stress.size != 0:
+        # TODO: replace
         all_same = (abs(eq_stress - eq_stress[0]) < 1e-8).all()
         if len(eq_stress) > 1 and not all_same:
             raise ValueError(
