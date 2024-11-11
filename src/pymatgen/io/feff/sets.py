@@ -10,6 +10,7 @@ from __future__ import annotations
 
 import abc
 import logging
+import math
 import os
 import sys
 import warnings
@@ -314,14 +315,10 @@ class FEFFDictSet(AbstractFeffInputSet):
             distance_matrix = input_atoms.distance_matrix[0, :]
 
             # Get radius value
-            from math import ceil
-
-            radius = int(
-                ceil(
-                    input_atoms.get_distance(
-                        input_atoms.index(input_atoms[0]),
-                        input_atoms.index(input_atoms[-1]),
-                    )
+            radius = math.ceil(
+                input_atoms.get_distance(
+                    input_atoms.index(input_atoms[0]),
+                    input_atoms.index(input_atoms[-1]),
                 )
             )
 
