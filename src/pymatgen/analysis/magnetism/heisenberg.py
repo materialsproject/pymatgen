@@ -8,7 +8,6 @@ from __future__ import annotations
 
 import copy
 import logging
-import math
 from ast import literal_eval
 from typing import TYPE_CHECKING
 
@@ -186,7 +185,7 @@ class HeisenbergMapper:
         all_dists = sorted(set(all_dists))
         rm_list = []
         for idx, d in enumerate(all_dists[:-1], start=1):
-            if math.isclose(d, all_dists[idx], abs_tol=tol, rel_tol=0):
+            if abs(d - all_dists[idx]) < tol:
                 rm_list.append(idx)
 
         all_dists = [d for idx, d in enumerate(all_dists) if idx not in rm_list]
@@ -213,11 +212,11 @@ class HeisenbergMapper:
                 for key, value in unique_site_ids.items():
                     if j in key:
                         j_key = value
-                if math.isclose(dist, dists["nn"], abs_tol=tol, rel_tol=0):
+                if abs(dist - dists["nn"]) <= tol:
                     nn_dict[i_key] = j_key
-                elif math.isclose(dist, dists["nnn"], abs_tol=tol, rel_tol=0):
+                elif abs(dist - dists["nnn"]) <= tol:
                     nnn_dict[i_key] = j_key
-                elif math.isclose(dist, dists["nnnn"], abs_tol=tol, rel_tol=0):
+                elif abs(dist - dists["nnnn"]) <= tol:
                     nnnn_dict[i_key] = j_key
 
         nn_interactions = {"nn": nn_dict, "nnn": nnn_dict, "nnnn": nnnn_dict}
@@ -304,11 +303,11 @@ class HeisenbergMapper:
                                 j_index = v
 
                         # Determine order of connection
-                        if math.isclose(dist, dists["nn"], abs_tol=tol, rel_tol=0):
+                        if abs(dist - dists["nn"]) <= tol:
                             order = "-nn"
-                        elif math.isclose(dist, dists["nnn"], abs_tol=tol, rel_tol=0):
+                        elif abs(dist - dists["nnn"]) <= tol:
                             order = "-nnn"
-                        elif math.isclose(dist, dists["nnnn"], abs_tol=tol, rel_tol=0):
+                        elif abs(dist - dists["nnnn"]) <= tol:
                             order = "-nnnn"
 
                         j_ij = f"{i_index}-{j_index}{order}"
@@ -596,11 +595,11 @@ class HeisenbergMapper:
 
         # Determine order of interaction
         order = ""
-        if math.isclose(dist, self.dists["nn"], abs_tol=self.tol, rel_tol=0):
+        if abs(dist - self.dists["nn"]) <= self.tol:
             order = "-nn"
-        elif math.isclose(dist, self.dists["nnn"], abs_tol=self.tol, rel_tol=0):
+        elif abs(dist - self.dists["nnn"]) <= self.tol:
             order = "-nnn"
-        elif math.isclose(dist, self.dists["nnnn"], abs_tol=self.tol, rel_tol=0):
+        elif abs(dist - self.dists["nnnn"]) <= self.tol:
             order = "-nnnn"
 
         j_ij = f"{i_index}-{j_index}{order}"
@@ -961,11 +960,11 @@ class HeisenbergModel(MSONable):
 
         # Determine order of interaction
         order = ""
-        if math.isclose(dist, self.dists["nn"], abs_tol=self.tol, rel_tol=0):
+        if abs(dist - self.dists["nn"]) <= self.tol:
             order = "-nn"
-        elif math.isclose(dist, self.dists["nnn"], abs_tol=self.tol, rel_tol=0):
+        elif abs(dist - self.dists["nnn"]) <= self.tol:
             order = "-nnn"
-        elif math.isclose(dist, self.dists["nnnn"], abs_tol=self.tol, rel_tol=0):
+        elif abs(dist - self.dists["nnnn"]) <= self.tol:
             order = "-nnnn"
 
         j_ij = f"{i_index}-{j_index}{order}"
