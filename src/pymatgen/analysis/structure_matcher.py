@@ -442,9 +442,9 @@ class StructureMatcher(MSONable):
                 raise ValueError("Invalid argument for supercell_size.")
 
         if fu < 2 / 3:
-            return int(round(1 / fu)), False
+            return round(1 / fu), False
 
-        return int(round(fu)), True
+        return round(fu), True
 
     def _get_lattices(self, target_lattice, s, supercell_size=1):
         """
@@ -1204,7 +1204,7 @@ class StructureMatcher(MSONable):
         sites = [temp.sites[i] for i in mapping if i is not None]
 
         if include_ignored_species:
-            start = int(round(len(temp) / len(struct2) * len(s2)))
+            start = round(len(temp) / len(struct2) * len(s2))
             sites.extend(temp.sites[start:])
 
         return Structure.from_sites(sites)

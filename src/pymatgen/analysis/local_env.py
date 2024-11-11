@@ -127,8 +127,8 @@ class ValenceIonicRadiusEvaluator:
                 continue
 
             el = site.specie.symbol
-            oxi_state = int(round(site.specie.oxi_state))
-            coord_no = int(round(vnn.get_cn(self._structure, idx)))
+            oxi_state = round(site.specie.oxi_state)
+            coord_no = round(vnn.get_cn(self._structure, idx))
             try:
                 tab_oxi_states = sorted(map(int, _ION_RADII[el]))
                 oxi_state = nearest_key(tab_oxi_states, oxi_state)

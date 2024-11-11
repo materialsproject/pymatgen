@@ -250,7 +250,7 @@ class FEFFDictSet(AbstractFeffInputSet):
                 if not self.config_dict.get("KMESH"):
                     abc = self.structure.lattice.abc
                     mult = (self.nkpts * abc[0] * abc[1] * abc[2]) ** (1 / 3)
-                    self.config_dict["KMESH"] = [int(round(mult / length)) for length in abc]
+                    self.config_dict["KMESH"] = [round(mult / length) for length in abc]
             else:
                 logger.warning("Large system(>=14 atoms) or EXAFS calculation, removing K-space settings")
                 del self.config_dict["RECIPROCAL"]

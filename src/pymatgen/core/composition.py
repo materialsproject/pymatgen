@@ -400,7 +400,7 @@ class Composition(collections.abc.Hashable, collections.abc.Mapping, MSONable, S
         all_int = all(abs(val - round(val)) < type(self).amount_tolerance for val in self.values())
         if not all_int:
             return self.formula.replace(" ", ""), 1
-        el_amt_dict = {key: int(round(val)) for key, val in self.get_el_amt_dict().items()}
+        el_amt_dict = {key: round(val) for key, val in self.get_el_amt_dict().items()}
         formula, factor = reduce_formula(el_amt_dict, iupac_ordering=iupac_ordering)
 
         if formula in type(self).special_formulas:

@@ -428,7 +428,7 @@ class PartialRemoveSitesTransformation(AbstractTransformation):
             n_to_remove = len(idx) * frac
             if abs(n_to_remove - round(n_to_remove)) > 1e-3:
                 raise ValueError("Fraction to remove must be consistent with integer amounts in structure.")
-            n_to_remove = int(round(n_to_remove))
+            n_to_remove = round(n_to_remove)
             num_remove_dict[tuple(idx)] = n_to_remove
             n = len(idx)
             total_combos += int(

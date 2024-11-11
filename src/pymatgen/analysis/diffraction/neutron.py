@@ -137,7 +137,7 @@ class NDCalculator(AbstractDiffractionPatternCalculator):
 
         for hkl, g_hkl, ind, _ in sorted(recip_pts, key=lambda i: (i[1], -i[0][0], -i[0][1], -i[0][2])):
             # Force miller indices to be integers
-            hkl = [int(round(i)) for i in hkl]
+            hkl = [round(i) for i in hkl]
             if g_hkl != 0:
                 d_hkl = 1 / g_hkl
 
