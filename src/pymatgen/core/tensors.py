@@ -336,7 +336,7 @@ class Tensor(np.ndarray, MSONable):
             structure (Structure): structure to be fit to
             tol (float): tolerance for symmetry testing
         """
-        return bool((self - self.fit_to_structure(structure) < tol).all())
+        return np.allclose(self, self.fit_to_structure(structure), atol=tol, rtol=0)
 
     @property
     def voigt(self) -> NDArray:

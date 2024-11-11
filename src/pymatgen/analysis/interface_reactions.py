@@ -150,7 +150,8 @@ class InterfacialReactivity(MSONable):
         critical_comp = self.pd.get_critical_compositions(self.comp1, self.comp2)
         x_kink, energy_kink, react_kink, energy_per_rxt_formula = [], [], [], []
 
-        if (c1_coord == c2_coord).all():
+        # TODO: perhaps a bad idea to use full equality to compare coords
+        if np.array_equal(c1_coord, c2_coord):
             x_kink = [0, 1]
             energy_kink = [self._get_energy(x) for x in x_kink]
             react_kink = [self._get_reaction(x) for x in x_kink]
