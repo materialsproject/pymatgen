@@ -291,3 +291,83 @@ etot_etype_outfile_known_simple = {
     "e": -17.265553748795949 * Ha_to_eV,
     "elec_grad_k": 2.991e-07,
 }
+
+
+ex_outfileslice1_fname = ex_files_dir / "ex_out_slice_latmin"
+ex_outfileslice2_fname = ex_files_dir / "ex_out_slice_ionmin"
+with open(ex_outfileslice1_fname) as f:
+    ex_outfileslice1 = list.copy(list(f))
+with open(ex_outfileslice2_fname) as f:
+    ex_outfileslice2 = list.copy(list(f))
+
+ex_jstruc_slice_fname1 = ex_files_dir / "ex_text_slice_forJAtoms_latmin"
+ex_jstruc_slice1 = []
+with open(ex_jstruc_slice_fname1) as f:
+    ex_jstruc_slice1 = list.copy(list(f))
+
+
+ex_jstruc_slice_fname2 = ex_files_dir / "ex_text_slice_forJAtoms_latmin2"
+ex_jstruc_slice2 = []
+with open(ex_jstruc_slice_fname2) as f:
+    ex_jstruc_slice2 = list.copy(list(f))
+
+# JESteps test knowns
+
+
+ex_fillings_line1 = "FillingsUpdate:  mu: +0.714406772  \
+    nElectrons: 64.000000  magneticMoment: [ Abs: 0.00578  Tot: -0.00141 ]"
+ex_fillings_line1_known = {
+    "mu": 0.714406772 * Ha_to_eV,
+    "nelectrons": 64.0,
+    "abs_magneticmoment": 0.00578,
+    "tot_magneticmoment": -0.00141,
+}
+
+ex_fillings_line2 = "FillingsUpdate:  mu: +0.814406772  \
+    nElectrons: 60.000000  magneticMoment: [ Abs: 0.0578  Tot: -0.0141 ]"
+ex_fillings_line2_known = {
+    "mu": 0.814406772 * Ha_to_eV,
+    "nelectrons": 60.0,
+    "abs_magneticmoment": 0.0578,
+    "tot_magneticmoment": -0.0141,
+}
+
+ex_subspace_line1 = "SubspaceRotationAdjust: set factor to 0.229"
+ex_subspace_line1_known = {"subspacerotationadjust": 0.229}
+
+ex_subspace_line2 = "SubspaceRotationAdjust: set factor to 0.329"
+ex_subspace_line2_known = {"subspacerotationadjust": 0.329}
+
+ex_iter_line1 = "ElecMinimize: Iter:   6  F: -246.531038317370076\
+        |grad|_K:  6.157e-08  alpha:  5.534e-01  linmin: -4.478e-06\
+              t[s]:    248.68"
+ex_iter_line1_known = {
+    "nstep": 6,
+    "e": -246.531038317370076 * Ha_to_eV,
+    "grad_k": 6.157e-08,
+    "alpha": 5.534e-01,
+    "linmin": -4.478e-06,
+    "t_s": 248.68,
+}
+
+ex_iter_line2 = "ElecMinimize: Iter:   7  F: -240.531038317370076\
+        |grad|_K:  6.157e-07  alpha:  5.534e-02  linmin: -5.478e-06\
+                t[s]:    48.68"
+ex_iter_line2_known = {
+    "nstep": 7,
+    "e": -240.531038317370076 * Ha_to_eV,
+    "grad_k": 6.157e-07,
+    "alpha": 5.534e-02,
+    "linmin": -5.478e-06,
+    "t_s": 48.68,
+}
+
+
+ex_jstep_lines1 = [ex_fillings_line1, ex_subspace_line1, ex_iter_line1]
+ex_jstep_lines2 = [ex_fillings_line2, ex_subspace_line2, ex_iter_line2]
+ex_jstep_known1 = {}
+for known1 in [ex_fillings_line1_known, ex_iter_line1_known, ex_subspace_line1_known]:
+    ex_jstep_known1.update(known1)
+ex_jstep_known2 = {}
+for known2 in [ex_fillings_line2_known, ex_iter_line2_known, ex_subspace_line2_known]:
+    ex_jstep_known2.update(known2)
