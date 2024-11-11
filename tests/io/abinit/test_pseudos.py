@@ -99,10 +99,11 @@ class TestPseudo(PymatgenTest):
         file_name = f"{TEST_DIR}/28ni.paw.tar.xz"
         symbol = "Ni"
         with ScratchDir(".") as tmp_dir, tarfile.open(file_name, mode="r:xz") as t:
-            # TODO: DeprecationWarning: Python 3.14 will, by default,
-            # filter extracted tar archives and reject files or modify their metadata.
-            # Use the filter argument to control this behavior.
-            t.extractall(tmp_dir)  # noqa: S202
+            # TODO: remove attr check after only 3.12+
+            if hasattr(tarfile, "data_filter"):
+                t.extractall(tmp_dir, filter="data")
+            else:
+                t.extractall(tmp_dir)  # noqa: S202
             path = os.path.join(tmp_dir, "28ni.paw")
             pseudo = Pseudo.from_file(path)
 
