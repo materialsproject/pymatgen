@@ -306,8 +306,7 @@ class Tensor(np.ndarray, MSONable):
         Args:
             tol (float): tolerance to test for symmetry
         """
-        # TODO: the following might could use np.allclose
-        return (self - self.symmetrized < tol).all()
+        return np.allclose(self, self.symmetrized, atol=tol, rtol=0)
 
     def fit_to_structure(
         self,
@@ -974,8 +973,7 @@ class SquareTensor(Tensor):
         det = np.abs(np.linalg.det(self))
         if include_improper:
             det = np.abs(det)
-        # TODO: the following might could use np.allclose
-        return bool((np.abs(self.inv - self.trans) < tol).all() and (np.abs(det - 1.0) < tol))
+        return np.allclose(self.inv, self.trans, atol=tol, rtol=0) and bool(np.abs(det - 1.0) < tol)
 
     def refine_rotation(self) -> Self:
         """Helper method for refining rotation matrix by ensuring
