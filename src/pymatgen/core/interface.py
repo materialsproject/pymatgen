@@ -400,7 +400,7 @@ class GrainBoundaryGenerator:
         ratio: list[int] | None = None,
         plane: Tuple3Ints | None = None,
         max_search: int = 20,
-        tol_coi: float = 1.0e-8,
+        tol_coi: float = 1e-8,
         rm_ratio: float = 0.7,
         quick_gen: bool = False,
     ) -> GrainBoundary:
@@ -470,11 +470,11 @@ class GrainBoundaryGenerator:
             convention_cell = analyzer.get_conventional_standard_structure()
             vol_ratio = self.initial_structure.volume / convention_cell.volume
             # BCC primitive cell, belong to cubic system
-            if abs(vol_ratio - 0.5) < 1.0e-3:
+            if abs(vol_ratio - 0.5) < 1e-3:
                 trans_cry = np.array([[0.5, 0.5, -0.5], [-0.5, 0.5, 0.5], [0.5, -0.5, 0.5]])
                 logger.info("Make sure this is for cubic with bcc primitive cell")
             # FCC primitive cell, belong to cubic system
-            elif abs(vol_ratio - 0.25) < 1.0e-3:
+            elif abs(vol_ratio - 0.25) < 1e-3:
                 trans_cry = np.array([[0.5, 0.5, 0], [0, 0.5, 0.5], [0.5, 0, 0.5]])
                 logger.info("Make sure this is for cubic with fcc primitive cell")
             else:
@@ -1948,9 +1948,9 @@ class GrainBoundaryGenerator:
                 miller2 = GrainBoundaryGenerator.vec_to_surface(vec)
                 if np.all(np.abs(np.array(miller2)) <= plane_cutoff):
                     cos_1 = abs(np.dot(val, r_axis) / np.linalg.norm(val) / np.linalg.norm(r_axis))
-                    if 1 - cos_1 < 1.0e-5:
+                    if 1 - cos_1 < 1e-5:
                         all_combinations["Twist"].append([list(val), miller2])
-                    elif cos_1 < 1.0e-8:
+                    elif cos_1 < 1e-8:
                         sym_tilt = False
                         if np.sum(np.abs(val)) == np.sum(np.abs(miller2)):
                             ave = (np.array(val) + np.array(miller2)) / 2
@@ -1958,7 +1958,7 @@ class GrainBoundaryGenerator:
                             for plane in sym_plane:
                                 cos_2 = abs(np.dot(ave, plane) / np.linalg.norm(ave) / np.linalg.norm(plane))
                                 cos_3 = abs(np.dot(ave1, plane) / np.linalg.norm(ave1) / np.linalg.norm(plane))
-                                if 1 - cos_2 < 1.0e-5 or 1 - cos_3 < 1.0e-5:
+                                if 1 - cos_2 < 1e-5 or 1 - cos_3 < 1e-5:
                                     all_combinations["Symmetric tilt"].append([list(val), miller2])
                                     sym_tilt = True
                                     break
@@ -2216,7 +2216,7 @@ class GrainBoundaryGenerator:
                     c_norm_temp = np.linalg.norm(np.matmul(temp, trans))
                     if normal:
                         c_cross = np.cross(np.matmul(temp, trans), np.matmul(surface, ctrans))
-                        if np.linalg.norm(c_cross) < 1.0e-8:
+                        if np.linalg.norm(c_cross) < 1e-8:
                             if normal_init:
                                 if c_norm_temp < c_norm:
                                     t_matrix[2] = temp
@@ -2226,7 +2226,7 @@ class GrainBoundaryGenerator:
                                 normal_init = True
                                 t_matrix[2] = temp
                     elif c_len_temp < c_length or (
-                        math.isclose(c_len_temp, c_length, abs_tol=1.0e-8, rel_tol=0) and c_norm_temp < c_norm
+                        math.isclose(c_len_temp, c_length, abs_tol=1e-8, rel_tol=0) and c_norm_temp < c_norm
                     ):
                         t_matrix[2] = temp
                         c_norm = c_norm_temp
@@ -2258,9 +2258,9 @@ class GrainBoundaryGenerator:
                 for ii in combination:  # type: ignore[assignment]
                     if reduce(math.gcd, ii) == 1:
                         temp = np.dot(np.array(ii), csl)
-                        if abs(np.dot(temp, surface)) > 1.0e-8:
+                        if abs(np.dot(temp, surface)) > 1e-8:
                             c_cross = np.cross(np.matmul(temp, trans), np.matmul(surface, ctrans))
-                            if np.linalg.norm(c_cross) < 1.0e-8:
+                            if np.linalg.norm(c_cross) < 1e-8:
                                 # c vector length itself
                                 c_norm_temp = np.linalg.norm(np.matmul(temp, trans))
                                 if normal_init:
@@ -2278,7 +2278,7 @@ class GrainBoundaryGenerator:
         ab_norm = None
         for ii in combinations(ab_vector, 2):
             area_temp = np.linalg.norm(np.cross(np.matmul(ii[0], trans), np.matmul(ii[1], trans)))
-            if abs(area_temp) > 1.0e-8:
+            if abs(area_temp) > 1e-8:
                 ab_norm_temp = np.linalg.norm(np.matmul(ii[0], trans)) + np.linalg.norm(np.matmul(ii[1], trans))
                 if area is None:
                     area = area_temp
@@ -2287,7 +2287,7 @@ class GrainBoundaryGenerator:
                     t_matrix[1] = ii[1]
 
                 elif area_temp < area or (
-                    math.isclose(area, area_temp, abs_tol=1.0e-8, rel_tol=0) and ab_norm_temp < ab_norm
+                    math.isclose(area, area_temp, abs_tol=1e-8, rel_tol=0) and ab_norm_temp < ab_norm
                 ):
                     t_matrix[0] = ii[0]
                     t_matrix[1] = ii[1]
@@ -2352,7 +2352,7 @@ class GrainBoundaryGenerator:
         miller: list[None | int] = [None] * 3
         index = []
         for idx, value in enumerate(vec):
-            if abs(value) < 1.0e-8:
+            if abs(value) < 1e-8:
                 miller[idx] = 0
             else:
                 index.append(idx)
