@@ -563,6 +563,13 @@ class DftSet(Cp2kInput):
             data["potential_filename"] = pfn2
 
             data[el] = {"basis": basis, "aux_basis": aux_basis, "potential": potential}
+
+        # if potential_filename or basis_filenames not set by above code, use the global ones
+        if not data["potential_filename"]:
+            data["potential_filename"] = basis_and_potential.get("potential_filename")
+        if not data["basis_filenames"]:
+            data["basis_filenames"] = basis_and_potential.get("basis_filenames")
+
         return data
 
     @staticmethod
