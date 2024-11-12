@@ -192,7 +192,7 @@ class TransformedStructure(MSONable):
                 to create VASP input files from structures
             **kwargs: All keyword args supported by the VASP input set.
         """
-        dct = vasp_input_set(self.final_structure, **kwargs).get_vasp_input()
+        dct = vasp_input_set(self.final_structure, **kwargs).get_input_set()
         dct["transformations.json"] = json.dumps(self.as_dict())
         return dct
 

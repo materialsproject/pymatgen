@@ -913,6 +913,7 @@ class TestKpointsSupportedModes:
 
 
 class TestKpoints:
+    @pytest.mark.filterwarnings("ignore:Please use INCAR KSPACING tag")
     def test_init(self):
         # Automatic KPOINT grid
         filepath = f"{VASP_IN_DIR}/KPOINTS_auto"
@@ -1018,7 +1019,7 @@ Cartesian
         assert kpoints.kpts == [(2, 2, 2)]
         assert all(isinstance(kpt, int) for kpt in kpoints.kpts[0])
 
-        with pytest.warns(DeprecationWarning, match="Please use INCAR KSPACING tag"):
+        with pytest.deprecated_call(match="Please use INCAR KSPACING tag"):
             kpoints = Kpoints.automatic(100)
         assert kpoints.style == Kpoints.supported_modes.Automatic
         assert kpoints.kpts == [(100,)]
@@ -1480,6 +1481,7 @@ class TestPotcar(PymatgenTest):
         pickle.dumps(self.potcar)
 
 
+@pytest.mark.filterwarnings("ignore:Please use INCAR KSPACING tag")
 class TestVaspInput(PymatgenTest):
     def setUp(self):
         filepath = f"{VASP_IN_DIR}/INCAR"
