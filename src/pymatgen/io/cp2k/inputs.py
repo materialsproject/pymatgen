@@ -73,7 +73,7 @@ class Keyword(MSONable):
         *values,
         description: str | None = None,
         units: str | None = None,
-        verbose: bool | None = True,
+        verbose: bool | None = False,
         repeats: bool | None = False,
     ):
         """Initialize a keyword. These Keywords and the value passed to them are sometimes as simple
@@ -249,7 +249,7 @@ class Section(MSONable):
         keywords: dict | None = None,
         section_parameters: list | tuple | None = None,
         location: str | None = None,
-        verbose: bool | None = True,
+        verbose: bool | None = False,
         alias: str | None = None,
         **kwargs,
     ):
