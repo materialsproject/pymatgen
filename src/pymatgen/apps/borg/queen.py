@@ -15,7 +15,8 @@ from monty.io import zopen
 from monty.json import MontyDecoder, MontyEncoder
 
 if TYPE_CHECKING:
-    from pathlib import Path
+    from pymatgen.apps.borg.hive import AbstractDrone
+    from pymatgen.util.typing import PathLike
 
 logger = logging.getLogger("BorgQueen")
 
@@ -26,13 +27,17 @@ class BorgQueen:
     also contains convenience methods to save and load data between sessions.
     """
 
-    def __init__(self, drone, rootpath=None, number_of_drones=1):
+    def __init__(
+        self,
+        drone: AbstractDrone,
+        rootpath: PathLike | None = None,
+        number_of_drones: int = 1,
+    ) -> None:
         """
         Args:
-            drone (Drone): An implementation of
-                pymatgen.apps.borg.hive.AbstractDrone to use for
-                assimilation.
-            rootpath (str): The root directory to start assimilation. Leave it
+            drone (AbstractDrone): An implementation of
+                AbstractDrone to use for assimilation.
+            rootpath (PathLike): The root directory to start assimilation. Leave it
                 as None if you want to do assimilation later, or is using the
                 BorgQueen to load previously assimilated data.
             number_of_drones (int): Number of drones to parallelize over.
@@ -52,7 +57,7 @@ class BorgQueen:
             else:
                 self.serial_assimilate(rootpath)
 
-    def parallel_assimilate(self, rootpath):
+    def parallel_assimilate(self, rootpath: PathLike) -> None:
         """Assimilate the entire subdirectory structure in rootpath."""
         logger.info("Scanning for valid paths...")
         valid_paths = []
@@ -72,7 +77,7 @@ class BorgQueen:
             for string in data:
                 self._data.append(json.loads(string, cls=MontyDecoder))
 
-    def serial_assimilate(self, root: str | Path) -> None:
+    def serial_assimilate(self, root: PathLike) -> None:
         """Assimilate the entire subdirectory structure in rootpath serially."""
         valid_paths = []
         for parent, subdirs, files in os.walk(root):
@@ -86,11 +91,11 @@ class BorgQueen:
         for json_str in data:
             self._data.append(json.loads(json_str, cls=MontyDecoder))
 
-    def get_data(self):
+    def get_data(self) -> list:
         """Get an list of assimilated objects."""
         return self._data
 
-    def save_data(self, filename: str | Path) -> None:
+    def save_data(self, filename: PathLike) -> None:
         """Save the assimilated data to a file.
 
         Args:
@@ -101,13 +106,13 @@ class BorgQueen:
         with zopen(filename, mode="wt") as file:
             json.dump(list(self._data), file, cls=MontyEncoder)
 
-    def load_data(self, filename):
+    def load_data(self, filename: PathLike) -> None:
         """Load assimilated data from a file."""
         with zopen(filename, mode="rt") as file:
             self._data = json.load(file, cls=MontyDecoder)
 
 
-def order_assimilation(args):
+def order_assimilation(args: tuple) -> None:
     """Internal helper method for BorgQueen to process assimilation."""
     path, drone, data, status = args
     if new_data := drone.assimilate(path):
