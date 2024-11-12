@@ -456,7 +456,7 @@ class OxideType:
         if h_sites_frac_coords:
             dist_matrix = lattice.get_all_distances(o_sites_frac_coords, h_sites_frac_coords)
             if np.any(dist_matrix < relative_cutoff * 0.93):
-                return "hydroxide", int(len(np.where(dist_matrix < relative_cutoff * 0.93)[0]) / 2)
+                return "hydroxide", len(np.where(dist_matrix < relative_cutoff * 0.93)[0]) // 2
         dist_matrix = lattice.get_all_distances(o_sites_frac_coords, o_sites_frac_coords)
         np.fill_diagonal(dist_matrix, 1000)
         is_superoxide = is_peroxide = is_ozonide = False

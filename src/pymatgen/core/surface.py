@@ -542,7 +542,7 @@ class Slab(Structure):
                 continue
             combinations = []
             for g in grouped:
-                combinations.append(list(itertools.combinations(g, int(len(g) / 2))))
+                combinations.append(list(itertools.combinations(g, len(g) // 2)))
 
             for selection in itertools.product(*combinations):
                 species = [site.species for site in fixed]
