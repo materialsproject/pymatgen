@@ -28,7 +28,7 @@ def clean_lines(
     remove_empty_lines: bool = True,
     rstrip_only: bool = False,
 ) -> Iterator[str]:
-    """Strips whitespace, carriage returns and empty lines from a list of strings.
+    """Remove leading and trailing whitespaces from a list of strings.
 
     Args:
         string_list (list[str]): List of strings.
@@ -38,10 +38,10 @@ def clean_lines(
             to retain leading whitespaces). Defaults to False.
 
     Yields:
-        str: clean strings with no whitespaces.
+        str: clean string with no leading and trailing whitespaces.
     """
     for string in string_list:
-        clean_string = string
+        clean_string: str = string
         if "#" in string:
             clean_string = string[: string.index("#")]
 
@@ -60,7 +60,7 @@ def micro_pyawk(
 ) -> Any:
     """Small awk-mimicking search routine.
 
-    This function goes through each line in the file, and if regex matches that
+    This function goes through each line in the file, and if `regex` matches that
     line AND test(results, line) is True (OR test is None) we execute
     run(results, match), where match is the Match object from running
     Pattern.match.
@@ -69,20 +69,20 @@ def micro_pyawk(
         filename (PathLike): The file to search through.
         search (list[tuple[Pattern | str, Callable, Callable]]): The "search program" of
             3 elements, i.e. [(regex, test, run), ...].
-            Here "regex" is either a Pattern object, or a string that we compile
+            Here `regex` is either a Pattern object, or a string that we compile
             into a Pattern.
         results: An object to store results. Default as an empty dictionary.
-            Passing a results object let you interact with it via "run" and "test".
+            Passing a results object let you interact with it via `run` and `test`.
             Hence, in many occasions it is clever to use the instance itself as results.
-        debug (Callable): Debug "run".
-        postdebug (Callable): Another "run" after debug "run".
+        debug (Callable): Debug `run`.
+        postdebug (Callable): Post debug `run` after debug `run`.
 
     Returns:
-        Any: The results object.
+        Any: The updated `results` object.
 
     Author: Rickard Armiento, Ioannis Petousis
     """
-    # TODO: remove debug and postdebug after 2025-11-09 if no one is opposing
+    # TODO: remove `debug` and `postdebug` after 2025-11-09 if no one is opposing
     if debug is not None:
         warnings.warn("arg debug is scheduled for removal, see PR4160", DeprecationWarning, stacklevel=2)
     if postdebug is not None:
@@ -91,12 +91,14 @@ def micro_pyawk(
     if results is None:
         results = {}
 
-    # Compile regex strings to Pattern
-    search = [(re.compile(regex), test, run) for regex, test, run in search]
+    # Compile regex strings to Patterns
+    searches: list[tuple[re.Pattern, Callable, Callable]] = [
+        (re.compile(regex), test, run) for regex, test, run in search
+    ]
 
     with zopen(filename, mode="rt") as file:
         for line in file:
-            for regex, test, run in search:
+            for regex, test, run in searches:
                 match = re.search(regex, line)
 
                 if match is not None and (test is None or test(results, line)):
