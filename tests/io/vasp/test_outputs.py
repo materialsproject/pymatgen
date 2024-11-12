@@ -34,7 +34,6 @@ from pymatgen.io.vasp.outputs import (
     Outcar,
     Procar,
     UnconvergedVASPWarning,
-    VaspDir,
     VaspParseError,
     Vasprun,
     Wavecar,
@@ -97,7 +96,8 @@ class TestVasprun(PymatgenTest):
 
     def test_multiple_dielectric(self):
         vasp_run = Vasprun(f"{VASP_OUT_DIR}/vasprun.GW0.xml.gz")
-        assert len(vasp_run.other_dielectric) == 3
+        assert len(vasp_run.dielectric_data) == 4
+        assert "HEAD OF MICROSCOPIC DIELECTRIC TENSOR (INDEPENDENT PARTICLE)" in vasp_run.dielectric_data
 
     def test_charge_charge_dielectric(self):
         """
@@ -121,11 +121,12 @@ class TestVasprun(PymatgenTest):
         assert "freq_dependent" in vasp_run.dielectric_data
 
     def test_vasprun_with_more_than_two_unlabelled_dielectric_functions(self):
-        with pytest.raises(
-            NotImplementedError,
-            match="This vasprun.xml has >2 unlabelled dielectric functions",
+        with pytest.warns(
+            UserWarning,
+            match="Additional unlabelled dielectric data in vasprun.xml are stored as unlabelled.",
         ):
-            Vasprun(f"{VASP_OUT_DIR}/vasprun.dielectric_bad.xml.gz")
+            vr = Vasprun(f"{VASP_OUT_DIR}/vasprun.dielectric_bad.xml.gz")
+            assert "unlabelled" in vr.dielectric_data
 
     def test_bad_vasprun(self):
         with pytest.raises(ET.ParseError):
@@ -330,6 +331,7 @@ class TestVasprun(PymatgenTest):
         assert not vasprun_unconverged.converged_electronic
         assert not vasprun_unconverged.converged
 
+    @pytest.mark.filterwarnings("ignore:MaterialsProjectCompatibility is deprecated")
     def test_dfpt(self):
         filepath = f"{VASP_OUT_DIR}/vasprun.dfpt.xml.gz"
         vasprun_dfpt = Vasprun(filepath, parse_potcar_file=False)
@@ -395,7 +397,7 @@ class TestVasprun(PymatgenTest):
         assert approx(vasprun_diel.dielectric_data["density"][1][51][0]) == 5.267
         assert approx(vasprun_diel.dielectric_data["velocity"][0][10]) == 0.4338
         assert approx(vasprun_diel.dielectric_data["velocity"][1][51][0]) == 1.0741
-        assert len(vasprun_diel.other_dielectric) == 0
+        assert len(vasprun_diel.dielectric_data) == 2
 
     def test_indirect_vasprun(self):
         vasp_run = Vasprun(f"{VASP_OUT_DIR}/vasprun.indirect.xml.gz")
@@ -2181,36 +2183,3 @@ class TestWSWQ(PymatgenTest):
                 assert np.linalg.norm([r, i]) > 0.999
             else:
                 assert np.linalg.norm([r, i]) < 0.001
-
-
-class TestVaspDir(PymatgenTest):
-    def test_getitem(self):
-        # Some simple testing of loading and reading since all these were tested in other classes.
-        d = VaspDir(f"{TEST_FILES_DIR}/io/vasp/fixtures/relaxation")
-        assert len(d) == 5
-        assert d["OUTCAR"].run_stats["cores"] == 8
-
-        d = VaspDir(f"{TEST_FILES_DIR}/io/vasp/fixtures/scan_relaxation")
-        assert len(d) == 2
-        assert d["vasprun.xml.gz"].incar["METAGGA"] == "R2scan"
-
-        with pytest.raises(ValueError, match="hello not found"):
-            d["hello"]
-
-        d = VaspDir(f"{TEST_FILES_DIR}/io/pwscf")
-        with pytest.warns(UserWarning, match=r"No parser defined for Si.pwscf.out"):
-            assert isinstance(d["Si.pwscf.out"], str)
-
-        # Test NEB directories.
-        d = VaspDir(f"{TEST_FILES_DIR}/io/vasp/fixtures/neb_analysis/neb1/neb")
-
-        assert len(d) == 10
-
-        assert isinstance(d["00/POSCAR"], Poscar)
-
-        outcars = d.get_files_by_name("OUTCAR")
-        assert len(outcars) == 5
-        assert all("OUTCAR" for k in outcars)
-
-        d.reset()
-        assert len(d._parsed_files) == 0

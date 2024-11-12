@@ -2,12 +2,10 @@
 
 from __future__ import annotations
 
-import collections
 import itertools
 import math
 import os
 import re
-import typing
 import warnings
 import xml.etree.ElementTree as ET
 from collections import defaultdict
@@ -256,7 +254,6 @@ class Vasprun(MSONable):
         occu_tol: float = 1e-8,
         separate_spins: bool = False,
         exception_on_bad_xml: bool = True,
-        ignore_dielectric: bool = False,
     ) -> None:
         """
         Args:
@@ -305,8 +302,6 @@ class Vasprun(MSONable):
                 proper vasprun.xml are parsed. You can set to False if you want
                 partial results (e.g., if you are monitoring a calculation during a
                 run), but use the results with care. A warning is issued.
-            ignore_dielectric (bool): Whether to ignore the parsing errors related to the dielectric function. This
-                is because the dielectric function can usually be parsed from the OUTCAR instead.
         """
         self.filename = filename
         self.ionic_step_skip = ionic_step_skip
@@ -314,7 +309,6 @@ class Vasprun(MSONable):
         self.occu_tol = occu_tol
         self.separate_spins = separate_spins
         self.exception_on_bad_xml = exception_on_bad_xml
-        self.ignore_dielectric = ignore_dielectric
 
         with zopen(filename, mode="rt") as file:
             if ionic_step_skip or ionic_step_offset:
@@ -370,7 +364,6 @@ class Vasprun(MSONable):
         self.projected_eigenvalues: dict[Any, NDArray] | None = None
         self.projected_magnetisation: NDArray | None = None
         self.dielectric_data: dict[str, tuple] = {}
-        self.other_dielectric: dict[str, tuple] = {}
         self.incar: Incar = {}
         self.kpoints_opt_props: KpointOptProps | None = None
         ionic_steps: list[dict[str, Any]] = []
@@ -479,31 +472,31 @@ class Vasprun(MSONable):
                             ) = self._parse_projected_eigen(elem)
 
                     elif tag == "dielectricfunction":
-                        if (
-                            "comment" not in elem.attrib
-                            or elem.attrib["comment"]
-                            == "INVERSE MACROSCOPIC DIELECTRIC TENSOR (including local field effects in RPA (Hartree))"
-                        ):
+                        label = elem.attrib.get("comment", None)
+                        if label is None:
                             if self.incar.get("ALGO", "Normal").upper() == "BSE":
-                                self.dielectric_data["freq_dependent"] = self._parse_diel(elem)
+                                label = "freq_dependent"
                             elif "density" not in self.dielectric_data:
-                                self.dielectric_data["density"] = self._parse_diel(elem)
+                                label = "density"
                             elif "velocity" not in self.dielectric_data:
                                 # "velocity-velocity" is also named
                                 # "current-current" in OUTCAR
-                                self.dielectric_data["velocity"] = self._parse_diel(elem)
+                                label = "velocity"
                             else:
-                                raise NotImplementedError("This vasprun.xml has >2 unlabelled dielectric functions")
-                        else:
-                            comment = elem.attrib["comment"]
-                            # VASP 6+ has labels for the density and current
-                            # derived dielectric constants
-                            if comment == "density-density":
-                                self.dielectric_data["density"] = self._parse_diel(elem)
-                            elif comment == "current-current":
-                                self.dielectric_data["velocity"] = self._parse_diel(elem)
-                            else:
-                                self.other_dielectric[comment] = self._parse_diel(elem)
+                                warnings.warn(
+                                    "Additional unlabelled dielectric data in vasprun.xml are stored as unlabelled.",
+                                    UserWarning,
+                                )
+                                label = "unlabelled"
+                        # VASP 6+ has labels for the density and current
+                        # derived dielectric constants
+
+                        if label == "density-density":
+                            label = "density"
+                        elif label == "current-current":
+                            label = "velocity"
+
+                        self.dielectric_data[label] = self._parse_diel(elem)
 
                     elif tag == "varray" and elem.attrib.get("name") == "opticaltransitions":
                         self.optical_transition = np.array(_parse_vasp_array(elem))
@@ -1528,16 +1521,18 @@ class Vasprun(MSONable):
     @staticmethod
     def _parse_diel(elem: XML_Element) -> tuple[list, list, list]:
         """Parse dielectric properties."""
-        imag = [
-            [_vasprun_float(line) for line in r.text.split()]  # type: ignore[union-attr]
-            for r in elem.find("imag").find("array").find("set").findall("r")  # type: ignore[union-attr]
-        ]
-        real = [
-            [_vasprun_float(line) for line in r.text.split()]  # type: ignore[union-attr]
-            for r in elem.find("real").find("array").find("set").findall("r")  # type: ignore[union-attr]
-        ]
-        elem.clear()
-        return [e[0] for e in imag], [e[1:] for e in real], [e[1:] for e in imag]
+        if elem.find("real") is not None and elem.find("imag") is not None:
+            imag = [
+                [_vasprun_float(line) for line in r.text.split()]  # type: ignore[union-attr]
+                for r in elem.find("imag").find("array").find("set").findall("r")  # type: ignore[union-attr]
+            ]
+            real = [
+                [_vasprun_float(line) for line in r.text.split()]  # type: ignore[union-attr]
+                for r in elem.find("real").find("array").find("set").findall("r")  # type: ignore[union-attr]
+            ]
+            elem.clear()
+            return [e[0] for e in imag], [e[1:] for e in real], [e[1:] for e in imag]
+        return [], [], []
 
     @staticmethod
     def _parse_optical_transition(elem: XML_Element) -> tuple[NDArray, NDArray]:
@@ -5752,101 +5747,3 @@ class WSWQ(MSONable):
 
 class UnconvergedVASPWarning(Warning):
     """Warning for unconverged VASP run."""
-
-
-class VaspDir(collections.abc.Mapping):
-    """
-    User-friendly class to access all files in a VASP calculation directory as pymatgen objects in a dict.
-    Note that the files are lazily parsed to minimize initialization costs since not all files will be needed by all
-    users.
-
-    Example:
-
-    ```
-    d = VaspDir(".")
-    print(d["INCAR"]["NELM"])
-    print(d["vasprun.xml"].parameters)
-    ```
-    """
-
-    FILE_MAPPINGS: typing.ClassVar = {
-        n: globals()[n.capitalize()]
-        for n in [
-            "INCAR",
-            "POSCAR",
-            "KPOINTS",
-            "POTCAR",
-            "vasprun",
-            "OUTCAR",
-            "OSZICAR",
-            "CHGCAR",
-            "WAVECAR",
-            "WAVEDER",
-            "LOCPOT",
-            "XDATCAR",
-            "EIGENVAL",
-            "PROCAR",
-            "ELFCAR",
-            "DYNMAT",
-        ]
-    } | {
-        "CONTCAR": Poscar,
-        "IBZKPT": Kpoints,
-        "WSWQ": WSWQ,
-    }
-
-    def __init__(self, dirname: str | Path):
-        """
-        Args:
-            dirname: The directory containing the VASP calculation as a string or Path.
-        """
-        self.path = Path(dirname).absolute()
-        self.reset()
-
-    def reset(self):
-        """
-        Reset all loaded files and recheck the directory for files. Use this when the contents of the directory has
-        changed.
-        """
-        # Note that py3.12 has Path.walk(). But we need to use os.walk to ensure backwards compatibility for now.
-        self.files = [str(Path(d) / f).lstrip(str(self.path)) for d, _, fnames in os.walk(self.path) for f in fnames]
-        self._parsed_files: dict[str, Any] = {}
-
-    def __len__(self):
-        return len(self.files)
-
-    def __iter__(self):
-        return iter(self.files)
-
-    def __getitem__(self, item):
-        if item in self._parsed_files:
-            return self._parsed_files[item]
-        fpath = self.path / item
-
-        if not (self.path / item).exists():
-            raise ValueError(f"{item} not found in {self.path}. List of files are {self.files}.")
-
-        for k, cls_ in VaspDir.FILE_MAPPINGS.items():
-            if k in item:
-                try:
-                    self._parsed_files[item] = cls_.from_file(fpath)
-                except AttributeError:
-                    self._parsed_files[item] = cls_(fpath)
-
-                return self._parsed_files[item]
-
-        warnings.warn(
-            f"No parser defined for {item}. Contents are returned as a string.",
-            UserWarning,
-        )
-        with zopen(fpath, "rt") as f:
-            return f.read()
-
-    def get_files_by_name(self, name: str) -> dict[str, Any]:
-        """
-        Returns all files with a given name. E.g., if you want all the OUTCAR files, set name="OUTCAR".
-
-        Returns:
-            {filename: object from VaspDir[filename]}
-        """
-        return {f: self[f] for f in self.files if name in f}
