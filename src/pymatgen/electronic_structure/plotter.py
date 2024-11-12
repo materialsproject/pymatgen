@@ -1855,13 +1855,13 @@ class BSPlotterProjected(BSPlotter):
 
         for elt in dictio:
             if len(dictio[elt]) == 1:
-                if len(dictio[elt][0]) > 1:
+                if sum_morbs is None:
+                    pass
+                elif len(dictio[elt][0]) > 1:
                     if elt in sum_morbs:
                         raise ValueError(
                             f"You cannot sum projection over one individual orbital {dictio[elt][0]!r} of {elt!r}."
                         )
-                elif sum_morbs is None:
-                    pass
                 elif elt not in sum_morbs:
                     print(f"You do not want to sum projection over orbitals of element: {elt}")
                 else:
