@@ -474,7 +474,7 @@ class Vasprun(MSONable):
                     elif tag == "dielectricfunction":
                         label = elem.attrib.get("comment", None)
                         if label is None:
-                            if self.incar.get("ALGO", "Normal").upper() == "BSE":
+                            if self.incar.get("ALGO", "Normal") == "Bse":
                                 label = "freq_dependent"
                             elif "density" not in self.dielectric_data:
                                 label = "density"
@@ -634,7 +634,7 @@ class Vasprun(MSONable):
             while set(final_elec_steps[idx]) == to_check:
                 idx += 1
             return idx + 1 != self.parameters["NELM"]
-        if self.incar.get("ALGO", "").upper() == "EXACT" and self.incar.get("NELM") == 1:
+        if self.incar.get("ALGO", "") == "Exact" and self.incar.get("NELM") == 1:
             return True
         return len(final_elec_steps) < self.parameters["NELM"]
 
@@ -793,10 +793,10 @@ class Vasprun(MSONable):
             "--",
             "None",
         }:
-            incar_tag = self.incar.get("METAGGA", "").strip().upper()
+            incar_tag = self.incar.get("METAGGA", "").upper()
             run_type = METAGGA_TYPES.get(incar_tag, incar_tag)
         elif self.parameters.get("GGA"):
-            incar_tag = self.parameters.get("GGA", "").strip().upper()
+            incar_tag = self.parameters.get("GGA", "").upper()
             run_type = GGA_TYPES.get(incar_tag, incar_tag)
         elif self.potcar_symbols[0].split()[0] == "PAW":
             run_type = "LDA"
