@@ -1952,18 +1952,18 @@ class Outcar:
         - read_table_pattern
 
     Attributes:
-        magnetization (tuple[dict]): Magnetization on each ion, e.g.
+        magnetization (tuple[dict[str, float]]): Magnetization on each ion, e.g.
             ({"d": 0.0, "p": 0.003, "s": 0.002, "tot": 0.005}, ... ).
         chemical_shielding (dict): Chemical shielding on each ion with core and valence contributions.
         unsym_cs_tensor (list): Unsymmetrized chemical shielding tensor matrixes on each ion.
             e.g. [[[sigma11, sigma12, sigma13], [sigma21, sigma22, sigma23], [sigma31, sigma32, sigma33]], ...]
         cs_g0_contribution (NDArray): G=0 contribution to chemical shielding. 2D rank 3 matrix.
-        cs_core_contribution (dict): Core contribution to chemical shielding. e.g.
+        cs_core_contribution (dict[str, float]): Core contribution to chemical shielding. e.g.
             {'Mg': -412.8, 'C': -200.5, 'O': -271.1}
-        efg (tuple[dict]): Electric Field Gradient (EFG) tensor on each ion, e.g.
+        efg (tuple[dict[str, float]]): Electric Field Gradient (EFG) tensor on each ion, e.g.
             ({"cq": 0.1, "eta", 0.2, "nuclear_quadrupole_moment": 0.3}, {"cq": 0.7, "eta", 0.8,
             "nuclear_quadrupole_moment": 0.9}, ...)
-        charge (tuple[dict]): Charge on each ion, e.g.
+        charge (tuple[dict[str, float]]): Charge on each ion, e.g.
             ({"p": 0.154, "s": 0.078, "d": 0.0, "tot": 0.232}, ...)
         is_stopped (bool): True if OUTCAR is from a stopped run (using STOPCAR, see VASP Manual).
         run_stats (dict[str, float | None]): Various useful run stats including "System time (sec)",
@@ -2001,22 +2001,27 @@ class Outcar:
         Args:
             filename (PathLike): OUTCAR file to parse.
         """
-        self.filename = filename
-        self.is_stopped = False
+        self.filename: str = str(filename)
+        self.is_stopped: bool = False
 
         # Assume a compilation with parallelization enabled.
         # Will be checked later.
         # If VASP is compiled in serial, the OUTCAR is written slightly differently.
-        serial_compilation = False
+        serial_compilation: bool = False
 
-        # data from end of OUTCAR
+        # Data from the end of OUTCAR
         charge = []
         mag_x = []
         mag_y = []
         mag_z = []
         header = []
         run_stats: dict[str, float | None] = {}
-        total_mag = nelect = efermi = e_fr_energy = e_wo_entrp = e0 = None
+        total_mag: float | None = None
+        nelect: float | None = None
+        efermi: float | None = None
+        e_fr_energy: float | None = None
+        e_wo_entrp: float | None = None
+        e0: float | None = None
 
         time_patt = re.compile(r"\((sec|kb)\)")
         efermi_patt = re.compile(r"E-fermi\s*:\s*(\S+)")
@@ -2066,7 +2071,8 @@ class Outcar:
                     e_wo_entrp = float(match[1])
                 if e0 is None and (match := e0_pattern.search(clean)):
                     e0 = float(match[1])
-            if all([nelect, total_mag is not None, efermi is not None, run_stats]):
+
+            if nelect is not None and total_mag is not None and efermi is not None and run_stats:
                 break
 
         # For single atom systems, VASP doesn't print a total line, so
@@ -2391,13 +2397,13 @@ class Outcar:
         arguments.
 
         Args:
-            patterns (dict[str, str]): A dict of patterns, e.g.
+            patterns (dict[str, str]): Patterns, e.g.
                 {"energy": r"energy\\(sigma->0\\)\\s+=\\s+([\\d\\-.]+)"}.
             reverse (bool): Read files in reverse. Defaults to false. Useful for
-                large files, esp OUTCARs, especially when used with
+                large files like OUTCARs, especially when used with
                 terminate_on_match.
             terminate_on_match (bool): Whether to terminate when there is at
-                least one match in each key in pattern.
+                least one match for each key in patterns.
             postprocess (Callable): A post processing function to convert all
                 matches. Defaults to str, i.e., no change.
 
