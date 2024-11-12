@@ -553,7 +553,8 @@ class DftSet(Cp2kInput):
             if hasattr(basis, "filename"):
                 data["basis_filenames"].append(basis.filename)
             pfn1 = data.get("potential_filename")
-            pfn2 = potential.filename
+            # use getattr to not raise an error if potential is str, not Potential object
+            pfn2 = getattr(potential, "filename", None)
             if pfn1 and pfn2 and pfn1 != pfn2:
                 raise ValueError(
                     "Provided potentials have more than one corresponding file."
