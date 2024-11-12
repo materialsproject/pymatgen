@@ -103,7 +103,7 @@ class Keyword(MSONable):
         return (
             f"{self.name} {f'[{self.units}] ' if self.units else ''}"
             + " ".join(map(str, self.values))
-            + (" ! " + self.description if (self.description and self.verbose) else "")
+            + (f" ! {self.description}" if (self.description and self.verbose) else "")
         )
 
     def __eq__(self, other: object) -> bool:
@@ -516,10 +516,10 @@ class Section(MSONable):
             path (str): Path to section of form 'SUBSECTION1/SUBSECTION2/SUBSECTION_OF_INTEREST'
         """
         _path = path.split("/")
-        s = self.subsections
+        sub_secs = self.subsections
         for p in _path:
-            if tmp := [_ for _ in s if p.upper() == _.upper()]:
-                s = s[tmp[0]].subsections
+            if tmp := [_ for _ in sub_secs if p.upper() == _.upper()]:
+                sub_secs = sub_secs[tmp[0]].subsections
             else:
                 return False
         return True
@@ -535,8 +535,8 @@ class Section(MSONable):
         if _path[0].upper() == self.name.upper():
             _path = _path[1:]
         sec_str = self
-        for p in _path:
-            sec_str = sec_str.get_section(p)
+        for pth in _path:
+            sec_str = sec_str.get_section(pth)
         return sec_str
 
     def get_str(self) -> str:
@@ -559,15 +559,15 @@ class Section(MSONable):
             )
             string += f"\n{filled}\n"
         string += "\t" * indent + f"&{d.name}"
-        string += f" {' '.join(map(str, d.section_parameters))}\n"
+        string += f"{' '.join(map(str, ['', *d.section_parameters]))}\n"
 
-        for v in d.keywords.values():
-            if isinstance(v, KeywordList):
-                string += f"{v.get_str(indent=indent + 1)}\n"
+        for val in d.keywords.values():
+            if isinstance(val, KeywordList):
+                string += f"{val.get_str(indent=indent + 1)}\n"
             else:
-                string += "\t" * (indent + 1) + v.get_str() + "\n"
-        for v in d.subsections.values():
-            string += v._get_str(v, indent + 1)
+                string += "\t" * (indent + 1) + val.get_str() + "\n"
+        for val in d.subsections.values():
+            string += val._get_str(val, indent + 1)
         string += "\t" * indent + f"&END {d.name}\n"
 
         return string
