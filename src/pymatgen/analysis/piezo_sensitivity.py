@@ -620,17 +620,17 @@ class ForceConstantMatrix:
             for n in range(n_sites):
                 dyn_mass[m][n] = dyn[m][n] * np.sqrt(masses[m]) * np.sqrt(masses[n])
 
-        supercell = pn_struct.get_supercell()
-        primitive = pn_struct.get_primitive()
+        supercell = pn_struct.supercell
+        primitive = pn_struct.primitive
 
         converter = dyntofc.DynmatToForceConstants(primitive, supercell)
 
         dyn = np.reshape(np.swapaxes(dyn_mass, 1, 2), (n_sites * 3, n_sites * 3))
 
-        converter.set_dynamical_matrices(dynmat=[dyn])
+        converter.dynamical_matrices = [dyn]
 
         converter.run()
-        return converter.get_force_constants()
+        return converter.force_constants
 
 
 def get_piezo(BEC, IST, FCM, rcond=0.0001):

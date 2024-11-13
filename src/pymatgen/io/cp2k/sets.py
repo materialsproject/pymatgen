@@ -21,8 +21,9 @@ from __future__ import annotations
 
 import itertools
 import os
+import typing
 import warnings
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Any
 
 import numpy as np
 from ruamel.yaml import YAML
@@ -70,6 +71,7 @@ from pymatgen.io.vasp.inputs import Kpoints as VaspKpoints
 from pymatgen.io.vasp.inputs import KpointsSupportedModes
 
 if TYPE_CHECKING:
+    from pathlib import Path
     from typing import Literal
 
 __author__ = "Nicholas Winner"
@@ -354,8 +356,13 @@ class DftSet(Cp2kInput):
         if kwargs.get("validate", True):
             self.validate()
 
+    @typing.no_type_check
     @staticmethod
-    def get_basis_and_potential(structure, basis_and_potential):
+    def get_basis_and_potential(
+        structure: Structure,
+        basis_and_potential: dict[str, dict[str, Any]],
+        cp2k_data_dir: str | Path | None = None,
+    ) -> dict[str, dict[str, Any]]:
         """Get a dictionary of basis and potential info for constructing the input file.
 
         data in basis_and_potential argument can be specified in several ways:
@@ -395,7 +402,8 @@ class DftSet(Cp2kInput):
 
         Will raise an error if no basis/potential info can be found according to the input.
         """
-        data = {"basis_filenames": []}
+        cp2k_data_dir = cp2k_data_dir or SETTINGS.get("PMG_CP2K_DATA_DIR", ".")
+        data: dict[str, list[str]] = {"basis_filenames": []}
         functional = basis_and_potential.get("functional", SETTINGS.get("PMG_DEFAULT_CP2K_FUNCTIONAL"))
         basis_type = basis_and_potential.get("basis_type", SETTINGS.get("PMG_DEFAULT_CP2K_BASIS_TYPE"))
         potential_type = basis_and_potential.get(
@@ -405,18 +413,16 @@ class DftSet(Cp2kInput):
         aux_basis_type = basis_and_potential.get("aux_basis_type", SETTINGS.get("PMG_DEFAULT_CP2K_AUX_BASIS_TYPE"))
 
         for el in structure.symbol_set:
-            possible_basis_sets = []
-            possible_potentials = []
-            basis, aux_basis, potential, DATA = None, None, None, None
+            possible_basis_sets, possible_potentials = [], []
+            DATA: dict[str, dict[str, Any]] = {}
+            basis, aux_basis, potential = None, None, None
             desired_basis, desired_aux_basis, desired_potential = None, None, None
-            have_element_file = os.path.isfile(os.path.join(SETTINGS.get("PMG_CP2K_DATA_DIR", "."), el))
+            elem_file_path = os.path.join(cp2k_data_dir, el)
+            have_element_file = os.path.isfile(elem_file_path)
 
             # Necessary if matching data to CP2K data files
             if have_element_file:
-                with open(
-                    os.path.join(SETTINGS.get("PMG_CP2K_DATA_DIR", "."), el),
-                    encoding="utf-8",
-                ) as file:
+                with open(elem_file_path, encoding="utf-8") as file:
                     yaml = YAML(typ="unsafe", pure=True)
                     DATA = yaml.load(file)
                     if not DATA.get("basis_sets"):
@@ -510,16 +516,16 @@ class DftSet(Cp2kInput):
                 reverse=True,
             )
 
-            def match_elecs(x):
-                for p in possible_potentials:
-                    if x.info.electrons == p.info.electrons:
-                        return p
+            def match_elecs(basis_set):
+                for potential in possible_potentials:
+                    if basis_set.info.electrons == potential.info.electrons:
+                        return potential
                 return None
 
-            for b in possible_basis_sets:
-                fb = match_elecs(b)
+            for basis_set in possible_basis_sets:
+                fb = match_elecs(basis_set)
                 if fb is not None:
-                    basis = b
+                    basis = basis_set
                     potential = fb
                     break
 
@@ -547,7 +553,8 @@ class DftSet(Cp2kInput):
             if hasattr(basis, "filename"):
                 data["basis_filenames"].append(basis.filename)
             pfn1 = data.get("potential_filename")
-            pfn2 = potential.filename
+            # use getattr to not raise an error if potential is str, not Potential object
+            pfn2 = getattr(potential, "filename", None)
             if pfn1 and pfn2 and pfn1 != pfn2:
                 raise ValueError(
                     "Provided potentials have more than one corresponding file."
@@ -556,6 +563,13 @@ class DftSet(Cp2kInput):
             data["potential_filename"] = pfn2
 
             data[el] = {"basis": basis, "aux_basis": aux_basis, "potential": potential}
+
+        # if potential_filename or basis_filenames not set by above code, use the global ones
+        if not data["potential_filename"]:
+            data["potential_filename"] = basis_and_potential.get("potential_filename")
+        if not data["basis_filenames"]:
+            data["basis_filenames"] = basis_and_potential.get("basis_filenames")
+
         return data
 
     @staticmethod
@@ -677,7 +691,7 @@ class DftSet(Cp2kInput):
 
     def print_v_hartree(self, stride=(2, 2, 2)) -> None:
         """
-        Controls the printing of a cube file with eletrostatic potential generated by the
+        Controls the printing of a cube file with electrostatic potential generated by the
             total density (electrons+ions). It is valid only for QS with GPW formalism.
         Note that by convention the potential has opposite sign than the expected physical one.
         """

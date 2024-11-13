@@ -723,7 +723,7 @@ class Incar(UserDict, MSONable):
 
     - Keys are stored in uppercase to allow case-insensitive access (set, get, del, update, setdefault).
     - String values are capitalized by default, except for keys specified
-        in the `lower_str_keys` of the `proc_val` method.
+        in the `lower_str_keys/as_is_str_keys` of the `proc_val` method.
     """
 
     def __init__(self, params: dict[str, Any] | None = None) -> None:
@@ -971,6 +971,8 @@ class Incar(UserDict, MSONable):
             "IVDW",
         )
         lower_str_keys = ("ML_MODE",)
+        # String keywords to read "as is" (no case transformation, only stripped)
+        as_is_str_keys = ("SYSTEM",)
 
         def smart_int_or_float(num_str: str) -> float:
             """Determine whether a string represents an integer or a float."""
@@ -1005,6 +1007,9 @@ class Incar(UserDict, MSONable):
 
             if key in lower_str_keys:
                 return val.strip().lower()
+
+            if key in as_is_str_keys:
+                return val.strip()
 
         except ValueError:
             pass
@@ -1087,9 +1092,9 @@ class Incar(UserDict, MSONable):
             # Only check value when it's not None,
             # meaning there is recording for corresponding value
             if allowed_values is not None:
-                # Note: param_type could be a Union type, e.g. "str | bool"
-                if "str" in param_type:
-                    allowed_values = [item.capitalize() if isinstance(item, str) else item for item in allowed_values]
+                allowed_values = [
+                    self.proc_val(tag, item) if isinstance(item, str) else item for item in allowed_values
+                ]
 
                 if val not in allowed_values:
                     warnings.warn(

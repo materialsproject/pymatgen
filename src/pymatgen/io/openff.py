@@ -85,7 +85,7 @@ def mol_graph_from_openff_mol(molecule: tk.Molecule) -> MoleculeGraph:
     Returns:
         MoleculeGraph: The converted MoleculeGraph.
     """
-    mol_graph = MoleculeGraph.with_empty_graph(Molecule([], []), name="none")
+    mol_graph = MoleculeGraph.from_empty_graph(Molecule([], []), name="none")
     p_table = {el.Z: str(el) for el in Element}
     total_charge = cum_atoms = 0
 
@@ -173,7 +173,7 @@ def infer_openff_mol(
     Returns:
         tk.Molecule: The inferred OpenFF Molecule.
     """
-    mol_graph = MoleculeGraph.with_local_env_strategy(mol_geometry, OpenBabelNN())
+    mol_graph = MoleculeGraph.from_local_env_strategy(mol_geometry, OpenBabelNN())
     mol_graph = metal_edge_extender(mol_graph)
     return mol_graph_to_openff_mol(mol_graph)
 
