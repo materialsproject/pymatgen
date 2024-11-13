@@ -320,6 +320,8 @@ class HeisenbergMapper:
 
                 # Ignore the row if it is a duplicate to avoid singular matrix
                 # Create a temporary DataFrame with the new row
+                ex_mat = ex_mat.dropna(how="all", axis=1)
+                ex_row = ex_row.dropna(how="all", axis=1)
                 temp_df = pd.concat([ex_mat, ex_row], ignore_index=True)
                 if temp_df[j_columns].equals(temp_df[j_columns].drop_duplicates(keep="first")):
                     e_index = self.ordered_structures.index(sgraph.structure)

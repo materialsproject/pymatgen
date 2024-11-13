@@ -119,6 +119,7 @@ class TestThermoPlotter(TestCase):
             self.dos = CompletePhononDos.from_dict(json.load(file))
         self.plotter = ThermoPlotter(self.dos, self.dos.structure)
 
+    @pytest.mark.filterwarnings("ignore:More than 20 figures have been opened")
     def test_plot_functions(self):
         fig = self.plotter.plot_cv(5, 100, 5, show=False)
         assert isinstance(fig, plt.Figure)

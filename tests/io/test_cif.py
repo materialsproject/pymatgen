@@ -376,7 +376,7 @@ class TestCifIO(PymatgenTest):
         # Symbol in capital letters
         parser = CifParser(f"{TEST_FILES_DIR}/cif/Cod_2100513.cif")
         for struct in parser.parse_structures():
-            assert struct.formula == "Ca4 Nb2.0 Al2 O12"
+            assert struct.formula == "Ca4 Nb2 Al2 O12"
 
         # Label in capital letters
         parser = CifParser(f"{TEST_FILES_DIR}/cif/Cod_4115344.cif")

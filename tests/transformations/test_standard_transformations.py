@@ -200,6 +200,15 @@ class TestAutoOxiStateDecorationTransformation:
         trafo = AutoOxiStateDecorationTransformation.from_dict(dct)
         assert trafo.analyzer.dist_scale_factor == 1.015
 
+    def test_failure(self):
+        trafo_fail = AutoOxiStateDecorationTransformation()
+        trafo_no_fail = AutoOxiStateDecorationTransformation(zeros_on_fail=True)
+        struct_metal = Structure.from_spacegroup("Fm-3m", Lattice.cubic(3.677), ["Cu"], [[0, 0, 0]])
+        with pytest.raises(ValueError, match="BVAnalyzer failed with error"):
+            trafo_fail.apply_transformation(struct_metal)
+        zero_oxi_struct = trafo_no_fail.apply_transformation(struct_metal)
+        assert all(site.specie.oxi_state == 0 for site in zero_oxi_struct)
+
 
 class TestOxidationStateRemovalTransformation:
     def test_apply_transformation(self):

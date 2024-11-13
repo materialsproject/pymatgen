@@ -913,14 +913,18 @@ class LammpsRun(MSONable):
             output_dir (str): Directory to output the input files.
             **kwargs: kwargs supported by LammpsData.write_file.
         """
-        write_lammps_inputs(
-            output_dir=output_dir,
-            script_template=self.script_template,
-            settings=self.settings,
-            data=self.data,
-            script_filename=self.script_filename,
-            **kwargs,
-        )
+        # TODO: write_lammps_inputs is deprecated
+        with warnings.catch_warnings():
+            warnings.filterwarnings("ignore", message="write_lammps_inputs is deprecated")
+
+            write_lammps_inputs(
+                output_dir=output_dir,
+                script_template=self.script_template,
+                settings=self.settings,
+                data=self.data,
+                script_filename=self.script_filename,
+                **kwargs,
+            )
 
     @classmethod
     def md(
