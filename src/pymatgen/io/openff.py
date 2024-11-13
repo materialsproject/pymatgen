@@ -48,7 +48,7 @@ def mol_graph_to_openff_mol(mol_graph: MoleculeGraph) -> tk.Molecule:
         # put formal charge on first atom if there is none present
         formal_charge = node.get("formal_charge")
         if formal_charge is None:
-            formal_charge = (i_node == 0) * int(round(mol_graph.molecule.charge, 0)) * unit.elementary_charge
+            formal_charge = (i_node == 0) * round(mol_graph.molecule.charge) * unit.elementary_charge
 
         # assume not aromatic if no info present
         is_aromatic = node.get("is_aromatic") or False
@@ -85,7 +85,7 @@ def mol_graph_from_openff_mol(molecule: tk.Molecule) -> MoleculeGraph:
     Returns:
         MoleculeGraph: The converted MoleculeGraph.
     """
-    mol_graph = MoleculeGraph.with_empty_graph(Molecule([], []), name="none")
+    mol_graph = MoleculeGraph.from_empty_graph(Molecule([], []), name="none")
     p_table = {el.Z: str(el) for el in Element}
     total_charge = cum_atoms = 0
 
@@ -173,7 +173,7 @@ def infer_openff_mol(
     Returns:
         tk.Molecule: The inferred OpenFF Molecule.
     """
-    mol_graph = MoleculeGraph.with_local_env_strategy(mol_geometry, OpenBabelNN())
+    mol_graph = MoleculeGraph.from_local_env_strategy(mol_geometry, OpenBabelNN())
     mol_graph = metal_edge_extender(mol_graph)
     return mol_graph_to_openff_mol(mol_graph)
 

@@ -724,6 +724,14 @@ class TestIncar(PymatgenTest):
         incar.setdefault("NPAR", 4)
         assert incar["npar"] == 4
 
+        # Test pop
+        assert incar.pop(test_tag.lower()) == 520
+        assert test_tag.upper() not in incar
+        assert test_tag.lower() not in incar
+
+        # Test pop with default value
+        assert incar.pop("missing_key", 42) == 42
+
     def test_copy(self):
         incar2 = self.incar.copy()
         assert isinstance(incar2, Incar), f"Expected Incar, got {type(incar2).__name__}"
@@ -787,9 +795,11 @@ class TestIncar(PymatgenTest):
                 "ISMEAR": {"INCAR1": 0, "INCAR2": -5},
                 "NPAR": {"INCAR1": 8, "INCAR2": 1},
                 "SYSTEM": {
-                    "INCAR1": "Id=[0] dblock_code=[97763-icsd] formula=[li mn (p o4)] sg_name=[p n m a]",
-                    "INCAR2": "Id=[91090] dblock_code=[20070929235612linio-59.53134651-vasp] formula=[li3 ni3 o6] "
-                    "sg_name=[r-3m]",
+                    "INCAR1": "id=[0] dblock_code=[97763-ICSD] formula=[Li Mn (P O4)] sg_name=[P n m a]",
+                    "INCAR2": (
+                        "id=[91090] dblock_code=[20070929235612LiNiO-59.53134651-VASP] "
+                        "formula=[Li3 Ni3 O6] sg_name=[R-3m]"
+                    ),
                 },
                 "ALGO": {"INCAR1": "Damped", "INCAR2": "Fast"},
                 "LHFCALC": {"INCAR1": True, "INCAR2": None},
@@ -824,7 +834,7 @@ class TestIncar(PymatgenTest):
         float/int, and might yield values in wrong type.
         """
         # Init from dict
-        incar_dict = {"ENCUT": 500, "GGA": "PS", "NELM": 60.0}
+        incar_dict = {"ENCUT": 500, "GGA": "PS", "NELM": 60.0, "SYSTEM": "This should NOT BE capitalized"}
         incar_from_dict = Incar(incar_dict)
 
         # Init from file (from string)
@@ -832,6 +842,7 @@ class TestIncar(PymatgenTest):
         ENCUT = 500
         GGA = PS
         NELM = 60.0
+        SYSTEM = This should NOT BE capitalized
         """
 
         with ScratchDir("."):
@@ -848,6 +859,7 @@ class TestIncar(PymatgenTest):
         assert incar_from_dict == incar_from_file
         for key in incar_from_dict:
             assert type(incar_from_dict[key]) is type(incar_from_file[key])
+        assert incar_from_file["SYSTEM"] == "This should NOT BE capitalized"
 
     def test_write(self):
         tmp_file = f"{self.tmp_path}/INCAR.testing"
@@ -883,7 +895,7 @@ NSW        =  99
 NUPDOWN    =  0
 PREC       =  Accurate
 SIGMA      =  0.05
-SYSTEM     =  Id=[0] dblock_code=[97763-icsd] formula=[li mn (p o4)] sg_name=[p n m a]
+SYSTEM     =  id=[0] dblock_code=[97763-ICSD] formula=[Li Mn (P O4)] sg_name=[P n m a]
 TIME       =  0.4"""
         assert incar_str == expected
 
@@ -985,13 +997,15 @@ SIGMA = 0.1"""
                 "AMIN": 0.01,
                 "ICHARG": 1,
                 "MAGMOM": [1, 2, 4, 5],
+                "ML_MODE": "RUN",  # lower case string
+                "SYSTEM": "Hello world",  # as is string
                 "ENCUT": 500,  # make sure float key is casted
                 "GGA": "PS",  # test string case insensitivity
                 "LREAL": True,  # special case: Union type
                 "NBAND": 250,  # typo in tag
                 "METAGGA": "SCAM",  # typo in value
-                "EDIFF": 5 + 1j,  # value should be a float
-                "ISIF": 9,  # value out of range
+                "EDIFF": 5 + 1j,  # value should be float
+                "ISIF": 9,  # value not unknown
                 "LASPH": 5,  # value should be bool
                 "PHON_TLIST": "is_a_str",  # value should be a list
             }
@@ -1022,6 +1036,7 @@ class TestKpointsSupportedModes:
 
 
 class TestKpoints:
+    @pytest.mark.filterwarnings("ignore:Please use INCAR KSPACING tag")
     def test_init(self):
         # Automatic KPOINT grid
         filepath = f"{VASP_IN_DIR}/KPOINTS_auto"
@@ -1129,7 +1144,7 @@ Cartesian
         assert kpoints.kpts == [(2, 2, 2)]
         assert all(isinstance(kpt, int) for kpt in kpoints.kpts[0])
 
-        with pytest.warns(DeprecationWarning, match="Please use INCAR KSPACING tag"):
+        with pytest.deprecated_call(match="Please use INCAR KSPACING tag"):
             kpoints = Kpoints.automatic(100)
         assert kpoints.style == Kpoints.supported_modes.Automatic
         assert kpoints.kpts == [(100,)]

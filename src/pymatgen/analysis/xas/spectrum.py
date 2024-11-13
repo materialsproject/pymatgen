@@ -203,6 +203,7 @@ class XAS(Spectrum):
                 warnings.warn(
                     "There might exist a jump at the L2 and L3-edge junction.",
                     UserWarning,
+                    stacklevel=2,
                 )
 
             return XAS(energy, mu, self.structure, self.absorbing_element, "L23", "XANES")

@@ -7,7 +7,6 @@ import math
 import warnings
 from fractions import Fraction
 from itertools import groupby, product
-from math import gcd
 from string import ascii_lowercase
 from typing import TYPE_CHECKING
 
@@ -21,13 +20,13 @@ from pymatgen.analysis.adsorption import AdsorbateSiteFinder
 from pymatgen.analysis.bond_valence import BVAnalyzer
 from pymatgen.analysis.energy_models import SymmetryModel
 from pymatgen.analysis.ewald import EwaldSummation
-from pymatgen.analysis.gb.grain import GrainBoundaryGenerator
 from pymatgen.analysis.local_env import MinimumDistanceNN
 from pymatgen.analysis.structure_matcher import SpinComparator, StructureMatcher
 from pymatgen.analysis.structure_prediction.substitution_probability import SubstitutionPredictor
 from pymatgen.command_line.enumlib_caller import EnumError, EnumlibAdaptor
 from pymatgen.command_line.mcsqs_caller import run_mcsqs
 from pymatgen.core import DummySpecies, Element, Species, Structure, get_el_sp
+from pymatgen.core.interface import GrainBoundaryGenerator
 from pymatgen.core.surface import SlabGenerator
 from pymatgen.electronic_structure.core import Spin
 from pymatgen.io.ase import AseAtomsAdaptor
@@ -425,7 +424,7 @@ class EnumerateStructureTransformation(AbstractTransformation):
             if contains_oxidation_state and self.sort_criteria == "ewald":
                 new_latt = struct.lattice
                 transformation = np.dot(new_latt.matrix, inv_latt)
-                transformation = tuple(tuple(int(round(cell)) for cell in row) for row in transformation)
+                transformation = tuple(tuple(round(cell) for cell in row) for row in transformation)
                 if transformation not in ewald_matrices:
                     s_supercell = structure * transformation
                     ewald = EwaldSummation(s_supercell)
@@ -660,7 +659,7 @@ class MagOrderingTransformation(AbstractTransformation):
 
         def lcm(n1, n2):
             """Find least common multiple of two numbers."""
-            return n1 * n2 / gcd(n1, n2)
+            return n1 * n2 / math.gcd(n1, n2)
 
         # assumes all order parameters for a given species are the same
         mag_species_order_parameter = {}
@@ -683,7 +682,7 @@ class MagOrderingTransformation(AbstractTransformation):
         for sp, order_parameter in mag_species_order_parameter.items():
             denom = Fraction(order_parameter).limit_denominator(100).denominator
             num_atom_per_specie = mag_species_occurrences[sp]
-            n_gcd = gcd(denom, num_atom_per_specie)
+            n_gcd = math.gcd(denom, num_atom_per_specie)
             smallest_n.append(lcm(int(n_gcd), denom) / n_gcd)
 
         return max(smallest_n)
@@ -1030,7 +1029,7 @@ class DopingTransformation(AbstractTransformation):
         logger.info(f"Compatible species: {compatible_species}")
 
         lengths = structure.lattice.abc
-        scaling = [max(1, int(round(math.ceil(self.min_length / x)))) for x in lengths]
+        scaling = [max(1, math.ceil(self.min_length / x)) for x in lengths]
         logger.info(f"{lengths=}")
         logger.info(f"{scaling=}")
 
@@ -1333,7 +1332,7 @@ class GrainBoundaryTransformation(AbstractTransformation):
         ratio=True,
         plane=None,
         max_search=20,
-        tol_coi=1.0e-8,
+        tol_coi=1e-8,
         rm_ratio=0.7,
         quick_gen=False,
     ):

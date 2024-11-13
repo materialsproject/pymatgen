@@ -1,7 +1,7 @@
 from __future__ import annotations
 
+import math
 from collections import defaultdict
-from math import isnan
 from unittest import TestCase
 
 import numpy as np
@@ -508,7 +508,7 @@ class TestComputedReaction(TestCase):
         prods = list(filter(lambda e: e.reduced_formula == "Li2O2", entries))
 
         rxn_with_uncertainty = ComputedReaction(reactants, prods)
-        assert isnan(rxn_with_uncertainty.calculated_reaction_energy_uncertainty)
+        assert math.isnan(rxn_with_uncertainty.calculated_reaction_energy_uncertainty)
 
     def test_init(self):
         assert str(self.rxn) == "2 Li + O2 -> Li2O2"

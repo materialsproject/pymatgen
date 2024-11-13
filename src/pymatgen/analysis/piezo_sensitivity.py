@@ -181,7 +181,7 @@ class InternalStrainTensor:
         self.IST_operations: list[list[list]] = []
 
         obj = self.ist
-        if not (obj - np.transpose(obj, (0, 1, 3, 2)) < tol).all():
+        if not np.allclose(obj, np.transpose(obj, (0, 1, 3, 2)), atol=tol, rtol=0):
             warnings.warn("Input internal strain tensor does not satisfy standard symmetries")
 
     def get_IST_operations(self, opstol=1e-3) -> list[list[list]]:
@@ -620,17 +620,17 @@ class ForceConstantMatrix:
             for n in range(n_sites):
                 dyn_mass[m][n] = dyn[m][n] * np.sqrt(masses[m]) * np.sqrt(masses[n])
 
-        supercell = pn_struct.get_supercell()
-        primitive = pn_struct.get_primitive()
+        supercell = pn_struct.supercell
+        primitive = pn_struct.primitive
 
         converter = dyntofc.DynmatToForceConstants(primitive, supercell)
 
         dyn = np.reshape(np.swapaxes(dyn_mass, 1, 2), (n_sites * 3, n_sites * 3))
 
-        converter.set_dynamical_matrices(dynmat=[dyn])
+        converter.dynamical_matrices = [dyn]
 
         converter.run()
-        return converter.get_force_constants()
+        return converter.force_constants
 
 
 def get_piezo(BEC, IST, FCM, rcond=0.0001):
