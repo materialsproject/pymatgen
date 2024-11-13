@@ -92,6 +92,7 @@ class DftSet(Cp2kInput):
         structure: Structure | Molecule,
         project_name: str = "CP2K",
         basis_and_potential: dict | None = None,
+        element_defaults: dict[str, dict[str, Any]] | None = None,
         xc_functionals: list | str | None = None,
         multiplicity: int = 0,
         ot: bool = True,
@@ -119,6 +120,10 @@ class DftSet(Cp2kInput):
         """
         Args:
             structure: Pymatgen structure or molecule object
+            basis_and_potential (dict): Basis set and pseudo-potential to use for each element.
+                See DftSet.get_basis_and_potential for allowed formats.
+            element_defaults (dict): Default settings such as initial magnetization for each
+                element. See DftSet.create_subsys for allowed formats.
             ot (bool): Whether or not to use orbital transformation method for matrix
                 diagonalization. OT is the flagship scf solver of CP2K, and will provide
                 speed-ups for this part of the calculation, but the system must have a band gap
@@ -184,6 +189,7 @@ class DftSet(Cp2kInput):
 
         self.structure = structure
         self.basis_and_potential = basis_and_potential or {}
+        self.element_defaults = element_defaults or {}
         self.project_name = project_name
         self.charge = int(structure.charge)
         if not multiplicity and isinstance(self.structure, Molecule):
@@ -244,7 +250,7 @@ class DftSet(Cp2kInput):
             eps_default=eps_default,
             eps_pgf_orb=kwargs.get("eps_pgf_orb"),
         )
-        max_scf = max_scf or 20 if ot else 400  # If ot, max_scf is for inner loop
+        max_scf = (max_scf or 20) if ot else 400  # If ot, max_scf is for inner loop
         scf = Scf(eps_scf=eps_scf, max_scf=max_scf, subsections={})
 
         if ot:
@@ -282,13 +288,11 @@ class DftSet(Cp2kInput):
             scf.insert(mixing)
             scf["MAX_DIIS"] = Keyword("MAX_DIIS", 15)
 
-        # Get basis, potential, and xc info
+        # Get basis, potential, and XC info
         self.basis_and_potential = DftSet.get_basis_and_potential(self.structure, self.basis_and_potential)
         self.basis_set_file_names = self.basis_and_potential.get("basis_filenames")
         self.potential_file_name = self.basis_and_potential.get("potential_filename")
-        self.xc_functionals = DftSet.get_xc_functionals(
-            xc_functionals=xc_functionals
-        )  # kwargs.get("xc_functional", "PBE"))
+        self.xc_functionals = DftSet.get_xc_functionals(xc_functionals=xc_functionals)
 
         # create the subsys (structure)
         self.create_subsys(self.structure)
@@ -600,7 +604,7 @@ class DftSet(Cp2kInput):
         names = xc_functionals or SETTINGS.get("PMG_DEFAULT_CP2K_FUNCTIONAL")
         if not names:
             raise ValueError(
-                "No XC functional provided. Specify kwarg xc_functional or configure PMG_DEFAULT_FUNCTIONAL "
+                "No XC functional provided. Specify kwarg xc_functional or configure PMG_DEFAULT_CP2K_FUNCTIONAL "
                 "in your .pmgrc.yaml file"
             )
         if isinstance(names, str):
@@ -1276,7 +1280,7 @@ class DftSet(Cp2kInput):
         unique_kinds = get_unique_site_indices(structure)
         for key, val in unique_kinds.items():
             kind = key.split("_")[0]
-            kwargs = {}
+            kind_kwargs = {}
 
             _ox = (
                 self.structure.site_properties["oxi_state"][val[0]]
@@ -1287,11 +1291,17 @@ class DftSet(Cp2kInput):
 
             bs = BrokenSymmetry.from_el(kind, _ox, _sp) if _ox else None
 
+            # First try site properties
             if (magmom := self.structure.site_properties.get("magmom")) and not bs:
-                kwargs["magnetization"] = magmom[val[0]]
+                kind_kwargs["magnetization"] = magmom[val[0]]
+            # Then try element defaults
+            elif kind_kwargs.get("magnetization") is None and (
+                magnetization := self.element_defaults.get(kind, {}).get("magnetization")
+            ):
+                kind_kwargs["magnetization"] = magnetization
 
             if ghost := self.structure.site_properties.get("ghost"):
-                kwargs["ghost"] = ghost[val[0]]
+                kind_kwargs["ghost"] = ghost[val[0]]
 
             if basis_set := self.structure.site_properties.get("basis_set"):
                 basis_set = basis_set[val[0]]
@@ -1304,9 +1314,9 @@ class DftSet(Cp2kInput):
                 potential = self.basis_and_potential[kind].get("potential")
 
             if aux_basis := self.structure.site_properties.get("aux_basis"):
-                kwargs["aux_basis"] = aux_basis[val[0]]
+                kind_kwargs["aux_basis"] = aux_basis[val[0]]
             elif aux_basis := self.basis_and_potential[kind].get("aux_basis"):
-                kwargs["aux_basis"] = aux_basis
+                kind_kwargs["aux_basis"] = aux_basis
 
             _kind = Kind(
                 kind,
@@ -1314,7 +1324,7 @@ class DftSet(Cp2kInput):
                 basis_set=basis_set,
                 potential=potential,
                 subsections={"BS": bs} if bs else {},
-                **kwargs,
+                **kind_kwargs,
             )
             if self.qs_method.upper() == "GAPW":
                 _kind.add(Keyword("RADIAL_GRID", 200))
