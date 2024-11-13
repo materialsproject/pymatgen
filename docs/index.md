@@ -9,12 +9,11 @@ nav_order: 1
 </h1>
 
 [![CI Status](https://github.com/materialsproject/pymatgen/actions/workflows/test.yml/badge.svg)](https://github.com/materialsproject/pymatgen/actions/workflows/test.yml)
-[![Linting](https://github.com/materialsproject/pymatgen/actions/workflows/lint.yml/badge.svg)](https://github.com/materialsproject/pymatgen/actions/workflows/lint.yml)
 [![codecov](https://codecov.io/gh/materialsproject/pymatgen/branch/master/graph/badge.svg?token=XC47Un1LV2)](https://codecov.io/gh/materialsproject/pymatgen)
 [![PyPI Downloads](https://img.shields.io/pypi/dm/pymatgen?logo=pypi&logoColor=white&color=blue&label=PyPI)](https://pypi.org/project/pymatgen)
 [![Conda Downloads](https://img.shields.io/conda/dn/conda-forge/pymatgen?logo=condaforge&color=blue&label=Conda)](https://anaconda.org/conda-forge/pymatgen)
-[![Requires Python 3.9+](https://img.shields.io/badge/Python-3.9+-blue.svg?logo=python&logoColor=white)](https://python.org/downloads)
-[![arXiv](https://img.shields.io/badge/J.ComMatSci-2012.10.028-blue)](https://doi.org/10.1016/j.commatsci.2012.10.028)
+[![Requires Python 3.10+](https://img.shields.io/badge/Python-3.10+-blue.svg?logo=python&logoColor=white)](https://python.org/downloads)
+[![Paper](https://img.shields.io/badge/J.ComMatSci-2012.10.028-blue?logo=elsevier&logoColor=white)](https://doi.org/10.1016/j.commatsci.2012.10.028)
 
 Pymatgen (Python Materials Genomics) is a robust, open-source Python library for materials analysis. These are some
 of the main features:
@@ -27,22 +26,19 @@ of the main features:
 4. Electronic structure analyses, such as density of states and band structure.
 5. Integration with the Materials Project REST API, Crystallography Open Database and other external data sources.
 
-As of 2022, pymatgen only supports Python 3.9 and above. Our support schedule follows closely that of the Scientific
-Python software stack, i.e., when packages such as numpy drops support for Python versions, we will drop support for
-newer versions. Similarly, support for new Python versions will be adopted only when most of the core dependencies
-support the new Python versions.
-
-Pymatgen is free to use. However, we also welcome your help to improve this library by making your own contributions.
-These contributions can be in the form of additional tools or modules you develop, or feature requests and bug
-reports. The following are resources for pymatgen:
+## Important Resources
 
 - [Official documentation](https://pymatgen.org)
-- Bug reports or feature requests: Please submit an issue on [Github Issues].
-- Code contributions via pull requests are welcome.
-- For questions that are not bugs or feature requests, please use the [pymatgen MatSci forum] or open a [GitHub
-  discussion].
-- [matgenb] provides some example Jupyter notebooks that demonstrate how to use pymatgen functionality.
+- [matgenb] provides example Jupyter notebooks that demonstrate pymatgen functionality. Examples are shown below.
+- [pymatgen MatSci forum] or [GitHub discussion]: for questions that are not bug reports or feature requests.
 - Follow us on [Twitter](https://twitter.com/pymatgen) to get news and tips.
+- Bug reports or feature requests: Please submit an issue on [Github Issues].
+
+![Examples](assets/phase_diagram.png)
+*Top: (left) Phase and (right) Pourbaix diagram from the Materials API.
+Bottom left: Calculated bandstructure plot using pymatgen's parsing and
+plotting utilities. Bottom right: Arrhenius plot using pymatgen's
+DiffusionAnalyzer.*
 
 ## Why use pymatgen?
 
@@ -67,19 +63,12 @@ reports. The following are resources for pymatgen:
 
     *The code is mightier than the pen.*
 
-## Matgenie & Examples
+As of 2024, pymatgen supports Python 3.10 and above. Our support schedule follows closely that of the Scientific
+Python software stack, i.e., when packages such as NumPy drops support for Python versions, we will drop support for
+newer versions. Similarly, support for new Python versions will be adopted only when most of the core dependencies
+support the new Python versions.
 
-The [Materials Virtual Lab] has developed a [matgenie web app](http://matgenie.materialsvirtuallab.org) which
-demonstrates some of the basic functionality of pymatgen, as well as a [matgenb] repository of Jupyter notebooks for
-common and advanced use cases. One of the ways you can contribute is to fork the matgenb repo and add your own examples.
 
-Below are a quick look at some of the graphical output possible.
-
-![Examples](assets/phase_diagram.png)
-*Top: (left) Phase and (right) Pourbaix diagram from the Materials API.
-Bottom left: Calculated bandstructure plot using pymatgen's parsing and
-plotting utilities. Bottom right: Arrhenius plot using pymatgen's
-DiffusionAnalyzer.*
 
 ## Getting pymatgen
 
@@ -189,31 +178,32 @@ perform further structure manipulation or analyses.
 Here are some quick examples of the core capabilities and objects:
 
 ```python
-import pymatgen.core as pmg
+from pymatgen.core import Element, Composition, Lattice, Structure, Molecule
 
 # Integrated symmetry analysis tools from spglib
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
 
-si = pmg.Element("Si")
+
+si = Element("Si")
 si.atomic_mass  # 28.0855
 print(si.melting_point)
 # 1687.0 K
 
-comp = pmg.Composition("Fe2O3")
+comp = Composition("Fe2O3")
 comp.weight  # 159.6882
 # Note that Composition conveniently allows strings to be treated just like an Element object.
 comp["Fe"]  # 2.0
 comp.get_atomic_fraction("Fe")  # 0.4
-lattice = pmg.Lattice.cubic(4.2)
-structure = pmg.Structure(lattice, ["Cs", "Cl"], ...[[0, 0, 0], [0.5, 0.5, 0.5]])
+lattice = Lattice.cubic(4.2)
+structure = Structure(lattice, ["Cs", "Cl"], ...[[0, 0, 0], [0.5, 0.5, 0.5]])
 # structure.volume
 # 74.088000000000008
 # structure[0]
 # PeriodicSite: Cs (0.0000, 0.0000, 0.0000) [0.0000, 0.0000, 0.0000]
 
 # You can create a Structure using spacegroup symmetry as well.
-li2o = pmg.Structure.from_spacegroup(
-    "Fm-3m", pmg.Lattice.cubic(3), ["Li", "O"], [[0.25, 0.25, 0.25], [0, 0, 0]]
+li2o = Structure.from_spacegroup(
+    "Fm-3m", Lattice.cubic(3), ["Li", "O"], [[0.25, 0.25, 0.25], [0, 0, 0]]
 )
 
 finder = SpacegroupAnalyzer(structure)
@@ -229,13 +219,13 @@ structure.to(filename="POSCAR")
 structure.to(filename="CsCl.cif")
 
 # Reading a structure is similarly easy.
-structure = pmg.Structure.from_str(open("CsCl.cif").read(), fmt="cif")
-structure = pmg.Structure.from_file("CsCl.cif")
+structure = Structure.from_str(open("CsCl.cif").read(), fmt="cif")
+structure = Structure.from_file("CsCl.cif")
 
 # Reading and writing a molecule from a file. Supports XYZ and
 # Gaussian input and output by default. Support for many other
 # formats via the optional openbabel dependency (if installed).
-methane = pmg.Molecule.from_file("methane.xyz")
+methane = Molecule.from_file("methane.xyz")
 methane.to("methane.gjf")
 
 # Pythonic API for editing Structures and Molecules (v2.9.1 onwards)

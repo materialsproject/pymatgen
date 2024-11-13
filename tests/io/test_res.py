@@ -7,7 +7,9 @@ from pymatgen.core import Structure
 from pymatgen.io.res import AirssProvider, ResParseError, ResWriter
 from pymatgen.util.testing import TEST_FILES_DIR
 
-res_coc = f"{TEST_FILES_DIR}/res/coc-115925-9326-14.res"
+TEST_DIR = f"{TEST_FILES_DIR}/io/res"
+
+res_coc = f"{TEST_DIR}/coc-115925-9326-14.res"
 
 
 @pytest.mark.parametrize("provider", [AirssProvider.from_file(res_coc, "strict")])
@@ -52,20 +54,35 @@ class TestAirssProvider:
         date, path = rs_info
         assert path == "/path/to/airss/run"
         assert date.day == 16
+        assert date.month == 7
+        assert date.year == 2021
 
         castep_v = provider.get_castep_version()
-        assert castep_v is not None
         assert castep_v == "19.11"
 
         frd = provider.get_func_rel_disp()
         assert frd is not None
-        f, r, d = frd
-        assert f == "Perdew Burke Ernzerhof"
+        functional, rel, disp = frd
+        assert functional == "Perdew Burke Ernzerhof"
+        assert rel == "Koelling-Harmon"
+        assert disp == "off"
 
         airss_v = provider.get_airss_version()
         assert airss_v is not None
         assert airss_v[0] == "0.9.1"
         assert airss_v[1].year == 2018
+
+    def test_end_of_file_newline(self, provider: AirssProvider):
+        """https://github.com/materialsproject/pymatgen/issues/3636"""
+        string = ResWriter(provider.entry).string
+        assert string.endswith("\n")
+
+    def test_empty_rems_no_blank_line(self, provider: AirssProvider):
+        """https://github.com/materialsproject/pymatgen/issues/3636"""
+        entry = provider.entry
+        del entry.data["rems"]
+        string = ResWriter(entry).string
+        assert all(string.splitlines())
 
     def test_entry(self, provider: AirssProvider):
         entry1 = provider.entry
@@ -89,7 +106,13 @@ class TestAirssProvider:
     def test_as_dict(self, provider: AirssProvider):
         verbose_dict = provider.as_dict(verbose=True)
 
-        assert sorted(verbose_dict) == ["@class", "@module", "@version", "parse_rems", "res"]
+        assert sorted(verbose_dict) == [
+            "@class",
+            "@module",
+            "@version",
+            "parse_rems",
+            "res",
+        ]
 
         # test round-trip serialization/deserialization gives same dict
         assert AirssProvider.from_dict(verbose_dict).as_dict() == verbose_dict
@@ -114,13 +137,21 @@ class TestAirssProvider:
         assert dct["pressure"] == approx(15.0252)
         assert dct["volume"] == approx(57.051984)
 
+    def test_sfac_writer(self, provider: AirssProvider):
+        """https://github.com/materialsproject/pymatgen/issues/3677"""
+        sfac = ResWriter._sfac_from_sites(provider.structure)
+        specie_nums = [ion.specie_num for ion in sfac.ions]
+        assert set(specie_nums) == {1, 2}
+        assert len(sfac.species) == max(specie_nums)
+        assert [str(sp) for sp in sfac.species] == ["C", "Co"]
+
 
 class TestSpin:
     def test_read_spin(self):
-        with open(res_coc) as f:
-            lines = f.readlines()
+        with open(res_coc) as file:
+            lines = file.readlines()
         # add spin to a line
-        lines[25] = lines[25][:-1] + " -1.4\n"
+        lines[25] = f"{lines[25][:-1]} -1.4\n"
         contents = "".join(lines)
         provider = AirssProvider.from_str(contents)
 
@@ -131,7 +162,7 @@ class TestSpin:
         pytest.fail("valid 'magmom' not found in any site properties")
 
     def test_gh_2938_example(self):
-        res_spin_file = f"{TEST_FILES_DIR}/res/spins-in-last-col.res"
+        res_spin_file = f"{TEST_DIR}/spins-in-last-col.res"
         with open(res_spin_file) as res_file:
             contents = res_file.read()
 
@@ -139,7 +170,13 @@ class TestSpin:
 
         for site in provider.structure:
             if site.properties["magmom"] is not None:
-                assert site.properties.get("magmom") in (3.31, 4.12, -0.01, -0.04, -0.17)
+                assert site.properties.get("magmom") in (
+                    3.31,
+                    4.12,
+                    -0.01,
+                    -0.04,
+                    -0.17,
+                )
 
 
 class TestStructureModule:

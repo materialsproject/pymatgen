@@ -1,7 +1,6 @@
 from __future__ import annotations
 
 import json
-import random
 import warnings
 from copy import deepcopy
 
@@ -9,7 +8,7 @@ import numpy as np
 import pytest
 from numpy.testing import assert_allclose
 from pytest import approx
-from scipy.misc import central_diff_weights
+from scipy import linalg
 
 from pymatgen.analysis.elasticity.elastic import (
     ComplianceTensor,
@@ -30,6 +29,8 @@ from pymatgen.core.tensors import Tensor
 from pymatgen.core.units import FloatWithUnit
 from pymatgen.util.testing import TEST_FILES_DIR, PymatgenTest
 
+TEST_DIR = f"{TEST_FILES_DIR}/analysis/elasticity"
+
 
 class TestElasticTensor(PymatgenTest):
     def setUp(self):
@@ -41,8 +42,8 @@ class TestElasticTensor(PymatgenTest):
             [0, 0, 0, 0, 26.35, 0],
             [0, 0, 0, 0, 0, 26.35],
         ]
-        mat = np.random.randn(6, 6)
-        mat = mat + np.transpose(mat)
+        mat = np.random.default_rng().standard_normal((6, 6))
+        mat += np.transpose(mat)
         self.rand_elastic_tensor = ElasticTensor.from_voigt(mat)
         self.ft = np.array(
             [
@@ -65,11 +66,11 @@ class TestElasticTensor(PymatgenTest):
         )
 
         self.elastic_tensor_1 = ElasticTensor(self.ft)
-        filepath = f"{TEST_FILES_DIR}/Sn_def_stress.json"
-        with open(filepath) as f:
-            self.def_stress_dict = json.load(f)
-        with open(f"{TEST_FILES_DIR}/test_toec_data.json") as f:
-            self.toec_dict = json.load(f)
+        filepath = f"{TEST_DIR}/Sn_def_stress.json"
+        with open(filepath) as file:
+            self.def_stress_dict = json.load(file)
+        with open(f"{TEST_DIR}/test_toec_data.json") as file:
+            self.toec_dict = json.load(file)
         self.structure = self.get_structure("Sn")
 
         warnings.simplefilter("always")
@@ -117,52 +118,63 @@ class TestElasticTensor(PymatgenTest):
 
     def test_structure_based_methods(self):
         # trans_velocity
-        assert self.elastic_tensor_1.trans_v(self.structure) == approx(1996.35019877)
+        struct = self.structure
+        assert self.elastic_tensor_1.trans_v(struct) == approx(1996.35019877)
         # long_velocity
-        assert self.elastic_tensor_1.long_v(self.structure) == approx(3534.68123832)
+        assert self.elastic_tensor_1.long_v(struct) == approx(3534.68123832)
         # Snyder properties
-        assert self.elastic_tensor_1.snyder_ac(self.structure) == approx(18.06127074)
-        assert self.elastic_tensor_1.snyder_opt(self.structure) == approx(0.18937465)
-        assert self.elastic_tensor_1.snyder_total(self.structure) == approx(18.25064540)
+        assert self.elastic_tensor_1.snyder_ac(struct) == approx(18.06127074)
+        assert self.elastic_tensor_1.snyder_opt(struct) == approx(0.18937465)
+        assert self.elastic_tensor_1.snyder_total(struct) == approx(18.25064540)
         # Clarke
-        assert self.elastic_tensor_1.clarke_thermalcond(self.structure) == approx(0.3450307)
+        assert self.elastic_tensor_1.clarke_thermalcond(struct) == approx(0.3450307)
         # Cahill
-        assert self.elastic_tensor_1.cahill_thermalcond(self.structure) == approx(0.37896275)
+        cahill_thermal_cond = self.elastic_tensor_1.cahill_thermalcond(struct)
+        assert cahill_thermal_cond == approx(0.37896275)
+        # Agne
+        agne_thermal_cond = self.elastic_tensor_1.agne_diffusive_thermalcond(struct)
+        assert agne_thermal_cond == approx(0.23808966)
+        # Test Agne / Cahill factor
+        assert agne_thermal_cond / cahill_thermal_cond == approx(0.6282666)
         # Debye
-        assert self.elastic_tensor_1.debye_temperature(self.structure) == approx(198.8037985019)
+        assert self.elastic_tensor_1.debye_temperature(struct) == approx(198.8037985019)
 
         # structure-property dict
-        sprop_dict = self.elastic_tensor_1.get_structure_property_dict(self.structure)
-        assert sprop_dict["long_v"] == approx(3534.68123832)
-        for val in sprop_dict.values():
+        struct_prop_dict = self.elastic_tensor_1.get_structure_property_dict(struct)
+        assert struct_prop_dict["long_v"] == approx(3534.68123832)
+        for val in struct_prop_dict.values():
             assert not isinstance(val, FloatWithUnit)
-        for k, v in sprop_dict.items():
-            if k == "structure":
-                assert v == self.structure
+        for key, val in struct_prop_dict.items():
+            if key == "structure":
+                assert val == struct
             else:
-                f = getattr(self.elastic_tensor_1, k)
-                if callable(f):
-                    assert getattr(self.elastic_tensor_1, k)(self.structure) == approx(v)
+                attr = getattr(self.elastic_tensor_1, key)
+                if callable(attr):
+                    assert getattr(self.elastic_tensor_1, key)(struct) == approx(val)
                 else:
-                    assert getattr(self.elastic_tensor_1, k) == approx(v)
+                    assert getattr(self.elastic_tensor_1, key) == approx(val)
 
         # Test other sprop dict modes
-        sprop_dict = self.elastic_tensor_1.get_structure_property_dict(self.structure, include_base_props=False)
-        assert "k_vrh" not in sprop_dict
+        struct_prop_dict = self.elastic_tensor_1.get_structure_property_dict(struct, include_base_props=False)
+        assert "k_vrh" not in struct_prop_dict
 
         # Test ValueError being raised for structure properties
         test_et = deepcopy(self.elastic_tensor_1)
         test_et[0][0][0][0] = -100000
         prop_dict = test_et.property_dict
-        for attr_name in sprop_dict:
+        for attr_name in struct_prop_dict:
             if attr_name not in ([*prop_dict, "structure"]):
                 with pytest.raises(
-                    ValueError, match="Bulk or shear modulus is negative, property cannot be determined"
+                    ValueError,
+                    match="Bulk or shear modulus is negative, property cannot be determined",
                 ):
-                    getattr(test_et, attr_name)(self.structure)
-        with pytest.raises(ValueError, match="Bulk or shear modulus is negative, property cannot be determined"):
-            test_et.get_structure_property_dict(self.structure)
-        noval_sprop_dict = test_et.get_structure_property_dict(self.structure, ignore_errors=True)
+                    getattr(test_et, attr_name)(struct)
+        with pytest.raises(
+            ValueError,
+            match="Bulk or shear modulus is negative, property cannot be determined",
+        ):
+            test_et.get_structure_property_dict(struct)
+        noval_sprop_dict = test_et.get_structure_property_dict(struct, ignore_errors=True)
         assert noval_sprop_dict["snyder_ac"] is None
 
     def test_new(self):
@@ -170,10 +182,14 @@ class TestElasticTensor(PymatgenTest):
         non_symm = self.ft
         non_symm[0, 1, 2, 2] += 1.0
         with pytest.warns(
-            UserWarning, match="Input elastic tensor does not satisfy standard Voigt symmetries"
+            UserWarning,
+            match="Input elastic tensor does not satisfy standard Voigt symmetries",
         ) as warns:
             ElasticTensor(non_symm)
-        assert len(warns) == 1
+        assert (
+            sum("Input elastic tensor does not satisfy standard Voigt symmetries" in str(warn) for warn in warns) == 1
+        )
+
         bad_tensor1 = np.zeros((3, 3, 3))
         bad_tensor2 = np.zeros((3, 3, 3, 2))
         with pytest.raises(ValueError, match="ElasticTensor input must be rank 4"):
@@ -186,13 +202,13 @@ class TestElasticTensor(PymatgenTest):
 
     def test_from_pseudoinverse(self):
         strain_list = [Strain.from_deformation(def_matrix) for def_matrix in self.def_stress_dict["deformations"]]
-        stress_list = list(self.def_stress_dict["stresses"])
+        stresses = list(self.def_stress_dict["stresses"])
         with pytest.warns(
             UserWarning,
             match="Pseudo-inverse fitting of Strain/Stress lists may yield questionable results from "
             "vasp data, use with caution",
         ):
-            et_fl = -0.1 * ElasticTensor.from_pseudoinverse(strain_list, stress_list).voigt
+            et_fl = -0.1 * ElasticTensor.from_pseudoinverse(strain_list, stresses).voigt
             assert_allclose(
                 et_fl.round(2),
                 [
@@ -210,7 +226,8 @@ class TestElasticTensor(PymatgenTest):
         stresses = self.toec_dict["stresses"]
         with pytest.warns(UserWarning, match="No eq state found, returning zero voigt stress") as warns:
             et = ElasticTensor.from_independent_strains(strains, stresses)
-        assert len(warns) == 2
+        assert sum("No eq state found" in str(warn) for warn in warns) == 1
+        assert sum("Extra strain states in strain-" in str(warn) for warn in warns) == 1
         assert_allclose(et.voigt, self.toec_dict["C2_raw"], atol=1e1)
 
     def test_energy_density(self):
@@ -248,8 +265,8 @@ class TestElasticTensor(PymatgenTest):
 
 class TestElasticTensorExpansion(PymatgenTest):
     def setUp(self):
-        with open(f"{TEST_FILES_DIR}/test_toec_data.json") as f:
-            self.data_dict = json.load(f)
+        with open(f"{TEST_DIR}/test_toec_data.json") as file:
+            self.data_dict = json.load(file)
         self.strains = [Strain(sm) for sm in self.data_dict["strains"]]
         self.pk_stresses = [Stress(d) for d in self.data_dict["pk_stresses"]]
         self.c2 = self.data_dict["C2_raw"]
@@ -287,7 +304,7 @@ class TestElasticTensorExpansion(PymatgenTest):
     def test_gruneisen(self):
         # Get GGT
         ggt = self.exp_cu.get_ggt([1, 0, 0], [0, 1, 0])
-        assert_allclose(np.eye(3) * np.array([4.92080537, 4.2852349, -0.7147651]), ggt)
+        assert_allclose(ggt, np.eye(3) * np.array([4.92080537, 4.2852349, -0.7147651]))
         # Get TGT
         tgt = self.exp_cu.get_tgt()
         assert_allclose(tgt, np.eye(3) * 2.59631832, atol=1e-12)
@@ -327,11 +344,11 @@ class TestElasticTensorExpansion(PymatgenTest):
         # Ensure zero strain is same as SOEC
         test_zero = self.exp_cu.get_effective_ecs(np.zeros((3, 3)))
         assert_allclose(test_zero, self.exp_cu[0])
-        s = np.zeros((3, 3))
-        s[0, 0] = 0.02
-        test_2percent = self.exp_cu.get_effective_ecs(s)
+        strain = np.zeros((3, 3))
+        strain[0, 0] = 0.02
+        test_2percent = self.exp_cu.get_effective_ecs(strain)
         diff = test_2percent - test_zero
-        assert_allclose(self.exp_cu[1].einsum_sequence([s]), diff)
+        assert_allclose(self.exp_cu[1].einsum_sequence([strain]), diff)
 
     def test_get_strain_from_stress(self):
         strain = Strain.from_voigt([0.05, 0, 0, 0, 0, 0])
@@ -349,8 +366,8 @@ class TestElasticTensorExpansion(PymatgenTest):
 
 class TestNthOrderElasticTensor(PymatgenTest):
     def setUp(self):
-        with open(f"{TEST_FILES_DIR}/test_toec_data.json") as f:
-            self.data_dict = json.load(f)
+        with open(f"{TEST_DIR}/test_toec_data.json") as file:
+            self.data_dict = json.load(file)
         self.strains = [Strain(sm) for sm in self.data_dict["strains"]]
         self.pk_stresses = [Stress(d) for d in self.data_dict["pk_stresses"]]
         self.c2 = NthOrderElasticTensor.from_voigt(self.data_dict["C2_raw"])
@@ -385,11 +402,11 @@ class TestNthOrderElasticTensor(PymatgenTest):
 
 
 class TestDiffFit(PymatgenTest):
-    """Tests various functions related to diff fitting."""
+    """Test various functions related to diff fitting."""
 
     def setUp(self):
-        with open(f"{TEST_FILES_DIR}/test_toec_data.json") as f:
-            self.data_dict = json.load(f)
+        with open(f"{TEST_DIR}/test_toec_data.json") as file:
+            self.data_dict = json.load(file)
         self.strains = [Strain(sm) for sm in self.data_dict["strains"]]
         self.pk_stresses = [Stress(d) for d in self.data_dict["pk_stresses"]]
 
@@ -397,19 +414,20 @@ class TestDiffFit(PymatgenTest):
         strain_inds = [(0,), (1,), (2,), (1, 3), (1, 2, 3)]
         vecs = {}
         strain_states = []
+        rng = np.random.default_rng()
         for strain_ind in strain_inds:
             ss = np.zeros(6)
             np.put(ss, strain_ind, 1)
             strain_states.append(tuple(ss))
             vec = np.zeros((4, 6))
-            rand_values = np.random.uniform(0.1, 1, 4)
-            for i in strain_ind:
-                vec[:, i] = rand_values
+            rand_values = rng.uniform(0.1, 1, 4)
+            for idx in strain_ind:
+                vec[:, idx] = rand_values
             vecs[strain_ind] = vec
         all_strains = [Strain.from_voigt(v).zeroed() for vec in vecs.values() for v in vec]
-        random.shuffle(all_strains)
-        all_stresses = [Stress.from_voigt(np.random.random(6)).zeroed() for s in all_strains]
-        strain_dict = {k.tobytes(): v for k, v in zip(all_strains, all_stresses)}
+        rng.shuffle(all_strains)
+        all_stresses = [Stress.from_voigt(rng.random(6)).zeroed() for _ in all_strains]
+        strain_dict = {k.tobytes(): v for k, v in zip(all_strains, all_stresses, strict=True)}
         ss_dict = get_strain_state_dict(all_strains, all_stresses, add_eq=False)
         # Check length of ss_dict
         assert len(strain_inds) == len(ss_dict)
@@ -417,7 +435,7 @@ class TestDiffFit(PymatgenTest):
         assert set(strain_states) == set(ss_dict)
         for data in ss_dict.values():
             # Check correspondence of strains/stresses
-            for strain, stress in zip(data["strains"], data["stresses"]):
+            for strain, stress in zip(data["strains"], data["stresses"], strict=True):
                 assert_allclose(
                     Stress.from_voigt(stress),
                     strain_dict[Strain.from_voigt(strain).tobytes()],
@@ -437,6 +455,43 @@ class TestDiffFit(PymatgenTest):
         assert_allclose(test_stresses[3], eq_stress)
 
     def test_get_diff_coeff(self):
+        def central_diff_weights(Np, ndiv):
+            """
+            Notes:
+                This function is taken from SciPy's deprecated implementation of
+                central difference weights. The original code can be found at:
+                https://github.com/scipy/scipy/blob/ea916c6f7f487bd53e98de08264
+                9d542cc6106ed/scipy/_lib/_finite_differences.py
+
+                License: This code is distributed under the BSD 3-Clause license.
+
+                Copyright (c) 2001-2002 Enthought, Inc. 2003-2024, SciPy Developers.
+                All rights reserved.
+
+            Return weights for an Np-point central derivative.
+
+            Assumes equally-spaced function points.
+
+            If weights are in the vector w, then
+            derivative is w[0] * f(x-ho*dx) + ... + w[-1] * f(x+h0*dx)
+
+            Args:
+                Np (int): Number of points for the central derivative.
+                ndiv (int, optional): Number of divisions. Default is 1.
+
+            Returns:
+                w (ndarray): Weights for an Np-point central derivative.
+                    Its size is `Np`.
+            """
+
+            ho = Np >> 1
+            x = np.arange(-ho, ho + 1.0)
+            x = x[:, np.newaxis]
+            X = x**0.0
+            for k in range(1, Np):
+                X = np.hstack([X, x**k])
+            return np.prod(np.arange(1, ndiv + 1), axis=0) * linalg.inv(X)[ndiv]
+
         forward_11 = get_diff_coeff([0, 1], 1)
         forward_13 = get_diff_coeff([0, 1, 2, 3], 1)
         backward_26 = get_diff_coeff(np.arange(-6, 1), 2)
@@ -459,11 +514,15 @@ class TestDiffFit(PymatgenTest):
 
     def test_fit(self):
         diff_fit(self.strains, self.pk_stresses, self.data_dict["eq_stress"])
-        reduced = [(e, pk) for e, pk in zip(self.strains, self.pk_stresses) if not (abs(abs(e) - 0.05) < 1e-10).any()]
+        reduced = [
+            (e, pk)
+            for e, pk in zip(self.strains, self.pk_stresses, strict=True)
+            if not (abs(abs(e) - 0.05) < 1e-10).any()
+        ]
         # Get reduced dataset
-        r_strains, r_pk_stresses = zip(*reduced)
+        r_strains, r_pk_stresses = zip(*reduced, strict=True)
         c2 = diff_fit(r_strains, r_pk_stresses, self.data_dict["eq_stress"], order=2)
-        c2, c3, c4 = diff_fit(r_strains, r_pk_stresses, self.data_dict["eq_stress"], order=4)
+        c2, c3, _c4 = diff_fit(r_strains, r_pk_stresses, self.data_dict["eq_stress"], order=4)
         c2, c3 = diff_fit(self.strains, self.pk_stresses, self.data_dict["eq_stress"], order=3)
         c2_red, c3_red = diff_fit(r_strains, r_pk_stresses, self.data_dict["eq_stress"], order=3)
         assert_allclose(c2.voigt, self.data_dict["C2_raw"], atol=1e-5)

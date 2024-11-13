@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+import platform
+
 import pytest
 
 from pymatgen.analysis.fragmenter import Fragmenter
@@ -12,15 +14,15 @@ __author__ = "Samuel Blau"
 __email__ = "samblau1@gmail.com"
 
 
-test_dir = f"{TEST_FILES_DIR}/fragmenter_files"
+TEST_DIR = f"{TEST_FILES_DIR}/analysis/local_env/fragmenter_files"
 
 
 class TestFragmentMolecule(PymatgenTest):
     @classmethod
     def setUpClass(cls):
-        cls.pc = Molecule.from_file(f"{test_dir}/PC.xyz")
-        cls.ec = Molecule.from_file(f"{test_dir}/EC.xyz")
-        cls.pos_pc = Molecule.from_file(f"{test_dir}/PC.xyz")
+        cls.pc = Molecule.from_file(f"{TEST_DIR}/PC.xyz")
+        cls.ec = Molecule.from_file(f"{TEST_DIR}/EC.xyz")
+        cls.pos_pc = Molecule.from_file(f"{TEST_DIR}/PC.xyz")
         cls.pos_pc.set_charge_and_spin(charge=1)
         cls.pc_edges = [
             [5, 10],
@@ -37,9 +39,9 @@ class TestFragmentMolecule(PymatgenTest):
             [6, 0],
             [6, 2],
         ]
-        cls.pc_frag1 = Molecule.from_file(f"{test_dir}/PC_frag1.xyz")
+        cls.pc_frag1 = Molecule.from_file(f"{TEST_DIR}/PC_frag1.xyz")
         cls.pc_frag1_edges = [[0, 2], [4, 2], [2, 1], [1, 3]]
-        cls.tfsi = Molecule.from_file(f"{test_dir}/TFSI.xyz")
+        cls.tfsi = Molecule.from_file(f"{TEST_DIR}/TFSI.xyz")
         cls.tfsi_edges = (
             [14, 1],
             [1, 4],
@@ -56,7 +58,7 @@ class TestFragmentMolecule(PymatgenTest):
             [6, 9],
             [6, 10],
         )
-        cls.LiEC = Molecule.from_file(f"{test_dir}/LiEC.xyz")
+        cls.LiEC = Molecule.from_file(f"{TEST_DIR}/LiEC.xyz")
 
     def test_edges_given_pc_frag1(self):
         fragmenter = Fragmenter(molecule=self.pc_frag1, edges=self.pc_frag1_edges, depth=0)
@@ -67,12 +69,13 @@ class TestFragmentMolecule(PymatgenTest):
         fragmenter = Fragmenter(molecule=self.pc_frag1, depth=0)
         assert fragmenter.total_unique_fragments == 12
 
+    @pytest.mark.skipif(platform.system() == "Windows", reason="Tests for openbabel failing on Win")
     def test_babel_pc_old_defaults(self):
         pytest.importorskip("openbabel")
         fragmenter = Fragmenter(molecule=self.pc, open_rings=True)
         assert fragmenter.open_rings
         assert fragmenter.opt_steps == 10000
-        default_mol_graph = MoleculeGraph.with_local_env_strategy(self.pc, OpenBabelNN())
+        default_mol_graph = MoleculeGraph.from_local_env_strategy(self.pc, OpenBabelNN())
         assert fragmenter.mol_graph == default_mol_graph
         assert fragmenter.total_unique_fragments == 13
 
@@ -81,7 +84,7 @@ class TestFragmentMolecule(PymatgenTest):
         fragmenter = Fragmenter(molecule=self.pc)
         assert fragmenter.open_rings is False
         assert fragmenter.opt_steps == 10_000
-        default_mol_graph = MoleculeGraph.with_local_env_strategy(self.pc, OpenBabelNN())
+        default_mol_graph = MoleculeGraph.from_local_env_strategy(self.pc, OpenBabelNN())
         assert fragmenter.mol_graph == default_mol_graph
         assert fragmenter.total_unique_fragments == 8
 
@@ -95,8 +98,8 @@ class TestFragmentMolecule(PymatgenTest):
         )
         assert fragmenter.open_rings is False
         assert fragmenter.opt_steps == 0
-        edges = {(e[0], e[1]): None for e in self.pc_edges}
-        default_mol_graph = MoleculeGraph.with_edges(self.pc, edges=edges)
+        edges = {(edge[0], edge[1]): None for edge in self.pc_edges}
+        default_mol_graph = MoleculeGraph.from_edges(self.pc, edges=edges)
         assert fragmenter.mol_graph == default_mol_graph
         assert fragmenter.total_unique_fragments == 20
 
@@ -109,6 +112,7 @@ class TestFragmentMolecule(PymatgenTest):
         fragmenter = Fragmenter(molecule=self.tfsi, depth=0)
         assert fragmenter.total_unique_fragments == 156
 
+    @pytest.mark.skipif(platform.system() == "Windows", reason="Tests for openbabel failing on Win")
     def test_babel_pc_with_ro_depth_0_vs_depth_10(self):
         pytest.importorskip("openbabel")
         fragmenter0 = Fragmenter(molecule=self.pc, depth=0, open_rings=True, opt_steps=1000)
@@ -152,6 +156,7 @@ class TestFragmentMolecule(PymatgenTest):
         )
         assert frag2.new_unique_fragments == 295 - 12
 
+    @pytest.mark.skipif(platform.system() == "Windows", reason="Tests for openbabel failing on Win")
     def test_pc_then_ec_depth_10(self):
         pytest.importorskip("openbabel")
         fragPC = Fragmenter(molecule=self.pc, depth=10, open_rings=True)

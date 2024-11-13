@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-import unittest
+from unittest import TestCase
 
 import pytest
 from pytest import approx
@@ -10,10 +10,10 @@ from pymatgen.electronic_structure.core import Spin
 from pymatgen.io.gaussian import GaussianInput, GaussianOutput
 from pymatgen.util.testing import TEST_FILES_DIR
 
-test_dir = f"{TEST_FILES_DIR}/molecules"
+TEST_DIR = f"{TEST_FILES_DIR}/io/gaussian"
 
 
-class TestGaussianInput(unittest.TestCase):
+class TestGaussianInput(TestCase):
     def setUp(self):
         coords = [
             [0, 0, 0],
@@ -38,11 +38,12 @@ class TestGaussianInput(unittest.TestCase):
         gau = GaussianInput(mol, route_parameters={"SP": "", "SCF": "Tight"})
         assert gau.spin_multiplicity == 2
         with pytest.raises(
-            ValueError, match="Charge of -1 and spin multiplicity of 1 is not possible for this molecule"
+            ValueError,
+            match="Charge of -1 and spin multiplicity of 1 is not possible for this molecule",
         ):
             GaussianInput(mol, spin_multiplicity=1)
 
-    def test_str_and_from_string(self):
+    def test_str_and_from_str(self):
         answer = """#P HF/6-31G(d) SCF=Tight SP
 
 H4 C1
@@ -95,16 +96,16 @@ EPS=12
         assert gau.input_parameters["EPS"] == "12"
 
     def test_from_file(self):
-        filepath = f"{test_dir}/MethylPyrrolidine_drawn.gjf"
+        filepath = f"{TEST_DIR}/MethylPyrrolidine_drawn.gjf"
         gau = GaussianInput.from_file(filepath)
-        assert gau.molecule.composition.formula == "H11 C5 N1"
+        assert gau.molecule.formula == "H11 C5 N1"
         assert "opt" in gau.route_parameters
         assert gau.route_parameters["geom"] == "connectivity"
         assert gau.functional == "b3lyp"
         assert gau.basis_set == "6-311+g(d,p)"
-        filepath = f"{test_dir}/g305_hb.txt"
-        with open(filepath) as f:
-            txt = f.read()
+        filepath = f"{TEST_DIR}/g305_hb.txt"
+        with open(filepath) as file:
+            txt = file.read()
         tokens = txt.split("--link1--")
         for idx, tok in enumerate(tokens):
             lines = [line.strip() for line in tok.strip().split("\n")]
@@ -124,10 +125,37 @@ Sites (6)
 5 H    -0.580711    -0.766761     3.043012"""
         assert str(mol) == answer
 
-    def test_from_string(self):
+    def test_from_str(self):
         gau_str = """%mem=5000000
         %chk=filename
         # mp2/6-31g* scf=direct
+        opt freq
+
+        SIH4+ H2---SIH2+ CS //MP2(full)/6-31G* MP2=-290.9225259
+
+        1,2
+        Si
+        X,1,1.
+        H,1,R1,2,HALF1
+        H,1,R1,2,HALF1,3,180.,0
+        X,1,1.,2,90.,3,90.,0
+        X,1,1.,5,THETA,2,180.,0
+        H,1,R3,6,HALF3,5,0.,0
+        H,1,R4,6,HALF3,7,180.,0
+
+        R1=1.47014
+        R3=1.890457
+        R4=1.83514
+        HALF1=60.633314
+        THETA=10.35464
+        HALF3=11.861807"""
+
+        gau = GaussianInput.from_str(gau_str)
+        assert gau.molecule.composition.reduced_formula == "X3SiH4"
+        assert set(gau.route_parameters) == {"opt", "freq", "scf"}
+
+    def test_from_str_no_link0(self):
+        gau_str = """#p mp2/6-31g* scf=direct
         opt freq
 
         SIH4+ H2---SIH2+ CS //MP2(full)/6-31G* MP2=-290.9225259
@@ -198,11 +226,10 @@ H 0
         assert gau.to_str(cart_coords=False) == gau_str
 
     def test_multiple_parameters(self):
-        """
-        This test makes sure that input files with multi-parameter keywords
+        """Check that input files with multi-parameter keywords
         and route cards with multiple lines can be parsed accurately.
         """
-        filepath = f"{test_dir}/l-cysteine.inp"
+        filepath = f"{TEST_DIR}/l-cysteine.inp"
         route = {
             "test": None,
             "integral": {"grid": "UltraFine"},
@@ -251,11 +278,11 @@ H 0
         assert input_str == gau_str
 
 
-class TestGaussianOutput(unittest.TestCase):
+class TestGaussianOutput(TestCase):
     # TODO: Add unittest for PCM type output.
 
     def setUp(self):
-        self.gau_out = GaussianOutput(f"{test_dir}/methane.log")
+        self.gau_out = GaussianOutput(f"{TEST_DIR}/methane.log")
 
     def test_resume(self):
         resume = self.gau_out.resumes[0]
@@ -281,9 +308,9 @@ class TestGaussianOutput(unittest.TestCase):
         assert gau.functional == "hf"
         assert gau.basis_set == "3-21G"
         assert gau.num_basis_func == 17
-        d = gau.as_dict()
-        assert d["input"]["functional"] == "hf"
-        assert d["output"]["final_energy"] == approx(-39.9768775602)
+        dct = gau.as_dict()
+        assert dct["input"]["functional"] == "hf"
+        assert dct["output"]["final_energy"] == approx(-39.9768775602)
         assert len(gau.cart_forces) == 3
         assert gau.cart_forces[0][5] == 0.009791094
         assert gau.cart_forces[0][-1] == -0.003263698
@@ -292,7 +319,7 @@ class TestGaussianOutput(unittest.TestCase):
         assert gau.num_basis_func == 17
         assert gau.is_spin is False
 
-        ch2o_co2 = GaussianOutput(f"{test_dir}/CH2O_CO2.log")
+        ch2o_co2 = GaussianOutput(f"{TEST_DIR}/CH2O_CO2.log")
         assert len(ch2o_co2.frequencies) == 2
         assert len(ch2o_co2.frequencies[0]) == 6
         assert len(ch2o_co2.frequencies[1]) == 4
@@ -315,11 +342,21 @@ class TestGaussianOutput(unittest.TestCase):
             0.00,
             0.00,
         ]
-        assert ch2o_co2.frequencies[1][3]["mode"] == [0.00, 0.00, 0.88, 0.00, 0.00, -0.33, 0.00, 0.00, -0.33]
+        assert ch2o_co2.frequencies[1][3]["mode"] == [
+            0.00,
+            0.00,
+            0.88,
+            0.00,
+            0.00,
+            -0.33,
+            0.00,
+            0.00,
+            -0.33,
+        ]
         assert ch2o_co2.frequencies[1][3]["symmetry"] == "SGU"
         assert ch2o_co2.eigenvalues[Spin.up][3] == -1.18394
 
-        h2o = GaussianOutput(f"{test_dir}/H2O_gau_vib.out")
+        h2o = GaussianOutput(f"{TEST_DIR}/H2O_gau_vib.out")
         assert len(h2o.frequencies[0]) == 3
         assert h2o.frequencies[0][0]["frequency"] == 1662.8033
         assert h2o.frequencies[0][1]["symmetry"] == "A'"
@@ -338,7 +375,7 @@ class TestGaussianOutput(unittest.TestCase):
         ]
 
     def test_pop(self):
-        gau = GaussianOutput(f"{test_dir}/H2O_gau.out")
+        gau = GaussianOutput(f"{TEST_DIR}/H2O_gau.out")
         assert gau.num_basis_func == 13
         assert gau.electrons == (5, 5)
         assert gau.is_spin
@@ -379,30 +416,40 @@ class TestGaussianOutput(unittest.TestCase):
             -1.00532,
         ]
 
-        assert gau.atom_basis_labels[0] == ["1S", "2S", "2PX", "2PY", "2PZ", "3S", "3PX", "3PY", "3PZ"]
+        assert gau.atom_basis_labels[0] == [
+            "1S",
+            "2S",
+            "2PX",
+            "2PY",
+            "2PZ",
+            "3S",
+            "3PX",
+            "3PY",
+            "3PZ",
+        ]
         assert gau.atom_basis_labels[2] == ["1S", "2S"]
 
-        gau = GaussianOutput(f"{test_dir}/H2O_gau_vib.out")
+        gau = GaussianOutput(f"{TEST_DIR}/H2O_gau_vib.out")
 
-        assert gau.bond_orders[(0, 1)] == 0.7582
-        assert gau.bond_orders[(1, 2)] == 0.0002
+        assert gau.bond_orders[0, 1] == 0.7582
+        assert gau.bond_orders[1, 2] == 0.0002
 
     def test_scan(self):
-        gau = GaussianOutput(f"{test_dir}/so2_scan.log")
-        d = gau.read_scan()
-        assert approx(d["energies"][-1]) == -548.02102
-        assert len(d["coords"]) == 1
-        assert len(d["energies"]) == len(gau.energies)
-        assert len(d["energies"]) == 21
-        gau = GaussianOutput(f"{test_dir}/so2_scan_opt.log")
+        gau = GaussianOutput(f"{TEST_DIR}/so2_scan.log")
+        dct = gau.read_scan()
+        assert approx(dct["energies"][-1]) == -548.02102
+        assert len(dct["coords"]) == 1
+        assert len(dct["energies"]) == len(gau.energies)
+        assert len(dct["energies"]) == 21
+        gau = GaussianOutput(f"{TEST_DIR}/so2_scan_opt.log")
         assert len(gau.opt_structures) == 21
-        d = gau.read_scan()
-        assert approx(d["energies"][-1]) == -548.02336
-        assert len(d["coords"]) == 2
-        assert len(d["energies"]) == 21
-        assert approx(d["coords"]["DSO"][6]) == 1.60000
-        assert approx(d["coords"]["ASO"][2]) == 124.01095
-        gau = GaussianOutput(f"{test_dir}/H2O_scan_G16.out")
+        dct = gau.read_scan()
+        assert approx(dct["energies"][-1]) == -548.02336
+        assert len(dct["coords"]) == 2
+        assert len(dct["energies"]) == 21
+        assert approx(dct["coords"]["DSO"][6]) == 1.60000
+        assert approx(dct["coords"]["ASO"][2]) == 124.01095
+        gau = GaussianOutput(f"{TEST_DIR}/H2O_scan_G16.out")
         assert len(gau.opt_structures) == 21
         coords = [
             [0.000000, 0.000000, 0.094168],
@@ -410,16 +457,16 @@ class TestGaussianOutput(unittest.TestCase):
             [0.000000, -0.815522, -0.376673],
         ]
         assert gau.opt_structures[-1].cart_coords.tolist() == coords
-        d = gau.read_scan()
-        assert approx(d["energies"][-1]) == -0.00523
-        assert len(d["coords"]) == 3
-        assert len(d["energies"]) == 21
-        assert approx(d["coords"]["R1"][6]) == 0.94710
-        assert approx(d["coords"]["R2"][17]) == 0.94277
+        dct = gau.read_scan()
+        assert approx(dct["energies"][-1]) == -0.00523
+        assert len(dct["coords"]) == 3
+        assert len(dct["energies"]) == 21
+        assert approx(dct["coords"]["R1"][6]) == 0.94710
+        assert approx(dct["coords"]["R2"][17]) == 0.94277
 
     def test_geo_opt(self):
         """Test an optimization where no "input orientation" is outputted."""
-        gau = GaussianOutput(f"{test_dir}/acene-n_gaussian09_opt.out")
+        gau = GaussianOutput(f"{TEST_DIR}/acene-n_gaussian09_opt.out")
         assert approx(gau.energies[-1]) == -1812.58399675
         assert len(gau.structures) == 6
         # Test the first 3 atom coordinates
@@ -431,17 +478,16 @@ class TestGaussianOutput(unittest.TestCase):
         assert gau.opt_structures[-1].cart_coords[:3].tolist() == coords
 
     def test_td(self):
-        gau = GaussianOutput(f"{test_dir}/so2_td.log")
+        gau = GaussianOutput(f"{TEST_DIR}/so2_td.log")
         transitions = gau.read_excitation_energies()
         assert len(transitions) == 4
         assert transitions[0] == approx((3.9281, 315.64, 0.0054))
 
     def test_multiple_parameters(self):
-        """
-        This test makes sure that input files with multi-parameter keywords
+        """Check that input files with multi-parameter keywords
         and route cards with multiple lines can be parsed accurately.
         """
-        filepath = f"{test_dir}/l-cysteine.out"
+        filepath = f"{TEST_DIR}/l-cysteine.out"
         route = {
             "test": None,
             "integral": {"grid": "UltraFine"},
@@ -457,11 +503,10 @@ class TestGaussianOutput(unittest.TestCase):
         assert gout.spin_multiplicity == 1
 
     def test_multiple_parameters_with_multiple_completed_lines(self):
+        """Check that input files with multi-parameter keywords and route cards with multiple
+        completed lines which are split by line break parse correctly.
         """
-        This test makes sure that input files with multi-parameter keywords
-        and route cards with multiple completed lines which are split by line break parse correctly.
-        """
-        filepath = f"{test_dir}/EC.log.gz"
+        filepath = f"{TEST_DIR}/EC.log.gz"
         route_params = {
             "opt": {"loose": None, "maxcyc": "400"},
             "freq": None,

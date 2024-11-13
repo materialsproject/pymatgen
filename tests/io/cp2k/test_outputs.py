@@ -1,19 +1,20 @@
 from __future__ import annotations
 
-import unittest
-from pathlib import Path
+from unittest import TestCase
 
+import numpy as np
 from numpy.testing import assert_allclose
 from pytest import approx
 
 from pymatgen.io.cp2k.outputs import Cp2kOutput
 from pymatgen.util.testing import TEST_FILES_DIR
 
+TEST_DIR = f"{TEST_FILES_DIR}/io/cp2k"
 
-class TestSet(unittest.TestCase):
+
+class TestCp2kOutput(TestCase):
     def setUp(self):
-        test_dir = Path.joinpath(TEST_FILES_DIR, "cp2k")
-        self.out = Cp2kOutput(Path.joinpath(test_dir, "cp2k.out"), auto_load=True)
+        self.out = Cp2kOutput(f"{TEST_DIR}/cp2k.out", auto_load=True)
 
     def test_files(self):
         """Can find files successfully."""
@@ -38,7 +39,11 @@ class TestSet(unittest.TestCase):
         """Can get energy and forces."""
         assert self.out.final_energy == -197.40000341992783
         assert_allclose(
-            self.out.data["forces"][0], [[-0.00000001, -0.00000001, -0.00000001], [0.00000002, 0.00000002, 0.00000002]]
+            self.out.data["forces"][0],
+            [
+                [-0.00000001, -0.00000001, -0.00000001],
+                [0.00000002, 0.00000002, 0.00000002],
+            ],
         )
 
     def test_band(self):
@@ -61,31 +66,51 @@ class TestSet(unittest.TestCase):
         assert self.out.data["ANISO"][0] == approx(0.1498)
         assert_allclose(
             self.out.data["chi_soft"][0],
-            [[5.9508, -1.6579, -1.6579], [-1.6579, 5.9508, -1.6579], [-1.6579, -1.6579, 5.9508]],
+            [
+                [5.9508, -1.6579, -1.6579],
+                [-1.6579, 5.9508, -1.6579],
+                [-1.6579, -1.6579, 5.9508],
+            ],
         )
-        assert_allclose(self.out.data["chi_local"][0], [[0, 0, 0], [0, 0, 0], [0, 0, 0]])
+        assert_allclose(self.out.data["chi_local"][0], np.zeros((3, 3)))
         assert_allclose(
             self.out.data["chi_total"][0],
-            [[5.9508, -1.6579, -1.6579], [-1.6579, 5.9508, -1.6579], [-1.6579, -1.6579, 5.9508]],
+            [
+                [5.9508, -1.6579, -1.6579],
+                [-1.6579, 5.9508, -1.6579],
+                [-1.6579, -1.6579, 5.9508],
+            ],
         )
         assert_allclose(
             self.out.data["chi_total_ppm_cgs"][0],
-            [[0.3584, -0.0998, -0.0998], [-0.0998, 0.3584, -0.0998], [-0.0998, -0.0998, 0.3584]],
+            [
+                [0.3584, -0.0998, -0.0998],
+                [-0.0998, 0.3584, -0.0998],
+                [-0.0998, -0.0998, 0.3584],
+            ],
         )
 
     def test_gtensor(self):
         self.out.parse_gtensor()
         assert len(self.out.data["gtensor_total"]) == 1
-        assert_allclose(self.out.data["gmatrix_zke"][0], [[0, 0, 0], [0, 0, 0], [0, 0, 0]])
-        assert_allclose(self.out.data["gmatrix_so"][0], [[0, 0, 0], [0, 0, 0], [0, 0, 0]])
-        assert_allclose(self.out.data["gmatrix_soo"][0], [[0, 0, 0], [0, 0, 0], [0, 0, 0]])
+        assert_allclose(self.out.data["gmatrix_zke"][0], np.zeros((3, 3)))
+        assert_allclose(self.out.data["gmatrix_so"][0], np.zeros((3, 3)))
+        assert_allclose(self.out.data["gmatrix_soo"][0], np.zeros((3, 3)))
         assert_allclose(
             self.out.data["gmatrix_total"][0],
-            [[2.0023193044, 0.0, 0.0], [0.0, 2.0023193044, 0.0], [0.0, 0.0, 2.0023193044]],
+            [
+                [2.0023193044, 0.0, 0.0],
+                [0.0, 2.0023193044, 0.0],
+                [0.0, 0.0, 2.0023193044],
+            ],
         )
         assert_allclose(
             self.out.data["gtensor_total"][0],
-            [[2.0023193044, 0.0, 0.0], [0.0, 2.0023193044, 0.0], [0.0, 0.0, 2.0023193044]],
+            [
+                [2.0023193044, 0.0, 0.0],
+                [0.0, 2.0023193044, 0.0],
+                [0.0, 0.0, 2.0023193044],
+            ],
         )
         assert_allclose(
             self.out.data["delta_g"][0],

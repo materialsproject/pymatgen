@@ -167,7 +167,10 @@ if __name__ == "__main__":
 
         # Setup the random environment
         lgf.setup_test_perfect_environment(
-            cg_symbol, randomness=True, indices=range(cg.coordination_number), max_random_dist=0.05
+            cg_symbol,
+            randomness=True,
+            indices=range(cg.coordination_number),
+            max_random_dist=0.05,
         )
         lgf.perfect_geometry = AbstractGeometry.from_cg(cg=cg)
         points_perfect = lgf.perfect_geometry.points_wcs_ctwcc()
@@ -201,7 +204,8 @@ if __name__ == "__main__":
 
             # Setup of safe permutations
             permutations = algo.safe_separation_permutations(
-                ordered_plane=algo.ordered_plane, ordered_point_groups=algo.ordered_point_groups
+                ordered_plane=algo.ordered_plane,
+                ordered_point_groups=algo.ordered_point_groups,
             )
             algo._permutations = permutations
             print(f"Safe permutations found ({len(permutations)})")
@@ -209,7 +213,7 @@ if __name__ == "__main__":
             # Definition of the facets
             all_planes_point_indices = [algo.plane_points]
             if algo.other_plane_points is not None:
-                all_planes_point_indices.extend(algo.other_plane_points)
+                all_planes_point_indices += algo.other_plane_points
 
             # Loop on the facets
             explicit_permutations_per_plane = []
@@ -234,9 +238,12 @@ if __name__ == "__main__":
                 )
 
                 sym_measures = [c["symmetry_measure"] for c in csms]
-                prt1(string="Continuous symmetry measures", printing_volume=printing_volume)
+                prt1(
+                    string="Continuous symmetry measures",
+                    printing_volume=printing_volume,
+                )
                 prt1(string=sym_measures, printing_volume=printing_volume)
-                csms_with_recorded_permutation = []  # type: ignore
+                csms_with_recorded_permutation: list = []
                 explicit_permutations = []
                 for icsm, csm in enumerate(csms):
                     found = False
@@ -279,7 +286,7 @@ if __name__ == "__main__":
                 f"Get the explicit optimized permutations for geometry {cg.name!r} (symbol : "
                 f'{cg_symbol!r}) ? ("y" to confirm, "q" to quit)\n'
             )
-            if test not in ["y", "q"]:
+            if test not in ("y", "q"):
                 print("Wrong key, try again")
                 continue
             if test == "y":
@@ -305,10 +312,9 @@ if __name__ == "__main__":
             # Definition of the facets
             all_planes_point_indices = [algo.plane_points]
             if algo.other_plane_points is not None:
-                all_planes_point_indices.extend(algo.other_plane_points)
+                all_planes_point_indices += algo.other_plane_points
 
             # Setup of the permutations to be used for this algorithm
-
             indices = list(range(cg.coordination_number))
             if permutations_setup_type == "all":
                 perms_iterator = itertools.permutations(indices)
@@ -346,7 +352,11 @@ if __name__ == "__main__":
                 )
                 # Setup of the local and perfect geometries
                 lgf.setup_test_perfect_environment(
-                    cg_symbol, indices=indices_perm, randomness=True, max_random_dist=0.02, random_rotation=True
+                    cg_symbol,
+                    indices=indices_perm,
+                    randomness=True,
+                    max_random_dist=0.02,
+                    random_rotation=True,
                 )
                 lgf.perfect_geometry = AbstractGeometry.from_cg(cg=cg)
                 points_perfect = lgf.perfect_geometry.points_wcs_ctwcc()
@@ -399,8 +409,10 @@ if __name__ == "__main__":
                         perms_used[some_perm] += 1
                     else:
                         perms_used[some_perm] = 1
-                tcurrent = time.process_time()
-                time_left = (n_permutations - idx_perm) * (tcurrent - t0) / idx_perm  # type: ignore
+                t_now = time.process_time()
+                if n_permutations is None:
+                    raise ValueError(f"{n_permutations=}")
+                time_left = (n_permutations - idx_perm) * (t_now - t0) / idx_perm
                 time_left = f"{time_left:.1f}"
                 idx_perm += 1
             print(
@@ -431,7 +443,6 @@ if __name__ == "__main__":
         )
         if test == "y":
             new_geom_dir = "new_geometry_files"
-            if not os.path.exists(new_geom_dir):
-                os.makedirs(new_geom_dir)
-            with open(f"{new_geom_dir}/{cg_symbol}.json", "w") as file:
+            os.makedirs(new_geom_dir, exist_ok=True)
+            with open(f"{new_geom_dir}/{cg_symbol}.json", mode="w") as file:
                 json.dump(cg.as_dict(), file)

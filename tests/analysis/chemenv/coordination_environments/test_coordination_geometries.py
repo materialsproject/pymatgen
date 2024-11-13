@@ -26,14 +26,14 @@ class FakeSite:
 class TestCoordinationGeometries(PymatgenTest):
     def test_algorithms(self):
         expl_algo = ExplicitPermutationsAlgorithm(permutations=[[0, 1, 2], [1, 2, 3]])
-        expl_algo2 = ExplicitPermutationsAlgorithm.from_dict(expl_algo.as_dict)
+        expl_algo2 = ExplicitPermutationsAlgorithm.from_dict(expl_algo.as_dict())
         assert expl_algo.permutations == expl_algo2.permutations
 
         sep_plane_algos_oct = all_cg["O:6"].algorithms
         assert len(sep_plane_algos_oct[0].safe_separation_permutations()) == 24
         assert len(sep_plane_algos_oct[1].safe_separation_permutations()) == 36
 
-        sep_plane_algos_oct_0 = SeparationPlane.from_dict(sep_plane_algos_oct[0].as_dict)
+        sep_plane_algos_oct_0 = SeparationPlane.from_dict(sep_plane_algos_oct[0].as_dict())
         assert sep_plane_algos_oct[0].plane_points == sep_plane_algos_oct_0.plane_points
         assert sep_plane_algos_oct[0].mirror_plane == sep_plane_algos_oct_0.mirror_plane
         assert sep_plane_algos_oct[0].ordered_plane == sep_plane_algos_oct_0.ordered_plane
@@ -63,7 +63,7 @@ class TestCoordinationGeometries(PymatgenTest):
         cg_oct2 = CoordinationGeometry.from_dict(cg_oct.as_dict())
 
         assert cg_oct.central_site == approx(cg_oct2.central_site)
-        for p1, p2 in zip(cg_oct.points, cg_oct2.points):
+        for p1, p2 in zip(cg_oct.points, cg_oct2.points, strict=True):
             assert p1 == approx(p2)
         assert (
             str(cg_oct) == "Coordination geometry type : Octahedron (IUPAC: OC-6 || IUCr: [6o])\n"
@@ -266,14 +266,22 @@ class TestCoordinationGeometries(PymatgenTest):
         assert len(all_cg.get_geometries()) == 68
         assert len(all_cg.get_geometries(coordination=3)) == 3
         assert sorted(all_cg.get_geometries(returned="mp_symbol")) == sorted(all_symbols)
-        assert sorted(all_cg.get_geometries(returned="mp_symbol", coordination=3)) == ["TL:3", "TS:3", "TY:3"]
+        assert sorted(all_cg.get_geometries(returned="mp_symbol", coordination=3)) == [
+            "TL:3",
+            "TS:3",
+            "TY:3",
+        ]
 
         assert all_cg.get_symbol_name_mapping(coordination=3) == {
             "TY:3": "Triangular non-coplanar",
             "TL:3": "Trigonal plane",
             "TS:3": "T-shaped",
         }
-        assert all_cg.get_symbol_cn_mapping(coordination=3) == {"TY:3": 3, "TL:3": 3, "TS:3": 3}
+        assert all_cg.get_symbol_cn_mapping(coordination=3) == {
+            "TY:3": 3,
+            "TL:3": 3,
+            "TS:3": 3,
+        }
         assert sorted(all_cg.get_implemented_geometries(coordination=4, returned="mp_symbol")) == [
             "S:4",
             "SS:4",
@@ -339,9 +347,39 @@ class TestCoordinationGeometries(PymatgenTest):
             "\\end{center}\n\n\\subsubsection*{A:2 : Angular}\n\nIUPAC : A-2\n\nIUCr : [2n]\n\n"
             "\\begin{center}\n\\includegraphics[scale=0.15]{images/A_2.png}\n\\end{center}\n\n"
         )
-        assert all_cg.minpoints == {6: 2, 7: 2, 8: 2, 9: 2, 10: 2, 11: 2, 12: 2, 13: 3, 20: 2}
-        assert all_cg.maxpoints == {6: 5, 7: 5, 8: 6, 9: 7, 10: 6, 11: 5, 12: 8, 13: 6, 20: 10}
-        assert all_cg.maxpoints_inplane == {6: 5, 7: 5, 8: 6, 9: 7, 10: 6, 11: 5, 12: 8, 13: 6, 20: 10}
+        assert all_cg.minpoints == {
+            6: 2,
+            7: 2,
+            8: 2,
+            9: 2,
+            10: 2,
+            11: 2,
+            12: 2,
+            13: 3,
+            20: 2,
+        }
+        assert all_cg.maxpoints == {
+            6: 5,
+            7: 5,
+            8: 6,
+            9: 7,
+            10: 6,
+            11: 5,
+            12: 8,
+            13: 6,
+            20: 10,
+        }
+        assert all_cg.maxpoints_inplane == {
+            6: 5,
+            7: 5,
+            8: 6,
+            9: 7,
+            10: 6,
+            11: 5,
+            12: 8,
+            13: 6,
+            20: 10,
+        }
         assert all_cg.separations_cg == {
             6: {
                 (0, 3, 3): ["O:6", "T:6"],

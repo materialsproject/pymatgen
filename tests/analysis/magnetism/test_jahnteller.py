@@ -1,92 +1,90 @@
 from __future__ import annotations
 
-import unittest
+from unittest import TestCase
 
 import numpy as np
 from pytest import approx
 
 from pymatgen.analysis.magnetism.jahnteller import JahnTellerAnalyzer, Species
-from pymatgen.io.cif import CifParser
+from pymatgen.core import Structure
 from pymatgen.util.testing import TEST_FILES_DIR
 
 
-class TestJahnTeller(unittest.TestCase):
+class TestJahnTeller(TestCase):
     def setUp(self):
         self.jt = JahnTellerAnalyzer()
 
     def test_jahn_teller_species_analysis(self):
         # 1 d-shell electron
-        m = self.jt.get_magnitude_of_effect_from_species("Ti3+", "", "oct")
-        assert m == "weak"
+        magnitude = self.jt.get_magnitude_of_effect_from_species("Ti3+", "", "oct")
+        assert magnitude == "weak"
 
         # 2 d-shell electrons
-        m = self.jt.get_magnitude_of_effect_from_species("Ti2+", "", "oct")
-        assert m == "weak"
-        m = self.jt.get_magnitude_of_effect_from_species("V3+", "", "oct")
-        assert m == "weak"
+        magnitude = self.jt.get_magnitude_of_effect_from_species("Ti2+", "", "oct")
+        assert magnitude == "weak"
+        magnitude = self.jt.get_magnitude_of_effect_from_species("V3+", "", "oct")
+        assert magnitude == "weak"
 
         # 3
-        m = self.jt.get_magnitude_of_effect_from_species("V2+", "", "oct")
-        assert m == "none"
-        m = self.jt.get_magnitude_of_effect_from_species("Cr3+", "", "oct")
-        assert m == "none"
+        magnitude = self.jt.get_magnitude_of_effect_from_species("V2+", "", "oct")
+        assert magnitude == "none"
+        magnitude = self.jt.get_magnitude_of_effect_from_species("Cr3+", "", "oct")
+        assert magnitude == "none"
 
         # 4
-        m = self.jt.get_magnitude_of_effect_from_species("Cr2+", "high", "oct")
-        assert m == "strong"
-        m = self.jt.get_magnitude_of_effect_from_species("Cr2+", "low", "oct")
-        assert m == "weak"
-        m = self.jt.get_magnitude_of_effect_from_species("Mn3+", "high", "oct")
-        assert m == "strong"
-        m = self.jt.get_magnitude_of_effect_from_species("Mn3+", "low", "oct")
-        assert m == "weak"
+        magnitude = self.jt.get_magnitude_of_effect_from_species("Cr2+", "high", "oct")
+        assert magnitude == "strong"
+        magnitude = self.jt.get_magnitude_of_effect_from_species("Cr2+", "low", "oct")
+        assert magnitude == "weak"
+        magnitude = self.jt.get_magnitude_of_effect_from_species("Mn3+", "high", "oct")
+        assert magnitude == "strong"
+        magnitude = self.jt.get_magnitude_of_effect_from_species("Mn3+", "low", "oct")
+        assert magnitude == "weak"
 
         # 5
-        m = self.jt.get_magnitude_of_effect_from_species("Mn2+", "high", "oct")
-        assert m == "none"
-        m = self.jt.get_magnitude_of_effect_from_species("Mn2+", "low", "oct")
-        assert m == "weak"
-        m = self.jt.get_magnitude_of_effect_from_species("Fe3+", "high", "oct")
-        assert m == "none"
-        m = self.jt.get_magnitude_of_effect_from_species("Fe3+", "low", "oct")
-        assert m == "weak"
+        magnitude = self.jt.get_magnitude_of_effect_from_species("Mn2+", "high", "oct")
+        assert magnitude == "none"
+        magnitude = self.jt.get_magnitude_of_effect_from_species("Mn2+", "low", "oct")
+        assert magnitude == "weak"
+        magnitude = self.jt.get_magnitude_of_effect_from_species("Fe3+", "high", "oct")
+        assert magnitude == "none"
+        magnitude = self.jt.get_magnitude_of_effect_from_species("Fe3+", "low", "oct")
+        assert magnitude == "weak"
 
         # 6
-        m = self.jt.get_magnitude_of_effect_from_species("Fe2+", "high", "oct")
-        assert m == "weak"
-        m = self.jt.get_magnitude_of_effect_from_species("Fe2+", "low", "oct")
-        assert m == "none"
-        m = self.jt.get_magnitude_of_effect_from_species("Co3+", "high", "oct")
-        assert m == "weak"
-        m = self.jt.get_magnitude_of_effect_from_species("Co3+", "low", "oct")
-        assert m == "none"
+        magnitude = self.jt.get_magnitude_of_effect_from_species("Fe2+", "high", "oct")
+        assert magnitude == "weak"
+        magnitude = self.jt.get_magnitude_of_effect_from_species("Fe2+", "low", "oct")
+        assert magnitude == "none"
+        magnitude = self.jt.get_magnitude_of_effect_from_species("Co3+", "high", "oct")
+        assert magnitude == "weak"
+        magnitude = self.jt.get_magnitude_of_effect_from_species("Co3+", "low", "oct")
+        assert magnitude == "none"
 
         # 7
-        m = self.jt.get_magnitude_of_effect_from_species("Co2+", "high", "oct")
-        assert m == "weak"
-        m = self.jt.get_magnitude_of_effect_from_species("Co2+", "low", "oct")
-        assert m == "strong"
+        magnitude = self.jt.get_magnitude_of_effect_from_species("Co2+", "high", "oct")
+        assert magnitude == "weak"
+        magnitude = self.jt.get_magnitude_of_effect_from_species("Co2+", "low", "oct")
+        assert magnitude == "strong"
 
         # 8
-        m = self.jt.get_magnitude_of_effect_from_species("Ni2+", "", "oct")
-        assert m == "none"
+        magnitude = self.jt.get_magnitude_of_effect_from_species("Ni2+", "", "oct")
+        assert magnitude == "none"
 
         # 9
-        m = self.jt.get_magnitude_of_effect_from_species("Cu2+", "", "oct")
-        assert m == "strong"
+        magnitude = self.jt.get_magnitude_of_effect_from_species("Cu2+", "", "oct")
+        assert magnitude == "strong"
 
         # 10
-        m = self.jt.get_magnitude_of_effect_from_species("Cu+", "", "oct")
-        assert m == "none"
-        m = self.jt.get_magnitude_of_effect_from_species("Zn2+", "", "oct")
-        assert m == "none"
+        magnitude = self.jt.get_magnitude_of_effect_from_species("Cu+", "", "oct")
+        assert magnitude == "none"
+        magnitude = self.jt.get_magnitude_of_effect_from_species("Zn2+", "", "oct")
+        assert magnitude == "none"
 
     def test_jahn_teller_structure_analysis(self):
-        parser = CifParser(f"{TEST_FILES_DIR}/LiFePO4.cif")
-        LiFePO4 = parser.get_structures()[0]
+        LiFePO4 = Structure.from_file(f"{TEST_FILES_DIR}/cif/LiFePO4.cif", primitive=True)
 
-        parser = CifParser(f"{TEST_FILES_DIR}/Fe3O4.cif")
-        Fe3O4 = parser.get_structures()[0]
+        Fe3O4 = Structure.from_file(f"{TEST_FILES_DIR}/cif/Fe3O4.cif", primitive=True)
 
         assert self.jt.is_jahn_teller_active(LiFePO4)
         assert self.jt.is_jahn_teller_active(Fe3O4)
@@ -98,7 +96,14 @@ class TestJahnTeller(unittest.TestCase):
                 {
                     "ligand": "O2-",
                     "ligand_bond_length_spread": 0.2111,
-                    "ligand_bond_lengths": {2.2951, 2.2215, 2.2383, 2.1382, 2.084, 2.0863},
+                    "ligand_bond_lengths": {
+                        2.2951,
+                        2.2215,
+                        2.2383,
+                        2.1382,
+                        2.084,
+                        2.0863,
+                    },
                     "strength": "weak",
                     "motif": "oct",
                     "motif_order_parameter": 0.1441,

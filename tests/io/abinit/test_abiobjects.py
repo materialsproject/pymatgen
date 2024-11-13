@@ -81,7 +81,7 @@ class TestLatticeFromAbivars(PymatgenTest):
         # Ga  Ga2  1  0.66666666666667  0.333333333333333  0.000880  1.0
         # N  N3  1  0.333333333333333  0.666666666666667  0.124120  1.0
         # N  N4  1  0.666666666666667  0.333333333333333  0.624120  1.0
-        gan = Structure.from_file(f"{TEST_FILES_DIR}/abinit/gan.cif")
+        gan = Structure.from_file(f"{TEST_FILES_DIR}/io/abinit/gan.cif")
 
         # By default, znucl is filled using the first new type found in sites.
         def_vars = structure_to_abivars(gan)
@@ -97,10 +97,11 @@ class TestLatticeFromAbivars(PymatgenTest):
         assert_array_equal(enf_vars["znucl"], enforce_znucl)
         assert_array_equal(enf_vars["typat"], enforce_typat)
         assert_array_equal(def_vars["xred"], enf_vars["xred"])
+        assert "properties" not in enf_vars
 
         assert [s.symbol for s in species_by_znucl(gan)] == ["Ga", "N"]
 
-        for itype1, itype2 in zip(def_typat, enforce_typat):
+        for itype1, itype2 in zip(def_typat, enforce_typat, strict=True):
             assert def_znucl[itype1 - 1] == enforce_znucl[itype2 - 1]
 
         with pytest.raises(ValueError, match="Both enforce_znucl and enforce_typat are required"):
@@ -212,7 +213,14 @@ class TestRelaxation(PymatgenTest):
         atoms_only = RelaxationMethod.atoms_only()
 
         out_vars = atoms_and_cell.to_abivars()
-        assert {*out_vars} >= {"dilatmx", "ecutsm", "ionmov", "ntime", "optcell", "strfact"}
+        assert {*out_vars} >= {
+            "dilatmx",
+            "ecutsm",
+            "ionmov",
+            "ntime",
+            "optcell",
+            "strfact",
+        }
 
         # Test dict methods
         self.assert_msonable(atoms_and_cell)

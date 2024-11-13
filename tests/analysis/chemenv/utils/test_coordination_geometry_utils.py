@@ -1,7 +1,6 @@
 from __future__ import annotations
 
 import itertools
-import random
 
 import numpy as np
 from numpy.testing import assert_allclose
@@ -16,7 +15,7 @@ __author__ = "David Waroquiers"
 class TestPlanesUtils(PymatgenTest):
     def setUp(self):
         # Test of plane 4x + 2y - 4z + 3 = 0 (used in most test cases)
-        self.expected_coefficients = np.array([4, 2, -4, 3], np.float_)
+        self.expected_coefficients = np.array([4, 2, -4, 3], float)
         self.p1 = np.array([0, 0, 0.75])
         self.p2 = np.array([-0.75, 0, 0])
         self.p3 = np.array([0, -1.5, 0])
@@ -152,14 +151,14 @@ class TestPlanesUtils(PymatgenTest):
 
     def test_indices_separate(self):
         # Test with the common test plane
-        point_1 = np.array([0, 0, 0], np.float_)
-        point_2 = np.array([0, 0, 0.75], np.float_)
-        point_3 = np.array([-0.75, 0, 0], np.float_)
-        point_4 = np.array([1, 0, 0], np.float_)
-        point_5 = np.array([0, -1.5, 0], np.float_)
-        point_6 = np.array([10, 2, -20], np.float_)
-        point_7 = np.array([10, 10, 10], np.float_)
-        point_8 = np.array([100, 0, 0], np.float_)
+        point_1 = np.array([0, 0, 0], float)
+        point_2 = np.array([0, 0, 0.75], float)
+        point_3 = np.array([-0.75, 0, 0], float)
+        point_4 = np.array([1, 0, 0], float)
+        point_5 = np.array([0, -1.5, 0], float)
+        point_6 = np.array([10, 2, -20], float)
+        point_7 = np.array([10, 10, 10], float)
+        point_8 = np.array([100, 0, 0], float)
         plist = [point_1, point_2, point_3, point_4, point_5, point_6, point_7, point_8]
         sep = self.plane.indices_separate(plist, 0.000001)
         assert len(sep[0]) == 0
@@ -234,19 +233,26 @@ class TestPlanesUtils(PymatgenTest):
 
     def test_distances(self):
         # Test with the common test plane
-        point_1 = np.array([0, 0, 0], np.float_)
-        point_2 = np.array([0, 0, 0.75], np.float_)
-        point_3 = np.array([-0.75, 0, 0], np.float_)
-        point_4 = np.array([1, 0, 0], np.float_)
-        point_5 = np.array([0, -1.5, 0], np.float_)
-        point_6 = np.array([10, 2, -20], np.float_)
-        point_7 = np.array([10, 10, 10], np.float_)
-        point_8 = np.array([100, 0, 0], np.float_)
+        point_1 = np.array([0, 0, 0], float)
+        point_2 = np.array([0, 0, 0.75], float)
+        point_3 = np.array([-0.75, 0, 0], float)
+        point_4 = np.array([1, 0, 0], float)
+        point_5 = np.array([0, -1.5, 0], float)
+        point_6 = np.array([10, 2, -20], float)
+        point_7 = np.array([10, 10, 10], float)
+        point_8 = np.array([100, 0, 0], float)
         plist = [point_1, point_2, point_4, point_6, point_7, point_8]
         distances, indices_sorted = self.plane.distances_indices_sorted(plist)
         assert_allclose(
             distances,
-            [0.5, 0, 1.16666666666666, 21.1666666666666, 3.8333333333333, 67.1666666666666],
+            [
+                0.5,
+                0,
+                1.16666666666666,
+                21.1666666666666,
+                3.8333333333333,
+                67.1666666666666,
+            ],
             atol=1e-9,
         )
         assert indices_sorted == [1, 0, 2, 4, 3, 5]
@@ -276,8 +282,9 @@ class TestPlanesUtils(PymatgenTest):
         plane = Plane.from_coefficients(0, 0, 1, 0)
         zzs = [0.1, -0.2, 0.7, -2.1, -1.85, 0, -0.71, -0.82, -6.5, 1.8]
         plist = []
+        rng = np.random.default_rng()
         for zz in zzs:
-            plist.append([random.uniform(-20, 20), random.uniform(-20, 20), zz])
+            plist.append([rng.uniform(-20, 20), rng.uniform(-20, 20), zz])
         distances, indices_sorted, groups = plane.distances_indices_groups(points=plist, delta=0.25)
         assert indices_sorted == [5, 0, 1, 2, 6, 7, 9, 4, 3, 8]
         assert groups == [[5, 0, 1], [2, 6, 7], [9, 4, 3], [8]]
@@ -287,7 +294,18 @@ class TestPlanesUtils(PymatgenTest):
         assert groups == [[5, 0, 1, 2, 6, 7], [9, 4, 3], [8]]
         assert_allclose(distances, zzs)
         distances, indices_sorted, groups = plane.distances_indices_groups(points=plist, delta_factor=0.1, sign=True)
-        assert indices_sorted == [(5, 0), (0, 1), (1, -1), (2, 1), (6, -1), (7, -1), (9, 1), (4, -1), (3, -1), (8, -1)]
+        assert indices_sorted == [
+            (5, 0),
+            (0, 1),
+            (1, -1),
+            (2, 1),
+            (6, -1),
+            (7, -1),
+            (9, 1),
+            (4, -1),
+            (3, -1),
+            (8, -1),
+        ]
         assert groups == [
             [(5, 0), (0, 1), (1, -1), (2, 1), (6, -1), (7, -1)],
             [(9, 1), (4, -1), (3, -1)],
@@ -339,11 +357,11 @@ class TestPlanesUtils(PymatgenTest):
             assert_allclose(projected_2d[0], 0)
         # Check some specific projections
         points = [
-            np.zeros(3, np.float_),
-            np.array([10, 10, 10], np.float_),
-            np.array([1.2, 2.3, 3.4], np.float_),
-            np.array([-1, -2, -3], np.float_),
-            np.array([-1, 1, -1], np.float_),
+            np.zeros(3, float),
+            np.array([10, 10, 10], float),
+            np.array([1.2, 2.3, 3.4], float),
+            np.array([-1, -2, -3], float),
+            np.array([-1, 1, -1], float),
         ]
         projected_points = self.plane.projectionpoints(points)
         expected_projected_points = [

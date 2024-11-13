@@ -1,7 +1,7 @@
 from __future__ import annotations
 
-import unittest
 from shutil import which
+from unittest import TestCase
 
 import pytest
 from monty.serialization import loadfn
@@ -15,55 +15,60 @@ from pymatgen.analysis.magnetism import (
     magnetic_deformation,
 )
 from pymatgen.core import Element, Lattice, Species, Structure
-from pymatgen.io.cif import CifParser
 from pymatgen.util.testing import TEST_FILES_DIR
+
+TEST_DIR = f"{TEST_FILES_DIR}/analysis/magnetic_orderings"
 
 enum_cmd = which("enum.x") or which("multienum.x")
 makestr_cmd = which("makestr.x") or which("makeStr.x") or which("makeStr.py")
 enumlib_present = enum_cmd and makestr_cmd
 
 
-class TestCollinearMagneticStructureAnalyzer(unittest.TestCase):
+class TestCollinearMagneticStructureAnalyzer(TestCase):
     def setUp(self):
-        parser = CifParser(f"{TEST_FILES_DIR}/Fe.cif")
-        self.Fe = parser.get_structures()[0]
+        self.Fe = Structure.from_file(f"{TEST_FILES_DIR}/cif/Fe.cif", primitive=True)
 
-        parser = CifParser(f"{TEST_FILES_DIR}/LiFePO4.cif")
-        self.LiFePO4 = parser.get_structures()[0]
+        self.LiFePO4 = Structure.from_file(f"{TEST_FILES_DIR}/cif/LiFePO4.cif", primitive=True)
 
-        parser = CifParser(f"{TEST_FILES_DIR}/Fe3O4.cif")
-        self.Fe3O4 = parser.get_structures()[0]
+        self.Fe3O4 = Structure.from_file(f"{TEST_FILES_DIR}/cif/Fe3O4.cif", primitive=True)
 
-        parser = CifParser(f"{TEST_FILES_DIR}/magnetic.ncl.example.GdB4.mcif")
-        self.GdB4 = parser.get_structures()[0]
+        self.GdB4 = Structure.from_file(
+            f"{TEST_FILES_DIR}/io/cif/mcif/magnetic.ncl.example.GdB4.mcif",
+            primitive=True,
+        )
 
-        parser = CifParser(f"{TEST_FILES_DIR}/magnetic.example.NiO.mcif")
-        self.NiO_expt = parser.get_structures()[0]
+        self.NiO_expt = Structure.from_file(f"{TEST_FILES_DIR}/io/cif/mcif/magnetic.example.NiO.mcif", primitive=True)
 
-        latt = Lattice.cubic(4.17)
+        # CuO.mcif sourced from https://www.cryst.ehu.es/magndata/index.php?index=1.62
+        # doi: 10.1088/0022-3719/21/15/023
+        self.CuO_expt = Structure.from_file(
+            f"{TEST_FILES_DIR}/io/cif/mcif/magnetic.example.CuO.mcif.gz", primitive=True
+        )
+
+        lattice = Lattice.cubic(4.17)
         species = ["Ni", "O"]
         coords = [[0, 0, 0], [0.5, 0.5, 0.5]]
-        self.NiO = Structure.from_spacegroup(225, latt, species, coords)
+        self.NiO = Structure.from_spacegroup(225, lattice, species, coords)
 
-        latt = Lattice([[2.085, 2.085, 0.0], [0.0, -2.085, -2.085], [-2.085, 2.085, -4.17]])
+        lattice = Lattice([[2.085, 2.085, 0.0], [0.0, -2.085, -2.085], [-2.085, 2.085, -4.17]])
         species = ["Ni", "Ni", "O", "O"]
         coords = [[0.5, 0, 0.5], [0, 0, 0], [0.25, 0.5, 0.25], [0.75, 0.5, 0.75]]
-        self.NiO_AFM_111 = Structure(latt, species, coords, site_properties={"magmom": [-5, 5, 0, 0]})
+        self.NiO_AFM_111 = Structure(lattice, species, coords, site_properties={"magmom": [-5, 5, 0, 0]})
 
-        latt = Lattice([[2.085, 2.085, 0], [0, 0, -4.17], [-2.085, 2.085, 0]])
+        lattice = Lattice([[2.085, 2.085, 0], [0, 0, -4.17], [-2.085, 2.085, 0]])
         species = ["Ni", "Ni", "O", "O"]
         coords = [[0.5, 0.5, 0.5], [0, 0, 0], [0, 0.5, 0], [0.5, 0, 0.5]]
-        self.NiO_AFM_001 = Structure(latt, species, coords, site_properties={"magmom": [-5, 5, 0, 0]})
+        self.NiO_AFM_001 = Structure(lattice, species, coords, site_properties={"magmom": [-5, 5, 0, 0]})
 
-        latt = Lattice([[2.085, 2.085, 0], [0, 0, -4.17], [-2.085, 2.085, 0]])
+        lattice = Lattice([[2.085, 2.085, 0], [0, 0, -4.17], [-2.085, 2.085, 0]])
         species = ["Ni", "Ni", "O", "O"]
         coords = [[0.5, 0.5, 0.5], [0, 0, 0], [0, 0.5, 0], [0.5, 0, 0.5]]
-        self.NiO_AFM_001_opposite = Structure(latt, species, coords, site_properties={"magmom": [5, -5, 0, 0]})
+        self.NiO_AFM_001_opposite = Structure(lattice, species, coords, site_properties={"magmom": [5, -5, 0, 0]})
 
-        latt = Lattice([[2.085, 2.085, 0], [0, 0, -4.17], [-2.085, 2.085, 0]])
+        lattice = Lattice([[2.085, 2.085, 0], [0, 0, -4.17], [-2.085, 2.085, 0]])
         species = ["Ni", "Ni", "O", "O"]
         coords = [[0.5, 0.5, 0.5], [0, 0, 0], [0, 0.5, 0], [0.5, 0, 0.5]]
-        self.NiO_unphysical = Structure(latt, species, coords, site_properties={"magmom": [-3, 0, 0, 0]})
+        self.NiO_unphysical = Structure(lattice, species, coords, site_properties={"magmom": [-3, 0, 0, 0]})
 
     def test_get_representations(self):
         # tests to convert between storing magnetic moment information
@@ -145,6 +150,10 @@ class TestCollinearMagneticStructureAnalyzer(unittest.TestCase):
         magmoms = msa.structure.site_properties["magmom"]
         assert magmoms == [1, 0]
 
+        # test invalid overwrite_magmom_mode
+        with pytest.raises(ValueError, match="'invalid_mode' is not a valid OverwriteMagmomMode"):
+            CollinearMagneticStructureAnalyzer(self.NiO, overwrite_magmom_mode="invalid_mode")
+
     def test_net_positive(self):
         msa = CollinearMagneticStructureAnalyzer(self.NiO_unphysical)
         magmoms = msa.structure.site_properties["magmom"]
@@ -167,28 +176,33 @@ class TestCollinearMagneticStructureAnalyzer(unittest.TestCase):
         assert CollinearMagneticStructureAnalyzer(s1).matches_ordering(s2_prim)
 
     def test_magnetic_properties(self):
-        msa = CollinearMagneticStructureAnalyzer(self.GdB4)
-        assert not msa.is_collinear
+        mag_struct_analyzer = CollinearMagneticStructureAnalyzer(self.GdB4)
+        assert not mag_struct_analyzer.is_collinear
 
-        msa = CollinearMagneticStructureAnalyzer(self.Fe)
-        assert not msa.is_magnetic
+        mag_struct_analyzer = CollinearMagneticStructureAnalyzer(self.Fe)
+        assert not mag_struct_analyzer.is_magnetic
 
         self.Fe.add_site_property("magmom", [5])
 
-        msa = CollinearMagneticStructureAnalyzer(self.Fe)
-        assert msa.is_magnetic
-        assert msa.is_collinear
-        assert msa.ordering == Ordering.FM
+        mag_struct_analyzer = CollinearMagneticStructureAnalyzer(self.Fe)
+        assert mag_struct_analyzer.is_magnetic
+        assert mag_struct_analyzer.is_collinear
+        assert mag_struct_analyzer.ordering == Ordering.FM
 
-        msa = CollinearMagneticStructureAnalyzer(
+        mag_struct_analyzer = CollinearMagneticStructureAnalyzer(
             self.NiO,
             make_primitive=False,
             overwrite_magmom_mode="replace_all_if_undefined",
         )
-        assert msa.number_of_magnetic_sites == 4
-        assert msa.number_of_unique_magnetic_sites() == 1
-        assert msa.types_of_magnetic_species == (Element.Ni,)
-        assert msa.get_exchange_group_info() == ("Fm-3m", 225)
+        assert mag_struct_analyzer.number_of_magnetic_sites == 4
+        assert mag_struct_analyzer.number_of_unique_magnetic_sites() == 1
+        assert mag_struct_analyzer.types_of_magnetic_species == (Element.Ni,)
+        assert mag_struct_analyzer.get_exchange_group_info() == ("Fm-3m", 225)
+
+        # https://github.com/materialsproject/pymatgen/pull/3574
+        for threshold, expected in [(1e-8, Ordering.AFM), (1e-20, Ordering.FiM)]:
+            mag_struct_analyzer = CollinearMagneticStructureAnalyzer(self.CuO_expt, threshold_ordering=threshold)
+            assert mag_struct_analyzer.ordering == expected
 
     def test_str(self):
         msa = CollinearMagneticStructureAnalyzer(self.NiO_AFM_001)
@@ -231,30 +245,35 @@ Magmoms Sites
         # This test catches the case where a structure has some species with
         # Species.spin=None. This previously raised an error upon construction
         # of the analyzer).
-        latt = Lattice([[2.085, 2.085, 0.0], [0.0, -2.085, -2.085], [-2.085, 2.085, -4.17]])
-        species = [Species("Ni", spin=-5), Species("Ni", spin=5), Species("O", spin=None), Species("O", spin=None)]
+        lattice = Lattice([[2.085, 2.085, 0.0], [0.0, -2.085, -2.085], [-2.085, 2.085, -4.17]])
+        species = [
+            Species("Ni", spin=-5),
+            Species("Ni", spin=5),
+            Species("O", spin=None),
+            Species("O", spin=None),
+        ]
         coords = [[0.5, 0, 0.5], [0, 0, 0], [0.25, 0.5, 0.25], [0.75, 0.5, 0.75]]
-        struct = Structure(latt, species, coords)
+        struct = Structure(lattice, species, coords)
 
         msa = CollinearMagneticStructureAnalyzer(struct, round_magmoms=0.001, make_primitive=False)
         assert msa.structure.site_properties["magmom"] == [-5, 5, 0, 0]
 
 
-class TestMagneticStructureEnumerator(unittest.TestCase):
-    @unittest.skipIf(not enumlib_present, "enumlib not present")
+class TestMagneticStructureEnumerator:
+    @pytest.mark.skipif(not enumlib_present, reason="enumlib not present")
     def test_ordering_enumeration(self):
         # simple afm
-        structure = Structure.from_file(f"{TEST_FILES_DIR}/magnetic_orderings/LaMnO3.json")
+        structure = Structure.from_file(f"{TEST_DIR}/LaMnO3.json")
         enumerator = MagneticStructureEnumerator(structure)
         assert enumerator.input_origin == "afm"
 
         # ferrimagnetic (Cr produces net spin)
-        structure = Structure.from_file(f"{TEST_FILES_DIR}/magnetic_orderings/Cr2NiO4.json")
+        structure = Structure.from_file(f"{TEST_DIR}/Cr2NiO4.json")
         enumerator = MagneticStructureEnumerator(structure)
         assert enumerator.input_origin == "ferri_by_Cr"
 
         # antiferromagnetic on single magnetic site
-        structure = Structure.from_file(f"{TEST_FILES_DIR}/magnetic_orderings/Cr2WO6.json")
+        structure = Structure.from_file(f"{TEST_DIR}/Cr2WO6.json")
         enumerator = MagneticStructureEnumerator(structure)
         assert enumerator.input_origin == "afm_by_Cr"
 
@@ -268,7 +287,7 @@ class TestMagneticStructureEnumerator(unittest.TestCase):
         # assert enumerator.input_origin == "afm"
 
         # antiferromagnetic by structural motif
-        structure = Structure.from_file(f"{TEST_FILES_DIR}/magnetic_orderings/Ca3Co2O6.json")
+        structure = Structure.from_file(f"{TEST_DIR}/Ca3Co2O6.json")
         enumerator = MagneticStructureEnumerator(
             structure,
             strategies=("antiferromagnetic_by_motif",),
@@ -279,9 +298,9 @@ class TestMagneticStructureEnumerator(unittest.TestCase):
         assert enumerator.input_origin == "afm_by_motif_2a"
 
 
-class TestMagneticDeformation(unittest.TestCase):
+class TestMagneticDeformation:
     def test_magnetic_deformation(self):
-        test_structs = loadfn(f"{TEST_FILES_DIR}/magnetic_deformation.json")
+        test_structs = loadfn(f"{TEST_FILES_DIR}/analysis/magnetism/magnetic_deformation.json")
         mag_def = magnetic_deformation(test_structs[0], test_structs[1])
 
         assert mag_def.type == "NM-FM"

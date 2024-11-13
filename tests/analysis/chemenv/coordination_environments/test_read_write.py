@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import json
 
-from numpy.testing import assert_allclose, assert_array_almost_equal
+from numpy.testing import assert_allclose
 from pytest import approx
 
 from pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies import (
@@ -26,8 +26,8 @@ from pymatgen.util.testing import TEST_FILES_DIR, PymatgenTest
 
 __author__ = "waroquiers"
 
-json_dir = f"{TEST_FILES_DIR}/chemenv/json"
-struct_env_dir = f"{TEST_FILES_DIR}/chemenv/structure_environments"
+json_dir = f"{TEST_FILES_DIR}/analysis/chemenv/json"
+struct_env_dir = f"{TEST_FILES_DIR}/analysis/chemenv/structure_environments"
 
 
 class TestReadWriteChemenv(PymatgenTest):
@@ -48,7 +48,7 @@ class TestReadWriteChemenv(PymatgenTest):
             only_indices=atom_indices, maximum_distance_factor=2.25, get_from_hints=True
         )
 
-        with open(f"{self.tmp_path}/se.json", "w") as file:
+        with open(f"{self.tmp_path}/se.json", mode="w") as file:
             json.dump(se.as_dict(), file)
 
         with open(f"{self.tmp_path}/se.json") as file:
@@ -63,8 +63,12 @@ class TestReadWriteChemenv(PymatgenTest):
             structure_environments=se, strategy=strategy, valences="undefined"
         )
 
-        with open(f"{self.tmp_path}/lse.json", "w") as file:
-            json.dump(lse.as_dict(), file, default=lambda obj: getattr(obj, "tolist", lambda: obj)())
+        with open(f"{self.tmp_path}/lse.json", mode="w") as file:
+            json.dump(
+                lse.as_dict(),
+                file,
+                default=lambda obj: getattr(obj, "tolist", lambda: obj)(),
+            )
 
         with open(f"{self.tmp_path}/lse.json") as file:
             LightStructureEnvironments.from_dict(json.load(file))
@@ -72,10 +76,10 @@ class TestReadWriteChemenv(PymatgenTest):
         # assert lse == lse2
 
     def test_structure_environments_neighbors_sets(self):
-        with open(f"{struct_env_dir}/se_mp-7000.json") as f:
-            dd = json.load(f)
+        with open(f"{struct_env_dir}/se_mp-7000.json") as file:
+            dct = json.load(file)
 
-        struct_envs = StructureEnvironments.from_dict(dd)
+        struct_envs = StructureEnvironments.from_dict(dct)
 
         isite = 6
         nb_set = struct_envs.neighbors_sets[isite][4][0]
@@ -103,8 +107,8 @@ class TestReadWriteChemenv(PymatgenTest):
 
         neighb_coords = nb_set.coords
 
-        assert_array_almost_equal(coords, neighb_coords[1:])
-        assert_array_almost_equal(nb_set.structure[nb_set.isite].coords, neighb_coords[0])
+        assert_allclose(coords, neighb_coords[1:], atol=1e-6)
+        assert_allclose(nb_set.structure[nb_set.isite].coords, neighb_coords[0])
 
         norm_dist = nb_set.normalized_distances
         assert sorted(norm_dist) == approx(sorted([1.001792, 1.001792, 1, 1]))
@@ -226,7 +230,7 @@ class TestReadWriteChemenv(PymatgenTest):
 
         detailed_voronoi_container = DetailedVoronoiContainer(structure=struct, valences=valences)
 
-        with open(f"{self.tmp_path}/se.json", "w") as file:
+        with open(f"{self.tmp_path}/se.json", mode="w") as file:
             json.dump(detailed_voronoi_container.as_dict(), file)
 
         with open(f"{self.tmp_path}/se.json") as file:

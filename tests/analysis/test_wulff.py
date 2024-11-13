@@ -1,9 +1,7 @@
 from __future__ import annotations
 
 import json
-import os
 
-from numpy.testing import assert_array_equal
 from pytest import approx
 
 from pymatgen.analysis.wulff import WulffShape
@@ -11,7 +9,7 @@ from pymatgen.core.lattice import Lattice
 from pymatgen.core.structure import Structure
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
 from pymatgen.util.coord import in_coord_list
-from pymatgen.util.testing import PymatgenTest
+from pymatgen.util.testing import TEST_FILES_DIR, PymatgenTest
 
 __author__ = "Zihan Xu, Richard Tran, Balachandran Radhakrishnan"
 __copyright__ = "Copyright 2013, The Materials Virtual Lab"
@@ -20,11 +18,12 @@ __maintainer__ = "Zihan Xu"
 __email__ = "zix009@eng.ucsd.edu"
 __date__ = "May 05 2016"
 
+TEST_DIR = f"{TEST_FILES_DIR}/analysis/wulff"
+
 
 class TestWulffShape(PymatgenTest):
     def setUp(self):
-        module_dir = os.path.dirname(os.path.abspath(__file__))
-        with open(f"{module_dir}/surface_samples.json") as data_file:
+        with open(f"{TEST_DIR}/surface_samples.json") as data_file:
             surface_properties = json.load(data_file)
 
         surface_energies, miller_indices = {}, {}
@@ -75,9 +74,12 @@ class TestWulffShape(PymatgenTest):
 
         # Basic test to check figure contains a single Axes3D object
         for wulff in (self.wulff_Nb, self.wulff_Ir, self.wulff_Ti):
-            plt = wulff.get_plot()
-            assert len(plt.gcf().get_axes()) == 1
-            assert isinstance(plt.gcf().get_axes()[0], Axes3D)
+            ax_3d = wulff.get_plot()
+            assert isinstance(ax_3d, Axes3D)
+            assert len(ax_3d.collections) in (24, 74, 110)
+            assert ax_3d.get_title() == ""
+            assert ax_3d.get_xlabel() == "x"
+            assert ax_3d.get_ylabel() == "y"
 
     def test_get_plotly(self):
         # Basic test, not really a unittest.
@@ -86,9 +88,8 @@ class TestWulffShape(PymatgenTest):
         self.wulff_Ir.get_plotly()
 
     def symm_check(self, ucell, wulff_vertices):
-        """
-        # Checks if the point group of the Wulff shape matches
-        # the point group of its conventional unit cell.
+        """Check if the point group of the Wulff shape matches
+        the point group of its conventional unit cell.
 
         Args:
             ucell (str): Unit cell that the Wulff shape is based on.
@@ -96,7 +97,8 @@ class TestWulffShape(PymatgenTest):
                 shape. Use wulff.wulff_pt_list to obtain the list
                 (see wulff_generator.py).
 
-        return (bool)
+        Returns:
+            bool: True if the point group of the Wulff shape matches
         """
         space_group_analyzer = SpacegroupAnalyzer(ucell)
         symm_ops = space_group_analyzer.get_point_group_operations(cartesian=True)
@@ -128,12 +130,9 @@ class TestWulffShape(PymatgenTest):
 
         Nb_area_fraction_dict = self.wulff_Nb.area_fraction_dict
         for hkl in Nb_area_fraction_dict:
-            if hkl == (3, 1, 0):
-                assert Nb_area_fraction_dict[hkl] == 1
-            else:
-                assert Nb_area_fraction_dict[hkl] == 0
+            assert Nb_area_fraction_dict[hkl] == (1 if hkl == (3, 1, 0) else 0)
 
-        assert self.wulff_Nb.miller_energy_dict[(3, 1, 0)] == self.wulff_Nb.weighted_surface_energy
+        assert self.wulff_Nb.miller_energy_dict[3, 1, 0] == self.wulff_Nb.weighted_surface_energy
 
     def symmetry_test(self):
         # Maintains that all wulff shapes have the same point
@@ -160,7 +159,11 @@ class TestWulffShape(PymatgenTest):
         # Simple test to check if the values of some
         # properties are consistent with what we already have
 
-        wulff_shapes = {"mp-8636": self.wulff_Nb, "mp-72": self.wulff_Ti, "mp-101": self.wulff_Ir}
+        wulff_shapes = {
+            "mp-8636": self.wulff_Nb,
+            "mp-72": self.wulff_Ti,
+            "mp-101": self.wulff_Ir,
+        }
         for mp_id, wulff in wulff_shapes.items():
             properties = self.surface_properties[mp_id]
             assert round(wulff.weighted_surface_energy, 3) == round(properties["weighted_surface_energy"], 3)
@@ -169,7 +172,7 @@ class TestWulffShape(PymatgenTest):
 
     def test_corner_and_edges(self):
         # Test if it is returning the correct number of corner and edges
-        assert_array_equal(self.cube.tot_corner_sites, 8)
-        assert_array_equal(self.cube.tot_edges, 12)
-        assert_array_equal(self.hex_prism.tot_corner_sites, 12)
-        assert_array_equal(self.hex_prism.tot_edges, 18)
+        assert self.cube.tot_corner_sites == 8
+        assert self.cube.tot_edges == 12
+        assert self.hex_prism.tot_corner_sites == 12
+        assert self.hex_prism.tot_edges == 18

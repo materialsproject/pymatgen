@@ -1,7 +1,6 @@
 from __future__ import annotations
 
-import random
-import unittest
+from unittest import TestCase
 
 import numpy as np
 import pytest
@@ -17,7 +16,7 @@ class TestCoordUtils:
         x_vals = [0, 1, 2, 3, 4, 5]
         y_vals = [3, 6, 7, 8, 10, 12]
         assert coord.get_linear_interpolated_value(x_vals, y_vals, 3.6) == 9.2
-        with pytest.raises(ValueError, match="x is out of range of provided x_values"):
+        with pytest.raises(ValueError, match=r"x=6 is out of range of provided x_values \(0, 5\)"):
             coord.get_linear_interpolated_value(x_vals, y_vals, 6)
 
     def test_in_coord_list(self):
@@ -48,7 +47,10 @@ class TestCoordUtils:
         assert_allclose(a, b[inds])
         with pytest.raises(ValueError, match="not a subset of superset"):
             coord.coord_list_mapping([c1, c2], [c2, c3])
-        with pytest.raises(ValueError, match="Something wrong with the inputs, likely duplicates in superset"):
+        with pytest.raises(
+            ValueError,
+            match="Something wrong with the inputs, likely duplicates in superset",
+        ):
             coord.coord_list_mapping([c2], [c2, c2])
 
     def test_coord_list_mapping_pbc(self):
@@ -66,7 +68,10 @@ class TestCoordUtils:
         assert_allclose(diff, 0)
         with pytest.raises(ValueError, match="not a subset of superset"):
             coord.coord_list_mapping_pbc([c1, c2], [c2, c3])
-        with pytest.raises(ValueError, match="Something wrong with the inputs, likely duplicates in superset"):
+        with pytest.raises(
+            ValueError,
+            match="Something wrong with the inputs, likely duplicates in superset",
+        ):
             coord.coord_list_mapping_pbc([c2], [c2, c2])
         coord.coord_list_mapping_pbc([c1, c2], [c2, c1], pbc=(False, False, False))
         with pytest.raises(ValueError, match="not a subset of superset"):
@@ -91,9 +96,18 @@ class TestCoordUtils:
         assert_allclose(coord.pbc_diff([0.1, 0.1, 0.1], [0.3, 0.5, 0.9]), [-0.2, -0.4, 0.2])
         assert_allclose(coord.pbc_diff([0.9, 0.1, 1.01], [0.3, 0.5, 0.9]), [-0.4, -0.4, 0.11])
         assert_allclose(coord.pbc_diff([0.1, 0.6, 1.01], [0.6, 0.1, 0.9]), [-0.5, 0.5, 0.11])
-        assert_allclose(coord.pbc_diff([100.1, 0.2, 0.3], [0123123.4, 0.5, 502312.6]), [-0.3, -0.3, -0.3])
-        assert_allclose(coord.pbc_diff([0.1, 0.1, 0.1], [0.3, 0.5, 0.9], pbc=(True, True, False)), [-0.2, -0.4, -0.8])
-        assert_allclose(coord.pbc_diff([0.9, 0.1, 1.01], [0.3, 0.5, 0.9], pbc=(True, True, False)), [-0.4, -0.4, 0.11])
+        assert_allclose(
+            coord.pbc_diff([100.1, 0.2, 0.3], [0123123.4, 0.5, 502312.6]),
+            [-0.3, -0.3, -0.3],
+        )
+        assert_allclose(
+            coord.pbc_diff([0.1, 0.1, 0.1], [0.3, 0.5, 0.9], pbc=(True, True, False)),
+            [-0.2, -0.4, -0.8],
+        )
+        assert_allclose(
+            coord.pbc_diff([0.9, 0.1, 1.01], [0.3, 0.5, 0.9], pbc=(True, True, False)),
+            [-0.4, -0.4, 0.11],
+        )
 
     def test_in_coord_list_pbc(self):
         coords = [[0, 0, 0], [0.5, 0.5, 0.5]]
@@ -236,28 +250,25 @@ class TestCoordUtils:
         assert coord.get_angle(v1, v2, units="radians") == approx(0.9553166181245092)
 
 
-class TestSimplex(unittest.TestCase):
+class TestSimplex(TestCase):
     def setUp(self):
-        coords = []
-        coords.append([0, 0, 0])
-        coords.append([0, 1, 0])
-        coords.append([0, 0, 1])
-        coords.append([1, 0, 0])
+        coords = [[0, 0, 0], [0, 1, 0], [0, 0, 1], [1, 0, 0]]
         self.simplex = coord.Simplex(coords)
 
     def test_equal(self):
         c2 = list(self.simplex.coords)
-        random.shuffle(c2)
+        np.random.default_rng().shuffle(c2)
         assert coord.Simplex(c2) == self.simplex
 
     def test_in_simplex(self):
         assert self.simplex.in_simplex([0.1, 0.1, 0.1])
         assert not self.simplex.in_simplex([0.6, 0.6, 0.6])
+        rng = np.random.default_rng()
         for _ in range(10):
-            coord = np.random.random_sample(size=3) / 3
+            coord = rng.random(size=3) / 3
             assert self.simplex.in_simplex(coord)
 
-    def test_2dtriangle(self):
+    def test_2d_triangle(self):
         simplex = coord.Simplex([[0, 1], [1, 1], [1, 0]])
         assert_allclose(simplex.bary_coords([0.5, 0.5]), [0.5, 0, 0.5])
         assert_allclose(simplex.bary_coords([0.5, 1]), [0.5, 0.5, 0])
@@ -277,19 +288,19 @@ class TestSimplex(unittest.TestCase):
         assert repr(self.simplex).startswith("3-simplex in 4D space")
 
     def test_bary_coords(self):
-        s = coord.Simplex([[0, 2], [3, 1], [1, 0]])
+        simplex = coord.Simplex([[0, 2], [3, 1], [1, 0]])
         point = [0.7, 0.5]
-        bc = s.bary_coords(point)
+        bc = simplex.bary_coords(point)
         assert_allclose(bc, [0.26, -0.02, 0.76])
-        new_point = s.point_from_bary_coords(bc)
+        new_point = simplex.point_from_bary_coords(bc)
         assert_allclose(point, new_point)
 
     def test_intersection(self):
         # simple test, with 2 intersections at faces
-        s = coord.Simplex([[0, 2], [3, 1], [1, 0]])
+        simplex = coord.Simplex([[0, 2], [3, 1], [1, 0]])
         point1 = [0.7, 0.5]
         point2 = [0.5, 0.7]
-        intersections = s.line_intersection(point1, point2)
+        intersections = simplex.line_intersection(point1, point2)
         expected = np.array([[1.13333333, 0.06666667], [0.8, 0.4]])
         assert_allclose(intersections, expected)
 
@@ -297,14 +308,14 @@ class TestSimplex(unittest.TestCase):
         point1 = [0, 2]  # simplex point
         point2 = [1, 1]  # inside simplex
         expected = np.array([[1.66666667, 0.33333333], [0, 2]])
-        intersections = s.line_intersection(point1, point2)
+        intersections = simplex.line_intersection(point1, point2)
         assert_allclose(intersections, expected)
 
         # intersection through point only
         point1 = [0, 2]  # simplex point
         point2 = [0.5, 0.7]
         expected = np.array([[0, 2]])
-        intersections = s.line_intersection(point1, point2)
+        intersections = simplex.line_intersection(point1, point2)
         assert_allclose(intersections, expected)
 
         # 3d intersection through edge and face
@@ -325,21 +336,21 @@ class TestSimplex(unittest.TestCase):
         point1 = [-1, 2]
         point2 = [0, 0]
         expected = np.array([])
-        intersections = s.line_intersection(point1, point2)
+        intersections = simplex.line_intersection(point1, point2)
         assert_allclose(intersections, expected)
 
         # coplanar to face (with intersection line)
         point1 = [0, 2]  # simplex point
         point2 = [1, 0]
         expected = np.array([[1, 0], [0, 2]])
-        intersections = s.line_intersection(point1, point2)
+        intersections = simplex.line_intersection(point1, point2)
         assert_allclose(intersections, expected)
 
         # coplanar to face (with intersection points)
         point1 = [0.1, 2]
         point2 = [1.1, 0]
         expected = np.array([[1.08, 0.04], [0.12, 1.96]])
-        intersections = s.line_intersection(point1, point2)
+        intersections = simplex.line_intersection(point1, point2)
         assert_allclose(intersections, expected)
 
     def test_to_json(self):

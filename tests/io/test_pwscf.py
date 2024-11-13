@@ -8,6 +8,8 @@ from pytest import approx
 from pymatgen.io.pwscf import PWInput, PWInputError, PWOutput
 from pymatgen.util.testing import TEST_FILES_DIR, PymatgenTest
 
+TEST_DIR = f"{TEST_FILES_DIR}/io/pwscf"
+
 
 class TestPWInput(PymatgenTest):
     def test_init(self):
@@ -157,7 +159,13 @@ CELL_PARAMETERS angstrom
     def test_write_str_with_kpoints(self):
         struct = self.get_structure("Li2O")
         struct.remove_oxidation_states()
-        kpoints = [[0.0, 0.0, 0.0], [0.0, 0.5, 0.5], [0.5, 0.0, 0.0], [0.0, 0.0, 0.5], [0.5, 0.5, 0.5]]
+        kpoints = [
+            [0.0, 0.0, 0.0],
+            [0.0, 0.5, 0.5],
+            [0.5, 0.0, 0.0],
+            [0.0, 0.0, 0.5],
+            [0.5, 0.5, 0.5],
+        ]
         pw = PWInput(
             struct,
             control={"calculation": "scf", "pseudo_dir": "./"},
@@ -236,6 +244,7 @@ CELL_PARAMETERS angstrom
   smearing = 'cold'
 /
 &ELECTRONS
+  conv_thr = 5.3E-5,
 /
 &IONS
 /
@@ -298,13 +307,20 @@ O        0.833411466   0.499764601   0.833411466
 O        0.833534457   0.833534457   0.166465543
 O        0.833411466   0.833411466   0.499764601
 O        0.833411466   0.833411466   0.833411466
-K_POINTS gamma
+K_POINTS automatic
+  4 4 4 1 1 1
 CELL_PARAMETERS angstrom
   0.000000 6.373854 6.373854
   6.373854 0.000000 6.373854
   6.373854 6.373854 0.000000
         """
-        lattice = np.array([[0.0, 6.373854, 6.373854], [6.373854, 0.0, 6.373854], [6.373854, 6.373854, 0.0]])
+        lattice = np.array(
+            [
+                [0.0, 6.373854, 6.373854],
+                [6.373854, 0.0, 6.373854],
+                [6.373854, 6.373854, 0.0],
+            ]
+        )
 
         sites = np.array(
             [
@@ -364,25 +380,176 @@ CELL_PARAMETERS angstrom
             ]
         )
 
-        pwin = PWInput.from_str(string)
+        pw_in = PWInput.from_str(string)
 
         # generate list of coords
-        pw_sites = np.array([list(site.coords) for site in pwin.structure])
+        pw_sites = np.array([list(site.coords) for site in pw_in.structure])
 
         assert_allclose(sites, pw_sites)
 
-        assert_allclose(lattice, pwin.structure.lattice.matrix)
-        assert pwin.sections["system"]["smearing"] == "cold"
+        assert_allclose(lattice, pw_in.structure.lattice.matrix)
+        assert pw_in.sections["system"]["smearing"] == "cold"
+        assert pw_in.sections["electrons"]["conv_thr"] == 5.3e-5
+        assert pw_in.kpoints_mode == "automatic"
+        assert pw_in.kpoints_grid == (4, 4, 4)
+        assert pw_in.kpoints_shift == (1, 1, 1)
+
+    def test_write_and_read_str(self):
+        struct = self.get_structure("Graphite")
+        struct.remove_oxidation_states()
+        pw = PWInput(
+            struct,
+            pseudo={"C": "C.pbe-n-kjpaw_psl.1.0.0.UPF"},
+            control={"calculation": "scf", "pseudo_dir": "./"},
+            system={"ecutwfc": 45},
+            kpoints_grid=(4, 4, 4),
+            kpoints_shift=(1, 1, 1),
+        )
+        pw_str = str(pw)
+        assert pw_str.strip() == str(PWInput.from_str(pw_str)).strip()
+
+    def test_write_and_read_str_with_oxidation(self):
+        struct = self.get_structure("Li2O")
+        pw = PWInput(
+            struct,
+            control={"calculation": "scf", "pseudo_dir": "./"},
+            pseudo={
+                "Li+": "Li.pbe-n-kjpaw_psl.0.1.UPF",
+                "O2-": "O.pbe-n-kjpaw_psl.0.1.UPF",
+            },
+            system={"ecutwfc": 50},
+        )
+        pw_str = str(pw)
+        assert pw_str.strip() == str(PWInput.from_str(pw_str)).strip()
+
+    def test_custom_decimal_precision_and_indent(self):
+        struct = self.get_structure("Li2O")
+        pw = PWInput(
+            struct,
+            control={"calculation": "scf", "pseudo_dir": "./"},
+            pseudo={
+                "Li+": "Li.pbe-n-kjpaw_psl.0.1.UPF",
+                "O2-": "O.pbe-n-kjpaw_psl.0.1.UPF",
+            },
+            system={"ecutwfc": 50},
+            format_options={"coord_decimals": 9, "indent": 0},
+        )
+        expected = """&CONTROL
+calculation = 'scf',
+pseudo_dir = './',
+/
+&SYSTEM
+ecutwfc = 50,
+ibrav = 0,
+nat = 3,
+ntyp = 2,
+/
+&ELECTRONS
+/
+&IONS
+/
+&CELL
+/
+ATOMIC_SPECIES
+Li+  6.9410 Li.pbe-n-kjpaw_psl.0.1.UPF
+O2-  15.9994 O.pbe-n-kjpaw_psl.0.1.UPF
+ATOMIC_POSITIONS crystal
+O2- 0.000000000 0.000000000 0.000000000
+Li+ 0.750178290 0.750178290 0.750178290
+Li+ 0.249821710 0.249821710 0.249821710
+K_POINTS automatic
+1 1 1 0 0 0
+CELL_PARAMETERS angstrom
+2.917388570 0.097894370 1.520004660
+0.964634060 2.755035610 1.520004660
+0.133206350 0.097894430 3.286917710
+"""
+        assert str(pw).strip() == expected.strip()
+
+    def test_custom_decimal_precision_kpoint_grid_crystal_b(self):
+        struct = self.get_structure("Li2O")
+        struct.remove_oxidation_states()
+        kpoints = [
+            [0.0, 0.0, 0.0],
+            [0.0, 0.5, 0.5],
+            [0.5, 0.0, 0.0],
+            [0.0, 0.0, 0.5],
+            [0.5, 0.5, 0.5],
+        ]
+        pw = PWInput(
+            struct,
+            control={"calculation": "scf", "pseudo_dir": "./"},
+            pseudo={
+                "Li": "Li.pbe-n-kjpaw_psl.0.1.UPF",
+                "O": "O.pbe-n-kjpaw_psl.0.1.UPF",
+            },
+            system={"ecutwfc": 50},
+            kpoints_mode="crystal_b",
+            kpoints_grid=kpoints,
+            format_options={"kpoints_crystal_b_indent": 2},
+        )
+        expected = """
+&CONTROL
+  calculation = 'scf',
+  pseudo_dir = './',
+/
+&SYSTEM
+  ecutwfc = 50,
+  ibrav = 0,
+  nat = 3,
+  ntyp = 2,
+/
+&ELECTRONS
+/
+&IONS
+/
+&CELL
+/
+ATOMIC_SPECIES
+  Li  6.9410 Li.pbe-n-kjpaw_psl.0.1.UPF
+  O  15.9994 O.pbe-n-kjpaw_psl.0.1.UPF
+ATOMIC_POSITIONS crystal
+  O 0.000000 0.000000 0.000000
+  Li 0.750178 0.750178 0.750178
+  Li 0.249822 0.249822 0.249822
+K_POINTS crystal_b
+  5
+  0.0000 0.0000 0.0000
+  0.0000 0.5000 0.5000
+  0.5000 0.0000 0.0000
+  0.0000 0.0000 0.5000
+  0.5000 0.5000 0.5000
+CELL_PARAMETERS angstrom
+  2.917389 0.097894 1.520005
+  0.964634 2.755036 1.520005
+  0.133206 0.097894 3.286918
+"""
+        assert str(pw).strip() == expected.strip()
+
+    def test_custom_decimal_precision_write_and_read_str(self):
+        struct = self.get_structure("Li2O")
+        pw = PWInput(
+            struct,
+            control={"calculation": "scf", "pseudo_dir": "./"},
+            pseudo={
+                "Li+": "Li.pbe-n-kjpaw_psl.0.1.UPF",
+                "O2-": "O.pbe-n-kjpaw_psl.0.1.UPF",
+            },
+            system={"ecutwfc": 50},
+            format_options={"coord_decimals": 9},
+        )
+        pw_str = str(pw)
+        assert pw_str.strip() == str(PWInput.from_str(pw_str)).strip()
 
 
-class TestPWOuput(PymatgenTest):
+class TestPWOutput(PymatgenTest):
     def setUp(self):
-        self.pwout = PWOutput(f"{TEST_FILES_DIR}/Si.pwscf.out")
+        self.pw_out = PWOutput(f"{TEST_DIR}/Si.pwscf.out")
 
     def test_properties(self):
-        assert self.pwout.final_energy == approx(-93.45259708)
+        assert self.pw_out.final_energy == approx(-93.45259708)
 
     def test_get_celldm(self):
-        assert self.pwout.get_celldm(1) == approx(10.323)
+        assert self.pw_out.get_celldm(1) == approx(10.323)
         for i in range(2, 7):
-            assert self.pwout.get_celldm(i) == approx(0)
+            assert self.pw_out.get_celldm(i) == approx(0)

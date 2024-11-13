@@ -1,16 +1,15 @@
 from __future__ import annotations
 
-import random
-import unittest
+from unittest import TestCase
 
+import numpy as np
 import pytest
 
-from pymatgen.core.composition import Composition
+from pymatgen.core import Composition, Element
 from pymatgen.core.ion import Ion
-from pymatgen.core.periodic_table import Element
 
 
-class TestIon(unittest.TestCase):
+class TestIon(TestCase):
     def setUp(self):
         self.comp = []
         self.comp.append(Ion.from_formula("Li+"))
@@ -24,12 +23,12 @@ class TestIon(unittest.TestCase):
         self.comp.append(Ion.from_formula("NaOH(aq)"))
 
     def test_init(self):
-        c = Composition({"Fe": 4, "O": 16, "P": 4})
+        comp = Composition({"Fe": 4, "O": 16, "P": 4})
         charge = 4
-        assert Ion(c, charge).formula == "Fe4 P4 O16 +4"
-        f = {1: 1, 8: 1}
+        assert Ion(comp, charge).formula == "Fe4 P4 O16 +4"
+        formula_dict = {1: 1, 8: 1}
         charge = -1
-        assert Ion(Composition(f), charge).formula == "H1 O1 -1"
+        assert Ion(Composition(formula_dict), charge).formula == "H1 O1 -1"
         assert Ion(Composition(S=2, O=3), -2).formula == "S2 O3 -2"
 
     def test_charge_from_formula(self):
@@ -40,6 +39,8 @@ class TestIon(unittest.TestCase):
         assert Ion.from_formula("Ca++").charge == 2
         assert Ion.from_formula("Ca[++]").charge == 2
         assert Ion.from_formula("Ca2+").charge == 1
+        assert Ion.from_formula("C2O4-2").charge == -2
+        assert Ion.from_formula("CO2").charge == 0
 
         assert Ion.from_formula("Cl-").charge == -1
         assert Ion.from_formula("Cl[-]").charge == -1
@@ -48,6 +49,7 @@ class TestIon(unittest.TestCase):
         assert Ion.from_formula("SO42-").charge == -1
         assert Ion.from_formula("SO4--").charge == -2
         assert Ion.from_formula("SO4[--]").charge == -2
+        assert Ion.from_formula("N3-").charge == -1
 
         assert Ion.from_formula("Na[+-+]").charge == 1
 
@@ -56,31 +58,45 @@ class TestIon(unittest.TestCase):
             ("Cl-", "Cl[-1]"),
             ("H+", "H[+1]"),
             ("F-", "F[-1]"),
+            ("I-", "I[-1]"),
             ("F2", "F2(aq)"),
             ("H2", "H2(aq)"),
             ("O3", "O3(aq)"),
             ("O2", "O2(aq)"),
             ("N2", "N2(aq)"),
+            ("NaOH", "NaOH(aq)"),
             ("H4O4", "H2O2(aq)"),
             ("OH-", "OH[-1]"),
+            ("H2PO4-", "H2PO4[-1]"),
             ("CH3COO-", "CH3COO[-1]"),
             ("CH3COOH", "CH3COOH(aq)"),
             ("CH3OH", "CH3OH(aq)"),
             ("H4CO", "CH3OH(aq)"),
+            ("C2O4--", "C2O4[-2]"),
+            ("CO2", "CO2(aq)"),
+            ("CO3--", "CO3[-2]"),
+            ("CH4", "CH4(aq)"),
+            ("NH4+", "NH4[+1]"),
+            ("NH3", "NH3(aq)"),
+            ("N3-", "N3[-1]"),
+            ("HCOO-", "HCO2[-1]"),
             ("C2H6O", "C2H5OH(aq)"),
             ("C3H8O", "C3H7OH(aq)"),
             ("C4H10O", "C4H9OH(aq)"),
-            ("Fe(OH)4+", "FeO2.2H2O[+1]"),
-            ("Zr(OH)4", "ZrO2.2H2O(aq)"),
+            ("Fe(OH)4+", "Fe(OH)4[+1]"),
+            ("Zr(OH)4", "Zr(OH)4(aq)"),
         ]
-
         for tup in special_formulas:
-            assert Ion.from_formula(tup[0]).reduced_formula == tup[1]
+            assert (
+                Ion.from_formula(tup[0]).reduced_formula == tup[1]
+            ), f"Expected {tup[1]} but got {Ion.from_formula(tup[0]).reduced_formula}"
 
-        assert Ion.from_formula("Fe(OH)4+").get_reduced_formula_and_factor(hydrates=False) == ("Fe(OH)4", 1)
-        assert Ion.from_formula("Zr(OH)4").get_reduced_formula_and_factor(hydrates=False) == ("Zr(OH)4", 1)
+        assert Ion.from_formula("Fe(OH)4+").get_reduced_formula_and_factor(hydrates=True) == ("FeO2.2H2O", 1)
         assert Ion.from_formula("Zr(OH)4").get_reduced_formula_and_factor(hydrates=True) == ("ZrO2.2H2O", 1)
-        assert Ion.from_formula("O").get_reduced_formula_and_factor(hydrates=False) == ("O", 1)
+        assert Ion.from_formula("O").get_reduced_formula_and_factor(hydrates=False) == (
+            "O",
+            1,
+        )
         assert Ion.from_formula("O2").get_reduced_formula_and_factor(hydrates=False) == ("O2", 1)
         assert Ion.from_formula("O3").get_reduced_formula_and_factor(hydrates=False) == ("O3", 1)
         assert Ion.from_formula("O6").get_reduced_formula_and_factor(hydrates=False) == ("O3", 2)
@@ -110,9 +126,9 @@ class TestIon(unittest.TestCase):
         assert comp.formula == "Li8 Fe6 (aq)"
 
     def test_oxi_state_guesses(self):
-        i = Ion.from_formula("SO4-2")
-        assert i.oxi_state_guesses()[0].get("S") == 6
-        assert i.oxi_state_guesses()[0].get("O") == -2
+        ion = Ion.from_formula("SO4-2")
+        assert ion.oxi_state_guesses()[0].get("S") == 6
+        assert ion.oxi_state_guesses()[0].get("O") == -2
 
     def test_alphabetical_formula(self):
         correct_formulas = [
@@ -131,8 +147,8 @@ class TestIon(unittest.TestCase):
 
     def test_num_atoms(self):
         correct_num_atoms = [1, 5, 1, 4, 13, 13, 72, 1, 3]
-        all_natoms = [c.num_atoms for c in self.comp]
-        assert all_natoms == correct_num_atoms
+        all_n_atoms = [c.num_atoms for c in self.comp]
+        assert all_n_atoms == correct_num_atoms
 
     def test_anonymized_formula(self):
         expected_formulas = [
@@ -146,34 +162,35 @@ class TestIon(unittest.TestCase):
             "A+2",
             "ABC(aq)",
         ]
-        for i, _ in enumerate(self.comp):
-            assert self.comp[i].anonymized_formula == expected_formulas[i]
+        for idx, expected in enumerate(expected_formulas):
+            assert self.comp[idx].anonymized_formula == expected
 
     def test_from_dict(self):
         sym_dict = {"P": 1, "O": 4, "charge": -2}
         assert Ion.from_dict(sym_dict).reduced_formula == "PO4[-2]", "Creation form sym_amount dictionary failed!"
 
     def test_as_dict(self):
-        c = Ion.from_dict({"Mn": 1, "O": 4, "charge": -1})
-        d = c.as_dict()
+        ion = Ion.from_dict({"Mn": 1, "O": 4, "charge": -1})
+        dct = ion.as_dict()
         correct_dict = {"Mn": 1.0, "O": 4.0, "charge": -1.0}
-        assert d == correct_dict
-        assert d["charge"] == correct_dict["charge"]
+        assert dct == correct_dict
+        assert dct["charge"] == correct_dict["charge"]
         correct_dict = {"Mn": 1.0, "O": 4.0, "charge": -1}
-        d = c.to_reduced_dict
-        assert d == correct_dict
-        assert d["charge"] == correct_dict["charge"]
+        dct = ion.to_reduced_dict
+        assert dct == correct_dict
+        assert dct["charge"] == correct_dict["charge"]
 
     def test_equals(self):
-        random_z = random.randint(1, 92)
+        rng = np.random.default_rng()
+        random_z = rng.integers(1, 93)
         fixed_el = Element.from_Z(random_z)
-        other_z = random.randint(1, 92)
+        other_z = rng.integers(1, 93)
         while other_z == random_z:
-            other_z = random.randint(1, 92)
+            other_z = rng.integers(1, 93)
         comp1 = Ion(Composition({fixed_el: 1, Element.from_Z(other_z): 0}), 1)
-        other_z = random.randint(1, 92)
+        other_z = rng.integers(1, 93)
         while other_z == random_z:
-            other_z = random.randint(1, 92)
+            other_z = rng.integers(1, 93)
         comp2 = Ion(Composition({fixed_el: 1, Element.from_Z(other_z): 0}), 1)
         assert comp1 == comp2, f"Composition equality test failed. {comp1.formula} should be equal to {comp2.formula}"
         assert hash(comp1) == hash(comp2), "Hash equality test failed!"

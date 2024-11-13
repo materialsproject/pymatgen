@@ -2,12 +2,12 @@ from __future__ import annotations
 
 import json
 import os
-import unittest
 from shutil import which
+from unittest import TestCase
 
 import matplotlib.pyplot as plt
 import numpy as np
-import scipy
+import pytest
 from matplotlib import rc
 from numpy.testing import assert_allclose
 from pytest import approx
@@ -30,13 +30,17 @@ from pymatgen.electronic_structure.plotter import (
     plot_ellipsoid,
 )
 from pymatgen.io.vasp import Vasprun
-from pymatgen.util.testing import TEST_FILES_DIR, PymatgenTest
+from pymatgen.util.testing import TEST_FILES_DIR, VASP_IN_DIR, VASP_OUT_DIR, PymatgenTest
+
+BAND_TEST_DIR = f"{TEST_FILES_DIR}/electronic_structure/bandstructure"
+
+rc("text", usetex=False)  # Disabling latex is needed for this test to work.
 
 
 class TestDosPlotter(PymatgenTest):
     def setUp(self):
-        with open(f"{TEST_FILES_DIR}/complete_dos.json") as f:
-            self.dos = CompleteDos.from_dict(json.load(f))
+        with open(f"{BAND_TEST_DIR}/../dos/complete_dos.json") as file:
+            self.dos = CompleteDos.from_dict(json.load(file))
             self.plotter = DosPlotter(sigma=0.2, stack=True)
 
     def test_add_dos_dict(self):
@@ -54,8 +58,6 @@ class TestDosPlotter(PymatgenTest):
     # Minimal baseline testing for get_plot. not a true test. Just checks that
     # it can actually execute.
     def test_get_plot(self):
-        # Disabling latex is needed for this test to work.
-        rc("text", usetex=False)
         self.plotter.add_dos_dict(self.dos.get_element_dos(), key_sort_func=lambda x: x.X)
         ax = self.plotter.get_plot()
         assert len(ax.lines) == 2
@@ -66,13 +68,10 @@ class TestDosPlotter(PymatgenTest):
     def test_get_plot_limits(self):
         # Tests limit determination and if inverted_axes case
         # reproduces the same energy and DOS axis limits
-        from matplotlib import rc
-
-        rc("text", usetex=False)
         self.plotter.add_dos_dict(self.dos.get_element_dos(), key_sort_func=lambda x: x.X)
         # Contains energy and DOS limits and expected results
-        with open(f"{TEST_FILES_DIR}/complete_dos_limits.json") as f:
-            limits_results = json.load(f)
+        with open(f"{BAND_TEST_DIR}/../plotter/complete_dos_limits.json") as file:
+            limits_results = json.load(file)
 
         for item in limits_results:
             ax = self.plotter.get_plot(xlim=item["energy_limit"], ylim=item["DOS_limit"])
@@ -86,25 +85,28 @@ class TestDosPlotter(PymatgenTest):
 
     @staticmethod
     def get_plot_attributes(ax: plt.Axes):
-        return {"xaxis_limits": list(ax.get_xlim()), "yaxis_limits": list(ax.get_ylim())}
+        return {
+            "xaxis_limits": list(ax.get_xlim()),
+            "yaxis_limits": list(ax.get_ylim()),
+        }
 
 
-class TestBSPlotter(unittest.TestCase):
+class TestBSPlotter(PymatgenTest):
     def setUp(self):
-        with open(f"{TEST_FILES_DIR}/CaO_2605_bandstructure.json") as f:
-            d = json.loads(f.read())
-            self.bs = BandStructureSymmLine.from_dict(d)
+        with open(f"{BAND_TEST_DIR}/CaO_2605_bandstructure.json") as file:
+            dct = json.loads(file.read())
+            self.bs = BandStructureSymmLine.from_dict(dct)
             self.plotter = BSPlotter(self.bs)
 
         assert len(self.plotter._bs) == 1, "wrong number of band objects"
 
-        with open(f"{TEST_FILES_DIR}/N2_12103_bandstructure.json") as f:
-            d = json.loads(f.read())
-            self.sbs_sc = BandStructureSymmLine.from_dict(d)
+        with open(f"{BAND_TEST_DIR}/N2_12103_bandstructure.json") as file:
+            dct = json.loads(file.read())
+            self.sbs_sc = BandStructureSymmLine.from_dict(dct)
 
-        with open(f"{TEST_FILES_DIR}/C_48_bandstructure.json") as f:
-            d = json.loads(f.read())
-            self.sbs_met = BandStructureSymmLine.from_dict(d)
+        with open(f"{BAND_TEST_DIR}/C_48_bandstructure.json") as file:
+            dct = json.loads(file.read())
+            self.sbs_met = BandStructureSymmLine.from_dict(dct)
 
         self.plotter_multi = BSPlotter([self.sbs_sc, self.sbs_met])
         assert len(self.plotter_multi._bs) == 2, "wrong number of band objects"
@@ -127,9 +129,9 @@ class TestBSPlotter(unittest.TestCase):
 
     def test_interpolate_bands(self):
         data = self.plotter.bs_plot_data()
-        d = data["distances"]
+        dct = data["distances"]
         en = data["energy"]["1"]
-        int_distances, int_energies = self.plotter._interpolate_bands(d, en)
+        int_distances, int_energies = self.plotter._interpolate_bands(dct, en)
 
         assert len(int_distances) == 10, "wrong length of distances list"
         assert len(int_distances[0]) == 100, "wrong length of distances in a branch"
@@ -141,7 +143,7 @@ class TestBSPlotter(unittest.TestCase):
         assert (
             len(self.plotter.bs_plot_data()["distances"][0]) == 16
         ), "wrong number of distances in the first sequence of branches"
-        assert sum(len(e) for e in self.plotter.bs_plot_data()["distances"]) == 160, "wrong number of distances"
+        assert sum(len(dist) for dist in self.plotter.bs_plot_data()["distances"]) == 160, "wrong number of distances"
 
         length = len(self.plotter.bs_plot_data(split_branches=False)["distances"][0])
         assert length == 144, "wrong number of distances in the first sequence of branches"
@@ -154,7 +156,7 @@ class TestBSPlotter(unittest.TestCase):
 
     def test_get_ticks(self):
         assert self.plotter.get_ticks()["label"][5] == "K", "wrong tick label"
-        assert self.plotter.get_ticks()["distance"][5] == 2.406607625322699, "wrong tick distance"
+        assert self.plotter.get_ticks()["distance"][5] == pytest.approx(2.406607625322699), "wrong tick distance"
 
     # Minimal baseline testing for get_plot. not a true test. Just checks that
     # it can actually execute.
@@ -162,18 +164,12 @@ class TestBSPlotter(unittest.TestCase):
         # zero_to_efermi = True, ylim = None, smooth = False,
         # vbm_cbm_marker = False, smooth_tol = None
 
-        # Disabling latex is needed for this test to work.
-        from matplotlib import rc
-
-        rc("text", usetex=False)
-
         ax = self.plotter.get_plot()
         assert ax.get_ylim() == (-4.0, 7.6348), "wrong ylim"
         ax = self.plotter.get_plot(smooth=True)
         ax = self.plotter.get_plot(vbm_cbm_marker=True)
-        self.plotter.save_plot("bsplot.png")
-        assert os.path.isfile("bsplot.png")
-        os.remove("bsplot.png")
+        self.plotter.save_plot(f"{self.tmp_path}/bsplot.png")
+        assert os.path.isfile(f"{self.tmp_path}/bsplot.png")
         plt.close("all")
 
         # test plotter with 2 bandstructures
@@ -183,38 +179,51 @@ class TestBSPlotter(unittest.TestCase):
         ax = self.plotter_multi.get_plot(zero_to_efermi=False)
         assert ax.get_ylim() == (-15.2379, 12.67141266), "wrong ylim"
         ax = self.plotter_multi.get_plot(smooth=True)
-        self.plotter_multi.save_plot("bsplot.png")
-        assert os.path.isfile("bsplot.png")
-        os.remove("bsplot.png")
+        self.plotter_multi.save_plot(f"{self.tmp_path}/bsplot.png")
+        assert os.path.isfile(f"{self.tmp_path}/bsplot.png")
         plt.close("all")
 
 
-class TestBSPlotterProjected(unittest.TestCase):
+class TestBSPlotterProjected(TestCase):
     def setUp(self):
-        with open(f"{TEST_FILES_DIR}/Cu2O_361_bandstructure.json") as f:
-            d = json.load(f)
-            self.bs = BandStructureSymmLine.from_dict(d)
-            self.plotter = BSPlotterProjected(self.bs)
+        with open(f"{BAND_TEST_DIR}/Cu2O_361_bandstructure.json") as file:
+            self.bs_Cu2O = BandStructureSymmLine.from_dict(json.load(file))
+        self.plotter_Cu2O = BSPlotterProjected(self.bs_Cu2O)
 
-    # Minimal baseline testing for get_plot. not a true test. Just checks that
-    # it can actually execute.
+        with open(f"{TEST_FILES_DIR}/electronic_structure/boltztrap2/PbTe_bandstructure.json") as file:
+            self.bs_PbTe = BandStructureSymmLine.from_dict(json.load(file))
+
     def test_methods(self):
-        self.plotter.get_elt_projected_plots()
-        self.plotter.get_elt_projected_plots_color()
-        self.plotter.get_projected_plots_dots({"Cu": ["d", "s"], "O": ["p"]})
-        self.plotter.get_projected_plots_dots_patom_pmorb(
+        # Minimal baseline testing for get_plot. not a true test. Just checks that
+        # it can actually execute.
+        self.plotter_Cu2O.get_elt_projected_plots()
+        self.plotter_Cu2O.get_elt_projected_plots_color()
+        axes = self.plotter_Cu2O.get_projected_plots_dots({"Cu": ["d", "s"], "O": ["p"]})
+        assert len(axes) == 4, f"{len(axes)=}"
+        assert len(axes[0].get_lines()) == 4903, f"{len(axes[0].get_lines())=}"
+        assert len(axes[-1].get_lines()) == 0, f"{len(axes[-1].get_lines())=}"
+        ax = self.plotter_Cu2O.get_projected_plots_dots_patom_pmorb(
             {"Cu": ["dxy", "s", "px"], "O": ["px", "py", "pz"]},
             {"Cu": [3, 5], "O": [1]},
         )
+        assert isinstance(ax, plt.Axes)
+        assert len(ax.get_lines()) == 44_127
+        assert ax.get_ylim() == pytest.approx((-4.0, 4.5047))
+
+        with pytest.raises(
+            ValueError,
+            match="Can't plot projections on a band structure without projections data",
+        ):
+            BSPlotterProjected(self.bs_PbTe)
 
 
-class TestBSDOSPlotter(unittest.TestCase):
+class TestBSDOSPlotter:
     # Minimal baseline testing for get_plot. not a true test. Just checks that
     # it can actually execute.
     def test_methods(self):
-        vasp_run = Vasprun(f"{TEST_FILES_DIR}/vasprun_Si_bands.xml")
+        vasp_run = Vasprun(f"{VASP_OUT_DIR}/vasprun_Si_bands.xml.gz")
         plotter = BSDOSPlotter()
-        band_struct = vasp_run.get_band_structure(kpoints_filename=f"{TEST_FILES_DIR}/KPOINTS_Si_bands")
+        band_struct = vasp_run.get_band_structure(kpoints_filename=f"{VASP_IN_DIR}/KPOINTS_Si_bands")
         ax = plotter.get_plot(band_struct)
         assert isinstance(ax, plt.Axes)
         plt.close()
@@ -223,33 +232,34 @@ class TestBSDOSPlotter(unittest.TestCase):
         assert isinstance(dos_ax, plt.Axes)
         plt.close("all")
 
-        with open(f"{TEST_FILES_DIR}/SrBa2Sn2O7.json") as f:
-            band_struct_dict = json.load(f)
+        with open(f"{TEST_FILES_DIR}/electronic_structure/plotter/SrBa2Sn2O7.json") as file:
+            band_struct_dict = json.load(file)
         # generate random projections
         data_structure = [[[[0 for _ in range(12)] for _ in range(9)] for _ in range(70)] for _ in range(90)]
         band_struct_dict["projections"]["1"] = data_structure
-        d = band_struct_dict["projections"]["1"]
-        for i in range(len(d)):
-            for j in range(len(d[i])):
-                for k in range(len(d[i][j])):
-                    for m in range(len(d[i][j][k])):
-                        d[i][j][k][m] = 0
-                        # d[i][j][k][m] = np.random.rand()
+        dct = band_struct_dict["projections"]["1"]
+        rng = np.random.default_rng()
+        for ii in range(len(dct)):
+            for jj in range(len(dct[ii])):
+                for kk in range(len(dct[ii][jj])):
+                    for ll in range(len(dct[ii][jj][kk])):
+                        dct[ii][jj][kk][ll] = 0
+                        # d[i][j][k][m] = rng.random()
                     # generate random number for two atoms
-                    a = np.random.randint(0, 7)
-                    b = np.random.randint(0, 7)
-                    # c = np.random.randint(0,7)
-                    d[i][j][k][a] = np.random.rand()
-                    d[i][j][k][b] = np.random.rand()
-                    # d[i][j][k][c] = np.random.rand()
+                    a = rng.integers(0, 7)
+                    b = rng.integers(0, 7)
+                    # c = rng.integers(0, 7)
+                    dct[ii][jj][kk][a] = rng.random()
+                    dct[ii][jj][kk][b] = rng.random()
+                    # d[i][j][k][c] = rng.random()
         band_struct = BandStructureSymmLine.from_dict(band_struct_dict)
         ax = plotter.get_plot(band_struct)
         assert isinstance(ax, plt.Axes)
 
 
-class TestPlotBZ(unittest.TestCase):
+class TestPlotBZ(TestCase):
     def setUp(self):
-        self.rec_latt = Structure.from_file(f"{TEST_FILES_DIR}/Si.cssr").lattice.reciprocal_lattice
+        self.rec_latt = Structure.from_file(f"{TEST_FILES_DIR}/io/cssr/Si.cssr").lattice.reciprocal_lattice
         self.kpath = [[[0.0, 0.0, 0.0], [0.5, 0.0, 0.5], [0.5, 0.25, 0.75], [0.375, 0.375, 0.75]]]
         self.labels = {
             "\\Gamma": [0.0, 0.0, 0.0],
@@ -279,18 +289,21 @@ class TestPlotBZ(unittest.TestCase):
         )
 
     def test_fold_point(self):
-        assert scipy.allclose(
+        assert_allclose(
             fold_point([0.0, -0.5, 0.5], lattice=self.rec_latt),
             self.rec_latt.get_cartesian_coords([0.0, 0.5, 0.5]),
+            atol=1e-8,
         )
-        assert scipy.allclose(
+        assert_allclose(
             fold_point([0.1, -0.6, 0.2], lattice=self.rec_latt),
             self.rec_latt.get_cartesian_coords([0.1, 0.4, 0.2]),
+            atol=1e-8,
         )
 
 
-@unittest.skipIf(not which("x_trans"), "No x_trans executable found")
-class TestBoltztrapPlotter(unittest.TestCase):
+@pytest.mark.skip("TODO: need someone to fix this")
+@pytest.mark.skipif(not which("x_trans"), reason="No x_trans executable found")
+class TestBoltztrapPlotter(TestCase):
     def setUp(self):
         bz = BoltztrapAnalyzer.from_files(f"{TEST_FILES_DIR}/boltztrap/transp/")
         self.plotter = BoltztrapPlotter(bz)
@@ -303,6 +316,7 @@ class TestBoltztrapPlotter(unittest.TestCase):
         plt.close()
 
     def test_plot_complexity_factor_mu(self):
+        pytest.importorskip("fdint")
         ax = self.plotter.plot_complexity_factor_mu()
         assert len(ax.get_lines()) == 2, "wrong number of lines"
         assert ax.get_lines()[0].get_data()[0][0] == -2.0702422655947665, "wrong 0 data in line 0"
@@ -387,6 +401,7 @@ class TestBoltztrapPlotter(unittest.TestCase):
         plt.close()
 
     def test_plot_seebeck_eff_mass_mu(self):
+        pytest.importorskip("fdint")
         ax = self.plotter.plot_seebeck_eff_mass_mu()
         assert len(ax.get_lines()) == 2, "wrong number of lines"
         assert ax.get_lines()[0].get_data()[0][0] == -2.0702422655947665, "wrong 0 data in line 0"
@@ -431,12 +446,12 @@ class TestBoltztrapPlotter(unittest.TestCase):
 
 class TestCohpPlotter(PymatgenTest):
     def setUp(self):
-        path = f"{TEST_FILES_DIR}/cohp/complete_cohp_lobster.json"
-        with open(os.path.join(path)) as f:
-            self.cohp = CompleteCohp.from_dict(json.load(f))
-        path = f"{TEST_FILES_DIR}/cohp/complete_coop_lobster.json"
-        with open(os.path.join(path)) as f:
-            self.coop = CompleteCohp.from_dict(json.load(f))
+        path = f"{TEST_FILES_DIR}/electronic_structure/cohp/complete_cohp_lobster.json"
+        with open(path) as file:
+            self.cohp = CompleteCohp.from_dict(json.load(file))
+        path = f"{TEST_FILES_DIR}/electronic_structure/cohp/complete_coop_lobster.json"
+        with open(path) as file:
+            self.coop = CompleteCohp.from_dict(json.load(file))
         self.cohp_plot = CohpPlotter(zero_at_efermi=False)
         self.coop_plot = CohpPlotter(are_coops=True)
 
@@ -489,14 +504,14 @@ class TestCohpPlotter(PymatgenTest):
         assert ax_cohp.lines[1].get_linestyle() == "--"
         for label in legend_labels:
             assert label in self.cohp_plot._cohps
-        linesindex = legend_labels.index("1")
-        linestyles = {Spin.up: "-", Spin.down: "--"}
+        lines_index = legend_labels.index("1")
+        line_styles = {Spin.up: "-", Spin.down: "--"}
         cohp_fe_fe = self.cohp.all_cohps["1"]
         for s, spin in enumerate([Spin.up, Spin.down]):
-            lines = ax_cohp.lines[2 * linesindex + s]
+            lines = ax_cohp.lines[2 * lines_index + s]
             assert_allclose(lines.get_xdata(), -cohp_fe_fe.cohp[spin])
             assert_allclose(lines.get_ydata(), self.cohp.energies)
-            assert lines.get_linestyle() == linestyles[spin]
+            assert lines.get_linestyle() == line_styles[spin]
         plt.close()
 
         ax_cohp = self.cohp_plot.get_plot(invert_axes=False, plot_negative=False)
@@ -504,7 +519,7 @@ class TestCohpPlotter(PymatgenTest):
         assert ax_cohp.get_xlabel() == "$E$ (eV)"
         assert ax_cohp.get_ylabel() == "COHP"
         for s, spin in enumerate([Spin.up, Spin.down]):
-            lines = ax_cohp.lines[2 * linesindex + s]
+            lines = ax_cohp.lines[2 * lines_index + s]
             assert_allclose(lines.get_xdata(), self.cohp.energies)
             assert_allclose(lines.get_ydata(), cohp_fe_fe.cohp[spin])
         plt.close()
@@ -513,7 +528,7 @@ class TestCohpPlotter(PymatgenTest):
 
         assert ax_cohp.get_xlabel() == "-ICOHP (eV)"
         for s, spin in enumerate([Spin.up, Spin.down]):
-            lines = ax_cohp.lines[2 * linesindex + s]
+            lines = ax_cohp.lines[2 * lines_index + s]
             assert_allclose(lines.get_xdata(), -cohp_fe_fe.icohp[spin])
 
         coop_dict = {"Bi5-Bi6": self.coop.all_cohps["10"]}
@@ -526,14 +541,13 @@ class TestCohpPlotter(PymatgenTest):
         coop_bi_bi = self.coop.all_cohps["10"].cohp[Spin.up]
         assert_allclose(lines_coop.get_xdata(), coop_bi_bi)
 
-        # Cleanup.
+        # cleanup
         plt.close("all")
 
     def test_save_plot(self):
         self.cohp_plot.add_cohp_dict(self.cohp.all_cohps)
         ax = self.cohp_plot.get_plot()
         assert isinstance(ax, plt.Axes)
-        self.cohp_plot.save_plot("cohpplot.png")
-        assert os.path.isfile("cohpplot.png")
-        os.remove("cohpplot.png")
+        self.cohp_plot.save_plot(f"{self.tmp_path}/cohpplot.png")
+        assert os.path.isfile(f"{self.tmp_path}/cohpplot.png")
         plt.close("all")

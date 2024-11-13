@@ -107,8 +107,8 @@ class TestLarsenDimensionality(PymatgenTest):
             zero_d_graph_to_molecule_graph(self.graphite, comp_graphs[0])
 
         # test for a troublesome structure
-        s = loadfn(f"{TEST_FILES_DIR}/PH7CN3O3F.json.gz")
-        bs = CrystalNN().get_bonded_structure(s)
+        struct = loadfn(f"{TEST_FILES_DIR}/analysis/dimensionality/PH7CN3O3F.json.gz")
+        bs = CrystalNN().get_bonded_structure(struct)
         comp_graphs = [bs.graph.subgraph(c) for c in nx.weakly_connected_components(bs.graph)]
         mol_graph = zero_d_graph_to_molecule_graph(bs, comp_graphs[0])
         assert len(mol_graph.molecule) == 12

@@ -1,7 +1,5 @@
 from __future__ import annotations
 
-import os
-
 from pytest import approx
 
 from pymatgen.core.structure import Molecule
@@ -11,7 +9,7 @@ from pymatgen.util.testing import TEST_FILES_DIR, PymatgenTest
 __author__ = "Xin Chen, chenxin13@mails.tsinghua.edu.cn"
 
 
-test_dir = TEST_FILES_DIR / "molecules"
+TEST_DIR = f"{TEST_FILES_DIR}/io/adf"
 
 geometry_string = """GEOMETRY
 smooth conservepoints
@@ -23,7 +21,7 @@ converge e=0.001 grad=0.0003 rad=0.01 angle=0.5
 END
 """
 
-zlmfit_string = """ZLMFIT
+zlm_fit_string = """ZLMFIT
 AtomDepQuality
 10 good
 12 normal
@@ -38,14 +36,14 @@ H      -1.22338913        1.57085004        0.00000000
 END
 """
 
-h2oxyz = """3
+h2o_xyz = """3
 0.0
 O -0.90293455 0.66591421 0.0
 H  0.05706545 0.66591421 0.0
 H -1.22338913 1.57085004 0.0
 """
 
-rhb18xyz = """19
+rhb18_xyz = """19
 0.0
 Rh       -0.453396   -0.375115    0.000000
 B         0.168139    3.232791    0.000000
@@ -70,24 +68,19 @@ B         0.445855   -2.382027   -2.415013
 
 
 def readfile(file_object):
-    """
+    """`
     Return the content of the file as a string.
 
-    Parameters
-    ----------
-    file_object : file or str
-        The file to read. This can be either a File object or a file path.
+    Args:
+        file_object (file or str): The file to read. This can be either a File object or a file path.
 
     Returns:
-    -------
-    content : str
-        The content of the file.
-
+        content (str): The content of the file.
     """
     if hasattr(file_object, "read"):
         return file_object.read()
-    with open(file_object) as f:
-        return f.read()
+    with open(file_object) as file:
+        return file.read()
 
 
 class TestAdfKey:
@@ -123,10 +116,10 @@ class TestAdfKey:
     def test_subkeys_subkeys(self):
         atom_dep_quality = AdfKey("AtomDepQuality", subkeys=[AdfKey("10", ["good"]), AdfKey("12", ["normal"])])
         zlmfit = AdfKey("zlmfit", subkeys=[atom_dep_quality])
-        assert str(zlmfit) == zlmfit_string
-        assert str(AdfKey.from_dict(zlmfit.as_dict())) == zlmfit_string
+        assert str(zlmfit) == zlm_fit_string
+        assert str(AdfKey.from_dict(zlmfit.as_dict())) == zlm_fit_string
 
-    def test_from_string(self):
+    def test_from_str(self):
         k1 = AdfKey.from_str("CHARGE -1 0")
         assert k1.key == "CHARGE"
         assert k1.options == [-1, 0]
@@ -170,8 +163,8 @@ class TestAdfKey:
 
     def test_atom_block_key(self):
         block = AdfKey("atoms")
-        o = Molecule.from_str(h2oxyz, "xyz")
-        for site in o:
+        mol = Molecule.from_str(h2o_xyz, "xyz")
+        for site in mol:
             block.add_subkey(AdfKey(str(site.specie), list(site.coords)))
         assert str(block) == atoms_string
 
@@ -209,14 +202,14 @@ class TestAdfTask:
 
     def test_serialization(self):
         task = AdfTask()
-        o = AdfTask.from_dict(task.as_dict())
-        assert task.title == o.title
-        assert task.basis_set == o.basis_set
-        assert task.scf == o.scf
-        assert task.geo == o.geo
-        assert task.operation == o.operation
-        assert task.units == o.units
-        assert str(task) == str(o)
+        adf_task = AdfTask.from_dict(task.as_dict())
+        assert task.title == adf_task.title
+        assert task.basis_set == adf_task.basis_set
+        assert task.scf == adf_task.scf
+        assert task.geo == adf_task.geo
+        assert task.operation == adf_task.operation
+        assert task.units == adf_task.units
+        assert str(task) == str(adf_task)
 
 
 rhb18 = {
@@ -252,47 +245,47 @@ rhb18 = {
 class TestAdfInput(PymatgenTest):
     def test_main(self):
         tmp_file = f"{self.tmp_path}/adf.temp"
-        mol = Molecule.from_str(rhb18xyz, "xyz")
+        mol = Molecule.from_str(rhb18_xyz, "xyz")
         mol.set_charge_and_spin(-1, 3)
         task = AdfTask("optimize", **rhb18)
         inp = AdfInput(task)
         inp.write_file(mol, tmp_file)
-        s = readfile(test_dir / "adf" / "RhB18_adf.inp")
-        assert readfile(tmp_file) == s
+        expected = readfile(f"{TEST_DIR}/RhB18_adf.inp")
+        assert readfile(tmp_file) == expected
 
 
 class TestAdfOutput:
     def test_analytical_freq(self):
-        filename = os.path.join(str(test_dir), "adf", "analytical_freq", "adf.out")
-        o = AdfOutput(filename)
-        assert o.final_energy == approx(-0.54340325)
-        assert len(o.energies) == 4
-        assert len(o.structures) == 4
-        assert o.frequencies[0] == approx(1553.931)
-        assert o.frequencies[2] == approx(3793.086)
-        assert o.normal_modes[0][2] == approx(0.071)
-        assert o.normal_modes[0][6] == approx(0.000)
-        assert o.normal_modes[0][7] == approx(-0.426)
-        assert o.normal_modes[0][8] == approx(-0.562)
+        filename = f"{TEST_DIR}/analytical_freq/adf.out"
+        adf_out = AdfOutput(filename)
+        assert adf_out.final_energy == approx(-0.54340325)
+        assert len(adf_out.energies) == 4
+        assert len(adf_out.structures) == 4
+        assert adf_out.frequencies[0] == approx(1553.931)
+        assert adf_out.frequencies[2] == approx(3793.086)
+        assert adf_out.normal_modes[0][2] == approx(0.071)
+        assert adf_out.normal_modes[0][6] == approx(0.000)
+        assert adf_out.normal_modes[0][7] == approx(-0.426)
+        assert adf_out.normal_modes[0][8] == approx(-0.562)
 
     def test_numerical_freq(self):
-        filename = os.path.join(str(test_dir), "adf", "numerical_freq", "adf.out")
-        o = AdfOutput(filename)
-        assert o.freq_type == "Numerical"
-        assert len(o.final_structure) == 4
-        assert len(o.frequencies) == 6
-        assert len(o.normal_modes) == 6
-        assert o.frequencies[0] == approx(938.21)
-        assert o.frequencies[3] == approx(3426.64)
-        assert o.frequencies[4] == approx(3559.35)
-        assert o.frequencies[5] == approx(3559.35)
-        assert o.normal_modes[1][0] == approx(0.067)
-        assert o.normal_modes[1][3] == approx(-0.536)
-        assert o.normal_modes[1][7] == approx(0.000)
-        assert o.normal_modes[1][9] == approx(-0.536)
+        filename = f"{TEST_DIR}/numerical_freq/adf.out"
+        adf_out = AdfOutput(filename)
+        assert adf_out.freq_type == "Numerical"
+        assert len(adf_out.final_structure) == 4
+        assert len(adf_out.frequencies) == 6
+        assert len(adf_out.normal_modes) == 6
+        assert adf_out.frequencies[0] == approx(938.21)
+        assert adf_out.frequencies[3] == approx(3426.64)
+        assert adf_out.frequencies[4] == approx(3559.35)
+        assert adf_out.frequencies[5] == approx(3559.35)
+        assert adf_out.normal_modes[1][0] == approx(0.067)
+        assert adf_out.normal_modes[1][3] == approx(-0.536)
+        assert adf_out.normal_modes[1][7] == approx(0.000)
+        assert adf_out.normal_modes[1][9] == approx(-0.536)
 
     def test_single_point(self):
-        filename = os.path.join(str(test_dir), "adf", "sp", "adf.out")
-        o = AdfOutput(filename)
-        assert o.final_energy == approx(-0.74399276)
-        assert len(o.final_structure) == 4
+        filename = f"{TEST_DIR}/sp/adf.out"
+        adf_out = AdfOutput(filename)
+        assert adf_out.final_energy == approx(-0.74399276)
+        assert len(adf_out.final_structure) == 4

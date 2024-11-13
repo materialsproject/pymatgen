@@ -1,13 +1,13 @@
 from __future__ import annotations
 
-import unittest
+from unittest import TestCase
 
 import numpy as np
 import pytest
-from matplotlib.figure import Figure as mpl_figure
+from matplotlib.figure import Figure as MplFigure
 from numpy.testing import assert_allclose
 from pandas import DataFrame
-from plotly.graph_objects import Figure as plotly_figure
+from plotly.graph_objects import Figure
 from scipy.spatial import ConvexHull
 
 from pymatgen.analysis.interface_reactions import GrandPotentialInterfacialReactivity, InterfacialReactivity
@@ -17,7 +17,7 @@ from pymatgen.core.composition import Composition, Element
 from pymatgen.entries.computed_entries import ComputedEntry
 
 
-class TestInterfaceReaction(unittest.TestCase):
+class TestInterfaceReaction(TestCase):
     def setUp(self):
         self.entries = [
             ComputedEntry(Composition("Li"), 0),
@@ -143,12 +143,15 @@ class TestInterfaceReaction(unittest.TestCase):
             use_hull_energy=False,
         )
         with pytest.raises(
-            ValueError,
+            TypeError,
             match="Please use the GrandPotentialInterfacialReactivity "
             "class for interfacial reactions with open elements!",
         ):
             _ = InterfacialReactivity(Composition("Li2O2"), Composition("Li"), pd=self.gpd, norm=True)
-        with pytest.raises(ValueError, match="Please provide non-grand phase diagram to compute no_mixing_energy!"):
+        with pytest.raises(
+            TypeError,
+            match="Please provide non-grand phase diagram to compute no_mixing_energy!",
+        ):
             _ = GrandPotentialInterfacialReactivity(
                 Composition("O2"),
                 Composition("Mn"),
@@ -158,17 +161,32 @@ class TestInterfaceReaction(unittest.TestCase):
                 # include_no_mixing_energy=True,
             )
 
-        self.irs = [ir_0, ir_1, ir_2, ir_3, ir_4, ir_5, ir_6, ir_7, ir_8, ir_9, ir_10, ir_11, ir_12]
+        self.irs = [
+            ir_0,
+            ir_1,
+            ir_2,
+            ir_3,
+            ir_4,
+            ir_5,
+            ir_6,
+            ir_7,
+            ir_8,
+            ir_9,
+            ir_10,
+            ir_11,
+            ir_12,
+        ]
 
     def test_get_entry_energy(self):
         comp = Composition("MnO3")
-        with pytest.warns(
-            UserWarning,
-            match="The reactant MnO3 has no matching entry with negative formation energy, instead "
-            "convex hull energy for this composition will be used for reaction energy calculation.",
-        ) as warns:
+        with pytest.warns(UserWarning) as warns:
             energy = InterfacialReactivity._get_entry_energy(self.pd, comp)
         assert len(warns) == 1
+        assert str(warns[0].message) == (
+            "The reactant MnO3 has no matching entry with negative formation energy, instead "
+            "convex hull energy for this composition will be used for reaction energy calculation."
+        )
+
         test1 = np.isclose(energy, -30, atol=1e-3)
         assert test1, f"_get_entry_energy: energy for {comp.reduced_formula} is wrong!"
         # Test normal functionality
@@ -217,37 +235,45 @@ class TestInterfaceReaction(unittest.TestCase):
 
     def test_get_get_elmt_amt_in_rxt(self):
         rxt1 = Reaction(
-            [Composition("Mn"), Composition("O2"), Composition("Li")],
+            [*map(Composition, ["Mn", "O2", "Li"])],
             [Composition("LiMnO2")],
         )
-        test1 = np.isclose(self.irs[2]._get_elmt_amt_in_rxn(rxt1), 3)
+        test1 = np.isclose(self.irs[2]._get_elem_amt_in_rxn(rxt1), 3)
         assert test1, "_get_get_elmt_amt_in_rxt: gpd elements amounts gets error!"
 
         rxt2 = rxt1
         rxt2.normalize_to(Composition("Li"), 0.5)
-        test2 = np.isclose(self.irs[2]._get_elmt_amt_in_rxn(rxt2), 1.5)
+        test2 = np.isclose(self.irs[2]._get_elem_amt_in_rxn(rxt2), 1.5)
         assert test2, "_get_get_elmt_amt_in_rxt: gpd elements amounts gets error!"
 
         rxt3 = Reaction([Composition("O2"), Composition("Li")], [Composition("Li2O")])
         # Li is not counted
-        test3 = np.isclose(self.irs[2]._get_elmt_amt_in_rxn(rxt3), 1)
+        test3 = np.isclose(self.irs[2]._get_elem_amt_in_rxn(rxt3), 1)
         assert test3, "_get_get_elmt_amt_in_rxt: gpd elements amounts gets error!"
 
         # Li is counted
-        test4 = np.isclose(self.irs[6]._get_elmt_amt_in_rxn(rxt3), 3)
+        test4 = np.isclose(self.irs[6]._get_elem_amt_in_rxn(rxt3), 3)
         assert test4, "_get_get_elmt_amt_in_rxt: pd elements amounts gets error!"
 
     def test_convert(self):
         test_array = [(0.5, 1, 3), (0.4, 2, 3), (0, 1, 9), (1, 2, 7)]
         result = [InterfacialReactivity._convert(x, f1, f2) for x, f1, f2 in test_array]
         answer = [0.75, 0.5, 0, 1]
-        assert_allclose(result, answer), f"_convert: conversion gets error! {answer} expected, but gets {result}"
+        assert_allclose(
+            result,
+            answer,
+            err_msg=f"_convert: conversion gets error! {answer} expected, but gets {result}",
+        )
 
     def test_reverse_convert(self):
         test_array = [(0.5, 1, 3), (0.4, 2, 3), (0, 1, 9), (1, 2, 7)]
         result = [InterfacialReactivity._reverse_convert(x, f1, f2) for x, f1, f2 in test_array]
         answer = [0.25, 0.3076923, 0, 1]
-        assert_allclose(result, answer), f"_convert: conversion gets error! {answer} expected, but gets {result}"
+        assert_allclose(
+            result,
+            answer,
+            err_msg=f"_convert: conversion gets error! {answer} expected, but gets {result}",
+        )
 
     def test_products_property(self):
         test1 = sorted(self.irs[0].products) == sorted(["MnO2", "O2", "Mn"])
@@ -330,7 +356,7 @@ class TestInterfaceReaction(unittest.TestCase):
             lst = list(ir.get_kinks())
             x_kink = [i[1] for i in lst]
             energy_kink = [i[2] for i in lst]
-            points = list(zip(x_kink, energy_kink))
+            points = list(zip(x_kink, energy_kink, strict=True))
             if len(points) >= 3:
                 # To test convexity of the plot, construct convex hull from
                 # the kinks and make sure
@@ -338,7 +364,7 @@ class TestInterfaceReaction(unittest.TestCase):
                 # 2. all points are on the convex hull.
                 relative_vectors_1 = [(x - x_kink[0], e - energy_kink[0]) for x, e in points]
                 relative_vectors_2 = [(x - x_kink[-1], e - energy_kink[-1]) for x, e in points]
-                relative_vectors = zip(relative_vectors_1, relative_vectors_2)
+                relative_vectors = zip(relative_vectors_1, relative_vectors_2, strict=True)
                 positions = [np.cross(v1, v2) for v1, v2 in relative_vectors]
                 assert np.all(np.array(positions) <= 0)
 
@@ -372,14 +398,14 @@ class TestInterfaceReaction(unittest.TestCase):
         assert test5, "get_critical_original_kink_ratio: gets error!"
 
     def test_labels(self):
-        d_pymg = self.irs[0].labels
-        d_test = {
+        dict_pymg = self.irs[0].labels
+        dict_test = {
             1: "x= 0.0 energy in eV/atom = 0.0 Mn -> Mn",
             2: "x= 0.5 energy in eV/atom = -15.0 0.5 Mn + 0.5 O2 -> 0.5 MnO2",
             3: "x= 1.0 energy in eV/atom = 0.0 O2 -> O2",
         }
 
-        assert d_pymg == d_test, (
+        assert dict_pymg == dict_test, (
             "labels:label does not match for interfacial system "
             f"with {self.irs[0].c1_original.reduced_formula} and {self.irs[0].c2_original.reduced_formula}."
         )
@@ -387,16 +413,16 @@ class TestInterfaceReaction(unittest.TestCase):
     def test_plot(self):
         for ir in self.irs:
             fig = ir.plot(backend="matplotlib")
-            assert fig, isinstance(fig, mpl_figure)
+            assert fig, isinstance(fig, MplFigure)
 
             fig = ir.plot(backend="plotly")
-            assert isinstance(fig, plotly_figure)
+            assert isinstance(fig, Figure)
 
     def test_get_dataframe(self):
         for ir in self.irs:
-            df = ir.get_dataframe()
-            assert isinstance(df, DataFrame)
-            assert {*df} >= {
+            df_reaction = ir.get_dataframe()
+            assert isinstance(df_reaction, DataFrame)
+            assert {*df_reaction} >= {
                 "Atomic fraction",
                 "E$_{\textrm{rxn}}$ (eV/atom)",
                 "E$_{\textrm{rxn}}$ (kJ/mol)",
@@ -414,11 +440,8 @@ class TestInterfaceReaction(unittest.TestCase):
             (0.3333333, -3.333333),
             (0.3333333, -4.0),
         ]
-        for i, j in zip(self.irs, answer):
-            assert_allclose(i.minimum, j, atol=1e-7), (
-                f"minimum: the system with {i.c1_original.reduced_formula} and {i.c2_original.reduced_formula} "
-                f"gets error!{j} expected, but gets {i.minimum}"
-            )
+        for inter_react, expected in zip(self.irs, answer, strict=False):
+            assert_allclose(inter_react.minimum, expected, atol=1e-7)
 
     def test_get_no_mixing_energy(self):
         answer = [
@@ -436,12 +459,15 @@ class TestInterfaceReaction(unittest.TestCase):
             return lst[0][1], lst[1][1]
 
         result_info = [ir.get_no_mixing_energy() for ir in self.irs if ir.grand]
-        for i, j in zip(result_info, answer):
-            err_msg = f"get_no_mixing_energy: names get error, {name_lst(j)} expected but gets {name_lst(i)}"
-            assert name_lst(i) == name_lst(j), err_msg
+        for ii, jj in zip(result_info, answer, strict=False):
+            err_msg = f"get_no_mixing_energy: names get error, {name_lst(jj)} expected but gets {name_lst(ii)}"
+            assert name_lst(ii) == name_lst(jj), err_msg
             assert_allclose(
-                energy_lst(i), energy_lst(j), atol=1e-9
-            ), f"get_no_mixing_energy: {energy_lst(j)} expected but gets {energy_lst(i)}"
+                energy_lst(ii),
+                energy_lst(jj),
+                atol=1e-9,
+                err_msg=f"get_no_mixing_energy: {energy_lst(jj)} expected but gets {energy_lst(ii)}",
+            )
 
     def test_get_chempot_correction(self):
         # test data from fig. 6 in ref:

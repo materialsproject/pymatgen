@@ -1,7 +1,8 @@
 from __future__ import annotations
 
+import copy
 import json
-import unittest
+from unittest import TestCase
 
 import numpy as np
 import pytest
@@ -19,13 +20,22 @@ from pymatgen.electronic_structure.bandstructure import (
 from pymatgen.electronic_structure.core import Orbital, Spin
 from pymatgen.electronic_structure.plotter import BSPlotterProjected
 from pymatgen.io.vasp import BSVasprun
-from pymatgen.util.testing import TEST_FILES_DIR, PymatgenTest
+from pymatgen.util.testing import TEST_FILES_DIR, VASP_IN_DIR, VASP_OUT_DIR, PymatgenTest
+
+TEST_DIR = f"{TEST_FILES_DIR}/electronic_structure/bandstructure"
 
 
-class TestKpoint(unittest.TestCase):
+class TestKpoint(TestCase):
     def setUp(self):
         self.lattice = Lattice.cubic(10.0)
         self.kpoint = Kpoint([0.1, 0.4, -0.5], self.lattice, label="X")
+
+    def test_eq(self):
+        assert self.kpoint == self.kpoint
+        assert self.kpoint == copy.deepcopy(self.kpoint)
+        assert self.kpoint != Kpoint([0.1, 0.4, -0.5], self.lattice, label="Y")
+        assert self.kpoint != Kpoint([0.1, 0.4, -0.6], self.lattice, label="X")
+        assert self.kpoint != Kpoint([0.1, 0.4, -0.5], Lattice.cubic(20.0), label="X")
 
     def test_properties(self):
         assert list(self.kpoint.frac_coords) == [0.1, 0.4, -0.5]
@@ -45,9 +55,9 @@ class TestKpoint(unittest.TestCase):
         assert self.kpoint.as_dict()["ccoords"] == [1.0, 4.0, -5.0]
 
     def test_from_dict(self):
-        d = self.kpoint.as_dict()
+        dct = self.kpoint.as_dict()
 
-        kpoint = Kpoint.from_dict(d)
+        kpoint = Kpoint.from_dict(dct)
 
         assert list(kpoint.frac_coords) == [0.1, 0.4, -0.5]
         assert kpoint.a == 0.1
@@ -60,12 +70,12 @@ class TestKpoint(unittest.TestCase):
 
 class TestBandStructureSymmLine(PymatgenTest):
     def setUp(self):
-        self.bs: BandStructureSymmLine = loadfn(f"{TEST_FILES_DIR}/Cu2O_361_bandstructure.json")
-        self.bs2: BandStructureSymmLine = loadfn(f"{TEST_FILES_DIR}/CaO_2605_bandstructure.json")
-        self.bs_spin: BandStructureSymmLine = loadfn(f"{TEST_FILES_DIR}/NiO_19009_bandstructure.json")
-        self.bs_cbm0: BandStructureSymmLine = loadfn(f"{TEST_FILES_DIR}/InN_22205_bandstructure.json")
-        self.bs_cu: BandStructureSymmLine = loadfn(f"{TEST_FILES_DIR}/Cu_30_bandstructure.json")
-        self.bs_diff_spins: BandStructureSymmLine = loadfn(f"{TEST_FILES_DIR}/VBr2_971787_bandstructure.json")
+        self.bs: BandStructureSymmLine = loadfn(f"{TEST_DIR}/Cu2O_361_bandstructure.json")
+        self.bs2: BandStructureSymmLine = loadfn(f"{TEST_DIR}/CaO_2605_bandstructure.json")
+        self.bs_spin: BandStructureSymmLine = loadfn(f"{TEST_DIR}/NiO_19009_bandstructure.json")
+        self.bs_cbm0: BandStructureSymmLine = loadfn(f"{TEST_DIR}/InN_22205_bandstructure.json")
+        self.bs_cu: BandStructureSymmLine = loadfn(f"{TEST_DIR}/Cu_30_bandstructure.json")
+        self.bs_diff_spins: BandStructureSymmLine = loadfn(f"{TEST_DIR}/VBr2_971787_bandstructure.json")
 
     def test_basic(self):
         assert_allclose(self.bs.projections[Spin.up][10][12][0], [0.0, 0.0, 0.0, 0.0, 0.0, 0.0])
@@ -113,7 +123,10 @@ class TestBandStructureSymmLine(PymatgenTest):
                 vb, cb = dg_dict[spin]["band_indices"]
                 gap = v[cb][kpt] - v[vb][kpt]
                 assert gap == dg_dict[spin]["value"]
-        with pytest.raises(ValueError, match="get_direct_band_gap_dict should only be used with non-metals"):
+        with pytest.raises(
+            ValueError,
+            match="get_direct_band_gap_dict should only be used with non-metals",
+        ):
             self.bs_cu.get_direct_band_gap_dict()
 
     def test_get_direct_band_gap(self):
@@ -183,7 +196,7 @@ class TestBandStructureSymmLine(PymatgenTest):
         cbm_k = bs.get_cbm()["kpoint"].frac_coords
         vbm_k = bs.get_vbm()["kpoint"].frac_coords
         assert bs.get_kpoint_degeneracy(cbm_k) is None
-        bs.structure: BandStructureSymmLine = loadfn(f"{TEST_FILES_DIR}/CaO_2605_structure.json")
+        bs.structure: BandStructureSymmLine = loadfn(f"{TEST_DIR}/CaO_2605_structure.json")
         assert bs.get_kpoint_degeneracy(cbm_k) == 3
         assert bs.get_kpoint_degeneracy(vbm_k) == 1
         cbm_eqs = bs.get_sym_eq_kpoints(cbm_k)
@@ -219,9 +232,9 @@ class TestBandStructureSymmLine(PymatgenTest):
         assert set(d3) >= expected_keys, f"{expected_keys - set(d3)=}"
 
     def test_old_format_load(self):
-        with open(f"{TEST_FILES_DIR}/bs_ZnS_old.json") as f:
-            d = json.load(f)
-            bs_old = BandStructureSymmLine.from_dict(d)
+        with open(f"{TEST_DIR}/bs_ZnS_old.json") as file:
+            dct = json.load(file)
+            bs_old = BandStructureSymmLine.from_dict(dct)
             assert bs_old.get_projection_on_elements()[Spin.up][0][0]["Zn"] == 0.0971
 
     def test_apply_scissor_insulator(self):
@@ -247,8 +260,8 @@ class TestBandStructureSymmLine(PymatgenTest):
 
 class TestReconstructBandStructure(PymatgenTest):
     def setUp(self):
-        self.bs_cu: BandStructureSymmLine = loadfn(f"{TEST_FILES_DIR}/Cu_30_bandstructure.json")
-        self.bs_cu2: BandStructureSymmLine = loadfn(f"{TEST_FILES_DIR}/Cu_30_bandstructure.json")
+        self.bs_cu: BandStructureSymmLine = loadfn(f"{TEST_DIR}/Cu_30_bandstructure.json")
+        self.bs_cu2: BandStructureSymmLine = loadfn(f"{TEST_DIR}/Cu_30_bandstructure.json")
 
     def test_reconstruct_band_structure(self):
         bs = get_reconstructed_band_structure([self.bs_cu, self.bs_cu2])
@@ -256,26 +269,26 @@ class TestReconstructBandStructure(PymatgenTest):
 
     def test_vasprun_bs(self):
         bsv = BSVasprun(
-            f"{TEST_FILES_DIR}/vasprun.xml",
+            f"{VASP_OUT_DIR}/vasprun.xml.gz",
             parse_projected_eigen=True,
             parse_potcar_file=True,
         )
-        bs = bsv.get_band_structure(kpoints_filename=f"{TEST_FILES_DIR}/KPOINTS.band", line_mode=True)
+        bs = bsv.get_band_structure(kpoints_filename=f"{VASP_IN_DIR}/KPOINTS_band", line_mode=True)
         bs.get_projection_on_elements()
 
 
 class TestLobsterBandStructureSymmLine(PymatgenTest):
     def setUp(self):
         with open(
-            f"{TEST_FILES_DIR}/cohp/Fatband_SiO2/Test_p/lobster_band_structure_spin.json",
-        ) as f:
-            bs_spin_dict = json.load(f)
+            f"{TEST_FILES_DIR}/electronic_structure/cohp/Fatband_SiO2/Test_p/lobster_band_structure_spin.json",
+        ) as file:
+            bs_spin_dict = json.load(file)
         self.bs_spin = LobsterBandStructureSymmLine.from_dict(bs_spin_dict)
 
         with open(
-            f"{TEST_FILES_DIR}/cohp/Fatband_SiO2/Test_p/lobster_band_structure.json",
-        ) as f:
-            bs_dict = json.load(f)
+            f"{TEST_FILES_DIR}/electronic_structure/cohp/Fatband_SiO2/Test_p/lobster_band_structure.json",
+        ) as file:
+            bs_dict = json.load(file)
         self.bs_p = LobsterBandStructureSymmLine.from_dict(bs_dict)
 
     def test_basic(self):
@@ -341,9 +354,17 @@ class TestLobsterBandStructureSymmLine(PymatgenTest):
         assert dict_here["O"]["2p"] == approx(0.015)
 
     def test_proj_bandstructure_plot(self):
-        # make sure that it can be plotted!
-        BSPlotterProjected(self.bs_spin).get_elt_projected_plots()
-        BSPlotterProjected(self.bs_spin).get_projected_plots_dots({"Si": ["3s"]})
+        axs = BSPlotterProjected(self.bs_spin).get_elt_projected_plots()
+        assert isinstance(axs, np.ndarray)
+        assert axs.shape == (2, 2)
+        assert axs[0, 0].get_title() == "Si"
+        assert axs[0, 1].get_title() == "O"
+        assert axs[1, 0].get_title() == ""
+        axs = BSPlotterProjected(self.bs_spin).get_projected_plots_dots({"Si": ["3s"]})
+        assert isinstance(axs, list)
+        assert len(axs) == 1
+        print(axs[0].get_title())
+        assert axs[0].get_title() == r"${\mathrm{Si}}_{\mathrm{3s}}$"
 
     def test_get_branch(self):
         branch = self.bs_p.get_branch(0)[0]

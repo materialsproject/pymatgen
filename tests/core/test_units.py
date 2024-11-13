@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+import warnings
+
 import pytest
 from numpy.testing import assert_array_equal
 from pytest import approx
@@ -9,17 +11,30 @@ from pymatgen.core.units import (
     Energy,
     EnergyArray,
     FloatWithUnit,
+    Ha_to_eV,
     Length,
     LengthArray,
     Mass,
     Memory,
+    Ry_to_eV,
     Time,
     TimeArray,
     Unit,
     UnitError,
+    amu_to_kg,
+    bohr_to_angstrom,
+    eV_to_Ha,
     unitized,
 )
 from pymatgen.util.testing import PymatgenTest
+
+
+def test_unit_conversions():
+    assert Ha_to_eV == approx(27.211386245988)
+    assert eV_to_Ha == 1 / Ha_to_eV
+    assert Ry_to_eV == approx(Ha_to_eV / 2)
+    assert bohr_to_angstrom == approx(0.529177210903)
+    assert amu_to_kg == approx(1.66053906660e-27)
 
 
 class TestUnit(PymatgenTest):
@@ -54,11 +69,11 @@ class TestFloatWithUnit(PymatgenTest):
         assert a + 1 == 2.1
         assert str(a / d) == "1.1 eV Ha^-1"
 
-        e = Energy(1, "kJ")
-        f = e.to("kCal")
-        assert f == approx(0.2390057361376673)
-        assert str(e + f) == "2.0 kJ"
-        assert str(f + e) == "0.4780114722753346 kCal"
+        e_kj = Energy(1, "kJ")
+        e_kcal = e_kj.to("kCal")
+        assert e_kcal == approx(0.2390057361376673)
+        assert str(e_kj + e_kcal) == "2.0 kJ"
+        assert str(e_kcal + e_kj) == "0.4780114722753346 kCal"
 
     def test_time(self):
         a = Time(20, "h")
@@ -76,65 +91,76 @@ class TestFloatWithUnit(PymatgenTest):
         assert x.to("cm") == approx(4.2e-08)
         assert x.to("pm") == 420
         assert str(x / 2) == "2.1 ang"
+
         y = x**3
         assert y == approx(74.088)
         assert str(y.unit) == "ang^3"
 
     def test_memory(self):
-        mega = Memory(1, "Mb")
-        assert mega.to("byte") == 1024**2
-        assert mega == Memory(1, "mb")
+        mega_0 = Memory(1, "MB")
+        assert mega_0.to("byte") == 1024**2
 
-        same_mega = Memory.from_str("1Mb")
-        assert same_mega.unit_type == "memory"
+        mega_1 = Memory.from_str("1 MB")
+        assert mega_1.unit_type == "memory"
 
-        other_mega = Memory.from_str("+1.0 mb")
-        assert mega == other_mega
+        mega_2 = Memory.from_str("1MB")
+        assert mega_2.unit_type == "memory"
+
+        mega_3 = Memory.from_str("+1.0 MB")
+        assert mega_0 == mega_1 == mega_2 == mega_3
+
+    def test_deprecated_memory(self):
+        # TODO: remove after 2025-01-01
+        for unit in ("Kb", "kb", "Mb", "mb", "Gb", "gb", "Tb", "tb"):
+            with pytest.warns(DeprecationWarning, match=f"Unit {unit} is deprecated"):
+                Memory(1, unit)
+
+        with warnings.catch_warnings():
+            warnings.simplefilter("error")
+            for unit in ("KB", "MB", "GB", "TB"):
+                Memory(1, unit)
 
     def test_unitized(self):
         @unitized("eV")
-        def f():
+        def func1():
             return [1, 2, 3]
 
-        assert str(f()[0]) == "1.0 eV"
-        assert isinstance(f(), list)
+        assert str(func1()[0]) == "1.0 eV"
+        assert isinstance(func1(), list)
 
         @unitized("eV")
-        def g():
+        def func2():
             return 2, 3, 4
 
-        assert str(g()[0]) == "2.0 eV"
-        assert isinstance(g(), tuple)
+        assert str(func2()[0]) == "2.0 eV"
+        assert isinstance(func2(), tuple)
 
         @unitized("pm")
-        def h():
-            dct = {}
-            for i in range(3):
-                dct[i] = i * 20
-            return dct
+        def func3():
+            return {idx: idx * 20 for idx in range(3)}
 
-        assert str(h()[1]) == "20.0 pm"
-        assert isinstance(h(), dict)
+        assert str(func3()[1]) == "20.0 pm"
+        assert isinstance(func3(), dict)
 
         @unitized("kg")
-        def i():
+        def func4():
             return FloatWithUnit(5, "g")
 
-        assert i() == FloatWithUnit(0.005, "kg")
+        assert func4() == FloatWithUnit(0.005, "kg")
 
         @unitized("kg")
-        def j():
+        def func5():
             return ArrayWithUnit([5, 10], "g")
 
-        j_out = j()
+        j_out = func5()
         assert j_out.unit == Unit("kg")
         assert j_out[0] == 0.005
         assert j_out[1] == 0.01
 
     def test_compound_operations(self):
-        g = 10 * Length(1, "m") / (Time(1, "s") ** 2)
-        e = Mass(1, "kg") * g * Length(1, "m")
-        assert str(e) == "10.0 N m"
+        earth_acc = 9.81 * Length(1, "m") / (Time(1, "s") ** 2)
+        e_pot = Mass(1, "kg") * earth_acc * Length(1, "m")
+        assert str(e_pot) == "9.81 N m"
         form_e = FloatWithUnit(10, unit="kJ mol^-1").to("eV atom^-1")
         assert form_e == approx(0.103642691905)
         assert str(form_e.unit) == "eV atom^-1"
@@ -159,10 +185,9 @@ class TestFloatWithUnit(PymatgenTest):
         assert FloatWithUnit(-5, "MPa") == -x
 
 
-class TestArrayWithFloatWithUnit(PymatgenTest):
+class TestArrayWithUnit(PymatgenTest):
     def test_energy(self):
-        """
-        Similar to FloatWithUnitTest.test_energy.
+        """Similar to TestFloatWithUnit.test_energy.
         Check whether EnergyArray and FloatWithUnit have same behavior.
 
         # TODO
@@ -172,24 +197,23 @@ class TestArrayWithFloatWithUnit(PymatgenTest):
             a = obj(...)
             self.assert(...)
         """
-        a = EnergyArray(1.1, "eV")
-        b = a.to("Ha")
-        assert (b) == approx(0.0404242579378)
-        c = EnergyArray(3.14, "J")
-        assert (c.to("eV")) == approx(1.9598338493806797e19)
+        e_in_ev = EnergyArray(1.1, "eV")
+        e_in_ha = e_in_ev.to("Ha")
+        assert e_in_ha == approx(0.0404242579378)
+        e_in_j = EnergyArray(3.14, "J")
+        assert (e_in_j.to("eV")) == approx(1.9598338493806797e19)
         # self.assertRaises(ValueError, Energy, 1, "m")
 
-        d = EnergyArray(1, "Ha")
-        assert (a + d) == approx(28.311386245987997)
-        assert (a - d) == approx(-26.111386245987994)
-        assert float(a + 1) == 2.1
+        e2_in_ha = EnergyArray(1, "Ha")
+        assert (e_in_ev + e2_in_ha) == approx(28.311386245987997)
+        assert (e_in_ev - e2_in_ha) == approx(-26.111386245987994)
+        assert float(e_in_ev + 1) == 2.1
 
     def test_time(self):
-        """
-        Similar to FloatWithUnitTest.test_time.
+        """Similar to FloatWithUnitTest.test_time.
         Check whether EnergyArray and FloatWithUnit have same behavior.
         """
-        # here there's a minor difference because we have a ndarray with dtype=int
+        # here there's a minor difference because we have a ndarray with dtype=np.int64
         a = TimeArray(20, "h")
         assert a.to("s") == 3600 * 20
         # Test left and right multiplication.
@@ -197,8 +221,7 @@ class TestArrayWithFloatWithUnit(PymatgenTest):
         assert str(3 * a) == "60 h"
 
     def test_length(self):
-        """
-        Similar to FloatWithUnitTest.test_time.
+        """Similar to FloatWithUnitTest.test_time.
         Check whether EnergyArray and FloatWithUnit have same behavior.
         """
         x = LengthArray(4.2, "ang")
@@ -230,7 +253,7 @@ class TestArrayWithFloatWithUnit(PymatgenTest):
             ene_ha * time_s,
             ene_ha / ene_ev,
             ene_ha.copy(),
-            ene_ha[0:1],
+            ene_ha[:1],
             e1,
             e2,
             e3,
@@ -238,7 +261,13 @@ class TestArrayWithFloatWithUnit(PymatgenTest):
         ]
 
         for obj in objects_with_unit:
-            assert hasattr(obj, "unit")
+            assert obj.unit in (
+                Unit("Ha"),
+                Unit("eV"),
+                Unit("s^-1"),
+                Unit("Ha s"),
+                Unit("Ha eV^-1"),
+            )
 
         # Here we could return a FloatWithUnit object but I prefer this
         # a bare scalar since FloatWithUnit extends float while we could
@@ -249,19 +278,19 @@ class TestArrayWithFloatWithUnit(PymatgenTest):
             assert not hasattr(obj, "unit")
 
         with pytest.raises(UnitError, match="Adding different types of units is not allowed"):
-            ene_ha + time_s
+            _ = ene_ha + time_s
 
     def test_factors(self):
-        e = EnergyArray([27.21138386, 1], "eV").to("Ha")
-        assert str(e).endswith("Ha")
+        e_arr = EnergyArray([27.21138386, 1], "eV").to("Ha")
+        assert str(e_arr).endswith("Ha")
         len_arr = LengthArray([1.0], "ang").to("bohr")
         assert str(len_arr).endswith(" bohr")
         v = ArrayWithUnit([1, 2, 3], "bohr^3").to("ang^3")
         assert str(v).endswith(" ang^3")
 
     def test_as_base_units(self):
-        x = ArrayWithUnit([5, 10], "MPa")
-        assert_array_equal(ArrayWithUnit([5000000, 10000000], "Pa"), x.as_base_units)
+        pressure_arr = ArrayWithUnit([5, 10], "MPa")
+        assert_array_equal(ArrayWithUnit([5000000, 10000000], "Pa"), pressure_arr.as_base_units)
 
 
 class TestDataPersistence(PymatgenTest):

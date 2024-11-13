@@ -5,7 +5,6 @@ import pytest
 from numpy.testing import assert_allclose
 
 from pymatgen.analysis.elasticity.strain import Deformation, DeformedStructureSet, Strain, convert_strain_to_deformation
-from pymatgen.core.lattice import Lattice
 from pymatgen.core.structure import Structure
 from pymatgen.core.tensors import Tensor
 from pymatgen.util.testing import PymatgenTest
@@ -16,13 +15,11 @@ class TestDeformation(PymatgenTest):
         self.norm_defo = Deformation.from_index_amount((0, 0), 0.02)
         self.ind_defo = Deformation.from_index_amount((0, 1), 0.02)
         self.non_ind_defo = Deformation([[1, 0.02, 0.02], [0, 1, 0], [0, 0, 1]])
-        lattice = Lattice(
-            [
-                [3.8401979337, 0.00, 0.00],
-                [1.9200989668, 3.3257101909, 0.00],
-                [0.00, -2.2171384943, 3.1355090603],
-            ]
-        )
+        lattice = [
+            [3.8401979337, 0.00, 0.00],
+            [1.9200989668, 3.3257101909, 0.00],
+            [0.00, -2.2171384943, 3.1355090603],
+        ]
         self.structure = Structure(lattice, ["Si", "Si"], [[0, 0, 0], [0.75, 0.5, 0.75]])
 
     def test_properties(self):
@@ -47,15 +44,27 @@ class TestDeformation(PymatgenTest):
         # Check lattices
         assert_allclose(
             strained_norm.lattice.matrix,
-            [[3.9170018886, 0, 0], [1.958500946136, 3.32571019, 0], [0, -2.21713849, 3.13550906]],
+            [
+                [3.9170018886, 0, 0],
+                [1.958500946136, 3.32571019, 0],
+                [0, -2.21713849, 3.13550906],
+            ],
         )
         assert_allclose(
             strained_ind.lattice.matrix,
-            [[3.84019793, 0, 0], [1.9866132, 3.32571019, 0], [-0.04434277, -2.21713849, 3.13550906]],
+            [
+                [3.84019793, 0, 0],
+                [1.9866132, 3.32571019, 0],
+                [-0.04434277, -2.21713849, 3.13550906],
+            ],
         )
         assert_allclose(
             strained_non.lattice.matrix,
-            [[3.84019793, 0, 0], [1.9866132, 3.3257102, 0], [0.0183674, -2.21713849, 3.13550906]],
+            [
+                [3.84019793, 0, 0],
+                [1.9866132, 3.3257102, 0],
+                [0.0183674, -2.21713849, 3.13550906],
+            ],
             atol=1e-7,
         )
         # Check coordinates
@@ -64,10 +73,10 @@ class TestDeformation(PymatgenTest):
         assert_allclose(strained_non.sites[1].coords, [3.8872306, 1.224e-6, 2.3516318], atol=1e-7)
 
         # Check convention for applying transformation
-        for vec, defo_vec in zip(self.structure.lattice.matrix, strained_non.lattice.matrix):
+        for vec, defo_vec in zip(self.structure.lattice.matrix, strained_non.lattice.matrix, strict=True):
             new_vec = np.dot(self.non_ind_defo, np.transpose(vec))
             assert_allclose(new_vec, defo_vec)
-        for coord, defo_coord in zip(self.structure.cart_coords, strained_non.cart_coords):
+        for coord, defo_coord in zip(self.structure.cart_coords, strained_non.cart_coords, strict=True):
             new_coord = np.dot(self.non_ind_defo, np.transpose(coord))
             assert_allclose(new_coord, defo_coord)
 
@@ -121,9 +130,10 @@ class TestStrain(PymatgenTest):
         assert_allclose(self.non_ind_str.voigt, [0, 0.0002, 0.0002, 0.0004, 0.02, 0.02])
 
     def test_convert_strain_to_deformation(self):
-        strain = Tensor(np.random.random((3, 3))).symmetrized
+        rng = np.random.default_rng()
+        strain = Tensor(rng.random((3, 3))).symmetrized
         while not (np.linalg.eigvals(strain) > 0).all():
-            strain = Tensor(np.random.random((3, 3))).symmetrized
+            strain = Tensor(rng.random((3, 3))).symmetrized
         upper = convert_strain_to_deformation(strain, shape="upper")
         symm = convert_strain_to_deformation(strain, shape="symmetric")
         assert_allclose(np.triu(upper), upper)

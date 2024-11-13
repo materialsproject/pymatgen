@@ -1,8 +1,7 @@
 from __future__ import annotations
 
-import random
-import unittest
-
+import numpy as np
+import pytest
 from monty.serialization import loadfn
 
 from pymatgen.core.lattice import Lattice
@@ -15,9 +14,11 @@ try:
 except ImportError:
     get_path = None
 
+TEST_DIR = f"{TEST_FILES_DIR}/electronic_structure/bandstructure"
+
 
 class TestHighSymmKpath(PymatgenTest):
-    @unittest.skipIf(get_path is None, "No seek path present.")
+    @pytest.mark.skipif(get_path is None, reason="No seek path present.")
     def test_kpath_generation(self):
         triclinic = [1, 2]
         monoclinic = list(range(3, 16))
@@ -29,8 +30,16 @@ class TestHighSymmKpath(PymatgenTest):
 
         species = ["K", "La", "Ti"]
         coords = [[0.345, 5, 0.77298], [0.1345, 5.1, 0.77298], [0.7, 0.8, 0.9]]
-        for c in (triclinic, monoclinic, orthorhombic, tetragonal, rhombohedral, hexagonal, cubic):
-            sg_num = random.sample(c, 1)[0]
+        for c in (
+            triclinic,
+            monoclinic,
+            orthorhombic,
+            tetragonal,
+            rhombohedral,
+            hexagonal,
+            cubic,
+        ):
+            sg_num = np.random.default_rng().choice(c, 1)[0]
             if sg_num in triclinic:
                 lattice = Lattice(
                     [
@@ -59,8 +68,8 @@ class TestHighSymmKpath(PymatgenTest):
             _ = kpath.get_kpoints()
 
     def test_continuous_kpath(self):
-        bs = loadfn(f"{TEST_FILES_DIR}/Cu2O_361_bandstructure.json")
-        cont_bs = loadfn(f"{TEST_FILES_DIR}/Cu2O_361_bandstructure_continuous.json.gz")
+        bs = loadfn(f"{TEST_DIR}/Cu2O_361_bandstructure.json")
+        cont_bs = loadfn(f"{TEST_DIR}/Cu2O_361_bandstructure_continuous.json.gz")
         alt_bs = HighSymmKpath(bs.structure).get_continuous_path(bs)
 
         assert cont_bs.as_dict() == alt_bs.as_dict()

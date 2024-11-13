@@ -27,7 +27,7 @@ Please submit a pull request to update this page when if release a new add-on pa
 * [pymatgen-io-fleur](http://pypi.org/project/pymatgen-io-fleur): Provides modules for reading and writing files used by the [`fleur`](https://www.flapw.de/rel) DFT code. This package is maintained by the juDFT team.
 * [pymatgen-io-openmm](https://github.com/orionarcher/pymatgen-io-openmm): Provides easy IO for performing molecular dynamics on solutions with OpenMM. This package is maintained by Orion Archer Cohen.
 
-# External Tools
+## External Tools
 
 If you would like your own tool to be listed here, please submit a PR. For a more complete but less curated list, have a
 look at [pymatgen dependents](https://github.com/materialsproject/pymatgen/network/dependents).
@@ -43,3 +43,5 @@ look at [pymatgen dependents](https://github.com/materialsproject/pymatgen/netwo
 * [Matbench Discovery](https://github.com/janosh/matbench-discovery): Benchmark for machine learning crystal stability prediction.
 * [matgl](https://github.com/materialsvirtuallab/matgl): Graph deep learning library for materials. Implements M3GNet and MEGNet in DGL and Pytorch with more to come.
 * [chgnet](https://github.com/CederGroupHub/chgnet): Pretrained universal neural network potential for charge-informed atomistic modeling.
+* [DebyeCalculator](https://github.com/FrederikLizakJohansen/DebyeCalculator): A vectorised implementation of the Debye Scattering Equation on CPU and GPU.
+* [ramannoodle](https://github.com/wolearyc/ramannoodle): Efficiently compute off-resonance Raman spectra from first principles calculations (e.g. VASP) using polynomial and ML models. 

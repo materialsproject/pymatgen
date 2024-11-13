@@ -1,13 +1,10 @@
 from __future__ import annotations
 
-import unittest
-
 import pytest
 from pytest import approx
 
+from pymatgen.core import Element, Site
 from pymatgen.core.bonds import CovalentBond, get_bond_length, get_bond_order, obtain_all_bond_lengths
-from pymatgen.core.periodic_table import Element
-from pymatgen.core.sites import Site
 
 __author__ = "Shyue Ping Ong"
 __copyright__ = "Copyright 2012, The Materials Project"
@@ -17,7 +14,7 @@ __email__ = "shyuep@gmail.com"
 __date__ = "Jul 26, 2012"
 
 
-class TestCovalentBond(unittest.TestCase):
+class TestCovalentBond:
     def test_length(self):
         site1 = Site("C", [0, 0, 0])
         site2 = Site("H", [0, 0.7, 0.6])
@@ -47,7 +44,7 @@ class TestCovalentBond(unittest.TestCase):
         assert CovalentBond(site1, site2) is not None
 
 
-class TestFunc(unittest.TestCase):
+class TestFunc:
     def test_get_bond_length(self):
         assert approx(get_bond_length("C", "C", 1) - 1.54) == 0
         assert approx(get_bond_length("C", "C", 2) - 1.34) == 0
@@ -71,8 +68,8 @@ class TestFunc(unittest.TestCase):
         assert approx(get_bond_order("C", "C", 1.34) - 2) == 0
         assert approx(get_bond_order("C", "C", 1.4) - 1.7) == 0  # bond length in benzene
         assert approx(get_bond_order("C", "C", 1.54) - 1) == 0
-        assert approx(get_bond_order("C", "C", 2.5) - 0) == 0
-        assert approx(get_bond_order("C", "C", 9999) - 0) == 0
+        assert approx(get_bond_order("C", "C", 2.5)) == 0
+        assert approx(get_bond_order("C", "C", 9999)) == 0
         assert approx(get_bond_order("C", "Br", 1.9, default_bl=1.9) - 1) == 0
         assert approx(get_bond_order("C", "Br", 2, default_bl=1.9) - 0.7368421052631575) == 0
         assert approx(get_bond_order("C", "Br", 1.9, tol=0.5, default_bl=1.9) - 1) == 0

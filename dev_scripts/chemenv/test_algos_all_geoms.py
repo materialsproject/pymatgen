@@ -109,7 +109,9 @@ if __name__ == "__main__":
                         # raise ValueError('Do something for the explicit ones ... (these should anyway be by far ok!)')
                     else:
                         results = lgf.coordination_geometry_symmetry_measures_separation_plane(
-                            coordination_geometry=cg, separation_plane_algo=algo, points_perfect=points_perfect
+                            coordination_geometry=cg,
+                            separation_plane_algo=algo,
+                            points_perfect=points_perfect,
                         )
                     algos_results.append(min(results[0]))
 

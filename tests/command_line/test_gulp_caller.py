@@ -10,7 +10,9 @@ import os
 import sys
 import unittest
 from shutil import which
+from unittest import TestCase
 
+import numpy as np
 import pytest
 
 from pymatgen.analysis.bond_valence import BVAnalyzer
@@ -24,8 +26,9 @@ from pymatgen.command_line.gulp_caller import (
     get_energy_tersoff,
 )
 from pymatgen.core.structure import Structure
-from pymatgen.io.vasp.inputs import Poscar
-from pymatgen.util.testing import TEST_FILES_DIR
+from pymatgen.util.testing import TEST_FILES_DIR, VASP_IN_DIR
+
+TEST_DIR = f"{TEST_FILES_DIR}/command_line/gulp"
 
 gulp_present = which("gulp") and os.getenv("GULP_LIB") and ("win" not in sys.platform)
 # disable gulp tests for now. Right now, it is compiled against libgfortran3, which is no longer supported in the new
@@ -33,10 +36,10 @@ gulp_present = which("gulp") and os.getenv("GULP_LIB") and ("win" not in sys.pla
 gulp_present = False
 
 
-@unittest.skipIf(not gulp_present, "gulp not present.")
-class TestGulpCaller(unittest.TestCase):
+@pytest.mark.skipif(not gulp_present, reason="gulp not present.")
+class TestGulpCaller:
     def test_run(self):
-        mgo_lattice = [[4.212, 0, 0], [0, 4.212, 0], [0, 0, 4.212]]
+        mgo_lattice = np.eye(3) * 4.212
         mgo_specie = ["Mg"] * 4 + ["O"] * 4
         mgo_frac_cord = [
             [0, 0, 0],
@@ -48,7 +51,13 @@ class TestGulpCaller(unittest.TestCase):
             [0, 0, 0.5],
             [0.5, 0.5, 0.5],
         ]
-        mgo_uc = Structure(mgo_lattice, mgo_specie, mgo_frac_cord, validate_proximity=True, to_unit_cell=True)
+        mgo_uc = Structure(
+            mgo_lattice,
+            mgo_specie,
+            mgo_frac_cord,
+            validate_proximity=True,
+            to_unit_cell=True,
+        )
         gio = GulpIO()
         gin = gio.keyword_line("optimise", "conp")
         gin += gio.structure_lines(mgo_uc, symm_flg=False)
@@ -59,8 +68,7 @@ class TestGulpCaller(unittest.TestCase):
         gin += "O  shel O shel 22764.000 0.14900 27.87900 0.0 12.0\n"
         gc = GulpCaller()
 
-        """Some inherent checks are in the run_gulp function itself.
-        They should be sufficient for raising errors."""
+        # some inherent checks are in the run_gulp function itself. should be sufficient for raising errors
         gc.run(gin)
 
     def test_decimal(self):
@@ -97,13 +105,10 @@ class TestGulpCaller(unittest.TestCase):
         caller.run(buckingham_input)
 
 
-@unittest.skipIf(not gulp_present, "gulp not present.")
-class TestGulpIO(unittest.TestCase):
-    _multiprocess_shared_ = True
-
+@pytest.mark.skipif(not gulp_present, reason="gulp not present.")
+class TestGulpIO(TestCase):
     def setUp(self):
-        p = Poscar.from_file(f"{TEST_FILES_DIR}/POSCAR.Al12O18", check_for_POTCAR=False)
-        self.structure = p.structure
+        self.structure = Structure.from_file(f"{VASP_IN_DIR}/POSCAR_Al12O18")
         self.gio = GulpIO()
 
     def test_keyword_line_with_correct_keywords(self):
@@ -141,7 +146,7 @@ class TestGulpIO(unittest.TestCase):
             self.gio.library_line("temp_to_fail.lib")
 
     def test_buckingham_potential(self):
-        mgo_latt = [[4.212, 0, 0], [0, 4.212, 0], [0, 0, 4.212]]
+        mgo_latt = np.eye(3) * 4.212
         mgo_specie = ["Mg", "O"] * 4
         mgo_frac_cord = [
             [0, 0, 0],
@@ -153,7 +158,13 @@ class TestGulpIO(unittest.TestCase):
             [0, 0.5, 0.5],
             [0.5, 0.5, 0.5],
         ]
-        mgo_uc = Structure(mgo_latt, mgo_specie, mgo_frac_cord, validate_proximity=True, to_unit_cell=True)
+        mgo_uc = Structure(
+            mgo_latt,
+            mgo_specie,
+            mgo_frac_cord,
+            validate_proximity=True,
+            to_unit_cell=True,
+        )
         gin = self.gio.buckingham_potential(mgo_uc)
         assert "specie" in gin
         assert "buck" in gin
@@ -168,7 +179,7 @@ class TestGulpIO(unittest.TestCase):
         assert "spring" in gin
 
     def test_buckingham_input(self):
-        mgo_latt = [[4.212, 0, 0], [0, 4.212, 0], [0, 0, 4.212]]
+        mgo_latt = np.eye(3) * 4.212
         mgo_specie = ["Mg", "O"] * 4
         mgo_frac_cord = [
             [0, 0, 0],
@@ -180,7 +191,13 @@ class TestGulpIO(unittest.TestCase):
             [0, 0.5, 0.5],
             [0.5, 0.5, 0.5],
         ]
-        mgo_uc = Structure(mgo_latt, mgo_specie, mgo_frac_cord, validate_proximity=True, to_unit_cell=True)
+        mgo_uc = Structure(
+            mgo_latt,
+            mgo_specie,
+            mgo_frac_cord,
+            validate_proximity=True,
+            to_unit_cell=True,
+        )
         gin = self.gio.buckingham_input(mgo_uc, keywords=("optimise", "conp"))
         assert "optimise" in gin
         assert "cell" in gin
@@ -193,7 +210,7 @@ class TestGulpIO(unittest.TestCase):
 
     # Improve the test
     def test_tersoff_potential(self):
-        mgo_latt = [[4.212, 0, 0], [0, 4.212, 0], [0, 0, 4.212]]
+        mgo_latt = np.eye(3) * 4.212
         mgo_specie = ["Mg", "O"] * 4
         mgo_frac_cord = [
             [0, 0, 0],
@@ -205,7 +222,13 @@ class TestGulpIO(unittest.TestCase):
             [0, 0.5, 0.5],
             [0.5, 0.5, 0.5],
         ]
-        mgo_uc = Structure(mgo_latt, mgo_specie, mgo_frac_cord, validate_proximity=True, to_unit_cell=True)
+        mgo_uc = Structure(
+            mgo_latt,
+            mgo_specie,
+            mgo_frac_cord,
+            validate_proximity=True,
+            to_unit_cell=True,
+        )
         gin = self.gio.tersoff_potential(mgo_uc)
         assert "specie" in gin
         assert "Mg core" in gin
@@ -249,8 +272,8 @@ class TestGulpIO(unittest.TestCase):
     def test_get_relaxed_structure(self):
         # Output string obtained from running GULP on a terminal
 
-        with open(f"{TEST_FILES_DIR}/example21.gout") as fp:
-            out_str = fp.read()
+        with open(f"{TEST_DIR}/example21.gout") as file:
+            out_str = file.read()
         struct = self.gio.get_relaxed_structure(out_str)
         assert isinstance(struct, Structure)
         assert len(struct) == 8
@@ -258,14 +281,14 @@ class TestGulpIO(unittest.TestCase):
         assert struct.lattice.alpha == 90
 
     @unittest.skip("Test later")
-    def test_tersoff_inpt(self):
+    def test_tersoff_input(self):
         self.gio.tersoff_input(self.structure)
 
 
-@unittest.skipIf(not gulp_present, "gulp not present.")
-class TestGlobalFunctions(unittest.TestCase):
+@pytest.mark.skipif(not gulp_present, reason="gulp not present.")
+class TestGlobalFunctions(TestCase):
     def setUp(self):
-        mgo_latt = [[4.212, 0, 0], [0, 4.212, 0], [0, 0, 4.212]]
+        mgo_latt = np.eye(3) * 4.212
         mgo_specie = ["Mg", "O"] * 4
         mgo_frac_cord = [
             [0, 0, 0],
@@ -277,15 +300,20 @@ class TestGlobalFunctions(unittest.TestCase):
             [0, 0.5, 0.5],
             [0.5, 0.5, 0.5],
         ]
-        self.mgo_uc = Structure(mgo_latt, mgo_specie, mgo_frac_cord, validate_proximity=True, to_unit_cell=True)
+        self.mgo_uc = Structure(
+            mgo_latt,
+            mgo_specie,
+            mgo_frac_cord,
+            validate_proximity=True,
+            to_unit_cell=True,
+        )
         bv = BVAnalyzer()
         val = bv.get_valences(self.mgo_uc)
-        el = [site.species_string for site in self.mgo_uc.sites]
-        self.val_dict = dict(zip(el, val))
+        el = [site.species_string for site in self.mgo_uc]
+        self.val_dict = dict(zip(el, val, strict=True))
 
     def test_get_energy_tersoff(self):
-        p = Poscar.from_file(f"{TEST_FILES_DIR}/POSCAR.Al12O18", check_for_POTCAR=False)
-        structure = p.structure
+        structure = Structure.from_file(f"{VASP_IN_DIR}/POSCAR_Al12O18")
         energy = get_energy_tersoff(structure)
         assert isinstance(energy, float)
 
@@ -309,10 +337,8 @@ class TestGlobalFunctions(unittest.TestCase):
         assert site_len == len(self.mgo_uc)
 
 
-@unittest.skipIf(not gulp_present, "gulp not present.")
-class TestBuckinghamPotentialLewis(unittest.TestCase):
-    _multiprocess_shared_ = True
-
+@pytest.mark.skipif(not gulp_present, reason="gulp not present.")
+class TestBuckinghamPotentialLewis(TestCase):
     def setUp(self):
         self.bpl = BuckinghamPotential("lewis")
 
@@ -323,7 +349,7 @@ class TestBuckinghamPotentialLewis(unittest.TestCase):
         assert "O_core" in self.bpl.species_dict
         assert "O_shel" in self.bpl.species_dict
 
-    def test_non_exisitng_element(self):
+    def test_non_existing_element(self):
         assert "Li_1+" not in self.bpl.pot_dict
         assert "Li_1+" not in self.bpl.species_dict
 
@@ -339,10 +365,8 @@ class TestBuckinghamPotentialLewis(unittest.TestCase):
         assert self.bpl.spring_dict["O"] != ""
 
 
-@unittest.skipIf(not gulp_present, "gulp not present.")
-class TestBuckinghamPotentialBush(unittest.TestCase):
-    _multiprocess_shared_ = True
-
+@pytest.mark.skipif(not gulp_present, reason="gulp not present.")
+class TestBuckinghamPotentialBush(TestCase):
     def setUp(self):
         self.bpb = BuckinghamPotential("bush")
 
@@ -352,7 +376,7 @@ class TestBuckinghamPotentialBush(unittest.TestCase):
         assert "O" in self.bpb.pot_dict
         assert "O" in self.bpb.species_dict
 
-    def test_non_exisitng_element(self):
+    def test_non_existing_element(self):
         assert "Mn" not in self.bpb.pot_dict
         assert "Mn" not in self.bpb.species_dict
 

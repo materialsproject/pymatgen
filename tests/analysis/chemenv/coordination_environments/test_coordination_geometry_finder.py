@@ -1,10 +1,17 @@
 from __future__ import annotations
 
+import json
+import os
+
 import numpy as np
 import pytest
 from numpy.testing import assert_allclose
 from pytest import approx
 
+from pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies import (
+    SimpleAbundanceChemenvStrategy,
+    SimplestChemenvStrategy,
+)
 from pymatgen.analysis.chemenv.coordination_environments.coordination_geometries import AllCoordinationGeometries
 from pymatgen.analysis.chemenv.coordination_environments.coordination_geometry_finder import (
     AbstractGeometry,
@@ -16,7 +23,7 @@ from pymatgen.util.testing import TEST_FILES_DIR, PymatgenTest
 
 __author__ = "waroquiers"
 
-json_dir = f"{TEST_FILES_DIR}/chemenv/json"
+json_dir = f"{TEST_FILES_DIR}/analysis/chemenv/json"
 
 
 class TestCoordinationGeometryFinder(PymatgenTest):
@@ -27,7 +34,7 @@ class TestCoordinationGeometryFinder(PymatgenTest):
             structure_refinement=self.lgf.STRUCTURE_REFINEMENT_NONE,
         )
 
-    #     self.strategies = [SimplestChemenvStrategy(), SimpleAbundanceChemenvStrategy()]
+    # self.strategies = [SimplestChemenvStrategy(), SimpleAbundanceChemenvStrategy()]
 
     def test_abstract_geometry(self):
         cg_ts3 = self.lgf.allcg["TS:3"]
@@ -88,9 +95,9 @@ class TestCoordinationGeometryFinder(PymatgenTest):
         assert self.lgf.indices == [4, 6, 3, 1, 2, 5]
 
         LiFePO4_struct = self.get_structure("LiFePO4")
-        isite = 10
-        envs_LiFePO4 = self.lgf.compute_coordination_environments(structure=LiFePO4_struct, indices=[isite])
-        assert envs_LiFePO4[isite][0]["csm"] == approx(0.140355832317)
+        site_idx = 10
+        envs_LiFePO4 = self.lgf.compute_coordination_environments(structure=LiFePO4_struct, indices=[site_idx])
+        assert envs_LiFePO4[site_idx][0]["csm"] == approx(0.140355832317)
         nbs_coords = [
             np.array([6.16700437, -4.55194317, -5.89031356]),
             np.array([4.71588167, -4.54248093, -3.75553856]),
@@ -99,63 +106,75 @@ class TestCoordinationGeometryFinder(PymatgenTest):
         ]
 
         # test to check that one can pass voronoi_distance_cutoff
-        struct = Structure(Lattice.cubic(25), ["O", "C", "O"], [[0.0, 0.0, 0.0], [0.0, 0.0, 1.17], [0.0, 0.0, 2.34]])
+        struct = Structure(
+            Lattice.cubic(25),
+            ["O", "C", "O"],
+            [[0.0, 0.0, 0.0], [0.0, 0.0, 1.17], [0.0, 0.0, 2.34]],
+        )
         self.lgf.setup_structure(structure=struct)
         self.lgf.compute_structure_environments(voronoi_distance_cutoff=25)
 
         self.lgf.setup_structure(LiFePO4_struct)
-        self.lgf.setup_local_geometry(isite, coords=nbs_coords)
+        self.lgf.setup_local_geometry(site_idx, coords=nbs_coords)
 
         perfect_tet = AbstractGeometry.from_cg(
             cg=cg_tet, centering_type="centroid", include_central_site_in_centroid=False
         )
         points_perfect_tet = perfect_tet.points_wcs_ctwcc()
-        res = self.lgf.coordination_geometry_symmetry_measures_fallback_random(
-            coordination_geometry=cg_tet, NRANDOM=5, points_perfect=points_perfect_tet
+        result = self.lgf.coordination_geometry_symmetry_measures_fallback_random(
+            coordination_geometry=cg_tet, n_random=5, points_perfect=points_perfect_tet
         )
-        permutations_symmetry_measures, permutations, algos, local2perfect_maps, perfect2local_maps = res
+        (
+            permutations_symmetry_measures,
+            _permutations,
+            _algos,
+            _local2perfect_maps,
+            _perfect2local_maps,
+        ) = result
         for perm_csm_dict in permutations_symmetry_measures:
             assert perm_csm_dict["symmetry_measure"] == approx(0.140355832317)
 
-    # def _strategy_test(self, strategy):
-    #     files = []
-    #     for _dirpath, _dirnames, filenames in os.walk(json_dir):
-    #         files.extend(filenames)
-    #         break
+    def _strategy_test(self, strategy):
+        files = []
+        for _dirpath, _dirnames, filenames in os.walk(json_dir):
+            files.extend(filenames)
+            break
 
-    #     for _ifile, json_file in enumerate(files):
-    #         with self.subTest(json_file=json_file):
-    #             with open(f"{json_dir}/{json_file}") as f:
-    #                 dd = json.load(f)
+        for json_file in files:
+            with self.subTest(json_file=json_file):
+                with open(f"{json_dir}/{json_file}") as file:
+                    dct = json.load(file)
 
-    #             atom_indices = dd["atom_indices"]
-    #             expected_geoms = dd["expected_geoms"]
+                atom_indices = dct["atom_indices"]
+                expected_geoms = dct["expected_geoms"]
 
-    #             struct = Structure.from_dict(dd["structure"])
+                struct = Structure.from_dict(dct["structure"])
 
-    #             struct = self.lgf.setup_structure(struct)
-    #             se = self.lgf.compute_structure_environments_detailed_voronoi(
-    #                 only_indices=atom_indices, maximum_distance_factor=1.5
-    #             )
+                struct = self.lgf.setup_structure(struct)
+                se = self.lgf.compute_structure_environments_detailed_voronoi(
+                    only_indices=atom_indices, maximum_distance_factor=1.5
+                )
 
-    #             # All strategies should get the correct environment with their default parameters
-    #             strategy.set_structure_environments(se)
-    #             for ienv, isite in enumerate(atom_indices):
-    #                 ce = strategy.get_site_coordination_environment(struct[isite])
-    #                 try:
-    #                     coord_env = ce[0]
-    #                 except TypeError:
-    #                     coord_env = ce
-    #                 # Check that the environment found is the expected one
-    #                 assert coord_env == expected_geoms[ienv]
+                # All strategies should get the correct environment with their default parameters
+                strategy.set_structure_environments(se)
+                for ienv, isite in enumerate(atom_indices):
+                    ce = strategy.get_site_coordination_environment(struct[isite])
+                    try:
+                        coord_env = ce[0]
+                    except TypeError:
+                        coord_env = ce
+                    # Check that the environment found is the expected one
+                    assert coord_env == expected_geoms[ienv]
 
-    # def test_simplest_chemenv_strategy(self):
-    #     strategy = SimplestChemenvStrategy()
-    #     self._strategy_test(strategy)
+    @pytest.mark.skip("TODO: need someone to fix this")
+    def test_simplest_chemenv_strategy(self):
+        strategy = SimplestChemenvStrategy()
+        self._strategy_test(strategy)
 
-    # def test_simple_abundance_chemenv_strategy(self):
-    #     strategy = SimpleAbundanceChemenvStrategy()
-    #     self._strategy_test(strategy)
+    @pytest.mark.skip("TODO: need someone to fix this")
+    def test_simple_abundance_chemenv_strategy(self):
+        strategy = SimpleAbundanceChemenvStrategy()
+        self._strategy_test(strategy)
 
     def test_perfect_environments(self):
         allcg = AllCoordinationGeometries()

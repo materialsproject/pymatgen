@@ -7,10 +7,7 @@ import pytest
 from numpy.testing import assert_allclose
 from pytest import approx
 
-from pymatgen.core.composition import Composition
-from pymatgen.core.lattice import Lattice
-from pymatgen.core.periodic_table import Element, Species
-from pymatgen.core.sites import PeriodicSite, Site
+from pymatgen.core import Composition, Element, Lattice, PeriodicSite, Site, Species
 from pymatgen.electronic_structure.core import Magmom
 from pymatgen.util.testing import PymatgenTest
 
@@ -67,8 +64,8 @@ class TestSite(PymatgenTest):
         assert ord_site.distance(self.disordered_site) == 0
 
     def test_pickle(self):
-        o = pickle.dumps(self.propertied_site)
-        assert pickle.loads(o) == self.propertied_site
+        dump = pickle.dumps(self.propertied_site)
+        assert pickle.loads(dump) == self.propertied_site  # noqa: S301
 
     def test_setters(self):
         self.disordered_site.species = "Cu"
@@ -124,12 +121,12 @@ class TestPeriodicSite(PymatgenTest):
         other_site = PeriodicSite("Fe", np.array([1, 1, 1]), self.lattice)
         distance, image = self.site.distance_and_image(other_site)
         assert distance == approx(6.22494979899)
-        assert ([-1, -1, -1] == image).all()
+        assert (image == [-1, -1, -1]).all()
         distance, image = self.site.distance_and_image(other_site, [1, 0, 0])
         assert distance == approx(19.461500456028563)
         # Test that old and new distance algo give the same ans for
         # "standard lattices"
-        lattice = Lattice([[1, 0, 0], [0, 1, 0], [0, 0, 1]])
+        lattice = Lattice(np.eye(3))
         site1 = PeriodicSite("Fe", np.array([0.01, 0.02, 0.03]), lattice)
         site2 = PeriodicSite("Fe", np.array([0.99, 0.98, 0.97]), lattice)
         assert get_distance_and_image_old(site1, site2)[0] == approx(site1.distance_and_image(site2)[0])
@@ -137,16 +134,16 @@ class TestPeriodicSite(PymatgenTest):
         site1 = PeriodicSite("Fe", np.array([0.01, 0.02, 0.03]), lattice)
         site2 = PeriodicSite("Fe", np.array([0.99, 0.98, 0.97]), lattice)
         assert get_distance_and_image_old(site1, site2)[0] > site1.distance_and_image(site2)[0]
-        site2 = PeriodicSite("Fe", np.random.rand(3), lattice)
+        site2 = PeriodicSite("Fe", np.random.default_rng().random(3), lattice)
         dist_old, jimage_old = get_distance_and_image_old(site1, site2)
         dist_new, jimage_new = site1.distance_and_image(site2)
         assert dist_old - dist_new > -1e-8, "New distance algo should give smaller answers!"
         assert (
             not (abs(dist_old - dist_new) < 1e-8) ^ (jimage_old == jimage_new).all()
         ), "If old dist == new dist, images must be the same!"
-        latt = Lattice.from_parameters(3.0, 3.1, 10.0, 2.96, 2.0, 1.0)
-        site = PeriodicSite("Fe", [0.1, 0.1, 0.1], latt)
-        site2 = PeriodicSite("Fe", [0.99, 0.99, 0.99], latt)
+        lattice = Lattice.from_parameters(3.0, 3.1, 10.0, 2.96, 2.0, 1.0)
+        site = PeriodicSite("Fe", [0.1, 0.1, 0.1], lattice)
+        site2 = PeriodicSite("Fe", [0.99, 0.99, 0.99], lattice)
         dist, img = site.distance_and_image(site2)
         assert dist == approx(0.15495358379511573)
         assert list(img) == [-11, 6, 0]
@@ -170,6 +167,26 @@ class TestPeriodicSite(PymatgenTest):
 
         assert self.labeled_site.label != site.label
         assert self.labeled_site == site
+
+    def test_equality_prop_with_np_array(self):
+        """Some property (e.g. selective dynamics for POSCAR) could be numpy arrays,
+        use "==" for equality check might fail in these cases.
+        """
+        site_0 = PeriodicSite(
+            "Fe",
+            [0.25, 0.35, 0.45],
+            self.lattice,
+            properties={"selective_dynamics": np.array([True, True, False])},
+        )
+        assert site_0 == site_0
+
+        site_1 = PeriodicSite(
+            "Fe",
+            [0.25, 0.35, 0.45],
+            self.lattice,
+            properties={"selective_dynamics": np.array([True, False, False])},
+        )
+        assert site_0 != site_1
 
     def test_as_from_dict(self):
         dct = self.site2.as_dict()
@@ -227,6 +244,12 @@ class TestPeriodicSite(PymatgenTest):
         assert repr(self.propertied_site) == "PeriodicSite: Fe2+ (2.5, 3.5, 4.5) [0.25, 0.35, 0.45]"
         assert repr(self.labeled_site) == "PeriodicSite: site label (Fe) (2.5, 3.5, 4.5) [0.25, 0.35, 0.45]"
 
+    def test_str(self):
+        assert str(self.site) == "[2.5 3.5 4.5] Fe"
+        assert str(self.site2) == "[0. 0. 0.] Si:0.5"
+        assert str(self.propertied_site) == "[2.5 3.5 4.5] Fe2+"
+        assert str(self.labeled_site) == "[2.5 3.5 4.5] Fe"
+
 
 def get_distance_and_image_old(site1, site2, jimage=None):
     """
@@ -242,13 +265,12 @@ def get_distance_and_image_old(site1, site2, jimage=None):
             other site to get distance from.
         jimage:
             specific periodic image in terms of lattice translations,
-            e.g., [1,0,0] implies to take periodic image that is one
+            e.g. [1,0,0] implies to take periodic image that is one
             a-lattice vector away. If jimage is None, the image that is
             nearest to the site is found.
 
     Returns:
-        (distance, jimage):
-            distance and periodic lattice translations of the other site
+        tuple[float, np.array]: distance and periodic lattice translations of the other site
             for which the distance applies.
 
     Note:

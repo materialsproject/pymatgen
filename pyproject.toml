@@ -1,18 +1,161 @@
 [build-system]
 requires = [
-  "Cython>=0.29.23",
-  # pin NumPy version used in the build
-  "oldest-supported-numpy",
-  "setuptools>=65.0.0",
+    "Cython>=0.29.23",
+    # Building against NPY2 will support both NPY1 and NPY2
+    # https://numpy.org/devdocs/dev/depending_on_numpy.html#build-time-dependency
+    "numpy>=2.1.0",
+    "setuptools>=65.0.0",
 ]
 build-backend = "setuptools.build_meta"
 
-[tool.versioningit.vcs]
-method = "git"
-default-tag = "0.0.1"
 
-[tool.black]
-line-length = 120
+[project]
+name = "pymatgen"
+authors = [{ name = "Pymatgen Development Team", email = "ongsp@ucsd.edu" }]
+maintainers = [
+    { name = "Matthew Horton", email = "m.k.horton@gmail.com" },
+    { name = "Shyue Ping Ong", email = "ongsp@ucsd.edu" },
+]
+description = """
+Python Materials Genomics is a robust materials analysis code that defines core object representations for structures
+and molecules with support for many electronic structure codes. It is currently the core analysis code powering the
+Materials Project (https://materialsproject.org)."""
+readme = "README.md"
+requires-python = ">=3.10,<3.13"
+keywords = [
+    "ABINIT",
+    "VASP",
+    "analysis",
+    "crystal",
+    "diagrams",
+    "electronic",
+    "gaussian",
+    "materials",
+    "nwchem",
+    "phase",
+    "project",
+    "qchem",
+    "science",
+    "structure",
+]
+license = { text = "MIT" }
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Intended Audience :: Science/Research",
+    "License :: OSI Approved :: MIT License",
+    "Operating System :: OS Independent",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Topic :: Scientific/Engineering :: Chemistry",
+    "Topic :: Scientific/Engineering :: Information Analysis",
+    "Topic :: Scientific/Engineering :: Physics",
+    "Topic :: Software Development :: Libraries :: Python Modules",
+]
+dependencies = [
+    "joblib>=1",
+    "matplotlib>=3.8",
+    "monty>=2024.10.21",
+    "networkx>=2.7",  # PR4116
+    "palettable>=3.3.3",
+    "pandas>=2",
+    "plotly>=4.5.0",
+    "pybtex>=0.24.0",
+    "requests>=2.32",
+    "ruamel.yaml>=0.17.0",
+    "scipy>=1.13.0",
+    # scipy<1.14.1 is incompatible with NumPy 2.0 on Windows
+    # https://github.com/scipy/scipy/issues/21052
+    "scipy>=1.14.1; platform_system == 'Windows'",
+    "spglib>=2.5.0",
+    "sympy>=1.3",  # PR #4116
+    "tabulate>=0.9",
+    "tqdm>=4.60",
+    "uncertainties>=3.1.4",
+    # NumPy documentation suggests pinning the current major version as the C API is used
+    # https://numpy.org/devdocs/dev/depending_on_numpy.html#runtime-dependency-version-ranges
+    "numpy>=1.25.0,<3",
+]
+version = "2024.10.29"
+
+[project.urls]
+Homepage = "https://pymatgen.org"
+Documentation = "https://pymatgen.org"
+Repository = "https://github.com/materialsproject/pymatgen"
+Issues = "https://github.com/materialsproject/pymatgen/issues"
+Pypi = "https://pypi.org/project/pymatgen"
+
+[project.optional-dependencies]
+# PR4128: netcdf4 1.7.[0/1] yanked, 1.7.1.post[1/2]/1.7.2 cause CI error
+abinit = ["netcdf4>=1.6.5,!=1.7.1.post1,!=1.7.1.post2,!=1.7.2"]
+ase = ["ase>=3.23.0"]
+ci = ["pytest-cov>=4", "pytest-split>=0.8", "pytest>=8"]
+docs = ["invoke", "sphinx", "sphinx_markdown_builder", "sphinx_rtd_theme"]
+electronic_structure = ["fdint>=2.0.2"]
+mlp = ["chgnet>=0.3.8", "matgl>=1.1.3"]
+numba = ["numba>=0.55"]
+numpy-v1 = ["numpy>=1.25.0,<2"] # Test NP1 on Windows (quite buggy ATM)
+optional = [
+    "pymatgen[abinit,ase,mlp,tblite]",
+    "beautifulsoup4",
+    # BoltzTraP2 build fails on Windows GitHub runners
+    "BoltzTraP2>=24.9.4 ; platform_system != 'Windows'",
+    "chemview>=0.6",
+    "f90nml>=1.1.2",
+    "galore>=0.6.1",
+    "h5py>=3.11.0",
+    "hiphive>=1.3.1",
+    "jarvis-tools>=2020.7.14",
+    "matplotlib>=3.8",
+    "phonopy>=2.23",
+    "seekpath>=2.0.1",
+]
+# tblite only support Python 3.12+ through conda-forge
+# https://github.com/tblite/tblite/issues/175
+tblite = [ "tblite[ase]>=0.3.0; platform_system=='Linux' and python_version<'3.12'"]
+vis = ["vtk>=6.0.0"]
+
+[project.scripts]
+pmg = "pymatgen.cli.pmg:main"
+feff_plot_cross_section = "pymatgen.cli.feff_plot_cross_section:main"
+feff_plot_dos = "pymatgen.cli.feff_plot_dos:main"
+get_environment = "pymatgen.cli.get_environment:main"
+
+[tool.setuptools]
+include-package-data = false
+
+[tool.setuptools.packages.find]
+where = ["src"]
+include = ["pymatgen", "pymatgen.*"]
+
+[tool.setuptools.package-data]
+"pymatgen.analysis" = ["*.csv", "*.json", "*.yaml"]
+"pymatgen.analysis.chemenv" = [
+    "coordination_environments/coordination_geometries_files/*.json",
+    "coordination_environments/coordination_geometries_files/*.txt",
+    "coordination_environments/strategy_files/ImprovedConfidenceCutoffDefaultParameters.json",
+]
+"pymatgen.analysis.structure_prediction" = ["*.yaml", "data/*.json"]
+"pymatgen.analysis.diffraction" = ["*.json"]
+"pymatgen.analysis.magnetism" = ["default_magmoms.yaml"]
+"pymatgen.analysis.solar" = ["am1.5G.dat"]
+"pymatgen.entries" = ["*.json.gz", "*.yaml", "data/*.json"]
+"pymatgen.core" = ["*.json"]
+"pymatgen" = ["py.typed"]
+"pymatgen.io.vasp" = ["*.json", "*.json.bz2", "*.json.gz", "*.yaml"]
+"pymatgen.io.feff" = ["*.yaml"]
+"pymatgen.io.cp2k" = ["*.yaml"]
+"pymatgen.io.lobster" = ["lobster_basis/*.yaml"]
+"pymatgen.command_line" = ["*"]
+"pymatgen.util" = ["*.json", "structures/*.json"]
+"pymatgen.vis" = ["*.yaml"]
+"pymatgen.io.lammps" = ["CoeffsDataType.yaml", "templates/*.template"]
+"pymatgen.symmetry" = ["*.json", "*.sqlite", "*.yaml"]
+
+[tool.pdm.dev-dependencies]
+lint = ["mypy>=1.10.0", "pre-commit>=3.7.1", "ruff>=0.4.9"]
+test = ["pytest-cov>=5.0.0", "pytest-split>=0.9.0", "pytest>=8.2.2"]
 
 [tool.cibuildwheel.linux]
 archs = ["auto64"]
@@ -23,102 +166,119 @@ before-all = "ln -s /usr/lib64/libgfortran.so.5 /usr/lib64/libgfortran.so.3"
 repair-wheel-command = "delocate-wheel --require-archs {delocate_archs} -w {dest_dir} -v {wheel} --ignore-missing-dependencies"
 
 [tool.ruff]
-target-version = "py39"
+target-version = "py310"
 line-length = 120
-select = [
-  "B",      # flake8-bugbear
-  "C4",     # flake8-comprehensions
-  "D",      # pydocstyle
-  "E",      # pycodestyle error
-  "EXE",    # flake8-executable
-  "F",      # pyflakes
-  "FA",     # flake8-future-annotations
-  "FBT003", # boolean-positional-value-in-call
-  "FLY",    # flynt
-  "I",      # isort
-  "ICN",    # flake8-import-conventions
-  "ISC",    # flake8-implicit-str-concat
-  "PD",     # pandas-vet
-  "PERF",   # perflint
-  "PIE",    # flake8-pie
-  "PL",     # pylint
-  "PT",     # flake8-pytest-style
-  "PYI",    # flakes8-pyi
-  "Q",      # flake8-quotes
-  "RET",    # flake8-return
-  "RSE",    # flake8-raise
-  "RUF",    # Ruff-specific rules
-  "SIM",    # flake8-simplify
-  "SLOT",   # flake8-slots
-  "TCH",    # flake8-type-checking
-  "TID",    # tidy imports
-  "TID",    # flake8-tidy-imports
-  "UP",     # pyupgrade
-  "W",      # pycodestyle warning
-  "YTT",    # flake8-2020
-]
+output-format = "concise"
+
+[tool.ruff.lint]
+select = ["ALL"]
 ignore = [
-  "B023",    # Function definition does not bind loop variable
-  "B028",    # No explicit stacklevel keyword argument found
-  "B904",    # Within an except clause, raise exceptions with ...
-  "C408",    # unnecessary-collection-call
-  "D105",    # Missing docstring in magic method
-  "D205",    # 1 blank line required between summary line and description
-  "D212",    # Multi-line docstring summary should start at the first line
-  "PD901",   # pandas-df-variable-name
-  "PERF203", # try-except-in-loop
-  "PERF401", # manual-list-comprehension (TODO fix these or wait for autofix)
-  "PLR",     # pylint refactor
-  "PLW2901", # Outer for loop variable overwritten by inner assignment target
-  "PT013",   # pytest-incorrect-pytest-import
-  "PYI024",  # collections-named-tuple (TODO should maybe fix these)
-  "RUF012",  # Disable checks for mutable class args. This is a non-problem.
-  "SIM105",  # Use contextlib.suppress(OSError) instead of try-except-pass
+    # Rule families
+    "ANN", # flake8-annotations (not ready, require types for ALL args)
+    "ARG", # Check for unused function arguments
+    "BLE", # General catch of Exception
+    "C90", # Check for functions with a high McCabe complexity
+    "COM", # flake8-commas (conflict with line wrapper)
+    "CPY", # Missing copyright notice at top of file (need preview mode)
+    "EM",  # Format nice error messages
+    "ERA", # Check for commented-out code
+    "FIX", # Check for FIXME, TODO and other developer notes
+    "G",   # Validate logging format strings
+    "INP", # Ban PEP-420 implicit namespace packages
+    "N",   # PEP8-naming (many var/arg names are intended)
+    "PTH", # Prefer pathlib over os.path
+    "SLF", # Access "private" class members
+    "T20", # Check for print/pprint
+    "TD",  # TODO tags related
+
+    # Single rules
+    "B023",    # Function definition does not bind loop variable
+    "B028",    # No explicit stacklevel keyword argument found
+    "B904",    # Within an except clause, raise exceptions with ...
+    "C408",    # unnecessary-collection-call
+    "D105",    # Missing docstring in magic method
+    "D205",    # One blank line required between summary line and description
+    "D212",    # Multi-line docstring summary should start at the first line
+    "FBT001",  # Boolean-typed positional argument in function definition
+    "FBT002",  # Boolean default positional argument in function
+    "PD011",   # (A lot of false positive on non-Pandas objects)
+    "PERF203", # Use of try-except in for/while loop
+    "PERF401", # Replace "for" loops with list comprehension
+    "PLR0911", # Too many return statements
+    "PLR0912", # Too many branches
+    "PLR0913", # Too many arguments
+    "PLR0915", # Too many statements
+    "PLR1702", # Too many nested blocks
+    "PLR2004", # Magic-value-comparison TODO: fix these
+    "PLW2901", # Outer for loop variable overwritten by inner assignment target
+    "PT013",   # Incorrect import of pytest
+    "S110",    # Log for try-except-pass
+    "S112",    # Log for try-except-continue
+    "S311",    # Use random module for cryptographic purposes
+    "S314",    # Replace xml with defusedxml to avoid XML attacks
+    "S603",    # Check source for use of "subprocess" call
+    "S607",    # Start process with relative path
+    "SIM105",  # Use contextlib.suppress() instead of try-except-pass
+    "TRY003",  # Avoid specifying long messages outside the exception class
+    "TRY300",  # Check for return statements in try blocks
+    "TRY301",  # Check for raise statements within try blocks
 ]
 pydocstyle.convention = "google"
 isort.required-imports = ["from __future__ import annotations"]
 isort.split-on-trailing-comma = false
+isort.known-first-party = ["pymatgen"]
 
-[tool.ruff.per-file-ignores]
-"__init__.py" = ["F401"]
-"tests/**" = ["D"]
-"tasks.py" = ["D"]
-"pymatgen/analysis/*" = ["D"]
-"pymatgen/vis/*" = ["D"]
-"pymatgen/io/*" = ["D"]
+[tool.ruff.format]
+docstring-code-format = true
+
+[tool.ruff.lint.per-file-ignores]
+"__init__.py" = ["F401"] # unused-import
+"tests/**" = [
+    "ANN201",  # missing-return-type-undocumented-public-function
+    "D",       # pydocstyle
+    "PLR0124", # comparison-with-itself
+    "PLR2004", # magic-value-comparison
+    "PLR6301", # no-self-use
+    "S101",    # Use of "assert"
+]
+"src/pymatgen/analysis/*" = ["D"]
+"src/pymatgen/io/*" = ["D"]
 "dev_scripts/*" = ["D"]
 
 [tool.pytest.ini_options]
-addopts = "--durations=30 --quiet -r xXs --color=yes -p no:warnings --import-mode=importlib"
+addopts = "--durations=30 --quiet -r xXs --color=yes --import-mode=importlib"
+filterwarnings = [
+    # NOTE: the last matching option is used
+    "ignore::Warning",               # Ignore all Warning
+    "default::FutureWarning",        # Show FutureWarnings
+    "default::DeprecationWarning",   # Show DeprecationWarnings
+    # TODO: pybtex (perhaps some others) emits the following warnings
+    'ignore:pkg_resources is deprecated as an API:DeprecationWarning',
+    'ignore:distutils Version classes are deprecated:DeprecationWarning',
+    'ignore:Deprecated call to `pkg_resources.declare_namespace:DeprecationWarning',
+]
 
 [tool.coverage.run]
 parallel = true
 omit = [
-  "pymatgen/cli/feff_plot_cross_section.py",
-  "pymatgen/cli/feff_plot_dos.py",
-  "pymatgen/cli/pmg_config.py",
-  "pymatgen/cli/pmg_plot.py",
-  "pymatgen/cli/pmg_potcar.py",
-  "pymatgen/cli/pmg_query.py",
-  "pymatgen/dao.py",
+    "pymatgen/cli/feff_*.py",
+    "pymatgen/cli/pmg_config.py",
+    "pymatgen/cli/pmg_plot.py",
+    "pymatgen/cli/pmg_potcar.py",
+    "pymatgen/dao.py",
 ]
 
 [tool.coverage.report]
 exclude_also = [
-  "@deprecated",
-  "@np.deprecate",
-  "def __repr__",
-  "except ImportError:",
-  "if 0:",
-  "if TYPE_CHECKING:",
-  "if __name__ == .__main__.:",
-  "if self.debug:",
-  "if settings.DEBUG",
-  "if typing.TYPE_CHECKING:",
-  "pragma: no cover",
-  "raise AssertionError",
-  "raise NotImplementedError",
-  "show_plot",
+    "@deprecated",
+    "def __repr__",
+    "except ImportError:",
+    "if TYPE_CHECKING:",
+    "if self.debug:",
+    "if settings.DEBUG",
+    "pragma: no cover",
+    "raise NotImplementedError",
+    "show_plot",
 ]
 
 [tool.mypy]
@@ -126,7 +286,7 @@ ignore_missing_imports = true
 namespace_packages = true
 explicit_package_bases = true
 no_implicit_optional = false
-disable_error_code = "annotation-unchecked"
+disable_error_code = ["annotation-unchecked", "override"]
 
 [[tool.mypy.overrides]]
 module = ["requests.*", "tabulate.*"]
@@ -134,8 +294,18 @@ ignore_missing_imports = true
 
 [tool.codespell]
 ignore-words-list = """
-titel,alls,ans,nd,mater,nwo,te,hart,ontop,ist,ot,fo,nax,coo,coul,ser,leary,thre,
-fase,rute,reson,titels,ges,scalr,strat,struc,hda,nin,ons,pres,kno,loos,lamda,lew
+titel,alls,ans,nd,mater,nwo,te,hart,ontop,ist,ot,fo,nax,coo,
+coul,ser,leary,thre,fase,rute,reson,titels,ges,scalr,strat,
+struc,hda,nin,ons,pres,kno,loos,lamda,lew,atomate,nempty
 """
 skip = "pymatgen/analysis/aflow_prototypes.json"
 check-filenames = true
+
+[tool.pyright]
+typeCheckingMode = "off"
+reportPossiblyUnboundVariable = true
+reportUnboundVariable = true
+reportMissingImports = false
+reportMissingModuleSource = false
+reportInvalidTypeForm = false
+exclude = ["**/tests"]

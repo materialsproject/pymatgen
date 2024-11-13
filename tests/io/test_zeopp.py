@@ -1,13 +1,13 @@
 from __future__ import annotations
 
 import unittest
+from unittest import TestCase
 
+import pytest
 from pytest import approx
 
 from pymatgen.analysis.bond_valence import BVAnalyzer
-from pymatgen.core.periodic_table import Species
-from pymatgen.core.structure import Molecule, Structure
-from pymatgen.io.vasp.inputs import Poscar
+from pymatgen.core import Molecule, Species, Structure
 from pymatgen.io.zeopp import (
     ZeoCssr,
     ZeoVoronoiXYZ,
@@ -15,12 +15,11 @@ from pymatgen.io.zeopp import (
     get_high_accuracy_voronoi_nodes,
     get_voronoi_nodes,
 )
-from pymatgen.util.testing import TEST_FILES_DIR
+from pymatgen.util.testing import TEST_FILES_DIR, VASP_IN_DIR
 
-try:
-    import zeo
-except ImportError:
-    zeo = None
+pytest.importorskip("zeo", reason="zeo not installed")
+
+TEST_DIR = f"{TEST_FILES_DIR}/io/zeopp"
 
 __author__ = "Bharat Medasani"
 __copyright__ = "Copyright 2013, The Materials Project"
@@ -30,12 +29,10 @@ __email__ = "bkmedasani@lbl.gov"
 __date__ = "Aug 2, 2013"
 
 
-@unittest.skipIf(not zeo, "zeo not present.")
-class TestZeoCssr(unittest.TestCase):
+class TestZeoCssr(TestCase):
     def setUp(self):
-        filepath = f"{TEST_FILES_DIR}/POSCAR"
-        p = Poscar.from_file(filepath)
-        self.zeocssr = ZeoCssr(p.structure)
+        filepath = f"{VASP_IN_DIR}/POSCAR"
+        self.zeo_cssr = ZeoCssr(Structure.from_file(filepath))
 
     def test_str(self):
         expected_string = """4.7595 10.4118 6.0672
@@ -66,21 +63,19 @@ class TestZeoCssr(unittest.TestCase):
 22 O 0.7146 0.8343 0.9539 0 0 0 0 0 0 0 0 0.0000
 23 O 0.2587 0.9034 0.7500 0 0 0 0 0 0 0 0 0.0000
 24 O 0.2929 0.9566 0.2500 0 0 0 0 0 0 0 0 0.0000"""
-        assert str(self.zeocssr) == expected_string
+        assert str(self.zeo_cssr) == expected_string
 
     def test_from_file(self):
-        filename = f"{TEST_FILES_DIR}/EDI.cssr"
-        zeocssr = ZeoCssr.from_file(filename)
-        assert isinstance(zeocssr.structure, Structure)
+        filename = f"{TEST_FILES_DIR}/io/cssr/EDI.cssr"
+        zeo_cssr = ZeoCssr.from_file(filename)
+        assert isinstance(zeo_cssr.structure, Structure)
 
 
-@unittest.skipIf(not zeo, "zeo not present.")
-class TestZeoCssrOxi(unittest.TestCase):
+class TestZeoCssrOxi(TestCase):
     def setUp(self):
-        filepath = f"{TEST_FILES_DIR}/POSCAR"
-        p = Poscar.from_file(filepath)
-        structure = BVAnalyzer().get_oxi_state_decorated_structure(p.structure)
-        self.zeocssr = ZeoCssr(structure)
+        filepath = f"{VASP_IN_DIR}/POSCAR"
+        structure = BVAnalyzer().get_oxi_state_decorated_structure(Structure.from_file(filepath))
+        self.zeo_cssr = ZeoCssr(structure)
 
     def test_str(self):
         expected_string = """4.7595 10.4118 6.0672
@@ -111,16 +106,15 @@ class TestZeoCssrOxi(unittest.TestCase):
 22 O2- 0.7146 0.8343 0.9539 0 0 0 0 0 0 0 0 0.0000
 23 O2- 0.2587 0.9034 0.7500 0 0 0 0 0 0 0 0 0.0000
 24 O2- 0.2929 0.9566 0.2500 0 0 0 0 0 0 0 0 0.0000"""
-        assert str(self.zeocssr) == expected_string
+        assert str(self.zeo_cssr) == expected_string
 
     def test_from_file(self):
-        filename = f"{TEST_FILES_DIR}/EDI_oxistate_decorated.cssr"
+        filename = f"{TEST_FILES_DIR}/io/cssr/EDI_oxistate_decorated.cssr"
         zeocssr = ZeoCssr.from_file(filename)
         assert isinstance(zeocssr.structure, Structure)
 
 
-@unittest.skipIf(not zeo, "zeo not present.")
-class TestZeoVoronoiXYZ(unittest.TestCase):
+class TestZeoVoronoiXYZ(TestCase):
     def setUp(self):
         coords = [
             [0.000000, 0.000000, 0.000000],
@@ -145,24 +139,22 @@ H -0.363000 -0.513360 0.889165 0.200000"""
         assert str(self.xyz) == expected
 
     def test_from_file(self):
-        filename = f"{TEST_FILES_DIR}/EDI_voro.xyz"
-        vor = ZeoVoronoiXYZ.from_file(filename)
-        assert isinstance(vor.molecule, Molecule)
+        filename = f"{TEST_DIR}/EDI_voro.xyz"
+        voronoi = ZeoVoronoiXYZ.from_file(filename)
+        assert isinstance(voronoi.molecule, Molecule)
 
 
-@unittest.skipIf(not zeo, "zeo not present.")
-class TestGetVoronoiNodes(unittest.TestCase):
+class TestGetVoronoiNodes(TestCase):
     def setUp(self):
-        filepath = f"{TEST_FILES_DIR}/POSCAR"
-        p = Poscar.from_file(filepath)
-        self.structure = p.structure
+        filepath = f"{VASP_IN_DIR}/POSCAR"
+        self.structure = Structure.from_file(filepath)
         bv = BVAnalyzer()
         valences = bv.get_valences(self.structure)
         el = [site.species_string for site in self.structure]
-        valence_dict = dict(zip(el, valences))
+        valence_dict = dict(zip(el, valences, strict=True))
         self.rad_dict = {}
-        for k, v in valence_dict.items():
-            self.rad_dict[k] = float(Species(k, v).ionic_radius)
+        for key, val in valence_dict.items():
+            self.rad_dict[key] = float(Species(key, val).ionic_radius)
 
         assert len(self.rad_dict) == len(self.structure.composition)
 
@@ -175,10 +167,10 @@ class TestGetVoronoiNodes(unittest.TestCase):
         assert isinstance(vor_face_center_struct, Structure)
 
 
-@unittest.skip("file free_sph.cif not present")
-class TestGetFreeSphereParams(unittest.TestCase):
+@unittest.skip("TODO: file free_sph.cif not present")
+class TestGetFreeSphereParams(TestCase):
     def setUp(self):
-        filepath = f"{TEST_FILES_DIR}/free_sph.cif"
+        filepath = f"{TEST_FILES_DIR}/cif/free_sph.cif"
         self.structure = Structure.from_file(filepath)
         self.rad_dict = {
             "Ge": 0.67,
@@ -197,16 +189,14 @@ class TestGetFreeSphereParams(unittest.TestCase):
         assert free_sph_params["inc_sph_along_free_sph_path_max_dia"] == approx(2.58251, abs=1e-1)
 
 
-@unittest.skipIf(not zeo, "zeo not present.")
-class TestGetHighAccuracyVoronoiNodes(unittest.TestCase):
+class TestGetHighAccuracyVoronoiNodes(TestCase):
     def setUp(self):
-        filepath = f"{TEST_FILES_DIR}/POSCAR"
-        poscar = Poscar.from_file(filepath)
-        self.structure = poscar.structure
+        filepath = f"{VASP_IN_DIR}/POSCAR"
+        self.structure = Structure.from_file(filepath)
         bv = BVAnalyzer()
         valences = bv.get_valences(self.structure)
         el = [site.species_string for site in self.structure]
-        valence_dict = dict(zip(el, valences))
+        valence_dict = dict(zip(el, valences, strict=True))
         self.rad_dict = {}
         for key, val in valence_dict.items():
             self.rad_dict[key] = float(Species(key, val).ionic_radius)
@@ -218,12 +208,10 @@ class TestGetHighAccuracyVoronoiNodes(unittest.TestCase):
         assert isinstance(vor_node_struct, Structure)
 
 
-@unittest.skipIf(not zeo, "zeo not present.")
-class TestGetVoronoiNodesMultiOxi(unittest.TestCase):
+class TestGetVoronoiNodesMultiOxi(TestCase):
     def setUp(self):
-        filepath = f"{TEST_FILES_DIR}/POSCAR"
-        p = Poscar.from_file(filepath)
-        self.structure = p.structure
+        filepath = f"{VASP_IN_DIR}/POSCAR"
+        self.structure = Structure.from_file(filepath)
         bv = BVAnalyzer()
         self.structure = bv.get_oxi_state_decorated_structure(self.structure)
         valences = bv.get_valences(self.structure)
@@ -233,7 +221,7 @@ class TestGetVoronoiNodesMultiOxi(unittest.TestCase):
             radius = Species(el, valence).ionic_radius
             radii.append(radius)
         el = [site.species_string for site in self.structure]
-        self.rad_dict = dict(zip(el, radii))
+        self.rad_dict = dict(zip(el, radii, strict=True))
 
     def test_get_voronoi_nodes(self):
         vor_node_struct, vor_edge_center_struct, vor_face_center_struct = get_voronoi_nodes(

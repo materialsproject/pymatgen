@@ -43,7 +43,7 @@ if __name__ == "__main__":
                 for i4 in remaining:
                     # 5. point opposite to point 4.
                     i5 = opposite_points[i4]
-                    equiv_list.append([i0, i1, i2, i3, i4, i5])
+                    equiv_list += [[i0, i1, i2, i3, i4, i5]]
 
     # PB:7
     if cg_symbol == "PB:7":
@@ -55,7 +55,7 @@ if __name__ == "__main__":
                 i4 = np.mod(i3 + turn, 5)
                 for i5 in [5, 6]:
                     i6 = 5 if i5 == 6 else 6
-                    equiv_list.append([i0, i1, i2, i3, i4, i5, i6])
+                    equiv_list += [[i0, i1, i2, i3, i4, i5, i6]]
 
     # HB:8
     if cg_symbol == "HB:8":
@@ -68,7 +68,7 @@ if __name__ == "__main__":
                 i5 = np.mod(i4 + turn, 6)
                 for i6 in [6, 7]:
                     i7 = 6 if i6 == 7 else 7
-                    equiv_list.append([i0, i1, i2, i3, i4, i5, i6, i7])
+                    equiv_list += [[i0, i1, i2, i3, i4, i5, i6, i7]]
 
     # SBT:8
     if cg_symbol == "SBT:8":
@@ -90,7 +90,7 @@ if __name__ == "__main__":
             i6 = 7 if i0 in [1, 4] else 6
             # 7. last cap point
             i7 = 6 if i0 in [1, 4] else 7
-            equiv_list.append([i0, i1, i2, i3, i4, i5, i6, i7])
+            equiv_list += [[i0, i1, i2, i3, i4, i5, i6, i7]]
 
     # SA:8
     if cg_symbol == "SA:8":
@@ -99,9 +99,9 @@ if __name__ == "__main__":
         # 0. any point
         for i0 in range(8):
             # 1. point opposite to point 0. in the square face
-            if i0 in [0, 2]:
+            if i0 in {0, 2}:
                 i1 = i0 + 1
-            elif i0 in [1, 3]:
+            elif i0 in {1, 3}:
                 i1 = i0 - 1
             elif i0 == 4:
                 i1 = 7
@@ -111,10 +111,14 @@ if __name__ == "__main__":
                 i1 = 5
             elif i0 == 7:
                 i1 = 4
+            else:
+                raise RuntimeError("Cannot determine point.")
+
             # 2. one of the two last points in the square face
             sfleft = list(sf1) if i0 in sf1 else list(sf2)
             sfleft.remove(i0)
             sfleft.remove(i1)
+            i2 = 0
             for i2 in sfleft:
                 sfleft2 = list(sfleft)
                 sfleft2.remove(i2)
@@ -131,7 +135,7 @@ if __name__ == "__main__":
             i6 = 7 if i0 in [1, 4] else 6
             # 7. last cap point
             i7 = 6 if i0 in [1, 4] else 7
-            equiv_list.append([i0, i1, i2, i3, i4, i5, i6, i7])
+            equiv_list += [[i0, i1, i2, i3, i4, i5, i6, i7]]
 
     print(f"Equivalent indices ({len(equiv_list)}) for {cg_symbol} : ")
     print(equiv_list)

@@ -1,13 +1,11 @@
 from __future__ import annotations
 
-import unittest
-
 from pytest import approx
 
 from pymatgen.analysis.hhi import HHIModel
 
 
-class TestHHIModel(unittest.TestCase):
+class TestHHIModel:
     def test_hhi(self):
         hhi = HHIModel()
         assert hhi.get_hhi("He") == (3200, 3900)

@@ -5,7 +5,7 @@ import math
 import numpy as np
 import pytest
 from monty.serialization import MontyDecoder, loadfn
-from numpy.testing import assert_allclose, assert_array_equal
+from numpy.testing import assert_allclose
 from pytest import approx
 
 from pymatgen.core.operations import SymmOp
@@ -15,13 +15,13 @@ from pymatgen.util.testing import TEST_FILES_DIR, PymatgenTest
 
 
 class TestTensor(PymatgenTest):
-    _multiprocess_shared_ = True
-
     def setUp(self):
+        rng = np.random.default_rng()
+
         self.vec = Tensor([1.0, 0.0, 0.0])
-        self.rand_rank2 = Tensor(np.random.randn(3, 3))
-        self.rand_rank3 = Tensor(np.random.randn(3, 3, 3))
-        self.rand_rank4 = Tensor(np.random.randn(3, 3, 3, 3))
+        self.rand_rank2 = Tensor(rng.standard_normal((3, 3)))
+        self.rand_rank3 = Tensor(rng.standard_normal((3, 3, 3)))
+        self.rand_rank4 = Tensor(rng.standard_normal((3, 3, 3, 3)))
         a = 3.14 * 42.5 / 180
         self.non_symm = SquareTensor([[0.1, 0.2, 0.3], [0.4, 0.5, 0.6], [0.2, 0.5, 0.5]])
         self.rotation = SquareTensor([[math.cos(a), 0, math.sin(a)], [0, 1, 0], [-math.sin(a), 0, math.cos(a)]])
@@ -103,7 +103,7 @@ class TestTensor(PymatgenTest):
         )
 
         self.structure = self.get_structure("BaNiO3")
-        ieee_file_path = f"{TEST_FILES_DIR}/ieee_conversion_data.json"
+        ieee_file_path = f"{TEST_FILES_DIR}/core/tensors/ieee_conversion_data.json"
         self.ones = Tensor(np.ones((3, 3)))
         self.ieee_data = loadfn(ieee_file_path)
 
@@ -159,7 +159,7 @@ class TestTensor(PymatgenTest):
         )
 
     def test_rotate(self):
-        assert_array_equal(self.vec.rotate([[0, -1, 0], [1, 0, 0], [0, 0, 1]]), [0, 1, 0])
+        assert self.vec.rotate([[0, -1, 0], [1, 0, 0], [0, 0, 1]]).tolist() == [0, 1, 0]
         assert_allclose(
             self.non_symm.rotate(self.rotation),
             SquareTensor([[0.531, 0.485, 0.271], [0.700, 0.5, 0.172], [0.171, 0.233, 0.068]]),
@@ -173,7 +173,7 @@ class TestTensor(PymatgenTest):
         test = Tensor(np.arange(0, 3**4).reshape((3, 3, 3, 3)))
         assert_allclose([0, 27, 54], test.einsum_sequence([x] * 3))
         assert test.einsum_sequence([np.eye(3)] * 2) == 360
-        with pytest.raises(ValueError, match="other tensors must be list of tensors or tensor input"):
+        with pytest.raises(TypeError, match="other tensors must be list of tensors or tensor input"):
             test.einsum_sequence(Tensor(np.zeros(3)))
 
     def test_symmetrized(self):
@@ -238,7 +238,10 @@ class TestTensor(PymatgenTest):
         assert_allclose(rotated, transformed)
 
     def test_from_voigt(self):
-        with pytest.raises(ValueError, match="The requested array has an inhomogeneous shape after 1 dimensions."):
+        with pytest.raises(
+            ValueError,
+            match="The requested array has an inhomogeneous shape after 1 dimensions.",
+        ):
             Tensor.from_voigt(
                 [
                     [59.33, 28.08, 28.08, 0],
@@ -274,7 +277,7 @@ class TestTensor(PymatgenTest):
         reconstructed = []
         for k, v in reduced.items():
             reconstructed.extend([k.voigt] + [k.transform(op).voigt for op in v])
-        reconstructed = sorted(reconstructed, key=lambda x: np.argmax(x))
+        reconstructed = sorted(reconstructed, key=np.argmax)
         assert_allclose(list(reconstructed), np.eye(6) * 0.01)
 
     def test_tensor_mapping(self):
@@ -283,7 +286,7 @@ class TestTensor(PymatgenTest):
         reduced = symmetry_reduce(tbs, self.get_structure("Sn"))
         tkey = Tensor.from_values_indices([0.01], [(0, 0)])
         tval = reduced[tkey]
-        for tens_1, tens_2 in zip(tval, reduced[tbs[0]]):
+        for tens_1, tens_2 in zip(tval, reduced[tbs[0]], strict=True):
             assert approx(tens_1) == tens_2
         # Test set
         reduced[tkey] = "test_val"
@@ -297,7 +300,7 @@ class TestTensor(PymatgenTest):
         assert empty[tkey] == 1
 
     def test_populate(self):
-        test_data = loadfn(f"{TEST_FILES_DIR}/test_toec_data.json")
+        test_data = loadfn(f"{TEST_FILES_DIR}/analysis/elasticity/test_toec_data.json")
 
         sn = self.get_structure("Sn")
         vtens = np.zeros((6, 6))
@@ -316,7 +319,7 @@ class TestTensor(PymatgenTest):
         vtens = np.zeros([6] * 3)
         indices = [(0, 0, 0), (0, 0, 1), (0, 1, 2), (0, 3, 3), (0, 5, 5), (3, 4, 5)]
         values = [-1271.0, -814.0, -50.0, -3.0, -780.0, -95.0]
-        for v, idx in zip(values, indices):
+        for v, idx in zip(values, indices, strict=True):
             vtens[idx] = v
         toec = Tensor.from_voigt(vtens)
         toec = toec.populate(sn, prec=1e-3, verbose=True)
@@ -349,12 +352,12 @@ class TestTensor(PymatgenTest):
 
     def test_serialization(self):
         # Test base serialize-deserialize
-        d = self.symm_rank2.as_dict()
-        new = Tensor.from_dict(d)
+        dct = self.symm_rank2.as_dict()
+        new = Tensor.from_dict(dct)
         assert_allclose(new, self.symm_rank2)
 
-        d = self.symm_rank3.as_dict(voigt=True)
-        new = Tensor.from_dict(d)
+        dct = self.symm_rank3.as_dict(voigt=True)
+        new = Tensor.from_dict(dct)
         assert_allclose(new, self.symm_rank3)
 
     def test_projection_methods(self):
@@ -380,24 +383,21 @@ class TestTensorCollection(PymatgenTest):
     def setUp(self):
         self.seq_tc = list(np.arange(4 * 3**3).reshape((4, 3, 3, 3)))
         self.seq_tc = TensorCollection(self.seq_tc)
-        self.rand_tc = TensorCollection(list(np.random.random((4, 3, 3))))
+        self.rand_tc = TensorCollection(list(np.random.default_rng().random((4, 3, 3))))
         self.diff_rank = TensorCollection([np.ones([3] * i) for i in range(2, 5)])
         self.struct = self.get_structure("Si")
-        ieee_file_path = f"{TEST_FILES_DIR}/ieee_conversion_data.json"
+        ieee_file_path = f"{TEST_FILES_DIR}/core/tensors/ieee_conversion_data.json"
         self.ieee_data = loadfn(ieee_file_path)
 
     def list_based_function_check(self, attribute, coll, *args, **kwargs):
-        """
-        This function allows for more efficient testing of list-based
-        functions in a "collection"-style class like TensorCollection.
-
-        It ensures that the test function
+        """More efficient testing of list-based functions in a "collection"-style
+        class like TensorCollection.
         """
         tc_orig = TensorCollection(coll)
         tc_mod = getattr(tc_orig, attribute)
         if callable(tc_mod):
             tc_mod = tc_mod(*args, **kwargs)
-        for t_orig, t_mod in zip(tc_orig, tc_mod):
+        for t_orig, t_mod in zip(tc_orig, tc_mod, strict=True):
             this_mod = getattr(t_orig, attribute)
             if callable(this_mod):
                 this_mod = this_mod(*args, **kwargs)
@@ -453,28 +453,28 @@ class TestTensorCollection(PymatgenTest):
             self.list_based_function_check("convert_to_ieee", tc, struct)
 
         # from_voigt
-        tc_input = list(np.random.random((3, 6, 6)))
+        tc_input = list(np.random.default_rng().random((3, 6, 6)))
         tc = TensorCollection.from_voigt(tc_input)
-        for t_input, tensor in zip(tc_input, tc):
+        for t_input, tensor in zip(tc_input, tc, strict=True):
             assert_allclose(Tensor.from_voigt(t_input), tensor)
 
     def test_serialization(self):
         # Test base serialize-deserialize
         dct = self.seq_tc.as_dict()
         new = TensorCollection.from_dict(dct)
-        for t, t_new in zip(self.seq_tc, new):
+        for t, t_new in zip(self.seq_tc, new, strict=True):
             assert_allclose(t, t_new)
 
         voigt_symmetrized = self.rand_tc.voigt_symmetrized
         dct = voigt_symmetrized.as_dict(voigt=True)
         new_vsym = TensorCollection.from_dict(dct)
-        for t, t_new in zip(voigt_symmetrized, new_vsym):
+        for t, t_new in zip(voigt_symmetrized, new_vsym, strict=True):
             assert_allclose(t, t_new)
 
 
 class TestSquareTensor(PymatgenTest):
     def setUp(self):
-        self.rand_sqtensor = SquareTensor(np.random.randn(3, 3))
+        self.rand_sqtensor = SquareTensor(np.random.default_rng().standard_normal((3, 3)))
         self.symm_sqtensor = SquareTensor([[0.1, 0.3, 0.4], [0.3, 0.5, 0.2], [0.4, 0.2, 0.6]])
         self.non_invertible = SquareTensor([[0.1, 0, 0], [0.2, 0, 0], [0, 0, 0]])
         self.non_symm = SquareTensor([[0.1, 0.2, 0.3], [0.4, 0.5, 0.6], [0.2, 0.5, 0.5]])
@@ -497,7 +497,10 @@ class TestSquareTensor(PymatgenTest):
             match="Pymatgen only supports 3-dimensional tensors, and default tensor constructor uses standard notation",
         ):
             SquareTensor(non_sq_matrix)
-        with pytest.raises(ValueError, match="The requested array has an inhomogeneous shape after 1 dimensions."):
+        with pytest.raises(
+            ValueError,
+            match="The requested array has an inhomogeneous shape after 1 dimensions.",
+        ):
             SquareTensor(bad_matrix)
         with pytest.raises(ValueError, match="SquareTensor input must be rank 2"):
             SquareTensor(too_high_rank)
@@ -557,9 +560,9 @@ class TestSquareTensor(PymatgenTest):
         assert self.non_symm.get_scaled(10) == approx(SquareTensor([[1, 2, 3], [4, 5, 6], [2, 5, 5]]))
 
     def test_polar_decomposition(self):
-        u, p = self.rand_sqtensor.polar_decomposition()
-        assert_allclose(np.dot(u, p), self.rand_sqtensor)
-        assert_allclose(np.eye(3), np.dot(u, np.conjugate(np.transpose(u))), atol=1e-9)
+        u_mat, p_mat = self.rand_sqtensor.polar_decomposition()
+        assert_allclose(np.dot(u_mat, p_mat), self.rand_sqtensor)
+        assert_allclose(np.eye(3), np.dot(u_mat, np.conjugate(np.transpose(u_mat))), atol=1e-9)
 
     def test_serialization(self):
         # Test base serialize-deserialize

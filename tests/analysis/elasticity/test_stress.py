@@ -12,7 +12,7 @@ from pymatgen.util.testing import PymatgenTest
 
 class TestStress(PymatgenTest):
     def setUp(self):
-        self.rand_stress = Stress(np.random.randn(3, 3))
+        self.rand_stress = Stress(np.random.default_rng().standard_normal((3, 3)))
         self.symm_stress = Stress([[0.51, 2.29, 2.42], [2.29, 5.14, 5.07], [2.42, 5.07, 5.33]])
         self.non_symm = Stress([[0.1, 0.2, 0.3], [0.4, 0.5, 0.6], [0.2, 0.5, 0.5]])
 
@@ -29,27 +29,39 @@ class TestStress(PymatgenTest):
         )
         assert_allclose(
             self.non_symm.deviator_stress,
-            [[-0.2666666667, 0.2, 0.3], [0.4, 0.133333333, 0.6], [0.2, 0.5, 0.133333333]],
+            [
+                [-0.2666666667, 0.2, 0.3],
+                [0.4, 0.133333333, 0.6],
+                [0.2, 0.5, 0.133333333],
+            ],
         )
         # deviator_principal_invariants
-        assert_allclose(self.symm_stress.dev_principal_invariants, [0, 44.2563, 111.953628], atol=1e-9)
+        assert_allclose(
+            self.symm_stress.dev_principal_invariants,
+            [0, 44.2563, 111.953628],
+            atol=1e-9,
+        )
         # von_mises
         assert self.symm_stress.von_mises == approx(11.52253878275)
         # piola_kirchoff 1, 2
-        f = Deformation.from_index_amount((0, 1), 0.03)
+        deform = Deformation.from_index_amount((0, 1), 0.03)
         assert_allclose(
-            self.symm_stress.piola_kirchoff_1(f),
+            self.symm_stress.piola_kirchoff_1(deform),
             [[0.4413, 2.29, 2.42], [2.1358, 5.14, 5.07], [2.2679, 5.07, 5.33]],
         )
         assert_allclose(
-            self.symm_stress.piola_kirchoff_2(f),
+            self.symm_stress.piola_kirchoff_2(deform),
             [[0.377226, 2.1358, 2.2679], [2.1358, 5.14, 5.07], [2.2679, 5.07, 5.33]],
         )
         # voigt
         assert list(self.symm_stress.voigt) == [0.51, 5.14, 5.33, 5.07, 2.42, 2.29]
 
         with pytest.warns(
-            UserWarning, match="Tensor is not symmetric, information may be lost in voigt conversion"
+            UserWarning,
+            match="Tensor is not symmetric, information may be lost in Voigt conversion",
         ) as warns:
             _ = self.non_symm.voigt
-        assert len(warns) == 1
+        assert (
+            sum("Tensor is not symmetric, information may be lost in Voigt conversion" in str(warn) for warn in warns)
+            == 1
+        )

@@ -1,7 +1,5 @@
 from __future__ import annotations
 
-import unittest
-from math import pi
 from shutil import which
 from typing import get_args
 
@@ -12,9 +10,9 @@ from pytest import approx
 
 from pymatgen.analysis.graphs import MoleculeGraph, StructureGraph
 from pymatgen.analysis.local_env import (
-    BrunnerNN_real,
-    BrunnerNN_reciprocal,
-    BrunnerNN_relative,
+    BrunnerNNReal,
+    BrunnerNNReciprocal,
+    BrunnerNNRelative,
     CovalentBondNN,
     Critic2NN,
     CrystalNN,
@@ -37,17 +35,16 @@ from pymatgen.analysis.local_env import (
     site_is_of_motif_type,
     solid_angle,
 )
-from pymatgen.core import Lattice, Molecule, Structure
-from pymatgen.core.periodic_table import Element
+from pymatgen.core import Element, Lattice, Molecule, Structure
 from pymatgen.util.testing import TEST_FILES_DIR, PymatgenTest
 
-test_dir = f"{TEST_FILES_DIR}/fragmenter_files"
+TEST_DIR = f"{TEST_FILES_DIR}/analysis/local_env/fragmenter_files"
 
 
 class TestValenceIonicRadiusEvaluator(PymatgenTest):
     def setUp(self):
         """Setup MgO rocksalt structure for testing Vacancy."""
-        mgo_latt = [[4.212, 0, 0], [0, 4.212, 0], [0, 0, 4.212]]
+        mgo_latt = np.eye(3) * 4.212
         mgo_specie = ["Mg"] * 4 + ["O"] * 4
         mgo_frac_cord = [
             [0, 0, 0],
@@ -59,17 +56,23 @@ class TestValenceIonicRadiusEvaluator(PymatgenTest):
             [0, 0, 0.5],
             [0.5, 0.5, 0.5],
         ]
-        self._mgo_uc = Structure(mgo_latt, mgo_specie, mgo_frac_cord, validate_proximity=True, to_unit_cell=True)
-        self._mgo_valrad_evaluator = ValenceIonicRadiusEvaluator(self._mgo_uc)
+        self._mgo_uc = Structure(
+            mgo_latt,
+            mgo_specie,
+            mgo_frac_cord,
+            validate_proximity=True,
+            to_unit_cell=True,
+        )
+        self._mgo_val_rad_evaluator = ValenceIonicRadiusEvaluator(self._mgo_uc)
 
     def test_valences_ionic_structure(self):
-        valence_dict = self._mgo_valrad_evaluator.valences
-        for val in list(valence_dict.values()):
+        valence_dict = self._mgo_val_rad_evaluator.valences
+        for val in valence_dict.values():
             assert val in {2, -2}
 
     def test_radii_ionic_structure(self):
-        radii_dict = self._mgo_valrad_evaluator.radii
-        for rad in list(radii_dict.values()):
+        radii_dict = self._mgo_val_rad_evaluator.radii
+        for rad in radii_dict.values():
             assert rad in {0.86, 1.26}
 
 
@@ -109,11 +112,11 @@ class TestVoronoiNN(PymatgenTest):
             for nn in self.nn.get_voronoi_polyhedra(self.struct, n).values():
                 angle += nn["solid_angle"]
             assert 4 * np.pi == approx(angle)
-        assert solid_angle([0, 0, 0], [[1, 0, 0], [-1, 0, 0], [0, 1, 0]]) == pi
+        assert solid_angle([0, 0, 0], [[1, 0, 0], [-1, 0, 0], [0, 1, 0]]) == np.pi
 
     def test_nn_shell(self):
         # First, make a SC lattice. Make my math easier
-        struct = Structure([[1, 0, 0], [0, 1, 0], [0, 0, 1]], ["Cu"], [[0, 0, 0]])
+        struct = Structure(np.eye(3), ["Cu"], [[0, 0, 0]])
 
         # Get the 1NN shell
         self.nn.targets = None
@@ -156,7 +159,7 @@ class TestVoronoiNN(PymatgenTest):
 
     def test_adj_neighbors(self):
         # Make a simple cubic structure
-        struct = Structure([[1, 0, 0], [0, 1, 0], [0, 0, 1]], ["Cu"], [[0, 0, 0]])
+        struct = Structure(np.eye(3), ["Cu"], [[0, 0, 0]])
 
         # Compute the NNs with adjacency
         self.nn.targets = None
@@ -174,9 +177,9 @@ class TestVoronoiNN(PymatgenTest):
         all_sites = self.nn.get_all_voronoi_polyhedra(self.struct)
 
         # Make sure they are the same as the single-atom ones
-        for i, site in enumerate(all_sites):
+        for idx, site in enumerate(all_sites):
             # Compute the tessellation using only one site
-            by_one = self.nn.get_voronoi_polyhedra(self.struct, i)
+            by_one = self.nn.get_voronoi_polyhedra(self.struct, idx)
 
             # Match the coordinates the of the neighbors, as site matching does not seem to work?
             all_coords = np.sort([x["site"].coords for x in site.values()], axis=0)
@@ -186,9 +189,9 @@ class TestVoronoiNN(PymatgenTest):
 
         # Test the nn_info operation
         all_nn_info = self.nn.get_all_nn_info(self.struct)
-        for i, info in enumerate(all_nn_info):
+        for idx, info in enumerate(all_nn_info):
             # Compute using the by-one method
-            by_one = self.nn.get_nn_info(self.struct, i)
+            by_one = self.nn.get_nn_info(self.struct, idx)
 
             # Get the weights
             all_weights = sorted(x["weight"] for x in info)
@@ -198,7 +201,7 @@ class TestVoronoiNN(PymatgenTest):
 
     def test_Cs2O(self):
         """A problematic structure in the Materials Project."""
-        strc = Structure(
+        struct = Structure(
             [
                 [4.358219, 0.192833, 6.406960],
                 [2.114414, 3.815824, 6.406960],
@@ -210,7 +213,7 @@ class TestVoronoiNN(PymatgenTest):
         )
 
         # Compute the voronoi tessellation
-        result = VoronoiNN().get_all_voronoi_polyhedra(strc)
+        result = VoronoiNN().get_all_voronoi_polyhedra(struct)
         assert len(result) == 3
 
     def test_filtered(self):
@@ -218,7 +221,7 @@ class TestVoronoiNN(PymatgenTest):
 
         # Make a bcc crystal
         bcc = Structure(
-            [[1, 0, 0], [0, 1, 0], [0, 0, 1]],
+            np.eye(3),
             ["Cu", "Cu"],
             [[0, 0, 0], [0.5, 0.5, 0.5]],
             coords_are_cartesian=False,
@@ -241,13 +244,7 @@ class TestVoronoiNN(PymatgenTest):
 
         # Make sure it works for the `get_all` operation
         all_nns = nn.get_all_nn_info(bcc * [2, 2, 2])
-        assert [
-            8,
-        ] * 16 == [len(x) for x in all_nns]
-
-    def tearDown(self):
-        del self.struct
-        del self.nn
+        assert [len(x) for x in all_nns] == [8] * 16
 
 
 class TestJmolNN(PymatgenTest):
@@ -294,8 +291,8 @@ class TestIsayevNN(PymatgenTest):
 class TestOpenBabelNN(PymatgenTest):
     def setUp(self):
         pytest.importorskip("openbabel")
-        self.benzene = Molecule.from_file(f"{TEST_FILES_DIR}/benzene.xyz")
-        self.acetylene = Molecule.from_file(f"{TEST_FILES_DIR}/acetylene.xyz")
+        self.benzene = Molecule.from_file(f"{TEST_DIR}/../benzene.xyz")
+        self.acetylene = Molecule.from_file(f"{TEST_FILES_DIR}/io/xyz/acetylene.xyz")
 
     def test_nn_orders(self):
         strategy = OpenBabelNN()
@@ -325,8 +322,8 @@ class TestOpenBabelNN(PymatgenTest):
 
 class TestCovalentBondNN(PymatgenTest):
     def setUp(self):
-        self.benzene = Molecule.from_file(f"{TEST_FILES_DIR}/benzene.xyz")
-        self.acetylene = Molecule.from_file(f"{TEST_FILES_DIR}/acetylene.xyz")
+        self.benzene = Molecule.from_file(f"{TEST_DIR}/../benzene.xyz")
+        self.acetylene = Molecule.from_file(f"{TEST_FILES_DIR}/io/xyz/acetylene.xyz")
 
     def test_nn_orders(self):
         strategy = CovalentBondNN()
@@ -409,62 +406,69 @@ class TestMiniDistNN(PymatgenTest):
         assert MinimumDistanceNN(tol=0.1).get_cn(self.mos2, 0) == 6
 
         for image in MinimumDistanceNN(tol=0.1).get_nn_images(self.mos2, 0):
-            assert image in [(0, 0, 0), (0, 1, 0), (-1, 0, 0), (0, 0, 0), (0, 1, 0), (-1, 0, 0)]
+            assert image in [
+                (0, 0, 0),
+                (0, 1, 0),
+                (-1, 0, 0),
+                (0, 0, 0),
+                (0, 1, 0),
+                (-1, 0, 0),
+            ]
 
-        okeeffe = MinimumOKeeffeNN(tol=0.01)
-        assert okeeffe.get_cn(self.diamond, 0) == 4
-        assert okeeffe.get_cn(self.nacl, 0) == 6
-        assert okeeffe.get_cn(self.cscl, 0) == 8
-        assert okeeffe.get_cn(self.lifepo4, 0) == 2
+        okeeffe_nn = MinimumOKeeffeNN(tol=0.01)
+        assert okeeffe_nn.get_cn(self.diamond, 0) == 4
+        assert okeeffe_nn.get_cn(self.nacl, 0) == 6
+        assert okeeffe_nn.get_cn(self.cscl, 0) == 8
+        assert okeeffe_nn.get_cn(self.lifepo4, 0) == 2
 
-        virenn = MinimumVIRENN(tol=0.01)
-        assert virenn.get_cn(self.diamond, 0) == 4
-        assert virenn.get_cn(self.nacl, 0) == 6
-        assert virenn.get_cn(self.cscl, 0) == 8
-        assert virenn.get_cn(self.lifepo4, 0) == 2
+        min_vire_nn = MinimumVIRENN(tol=0.01)
+        assert min_vire_nn.get_cn(self.diamond, 0) == 4
+        assert min_vire_nn.get_cn(self.nacl, 0) == 6
+        assert min_vire_nn.get_cn(self.cscl, 0) == 8
+        assert min_vire_nn.get_cn(self.lifepo4, 0) == 2
 
-        brunner_recip = BrunnerNN_reciprocal(tol=0.01)
+        brunner_recip = BrunnerNNReciprocal(tol=0.01)
         assert brunner_recip.get_cn(self.diamond, 0) == 4
         assert brunner_recip.get_cn(self.nacl, 0) == 6
         assert brunner_recip.get_cn(self.cscl, 0) == 14
         assert brunner_recip.get_cn(self.lifepo4, 0) == 6
 
-        brunner_rel = BrunnerNN_relative(tol=0.01)
+        brunner_rel = BrunnerNNRelative(tol=0.01)
         assert brunner_rel.get_cn(self.diamond, 0) == 4
         assert brunner_rel.get_cn(self.nacl, 0) == 6
         assert brunner_rel.get_cn(self.cscl, 0) == 14
         assert brunner_rel.get_cn(self.lifepo4, 0) == 6
 
-        brunner_real = BrunnerNN_real(tol=0.01)
+        brunner_real = BrunnerNNReal(tol=0.01)
         assert brunner_real.get_cn(self.diamond, 0) == 4
         assert brunner_real.get_cn(self.nacl, 0) == 6
         assert brunner_real.get_cn(self.cscl, 0) == 14
         assert brunner_real.get_cn(self.lifepo4, 0) == 30
 
-        econn = EconNN()
-        assert econn.get_cn(self.diamond, 0) == 4
-        assert econn.get_cn(self.nacl, 0) == 6
-        assert econn.get_cn(self.cscl, 0) == 14
-        assert econn.get_cn(self.lifepo4, 0) == 6
+        econ_nn = EconNN()
+        assert econ_nn.get_cn(self.diamond, 0) == 4
+        assert econ_nn.get_cn(self.nacl, 0) == 6
+        assert econ_nn.get_cn(self.cscl, 0) == 14
+        assert econ_nn.get_cn(self.lifepo4, 0) == 6
 
-        voroinn = VoronoiNN(tol=0.5)
-        assert voroinn.get_cn(self.diamond, 0) == 4
-        assert voroinn.get_cn(self.nacl, 0) == 6
-        assert voroinn.get_cn(self.cscl, 0) == 8
-        assert voroinn.get_cn(self.lifepo4, 0) == 6
+        voronoi_nn = VoronoiNN(tol=0.5)
+        assert voronoi_nn.get_cn(self.diamond, 0) == 4
+        assert voronoi_nn.get_cn(self.nacl, 0) == 6
+        assert voronoi_nn.get_cn(self.cscl, 0) == 8
+        assert voronoi_nn.get_cn(self.lifepo4, 0) == 6
 
-        crystalnn = CrystalNN()
-        assert crystalnn.get_cn(self.diamond, 0) == 4
-        assert crystalnn.get_cn(self.nacl, 0) == 6
-        assert crystalnn.get_cn(self.cscl, 0) == 8
-        assert crystalnn.get_cn(self.lifepo4, 0) == 6
+        crystal_nn = CrystalNN()
+        assert crystal_nn.get_cn(self.diamond, 0) == 4
+        assert crystal_nn.get_cn(self.nacl, 0) == 6
+        assert crystal_nn.get_cn(self.cscl, 0) == 8
+        assert crystal_nn.get_cn(self.lifepo4, 0) == 6
 
     def test_get_local_order_params(self):
-        nn = MinimumDistanceNN()
-        ops = nn.get_local_order_parameters(self.diamond, 0)
+        min_dist_nn = MinimumDistanceNN()
+        ops = min_dist_nn.get_local_order_parameters(self.diamond, 0)
         assert ops["tetrahedral"] == approx(0.9999934389036574)
 
-        ops = nn.get_local_order_parameters(self.nacl, 0)
+        ops = min_dist_nn.get_local_order_parameters(self.nacl, 0)
         assert ops["octahedral"] == approx(0.9999995266669)
 
 
@@ -516,7 +520,7 @@ class TestMotifIdentification(PymatgenTest):
             site_properties=None,
         )
         self.square_pyramid = Structure(
-            Lattice([[100, 0, 0], [0, 100, 0], [0, 0, 100]]),
+            Lattice(np.eye(3) * 100),
             ["C", "C", "C", "C", "C", "C"],
             [[0, 0, 0], [1, 0, 0], [-1, 0, 0], [0, 1, 0], [0, -1, 0], [0, 0, 1]],
             validate_proximity=False,
@@ -525,7 +529,7 @@ class TestMotifIdentification(PymatgenTest):
             site_properties=None,
         )
         self.trigonal_bipyramid = Structure(
-            Lattice([[100, 0, 0], [0, 100, 0], [0, 0, 100]]),
+            Lattice(np.eye(3) * 100),
             ["P", "Cl", "Cl", "Cl", "Cl", "Cl"],
             [
                 [0, 0, 0],
@@ -542,18 +546,18 @@ class TestMotifIdentification(PymatgenTest):
         )
 
     def test_site_is_of_motif_type(self):
-        for i in range(len(self.diamond)):
-            assert site_is_of_motif_type(self.diamond, i) == "tetrahedral"
-        for i in range(len(self.nacl)):
-            assert site_is_of_motif_type(self.nacl, i) == "octahedral"
-        for i in range(len(self.cscl)):
-            assert site_is_of_motif_type(self.cscl, i) == "bcc"
+        for idx in range(len(self.diamond)):
+            assert site_is_of_motif_type(self.diamond, idx) == "tetrahedral"
+        for idx in range(len(self.nacl)):
+            assert site_is_of_motif_type(self.nacl, idx) == "octahedral"
+        for idx in range(len(self.cscl)):
+            assert site_is_of_motif_type(self.cscl, idx) == "bcc"
         assert site_is_of_motif_type(self.square_pyramid, 0) == "square pyramidal"
-        for i in range(1, len(self.square_pyramid)):
-            assert site_is_of_motif_type(self.square_pyramid, i) == "unrecognized"
+        for idx in range(1, len(self.square_pyramid)):
+            assert site_is_of_motif_type(self.square_pyramid, idx) == "unrecognized"
         assert site_is_of_motif_type(self.trigonal_bipyramid, 0) == "trigonal bipyramidal"
-        for i in range(1, len(self.trigonal_bipyramid)):
-            assert site_is_of_motif_type(self.trigonal_bipyramid, i) == "unrecognized"
+        for idx in range(1, len(self.trigonal_bipyramid)):
+            assert site_is_of_motif_type(self.trigonal_bipyramid, idx) == "unrecognized"
 
     def test_get_neighbors_of_site_with_index(self):
         assert len(get_neighbors_of_site_with_index(self.diamond, 0)) == 4
@@ -564,12 +568,6 @@ class TestMotifIdentification(PymatgenTest):
         assert len(get_neighbors_of_site_with_index(self.diamond, 0, approach="voronoi")) == 4
         assert len(get_neighbors_of_site_with_index(self.diamond, 0, approach="min_OKeeffe")) == 4
         assert len(get_neighbors_of_site_with_index(self.diamond, 0, approach="min_VIRE")) == 4
-
-    def tearDown(self):
-        del self.silicon
-        del self.diamond
-        del self.nacl
-        del self.cscl
 
 
 class TestNearNeighbor(PymatgenTest):
@@ -975,6 +973,7 @@ class TestLocalStructOrderParams(PymatgenTest):
         parameters = [{"norm": 2}]
         lostops = LocalStructOrderParams(["cn"], parameters=parameters)
         tmp = lostops.get_parameters(0)
+        assert tmp == {"norm": 2}
         parameters[0]["norm"] = 3
         assert tmp == lostops.get_parameters(0)
 
@@ -1017,7 +1016,7 @@ class TestLocalStructOrderParams(PymatgenTest):
             "tet_max",
             "sq_face_cap_trig_pris",
         ]
-        op_params = [None for i in range(len(op_types))]
+        op_params = [None] * len(op_types)
         op_params[1] = {"TA": 1, "IGW_TA": 1.0 / 0.0667}
         op_params[2] = {"TA": 45.0 / 180, "IGW_TA": 1.0 / 0.0667}
         op_params[33] = {
@@ -1178,7 +1177,9 @@ class TestCrystalNN(PymatgenTest):
         self.he_bcc.add_oxidation_state_by_guess()
 
         self.disordered_struct = Structure(
-            Lattice.cubic(3), [{"Fe": 0.4, "C": 0.3, "Mn": 0.3}, "O"], [[0, 0, 0], [0.5, 0.5, 0.5]]
+            Lattice.cubic(3),
+            [{"Fe": 0.4, "C": 0.3, "Mn": 0.3}, "O"],
+            [[0, 0, 0], [0.5, 0.5, 0.5]],
         )
         self.disordered_struct_with_majority = Structure(
             Lattice.cubic(3), [{"Fe": 0.6, "C": 0.4}, "O"], [[0, 0, 0], [0.5, 0.5, 0.5]]
@@ -1221,7 +1222,6 @@ class TestCrystalNN(PymatgenTest):
 
     def test_weighted_cn_no_oxid(self):
         cnn = CrystalNN(weighted_cn=True)
-        cn_array = []
         # fmt: off
         expected_array = [
             5.8962, 5.8996, 5.8962, 5.8996, 5.7195, 5.7195, 5.7202, 5.7194, 4.0012, 4.0012,
@@ -1229,10 +1229,8 @@ class TestCrystalNN(PymatgenTest):
             3.3897, 3.2589, 3.1207, 3.1924, 3.1915, 3.1207, 3.2598, 3.3897,
         ]
         # fmt: on
-        s = self.lifepo4.copy()
-        s.remove_oxidation_states()
-        for idx, _ in enumerate(s):
-            cn_array.append(cnn.get_cn(s, idx, use_weights=True))
+        struct = self.lifepo4.copy().remove_oxidation_states()
+        cn_array = [cnn.get_cn(struct, idx, use_weights=True) for idx in range(len(struct))]
 
         assert_allclose(expected_array, cn_array, 2)
 
@@ -1282,11 +1280,13 @@ class TestCrystalNN(PymatgenTest):
         assert site_0_coord_num == site_0_coord_num_strict_majority
 
         with pytest.raises(
-            ValueError, match="Site 0 has no majority species, the max species is Fe with occupancy 0.4"
+            ValueError,
+            match="Site 0 has no majority species, the max species is Fe with occupancy 0.4",
         ):
             cnn.get_cn(self.disordered_struct, 0, on_disorder="take_majority_strict")
         with pytest.raises(
-            ValueError, match="enerating StructureGraphs for disordered Structures is unsupported. Pass on_disorder="
+            ValueError,
+            match="enerating StructureGraphs for disordered Structures is unsupported. Pass on_disorder=",
         ):
             cnn.get_cn(self.disordered_struct, 0, on_disorder="error")
 
@@ -1306,7 +1306,8 @@ class TestCrystalNN(PymatgenTest):
         assert structure_graph == structure_graph_strict_majority == structure_graph_drop_majority
 
         with pytest.raises(
-            ValueError, match="Site 0 has no majority species, the max species is Fe with occupancy 0.4"
+            ValueError,
+            match="Site 0 has no majority species, the max species is Fe with occupancy 0.4",
         ):
             cnn.get_bonded_structure(self.disordered_struct, 0, on_disorder="take_majority_strict")
 
@@ -1340,7 +1341,7 @@ class TestCutOffDictNN(PymatgenTest):
             CutOffDictNN.from_preset("test")
 
 
-@unittest.skipIf(not which("critic2"), "critic2 executable not present")
+@pytest.mark.skipif(not which("critic2"), reason="critic2 executable not present")
 class TestCritic2NN(PymatgenTest):
     def setUp(self):
         self.diamond = Structure(
@@ -1357,9 +1358,9 @@ class TestCritic2NN(PymatgenTest):
 
 class TestMetalEdgeExtender(PymatgenTest):
     def setUp(self):
-        self.LiEC = Molecule.from_file(f"{test_dir}/LiEC.xyz")
-        self.phsh = Molecule.from_file(f"{test_dir}/phsh.xyz")
-        self.phsh_graph = MoleculeGraph.with_edges(
+        self.LiEC = Molecule.from_file(f"{TEST_DIR}/LiEC.xyz")
+        self.phsh = Molecule.from_file(f"{TEST_DIR}/phsh.xyz")
+        self.phsh_graph = MoleculeGraph.from_edges(
             molecule=self.phsh,
             edges={
                 (0, 1): None,
@@ -1389,7 +1390,7 @@ class TestMetalEdgeExtender(PymatgenTest):
                 (21, 24): None,
             },
         )
-        self.LiEC_graph = MoleculeGraph.with_edges(
+        self.LiEC_graph = MoleculeGraph.from_edges(
             molecule=self.LiEC,
             edges={
                 (0, 2): None,
@@ -1407,19 +1408,19 @@ class TestMetalEdgeExtender(PymatgenTest):
         )
 
         # potassium + 7 H2O. 4 at ~2.5 Ang and 3 more within 4.25 Ang
-        uncharged_K_cluster = Molecule.from_file(f"{test_dir}/water_cluster_K.xyz")
-        K_sites = [s.coords for s in uncharged_K_cluster.sites]
-        K_species = [s.species for s in uncharged_K_cluster.sites]
+        uncharged_K_cluster = Molecule.from_file(f"{TEST_DIR}/water_cluster_K.xyz")
+        K_sites = [s.coords for s in uncharged_K_cluster]
+        K_species = [s.species for s in uncharged_K_cluster]
         charged_K_cluster = Molecule(K_species, K_sites, charge=1)
-        self.water_cluster_K = MoleculeGraph.with_empty_graph(charged_K_cluster)
+        self.water_cluster_K = MoleculeGraph.from_empty_graph(charged_K_cluster)
         assert len(self.water_cluster_K.graph.edges) == 0
 
         # Mg + 6 H2O at 1.94 Ang from Mg
-        uncharged_Mg_cluster = Molecule.from_file(f"{test_dir}/water_cluster_Mg.xyz")
-        Mg_sites = [s.coords for s in uncharged_Mg_cluster.sites]
-        Mg_species = [s.species for s in uncharged_Mg_cluster.sites]
+        uncharged_Mg_cluster = Molecule.from_file(f"{TEST_DIR}/water_cluster_Mg.xyz")
+        Mg_sites = [s.coords for s in uncharged_Mg_cluster]
+        Mg_species = [s.species for s in uncharged_Mg_cluster]
         charged_Mg_cluster = Molecule(Mg_species, Mg_sites, charge=2)
-        self.water_cluster_Mg = MoleculeGraph.with_empty_graph(charged_Mg_cluster)
+        self.water_cluster_Mg = MoleculeGraph.from_empty_graph(charged_Mg_cluster)
 
     def test_metal_edge_extender(self):
         assert len(self.LiEC_graph.graph.edges) == 11
