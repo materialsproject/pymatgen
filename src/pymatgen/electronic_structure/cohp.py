@@ -1133,7 +1133,7 @@ class IcohpCollection(MSONable):
         list_num: list[int],
         list_icohp: list[dict[Spin, float]],
         is_spin_polarized: bool,
-        list_orb_icohp: list[dict[str, dict[Literal["icohp", "orbitals"], Any]]] | None = None,
+        list_orb_icohp: (list[dict[str, dict[Literal["icohp", "orbitals"], Any]]] | None) = None,
         are_coops: bool = False,
         are_cobis: bool = False,
     ) -> None:

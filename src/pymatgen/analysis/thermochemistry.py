@@ -105,7 +105,17 @@ class ThermoData:
         }
 
     def __repr__(self):
-        props = ["formula", "compound_name", "phaseinfo", "type", "temp_range", "value", "method", "ref", "uncertainty"]
+        props = [
+            "formula",
+            "compound_name",
+            "phaseinfo",
+            "type",
+            "temp_range",
+            "value",
+            "method",
+            "ref",
+            "uncertainty",
+        ]
         return "\n".join(f"{k} : {getattr(self, k)}" for k in props)
 
     def __str__(self):

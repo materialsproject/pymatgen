@@ -514,7 +514,10 @@ class Slab(Structure):
         spg_analyzer = SpacegroupAnalyzer(self)
         symm_structure = spg_analyzer.get_symmetrized_structure()
 
-        for surface_site, shift in [(sorted_csites[0], slab_ratio), (sorted_csites[-1], -slab_ratio)]:
+        for surface_site, shift in [
+            (sorted_csites[0], slab_ratio),
+            (sorted_csites[-1], -slab_ratio),
+        ]:
             to_move = []
             fixed = []
             for site in sites:
@@ -624,7 +627,10 @@ class Slab(Structure):
         """
         # Check if deprecated argument is used
         if specie is not None:
-            warnings.warn("The argument 'specie' is deprecated. Use 'species' instead.", DeprecationWarning)
+            warnings.warn(
+                "The argument 'specie' is deprecated. Use 'species' instead.",
+                DeprecationWarning,
+            )
             species = specie
 
         # Calculate target site as the center of sites
@@ -654,7 +660,10 @@ class Slab(Structure):
         """
         # Check if deprecated argument is used
         if specie is not None:
-            warnings.warn("The argument 'specie' is deprecated. Use 'species' instead.", DeprecationWarning)
+            warnings.warn(
+                "The argument 'specie' is deprecated. Use 'species' instead.",
+                DeprecationWarning,
+            )
             species = specie
 
         # Get the index of the equivalent site on the other side
@@ -951,7 +960,8 @@ class SlabGenerator:
                 spg_analyzer = SpacegroupAnalyzer(initial_structure)
                 initial_structure.add_site_property("bulk_wyckoff", spg_analyzer.get_symmetry_dataset().wyckoffs)
                 initial_structure.add_site_property(
-                    "bulk_equivalent", spg_analyzer.get_symmetry_dataset().equivalent_atoms.tolist()
+                    "bulk_equivalent",
+                    spg_analyzer.get_symmetry_dataset().equivalent_atoms.tolist(),
                 )
 
         def calculate_surface_normal() -> np.ndarray:
@@ -1966,7 +1976,11 @@ def get_symmetrically_equivalent_miller_indices(
     """
     # Convert to hkl if hkil, because in_coord_list only handles tuples of 3
     if len(miller_index) >= 3:
-        _miller_index: MillerIndex = (miller_index[0], miller_index[1], miller_index[-1])
+        _miller_index: MillerIndex = (
+            miller_index[0],
+            miller_index[1],
+            miller_index[-1],
+        )
     else:
         _miller_index = (miller_index[0], miller_index[1], miller_index[2])
 

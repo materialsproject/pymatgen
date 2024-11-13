@@ -6,6 +6,21 @@ nav_order: 4
 
 # Changelog
 
+## 2024.10.29
+- VaspDir has been renamed and moved to pymatgen.io.common.PMGDir for more general support of all IO classes. Note that
+  this is a backwards incompatible change. It should not affect many users since VaspDir was introduced only in the last
+  one week.
+- Fixed execution of packmol in relative path. (@davidwaroquiers)
+- VaspDoc.get_incar_tags: Use Mediawiki API (@yantar92)
+- Fix comment pass in Kpoints constructors (@DanielYang59)
+
+## v2024.10.27
+- Bug fix for parsing of dielectric calculations from vasprun.xml.
+
+## v2024.10.25
+- VaspDir now supports nested directories. Also, supports returning strings where a parser is not defined.
+- Bug fix for parsing of BSE vaspruns.xml.
+
 ## v2024.10.21
 - New `pyamtgen.io.vasp.VaspDir` class for easy navigation of VASP directories as pymatgen objects.
 - Fix gaussian input parser (@sio-salt)

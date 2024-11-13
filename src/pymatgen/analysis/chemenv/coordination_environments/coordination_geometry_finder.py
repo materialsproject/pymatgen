@@ -302,7 +302,11 @@ def symmetry_measure(points_distorted, points_perfect):
     """
     # When there is only one point, the symmetry measure is 0.0 by definition
     if len(points_distorted) == 1:
-        return {"symmetry_measure": 0.0, "scaling_factor": None, "rotation_matrix": None}
+        return {
+            "symmetry_measure": 0.0,
+            "scaling_factor": None,
+            "rotation_matrix": None,
+        }
 
     # Find the rotation matrix that aligns the distorted points to the perfect points in a least-square sense.
     rot = find_rotation(points_distorted=points_distorted, points_perfect=points_perfect)
@@ -865,7 +869,10 @@ class LocalGeometryFinder:
                     nb_sets_info[cn] = {}
                 nb_sets_info[cn][inew_nb_set] = {"time": t_nbset2 - t_nbset1}
             t2 = time.process_time()
-            struct_envs.update_site_info(isite=site_idx, info_dict={"time": t2 - t1, "nb_sets_info": nb_sets_info})
+            struct_envs.update_site_info(
+                isite=site_idx,
+                info_dict={"time": t2 - t1, "nb_sets_info": nb_sets_info},
+            )
             if timelimit is not None:
                 time_elapsed = t2 - time_init
                 time_left = timelimit - time_elapsed
@@ -2044,7 +2051,10 @@ class LocalGeometryFinder:
             The symmetry measures for the given coordination geometry for each permutation investigated.
         """
         if "NRANDOM" in kwargs:
-            warnings.warn("NRANDOM is deprecated, use n_random instead", category=DeprecationWarning)
+            warnings.warn(
+                "NRANDOM is deprecated, use n_random instead",
+                category=DeprecationWarning,
+            )
             n_random = kwargs.pop("NRANDOM")
         permutations_symmetry_measures = [None] * n_random
         permutations = []

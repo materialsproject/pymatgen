@@ -98,7 +98,11 @@ class GruneisenParameter(MSONable):
         wdkt = w * const.tera / (const.value("Boltzmann constant in Hz/K") * t)
         exp_wdkt = np.exp(wdkt)
         cv = np.choose(
-            w > 0, (0, const.value("Boltzmann constant in eV/K") * wdkt**2 * exp_wdkt / (exp_wdkt - 1) ** 2)
+            w > 0,
+            (
+                0,
+                const.value("Boltzmann constant in eV/K") * wdkt**2 * exp_wdkt / (exp_wdkt - 1) ** 2,
+            ),
         )  # in eV
 
         gamma = self.gruneisen
@@ -392,7 +396,11 @@ class GruneisenPhononBandStructureSymmLine(GruneisenPhononBandStructure, PhononB
         )
 
         PhononBandStructureSymmLine._reuse_init(
-            self, eigendisplacements=eigendisplacements, frequencies=frequencies, has_nac=False, qpoints=qpoints
+            self,
+            eigendisplacements=eigendisplacements,
+            frequencies=frequencies,
+            has_nac=False,
+            qpoints=qpoints,
         )
 
     @classmethod

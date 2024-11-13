@@ -27,7 +27,15 @@ class TestFunc(PymatgenTest):
         entries = [
             *starmap(
                 ComputedEntry,
-                [("Na", -2), ("Na", -5), ("Cl", -1), ("Cl", -10), ("NaCl", -20), ("NaCl", -21), ("Na2Cl2", -50)],
+                [
+                    ("Na", -2),
+                    ("Na", -5),
+                    ("Cl", -1),
+                    ("Cl", -10),
+                    ("NaCl", -20),
+                    ("NaCl", -21),
+                    ("Na2Cl2", -50),
+                ],
             )
         ]
 
@@ -54,7 +62,8 @@ class TestEntrySet(PymatgenTest):
         for ent in entries:
             assert {Element.Li, Element.O}.issuperset(ent.composition)
         with pytest.raises(
-            ValueError, match=re.escape("['F', 'Fe'] is not a subset of ['Fe', 'Li', 'O', 'P'], extra: {'F'}")
+            ValueError,
+            match=re.escape("['F', 'Fe'] is not a subset of ['Fe', 'Li', 'O', 'P'], extra: {'F'}"),
         ):
             self.entry_set.get_subset_in_chemsys(["Fe", "F"])
 

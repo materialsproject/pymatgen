@@ -143,7 +143,12 @@ class Kpoint(MSONable):
             Kpoint
         """
         lattice = Lattice.from_dict(dct["lattice"])
-        return cls(coords=dct["fcoords"], lattice=lattice, coords_are_cartesian=False, label=dct["label"])
+        return cls(
+            coords=dct["fcoords"],
+            lattice=lattice,
+            coords_are_cartesian=False,
+            label=dct["label"],
+        )
 
 
 class BandStructure:
@@ -460,7 +465,7 @@ class BandStructure:
 
         result["transition"] = "-".join(
             [
-                str(c.label) if c.label is not None else f"({','.join(f'{c.frac_coords[i]:.3f}' for i in range(3))})"
+                (str(c.label) if c.label is not None else f"({','.join(f'{c.frac_coords[i]:.3f}' for i in range(3))})")
                 for c in [vbm["kpoint"], cbm["kpoint"]]
             ]
         )

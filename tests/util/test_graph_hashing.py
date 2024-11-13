@@ -43,10 +43,20 @@ from pymatgen.util.graph_hashing import weisfeiler_lehman_graph_hash, weisfeiler
 
 def test_graph_hash():
     g1 = nx.Graph()
-    edges = [(1, 2, {"label": "A"}), (2, 3, {"label": "A"}), (3, 1, {"label": "A"}), (1, 4, {"label": "B"})]
+    edges = [
+        (1, 2, {"label": "A"}),
+        (2, 3, {"label": "A"}),
+        (3, 1, {"label": "A"}),
+        (1, 4, {"label": "B"}),
+    ]
     g1.add_edges_from(edges)
     g2 = nx.Graph()
-    edges = [(5, 6, {"label": "B"}), (6, 7, {"label": "A"}), (7, 5, {"label": "A"}), (7, 8, {"label": "A"})]
+    edges = [
+        (5, 6, {"label": "B"}),
+        (6, 7, {"label": "A"}),
+        (7, 5, {"label": "A"}),
+        (7, 8, {"label": "A"}),
+    ]
     g2.add_edges_from(edges)
 
     assert weisfeiler_lehman_graph_hash(g1) == weisfeiler_lehman_graph_hash(g2)

@@ -183,8 +183,16 @@ class TestBoltztrapAnalyzer(TestCase):
         ]
 
         assert_allclose(self.bz.get_average_eff_mass(output="tensor")["p"][300][2], ref, atol=1e-4)
-        assert_allclose(self.bz.get_average_eff_mass(output="tensor", doping_levels=False)[300][500], ref2, rtol=4)
-        assert_allclose(self.bz.get_average_eff_mass(output="average")["n"][300][2], 1.53769093989, atol=1e-4)
+        assert_allclose(
+            self.bz.get_average_eff_mass(output="tensor", doping_levels=False)[300][500],
+            ref2,
+            rtol=4,
+        )
+        assert_allclose(
+            self.bz.get_average_eff_mass(output="average")["n"][300][2],
+            1.53769093989,
+            atol=1e-4,
+        )
 
     def test_get_carrier_concentration(self):
         assert self.bz.get_carrier_concentration()[300][39] / 1e22 == approx(6.4805156617179151, abs=1e-4)
@@ -200,7 +208,9 @@ class TestBoltztrapAnalyzer(TestCase):
         kpoints = [kp.frac_coords for kp in sbs.kpoints]
         labels_dict = {k: sbs.labels_dict[k].frac_coords for k in sbs.labels_dict}
         for kpt_line, label_dict in zip(
-            [None, sbs.kpoints, kpoints], [None, sbs.labels_dict, labels_dict], strict=True
+            [None, sbs.kpoints, kpoints],
+            [None, sbs.labels_dict, labels_dict],
+            strict=True,
         ):
             sbs_bzt = self.bz_bands.get_symm_bands(structure, -5.25204548, kpt_line=kpt_line, labels_dict=label_dict)
             assert len(sbs_bzt.bands[Spin.up]) == approx(20)

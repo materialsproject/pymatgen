@@ -21,13 +21,13 @@ from pymatgen.analysis.adsorption import AdsorbateSiteFinder
 from pymatgen.analysis.bond_valence import BVAnalyzer
 from pymatgen.analysis.energy_models import SymmetryModel
 from pymatgen.analysis.ewald import EwaldSummation
-from pymatgen.analysis.gb.grain import GrainBoundaryGenerator
 from pymatgen.analysis.local_env import MinimumDistanceNN
 from pymatgen.analysis.structure_matcher import SpinComparator, StructureMatcher
 from pymatgen.analysis.structure_prediction.substitution_probability import SubstitutionPredictor
 from pymatgen.command_line.enumlib_caller import EnumError, EnumlibAdaptor
 from pymatgen.command_line.mcsqs_caller import run_mcsqs
 from pymatgen.core import DummySpecies, Element, Species, Structure, get_el_sp
+from pymatgen.core.interface import GrainBoundaryGenerator
 from pymatgen.core.surface import SlabGenerator
 from pymatgen.electronic_structure.core import Spin
 from pymatgen.io.ase import AseAtomsAdaptor
@@ -132,7 +132,12 @@ class SuperTransformation(AbstractTransformation):
                     d["transformation"] = t
                     structures.append(d)
             else:
-                structures.append({"transformation": t, "structure": t.apply_transformation(structure)})
+                structures.append(
+                    {
+                        "transformation": t,
+                        "structure": t.apply_transformation(structure),
+                    }
+                )
         return structures
 
     def __repr__(self):
@@ -894,7 +899,11 @@ class MagOrderingTransformation(AbstractTransformation):
         return True
 
 
-def find_codopant(target: Species, oxidation_state: float, allowed_elements: Sequence[str] | None = None) -> Species:
+def find_codopant(
+    target: Species,
+    oxidation_state: float,
+    allowed_elements: Sequence[str] | None = None,
+) -> Species:
     """Find the element from "allowed elements" that (i) possesses the desired
     "oxidation state" and (ii) is closest in ionic radius to the target specie.
 
@@ -1054,7 +1063,14 @@ class DopingTransformation(AbstractTransformation):
                     n_dopant = common_charge / abs(ox)
                     nsp_to_remove = common_charge / abs(sp.oxi_state)  # type: ignore[arg-type]
                     logger.info(f"Doping {nsp_to_remove} {sp} with {n_dopant} {self.dopant}.")
-                    supercell.replace_species({sp: {sp: (nsp - nsp_to_remove) / nsp, self.dopant: n_dopant / nsp}})
+                    supercell.replace_species(
+                        {
+                            sp: {
+                                sp: (nsp - nsp_to_remove) / nsp,
+                                self.dopant: n_dopant / nsp,
+                            }
+                        }
+                    )
                 else:
                     ox_diff = int(abs(round(sp.oxi_state - ox)))
                     vac_ox = int(abs(sp_to_remove.oxi_state)) * ox_diff  # type: ignore[arg-type]
@@ -1067,7 +1083,10 @@ class DopingTransformation(AbstractTransformation):
                     )
                     supercell.replace_species(
                         {
-                            sp: {sp: (nsp - n_dopant) / nsp, self.dopant: n_dopant / nsp},
+                            sp: {
+                                sp: (nsp - n_dopant) / nsp,
+                                self.dopant: n_dopant / nsp,
+                            },
                             sp_to_remove: {sp_to_remove: (nx - nx_to_remove) / nx},
                         }
                     )
@@ -1508,7 +1527,11 @@ class CubicSupercellTransformation(AbstractTransformation):
                     lat_vecs, structure, target_sc_lat_vecs
                 )
                 # Check if constraints are satisfied
-                if self.check_constraints(length_vecs=length_vecs, n_atoms=n_atoms, superstructure=superstructure):
+                if self.check_constraints(
+                    length_vecs=length_vecs,
+                    n_atoms=n_atoms,
+                    superstructure=superstructure,
+                ):
                     return superstructure
 
                 # Increase threshold until proposed supercell meets requirements
@@ -2104,7 +2127,7 @@ class SQSTransformation(AbstractTransformation):
             structs = [group[0] for group in unique_structs_grouped]
 
         # sort structures by objective function
-        structs.sort(key=lambda x: x.objective_function if isinstance(x.objective_function, float) else -np.inf)
+        structs.sort(key=lambda x: (x.objective_function if isinstance(x.objective_function, float) else -np.inf))
 
         to_return = [{"structure": struct, "objective_function": struct.objective_function} for struct in structs]
 

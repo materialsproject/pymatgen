@@ -107,6 +107,7 @@ class AutoOxiStateDecorationTransformation(AbstractTransformation):
         max_radius=4,
         max_permutations=100000,
         distance_scale_factor=1.015,
+        zeros_on_fail=False,
     ):
         """
         Args:
@@ -121,12 +122,16 @@ class AutoOxiStateDecorationTransformation(AbstractTransformation):
                 calculation-relaxed structures, which may tend to under (GGA) or
                 over bind (LDA). The default of 1.015 works for GGA. For
                 experimental structure, set this to 1.
+            zeros_on_fail (bool): If True and the BVAnalyzer fails to come up
+                with a guess for the oxidation states, we will set the all the
+                oxidation states to zero.
         """
         self.symm_tol = symm_tol
         self.max_radius = max_radius
         self.max_permutations = max_permutations
         self.distance_scale_factor = distance_scale_factor
         self.analyzer = BVAnalyzer(symm_tol, max_radius, max_permutations, distance_scale_factor)
+        self.zeros_on_fail = zeros_on_fail
 
     def apply_transformation(self, structure):
         """Apply the transformation.
@@ -137,7 +142,14 @@ class AutoOxiStateDecorationTransformation(AbstractTransformation):
         Returns:
             Oxidation state decorated Structure.
         """
-        return self.analyzer.get_oxi_state_decorated_structure(structure)
+        try:
+            return self.analyzer.get_oxi_state_decorated_structure(structure)
+        except ValueError as er:
+            if self.zeros_on_fail:
+                struct_ = structure.copy()
+                struct_.add_oxidation_state_by_site([0] * len(struct_))
+                return struct_
+            raise ValueError(f"BVAnalyzer failed with error: {er}")
 
 
 class OxidationStateRemovalTransformation(AbstractTransformation):
@@ -191,7 +203,11 @@ class SupercellTransformation(AbstractTransformation):
 
     @classmethod
     def from_boundary_distance(
-        cls, structure: Structure, min_boundary_dist: float = 6, allow_rotation: bool = False, max_atoms: float = -1
+        cls,
+        structure: Structure,
+        min_boundary_dist: float = 6,
+        allow_rotation: bool = False,
+        max_atoms: float = -1,
     ) -> Self:
         """Get a SupercellTransformation according to the desired minimum distance between periodic
         boundaries of the resulting supercell.
@@ -263,7 +279,9 @@ class SubstitutionTransformation(AbstractTransformation):
 
     def __init__(
         self,
-        species_map: dict[SpeciesLike, SpeciesLike | dict[SpeciesLike, float]] | list[tuple[SpeciesLike, SpeciesLike]],
+        species_map: (
+            dict[SpeciesLike, SpeciesLike | dict[SpeciesLike, float]] | list[tuple[SpeciesLike, SpeciesLike]]
+        ),
     ) -> None:
         """
         Args:

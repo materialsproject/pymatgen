@@ -25,7 +25,14 @@ class TestLattice(PymatgenTest):
         self.cubic_partial_pbc = Lattice.cubic(10.0, pbc=(True, True, False))
 
         self.families = {}
-        for name in ("cubic", "tetragonal", "orthorhombic", "monoclinic", "hexagonal", "rhombohedral"):
+        for name in (
+            "cubic",
+            "tetragonal",
+            "orthorhombic",
+            "monoclinic",
+            "hexagonal",
+            "rhombohedral",
+        ):
             self.families[name] = getattr(self, name)
 
     def test_init(self):
@@ -177,8 +184,30 @@ class TestLattice(PymatgenTest):
         assert np.linalg.det(np.linalg.solve(expected.matrix, reduced_latt.matrix)) == approx(1)
         assert_allclose(sorted(reduced_latt.abc), sorted(expected.abc))
         assert reduced_latt.volume == approx(lattice.volume)
-        lattice = [7.164750, 2.481942, 0.000000, -4.298850, 2.481942, 0.000000, 0.000000, 0.000000, 14.253000]
-        expected = Lattice([-4.298850, 2.481942, 0.000000, 2.865900, 4.963884, 0.000000, 0.000000, 0.000000, 14.253000])
+        lattice = [
+            7.164750,
+            2.481942,
+            0.000000,
+            -4.298850,
+            2.481942,
+            0.000000,
+            0.000000,
+            0.000000,
+            14.253000,
+        ]
+        expected = Lattice(
+            [
+                -4.298850,
+                2.481942,
+                0.000000,
+                2.865900,
+                4.963884,
+                0.000000,
+                0.000000,
+                0.000000,
+                14.253000,
+            ]
+        )
         reduced_latt = Lattice(lattice).get_lll_reduced_lattice()
         assert np.linalg.det(np.linalg.solve(expected.matrix, reduced_latt.matrix)) == approx(1)
         assert_allclose(sorted(reduced_latt.abc), sorted(expected.abc))
@@ -210,7 +239,19 @@ class TestLattice(PymatgenTest):
         assert reduced_cell.lengths == approx([5, 5, 5])
         assert reduced_cell.angles == approx([90, 90, 90])
 
-        lattice = Lattice([1.432950, 0.827314, 4.751000, -1.432950, 0.827314, 4.751000, 0.0, -1.654628, 4.751000])
+        lattice = Lattice(
+            [
+                1.432950,
+                0.827314,
+                4.751000,
+                -1.432950,
+                0.827314,
+                4.751000,
+                0.0,
+                -1.654628,
+                4.751000,
+            ]
+        )
         expected = [
             [-1.43295, -2.481942, 0.0],
             [-2.8659, 0.0, 0.0],
@@ -300,7 +341,15 @@ class TestLattice(PymatgenTest):
 
         # Make sure old style dicts work.
         dct = self.tetragonal.as_dict(verbosity=1)
-        assert {*dct} == expected_keys | {"a", "b", "c", "alpha", "beta", "gamma", "volume"}
+        assert {*dct} == expected_keys | {
+            "a",
+            "b",
+            "c",
+            "alpha",
+            "beta",
+            "gamma",
+            "volume",
+        }
         del dct["matrix"]
         tetragonal = Lattice.from_dict(dct)
         assert tetragonal.abc == self.tetragonal.abc
@@ -308,7 +357,14 @@ class TestLattice(PymatgenTest):
 
     def test_parameters(self):
         params_dict = self.tetragonal.params_dict
-        assert params_dict == {"a": 10, "b": 10, "c": 20, "alpha": 90, "beta": 90, "gamma": 90}
+        assert params_dict == {
+            "a": 10,
+            "b": 10,
+            "c": 20,
+            "alpha": 90,
+            "beta": 90,
+            "gamma": 90,
+        }
         params = self.tetragonal.parameters
         assert params == (10, 10, 20, 90, 90, 90)
         assert tuple(params_dict.values()) == params
@@ -492,7 +548,10 @@ class TestLattice(PymatgenTest):
         lll_frac_coords = l2.get_lll_frac_coords(l2_frac_coords)
 
         assert_allclose(lll_frac_coords, l1_frac_coords)
-        assert_allclose(l1.get_cartesian_coords(lll_frac_coords), np.dot(lll_frac_coords, l2.lll_matrix))
+        assert_allclose(
+            l1.get_cartesian_coords(lll_frac_coords),
+            np.dot(lll_frac_coords, l2.lll_matrix),
+        )
 
         assert_allclose(l2.get_frac_coords_from_lll(lll_frac_coords), l2_frac_coords)
 

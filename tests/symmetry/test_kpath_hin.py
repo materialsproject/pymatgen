@@ -55,7 +55,23 @@ class TestKPathSeek(PymatgenTest):
         labels = list(kpoints)
 
         assert sorted(labels) == sorted(
-            ["B_0", "B_2", "DELTA_0", "F_0", "GAMMA", "G_0", "G_2", "R", "R_2", "S", "T", "T_2", "Y", "Z", "Z_2"]
+            [
+                "B_0",
+                "B_2",
+                "DELTA_0",
+                "F_0",
+                "GAMMA",
+                "G_0",
+                "G_2",
+                "R",
+                "R_2",
+                "S",
+                "T",
+                "T_2",
+                "Y",
+                "Z",
+                "Z_2",
+            ]
         )
 
         assert kpoints["GAMMA"] == approx([0.0, 0.0, 0.0])

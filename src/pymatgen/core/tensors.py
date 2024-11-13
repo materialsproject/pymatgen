@@ -212,7 +212,12 @@ class Tensor(np.ndarray, MSONable):
         remaining = [i for i in remaining if i not in grouped[0]]
         # Iteratively run through remaining indices
         while remaining:
-            new = list(zip(*np.where(np.isclose(array, array[remaining[0]], **kwargs)), strict=True))
+            new = list(
+                zip(
+                    *np.where(np.isclose(array, array[remaining[0]], **kwargs)),
+                    strict=True,
+                )
+            )
             grouped.append(new)
             remaining = [i for i in remaining if i not in new]
         # Don't return any empty lists

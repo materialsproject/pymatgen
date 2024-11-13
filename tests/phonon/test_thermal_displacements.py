@@ -102,12 +102,20 @@ class TestThermalDisplacement(PymatgenTest):
         # U11, U22, U33, U23, U13, U12
         assert_allclose(
             self.thermal.thermal_displacement_matrix_cart_matrixform[0],
-            [[5.16e-03, -8.10e-04, -1.58e-03], [-8.10e-04, 6.13e-03, -1.10e-04], [-1.58e-03, -1.10e-04, 4.15e-03]],
+            [
+                [5.16e-03, -8.10e-04, -1.58e-03],
+                [-8.10e-04, 6.13e-03, -1.10e-04],
+                [-1.58e-03, -1.10e-04, 4.15e-03],
+            ],
             5,
         )
         assert_allclose(
             self.thermal_with_cif.thermal_displacement_matrix_cart_matrixform[0],
-            [[5.16e-03, -8.10e-04, -1.58e-03], [-8.10e-04, 6.13e-03, -1.10e-04], [-1.58e-03, -1.10e-04, 4.15e-03]],
+            [
+                [5.16e-03, -8.10e-04, -1.58e-03],
+                [-8.10e-04, 6.13e-03, -1.10e-04],
+                [-1.58e-03, -1.10e-04, 4.15e-03],
+            ],
             5,
         )
 
@@ -119,7 +127,16 @@ class TestThermalDisplacement(PymatgenTest):
         assert_allclose(
             Ustar[0],
             ThermalDisplacementMatrices.get_full_matrix(
-                [[1.664527e-04, 2.287923e-04, 1.858146e-05, -1.421950e-06, -1.040138e-05, -3.009800e-05]]
+                [
+                    [
+                        1.664527e-04,
+                        2.287923e-04,
+                        1.858146e-05,
+                        -1.421950e-06,
+                        -1.040138e-05,
+                        -3.009800e-05,
+                    ]
+                ]
             )[0],
             5,
         )
@@ -149,14 +166,32 @@ class TestThermalDisplacement(PymatgenTest):
         assert_allclose(
             beta[0],
             ThermalDisplacementMatrices.get_full_matrix(
-                [[3.285645e-03, 4.516179e-03, 3.667833e-04, -2.806818e-05, -2.053151e-04, -5.941107e-04]]
+                [
+                    [
+                        3.285645e-03,
+                        4.516179e-03,
+                        3.667833e-04,
+                        -2.806818e-05,
+                        -2.053151e-04,
+                        -5.941107e-04,
+                    ]
+                ]
             )[0],
             5,
         )
         assert_allclose(
             beta[-1],
             ThermalDisplacementMatrices.get_full_matrix(
-                [[3.308590e-03, 3.661568e-03, 3.508740e-04, -1.786229e-04, 4.787484e-06, 9.400372e-04]]
+                [
+                    [
+                        3.308590e-03,
+                        3.661568e-03,
+                        3.508740e-04,
+                        -1.786229e-04,
+                        4.787484e-06,
+                        9.400372e-04,
+                    ]
+                ]
             )[0],
             5,
         )
@@ -310,6 +345,9 @@ class TestThermalDisplacement(PymatgenTest):
     def test_from_cif_p1(self):
         self.thermal.write_cif(f"{self.tmp_path}/U.cif")
         new_thermals = ThermalDisplacementMatrices.from_cif_P1(f"{self.tmp_path}/U.cif")
-        assert_allclose(new_thermals[0].thermal_displacement_matrix_cif_matrixform, self.thermal.Ucif)
+        assert_allclose(
+            new_thermals[0].thermal_displacement_matrix_cif_matrixform,
+            self.thermal.Ucif,
+        )
         assert_allclose(new_thermals[0].structure.frac_coords, self.thermal.structure.frac_coords)
         assert_allclose(new_thermals[0].structure.volume, self.thermal.structure.volume)

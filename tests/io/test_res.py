@@ -106,7 +106,13 @@ class TestAirssProvider:
     def test_as_dict(self, provider: AirssProvider):
         verbose_dict = provider.as_dict(verbose=True)
 
-        assert sorted(verbose_dict) == ["@class", "@module", "@version", "parse_rems", "res"]
+        assert sorted(verbose_dict) == [
+            "@class",
+            "@module",
+            "@version",
+            "parse_rems",
+            "res",
+        ]
 
         # test round-trip serialization/deserialization gives same dict
         assert AirssProvider.from_dict(verbose_dict).as_dict() == verbose_dict
@@ -164,7 +170,13 @@ class TestSpin:
 
         for site in provider.structure:
             if site.properties["magmom"] is not None:
-                assert site.properties.get("magmom") in (3.31, 4.12, -0.01, -0.04, -0.17)
+                assert site.properties.get("magmom") in (
+                    3.31,
+                    4.12,
+                    -0.01,
+                    -0.04,
+                    -0.17,
+                )
 
 
 class TestStructureModule:

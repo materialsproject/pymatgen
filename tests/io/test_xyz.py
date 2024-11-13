@@ -130,8 +130,16 @@ C32-C2-1
             2.8569761204000002,
             0.44737723190000001,
         ]
-        assert list(mxyz.all_molecules[-1].cart_coords[-1]) == [5.5355550720000002, 0.0282305931, -0.30993102189999999]
-        assert list(mxyz.molecule.cart_coords[-1]) == [5.5355550720000002, 0.0282305931, -0.30993102189999999]
+        assert list(mxyz.all_molecules[-1].cart_coords[-1]) == [
+            5.5355550720000002,
+            0.0282305931,
+            -0.30993102189999999,
+        ]
+        assert list(mxyz.molecule.cart_coords[-1]) == [
+            5.5355550720000002,
+            0.0282305931,
+            -0.30993102189999999,
+        ]
 
     def test_init_from_structure(self):
         filepath = f"{VASP_IN_DIR}/POSCAR"

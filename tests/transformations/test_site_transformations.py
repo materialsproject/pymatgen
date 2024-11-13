@@ -245,7 +245,14 @@ class TestPartialRemoveSitesTransformation(TestCase):
 
     def test_as_from_dict(self):
         dct = PartialRemoveSitesTransformation([tuple(range(4))], [0.5]).as_dict()
-        assert {*dct} == {"@module", "@class", "@version", "algo", "indices", "fractions"}
+        assert {*dct} == {
+            "@module",
+            "@class",
+            "@version",
+            "algo",
+            "indices",
+            "fractions",
+        }
         trafo = PartialRemoveSitesTransformation.from_dict(dct)
         struct = trafo.apply_transformation(self.struct)
         assert struct.formula == "Li2 O4"

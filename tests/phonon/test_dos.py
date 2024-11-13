@@ -26,7 +26,8 @@ class TestPhononDos(PymatgenTest):
 
     def test_str(self):
         assert re.match(
-            r"#Frequency\s+Density\s+\n-0.66954\s+0.00000\n-0.63158\s+0.00000\n-0.59363\s+0.00000", str(self.dos)
+            r"#Frequency\s+Density\s+\n-0.66954\s+0.00000\n-0.63158\s+0.00000\n-0.59363\s+0.00000",
+            str(self.dos),
         )
 
     def test_properties(self):
@@ -174,7 +175,10 @@ class TestPhononDos(PymatgenTest):
 
         valid_metrics = ("tanimoto", "wasserstein", "cosine-sim")
         metric = "Dot"
-        with pytest.raises(ValueError, match=re.escape(f"Invalid {metric=}, choose from {valid_metrics}.")):
+        with pytest.raises(
+            ValueError,
+            match=re.escape(f"Invalid {metric=}, choose from {valid_metrics}."),
+        ):
             self.dos.get_dos_fp_similarity(dos_fp, dos_fp2, col=1, metric=metric, normalize=False)
 
 

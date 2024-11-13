@@ -182,8 +182,14 @@ class TestPourbaixDiagram(TestCase):
             PourbaixEntry(ComputedEntry("VFe2Si", -1.8542253150000008), entry_id="mp-4595"),
             PourbaixEntry(ComputedEntry("Fe", 0), entry_id="mp-13"),
             PourbaixEntry(ComputedEntry("V2Ir2", -2.141851640000006), entry_id="mp-569250"),
-            PourbaixEntry(IonEntry(Ion.from_formula("Fe[2+]"), -0.7683100214319288), entry_id="ion-0"),
-            PourbaixEntry(IonEntry(Ion.from_formula("Li[1+]"), -3.0697590542787156), entry_id="ion-12"),
+            PourbaixEntry(
+                IonEntry(Ion.from_formula("Fe[2+]"), -0.7683100214319288),
+                entry_id="ion-0",
+            ),
+            PourbaixEntry(
+                IonEntry(Ion.from_formula("Li[1+]"), -3.0697590542787156),
+                entry_id="ion-12",
+            ),
         ]
         comp_dict = Composition({"Fe": 1, "Ir": 1, "Li": 2, "Si": 1, "V": 2}).fractional_composition
 

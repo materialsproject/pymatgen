@@ -117,7 +117,12 @@ class TestCritic2Analysis(TestCase):
         assert str(self.c2o.critical_points[0].type) == "CriticalPointType.nucleus"
 
         # test connectivity
-        assert self.c2o.edges[3] == {"from_idx": 1, "from_lvec": (0, 0, 0), "to_idx": 0, "to_lvec": (1, 0, 0)}
+        assert self.c2o.edges[3] == {
+            "from_idx": 1,
+            "from_lvec": (0, 0, 0),
+            "to_idx": 0,
+            "to_lvec": (1, 0, 0),
+        }
         # test as/from dict
         dct = self.c2o.as_dict()
         assert set(dct) == {

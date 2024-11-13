@@ -177,10 +177,26 @@ class TestPolarization(PymatgenTest):
         same_branch = self.polarization.get_same_branch_polarization_data(
             convert_to_muC_per_cm2=True, all_in_polar=False
         )
-        assert_allclose(same_branch[0].ravel().tolist(), self.same_branch[0].ravel().tolist(), atol=1e-7)
-        assert_allclose(same_branch[1].ravel().tolist(), self.same_branch[1].ravel().tolist(), atol=1e-7)
-        assert_allclose(same_branch[3].ravel().tolist(), self.same_branch[3].ravel().tolist(), atol=1e-7)
-        assert_allclose(same_branch[-1].ravel().tolist(), self.same_branch[-1].ravel().tolist(), atol=1e-7)
+        assert_allclose(
+            same_branch[0].ravel().tolist(),
+            self.same_branch[0].ravel().tolist(),
+            atol=1e-7,
+        )
+        assert_allclose(
+            same_branch[1].ravel().tolist(),
+            self.same_branch[1].ravel().tolist(),
+            atol=1e-7,
+        )
+        assert_allclose(
+            same_branch[3].ravel().tolist(),
+            self.same_branch[3].ravel().tolist(),
+            atol=1e-7,
+        )
+        assert_allclose(
+            same_branch[-1].ravel().tolist(),
+            self.same_branch[-1].ravel().tolist(),
+            atol=1e-7,
+        )
         # This will differ only slightly
         same_branch = self.polarization.get_same_branch_polarization_data(
             convert_to_muC_per_cm2=True, all_in_polar=True
