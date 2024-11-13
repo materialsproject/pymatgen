@@ -206,7 +206,6 @@ class ElementBase(Enum):
                 warnings.warn(f"No data available for {item} for {self.symbol}")
                 val = None
             elif isinstance(val, dict | list):
-                # elif type(val) in [list, dict]:  # pre-commit fix
                 pass
             else:
                 try:
@@ -532,8 +531,7 @@ class ElementBase(Enum):
         # Total ML = sum(ml1, ml2), Total MS = sum(ms1, ms2)
         TL = [sum(ml_ms[comb[e]][0] for e in range(v_e)) for comb in e_config_combs]
         TS = [sum(ml_ms[comb[e]][1] for e in range(v_e)) for comb in e_config_combs]
-        # comb_counter: Counter = Counter(zip(TL, TS, strict=True))
-        comb_counter: Counter = Counter([(TL[i], TS[i]) for i in range(len(TL))])  # pre-commit edit
+        comb_counter: Counter = Counter(zip(TL, TS, strict=True))
 
         term_symbols = []
         L_symbols = "SPDFGHIKLMNOQRTUVWXYZ"
