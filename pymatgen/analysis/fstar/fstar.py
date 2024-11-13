@@ -4,8 +4,9 @@ For information about f* diagrams, see the following publications:
 Yin, L. et al. Extending the limits of powder diffraction analysis: diffraction parameter space, occupancy defects, and
 atomic form factors. Rev. Sci. Instrum. 89, 093002 (2018). 10.1063/1.5044555
 Yin, L. et al.Thermodynamics of Antisite Defects in Layered NMC Cathodes: Systematic Insights from High-Precision Powder
-Diffraction Analyses Chem. Mater 2020 32 (3), 1002-1010. 10.1021/acs.chemmater.9b03646
+Diffraction Analyses Chem. Mater 2020 32 (3), 1002-1010. 10.1021/acs.chemmater.9b03646.
 """
+
 from __future__ import annotations
 
 import gzip
@@ -27,9 +28,7 @@ with gzip.open(f"{os.path.dirname(__file__)}/neutron_factors.csv.gz", mode="rt")
 
 
 class FStarDiagram:
-    """
-    Take a list of symmetrized structure objects and use them to generate an f* phase diagram.
-    """
+    """Take a list of symmetrized structure objects and use them to generate an f* phase diagram."""
 
     def __init__(self, structures: list[Structure], scattering_type: str = "X-ray"):
         """
@@ -66,6 +65,7 @@ class FStarDiagram:
         """
         Many structures have more than three sites. If this is the case you may want to
             add some sites together to make a psudo-site.
+
         Args:
             site_lists(list): A list of lists of site label strings. This allows you to combine
                 more than one set of sites at once.
@@ -81,6 +81,7 @@ class FStarDiagram:
     def set_plot_list(self, site_list: list[str]) -> None:
         """
         set the list of sites to plot and the order to plot them in.
+
         Args:
             site_list(list): A list of site label strings. Index 0 goes on the top of the
                 plot, index 1 goes on the bottom left, and index 2 goes on the bottom right.
@@ -94,6 +95,7 @@ class FStarDiagram:
         """
         Makes a plotly express scatter_ternary plot using the fstar_coords dataframe and the
             sites in plot list.
+
         Args:
             **kwargs: this can be any argument that the scatter_ternary function can use.
         """
@@ -124,7 +126,7 @@ class FStarDiagram:
         PeriodicSite: O (1.4255, 0.8230, 8.3270) [0.6667, 0.3333, 0.5833]
         PeriodicSite: O (1.4255, 0.8230, 1.1895) [0.6667, 0.3333, 0.0833]
         PeriodicSite: O (-0.0000, 1.6460, 13.0855) [0.3333, 0.6667, 0.9167]
-        PeriodicSite: O (-0.0000, 1.6460, 5.9480) [0.3333, 0.6667, 0.4167]
+        PeriodicSite: O (-0.0000, 1.6460, 5.9480) [0.3333, 0.6667, 0.4167].
 
         results in
         labels - ['[0. 0. 0.]Li', '[0.  0.  0.5]Co', '[0.   0.   0.25]O']
@@ -142,9 +144,7 @@ class FStarDiagram:
         return site_labels
 
     def _get_fstar_coords(self):
-        """
-        Calculate the f* coordinates for the list of structures.
-        """
+        """Calculate the f* coordinates for the list of structures."""
         fstar_df_full = pd.DataFrame(columns=self.site_labels)
         for ind1, struct in enumerate(self._structures):
             fstar_df = pd.DataFrame(columns=self.site_labels, data=[[0.0 for i in self.site_labels]])
@@ -167,15 +167,11 @@ class FStarDiagram:
         return fstar_df_full
 
     def xray_scatter(self, el: Element, occ: float, i1: int, i2: int) -> float:
-        """
-        X-ray scattering function. i2 and i2 are unused.
-        """
+        """X-ray scattering function. i2 and i2 are unused."""
         return el.Z * occ
 
     def neutron_scatter(self, el: Element, occ: float, i1: int, i2: int) -> float:
-        """
-        Neutron scattering function. i2 and i2 are unused.
-        """
+        """Neutron scattering function. i2 and i2 are unused."""
         if el.Z > 96:
             raise ValueError(
                 "Neutron sactter data only goes out to atomic number 96."
@@ -186,8 +182,7 @@ class FStarDiagram:
                 if n == str(el.element):
                     f_occ = float(NEUTRON_SCATTER_DF.loc[i]["Coh b"]) * occ
                     break
-            else:
-                if n == str(el):
-                    f_occ = float(NEUTRON_SCATTER_DF.loc[i]["Coh b"]) * occ
-                    break
+            elif n == str(el):
+                f_occ = float(NEUTRON_SCATTER_DF.loc[i]["Coh b"]) * occ
+                break
         return f_occ
