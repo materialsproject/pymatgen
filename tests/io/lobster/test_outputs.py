@@ -649,8 +649,8 @@ class TestCharge(PymatgenTest):
         atomlist = ["O1", "Mn2"]
         types = ["O", "Mn"]
         num_atoms = 2
-        assert charge_Mulliken == self.charge2.Mulliken
-        assert charge_Loewdin == self.charge2.Loewdin
+        assert charge_Mulliken == self.charge2.mulliken
+        assert charge_Loewdin == self.charge2.loewdin
         assert atomlist == self.charge2.atomlist
         assert types == self.charge2.types
         assert num_atoms == self.charge2.num_atoms
@@ -1490,19 +1490,19 @@ class TestBandoverlaps(TestCase):
         self.band_overlaps2_new = Bandoverlaps(f"{TEST_DIR}/bandOverlaps.lobster.new.2")
 
     def test_attributes(self):
-        # bandoverlapsdict
-        bo_dict = self.band_overlaps1.bandoverlapsdict
+        # band_overlaps_dict
+        bo_dict = self.band_overlaps1.band_overlaps_dict
         assert bo_dict[Spin.up]["max_deviations"][0] == approx(0.000278953)
-        assert self.band_overlaps1_new.bandoverlapsdict[Spin.up]["max_deviations"][10] == approx(0.0640933)
+        assert self.band_overlaps1_new.band_overlaps_dict[Spin.up]["max_deviations"][10] == approx(0.0640933)
         assert bo_dict[Spin.up]["matrices"][0].item(-1, -1) == approx(0.0188058)
-        assert self.band_overlaps1_new.bandoverlapsdict[Spin.up]["matrices"][10].item(-1, -1) == approx(1.0)
+        assert self.band_overlaps1_new.band_overlaps_dict[Spin.up]["matrices"][10].item(-1, -1) == approx(1.0)
         assert bo_dict[Spin.up]["matrices"][0].item(0, 0) == approx(1)
-        assert self.band_overlaps1_new.bandoverlapsdict[Spin.up]["matrices"][10].item(0, 0) == approx(0.995849)
+        assert self.band_overlaps1_new.band_overlaps_dict[Spin.up]["matrices"][10].item(0, 0) == approx(0.995849)
 
         assert bo_dict[Spin.down]["max_deviations"][-1] == approx(4.31567e-05)
-        assert self.band_overlaps1_new.bandoverlapsdict[Spin.down]["max_deviations"][9] == approx(0.064369)
+        assert self.band_overlaps1_new.band_overlaps_dict[Spin.down]["max_deviations"][9] == approx(0.064369)
         assert bo_dict[Spin.down]["matrices"][-1].item(0, -1) == approx(4.0066e-07)
-        assert self.band_overlaps1_new.bandoverlapsdict[Spin.down]["matrices"][9].item(0, -1) == approx(1.37447e-09)
+        assert self.band_overlaps1_new.band_overlaps_dict[Spin.down]["matrices"][9].item(0, -1) == approx(1.37447e-09)
 
         # maxDeviation
         assert self.band_overlaps1.max_deviation[0] == approx(0.000278953)
@@ -2204,22 +2204,22 @@ class TestSitePotentials(PymatgenTest):
         self.sitepotential = SitePotential(filename=f"{TEST_DIR}/SitePotentials.lobster.perovskite")
 
     def test_attributes(self):
-        assert self.sitepotential.sitepotentials_Loewdin == [
+        assert self.sitepotential.sitepotentials_loewdin == [
             -8.77,
             -17.08,
             9.57,
             9.57,
             8.45,
         ]
-        assert self.sitepotential.sitepotentials_Mulliken == [
+        assert self.sitepotential.sitepotentials_mulliken == [
             -11.38,
             -19.62,
             11.18,
             11.18,
             10.09,
         ]
-        assert self.sitepotential.madelungenergies_Loewdin == approx(-28.64)
-        assert self.sitepotential.madelungenergies_Mulliken == approx(-40.02)
+        assert self.sitepotential.madelungenergies_loewdin == approx(-28.64)
+        assert self.sitepotential.madelungenergies_mulliken == approx(-40.02)
         assert self.sitepotential.atomlist == ["La1", "Ta2", "N3", "N4", "O5"]
         assert self.sitepotential.types == ["La", "Ta", "N", "N", "O"]
         assert self.sitepotential.num_atoms == 5
@@ -2255,8 +2255,8 @@ class TestMadelungEnergies(PymatgenTest):
         self.madelungenergies = MadelungEnergies(filename=f"{TEST_DIR}/MadelungEnergies.lobster.perovskite")
 
     def test_attributes(self):
-        assert self.madelungenergies.madelungenergies_Loewdin == approx(-28.64)
-        assert self.madelungenergies.madelungenergies_Mulliken == approx(-40.02)
+        assert self.madelungenergies.madelungenergies_loewdin == approx(-28.64)
+        assert self.madelungenergies.madelungenergies_mulliken == approx(-40.02)
         assert self.madelungenergies.ewald_splitting == approx(3.14)
 
     def test_msonable(self):

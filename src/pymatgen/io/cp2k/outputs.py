@@ -112,7 +112,7 @@ class Cp2kOutput:
         return self.data.get("global").get("Run_type")
 
     @property
-    def calculation_type(self):
+    def calculation_type(self) -> str:
         """The calculation type (what io.vasp.outputs calls run_type)."""
         LDA_TYPES = {
             "LDA",
@@ -122,11 +122,8 @@ class Cp2kOutput:
             "BECKE88_LR_ADIABATIC",
             "BECKE97",
         }
-
         GGA_TYPES = {"PBE", "PW92"}
-
         HYBRID_TYPES = {"BLYP", "B3LYP"}
-
         METAGGA_TYPES = {
             "TPSS": "TPSS",
             "RTPSS": "revTPSS",
@@ -139,36 +136,36 @@ class Cp2kOutput:
         }
 
         functional = self.data.get("dft", {}).get("functional", [None])
-        ip = self.data.get("dft", {}).get("hfx", {}).get("Interaction_Potential")
+        inter_pot = self.data.get("dft", {}).get("hfx", {}).get("Interaction_Potential")
         frac = self.data.get("dft", {}).get("hfx", {}).get("FRACTION")
 
         if len(functional) > 1:
-            rt = "Mixed: " + ", ".join(functional)
+            run_type = "Mixed: " + ", ".join(functional)
             functional = " ".join(functional)
-            if "HYP" in functional or (ip and frac) or (functional in HYBRID_TYPES):
-                rt = "Hybrid"
+            if "HYP" in functional or (inter_pot and frac) or (functional in HYBRID_TYPES):
+                run_type = "Hybrid"
         else:
             functional = functional[0]
 
             if functional is None:
-                rt = "None"
-            elif "HYP" in functional or (ip and frac) or (functional) in HYBRID_TYPES:
-                rt = "Hybrid"
+                run_type = "None"
+            elif "HYP" in functional or (inter_pot and frac) or (functional) in HYBRID_TYPES:
+                run_type = "Hybrid"
             elif "MGGA" in functional or functional in METAGGA_TYPES:
-                rt = "METAGGA"
+                run_type = "METAGGA"
             elif "GGA" in functional or functional in GGA_TYPES:
-                rt = "GGA"
+                run_type = "GGA"
             elif "LDA" in functional or functional in LDA_TYPES:
-                rt = "LDA"
+                run_type = "LDA"
             else:
-                rt = "Unknown"
+                run_type = "Unknown"
 
         if self.is_hubbard:
-            rt += "+U"
-        if self.data.get("dft").get("vdw"):
-            rt += "+VDW"
+            run_type += "+U"
+        if self.data.get("dft", {}).get("vdw"):
+            run_type += "+VDW"
 
-        return rt
+        return run_type
 
     @property
     def project_name(self) -> str:

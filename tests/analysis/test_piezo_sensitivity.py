@@ -220,7 +220,7 @@ class TestPiezoSensitivity(PymatgenTest):
         structure = get_phonopy_structure(self.piezo_struct)
         pn_struct = Phonopy(structure, np.eye(3), np.eye(3))
 
-        pn_struct.set_force_constants(rand_FCM)
+        pn_struct.force_constants = rand_FCM
         dyn = pn_struct.get_dynamical_matrix_at_q([0, 0, 0])
         dyn = np.reshape(dyn, (10, 3, 10, 3)).swapaxes(1, 2)
         dyn = np.real(dyn)
@@ -296,7 +296,7 @@ class TestPiezoSensitivity(PymatgenTest):
         structure = get_phonopy_structure(self.piezo_struct)
         pn_struct = Phonopy(structure, np.eye(3), np.eye(3))
 
-        pn_struct.set_force_constants(rand_FCM)
+        pn_struct.force_constants = rand_FCM
         dyn = pn_struct.get_dynamical_matrix_at_q([0, 0, 0])
         dyn = np.reshape(dyn, (10, 3, 10, 3)).swapaxes(1, 2)
         dyn = np.real(dyn)
