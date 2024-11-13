@@ -1677,7 +1677,7 @@ class Bandoverlaps(MSONable):
                         _lines.append(float(el))
                 overlaps.append(_lines)
                 if len(overlaps) == len(_lines):
-                    self.band_overlaps_dict[spin]["matrices"].append(np.matrix(overlaps))
+                    self.band_overlaps_dict[spin]["matrices"].append(np.array(overlaps))
 
     def has_good_quality_maxDeviation(self, limit_maxDeviation: float = 0.1) -> bool:
         """Check if the maxDeviation from the ideal bandoverlap is smaller
