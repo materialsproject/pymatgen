@@ -9,8 +9,6 @@ import os
 from typing import TYPE_CHECKING
 
 import numpy as np
-from matplotlib import patches
-from matplotlib.path import Path
 from monty.serialization import loadfn
 from scipy.spatial import Delaunay
 
@@ -664,6 +662,10 @@ def plot_slab(
         decay (float): how the alpha-value decays along the z-axis
         inverse (bool): invert z axis to plot opposite surface
     """
+    # Expensive import (PR4128)
+    from matplotlib import patches
+    from matplotlib.path import Path
+
     orig_slab = slab.copy()
     slab = reorient_z(slab)
     orig_cell = slab.lattice.matrix.copy()
