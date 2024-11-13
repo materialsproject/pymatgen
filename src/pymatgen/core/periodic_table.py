@@ -205,8 +205,8 @@ class ElementBase(Enum):
             if val is None or str(val).startswith("no data"):
                 warnings.warn(f"No data available for {item} for {self.symbol}")
                 val = None
-            # elif isinstance(val, dict | list):
-            elif type(val) in [list, dict]:  # pre-commit fix
+            elif isinstance(val, dict | list):
+                # elif type(val) in [list, dict]:  # pre-commit fix
                 pass
             else:
                 try:
