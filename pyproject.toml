@@ -57,7 +57,7 @@ dependencies = [
     "joblib>=1",
     "matplotlib>=3.8",
     "monty>=2024.10.21",
-    "networkx>=2.7",  # PR #4116
+    "networkx>=2.7",  # PR4116
     "palettable>=3.3.3",
     "pandas>=2",
     "plotly>=4.5.0",
@@ -246,7 +246,17 @@ docstring-code-format = true
 "dev_scripts/*" = ["D"]
 
 [tool.pytest.ini_options]
-addopts = "--durations=30 --quiet -r xXs --color=yes -p no:warnings --import-mode=importlib"
+addopts = "--durations=30 --quiet -r xXs --color=yes --import-mode=importlib"
+filterwarnings = [
+    # NOTE: the last matching option is used
+    "ignore::Warning",               # Ignore all Warning
+    "default::FutureWarning",        # Show FutureWarnings
+    "default::DeprecationWarning",   # Show DeprecationWarnings
+    # TODO: pybtex (perhaps some others) emits the following warnings
+    'ignore:pkg_resources is deprecated as an API:DeprecationWarning',
+    'ignore:distutils Version classes are deprecated:DeprecationWarning',
+    'ignore:Deprecated call to `pkg_resources.declare_namespace:DeprecationWarning',
+]
 
 [tool.coverage.run]
 parallel = true
