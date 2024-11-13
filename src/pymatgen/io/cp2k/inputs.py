@@ -73,7 +73,7 @@ class Keyword(MSONable):
         *values,
         description: str | None = None,
         units: str | None = None,
-        verbose: bool | None = True,
+        verbose: bool | None = False,
         repeats: bool | None = False,
     ):
         """Initialize a keyword. These Keywords and the value passed to them are sometimes as simple
@@ -103,7 +103,7 @@ class Keyword(MSONable):
         return (
             f"{self.name} {f'[{self.units}] ' if self.units else ''}"
             + " ".join(map(str, self.values))
-            + (" ! " + self.description if (self.description and self.verbose) else "")
+            + (f" ! {self.description}" if (self.description and self.verbose) else "")
         )
 
     def __eq__(self, other: object) -> bool:
@@ -249,7 +249,7 @@ class Section(MSONable):
         keywords: dict | None = None,
         section_parameters: list | tuple | None = None,
         location: str | None = None,
-        verbose: bool | None = True,
+        verbose: bool | None = False,
         alias: str | None = None,
         **kwargs,
     ):
@@ -516,10 +516,10 @@ class Section(MSONable):
             path (str): Path to section of form 'SUBSECTION1/SUBSECTION2/SUBSECTION_OF_INTEREST'
         """
         _path = path.split("/")
-        s = self.subsections
+        sub_secs = self.subsections
         for p in _path:
-            if tmp := [_ for _ in s if p.upper() == _.upper()]:
-                s = s[tmp[0]].subsections
+            if tmp := [_ for _ in sub_secs if p.upper() == _.upper()]:
+                sub_secs = sub_secs[tmp[0]].subsections
             else:
                 return False
         return True
@@ -535,8 +535,8 @@ class Section(MSONable):
         if _path[0].upper() == self.name.upper():
             _path = _path[1:]
         sec_str = self
-        for p in _path:
-            sec_str = sec_str.get_section(p)
+        for pth in _path:
+            sec_str = sec_str.get_section(pth)
         return sec_str
 
     def get_str(self) -> str:
@@ -559,15 +559,15 @@ class Section(MSONable):
             )
             string += f"\n{filled}\n"
         string += "\t" * indent + f"&{d.name}"
-        string += f" {' '.join(map(str, d.section_parameters))}\n"
+        string += f"{' '.join(map(str, ['', *d.section_parameters]))}\n"
 
-        for v in d.keywords.values():
-            if isinstance(v, KeywordList):
-                string += f"{v.get_str(indent=indent + 1)}\n"
+        for val in d.keywords.values():
+            if isinstance(val, KeywordList):
+                string += f"{val.get_str(indent=indent + 1)}\n"
             else:
-                string += "\t" * (indent + 1) + v.get_str() + "\n"
-        for v in d.subsections.values():
-            string += v._get_str(v, indent + 1)
+                string += "\t" * (indent + 1) + val.get_str() + "\n"
+        for val in d.subsections.values():
+            string += val._get_str(val, indent + 1)
         string += "\t" * indent + f"&END {d.name}\n"
 
         return string
@@ -851,14 +851,14 @@ class Dft(Section):
 
     def __init__(
         self,
-        basis_set_filenames: Iterable = ("BASIS_MOLOPT",),
-        potential_filename="GTH_POTENTIALS",
+        basis_set_filenames: Sequence[str] = ("BASIS_MOLOPT",),
+        potential_filename: str = "GTH_POTENTIALS",
         uks: bool = True,
         wfn_restart_file_name: str | None = None,
         keywords: dict | None = None,
         subsections: dict | None = None,
         **kwargs,
-    ):
+    ) -> None:
         """Initialize the DFT section.
 
         Args:
@@ -881,14 +881,11 @@ class Dft(Section):
 
         description = "Parameter needed by dft programs"
 
+        uks_desc = "Whether to run unrestricted Kohn Sham (i.e. spin polarized)"
         _keywords = {
             "BASIS_SET_FILE_NAME": KeywordList([Keyword("BASIS_SET_FILE_NAME", k) for k in basis_set_filenames]),
             "POTENTIAL_FILE_NAME": Keyword("POTENTIAL_FILE_NAME", potential_filename),
-            "UKS": Keyword(
-                "UKS",
-                uks,
-                description="Whether to run unrestricted Kohn Sham (i.e. spin polarized)",
-            ),
+            "UKS": Keyword("UKS", uks, description=uks_desc),
         }
 
         if wfn_restart_file_name:
@@ -1320,7 +1317,7 @@ class Cell(Section):
         """
         self.lattice = lattice
         keywords = keywords or {}
-        description = "Lattice parameters and optional settings for creating a the CELL"
+        description = "Lattice parameters and optional settings for creating the CELL"
 
         _keywords = {
             "A": Keyword("A", *lattice.matrix[0]),
@@ -1381,27 +1378,7 @@ class Kind(Section):
         description = "The description of this kind of atom including basis sets, element, etc."
 
         # Special case for closed-shell elements. Cannot impose magnetization in CP2K.
-        closed_shell_elems = {
-            2,
-            4,
-            10,
-            12,
-            18,
-            20,
-            30,
-            36,
-            38,
-            48,
-            54,
-            56,
-            70,
-            80,
-            86,
-            88,
-            102,
-            112,
-            118,
-        }
+        closed_shell_elems = {2, 4, 10, 12, 18, 20, 30, 36, 38, 48, 54, 56, 70, 80, 86, 88, 102, 112, 118}
         if Element(self.specie).Z in closed_shell_elems:
             self.magnetization = 0
 
@@ -1665,7 +1642,7 @@ class VHartreeCube(Section):
         keywords = keywords or {}
         subsections = subsections or {}
         description = (
-            "Controls the printing of a cube file with eletrostatic potential generated by "
+            "Controls the printing of a cube file with electrostatic potential generated by "
             "the total density (electrons+ions). It is valid only for QS with GPW formalism. "
             "Note: by convention the potential has opposite sign than the expected physical one."
         )
@@ -1702,7 +1679,7 @@ class MOCubes(Section):
         keywords = keywords or {}
         subsections = subsections or {}
         description = (
-            "Controls the printing of a cube file with eletrostatic potential generated by "
+            "Controls the printing of a cube file with electrostatic potential generated by "
             "the total density (electrons+ions). It is valid only for QS with GPW formalism. "
             "Note: by convention the potential has opposite sign than the expected physical one."
         )

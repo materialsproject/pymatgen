@@ -3,6 +3,8 @@ from __future__ import annotations
 import os
 from unittest import TestCase
 
+import pytest
+from monty.tempfile import ScratchDir
 from pytest import approx
 
 from pymatgen.apps.borg.hive import (
@@ -60,6 +62,10 @@ class TestSimpleVaspToComputedEntryDrone(TestCase):
         for path in os.walk(VASP_OUT_DIR):
             if path[0] == VASP_OUT_DIR:
                 assert len(self.drone.get_valid_paths(path)) > 0
+
+    def test_assimilate_miss_core_file(self):
+        with ScratchDir("."), pytest.raises(ValueError, match="not all necessary files are present"):
+            self.drone.assimilate(".")
 
     def test_as_from_dict(self):
         dct = self.structure_drone.as_dict()

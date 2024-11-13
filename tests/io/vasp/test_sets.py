@@ -545,6 +545,7 @@ class TestMITMPRelaxSet(PymatgenTest):
         assert kpoints.style == Kpoints.supported_modes.Gamma
 
     @skip_if_no_psp_dir
+    @pytest.mark.filterwarnings("ignore:get_vasp_input is deprecated")
     def test_get_vasp_input(self):
         dct = self.mit_set.get_vasp_input()
         assert dct["INCAR"]["ISMEAR"] == -5
@@ -678,10 +679,10 @@ class TestMITMPRelaxSet(PymatgenTest):
         # vis = MPRelaxSet(struct, user_potcar_settings={"Fe": "Fe"}, validate_magmom=False)
         # with pytest.raises(TypeError, match=r"float\(\) argument must be a string or a (real )?number,
         #                    not 'NoneType'"):
-        #     vis.get_vasp_input()
+        #     vis.get_input_set()
 
         vis = MPRelaxSet(struct, user_potcar_settings={"Fe": "Fe"}, validate_magmom=True)
-        assert vis.get_vasp_input()["INCAR"]["MAGMOM"] == [1.0] * len(struct)
+        assert vis.get_input_set()["INCAR"]["MAGMOM"] == [1.0] * len(struct)
 
         # Test the behavior of constraining the net magnetic moment with a non-integer
         struct = self.structure.copy()
@@ -1427,9 +1428,9 @@ class TestMVLSlabSet(PymatgenTest):
         vis = self.set(self.slab)
         vis_dipole = self.set(self.slab, auto_dipole=True)
 
-        self.d_bulk = vis_bulk.get_vasp_input()
-        self.d_slab = vis.get_vasp_input()
-        self.d_dipole = vis_dipole.get_vasp_input()
+        self.d_bulk = vis_bulk.get_input_set()
+        self.d_slab = vis.get_input_set()
+        self.d_dipole = vis_dipole.get_input_set()
         self.vis = vis
 
     def test_user_incar_settings(self):
@@ -2008,8 +2009,8 @@ class TestMVLGBSet(PymatgenTest):
         self.bulk = MVLGBSet(self.struct)
         self.slab = MVLGBSet(self.struct, slab_mode=True)
 
-        self.d_bulk = self.bulk.get_vasp_input()
-        self.d_slab = self.slab.get_vasp_input()
+        self.d_bulk = self.bulk.get_input_set()
+        self.d_slab = self.slab.get_input_set()
 
     def test_bulk(self):
         incar_bulk = self.d_bulk["INCAR"]
@@ -2283,4 +2284,4 @@ def test_dict_set_alias():
         match="DictSet is deprecated, and will be removed on 2025-12-31\nUse VaspInputSet",
     ):
         DictSet()
-    assert isinstance(DictSet(), VaspInputSet)
+        assert isinstance(DictSet(), VaspInputSet)
