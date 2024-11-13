@@ -578,7 +578,7 @@ class WulffShape:
             x=[0],
             y=[0],
             z=[0],
-            colorbar=go.ColorBar(
+            colorbar=go.mesh3d.ColorBar(
                 title={
                     "text": f"Surface energy {units}",
                     "side": "right",

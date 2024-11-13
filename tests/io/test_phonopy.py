@@ -107,17 +107,17 @@ class TestStructureConversion(PymatgenTest):
         struct_pmg_round_trip = get_pmg_structure(struct_ph)
         assert struct_pmg_round_trip.matches(struct_pmg)
 
-        coords_ph = struct_ph.get_scaled_positions()
+        coords_ph = struct_ph.scaled_positions
         symbols_pmg = {*map(str, struct_pmg.composition)}
         symbols_pmg2 = {*map(str, struct_pmg_round_trip.composition)}
 
-        assert struct_ph.get_cell()[1, 1] == approx(struct_pmg.lattice._matrix[1, 1], abs=1e-7)
+        assert struct_ph.cell[1, 1] == approx(struct_pmg.lattice._matrix[1, 1], abs=1e-7)
         assert struct_pmg.lattice._matrix[1, 1] == approx(struct_pmg_round_trip.lattice._matrix[1, 1], abs=1e-7)
         assert symbols_pmg == set(struct_ph.symbols)
         assert symbols_pmg == symbols_pmg2
         assert_allclose(coords_ph[3], struct_pmg.frac_coords[3])
         assert_allclose(struct_pmg.frac_coords[3], struct_pmg_round_trip.frac_coords[3])
-        assert struct_ph.get_number_of_atoms() == len(struct_pmg)
+        assert len(struct_ph) == len(struct_pmg)
         assert len(struct_pmg) == len(struct_pmg_round_trip)
 
         # https://github.com/materialsproject/pymatgen/pull/3555

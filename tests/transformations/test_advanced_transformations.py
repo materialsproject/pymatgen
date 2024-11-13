@@ -10,8 +10,8 @@ from numpy.testing import assert_allclose, assert_array_equal
 from pytest import approx
 
 from pymatgen.analysis.energy_models import IsingModel, SymmetryModel
-from pymatgen.analysis.gb.grain import GrainBoundaryGenerator
 from pymatgen.core import Lattice, Molecule, Species, Structure
+from pymatgen.core.interface import GrainBoundaryGenerator
 from pymatgen.core.surface import SlabGenerator
 from pymatgen.io.icet import ClusterSpace
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer

@@ -42,6 +42,7 @@ if TYPE_CHECKING:
 PMG_ENTRIES_DIR = os.path.dirname(os.path.abspath(pymatgen.entries.__file__))
 
 
+@pytest.mark.filterwarnings("ignore:MaterialsProjectCompatibility is deprecated")
 class TestCorrectionSpecificity(TestCase):
     """Make sure corrections are only applied to GGA or GGA+U entries."""
 
@@ -202,6 +203,7 @@ def test_overlapping_adjustments():
     assert len(processed) == 0
 
 
+@pytest.mark.filterwarnings("ignore:MaterialsProjectCompatibility is deprecated")
 class TestMaterialsProjectCompatibility(TestCase):
     def setUp(self):
         self.entry1 = ComputedEntry(
@@ -592,6 +594,9 @@ class TestMaterialsProjectCompatibility(TestCase):
         assert len(entries) == 2
 
     def test_parallel_process_entries(self):
+        # TODO: DeprecationWarning: This process (pid=xxxx) is multi-threaded,
+        # use of fork() may lead to deadlocks in the child.
+        # pid = os.fork()
         with pytest.raises(
             ValueError,
             match="Parallel processing is not possible with for 'inplace=True'",
@@ -1132,6 +1137,7 @@ class TestMaterialsProjectCompatibility2020(TestCase):
         assert entry.energy == approx(-1)
         assert self.gga_compat.process_entry(entry).energy == approx(-1)
 
+    @pytest.mark.filterwarnings("ignore:MaterialsProjectCompatibility is deprecated")
     def test_get_explanation_dict(self):
         compat = MaterialsProjectCompatibility(check_potcar_hash=False)
         entry = ComputedEntry(
