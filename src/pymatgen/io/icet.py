@@ -49,7 +49,7 @@ class IcetSQS:
     }
     _sqs_kwarg_defaults: ClassVar[dict[str, Any]] = {
         "optimality_weight": None,
-        "tol": 1.0e-5,
+        "tol": 1e-5,
         "include_smaller_cells": False,  # for consistency with ATAT
         "pbc": (True, True, True),
     }

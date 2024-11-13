@@ -2,9 +2,9 @@ from __future__ import annotations
 
 import copy
 import json
+import math
 import os
 from collections import defaultdict
-from math import sqrt
 from pathlib import Path
 from typing import TYPE_CHECKING
 from unittest import TestCase
@@ -2485,10 +2485,10 @@ class TestCorrectionErrors2020Compatibility(TestCase):
 
     def test_errors(self):
         for entry, expected in (
-            (self.entry1, sqrt((2 * 0.0101) ** 2 + (3 * 0.002) ** 2)),
-            (self.entry2, sqrt((3 * 0.0101) ** 2 + (4 * 0.002) ** 2)),
+            (self.entry1, math.sqrt((2 * 0.0101) ** 2 + (3 * 0.002) ** 2)),
+            (self.entry2, math.sqrt((3 * 0.0101) ** 2 + (4 * 0.002) ** 2)),
             (self.entry_sulfide, 0.0093),
-            (self.entry_fluoride, sqrt((3 * 0.0026) ** 2 + 0.0101**2)),
+            (self.entry_fluoride, math.sqrt((3 * 0.0026) ** 2 + 0.0101**2)),
             (self.entry_hydride, 0.0013),
         ):
             corrected_entry = self.compat.process_entry(entry)

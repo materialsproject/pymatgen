@@ -127,8 +127,8 @@ class ValenceIonicRadiusEvaluator:
                 continue
 
             el = site.specie.symbol
-            oxi_state = int(round(site.specie.oxi_state))
-            coord_no = int(round(vnn.get_cn(self._structure, idx)))
+            oxi_state = round(site.specie.oxi_state)
+            coord_no = round(vnn.get_cn(self._structure, idx))
             try:
                 tab_oxi_states = sorted(map(int, _ION_RADII[el]))
                 oxi_state = nearest_key(tab_oxi_states, oxi_state)
@@ -2888,9 +2888,9 @@ class LocalStructOrderParams:
         if tol < 0.0:
             raise ValueError("Negative tolerance for weighted solid angle!")
 
-        left_of_unity = 1 - 1.0e-12
+        left_of_unity = 1 - 1e-12
         # The following threshold has to be adapted to non-Angstrom units.
-        very_small = 1.0e-12
+        very_small = 1e-12
         fac_bcc = 1 / math.exp(-0.5)
 
         # Find central site and its neighbors.
@@ -3330,7 +3330,7 @@ class LocalStructOrderParams:
                     for j in range(n_neighbors):
                         ops[idx] += sum(qsp_theta[idx][j])
                         tmp_norm += float(sum(norms[idx][j]))
-                    ops[idx] = ops[idx] / tmp_norm if tmp_norm > 1.0e-12 else None  # type: ignore[operator]
+                    ops[idx] = ops[idx] / tmp_norm if tmp_norm > 1e-12 else None  # type: ignore[operator]
 
                 elif typ in {
                     "T",
@@ -3357,7 +3357,7 @@ class LocalStructOrderParams:
                         for j in range(n_neighbors):
                             for k in range(len(qsp_theta[idx][j])):
                                 qsp_theta[idx][j][k] = (
-                                    qsp_theta[idx][j][k] / norms[idx][j][k] if norms[idx][j][k] > 1.0e-12 else 0.0
+                                    qsp_theta[idx][j][k] / norms[idx][j][k] if norms[idx][j][k] > 1e-12 else 0.0
                                 )
                             ops[idx] = max(qsp_theta[idx][j]) if j == 0 else max(ops[idx], *qsp_theta[idx][j])
 
@@ -3436,7 +3436,7 @@ class BrunnerNNReciprocal(NearNeighbors):
     largest reciprocal gap in interatomic distances.
     """
 
-    def __init__(self, tol: float = 1.0e-4, cutoff=8.0) -> None:
+    def __init__(self, tol: float = 1e-4, cutoff=8.0) -> None:
         """
         Args:
             tol (float): tolerance parameter for bond determination
@@ -3511,7 +3511,7 @@ class BrunnerNNRelative(NearNeighbors):
     of largest relative gap in interatomic distances.
     """
 
-    def __init__(self, tol: float = 1.0e-4, cutoff=8.0) -> None:
+    def __init__(self, tol: float = 1e-4, cutoff=8.0) -> None:
         """
         Args:
             tol (float): tolerance parameter for bond determination
@@ -3587,7 +3587,7 @@ class BrunnerNNReal(NearNeighbors):
     largest gap in interatomic distances.
     """
 
-    def __init__(self, tol: float = 1.0e-4, cutoff=8.0) -> None:
+    def __init__(self, tol: float = 1e-4, cutoff=8.0) -> None:
         """
         Args:
             tol (float): tolerance parameter for bond determination
@@ -3748,7 +3748,7 @@ class EconNN(NearNeighbors):
         # calculate mean fictive ionic radius
         mefir = _get_mean_fictive_ionic_radius(firs)
 
-        # # iteratively solve MEFIR; follows equation 4 in Hoppe's EconN paper
+        # iteratively solve MEFIR; follows equation 4 in Hoppe's EconN paper
         prev_mefir = float("inf")
         while abs(prev_mefir - mefir) > 1e-4:
             # this is guaranteed to converge
