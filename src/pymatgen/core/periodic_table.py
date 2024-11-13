@@ -1655,18 +1655,22 @@ def get_el_sp(obj: int | SpeciesLike) -> Element | Species | DummySpecies:
     """
     # If obj is already an Element or Species, return as is
     # TODO: Why do we need to check "_is_named_isotope"?
-    if isinstance(obj, Element):
+    if isinstance(obj, Element | Species | DummySpecies):
         if getattr(obj, "_is_named_isotope", None):
-            return Element(obj.name)
+            return Element(obj.name) if isinstance(obj, Element) else Species(str(obj))
         return obj
-    if isinstance(obj, Species):
-        if getattr(obj, "_is_named_isotope", None):
-            return Species(str(obj))
-        return obj
-    if isinstance(obj, Species):
-        if getattr(obj, "_is_named_isotope", None):
-            return Species(str(obj))
-        return obj
+    # if isinstance(obj, Element):
+    #     if getattr(obj, "_is_named_isotope", None):
+    #         return Element(obj.name)
+    #     return obj
+    # if isinstance(obj, Species):
+    #     if getattr(obj, "_is_named_isotope", None):
+    #         return Species(str(obj))
+    #     return obj
+    # if isinstance(obj, Species):
+    #     if getattr(obj, "_is_named_isotope", None):
+    #         return Species(str(obj))
+    #     return obj
 
     # If obj is an integer, return the Element with atomic number obj
     try:
