@@ -5,7 +5,7 @@ from typing import TYPE_CHECKING, Any
 
 import pytest
 
-from pymatgen.core.units import Ha_to_eV
+from pymatgen.core.units import Ha_to_eV, bohr_to_ang
 from pymatgen.io.jdftx.jdftxoutfileslice import JDFTXOutfileSlice
 from pymatgen.io.jdftx.outputs import JDFTXOutfile
 from pymatgen.util.testing import TEST_FILES_DIR
@@ -290,6 +290,19 @@ etot_etype_outfile_path = ex_files_dir / Path("etot_etype.out")
 etot_etype_outfile_known_simple = {
     "e": -17.265553748795949 * Ha_to_eV,
     "elec_grad_k": 2.991e-07,
+}
+
+partial_lattice_init_outfile_path = ex_files_dir / Path("partial_lattice_init.out")
+partial_lattice_init_outfile_known_lattice = {
+    "00": 13.850216000000000 * bohr_to_ang,
+    "01": 0.000000000000000 * bohr_to_ang,
+    "02": -0.297459000000000 * bohr_to_ang,
+    "10": -4.625257000000000 * bohr_to_ang,
+    "11": 13.055094000000000 * bohr_to_ang,
+    "12": -0.297459000000000 * bohr_to_ang,
+    "20": 0.000000000000000 * bohr_to_ang,
+    "21": 0.000000000000000 * bohr_to_ang,
+    "22": 54.648857000000000 * bohr_to_ang,
 }
 
 
