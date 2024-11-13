@@ -5,6 +5,7 @@ and a ChemicalPotential class to represent potentials.
 from __future__ import annotations
 
 import collections
+import math
 import os
 import re
 import string
@@ -12,7 +13,6 @@ import warnings
 from collections import defaultdict
 from functools import total_ordering
 from itertools import combinations_with_replacement, product
-from math import isnan
 from typing import TYPE_CHECKING, cast
 
 from monty.fractions import gcd, gcd_float
@@ -129,7 +129,7 @@ class Composition(collections.abc.Hashable, collections.abc.Mapping, MSONable, S
             elem_map = args[0]
         elif len(args) == 1 and isinstance(args[0], str):
             elem_map = self._parse_formula(args[0])  # type: ignore[assignment]
-        elif len(args) == 1 and isinstance(args[0], float) and isnan(args[0]):
+        elif len(args) == 1 and isinstance(args[0], float) and math.isnan(args[0]):
             raise ValueError("float('NaN') is not a valid Composition, did you mean 'NaN'?")
         else:
             elem_map = dict(*args, **kwargs)  # type: ignore[assignment]
@@ -400,7 +400,7 @@ class Composition(collections.abc.Hashable, collections.abc.Mapping, MSONable, S
         all_int = all(abs(val - round(val)) < type(self).amount_tolerance for val in self.values())
         if not all_int:
             return self.formula.replace(" ", ""), 1
-        el_amt_dict = {key: int(round(val)) for key, val in self.get_el_amt_dict().items()}
+        el_amt_dict = {key: round(val) for key, val in self.get_el_amt_dict().items()}
         formula, factor = reduce_formula(el_amt_dict, iupac_ordering=iupac_ordering)
 
         if formula in type(self).special_formulas:

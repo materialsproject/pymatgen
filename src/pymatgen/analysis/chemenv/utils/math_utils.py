@@ -2,9 +2,9 @@
 
 from __future__ import annotations
 
+import math
 import operator
 from functools import reduce
-from math import sqrt
 from typing import TYPE_CHECKING
 
 import numpy as np
@@ -56,7 +56,7 @@ def prime_factors(n: int) -> list[int]:
         list of all prime factors of the given natural n.
     """
     idx = 2
-    while idx <= sqrt(n):
+    while idx <= math.sqrt(n):
         if n % idx == 0:
             lst = prime_factors(n // idx)
             lst.append(idx)

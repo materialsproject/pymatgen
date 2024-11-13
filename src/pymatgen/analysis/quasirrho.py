@@ -10,7 +10,7 @@ See: Grimme, S. Chem. Eur. J. 2012, 18, 9955.
 
 from __future__ import annotations
 
-from math import isclose
+import math
 from typing import TYPE_CHECKING
 
 import numpy as np
@@ -221,7 +221,7 @@ class QuasiRRHO:
         linear = True
         for coord in coords[1:]:
             theta = abs(np.dot(coord - coords[0], v0) / np.linalg.norm(coord - coords[0]) / np.linalg.norm(v0))
-            if not isclose(theta, 1, abs_tol=1e-4):
+            if not math.isclose(theta, 1, abs_tol=1e-4):
                 linear = False
 
         # Rotational component of Entropy and Energy

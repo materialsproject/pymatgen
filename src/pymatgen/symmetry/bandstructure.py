@@ -306,7 +306,7 @@ class HighSymmKpath(KPathBase):
         labels = [point.label for point in bandstructure.kpoints if point.label is not None]
 
         plot_axis = []
-        for i in range(int(len(labels) / 2)):
+        for i in range(len(labels) // 2):
             G.add_edges_from([(labels[2 * i], labels[(2 * i) + 1])])
             plot_axis.append((labels[2 * i], labels[(2 * i) + 1]))
 

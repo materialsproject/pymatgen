@@ -6,6 +6,17 @@ nav_order: 4
 
 # Changelog
 
+## 2024.11.13
+
+- CP2K fixes (@janosh)
+- Fix borg.hive.SimpleVaspToComputedEntryDrone.assimilate ValueError when core file missing (@DanielYang59)
+- Revert breaking analysis.local_env default_op_params/cn_opt_params rename (@DanielYang59)
+- Added new Flag for AutoOxiStateDecorationTransformation (@jmmshn)
+- Fixed execution of packmol in relative path. (@davidwaroquiers)
+- Improve element mismatch handling with POTCAR for Poscar.from_file/str (@DanielYang59)
+- Preprocess Structure Reduction Before Bulk Match (@lan496)
+- Add min "thickness" check in CifParser to filter invalid structure which leads to infinite loop (@DanielYang59)
+
 ## 2024.10.29
 - VaspDir has been renamed and moved to pymatgen.io.common.PMGDir for more general support of all IO classes. Note that
   this is a backwards incompatible change. It should not affect many users since VaspDir was introduced only in the last
