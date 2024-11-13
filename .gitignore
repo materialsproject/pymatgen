@@ -27,9 +27,6 @@ setuptools*
 .*_cache
 # VS Code
 .vscode/*
-codecov*
-coverage.xml
-jdftx*.xml
 .coverage*
 
 # Environments
