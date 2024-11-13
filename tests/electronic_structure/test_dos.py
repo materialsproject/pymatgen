@@ -130,9 +130,9 @@ class TestCompleteDos(TestCase):
                 sum_element += pdos
 
         # The sums of the SPD or the element doses should be the same.
-        assert (abs(sum_spd.energies - sum_element.energies) < 0.0001).all()
-        assert (abs(sum_spd.densities[Spin.up] - sum_element.densities[Spin.up]) < 0.0001).all()
-        assert (abs(sum_spd.densities[Spin.down] - sum_element.densities[Spin.down]) < 0.0001).all()
+        assert_allclose(sum_spd.energies, sum_element.energies, atol=1e-4)
+        assert_allclose(sum_spd.densities[Spin.up], sum_element.densities[Spin.up], atol=1e-4)
+        assert_allclose(sum_spd.densities[Spin.down], sum_element.densities[Spin.down], atol=1e-4)
 
         site = self.dos.structure[0]
         assert self.dos.get_site_dos(site) is not None
@@ -170,7 +170,7 @@ class TestCompleteDos(TestCase):
                 sum_element += pdos
 
         # The sums of the SPD or the element doses should be the same.
-        assert (abs(sum_spd.energies - sum_element.energies) < 0.0001).all()
+        assert_allclose(sum_spd.energies, sum_element.energies, atol=1e-4)
 
     def test_str(self):
         assert str(self.dos).startswith("Complete DOS for Full Formula (Li1 Fe4 P4 O16)\nReduced Formula: LiFe4(PO4)4")

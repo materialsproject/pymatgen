@@ -181,7 +181,7 @@ class InternalStrainTensor:
         self.IST_operations: list[list[list]] = []
 
         obj = self.ist
-        if not (obj - np.transpose(obj, (0, 1, 3, 2)) < tol).all():
+        if not np.allclose(obj, np.transpose(obj, (0, 1, 3, 2)), atol=tol, rtol=0):
             warnings.warn("Input internal strain tensor does not satisfy standard symmetries")
 
     def get_IST_operations(self, opstol=1e-3) -> list[list[list]]:

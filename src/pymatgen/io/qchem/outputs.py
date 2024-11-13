@@ -1422,7 +1422,7 @@ class QCOutput(MSONable):
         if len(parsed_gradients) >= 1:
             sorted_gradients = np.zeros(shape=(len(parsed_gradients), len(self.data["initial_molecule"]), 3))
             for ii, grad in enumerate(parsed_gradients):
-                for jj in range(int(len(grad) / 3)):
+                for jj in range(len(grad) // 3):
                     for kk in range(grad_format_length):
                         if grad[jj * 3][kk] != "None":
                             sorted_gradients[ii][jj * grad_format_length + kk][0] = grad[jj * 3][kk]
@@ -1457,7 +1457,7 @@ class QCOutput(MSONable):
 
                 sorted_gradients = np.zeros(shape=(len(parsed_gradients), len(self.data["initial_molecule"]), 3))
                 for ii, grad in enumerate(parsed_gradients):
-                    for jj in range(int(len(grad) / 3)):
+                    for jj in range(len(grad) // 3):
                         for kk in range(grad_format_length):
                             if grad[jj * 3][kk] != "None":
                                 sorted_gradients[ii][jj * grad_format_length + kk][0] = grad[jj * 3][kk]

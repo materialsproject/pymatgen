@@ -1414,7 +1414,7 @@ class Kpoints(MSONable):
         if comment is None:
             comment = f"pymatgen with grid density = {kppa:.0f} / number of atoms"
 
-        if math.fabs((math.floor(kppa ** (1 / 3) + 0.5)) ** 3 - kppa) < 1:
+        if abs((math.floor(kppa ** (1 / 3) + 0.5)) ** 3 - kppa) < 1:
             kppa += kppa * 0.01
         lattice = structure.lattice
         lengths: Vector3D = lattice.abc
