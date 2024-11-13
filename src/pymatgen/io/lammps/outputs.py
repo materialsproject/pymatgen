@@ -81,9 +81,8 @@ class LammpsDump(MSONable):
         Returns:
             LammpsDump
         """
-        items = {"timestep": dct["timestep"], "natoms": dct["natoms"]}
-        items["box"] = LammpsBox.from_dict(dct["box"])
-        items["data"] = pd.read_json(dct["data"], orient="split")
+        items = {"timestep": dct["timestep"], "natoms": dct["natoms"], "box": LammpsBox.from_dict(dct["box"])}
+        items["data"] = pd.read_json(StringIO(dct["data"]), orient="split")
         return cls(**items)
 
     def as_dict(self) -> dict[str, Any]:

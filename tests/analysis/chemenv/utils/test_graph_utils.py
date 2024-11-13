@@ -184,20 +184,31 @@ class TestGraphUtils(PymatgenTest):
             ordered=False,
         )
         assert not sgc.ordered
-        assert sgc.nodes == (FakeNodeWithEqMethod(1), FakeNodeWithEqMethod(0), FakeNodeWithEqMethod(2))
+        assert sgc.nodes == (
+            FakeNodeWithEqMethod(1),
+            FakeNodeWithEqMethod(0),
+            FakeNodeWithEqMethod(2),
+        )
         sgc.validate(check_strict_ordering=False)
-        with pytest.raises(ValueError, match="SimpleGraphCycle is not valid : The nodes are not sortable."):
+        with pytest.raises(
+            ValueError,
+            match="SimpleGraphCycle is not valid : The nodes are not sortable.",
+        ):
             sgc.validate(check_strict_ordering=True)
 
         # Empty cycle not valid
         sgc = SimpleGraphCycle([], validate=False, ordered=False)
-        with pytest.raises(ValueError, match="SimpleGraphCycle is not valid : Empty cycle is not valid."):
+        with pytest.raises(
+            ValueError,
+            match="SimpleGraphCycle is not valid : Empty cycle is not valid.",
+        ):
             sgc.validate()
 
         # Simple graph cycle with 2 nodes not valid
         sgc = SimpleGraphCycle([1, 2], validate=False, ordered=False)
         with pytest.raises(
-            ValueError, match="SimpleGraphCycle is not valid : Simple graph cycle with 2 nodes is not valid."
+            ValueError,
+            match="SimpleGraphCycle is not valid : Simple graph cycle with 2 nodes is not valid.",
         ):
             sgc.validate()
 
@@ -244,7 +255,10 @@ class TestGraphUtils(PymatgenTest):
         )
         sgc.order(raise_on_fail=False)
         assert not sgc.ordered
-        with pytest.raises(ValueError, match="SimpleGraphCycle is not valid : The nodes are not sortable."):
+        with pytest.raises(
+            ValueError,
+            match="SimpleGraphCycle is not valid : The nodes are not sortable.",
+        ):
             sgc.order(raise_on_fail=True)
 
         sgc = SimpleGraphCycle(
@@ -285,7 +299,8 @@ class TestGraphUtils(PymatgenTest):
             FakeNodeWithEqLtMethods(3),
         )
         with pytest.raises(
-            ValueError, match="Could not order simple graph cycle as the nodes are of different classes."
+            ValueError,
+            match="Could not order simple graph cycle as the nodes are of different classes.",
         ):
             sgc.order(raise_on_fail=True)
 
@@ -474,9 +489,16 @@ class TestGraphUtils(PymatgenTest):
             ordered=False,
         )
         assert not mgc.ordered
-        assert mgc.nodes == (FakeNodeWithEqMethod(1), FakeNodeWithEqMethod(0), FakeNodeWithEqMethod(2))
+        assert mgc.nodes == (
+            FakeNodeWithEqMethod(1),
+            FakeNodeWithEqMethod(0),
+            FakeNodeWithEqMethod(2),
+        )
         mgc.validate(check_strict_ordering=False)
-        with pytest.raises(ValueError, match="MultiGraphCycle is not valid : The nodes are not sortable."):
+        with pytest.raises(
+            ValueError,
+            match="MultiGraphCycle is not valid : The nodes are not sortable.",
+        ):
             mgc.validate(check_strict_ordering=True)
 
         # Multi graph cycle with nodes that cannot be strictly ordered
@@ -525,7 +547,10 @@ class TestGraphUtils(PymatgenTest):
         )
         mgc.order(raise_on_fail=False)
         assert not mgc.ordered
-        with pytest.raises(ValueError, match="MultiGraphCycle is not valid : The nodes are not sortable."):
+        with pytest.raises(
+            ValueError,
+            match="MultiGraphCycle is not valid : The nodes are not sortable.",
+        ):
             mgc.order(raise_on_fail=True)
 
         mgc = MultiGraphCycle(
@@ -570,7 +595,8 @@ class TestGraphUtils(PymatgenTest):
         )
         assert mgc.edge_indices == (2, 5, 3, 7)
         with pytest.raises(
-            ValueError, match="Could not order simple graph cycle as the nodes are of different classes."
+            ValueError,
+            match="Could not order simple graph cycle as the nodes are of different classes.",
         ):
             mgc.order(raise_on_fail=True)
 

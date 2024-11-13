@@ -471,7 +471,10 @@ Cartesian
 0.000000   0.00000000   0.00000000 Si T T F
 3.840198   1.50000000   2.35163175 F T T F
 """
-        with pytest.warns(BadPoscarWarning, match="Selective dynamics values must be either 'T' or 'F'."):
+        with pytest.warns(
+            BadPoscarWarning,
+            match="Selective dynamics values must be either 'T' or 'F'.",
+        ):
             Poscar.from_str(invalid_poscar_str)
 
     def test_selective_dynamics_with_fluorine(self):
@@ -518,7 +521,8 @@ Cartesian
 3.840198   1.50000000   2.35163175 T T T
 """
         with pytest.warns(
-            BadPoscarWarning, match="Ignoring selective dynamics tag, as no ionic degrees of freedom were fixed."
+            BadPoscarWarning,
+            match="Ignoring selective dynamics tag, as no ionic degrees of freedom were fixed.",
         ):
             Poscar.from_str(poscar_str_all_dof_relaxed)
 
@@ -551,11 +555,17 @@ class TestIncar(PymatgenTest):
         incar_str: str = """encut = 400
         ENCUT = 500
         """
-        with pytest.warns(BadIncarWarning, match=re.escape("Duplicate keys found (case-insensitive): ['ENCUT']")):
+        with pytest.warns(
+            BadIncarWarning,
+            match=re.escape("Duplicate keys found (case-insensitive): ['ENCUT']"),
+        ):
             Incar.from_str(incar_str)
 
         incar_dict = {"ALGO": "Fast", "algo": "fast"}
-        with pytest.warns(BadIncarWarning, match=re.escape("Duplicate keys found (case-insensitive): ['ALGO']")):
+        with pytest.warns(
+            BadIncarWarning,
+            match=re.escape("Duplicate keys found (case-insensitive): ['ALGO']"),
+        ):
             Incar.from_dict(incar_dict)
 
     def test_key_case_insensitive(self):
@@ -604,6 +614,14 @@ class TestIncar(PymatgenTest):
 
         incar.setdefault("NPAR", 4)
         assert incar["npar"] == 4
+
+        # Test pop
+        assert incar.pop(test_tag.lower()) == 520
+        assert test_tag.upper() not in incar
+        assert test_tag.lower() not in incar
+
+        # Test pop with default value
+        assert incar.pop("missing_key", 42) == 42
 
     def test_copy(self):
         incar2 = self.incar.copy()
@@ -668,9 +686,11 @@ class TestIncar(PymatgenTest):
                 "ISMEAR": {"INCAR1": 0, "INCAR2": -5},
                 "NPAR": {"INCAR1": 8, "INCAR2": 1},
                 "SYSTEM": {
-                    "INCAR1": "Id=[0] dblock_code=[97763-icsd] formula=[li mn (p o4)] sg_name=[p n m a]",
-                    "INCAR2": "Id=[91090] dblock_code=[20070929235612linio-59.53134651-vasp] formula=[li3 ni3 o6] "
-                    "sg_name=[r-3m]",
+                    "INCAR1": "id=[0] dblock_code=[97763-ICSD] formula=[Li Mn (P O4)] sg_name=[P n m a]",
+                    "INCAR2": (
+                        "id=[91090] dblock_code=[20070929235612LiNiO-59.53134651-VASP] "
+                        "formula=[Li3 Ni3 O6] sg_name=[R-3m]"
+                    ),
                 },
                 "ALGO": {"INCAR1": "Damped", "INCAR2": "Fast"},
                 "LHFCALC": {"INCAR1": True, "INCAR2": None},
@@ -705,7 +725,7 @@ class TestIncar(PymatgenTest):
         float/int, and might yield values in wrong type.
         """
         # Init from dict
-        incar_dict = {"ENCUT": 500, "GGA": "PS", "NELM": 60.0}
+        incar_dict = {"ENCUT": 500, "GGA": "PS", "NELM": 60.0, "SYSTEM": "This should NOT BE capitalized"}
         incar_from_dict = Incar(incar_dict)
 
         # Init from file (from string)
@@ -713,6 +733,7 @@ class TestIncar(PymatgenTest):
         ENCUT = 500
         GGA = PS
         NELM = 60.0
+        SYSTEM = This should NOT BE capitalized
         """
 
         with ScratchDir("."):
@@ -729,6 +750,7 @@ class TestIncar(PymatgenTest):
         assert incar_from_dict == incar_from_file
         for key in incar_from_dict:
             assert type(incar_from_dict[key]) is type(incar_from_file[key])
+        assert incar_from_file["SYSTEM"] == "This should NOT BE capitalized"
 
     def test_write(self):
         tmp_file = f"{self.tmp_path}/INCAR.testing"
@@ -764,7 +786,7 @@ NSW        =  99
 NUPDOWN    =  0
 PREC       =  Accurate
 SIGMA      =  0.05
-SYSTEM     =  Id=[0] dblock_code=[97763-icsd] formula=[li mn (p o4)] sg_name=[p n m a]
+SYSTEM     =  id=[0] dblock_code=[97763-ICSD] formula=[Li Mn (P O4)] sg_name=[P n m a]
 TIME       =  0.4"""
         assert incar_str == expected
 
@@ -866,13 +888,15 @@ SIGMA = 0.1"""
                 "AMIN": 0.01,
                 "ICHARG": 1,
                 "MAGMOM": [1, 2, 4, 5],
+                "ML_MODE": "RUN",  # lower case string
+                "SYSTEM": "Hello world",  # as is string
                 "ENCUT": 500,  # make sure float key is casted
                 "GGA": "PS",  # test string case insensitivity
                 "LREAL": True,  # special case: Union type
                 "NBAND": 250,  # typo in tag
                 "METAGGA": "SCAM",  # typo in value
-                "EDIFF": 5 + 1j,  # value should be a float
-                "ISIF": 9,  # value out of range
+                "EDIFF": 5 + 1j,  # value should be float
+                "ISIF": 9,  # value not unknown
                 "LASPH": 5,  # value should be bool
                 "PHON_TLIST": "is_a_str",  # value should be a list
             }
@@ -889,40 +913,57 @@ SIGMA = 0.1"""
 
 
 class TestKpointsSupportedModes:
-    def test_from_str(self):
-        test_cases = "Automatic Gamma Monkhorst Line_mode Cartesian Reciprocal".split()
-        for input_str in test_cases:
-            expected = getattr(KpointsSupportedModes, input_str)
-            assert KpointsSupportedModes.from_str(input_str) == expected
-            assert KpointsSupportedModes.from_str(input_str.lower()) == expected  # case insensitive
-            assert KpointsSupportedModes.from_str(input_str[0]) == expected  # only first letter matters
+    @pytest.mark.parametrize("mode", ["Automatic", "Gamma", "Monkhorst", "Line_mode", "Cartesian", "Reciprocal"])
+    def test_from_str(self, mode):
+        expected = getattr(KpointsSupportedModes, mode)
+        assert KpointsSupportedModes.from_str(mode) == expected
+        assert KpointsSupportedModes.from_str(mode.lower()) == expected  # case insensitive
+        assert KpointsSupportedModes.from_str(mode[0]) == expected  # only first letter matters
 
+    def test_invalid_mode(self):
         mode = "InvalidMode"
         with pytest.raises(ValueError, match=f"Invalid Kpoint {mode=}"):
             KpointsSupportedModes.from_str(mode)
 
 
 class TestKpoints:
+    @pytest.mark.filterwarnings("ignore:Please use INCAR KSPACING tag")
     def test_init(self):
+        # Automatic KPOINT grid
         filepath = f"{VASP_IN_DIR}/KPOINTS_auto"
         kpoints = Kpoints.from_file(filepath)
+        assert kpoints.comment == "Automatic mesh"
         assert kpoints.kpts == [(10,)], "Wrong kpoint lattice read"
         filepath = f"{VASP_IN_DIR}/KPOINTS_cartesian"
         kpoints = Kpoints.from_file(filepath)
-        assert kpoints.kpts == [(0.25, 0, 0), (0, 0.25, 0), (0, 0, 0.25)], "Wrong kpoint lattice read"
+        assert kpoints.kpts == [
+            (0.25, 0, 0),
+            (0, 0.25, 0),
+            (0, 0, 0.25),
+        ], "Wrong kpoint lattice read"
         assert kpoints.kpts_shift == (0.5, 0.5, 0.5)
 
+        # Gamma-centered Kpoint grid
+        filepath = f"{VASP_IN_DIR}/KPOINTS_gamma"
+        kpoints = Kpoints.from_file(filepath)
+        assert kpoints.comment == "Gamma centered mesh"
+        assert kpoints.kpts == [(4, 4, 4)]
+
+        # Monkhorst-Pack Kpoint grid
         filepath = f"{VASP_IN_DIR}/KPOINTS"
         kpoints = Kpoints.from_file(filepath)
+        assert kpoints.comment == "Auto-generated kpoints file: VaspIO.writeKPOINTS(XX,XX,500)"
         self.kpoints = kpoints
         assert kpoints.kpts == [(2, 4, 6)]
 
+        # Line mode
         filepath = f"{VASP_IN_DIR}/KPOINTS_band"
         kpoints = Kpoints.from_file(filepath)
         assert kpoints.labels is not None
         assert kpoints.style == Kpoints.supported_modes.Line_mode
         assert str(kpoints).split("\n")[3] == "Reciprocal"
 
+        # Explicit K-point mode
         filepath = f"{VASP_IN_DIR}/KPOINTS_explicit"
         kpoints = Kpoints.from_file(filepath)
         assert kpoints.kpts_weights is not None
@@ -935,8 +976,10 @@ Cartesian
 0.5 0.5 0.5 4 None"""
         assert str(kpoints).strip() == expected_kpt_str
 
+        # Explicit tetrahedra method
         filepath = f"{VASP_IN_DIR}/KPOINTS_explicit_tet"
         kpoints = Kpoints.from_file(filepath)
+        assert kpoints.comment == "Example file"
         assert kpoints.tet_connections == [(6, [1, 2, 3, 4])]
 
     def test_property_kpts(self):
@@ -990,7 +1033,7 @@ Cartesian
         assert kpoints.kpts == [(2, 2, 2)]
         assert all(isinstance(kpt, int) for kpt in kpoints.kpts[0])
 
-        with pytest.warns(DeprecationWarning, match="Please use INCAR KSPACING tag"):
+        with pytest.deprecated_call(match="Please use INCAR KSPACING tag"):
             kpoints = Kpoints.automatic(100)
         assert kpoints.style == Kpoints.supported_modes.Automatic
         assert kpoints.kpts == [(100,)]
@@ -1210,7 +1253,11 @@ class TestPotcarSingle(TestCase):
         assert self.psingle_Fe.nelectrons == 8
 
     def test_electron_config(self):
-        assert self.psingle_Mn_pv.electron_configuration == [(3, "d", 5), (4, "s", 2), (3, "p", 6)]
+        assert self.psingle_Mn_pv.electron_configuration == [
+            (3, "d", 5),
+            (4, "s", 2),
+            (3, "p", 6),
+        ]
         assert self.psingle_Fe.electron_configuration == [(3, "d", 6), (4, "s", 2)]
 
     def test_attributes(self):
@@ -1268,7 +1315,10 @@ class TestPotcarSingle(TestCase):
 
     def test_unknown_potcar_warning(self):
         filename = f"{FAKE_POTCAR_DIR}/modified_potcars_data/POT_GGA_PAW_PBE/POTCAR.Fe_pv.gz"
-        with pytest.warns(UnknownPotcarWarning, match="POTCAR data with symbol Fe_pv is not known to pymatgen. "):
+        with pytest.warns(
+            UnknownPotcarWarning,
+            match="POTCAR data with symbol Fe_pv is not known to pymatgen. ",
+        ):
             PotcarSingle.from_file(filename)
 
     def test_faulty_potcar_has_wrong_hash(self):
@@ -1377,12 +1427,20 @@ class TestPotcar(PymatgenTest):
         self.potcar = Potcar.from_file(self.filepath)
 
     def test_init(self):
-        assert self.potcar.symbols == ["Fe", "P", "O"], "Wrong symbols read in for POTCAR"
+        assert self.potcar.symbols == [
+            "Fe",
+            "P",
+            "O",
+        ], "Wrong symbols read in for POTCAR"
         potcar = Potcar(["Fe_pv", "O"])
         assert potcar[0].enmax == 293.238
 
     def test_from_file(self):
-        assert {d.header for d in self.potcar} == {"PAW_PBE O 08Apr2002", "PAW_PBE P 17Jan2003", "PAW_PBE Fe 06Sep2000"}
+        assert {d.header for d in self.potcar} == {
+            "PAW_PBE O 08Apr2002",
+            "PAW_PBE P 17Jan2003",
+            "PAW_PBE Fe 06Sep2000",
+        }
 
     def test_potcar_map(self):
         fe_potcar = zopen(f"{FAKE_POTCAR_DIR}/POT_GGA_PAW_PBE/POTCAR.Fe_pv.gz").read().decode("utf-8")
@@ -1403,7 +1461,10 @@ class TestPotcar(PymatgenTest):
         potcar = Potcar.from_file(tmp_file)
         assert potcar.symbols == self.potcar.symbols
 
-        with zopen(self.filepath, mode="rt", encoding="utf-8") as f_ref, open(tmp_file, encoding="utf-8") as f_new:
+        with (
+            zopen(self.filepath, mode="rt", encoding="utf-8") as f_ref,
+            open(tmp_file, encoding="utf-8") as f_new,
+        ):
             ref_potcar = f_ref.readlines()
             new_potcar = f_new.readlines()
 
@@ -1434,6 +1495,7 @@ class TestPotcar(PymatgenTest):
         pickle.dumps(self.potcar)
 
 
+@pytest.mark.filterwarnings("ignore:Please use INCAR KSPACING tag")
 class TestVaspInput(PymatgenTest):
     def setUp(self):
         filepath = f"{VASP_IN_DIR}/INCAR"

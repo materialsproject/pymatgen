@@ -135,7 +135,11 @@ class TestSurfaceEnergyPlotter(PymatgenTest):
         self.Ni_analyzer = SurfaceEnergyPlotter(self.metals_O_entry_dict["Ni"], ucell_entry)
         ucell_entry = ComputedStructureEntry.from_dict(ucell_entries["Rh"])
         self.Rh_analyzer = SurfaceEnergyPlotter(self.metals_O_entry_dict["Rh"], ucell_entry)
-        self.Oads_analyzer_dict = {"Pt": self.Pt_analyzer, "Ni": self.Ni_analyzer, "Rh": self.Rh_analyzer}
+        self.Oads_analyzer_dict = {
+            "Pt": self.Pt_analyzer,
+            "Ni": self.Ni_analyzer,
+            "Rh": self.Rh_analyzer,
+        }
 
     def test_get_stable_entry_at_u(self):
         for plotter in self.Oads_analyzer_dict.values():

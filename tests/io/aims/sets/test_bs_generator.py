@@ -25,7 +25,14 @@ def test_si_bs_output(tmp_path):
         "k_grid": [8, 8, 8],
         "output": ["json_log"],
     }
-    comp_system(Si, parameters, "static-si-bs-output", tmp_path, REF_PATH, BandStructureSetGenerator)
+    comp_system(
+        Si,
+        parameters,
+        "static-si-bs-output",
+        tmp_path,
+        REF_PATH,
+        BandStructureSetGenerator,
+    )
 
 
 def test_si_bs_density(tmp_path):
@@ -34,4 +41,11 @@ def test_si_bs_density(tmp_path):
         "k_grid": [8, 8, 8],
         "k_point_density": 40,
     }
-    comp_system(Si, parameters, "static-si-bs-density", tmp_path, REF_PATH, BandStructureSetGenerator)
+    comp_system(
+        Si,
+        parameters,
+        "static-si-bs-density",
+        tmp_path,
+        REF_PATH,
+        BandStructureSetGenerator,
+    )

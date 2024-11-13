@@ -219,7 +219,11 @@ def gen_iupac_ordering():
 
     order = [item for sublist in (list(product(x, y)) for x, y in order) for item in sublist]
     iupac_ordering_dict = dict(
-        zip([Element.from_row_and_group(row, group) for group, row in order], range(len(order)), strict=True)
+        zip(
+            [Element.from_row_and_group(row, group) for group, row in order],
+            range(len(order)),
+            strict=True,
+        )
     )
 
     # first clean periodic table of any IUPAC ordering

@@ -172,7 +172,14 @@ class TestGetFreeSphereParams(TestCase):
     def setUp(self):
         filepath = f"{TEST_FILES_DIR}/cif/free_sph.cif"
         self.structure = Structure.from_file(filepath)
-        self.rad_dict = {"Ge": 0.67, "P": 0.52, "S": 1.7, "La": 1.17, "Zr": 0.86, "O": 1.26}
+        self.rad_dict = {
+            "Ge": 0.67,
+            "P": 0.52,
+            "S": 1.7,
+            "La": 1.17,
+            "Zr": 0.86,
+            "O": 1.26,
+        }
 
     def test_get_free_sphere_params(self):
         free_sph_params = get_free_sphere_params(self.structure, rad_dict=self.rad_dict)

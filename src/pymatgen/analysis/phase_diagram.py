@@ -45,7 +45,10 @@ if TYPE_CHECKING:
 
 logger = logging.getLogger(__name__)
 
-with open(os.path.join(os.path.dirname(__file__), "..", "util", "plotly_pd_layouts.json"), encoding="utf-8") as file:
+with open(
+    os.path.join(os.path.dirname(__file__), "..", "util", "plotly_pd_layouts.json"),
+    encoding="utf-8",
+) as file:
     plotly_layouts = json.load(file)
 
 
@@ -287,7 +290,10 @@ class TransformedPDEntryError(Exception):
     """An exception class for TransformedPDEntry."""
 
 
-@due.dcite(Doi("10.1021/cm702327g"), description="Phase Diagram from First Principles Calculations")
+@due.dcite(
+    Doi("10.1021/cm702327g"),
+    description="Phase Diagram from First Principles Calculations",
+)
 @due.dcite(
     Doi("10.1016/j.elecom.2010.01.010"),
     description="Thermal stabilities of delithiated olivine MPO4 (M=Fe, Mn) cathodes "
@@ -1333,7 +1339,12 @@ class PhaseDiagram(MSONable):
             **kwargs (dict): Keyword args passed to PDPlotter.get_plot(). Can be used to customize markers
                 etc. If not set, the default is { "markerfacecolor": "#4daf4a", "markersize": 10, "linewidth": 3 }
         """
-        plotter = PDPlotter(self, show_unstable=show_unstable, backend=backend, ternary_style=ternary_style)
+        plotter = PDPlotter(
+            self,
+            show_unstable=show_unstable,
+            backend=backend,
+            ternary_style=ternary_style,
+        )
         return plotter.get_plot(
             label_stable=label_stable,
             label_unstable=label_unstable,
@@ -1347,7 +1358,10 @@ class PhaseDiagram(MSONable):
         )
 
 
-@due.dcite(Doi("10.1021/cm702327g"), description="Phase Diagram from First Principles Calculations")
+@due.dcite(
+    Doi("10.1021/cm702327g"),
+    description="Phase Diagram from First Principles Calculations",
+)
 @due.dcite(
     Doi("10.1016/j.elecom.2010.01.010"),
     description="Thermal stabilities of delithiated olivine MPO4 (M=Fe, Mn) cathodes "
@@ -1636,7 +1650,10 @@ class PatchedPhaseDiagram(PhaseDiagram):
 
         data = np.array(
             [
-                [*(entry.composition.get_atomic_fraction(el) for el in elements), entry.energy_per_atom]
+                [
+                    *(entry.composition.get_atomic_fraction(el) for el in elements),
+                    entry.energy_per_atom,
+                ]
                 for entry in min_entries
             ]
         )
@@ -1841,7 +1858,10 @@ class PatchedPhaseDiagram(PhaseDiagram):
         for speed. See https://github.com/materialsproject/pymatgen/issues/2840 for details.
         """
         return super().get_decomp_and_e_above_hull(
-            entry=entry, allow_negative=allow_negative, check_stable=check_stable, on_error=on_error
+            entry=entry,
+            allow_negative=allow_negative,
+            check_stable=check_stable,
+            on_error=on_error,
         )
 
     def _get_pd_patch_for_space(self, space: frozenset[Element]) -> tuple[frozenset[Element], PhaseDiagram]:
@@ -2120,7 +2140,11 @@ def _get_slsqp_decomp(
     # Energies of competing entries
     Es = np.array([comp_entry.energy_per_atom for comp_entry in competing_entries])
 
-    molar_constraint = {"type": "eq", "fun": lambda x: np.dot(A_transpose, x) - b, "jac": lambda x: A_transpose}
+    molar_constraint = {
+        "type": "eq",
+        "fun": lambda x: np.dot(A_transpose, x) - b,
+        "jac": lambda x: A_transpose,
+    }
 
     options = {"maxiter": maxiter, "disp": False}
 
@@ -2601,7 +2625,10 @@ class PDPlotter:
             if entry not in stable:
                 if self._dim < 3:
                     x = [all_data[idx][0], all_data[idx][0]]
-                    y = [pd.get_form_energy_per_atom(entry), pd.get_form_energy_per_atom(entry)]
+                    y = [
+                        pd.get_form_energy_per_atom(entry),
+                        pd.get_form_energy_per_atom(entry),
+                    ]
                     coord = [x, y]
                 elif self._dim == 3:
                     coord = triangular_coord([all_data[idx, 0:2], all_data[idx, 0:2]])
@@ -2739,7 +2766,10 @@ class PDPlotter:
                 b = []
                 c = []
 
-                e0, e1, e2 = sorted((pd.qhull_entries[facet[idx]] for idx in range(3)), key=lambda x: x.reduced_formula)
+                e0, e1, e2 = sorted(
+                    (pd.qhull_entries[facet[idx]] for idx in range(3)),
+                    key=lambda x: x.reduced_formula,
+                )
                 a = [e0.composition[el_a], e1.composition[el_a], e2.composition[el_a]]
                 b = [e0.composition[el_b], e1.composition[el_b], e2.composition[el_b]]
                 c = [e0.composition[el_c], e1.composition[el_c], e2.composition[el_c]]
@@ -2772,7 +2802,11 @@ class PDPlotter:
             coords = np.array(
                 [
                     triangular_coord(c)
-                    for c in zip(self._pd.qhull_data[:-1, 0], self._pd.qhull_data[:-1, 1], strict=True)
+                    for c in zip(
+                        self._pd.qhull_data[:-1, 0],
+                        self._pd.qhull_data[:-1, 1],
+                        strict=True,
+                    )
                 ]
             )
             energies = np.array([self._pd.get_form_energy_per_atom(entry) for entry in self._pd.qhull_entries])
@@ -3094,7 +3128,14 @@ class PDPlotter:
 
                 texts.append(label)
 
-            return {"x": x, "y": y, "z": z, "texts": texts, "energies": energies, "uncertainties": uncertainties}
+            return {
+                "x": x,
+                "y": y,
+                "z": z,
+                "texts": texts,
+                "energies": energies,
+                "uncertainties": uncertainties,
+            }
 
         if highlight_entries is None:
             highlight_entries = []
@@ -3196,7 +3237,11 @@ class PDPlotter:
                 x=list(stable_props["x"]),
                 y=list(stable_props["y"]),
                 name="Stable",
-                marker={"color": "darkgreen", "size": 16, "line": {"color": "black", "width": 2}},
+                marker={
+                    "color": "darkgreen",
+                    "size": 16,
+                    "line": {"color": "black", "width": 2},
+                },
                 opacity=0.99,
                 hovertext=stable_props["texts"],
                 error_y={
@@ -3598,14 +3643,22 @@ class PDPlotter:
                 mid = -vmin / (vmax - vmin)
                 cmap = LinearSegmentedColormap.from_list(
                     "custom_colormap",
-                    [(0.0, "#005500"), (mid, "#55FF55"), (mid, "#FFAAAA"), (1.0, "#FF0000")],
+                    [
+                        (0.0, "#005500"),
+                        (mid, "#55FF55"),
+                        (mid, "#FFAAAA"),
+                        (1.0, "#FF0000"),
+                    ],
                 )
             else:
                 cmap = energy_colormap
             norm = Normalize(vmin=vmin, vmax=vmax)
             _map = ScalarMappable(norm=norm, cmap=cmap)
             _energies: list[float] = list(
-                filter(None, (self._pd.get_equilibrium_reaction_energy(entry) for entry in labels.values()))
+                filter(
+                    None,
+                    (self._pd.get_equilibrium_reaction_energy(entry) for entry in labels.values()),
+                )
             )
             energies = [en if en < 0 else -0.000_000_01 for en in _energies]
             vals_stable = _map.to_rgba(energies)

@@ -51,7 +51,14 @@ class TestChemicalPotentialDiagram(PymatgenTest):
 
     def test_border_hyperplanes(self):
         desired = np.array(
-            [[-1, 0, 0, -25], [1, 0, 0, 0], [0, -1, 0, -25], [0, 1, 0, 0], [0, 0, -1, -25], [0, 0, 1, 0]]
+            [
+                [-1, 0, 0, -25],
+                [1, 0, 0, 0],
+                [0, -1, 0, -25],
+                [0, 1, 0, 0],
+                [0, 0, -1, -25],
+                [0, 0, 1, 0],
+            ]
         )
         assert self.cpd_ternary.border_hyperplanes == approx(desired)
         assert self.cpd_ternary_formal.border_hyperplanes == approx(desired)

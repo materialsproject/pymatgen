@@ -234,7 +234,10 @@ class CorrectionCalculator:
         if np.isnan(mean_uncert):
             # no uncertainty values for any compounds, don't try to weight
             p_opt, self.pcov = curve_fit(
-                lambda x, *m: np.dot(x, m), self.coeff_mat, self.diffs, p0=np.ones(len(self.species))
+                lambda x, *m: np.dot(x, m),
+                self.coeff_mat,
+                self.diffs,
+                p0=np.ones(len(self.species)),
             )
         else:
             p_opt, self.pcov = curve_fit(

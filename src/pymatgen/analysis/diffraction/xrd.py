@@ -47,7 +47,10 @@ WAVELENGTHS = {
     "AgKb1": 0.497082,
 }
 
-with open(os.path.join(os.path.dirname(__file__), "atomic_scattering_params.json"), encoding="utf-8") as file:
+with open(
+    os.path.join(os.path.dirname(__file__), "atomic_scattering_params.json"),
+    encoding="utf-8",
+) as file:
     ATOMIC_SCATTERING_PARAMS = json.load(file)
 
 

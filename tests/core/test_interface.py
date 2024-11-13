@@ -87,7 +87,9 @@ class TestGrainBoundary(PymatgenTest):
         assert Cu_GB1_new.gb_plane == self.Cu_GB1.gb_plane
         assert_allclose(Cu_GB1_new.init_cell.lattice.matrix, self.Cu_GB1.init_cell.lattice.matrix)
         assert_allclose(
-            Cu_GB1_new.oriented_unit_cell.lattice.matrix, self.Cu_GB1.oriented_unit_cell.lattice.matrix, atol=1e-9
+            Cu_GB1_new.oriented_unit_cell.lattice.matrix,
+            self.Cu_GB1.oriented_unit_cell.lattice.matrix,
+            atol=1e-9,
         )
         assert_allclose(Cu_GB1_new.lattice.matrix, self.Cu_GB1.lattice.matrix)
         assert Cu_GB2_new.sigma == approx(self.Cu_GB2.sigma)
@@ -350,7 +352,14 @@ class TestInterface(PymatgenTest):
         assert interface.substrate_layers == 2
 
         iface_dict = interface.as_dict()
-        expected_keys = {"lattice", "sites", "in_plane_offset", "gap", "vacuum_over_film", "interface_properties"}
+        expected_keys = {
+            "lattice",
+            "sites",
+            "in_plane_offset",
+            "gap",
+            "vacuum_over_film",
+            "interface_properties",
+        }
         assert expected_keys <= {*iface_dict}
         assert isinstance(interface.from_dict(iface_dict), Interface)
 

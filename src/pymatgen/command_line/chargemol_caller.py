@@ -191,7 +191,12 @@ class ChargemolAnalysis:
             self._write_jobscript_for_chargemol(**job_control_kwargs)
 
             # Run Chargemol
-            with subprocess.Popen(CHARGEMOL_EXE, stdout=subprocess.PIPE, stdin=subprocess.PIPE, close_fds=True) as rs:
+            with subprocess.Popen(
+                CHARGEMOL_EXE,
+                stdout=subprocess.PIPE,
+                stdin=subprocess.PIPE,
+                close_fds=True,
+            ) as rs:
                 _stdout, stderr = rs.communicate()
             if rs.returncode != 0:
                 raise RuntimeError(

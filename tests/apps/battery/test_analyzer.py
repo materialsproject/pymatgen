@@ -34,7 +34,10 @@ class TestBatteryAnalyzer(PymatgenTest):
 
     def test_oxide_check(self):
         struct = self.get_structure("LiFePO4")
-        with pytest.raises(ValueError, match="BatteryAnalyzer requires oxidation states assigned to structure"):
+        with pytest.raises(
+            ValueError,
+            match="BatteryAnalyzer requires oxidation states assigned to structure",
+        ):
             BatteryAnalyzer(struct, "Li")
 
     def test_capacity_grav_calculations(self):

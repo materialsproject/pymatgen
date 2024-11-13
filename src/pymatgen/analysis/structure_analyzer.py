@@ -251,7 +251,9 @@ class VoronoiConnectivity:
         recip_vec = np.array(self.structure.lattice.reciprocal_lattice.abc)
         cutoff_vec = np.ceil(cutoff * recip_vec / (2 * pi))
         offsets = np.mgrid[
-            -cutoff_vec[0] : cutoff_vec[0] + 1, -cutoff_vec[1] : cutoff_vec[1] + 1, -cutoff_vec[2] : cutoff_vec[2] + 1
+            -cutoff_vec[0] : cutoff_vec[0] + 1,
+            -cutoff_vec[1] : cutoff_vec[1] + 1,
+            -cutoff_vec[2] : cutoff_vec[2] + 1,
         ].T
         self.offsets = np.reshape(offsets, (-1, 3))
         # shape = [image, axis]

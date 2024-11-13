@@ -1392,7 +1392,7 @@ class MinimumDistanceNN(NearNeighbors):
                 siw.append(
                     {
                         "site": nn,
-                        "image": self._get_image(structure, nn) if is_periodic else None,
+                        "image": (self._get_image(structure, nn) if is_periodic else None),
                         "weight": weight,
                         "site_index": self._get_original_site(structure, nn),
                     }
@@ -1406,7 +1406,7 @@ class MinimumDistanceNN(NearNeighbors):
                     siw.append(
                         {
                             "site": nn,
-                            "image": self._get_image(structure, nn) if is_periodic else None,
+                            "image": (self._get_image(structure, nn) if is_periodic else None),
                             "weight": weight,
                             "site_index": self._get_original_site(structure, nn),
                         }
@@ -1653,7 +1653,14 @@ class CovalentBondNN(NearNeighbors):
                 index = structure.index(site)
                 weight = bond.get_bond_order() if self.order else bond.length
 
-                siw.append({"site": site, "image": (0, 0, 0), "weight": weight, "site_index": index})
+                siw.append(
+                    {
+                        "site": site,
+                        "image": (0, 0, 0),
+                        "weight": weight,
+                        "site_index": index,
+                    }
+                )
 
         return siw
 
@@ -2083,7 +2090,14 @@ def site_is_of_motif_type(struct, n, approach="min_dist", delta=0.1, cutoff=10, 
         str: motif type
     """
     if thresh is None:
-        thresh = {"qtet": 0.5, "qoct": 0.5, "qbcc": 0.5, "q6": 0.4, "qtribipyr": 0.8, "qsqpyr": 0.8}
+        thresh = {
+            "qtet": 0.5,
+            "qoct": 0.5,
+            "qbcc": 0.5,
+            "q6": 0.4,
+            "qtribipyr": 0.8,
+            "qsqpyr": 0.8,
+        }
 
     ops = LocalStructOrderParams(["cn", "tet", "oct", "bcc", "q6", "sq_pyr", "tri_bipyr"])
 
@@ -2968,7 +2982,10 @@ class LocalStructOrderParams:
                     tmpphi = math.acos(
                         max(
                             -1.0,
-                            min(vec[0] / (math.sqrt(vec[0] * vec[0] + vec[1] * vec[1])), 1.0),
+                            min(
+                                vec[0] / (math.sqrt(vec[0] * vec[0] + vec[1] * vec[1])),
+                                1.0,
+                            ),
                         )
                     )
                     if vec[1] < 0.0:
@@ -3043,7 +3060,13 @@ class LocalStructOrderParams:
                                     qsp_theta[idx][j][kc] += gaussthetak[idx]
                                     norms[idx][j][kc] += 1
 
-                            elif typ in {"T", "tri_pyr", "sq_pyr", "pent_pyr", "hex_pyr"}:
+                            elif typ in {
+                                "T",
+                                "tri_pyr",
+                                "sq_pyr",
+                                "pent_pyr",
+                                "hex_pyr",
+                            }:
                                 if (param := self._params[idx]) is None:
                                     raise RuntimeError(f"param of {idx=} is None")
                                 tmp = param["IGW_EP"] * (thetak * ipi - 0.5)

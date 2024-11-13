@@ -207,7 +207,9 @@ class Cohpcar:
 
             else:
                 bond_data = self._get_bond_data(
-                    lines[2 + bond], is_lcfo=self.is_lcfo, are_multi_center_cobis=self.are_multi_center_cobis
+                    lines[2 + bond],
+                    is_lcfo=self.is_lcfo,
+                    are_multi_center_cobis=self.are_multi_center_cobis,
                 )
 
                 label = str(bond_num)
@@ -484,13 +486,21 @@ class Icohplist(MSONable):
 
                 if version == "5.1.0":
                     num = 1
-                    translation = (int(line_parts[4]), int(line_parts[5]), int(line_parts[6]))
+                    translation = (
+                        int(line_parts[4]),
+                        int(line_parts[5]),
+                        int(line_parts[6]),
+                    )
                     icohp[Spin.up] = float(line_parts[7])
                     if self.is_spin_polarized:
                         icohp[Spin.down] = float(line_parts[8])
                 elif version == "3.1.1":
                     num = 1
-                    translation = (int(line_parts[4]), int(line_parts[5]), int(line_parts[6]))
+                    translation = (
+                        int(line_parts[4]),
+                        int(line_parts[5]),
+                        int(line_parts[6]),
+                    )
                     icohp[Spin.up] = float(line_parts[7])
                     if self.is_spin_polarized:
                         icohp[Spin.down] = float(data_without_orbitals[bond + n_bonds + 1].split()[7])
@@ -541,7 +551,10 @@ class Icohplist(MSONable):
                     if len(list_orb_icohp) < int(label):
                         list_orb_icohp.append({orb_label: {"icohp": icohp, "orbitals": orbitals}})
                     else:
-                        list_orb_icohp[int(label) - 1][orb_label] = {"icohp": icohp, "orbitals": orbitals}
+                        list_orb_icohp[int(label) - 1][orb_label] = {
+                            "icohp": icohp,
+                            "orbitals": orbitals,
+                        }
 
             # Avoid circular import
             from pymatgen.electronic_structure.cohp import IcohpCollection
@@ -1286,9 +1299,24 @@ class Lobsterout(MSONable):
                 if "sys" in line_parts:
                     sys_times = line_parts[:8]
 
-        wall_time_dict = {"h": wall_times[0], "min": wall_times[2], "s": wall_times[4], "ms": wall_times[6]}
-        user_time_dict = {"h": user_times[0], "min": user_times[2], "s": user_times[4], "ms": user_times[6]}
-        sys_time_dict = {"h": sys_times[0], "min": sys_times[2], "s": sys_times[4], "ms": sys_times[6]}
+        wall_time_dict = {
+            "h": wall_times[0],
+            "min": wall_times[2],
+            "s": wall_times[4],
+            "ms": wall_times[6],
+        }
+        user_time_dict = {
+            "h": user_times[0],
+            "min": user_times[2],
+            "s": user_times[4],
+            "ms": user_times[6],
+        }
+        sys_time_dict = {
+            "h": sys_times[0],
+            "min": sys_times[2],
+            "s": sys_times[4],
+            "ms": sys_times[6],
+        }
 
         return wall_time_dict, user_time_dict, sys_time_dict
 
@@ -1649,7 +1677,7 @@ class Bandoverlaps(MSONable):
                         _lines.append(float(el))
                 overlaps.append(_lines)
                 if len(overlaps) == len(_lines):
-                    self.band_overlaps_dict[spin]["matrices"].append(np.matrix(overlaps))
+                    self.band_overlaps_dict[spin]["matrices"].append(np.array(overlaps))
 
     def has_good_quality_maxDeviation(self, limit_maxDeviation: float = 0.1) -> bool:
         """Check if the maxDeviation from the ideal bandoverlap is smaller
@@ -1752,7 +1780,11 @@ class Grosspop(MSONable):
             for line in lines[3:]:
                 cleanlines = [idx for idx in line.split(" ") if idx != ""]
                 if len(cleanlines) == 5 and cleanlines[0].isdigit() and not self.is_lcfo:
-                    small_dict = {"Mulliken GP": {}, "Loewdin GP": {}, "element": cleanlines[1]}
+                    small_dict = {
+                        "Mulliken GP": {},
+                        "Loewdin GP": {},
+                        "element": cleanlines[1],
+                    }
                     small_dict["Mulliken GP"][cleanlines[2]] = float(cleanlines[3])
                     small_dict["Loewdin GP"][cleanlines[2]] = float(cleanlines[4])
                 elif len(cleanlines) == 4 and cleanlines[0].isdigit() and self.is_lcfo:
@@ -1776,7 +1808,11 @@ class Grosspop(MSONable):
                     if "total" in cleanlines[0]:
                         self.list_dict_grosspop.append(small_dict)
                 elif len(cleanlines) == 7 and cleanlines[0].isdigit():
-                    small_dict = {"Mulliken GP": {}, "Loewdin GP": {}, "element": cleanlines[1]}
+                    small_dict = {
+                        "Mulliken GP": {},
+                        "Loewdin GP": {},
+                        "element": cleanlines[1],
+                    }
                     small_dict["Mulliken GP"][cleanlines[2]] = {
                         Spin.up: float(cleanlines[3]),
                         Spin.down: float(cleanlines[4]),
@@ -2271,24 +2307,32 @@ class LobsterMatrices:
         if "hamilton" in self._filename:
             if e_fermi is None:
                 raise ValueError("Please provide the fermi energy in eV ")
-            self.onsite_energies, self.average_onsite_energies, self.hamilton_matrices = self._parse_matrix(
-                file_data=lines, pattern=pattern_coeff_hamil_trans, e_fermi=e_fermi
-            )
+            (
+                self.onsite_energies,
+                self.average_onsite_energies,
+                self.hamilton_matrices,
+            ) = self._parse_matrix(file_data=lines, pattern=pattern_coeff_hamil_trans, e_fermi=e_fermi)
 
         elif "coefficient" in self._filename:
-            self.onsite_coefficients, self.average_onsite_coefficient, self.coefficient_matrices = self._parse_matrix(
-                file_data=lines, pattern=pattern_coeff_hamil_trans, e_fermi=0
-            )
+            (
+                self.onsite_coefficients,
+                self.average_onsite_coefficient,
+                self.coefficient_matrices,
+            ) = self._parse_matrix(file_data=lines, pattern=pattern_coeff_hamil_trans, e_fermi=0)
 
         elif "transfer" in self._filename:
-            self.onsite_transfer, self.average_onsite_transfer, self.transfer_matrices = self._parse_matrix(
-                file_data=lines, pattern=pattern_coeff_hamil_trans, e_fermi=0
-            )
+            (
+                self.onsite_transfer,
+                self.average_onsite_transfer,
+                self.transfer_matrices,
+            ) = self._parse_matrix(file_data=lines, pattern=pattern_coeff_hamil_trans, e_fermi=0)
 
         elif "overlap" in self._filename:
-            self.onsite_overlaps, self.average_onsite_overlaps, self.overlap_matrices = self._parse_matrix(
-                file_data=lines, pattern=pattern_overlap, e_fermi=0
-            )
+            (
+                self.onsite_overlaps,
+                self.average_onsite_overlaps,
+                self.overlap_matrices,
+            ) = self._parse_matrix(file_data=lines, pattern=pattern_overlap, e_fermi=0)
 
     @staticmethod
     def _parse_matrix(
@@ -2364,7 +2408,11 @@ class LobsterMatrices:
             zip(elements_basis_functions, average_matrix_diagonal_values, strict=True)
         )
 
-        return matrix_diagonal_values, average_average_matrix_diag_dict, complex_matrices
+        return (
+            matrix_diagonal_values,
+            average_average_matrix_diag_dict,
+            complex_matrices,
+        )
 
 
 class Polarization(MSONable):

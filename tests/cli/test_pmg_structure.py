@@ -12,13 +12,28 @@ if TYPE_CHECKING:
 
 def test_pmg_structure(cd_tmp_path: Path):
     subprocess.run(
-        ["pmg", "structure", "--convert", "--filenames", f"{TEST_FILES_DIR}/cif/Li2O.cif", "POSCAR_Li2O_test"],
+        [
+            "pmg",
+            "structure",
+            "--convert",
+            "--filenames",
+            f"{TEST_FILES_DIR}/cif/Li2O.cif",
+            "POSCAR_Li2O_test",
+        ],
         check=True,
     )
     assert os.path.isfile("POSCAR_Li2O_test"), "Output file 'POSCAR_Li2O_test' not found"
 
     subprocess.run(
-        ["pmg", "structure", "--symmetry", "0.1", "--filenames", f"{TEST_FILES_DIR}/cif/Li2O.cif"], check=True
+        [
+            "pmg",
+            "structure",
+            "--symmetry",
+            "0.1",
+            "--filenames",
+            f"{TEST_FILES_DIR}/cif/Li2O.cif",
+        ],
+        check=True,
     )
 
     subprocess.run(
@@ -35,5 +50,13 @@ def test_pmg_structure(cd_tmp_path: Path):
     )
 
     subprocess.run(
-        ["pmg", "structure", "--localenv", "Li-O=3", "--filenames", f"{TEST_FILES_DIR}/cif/Li2O.cif"], check=True
+        [
+            "pmg",
+            "structure",
+            "--localenv",
+            "Li-O=3",
+            "--filenames",
+            f"{TEST_FILES_DIR}/cif/Li2O.cif",
+        ],
+        check=True,
     )

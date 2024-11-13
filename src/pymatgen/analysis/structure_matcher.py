@@ -588,7 +588,11 @@ class StructureMatcher(MSONable):
         return np.array(mask, dtype=np.int64), inds, idx
 
     def fit(
-        self, struct1: Structure, struct2: Structure, symmetric: bool = False, skip_structure_reduction: bool = False
+        self,
+        struct1: Structure,
+        struct2: Structure,
+        symmetric: bool = False,
+        skip_structure_reduction: bool = False,
     ) -> bool:
         """Fit two structures.
 
@@ -1069,7 +1073,11 @@ class StructureMatcher(MSONable):
         return None
 
     def fit_anonymous(
-        self, struct1: Structure, struct2: Structure, niggli: bool = True, skip_structure_reduction: bool = False
+        self,
+        struct1: Structure,
+        struct2: Structure,
+        niggli: bool = True,
+        skip_structure_reduction: bool = False,
     ) -> bool:
         """
         Performs an anonymous fitting, which allows distinct species in one structure to map

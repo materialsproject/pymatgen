@@ -31,7 +31,15 @@ if TYPE_CHECKING:
     # Don't import at runtime to avoid circular import
     from pymatgen.core.operations import SymmOp  # noqa: TCH004
 
-    CrystalSystem = Literal["cubic", "hexagonal", "monoclinic", "orthorhombic", "tetragonal", "triclinic", "trigonal"]
+    CrystalSystem = Literal[
+        "cubic",
+        "hexagonal",
+        "monoclinic",
+        "orthorhombic",
+        "tetragonal",
+        "triclinic",
+        "trigonal",
+    ]
 
 
 SYMM_DATA = loadfn(os.path.join(os.path.dirname(__file__), "symm_data.json"))
@@ -200,7 +208,11 @@ class PointGroup(SymmetryGroup):
 
         symm_ops = loadfn(os.path.join(os.path.dirname(__file__), "symm_ops.json"))  # get short symbol if possible
         for spg in symm_ops:
-            if symbol in [spg["hermann_mauguin"], spg["universal_h_m"], spg["hermann_mauguin_u"]]:
+            if symbol in [
+                spg["hermann_mauguin"],
+                spg["universal_h_m"],
+                spg["hermann_mauguin_u"],
+            ]:
                 symbol = spg["short_h_m"]
 
         if not symbol[0].isupper():
@@ -291,7 +303,11 @@ class SpaceGroup(SymmetryGroup):
         self._symmetry_ops: set[SymmOp] | None
 
         for spg in SpaceGroup.SYMM_OPS:
-            if int_symbol in [spg["hermann_mauguin"], spg["universal_h_m"], spg["hermann_mauguin_u"]]:
+            if int_symbol in [
+                spg["hermann_mauguin"],
+                spg["universal_h_m"],
+                spg["hermann_mauguin_u"],
+            ]:
                 ops = [SymmOp.from_xyz_str(s) for s in spg["symops"]]
                 self.symbol = spg["hermann_mauguin_u"]
                 if int_symbol in SpaceGroup.sg_encoding:
@@ -479,7 +495,26 @@ class SpaceGroup(SymmetryGroup):
             and (
                 self.hexagonal
                 or self.int_number
-                in [143, 144, 145, 147, 149, 150, 151, 152, 153, 154, 156, 157, 158, 159, 162, 163, 164, 165]
+                in [
+                    143,
+                    144,
+                    145,
+                    147,
+                    149,
+                    150,
+                    151,
+                    152,
+                    153,
+                    154,
+                    156,
+                    157,
+                    158,
+                    159,
+                    162,
+                    163,
+                    164,
+                    165,
+                ]
             )
         ):
             a = abc[0]

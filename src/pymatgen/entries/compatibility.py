@@ -318,7 +318,10 @@ class AnionCorrection(Correction):
                         correction += ox_corr * comp["O"]
 
                 elif hasattr(entry, "structure"):
-                    ox_type, n_bonds = cast(tuple[str, int], oxide_type(entry.structure, 1.05, return_nbonds=True))
+                    ox_type, n_bonds = cast(
+                        tuple[str, int],
+                        oxide_type(entry.structure, 1.05, return_nbonds=True),
+                    )
                     if ox_type in self.oxide_correction:
                         correction += self.oxide_correction[ox_type] * n_bonds
                     elif ox_type == "hydroxide":
@@ -445,7 +448,18 @@ class UCorrection(Correction):
     these fields populated.
     """
 
-    common_peroxides = ("Li2O2", "Na2O2", "K2O2", "Cs2O2", "Rb2O2", "BeO2", "MgO2", "CaO2", "SrO2", "BaO2")
+    common_peroxides = (
+        "Li2O2",
+        "Na2O2",
+        "K2O2",
+        "Cs2O2",
+        "Rb2O2",
+        "BeO2",
+        "MgO2",
+        "CaO2",
+        "SrO2",
+        "BaO2",
+    )
     common_superoxides = ("LiO2", "NaO2", "KO2", "RbO2", "CsO2")
     ozonides = ("LiO3", "NaO3", "KO3", "NaO5")
 
@@ -686,7 +700,10 @@ class Compatibility(MSONable, abc.ABC):
                     processed_entry_list.append(entry)
         elif not inplace:
             # set python warnings to ignore otherwise warnings will be printed multiple times
-            with tqdm_joblib(tqdm(total=len(entries), disable=not verbose)), set_python_warnings("ignore"):
+            with (
+                tqdm_joblib(tqdm(total=len(entries), disable=not verbose)),
+                set_python_warnings("ignore"),
+            ):
                 results = Parallel(n_jobs=n_workers)(
                     delayed(self._process_entry_inplace)(entry, clean, on_error) for entry in entries
                 )
@@ -1060,7 +1077,11 @@ class MaterialsProject2020Compatibility(Compatibility):
         # check the POTCAR symbols
         # this should return ufloat(0, 0) or raise a CompatibilityError or ValueError
         if entry.parameters.get("software", "vasp") == "vasp":
-            pc = PotcarCorrection(MPRelaxSet, check_hash=self.check_potcar_hash, check_potcar=self.check_potcar)
+            pc = PotcarCorrection(
+                MPRelaxSet,
+                check_hash=self.check_potcar_hash,
+                check_potcar=self.check_potcar,
+            )
             pc.get_correction(entry)
 
         # apply energy adjustments
@@ -1315,7 +1336,12 @@ class MITAqueousCompatibility(CorrectionsList):
 
 
 @cached_class
-@due.dcite(Doi("10.1103/PhysRevB.85.235438", "Pourbaix scheme to combine calculated and experimental data"))
+@due.dcite(
+    Doi(
+        "10.1103/PhysRevB.85.235438",
+        "Pourbaix scheme to combine calculated and experimental data",
+    )
+)
 class MaterialsProjectAqueousCompatibility(Compatibility):
     """This class implements the Aqueous energy referencing scheme for constructing
     Pourbaix diagrams from DFT energies, as described in Persson et al.
@@ -1344,7 +1370,7 @@ class MaterialsProjectAqueousCompatibility(Compatibility):
 
     def __init__(
         self,
-        solid_compat: Compatibility | type[Compatibility] | None = MaterialsProject2020Compatibility,
+        solid_compat: (Compatibility | type[Compatibility] | None) = MaterialsProject2020Compatibility,
         o2_energy: float | None = None,
         h2o_energy: float | None = None,
         h2o_adjustments: float | None = None,

@@ -208,7 +208,10 @@ class ZeoVoronoiXYZ(XYZ):
         prec = self.precision
         for site in self._mols[0]:
             x, y, z = site.coords
-            symbol, voronoi_radius = site.specie.symbol, site.properties["voronoi_radius"]
+            symbol, voronoi_radius = (
+                site.specie.symbol,
+                site.properties["voronoi_radius"],
+            )
             output.append(f"{symbol} {z:.{prec}f} {x:.{prec}f} {y:.{prec}f} {voronoi_radius:.{prec}f}")
         return "\n".join(output)
 
