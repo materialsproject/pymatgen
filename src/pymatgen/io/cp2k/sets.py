@@ -1274,43 +1274,43 @@ class DftSet(Cp2kInput):
 
         # Insert atom kinds by identifying the unique sites (unique element and site properties)
         unique_kinds = get_unique_site_indices(structure)
-        for k, v in unique_kinds.items():
-            kind = k.split("_")[0]
+        for key, val in unique_kinds.items():
+            kind = key.split("_")[0]
             kwargs = {}
 
             _ox = (
-                self.structure.site_properties["oxi_state"][v[0]]
+                self.structure.site_properties["oxi_state"][val[0]]
                 if "oxi_state" in self.structure.site_properties
                 else 0
             )
-            _sp = self.structure.site_properties["spin"][v[0]] if "spin" in self.structure.site_properties else 0
+            _sp = self.structure.site_properties.get("spin", {val[0]: 0})[val[0]]
 
             bs = BrokenSymmetry.from_el(kind, _ox, _sp) if _ox else None
 
-            if "magmom" in self.structure.site_properties and not bs:
-                kwargs["magnetization"] = self.structure.site_properties["magmom"][v[0]]
+            if (magmom := self.structure.site_properties.get("magmom")) and not bs:
+                kwargs["magnetization"] = magmom[val[0]]
 
-            if "ghost" in self.structure.site_properties:
-                kwargs["ghost"] = self.structure.site_properties["ghost"][v[0]]
+            if ghost := self.structure.site_properties.get("ghost"):
+                kwargs["ghost"] = ghost[val[0]]
 
-            if "basis_set" in self.structure.site_properties:
-                basis_set = self.structure.site_properties["basis_set"][v[0]]
+            if basis_set := self.structure.site_properties.get("basis_set"):
+                basis_set = basis_set[val[0]]
             else:
                 basis_set = self.basis_and_potential[kind].get("basis")
 
-            if "potential" in self.structure.site_properties:
-                potential = self.structure.site_properties["potential"][v[0]]
+            if potential := self.structure.site_properties.get("potential"):
+                potential = potential[val[0]]
             else:
                 potential = self.basis_and_potential[kind].get("potential")
 
-            if "aux_basis" in self.structure.site_properties:
-                kwargs["aux_basis"] = self.structure.site_properties["aux_basis"][v[0]]
-            elif self.basis_and_potential[kind].get("aux_basis"):
-                kwargs["aux_basis"] = self.basis_and_potential[kind].get("aux_basis")
+            if aux_basis := self.structure.site_properties.get("aux_basis"):
+                kwargs["aux_basis"] = aux_basis[val[0]]
+            elif aux_basis := self.basis_and_potential[kind].get("aux_basis"):
+                kwargs["aux_basis"] = aux_basis
 
             _kind = Kind(
                 kind,
-                alias=k,
+                alias=key,
                 basis_set=basis_set,
                 potential=potential,
                 subsections={"BS": bs} if bs else {},
