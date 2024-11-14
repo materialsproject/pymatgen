@@ -22,6 +22,8 @@ from .conftest import (
     jdftxoutfile_fromfile_matches_known_simple,
     noeigstats_outfile_known_simple,
     noeigstats_outfile_path,
+    partial_lattice_init_outfile_known_lattice,
+    partial_lattice_init_outfile_path,
     problem2_outfile_known_simple,
     problem2_outfile_path,
 )
@@ -57,9 +59,15 @@ def test_JDFTXOutfile_fromfile_simple(filename: Path, known: dict):
     jdftxoutfile_fromfile_matches_known_simple(filename, known)
 
 
+@pytest.mark.parametrize(
+    ("filename", "latknown"),
+    [
+        (partial_lattice_init_outfile_path, partial_lattice_init_outfile_known_lattice),
+    ],
+)
 def test_JDFTXOutfile_default_struc_inheritance(filename: Path, latknown: dict):
     jof = JDFTXOutfile.from_file(filename)
     lattice = jof.lattice
     for i in range(3):
         for j in range(3):
-            assert pytest.approx(lattice.matrix[i][j]) == latknown[f"{i}{j}"]
+            assert pytest.approx(lattice[i][j]) == latknown[f"{i}{j}"]
