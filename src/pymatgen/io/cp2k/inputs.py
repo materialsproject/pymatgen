@@ -515,11 +515,11 @@ class Section(MSONable):
         Args:
             path (str): Path to section of form 'SUBSECTION1/SUBSECTION2/SUBSECTION_OF_INTEREST'
         """
-        _path = path.split("/")
         sub_secs = self.subsections
-        for p in _path:
-            if tmp := [_ for _ in sub_secs if p.upper() == _.upper()]:
-                sub_secs = sub_secs[tmp[0]].subsections
+        for key in path.split("/"):
+            sec_key_match = [sub_sec for sub_sec in sub_secs if key.upper() == sub_sec.upper()]
+            if sec_key_match:
+                sub_secs = getattr(sub_secs[sec_key_match[0]], "subsections", {})
             else:
                 return False
         return True
@@ -531,11 +531,11 @@ class Section(MSONable):
         Args:
             path (str): Path to section of form 'SUBSECTION1/SUBSECTION2/SUBSECTION_OF_INTEREST'
         """
-        _path = path.split("/")
-        if _path[0].upper() == self.name.upper():
-            _path = _path[1:]
+        path_parts = path.split("/")
+        if path_parts[0].upper() == self.name.upper():
+            path_parts = path_parts[1:]
         sec_str = self
-        for pth in _path:
+        for pth in path_parts:
             sec_str = sec_str.get_section(pth)
         return sec_str
 
