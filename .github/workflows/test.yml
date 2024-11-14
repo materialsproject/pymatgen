@@ -86,11 +86,10 @@ jobs:
           pip install torch==2.2.1
 
           # Install from wheels to test the content
-          # DEBUG: test sdist, revert after test passed
           uv pip install build
-          python -m build --sdist
+          python -m build --wheel
 
-          uv pip install dist/*.tar.gz
+          uv pip install dist/*.whl
           uv pip install pymatgen[${{ matrix.config.extras }}] --resolution=${{ matrix.config.resolution }}
 
       - name: Install optional Ubuntu dependencies
