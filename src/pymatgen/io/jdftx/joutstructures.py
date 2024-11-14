@@ -13,13 +13,16 @@ import pprint
 from dataclasses import dataclass, field
 from typing import TYPE_CHECKING, Any
 
+import numpy as np
+
+from pymatgen.core.structure import Structure
+from pymatgen.core.units import bohr_to_ang
 from pymatgen.io.jdftx.utils import correct_geom_opt_type, is_lowdin_start_line
 
 if TYPE_CHECKING:
-    import numpy as np
-
     from pymatgen.io.jdftx.jelstep import JElSteps
 from pymatgen.io.jdftx.joutstructure import JOutStructure
+from pymatgen.io.jdftx.utils import find_first_range_key
 
 __author__ = "Ben Rich"
 
@@ -63,11 +66,123 @@ class JOutStructures:
             opt_type = correct_geom_opt_type(opt_type)
         instance.opt_type = opt_type
         start_idx = get_joutstructures_start_idx(out_slice)
-        instance.set_joutstructure_list(out_slice[start_idx:])
+        init_struc = instance.get_init_structure(out_slice[:start_idx])
+        instance.set_joutstructure_list(out_slice[start_idx:], init_structure=init_struc)
         if instance.opt_type is None and len(instance) > 1:
             raise Warning("iter type interpreted as single-point calculation, but multiple structures found")
         instance.check_convergence()
         return instance
+
+    # TODO: Move me to the correct spot
+    def get_init_structure(self, pre_out_slice: list[str]) -> Structure | None:
+        """Return initial structure.
+
+        Return the initial structure from the pre_out_slice, corresponding to all data cut from JOutStructure list
+        initialization. This is needed to ensure structural data that is not being updated (and therefore not being
+        logged in the out file) is still available.
+
+        Parameters
+        ----------
+        pre_out_slice: list[str]
+            A slice of a JDFTx out file (individual call of JDFTx) that
+            contains the initial structure information.
+        """
+        try:
+            lat_mat = self.get_initial_lattice(pre_out_slice)
+            coords = self.get_initial_coords(pre_out_slice)
+            species = self.get_initial_species(pre_out_slice)
+            return Structure(lattice=lat_mat, species=species, coords=coords)
+        except AttributeError:
+            return None
+
+    def get_initial_lattice(self, pre_out_slice: list[str]) -> np.ndarray:
+        """Return initial lattice.
+
+        Return the initial lattice from the pre_out_slice, corresponding to all data cut from JOutStructure list
+        initialization. This is needed to ensure lattice data that is not being updated (and therefore not being
+        logged in the out file) is still available.
+
+        Parameters
+        ----------
+        pre_out_slice: list[str]
+            A slice of a JDFTx out file (individual call of JDFTx) that
+            contains the initial lattice information.
+        """
+        lat_lines = find_first_range_key("lattice  ", pre_out_slice)
+        if len(lat_lines):
+            lat_line = lat_lines[0]
+            lat_mat = np.zeros([3, 3])
+            for i in range(3):
+                line_text = pre_out_slice[lat_line + i + 1].strip().split()
+                for j in range(3):
+                    lat_mat[i, j] = float(line_text[j])
+            return lat_mat.T * bohr_to_ang
+        raise AttributeError("Lattice not found in pre_out_slice")
+
+    def get_initial_coords(self, pre_out_slice: list[str]) -> np.ndarray:
+        """Return initial coordinates.
+
+        Return the initial coordinates from the pre_out_slice, corresponding to all data cut from JOutStructure list
+        initialization. This is needed to ensure coordinate data that is not being updated (and therefore not being
+        logged in the out file) is still available.
+
+        Parameters
+        ----------
+        pre_out_slice: list[str]
+            A slice of a JDFTx out file (individual call of JDFTx) that
+            contains the initial coordinates information.
+        """
+        lines = self._get_ion_lines(pre_out_slice)
+        coords = np.zeros([len(lines), 3])
+        for i, line in enumerate(lines):
+            line_text = pre_out_slice[line].strip().split()[2:]
+            for j in range(3):
+                coords[i, j] = float(line_text[j])
+        coords_type_lines = find_first_range_key("coords-type", pre_out_slice)
+        if len(coords_type_lines):
+            coords_type = pre_out_slice[coords_type_lines[0]].strip().split()[1]
+            if coords_type.lower() != "cartesian":
+                coords = np.dot(coords, self.get_initial_lattice(pre_out_slice))
+        return coords
+
+    def get_initial_species(self, pre_out_slice: list[str]) -> list[str]:
+        """Return initial species.
+
+        Return the initial species from the pre_out_slice, corresponding to all data cut from JOutStructure list
+        initialization. This is needed to ensure species data that is not being updated (and therefore not being
+        logged in the out file) is still available.
+
+        Parameters
+        ----------
+        pre_out_slice: list[str]
+            A slice of a JDFTx out file (individual call of JDFTx) that
+            contains the initial species information.
+        """
+        lines = self._get_ion_lines(pre_out_slice)
+        species_strs = []
+        for line in lines:
+            species_strs.append(pre_out_slice[line].strip().split()[1])
+        return species_strs
+
+    def _get_ion_lines(self, pre_out_slice: list[str]) -> list[int]:
+        """Return ion lines.
+
+        Return the ion lines from the pre_out_slice, ensuring that all the ion lines are consecutive.
+
+        Parameters
+        ----------
+        pre_out_slice: list[str]
+            A slice of a JDFTx out file (individual call of JDFTx) that
+            contains the ion lines information.
+        """
+        _lines = find_first_range_key("ion ", pre_out_slice)
+        if not len(_lines):
+            raise AttributeError("Ion lines not found in pre_out_slice")
+        gaps = [_lines[i + 1] - _lines[i] for i in range(len(_lines) - 1)]
+        if not all(g == 1 for g in gaps):
+            # TODO: Write the fix for this case
+            raise AttributeError("Ion lines not consecutive in pre_out_slice")
+        return _lines
 
     # TODO: This currently returns the most recent t_s, which is not at all helpful.
     # Correct this to be the total time in seconds for the series of structures.
@@ -373,7 +488,9 @@ class JOutStructures:
             return self.slices[-1].elec_linmin
         raise AttributeError("Property linmin inaccessible due to empty slices class field")
 
-    def get_joutstructure_list(self, out_slice: list[str]) -> list[JOutStructure]:
+    def get_joutstructure_list(
+        self, out_slice: list[str], init_structure: Structure | None = None
+    ) -> list[JOutStructure]:
         """Return list of JOutStructure objects.
 
         Get list of JStructure objects by splitting out_slice into slices and constructing
@@ -385,12 +502,20 @@ class JOutStructures:
             A slice of a JDFTx out file (individual call of JDFTx)
         """
         out_bounds = get_joutstructure_step_bounds(out_slice)
-        return [
-            JOutStructure.from_text_slice(out_slice[bounds[0] : bounds[1]], opt_type=self.opt_type)
-            for bounds in out_bounds
-        ]
+        joutstructure_list: list[Structure | JOutStructure] = []
+        for i, bounds in enumerate(out_bounds):
+            if i > 0:
+                init_structure = joutstructure_list[-1]
+            joutstructure_list.append(
+                JOutStructure.from_text_slice(
+                    out_slice[bounds[0] : bounds[1]],
+                    init_structure=init_structure,
+                    opt_type=self.opt_type,
+                )
+            )
+        return joutstructure_list
 
-    def set_joutstructure_list(self, out_slice: list[str]) -> None:
+    def set_joutstructure_list(self, out_slice: list[str], init_structure: Structure | None = None) -> None:
         """Set list of JOutStructure objects to slices.
 
         Set the list of JOutStructure objects to the slices attribute.
@@ -400,7 +525,7 @@ class JOutStructures:
         out_slice: list[str]
             A slice of a JDFTx out file (individual call of JDFTx)
         """
-        out_list = self.get_joutstructure_list(out_slice)
+        out_list = self.get_joutstructure_list(out_slice, init_structure=init_structure)
         for jos in out_list:
             self.slices.append(jos)
 
