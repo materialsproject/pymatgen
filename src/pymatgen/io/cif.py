@@ -583,7 +583,7 @@ class CifParser:
                         continue
 
                     for comparison_frac in important_fracs:
-                        if abs(1 - frac / comparison_frac) < self._frac_tolerance:
+                        if math.isclose(frac / comparison_frac, 1, abs_tol=self._frac_tolerance, rel_tol=0):
                             fracs_to_change[label, idx] = str(comparison_frac)
 
         if fracs_to_change:
@@ -969,8 +969,22 @@ class CifParser:
         primitive: bool,
         symmetrized: bool,
         check_occu: bool = False,
+        min_thickness: float = 0.01,
     ) -> Structure | None:
-        """Generate structure from part of the CIF."""
+        """Generate structure from part of the CIF.
+
+        Args:
+            data (CifBlock): The data block to parse.
+            primitive (bool): Whether to return primitive unit cells.
+            symmetrized (bool): Whether to return SymmetrizedStructure.
+            check_occu (bool): Whether to check site for unphysical occupancy > 1.
+            min_thickness (float): Minimum thickness in Angstrom to consider structure as valid.
+                This is added to guard against unphysical small/thin structure,
+                which could result in infinite loop for searching near neighbours.
+
+        Returns:
+            Structure or None if not found.
+        """
 
         def get_num_implicit_hydrogens(symbol: str) -> int:
             """Get number of implicit hydrogens."""
@@ -991,6 +1005,12 @@ class CifParser:
             return False
 
         lattice = self.get_lattice(data)
+
+        # Check minimal lattice thickness
+        if lattice is not None:
+            thickness = [lattice.d_hkl((1, 0, 0)), lattice.d_hkl((0, 1, 0)), lattice.d_hkl((0, 0, 1))]
+            if any(t < min_thickness for t in thickness):
+                raise ValueError(f"{thickness=} Å below threshold, double check your structure.")
 
         # If magCIF, get magnetic symmetry moments and magmoms
         # else standard CIF, and use empty magmom dict

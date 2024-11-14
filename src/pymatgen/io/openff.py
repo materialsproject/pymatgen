@@ -48,7 +48,7 @@ def mol_graph_to_openff_mol(mol_graph: MoleculeGraph) -> tk.Molecule:
         # put formal charge on first atom if there is none present
         formal_charge = node.get("formal_charge")
         if formal_charge is None:
-            formal_charge = (i_node == 0) * int(round(mol_graph.molecule.charge, 0)) * unit.elementary_charge
+            formal_charge = (i_node == 0) * round(mol_graph.molecule.charge) * unit.elementary_charge
 
         # assume not aromatic if no info present
         is_aromatic = node.get("is_aromatic") or False

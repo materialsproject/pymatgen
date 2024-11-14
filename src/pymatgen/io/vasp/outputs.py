@@ -22,7 +22,6 @@ from monty.io import reverse_readfile, zopen
 from monty.json import MSONable, jsanitize
 from monty.os.path import zpath
 from monty.re import regrep
-from numpy.testing import assert_allclose
 from tqdm import tqdm
 
 from pymatgen.core import Composition, Element, Lattice, Structure
@@ -5027,8 +5026,8 @@ class Wavecar:
 
                     if i_spin == 0:
                         self.kpoints.append(kpoint)
-                    else:
-                        assert_allclose(self.kpoints[i_nk], kpoint)
+                    elif not np.allclose(self.kpoints[i_nk], kpoint, rtol=1e-7, atol=0):
+                        raise ValueError(f"kpoints of {i_nk=} mismatch")
 
                     if verbose:
                         print(f"kpoint {i_nk: 4} with {nplane: 5} plane waves at {kpoint}")
