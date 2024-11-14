@@ -406,15 +406,22 @@ class DftSet(Cp2kInput):
 
         Will raise an error if no basis/potential info can be found according to the input.
         """
-        cp2k_data_dir = cp2k_data_dir or SETTINGS.get("PMG_CP2K_DATA_DIR", ".")
+        cp2k_data_dir = cp2k_data_dir or os.getenv("CP2K_DATA_DIR") or SETTINGS.get("PMG_CP2K_DATA_DIR") or "."
         data: dict[str, list[str]] = {"basis_filenames": []}
-        functional = basis_and_potential.get("functional", SETTINGS.get("PMG_DEFAULT_CP2K_FUNCTIONAL"))
-        basis_type = basis_and_potential.get("basis_type", SETTINGS.get("PMG_DEFAULT_CP2K_BASIS_TYPE"))
+        functional = basis_and_potential.get("functional", os.getenv("DEFAULT_CP2K_FUNCTIONAL")) or SETTINGS.get(
+            "PMG_DEFAULT_CP2K_FUNCTIONAL"
+        )
+        basis_type = basis_and_potential.get("basis_type", os.getenv("DEFAULT_CP2K_BASIS_TYPE")) or SETTINGS.get(
+            "PMG_DEFAULT_CP2K_BASIS_TYPE"
+        )
         potential_type = basis_and_potential.get(
             "potential_type",
-            SETTINGS.get("PMG_DEFAULT_POTENTIAL_TYPE", "Pseudopotential"),
+            os.getenv("DEFAULT_POTENTIAL_TYPE") or SETTINGS.get("PMG_DEFAULT_POTENTIAL_TYPE", "Pseudopotential"),
         )
-        aux_basis_type = basis_and_potential.get("aux_basis_type", SETTINGS.get("PMG_DEFAULT_CP2K_AUX_BASIS_TYPE"))
+        aux_basis_type = basis_and_potential.get(
+            "aux_basis_type",
+            os.getenv("DEFAULT_CP2K_AUX_BASIS_TYPE") or SETTINGS.get("PMG_DEFAULT_CP2K_AUX_BASIS_TYPE"),
+        )
 
         for el in structure.symbol_set:
             possible_basis_sets, possible_potentials = [], []
@@ -601,11 +608,11 @@ class DftSet(Cp2kInput):
         """Get XC functionals. If simplified names are provided in kwargs, they
         will be expanded into their corresponding X and C names.
         """
-        names = xc_functionals or SETTINGS.get("PMG_DEFAULT_CP2K_FUNCTIONAL")
+        names = xc_functionals or os.getenv("DEFAULT_CP2K_FUNCTIONAL") or SETTINGS.get("PMG_DEFAULT_CP2K_FUNCTIONAL")
         if not names:
             raise ValueError(
-                "No XC functional provided. Specify kwarg xc_functional or configure PMG_DEFAULT_CP2K_FUNCTIONAL "
-                "in your .pmgrc.yaml file"
+                "No XC functional provided. Specify kwarg xc_functional, set env var DEFAULT_CP2K_FUNCTIONAL, or "
+                "configure PMG_DEFAULT_CP2K_FUNCTIONAL in your .pmgrc.yaml file"
             )
         if isinstance(names, str):
             names = [names]
