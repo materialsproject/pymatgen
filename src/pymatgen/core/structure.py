@@ -28,7 +28,6 @@ import numpy as np
 from monty.dev import deprecated
 from monty.io import zopen
 from monty.json import MSONable
-from numpy import cross, eye
 from numpy.linalg import norm
 from ruamel.yaml import YAML
 from scipy.cluster.hierarchy import fcluster, linkage
@@ -4614,7 +4613,7 @@ class Structure(IStructure, collections.abc.MutableSequence):
 
         theta %= 2 * np.pi
 
-        rm = expm(cross(eye(3), axis / norm(axis)) * theta)
+        rm = expm(np.cross(np.eye(3), axis / norm(axis)) * theta)
         for idx in indices:
             site = self[idx]
             coords = ((np.dot(rm, np.array(site.coords - anchor).T)).T + anchor).ravel()
@@ -5214,7 +5213,7 @@ class Molecule(IMolecule, collections.abc.MutableSequence):
 
         theta %= 2 * np.pi
 
-        rm = expm(cross(eye(3), axis / norm(axis)) * theta)
+        rm = expm(np.cross(np.eye(3), axis / norm(axis)) * theta)
 
         for idx in indices:
             site = self[idx]
