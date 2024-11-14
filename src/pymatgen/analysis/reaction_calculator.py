@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import math
 import re
 from itertools import chain, combinations
 from typing import TYPE_CHECKING, overload
@@ -208,7 +209,7 @@ class BalancedReaction(MSONable):
         reactant_str = []
         product_str = []
         for amt, formula in zip(coeffs, formulas, strict=True):
-            if abs(amt + 1) < cls.TOLERANCE:
+            if math.isclose(amt, -1, abs_tol=cls.TOLERANCE, rel_tol=0):
                 reactant_str.append(formula)
             elif abs(amt - 1) < cls.TOLERANCE:
                 product_str.append(formula)

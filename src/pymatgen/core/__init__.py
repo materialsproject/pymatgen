@@ -5,7 +5,7 @@ from __future__ import annotations
 import os
 import warnings
 from importlib.metadata import PackageNotFoundError, version
-from typing import Any
+from typing import TYPE_CHECKING
 
 from ruamel.yaml import YAML
 
@@ -17,10 +17,14 @@ from pymatgen.core.sites import PeriodicSite, Site
 from pymatgen.core.structure import IMolecule, IStructure, Molecule, PeriodicNeighbor, SiteCollection, Structure
 from pymatgen.core.units import ArrayWithUnit, FloatWithUnit, Unit
 
+if TYPE_CHECKING:
+    from typing import Any
+
 __author__ = "Pymatgen Development Team"
 __email__ = "pymatgen@googlegroups.com"
 __maintainer__ = "Shyue Ping Ong, Matthew Horton, Janosh Riebesell"
 __maintainer_email__ = "shyuep@gmail.com"
+
 try:
     __version__ = version("pymatgen")
 except PackageNotFoundError:  # pragma: no cover
