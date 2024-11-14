@@ -68,10 +68,10 @@ class StrategyWeights(PymatgenTest):
         fake_nb_set.angles = []
         angle_weight = AngleNbSetWeight(aa=1)
         aw = angle_weight.weight(nb_set=fake_nb_set, structure_environments=dummy_se)
-        assert abs(aw - 0) < 1e-8
+        assert abs(aw) < 1e-8
         angle_weight = AngleNbSetWeight(aa=2)
         aw = angle_weight.weight(nb_set=fake_nb_set, structure_environments=dummy_se)
-        assert abs(aw - 0) < 1e-8
+        assert abs(aw) < 1e-8
 
         # nb_set with one neighbor
         fake_nb_set.angles = [3.08570351705799]
@@ -289,7 +289,7 @@ class StrategyWeights(PymatgenTest):
             cn_map=cn_map,
             additional_info=additional_info,
         )
-        assert abs(self_w - 0) < 1e-8
+        assert abs(self_w) < 1e-8
         cn_map = (12, 0)
         self_w = self_weight.weight(
             nb_set=nb_sets[cn_map],
@@ -297,7 +297,7 @@ class StrategyWeights(PymatgenTest):
             cn_map=cn_map,
             additional_info=additional_info,
         )
-        assert abs(self_w - 0) < 1e-8
+        assert abs(self_w) < 1e-8
         cn_map = (12, 1)
         self_w = self_weight.weight(
             nb_set=nb_sets[cn_map],
@@ -305,7 +305,7 @@ class StrategyWeights(PymatgenTest):
             cn_map=cn_map,
             additional_info=additional_info,
         )
-        assert abs(self_w - 0) < 1e-8
+        assert abs(self_w) < 1e-8
         cn_map = (13, 2)
         self_w = self_weight.weight(
             nb_set=nb_sets[cn_map],
@@ -391,7 +391,7 @@ class StrategyWeights(PymatgenTest):
             cn_map=cn_map,
             additional_info=additional_info,
         )
-        assert abs(delta_w - 0) < 1e-8
+        assert abs(delta_w) < 1e-8
         cn_map = (12, 2)
         delta_w = delta_weight.weight(
             nb_set=nb_sets[cn_map],
@@ -399,7 +399,7 @@ class StrategyWeights(PymatgenTest):
             cn_map=cn_map,
             additional_info=additional_info,
         )
-        assert abs(delta_w - 0) < 1e-8
+        assert abs(delta_w) < 1e-8
         cn_map = (12, 0)
         delta_w = delta_weight.weight(
             nb_set=nb_sets[cn_map],
@@ -407,7 +407,7 @@ class StrategyWeights(PymatgenTest):
             cn_map=cn_map,
             additional_info=additional_info,
         )
-        assert abs(delta_w - 0) < 1e-8
+        assert abs(delta_w) < 1e-8
         cn_map = (12, 1)
         delta_w = delta_weight.weight(
             nb_set=nb_sets[cn_map],
@@ -415,7 +415,7 @@ class StrategyWeights(PymatgenTest):
             cn_map=cn_map,
             additional_info=additional_info,
         )
-        assert abs(delta_w - 0) < 1e-8
+        assert abs(delta_w) < 1e-8
         cn_map = (13, 2)
         delta_w = delta_weight.weight(
             nb_set=nb_sets[cn_map],
@@ -431,7 +431,7 @@ class StrategyWeights(PymatgenTest):
             cn_map=cn_map,
             additional_info=additional_info,
         )
-        assert abs(delta_w - 0) < 1e-8
+        assert abs(delta_w) < 1e-8
         cn_map = (13, 1)
         delta_w = delta_weight.weight(
             nb_set=nb_sets[cn_map],
@@ -439,7 +439,7 @@ class StrategyWeights(PymatgenTest):
             cn_map=cn_map,
             additional_info=additional_info,
         )
-        assert abs(delta_w - 0) < 1e-8
+        assert abs(delta_w) < 1e-8
 
         effective_csm_estimator = {
             "function": "power2_inverse_decreasing",
@@ -524,7 +524,7 @@ class StrategyWeights(PymatgenTest):
             cn_map=cn_map,
             additional_info=additional_info,
         )
-        assert abs(delta_w - 0) < 1e-8
+        assert abs(delta_w) < 1e-8
         cn_map = (4, 0)
         delta_w = delta_weight.weight(
             nb_set=nb_sets[cn_map],
@@ -661,7 +661,7 @@ class StrategyWeights(PymatgenTest):
         cn_map7 = (7, 0)
 
         weight1 = dnbset_weight.weight(fake_nb_set1, dummy_se, cn_map=cn_map1, additional_info=None)
-        assert abs(weight1 - 0) < 1e-8
+        assert abs(weight1) < 1e-8
         weight2 = dnbset_weight.weight(fake_nb_set2, dummy_se, cn_map=cn_map2, additional_info=None)
         assert abs(weight2 - 0.103515625) < 1e-8
         weight3 = dnbset_weight.weight(fake_nb_set3, dummy_se, cn_map=cn_map3, additional_info=None)
@@ -712,9 +712,9 @@ class StrategyWeights(PymatgenTest):
         weight_delta1 = delta_dnb_set_weight.weight(fake_nb_set1, dummy_se, cn_map=cn_map1, additional_info=None)
         assert abs(weight_delta1 - 1) < 1e-8
         weight_delta2 = delta_dnb_set_weight.weight(fake_nb_set2, dummy_se, cn_map=cn_map2, additional_info=None)
-        assert abs(weight_delta2 - 0) < 1e-8
+        assert abs(weight_delta2) < 1e-8
         weight_delta3 = delta_dnb_set_weight.weight(fake_nb_set3, dummy_se, cn_map=cn_map3, additional_info=None)
-        assert abs(weight_delta3 - 0) < 1e-8
+        assert abs(weight_delta3) < 1e-8
 
         delta_dnb_set_weight2 = DeltaDistanceNbSetWeight(
             weight_function={
@@ -726,9 +726,9 @@ class StrategyWeights(PymatgenTest):
         weight_delta1 = delta_dnb_set_weight2.weight(fake_nb_set1, dummy_se, cn_map=cn_map1, additional_info=None)
         assert abs(weight_delta1 - 0.5) < 1e-8
         weight_delta2 = delta_dnb_set_weight2.weight(fake_nb_set2, dummy_se, cn_map=cn_map2, additional_info=None)
-        assert abs(weight_delta2 - 0) < 1e-8
+        assert abs(weight_delta2) < 1e-8
         weight_delta3 = delta_dnb_set_weight2.weight(fake_nb_set3, dummy_se, cn_map=cn_map3, additional_info=None)
-        assert abs(weight_delta3 - 0) < 1e-8
+        assert abs(weight_delta3) < 1e-8
 
         delta_dnb_set_weight3 = DeltaDistanceNbSetWeight(
             weight_function={

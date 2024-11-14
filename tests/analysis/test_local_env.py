@@ -1,6 +1,5 @@
 from __future__ import annotations
 
-from math import pi
 from shutil import which
 from typing import get_args
 
@@ -11,6 +10,8 @@ from pytest import approx
 
 from pymatgen.analysis.graphs import MoleculeGraph, StructureGraph
 from pymatgen.analysis.local_env import (
+    CN_OPT_PARAMS,
+    DEFAULT_OP_PARAMS,
     BrunnerNNReal,
     BrunnerNNReciprocal,
     BrunnerNNRelative,
@@ -29,6 +30,8 @@ from pymatgen.analysis.local_env import (
     OpenBabelNN,
     ValenceIonicRadiusEvaluator,
     VoronoiNN,
+    cn_opt_params,
+    default_op_params,
     get_neighbors_of_site_with_index,
     metal_edge_extender,
     on_disorder_options,
@@ -40,6 +43,15 @@ from pymatgen.core import Element, Lattice, Molecule, Structure
 from pymatgen.util.testing import TEST_FILES_DIR, PymatgenTest
 
 TEST_DIR = f"{TEST_FILES_DIR}/analysis/local_env/fragmenter_files"
+
+
+def test_opt_params():
+    assert isinstance(default_op_params, dict)
+    assert default_op_params == DEFAULT_OP_PARAMS
+
+    assert isinstance(cn_opt_params, dict)
+    assert list(cn_opt_params) == [2, 3, 4, 5, 6, 7, 8, 12]
+    assert cn_opt_params == CN_OPT_PARAMS
 
 
 class TestValenceIonicRadiusEvaluator(PymatgenTest):
@@ -113,7 +125,7 @@ class TestVoronoiNN(PymatgenTest):
             for nn in self.nn.get_voronoi_polyhedra(self.struct, n).values():
                 angle += nn["solid_angle"]
             assert 4 * np.pi == approx(angle)
-        assert solid_angle([0, 0, 0], [[1, 0, 0], [-1, 0, 0], [0, 1, 0]]) == pi
+        assert solid_angle([0, 0, 0], [[1, 0, 0], [-1, 0, 0], [0, 1, 0]]) == np.pi
 
     def test_nn_shell(self):
         # First, make a SC lattice. Make my math easier

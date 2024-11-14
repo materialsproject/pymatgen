@@ -56,6 +56,8 @@ def remove_identity_from_full_hermann_mauguin(symbol: str) -> str:
     if symbol in ("P 1", "C 1", "P 1 "):
         return symbol
     blickrichtungen = symbol.split(" ")
+    if blickrichtungen[1].startswith("3"):
+        return symbol
     blickrichtungen_new = []
     for br in blickrichtungen:
         if br != "1":
@@ -75,6 +77,11 @@ for k, v in SYMM_DATA["space_group_encoding"].items():
         new_symm_data[k] = v
 
 SYMM_DATA["space_group_encoding"] = new_symm_data
+
+for sg_symbol in SYMM_DATA["space_group_encoding"]:
+    SYMM_DATA["space_group_encoding"][sg_symbol]["point_group"] = PointGroup.from_space_group(
+        sg_symbol=sg_symbol
+    ).symbol
 
 for spg in SYMM_OPS:
     if "(" in spg["hermann_mauguin"]:
