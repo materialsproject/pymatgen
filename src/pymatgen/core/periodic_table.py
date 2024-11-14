@@ -1654,7 +1654,6 @@ def get_el_sp(obj: int | SpeciesLike) -> Element | Species | DummySpecies:
             of properties that can be determined.
     """
     # If obj is already an Element or Species, return as is
-    # TODO: Why do we need to check "_is_named_isotope"?
     if isinstance(obj, Element | Species | DummySpecies):
         if getattr(obj, "_is_named_isotope", None):
             return Element(obj.name) if isinstance(obj, Element) else Species(str(obj))
