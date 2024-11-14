@@ -1014,7 +1014,9 @@ class PhaseDiagram(MSONable):
 
         clean_pots = []
         for c in sorted(critical_chempots):
-            if len(clean_pots) == 0 or abs(c - clean_pots[-1]) > PhaseDiagram.numerical_tol:
+            if len(clean_pots) == 0 or not math.isclose(
+                c, clean_pots[-1], abs_tol=PhaseDiagram.numerical_tol, rel_tol=0
+            ):
                 clean_pots.append(c)
         clean_pots.reverse()
         return tuple(clean_pots)
@@ -1996,7 +1998,11 @@ class ReactionDiagram:
 
                     x = coeffs[-1]
 
-                    if all(c >= -tol for c in coeffs) and (abs(sum(coeffs[:-1]) - 1) < tol) and (tol < x < 1 - tol):
+                    if (
+                        all(c >= -tol for c in coeffs)
+                        and (math.isclose(sum(coeffs[:-1]), 1, abs_tol=tol, rel_tol=0))
+                        and (tol < x < 1 - tol)
+                    ):
                         c1 = x / r1.num_atoms
                         c2 = (1 - x) / r2.num_atoms
                         factor = 1 / (c1 + c2)

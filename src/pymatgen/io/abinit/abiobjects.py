@@ -966,7 +966,7 @@ class KSampling(AbivarAble, MSONable):
 
         mult = (ngrid * lengths[0] * lengths[1] * lengths[2]) ** (1 / 3.0)
 
-        num_div = [int(round(1.0 / lengths[i] * mult)) for i in range(3)]
+        num_div = [round(1.0 / lengths[i] * mult) for i in range(3)]
         # ensure that num_div[i] > 0
         num_div = [i if i > 0 else 1 for i in num_div]
 

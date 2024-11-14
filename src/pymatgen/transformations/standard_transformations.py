@@ -10,7 +10,6 @@ from fractions import Fraction
 from typing import TYPE_CHECKING
 
 import numpy as np
-from numpy import around
 
 from pymatgen.analysis.bond_valence import BVAnalyzer
 from pymatgen.analysis.elasticity.strain import Deformation
@@ -539,7 +538,7 @@ class OrderDisorderedStructureTransformation(AbstractTransformation):
             for key, val in total_occupancy.items():
                 if abs(val - round(val)) > 0.25:
                     raise ValueError("Occupancy fractions not consistent with size of unit cell")
-                total_occupancy[key] = int(round(val))
+                total_occupancy[key] = round(val)
             # start with an ordered structure
             initial_sp = max(total_occupancy, key=lambda x: abs(x.oxi_state))
             for idx in group:
@@ -783,7 +782,7 @@ class DiscretizeOccupanciesTransformation(AbstractTransformation):
                 old_occ = sp[k]
                 new_occ = float(Fraction(old_occ).limit_denominator(self.max_denominator))
                 if self.fix_denominator:
-                    new_occ = around(old_occ * self.max_denominator) / self.max_denominator
+                    new_occ = np.around(old_occ * self.max_denominator) / self.max_denominator
                 if round(abs(old_occ - new_occ), 6) > self.tol:
                     raise RuntimeError("Cannot discretize structure within tolerance!")
                 sp[k] = new_occ

@@ -15,7 +15,6 @@ from monty.io import zopen
 from monty.json import MSONable
 
 from pymatgen.core.structure import Composition, DummySpecies, Element, Lattice, Molecule, Species, Structure
-from pymatgen.io.ase import AseAtomsAdaptor
 
 if TYPE_CHECKING:
     from collections.abc import Iterator
@@ -580,9 +579,12 @@ class Trajectory(MSONable):
             try:
                 from ase.io.trajectory import Trajectory as AseTrajectory
 
+                from pymatgen.io.ase import AseAtomsAdaptor
+
                 ase_traj = AseTrajectory(filename)
                 # Periodic boundary conditions should be the same for all frames so just check the first
                 pbc = ase_traj[0].pbc
+
                 if any(pbc):
                     structures = [AseAtomsAdaptor.get_structure(atoms) for atoms in ase_traj]
                 else:

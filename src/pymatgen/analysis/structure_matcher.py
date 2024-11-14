@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import abc
 import itertools
+import math
 from functools import lru_cache
 from typing import TYPE_CHECKING, cast
 
@@ -441,9 +442,9 @@ class StructureMatcher(MSONable):
                 raise ValueError("Invalid argument for supercell_size.")
 
         if fu < 2 / 3:
-            return int(round(1 / fu)), False
+            return round(1 / fu), False
 
-        return int(round(fu)), True
+        return round(fu), True
 
     def _get_lattices(self, target_lattice, s, supercell_size=1):
         """
@@ -463,7 +464,7 @@ class StructureMatcher(MSONable):
             skip_rotation_matrix=True,
         )
         for latt, _, scale_m in lattices:
-            if abs(abs(np.linalg.det(scale_m)) - supercell_size) < 0.5:
+            if math.isclose(abs(np.linalg.det(scale_m)), supercell_size, abs_tol=0.5, rel_tol=0):
                 yield latt, scale_m
 
     def _get_supercells(self, struct1, struct2, fu, s1_supercell):
@@ -1203,7 +1204,7 @@ class StructureMatcher(MSONable):
         sites = [temp.sites[i] for i in mapping if i is not None]
 
         if include_ignored_species:
-            start = int(round(len(temp) / len(struct2) * len(s2)))
+            start = round(len(temp) / len(struct2) * len(s2))
             sites.extend(temp.sites[start:])
 
         return Structure.from_sites(sites)
