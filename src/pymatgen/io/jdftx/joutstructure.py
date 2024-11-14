@@ -213,6 +213,7 @@ class JOutStructure(Structure):
         eopt_type: str = "ElecMinimize",
         opt_type: str = "IonicMinimize",
         emin_flag: str = "---- Electronic minimization -------",
+        init_structure: Structure | None = None,
     ) -> JOutStructure:
         """Return JOutStructure object.
 
@@ -232,7 +233,15 @@ class JOutStructure(Structure):
             The flag that indicates the start of a log message for a JDFTx
             optimization step
         """
-        instance = cls(lattice=np.eye(3), species=[], coords=[], site_properties={})
+        if init_structure is None:
+            instance = cls(lattice=np.eye(3), species=[], coords=[], site_properties={})
+        else:
+            instance = cls(
+                lattice=init_structure.lattice.matrix,
+                species=init_structure.species,
+                coords=init_structure.cart_coords,
+                site_properties=init_structure.site_properties,
+            )
         if opt_type not in ["IonicMinimize", "LatticeMinimize"]:
             opt_type = correct_geom_opt_type(opt_type)
         instance.eopt_type = eopt_type
@@ -520,6 +529,7 @@ class JOutStructure(Structure):
              or not (0).
         """
         if len(posns_lines):
+            self.remove_sites(list(range(len(self.species))))
             natoms = len(posns_lines) - 1
             coords_type = posns_lines[0].split("positions in")[1]
             coords_type = coords_type.strip().split()[0].strip()

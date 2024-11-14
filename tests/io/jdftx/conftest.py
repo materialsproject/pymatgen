@@ -103,7 +103,6 @@ def assert_slices_2layer_attribute_error(init_meth: Callable, init_var: Any, var
 
 def jdftxoutfile_fromfile_matches_known_simple(outfilefname: Path, knowndict: dict):
     joutfile = JDFTXOutfile.from_file(outfilefname)
-    str(joutfile)
     jdftxoutfile_matches_known_simple(joutfile, knowndict)
     del joutfile
 
@@ -115,7 +114,6 @@ def jdftxoutfile_matches_known_simple(joutfile: JDFTXOutfile, knowndict: dict):
 
 def jdftxoutfile_fromfile_matches_known(filename: Path, known: dict):
     joutfile = JDFTXOutfile.from_file(filename)
-    str(joutfile)
     jdftxoutfile_matches_known(joutfile, known)
     del joutfile
 
