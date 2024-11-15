@@ -1277,15 +1277,16 @@ class DftSet(Cp2kInput):
     def create_subsys(self, structure: Structure | Molecule) -> None:
         """Create the structure for the input."""
         subsys = Subsys()
+        cell_keywords = {key.upper(): Keyword(key.upper(), value) for key, value in self.cell.items()}
         if isinstance(structure, Structure):
-            subsys.insert(Cell(structure.lattice, keywords=self.cell))
+            subsys.insert(Cell(structure.lattice, keywords=cell_keywords))
         else:
             x = max(*structure.cart_coords[:, 0], 1)
             y = max(*structure.cart_coords[:, 1], 1)
             z = max(*structure.cart_coords[:, 2], 1)
             cell = Cell(
                 lattice=Lattice([[10 * x, 0, 0], [0, 10 * y, 0], [0, 0, 10 * z]]),
-                keywords={"PERIODIC": "NONE"} | self.cell,
+                keywords={"PERIODIC": Keyword("PERIODIC", "NONE")} | cell_keywords,
             )
             subsys.insert(cell)
 
