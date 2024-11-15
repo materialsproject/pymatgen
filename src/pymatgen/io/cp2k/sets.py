@@ -294,7 +294,7 @@ class DftSet(Cp2kInput):
 
         # Get basis, potential, and XC info
         self.basis_and_potential = DftSet.get_basis_and_potential(self.structure, self.basis_and_potential)
-        self.basis_set_file_names = self.basis_and_potential.get("basis_filenames")
+        self.basis_set_file_names = self.basis_and_potential.get("basis_filenames", ())
         self.potential_file_name = self.basis_and_potential.get("potential_filename")
         self.xc_functionals = DftSet.get_xc_functionals(xc_functionals=xc_functionals)
 
@@ -322,7 +322,7 @@ class DftSet(Cp2kInput):
             MULTIPLICITY=self.multiplicity,
             CHARGE=self.charge,
             uks=self.kwargs.get("spin_polarized", True),
-            basis_set_filenames=self.basis_set_file_names or [],
+            basis_set_filenames=self.basis_set_file_names,
             potential_filename=self.potential_file_name,
             subsections={"QS": qs, "SCF": scf, "MGRID": mgrid},
             wfn_restart_file_name=wfn_restart_file_name,

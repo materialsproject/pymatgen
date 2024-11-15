@@ -51,7 +51,7 @@ if TYPE_CHECKING:
 
     from pymatgen.core.lattice import Lattice
     from pymatgen.core.structure import Molecule, Structure
-    from pymatgen.util.typing import Kpoint, Tuple3Ints
+    from pymatgen.util.typing import Kpoint
 
 __author__ = "Nicholas Winner"
 __version__ = "2.0"
@@ -247,7 +247,7 @@ class Section(MSONable):
         repeats: bool = False,
         description: str | None = None,
         keywords: dict | None = None,
-        section_parameters: list | tuple | None = None,
+        section_parameters: Sequence[str] = (),
         location: str | None = None,
         verbose: bool | None = False,
         alias: str | None = None,
@@ -292,7 +292,7 @@ class Section(MSONable):
         self.repeats = repeats
         self.description = description
         self.keywords = keywords or {}
-        self.section_parameters = section_parameters or []
+        self.section_parameters = section_parameters
         self.location = location
         self.verbose = verbose
         self.alias = alias
@@ -671,7 +671,6 @@ class Cp2kInput(Section):
             name,
             repeats=False,
             description=description,
-            section_parameters=[],
             subsections=subsections,
             **kwargs,
         )
@@ -1774,13 +1773,13 @@ class BrokenSymmetry(Section):
         esv.sort(key=lambda x: (x[0], x[1]), reverse=True)
 
         tmp = oxi_state
-        l_alpha = []
-        l_beta = []
-        nel_alpha = []
-        nel_beta = []
-        n_alpha = []
-        n_beta = []
-        unpaired_orbital: Tuple3Ints = (0, 0, 0)
+        l_alpha: list[int] = []
+        l_beta: list[int] = []
+        nel_alpha: list[int] = []
+        nel_beta: list[int] = []
+        n_alpha: list[int] = []
+        n_beta: list[int] = []
+        unpaired_orbital: tuple[int, int, int] = (0, 0, 0)
         while tmp:
             tmp2 = -min((esv[0][2], tmp)) if tmp > 0 else min((f2(esv[0][1]) - esv[0][2], -tmp))
             l_alpha.append(esv[0][1])
@@ -1806,13 +1805,13 @@ class BrokenSymmetry(Section):
             spin = -(unpaired_orbital[2] % (f2(unpaired_orbital[1]) // 2))
 
         if spin:
-            for i in reversed(range(len(nel_alpha))):
-                nel_alpha[i] += min((spin, f3(l_alpha[i]) - oxi_state))
-                nel_beta[i] -= min((spin, f3(l_beta[i]) - oxi_state))
+            for idx in reversed(range(len(nel_alpha))):
+                nel_alpha[idx] += min((spin, f3(l_alpha[idx]) - oxi_state))
+                nel_beta[idx] -= min((spin, f3(l_beta[idx]) - oxi_state))
                 if spin > 0:
-                    spin -= min((spin, f3(l_alpha[i]) - oxi_state))
+                    spin -= min((spin, f3(l_alpha[idx]) - oxi_state))
                 else:
-                    spin += min((spin, f3(l_beta[i]) - oxi_state))
+                    spin += min((spin, f3(l_beta[idx]) - oxi_state))
 
         return BrokenSymmetry(
             l_alpha=l_alpha,
@@ -2628,7 +2627,6 @@ class GthPotential(AtomicMetadata):
         keywords = {"POTENTIAL": Keyword("", self.get_str())}
         return Section(
             name=self.name,
-            section_parameters=None,
             subsections=None,
             description="Manual definition of GTH Potential",
             keywords=keywords,
@@ -2775,7 +2773,7 @@ class DataFile(MSONable):
 
     def get_str(self) -> str:
         """Get string representation."""
-        return "\n".join(b.get_str() for b in self.objects or [])
+        return "\n".join(b.get_str() for b in self.objects or ())
 
 
 @dataclass

@@ -181,3 +181,30 @@ class TestDftSet(PymatgenTest):
         fe1_kind = dft_set["force_eval"]["subsys"]["Fe_1"]
         fe2_kind = dft_set["force_eval"]["subsys"]["Fe_2"]
         assert {fe1_kind["magnetization"].values[0], fe2_kind["magnetization"].values[0]} == {2.0, -2.0}
+
+    def test_cell_parameters(self) -> None:
+        """Test that cell parameters are properly set when provided."""
+        # Test with cell parameters
+        cell_params = {
+            "SYMMETRY": "CUBIC",
+            "MULTIPLE_UNIT_CELL": [2, 2, 2],
+        }
+
+        dft_set = DftSet(Si_structure, basis_and_potential=BASIS_AND_POTENTIAL, xc_functionals="PBE", cell=cell_params)
+
+        # Check that cell parameters were properly set
+        subsys = dft_set["force_eval"]["subsys"]
+        assert subsys.check("cell")
+        cell_section = subsys["cell"]
+        assert cell_section["symmetry"].values[0] == "CUBIC"
+        assert cell_section["multiple_unit_cell"].values == ([2, 2, 2],)
+
+        # Test without cell parameters (default behavior)
+        dft_set = DftSet(Si_structure, basis_and_potential=BASIS_AND_POTENTIAL, xc_functionals="PBE")
+
+        # Check that only default cell parameters exist
+        subsys = dft_set["force_eval"]["subsys"]
+        assert subsys.check("cell")
+        cell_section = subsys["cell"]
+        assert not cell_section.check("symmetry")
+        assert not cell_section.check("multiple_unit_cell")

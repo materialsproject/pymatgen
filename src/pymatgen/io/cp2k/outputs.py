@@ -1407,16 +1407,7 @@ class Cp2kOutput:
         with zopen(chi_filename, mode="rt") as file:
             lines = [line for line in file.read().split("\n") if line]
 
-        data = {}
-        data["chi_soft"] = []
-        data["chi_local"] = []
-        data["chi_total"] = []
-        data["chi_total_ppm_cgs"] = []
-        data["PV1"] = []
-        data["PV2"] = []
-        data["PV3"] = []
-        data["ISO"] = []
-        data["ANISO"] = []
+        data = {k: [] for k in "chi_soft chi_local chi_total chi_total_ppm_cgs PV1 PV2 PV3 ISO ANISO".split()}
         ionic = -1
         dat = None
         for line in lines:
