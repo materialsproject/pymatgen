@@ -1,8 +1,8 @@
 """
 This module contains the main object used to identify the coordination environments in a given structure.
 If you use this module, please cite:
-David Waroquiers, Xavier Gonze, Gian-Marco Rignanese, Cathrin Welker-Nieuwoudt, Frank Rosowski,
-Michael Goebel, Stephan Schenk, Peter Degelmann, Rute Andre, Robert Glaum, and Geoffroy Hautier,
+David Waroquiers, Xavier Gonze, Gian-Marco Rignanese, Cathrin Welker-Nieuwoudt, Frank Rosowski, Michael Goebel,
+Stephan Schenk, Peter Degelmann, Rute Andre, Robert Glaum, and Geoffroy Hautier,
 "Statistical analysis of coordination environments in oxides",
 Chem. Mater., 2017, 29 (19), pp 8346-8360,
 DOI: 10.1021/acs.chemmater.7b02766

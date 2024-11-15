@@ -1523,7 +1523,7 @@ class QCOutput(MSONable):
                     self.data["errors"] += ["out_of_opt_cycles"]
                 elif read_pattern(
                     self.text,
-                    {"key": r"UNABLE TO DETERMINE Lamda IN FormD"},
+                    {"key": r"UNABLE TO DETERMINE Lamda IN FormD"},  # codespell:ignore lamda
                     terminate_on_match=True,
                 ).get("key") == [[]]:
                     self.data["errors"] += ["unable_to_determine_lamda"]
@@ -1746,7 +1746,7 @@ class QCOutput(MSONable):
                 self.data["errors"] += ["out_of_opt_cycles"]
             elif read_pattern(
                 self.text,
-                {"key": r"UNABLE TO DETERMINE Lamda IN FormD"},
+                {"key": r"UNABLE TO DETERMINE Lamda IN FormD"},  # codespell:ignore lamda
                 terminate_on_match=True,
             ).get("key") == [[]]:
                 self.data["errors"] += ["unable_to_determine_lamda"]

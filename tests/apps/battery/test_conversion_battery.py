@@ -63,13 +63,13 @@ class TestConversionElectrode(TestCase):
                     ["CoO2"],
                     ["Li(CoO2)2"],
                     ["LiCoO2"],
-                    ["Li6CoO4", "CoO"],
+                    ["Li6CoO4", "CoO"],  # codespell:ignore CoO
                     ["Li6CoO4", "Co"],
                 ],
                 "entries_discharge": [
                     ["Li(CoO2)2"],
                     ["LiCoO2"],
-                    ["Li6CoO4", "CoO"],
+                    ["Li6CoO4", "CoO"],  # codespell:ignore pres
                     ["Li6CoO4", "Co"],
                     ["Co", "Li2O"],
                 ],
