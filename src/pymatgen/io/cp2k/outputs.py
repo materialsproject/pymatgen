@@ -496,7 +496,7 @@ class Cp2kOutput:
                 r"(-?\d+\.\d+E?[-|\+]?\d+)\s+(-?\d+\.\d+E?[-|\+]?\d+).*$"
             )
             footer_pattern = r"^$"
-            d = self.read_table_pattern(
+            dct = self.read_table_pattern(
                 header_pattern=header_pattern,
                 row_pattern=row_pattern,
                 footer_pattern=footer_pattern,
@@ -506,12 +506,12 @@ class Cp2kOutput:
 
             def chunks(lst, n):
                 """Yield successive n-sized chunks from lst."""
-                for i in range(0, len(lst), n):
-                    if i % 2 == 0:
-                        yield lst[i : i + n]
+                for idx in range(0, len(lst), n):
+                    if idx % 2 == 0:
+                        yield lst[idx : idx + n]
 
-            if d:
-                self.data["stress_tensor"] = list(chunks(d[0], 3))
+            if dct:
+                self.data["stress_tensor"] = list(chunks(dct[0], 3))
 
     def parse_ionic_steps(self):
         """Parse the ionic step info. If already parsed, this will just assimilate."""
@@ -524,13 +524,13 @@ class Cp2kOutput:
         if not self.data.get("stress_tensor"):
             self.parse_stresses()
 
-        for i, (structure, energy) in enumerate(zip(self.structures, self.data.get("total_energy"), strict=False)):
+        for idx, (structure, energy) in enumerate(zip(self.structures, self.data.get("total_energy"), strict=False)):
             self.ionic_steps.append(
                 {
                     "structure": structure,
                     "E": energy,
-                    "forces": (self.data["forces"][i] if self.data.get("forces") else None),
-                    "stress_tensor": (self.data["stress_tensor"][i] if self.data.get("stress_tensor") else None),
+                    "forces": (self.data["forces"][idx] if self.data.get("forces") else None),
+                    "stress_tensor": (self.data["stress_tensor"][idx] if self.data.get("stress_tensor") else None),
                 }
             )
 
@@ -661,11 +661,11 @@ class Cp2kOutput:
         )
         self.data["QS"] = dict(self.data["QS"])
         tmp = {}
-        i = 1
+        idx = 1
         for k in list(self.data["QS"]):
             if "grid_level" in str(k) and "Number" not in str(k):
-                tmp[i] = self.data["QS"].pop(k)
-                i += 1
+                tmp[idx] = self.data["QS"].pop(k)
+                idx += 1
         self.data["QS"]["Multi_grid_cutoffs_[a.u.]"] = tmp
 
     def parse_overlap_condition(self):
@@ -723,8 +723,8 @@ class Cp2kOutput:
             postprocess=float,
             reverse=False,
         )
-        i = iter(self.data["lattice"])
-        lattices = list(zip(i, i, i, strict=True))
+        iterator = iter(self.data["lattice"])
+        lattices = list(zip(iterator, iterator, iterator, strict=True))
         return lattices[0]
 
     def parse_atomic_kind_info(self):
