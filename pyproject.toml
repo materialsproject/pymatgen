@@ -293,10 +293,20 @@ module = ["requests.*", "tabulate.*"]
 ignore_missing_imports = true
 
 [tool.codespell]
+# TODO: un-ignore "ist/nd/ot/ontop/CoO" once support file-level ignore with pattern
 ignore-words-list = """Nd, Te, titel, Mater,
-fo, Hart, Lew, Rute
+Hart, Lew, Rute, atomate,
+ist, nd, ot, ontop, CoO
 """
-# skip = "pymatgen/analysis/aflow_prototypes.json"
+# TODO: un-skip lammps/test_inputs.py once support block ignore with pattern
+skip = """pyproject.toml,
+dev_scripts/chemenv/strategies/ce_pairs.json,
+src/pymatgen/analysis/chemenv/coordination_environments/coordination_geometries_files/allcg.txt,
+src/pymatgen/analysis/chemenv/coordination_environments/coordination_geometries_files/FO#7.json,
+src/pymatgen/core/libxc_docs.json,
+src/pymatgen/entries/MPCompatibility.yaml,
+tests/io/lammps/test_inputs.py,
+"""
 check-filenames = true
 
 [tool.pyright]

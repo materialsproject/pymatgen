@@ -34,7 +34,7 @@ class TestLammpsInputFile(PymatgenTest):
                     ("units", "metal"),
                     ("atom_style", "full"),
                     ("dimension", "3"),
-                    ("pair_style", "hybrid/overlay morse 15 coul/long 15"),
+                    ("pair_style", "hybrid/overlay morse 15 coul/long 15"),  # codespell:ignore coul
                     ("kspace_style", "ewald 1e-4"),
                     ("boundary", "p p p"),
                     ("#", "2) System definition"),
@@ -50,7 +50,7 @@ class TestLammpsInputFile(PymatgenTest):
                     ("pair_coeff", "2 4 morse 0.3147 2.257 2.409"),
                     ("pair_coeff", "3 4 morse 0.4104 2.329 2.200"),
                     ("pair_coeff", "4 4 morse 0.0241 1.359 4.284"),
-                    ("pair_coeff", "* * coul/long"),
+                    ("pair_coeff", "* * coul/long"),  # codespell:ignore coul
                     ("#", "Part A : energy minimization"),
                     ("thermo", "1"),
                     ("thermo_style", "custom step lx ly lz press pxx pyy pzz pe"),

@@ -58,7 +58,10 @@ class TestNDCalculator(PymatgenTest):
         something = Structure(Lattice.cubic(a=1), ["Cm"], [[0, 0, 0]])
         with pytest.raises(
             ValueError,
-            match="Unable to calculate ND pattern as there is no scattering coefficients for Cm.",  # codespell:ignore nd
+            match=(
+                "Unable to calculate ND pattern as "  # codespell:ignore ND
+                "there is no scattering coefficients for Cm."
+            ),
         ):
             pattern = c.get_pattern(something, two_theta_range=(0, 90))
 
