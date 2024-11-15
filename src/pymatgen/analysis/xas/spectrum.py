@@ -14,7 +14,9 @@ from pymatgen.core.spectrum import Spectrum
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
 
 if TYPE_CHECKING:
-    from typing import Literal
+    from typing import Literal, Sequence
+
+    from pymatgen.core import Structure
 
 __author__ = "Chen Zheng, Yiming Chen"
 __copyright__ = "Copyright 2012, The Materials Project"
@@ -46,6 +48,7 @@ class XAS(Spectrum):
         edge (str): The edge of the spectrum.
         spectrum_type (str): The type of the spectrum (XANES or EXAFS).
         absorbing_index (int): The absorbing index of the spectrum.
+        zero_negative_intensity (bool) : Whether to set unphysical negative intensities to zero
     """
 
     XLABEL = "Energy"
@@ -53,13 +56,14 @@ class XAS(Spectrum):
 
     def __init__(
         self,
-        x,
-        y,
-        structure,
-        absorbing_element,
-        edge="K",
-        spectrum_type="XANES",
-        absorbing_index=None,
+        x : Sequence,
+        y : Sequence,
+        structure : Structure,
+        absorbing_element : str,
+        edge : str = "K",
+        spectrum_type : str = "XANES",
+        absorbing_index : int = None,
+        zero_negative_intensity : bool = False,
     ):
         """Initialize a spectrum object."""
         super().__init__(x, y, structure, absorbing_element, edge)
@@ -75,8 +79,16 @@ class XAS(Spectrum):
         ]
         self.absorbing_index = absorbing_index
         # check for empty spectra and negative intensities
-        if sum(1 for i in self.y if i <= 0) / len(self.y) > 0.05:
-            raise ValueError("Double check the intensities. Most of them are non-positive.")
+        neg_intens_mask = self.y < 0.
+        if len(self.y[neg_intens_mask]) / len(self.y) > 0.05:
+            warnings.warn(
+                "Double check the intensities. More than 5% of them are negative.",
+                UserWarning,
+                stacklevel=2,
+            )
+        self.zero_negative_intensity = zero_negative_intensity
+        if self.zero_negative_intensity:
+            self.y[neg_intens_mask] = 0.
 
     def __str__(self):
         return (
