@@ -89,7 +89,7 @@ Given that `pymatgen` is intended to be a long-term code base, we adopt very str
    pre-commit install  # ensures linters are run prior to all future commits
    pre-commit run --files path/to/changed/files  # ensure your current uncommitted changes don't offend linters
    # or
-    pre-commit run --all-files  # ensure your entire codebase passes linters
+   pre-commit run --all-files  # ensure your entire codebase passes linters
    ```
 
 3. **Python 3**. We only support Python 3.10+.
