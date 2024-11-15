@@ -1316,16 +1316,14 @@ class Cell(Section):
             keywords: additional keywords
         """
         self.lattice = lattice
-        keywords = keywords or {}
         description = "Lattice parameters and optional settings for creating the CELL"
-
-        _keywords = {
+        cell_lens = {
             "A": Keyword("A", *lattice.matrix[0]),
             "B": Keyword("B", *lattice.matrix[1]),
             "C": Keyword("C", *lattice.matrix[2]),
         }
-        keywords.update(_keywords)
-        super().__init__("CELL", description=description, keywords=keywords, subsections={}, **kwargs)
+        keywords = {key.upper(): Keyword(key.upper(), value) for key, value in (keywords or {}).items()}
+        super().__init__("CELL", description=description, keywords=cell_lens | keywords, subsections={}, **kwargs)
 
 
 class Kind(Section):

@@ -115,6 +115,7 @@ class DftSet(Cp2kInput):
         wfn_restart_file_name: str | None = None,
         kpoints: VaspKpoints | None = None,
         smearing: bool = False,
+        cell: dict[str, Any] | None = None,
         **kwargs,
     ) -> None:
         """
@@ -184,6 +185,8 @@ class DftSet(Cp2kInput):
                 CP2K runs with gamma point only.
             smearing (bool): whether or not to activate smearing (should be done for systems
                 containing no (or a very small) band gap.
+            cell (dict[str, Any]): Keywords to add to the CELL section such as SYMMETRY.
+                See https://manual.cp2k.org/trunk/CP2K_INPUT/FORCE_EVAL/SUBSYS/CELL.html#CP2K_INPUT.FORCE_EVAL.SUBSYS.CELL
         """
         super().__init__(name="CP2K_INPUT", subsections={})
 
@@ -217,6 +220,7 @@ class DftSet(Cp2kInput):
         self.kpoints = kpoints
         self.smearing = smearing
         self.kwargs = kwargs
+        self.cell = cell or {}
 
         # Enable force and energy evaluations (most calculations)
         self.insert(ForceEval())
@@ -1274,13 +1278,15 @@ class DftSet(Cp2kInput):
         """Create the structure for the input."""
         subsys = Subsys()
         if isinstance(structure, Structure):
-            subsys.insert(Cell(structure.lattice))
+            subsys.insert(Cell(structure.lattice, keywords=self.cell))
         else:
             x = max(*structure.cart_coords[:, 0], 1)
             y = max(*structure.cart_coords[:, 1], 1)
             z = max(*structure.cart_coords[:, 2], 1)
-            cell = Cell(lattice=Lattice([[10 * x, 0, 0], [0, 10 * y, 0], [0, 0, 10 * z]]))
-            cell.add(Keyword("PERIODIC", "NONE"))
+            cell = Cell(
+                lattice=Lattice([[10 * x, 0, 0], [0, 10 * y, 0], [0, 0, 10 * z]]),
+                keywords={"PERIODIC": "NONE"} | self.cell,
+            )
             subsys.insert(cell)
 
         # Insert atom kinds by identifying the unique sites (unique element and site properties)
