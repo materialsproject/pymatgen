@@ -83,7 +83,7 @@ Given that `pymatgen` is intended to be a long-term code base, we adopt very str
    pytest tests
 
    # Option Two: Use environment variable PMG_TEST_FILES_DIR
-   pip install .
+   pip install '.[ci]'
    PMG_TEST_FILES_DIR=$(pwd)/tests/files pytest tests  # run the test suite providing the path for the test files
    ```
 
