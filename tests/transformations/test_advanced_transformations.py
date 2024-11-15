@@ -200,7 +200,8 @@ class TestEnumerateStructureTransformation:
 
         # Check ordering of energy/atom
         assert (
-            all_structs[0]["energy"] / all_structs[0]["num_sites"] <= all_structs[-1]["energy"] / all_structs[-1]["num_sites"]
+            all_structs[0]["energy"] / all_structs[0]["num_sites"]
+            <= all_structs[-1]["energy"] / all_structs[-1]["num_sites"]
         )
 
     @pytest.mark.skip(reason="dgl don't support torch 2.4.1+, #4073")
@@ -229,7 +230,8 @@ class TestEnumerateStructureTransformation:
 
         # Check ordering of energy/atom
         assert (
-            all_structs[0]["energy"] / all_structs[0]["num_sites"] <= all_structs[-1]["energy"] / all_structs[-1]["num_sites"]
+            all_structs[0]["energy"] / all_structs[0]["num_sites"]
+            <= all_structs[-1]["energy"] / all_structs[-1]["num_sites"]
         )
 
     def test_max_disordered_sites(self):
