@@ -10,14 +10,18 @@ For developers interested in expanding `pymatgen` for their own purposes, we rec
 
 1. Create a free GitHub account (if you don't already have one) and perform the necessary setup (e.g., install SSH keys etc.).
 
-2. Fork the `pymatgen` GitHub repo, i.e., go to the main [`pymatgen` GitHub repo](https://github.com/materialsproject/pymatgen) and click fork to create a copy of the `pymatgen` code base on your own GitHub account.
+2. Fork the `pymatgen` GitHub repo, i.e., go to the main [`pymatgen` GitHub repo](https://github.com/materialsproject/pymatgen) and click fork to create a copy of the `pymatgen` code to your own GitHub account.
 
-3. Install `git` on your local machine (if you don't already have it).
+3. Install `git` on your local machine (if you haven't already).
 
 4. Clone *your forked repo* to your local machine. You will work mostly with your local repo and only publish changes when they are ready to be merged:
 
     ```sh
     git clone https://github.com/<username>/pymatgen
+
+    # (Alternative/Much Faster) If you don't need a full commit history/other branches
+    # git clone --depth 1 https://github.com/<username>/pymatgen
+    # git pull --unshallow  # if you need the complete repo at some point
     ```
 
     Note that the entire Github repo is fairly large because of the presence of test files, but these are necessary for rigorous testing.
