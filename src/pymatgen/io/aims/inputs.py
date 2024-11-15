@@ -154,7 +154,7 @@ class AimsGeometryIn(MSONable):
                 content_lines.append(f"lattice_vector {lv[0]: .12e} {lv[1]: .12e} {lv[2]: .12e}")
 
         for site in structure:
-            element = site.species_string
+            element = site.specie if isinstance(site.specie, Element) else site.specie.element
             charge = site.properties.get("charge", 0)
             spin = site.properties.get("magmom", None)
             coord = site.coords
