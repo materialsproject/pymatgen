@@ -291,8 +291,7 @@ class Section(MSONable):
         self.subsections = subsections or {}
         self.repeats = repeats
         self.description = description
-        keywords = keywords or {}
-        self.keywords = keywords
+        self.keywords = keywords or {}
         self.section_parameters = section_parameters or []
         self.location = location
         self.verbose = verbose
@@ -822,9 +821,6 @@ class ForceEval(Section):
 
     def __init__(self, keywords: dict | None = None, subsections: dict | None = None, **kwargs):
         """Initialize the ForceEval section."""
-        keywords = keywords or {}
-        subsections = subsections or {}
-
         description = "Parameters needed to calculate energy and forces and describe the system you want to analyze."
 
         keywords = {
@@ -836,7 +832,7 @@ class ForceEval(Section):
             repeats=True,
             description=description,
             keywords=keywords,
-            subsections=subsections,
+            subsections=subsections or {},
             **kwargs,
         )
 
@@ -871,9 +867,6 @@ class Dft(Section):
         self.potential_filename = potential_filename
         self.uks = uks
         self.wfn_restart_file_name = wfn_restart_file_name
-        keywords = keywords or {}
-        subsections = subsections or {}
-
         description = "Parameter needed by dft programs"
 
         uks_desc = "Whether to run unrestricted Kohn Sham (i.e. spin polarized)"
@@ -890,7 +883,7 @@ class Dft(Section):
             "DFT",
             description=description,
             keywords=keywords,
-            subsections=subsections,
+            subsections=subsections or {},
             **kwargs,
         )
 
@@ -900,14 +893,12 @@ class Subsys(Section):
 
     def __init__(self, keywords: dict | None = None, subsections: dict | None = None, **kwargs):
         """Initialize the subsys section."""
-        keywords = keywords or {}
-        subsections = subsections or {}
         description = "A subsystem: coordinates, topology, molecules and cell"
         super().__init__(
             "SUBSYS",
             keywords=keywords,
             description=description,
-            subsections=subsections,
+            subsections=subsections or {},
             **kwargs,
         )
 
@@ -947,8 +938,6 @@ class QS(Section):
         self.eps_default = eps_default
         self.eps_pgf_orb = eps_pgf_orb
         self.extrapolation = extrapolation
-        keywords = keywords or {}
-        subsections = subsections or {}
         description = "Parameters needed to set up the Quickstep framework"
 
         keywords = {
@@ -970,7 +959,7 @@ class QS(Section):
             "QS",
             description=description,
             keywords=keywords,
-            subsections=subsections,
+            subsections=subsections or {},
             **kwargs,
         )
 
@@ -1011,11 +1000,7 @@ class Scf(Section):
         self.eps_scf = eps_scf
         self.scf_guess = scf_guess
 
-        keywords = keywords or {}
-        subsections = subsections or {}
-
         description = "Parameters needed to perform an SCF run."
-
         keywords = {
             "MAX_SCF": Keyword("MAX_SCF", max_scf, description="Max number of steps for an inner SCF loop"),
             "EPS_SCF": Keyword("EPS_SCF", eps_scf, description="Convergence threshold for SCF"),
@@ -1030,7 +1015,7 @@ class Scf(Section):
             "SCF",
             description=description,
             keywords=keywords,
-            subsections=subsections,
+            subsections=subsections or {},
             **kwargs,
         )
 
@@ -1068,8 +1053,6 @@ class Mgrid(Section):
         self.ngrids = ngrids
         self.progression_factor = progression_factor
 
-        keywords = keywords or {}
-        subsections = subsections or {}
         description = (
             "Multigrid information. Multigrid allows for sharp gaussians and diffuse "
             "gaussians to be treated on different grids, where the spacing of FFT integration "
@@ -1094,7 +1077,7 @@ class Mgrid(Section):
             "MGRID",
             description=description,
             keywords=keywords,
-            subsections=subsections,
+            subsections=subsections or {},
             **kwargs,
         )
 
@@ -1117,8 +1100,6 @@ class Diagonalization(Section):
         self.eps_iter = eps_iter
         self.eps_jacobi = eps_jacobi
         self.jacobi_threshold = jacobi_threshold
-        keywords = keywords or {}
-        subsections = subsections or {}
         location = "CP2K_INPUT/FORCE_EVAL/DFT/SCF/DIAGONALIZATION"
         description = "Settings for the SCF's diagonalization routines"
 
@@ -1134,7 +1115,7 @@ class Diagonalization(Section):
             repeats=False,
             location=location,
             description=description,
-            subsections=subsections,
+            subsections=subsections or {},
             **kwargs,
         )
 
@@ -1173,8 +1154,6 @@ class Davidson(Section):
         """
         self.new_prec_each = new_prec_each
         self.preconditioner = preconditioner
-        keywords = keywords or {}
-        subsections = subsections or {}
         keywords = {
             "NEW_PREC_EACH": Keyword("NEW_PREC_EACH", new_prec_each),
             "PRECONDITIONER": Keyword("PRECONDITIONER", preconditioner),
@@ -1184,7 +1163,7 @@ class Davidson(Section):
             keywords=keywords,
             repeats=False,
             location=None,
-            subsections=subsections,
+            subsections=subsections or {},
             **kwargs,
         )
 
@@ -1251,8 +1230,6 @@ class OrbitalTransformation(Section):
         self.occupation_preconditioner = occupation_preconditioner
         self.energy_gap = energy_gap
         self.linesearch = linesearch
-        keywords = keywords or {}
-        subsections = subsections or {}
 
         description = (
             "Sets the various options for the orbital transformation (OT) method. "
@@ -1279,7 +1256,7 @@ class OrbitalTransformation(Section):
             "OT",
             description=description,
             keywords=keywords,
-            subsections=subsections,
+            subsections=subsections or {},
             **kwargs,
         )
 
@@ -1351,7 +1328,6 @@ class Kind(Section):
         self.potential = potential
         self.ghost = ghost or False  # if None, set False
         self.aux_basis = aux_basis
-        keywords = keywords or {}
         subsections = subsections or {}
         description = "The description of this kind of atom including basis sets, element, etc."
 
@@ -1430,8 +1406,6 @@ class DftPlusU(Section):
         self.l = l
         self.u_minus_j = u_minus_j
         self.u_ramping = u_ramping
-        keywords = keywords or {}
-        subsections = subsections or {}
         description = "Settings for on-site Hubbard +U correction for this atom kind."
 
         keywords = {
@@ -1443,7 +1417,7 @@ class DftPlusU(Section):
         } | (keywords or {})
         super().__init__(
             name=name,
-            subsections=None,
+            subsections=subsections or {},
             description=description,
             keywords=keywords,
             **kwargs,
@@ -1471,8 +1445,6 @@ class Coord(Section):
         """
         self.structure = structure
         self.aliases = aliases
-        keywords = keywords or {}
-        subsections = subsections or {}
         description = (
             "The coordinates for simple systems (like small QM cells) are specified "
             "here by default using explicit XYZ coordinates. More complex systems "
@@ -1493,7 +1465,7 @@ class Coord(Section):
             name="COORD",
             description=description,
             keywords=keywords,
-            subsections=subsections,
+            subsections=subsections or {},
             **kwargs,
         )
 
@@ -1518,15 +1490,13 @@ class DOS(Section):
             subsections: additional subsections
         """
         self.ndigits = ndigits
-        keywords = keywords or {}
-        subsections = subsections or {}
         description = "Controls printing of the overall density of states"
         keywords = {"NDIGITS": Keyword("NDIGITS", ndigits)} | (keywords or {})
         super().__init__(
             "DOS",
             description=description,
             keywords=keywords,
-            subsections=subsections,
+            subsections=subsections or {},
             **kwargs,
         )
 
@@ -1553,8 +1523,6 @@ class PDOS(Section):
             subsections: additional subsections
         """
         self.nlumo = nlumo
-        keywords = keywords or {}
-        subsections = subsections or {}
         description = "Controls printing of the projected density of states"
 
         keywords = {
@@ -1565,7 +1533,7 @@ class PDOS(Section):
             "PDOS",
             description=description,
             keywords=keywords,
-            subsections=subsections,
+            subsections=subsections or {},
             **kwargs,
         )
 
@@ -1591,8 +1559,6 @@ class LDOS(Section):
             subsections: additional subsections
         """
         self.index = index
-        keywords = keywords or {}
-        subsections = subsections or {}
         description = "Controls printing of the projected density of states decomposed by atom type"
         keywords = {
             "COMPONENTS": Keyword("COMPONENTS"),
@@ -1600,7 +1566,7 @@ class LDOS(Section):
         } | (keywords or {})
         super().__init__(
             "LDOS",
-            subsections=subsections,
+            subsections=subsections or {},
             alias=alias,
             description=description,
             keywords=keywords,
@@ -1612,8 +1578,6 @@ class VHartreeCube(Section):
     """Controls printing of the hartree potential as a cube file."""
 
     def __init__(self, keywords: dict | None = None, subsections: dict | None = None, **kwargs):
-        keywords = keywords or {}
-        subsections = subsections or {}
         description = (
             "Controls the printing of a cube file with electrostatic potential generated by "
             "the total density (electrons+ions). It is valid only for QS with GPW formalism. "
@@ -1621,9 +1585,9 @@ class VHartreeCube(Section):
         )
         super().__init__(
             "V_HARTREE_CUBE",
-            subsections=subsections,
+            subsections=subsections or {},
             description=description,
-            keywords=keywords,
+            keywords=keywords or {},
             **kwargs,
         )
 
@@ -1649,8 +1613,6 @@ class MOCubes(Section):
         self.write_cube = write_cube
         self.nhomo = nhomo
         self.nlumo = nlumo
-        keywords = keywords or {}
-        subsections = subsections or {}
         description = (
             "Controls the printing of a cube file with electrostatic potential generated by "
             "the total density (electrons+ions). It is valid only for QS with GPW formalism. "
@@ -1664,9 +1626,9 @@ class MOCubes(Section):
         } | (keywords or {})
         super().__init__(
             "MO_CUBES",
-            subsections={},
+            subsections=subsections or {},
             description=description,
-            keywords=keywords,
+            keywords=keywords or {},
             **kwargs,
         )
 
@@ -1680,8 +1642,6 @@ class EDensityCube(Section):
     """Controls printing of the electron density cube file."""
 
     def __init__(self, keywords: dict | None = None, subsections: dict | None = None, **kwargs):
-        keywords = keywords or {}
-        subsections = subsections or {}
         description = (
             "Controls the printing of cube files with the electronic density and, for LSD "
             "calculations, the spin density."
@@ -1689,9 +1649,9 @@ class EDensityCube(Section):
 
         super().__init__(
             "E_DENSITY_CUBE",
-            subsections=subsections,
+            subsections=subsections or {},
             description=description,
-            keywords=keywords,
+            keywords=keywords or {},
             **kwargs,
         )
 
@@ -1716,8 +1676,6 @@ class Smear(Section):
         self.elec_temp = elec_temp
         self.method = method
         self.fixed_magnetic_moment = fixed_magnetic_moment
-        keywords = keywords or {}
-        subsections = subsections or {}
         description = "Activates smearing of electron occupations"
 
         keywords = {
@@ -1729,7 +1687,7 @@ class Smear(Section):
             "SMEAR",
             description=description,
             keywords=keywords,
-            subsections=subsections,
+            subsections=subsections or {},
             **kwargs,
         )
 
@@ -1871,23 +1829,21 @@ class XCFunctional(Section):
 
     def __init__(
         self,
-        functionals: Iterable | None = None,
+        functionals: Sequence[str] = (),
         keywords: dict | None = None,
         subsections: dict | None = None,
         **kwargs,
     ):
-        self.functionals = functionals or []
-        keywords = keywords or {}
-        subsections = subsections or {}
         location = "CP2K_INPUT/FORCE_EVAL/DFT/XC/XC_FUNCTIONAL"
 
-        for functional in self.functionals:
+        subsections = subsections or {}
+        for functional in functionals:
             subsections[functional] = Section(functional, subsections={}, repeats=False)
 
         super().__init__(
             "XC_FUNCTIONAL",
-            subsections=subsections,
-            keywords=keywords,
+            subsections=subsections or {},
+            keywords=keywords or {},
             location=location,
             repeats=False,
             **kwargs,
@@ -1924,8 +1880,6 @@ class PBE(Section):
         self.parameterization = parameterization
         self.scale_c = scale_c
         self.scale_x = scale_x
-        keywords = keywords or {}
-        subsections = subsections or {}
 
         location = "CP2K_INPUT/FORCE_EVAL/DFT/XC/XC_FUNCTIONAL/PBE"
 
@@ -1936,7 +1890,7 @@ class PBE(Section):
         } | (keywords or {})
         super().__init__(
             "PBE",
-            subsections=subsections,
+            subsections=subsections or {},
             repeats=False,
             location=location,
             section_parameters=[],
@@ -2157,7 +2111,6 @@ class BandStructure(Section):
         self.kpoint_sets = SectionList(kpoint_sets)
         self.filename = filename
         self.added_mos = added_mos
-        keywords = keywords or {}
         keywords = {
             "FILE_NAME": Keyword("FILE_NAME", filename),
             "ADDED_MOS": Keyword("ADDED_MOS", added_mos),
