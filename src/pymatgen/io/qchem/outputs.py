@@ -481,7 +481,7 @@ class QCOutput(MSONable):
                 self.text,
                 {
                     "had": r"H_ad = (?:[\-\.0-9]+) \(([\-\.0-9]+) meV\)",
-                    "hda": r"H_da = (?:[\-\.0-9]+) \(([\-\.0-9]+) meV\)",
+                    "hda": r"H_da = (?:[\-\.0-9]+) \(([\-\.0-9]+) meV\)",  # codespell:ignore hda
                     "coupling": r"The (?:averaged )?electronic coupling: (?:[\-\.0-9]+) \(([\-\.0-9]+) meV\)",
                 },
             )
@@ -490,10 +490,10 @@ class QCOutput(MSONable):
                 self.data["fodft_had_eV"] = None
             else:
                 self.data["fodft_had_eV"] = float(temp_dict["had"][0][0]) / 1000
-            if temp_dict.get("hda") is None or len(temp_dict.get("hda", [])) == 0:
+            if temp_dict.get("hda") is None or len(temp_dict.get("hda", [])) == 0:  # codespell:ignore hda
                 self.data["fodft_hda_eV"] = None
             else:
-                self.data["fodft_hda_eV"] = float(temp_dict["hda"][0][0]) / 1000
+                self.data["fodft_hda_eV"] = float(temp_dict["hda"][0][0]) / 1000  # codespell:ignore hda
             if temp_dict.get("coupling") is None or len(temp_dict.get("coupling", [])) == 0:
                 self.data["fodft_coupling_eV"] = None
             else:
