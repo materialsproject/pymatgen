@@ -299,11 +299,8 @@ Hart, Lew, Rute, atomate,
 ist, nd, ot, ontop, CoO
 """
 # TODO: un-skip lammps/test_inputs.py once support block ignore with pattern
-skip = """pyproject.toml,
-dev_scripts/chemenv/strategies/ce_pairs.json,
+skip = """*.json,
 src/pymatgen/analysis/chemenv/coordination_environments/coordination_geometries_files/allcg.txt,
-src/pymatgen/analysis/chemenv/coordination_environments/coordination_geometries_files/FO#7.json,
-src/pymatgen/core/libxc_docs.json,
 src/pymatgen/entries/MPCompatibility.yaml,
 tests/io/lammps/test_inputs.py,
 """
