@@ -657,7 +657,7 @@ def get_piezo(BEC, IST, FCM, rcond=0.0001):
     )
 
     K = np.reshape(K, (n_sites, 3, n_sites, 3)).swapaxes(1, 2)
-    return np.einsum("ikl,ijlm,jmno->kno", BEC, K, IST) * 16.0216559424
+    return np.einsum("ikl,ijlm,jmno->kno", BEC, K, IST) * 16.0216559424  # codespell:ignore kno
 
 
 @requires(Phonopy, "phonopy not installed!")

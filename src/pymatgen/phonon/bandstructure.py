@@ -39,7 +39,7 @@ def get_reasonable_repetitions(n_atoms: int) -> Tuple3Ints:
 
 def eigenvectors_from_displacements(disp: np.ndarray, masses: np.ndarray) -> np.ndarray:
     """Calculate the eigenvectors from the atomic displacements."""
-    return np.einsum("nax,a->nax", disp, masses**0.5)
+    return np.einsum("nax,a->nax", disp, masses**0.5)  # codespell:ignore nax
 
 
 def estimate_band_connection(prev_eigvecs, eigvecs, prev_band_order) -> list[int]:
