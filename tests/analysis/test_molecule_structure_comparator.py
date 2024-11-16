@@ -178,7 +178,7 @@ class TestMoleculeStructureComparator(TestCase):
             [6, 9],
         ]
         bonds_13 = MoleculeStructureComparator.get_13_bonds(priority_bonds)
-        ans = (
+        assert bonds_13 == (
             (0, 3),
             (0, 4),
             (0, 5),
@@ -199,4 +199,3 @@ class TestMoleculeStructureComparator(TestCase):
             (6, 8),
             (6, 10),
         )
-        assert bonds_13 == tuple(ans)
