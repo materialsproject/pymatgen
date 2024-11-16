@@ -820,7 +820,7 @@ class LobsterNeighbors(NearNeighbors):
                     {
                         "site": neighbor,
                         "image": tuple(
-                            int(round(idx))
+                            round(idx)
                             for idx in (
                                 neighbor.frac_coords
                                 - self.structure[
@@ -861,7 +861,7 @@ class LobsterNeighbors(NearNeighbors):
                     {
                         "site": neighbor,
                         "image": tuple(
-                            int(round(idx))
+                            round(idx)
                             for idx in (
                                 neighbor.frac_coords
                                 - self.structure[

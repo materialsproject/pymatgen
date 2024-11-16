@@ -740,10 +740,10 @@ class StructureGraph(MSONable):
         else:
             if strategy_params is None:
                 strategy_params = {}
-            strat = strategy(**strategy_params)
+            _strategy = strategy(**strategy_params)
 
             for site in mapping.values():
-                neighbors = strat.get_nn_info(self.structure, site)
+                neighbors = _strategy.get_nn_info(self.structure, site)
 
                 for neighbor in neighbors:
                     self.add_edge(

@@ -71,7 +71,8 @@ jobs:
       - name: Install ubuntu-only conda dependencies
         if: matrix.config.os == 'ubuntu-latest'
         run: |
-          micromamba install -n pmg -c conda-forge bader enumlib openff-toolkit packmol pygraphviz tblite --yes
+          micromamba install -n pmg -c conda-forge bader enumlib \
+            openff-toolkit packmol pygraphviz tblite --yes
 
       - name: Install pymatgen and dependencies via uv
         run: |
@@ -84,7 +85,12 @@ jobs:
           # see: https://discuss.dgl.ai/t/filenotfounderror-cannot-find-dgl-c-graphbolt-library/4302
           pip install torch==2.2.1
 
-          uv pip install --editable '.[${{ matrix.config.extras }}]' --resolution=${{ matrix.config.resolution }}
+          # Install from wheels to test the content
+          uv pip install build
+          python -m build --wheel
+
+          uv pip install dist/*.whl
+          uv pip install pymatgen[${{ matrix.config.extras }}] --resolution=${{ matrix.config.resolution }}
 
           # TODO: test monty fix for reverse readline
           uv pip install git+https://github.com/DanielYang59/monty.git@readline-line-ending
@@ -104,6 +110,8 @@ jobs:
           echo "$(realpath vampire-5.0/)" >> $GITHUB_PATH
 
       - name: pytest split ${{ matrix.split }}
+        env:
+          PMG_TEST_FILES_DIR: "${{ github.workspace }}/tests/files"
         run: |
           micromamba activate pmg
           pytest --splits 10 --group ${{ matrix.split }} --durations-path tests/files/.pytest-split-durations tests

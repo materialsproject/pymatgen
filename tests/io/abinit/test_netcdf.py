@@ -97,6 +97,8 @@ class TestEtsfReader(PymatgenTest):
                 ref_magmom_collinear = [-0.5069359730980665]
                 path = os.path.join(tmp_dir, "Fe_magmoms_collinear_GSR.nc")
 
+                # TODO: PR4128, EtsfReader would fail in Ubuntu CI with netCDF4 > 1.6.5
+                # Need someone with knowledge in netCDF4 to fix it
                 with EtsfReader(path) as data:
                     structure = data.read_structure()
                     assert structure.site_properties["magmom"] == ref_magmom_collinear

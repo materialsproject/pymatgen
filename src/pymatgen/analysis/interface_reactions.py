@@ -150,6 +150,7 @@ class InterfacialReactivity(MSONable):
         critical_comp = self.pd.get_critical_compositions(self.comp1, self.comp2)
         x_kink, energy_kink, react_kink, energy_per_rxt_formula = [], [], [], []
 
+        # TODO: perhaps a bad idea to use full equality to compare coords
         if (c1_coord == c2_coord).all():
             x_kink = [0, 1]
             energy_kink = [self._get_energy(x) for x in x_kink]
@@ -527,7 +528,7 @@ class InterfacialReactivity(MSONable):
         return x * factor1 / ((1 - x) * factor2 + x * factor1)
 
     @classmethod
-    def get_chempot_correction(cls, element: str, temp: float, pres: float):
+    def get_chempot_correction(cls, element: str, temp: float, pres: float):  # codespell:ignore pres
         """Get the normalized correction term Δμ for chemical potential of a gas
         phase consisting of element at given temperature and pressure,
         referenced to that in the standard state (T_std = 298.15 K,
@@ -538,7 +539,7 @@ class InterfacialReactivity(MSONable):
         Args:
             element: The string representing the element.
             temp: The temperature of the gas phase in Kelvin.
-            pres: The pressure of the gas phase in Pa.
+            pres: The pressure of the gas phase in Pa.  # codespell:ignore pres
 
         Returns:
             The correction of chemical potential in eV/atom of the gas
@@ -560,7 +561,7 @@ class InterfacialReactivity(MSONable):
         cp_std = cp_dict[element]
         s_std = s_dict[element]
 
-        pv_correction = ideal_gas_const * temp * np.log(pres / std_pres)
+        pv_correction = ideal_gas_const * temp * np.log(pres / std_pres)  # codespell:ignore pres
         ts_correction = (
             -cp_std * (temp * np.log(temp) - std_temp * np.log(std_temp))
             + cp_std * (temp - std_temp) * (1 + np.log(std_temp))

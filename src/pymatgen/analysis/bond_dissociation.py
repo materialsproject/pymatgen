@@ -30,7 +30,7 @@ class BondDissociationEnergies(MSONable):
     fragments, or, in the case of a ring bond, from the energy of the molecule obtained from breaking
     the bond and opening the ring. This class should only be called after the energies of the optimized
     principle molecule and all relevant optimized fragments have been determined, either from quantum
-    chemistry or elsewhere. It was written to provide the analysis after running an Atomate fragmentation
+    chemistry or elsewhere. It was written to provide the analysis after running an `atomate` fragmentation
     workflow.
     """
 

@@ -181,7 +181,7 @@ class InternalStrainTensor:
         self.IST_operations: list[list[list]] = []
 
         obj = self.ist
-        if not (obj - np.transpose(obj, (0, 1, 3, 2)) < tol).all():
+        if not np.allclose(obj, np.transpose(obj, (0, 1, 3, 2)), atol=tol, rtol=0):
             warnings.warn("Input internal strain tensor does not satisfy standard symmetries")
 
     def get_IST_operations(self, opstol=1e-3) -> list[list[list]]:
@@ -657,7 +657,7 @@ def get_piezo(BEC, IST, FCM, rcond=0.0001):
     )
 
     K = np.reshape(K, (n_sites, 3, n_sites, 3)).swapaxes(1, 2)
-    return np.einsum("ikl,ijlm,jmno->kno", BEC, K, IST) * 16.0216559424
+    return np.einsum("ikl,ijlm,jmno->kno", BEC, K, IST) * 16.0216559424  # codespell:ignore kno
 
 
 @requires(Phonopy, "phonopy not installed!")

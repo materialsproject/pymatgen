@@ -214,7 +214,7 @@ class ElasticTensor(NthOrderElasticTensor):
             tol (float): tolerance for testing of orthogonality
         """
         n, m = get_uvec(n), get_uvec(m)
-        if not np.abs(np.dot(n, m)) < tol:
+        if np.abs(np.dot(n, m)) >= tol:
             raise ValueError("n and m must be orthogonal")
         v = self.compliance_tensor.einsum_sequence([n] * 2 + [m] * 2)
         v *= -1 / self.compliance_tensor.einsum_sequence([n] * 4)
@@ -907,7 +907,7 @@ def find_eq_stress(strains, stresses, tol: float = 1e-10):
     eq_stress = stress_array[np.all(abs(strain_array) < tol, axis=(1, 2))]
 
     if eq_stress.size != 0:
-        all_same = (abs(eq_stress - eq_stress[0]) < 1e-8).all()
+        all_same = np.allclose(eq_stress, eq_stress[0], atol=1e-8, rtol=0)
         if len(eq_stress) > 1 and not all_same:
             raise ValueError(
                 "Multiple stresses found for equilibrium strain"

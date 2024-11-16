@@ -275,7 +275,10 @@ class Poscar(MSONable):
             and (potcars := glob(f"{dirname}/*POTCAR*"))
         ):
             try:
-                potcar = Potcar.from_file(min(potcars))
+                # Make sure exact match has highest priority
+                potcar_path = next((f for f in potcars if f == f"{dirname}/POTCAR"), min(potcars))
+
+                potcar = Potcar.from_file(potcar_path)
                 names = [sym.split("_")[0] for sym in potcar.symbols]
                 map(get_el_sp, names)  # ensure valid names
             except Exception:
@@ -316,7 +319,8 @@ class Poscar(MSONable):
         Args:
             data (str): String containing Poscar data.
             default_names ([str]): Default symbols for the POSCAR file,
-                usually coming from a POTCAR in the same directory.
+                usually coming from a POTCAR in the same directory. This
+                could be used to convert a VASP 4 POSCAR to POSCAR 5/6 format.
             read_velocities (bool): Whether to read or not velocities if they
                 are present in the POSCAR. Default is True.
 
@@ -332,8 +336,9 @@ class Poscar(MSONable):
         except IndexError:
             raise ValueError("Empty POSCAR")
 
-        # Parse positions
         lines: list[str] = list(clean_lines(chunks[0].split("\n"), remove_empty_lines=False))
+
+        # Parse comment/scale/lattice
         comment: str = lines[0]
         scale: float = float(lines[1])
         lattice: np.ndarray = np.array([[float(i) for i in line.split()] for line in lines[2:5]])
@@ -345,15 +350,26 @@ class Poscar(MSONable):
         else:
             lattice *= scale
 
-        vasp5_symbols: bool = False
+        # "atomic_symbols" is the "fully expanded" list of symbols,
+        # while "symbols" is the list as shown in POSCAR.
+        # For example with a POSCAR:
+        # ... (comment/scale/lattice)
+        # H O
+        # 2 1
+        # ...
+        # atomic_symbols is ["H", "H", "O"]
+        # symbols is ["H", "O"]
         atomic_symbols: list[str] = []
 
         try:
+            symbols: list[str] | None = None  # would be None for VASP 4
+
             n_atoms: list[int] = [int(i) for i in lines[5].split()]
+            vasp5or6_symbols: bool = False  # VASP 4 tag
             ipos: int = 6
 
         except ValueError:
-            vasp5_symbols = True
+            vasp5or6_symbols = True
 
             # In VASP 6.x.x, part of the POTCAR hash is written to POSCAR-style strings
             # In VASP 6.4.2 and up, the POTCAR symbol is also written, ex.:
@@ -365,7 +381,7 @@ class Poscar(MSONable):
             # Mg_pv/f474ac0d  Si/79d9987ad87```
             # whereas older VASP 5.x.x POSCAR strings would just have `Mg Si` on the last line
 
-            symbols: list[str] = [symbol.split("/")[0].split("_")[0] for symbol in lines[5].split()]
+            symbols = [symbol.split("/")[0].split("_")[0] for symbol in lines[5].split()]
 
             # Atoms and number of atoms in POSCAR written with VASP appear on
             # multiple lines when atoms of the same type are not grouped together
@@ -415,19 +431,25 @@ class Poscar(MSONable):
         cart: bool = pos_type[0] in "cCkK"
         n_sites: int = sum(n_atoms)
 
-        # If default_names is specified (usually coming from a POTCAR), use
-        # them. This is in line with VASP's parsing order that the POTCAR
+        # If default_names is specified (usually coming from a POTCAR), use them.
+        # This is in line with VASP's parsing order that the POTCAR
         # specified is the default used.
         if default_names is not None:
-            try:
+            # Use len(n_atoms) over len(symbols) as symbols is None for VASP 4 format
+            if len(n_atoms) > len(default_names):
+                raise ValueError(f"{default_names=} (likely from POTCAR) has fewer elements than POSCAR {symbols}")
+
+            if symbols is None or default_names[: len(symbols)] != symbols:
+                # After this VASP 4.x POSCAR would be converted to VASP 5/6 format
+                vasp5or6_symbols = True
+
                 atomic_symbols = []
                 for idx, n_atom in enumerate(n_atoms):
                     atomic_symbols.extend([default_names[idx]] * n_atom)
-                vasp5_symbols = True
-            except IndexError:
-                pass
 
-        if not vasp5_symbols:
+                warnings.warn(f"Elements in POSCAR would be overwritten by {default_names=}", stacklevel=2)
+
+        if not vasp5or6_symbols:
             ind: Literal[3, 6] = 6 if has_selective_dynamics else 3
             try:
                 # Check if names are appended at the end of the coordinates
@@ -435,7 +457,7 @@ class Poscar(MSONable):
                 # Ensure symbols are valid elements
                 if not all(Element.is_valid_symbol(sym) for sym in atomic_symbols):
                     raise ValueError("Non-valid symbols detected.")
-                vasp5_symbols = True
+                vasp5or6_symbols = True
 
             except (ValueError, IndexError):
                 # Defaulting to false names
@@ -533,7 +555,7 @@ class Poscar(MSONable):
             struct,
             comment,
             selective_dynamics,
-            vasp5_symbols,
+            vasp5or6_symbols,
             velocities=velocities,
             predictor_corrector=predictor_corrector,
             predictor_corrector_preamble=predictor_corrector_preamble,
@@ -1414,7 +1436,7 @@ class Kpoints(MSONable):
         if comment is None:
             comment = f"pymatgen with grid density = {kppa:.0f} / number of atoms"
 
-        if math.fabs((math.floor(kppa ** (1 / 3) + 0.5)) ** 3 - kppa) < 1:
+        if abs((math.floor(kppa ** (1 / 3) + 0.5)) ** 3 - kppa) < 1:
             kppa += kppa * 0.01
         lattice = structure.lattice
         lengths: Vector3D = lattice.abc

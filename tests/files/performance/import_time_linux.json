@@ -1,0 +1,19 @@
+{
+    "from pymatgen.core.bonds import CovalentBond": 289.5851116666108,
+    "from pymatgen.core.composition import Composition": 292.8479909999548,
+    "from pymatgen.core.interface import Interface": 969.5693099999593,
+    "from pymatgen.core.ion import Ion": 291.07530133334575,
+    "from pymatgen.core.lattice import Lattice": 288.8340153333881,
+    "from pymatgen.core.libxcfunc import LibxcFunc": 293.4184753333587,
+    "from pymatgen.core.molecular_orbitals import MolecularOrbitals": 294.19796566658835,
+    "from pymatgen.core.operations import SymmOp": 296.4627546666634,
+    "from pymatgen.core.periodic_table import Element": 295.95872066662804,
+    "from pymatgen.core.sites import Site": 292.66485499999817,
+    "from pymatgen.core.spectrum import Spectrum": 486.72776566669046,
+    "from pymatgen.core.structure import Structure": 291.01618733333606,
+    "from pymatgen.core.surface import Slab": 301.90875833329756,
+    "from pymatgen.core.tensors import Tensor": 304.27744800003137,
+    "from pymatgen.core.trajectory import Trajectory": 300.45536066666045,
+    "from pymatgen.core.units import Unit": 305.4779056666348,
+    "from pymatgen.core.xcfunc import XcFunc": 309.1085626666275
+}

@@ -7,7 +7,6 @@ import math
 import warnings
 from fractions import Fraction
 from itertools import groupby, product
-from math import gcd
 from string import ascii_lowercase
 from typing import TYPE_CHECKING
 
@@ -425,7 +424,7 @@ class EnumerateStructureTransformation(AbstractTransformation):
             if contains_oxidation_state and self.sort_criteria == "ewald":
                 new_latt = struct.lattice
                 transformation = np.dot(new_latt.matrix, inv_latt)
-                transformation = tuple(tuple(int(round(cell)) for cell in row) for row in transformation)
+                transformation = tuple(tuple(round(cell) for cell in row) for row in transformation)
                 if transformation not in ewald_matrices:
                     s_supercell = structure * transformation
                     ewald = EwaldSummation(s_supercell)
@@ -660,7 +659,7 @@ class MagOrderingTransformation(AbstractTransformation):
 
         def lcm(n1, n2):
             """Find least common multiple of two numbers."""
-            return n1 * n2 / gcd(n1, n2)
+            return n1 * n2 / math.gcd(n1, n2)
 
         # assumes all order parameters for a given species are the same
         mag_species_order_parameter = {}
@@ -683,7 +682,7 @@ class MagOrderingTransformation(AbstractTransformation):
         for sp, order_parameter in mag_species_order_parameter.items():
             denom = Fraction(order_parameter).limit_denominator(100).denominator
             num_atom_per_specie = mag_species_occurrences[sp]
-            n_gcd = gcd(denom, num_atom_per_specie)
+            n_gcd = math.gcd(denom, num_atom_per_specie)
             smallest_n.append(lcm(int(n_gcd), denom) / n_gcd)
 
         return max(smallest_n)
@@ -855,19 +854,19 @@ class MagOrderingTransformation(AbstractTransformation):
 
         trafo = EnumerateStructureTransformation(**enum_kwargs)
 
-        alls = trafo.apply_transformation(structure, return_ranked_list=return_ranked_list)
+        all_structs = trafo.apply_transformation(structure, return_ranked_list=return_ranked_list)
 
         # handle the fact that EnumerateStructureTransformation can either
         # return a single Structure or a list
-        if isinstance(alls, Structure):
+        if isinstance(all_structs, Structure):
             # remove dummy species and replace Spin.up or Spin.down
             # with spin magnitudes given in mag_species_spin arg
-            alls = self._remove_dummy_species(alls)
-            alls = self._add_spin_magnitudes(alls)  # type: ignore[arg-type]
+            all_structs = self._remove_dummy_species(all_structs)
+            all_structs = self._add_spin_magnitudes(all_structs)  # type: ignore[arg-type]
         else:
-            for idx, struct in enumerate(alls):
-                alls[idx]["structure"] = self._remove_dummy_species(struct["structure"])  # type: ignore[index]
-                alls[idx]["structure"] = self._add_spin_magnitudes(struct["structure"])  # type: ignore[index, arg-type]
+            for idx, struct in enumerate(all_structs):
+                all_structs[idx]["structure"] = self._remove_dummy_species(struct["structure"])  # type: ignore[index]
+                all_structs[idx]["structure"] = self._add_spin_magnitudes(struct["structure"])  # type: ignore[index, arg-type]
 
         try:
             num_to_return = int(return_ranked_list)
@@ -875,7 +874,7 @@ class MagOrderingTransformation(AbstractTransformation):
             num_to_return = 1
 
         if num_to_return == 1 or not return_ranked_list:
-            return alls[0]["structure"] if num_to_return else alls  # type: ignore[return-value, index]
+            return all_structs[0]["structure"] if num_to_return else all_structs  # type: ignore[return-value, index]
 
         # Remove duplicate structures and group according to energy model
         matcher = StructureMatcher(comparator=SpinComparator())
@@ -884,7 +883,7 @@ class MagOrderingTransformation(AbstractTransformation):
             return SpacegroupAnalyzer(struct, 0.1).get_space_group_number()
 
         out = []
-        for _, group in groupby(sorted((dct["structure"] for dct in alls), key=key), key):  # type: ignore[arg-type, index]
+        for _, group in groupby(sorted((dct["structure"] for dct in all_structs), key=key), key):  # type: ignore[arg-type, index]
             group = list(group)  # type: ignore[assignment]
             grouped = matcher.group_structures(group)
             out.extend([{"structure": g[0], "energy": self.energy_model.get_energy(g[0])} for g in grouped])
@@ -1030,7 +1029,7 @@ class DopingTransformation(AbstractTransformation):
         logger.info(f"Compatible species: {compatible_species}")
 
         lengths = structure.lattice.abc
-        scaling = [max(1, int(round(math.ceil(self.min_length / x)))) for x in lengths]
+        scaling = [max(1, math.ceil(self.min_length / x)) for x in lengths]
         logger.info(f"{lengths=}")
         logger.info(f"{scaling=}")
 
@@ -1333,7 +1332,7 @@ class GrainBoundaryTransformation(AbstractTransformation):
         ratio=True,
         plane=None,
         max_search=20,
-        tol_coi=1.0e-8,
+        tol_coi=1e-8,
         rm_ratio=0.7,
         quick_gen=False,
     ):
