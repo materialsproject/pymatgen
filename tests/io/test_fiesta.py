@@ -50,7 +50,7 @@ class TestFiestaInput(TestCase):
         assert cell_in.molecule.spin_multiplicity == 1
 
     def test_str_and_from_str(self):
-        ans = (
+        result = (
             "# number of atoms and species\n   5    2\n# number of valence bands\n    5\n"
             "# number of points and spacing in eV for correlation grid\n    14    0.500\n"
             "# relire=1 ou recalculer=0 Exc DFT\n    1\n"
@@ -65,8 +65,8 @@ class TestFiestaInput(TestCase):
             " 0.0 0.0 1.089 2\n 1.026719 0.0 -0.363 2\n -0.51336 -0.889165 -0.363 2\n -0.51336 0.889165 -0.363 2"
             "\n            "
         )
-        assert str(self.cell_in) == ans
-        cell_in = FiestaInput.from_str(ans)
+        assert str(self.cell_in) == result
+        cell_in = FiestaInput.from_str(result)
         assert cell_in.GW_options["nc_corr"] == "10"
         assert cell_in.cohsex_options["eigMethod"] == "C"
 

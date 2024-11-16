@@ -2495,7 +2495,7 @@ class Outcar:
             List of chemical shieldings in the order of atoms from the OUTCAR. Maryland notation is adopted.
         """
         header_pattern = (
-            r"\s+CSA tensor \(J\. Mason, Solid State Nucl\. Magn\. Reson\. 2, "
+            r"\s+CSA tensor \(J\. Mason, Solid State Nucl\. Magn\. Reson\. 2, "  # codespell:ignore reson
             r"285 \(1993\)\)\s+"
             r"\s+-{50,}\s+"
             r"\s+EXCLUDING G=0 CONTRIBUTION\s+INCLUDING G=0 CONTRIBUTION\s+"
@@ -3902,23 +3902,23 @@ class Procar(MSONable):
     Attributes:
         data (dict): The PROCAR data of the form below. It should VASP uses 1-based indexing,
             but all indices are converted to 0-based here.
-            { spin: nd.array accessed with (k-point index, band index, ion index, orbital index) }
-        weights (np.array): The weights associated with each k-point as an nd.array of length nkpoints.
+            { spin: np.array accessed with (k-point index, band index, ion index, orbital index) }
+        weights (np.array): The weights associated with each k-point as an np.array of length nkpoints.
         phase_factors (dict): Phase factors, where present (e.g. LORBIT = 12). A dict of the form:
-            { spin: complex nd.array accessed with (k-point index, band index, ion index, orbital index) }
+            { spin: complex np.array accessed with (k-point index, band index, ion index, orbital index) }
         nbands (int): Number of bands.
         nkpoints (int): Number of k-points.
         nions (int): Number of ions.
         nspins (int): Number of spins.
         is_soc (bool): Whether the PROCAR contains spin-orbit coupling (LSORBIT = True) data.
-        kpoints (np.array): The k-points as an nd.array of shape (nkpoints, 3).
+        kpoints (np.array): The k-points as an np.array of shape (nkpoints, 3).
         occupancies (dict): The occupancies of the bands as a dict of the form:
-            { spin: nd.array accessed with (k-point index, band index) }
+            { spin: np.array accessed with (k-point index, band index) }
         eigenvalues (dict): The eigenvalues of the bands as a dict of the form:
-            { spin: nd.array accessed with (k-point index, band index) }
+            { spin: np.array accessed with (k-point index, band index) }
         xyz_data (dict): The PROCAR projections data along the x,y and z magnetisation projection
             directions, with is_soc = True (see VASP wiki for more info).
-            { 'x'/'y'/'z': nd.array accessed with (k-point index, band index, ion index, orbital index) }
+            { 'x'/'y'/'z': np.array accessed with (k-point index, band index, ion index, orbital index) }
     """
 
     def __init__(self, filename: PathLike | list[PathLike]):
