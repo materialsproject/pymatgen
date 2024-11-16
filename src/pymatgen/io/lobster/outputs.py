@@ -768,9 +768,9 @@ class Doscar:
                     cdos = np.zeros((ndos, len(line)))
                     cdos[0] = np.array(line)
 
-                    for nd in range(1, ndos):
+                    for idx_dos in range(1, ndos):
                         line_parts = file.readline().split()
-                        cdos[nd] = np.array(line_parts)
+                        cdos[idx_dos] = np.array(line_parts)
                     dos.append(cdos)
 
                 line = file.readline()  # Read the next line to continue the loop
