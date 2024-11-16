@@ -12,6 +12,7 @@ from pymatgen.core import Molecule
 from pymatgen.io.openff import (
     add_conformer,
     assign_partial_charges,
+    coerce_formal_charges,
     create_openff_mol,
     get_atom_map,
     infer_openff_mol,
@@ -39,6 +40,36 @@ def mol_files():
         "Li_charges": f"{TEST_DIR}/Li.npy",
         "Li_xyz": f"{TEST_DIR}/Li.xyz",
     }
+
+
+def test_coerce_formal_charges():
+    # Create a badly charged molecule
+    badly_charged = tk.Molecule.from_smiles("CCO")
+    badly_charged.atoms[2].formal_charge = 1  # Incorrectly assign +1 to oxygen
+
+    # Create template molecule with correct charges
+    template = tk.Molecule.from_smiles("CCO")  # All atoms neutral
+
+    # Test coercion
+    fixed_mol = coerce_formal_charges(badly_charged, template)
+
+    # Check charges were fixed
+    assert fixed_mol.atoms[2].formal_charge == 0
+    assert fixed_mol != badly_charged  # Should be a different object
+    assert badly_charged.atoms[2].formal_charge.magnitude == 1  # Original unchanged
+
+    # Test with more complex case
+    badly_charged = tk.Molecule.from_smiles("F[P-](F)(F)(F)(F)F")
+    badly_charged.atoms[0].formal_charge = -1  # Wrong charge on F
+    badly_charged.atoms[1].formal_charge = 0   # Wrong charge on P
+
+    template = tk.Molecule.from_smiles("F[P-](F)(F)(F)(F)F")  # Correct charges
+
+    fixed_mol = coerce_formal_charges(badly_charged, template)
+
+    # Verify charges
+    assert fixed_mol.atoms[0].formal_charge.magnitude == 0  # F should be neutral
+    assert fixed_mol.atoms[1].formal_charge.magnitude == -1  # P should be -1
 
 
 def test_mol_graph_from_atom_bonds(mol_files):
