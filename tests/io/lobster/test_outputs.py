@@ -1515,9 +1515,18 @@ class TestBandoverlaps(TestCase):
         assert self.band_overlaps2.max_deviation[-1] == approx(1.48451e-05)
         assert self.band_overlaps2_new.max_deviation[-1] == approx(0.45154)
 
-    def test_has_good_quality(self):
+    def test_has_good_quality_maxDeviation(self):
         assert not self.band_overlaps1.has_good_quality_maxDeviation(limit_maxDeviation=0.1)
         assert not self.band_overlaps1_new.has_good_quality_maxDeviation(limit_maxDeviation=0.1)
+
+        assert self.band_overlaps1.has_good_quality_maxDeviation(limit_maxDeviation=100)
+        assert self.band_overlaps1_new.has_good_quality_maxDeviation(limit_maxDeviation=100)
+        assert self.band_overlaps2.has_good_quality_maxDeviation()
+        assert not self.band_overlaps2_new.has_good_quality_maxDeviation()
+        assert not self.band_overlaps2.has_good_quality_maxDeviation(limit_maxDeviation=0.0000001)
+        assert not self.band_overlaps2_new.has_good_quality_maxDeviation(limit_maxDeviation=0.0000001)
+
+    def test_has_good_quality_check_occupied_bands(self):
         assert not self.band_overlaps1.has_good_quality_check_occupied_bands(
             number_occ_bands_spin_up=9,
             number_occ_bands_spin_down=5,
@@ -1590,13 +1599,6 @@ class TestBandoverlaps(TestCase):
             limit_deviation=0.001,
             spin_polarized=True,
         )
-
-        assert self.band_overlaps1.has_good_quality_maxDeviation(limit_maxDeviation=100)
-        assert self.band_overlaps1_new.has_good_quality_maxDeviation(limit_maxDeviation=100)
-        assert self.band_overlaps2.has_good_quality_maxDeviation()
-        assert not self.band_overlaps2_new.has_good_quality_maxDeviation()
-        assert not self.band_overlaps2.has_good_quality_maxDeviation(limit_maxDeviation=0.0000001)
-        assert not self.band_overlaps2_new.has_good_quality_maxDeviation(limit_maxDeviation=0.0000001)
         assert not self.band_overlaps2.has_good_quality_check_occupied_bands(
             number_occ_bands_spin_up=10, limit_deviation=0.0000001
         )
@@ -1621,6 +1623,7 @@ class TestBandoverlaps(TestCase):
         assert self.band_overlaps2_new.has_good_quality_check_occupied_bands(
             number_occ_bands_spin_up=1, limit_deviation=2
         )
+
 
     def test_msonable(self):
         dict_data = self.band_overlaps2_new.as_dict()
