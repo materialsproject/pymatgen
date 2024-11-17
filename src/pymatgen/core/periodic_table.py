@@ -1,4 +1,9 @@
-"""Classes representing Element, Species (Element + oxidation state) and PeriodicTable."""
+"""Classes representing:
+- Element: Element in the periodic table.
+- Species: Element with optional oxidation state and spin.
+- DummySpecies: Non-traditional Elements/Species (vacancies/...).
+- ElementType: element types (metal/noble_gas/halogen/s_block/...).
+"""
 
 from __future__ import annotations
 
