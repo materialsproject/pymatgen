@@ -1712,7 +1712,7 @@ class Bandoverlaps(MSONable):
         """
         if spin_polarized and number_occ_bands_spin_down is None:
             raise ValueError("number_occ_bands_spin_down has to be specified")
-        
+
         for spin in (Spin.up, Spin.down) if spin_polarized else (Spin.up,):
             num_occ_bands = number_occ_bands_spin_up if spin == Spin.up else number_occ_bands_spin_down
 
