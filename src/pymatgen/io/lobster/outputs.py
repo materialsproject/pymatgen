@@ -1710,29 +1710,17 @@ class Bandoverlaps(MSONable):
         Returns:
             bool: True if the quality of the projection is good.
         """
-        for matrix in self.band_overlaps_dict[Spin.up]["matrices"]:
-            for iband1, band1 in enumerate(matrix):
-                for iband2, band2 in enumerate(band1):
-                    if iband1 < number_occ_bands_spin_up and iband2 < number_occ_bands_spin_up:
-                        if iband1 == iband2:
-                            if abs(band2 - 1.0).all() > limit_deviation:
-                                return False
-                        elif band2.all() > limit_deviation:
-                            return False
+        if spin_polarized and number_occ_bands_spin_down is None:
+            raise ValueError("number_occ_bands_spin_down has to be specified")
+        
+        for spin in (Spin.up, Spin.down) if spin_polarized else (Spin.up,):
+            num_occ_bands = number_occ_bands_spin_up if spin == Spin.up else number_occ_bands_spin_down
 
-        if spin_polarized:
-            for matrix in self.band_overlaps_dict[Spin.down]["matrices"]:
-                for iband1, band1 in enumerate(matrix):
-                    for iband2, band2 in enumerate(band1):
-                        if number_occ_bands_spin_down is None:
-                            raise ValueError("number_occ_bands_spin_down has to be specified")
+            for array in self.band_overlaps_dict[spin]["matrices"]:
+                sub_array = np.asarray(array)[:num_occ_bands, :num_occ_bands]
 
-                        if iband1 < number_occ_bands_spin_down and iband2 < number_occ_bands_spin_down:
-                            if iband1 == iband2:
-                                if abs(band2 - 1.0).all() > limit_deviation:
-                                    return False
-                            elif band2.all() > limit_deviation:
-                                return False
+                if not np.allclose(sub_array, np.identity(num_occ_bands), atol=limit_deviation, rtol=0):
+                    return False
 
         return True
 
