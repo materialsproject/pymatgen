@@ -1554,56 +1554,56 @@ class TestBandoverlaps(TestCase):
         assert not self.band_overlaps1.has_good_quality_check_occupied_bands(
             number_occ_bands_spin_up=1,
             number_occ_bands_spin_down=1,
-            limit_deviation=0.000001,
+            limit_deviation=1E-6,
             spin_polarized=True,
         )
         assert not self.band_overlaps1_new.has_good_quality_check_occupied_bands(
             number_occ_bands_spin_up=1,
             number_occ_bands_spin_down=1,
-            limit_deviation=0.000001,
+            limit_deviation=1E-6,
             spin_polarized=True,
         )
         assert not self.band_overlaps1.has_good_quality_check_occupied_bands(
             number_occ_bands_spin_up=1,
             number_occ_bands_spin_down=0,
-            limit_deviation=0.000001,
+            limit_deviation=1E-6,
             spin_polarized=True,
         )
         assert not self.band_overlaps1_new.has_good_quality_check_occupied_bands(
             number_occ_bands_spin_up=1,
             number_occ_bands_spin_down=0,
-            limit_deviation=0.000001,
+            limit_deviation=1E-6,
             spin_polarized=True,
         )
         assert not self.band_overlaps1.has_good_quality_check_occupied_bands(
             number_occ_bands_spin_up=0,
             number_occ_bands_spin_down=1,
-            limit_deviation=0.000001,
+            limit_deviation=1E-6,
             spin_polarized=True,
         )
         assert not self.band_overlaps1_new.has_good_quality_check_occupied_bands(
             number_occ_bands_spin_up=0,
             number_occ_bands_spin_down=1,
-            limit_deviation=0.000001,
+            limit_deviation=1E-6,
             spin_polarized=True,
         )
         assert not self.band_overlaps1.has_good_quality_check_occupied_bands(
             number_occ_bands_spin_up=4,
             number_occ_bands_spin_down=4,
-            limit_deviation=0.001,
+            limit_deviation=1E-3,
             spin_polarized=True,
         )
         assert not self.band_overlaps1_new.has_good_quality_check_occupied_bands(
             number_occ_bands_spin_up=4,
             number_occ_bands_spin_down=4,
-            limit_deviation=0.001,
+            limit_deviation=1E-3,
             spin_polarized=True,
         )
         assert not self.band_overlaps2.has_good_quality_check_occupied_bands(
-            number_occ_bands_spin_up=10, limit_deviation=0.0000001
+            number_occ_bands_spin_up=10, limit_deviation=1E-7
         )
         assert not self.band_overlaps2_new.has_good_quality_check_occupied_bands(
-            number_occ_bands_spin_up=10, limit_deviation=0.0000001
+            number_occ_bands_spin_up=10, limit_deviation=1E-7
         )
         assert self.band_overlaps2.has_good_quality_check_occupied_bands(
             number_occ_bands_spin_up=1, limit_deviation=0.1
@@ -1623,7 +1623,7 @@ class TestBandoverlaps(TestCase):
         assert self.band_overlaps2_new.has_good_quality_check_occupied_bands(
             number_occ_bands_spin_up=1, limit_deviation=2
         )
-
+        
     def test_msonable(self):
         dict_data = self.band_overlaps2_new.as_dict()
         bandoverlaps_from_dict = Bandoverlaps.from_dict(dict_data)
