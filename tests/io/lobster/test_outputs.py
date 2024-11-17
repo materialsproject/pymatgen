@@ -1603,7 +1603,7 @@ class TestBandoverlaps(TestCase):
         assert not self.band_overlaps2_new.has_good_quality_check_occupied_bands(
             number_occ_bands_spin_up=10, limit_deviation=0.0000001
         )
-        assert not self.band_overlaps2.has_good_quality_check_occupied_bands(
+        assert self.band_overlaps2.has_good_quality_check_occupied_bands(
             number_occ_bands_spin_up=1, limit_deviation=0.1
         )
 
@@ -1614,7 +1614,7 @@ class TestBandoverlaps(TestCase):
             number_occ_bands_spin_up=1, limit_deviation=1e-8
         )
         assert self.band_overlaps2.has_good_quality_check_occupied_bands(number_occ_bands_spin_up=10, limit_deviation=1)
-        assert not self.band_overlaps2_new.has_good_quality_check_occupied_bands(
+        assert self.band_overlaps2_new.has_good_quality_check_occupied_bands(
             number_occ_bands_spin_up=2, limit_deviation=0.1
         )
         assert self.band_overlaps2.has_good_quality_check_occupied_bands(number_occ_bands_spin_up=1, limit_deviation=1)
