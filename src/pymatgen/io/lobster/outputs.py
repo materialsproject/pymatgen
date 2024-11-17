@@ -1714,7 +1714,7 @@ class Bandoverlaps(MSONable):
             raise ValueError("number_occ_bands_spin_down has to be specified")
 
         for spin in (Spin.up, Spin.down) if spin_polarized else (Spin.up,):
-            num_occ_bands = number_occ_bands_spin_up if spin == Spin.up else number_occ_bands_spin_down
+            num_occ_bands = number_occ_bands_spin_up if spin is Spin.up else number_occ_bands_spin_down
 
             for array in self.band_overlaps_dict[spin]["matrices"]:
                 sub_array = np.asarray(array)[:num_occ_bands, :num_occ_bands]
