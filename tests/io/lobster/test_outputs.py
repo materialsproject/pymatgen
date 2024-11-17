@@ -1624,7 +1624,6 @@ class TestBandoverlaps(TestCase):
             number_occ_bands_spin_up=1, limit_deviation=2
         )
 
-
     def test_msonable(self):
         dict_data = self.band_overlaps2_new.as_dict()
         bandoverlaps_from_dict = Bandoverlaps.from_dict(dict_data)
