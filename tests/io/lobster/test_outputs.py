@@ -1624,6 +1624,67 @@ class TestBandoverlaps(TestCase):
             number_occ_bands_spin_up=1, limit_deviation=2
         )
 
+    def test_has_good_quality_check_occupied_bands_patched(self):
+        """Test with patched data."""
+        import copy
+
+        limit_deviation = 0.1
+
+        rng = np.random.default_rng(42)  # set seed for reproducibility
+
+        band_overlaps = copy.deepcopy(self.band_overlaps1_new)
+
+        number_occ_bands_spin_up_all = list(range(band_overlaps.band_overlaps_dict[Spin.up]["matrices"][0].shape[0]))
+        number_occ_bands_spin_down_all = list(
+            range(band_overlaps.band_overlaps_dict[Spin.down]["matrices"][0].shape[0])
+        )
+
+        for actual_deviation in [0.05, 0.1, 0.2, 0.5, 1.0]:
+            for spin in (Spin.up, Spin.down):
+                for number_occ_bands_spin_up, number_occ_bands_spin_down in zip(
+                    number_occ_bands_spin_up_all, number_occ_bands_spin_down_all, strict=False
+                ):
+                    for i_arr, array in enumerate(band_overlaps.band_overlaps_dict[spin]["matrices"]):
+                        number_occ_bands = number_occ_bands_spin_up if spin is Spin.up else number_occ_bands_spin_down
+
+                        shape = array.shape
+                        assert np.all(np.array(shape) >= number_occ_bands)
+                        assert len(shape) == 2
+                        assert shape[0] == shape[1]
+
+                        # Generate a noisy background array
+                        patch_array = rng.uniform(0, 10, shape)
+
+                        # Patch the top-left sub-array (the part that would be checked)
+                        patch_array[:number_occ_bands, :number_occ_bands] = np.identity(number_occ_bands) + rng.uniform(
+                            0, actual_deviation, (number_occ_bands, number_occ_bands)
+                        )
+
+                        band_overlaps.band_overlaps_dict[spin]["matrices"][i_arr] = patch_array
+
+                    result = band_overlaps.has_good_quality_check_occupied_bands(
+                        number_occ_bands_spin_up=number_occ_bands_spin_up,
+                        number_occ_bands_spin_down=number_occ_bands_spin_down,
+                        spin_polarized=True,
+                        limit_deviation=limit_deviation,
+                    )
+                    # Assert for expected results
+                    if (
+                        actual_deviation == 0.05
+                        and number_occ_bands_spin_up <= 7
+                        and number_occ_bands_spin_down <= 7
+                        and spin is Spin.up
+                        or actual_deviation == 0.05
+                        and spin is Spin.down
+                        or actual_deviation == 0.1
+                        or actual_deviation in [0.2, 0.5, 1.0]
+                        and number_occ_bands_spin_up == 0
+                        and number_occ_bands_spin_down == 0
+                    ):
+                        assert result
+                    else:
+                        assert not result
+
     def test_get_sub_array(self):
         # get complete overlap matrix for a k-point
         overlap_matrix = self.band_overlaps2_new.band_overlaps_dict[Spin.up]["matrices"][0]
