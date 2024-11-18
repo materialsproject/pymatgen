@@ -212,7 +212,7 @@ class TestCoordinationGeometries(PymatgenTest):
             "PB:7",
             "ST:7",
             "ET:7",
-            "FO:7",
+            "FO:7",  # codespell:ignore fo
             "C:8",
             "SA:8",
             "SBT:8",
@@ -389,9 +389,9 @@ class TestCoordinationGeometries(PymatgenTest):
                 (0, 4, 2): ["T:6"],
             },
             7: {
-                (1, 3, 3): ["ET:7", "FO:7"],
+                (1, 3, 3): ["ET:7", "FO:7"],  # codespell:ignore fo
                 (2, 3, 2): ["PB:7", "ST:7", "ET:7"],
-                (1, 4, 2): ["ST:7", "FO:7"],
+                (1, 4, 2): ["ST:7", "FO:7"],  # codespell:ignore fo
                 (1, 5, 1): ["PB:7"],
             },
             8: {

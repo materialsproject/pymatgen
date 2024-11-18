@@ -2019,7 +2019,7 @@ class MPNMRSet(VaspInputSet):
                 SIGMA=0.01,
             )
         elif self.mode.lower() == "efg" and self.structure is not None:
-            isotopes = {ist.split("-")[0]: ist for ist in self.isotopes}
+            isotopes = {isotope.split("-")[0]: isotope for isotope in self.isotopes}
             quad_efg = [
                 float(Species(sp.name).get_nmr_quadrupole_moment(isotopes.get(sp.name)))
                 for sp in self.structure.species
