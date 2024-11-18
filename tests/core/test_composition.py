@@ -903,9 +903,3 @@ class TestChemicalPotential:
         # test nested brackets with charge
         comp = Composition("[N[Fe]2]2")
         assert str(comp) == "N2 Fe4"
-
-
-if __name__ == "__main__":
-    import pytest
-
-    pytest.main([__file__])

@@ -670,7 +670,13 @@ class Composition(collections.abc.Hashable, collections.abc.Mapping, MSONable, S
             **kwargs: Additional kwargs supported by the dict() constructor.
 
         Returns:
-            Composition
+            Composition in molar fractions.
+
+        Examples:
+            >>> Composition.from_weights("Fe50Ti50")
+            Composition('Fe0.461538 Ti0.538462')
+            >>> Composition.from_weights({"Fe": 0.5, "Ni": 0.5})
+            Composition('Fe0.512434 Ni0.487566')
         """
         if len(args) == 1 and isinstance(args[0], str):
             elem_map: dict[str, float] = cls._parse_formula(args[0])
