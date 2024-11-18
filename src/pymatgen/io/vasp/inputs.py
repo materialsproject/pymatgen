@@ -970,6 +970,7 @@ class Incar(UserDict, MSONable):
             "PARAM1",
             "PARAM2",
             "ENCUT",
+            "NUPDOWN",
         )
         int_keys = (
             "NSW",
@@ -987,7 +988,6 @@ class Incar(UserDict, MSONable):
             "LMAXMIX",
             "NSIM",
             "NKRED",
-            "NUPDOWN",
             "ISPIND",
             "LDAUTYPE",
             "IVDW",
