@@ -1628,13 +1628,9 @@ class TestBandoverlaps(TestCase):
         # get complete overlap matrix for a k-point
         overlap_matrix = self.band_overlaps2_new.band_overlaps_dict[Spin.up]["matrices"][0]
         # get sub array based on passed in occupied bands
-        sub_array = self.band_overlaps2_new._get_sub_array(num_occ_bands=5, overlap_matrix=overlap_matrix)
+        sub_array = self.band_overlaps2_new.get_sub_array(num_occ_bands=5, overlap_matrix=overlap_matrix)
         assert sub_array.shape == (5, 5)
 
-        # get complete overlap matrix for a k-point
-        overlap_matrix = self.band_overlaps2_new.band_overlaps_dict[Spin.up]["matrices"][0]
-        # get sub array based on passed in occupied bands
-        sub_array = self.band_overlaps2_new.get_sub_array(num_occ_bands=5, overlap_matrix=overlap_matrix)
         # check if sub array extracted is symmetric and expected size
         assert sub_array.shape == (5, 5)
         assert np.allclose(np.triu(sub_array), np.tril(sub_array).T, atol=1e-5)
