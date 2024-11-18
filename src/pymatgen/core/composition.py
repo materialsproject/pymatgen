@@ -36,41 +36,80 @@ MODULE_DIR = os.path.dirname(os.path.abspath(__file__))
 
 @total_ordering
 class Composition(collections.abc.Hashable, collections.abc.Mapping, MSONable, Stringify):
-    """Represents a Composition, which is essentially a {element:amount} mapping
-    type. Composition is written to be immutable and hashable,
-    unlike a standard Python dict.
+    """
+    Represents a `Composition`, a mapping of {element/species: amount} with
+    enhanced functionality tailored for handling chemical compositions. The class
+    is immutable, hashable, and designed for robust usage in material science
+    and chemistry computations.
 
-    Note that the key can be either an Element or a Species. Elements and Species
-    are treated differently. i.e., a Fe2+ is not the same as a Fe3+ Species and
-    would be put in separate keys. This differentiation is deliberate to
-    support using Composition to determine the fraction of a particular Species.
+    Key Features:
+        - Supports both `Element` and `Species` as keys, with differentiation
+        between oxidation states (e.g., Fe2+ and Fe3+ are distinct keys).
+        - Behaves like a dictionary but returns 0 for missing keys, making it
+        similar to a `defaultdict` while remaining immutable.
+        - Provides numerous utility methods for chemical computations, such as
+        calculating fractions, weights, and formula representations.
 
-    Works almost completely like a standard python dictionary, except that
-    __getitem__ is overridden to return 0 when an element is not found.
-    (somewhat like a defaultdict, except it is immutable).
+    Highlights:
+        - **Input Flexibility**: Accepts formulas as strings, dictionaries, or
+        keyword arguments for construction.
+        - **Convenience Methods**: Includes `get_fraction`, `reduced_formula`,
+        and weight-related utilities.
+        - **Enhanced Formula Representation**: Supports reduced, normalized, and
+        IUPAC-sorted formulas.
 
-    Also adds more convenience methods relevant to compositions, e.g.
-    get_fraction.
+    Examples:
+        >>> comp = Composition("LiFePO4")
+        >>> comp.get_atomic_fraction(Element("Li"))
+        0.14285714285714285
+        >>> comp.num_atoms
+        7.0
+        >>> comp.reduced_formula
+        'LiFePO4'
+        >>> comp.formula
+        'Li1 Fe1 P1 O4'
+        >>> comp.get_wt_fraction(Element("Li"))
+        0.04399794666951898
+        >>> comp.num_atoms
+        7.0
 
-    It should also be noted that many Composition related functionality takes
-    in a standard string as a convenient input. For example,
-    even though the internal representation of a Fe2O3 composition is
-    {Element("Fe"): 2, Element("O"): 3}, you can obtain the amount of Fe
-    simply by comp["Fe"] instead of the more verbose comp[Element("Fe")].
+    Attributes:
+        - `amount_tolerance` (float): Tolerance for distinguishing composition
+        amounts. Default is 1e-8 to minimize floating-point errors.
+        - `charge_balanced_tolerance` (float): Tolerance for verifying charge balance.
+        - `special_formulas` (dict): Custom formula mappings for specific compounds
+        (e.g., `"LiO"` → `"Li2O2"`).
+        - `oxi_prob` (dict or None): Prior probabilities of oxidation states, used
+        for oxidation state guessing.
 
-    >>> comp = Composition("LiFePO4")
-    >>> comp.get_atomic_fraction(Element("Li"))
-    0.14285714285714285
-    >>> comp.num_atoms
-    7.0
-    >>> comp.reduced_formula
-    'LiFePO4'
-    >>> comp.formula
-    'Li1 Fe1 P1 O4'
-    >>> comp.get_wt_fraction(Element("Li"))
-    0.04399794666951898
-    >>> comp.num_atoms
-    7.0
+    Functionality:
+        - Arithmetic Operations: Add, subtract, multiply, or divide compositions.
+        For example:
+            >>> comp1 = Composition("Fe2O3")
+            >>> comp2 = Composition("FeO")
+            >>> result = comp1 + comp2  # Produces "Fe3O4"
+        - Representation:
+            - `formula`: Full formula string with elements sorted by electronegativity.
+            - `reduced_formula`: Simplified formula with minimal ratios.
+            - `hill_formula`: Hill notation (C and H prioritized, others alphabetically sorted).
+        - Utilities:
+            - `get_atomic_fraction`: Returns the atomic fraction of a given element/species.
+            - `get_wt_fraction`: Returns the weight fraction of a given element/species.
+            - `is_element`: Checks if the composition is a pure element.
+            - `reduced_composition`: Normalizes the composition by the greatest common denominator.
+            - `fractional_composition`: Returns the normalized composition where sums equal 1.
+        - Oxidation State Handling:
+            - `oxi_state_guesses`: Suggests charge-balanced oxidation states.
+            - `charge_balanced`: Checks if the composition is charge balanced.
+            - `add_charges_from_oxi_state_guesses`: Assigns oxidation states based on guesses.
+        - Validation:
+            - `valid`: Ensures all elements/species are valid.
+
+    Notes:
+        - When constructing from strings, both `Element` and `Species` types are
+        handled. For example:
+            - `Composition("Fe2+")` differentiates Fe2+ from Fe3+.
+            - `Composition("Fe2O3")` auto-parses standard formulas.
     """
 
     # Tolerance in distinguishing different composition amounts.
