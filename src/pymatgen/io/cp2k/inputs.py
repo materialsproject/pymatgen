@@ -51,7 +51,7 @@ if TYPE_CHECKING:
 
     from pymatgen.core.lattice import Lattice
     from pymatgen.core.structure import Molecule, Structure
-    from pymatgen.util.typing import Kpoint, Tuple3Ints
+    from pymatgen.util.typing import Kpoint
 
 __author__ = "Nicholas Winner"
 __version__ = "2.0"
@@ -247,7 +247,7 @@ class Section(MSONable):
         repeats: bool = False,
         description: str | None = None,
         keywords: dict | None = None,
-        section_parameters: list | tuple | None = None,
+        section_parameters: Sequence[str] = (),
         location: str | None = None,
         verbose: bool | None = False,
         alias: str | None = None,
@@ -291,9 +291,8 @@ class Section(MSONable):
         self.subsections = subsections or {}
         self.repeats = repeats
         self.description = description
-        keywords = keywords or {}
-        self.keywords = keywords
-        self.section_parameters = section_parameters or []
+        self.keywords = keywords or {}
+        self.section_parameters = section_parameters
         self.location = location
         self.verbose = verbose
         self.alias = alias
@@ -402,9 +401,9 @@ class Section(MSONable):
             d: Name of section to get
             default: return if d is not found in subsections
         """
-        for k, v in self.subsections.items():
-            if str(k).upper() == str(d).upper():
-                return v
+        for key, val in self.subsections.items():
+            if str(key).upper() == str(d).upper():
+                return val
         return default
 
     def get_keyword(self, d, default=None):
@@ -414,9 +413,9 @@ class Section(MSONable):
             d: Name of keyword to get
             default: return if d is not found in keyword list
         """
-        for k, v in self.keywords.items():
-            if str(k).upper() == str(d).upper():
-                return v
+        for key, val in self.keywords.items():
+            if str(key).upper() == str(d).upper():
+                return val
         return default
 
     def update(self, dct: dict, strict=False) -> Section:
@@ -515,11 +514,11 @@ class Section(MSONable):
         Args:
             path (str): Path to section of form 'SUBSECTION1/SUBSECTION2/SUBSECTION_OF_INTEREST'
         """
-        _path = path.split("/")
         sub_secs = self.subsections
-        for p in _path:
-            if tmp := [_ for _ in sub_secs if p.upper() == _.upper()]:
-                sub_secs = sub_secs[tmp[0]].subsections
+        for key in path.split("/"):
+            sec_key_match = [sub_sec for sub_sec in sub_secs if key.upper() == sub_sec.upper()]
+            if sec_key_match:
+                sub_secs = getattr(sub_secs[sec_key_match[0]], "subsections", {})
             else:
                 return False
         return True
@@ -531,11 +530,11 @@ class Section(MSONable):
         Args:
             path (str): Path to section of form 'SUBSECTION1/SUBSECTION2/SUBSECTION_OF_INTEREST'
         """
-        _path = path.split("/")
-        if _path[0].upper() == self.name.upper():
-            _path = _path[1:]
+        path_parts = path.split("/")
+        if path_parts[0].upper() == self.name.upper():
+            path_parts = path_parts[1:]
         sec_str = self
-        for pth in _path:
+        for pth in path_parts:
             sec_str = sec_str.get_section(pth)
         return sec_str
 
@@ -672,7 +671,6 @@ class Cp2kInput(Section):
             name,
             repeats=False,
             description=description,
-            section_parameters=[],
             subsections=subsections,
             **kwargs,
         )
@@ -800,18 +798,14 @@ class Global(Section):
         """
         self.project_name = project_name
         self.run_type = run_type
-        keywords = keywords or {}
-
         description = (
             "Section with general information regarding which kind of simulation to perform an general settings"
         )
-
-        _keywords = {
+        keywords = {
             "PROJECT_NAME": Keyword("PROJECT_NAME", project_name),
             "RUN_TYPE": Keyword("RUN_TYPE", run_type),
             "EXTENDED_FFT_LENGTHS": Keyword("EXTENDED_FFT_LENGTHS", True),  # noqa: FBT003
-        }
-        keywords.update(_keywords)
+        } | (keywords or {})
         super().__init__(
             "GLOBAL",
             description=description,
@@ -826,22 +820,18 @@ class ForceEval(Section):
 
     def __init__(self, keywords: dict | None = None, subsections: dict | None = None, **kwargs):
         """Initialize the ForceEval section."""
-        keywords = keywords or {}
-        subsections = subsections or {}
-
         description = "Parameters needed to calculate energy and forces and describe the system you want to analyze."
 
-        _keywords = {
+        keywords = {
             "METHOD": Keyword("METHOD", kwargs.get("METHOD", "QS")),
             "STRESS_TENSOR": Keyword("STRESS_TENSOR", kwargs.get("STRESS_TENSOR", "ANALYTICAL")),
-        }
-        keywords.update(_keywords)
+        } | (keywords or {})
         super().__init__(
             "FORCE_EVAL",
             repeats=True,
             description=description,
             keywords=keywords,
-            subsections=subsections,
+            subsections=subsections or {},
             **kwargs,
         )
 
@@ -876,27 +866,23 @@ class Dft(Section):
         self.potential_filename = potential_filename
         self.uks = uks
         self.wfn_restart_file_name = wfn_restart_file_name
-        keywords = keywords or {}
-        subsections = subsections or {}
-
         description = "Parameter needed by dft programs"
 
         uks_desc = "Whether to run unrestricted Kohn Sham (i.e. spin polarized)"
-        _keywords = {
+        keywords = {
             "BASIS_SET_FILE_NAME": KeywordList([Keyword("BASIS_SET_FILE_NAME", k) for k in basis_set_filenames]),
             "POTENTIAL_FILE_NAME": Keyword("POTENTIAL_FILE_NAME", potential_filename),
             "UKS": Keyword("UKS", uks, description=uks_desc),
-        }
+        } | (keywords or {})
 
         if wfn_restart_file_name:
-            _keywords["WFN_RESTART_FILE_NAME"] = Keyword("WFN_RESTART_FILE_NAME", wfn_restart_file_name)
+            keywords["WFN_RESTART_FILE_NAME"] = Keyword("WFN_RESTART_FILE_NAME", wfn_restart_file_name)
 
-        keywords.update(_keywords)
         super().__init__(
             "DFT",
             description=description,
             keywords=keywords,
-            subsections=subsections,
+            subsections=subsections or {},
             **kwargs,
         )
 
@@ -906,14 +892,12 @@ class Subsys(Section):
 
     def __init__(self, keywords: dict | None = None, subsections: dict | None = None, **kwargs):
         """Initialize the subsys section."""
-        keywords = keywords or {}
-        subsections = subsections or {}
         description = "A subsystem: coordinates, topology, molecules and cell"
         super().__init__(
             "SUBSYS",
             keywords=keywords,
             description=description,
-            subsections=subsections,
+            subsections=subsections or {},
             **kwargs,
         )
 
@@ -953,11 +937,9 @@ class QS(Section):
         self.eps_default = eps_default
         self.eps_pgf_orb = eps_pgf_orb
         self.extrapolation = extrapolation
-        keywords = keywords or {}
-        subsections = subsections or {}
         description = "Parameters needed to set up the Quickstep framework"
 
-        _keywords = {
+        keywords = {
             "METHOD": Keyword("METHOD", self.method),
             "EPS_DEFAULT": Keyword(
                 "EPS_DEFAULT",
@@ -969,15 +951,14 @@ class QS(Section):
                 self.extrapolation,
                 description="WFN extrapolation between steps",
             ),
-        }
+        } | (keywords or {})
         if eps_pgf_orb:
-            _keywords["EPS_PGF_ORB"] = Keyword("EPS_PGF_ORB", self.eps_pgf_orb, description="Overlap matrix precision")
-        keywords.update(_keywords)
+            keywords["EPS_PGF_ORB"] = Keyword("EPS_PGF_ORB", self.eps_pgf_orb, description="Overlap matrix precision")
         super().__init__(
             "QS",
             description=description,
             keywords=keywords,
-            subsections=subsections,
+            subsections=subsections or {},
             **kwargs,
         )
 
@@ -1018,35 +999,22 @@ class Scf(Section):
         self.eps_scf = eps_scf
         self.scf_guess = scf_guess
 
-        keywords = keywords or {}
-        subsections = subsections or {}
-
         description = "Parameters needed to perform an SCF run."
-
-        _keywords = {
-            "MAX_SCF": Keyword(
-                "MAX_SCF",
-                max_scf,
-                description="Max number of steps for an inner SCF loop",
-            ),
+        keywords = {
+            "MAX_SCF": Keyword("MAX_SCF", max_scf, description="Max number of steps for an inner SCF loop"),
             "EPS_SCF": Keyword("EPS_SCF", eps_scf, description="Convergence threshold for SCF"),
-            "SCF_GUESS": Keyword(
-                "SCF_GUESS",
-                scf_guess,
-                description="How to initialize the density matrix",
-            ),
+            "SCF_GUESS": Keyword("SCF_GUESS", scf_guess, description="How to initialize the density matrix"),
             "MAX_ITER_LUMO": Keyword(
                 "MAX_ITER_LUMO",
                 kwargs.get("max_iter_lumo", 400),
                 description="Iterations for solving for unoccupied levels when running OT",
             ),
-        }
-        keywords.update(_keywords)
+        } | (keywords or {})
         super().__init__(
             "SCF",
             description=description,
             keywords=keywords,
-            subsections=subsections,
+            subsections=subsections or {},
             **kwargs,
         )
 
@@ -1084,15 +1052,13 @@ class Mgrid(Section):
         self.ngrids = ngrids
         self.progression_factor = progression_factor
 
-        keywords = keywords or {}
-        subsections = subsections or {}
         description = (
             "Multigrid information. Multigrid allows for sharp gaussians and diffuse "
             "gaussians to be treated on different grids, where the spacing of FFT integration "
             "points can be tailored to the degree of sharpness/diffusiveness"
         )
 
-        _keywords = {
+        keywords = {
             "CUTOFF": Keyword(
                 "CUTOFF",
                 cutoff,
@@ -1105,13 +1071,12 @@ class Mgrid(Section):
             ),
             "NGRIDS": Keyword("NGRIDS", ngrids, description="Number of grid levels in the MG"),
             "PROGRESSION_FACTOR": Keyword("PROGRESSION_FACTOR", progression_factor),
-        }
-        keywords.update(_keywords)
+        } | (keywords or {})
         super().__init__(
             "MGRID",
             description=description,
             keywords=keywords,
-            subsections=subsections,
+            subsections=subsections or {},
             **kwargs,
         )
 
@@ -1134,25 +1099,22 @@ class Diagonalization(Section):
         self.eps_iter = eps_iter
         self.eps_jacobi = eps_jacobi
         self.jacobi_threshold = jacobi_threshold
-        keywords = keywords or {}
-        subsections = subsections or {}
         location = "CP2K_INPUT/FORCE_EVAL/DFT/SCF/DIAGONALIZATION"
         description = "Settings for the SCF's diagonalization routines"
 
-        _keywords = {
+        keywords = {
             "EPS_ADAPT": Keyword("EPS_ADAPT", eps_adapt),
             "EPS_ITER": Keyword("EPS_ITER", eps_iter),
             "EPS_JACOBI": Keyword("EPS_JACOBI", eps_jacobi),
             "JACOBI_THRESHOLD": Keyword("JACOBI_THRESHOLD", jacobi_threshold),
-        }
-        keywords.update(_keywords)
+        } | (keywords or {})
         super().__init__(
             "DIAGONALIZATION",
             keywords=keywords,
             repeats=False,
             location=location,
             description=description,
-            subsections=subsections,
+            subsections=subsections or {},
             **kwargs,
         )
 
@@ -1191,19 +1153,16 @@ class Davidson(Section):
         """
         self.new_prec_each = new_prec_each
         self.preconditioner = preconditioner
-        keywords = keywords or {}
-        subsections = subsections or {}
-        _keywords = {
+        keywords = {
             "NEW_PREC_EACH": Keyword("NEW_PREC_EACH", new_prec_each),
             "PRECONDITIONER": Keyword("PRECONDITIONER", preconditioner),
-        }
-        keywords.update(_keywords)
+        } | (keywords or {})
         super().__init__(
             "DAVIDSON",
             keywords=keywords,
             repeats=False,
             location=None,
-            subsections=subsections,
+            subsections=subsections or {},
             **kwargs,
         )
 
@@ -1270,8 +1229,6 @@ class OrbitalTransformation(Section):
         self.occupation_preconditioner = occupation_preconditioner
         self.energy_gap = energy_gap
         self.linesearch = linesearch
-        keywords = keywords or {}
-        subsections = subsections or {}
 
         description = (
             "Sets the various options for the orbital transformation (OT) method. "
@@ -1285,7 +1242,7 @@ class OrbitalTransformation(Section):
             "metallic systems."
         )
 
-        _keywords = {
+        keywords = {
             "MINIMIZER": Keyword("MINIMIZER", minimizer),
             "PRECONDITIONER": Keyword("PRECONDITIONER", preconditioner),
             "ENERGY_GAP": Keyword("ENERGY_GAP", energy_gap),
@@ -1293,13 +1250,12 @@ class OrbitalTransformation(Section):
             "LINESEARCH": Keyword("LINESEARCH", linesearch),
             "ROTATION": Keyword("ROTATION", rotation),
             "OCCUPATION_PRECONDITIONER": Keyword("OCCUPATION_PRECONDITIONER", occupation_preconditioner),
-        }
-        keywords.update(_keywords)
+        } | (keywords or {})
         super().__init__(
             "OT",
             description=description,
             keywords=keywords,
-            subsections=subsections,
+            subsections=subsections or {},
             **kwargs,
         )
 
@@ -1316,15 +1272,13 @@ class Cell(Section):
             keywords: additional keywords
         """
         self.lattice = lattice
-        keywords = keywords or {}
         description = "Lattice parameters and optional settings for creating the CELL"
-
-        _keywords = {
+        keywords = {
             "A": Keyword("A", *lattice.matrix[0]),
             "B": Keyword("B", *lattice.matrix[1]),
             "C": Keyword("C", *lattice.matrix[2]),
-        }
-        keywords.update(_keywords)
+        } | (keywords or {})
+
         super().__init__("CELL", description=description, keywords=keywords, subsections={}, **kwargs)
 
 
@@ -1373,7 +1327,6 @@ class Kind(Section):
         self.potential = potential
         self.ghost = ghost or False  # if None, set False
         self.aux_basis = aux_basis
-        keywords = keywords or {}
         subsections = subsections or {}
         description = "The description of this kind of atom including basis sets, element, etc."
 
@@ -1382,21 +1335,21 @@ class Kind(Section):
         if Element(self.specie).Z in closed_shell_elems:
             self.magnetization = 0
 
-        _keywords = {
+        keywords = {
             "ELEMENT": Keyword("ELEMENT", specie.__str__()),
             "MAGNETIZATION": Keyword("MAGNETIZATION", magnetization),
             "GHOST": Keyword("GHOST", ghost),
-        }
+        } | (keywords or {})
         if basis_set:
-            _keywords["BASIS_SET"] = (
+            keywords["BASIS_SET"] = (
                 Keyword("BASIS_SET", basis_set) if isinstance(basis_set, str) else basis_set.get_keyword()
             )
         if potential:
-            _keywords["POTENTIAL"] = (
+            keywords["POTENTIAL"] = (
                 Keyword("POTENTIAL", potential) if isinstance(potential, str) else potential.get_keyword()
             )
         if aux_basis:
-            _keywords["BASIS_SET"] += (
+            keywords["BASIS_SET"] += (
                 Keyword("BASIS_SET", f"BASIS_SET AUX_FIT {aux_basis}")
                 if isinstance(aux_basis, str)
                 else aux_basis.get_keyword()
@@ -1407,7 +1360,6 @@ class Kind(Section):
 
         section_parameters = [kind_name]
         location = "FORCE_EVAL/SUBSYS/KIND"
-        keywords.update(_keywords)
         super().__init__(
             name=self.name,
             subsections=subsections,
@@ -1453,21 +1405,18 @@ class DftPlusU(Section):
         self.l = l
         self.u_minus_j = u_minus_j
         self.u_ramping = u_ramping
-        keywords = keywords or {}
-        subsections = subsections or {}
         description = "Settings for on-site Hubbard +U correction for this atom kind."
 
-        _keywords = {
+        keywords = {
             "EPS_U_RAMPING": Keyword("EPS_U_RAMPING", eps_u_ramping),
             "INIT_U_RAMPING_EACH_SCF": Keyword("INIT_U_RAMPING_EACH_SCF", init_u_ramping_each_scf),
             "L": Keyword("L", l),
             "U_MINUS_J": Keyword("U_MINUS_J", u_minus_j),
             "U_RAMPING": Keyword("U_RAMPING", u_ramping),
-        }
-        keywords.update(_keywords)
+        } | (keywords or {})
         super().__init__(
             name=name,
-            subsections=None,
+            subsections=subsections or {},
             description=description,
             keywords=keywords,
             **kwargs,
@@ -1495,8 +1444,6 @@ class Coord(Section):
         """
         self.structure = structure
         self.aliases = aliases
-        keywords = keywords or {}
-        subsections = subsections or {}
         description = (
             "The coordinates for simple systems (like small QM cells) are specified "
             "here by default using explicit XYZ coordinates. More complex systems "
@@ -1517,7 +1464,7 @@ class Coord(Section):
             name="COORD",
             description=description,
             keywords=keywords,
-            subsections=subsections,
+            subsections=subsections or {},
             **kwargs,
         )
 
@@ -1542,16 +1489,13 @@ class DOS(Section):
             subsections: additional subsections
         """
         self.ndigits = ndigits
-        keywords = keywords or {}
-        subsections = subsections or {}
         description = "Controls printing of the overall density of states"
-        _keywords = {"NDIGITS": Keyword("NDIGITS", ndigits)}
-        keywords.update(_keywords)
+        keywords = {"NDIGITS": Keyword("NDIGITS", ndigits)} | (keywords or {})
         super().__init__(
             "DOS",
             description=description,
             keywords=keywords,
-            subsections=subsections,
+            subsections=subsections or {},
             **kwargs,
         )
 
@@ -1578,20 +1522,17 @@ class PDOS(Section):
             subsections: additional subsections
         """
         self.nlumo = nlumo
-        keywords = keywords or {}
-        subsections = subsections or {}
         description = "Controls printing of the projected density of states"
 
-        _keywords = {
+        keywords = {
             "NLUMO": Keyword("NLUMO", nlumo),
             "COMPONENTS": Keyword("COMPONENTS"),
-        }
-        keywords.update(_keywords)
+        } | (keywords or {})
         super().__init__(
             "PDOS",
             description=description,
             keywords=keywords,
-            subsections=subsections,
+            subsections=subsections or {},
             **kwargs,
         )
 
@@ -1617,17 +1558,14 @@ class LDOS(Section):
             subsections: additional subsections
         """
         self.index = index
-        keywords = keywords or {}
-        subsections = subsections or {}
         description = "Controls printing of the projected density of states decomposed by atom type"
-        _keywords = {
+        keywords = {
             "COMPONENTS": Keyword("COMPONENTS"),
             "LIST": Keyword("LIST", index),
-        }
-        keywords.update(_keywords)
+        } | (keywords or {})
         super().__init__(
             "LDOS",
-            subsections=subsections,
+            subsections=subsections or {},
             alias=alias,
             description=description,
             keywords=keywords,
@@ -1639,8 +1577,6 @@ class VHartreeCube(Section):
     """Controls printing of the hartree potential as a cube file."""
 
     def __init__(self, keywords: dict | None = None, subsections: dict | None = None, **kwargs):
-        keywords = keywords or {}
-        subsections = subsections or {}
         description = (
             "Controls the printing of a cube file with electrostatic potential generated by "
             "the total density (electrons+ions). It is valid only for QS with GPW formalism. "
@@ -1648,9 +1584,9 @@ class VHartreeCube(Section):
         )
         super().__init__(
             "V_HARTREE_CUBE",
-            subsections=subsections,
+            subsections=subsections or {},
             description=description,
-            keywords=keywords,
+            keywords=keywords or {},
             **kwargs,
         )
 
@@ -1676,25 +1612,22 @@ class MOCubes(Section):
         self.write_cube = write_cube
         self.nhomo = nhomo
         self.nlumo = nlumo
-        keywords = keywords or {}
-        subsections = subsections or {}
         description = (
             "Controls the printing of a cube file with electrostatic potential generated by "
             "the total density (electrons+ions). It is valid only for QS with GPW formalism. "
             "Note: by convention the potential has opposite sign than the expected physical one."
         )
 
-        _keywords = {
+        keywords = {
             "WRITE_CUBES": Keyword("WRITE_CUBE", write_cube),
             "NHOMO": Keyword("NHOMO", nhomo),
             "NLUMO": Keyword("NLUMO", nlumo),
-        }
-        keywords.update(_keywords)
+        } | (keywords or {})
         super().__init__(
             "MO_CUBES",
-            subsections={},
+            subsections=subsections or {},
             description=description,
-            keywords=keywords,
+            keywords=keywords or {},
             **kwargs,
         )
 
@@ -1708,8 +1641,6 @@ class EDensityCube(Section):
     """Controls printing of the electron density cube file."""
 
     def __init__(self, keywords: dict | None = None, subsections: dict | None = None, **kwargs):
-        keywords = keywords or {}
-        subsections = subsections or {}
         description = (
             "Controls the printing of cube files with the electronic density and, for LSD "
             "calculations, the spin density."
@@ -1717,9 +1648,9 @@ class EDensityCube(Section):
 
         super().__init__(
             "E_DENSITY_CUBE",
-            subsections=subsections,
+            subsections=subsections or {},
             description=description,
-            keywords=keywords,
+            keywords=keywords or {},
             **kwargs,
         )
 
@@ -1744,21 +1675,18 @@ class Smear(Section):
         self.elec_temp = elec_temp
         self.method = method
         self.fixed_magnetic_moment = fixed_magnetic_moment
-        keywords = keywords or {}
-        subsections = subsections or {}
         description = "Activates smearing of electron occupations"
 
-        _keywords = {
+        keywords = {
             "ELEC_TEMP": Keyword("ELEC_TEMP", elec_temp),
             "METHOD": Keyword("METHOD", method),
             "FIXED_MAGNETIC_MOMENT": Keyword("FIXED_MAGNETIC_MOMENT", fixed_magnetic_moment),
-        }
-        keywords.update(_keywords)
+        } | (keywords or {})
         super().__init__(
             "SMEAR",
             description=description,
             keywords=keywords,
-            subsections=subsections,
+            subsections=subsections or {},
             **kwargs,
         )
 
@@ -1845,13 +1773,13 @@ class BrokenSymmetry(Section):
         esv.sort(key=lambda x: (x[0], x[1]), reverse=True)
 
         tmp = oxi_state
-        l_alpha = []
-        l_beta = []
-        nel_alpha = []
-        nel_beta = []
-        n_alpha = []
-        n_beta = []
-        unpaired_orbital: Tuple3Ints = (0, 0, 0)
+        l_alpha: list[int] = []
+        l_beta: list[int] = []
+        nel_alpha: list[int] = []
+        nel_beta: list[int] = []
+        n_alpha: list[int] = []
+        n_beta: list[int] = []
+        unpaired_orbital: tuple[int, int, int] = (0, 0, 0)
         while tmp:
             tmp2 = -min((esv[0][2], tmp)) if tmp > 0 else min((f2(esv[0][1]) - esv[0][2], -tmp))
             l_alpha.append(esv[0][1])
@@ -1877,13 +1805,13 @@ class BrokenSymmetry(Section):
             spin = -(unpaired_orbital[2] % (f2(unpaired_orbital[1]) // 2))
 
         if spin:
-            for i in reversed(range(len(nel_alpha))):
-                nel_alpha[i] += min((spin, f3(l_alpha[i]) - oxi_state))
-                nel_beta[i] -= min((spin, f3(l_beta[i]) - oxi_state))
+            for idx in reversed(range(len(nel_alpha))):
+                nel_alpha[idx] += min((spin, f3(l_alpha[idx]) - oxi_state))
+                nel_beta[idx] -= min((spin, f3(l_beta[idx]) - oxi_state))
                 if spin > 0:
-                    spin -= min((spin, f3(l_alpha[i]) - oxi_state))
+                    spin -= min((spin, f3(l_alpha[idx]) - oxi_state))
                 else:
-                    spin += min((spin, f3(l_beta[i]) - oxi_state))
+                    spin += min((spin, f3(l_beta[idx]) - oxi_state))
 
         return BrokenSymmetry(
             l_alpha=l_alpha,
@@ -1900,23 +1828,21 @@ class XCFunctional(Section):
 
     def __init__(
         self,
-        functionals: Iterable | None = None,
+        functionals: Sequence[str] = (),
         keywords: dict | None = None,
         subsections: dict | None = None,
         **kwargs,
     ):
-        self.functionals = functionals or []
-        keywords = keywords or {}
-        subsections = subsections or {}
         location = "CP2K_INPUT/FORCE_EVAL/DFT/XC/XC_FUNCTIONAL"
 
-        for functional in self.functionals:
+        subsections = subsections or {}
+        for functional in functionals:
             subsections[functional] = Section(functional, subsections={}, repeats=False)
 
         super().__init__(
             "XC_FUNCTIONAL",
-            subsections=subsections,
-            keywords=keywords,
+            subsections=subsections or {},
+            keywords=keywords or {},
             location=location,
             repeats=False,
             **kwargs,
@@ -1953,20 +1879,17 @@ class PBE(Section):
         self.parameterization = parameterization
         self.scale_c = scale_c
         self.scale_x = scale_x
-        keywords = keywords or {}
-        subsections = subsections or {}
 
         location = "CP2K_INPUT/FORCE_EVAL/DFT/XC/XC_FUNCTIONAL/PBE"
 
-        _keywords = {
+        keywords = {
             "PARAMETRIZATION": Keyword("PARAMETRIZATION", parameterization),
             "SCALE_C": Keyword("SCALE_C", scale_c),
             "SCALE_X": Keyword("SCALE_X", scale_x),
-        }
-        keywords.update(_keywords)
+        } | (keywords or {})
         super().__init__(
             "PBE",
-            subsections=subsections,
+            subsections=subsections or {},
             repeats=False,
             location=location,
             section_parameters=[],
@@ -2187,12 +2110,10 @@ class BandStructure(Section):
         self.kpoint_sets = SectionList(kpoint_sets)
         self.filename = filename
         self.added_mos = added_mos
-        keywords = keywords or {}
-        _keywords = {
+        keywords = {
             "FILE_NAME": Keyword("FILE_NAME", filename),
             "ADDED_MOS": Keyword("ADDED_MOS", added_mos),
-        }
-        keywords.update(_keywords)
+        } | (keywords or {})
         super().__init__(
             name="BAND_STRUCTURE",
             subsections={"KPOINT_SET": self.kpoint_sets},
@@ -2706,7 +2627,6 @@ class GthPotential(AtomicMetadata):
         keywords = {"POTENTIAL": Keyword("", self.get_str())}
         return Section(
             name=self.name,
-            section_parameters=None,
             subsections=None,
             description="Manual definition of GTH Potential",
             keywords=keywords,
@@ -2853,7 +2773,7 @@ class DataFile(MSONable):
 
     def get_str(self) -> str:
         """Get string representation."""
-        return "\n".join(b.get_str() for b in self.objects or [])
+        return "\n".join(b.get_str() for b in self.objects or ())
 
 
 @dataclass
