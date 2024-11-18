@@ -45,8 +45,8 @@ ex_infile3_fname = ex_files_dir / "ct_slab_001.in"
 
 def test_jdftxinfile_structuregen():
     jif = JDFTXInfile.from_file(ex_infile1_fname)
-    jdftxstruc = jif.to_jdftxstructure(jif)
-    assert isinstance(jdftxstruc, JDFTXStructure)
+    jdftxstruct = jif.to_jdftxstructure(jif)
+    assert isinstance(jdftxstruct, JDFTXStructure)
 
 
 @pytest.mark.parametrize(
@@ -151,8 +151,8 @@ def test_JDFTXInfile_niche_cases():
     err_str = f"The '{tag}' tag appears multiple times in this input when it should not!"
     with pytest.raises(ValueError, match=err_str):
         jif._store_value(params, tag_object, tag, value)
-    struc = jif.to_pmg_structure(jif)
-    assert isinstance(struc, Structure)
+    struct = jif.to_pmg_structure(jif)
+    assert isinstance(struct, Structure)
     noneout = jif.validate_tags(return_list_rep=True)
     assert noneout is None
     jif["fluid-solvent"] = {"name": "H2O", "concentration": 0.5}
@@ -222,18 +222,18 @@ def assert_idential_jif(jif1: JDFTXInfile | dict, jif2: JDFTXInfile | dict):
 
 def test_jdftxstructure():
     jif = JDFTXInfile.from_file(ex_infile2_fname)
-    struc = jif.to_jdftxstructure(jif)
-    assert isinstance(struc, JDFTXStructure)
-    struc_str = str(struc)
+    struct = jif.to_jdftxstructure(jif)
+    assert isinstance(struct, JDFTXStructure)
+    struc_str = str(struct)
     assert isinstance(struc_str, str)
-    assert struc.natoms == 16
+    assert struct.natoms == 16
     with open(ex_infile2_fname) as f:
         lines = list.copy(list(f))
     data = "\n".join(lines)
-    struc2 = JDFTXStructure.from_str(data)
-    assert_equiv_jdftxstructure(struc, struc2)
-    struc3 = JDFTXStructure.from_dict(struc.as_dict())
-    assert_equiv_jdftxstructure(struc, struc3)
+    struct2 = JDFTXStructure.from_str(data)
+    assert_equiv_jdftxstructure(struct, struct2)
+    struct3 = JDFTXStructure.from_dict(struct.as_dict())
+    assert_equiv_jdftxstructure(struct, struct3)
 
 
 def test_pmg_struc():
@@ -246,10 +246,10 @@ def test_pmg_struc():
 
 
 def test_jdftxtructure_naming():
-    struc = Structure.from_file(ex_files_dir / "Si.cif")
-    jstruc = JDFTXStructure(structure=struc)
-    JDFTXInfile.from_jdftxstructure(jstruc)
-    JDFTXInfile.from_structure(struc)
+    struct = Structure.from_file(ex_files_dir / "Si.cif")
+    jstruct = JDFTXStructure(structure=struct)
+    JDFTXInfile.from_jdftxstructure(jstruct)
+    JDFTXInfile.from_structure(struct)
 
 
 def assert_equiv_jdftxstructure(struc1: JDFTXStructure, struc2: JDFTXStructure) -> None:
