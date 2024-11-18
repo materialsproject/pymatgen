@@ -1717,25 +1717,12 @@ class Bandoverlaps(MSONable):
             num_occ_bands = number_occ_bands_spin_up if spin is Spin.up else number_occ_bands_spin_down
 
             for overlap_matrix in self.band_overlaps_dict[spin]["matrices"]:
-                sub_array = self.get_sub_array(num_occ_bands=num_occ_bands, overlap_matrix=overlap_matrix)  # type: ignore[arg-type]
+                sub_array = np.asarray(overlap_matrix)[:num_occ_bands, :num_occ_bands]
 
                 if not np.allclose(sub_array, np.identity(num_occ_bands), atol=limit_deviation, rtol=0):
                     return False
 
         return True
-
-    @staticmethod
-    def get_sub_array(num_occ_bands: int, overlap_matrix: np.ndarray) -> np.ndarray:
-        """Helper method to get the subarray of the overlap matrix for the occupied bands
-
-        Args:
-            num_occ_bands (int): Number of occupied bands
-            overlap_matrix (np.ndarray): Overlap matrix
-
-        Returns:
-            np.ndarray: Subarray of the overlap matrix for the occupied bands
-        """
-        return np.asarray(overlap_matrix)[:num_occ_bands, :num_occ_bands]
 
     @property
     @deprecated(message="Use `band_overlaps_dict` instead.", category=DeprecationWarning)

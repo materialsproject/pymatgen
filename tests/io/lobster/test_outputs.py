@@ -1685,23 +1685,6 @@ class TestBandoverlaps(TestCase):
                     else:
                         assert not result
 
-    def test_get_sub_array(self):
-        # get complete overlap matrix for a k-point
-        overlap_matrix = self.band_overlaps2_new.band_overlaps_dict[Spin.up]["matrices"][0]
-
-        # get sub array based on passed in occupied bands
-        sub_array = self.band_overlaps2_new.get_sub_array(num_occ_bands=5, overlap_matrix=overlap_matrix)
-
-        # check if sub array extracted is symmetric and expected size
-        assert sub_array.shape == (5, 5)
-        assert np.allclose(np.triu(sub_array), np.tril(sub_array).T, atol=1e-5)
-
-        # check values of sub array
-        assert sub_array[0, 0] == approx(1, abs=1e-3)
-        assert sub_array[4, 4] == approx(1, abs=1e-3)
-        assert sub_array[0, 1] == approx(0.00112011, abs=1e-3)
-        assert sub_array[1, 4] == approx(0.00118084, abs=1e-3)
-
     def test_exceptions(self):
         with pytest.raises(ValueError, match="number_occ_bands_spin_down has to be specified"):
             self.band_overlaps1.has_good_quality_check_occupied_bands(
