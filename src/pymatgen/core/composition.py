@@ -547,7 +547,8 @@ class Composition(collections.abc.Hashable, collections.abc.Mapping, MSONable, S
 
         return any(getattr(el, f"is_{category}") for el in self.elements)
 
-    def _parse_formula(self, formula: str, strict: bool = True) -> dict[str, float]:
+    @staticmethod
+    def _parse_formula(formula: str, strict: bool = True) -> dict[str, float]:
         """
         Args:
             formula (str): A string formula, e.g. Fe2O3, Li3Fe2(PO4)3.
@@ -639,7 +640,7 @@ class Composition(collections.abc.Hashable, collections.abc.Mapping, MSONable, S
         return cls(dct)
 
     @classmethod
-    def from_weight_dict(cls, weight_dict: dict[SpeciesLike, float]) -> Self:
+    def from_weight_dict(cls, weight_dict: dict[SpeciesLike, float], strict: bool = True, **kwargs) -> Self:
         """Create a Composition based on a dict of atomic fractions calculated
         from a dict of weight fractions. Allows for quick creation of the class
         from weight-based notations commonly used in the industry, such as
@@ -647,6 +648,8 @@ class Composition(collections.abc.Hashable, collections.abc.Mapping, MSONable, S
 
         Args:
             weight_dict (dict): {symbol: weight_fraction} dict.
+            strict (bool): Only allow valid Elements and Species in the Composition. Defaults to True.
+            **kwargs: Additional kwargs supported by the dict() constructor.
 
         Returns:
             Composition
@@ -654,7 +657,35 @@ class Composition(collections.abc.Hashable, collections.abc.Mapping, MSONable, S
         weight_sum = sum(val / Element(el).atomic_mass for el, val in weight_dict.items())
         comp_dict = {el: val / Element(el).atomic_mass / weight_sum for el, val in weight_dict.items()}
 
-        return cls(comp_dict)
+        return cls(comp_dict, strict=strict, **kwargs)
+
+    @classmethod
+    def from_weights(cls, *args, strict: bool = True, **kwargs) -> Self:
+        """Create a Composition from a weight-based formula.
+
+        Args:
+            *args: Any number of 2-tuples as key-value pairs.
+            strict (bool): Only allow valid Elements and Species in the Composition. Defaults to False.
+            allow_negative (bool): Whether to allow negative compositions. Defaults to False.
+            **kwargs: Additional kwargs supported by the dict() constructor.
+
+        Returns:
+            Composition
+        """
+        if len(args) == 1 and isinstance(args[0], str):
+            elem_map: dict[str, float] = cls._parse_formula(args[0])
+        elif len(args) == 1 and isinstance(args[0], type(cls)):
+            elem_map = args[0]  # type: ignore[assignment]
+        elif len(args) == 1 and isinstance(args[0], float) and math.isnan(args[0]):
+            raise ValueError("float('NaN') is not a valid Composition, did you mean 'NaN'?")
+        else:
+            elem_map = dict(*args, **kwargs)  # type: ignore[assignment]
+
+        for val in elem_map.values():
+            if val < -cls.amount_tolerance:
+                raise ValueError("Weights in Composition cannot be negative!")
+
+        return cls.from_weight_dict(elem_map, strict=strict)
 
     def get_el_amt_dict(self) -> dict[str, float]:
         """
