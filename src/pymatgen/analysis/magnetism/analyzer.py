@@ -170,8 +170,7 @@ class CollinearMagneticStructureAnalyzer:
         has_spin = False
         for comp in structure.species_and_occu:
             for sp in comp:
-                if getattr(sp, "spin", False):
-                    has_spin = True
+                has_spin |= bool(getattr(sp, "spin", False))
 
         # perform input sanitation ...
         # rest of class will assume magnetic moments are stored on site properties:
