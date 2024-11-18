@@ -449,7 +449,7 @@ class SymmOp(MSONable):
         Only works for integer rotation matrices.
         """
         # Check for invalid rotation matrix
-        if not np.all(np.isclose(self.rotation_matrix, np.round(self.rotation_matrix))):
+        if not np.allclose(self.rotation_matrix, np.round(self.rotation_matrix)):
             warnings.warn("Rotation matrix should be integer")
 
         return transformation_to_string(

@@ -24,7 +24,7 @@ from ruamel.yaml import YAML
 from scipy.spatial import Voronoi
 
 from pymatgen.analysis.bond_valence import BV_PARAMS, BVAnalyzer
-from pymatgen.analysis.graphs import MoleculeGraph, StructureGraph
+from pymatgen.analysis.graphs import StructureGraph
 from pymatgen.analysis.molecule_structure_comparator import CovalentRadius
 from pymatgen.core import Element, IStructure, PeriodicNeighbor, PeriodicSite, Site, Species, Structure
 
@@ -38,6 +38,7 @@ if TYPE_CHECKING:
 
     from typing_extensions import Self
 
+    from pymatgen.analysis.graphs import MoleculeGraph
     from pymatgen.core.composition import SpeciesLike
     from pymatgen.util.typing import Tuple3Ints
 
@@ -55,9 +56,11 @@ MODULE_DIR = os.path.dirname(os.path.abspath(__file__))
 
 with open(f"{MODULE_DIR}/op_params.yaml", encoding="utf-8") as file:
     DEFAULT_OP_PARAMS: dict[str, dict[str | int, float] | None] = YAML().load(file)
+default_op_params = DEFAULT_OP_PARAMS  # needed externally
 
 with open(f"{MODULE_DIR}/cn_opt_params.yaml", encoding="utf-8") as file:
     CN_OPT_PARAMS: dict[int, dict[str, list[str | dict[str, float]]]] = YAML().load(file)
+cn_opt_params = CN_OPT_PARAMS  # needed externally
 
 with open(f"{MODULE_DIR}/ionic_radii.json", encoding="utf-8") as file:
     _ION_RADII = json.load(file)
@@ -110,9 +113,8 @@ class ValenceIonicRadiusEvaluator:
                 return sorted_vals[0]
             before = sorted_vals[idx - 1]
             after = sorted_vals[idx]
-            if after - skey < skey - before:
-                return after
-            return before
+
+            return after if after - skey < skey - before else before
 
         for idx, site in enumerate(self._structure):
             if isinstance(site.specie, Element):
@@ -214,26 +216,26 @@ def _handle_disorder(structure: Structure, on_disorder: on_disorder_options):
             "example since Fe and O have equal occupancy and Fe comes first). 'error' raises an error in case "
             f"of disordered structure. Offending {structure = }"
         )
-    if on_disorder.startswith("take_"):
-        # disordered structures raise AttributeError when passed to NearNeighbors.get_cn()
-        # or NearNeighbors.get_bonded_structure() (and probably others too, see GH-2070).
-        # As a workaround, we create a new structure with majority species on each site.
-        structure = structure.copy()  # make a copy so we don't mutate the original structure
-        for idx, site in enumerate(structure):
-            max_specie = max(site.species, key=site.species.get)
-            max_val = site.species[max_specie]
-            if max_val <= 0.5:
-                if on_disorder == "take_majority_strict":
-                    raise ValueError(
-                        f"Site {idx} has no majority species, the max species is {max_specie} with occupancy {max_val}"
-                    )
-                if on_disorder == "take_majority_drop":
-                    continue
-
-            # this is the take_max_species case
-            site.species = max_specie  # set site species in copied structure to max specie
-    else:
+    if not on_disorder.startswith("take_"):
         raise ValueError(f"Unexpected {on_disorder = }, should be one of {get_args(on_disorder_options)}")
+
+    # disordered structures raise AttributeError when passed to NearNeighbors.get_cn()
+    # or NearNeighbors.get_bonded_structure() (and probably others too, see GH-2070).
+    # As a workaround, we create a new structure with majority species on each site.
+    structure = structure.copy()  # make a copy so we don't mutate the original structure
+    for idx, site in enumerate(structure):
+        max_specie = max(site.species, key=site.species.get)
+        max_val = site.species[max_specie]
+        if max_val <= 0.5:
+            if on_disorder == "take_majority_strict":
+                raise ValueError(
+                    f"Site {idx} has no majority species, the max species is {max_specie} with occupancy {max_val}"
+                )
+            if on_disorder == "take_majority_drop":
+                continue
+
+        # this is the take_max_species case
+        site.species = max_specie  # set site species in copied structure to max specie
 
     return structure
 
@@ -1525,6 +1527,9 @@ class OpenBabelNN(NearNeighbors):
         Returns:
             MoleculeGraph: object from pymatgen.analysis.graphs
         """
+        # requires optional dependency which is why it's not a top-level import
+        from pymatgen.analysis.graphs import MoleculeGraph
+
         if decorate:
             # Decorate all sites in the underlying structure
             # with site properties that provides information on the
@@ -2508,7 +2513,7 @@ class LocalStructOrderParams:
             imag += pre_y_2_2[idx] * self._sin_n_p[2][idx]
         acc += real * real + imag * imag
 
-        return math.sqrt(4 * math.pi * acc / (5 * float(n_nn * n_nn)))
+        return math.sqrt(4 * math.pi * acc / (5 * float(n_nn**2)))
 
     def get_q4(self, thetas=None, phis=None):
         """
@@ -2617,7 +2622,7 @@ class LocalStructOrderParams:
             imag += pre_y_4_4[idx] * self._sin_n_p[4][idx]
         acc += real * real + imag * imag
 
-        return math.sqrt(4 * math.pi * acc / (9 * float(n_nn * n_nn)))
+        return math.sqrt(4 * math.pi * acc / (9 * float(n_nn**2)))
 
     def get_q6(self, thetas=None, phis=None):
         """
@@ -2788,7 +2793,7 @@ class LocalStructOrderParams:
             imag += pre_y_6_6[idx] * self._sin_n_p[6][idx]
         acc += real * real + imag * imag
 
-        return math.sqrt(4 * math.pi * acc / (13 * float(n_nn * n_nn)))
+        return math.sqrt(4 * math.pi * acc / (13 * float(n_nn**2)))
 
     def get_type(self, index):
         """Get type of order parameter at the index provided and

@@ -46,7 +46,7 @@ class PiezoTensor(Tensor):
     def from_vasp_voigt(cls, input_vasp_array: ArrayLike) -> Self:
         """
         Args:
-            input_vasp_array (nd.array): Voigt form of tensor.
+            input_vasp_array (ArrayLike): Voigt form of tensor.
 
         Returns:
             PiezoTensor

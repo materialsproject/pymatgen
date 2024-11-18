@@ -32,7 +32,7 @@ class TestBaderAnalysis(PymatgenTest):
         assert analysis.data[0]["charge"] == analysis.get_charge(0)
         assert analysis.nelectrons == 96
         assert analysis.vacuum_charge == approx(0)
-        ans = [
+        results = [
             -1.3863218,
             -1.3812175,
             -1.3812175,
@@ -49,7 +49,7 @@ class TestBaderAnalysis(PymatgenTest):
             1.024357,
         ]
         for idx in range(14):
-            assert ans[idx] == approx(analysis.get_charge_transfer(idx), abs=1e-3)
+            assert results[idx] == approx(analysis.get_charge_transfer(idx), abs=1e-3)
         assert analysis.get_partial_charge(0) == -analysis.get_charge_transfer(0)
         struct = analysis.get_oxidation_state_decorated_structure()
         assert struct[0].specie.oxi_state == approx(1.3863218, abs=1e-3)
