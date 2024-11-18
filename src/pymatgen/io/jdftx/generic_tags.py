@@ -1207,8 +1207,9 @@ class MultiformatTag(AbstractTag):
                     self.raise_invalid_format_option_error(tag, i)
                 else:
                     return i, value
-            except (ValueError, TypeError) as e:  # TODO: Make sure these are all
+            except (ValueError, TypeError, KeyError) as e:  # TODO: Make sure these are all
                 # the possible exceptions
+                # 11/18/24: KeyError added to exception list as the wrong format may have a different set of keys
                 exceptions.append(e)
         err_str = f"The format for {tag} for:\n{value_any}\ncould not be determined from the available options!"
         err_str += "Check your inputs and/or MASTER_TAG_LIST!"

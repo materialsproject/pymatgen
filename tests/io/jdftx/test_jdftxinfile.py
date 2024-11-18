@@ -40,6 +40,7 @@ ex_infile1_knowns = {
 }
 
 ex_infile2_fname = ex_files_dir / "example_sp.in"
+ex_infile3_fname = ex_files_dir / "ct_slab_001.in"
 
 
 def test_jdftxinfile_structuregen():
@@ -189,7 +190,7 @@ def test_JDFTXInfile_knowns_simple(infile_fname: PathLike, knowns: dict):
         assert_same_value(jif[key], knowns[key])
 
 
-@pytest.mark.parametrize("infile_fname", [ex_infile1_fname])
+@pytest.mark.parametrize("infile_fname", [ex_infile3_fname, ex_infile1_fname, ex_infile2_fname])
 def test_JDFTXInfile_self_consistency(infile_fname: PathLike):
     jif = JDFTXInfile.from_file(infile_fname)
     JDFTXInfile_self_consistency_tester(jif)
