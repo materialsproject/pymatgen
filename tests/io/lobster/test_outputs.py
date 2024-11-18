@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import copy
 import json
 import os
 from unittest import TestCase
@@ -1626,7 +1627,6 @@ class TestBandoverlaps(TestCase):
 
     def test_has_good_quality_check_occupied_bands_patched(self):
         """Test with patched data."""
-        import copy
 
         limit_deviation = 0.1
 
