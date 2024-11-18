@@ -23,6 +23,8 @@ if TYPE_CHECKING:
 
     from typing_extensions import Self
 
+    from pymatgen.util.typing import PathLike
+
 __author__ = "Shyue Ping Ong, Germain Salvato-Vallverdu, Xin Chen"
 __copyright__ = "Copyright 2013, The Materials Virtual Lab"
 __version__ = "0.1"
@@ -576,13 +578,13 @@ class GaussianOutput:
             Save a matplotlib plot of the potential energy surface to a file
     """
 
-    def __init__(self, filename):
+    def __init__(self, filename: PathLike) -> None:
         """
         Args:
             filename: Filename of Gaussian output file.
         """
-        self.filename = filename
-        self._parse(filename)
+        self.filename = str(filename)
+        self._parse(self.filename)
 
     @property
     def final_energy(self):

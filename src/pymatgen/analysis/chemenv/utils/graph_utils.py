@@ -175,8 +175,8 @@ class SimpleGraphCycle(MSONable):
         if check_strict_ordering:
             try:
                 sorted_nodes = sorted(self.nodes)
-            except TypeError as te:
-                msg = te.args[0]
+            except TypeError as exc:
+                msg = exc.args[0]
                 if "'<' not supported between instances of" in msg:
                     return False, "The nodes are not sortable."
                 raise
@@ -366,8 +366,8 @@ class MultiGraphCycle(MSONable):
         if check_strict_ordering:
             try:
                 sorted_nodes = sorted(self.nodes)
-            except TypeError as te:
-                msg = te.args[0]
+            except TypeError as exc:
+                msg = exc.args[0]
                 if "'<' not supported between instances of" in msg:
                     return False, "The nodes are not sortable."
                 raise

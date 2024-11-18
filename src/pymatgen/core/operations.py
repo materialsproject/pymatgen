@@ -3,10 +3,10 @@
 from __future__ import annotations
 
 import copy
+import math
 import re
 import string
 import warnings
-from math import cos, pi, sin, sqrt
 from typing import TYPE_CHECKING, Literal, cast
 
 import numpy as np
@@ -280,9 +280,9 @@ class SymmOp(MSONable):
 
         vec = np.asarray(translation_vec)
 
-        ang = angle if angle_in_radians else angle * pi / 180
-        cos_a = cos(ang)
-        sin_a = sin(ang)
+        ang = angle if angle_in_radians else angle * np.pi / 180
+        cos_a = math.cos(ang)
+        sin_a = math.sin(ang)
         unit_vec = axis / np.linalg.norm(axis)
         rot_mat = np.zeros((3, 3))
         rot_mat[0, 0] = cos_a + unit_vec[0] ** 2 * (1 - cos_a)
@@ -318,15 +318,15 @@ class SymmOp(MSONable):
         Returns:
             SymmOp.
         """
-        theta = angle if angle_in_radians else angle * pi / 180
+        theta = angle if angle_in_radians else angle * np.pi / 180
         a, b, c = origin
         ax_u, ax_v, ax_w = axis
         # Set some intermediate values.
         u2, v2, w2 = ax_u * ax_u, ax_v * ax_v, ax_w * ax_w
-        cos_t = cos(theta)
-        sin_t = sin(theta)
+        cos_t = math.cos(theta)
+        sin_t = math.sin(theta)
         l2 = u2 + v2 + w2
-        lsqrt = sqrt(l2)
+        lsqrt = math.sqrt(l2)
 
         # Build the matrix entries element by element.
         m11 = (u2 + (v2 + w2) * cos_t) / l2
@@ -449,7 +449,7 @@ class SymmOp(MSONable):
         Only works for integer rotation matrices.
         """
         # Check for invalid rotation matrix
-        if not np.all(np.isclose(self.rotation_matrix, np.round(self.rotation_matrix))):
+        if not np.allclose(self.rotation_matrix, np.round(self.rotation_matrix)):
             warnings.warn("Rotation matrix should be integer")
 
         return transformation_to_string(

@@ -146,12 +146,12 @@ class TestExcitingInput(PymatgenTest):
                 "xstype": "BSE",
                 "ngridk": "4 4 4",
                 "ngridq": "4 4 4",
-                "nempty": "30",
+                "nempty": "30",  # codespell:ignore: nempty
                 "gqmax": "3.0",
                 "broad": "0.07",
                 "tevout": "true",
                 "energywindow": {"intv": "0.0 1.0", "points": "1200"},
-                "screening": {"screentype": "full", "nempty": "100"},
+                "screening": {"screentype": "full", "nempty": "100"},  # codespell:ignore: nempty
                 "BSE": {"bsetype": "singlet", "nstlbse": "1 5 1 4"},
             },
         }

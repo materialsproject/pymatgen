@@ -77,7 +77,7 @@ def _get_symmetry_dataset(cell, symprec, angle_tolerance):
     """
     dataset = spglib.get_symmetry_dataset(cell, symprec=symprec, angle_tolerance=angle_tolerance)
     if dataset is None:
-        raise SymmetryUndeterminedError
+        raise SymmetryUndeterminedError(spglib.get_error_message())
     return dataset
 
 
@@ -274,7 +274,11 @@ class SpacegroupAnalyzer:
             "translations" gives the numpy float64 array of the translation
             vectors in scaled positions.
         """
-        dct = spglib.get_symmetry(self._cell, symprec=self._symprec, angle_tolerance=self._angle_tol)
+        with warnings.catch_warnings():
+            # TODO: DeprecationWarning: Use get_magnetic_symmetry() for cell with magnetic moments.
+            warnings.filterwarnings("ignore", message="Use get_magnetic_symmetry", category=DeprecationWarning)
+            dct = spglib.get_symmetry(self._cell, symprec=self._symprec, angle_tolerance=self._angle_tol)
+
         if dct is None:
             symprec = self._symprec
             raise ValueError(
@@ -499,7 +503,7 @@ class SpacegroupAnalyzer:
             # Check if the conventional representation is hexagonal or
             # rhombohedral
             lengths = conv.lattice.lengths
-            if abs(lengths[0] - lengths[2]) < 0.0001:
+            if abs(lengths[0] - lengths[2]) < 1e-4:
                 return np.eye
             return np.array([[-1, 1, 1], [2, 1, 1], [-1, -2, 1]], dtype=np.float64) / 3
 

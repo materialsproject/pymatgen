@@ -24,7 +24,7 @@ from ruamel.yaml import YAML
 from scipy.spatial import Voronoi
 
 from pymatgen.analysis.bond_valence import BV_PARAMS, BVAnalyzer
-from pymatgen.analysis.graphs import MoleculeGraph, StructureGraph
+from pymatgen.analysis.graphs import StructureGraph
 from pymatgen.analysis.molecule_structure_comparator import CovalentRadius
 from pymatgen.core import Element, IStructure, PeriodicNeighbor, PeriodicSite, Site, Species, Structure
 
@@ -38,6 +38,7 @@ if TYPE_CHECKING:
 
     from typing_extensions import Self
 
+    from pymatgen.analysis.graphs import MoleculeGraph
     from pymatgen.core.composition import SpeciesLike
     from pymatgen.util.typing import Tuple3Ints
 
@@ -55,9 +56,11 @@ MODULE_DIR = os.path.dirname(os.path.abspath(__file__))
 
 with open(f"{MODULE_DIR}/op_params.yaml", encoding="utf-8") as file:
     DEFAULT_OP_PARAMS: dict[str, dict[str | int, float] | None] = YAML().load(file)
+default_op_params = DEFAULT_OP_PARAMS  # needed externally
 
 with open(f"{MODULE_DIR}/cn_opt_params.yaml", encoding="utf-8") as file:
     CN_OPT_PARAMS: dict[int, dict[str, list[str | dict[str, float]]]] = YAML().load(file)
+cn_opt_params = CN_OPT_PARAMS  # needed externally
 
 with open(f"{MODULE_DIR}/ionic_radii.json", encoding="utf-8") as file:
     _ION_RADII = json.load(file)
@@ -110,9 +113,8 @@ class ValenceIonicRadiusEvaluator:
                 return sorted_vals[0]
             before = sorted_vals[idx - 1]
             after = sorted_vals[idx]
-            if after - skey < skey - before:
-                return after
-            return before
+
+            return after if after - skey < skey - before else before
 
         for idx, site in enumerate(self._structure):
             if isinstance(site.specie, Element):
@@ -127,8 +129,8 @@ class ValenceIonicRadiusEvaluator:
                 continue
 
             el = site.specie.symbol
-            oxi_state = int(round(site.specie.oxi_state))
-            coord_no = int(round(vnn.get_cn(self._structure, idx)))
+            oxi_state = round(site.specie.oxi_state)
+            coord_no = round(vnn.get_cn(self._structure, idx))
             try:
                 tab_oxi_states = sorted(map(int, _ION_RADII[el]))
                 oxi_state = nearest_key(tab_oxi_states, oxi_state)
@@ -214,26 +216,26 @@ def _handle_disorder(structure: Structure, on_disorder: on_disorder_options):
             "example since Fe and O have equal occupancy and Fe comes first). 'error' raises an error in case "
             f"of disordered structure. Offending {structure = }"
         )
-    if on_disorder.startswith("take_"):
-        # disordered structures raise AttributeError when passed to NearNeighbors.get_cn()
-        # or NearNeighbors.get_bonded_structure() (and probably others too, see GH-2070).
-        # As a workaround, we create a new structure with majority species on each site.
-        structure = structure.copy()  # make a copy so we don't mutate the original structure
-        for idx, site in enumerate(structure):
-            max_specie = max(site.species, key=site.species.get)
-            max_val = site.species[max_specie]
-            if max_val <= 0.5:
-                if on_disorder == "take_majority_strict":
-                    raise ValueError(
-                        f"Site {idx} has no majority species, the max species is {max_specie} with occupancy {max_val}"
-                    )
-                if on_disorder == "take_majority_drop":
-                    continue
-
-            # this is the take_max_species case
-            site.species = max_specie  # set site species in copied structure to max specie
-    else:
+    if not on_disorder.startswith("take_"):
         raise ValueError(f"Unexpected {on_disorder = }, should be one of {get_args(on_disorder_options)}")
+
+    # disordered structures raise AttributeError when passed to NearNeighbors.get_cn()
+    # or NearNeighbors.get_bonded_structure() (and probably others too, see GH-2070).
+    # As a workaround, we create a new structure with majority species on each site.
+    structure = structure.copy()  # make a copy so we don't mutate the original structure
+    for idx, site in enumerate(structure):
+        max_specie = max(site.species, key=site.species.get)
+        max_val = site.species[max_specie]
+        if max_val <= 0.5:
+            if on_disorder == "take_majority_strict":
+                raise ValueError(
+                    f"Site {idx} has no majority species, the max species is {max_specie} with occupancy {max_val}"
+                )
+            if on_disorder == "take_majority_drop":
+                continue
+
+        # this is the take_max_species case
+        site.species = max_specie  # set site species in copied structure to max specie
 
     return structure
 
@@ -1525,6 +1527,9 @@ class OpenBabelNN(NearNeighbors):
         Returns:
             MoleculeGraph: object from pymatgen.analysis.graphs
         """
+        # requires optional dependency which is why it's not a top-level import
+        from pymatgen.analysis.graphs import MoleculeGraph
+
         if decorate:
             # Decorate all sites in the underlying structure
             # with site properties that provides information on the
@@ -2508,7 +2513,7 @@ class LocalStructOrderParams:
             imag += pre_y_2_2[idx] * self._sin_n_p[2][idx]
         acc += real * real + imag * imag
 
-        return math.sqrt(4 * math.pi * acc / (5 * float(n_nn * n_nn)))
+        return math.sqrt(4 * math.pi * acc / (5 * float(n_nn**2)))
 
     def get_q4(self, thetas=None, phis=None):
         """
@@ -2617,7 +2622,7 @@ class LocalStructOrderParams:
             imag += pre_y_4_4[idx] * self._sin_n_p[4][idx]
         acc += real * real + imag * imag
 
-        return math.sqrt(4 * math.pi * acc / (9 * float(n_nn * n_nn)))
+        return math.sqrt(4 * math.pi * acc / (9 * float(n_nn**2)))
 
     def get_q6(self, thetas=None, phis=None):
         """
@@ -2788,7 +2793,7 @@ class LocalStructOrderParams:
             imag += pre_y_6_6[idx] * self._sin_n_p[6][idx]
         acc += real * real + imag * imag
 
-        return math.sqrt(4 * math.pi * acc / (13 * float(n_nn * n_nn)))
+        return math.sqrt(4 * math.pi * acc / (13 * float(n_nn**2)))
 
     def get_type(self, index):
         """Get type of order parameter at the index provided and
@@ -2888,9 +2893,9 @@ class LocalStructOrderParams:
         if tol < 0.0:
             raise ValueError("Negative tolerance for weighted solid angle!")
 
-        left_of_unity = 1 - 1.0e-12
+        left_of_unity = 1 - 1e-12
         # The following threshold has to be adapted to non-Angstrom units.
-        very_small = 1.0e-12
+        very_small = 1e-12
         fac_bcc = 1 / math.exp(-0.5)
 
         # Find central site and its neighbors.
@@ -3330,7 +3335,7 @@ class LocalStructOrderParams:
                     for j in range(n_neighbors):
                         ops[idx] += sum(qsp_theta[idx][j])
                         tmp_norm += float(sum(norms[idx][j]))
-                    ops[idx] = ops[idx] / tmp_norm if tmp_norm > 1.0e-12 else None  # type: ignore[operator]
+                    ops[idx] = ops[idx] / tmp_norm if tmp_norm > 1e-12 else None  # type: ignore[operator]
 
                 elif typ in {
                     "T",
@@ -3357,7 +3362,7 @@ class LocalStructOrderParams:
                         for j in range(n_neighbors):
                             for k in range(len(qsp_theta[idx][j])):
                                 qsp_theta[idx][j][k] = (
-                                    qsp_theta[idx][j][k] / norms[idx][j][k] if norms[idx][j][k] > 1.0e-12 else 0.0
+                                    qsp_theta[idx][j][k] / norms[idx][j][k] if norms[idx][j][k] > 1e-12 else 0.0
                                 )
                             ops[idx] = max(qsp_theta[idx][j]) if j == 0 else max(ops[idx], *qsp_theta[idx][j])
 
@@ -3436,7 +3441,7 @@ class BrunnerNNReciprocal(NearNeighbors):
     largest reciprocal gap in interatomic distances.
     """
 
-    def __init__(self, tol: float = 1.0e-4, cutoff=8.0) -> None:
+    def __init__(self, tol: float = 1e-4, cutoff=8.0) -> None:
         """
         Args:
             tol (float): tolerance parameter for bond determination
@@ -3511,7 +3516,7 @@ class BrunnerNNRelative(NearNeighbors):
     of largest relative gap in interatomic distances.
     """
 
-    def __init__(self, tol: float = 1.0e-4, cutoff=8.0) -> None:
+    def __init__(self, tol: float = 1e-4, cutoff=8.0) -> None:
         """
         Args:
             tol (float): tolerance parameter for bond determination
@@ -3587,7 +3592,7 @@ class BrunnerNNReal(NearNeighbors):
     largest gap in interatomic distances.
     """
 
-    def __init__(self, tol: float = 1.0e-4, cutoff=8.0) -> None:
+    def __init__(self, tol: float = 1e-4, cutoff=8.0) -> None:
         """
         Args:
             tol (float): tolerance parameter for bond determination
@@ -3748,7 +3753,7 @@ class EconNN(NearNeighbors):
         # calculate mean fictive ionic radius
         mefir = _get_mean_fictive_ionic_radius(firs)
 
-        # # iteratively solve MEFIR; follows equation 4 in Hoppe's EconN paper
+        # iteratively solve MEFIR; follows equation 4 in Hoppe's EconN paper
         prev_mefir = float("inf")
         while abs(prev_mefir - mefir) > 1e-4:
             # this is guaranteed to converge
