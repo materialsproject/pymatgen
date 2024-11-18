@@ -1481,7 +1481,7 @@ class TestFatband(PymatgenTest):
 
 class TestBandoverlaps(TestCase):
     def setUp(self):
-        # test spin-polarized calc and non spinpolarized calc
+        # test spin-polarized calc and non spin-polarized calc
 
         self.band_overlaps1 = Bandoverlaps(f"{TEST_DIR}/bandOverlaps.lobster.1")
         self.band_overlaps2 = Bandoverlaps(f"{TEST_DIR}/bandOverlaps.lobster.2")
@@ -1623,6 +1623,39 @@ class TestBandoverlaps(TestCase):
         assert self.band_overlaps2_new.has_good_quality_check_occupied_bands(
             number_occ_bands_spin_up=1, limit_deviation=2
         )
+
+    def test_get_sub_array(self):
+        # get complete overlap matrix for a k-point
+        overlap_matrix = self.band_overlaps2_new.band_overlaps_dict[Spin.up]["matrices"][0]
+        # get sub array based on passed in occupied bands
+        sub_array = self.band_overlaps2_new._get_sub_array(num_occ_bands=5, overlap_matrix=overlap_matrix)
+        assert sub_array.shape == (5, 5)
+
+        # get complete overlap matrix for a k-point
+        overlap_matrix = self.band_overlaps2_new.band_overlaps_dict[Spin.up]["matrices"][0]
+        # get sub array based on passed in occupied bands
+        sub_array = self.band_overlaps2_new.get_sub_array(num_occ_bands=5, overlap_matrix=overlap_matrix)
+        # check if sub array extracted is symmetric and expected size
+        assert sub_array.shape == (5, 5)
+        assert np.allclose(np.triu(sub_array), np.tril(sub_array).T, atol=1e-5)
+
+        # check values of sub array
+        assert sub_array[0, 0] == approx(1, abs=1e-3)
+        assert sub_array[4, 4] == approx(1, abs=1e-3)
+        assert sub_array[0, 1] == approx(0.00112011, abs=1e-3)
+        assert sub_array[1, 4] == approx(0.00118084, abs=1e-3)
+
+    def test_exceptions(self):
+        with pytest.raises(ValueError, match="number_occ_bands_spin_down has to be specified"):
+            self.band_overlaps1.has_good_quality_check_occupied_bands(
+                number_occ_bands_spin_up=4,
+                spin_polarized=True,
+            )
+        with pytest.raises(ValueError, match="number_occ_bands_spin_down has to be specified"):
+            self.band_overlaps1_new.has_good_quality_check_occupied_bands(
+                number_occ_bands_spin_up=4,
+                spin_polarized=True,
+            )
 
     def test_msonable(self):
         dict_data = self.band_overlaps2_new.as_dict()
