@@ -13,7 +13,7 @@ import json
 import re
 import warnings
 from collections import Counter
-from enum import Enum, EnumType, unique
+from enum import Enum, EnumMeta, unique
 from itertools import combinations, product
 from pathlib import Path
 from typing import TYPE_CHECKING, overload
@@ -881,7 +881,7 @@ class ElementBase(Enum):
             print(" ".join(row_str))
 
 
-class _ElementMeta(EnumType):
+class _ElementMeta(EnumMeta):
     """Override the iteration behavior of Element to skip isotopes."""
 
     def __iter__(cls):
