@@ -215,3 +215,14 @@ def test_to_dict():
     joutslice = JDFTXOutfileSlice.from_out_slice(ex_slice1)
     out_dict = joutslice.to_dict()
     assert isinstance(out_dict, dict)
+
+
+# Make sure all possible exceptions are caught when none_on_error is True
+@pytest.mark.parametrize(("ex_slice"), [(ex_slice1)])
+def test_none_on_partial(ex_slice: list[str]):
+    # freq = 1 takes about 5 seconds so cutting down the number of tests is needed
+    freq = 5
+    for i in range(int(len(ex_slice) / freq)):
+        test_slice = ex_slice[: -(i * freq)]
+        joutslice = JDFTXOutfileSlice.from_out_slice(test_slice, none_on_error=True)
+        assert isinstance(joutslice, JDFTXOutfileSlice | None)

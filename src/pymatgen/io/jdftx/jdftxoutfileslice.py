@@ -739,8 +739,15 @@ class JDFTXOutfileSlice:
     # Creation methods
     ###########################################################################
 
+    # TODO: There are a littany of points in a JDFTx out file slice where an unexpected termination
+    # (due to a partial calculation) could lead to a fatal error in the parser. As a fix for this, this
+    # method should be called in a try-except block in the JDFTxOutfile class. In the long term though
+    # all the subobjects should be able to handle partial initialization while returning as much
+    # information as possible.
     @classmethod
-    def from_out_slice(cls, text: list[str], is_bgw: bool = False) -> JDFTXOutfileSlice:
+    def from_out_slice(
+        cls, text: list[str], is_bgw: bool = False, none_on_error: bool = False
+    ) -> JDFTXOutfileSlice | None:
         """Read slice of out file into a JDFTXOutfileSlice instance.
 
         Read slice of out file into a JDFTXOutfileSlice instance.
@@ -755,41 +762,47 @@ class JDFTXOutfileSlice:
         """
         instance = cls()
         instance.is_bgw = is_bgw
+        try:
+            instance.from_out_slice_init_all(text)
+        except (ValueError, IndexError, TypeError, KeyError, AttributeError):
+            if none_on_error:
+                return None
+            raise
+        return instance
 
-        instance.set_min_settings(text)
-        instance.set_geomopt_vars(text)
-        instance.set_jstrucs(text)
-        instance.set_backup_vars(text)
-        instance.prefix = instance.get_prefix(text)
-        spintype, nspin = instance.get_spinvars(text)
-        instance.xc_func = instance.get_xc_func(text)
-        instance.spintype = spintype
-        instance.nspin = nspin
-        broadening_type, broadening = instance.get_broadeningvars(text)
-        instance.broadening_type = broadening_type
-        instance.broadening = broadening
-        instance.kgrid = instance.get_kgrid(text)
-        truncation_type, truncation_radius = instance.get_truncationvars(text)
-        instance.truncation_type = truncation_type
-        instance.truncation_radius = truncation_radius
-        instance.pwcut = instance.get_pw_cutoff(text)
-        instance.rhocut = instance.get_rho_cutoff(text)
-        instance.fftgrid = instance.get_fftgrid(text)
-        instance.set_eigvars(text)
-        instance.set_orb_fillings()
-        instance.is_metal = instance.determine_is_metal()
-        instance.set_fluid(text)
-        instance.set_nbands(text)
-        instance.set_atom_vars(text)
-        instance.set_pseudo_vars(text)
-        instance.set_lattice_vars(text)
-        instance.has_solvation = instance.check_solvation()
+    def from_out_slice_init_all(self, text: list[str]) -> None:
+        self.set_min_settings(text)
+        self.set_geomopt_vars(text)
+        self.set_jstrucs(text)
+        self.set_backup_vars(text)
+        self.prefix = self.get_prefix(text)
+        spintype, nspin = self.get_spinvars(text)
+        self.xc_func = self.get_xc_func(text)
+        self.spintype = spintype
+        self.nspin = nspin
+        broadening_type, broadening = self.get_broadeningvars(text)
+        self.broadening_type = broadening_type
+        self.broadening = broadening
+        self.kgrid = self.get_kgrid(text)
+        truncation_type, truncation_radius = self.get_truncationvars(text)
+        self.truncation_type = truncation_type
+        self.truncation_radius = truncation_radius
+        self.pwcut = self.get_pw_cutoff(text)
+        self.rhocut = self.get_rho_cutoff(text)
+        self.fftgrid = self.get_fftgrid(text)
+        self.set_eigvars(text)
+        self.set_orb_fillings()
+        self.is_metal = self.determine_is_metal()
+        self.set_fluid(text)
+        self.set_nbands(text)
+        self.set_atom_vars(text)
+        self.set_pseudo_vars(text)
+        self.set_lattice_vars(text)
+        self.has_solvation = self.check_solvation()
 
         # @ Cooper added @#
-        instance.is_gc = key_exists("target-mu", text)
-        instance.set_ecomponents(text)
-
-        return instance
+        self.is_gc = key_exists("target-mu", text)
+        self.set_ecomponents(text)
 
     def get_xc_func(self, text: list[str]) -> str | None:
         """Get the exchange-correlation functional used in the calculation.
@@ -1474,10 +1487,12 @@ class JDFTXOutfileSlice:
         self.atom_elements = atom_elements
         self.atom_elements_int = [Element(x).Z for x in self.atom_elements]
         self.atom_types = atom_types
-        line = find_key("# Ionic positions in", text) + 1
-        coords = np.array([text[i].split()[2:5] for i in range(line, line + self.nat)], dtype=float)
-        self.atom_coords_final = coords
-        self.atom_coords = coords.copy()
+        line = find_key("# Ionic positions in", text)
+        if line is not None:
+            line += 1
+            coords = np.array([text[i].split()[2:5] for i in range(line, line + self.nat)], dtype=float)
+            self.atom_coords_final = coords
+            self.atom_coords = coords.copy()
 
     def set_lattice_vars(self, text: list[str]) -> None:
         """Set the lattice variables.

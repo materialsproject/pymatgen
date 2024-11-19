@@ -338,7 +338,7 @@ class JDFTXOutfile:
     slices: list[JDFTXOutfileSlice] = field(default_factory=list)
 
     @classmethod
-    def from_file(cls, file_path: str | Path, is_bgw: bool = False) -> JDFTXOutfile:
+    def from_file(cls, file_path: str | Path, is_bgw: bool = False, none_slice_on_error: bool = False) -> JDFTXOutfile:
         """Return JDFTXOutfile object.
 
         Create a JDFTXOutfile object from a JDFTx out file.
@@ -352,13 +352,20 @@ class JDFTXOutfile:
             Mark True if data must be usable for BGW calculations. This will change
             the behavior of the parser to be stricter with certain criteria.
 
+        none_slice_on_error: bool
+            If True, will return None if an error occurs while parsing a slice instead of halting the
+            parsing process. This can be useful for parsing files with multiple slices where some slices
+            may be incomplete or corrupted.
+
         Returns
         -------
         instance: JDFTXOutfile
             The JDFTXOutfile object
         """
         texts = read_outfile_slices(file_path)
-        slices = [JDFTXOutfileSlice.from_out_slice(text) for text in texts]
+        slices = [
+            JDFTXOutfileSlice.from_out_slice(text, is_bgw=is_bgw, none_on_error=none_slice_on_error) for text in texts
+        ]
         return cls(slices=slices)
 
     ###########################################################################

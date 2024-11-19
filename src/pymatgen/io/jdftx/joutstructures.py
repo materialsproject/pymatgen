@@ -698,6 +698,10 @@ def get_joutstructure_step_bounds(
             bounds_list.append(bounds)
             bounds = None
             end_started = False
+    # This case is for jdftx calls that were interrupted prematurely
+    if bounds is not None:
+        bounds.append(len(out_slice) - 1)
+        bounds_list.append(bounds)
     return bounds_list
 
 
