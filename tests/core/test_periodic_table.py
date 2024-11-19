@@ -410,6 +410,8 @@ class TestElement(PymatgenTest):
             3.0155007134,
         ]
 
+        assert Element.named_isotopes == (Element.D, Element.T)
+
 
 class TestSpecies(PymatgenTest):
     def setUp(self):

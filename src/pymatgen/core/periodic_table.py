@@ -882,10 +882,16 @@ class ElementBase(Enum):
 
 
 class _ElementMeta(EnumMeta):
-    """Override the iteration behavior of Element to skip isotopes."""
+    """Override Element to handle isotopes."""
 
     def __iter__(cls):
-        return (member for member in super().__iter__() if not member._is_named_isotope)
+        """Skip named isotopes when iterating."""
+        return (elem for elem in super().__iter__() if not elem._is_named_isotope)
+
+    @property
+    def named_isotopes(cls):
+        """Get all named isotopes."""
+        return tuple(elem for elem in super().__iter__() if elem._is_named_isotope)
 
 
 @functools.total_ordering
