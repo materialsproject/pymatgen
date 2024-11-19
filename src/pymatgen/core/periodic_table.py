@@ -896,7 +896,7 @@ class _ElementMeta(EnumMeta):
         return tuple(elem for elem in super().__iter__() if elem._is_named_isotope)
 
 
-class Element(ElementBase):
+class Element(ElementBase, metaclass=_ElementMeta):
     """Enum representing an element in the periodic table."""
 
     # This name = value convention is redundant and dumb, but unfortunately is
