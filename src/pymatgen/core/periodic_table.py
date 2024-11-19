@@ -13,7 +13,7 @@ import json
 import re
 import warnings
 from collections import Counter
-from enum import Enum, EnumMeta, unique
+from enum import Enum, EnumType, unique
 from itertools import combinations, product
 from pathlib import Path
 from typing import TYPE_CHECKING, overload
@@ -881,16 +881,16 @@ class ElementBase(Enum):
             print(" ".join(row_str))
 
 
-class CustomEnumMeta(EnumMeta):
-    """Overrides the iteration behavior of Element to skip isotopes."""
+class _ElementMeta(EnumType):
+    """Override the iteration behavior of Element to skip isotopes."""
 
     def __iter__(cls):
         named_isotopes = {"D", "T"}
-        return (member for member in cls.__members__.values() if member.name not in named_isotopes)
+        return (member for member in super().__iter__() if member.name not in named_isotopes)
 
 
 @functools.total_ordering
-class Element(ElementBase, metaclass=CustomEnumMeta):
+class Element(ElementBase, metaclass=_ElementMeta):
     """Enum representing an element in the periodic table."""
 
     # This name = value convention is redundant and dumb, but unfortunately is
