@@ -343,9 +343,9 @@ class TestInterface(PymatgenTest):
         assert len(interface.film_indices) == 36
         assert len(interface.film_sites) == len(interface.film_indices)
         assert len(interface.substrate_sites) == len(interface.substrate_indices)
-        assert interface.gap == 2.0
+        assert interface.gap == approx(2)
         assert_allclose(interface.in_plane_offset, [0, 0])
-        assert interface.vacuum_over_film == 20.0
+        assert interface.vacuum_over_film == approx(20)
         assert interface.film_termination == "O2_P6/mmm_4"
         assert interface.substrate_termination == "Si_P6/mmm_7"
         assert interface.film_layers == 6

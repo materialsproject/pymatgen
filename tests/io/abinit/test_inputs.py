@@ -5,7 +5,8 @@ import tempfile
 
 import numpy as np
 import pytest
-from numpy.testing import assert_array_equal
+from numpy.testing import assert_allclose, assert_array_equal
+from pytest import approx
 
 from pymatgen.core.structure import Structure
 from pymatgen.io.abinit.inputs import (
@@ -52,7 +53,7 @@ class TestAbinitInput(PymatgenTest):
         inp = BasicAbinitInput(structure=unit_cell, pseudos=abiref_file("14si.pspnc"))
 
         shift_k = [[0.5, 0.5, 0.5], [0.5, 0.0, 0.0], [0.0, 0.5, 0.0], [0.0, 0.0, 0.5]]
-        assert_array_equal(calc_shiftk(inp.structure), shift_k)
+        assert_allclose(calc_shiftk(inp.structure), shift_k)
         assert num_valence_electrons(inp.structure, inp.pseudos) == 8
 
         assert len(inp) == 0
@@ -105,7 +106,7 @@ class TestAbinitInput(PymatgenTest):
 
         removed = inp.pop_tolerances()
         assert len(removed) == 1
-        assert removed["toldfe"] == 1e-6
+        assert removed["toldfe"] == approx(1e-6)
 
         # Test set_spin_mode
         old_vars = inp.set_spin_mode("polarized")

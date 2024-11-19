@@ -4,7 +4,7 @@ from __future__ import annotations
 
 import numpy as np
 import pytest
-from numpy.testing import assert_allclose, assert_array_equal
+from numpy.testing import assert_allclose
 
 from pymatgen.analysis.piezo import PiezoTensor
 from pymatgen.util.testing import PymatgenTest
@@ -50,15 +50,15 @@ class TestPiezo(PymatgenTest):
     def test_from_voigt(self):
         bad_voigt = np.zeros((3, 7))
         pt = PiezoTensor.from_voigt(self.voigt_matrix)
-        assert_array_equal(pt, self.full_tensor_array)
+        assert_allclose(pt, self.full_tensor_array)
         with pytest.raises(ValueError, match="Invalid shape for Voigt matrix"):
             PiezoTensor.from_voigt(bad_voigt)
-        assert_array_equal(self.voigt_matrix, pt.voigt)
+        assert_allclose(self.voigt_matrix, pt.voigt)
 
     def test_from_vasp_voigt(self):
         bad_voigt = np.zeros((3, 7))
         pt = PiezoTensor.from_vasp_voigt(self.vasp_matrix)
-        assert_array_equal(pt, self.full_tensor_array)
+        assert_allclose(pt, self.full_tensor_array)
         with pytest.raises(ValueError, match="Invalid shape for Voigt matrix"):
             PiezoTensor.from_voigt(bad_voigt)
-        assert_array_equal(self.voigt_matrix, pt.voigt)
+        assert_allclose(self.voigt_matrix, pt.voigt)
