@@ -38,7 +38,8 @@ class TestGaussianInput(TestCase):
         gau = GaussianInput(mol, route_parameters={"SP": "", "SCF": "Tight"})
         assert gau.spin_multiplicity == 2
         with pytest.raises(
-            ValueError, match="Charge of -1 and spin multiplicity of 1 is not possible for this molecule"
+            ValueError,
+            match="Charge of -1 and spin multiplicity of 1 is not possible for this molecule",
         ):
             GaussianInput(mol, spin_multiplicity=1)
 
@@ -128,6 +129,33 @@ Sites (6)
         gau_str = """%mem=5000000
         %chk=filename
         # mp2/6-31g* scf=direct
+        opt freq
+
+        SIH4+ H2---SIH2+ CS //MP2(full)/6-31G* MP2=-290.9225259
+
+        1,2
+        Si
+        X,1,1.
+        H,1,R1,2,HALF1
+        H,1,R1,2,HALF1,3,180.,0
+        X,1,1.,2,90.,3,90.,0
+        X,1,1.,5,THETA,2,180.,0
+        H,1,R3,6,HALF3,5,0.,0
+        H,1,R4,6,HALF3,7,180.,0
+
+        R1=1.47014
+        R3=1.890457
+        R4=1.83514
+        HALF1=60.633314
+        THETA=10.35464
+        HALF3=11.861807"""
+
+        gau = GaussianInput.from_str(gau_str)
+        assert gau.molecule.composition.reduced_formula == "X3SiH4"
+        assert set(gau.route_parameters) == {"opt", "freq", "scf"}
+
+    def test_from_str_no_link0(self):
+        gau_str = """#p mp2/6-31g* scf=direct
         opt freq
 
         SIH4+ H2---SIH2+ CS //MP2(full)/6-31G* MP2=-290.9225259
@@ -314,7 +342,17 @@ class TestGaussianOutput(TestCase):
             0.00,
             0.00,
         ]
-        assert ch2o_co2.frequencies[1][3]["mode"] == [0.00, 0.00, 0.88, 0.00, 0.00, -0.33, 0.00, 0.00, -0.33]
+        assert ch2o_co2.frequencies[1][3]["mode"] == [
+            0.00,
+            0.00,
+            0.88,
+            0.00,
+            0.00,
+            -0.33,
+            0.00,
+            0.00,
+            -0.33,
+        ]
         assert ch2o_co2.frequencies[1][3]["symmetry"] == "SGU"
         assert ch2o_co2.eigenvalues[Spin.up][3] == -1.18394
 
@@ -378,7 +416,17 @@ class TestGaussianOutput(TestCase):
             -1.00532,
         ]
 
-        assert gau.atom_basis_labels[0] == ["1S", "2S", "2PX", "2PY", "2PZ", "3S", "3PX", "3PY", "3PZ"]
+        assert gau.atom_basis_labels[0] == [
+            "1S",
+            "2S",
+            "2PX",
+            "2PY",
+            "2PZ",
+            "3S",
+            "3PX",
+            "3PY",
+            "3PZ",
+        ]
         assert gau.atom_basis_labels[2] == ["1S", "2S"]
 
         gau = GaussianOutput(f"{TEST_DIR}/H2O_gau_vib.out")

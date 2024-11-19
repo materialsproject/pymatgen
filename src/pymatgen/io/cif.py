@@ -342,7 +342,11 @@ class CifParser:
             """Check if a file is a magCIF file (heuristic)."""
             # Doesn't seem to be a canonical way to test if file is magCIF or
             # not, so instead check for magnetic symmetry datanames
-            prefixes = ["_space_group_magn", "_atom_site_moment", "_space_group_symop_magn"]
+            prefixes = [
+                "_space_group_magn",
+                "_atom_site_moment",
+                "_space_group_symop_magn",
+            ]
             for data in self._cif.data.values():
                 for key in data.data:
                     for prefix in prefixes:
@@ -579,7 +583,7 @@ class CifParser:
                         continue
 
                     for comparison_frac in important_fracs:
-                        if abs(1 - frac / comparison_frac) < self._frac_tolerance:
+                        if math.isclose(frac / comparison_frac, 1, abs_tol=self._frac_tolerance, rel_tol=0):
                             fracs_to_change[label, idx] = str(comparison_frac)
 
         if fracs_to_change:
@@ -658,12 +662,18 @@ class CifParser:
         """
         try:
             return self.get_lattice_no_exception(
-                data=data, angle_strings=angle_strings, lattice_type=lattice_type, length_strings=length_strings
+                data=data,
+                angle_strings=angle_strings,
+                lattice_type=lattice_type,
+                length_strings=length_strings,
             )
 
         except KeyError:
             # Missing Key search for cell setting
-            for lattice_label in ("_symmetry_cell_setting", "_space_group_crystal_system"):
+            for lattice_label in (
+                "_symmetry_cell_setting",
+                "_space_group_crystal_system",
+            ):
                 if data.data.get(lattice_label):
                     lattice_type = data.data.get(lattice_label, "").lower()
                     try:
@@ -770,7 +780,11 @@ class CifParser:
 
                     try:
                         cod_data = loadfn(
-                            os.path.join(os.path.dirname(os.path.dirname(__file__)), "symmetry", "symm_ops.json")
+                            os.path.join(
+                                os.path.dirname(os.path.dirname(__file__)),
+                                "symmetry",
+                                "symm_ops.json",
+                            )
                         )
                         for _data in cod_data:
                             if sg == re.sub(r"\s+", "", _data["hermann_mauguin"]):
@@ -955,8 +969,22 @@ class CifParser:
         primitive: bool,
         symmetrized: bool,
         check_occu: bool = False,
+        min_thickness: float = 0.01,
     ) -> Structure | None:
-        """Generate structure from part of the CIF."""
+        """Generate structure from part of the CIF.
+
+        Args:
+            data (CifBlock): The data block to parse.
+            primitive (bool): Whether to return primitive unit cells.
+            symmetrized (bool): Whether to return SymmetrizedStructure.
+            check_occu (bool): Whether to check site for unphysical occupancy > 1.
+            min_thickness (float): Minimum thickness in Angstrom to consider structure as valid.
+                This is added to guard against unphysical small/thin structure,
+                which could result in infinite loop for searching near neighbours.
+
+        Returns:
+            Structure or None if not found.
+        """
 
         def get_num_implicit_hydrogens(symbol: str) -> int:
             """Get number of implicit hydrogens."""
@@ -977,6 +1005,12 @@ class CifParser:
             return False
 
         lattice = self.get_lattice(data)
+
+        # Check minimal lattice thickness
+        if lattice is not None:
+            thickness = [lattice.d_hkl((1, 0, 0)), lattice.d_hkl((0, 1, 0)), lattice.d_hkl((0, 0, 1))]
+            if any(t < min_thickness for t in thickness):
+                raise ValueError(f"{thickness=} Å below threshold, double check your structure.")
 
         # If magCIF, get magnetic symmetry moments and magmoms
         # else standard CIF, and use empty magmom dict
@@ -1533,7 +1567,10 @@ class CifWriter:
         spacegroup: tuple[str, int] = ("P 1", 1)
         if symprec is not None:
             spg_analyzer = SpacegroupAnalyzer(struct, symprec, angle_tolerance=angle_tolerance)
-            spacegroup = (spg_analyzer.get_space_group_symbol(), spg_analyzer.get_space_group_number())
+            spacegroup = (
+                spg_analyzer.get_space_group_symbol(),
+                spg_analyzer.get_space_group_number(),
+            )
 
             if refine_struct:
                 # Need the refined structure when using symprec. This converts
@@ -1636,7 +1673,10 @@ class CifWriter:
         else:
             # The following just presents a deterministic ordering
             unique_sites = [
-                (min(sites, key=lambda site: tuple(abs(x) for x in site.frac_coords)), len(sites))
+                (
+                    min(sites, key=lambda site: tuple(abs(x) for x in site.frac_coords)),
+                    len(sites),
+                )
                 for sites in spg_analyzer.get_symmetrized_structure().equivalent_sites  # type: ignore[reportPossiblyUnboundVariable]
             ]
             for site, mult in sorted(

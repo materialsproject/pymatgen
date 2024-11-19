@@ -75,11 +75,20 @@ def quick_view(
         rad = CovalentRadius.radius[el]
         mv.add_representation(
             "spheres",
-            {"coordinates": coord.astype(float), "colors": [get_atom_color(el)], "radii": [rad * 0.5], "opacity": 1},
+            {
+                "coordinates": coord.astype(float),
+                "colors": [get_atom_color(el)],
+                "radii": [rad * 0.5],
+                "opacity": 1,
+            },
         )
     if show_box:
         o = np.array([0, 0, 0])
-        a, b, c = struct.lattice.matrix[0], struct.lattice.matrix[1], struct.lattice.matrix[2]
+        a, b, c = (
+            struct.lattice.matrix[0],
+            struct.lattice.matrix[1],
+            struct.lattice.matrix[2],
+        )
         starts = [o, o, o, a, a, b, b, c, c, a + b, a + c, b + c]
         ends = [
             a,

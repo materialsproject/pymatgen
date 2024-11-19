@@ -15,7 +15,6 @@ from monty.io import zopen
 from monty.json import MSONable
 
 from pymatgen.core.structure import Composition, DummySpecies, Element, Lattice, Molecule, Species, Structure
-from pymatgen.io.ase import AseAtomsAdaptor
 
 if TYPE_CHECKING:
     from collections.abc import Iterator
@@ -46,7 +45,7 @@ class Trajectory(MSONable):
         coords: list[list[Vector3D]] | np.ndarray | list[np.ndarray],
         charge: float | None = None,
         spin_multiplicity: float | None = None,
-        lattice: Lattice | Matrix3D | list[Lattice] | list[Matrix3D] | np.ndarray | None = None,
+        lattice: (Lattice | Matrix3D | list[Lattice] | list[Matrix3D] | np.ndarray | None) = None,
         *,
         site_properties: SitePropsType | None = None,
         frame_properties: list[dict] | None = None,
@@ -219,7 +218,7 @@ class Trajectory(MSONable):
                     charge=charge,
                     spin_multiplicity=spin,
                     site_properties=self._get_site_props(frames),  # type: ignore[arg-type]
-                    properties=None if self.frame_properties is None else self.frame_properties[frames],
+                    properties=(None if self.frame_properties is None else self.frame_properties[frames]),
                 )
 
             lattice = self.lattice if self.constant_lattice else self.lattice[frames]
@@ -229,7 +228,7 @@ class Trajectory(MSONable):
                 self.species,
                 self.coords[frames],
                 site_properties=self._get_site_props(frames),  # type: ignore[arg-type]
-                properties=None if self.frame_properties is None else self.frame_properties[frames],
+                properties=(None if self.frame_properties is None else self.frame_properties[frames]),
                 to_unit_cell=True,
             )
 
@@ -580,9 +579,12 @@ class Trajectory(MSONable):
             try:
                 from ase.io.trajectory import Trajectory as AseTrajectory
 
+                from pymatgen.io.ase import AseAtomsAdaptor
+
                 ase_traj = AseTrajectory(filename)
                 # Periodic boundary conditions should be the same for all frames so just check the first
                 pbc = ase_traj[0].pbc
+
                 if any(pbc):
                     structures = [AseAtomsAdaptor.get_structure(atoms) for atoms in ase_traj]
                 else:

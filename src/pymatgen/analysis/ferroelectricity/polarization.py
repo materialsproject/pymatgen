@@ -107,7 +107,12 @@ def get_total_ionic_dipole(structure, zval_dict):
     return np.sum(tot_ionic, axis=0)
 
 
-def get_nearest_site(struct: Structure, coords: Sequence[float], site: PeriodicSite, r: float | None = None):
+def get_nearest_site(
+    struct: Structure,
+    coords: Sequence[float],
+    site: PeriodicSite,
+    r: float | None = None,
+):
     """
     Given coords and a site, find closet site to coords.
 
@@ -144,7 +149,12 @@ class Polarization:
     """
 
     def __init__(
-        self, p_elecs, p_ions, structures: Sequence[Structure], p_elecs_in_cartesian=True, p_ions_in_cartesian=False
+        self,
+        p_elecs,
+        p_ions,
+        structures: Sequence[Structure],
+        p_elecs_in_cartesian=True,
+        p_ions_in_cartesian=False,
     ):
         """
         p_elecs (np.ndarray): electronic contribution to the polarization with shape [N, 3]

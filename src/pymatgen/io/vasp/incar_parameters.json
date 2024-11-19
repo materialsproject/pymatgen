@@ -191,24 +191,35 @@
  "GGA": {
    "type": "str",
    "values": [
+      "CA",
+      "PZ",
+      "SL",
+      "CA_C",
+      "PZ_C",
+      "VW",
+      "HL",
+      "WI",
+      "LIBXC",
+      "LI",
       "91",
       "PE",
-      "AM",
-      "HL",
-      "CA",
-      "MK",
+      "PBE_X",
+      "PBE_C",
       "RE",
-      "VW",
-      "B3",
-      "PZ",
-      "WI",
       "RP",
-      "B5",
-      "BF",
-      "CO",
       "PS",
+      "AM",
+      "B3",
+      "B5",
       "OR",
       "BO",
+      "MK",
+      "ML",
+      "CX",
+      "BF",
+      "RP",
+      "CO",
+      "RE",
       "03",
       "05",
       "10",
@@ -970,6 +981,17 @@
  "ML_FF_WTSIF": {
     "type": "float"
  },
+ "ML_MODE": {
+   "type": "str",
+   "values": [
+      "train",
+      "select",
+      "refit",
+      "refitbayesian",
+      "run",
+      "none"
+   ]
+ },
  "NBANDS": {
     "type": "int"
  },
@@ -1444,5 +1466,8 @@
  },
  "MAGDIPOLOUT": {
     "type": "bool"
+ },
+ "ZAB_VDW": {
+    "type": "float"
  }
 }

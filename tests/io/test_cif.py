@@ -104,7 +104,12 @@ loop_
  _atom_site_attached_hydrogens
   C1  C0+  2  b  0  0  0.25  .  1.  0
   C2  C0+  2  c  0.3333  0.6667  0.25  .  1.  0"""
-        for l1, l2, l3 in zip(str(cif_block).split("\n"), cif_str.split("\n"), cif_str_2.split("\n"), strict=True):
+        for l1, l2, l3 in zip(
+            str(cif_block).split("\n"),
+            cif_str.split("\n"),
+            cif_str_2.split("\n"),
+            strict=True,
+        ):
             assert l1.strip() == l2.strip()
             assert l2.strip() == l3.strip()
 
@@ -214,13 +219,28 @@ class TestCifIO(PymatgenTest):
         assert len(parser.parse_structures(primitive=False)[0]) == 2
         assert not parser.has_errors
 
+    def test_parse_bad_superflat(self):
+        """
+        Test unphysically "flat" structure with volume near zero,
+        which would originally lead to infinite loop (PR4133).
+        """
+        parser = CifParser(f"{TEST_FILES_DIR}/cif/bad_superflat_inf_loop.cif.gz")
+        with (
+            pytest.raises(ValueError, match="Invalid CIF file with no structures"),
+            pytest.warns(UserWarning, match="Å below threshold, double check your structure."),
+        ):
+            parser.parse_structures()
+
     def test_get_symmetrized_structure(self):
         parser = CifParser(f"{TEST_FILES_DIR}/cif/Li2O.cif")
         sym_structure = parser.parse_structures(primitive=False, symmetrized=True)[0]
         structure = parser.parse_structures(primitive=False, symmetrized=False)[0]
         assert isinstance(sym_structure, SymmetrizedStructure)
         assert structure == sym_structure
-        assert sym_structure.equivalent_indices == [[0, 1, 2, 3], [4, 5, 6, 7, 8, 9, 10, 11]]
+        assert sym_structure.equivalent_indices == [
+            [0, 1, 2, 3],
+            [4, 5, 6, 7, 8, 9, 10, 11],
+        ]
         assert set(sym_structure.labels) == {"O1", "Li1"}
 
     def test_site_symbol_preference(self):
@@ -356,7 +376,7 @@ class TestCifIO(PymatgenTest):
         # Symbol in capital letters
         parser = CifParser(f"{TEST_FILES_DIR}/cif/Cod_2100513.cif")
         for struct in parser.parse_structures():
-            assert struct.formula == "Ca4 Nb2.0 Al2 O12"
+            assert struct.formula == "Ca4 Nb2 Al2 O12"
 
         # Label in capital letters
         parser = CifParser(f"{TEST_FILES_DIR}/cif/Cod_4115344.cif")
@@ -559,7 +579,13 @@ loop_
         si3 = Species("Si", 3)
         dummy_spec = DummySpecies("X", -3)
         coords = []
-        coords.extend((np.array([0.5, 0.5, 0.5]), np.array([0.75, 0.5, 0.75]), np.array([0, 0, 0])))
+        coords.extend(
+            (
+                np.array([0.5, 0.5, 0.5]),
+                np.array([0.75, 0.5, 0.75]),
+                np.array([0, 0, 0]),
+            )
+        )
         lattice = [
             [3.8401979337, 0.00, 0.00],
             [1.9200989668, 3.3257101909, 0.00],
@@ -735,7 +761,8 @@ loop_
         filepath = f"{TEST_FILES_DIR}/cif/bad_occu.cif"
         parser = CifParser(filepath)
         with pytest.raises(
-            ValueError, match="No structure parsed for section 1 in CIF.\nOccupancy 1.556 exceeded tolerance."
+            ValueError,
+            match="No structure parsed for section 1 in CIF.\nOccupancy 1.556 exceeded tolerance.",
         ):
             parser.parse_structures(on_error="raise")
         parser = CifParser(filepath, occupancy_tolerance=2)
@@ -749,7 +776,8 @@ loop_
         cif_str = cif_str.replace("Te    Te 1.0000", "Te_label    Te 10.0", 1)
 
         with pytest.warns(
-            UserWarning, match=r"Issues encountered while parsing CIF: Some occupancies \(\[10\.0\]\) sum to > 1!"
+            UserWarning,
+            match=r"Issues encountered while parsing CIF: Some occupancies \(\[10\.0\]\) sum to > 1!",
         ):
             structs = CifParser.from_str(cif_str).parse_structures(check_occu=False)
 
@@ -991,11 +1019,17 @@ class TestMagCif(PymatgenTest):
 
     def test_parse_structures(self):
         # incommensurate structures not currently supported
-        with pytest.raises(NotImplementedError, match="Incommensurate structures not currently supported"):
+        with pytest.raises(
+            NotImplementedError,
+            match="Incommensurate structures not currently supported",
+        ):
             self.mcif_incommensurate.parse_structures()
 
         # disordered magnetic structures not currently supported
-        with pytest.raises(NotImplementedError, match="Disordered magnetic structures not currently supported"):
+        with pytest.raises(
+            NotImplementedError,
+            match="Disordered magnetic structures not currently supported",
+        ):
             self.mcif_disordered.parse_structures()
 
         # taken from self.mcif_ncl, removing explicit magnetic symmops
@@ -1109,7 +1143,10 @@ def test_cif_writer_non_unique_labels(capsys):
     assert len(set(struct.labels)) != len(struct.labels)
 
     # This should raise a warning
-    with pytest.warns(UserWarning, match="Site labels are not unique, which is not compliant with the CIF spec"):
+    with pytest.warns(
+        UserWarning,
+        match="Site labels are not unique, which is not compliant with the CIF spec",
+    ):
         CifWriter(struct)
 
     struct.relabel_sites()

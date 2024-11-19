@@ -76,7 +76,12 @@ class BaseLammpsGenerator(InputGenerator):
         input_file = LammpsInputFile.from_str(input_str, keep_stages=self.keep_stages)
 
         # Get the LammpsInputSet from the InputFile and data
-        return LammpsInputSet(inputfile=input_file, data=data, calc_type=self.calc_type, template_file=self.template)
+        return LammpsInputSet(
+            inputfile=input_file,
+            data=data,
+            calc_type=self.calc_type,
+            template_file=self.template,
+        )
 
 
 class LammpsMinimization(BaseLammpsGenerator):
@@ -136,7 +141,12 @@ class LammpsMinimization(BaseLammpsGenerator):
             "force_field": force_field,
         }
 
-        super().__init__(template=template, settings=settings, calc_type="minimization", keep_stages=keep_stages)
+        super().__init__(
+            template=template,
+            settings=settings,
+            calc_type="minimization",
+            keep_stages=keep_stages,
+        )
 
     @property
     def units(self) -> str:

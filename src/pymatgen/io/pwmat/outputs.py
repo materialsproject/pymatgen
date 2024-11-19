@@ -24,7 +24,12 @@ __date__ = "2024-1-16"
 class Movement(MSONable):
     """Parser for data in MOVEMENT which records trajectory during MD."""
 
-    def __init__(self, filename: PathLike, ionic_step_skip: int | None = None, ionic_step_offset: int | None = None):
+    def __init__(
+        self,
+        filename: PathLike,
+        ionic_step_skip: int | None = None,
+        ionic_step_offset: int | None = None,
+    ):
         """Initialization function.
 
         Args:
@@ -263,7 +268,13 @@ class Report(MSONable):
 
             if len(tmp_row_lst) == 5:
                 hsps |= {
-                    tmp_row_lst[4]: np.array([float(tmp_row_lst[0]), float(tmp_row_lst[1]), float(tmp_row_lst[2])])
+                    tmp_row_lst[4]: np.array(
+                        [
+                            float(tmp_row_lst[0]),
+                            float(tmp_row_lst[1]),
+                            float(tmp_row_lst[2]),
+                        ]
+                    )
                 }
         return kpts, kpts_weight, hsps
 

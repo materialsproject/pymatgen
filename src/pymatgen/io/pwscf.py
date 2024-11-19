@@ -355,15 +355,19 @@ class PWInput:
                     pseudo[match[2].strip()] = match[4].strip()
 
             elif mode[0] == "kpoints":
-                if match := re.match(r"(\d+)\s+(\d+)\s+(\d+)\s+(\d+)\s+(\d+)\s+(\d+)", line):
-                    kpoints_grid = (int(match[1]), int(match[2]), int(match[3]))
-                    kpoints_shift = (int(match[4]), int(match[5]), int(match[6]))
+                if match := re.match(r"^(\s*)(\d+)\s+(\d+)\s+(\d+)\s+(\d+)\s+(\d+)\s+(\d+)", line):
+                    format_options["indent"] = len(match[1])
+                    kpoints_grid = (int(match[2]), int(match[3]), int(match[4]))
+                    kpoints_shift = (int(match[5]), int(match[6]), int(match[7]))
                 else:
                     kpoints_mode = mode[1]
 
             elif mode[0] == "structure":
                 m_l = re.match(r"^(\s*)(-?\d+\.?\d*)\s+(-?\d+\.?\d*)\s+(-?\d+\.?\d*)", line)
-                m_p = re.match(r"^(\s*)(\w+\d*[\+-]?)\s+(-?\d+\.\d*)\s+(-?\d+\.?\d*)\s+(-?\d+\.?\d*)", line)
+                m_p = re.match(
+                    r"^(\s*)(\w+\d*[\+-]?)\s+(-?\d+\.\d*)\s+(-?\d+\.?\d*)\s+(-?\d+\.?\d*)",
+                    line,
+                )
                 if m_l:
                     format_options["indent"] = len(m_l[1])
                     lattice += [
@@ -537,7 +541,7 @@ class PWInput:
                 raise ValueError(f"{key} should be a boolean type!")
 
             if key in float_keys:
-                return float(re.search(r"^-?\d*\.?\d*d?-?\d*", val.lower())[0].replace("d", "e"))
+                return float(re.search(r"^-?\d*\.?\d*[de]?-?\d*", val.lower())[0].replace("d", "e"))
 
             if key in int_keys:
                 return int(re.match(r"^-?[0-9]+", val)[0])

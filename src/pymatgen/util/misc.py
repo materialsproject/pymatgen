@@ -6,7 +6,7 @@ import numpy as np
 
 
 def is_np_dict_equal(dict1, dict2, /) -> bool:
-    """Compare two dict whose value could be np arrays.
+    """Compare two dict whose value could be NumPy arrays.
 
     Args:
         dict1 (dict): The first dict.

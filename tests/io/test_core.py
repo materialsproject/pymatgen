@@ -153,7 +153,11 @@ class TestInputSet(PymatgenTest):
 
     def test_write_from_str(self):
         inp_set = InputSet(
-            {"cif1": self.sif1, "file_from_str": "hello you", "file_from_str_cast": FakeClass(a="Aha", b="Beh")}
+            {
+                "cif1": self.sif1,
+                "file_from_str": "hello you",
+                "file_from_str_cast": FakeClass(a="Aha", b="Beh"),
+            }
         )
         inp_set.write_input(directory="input_dir", make_dir=True, overwrite=True, zip_inputs=False)
         assert os.path.isfile("input_dir/cif1")

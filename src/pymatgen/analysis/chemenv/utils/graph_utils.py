@@ -175,14 +175,17 @@ class SimpleGraphCycle(MSONable):
         if check_strict_ordering:
             try:
                 sorted_nodes = sorted(self.nodes)
-            except TypeError as te:
-                msg = te.args[0]
+            except TypeError as exc:
+                msg = exc.args[0]
                 if "'<' not supported between instances of" in msg:
                     return False, "The nodes are not sortable."
                 raise
             res = all(i < j for i, j in itertools.pairwise(sorted_nodes))
             if not res:
-                return False, "The list of nodes in the cycle cannot be strictly ordered."
+                return (
+                    False,
+                    "The list of nodes in the cycle cannot be strictly ordered.",
+                )
         return True, ""
 
     def validate(self, check_strict_ordering=False):
@@ -363,14 +366,17 @@ class MultiGraphCycle(MSONable):
         if check_strict_ordering:
             try:
                 sorted_nodes = sorted(self.nodes)
-            except TypeError as te:
-                msg = te.args[0]
+            except TypeError as exc:
+                msg = exc.args[0]
                 if "'<' not supported between instances of" in msg:
                     return False, "The nodes are not sortable."
                 raise
             is_ordered = all(node1 < node2 for node1, node2 in itertools.pairwise(sorted_nodes))
             if not is_ordered:
-                return False, "The list of nodes in the cycle cannot be strictly ordered."
+                return (
+                    False,
+                    "The list of nodes in the cycle cannot be strictly ordered.",
+                )
         return True, ""
 
     def validate(self, check_strict_ordering=False):

@@ -38,7 +38,7 @@ class PiezoTensor(Tensor):
                 representing the piezo tensor
         """
         obj = super().__new__(cls, input_array, check_rank=3)
-        if not (obj - np.transpose(obj, (0, 2, 1)) < tol).all():
+        if not np.allclose(obj, np.transpose(obj, (0, 2, 1)), atol=tol, rtol=0):
             warnings.warn("Input piezo tensor does not satisfy standard symmetries")
         return obj.view(cls)
 
@@ -46,7 +46,7 @@ class PiezoTensor(Tensor):
     def from_vasp_voigt(cls, input_vasp_array: ArrayLike) -> Self:
         """
         Args:
-            input_vasp_array (nd.array): Voigt form of tensor.
+            input_vasp_array (ArrayLike): Voigt form of tensor.
 
         Returns:
             PiezoTensor

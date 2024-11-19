@@ -56,10 +56,15 @@ class TestPointGroup:
         pg_m3m = PointGroup("m-3m")
         pg_6mmm = PointGroup("6/mmm")
         pg_3m = PointGroup("-3m")
-        # TODO: Fix the test below.
+        # TODO: Fix the tests below.
         # assert pg3m.is_subgroup(pgm3m)
+        # assert PointGroup("32").is_subgroup(PointGroup("-6m2"))
         assert pg_3m.is_subgroup(pg_6mmm)
         assert not pg_m3m.is_supergroup(pg_6mmm)
+
+    def test_init_different_settings_and_full_notation(self):
+        PointGroup("2/m 2/m 2/m")
+        PointGroup("31m")
 
     def test_from_space_group(self):
         assert PointGroup.from_space_group("P 2_1/n2_1/m2_1/a").symbol == "mmm"
@@ -74,7 +79,13 @@ class TestSpaceGroup:
     def test_renamed_e_symbols(self):
         assert SpaceGroup.from_int_number(64).symbol == "Cmce"
 
-        for sym, num in (("Aem2", 39), ("Aea2", 41), ("Cmce", 64), ("Cmme", 67), ("Ccce", 68)):
+        for sym, num in (
+            ("Aem2", 39),
+            ("Aea2", 41),
+            ("Cmce", 64),
+            ("Cmme", 67),
+            ("Ccce", 68),
+        ):
             assert SpaceGroup(sym).int_number == num
 
     def test_abbrev_symbols(self):
@@ -109,9 +120,26 @@ class TestSpaceGroup:
     def test_get_settings(self):
         assert SpaceGroup.get_settings("Fm-3m") == {"Fm-3m(a-1/4,b-1/4,c-1/4)", "Fm-3m"}
 
-        pmmn_settings = {"Pmmn", "Pmnm:1", "Pnmm:2", "Pmnm:2", "Pnmm", "Pnmm:1", "Pmmn:1", "Pmnm", "Pmmn:2"}
+        pmmn_settings = {
+            "Pmmn",
+            "Pmnm:1",
+            "Pnmm:2",
+            "Pmnm:2",
+            "Pnmm",
+            "Pnmm:1",
+            "Pmmn:1",
+            "Pmnm",
+            "Pmmn:2",
+        }
         assert SpaceGroup.get_settings("Pmmn") == pmmn_settings
-        assert SpaceGroup.get_settings("Pmna") == {"Pnmb", "Pman", "Pncm", "Pmna", "Pcnm", "Pbmn"}
+        assert SpaceGroup.get_settings("Pmna") == {
+            "Pnmb",
+            "Pman",
+            "Pncm",
+            "Pmna",
+            "Pcnm",
+            "Pbmn",
+        }
 
     def test_crystal_system(self):
         sg = SpaceGroup("R-3c")
@@ -204,6 +232,8 @@ class TestSpaceGroup:
     def test_subgroup_supergroup(self):
         assert SpaceGroup("Pma2").is_subgroup(SpaceGroup("Pccm"))
         assert not SpaceGroup.from_int_number(229).is_subgroup(SpaceGroup.from_int_number(230))
+        assert SpaceGroup("P3").is_subgroup(SpaceGroup("P3"))  # Added after #3937
+        assert SpaceGroup("Fm-3m").is_subgroup(SpaceGroup("Pm-3m"))  # Added after #3937
 
     def test_hexagonal(self):
         for num in (146, 148, 155, 160, 161, 166, 167):
@@ -250,5 +280,8 @@ class TestSpaceGroup:
 
     def test_raises_on_bad_int_number(self):
         for num in (-5, 0, 231, 1000):
-            with pytest.raises(ValueError, match=f"International number must be between 1 and 230, got {num}"):
+            with pytest.raises(
+                ValueError,
+                match=f"International number must be between 1 and 230, got {num}",
+            ):
                 SpaceGroup.from_int_number(num)

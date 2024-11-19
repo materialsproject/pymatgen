@@ -67,9 +67,28 @@ class TestXAS(PymatgenTest):
         assert str(self.k_xanes) == "Co K Edge XANES for LiCoO2: <super: <class 'XAS'>, <XAS object>>"
 
     def test_validate(self):
-        y_zeros = np.zeros(len(self.k_xanes.x))
-        with pytest.raises(ValueError, match="Double check the intensities. Most of them are non-positive"):
-            XAS(self.k_xanes.x, y_zeros, self.k_xanes.structure, self.k_xanes.absorbing_element)
+        y_zeros = -np.ones(len(self.k_xanes.x))
+        with pytest.warns(
+            UserWarning,
+            match="Double check the intensities. More than 5% of them are negative.",
+        ):
+            XAS(
+                self.k_xanes.x,
+                y_zeros,
+                self.k_xanes.structure,
+                self.k_xanes.absorbing_element,
+            )
+
+    def test_zero_negative_intensity(self):
+        y_w_neg_intens = [(-1) ** i * v for i, v in enumerate(self.k_xanes.y)]
+        spectrum = XAS(
+            self.k_xanes.x,
+            y_w_neg_intens,
+            self.k_xanes.structure,
+            self.k_xanes.absorbing_element,
+            zero_negative_intensity=True,
+        )
+        assert all(v == 0.0 for i, v in enumerate(spectrum.y) if i % 2 == 1)
 
     def test_stitch_xafs(self):
         with pytest.raises(ValueError, match="Invalid mode. Only XAFS and L23 are supported"):
@@ -84,7 +103,10 @@ class TestXAS(PymatgenTest):
         with pytest.raises(ValueError, match="The input structures for spectra mismatch"):
             XAS.stitch(self.k_xanes, self.l2_xanes, mode="XAFS")
         self.k_xanes.x = np.zeros(100)
-        with pytest.raises(ValueError, match="Energy overlap between XANES and EXAFS is needed for stitching"):
+        with pytest.raises(
+            ValueError,
+            match="Energy overlap between XANES and EXAFS is needed for stitching",
+        ):
             XAS.stitch(self.k_xanes, self.k_exafs)
         self.k_xanes.absorbing_element = Element("Pt")
         with pytest.raises(ValueError, match="The absorbing elements for spectra are different"):
@@ -120,5 +142,8 @@ class TestXAS(PymatgenTest):
         assert weighted_spectrum.y[0] == approx((4 * self.site1_xanes.y[0] + 2 * self.site2_xanes.y[0]) / 6, abs=1e-2)
         assert min(weighted_spectrum.x) == max(min(self.site1_xanes.x), min(self.site2_xanes.x))
         self.site2_xanes.absorbing_index = self.site1_xanes.absorbing_index
-        with pytest.raises(ValueError, match="Need at least two site-wise spectra to perform site-weighting"):
+        with pytest.raises(
+            ValueError,
+            match="Need at least two site-wise spectra to perform site-weighting",
+        ):
             site_weighted_spectrum([self.site1_xanes, self.site2_xanes])

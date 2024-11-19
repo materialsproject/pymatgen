@@ -214,7 +214,7 @@ class ElasticTensor(NthOrderElasticTensor):
             tol (float): tolerance for testing of orthogonality
         """
         n, m = get_uvec(n), get_uvec(m)
-        if not np.abs(np.dot(n, m)) < tol:
+        if np.abs(np.dot(n, m)) >= tol:
             raise ValueError("n and m must be orthogonal")
         v = self.compliance_tensor.einsum_sequence([n] * 2 + [m] * 2)
         v *= -1 / self.compliance_tensor.einsum_sequence([n] * 4)
@@ -425,7 +425,10 @@ class ElasticTensor(NthOrderElasticTensor):
         return {prop: getattr(self, prop) for prop in props}
 
     def get_structure_property_dict(
-        self, structure: Structure, include_base_props: bool = True, ignore_errors: bool = False
+        self,
+        structure: Structure,
+        include_base_props: bool = True,
+        ignore_errors: bool = False,
     ) -> dict[str, float | Structure | None]:
         """Get a dictionary of properties derived from the elastic tensor
         and an associated structure.
@@ -689,7 +692,10 @@ class ElasticTensorExpansion(TensorCollection):
         return vel / l0
 
     def thermal_expansion_coeff(
-        self, structure: Structure, temperature: float, mode: Literal["dulong - petit", "debye"] = "debye"
+        self,
+        structure: Structure,
+        temperature: float,
+        mode: Literal["dulong - petit", "debye"] = "debye",
     ):
         """Get thermal expansion coefficient from third-order constants.
 
@@ -901,7 +907,7 @@ def find_eq_stress(strains, stresses, tol: float = 1e-10):
     eq_stress = stress_array[np.all(abs(strain_array) < tol, axis=(1, 2))]
 
     if eq_stress.size != 0:
-        all_same = (abs(eq_stress - eq_stress[0]) < 1e-8).all()
+        all_same = np.allclose(eq_stress, eq_stress[0], atol=1e-8, rtol=0)
         if len(eq_stress) > 1 and not all_same:
             raise ValueError(
                 "Multiple stresses found for equilibrium strain"
