@@ -885,8 +885,7 @@ class _ElementMeta(EnumType):
     """Override the iteration behavior of Element to skip isotopes."""
 
     def __iter__(cls):
-        named_isotopes = {"D", "T"}
-        return (member for member in super().__iter__() if member.name not in named_isotopes)
+        return (member for member in super().__iter__() if not member._is_named_isotope)
 
 
 @functools.total_ordering
