@@ -426,6 +426,42 @@ class TestComposition(PymatgenTest):
             c2 = Composition().from_weight_dict(comp.to_weight_dict)
             comp.almost_equals(c2)
 
+    def test_composition_from_weights(self):
+        ref_comp = Composition({"Fe": 0.5, "Ni": 0.5})
+
+        # Test basic weight-based composition
+        comp = Composition.from_weights({"Fe": ref_comp.get_wt_fraction("Fe"), "Ni": ref_comp.get_wt_fraction("Ni")})
+        assert comp["Fe"] == approx(ref_comp.get_atomic_fraction("Fe"))
+        assert comp["Ni"] == approx(ref_comp.get_atomic_fraction("Ni"))
+
+        # Test with another Composition instance
+        comp = Composition({"Fe": ref_comp.get_wt_fraction("Fe"), "Ni": ref_comp.get_wt_fraction("Ni")})
+        comp = Composition.from_weights(comp)
+        assert comp["Fe"] == approx(ref_comp.get_atomic_fraction("Fe"))
+        assert comp["Ni"] == approx(ref_comp.get_atomic_fraction("Ni"))
+
+        # Test with string input
+        comp = Composition.from_weights(f"Fe{ref_comp.get_wt_fraction('Fe')}Ni{ref_comp.get_wt_fraction('Ni')}")
+        assert comp["Fe"] == approx(ref_comp.get_atomic_fraction("Fe"))
+        assert comp["Ni"] == approx(ref_comp.get_atomic_fraction("Ni"))
+
+        # Test with kwargs
+        comp = Composition.from_weights(Fe=ref_comp.get_wt_fraction("Fe"), Ni=ref_comp.get_wt_fraction("Ni"))
+        assert comp["Fe"] == approx(ref_comp.get_atomic_fraction("Fe"))
+        assert comp["Ni"] == approx(ref_comp.get_atomic_fraction("Ni"))
+
+        # Test strict mode
+        with pytest.raises(ValueError, match="'Xx' is not a valid Element"):
+            Composition.from_weights({"Xx": 10}, strict=True)
+
+        # Test allow_negative
+        with pytest.raises(ValueError, match="Weights in Composition cannot be negative!"):
+            Composition.from_weights({"Fe": -55.845})
+
+        # Test NaN handling
+        with pytest.raises(ValueError, match=r"float\('NaN'\) is not a valid Composition"):
+            Composition.from_weights(float("nan"))
+
     def test_as_dict(self):
         comp = Composition.from_dict({"Fe": 4, "O": 6})
         dct = comp.as_dict()

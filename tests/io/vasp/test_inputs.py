@@ -892,7 +892,7 @@ NKRED      =  2
 NPAR       =  8
 NSIM       =  1
 NSW        =  99
-NUPDOWN    =  0
+NUPDOWN    =  0.0
 PREC       =  Accurate
 SIGMA      =  0.05
 SYSTEM     =  id=[0] dblock_code=[97763-ICSD] formula=[Li Mn (P O4)] sg_name=[P n m a]
