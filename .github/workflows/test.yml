@@ -82,7 +82,7 @@ jobs:
 
           # Install from wheels to test the content
           uv pip install build
-          python -m build --wheel
+          python -m build --wheel -C--quiet
 
           uv pip install dist/*.whl
           uv pip install pymatgen[${{ matrix.config.extras }}] --resolution=${{ matrix.config.resolution }}

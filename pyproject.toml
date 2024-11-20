@@ -89,6 +89,7 @@ Pypi = "https://pypi.org/project/pymatgen"
 
 [project.optional-dependencies]
 # PR4128: netcdf4 1.7.1.post[1/2]/1.7.2 cause CI error
+# TODO: netcdf4==1.6.5 (current only version left) cannot be installed for Python 3.13
 abinit = ["netcdf4>=1.6.5,!=1.7.1.post1,!=1.7.1.post2,!=1.7.2; python_version<'3.13'"]
 ase = ["ase>=3.23.0"]
 ci = ["pytest-cov>=4", "pytest-split>=0.8", "pytest>=8"]
@@ -96,7 +97,7 @@ docs = ["invoke", "sphinx", "sphinx_markdown_builder", "sphinx_rtd_theme"]
 electronic_structure = ["fdint>=2.0.2"]
 mlp = ["chgnet>=0.4.0; python_version<'3.13'", "matgl>=1.1.3; python_version<'3.13'"]
 numba = ["numba>=0.55; python_version<'3.13'"]
-numpy-v1 = ["numpy>=1.25.0,<2"] # Test NP1 on Windows (quite buggy ATM)
+numpy-v1 = ["numpy>=1.25.0,<2"] # Test NP1 on Windows (buggy at this moment)
 optional = [
     "pymatgen[abinit,ase,mlp,tblite]",
     "beautifulsoup4",
@@ -116,7 +117,7 @@ optional = [
 ]
 # tblite only support Python 3.12+ through conda-forge
 # https://github.com/tblite/tblite/issues/175
-tblite = [ "tblite[ase]>=0.3.0; platform_system=='Linux' and python_version<'3.12'"]
+tblite = ["tblite[ase]>=0.3.0; platform_system=='Linux' and python_version<'3.12'"]
 vis = ["vtk>=6.0.0"]
 
 [project.scripts]
