@@ -507,7 +507,7 @@ class JOutStructures:
             if i > 0:
                 init_structure = joutstructure_list[-1]
             joutstructure_list.append(
-                JOutStructure.from_text_slice(
+                JOutStructure._from_text_slice(
                     out_slice[bounds[0] : bounds[1]],
                     init_structure=init_structure,
                     opt_type=self.opt_type,
