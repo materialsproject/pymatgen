@@ -17,12 +17,12 @@ import numpy as np
 
 from pymatgen.core.structure import Structure
 from pymatgen.core.units import bohr_to_ang
-from pymatgen.io.jdftx.utils import correct_geom_opt_type, is_lowdin_start_line
+from pymatgen.io.jdftx._utils import correct_geom_opt_type, is_lowdin_start_line
 
 if TYPE_CHECKING:
     from pymatgen.io.jdftx.jelstep import JElSteps
+from pymatgen.io.jdftx._utils import find_first_range_key
 from pymatgen.io.jdftx.joutstructure import JOutStructure
-from pymatgen.io.jdftx.utils import find_first_range_key
 
 __author__ = "Ben Rich"
 

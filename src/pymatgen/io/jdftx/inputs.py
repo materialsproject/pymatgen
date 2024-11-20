@@ -23,6 +23,7 @@ from monty.json import MSONable
 
 from pymatgen.core import Structure
 from pymatgen.core.periodic_table import Element
+from pymatgen.io.jdftx._utils import multi_getattr, multi_hasattr
 from pymatgen.io.jdftx.generic_tags import AbstractTag, BoolTagContainer, DumpTagContainer, MultiformatTag, TagContainer
 from pymatgen.io.jdftx.jdftxinfile_master_format import (
     __PHONON_TAGS__,
@@ -31,7 +32,6 @@ from pymatgen.io.jdftx.jdftxinfile_master_format import (
     MASTER_TAG_LIST,
     get_tag_object,
 )
-from pymatgen.io.jdftx.utils import multi_getattr, multi_hasattr
 from pymatgen.util.io_utils import clean_lines
 from pymatgen.util.typing import SpeciesLike
 

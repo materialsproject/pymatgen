@@ -15,13 +15,13 @@ import numpy as np
 
 from pymatgen.core.structure import Lattice, Structure
 from pymatgen.core.units import Ha_to_eV, bohr_to_ang
-from pymatgen.io.jdftx.jelstep import JElSteps
-from pymatgen.io.jdftx.utils import (
+from pymatgen.io.jdftx._utils import (
     _brkt_list_of_3x3_to_nparray,
     correct_geom_opt_type,
     get_colon_var_t1,
     is_lowdin_start_line,
 )
+from pymatgen.io.jdftx.jelstep import JElSteps
 
 __author__ = "Ben Rich"
 

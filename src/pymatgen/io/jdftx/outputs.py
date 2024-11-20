@@ -15,8 +15,8 @@ import pprint
 from dataclasses import dataclass, field
 from typing import TYPE_CHECKING, Any
 
+from pymatgen.io.jdftx._utils import read_outfile_slices
 from pymatgen.io.jdftx.jdftxoutfileslice import JDFTXOutfileSlice
-from pymatgen.io.jdftx.utils import read_outfile_slices
 
 if TYPE_CHECKING:
     from pathlib import Path

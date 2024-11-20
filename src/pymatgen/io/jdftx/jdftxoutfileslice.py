@@ -22,6 +22,14 @@ if TYPE_CHECKING:
 from pymatgen.core.periodic_table import Element
 from pymatgen.core.trajectory import Trajectory
 from pymatgen.core.units import Ha_to_eV, ang_to_bohr
+from pymatgen.io.jdftx._utils import (
+    find_all_key,
+    find_first_range_key,
+    find_key,
+    find_key_first,
+    get_colon_var_t1,
+    key_exists,
+)
 from pymatgen.io.jdftx.jminsettings import (
     JMinSettings,
     JMinSettingsElectronic,
@@ -30,14 +38,6 @@ from pymatgen.io.jdftx.jminsettings import (
     JMinSettingsLattice,
 )
 from pymatgen.io.jdftx.joutstructures import JOutStructures
-from pymatgen.io.jdftx.utils import (
-    find_all_key,
-    find_first_range_key,
-    find_key,
-    find_key_first,
-    get_colon_var_t1,
-    key_exists,
-)
 
 __author__ = "Ben Rich"
 
