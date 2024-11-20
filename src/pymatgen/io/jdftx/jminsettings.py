@@ -27,12 +27,10 @@ class JMinSettings:
         self,
         params: dict[str, Any] | None = None,
     ) -> None:
-        """Initialize a generic JMInSettings class.
+        """Initialize a generic JMinSettings class.
 
-        Parameters
-        ----------
-        params : dict
-            A dictionary of minimization settings.
+        Args:
+            params (dict[str, Any] | None): A dictionary of minimization settings.
         """
         self.params = None if params is None else dict(params)
 
@@ -45,8 +43,7 @@ class JMinSettings:
 class JMinSettingsElectronic(JMinSettings):
     """JMInSettings mutant for electronic minimization settings.
 
-    A class for storing electronic minimization settings read from a
-    JDFTx out file.
+    A class for storing electronic minimization settings read from a JDFTx out file.
     """
 
     start_flag: str = "electronic-minimize"
@@ -62,8 +59,7 @@ class JMinSettingsElectronic(JMinSettings):
 class JMinSettingsFluid(JMinSettings):
     """JMInSettings mutant for fluid minimization settings.
 
-    A class for storing fluid minimization settings read from a
-    JDFTx out file.
+    A class for storing fluid minimization settings read from a JDFTx out file.
     """
 
     start_flag: str = "fluid-minimize"
@@ -79,8 +75,7 @@ class JMinSettingsFluid(JMinSettings):
 class JMinSettingsLattice(JMinSettings):
     """JMInSettings mutant for lattice minimization settings.
 
-    A class for storing lattice minimization settings read from a
-    JDFTx out file.
+    A class for storing lattice minimization settings read from a JDFTx out file.
     """
 
     start_flag: str = "lattice-minimize"
@@ -96,8 +91,7 @@ class JMinSettingsLattice(JMinSettings):
 class JMinSettingsIonic(JMinSettings):
     """JMInSettings mutant for ionic minimization settings.
 
-    A class for storing ionic minimization settings read from a
-    JDFTx out file.
+    A class for storing ionic minimization settings read from a JDFTx out file.
     """
 
     start_flag: str = "ionic-minimize"

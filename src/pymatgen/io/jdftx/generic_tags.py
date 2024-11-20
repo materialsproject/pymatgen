@@ -34,12 +34,8 @@ class ClassPrintFormatter:
     def __str__(self) -> str:
         """Print the class to the command line in a readable format.
 
-        Print the class to the command line in a readable format.
-
-        Returns
-        -------
-        str
-            The class in a readable format.
+        Returns:
+            str: The class in a readable format.
         """
         return f"{self.__class__}\n" + "\n".join(f"{item} = {self.__dict__[item]}" for item in sorted(self.__dict__))
 
@@ -48,13 +44,15 @@ class ClassPrintFormatter:
 class AbstractTag(ClassPrintFormatter, ABC):
     """Abstract base class for all tags."""
 
-    multiline_tag: bool = False  # set to True if what to print tags across
-    # multiple lines, typically like electronic-minimize
+    multiline_tag: bool = (
+        False  # set to True if what to print tags across multiple lines, typically like electronic-minimize
+    )
     can_repeat: bool = False  # set to True for tags that can appear on multiple lines, like ion
     write_tagname: bool = True  # set to False to not print the tagname, like for subtags of elec-cutoff
     write_value: bool = True  # set to False to not print any value, like for dump-interval
-    optional: bool = True  # set to False if tag (usually a subtag of a
-    # TagContainer) must be set for the JDFTXInfile to be valid.
+    optional: bool = (
+        True  # set to False if tag (usually a subtag of a TagContainer) must be set for the JDFTXInfile to be valid.
+    )
     # The lattice, ion, and ion-species are the main tags that are not optional
     defer_until_struc: bool = False
     is_tag_container: bool = False
@@ -62,38 +60,36 @@ class AbstractTag(ClassPrintFormatter, ABC):
 
     @abstractmethod
     def validate_value_type(self, tag: str, value: Any, try_auto_type_fix: bool = False) -> tuple[str, bool, Any]:
-        """Validate the type of the value for this tag."""
+        """Validate the type of the value for this tag.
+
+        Args:
+            tag (str): The tag to validate the type of the value for.
+            value (Any): The value to validate the type of.
+            try_auto_type_fix (bool, optional): Whether to try to automatically fix the type of the value.
+            Defaults to False.
+
+        Returns:
+            tuple[str, bool, Any]: The tag, whether the value is of the correct type, and the possibly fixed value.
+        """
 
     def _validate_value_type(
         self, type_check: type, tag: str, value: Any, try_auto_type_fix: bool = False
     ) -> tuple[str, bool, Any]:
         """Validate the type of the value for this tag.
 
-        This method is used to validate the type of the value for this tag. It is
-        used to check if the value is of the correct type and if it can be fixed
-        automatically. If the value is not of the correct type and cannot be fixed
+        This method is used to validate the type of the value for this tag. It is used to check if the value is of the
+        correct type and if it can be fixed automatically. If the value is not of the correct type and cannot be fixed
         automatically, a warning is raised.
 
-        Parameters
-        ----------
-        type_check : type
-            The type to check the value against.
-        tag : str
-            The tag to check the value against.
-        value : Any
-            The value to check the type of.
-        try_auto_type_fix : bool, optional
-            Whether to try to automatically fix the type of the value,
-            by default False.
+        Args:
+            type_check (type): The type to check the value against.
+            tag (str): The tag to check the value against.
+            value (Any): The value to check the type of.
+            try_auto_type_fix (bool, optional): Whether to try to automatically fix the type of the value.
+            Defaults to False.
 
-        Returns
-        -------
-        tag : str
-            The tag to check the value against.
-        is_valid : bool
-            Whether the value is of the correct type.
-        value : Any
-            The value checked against the correct type, possibly fixed.
+        Returns:
+            tuple[str, bool, Any]: The tag, whether the value is of the correct type, and the possibly fixed value.
         """
         if self.can_repeat:
             self._validate_repeat(tag, value)
@@ -120,15 +116,35 @@ class AbstractTag(ClassPrintFormatter, ABC):
 
     @abstractmethod
     def read(self, tag: str, value_str: str) -> Any:
-        """Read and parse the value string for this tag."""
+        """Read and parse the value string for this tag.
+
+        Args:
+            tag (str): The tag to read the value string for.
+            value_str (str): The value string to read.
+
+        Returns:
+            Any: The parsed value.
+        """
 
     @abstractmethod
     def write(self, tag: str, value: Any) -> str:
-        """Write the tag and its value as a string."""
+        """Write the tag and its value as a string.
+
+        Args:
+            tag (str): The tag to write.
+            value (Any): The value to write.
+
+        Returns:
+            str: The tag and its value as a string.
+        """
 
     @abstractmethod
     def get_token_len(self) -> int:
-        """Get the token length of the tag."""
+        """Get the token length of the tag.
+
+        Returns:
+            int: The token length of the tag.
+        """
 
     def _write(self, tag: str, value: Any, multiline_override: bool = False) -> str:
         tag_str = f"{tag} " if self.write_tagname else ""
@@ -142,11 +158,27 @@ class AbstractTag(ClassPrintFormatter, ABC):
         return int(self.write_tagname) + int(self.write_value)
 
     def get_list_representation(self, tag: str, value: Any) -> list | list[list]:
-        """Convert the value to a list representation."""
+        """Convert the value to a list representation.
+
+        Args:
+            tag (str): The tag to convert the value to a list representation for.
+            value (Any): The value to convert to a list representation.
+
+        Returns:
+            list | list[list]: The value converted to a list representation.
+        """
         raise ValueError(f"Tag object has no get_list_representation method: {tag}")
 
     def get_dict_representation(self, tag: str, value: Any) -> dict | list[dict]:
-        """Convert the value to a dict representation."""
+        """Convert the value to a dict representation.
+
+        Args:
+            tag (str): The tag to convert the value to a dict representation for.
+            value (Any): The value to convert to a dict representation.
+
+        Returns:
+            dict | list[dict]: The value converted to a dict representation.
+        """
         raise ValueError(f"Tag object has no get_dict_representation method: {tag}")
 
 
@@ -174,58 +206,35 @@ class BoolTag(AbstractTag):
     def validate_value_type(self, tag: str, value: Any, try_auto_type_fix: bool = False) -> tuple[str, bool, Any]:
         """Validate the type of the value for this tag.
 
-        Validate the type of the value for this tag.
+        Args:
+            tag (str): The tag to validate the type of the value for.
+            value (Any): The value to validate the type of.
+            try_auto_type_fix (bool, optional): Whether to try to automatically fix the type of the value.
+            Defaults to False.
 
-        Parameters
-        ----------
-        tag : str
-            The tag to validate the type of the value for.
-        value : Any
-            The value to validate the type of.
-        try_auto_type_fix : bool, optional
-            Whether to try to automatically fix the type of the value,
-            by default False.
-
-        Returns
-        -------
-        tag : str
-            The tag to validate the type of the value for.
-        is_valid_out : bool
-            Whether the value is of the correct type.
-        updated_value : Any
-            The value checked against the correct type, possibly fixed.
+        Returns:
+            tuple[str, bool, Any]: The tag, whether the value is of the correct type, and the possibly fixed value.
         """
         return self._validate_value_type(bool, tag, value, try_auto_type_fix=try_auto_type_fix)
 
     def raise_value_error(self, tag: str, value: str) -> None:
         """Raise a ValueError for the value string.
 
-        Raise a ValueError for the value string.
-
-        Parameters
-        ----------
-        tag : str
-            The tag to raise the ValueError for.
-        value : str
-            The value string to raise the ValueError for.
+        Args:
+            tag (str): The tag to raise the ValueError for.
+            value (str): The value string to raise the ValueError for.
         """
         raise ValueError(f"The value '{value}' was provided to {tag}, it is not acting like a boolean")
 
     def read(self, tag: str, value: str) -> bool:
         """Read the value string for this tag.
 
-        Read the value string for this tag.
+        Args:
+            tag (str): The tag to read the value string for.
+            value (str): The value string to read.
 
-        Parameters
-        ----------
-        tag : str
-            The tag to read the value string for.
-        value : str
-            The value string to read.
-
-        Returns
-        -------
-        bool
+        Returns:
+            bool: The parsed boolean value.
         """
         if len(value.split()) > 1:
             raise ValueError(f"'{value}' for {tag} should not have a space in it!")
@@ -244,18 +253,12 @@ class BoolTag(AbstractTag):
     def write(self, tag: str, value: Any) -> str:
         """Write the tag and its value as a string.
 
-        Write the tag and its value as a string.
+        Args:
+            tag (str): The tag to write.
+            value (Any): The value to write.
 
-        Parameters
-        ----------
-        tag : str
-            The tag to write.
-        value : Any
-            The value to write.
-
-        Returns
-        -------
-        str
+        Returns:
+            str: The tag and its value as a string.
         """
         value2 = self._TF_options["write"][value]
         return self._write(tag, value2)
@@ -263,12 +266,8 @@ class BoolTag(AbstractTag):
     def get_token_len(self) -> int:
         """Get the token length of the tag.
 
-        Get the token length of the tag.
-
-        Returns
-        -------
-        int
-            The token length of the tag.
+        Returns:
+            int: The token length of the tag.
         """
         return self._get_token_len()
 
@@ -285,44 +284,26 @@ class StrTag(AbstractTag):
     def validate_value_type(self, tag: str, value: Any, try_auto_type_fix: bool = False) -> tuple[str, bool, Any]:
         """Validate the type of the value for this tag.
 
-        Validate the type of the value for this tag.
+        Args:
+            tag (str): The tag to validate the type of the value for.
+            value (Any): The value to validate the type of.
+            try_auto_type_fix (bool, optional): Whether to try to automatically fix the type of the value. Defaults to
+                False.
 
-        Parameters
-        ----------
-        tag : str
-            The tag to validate the type of the value for.
-        value : Any
-            The value to validate the type of.
-        try_auto_type_fix : bool, optional
-            Whether to try to automatically fix the type of the value,
-            by default False.
-
-        Returns
-        -------
-        tag : str
-            The tag to validate the type of the value for.
-        is_valid_out : bool
-            Whether the value is of the correct type.
-        updated_value : Any
-            The value checked against the correct type, possibly fixed.
+        Returns:
+            tuple[str, bool, Any]: The tag, whether the value is of the correct type, and the possibly fixed value.
         """
         return self._validate_value_type(str, tag, value, try_auto_type_fix=try_auto_type_fix)
 
     def read(self, tag: str, value: str) -> str:
         """Read the value string for this tag.
 
-        Read the value string for this tag.
+        Args:
+            tag (str): The tag to read the value string for.
+            value (str): The value string to read.
 
-        Parameters
-        ----------
-        tag : str
-            The tag to read the value string for.
-        value : str
-            The value string to read.
-
-        Returns
-        -------
-        str
+        Returns:
+            str: The parsed string value.
         """
         # This try except block needs to go before the value.split check
         try:
@@ -338,31 +319,20 @@ class StrTag(AbstractTag):
     def write(self, tag: str, value: Any) -> str:
         """Write the tag and its value as a string.
 
-        Write the tag and its value as a string.
+        Args:
+            tag (str): The tag to write.
+            value (Any): The value to write.
 
-        Parameters
-        ----------
-        tag : str
-            The tag to write.
-        value : Any
-            The value to write.
-
-        Returns
-        -------
-        str
-            The tag and its value as a string.
+        Returns:
+            str: The tag and its value as a string.
         """
         return self._write(tag, value)
 
     def get_token_len(self) -> int:
         """Get the token length of the tag.
 
-        Get the token length of the tag.
-
-        Returns
-        -------
-        int
-            The token length of the tag.
+        Returns:
+            int: The token length of the tag.
         """
         return self._get_token_len()
 
@@ -377,44 +347,26 @@ class IntTag(AbstractTag):
     def validate_value_type(self, tag: str, value: Any, try_auto_type_fix: bool = False) -> tuple[str, bool, Any]:
         """Validate the type of the value for this tag.
 
-        Validate the type of the value for this tag.
+        Args:
+            tag (str): The tag to validate the type of the value for.
+            value (Any): The value to validate the type of.
+            try_auto_type_fix (bool, optional): Whether to try to automatically fix the type of the value, by default
+                False.
 
-        Parameters
-        ----------
-        tag : str
-            The tag to validate the type of the value for.
-        value : Any
-            The value to validate the type of.
-        try_auto_type_fix : bool, optional
-            Whether to try to automatically fix the type of the value,
-            by default False.
-
-        Returns
-        -------
-        tag : str
-            The tag to validate the type of the value for.
-        is_valid_out : bool
-            Whether the value is of the correct type.
-        updated_value : Any
-            The value checked against the correct type, possibly fixed.
+        Returns:
+            tuple[str, bool, Any]: The tag, whether the value is of the correct type, and the possibly fixed value.
         """
         return self._validate_value_type(int, tag, value, try_auto_type_fix=try_auto_type_fix)
 
     def read(self, tag: str, value: str) -> int:
         """Read the value string for this tag.
 
-        Read the value string for this tag.
+        Args:
+            tag (str): The tag to read the value string for.
+            value (str): The value string to read.
 
-        Parameters
-        ----------
-        tag : str
-            The tag to read the value string for.
-        value : str
-            The value string to read.
-
-        Returns
-        -------
-        int
+        Returns:
+            int: The parsed integer value.
         """
         if not isinstance(value, str):
             raise TypeError(f"Value {value} for {tag} should be a string!")
@@ -428,31 +380,20 @@ class IntTag(AbstractTag):
     def write(self, tag: str, value: Any) -> str:
         """Write the tag and its value as a string.
 
-        Write the tag and its value as a string.
+        Args:
+            tag (str): The tag to write.
+            value (Any): The value to write.
 
-        Parameters
-        ----------
-        tag : str
-            The tag to write.
-        value : Any
-            The value to write.
-
-        Returns
-        -------
-        str
-            The tag and its value as a string.
+        Returns:
+            str: The tag and its value as a string.
         """
         return self._write(tag, value)
 
     def get_token_len(self) -> int:
         """Get the token length of the tag.
 
-        Get the token length of the tag.
-
-        Returns
-        -------
-        int
-            The token length of the tag.
+        Returns:
+            int: The token length of the tag.
         """
         return self._get_token_len()
 
@@ -469,44 +410,26 @@ class FloatTag(AbstractTag):
     def validate_value_type(self, tag: str, value: Any, try_auto_type_fix: bool = False) -> tuple[str, bool, Any]:
         """Validate the type of the value for this tag.
 
-        Validate the type of the value for this tag.
+        Args:
+            tag (str): The tag to validate the type of the value for.
+            value (Any): The value to validate the type of.
+            try_auto_type_fix (bool, optional): Whether to try to automatically fix the type of the value, by default
+                False.
 
-        Parameters
-        ----------
-        tag : str
-            The tag to validate the type of the value for.
-        value : Any
-            The value to validate the type of.
-        try_auto_type_fix : bool, optional
-            Whether to try to automatically fix the type of the value,
-            by default False.
-
-        Returns
-        -------
-        tag : str
-            The tag to validate the type of the value for.
-        is_valid_out : bool
-            Whether the value is of the correct type.
-        updated_value : Any
-            The value checked against the correct type, possibly fixed.
+        Returns:
+            tuple[str, bool, Any]: The tag, whether the value is of the correct type, and the possibly fixed value.
         """
         return self._validate_value_type(float, tag, value, try_auto_type_fix=try_auto_type_fix)
 
     def read(self, tag: str, value: str) -> float:
         """Read the value string for this tag.
 
-        Read the value string for this tag.
+        Args:
+            tag (str): The tag to read the value string for.
+            value (str): The value string to read.
 
-        Parameters
-        ----------
-        tag : str
-            The tag to read the value string for.
-        value : str
-            The value string to read.
-
-        Returns
-        -------
-        float
+        Returns:
+            float: The parsed float value.
         """
         if not isinstance(value, str):
             raise TypeError(f"Value {value} for {tag} should be a string!")
@@ -521,19 +444,12 @@ class FloatTag(AbstractTag):
     def write(self, tag: str, value: Any) -> str:
         """Write the tag and its value as a string.
 
-        Write the tag and its value as a string.
+        Args:
+            tag (str): The tag to write.
+            value (Any): The value to write.
 
-        Parameters
-        ----------
-        tag : str
-            The tag to write.
-        value : Any
-            The value to write.
-
-        Returns
-        -------
-        str
-            The tag and its value as a string.
+        Returns:
+            str: The tag and its value as a string.
         """
         # pre-convert to string: self.prec+3 is minimum room for:
         # - sign, 1 integer left of decimal, decimal, and precision.
@@ -545,12 +461,8 @@ class FloatTag(AbstractTag):
     def get_token_len(self) -> int:
         """Get the token length of the tag.
 
-        Get the token length of the tag.
-
-        Returns
-        -------
-        int
-            The token length of the tag.
+        Returns:
+            int: The token length of the tag.
         """
         return self._get_token_len()
 
@@ -577,44 +489,26 @@ class InitMagMomTag(AbstractTag):
     def validate_value_type(self, tag: str, value: Any, try_auto_type_fix: bool = False) -> tuple[str, bool, Any]:
         """Validate the type of the value for this tag.
 
-        Validate the type of the value for this tag.
+        Args:
+            tag (str): The tag to validate the type of the value for.
+            value (Any): The value to validate the type of.
+            try_auto_type_fix (bool, optional): Whether to try to automatically fix the type of the value, by default
+                False.
 
-        Parameters
-        ----------
-        tag : str
-            The tag to validate the type of the value for.
-        value : Any
-            The value to validate the type of.
-        try_auto_type_fix : bool, optional
-            Whether to try to automatically fix the type of the value,
-            by default False.
-
-        Returns
-        -------
-        tag : str
-            The tag to validate the type of the value for.
-        is_valid_out : bool
-            Whether the value is of the correct type.
-        updated_value : Any
-            The value checked against the correct type, possibly fixed.
+        Returns:
+            tuple[str, bool, Any]: The tag, whether the value is of the correct type, and the possibly fixed value.
         """
         return self._validate_value_type(str, tag, value, try_auto_type_fix=try_auto_type_fix)
 
     def read(self, tag: str, value: str) -> str:
         """Read the value string for this tag.
 
-        Read the value string for this tag.
+        Args:
+            tag (str): The tag to read the value string for.
+            value (str): The value string to read.
 
-        Parameters
-        ----------
-        tag : str
-            The tag to read the value string for.
-        value : str
-            The value string to read.
-
-        Returns
-        -------
-        str
+        Returns:
+            str: The parsed string value.
         """
         try:
             value = str(value)
@@ -625,31 +519,20 @@ class InitMagMomTag(AbstractTag):
     def write(self, tag: str, value: Any) -> str:
         """Write the tag and its value as a string.
 
-        Write the tag and its value as a string.
+        Args:
+            tag (str): The tag to write.
+            value (Any): The value to write.
 
-        Parameters
-        ----------
-        tag : str
-            The tag to write.
-        value : Any
-            The value to write.
-
-        Returns
-        -------
-        str
-            The tag and its value as a string.
+        Returns:
+            str: The tag and its value as a string.
         """
         return self._write(tag, value)
 
     def get_token_len(self) -> int:
         """Get the token length of the tag.
 
-        Get the token length of the tag.
-
-        Returns
-        -------
-        int
-            The token length of the tag.
+        Returns:
+            int: The token length of the tag.
         """
         return self._get_token_len()
 
@@ -658,28 +541,25 @@ class InitMagMomTag(AbstractTag):
 class TagContainer(AbstractTag):
     """TagContainer class for handling tags that contain other tags.
 
-    This class is used to handle tags that contain other tags. It is used to
-    validate the type of the value for the tag, read the value string for the tag,
-    write the tag and its value as a string, and get the token length of the tag.
+    This class is used to handle tags that contain other tags. It is used to validate the type of the value for the tag,
+    read the value string for the tag, write the tag and its value as a string, and get the token length of the tag.
 
-    Note: When constructing a TagContainer, all subtags must be able to return the
-    correct token length without any information about the value.
-    # TODO: Remove this assumption by changing the signature of get_token_len
-    to take the value as an argument.
-
+    Note: When constructing a TagContainer, all subtags must be able to return the correct token length without any
+    information about the value.
+    # TODO: Remove this assumption by changing the signature of get_token_len to take the value as an argument.
     """
 
     linebreak_nth_entry: int | None = None  # handles special formatting for matrix tags, e.g. lattice tag
-    is_tag_container: bool = True  # used to ensure only TagContainers are
-    # converted between list and dict representations
+    is_tag_container: bool = (
+        True  # used to ensure only TagContainers are converted between list and dict representations
+    )
     subtags: dict[str, AbstractTag] = field(default_factory=dict)
 
     def _validate_single_entry(
         self, value: dict | list[dict], try_auto_type_fix: bool = False
     ) -> tuple[list[str], list[bool], Any]:
         if not isinstance(value, dict):
-            raise TypeError(f"This tag should be a dict: {value}, which is \
-                             of the type {type(value)}")
+            raise TypeError(f"This tag should be a dict: {value}, which is of the type {type(value)}")
         tags_checked: list[str] = []
         types_checks: list[bool] = []
         updated_value = deepcopy(value)
@@ -697,26 +577,14 @@ class TagContainer(AbstractTag):
     def validate_value_type(self, tag: str, value: Any, try_auto_type_fix: bool = False) -> tuple[str, bool, Any]:
         """Validate the type of the value for this tag.
 
-        Validate the type of the value for this tag.
+        Args:
+            tag (str): The tag to validate the type of the value for.
+            value (Any): The value to validate the type of.
+            try_auto_type_fix (bool, optional): Whether to try to automatically fix the type of the value, by default
+                False.
 
-        Parameters
-        ----------
-        tag : str
-            The tag to validate the type of the value for.
-        value : Any
-            The value to validate the type of.
-        try_auto_type_fix : bool, optional
-            Whether to try to automatically fix the type of the value,
-            by default False.
-
-        Returns
-        -------
-        tag : str
-            The tag to validate the type of the value for.
-        is_valid_out : bool
-            Whether the value is of the correct type.
-        updated_value : Any
-            The value checked against the correct type, possibly fixed.
+        Returns:
+            tuple[str, bool, Any]: The tag, whether the value is of the correct type, and the possibly fixed value.
         """
         value_dict = self.get_dict_representation(tag, value)
         if self.can_repeat:
@@ -725,7 +593,6 @@ class TagContainer(AbstractTag):
             tags_list_list: list[list[str]] = [result[0] for result in results]
             is_valids_list_list: list[list[bool]] = [result[1] for result in results]
             updated_value: Any = [result[2] for result in results]
-            ###
             tag_out = ",".join([",".join(x) for x in tags_list_list])
             is_valid_out = all(all(x) for x in is_valids_list_list)
             if not is_valid_out:
@@ -753,18 +620,12 @@ class TagContainer(AbstractTag):
     def read(self, tag: str, value: str) -> dict:
         """Read the value string for this tag.
 
-        Read the value string for this tag.
+        Args:
+            tag (str): The tag to read the value string for.
+            value (str): The value string to read.
 
-        Parameters
-        ----------
-        tag : str
-            The tag to read the value string for.
-        value : str
-            The value string to read.
-
-        Returns
-        -------
-        dict
+        Returns:
+            dict: The parsed value.
         """
         value_list = value.split()
         if tag == "ion":
@@ -772,8 +633,8 @@ class TagContainer(AbstractTag):
             if any(special_constraints):
                 value_list = value_list[: special_constraints.index(True)]
                 warnings.warn(
-                    "Found special constraints reading an 'ion' tag, "
-                    "these were dropped; reading them has not been implemented!",
+                    "Found special constraints reading an 'ion' tag, these were dropped; reading them has not been "
+                    "implemented!",
                     stacklevel=2,
                 )
 
@@ -811,20 +672,16 @@ class TagContainer(AbstractTag):
         for subtag, subtag_type in (
             (subtag, subtag_type) for subtag, subtag_type in self.subtags.items() if not subtag_type.write_tagname
         ):
-            # now try to populate remaining subtags that do not use a keyword
-            # in order of appearance.
+            # now try to populate remaining subtags that do not use a keyword in order of appearance.
             if len(value_list) == 0:
                 break
-            if (
-                subtag in tempdict or subtag_type.write_tagname
-            ):  # this tag has already been read or requires a tagname keyword
-                # to be present
+            if subtag in tempdict or subtag_type.write_tagname:  # this tag has already been read or requires a tagname
+                # keyword to be present
                 continue
             tempdict[subtag] = subtag_type.read(subtag, value_list[0])
             del value_list[0]
 
-        # reorder all tags to match order of __MASTER_TAG_LIST__ and do
-        # coarse-grained validation of read.
+        # reorder all tags to match order of __MASTER_TAG_LIST__ and do coarse-grained validation of read.
         subdict = {x: tempdict[x] for x in self.subtags if x in tempdict}
         for subtag, subtag_type in self.subtags.items():
             if not subtag_type.optional and subtag not in subdict:
@@ -838,19 +695,12 @@ class TagContainer(AbstractTag):
     def write(self, tag: str, value: Any) -> str:
         """Write the tag and its value as a string.
 
-        Write the tag and its value as a string.
+        Args:
+            tag (str): The tag to write.
+            value (Any): The value to write.
 
-        Parameters
-        ----------
-        tag : str
-            The tag to write.
-        value : Any
-            The value to write.
-
-        Returns
-        -------
-        str
-            The tag and its value as a string.
+        Returns:
+            str: The tag and its value as a string.
         """
         if not isinstance(value, dict):
             raise TypeError(
@@ -862,10 +712,9 @@ class TagContainer(AbstractTag):
         for count, (subtag, subvalue) in enumerate(value.items()):
             if self.subtags[subtag].can_repeat and isinstance(subvalue, list):
                 # if a subtag.can_repeat, it is assumed that subvalue is a list
-                #    the 2nd condition ensures this
+                # the 2nd condition ensures this
                 # if it is not a list, then the tag will still be printed by the else
-                #    this could be relevant if someone manually sets the tag's
-                #    can_repeat value to a non-list.
+                # this could be relevant if someone manually sets the tag's can_repeat value to a non-list.
                 print_str_list = [self.subtags[subtag].write(subtag, entry) for entry in subvalue]
                 print_str = " ".join(print_str_list)
             else:
@@ -892,12 +741,8 @@ class TagContainer(AbstractTag):
     def get_token_len(self) -> int:
         """Get the token length of the tag.
 
-        Get the token length of the tag.
-
-        Returns
-        -------
-        int
-            The token length of the tag.
+        Returns:
+            int: The token length of the tag.
         """
         min_token_len = int(self.write_tagname)  # length of value subtags added next
         for subtag_type in self.subtags.values():
@@ -924,9 +769,8 @@ class TagContainer(AbstractTag):
             elif isinstance(value[subtag], dict):
                 # this triggers if someone sets this tag using mixed dict/list representations
                 warnings.warn(
-                    f"The {subtag} subtag does not allow list representation with a value "
-                    f"{value[subtag]}.\n I added the dict to the list. Is this correct? "
-                    "You will not be able to convert back!",
+                    f"The {subtag} subtag does not allow list representation with a value {value[subtag]}.\n "
+                    "I added the dict to the list. Is this correct? You will not be able to convert back!",
                     stacklevel=2,
                 )
                 value_list.append(value[subtag])
@@ -943,22 +787,14 @@ class TagContainer(AbstractTag):
     def get_list_representation(self, tag: str, value: Any) -> list:
         """Convert the value to a list representation.
 
-        Convert the value to a list representation.
+        Args:
+            tag (str): The tag to convert the value to a list representation for.
+            value (Any): The value to convert to a list representation.
 
-        Parameters
-        ----------
-        tag : str
-            The tag to convert the value to a list representation for.
-        value : Any
-            The value to convert to a list representation.
-
-        Returns
-        -------
-        list
-            The value converted to a list representation.
+        Returns:
+            list: The value converted to a list representation.
         """
-        # convert dict representation into list representation by writing
-        # (nested) dicts into list or list of lists.
+        # convert dict representation into list representation by writing (nested) dicts into list or list of lists.
         # there are 4 types of TagContainers in the list representation:
         # can_repeat: list of bool/str/int/float (ion-species)
         # can_repeat: list of lists (ion)
@@ -990,20 +826,12 @@ class TagContainer(AbstractTag):
     def _make_str_for_dict(self, tag: str, value_list: list) -> str:
         """Convert the value to a string representation.
 
-        Convert the value to a string representation for dict representation.
+        Args:
+            tag (str): The tag to convert the value to a string representation for.
+            value_list (list): The value to convert to a string representation.
 
-        Parameters
-        ----------
-        tag : str
-            The tag to convert the value to a string representation for.
-        value_list : list
-            The value to convert to a string representation.
-
-        Returns
-        -------
-        str
-            The value converted to a string representation for dict
-            representation.
+        Returns:
+            str: The value converted to a string representation for dict representation.
         """
         value = flatten_list(tag, value_list)
         self._check_for_mixed_nesting(tag, value)
@@ -1012,19 +840,12 @@ class TagContainer(AbstractTag):
     def get_dict_representation(self, tag: str, value: list) -> dict | list[dict]:
         """Convert the value to a dict representation.
 
-        Convert the value to a dict representation.
+        Args:
+            tag (str): The tag to convert the value to a dict representation for.
+            value (list): The value to convert to a dict representation.
 
-        Parameters
-        ----------
-        tag : str
-            The tag to convert the value to a dict representation for.
-        value : list
-            The value to convert to a dict representation.
-
-        Returns
-        -------
-        dict | list[dict]
-            The value converted to a dict representation.
+        Returns:
+            dict | list[dict]: The value converted to a dict representation.
         """
         # convert list or list of lists representation into string the TagContainer can process back into (nested) dict
 
@@ -1043,8 +864,7 @@ class TagContainer(AbstractTag):
         # cannot repeat: list of bool/str/int/float (elec-cutoff)
         # cannot repeat: list of lists (lattice)
 
-        # the .read() method automatically handles regenerating any nesting
-        # because is just like reading a file
+        # the .read() method automatically handles regenerating any nesting because is just like reading a file
         if self.can_repeat:
             if all(isinstance(entry, dict) for entry in value):
                 return value  # no conversion needed
@@ -1065,14 +885,11 @@ class TagContainer(AbstractTag):
 class MultiformatTag(AbstractTag):
     """Class for tags with multiple format options.
 
-    Class for tags that could have different types of
-    input values given to them or tags where different subtag options directly
-    impact how many expected arguments are provided e.g. the coulomb-truncation
-    or van-der-waals tags.
+    Class for tags that could have different types of input values given to them or tags where different subtag options
+    directly impact how many expected arguments are provided e.g. the coulomb-truncation or van-der-waals tags.
 
-    This class should not be used for tags with simply some combination of
-    mandatory and optional args because the TagContainer class can handle those
-    cases by itself.
+    This class should not be used for tags with simply some combination of mandatory and optional args because the
+    TagContainer class can handle those cases by itself.
     """
 
     format_options: list[AbstractTag] = field(default_factory=list)
@@ -1080,17 +897,14 @@ class MultiformatTag(AbstractTag):
     def validate_value_type(self, tag: str, value: Any, try_auto_type_fix: bool = False) -> tuple[str, bool, Any]:
         """Validate the type of the value for this tag.
 
-        Validate the type of the value for this tag.
+        Args:
+            tag (str): The tag to validate the value type for.
+            value (Any): The value to validate the type of.
+            try_auto_type_fix (bool, optional): Whether to try to automatically fix the type of the value. Defaults to
+                False.
 
-        Parameters
-        ----------
-        tag : str
-            The tag to validate the value type for.
-        value : Any
-            The value to validate the type of.
-        try_auto_type_fix : bool, optional
-            Whether to try to automatically fix the type of the value,
-            by default False.
+        Returns:
+            tuple[str, bool, Any]: The tag, whether the value is of the correct type, and the possibly fixed value.
         """
         format_index, value = self._determine_format_option(tag, value, try_auto_type_fix=try_auto_type_fix)
         is_valid = format_index is not None
@@ -1099,55 +913,49 @@ class MultiformatTag(AbstractTag):
     def read(self, tag: str, value: str) -> None:
         """Read the value string for this tag.
 
-        Read the value string for this tag.
+        Args:
+            tag (str): The tag to read the value string for.
+            value (str): The value string to read.
 
-        Parameters
-        ----------
-        tag : str
-            The tag to read the value string for.
-        value : str
-            The value string to read.
+        Raises:
+            RuntimeError: If the method is called directly on MultiformatTag.
         """
         err_str = "The read method is not supposed to be called directly on MultiformatTag."
-        err_str += " Get the proper format option first."
+        "Get the proper format option first."
         raise RuntimeError(err_str)
 
     def write(self, tag: str, value: Any) -> str:
         """Write the tag and its value as a string.
 
-        This method writes the tag and its value as a string.
+        Args:
+            tag (str): The tag to write.
+            value (Any): The value to write.
 
-        Parameters
-        ----------
-        tag : str
-            The tag to write.
-        value : Any
-            The value to write.
+        Returns:
+            str: The tag and its value as a string.
 
-        Returns
-        -------
-        str
+        Raises:
+            RuntimeError: If the method is called directly on MultiformatTag.
         """
         err_str = "The write method is not supposed to be called directly on MultiformatTag."
-        err_str += " Get the proper format option first."
+        "Get the proper format option first."
         raise RuntimeError(err_str)
 
     def get_format_index_for_str_value(self, tag: str, value: str) -> int:
-        """Get the format index from string rep of value.
+        """Get the format index from string representation of value.
 
-        Get the format index from string rep of value.
+        Args:
+            tag (str): The tag to read the value string for.
+            value (str): The value string to read.
 
-        Parameters
-        ----------
-        tag : str
-            The tag to read the value string for.
-        value : str
-            The value string to read.
+        Returns:
+            int: The index of the format option for the value of this tag.
+
+        Raises:
+            ValueError: If no valid read format is found for the tag.
         """
         problem_log = []
-        for i, trial_format in enumerate(
-            self.format_options
-        ):  # format_options is a list of AbstractTag-inheriting objects
+        for i, trial_format in enumerate(self.format_options):
             try:
                 _ = trial_format.read(tag, value)
                 return i
@@ -1160,38 +968,29 @@ class MultiformatTag(AbstractTag):
     def raise_invalid_format_option_error(self, tag: str, i: int) -> None:
         """Raise an error for an invalid format option.
 
-        Raise an error for an invalid format option.
+        Args:
+            tag (str): The tag to raise the error for.
+            i (int): The index of the format option to raise the error for.
 
-        Parameters
-        ----------
-        tag : str
-            The tag to raise the error for.
-        i : int
-            The index of the format option to raise the error for.
+        Raises:
+            ValueError: If the format option is invalid.
         """
         raise ValueError(f"{tag} option {i} is not it: validation failed")
 
     def _determine_format_option(self, tag: str, value_any: Any, try_auto_type_fix: bool = False) -> tuple[int, Any]:
         """Determine the format option for the value of this tag.
 
-        This method determines the format option for the value of this tag.
+        Args:
+            tag (str): The tag to determine the format option for.
+            value_any (Any): The value to determine the format option for.
+            try_auto_type_fix (bool, optional): Whether to try to automatically fix the type of the value. Defaults to
+                False.
 
-        Parameters
-        ----------
-        tag : str
-            The tag to determine the format option for.
-        value : Any
-            The value to determine the format option for.
-        try_auto_type_fix : bool, optional
-            Whether to try to automatically fix the type of the value,
-            by default False.
+        Returns:
+            tuple[int, Any]: The index of the format option for the value of this tag and the value of this tag.
 
-        Returns
-        -------
-        int
-            The index of the format option for the value of this tag.
-        Any
-            The value of this tag.
+        Raises:
+            ValueError: If the format for the tag could not be determined from the available options.
         """
         exceptions = []
         for i, format_option in enumerate(self.format_options):
@@ -1207,23 +1006,20 @@ class MultiformatTag(AbstractTag):
                     self.raise_invalid_format_option_error(tag, i)
                 else:
                     return i, value
-            except (ValueError, TypeError, KeyError) as e:  # TODO: Make sure these are all
-                # the possible exceptions
-                # 11/18/24: KeyError added to exception list as the wrong format may have a different set of keys
+            except (ValueError, TypeError, KeyError) as e:
                 exceptions.append(e)
-        err_str = f"The format for {tag} for:\n{value_any}\ncould not be determined from the available options!"
-        err_str += "Check your inputs and/or MASTER_TAG_LIST!"
+        err_str = f"The format for {tag} for:\n{value_any}\ncould not be determined from the available options! "
+        "Check your inputs and/or MASTER_TAG_LIST!"
         raise ValueError(err_str)
 
     def get_token_len(self) -> int:
         """Get the token length of the tag.
 
-        Get the token length of the tag.
+        Returns:
+            int: The token length of the tag.
 
-        Returns
-        -------
-        int
-            The token length of the tag.
+        Raises:
+            NotImplementedError: If the method is called directly on MultiformatTag objects.
         """
         raise NotImplementedError("This method is not supposed to be called directly on MultiformatTag objects!")
 
@@ -1232,27 +1028,22 @@ class MultiformatTag(AbstractTag):
 class BoolTagContainer(TagContainer):
     """BoolTagContainer class for handling the subtags to the "dump" tag.
 
-    This class is used to handle the subtags to the "dump" tag. All subtags
-    are freqs for dump, and all values for these tags are boolean values that
-    are read given the existence of their "var" name.
+    This class is used to handle the subtags to the "dump" tag. All subtags are freqs for dump, and all values for these
+    tags are boolean values that are read given the existence of their "var" name.
     """
 
     def read(self, tag: str, value_str: str) -> dict:
         """Read the value string for this tag.
 
-        This method reads the value string for this tag. It is used to parse the
-        value string for the tag and return the parsed value.
+        This method reads the value string for this tag. It is used to parse the value string for the tag and return the
+        parsed value.
 
-        Parameters
-        ----------
-        tag : str
-            The tag to read the value string for.
-        value_str : str
-            The value string to read.
+        Args:
+            tag (str): The tag to read the value string for.
+            value_str (str): The value string to read.
 
-        Returns
-        -------
-        dict
+        Returns:
+            dict: The parsed value.
         """
         value = value_str.split()
         tempdict = {}
@@ -1284,19 +1075,15 @@ class DumpTagContainer(TagContainer):
     def read(self, tag: str, value_str: str) -> dict:
         """Read the value string for this tag.
 
-        This method reads the value string for this tag. It is used to parse the
-        value string for the tag and return the parsed value.
+        This method reads the value string for this tag. It is used to parse the value string for the tag and return the
+        parsed value.
 
-        Parameters
-        ----------
-        tag : str
-            The tag to read the value string for.
-        value_str : str
-            The value string to read.
+        Args:
+            tag (str): The tag to read the value string for.
+            value_str (str): The value string to read.
 
-        Returns
-        -------
-        dict
+        Returns:
+            dict: The parsed value.
         """
         value = value_str.split()
         tempdict = {}
@@ -1307,8 +1094,7 @@ class DumpTagContainer(TagContainer):
                 subtag_value = " ".join(value[(idx_start + 1) :])
                 tempdict[subtag] = subtag_type.read(subtag, subtag_value)
                 del value[idx_start:]
-        # reorder all tags to match order of __MASTER_TAG_LIST__ and do
-        # coarse-grained validation of read
+        # reorder all tags to match order of __MASTER_TAG_LIST__ and do coarse-grained validation of read
         subdict = {x: tempdict[x] for x in self.subtags if x in tempdict}
         # There are no forced subtags for dump
         if len(value) > 0:
