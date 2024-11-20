@@ -364,7 +364,7 @@ class JDFTXOutfile:
         """
         texts = read_outfile_slices(file_path)
         slices = [
-            JDFTXOutfileSlice.from_out_slice(text, is_bgw=is_bgw, none_on_error=none_slice_on_error) for text in texts
+            JDFTXOutfileSlice._from_out_slice(text, is_bgw=is_bgw, none_on_error=none_slice_on_error) for text in texts
         ]
         return cls(slices=slices)
 
