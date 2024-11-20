@@ -66,7 +66,7 @@ class JOutStructures:
         if opt_type not in ["IonicMinimize", "LatticeMinimize"]:
             opt_type = correct_geom_opt_type(opt_type)
         instance.opt_type = opt_type
-        start_idx = get_joutstructures_start_idx(out_slice)
+        start_idx = _get_joutstructures_start_idx(out_slice)
         init_struc = instance._get_init_structure(out_slice[:start_idx])
         instance._set_joutstructure_list(out_slice[start_idx:], init_structure=init_struc)
         if instance.opt_type is None and len(instance) > 1:
@@ -505,7 +505,7 @@ class JOutStructures:
         Returns:
             list[JOutStructure]: The list of JOutStructure objects.
         """
-        out_bounds = get_joutstructure_step_bounds(out_slice)
+        out_bounds = _get_joutstructure_step_bounds(out_slice)
         joutstructure_list: list[Structure | JOutStructure] = []
         for i, bounds in enumerate(out_bounds):
             if i > 0:
@@ -629,12 +629,12 @@ class JOutStructures:
         return pprint.pformat(self)
 
 
-elec_min_start_flag: str = "-------- Electronic minimization -----------"
+_elec_min_start_flag: str = "-------- Electronic minimization -----------"
 
 
-def get_joutstructure_step_bounds(
+def _get_joutstructure_step_bounds(
     out_slice: list[str],
-    out_slice_start_flag: str = elec_min_start_flag,
+    out_slice_start_flag: str = _elec_min_start_flag,
 ) -> list[list[int]]:
     """Return list of boundary indices for each structure in out_slice.
 
@@ -668,9 +668,9 @@ def get_joutstructure_step_bounds(
     return bounds_list
 
 
-def get_joutstructures_start_idx(
+def _get_joutstructures_start_idx(
     out_slice: list[str],
-    out_slice_start_flag: str = elec_min_start_flag,
+    out_slice_start_flag: str = _elec_min_start_flag,
 ) -> int | None:
     """Return index of first line of first structure.
 
