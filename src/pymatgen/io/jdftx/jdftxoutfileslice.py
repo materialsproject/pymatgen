@@ -763,7 +763,7 @@ class JDFTXOutfileSlice:
         instance = cls()
         instance.is_bgw = is_bgw
         try:
-            instance.from_out_slice_init_all(text)
+            instance._from_out_slice_init_all(text)
         except (ValueError, IndexError, TypeError, KeyError, AttributeError):
             if none_on_error:
                 return None
@@ -1321,7 +1321,7 @@ class JDFTXOutfileSlice:
             text: list[str]
                 output of read_file for out file
         """
-        self.jstrucs = JOutStructures.from_out_slice(text, opt_type=self.geom_opt_type)
+        self.jstrucs = JOutStructures._from_out_slice(text, opt_type=self.geom_opt_type)
         if self.etype is None:
             self.etype = self.jstrucs[-1].etype
 

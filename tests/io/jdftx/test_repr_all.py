@@ -20,7 +20,7 @@ if TYPE_CHECKING:
     [
         (JDFTXOutfile, example_sp_outfile_path, lambda dir_repr: None),
         (JDFTXOutfileSlice.from_out_slice, ex_outfileslice1, lambda dir_repr: None),
-        (lambda x: JOutStructures.from_out_slice(x, opt_type="lattice"), ex_outfileslice1, lambda dir_repr: None),
+        (lambda x: JOutStructures._from_out_slice(x, opt_type="lattice"), ex_outfileslice1, lambda dir_repr: None),
         (lambda x: JOutStructure._from_text_slice(x, opt_type="lattice"), ex_jstruc_slice1, lambda dir_repr: None),
         (lambda x: JElStep._from_lines_collect(x, "ElecMinimize", "F"), ex_jstep_lines1, lambda dir_repr: None),
         (
@@ -41,7 +41,7 @@ def test_dir_repr(init_meth: Callable, init_var: Any, add_checks: Callable) -> N
     [
         (JDFTXOutfile, example_sp_outfile_path, lambda dir_repr: None),
         (JDFTXOutfileSlice.from_out_slice, ex_outfileslice1, lambda dir_repr: None),
-        (lambda x: JOutStructures.from_out_slice(x, opt_type="lattice"), ex_outfileslice1, lambda dir_repr: None),
+        (lambda x: JOutStructures._from_out_slice(x, opt_type="lattice"), ex_outfileslice1, lambda dir_repr: None),
         (lambda x: JOutStructure._from_text_slice(x, opt_type="lattice"), ex_jstruc_slice1, lambda dir_repr: None),
         (lambda x: JElStep._from_lines_collect(x, "ElecMinimize", "F"), ex_jstep_lines1, lambda dir_repr: None),
         (
@@ -62,7 +62,7 @@ def test_repr_repr(init_meth: Callable, init_var: Any, add_checks: Callable) -> 
     [
         (JDFTXOutfile, example_sp_outfile_path, lambda dir_repr: None),
         (JDFTXOutfileSlice.from_out_slice, ex_outfileslice1, lambda dir_repr: None),
-        (lambda x: JOutStructures.from_out_slice(x, opt_type="lattice"), ex_outfileslice1, lambda dir_repr: None),
+        (lambda x: JOutStructures._from_out_slice(x, opt_type="lattice"), ex_outfileslice1, lambda dir_repr: None),
         (lambda x: JOutStructure._from_text_slice(x, opt_type="lattice"), ex_jstruc_slice1, lambda dir_repr: None),
         (lambda x: JElStep.from_lines_collect(x, "ElecMinimize", "F"), ex_jstep_lines1, lambda dir_repr: None),
         (
