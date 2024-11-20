@@ -15,13 +15,13 @@ import numpy as np
 
 from pymatgen.core.structure import Lattice, Structure
 from pymatgen.core.units import Ha_to_eV, bohr_to_ang
-from pymatgen.io.jdftx.jelstep import JElSteps
-from pymatgen.io.jdftx.utils import (
+from pymatgen.io.jdftx._utils import (
     _brkt_list_of_3x3_to_nparray,
     correct_geom_opt_type,
     get_colon_var_t1,
     is_lowdin_start_line,
 )
+from pymatgen.io.jdftx.jelstep import JElSteps
 
 __author__ = "Ben Rich"
 
@@ -66,11 +66,8 @@ class JOutStructure(Structure):
     def mu(self) -> float | None:
         """Return the chemical potential.
 
-        Return the chemical potential (Fermi level) in eV.
-
-        Returns
-        -------
-        mu: float
+        Returns:
+            float: The chemical potential (Fermi level) in eV.
         """
         if self.elecmindata is not None:
             return self.elecmindata.mu
@@ -80,11 +77,8 @@ class JOutStructure(Structure):
     def nelectrons(self) -> float | None:
         """Return the number of electrons.
 
-        Return the total number of electrons in the electron density.
-
-        Returns
-        -------
-        nelectrons: float
+        Returns:
+            float: The total number of electrons in the electron density.
         """
         if self.elecmindata is not None:
             return self.elecmindata.nelectrons
@@ -94,11 +88,9 @@ class JOutStructure(Structure):
     def abs_magneticmoment(self) -> float | None:
         """Return the absolute magnetic moment.
 
-        Return the absolute magnetic moment of the electron density.
-
-        Returns
-        -------
-        abs_magneticmoment: float"""
+        Returns:
+            float: The absolute magnetic moment of the electron density.
+        """
         if self.elecmindata is not None:
             return self.elecmindata.abs_magneticmoment
         return None
@@ -107,11 +99,9 @@ class JOutStructure(Structure):
     def tot_magneticmoment(self) -> float | None:
         """Return the total magnetic moment.
 
-        Return the total magnetic moment of the electron density.
-
-        Returns
-        -------
-        tot_magneticmoment: float"""
+        Returns:
+            float: The total magnetic moment of the electron density.
+        """
         if self.elecmindata is not None:
             return self.elecmindata.tot_magneticmoment
         return None
@@ -120,12 +110,9 @@ class JOutStructure(Structure):
     def elec_nstep(self) -> int | None:
         """Return the most recent electronic step number.
 
-        Return the nstep property of the electronic minimization data, where
-        nstep corresponds to the SCF step number.
-
-        Returns
-        -------
-        elec_nstep: int
+        Returns:
+            int: The nstep property of the electronic minimization data, where
+            nstep corresponds to the SCF step number.
         """
         if self.elecmindata is not None:
             return self.elecmindata.nstep
@@ -135,12 +122,9 @@ class JOutStructure(Structure):
     def elec_e(self) -> int | None:
         """Return the most recent electronic energy.
 
-        Return the e property of the electronic minimization, where e corresponds
-        to the energy of the system's "etype".
-
-        Returns
-        -------
-        elec_e: float
+        Returns:
+            float: The e property of the electronic minimization, where e corresponds
+            to the energy of the system's "etype".
         """
         if self.elecmindata is not None:
             return self.elecmindata.e
@@ -150,12 +134,9 @@ class JOutStructure(Structure):
     def elec_grad_k(self) -> float | None:
         """Return the most recent electronic grad_k.
 
-        Return the most recent electronic grad_k, where grad_k here corresponds
-        to the gradient of the electronic density along the most recent line minimization.
-
-        Returns
-        -------
-        grad_k: float
+        Returns:
+            float: The most recent electronic grad_k, where grad_k here corresponds
+            to the gradient of the electronic density along the most recent line minimization.
         """
         if self.elecmindata is not None:
             return self.elecmindata.grad_k
@@ -165,12 +146,9 @@ class JOutStructure(Structure):
     def elec_alpha(self) -> float | None:
         """Return the most recent electronic alpha.
 
-        Return the most recent electronic alpha, where alpha here corresponds to the
-        step size of the most recent SCF step along the line minimization.
-
-        Returns
-        -------
-        alpha: float
+        Returns:
+            float: The most recent electronic alpha, where alpha here corresponds to the
+            step size of the most recent SCF step along the line minimization.
         """
         if self.elecmindata is not None:
             return self.elecmindata.alpha
@@ -180,13 +158,10 @@ class JOutStructure(Structure):
     def elec_linmin(self) -> float | None:
         """Return the most recent electronic linmin.
 
-        Return the most recent electronic linmin, where linmin here corresponds to
-        the normalized alignment projection of the electronic energy gradient to
-        the line minimization direction. (-1 perfectly anti-aligned, 0 orthogonal, 1 perfectly aligned)
-
-        Returns
-        -------
-        linmin: float
+        Returns:
+            float: The most recent electronic linmin, where linmin here corresponds to
+            the normalized alignment projection of the electronic energy gradient to
+            the line minimization direction. (-1 perfectly anti-aligned, 0 orthogonal, 1 perfectly aligned)
         """
         if self.elecmindata is not None:
             return self.elecmindata.linmin
@@ -196,37 +171,31 @@ class JOutStructure(Structure):
     def charges(self) -> np.ndarray | None:
         """Return the Lowdin charges.
 
-        Return the Lowdin charges of the atoms in the system.
-
-        Returns
-        -------
-        charges: np.ndarray
+        Returns:
+            np.ndarray: The Lowdin charges of the atoms in the system.
         """
         if "charges" not in self.site_properties:
             return None
         return self.site_properties["charges"]
 
     @charges.setter
-    def charges(self, charges: np.ndarray) -> None:
+    def charges(self, charges: np.ndarray | None) -> None:
         """Set the Lowdin charges.
 
-        Set the Lowdin charges of the atoms in the system.
-
-        Parameters
-        ----------
-        charges: np.ndarray
+        Args:
+            charges (np.ndarray): The Lowdin charges of the atoms in the system.
         """
-        self.site_properties["charges"] = charges
+        if charges is not None:
+            self.add_site_property("charges", list(charges))
+        elif "charges" in self.site_properties:
+            self.remove_site_property("charges")
 
     @property
     def magnetic_moments(self) -> np.ndarray | None:
         """Return the magnetic moments.
 
-        Return the magnetic moments of the atoms in the system.
-
-        Returns
-        -------
-        magnetic_moments: np.ndarray
+        Returns:
+            np.ndarray: The magnetic moments of the atoms in the system.
         """
         if "magmom" not in self.site_properties:
             return None
@@ -236,13 +205,13 @@ class JOutStructure(Structure):
     def magnetic_moments(self, magnetic_moments: np.ndarray) -> None:
         """Set the magnetic moments.
 
-        Set the magnetic moments of the atoms in the system.
-
-        Parameters
-        ----------
-        magnetic_moments: np.ndarray
+        Args:
+            magnetic_moments (np.ndarray): The magnetic moments of the atoms in the system.
         """
-        self.site_properties["magmom"] = magnetic_moments
+        if magnetic_moments is not None:
+            self.add_site_property("magmom", list(magnetic_moments))
+        elif "magmom" in self.site_properties:
+            self.remove_site_property("magmom")
 
     def __init__(
         self,
@@ -259,7 +228,7 @@ class JOutStructure(Structure):
         )
 
     @classmethod
-    def from_text_slice(
+    def _from_text_slice(
         cls,
         text_slice: list[str],
         eopt_type: str = "ElecMinimize",
@@ -267,23 +236,22 @@ class JOutStructure(Structure):
         emin_flag: str = "---- Electronic minimization -------",
         init_structure: Structure | None = None,
     ) -> JOutStructure:
-        """Return JOutStructure object.
+        """
+        Return JOutStructure object.
 
         Create a JAtoms object from a slice of an out file's text corresponding
         to a single step of a native JDFTx optimization.
 
-        Parameters
-        ----------
-        text_slice: list[str]
-            A slice of text from a JDFTx out file corresponding to a single
-            optimization step / SCF cycle
-        eopt_type: str
-            The type of electronic minimization step
-        opt_type: str
-            The type of optimization step
-        emin_flag: str
-            The flag that indicates the start of a log message for a JDFTx
-            optimization step
+        Args:
+            text_slice (list[str]): A slice of text from a JDFTx out file corresponding to a single
+            optimization step / SCF cycle.
+            eopt_type (str): The type of electronic minimization step.
+            opt_type (str): The type of optimization step.
+            emin_flag (str): The flag that indicates the start of a log message for a JDFTx
+            optimization step.
+
+        Returns:
+            JOutStructure: The created JOutStructure object.
         """
         if init_structure is None:
             instance = cls(lattice=np.eye(3), species=[], coords=[], site_properties={})
@@ -299,24 +267,24 @@ class JOutStructure(Structure):
         instance.eopt_type = eopt_type
         instance.opt_type = opt_type
         instance.emin_flag = emin_flag
-        line_collections = instance.init_line_collections()
-        line_collections = instance.gather_line_collections(line_collections, text_slice)
+        line_collections = instance._init_line_collections()
+        line_collections = instance._gather_line_collections(line_collections, text_slice)
 
         # ecomponents needs to be parsed before emin to set etype
-        instance.parse_ecomp_lines(line_collections["ecomp"]["lines"])
-        instance.parse_emin_lines(line_collections["emin"]["lines"])
+        instance._parse_ecomp_lines(line_collections["ecomp"]["lines"])
+        instance._parse_emin_lines(line_collections["emin"]["lines"])
         # Lattice must be parsed before posns/forces in case of direct
         # coordinates
-        instance.parse_lattice_lines(line_collections["lattice"]["lines"])
-        instance.parse_posns_lines(line_collections["posns"]["lines"])
-        instance.parse_forces_lines(line_collections["forces"]["lines"])
+        instance._parse_lattice_lines(line_collections["lattice"]["lines"])
+        instance._parse_posns_lines(line_collections["posns"]["lines"])
+        instance._parse_forces_lines(line_collections["forces"]["lines"])
         # Strain and stress can be parsed in any order
-        instance.parse_strain_lines(line_collections["strain"]["lines"])
-        instance.parse_stress_lines(line_collections["stress"]["lines"])
+        instance._parse_strain_lines(line_collections["strain"]["lines"])
+        instance._parse_stress_lines(line_collections["stress"]["lines"])
         # Lowdin must be parsed after posns
-        instance.parse_lowdin_lines(line_collections["lowdin"]["lines"])
+        instance._parse_lowdin_lines(line_collections["lowdin"]["lines"])
         # Opt line must be parsed after ecomp
-        instance.parse_opt_lines(line_collections["opt"]["lines"])
+        instance._parse_opt_lines(line_collections["opt"]["lines"])
 
         # In case of single-point calculation
         if instance.e is None:  # This doesn't defer to elecmindata.e due to the existence of a class variable e
@@ -335,17 +303,15 @@ class JOutStructure(Structure):
 
         return instance
 
-    def init_line_collections(self) -> dict:
+    def _init_line_collections(self) -> dict:
         """Initialize line collection dict.
 
         Initialize a dictionary of line collections for each type of line in a
         JDFTx out file.
 
-        Returns
-        -------
-        line_collections: dict
-            A dictionary of line collections for each type of line in a JDFTx
-            out file
+        Returns:
+            dict: A dictionary of line collections for each type of line in a JDFTx
+            out file.
         """
         line_collections = {}
         for line_type in self.line_types:
@@ -356,28 +322,24 @@ class JOutStructure(Structure):
             }
         return line_collections
 
-    def gather_line_collections(self, line_collections: dict, text_slice: list[str]) -> dict:
+    def _gather_line_collections(self, line_collections: dict, text_slice: list[str]) -> dict:
         """Gather line collections.
 
         Gather lines of text from a JDFTx out file into a dictionary of line collections.
 
-        Parameters
-        ----------
-        line_collections: dict
-            A dictionary of line collections for each type of line in a JDFTx
+        Args:
+            line_collections (dict): A dictionary of line collections for each type of line in a JDFTx
             out file. Assumed pre-initialized (there exists sdict["lines"]: list[str],
-            sdict["collecting"]: bool, sdict["collected"]: bool for every sdict = line_collections[line_type])
-
-        text_slice: list[str]
-            A slice of text from a JDFTx out file corresponding to a single
-            optimization step / SCF cycle
+            sdict["collecting"]: bool, sdict["collected"]: bool for every sdict = line_collections[line_type]).
+            text_slice (list[str]): A slice of text from a JDFTx out file corresponding to a single
+            optimization step / SCF cycle.
         """
         for line in text_slice:
             read_line = False
             for line_type in line_collections:
                 sdict = line_collections[line_type]
                 if sdict["collecting"]:
-                    lines, getting, got = self.collect_generic_line(line, sdict["lines"])
+                    lines, getting, got = self._collect_generic_line(line, sdict["lines"])
                     sdict["lines"] = lines
                     sdict["collecting"] = getting
                     sdict["collected"] = got
@@ -385,70 +347,54 @@ class JOutStructure(Structure):
                     break
             if not read_line:
                 for line_type in line_collections:
-                    if (not line_collections[line_type]["collected"]) and self.is_generic_start_line(line, line_type):
+                    if (not line_collections[line_type]["collected"]) and self._is_generic_start_line(line, line_type):
                         line_collections[line_type]["collecting"] = True
                         line_collections[line_type]["lines"].append(line)
                         break
         return line_collections
 
-    def is_emin_start_line(self, line_text: str) -> bool:
+    def _is_emin_start_line(self, line_text: str) -> bool:
         """Return True if emin start line.
 
         Return True if the line_text is the start of a log message for a JDFTx
         optimization step.
 
-        Parameters
-        ----------
-        line_text: str
-            A line of text from a JDFTx out file
+        Args:
+            line_text (str): A line of text from a JDFTx out file.
 
-        Returns
-        -------
-        is_line: bool
-            True if the line_text is the start of a log message for a JDFTx
-            optimization step
+        Returns:
+            bool: True if the line_text is the start of a log message for a JDFTx
+            optimization step.
         """
         if self.emin_flag is None:
             raise ValueError("emin_flag is not set")
         return self.emin_flag in line_text
 
-    def is_opt_start_line(self, line_text: str) -> bool:
+    def _is_opt_start_line(self, line_text: str) -> bool:
         """Return True if opt start line.
 
-        Return True if the line_text is the start of a log message for a JDFTx
-        optimization step
+        Args:
+            line_text (str): A line of text from a JDFTx out file.
 
-        Parameters
-        ----------
-        line_text: str
-            A line of text from a JDFTx out file
-
-        Returns
-        -------
-        is_line: bool
-            True if the line_text is the start of a log message for a JDFTx
-            optimization step
+        Returns:
+            bool: True if the line_text is the start of a log message for a JDFTx optimization step.
         """
         is_line = f"{self.opt_type}:" in line_text
         return is_line and "Iter:" in line_text
 
-    def get_etype_from_emin_lines(self, emin_lines: list[str]) -> str | None:
+    def _get_etype_from_emin_lines(self, emin_lines: list[str]) -> str | None:
         """Return energy type string.
 
         Return the type of energy from the electronic minimization data of a
         JDFTx out file.
 
-        Parameters
-        ----------
-        emin_lines: list[str]
-            A list of lines of text from a JDFTx out file containing the
-            electronic minimization data
+        Args:
+            emin_lines (list[str]): A list of lines of text from a JDFTx out file containing the
+            electronic minimization data.
 
-        Returns
-        -------
-        etype: str
-            The type of energy from the electronic minimization data of a JDFTx
-            out file
+        Returns:
+            str: The type of energy from the electronic minimization data of a JDFTx
+            out file.
         """
         etype = None
         for line in emin_lines:
@@ -473,50 +419,38 @@ class JOutStructure(Structure):
                     etype = line.split("Iter:")[1].split(":")[0].strip().split()[-1].strip()
         return etype
 
-    def set_etype_from_emin_lines(self, emin_lines: list[str]) -> None:
+    def _set_etype_from_emin_lines(self, emin_lines: list[str]) -> None:
         """Set etype class variable.
 
         Set the type of energy from the electronic minimization data of a
         JDFTx out file.
 
-        Parameters
-        ----------
-        emin_lines: list[str]
-            A list of lines of text from a JDFTx out file containing the
-            electronic minimization data
+        Args:
+            emin_lines (list[str]): A list of lines of text from a JDFTx out file containing the
+            electronic minimization data.
         """
-        self.etype = self.get_etype_from_emin_lines(emin_lines)
+        self.etype = self._get_etype_from_emin_lines(emin_lines)
 
-    def parse_emin_lines(self, emin_lines: list[str]) -> None:
+    def _parse_emin_lines(self, emin_lines: list[str]) -> None:
         """Parse electronic minimization lines.
 
-        Parse the lines of text corresponding to the electronic minimization
-        data of a JDFTx out file.
-
-        Parameters
-        ----------
-        emin_lines: list[str]
-            A list of lines of text from a JDFTx out file containing the
-            electronic minimization data
+        Args:
+            emin_lines (list[str]): A list of lines of text from a JDFTx out file containing the
+            electronic minimization data.
         """
         if len(emin_lines):
             if self.etype is None:
-                self.set_etype_from_emin_lines(emin_lines)
+                self._set_etype_from_emin_lines(emin_lines)
             self.elecmindata = JElSteps._from_text_slice(emin_lines, opt_type=self.eopt_type, etype=self.etype)
 
-    def parse_lattice_lines(self, lattice_lines: list[str]) -> None:
+    def _parse_lattice_lines(self, lattice_lines: list[str]) -> None:
         """Parse lattice lines.
 
-        Parse the lines of text corresponding to the lattice vectors of a
-        JDFTx out file. Collects the lattice matrix "r" as a 3x3 numpy array first
-        in column-major order (vec i = r[:,i]), then transposes it to row-major
-        order (vec i = r[i,:]) and converts from Bohr to Angstroms.
-
-        Parameters
-        ----------
-        lattice_lines: list[str]
-            A list of lines of text from a JDFTx out file containing the
-            lattice vectors
+        Args:
+            lattice_lines (list[str]): A list of lines of text from a JDFTx out file containing the
+            lattice vectors. Collects the lattice matrix "r" as a 3x3 numpy array first
+            in column-major order (vec i = r[:,i]), then transposes it to row-major
+            order (vec i = r[i,:]) and converts from Bohr to Angstroms.
         """
         r = None
         if len(lattice_lines):
@@ -524,17 +458,12 @@ class JOutStructure(Structure):
             r = r.T * bohr_to_ang
             self.lattice = Lattice(r)
 
-    def parse_strain_lines(self, strain_lines: list[str]) -> None:
+    def _parse_strain_lines(self, strain_lines: list[str]) -> None:
         """Parse strain lines.
 
-        Parse the lines of text corresponding to the strain tensor of a
-        JDFTx out file. Converts from column-major to row-major order.
-
-        Parameters
-        ----------
-        strain_lines: list[str]
-            A list of lines of text from a JDFTx out file containing the
-            strain tensor
+        Args:
+            strain_lines (list[str]): A list of lines of text from a JDFTx out file containing the
+            strain tensor. Converts from column-major to row-major order.
         """
         st = None
         if len(strain_lines):
@@ -542,17 +471,15 @@ class JOutStructure(Structure):
             st = st.T
         self.strain = st
 
-    def parse_stress_lines(self, stress_lines: list[str]) -> None:
+    def _parse_stress_lines(self, stress_lines: list[str]) -> None:
         """Parse stress lines.
 
         Parse the lines of text corresponding to the stress tensor of a
         JDFTx out file and converts from Ha/Bohr^3 to eV/Ang^3.
 
-        Parameters
-        ----------
-        stress_lines: list[str]
-            A list of lines of text from a JDFTx out file containing the
-            stress tensor
+        Args:
+            stress_lines (list[str]): A list of lines of text from a JDFTx out file containing the
+            stress tensor.
         """
         # TODO: Lattice optimizations dump stress in cartesian coordinates in units
         # "[Eh/a0^3]" (Hartree per bohr cubed). Check if this changes for direct
@@ -564,21 +491,19 @@ class JOutStructure(Structure):
             st *= Ha_to_eV / (bohr_to_ang**3)
         self.stress = st
 
-    def parse_posns_lines(self, posns_lines: list[str]) -> None:
+    def _parse_posns_lines(self, posns_lines: list[str]) -> None:
         """Parse positions lines.
 
         Parse the lines of text corresponding to the positions of a
-        JDFTx out file
+        JDFTx out file.
 
-        Parameters
-        ----------
-        posns_lines: list[str]
-            A list of lines of text from a JDFTx out file. Collected lines will
-            start with the string "# Ionic positions in ..." (specifying either
-            cartesian or direct coordinates), followed by a line for each ion (atom)
-            in the format "ion_name x y z sd", where ion_name is the name of the element,
-            and sd is a flag indicating whether the ion is excluded from optimization (1)
-             or not (0).
+        Args:
+            posns_lines (list[str]): A list of lines of text from a JDFTx out file.
+            Collected lines will start with the string "# Ionic positions in ..."
+            (specifying either cartesian or direct coordinates), followed by a line
+            for each ion (atom) in the format "ion_name x y z sd", where ion_name is
+            the name of the element, and sd is a flag indicating whether the ion is
+            excluded from optimization (1) or not (0).
         """
         if len(posns_lines):
             self.remove_sites(list(range(len(self.species))))
@@ -605,16 +530,11 @@ class JOutStructure(Structure):
                 self.append(species=names[i], coords=posns[i], coords_are_cartesian=True)
             self.selective_dynamics = selective_dynamics
 
-    def parse_forces_lines(self, forces_lines: list[str]) -> None:
+    def _parse_forces_lines(self, forces_lines: list[str]) -> None:
         """Parse forces lines.
 
-        Parse the lines of text corresponding to the forces of a
-        JDFTx out file.
-
-        Parameters
-        ----------
-        forces_lines: list[str]
-            A list of lines of text from a JDFTx out file containing the forces
+        Args:
+            forces_lines (list[str]): A list of lines of text from a JDFTx out file containing the forces.
         """
         if len(forces_lines):
             natoms = len(forces_lines) - 1
@@ -634,16 +554,14 @@ class JOutStructure(Structure):
             forces *= Ha_to_eV
             self.forces = forces
 
-    def parse_ecomp_lines(self, ecomp_lines: list[str]) -> None:
+    def _parse_ecomp_lines(self, ecomp_lines: list[str]) -> None:
         """Parse energy component lines.
 
         Parse the lines of text corresponding to the energy components of a
-        JDFTx out file
+        JDFTx out file.
 
-        Parameters
-        ----------
-        ecomp_lines: list[str]
-            A list of lines of text from a JDFTx out file. All lines will either be
+        Args:
+            ecomp_lines (list[str]): A list of lines of text from a JDFTx out file. All lines will either be
             the header line, a break line of only "...---...", or a line of the form
             "component = value" where component is the name of the energy component
             and value is the value of the energy component in Hartrees.
@@ -659,24 +577,22 @@ class JOutStructure(Structure):
         if key is not None and (self.etype is None) and (key in ["F", "G"]):
             self.etype = key
 
-    def parse_lowdin_lines(self, lowdin_lines: list[str]) -> None:
+    def _parse_lowdin_lines(self, lowdin_lines: list[str]) -> None:
         """Parse Lowdin lines.
 
         Parse the lines of text corresponding to a Lowdin population analysis
-        in a JDFTx out file
+        in a JDFTx out file.
 
-        Parameters
-        ----------
-        lowdin_lines: list[str]
-            A list of lines of text from a JDFTx out file
+        Args:
+            lowdin_lines (list[str]): A list of lines of text from a JDFTx out file.
         """
         charges_dict: dict[str, list[float]] = {}
         moments_dict: dict[str, list[float]] = {}
         for line in lowdin_lines:
-            if is_charges_line(line):
-                charges_dict = self.parse_lowdin_line(line, charges_dict)
-            elif is_magnetic_moments_line(line):
-                moments_dict = self.parse_lowdin_line(line, moments_dict)
+            if _is_charges_line(line):
+                charges_dict = self._parse_lowdin_line(line, charges_dict)
+            elif _is_magnetic_moments_line(line):
+                moments_dict = self._parse_lowdin_line(line, moments_dict)
         names = [s.name for s in self.species]
         charges = None
         moments = None
@@ -695,23 +611,18 @@ class JOutStructure(Structure):
         self.charges = charges
         self.magnetic_moments = moments
 
-    def parse_lowdin_line(self, lowdin_line: str, lowdin_dict: dict[str, list[float]]) -> dict[str, list[float]]:
+    def _parse_lowdin_line(self, lowdin_line: str, lowdin_dict: dict[str, list[float]]) -> dict[str, list[float]]:
         """Parse Lowdin line.
 
         Parse a line of text from a JDFTx out file corresponding to a
-        Lowdin population analysis
+        Lowdin population analysis.
 
-        Parameters
-        ----------
-        lowdin_line: str
-            A line of text from a JDFTx out file
-        lowdin_dict: dict[str, list[float]]
-            A dictionary of Lowdin population analysis data
+        Args:
+            lowdin_line (str): A line of text from a JDFTx out file.
+            lowdin_dict (dict[str, list[float]]): A dictionary of Lowdin population analysis data.
 
-        Returns
-        -------
-        lowdin_dict: dict[str, float]
-            A dictionary of Lowdin population analysis data
+        Returns:
+            dict[str, list[float]]: A dictionary of Lowdin population analysis data.
         """
         tokens = [v.strip() for v in lowdin_line.strip().split()]
         name = tokens[2]
@@ -719,37 +630,31 @@ class JOutStructure(Structure):
         lowdin_dict[name] = vals
         return lowdin_dict
 
-    def is_opt_conv_line(self, line_text: str) -> bool:
+    def _is_opt_conv_line(self, line_text: str) -> bool:
         """Return True if line_text is geom opt convergence line.
 
-        Return True if the line_text is the end of a JDFTx optimization step
+        Return True if the line_text is the end of a JDFTx optimization step.
 
-        Parameters
-        ----------
-        line_text: str
-            A line of text from a JDFTx out file
+        Args:
+            line_text (str): A line of text from a JDFTx out file.
 
-        Returns
-        -------
-        is_line: bool
-            True if the line_text is the end of a JDFTx optimization step
+        Returns:
+            bool: True if the line_text is the end of a JDFTx optimization step.
         """
         return f"{self.opt_type}: Converged" in line_text
 
-    def parse_opt_lines(self, opt_lines: list[str]) -> None:
+    def _parse_opt_lines(self, opt_lines: list[str]) -> None:
         """Parse optimization lines.
 
         Parse the lines of text corresponding to the optimization step of a
-        JDFTx out file
+        JDFTx out file.
 
-        Parameters
-        ----------
-        opt_lines: list[str]
-            A list of lines of text from a JDFTx out file
+        Args:
+            opt_lines (list[str]): A list of lines of text from a JDFTx out file.
         """
         if len(opt_lines):
             for line in opt_lines:
-                if self.is_opt_start_line(line):
+                if self._is_opt_start_line(line):
                     nstep = int(get_colon_var_t1(line, "Iter:"))
                     self.nstep = nstep
                     en = get_colon_var_t1(line, f"{self.etype}:")
@@ -762,70 +667,59 @@ class JOutStructure(Structure):
                     self.linmin = linmin
                     t_s = get_colon_var_t1(line, "t[s]: ")
                     self.t_s = t_s
-                elif self.is_opt_conv_line(line):
+                elif self._is_opt_conv_line(line):
                     self.geom_converged = True
                     self.geom_converged_reason = line.split("(")[1].split(")")[0].strip()
 
-    def is_generic_start_line(self, line_text: str, line_type: str) -> bool:
+    def _is_generic_start_line(self, line_text: str, line_type: str) -> bool:
         """Return True if the line_text is start of line_type log message.
 
         Return True if the line_text is the start of a section of the
         JDFTx out file corresponding to the line_type.
 
-        Parameters
-        ----------
-        line_text: str
-            A line of text from a JDFTx out file
-        line_type: str
-            The type of line to check for
+        Args:
+            line_text (str): A line of text from a JDFTx out file.
+            line_type (str): The type of line to check for.
 
-        Returns
-        -------
-        is_line: bool
-            True if the line_text is the start of a section of the
-            JDFTx out file
+        Returns:
+            bool: True if the line_text is the start of a section of the
+            JDFTx out file.
         """
         if line_type == "lowdin":
             return is_lowdin_start_line(line_text)
         if line_type == "opt":
-            return self.is_opt_start_line(line_text)
+            return self._is_opt_start_line(line_text)
         if line_type == "ecomp":
-            return is_ecomp_start_line(line_text)
+            return _is_ecomp_start_line(line_text)
         if line_type == "forces":
-            return is_forces_start_line(line_text)
+            return _is_forces_start_line(line_text)
         if line_type == "posns":
-            return is_posns_start_line(line_text)
+            return _is_posns_start_line(line_text)
         if line_type == "stress":
-            return is_stress_start_line(line_text)
+            return _is_stress_start_line(line_text)
         if line_type == "strain":
-            return is_strain_start_line(line_text)
+            return _is_strain_start_line(line_text)
         if line_type == "lattice":
-            return is_lattice_start_line(line_text)
+            return _is_lattice_start_line(line_text)
         if line_type == "emin":
-            return self.is_emin_start_line(line_text)
+            return self._is_emin_start_line(line_text)
         raise ValueError(f"Unrecognized line type {line_type}")
 
-    def collect_generic_line(self, line_text: str, generic_lines: list[str]) -> tuple[list[str], bool, bool]:
+    def _collect_generic_line(self, line_text: str, generic_lines: list[str]) -> tuple[list[str], bool, bool]:
         """Collect generic log line.
 
         Collect a line of text into a list of lines if the line is not empty,
         and otherwise updates the collecting and collected flags.
 
-        Parameters
-        ----------
-        line_text: str
-            A line of text from a JDFTx out file
-        generic_lines: list[str]
-            A list of lines of text of the same type
+        Args:
+            line_text (str): A line of text from a JDFTx out file.
+            generic_lines (list[str]): A list of lines of text of the same type.
 
-        Returns
-        -------
-        generic_lines: list[str]
-            A list of lines of text of the same type
-        collecting: bool
-            True if the line_text is not empty
-        collected: bool
-            True if the line_text is empty (end of section)
+        Returns:
+            tuple: A tuple containing:
+            - generic_lines (list[str]): A list of lines of text of the same type.
+            - collecting (bool): True if the line_text is not empty.
+            - collected (bool): True if the line_text is empty (end of section).
         """
         collecting = True
         collected = False
@@ -843,17 +737,11 @@ class JOutStructure(Structure):
     def __getattr__(self, name: str) -> Any:
         """Return attribute value.
 
-        Return the value of an attribute.
+        Args:
+            name (str): The name of the attribute.
 
-        Parameters
-        ----------
-        name: str
-            The name of the attribute
-
-        Returns
-        -------
-        value
-            The value of the attribute
+        Returns:
+            Any: The value of the attribute.
         """
         # Only works for actual attributes of the class
         if name in self.__dict__:
@@ -877,171 +765,134 @@ class JOutStructure(Structure):
     def __str__(self) -> str:
         """Return string representation.
 
-        Return a string representation of the JOutStructure object.
-
-        Returns
-        -------
-        str
-            A string representation of the JOutStructure object
+        Returns:
+            str: A string representation of the JOutStructure object.
         """
         return pprint.pformat(self)
 
 
-def is_stress_start_line(line_text: str) -> bool:
+def _is_stress_start_line(line_text: str) -> bool:
     """Return True if the line_text is the start of stress log message.
 
     Return True if the line_text is the start of a log message for a JDFTx
     optimization step.
 
-    Parameters
-    ----------
-    line_text: str
-        A line of text from a JDFTx out file
+    Args:
+        line_text (str): A line of text from a JDFTx out file.
 
-    Returns
-    -------
-    is_line: bool
-        True if the line_text is the start of a log message for a JDFTx
-        optimization step
+    Returns:
+        bool: True if the line_text is the start of a log message for a JDFTx
+        optimization step.
     """
     return "# Stress tensor in" in line_text
 
 
-def is_strain_start_line(line_text: str) -> bool:
+def _is_strain_start_line(line_text: str) -> bool:
     """Return True if the line_text is the start of strain log message.
 
     Return True if the line_text is the start of a log message for a JDFTx
     optimization step.
 
-    Parameters
-    ----------
-    line_text: str
-        A line of text from a JDFTx out file
+    Args:
+        line_text (str): A line of text from a JDFTx out file.
 
-    Returns
-    -------
-    is_line: bool
-        True if the line_text is the start of a log message for a JDFTx
-        optimization step
+    Returns:
+        bool: True if the line_text is the start of a log message for a JDFTx
+        optimization step.
     """
     return "# Strain tensor in" in line_text
 
 
-def is_posns_start_line(line_text: str) -> bool:
+def _is_posns_start_line(line_text: str) -> bool:
     """Return True if the line_text is the start of posns log message.
 
     Return True if the line_text is the start of a log message for a JDFTx
     optimization step.
 
-    Parameters
-    ----------
-    line_text: str
-        A line of text from a JDFTx out file containing the positions of atoms
+    Args:
+        line_text (str): A line of text from a JDFTx out file containing the positions of atoms.
 
-    Returns
-    -------
-        is_line: bool
-            True if the line_text is the start of a log message for a JDFTx
-            optimization step
+    Returns:
+        bool: True if the line_text is the start of a log message for a JDFTx optimization step.
     """
     return "# Ionic positions" in line_text
 
 
-def is_ecomp_start_line(line_text: str) -> bool:
+def _is_ecomp_start_line(line_text: str) -> bool:
     """Return True if the line_text is the start of ecomp log message.
 
     Return True if the line_text is the start of a log message for a JDFTx
     optimization step.
 
-    Parameters
-    ----------
-    line_text: str
-        A line of text from a JDFTx out file
+    Args:
+        line_text (str): A line of text from a JDFTx out file.
 
-    Returns
-    -------
-    is_line: bool
-        True if the line_text is the start of a log message for a JDFTx
-        optimization step
+    Returns:
+        bool: True if the line_text is the start of a log message for a JDFTx
+        optimization step.
     """
     return "# Energy components" in line_text
 
 
-def is_charges_line(line_text: str) -> bool:
+def _is_charges_line(line_text: str) -> bool:
     """Return True if the line_text is start of charges log message.
 
     Return True if the line_text is a line of text from a JDFTx out file
     corresponding to a Lowdin population analysis.
 
-    Parameters
-    ----------
-    line_text: str
-        A line of text from a JDFTx out file
+    Args:
+        line_text (str): A line of text from a JDFTx out file.
 
-    Returns
-    -------
-    is_line: bool
-        True if the line_text is a line of text from a JDFTx out file
-        corresponding to a Lowdin population
+    Returns:
+        bool: True if the line_text is a line of text from a JDFTx out file
+        corresponding to a Lowdin population.
     """
     return "oxidation-state" in line_text
 
 
-def is_magnetic_moments_line(line_text: str) -> bool:
+def _is_magnetic_moments_line(line_text: str) -> bool:
     """Return True if the line_text is start of moments log message.
 
     Return True if the line_text is a line of text from a JDFTx out file
     corresponding to a Lowdin population analysis.
 
-    Parameters
-    ----------
-    line_text: str
-        A line of text from a JDFTx out file
+    Args:
+        line_text (str): A line of text from a JDFTx out file.
 
-    Returns
-    -------
-    is_line: bool
-        True if the line_text is a line of text from a JDFTx out file
-        corresponding to a Lowdin population
+    Returns:
+        bool: True if the line_text is a line of text from a JDFTx out file
+        corresponding to a Lowdin population.
     """
     return "magnetic-moments" in line_text
 
 
-def is_forces_start_line(line_text: str) -> bool:
+def _is_forces_start_line(line_text: str) -> bool:
     """Return True if the line_text is the start of forces log message.
 
     Return True if the line_text is the start of a log message for a JDFTx
     optimization step.
 
-    Parameters
-    ----------
-    line_text: str
-        A line of text from a JDFTx out file
+    Args:
+        line_text (str): A line of text from a JDFTx out file.
 
-    Returns
-    -------
-    is_line: bool
-        True if the line_text is the start of a log message for a JDFTx
-        optimization step
+    Returns:
+        bool: True if the line_text is the start of a log message for a JDFTx
+        optimization step.
     """
     return "# Forces in" in line_text
 
 
-def is_lattice_start_line(line_text: str) -> bool:
+def _is_lattice_start_line(line_text: str) -> bool:
     """Return True if the line_text is the start of lattice log message.
 
     Return True if the line_text is the start of a log message for a JDFTx
     optimization step.
 
-    Parameters
-    ----------
-    line_text: str
-        A line of text from a JDFTx out file
+    Args:
+        line_text (str): A line of text from a JDFTx out file.
 
-    Returns
-    -------
-    is_line: bool
-        True if the line_text is the start of a log message for a JDFTx
-        optimization step
+    Returns:
+        bool: True if the line_text is the start of a log message for a JDFTx
+        optimization step.
     """
     return "# Lattice vectors:" in line_text

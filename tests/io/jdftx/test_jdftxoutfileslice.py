@@ -18,19 +18,19 @@ ex_files_dir = Path(TEST_FILES_DIR) / "io" / "jdftx" / "example_files"
 
 
 def test_jdftxoutfileslice_stringify():
-    joutslice = JDFTXOutfileSlice.from_out_slice(ex_slice1)
+    joutslice = JDFTXOutfileSlice._from_out_slice(ex_slice1)
     out_str = str(joutslice)
     assert isinstance(out_str, str)
     assert len(out_str)
 
 
 def test_jdftxoutfileslice_converge():
-    joutslice = JDFTXOutfileSlice.from_out_slice(ex_slice1)
+    joutslice = JDFTXOutfileSlice._from_out_slice(ex_slice1)
     assert joutslice.is_converged
 
 
 def test_jdftxoutfileslice_trajectory():
-    joutslice = JDFTXOutfileSlice.from_out_slice(ex_slice1)
+    joutslice = JDFTXOutfileSlice._from_out_slice(ex_slice1)
     traj = joutslice.trajectory
     assert isinstance(traj, Trajectory)
     del joutslice.jsettings_lattice.params["niterations"]
@@ -39,28 +39,28 @@ def test_jdftxoutfileslice_trajectory():
 
 
 def test_get_broadeningvars():
-    joutslice = JDFTXOutfileSlice.from_out_slice(ex_slice1)
+    joutslice = JDFTXOutfileSlice._from_out_slice(ex_slice1)
     btype = "btype"
     bval = 1.0
     text = [f"elec-smearing {btype} {bval}"]
-    broadening_type, broadening = joutslice.get_broadeningvars(text)
+    broadening_type, broadening = joutslice._get_broadeningvars(text)
     assert broadening_type == btype
     assert broadening == pytest.approx(bval)
-    broadening_type, broadening = joutslice.get_broadeningvars([])
+    broadening_type, broadening = joutslice._get_broadeningvars([])
     assert broadening_type is None
     assert broadening == pytest.approx(0.0)
 
 
 def test_get_truncationvars():
-    joutslice = JDFTXOutfileSlice.from_out_slice(ex_slice1)
+    joutslice = JDFTXOutfileSlice._from_out_slice(ex_slice1)
     joutslice.is_bgw = True
     with pytest.raises(ValueError, match="BGW slab Coulomb truncation must be along z!"):
-        joutslice.get_truncationvars(["coulomb-interaction Slab 010"])
+        joutslice._get_truncationvars(["coulomb-interaction Slab 010"])
     with pytest.raises(ValueError, match="BGW wire Coulomb truncation must be periodic in z!"):
-        joutslice.get_truncationvars(["coulomb-interaction Cylindrical 010"])
+        joutslice._get_truncationvars(["coulomb-interaction Cylindrical 010"])
     with pytest.raises(ValueError, match="Problem with this truncation!"):
-        joutslice.get_truncationvars(["coulomb-interaction barbie 010"])
-    truncation_type, truncation_radius = joutslice.get_truncationvars(
+        joutslice._get_truncationvars(["coulomb-interaction barbie 010"])
+    truncation_type, truncation_radius = joutslice._get_truncationvars(
         ["coulomb-interaction Spherical", "Initialized spherical truncation of radius 1.0"]
     )
     assert truncation_type == "spherical"
@@ -68,20 +68,20 @@ def test_get_truncationvars():
 
 
 def test_get_rho_cutoff():
-    joutslice = JDFTXOutfileSlice.from_out_slice(ex_slice1)
+    joutslice = JDFTXOutfileSlice._from_out_slice(ex_slice1)
     text = ["elec-cutoff 1.0"]
     joutslice.pwcut = None
-    rhocut = joutslice.get_rho_cutoff(text)
+    rhocut = joutslice._get_rho_cutoff(text)
     assert joutslice.pwcut == pytest.approx(1.0 * Ha_to_eV)
     assert rhocut == pytest.approx(joutslice.pwcut * 4)
 
 
 def test_get_eigstats_varsdict():
-    joutslice = JDFTXOutfileSlice.from_out_slice(ex_slice1)
-    evardict = joutslice.get_eigstats_varsdict([], "$VAR")
+    joutslice = JDFTXOutfileSlice._from_out_slice(ex_slice1)
+    evardict = joutslice._get_eigstats_varsdict([], "$VAR")
     for key in evardict:
         assert evardict[key] is None
-    joutslice.set_eigvars([])
+    joutslice._set_eigvars([])
     for key in evardict:
         if key != "efermi":
             assert getattr(joutslice, key) is None
@@ -90,14 +90,14 @@ def test_get_eigstats_varsdict():
 
 
 def test_get_pp_type():
-    joutslice = JDFTXOutfileSlice.from_out_slice(ex_slice1)
-    assert joutslice.get_pp_type(["Reading pseudopotential file root/PAW:"]) is None
-    assert joutslice.get_pp_type(["Reading pseudopotential file not_SG15/GBRV"]) == "GBRV"
-    assert joutslice.get_pp_type(["Reading pseudopotential file not_GBRV/SG15"]) == "SG15"
+    joutslice = JDFTXOutfileSlice._from_out_slice(ex_slice1)
+    assert joutslice._get_pp_type(["Reading pseudopotential file root/PAW:"]) is None
+    assert joutslice._get_pp_type(["Reading pseudopotential file not_SG15/GBRV"]) == "GBRV"
+    assert joutslice._get_pp_type(["Reading pseudopotential file not_GBRV/SG15"]) == "SG15"
 
 
 def test_set_pseudo_vars_t1():
-    joutslice = JDFTXOutfileSlice.from_out_slice(ex_slice1)
+    joutslice = JDFTXOutfileSlice._from_out_slice(ex_slice1)
     # Just need more bound sets than there are atom types
     text = [
         "Reading pseudopotential file not_SG15/GBRV",
@@ -122,83 +122,83 @@ def test_set_pseudo_vars_t1():
     joutslice._total_electrons_backup = None
     joutslice.jstrucs = None
     with pytest.raises(ValueError, match="Total electrons and semicore electrons must be set."):
-        joutslice.set_pseudo_vars_t1(text)
+        joutslice._set_pseudo_vars_t1(text)
     joutslice.atom_elements = None
     with pytest.raises(ValueError, match="Atom elements not set yet."):
-        joutslice.set_pseudo_vars_t1(text)
+        joutslice._set_pseudo_vars_t1(text)
     joutslice.atom_types = None
-    with pytest.raises(ValueError, match="Pseuopotential data cannot be allocated without atom types."):
-        joutslice.set_pseudo_vars_t1(text)
+    with pytest.raises(ValueError, match="Pseudopotential data cannot be allocated without atom types."):
+        joutslice._set_pseudo_vars_t1(text)
 
 
 def test_set_geomopt_vars():
-    joutslice = JDFTXOutfileSlice.from_out_slice(ex_slice1)
+    joutslice = JDFTXOutfileSlice._from_out_slice(ex_slice1)
     joutslice.jsettings_ionic = None
     with pytest.raises(ValueError, match="Unknown issue in setting settings objects"):
-        joutslice.set_geomopt_vars([])
+        joutslice._set_geomopt_vars([])
 
 
 def test_set_orb_fillings_nobroad():
-    joutslice = JDFTXOutfileSlice.from_out_slice(ex_slice1)
-    joutslice.set_orb_fillings_nobroad(1)
+    joutslice = JDFTXOutfileSlice._from_out_slice(ex_slice1)
+    joutslice._set_orb_fillings_nobroad(1)
     assert joutslice.homo_filling == pytest.approx(2)
     assert joutslice.lumo_filling == pytest.approx(0)
 
 
 def test_set_orb_fillings_broad():
-    joutslice = JDFTXOutfileSlice.from_out_slice(ex_slice1)
+    joutslice = JDFTXOutfileSlice._from_out_slice(ex_slice1)
     joutslice.lumo = None
     with pytest.raises(ValueError, match="Cannot set orbital fillings with broadening with self.lumo as None"):
-        joutslice.set_orb_fillings()
+        joutslice._set_orb_fillings()
     joutslice.homo = None
     with pytest.raises(ValueError, match="Cannot set orbital fillings with broadening with self.homo as None"):
-        joutslice.set_orb_fillings()
+        joutslice._set_orb_fillings()
     joutslice.efermi = None
     with pytest.raises(ValueError, match="Cannot set orbital fillings with broadening with self.efermi as None"):
-        joutslice.set_orb_fillings()
+        joutslice._set_orb_fillings()
     joutslice.broadening = None
     with pytest.raises(ValueError, match="Cannot set orbital fillings with broadening with self.broadening as None"):
-        joutslice.set_orb_fillings()
+        joutslice._set_orb_fillings()
     joutslice.broadening_type = None
     joutslice.nspin = None
     with pytest.raises(ValueError, match="Cannot set homo/lumo filling with self.nspin as None"):
-        joutslice.set_orb_fillings()
+        joutslice._set_orb_fillings()
 
 
 def test_set_lattice_vars():
-    joutslice = JDFTXOutfileSlice.from_out_slice(ex_slice1)
+    joutslice = JDFTXOutfileSlice._from_out_slice(ex_slice1)
     joutslice.jstrucs = None
     with pytest.raises(ValueError, match="No structures found in out file."):
-        joutslice.set_lattice_vars([])
+        joutslice._set_lattice_vars([])
 
 
 def test_set_ecomponents():
-    joutslice = JDFTXOutfileSlice.from_out_slice(ex_slice1)
+    joutslice = JDFTXOutfileSlice._from_out_slice(ex_slice1)
     joutslice.jstrucs = None
     with pytest.raises(ValueError, match="No structures found in out file."):
-        joutslice.set_ecomponents([])
+        joutslice._set_ecomponents([])
 
 
 def test_calculate_filling():
-    joutslice = JDFTXOutfileSlice.from_out_slice(ex_slice1)
+    joutslice = JDFTXOutfileSlice._from_out_slice(ex_slice1)
     broadening = 1.0
     eig = 0.5
     efermi = 0.6
     x = (eig - efermi) / (2.0 * broadening)
-    assert 0.5 * (1 - np.tanh(x)) == pytest.approx(joutslice.calculate_filling("Fermi", broadening, eig, efermi))
+    assert 0.5 * (1 - np.tanh(x)) == pytest.approx(joutslice._calculate_filling("Fermi", broadening, eig, efermi))
     assert 0.5 * (1 - math.erf(x)) - x * np.exp(-1 * x**2) / (2 * np.pi**0.5) == pytest.approx(
-        joutslice.calculate_filling("MP1", broadening, eig, efermi)
+        joutslice._calculate_filling("MP1", broadening, eig, efermi)
     )
-    assert 0.5 * (1 - math.erf(x)) == pytest.approx(joutslice.calculate_filling("Gauss", broadening, eig, efermi))
+    assert 0.5 * (1 - math.erf(x)) == pytest.approx(joutslice._calculate_filling("Gauss", broadening, eig, efermi))
     assert 0.5 * (1 - math.erf(x + 0.5**0.5)) + np.exp(-1 * (x + 0.5**0.5) ** 2) / (2 * np.pi) ** 0.5 == pytest.approx(
-        joutslice.calculate_filling("Cold", broadening, eig, efermi)
+        joutslice._calculate_filling("Cold", broadening, eig, efermi)
     )
     with pytest.raises(NotImplementedError, match="Have not added other broadening types"):
-        joutslice.calculate_filling("Unknown", broadening, eig, efermi)
+        joutslice._calculate_filling("Unknown", broadening, eig, efermi)
 
 
 def test_determine_is_metal():
-    joutslice = JDFTXOutfileSlice.from_out_slice(ex_slice1)
+    joutslice = JDFTXOutfileSlice._from_out_slice(ex_slice1)
     for varname in ["lumo_filling", "homo_filling", "nspin"]:
         setattr(joutslice, varname, None)
         with pytest.raises(ValueError, match=f"Cannot determine if system is metal - self.{varname} undefined"):
@@ -206,13 +206,13 @@ def test_determine_is_metal():
 
 
 def test_write():
-    joutslice = JDFTXOutfileSlice.from_out_slice(ex_slice1)
+    joutslice = JDFTXOutfileSlice._from_out_slice(ex_slice1)
     with pytest.raises(NotImplementedError):
         joutslice.write()
 
 
 def test_to_dict():
-    joutslice = JDFTXOutfileSlice.from_out_slice(ex_slice1)
+    joutslice = JDFTXOutfileSlice._from_out_slice(ex_slice1)
     out_dict = joutslice.to_dict()
     assert isinstance(out_dict, dict)
 
@@ -224,5 +224,5 @@ def test_none_on_partial(ex_slice: list[str]):
     freq = 5
     for i in range(int(len(ex_slice) / freq)):
         test_slice = ex_slice[: -(i * freq)]
-        joutslice = JDFTXOutfileSlice.from_out_slice(test_slice, none_on_error=True)
+        joutslice = JDFTXOutfileSlice._from_out_slice(test_slice, none_on_error=True)
         assert isinstance(joutslice, JDFTXOutfileSlice | None)

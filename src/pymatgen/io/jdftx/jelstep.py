@@ -14,7 +14,7 @@ from dataclasses import dataclass, field
 from typing import Any, ClassVar
 
 from pymatgen.core.units import Ha_to_eV
-from pymatgen.io.jdftx.utils import get_colon_var_t1
+from pymatgen.io.jdftx._utils import get_colon_var_t1
 
 __author__ = "Ben Rich"
 

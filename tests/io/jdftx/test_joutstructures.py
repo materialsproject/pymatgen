@@ -62,7 +62,7 @@ ex_outslice2_known = {
     [(ex_outslice1, ex_outslice1_known, "lattice")],
 )
 def test_jstructures(ex_slice: list[str], ex_slice_known: dict[str, float], opt_type: str):
-    jstruct = JOutStructures.from_out_slice(ex_slice, opt_type=opt_type)
+    jstruct = JOutStructures._from_out_slice(ex_slice, opt_type=opt_type)
     assert isinstance(jstruct, JOutStructures)
     assert isinstance(jstruct[0], JOutStructure)
     assert jstruct[0].elecmindata[0].mu == approx(ex_slice_known["mu0_0"])

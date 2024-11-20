@@ -53,7 +53,7 @@ def test_JElStep_known(
     eitertype="ElecMinimize",
 ):
     ex_lines_collect = [exiter_line, exfill_line, exsubspace_line, ""]  # Empty line added for coverage
-    jei = JElStep.from_lines_collect(ex_lines_collect, eitertype, etype)
+    jei = JElStep._from_lines_collect(ex_lines_collect, eitertype, etype)
     str(jei)
     ex_known = {}
     for dictlike in [exfill_known, exiter_known, exsubspace_known]:
@@ -83,7 +83,7 @@ def test_JElSteps_known(
     eitertype="ElecMinimize",
 ):
     text_slice = [line for exl in ex_lines for line in exl]
-    jeis = JElSteps.from_text_slice(text_slice, opt_type=eitertype, etype=etype)
+    jeis = JElSteps._from_text_slice(text_slice, opt_type=eitertype, etype=etype)
     for var in [
         "mu",
         "nelectrons",

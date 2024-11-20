@@ -1152,12 +1152,11 @@ MASTER_TAG_LIST: dict[str, dict[str, Any]] = {
 
 
 def get_dump_tag_container() -> DumpTagContainer:
-    """Initialize a dump tag container.
+    """
+    Initialize a dump tag container.
 
-    Returns
-    -------
-    DumpTagContainer
-        The dump tag container.
+    Returns:
+        DumpTagContainer: The dump tag container.
     """
     subtags2: dict[str, AbstractTag] = {}  # Called "subtags2" to avoid name conflict with the "subtags" variable
     for freq in jdftxdumpfreqoptions:
@@ -1187,14 +1186,10 @@ __TAG_GROUPS__ = {tag: group for group in MASTER_TAG_LIST for tag in MASTER_TAG_
 def get_tag_object(tag: str) -> AbstractTag:
     """Get the tag object for a given tag name.
 
-    Parameters
-    ----------
-    tag : str
-        The tag name.
+    Args:
+        tag (str): The tag name.
 
-    Returns
-    -------
-    AbstractTag
-        The tag object.
+    Returns:
+        AbstractTag: The tag object.
     """
     return MASTER_TAG_LIST[__TAG_GROUPS__[tag]][tag]
