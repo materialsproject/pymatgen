@@ -26,46 +26,23 @@ class JElStep:
     Class object for storing logged electronic minimization data for a single
     SCF step.
 
-    Attributes
-    opt_type: str | None
-        The type of electronic minimization step (almost always ElecMinimize)
-
-    etype: str | None
-        The type of energy component (G, F, or Etot)
-
-    nstep: int | None
-        The SCF step number
-
-    e: float | None
-        The total electronic energy in eV
-
-    grad_k: float | None
-        The gradient of the Kohn-Sham energy (along line minimization direction)
-
-    alpha: float | None
-        The step length
-
-    linmin: float | None
-        Normalized line minimization direction / energy gradient projection
-        (-1 for perfectly opposite, 1 for perfectly aligned)
-
-    t_s: float | None
-        Time in seconds for the SCF step
-
-    mu: float | None
-        The chemical potential in eV
-
-    nelectrons: float | None
-        The number of electrons
-
-    abs_magneticmoment: float | None
-        The absolute magnetic moment
-
-    tot_magneticmoment: float | None
-        The total magnetic moment
-
-    subspacerotationadjust: float | None
-        The subspace rotation adjustment factor
+    Attributes:
+        opt_type (str | None): The type of electronic minimization step
+            (almost always ElecMinimize).
+        etype (str | None): The type of energy component (G, F, or Etot).
+        nstep (int | None): The SCF step number.
+        e (float | None): The total electronic energy in eV.
+        grad_k (float | None): The gradient of the Kohn-Sham energy (along the
+            line minimization direction).
+        alpha (float | None): The step length.
+        linmin (float | None): Normalized line minimization direction / energy
+            gradient projection (-1 for perfectly opposite, 1 for perfectly aligned).
+        t_s (float | None): Time in seconds for the SCF step.
+        mu (float | None): The chemical potential in eV.
+        nelectrons (float | None): The number of electrons.
+        abs_magneticmoment (float | None): The absolute magnetic moment.
+        tot_magneticmoment (float | None): The total magnetic moment.
+        subspacerotationadjust (float | None): The subspace rotation adjustment factor.
     """
 
     opt_type: str | None = None
@@ -85,70 +62,57 @@ class JElStep:
     converged_reason: str | None = None
 
     @classmethod
-    def from_lines_collect(cls, lines_collect: list[str], opt_type: str, etype: str) -> JElStep:
+    def _from_lines_collect(cls, lines_collect: list[str], opt_type: str, etype: str) -> JElStep:
         """Return JElStep object.
 
         Create a JElStep object from a list of lines of text from a JDFTx out
         file corresponding to a single SCF step.
 
-        Parameters
-        ----------
-        lines_collect: list[str]
-            A list of lines of text from a JDFTx out file corresponding to a
-            single SCF step
-        opt_type: str
-            The type of electronic minimization step
-        etype: str
-            The type of energy component
+        Args:
+        lines_collect (list[str]): A list of lines of text from a JDFTx out file corresponding to a single SCF step.
+        opt_type (str): The type of electronic minimization step.
+        etype (str): The type of energy component.
+
+        Returns:
+            JElStep: The created JElStep object.
         """
         instance = cls()
         instance.opt_type = opt_type
         instance.etype = etype
         _iter_flag = f"{opt_type}: Iter: "
         for i, line_text in enumerate(lines_collect):
-            if instance.is_iter_line(i, line_text, _iter_flag):
-                instance.read_iter_line(line_text)
-            elif instance.is_fillings_line(i, line_text):
-                instance.read_fillings_line(line_text)
-            elif instance.is_subspaceadjust_line(i, line_text):
-                instance.read_subspaceadjust_line(line_text)
+            if instance._is_iter_line(i, line_text, _iter_flag):
+                instance._read_iter_line(line_text)
+            elif instance._is_fillings_line(i, line_text):
+                instance._read_fillings_line(line_text)
+            elif instance._is_subspaceadjust_line(i, line_text):
+                instance._read_subspaceadjust_line(line_text)
         return instance
 
-    def is_iter_line(self, i: int, line_text: str, _iter_flag: str) -> bool:
+    def _is_iter_line(self, i: int, line_text: str, _iter_flag: str) -> bool:
         """Return True if opt iter line.
 
         Return True if the line_text is the start of a log message for a
         JDFTx optimization step.
 
-        Parameters
-        ----------
-        i: int
-            The index of the line in the text slice
-        line_text: str
-            A line of text from a JDFTx out file
-        _iter_flag:  str
-            The flag that indicates the start of a log message for a JDFTx
-            optimization step
+        Args:
+            i (int): The index of the line in the text slice.
+            line_text (str): A line of text from a JDFTx out file.
+            _iter_flag (str): The flag that indicates the start of a log message for a JDFTx optimization step.
 
-        Returns
-        -------
-        is_line: bool
-            True if the line_text is the start of a log message for a JDFTx
-            optimization step
+        Returns:
+            bool: True if the line_text is the start of a log message for a JDFTx optimization step.
         """
         return _iter_flag in line_text
 
-    def read_iter_line(self, line_text: str) -> None:
+    def _read_iter_line(self, line_text: str) -> None:
         """Set class variables iter, E, grad_K, alpha, linmin, t_s.
 
         Parse the lines of text corresponding to the electronic minimization
         data of a JDFTx out file.
 
-        Parameters
-        ----------
-        line_text: str
-            A line of text from a JDFTx out file containing the electronic
-            minimization data
+        Args:
+            line_text (str): A line of text from a JDFTx out file containing the electronic minimization data.
         """
         nstep_float = get_colon_var_t1(line_text, "Iter: ")
         if isinstance(nstep_float, float):
@@ -161,133 +125,106 @@ class JElStep:
         self.linmin = get_colon_var_t1(line_text, "linmin: ")
         self.t_s = get_colon_var_t1(line_text, "t[s]: ")
 
-    def is_fillings_line(self, i: int, line_text: str) -> bool:
+    def _is_fillings_line(self, i: int, line_text: str) -> bool:
         """Return True if fillings line.
 
         Return True if the line_text is the start of a log message for a
         JDFTx optimization step.
 
-        Parameters
-        ----------
-        i: int
-            The index of the line in the text slice
-        line_text: str
-            A line of text from a JDFTx out file
+        Args:
+            i (int): The index of the line in the text slice.
+            line_text (str): A line of text from a JDFTx out file.
 
-        Returns
-        -------
-        is_line: bool
-            True if the line_text is the start of a log message for a JDFTx
-            optimization step
+        Returns:
+            bool: True if the line_text is the start of a log message for a JDFTx optimization step.
         """
         return "FillingsUpdate" in line_text
 
-    def read_fillings_line(self, fillings_line: str) -> None:
+    def _read_fillings_line(self, fillings_line: str) -> None:
         """Set class variables mu, nelectrons, magneticmoment.
 
         Parse the lines of text corresponding to the electronic minimization
         data of a JDFTx out file.
 
-        Parameters
-        ----------
-        fillings_line: str
-            A line of text from a JDFTx out file containing the electronic
-            minimization data
+        Args:
+            fillings_line (str): A line of text from a JDFTx out file containing the electronic
+            minimization data.
         """
         if "FillingsUpdate:" in fillings_line:
-            self.set_mu(fillings_line)
-            self.set_nelectrons(fillings_line)
+            self._set_mu(fillings_line)
+            self._set_nelectrons(fillings_line)
             if "magneticMoment" in fillings_line:
-                self.set_magdata(fillings_line)
+                self._set_magdata(fillings_line)
         else:
             raise ValueError("FillingsUpdate string not found")
 
-    def is_subspaceadjust_line(self, i: int, line_text: str) -> bool:
-        """Return True if subspace adjust line.
+    def _is_subspaceadjust_line(self, i: int, line_text: str) -> bool:
+        """Return True if the line_text is the start of a log message for a JDFTx optimization step.
 
-        Return True if the line_text is the start of a log message for a
-        JDFTx optimization step.
+        Args:
+            i (int): The index of the line in the text slice.
+            line_text (str): A line of text from a JDFTx out file.
 
-        Parameters
-        ----------
-        i: int
-            The index of the line in the text slice
-        line_text: str
-            A line of text from a JDFTx out file
-
-        Returns
-        -------
-        is_line: bool
-            True if the line_text is the start of a log message for a JDFTx
-            optimization step
+        Returns:
+            bool: True if the line_text is the start of a log message for a JDFTx optimization step.
         """
         return "SubspaceRotationAdjust" in line_text
 
-    def read_subspaceadjust_line(self, line_text: str) -> None:
+    def _read_subspaceadjust_line(self, line_text: str) -> None:
         """Set class variable subspaceRotationAdjust.
 
         Parse the lines of text corresponding to the electronic minimization
         data of a JDFTx out file.
 
-        Parameters
-        ----------
-        line_text: str
-            A line of text from a JDFTx out file containing the electronic
-            minimization data
+        Args:
+            line_text (str): A line of text from a JDFTx out file containing the electronic
+            minimization data.
         """
         self.subspacerotationadjust = get_colon_var_t1(line_text, "SubspaceRotationAdjust: set factor to")
 
-    def set_magdata(self, fillings_line: str) -> None:
+    def _set_magdata(self, fillings_line: str) -> None:
         """Set class variables abs_magneticMoment, tot_magneticMoment.
 
         Parse the lines of text corresponding to the electronic minimization
         data of a JDFTx out file.
 
-        Parameters
-        ----------
-        fillings_line: str
-            A line of text from a JDFTx out file containing the electronic
-            minimization data
+        Args:
+            fillings_line (str): A line of text from a JDFTx out file containing the electronic
+            minimization data.
         """
         _fillings_line = fillings_line.split("magneticMoment: [ ")[1].split(" ]")[0].strip()
         self.abs_magneticmoment = get_colon_var_t1(_fillings_line, "Abs: ")
         self.tot_magneticmoment = get_colon_var_t1(_fillings_line, "Tot: ")
 
-    def set_mu(self, fillings_line: str) -> None:
+    def _set_mu(self, fillings_line: str) -> None:
         """Set mu class variable.
 
         Parse the lines of text corresponding to the electronic minimization
         data of a JDFTx out file.
 
-        Parameters
-        ----------
-        fillings_line: str
-            A line of text from a JDFTx out file containing the electronic
-            minimization data
+        Args:
+            fillings_line (str): A line of text from a JDFTx out file containing the electronic
+            minimization data.
         """
         self.mu = get_colon_var_t1(fillings_line, "mu: ") * Ha_to_eV
 
-    def set_nelectrons(self, fillings_line: str) -> None:
+    def _set_nelectrons(self, fillings_line: str) -> None:
         """Set nelectrons class variable.
 
         Parse the lines of text corresponding to the electronic minimization
         data of a JDFTx out file.
 
-        Parameters
-        ----------
-        fillings_line: str
-            A line of text from a JDFTx out file containing the electronic
-            minimization data
+        Args:
+            fillings_line(str): A line of text from a JDFTx out file containing the electronic minimization data
         """
         self.nelectrons = get_colon_var_t1(fillings_line, "nElectrons: ")
 
     def __str__(self) -> str:
-        """Return string representation of JElStep object.
+        """
+        Return string representation of JElStep object.
 
-        Returns
-        -------
-        str: str
-            String representation of JElStep object
+        Returns:
+            str: String representation of JElStep object.
         """
         return pprint.pformat(self)
 
@@ -298,6 +235,14 @@ class JElSteps:
 
     Class object for collecting and storing a series of SCF steps done between
     geometric optimization steps.
+
+    Attributes:
+        opt_type (str | None): The type of electronic minimization step.
+        etype (str | None): The type of energy component.
+        iter_flag (str | None): The flag that indicates the start of a log message for a JDFTx optimization step.
+        converged (bool): True if the SCF steps converged.
+        converged_reason (str | None): The reason for convergence.
+        slices (list[JElStep]): A list of JElStep objects.
     """
 
     opt_type: str | None = None
@@ -306,6 +251,7 @@ class JElSteps:
     converged: bool = False
     converged_reason: str | None = None
     slices: list[JElStep] = field(default_factory=list)
+    # List of attributes to ignore when getting attributes from the most recent slice specified by _getatr_ignore
     _getatr_ignore: ClassVar[list[str]] = [
         "e",
         "t_s",
@@ -316,15 +262,16 @@ class JElSteps:
 
     @property
     def nstep(self) -> int | None:
-        """Return nstep.
+        """Return the nstep attribute of the last JElStep object in the slices.
 
-        Return the nstep attribute of the last JElStep object in the slices, where
-        nstep signifies the SCF step number.
+        The nstep attribute signifies the SCF step number.
 
-        Returns
-        -------
-        nstep: int
-            The nstep attribute of the last JElStep object in the slices
+        Returns:
+            int: The nstep attribute of the last JElStep object in the slices, or the number of JElStep objects
+            if nstep is None.
+
+        Raises:
+            AttributeError: If there are no JElStep objects in the slices.
         """
         if len(self.slices):
             if self.slices[-1].nstep is not None:
@@ -340,10 +287,8 @@ class JElSteps:
         Return the e attribute of the last JElStep object in the slices, where e
         signifies the total electronic energy in eV.
 
-        Returns
-        -------
-        e: float
-            The e attribute of the last JElStep object in the slices
+        Returns:
+            float: The e attribute of the last JElStep object in the slices.
         """
         if len(self.slices):
             return self.slices[-1].e
@@ -356,10 +301,8 @@ class JElSteps:
         Return the grad_k attribute of the last JElStep object in the slices, where
         grad_k signifies the gradient of the Kohn-Sham energy (along line minimization direction).
 
-        Returns
-        -------
-        grad_k: float
-            The grad_k attribute of the last JElStep object in the slices
+        Returns:
+            float: The grad_k attribute of the last JElStep object in the slices.
         """
         if len(self.slices):
             return self.slices[-1].grad_k
@@ -372,10 +315,8 @@ class JElSteps:
         Return the alpha attribute of the last JElStep object in the slices, where
         alpha signifies the step length in the electronic minimization.
 
-        Returns
-        -------
-        alpha: float
-            The alpha attribute of the last JElStep object in the slices
+        Returns:
+            float: The alpha attribute of the last JElStep object in the slices.
         """
         if len(self.slices):
             return self.slices[-1].alpha
@@ -388,10 +329,8 @@ class JElSteps:
         Return the linmin attribute of the last JElStep object in the slices, where
         linmin signifies the normalized line minimization direction / energy gradient projection.
 
-        Returns
-        -------
-        linmin: float
-            The linmin attribute of the last JElStep object in the slices
+        Returns:
+            float: The linmin attribute of the last JElStep object in the slices.
         """
         if len(self.slices):
             return self.slices[-1].linmin
@@ -404,10 +343,8 @@ class JElSteps:
         Return the t_s attribute of the last JElStep object in the slices, where
         t_s signifies the time in seconds for the SCF step.
 
-        Returns
-        -------
-        t_s: float
-            The t_s attribute of the last JElStep object in the slices
+        Returns:
+            float: The t_s attribute of the last JElStep object in the slices.
         """
         if len(self.slices):
             return self.slices[-1].t_s
@@ -420,10 +357,8 @@ class JElSteps:
         Return the mu attribute of the last JElStep object in the slices, where
         mu signifies the chemical potential (Fermi level) in eV.
 
-        Returns
-        -------
-        mu: float
-            The mu attribute of the last JElStep object in the slices
+        Returns:
+            float: The mu attribute of the last JElStep object in the slices.
         """
         if len(self.slices):
             return self.slices[-1].mu
@@ -436,10 +371,8 @@ class JElSteps:
         Return the nelectrons attribute of the last JElStep object in the slices, where
         nelectrons signifies the total number of electrons being evaluated in the SCF step.
 
-        Returns
-        -------
-        nelectrons: float
-            The nelectrons attribute of the last JElStep object in the slices
+        Returns:
+            float: The nelectrons attribute of the last JElStep object in the slices.
         """
         if len(self.slices):
             return self.slices[-1].nelectrons
@@ -452,10 +385,8 @@ class JElSteps:
         Return the abs_magneticmoment attribute of the last JElStep object in the slices, where
         abs_magneticmoment signifies the absolute magnetic moment of the electron density.
 
-        Returns
-        -------
-        abs_magneticmoment: float
-            The abs_magneticmoment attribute of the last JElStep object in the slices
+        Returns:
+            float: The abs_magneticmoment attribute of the last JElStep object in the slices.
         """
         if len(self.slices):
             return self.slices[-1].abs_magneticmoment
@@ -463,15 +394,14 @@ class JElSteps:
 
     @property
     def tot_magneticmoment(self) -> float | None:
-        """Return most recent tot_magneticmoment.
+        """
+        Return most recent tot_magneticmoment.
 
         Return the tot_magneticmoment attribute of the last JElStep object in the slices, where
         tot_magneticmoment signifies the total magnetic moment of the electron density.
 
-        Returns
-        -------
-        tot_magneticmoment: float
-            The tot_magneticmoment attribute of the last JElStep object in the slices
+        Returns:
+            float: The tot_magneticmoment attribute of the last JElStep object in the slices.
         """
         if len(self.slices):
             return self.slices[-1].tot_magneticmoment
@@ -484,92 +414,74 @@ class JElSteps:
         Return the subspacerotationadjust attribute of the last JElStep object in the slices, where
         subspacerotationadjust signifies the amount by which the subspace was rotated in the SCF step.
 
-        Returns
-        -------
-        subspacerotationadjust: float
-            The subspacerotationadjust attribute of the last JElStep object in the slices
+        Returns:
+            float: The subspacerotationadjust attribute of the last JElStep object in the slices.
         """
         if len(self.slices):
             return self.slices[-1].subspacerotationadjust
         raise AttributeError("No JElStep objects in JElSteps object slices class variable.")
 
     @classmethod
-    def from_text_slice(cls, text_slice: list[str], opt_type: str = "ElecMinimize", etype: str = "F") -> JElSteps:
+    def _from_text_slice(cls, text_slice: list[str], opt_type: str = "ElecMinimize", etype: str = "F") -> JElSteps:
         """Return JElSteps object.
 
         Create a JElSteps object from a slice of an out file's text
         corresponding to a series of SCF steps.
 
-        Parameters
-        ----------
-        text_slice : list[str]
-            A slice of text from a JDFTx out file corresponding to a series of
-            SCF steps
-        opt_type: str
-            The type of electronic minimization step
-        etype: str
-            The type of energy component
+        Args:
+            text_slice (list[str]): A slice of text from a JDFTx out file corresponding to a series of SCF steps.
+            opt_type (str): The type of electronic minimization step.
+            etype (str): The type of energy component.
         """
-        line_collections, lines_collect = gather_JElSteps_line_collections(opt_type, text_slice)
+        line_collections, lines_collect = _gather_JElSteps_line_collections(opt_type, text_slice)
         instance = cls()
         instance.iter_flag = f"{opt_type}: Iter:"
         instance.opt_type = opt_type
         instance.etype = etype
         instance.slices = []
         for _lines_collect in line_collections:
-            instance.slices.append(JElStep.from_lines_collect(_lines_collect, opt_type, etype))
+            instance.slices.append(JElStep._from_lines_collect(_lines_collect, opt_type, etype))
         if len(lines_collect):
-            instance.parse_ending_lines(lines_collect)
+            instance._parse_ending_lines(lines_collect)
             lines_collect = []
         return instance
 
-    def parse_ending_lines(self, ending_lines: list[str]) -> None:
+    def _parse_ending_lines(self, ending_lines: list[str]) -> None:
         """Parse ending lines.
 
         Parses the ending lines of text from a JDFTx out file corresponding to
         a series of SCF steps.
 
-        Parameters
-        ----------
-        ending_lines: list[str]
-            The ending lines of text from a JDFTx out file corresponding to a
-            series of SCF steps
+        Args:
+            ending_lines (list[str]): The ending lines of text from a JDFTx out file corresponding to a
+            series of SCF steps.
         """
         for i, line in enumerate(ending_lines):
-            if self.is_converged_line(i, line):
-                self.read_converged_line(line)
+            if self._is_converged_line(i, line):
+                self._read_converged_line(line)
 
-    def is_converged_line(self, i: int, line_text: str) -> bool:
+    def _is_converged_line(self, i: int, line_text: str) -> bool:
         """Return True if converged line.
 
         Return True if the line_text is the start of a log message about
-        convergence for a JDFTx optimization step
+        convergence for a JDFTx optimization step.
 
-        Parameters
-        ----------
-        i: int
-            The index of the line in the text slice
-        line_text: str
-            A line of text from a JDFTx out file
+        Args:
+            i (int): The index of the line in the text slice.
+            line_text (str): A line of text from a JDFTx out file.
 
-        Returns
-        -------
-        is_line: bool
-            True if the line_text is the start of a log message about
-            convergence for a JDFTx optimization step
+        Returns:
+            bool: True if the line_text is the start of a log message about
+            convergence for a JDFTx optimization step.
         """
         return f"{self.opt_type}: Converged" in line_text
 
-    def read_converged_line(self, line_text: str) -> None:
+    def _read_converged_line(self, line_text: str) -> None:
         """Set class variables converged and converged_reason.
 
-        Read the convergence message from a JDFTx optimization step
-
-        Parameters
-        ----------
-        line_text: str
-            A line of text from a JDFTx out file containing a message about
-            convergence for a JDFTx optimization step
+        Args:
+            line_text (str): A line of text from a JDFTx out file containing a message about
+            convergence for a JDFTx optimization step.
         """
         self.converged = True
         self.converged_reason = line_text.split("(")[1].split(")")[0].strip()
@@ -581,17 +493,14 @@ class JElSteps:
     def __getattr__(self, name: str) -> Any:
         """Return attribute value.
 
-        Return the value of an attribute.
+        Args:
+            name (str): The name of the attribute.
 
-        Parameters
-        ----------
-        name: str
-            The name of the attribute
+        Returns:
+            Any: The value of the attribute.
 
-        Returns
-        -------
-        value
-            The value of the attribute
+        Raises:
+            AttributeError: If the attribute is not found.
         """
         if name in self.__dict__:
             return self.__dict__[name]
@@ -625,12 +534,12 @@ class JElSteps:
         """
         val = None
         if type(key) is int:
-            val = self.getitem_int(key)
+            val = self._getitem_int(key)
         if type(key) is str:
-            val = self.getitem_str(key)
+            val = self._getitem_str(key)
         return val
 
-    def getitem_int(self, key: int) -> JElStep:
+    def _getitem_int(self, key: int) -> JElStep:
         """Return JElStep object.
 
         Return the JElStep object at the key index.
@@ -647,7 +556,7 @@ class JElSteps:
         """
         return self.slices[key]
 
-    def getitem_str(self, key: str) -> Any:
+    def _getitem_str(self, key: str) -> Any:
         """Return attribute value.
 
         Return the value of an attribute.
@@ -687,30 +596,22 @@ class JElSteps:
         return pprint.pformat(self)
 
 
-def gather_JElSteps_line_collections(opt_type: str, text_slice: list[str]) -> tuple[list[list[str]], list[str]]:
+def _gather_JElSteps_line_collections(opt_type: str, text_slice: list[str]) -> tuple[list[list[str]], list[str]]:
     """Gather line collections for JElSteps initialization.
 
     Gathers list of line lists where each line list initializes a JElStep object,
     and the remaining lines that do not initialize a JElStep object are used
     for initialization unique to the JElSteps object.
 
-    Parameters
-    ----------
-    opt_type: str
-        The type of electronic minimization step
-    text_slice: list[str]
-        A slice of text from a JDFTx out file corresponding to a series of
-        SCF steps
+    Args:
+        opt_type (str): The type of electronic minimization step.
+        text_slice (list[str]): A slice of text from a JDFTx out file corresponding to a series of SCF steps.
 
-    Returns
-    -------
-    line_collections: list[list[str]]
-        A list of lists of lines of text from a JDFTx out file corresponding to
-        a single SCF step
-    lines_collect: list[str]
-        A list of lines of text from a JDFTx out file corresponding to a single
-        SCF step
-
+    Returns:
+        tuple: A tuple containing:
+            line_collections (list[list[str]]): A list of lists of lines of text from a JDFTx out file
+            corresponding to a single SCF step.
+            lines_collect (list[str]): A list of lines of text from a JDFTx out file corresponding to a single SCF step.
     """
     lines_collect = []
     line_collections = []

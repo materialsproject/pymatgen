@@ -192,6 +192,58 @@ class JOutStructure(Structure):
             return self.elecmindata.linmin
         return None
 
+    @property
+    def charges(self) -> np.ndarray | None:
+        """Return the Lowdin charges.
+
+        Return the Lowdin charges of the atoms in the system.
+
+        Returns
+        -------
+        charges: np.ndarray
+        """
+        if "charges" not in self.site_properties:
+            return None
+        return self.site_properties["charges"]
+
+    @charges.setter
+    def charges(self, charges: np.ndarray) -> None:
+        """Set the Lowdin charges.
+
+        Set the Lowdin charges of the atoms in the system.
+
+        Parameters
+        ----------
+        charges: np.ndarray
+        """
+        self.site_properties["charges"] = charges
+
+    @property
+    def magnetic_moments(self) -> np.ndarray | None:
+        """Return the magnetic moments.
+
+        Return the magnetic moments of the atoms in the system.
+
+        Returns
+        -------
+        magnetic_moments: np.ndarray
+        """
+        if "magmom" not in self.site_properties:
+            return None
+        return self.site_properties["magmom"]
+
+    @magnetic_moments.setter
+    def magnetic_moments(self, magnetic_moments: np.ndarray) -> None:
+        """Set the magnetic moments.
+
+        Set the magnetic moments of the atoms in the system.
+
+        Parameters
+        ----------
+        magnetic_moments: np.ndarray
+        """
+        self.site_properties["magmom"] = magnetic_moments
+
     def __init__(
         self,
         lattice: np.ndarray,
@@ -450,7 +502,7 @@ class JOutStructure(Structure):
         if len(emin_lines):
             if self.etype is None:
                 self.set_etype_from_emin_lines(emin_lines)
-            self.elecmindata = JElSteps.from_text_slice(emin_lines, opt_type=self.eopt_type, etype=self.etype)
+            self.elecmindata = JElSteps._from_text_slice(emin_lines, opt_type=self.eopt_type, etype=self.etype)
 
     def parse_lattice_lines(self, lattice_lines: list[str]) -> None:
         """Parse lattice lines.
