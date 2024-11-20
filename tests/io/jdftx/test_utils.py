@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import pytest
 
-from pymatgen.io.jdftx.joutstructures import get_joutstructures_start_idx
+from pymatgen.io.jdftx.joutstructures import _get_joutstructures_start_idx
 from pymatgen.io.jdftx.utils import find_first_range_key, flatten_list, get_start_lines, multi_getattr, multi_hasattr
 
 
@@ -41,9 +41,9 @@ def test_find_first_range_key():
 
 def test_get_joutstructures_start_idx():
     start_flag = "barbie"
-    assert get_joutstructures_start_idx(["ken", "barbie"], out_slice_start_flag=start_flag) == 1
-    assert get_joutstructures_start_idx(["barbie", "ken"], out_slice_start_flag=start_flag) == 0
-    assert get_joutstructures_start_idx(["ken", "ken"], out_slice_start_flag=start_flag) is None
+    assert _get_joutstructures_start_idx(["ken", "barbie"], out_slice_start_flag=start_flag) == 1
+    assert _get_joutstructures_start_idx(["barbie", "ken"], out_slice_start_flag=start_flag) == 0
+    assert _get_joutstructures_start_idx(["ken", "ken"], out_slice_start_flag=start_flag) is None
 
 
 def test_multihasattr():

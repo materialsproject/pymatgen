@@ -179,13 +179,16 @@ class JOutStructure(Structure):
         return self.site_properties["charges"]
 
     @charges.setter
-    def charges(self, charges: np.ndarray) -> None:
+    def charges(self, charges: np.ndarray | None) -> None:
         """Set the Lowdin charges.
 
         Args:
             charges (np.ndarray): The Lowdin charges of the atoms in the system.
         """
-        self.site_properties["charges"] = charges
+        if charges is not None:
+            self.add_site_property("charges", list(charges))
+        else:
+            self.remove_site_property("charges")
 
     @property
     def magnetic_moments(self) -> np.ndarray | None:
@@ -205,7 +208,10 @@ class JOutStructure(Structure):
         Args:
             magnetic_moments (np.ndarray): The magnetic moments of the atoms in the system.
         """
-        self.site_properties["magmom"] = magnetic_moments
+        if magnetic_moments is not None:
+            self.add_site_property("magmom", list(magnetic_moments))
+        else:
+            self.remove_site_property("magmom")
 
     def __init__(
         self,
