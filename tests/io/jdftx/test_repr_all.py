@@ -43,9 +43,9 @@ def test_dir_repr(init_meth: Callable, init_var: Any, add_checks: Callable) -> N
         (JDFTXOutfileSlice.from_out_slice, ex_outfileslice1, lambda dir_repr: None),
         (lambda x: JOutStructures.from_out_slice(x, opt_type="lattice"), ex_outfileslice1, lambda dir_repr: None),
         (lambda x: JOutStructure.from_text_slice(x, opt_type="lattice"), ex_jstruc_slice1, lambda dir_repr: None),
-        (lambda x: JElStep.from_lines_collect(x, "ElecMinimize", "F"), ex_jstep_lines1, lambda dir_repr: None),
+        (lambda x: JElStep._from_lines_collect(x, "ElecMinimize", "F"), ex_jstep_lines1, lambda dir_repr: None),
         (
-            lambda x: JElSteps.from_text_slice(x, opt_type="ElecMinimize", etype="F"),
+            lambda x: JElSteps._from_text_slice(x, opt_type="ElecMinimize", etype="F"),
             [line for exl in [ex_jstep_lines1, ex_jstep_lines2] for line in exl],
             lambda dir_repr: None,
         ),
