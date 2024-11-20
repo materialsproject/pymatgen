@@ -65,7 +65,10 @@ dependencies = [
     "pybtex>=0.24.0",
     "requests>=2.32",
     "ruamel.yaml>=0.17.0",
-    "scipy>=1.14.1",
+    # scipy<1.14.1 is incompatible with NumPy 2.0 on Windows
+    # https://github.com/scipy/scipy/issues/21052
+    "scipy>=1.13.0",
+    "scipy>=1.14.1; platform_system == 'Windows'",
     "spglib>=2.5.0",
     "sympy>=1.3",  # PR #4116
     "tabulate>=0.9",
@@ -73,7 +76,7 @@ dependencies = [
     "uncertainties>=3.1.4",
     # NumPy documentation suggests pinning the current major version as the C API is used
     # https://numpy.org/devdocs/dev/depending_on_numpy.html#runtime-dependency-version-ranges
-    "numpy>=1.26.2,<3",
+    "numpy>=1.25.0,<3",  # TODO: only numpy>=1.26.2 supports Python 3.13
 ]
 version = "2024.11.13"
 
@@ -103,8 +106,8 @@ optional = [
     "chemview>=0.6",
     "f90nml>=1.1.2",
     "galore>=0.6.1",
-    "h5py>=3.12.1",
-    "hiphive>=1.3.1; python_version<'3.13'",
+    "h5py>=3.11.0",  # h5py>=3.12.1 supports Python 3.13
+    "hiphive>=1.3.1; python_version<'3.13'",  # TODO: no Python 3.13 support
     "jarvis-tools>=2020.7.14",
     "matplotlib>=3.8",
     "openbabel-wheel>=3.1.1.20",
