@@ -187,7 +187,7 @@ class JOutStructure(Structure):
         """
         if charges is not None:
             self.add_site_property("charges", list(charges))
-        else:
+        elif "charges" in self.site_properties:
             self.remove_site_property("charges")
 
     @property
@@ -210,7 +210,7 @@ class JOutStructure(Structure):
         """
         if magnetic_moments is not None:
             self.add_site_property("magmom", list(magnetic_moments))
-        else:
+        elif "magmom" in self.site_properties:
             self.remove_site_property("magmom")
 
     def __init__(
