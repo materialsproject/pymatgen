@@ -831,7 +831,7 @@ class TagContainer(AbstractTag):
         Returns:
             str: The value converted to a string representation for dict representation.
         """
-        value = flatten_list(tag, value_list)
+        value = _flatten_list(tag, value_list)
         self._check_for_mixed_nesting(tag, value)
         return " ".join([str(x) for x in value])
 
@@ -1102,7 +1102,7 @@ class DumpTagContainer(TagContainer):
         return subdict
 
 
-def flatten_list(tag: str, list_of_lists: list[Any]) -> list[Any]:
+def _flatten_list(tag: str, list_of_lists: list[Any]) -> list[Any]:
     """Flatten list of lists into a single list, then stop.
 
     Flatten list of lists into a single list, then stop.
@@ -1124,7 +1124,7 @@ def flatten_list(tag: str, list_of_lists: list[Any]) -> list[Any]:
     flist = []
     for v in list_of_lists:
         if isinstance(v, list):
-            flist.extend(flatten_list(tag, v))
+            flist.extend(_flatten_list(tag, v))
         else:
             flist.append(v)
     return flist
