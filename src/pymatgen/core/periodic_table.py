@@ -495,9 +495,11 @@ class ElementBase(Enum):
         last_orbital = full_electron_config[-1]
         for n, l_symbol, ne in full_electron_config:
             idx = L_symbols.lower().index(l_symbol)
-            if ne < (2 * idx + 1) * 2 or (
+            partially_filled_orbital = ne < (2 * idx + 1) * 2
+            filled_valence_orbital = (
                 (n, l_symbol, ne) == last_orbital and ne == (2 * idx + 1) * 2 and len(valences) == 0
-            ):  # check for full last shell (e.g. column 2)
+            )
+            if partially_filled_orbital or filled_valence_orbital:  # check for full last shell (e.g. column 2)
                 valences.append((idx, ne))
         return valences
 
@@ -1216,9 +1218,11 @@ class Species(MSONable, Stringify):
         last_orbital = full_electron_config[-1]
         for n, l_symbol, ne in full_electron_config:
             idx = L_symbols.lower().index(l_symbol)
-            if ne < (2 * idx + 1) * 2 or (
+            partially_filled_orbital = ne < (2 * idx + 1) * 2
+            filled_valence_orbital = (
                 (n, l_symbol, ne) == last_orbital and ne == (2 * idx + 1) * 2 and len(valences) == 0
-            ):  # check for full last shell (e.g. column 2)
+            )
+            if partially_filled_orbital or filled_valence_orbital:  # check for full last shell (e.g. column 2)
                 valences.append((idx, ne))
         return valences
 
