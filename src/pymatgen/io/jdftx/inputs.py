@@ -23,7 +23,7 @@ from monty.json import MSONable
 
 from pymatgen.core import Structure
 from pymatgen.core.periodic_table import Element
-from pymatgen.io.jdftx._utils import multi_getattr, multi_hasattr
+from pymatgen.io.jdftx._output_utils import multi_getattr, multi_hasattr
 from pymatgen.io.jdftx.generic_tags import AbstractTag, BoolTagContainer, DumpTagContainer, MultiformatTag, TagContainer
 from pymatgen.io.jdftx.jdftxinfile_master_format import (
     __PHONON_TAGS__,
@@ -41,8 +41,6 @@ if TYPE_CHECKING:
     from numpy.typing import ArrayLike
     from typing_extensions import Self
 
-    from pymatgen.io.jdftx.jdftxoutfile import JDFTXOutfile
-    from pymatgen.io.jdftx.joutstructure import JOutStructure
     from pymatgen.util.typing import PathLike
 
 __author__ = "Jacob Clary, Ben Rich"
@@ -754,34 +752,38 @@ class JDFTXStructure(MSONable):
         )
         return cls(struct, selective_dynamics, sort_structure=sort_structure)
 
-    @classmethod
-    def from_jdftxoutfile(cls, jdftxoutfile: JDFTXOutfile) -> JDFTXStructure:
-        """Get JDFTXStructure from JDFTXOutfile.
+    # NOTE: The following methods are commented out so that the input and output sections of this code can be merged
+    # independently
+    # TODO: Uncomment these methods once the input and output sections of this code are merged, and add more methods
+    # to create input objects from output objects.
+    # @classmethod
+    # def from_jdftxoutfile(cls, jdftxoutfile: JDFTXOutfile) -> JDFTXStructure:
+    #     """Get JDFTXStructure from JDFTXOutfile.
 
-        Args:
-            jdftxoutfile (JDFTXOutfile): JDFTXOutfile object.
+    #     Args:
+    #         jdftxoutfile (JDFTXOutfile): JDFTXOutfile object.
 
-        Returns:
-            JDFTXStructure: The created JDFTXStructure object.
-        """
-        if not len(jdftxoutfile.jstrucs):
-            raise ValueError("No structures found in JDFTXOutfile")
-        joutstructure = jdftxoutfile.jstrucs[-1]
-        return cls.from_joutstructure(joutstructure)
+    #     Returns:
+    #         JDFTXStructure: The created JDFTXStructure object.
+    #     """
+    #     if not len(jdftxoutfile.jstrucs):
+    #         raise ValueError("No structures found in JDFTXOutfile")
+    #     joutstructure = jdftxoutfile.jstrucs[-1]
+    #     return cls.from_joutstructure(joutstructure)
 
-    @classmethod
-    def from_joutstructure(cls, joutstructure: JOutStructure) -> JDFTXStructure:
-        """Get JDFTXStructure from JOutStructure.
+    # @classmethod
+    # def from_joutstructure(cls, joutstructure: JOutStructure) -> JDFTXStructure:
+    #     """Get JDFTXStructure from JOutStructure.
 
-        Args:
-            joutstructure (JOutStructure): JOutStructure object.
+    #     Args:
+    #         joutstructure (JOutStructure): JOutStructure object.
 
-        Returns:
-            JDFTXStructure: The created JDFTXStructure object.
-        """
-        struct = Structure(joutstructure.lattice, joutstructure.species, joutstructure.coords)
-        selective_dynamics = joutstructure.selective_dynamics
-        return cls(struct, selective_dynamics, sort_structure=False)
+    #     Returns:
+    #         JDFTXStructure: The created JDFTXStructure object.
+    #     """
+    #     struct = Structure(joutstructure.lattice, joutstructure.species, joutstructure.coords)
+    #     selective_dynamics = joutstructure.selective_dynamics
+    #     return cls(struct, selective_dynamics, sort_structure=False)
 
     def get_str(self, in_cart_coords: bool = False) -> str:
         """Return a string to be written as JDFTXInfile tags.

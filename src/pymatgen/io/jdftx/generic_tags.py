@@ -17,7 +17,7 @@ from typing import Any
 
 import numpy as np
 
-from pymatgen.io.jdftx._utils import flatten_list
+from pymatgen.io.jdftx._input_utils import flatten_list
 
 __author__ = "Jacob Clary, Ben Rich"
 
