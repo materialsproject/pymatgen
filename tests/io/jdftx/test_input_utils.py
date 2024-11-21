@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import pytest
 
-from pymatgen.io.jdftx._input_utils import flatten_list
+from pymatgen.io.jdftx.generic_tags import flatten_list
 
 
 def test_flatten_list():
