@@ -2,7 +2,8 @@ from __future__ import annotations
 
 import pytest
 
-from pymatgen.io.jdftx._utils import find_first_range_key, flatten_list, get_start_lines, multi_getattr, multi_hasattr
+from pymatgen.io.jdftx._input_utils import flatten_list
+from pymatgen.io.jdftx._output_utils import find_first_range_key, get_start_lines, multi_getattr, multi_hasattr
 from pymatgen.io.jdftx.joutstructures import _get_joutstructures_start_idx
 
 

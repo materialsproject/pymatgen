@@ -15,7 +15,7 @@ import numpy as np
 
 from pymatgen.core.structure import Lattice, Structure
 from pymatgen.core.units import Ha_to_eV, bohr_to_ang
-from pymatgen.io.jdftx._utils import (
+from pymatgen.io.jdftx._output_utils import (
     _brkt_list_of_3x3_to_nparray,
     correct_geom_opt_type,
     get_colon_var_t1,
