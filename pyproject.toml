@@ -21,7 +21,7 @@ Python Materials Genomics is a robust materials analysis code that defines core 
 and molecules with support for many electronic structure codes. It is currently the core analysis code powering the
 Materials Project (https://materialsproject.org)."""
 readme = "README.md"
-requires-python = ">=3.10,<3.14"
+requires-python = ">=3.10,<=3.13"
 keywords = [
     "ABINIT",
     "VASP",
@@ -76,7 +76,7 @@ dependencies = [
     "uncertainties>=3.1.4",
     # NumPy documentation suggests pinning the current major version as the C API is used
     # https://numpy.org/devdocs/dev/depending_on_numpy.html#runtime-dependency-version-ranges
-    "numpy>=1.25.0,<3",  # TODO: only numpy>=1.26.2 supports Python 3.13
+    "numpy>=1.25.0,<3",
 ]
 version = "2024.11.13"
 
@@ -107,8 +107,8 @@ optional = [
     "chemview>=0.6",
     "f90nml>=1.1.2",
     "galore>=0.6.1",
-    "h5py>=3.11.0",  # h5py>=3.12.1 supports Python 3.13
-    "hiphive>=1.3.1; python_version<'3.13'",  # TODO: no Python 3.13 support
+    "h5py>=3.11.0",
+    "hiphive>=1.3.1; python_version<'3.13'",
     "jarvis-tools>=2020.7.14",
     "matplotlib>=3.8",
     "openbabel-wheel>=3.1.1.20",
