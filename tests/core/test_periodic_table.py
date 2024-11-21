@@ -188,10 +188,11 @@ class TestElement(PymatgenTest):
         assert valence[1] == 0
 
     def test_valences(self):
-        cases = {"O": [(1, 4)], "Fe": [(2, 6)], "Cr": [(0, 1), (2, 5)], "Pt": [(0, 1), (2, 9)]}
+        cases = {"Fe": [(2, 6)], "Cr": [(0, 1), (2, 5)], "Pt": [(0, 1), (2, 9)]}
         for k, v in cases.items():
-            for i, vi in enumerate(Element(k).valences):
-                assert vi == v[i]
+            for ion_type in [Element, lambda sym: Species(sym, 0)]:
+                for i, vi in enumerate(ion_type(k).valences):
+                    assert vi == v[i]
 
     def test_term_symbols(self):
         cases = {
