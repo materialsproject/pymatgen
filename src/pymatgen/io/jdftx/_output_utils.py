@@ -1,6 +1,6 @@
-"""Module for JDFTx IO module utils.
+"""Module for JDFTx IO module output utils.
 
-Module for JDFTx IO module utils. Functions kept in this module are here if they are
+Module for JDFTx IO module output utils. Functions kept in this module are here if they are
 used by multiple submodules, or if they are anticipated to be used by multiple
 submodules in the future.
 
