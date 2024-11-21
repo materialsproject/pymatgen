@@ -71,7 +71,8 @@ jobs:
       - name: Install ubuntu-only conda dependencies
         if: matrix.config.os == 'ubuntu-latest'
         run: |
-          micromamba install -n pmg -c conda-forge bader enumlib packmol pygraphviz tblite --yes
+          micromamba install -n pmg -c conda-forge --yes \
+            bader enumlib packmol pygraphviz tblite openff-toolkit
           # TODO: openff-toolkit doesn't support Python 3.13 yet
 
       - name: Install pymatgen and dependencies via uv
