@@ -2,18 +2,8 @@ from __future__ import annotations
 
 import pytest
 
-from pymatgen.io.jdftx._input_utils import flatten_list
 from pymatgen.io.jdftx._output_utils import find_first_range_key, get_start_lines, multi_getattr, multi_hasattr
 from pymatgen.io.jdftx.joutstructures import _get_joutstructures_start_idx
-
-
-def test_flatten_list():
-    assert flatten_list("", [1, 2, 3]) == [1, 2, 3]
-    assert flatten_list("", [1, [2, 3]]) == [1, 2, 3]
-    assert flatten_list("", [1, [2, [3]]]) == [1, 2, 3]
-    assert flatten_list("", [1, [2, [3, [4]]]]) == [1, 2, 3, 4]
-    with pytest.raises(TypeError):
-        flatten_list("", 1)
 
 
 def test_get_start_lines():
