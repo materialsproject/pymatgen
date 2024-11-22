@@ -11,7 +11,8 @@ from pymatgen.core.structure import Structure
 from pymatgen.io.jdftx.inputs import JDFTXInfile, JDFTXStructure
 from pymatgen.io.jdftx.jdftxinfile_master_format import get_tag_object
 
-from .conftest import assert_same_value, dump_files_dir, ex_files_dir
+from .conftest import assert_same_value, dump_files_dir
+from .conftest import ex_in_files_dir as ex_files_dir
 
 if TYPE_CHECKING:
     from collections.abc import Callable

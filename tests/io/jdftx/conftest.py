@@ -17,8 +17,10 @@ if TYPE_CHECKING:
 # General methods and variables
 ################################################################################
 
-ex_files_dir = Path(TEST_FILES_DIR) / "io" / "jdftx" / "example_files"
-dump_files_dir = Path(TEST_FILES_DIR) / "io" / "jdftx" / "new_files"
+ex_out_files_dir = Path(TEST_FILES_DIR) / "io" / "jdftx" / "test_jdftx_out_files"
+ex_out_file_sections_dir = Path(TEST_FILES_DIR) / "io" / "jdftx" / "test_jdftx_out_file_sections"
+ex_in_files_dir = Path(TEST_FILES_DIR) / "io" / "jdftx" / "test_jdftx_in_files"
+dump_files_dir = Path(TEST_FILES_DIR) / "io" / "jdftx" / "tmp"
 
 
 def object_hasall_known_simple(obj: Any, knowndict: dict):
@@ -139,7 +141,7 @@ def jdftxoutfile_matches_known(joutfile: JDFTXOutfile, known: dict):
     assert joutfile.is_converged is None
 
 
-example_sp_outfile_path = ex_files_dir / Path("example_sp.out")
+example_sp_outfile_path = ex_out_files_dir / Path("example_sp.out")
 example_sp_outfile_known = {
     "nat": 16,
     "nSlices": 1,
@@ -184,7 +186,7 @@ example_sp_outfile_known_simple = {
     "ecomponents": example_sp_outfile_known_ecomp,
 }
 
-example_latmin_outfile_path = ex_files_dir / Path("example_latmin.out")
+example_latmin_outfile_path = ex_out_files_dir / Path("example_latmin.out")
 example_latmin_outfile_known = {
     "nat": 8,
     "nSlices": 7,
@@ -228,7 +230,7 @@ example_latmin_outfile_known_simple = {
     "ecomponents": example_latmin_outfile_known_ecomp,
 }
 
-example_ionmin_outfile_path = ex_files_dir / Path("example_ionmin.out")
+example_ionmin_outfile_path = ex_out_files_dir / Path("example_ionmin.out")
 example_ionmin_outfile_known = {
     "nat": 41,
     "nSlices": 1,
@@ -273,24 +275,24 @@ example_ionmin_outfile_known_simple = {
     "ecomponents": example_ionmin_outfile_known_ecomp,
 }
 
-noeigstats_outfile_path = ex_files_dir / Path("noeigstats.out")
+noeigstats_outfile_path = ex_out_files_dir / Path("noeigstats.out")
 noeigstats_outfile_known_simple = {
     "mu": -0.050095169 * Ha_to_eV,
     "efermi": -0.050095169 * Ha_to_eV,
 }
 
-problem2_outfile_path = ex_files_dir / Path("problem2.out")
+problem2_outfile_path = ex_out_files_dir / Path("problem2.out")
 problem2_outfile_known_simple = {
     "mu": 0.464180124 * Ha_to_eV,
 }
 
-etot_etype_outfile_path = ex_files_dir / Path("etot_etype.out")
+etot_etype_outfile_path = ex_out_files_dir / Path("etot_etype.out")
 etot_etype_outfile_known_simple = {
     "e": -17.265553748795949 * Ha_to_eV,
     "elec_grad_k": 2.991e-07,
 }
 
-partial_lattice_init_outfile_path = ex_files_dir / Path("partial_lattice_init.out")
+partial_lattice_init_outfile_path = ex_out_files_dir / Path("partial_lattice_init.out")
 partial_lattice_init_outfile_known_lattice = {
     "00": 13.850216000000000 * bohr_to_ang,
     "01": 0.000000000000000 * bohr_to_ang,
@@ -304,20 +306,20 @@ partial_lattice_init_outfile_known_lattice = {
 }
 
 
-ex_outfileslice1_fname = ex_files_dir / "ex_out_slice_latmin"
-ex_outfileslice2_fname = ex_files_dir / "ex_out_slice_ionmin"
+ex_outfileslice1_fname = ex_out_file_sections_dir / "ex_out_slice_latmin"
+ex_outfileslice2_fname = ex_out_file_sections_dir / "ex_out_slice_ionmin"
 with open(ex_outfileslice1_fname) as f:
     ex_outfileslice1 = list.copy(list(f))
 with open(ex_outfileslice2_fname) as f:
     ex_outfileslice2 = list.copy(list(f))
 
-ex_jstruc_slice_fname1 = ex_files_dir / "ex_text_slice_forJAtoms_latmin"
+ex_jstruc_slice_fname1 = ex_out_file_sections_dir / "ex_text_slice_forJAtoms_latmin"
 ex_jstruc_slice1 = []
 with open(ex_jstruc_slice_fname1) as f:
     ex_jstruc_slice1 = list.copy(list(f))
 
 
-ex_jstruc_slice_fname2 = ex_files_dir / "ex_text_slice_forJAtoms_latmin2"
+ex_jstruc_slice_fname2 = ex_out_file_sections_dir / "ex_text_slice_forJAtoms_latmin2"
 ex_jstruc_slice2 = []
 with open(ex_jstruc_slice_fname2) as f:
     ex_jstruc_slice2 = list.copy(list(f))
