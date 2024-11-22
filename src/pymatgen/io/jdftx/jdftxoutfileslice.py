@@ -951,7 +951,12 @@ class JDFTXOutfileSlice:
         # Explicit zipping due to pre-commit in three lines below
         element_total_electrons = np.array([total_elec_dict[x] for x in self.atom_elements])
         pmg_elements = [Element(x) for x in self.atom_elements]
-        element_valence_electrons = np.array([np.sum(np.array([v[1] for v in el.valences])) for el in pmg_elements])
+        element_valence_electrons = np.array(
+            [
+                np.sum(np.array([int(v[2:]) for v in el.electronic_structure.split(".") if "]" not in v]))
+                for el in pmg_elements
+            ]
+        )
         element_semicore_electrons = element_total_electrons - element_valence_electrons
         self.total_electrons_uncharged = np.sum(element_total_electrons)
         self.valence_electrons_uncharged = np.sum(element_valence_electrons)
