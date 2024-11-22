@@ -31,11 +31,14 @@ def round_to_sigfigs(num: float, sig_figs: int) -> float:
 
 
 def make_symmetric_matrix_from_upper_tri(val: ArrayLike) -> NDArray:
-    """Given a symmetric matrix in upper triangular matrix form as a flat array:
+    """Construct a 3x3 symmetric matrix from its upper triangular
+        elements in flat array form:
         [A_xx, A_yy, A_zz, A_xy, A_xz, A_yz].
 
-    This will generate the full matrix:
-        [[A_xx, A_xy, A_xz], [A_xy, A_yy, A_yz], [A_xz, A_yz, A_zz]].
+    To the full symmetric matrix:
+        [[A_xx, A_xy, A_xz],
+         [A_xy, A_yy, A_yz],
+         [A_xz, A_yz, A_zz]]
 
     Args:
         val (ArrayLike): Flattened upper triangular elements.
@@ -43,11 +46,15 @@ def make_symmetric_matrix_from_upper_tri(val: ArrayLike) -> NDArray:
     Returns:
         NDArray: The symmetric matrix.
     """
-    idx = [0, 3, 4, 1, 5, 2]  # TODO: can this be less hard-coded (magic)?
-    val = np.asarray(val)[idx]
-    mask = ~np.tri(3, k=-1, dtype=bool)
-    out = np.zeros((3, 3), dtype=val.dtype)
-    out[mask] = val
+    # Check shape of input array, this function is designed for 3x3 array only
+    if (array := np.asarray(val)).shape != (6,):
+        raise ValueError(f"Expect val of length 6, got {array.shape}")
 
-    out.T[mask] = val
+    idx = [0, 3, 4, 1, 5, 2]
+    array = array[idx]
+    mask = ~np.tri(3, k=-1, dtype=bool)
+    out = np.zeros((3, 3), dtype=array.dtype)
+    out[mask] = array
+
+    out.T[mask] = array
     return out

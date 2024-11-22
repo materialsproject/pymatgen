@@ -1,9 +1,11 @@
 from __future__ import annotations
 
 import math
+import re
 
 import numpy as np
 import pytest
+from numpy.testing import assert_array_equal
 
 from pymatgen.util.num import make_symmetric_matrix_from_upper_tri, round_to_sigfigs
 
@@ -33,38 +35,22 @@ class TestRoundToSigfigs:
             round_to_sigfigs(3.5, 3.5)
 
 
-def test_make_symmetric_matrix_from_upper_tri():
-    # Test regular array
-    val = [1, 2, 3, 4, 5, 6]  # A_xx, A_yy, A_zz, A_xy, A_xz, A_yz
-    expected = np.array(
-        [
-            [1, 4, 5],  # A_xx, A_xy, A_xz
-            [4, 2, 6],  # A_xy, A_yy, A_yz
-            [5, 6, 3],  # A_xz, A_yz, A_zz
-        ]
-    )
-    result = make_symmetric_matrix_from_upper_tri(val)
-    assert isinstance(result, np.ndarray)
-    np.testing.assert_array_equal(result, expected)
+class TestMakeSymmetricMatrixFromUpperTri:
+    def test_convert(self):
+        # Test regular array
+        val = [1, 2, 3, 4, 5, 6]  # A_xx, A_yy, A_zz, A_xy, A_xz, A_yz
+        expected = np.array(
+            [
+                [1, 4, 5],  # A_xx, A_xy, A_xz
+                [4, 2, 6],  # A_xy, A_yy, A_yz
+                [5, 6, 3],  # A_xz, A_yz, A_zz
+            ]
+        )
+        result = make_symmetric_matrix_from_upper_tri(val)
+        assert isinstance(result, np.ndarray)
+        assert_array_equal(result, expected)
 
-    # Test all zeros
-    val = [0, 0, 0, 0, 0, 0]
-    expected = np.zeros((3, 3))
-    result = make_symmetric_matrix_from_upper_tri(val)
-    np.testing.assert_array_equal(result, expected)
-
-    # Test same elements
-    val = [1, 1, 1, 1, 1, 1]
-    expected = np.array(
-        [
-            [1, 1, 1],
-            [1, 1, 1],
-            [1, 1, 1],
-        ]
-    )
-    result = make_symmetric_matrix_from_upper_tri(val)
-    np.testing.assert_array_equal(result, expected)
-
-    # Test too few elements (should be >= 6)
-    with pytest.raises(IndexError, match="index 5 is out of bounds for axis 0 with size 5"):
-        make_symmetric_matrix_from_upper_tri([1, 2, 3, 4, 5])
+    def test_invalid_val_length(self):
+        for length in [x for x in range(10) if x != 6]:
+            with pytest.raises(ValueError, match=re.escape(f"Expect val of length 6, got ({length},)")):
+                make_symmetric_matrix_from_upper_tri(range(length))
