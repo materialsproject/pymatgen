@@ -50,11 +50,10 @@ def make_symmetric_matrix_from_upper_tri(val: ArrayLike) -> NDArray:
     if (array := np.asarray(val)).shape != (6,):
         raise ValueError(f"Expect val of length 6, got {array.shape}")
 
-    idx = [0, 3, 4, 1, 5, 2]
-    array = array[idx]
-    mask = ~np.tri(3, k=-1, dtype=bool)
-    out = np.zeros((3, 3), dtype=array.dtype)
-    out[mask] = array
-
-    out.T[mask] = array
-    return out
+    return np.array(
+        [
+            [array[0], array[3], array[4]],
+            [array[3], array[1], array[5]],
+            [array[4], array[5], array[2]],
+        ]
+    )
