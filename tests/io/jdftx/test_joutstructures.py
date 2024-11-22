@@ -1,16 +1,14 @@
 from __future__ import annotations
 
-from pathlib import Path
-
 import pytest
 from pytest import approx
 
 from pymatgen.core.units import Ha_to_eV
 from pymatgen.io.jdftx.joutstructures import JOutStructure, JOutStructures
-from pymatgen.util.testing import TEST_FILES_DIR
 
-ex_files_dir = Path(TEST_FILES_DIR) / "io" / "jdftx" / "example_files"
-ex_outslice_fname1 = ex_files_dir / "ex_out_slice_latmin"
+from .conftest import ex_out_file_sections_dir
+
+ex_outslice_fname1 = ex_out_file_sections_dir / "ex_out_slice_latmin"
 ex_outslice1 = []
 with open(ex_outslice_fname1) as f:
     ex_outslice1 = list.copy(list(f))
@@ -33,7 +31,7 @@ ex_outslice1_known = {
     "nelec-1_0": 64.0,
     "nelec-1_-1": 64.0,
 }
-ex_outslice_fname2 = ex_files_dir / "ex_out_slice_ionmin"
+ex_outslice_fname2 = ex_out_file_sections_dir / "ex_out_slice_ionmin"
 with open(ex_outslice_fname2) as f:
     ex_outslice2 = list.copy(list(f))
 ex_outslice2_known = {
