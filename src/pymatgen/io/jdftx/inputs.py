@@ -23,7 +23,6 @@ from monty.json import MSONable
 
 from pymatgen.core import Structure
 from pymatgen.core.periodic_table import Element
-from pymatgen.io.jdftx._output_utils import multi_getattr, multi_hasattr
 from pymatgen.io.jdftx.generic_tags import AbstractTag, BoolTagContainer, DumpTagContainer, MultiformatTag, TagContainer
 from pymatgen.io.jdftx.jdftxinfile_master_format import (
     __PHONON_TAGS__,
@@ -813,8 +812,8 @@ class JDFTXStructure(MSONable):
             label = site.label
             if label not in valid_labels:
                 for varname in ["species_string", "specie.name"]:  # Add more as I learn more about what 'site' can be
-                    if multi_hasattr(site, varname) and multi_getattr(site, varname) in valid_labels:
-                        label = multi_getattr(site, varname)
+                    if _multi_hasattr(site, varname) and _multi_getattr(site, varname) in valid_labels:
+                        label = _multi_getattr(site, varname)
                         break
                 if label not in valid_labels:
                     raise ValueError(f"Could not correct site label {label} for site (index {i})")
@@ -862,3 +861,56 @@ class JDFTXStructure(MSONable):
             Structure.from_dict(params["structure"]),
             selective_dynamics=params["selective_dynamics"],
         )
+
+
+def _multi_hasattr(varbase: Any, varname: str):
+    """Check if object has an attribute (capable of nesting with . splits).
+
+    Check if object has an attribute (capable of nesting with . splits).
+
+    Parameters
+    ----------
+    varbase
+        Object to check.
+    varname
+        Attribute to check for.
+
+    Returns
+    -------
+    bool
+        Whether the object has the attribute.
+    """
+    varlist = varname.split(".")
+    for i, var in enumerate(varlist):
+        if i == len(varlist) - 1:
+            return hasattr(varbase, var)
+        if hasattr(varbase, var):
+            varbase = getattr(varbase, var)
+        else:
+            return False
+    return None
+
+
+def _multi_getattr(varbase: Any, varname: str):
+    """Check if object has an attribute (capable of nesting with . splits).
+
+    Check if object has an attribute (capable of nesting with . splits).
+
+    Parameters
+    ----------
+    varbase
+        Object to check.
+    varname
+        Attribute to check for.
+
+    Returns
+    -------
+    Any
+        Attribute of the object.
+    """
+    if not _multi_hasattr(varbase, varname):
+        raise AttributeError(f"{varbase} does not have attribute {varname}")
+    varlist = varname.split(".")
+    for var in varlist:
+        varbase = getattr(varbase, var)
+    return varbase

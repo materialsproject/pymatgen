@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import pytest
 
-from pymatgen.io.jdftx._output_utils import find_first_range_key, get_start_lines, multi_getattr, multi_hasattr
+from pymatgen.io.jdftx._output_utils import find_first_range_key, get_start_lines
 from pymatgen.io.jdftx.joutstructures import _get_joutstructures_start_idx
 
 
@@ -35,41 +35,3 @@ def test_get_joutstructures_start_idx():
     assert _get_joutstructures_start_idx(["ken", "barbie"], out_slice_start_flag=start_flag) == 1
     assert _get_joutstructures_start_idx(["barbie", "ken"], out_slice_start_flag=start_flag) == 0
     assert _get_joutstructures_start_idx(["ken", "ken"], out_slice_start_flag=start_flag) is None
-
-
-def test_multihasattr():
-    class A:
-        def __init__(self):
-            self.v1: int = 1
-
-    class B:
-        def __init__(self):
-            self.a = A()
-            self.v2: int = 2
-
-    a = A()
-    b = B()
-    assert multi_hasattr(a, "v1")
-    assert multi_hasattr(b, "a")
-    assert multi_hasattr(b, "a.v1")
-    assert not multi_hasattr(b, "a.v2")
-    assert not multi_hasattr(b, "v1")
-
-
-def test_multigetattr():
-    class A:
-        def __init__(self):
-            self.v1: int = 1
-
-    class B:
-        def __init__(self):
-            self.a = A()
-            self.v2: int = 2
-
-    a = A()
-    b = B()
-    assert multi_getattr(a, "v1") == 1
-    assert multi_getattr(b, "v2") == 2
-    assert multi_getattr(b, "a.v1") == 1
-    with pytest.raises(AttributeError):
-        multi_getattr(b, "v1")
