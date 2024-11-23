@@ -2506,9 +2506,8 @@ class Outcar:
         """Parse the eletrostatic potential for the last ionic step.
 
         Renders accessible as attributes:
-            ngf: TODO: double check
-            radii: TODO: double check
-            sampling_radii: TODO: double check
+            ngf (list[int, int, int]): Number of grid points along x, y, z dimensions.
+            sampling_radii (list[float, float, float]): Test charge radii.
             electrostatic_potential (list[float]): The eletrostatic potential.
         """
         pattern = {"ngf": r"\s+dimension x,y,z NGXF=\s+([\.\-\d]+)\sNGYF=\s+([\.\-\d]+)\sNGZF=\s+([\.\-\d]+)"}
@@ -2531,13 +2530,13 @@ class Outcar:
 
     def read_freq_dielectric(self) -> None:
         """
-        Parse the frequency dependent dielectric function (obtained with
-        LOPTICS). Frequencies (in eV) are in self.frequencies, and dielectric
-        tensor function is given as self.dielectric_tensor_function.
+        Parse the frequency dependent dielectric function (obtained with LOPTICS).
 
-        Renders accessible as attributes:  TODO:
-            frequencies:
-            dielectric_tensor_function:
+        Renders accessible as attributes:
+            plasma_frequencies (dict[Literal["intraband", "interband"], NDArray[float64]]):
+                plasma frequency in eV.
+            dielectric_energies (NDArray[float64]): dielectric energies.
+            dielectric_tensor_function (NDArray[complex128]): dielectric tensor function.
         """
         plasma_pattern = r"plasma frequency squared.*"
         dielectric_pattern = (
@@ -2588,9 +2587,13 @@ class Outcar:
                     elif count == 3:
                         break
 
-        self.plasma_frequencies = {k: np.array(v[:3]) for k, v in plasma_frequencies.items()}
-        self.dielectric_energies = np.array(energies)
-        self.dielectric_tensor_function = np.array(data["REAL"]) + 1j * np.array(data["IMAGINARY"])
+        self.plasma_frequencies: dict[Any, NDArray[np.float64]] = {
+            k: np.array(v[:3]) for k, v in plasma_frequencies.items()
+        }
+        self.dielectric_energies: NDArray[np.float64] = np.array(energies)
+        self.dielectric_tensor_function: NDArray[np.complex128] = np.array(data["REAL"]) + 1j * np.array(
+            data["IMAGINARY"]
+        )
 
     def read_chemical_shielding(self) -> None:
         """Parse the NMR chemical shieldings data. Only the second part "absolute, valence and core"
