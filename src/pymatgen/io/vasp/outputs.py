@@ -3485,14 +3485,12 @@ class Outcar:
         except Exception as exc:
             raise RuntimeError("ZVAL dict could not be parsed.") from exc
 
-    def read_core_state_eigen(self) -> list[dict]:
+    def read_core_state_eigen(self) -> list[dict[str, list[float]]]:
         """Read the core state eigenenergies at each ionic step.
 
         Returns:
-            list[dict]: The atom such as [{"AO":[core state eig]}].
-            # TODO: what is "[core state eig]"? array or "core_state_eig", likely the latter
-            The core state eigenenergie list for each AO is over all ionic
-            step.
+            list[dict[str, list[float]]]: The atom such as [{"AO": [core_state_eig, ]}, ].
+            The core state eigenenergie list for each AO is over all ionic step.
 
         Example:
             The core state eigenenergie of the 2s AO of the 6th atom of the
@@ -3500,14 +3498,14 @@ class Outcar:
         """
         with zopen(self.filename, mode="rt") as foutcar:
             line = foutcar.readline()
-            cl: list[dict] = []
+            core_state_eigs: list[dict[str, list[float]]] = []
 
             while line != "":
                 line = foutcar.readline()
 
                 if "NIONS =" in line:
                     natom = int(line.split("NIONS =")[1])
-                    cl = [defaultdict(list) for _ in range(natom)]
+                    core_state_eigs = [defaultdict(list) for _ in range(natom)]
 
                 if "the core state eigen" in line:
                     iat = -1
@@ -3526,35 +3524,34 @@ class Outcar:
                             iat += 1  # started parsing a new ion
                             data = data[1:]  # remove element with ion number
                         for i in range(0, len(data), 2):
-                            cl[iat][data[i]].append(float(data[i + 1]))
-        return cl
+                            core_state_eigs[iat][data[i]].append(float(data[i + 1]))
+        return core_state_eigs
 
-    def read_avg_core_poten(self) -> list[list]:
+    def read_avg_core_poten(self) -> list[list[float]]:
         """Read the core potential at each ionic step.
 
         Returns:
-            list[list]: A list for each ionic step containing a list of
-                the average core potentials for each atom: [[avg core pot]].
-                TODO: what is "[avg core pot]", is it an array of 3 or "avg_core_pot"?
+            list[list[float]]: The average core potentials for each atom of each ionic
+                step as: [[avg_core_pot, ], ].
 
         Example:
             The average core potential of the 2nd atom of the structure at the
-            last ionic step is: [-1][1]
+            last ionic step is: [-1][1].
         """
         with zopen(self.filename, mode="rt") as foutcar:
             line = foutcar.readline()
-            aps: list[list[float]] = []
+            avg_core_pots: list[list[float]] = []
             while line != "":
                 line = foutcar.readline()
                 if "the norm of the test charge is" in line:
-                    ap: list[float] = []
+                    avg_pot: list[float] = []
                     while line != "":
                         line = foutcar.readline()
                         # don't know number of lines to parse without knowing
                         # specific species, so stop parsing when we reach
                         # "E-fermi" instead
                         if "E-fermi" in line:
-                            aps.append(ap)
+                            avg_core_pots.append(avg_pot)
                             break
 
                         # the average core potentials of up to 5 elements are
@@ -3564,9 +3561,9 @@ class Outcar:
                         npots = int((len(line) - 1) / 17)
                         for i in range(npots):
                             start = i * 17
-                            ap.append(float(line[start + 8 : start + 17]))
+                            avg_pot.append(float(line[start + 8 : start + 17]))
 
-        return aps
+        return avg_core_pots
 
     def read_fermi_contact_shift(self) -> None:
         """Read Fermi contact (isotropic) hyperfine coupling parameter.
@@ -3587,7 +3584,8 @@ class Outcar:
 
 
         Renders accessible from self.data:
-            TODO:
+            fermi_contact_shift (dict[Literal["fch", "dh", "th"], list[list[float]]]):
+                Fermi contact (isotropic) hyperfine coupling parameter.
         """
         # Fermi contact (isotropic) hyperfine coupling parameter (MHz)
         header_pattern1 = (
@@ -3598,7 +3596,7 @@ class Outcar:
         )
         row_pattern1 = r"(?:\d+)\s+" + r"\s+".join([r"([-]?\d+\.\d+)"] * 5)
         footer_pattern = r"\-+"
-        fch_table = self.read_table_pattern(
+        fch_table: list[list[float]] = self.read_table_pattern(
             header_pattern1,
             row_pattern1,
             footer_pattern,
@@ -3614,7 +3612,7 @@ class Outcar:
             r"\s*\-+"
         )
         row_pattern2 = r"(?:\d+)\s+" + r"\s+".join([r"([-]?\d+\.\d+)"] * 6)
-        dh_table = self.read_table_pattern(
+        dh_table: list[list[float]] = self.read_table_pattern(
             header_pattern2,
             row_pattern2,
             footer_pattern,
@@ -3631,7 +3629,7 @@ class Outcar:
             r"\s*\-+"
         )
         row_pattern3 = r"(?:\d+)\s+" + r"\s+".join([r"([-]?\d+\.\d+)"] * 4)
-        th_table = self.read_table_pattern(
+        th_table: list[list[float]] = self.read_table_pattern(
             header_pattern3,
             row_pattern3,
             footer_pattern,
@@ -3639,7 +3637,11 @@ class Outcar:
             last_one_only=True,
         )
 
-        fc_shift_table = {"fch": fch_table, "dh": dh_table, "th": th_table}
+        fc_shift_table: dict[Literal["fch", "dh", "th"], list[list[float]]] = {
+            "fch": fch_table,
+            "dh": dh_table,
+            "th": th_table,
+        }
 
         self.data["fermi_contact_shift"] = fc_shift_table
 
