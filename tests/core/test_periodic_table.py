@@ -705,12 +705,12 @@ class TestDummySpecies:
 class TestGetElSp:
     def test_regular(self):
         assert get_el_sp("Fe2+") == Species("Fe", 2)
-        assert get_el_sp("3") is Element.Li
-        assert get_el_sp(5) is Element.B
-        assert get_el_sp("3.0") is Element.Li
-        assert get_el_sp("+3.0") is Element.Li
-        assert get_el_sp(2.0) is Element.He
-        assert get_el_sp("U") is Element.U
+        assert get_el_sp("3") == Element.Li
+        assert get_el_sp(5) == Element.B
+        assert get_el_sp("3.0") == Element.Li
+        assert get_el_sp("+3.0") == Element.Li
+        assert get_el_sp(2.0) == Element.He
+        assert get_el_sp("U") == Element.U
         assert get_el_sp("X2+") == DummySpecies("X", 2)
         assert get_el_sp("Mn3+") == Species("Mn", 3)
         assert get_el_sp("X2+spin=5") == DummySpecies("X", 2, spin=5)
