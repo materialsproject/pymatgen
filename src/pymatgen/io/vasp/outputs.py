@@ -2710,15 +2710,15 @@ class Outcar:
         else:
             raise ValueError("NMR UNSYMMETRIZED TENSORS is not found")
 
-    def read_nmr_efg_tensor(self) -> list[NDArray]:
+    def read_nmr_efg_tensor(self) -> list[NDArray[np.float64]]:
         """Parses the NMR Electric Field Gradient Raw Tensors.
 
         Returns:
-            list[NDArray]: Electric Field Gradient Tensors in the order of atoms.
+            list[NDArray[float64]]: Electric Field Gradient Tensors in the order of atoms.
 
-        Renders accessible from self.data:  TODO:  check type
-            unsym_efg_tensor (list[NDArray]): Electric Field Gradient Tensors
-                in the order of atoms.
+        Renders accessible from self.data:
+            unsym_efg_tensor (list[NDArray[float64]]): Electric Field Gradient
+                Tensors in the order of atoms.
         """
         header_pattern = (
             r"Electric field gradients \(V/A\^2\)\n-*\n ion\s+V_xx\s+V_yy\s+V_zz\s+V_xy\s+V_xz\s+V_yz\n-*\n"
@@ -2728,7 +2728,7 @@ class Outcar:
         footer_pattern = r"-*\n"
 
         data = self.read_table_pattern(header_pattern, row_pattern, footer_pattern, postprocess=float)
-        tensors = [make_symmetric_matrix_from_upper_tri(d) for d in data]
+        tensors: list[NDArray[np.float64]] = [make_symmetric_matrix_from_upper_tri(d) for d in data]
         self.data["unsym_efg_tensor"] = tensors
         return tensors
 
@@ -2736,7 +2736,8 @@ class Outcar:
         """Parse the NMR Electric Field Gradient interpreted values.
 
         Renders accessible from self.data:
-            efg (list[dict]): Electric Field Gradient tensors in the order of atoms.
+            efg (list[dict[Literal["cq", "eta", "nuclear_quadrupole_moment"], float]]):
+                Electric Field Gradient tensors in the order of atoms.
                 Each dict key/value pair corresponds to a component of the tensors.
         """
         header_pattern = (
@@ -2766,31 +2767,36 @@ class Outcar:
         Parse the elastic tensor data.
 
         Renders accessible from self.data:
-            elastic_tensor: 6x6 array corresponding to the elastic tensor.
+            elastic_tensor[list[list[float]]]: 6x6 array corresponding to the elastic tensor.
         """
         header_pattern = r"TOTAL ELASTIC MODULI \(kBar\)\s+Direction\s+([X-Z][X-Z]\s+)+\-+"
         row_pattern = r"[X-Z][X-Z]\s+" + r"\s+".join([r"(\-*[\.\d]+)"] * 6)
         footer_pattern = r"\-+"
-        et_table = self.read_table_pattern(header_pattern, row_pattern, footer_pattern, postprocess=float)
+        et_table: list[list[float]] = self.read_table_pattern(
+            header_pattern, row_pattern, footer_pattern, postprocess=float
+        )
         self.data["elastic_tensor"] = et_table
 
     def read_piezo_tensor(self) -> None:
         """Parse the piezo tensor data.
 
         Renders accessible from self.data:
-            piezo_tensor: TODO: fill value type.
+            piezo_tensor (list[list[float]]): the piezo tensor.
         """
         header_pattern = r"PIEZOELECTRIC TENSOR  for field in x, y, z\s+\(C/m\^2\)\s+([X-Z][X-Z]\s+)+\-+"
         row_pattern = r"[x-z]\s+" + r"\s+".join([r"(\-*[\.\d]+)"] * 6)
         footer_pattern = r"BORN EFFECTIVE"
-        pt_table = self.read_table_pattern(header_pattern, row_pattern, footer_pattern, postprocess=float)
-        self.data["piezo_tensor"] = pt_table
+        piezo_tensor: list[list[float]] = self.read_table_pattern(
+            header_pattern, row_pattern, footer_pattern, postprocess=float
+        )
+        self.data["piezo_tensor"] = piezo_tensor
 
     def read_onsite_density_matrices(self) -> None:
         """Parse the onsite density matrices.
 
-        Renders accessible from self.data: TODO:
-            onsite_density_matrices (list[dict]): List with index corresponding to atom index in Structure.
+        Renders accessible from self.data:
+            onsite_density_matrices (list[dict[Spin, list[list[float]]]]):
+                Onsite density matrices with index corresponding to atom index in Structure.
         """
         # Matrix size will vary depending on if d or f orbitals are present.
         # Therefore regex assumes f, but filter out None values if d.
@@ -2822,23 +2828,24 @@ class Outcar:
 
         spin2_component = [[[e for e in row if e is not None] for row in matrix] for matrix in spin2_component]
 
-        self.data["onsite_density_matrices"] = [
+        onsite_density_matrices: list[dict[Spin, list[list[float]]]] = [
             {Spin.up: spin1_component[idx], Spin.down: spin2_component[idx]} for idx in range(len(spin1_component))
         ]
+        self.data["onsite_density_matrices"] = onsite_density_matrices
 
     def read_corrections(
         self,
         reverse: bool = True,
         terminate_on_match: bool = True,
     ) -> None:
-        """Read the dipol qudropol corrections.
+        """Read the dipol qudropol correction.
 
         Args:
             reverse (bool): Whether to start from end of OUTCAR. Defaults to True.
             terminate_on_match (bool): Whether to terminate once match is found. Defaults to True.
 
         Renders accessible from self.data:
-            dipol_quadrupol_correction: TODO: fill details.
+            dipol_quadrupol_correction (float): dipol qudropol correction.
         """
         patterns = {"dipol_quadrupol_correction": r"dipol\+quadrupol energy correction\s+([\d\-\.]+)"}
         self.read_pattern(
@@ -2847,7 +2854,8 @@ class Outcar:
             terminate_on_match=terminate_on_match,
             postprocess=float,
         )
-        self.data["dipol_quadrupol_correction"] = self.data["dipol_quadrupol_correction"][0][0]
+        dipol_quadrupol_correction: float = self.data["dipol_quadrupol_correction"][0][0]
+        self.data["dipol_quadrupol_correction"] = dipol_quadrupol_correction
 
     def read_neb(
         self,
@@ -2868,8 +2876,8 @@ class Outcar:
                 since we usually want only the final value.
 
         Renders accessible from self.data:
-            tangent_force (float): Final tangent force.
             energy (float): Final energy.
+            tangent_force (float): Final tangent force.
         """
         patterns = {
             "energy": r"energy\(sigma->0\)\s+=\s+([\d\-\.]+)",
@@ -2886,7 +2894,7 @@ class Outcar:
         if self.data.get("tangent_force"):
             self.data["tangent_force"] = float(self.data["tangent_force"][0][1])
 
-    def read_igpar(self) -> None:
+    def read_igpar(self) -> None:  # TODO: WIP, need type
         """Read IGPAR.
 
         See VASP sections "LBERRY, IGPAR, NPPSTR, DIPOL" for info on
@@ -2901,7 +2909,6 @@ class Outcar:
             p_ion (int): spin up + spin down summed.
         """
         # Variables to be filled
-        # TODO: double check type
         self.er_ev: dict = {}  # (Spin.up/down) of array(3*float)
         self.er_bp: dict = {}  # (Spin.up/down) of array(3*float)
         self.er_ev_tot = None  # array(3*float)
