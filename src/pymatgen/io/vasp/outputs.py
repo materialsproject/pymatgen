@@ -202,7 +202,7 @@ class Vasprun(MSONable):
             To access a particular value, you need to do
             Vasprun.projected_eigenvalues[spin][kpoint index][band index][atom index][orbital_index].
             The kpoint, band and atom indices are 0-based (unlike the 1-based indexing in VASP).
-        projected_magnetisation (np.array): Final projected magnetization as a numpy array with the
+        projected_magnetisation (NDArray): Final projected magnetization as a numpy array with the
             shape (nkpoints, nbands, natoms, norbitals, 3). Where the last axis is the contribution in the
             3 Cartesian directions. This attribute is only set if spin-orbit coupling (LSORBIT = True) or
             non-collinear magnetism (LNONCOLLINEAR = True) is turned on in the INCAR.
@@ -215,10 +215,10 @@ class Vasprun(MSONable):
             The data can be the current, density or freq_dependent (BSE) dielectric data.
         nionic_steps (int): The total number of ionic steps. This number is always equal to the total number
             of steps in the actual run even if ionic_step_skip is used.
-        force_constants (np.array): Force constants computed in phonon DFPT run(IBRION = 8).
-            The data is a 4D numpy array of shape (natoms, natoms, 3, 3).
-        normalmode_eigenvals (np.array): Normal mode frequencies. 1D numpy array of size 3*natoms.
-        normalmode_eigenvecs (np.array): Normal mode eigen vectors. 3D numpy array of shape (3*natoms, natoms, 3).
+        force_constants (NDArray): Force constants computed in phonon DFPT run(IBRION = 8).
+            The data is a 4D array of shape (natoms, natoms, 3, 3).
+        normalmode_eigenvals (NDArray): Normal mode frequencies. 1D array of size 3*natoms.
+        normalmode_eigenvecs (NDArray): Normal mode eigen vectors. 3D array of shape (3*natoms, natoms, 3).
         md_data (list): Available only for ML MD runs, i.e., INCAR with ML_LMLFF = .TRUE. md_data is a list of
             dict with the following format: [{'energy': {'e_0_energy': -525.07195568, 'e_fr_energy': -525.07195568,
             'e_wo_entrp': -525.07195568, 'kinetic': 3.17809233, 'lattice kinetic': 0.0, 'nosekinetic': 1.323e-5,
@@ -3970,7 +3970,7 @@ class Procar(MSONable):
         data (dict): The PROCAR data of the form below. It should VASP uses 1-based indexing,
             but all indices are converted to 0-based here.
             {spin: np.array accessed with (k-point index, band index, ion index, orbital index)}
-        weights (np.array): The weights associated with each k-point as an np.array of length nkpoints.
+        weights (NDArray): The weights associated with each k-point as an array of length nkpoints.
         phase_factors (dict): Phase factors, where present (e.g. LORBIT = 12). A dict of the form:
             {spin: complex np.array accessed with (k-point index, band index, ion index, orbital index)}
         nbands (int): Number of bands.
@@ -3978,7 +3978,7 @@ class Procar(MSONable):
         nions (int): Number of ions.
         nspins (int): Number of spins.
         is_soc (bool): Whether the PROCAR contains spin-orbit coupling (LSORBIT = True) data.
-        kpoints (np.array): The k-points as an np.array of shape (nkpoints, 3).
+        kpoints (NDArray): The k-points as an np.array of shape (nkpoints, 3).
         occupancies (dict): The occupancies of the bands as a dict of the form:
             {spin: np.array accessed with (k-point index, band index)}
         eigenvalues (dict): The eigenvalues of the bands as a dict of the form:
@@ -5169,12 +5169,12 @@ class Wavecar:
         initialization.
 
         Args:
-            kpoint (np.array): the array containing the current k-point value
+            kpoint (NDArray): The current k-point value.
             gamma (bool): determines if G points for gamma-point only executable
-                          should be generated
+                          should be generated.
 
         Returns:
-            A tuple containing valid G-points
+            tuple[list, list, list]: Valid G-points
         """
         kmax = self._nbmax[0] + 1 if gamma else 2 * self._nbmax[0] + 1
 
@@ -5228,7 +5228,7 @@ class Wavecar:
         Args:
             kpoint (int): the index of the kpoint where the wavefunction will be evaluated.
             band (int): the index of the band where the wavefunction will be evaluated.
-            r (np.array): the position where the wavefunction will be evaluated.
+            r (NDArray): the position where the wavefunction will be evaluated.
             spin (int): spin index for the desired wavefunction (only for
                 ISPIN = 2, default = 0).
             spinor (int): component of the spinor that is evaluated (only used

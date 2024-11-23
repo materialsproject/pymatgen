@@ -916,7 +916,7 @@ class GrainBoundaryGenerator:
             normal (bool): determine if need to require the c axis of one grain associated with
                 the first transformation matrix perpendicular to the surface or not.
                 default to false.
-            trans_cry (np.array): shape 3x3. If the structure given are primitive cell in cubic system, e.g.
+            trans_cry (NDArray): shape 3x3. If the structure given are primitive cell in cubic system, e.g.
                 bcc or fcc system, trans_cry is the transformation matrix from its
                 conventional cell to the primitive cell.
             lat_type (str): one character to specify the lattice type. Defaults to 'c' for cubic.
