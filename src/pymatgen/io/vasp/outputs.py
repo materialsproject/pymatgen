@@ -15,7 +15,7 @@ from datetime import datetime, timezone
 from glob import glob
 from io import StringIO
 from pathlib import Path
-from typing import TYPE_CHECKING, cast
+from typing import TYPE_CHECKING, Any, cast
 
 import numpy as np
 from monty.io import reverse_readfile, zopen
@@ -45,7 +45,7 @@ from pymatgen.util.typing import Kpoint, Tuple3Floats, Vector3D
 
 if TYPE_CHECKING:
     from collections.abc import Callable
-    from typing import Any, Literal
+    from typing import Literal, TypeAlias
 
     # Avoid name conflict with pymatgen.core.Element
     from xml.etree.ElementTree import Element as XML_Element
@@ -2432,7 +2432,7 @@ class Outcar:
         attribute_name: str | None = None,
         last_one_only: bool = True,
         first_one_only: bool = False,
-    ) -> list:  # TODO: clarify table-like data type
+    ) -> list:
         r"""Parse table-like data. A table composes of three parts: header,
         main body, footer. All the data matches "row pattern" in the main body
         will be returned.
@@ -2464,10 +2464,10 @@ class Outcar:
                 Incompatible with last_one_only.
 
         Returns:
-            List of tables. 1) A table is a list of rows. 2) A row if either a list of
-            attribute values in case the capturing group is defined without name in
-            row_pattern, or a dict in case that named capturing groups are defined by
-            row_pattern.
+            List of tables or a single table if last_one_only/first_one_only is True.
+                1) A table is a list of rows. 2) A row is either a list of attribute
+                values in case the capturing group is defined without name in row_pattern,
+                or a dict in case that named capturing groups are defined by row_pattern.
         """
         if last_one_only and first_one_only:
             raise ValueError("last_one_only and first_one_only options are incompatible")
@@ -2477,10 +2477,12 @@ class Outcar:
         table_pattern_text = header_pattern + r"\s*^(?P<table_body>(?:\s+" + row_pattern + r")+)\s+" + footer_pattern
         table_pattern = re.compile(table_pattern_text, re.MULTILINE | re.DOTALL)
         rp = re.compile(row_pattern)
-        tables: list[list] = []
+
+        TableData: TypeAlias = list[list[Any] | dict[str, Any]]
+        tables: list[TableData] = []
         for mt in table_pattern.finditer(text):
             table_body_text = mt.group("table_body")
-            table_contents = []
+            table_contents: TableData = []
             for line in table_body_text.split("\n"):
                 ml = rp.search(line)
                 # Skip empty lines
@@ -2488,14 +2490,14 @@ class Outcar:
                     continue
                 d = ml.groupdict()
                 if len(d) > 0:
-                    processed_line: dict | list = {k: postprocess(v) for k, v in d.items()}
+                    processed_line: list[Any] | dict[str, Any] = {k: postprocess(v) for k, v in d.items()}
                 else:
                     processed_line = [postprocess(v) for v in ml.groups()]
                 table_contents.append(processed_line)
             tables.append(table_contents)
             if first_one_only:
                 break
-        retained_data: list = tables[-1] if last_one_only or first_one_only else tables
+        retained_data: list[TableData] | TableData = tables[-1] if last_one_only or first_one_only else tables
         if attribute_name is not None:
             self.data[attribute_name] = retained_data
         return retained_data
