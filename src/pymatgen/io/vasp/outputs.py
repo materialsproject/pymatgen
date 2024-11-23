@@ -2894,25 +2894,25 @@ class Outcar:
         if self.data.get("tangent_force"):
             self.data["tangent_force"] = float(self.data["tangent_force"][0][1])
 
-    def read_igpar(self) -> None:  # TODO: WIP, need type
+    def read_igpar(self) -> None:
         """Read IGPAR.
 
         See VASP sections "LBERRY, IGPAR, NPPSTR, DIPOL" for info on
         what these are.
 
-        Renders accessible as attributes: # TODO: double check type
-            er_ev (dict): e<r>_ev (Spin.up/Spin.down as keys).
-            er_bp (dict): e<r>_bp (Spin.up/Spin.down as keys).
-            er_ev_tot: spin up + spin down summed.
-            er_bp_tot: spin up + spin down summed.
+        Renders accessible as attributes:
+            er_ev (dict[Spin, NDArray[float]]): e<r>_ev.
+            er_bp (dict[Spin, NDArray[float]]): e<r>_bp.
+            er_ev_tot (NDArray[float]): spin up + spin down summed.
+            er_bp_tot (NDArray[float]): spin up + spin down summed.
             p_elec (int): spin up + spin down summed.
             p_ion (int): spin up + spin down summed.
         """
         # Variables to be filled
-        self.er_ev: dict = {}  # (Spin.up/down) of array(3*float)
-        self.er_bp: dict = {}  # (Spin.up/down) of array(3*float)
-        self.er_ev_tot = None  # array(3*float)
-        self.er_bp_tot = None  # array(3*float)
+        self.er_ev: dict[Spin, NDArray[np.float64]] = {}  # array(3*float)
+        self.er_bp: dict[Spin, NDArray[np.float64]] = {}  # array(3*float)
+        self.er_ev_tot: NDArray[np.ndarray] | None = None  # array(3*float)
+        self.er_bp_tot: NDArray[np.ndarray] | None = None  # array(3*float)
         self.p_elec: int | None = None
         self.p_ion: int | None = None
         try:
@@ -3569,19 +3569,18 @@ class Outcar:
         """Read Fermi contact (isotropic) hyperfine coupling parameter.
 
         Output example:
-        Fermi contact (isotropic) hyperfine coupling parameter (MHz)
-        -------------------------------------------------------------
-        ion      A_pw      A_1PS     A_1AE     A_1c      A_tot
-        -------------------------------------------------------------
-         1      -0.002    -0.002    -0.051     0.000    -0.052
-         2      -0.002    -0.002    -0.051     0.000    -0.052
-         3       0.056     0.056     0.321    -0.048     0.321
-        -------------------------------------------------------------
-        which corresponds to:
-            [[-0.002, -0.002, -0.051, 0.0, -0.052],
-            [-0.002, -0.002, -0.051, 0.0, -0.052],
-            [0.056, 0.056, 0.321, -0.048, 0.321]] from 'fch' data.
-
+            Fermi contact (isotropic) hyperfine coupling parameter (MHz)
+            -------------------------------------------------------------
+            ion      A_pw      A_1PS     A_1AE     A_1c      A_tot
+            -------------------------------------------------------------
+            1      -0.002    -0.002    -0.051     0.000    -0.052
+            2      -0.002    -0.002    -0.051     0.000    -0.052
+            3       0.056     0.056     0.321    -0.048     0.321
+            -------------------------------------------------------------
+            which corresponds to:
+                [[-0.002, -0.002, -0.051, 0.0, -0.052],
+                [-0.002, -0.002, -0.051, 0.0, -0.052],
+                [0.056, 0.056, 0.321, -0.048, 0.321]] from 'fch' data.
 
         Renders accessible from self.data:
             fermi_contact_shift (dict[Literal["fch", "dh", "th"], list[list[float]]]):
