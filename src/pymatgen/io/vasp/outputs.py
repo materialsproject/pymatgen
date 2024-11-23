@@ -2600,8 +2600,8 @@ class Outcar:
         will be parsed. And only the three right most field (ISO_SHIELDING, SPAN, SKEW) will be retrieved.
 
         Renders accessible from self.data:
-            chemical_shielding (list): Chemical shieldings in the order of atoms
-                from the OUTCAR. Maryland notation is adopted.
+            chemical_shielding (dict[Literal["valence_only", "valence_and_core"], list[list[float]]]):
+                Chemical shieldings in the order of atoms from the OUTCAR. Maryland notation is adopted.
         """
         header_pattern = (
             r"\s+CSA tensor \(J\. Mason, Solid State Nucl\. Magn\. Reson\. 2, "  # codespell:ignore reson
@@ -2617,23 +2617,24 @@ class Outcar:
         row_pattern = r"\d+(?:\s+[-]?\d+\.\d+){3}\s+" + r"\s+".join([r"([-]?\d+\.\d+)"] * 3)
         footer_pattern = r"-{50,}\s*$"
         h1 = header_pattern + first_part_pattern
-        cs_valence_only = self.read_table_pattern(
+        cs_valence_only: list[list[float]] = self.read_table_pattern(
             h1, row_pattern, footer_pattern, postprocess=float, last_one_only=True
         )
         h2 = header_pattern + swallon_valence_body_pattern
-        cs_valence_and_core = self.read_table_pattern(
+        cs_valence_and_core: list[list[float]] = self.read_table_pattern(
             h2, row_pattern, footer_pattern, postprocess=float, last_one_only=True
         )
-        self.data["chemical_shielding"] = {
+        chemical_shielding: dict[Literal["valence_only", "valence_and_core"], list[list[float]]] = {
             "valence_only": cs_valence_only,
             "valence_and_core": cs_valence_and_core,
         }
+        self.data["chemical_shielding"] = chemical_shielding
 
     def read_cs_g0_contribution(self) -> None:
         """Parse the G0 contribution of NMR chemical shielding.
 
         Renders accessible from self.data:
-            cs_g0_contribution (list[list]): G0 contribution matrix.
+            cs_g0_contribution (list[list[float]]): G0 contribution matrix.
         """
         header_pattern = (
             r"^\s+G\=0 CONTRIBUTION TO CHEMICAL SHIFT \(field along BDIR\)\s+$\n"
@@ -2656,7 +2657,7 @@ class Outcar:
         """Parse the core contribution of NMR chemical shielding.
 
         Renders accessible from self.data:
-            cs_core_contribution (list[list]): G0 contribution matrix.
+            cs_core_contribution (dict[str, float]): core contribution from each element.
         """
         header_pattern = r"^\s+Core NMR properties\s*$\n\n^\s+typ\s+El\s+Core shift \(ppm\)\s*$\n^\s+-{20,}$\n"
         row_pattern = r"\d+\s+(?P<element>[A-Z][a-z]?\w?)\s+(?P<shift>[-]?\d+\.\d+)"
@@ -2669,14 +2670,14 @@ class Outcar:
             last_one_only=True,
             attribute_name="cs_core_contribution",
         )
-        core_contrib = {d["element"]: float(d["shift"]) for d in self.data["cs_core_contribution"]}
+        core_contrib: dict[str, float] = {d["element"]: float(d["shift"]) for d in self.data["cs_core_contribution"]}
         self.data["cs_core_contribution"] = core_contrib
 
     def read_cs_raw_symmetrized_tensors(self) -> None:
         """Parse the matrix form of NMR tensor before corrected to table.
 
-        Renders accessible from self.data: TODO:
-            unsym_cs_tensor (list[list]): nsymmetrized tensors in the order of atoms.
+        Renders accessible from self.data:
+            unsym_cs_tensor (list[list[list[float]]]): unsymmetrized tensors in the order of atoms.
         """
         header_pattern = r"\s+-{50,}\s+\s+Absolute Chemical Shift tensors\s+\s+-{50,}$"
         first_part_pattern = r"\s+UNSYMMETRIZED TENSORS\s+$"
@@ -2694,15 +2695,15 @@ class Outcar:
             micro_header_pattern = r"ion\s+\d+"
             micro_table_pattern_text = micro_header_pattern + r"\s*^(?P<table_body>(?:\s*" + row_pattern + r")+)\s+"
             micro_table_pattern = re.compile(micro_table_pattern_text, re.MULTILINE | re.DOTALL)
-            unsym_tensors = []
+            unsym_tensors: list[list[list[float]]] = []
             for mt in micro_table_pattern.finditer(table_text):
                 table_body_text = mt.group("table_body")
-                tensor_matrix = []
+                tensor_matrix: list[list[float]] = []
                 for line in table_body_text.rstrip().split("\n"):
                     ml = row_pat.search(line)
                     if ml is None:
                         raise RuntimeError(f"failure to find pattern, {ml=}")
-                    processed_line = [float(v) for v in ml.groups()]
+                    processed_line: list[float] = [float(v) for v in ml.groups()]
                     tensor_matrix.append(processed_line)
                 unsym_tensors.append(tensor_matrix)
             self.data["unsym_cs_tensor"] = unsym_tensors
@@ -2715,12 +2716,9 @@ class Outcar:
         Returns:
             list[NDArray]: Electric Field Gradient Tensors in the order of atoms.
 
-        Renders accessible from self.data:
+        Renders accessible from self.data:  TODO:  check type
             unsym_efg_tensor (list[NDArray]): Electric Field Gradient Tensors
                 in the order of atoms.
-
-        TODO:
-            unit test is missing.
         """
         header_pattern = (
             r"Electric field gradients \(V/A\^2\)\n-*\n ion\s+V_xx\s+V_yy\s+V_zz\s+V_xy\s+V_xz\s+V_yz\n-*\n"
