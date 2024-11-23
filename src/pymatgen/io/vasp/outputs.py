@@ -172,7 +172,7 @@ class KpointOptProps:
     efermi: float | None = None
     eigenvalues: dict | None = None
     projected_eigenvalues: dict | None = None
-    projected_magnetisation: np.ndarray | None = None
+    projected_magnetisation: NDArray | None = None
     kpoints: Kpoints | None = None
     actual_kpoints: list | None = None
     actual_kpoints_weights: list | None = None
@@ -1632,7 +1632,7 @@ class Vasprun(MSONable):
             orbs.pop(0)
             lm = any("x" in s for s in orbs if s is not None)
             for s in partial.find("array").find("set").findall("set"):  # type: ignore[union-attr]
-                pdos: dict[Orbital | OrbitalType, dict[Spin, np.ndarray]] = defaultdict(dict)
+                pdos: dict[Orbital | OrbitalType, dict[Spin, NDArray]] = defaultdict(dict)
 
                 for ss in s.findall("set"):
                     spin = Spin.up if ss.attrib["comment"] == "spin 1" else Spin.down
@@ -1655,7 +1655,7 @@ class Vasprun(MSONable):
     @staticmethod
     def _parse_eigen(elem: XML_Element) -> dict[Spin, NDArray]:
         """Parse eigenvalues."""
-        eigenvalues: dict[Spin, np.ndarray] = defaultdict(list)
+        eigenvalues: dict[Spin, NDArray] = defaultdict(list)
         for s in elem.find("array").find("set").findall("set"):  # type: ignore[union-attr]
             spin = Spin.up if s.attrib["comment"] == "spin 1" else Spin.down
             for ss in s.findall("set"):
@@ -1670,7 +1670,7 @@ class Vasprun(MSONable):
     ) -> tuple[dict[Spin, NDArray], NDArray | None]:
         """Parse projected eigenvalues."""
         root = elem.find("array").find("set")  # type: ignore[union-attr]
-        _proj_eigen: dict[int, np.ndarray] = defaultdict(list)
+        _proj_eigen: dict[int, NDArray] = defaultdict(list)
         for s in root.findall("set"):  # type: ignore[union-attr]
             spin: int = int(re.match(r"spin(\d+)", s.attrib["comment"])[1])  # type: ignore[index]
 
@@ -1688,7 +1688,7 @@ class Vasprun(MSONable):
             # "spin channels" are the projected magnetization of the orbitals in the
             # x, y, and z Cartesian coordinates
             proj_mag = np.stack([_proj_eigen.pop(i) for i in range(2, 5)], axis=-1)  # type: ignore[call-overload]
-            proj_eigen: dict[Spin, np.ndarray] = {Spin.up: _proj_eigen[1]}
+            proj_eigen: dict[Spin, NDArray] = {Spin.up: _proj_eigen[1]}
         else:
             proj_eigen = {Spin.up if k == 1 else Spin.down: v for k, v in _proj_eigen.items()}
             proj_mag = None
@@ -2712,8 +2712,12 @@ class Outcar:
         Returns:
             list[NDArray]: Electric Field Gradient Tensors in the order of atoms.
 
+        Renders accessible from self.data:
+            unsym_efg_tensor (list[NDArray]): Electric Field Gradient Tensors
+                in the order of atoms.
+
         TODO:
-            test missing.
+            unit test is missing.
         """
         header_pattern = (
             r"Electric field gradients \(V/A\^2\)\n-*\n ion\s+V_xx\s+V_yy\s+V_zz\s+V_xy\s+V_xz\s+V_yz\n-*\n"
@@ -3186,7 +3190,7 @@ class Outcar:
             )
 
             self.born_ion = None
-            self.born: list | np.ndarray = []
+            self.born: list | NDArray = []
 
             micro_pyawk(self.filename, search, self)
 
@@ -3474,7 +3478,7 @@ class Outcar:
 
         Returns:
             list[dict]: The atom such as [{"AO":[core state eig]}].
-            # TODO: what is "[core state eig]"? array or "core_state_eig" likely the latter
+            # TODO: what is "[core state eig]"? array or "core_state_eig", likely the latter
             The core state eigenenergie list for each AO is over all ionic
             step.
 
@@ -3568,6 +3572,10 @@ class Outcar:
             [[-0.002, -0.002, -0.051, 0.0, -0.052],
             [-0.002, -0.002, -0.051, 0.0, -0.052],
             [0.056, 0.056, 0.321, -0.048, 0.321]] from 'fch' data.
+
+
+        Renders accessible from self.data:
+            TODO:
         """
         # Fermi contact (isotropic) hyperfine coupling parameter (MHz)
         header_pattern1 = (
@@ -3643,8 +3651,8 @@ class VolumetricData(BaseVolumetricData):
         """
         poscar_read = False
         poscar_string: list[str] = []
-        dataset: np.ndarray = np.zeros((1, 1, 1))
-        all_dataset: list[np.ndarray] = []
+        dataset: NDArray = np.zeros((1, 1, 1))
+        all_dataset: list[NDArray] = []
         # for holding any strings in input that are not Poscar
         # or VolumetricData (typically augmentation charges)
         all_dataset_aug: dict[int, list[str]] = {}
@@ -3822,11 +3830,11 @@ class VolumetricData(BaseVolumetricData):
 class Locpot(VolumetricData):
     """LOCPOT file reader."""
 
-    def __init__(self, poscar: Poscar, data: np.ndarray, **kwargs) -> None:
+    def __init__(self, poscar: Poscar, data: NDArray, **kwargs) -> None:
         """
         Args:
             poscar (Poscar): Poscar object containing structure.
-            data (np.ndarray): Actual data.
+            data (NDArray): Actual data.
         """
         super().__init__(poscar.structure, data, **kwargs)
         self.name = poscar.comment
@@ -3961,10 +3969,10 @@ class Procar(MSONable):
     Attributes:
         data (dict): The PROCAR data of the form below. It should VASP uses 1-based indexing,
             but all indices are converted to 0-based here.
-            { spin: np.array accessed with (k-point index, band index, ion index, orbital index) }
+            {spin: np.array accessed with (k-point index, band index, ion index, orbital index)}
         weights (np.array): The weights associated with each k-point as an np.array of length nkpoints.
         phase_factors (dict): Phase factors, where present (e.g. LORBIT = 12). A dict of the form:
-            { spin: complex np.array accessed with (k-point index, band index, ion index, orbital index) }
+            {spin: complex np.array accessed with (k-point index, band index, ion index, orbital index)}
         nbands (int): Number of bands.
         nkpoints (int): Number of k-points.
         nions (int): Number of ions.
@@ -3972,12 +3980,12 @@ class Procar(MSONable):
         is_soc (bool): Whether the PROCAR contains spin-orbit coupling (LSORBIT = True) data.
         kpoints (np.array): The k-points as an np.array of shape (nkpoints, 3).
         occupancies (dict): The occupancies of the bands as a dict of the form:
-            { spin: np.array accessed with (k-point index, band index) }
+            {spin: np.array accessed with (k-point index, band index)}
         eigenvalues (dict): The eigenvalues of the bands as a dict of the form:
-            { spin: np.array accessed with (k-point index, band index) }
+            {spin: np.array accessed with (k-point index, band index)}
         xyz_data (dict): The PROCAR projections data along the x,y and z magnetisation projection
             directions, with is_soc = True (see VASP wiki for more info).
-            { 'x'/'y'/'z': np.array accessed with (k-point index, band index, ion index, orbital index) }
+            {'x'/'y'/'z': np.array accessed with (k-point index, band index, ion index, orbital index)}
     """
 
     def __init__(self, filename: PathLike | list[PathLike]):
@@ -4094,7 +4102,7 @@ class Procar(MSONable):
         else:
             self.xyz_data = None
 
-    def _parse_kpoint_line(self, line):
+    def _parse_kpoint_line(self, line: str) -> Tuple3Floats:
         """
         Parse k-point vector from a PROCAR line.
 
@@ -4102,13 +4110,13 @@ class Procar(MSONable):
         '0.00000000-0.50000000-0.50000000' when there are negative signs,
         so need to be able to recognise and handle this.
         """
-        fields = line.split()
-        kpoint_fields = fields[3 : fields.index("weight")]
-        kpoint_fields = [" -".join(field.split("-")).split() for field in kpoint_fields]
-        kpoint_fields = [val for sublist in kpoint_fields for val in sublist]  # flatten
+        fields: list[str] = line.split()
+        kpoint_fields: list[str] = fields[3 : fields.index("weight")]
+        _kpoint_fields: list[list[str]] = [" -".join(field.split("-")).split() for field in kpoint_fields]
+        kpoint_fields = [val for sublist in _kpoint_fields for val in sublist]  # flattened
 
-        return tuple(round(float(val), 5) for val in kpoint_fields)  # tuple to make it hashable,
-        # rounded to 5 decimal places to ensure proper kpoint matching
+        # tuple to make it hashable, rounded to 5 decimal places to ensure proper kpoint matching
+        return cast(Tuple3Floats, tuple(round(float(val), 5) for val in kpoint_fields))
 
     def _read(self, filename: PathLike, parsed_kpoints: set[tuple[Kpoint]] | None = None):
         """Main function for reading in the PROCAR projections data.
@@ -4136,13 +4144,13 @@ class Procar(MSONable):
             kpoints: list[tuple[float, float, float]] = []
             n_bands = None
             n_ions = None
-            weights: np.ndarray[float] | None = None
+            weights: NDArray[float] | None = None
             headers = None
-            data: dict[Spin, np.ndarray] = {}
-            eigenvalues: dict[Spin, np.ndarray] | None = None
-            occupancies: dict[Spin, np.ndarray] | None = None
-            phase_factors: dict[Spin, np.ndarray] | None = None
-            xyz_data: dict[str, np.ndarray] | None = None  # 'x'/'y'/'z' as keys for SOC projections dict
+            data: dict[Spin, NDArray] = {}
+            eigenvalues: dict[Spin, NDArray] | None = None
+            occupancies: dict[Spin, NDArray] | None = None
+            phase_factors: dict[Spin, NDArray] | None = None
+            xyz_data: dict[str, NDArray] | None = None  # 'x'/'y'/'z' as keys for SOC projections dict
             # keep track of parsed kpoints, to avoid redundant/duplicate parsing with multiple PROCARs:
             this_procar_parsed_kpoints = (
                 set()
@@ -4359,7 +4367,7 @@ class Procar(MSONable):
                 of that orbital is returned.
 
         Returns:
-            Sum occupation of orbital of atom.
+            dict: Sum occupation of orbital of atom.
         """
         if self.orbitals is None:
             raise ValueError("orbitals is None")
@@ -4376,18 +4384,17 @@ class Procar(MSONable):
 class Oszicar:
     """OSZICAR parser for VASP.
 
-    In general, while OSZICAR is useful for a quick look at the
-    output from a VASP run, we recommend using the Vasprun parser
-    instead, which gives far richer information.
+    In general, while OSZICAR is useful for a quick look at the output from a VASP run,
+    we recommend using the Vasprun parser instead, which gives far richer information.
 
     Attributes:
-        electronic_steps (list): All electronic steps as a list of list of dict. e.g.
+        electronic_steps (list[list[dict]]): All electronic steps. e.g.
             [[{"rms": 160.0, "E": 4507.24605593, "dE": 4507.2, "N": 1, "deps": -17777.0, "ncg": 16576}, ...], [....]
             where electronic_steps[index] refers the list of electronic steps in one ionic_step,
             electronic_steps[index][subindex] refers to a particular electronic step at subindex in ionic step at
             index. The dict of properties depends on the type of VASP run, but in general, "E", "dE" and "rms" should
             be present in almost all runs.
-        ionic_steps (list): All ionic_steps as a list of dict, e.g.
+        ionic_steps (list[dict[str, float]]): All ionic_steps, e.g.
             [{"dE": -526.36, "E0": -526.36024, "mag": 0.0, "F": -526.36024}, ...]
             This is the typical output from VASP at the end of each ionic step. The stored dict might be different
             depending on the type of VASP run.
@@ -4518,8 +4525,8 @@ class Xdatcar:
     """XDATCAR parser. Only tested with VASP 5.x files.
 
     Attributes:
-        structures (list): List of structures parsed from XDATCAR.
-        comment (str): Optional comment string.
+        structures (list[Structure]): Structures parsed from XDATCAR.
+        comment (str): Optional comment.
 
     Authors: Ram Balachandran
     """
@@ -4536,8 +4543,8 @@ class Xdatcar:
 
         Args:
             filename (PathLike): The XDATCAR file.
-            ionicstep_start (int): Starting number of ionic step.
-            ionicstep_end (int): Ending number of ionic step.
+            ionicstep_start (int): Starting index of ionic step.
+            ionicstep_end (int): Ending index of ionic step.
             comment (str): Optional comment attached to this set of structures.
         """
         preamble = None
@@ -4696,12 +4703,15 @@ class Xdatcar:
         ionicstep_end: int | None = None,
         significant_figures: int = 8,
     ) -> str:
-        """Write Xdatcar to a string.
+        """Get Xdatcar as a string.
 
         Args:
-            ionicstep_start (int): Starting number of ionic step.
-            ionicstep_end (int): Ending number of ionic step.
+            ionicstep_start (int): Starting index of ionic step.
+            ionicstep_end (int): Ending index of ionic step.
             significant_figures (int): Number of significant digits.
+
+        Returns:
+            str: Xdatcar as a string.
         """
         if ionicstep_start < 1:
             raise ValueError("Start ionic step cannot be less than 1")
@@ -4751,7 +4761,7 @@ class Dynmat:
             [atom <int>][disp <int>]['dispvec'] =
                 displacement vector (part of first line in dynmat block, e.g. "0.01 0 0")
             [atom <int>][disp <int>]['dynmat'] =
-                    <list> list of dynmat lines for this atom and this displacement
+                <list> list of dynmat lines for this atom and this displacement
 
     Authors: Patrick Huck
     """
@@ -4781,13 +4791,16 @@ class Dynmat:
                         self.data[atom][disp]["dynmat"] = []  # type: ignore[index]
                     self.data[atom][disp]["dynmat"].append(v)  # type: ignore[index]
 
-    def get_phonon_frequencies(self) -> list:
+    def get_phonon_frequencies(self) -> list[float]:
         """Calculate phonon frequencies.
 
         WARNING: This method is most likely incorrect or suboptimal,
-        hence for demonstration purposes only.
+            hence for demonstration purposes only.
+
+        Returns:
+            list[float]: phonon frequencies.
         """
-        frequencies = []
+        frequencies: list[float] = []
         for k, v0 in self.data.items():
             for v1 in v0.values():
                 vec = map(abs, v1["dynmat"][k - 1])
@@ -4848,6 +4861,7 @@ def get_adjusted_fermi_level(
     """
     # Make a working copy of band_structure
     bs_working = BandStructureSymmLine.from_dict(band_structure.as_dict())
+
     if bs_working.is_metal():
         energy = efermi
         while energy < cbm:
@@ -4884,19 +4898,18 @@ class Wavecar:
     (https://doi.org/10.1103/PhysRevMaterials.1.065001).
 
     Attributes:
-        vasp_type (str): String that determines VASP type the WAVECAR was generated with.
-            One of 'std', 'gam', 'ncl'.
+        vasp_type ("std" | "gam" | "ncl"): The VASP type WAVECAR was generated with.
         nk (int): Number of k-points from the WAVECAR.
         nb (int): Number of bands per k-point.
         encut (float): Energy cutoff (used to define G_{cut}).
         efermi (float): Fermi energy.
-        a (np.array): Primitive lattice vectors of the cell (e.g. a_1 = self.a[0, :]).
-        b (np.array): Reciprocal lattice vectors of the cell (e.g. b_1 = self.b[0, :]).
+        a (NDArray): Primitive lattice vectors of the cell (e.g. a_1 = self.a[0, :]).
+        b (NDArray): Reciprocal lattice vectors of the cell (e.g. b_1 = self.b[0, :]).
         vol (float): The volume of the unit cell in real space.
-        kpoints (np.array): The list of k-points read from the WAVECAR file.
-        band_energy (list): The list of band eigenenergies (and corresponding occupancies) for each kpoint,
+        kpoints (NDArray): A list of k-points read from the WAVECAR file.
+        band_energy (list): A list of band eigenenergies (and corresponding occupancies) for each kpoint,
             where the first index corresponds to the index of the k-point (e.g. self.band_energy[kp]).
-        Gpoints (list): The list of generated G-points for each k-point (a double list), which
+        Gpoints (list): A list of generated G-points for each k-point (a double list), which
             are used with the coefficients for each k-point and band to recreate
             the wavefunction (e.g. self.Gpoints[kp] is the list of G-points for
             k-point kp). The G-points depend on the k-point and reciprocal lattice
@@ -4904,7 +4917,7 @@ class Wavecar:
             G-point is represented by integer multipliers (e.g. assuming
             Gpoints[kp][n] == [n_1, n_2, n_3], then
             G_n = n_1*b_1 + n_2*b_2 + n_3*b_3)
-        coeffs (list): The list of coefficients for each k-point and band for reconstructing the wavefunction.
+        coeffs (list): A list of coefficients for each k-point and band for reconstructing the wavefunction.
             For non-spin-polarized, the first index corresponds to the kpoint and the second corresponds to the band
             (e.g. self.coeffs[kp][b] corresponds to k-point kp and band b). For spin-polarized calculations,
             the first index is for the spin. If the calculation was non-collinear, then self.coeffs[kp][b] will have
@@ -5145,7 +5158,7 @@ class Wavecar:
 
     def _generate_G_points(
         self,
-        kpoint: np.ndarray,
+        kpoint: NDArray,
         gamma: bool = False,
     ) -> tuple[list, list, list]:
         """Helper method to generate G-points based on nbmax.
@@ -5193,7 +5206,7 @@ class Wavecar:
         self,
         kpoint: int,
         band: int,
-        r: np.ndarray,
+        r: NDArray,
         spin: int = 0,
         spinor: int = 0,
     ) -> np.complex64:
@@ -5245,7 +5258,7 @@ class Wavecar:
         spin: int = 0,
         spinor: int = 0,
         shift: bool = True,
-    ) -> np.ndarray:
+    ) -> NDArray:
         """Place the coefficients of a wavefunction onto an fft mesh.
 
         Once the mesh has been obtained, a discrete fourier transform can be
@@ -5428,7 +5441,7 @@ class Eigenval:
         nbands (int): Number of bands.
         kpoints (list): List of kpoints.
         kpoints_weights (list): Weights of each kpoint in the BZ, should sum to 1.
-        eigenvalues (dict): Eigenvalues as a dict of {(spin): np.ndarray(shape=(nkpt, nbands, 2))}.
+        eigenvalues (dict): Eigenvalues as a dict of {(spin): NDArray(shape=(nkpt, nbands, 2))}.
             This representation is based on actual ordering in VASP and is meant as an intermediate representation
             to be converted into proper objects. The kpoint index is 0-based (unlike the 1-based indexing in VASP).
     """
@@ -5584,8 +5597,8 @@ class Waveder(MSONable):
     Author: Miguel Dias Costa, Kamal Choudhary, Jimmy-Xuan Shen
     """
 
-    cder_real: np.ndarray
-    cder_imag: np.ndarray
+    cder_real: NDArray
+    cder_imag: NDArray
 
     @classmethod
     def from_formatted(cls, filename: PathLike) -> Self:
@@ -5662,7 +5675,7 @@ class Waveder(MSONable):
             return cls(cder_data.real, cder_data.imag)
 
     @property
-    def cder(self) -> np.ndarray:
+    def cder(self) -> NDArray:
         """The complex derivative of the orbitals with respect to k."""
         if self.cder_real.shape[0] != self.cder_real.shape[1]:  # pragma: no cover
             warnings.warn(
@@ -5740,11 +5753,11 @@ class WSWQ(MSONable):
     nspin: int
     nkpoints: int
     nbands: int
-    me_real: np.ndarray
-    me_imag: np.ndarray
+    me_real: NDArray
+    me_imag: NDArray
 
     @property
-    def data(self) -> np.ndarray:
+    def data(self) -> NDArray:
         """Complex overlap matrix."""
         return self.me_real + 1j * self.me_imag
 
