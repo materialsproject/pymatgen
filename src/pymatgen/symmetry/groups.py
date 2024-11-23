@@ -21,7 +21,7 @@ from monty.serialization import loadfn
 from pymatgen.util.string import Stringify
 
 if TYPE_CHECKING:
-    from typing import ClassVar, Literal
+    from typing import ClassVar, Literal, TypeAlias
 
     from numpy.typing import ArrayLike
     from typing_extensions import Self
@@ -29,9 +29,9 @@ if TYPE_CHECKING:
     from pymatgen.core.lattice import Lattice
 
     # Don't import at runtime to avoid circular import
-    from pymatgen.core.operations import SymmOp  # noqa: TCH004
+    from pymatgen.core.operations import SymmOp  # noqa: TC004
 
-    CrystalSystem = Literal[
+    CrystalSystem: TypeAlias = Literal[
         "cubic",
         "hexagonal",
         "monoclinic",
