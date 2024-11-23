@@ -18,7 +18,6 @@ import numpy as np
 from monty.design_patterns import cached_class
 from monty.serialization import loadfn
 
-from pymatgen.core.operations import SymmOp
 from pymatgen.util.string import Stringify
 
 if TYPE_CHECKING:
@@ -30,6 +29,7 @@ if TYPE_CHECKING:
     from pymatgen.core.lattice import Lattice
 
     # Don't import at runtime to avoid circular import
+    from pymatgen.core.operations import SymmOp  # noqa: TCH004
 
     CrystalSystem = Literal[
         "cubic",
