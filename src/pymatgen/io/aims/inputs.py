@@ -590,7 +590,7 @@ class AimsControlIn(MSONable):
                 width = parameters["smearing"][1]
                 if name == "methfessel-paxton":
                     order = parameters["smearing"][2]
-                    order = " %d" % order
+                    order = f" {order}"
                 else:
                     order = ""
 
