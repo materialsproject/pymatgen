@@ -2243,7 +2243,7 @@ class Outcar:
 
         # Read electrostatic potential
         self.electrostatic_potential: list[float] | None = None
-        self.ngf = None
+        self.ngf: list[int] | None = None
         self.sampling_radii: list[float] | None = None
         self.read_pattern({"electrostatic": r"average \(electrostatic\) potential at core"})
         if self.data.get("electrostatic", []):
@@ -2251,7 +2251,7 @@ class Outcar:
 
         self.read_pattern({"nmr_cs": r"LCHIMAG\s*=\s*(T)"})
         if self.data.get("nmr_cs"):
-            self.nmr_cs = True
+            self.nmr_cs: bool = True
             self.read_chemical_shielding()
             self.read_cs_g0_contribution()
             self.read_cs_core_contribution()
@@ -2261,7 +2261,7 @@ class Outcar:
 
         self.read_pattern({"nmr_efg": r"NMR quadrupolar parameters"})
         if self.data.get("nmr_efg"):
-            self.nmr_efg = True
+            self.nmr_efg: bool = True
             self.read_nmr_efg()
             self.read_nmr_efg_tensor()
         else:
@@ -2272,7 +2272,7 @@ class Outcar:
             terminate_on_match=True,
         )
         if "has_onsite_density_matrices" in self.data:
-            self.has_onsite_density_matrices = True
+            self.has_onsite_density_matrices: bool = True
             self.read_onsite_density_matrices()
         else:
             self.has_onsite_density_matrices = False
@@ -3011,7 +3011,7 @@ class Outcar:
         Renders accessible as attributes:
             internal_strain_tensor (list[NDArray[float64]]): Voigt notation tensors for each site.
         """
-        search = []
+        search: list[list] = []
 
         def internal_strain_start(results, match: str) -> None:
             results.internal_strain_ion = int(match[1]) - 1
@@ -3049,7 +3049,7 @@ class Outcar:
         )
 
         self.internal_strain_ion = None
-        self.internal_strain_tensor = []
+        self.internal_strain_tensor: list[NDArray[np.float64]] = []
         micro_pyawk(self.filename, search, self)
 
     def read_lepsilon(self) -> None:
@@ -3475,8 +3475,7 @@ class Outcar:
 
             micro_pyawk(self.filename, search, self)
 
-            zval_dict: dict[str, float] = dict(zip(self.atom_symbols, self.zvals, strict=True))  # type: ignore[attr-defined]
-            self.zval_dict = zval_dict
+            self.zval_dict: dict[str, float] = dict(zip(self.atom_symbols, self.zvals, strict=True))  # type: ignore[attr-defined]
 
             # Clean up
             del self.atom_symbols  # type: ignore[attr-defined]
