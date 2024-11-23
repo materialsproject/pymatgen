@@ -1646,6 +1646,7 @@ def get_el_sp(obj: int | SpeciesLike) -> Element | Species | DummySpecies:
     # If obj is already an Element or Species, return as is
     if isinstance(obj, Element | Species | DummySpecies):
         if getattr(obj, "_is_named_isotope", False):
+            warnings.warn(f"Named isotope {obj.name} would be converted to {obj.symbol}", stacklevel=2)
             return Element(obj.name) if isinstance(obj, Element) else Species(str(obj))
         return obj
 
