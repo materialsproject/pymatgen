@@ -2535,8 +2535,8 @@ class Outcar:
         Renders accessible as attributes:
             plasma_frequencies (dict[Literal["intraband", "interband"], NDArray[float64]]):
                 plasma frequency in eV.
-            dielectric_energies (NDArray[float64]): dielectric energies.
-            dielectric_tensor_function (NDArray[complex128]): dielectric tensor function.
+            dielectric_energies (NDArray[float64]): Dielectric energies.
+            dielectric_tensor_function (NDArray[complex128]): Dielectric tensor function.
         """
         plasma_pattern = r"plasma frequency squared.*"
         dielectric_pattern = (
@@ -2657,7 +2657,7 @@ class Outcar:
         """Parse the core contribution of NMR chemical shielding.
 
         Renders accessible from self.data:
-            cs_core_contribution (dict[str, float]): core contribution from each element.
+            cs_core_contribution (dict[str, float]): Core contribution from each element.
         """
         header_pattern = r"^\s+Core NMR properties\s*$\n\n^\s+typ\s+El\s+Core shift \(ppm\)\s*$\n^\s+-{20,}$\n"
         row_pattern = r"\d+\s+(?P<element>[A-Z][a-z]?\w?)\s+(?P<shift>[-]?\d+\.\d+)"
@@ -2677,7 +2677,7 @@ class Outcar:
         """Parse the matrix form of NMR tensor before corrected to table.
 
         Renders accessible from self.data:
-            unsym_cs_tensor (list[list[list[float]]]): unsymmetrized tensors in the order of atoms.
+            unsym_cs_tensor (list[list[list[float]]]): Unsymmetrized tensors in the order of atoms.
         """
         header_pattern = r"\s+-{50,}\s+\s+Absolute Chemical Shift tensors\s+\s+-{50,}$"
         first_part_pattern = r"\s+UNSYMMETRIZED TENSORS\s+$"
@@ -2781,7 +2781,7 @@ class Outcar:
         """Parse the piezo tensor data.
 
         Renders accessible from self.data:
-            piezo_tensor (list[list[float]]): the piezo tensor.
+            piezo_tensor (list[list[float]]): The piezo tensor.
         """
         header_pattern = r"PIEZOELECTRIC TENSOR  for field in x, y, z\s+\(C/m\^2\)\s+([X-Z][X-Z]\s+)+\-+"
         row_pattern = r"[x-z]\s+" + r"\s+".join([r"(\-*[\.\d]+)"] * 6)
@@ -2845,7 +2845,7 @@ class Outcar:
             terminate_on_match (bool): Whether to terminate once match is found. Defaults to True.
 
         Renders accessible from self.data:
-            dipol_quadrupol_correction (float): dipol qudropol correction.
+            dipol_quadrupol_correction (float): Dipol qudropol correction.
         """
         patterns = {"dipol_quadrupol_correction": r"dipol\+quadrupol energy correction\s+([\d\-\.]+)"}
         self.read_pattern(
@@ -3009,8 +3009,7 @@ class Outcar:
         """Read the internal strain tensor.
 
         Renders accessible as attributes:
-            # TODO: add type
-            internal_strain_tensor: an array of voigt notation tensors for each site.
+            internal_strain_tensor (list[NDArray[float64]]): Voigt notation tensors for each site.
         """
         search = []
 
@@ -3057,7 +3056,8 @@ class Outcar:
         """Read a LEPSILON run.
 
         Renders accessible as attributes:
-            TODO:
+            dielectric_tensor (list[list[float]]): Dielectric tensor.
+            piezo_tensor (list[list[float]]): The piezo tensor.
         """
         try:
             search = []
@@ -3214,7 +3214,8 @@ class Outcar:
         """Read the ionic component of a LEPSILON run.
 
         Renders accessible as attributes:
-            TODO:
+            dielectric_ionic_tensor (list[list[float]]): Ionic dielectric tensor.
+            piezo_ionic_tensor (list[list[float]]): Ionic piezoelectric tensor.
         """
         try:
             search = []
@@ -3341,12 +3342,15 @@ class Outcar:
         """Read the LCALCPOL.
 
         Renders accessible as attributes:
-            TODO:
+            p_elec (NDArray[float64]): Total electronic dipole moment.
+            p_ion (NDArray[float64]): Ionic dipole moment.
+            p_sp1 (NDArray[float] | None): Spin up.
+            p_sp2 (NDArray[float] | None): Spin down.
         """
         self.p_elec = None
+        self.p_ion = None
         self.p_sp1: int | None = None
         self.p_sp2: int | None = None
-        self.p_ion = None
 
         try:
             search = []
@@ -3444,10 +3448,10 @@ class Outcar:
             raise RuntimeError("LCALCPOL OUTCAR could not be parsed.") from exc
 
     def read_pseudo_zval(self) -> None:
-        """Create a pseudopotential ZVAL dictionary.
+        """Create a pseudopotential valence electron number (ZVAL) dictionary.
 
         Renders accessible as attributes:
-            TODO:
+            zval_dict (dict[str, float]): ZVAL for each element.
         """
         try:
 
@@ -3471,10 +3475,10 @@ class Outcar:
 
             micro_pyawk(self.filename, search, self)
 
-            self.zval_dict = dict(zip(self.atom_symbols, self.zvals, strict=True))  # type: ignore[attr-defined]
+            zval_dict: dict[str, float] = dict(zip(self.atom_symbols, self.zvals, strict=True))  # type: ignore[attr-defined]
+            self.zval_dict = zval_dict
 
             # Clean up
-            # TODO: is del necessary (need benchmark)?
             del self.atom_symbols  # type: ignore[attr-defined]
             del self.zvals  # type: ignore[attr-defined]
 
