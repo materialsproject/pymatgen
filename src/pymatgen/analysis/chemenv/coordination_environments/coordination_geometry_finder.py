@@ -218,7 +218,9 @@ class AbstractGeometry:
         """
         if permutation is None:
             return self._points_wcs_csc
-        return np.concatenate((self._points_wcs_csc[:1], self._points_wocs_csc.take(np.array(permutation, dtype=np.intp), axis=0)))
+        return np.concatenate(
+            (self._points_wcs_csc[:1], self._points_wocs_csc.take(np.array(permutation, dtype=np.intp), axis=0))
+        )
 
     def points_wocs_csc(self, permutation=None):
         """
