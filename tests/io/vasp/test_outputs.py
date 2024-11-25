@@ -1328,9 +1328,16 @@ class TestOutcar(PymatgenTest):
         assert "onsite_density_matrices" in outcar.as_dict()
 
     def test_nbands(self):
+        # Test VASP 5.2.11
         nbands = Outcar(f"{VASP_OUT_DIR}/OUTCAR.gz").data["nbands"]
         assert nbands == 33
         assert isinstance(nbands, int)
+
+        # Test VASP 5.4.4
+        assert Outcar(f"{VASP_OUT_DIR}/OUTCAR.LOPTICS.vasp544").data["nbands"] == 128
+
+        # Test VASP 6.3.0
+        assert Outcar(f"{VASP_OUT_DIR}/OUTCAR_vasp_6.3.gz").data["nbands"] == 64
 
     def test_nplwvs(self):
         outcar = Outcar(f"{VASP_OUT_DIR}/OUTCAR.gz")
