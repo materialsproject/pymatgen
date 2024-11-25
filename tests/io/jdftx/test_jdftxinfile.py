@@ -38,6 +38,7 @@ ex_infile1_knowns = {
     "fluid-solvent": [{"name": "H2O"}],
     "fluid-cation": {"name": "Na+", "concentration": 0.5},
     "fluid-anion": {"name": "F-", "concentration": 0.5},
+    "initial-magnetic-moments": "C 1 O 1",
 }
 
 ex_infile2_fname = ex_files_dir / "example_sp.in"

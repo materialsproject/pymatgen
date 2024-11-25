@@ -10,6 +10,8 @@ spintype no-spin
 elec-n-bands 34
 converge-empty-states yes
 
+initial-magnetic-moments C 1 2 3 O 1 F 1
+
 #elec-ex-corr gga-PBE
 
 dump-only
