@@ -2177,11 +2177,11 @@ class Outcar:
 
         # Check if calculation is spin polarized
         self.read_pattern({"spin": r"ISPIN\s*=\s*2"})
-        self.spin = bool(self.data.get("spin", []))
+        self.spin = bool(self.data.get("spin", False))
 
         # Check if calculation is non-collinear
         self.read_pattern({"noncollinear": r"LNONCOLLINEAR\s*=\s*T"})
-        self.noncollinear = bool(self.data.get("noncollinear", []))
+        self.noncollinear = bool(self.data.get("noncollinear", False))
 
         # Check if the calculation type is DFPT
         self.read_pattern(
