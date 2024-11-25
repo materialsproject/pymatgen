@@ -7,8 +7,8 @@ from glob import glob
 from typing import TYPE_CHECKING
 
 import numpy as np
+from monty.io import zopen
 from monty.os.path import zpath
-from monty.serialization import zopen
 
 from pymatgen.core import SETTINGS
 from pymatgen.io.vasp import Potcar, PotcarSingle
