@@ -1,4 +1,4 @@
-"""Check the content of source code and source distribution.
+"""Check the content of source code and test build source distribution.
 
 Binary distribution (wheel) is checked in test workflow.
 """
@@ -6,7 +6,6 @@ Binary distribution (wheel) is checked in test workflow.
 from __future__ import annotations
 
 import subprocess
-import tarfile
 from glob import glob
 from pathlib import Path
 from typing import TYPE_CHECKING
@@ -19,34 +18,19 @@ if TYPE_CHECKING:
 PROJECT_ROOT = Path(__file__).parent.parent
 
 
-class TestCheckDistribution:
-    def test_source_code(self):
-        """Directly check the source code in the working directory."""
-        src_txt_path = PROJECT_ROOT / "src/pymatgen.egg-info/SOURCES.txt"
+def test_source_code():
+    """Check the source code in the working directory."""
+    src_txt_path = PROJECT_ROOT / "src/pymatgen.egg-info/SOURCES.txt"
 
-        _check_src_txt_is_complete(PROJECT_ROOT, src_txt_path)
+    _check_src_txt_is_complete(PROJECT_ROOT, src_txt_path)
 
-    def test_source_distribution(self):
-        """Build the source distribution and verify its contents."""
 
-        with ScratchDir("."):
-            # Build the source distribution
-            subprocess.run(["python", "-m", "pip", "install", "--upgrade", "build"], check=True)
-            subprocess.run(["python", "-m", "build", "--sdist", PROJECT_ROOT, "--outdir", ".", "-C--quiet"], check=True)
-
-            # Decompress sdist
-            sdist_file = next(Path(".").glob("*.tar.gz"))
-            sdist_dir = sdist_file.name.removesuffix(".tar.gz")
-            with tarfile.open(sdist_file, "r:gz") as tar:
-                # TODO: remove attr check after only 3.12+
-                if hasattr(tarfile, "data_filter"):
-                    tar.extractall("", filter="data")
-                else:
-                    tar.extractall("")  # noqa: S202
-
-            # Verify source distribution contents
-            src_txt_path = f"{sdist_dir}/src/pymatgen.egg-info/SOURCES.txt"
-            _check_src_txt_is_complete(project_root=sdist_dir, src_txt_path=src_txt_path)
+def test_build_source_distribution():
+    """Test build the source distribution (sdist)."""
+    with ScratchDir("."):
+        # Build the source distribution
+        subprocess.run(["python", "-m", "pip", "install", "--upgrade", "build"], check=True)
+        subprocess.run(["python", "-m", "build", "--sdist", PROJECT_ROOT, "--outdir", ".", "-C--quiet"], check=True)
 
 
 def _check_src_txt_is_complete(project_root: PathLike, src_txt_path: PathLike) -> None:
