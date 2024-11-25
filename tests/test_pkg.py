@@ -6,6 +6,8 @@ Binary distribution (wheel) is checked in test workflow.
 from __future__ import annotations
 
 import subprocess
+import tarfile
+import warnings
 from glob import glob
 from pathlib import Path
 from typing import TYPE_CHECKING
@@ -24,13 +26,29 @@ def test_source_code():
 
     _check_src_txt_is_complete(PROJECT_ROOT, src_txt_path)
 
+    # Check existence of `py.typed` file in each sub-package
+    _check_py_typed_files(PROJECT_ROOT / "src/pymatgen")
+
 
 def test_build_source_distribution():
-    """Test build the source distribution (sdist)."""
+    """Test build the source distribution (sdist), also check `py.typed` files."""
     with ScratchDir("."):
         # Build the source distribution
         subprocess.run(["python", "-m", "pip", "install", "--upgrade", "build"], check=True)
         subprocess.run(["python", "-m", "build", "--sdist", PROJECT_ROOT, "--outdir", ".", "-C--quiet"], check=True)
+
+        # Decompress sdist
+        sdist_file = next(Path(".").glob("*.tar.gz"))
+        sdist_dir = Path(sdist_file.name.removesuffix(".tar.gz"))
+        with tarfile.open(sdist_file, "r:gz") as tar:
+            # TODO: remove attr check after only 3.12+
+            if hasattr(tarfile, "data_filter"):
+                tar.extractall("", filter="data")
+            else:
+                tar.extractall("")  # noqa: S202
+
+        # Check existence of `py.typed` file in each sub-package
+        _check_py_typed_files(sdist_dir / "src/pymatgen")
 
 
 def _check_src_txt_is_complete(project_root: PathLike, src_txt_path: PathLike) -> None:
@@ -59,3 +77,29 @@ def _check_src_txt_is_complete(project_root: PathLike, src_txt_path: PathLike) -
 
             if unix_path not in sources:
                 raise ValueError(f"{unix_path} not found in {src_txt_path}, check package data config")
+
+
+def _check_py_typed_files(pkg_root: PathLike) -> None:
+    """
+    Ensure all sub-packages contain a `py.typed` file.
+
+    Args:
+        pkg_root (PathLike): Path to the namespace package's root directory.
+
+    Raises:
+        FileNotFoundError: If any sub-package is missing the `py.typed` file.
+    """
+    if not (pkg_root := Path(pkg_root)).is_dir():
+        raise NotADirectoryError(f"Provided path {pkg_root} is not a valid directory.")
+
+    # Iterate through all directories under the namespace package
+    for sub_pkg in pkg_root.glob("*/"):
+        sub_pkg_path = Path(sub_pkg)
+
+        # Check for __init__.py to ensure it's a package
+        if (sub_pkg_path / "__init__.py").exists():
+            if not (sub_pkg_path / "py.typed").exists():
+                raise FileNotFoundError(f"Missing py.typed in sub-package: {sub_pkg_path}")
+
+        else:
+            warnings.warn(f"{sub_pkg_path=} doesn't have __init__.py", stacklevel=2)
