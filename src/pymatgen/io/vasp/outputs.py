@@ -2136,7 +2136,15 @@ class Outcar:
         self.final_fr_energy = e_fr_energy
         self.data: dict = {}
 
-        # Read "total number of plane waves", NPLWV:
+        # Read "number of bands" (NBANDS)
+        self.read_pattern(
+            {"nbands": r"number\s+of\s+bands\s+NBANDS=\s+(\d+)"},
+            terminate_on_match=True,
+            postprocess=int,
+        )
+        self.data["nbands"] = self.data["nbands"][0][0]
+
+        # Read "total number of plane waves" (NPLWV)
         self.read_pattern(
             {"nplwv": r"total plane-waves  NPLWV =\s+(\*{6}|\d+)"},
             terminate_on_match=True,
