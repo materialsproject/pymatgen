@@ -5,7 +5,6 @@ Binary distribution (wheel) is checked in test workflow.
 
 from __future__ import annotations
 
-import os
 import subprocess
 import tarfile
 from glob import glob
@@ -32,6 +31,7 @@ class TestCheckDistribution:
 
         with ScratchDir("."):
             # Build the source distribution
+            subprocess.run(["python", "-m", "pip", "install", "--upgrade", "build"], check=True)
             subprocess.run(["python", "-m", "build", "--sdist", SRC_DIR, "--outdir", ".", "-C--quiet"], check=True)
 
             # Decompress sdist
@@ -67,12 +67,12 @@ def _check_src_txt_is_complete(src_dir: PathLike, src_txt_path: PathLike) -> Non
 
     # Check that all files listed in "SOURCES.txt" exist
     for src_file in sources.splitlines():
-        assert os.path.isfile(src_dir / src_file), f"{src_file!r} does not exist!"
+        assert (src_dir / src_file).is_file(), f"{src_file!r} does not exist!"
 
     # Check that all files in src/pymatgen/ are listed in SOURCES.txt
     for ext in ("py", "json", "json.*", "yaml", "csv"):
         for filepath in glob(f"{src_dir}/src/pymatgen/**/*.{ext}", recursive=True):
-            unix_path = os.path.relpath(filepath.replace("\\", "/"), start=src_dir)
+            unix_path = Path(filepath).relative_to(src_dir).as_posix()
 
             if unix_path not in sources:
                 raise ValueError(f"{unix_path} not found in {src_txt_path}, check package data config")
