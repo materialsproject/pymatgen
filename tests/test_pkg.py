@@ -1,4 +1,7 @@
-"""Check the content of source code, source distribution and binary distribution."""
+"""Check the content of source code and source distribution.
+
+Binary distribution (wheel) is checked in test workflow.
+"""
 
 from __future__ import annotations
 
@@ -9,7 +12,6 @@ from glob import glob
 from pathlib import Path
 from typing import TYPE_CHECKING
 
-import pytest
 from monty.tempfile import ScratchDir
 
 if TYPE_CHECKING:
@@ -45,10 +47,6 @@ class TestCheckDistribution:
             # Verify source distribution contents
             src_txt_path = f"{sdist_dir}/src/pymatgen.egg-info/SOURCES.txt"
             _check_src_txt_is_complete(src_dir=sdist_dir, src_txt_path=src_txt_path)
-
-    @pytest.mark.skip(reason="WIP")
-    def test_binary_distribution(self):
-        """Build the binary distribution (wheels) and verify its contents."""
 
 
 def _check_src_txt_is_complete(src_dir: PathLike, src_txt_path: PathLike) -> None:
