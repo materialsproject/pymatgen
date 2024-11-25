@@ -2178,7 +2178,6 @@ class Outcar:
         # Read the drift
         self.read_pattern(
             {"drift": r"total drift:\s+([\.\-\d]+)\s+([\.\-\d]+)\s+([\.\-\d]+)"},
-            terminate_on_match=False,
             postprocess=float,
         )
         self.drift = self.data.get("drift", [])
