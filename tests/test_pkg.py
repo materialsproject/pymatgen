@@ -16,15 +16,15 @@ from monty.tempfile import ScratchDir
 if TYPE_CHECKING:
     from pymatgen.util.typing import PathLike
 
-SRC_DIR = Path(__file__).parent.parent
+PROJECT_ROOT = Path(__file__).parent.parent
 
 
 class TestCheckDistribution:
     def test_source_code(self):
         """Directly check the source code in the working directory."""
-        src_txt_path = SRC_DIR / "src/pymatgen.egg-info/SOURCES.txt"
+        src_txt_path = PROJECT_ROOT / "src/pymatgen.egg-info/SOURCES.txt"
 
-        _check_src_txt_is_complete(SRC_DIR, src_txt_path)
+        _check_src_txt_is_complete(PROJECT_ROOT, src_txt_path)
 
     def test_source_distribution(self):
         """Build the source distribution and verify its contents."""
@@ -32,7 +32,7 @@ class TestCheckDistribution:
         with ScratchDir("."):
             # Build the source distribution
             subprocess.run(["python", "-m", "pip", "install", "--upgrade", "build"], check=True)
-            subprocess.run(["python", "-m", "build", "--sdist", SRC_DIR, "--outdir", ".", "-C--quiet"], check=True)
+            subprocess.run(["python", "-m", "build", "--sdist", PROJECT_ROOT, "--outdir", ".", "-C--quiet"], check=True)
 
             # Decompress sdist
             sdist_file = next(Path(".").glob("*.tar.gz"))
@@ -46,20 +46,20 @@ class TestCheckDistribution:
 
             # Verify source distribution contents
             src_txt_path = f"{sdist_dir}/src/pymatgen.egg-info/SOURCES.txt"
-            _check_src_txt_is_complete(src_dir=sdist_dir, src_txt_path=src_txt_path)
+            _check_src_txt_is_complete(project_root=sdist_dir, src_txt_path=src_txt_path)
 
 
-def _check_src_txt_is_complete(src_dir: PathLike, src_txt_path: PathLike) -> None:
+def _check_src_txt_is_complete(project_root: PathLike, src_txt_path: PathLike) -> None:
     """Check that all source code and data files are listed in given SOURCES.txt.
 
     Args:
-        src_dir (PathLike): Path to the source code directory.
+        project_root (PathLike): Path to the directory containing "src/pymatgen/".
         src_txt_path (PathLike): Path to the "SOURCES.txt" file.
     """
-    src_dir = Path(src_dir)
+    project_root = Path(project_root)
     src_txt_path = Path(src_txt_path)
 
-    assert src_dir.is_dir(), f"{src_dir} is not a directory"
+    assert project_root.is_dir(), f"{project_root} is not a directory"
     assert src_txt_path.is_file(), f"{src_txt_path} doesn't exist"
 
     with open(src_txt_path, encoding="utf-8") as file:
@@ -67,12 +67,12 @@ def _check_src_txt_is_complete(src_dir: PathLike, src_txt_path: PathLike) -> Non
 
     # Check that all files listed in "SOURCES.txt" exist
     for src_file in sources.splitlines():
-        assert (src_dir / src_file).is_file(), f"{src_file!r} does not exist!"
+        assert (project_root / src_file).is_file(), f"{src_file!r} does not exist!"
 
     # Check that all files in src/pymatgen/ are listed in SOURCES.txt
     for ext in ("py", "json", "json.*", "yaml", "csv"):
-        for filepath in glob(f"{src_dir}/src/pymatgen/**/*.{ext}", recursive=True):
-            unix_path = Path(filepath).relative_to(src_dir).as_posix()
+        for filepath in glob(f"{project_root}/src/pymatgen/**/*.{ext}", recursive=True):
+            unix_path = Path(filepath).relative_to(project_root).as_posix()
 
             if unix_path not in sources:
                 raise ValueError(f"{unix_path} not found in {src_txt_path}, check package data config")
