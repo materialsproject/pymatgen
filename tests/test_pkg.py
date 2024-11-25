@@ -7,7 +7,6 @@ from __future__ import annotations
 
 import subprocess
 import tarfile
-import warnings
 from glob import glob
 from pathlib import Path
 from typing import TYPE_CHECKING
@@ -18,6 +17,7 @@ if TYPE_CHECKING:
     from pymatgen.util.typing import PathLike
 
 PROJECT_ROOT = Path(__file__).parent.parent
+NAMESPACE_PKGS = {"analysis", "ext", "io"}  # TODO: double check
 
 
 def test_source_code():
@@ -94,12 +94,14 @@ def _check_py_typed_files(pkg_root: PathLike) -> None:
 
     # Iterate through all directories under the namespace package
     for sub_pkg in pkg_root.glob("*/"):
-        sub_pkg_path = Path(sub_pkg)
+        if sub_pkg.name.startswith(".") or sub_pkg.name.startswith("__"):
+            continue
 
-        # Check for __init__.py to ensure it's a package
+        # Check for __init__.py to ensure it's not a namespace package
+        sub_pkg_path = Path(sub_pkg)
         if (sub_pkg_path / "__init__.py").exists():
             if not (sub_pkg_path / "py.typed").exists():
                 raise FileNotFoundError(f"Missing py.typed in sub-package: {sub_pkg_path}")
 
-        else:
-            warnings.warn(f"{sub_pkg_path=} doesn't have __init__.py", stacklevel=2)
+        elif sub_pkg_path.name not in NAMESPACE_PKGS:
+            raise ValueError(f"Unexpected namespace package {sub_pkg_path.name}")
