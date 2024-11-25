@@ -13,6 +13,7 @@ elec-cutoff 20 100
 elec-n-bands 15
 kpoint-folding 1 1 1
 electronic-minimize nIterations 100 energyDiffThreshold 1e-07
+initial-magnetic-moments C 1 O 1
 elec-smearing Fermi 0.001
 spintype z-spin
 core-overlap-check none
