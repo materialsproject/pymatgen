@@ -62,8 +62,7 @@ def _check_src_txt_is_complete(project_root: PathLike, src_txt_path: PathLike) -
     assert project_root.is_dir(), f"{project_root} is not a directory"
     assert src_txt_path.is_file(), f"{src_txt_path} doesn't exist"
 
-    with open(src_txt_path, encoding="utf-8") as file:
-        sources = file.read()
+    sources = src_txt_path.read_text(encoding="utf-8")
 
     # Check that all files listed in "SOURCES.txt" exist
     for src_file in sources.splitlines():
