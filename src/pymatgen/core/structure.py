@@ -4746,7 +4746,7 @@ class Structure(IStructure, collections.abc.MutableSequence):
                 offset = self[i].frac_coords - coords
                 coords += ((offset - np.round(offset)) / (n + 2)).astype(coords.dtype)
                 for key in props:
-                    if props[key] is not None and self[i].properties[key] != props[key]:
+                    if props[key] is not None and np.array_equal(self[i].properties[key], props[key]):
                         if mode.lower()[0] == "a" and isinstance(props[key], float):
                             # update a running total
                             props[key] = props[key] * (n + 1) / (n + 2) + self[i].properties[key] / (n + 2)
