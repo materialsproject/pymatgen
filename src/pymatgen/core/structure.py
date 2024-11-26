@@ -4717,28 +4717,37 @@ class Structure(IStructure, collections.abc.MutableSequence):
         return self
 
     def merge_sites(self, tol: float = 0.01, mode: Literal["sum", "delete", "average"] = "sum") -> Self:
-        """Merges sites (adding occupancies) within tol of each other.
-        Removes site properties.
+        """Merges sites (by adding occupancies) within tolerance and optionally removes
+            site properties in "sum/delete" modes.
 
         Args:
             tol (float): Tolerance for distance to merge sites.
-            mode ("sum" | "delete" | "average"): "delete" means duplicate sites are
-                deleted. "sum" means the occupancies are summed for the sites.
-                "average" means that the site is deleted but the properties are averaged
-                Only first letter is considered.
+            mode ("sum" | "delete" | "average"): Only first letter is considered at this moment.
+                - "delete" means duplicate sites are deleted.
+                - "sum" means the occupancies are summed for the sites.
+                - "average" means that the site is deleted but the properties are averaged.
 
         Returns:
-            Structure: self with merged sites.
+            Structure: Structure with merged sites.
         """
-        dist_mat = self.distance_matrix
+        # TODO: change the code the allow full name after 2025-12-01
+        # TODO2: add a test for mode value, currently it only checks if first letter is "s/a"
+        if mode.lower() not in {"sum", "delete", "average"} and mode.lower()[0] in {"s", "d", "a"}:
+            warnings.warn(
+                "mode would only allow full name sum/delete/average after 2025-12-01", DeprecationWarning, stacklevel=2
+            )
+
+        dist_mat: NDArray = self.distance_matrix
         np.fill_diagonal(dist_mat, 0)
         clusters = fcluster(linkage(squareform((dist_mat + dist_mat.T) / 2)), tol, "distance")
-        sites = []
+
+        sites: list[PeriodicSite] = []
         for cluster in np.unique(clusters):
             inds = np.where(clusters == cluster)[0]
             species = self[inds[0]].species
             coords = self[inds[0]].frac_coords
             props = self[inds[0]].properties
+
             for n, i in enumerate(inds[1:]):
                 sp = self[i].species
                 if mode.lower()[0] == "s":
@@ -4746,14 +4755,15 @@ class Structure(IStructure, collections.abc.MutableSequence):
                 offset = self[i].frac_coords - coords
                 coords += ((offset - np.round(offset)) / (n + 2)).astype(coords.dtype)
                 for key in props:
-                    if props[key] is not None and np.array_equal(self[i].properties[key], props[key]):
+                    if props[key] is not None and not np.array_equal(self[i].properties[key], props[key]):
                         if mode.lower()[0] == "a" and isinstance(props[key], float):
                             # update a running total
                             props[key] = props[key] * (n + 1) / (n + 2) + self[i].properties[key] / (n + 2)
                         else:
                             props[key] = None
                             warnings.warn(
-                                f"Sites with different site property {key} are merged. So property is set to none"
+                                f"Sites with different site property {key} are merged. So property is set to none",
+                                stacklevel=2,
                             )
             sites.append(PeriodicSite(species, coords, self.lattice, properties=props))
 
