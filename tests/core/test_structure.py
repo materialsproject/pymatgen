@@ -1685,6 +1685,11 @@ class TestStructure(PymatgenTest):
         assert len(struct_navs2) == 12
         assert any(math.isclose(site.properties["prop1"], 51.5) for site in struct_navs2)
 
+        # Test non-numerical property warning
+        struct_navs2.insert(0, "Na", coords[0], properties={"prop1": "hi"})
+        with pytest.warns(UserWarning, match="But property is set to None"):
+            struct_navs2.merge_sites(mode="average")
+
         # Test property handling for np.array (selective dynamics)
         poscar_str_0 = """Test POSCAR
 1.0

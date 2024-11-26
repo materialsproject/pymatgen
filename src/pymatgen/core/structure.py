@@ -4769,7 +4769,7 @@ class Structure(IStructure, collections.abc.MutableSequence):
                             props[key] = props[key] * (n + 1) / (n + 2) + self[i].properties[key] / (n + 2)
                         else:
                             props[key] = None
-                            warnings.warn(  # TODO: test missing
+                            warnings.warn(
                                 f"Sites with different site property {key} are merged. But property is set to None",
                                 stacklevel=2,
                             )
