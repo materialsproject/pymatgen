@@ -4737,6 +4737,9 @@ class Structure(IStructure, collections.abc.MutableSequence):
                 "mode would only allow full name sum/delete/average after 2025-12-01", DeprecationWarning, stacklevel=2
             )
 
+        if mode.lower()[0] not in {"s", "d", "a"}:
+            raise ValueError(f"Illegal {mode=}, should start with a/d/s.")
+
         dist_mat: NDArray = self.distance_matrix
         np.fill_diagonal(dist_mat, 0)
         clusters = fcluster(linkage(squareform((dist_mat + dist_mat.T) / 2)), tol, "distance")

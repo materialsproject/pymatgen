@@ -1633,10 +1633,14 @@ class TestStructure(PymatgenTest):
             [0.5, 0.5, 1.501],
         ]
         struct = Structure(Lattice.cubic(1), species, coords)
-        struct.merge_sites(mode="s")
+        struct.merge_sites(mode="sum")
         assert struct[0].specie.symbol == "Ag"
         assert struct[1].species == Composition({"Cl": 0.35, "F": 0.25})
         assert_allclose(struct[1].frac_coords, [0.5, 0.5, 0.5005])
+
+        # Test illegal mode
+        with pytest.raises(ValueError, match="Illegal mode='illegal', should start with a/d/s"):
+            struct.merge_sites(mode="illegal")
 
         # Test for TaS2 with spacegroup 166 in 160 setting.
         lattice = Lattice.hexagonal(3.374351, 20.308941)
@@ -1648,7 +1652,7 @@ class TestStructure(PymatgenTest):
         ]
         tas2 = Structure.from_spacegroup(160, lattice, species, coords)
         assert len(tas2) == 13
-        tas2.merge_sites(mode="d")
+        tas2.merge_sites(mode="delete")
         assert len(tas2) == 9
 
         lattice = Lattice.hexagonal(3.587776, 19.622793)
@@ -1661,7 +1665,7 @@ class TestStructure(PymatgenTest):
         ]
         navs2 = Structure.from_spacegroup(160, lattice, species, coords)
         assert len(navs2) == 18
-        navs2.merge_sites(mode="d")
+        navs2.merge_sites(mode="delete")
         assert len(navs2) == 12
 
         # Test that we can average the site properties that are floats
@@ -1676,7 +1680,7 @@ class TestStructure(PymatgenTest):
         site_props = {"prop1": [3.0, 5.0, 7.0, 11.0]}
         navs2 = Structure.from_spacegroup(160, lattice, species, coords, site_properties=site_props)
         navs2.insert(0, "Na", coords[0], properties={"prop1": 100.0})
-        navs2.merge_sites(mode="a")
+        navs2.merge_sites(mode="average")
         assert len(navs2) == 12
         assert 51.5 in [itr.properties["prop1"] for itr in navs2]
 
