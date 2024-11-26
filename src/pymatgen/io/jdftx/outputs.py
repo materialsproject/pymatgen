@@ -23,6 +23,8 @@ if TYPE_CHECKING:
 
     import numpy as np
 
+    from pymatgen.core.structure import Structure
+    from pymatgen.core.trajectory import Trajectory
     from pymatgen.io.jdftx.jelstep import JElSteps
     from pymatgen.io.jdftx.jminsettings import (
         JMinSettingsElectronic,
@@ -102,6 +104,7 @@ class JDFTXOutfile:
         is_metal (bool): True if fillings of homo and lumo band-states are off-set by 1 and 0 by at least an arbitrary
             tolerance of 0.01 (ie 1 - 0.015 and 0.012 for homo/lumo fillings would be metallic, while 1-0.001 and 0
             would not be). (Only available if eigstats was dumped).
+        is_converged (bool): True if most recent SCF cycle converged (and geom forces converged is calc is geom_opt)
         etype (str): String representation of total energy-type of system. Commonly "G" (grand-canonical potential) for
             GC calculations, and "F" for canonical (fixed electron count) calculations.
         broadening_type (str): Type of broadening for electronic filling about Fermi-level requested. Either "Fermi",
@@ -135,6 +138,8 @@ class JDFTXOutfile:
         atom_coords_initial (list[list[float]]): The initial atomic coordinates of the most recent JDFTx call.
         atom_coords_final (list[list[float]]): The final atomic coordinates of the most recent JDFTx call.
         atom_coords (list[list[float]]): The atomic coordinates of the most recent JDFTx call.
+        structure (Structure): The updated pymatgen Structure object of the most recent JDFTx call.
+        trajectory (Trajectory): The Trajectory object of the most recent JDFTx call.
         has_solvation (bool): True if the most recent JDFTx call included a solvation calculation.
         fluid (str): The fluid used in the most recent JDFTx call.
         is_gc (bool): True if the most recent slice is a grand canonical calculation.
@@ -196,6 +201,22 @@ class JDFTXOutfile:
             JDFTXOutfileSlice._from_out_slice(text, is_bgw=is_bgw, none_on_error=none_slice_on_error) for text in texts
         ]
         return cls(slices=slices)
+
+    def to_dict(self) -> dict:
+        """
+        Convert the JDFTXOutfile object to a dictionary.
+
+        Returns:
+            dict: A dictionary representation of the JDFTXOutfile object.
+        """
+        dct = {}
+        for fld in self.__dataclass_fields__:
+            value = getattr(self, fld)
+            dct[fld] = value
+
+        for name, _obj in inspect.getmembers(type(self), lambda o: isinstance(o, property)):
+            dct[name] = getattr(self, name)
+        return dct
 
     ###########################################################################
     # Properties inherited from most recent JDFTXOutfileSlice
@@ -574,6 +595,18 @@ class JDFTXOutfile:
         raise AttributeError("Property is_metal inaccessible due to empty slices class field")
 
     @property
+    def is_converged(self) -> bool | None:
+        """Return True if calculation converged.
+
+        Returns:
+            bool: True if the electronic and geometric optimization have converged (or only the former if a single-point
+            calculation).
+        """
+        if len(self.slices):
+            return self.slices[-1].is_converged
+        raise AttributeError("Property is_converged inaccessible due to empty slices class field")
+
+    @property
     def etype(self) -> str | None:
         """
         Return etype from most recent JOutStructure.
@@ -908,6 +941,36 @@ class JDFTXOutfile:
         if len(self.slices):
             return self.slices[-1].atom_coords
         raise AttributeError("Property atom_coords inaccessible due to empty slices class field")
+
+    @property
+    def structure(self) -> Structure:
+        """
+        Returns the structure from the most recent JOutStructure.
+
+        Returns:
+            Structure: The structure from the most recent JOutStructure.
+
+        Raises:
+            AttributeError: If the slices class field is empty.
+        """
+        if len(self.slices):
+            return self.slices[-1].structure
+        raise AttributeError("Property structure inaccessible due to empty slices class field")
+
+    @property
+    def trajectory(self) -> Trajectory:
+        """
+        Returns the trajectory from the most recent JOutStructure.
+
+        Returns:
+            Trajectory: The trajectory from the most recent JOutStructure.
+
+        Raises:
+            AttributeError: If the slices class field is empty.
+        """
+        if len(self.slices):
+            return self.slices[-1].trajectory
+        raise AttributeError("Property trajectory inaccessible due to empty slices class field")
 
     @property
     def has_solvation(self) -> bool:
