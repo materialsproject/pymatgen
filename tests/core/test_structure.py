@@ -29,6 +29,7 @@ from pymatgen.core.structure import (
 from pymatgen.electronic_structure.core import Magmom
 from pymatgen.io.ase import AseAtomsAdaptor
 from pymatgen.io.cif import CifParser
+from pymatgen.io.vasp.inputs import Poscar
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
 from pymatgen.util.testing import TEST_FILES_DIR, VASP_IN_DIR, PymatgenTest
 
@@ -1683,6 +1684,37 @@ class TestStructure(PymatgenTest):
         struct_navs2.merge_sites(mode="average")
         assert len(struct_navs2) == 12
         assert any(math.isclose(site.properties["prop1"], 51.5) for site in struct_navs2)
+
+        # Test property handling for np.array (selective dynamics)
+        poscar_str_0 = """Test POSCAR
+1.0
+3.840198 0.000000 0.000000
+1.920099 3.325710 0.000000
+0.000000 -2.217138 3.135509
+1 1
+Selective dynamics
+direct
+0.000000 0.000000 0.000000 T T T Si
+0.750000 0.500000 0.750000 F F F O
+"""
+        poscar_str_1 = """offset a bit
+1.0
+3.840198 0.000000 0.000000
+1.920099 3.325710 0.000000
+0.000000 -2.217138 3.135509
+1 1
+Selective dynamics
+direct
+0.100000 0.000000 0.000000 T T T Si
+0.750000 0.500000 0.750000 F F F O
+"""
+
+        struct_0 = Poscar.from_str(poscar_str_0).structure
+        struct_1 = Poscar.from_str(poscar_str_1).structure
+
+        for site in struct_0:
+            struct_1.append(site.species, site.frac_coords, properties=site.properties)
+        struct_1.merge_sites(mode="average")
 
     def test_properties(self):
         assert self.struct.num_sites == len(self.struct)
