@@ -48,7 +48,7 @@ from pymatgen.util.coord import all_distances, get_angle, lattice_points_in_supe
 
 if TYPE_CHECKING:
     from collections.abc import Callable, Iterable, Iterator, Sequence
-    from typing import Any, SupportsIndex
+    from typing import Any, ClassVar, SupportsIndex
 
     import pandas as pd
     from ase import Atoms
@@ -216,7 +216,7 @@ class SiteCollection(collections.abc.Sequence, ABC):
     """
 
     # Tolerance in Angstrom for determining if sites are too close
-    DISTANCE_TOLERANCE = 0.5
+    DISTANCE_TOLERANCE: ClassVar[float] = 0.5
     _properties: dict
 
     def __contains__(self, site: object) -> bool:
