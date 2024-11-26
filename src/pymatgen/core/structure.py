@@ -48,7 +48,7 @@ from pymatgen.util.coord import all_distances, get_angle, lattice_points_in_supe
 
 if TYPE_CHECKING:
     from collections.abc import Callable, Iterable, Iterator, Sequence
-    from typing import Any, ClassVar, SupportsIndex
+    from typing import Any, ClassVar, SupportsIndex, TypeAlias
 
     import pandas as pd
     from ase import Atoms
@@ -61,7 +61,7 @@ if TYPE_CHECKING:
 
     from pymatgen.util.typing import CompositionLike, MillerIndex, PathLike, PbcLike, SpeciesLike
 
-FileFormats = Literal[
+FileFormats: TypeAlias = Literal[
     "cif",
     "poscar",
     "cssr",
@@ -75,7 +75,7 @@ FileFormats = Literal[
     "aims",
     "",
 ]
-StructureSources = Literal["Materials Project", "COD"]
+StructureSources: TypeAlias = Literal["Materials Project", "COD"]
 
 
 class Neighbor(Site):
