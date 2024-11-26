@@ -169,7 +169,11 @@ class TranslateSitesTransformation(AbstractTransformation):
             for idx, idx in enumerate(self.indices_to_move):
                 struct.translate_sites(idx, self.translation_vector[idx], self.vector_in_frac_coords)
         else:
-            struct.translate_sites(self.indices_to_move, self.translation_vector, self.vector_in_frac_coords)
+            struct.translate_sites(
+                self.indices_to_move,
+                self.translation_vector,
+                self.vector_in_frac_coords,
+            )
         return struct
 
     def __repr__(self):
@@ -351,7 +355,12 @@ class PartialRemoveSitesTransformation(AbstractTransformation):
         m_list = [[0, num, list(indices), None] for indices, num in num_remove_dict.items()]
 
         self.logger.debug("Calling EwaldMinimizer...")
-        minimizer = EwaldMinimizer(ewald_matrix, m_list, num_to_return, PartialRemoveSitesTransformation.ALGO_FAST)
+        minimizer = EwaldMinimizer(
+            ewald_matrix,
+            m_list,
+            num_to_return,
+            PartialRemoveSitesTransformation.ALGO_FAST,
+        )
         self.logger.debug(f"Minimizing Ewald took {time.perf_counter() - start_time} seconds.")
 
         all_structures = []
@@ -371,7 +380,13 @@ class PartialRemoveSitesTransformation(AbstractTransformation):
             struct.remove_sites(del_indices)
             struct = struct.get_sorted_structure()
             e_above_min = (output[0] - lowest_energy) / num_atoms
-            all_structures.append({"energy": output[0], "energy_above_minimum": e_above_min, "structure": struct})
+            all_structures.append(
+                {
+                    "energy": output[0],
+                    "energy_above_minimum": e_above_min,
+                    "structure": struct,
+                }
+            )
 
         return all_structures
 
@@ -411,9 +426,9 @@ class PartialRemoveSitesTransformation(AbstractTransformation):
         total_combos = 0
         for idx, frac in zip(self.indices, self.fractions, strict=True):
             n_to_remove = len(idx) * frac
-            if abs(n_to_remove - int(round(n_to_remove))) > 1e-3:
+            if abs(n_to_remove - round(n_to_remove)) > 1e-3:
                 raise ValueError("Fraction to remove must be consistent with integer amounts in structure.")
-            n_to_remove = int(round(n_to_remove))
+            n_to_remove = round(n_to_remove)
             num_remove_dict[tuple(idx)] = n_to_remove
             n = len(idx)
             total_combos += int(

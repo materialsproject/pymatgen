@@ -167,7 +167,10 @@ if __name__ == "__main__":
 
         # Setup the random environment
         lgf.setup_test_perfect_environment(
-            cg_symbol, randomness=True, indices=range(cg.coordination_number), max_random_dist=0.05
+            cg_symbol,
+            randomness=True,
+            indices=range(cg.coordination_number),
+            max_random_dist=0.05,
         )
         lgf.perfect_geometry = AbstractGeometry.from_cg(cg=cg)
         points_perfect = lgf.perfect_geometry.points_wcs_ctwcc()
@@ -201,7 +204,8 @@ if __name__ == "__main__":
 
             # Setup of safe permutations
             permutations = algo.safe_separation_permutations(
-                ordered_plane=algo.ordered_plane, ordered_point_groups=algo.ordered_point_groups
+                ordered_plane=algo.ordered_plane,
+                ordered_point_groups=algo.ordered_point_groups,
             )
             algo._permutations = permutations
             print(f"Safe permutations found ({len(permutations)})")
@@ -234,7 +238,10 @@ if __name__ == "__main__":
                 )
 
                 sym_measures = [c["symmetry_measure"] for c in csms]
-                prt1(string="Continuous symmetry measures", printing_volume=printing_volume)
+                prt1(
+                    string="Continuous symmetry measures",
+                    printing_volume=printing_volume,
+                )
                 prt1(string=sym_measures, printing_volume=printing_volume)
                 csms_with_recorded_permutation: list = []
                 explicit_permutations = []
@@ -345,7 +352,11 @@ if __name__ == "__main__":
                 )
                 # Setup of the local and perfect geometries
                 lgf.setup_test_perfect_environment(
-                    cg_symbol, indices=indices_perm, randomness=True, max_random_dist=0.02, random_rotation=True
+                    cg_symbol,
+                    indices=indices_perm,
+                    randomness=True,
+                    max_random_dist=0.02,
+                    random_rotation=True,
                 )
                 lgf.perfect_geometry = AbstractGeometry.from_cg(cg=cg)
                 points_perfect = lgf.perfect_geometry.points_wcs_ctwcc()

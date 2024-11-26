@@ -30,7 +30,7 @@ class BondDissociationEnergies(MSONable):
     fragments, or, in the case of a ring bond, from the energy of the molecule obtained from breaking
     the bond and opening the ring. This class should only be called after the energies of the optimized
     principle molecule and all relevant optimized fragments have been determined, either from quantum
-    chemistry or elsewhere. It was written to provide the analysis after running an Atomate fragmentation
+    chemistry or elsewhere. It was written to provide the analysis after running an `atomate` fragmentation
     workflow.
     """
 
@@ -83,9 +83,19 @@ class BondDissociationEnergies(MSONable):
         elif final_charge == 0:
             self.expected_charges = [-2, -1, 0, 1, 2]
         elif final_charge < 0:
-            self.expected_charges = [final_charge - 1, final_charge, final_charge + 1, final_charge + 2]
+            self.expected_charges = [
+                final_charge - 1,
+                final_charge,
+                final_charge + 1,
+                final_charge + 2,
+            ]
         else:
-            self.expected_charges = [final_charge - 2, final_charge - 1, final_charge, final_charge + 1]
+            self.expected_charges = [
+                final_charge - 2,
+                final_charge - 1,
+                final_charge,
+                final_charge + 1,
+            ]
 
         # Build principle molecule graph
         self.mol_graph = MoleculeGraph.from_local_env_strategy(Molecule.from_dict(final_mol), OpenBabelNN())

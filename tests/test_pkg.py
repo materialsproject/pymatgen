@@ -5,15 +5,17 @@ from glob import glob
 
 import pytest
 
-src_txt_path = "pymatgen.egg-info/SOURCES.txt"
-src_txt_missing = not os.path.isfile(src_txt_path)
+SRC_TXT_PATH = "src/pymatgen.egg-info/SOURCES.txt"
 
 
-@pytest.mark.skipif(src_txt_missing, reason=f"{src_txt_path} not found. Run `pip install .` to create")
+@pytest.mark.skipif(
+    not os.path.isfile(SRC_TXT_PATH),
+    reason=f"{SRC_TXT_PATH=} not found. Run `pip install .` to create",
+)
 def test_egg_sources_txt_is_complete():
     """Check that all source and data files in pymatgen/ are listed in pymatgen.egg-info/SOURCES.txt."""
 
-    with open(src_txt_path) as file:
+    with open(SRC_TXT_PATH, encoding="utf-8") as file:
         sources = file.read()
 
     # check that all files listed in SOURCES.txt exist
@@ -28,6 +30,6 @@ def test_egg_sources_txt_is_complete():
                 continue
             if unix_path not in sources:
                 raise ValueError(
-                    f"{unix_path} not found in {src_txt_path}. check setup.py package_data for "
+                    f"{unix_path} not found in {SRC_TXT_PATH}. check setup.py package_data for "
                     "outdated inclusion rules."
                 )

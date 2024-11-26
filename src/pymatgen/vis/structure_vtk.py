@@ -229,7 +229,7 @@ class StructureVis:
 
         matrix = struct.lattice.matrix if has_lattice else None
 
-        if self.show_unit_cell and has_lattice:
+        if self.show_unit_cell and has_lattice and matrix is not None:
             self.add_text([0, 0, 0], "o")
             for vec in matrix:
                 self.add_line((0, 0, 0), vec, colors[count])
@@ -283,7 +283,7 @@ class StructureVis:
 
         camera = self.ren.GetActiveCamera()
         if reset_camera:
-            if has_lattice:
+            if has_lattice and matrix is not None:
                 # Adjust the camera for best viewing
                 lengths = struct.lattice.abc
                 pos = (matrix[1] + matrix[2]) * 0.5 + matrix[0] * max(lengths) / lengths[0] * 3.5
@@ -357,7 +357,7 @@ class StructureVis:
         Adding a partial sphere (to display partial occupancies.
 
         Args:
-            coords (nd.array): Coordinates
+            coords (np.array): Coordinates
             radius (float): Radius of sphere
             color (tuple): RGB color of sphere
             start (float): Starting angle.
@@ -855,7 +855,15 @@ class StructureInteractorStyle(TrackballCamera):
         self.OnKeyPress()
 
 
-def make_movie(structures, output_filename="movie.mp4", zoom=1.0, fps=20, bitrate="10000k", quality=1, **kwargs):
+def make_movie(
+    structures,
+    output_filename="movie.mp4",
+    zoom=1.0,
+    fps=20,
+    bitrate="10000k",
+    quality=1,
+    **kwargs,
+):
     """
     Generate a movie from a sequence of structures using vtk and ffmpeg.
 
@@ -881,7 +889,19 @@ def make_movie(structures, output_filename="movie.mp4", zoom=1.0, fps=20, bitrat
         vis.set_structure(site)
         vis.write_image(filename.format(idx), 3)
     filename = f"image%0{sig_fig}d.png"
-    args = ["ffmpeg", "-y", "-i", filename, "-q:v", str(quality), "-r", str(fps), "-b:v", str(bitrate), output_filename]
+    args = [
+        "ffmpeg",
+        "-y",
+        "-i",
+        filename,
+        "-q:v",
+        str(quality),
+        "-r",
+        str(fps),
+        "-b:v",
+        str(bitrate),
+        output_filename,
+    ]
     with subprocess.Popen(args) as process:
         process.communicate()
 

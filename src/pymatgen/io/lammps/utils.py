@@ -350,7 +350,10 @@ class PackmolRunner:
             self.map_residue_to_mol[f"ml{idx + 1}"] = lookup[mol.formula]
 
     def convert_obatoms_to_molecule(
-        self, atoms: Sequence, residue_name: str | None = None, site_property: str = "ff_map"
+        self,
+        atoms: Sequence,
+        residue_name: str | None = None,
+        site_property: str = "ff_map",
     ) -> Molecule:
         """
         Convert list of openbabel atoms to Molecule.

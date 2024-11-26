@@ -96,7 +96,8 @@ class TestVasprun(PymatgenTest):
 
     def test_multiple_dielectric(self):
         vasp_run = Vasprun(f"{VASP_OUT_DIR}/vasprun.GW0.xml.gz")
-        assert len(vasp_run.other_dielectric) == 3
+        assert len(vasp_run.dielectric_data) == 4
+        assert "HEAD OF MICROSCOPIC DIELECTRIC TENSOR (INDEPENDENT PARTICLE)" in vasp_run.dielectric_data
 
     def test_charge_charge_dielectric(self):
         """
@@ -112,15 +113,20 @@ class TestVasprun(PymatgenTest):
         assert "density" in vasp_run.dielectric_data
         assert "velocity" in vasp_run.dielectric_data
 
-    def test_optical_absorption_coeff(self):
+    def test_BSE(self):
         vasp_run = Vasprun(f"{VASP_OUT_DIR}/vasprun.BSE.xml.gz")
         absorption_coeff = vasp_run.optical_absorption_coeff
         assert absorption_coeff[1] == 0.8327903762077188
         assert vasp_run.final_structure == vasp_run.initial_structure
+        assert "freq_dependent" in vasp_run.dielectric_data
 
     def test_vasprun_with_more_than_two_unlabelled_dielectric_functions(self):
-        with pytest.raises(NotImplementedError, match="This vasprun.xml has >2 unlabelled dielectric functions"):
-            Vasprun(f"{VASP_OUT_DIR}/vasprun.dielectric_bad.xml.gz")
+        with pytest.warns(
+            UserWarning,
+            match="Additional unlabelled dielectric data in vasprun.xml are stored as unlabelled.",
+        ):
+            vr = Vasprun(f"{VASP_OUT_DIR}/vasprun.dielectric_bad.xml.gz")
+            assert "unlabelled" in vr.dielectric_data
 
     def test_bad_vasprun(self):
         with pytest.raises(ET.ParseError):
@@ -298,7 +304,7 @@ class TestVasprun(PymatgenTest):
 
         # Test with ionic_step_offset
         vasprun_offset = Vasprun(filepath, 3, 6, parse_potcar_file=False)
-        assert len(vasprun_offset.ionic_steps) == int(len(vasp_run.ionic_steps) / 3) - 1
+        assert len(vasprun_offset.ionic_steps) == len(vasp_run.ionic_steps) // 3 - 1
         assert vasprun_offset.structures[0] == vasprun_skip.structures[2]
 
         assert vasprun_ggau.is_hubbard
@@ -315,7 +321,8 @@ class TestVasprun(PymatgenTest):
     def test_unconverged(self):
         filepath = f"{VASP_OUT_DIR}/vasprun.unconverged.xml.gz"
         with pytest.warns(
-            UnconvergedVASPWarning, match="vasprun.unconverged.xml.gz is an unconverged VASP run"
+            UnconvergedVASPWarning,
+            match="vasprun.unconverged.xml.gz is an unconverged VASP run",
         ) as warns:
             vasprun_unconverged = Vasprun(filepath, parse_potcar_file=False)
         assert len(warns) >= 1
@@ -324,6 +331,7 @@ class TestVasprun(PymatgenTest):
         assert not vasprun_unconverged.converged_electronic
         assert not vasprun_unconverged.converged
 
+    @pytest.mark.filterwarnings("ignore:MaterialsProjectCompatibility is deprecated")
     def test_dfpt(self):
         filepath = f"{VASP_OUT_DIR}/vasprun.dfpt.xml.gz"
         vasprun_dfpt = Vasprun(filepath, parse_potcar_file=False)
@@ -356,7 +364,7 @@ class TestVasprun(PymatgenTest):
     def test_chi(self):
         filepath = f"{VASP_OUT_DIR}/vasprun.chi.xml.gz"
         vasprun_chi = Vasprun(filepath, parse_potcar_file=False)
-        assert vasprun_chi.incar.get("ALGO", ""), "CHI"
+        assert vasprun_chi.incar.get("ALGO") == "Chi"
 
     def test_uniform(self):
         vasprun_uniform = Vasprun(f"{VASP_OUT_DIR}/vasprun.uniform.xml.gz", parse_potcar_file=False)
@@ -389,7 +397,7 @@ class TestVasprun(PymatgenTest):
         assert approx(vasprun_diel.dielectric_data["density"][1][51][0]) == 5.267
         assert approx(vasprun_diel.dielectric_data["velocity"][0][10]) == 0.4338
         assert approx(vasprun_diel.dielectric_data["velocity"][1][51][0]) == 1.0741
-        assert len(vasprun_diel.other_dielectric) == 0
+        assert len(vasprun_diel.dielectric_data) == 2
 
     def test_indirect_vasprun(self):
         vasp_run = Vasprun(f"{VASP_OUT_DIR}/vasprun.indirect.xml.gz")
@@ -421,7 +429,11 @@ class TestVasprun(PymatgenTest):
         assert vasprun_fc.force_constants.shape == (16, 16, 3, 3)
         assert_allclose(
             vasprun_fc.force_constants[8, 9],
-            [[-0.00184451, 0, 0], [0, -0.00933824, -0.03021279], [0, -0.03021279, 0.01202547]],
+            [
+                [-0.00184451, 0, 0],
+                [0, -0.00933824, -0.03021279],
+                [0, -0.03021279, 0.01202547],
+            ],
         )
         assert vasprun_fc.normalmode_eigenvals.size == 48
         assert_allclose(
@@ -481,7 +493,13 @@ class TestVasprun(PymatgenTest):
         vasp_run = Vasprun(filepath, parse_potcar_file=False)
         # Test that as_dict() is json-serializable
         assert json.dumps(vasp_run.as_dict()) is not None
-        assert vasp_run.as_dict()["input"]["potcar_type"] == ["PAW_PBE", "PAW_PBE", "PAW_PBE", "PAW_PBE", "PAW_PBE"]
+        assert vasp_run.as_dict()["input"]["potcar_type"] == [
+            "PAW_PBE",
+            "PAW_PBE",
+            "PAW_PBE",
+            "PAW_PBE",
+            "PAW_PBE",
+        ]
         assert vasp_run.as_dict()["input"]["nkpoints"] == 24
 
     def test_get_band_structure(self):
@@ -495,7 +513,10 @@ class TestVasprun(PymatgenTest):
         assert cbm["band_index"] == {Spin.up: [4], Spin.down: [4]}, "wrong cbm bands"
         assert vbm["kpoint_index"] == [0, 63, 64]
         assert vbm["energy"] == approx(5.6158), "wrong vbm energy"
-        assert vbm["band_index"] == {Spin.up: [1, 2, 3], Spin.down: [1, 2, 3]}, "wrong vbm bands"
+        assert vbm["band_index"] == {
+            Spin.up: [1, 2, 3],
+            Spin.down: [1, 2, 3],
+        }, "wrong vbm bands"
         assert vbm["kpoint"].label == "\\Gamma", "wrong vbm label"
         assert cbm["kpoint"].label is None, "wrong cbm label"
 
@@ -510,12 +531,16 @@ class TestVasprun(PymatgenTest):
         # Check for error if no KPOINTS file
         vasp_run = Vasprun("vasprun.xml.gz", parse_projected_eigen=True, parse_potcar_file=False)
         with pytest.raises(
-            VaspParseError, match="KPOINTS not found but needed to obtain band structure along symmetry lines"
+            VaspParseError,
+            match="KPOINTS not found but needed to obtain band structure along symmetry lines",
         ):
             _ = vasp_run.get_band_structure(line_mode=True)
 
         # Check KPOINTS.gz successfully inferred and used if present
-        with open(f"{VASP_IN_DIR}/KPOINTS_Si_bands", "rb") as f_in, gzip.open("KPOINTS.gz", "wb") as f_out:
+        with (
+            open(f"{VASP_IN_DIR}/KPOINTS_Si_bands", "rb") as f_in,
+            gzip.open("KPOINTS.gz", "wb") as f_out,
+        ):
             copyfileobj(f_in, f_out)
         bs_kpts_gzip = vasp_run.get_band_structure()
         assert band_struct.efermi == bs_kpts_gzip.efermi
@@ -634,7 +659,13 @@ class TestVasprun(PymatgenTest):
             for potcar in potcars:
                 if titel == potcar.TITEL:
                     break
-            expected_spec += [{"titel": titel, "hash": potcar.md5_header_hash, "summary_stats": potcar._summary_stats}]
+            expected_spec += [
+                {
+                    "titel": titel,
+                    "hash": potcar.md5_header_hash,
+                    "summary_stats": potcar._summary_stats,
+                }
+            ]
         assert vasp_run.potcar_spec == expected_spec
 
         with pytest.warns(UserWarning, match="No POTCAR file with matching TITEL fields was found in"):
@@ -763,7 +794,10 @@ class TestVasprun(PymatgenTest):
         assert cbm["band_index"] == {Spin.up: [16], Spin.down: [16]}, "wrong cbm bands"
         assert vbm["kpoint_index"] == [0, 39, 40]
         assert vbm["energy"] == approx(5.7562), "wrong vbm energy"
-        assert vbm["band_index"] == {Spin.down: [13, 14, 15], Spin.up: [13, 14, 15]}, "wrong vbm bands"
+        assert vbm["band_index"] == {
+            Spin.down: [13, 14, 15],
+            Spin.up: [13, 14, 15],
+        }, "wrong vbm bands"
         vbm_kp_label = vbm["kpoint"].label
         assert vbm["kpoint"].label == "\\Gamma", f"Unpexpected {vbm_kp_label=}"
         cmb_kp_label = cbm["kpoint"].label
@@ -1179,7 +1213,11 @@ class TestOutcar(PymatgenTest):
         filename = f"{TEST_DIR}/fixtures/nmr/cs/core.diff/core.diff.chemical.shifts.OUTCAR"
         outcar = Outcar(filename)
         core_contrib = outcar.data["cs_core_contribution"]
-        assert core_contrib == {"Mg": -412.8248405, "C": -200.5098812, "O": -271.0766979}
+        assert core_contrib == {
+            "Mg": -412.8248405,
+            "C": -200.5098812,
+            "O": -271.0766979,
+        }
 
     def test_nmr_efg(self):
         filename = f"{TEST_DIR}/fixtures/nmr/efg/AlPO4/OUTCAR"
@@ -1360,7 +1398,11 @@ class TestOutcar(PymatgenTest):
         assert pots == ref_last
 
         pots = outcar.read_table_pattern(
-            header_pattern, table_pattern, footer_pattern, last_one_only=False, first_one_only=True
+            header_pattern,
+            table_pattern,
+            footer_pattern,
+            last_one_only=False,
+            first_one_only=True,
         )
         ref_first = [
             ["       1 -26.1149       2 -45.5359       3 -45.5359       4 -72.9831       5 -73.1068"],
@@ -1368,9 +1410,16 @@ class TestOutcar(PymatgenTest):
         ]
         assert pots == ref_first
 
-        with pytest.raises(ValueError, match="last_one_only and first_one_only options are incompatible"):
+        with pytest.raises(
+            ValueError,
+            match="last_one_only and first_one_only options are incompatible",
+        ):
             outcar.read_table_pattern(
-                header_pattern, table_pattern, footer_pattern, last_one_only=True, first_one_only=True
+                header_pattern,
+                table_pattern,
+                footer_pattern,
+                last_one_only=True,
+                first_one_only=True,
             )
 
 
@@ -1386,7 +1435,10 @@ class TestBSVasprun(PymatgenTest):
         assert cbm["band_index"] == {Spin.up: [4], Spin.down: [4]}, "wrong cbm bands"
         assert vbm["kpoint_index"] == [0, 63, 64]
         assert vbm["energy"] == approx(5.6158), "wrong vbm energy"
-        assert vbm["band_index"] == {Spin.up: [1, 2, 3], Spin.down: [1, 2, 3]}, "wrong vbm bands"
+        assert vbm["band_index"] == {
+            Spin.up: [1, 2, 3],
+            Spin.down: [1, 2, 3],
+        }, "wrong vbm bands"
         assert vbm["kpoint"].label == "\\Gamma", "wrong vbm label"
         assert cbm["kpoint"].label is None, "wrong cbm label"
         dct = vasprun.as_dict()
@@ -1406,7 +1458,10 @@ class TestBSVasprun(PymatgenTest):
         # So at one point it called the empty key.
         assert vbm["kpoint_index"] == [0, 39, 40]
         assert vbm["energy"] == approx(5.7562), "wrong vbm energy"
-        assert vbm["band_index"] == {Spin.down: [13, 14, 15], Spin.up: [13, 14, 15]}, "wrong vbm bands"
+        assert vbm["band_index"] == {
+            Spin.down: [13, 14, 15],
+            Spin.up: [13, 14, 15],
+        }, "wrong vbm bands"
         assert vbm["kpoint"].label == "\\Gamma", "wrong vbm label"
         assert cbm["kpoint"].label is None, "wrong cbm label"
         # Test projection
@@ -1484,7 +1539,14 @@ class TestChgcar(PymatgenTest):
         chgcar = self.chgcar_spin - self.chgcar_spin
         assert chgcar.get_integrated_diff(0, 1)[0, 1] == approx(0)
 
-        expected = [1.56472768, 3.25985108, 3.49205728, 3.66275028, 3.8045896, 5.10813352]
+        expected = [
+            1.56472768,
+            3.25985108,
+            3.49205728,
+            3.66275028,
+            3.8045896,
+            5.10813352,
+        ]
         actual = self.chgcar_fe3o4.get_integrated_diff(0, 3, 6)
         assert_allclose(actual[:, 1], expected)
 
@@ -1496,7 +1558,13 @@ class TestChgcar(PymatgenTest):
                     assert line == "augmentation occupancies   1  15\n"
 
     def test_soc_chgcar(self):
-        assert set(self.chgcar_NiO_soc.data) == {"total", "diff_x", "diff_y", "diff_z", "diff"}
+        assert set(self.chgcar_NiO_soc.data) == {
+            "total",
+            "diff_x",
+            "diff_y",
+            "diff_z",
+            "diff",
+        }
         assert self.chgcar_NiO_soc.is_soc
         assert self.chgcar_NiO_soc.data["diff"].shape == self.chgcar_NiO_soc.data["diff_y"].shape
 
@@ -1550,11 +1618,13 @@ class TestChgcar(PymatgenTest):
             chgcar_sum = chgcar_copy + self.chgcar_spin
         assert len(warns) == 1
         with pytest.raises(
-            ValueError, match=r"operands could not be broadcast together with shapes \(48,48,48\) \(72,72,72\)"
+            ValueError,
+            match=r"operands could not be broadcast together with shapes \(48,48,48\) \(72,72,72\)",
         ):
             _ = self.chgcar_spin + self.chgcar_fe3o4
         with pytest.raises(
-            ValueError, match="Data have different keys! Maybe one is spin-polarized and the other is not"
+            ValueError,
+            match="Data have different keys! Maybe one is spin-polarized and the other is not",
         ):
             _ = self.chgcar_spin + self.chgcar_no_spin
 
@@ -1644,7 +1714,10 @@ class TestProcar(PymatgenTest):
         assert procar.xyz_data["z"][0, 1, 1, 1] == approx(0)
 
     def test_multiple_procars(self):
-        filepaths = [f"{VASP_OUT_DIR}/PROCAR.split1.gz", f"{VASP_OUT_DIR}/PROCAR.split2.gz"]
+        filepaths = [
+            f"{VASP_OUT_DIR}/PROCAR.split1.gz",
+            f"{VASP_OUT_DIR}/PROCAR.split2.gz",
+        ]
         procar = Procar(filepaths)
         assert procar.nions == 4
         assert procar.nkpoints == 96  # 96 overall, 48 in first PROCAR, 96 in second (48 duplicates)
@@ -1766,7 +1839,13 @@ class TestWavecar(PymatgenTest):
         wavecar = self.wavecar
         a = np.array([[10.0, 0.0, 0.0], [0.0, 10.0, 0.0], [0.0, 0.0, 10.0]])
         vol = np.dot(a[0, :], np.cross(a[1, :], a[2, :]))
-        b = np.array([np.cross(a[1, :], a[2, :]), np.cross(a[2, :], a[0, :]), np.cross(a[0, :], a[1, :])])
+        b = np.array(
+            [
+                np.cross(a[1, :], a[2, :]),
+                np.cross(a[2, :], a[0, :]),
+                np.cross(a[0, :], a[1, :]),
+            ]
+        )
         b = 2 * np.pi * b / vol
 
         assert wavecar.filename == f"{VASP_OUT_DIR}/WAVECAR.N2"
@@ -1797,7 +1876,10 @@ class TestWavecar(PymatgenTest):
         with pytest.raises(ValueError, match="invalid vasp_type='poop'"):
             Wavecar(f"{VASP_OUT_DIR}/WAVECAR.N2", vasp_type="poop")
 
-        with pytest.raises(ValueError, match=r"Incorrect vasp_type='g'. Please open an issue if you are certain"):
+        with pytest.raises(
+            ValueError,
+            match=r"Incorrect vasp_type='g'. Please open an issue if you are certain",
+        ):
             Wavecar(f"{VASP_OUT_DIR}/WAVECAR.N2", vasp_type="g")
 
         with pytest.raises(ValueError, match=r"cannot reshape array of size 257 into shape \(2,128\)"):

@@ -10,6 +10,7 @@ from __future__ import annotations
 
 import abc
 import logging
+import math
 import os
 import sys
 import warnings
@@ -227,7 +228,12 @@ class FEFFDictSet(AbstractFeffInputSet):
         Returns:
             Header
         """
-        return Header(self.structure, source, comment, spacegroup_analyzer_settings=self.spacegroup_analyzer_settings)
+        return Header(
+            self.structure,
+            source,
+            comment,
+            spacegroup_analyzer_settings=self.spacegroup_analyzer_settings,
+        )
 
     @property
     def tags(self) -> Tags:
@@ -245,7 +251,7 @@ class FEFFDictSet(AbstractFeffInputSet):
                 if not self.config_dict.get("KMESH"):
                     abc = self.structure.lattice.abc
                     mult = (self.nkpts * abc[0] * abc[1] * abc[2]) ** (1 / 3)
-                    self.config_dict["KMESH"] = [int(round(mult / length)) for length in abc]
+                    self.config_dict["KMESH"] = [round(mult / length) for length in abc]
             else:
                 logger.warning("Large system(>=14 atoms) or EXAFS calculation, removing K-space settings")
                 del self.config_dict["RECIPROCAL"]
@@ -309,10 +315,11 @@ class FEFFDictSet(AbstractFeffInputSet):
             distance_matrix = input_atoms.distance_matrix[0, :]
 
             # Get radius value
-            from math import ceil
-
-            radius = int(
-                ceil(input_atoms.get_distance(input_atoms.index(input_atoms[0]), input_atoms.index(input_atoms[-1])))
+            radius = math.ceil(
+                input_atoms.get_distance(
+                    input_atoms.index(input_atoms[0]),
+                    input_atoms.index(input_atoms[-1]),
+                )
             )
 
             for site_index, site in enumerate(sub_d["header"].struct):

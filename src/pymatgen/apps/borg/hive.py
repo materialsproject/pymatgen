@@ -19,7 +19,13 @@ from pymatgen.io.vasp.inputs import Incar, Poscar, Potcar
 from pymatgen.io.vasp.outputs import Dynmat, Oszicar, Vasprun
 
 if TYPE_CHECKING:
+    from collections.abc import Sequence
+    from typing import Any, Literal
+
     from typing_extensions import Self
+
+    from pymatgen.util.typing import PathLike
+
 
 logger = logging.getLogger(__name__)
 
@@ -79,12 +85,16 @@ class VaspToComputedEntryDrone(AbstractDrone):
     3. The drone parses only the vasprun.xml file.
     """
 
-    def __init__(self, inc_structure=False, parameters=None, data=None):
+    def __init__(
+        self,
+        inc_structure: bool = False,
+        parameters: list[str] | None = None,
+        data: list[str] | None = None,
+    ) -> None:
         """
         Args:
-            inc_structure (bool): Set to True if you want
-                ComputedStructureEntries to be returned instead of
-                ComputedEntries.
+            inc_structure (bool): Set to True if you want ComputedStructureEntries
+                to be returned instead of ComputedEntries.
             parameters (list): Input parameters to include. It has to be one of
                 the properties supported by the Vasprun object. See
                 pymatgen.io.vasp.Vasprun. If parameters is None,
@@ -105,7 +115,10 @@ class VaspToComputedEntryDrone(AbstractDrone):
             self._parameters.update(parameters)
         self._data = data or []
 
-    def assimilate(self, path):
+    def __str__(self) -> Literal["VaspToComputedEntryDrone"]:
+        return "VaspToComputedEntryDrone"
+
+    def assimilate(self, path: PathLike) -> ComputedStructureEntry | ComputedEntry | None:
         """Assimilate data in a directory path into a ComputedEntry object.
 
         Args:
@@ -138,7 +151,7 @@ class VaspToComputedEntryDrone(AbstractDrone):
 
         # entry.parameters["history"] = _get_transformation_history(path)
 
-    def get_valid_paths(self, path):
+    def get_valid_paths(self, path: tuple[str, str, str]) -> list[str]:
         """Check if paths contains vasprun.xml or (POSCAR+OSZICAR).
 
         Args:
@@ -162,10 +175,7 @@ class VaspToComputedEntryDrone(AbstractDrone):
             return [parent]
         return []
 
-    def __str__(self):
-        return " VaspToComputedEntryDrone"
-
-    def as_dict(self):
+    def as_dict(self) -> dict[str, Any]:
         """Get MSONable dict."""
         return {
             "init_args": {
@@ -178,7 +188,7 @@ class VaspToComputedEntryDrone(AbstractDrone):
         }
 
     @classmethod
-    def from_dict(cls, dct: dict) -> Self:
+    def from_dict(cls, dct: dict[str, Any]) -> Self:
         """
         Args:
             dct (dict): Dict Representation.
@@ -196,16 +206,19 @@ class SimpleVaspToComputedEntryDrone(VaspToComputedEntryDrone):
     compared to the standard VaspToComputedEntryDrone.
     """
 
-    def __init__(self, inc_structure=False):
+    def __init__(self, inc_structure: bool = False) -> None:
         """
         Args:
-            inc_structure (bool): Set to True if you want ComputedStructureEntries to be returned instead of
-                ComputedEntries. Structure will be parsed from the CONTCAR.
+            inc_structure (bool): Return ComputedStructureEntries (True) instead of
+                ComputedEntries (False). Structure will be parsed from the CONTCAR.
         """
         self._inc_structure = inc_structure
         self._parameters = {"is_hubbard", "hubbards", "potcar_spec", "run_type"}
 
-    def assimilate(self, path):
+    def __str__(self) -> Literal["SimpleVaspToComputedEntryDrone"]:
+        return "SimpleVaspToComputedEntryDrone"
+
+    def assimilate(self, path: PathLike) -> ComputedStructureEntry | ComputedEntry | None:
         """Assimilate data in a directory path into a ComputedEntry object.
 
         Args:
@@ -220,15 +233,18 @@ class SimpleVaspToComputedEntryDrone(VaspToComputedEntryDrone):
             filenames = {"INCAR", "POTCAR", "CONTCAR", "OSZICAR", "POSCAR", "DYNMAT"}
             if "relax1" in files and "relax2" in files:
                 for filename in ("INCAR", "POTCAR", "POSCAR"):
-                    search_str = f"{path}/relax1", f"{filename}*"
+                    search_str = f"{path}/relax1/{filename}*"
                     files_to_parse[filename] = glob(search_str)[0]
                 for filename in ("CONTCAR", "OSZICAR"):
-                    search_str = f"{path}/relax2", f"{filename}*"
+                    search_str = f"{path}/relax2/{filename}*"
                     files_to_parse[filename] = glob(search_str)[-1]
             else:
                 for filename in filenames:
                     files = sorted(glob(os.path.join(path, f"{filename}*")))
-                    if len(files) == 1 or filename in ("INCAR", "POTCAR") or (len(files) == 1 and filename == "DYNMAT"):
+                    if len(files) == 0:
+                        continue
+
+                    if len(files) == 1 or filename in {"INCAR", "POTCAR"}:
                         files_to_parse[filename] = files[0]
                     elif len(files) > 1:
                         # Since multiple files are ambiguous, we will always
@@ -251,7 +267,7 @@ class SimpleVaspToComputedEntryDrone(VaspToComputedEntryDrone):
             potcar = Potcar.from_file(files_to_parse["POTCAR"])
             oszicar = Oszicar(files_to_parse["OSZICAR"])
 
-            param = {"hubbards": {}}
+            param: dict[str, Any] = {"hubbards": {}}
             if "LDAUU" in incar:
                 param["hubbards"] = dict(zip(poscar.site_symbols, incar["LDAUU"], strict=True))
             param["is_hubbard"] = incar.get("LDAU", True) and sum(param["hubbards"].values()) > 0
@@ -271,13 +287,13 @@ class SimpleVaspToComputedEntryDrone(VaspToComputedEntryDrone):
             return ComputedEntry(structure.composition, energy, parameters=param, data=data)
 
         except Exception as exc:
+            if isinstance(exc, ValueError) and "not all necessary files are present" in str(exc):
+                raise
+
             logger.debug(f"error in {path}: {exc}")
             return None
 
-    def __str__(self):
-        return "SimpleVaspToComputedEntryDrone"
-
-    def as_dict(self):
+    def as_dict(self) -> dict[str, Any]:
         """Get MSONable dict."""
         return {
             "init_args": {"inc_structure": self._inc_structure},
@@ -286,7 +302,7 @@ class SimpleVaspToComputedEntryDrone(VaspToComputedEntryDrone):
         }
 
     @classmethod
-    def from_dict(cls, dct: dict) -> Self:
+    def from_dict(cls, dct: dict[str, Any]) -> Self:
         """
         Args:
             dct (dict): Dict Representation.
@@ -306,7 +322,13 @@ class GaussianToComputedEntryDrone(AbstractDrone):
         Like the GaussianOutput class, this is still in early beta.
     """
 
-    def __init__(self, inc_structure=False, parameters=None, data=None, file_extensions=(".log",)):
+    def __init__(
+        self,
+        inc_structure: bool = False,
+        parameters: list[str] | None = None,
+        data: list[str] | None = None,
+        file_extensions: Sequence[str] = (".log",),
+    ) -> None:
         """
         Args:
             inc_structure (bool): Set to True if you want
@@ -344,7 +366,10 @@ class GaussianToComputedEntryDrone(AbstractDrone):
 
         self._file_extensions = file_extensions
 
-    def assimilate(self, path):
+    def __str__(self) -> Literal["GaussianToComputedEntryDrone"]:
+        return "GaussianToComputedEntryDrone"
+
+    def assimilate(self, path: PathLike) -> ComputedStructureEntry | ComputedEntry | None:
         """Assimilate data in a directory path into a ComputedEntry object.
 
         Args:
@@ -358,24 +383,25 @@ class GaussianToComputedEntryDrone(AbstractDrone):
         except Exception as exc:
             logger.debug(f"error in {path}: {exc}")
             return None
-        param = {}
-        for p in self._parameters:
-            param[p] = getattr(gau_run, p)
-        data = {}
-        for d in self._data:
-            data[d] = getattr(gau_run, d)
+
+        param = {p: getattr(gau_run, p) for p in self._parameters}
+        data = {d: getattr(gau_run, d) for d in self._data}
+
         if self._inc_structure:
-            entry = ComputedStructureEntry(gau_run.final_structure, gau_run.final_energy, parameters=param, data=data)
-        else:
-            entry = ComputedEntry(
-                gau_run.final_structure.composition,
+            return ComputedStructureEntry(
+                gau_run.final_structure,
                 gau_run.final_energy,
                 parameters=param,
                 data=data,
             )
-        return entry
+        return ComputedEntry(
+            gau_run.final_structure.composition,
+            gau_run.final_energy,
+            parameters=param,
+            data=data,
+        )
 
-    def get_valid_paths(self, path):
+    def get_valid_paths(self, path: tuple[str, str, str]) -> list[str]:
         """Check if path contains files with define extensions.
 
         Args:
@@ -388,10 +414,7 @@ class GaussianToComputedEntryDrone(AbstractDrone):
         parent, _subdirs, files = path
         return [os.path.join(parent, file) for file in files if os.path.splitext(file)[1] in self._file_extensions]
 
-    def __str__(self):
-        return " GaussianToComputedEntryDrone"
-
-    def as_dict(self):
+    def as_dict(self) -> dict[str, Any]:
         """Get MSONable dict."""
         return {
             "init_args": {
@@ -405,7 +428,7 @@ class GaussianToComputedEntryDrone(AbstractDrone):
         }
 
     @classmethod
-    def from_dict(cls, dct: dict) -> Self:
+    def from_dict(cls, dct: dict[str, Any]) -> Self:
         """
         Args:
             dct (dict): Dict Representation.
@@ -416,9 +439,9 @@ class GaussianToComputedEntryDrone(AbstractDrone):
         return cls(**dct["init_args"])
 
 
-def _get_transformation_history(path):
-    """Check for a transformations.json* file and returns the history."""
-    if trans_json := glob(f"{path}/transformations.json*"):
+def _get_transformation_history(path: PathLike):
+    """Check for a transformations.json* file and return the history."""
+    if trans_json := glob(f"{path!s}/transformations.json*"):
         try:
             with zopen(trans_json[0]) as file:
                 return json.load(file)["history"]

@@ -31,7 +31,10 @@ class TestTrajectory(PymatgenTest):
         self.molecules = []
         for coord in coords:
             mol = Molecule(
-                species, coord, charge=int(last_mol.charge), spin_multiplicity=int(last_mol.spin_multiplicity)
+                species,
+                coord,
+                charge=int(last_mol.charge),
+                spin_multiplicity=int(last_mol.spin_multiplicity),
             )
             self.molecules += [mol]
 
@@ -486,14 +489,18 @@ class TestTrajectory(PymatgenTest):
             # Check composition of the first frame of the trajectory
             assert traj[0].formula == "Li2 Mn2 O4"
         except ImportError:
-            with pytest.raises(ImportError, match="ASE is required to read .traj files. pip install ase"):
+            with pytest.raises(
+                ImportError,
+                match="ASE is required to read .traj files. pip install ase",
+            ):
                 Trajectory.from_file(f"{TEST_DIR}/LiMnO2_chgnet_relax.traj")
 
     def test_index_error(self):
         with pytest.raises(IndexError, match="index=100 out of range, trajectory only has 100 frames"):
             self.traj[100]
         with pytest.raises(
-            TypeError, match=re.escape("bad index='test', expected one of [int, slice, list[int], numpy.ndarray]")
+            TypeError,
+            match=re.escape("bad index='test', expected one of [int, slice, list[int], numpy.ndarray]"),
         ):
             self.traj["test"]
 
@@ -508,7 +515,10 @@ class TestTrajectory(PymatgenTest):
         ]
 
         # Problematic Inputs
-        short_lattice = [((1, 0, 0), (0, 1, 0), (0, 0, 1)), ((1, 0, 0), (0, 1, 0), (0, 0, 1))]
+        short_lattice = [
+            ((1, 0, 0), (0, 1, 0), (0, 0, 1)),
+            ((1, 0, 0), (0, 1, 0), (0, 0, 1)),
+        ]
         unphysical_lattice = [
             ((1, 0, 0), (0, 1, 0)),
             ((1, 0, 0), (0, 1, 0)),

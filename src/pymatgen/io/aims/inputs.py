@@ -113,7 +113,12 @@ class AimsGeometryIn(MSONable):
             structure = Molecule(species, coords, np.sum(charge), site_properties=site_props)
         else:
             structure = Structure(
-                lattice, species, coords, np.sum(charge), coords_are_cartesian=True, site_properties=site_props
+                lattice,
+                species,
+                coords,
+                np.sum(charge),
+                coords_are_cartesian=True,
+                site_properties=site_props,
             )
 
         return cls(_content="\n".join(content_lines), _structure=structure)
@@ -148,28 +153,23 @@ class AimsGeometryIn(MSONable):
             for lv in structure.lattice.matrix:
                 content_lines.append(f"lattice_vector {lv[0]: .12e} {lv[1]: .12e} {lv[2]: .12e}")
 
-        charges = structure.site_properties.get("charge", np.zeros(structure.num_sites))
-        magmoms = structure.site_properties.get("magmom", [None] * structure.num_sites)
-        velocities = structure.site_properties.get("velocity", [None for _ in structure.species])
-
-        for species, coord, charge, magmom, v in zip(
-            structure.species, structure.cart_coords, charges, magmoms, velocities, strict=True
-        ):
-            if isinstance(species, Element):
-                spin = magmom
-                element = species
-            else:
-                spin = species.spin
-                element = species.element
-                if magmom is not None and magmom != spin:
+        for site in structure:
+            element = site.species_string
+            charge = site.properties.get("charge", 0)
+            spin = site.properties.get("magmom", None)
+            coord = site.coords
+            v = site.properties.get("velocity", [0.0, 0.0, 0.0])
+            if isinstance(site.specie, Species) and site.specie.spin is not None:
+                if spin is not None and spin != site.specie.spin:
                     raise ValueError("species.spin and magnetic moments don't agree. Please only define one")
+                spin = site.specie.spin
 
             content_lines.append(f"atom {coord[0]: .12e} {coord[1]: .12e} {coord[2]: .12e} {element}")
             if charge != 0:
                 content_lines.append(f"     initial_charge {charge:.12e}")
             if (spin is not None) and (spin != 0):
                 content_lines.append(f"     initial_moment {spin:.12e}")
-            if v is not None and any(v_i != 0.0 for v_i in v):
+            if (v is not None) and any(v_i != 0.0 for v_i in v):
                 content_lines.append(f"     velocity   {'  '.join([f'{v_i:.12e}' for v_i in v])}")
 
         return cls(_content="\n".join(content_lines), _structure=structure)
@@ -190,13 +190,15 @@ class AimsGeometryIn(MSONable):
         Args:
             filename (str): A name of the file for the header
         """
-        return textwrap.dedent(f"""\
+        return textwrap.dedent(
+            f"""\
         #{'=' * 72}
         # FHI-aims geometry file: {filename}
         # File generated from pymatgen
         # {time.asctime()}
         #{'=' * 72}
-        """)
+        """
+        )
 
     def write_file(self, directory: str | Path | None = None, overwrite: bool = False) -> None:
         """Write the geometry.in file.
@@ -420,7 +422,17 @@ class AimsCube(MSONable):
         Returns:
             AimsCube
         """
-        attrs = ("type", "origin", "edges", "points", "format", "spin_state", "kpoint", "filename", "elf_type")
+        attrs = (
+            "type",
+            "origin",
+            "edges",
+            "points",
+            "format",
+            "spin_state",
+            "kpoint",
+            "filename",
+            "elf_type",
+        )
         decoded = {key: MontyDecoder().process_decoded(dct[key]) for key in attrs}
 
         return cls(**decoded)
@@ -517,7 +529,10 @@ class AimsControlIn(MSONable):
         return f"{key:35s}{fmt % value}\n"
 
     def get_content(
-        self, structure: Structure | Molecule, verbose_header: bool = False, directory: str | Path | None = None
+        self,
+        structure: Structure | Molecule,
+        verbose_header: bool = False,
+        directory: str | Path | None = None,
     ) -> str:
         """Get the content of the file.
 
@@ -548,7 +563,10 @@ class AimsControlIn(MSONable):
             and np.all(magmom == 0.0)
             and ("default_initial_moment" not in parameters)
         ):
-            warn("Removing spin from parameters since no spin information is in the structure", RuntimeWarning)
+            warn(
+                "Removing spin from parameters since no spin information is in the structure",
+                RuntimeWarning,
+            )
             parameters.pop("spin")
 
         cubes = parameters.pop("cubes", None)
@@ -657,7 +675,10 @@ class AimsControlIn(MSONable):
             file.write(content)
 
     def get_species_block(
-        self, structure: Structure | Molecule, basis_set: str | dict[str, str], species_dir: str | Path | None = None
+        self,
+        structure: Structure | Molecule,
+        basis_set: str | dict[str, str],
+        species_dir: str | Path | None = None,
     ) -> str:
         """Get the basis set information for a structure
 
@@ -736,7 +757,12 @@ class AimsSpeciesFile:
 
     @classmethod
     def from_element_and_basis_name(
-        cls, element: str, basis: str, *, species_dir: str | Path | None = None, label: str | None = None
+        cls,
+        element: str,
+        basis: str,
+        *,
+        species_dir: str | Path | None = None,
+        label: str | None = None,
     ) -> Self:
         """Initialize from element and basis names.
 
@@ -782,7 +808,12 @@ class AimsSpeciesFile:
 
     def __str__(self) -> str:
         """String representation of the species' defaults file"""
-        return re.sub(r"^ *species +\w+", f"  species        {self.label}", self.data, flags=re.MULTILINE)
+        return re.sub(
+            r"^ *species +\w+",
+            f"  species        {self.label}",
+            self.data,
+            flags=re.MULTILINE,
+        )
 
     @property
     def element(self) -> str:
@@ -792,7 +823,12 @@ class AimsSpeciesFile:
 
     def as_dict(self) -> dict[str, Any]:
         """Dictionary representation of the species' defaults file."""
-        return {"label": self.label, "data": self.data, "@module": type(self).__module__, "@class": type(self).__name__}
+        return {
+            "label": self.label,
+            "data": self.data,
+            "@module": type(self).__module__,
+            "@class": type(self).__name__,
+        }
 
     @classmethod
     def from_dict(cls, dct: dict[str, Any]) -> Self:
@@ -860,20 +896,20 @@ class SpeciesDefaults(list, MSONable):
 
     @classmethod
     def from_structure(
-        cls, struct: Structure | Molecule, basis_set: str | dict[str, str], species_dir: str | Path | None = None
+        cls,
+        struct: Structure | Molecule,
+        basis_set: str | dict[str, str],
+        species_dir: str | Path | None = None,
     ):
         """Initialize species defaults from a structure."""
         labels = []
         elements = {}
-        for label, el in sorted(zip(struct.labels, struct.species, strict=True)):
-            if isinstance(el, Species):
-                el = el.element
-            if (label is None) or (el is None):
-                raise ValueError("Something is terribly wrong with the structure")
-            if label not in labels:
-                labels.append(label)
-                elements[label] = el.name
-        return SpeciesDefaults(labels, basis_set, species_dir=species_dir, elements=elements)
+        for site in struct:
+            el = site.specie
+            if site.species_string not in labels:
+                labels.append(site.species_string)
+                elements[site.species_string] = el.name
+        return SpeciesDefaults(sorted(labels), basis_set, species_dir=species_dir, elements=elements)
 
     def to_dict(self):
         """Dictionary representation of the species' defaults"""

@@ -170,8 +170,7 @@ class CollinearMagneticStructureAnalyzer:
         has_spin = False
         for comp in structure.species_and_occu:
             for sp in comp:
-                if getattr(sp, "spin", False):
-                    has_spin = True
+                has_spin |= bool(getattr(sp, "spin", False))
 
         # perform input sanitation ...
         # rest of class will assume magnetic moments are stored on site properties:
@@ -221,11 +220,13 @@ class CollinearMagneticStructureAnalyzer:
         # round magmoms on magnetic ions below threshold to zero
         # and on non magnetic ions below threshold_nonmag
         magmoms = [
-            magmom
-            if abs(magmom) > threshold and site.species_string in self.default_magmoms
-            else magmom
-            if abs(magmom) > threshold_nonmag and site.species_string not in self.default_magmoms
-            else 0
+            (
+                magmom
+                if abs(magmom) > threshold and site.species_string in self.default_magmoms
+                else (
+                    magmom if abs(magmom) > threshold_nonmag and site.species_string not in self.default_magmoms else 0
+                )
+            )
             for magmom, site in zip(magmoms, structure, strict=True)
         ]
 
@@ -599,7 +600,10 @@ class MagneticStructureEnumerator:
         self,
         structure: Structure,
         default_magmoms: dict[str, float] | None = None,
-        strategies: list[str] | tuple[str, ...] = ("ferromagnetic", "antiferromagnetic"),
+        strategies: list[str] | tuple[str, ...] = (
+            "ferromagnetic",
+            "antiferromagnetic",
+        ),
         automatic: bool = True,
         truncate_by_symmetry: bool = True,
         transformation_kwargs: dict | None = None,
@@ -912,7 +916,9 @@ class MagneticStructureEnumerator:
         transformations = {}
         for name, constraints in all_constraints.items():
             trans = MagOrderingTransformation(
-                mag_species_spin, order_parameter=constraints, **self.transformation_kwargs
+                mag_species_spin,
+                order_parameter=constraints,
+                **self.transformation_kwargs,
             )
 
             transformations[name] = trans

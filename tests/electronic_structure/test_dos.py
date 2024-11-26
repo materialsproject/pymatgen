@@ -34,7 +34,10 @@ class TestDos(TestCase):
 
         assert self.dos.get_interpolated_value(9.9)[Spin.up] == approx(1.744588888888891, abs=1e-7)
         assert self.dos.get_interpolated_value(9.9)[Spin.down] == approx(1.756888888888886, abs=1e-7)
-        with pytest.raises(ValueError, match=r"x=1000 is out of range of provided x_values \(-23.7934, 14.8107\)"):
+        with pytest.raises(
+            ValueError,
+            match=r"x=1000 is out of range of provided x_values \(-23.7934, 14.8107\)",
+        ):
             self.dos.get_interpolated_value(1000)
 
     def test_get_smeared_densities(self):
@@ -127,9 +130,9 @@ class TestCompleteDos(TestCase):
                 sum_element += pdos
 
         # The sums of the SPD or the element doses should be the same.
-        assert (abs(sum_spd.energies - sum_element.energies) < 0.0001).all()
-        assert (abs(sum_spd.densities[Spin.up] - sum_element.densities[Spin.up]) < 0.0001).all()
-        assert (abs(sum_spd.densities[Spin.down] - sum_element.densities[Spin.down]) < 0.0001).all()
+        assert_allclose(sum_spd.energies, sum_element.energies, atol=1e-4)
+        assert_allclose(sum_spd.densities[Spin.up], sum_element.densities[Spin.up], atol=1e-4)
+        assert_allclose(sum_spd.densities[Spin.down], sum_element.densities[Spin.down], atol=1e-4)
 
         site = self.dos.structure[0]
         assert self.dos.get_site_dos(site) is not None
@@ -146,7 +149,10 @@ class TestCompleteDos(TestCase):
 
         assert self.dos.get_interpolated_value(9.9)[Spin.up] == approx(1.744588888888891, abs=1e-7)
         assert self.dos.get_interpolated_value(9.9)[Spin.down] == approx(1.756888888888886, abs=1e-7)
-        with pytest.raises(ValueError, match=r"x=1000 is out of range of provided x_values \(-23.7934, 14.8107\)"):
+        with pytest.raises(
+            ValueError,
+            match=r"x=1000 is out of range of provided x_values \(-23.7934, 14.8107\)",
+        ):
             self.dos.get_interpolated_value(1000)
 
     def test_as_from_dict(self):
@@ -164,7 +170,7 @@ class TestCompleteDos(TestCase):
                 sum_element += pdos
 
         # The sums of the SPD or the element doses should be the same.
-        assert (abs(sum_spd.energies - sum_element.energies) < 0.0001).all()
+        assert_allclose(sum_spd.energies, sum_element.energies, atol=1e-4)
 
     def test_str(self):
         assert str(self.dos).startswith("Complete DOS for Full Formula (Li1 Fe4 P4 O16)\nReduced Formula: LiFe4(PO4)4")
@@ -264,7 +270,14 @@ class TestCompleteDos(TestCase):
         assert sum(dos_fp2.densities * bin_width2) == approx(7.279303571428509)
         assert dos_fp2.bin_width == approx(bin_width2)
         # binning is False
-        dos_fp = self.dos.get_dos_fp(fp_type="s", min_e=None, max_e=None, n_bins=56, normalize=True, binning=False)
+        dos_fp = self.dos.get_dos_fp(
+            fp_type="s",
+            min_e=None,
+            max_e=None,
+            n_bins=56,
+            normalize=True,
+            binning=False,
+        )
         assert dos_fp.n_bins == len(self.dos.energies)
 
     def test_get_dos_fp_similarity(self):
@@ -303,7 +316,10 @@ class TestCompleteDos(TestCase):
 
         valid_metrics = ("tanimoto", "wasserstein", "cosine-sim")
         metric = "Dot"
-        with pytest.raises(ValueError, match=re.escape(f"Invalid {metric=}, choose from {valid_metrics}.")):
+        with pytest.raises(
+            ValueError,
+            match=re.escape(f"Invalid {metric=}, choose from {valid_metrics}."),
+        ):
             self.dos.get_dos_fp_similarity(dos_fp, dos_fp2, col=1, metric=metric, normalize=False)
 
 
@@ -324,7 +340,10 @@ class TestDOS(PymatgenTest):
 
         assert self.dos.get_interpolated_value(9.9)[0] == approx(1.744588888888891, abs=1e-7)
         assert self.dos.get_interpolated_value(9.9)[1] == approx(1.756888888888886, abs=1e-7)
-        with pytest.raises(ValueError, match=r"x=1000 is out of range of provided x_values \(-23.7934, 14.8107\)"):
+        with pytest.raises(
+            ValueError,
+            match=r"x=1000 is out of range of provided x_values \(-23.7934, 14.8107\)",
+        ):
             self.dos.get_interpolated_value(1000)
 
         assert_allclose(self.dos.get_cbm_vbm(spin=Spin.up), (3.8729, 1.2992999999999999))

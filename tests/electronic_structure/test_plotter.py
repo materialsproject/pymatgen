@@ -85,7 +85,10 @@ class TestDosPlotter(PymatgenTest):
 
     @staticmethod
     def get_plot_attributes(ax: plt.Axes):
-        return {"xaxis_limits": list(ax.get_xlim()), "yaxis_limits": list(ax.get_ylim())}
+        return {
+            "xaxis_limits": list(ax.get_xlim()),
+            "yaxis_limits": list(ax.get_ylim()),
+        }
 
 
 class TestBSPlotter(PymatgenTest):
@@ -207,7 +210,10 @@ class TestBSPlotterProjected(TestCase):
         assert len(ax.get_lines()) == 44_127
         assert ax.get_ylim() == pytest.approx((-4.0, 4.5047))
 
-        with pytest.raises(ValueError, match="Can't plot projections on a band structure without projections data"):
+        with pytest.raises(
+            ValueError,
+            match="Can't plot projections on a band structure without projections data",
+        ):
             BSPlotterProjected(self.bs_PbTe)
 
 

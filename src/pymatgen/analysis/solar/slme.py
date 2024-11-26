@@ -11,7 +11,6 @@ References: 1) https://doi.org/10.1021/acs.chemmater.9b02166  &
 from __future__ import annotations
 
 import os
-from math import pi
 
 import matplotlib.pyplot as plt
 import numpy as np
@@ -110,7 +109,7 @@ def absorption_coefficient(dielectric):
         (
             2.0
             * np.sqrt(2.0)
-            * pi
+            * np.pi
             * eV_to_recip_cm
             * energies_in_eV
             * np.sqrt(-epsilon_1 + np.sqrt(epsilon_1**2 + epsilon_2**2))
