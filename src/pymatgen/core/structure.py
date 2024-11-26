@@ -4750,23 +4750,25 @@ class Structure(IStructure, collections.abc.MutableSequence):
 
         sites: list[PeriodicSite] = []
         for cluster in np.unique(clusters):
-            inds = np.where(clusters == cluster)[0]
-            species: Composition = self[inds[0]].species
-            coords: NDArray = self[inds[0]].frac_coords
-            props: dict = self[inds[0]].properties
+            indexes = np.where(clusters == cluster)[0]
+            species: Composition = self[indexes[0]].species
+            coords: NDArray = self[indexes[0]].frac_coords
+            props: dict = self[indexes[0]].properties
 
-            for n, i in enumerate(inds[1:]):
+            for site_idx, clust_idx in enumerate(indexes[1:]):
                 # Sum occupancies in "sum" mode
                 if mode.lower()[0] == "s":
-                    species += self[i].species
+                    species += self[clust_idx].species
 
-                offset = self[i].frac_coords - coords
-                coords += ((offset - np.round(offset)) / (n + 2)).astype(coords.dtype)
+                offset = self[clust_idx].frac_coords - coords
+                coords += ((offset - np.round(offset)) / (site_idx + 2)).astype(coords.dtype)
                 for key in props:
-                    if props[key] is not None and not np.array_equal(self[i].properties[key], props[key]):
+                    if props[key] is not None and not np.array_equal(self[clust_idx].properties[key], props[key]):
                         if mode.lower()[0] == "a" and isinstance(props[key], float | int):
                             # update a running total
-                            props[key] = props[key] * (n + 1) / (n + 2) + self[i].properties[key] / (n + 2)
+                            props[key] = props[key] * (site_idx + 1) / (site_idx + 2) + self[clust_idx].properties[
+                                key
+                            ] / (site_idx + 2)
                         else:
                             props[key] = None
                             warnings.warn(
