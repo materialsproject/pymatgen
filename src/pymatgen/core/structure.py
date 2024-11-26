@@ -4716,16 +4716,20 @@ class Structure(IStructure, collections.abc.MutableSequence):
 
         return self
 
-    def merge_sites(self, tol: float = 0.01, mode: Literal["sum", "delete", "average"] = "sum") -> Self:
-        """Merges sites (by adding occupancies) within tolerance and optionally removes
+    def merge_sites(
+        self,
+        tol: float = 0.01,
+        mode: Literal["sum", "delete", "average"] = "sum",
+    ) -> Self:
+        """Merges sites (by adding occupancies) within tolerance and removes
             site properties in "sum/delete" modes.
 
         Args:
             tol (float): Tolerance for distance to merge sites.
             mode ("sum" | "delete" | "average"): Only first letter is considered at this moment.
-                - "delete" means duplicate sites are deleted.
-                - "sum" means the occupancies are summed for the sites.
-                - "average" means that the site is deleted but the properties are averaged.
+                - "delete": delete duplicate sites.
+                - "sum": sum the occupancies for the sites.
+                - "average": delete the site but average the properties if it's numerical.
 
         Returns:
             Structure: Structure with merged sites.
@@ -4747,25 +4751,26 @@ class Structure(IStructure, collections.abc.MutableSequence):
         sites: list[PeriodicSite] = []
         for cluster in np.unique(clusters):
             inds = np.where(clusters == cluster)[0]
-            species = self[inds[0]].species
-            coords = self[inds[0]].frac_coords
-            props = self[inds[0]].properties
+            species: Composition = self[inds[0]].species
+            coords: NDArray = self[inds[0]].frac_coords
+            props: dict = self[inds[0]].properties
 
             for n, i in enumerate(inds[1:]):
-                sp = self[i].species
+                # Sum occupancies in "sum" mode
                 if mode.lower()[0] == "s":
-                    species += sp
+                    species += self[i].species
+
                 offset = self[i].frac_coords - coords
                 coords += ((offset - np.round(offset)) / (n + 2)).astype(coords.dtype)
                 for key in props:
                     if props[key] is not None and not np.array_equal(self[i].properties[key], props[key]):
-                        if mode.lower()[0] == "a" and isinstance(props[key], float):
+                        if mode.lower()[0] == "a" and isinstance(props[key], float | int):
                             # update a running total
                             props[key] = props[key] * (n + 1) / (n + 2) + self[i].properties[key] / (n + 2)
                         else:
                             props[key] = None
-                            warnings.warn(
-                                f"Sites with different site property {key} are merged. So property is set to none",
+                            warnings.warn(  # TODO: test missing
+                                f"Sites with different site property {key} are merged. But property is set to None",
                                 stacklevel=2,
                             )
             sites.append(PeriodicSite(species, coords, self.lattice, properties=props))
