@@ -336,8 +336,7 @@ class JOutStructure(Structure):
         """
         for line in text_slice:
             read_line = False
-            for line_type in line_collections:
-                sdict = line_collections[line_type]
+            for sdict in line_collections.values():
                 if sdict["collecting"]:
                     lines, getting, got = self._collect_generic_line(line, sdict["lines"])
                     sdict["lines"] = lines
@@ -346,10 +345,10 @@ class JOutStructure(Structure):
                     read_line = True
                     break
             if not read_line:
-                for line_type in line_collections:
-                    if (not line_collections[line_type]["collected"]) and self._is_generic_start_line(line, line_type):
-                        line_collections[line_type]["collecting"] = True
-                        line_collections[line_type]["lines"].append(line)
+                for line_type, sdict in line_collections.items():
+                    if (not sdict["collected"]) and self._is_generic_start_line(line, line_type):
+                        sdict["collecting"] = True
+                        sdict["lines"].append(line)
                         break
         return line_collections
 

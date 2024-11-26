@@ -188,8 +188,8 @@ def test_JDFTXInfile_add_method():
 @pytest.mark.parametrize(("infile_fname", "knowns"), [(ex_infile1_fname, ex_infile1_knowns)])
 def test_JDFTXInfile_knowns_simple(infile_fname: PathLike, knowns: dict):
     jif = JDFTXInfile.from_file(infile_fname)
-    for key in knowns:
-        assert_same_value(jif[key], knowns[key])
+    for key, val in knowns.items():
+        assert_same_value(jif[key], val)
 
 
 @pytest.mark.parametrize("infile_fname", [ex_infile3_fname, ex_infile1_fname, ex_infile2_fname])
