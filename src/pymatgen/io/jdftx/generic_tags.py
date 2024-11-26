@@ -753,28 +753,28 @@ class TagContainer(AbstractTag):
         if not isinstance(value, dict):
             raise TypeError(f"The value {value} is not a dict, so could not be converted")
         value_list = []
-        for subtag in value:
+        for subtag, subtag_value in value.items():
             subtag_type = self.subtags[subtag]
             if subtag_type.allow_list_representation:
                 # this block deals with making list representations of any nested TagContainers
-                if not isinstance(value[subtag], dict):
-                    raise ValueError(f"The subtag {subtag} is not a dict: '{value[subtag]}', so could not be converted")
-                subtag_value2 = subtag_type.get_list_representation(subtag, value[subtag])  # recursive list generation
+                if not isinstance(subtag_value, dict):
+                    raise ValueError(f"The subtag {subtag} is not a dict: '{subtag_value}', so could not be converted")
+                subtag_value2 = subtag_type.get_list_representation(subtag, subtag_value)  # recursive list generation
 
                 if subtag_type.write_tagname:  # needed to write 'v' subtag in 'ion' tag
                     value_list.append(subtag)
                 value_list.extend(subtag_value2)
-            elif isinstance(value[subtag], dict):
+            elif isinstance(subtag_value, dict):
                 # this triggers if someone sets this tag using mixed dict/list representations
                 warnings.warn(
-                    f"The {subtag} subtag does not allow list representation with a value {value[subtag]}.\n "
+                    f"The {subtag} subtag does not allow list representation with a value {subtag_value}.\n "
                     "I added the dict to the list. Is this correct? You will not be able to convert back!",
                     stacklevel=2,
                 )
-                value_list.append(value[subtag])
+                value_list.append(subtag_value)
             else:
                 # the subtag is simply of form {'subtag': subtag_value} and now adds concrete values to the list
-                value_list.append(value[subtag])
+                value_list.append(subtag_value)
 
         # return list of lists for tags in matrix format, e.g. lattice tag
         if (ncol := self.linebreak_nth_entry) is not None:
