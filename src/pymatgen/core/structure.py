@@ -217,7 +217,10 @@ class SiteCollection(collections.abc.Sequence, ABC):
 
     # Tolerance in Angstrom for determining if sites are too close
     DISTANCE_TOLERANCE: ClassVar[float] = 0.5
-    _properties: dict
+
+    def __init__(self) -> None:
+        """Init a SiteCollection."""
+        self._properties: dict
 
     def __contains__(self, site: object) -> bool:
         return site in self.sites
