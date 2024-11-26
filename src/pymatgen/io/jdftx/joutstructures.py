@@ -88,10 +88,8 @@ class JOutStructures:
         if len(self):
             if (self.opt_type in ["single point", None]) and (isinstance(self[-1].elecmindata[-1].t_s, float)):
                 self._t_s = self[-1].elecmindata[-1].t_s
-            elif isinstance(self[-1].t_s, float):
-                self._t_s = self[-1].t_s
             else:
-                raise AttributeError("t_s not set in most recent JOutStructure")
+                self._t_s = self[-1].t_s
         return self._t_s
 
     ###########################################################################
