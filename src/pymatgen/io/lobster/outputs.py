@@ -444,11 +444,8 @@ class Icohplist(MSONable):
                 for line in lines:
                     if (
                         ("_" not in line.split()[1] and version != "5.1.0")
-                        or "_" not in line.split()[1]
-                        and version == "5.1.0"
-                        or (line.split()[1].count("_") == 1)
-                        and version == "5.1.0"
-                        and self.is_lcfo
+                        or ("_" not in line.split()[1] and version == "5.1.0")
+                        or ((line.split()[1].count("_") == 1) and version == "5.1.0" and self.is_lcfo)
                     ):
                         data_without_orbitals.append(line)
                     elif line.split()[1].count("_") >= 2 and version == "5.1.0":
