@@ -28,18 +28,32 @@ if TYPE_CHECKING:
 
 class VolumetricData(MSONable):
     """
-    Simple volumetric object. Used to read LOCPOT/CHGCAR files produced by
-    vasp as well as cube files produced by other codes.
+    A representation of volumetric data commonly used in atomistic simulation outputs,
+    such as LOCPOT/CHGCAR files from VASP or cube files from other codes.
 
     Attributes:
-        structure (Structure): Structure associated with the Volumetric Data object.
-        is_spin_polarized (bool): True if run is spin polarized.
-        dim (tuple): Tuple of dimensions of volumetric grid in each direction (nx, ny, nz).
-        data (dict): Actual data as a dict of {string: np.array}. The string are "total"
-            and "diff", in accordance to the output format of Vasp LOCPOT and
-            CHGCAR files where the total spin density is written first, followed
-            by the difference spin density.
-        ngridpts (int): Total number of grid points in volumetric data.
+        structure (Structure):
+            The crystal structure associated with the volumetric data.
+            Represents the lattice and atomic coordinates using the `Structure` class.
+
+        is_spin_polarized (bool):
+            Indicates if the simulation is spin-polarized. True for spin-polarized data
+            (contains both total and spin-difference densities), False otherwise.
+
+        dim (tuple[int, int, int]):
+            The dimensions of the 3D volumetric grid along each axis in the format
+            (nx, ny, nz), where nx, ny, and nz represent the number of grid points
+            in the x, y, and z directions, respectively.
+
+        data (dict[str, np.ndarray]):
+            A dictionary containing the volumetric data. Keys include:
+            - `"total"`: A 3D NumPy array representing the total spin density.
+            - `"diff"` (optional): A 3D NumPy array representing the spin-difference
+              density (spin up - spin down). Typically present in spin-polarized calculations.
+
+        ngridpts (int):
+            The total number of grid points in the volumetric data, calculated as
+            `nx * ny * nz` using the grid dimensions.
     """
 
     def __init__(
