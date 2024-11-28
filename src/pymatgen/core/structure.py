@@ -6,6 +6,7 @@ IMolecule and IStructure.
 from __future__ import annotations
 
 import collections
+import collections.abc
 import contextlib
 import functools
 import inspect
@@ -1104,16 +1105,18 @@ class IStructure(SiteCollection, MSONable):
         if not all(hasattr(other, attr) for attr in needed_attrs):
             return NotImplemented
 
-        # TODO (DanielYang59): fix below type
-        other = cast(Structure, other)  # make mypy happy
-
         if other is self:
             return True
-        if len(self) != len(other):
+
+        if hasattr(other, "__len__") and len(self) != len(other):
             return False
-        if self.lattice != other.lattice:
+
+        if hasattr(other, "lattice") and self.lattice != other.lattice:
             return False
-        if self.properties != other.properties:
+        if hasattr(other, "properties") and self.properties != other.properties:
+            return False
+
+        if not hasattr(other, "__contains__"):
             return False
         return all(site in other for site in self)
 
