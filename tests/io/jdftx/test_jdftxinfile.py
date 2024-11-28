@@ -73,12 +73,24 @@ def test_JDFTXInfile_known_lambda(infile_fname: str, bool_func: Callable[[JDFTXI
         ("latt-scale", ["1", "1", "1"]),
         ("latt-scale", [1, 1, 1]),
         ("latt-scale", {"s0": 1, "s1": 1, "s2": 1}),
+        ("elec-cutoff", {"Ecut": 20.0, "EcutRho": 100.0}),
+        ("elec-cutoff", "20 100"),
+        ("elec-cutoff", [20, 100]),
+        ("elec-cutoff", 20),
     ],
 )
 def test_JDFTXInfile_set_values(val_key: str, val: Any):
     jif = JDFTXInfile.from_file(ex_infile1_fname)
     jif[val_key] = val
     JDFTXInfile_self_consistency_tester(jif)
+
+
+def test_JDFTXInfile_from_dict():
+    jif = JDFTXInfile.from_file(ex_infile1_fname)
+    jif_dict = jif.as_dict()
+    jif_dict["elec-cutoff"] = 20
+    jif2 = JDFTXInfile.from_dict(jif_dict)
+    JDFTXInfile_self_consistency_tester(jif2)
 
 
 @pytest.mark.parametrize(
@@ -201,7 +213,7 @@ def test_JDFTXInfile_self_consistency(infile_fname: PathLike):
 def JDFTXInfile_self_consistency_tester(jif: JDFTXInfile):
     dict_jif = jif.as_dict()
     # # Commenting out tests with jif2 due to the list representation asserted
-    jif2 = JDFTXInfile.get_dict_representation(JDFTXInfile.from_dict(dict_jif))
+    jif2 = JDFTXInfile.get_dict_representation(JDFTXInfile._from_dict(dict_jif))
     str_list_jif = jif.get_text_list()
     str_jif = "\n".join(str_list_jif)
     jif3 = JDFTXInfile.from_str(str_jif)

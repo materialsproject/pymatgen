@@ -113,7 +113,7 @@ class JDFTXInfile(dict, MSONable):
         return params
 
     @classmethod
-    def from_dict(cls, dct: dict[str, Any]) -> JDFTXInfile:
+    def _from_dict(cls, dct: dict[str, Any]) -> JDFTXInfile:
         """Parse a dictionary to create a JDFTXInfile object.
 
         Args:
@@ -125,6 +125,22 @@ class JDFTXInfile(dict, MSONable):
         temp = cls({k: v for k, v in dct.items() if k not in ("@module", "@class")})
         temp = cls.get_dict_representation(cls.get_list_representation(temp))
         return cls.get_list_representation(temp)
+
+    @classmethod
+    def from_dict(cls, d: dict[str, Any]) -> JDFTXInfile:
+        """Create JDFTXInfile from a dictionary.
+
+        Args:
+            d (dict): Dictionary to create JDFTXInfile from.
+
+        Returns:
+            JDFTXInfile: The created JDFTXInfile object.
+        """
+        instance = cls()
+        for k, v in d.items():
+            if k not in ("@module", "@class"):
+                instance[k] = v
+        return instance
 
     def copy(self) -> JDFTXInfile:
         """Return a copy of the JDFTXInfile object.
@@ -550,8 +566,8 @@ class JDFTXInfile(dict, MSONable):
             tag_object = get_tag_object(key)
         except KeyError:
             raise KeyError(f"The {key} tag is not in MASTER_TAG_LIST")
-        if tag_object.can_repeat and not isinstance(value, list):
-            value = [value]
+        # if tag_object.can_repeat and not isinstance(value, list):
+        #     value = [value]
         if isinstance(tag_object, MultiformatTag):
             if isinstance(value, str):
                 i = tag_object.get_format_index_for_str_value(key, value)
@@ -560,13 +576,22 @@ class JDFTXInfile(dict, MSONable):
             tag_object = tag_object.format_options[i]
         if tag_object.can_repeat and key in self:
             del self[key]
+        if tag_object.can_repeat and not isinstance(value, list):
+            value = [value]
         params: dict[str, Any] = {}
         if self._is_numeric(value):
             value = str(value)
-        processed_value = tag_object.read(key, value) if isinstance(value, str) else value
-        params = self._store_value(params, tag_object, key, processed_value)
-        self.update(params)
-        self.validate_tags(try_auto_type_fix=True, error_on_failed_fix=True)
+        if not tag_object.can_repeat:
+            value = [value]
+        for v in value:
+            processed_value = tag_object.read(key, v) if isinstance(v, str) else v
+            params = self._store_value(params, tag_object, key, processed_value)
+            self.update(params)
+            self.validate_tags(try_auto_type_fix=True, error_on_failed_fix=True)
+        # processed_value = tag_object.read(key, value) if isinstance(value, str) else value
+        # params = self._store_value(params, tag_object, key, processed_value)
+        # self.update(params)
+        # self.validate_tags(try_auto_type_fix=True, error_on_failed_fix=True)
 
     def _is_numeric(self, value: Any) -> bool:
         """Check if a value is numeric.
@@ -751,39 +776,6 @@ class JDFTXStructure(MSONable):
         )
         return cls(struct, selective_dynamics, sort_structure=sort_structure)
 
-    # NOTE: The following methods are commented out so that the input and output sections of this code can be merged
-    # independently
-    # TODO: Uncomment these methods once the input and output sections of this code are merged, and add more methods
-    # to create input objects from output objects.
-    # @classmethod
-    # def from_jdftxoutfile(cls, jdftxoutfile: JDFTXOutfile) -> JDFTXStructure:
-    #     """Get JDFTXStructure from JDFTXOutfile.
-
-    #     Args:
-    #         jdftxoutfile (JDFTXOutfile): JDFTXOutfile object.
-
-    #     Returns:
-    #         JDFTXStructure: The created JDFTXStructure object.
-    #     """
-    #     if not len(jdftxoutfile.jstrucs):
-    #         raise ValueError("No structures found in JDFTXOutfile")
-    #     joutstructure = jdftxoutfile.jstrucs[-1]
-    #     return cls.from_joutstructure(joutstructure)
-
-    # @classmethod
-    # def from_joutstructure(cls, joutstructure: JOutStructure) -> JDFTXStructure:
-    #     """Get JDFTXStructure from JOutStructure.
-
-    #     Args:
-    #         joutstructure (JOutStructure): JOutStructure object.
-
-    #     Returns:
-    #         JDFTXStructure: The created JDFTXStructure object.
-    #     """
-    #     struct = Structure(joutstructure.lattice, joutstructure.species, joutstructure.coords)
-    #     selective_dynamics = joutstructure.selective_dynamics
-    #     return cls(struct, selective_dynamics, sort_structure=False)
-
     def get_str(self, in_cart_coords: bool = False) -> str:
         """Return a string to be written as JDFTXInfile tags.
 
@@ -819,7 +811,7 @@ class JDFTXStructure(MSONable):
                     raise ValueError(f"Could not correct site label {label} for site (index {i})")
             jdftx_tag_dict["ion"].append([label, *coords, sd])
 
-        return str(JDFTXInfile.from_dict(jdftx_tag_dict))
+        return str(JDFTXInfile._from_dict(jdftx_tag_dict))
 
     def write_file(self, filename: PathLike, **kwargs) -> None:
         """Write JDFTXStructure to a file.
