@@ -1097,9 +1097,7 @@ class IStructure(SiteCollection, MSONable):
 
     def __eq__(self, other: object) -> bool:
         """Define equality by comparing all three attributes: lattice, sites, properties."""
-        needed_attrs = ("lattice", "sites", "properties")
-
-        if not all(hasattr(other, attr) for attr in needed_attrs):
+        if not (hasattr(other, "lattice") and hasattr(other, "sites") and hasattr(other, "properties")):
             return NotImplemented
 
         if other is self:
@@ -1108,12 +1106,12 @@ class IStructure(SiteCollection, MSONable):
         if hasattr(other, "__len__") and len(self) != len(other):
             return False
 
-        if hasattr(other, "lattice") and self.lattice != other.lattice:
+        if self.lattice != other.lattice:
             return False
-        if hasattr(other, "properties") and self.properties != other.properties:
+        if self.properties != other.properties:
             return False
 
-        if not hasattr(other, "__contains__"):
+        if not isinstance(other, collections.abc.Container):
             return False
         return all(site in other for site in self)
 
