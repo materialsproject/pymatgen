@@ -1097,21 +1097,22 @@ class IStructure(SiteCollection, MSONable):
 
     def __eq__(self, other: object) -> bool:
         """Define equality by comparing all three attributes: lattice, sites, properties."""
-        if not (hasattr(other, "lattice") and hasattr(other, "sites") and hasattr(other, "properties")):
+        needed_attrs = ("lattice", "sites", "properties")
+        if not all(hasattr(other, attr) for attr in needed_attrs):
             return NotImplemented
+
+        # TODO (DanielYang59): fix below type
+        other = cast(Structure, other)  # make mypy happy
 
         if other is self:
             return True
 
-        if isinstance(other, collections.abc.Sized) and len(self) != len(other):
+        if len(self) != len(other):
             return False
 
         if self.lattice != other.lattice:
             return False
         if self.properties != other.properties:
-            return False
-
-        if not isinstance(other, collections.abc.Container):
             return False
         return all(site in other for site in self)
 
