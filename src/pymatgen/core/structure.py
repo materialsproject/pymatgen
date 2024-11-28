@@ -1098,6 +1098,7 @@ class IStructure(SiteCollection, MSONable):
         self._properties = properties or {}
 
     def __eq__(self, other: object) -> bool:
+        """Define equality by comparing all three attributes: lattice, sites, properties."""
         needed_attrs = ("lattice", "sites", "properties")
 
         if not all(hasattr(other, attr) for attr in needed_attrs):
