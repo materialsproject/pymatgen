@@ -6,7 +6,6 @@ IMolecule and IStructure.
 from __future__ import annotations
 
 import collections
-import collections.abc
 import contextlib
 import functools
 import inspect
@@ -20,9 +19,7 @@ import sys
 import warnings
 from abc import ABC, abstractmethod
 from collections import defaultdict
-from collections.abc import MutableSequence
 from fnmatch import fnmatch
-from io import StringIO
 from typing import TYPE_CHECKING, Literal, cast, get_args
 
 import numpy as np
@@ -246,7 +243,7 @@ class SiteCollection(collections.abc.Sequence, ABC):
     def sites(self, sites: Sequence[PeriodicSite]) -> None:
         """Set the sites in the Structure."""
         # If self is mutable Structure or Molecule, set _sites as list
-        is_mutable = isinstance(self._sites, MutableSequence)
+        is_mutable = isinstance(self._sites, collections.abc.MutableSequence)
         self._sites: list[PeriodicSite] | tuple[PeriodicSite, ...] = list(sites) if is_mutable else tuple(sites)
 
     @abstractmethod
@@ -2985,7 +2982,7 @@ class IStructure(SiteCollection, MSONable):
             return Prismatic(self).to_str()
         elif fmt in ("yaml", "yml") or fnmatch(filename, "*.yaml*") or fnmatch(filename, "*.yml*"):
             yaml = YAML()
-            str_io = StringIO()
+            str_io = io.StringIO()
             yaml.dump(self.as_dict(), str_io)
             yaml_str = str_io.getvalue()
             if filename:
@@ -3926,7 +3923,7 @@ class IMolecule(SiteCollection, MSONable):
             return json_str
         elif fmt in {"yaml", "yml"} or fnmatch(filename, "*.yaml*") or fnmatch(filename, "*.yml*"):
             yaml = YAML()
-            str_io = StringIO()
+            str_io = io.StringIO()
             yaml.dump(self.as_dict(), str_io)
             yaml_str = str_io.getvalue()
             if filename:
