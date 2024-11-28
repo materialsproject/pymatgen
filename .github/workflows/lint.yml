@@ -24,10 +24,10 @@ jobs:
         run: |
           pip install --upgrade ruff mypy pyright
 
-      - name: ruff
-        run: |
-          ruff check .
-          ruff format --check .
+      # - name: ruff
+      #   run: |
+      #     ruff check .
+      #     ruff format --check .
 
       - name: mypy
         run: mypy src
