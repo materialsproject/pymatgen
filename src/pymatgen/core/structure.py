@@ -1100,7 +1100,6 @@ class IStructure(SiteCollection, MSONable):
     def __eq__(self, other: object) -> bool:
         needed_attrs = ("lattice", "sites", "properties")
 
-        # Return NotImplemented as in https://docs.python.org/3/library/functools.html#functools.total_ordering
         if not all(hasattr(other, attr) for attr in needed_attrs):
             return NotImplemented
 
