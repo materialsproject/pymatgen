@@ -673,6 +673,7 @@ MASTER_TAG_LIST: dict[str, dict[str, Any]] = {
             }
         ),
         "fluid-solvent": MultiformatTag(
+            can_repeat=True,  # 11/27
             format_options=[
                 TagContainer(
                     can_repeat=True,
