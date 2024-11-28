@@ -1103,7 +1103,7 @@ class IStructure(SiteCollection, MSONable):
         if other is self:
             return True
 
-        if hasattr(other, "__len__") and len(self) != len(other):
+        if isinstance(other, collections.abc.Sized) and len(self) != len(other):
             return False
 
         if self.lattice != other.lattice:
