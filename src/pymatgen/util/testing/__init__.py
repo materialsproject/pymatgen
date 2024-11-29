@@ -88,9 +88,9 @@ class PymatgenTest(TestCase):
         if actual.translate(strip_whitespace) != expected.translate(strip_whitespace):
             raise AssertionError(
                 "Strings are not equal (whitespaces ignored):\n"
-                f"{' Actual '.center(50, "=")}\n"
+                f"{' Actual '.center(50, '=')}\n"
                 f"{actual}\n"
-                f"{' Expected '.center(50, "=")}\n"
+                f"{' Expected '.center(50, '=')}\n"
                 f"{expected}\n"
             )
 
