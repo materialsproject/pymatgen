@@ -122,8 +122,13 @@ class PymatgenTest(TestCase):
         Returns:
             Structure
         """
-        struct = cls.TEST_STRUCTURES.get(name) or loadfn(f"{STRUCTURES_DIR}/{name}.json")
+        try:
+            struct = cls.TEST_STRUCTURES.get(name) or loadfn(f"{STRUCTURES_DIR}/{name}.json")
+        except FileNotFoundError as exc:
+            raise FileNotFoundError(f"structure for {name} doesn't exist") from exc
+
         cls.TEST_STRUCTURES[name] = struct
+
         return struct.copy()
 
     def serialize_with_pickle(

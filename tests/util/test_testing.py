@@ -56,10 +56,13 @@ class TestPymatgenTest:
             PymatgenTest.assert_str_content_equal("hello", "hello world")
 
     def test_get_structure(self):
+        # Get structure with name (string)
         structure = PymatgenTest.get_structure("LiFePO4")
         assert isinstance(structure, Structure)
 
-        # TODO: need to check non-existent structure exception
+        # Test non-existent structure
+        with pytest.raises(FileNotFoundError, match="structure for non-existent doesn't exist"):
+            structure = PymatgenTest.get_structure("non-existent")
 
     def test_serialize_with_pickle(self):
         pass
