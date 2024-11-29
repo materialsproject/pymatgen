@@ -30,7 +30,7 @@ if TYPE_CHECKING:
 
 MODULE_DIR: Path = Path(__file__).absolute().parent
 
-STRUCTURES_DIR: Path = MODULE_DIR / ".." / "structures"
+STRUCTURES_DIR: Path = MODULE_DIR / "structures"
 
 TEST_FILES_DIR: Path = Path(SETTINGS.get("PMG_TEST_FILES_DIR", f"{ROOT}/../tests/files"))
 VASP_IN_DIR: str = f"{TEST_FILES_DIR}/io/vasp/inputs"
