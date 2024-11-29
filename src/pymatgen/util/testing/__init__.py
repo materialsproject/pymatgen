@@ -74,7 +74,7 @@ class PymatgenTest(TestCase):
         return struct.copy()
 
     @staticmethod
-    def assert_str_content_equal(actual: str, expected: str) -> None:
+    def assert_str_content_equal(actual: str, expected: str, /) -> None:
         """Test if two strings are equal, ignoring whitespaces.
 
         Args:
@@ -86,7 +86,13 @@ class PymatgenTest(TestCase):
         """
         strip_whitespace = {ord(c): None for c in string.whitespace}
         if actual.translate(strip_whitespace) != expected.translate(strip_whitespace):
-            raise AssertionError("Strings are not equal (whitespaces ignored).")
+            raise AssertionError(
+                "Strings are not equal (whitespaces ignored):\n"
+                f"{' Actual '.center(50, "=")}\n"
+                f"{actual}\n"
+                f"{' Expected '.center(50, "=")}\n"
+                f"{expected}\n"
+            )
 
     def serialize_with_pickle(
         self,
