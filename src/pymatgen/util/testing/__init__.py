@@ -29,7 +29,9 @@ if TYPE_CHECKING:
     from pymatgen.util.typing import PathLike
 
 MODULE_DIR: Path = Path(__file__).absolute().parent
+
 STRUCTURES_DIR: Path = MODULE_DIR / ".." / "structures"
+
 TEST_FILES_DIR: Path = Path(SETTINGS.get("PMG_TEST_FILES_DIR", f"{ROOT}/../tests/files"))
 VASP_IN_DIR: str = f"{TEST_FILES_DIR}/io/vasp/inputs"
 VASP_OUT_DIR: str = f"{TEST_FILES_DIR}/io/vasp/outputs"
@@ -72,18 +74,19 @@ class PymatgenTest(TestCase):
         return struct.copy()
 
     @staticmethod
-    def assert_str_content_equal(actual: str, expected: str) -> bool:
+    def assert_str_content_equal(actual: str, expected: str) -> None:
         """Test if two strings are equal, ignoring whitespaces.
 
         Args:
             actual (str): The string to be checked.
             expected (str): The reference string.
 
-        Returns:
-            bool
+        Raises:
+            AssertionError: When two strings are not equal.
         """
         strip_whitespace = {ord(c): None for c in string.whitespace}
-        return actual.translate(strip_whitespace) == expected.translate(strip_whitespace)
+        if actual.translate(strip_whitespace) != expected.translate(strip_whitespace):
+            raise AssertionError("Strings are not equal (whitespaces ignored).")
 
     def serialize_with_pickle(
         self,
