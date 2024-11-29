@@ -43,7 +43,12 @@ FAKE_POTCAR_DIR: str = f"{VASP_IN_DIR}/fake_potcars"
 
 
 class PymatgenTest(TestCase):
-    """Extends unittest.TestCase with several assert methods for array and str comparison."""
+    """Extends unittest.TestCase with several convenient methods for testing:
+    - assert_msonable: Test if an object is MSONable and return the serialized object.
+    - assert_str_content_equal: Test if two string are equal (ignore whitespaces).
+    - get_structure: Load a Structure with its formula.
+    - serialize_with_pickle: Test if object(s) can be (de)serialized with `pickle`.
+    """
 
     # dict of lazily-loaded test structures (initialized to None)
     TEST_STRUCTURES: ClassVar[dict[PathLike, Structure | None]] = dict.fromkeys(STRUCTURES_DIR.glob("*"))
@@ -128,7 +133,7 @@ class PymatgenTest(TestCase):
         test_eq: bool = True,
     ) -> list:
         """Test whether the object(s) can be serialized and deserialized with
-        pickle. This method tries to serialize the objects with pickle and the
+        `pickle`. This method tries to serialize the objects with `pickle` and the
         protocols specified in input. Then it deserializes the pickled format
         and compares the two objects with the `==` operator if `test_eq`.
 
