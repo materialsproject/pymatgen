@@ -64,7 +64,7 @@ class PymatgenTest(TestCase):
         Load a structure from `pymatgen.util.structures`.
 
         Args:
-            name (str): Name of the structure file.
+            name (str): Name of the structure file, for example "LiFePO4".
 
         Returns:
             Structure
