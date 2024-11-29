@@ -58,20 +58,32 @@ class PymatgenTest(TestCase):
         monkeypatch.chdir(tmp_path)  # change to temporary directory
         self.tmp_path = tmp_path
 
-    @classmethod
-    def get_structure(cls, name: str) -> Structure:
-        """
-        Load a structure from `pymatgen.util.structures`.
+    @staticmethod
+    def assert_msonable(obj: Any, test_is_subclass: bool = True) -> str:
+        """Test if an object is MSONable and verify the contract is fulfilled.
+
+        By default, the method tests whether obj is an instance of MSONable.
+        This check can be deactivated by setting `test_is_subclass` to False.
 
         Args:
-            name (str): Name of the structure file, for example "LiFePO4".
+            obj (Any): The object to be checked.
+            test_is_subclass (bool): Check if object is an instance of MSONable
+                or its subclasses.
 
         Returns:
-            Structure
+            str: Serialized object.
         """
-        struct = cls.TEST_STRUCTURES.get(name) or loadfn(f"{STRUCTURES_DIR}/{name}.json")
-        cls.TEST_STRUCTURES[name] = struct
-        return struct.copy()
+        if test_is_subclass and not isinstance(obj, MSONable):
+            raise TypeError("obj is not MSONable")
+
+        if obj.as_dict() != type(obj).from_dict(obj.as_dict()).as_dict():
+            raise ValueError("obj could not be reconstructed accurately from its dict representation.")
+
+        json_str = json.dumps(obj.as_dict(), cls=MontyEncoder)
+        round_trip = json.loads(json_str, cls=MontyDecoder)
+        if not issubclass(type(round_trip), type(obj)):
+            raise TypeError(f"{type(round_trip)} != {type(obj)}")
+        return json_str
 
     @staticmethod
     def assert_str_content_equal(actual: str, expected: str) -> None:
@@ -93,6 +105,21 @@ class PymatgenTest(TestCase):
                 f"{' Expected '.center(50, '=')}\n"
                 f"{expected}\n"
             )
+
+    @classmethod
+    def get_structure(cls, name: str) -> Structure:
+        """
+        Load a structure from `pymatgen.util.structures`.
+
+        Args:
+            name (str): Name of the structure file, for example "LiFePO4".
+
+        Returns:
+            Structure
+        """
+        struct = cls.TEST_STRUCTURES.get(name) or loadfn(f"{STRUCTURES_DIR}/{name}.json")
+        cls.TEST_STRUCTURES[name] = struct
+        return struct.copy()
 
     def serialize_with_pickle(
         self,
@@ -163,30 +190,3 @@ class PymatgenTest(TestCase):
         if got_single_object:
             return [o[0] for o in objects_by_protocol]
         return objects_by_protocol
-
-    @staticmethod
-    def assert_msonable(obj: Any, test_is_subclass: bool = True) -> str:
-        """Test if an object is MSONable and verify the contract is fulfilled.
-
-        By default, the method tests whether obj is an instance of MSONable.
-        This check can be deactivated by setting `test_is_subclass` to False.
-
-        Args:
-            obj (Any): The object to be checked.
-            test_is_subclass (bool): Check if object is an instance of MSONable
-                or its subclasses.
-
-        Returns:
-            str: Serialized object.
-        """
-        if test_is_subclass and not isinstance(obj, MSONable):
-            raise TypeError("obj is not MSONable")
-
-        if obj.as_dict() != type(obj).from_dict(obj.as_dict()).as_dict():
-            raise ValueError("obj could not be reconstructed accurately from its dict representation.")
-
-        json_str = json.dumps(obj.as_dict(), cls=MontyEncoder)
-        round_trip = json.loads(json_str, cls=MontyDecoder)
-        if not issubclass(type(round_trip), type(obj)):
-            raise TypeError(f"{type(round_trip)} != {type(obj)}")
-        return json_str

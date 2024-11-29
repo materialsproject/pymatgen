@@ -35,11 +35,8 @@ class TestPymatgenTest:
     def test_tmp_dir(self):
         pass
 
-    def test_get_structure(self):
-        structure = PymatgenTest.get_structure("LiFePO4")
-        assert isinstance(structure, Structure)
-
-        # TODO: need to check non-existent structure exception
+    def test_assert_msonable(self):
+        pass
 
     def test_assert_str_content_equal(self):
         # Cases where strings are equal
@@ -61,8 +58,11 @@ class TestPymatgenTest:
         with pytest.raises(AssertionError, match="Strings are not equal"):
             PymatgenTest.assert_str_content_equal("hello", "hello world")
 
-    def test_serialize_with_pickle(self):
-        pass
+    def test_get_structure(self):
+        structure = PymatgenTest.get_structure("LiFePO4")
+        assert isinstance(structure, Structure)
 
-    def test_assert_msonable(self):
+        # TODO: need to check non-existent structure exception
+
+    def test_serialize_with_pickle(self):
         pass
