@@ -9,7 +9,7 @@ materials science, etc.
 from __future__ import annotations
 
 import json
-import pickle  # use pickle over cPickle to get the traceback in case of errors
+import pickle  # use pickle over cPickle to get traceback in case of errors
 import string
 from pathlib import Path
 from typing import TYPE_CHECKING
@@ -51,9 +51,9 @@ class PymatgenTest(TestCase):
         """Make all tests run a in a temporary directory accessible via self.tmp_path.
 
         References:
-            https://pytest.org/en/latest/how-to/unittest.html#using-autouse-fixtures-and-accessing-other-fixtures
+            https://docs.pytest.org/en/stable/how-to/tmp_path.html
         """
-        monkeypatch.chdir(tmp_path)  # change to pytest-provided temporary directory
+        monkeypatch.chdir(tmp_path)  # change to temporary directory
         self.tmp_path = tmp_path
 
     @classmethod
