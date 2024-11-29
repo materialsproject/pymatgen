@@ -74,7 +74,7 @@ class PymatgenTest(TestCase):
         return struct.copy()
 
     @staticmethod
-    def assert_str_content_equal(actual: str, expected: str, /) -> None:
+    def assert_str_content_equal(actual: str, expected: str) -> None:
         """Test if two strings are equal, ignoring whitespaces.
 
         Args:
