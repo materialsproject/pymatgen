@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+import warnings
+
 import numpy as np
 from numpy.testing import assert_allclose
 
@@ -76,6 +78,7 @@ class TestMagneticSpaceGroup(PymatgenTest):
 
     def test_symmetry_ops(self):
         # TODO: the first test is failing, need someone to fix it, see issue 4207
+        warnings.warn("part of test_symmetry_ops is failing, see issue 4207", stacklevel=2)
         #         msg_1_symmops = "\n".join(map(str, self.msg_1.symmetry_ops))
         #         msg_1_symmops_ref = """x, y, z, +1
         # -x+3/4, -y+3/4, z, +1
