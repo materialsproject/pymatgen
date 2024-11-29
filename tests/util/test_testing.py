@@ -7,7 +7,6 @@ import pytest
 from pymatgen.core import Structure
 from pymatgen.util.testing import (
     FAKE_POTCAR_DIR,
-    MODULE_DIR,
     STRUCTURES_DIR,
     TEST_FILES_DIR,
     VASP_IN_DIR,
@@ -18,8 +17,6 @@ from pymatgen.util.testing import (
 
 def test_paths():
     """Test paths provided in testing util."""
-    assert MODULE_DIR.is_dir()
-
     assert STRUCTURES_DIR.is_dir()
     assert [f for f in os.listdir(STRUCTURES_DIR) if f.endswith(".json")]
 
