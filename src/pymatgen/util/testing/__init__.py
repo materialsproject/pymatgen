@@ -164,7 +164,8 @@ class PymatgenTest(TestCase):
             return [o[0] for o in objects_by_protocol]
         return objects_by_protocol
 
-    def assert_msonable(self, obj: Any, test_is_subclass: bool = True) -> str:
+    @staticmethod
+    def assert_msonable(obj: Any, test_is_subclass: bool = True) -> str:
         """Test if an object is MSONable and verify the contract is fulfilled.
 
         By default, the method tests whether obj is an instance of MSONable.
