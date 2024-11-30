@@ -876,7 +876,6 @@ class ElementBase(Enum):
             print(" ".join(row_str))
 
 
-@functools.total_ordering
 class Element(ElementBase):
     """Enum representing an element in the periodic table."""
 
@@ -1597,14 +1596,12 @@ class DummySpecies(Species):
         return cls(dct["element"], dct["oxidation_state"], spin=dct.get("spin"))
 
 
-@functools.total_ordering
 class Specie(Species):
     """This maps the historical grammatically inaccurate Specie to Species
     to maintain backwards compatibility.
     """
 
 
-@functools.total_ordering
 class DummySpecie(DummySpecies):
     """This maps the historical grammatically inaccurate DummySpecie to DummySpecies
     to maintain backwards compatibility.
