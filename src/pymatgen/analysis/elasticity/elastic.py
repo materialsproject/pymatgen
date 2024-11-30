@@ -479,8 +479,7 @@ class ElasticTensor(NthOrderElasticTensor):
             "questionable results from vasp data, use with caution."
         )
         stresses = np.array([Stress(stress).voigt for stress in stresses])
-        with warnings.catch_warnings():
-            strains = np.array([Strain(strain).voigt for strain in strains])
+        strains = np.array([Strain(strain).voigt for strain in strains])
 
         voigt_fit = np.transpose(np.dot(np.linalg.pinv(strains), stresses))
         return cls.from_voigt(voigt_fit)

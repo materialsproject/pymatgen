@@ -923,7 +923,7 @@ def find_codopant(
     for sym in symbols:
         try:
             with warnings.catch_warnings():
-                warnings.simplefilter("ignore")
+                warnings.filterwarnings("ignore", message=r"No (default )?ionic radius for .+")
                 sp = Species(sym, oxidation_state)
                 radius = sp.ionic_radius
                 if radius is not None:

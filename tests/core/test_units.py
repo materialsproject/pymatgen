@@ -117,7 +117,7 @@ class TestFloatWithUnit(PymatgenTest):
 
         with warnings.catch_warnings():
             for unit in ("KB", "MB", "GB", "TB"):
-                warnings.filterwarnings("error", message=f"Unit {unit} is deprecated", category=DeprecationWarning)
+                warnings.filterwarnings("error", f"Unit {unit} is deprecated", DeprecationWarning)
                 Memory(1, unit)
 
     def test_unitized(self):

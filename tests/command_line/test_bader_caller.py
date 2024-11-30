@@ -1,6 +1,5 @@
 from __future__ import annotations
 
-import warnings
 from shutil import which
 
 import numpy as np
@@ -17,9 +16,6 @@ TEST_DIR = f"{TEST_FILES_DIR}/command_line/bader"
 
 @pytest.mark.skipif(not which("bader"), reason="bader executable not present")
 class TestBaderAnalysis(PymatgenTest):
-    def setUp(self):
-        warnings.catch_warnings()
-
     def test_init(self):
         # test with reference file
         analysis = BaderAnalysis(

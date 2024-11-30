@@ -226,7 +226,7 @@ class CorrectionCalculator:
 
         with warnings.catch_warnings():
             # numpy raises warning if the entire array is nan values
-            warnings.simplefilter("ignore", category=RuntimeWarning)
+            warnings.filterwarnings("ignore", message="Mean of empty slice", category=RuntimeWarning)
             mean_uncert = np.nanmean(sigma)
 
         sigma = np.where(np.isnan(sigma), mean_uncert, sigma)
