@@ -3,8 +3,10 @@ from __future__ import annotations
 import json
 import os
 from pathlib import Path
+from unittest.mock import patch
 
 import pytest
+from monty.json import MontyDecoder
 
 from pymatgen.core import Element, Structure
 from pymatgen.io.vasp.inputs import Kpoints
@@ -53,14 +55,7 @@ class TestPMGTestTmpDir(PymatgenTest):
         assert test_file.read_text() == "Hello, pytest!"
 
 
-class TestAssertMSONable(PymatgenTest):
-    """TODO:
-    - test: raise TypeError("obj is not MSONable")
-    - test: raise ValueError("obj could not be reconstructed accurately from its dict representation.")
-    - test: if not issubclass(type(round_trip), type(obj)):
-                raise TypeError(f"{type(round_trip)} != {type(obj)}")
-    """
-
+class TestPMGTestAssertMSONable(PymatgenTest):
     def test_valid_msonable(self):
         """Test a valid MSONable object."""
         kpts_obj = Kpoints.monkhorst_automatic((2, 2, 2), [0, 0, 0])
@@ -85,6 +80,43 @@ class TestAssertMSONable(PymatgenTest):
         }
 
         assert is_np_dict_equal(serialized, expected_result)
+
+    def test_non_msonable(self):
+        non_msonable = dict(hello="world")
+        # Test `test_is_subclass` is True
+        with pytest.raises(TypeError, match="dict object is not MSONable"):
+            self.assert_msonable(non_msonable)
+
+        # Test `test_is_subclass` is False (dict don't have `as_dict` method)
+        with pytest.raises(AttributeError, match="'dict' object has no attribute 'as_dict'"):
+            self.assert_msonable(non_msonable, test_is_subclass=False)
+
+    def test_cannot_reconstruct(self):
+        """Patch the `from_dict` method of `Kpoints` to return a corrupted object"""
+        kpts_obj = Kpoints.monkhorst_automatic((2, 2, 2), [0, 0, 0])
+
+        with patch.object(Kpoints, "from_dict", side_effect=lambda d: Kpoints(comment="Corrupted Object")):
+            reconstructed_obj = Kpoints.from_dict(kpts_obj.as_dict())
+            assert reconstructed_obj.comment == "Corrupted Object"
+
+            with pytest.raises(ValueError, match="Kpoints object could not be reconstructed accurately"):
+                self.assert_msonable(kpts_obj)
+
+    def test_not_round_trip(self):
+        kpts_obj = Kpoints.monkhorst_automatic((2, 2, 2), [0, 0, 0])
+
+        # Patch the MontyDecoder to return an object of a different class
+        class NotAKpoints:
+            pass
+
+        with patch.object(MontyDecoder, "process_decoded", side_effect=lambda d: NotAKpoints()) as mock_decoder:
+            with pytest.raises(
+                TypeError,
+                match="The reconstructed NotAKpoints object is not a subclass of Kpoints",
+            ):
+                self.assert_msonable(kpts_obj)
+
+            mock_decoder.assert_called()
 
 
 class TestPymatgenTest(PymatgenTest):
@@ -122,7 +154,3 @@ class TestPymatgenTest(PymatgenTest):
         result = self.serialize_with_pickle(Element.from_Z(1))
         assert isinstance(result, list)
         assert result[0] is Element.H
-
-        # TODO: test parameterized args
-
-        # TODO: test exceptions

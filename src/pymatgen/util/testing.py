@@ -79,16 +79,21 @@ class PymatgenTest(TestCase):
         Returns:
             str: Serialized object.
         """
+        obj_name = obj.__class__.__name__
+
+        # Check if is an instance of MONable (or its subclasses)
         if test_is_subclass and not isinstance(obj, MSONable):
-            raise TypeError("obj is not MSONable")
+            raise TypeError(f"{obj_name} object is not MSONable")
 
+        # Check if the object can be accurately reconstructed from its dict representation
         if obj.as_dict() != type(obj).from_dict(obj.as_dict()).as_dict():
-            raise ValueError("obj could not be reconstructed accurately from its dict representation.")
+            raise ValueError(f"{obj_name} object could not be reconstructed accurately from its dict representation.")
 
+        # Verify that the deserialized object's class is a subclass of the original object's class
         json_str = json.dumps(obj.as_dict(), cls=MontyEncoder)
         round_trip = json.loads(json_str, cls=MontyDecoder)
         if not issubclass(type(round_trip), type(obj)):
-            raise TypeError(f"{type(round_trip)} != {type(obj)}")
+            raise TypeError(f"The reconstructed {round_trip.__class__.__name__} object is not a subclass of {obj_name}")
         return json_str
 
     @staticmethod
