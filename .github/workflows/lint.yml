@@ -25,18 +25,12 @@ jobs:
           pip install --upgrade ruff mypy pyright
 
       - name: ruff
-        continue-on-error: true
         run: |
           ruff check .
           ruff format --check .
 
       - name: mypy
-        continue-on-error: true
         run: mypy src
 
       - name: pyright
-        continue-on-error: true
         run: pyright
-
-      - name: markdown-link-check
-        uses: gaurav-nelson/github-action-markdown-link-check@v1
