@@ -2,7 +2,6 @@ from __future__ import annotations
 
 import hashlib
 import os
-import unittest
 from glob import glob
 from zipfile import ZipFile
 
@@ -1607,7 +1606,7 @@ class TestMPHSERelaxSet(PymatgenTest):
         assert not vis.incar["LASPH"], "LASPH user setting not applied"
         assert vis.incar["VDW_SR"] == 1.5, "VDW_SR user setting not applied"
 
-    @unittest.skipIf(not os.path.exists(TEST_DIR), "Test files are not present.")
+    @pytest.mark.skipif(not os.path.exists(TEST_DIR), reason="Test files are not present.")
     def test_from_prev_calc(self):
         prev_run = os.path.join(TEST_DIR, "fixtures", "relaxation")
 
@@ -1624,7 +1623,7 @@ class TestMPHSERelaxSet(PymatgenTest):
         assert "VDW_A2" in vis_bj.incar
         assert "VDW_S8" in vis_bj.incar
 
-    @unittest.skipIf(not os.path.exists(TEST_DIR), "Test files are not present.")
+    @pytest.mark.skipif(not os.path.exists(TEST_DIR), reason="Test files are not present.")
     def test_override_from_prev_calc(self):
         prev_run = os.path.join(TEST_DIR, "fixtures", "relaxation")
 

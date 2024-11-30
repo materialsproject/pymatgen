@@ -8,7 +8,6 @@ from __future__ import annotations
 
 import os
 import sys
-import unittest
 from shutil import which
 from unittest import TestCase
 
@@ -131,15 +130,6 @@ class TestGulpIO(TestCase):
         inp_str = self.gio.structure_lines(self.structure, cell_flg=False, frac_flg=False)
         assert "cell" not in inp_str
         assert "cart" in inp_str
-
-    @unittest.skip("Not Implemented yet")
-    def test_specie_potential(self):
-        pass
-
-    @unittest.expectedFailure
-    def test_library_line_explicit_path(self):
-        gin = self.gio.library_line("/Users/mbkumar/Research/Defects/GulpExe/Libraries/catlow.lib")
-        assert "lib" in gin
 
     def test_library_line_wrong_file(self):
         with pytest.raises(GulpError, match="GULP library not found"):
@@ -280,7 +270,7 @@ class TestGulpIO(TestCase):
         assert struct.lattice.a == 4.212
         assert struct.lattice.alpha == 90
 
-    @unittest.skip("Test later")
+    @pytest.mark.skip("Test later")
     def test_tersoff_input(self):
         self.gio.tersoff_input(self.structure)
 

@@ -2,7 +2,6 @@ from __future__ import annotations
 
 import collections
 import unittest
-import unittest.mock
 from itertools import combinations
 from numbers import Number
 from unittest import TestCase

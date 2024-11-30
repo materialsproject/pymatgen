@@ -1,6 +1,5 @@
 from __future__ import annotations
 
-import unittest
 from shutil import which
 
 import numpy as np
@@ -119,7 +118,7 @@ class TestEnumlibAdaptor(PymatgenTest):
         for struct in structures:
             assert struct.formula == "Ca12 Al8 Si4 Ge8 O48"
 
-    @unittest.skip("Fails seemingly at random.")
+    @pytest.mark.skip("Fails seemingly at random.")
     def test_timeout(self):
         struct = Structure.from_file(filename=f"{TEST_FILES_DIR}/cif/garnet.cif")
         SpacegroupAnalyzer(struct, 0.1)

@@ -1,6 +1,5 @@
 from __future__ import annotations
 
-import unittest
 from unittest import TestCase
 
 import pytest
@@ -167,7 +166,7 @@ class TestGetVoronoiNodes(TestCase):
         assert isinstance(vor_face_center_struct, Structure)
 
 
-@unittest.skip("TODO: file free_sph.cif not present")
+@pytest.mark.skip("TODO: file free_sph.cif not present")
 class TestGetFreeSphereParams(TestCase):
     def setUp(self):
         filepath = f"{TEST_FILES_DIR}/cif/free_sph.cif"
