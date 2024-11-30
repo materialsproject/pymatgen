@@ -98,14 +98,11 @@ class TestMcsqsCaller(PymatgenTest):
 
         assert sqs.objective_function == "Perfect_match"
 
-    @pytest.mark.skip("wrong err msg, need someone to check this")
     def test_mcsqs_caller_runtime_error(self):
         struct = self.struct.copy()
         struct.replace_species({"Ti": {"Ti": 0.5, "Zr": 0.5}, "Zr": {"Ti": 0.5, "Zr": 0.5}})
         struct.replace_species({"Pb": {"Ti": 0.2, "Pb": 0.8}})
         struct.replace_species({"O": {"F": 0.8, "O": 0.2}})
 
-        # TODO: the following gives a different error with message: "mcsqs did not generate
-        # output files, is search_time sufficient or are number of instances too high?"
-        with pytest.raises(RuntimeError, match="mcsqs exited before timeout reached"):
+        with pytest.raises(RuntimeError, match="mcsqs did not generate output files"):
             run_mcsqs(struct, {2: 6, 3: 4}, 10, 0.000001)
