@@ -65,7 +65,8 @@ class PymatgenTest(TestCase):
 
     @staticmethod
     def assert_msonable(obj: Any, test_is_subclass: bool = True) -> str:
-        """Test if an object is MSONable and verify the contract is fulfilled.
+        """Test if an object is MSONable and verify the contract is fulfilled,
+        and return the serialized object.
 
         By default, the method tests whether obj is an instance of MSONable.
         This check can be deactivated by setting `test_is_subclass` to False.
@@ -150,8 +151,7 @@ class PymatgenTest(TestCase):
                 with the original object using the `__eq__` method.
 
         Returns:
-            list: Nested list with the objects deserialized with the specified
-            protocols.
+            list[Any]: Objects deserialized with the specified protocols.
         """
         # Build a list even when we receive a single object.
         got_single_object = False
@@ -196,7 +196,7 @@ class PymatgenTest(TestCase):
         if errors:
             raise ValueError("\n".join(errors))
 
-        # Return nested list so that client code can perform additional tests
+        # Return list so that client code can perform additional tests
         if got_single_object:
             return [o[0] for o in objects_by_protocol]
         return objects_by_protocol
