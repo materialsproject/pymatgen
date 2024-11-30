@@ -208,9 +208,8 @@ direct
         copyfile(f"{VASP_IN_DIR}/POSCAR_C2", tmp_poscar_path := f"{self.tmp_path}/POSCAR")
         copyfile(f"{VASP_IN_DIR}/POTCAR_C2.gz", f"{self.tmp_path}/POTCAR.gz")
 
-        with warnings.catch_warnings(record=True) as record:
-            _poscar = Poscar.from_file(tmp_poscar_path)
-        assert not any("Elements in POSCAR would be overwritten" in str(warning.message) for warning in record)
+        warnings.filterwarnings("error", message="Elements in POSCAR would be overwritten")
+        _poscar = Poscar.from_file(tmp_poscar_path)
 
     def test_from_str_default_names(self):
         """Similar to test_from_file_bad_potcar, ensure "default_names"
@@ -237,18 +236,19 @@ cart
         assert poscar.site_symbols == ["Si", "O"]
 
         # Assert no warning if using the same elements (or superset)
-        with warnings.catch_warnings(record=True) as record:
+        with warnings.catch_warnings():
+            warnings.filterwarnings("error", message="Elements in POSCAR would be overwritten")
+
             poscar = Poscar.from_str(poscar_str, default_names=["Si", "F"])
             assert poscar.site_symbols == ["Si", "F"]
 
             poscar = Poscar.from_str(poscar_str, default_names=["Si", "F", "O"])
             assert poscar.site_symbols == ["Si", "F"]
-        assert not any("Elements in POSCAR would be overwritten" in str(warning.message) for warning in record)
 
         # Make sure it could be bypassed (by using None, when not check_for_potcar)
-        with warnings.catch_warnings(record=True) as record:
+        with warnings.catch_warnings():
+            warnings.filterwarnings("error", message="Elements in POSCAR would be overwritten")
             _poscar = Poscar.from_str(poscar_str, default_names=None)
-        assert not any("Elements in POSCAR would be overwritten" in str(warning.message) for warning in record)
 
     def test_from_str_default_names_vasp4(self):
         """Poscar.from_str with default_names given could also be used to

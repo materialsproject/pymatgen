@@ -110,14 +110,14 @@ class TestFloatWithUnit(PymatgenTest):
         assert mega_0 == mega_1 == mega_2 == mega_3
 
     def test_deprecated_memory(self):
-        # TODO: remove after 2025-01-01
+        """TODO: remove entire test method after 2025-01-01"""
         for unit in ("Kb", "kb", "Mb", "mb", "Gb", "gb", "Tb", "tb"):
             with pytest.warns(DeprecationWarning, match=f"Unit {unit} is deprecated"):
                 Memory(1, unit)
 
         with warnings.catch_warnings():
-            warnings.simplefilter("error")
             for unit in ("KB", "MB", "GB", "TB"):
+                warnings.filterwarnings("error", message=f"Unit {unit} is deprecated", category=DeprecationWarning)
                 Memory(1, unit)
 
     def test_unitized(self):
