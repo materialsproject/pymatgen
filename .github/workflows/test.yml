@@ -86,9 +86,7 @@ jobs:
           pip install torch==2.2.1
 
           # Install from wheels to test the content
-          uv pip install build
-          python -m build --wheel
-
+          uv build --wheel
           uv pip install dist/*.whl pymatgen[${{ matrix.config.extras }}] --resolution=${{ matrix.config.resolution }}
 
       - name: Install optional Ubuntu dependencies
