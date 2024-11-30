@@ -6,7 +6,6 @@ from __future__ import annotations
 
 import os
 import tempfile
-import warnings
 from pathlib import Path
 from shutil import which
 from subprocess import Popen, TimeoutExpired
@@ -32,7 +31,7 @@ class Sqs(NamedTuple):
 
 @requires(
     which("mcsqs") and which("str2cif"),
-    "run_mcsqs requires first installing AT-AT, see https://www.brown.edu/Departments/Engineering/Labs/avdw/atat/",
+    "run_mcsqs requires ATAT, see https://www.brown.edu/Departments/Engineering/Labs/avdw/atat/",
 )
 def run_mcsqs(
     structure: Structure,
@@ -191,9 +190,7 @@ def _parse_sqs_path(path) -> Sqs:
         process = Popen(["str2cif"], stdin=input_file, stdout=output_file, cwd=path)
         process.communicate()
 
-    with warnings.catch_warnings():
-        warnings.simplefilter("ignore")
-        best_sqs = Structure.from_file(path / "bestsqs.out")
+    best_sqs = Structure.from_file(path / "bestsqs.out")
 
     # Get best SQS objective function
     with open(path / "bestcorr.out") as file:
