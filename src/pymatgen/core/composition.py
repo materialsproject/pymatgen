@@ -25,7 +25,7 @@ from pymatgen.util.string import Stringify, formula_double_format
 
 if TYPE_CHECKING:
     from collections.abc import Generator, Iterator
-    from typing import Any, ClassVar
+    from typing import Any, ClassVar, Literal
 
     from typing_extensions import Self
 
@@ -774,17 +774,25 @@ class Composition(collections.abc.Hashable, collections.abc.Mapping, MSONable, S
     def to_weight_dict(self) -> dict[str, float]:
         """
         Returns:
-            dict[str, float] with weight fraction of each component {"Ti": 0.90, "V": 0.06, "Al": 0.04}.
+            dict[str, float]: weight fractions of each component, e.g. {"Ti": 0.90, "V": 0.06, "Al": 0.04}.
         """
         return {str(el): self.get_wt_fraction(el) for el in self.elements}
 
     @property
-    def to_data_dict(self) -> dict[str, Any]:
+    def to_data_dict(
+        self,
+    ) -> dict[
+        Literal["reduced_cell_composition", "unit_cell_composition", "reduced_cell_formula", "elements", "nelements"],
+        Any,
+    ]:
         """
         Returns:
-            A dict with many keys and values relating to Composition/Formula,
-            including reduced_cell_composition, unit_cell_composition,
-            reduced_cell_formula, elements and nelements.
+            dict with the following keys:
+                - reduced_cell_composition
+                - unit_cell_composition
+                - reduced_cell_formula
+                - elements
+                - nelements.
         """
         return {
             "reduced_cell_composition": self.reduced_composition,
