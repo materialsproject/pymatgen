@@ -1,6 +1,5 @@
 from __future__ import annotations
 
-import unittest
 from shutil import which
 
 import numpy as np
@@ -14,12 +13,11 @@ from pymatgen.transformations.site_transformations import RemoveSitesTransformat
 from pymatgen.transformations.standard_transformations import SubstitutionTransformation
 from pymatgen.util.testing import TEST_FILES_DIR, PymatgenTest
 
-enum_cmd = which("enum.x") or which("multienum.x")
-makestr_cmd = which("makestr.x") or which("makeStr.x") or which("makeStr.py")
-enumlib_present = enum_cmd and makestr_cmd
+ENUM_CMD = which("enum.x") or which("multienum.x")
+MAKESTR_CMD = which("makestr.x") or which("makeStr.x") or which("makeStr.py")
 
 
-@pytest.mark.skipif(not enumlib_present, reason="enum_lib not present.")
+@pytest.mark.skipif(not (ENUM_CMD and MAKESTR_CMD), reason="enumlib not present.")
 class TestEnumlibAdaptor(PymatgenTest):
     def test_init(self):
         struct = self.get_structure("LiFePO4")
@@ -119,7 +117,7 @@ class TestEnumlibAdaptor(PymatgenTest):
         for struct in structures:
             assert struct.formula == "Ca12 Al8 Si4 Ge8 O48"
 
-    @unittest.skip("Fails seemingly at random.")
+    @pytest.mark.skip("Fails seemingly at random.")
     def test_timeout(self):
         struct = Structure.from_file(filename=f"{TEST_FILES_DIR}/cif/garnet.cif")
         SpacegroupAnalyzer(struct, 0.1)

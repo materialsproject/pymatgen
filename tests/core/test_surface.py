@@ -2,9 +2,9 @@ from __future__ import annotations
 
 import json
 import os
-import unittest
 
 import numpy as np
+import pytest
 from numpy.testing import assert_allclose
 from pytest import approx
 
@@ -697,7 +697,7 @@ class ReconstructionGeneratorTests(PymatgenTest):
         s2 = recon2.get_unreconstructed_slabs()[0]
         assert get_d(s1) == approx(get_d(s2))
 
-    @unittest.skip("This test relies on neighbor orders and is hard coded. Disable temporarily")
+    @pytest.mark.skip("This test relies on neighbor orders and is hard coded. Disable temporarily")
     def test_previous_reconstructions(self):
         # Test to see if we generated all reconstruction types correctly and nothing changes
 
