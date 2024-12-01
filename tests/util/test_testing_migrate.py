@@ -2,18 +2,6 @@
 `unittest.TestCase`. It ensures we're aware the side effects from the migration.
 
 TODO: remove this test module after migration (2026-01-01), see PR 4209.
-
-`unittest.TestCase`-specific features and brief migration guide:
-- Setup/teardown methods (`setUp`, `setUpClass`, `tearDown`, `tearDownClass`):
-    1. Recommended approach in pytest: Use fixtures.
-       Documentation: https://docs.pytest.org/en/stable/reference/fixtures.html#fixture
-    OR
-    2. Use pytest's xUnit-style setup/teardown functions:
-       `[setup/teardown]_[class/method/function]`.
-       Documentation: https://docs.pytest.org/en/stable/how-to/xunit_setup.html
-
-- Assertion methods (`assertTrue`, `assertFalse`, `assertEqual`, etc.):
-    Replace with direct Python `assert` statements.
 """
 
 # ruff: noqa: PT009, PT027, FBT003

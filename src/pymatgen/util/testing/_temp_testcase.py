@@ -1,5 +1,10 @@
-# ruff: noqa: PT009, PT027
+"""Temporary TestCase for migration to `pytest` framework,
+inserted FutureWarning for unittest.TestCase-specific methods.
 
+TODO: remove entire module after migration
+"""
+
+# ruff: noqa: PT009, PT027
 
 from __future__ import annotations
 
@@ -8,10 +13,6 @@ from unittest import TestCase
 
 
 class _TempTestCase4Migrate(TestCase):
-    """Temporary TestCase for migration to `pytest` framework,
-    inserted FutureWarning for unittest.TestCase-specific methods.
-    """
-
     @staticmethod
     def _issue_warning(method_name):
         warnings.warn(
