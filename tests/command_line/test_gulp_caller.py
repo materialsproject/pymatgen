@@ -132,15 +132,6 @@ class TestGulpIO(TestCase):
         assert "cell" not in inp_str
         assert "cart" in inp_str
 
-    @unittest.skip("Not Implemented yet")
-    def test_specie_potential(self):
-        pass
-
-    @unittest.expectedFailure
-    def test_library_line_explicit_path(self):
-        gin = self.gio.library_line("/Users/mbkumar/Research/Defects/GulpExe/Libraries/catlow.lib")
-        assert "lib" in gin
-
     def test_library_line_wrong_file(self):
         with pytest.raises(GulpError, match="GULP library not found"):
             self.gio.library_line("temp_to_fail.lib")
