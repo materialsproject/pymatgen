@@ -16,6 +16,8 @@ TODO: remove this test module after migration (2026-01-01), see PR 4209.
     Replace with direct Python `assert` statements.
 """
 
+# ruff: noqa: PT009, PT027, FBT003
+
 from __future__ import annotations
 
 import pytest
@@ -23,17 +25,14 @@ import pytest
 from pymatgen.util.testing import PymatgenTest
 
 
-@pytest.mark.filterwarnings("ignore:PymatgenTest is scheduled for migration to pytest")
 class TestPymatgenTestTestCase(PymatgenTest):
     """Baseline inspector for migration side effects."""
 
-    def test_pmg_test_migration_warning(self):
-        """Test PymatgenTest migration warning."""
-        with pytest.warns(FutureWarning, match="PymatgenTest is scheduled for migration to pytest after 2026-01-01"):
-            self.setUpClass()  #  invoke the setup phase
-
     def test_unittest_testcase_specific_funcs(self):
-        """Make sure TestCase-specific methods are available until migration."""
+        """Make sure TestCase-specific methods are available until migration.
+        TODO: check warnings
+        """
+
         # Testing setUp and tearDown methods
         self.setUp()
         self.tearDown()
@@ -43,9 +42,9 @@ class TestPymatgenTestTestCase(PymatgenTest):
         self.tearDownClass()
 
         # Test the assertion methods
-        self.assertTrue(True)  # noqa: PT009, FBT003
-        self.assertFalse(False)  # noqa: PT009, FBT003
-        self.assertEqual(1, 1)  # noqa: PT009
+        self.assertTrue(True)
+        self.assertFalse(False)
+        self.assertEqual(1, 1)
 
 
 class TestPymatgenTestPytest:
@@ -65,8 +64,8 @@ class TestPymatgenTestPytest:
 
         # Test the assertion methods
         with pytest.raises(AttributeError, match="'TestPymatgenTestPytest' object has no attribute"):
-            self.assertTrue(True)  # noqa: PT009, FBT003
+            self.assertTrue(True)
         with pytest.raises(AttributeError, match="'TestPymatgenTestPytest' object has no attribute"):
-            self.assertFalse(False)  # noqa: PT009, FBT003
+            self.assertFalse(False)
         with pytest.raises(AttributeError, match="'TestPymatgenTestPytest' object has no attribute"):
-            self.assertEqual(1, 1)  # noqa: PT009
+            self.assertEqual(1, 1)

@@ -10,16 +10,15 @@ from __future__ import annotations
 import json
 import pickle  # use pickle, not cPickle so that we get the traceback in case of errors
 import string
-import warnings
 from pathlib import Path
 from typing import TYPE_CHECKING
-from unittest import TestCase
 
 import pytest
 from monty.json import MontyDecoder, MontyEncoder, MSONable
 from monty.serialization import loadfn
 
 from pymatgen.core import ROOT, SETTINGS, Structure
+from pymatgen.util.testing._temp_testcase import _TempTestCase4Migrate
 
 if TYPE_CHECKING:
     from collections.abc import Sequence
@@ -36,22 +35,11 @@ VASP_OUT_DIR = f"{TEST_FILES_DIR}/io/vasp/outputs"
 FAKE_POTCAR_DIR = f"{VASP_IN_DIR}/fake_potcars"
 
 
-class PymatgenTest(TestCase):
+class PymatgenTest(_TempTestCase4Migrate):
     """Extends unittest.TestCase with several assert methods for array and str comparison."""
 
     # dict of lazily-loaded test structures (initialized to None)
     TEST_STRUCTURES: ClassVar[dict[str | Path, Structure | None]] = dict.fromkeys(STRUCTURES_DIR.glob("*"))
-
-    @classmethod
-    def setUpClass(cls):
-        """Issue a FutureWarning, see PR 4209."""
-        warnings.warn(
-            "PymatgenTest is scheduled for migration to pytest after 2026-01-01. "
-            "Please adapt your tests accordingly.",
-            FutureWarning,
-            stacklevel=2,
-        )
-        super().setUpClass()
 
     @pytest.fixture(autouse=True)  # make all tests run a in a temporary directory accessible via self.tmp_path
     def _tmp_dir(self, tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
