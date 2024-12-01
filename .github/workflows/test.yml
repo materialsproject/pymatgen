@@ -104,6 +104,14 @@ jobs:
           mv linux vampire-5.0
           echo "$(realpath vampire-5.0/)" >> $GITHUB_PATH
 
+          # Install mcsqs (from ATAT3_36)
+          wget -q http://alum.mit.edu/www/avdw/atat/atat3_36.tar.gz
+          tar -zxf atat3_36.tar.gz  && cd atat
+          sudo apt-get install -y csh
+          mkdir -p $HOME/bin && make && make install
+          echo "$HOME/bin" >> $GITHUB_PATH
+          cd ..
+
       - name: pytest split ${{ matrix.split }}
         env:
           PMG_TEST_FILES_DIR: "${{ github.workspace }}/tests/files"
