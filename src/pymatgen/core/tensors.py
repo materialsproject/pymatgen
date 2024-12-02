@@ -212,7 +212,12 @@ class Tensor(np.ndarray, MSONable):
         remaining = [i for i in remaining if i not in grouped[0]]
         # Iteratively run through remaining indices
         while remaining:
-            new = list(zip(*np.where(np.isclose(array, array[remaining[0]], **kwargs)), strict=True))
+            new = list(
+                zip(
+                    *np.where(np.isclose(array, array[remaining[0]], **kwargs)),
+                    strict=True,
+                )
+            )
             grouped.append(new)
             remaining = [i for i in remaining if i not in new]
         # Don't return any empty lists
@@ -301,7 +306,7 @@ class Tensor(np.ndarray, MSONable):
         Args:
             tol (float): tolerance to test for symmetry
         """
-        return (self - self.symmetrized < tol).all()
+        return np.allclose(self, self.symmetrized, atol=tol, rtol=0)
 
     def fit_to_structure(
         self,
@@ -331,7 +336,7 @@ class Tensor(np.ndarray, MSONable):
             structure (Structure): structure to be fit to
             tol (float): tolerance for symmetry testing
         """
-        return bool((self - self.fit_to_structure(structure) < tol).all())
+        return np.allclose(self, self.fit_to_structure(structure), atol=tol, rtol=0)
 
     @property
     def voigt(self) -> NDArray:
@@ -968,7 +973,7 @@ class SquareTensor(Tensor):
         det = np.abs(np.linalg.det(self))
         if include_improper:
             det = np.abs(det)
-        return bool((np.abs(self.inv - self.trans) < tol).all() and (np.abs(det - 1.0) < tol))
+        return np.allclose(self.inv, self.trans, atol=tol, rtol=0) and np.allclose(det, 1.0, atol=tol, rtol=0)
 
     def refine_rotation(self) -> Self:
         """Helper method for refining rotation matrix by ensuring

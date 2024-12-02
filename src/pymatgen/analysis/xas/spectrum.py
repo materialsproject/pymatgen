@@ -10,11 +10,15 @@ import numpy as np
 from scipy.interpolate import interp1d
 
 from pymatgen.analysis.structure_matcher import StructureMatcher
+from pymatgen.core import Element
 from pymatgen.core.spectrum import Spectrum
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
 
 if TYPE_CHECKING:
+    from collections.abc import Sequence
     from typing import Literal
+
+    from pymatgen.core import Structure
 
 __author__ = "Chen Zheng, Yiming Chen"
 __copyright__ = "Copyright 2012, The Materials Project"
@@ -42,10 +46,11 @@ class XAS(Spectrum):
     Attributes:
         x (Sequence[float]): The sequence of energies.
         y (Sequence[float]): The sequence of mu(E).
-        absorbing_element (str): The absorbing element of the spectrum.
+        absorbing_element (str or .Element): The absorbing element of the spectrum.
         edge (str): The edge of the spectrum.
         spectrum_type (str): The type of the spectrum (XANES or EXAFS).
         absorbing_index (int): The absorbing index of the spectrum.
+        zero_negative_intensity (bool) : Whether to set unphysical negative intensities to zero
     """
 
     XLABEL = "Energy"
@@ -53,28 +58,39 @@ class XAS(Spectrum):
 
     def __init__(
         self,
-        x,
-        y,
-        structure,
-        absorbing_element,
-        edge="K",
-        spectrum_type="XANES",
-        absorbing_index=None,
+        x: Sequence,
+        y: Sequence,
+        structure: Structure,
+        absorbing_element: str | Element,
+        edge: str = "K",
+        spectrum_type: str = "XANES",
+        absorbing_index: int | None = None,
+        zero_negative_intensity: bool = False,
     ):
         """Initialize a spectrum object."""
         super().__init__(x, y, structure, absorbing_element, edge)
         self.structure = structure
-        self.absorbing_element = absorbing_element
+        self.absorbing_element = Element(absorbing_element)
         self.edge = edge
         self.spectrum_type = spectrum_type
         self.e0 = self.x[np.argmax(np.gradient(self.y) / np.gradient(self.x))]
         # Wavenumber, k is calculated based on equation
         #             k^2=2*m/(hbar)^2*(E-E0)
-        self.k = [np.sqrt((i - self.e0) / 3.8537) if i > self.e0 else -np.sqrt((self.e0 - i) / 3.8537) for i in self.x]
+        self.k = [
+            (np.sqrt((i - self.e0) / 3.8537) if i > self.e0 else -np.sqrt((self.e0 - i) / 3.8537)) for i in self.x
+        ]
         self.absorbing_index = absorbing_index
         # check for empty spectra and negative intensities
-        if sum(1 for i in self.y if i <= 0) / len(self.y) > 0.05:
-            raise ValueError("Double check the intensities. Most of them are non-positive.")
+        neg_intens_mask = self.y < 0.0
+        if len(self.y[neg_intens_mask]) / len(self.y) > 0.05:
+            warnings.warn(
+                "Double check the intensities. More than 5% of them are negative.",
+                UserWarning,
+                stacklevel=2,
+            )
+        self.zero_negative_intensity = zero_negative_intensity
+        if self.zero_negative_intensity:
+            self.y[neg_intens_mask] = 0.0
 
     def __str__(self):
         return (
@@ -201,6 +217,7 @@ class XAS(Spectrum):
                 warnings.warn(
                     "There might exist a jump at the L2 and L3-edge junction.",
                     UserWarning,
+                    stacklevel=2,
                 )
 
             return XAS(energy, mu, self.structure, self.absorbing_element, "L23", "XANES")

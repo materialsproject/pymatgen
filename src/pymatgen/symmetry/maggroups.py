@@ -116,7 +116,10 @@ class MagneticSpaceGroup(SymmetryGroup):
             label = "".join(label.split())  # remove any white space
             c.execute("SELECT * FROM space_groups WHERE BNS_label=?;", (label,))
         elif isinstance(label, list):
-            c.execute("SELECT * FROM space_groups WHERE BNS1=? AND BNS2=?;", (label[0], label[1]))
+            c.execute(
+                "SELECT * FROM space_groups WHERE BNS1=? AND BNS2=?;",
+                (label[0], label[1]),
+            )
         elif isinstance(label, int):
             # OG3 index is a 'master' index, going from 1 to 1651
             c.execute("SELECT * FROM space_groups WHERE OG3=?;", (label,))

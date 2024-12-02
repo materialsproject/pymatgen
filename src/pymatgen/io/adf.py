@@ -22,16 +22,6 @@ if TYPE_CHECKING:
 __author__ = "Xin Chen, chenxin13@mails.tsinghua.edu.cn"
 
 
-def is_numeric(string) -> bool:
-    """True if input string is numeric and can be converted to an int or a float."""
-    try:
-        float(string)
-    except ValueError:
-        return False
-    else:
-        return True
-
-
 class AdfInputError(Exception):
     """The default error class for ADF."""
 
@@ -210,13 +200,12 @@ class AdfKey(MSONable):
         Raises:
             TypeError: If the format of the given ``option`` is different.
         """
-        if len(self.options) == 0:
-            self.options.append(option)
-        else:
+        if len(self.options) != 0:
             sized_op = isinstance(option, list | tuple)
             if self._sized_op != sized_op:
                 raise TypeError("Option type is mismatched!")
-            self.options.append(option)
+
+        self.options.append(option)
 
     def remove_option(self, option: str | int) -> None:
         """
@@ -304,23 +293,32 @@ class AdfKey(MSONable):
             Only the first block key will be returned.
         """
 
-        def is_float(s) -> bool:
-            return "." in s or "E" in s or "e" in s
+        def is_float(string: str) -> bool:
+            return "." in string or "E" in string or "e" in string
 
-        if string.find("\n") == -1:
-            el = string.split()
+        def is_numeric(string: str) -> bool:
+            """True if input string is numeric and can be converted to an int or a float."""
+            try:
+                float(string)
+                return True
+            except ValueError:
+                return False
+
+        if "\n" not in string:
+            el: list[str] = string.split()
             if len(el) > 1:
-                options = [s.split("=") for s in el[1:]] if string.find("=") != -1 else el[1:]
-                for idx, op in enumerate(options):  # type: ignore[var-annotated, arg-type]
-                    if isinstance(op, list) and is_numeric(op[1]):
-                        op[1] = float(op[1]) if is_float(op[1]) else int(op[1])
-                    elif is_numeric(op):
-                        options[idx] = float(op) if is_float(op) else int(op)  # type: ignore[index]
-            else:
-                options = None
-            return cls(el[0], options)
+                options: list[list[str]] | list[str] = [s.split("=") for s in el[1:]] if "=" in string else el[1:]
+                for idx, op in enumerate(options):
+                    if isinstance(op, list):
+                        if is_numeric(op[1]):
+                            op[1] = float(op[1]) if is_float(op[1]) else int(op[1])
+                    elif isinstance(op, str) and is_numeric(op):
+                        options[idx] = float(op) if is_float(op) else int(op)  # type: ignore[call-overload]
+                return cls(el[0], options)
 
-        if string.find("subend") != -1:
+            return cls(el[0], None)
+
+        if "subend" in string:
             raise ValueError("Nested subkeys are not supported!")
 
         def iter_lines(s: str) -> Generator[str, None, None]:
@@ -470,8 +468,7 @@ class AdfTask(MSONable):
 {self.xc}
 {self.basis_set}
 {self.scf}
-{self.geo}"""
-        out += "\n"
+{self.geo}\n"""
         for block_key in self.other_directives:
             if not isinstance(block_key, AdfKey):
                 raise TypeError(f"{block_key} is not an AdfKey!")
@@ -537,7 +534,7 @@ class AdfInput:
 
         Args:
             molecule (Molecule): The molecule for this task.
-        inpfile (str): The name where the input file will be saved.
+            inpfile (str): The name where the input file will be saved.
         """
         mol_blocks = []
         atom_block = AdfKey("Atoms", options=["cartesian"])
@@ -620,13 +617,13 @@ class AdfOutput:
 
     @staticmethod
     def _sites_to_mol(sites):
-        """Get a ``Molecule`` object given a list of sites.
+        """Get a Molecule object given a list of sites.
 
         Args:
             sites : A list of sites.
 
         Returns:
-            mol (Molecule): A ``Molecule`` object.
+            mol (Molecule): A Molecule object.
         """
         return Molecule([site[0] for site in sites], [site[1] for site in sites])
 
@@ -699,7 +696,12 @@ class AdfOutput:
                             parse_final = True
                     elif parse_cycle:
                         if match := coord_patt.search(line):
-                            sites.append([match.groups()[1], list(map(float, match.groups()[2:]))])
+                            sites.append(
+                                [
+                                    match.groups()[1],
+                                    list(map(float, match.groups()[2:])),
+                                ]
+                            )
                         elif match := energy_patt.search(line):
                             self.energies.append(float(match[1]))
                             mol = self._sites_to_mol(sites)
@@ -749,7 +751,7 @@ class AdfOutput:
             find_structure = parse_coord = False
             n_atoms = len(self.final_structure)
 
-        with open(self.filename) as file:
+        with open(self.filename, encoding="utf-8") as file:
             for line in file:
                 if self.run_type == "NumericalFreq" and find_structure:
                     if not parse_coord:
@@ -777,13 +779,12 @@ class AdfOutput:
                     if freq_off_patt.search(line):
                         break
                     el = line.strip().split()
-                    if 1 <= len(el) <= 3 and line.find(".") != -1:
+                    if 1 <= len(el) <= 3 and "." in line:
                         n_next = len(el)
                         parse_mode = True
                         parse_freq = False
                         self.frequencies.extend(map(float, el))
-                        for _ in range(n_next):
-                            self.normal_modes.append([])
+                        self.normal_modes.extend([] for _ in range(n_next))
 
                 elif parse_mode and (match := mode_patt.search(line)):
                     v = list(chunks(map(float, match[3].split()), 3))

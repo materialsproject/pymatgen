@@ -1,9 +1,13 @@
 from __future__ import annotations
 
+import importlib
+from unittest import mock
+
 import pytest
 from monty.io import zopen
 from numpy.testing import assert_allclose
 
+import pymatgen
 from pymatgen.core import Composition, Structure
 from pymatgen.io.pwmat.inputs import (
     ACExtractor,
@@ -129,10 +133,19 @@ class TestHighSymmetryPoint(PymatgenTest):
         assert tmp_high_symmetry_points_str == high_symmetry_points.get_str()
 
 
-def test_err_msg_on_seekpath_not_installed(monkeypatch):
+def test_err_msg_on_seekpath_not_installed():
     """Simulate and test error message when seekpath is not installed."""
-    try:
-        import seekpath  # noqa: F401
-    except ImportError:
-        with pytest.raises(RuntimeError, match="SeeK-path needs to be installed to use the convention of Hinuma et al"):
+
+    with mock.patch.dict("sys.modules", {"seekpath": None}):
+        # As the import error is raised during init of KPathSeek,
+        # have to import it as well (order matters)
+        importlib.reload(pymatgen.symmetry.kpath)
+        importlib.reload(pymatgen.io.pwmat.inputs)
+
+        from pymatgen.io.pwmat.inputs import GenKpt
+
+        with pytest.raises(
+            RuntimeError,
+            match="SeeK-path needs to be installed to use the convention of Hinuma et al",
+        ):
             GenKpt.from_structure(Structure.from_file(f"{TEST_DIR}/atom.config"), dim=2, density=0.01)

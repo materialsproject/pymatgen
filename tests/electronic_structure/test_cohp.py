@@ -79,8 +79,14 @@ class TestCohp(TestCase):
         assert str(self.coop).strip().startswith(header)
 
     def test_antibnd_states_below_efermi(self):
-        assert self.cohp.has_antibnd_states_below_efermi(spin=None) == {Spin.up: True, Spin.down: True}
-        assert self.cohp.has_antibnd_states_below_efermi(spin=None, limit=0.5) == {Spin.up: False, Spin.down: False}
+        assert self.cohp.has_antibnd_states_below_efermi(spin=None) == {
+            Spin.up: True,
+            Spin.down: True,
+        }
+        assert self.cohp.has_antibnd_states_below_efermi(spin=None, limit=0.5) == {
+            Spin.up: False,
+            Spin.down: False,
+        }
         assert self.cohp.has_antibnd_states_below_efermi(spin=Spin.up, limit=0.5) == {Spin.up: False}
 
 
@@ -230,7 +236,10 @@ class TestCombinedIcohp(TestCase):
                 "list_length": [1.99474, 1.99474],
                 "list_translation": [[0, 0, -1], [0, 0, 0]],
                 "list_num": [1, 1],
-                "list_icohp": [{Spin.up: 0.29324, Spin.down: 0.29324}, {Spin.up: 0.29324, Spin.down: 0.29324}],
+                "list_icohp": [
+                    {Spin.up: 0.29324, Spin.down: 0.29324},
+                    {Spin.up: 0.29324, Spin.down: 0.29324},
+                ],
                 "is_spin_polarized": True,
                 "list_orb_icohp": [
                     {
@@ -849,14 +858,20 @@ class TestCompleteCohp(PymatgenTest):
         filepath = f"{TEST_DIR}/COBICAR.lobster.GeTe.multi.orbitalwise.full"
         structure = f"{TEST_DIR}/POSCAR.GeTe"
         self.cobi_multi = CompleteCohp.from_file(
-            "lobster", filename=filepath, structure_file=structure, are_multi_center_cobis=True
+            "lobster",
+            filename=filepath,
+            structure_file=structure,
+            are_multi_center_cobis=True,
         )
 
         # COBI multi-center
         filepath = f"{TEST_DIR}/COBICAR.lobster.B2H6.spin"
         structure = f"{TEST_DIR}/POSCAR.B2H6"
         self.cobi_multi_B2H6 = CompleteCohp.from_file(
-            "lobster", filename=filepath, structure_file=structure, are_multi_center_cobis=True
+            "lobster",
+            filename=filepath,
+            structure_file=structure,
+            are_multi_center_cobis=True,
         )
 
         # COBI multi-center
@@ -1268,12 +1283,22 @@ class TestMethod(TestCase):
 
         cohp = self.cohp_lobster
         result = get_integrated_cohp_in_energy_range(
-            cohp, label="1", orbital=None, energy_range=None, relative_E_Fermi=True, summed_spin_channels=True
+            cohp,
+            label="1",
+            orbital=None,
+            energy_range=None,
+            relative_E_Fermi=True,
+            summed_spin_channels=True,
         )
         assert result == approx(-0.10218 - 0.19701)
 
         result = get_integrated_cohp_in_energy_range(
-            cohp, label="1", orbital=None, energy_range=None, relative_E_Fermi=True, summed_spin_channels=False
+            cohp,
+            label="1",
+            orbital=None,
+            energy_range=None,
+            relative_E_Fermi=True,
+            summed_spin_channels=False,
         )
         assert result[Spin.up] == approx(-0.10218)
         assert result[Spin.down] == approx(-0.19701)
@@ -1291,13 +1316,23 @@ class TestMethod(TestCase):
         assert result[Spin.up] == approx(-4.36062)
 
         result = get_integrated_cohp_in_energy_range(
-            self.cohp_orb, label="1", orbital=None, energy_range=None, relative_E_Fermi=True, summed_spin_channels=False
+            self.cohp_orb,
+            label="1",
+            orbital=None,
+            energy_range=None,
+            relative_E_Fermi=True,
+            summed_spin_channels=False,
         )
 
         assert result[Spin.up] == approx(-4.36062)
 
         result = get_integrated_cohp_in_energy_range(
-            self.cohp_orb, label="1", orbital=None, energy_range=None, relative_E_Fermi=True, summed_spin_channels=True
+            self.cohp_orb,
+            label="1",
+            orbital=None,
+            energy_range=None,
+            relative_E_Fermi=True,
+            summed_spin_channels=True,
         )
 
         assert result == approx(-4.36062)
@@ -1332,13 +1367,23 @@ class TestMethod(TestCase):
         cohp = self.cohp_lobster
         fermi = cohp.efermi
         result = get_integrated_cohp_in_energy_range(
-            cohp, label="1", orbital=None, energy_range=-0.60201, relative_E_Fermi=True, summed_spin_channels=True
+            cohp,
+            label="1",
+            orbital=None,
+            energy_range=-0.60201,
+            relative_E_Fermi=True,
+            summed_spin_channels=True,
         )
 
         assert result == approx(-0.10218 - 0.19701 + 0.14894 + 0.21889)
 
         result = get_integrated_cohp_in_energy_range(
-            cohp, label="1", orbital=None, energy_range=-0.60201, relative_E_Fermi=True, summed_spin_channels=False
+            cohp,
+            label="1",
+            orbital=None,
+            energy_range=-0.60201,
+            relative_E_Fermi=True,
+            summed_spin_channels=False,
         )
 
         assert result[Spin.up] == approx(-0.10218 + 0.14894)
@@ -1405,12 +1450,22 @@ class TestMethod(TestCase):
         cohp = self.cohp_lobster
         fermi = cohp.efermi
         result = get_integrated_cohp_in_energy_range(
-            cohp, label="1", orbital=None, energy_range=[-0.60201, 0], relative_E_Fermi=True, summed_spin_channels=True
+            cohp,
+            label="1",
+            orbital=None,
+            energy_range=[-0.60201, 0],
+            relative_E_Fermi=True,
+            summed_spin_channels=True,
         )
         assert result == approx(-0.10218 - 0.19701 + 0.14894 + 0.21889)
 
         result = get_integrated_cohp_in_energy_range(
-            cohp, label="1", orbital=None, energy_range=[-0.60201, 0], relative_E_Fermi=True, summed_spin_channels=False
+            cohp,
+            label="1",
+            orbital=None,
+            energy_range=[-0.60201, 0],
+            relative_E_Fermi=True,
+            summed_spin_channels=False,
         )
 
         assert result[Spin.up] == approx(-0.10218 + 0.14894)

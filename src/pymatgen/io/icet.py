@@ -49,7 +49,7 @@ class IcetSQS:
     }
     _sqs_kwarg_defaults: ClassVar[dict[str, Any]] = {
         "optimality_weight": None,
-        "tol": 1.0e-5,
+        "tol": 1e-5,
         "include_smaller_cells": False,  # for consistency with ATAT
         "pbc": (True, True, True),
     }
@@ -147,7 +147,8 @@ class IcetSQS:
             concentrations=self.composition, cluster_space=cluster_space
         )
         self.sqs_vector = _get_sqs_cluster_vector(
-            cluster_space=cluster_space, target_concentrations=self.target_concentrations
+            cluster_space=cluster_space,
+            target_concentrations=self.target_concentrations,
         )
 
     def run(self) -> Sqs:
@@ -192,7 +193,11 @@ class IcetSQS:
     def _get_cluster_space(self) -> ClusterSpace:
         """Generate the ClusterSpace object for icet."""
         chemical_symbols = [list(site.species.as_dict()) for site in self._structure]
-        return ClusterSpace(structure=self._ordered_atoms, cutoffs=self.cutoffs_list, chemical_symbols=chemical_symbols)
+        return ClusterSpace(
+            structure=self._ordered_atoms,
+            cutoffs=self.cutoffs_list,
+            chemical_symbols=chemical_symbols,
+        )
 
     def get_icet_sqs_obj(self, material: Atoms | Structure, cluster_space: _ClusterSpace | None = None) -> float:
         """Get the SQS objective function.

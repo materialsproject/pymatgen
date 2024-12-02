@@ -326,7 +326,13 @@ class SlabEntry(ComputedStructureEntry):
 
     @classmethod
     def from_computed_structure_entry(
-        cls, entry, miller_index, label=None, adsorbates=None, clean_entry=None, **kwargs
+        cls,
+        entry,
+        miller_index,
+        label=None,
+        adsorbates=None,
+        clean_entry=None,
+        **kwargs,
     ) -> Self:
         """Get SlabEntry from a ComputedStructureEntry."""
         return cls(
@@ -950,7 +956,11 @@ class SurfaceEnergyPlotter:
             # want to show the region where each slab is stable
             if not show_unstable:
                 stable_u_range_dict = self.stable_u_range_dict(
-                    chempot_range, ref_delu, no_doped=no_doped, delu_dict=delu_dict, miller_index=hkl
+                    chempot_range,
+                    ref_delu,
+                    no_doped=no_doped,
+                    delu_dict=delu_dict,
+                    miller_index=hkl,
                 )
             else:
                 stable_u_range_dict = {}
@@ -1003,7 +1013,7 @@ class SurfaceEnergyPlotter:
                             )
 
         # Make the figure look nice
-        plt.ylabel(r"Surface energy (J/$m^{2}$)") if JPERM2 else plt.ylabel(r"Surface energy (eV/$\AA^{2}$)")
+        (plt.ylabel(r"Surface energy (J/$m^{2}$)") if JPERM2 else plt.ylabel(r"Surface energy (eV/$\AA^{2}$)"))
         return self.chempot_plot_addons(plt, chempot_range, str(ref_delu).split("_")[1], axes, ylim=ylim)
 
     def monolayer_vs_BE(self, plot_eads=False):

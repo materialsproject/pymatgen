@@ -144,7 +144,12 @@ class Unk:
                     file.write_record(self.data[ib].flatten("F"))
 
     def __repr__(self) -> str:
-        ik, nbnd, ncl, ngx, ngy, ngz = self.ik, self.nbnd, self.is_noncollinear, *self.ng
+        ik, nbnd, ncl, ngx, ngy, ngz = (
+            self.ik,
+            self.nbnd,
+            self.is_noncollinear,
+            *self.ng,
+        )
         return f"{(type(self).__name__)}({ik=}, {nbnd=}, {ncl=}, {ngx=}, {ngy=}, {ngz=})"
 
     def __eq__(self, other: object) -> bool:

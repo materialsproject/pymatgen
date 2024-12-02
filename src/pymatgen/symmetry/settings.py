@@ -7,8 +7,6 @@ from fractions import Fraction
 from typing import TYPE_CHECKING
 
 import numpy as np
-from sympy import Matrix
-from sympy.parsing.sympy_parser import parse_expr
 
 from pymatgen.core.lattice import Lattice
 from pymatgen.core.operations import MagSymmOp, SymmOp
@@ -100,6 +98,10 @@ class JonesFaithfulTransformation:
         Returns:
             tuple[list[list[float]] | np.ndarray, list[float]]: transformation matrix & vector
         """
+        # Import sympy is expensive (PR4128)
+        from sympy import Matrix
+        from sympy.parsing.sympy_parser import parse_expr
+
         try:
             a, b, c = np.eye(3)
             b_change, o_shift = transformation_string.split(";")
@@ -108,7 +110,12 @@ class JonesFaithfulTransformation:
 
             # add implicit multiplication symbols
             basis_change = [
-                re.sub(r"(?<=\w|\))(?=\() | (?<=\))(?=\w) | (?<=(\d|a|b|c))(?=([abc]))", r"*", string, flags=re.VERBOSE)
+                re.sub(
+                    r"(?<=\w|\))(?=\() | (?<=\))(?=\w) | (?<=(\d|a|b|c))(?=([abc]))",
+                    r"*",
+                    string,
+                    flags=re.VERBOSE,
+                )
                 for string in basis_change
             ]
 

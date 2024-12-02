@@ -1,6 +1,5 @@
 from __future__ import annotations
 
-from math import pi
 from shutil import which
 from typing import get_args
 
@@ -11,6 +10,8 @@ from pytest import approx
 
 from pymatgen.analysis.graphs import MoleculeGraph, StructureGraph
 from pymatgen.analysis.local_env import (
+    CN_OPT_PARAMS,
+    DEFAULT_OP_PARAMS,
     BrunnerNNReal,
     BrunnerNNReciprocal,
     BrunnerNNRelative,
@@ -29,6 +30,8 @@ from pymatgen.analysis.local_env import (
     OpenBabelNN,
     ValenceIonicRadiusEvaluator,
     VoronoiNN,
+    cn_opt_params,
+    default_op_params,
     get_neighbors_of_site_with_index,
     metal_edge_extender,
     on_disorder_options,
@@ -40,6 +43,15 @@ from pymatgen.core import Element, Lattice, Molecule, Structure
 from pymatgen.util.testing import TEST_FILES_DIR, PymatgenTest
 
 TEST_DIR = f"{TEST_FILES_DIR}/analysis/local_env/fragmenter_files"
+
+
+def test_opt_params():
+    assert isinstance(default_op_params, dict)
+    assert default_op_params == DEFAULT_OP_PARAMS
+
+    assert isinstance(cn_opt_params, dict)
+    assert list(cn_opt_params) == [2, 3, 4, 5, 6, 7, 8, 12]
+    assert cn_opt_params == CN_OPT_PARAMS
 
 
 class TestValenceIonicRadiusEvaluator(PymatgenTest):
@@ -57,7 +69,13 @@ class TestValenceIonicRadiusEvaluator(PymatgenTest):
             [0, 0, 0.5],
             [0.5, 0.5, 0.5],
         ]
-        self._mgo_uc = Structure(mgo_latt, mgo_specie, mgo_frac_cord, validate_proximity=True, to_unit_cell=True)
+        self._mgo_uc = Structure(
+            mgo_latt,
+            mgo_specie,
+            mgo_frac_cord,
+            validate_proximity=True,
+            to_unit_cell=True,
+        )
         self._mgo_val_rad_evaluator = ValenceIonicRadiusEvaluator(self._mgo_uc)
 
     def test_valences_ionic_structure(self):
@@ -107,7 +125,7 @@ class TestVoronoiNN(PymatgenTest):
             for nn in self.nn.get_voronoi_polyhedra(self.struct, n).values():
                 angle += nn["solid_angle"]
             assert 4 * np.pi == approx(angle)
-        assert solid_angle([0, 0, 0], [[1, 0, 0], [-1, 0, 0], [0, 1, 0]]) == pi
+        assert solid_angle([0, 0, 0], [[1, 0, 0], [-1, 0, 0], [0, 1, 0]]) == np.pi
 
     def test_nn_shell(self):
         # First, make a SC lattice. Make my math easier
@@ -401,7 +419,14 @@ class TestMiniDistNN(PymatgenTest):
         assert MinimumDistanceNN(tol=0.1).get_cn(self.mos2, 0) == 6
 
         for image in MinimumDistanceNN(tol=0.1).get_nn_images(self.mos2, 0):
-            assert image in [(0, 0, 0), (0, 1, 0), (-1, 0, 0), (0, 0, 0), (0, 1, 0), (-1, 0, 0)]
+            assert image in [
+                (0, 0, 0),
+                (0, 1, 0),
+                (-1, 0, 0),
+                (0, 0, 0),
+                (0, 1, 0),
+                (-1, 0, 0),
+            ]
 
         okeeffe_nn = MinimumOKeeffeNN(tol=0.01)
         assert okeeffe_nn.get_cn(self.diamond, 0) == 4
@@ -961,6 +986,7 @@ class TestLocalStructOrderParams(PymatgenTest):
         parameters = [{"norm": 2}]
         lostops = LocalStructOrderParams(["cn"], parameters=parameters)
         tmp = lostops.get_parameters(0)
+        assert tmp == {"norm": 2}
         parameters[0]["norm"] = 3
         assert tmp == lostops.get_parameters(0)
 
@@ -1006,7 +1032,12 @@ class TestLocalStructOrderParams(PymatgenTest):
         op_params = [None] * len(op_types)
         op_params[1] = {"TA": 1, "IGW_TA": 1.0 / 0.0667}
         op_params[2] = {"TA": 45.0 / 180, "IGW_TA": 1.0 / 0.0667}
-        op_params[33] = {"TA": 0.6081734479693927, "IGW_TA": 18.33, "fac_AA": 1.5, "exp_cos_AA": 2}
+        op_params[33] = {
+            "TA": 0.6081734479693927,
+            "IGW_TA": 18.33,
+            "fac_AA": 1.5,
+            "exp_cos_AA": 2,
+        }
         ops_044 = LocalStructOrderParams(op_types, parameters=op_params, cutoff=0.44)
         ops_071 = LocalStructOrderParams(op_types, parameters=op_params, cutoff=0.71)
         ops_087 = LocalStructOrderParams(op_types, parameters=op_params, cutoff=0.87)
@@ -1159,7 +1190,9 @@ class TestCrystalNN(PymatgenTest):
         self.he_bcc.add_oxidation_state_by_guess()
 
         self.disordered_struct = Structure(
-            Lattice.cubic(3), [{"Fe": 0.4, "C": 0.3, "Mn": 0.3}, "O"], [[0, 0, 0], [0.5, 0.5, 0.5]]
+            Lattice.cubic(3),
+            [{"Fe": 0.4, "C": 0.3, "Mn": 0.3}, "O"],
+            [[0, 0, 0], [0.5, 0.5, 0.5]],
         )
         self.disordered_struct_with_majority = Structure(
             Lattice.cubic(3), [{"Fe": 0.6, "C": 0.4}, "O"], [[0, 0, 0], [0.5, 0.5, 0.5]]
@@ -1260,11 +1293,13 @@ class TestCrystalNN(PymatgenTest):
         assert site_0_coord_num == site_0_coord_num_strict_majority
 
         with pytest.raises(
-            ValueError, match="Site 0 has no majority species, the max species is Fe with occupancy 0.4"
+            ValueError,
+            match="Site 0 has no majority species, the max species is Fe with occupancy 0.4",
         ):
             cnn.get_cn(self.disordered_struct, 0, on_disorder="take_majority_strict")
         with pytest.raises(
-            ValueError, match="enerating StructureGraphs for disordered Structures is unsupported. Pass on_disorder="
+            ValueError,
+            match="enerating StructureGraphs for disordered Structures is unsupported. Pass on_disorder=",
         ):
             cnn.get_cn(self.disordered_struct, 0, on_disorder="error")
 
@@ -1284,7 +1319,8 @@ class TestCrystalNN(PymatgenTest):
         assert structure_graph == structure_graph_strict_majority == structure_graph_drop_majority
 
         with pytest.raises(
-            ValueError, match="Site 0 has no majority species, the max species is Fe with occupancy 0.4"
+            ValueError,
+            match="Site 0 has no majority species, the max species is Fe with occupancy 0.4",
         ):
             cnn.get_bonded_structure(self.disordered_struct, 0, on_disorder="take_majority_strict")
 

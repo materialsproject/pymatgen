@@ -16,7 +16,7 @@ class TestFunc(PymatgenTest):
     def test_plot_periodic_heatmap(self):
         random_data = {"Te": 0.11083, "Au": 0.75756, "Th": 1.24758, "Ni": -2.0354}
         fig = periodic_table_heatmap(random_data)
-        if pymatviz:
+        if pymatviz is not None:
             assert isinstance(fig, Figure)
         else:
             assert isinstance(fig, plt.Axes)

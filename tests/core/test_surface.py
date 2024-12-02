@@ -51,7 +51,13 @@ class TestSlab(PymatgenTest):
         )
 
         lattice = Lattice([[3.913449, 0, 0], [0, 3.913449, 0], [0, 0, 5.842644]])
-        frac_coords = [[0.5, 0, 0.222518], [0, 0.5, 0.777482], [0, 0, 0], [0, 0, 0.5], [0.5, 0.5, 0]]
+        frac_coords = [
+            [0.5, 0, 0.222518],
+            [0, 0.5, 0.777482],
+            [0, 0, 0],
+            [0, 0, 0.5],
+            [0.5, 0.5, 0],
+        ]
         non_laue = Structure(lattice, ["Nb", "Nb", "N", "N", "N"], frac_coords)
 
         self.ti = Ti
@@ -82,7 +88,13 @@ class TestSlab(PymatgenTest):
         # check reorient_lattice. get a slab not oriented and check that orientation
         # works even with Cartesian coordinates.
         zno_not_or = SlabGenerator(
-            self.zno1, [1, 0, 0], 5, 5, lll_reduce=False, center_slab=False, reorient_lattice=False
+            self.zno1,
+            [1, 0, 0],
+            5,
+            5,
+            lll_reduce=False,
+            center_slab=False,
+            reorient_lattice=False,
         ).get_slab()
         zno_slab_cart = Slab(
             zno_not_or.lattice,
@@ -140,7 +152,13 @@ class TestSlab(PymatgenTest):
         cscl = self.get_structure("CsCl")
         cscl.add_oxidation_state_by_element({"Cs": 1, "Cl": -1})
         slab = SlabGenerator(
-            cscl, [1, 0, 0], 5, 5, reorient_lattice=False, lll_reduce=False, center_slab=False
+            cscl,
+            [1, 0, 0],
+            5,
+            5,
+            reorient_lattice=False,
+            lll_reduce=False,
+            center_slab=False,
         ).get_slab()
         assert_allclose(slab.dipole, [-4.209, 0, 0])
         assert slab.is_polar()
@@ -383,7 +401,26 @@ class TestSlabGenerator(PymatgenTest):
                 and (
                     sg.hexagonal
                     or sg.int_number
-                    in (143, 144, 145, 147, 149, 150, 151, 152, 153, 154, 156, 157, 158, 159, 162, 163, 164, 165)
+                    in (
+                        143,
+                        144,
+                        145,
+                        147,
+                        149,
+                        150,
+                        151,
+                        152,
+                        153,
+                        154,
+                        156,
+                        157,
+                        158,
+                        159,
+                        162,
+                        163,
+                        164,
+                        165,
+                    )
                 )
             ):
                 lattice = Lattice.hexagonal(5, 10)
@@ -836,7 +873,11 @@ class TestMillerIndexFinder(PymatgenTest):
         assert miller_index_from_sites(cubic, [s1, s2, s3]) == (2, 1, 1)
 
         # test casting from matrix to Lattice
-        matrix = [[2.319, -4.01662582, 0.0], [2.319, 4.01662582, 0.0], [0.0, 0.0, 7.252]]
+        matrix = [
+            [2.319, -4.01662582, 0.0],
+            [2.319, 4.01662582, 0.0],
+            [0.0, 0.0, 7.252],
+        ]
 
         s1 = np.array([2.319, 1.33887527, 6.3455])
         s2 = np.array([1.1595, 0.66943764, 4.5325])

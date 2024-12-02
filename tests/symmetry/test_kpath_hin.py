@@ -8,14 +8,10 @@ from pymatgen.core.structure import Structure
 from pymatgen.symmetry.kpath import KPathSeek
 from pymatgen.util.testing import PymatgenTest
 
-try:
-    from seekpath import get_path
-except ImportError:
-    get_path = None
+pytest.importorskip("seekpath", reason="seekpath not installed")
 
 
 class TestKPathSeek(PymatgenTest):
-    @pytest.mark.skipif(get_path is None, reason="No seek path present.")
     def test_kpath_generation(self):
         triclinic = [1, 2]
         monoclinic = range(3, 16)
@@ -48,7 +44,6 @@ class TestKPathSeek(PymatgenTest):
             kpath = KPathSeek(struct)  # Throws error if something doesn't work, causing test to fail.
             _ = kpath.get_kpoints()
 
-    @pytest.mark.skipif(get_path is None, reason="No seek path present.")
     def test_kpath_acentered(self):
         species = ["K", "La", "Ti"]
         coords = [[0.345, 5, 0.77298], [0.1345, 5.1, 0.77298], [0.7, 0.8, 0.9]]
@@ -60,7 +55,23 @@ class TestKPathSeek(PymatgenTest):
         labels = list(kpoints)
 
         assert sorted(labels) == sorted(
-            ["B_0", "B_2", "DELTA_0", "F_0", "GAMMA", "G_0", "G_2", "R", "R_2", "S", "T", "T_2", "Y", "Z", "Z_2"]
+            [
+                "B_0",
+                "B_2",
+                "DELTA_0",
+                "F_0",
+                "GAMMA",
+                "G_0",
+                "G_2",
+                "R",
+                "R_2",
+                "S",
+                "T",
+                "T_2",
+                "Y",
+                "Z",
+                "Z_2",
+            ]
         )
 
         assert kpoints["GAMMA"] == approx([0.0, 0.0, 0.0])

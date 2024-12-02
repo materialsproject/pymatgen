@@ -2,9 +2,10 @@
 
 from __future__ import annotations
 
+import math
 import re
 from itertools import chain, combinations
-from typing import TYPE_CHECKING, no_type_check, overload
+from typing import TYPE_CHECKING, overload
 
 import numpy as np
 from monty.fractions import gcd_float
@@ -37,7 +38,6 @@ class BalancedReaction(MSONable):
     # Tolerance for determining if a particular component fraction is > 0.
     TOLERANCE = 1e-6
 
-    @no_type_check
     def __init__(
         self,
         reactants_coeffs: Mapping[CompositionLike, int | float],
@@ -87,7 +87,12 @@ class BalancedReaction(MSONable):
 
     def __hash__(self) -> int:
         # Necessity for hash method is unclear (see gh-3673)
-        return hash((frozenset(self.reactants_coeffs.items()), frozenset(self.products_coeffs.items())))
+        return hash(
+            (
+                frozenset(self.reactants_coeffs.items()),
+                frozenset(self.products_coeffs.items()),
+            )
+        )
 
     def __str__(self):
         return self._str_from_comp(self._coeffs, self._all_comp)[0]
@@ -204,7 +209,7 @@ class BalancedReaction(MSONable):
         reactant_str = []
         product_str = []
         for amt, formula in zip(coeffs, formulas, strict=True):
-            if abs(amt + 1) < cls.TOLERANCE:
+            if math.isclose(amt, -1, abs_tol=cls.TOLERANCE, rel_tol=0):
                 reactant_str.append(formula)
             elif abs(amt - 1) < cls.TOLERANCE:
                 product_str.append(formula)
@@ -424,7 +429,11 @@ class ComputedReaction(Reaction):
     energies.
     """
 
-    def __init__(self, reactant_entries: list[ComputedEntry], product_entries: list[ComputedEntry]) -> None:
+    def __init__(
+        self,
+        reactant_entries: list[ComputedEntry],
+        product_entries: list[ComputedEntry],
+    ) -> None:
         """
         Args:
             reactant_entries ([ComputedEntry]): List of reactant_entries.

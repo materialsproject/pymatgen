@@ -190,16 +190,16 @@ class LobsterNeighbors(NearNeighbors):
             if valences_from_charges and filename_charge is not None:
                 chg = Charge(filename=filename_charge)
                 if which_charge == "Mulliken":
-                    self.valences = chg.Mulliken
+                    self.valences = chg.mulliken
                 elif which_charge == "Loewdin":
-                    self.valences = chg.Loewdin
+                    self.valences = chg.loewdin
 
             elif valences_from_charges and obj_charge is not None:
                 chg = obj_charge
                 if which_charge == "Mulliken":
-                    self.valences = chg.Mulliken
+                    self.valences = chg.mulliken
                 elif which_charge == "Loewdin":
-                    self.valences = chg.Loewdin
+                    self.valences = chg.loewdin
 
             else:
                 bv_analyzer = BVAnalyzer()
@@ -623,7 +623,10 @@ class LobsterNeighbors(NearNeighbors):
         """Count the types of bonds and append a label."""
         all_labels = []
         for atoms_names in atoms:
-            new = [self._split_string(atoms_names[0])[0], self._split_string(atoms_names[1])[0]]
+            new = [
+                self._split_string(atoms_names[0])[0],
+                self._split_string(atoms_names[1])[0],
+            ]
             new.sort()
             string_here = f"{new[0]}-{new[1]}"
             all_labels.append(string_here)
@@ -721,7 +724,11 @@ class LobsterNeighbors(NearNeighbors):
 
                                 elif not done:
                                     icohp_trans = -np.asarray(
-                                        [icohp._translation[0], icohp._translation[1], icohp._translation[2]]
+                                        [
+                                            icohp._translation[0],
+                                            icohp._translation[1],
+                                            icohp._translation[2],
+                                        ]
                                     )
 
                                     if (np.all(np.asarray(translation) == np.asarray(icohp._translation))) or (
@@ -783,9 +790,14 @@ class LobsterNeighbors(NearNeighbors):
             raise ValueError("Please give two limits or leave them both at None")
 
         # Find environments based on ICOHP values
-        list_icohps, list_keys, list_lengths, list_neighisite, list_neighsite, list_coords = self._find_environments(
-            additional_condition, lowerlimit, upperlimit, only_bonds_to
-        )
+        (
+            list_icohps,
+            list_keys,
+            list_lengths,
+            list_neighisite,
+            list_neighsite,
+            list_coords,
+        ) = self._find_environments(additional_condition, lowerlimit, upperlimit, only_bonds_to)
 
         self.list_icohps = list_icohps
         self.list_lengths = list_lengths
@@ -808,7 +820,7 @@ class LobsterNeighbors(NearNeighbors):
                     {
                         "site": neighbor,
                         "image": tuple(
-                            int(round(idx))
+                            round(idx)
                             for idx in (
                                 neighbor.frac_coords
                                 - self.structure[
@@ -849,7 +861,7 @@ class LobsterNeighbors(NearNeighbors):
                     {
                         "site": neighbor,
                         "image": tuple(
-                            int(round(idx))
+                            round(idx)
                             for idx in (
                                 neighbor.frac_coords
                                 - self.structure[
@@ -922,7 +934,12 @@ class LobsterNeighbors(NearNeighbors):
             )
 
             additional_conds = self._find_relevant_atoms_additional_condition(idx, icohps, additional_condition)
-            keys_from_ICOHPs, lengths_from_ICOHPs, neighbors_from_ICOHPs, selected_ICOHPs = additional_conds
+            (
+                keys_from_ICOHPs,
+                lengths_from_ICOHPs,
+                neighbors_from_ICOHPs,
+                selected_ICOHPs,
+            ) = additional_conds
 
             if len(neighbors_from_ICOHPs) > 0:
                 centralsite = site
@@ -1142,7 +1159,12 @@ class LobsterNeighbors(NearNeighbors):
                     icohps_from_ICOHPs.append(icohp.summed_icohp)
                     keys_from_ICOHPs.append(key)
 
-        return keys_from_ICOHPs, lengths_from_ICOHPs, neighbors_from_ICOHPs, icohps_from_ICOHPs
+        return (
+            keys_from_ICOHPs,
+            lengths_from_ICOHPs,
+            neighbors_from_ICOHPs,
+            icohps_from_ICOHPs,
+        )
 
     @staticmethod
     def _get_icohps(
