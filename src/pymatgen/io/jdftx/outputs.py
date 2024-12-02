@@ -202,6 +202,11 @@ class JDFTXOutfile:
         ]
         return cls(slices=slices)
 
+    def __post_init__(self):
+        if len(self.slices):
+            self.electronic_output = self.slices[-1].electronic_output
+            self.t_s = self.slices[-1].t_s
+
     def to_dict(self) -> dict:
         """
         Convert the JDFTXOutfile object to a dictionary.
@@ -1319,29 +1324,29 @@ class JDFTXOutfile:
         """
         return len(self.slices)
 
-    def __getattr__(self, name: str) -> Any:
-        """Return attribute.
+    # def __getattr__(self, name: str) -> Any:
+    #     """Return attribute.
 
-        Args:
-            name (str): The name of the attribute.
+    #     Args:
+    #         name (str): The name of the attribute.
 
-        Returns:
-            Any: The value of the attribute.
+    #     Returns:
+    #         Any: The value of the attribute.
 
-        Raises:
-            AttributeError: If the attribute is not found.
-        """
-        if name in self.__dict__:
-            return self.__dict__[name]
+    #     Raises:
+    #         AttributeError: If the attribute is not found.
+    #     """
+    #     if name in self.__dict__:
+    #         return self.__dict__[name]
 
-        for cls in inspect.getmro(self.__class__):
-            if name in cls.__dict__ and isinstance(cls.__dict__[name], property):
-                return cls.__dict__[name].__get__(self)
+    #     for cls in inspect.getmro(self.__class__):
+    #         if name in cls.__dict__ and isinstance(cls.__dict__[name], property):
+    #             return cls.__dict__[name].__get__(self)
 
-        if hasattr(self.slices[-1], name):
-            return getattr(self.slices[-1], name)
+    #     if hasattr(self.slices[-1], name):
+    #         return getattr(self.slices[-1], name)
 
-        raise AttributeError(f"{self.__class__.__name__} not found: {name}")
+    #     raise AttributeError(f"{self.__class__.__name__} not found: {name}")
 
     def __str__(self) -> str:
         """Return string representation of JDFTXOutfile object.
