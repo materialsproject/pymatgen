@@ -671,7 +671,7 @@ class VaspInputSet(InputGenerator, abc.ABC):
                     "better off changing the values of MAGMOM or simply setting "
                     "NUPDOWN directly in your INCAR settings.",
                     UserWarning,
-                    stacklevel=1,
+                    stacklevel=2,
                 )
             auto_updates["NUPDOWN"] = nupdown
 
@@ -2009,7 +2009,7 @@ class MPNMRSet(VaspInputSet):
         if self.mode.lower() == "cs":
             updates.update(
                 LCHIMAG=True,
-                EDIFF=-1.0e-10,
+                EDIFF=-1e-10,
                 ISYM=0,
                 LCHARG=False,
                 LNMR_SYM_RED=True,
@@ -2019,14 +2019,14 @@ class MPNMRSet(VaspInputSet):
                 SIGMA=0.01,
             )
         elif self.mode.lower() == "efg" and self.structure is not None:
-            isotopes = {ist.split("-")[0]: ist for ist in self.isotopes}
+            isotopes = {isotope.split("-")[0]: isotope for isotope in self.isotopes}
             quad_efg = [
                 float(Species(sp.name).get_nmr_quadrupole_moment(isotopes.get(sp.name)))
                 for sp in self.structure.species
             ]
             updates.update(
                 ALGO="FAST",
-                EDIFF=-1.0e-10,
+                EDIFF=-1e-10,
                 ISYM=0,
                 LCHARG=False,
                 LEFG=True,
@@ -2676,7 +2676,7 @@ class MVLNPTMDSet(VaspInputSet):
         updates = {
             "ALGO": "Fast",
             "ISIF": 3,
-            "LANGEVIN_GAMMA": [10] * self.structure.ntypesp,
+            "LANGEVIN_GAMMA": [10] * self.structure.n_elems,
             "LANGEVIN_GAMMA_L": 1,
             "MDALGO": 3,
             "PMASS": 10,
@@ -2707,7 +2707,7 @@ class MVLNPTMDSet(VaspInputSet):
             "LDAU": False,
         }
         # Set NPT-AIMD ENCUT = 1.5 * VASP_default
-        enmax = [self.potcar[i].keywords["ENMAX"] for i in range(self.structure.ntypesp)]
+        enmax = [self.potcar[i].keywords["ENMAX"] for i in range(self.structure.n_elems)]
         updates["ENCUT"] = max(enmax) * 1.5
         return updates
 
@@ -3173,7 +3173,7 @@ class MPAbsorptionSet(VaspInputSet):
         """Updates to the INCAR config for this calculation type."""
         updates = {
             "ALGO": "Exact",
-            "EDIFF": 1.0e-8,
+            "EDIFF": 1e-8,
             "IBRION": -1,
             "ICHARG": 1,
             "ISMEAR": 0,

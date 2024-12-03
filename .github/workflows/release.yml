@@ -1,4 +1,5 @@
-name: Release # makes PyPI releases
+# Make PyPI releases
+name: Release
 
 on:
   release:
@@ -26,12 +27,12 @@ jobs:
       - name: Check out repo
         uses: actions/checkout@v4
 
-      - uses: actions/setup-python@v5
-        name: Install Python
+      - name: Install Python
+        uses: actions/setup-python@v5
         with:
           python-version: "3.12"
 
-      - name: Build sdist
+      - name: Build source distribution
         run: |
           pip install build
           python -m build --sdist
@@ -65,8 +66,11 @@ jobs:
   release:
     needs: [build_wheels, build_sdist]
     runs-on: ubuntu-latest
+    environment:
+      name: pypi
+      url: https://pypi.org/p/pymatgen
     permissions:
-      # For pypi trusted publishing
+      # For PyPI trusted publishing
       id-token: write
     steps:
       - name: Set up Python
@@ -81,9 +85,8 @@ jobs:
           merge-multiple: true
           path: dist
 
-      - name: Publish to PyPi or TestPyPI
+      - name: Publish to PyPI or TestPyPI
         uses: pypa/gh-action-pypi-publish@release/v1
         with:
           skip-existing: true
           verbose: true
-          repository-url: ${{ github.event_name == 'workflow_dispatch' && github.event.inputs.task == 'test-release' && 'https://test.pypi.org/legacy/' || '' }}

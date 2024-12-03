@@ -28,18 +28,32 @@ if TYPE_CHECKING:
 
 class VolumetricData(MSONable):
     """
-    Simple volumetric object. Used to read LOCPOT/CHGCAR files produced by
-    vasp as well as cube files produced by other codes.
+    A representation of volumetric data commonly used in atomistic simulation outputs,
+    such as LOCPOT/CHGCAR files from VASP or cube files from other codes.
 
     Attributes:
-        structure (Structure): Structure associated with the Volumetric Data object.
-        is_spin_polarized (bool): True if run is spin polarized.
-        dim (tuple): Tuple of dimensions of volumetric grid in each direction (nx, ny, nz).
-        data (dict): Actual data as a dict of {string: np.array}. The string are "total"
-            and "diff", in accordance to the output format of Vasp LOCPOT and
-            CHGCAR files where the total spin density is written first, followed
-            by the difference spin density.
-        ngridpts (int): Total number of grid points in volumetric data.
+        structure (Structure):
+            The crystal structure associated with the volumetric data.
+            Represents the lattice and atomic coordinates using the `Structure` class.
+
+        is_spin_polarized (bool):
+            Indicates if the simulation is spin-polarized. True for spin-polarized data
+            (contains both total and spin-difference densities), False otherwise.
+
+        dim (tuple[int, int, int]):
+            The dimensions of the 3D volumetric grid along each axis in the format
+            (nx, ny, nz), where nx, ny, and nz represent the number of grid points
+            in the x, y, and z directions, respectively.
+
+        data (dict[str, np.ndarray]):
+            A dictionary containing the volumetric data. Keys include:
+            - `"total"`: A 3D NumPy array representing the total spin density.
+            - `"diff"` (optional): A 3D NumPy array representing the spin-difference
+              density (spin up - spin down). Typically present in spin-polarized calculations.
+
+        ngridpts (int):
+            The total number of grid points in the volumetric data, calculated as
+            `nx * ny * nz` using the grid dimensions.
     """
 
     def __init__(
@@ -475,26 +489,26 @@ class PMGDir(collections.abc.Mapping):
         changed.
         """
         # Note that py3.12 has Path.walk(). But we need to use os.walk to ensure backwards compatibility for now.
-        self.files = [str((Path(d) / f).relative_to(self.path)) for d, _, fnames in os.walk(self.path) for f in fnames]
-
-        self._parsed_files: dict[str, Any] = {}
+        self._files: dict[str, Any] = {
+            str((Path(d) / f).relative_to(self.path)): None for d, _, fnames in os.walk(self.path) for f in fnames
+        }
 
     def __contains__(self, item):
-        return item in self.files
+        return item in self._files
 
     def __len__(self):
-        return len(self.files)
+        return len(self._files)
 
     def __iter__(self):
-        return iter(self.files)
+        return iter(self._files)
 
     def __getitem__(self, item):
-        if item in self._parsed_files:
-            return self._parsed_files[item]
+        if self._files.get(item):
+            return self._files.get(item)
         fpath = self.path / item
 
         if not (self.path / item).exists():
-            raise ValueError(f"{item} not found in {self.path}. List of files are {self.files}.")
+            raise ValueError(f"{item} not found in {self.path}. List of files are {self._files.keys()}.")
 
         for k, cls_ in PMGDir.FILE_MAPPINGS.items():
             if k in item:
@@ -502,11 +516,11 @@ class PMGDir(collections.abc.Mapping):
                 module = importlib.import_module(modname)
                 class_ = getattr(module, classname)
                 try:
-                    self._parsed_files[item] = class_.from_file(fpath)
+                    self._files[item] = class_.from_file(fpath)
                 except AttributeError:
-                    self._parsed_files[item] = class_(fpath)
+                    self._files[item] = class_(fpath)
 
-                return self._parsed_files[item]
+                return self._files[item]
 
         warnings.warn(
             f"No parser defined for {item}. Contents are returned as a string.",
@@ -522,7 +536,7 @@ class PMGDir(collections.abc.Mapping):
         Returns:
             {filename: object from PMGDir[filename]}
         """
-        return {f: self[f] for f in self.files if name in f}
+        return {f: self[f] for f in self._files if name in f}
 
     def __repr__(self):
         return f"PMGDir({self.path})"

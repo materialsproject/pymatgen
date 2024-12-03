@@ -190,16 +190,16 @@ class LobsterNeighbors(NearNeighbors):
             if valences_from_charges and filename_charge is not None:
                 chg = Charge(filename=filename_charge)
                 if which_charge == "Mulliken":
-                    self.valences = chg.Mulliken
+                    self.valences = chg.mulliken
                 elif which_charge == "Loewdin":
-                    self.valences = chg.Loewdin
+                    self.valences = chg.loewdin
 
             elif valences_from_charges and obj_charge is not None:
                 chg = obj_charge
                 if which_charge == "Mulliken":
-                    self.valences = chg.Mulliken
+                    self.valences = chg.mulliken
                 elif which_charge == "Loewdin":
-                    self.valences = chg.Loewdin
+                    self.valences = chg.loewdin
 
             else:
                 bv_analyzer = BVAnalyzer()
@@ -815,7 +815,7 @@ class LobsterNeighbors(NearNeighbors):
                     {
                         "site": neighbor,
                         "image": tuple(
-                            int(round(idx))
+                            round(idx)
                             for idx in (
                                 neighbor.frac_coords
                                 - self.structure[
@@ -856,7 +856,7 @@ class LobsterNeighbors(NearNeighbors):
                     {
                         "site": neighbor,
                         "image": tuple(
-                            int(round(idx))
+                            round(idx)
                             for idx in (
                                 neighbor.frac_coords
                                 - self.structure[

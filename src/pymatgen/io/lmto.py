@@ -175,7 +175,7 @@ class LMTOCtrl:
             "HEADER": [],
             "VERS": [],
             "SYMGRP": [],
-            "STRUC": [],
+            "STRUC": [],  # codespell:ignore struc
             "CLASS": [],
             "SITE": [],
         }
@@ -200,7 +200,7 @@ class LMTOCtrl:
         }
 
         atom = None
-        for cat in ("STRUC", "CLASS", "SITE"):
+        for cat in ("STRUC", "CLASS", "SITE"):  # codespell:ignore struc
             fields = struct_lines[cat].split("=")
             for idx, field in enumerate(fields):
                 token = field.split()[-1]
