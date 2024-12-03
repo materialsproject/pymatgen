@@ -1,8 +1,6 @@
 """Module for parsing single SCF step from JDFTx.
 
 This module contains the JElStep class for parsing single SCF step from a JDFTx out file.
-
-@mkhorton - this file is ready to review.
 """
 
 from __future__ import annotations

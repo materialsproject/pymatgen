@@ -1,8 +1,6 @@
 """Class object for storing a single JDFTx geometric optimization step.
 
 A mutant of the pymatgen Structure class for flexibility in holding JDFTx.
-
-@mkhorton - this file is ready to review.
 """
 
 from __future__ import annotations

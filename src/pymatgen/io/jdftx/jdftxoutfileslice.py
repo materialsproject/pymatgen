@@ -2,8 +2,6 @@
 
 This module defines the JDFTxOutfileSlice class, which is used to read and
 process a JDFTx out file.
-
-@mkhorton - This file is ready to review
 """
 
 from __future__ import annotations

@@ -4,8 +4,6 @@ Module for parsing outputs of JDFTx.
 
 Note: JDFTXOutfile will be moved back to its own module once a more broad outputs
 class is written.
-
-@mkhorton - this file is ready to review
 """
 
 from __future__ import annotations
