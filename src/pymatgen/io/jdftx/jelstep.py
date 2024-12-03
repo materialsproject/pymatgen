@@ -226,6 +226,20 @@ class JElStep:
         return pprint.pformat(self)
 
 
+_jelsteps_atrs_from_last_slice = [
+    "e",
+    "grad_k",
+    "alpha",
+    "linmin",
+    "t_s",
+    "mu",
+    "nelectrons",
+    "abs_magneticmoment",
+    "tot_magneticmoment",
+    "subspacerotationadjust",
+]
+
+
 @dataclass
 class JElSteps:
     """Class object for series of SCF steps.
@@ -324,17 +338,9 @@ class JElSteps:
     def __post_init__(self) -> None:
         """Post initialization method."""
         if len(self.slices):
-            self.e = self.slices[-1].e
-            self.grad_k = self.slices[-1].grad_k
-            self.alpha = self.slices[-1].alpha
-            self.linmin = self.slices[-1].linmin
-            self.t_s = self.slices[-1].t_s
-            self.mu = self.slices[-1].mu
-            self.nelectrons = self.slices[-1].nelectrons
-            self.abs_magneticmoment = self.slices[-1].abs_magneticmoment
-            self.tot_magneticmoment = self.slices[-1].tot_magneticmoment
-            self.subspacerotationadjust = self.slices[-1].subspacerotationadjust
             self.nstep = self._get_nstep()
+            for var in _jelsteps_atrs_from_last_slice:
+                setattr(self, var, getattr(self.slices[-1], var))
 
     def __getitem__(self, key: int | str) -> JElStep | Any:
         """Return item.

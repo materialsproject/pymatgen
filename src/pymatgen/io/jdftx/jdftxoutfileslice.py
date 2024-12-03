@@ -863,6 +863,7 @@ class JDFTXOutfileSlice:
             self.etype = self.jstrucs[-1].etype
         if self.jstrucs is not None:
             self._set_trajectory()
+            self.mu = self._get_mu()
             self.structure = self.jstrucs[-1]
             self.eopt_type = self.jstrucs.eopt_type
             self.elecmindata = self.jstrucs.elecmindata
@@ -875,7 +876,6 @@ class JDFTXOutfileSlice:
             self.linmin = self.jstrucs.linmin
             self.abs_magneticmoment = self.jstrucs.abs_magneticmoment
             self.tot_magneticmoment = self.jstrucs.tot_magneticmoment
-            self.mu = self._get_mu()
             self.elec_nstep = self.jstrucs.elec_nstep
             self.elec_e = self.jstrucs.elec_e
             self.elec_grad_k = self.jstrucs.elec_grad_k

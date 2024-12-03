@@ -23,6 +23,9 @@ from pymatgen.io.jdftx.jelstep import JElSteps
 
 __author__ = "Ben Rich"
 
+_jos_atrs_from_elecmindata = ["mu", "nelectrons", "abs_magneticmoment", "tot_magneticmoment"]
+_jos_atrs_elec_from_elecmindata = ["nstep", "e", "grad_k", "alpha", "linmin"]
+
 
 class JOutStructure(Structure):
     """Class object for storing a single JDFTx optimization step.
@@ -105,15 +108,12 @@ class JOutStructure(Structure):
     def _elecmindata_postinit(self) -> None:
         """Post-initialization method for attributes taken from elecmindata."""
         if self.elecmindata is not None:
-            self.mu = self.elecmindata.mu
-            self.nelectrons = self.elecmindata.nelectrons
-            self.abs_magneticmoment = self.elecmindata.abs_magneticmoment
-            self.tot_magneticmoment = self.elecmindata.tot_magneticmoment
-            self.elec_nstep = self.elecmindata.nstep
-            self.elec_e = self.elecmindata.e
-            self.elec_grad_k = self.elecmindata.grad_k
-            self.elec_alpha = self.elecmindata.alpha
-            self.elec_linmin = self.elecmindata.linmin
+            for var in _jos_atrs_from_elecmindata:
+                if hasattr(self.elecmindata, var):
+                    setattr(self, var, getattr(self.elecmindata, var))
+            for var in _jos_atrs_elec_from_elecmindata:
+                if hasattr(self.elecmindata, var):
+                    setattr(self, f"elec_{var}", getattr(self.elecmindata, var))
 
     @property
     def charges(self) -> np.ndarray | None:

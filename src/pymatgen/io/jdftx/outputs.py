@@ -35,6 +35,85 @@ if TYPE_CHECKING:
 __author__ = "Ben Rich, Jacob Clary"
 
 
+_jof_atr_from_last_slice = [
+    "prefix",
+    "jstrucs",
+    "jsettings_fluid",
+    "jsettings_electronic",
+    "jsettings_lattice",
+    "jsettings_ionic",
+    "xc_func",
+    "lattice_initial",
+    "lattice_final",
+    "lattice",
+    "a",
+    "b",
+    "c",
+    "fftgrid",
+    "geom_opt",
+    "geom_opt_type",
+    "efermi",
+    "egap",
+    "emin",
+    "emax",
+    "homo",
+    "lumo",
+    "homo_filling",
+    "lumo_filling",
+    "is_metal",
+    "converged",
+    "etype",
+    "broadening_type",
+    "broadening",
+    "kgrid",
+    "truncation_type",
+    "truncation_radius",
+    "pwcut",
+    "rhocut",
+    "pp_type",
+    "total_electrons",
+    "semicore_electrons",
+    "valence_electrons",
+    "total_electrons_uncharged",
+    "semicore_electrons_uncharged",
+    "valence_electrons_uncharged",
+    "nbands",
+    "atom_elements",
+    "atom_elements_int",
+    "atom_types",
+    "spintype",
+    "nspin",
+    "nat",
+    "atom_coords_initial",
+    "atom_coords_final",
+    "atom_coords",
+    "structure",
+    "has_solvation",
+    "fluid",
+    "is_gc",
+    "eopt_type",
+    "elecmindata",
+    "stress",
+    "strain",
+    "nstep",
+    "e",
+    "grad_k",
+    "alpha",
+    "linmin",
+    "abs_magneticmoment",
+    "tot_magneticmoment",
+    "mu",
+    "elec_nstep",
+    "elec_e",
+    "elec_grad_k",
+    "elec_alpha",
+    "elec_linmin",
+    "electronic_output",
+    "t_s",
+    "ecomponents",
+]
+
+
 @dataclass
 class JDFTXOutfile:
     """
@@ -275,82 +354,9 @@ class JDFTXOutfile:
 
     def __post_init__(self):
         if len(self.slices):
-            self.prefix = self.slices[-1].prefix
-            self.jstrucs = self.slices[-1].jstrucs
-            self.jsettings_fluid = self.slices[-1].jsettings_fluid
-            self.jsettings_electronic = self.slices[-1].jsettings_electronic
-            self.jsettings_lattice = self.slices[-1].jsettings_lattice
-            self.jsettings_ionic = self.slices[-1].jsettings_ionic
-            self.xc_func = self.slices[-1].xc_func
-            self.lattice_initial = self.slices[-1].lattice_initial
-            self.lattice_final = self.slices[-1].lattice_final
-            self.lattice = self.slices[-1].lattice
-            self.a = self.slices[-1].a
-            self.b = self.slices[-1].b
-            self.c = self.slices[-1].c
-            self.fftgrid = self.slices[-1].fftgrid
-            self.geom_opt = self.slices[-1].geom_opt
-            self.geom_opt_type = self.slices[-1].geom_opt_type
-            self.efermi = self.slices[-1].efermi
-            self.egap = self.slices[-1].egap
-            self.emin = self.slices[-1].emin
-            self.emax = self.slices[-1].emax
-            self.homo = self.slices[-1].homo
-            self.lumo = self.slices[-1].lumo
-            self.homo_filling = self.slices[-1].homo_filling
-            self.lumo_filling = self.slices[-1].lumo_filling
-            self.is_metal = self.slices[-1].is_metal
-            self.converged = self.slices[-1].converged
-            self.etype = self.slices[-1].etype
-            self.broadening_type = self.slices[-1].broadening_type
-            self.broadening = self.slices[-1].broadening
-            self.kgrid = self.slices[-1].kgrid
-            self.truncation_type = self.slices[-1].truncation_type
-            self.truncation_radius = self.slices[-1].truncation_radius
-            self.pwcut = self.slices[-1].pwcut
-            self.rhocut = self.slices[-1].rhocut
-            self.pp_type = self.slices[-1].pp_type
-            self.total_electrons = self.slices[-1].total_electrons
-            self.semicore_electrons = self.slices[-1].semicore_electrons
-            self.valence_electrons = self.slices[-1].valence_electrons
-            self.total_electrons_uncharged = self.slices[-1].total_electrons_uncharged
-            self.semicore_electrons_uncharged = self.slices[-1].semicore_electrons_uncharged
-            self.valence_electrons_uncharged = self.slices[-1].valence_electrons_uncharged
-            self.nbands = self.slices[-1].nbands
-            self.atom_elements = self.slices[-1].atom_elements
-            self.atom_elements_int = self.slices[-1].atom_elements_int
-            self.atom_types = self.slices[-1].atom_types
-            self.spintype = self.slices[-1].spintype
-            self.nspin = self.slices[-1].nspin
-            self.nat = self.slices[-1].nat
-            self.atom_coords_initial = self.slices[-1].atom_coords_initial
-            self.atom_coords_final = self.slices[-1].atom_coords_final
-            self.atom_coords = self.slices[-1].atom_coords
-            self.structure = self.slices[-1].structure
+            for var in _jof_atr_from_last_slice:
+                setattr(self, var, getattr(self.slices[-1], var))
             self.trajectory = self._get_trajectory()
-            self.has_solvation = self.slices[-1].has_solvation
-            self.fluid = self.slices[-1].fluid
-            self.is_gc = self.slices[-1].is_gc
-            self.eopt_type = self.slices[-1].eopt_type
-            self.elecmindata = self.slices[-1].elecmindata
-            self.stress = self.slices[-1].stress
-            self.strain = self.slices[-1].strain
-            self.nstep = self.slices[-1].nstep
-            self.e = self.slices[-1].e
-            self.grad_k = self.slices[-1].grad_k
-            self.alpha = self.slices[-1].alpha
-            self.linmin = self.slices[-1].linmin
-            self.abs_magneticmoment = self.slices[-1].abs_magneticmoment
-            self.tot_magneticmoment = self.slices[-1].tot_magneticmoment
-            self.mu = self.slices[-1].mu
-            self.elec_nstep = self.slices[-1].elec_nstep
-            self.elec_e = self.slices[-1].elec_e
-            self.elec_grad_k = self.slices[-1].elec_grad_k
-            self.elec_alpha = self.slices[-1].elec_alpha
-            self.elec_linmin = self.slices[-1].elec_linmin
-            self.electronic_output = self.slices[-1].electronic_output
-            self.t_s = self.slices[-1].t_s
-            self.ecomponents = self.slices[-1].ecomponents
 
     def _get_trajectory(self) -> Trajectory:
         """Set the trajectory attribute of the JDFTXOutfile object."""
