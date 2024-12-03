@@ -9,6 +9,7 @@ from unittest import TestCase
 import numpy as np
 import pytest
 from monty.json import MontyDecoder
+from numpy.testing import assert_allclose
 from pytest import approx
 
 from pymatgen.core import Element, PeriodicSite
@@ -59,7 +60,7 @@ class TestRotationTransformations(TestCase):
         trafo = RotationTransformation([0, 1, 0], 30)
         s2 = trafo.apply_transformation(self.struct)
         s1 = trafo.inverse.apply_transformation(s2)
-        assert (abs(s1.lattice.matrix - self.struct.lattice.matrix) < 1e-8).all()
+        assert_allclose(s1.lattice.matrix, self.struct.lattice.matrix, atol=1e-8)
 
 
 class TestRemoveSpeciesTransformation:
@@ -199,6 +200,15 @@ class TestAutoOxiStateDecorationTransformation:
         dct = trafo.as_dict()
         trafo = AutoOxiStateDecorationTransformation.from_dict(dct)
         assert trafo.analyzer.dist_scale_factor == 1.015
+
+    def test_failure(self):
+        trafo_fail = AutoOxiStateDecorationTransformation()
+        trafo_no_fail = AutoOxiStateDecorationTransformation(zeros_on_fail=True)
+        struct_metal = Structure.from_spacegroup("Fm-3m", Lattice.cubic(3.677), ["Cu"], [[0, 0, 0]])
+        with pytest.raises(ValueError, match="BVAnalyzer failed with error"):
+            trafo_fail.apply_transformation(struct_metal)
+        zero_oxi_struct = trafo_no_fail.apply_transformation(struct_metal)
+        assert all(site.specie.oxi_state == 0 for site in zero_oxi_struct)
 
 
 class TestOxidationStateRemovalTransformation:

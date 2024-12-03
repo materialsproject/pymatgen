@@ -5,6 +5,7 @@ import json
 import os
 import pickle
 import re
+import warnings
 from shutil import copyfile
 from unittest import TestCase
 from unittest.mock import patch
@@ -39,6 +40,13 @@ from pymatgen.io.vasp.inputs import (
 )
 from pymatgen.util.testing import FAKE_POTCAR_DIR, TEST_FILES_DIR, VASP_IN_DIR, VASP_OUT_DIR, PymatgenTest
 
+# Filter some expected warnings
+warnings.filterwarnings(
+    "ignore", message=r"POTCAR data with symbol .* is not known to pymatgen", category=UnknownPotcarWarning
+)
+warnings.filterwarnings("ignore", message=r"missing .* POTCAR directory", category=UserWarning)
+
+
 # make sure _gen_potcar_summary_stats runs and works with all tests in this file
 _SUMM_STATS = _gen_potcar_summary_stats(append=False, vasp_psp_dir=str(FAKE_POTCAR_DIR), summary_stats_filename=None)
 
@@ -61,6 +69,9 @@ def _mock_complete_potcar_summary_stats(monkeypatch: pytest.MonkeyPatch) -> None
             _SUMM_STATS[func] = _SUMM_STATS["LDA_64"].copy()
 
 
+@pytest.mark.filterwarnings(
+    "ignore:POTCAR data with symbol .* is not known to pymatgen:pymatgen.io.vasp.inputs.UnknownPotcarWarning"
+)
 class TestPoscar(PymatgenTest):
     def test_init(self):
         comp = Structure.from_file(f"{VASP_IN_DIR}/POSCAR").composition
@@ -95,8 +106,10 @@ direct
 0.000000 0.000000 0.000000
 0.750000 0.500000 0.750000
 """
-        poscar = Poscar.from_str(poscar_str)
+        with pytest.warns(BadPoscarWarning, match="Elements in POSCAR cannot be determined"):
+            poscar = Poscar.from_str(poscar_str)
         assert poscar.structure.composition == Composition("HHe")
+
         # VASP 4 style file with default names, i.e. no element symbol found.
         poscar_str = """Test3
 1.0
@@ -174,6 +187,95 @@ direct
             "Fe",
         ]
         assert [site.specie.symbol for site in poscar.structure] == ordered_expected_elements
+
+    def test_from_file_potcar_overwrite_elements(self):
+        # Make sure overwriting elements triggers warning
+        # The following POTCAR has elements as ["Fe", "P", "O"]
+        copyfile(f"{VASP_IN_DIR}/POSCAR_Fe3O4", tmp_poscar_path := f"{self.tmp_path}/POSCAR")
+        copyfile(f"{VASP_IN_DIR}/fake_potcars/POTCAR.gz", f"{self.tmp_path}/POTCAR.gz")
+
+        with pytest.warns(UserWarning, match="Elements in POSCAR would be overwritten"):
+            _poscar = Poscar.from_file(tmp_poscar_path)
+
+        # Make sure ValueError is raised when POTCAR has fewer elements
+        copyfile(f"{VASP_IN_DIR}/POSCAR_Fe3O4", tmp_poscar_path := f"{self.tmp_path}/POSCAR")
+        copyfile(f"{VASP_IN_DIR}/POTCAR_C2.gz", f"{self.tmp_path}/POTCAR.gz")
+
+        with pytest.raises(ValueError, match="has fewer elements than POSCAR"):
+            _poscar = Poscar.from_file(tmp_poscar_path)
+
+        # Make sure no warning/error is triggered for compatible elements
+        copyfile(f"{VASP_IN_DIR}/POSCAR_C2", tmp_poscar_path := f"{self.tmp_path}/POSCAR")
+        copyfile(f"{VASP_IN_DIR}/POTCAR_C2.gz", f"{self.tmp_path}/POTCAR.gz")
+
+        with warnings.catch_warnings(record=True) as record:
+            _poscar = Poscar.from_file(tmp_poscar_path)
+        assert not any("Elements in POSCAR would be overwritten" in str(warning.message) for warning in record)
+
+    def test_from_str_default_names(self):
+        """Similar to test_from_file_bad_potcar, ensure "default_names"
+        (likely read from POTCAR) triggers correct warning/error.
+        """
+        poscar_str = """bad default names
+1.1
+3.840198 0.000000 0.000000
+1.920099 3.325710 0.000000
+0.000000 -2.217138 3.135509
+Si F
+1 1
+cart
+0.000000   0.00000000   0.00000000
+3.840198   1.50000000   2.35163175
+"""
+        # ValueError if default_names shorter than POSCAR
+        with pytest.raises(ValueError, match=re.escape("default_names=['Si'] (likely from POTCAR) has fewer elements")):
+            _poscar = Poscar.from_str(poscar_str, default_names=["Si"])
+
+        # Warning if overwrite triggered
+        with pytest.warns(UserWarning, match="Elements in POSCAR would be overwritten"):
+            poscar = Poscar.from_str(poscar_str, default_names=["Si", "O"])
+        assert poscar.site_symbols == ["Si", "O"]
+
+        # Assert no warning if using the same elements (or superset)
+        with warnings.catch_warnings(record=True) as record:
+            poscar = Poscar.from_str(poscar_str, default_names=["Si", "F"])
+            assert poscar.site_symbols == ["Si", "F"]
+
+            poscar = Poscar.from_str(poscar_str, default_names=["Si", "F", "O"])
+            assert poscar.site_symbols == ["Si", "F"]
+        assert not any("Elements in POSCAR would be overwritten" in str(warning.message) for warning in record)
+
+        # Make sure it could be bypassed (by using None, when not check_for_potcar)
+        with warnings.catch_warnings(record=True) as record:
+            _poscar = Poscar.from_str(poscar_str, default_names=None)
+        assert not any("Elements in POSCAR would be overwritten" in str(warning.message) for warning in record)
+
+    def test_from_str_default_names_vasp4(self):
+        """Poscar.from_str with default_names given could also be used to
+        convert a VASP 4 formatted POSCAR to VASP 5/6, by inserting
+        elements to the 5th (0-indexed) line.
+        """
+        poscar_str_vasp4 = """vasp 4
+1.1
+3.840198 0.000000 0.000000
+1.920099 3.325710 0.000000
+0.000000 -2.217138 3.135509
+1 1
+cart
+0.000000   0.00000000   0.00000000
+3.840198   1.50000000   2.35163175
+"""
+        # Test overwrite warning
+        with pytest.warns(UserWarning, match="Elements in POSCAR would be overwritten"):
+            poscar_vasp4 = Poscar.from_str(poscar_str_vasp4, default_names=["H", "He"])
+        assert poscar_vasp4.site_symbols == ["H", "He"]
+
+        # Test default names longer than need but should work the same
+        poscar_vasp4 = Poscar.from_str(poscar_str_vasp4, default_names=["H", "He", "Li"])
+        assert poscar_vasp4.site_symbols == ["H", "He"]
+
+        with pytest.raises(ValueError, match=re.escape("default_names=['H'] (likely from POTCAR) has fewer elements")):
+            _poscar_vasp4 = Poscar.from_str(poscar_str_vasp4, default_names=["H"])
 
     def test_as_from_dict(self):
         poscar_str = """Test3
@@ -419,6 +521,7 @@ direct
         poscar = Poscar.from_file(tmp_file)
         assert_allclose(poscar.structure.lattice.abc, poscar.structure.lattice.abc, 5)
 
+    @pytest.mark.filterwarnings("ignore:Elements in POSCAR would be overwritten")
     def test_selective_dynamics(self):
         # Previously, this test relied on the existence of a file named POTCAR
         # that was sorted to the top of a list of POTCARs for the test to work.
@@ -471,9 +574,12 @@ Cartesian
 0.000000   0.00000000   0.00000000 Si T T F
 3.840198   1.50000000   2.35163175 F T T F
 """
-        with pytest.warns(
-            BadPoscarWarning,
-            match="Selective dynamics values must be either 'T' or 'F'.",
+        with (
+            pytest.warns(
+                BadPoscarWarning,
+                match="Selective dynamics values must be either 'T' or 'F'.",
+            ),
+            pytest.warns(BadPoscarWarning, match="Selective dynamics toggled with Fluorine"),
         ):
             Poscar.from_str(invalid_poscar_str)
 
@@ -494,12 +600,15 @@ Cartesian
 0.000000   0.00000000   0.00000000 Si T T F
 3.840198   1.50000000   2.35163175 F T T F
 """
-        with pytest.warns(
-            BadPoscarWarning,
-            match=(
-                "Selective dynamics toggled with Fluorine element detected. "
-                "Make sure the 4th-6th entry each position line is selective dynamics info."
+        with (
+            pytest.warns(
+                BadPoscarWarning,
+                match=(
+                    "Selective dynamics toggled with Fluorine element detected. "
+                    "Make sure the 4th-6th entry each position line is selective dynamics info."
+                ),
             ),
+            pytest.warns(BadPoscarWarning, match="Selective dynamics values must be either"),
         ):
             Poscar.from_str(poscar_str_with_fluorine)
 
@@ -615,6 +724,14 @@ class TestIncar(PymatgenTest):
         incar.setdefault("NPAR", 4)
         assert incar["npar"] == 4
 
+        # Test pop
+        assert incar.pop(test_tag.lower()) == 520
+        assert test_tag.upper() not in incar
+        assert test_tag.lower() not in incar
+
+        # Test pop with default value
+        assert incar.pop("missing_key", 42) == 42
+
     def test_copy(self):
         incar2 = self.incar.copy()
         assert isinstance(incar2, Incar), f"Expected Incar, got {type(incar2).__name__}"
@@ -678,9 +795,11 @@ class TestIncar(PymatgenTest):
                 "ISMEAR": {"INCAR1": 0, "INCAR2": -5},
                 "NPAR": {"INCAR1": 8, "INCAR2": 1},
                 "SYSTEM": {
-                    "INCAR1": "Id=[0] dblock_code=[97763-icsd] formula=[li mn (p o4)] sg_name=[p n m a]",
-                    "INCAR2": "Id=[91090] dblock_code=[20070929235612linio-59.53134651-vasp] formula=[li3 ni3 o6] "
-                    "sg_name=[r-3m]",
+                    "INCAR1": "id=[0] dblock_code=[97763-ICSD] formula=[Li Mn (P O4)] sg_name=[P n m a]",
+                    "INCAR2": (
+                        "id=[91090] dblock_code=[20070929235612LiNiO-59.53134651-VASP] "
+                        "formula=[Li3 Ni3 O6] sg_name=[R-3m]"
+                    ),
                 },
                 "ALGO": {"INCAR1": "Damped", "INCAR2": "Fast"},
                 "LHFCALC": {"INCAR1": True, "INCAR2": None},
@@ -715,7 +834,7 @@ class TestIncar(PymatgenTest):
         float/int, and might yield values in wrong type.
         """
         # Init from dict
-        incar_dict = {"ENCUT": 500, "GGA": "PS", "NELM": 60.0}
+        incar_dict = {"ENCUT": 500, "GGA": "PS", "NELM": 60.0, "SYSTEM": "This should NOT BE capitalized"}
         incar_from_dict = Incar(incar_dict)
 
         # Init from file (from string)
@@ -723,6 +842,7 @@ class TestIncar(PymatgenTest):
         ENCUT = 500
         GGA = PS
         NELM = 60.0
+        SYSTEM = This should NOT BE capitalized
         """
 
         with ScratchDir("."):
@@ -739,6 +859,7 @@ class TestIncar(PymatgenTest):
         assert incar_from_dict == incar_from_file
         for key in incar_from_dict:
             assert type(incar_from_dict[key]) is type(incar_from_file[key])
+        assert incar_from_file["SYSTEM"] == "This should NOT BE capitalized"
 
     def test_write(self):
         tmp_file = f"{self.tmp_path}/INCAR.testing"
@@ -771,10 +892,10 @@ NKRED      =  2
 NPAR       =  8
 NSIM       =  1
 NSW        =  99
-NUPDOWN    =  0
+NUPDOWN    =  0.0
 PREC       =  Accurate
 SIGMA      =  0.05
-SYSTEM     =  Id=[0] dblock_code=[97763-icsd] formula=[li mn (p o4)] sg_name=[p n m a]
+SYSTEM     =  id=[0] dblock_code=[97763-ICSD] formula=[Li Mn (P O4)] sg_name=[P n m a]
 TIME       =  0.4"""
         assert incar_str == expected
 
@@ -876,13 +997,15 @@ SIGMA = 0.1"""
                 "AMIN": 0.01,
                 "ICHARG": 1,
                 "MAGMOM": [1, 2, 4, 5],
+                "ML_MODE": "RUN",  # lower case string
+                "SYSTEM": "Hello world",  # as is string
                 "ENCUT": 500,  # make sure float key is casted
                 "GGA": "PS",  # test string case insensitivity
                 "LREAL": True,  # special case: Union type
                 "NBAND": 250,  # typo in tag
                 "METAGGA": "SCAM",  # typo in value
-                "EDIFF": 5 + 1j,  # value should be a float
-                "ISIF": 9,  # value out of range
+                "EDIFF": 5 + 1j,  # value should be float
+                "ISIF": 9,  # value not unknown
                 "LASPH": 5,  # value should be bool
                 "PHON_TLIST": "is_a_str",  # value should be a list
             }
@@ -913,12 +1036,15 @@ class TestKpointsSupportedModes:
 
 
 class TestKpoints:
+    @pytest.mark.filterwarnings("ignore:Please use INCAR KSPACING tag")
     def test_init(self):
         # Automatic KPOINT grid
         filepath = f"{VASP_IN_DIR}/KPOINTS_auto"
-        kpoints = Kpoints.from_file(filepath)
+        with pytest.warns(DeprecationWarning, match="Please use INCAR KSPACING tag"):
+            kpoints = Kpoints.from_file(filepath)
         assert kpoints.comment == "Automatic mesh"
         assert kpoints.kpts == [(10,)], "Wrong kpoint lattice read"
+
         filepath = f"{VASP_IN_DIR}/KPOINTS_cartesian"
         kpoints = Kpoints.from_file(filepath)
         assert kpoints.kpts == [
@@ -1018,7 +1144,7 @@ Cartesian
         assert kpoints.kpts == [(2, 2, 2)]
         assert all(isinstance(kpt, int) for kpt in kpoints.kpts[0])
 
-        with pytest.warns(DeprecationWarning, match="Please use INCAR KSPACING tag"):
+        with pytest.deprecated_call(match="Please use INCAR KSPACING tag"):
             kpoints = Kpoints.automatic(100)
         assert kpoints.style == Kpoints.supported_modes.Automatic
         assert kpoints.kpts == [(100,)]
@@ -1168,6 +1294,9 @@ direct
                     assert kpoints.style == Kpoints.supported_modes.Gamma
 
 
+@pytest.mark.filterwarnings(
+    "ignore:POTCAR data with symbol .* is not known to pymatgen:pymatgen.io.vasp.inputs.UnknownPotcarWarning"
+)
 class TestPotcarSingle(TestCase):
     def setUp(self):
         self.psingle_Mn_pv = PotcarSingle.from_file(f"{FAKE_POTCAR_DIR}/POT_GGA_PAW_PBE/POTCAR.Mn_pv.gz")
@@ -1405,6 +1534,9 @@ class TestPotcarSingle(TestCase):
         assert psingle is not self.psingle_Mn_pv
 
 
+@pytest.mark.filterwarnings(
+    "ignore:POTCAR data with symbol .* is not known to pymatgen:pymatgen.io.vasp.inputs.UnknownPotcarWarning"
+)
 class TestPotcar(PymatgenTest):
     def setUp(self):
         SETTINGS.setdefault("PMG_VASP_PSP_DIR", str(TEST_FILES_DIR))
@@ -1480,6 +1612,10 @@ class TestPotcar(PymatgenTest):
         pickle.dumps(self.potcar)
 
 
+@pytest.mark.filterwarnings("ignore:Please use INCAR KSPACING tag:DeprecationWarning")
+@pytest.mark.filterwarnings(
+    "ignore:POTCAR data with symbol .* is not known to pymatgen:pymatgen.io.vasp.inputs.UnknownPotcarWarning"
+)
 class TestVaspInput(PymatgenTest):
     def setUp(self):
         filepath = f"{VASP_IN_DIR}/INCAR"

@@ -305,13 +305,13 @@ class ResWriter:
     def _res_from_entry(cls, entry: ComputedStructureEntry) -> Res:
         """Produce a res file structure from a pymatgen ComputedStructureEntry."""
         seed = entry.data.get("seed") or str(hash(entry))
-        pres = float(entry.data.get("pressure", 0))
+        pressure = float(entry.data.get("pressure", 0))
         isd = float(entry.data.get("isd", 0))
         iasd = float(entry.data.get("iasd", 0))
         spg, _ = entry.structure.get_space_group_info()
         rems = [str(x) for x in entry.data.get("rems", [])]
         return Res(
-            AirssTITL(seed, pres, entry.structure.volume, entry.energy, isd, iasd, spg, 1),
+            AirssTITL(seed, pressure, entry.structure.volume, entry.energy, isd, iasd, spg, 1),
             rems,
             cls._cell_from_lattice(entry.structure.lattice),
             cls._sfac_from_sites(list(entry.structure)),

@@ -112,7 +112,7 @@ class Cp2kOutput:
         return self.data.get("global").get("Run_type")
 
     @property
-    def calculation_type(self):
+    def calculation_type(self) -> str:
         """The calculation type (what io.vasp.outputs calls run_type)."""
         LDA_TYPES = {
             "LDA",
@@ -122,11 +122,8 @@ class Cp2kOutput:
             "BECKE88_LR_ADIABATIC",
             "BECKE97",
         }
-
         GGA_TYPES = {"PBE", "PW92"}
-
         HYBRID_TYPES = {"BLYP", "B3LYP"}
-
         METAGGA_TYPES = {
             "TPSS": "TPSS",
             "RTPSS": "revTPSS",
@@ -139,36 +136,36 @@ class Cp2kOutput:
         }
 
         functional = self.data.get("dft", {}).get("functional", [None])
-        ip = self.data.get("dft", {}).get("hfx", {}).get("Interaction_Potential")
+        inter_pot = self.data.get("dft", {}).get("hfx", {}).get("Interaction_Potential")
         frac = self.data.get("dft", {}).get("hfx", {}).get("FRACTION")
 
         if len(functional) > 1:
-            rt = "Mixed: " + ", ".join(functional)
+            run_type = "Mixed: " + ", ".join(functional)
             functional = " ".join(functional)
-            if "HYP" in functional or (ip and frac) or (functional in HYBRID_TYPES):
-                rt = "Hybrid"
+            if "HYP" in functional or (inter_pot and frac) or (functional in HYBRID_TYPES):
+                run_type = "Hybrid"
         else:
             functional = functional[0]
 
             if functional is None:
-                rt = "None"
-            elif "HYP" in functional or (ip and frac) or (functional) in HYBRID_TYPES:
-                rt = "Hybrid"
+                run_type = "None"
+            elif "HYP" in functional or (inter_pot and frac) or (functional) in HYBRID_TYPES:
+                run_type = "Hybrid"
             elif "MGGA" in functional or functional in METAGGA_TYPES:
-                rt = "METAGGA"
+                run_type = "METAGGA"
             elif "GGA" in functional or functional in GGA_TYPES:
-                rt = "GGA"
+                run_type = "GGA"
             elif "LDA" in functional or functional in LDA_TYPES:
-                rt = "LDA"
+                run_type = "LDA"
             else:
-                rt = "Unknown"
+                run_type = "Unknown"
 
         if self.is_hubbard:
-            rt += "+U"
-        if self.data.get("dft").get("vdw"):
-            rt += "+VDW"
+            run_type += "+U"
+        if self.data.get("dft", {}).get("vdw"):
+            run_type += "+VDW"
 
-        return rt
+        return run_type
 
     @property
     def project_name(self) -> str:
@@ -499,7 +496,7 @@ class Cp2kOutput:
                 r"(-?\d+\.\d+E?[-|\+]?\d+)\s+(-?\d+\.\d+E?[-|\+]?\d+).*$"
             )
             footer_pattern = r"^$"
-            d = self.read_table_pattern(
+            dct = self.read_table_pattern(
                 header_pattern=header_pattern,
                 row_pattern=row_pattern,
                 footer_pattern=footer_pattern,
@@ -509,12 +506,12 @@ class Cp2kOutput:
 
             def chunks(lst, n):
                 """Yield successive n-sized chunks from lst."""
-                for i in range(0, len(lst), n):
-                    if i % 2 == 0:
-                        yield lst[i : i + n]
+                for idx in range(0, len(lst), n):
+                    if idx % 2 == 0:
+                        yield lst[idx : idx + n]
 
-            if d:
-                self.data["stress_tensor"] = list(chunks(d[0], 3))
+            if dct:
+                self.data["stress_tensor"] = list(chunks(dct[0], 3))
 
     def parse_ionic_steps(self):
         """Parse the ionic step info. If already parsed, this will just assimilate."""
@@ -527,13 +524,13 @@ class Cp2kOutput:
         if not self.data.get("stress_tensor"):
             self.parse_stresses()
 
-        for i, (structure, energy) in enumerate(zip(self.structures, self.data.get("total_energy"), strict=False)):
+        for idx, (structure, energy) in enumerate(zip(self.structures, self.data.get("total_energy"), strict=False)):
             self.ionic_steps.append(
                 {
                     "structure": structure,
                     "E": energy,
-                    "forces": (self.data["forces"][i] if self.data.get("forces") else None),
-                    "stress_tensor": (self.data["stress_tensor"][i] if self.data.get("stress_tensor") else None),
+                    "forces": (self.data["forces"][idx] if self.data.get("forces") else None),
+                    "stress_tensor": (self.data["stress_tensor"][idx] if self.data.get("stress_tensor") else None),
                 }
             )
 
@@ -664,11 +661,11 @@ class Cp2kOutput:
         )
         self.data["QS"] = dict(self.data["QS"])
         tmp = {}
-        i = 1
+        idx = 1
         for k in list(self.data["QS"]):
             if "grid_level" in str(k) and "Number" not in str(k):
-                tmp[i] = self.data["QS"].pop(k)
-                i += 1
+                tmp[idx] = self.data["QS"].pop(k)
+                idx += 1
         self.data["QS"]["Multi_grid_cutoffs_[a.u.]"] = tmp
 
     def parse_overlap_condition(self):
@@ -726,8 +723,8 @@ class Cp2kOutput:
             postprocess=float,
             reverse=False,
         )
-        i = iter(self.data["lattice"])
-        lattices = list(zip(i, i, i, strict=True))
+        iterator = iter(self.data["lattice"])
+        lattices = list(zip(iterator, iterator, iterator, strict=True))
         return lattices[0]
 
     def parse_atomic_kind_info(self):
@@ -1410,16 +1407,7 @@ class Cp2kOutput:
         with zopen(chi_filename, mode="rt") as file:
             lines = [line for line in file.read().split("\n") if line]
 
-        data = {}
-        data["chi_soft"] = []
-        data["chi_local"] = []
-        data["chi_total"] = []
-        data["chi_total_ppm_cgs"] = []
-        data["PV1"] = []
-        data["PV2"] = []
-        data["PV3"] = []
-        data["ISO"] = []
-        data["ANISO"] = []
+        data = {k: [] for k in "chi_soft chi_local chi_total chi_total_ppm_cgs PV1 PV2 PV3 ISO ANISO".split()}
         ionic = -1
         dat = None
         for line in lines:
