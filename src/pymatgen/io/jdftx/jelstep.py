@@ -1,17 +1,14 @@
 """Module for parsing single SCF step from JDFTx.
 
 This module contains the JElStep class for parsing single SCF step from a JDFTx out file.
-
-@mkhorton - this file is ready to review.
 """
 
 from __future__ import annotations
 
-import inspect
 import pprint
 import warnings
 from dataclasses import dataclass, field
-from typing import Any, ClassVar
+from typing import Any
 
 from pymatgen.core.units import Ha_to_eV
 from pymatgen.io.jdftx._output_utils import get_colon_var_t1
@@ -37,7 +34,7 @@ class JElStep:
         alpha (float | None): The step length.
         linmin (float | None): Normalized line minimization direction / energy
             gradient projection (-1 for perfectly opposite, 1 for perfectly aligned).
-        t_s (float | None): Time in seconds for the SCF step.
+        t_s (float | None): Time elapsed from beginning of JDFTx calculation.
         mu (float | None): The chemical potential in eV.
         nelectrons (float | None): The number of electrons.
         abs_magneticmoment (float | None): The absolute magnetic moment.
@@ -219,6 +216,21 @@ class JElStep:
         """
         self.nelectrons = get_colon_var_t1(fillings_line, "nElectrons: ")
 
+    def to_dict(self) -> dict:
+        """Return dictionary representation of JElStep object.
+
+        Returns:
+            dict: Dictionary representation of JElStep object.
+        """
+        dct = {}
+        for fld in self.__dataclass_fields__:
+            value = getattr(self, fld)
+            if hasattr(value, "to_dict"):
+                dct[fld] = value.to_dict()
+            else:
+                dct[fld] = value
+        return dct
+
     def __str__(self) -> str:
         """
         Return string representation of JElStep object.
@@ -227,6 +239,20 @@ class JElStep:
             str: String representation of JElStep object.
         """
         return pprint.pformat(self)
+
+
+_jelsteps_atrs_from_last_slice = [
+    "e",
+    "grad_k",
+    "alpha",
+    "linmin",
+    "t_s",
+    "mu",
+    "nelectrons",
+    "abs_magneticmoment",
+    "tot_magneticmoment",
+    "subspacerotationadjust",
+]
 
 
 @dataclass
@@ -243,25 +269,40 @@ class JElSteps:
         converged (bool): True if the SCF steps converged.
         converged_reason (str | None): The reason for convergence.
         slices (list[JElStep]): A list of JElStep objects.
+        e (float | None): The total electronic energy in eV.
+        grad_k (float | None): The gradient of the Kohn-Sham energy (along the
+            line minimization direction).
+        alpha (float | None): The step length.
+        linmin (float | None): Normalized line minimization direction / energy
+            gradient projection (-1 for perfectly opposite, 1 for perfectly aligned).
+        t_s (float | None): Time elapsed from beginning of JDFTx calculation.
+        mu (float | None): The chemical potential in eV.
+        nelectrons (float | None): The number of electrons.
+        abs_magneticmoment (float | None): The absolute magnetic moment.
+        tot_magneticmoment (float | None): The total magnetic moment.
+        subspacerotationadjust (float | None): The subspace rotation adjustment factor.
+        nstep (int | None): The SCF step number.
     """
 
     opt_type: str | None = None
     etype: str | None = None
     iter_flag: str | None = None
-    converged: bool = False
-    converged_reason: str | None = None
-    slices: list[JElStep] = field(default_factory=list)
-    # List of attributes to ignore when getting attributes from the most recent slice specified by _getatr_ignore
-    _getatr_ignore: ClassVar[list[str]] = [
-        "e",
-        "t_s",
-        "mu",
-        "nelectrons",
-        "subspacerotationadjust",
-    ]
+    converged: bool | None = field(default=None, init=True)
+    converged_reason: str | None = field(default=None, init=True)
+    slices: list[JElStep] = field(default_factory=list, init=True)
+    e: float | None = field(default=None, init=False)
+    grad_k: float | None = field(default=None, init=False)
+    alpha: float | None = field(default=None, init=False)
+    linmin: float | None = field(default=None, init=False)
+    t_s: float | None = field(default=None, init=False)
+    mu: float | None = field(default=None, init=False)
+    nelectrons: float | None = field(default=None, init=False)
+    abs_magneticmoment: float | None = field(default=None, init=False)
+    tot_magneticmoment: float | None = field(default=None, init=False)
+    subspacerotationadjust: float | None = field(default=None, init=False)
+    nstep: int | None = field(default=None, init=False)
 
-    @property
-    def nstep(self) -> int | None:
+    def _get_nstep(self) -> int | None:
         """Return the nstep attribute of the last JElStep object in the slices.
 
         The nstep attribute signifies the SCF step number.
@@ -275,150 +316,13 @@ class JElSteps:
         """
         if len(self.slices):
             if self.slices[-1].nstep is not None:
-                return self.slices[-1].nstep
-            warnings.warn("No nstep attribute in JElStep object. Returning number of JElStep objects.", stacklevel=2)
-            return len(self.slices) - 1
-        raise AttributeError("No JElStep objects in JElSteps object slices class variable.")
-
-    @property
-    def e(self) -> float | None:
-        """Return total electronic energy.
-
-        Return the e attribute of the last JElStep object in the slices, where e
-        signifies the total electronic energy in eV.
-
-        Returns:
-            float: The e attribute of the last JElStep object in the slices.
-        """
-        if len(self.slices):
-            return self.slices[-1].e
-        raise AttributeError("No JElStep objects in JElSteps object slices class variable.")
-
-    @property
-    def grad_k(self) -> float | None:
-        """Return most recent grad_k.
-
-        Return the grad_k attribute of the last JElStep object in the slices, where
-        grad_k signifies the gradient of the Kohn-Sham energy (along line minimization direction).
-
-        Returns:
-            float: The grad_k attribute of the last JElStep object in the slices.
-        """
-        if len(self.slices):
-            return self.slices[-1].grad_k
-        raise AttributeError("No JElStep objects in JElSteps object slices class variable.")
-
-    @property
-    def alpha(self) -> float | None:
-        """Return most recent alpha.
-
-        Return the alpha attribute of the last JElStep object in the slices, where
-        alpha signifies the step length in the electronic minimization.
-
-        Returns:
-            float: The alpha attribute of the last JElStep object in the slices.
-        """
-        if len(self.slices):
-            return self.slices[-1].alpha
-        raise AttributeError("No JElStep objects in JElSteps object slices class variable.")
-
-    @property
-    def linmin(self) -> float | None:
-        """Return most recent linmin.
-
-        Return the linmin attribute of the last JElStep object in the slices, where
-        linmin signifies the normalized line minimization direction / energy gradient projection.
-
-        Returns:
-            float: The linmin attribute of the last JElStep object in the slices.
-        """
-        if len(self.slices):
-            return self.slices[-1].linmin
-        raise AttributeError("No JElStep objects in JElSteps object slices class variable.")
-
-    @property
-    def t_s(self) -> float | None:
-        """Return most recent t_s.
-
-        Return the t_s attribute of the last JElStep object in the slices, where
-        t_s signifies the time in seconds for the SCF step.
-
-        Returns:
-            float: The t_s attribute of the last JElStep object in the slices.
-        """
-        if len(self.slices):
-            return self.slices[-1].t_s
-        raise AttributeError("No JElStep objects in JElSteps object slices class variable.")
-
-    @property
-    def mu(self) -> float | None:
-        """Return most recent mu.
-
-        Return the mu attribute of the last JElStep object in the slices, where
-        mu signifies the chemical potential (Fermi level) in eV.
-
-        Returns:
-            float: The mu attribute of the last JElStep object in the slices.
-        """
-        if len(self.slices):
-            return self.slices[-1].mu
-        raise AttributeError("No JElStep objects in JElSteps object slices class variable.")
-
-    @property
-    def nelectrons(self) -> float | None:
-        """Return most recent nelectrons.
-
-        Return the nelectrons attribute of the last JElStep object in the slices, where
-        nelectrons signifies the total number of electrons being evaluated in the SCF step.
-
-        Returns:
-            float: The nelectrons attribute of the last JElStep object in the slices.
-        """
-        if len(self.slices):
-            return self.slices[-1].nelectrons
-        raise AttributeError("No JElStep objects in JElSteps object slices class variable.")
-
-    @property
-    def abs_magneticmoment(self) -> float | None:
-        """Return most recent abs_magneticmoment.
-
-        Return the abs_magneticmoment attribute of the last JElStep object in the slices, where
-        abs_magneticmoment signifies the absolute magnetic moment of the electron density.
-
-        Returns:
-            float: The abs_magneticmoment attribute of the last JElStep object in the slices.
-        """
-        if len(self.slices):
-            return self.slices[-1].abs_magneticmoment
-        raise AttributeError("No JElStep objects in JElSteps object slices class variable.")
-
-    @property
-    def tot_magneticmoment(self) -> float | None:
-        """
-        Return most recent tot_magneticmoment.
-
-        Return the tot_magneticmoment attribute of the last JElStep object in the slices, where
-        tot_magneticmoment signifies the total magnetic moment of the electron density.
-
-        Returns:
-            float: The tot_magneticmoment attribute of the last JElStep object in the slices.
-        """
-        if len(self.slices):
-            return self.slices[-1].tot_magneticmoment
-        raise AttributeError("No JElStep objects in JElSteps object slices class variable.")
-
-    @property
-    def subspacerotationadjust(self) -> float | None:
-        """Return most recent subspacerotationadjust.
-
-        Return the subspacerotationadjust attribute of the last JElStep object in the slices, where
-        subspacerotationadjust signifies the amount by which the subspace was rotated in the SCF step.
-
-        Returns:
-            float: The subspacerotationadjust attribute of the last JElStep object in the slices.
-        """
-        if len(self.slices):
-            return self.slices[-1].subspacerotationadjust
+                nstep = self.slices[-1].nstep
+            else:
+                warnings.warn(
+                    "No nstep attribute in JElStep object. Returning number of JElStep objects.", stacklevel=2
+                )
+                nstep = len(self.slices) - 1
+            return nstep
         raise AttributeError("No JElStep objects in JElSteps object slices class variable.")
 
     @classmethod
@@ -434,88 +338,42 @@ class JElSteps:
             etype (str): The type of energy component.
         """
         line_collections, lines_collect = _gather_JElSteps_line_collections(opt_type, text_slice)
-        instance = cls()
-        instance.iter_flag = f"{opt_type}: Iter:"
+        slices = []
+        converged = None
+        converged_reason = None
+        for _lines_collect in line_collections:
+            slices.append(JElStep._from_lines_collect(_lines_collect, opt_type, etype))
+        if len(lines_collect):
+            converged, converged_reason = _parse_ending_lines(lines_collect, opt_type)
+        instance = cls(slices=slices, converged=converged, converged_reason=converged_reason)
         instance.opt_type = opt_type
         instance.etype = etype
-        instance.slices = []
-        for _lines_collect in line_collections:
-            instance.slices.append(JElStep._from_lines_collect(_lines_collect, opt_type, etype))
-        if len(lines_collect):
-            instance._parse_ending_lines(lines_collect)
-            lines_collect = []
         return instance
 
-    def _parse_ending_lines(self, ending_lines: list[str]) -> None:
-        """Parse ending lines.
+    def __post_init__(self) -> None:
+        """Post initialization method."""
+        if len(self.slices):
+            self.nstep = self._get_nstep()
+            for var in _jelsteps_atrs_from_last_slice:
+                setattr(self, var, getattr(self.slices[-1], var))
 
-        Parses the ending lines of text from a JDFTx out file corresponding to
-        a series of SCF steps.
-
-        Args:
-            ending_lines (list[str]): The ending lines of text from a JDFTx out file corresponding to a
-            series of SCF steps.
-        """
-        for i, line in enumerate(ending_lines):
-            if self._is_converged_line(i, line):
-                self._read_converged_line(line)
-
-    def _is_converged_line(self, i: int, line_text: str) -> bool:
-        """Return True if converged line.
-
-        Return True if the line_text is the start of a log message about
-        convergence for a JDFTx optimization step.
-
-        Args:
-            i (int): The index of the line in the text slice.
-            line_text (str): A line of text from a JDFTx out file.
+    def to_dict(self) -> dict[str, Any]:
+        """Return dictionary representation of JElSteps object.
 
         Returns:
-            bool: True if the line_text is the start of a log message about
-            convergence for a JDFTx optimization step.
+            dict: Dictionary representation of JElSteps object.
         """
-        return f"{self.opt_type}: Converged" in line_text
-
-    def _read_converged_line(self, line_text: str) -> None:
-        """Set class variables converged and converged_reason.
-
-        Args:
-            line_text (str): A line of text from a JDFTx out file containing a message about
-            convergence for a JDFTx optimization step.
-        """
-        self.converged = True
-        self.converged_reason = line_text.split("(")[1].split(")")[0].strip()
-
-    # This method is likely never going to be called as all (currently existing)
-    # attributes of the most recent slice are explicitly defined as a class
-    # property. However, it is included to reduce the likelihood of errors
-    # upon future changes to downstream code.
-    def __getattr__(self, name: str) -> Any:
-        """Return attribute value.
-
-        Args:
-            name (str): The name of the attribute.
-
-        Returns:
-            Any: The value of the attribute.
-
-        Raises:
-            AttributeError: If the attribute is not found.
-        """
-        if name in self.__dict__:
-            return self.__dict__[name]
-
-        # Check if the attribute is a property of the class
-        for cls in inspect.getmro(self.__class__):
-            if name in cls.__dict__ and isinstance(cls.__dict__[name], property):
-                return cls.__dict__[name].__get__(self)
-
-        # Check if the attribute is in self.jstrucs
-        if hasattr(self.slices[-1], name):
-            return getattr(self.slices[-1], name)
-
-        # If the attribute is not found in either, raise an AttributeError
-        raise AttributeError(f"{self.__class__.__name__} not found: {name}")
+        dct = {}
+        for fld in self.__dataclass_fields__:
+            if fld == "slices":
+                dct[fld] = [slc.to_dict() for slc in self.slices]
+                continue
+            value = getattr(self, fld)
+            if hasattr(value, "to_dict"):
+                dct[fld] = value.to_dict()
+            else:
+                dct[fld] = value
+        return dct
 
     def __getitem__(self, key: int | str) -> JElStep | Any:
         """Return item.
@@ -625,3 +483,50 @@ def _gather_JElSteps_line_collections(opt_type: str, text_slice: list[str]) -> t
         else:
             break
     return line_collections, lines_collect
+
+
+def _parse_ending_lines(ending_lines: list[str], opt_type: str) -> tuple[None | bool, None | str]:
+    """Parse ending lines.
+
+    Parses the ending lines of text from a JDFTx out file corresponding to
+    a series of SCF steps.
+
+    Args:
+        ending_lines (list[str]): The ending lines of text from a JDFTx out file corresponding to a
+        series of SCF steps.
+    """
+    converged = None
+    converged_reason = None
+    for i, line in enumerate(ending_lines):
+        if _is_converged_line(i, line, opt_type):
+            converged, converged_reason = _read_converged_line(line)
+    return converged, converged_reason
+
+
+def _is_converged_line(i: int, line_text: str, opt_type: str) -> bool:
+    """Return True if converged line.
+
+    Return True if the line_text is the start of a log message about
+    convergence for a JDFTx optimization step.
+
+    Args:
+        i (int): The index of the line in the text slice.
+        line_text (str): A line of text from a JDFTx out file.
+
+    Returns:
+        bool: True if the line_text is the start of a log message about
+        convergence for a JDFTx optimization step.
+    """
+    return f"{opt_type}: Converged" in line_text
+
+
+def _read_converged_line(line_text: str) -> tuple[None | bool, None | str]:
+    """Set class variables converged and converged_reason.
+
+    Args:
+        line_text (str): A line of text from a JDFTx out file containing a message about
+        convergence for a JDFTx optimization step.
+    """
+    converged = True
+    converged_reason = line_text.split("(")[1].split(")")[0].strip()
+    return converged, converged_reason

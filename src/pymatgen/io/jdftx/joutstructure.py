@@ -1,15 +1,12 @@
 """Class object for storing a single JDFTx geometric optimization step.
 
 A mutant of the pymatgen Structure class for flexibility in holding JDFTx.
-
-@mkhorton - this file is ready to review.
 """
 
 from __future__ import annotations
 
-import inspect
 import pprint
-from typing import Any, ClassVar
+from typing import ClassVar
 
 import numpy as np
 
@@ -25,12 +22,48 @@ from pymatgen.io.jdftx.jelstep import JElSteps
 
 __author__ = "Ben Rich"
 
+_jos_atrs_from_elecmindata = ["mu", "nelectrons", "abs_magneticmoment", "tot_magneticmoment"]
+_jos_atrs_elec_from_elecmindata = ["nstep", "e", "grad_k", "alpha", "linmin"]
+
 
 class JOutStructure(Structure):
     """Class object for storing a single JDFTx optimization step.
 
     A mutant of the pymatgen Structure class for flexibility in holding JDFTx
     optimization data.
+
+    Properties:
+        charges (np.ndarray | None): The Lowdin charges of the atoms in the system.
+        magnetic_moments (np.ndarray | None): The magnetic moments of the atoms in the system.
+    Attributes:
+        opt_type (str | None): The type of optimization step.
+        etype (str | None): The type of energy from the electronic minimization data.
+        eopt_type (str | None): The type of electronic minimization step.
+        emin_flag (str | None): The flag that indicates the start of a log message for a JDFTx optimization step.
+        ecomponents (dict | None): The energy components of the system.
+        elecmindata (JElSteps | None): The electronic minimization data.
+        stress (np.ndarray | None): The stress tensor.
+        strain (np.ndarray | None): The strain tensor.
+        nstep (int | None): The most recent step number.
+        e (float | None): The total energy of the system.
+        grad_k (float | None): The gradient of the electronic density along the most recent line minimization.
+        alpha (float | None): The step size of the most recent SCF step along the line minimization.
+        linmin (float | None): The normalized alignment projection of the electronic energy gradient to the line
+                                minimization direction.
+        t_s (float | None): The time in seconds for the optimization step.
+        geom_converged (bool): Whether the geometry optimization has converged.
+        geom_converged_reason (str | None): The reason for geometry optimization convergence.
+        line_types (ClassVar[list[str]]): The types of lines in a JDFTx out file.
+        selective_dynamics (list[int] | None): The selective dynamics flags for the atoms in the system.
+        mu (float | None): The chemical potential (Fermi level) in eV.
+        nelectrons (float | None): The total number of electrons in the electron density.
+        abs_magneticmoment (float | None): The absolute magnetic moment of the electron density.
+        tot_magneticmoment (float | None): The total magnetic moment of the electron density.
+        elec_nstep (int | None): The most recent electronic step number.
+        elec_e (float | None): The most recent electronic energy.
+        elec_grad_k (float | None): The most recent electronic grad_k.
+        elec_alpha (float | None): The most recent electronic alpha.
+        elec_linmin (float | None): The most recent electronic linmin.
     """
 
     opt_type: str | None = None
@@ -61,111 +94,25 @@ class JOutStructure(Structure):
         "opt",
     ]
     selective_dynamics: list[int] | None = None
+    mu: float | None = None
+    nelectrons: float | None = None
+    abs_magneticmoment: float | None = None
+    tot_magneticmoment: float | None = None
+    elec_nstep: int | None = None
+    elec_e: float | None = None
+    elec_grad_k: float | None = None
+    elec_alpha: float | None = None
+    elec_linmin: float | None = None
 
-    @property
-    def mu(self) -> float | None:
-        """Return the chemical potential.
-
-        Returns:
-            float: The chemical potential (Fermi level) in eV.
-        """
+    def _elecmindata_postinit(self) -> None:
+        """Post-initialization method for attributes taken from elecmindata."""
         if self.elecmindata is not None:
-            return self.elecmindata.mu
-        return None
-
-    @property
-    def nelectrons(self) -> float | None:
-        """Return the number of electrons.
-
-        Returns:
-            float: The total number of electrons in the electron density.
-        """
-        if self.elecmindata is not None:
-            return self.elecmindata.nelectrons
-        return None
-
-    @property
-    def abs_magneticmoment(self) -> float | None:
-        """Return the absolute magnetic moment.
-
-        Returns:
-            float: The absolute magnetic moment of the electron density.
-        """
-        if self.elecmindata is not None:
-            return self.elecmindata.abs_magneticmoment
-        return None
-
-    @property
-    def tot_magneticmoment(self) -> float | None:
-        """Return the total magnetic moment.
-
-        Returns:
-            float: The total magnetic moment of the electron density.
-        """
-        if self.elecmindata is not None:
-            return self.elecmindata.tot_magneticmoment
-        return None
-
-    @property
-    def elec_nstep(self) -> int | None:
-        """Return the most recent electronic step number.
-
-        Returns:
-            int: The nstep property of the electronic minimization data, where
-            nstep corresponds to the SCF step number.
-        """
-        if self.elecmindata is not None:
-            return self.elecmindata.nstep
-        return None
-
-    @property
-    def elec_e(self) -> int | None:
-        """Return the most recent electronic energy.
-
-        Returns:
-            float: The e property of the electronic minimization, where e corresponds
-            to the energy of the system's "etype".
-        """
-        if self.elecmindata is not None:
-            return self.elecmindata.e
-        return None
-
-    @property
-    def elec_grad_k(self) -> float | None:
-        """Return the most recent electronic grad_k.
-
-        Returns:
-            float: The most recent electronic grad_k, where grad_k here corresponds
-            to the gradient of the electronic density along the most recent line minimization.
-        """
-        if self.elecmindata is not None:
-            return self.elecmindata.grad_k
-        return None
-
-    @property
-    def elec_alpha(self) -> float | None:
-        """Return the most recent electronic alpha.
-
-        Returns:
-            float: The most recent electronic alpha, where alpha here corresponds to the
-            step size of the most recent SCF step along the line minimization.
-        """
-        if self.elecmindata is not None:
-            return self.elecmindata.alpha
-        return None
-
-    @property
-    def elec_linmin(self) -> float | None:
-        """Return the most recent electronic linmin.
-
-        Returns:
-            float: The most recent electronic linmin, where linmin here corresponds to
-            the normalized alignment projection of the electronic energy gradient to
-            the line minimization direction. (-1 perfectly anti-aligned, 0 orthogonal, 1 perfectly aligned)
-        """
-        if self.elecmindata is not None:
-            return self.elecmindata.linmin
-        return None
+            for var in _jos_atrs_from_elecmindata:
+                if hasattr(self.elecmindata, var):
+                    setattr(self, var, getattr(self.elecmindata, var))
+            for var in _jos_atrs_elec_from_elecmindata:
+                if hasattr(self.elecmindata, var):
+                    setattr(self, f"elec_{var}", getattr(self.elecmindata, var))
 
     @property
     def charges(self) -> np.ndarray | None:
@@ -270,38 +217,41 @@ class JOutStructure(Structure):
         line_collections = instance._init_line_collections()
         line_collections = instance._gather_line_collections(line_collections, text_slice)
 
-        # ecomponents needs to be parsed before emin to set etype
+        # ecomponents needs to be parsed before emin and opt to set etype
         instance._parse_ecomp_lines(line_collections["ecomp"]["lines"])
+        instance._parse_opt_lines(line_collections["opt"]["lines"])
         instance._parse_emin_lines(line_collections["emin"]["lines"])
-        # Lattice must be parsed before posns/forces in case of direct
-        # coordinates
+        # Lattice must be parsed before posns/forces in case of direct coordinates
         instance._parse_lattice_lines(line_collections["lattice"]["lines"])
-        instance._parse_posns_lines(line_collections["posns"]["lines"])
         instance._parse_forces_lines(line_collections["forces"]["lines"])
-        # Strain and stress can be parsed in any order
-        instance._parse_strain_lines(line_collections["strain"]["lines"])
-        instance._parse_stress_lines(line_collections["stress"]["lines"])
+        instance._parse_posns_lines(line_collections["posns"]["lines"])
         # Lowdin must be parsed after posns
         instance._parse_lowdin_lines(line_collections["lowdin"]["lines"])
-        # Opt line must be parsed after ecomp
-        instance._parse_opt_lines(line_collections["opt"]["lines"])
+        # Strain and stress can be parsed at any point
+        instance._parse_strain_lines(line_collections["strain"]["lines"])
+        instance._parse_stress_lines(line_collections["stress"]["lines"])
 
         # In case of single-point calculation
-        if instance.e is None:  # This doesn't defer to elecmindata.e due to the existence of a class variable e
-            if instance.etype is not None:
-                if instance.ecomponents is not None:
-                    if instance.etype in instance.ecomponents:
-                        instance.e = instance.ecomponents[instance.etype]
-                    elif instance.elecmindata is not None:
-                        instance.e = instance.elecmindata.e
+        instance._init_e_sp_backup()
+        # Setting attributes from elecmindata (set during _parse_emin_lines)
+        instance._elecmindata_postinit()
+        return instance
+
+    def _init_e_sp_backup(self) -> None:
+        """Initialize self.e with coverage for single-point calculations."""
+        if self.e is None:  # This doesn't defer to elecmindata.e due to the existence of a class variable e
+            if self.etype is not None:
+                if self.ecomponents is not None:
+                    if self.etype in self.ecomponents:
+                        self.e = self.ecomponents[self.etype]
+                    elif self.elecmindata is not None:
+                        self.e = self.elecmindata.e
                     else:
                         raise ValueError("Could not determine total energy due to lack of elecmindata")
                 else:
                     raise ValueError("Could not determine total energy due to lack of ecomponents")
             else:
                 raise ValueError("Could not determine total energy due to lack of etype")
-
-        return instance
 
     def _init_line_collections(self) -> dict:
         """Initialize line collection dict.
@@ -729,34 +679,21 @@ class JOutStructure(Structure):
             generic_lines.append(line_text)
         return generic_lines, collecting, collected
 
-    # This method is likely never going to be called as all (currently existing)
-    # attributes of the most recent slice are explicitly defined as a class
-    # property. However, it is included to reduce the likelihood of errors
-    # upon future changes to downstream code.
-    def __getattr__(self, name: str) -> Any:
-        """Return attribute value.
-
-        Args:
-            name (str): The name of the attribute.
+    def to_dict(self) -> dict:
+        """
+        Convert the JOutStructure object to a dictionary.
 
         Returns:
-            Any: The value of the attribute.
+            dict: A dictionary representation of the JOutStructure object.
         """
-        # Only works for actual attributes of the class
-        if name in self.__dict__:
-            return self.__dict__[name]
-
-        # Extended for properties
-        for cls in inspect.getmro(self.__class__):
-            if name in cls.__dict__ and isinstance(cls.__dict__[name], property):
-                return cls.__dict__[name].__get__(self)
-
-        # Check if the attribute is in self.jstrucs
-        if hasattr(self.elecmindata, name):
-            return getattr(self.elecmindata, name)
-
-        # If the attribute is not found in either, raise an AttributeError
-        raise AttributeError(f"{self.__class__.__name__} not found: {name}")
+        dct = {}
+        for fld in self.__dict__:
+            value = getattr(self, fld)
+            if hasattr(value, "to_dict"):
+                dct[fld] = value.to_dict()
+            else:
+                dct[fld] = value
+        return dct
 
     # TODO: Add string representation for JOutStructure-specific meta-data
     # This method currently only returns the Structure Summary as inherited from

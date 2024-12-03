@@ -137,8 +137,9 @@ def jdftxoutfile_matches_known(joutfile: JDFTXOutfile, known: dict):
     assert joutfile.trajectory is not None
     assert joutfile.electronic_output is not None
     assert joutfile.structure is not None
-    joutfile[-1].jstrucs = None
-    assert joutfile.is_converged is None
+    # # Commenting out as we are no longer accessing "is_converged" as a property
+    # joutfile[-1].jstrucs = None
+    # assert joutfile.is_converged is None
 
 
 example_sp_outfile_path = ex_out_files_dir / Path("example_sp.out")
@@ -179,7 +180,7 @@ example_sp_outfile_known_simple = {
     "nbands": 174,
     "nat": 16,
     "t_s": 165.87,
-    "opt_type": None,
+    "geom_opt_type": "single point",
     "prefix": "jdft",
     "etype": "F",
     "converged": True,
@@ -223,7 +224,7 @@ example_latmin_outfile_known_simple = {
     "nbands": 42,
     "nat": 8,
     "t_s": 314.16,
-    "opt_type": "LatticeMinimize",
+    "geom_opt_type": "lattice",
     "prefix": "$VAR",
     "etype": "F",
     "converged": True,
@@ -268,7 +269,7 @@ example_ionmin_outfile_known_simple = {
     "nbands": 195,
     "nat": 41,
     "t_s": 2028.57,
-    "opt_type": "IonicMinimize",
+    "geom_opt_type": "ionic",
     "prefix": "$VAR",
     "etype": "G",
     "converged": True,
