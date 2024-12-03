@@ -26,7 +26,7 @@ def test_jdftxoutfileslice_stringify():
 
 def test_jdftxoutfileslice_converge():
     joutslice = JDFTXOutfileSlice._from_out_slice(ex_slice1)
-    assert joutslice.is_converged
+    assert joutslice.converged
 
 
 def test_jdftxoutfileslice_trajectory():
@@ -35,7 +35,7 @@ def test_jdftxoutfileslice_trajectory():
     assert isinstance(traj, Trajectory)
     del joutslice.jsettings_lattice.params["niterations"]
     with pytest.raises(ValueError, match=re.escape("Unknown issue due to partial initialization of settings objects.")):
-        traj = joutslice.trajectory
+        joutslice._set_trajectory()
 
 
 def test_get_broadeningvars():
@@ -81,12 +81,18 @@ def test_get_eigstats_varsdict():
     evardict = joutslice._get_eigstats_varsdict([], "$VAR")
     for key in evardict:
         assert evardict[key] is None
+    # Initializing eigvars with no data will set all to None EXCEPT efermi which has "mu" as a backup reference
     joutslice._set_eigvars([])
     for key in evardict:
         if key != "efermi":
             assert getattr(joutslice, key) is None
-    for key in ["efermi", "mu"]:
-        assert getattr(joutslice, key) is not None
+    # Setting mu, _mu_backup, and jstrucs to None before _set_eigvars([]) will set efermi to None
+    joutslice.mu = None
+    joutslice._mu_backup = None
+    joutslice.jstrucs = None
+    joutslice._set_eigvars([])
+    for key in evardict:
+        assert getattr(joutslice, key) is None
 
 
 def test_get_pp_type():
@@ -98,7 +104,7 @@ def test_get_pp_type():
 
 def test_set_pseudo_vars_t1():
     joutslice = JDFTXOutfileSlice._from_out_slice(ex_slice1)
-    # Just need more bound sets than there are atom types
+    # 6 instances of "reading pseudopotential file" since all possible test files have less than 6 atom types
     text = [
         "Reading pseudopotential file not_SG15/GBRV",
         "10 valence electrons ",
@@ -119,8 +125,7 @@ def test_set_pseudo_vars_t1():
         "10 valence electrons ",
         "",
     ]
-    joutslice._total_electrons_backup = None
-    joutslice.jstrucs = None
+    joutslice.total_electrons = None
     with pytest.raises(ValueError, match="Total electrons and semicore electrons must be set."):
         joutslice._set_pseudo_vars_t1(text)
     joutslice.atom_elements = None
