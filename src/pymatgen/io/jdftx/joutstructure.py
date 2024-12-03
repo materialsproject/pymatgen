@@ -166,12 +166,14 @@ class JOutStructure(Structure):
         species: list[str],
         coords: list[np.ndarray],
         site_properties: dict[str, list],
+        **kwargs,
     ) -> None:
         super().__init__(
             lattice=lattice,
             species=species,
             coords=coords,
             site_properties=site_properties,
+            **kwargs,
         )
 
     @classmethod
