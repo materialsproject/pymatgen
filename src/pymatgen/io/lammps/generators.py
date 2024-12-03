@@ -12,6 +12,7 @@ from __future__ import annotations
 import os
 from dataclasses import dataclass, field
 from string import Template
+from pathlib import Path
 
 from monty.io import zopen
 
@@ -56,7 +57,7 @@ class BaseLammpsGenerator(InputGenerator):
     """
 
     inputfile: LammpsInputFile | None = field(default=None)
-    template: str = field(default_factory=str)
+    template: str | Path | LammpsInputFile = field(default_factory=str)
     data: LammpsData | CombinedData | None = field(default=None)
     settings: dict = field(default_factory=dict)
     calc_type: str = field(default="lammps")
@@ -68,8 +69,13 @@ class BaseLammpsGenerator(InputGenerator):
         data = LammpsData.from_structure(structure, atom_style=self.settings.get('atom_style', "full")) if isinstance(structure, Structure) else structure
 
         # Load the template
-        with zopen(self.template, mode="r") as file:
-            template_str = file.read()
+        if Path(self.template).is_file():
+            with zopen(self.template, mode="r") as file:
+                template_str = file.read()
+        elif isinstance(self.template, LammpsInputFile):
+            template_str = self.template.get_str()
+        else:
+            template_str = self.template
 
         # Replace all variables
         input_str = Template(template_str).safe_substitute(**self.settings)
