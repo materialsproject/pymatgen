@@ -381,9 +381,11 @@ class JDFTXOutfile:
         """
         dct = {}
         for fld in self.__dataclass_fields__:
-            if hasattr(self, fld):
-                value = getattr(self, fld)
-                dct[fld] = value
+            if fld == "slices":
+                dct[fld] = [slc.to_dict() for slc in self.slices]
+                continue
+            value = getattr(self, fld)
+            dct[fld] = value
         return dct
 
     ###########################################################################

@@ -1122,12 +1122,12 @@ class JDFTXOutfileSlice:
             dict: JDFTXOutfileSlice in dictionary format.
         """
         dct = {}
-        for field in self.__dataclass_fields__:
-            value = getattr(self, field)
-            dct[field] = value
-
-        for name, _obj in inspect.getmembers(type(self), lambda o: isinstance(o, property)):
-            dct[name] = getattr(self, name)
+        for fld in self.__dataclass_fields__:
+            value = getattr(self, fld)
+            if hasattr(value, "to_dict"):
+                dct[fld] = value.to_dict()
+            else:
+                dct[fld] = value
         return dct
 
     def __repr__(self) -> str:

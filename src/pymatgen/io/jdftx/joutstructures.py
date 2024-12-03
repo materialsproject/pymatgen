@@ -190,6 +190,25 @@ class JOutStructures:
             self.geom_converged = True
             self.geom_converged_reason = jst.geom_converged_reason
 
+    def to_dict(self) -> dict:
+        """
+        Convert the JOutStructures object to a dictionary.
+
+        Returns:
+            dict: A dictionary representation of the JOutStructures object.
+        """
+        dct = {}
+        for fld in self.__dataclass_fields__:
+            if fld == "slices":
+                dct[fld] = [slc.to_dict() for slc in self.slices]
+                continue
+            value = getattr(self, fld)
+            if hasattr(value, "to_dict"):
+                dct[fld] = value.to_dict()
+            else:
+                dct[fld] = value
+        return dct
+
     def __getitem__(self, key: int | str) -> JOutStructure | Any:
         """Return item.
 
@@ -201,12 +220,12 @@ class JOutStructures:
         """
         val = None
         if type(key) is int:
-            val = self.getitem_int(key)
+            val = self._getitem_int(key)
         if type(key) is str:
-            val = self.getitem_str(key)
+            val = self._getitem_str(key)
         return val
 
-    def getitem_int(self, key: int) -> JOutStructure:
+    def _getitem_int(self, key: int) -> JOutStructure:
         """Return a JOutStructure object.
 
         Args:
@@ -217,7 +236,7 @@ class JOutStructures:
         """
         return self.slices[key]
 
-    def getitem_str(self, key: str) -> Any:
+    def _getitem_str(self, key: str) -> Any:
         """Return attribute value.
 
         Args:

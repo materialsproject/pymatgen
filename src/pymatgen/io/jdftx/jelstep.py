@@ -216,6 +216,21 @@ class JElStep:
         """
         self.nelectrons = get_colon_var_t1(fillings_line, "nElectrons: ")
 
+    def to_dict(self) -> dict:
+        """Return dictionary representation of JElStep object.
+
+        Returns:
+            dict: Dictionary representation of JElStep object.
+        """
+        dct = {}
+        for fld in self.__dataclass_fields__:
+            value = getattr(self, fld)
+            if hasattr(value, "to_dict"):
+                dct[fld] = value.to_dict()
+            else:
+                dct[fld] = value
+        return dct
+
     def __str__(self) -> str:
         """
         Return string representation of JElStep object.
@@ -341,6 +356,24 @@ class JElSteps:
             self.nstep = self._get_nstep()
             for var in _jelsteps_atrs_from_last_slice:
                 setattr(self, var, getattr(self.slices[-1], var))
+
+    def to_dict(self) -> dict[str, Any]:
+        """Return dictionary representation of JElSteps object.
+
+        Returns:
+            dict: Dictionary representation of JElSteps object.
+        """
+        dct = {}
+        for fld in self.__dataclass_fields__:
+            if fld == "slices":
+                dct[fld] = [slc.to_dict() for slc in self.slices]
+                continue
+            value = getattr(self, fld)
+            if hasattr(value, "to_dict"):
+                dct[fld] = value.to_dict()
+            else:
+                dct[fld] = value
+        return dct
 
     def __getitem__(self, key: int | str) -> JElStep | Any:
         """Return item.

@@ -680,6 +680,22 @@ class JOutStructure(Structure):
             generic_lines.append(line_text)
         return generic_lines, collecting, collected
 
+    def to_dict(self) -> dict:
+        """
+        Convert the JOutStructure object to a dictionary.
+
+        Returns:
+            dict: A dictionary representation of the JOutStructure object.
+        """
+        dct = {}
+        for fld in self.__dict__:
+            value = getattr(self, fld)
+            if hasattr(value, "to_dict"):
+                dct[fld] = value.to_dict()
+            else:
+                dct[fld] = value
+        return dct
+
     # This method is likely never going to be called as all (currently existing)
     # attributes of the most recent slice are explicitly defined as a class
     # property. However, it is included to reduce the likelihood of errors
