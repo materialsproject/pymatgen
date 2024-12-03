@@ -5,9 +5,8 @@ A mutant of the pymatgen Structure class for flexibility in holding JDFTx.
 
 from __future__ import annotations
 
-import inspect
 import pprint
-from typing import Any, ClassVar
+from typing import ClassVar
 
 import numpy as np
 
@@ -695,35 +694,6 @@ class JOutStructure(Structure):
             else:
                 dct[fld] = value
         return dct
-
-    # This method is likely never going to be called as all (currently existing)
-    # attributes of the most recent slice are explicitly defined as a class
-    # property. However, it is included to reduce the likelihood of errors
-    # upon future changes to downstream code.
-    def __getattr__(self, name: str) -> Any:
-        """Return attribute value.
-
-        Args:
-            name (str): The name of the attribute.
-
-        Returns:
-            Any: The value of the attribute.
-        """
-        # Only works for actual attributes of the class
-        if name in self.__dict__:
-            return self.__dict__[name]
-
-        # Extended for properties
-        for cls in inspect.getmro(self.__class__):
-            if name in cls.__dict__ and isinstance(cls.__dict__[name], property):
-                return cls.__dict__[name].__get__(self)
-
-        # Check if the attribute is in self.jstrucs
-        if hasattr(self.elecmindata, name):
-            return getattr(self.elecmindata, name)
-
-        # If the attribute is not found in either, raise an AttributeError
-        raise AttributeError(f"{self.__class__.__name__} not found: {name}")
 
     # TODO: Add string representation for JOutStructure-specific meta-data
     # This method currently only returns the Structure Summary as inherited from

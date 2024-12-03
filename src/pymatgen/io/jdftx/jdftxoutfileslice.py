@@ -1130,6 +1130,7 @@ class JDFTXOutfileSlice:
                 dct[fld] = value
         return dct
 
+    # TODO: Re-do this now that there are no properties
     def __repr__(self) -> str:
         """Return string representation.
 
