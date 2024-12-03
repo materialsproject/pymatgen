@@ -11,12 +11,12 @@ from pymatgen.core.lattice import Lattice
 from pymatgen.core.structure import Structure
 from pymatgen.io.lammps.data import LammpsData
 from pymatgen.io.lammps.inputs import LammpsInputFile, LammpsRun, LammpsTemplateGen, write_lammps_inputs
-from pymatgen.util.testing import TEST_FILES_DIR, PymatgenTest
+from pymatgen.util.testing import TEST_FILES_DIR
 
 TEST_DIR = f"{TEST_FILES_DIR}/io/lammps"
 
 
-class TestLammpsInputFile(PymatgenTest):
+class TestLammpsInputFile:
     @classmethod
     def setUpClass(cls):
         cls.filename = f"{TEST_DIR}/lgps.in"
@@ -640,7 +640,7 @@ write_data run.data"""
         ]
 
 
-class TestLammpsRun(PymatgenTest):
+class TestLammpsRun:
     def test_md(self):
         struct = Structure.from_spacegroup(225, Lattice.cubic(3.62126), ["Cu"], [[0, 0, 0]])
         ld = LammpsData.from_structure(struct, atom_style="atomic")
@@ -690,7 +690,7 @@ run             10000
         assert os.path.isfile(f"{self.tmp_path}/md/md.data")
 
 
-class TestFunc(PymatgenTest):
+class TestFunc:
     @pytest.mark.filterwarnings("ignore:write_lammps_inputs is deprecated")
     def test_write_lammps_inputs(self):
         # script template
@@ -727,7 +727,7 @@ class TestFunc(PymatgenTest):
             pd.testing.assert_frame_equal(obj_read.atoms, obj.atoms)
 
 
-class TestLammpsTemplateGen(PymatgenTest):
+class TestLammpsTemplateGen:
     def test_write_inputs(self):
         # simple script without data file
         lis = LammpsTemplateGen().get_input_set(

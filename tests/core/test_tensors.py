@@ -11,10 +11,10 @@ from pytest import approx
 from pymatgen.core.operations import SymmOp
 from pymatgen.core.tensors import SquareTensor, Tensor, TensorCollection, TensorMapping, itertools, symmetry_reduce
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
-from pymatgen.util.testing import TEST_FILES_DIR, PymatgenTest
+from pymatgen.util.testing import TEST_FILES_DIR
 
 
-class TestTensor(PymatgenTest):
+class TestTensor:
     def setUp(self):
         rng = np.random.default_rng()
 
@@ -379,7 +379,7 @@ class TestTensor(PymatgenTest):
         assert isinstance(rounded, Tensor)
 
 
-class TestTensorCollection(PymatgenTest):
+class TestTensorCollection:
     def setUp(self):
         self.seq_tc = list(np.arange(4 * 3**3).reshape((4, 3, 3, 3)))
         self.seq_tc = TensorCollection(self.seq_tc)
@@ -472,7 +472,7 @@ class TestTensorCollection(PymatgenTest):
             assert_allclose(t, t_new)
 
 
-class TestSquareTensor(PymatgenTest):
+class TestSquareTensor:
     def setUp(self):
         self.rand_sqtensor = SquareTensor(np.random.default_rng().standard_normal((3, 3)))
         self.symm_sqtensor = SquareTensor([[0.1, 0.3, 0.4], [0.3, 0.5, 0.2], [0.4, 0.2, 0.6]])

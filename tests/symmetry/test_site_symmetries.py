@@ -6,7 +6,7 @@ import json
 from monty.json import MontyDecoder
 
 from pymatgen.symmetry import site_symmetries as ss
-from pymatgen.util.testing import TEST_FILES_DIR, PymatgenTest
+from pymatgen.util.testing import TEST_FILES_DIR
 
 __author__ = "Handong Ling"
 __version__ = "0.1"
@@ -18,7 +18,7 @@ __date__ = "4/23/19"
 TEST_DIR = f"{TEST_FILES_DIR}/symmetry/site_symmetries"
 
 
-class TestSiteSymmetries(PymatgenTest):
+class TestSiteSymmetries:
     def setUp(self):
         with gzip.open(f"{TEST_DIR}/point_ops.json.gz", mode="rt") as file:
             self.point_ops = MontyDecoder().process_decoded(json.load(file))

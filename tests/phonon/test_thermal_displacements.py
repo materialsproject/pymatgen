@@ -6,12 +6,12 @@ from pytest import approx
 
 from pymatgen.core.structure import Structure
 from pymatgen.phonon.thermal_displacements import ThermalDisplacementMatrices
-from pymatgen.util.testing import TEST_FILES_DIR, PymatgenTest
+from pymatgen.util.testing import TEST_FILES_DIR
 
 TEST_DIR = f"{TEST_FILES_DIR}/phonon/thermal_displacement_matrices"
 
 
-class TestThermalDisplacement(PymatgenTest):
+class TestThermalDisplacement:
     """Test data from J. George's matlab code https://github.com/JaGeo/MolecularToolbox."""
 
     def setUp(self) -> None:

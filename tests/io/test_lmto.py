@@ -10,7 +10,7 @@ from pymatgen.core.units import Ry_to_eV
 from pymatgen.electronic_structure.core import Spin
 from pymatgen.io.lmto import LMTOCopl, LMTOCtrl
 from pymatgen.util.num import round_to_sigfigs
-from pymatgen.util.testing import TEST_FILES_DIR, PymatgenTest
+from pymatgen.util.testing import TEST_FILES_DIR
 
 __author__ = "Marco Esters"
 __copyright__ = "Copyright 2017, The Materials Project"
@@ -23,7 +23,7 @@ TEST_DIR = f"{TEST_FILES_DIR}/electronic_structure/cohp"
 MODULE_DIR = os.path.dirname(os.path.abspath(__file__))
 
 
-class TestCtrl(PymatgenTest):
+class TestCtrl:
     def setUp(self):
         os.chdir(TEST_DIR)
         self.ref_bise = LMTOCtrl.from_file(filename="CTRL.BiSe")
@@ -47,7 +47,7 @@ class TestCtrl(PymatgenTest):
         assert self.ref_bise.structure.matches(ctrl_file.structure)
 
 
-class TestCopl(PymatgenTest):
+class TestCopl:
     def setUp(self):
         os.chdir(TEST_DIR)
         self.copl_bise = LMTOCopl("COPL.BiSe")

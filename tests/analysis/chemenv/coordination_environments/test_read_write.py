@@ -22,7 +22,7 @@ from pymatgen.analysis.chemenv.coordination_environments.structure_environments 
 )
 from pymatgen.analysis.chemenv.coordination_environments.voronoi import DetailedVoronoiContainer
 from pymatgen.core.structure import Structure
-from pymatgen.util.testing import TEST_FILES_DIR, PymatgenTest
+from pymatgen.util.testing import TEST_FILES_DIR
 
 __author__ = "waroquiers"
 
@@ -30,7 +30,7 @@ json_dir = f"{TEST_FILES_DIR}/analysis/chemenv/json"
 struct_env_dir = f"{TEST_FILES_DIR}/analysis/chemenv/structure_environments"
 
 
-class TestReadWriteChemenv(PymatgenTest):
+class TestReadWriteChemenv:
     @classmethod
     def setUpClass(cls):
         cls.lgf = LocalGeometryFinder()

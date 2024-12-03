@@ -1,10 +1,9 @@
 from __future__ import annotations
 
 from pymatgen.core.libxcfunc import LibxcFunc
-from pymatgen.util.testing import PymatgenTest
 
 
-class TestLibxcFunc(PymatgenTest):
+class TestLibxcFunc:
     def test_libxcfunc_api(self):
         """Testing libxcfunc_api."""
         # LDA correlation: Hedin & Lundqvist

@@ -31,7 +31,7 @@ from pymatgen.io.lobster import (
     Wavefunction,
 )
 from pymatgen.io.vasp import Vasprun
-from pymatgen.util.testing import TEST_FILES_DIR, VASP_IN_DIR, VASP_OUT_DIR, PymatgenTest
+from pymatgen.util.testing import TEST_FILES_DIR, VASP_IN_DIR, VASP_OUT_DIR
 
 TEST_DIR = f"{TEST_FILES_DIR}/electronic_structure/cohp"
 
@@ -42,7 +42,7 @@ __email__ = "janine.george@uclouvain.be, esters@uoregon.edu"
 __date__ = "Dec 10, 2017"
 
 
-class TestBwdf(PymatgenTest):
+class TestBwdf:
     def setUp(self):
         self.bwdf_coop = Bwdf(filename=f"{TEST_DIR}/BWDF.lobster.AlN.gz")
         self.bwdf_cohp = Bwdf(filename=f"{TEST_DIR}/BWDFCOHP.lobster.NaCl.gz")
@@ -57,7 +57,7 @@ class TestBwdf(PymatgenTest):
         assert self.bwdf_cohp.bwdf[Spin.up][103] == approx(-0.01392, abs=1e-4)
 
 
-class TestCohpcar(PymatgenTest):
+class TestCohpcar:
     def setUp(self):
         self.cohp_bise = Cohpcar(filename=f"{TEST_DIR}/COHPCAR.lobster.BiSe.gz")
         self.coop_bise = Cohpcar(
@@ -637,7 +637,7 @@ class TestDoscar(TestCase):
         assert not self.DOSCAR_nonspin_pol.is_spin_polarized
 
 
-class TestCharge(PymatgenTest):
+class TestCharge:
     def setUp(self):
         self.charge2 = Charge(filename=f"{TEST_DIR}/CHARGE.lobster.MnO")
         # gzipped file
@@ -716,7 +716,7 @@ class TestCharge(PymatgenTest):
             assert getattr(charge_from_dict, attr_name) == attr_value
 
 
-class TestLobsterout(PymatgenTest):
+class TestLobsterout:
     def setUp(self):
         self.lobsterout_normal = Lobsterout(filename=f"{TEST_DIR}/lobsterout.normal")
         # make sure .gz files are also read correctly
@@ -1245,7 +1245,7 @@ class TestLobsterout(PymatgenTest):
             Lobsterout(filename=None, invalid="val")
 
 
-class TestFatband(PymatgenTest):
+class TestFatband:
     def setUp(self):
         self.structure = Vasprun(
             filename=f"{TEST_DIR}/Fatband_SiO2/Test_p_x/vasprun.xml",
@@ -2204,7 +2204,7 @@ class TestNciCobiList(TestCase):
         )
 
 
-class TestWavefunction(PymatgenTest):
+class TestWavefunction:
     def test_parse_file(self):
         grid, points, real, imaginary, distance = Wavefunction._parse_file(
             f"{TEST_DIR}/LCAOWaveFunctionAfterLSO1PlotOfSpin1Kpoint1band1.gz"
@@ -2272,7 +2272,7 @@ class TestWavefunction(PymatgenTest):
         assert os.path.isfile(density_wavecar_path)
 
 
-class TestSitePotentials(PymatgenTest):
+class TestSitePotentials:
     def setUp(self) -> None:
         self.sitepotential = SitePotential(filename=f"{TEST_DIR}/SitePotentials.lobster.perovskite")
 
@@ -2323,7 +2323,7 @@ class TestSitePotentials(PymatgenTest):
             assert getattr(sitepotential_from_dict, attr_name) == attr_value
 
 
-class TestMadelungEnergies(PymatgenTest):
+class TestMadelungEnergies:
     def setUp(self) -> None:
         self.madelungenergies = MadelungEnergies(filename=f"{TEST_DIR}/MadelungEnergies.lobster.perovskite")
 
@@ -2340,7 +2340,7 @@ class TestMadelungEnergies(PymatgenTest):
             assert getattr(madelung_from_dict, attr_name) == attr_value
 
 
-class TestLobsterMatrices(PymatgenTest):
+class TestLobsterMatrices:
     def setUp(self) -> None:
         self.hamilton_matrices = LobsterMatrices(
             filename=f"{TEST_DIR}/Na_hamiltonMatrices.lobster.gz", e_fermi=-2.79650354
@@ -2490,7 +2490,7 @@ class TestLobsterMatrices(PymatgenTest):
             self.hamilton_matrices = LobsterMatrices(filename=f"{TEST_DIR}/hamiltonMatrices.lobster")
 
 
-class TestPolarization(PymatgenTest):
+class TestPolarization:
     def setUp(self) -> None:
         self.polarization = Polarization(filename=f"{TEST_DIR}/POLARIZATION.lobster.AlN.gz")
 

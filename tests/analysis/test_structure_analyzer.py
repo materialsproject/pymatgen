@@ -18,10 +18,10 @@ from pymatgen.analysis.structure_analyzer import (
 )
 from pymatgen.core import Element, Lattice, Structure
 from pymatgen.io.vasp.outputs import Xdatcar
-from pymatgen.util.testing import VASP_IN_DIR, VASP_OUT_DIR, PymatgenTest
+from pymatgen.util.testing import VASP_IN_DIR, VASP_OUT_DIR
 
 
-class TestVoronoiAnalyzer(PymatgenTest):
+class TestVoronoiAnalyzer:
     def setUp(self):
         self.structs = Xdatcar(f"{VASP_OUT_DIR}/XDATCAR.MD").structures
         self.struct = self.structs[1]
@@ -62,7 +62,7 @@ class TestRelaxationAnalyzer(TestCase):
                 assert approx(v2) == -0.009204092115527862
 
 
-class TestVoronoiConnectivity(PymatgenTest):
+class TestVoronoiConnectivity:
     def test_connectivity_array(self):
         vc = VoronoiConnectivity(self.get_structure("LiFePO4"))
         ca = vc.connectivity_array
@@ -78,7 +78,7 @@ class TestVoronoiConnectivity(PymatgenTest):
         assert_allclose(site.frac_coords, expected)
 
 
-class TestMiscFunction(PymatgenTest):
+class TestMiscFunction:
     def test_average_coordination_number(self):
         xdatcar = Xdatcar(f"{VASP_OUT_DIR}/XDATCAR.MD")
         coordination_numbers = average_coordination_number(xdatcar.structures, freq=1)

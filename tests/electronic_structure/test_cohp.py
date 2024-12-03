@@ -15,7 +15,7 @@ from pymatgen.electronic_structure.cohp import (
     get_integrated_cohp_in_energy_range,
 )
 from pymatgen.electronic_structure.core import Orbital, Spin
-from pymatgen.util.testing import TEST_FILES_DIR, PymatgenTest
+from pymatgen.util.testing import TEST_FILES_DIR
 
 TEST_DIR = f"{TEST_FILES_DIR}/electronic_structure/cohp"
 
@@ -797,7 +797,7 @@ class TestCombinedIcohp(TestCase):
         assert self.icoopcollection_Fe.extremum_icohpvalue(summed_spin_channels=False, spin=Spin.down) == -0.05756
 
 
-class TestCompleteCohp(PymatgenTest):
+class TestCompleteCohp:
     def setUp(self):
         filepath = f"{TEST_DIR}/complete_cohp_lobster.json"
         with open(filepath) as file:

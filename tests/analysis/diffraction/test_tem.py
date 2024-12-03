@@ -11,7 +11,6 @@ from pytest import approx
 from pymatgen.analysis.diffraction.tem import TEMCalculator
 from pymatgen.core.lattice import Lattice
 from pymatgen.core.structure import Structure
-from pymatgen.util.testing import PymatgenTest
 
 __author__ = "Frank Wan, Jason Liang"
 __copyright__ = "Copyright 2019, The Materials Project"
@@ -21,7 +20,7 @@ __email__ = "fwan@berkeley.edu, yhljason@berkeley.edu"
 __date__ = "2/20/20"
 
 
-class TestTEMCalculator(PymatgenTest):
+class TestTEMCalculator:
     def test_wavelength_rel(self):
         # Test that the relativistic wavelength formula (for 200 kV electron beam) is correct
         tem_calc = TEMCalculator()

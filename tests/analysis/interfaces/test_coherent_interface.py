@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-import unittest
+from unittest import TestCase
 
 from numpy.testing import assert_allclose
 
@@ -14,10 +14,9 @@ from pymatgen.analysis.interfaces.substrate_analyzer import SubstrateAnalyzer
 from pymatgen.core.lattice import Lattice
 from pymatgen.core.structure import Structure
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
-from pymatgen.util.testing import PymatgenTest
 
 
-class TestInterfaceBuilder(PymatgenTest):
+class TestInterfaceBuilder:
     @classmethod
     def setUpClass(cls):
         si_struct = cls.get_structure("Si")
@@ -51,7 +50,7 @@ class TestInterfaceBuilder(PymatgenTest):
         assert len(list(builder.get_interfaces(termination=("O2_Pmmm_1", "Si_R-3m_1")))) >= 6
 
 
-class TestCoherentInterfaceBuilder(unittest.TestCase):
+class TestCoherentInterfaceBuilder(TestCase):
     def setUp(self):
         # build substrate & film structure
         basis = [[0, 0, 0], [0.25, 0.25, 0.25]]

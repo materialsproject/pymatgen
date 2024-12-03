@@ -9,7 +9,7 @@ from sympy import Number, Symbol
 
 from pymatgen.analysis.surface_analysis import NanoscaleStability, SlabEntry, SurfaceEnergyPlotter, WorkFunctionAnalyzer
 from pymatgen.entries.computed_entries import ComputedStructureEntry
-from pymatgen.util.testing import TEST_FILES_DIR, PymatgenTest
+from pymatgen.util.testing import TEST_FILES_DIR
 
 __author__ = "Richard Tran"
 __copyright__ = "Copyright 2012, The Materials Project"
@@ -22,7 +22,7 @@ __date__ = "Aug 24, 2017"
 TEST_DIR = f"{TEST_FILES_DIR}/surfaces"
 
 
-class TestSlabEntry(PymatgenTest):
+class TestSlabEntry:
     def setUp(self):
         with open(f"{TEST_DIR}/ucell_entries.txt") as file:
             ucell_entries = json.loads(file.read())
@@ -118,7 +118,7 @@ class TestSlabEntry(PymatgenTest):
                         assert slab_clean.composition.reduced_composition == clean.composition.reduced_composition
 
 
-class TestSurfaceEnergyPlotter(PymatgenTest):
+class TestSurfaceEnergyPlotter:
     def setUp(self):
         entry_dict = get_entry_dict(f"{TEST_DIR}/Cu_entries.txt")
         self.Cu_entry_dict = entry_dict
@@ -292,7 +292,7 @@ class TestSurfaceEnergyPlotter(PymatgenTest):
                 analyzer.chempot_vs_gamma_facet(hkl)
 
 
-class TestWorkFunctionAnalyzer(PymatgenTest):
+class TestWorkFunctionAnalyzer:
     def setUp(self):
         self.kwargs = {
             "poscar_filename": f"{TEST_DIR}/CONTCAR.relax1.gz",
@@ -309,7 +309,7 @@ class TestWorkFunctionAnalyzer(PymatgenTest):
         assert self.wf_analyzer.is_converged()
 
 
-class TestNanoscaleStability(PymatgenTest):
+class TestNanoscaleStability:
     def setUp(self):
         # Load all entries
         La_hcp_entry_dict = get_entry_dict(f"{TEST_DIR}/La_hcp_entries.txt")

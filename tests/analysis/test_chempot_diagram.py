@@ -12,12 +12,12 @@ from pymatgen.analysis.chempot_diagram import (
 )
 from pymatgen.core.composition import Element
 from pymatgen.entries.entry_tools import EntrySet
-from pymatgen.util.testing import TEST_FILES_DIR, PymatgenTest
+from pymatgen.util.testing import TEST_FILES_DIR
 
 TEST_DIR = f"{TEST_FILES_DIR}/analysis"
 
 
-class TestChemicalPotentialDiagram(PymatgenTest):
+class TestChemicalPotentialDiagram:
     def setUp(self):
         self.entries = EntrySet.from_csv(f"{TEST_DIR}/pd_entries_test.csv")
         self.cpd_ternary, self.cpd_ternary_formal = (

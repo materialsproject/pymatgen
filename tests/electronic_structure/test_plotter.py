@@ -30,14 +30,14 @@ from pymatgen.electronic_structure.plotter import (
     plot_ellipsoid,
 )
 from pymatgen.io.vasp import Vasprun
-from pymatgen.util.testing import TEST_FILES_DIR, VASP_IN_DIR, VASP_OUT_DIR, PymatgenTest
+from pymatgen.util.testing import TEST_FILES_DIR, VASP_IN_DIR, VASP_OUT_DIR
 
 BAND_TEST_DIR = f"{TEST_FILES_DIR}/electronic_structure/bandstructure"
 
 rc("text", usetex=False)  # Disabling latex is needed for this test to work.
 
 
-class TestDosPlotter(PymatgenTest):
+class TestDosPlotter:
     def setUp(self):
         with open(f"{BAND_TEST_DIR}/../dos/complete_dos.json") as file:
             self.dos = CompleteDos.from_dict(json.load(file))
@@ -91,7 +91,7 @@ class TestDosPlotter(PymatgenTest):
         }
 
 
-class TestBSPlotter(PymatgenTest):
+class TestBSPlotter:
     def setUp(self):
         with open(f"{BAND_TEST_DIR}/CaO_2605_bandstructure.json") as file:
             dct = json.loads(file.read())
@@ -444,7 +444,7 @@ class TestBoltztrapPlotter(TestCase):
         plt.close()
 
 
-class TestCohpPlotter(PymatgenTest):
+class TestCohpPlotter:
     def setUp(self):
         path = f"{TEST_FILES_DIR}/electronic_structure/cohp/complete_cohp_lobster.json"
         with open(path) as file:

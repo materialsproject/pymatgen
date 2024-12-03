@@ -10,12 +10,11 @@ from pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies impo
     DistanceCutoffFloat,
     SimplestChemenvStrategy,
 )
-from pymatgen.util.testing import PymatgenTest
 
 __author__ = "waroquiers"
 
 
-class TestStrategyOptions(PymatgenTest):
+class TestStrategyOptions:
     def test_options(self):
         # DistanceCutoffFloat
         with pytest.raises(ValueError, match=r"Distance cutoff should be between 1 and \+infinity"):

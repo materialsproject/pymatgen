@@ -10,7 +10,7 @@ from pytest import approx
 
 from pymatgen.analysis.xas.spectrum import XAS, site_weighted_spectrum
 from pymatgen.core import Element
-from pymatgen.util.testing import TEST_FILES_DIR, PymatgenTest
+from pymatgen.util.testing import TEST_FILES_DIR
 
 TEST_DIR = f"{TEST_FILES_DIR}/analysis/spectrum_test"
 
@@ -28,7 +28,7 @@ with open(f"{TEST_DIR}/site2_k_xanes.json") as file:
     site2_xanes_dict = json.load(file, cls=MontyDecoder)
 
 
-class TestXAS(PymatgenTest):
+class TestXAS:
     def setUp(self):
         self.k_xanes = XAS.from_dict(k_xanes_dict)
         self.k_exafs = XAS.from_dict(k_exafs_dict)

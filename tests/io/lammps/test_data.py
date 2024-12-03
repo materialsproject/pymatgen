@@ -14,12 +14,12 @@ from ruamel.yaml import YAML
 
 from pymatgen.core import Element, Lattice, Molecule, Structure
 from pymatgen.io.lammps.data import CombinedData, ForceField, LammpsBox, LammpsData, Topology, lattice_2_lmpbox
-from pymatgen.util.testing import TEST_FILES_DIR, PymatgenTest
+from pymatgen.util.testing import TEST_FILES_DIR
 
 TEST_DIR = f"{TEST_FILES_DIR}/io/lammps"
 
 
-class TestLammpsBox(PymatgenTest):
+class TestLammpsBox:
     @classmethod
     def setUpClass(cls):
         cls.peptide = LammpsBox(
@@ -73,7 +73,7 @@ class TestLammpsBox(PymatgenTest):
         )
 
 
-class TestLammpsData(PymatgenTest):
+class TestLammpsData:
     @classmethod
     def setUpClass(cls):
         cls.peptide = LammpsData.from_file(filename=f"{TEST_DIR}/data.peptide")
@@ -665,7 +665,7 @@ class TestTopology(TestCase):
         assert "Dihedrals" not in topo_etoh2.topologies
 
 
-class TestForceField(PymatgenTest):
+class TestForceField:
     @classmethod
     def setUpClass(cls):
         mass_info = [

@@ -44,7 +44,7 @@ enum_cmd = which("enum.x") or which("multienum.x")
 mcsqs_cmd = which("mcsqs")
 
 
-class TestNeighbor(PymatgenTest):
+class TestNeighbor:
     def test_msonable(self):
         struct = PymatgenTest.get_structure("Li2O")
         nn = struct.get_neighbors(struct[0], r=3)
@@ -63,7 +63,7 @@ class TestNeighbor(PymatgenTest):
             assert p_neighbor.label == label if label is not None else "C"
 
 
-class TestIStructure(PymatgenTest):
+class TestIStructure:
     def setUp(self):
         coords = [[0, 0, 0], [0.75, 0.5, 0.75]]
         self.lattice = Lattice(
@@ -965,7 +965,7 @@ Direct
         assert struct.sites == new_sites
 
 
-class TestStructure(PymatgenTest):
+class TestStructure:
     def setUp(self):
         coords = [[0, 0, 0], [0.75, 0.5, 0.75]]
         lattice = Lattice(
@@ -2032,7 +2032,7 @@ Sites (8)
         assert "Deuterium" not in [el.long_name for el in struct.composition.elements]
 
 
-class TestIMolecule(PymatgenTest):
+class TestIMolecule:
     def setUp(self):
         coords = [
             [0, 0, 0],
@@ -2327,7 +2327,7 @@ Site: H (-0.5134, 0.8892, -0.3630)"""
         assert os.path.isfile(out_path)
 
 
-class TestMolecule(PymatgenTest):
+class TestMolecule:
     def setUp(self):
         coords = [
             [0, 0, 0],

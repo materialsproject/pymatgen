@@ -13,7 +13,7 @@ from pymatgen.analysis.ferroelectricity.polarization import (
 from pymatgen.core.structure import Structure
 from pymatgen.io.vasp.inputs import Potcar
 from pymatgen.io.vasp.outputs import Outcar
-from pymatgen.util.testing import TEST_FILES_DIR, PymatgenTest
+from pymatgen.util.testing import TEST_FILES_DIR
 
 TEST_DIR = f"{TEST_FILES_DIR}/io/vasp/fixtures/BTO_221_99_polarization"
 bto_folders = ["nonpolar_polarization"]
@@ -38,7 +38,7 @@ ions = np.array(
 )
 
 
-class TestUtils(PymatgenTest):
+class TestUtils:
     def setUp(self):
         self.potcar = Potcar.from_file(f"{TEST_DIR}/POTCAR")
         self.zval_dict = {"Ba": 10, "Ti": 10, "O": 6}
@@ -54,7 +54,7 @@ class TestUtils(PymatgenTest):
         assert_allclose(p_ion, self.ions[-1].ravel().tolist())
 
 
-class TestPolarization(PymatgenTest):
+class TestPolarization:
     def setUp(self):
         self.p_ions = ions
         self.p_ions_outcar = np.array(
@@ -258,7 +258,7 @@ class TestPolarization(PymatgenTest):
         assert_allclose(self.smoothness_all_in_polar, smoothness)
 
 
-class TestEnergyTrend(PymatgenTest):
+class TestEnergyTrend:
     def setUp(self):
         self.energies = [
             -7.97738049,

@@ -24,7 +24,7 @@ from pymatgen.util.testing import TEST_FILES_DIR, VASP_IN_DIR, VASP_OUT_DIR, Pym
 TEST_DIR = f"{TEST_FILES_DIR}/symmetry/analyzer"
 
 
-class TestSpacegroupAnalyzer(PymatgenTest):
+class TestSpacegroupAnalyzer:
     def setUp(self):
         self.structure = Structure.from_file(f"{VASP_IN_DIR}/POSCAR")
         self.sg = SpacegroupAnalyzer(self.structure, 0.001)
@@ -537,7 +537,7 @@ PF6 = Molecule(
 )
 
 
-class TestPointGroupAnalyzer(PymatgenTest):
+class TestPointGroupAnalyzer:
     def test_spherical(self):
         pg_analyzer = PointGroupAnalyzer(CH4)
         assert pg_analyzer.sch_symbol == "Td"

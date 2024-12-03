@@ -12,12 +12,12 @@ from pymatgen.analysis.pourbaix_diagram import IonEntry, MultiEntry, PourbaixDia
 from pymatgen.core.composition import Composition
 from pymatgen.core.ion import Ion
 from pymatgen.entries.computed_entries import ComputedEntry
-from pymatgen.util.testing import TEST_FILES_DIR, PymatgenTest
+from pymatgen.util.testing import TEST_FILES_DIR
 
 TEST_DIR = f"{TEST_FILES_DIR}/analysis/pourbaix_diagram"
 
 
-class TestPourbaixEntry(PymatgenTest):
+class TestPourbaixEntry:
     """Test all functions using a fictitious entry"""
 
     def setUp(self):

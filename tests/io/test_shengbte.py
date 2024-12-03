@@ -4,13 +4,13 @@ import pytest
 from numpy.testing import assert_array_equal
 
 from pymatgen.io.shengbte import Control
-from pymatgen.util.testing import TEST_FILES_DIR, PymatgenTest
+from pymatgen.util.testing import TEST_FILES_DIR
 
 f90nml = pytest.importorskip("f90nml")
 TEST_DIR = f"{TEST_FILES_DIR}/io/shengbte"
 
 
-class TestShengBTE(PymatgenTest):
+class TestShengBTE:
     def setUp(self):
         self.filename = f"{TEST_DIR}/CONTROL-CSLD_Si"
         self.test_dict = {

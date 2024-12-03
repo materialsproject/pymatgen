@@ -17,14 +17,13 @@ from pymatgen.transformations.site_transformations import (
     ReplaceSiteSpeciesTransformation,
     TranslateSitesTransformation,
 )
-from pymatgen.util.testing import PymatgenTest
 
 enum_cmd = which("enum.x") or which("multienum.x")
 makestr_cmd = which("makestr.x") or which("makeStr.x") or which("makeStr.py")
 enumlib_present = enum_cmd and makestr_cmd
 
 
-class TestTranslateSitesTransformation(PymatgenTest):
+class TestTranslateSitesTransformation:
     def setUp(self):
         coords = [
             [0, 0, 0],
@@ -264,7 +263,7 @@ class TestPartialRemoveSitesTransformation(TestCase):
         )
 
 
-class TestAddSitePropertyTransformation(PymatgenTest):
+class TestAddSitePropertyTransformation:
     def test_apply_transformation(self):
         struct = self.get_structure("Li2O2")
         sd = [[True, True, True] for _ in struct]
@@ -279,7 +278,7 @@ class TestAddSitePropertyTransformation(PymatgenTest):
             assert_allclose(trans_set.site_properties[prop], manually_set.site_properties[prop])
 
 
-class TestRadialSiteDistortionTransformation(PymatgenTest):
+class TestRadialSiteDistortionTransformation:
     def setUp(self):
         self.molecule = Molecule(
             species=["C", "H", "H", "H", "H", "H", "H", "H", "H", "H", "H", "H", "H"],

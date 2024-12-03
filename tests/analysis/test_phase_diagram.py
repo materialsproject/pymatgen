@@ -32,7 +32,7 @@ from pymatgen.analysis.phase_diagram import (
 from pymatgen.core import Composition, DummySpecies, Element
 from pymatgen.entries.computed_entries import ComputedEntry
 from pymatgen.entries.entry_tools import EntrySet
-from pymatgen.util.testing import TEST_FILES_DIR, PymatgenTest
+from pymatgen.util.testing import TEST_FILES_DIR
 
 TEST_DIR = f"{TEST_FILES_DIR}/analysis"
 
@@ -179,7 +179,7 @@ class TestTransformedPDEntry(TestCase):
         assert norm_entry.composition == expected_comp
 
 
-class TestPhaseDiagram(PymatgenTest):
+class TestPhaseDiagram:
     def setUp(self):
         self.entries = EntrySet.from_csv(f"{TEST_DIR}/pd_entries_test.csv")
         self.pd = PhaseDiagram(self.entries)

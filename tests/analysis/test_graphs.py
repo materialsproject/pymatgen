@@ -24,7 +24,7 @@ from pymatgen.analysis.local_env import (
 from pymatgen.command_line.critic2_caller import Critic2Analysis
 from pymatgen.core import Lattice, Molecule, Site, Structure
 from pymatgen.core.structure import FunctionalGroups
-from pymatgen.util.testing import TEST_FILES_DIR, PymatgenTest
+from pymatgen.util.testing import TEST_FILES_DIR
 
 try:
     from openbabel import openbabel
@@ -46,7 +46,7 @@ __date__ = "August 2017"
 TEST_DIR = f"{TEST_FILES_DIR}/analysis/graphs"
 
 
-class TestStructureGraph(PymatgenTest):
+class TestStructureGraph:
     def setUp(self):
         # trivial example, simple square lattice for testing
         structure = Structure(Lattice.tetragonal(5, 50), ["H"], [[0, 0, 0]])

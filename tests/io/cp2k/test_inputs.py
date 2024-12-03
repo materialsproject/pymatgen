@@ -22,7 +22,7 @@ from pymatgen.io.cp2k.inputs import (
     Section,
     SectionList,
 )
-from pymatgen.util.testing import TEST_FILES_DIR, PymatgenTest
+from pymatgen.util.testing import TEST_FILES_DIR
 
 TEST_DIR = f"{TEST_FILES_DIR}/io/cp2k"
 
@@ -41,7 +41,7 @@ BASIS_FILE_STR = """
 """
 
 
-class TestBasis(PymatgenTest):
+class TestBasis:
     def test_basis_info(self):
         # Ensure basis metadata can be read from string
         basis_info = BasisInfo.from_str("cc-pc-DZVP-MOLOPT-q1-SCAN")
@@ -92,7 +92,7 @@ class TestBasis(PymatgenTest):
         mol_opt.info.admm = False
 
 
-class TestPotential(PymatgenTest):
+class TestPotential:
     all_hydrogen_str = """
 H ALLELECTRON ALL
     1    0    0
@@ -144,7 +144,7 @@ H GTH-PBE-q1 GTH-PBE
         assert kw.values[0] == "ALL"
 
 
-class TestCp2kInput(PymatgenTest):
+class TestCp2kInput:
     si_struct = Structure(
         lattice=[
             [0, 2.734364, 2.734364],
@@ -268,7 +268,7 @@ class TestCp2kInput(PymatgenTest):
         assert cp2k_input.check("global/subsec2")
 
 
-class TestDataFile(PymatgenTest):
+class TestDataFile:
     def test_data_file(self):
         # make temp file with BASIS_FILE_STR
         data_file = self.tmp_path / "data-file"

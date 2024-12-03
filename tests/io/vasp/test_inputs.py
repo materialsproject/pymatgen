@@ -38,7 +38,7 @@ from pymatgen.io.vasp.inputs import (
     VaspInput,
     _gen_potcar_summary_stats,
 )
-from pymatgen.util.testing import FAKE_POTCAR_DIR, TEST_FILES_DIR, VASP_IN_DIR, VASP_OUT_DIR, PymatgenTest
+from pymatgen.util.testing import FAKE_POTCAR_DIR, TEST_FILES_DIR, VASP_IN_DIR, VASP_OUT_DIR
 
 # Filter some expected warnings
 warnings.filterwarnings(
@@ -72,7 +72,7 @@ def _mock_complete_potcar_summary_stats(monkeypatch: pytest.MonkeyPatch) -> None
 @pytest.mark.filterwarnings(
     "ignore:POTCAR data with symbol .* is not known to pymatgen:pymatgen.io.vasp.inputs.UnknownPotcarWarning"
 )
-class TestPoscar(PymatgenTest):
+class TestPoscar:
     def test_init(self):
         comp = Structure.from_file(f"{VASP_IN_DIR}/POSCAR").composition
         assert comp == Composition("Fe4P4O16")
@@ -649,7 +649,7 @@ Cartesian
         assert poscar.structure.formula == "Li4 Fe4 P4 O16"
 
 
-class TestIncar(PymatgenTest):
+class TestIncar:
     def setUp(self):
         self.incar = Incar.from_file(f"{VASP_IN_DIR}/INCAR")
 
@@ -1537,7 +1537,7 @@ class TestPotcarSingle(TestCase):
 @pytest.mark.filterwarnings(
     "ignore:POTCAR data with symbol .* is not known to pymatgen:pymatgen.io.vasp.inputs.UnknownPotcarWarning"
 )
-class TestPotcar(PymatgenTest):
+class TestPotcar:
     def setUp(self):
         SETTINGS.setdefault("PMG_VASP_PSP_DIR", str(TEST_FILES_DIR))
         self.filepath = f"{FAKE_POTCAR_DIR}/POTCAR.gz"
@@ -1616,7 +1616,7 @@ class TestPotcar(PymatgenTest):
 @pytest.mark.filterwarnings(
     "ignore:POTCAR data with symbol .* is not known to pymatgen:pymatgen.io.vasp.inputs.UnknownPotcarWarning"
 )
-class TestVaspInput(PymatgenTest):
+class TestVaspInput:
     def setUp(self):
         filepath = f"{VASP_IN_DIR}/INCAR"
         incar = Incar.from_file(filepath)

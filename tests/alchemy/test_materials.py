@@ -21,7 +21,7 @@ from pymatgen.util.testing import FAKE_POTCAR_DIR, TEST_FILES_DIR, PymatgenTest
 TEST_DIR = f"{TEST_FILES_DIR}/alchemy"
 
 
-class TestTransformedStructure(PymatgenTest):
+class TestTransformedStructure:
     def setUp(self):
         structure = PymatgenTest.get_structure("LiFePO4")
         self.structure = structure

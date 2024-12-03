@@ -9,10 +9,9 @@ from pytest import approx
 
 from pymatgen.core.lattice import Lattice, get_points_in_spheres
 from pymatgen.core.operations import SymmOp
-from pymatgen.util.testing import PymatgenTest
 
 
-class TestLattice(PymatgenTest):
+class TestLattice:
     def setUp(self):
         self.lattice = Lattice.cubic(10.0)
         self.cubic = self.lattice

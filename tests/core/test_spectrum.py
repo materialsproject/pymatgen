@@ -6,10 +6,9 @@ from pytest import approx
 from scipy import stats
 
 from pymatgen.core.spectrum import Spectrum
-from pymatgen.util.testing import PymatgenTest
 
 
-class TestSpectrum(PymatgenTest):
+class TestSpectrum:
     def setUp(self):
         rng = np.random.default_rng()
         self.spec1 = Spectrum(np.arange(0, 10, 0.1), rng.standard_normal(100))

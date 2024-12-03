@@ -13,10 +13,9 @@ from pytest import approx
 
 from pymatgen.core import Composition, DummySpecies, Element, Species
 from pymatgen.core.composition import ChemicalPotential
-from pymatgen.util.testing import PymatgenTest
 
 
-class TestComposition(PymatgenTest):
+class TestComposition:
     def setUp(self):
         self.comps = [
             Composition("Li3Fe2(PO4)3"),

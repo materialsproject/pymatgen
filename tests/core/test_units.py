@@ -26,7 +26,6 @@ from pymatgen.core.units import (
     eV_to_Ha,
     unitized,
 )
-from pymatgen.util.testing import PymatgenTest
 
 
 def test_unit_conversions():
@@ -37,7 +36,7 @@ def test_unit_conversions():
     assert amu_to_kg == approx(1.66053906660e-27)
 
 
-class TestUnit(PymatgenTest):
+class TestUnit:
     def test_init(self):
         u1 = Unit((("m", 1), ("s", -1)))
         assert str(u1) == "m s^-1"
@@ -53,7 +52,7 @@ class TestUnit(PymatgenTest):
         assert str(newton * Unit("m")) == "N m"
 
 
-class TestFloatWithUnit(PymatgenTest):
+class TestFloatWithUnit:
     def test_energy(self):
         a = Energy(1.1, "eV")
         b = a.to("Ha")
@@ -185,7 +184,7 @@ class TestFloatWithUnit(PymatgenTest):
         assert FloatWithUnit(-5, "MPa") == -x
 
 
-class TestArrayWithUnit(PymatgenTest):
+class TestArrayWithUnit:
     def test_energy(self):
         """Similar to TestFloatWithUnit.test_energy.
         Check whether EnergyArray and FloatWithUnit have same behavior.
@@ -293,7 +292,7 @@ class TestArrayWithUnit(PymatgenTest):
         assert_array_equal(ArrayWithUnit([5000000, 10000000], "Pa"), pressure_arr.as_base_units)
 
 
-class TestDataPersistence(PymatgenTest):
+class TestDataPersistence:
     def test_pickle(self):
         """Test whether FloatWithUnit and ArrayWithUnit support pickle."""
         for cls in [FloatWithUnit, ArrayWithUnit]:
