@@ -2,8 +2,6 @@
 
 This module defines the JDFTxOutfileSlice class, which is used to read and
 process a JDFTx out file.
-
-@mkhorton - This file is ready to review
 """
 
 from __future__ import annotations
@@ -12,7 +10,7 @@ import inspect
 import math
 import pprint
 from dataclasses import dataclass
-from typing import TYPE_CHECKING, Any, ClassVar
+from typing import TYPE_CHECKING, ClassVar
 
 import numpy as np
 
@@ -134,7 +132,7 @@ class JDFTXOutfileSlice:
 
     Properties:
         t_s (float | None): The total time in seconds for the calculation.
-        is_converged (bool | None): True if calculation converged.
+        converged (bool | None): True if calculation converged.
         trajectory (Trajectory): pymatgen Trajectory object containing intermediate Structure's of outfile slice
             calculation.
         electronic_output (dict): Dictionary with all relevant electronic information dumped from an eigstats log.
@@ -254,342 +252,40 @@ class JDFTXOutfileSlice:
     has_parsable_pseudo: bool = False
 
     _total_electrons_backup: int | None = None
+    total_electrons: float | None = None
     _mu_backup: int | None = None
 
-    @property
-    def t_s(self) -> float | None:
-        """Return the total time in seconds for the calculation.
+    t_s: float | None = None
+    converged: bool | None = None
+    structure: Structure | None = None
+    trajectory: Trajectory | None = None
+    electronic_output: dict | None = None
+    eopt_type: str | None = None
+    elecmindata: JElSteps | None = None
+    stress: np.ndarray | None = None
+    strain: np.ndarray | None = None
+    nstep: int | None = None
+    e: float | None = None
+    grad_k: float | None = None
+    alpha: float | None = None
+    linmin: float | None = None
+    abs_magneticmoment: float | None = None
+    tot_magneticmoment: float | None = None
+    mu: float | None = None
+    elec_nstep: int | None = None
+    elec_e: float | None = None
+    elec_grad_k: float | None = None
+    elec_alpha: float | None = None
+    elec_linmin: float | None = None
 
-        Returns:
-            float: The total time in seconds for the calculation.
-        """
-        t_s = None
-        if self.jstrucs:
-            t_s = self.jstrucs.t_s
-        return t_s
-
-    @property
-    def is_converged(self) -> bool | None:
-        """Return True if calculation converged.
-
-        Returns:
-            bool: True if the electronic and geometric optimization have converged (or only the former if a single-point
-            calculation).
-        """
-        if self.jstrucs is None:
-            return None
-        converged = self.jstrucs.elec_converged
-        if self.geom_opt:
-            converged = converged and self.jstrucs.geom_converged
-        return converged
-
-    @property
-    def trajectory(self) -> Trajectory:
-        """Return pymatgen trajectory object.
-
-        Returns:
-            Trajectory: pymatgen Trajectory object containing intermediate Structure's of outfile slice calculation.
-        """
-        constant_lattice = False
-        if self.jsettings_lattice is not None:
-            if "niterations" in self.jsettings_lattice.params:
-                constant_lattice = int(self.jsettings_lattice.params["niterations"]) == 0
-            else:
-                raise ValueError("Unknown issue due to partial initialization of settings objects.")
-        return Trajectory.from_structures(structures=self.jstrucs, constant_lattice=constant_lattice)
-
-    @property
-    def electronic_output(self) -> dict:
-        """Return a dictionary with all relevant electronic information.
-
-        Returns:
-            dict: Dictionary with values corresponding to these keys in _electronic_output field.
-        """
-        dct = {}
-        for field in self.__dataclass_fields__:
-            if field in self._electronic_output:
-                value = getattr(self, field)
-                dct[field] = value
-        return dct
-
-    @property
-    def structure(self) -> Structure:
-        """Return calculation result as pymatgen Structure.
-
-        Returns:
-            Structure: pymatgen Structure object.
-
-        Raises:
-            AttributeError: If the jstrucs class field is empty.
-        """
-        if self.jstrucs is not None:
-            return self.jstrucs[-1]
-        raise AttributeError("Property structure inaccessible due to empty jstrucs class field")
-
-    ###########################################################################
-    # Properties inherited directly from jstrucs
-    ###########################################################################
-
-    @property
-    def eopt_type(self) -> str | None:
-        """
-        Return eopt_type from most recent JOutStructure.
-
-        Returns:
-            str | None: eopt_type from most recent JOutStructure.
-
-        Raises:
-            AttributeError: If the jstrucs class field is empty.
-        """
-        if self.jstrucs is not None:
-            return self.jstrucs.eopt_type
-        raise AttributeError("Property eopt_type inaccessible due to empty jstrucs class field")
-
-    @property
-    def elecmindata(self) -> JElSteps:
-        """Return elecmindata from most recent JOutStructure.
-
-        Returns:
-            JElSteps: elecmindata from most recent JOutStructure.
-
-        Raises:
-            AttributeError: If the jstrucs class field is empty.
-        """
-        if self.jstrucs is not None:
-            return self.jstrucs.elecmindata
-        raise AttributeError("Property elecmindata inaccessible due to empty jstrucs class field")
-
-    @property
-    def stress(self) -> np.ndarray | None:
-        """Return stress from most recent JOutStructure.
-
-        Returns:
-            np.ndarray | None: stress from most recent JOutStructure.
-
-        Raises:
-            AttributeError: If the jstrucs class field is empty.
-        """
-        if self.jstrucs is not None:
-            return self.jstrucs.stress
-        raise AttributeError("Property stress inaccessible due to empty jstrucs class field")
-
-    @property
-    def strain(self) -> np.ndarray | None:
-        """Return strain from most recent JOutStructure.
-
-        Returns:
-            np.ndarray | None: strain from most recent JOutStructure.
-
-        Raises:
-            AttributeError: If the jstrucs class field is empty.
-        """
-        if self.jstrucs is not None:
-            return self.jstrucs.strain
-        raise AttributeError("Property strain inaccessible due to empty jstrucs class field")
-
-    @property
-    def nstep(self) -> int | None:
-        """Return (geometric) nstep from most recent JOutStructure.
-
-        Returns:
-            int | None: (geometric) nstep from most recent JOutStructure.
-
-        Raises:
-            AttributeError: If the jstrucs class field is empty.
-        """
-        if self.jstrucs is not None:
-            return self.jstrucs.nstep
-        raise AttributeError("Property nstep inaccessible due to empty jstrucs class field")
-
-    @property
-    def e(self) -> float | None:
-        """Return E from most recent JOutStructure.
-
-        Returns:
-            float | None: E from most recent JOutStructure.
-
-        Raises:
-            AttributeError: If the jstrucs class field is empty.
-        """
-        if self.jstrucs is not None:
-            return self.jstrucs.e
-        raise AttributeError("Property e inaccessible due to empty jstrucs class field")
-
-    @property
-    def grad_k(self) -> float | None:
-        """Return (geometric) grad_k from most recent JOutStructure.
-
-        Returns:
-            float | None: (geometric) grad_k from most recent JOutStructure.
-
-        Raises:
-            AttributeError: If the jstrucs class field is empty.
-        """
-        if self.jstrucs is not None:
-            return self.jstrucs.grad_k
-        raise AttributeError("Property grad_k inaccessible due to empty jstrucs class field")
-
-    @property
-    def alpha(self) -> float | None:
-        """Return (geometric) alpha from most recent JOutStructure.
-
-        Returns:
-            float | None: (geometric) alpha from most recent JOutStructure.
-
-        Raises:
-            AttributeError: If the jstrucs class field is empty.
-        """
-        if self.jstrucs is not None:
-            return self.jstrucs.alpha
-        raise AttributeError("Property alpha inaccessible due to empty jstrucs class field")
-
-    @property
-    def linmin(self) -> float | None:
-        """Return (geometric) linmin from most recent JOutStructure.
-
-        Returns:
-            float | None: (geometric) linmin from most recent JOutStructure.
-
-        Raises:
-            AttributeError: If the jstrucs class field is empty.
-        """
-        if self.jstrucs is not None:
-            return self.jstrucs.linmin
-        raise AttributeError("Property linmin inaccessible due to empty jstrucs class field")
-
-    @property
-    def nelectrons(self) -> float | None:
-        """Return nelectrons from most recent JOutStructure.
-
-        Returns:
-            float | None: nelectrons from most recent JOutStructure.
-
-        Raises:
-            AttributeError: If the jstrucs class field is empty.
-        """
-        if self.jstrucs is not None:
-            return self.jstrucs.nelectrons
-        raise AttributeError("Property nelectrons inaccessible due to empty jstrucs class field")
-
-    @property
-    def abs_magneticmoment(self) -> float | None:
-        """Return abs_magneticmoment from most recent JOutStructure.
-
-        Returns:
-            float | None: abs_magneticmoment from most recent JOutStructure.
-
-        Raises:
-            AttributeError: If the jstrucs class field is empty.
-        """
-        if self.jstrucs is not None:
-            return self.jstrucs.abs_magneticmoment
-        raise AttributeError("Property abs_magneticmoment inaccessible due to empty jstrucs class field")
-
-    @property
-    def tot_magneticmoment(self) -> float | None:
-        """Return tot_magneticmoment from most recent JOutStructure.
-
-        Returns:
-            float | None: tot_magneticmoment from most recent JOutStructure.
-
-        Raises:
-            AttributeError: If the jstrucs class field is empty.
-        """
-        if self.jstrucs is not None:
-            return self.jstrucs.tot_magneticmoment
-        raise AttributeError("Property tot_magneticmoment inaccessible due to empty jstrucs class field")
-
-    @property
-    def mu(self) -> float | None:
-        """Return mu from most recent JOutStructure. (Equivalent to efermi)
-
-        Returns:
-            float | None: mu from most recent JOutStructure.
-
-        Raises:
-            AttributeError: If the jstrucs class field is empty.
-        """
+    def _get_mu(self) -> None | float:
+        """Sets mu from most recent JOutStructure. (Equivalent to efermi)"""
         _mu = None
         if self.jstrucs is not None:
             _mu = self.jstrucs.mu
         if _mu is None:
             _mu = self._mu_backup
         return _mu
-
-    ###########################################################################
-    # Electronic properties inherited from most recent JElSteps with symbol
-    # disambiguation.
-    ###########################################################################
-
-    @property
-    def elec_nstep(self) -> int | None:
-        """Return the most recent electronic iteration.
-
-        Returns:
-            int: The most recent electronic iteration.
-
-        Raises:
-            AttributeError: If the jstrucs class field is empty.
-        """
-        if self.jstrucs is not None:
-            return self.jstrucs.elec_nstep
-        raise AttributeError("Property elec_nstep inaccessible due to empty jstrucs class field")
-
-    @property
-    def elec_e(self) -> float | None:
-        """Return the most recent electronic energy.
-
-        Returns:
-            float: The most recent electronic energy.
-
-        Raises:
-            AttributeError: If the jstrucs class field is empty.
-        """
-        if self.jstrucs is not None:
-            return self.jstrucs.elec_e
-        raise AttributeError("Property elec_e inaccessible due to empty jstrucs class field")
-
-    @property
-    def elec_grad_k(self) -> float | None:
-        """Return the most recent electronic grad_k.
-
-        Returns:
-            float: The most recent electronic grad_k.
-
-        Raises:
-            AttributeError: If the jstrucs class field is empty.
-        """
-        if self.jstrucs is not None:
-            return self.jstrucs.elec_grad_k
-        raise AttributeError("Property elec_grad_k inaccessible due to empty jstrucs class field")
-
-    @property
-    def elec_alpha(self) -> float | None:
-        """Return the most recent electronic alpha.
-
-        Returns:
-            float: The most recent electronic alpha.
-
-        Raises:
-            AttributeError: If the jstrucs class field is empty.
-        """
-        if self.jstrucs is not None:
-            return self.jstrucs.elec_alpha
-        raise AttributeError("Property elec_alpha inaccessible due to empty jstrucs class field")
-
-    @property
-    def elec_linmin(self) -> float | None:
-        """Return the most recent electronic linmin.
-
-        Returns:
-            float: The most recent electronic linmin.
-
-        Raises:
-            AttributeError: If the jstrucs class field is empty.
-        """
-        if self.jstrucs is not None:
-            return self.jstrucs.elec_linmin
-        raise AttributeError("Property elec_linmin inaccessible due to empty jstrucs class field")
 
     ###########################################################################
     # Creation methods
@@ -652,6 +348,7 @@ class JDFTXOutfileSlice:
         self._set_fluid(text)
         self._set_nbands(text)
         self._set_atom_vars(text)
+        self._set_total_electrons()
         self._set_pseudo_vars(text)
         self._set_lattice_vars(text)
         self.has_solvation = self._check_solvation()
@@ -659,6 +356,70 @@ class JDFTXOutfileSlice:
         # @ Cooper added @#
         self.is_gc = key_exists("target-mu", text)
         self._set_ecomponents(text)
+
+        # Previously were properties, but are now set as attributes
+        self._from_out_slice_init_all_post_init()
+
+    def _set_t_s(self) -> None:
+        """Return the total time in seconds for the calculation.
+
+        Returns:
+            float: The total time in seconds for the calculation.
+        """
+        _t_s = None
+        if self.jstrucs:
+            _t_s = self.jstrucs.t_s
+        self.t_s = _t_s
+
+    def _set_converged(self) -> None:
+        """Return True if calculation converged.
+
+        Returns:
+            bool: True if the electronic and geometric optimization have converged (or only the former if a single-point
+            calculation).
+        """
+        if self.jstrucs is None:
+            return
+        converged = self.jstrucs.elec_converged
+        if self.geom_opt:
+            converged = converged and self.jstrucs.geom_converged
+        self.converged = converged
+
+    def _set_trajectory(self) -> Trajectory:
+        """Return pymatgen trajectory object.
+
+        Returns:
+            Trajectory: pymatgen Trajectory object containing intermediate Structure's of outfile slice calculation.
+        """
+        constant_lattice = False
+        if self.jsettings_lattice is not None:
+            if "niterations" in self.jsettings_lattice.params:
+                constant_lattice = int(self.jsettings_lattice.params["niterations"]) == 0
+            else:
+                raise ValueError("Unknown issue due to partial initialization of settings objects.")
+        self.trajectory = Trajectory.from_structures(structures=self.jstrucs, constant_lattice=constant_lattice)
+
+    def _set_electronic_output(self) -> None:
+        """Return a dictionary with all relevant electronic information.
+
+        Returns:
+            dict: Dictionary with values corresponding to these keys in _electronic_output field.
+        """
+        dct = {}
+        for field in self._electronic_output:
+            if field in self.__dataclass_fields__:
+                value = getattr(self, field)
+                dct[field] = value
+        self.electronic_output = dct
+
+    def _from_out_slice_init_all_post_init(self) -> None:
+        """Post init for running at end of "_from_out_slice_init_all" method.
+
+        Sets class variables previously defined as properties.
+        """
+        self._set_t_s()
+        self._set_converged()
+        self._set_electronic_output()
 
     def _get_xc_func(self, text: list[str]) -> str | None:
         """Get the exchange-correlation functional used in the calculation.
@@ -882,7 +643,9 @@ class JDFTXOutfileSlice:
         self.lumo = eigstats["lumo"]
         self.emax = eigstats["emax"]
         self.egap = eigstats["egap"]
-        if (not self.has_eigstats) and (self.mu is not None):
+        if self.efermi is None:
+            if self.mu is None:
+                self.mu = self._get_mu()
             self.efermi = self.mu
 
     def _get_pp_type(self, text: list[str]) -> str | None:
@@ -1069,7 +832,7 @@ class JDFTXOutfileSlice:
     def _set_jstrucs(self, text: list[str]) -> None:
         """Set the jstrucs class variable.
 
-        Set the JStructures object to jstrucs from the out file text.
+        Set the JStructures object to jstrucs from the out file text and all class attributes initialized from jstrucs.
 
         Args:
             text (list[str]): Output of read_file for out file.
@@ -1077,6 +840,26 @@ class JDFTXOutfileSlice:
         self.jstrucs = JOutStructures._from_out_slice(text, opt_type=self.geom_opt_type)
         if self.etype is None:
             self.etype = self.jstrucs[-1].etype
+        if self.jstrucs is not None:
+            self._set_trajectory()
+            self.mu = self._get_mu()
+            self.structure = self.jstrucs[-1]
+            self.eopt_type = self.jstrucs.eopt_type
+            self.elecmindata = self.jstrucs.elecmindata
+            self.stress = self.jstrucs.stress
+            self.strain = self.jstrucs.strain
+            self.nstep = self.jstrucs.nstep
+            self.e = self.jstrucs.e
+            self.grad_k = self.jstrucs.grad_k
+            self.alpha = self.jstrucs.alpha
+            self.linmin = self.jstrucs.linmin
+            self.abs_magneticmoment = self.jstrucs.abs_magneticmoment
+            self.tot_magneticmoment = self.jstrucs.tot_magneticmoment
+            self.elec_nstep = self.jstrucs.elec_nstep
+            self.elec_e = self.jstrucs.elec_e
+            self.elec_grad_k = self.jstrucs.elec_grad_k
+            self.elec_alpha = self.jstrucs.elec_alpha
+            self.elec_linmin = self.jstrucs.elec_linmin
 
     def _set_backup_vars(self, text: list[str]) -> None:
         """Set backups for important variables.
@@ -1174,13 +957,8 @@ class JDFTXOutfileSlice:
         line = find_first_range_key("fluid ", text)
         self.fluid = text[line[0]].split()[1]
 
-    @property
-    def total_electrons(self) -> float | None:
-        """Return total_electrons from most recent JOutStructure.
-
-        Returns:
-            float | None: Total electrons from most recent JOutStructure.
-        """
+    def _set_total_electrons(self) -> None:
+        """Sets total_electrons from most recent JOutStructure."""
         tot_elec = None
         if self.jstrucs is not None:
             _tot_elec = self.jstrucs.nelectrons
@@ -1188,7 +966,7 @@ class JDFTXOutfileSlice:
                 tot_elec = _tot_elec
         if (tot_elec is None) and (self._total_electrons_backup is not None):
             tot_elec = self._total_electrons_backup
-        return tot_elec
+        self.total_electrons = tot_elec
 
     def _set_nbands(self, text: list[str]) -> None:
         """Set the Nbands class variable.
@@ -1344,45 +1122,15 @@ class JDFTXOutfileSlice:
             dict: JDFTXOutfileSlice in dictionary format.
         """
         dct = {}
-        for field in self.__dataclass_fields__:
-            value = getattr(self, field)
-            dct[field] = value
-
-        for name, _obj in inspect.getmembers(type(self), lambda o: isinstance(o, property)):
-            dct[name] = getattr(self, name)
+        for fld in self.__dataclass_fields__:
+            value = getattr(self, fld)
+            if hasattr(value, "to_dict"):
+                dct[fld] = value.to_dict()
+            else:
+                dct[fld] = value
         return dct
 
-    # This method is likely never going to be called as all (currently existing)
-    # attributes of the most recent slice are explicitly defined as a class
-    # property. However, it is included to reduce the likelihood of errors
-    # upon future changes to downstream code.
-    def __getattr__(self, name: str) -> Any:
-        """Return attribute value.
-
-        Args:
-            name (str): The name of the attribute.
-
-        Returns:
-            Any: The value of the attribute.
-
-        Raises:
-            AttributeError: If the attribute is not found.
-        """
-        if name in self.__dict__:
-            return self.__dict__[name]
-
-        # Check if the attribute is a property of the class
-        for cls in inspect.getmro(self.__class__):
-            if name in cls.__dict__ and isinstance(cls.__dict__[name], property):
-                return cls.__dict__[name].__get__(self)
-
-        # Check if the attribute is in self.jstrucs
-        if hasattr(self.jstrucs, name):
-            return getattr(self.jstrucs, name)
-
-        # If the attribute is not found in either, raise an AttributeError
-        raise AttributeError(f"{self.__class__.__name__} not found: {name}")
-
+    # TODO: Re-do this now that there are no properties
     def __repr__(self) -> str:
         """Return string representation.
 

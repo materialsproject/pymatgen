@@ -4,17 +4,15 @@ Module for parsing outputs of JDFTx.
 
 Note: JDFTXOutfile will be moved back to its own module once a more broad outputs
 class is written.
-
-@mkhorton - this file is ready to review
 """
 
 from __future__ import annotations
 
-import inspect
 import pprint
 from dataclasses import dataclass, field
 from typing import TYPE_CHECKING, Any
 
+from pymatgen.core.trajectory import Trajectory
 from pymatgen.io.jdftx._output_utils import read_outfile_slices
 from pymatgen.io.jdftx.jdftxoutfileslice import JDFTXOutfileSlice
 
@@ -24,7 +22,6 @@ if TYPE_CHECKING:
     import numpy as np
 
     from pymatgen.core.structure import Structure
-    from pymatgen.core.trajectory import Trajectory
     from pymatgen.io.jdftx.jelstep import JElSteps
     from pymatgen.io.jdftx.jminsettings import (
         JMinSettingsElectronic,
@@ -35,6 +32,85 @@ if TYPE_CHECKING:
     from pymatgen.io.jdftx.joutstructures import JOutStructures
 
 __author__ = "Ben Rich, Jacob Clary"
+
+
+_jof_atr_from_last_slice = [
+    "prefix",
+    "jstrucs",
+    "jsettings_fluid",
+    "jsettings_electronic",
+    "jsettings_lattice",
+    "jsettings_ionic",
+    "xc_func",
+    "lattice_initial",
+    "lattice_final",
+    "lattice",
+    "a",
+    "b",
+    "c",
+    "fftgrid",
+    "geom_opt",
+    "geom_opt_type",
+    "efermi",
+    "egap",
+    "emin",
+    "emax",
+    "homo",
+    "lumo",
+    "homo_filling",
+    "lumo_filling",
+    "is_metal",
+    "converged",
+    "etype",
+    "broadening_type",
+    "broadening",
+    "kgrid",
+    "truncation_type",
+    "truncation_radius",
+    "pwcut",
+    "rhocut",
+    "pp_type",
+    "total_electrons",
+    "semicore_electrons",
+    "valence_electrons",
+    "total_electrons_uncharged",
+    "semicore_electrons_uncharged",
+    "valence_electrons_uncharged",
+    "nbands",
+    "atom_elements",
+    "atom_elements_int",
+    "atom_types",
+    "spintype",
+    "nspin",
+    "nat",
+    "atom_coords_initial",
+    "atom_coords_final",
+    "atom_coords",
+    "structure",
+    "has_solvation",
+    "fluid",
+    "is_gc",
+    "eopt_type",
+    "elecmindata",
+    "stress",
+    "strain",
+    "nstep",
+    "e",
+    "grad_k",
+    "alpha",
+    "linmin",
+    "abs_magneticmoment",
+    "tot_magneticmoment",
+    "mu",
+    "elec_nstep",
+    "elec_e",
+    "elec_grad_k",
+    "elec_alpha",
+    "elec_linmin",
+    "electronic_output",
+    "t_s",
+    "ecomponents",
+]
 
 
 @dataclass
@@ -53,8 +129,6 @@ class JDFTXOutfile:
             call of the JDFTx executable. Subsequent JDFTx calls within the same directory and prefix will append
             outputs to the same out file. More than one slice may correspond to restarted calculations, geom + single
             point calculations, or optimizations done with 3rd-party wrappers like ASE.
-
-    Properties:
         prefix (str): The prefix of the most recent JDFTx call.
         jstrucs (JOutStructures): The JOutStructures object from the most recent JDFTx call. This object contains a
             series of JOutStructure objects in its 'slices' attribute, each corresponding to a single structure
@@ -89,6 +163,7 @@ class JDFTXOutfile:
         geom_opt_type (str): The type of geometry optimization performed in the most recent JDFTx call. Options are
             'lattice' or 'ionic' if geom_opt, else "single point". ('lattice' optimizations perform ionic optimizations
             as well unless ion positions are given in direct coordinates).
+        ecomponents (dict): The components of the total energy in eV of the most recent JDFTx call.
         efermi (float): The Fermi energy in eV of the most recent JDFTx call. Equivalent to "mu".
         egap (float): The band gap in eV of the most recent JDFTx call. (Only available if eigstats was dumped).
         emin (float): The minimum energy in eV (smallest Kohn-Sham eigenvalue) of the most recent JDFTx call. (Only
@@ -104,7 +179,7 @@ class JDFTXOutfile:
         is_metal (bool): True if fillings of homo and lumo band-states are off-set by 1 and 0 by at least an arbitrary
             tolerance of 0.01 (ie 1 - 0.015 and 0.012 for homo/lumo fillings would be metallic, while 1-0.001 and 0
             would not be). (Only available if eigstats was dumped).
-        is_converged (bool): True if most recent SCF cycle converged (and geom forces converged is calc is geom_opt)
+        converged (bool): True if most recent SCF cycle converged (and geom forces converged is calc is geom_opt)
         etype (str): String representation of total energy-type of system. Commonly "G" (grand-canonical potential) for
             GC calculations, and "F" for canonical (fixed electron count) calculations.
         broadening_type (str): Type of broadening for electronic filling about Fermi-level requested. Either "Fermi",
@@ -179,6 +254,80 @@ class JDFTXOutfile:
     """
 
     slices: list[JDFTXOutfileSlice] = field(default_factory=list)
+    prefix: str = field(init=False)
+    jstrucs: JOutStructures = field(init=False)
+    jsettings_fluid: JMinSettingsFluid = field(init=False)
+    jsettings_electronic: JMinSettingsElectronic = field(init=False)
+    jsettings_lattice: JMinSettingsLattice = field(init=False)
+    jsettings_ionic: JMinSettingsIonic = field(init=False)
+    xc_func: str = field(init=False)
+    lattice_initial: np.ndarray = field(init=False)
+    lattice_final: np.ndarray = field(init=False)
+    lattice: np.ndarray = field(init=False)
+    a: float = field(init=False)
+    b: float = field(init=False)
+    c: float = field(init=False)
+    fftgrid: list[int] = field(init=False)
+    geom_opt: bool = field(init=False)
+    geom_opt_type: str = field(init=False)
+    efermi: float = field(init=False)
+    egap: float = field(init=False)
+    emin: float = field(init=False)
+    emax: float = field(init=False)
+    homo: float = field(init=False)
+    lumo: float = field(init=False)
+    homo_filling: float = field(init=False)
+    lumo_filling: float = field(init=False)
+    is_metal: bool = field(init=False)
+    converged: bool = field(init=False)
+    etype: str = field(init=False)
+    broadening_type: str = field(init=False)
+    broadening: float = field(init=False)
+    kgrid: list[int] = field(init=False)
+    truncation_type: str = field(init=False)
+    truncation_radius: float = field(init=False)
+    pwcut: float = field(init=False)
+    rhocut: float = field(init=False)
+    pp_type: str = field(init=False)
+    total_electrons: float = field(init=False)
+    semicore_electrons: int = field(init=False)
+    valence_electrons: float = field(init=False)
+    total_electrons_uncharged: int = field(init=False)
+    semicore_electrons_uncharged: int = field(init=False)
+    valence_electrons_uncharged: int = field(init=False)
+    nbands: int = field(init=False)
+    atom_elements: list[str] = field(init=False)
+    atom_elements_int: list[int] = field(init=False)
+    atom_types: list[str] = field(init=False)
+    spintype: str = field(init=False)
+    nspin: int = field(init=False)
+    nat: int = field(init=False)
+    atom_coords_initial: list[list[float]] = field(init=False)
+    atom_coords_final: list[list[float]] = field(init=False)
+    atom_coords: list[list[float]] = field(init=False)
+    structure: Structure = field(init=False)
+    trajectory: Trajectory = field(init=False)
+    has_solvation: bool = field(init=False)
+    fluid: str = field(init=False)
+    is_gc: bool = field(init=False)
+    eopt_type: str = field(init=False)
+    elecmindata: JElSteps = field(init=False)
+    stress: np.ndarray = field(init=False)
+    strain: np.ndarray = field(init=False)
+    nstep: int = field(init=False)
+    e: float = field(init=False)
+    grad_k: float = field(init=False)
+    alpha: float = field(init=False)
+    linmin: float = field(init=False)
+    abs_magneticmoment: float = field(init=False)
+    tot_magneticmoment: float = field(init=False)
+    mu: float = field(init=False)
+    elec_nstep: int = field(init=False)
+    elec_e: float = field(init=False)
+    elec_grad_k: float = field(init=False)
+    elec_alpha: float = field(init=False)
+    elec_linmin: float = field(init=False)
+    electronic_output: float = field(init=False)
 
     @classmethod
     def from_file(cls, file_path: str | Path, is_bgw: bool = False, none_slice_on_error: bool = False) -> JDFTXOutfile:
@@ -202,6 +351,27 @@ class JDFTXOutfile:
         ]
         return cls(slices=slices)
 
+    def __post_init__(self):
+        if len(self.slices):
+            for var in _jof_atr_from_last_slice:
+                setattr(self, var, getattr(self.slices[-1], var))
+            self.trajectory = self._get_trajectory()
+
+    def _get_trajectory(self) -> Trajectory:
+        """Set the trajectory attribute of the JDFTXOutfile object."""
+        constant_lattice = True
+        structures = []
+        for _i, slc in enumerate(self.slices):
+            structures += slc.jstrucs.slices
+            if constant_lattice and (slc.jsettings_lattice is not None):
+                if "niterations" in slc.jsettings_lattice.params:
+                    if int(slc.jsettings_lattice.params["niterations"]) > 1:
+                        constant_lattice = False
+                else:
+                    constant_lattice = False
+
+        return Trajectory.from_structures(structures=structures, constant_lattice=constant_lattice)
+
     def to_dict(self) -> dict:
         """
         Convert the JDFTXOutfile object to a dictionary.
@@ -211,1080 +381,12 @@ class JDFTXOutfile:
         """
         dct = {}
         for fld in self.__dataclass_fields__:
+            if fld == "slices":
+                dct[fld] = [slc.to_dict() for slc in self.slices]
+                continue
             value = getattr(self, fld)
             dct[fld] = value
-
-        for name, _obj in inspect.getmembers(type(self), lambda o: isinstance(o, property)):
-            dct[name] = getattr(self, name)
         return dct
-
-    ###########################################################################
-    # Properties inherited from most recent JDFTXOutfileSlice
-    ###########################################################################
-
-    @property
-    def prefix(self) -> str:
-        """
-        The prefix of the most recent JDFTx call.
-
-        Returns:
-            str: The prefix from the most recent JOutStructure.
-        """
-        if len(self.slices):
-            return self.slices[-1].prefix
-        raise AttributeError("Property prefix inaccessible due to empty slices class field")
-
-    @property
-    def jstrucs(self) -> JOutStructures:
-        """
-        Return jstrucs from most recent JOutStructure.
-
-        Returns:
-            JOutStructures: The JOutStructures object from the most recent JDFTx call.
-        """
-        if len(self.slices):
-            return self.slices[-1].jstrucs
-        raise AttributeError("Property jstrucs inaccessible due to empty slices class field")
-
-    @property
-    def jsettings_fluid(
-        self,
-    ) -> JMinSettingsFluid | JMinSettingsElectronic | JMinSettingsLattice | JMinSettingsIonic:
-        """
-        Return jsettings_fluid from most recent JOutStructure.
-
-        Returns:
-            JMinSettingsFluid | JMinSettingsElectronic | JMinSettingsLattice | JMinSettingsIonic: The JMinSettingsFluid
-            object from the most recent JDFTx call.
-        """
-        if len(self.slices):
-            return self.slices[-1].jsettings_fluid
-        raise AttributeError("Property jsettings_fluid inaccessible due to empty slices class field")
-
-    @property
-    def jsettings_electronic(
-        self,
-    ) -> JMinSettingsFluid | JMinSettingsElectronic | JMinSettingsLattice | JMinSettingsIonic:
-        """
-        Return jsettings_electronic from most recent JOutStructure.
-
-        Returns:
-            JMinSettingsFluid | JMinSettingsElectronic | JMinSettingsLattice | JMinSettingsIonic: The
-            JMinSettingsElectronic object from the most recent JDFTx call.
-        """
-        if len(self.slices):
-            return self.slices[-1].jsettings_electronic
-        raise AttributeError("Property jsettings_electronic inaccessible due to empty slices class field")
-
-    @property
-    def jsettings_lattice(
-        self,
-    ) -> JMinSettingsFluid | JMinSettingsElectronic | JMinSettingsLattice | JMinSettingsIonic:
-        """
-        Return jsettings_lattice from most recent JOutStructure.
-
-        Returns:
-            JMinSettingsFluid | JMinSettingsElectronic | JMinSettingsLattice | JMinSettingsIonic: The
-            JMinSettingsLattice object from the most recent JDFTx call.
-        """
-        if len(self.slices):
-            return self.slices[-1].jsettings_lattice
-        raise AttributeError("Property jsettings_lattice inaccessible due to empty slices class field")
-
-    @property
-    def jsettings_ionic(
-        self,
-    ) -> JMinSettingsFluid | JMinSettingsElectronic | JMinSettingsLattice | JMinSettingsIonic:
-        """
-        Return jsettings_ionic from most recent JOutStructure.
-
-        Returns:
-            JMinSettingsFluid | JMinSettingsElectronic | JMinSettingsLattice | JMinSettingsIonic: The JMinSettingsIonic
-            object from the most recent JDFTx call.
-        """
-        if len(self.slices):
-            return self.slices[-1].jsettings_ionic
-        raise AttributeError("Property jsettings_ionic inaccessible due to empty slices class field")
-
-    @property
-    def xc_func(self) -> str:
-        """
-        Return xc_func from most recent JOutStructure.
-
-        Returns:
-            str: The name of the exchange correlation functional used for the calculation.
-
-        Raises:
-            AttributeError: If the slices class field is empty.
-        """
-        if len(self.slices):
-            return self.slices[-1].xc_func
-        raise AttributeError("Property xc_func inaccessible due to empty slices class field")
-
-    @property
-    def lattice_initial(self) -> np.ndarray:
-        """
-        Returns the initial lattice vectors from the most recent JOutStructure.
-
-        Returns:
-            np.ndarray: The initial lattice vectors.
-
-        Raises:
-            AttributeError: If the slices class field is empty.
-        """
-        if len(self.slices):
-            return self.slices[-1].lattice_initial
-        raise AttributeError("Property lattice_initial inaccessible due to empty slices class field")
-
-    @property
-    def lattice_final(self) -> np.ndarray:
-        """
-        Returns the final lattice vectors from the most recent JOutStructure.
-
-        Returns:
-            np.ndarray: The final lattice vectors.
-
-        Raises:
-            AttributeError: If the slices class field is empty.
-        """
-        if len(self.slices):
-            return self.slices[-1].lattice_final
-        raise AttributeError("Property lattice_final inaccessible due to empty slices class field")
-
-    @property
-    def lattice(self) -> np.ndarray:
-        """
-        Returns the lattice vectors from the most recent JOutStructure.
-
-        Returns:
-            np.ndarray: The lattice vectors.
-
-        Raises:
-            AttributeError: If the slices class field is empty.
-        """
-        if len(self.slices):
-            return self.slices[-1].lattice
-        raise AttributeError("Property lattice inaccessible due to empty slices class field")
-
-    @property
-    def a(self) -> float:
-        """
-        Returns the length of the first lattice vector from the most recent JOutStructure.
-
-        Returns:
-            float: The length of the first lattice vector in Angstroms.
-
-        Raises:
-            AttributeError: If the slices class field is empty.
-        """
-        if len(self.slices):
-            return self.slices[-1].a
-        raise AttributeError("Property a inaccessible due to empty slices class field")
-
-    @property
-    def b(self) -> float:
-        """
-        Returns the length of the second lattice vector from the most recent JOutStructure.
-
-        Returns:
-            float: The length of the second lattice vector in Angstroms.
-
-        Raises:
-            AttributeError: If the slices class field is empty.
-        """
-        if len(self.slices):
-            return self.slices[-1].b
-        raise AttributeError("Property b inaccessible due to empty slices class field")
-
-    @property
-    def c(self) -> float:
-        """
-        Returns the length of the third lattice vector from the most recent JOutStructure.
-
-        Returns:
-            float: The length of the third lattice vector in Angstroms.
-
-        Raises:
-            AttributeError: If the slices class field is empty.
-        """
-        if len(self.slices):
-            return self.slices[-1].c
-        raise AttributeError("Property c inaccessible due to empty slices class field")
-
-    @property
-    def fftgrid(self) -> list[int]:
-        """
-        Returns the FFT grid shape from the most recent JOutStructure.
-
-        Returns:
-            list[int]: The shape of the electronic density array.
-
-        Raises:
-            AttributeError: If the slices class field is empty.
-        """
-        if len(self.slices):
-            return self.slices[-1].fftgrid
-        raise AttributeError("Property fftgrid inaccessible due to empty slices class field")
-
-    @property
-    def geom_opt(self) -> bool:
-        """
-        Returns whether the most recent JOutStructure included a geometric optimization.
-
-        Returns:
-            bool: True if the calculation included a geometric optimization, False otherwise.
-
-        Raises:
-            AttributeError: If the slices class field is empty.
-        """
-        if len(self.slices):
-            return self.slices[-1].geom_opt
-        raise AttributeError("Property geom_opt inaccessible due to empty slices class field")
-
-    @property
-    def geom_opt_type(self) -> str:
-        """
-        Return geom_opt_type from most recent JOutStructure.
-
-        Returns:
-            str: The type of geometric optimization performed (lattice, ionic, or single point).
-
-        Raises:
-            AttributeError: If the slices class field is empty.
-        """
-        if len(self.slices):
-            return self.slices[-1].geom_opt_type
-        raise AttributeError("Property geom_opt_type inaccessible due to empty slices class field")
-
-    @property
-    def efermi(self) -> float | None:
-        """
-        Return efermi from most recent JOutStructure.
-
-        Returns:
-            float | None: The energy of the Fermi level in eV.
-
-        Raises:
-            AttributeError: If the slices class field is empty.
-        """
-        if len(self.slices):
-            return self.slices[-1].efermi
-        raise AttributeError("Property efermi inaccessible due to empty slices class field")
-
-    @property
-    def egap(self) -> float | None:
-        """
-        Return egap from most recent JOutStructure.
-
-        Returns:
-            float | None: The size of the band gap in eV.
-
-        Raises:
-            AttributeError: If the slices class field is empty.
-        """
-        if len(self.slices):
-            return self.slices[-1].egap
-        raise AttributeError("Property egap inaccessible due to empty slices class field")
-
-    @property
-    def emin(self) -> float | None:
-        """
-        Return emin from most recent JOutStructure.
-
-        Returns:
-            float | None: The lowest Kohn-Sham eigenvalue in eV.
-
-        Raises:
-            AttributeError: If the slices class field is empty.
-        """
-        if len(self.slices):
-            return self.slices[-1].emin
-        raise AttributeError("Property emin inaccessible due to empty slices class field")
-
-    @property
-    def emax(self) -> float | None:
-        """
-        Return emax from most recent JOutStructure.
-
-        Returns:
-            float | None: The highest Kohn-Sham eigenvalue in eV.
-
-        Raises:
-            AttributeError: If the slices class field is empty.
-        """
-        if len(self.slices):
-            return self.slices[-1].emax
-        raise AttributeError("Property emax inaccessible due to empty slices class field")
-
-    @property
-    def homo(self) -> float | None:
-        """
-        Return homo from most recent JOutStructure.
-
-        Returns:
-            float | None: The energy of last band-state before Fermi level (Highest Occupied Molecular Orbital).
-            None if eigstats are not dumped.
-
-        Raises:
-            AttributeError: If the slices class field is empty.
-        """
-        if len(self.slices):
-            return self.slices[-1].homo
-        raise AttributeError("Property homo inaccessible due to empty slices class field")
-
-    @property
-    def lumo(self) -> float | None:
-        """
-        Return lumo from most recent JOutStructure.
-
-        Returns:
-            float | None: The energy of first band-state after Fermi level (Lowest Unoccupied Molecular Orbital).
-            None if eigstats are not dumped.
-
-        Raises:
-            AttributeError: If the slices class field is empty.
-        """
-        if len(self.slices):
-            return self.slices[-1].lumo
-        raise AttributeError("Property lumo inaccessible due to empty slices class field")
-
-    @property
-    def homo_filling(self) -> float | None:
-        """
-        Return homo_filling from most recent JOutStructure.
-
-        Returns:
-            float | None: The filling at the "homo" energy level.
-
-        Raises:
-            AttributeError: If the slices class field is empty.
-        """
-        if len(self.slices):
-            return self.slices[-1].homo_filling
-        raise AttributeError("Property homo_filling inaccessible due to empty slices class field")
-
-    @property
-    def lumo_filling(self) -> float | None:
-        """
-        Return lumo_filling from most recent JOutStructure.
-
-        Returns:
-            float | None: The filling at the "lumo" energy level.
-
-        Raises:
-            AttributeError: If the slices class field is empty.
-        """
-        if len(self.slices):
-            return self.slices[-1].lumo_filling
-        raise AttributeError("Property lumo_filling inaccessible due to empty slices class field")
-
-    @property
-    def is_metal(self) -> bool | None:
-        """
-        Return is_metal from most recent JOutStructure.
-
-        Returns:
-            bool | None: True if fillings of homo and lumo band-states are off-set by 1 and 0 by at least an arbitrary
-            tolerance of 0.01. None if eigstats are not dumped.
-
-        Raises:
-            AttributeError: If the slices class field is empty.
-        """
-        if len(self.slices):
-            return self.slices[-1].is_metal
-        raise AttributeError("Property is_metal inaccessible due to empty slices class field")
-
-    @property
-    def is_converged(self) -> bool | None:
-        """Return True if calculation converged.
-
-        Returns:
-            bool: True if the electronic and geometric optimization have converged (or only the former if a single-point
-            calculation).
-        """
-        if len(self.slices):
-            return self.slices[-1].is_converged
-        raise AttributeError("Property is_converged inaccessible due to empty slices class field")
-
-    @property
-    def etype(self) -> str | None:
-        """
-        Return etype from most recent JOutStructure.
-
-        Returns:
-            str | None: The string representation of the energy type by which the electronic ensemble was minimized
-            (G, grand-canonical potential for grand-canonical ensemble; F, Helmholtz, for canonical ensemble).
-        """
-        if len(self.slices):
-            return self.slices[-1].etype
-        raise AttributeError("Property etype inaccessible due to empty slices class field")
-
-    @property
-    def broadening_type(self) -> str:
-        """
-        Return broadening_type from most recent JOutStructure.
-
-        Returns:
-            str: The function used for smearing electronic filling about the Fermi level.
-        """
-        if len(self.slices):
-            return self.slices[-1].broadening_type
-        raise AttributeError("Property broadening_type inaccessible due to empty slices class field")
-
-    @property
-    def broadening(self) -> float:
-        """
-        Return broadening from most recent JOutStructure.
-
-        Returns:
-            float: The parameter controlling the magnitude of broadening of electronic filling about the Fermi level.
-        """
-        if len(self.slices):
-            return self.slices[-1].broadening
-        raise AttributeError("Property broadening inaccessible due to empty slices class field")
-
-    @property
-    def kgrid(self) -> list:
-        """
-        Return kgrid from most recent JOutStructure.
-
-        Returns:
-            list: The shape of the k-point mesh used to sample the Brillouin-zone of the unit cell (equivalent to kpoint
-            folding).
-        """
-        if len(self.slices):
-            return self.slices[-1].kgrid
-        raise AttributeError("Property kgrid inaccessible due to empty slices class field")
-
-    @property
-    def truncation_type(self) -> str:
-        """
-        Return truncation_type from most recent JOutStructure.
-
-        Returns:
-            str: The type of Coloumb truncation used to avoid interaction with neighboring periodic images. ("Periodic"
-            if no truncation)
-        """
-        if len(self.slices):
-            return self.slices[-1].truncation_type
-        raise AttributeError("Property truncation_type inaccessible due to empty slices class field")
-
-    @property
-    def truncation_radius(self) -> float | None:
-        """
-        Return truncation_radius from most recent JOutStructure.
-
-        Returns:
-            float | None: The radius of coloumb truncation boundary in Bohr (not None iff truncation_type is spherical).
-        """
-        if len(self.slices):
-            return self.slices[-1].truncation_radius
-        raise AttributeError("Property truncation_radius inaccessible due to empty slices class field")
-
-    @property
-    def pwcut(self) -> float:
-        """
-        Return pwcut from most recent JOutStructure.
-
-        Returns:
-            float: The energy cutoff for planewaves entering the basis set in Hartree.
-        """
-        if len(self.slices):
-            return self.slices[-1].pwcut
-        raise AttributeError("Property pwcut inaccessible due to empty slices class field")
-
-    @property
-    def rhocut(self) -> float:
-        """
-        Return rhocut from most recent JOutStructure.
-
-        Returns:
-            float: The energy cutoff for the resolution of the real-space grid in Hartree.
-        """
-        if len(self.slices):
-            return self.slices[-1].rhocut
-        raise AttributeError("Property rhocut inaccessible due to empty slices class field")
-
-    @property
-    def pp_type(self) -> str | None:
-        """
-        Return pp_type from most recent JOutStructure.
-
-        Returns:
-            str | None: The name of the pseudopotential library used for the calculation. Only "GBRV" and "SG15" are
-            supported by this output parser, otherwise pp_type is None.
-        """
-        if len(self.slices):
-            return self.slices[-1].pp_type
-        raise AttributeError("Property pp_type inaccessible due to empty slices class field")
-
-    @property
-    def total_electrons(self) -> float:
-        """
-        Return total_electrons from most recent JOutStructure.
-
-        Returns:
-            float: The total number of electrons.
-        """
-        if len(self.slices):
-            return self.slices[-1].total_electrons
-        raise AttributeError("Property total_electrons inaccessible due to empty slices class field")
-
-    @property
-    def semicore_electrons(self) -> int:
-        """
-        Return semicore_electrons from most recent JOutStructure.
-
-        Returns:
-            int: The number of semicore electrons discluded from pseudopotentials but not part of the atom's valence
-            shell.
-        """
-        if len(self.slices):
-            return self.slices[-1].semicore_electrons
-        raise AttributeError("Property semicore_electrons inaccessible due to empty slices class field")
-
-    @property
-    def valence_electrons(self) -> float:
-        """
-        Return valence_electrons from most recent JOutStructure.
-
-        Returns:
-            float: The number of valence electrons.
-        """
-        if len(self.slices):
-            return self.slices[-1].valence_electrons
-        raise AttributeError("Property valence_electrons inaccessible due to empty slices class field")
-
-    @property
-    def total_electrons_uncharged(self) -> int:
-        """
-        Return total_electrons_uncharged from most recent JOutStructure.
-
-        Returns:
-            int: The number of electrons required to reach a neutral cell charge.
-        """
-        if len(self.slices):
-            return self.slices[-1].total_electrons_uncharged
-        raise AttributeError("Property total_electrons_uncharged inaccessible due to empty slices class field")
-
-    @property
-    def semicore_electrons_uncharged(self) -> int:
-        """
-        Return semicore_electrons_uncharged from most recent JOutStructure.
-
-        Returns:
-            int: The number of semicore electrons uncharged.
-        """
-        if len(self.slices):
-            return self.slices[-1].semicore_electrons_uncharged
-        raise AttributeError("Property semicore_electrons_uncharged inaccessible due to empty slices class field")
-
-    @property
-    def valence_electrons_uncharged(self) -> int:
-        """
-        Return valence_electrons_uncharged from most recent JOutStructure.
-
-        Returns:
-            int: The number of valence electrons uncharged.
-        """
-        if len(self.slices):
-            return self.slices[-1].valence_electrons_uncharged
-        raise AttributeError("Property valence_electrons_uncharged inaccessible due to empty slices class field")
-
-    @property
-    def nbands(self) -> int:
-        """
-        Returns the number of bands used in the calculation from the most recent JOutStructure.
-
-        Returns:
-            int: The number of bands used in the calculation.
-
-        Raises:
-            AttributeError: If the slices class field is empty.
-        """
-        if len(self.slices):
-            return self.slices[-1].nbands
-        raise AttributeError("Property nbands inaccessible due to empty slices class field")
-
-    @property
-    def atom_elements(self) -> list[str]:
-        """
-        Returns the list of each ion's element symbol in the most recent JDFTx call from the most recent JOutStructure.
-
-        Returns:
-            list[str]: The list of each ion's element symbol in the most recent JDFTx call.
-
-        Raises:
-            AttributeError: If the slices class field is empty.
-        """
-        if len(self.slices):
-            return self.slices[-1].atom_elements
-        raise AttributeError("Property atom_elements inaccessible due to empty slices class field")
-
-    @property
-    def atom_elements_int(self) -> list[int]:
-        """
-        Returns the list of ion's atomic numbers in the most recent JDFTx call from the most recent JOutStructure.
-
-        Returns:
-            list[int]: The list of ion's atomic numbers in the most recent JDFTx call.
-
-        Raises:
-            AttributeError: If the slices class field is empty.
-        """
-        if len(self.slices):
-            return self.slices[-1].atom_elements_int
-        raise AttributeError("Property atom_elements_int inaccessible due to empty slices class field")
-
-    @property
-    def atom_types(self) -> list:
-        """
-        Returns the non-repeating list of each ion's element symbol in the most recent JDFTx call from the most recent
-        JOutStructure.
-
-        Returns:
-            list: The non-repeating list of each ion's element symbol in the most recent JDFTx call.
-
-        Raises:
-            AttributeError: If the slices class field is empty.
-        """
-        if len(self.slices):
-            return self.slices[-1].atom_types
-        raise AttributeError("Property atom_types inaccessible due to empty slices class field")
-
-    @property
-    def spintype(self) -> str:
-        """
-        Returns the way spin was incorporated in the most recent JDFTx call from the most recent JOutStructure.
-
-        Returns:
-            str: The way spin was incorporated in the most recent JDFTx call.
-
-        Raises:
-            AttributeError: If the slices class field is empty.
-        """
-        if len(self.slices):
-            return self.slices[-1].spintype
-        raise AttributeError("Property spintype inaccessible due to empty slices class field")
-
-    @property
-    def nspin(self) -> int:
-        """
-        Returns the number of spins used in the calculation from the most recent JOutStructure.
-
-        Returns:
-            int: The number of spins used in the calculation.
-
-        Raises:
-            AttributeError: If the slices class field is empty.
-        """
-        if len(self.slices):
-            return self.slices[-1].nspin
-        raise AttributeError("Property nspin inaccessible due to empty slices class field")
-
-    @property
-    def nat(self) -> int:
-        """
-        Returns the number of atoms in the most recent JDFTx call from the most recent JOutStructure.
-
-        Returns:
-            int: The number of atoms in the most recent JDFTx call.
-
-        Raises:
-            AttributeError: If the slices class field is empty.
-        """
-        if len(self.slices):
-            return self.slices[-1].nat
-        raise AttributeError("Property nat inaccessible due to empty slices class field")
-
-    @property
-    def atom_coords_initial(self) -> list[list[float]]:
-        """
-        Returns the initial atomic coordinates from the most recent JOutStructure.
-
-        Returns:
-            list[list[float]]: The initial atomic coordinates.
-
-        Raises:
-            AttributeError: If the slices class field is empty.
-        """
-        if len(self.slices):
-            return self.slices[-1].atom_coords_initial
-        raise AttributeError("Property atom_coords_initial inaccessible due to empty slices class field")
-
-    @property
-    def atom_coords_final(self) -> list[list[float]]:
-        """
-        Returns the final atomic coordinates from the most recent JOutStructure.
-
-        Returns:
-            list[list[float]]: The final atomic coordinates.
-
-        Raises:
-            AttributeError: If the slices class field is empty.
-        """
-        if len(self.slices):
-            return self.slices[-1].atom_coords_final
-        raise AttributeError("Property atom_coords_final inaccessible due to empty slices class field")
-
-    @property
-    def atom_coords(self) -> list[list[float]]:
-        """
-        Returns the atomic coordinates from the most recent JOutStructure.
-
-        Returns:
-            list[list[float]]: The atomic coordinates.
-
-        Raises:
-            AttributeError: If the slices class field is empty.
-        """
-        if len(self.slices):
-            return self.slices[-1].atom_coords
-        raise AttributeError("Property atom_coords inaccessible due to empty slices class field")
-
-    @property
-    def structure(self) -> Structure:
-        """
-        Returns the structure from the most recent JOutStructure.
-
-        Returns:
-            Structure: The structure from the most recent JOutStructure.
-
-        Raises:
-            AttributeError: If the slices class field is empty.
-        """
-        if len(self.slices):
-            return self.slices[-1].structure
-        raise AttributeError("Property structure inaccessible due to empty slices class field")
-
-    @property
-    def trajectory(self) -> Trajectory:
-        """
-        Returns the trajectory from the most recent JOutStructure.
-
-        Returns:
-            Trajectory: The trajectory from the most recent JOutStructure.
-
-        Raises:
-            AttributeError: If the slices class field is empty.
-        """
-        if len(self.slices):
-            return self.slices[-1].trajectory
-        raise AttributeError("Property trajectory inaccessible due to empty slices class field")
-
-    @property
-    def has_solvation(self) -> bool:
-        """
-        Returns whether the most recent JDFTx call included a solvation calculation from the most recent JOutStructure.
-
-        Returns:
-            bool: True if the most recent JDFTx call included a solvation calculation, False otherwise.
-
-        Raises:
-            AttributeError: If the slices class field is empty.
-        """
-        if len(self.slices):
-            return self.slices[-1].has_solvation
-        raise AttributeError("Property has_solvation inaccessible due to empty slices class field")
-
-    @property
-    def fluid(self) -> str:
-        """
-        Returns the name of the implicit solvent used in the calculation from the most recent JOutStructure.
-
-        Returns:
-            str: The name of the implicit solvent used in the calculation.
-
-        Raises:
-            AttributeError: If the slices class field is empty.
-        """
-        if len(self.slices):
-            return self.slices[-1].fluid
-        raise AttributeError("Property fluid inaccessible due to empty slices class field")
-
-    @property
-    def is_gc(self) -> bool:
-        """
-        Returns whether the most recent slice is a grand canonical calculation from the most recent JOutStructure.
-
-        Returns:
-            bool: True if the most recent slice is a grand canonical calculation, False otherwise.
-
-        Raises:
-            AttributeError: If the slices class field is empty.
-        """
-        if len(self.slices):
-            return self.slices[-1].is_gc
-        raise AttributeError("Property is_gc inaccessible due to empty slices class field")
-
-    ###########################################################################
-    # Properties inherited from most recent JDFTXOutfileSlice directly through
-    # the JDFTXOutfileSlice object's jstrucs class variable.
-    ###########################################################################
-
-    @property
-    def eopt_type(self) -> str:
-        """
-        Returns the eopt_type from the most recent JOutStructure.
-
-        Returns:
-            str: The eopt_type from the most recent JOutStructure.
-
-        Raises:
-            AttributeError: If the slices class field is empty.
-        """
-        if len(self.slices):
-            return self.slices[-1].eopt_type
-        raise AttributeError("Property eopt_type inaccessible due to empty jstrucs class field")
-
-    @property
-    def elecmindata(self) -> JElSteps:
-        """
-        Returns the elecmindata from the most recent JOutStructure.
-
-        Returns:
-            JElSteps: The elecmindata from the most recent JOutStructure.
-
-        Raises:
-            AttributeError: If the slices class field is empty.
-        """
-        if len(self.slices):
-            return self.slices[-1].elecmindata
-        raise AttributeError("Property elecmindata inaccessible due to empty jstrucs class field")
-
-    @property
-    def stress(self) -> np.ndarray:
-        """
-        Returns the stress tensor from the most recent JOutStructure.
-
-        Returns:
-            np.ndarray: The stress tensor of the unit cell in units eV/A^3.
-
-        Raises:
-            AttributeError: If the slices class field is empty.
-        """
-        if len(self.slices):
-            return self.slices[-1].stress
-        raise AttributeError("Property stress inaccessible due to empty jstrucs class field")
-
-    @property
-    def strain(self) -> np.ndarray:
-        """
-        Returns the strain tensor from the most recent JOutStructure.
-
-        Returns:
-            np.ndarray: The unitless strain tensor.
-
-        Raises:
-            AttributeError: If the slices class field is empty.
-        """
-        if len(self.slices):
-            return self.slices[-1].strain
-        raise AttributeError("Property strain inaccessible due to empty jstrucs class field")
-
-    @property
-    def nstep(self) -> int:
-        """
-        Returns the (geometric) step number from the most recent JOutStructure.
-
-        Returns:
-            int: The (geometric) step number from the most recent JOutStructure.
-
-        Raises:
-            AttributeError: If the slices class field is empty.
-        """
-        if len(self.slices):
-            return self.slices[-1].nstep
-        raise AttributeError("Property nstep inaccessible due to empty jstrucs class field")
-
-    @property
-    def e(self) -> float:
-        """
-        Returns the energy from the most recent JOutStructure.
-
-        Returns:
-            float: The energy of the system's etype in eV.
-
-        Raises:
-            AttributeError: If the slices class field is empty.
-        """
-        if len(self.slices):
-            return self.slices[-1].e
-        raise AttributeError("Property e inaccessible due to empty jstrucs class field")
-
-    @property
-    def grad_k(self) -> float:
-        """
-        Returns the (geometric) grad_k from the most recent JOutStructure.
-
-        Returns:
-            float: The final norm of the preconditioned gradient for geometric optimization of the most recent JDFTx
-            call (evaluated as dot(g, Kg), where g is the gradient and Kg is the preconditioned gradient).
-            (written as "|grad|_K" in JDFTx output).
-
-        Raises:
-            AttributeError: If the slices class field is empty.
-        """
-        if len(self.slices):
-            return self.slices[-1].grad_k
-        raise AttributeError("Property grad_k inaccessible due to empty jstrucs class field")
-
-    @property
-    def alpha(self) -> float:
-        """
-        Returns the (geometric) alpha from the most recent JOutStructure.
-
-        Returns:
-            float: The geometric step size along the line minimization.
-
-        Raises:
-            AttributeError: If the slices class field is empty.
-        """
-        if len(self.slices):
-            return self.slices[-1].alpha
-        raise AttributeError("Property alpha inaccessible due to empty jstrucs class field")
-
-    @property
-    def linmin(self) -> float:
-        """
-        Returns the (geometric) linmin from the most recent JOutStructure.
-
-        Returns:
-            float: The final normalized projection of the geometric step direction onto the gradient for the most recent
-            JDFTx call.
-
-        Raises:
-            AttributeError: If the slices class field is empty.
-        """
-        if len(self.slices):
-            return self.slices[-1].linmin
-        raise AttributeError("Property linmin inaccessible due to empty jstrucs class field")
-
-    @property
-    def nelectrons(self) -> float:
-        """
-        Returns the nelectrons from the most recent JOutStructure.
-
-        Returns:
-            float: The number of electrons (equivalent to total_electrons).
-
-        Raises:
-            AttributeError: If the slices class field is empty.
-        """
-        if len(self.slices):
-            return self.slices[-1].nelectrons
-        raise AttributeError("Property nelectrons inaccessible due to empty jstrucs class field")
-
-    @property
-    def abs_magneticmoment(self) -> float | None:
-        """
-        Returns the abs_magneticmoment from the most recent JOutStructure.
-
-        Returns:
-            float | None: The absolute magnetic moment of electronic density. (None if restricted spin)
-
-        Raises:
-            AttributeError: If the slices class field is empty.
-        """
-        if len(self.slices):
-            return self.slices[-1].abs_magneticmoment
-        raise AttributeError("Property abs_magneticmoment inaccessible due to empty jstrucs class field")
-
-    @property
-    def tot_magneticmoment(self) -> float | None:
-        """
-        Returns the tot_magneticmoment from the most recent JOutStructure.
-
-        Returns:
-            float | None: The total magnetic moment of the electronic density. (None if restricted spin)
-
-        Raises:
-            AttributeError: If the slices class field is empty.
-        """
-        if len(self.slices):
-            return self.slices[-1].tot_magneticmoment
-        raise AttributeError("Property tot_magneticmoment inaccessible due to empty jstrucs class field")
-
-    @property
-    def mu(self) -> float:
-        """
-        Returns the mu from the most recent JOutStructure.
-
-        Returns:
-            float: The mu from the most recent JOutStructure. (Equivalent to efermi)
-
-        Raises:
-            AttributeError: If the slices class field is empty.
-        """
-        if len(self.slices):
-            return self.slices[-1].mu
-        raise AttributeError("Property mu inaccessible due to empty jstrucs class field")
-
-    ###########################################################################
-    # Electronic properties with symbol disambiguation inherited from most
-    # recent JDFTXOutfileSlice directly through the JDFTXOutfileSlice
-    # object's jstrucs class variable.
-    ###########################################################################
-
-    @property
-    def elec_nstep(self) -> int:
-        """
-        Return the most recent electronic step number.
-
-        Returns:
-            int: The most recent electronic step number.
-        """
-        if len(self.slices):
-            return self.slices[-1].elec_nstep
-        raise AttributeError("Property elec_inter inaccessible due to empty jstrucs class field")
-
-    @property
-    def elec_e(self) -> float:
-        """
-        Return the most recent electronic energy.
-
-        Returns:
-            float: The most recent electronic energy.
-        """
-        if len(self.slices):
-            return self.slices[-1].elec_e
-        raise AttributeError("Property elec_e inaccessible due to empty jstrucs class field")
-
-    @property
-    def elec_grad_k(self) -> int:
-        """
-        Return the most recent electronic grad_k. (Equivalent to grad_k but for electronic line minimization)
-
-        Returns:
-            float: The most recent electronic grad_k.
-        """
-        if len(self.slices):
-            return self.slices[-1].elec_grad_k
-        raise AttributeError("Property elec_grad_k inaccessible due to empty jstrucs class field")
-
-    @property
-    def elec_alpha(self) -> float:
-        """
-        Return the most recent electronic alpha. (Equivalent to alpha but for electronic line minimization)
-
-        Returns:
-            float: The most recent electronic alpha.
-        """
-        if len(self.slices):
-            return self.slices[-1].elec_alpha
-        raise AttributeError("Property elec_alpha inaccessible due to empty jstrucs class field")
-
-    @property
-    def elec_linmin(self) -> float:
-        """
-        Return the most recent electronic linmin. (Equivalent to linmin but for electronic line minimization)
-
-        Returns:
-            float: The most recent electronic linmin.
-        """
-        if len(self.slices):
-            return self.slices[-1].elec_linmin
-        raise AttributeError("Property elec_linmin inaccessible due to empty jstrucs class field")
 
     ###########################################################################
     # Magic methods
@@ -1318,30 +420,6 @@ class JDFTXOutfile:
             int: The number of geometric optimization steps in the JDFTXOutfile object.
         """
         return len(self.slices)
-
-    def __getattr__(self, name: str) -> Any:
-        """Return attribute.
-
-        Args:
-            name (str): The name of the attribute.
-
-        Returns:
-            Any: The value of the attribute.
-
-        Raises:
-            AttributeError: If the attribute is not found.
-        """
-        if name in self.__dict__:
-            return self.__dict__[name]
-
-        for cls in inspect.getmro(self.__class__):
-            if name in cls.__dict__ and isinstance(cls.__dict__[name], property):
-                return cls.__dict__[name].__get__(self)
-
-        if hasattr(self.slices[-1], name):
-            return getattr(self.slices[-1], name)
-
-        raise AttributeError(f"{self.__class__.__name__} not found: {name}")
 
     def __str__(self) -> str:
         """Return string representation of JDFTXOutfile object.
