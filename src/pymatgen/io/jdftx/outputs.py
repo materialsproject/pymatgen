@@ -8,7 +8,6 @@ class is written.
 
 from __future__ import annotations
 
-import inspect
 import pprint
 from dataclasses import dataclass, field
 from typing import TYPE_CHECKING, Any
@@ -385,9 +384,6 @@ class JDFTXOutfile:
             if hasattr(self, fld):
                 value = getattr(self, fld)
                 dct[fld] = value
-
-        for name, _obj in inspect.getmembers(type(self), lambda o: isinstance(o, property)):
-            dct[name] = getattr(self, name)
         return dct
 
     ###########################################################################

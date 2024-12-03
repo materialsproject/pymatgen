@@ -10,7 +10,7 @@ import inspect
 import math
 import pprint
 from dataclasses import dataclass
-from typing import TYPE_CHECKING, Any, ClassVar
+from typing import TYPE_CHECKING, ClassVar
 
 import numpy as np
 
@@ -420,27 +420,6 @@ class JDFTXOutfileSlice:
         self._set_t_s()
         self._set_converged()
         self._set_electronic_output()
-        #
-        # if self.jstrucs is not None:
-        #     self._set_trajectory()
-        #     self.structure = self.jstrucs[-1]
-        #     self.eopt_type = self.jstrucs.eopt_type
-        #     self.elecmindata = self.jstrucs.elecmindata
-        #     self.stress = self.jstrucs.stress
-        #     self.strain = self.jstrucs.strain
-        #     self.nstep = self.jstrucs.nstep
-        #     self.e = self.jstrucs.e
-        #     self.grad_k = self.jstrucs.grad_k
-        #     self.alpha = self.jstrucs.alpha
-        #     self.linmin = self.jstrucs.linmin
-        #     self.abs_magneticmoment = self.jstrucs.abs_magneticmoment
-        #     self.tot_magneticmoment = self.jstrucs.tot_magneticmoment
-        #     self.mu = self._get_mu()
-        #     self.elec_nstep = self.jstrucs.elec_nstep
-        #     self.elec_e = self.jstrucs.elec_e
-        #     self.elec_grad_k = self.jstrucs.elec_grad_k
-        #     self.elec_alpha = self.jstrucs.elec_alpha
-        #     self.elec_linmin = self.jstrucs.elec_linmin
 
     def _get_xc_func(self, text: list[str]) -> str | None:
         """Get the exchange-correlation functional used in the calculation.
@@ -1150,37 +1129,6 @@ class JDFTXOutfileSlice:
         for name, _obj in inspect.getmembers(type(self), lambda o: isinstance(o, property)):
             dct[name] = getattr(self, name)
         return dct
-
-    # This method is likely never going to be called as all (currently existing)
-    # attributes of the most recent slice are explicitly defined as a class
-    # property. However, it is included to reduce the likelihood of errors
-    # upon future changes to downstream code.
-    def __getattr__(self, name: str) -> Any:
-        """Return attribute value.
-
-        Args:
-            name (str): The name of the attribute.
-
-        Returns:
-            Any: The value of the attribute.
-
-        Raises:
-            AttributeError: If the attribute is not found.
-        """
-        if name in self.__dict__:
-            return self.__dict__[name]
-
-        # Check if the attribute is a property of the class
-        for cls in inspect.getmro(self.__class__):
-            if name in cls.__dict__ and isinstance(cls.__dict__[name], property):
-                return cls.__dict__[name].__get__(self)
-
-        # Check if the attribute is in self.jstrucs
-        if hasattr(self.jstrucs, name):
-            return getattr(self.jstrucs, name)
-
-        # If the attribute is not found in either, raise an AttributeError
-        raise AttributeError(f"{self.__class__.__name__} not found: {name}")
 
     def __repr__(self) -> str:
         """Return string representation.
