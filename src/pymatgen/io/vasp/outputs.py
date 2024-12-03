@@ -4517,7 +4517,7 @@ class Xdatcar:
                     else:
                         preamble.append(line)
 
-                elif line == "" or "Direct configuration=" in line and len(coords_str) > 0:
+                elif line == "" or ("Direct configuration=" in line and len(coords_str) > 0):
                     parse_poscar = True
                     restart_preamble = False
                 else:
