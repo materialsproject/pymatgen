@@ -38,7 +38,7 @@ TEST_DIR = f"{TEST_FILES_DIR}/analysis"
 
 
 class TestPDEntry(TestCase):
-    def setUp(self):
+    def setup_method(self):
         comp = Composition("LiFeO2")
         self.entry = PDEntry(comp, 53, name="mp-757614")
         self.gp_entry = GrandPotPDEntry(self.entry, {Element("O"): 1.5})
@@ -114,7 +114,7 @@ class TestPDEntry(TestCase):
 
 
 class TestTransformedPDEntry(TestCase):
-    def setUp(self):
+    def setup_method(self):
         comp = Composition("LiFeO2")
         entry = PDEntry(comp, 53)
 
@@ -180,7 +180,7 @@ class TestTransformedPDEntry(TestCase):
 
 
 class TestPhaseDiagram:
-    def setUp(self):
+    def setup_method(self):
         self.entries = EntrySet.from_csv(f"{TEST_DIR}/pd_entries_test.csv")
         self.pd = PhaseDiagram(self.entries)
 
@@ -668,7 +668,7 @@ class TestPhaseDiagram:
 
 
 class TestGrandPotentialPhaseDiagram(TestCase):
-    def setUp(self):
+    def setup_method(self):
         self.entries = EntrySet.from_csv(f"{TEST_DIR}/pd_entries_test.csv")
         self.pd = GrandPotentialPhaseDiagram(self.entries, {Element("O"): -5})
         self.pd6 = GrandPotentialPhaseDiagram(self.entries, {Element("O"): -6})
@@ -704,7 +704,7 @@ class TestGrandPotentialPhaseDiagram(TestCase):
 
 
 class TestCompoundPhaseDiagram(TestCase):
-    def setUp(self):
+    def setup_method(self):
         self.entries = EntrySet.from_csv(f"{TEST_DIR}/pd_entries_test.csv")
         self.pd = CompoundPhaseDiagram(self.entries, [Composition("Li2O"), Composition("Fe2O3")])
 
@@ -742,7 +742,7 @@ class TestCompoundPhaseDiagram(TestCase):
 
 
 class TestPatchedPhaseDiagram(TestCase):
-    def setUp(self):
+    def setup_method(self):
         self.entries = EntrySet.from_csv(f"{TEST_DIR}/phase_diagram/reaction_entries_test.csv")
         # NOTE add He to test for correct behavior despite no patches involving He
         self.no_patch_entry = he_entry = PDEntry("He", -1.23)
@@ -892,7 +892,7 @@ class TestPatchedPhaseDiagram(TestCase):
 
 
 class TestReactionDiagram(TestCase):
-    def setUp(self):
+    def setup_method(self):
         self.entries = list(EntrySet.from_csv(f"{TEST_DIR}/phase_diagram/reaction_entries_test.csv").entries)
         for entry in self.entries:
             if entry.reduced_formula == "VPO5":
@@ -932,7 +932,7 @@ class TestReactionDiagram(TestCase):
 
 
 class TestPDPlotter(TestCase):
-    def setUp(self):
+    def setup_method(self):
         entries = list(EntrySet.from_csv(f"{TEST_DIR}/pd_entries_test.csv"))
 
         elemental_entries = [entry for entry in entries if entry.elements == [Element("Li")]]

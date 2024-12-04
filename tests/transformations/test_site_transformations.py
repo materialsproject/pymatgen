@@ -1,7 +1,6 @@
 from __future__ import annotations
 
 from shutil import which
-from unittest import TestCase
 
 import numpy as np
 import pytest
@@ -24,7 +23,7 @@ enumlib_present = enum_cmd and makestr_cmd
 
 
 class TestTranslateSitesTransformation:
-    def setUp(self):
+    def setup_method(self):
         coords = [
             [0, 0, 0],
             [0.375, 0.375, 0.375],
@@ -77,8 +76,8 @@ class TestTranslateSitesTransformation:
         str(t2)
 
 
-class TestReplaceSiteSpeciesTransformation(TestCase):
-    def setUp(self):
+class TestReplaceSiteSpeciesTransformation:
+    def setup_method(self):
         coords = [
             [0, 0, 0],
             [0.375, 0.375, 0.375],
@@ -109,8 +108,8 @@ class TestReplaceSiteSpeciesTransformation(TestCase):
         assert struct.formula == "Na1 Li3 O4"
 
 
-class TestRemoveSitesTransformation(TestCase):
-    def setUp(self):
+class TestRemoveSitesTransformation:
+    def setup_method(self):
         coords = [
             [0, 0, 0],
             [0.375, 0.375, 0.375],
@@ -141,8 +140,8 @@ class TestRemoveSitesTransformation(TestCase):
         assert struct.formula == "Li2 O4"
 
 
-class TestInsertSitesTransformation(TestCase):
-    def setUp(self):
+class TestInsertSitesTransformation:
+    def setup_method(self):
         coords = [
             [0, 0, 0],
             [0.375, 0.375, 0.375],
@@ -178,8 +177,8 @@ class TestInsertSitesTransformation(TestCase):
         assert struct.formula == "Li4 Mn1 Fe1 O4"
 
 
-class TestPartialRemoveSitesTransformation(TestCase):
-    def setUp(self):
+class TestPartialRemoveSitesTransformation:
+    def setup_method(self):
         coords = [
             [0, 0, 0],
             [0.375, 0.375, 0.375],
@@ -279,7 +278,7 @@ class TestAddSitePropertyTransformation:
 
 
 class TestRadialSiteDistortionTransformation:
-    def setUp(self):
+    def setup_method(self):
         self.molecule = Molecule(
             species=["C", "H", "H", "H", "H", "H", "H", "H", "H", "H", "H", "H", "H"],
             coords=[

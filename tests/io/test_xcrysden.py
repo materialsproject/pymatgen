@@ -7,7 +7,7 @@ from pymatgen.io.xcrysden import XSF
 
 
 class TestXSF:
-    def setUp(self):
+    def setup_method(self):
         self.coords = [[0, 0, 0], [0.75, 0.5, 0.75]]
         self.lattice = [
             [3.8401979337, 0.00, 0.00],

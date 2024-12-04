@@ -15,7 +15,7 @@ TEST_DIR = f"{TEST_FILES_DIR}/phonon/dos"
 
 
 class TestPhononDos:
-    def setUp(self):
+    def setup_method(self):
         with open(f"{TEST_DIR}/NaCl_ph_dos.json") as file:
             self.dos = PhononDos.from_dict(json.load(file))
         with open(f"{TEST_DIR}/NaCl_complete_ph_dos.json") as file:
@@ -183,7 +183,7 @@ class TestPhononDos:
 
 
 class TestCompletePhononDos:
-    def setUp(self):
+    def setup_method(self):
         with open(f"{TEST_DIR}/NaCl_complete_ph_dos.json") as file:
             self.cdos = CompletePhononDos.from_dict(json.load(file))
 

@@ -55,7 +55,7 @@ def test_opt_params():
 
 
 class TestValenceIonicRadiusEvaluator:
-    def setUp(self):
+    def setup_method(self):
         """Setup MgO rocksalt structure for testing Vacancy."""
         mgo_latt = np.eye(3) * 4.212
         mgo_specie = ["Mg"] * 4 + ["O"] * 4
@@ -90,7 +90,7 @@ class TestValenceIonicRadiusEvaluator:
 
 
 class TestVoronoiNN:
-    def setUp(self):
+    def setup_method(self):
         self.struct = self.get_structure("LiFePO4")
         self.nn = VoronoiNN(targets=[Element("O")])
         self.s_sic = self.get_structure("Si")
@@ -261,7 +261,7 @@ class TestVoronoiNN:
 
 
 class TestJmolNN:
-    def setUp(self):
+    def setup_method(self):
         self.jmol = JmolNN()
         self.jmol_update = JmolNN(el_radius_updates={"Li": 1})
 
@@ -302,7 +302,7 @@ class TestIsayevNN:
 
 
 class TestOpenBabelNN:
-    def setUp(self):
+    def setup_method(self):
         pytest.importorskip("openbabel")
         self.benzene = Molecule.from_file(f"{TEST_DIR}/../benzene.xyz")
         self.acetylene = Molecule.from_file(f"{TEST_FILES_DIR}/io/xyz/acetylene.xyz")
@@ -334,7 +334,7 @@ class TestOpenBabelNN:
 
 
 class TestCovalentBondNN:
-    def setUp(self):
+    def setup_method(self):
         self.benzene = Molecule.from_file(f"{TEST_DIR}/../benzene.xyz")
         self.acetylene = Molecule.from_file(f"{TEST_FILES_DIR}/io/xyz/acetylene.xyz")
 
@@ -373,7 +373,7 @@ class TestCovalentBondNN:
 
 
 class TestMiniDistNN:
-    def setUp(self):
+    def setup_method(self):
         self.diamond = Structure(
             Lattice([[2.189, 0, 1.264], [0.73, 2.064, 1.264], [0, 0, 2.528]]),
             ["C0+", "C0+"],
@@ -486,7 +486,7 @@ class TestMiniDistNN:
 
 
 class TestMotifIdentification:
-    def setUp(self):
+    def setup_method(self):
         self.silicon = Structure(
             Lattice.cubic(5.47),
             ["Si", "Si", "Si", "Si", "Si", "Si", "Si", "Si"],
@@ -584,7 +584,7 @@ class TestMotifIdentification:
 
 
 class TestNearNeighbor:
-    def setUp(self):
+    def setup_method(self):
         self.diamond = Structure(
             Lattice([[2.189, 0, 1.264], [0.73, 2.064, 1.264], [0, 0, 2.528]]),
             ["C0+", "C0+"],
@@ -618,7 +618,7 @@ class TestNearNeighbor:
 
 
 class TestLocalStructOrderParams:
-    def setUp(self):
+    def setup_method(self):
         self.single_bond = Structure(
             Lattice.cubic(10),
             ["H", "H", "H"],
@@ -1183,7 +1183,7 @@ class TestLocalStructOrderParams:
 
 
 class TestCrystalNN:
-    def setUp(self):
+    def setup_method(self):
         self.lifepo4 = self.get_structure("LiFePO4")
         self.lifepo4.add_oxidation_state_by_guess()
         self.he_bcc = self.get_structure("He_BCC")
@@ -1330,7 +1330,7 @@ class TestCrystalNN:
 
 
 class TestCutOffDictNN:
-    def setUp(self):
+    def setup_method(self):
         self.diamond = Structure(
             Lattice([[2.189, 0, 1.264], [0.73, 2.064, 1.264], [0, 0, 2.528]]),
             ["C", "C"],
@@ -1356,7 +1356,7 @@ class TestCutOffDictNN:
 
 @pytest.mark.skipif(not which("critic2"), reason="critic2 executable not present")
 class TestCritic2NN:
-    def setUp(self):
+    def setup_method(self):
         self.diamond = Structure(
             Lattice([[2.189, 0, 1.264], [0.73, 2.064, 1.264], [0, 0, 2.528]]),
             ["C", "C"],
@@ -1370,7 +1370,7 @@ class TestCritic2NN:
 
 
 class TestMetalEdgeExtender:
-    def setUp(self):
+    def setup_method(self):
         self.LiEC = Molecule.from_file(f"{TEST_DIR}/LiEC.xyz")
         self.phsh = Molecule.from_file(f"{TEST_DIR}/phsh.xyz")
         self.phsh_graph = MoleculeGraph.from_edges(

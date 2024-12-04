@@ -11,7 +11,7 @@ from pymatgen.util.coord import in_coord_list
 
 
 class TestAdsorbateSiteFinder:
-    def setUp(self):
+    def setup_method(self):
         self.structure = Structure.from_spacegroup("Fm-3m", Lattice.cubic(3.5), ["Ni"], [[0, 0, 0]])
         lattice = Lattice.cubic(3.010)
         frac_coords = [

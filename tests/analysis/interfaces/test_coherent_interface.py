@@ -18,7 +18,7 @@ from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
 
 class TestInterfaceBuilder:
     @classmethod
-    def setUpClass(cls):
+    def setup_class(cls):
         si_struct = cls.get_structure("Si")
         sio2_struct = cls.get_structure("SiO2")
         cls.si_conventional = SpacegroupAnalyzer(si_struct).get_conventional_standard_structure()
@@ -51,7 +51,7 @@ class TestInterfaceBuilder:
 
 
 class TestCoherentInterfaceBuilder(TestCase):
-    def setUp(self):
+    def setup_method(self):
         # build substrate & film structure
         basis = [[0, 0, 0], [0.25, 0.25, 0.25]]
         self.substrate = Structure(Lattice.cubic(a=5.431), ["Si", "Si"], basis)

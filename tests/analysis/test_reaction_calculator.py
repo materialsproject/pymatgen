@@ -288,7 +288,7 @@ class TestReaction:
 
 
 class TestBalancedReaction(TestCase):
-    def setUp(self) -> None:
+    def setup_method(self) -> None:
         rct = {"K2SO4": 3, "Na2S": 1, "Li": 24}
         prod = {"KNaS": 2, "K2S": 2, "Li2O": 12}
         self.rxn = BalancedReaction(rct, prod)
@@ -335,7 +335,7 @@ class TestBalancedReaction(TestCase):
 
 
 class TestComputedReaction(TestCase):
-    def setUp(self):
+    def setup_method(self):
         dct = [
             {
                 "correction": 0,

@@ -23,7 +23,7 @@ __date__ = "2/5/16"
 
 
 class TestZSLGen:
-    def setUp(self):
+    def setup_method(self):
         # Film VO2
         self.film = SpacegroupAnalyzer(self.get_structure("VO2"), symprec=0.1).get_conventional_standard_structure()
 

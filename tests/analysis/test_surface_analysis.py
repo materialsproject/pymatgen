@@ -23,7 +23,7 @@ TEST_DIR = f"{TEST_FILES_DIR}/surfaces"
 
 
 class TestSlabEntry:
-    def setUp(self):
+    def setup_method(self):
         with open(f"{TEST_DIR}/ucell_entries.txt") as file:
             ucell_entries = json.loads(file.read())
         self.ucell_entries = ucell_entries
@@ -119,7 +119,7 @@ class TestSlabEntry:
 
 
 class TestSurfaceEnergyPlotter:
-    def setUp(self):
+    def setup_method(self):
         entry_dict = get_entry_dict(f"{TEST_DIR}/Cu_entries.txt")
         self.Cu_entry_dict = entry_dict
         with open(f"{TEST_DIR}/ucell_entries.txt") as file:
@@ -293,7 +293,7 @@ class TestSurfaceEnergyPlotter:
 
 
 class TestWorkFunctionAnalyzer:
-    def setUp(self):
+    def setup_method(self):
         self.kwargs = {
             "poscar_filename": f"{TEST_DIR}/CONTCAR.relax1.gz",
             "locpot_filename": f"{TEST_DIR}/LOCPOT.gz",
@@ -310,7 +310,7 @@ class TestWorkFunctionAnalyzer:
 
 
 class TestNanoscaleStability:
-    def setUp(self):
+    def setup_method(self):
         # Load all entries
         La_hcp_entry_dict = get_entry_dict(f"{TEST_DIR}/La_hcp_entries.txt")
         La_fcc_entry_dict = get_entry_dict(f"{TEST_DIR}/La_fcc_entries.txt")

@@ -64,7 +64,7 @@ class TestNeighbor:
 
 
 class TestIStructure:
-    def setUp(self):
+    def setup_method(self):
         coords = [[0, 0, 0], [0.75, 0.5, 0.75]]
         self.lattice = Lattice(
             [
@@ -966,7 +966,7 @@ Direct
 
 
 class TestStructure:
-    def setUp(self):
+    def setup_method(self):
         coords = [[0, 0, 0], [0.75, 0.5, 0.75]]
         lattice = Lattice(
             [
@@ -2033,7 +2033,7 @@ Sites (8)
 
 
 class TestIMolecule:
-    def setUp(self):
+    def setup_method(self):
         coords = [
             [0, 0, 0],
             [0, 0, 1.089],
@@ -2328,7 +2328,7 @@ Site: H (-0.5134, 0.8892, -0.3630)"""
 
 
 class TestMolecule:
-    def setUp(self):
+    def setup_method(self):
         coords = [
             [0, 0, 0],
             [0, 0, 1.089000],

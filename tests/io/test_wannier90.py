@@ -14,7 +14,7 @@ TEST_DIR = f"{TEST_FILES_DIR}/io/wannier90"
 
 
 class TestUnk:
-    def setUp(self):
+    def setup_method(self):
         rng = np.random.default_rng()
         self.data_std = rng.random((10, 5, 5, 5))
         self.unk_std = Unk(1, self.data_std)

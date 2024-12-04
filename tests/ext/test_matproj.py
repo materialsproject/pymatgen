@@ -49,7 +49,7 @@ if skip_mprester_tests:
     reason="Legacy PMG_MAPI_KEY environment variable not set.",
 )
 class TestMPResterOld:
-    def setUp(self):
+    def setup_method(self):
         self.rester = _MPResterLegacy()
 
     def test_get_all_materials_ids_doc(self):
@@ -529,7 +529,7 @@ class TestMPResterOld:
     reason="PMG_MAPI_KEY environment variable not set.",
 )
 class TestMPResterNewBasic:
-    def setUp(self):
+    def setup_method(self):
         self.rester = _MPResterBasic()
 
     def test_get_summary(self):
@@ -903,10 +903,10 @@ class TestMPResterNewBasic:
 
     def test_parity_with_mp_api(self):
         try:
-            from mp_api.client import MPRester as MpApi
+            from mp_api.client import MPRester
         except Exception:
             pytest.skip("mp_api.client.MPRester cannot be imported for this test.")
-        mpr_mp_api = MpApi(PMG_MAPI_KEY)
+        mpr_mp_api = MPRester(PMG_MAPI_KEY)
         # Test summary
         mp_data = mpr_mp_api.summary.search(formula="Al2O3")
         pmg_data = self.rester.get_summary({"formula": "Al2O3"})

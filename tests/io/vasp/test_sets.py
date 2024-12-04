@@ -130,7 +130,7 @@ class TestSetChangeCheck:
 
 class TestVaspInputSet:
     @classmethod
-    def setUpClass(cls):
+    def setup_class(cls):
         filepath = f"{VASP_IN_DIR}/POSCAR"
         cls.structure = Structure.from_file(filepath)
 
@@ -167,7 +167,7 @@ class TestVaspInputSet:
 
 class TestMITMPRelaxSet:
     @classmethod
-    def setUpClass(cls):
+    def setup_class(cls):
         cls.set = MITRelaxSet
         cls.mp_set = MPRelaxSet
 
@@ -719,7 +719,7 @@ class TestMITMPRelaxSet:
 
 
 class TestMPStaticSet:
-    def setUp(self):
+    def setup_method(self):
         self.set = MPStaticSet
 
     def test_init(self):
@@ -871,7 +871,7 @@ class TestMPStaticSet:
 
 
 class TestMatPESStaticSet:
-    def setUp(self):
+    def setup_method(self):
         self.struct = Structure.from_file(f"{VASP_IN_DIR}/POSCAR")
         self.prev_incar = Incar.from_file(f"{VASP_IN_DIR}/INCAR")
 
@@ -988,7 +988,7 @@ class TestMatPESStaticSet:
 
 
 class TestMPNonSCFSet:
-    def setUp(self):
+    def setup_method(self):
         self.set = MPNonSCFSet
 
     @skip_if_no_psp_dir
@@ -1189,7 +1189,7 @@ class TestMagmomLdau:
 
 
 class TestMITMDSet:
-    def setUp(self):
+    def setup_method(self):
         self.set = MITMDSet
         filepath = f"{VASP_IN_DIR}/POSCAR"
         self.struct = Structure.from_file(filepath)
@@ -1231,7 +1231,7 @@ class TestMITMDSet:
 
 @skip_if_no_psp_dir
 class TestMVLNPTMDSet:
-    def setUp(self):
+    def setup_method(self):
         file_path = f"{VASP_IN_DIR}/POSCAR"
         self.struct = Structure.from_file(file_path)
         self.mvl_npt_set = MVLNPTMDSet(self.struct, start_temp=0, end_temp=300, nsteps=1000)
@@ -1267,7 +1267,7 @@ class TestMVLNPTMDSet:
 
 
 class TestMPMDSet:
-    def setUp(self):
+    def setup_method(self):
         filepath = f"{VASP_IN_DIR}/POSCAR"
         self.struct = Structure.from_file(filepath)
         self.struct_with_H = Structure.from_file(f"{VASP_IN_DIR}/POSCAR_hcp")
@@ -1309,7 +1309,7 @@ class TestMPMDSet:
 
 
 class TestMITNEBSet:
-    def setUp(self):
+    def setup_method(self):
         c1 = [[0.5] * 3, [0.9] * 3]
         c2 = [[0.5] * 3, [0.9, 0.1, 0.1]]
         s1 = Structure(Lattice.cubic(5), ["Si", "Si"], c1)
@@ -1357,7 +1357,7 @@ class TestMITNEBSet:
 
 
 class TestMPSOCSet:
-    def setUp(self):
+    def setup_method(self):
         self.set = MPSOCSet
 
     def test_from_prev_calc(self):
@@ -1416,7 +1416,7 @@ class TestMPNMRSet:
 
 @skip_if_no_psp_dir
 class TestMVLSlabSet:
-    def setUp(self):
+    def setup_method(self):
         self.set = MVLSlabSet
         struct = self.get_structure("Li2O")
         gen = SlabGenerator(struct, (1, 0, 0), 10, 10)
@@ -1499,7 +1499,7 @@ class TestMVLElasticSet:
 
 @skip_if_no_psp_dir
 class TestMVLGWSet:
-    def setUp(self):
+    def setup_method(self):
         self.set = MVLGWSet
         self.struct = PymatgenTest.get_structure("Li2O")
 
@@ -1577,7 +1577,7 @@ class TestMVLGWSet:
 
 
 class TestMPHSERelaxSet:
-    def setUp(self):
+    def setup_method(self):
         self.structure = dummy_structure
         self.set = MPHSERelaxSet
 
@@ -1644,7 +1644,7 @@ class TestMPHSERelaxSet:
 
 
 class TestMPHSEBS:
-    def setUp(self):
+    def setup_method(self):
         self.set = MPHSEBSSet
 
     def test_init(self):
@@ -1700,7 +1700,7 @@ class TestMPHSEBS:
 
 
 class TestMVLScanRelaxSet:
-    def setUp(self):
+    def setup_method(self):
         self.set = MVLScanRelaxSet
         file_path = f"{VASP_IN_DIR}/POSCAR"
         self.struct = Structure.from_file(file_path)
@@ -1778,7 +1778,7 @@ class TestMVLScanRelaxSet:
 
 
 class TestMPScanRelaxSet:
-    def setUp(self):
+    def setup_method(self):
         file_path = f"{VASP_IN_DIR}/POSCAR"
         self.struct = Structure.from_file(file_path)
         self.mp_scan_set = MPScanRelaxSet(
@@ -1899,7 +1899,7 @@ class TestMPScanRelaxSet:
 
 
 class TestMPScanStaticSet:
-    def setUp(self):
+    def setup_method(self):
         self.set = MPScanStaticSet
         self.prev_run = f"{TEST_DIR}/fixtures/scan_relaxation"
         # test inheriting from a previous SCAN relaxation
@@ -2001,7 +2001,7 @@ class TestFunc:
 
 @skip_if_no_psp_dir
 class TestMVLGBSet:
-    def setUp(self):
+    def setup_method(self):
         filepath = f"{TEST_FILES_DIR}/cif/Li.cif"
         self.struct = Structure.from_file(filepath)
 
@@ -2027,7 +2027,7 @@ class TestMVLGBSet:
 
 
 class TestMVLRelax52Set:
-    def setUp(self):
+    def setup_method(self):
         self.set = MVLRelax52Set
         file_path = f"{VASP_IN_DIR}/POSCAR"
         self.struct = Structure.from_file(file_path)
@@ -2065,7 +2065,7 @@ class TestMVLRelax52Set:
 
 
 class TestLobsterSet:
-    def setUp(self):
+    def setup_method(self):
         self.set = LobsterSet
         file_path = f"{VASP_IN_DIR}/POSCAR"
         file_path2 = f"{VASP_IN_DIR}/POSCAR.lobster.spin_DOS"
@@ -2164,7 +2164,7 @@ class TestLobsterSet:
 
 @skip_if_no_psp_dir
 class TestMPAbsorptionSet:
-    def setUp(self):
+    def setup_method(self):
         file_path = f"{TEST_DIR}/fixtures/absorption/static/POSCAR"
         self.structure = Structure.from_file(file_path)
         self.set = MPAbsorptionSet

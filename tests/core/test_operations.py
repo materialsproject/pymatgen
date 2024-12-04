@@ -8,7 +8,7 @@ from pymatgen.electronic_structure.core import Magmom
 
 
 class TestSymmOp:
-    def setUp(self):
+    def setup_method(self):
         self.op = SymmOp.from_axis_angle_and_translation([0, 0, 1], 30, translation_vec=[0, 0, 1])
 
     def test_properties(self):

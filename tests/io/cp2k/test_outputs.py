@@ -13,7 +13,7 @@ TEST_DIR = f"{TEST_FILES_DIR}/io/cp2k"
 
 
 class TestCp2kOutput(TestCase):
-    def setUp(self):
+    def setup_method(self):
         self.out = Cp2kOutput(f"{TEST_DIR}/cp2k.out", auto_load=True)
 
     def test_files(self):

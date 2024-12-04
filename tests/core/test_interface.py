@@ -14,7 +14,7 @@ TEST_DIR = f"{TEST_FILES_DIR}/core/grain_boundary"
 
 
 class TestGrainBoundary:
-    def setUp(self):
+    def setup_method(self):
         self.Cu_conv = Structure.from_file(f"{TEST_DIR}/Cu_mp-30_conventional_standard.cif")
         GB_Cu_conv = GrainBoundaryGenerator(self.Cu_conv)
         self.Cu_GB1 = GB_Cu_conv.gb_from_parameters(
@@ -106,7 +106,7 @@ class TestGrainBoundary:
 
 class TestGrainBoundaryGenerator:
     @classmethod
-    def setUpClass(cls):
+    def setup_class(cls):
         cls.Cu_prim = Structure.from_file(f"{TEST_DIR}/Cu_mp-30_primitive.cif")
         cls.GB_Cu_prim = GrainBoundaryGenerator(cls.Cu_prim)
         cls.Cu_conv = Structure.from_file(f"{TEST_DIR}/Cu_mp-30_conventional_standard.cif")
@@ -332,7 +332,7 @@ class TestGrainBoundaryGenerator:
 
 
 class TestInterface:
-    def setUp(self):
+    def setup_method(self):
         self.interface: Interface = self.get_structure("Si_SiO2_Interface")
 
     def test_basic_props(self):

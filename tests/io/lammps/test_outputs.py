@@ -16,7 +16,7 @@ TEST_DIR = f"{TEST_FILES_DIR}/io/lammps"
 
 class TestLammpsDump(TestCase):
     @classmethod
-    def setUpClass(cls):
+    def setup_class(cls):
         with open(f"{TEST_DIR}/dump.rdx_wc.100") as file:
             rdx_str = file.read()
         cls.rdx = LammpsDump.from_str(string=rdx_str)

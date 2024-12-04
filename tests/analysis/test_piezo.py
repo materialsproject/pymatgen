@@ -17,7 +17,7 @@ __date__ = "4/1/16"
 
 
 class TestPiezo:
-    def setUp(self):
+    def setup_method(self):
         self.piezo_struct = self.get_structure("BaNiO3")
         self.voigt_matrix = np.array(
             [

@@ -32,7 +32,7 @@ struct_env_dir = f"{TEST_FILES_DIR}/analysis/chemenv/structure_environments"
 
 class TestReadWriteChemenv:
     @classmethod
-    def setUpClass(cls):
+    def setup_class(cls):
         cls.lgf = LocalGeometryFinder()
         cls.lgf.setup_parameters(centering_type="standard")
 

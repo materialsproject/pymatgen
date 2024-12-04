@@ -20,7 +20,7 @@ __date__ = "Dec 10, 2017"
 
 
 class TestLobsterin:
-    def setUp(self):
+    def setup_method(self):
         self.Lobsterin = Lobsterin.from_file(f"{TEST_DIR}/lobsterin.1")
         self.Lobsterin2 = Lobsterin.from_file(f"{TEST_DIR}/lobsterin.2")
         self.Lobsterin3 = Lobsterin.from_file(f"{TEST_DIR}/lobsterin.3")

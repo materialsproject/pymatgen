@@ -277,7 +277,7 @@ class TestSubstitutionPredictorTransformation:
 
 @pytest.mark.skipif(not enumlib_present, reason="enum_lib not present.")
 class TestMagOrderingTransformation:
-    def setUp(self):
+    def setup_method(self):
         lattice = Lattice.cubic(4.17)
         species = ["Ni", "O"]
         coords = [[0, 0, 0], [0.5, 0.5, 0.5]]

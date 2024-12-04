@@ -261,7 +261,7 @@ class TestShiftMode:
 
 
 class TestFactory:
-    def setUp(self):
+    def setup_method(self):
         # Si ebands
         self.si_structure = Structure.from_file(abiref_file("si.cif"))
         self.si_pseudo = abiref_file("14si.pspnc")

@@ -1,7 +1,6 @@
 from __future__ import annotations
 
 import platform
-from unittest import TestCase
 
 import pytest
 
@@ -25,8 +24,8 @@ __date__ = "July 2018"
 __credit__ = "Peiyuan Yu"
 
 
-class TestFunctionalGroupExtractor(TestCase):
-    def setUp(self):
+class TestFunctionalGroupExtractor:
+    def setup_method(self):
         self.file = f"{TEST_DIR}/func_group_test.mol"
         self.mol = Molecule.from_file(self.file)
         self.strategy = OpenBabelNN()

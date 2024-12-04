@@ -19,7 +19,7 @@ TEST_DIR = f"{TEST_FILES_DIR}/symmetry/site_symmetries"
 
 
 class TestSiteSymmetries:
-    def setUp(self):
+    def setup_method(self):
         with gzip.open(f"{TEST_DIR}/point_ops.json.gz", mode="rt") as file:
             self.point_ops = MontyDecoder().process_decoded(json.load(file))
 

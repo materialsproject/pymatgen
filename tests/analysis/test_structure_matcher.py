@@ -23,7 +23,7 @@ TEST_DIR = f"{TEST_FILES_DIR}/analysis/structure_matcher"
 
 
 class TestStructureMatcher:
-    def setUp(self):
+    def setup_method(self):
         with open(f"{TEST_FILES_DIR}/entries/TiO2_entries.json") as file:
             entries = json.load(file, cls=MontyDecoder)
         self.struct_list = [ent.structure for ent in entries]

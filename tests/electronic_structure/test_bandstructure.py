@@ -26,7 +26,7 @@ TEST_DIR = f"{TEST_FILES_DIR}/electronic_structure/bandstructure"
 
 
 class TestKpoint(TestCase):
-    def setUp(self):
+    def setup_method(self):
         self.lattice = Lattice.cubic(10.0)
         self.kpoint = Kpoint([0.1, 0.4, -0.5], self.lattice, label="X")
 
@@ -69,7 +69,7 @@ class TestKpoint(TestCase):
 
 
 class TestBandStructureSymmLine:
-    def setUp(self):
+    def setup_method(self):
         self.bs: BandStructureSymmLine = loadfn(f"{TEST_DIR}/Cu2O_361_bandstructure.json")
         self.bs2: BandStructureSymmLine = loadfn(f"{TEST_DIR}/CaO_2605_bandstructure.json")
         self.bs_spin: BandStructureSymmLine = loadfn(f"{TEST_DIR}/NiO_19009_bandstructure.json")
@@ -259,7 +259,7 @@ class TestBandStructureSymmLine:
 
 
 class TestReconstructBandStructure:
-    def setUp(self):
+    def setup_method(self):
         self.bs_cu: BandStructureSymmLine = loadfn(f"{TEST_DIR}/Cu_30_bandstructure.json")
         self.bs_cu2: BandStructureSymmLine = loadfn(f"{TEST_DIR}/Cu_30_bandstructure.json")
 
@@ -278,7 +278,7 @@ class TestReconstructBandStructure:
 
 
 class TestLobsterBandStructureSymmLine:
-    def setUp(self):
+    def setup_method(self):
         with open(
             f"{TEST_FILES_DIR}/electronic_structure/cohp/Fatband_SiO2/Test_p/lobster_band_structure_spin.json",
         ) as file:

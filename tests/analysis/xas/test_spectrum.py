@@ -29,7 +29,7 @@ with open(f"{TEST_DIR}/site2_k_xanes.json") as file:
 
 
 class TestXAS:
-    def setUp(self):
+    def setup_method(self):
         self.k_xanes = XAS.from_dict(k_xanes_dict)
         self.k_exafs = XAS.from_dict(k_exafs_dict)
         self.l2_xanes = XAS.from_dict(l2_xanes_dict)

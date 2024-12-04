@@ -66,7 +66,7 @@ class TestInputFile:
 
 class TestInputSet:
     @classmethod
-    def setUpClass(cls):
+    def setup_class(cls):
         cls.sif1 = StructInputFile.from_file(f"{TEST_FILES_DIR}/cif/Li.cif")
         cls.sif2 = StructInputFile.from_file(f"{TEST_FILES_DIR}/cif/LiFePO4.cif")
         cls.sif3 = StructInputFile.from_file(f"{TEST_FILES_DIR}/cif/Li2O.cif")

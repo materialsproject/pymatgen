@@ -17,7 +17,7 @@ __date__ = "Apr 2017"
 
 
 class TestJonesFaithfulTransformation(TestCase):
-    def setUp(self):
+    def setup_method(self):
         self.test_strings = [
             "a,b,c;0,0,0",  # identity
             "a-b,a+b,2c;0,0,1/2",

@@ -1,7 +1,5 @@
 from __future__ import annotations
 
-from unittest import TestCase
-
 import numpy as np
 import pytest
 from matplotlib.figure import Figure as MplFigure
@@ -17,8 +15,8 @@ from pymatgen.core.composition import Composition, Element
 from pymatgen.entries.computed_entries import ComputedEntry
 
 
-class TestInterfaceReaction(TestCase):
-    def setUp(self):
+class TestInterfaceReaction:
+    def setup_method(self):
         self.entries = [
             ComputedEntry(Composition("Li"), 0),
             ComputedEntry(Composition("Mn"), 0),

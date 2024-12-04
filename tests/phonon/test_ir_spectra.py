@@ -6,7 +6,7 @@ from pymatgen.util.testing import TEST_FILES_DIR
 
 
 class TestIRDielectricTensor:
-    def setUp(self):
+    def setup_method(self):
         self.ir_spectra = loadfn(f"{TEST_FILES_DIR}/phonon/dos/ir_spectra_mp-991652_DDB.json")
 
     def test_basic(self):

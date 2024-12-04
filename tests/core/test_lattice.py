@@ -12,7 +12,7 @@ from pymatgen.core.operations import SymmOp
 
 
 class TestLattice:
-    def setUp(self):
+    def setup_method(self):
         self.lattice = Lattice.cubic(10.0)
         self.cubic = self.lattice
         self.tetragonal = Lattice.tetragonal(10, 20)

@@ -25,7 +25,7 @@ TEST_DIR = f"{TEST_FILES_DIR}/symmetry/analyzer"
 
 
 class TestSpacegroupAnalyzer:
-    def setUp(self):
+    def setup_method(self):
         self.structure = Structure.from_file(f"{VASP_IN_DIR}/POSCAR")
         self.sg = SpacegroupAnalyzer(self.structure, 0.001)
         self.disordered_structure = self.get_structure("Li10GeP2S12")
@@ -445,7 +445,7 @@ class TestSpacegroupAnalyzer:
 
 
 class TestSpacegroup(TestCase):
-    def setUp(self):
+    def setup_method(self):
         self.structure = Structure.from_file(f"{VASP_IN_DIR}/POSCAR")
         self.sg1 = SpacegroupAnalyzer(self.structure, 0.001).get_space_group_operations()
 

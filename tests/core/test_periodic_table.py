@@ -392,7 +392,7 @@ class TestElement:
 
 
 class TestSpecies:
-    def setUp(self):
+    def setup_method(self):
         self.specie1 = Species.from_str("Fe2+")
         self.specie2 = Species("Fe", 3)
         self.specie3 = Species("Fe", 2)

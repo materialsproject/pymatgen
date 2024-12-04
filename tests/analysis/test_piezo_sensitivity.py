@@ -35,7 +35,7 @@ TEST_DIR = f"{TEST_FILES_DIR}/analysis/piezo_sensitivity"
 
 
 class TestPiezoSensitivity:
-    def setUp(self):
+    def setup_method(self):
         self.piezo_struct = self.get_structure("Pb2TiZrO6")
         self.IST = np.load(f"{TEST_DIR}/pztist.npy", allow_pickle=True)
         self.BEC = np.load(f"{TEST_DIR}/pztborn.npy", allow_pickle=True)

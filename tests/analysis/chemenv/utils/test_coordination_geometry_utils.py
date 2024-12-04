@@ -12,7 +12,7 @@ __author__ = "David Waroquiers"
 
 
 class TestPlanesUtils:
-    def setUp(self):
+    def setup_method(self):
         # Test of plane 4x + 2y - 4z + 3 = 0 (used in most test cases)
         self.expected_coefficients = np.array([4, 2, -4, 3], float)
         self.p1 = np.array([0, 0, 0.75])

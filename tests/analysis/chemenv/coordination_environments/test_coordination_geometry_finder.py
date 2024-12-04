@@ -27,7 +27,7 @@ json_dir = f"{TEST_FILES_DIR}/analysis/chemenv/json"
 
 
 class TestCoordinationGeometryFinder:
-    def setUp(self):
+    def setup_method(self):
         self.lgf = LocalGeometryFinder()
         self.lgf.setup_parameters(
             centering_type="standard",

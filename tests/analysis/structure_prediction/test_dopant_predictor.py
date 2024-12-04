@@ -13,7 +13,7 @@ from pymatgen.core import Species, Structure
 
 
 class TestDopantPrediction(TestCase):
-    def setUp(self):
+    def setup_method(self):
         self.tin_dioxide = Structure(
             [3.24, 0, 0, 0, 4.83, 0, 0, 0, 4.84],
             ["O", "O", "O", "O", "Sn", "Sn"],

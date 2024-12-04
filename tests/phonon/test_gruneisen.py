@@ -22,7 +22,7 @@ TEST_DIR = f"{TEST_FILES_DIR}/phonon/gruneisen"
 
 
 class TestGruneisenPhononBandStructureSymmLine:
-    def setUp(self) -> None:
+    def setup_method(self) -> None:
         self.bs_symm_line = get_gruneisen_ph_bs_symm_line(
             gruneisen_path=f"{TEST_DIR}/gruneisen_eq_plus_minus_InP.yaml",
             structure_path=f"{TEST_DIR}/eq/POSCAR_InP",
@@ -77,7 +77,7 @@ class TestGruneisenPhononBandStructureSymmLine:
 
 @pytest.mark.skipif(TotalDos is None, reason="Phonopy not present")
 class TestGruneisenParameter:
-    def setUp(self) -> None:
+    def setup_method(self) -> None:
         self.gruneisen_obj = get_gruneisenparameter(
             f"{TEST_DIR}/gruneisen_mesh_InP.yaml",
             structure_path=f"{TEST_DIR}/eq/POSCAR_InP",

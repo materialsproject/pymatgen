@@ -17,7 +17,7 @@ __date__ = "Feb 2017"
 
 
 class TestMagneticSpaceGroup:
-    def setUp(self):
+    def setup_method(self):
         self.msg_1 = MagneticSpaceGroup([70, 530])
         self.msg_2 = MagneticSpaceGroup([62, 448])
         self.msg_3 = MagneticSpaceGroup([20, 37])

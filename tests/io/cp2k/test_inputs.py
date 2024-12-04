@@ -170,7 +170,7 @@ class TestCp2kInput:
 &END
 """
 
-    def setUp(self):
+    def setup_method(self):
         self.ci = Cp2kInput.from_file(f"{TEST_DIR}/cp2k.inp")
 
     def test_basic_sections(self):

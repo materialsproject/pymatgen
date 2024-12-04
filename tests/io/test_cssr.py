@@ -19,7 +19,7 @@ TEST_DIR = f"{TEST_FILES_DIR}/io/cssr"
 
 
 class TestCssr(TestCase):
-    def setUp(self):
+    def setup_method(self):
         filepath = f"{VASP_IN_DIR}/POSCAR"
         self.cssr = Cssr(Structure.from_file(filepath))
 

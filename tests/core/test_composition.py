@@ -16,7 +16,7 @@ from pymatgen.core.composition import ChemicalPotential
 
 
 class TestComposition:
-    def setUp(self):
+    def setup_method(self):
         self.comps = [
             Composition("Li3Fe2(PO4)3"),
             Composition("Li3Fe(PO4)O"),

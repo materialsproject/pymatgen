@@ -1516,7 +1516,7 @@ class TestLocpot:
 
 class TestChgcar:
     @classmethod
-    def setUpClass(cls):
+    def setup_class(cls):
         filepath = f"{VASP_OUT_DIR}/CHGCAR.nospin.gz"
         cls.chgcar_no_spin = Chgcar.from_file(filepath)
 
@@ -1818,7 +1818,7 @@ class TestDynmat:
 
 
 class TestWavecar:
-    def setUp(self):
+    def setup_method(self):
         latt_mat = np.array(np.eye(3) * 10, dtype=float)  # lattice vectors
         self.vol = np.dot(latt_mat[0, :], np.cross(latt_mat[1, :], latt_mat[2, :]))  # unit cell volume
         # reciprocal lattice vectors
@@ -2136,7 +2136,7 @@ class TestEigenval:
 
 
 class TestWaveder:
-    def setUp(self):
+    def setup_method(self):
         wder = Waveder.from_binary(f"{VASP_OUT_DIR}/WAVEDER", "float64")
         assert wder.nbands == 36
         assert wder.nkpoints == 56
@@ -2169,7 +2169,7 @@ class TestWaveder:
 
 
 class TestWSWQ:
-    def setUp(self):
+    def setup_method(self):
         self.wswq = WSWQ.from_file(f"{VASP_OUT_DIR}/WSWQ.gz")
 
     def test_consistency(self):

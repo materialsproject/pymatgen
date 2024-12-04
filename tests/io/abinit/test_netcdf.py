@@ -22,7 +22,7 @@ TEST_DIR = f"{TEST_FILES_DIR}/io/abinit"
 
 
 class TestEtsfReader:
-    def setUp(self):
+    def setup_method(self):
         formulas = ["Si2"]
         self.GSR_paths = dct = {}
         for formula in formulas:

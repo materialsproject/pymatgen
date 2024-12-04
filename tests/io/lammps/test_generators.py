@@ -10,7 +10,7 @@ TEST_DIR = f"{TEST_FILES_DIR}/io/lammps"
 
 class TestLammpsMinimization:
     @classmethod
-    def setUpClass(cls):
+    def setup_class(cls):
         cls.filename = f"{TEST_DIR}/lgps.in"
         cls.cif = f"{TEST_DIR}/lgps.cif"
         cls.structure = Structure.from_file(cls.cif)

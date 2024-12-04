@@ -24,12 +24,12 @@ MODULE_DIR = os.path.dirname(os.path.abspath(__file__))
 
 
 class TestCtrl:
-    def setUp(self):
+    def setup_method(self):
         os.chdir(TEST_DIR)
         self.ref_bise = LMTOCtrl.from_file(filename="CTRL.BiSe")
         self.ref_fe = LMTOCtrl.from_file()
 
-    def tearDown(self):
+    def teardown_method(self):
         os.chdir(MODULE_DIR)
 
     def test_dict(self):
@@ -48,13 +48,13 @@ class TestCtrl:
 
 
 class TestCopl:
-    def setUp(self):
+    def setup_method(self):
         os.chdir(TEST_DIR)
         self.copl_bise = LMTOCopl("COPL.BiSe")
         self.copl_bise_eV = LMTOCopl(filename="COPL.BiSe", to_eV=True)
         self.copl_fe = LMTOCopl()
 
-    def tearDown(self):
+    def teardown_method(self):
         os.chdir(MODULE_DIR)
 
     def test_attributes(self):

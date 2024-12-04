@@ -13,7 +13,7 @@ TEST_DIR = f"{TEST_FILES_DIR}/analysis/magnetic_orderings"
 
 class TestHeisenbergMapper(TestCase):
     @classmethod
-    def setUpClass(cls):
+    def setup_class(cls):
         cls.df = pd.read_json(f"{TEST_DIR}/mag_orderings_test_cases.json")
 
         # Good tests

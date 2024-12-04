@@ -20,7 +20,7 @@ TEST_DIR = f"{TEST_FILES_DIR}/electronic_structure/dos"
 
 
 class TestDos(TestCase):
-    def setUp(self):
+    def setup_method(self):
         with open(f"{TEST_DIR}/complete_dos.json") as file:
             self.dos = CompleteDos.from_dict(json.load(file))
 
@@ -58,7 +58,7 @@ class TestDos(TestCase):
 
 
 class TestFermiDos(TestCase):
-    def setUp(self):
+    def setup_method(self):
         with open(f"{TEST_DIR}/complete_dos.json") as file:
             self.dos = CompleteDos.from_dict(json.load(file))
         self.dos = FermiDos(self.dos)
@@ -105,7 +105,7 @@ class TestFermiDos(TestCase):
 
 
 class TestCompleteDos(TestCase):
-    def setUp(self):
+    def setup_method(self):
         with open(f"{TEST_DIR}/complete_dos.json") as file:
             self.dos = CompleteDos.from_dict(json.load(file))
         with zopen(f"{TEST_DIR}/pdag3_complete_dos.json.gz") as file:
@@ -324,7 +324,7 @@ class TestCompleteDos(TestCase):
 
 
 class TestDOS:
-    def setUp(self):
+    def setup_method(self):
         with open(f"{TEST_DIR}/complete_dos.json") as file:
             dct = json.load(file)
             ys = list(zip(dct["densities"]["1"], dct["densities"]["-1"], strict=True))
@@ -359,7 +359,7 @@ class TestSpinPolarization(TestCase):
 
 
 class TestLobsterCompleteDos(TestCase):
-    def setUp(self):
+    def setup_method(self):
         with open(f"{TEST_DIR}/LobsterCompleteDos_spin.json") as file:
             data_spin = json.load(file)
         self.LobsterCompleteDOS_spin = LobsterCompleteDos.from_dict(data_spin)

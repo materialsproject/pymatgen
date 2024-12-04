@@ -42,7 +42,7 @@ BZT_TRANSP_FN = f"{TEST_DIR}/bztTranspProps.json.gz"
 
 
 class TestVasprunBSLoader(TestCase):
-    def setUp(self):
+    def setup_method(self):
         self.loader = VasprunBSLoader(VASP_RUN)
         assert self.loader is not None
         self.loader = VasprunBSLoader(BAND_STRUCT, VASP_RUN.final_structure)
@@ -81,7 +81,7 @@ class TestVasprunBSLoader(TestCase):
 
 
 class TestBandstructureLoader(TestCase):
-    def setUp(self):
+    def setup_method(self):
         self.loader = BandstructureLoader(BAND_STRUCT, VASP_RUN.structures[-1])
         assert self.loader is not None
 
@@ -108,7 +108,7 @@ class TestBandstructureLoader(TestCase):
 
 
 class TestVasprunLoader(TestCase):
-    def setUp(self):
+    def setup_method(self):
         self.loader = VasprunLoader(VASP_RUN)
         assert self.loader.proj.shape == (120, 20, 2, 9)
         assert self.loader is not None
@@ -127,7 +127,7 @@ class TestVasprunLoader(TestCase):
 
 
 class TestBztInterpolator(TestCase):
-    def setUp(self):
+    def setup_method(self):
         with ScratchDir("."):
             shutil.copy(BZT_INTERP_FN, ".")
 
@@ -206,7 +206,7 @@ class TestBztInterpolator(TestCase):
 
 
 class TestBztTransportProperties(TestCase):
-    def setUp(self):
+    def setup_method(self):
         with ScratchDir("."):
             shutil.copy(BZT_TRANSP_FN, ".")
 

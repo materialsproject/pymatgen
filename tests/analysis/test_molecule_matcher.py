@@ -558,7 +558,7 @@ class TestGeneticOrderMatcher:
 
 class TestKabschMatcherSi(TestCase):
     @classmethod
-    def setUpClass(cls):
+    def setup_class(cls):
         cls.mol1 = Molecule.from_file(f"{TEST_DIR}/Si_cluster.xyz")
         cls.mol_matcher = KabschMatcher(cls.mol1)
 
@@ -595,7 +595,7 @@ class TestKabschMatcherSi(TestCase):
 
 class TestBruteForceOrderMatcherSi(TestCase):
     @classmethod
-    def setUpClass(cls):
+    def setup_class(cls):
         cls.mol1 = Molecule.from_file(f"{TEST_DIR}/Si_cluster.xyz")
         cls.mol_matcher = BruteForceOrderMatcher(cls.mol1)
 
@@ -616,7 +616,7 @@ class TestBruteForceOrderMatcherSi(TestCase):
 
 class TestHungarianOrderMatcherSi(TestCase):
     @classmethod
-    def setUpClass(cls):
+    def setup_class(cls):
         cls.mol1 = Molecule.from_file(f"{TEST_DIR}/Si_cluster.xyz")
         cls.mol_matcher = HungarianOrderMatcher(cls.mol1)
 
@@ -655,7 +655,7 @@ class TestHungarianOrderMatcherSi(TestCase):
 
 class TestGeneticOrderMatcherSi(TestCase):
     @classmethod
-    def setUpClass(cls):
+    def setup_class(cls):
         cls.mol1 = Molecule.from_file(f"{TEST_DIR}/Si_cluster.xyz")
         cls.mol_matcher = GeneticOrderMatcher(cls.mol1, threshold=0.3)
 
@@ -692,7 +692,7 @@ class TestGeneticOrderMatcherSi(TestCase):
 
 class TestKabschMatcherSi2O(TestCase):
     @classmethod
-    def setUpClass(cls):
+    def setup_class(cls):
         cls.mol1 = Molecule.from_file(f"{TEST_DIR}/Si2O_cluster.xyz")
         cls.mol_matcher = KabschMatcher(cls.mol1)
 
@@ -727,7 +727,7 @@ class TestKabschMatcherSi2O(TestCase):
 
 class TestBruteForceOrderMatcherSi2O(TestCase):
     @classmethod
-    def setUpClass(cls):
+    def setup_class(cls):
         cls.mol1 = Molecule.from_file(f"{TEST_DIR}/Si2O_cluster.xyz")
         cls.mol_matcher = BruteForceOrderMatcher(cls.mol1)
 
@@ -759,7 +759,7 @@ class TestBruteForceOrderMatcherSi2O(TestCase):
 
 class TestHungarianOrderMatcherSi2O(TestCase):
     @classmethod
-    def setUpClass(cls):
+    def setup_class(cls):
         cls.mol1 = Molecule.from_file(f"{TEST_DIR}/Si2O_cluster.xyz")
         cls.mol_matcher = HungarianOrderMatcher(cls.mol1)
 
@@ -791,7 +791,7 @@ class TestHungarianOrderMatcherSi2O(TestCase):
 
 class TestGeneticOrderMatcherSi2O(TestCase):
     @classmethod
-    def setUpClass(cls):
+    def setup_class(cls):
         cls.mol1 = Molecule.from_file(f"{TEST_DIR}/Si2O_cluster.xyz")
         cls.mol_matcher = GeneticOrderMatcher(cls.mol1, threshold=0.3)
 

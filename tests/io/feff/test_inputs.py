@@ -58,7 +58,7 @@ class TestHeader(TestCase):
 
 class TestFeffAtoms(TestCase):
     @classmethod
-    def setUpClass(cls):
+    def setup_class(cls):
         cls.structure = Structure.from_file(f"{TEST_FILES_DIR}/cif/CoO19128.cif")
         cls.atoms = Atoms(cls.structure, "O", 12.0)
 
@@ -246,7 +246,7 @@ class TestFeffPot(TestCase):
 
 
 class TestPaths(TestCase):
-    def setUp(self):
+    def setup_method(self):
         feo = Structure.from_dict(
             {
                 "lattice": {
