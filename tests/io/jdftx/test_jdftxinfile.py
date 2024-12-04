@@ -11,38 +11,21 @@ from pymatgen.core.structure import Structure
 from pymatgen.io.jdftx.inputs import JDFTXInfile, JDFTXStructure
 from pymatgen.io.jdftx.jdftxinfile_master_format import get_tag_object
 
-from .conftest import assert_same_value, dump_files_dir
-from .conftest import ex_in_files_dir as ex_files_dir
+from .inputs_test_utils import (
+    assert_equiv_jdftxstructure,
+    assert_idential_jif,
+    ex_in_files_dir,
+    ex_infile1_fname,
+    ex_infile1_knowns,
+    ex_infile2_fname,
+    ex_infile3_fname,
+)
+from .shared_test_utils import assert_same_value, dump_files_dir
 
 if TYPE_CHECKING:
     from collections.abc import Callable
 
     from pymatgen.util.typing import PathLike
-
-ex_infile1_fname = ex_files_dir / "CO.in"
-ex_infile1_knowns = {
-    "dump-name": "$VAR",
-    "initial-state": "$VAR",
-    "elec-ex-corr": "gga",
-    "van-der-waals": "D3",
-    "elec-cutoff": {"Ecut": 20.0, "EcutRho": 100.0},
-    "elec-n-bands": 15,
-    "kpoint-folding": {"n0": 1, "n1": 1, "n2": 1},
-    "spintype": "z-spin",
-    "core-overlap-check": "none",
-    "converge-empty-states": True,
-    "latt-move-scale": {"s0": 0.0, "s1": 0.0, "s2": 0.0},
-    "symmetries": "none",
-    "fluid": {"type": "LinearPCM"},
-    "pcm-variant": "CANDLE",
-    "fluid-solvent": [{"name": "H2O"}],
-    "fluid-cation": {"name": "Na+", "concentration": 0.5},
-    "fluid-anion": {"name": "F-", "concentration": 0.5},
-    "initial-magnetic-moments": "C 1 O 1",
-}
-
-ex_infile2_fname = ex_files_dir / "example_sp.in"
-ex_infile3_fname = ex_files_dir / "ct_slab_001.in"
 
 
 def test_jdftxinfile_structuregen():
@@ -128,11 +111,11 @@ def test_JDFTXInfile_expected_exceptions():
     err_str = f"The include file {_filename} ({_filename}) does not exist!"
     with pytest.raises(ValueError, match=re.escape(err_str)):
         JDFTXInfile.from_str(f"include {_filename}\n")
-    filename = ex_files_dir / "barbie"
+    filename = ex_in_files_dir / "barbie"
     err_str = f"The include file {_filename} ({filename}) does not exist!"
     str(err_str)
     with pytest.raises(ValueError, match=re.escape(err_str)):
-        JDFTXInfile.from_str(f"include {_filename}\n", path_parent=ex_files_dir)
+        JDFTXInfile.from_str(f"include {_filename}\n", path_parent=ex_in_files_dir)
     with pytest.raises(ValueError, match="This input file is missing required structure tags"):
         JDFTXInfile.from_str("dump End DOS\n")
     with pytest.raises(ValueError, match="Conversion type barbie is not 'list-to-dict' or 'dict-to-list'"):
@@ -228,12 +211,6 @@ def JDFTXInfile_self_consistency_tester(jif: JDFTXInfile):
     os.remove(tmp_fname)
 
 
-def assert_idential_jif(jif1: JDFTXInfile | dict, jif2: JDFTXInfile | dict):
-    djif1 = jif1.as_dict() if isinstance(jif1, JDFTXInfile) else jif1
-    djif2 = jif2.as_dict() if isinstance(jif2, JDFTXInfile) else jif2
-    assert_same_value(djif1, djif2)
-
-
 def test_jdftxstructure():
     jif = JDFTXInfile.from_file(ex_infile2_fname)
     struct = jif.to_jdftxstructure(jif)
@@ -260,24 +237,12 @@ def test_pmg_struc():
 
 
 def test_jdftxtructure_naming():
-    struct = Structure.from_file(ex_files_dir / "Si.cif")
+    """Test the naming of the JDFTXStructure object.
+
+    Test to make sure reading from a Structure with labels not exactly matching the element names
+    (ie Si0, Si1, or Si+2) will still be read correctly.
+    """
+    struct = Structure.from_file(ex_in_files_dir / "Si.cif")
     jstruct = JDFTXStructure(structure=struct)
     JDFTXInfile.from_jdftxstructure(jstruct)
     JDFTXInfile.from_structure(struct)
-
-
-def assert_equiv_jdftxstructure(struc1: JDFTXStructure, struc2: JDFTXStructure) -> None:
-    """Check if two JDFTXStructure objects are equivalent.
-
-    Check if two JDFTXStructure objects are equivalent.
-
-    Parameters:
-    ----------
-    struc1: JDFTXStructure
-        The first JDFTXStructure object.
-    struc2: JDFTXStructure
-        The second JDFTXStructure object.
-    """
-    d1 = struc1.as_dict()
-    d2 = struc2.as_dict()
-    assert_idential_jif(d1, d2)
