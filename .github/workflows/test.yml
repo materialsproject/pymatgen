@@ -61,12 +61,12 @@ jobs:
       - name: Check out repo
         uses: actions/checkout@v4
 
-      - name: Set up micromamba
-        uses: mamba-org/setup-micromamba@main
-
       - name: Create mamba environment
-        run: |
-          micromamba create -n pmg python=${{ matrix.config.python }} --yes
+        uses: mamba-org/setup-micromamba@main
+        with:
+          environment-name: pmg
+          create-args: >-
+            python=${{ matrix.config.python }}
 
       - name: Install ubuntu-only conda dependencies
         if: matrix.config.os == 'ubuntu-latest'
