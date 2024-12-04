@@ -1,9 +1,14 @@
 from __future__ import annotations
 
+from os import remove
+
 import pytest
 
 from pymatgen.io.jdftx._output_utils import find_first_range_key, get_start_lines
 from pymatgen.io.jdftx.joutstructures import _get_joutstructures_start_idx
+from pymatgen.io.jdftx.outputs import _find_jdftx_out_file
+
+from .conftest import dump_files_dir, write_mt_file
 
 
 def test_get_start_lines():
@@ -35,3 +40,22 @@ def test_get_joutstructures_start_idx():
     assert _get_joutstructures_start_idx(["ken", "barbie"], out_slice_start_flag=start_flag) == 1
     assert _get_joutstructures_start_idx(["barbie", "ken"], out_slice_start_flag=start_flag) == 0
     assert _get_joutstructures_start_idx(["ken", "ken"], out_slice_start_flag=start_flag) is None
+
+
+def test_find_jdftx_out_file():
+    with pytest.raises(FileNotFoundError, match="No JDFTx out file found in directory."):
+        _find_jdftx_out_file(dump_files_dir)
+    write_mt_file("test.out")
+    assert _find_jdftx_out_file(dump_files_dir) == dump_files_dir / "test.out"
+    # out file has to match "*.out" or "out" exactly
+    write_mt_file("tinyout")
+    assert _find_jdftx_out_file(dump_files_dir) == dump_files_dir / "test.out"
+    remove(_find_jdftx_out_file(dump_files_dir))
+    write_mt_file("out")
+    assert _find_jdftx_out_file(dump_files_dir) == dump_files_dir / "out"
+    write_mt_file("tinyout.out")
+    with pytest.raises(FileNotFoundError, match="Multiple JDFTx out files found in directory."):
+        _find_jdftx_out_file(dump_files_dir)
+    # remove tmp files
+    for remaining in dump_files_dir.glob("*out"):
+        remove(remaining)

@@ -23,6 +23,13 @@ ex_in_files_dir = Path(TEST_FILES_DIR) / "io" / "jdftx" / "test_jdftx_in_files"
 dump_files_dir = Path(TEST_FILES_DIR) / "io" / "jdftx" / "tmp"
 
 
+def write_mt_file(fname: str, write_dir: Path = dump_files_dir):
+    filepath = write_dir / fname
+    with open(filepath, "w") as f:
+        f.write("if you're reading this yell at ben")
+    f.close()
+
+
 def object_hasall_known_simple(obj: Any, knowndict: dict):
     for k in knowndict:
         assert hasattr(obj, k)
