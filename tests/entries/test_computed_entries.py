@@ -96,7 +96,7 @@ def test_temp_energy_adjustment():
 
 
 class TestComputedEntry(TestCase):
-    def setUp(self):
+    def setup_method(self):
         self.entry = ComputedEntry(
             vasp_run.final_structure.composition,
             vasp_run.final_energy,
@@ -257,7 +257,7 @@ class TestComputedEntry(TestCase):
 
 
 class TestComputedStructureEntry(TestCase):
-    def setUp(self):
+    def setup_method(self):
         self.entry = ComputedStructureEntry(vasp_run.final_structure, vasp_run.final_energy, parameters=vasp_run.incar)
 
     def test_energy(self):
@@ -454,7 +454,7 @@ class TestComputedStructureEntry(TestCase):
 
 
 class TestGibbsComputedStructureEntry(TestCase):
-    def setUp(self):
+    def setup_method(self):
         self.temps = [300, 600, 900, 1200, 1500, 1800]
         self.struct = vasp_run.final_structure
         self.num_atoms = self.struct.composition.num_atoms

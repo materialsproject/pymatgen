@@ -52,7 +52,7 @@ class TestInterfaceBuilder(PymatgenTest):
 
 
 class TestCoherentInterfaceBuilder(unittest.TestCase):
-    def setUp(self):
+    def setup_method(self):
         # build substrate & film structure
         basis = [[0, 0, 0], [0.25, 0.25, 0.25]]
         self.substrate = Structure(Lattice.cubic(a=5.431), ["Si", "Si"], basis)

@@ -13,7 +13,7 @@ from pymatgen.util.testing import PymatgenTest
 
 
 class TestLattice(PymatgenTest):
-    def setUp(self):
+    def setup_method(self):
         self.lattice = Lattice.cubic(10.0)
         self.cubic = self.lattice
         self.tetragonal = Lattice.tetragonal(10, 20)

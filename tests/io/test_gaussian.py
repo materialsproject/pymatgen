@@ -14,7 +14,7 @@ TEST_DIR = f"{TEST_FILES_DIR}/io/gaussian"
 
 
 class TestGaussianInput(TestCase):
-    def setUp(self):
+    def setup_method(self):
         coords = [
             [0, 0, 0],
             [0, 0, 1.089],
@@ -281,7 +281,7 @@ H 0
 class TestGaussianOutput(TestCase):
     # TODO: Add unittest for PCM type output.
 
-    def setUp(self):
+    def setup_method(self):
         self.gau_out = GaussianOutput(f"{TEST_DIR}/methane.log")
 
     def test_resume(self):

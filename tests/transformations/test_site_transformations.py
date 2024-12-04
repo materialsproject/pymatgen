@@ -25,7 +25,7 @@ enumlib_present = enum_cmd and makestr_cmd
 
 
 class TestTranslateSitesTransformation(PymatgenTest):
-    def setUp(self):
+    def setup_method(self):
         coords = [
             [0, 0, 0],
             [0.375, 0.375, 0.375],
@@ -79,7 +79,7 @@ class TestTranslateSitesTransformation(PymatgenTest):
 
 
 class TestReplaceSiteSpeciesTransformation(TestCase):
-    def setUp(self):
+    def setup_method(self):
         coords = [
             [0, 0, 0],
             [0.375, 0.375, 0.375],
@@ -111,7 +111,7 @@ class TestReplaceSiteSpeciesTransformation(TestCase):
 
 
 class TestRemoveSitesTransformation(TestCase):
-    def setUp(self):
+    def setup_method(self):
         coords = [
             [0, 0, 0],
             [0.375, 0.375, 0.375],
@@ -143,7 +143,7 @@ class TestRemoveSitesTransformation(TestCase):
 
 
 class TestInsertSitesTransformation(TestCase):
-    def setUp(self):
+    def setup_method(self):
         coords = [
             [0, 0, 0],
             [0.375, 0.375, 0.375],
@@ -180,7 +180,7 @@ class TestInsertSitesTransformation(TestCase):
 
 
 class TestPartialRemoveSitesTransformation(TestCase):
-    def setUp(self):
+    def setup_method(self):
         coords = [
             [0, 0, 0],
             [0.375, 0.375, 0.375],
@@ -280,7 +280,7 @@ class TestAddSitePropertyTransformation(PymatgenTest):
 
 
 class TestRadialSiteDistortionTransformation(PymatgenTest):
-    def setUp(self):
+    def setup_method(self):
         self.molecule = Molecule(
             species=["C", "H", "H", "H", "H", "H", "H", "H", "H", "H", "H", "H", "H"],
             coords=[

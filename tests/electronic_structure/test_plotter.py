@@ -38,7 +38,7 @@ rc("text", usetex=False)  # Disabling latex is needed for this test to work.
 
 
 class TestDosPlotter(PymatgenTest):
-    def setUp(self):
+    def setup_method(self):
         with open(f"{BAND_TEST_DIR}/../dos/complete_dos.json") as file:
             self.dos = CompleteDos.from_dict(json.load(file))
             self.plotter = DosPlotter(sigma=0.2, stack=True)
@@ -92,7 +92,7 @@ class TestDosPlotter(PymatgenTest):
 
 
 class TestBSPlotter(PymatgenTest):
-    def setUp(self):
+    def setup_method(self):
         with open(f"{BAND_TEST_DIR}/CaO_2605_bandstructure.json") as file:
             dct = json.loads(file.read())
             self.bs = BandStructureSymmLine.from_dict(dct)
@@ -185,7 +185,7 @@ class TestBSPlotter(PymatgenTest):
 
 
 class TestBSPlotterProjected(TestCase):
-    def setUp(self):
+    def setup_method(self):
         with open(f"{BAND_TEST_DIR}/Cu2O_361_bandstructure.json") as file:
             self.bs_Cu2O = BandStructureSymmLine.from_dict(json.load(file))
         self.plotter_Cu2O = BSPlotterProjected(self.bs_Cu2O)
@@ -258,7 +258,7 @@ class TestBSDOSPlotter:
 
 
 class TestPlotBZ(TestCase):
-    def setUp(self):
+    def setup_method(self):
         self.rec_latt = Structure.from_file(f"{TEST_FILES_DIR}/io/cssr/Si.cssr").lattice.reciprocal_lattice
         self.kpath = [[[0.0, 0.0, 0.0], [0.5, 0.0, 0.5], [0.5, 0.25, 0.75], [0.375, 0.375, 0.75]]]
         self.labels = {
@@ -304,7 +304,7 @@ class TestPlotBZ(TestCase):
 @pytest.mark.skip("TODO: need someone to fix this")
 @pytest.mark.skipif(not which("x_trans"), reason="No x_trans executable found")
 class TestBoltztrapPlotter(TestCase):
-    def setUp(self):
+    def setup_method(self):
         bz = BoltztrapAnalyzer.from_files(f"{TEST_FILES_DIR}/boltztrap/transp/")
         self.plotter = BoltztrapPlotter(bz)
 
@@ -445,7 +445,7 @@ class TestBoltztrapPlotter(TestCase):
 
 
 class TestCohpPlotter(PymatgenTest):
-    def setUp(self):
+    def setup_method(self):
         path = f"{TEST_FILES_DIR}/electronic_structure/cohp/complete_cohp_lobster.json"
         with open(path) as file:
             self.cohp = CompleteCohp.from_dict(json.load(file))

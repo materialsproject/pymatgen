@@ -24,7 +24,7 @@ MODULE_DIR = os.path.dirname(os.path.abspath(__file__))
 
 
 class TestCtrl(PymatgenTest):
-    def setUp(self):
+    def setup_method(self):
         os.chdir(TEST_DIR)
         self.ref_bise = LMTOCtrl.from_file(filename="CTRL.BiSe")
         self.ref_fe = LMTOCtrl.from_file()
@@ -48,7 +48,7 @@ class TestCtrl(PymatgenTest):
 
 
 class TestCopl(PymatgenTest):
-    def setUp(self):
+    def setup_method(self):
         os.chdir(TEST_DIR)
         self.copl_bise = LMTOCopl("COPL.BiSe")
         self.copl_bise_eV = LMTOCopl(filename="COPL.BiSe", to_eV=True)

@@ -25,7 +25,7 @@ enumlib_present = enum_cmd and makestr_cmd
 
 
 class TestCollinearMagneticStructureAnalyzer(TestCase):
-    def setUp(self):
+    def setup_method(self):
         self.Fe = Structure.from_file(f"{TEST_FILES_DIR}/cif/Fe.cif", primitive=True)
 
         self.LiFePO4 = Structure.from_file(f"{TEST_FILES_DIR}/cif/LiFePO4.cif", primitive=True)

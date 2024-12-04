@@ -42,7 +42,7 @@ enumlib_present = which("enum.x") and which("makestr.x")
 
 
 class TestRotationTransformations(TestCase):
-    def setUp(self):
+    def setup_method(self):
         coords = [[0, 0, 0], [0.75, 0.5, 0.75]]
         lattice = [
             [3.8401979337, 0, 0],
@@ -109,7 +109,7 @@ class TestSubstitutionTransformation:
 
 
 class TestSupercellTransformation(TestCase):
-    def setUp(self):
+    def setup_method(self):
         coords = [[0, 0, 0], [0.75, 0.75, 0.75], [0.5, 0.5, 0.5], [0.25, 0.25, 0.25]]
         lattice = [
             [3.8401979337, 0, 0],

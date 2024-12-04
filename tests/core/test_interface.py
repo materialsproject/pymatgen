@@ -14,7 +14,7 @@ TEST_DIR = f"{TEST_FILES_DIR}/core/grain_boundary"
 
 
 class TestGrainBoundary(PymatgenTest):
-    def setUp(self):
+    def setup_method(self):
         self.Cu_conv = Structure.from_file(f"{TEST_DIR}/Cu_mp-30_conventional_standard.cif")
         GB_Cu_conv = GrainBoundaryGenerator(self.Cu_conv)
         self.Cu_GB1 = GB_Cu_conv.gb_from_parameters(
@@ -332,7 +332,7 @@ class TestGrainBoundaryGenerator(PymatgenTest):
 
 
 class TestInterface(PymatgenTest):
-    def setUp(self):
+    def setup_method(self):
         self.interface: Interface = self.get_structure("Si_SiO2_Interface")
 
     def test_basic_props(self):

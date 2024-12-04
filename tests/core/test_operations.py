@@ -9,7 +9,7 @@ from pymatgen.util.testing import PymatgenTest
 
 
 class TestSymmOp(PymatgenTest):
-    def setUp(self):
+    def setup_method(self):
         self.op = SymmOp.from_axis_angle_and_translation([0, 0, 1], 30, translation_vec=[0, 0, 1])
 
     def test_properties(self):

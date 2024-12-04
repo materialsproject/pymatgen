@@ -9,7 +9,7 @@ from pymatgen.util.testing import PymatgenTest
 
 
 class TestEOS(PymatgenTest):
-    def setUp(self):
+    def setup_method(self):
         # Si data from Cormac
         self.volumes = [
             25.987454833,

@@ -15,7 +15,7 @@ from pymatgen.util.testing import TEST_FILES_DIR, PymatgenTest
 
 
 class TestTensor(PymatgenTest):
-    def setUp(self):
+    def setup_method(self):
         rng = np.random.default_rng()
 
         self.vec = Tensor([1.0, 0.0, 0.0])
@@ -380,7 +380,7 @@ class TestTensor(PymatgenTest):
 
 
 class TestTensorCollection(PymatgenTest):
-    def setUp(self):
+    def setup_method(self):
         self.seq_tc = list(np.arange(4 * 3**3).reshape((4, 3, 3, 3)))
         self.seq_tc = TensorCollection(self.seq_tc)
         self.rand_tc = TensorCollection(list(np.random.default_rng().random((4, 3, 3))))
@@ -473,7 +473,7 @@ class TestTensorCollection(PymatgenTest):
 
 
 class TestSquareTensor(PymatgenTest):
-    def setUp(self):
+    def setup_method(self):
         self.rand_sqtensor = SquareTensor(np.random.default_rng().standard_normal((3, 3)))
         self.symm_sqtensor = SquareTensor([[0.1, 0.3, 0.4], [0.3, 0.5, 0.2], [0.4, 0.2, 0.6]])
         self.non_invertible = SquareTensor([[0.1, 0, 0], [0.2, 0, 0], [0, 0, 0]])

@@ -14,7 +14,7 @@ TEST_DIR = f"{TEST_FILES_DIR}/apps/battery"
 
 
 class TestConversionElectrode(TestCase):
-    def setUp(self):
+    def setup_method(self):
         self.formulas = ["LiCoO2", "FeF3", "MnO2"]
         self.conversion_electrodes = {}
         for formula in self.formulas:

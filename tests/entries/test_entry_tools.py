@@ -50,7 +50,7 @@ class TestFunc(PymatgenTest):
 
 
 class TestEntrySet(PymatgenTest):
-    def setUp(self):
+    def setup_method(self):
         entries = loadfn(f"{TEST_DIR}/Li-Fe-P-O_entries.json")
         self.entry_set = EntrySet(entries)
 

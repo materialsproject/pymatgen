@@ -19,7 +19,7 @@ class TestBatteryAnalyzer(PymatgenTest):
         struct.add_oxidation_state_by_element(oxidations)
         return BatteryAnalyzer(struct, working_ion)
 
-    def setUp(self):
+    def setup_method(self):
         self.li_fe_p_o4 = self.load_from_internal("LiFePO4", {"Li": 1, "Fe": 2, "P": 5, "O": -2})
         self.na_fe_p_o4 = self.load_from_internal("NaFePO4", {"Na": 1, "Fe": 2, "P": 5, "O": -2}, working_ion="Na")
         self.la2coo4f = self.load_from_internal("La2CoO4F", {"La": 3, "Co": 3, "O": -2, "F": -1}, working_ion="F")

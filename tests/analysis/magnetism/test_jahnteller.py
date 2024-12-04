@@ -11,7 +11,7 @@ from pymatgen.util.testing import TEST_FILES_DIR
 
 
 class TestJahnTeller(TestCase):
-    def setUp(self):
+    def setup_method(self):
         self.jt = JahnTellerAnalyzer()
 
     def test_jahn_teller_species_analysis(self):

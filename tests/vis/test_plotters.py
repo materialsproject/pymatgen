@@ -16,7 +16,7 @@ with open(f"{TEST_FILES_DIR}/analysis/spectrum_test/LiCoO2_k_xanes.json") as fil
 
 
 class TestSpectrumPlotter(PymatgenTest):
-    def setUp(self):
+    def setup_method(self):
         self.xanes = XAS.from_dict(spect_data_dict)
 
     def test_get_plot(self):

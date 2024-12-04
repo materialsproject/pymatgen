@@ -18,7 +18,7 @@ TEST_DIR = f"{TEST_FILES_DIR}/core/trajectory"
 
 
 class TestTrajectory(PymatgenTest):
-    def setUp(self):
+    def setup_method(self):
         xdatcar = Xdatcar(f"{VASP_OUT_DIR}/XDATCAR_traj")
         self.traj = Trajectory.from_file(f"{VASP_OUT_DIR}/XDATCAR_traj")
         self.structures = xdatcar.structures

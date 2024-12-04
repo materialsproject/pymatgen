@@ -47,7 +47,7 @@ TEST_DIR = f"{TEST_FILES_DIR}/analysis/graphs"
 
 
 class TestStructureGraph(PymatgenTest):
-    def setUp(self):
+    def setup_method(self):
         # trivial example, simple square lattice for testing
         structure = Structure(Lattice.tetragonal(5, 50), ["H"], [[0, 0, 0]])
         self.square_sg = StructureGraph.from_empty_graph(structure, edge_weight_name="", edge_weight_units="")
@@ -505,7 +505,7 @@ from    to  to_image
 
 
 class TestMoleculeGraph(TestCase):
-    def setUp(self):
+    def setup_method(self):
         cyclohexene_xyz = f"{TEST_DIR}/cyclohexene.xyz"
         cyclohexene = Molecule.from_file(cyclohexene_xyz)
         self.cyclohexene = MoleculeGraph.from_empty_graph(

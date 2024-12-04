@@ -11,7 +11,7 @@ TEST_DIR = f"{TEST_FILES_DIR}/analysis/bond_valence"
 
 
 class TestBVAnalyzer(PymatgenTest):
-    def setUp(self):
+    def setup_method(self):
         self.analyzer = BVAnalyzer()
 
     def test_get_valences(self):

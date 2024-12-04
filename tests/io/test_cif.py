@@ -1000,7 +1000,7 @@ Si1 Si 0 0 0 1 0.0
 
 
 class TestMagCif(PymatgenTest):
-    def setUp(self):
+    def setup_method(self):
         self.mcif = CifParser(f"{MCIF_TEST_DIR}/magnetic.example.NiO.mcif")
         self.mcif_ncl = CifParser(f"{MCIF_TEST_DIR}/magnetic.ncl.example.GdB4.mcif")
         self.mcif_incommensurate = CifParser(f"{MCIF_TEST_DIR}/magnetic.incommensurate.example.Cr.mcif")

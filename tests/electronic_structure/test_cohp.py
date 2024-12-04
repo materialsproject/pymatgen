@@ -21,7 +21,7 @@ TEST_DIR = f"{TEST_FILES_DIR}/electronic_structure/cohp"
 
 
 class TestCohp(TestCase):
-    def setUp(self):
+    def setup_method(self):
         with open(f"{TEST_DIR}/cohp.json") as file:
             self.cohp = Cohp.from_dict(json.load(file))
         self.cohp_only = Cohp(self.cohp.efermi, self.cohp.energies, self.cohp.cohp)
@@ -91,7 +91,7 @@ class TestCohp(TestCase):
 
 
 class TestIcohpValue(TestCase):
-    def setUp(self):
+    def setup_method(self):
         # without spin polarization
         label = "1"
         atom1 = "K1"
@@ -169,7 +169,7 @@ class TestIcohpValue(TestCase):
 
 
 class TestCombinedIcohp(TestCase):
-    def setUp(self):
+    def setup_method(self):
         # without spin polarization:
         are_coops = are_cobis = is_spin_polarized = False
         list_atom2 = ["K2", "K2", "K2", "K2", "K2", "K2"]
@@ -798,7 +798,7 @@ class TestCombinedIcohp(TestCase):
 
 
 class TestCompleteCohp(PymatgenTest):
-    def setUp(self):
+    def setup_method(self):
         filepath = f"{TEST_DIR}/complete_cohp_lobster.json"
         with open(filepath) as file:
             self.cohp_lobster_dict = CompleteCohp.from_dict(json.load(file))
@@ -1263,7 +1263,7 @@ class TestCompleteCohp(PymatgenTest):
 
 
 class TestMethod(TestCase):
-    def setUp(self):
+    def setup_method(self):
         filepath = f"{TEST_DIR}/COHPCAR.lobster.gz"
         structure = f"{TEST_DIR}/POSCAR"
         self.cohp_lobster = CompleteCohp.from_file("lobster", filename=filepath, structure_file=structure)

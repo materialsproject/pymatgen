@@ -15,7 +15,7 @@ TEST_DIR = f"{TEST_FILES_DIR}/io/abinit"
 
 
 class TestPseudo(PymatgenTest):
-    def setUp(self):
+    def setup_method(self):
         nc_pseudo_fnames = defaultdict(list)
         nc_pseudo_fnames["Si"] = [f"{TEST_DIR}/{file}" for file in ("14si.pspnc", "14si.4.hgh", "14-Si.LDA.fhi")]
 

@@ -49,7 +49,7 @@ if skip_mprester_tests:
     reason="Legacy PMG_MAPI_KEY environment variable not set.",
 )
 class TestMPResterOld(PymatgenTest):
-    def setUp(self):
+    def setup_method(self):
         self.rester = _MPResterLegacy()
 
     def test_get_all_materials_ids_doc(self):
@@ -529,7 +529,7 @@ class TestMPResterOld(PymatgenTest):
     reason="PMG_MAPI_KEY environment variable not set.",
 )
 class TestMPResterNewBasic(PymatgenTest):
-    def setUp(self):
+    def setup_method(self):
         self.rester = _MPResterBasic()
 
     def test_get_summary(self):

@@ -13,7 +13,7 @@ from pymatgen.util.testing import PymatgenTest
 
 
 class TestSite(PymatgenTest):
-    def setUp(self):
+    def setup_method(self):
         self.ordered_site = Site("Fe", [0.25, 0.35, 0.45])
         self.disordered_site = Site({"Fe": 0.5, "Mn": 0.5}, [0.25, 0.35, 0.45])
         self.propertied_site = Site("Fe2+", [0.25, 0.35, 0.45], {"magmom": 5.1, "charge": 4.2})
@@ -80,7 +80,7 @@ class TestSite(PymatgenTest):
 
 
 class TestPeriodicSite(PymatgenTest):
-    def setUp(self):
+    def setup_method(self):
         self.lattice = Lattice.cubic(10.0)
         self.si = Element("Si")
         self.site = PeriodicSite("Fe", [0.25, 0.35, 0.45], self.lattice)

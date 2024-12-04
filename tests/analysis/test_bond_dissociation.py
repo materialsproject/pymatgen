@@ -13,7 +13,7 @@ TEST_DIR = f"{TEST_FILES_DIR}/analysis/bond_dissociation"
 
 
 class TestBondDissociation(TestCase):
-    def setUp(self):
+    def setup_method(self):
         pytest.importorskip("openbabel")
         self.PC_65_principle = loadfn(f"{TEST_DIR}/PC_65_principle.json")
         self.PC_65_principle["initial_molecule"] = self.PC_65_principle["initial_molecule"].as_dict()

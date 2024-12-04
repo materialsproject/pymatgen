@@ -246,7 +246,7 @@ class TestFeffPot(TestCase):
 
 
 class TestPaths(TestCase):
-    def setUp(self):
+    def setup_method(self):
         feo = Structure.from_dict(
             {
                 "lattice": {

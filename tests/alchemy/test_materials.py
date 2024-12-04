@@ -22,7 +22,7 @@ TEST_DIR = f"{TEST_FILES_DIR}/alchemy"
 
 
 class TestTransformedStructure(PymatgenTest):
-    def setUp(self):
+    def setup_method(self):
         structure = PymatgenTest.get_structure("LiFePO4")
         self.structure = structure
         trafos = [SubstitutionTransformation({"Li": "Na"})]

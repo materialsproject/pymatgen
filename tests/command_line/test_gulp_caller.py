@@ -107,7 +107,7 @@ class TestGulpCaller:
 
 
 class TestGulpIO(TestCase):
-    def setUp(self):
+    def setup_method(self):
         self.structure = Structure.from_file(f"{VASP_IN_DIR}/POSCAR_Al12O18")
         self.gio = GulpIO()
 
@@ -277,7 +277,7 @@ class TestGulpIO(TestCase):
 
 
 class TestGlobalFunctions(TestCase):
-    def setUp(self):
+    def setup_method(self):
         mgo_latt = np.eye(3) * 4.212
         mgo_specie = ["Mg", "O"] * 4
         mgo_frac_cord = [
@@ -328,7 +328,7 @@ class TestGlobalFunctions(TestCase):
 
 
 class TestBuckinghamPotentialLewis(TestCase):
-    def setUp(self):
+    def setup_method(self):
         self.bpl = BuckinghamPotential("lewis")
 
     def test_existing_element(self):
@@ -355,7 +355,7 @@ class TestBuckinghamPotentialLewis(TestCase):
 
 
 class TestBuckinghamPotentialBush(TestCase):
-    def setUp(self):
+    def setup_method(self):
         self.bpb = BuckinghamPotential("bush")
 
     def test_existing_element(self):

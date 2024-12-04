@@ -26,7 +26,7 @@ __credit__ = "Peiyuan Yu"
 
 
 class TestFunctionalGroupExtractor(TestCase):
-    def setUp(self):
+    def setup_method(self):
         self.file = f"{TEST_DIR}/func_group_test.mol"
         self.mol = Molecule.from_file(self.file)
         self.strategy = OpenBabelNN()

@@ -43,7 +43,7 @@ __date__ = "Dec 10, 2017"
 
 
 class TestBwdf(PymatgenTest):
-    def setUp(self):
+    def setup_method(self):
         self.bwdf_coop = Bwdf(filename=f"{TEST_DIR}/BWDF.lobster.AlN.gz")
         self.bwdf_cohp = Bwdf(filename=f"{TEST_DIR}/BWDFCOHP.lobster.NaCl.gz")
 
@@ -58,7 +58,7 @@ class TestBwdf(PymatgenTest):
 
 
 class TestCohpcar(PymatgenTest):
-    def setUp(self):
+    def setup_method(self):
         self.cohp_bise = Cohpcar(filename=f"{TEST_DIR}/COHPCAR.lobster.BiSe.gz")
         self.coop_bise = Cohpcar(
             filename=f"{TEST_DIR}/COOPCAR.lobster.BiSe.gz",
@@ -399,7 +399,7 @@ class TestCohpcar(PymatgenTest):
 
 
 class TestDoscar(TestCase):
-    def setUp(self):
+    def setup_method(self):
         # first for spin polarized version
         doscar = f"{VASP_OUT_DIR}/DOSCAR.lobster.spin"
         poscar = f"{VASP_IN_DIR}/POSCAR.lobster.spin_DOS"
@@ -638,7 +638,7 @@ class TestDoscar(TestCase):
 
 
 class TestCharge(PymatgenTest):
-    def setUp(self):
+    def setup_method(self):
         self.charge2 = Charge(filename=f"{TEST_DIR}/CHARGE.lobster.MnO")
         # gzipped file
         self.charge = Charge(filename=f"{TEST_DIR}/CHARGE.lobster.MnO2.gz")
@@ -717,7 +717,7 @@ class TestCharge(PymatgenTest):
 
 
 class TestLobsterout(PymatgenTest):
-    def setUp(self):
+    def setup_method(self):
         self.lobsterout_normal = Lobsterout(filename=f"{TEST_DIR}/lobsterout.normal")
         # make sure .gz files are also read correctly
         self.lobsterout_normal = Lobsterout(filename=f"{TEST_DIR}/lobsterout.normal2.gz")
@@ -1246,7 +1246,7 @@ class TestLobsterout(PymatgenTest):
 
 
 class TestFatband(PymatgenTest):
-    def setUp(self):
+    def setup_method(self):
         self.structure = Vasprun(
             filename=f"{TEST_DIR}/Fatband_SiO2/Test_p_x/vasprun.xml",
             ionic_step_skip=None,
@@ -1481,7 +1481,7 @@ class TestFatband(PymatgenTest):
 
 
 class TestBandoverlaps(TestCase):
-    def setUp(self):
+    def setup_method(self):
         # test spin-polarized calc and non spin-polarized calc
 
         self.band_overlaps1 = Bandoverlaps(f"{TEST_DIR}/bandOverlaps.lobster.1")
@@ -1714,7 +1714,7 @@ class TestBandoverlaps(TestCase):
 
 
 class TestGrosspop(TestCase):
-    def setUp(self):
+    def setup_method(self):
         self.grosspop1 = Grosspop(f"{TEST_DIR}/GROSSPOP.lobster")
         self.grosspop_511_sp = Grosspop(f"{TEST_DIR}/GROSSPOP_511_sp.lobster.AlN.gz")
         self.grosspop_511_nsp = Grosspop(f"{TEST_DIR}/GROSSPOP_511_nsp.lobster.NaCl.gz")
@@ -1864,7 +1864,7 @@ class TestGrosspop(TestCase):
 
 
 class TestIcohplist(TestCase):
-    def setUp(self):
+    def setup_method(self):
         self.icohp_bise = Icohplist(filename=f"{TEST_DIR}/ICOHPLIST.lobster.BiSe")
         self.icoop_bise = Icohplist(
             filename=f"{TEST_DIR}/ICOOPLIST.lobster.BiSe",
@@ -2169,7 +2169,7 @@ class TestIcohplist(TestCase):
 
 
 class TestNciCobiList(TestCase):
-    def setUp(self):
+    def setup_method(self):
         self.ncicobi = NciCobiList(filename=f"{TEST_DIR}/NcICOBILIST.lobster")
         self.ncicobi_gz = NciCobiList(filename=f"{TEST_DIR}/NcICOBILIST.lobster.gz")
         self.ncicobi_no_spin = NciCobiList(filename=f"{TEST_DIR}/NcICOBILIST.lobster.nospin")
@@ -2273,7 +2273,7 @@ class TestWavefunction(PymatgenTest):
 
 
 class TestSitePotentials(PymatgenTest):
-    def setUp(self) -> None:
+    def setup_method(self) -> None:
         self.sitepotential = SitePotential(filename=f"{TEST_DIR}/SitePotentials.lobster.perovskite")
 
     def test_attributes(self):
@@ -2324,7 +2324,7 @@ class TestSitePotentials(PymatgenTest):
 
 
 class TestMadelungEnergies(PymatgenTest):
-    def setUp(self) -> None:
+    def setup_method(self) -> None:
         self.madelungenergies = MadelungEnergies(filename=f"{TEST_DIR}/MadelungEnergies.lobster.perovskite")
 
     def test_attributes(self):
@@ -2341,7 +2341,7 @@ class TestMadelungEnergies(PymatgenTest):
 
 
 class TestLobsterMatrices(PymatgenTest):
-    def setUp(self) -> None:
+    def setup_method(self) -> None:
         self.hamilton_matrices = LobsterMatrices(
             filename=f"{TEST_DIR}/Na_hamiltonMatrices.lobster.gz", e_fermi=-2.79650354
         )
@@ -2491,7 +2491,7 @@ class TestLobsterMatrices(PymatgenTest):
 
 
 class TestPolarization(PymatgenTest):
-    def setUp(self) -> None:
+    def setup_method(self) -> None:
         self.polarization = Polarization(filename=f"{TEST_DIR}/POLARIZATION.lobster.AlN.gz")
 
     def test_attributes(self):

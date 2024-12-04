@@ -18,7 +18,7 @@ from pymatgen.entries.computed_entries import ComputedEntry
 
 
 class TestInterfaceReaction(TestCase):
-    def setUp(self):
+    def setup_method(self):
         self.entries = [
             ComputedEntry(Composition("Li"), 0),
             ComputedEntry(Composition("Mn"), 0),

@@ -19,7 +19,7 @@ from pymatgen.util.testing import TEST_FILES_DIR, PymatgenTest
 
 
 class TestLarsenDimensionality(PymatgenTest):
-    def setUp(self):
+    def setup_method(self):
         cnn = CrystalNN()
         self.lifepo = cnn.get_bonded_structure(self.get_structure("LiFePO4"))
         self.graphite = cnn.get_bonded_structure(self.get_structure("Graphite"))

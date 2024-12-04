@@ -20,7 +20,7 @@ TEST_DIR = f"{TEST_FILES_DIR}/analysis/pourbaix_diagram"
 class TestPourbaixEntry(PymatgenTest):
     """Test all functions using a fictitious entry"""
 
-    def setUp(self):
+    def setup_method(self):
         # comp = Composition("Mn2O3")
         self.sol_entry = ComputedEntry("Mn2O3", 49)
         ion = Ion.from_formula("MnO4-")
@@ -294,7 +294,7 @@ class TestPourbaixDiagram(TestCase):
 
 
 class TestPourbaixPlotter(TestCase):
-    def setUp(self):
+    def setup_method(self):
         self.test_data = loadfn(f"{TEST_DIR}/pourbaix_test_data.json")
         self.pd = PourbaixDiagram(self.test_data["Zn"])
         self.plotter = PourbaixPlotter(self.pd)

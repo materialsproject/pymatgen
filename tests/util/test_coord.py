@@ -251,7 +251,7 @@ class TestCoordUtils:
 
 
 class TestSimplex(TestCase):
-    def setUp(self):
+    def setup_method(self):
         coords = [[0, 0, 0], [0, 1, 0], [0, 0, 1], [1, 0, 0]]
         self.simplex = coord.Simplex(coords)
 

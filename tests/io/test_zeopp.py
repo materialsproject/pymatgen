@@ -29,7 +29,7 @@ __date__ = "Aug 2, 2013"
 
 
 class TestZeoCssr(TestCase):
-    def setUp(self):
+    def setup_method(self):
         filepath = f"{VASP_IN_DIR}/POSCAR"
         self.zeo_cssr = ZeoCssr(Structure.from_file(filepath))
 
@@ -71,7 +71,7 @@ class TestZeoCssr(TestCase):
 
 
 class TestZeoCssrOxi(TestCase):
-    def setUp(self):
+    def setup_method(self):
         filepath = f"{VASP_IN_DIR}/POSCAR"
         structure = BVAnalyzer().get_oxi_state_decorated_structure(Structure.from_file(filepath))
         self.zeo_cssr = ZeoCssr(structure)
@@ -114,7 +114,7 @@ class TestZeoCssrOxi(TestCase):
 
 
 class TestZeoVoronoiXYZ(TestCase):
-    def setUp(self):
+    def setup_method(self):
         coords = [
             [0.000000, 0.000000, 0.000000],
             [0.000000, 0.000000, 1.089000],
@@ -144,7 +144,7 @@ H -0.363000 -0.513360 0.889165 0.200000"""
 
 
 class TestGetVoronoiNodes(TestCase):
-    def setUp(self):
+    def setup_method(self):
         filepath = f"{VASP_IN_DIR}/POSCAR"
         self.structure = Structure.from_file(filepath)
         bv = BVAnalyzer()
@@ -168,7 +168,7 @@ class TestGetVoronoiNodes(TestCase):
 
 @pytest.mark.skip("TODO: file free_sph.cif not present")
 class TestGetFreeSphereParams(TestCase):
-    def setUp(self):
+    def setup_method(self):
         filepath = f"{TEST_FILES_DIR}/cif/free_sph.cif"
         self.structure = Structure.from_file(filepath)
         self.rad_dict = {
@@ -189,7 +189,7 @@ class TestGetFreeSphereParams(TestCase):
 
 
 class TestGetHighAccuracyVoronoiNodes(TestCase):
-    def setUp(self):
+    def setup_method(self):
         filepath = f"{VASP_IN_DIR}/POSCAR"
         self.structure = Structure.from_file(filepath)
         bv = BVAnalyzer()
@@ -208,7 +208,7 @@ class TestGetHighAccuracyVoronoiNodes(TestCase):
 
 
 class TestGetVoronoiNodesMultiOxi(TestCase):
-    def setUp(self):
+    def setup_method(self):
         filepath = f"{VASP_IN_DIR}/POSCAR"
         self.structure = Structure.from_file(filepath)
         bv = BVAnalyzer()

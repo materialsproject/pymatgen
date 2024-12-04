@@ -33,7 +33,7 @@ TEST_DIR = f"{TEST_FILES_DIR}/analysis/elasticity"
 
 
 class TestElasticTensor(PymatgenTest):
-    def setUp(self):
+    def setup_method(self):
         self.voigt_1 = [
             [59.33, 28.08, 28.08, 0, 0, 0],
             [28.08, 59.31, 28.07, 0, 0, 0],
@@ -264,7 +264,7 @@ class TestElasticTensor(PymatgenTest):
 
 
 class TestElasticTensorExpansion(PymatgenTest):
-    def setUp(self):
+    def setup_method(self):
         with open(f"{TEST_DIR}/test_toec_data.json") as file:
             self.data_dict = json.load(file)
         self.strains = [Strain(sm) for sm in self.data_dict["strains"]]
@@ -365,7 +365,7 @@ class TestElasticTensorExpansion(PymatgenTest):
 
 
 class TestNthOrderElasticTensor(PymatgenTest):
-    def setUp(self):
+    def setup_method(self):
         with open(f"{TEST_DIR}/test_toec_data.json") as file:
             self.data_dict = json.load(file)
         self.strains = [Strain(sm) for sm in self.data_dict["strains"]]
@@ -404,7 +404,7 @@ class TestNthOrderElasticTensor(PymatgenTest):
 class TestDiffFit(PymatgenTest):
     """Test various functions related to diff fitting."""
 
-    def setUp(self):
+    def setup_method(self):
         with open(f"{TEST_DIR}/test_toec_data.json") as file:
             self.data_dict = json.load(file)
         self.strains = [Strain(sm) for sm in self.data_dict["strains"]]

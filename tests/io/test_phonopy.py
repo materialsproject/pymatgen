@@ -163,7 +163,7 @@ class TestGetDisplacedStructures(PymatgenTest):
     reason="See https://github.com/conda-forge/phonopy-feedstock/pull/158#issuecomment-2227506701",
 )
 class TestPhonopyFromForceConstants(TestCase):
-    def setUp(self) -> None:
+    def setup_method(self) -> None:
         test_path = Path(TEST_DIR)
         structure_file = test_path / "POSCAR-NaCl"
         fc_file = test_path / "FORCE_CONSTANTS"

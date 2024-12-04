@@ -543,7 +543,7 @@ CELL_PARAMETERS angstrom
 
 
 class TestPWOutput(PymatgenTest):
-    def setUp(self):
+    def setup_method(self):
         self.pw_out = PWOutput(f"{TEST_DIR}/Si.pwscf.out")
 
     def test_properties(self):

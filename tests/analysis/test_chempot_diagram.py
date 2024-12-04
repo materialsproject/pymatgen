@@ -18,7 +18,7 @@ TEST_DIR = f"{TEST_FILES_DIR}/analysis"
 
 
 class TestChemicalPotentialDiagram(PymatgenTest):
-    def setUp(self):
+    def setup_method(self):
         self.entries = EntrySet.from_csv(f"{TEST_DIR}/pd_entries_test.csv")
         self.cpd_ternary, self.cpd_ternary_formal = (
             ChemicalPotentialDiagram(entries=self.entries, default_min_limit=-25, formal_chempots=formal)

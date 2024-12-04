@@ -76,7 +76,7 @@ class TestCritic2Caller:
 
 
 class TestCritic2Analysis(TestCase):
-    def setUp(self):
+    def setup_method(self):
         stdout_file = f"{TEST_DIR}/MoS2_critic2_stdout.txt"
         stdout_file_new_format = f"{TEST_DIR}/MoS2_critic2_stdout_new_format.txt"
         with open(stdout_file) as file:

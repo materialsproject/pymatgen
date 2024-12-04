@@ -11,7 +11,7 @@ TEST_DIR = f"{TEST_FILES_DIR}/analysis/cost"
 
 
 class TestCostAnalyzer(TestCase):
-    def setUp(self):
+    def setup_method(self):
         self.ca1 = CostAnalyzer(CostDBCSV(f"{TEST_DIR}/costdb_1.csv"))
         self.ca2 = CostAnalyzer(CostDBCSV(f"{TEST_DIR}/costdb_2.csv"))
 

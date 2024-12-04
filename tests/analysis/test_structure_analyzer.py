@@ -22,7 +22,7 @@ from pymatgen.util.testing import VASP_IN_DIR, VASP_OUT_DIR, PymatgenTest
 
 
 class TestVoronoiAnalyzer(PymatgenTest):
-    def setUp(self):
+    def setup_method(self):
         self.structs = Xdatcar(f"{VASP_OUT_DIR}/XDATCAR.MD").structures
         self.struct = self.structs[1]
         self.va = VoronoiAnalyzer(cutoff=4)
@@ -41,7 +41,7 @@ class TestVoronoiAnalyzer(PymatgenTest):
 
 
 class TestRelaxationAnalyzer(TestCase):
-    def setUp(self):
+    def setup_method(self):
         s1 = Structure.from_file(f"{VASP_IN_DIR}/POSCAR_Li2O")
         s2 = Structure.from_file(f"{VASP_OUT_DIR}/CONTCAR_Li2O")
         self.analyzer = RelaxationAnalyzer(s1, s2)

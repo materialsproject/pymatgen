@@ -650,7 +650,7 @@ Cartesian
 
 
 class TestIncar(PymatgenTest):
-    def setUp(self):
+    def setup_method(self):
         self.incar = Incar.from_file(f"{VASP_IN_DIR}/INCAR")
 
     def test_init(self):
@@ -1298,7 +1298,7 @@ direct
     "ignore:POTCAR data with symbol .* is not known to pymatgen:pymatgen.io.vasp.inputs.UnknownPotcarWarning"
 )
 class TestPotcarSingle(TestCase):
-    def setUp(self):
+    def setup_method(self):
         self.psingle_Mn_pv = PotcarSingle.from_file(f"{FAKE_POTCAR_DIR}/POT_GGA_PAW_PBE/POTCAR.Mn_pv.gz")
         self.psingle_Fe = PotcarSingle.from_file(f"{FAKE_POTCAR_DIR}/POT_GGA_PAW_PBE/POTCAR.Fe.gz")
         self.psingle_Fe_54 = PotcarSingle.from_file(f"{FAKE_POTCAR_DIR}/POT_GGA_PAW_PBE_54/POTCAR.Fe.gz")
@@ -1538,7 +1538,7 @@ class TestPotcarSingle(TestCase):
     "ignore:POTCAR data with symbol .* is not known to pymatgen:pymatgen.io.vasp.inputs.UnknownPotcarWarning"
 )
 class TestPotcar(PymatgenTest):
-    def setUp(self):
+    def setup_method(self):
         SETTINGS.setdefault("PMG_VASP_PSP_DIR", str(TEST_FILES_DIR))
         self.filepath = f"{FAKE_POTCAR_DIR}/POTCAR.gz"
         self.potcar = Potcar.from_file(self.filepath)
@@ -1617,7 +1617,7 @@ class TestPotcar(PymatgenTest):
     "ignore:POTCAR data with symbol .* is not known to pymatgen:pymatgen.io.vasp.inputs.UnknownPotcarWarning"
 )
 class TestVaspInput(PymatgenTest):
-    def setUp(self):
+    def setup_method(self):
         filepath = f"{VASP_IN_DIR}/INCAR"
         incar = Incar.from_file(filepath)
         filepath = f"{VASP_IN_DIR}/POSCAR"

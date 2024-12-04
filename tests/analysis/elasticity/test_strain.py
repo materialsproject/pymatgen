@@ -11,7 +11,7 @@ from pymatgen.util.testing import PymatgenTest
 
 
 class TestDeformation(PymatgenTest):
-    def setUp(self):
+    def setup_method(self):
         self.norm_defo = Deformation.from_index_amount((0, 0), 0.02)
         self.ind_defo = Deformation.from_index_amount((0, 1), 0.02)
         self.non_ind_defo = Deformation([[1, 0.02, 0.02], [0, 1, 0], [0, 0, 1]])
@@ -82,7 +82,7 @@ class TestDeformation(PymatgenTest):
 
 
 class TestStrain(PymatgenTest):
-    def setUp(self):
+    def setup_method(self):
         self.norm_str = Strain.from_deformation([[1.02, 0, 0], [0, 1, 0], [0, 0, 1]])
         self.ind_str = Strain.from_deformation([[1, 0.02, 0], [0, 1, 0], [0, 0, 1]])
 
@@ -143,7 +143,7 @@ class TestStrain(PymatgenTest):
 
 
 class TestDeformedStructureSet(PymatgenTest):
-    def setUp(self):
+    def setup_method(self):
         self.structure = self.get_structure("Sn")
         self.default_dss = DeformedStructureSet(self.structure)
 

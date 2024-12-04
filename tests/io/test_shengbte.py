@@ -11,7 +11,7 @@ TEST_DIR = f"{TEST_FILES_DIR}/io/shengbte"
 
 
 class TestShengBTE(PymatgenTest):
-    def setUp(self):
+    def setup_method(self):
         self.filename = f"{TEST_DIR}/CONTROL-CSLD_Si"
         self.test_dict = {
             "nelements": 1,

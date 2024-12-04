@@ -7,7 +7,7 @@ from pymatgen.util.testing import PymatgenTest
 
 
 class TestLibxcFunc(PymatgenTest):
-    def setUp(self) -> None:
+    def setup_method(self) -> None:
         self.ixc_11 = XcFunc.from_abinit_ixc(11)
 
     def test_aliases(self):
