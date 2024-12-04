@@ -40,7 +40,7 @@ from pymatgen.transformations.standard_transformations import (
     OxidationStateDecorationTransformation,
     SubstitutionTransformation,
 )
-from pymatgen.util.testing import TEST_FILES_DIR, VASP_IN_DIR, PymatgenTest
+from pymatgen.util.testing import TEST_FILES_DIR, VASP_IN_DIR, MatSciTest
 
 try:
     import hiphive
@@ -490,7 +490,7 @@ class TestMagOrderingTransformation(MatSciTest):
 @pytest.mark.skipif(not enumlib_present, reason="enum_lib not present.")
 class TestDopingTransformation(MatSciTest):
     def test_apply_transformation(self):
-        structure = PymatgenTest.get_structure("LiFePO4")
+        structure = MatSciTest.get_structure("LiFePO4")
         spga = SpacegroupAnalyzer(structure, 0.1)
         structure = spga.get_refined_structure()
         trafo = DopingTransformation("Ca2+", min_length=10)
@@ -524,7 +524,7 @@ class TestDopingTransformation(MatSciTest):
                 assert d["structure"].charge == 0
 
         # Make sure compensation is done with lowest oxi state
-        structure = PymatgenTest.get_structure("SrTiO3")
+        structure = MatSciTest.get_structure("SrTiO3")
         trafo = DopingTransformation(
             "Nb5+",
             min_length=5,

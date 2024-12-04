@@ -18,7 +18,7 @@ from pymatgen.symmetry.analyzer import (
     iterative_symmetrize,
 )
 from pymatgen.symmetry.structure import SymmetrizedStructure
-from pymatgen.util.testing import TEST_FILES_DIR, VASP_IN_DIR, VASP_OUT_DIR, PymatgenTest
+from pymatgen.util.testing import TEST_FILES_DIR, VASP_IN_DIR, VASP_OUT_DIR, MatSciTest
 
 TEST_DIR = f"{TEST_FILES_DIR}/symmetry/analyzer"
 
@@ -54,7 +54,7 @@ class TestSpacegroupAnalyzer(MatSciTest):
         assert self.disordered_sg.is_laue()
 
     def test_magnetic(self):
-        lfp = PymatgenTest.get_structure("LiFePO4")
+        lfp = MatSciTest.get_structure("LiFePO4")
         sg = SpacegroupAnalyzer(lfp, 0.1)
         assert sg.get_space_group_symbol() == "Pnma"
         magmoms = [0] * len(lfp)
@@ -670,7 +670,7 @@ class TestPointGroupAnalyzer(MatSciTest):
 
     def test_get_kpoint_weights(self):
         for name in ("SrTiO3", "LiFePO4", "Graphite"):
-            struct = PymatgenTest.get_structure(name)
+            struct = MatSciTest.get_structure(name)
             spga = SpacegroupAnalyzer(struct)
             ir_mesh = spga.get_ir_reciprocal_mesh((4, 4, 4))
             weights = [i[1] for i in ir_mesh]
@@ -679,7 +679,7 @@ class TestPointGroupAnalyzer(MatSciTest):
                 assert weight == approx(expected)
 
         for name in ("SrTiO3", "LiFePO4", "Graphite"):
-            struct = PymatgenTest.get_structure(name)
+            struct = MatSciTest.get_structure(name)
             spga = SpacegroupAnalyzer(struct)
             ir_mesh = spga.get_ir_reciprocal_mesh((1, 2, 3))
             weights = [i[1] for i in ir_mesh]

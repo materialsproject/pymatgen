@@ -30,7 +30,7 @@ from pymatgen.electronic_structure.core import Magmom
 from pymatgen.io.ase import AseAtomsAdaptor
 from pymatgen.io.cif import CifParser
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
-from pymatgen.util.testing import TEST_FILES_DIR, VASP_IN_DIR, PymatgenTest
+from pymatgen.util.testing import TEST_FILES_DIR, VASP_IN_DIR, MatSciTest
 
 try:
     from ase.atoms import Atoms
@@ -46,7 +46,7 @@ mcsqs_cmd = which("mcsqs")
 
 class TestNeighbor(MatSciTest):
     def test_msonable(self):
-        struct = PymatgenTest.get_structure("Li2O")
+        struct = MatSciTest.get_structure("Li2O")
         nn = struct.get_neighbors(struct[0], r=3)
         assert isinstance(nn[0], PeriodicNeighbor)
         str_ = json.dumps(nn, cls=MontyEncoder)
@@ -1024,7 +1024,7 @@ class TestStructure(MatSciTest):
         assert struct.formula == "Mn1"
 
         # Test slice replacement.
-        struct = PymatgenTest.get_structure("Li2O")
+        struct = MatSciTest.get_structure("Li2O")
         struct[:2] = "S"
         assert struct.formula == "Li1 S2"
 
@@ -1267,7 +1267,7 @@ class TestStructure(MatSciTest):
         assert struct_elem == struct_specie, "Oxidation state remover failed"
 
     def test_add_oxidation_state_by_guess(self):
-        struct = PymatgenTest.get_structure("Li2O")
+        struct = MatSciTest.get_structure("Li2O")
         returned = struct.add_oxidation_state_by_guess()
         assert returned is struct
         expected = [Species("Li", 1), Species("O", -2)]

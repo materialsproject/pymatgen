@@ -28,7 +28,7 @@ from pymatgen.io.phonopy import (
     get_pmg_structure,
     get_thermal_displacement_matrices,
 )
-from pymatgen.util.testing import TEST_FILES_DIR, PymatgenTest
+from pymatgen.util.testing import TEST_FILES_DIR, MatSciTest
 
 try:
     from phonopy import Phonopy
@@ -99,7 +99,7 @@ class TestPhonopyParser(MatSciTest):
 @pytest.mark.skipif(Phonopy is None, reason="Phonopy not present")
 class TestStructureConversion(MatSciTest):
     def test_structure_conversion(self):
-        struct_pmg = PymatgenTest.get_structure("LiFePO4")
+        struct_pmg = MatSciTest.get_structure("LiFePO4")
         # add magmoms to site_properties
         struct_pmg.add_site_property("magmom", magmoms := [1] * len(struct_pmg))
         struct_ph = get_phonopy_structure(struct_pmg)

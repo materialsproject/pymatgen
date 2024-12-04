@@ -54,7 +54,7 @@ from pymatgen.io.vasp.sets import (
     get_valid_magmom_struct,
 )
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
-from pymatgen.util.testing import FAKE_POTCAR_DIR, TEST_FILES_DIR, VASP_IN_DIR, VASP_OUT_DIR, PymatgenTest
+from pymatgen.util.testing import FAKE_POTCAR_DIR, TEST_FILES_DIR, VASP_IN_DIR, VASP_OUT_DIR, MatSciTest
 
 TEST_DIR = f"{TEST_FILES_DIR}/io/vasp"
 
@@ -1501,7 +1501,7 @@ class TestMVLElasticSet(MatSciTest):
 class TestMVLGWSet(MatSciTest):
     def setup_method(self):
         self.set = MVLGWSet
-        self.struct = PymatgenTest.get_structure("Li2O")
+        self.struct = MatSciTest.get_structure("Li2O")
 
     def test_static(self):
         assert self.set.mode == "STATIC"
@@ -1675,7 +1675,7 @@ class TestMPHSEBS(MatSciTest):
         assert vis.reciprocal_density == 100
 
         with pytest.warns(BadInputSetWarning, match=r"Hybrid functionals"):
-            vis = self.set(PymatgenTest.get_structure("Li2O"), user_incar_settings={"ALGO": "Fast"})
+            vis = self.set(MatSciTest.get_structure("Li2O"), user_incar_settings={"ALGO": "Fast"})
             vis.incar.items()
 
     def test_override_from_prev_calc(self):
@@ -1991,7 +1991,7 @@ class TestMPScanStaticSet(MatSciTest):
 class TestFunc(MatSciTest):
     @skip_if_no_psp_dir
     def test_batch_write_input(self):
-        structs = list(map(PymatgenTest.get_structure, ("Li2O", "LiFePO4")))
+        structs = list(map(MatSciTest.get_structure, ("Li2O", "LiFePO4")))
 
         batch_write_input(structs, sanitize=True)
         for formula in ("Li4Fe4P4O16_1", "Li2O1_0"):

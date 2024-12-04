@@ -8,7 +8,7 @@ from pymatgen.transformations.standard_transformations import (
     RemoveSpeciesTransformation,
     SubstitutionTransformation,
 )
-from pymatgen.util.testing import TEST_FILES_DIR, VASP_IN_DIR, PymatgenTest
+from pymatgen.util.testing import TEST_FILES_DIR, VASP_IN_DIR, MatSciTest
 
 
 class TestCifTransmuter(MatSciTest):
