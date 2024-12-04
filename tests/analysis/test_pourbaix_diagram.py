@@ -99,7 +99,7 @@ class TestPourbaixEntry(PymatgenTest):
 
 class TestPourbaixDiagram(TestCase):
     @classmethod
-    def setUpClass(cls):
+    def setup_class(cls):
         cls.test_data = loadfn(f"{TEST_DIR}/pourbaix_test_data.json")
         cls.pbx = PourbaixDiagram(cls.test_data["Zn"], filter_solids=True)
         cls.pbx_no_filter = PourbaixDiagram(cls.test_data["Zn"], filter_solids=False)

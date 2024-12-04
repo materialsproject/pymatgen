@@ -1516,7 +1516,7 @@ class TestLocpot(PymatgenTest):
 
 class TestChgcar(PymatgenTest):
     @classmethod
-    def setUpClass(cls):
+    def setup_class(cls):
         filepath = f"{VASP_OUT_DIR}/CHGCAR.nospin.gz"
         cls.chgcar_no_spin = Chgcar.from_file(filepath)
 

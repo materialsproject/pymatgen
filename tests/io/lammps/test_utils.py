@@ -12,7 +12,7 @@ TEST_DIR = f"{TEST_FILES_DIR}/io/lammps"
 
 class TestPolymer(TestCase):
     @classmethod
-    def setUpClass(cls):
+    def setup_class(cls):
         # head molecule
         cls.peo_head = Molecule.from_file(f"{TEST_DIR}/peo_head.xyz")
         charges = [-0.1187, 0.0861, 0.0861, 0.0861, -0.2792, -0.0326, 0.0861, 0.0861]
@@ -84,7 +84,7 @@ class TestPolymer(TestCase):
 
 class TestPackmolOutput(TestCase):
     @classmethod
-    def setUpClass(cls):
+    def setup_class(cls):
         ethanol_coords = [
             [0.00720, -0.56870, 0.00000],
             [-1.28540, 0.24990, 0.00000],

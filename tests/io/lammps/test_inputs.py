@@ -18,7 +18,7 @@ TEST_DIR = f"{TEST_FILES_DIR}/io/lammps"
 
 class TestLammpsInputFile(PymatgenTest):
     @classmethod
-    def setUpClass(cls):
+    def setup_class(cls):
         cls.filename = f"{TEST_DIR}/lgps.in"
 
     def test_from_file(self):

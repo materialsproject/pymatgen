@@ -21,7 +21,7 @@ TEST_DIR = f"{TEST_FILES_DIR}/io/lammps"
 
 class TestLammpsBox(PymatgenTest):
     @classmethod
-    def setUpClass(cls):
+    def setup_class(cls):
         cls.peptide = LammpsBox(
             bounds=[
                 [36.840194, 64.211560],
@@ -75,7 +75,7 @@ class TestLammpsBox(PymatgenTest):
 
 class TestLammpsData(PymatgenTest):
     @classmethod
-    def setUpClass(cls):
+    def setup_class(cls):
         cls.peptide = LammpsData.from_file(filename=f"{TEST_DIR}/data.peptide")
         cls.ethane = LammpsData.from_file(filename=f"{TEST_DIR}/ethane.data")
         cls.quartz = LammpsData.from_file(filename=f"{TEST_DIR}/data.quartz", atom_style="atomic")
@@ -667,7 +667,7 @@ class TestTopology(TestCase):
 
 class TestForceField(PymatgenTest):
     @classmethod
-    def setUpClass(cls):
+    def setup_class(cls):
         mass_info = [
             ("A", "H"),
             ("B", Element("C")),
@@ -820,7 +820,7 @@ class TestFunc(TestCase):
 
 class TestCombinedData(TestCase):
     @classmethod
-    def setUpClass(cls):
+    def setup_class(cls):
         cls.ec = LammpsData.from_file(filename=f"{TEST_DIR}/ec.data.gz")
         cls.fec = LammpsData.from_file(filename=f"{TEST_DIR}/fec.data.gz")
         cls.li = LammpsData.from_file(filename=f"{TEST_DIR}/li.data")

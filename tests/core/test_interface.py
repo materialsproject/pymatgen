@@ -106,7 +106,7 @@ class TestGrainBoundary(PymatgenTest):
 
 class TestGrainBoundaryGenerator(PymatgenTest):
     @classmethod
-    def setUpClass(cls):
+    def setup_class(cls):
         cls.Cu_prim = Structure.from_file(f"{TEST_DIR}/Cu_mp-30_primitive.cif")
         cls.GB_Cu_prim = GrainBoundaryGenerator(cls.Cu_prim)
         cls.Cu_conv = Structure.from_file(f"{TEST_DIR}/Cu_mp-30_conventional_standard.cif")

@@ -19,7 +19,7 @@ TEST_DIR = f"{TEST_FILES_DIR}/analysis/local_env/fragmenter_files"
 
 class TestFragmentMolecule(PymatgenTest):
     @classmethod
-    def setUpClass(cls):
+    def setup_class(cls):
         cls.pc = Molecule.from_file(f"{TEST_DIR}/PC.xyz")
         cls.ec = Molecule.from_file(f"{TEST_DIR}/EC.xyz")
         cls.pos_pc = Molecule.from_file(f"{TEST_DIR}/PC.xyz")

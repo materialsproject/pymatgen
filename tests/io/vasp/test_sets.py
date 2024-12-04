@@ -130,7 +130,7 @@ class TestSetChangeCheck(PymatgenTest):
 
 class TestVaspInputSet(PymatgenTest):
     @classmethod
-    def setUpClass(cls):
+    def setup_class(cls):
         filepath = f"{VASP_IN_DIR}/POSCAR"
         cls.structure = Structure.from_file(filepath)
 
@@ -167,7 +167,7 @@ class TestVaspInputSet(PymatgenTest):
 
 class TestMITMPRelaxSet(PymatgenTest):
     @classmethod
-    def setUpClass(cls):
+    def setup_class(cls):
         cls.set = MITRelaxSet
         cls.mp_set = MPRelaxSet
 
