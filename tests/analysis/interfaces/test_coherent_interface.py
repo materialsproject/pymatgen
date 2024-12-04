@@ -1,7 +1,5 @@
 from __future__ import annotations
 
-import unittest
-
 from numpy.testing import assert_allclose
 
 from pymatgen.analysis.interfaces.coherent_interfaces import (
@@ -51,7 +49,7 @@ class TestInterfaceBuilder(MatSciTest):
         assert len(list(builder.get_interfaces(termination=("O2_Pmmm_1", "Si_R-3m_1")))) >= 6
 
 
-class TestCoherentInterfaceBuilder(unittest.TestCase):
+class TestCoherentInterfaceBuilder:
     def setup_method(self):
         # build substrate & film structure
         basis = [[0, 0, 0], [0.25, 0.25, 0.25]]

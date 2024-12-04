@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 import importlib
-from unittest import mock
+from unittest.mock import patch
 
 import pytest
 from monty.io import zopen
@@ -136,7 +136,7 @@ class TestHighSymmetryPoint(MatSciTest):
 def test_err_msg_on_seekpath_not_installed():
     """Simulate and test error message when seekpath is not installed."""
 
-    with mock.patch.dict("sys.modules", {"seekpath": None}):
+    with patch.dict("sys.modules", {"seekpath": None}):
         # As the import error is raised during init of KPathSeek,
         # have to import it as well (order matters)
         importlib.reload(pymatgen.symmetry.kpath)

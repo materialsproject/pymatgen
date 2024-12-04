@@ -1,10 +1,9 @@
 from __future__ import annotations
 
 import collections
-import unittest
-import unittest.mock
 from itertools import combinations
 from numbers import Number
+from unittest.mock import patch
 
 import matplotlib.pyplot as plt
 import numpy as np
@@ -1008,7 +1007,7 @@ class TestPDPlotter:
 
         # test show()
         # suppress default plotly behavior of opening figure in browser by patching plotly.io.show to noop
-        with unittest.mock.patch("plotly.io.show") as mock_show:
+        with patch("plotly.io.show") as mock_show:
             assert self.plotter_ternary_plotly_2d.show() is None
             mock_show.assert_called_once()
 

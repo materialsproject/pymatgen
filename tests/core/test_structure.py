@@ -5,7 +5,6 @@ import os
 from fractions import Fraction
 from pathlib import Path
 from shutil import which
-from unittest import skipIf
 
 import numpy as np
 import pytest
@@ -102,7 +101,7 @@ class TestIStructure(MatSciTest):
         )
         self.V2O3 = IStructure.from_file(f"{TEST_FILES_DIR}/cif/V2O3.cif")
 
-    @skipIf(not (mcsqs_cmd and enum_cmd), reason="enumlib or mcsqs executable not present")
+    @pytest.mark.skipif(not (mcsqs_cmd and enum_cmd), reason="enumlib or mcsqs executable not present")
     def test_get_orderings(self):
         ordered = Structure.from_spacegroup("Im-3m", Lattice.cubic(3), ["Fe"], [[0, 0, 0]])
         assert ordered.get_orderings()[0] == ordered

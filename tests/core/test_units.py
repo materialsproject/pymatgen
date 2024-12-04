@@ -202,7 +202,6 @@ class TestArrayWithUnit(MatSciTest):
         assert e_in_ha == approx(0.0404242579378)
         e_in_j = EnergyArray(3.14, "J")
         assert (e_in_j.to("eV")) == approx(1.9598338493806797e19)
-        # self.assertRaises(ValueError, Energy, 1, "m")
 
         e2_in_ha = EnergyArray(1, "Ha")
         assert (e_in_ev + e2_in_ha) == approx(28.311386245987997)

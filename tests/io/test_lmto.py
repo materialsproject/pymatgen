@@ -26,7 +26,7 @@ MODULE_DIR = os.path.dirname(os.path.abspath(__file__))
 class TestCtrl(MatSciTest):
     def setup_method(self):
         os.chdir(TEST_DIR)
-        self.ref_bise = LMTOCtrl.from_file(filename="CTRL.BiSe")
+        self.ref_bise = LMTOCtrl.from_file(filename=f"{TEST_DIR}/CTRL.BiSe")
         self.ref_fe = LMTOCtrl.from_file()
 
     def teardown_method(self):
@@ -36,7 +36,7 @@ class TestCtrl(MatSciTest):
         assert self.ref_bise == LMTOCtrl.from_dict(self.ref_bise.as_dict())
 
     def test_structure(self):
-        bise_poscar = Structure.from_file("POSCAR.BiSe")
+        bise_poscar = Structure.from_file(f"{TEST_DIR}/POSCAR.BiSe")
         assert bise_poscar.matches(self.ref_bise.structure)
         assert self.ref_bise == LMTOCtrl(self.ref_bise.structure, header="Bi6Se6, hexagonal")
 
