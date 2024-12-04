@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 from pymatgen.util.io_utils import micro_pyawk
-from pymatgen.util.testing import VASP_OUT_DIR, PymatgenTest
+from pymatgen.util.testing import VASP_OUT_DIR, MatSciTest
 
 
 class TestFunc(MatSciTest):

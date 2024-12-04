@@ -5,7 +5,7 @@ import os
 import pytest
 
 from pymatgen.io.template import TemplateInputGen
-from pymatgen.util.testing import TEST_FILES_DIR, PymatgenTest
+from pymatgen.util.testing import TEST_FILES_DIR, MatSciTest
 
 TEST_DIR = f"{TEST_FILES_DIR}/io"
 

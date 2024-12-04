@@ -9,7 +9,7 @@ from numpy.testing import assert_allclose
 from pymatgen.core.structure import Lattice, Molecule, Structure
 from pymatgen.io.feff.inputs import Atoms, Header, Potential, Tags
 from pymatgen.io.feff.sets import FEFFDictSet, MPELNESSet, MPEXAFSSet, MPXANESSet
-from pymatgen.util.testing import TEST_FILES_DIR, PymatgenTest
+from pymatgen.util.testing import TEST_FILES_DIR, MatSciTest
 
 FEFF_TEST_DIR = f"{TEST_FILES_DIR}/io/feff"
 

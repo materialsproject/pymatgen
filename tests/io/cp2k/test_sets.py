@@ -6,7 +6,7 @@ from pytest import approx
 
 from pymatgen.core.structure import Molecule, Structure
 from pymatgen.io.cp2k.sets import SETTINGS, Cp2kValidationError, DftSet, GaussianTypeOrbitalBasisSet, GthPotential
-from pymatgen.util.testing import TEST_FILES_DIR, PymatgenTest
+from pymatgen.util.testing import TEST_FILES_DIR, MatSciTest
 
 CP2K_TEST_DIR = f"{TEST_FILES_DIR}/io/cp2k"
 

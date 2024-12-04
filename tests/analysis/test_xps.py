@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from pymatgen.analysis.xps import XPS
 from pymatgen.io.vasp import Vasprun
-from pymatgen.util.testing import VASP_OUT_DIR, PymatgenTest
+from pymatgen.util.testing import VASP_OUT_DIR, MatSciTest
 
 
 class TestXPS(MatSciTest):

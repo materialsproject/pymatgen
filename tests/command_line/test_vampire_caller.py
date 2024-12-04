@@ -8,7 +8,7 @@ from pytest import approx
 
 from pymatgen.command_line.vampire_caller import VampireCaller
 from pymatgen.core.structure import Structure
-from pymatgen.util.testing import TEST_FILES_DIR, PymatgenTest
+from pymatgen.util.testing import TEST_FILES_DIR, MatSciTest
 
 TEST_DIR = f"{TEST_FILES_DIR}/analysis/magnetic_orderings"
 

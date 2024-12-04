@@ -6,7 +6,7 @@ import pytest
 from monty.io import zopen
 
 from pymatgen.io.qchem.utils import lower_and_check_unique, process_parsed_hess
-from pymatgen.util.testing import TEST_FILES_DIR, PymatgenTest
+from pymatgen.util.testing import TEST_FILES_DIR, MatSciTest
 
 __author__ = "Ryan Kingsbury, Samuel Blau"
 __copyright__ = "Copyright 2018-2022, The Materials Project"

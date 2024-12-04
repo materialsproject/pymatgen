@@ -6,7 +6,7 @@ from numpy.testing import assert_allclose
 from pytest import approx
 
 from pymatgen.io.pwscf import PWInput, PWInputError, PWOutput
-from pymatgen.util.testing import TEST_FILES_DIR, PymatgenTest
+from pymatgen.util.testing import TEST_FILES_DIR, MatSciTest
 
 TEST_DIR = f"{TEST_FILES_DIR}/io/pwscf"
 

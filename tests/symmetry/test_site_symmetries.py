@@ -6,7 +6,7 @@ import json
 from monty.json import MontyDecoder
 
 from pymatgen.symmetry import site_symmetries as ss
-from pymatgen.util.testing import TEST_FILES_DIR, PymatgenTest
+from pymatgen.util.testing import TEST_FILES_DIR, MatSciTest
 
 __author__ = "Handong Ling"
 __version__ = "0.1"

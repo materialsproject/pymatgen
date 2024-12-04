@@ -5,7 +5,7 @@ from pytest import approx
 
 from pymatgen.apps.battery.analyzer import BatteryAnalyzer
 from pymatgen.core.structure import Structure
-from pymatgen.util.testing import TEST_FILES_DIR, PymatgenTest
+from pymatgen.util.testing import TEST_FILES_DIR, MatSciTest
 
 
 class TestBatteryAnalyzer(MatSciTest):

@@ -3,7 +3,7 @@ from __future__ import annotations
 from pytest import approx
 
 from pymatgen.analysis.solar.slme import optics, slme
-from pymatgen.util.testing import TEST_FILES_DIR, PymatgenTest
+from pymatgen.util.testing import TEST_FILES_DIR, MatSciTest
 
 TEST_DIR = f"{TEST_FILES_DIR}/analysis/solar"
 

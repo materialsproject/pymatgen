@@ -17,7 +17,7 @@ from pymatgen.analysis.chemenv.coordination_environments.structure_environments 
     StructureEnvironments,
 )
 from pymatgen.core import Species, Structure
-from pymatgen.util.testing import TEST_FILES_DIR, PymatgenTest
+from pymatgen.util.testing import TEST_FILES_DIR, MatSciTest
 
 __author__ = "waroquiers"
 

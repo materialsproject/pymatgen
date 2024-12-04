@@ -13,7 +13,7 @@ from pymatgen.alchemy.filters import (
 from pymatgen.alchemy.transmuters import StandardTransmuter
 from pymatgen.analysis.structure_matcher import StructureMatcher
 from pymatgen.core import Lattice, Species, Structure
-from pymatgen.util.testing import TEST_FILES_DIR, PymatgenTest
+from pymatgen.util.testing import TEST_FILES_DIR, MatSciTest
 
 
 class TestContainsSpecieFilter(MatSciTest):

@@ -40,7 +40,7 @@ from pymatgen.analysis.local_env import (
     solid_angle,
 )
 from pymatgen.core import Element, Lattice, Molecule, Structure
-from pymatgen.util.testing import TEST_FILES_DIR, PymatgenTest
+from pymatgen.util.testing import TEST_FILES_DIR, MatSciTest
 
 TEST_DIR = f"{TEST_FILES_DIR}/analysis/local_env/fragmenter_files"
 

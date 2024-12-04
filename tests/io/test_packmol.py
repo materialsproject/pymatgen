@@ -10,7 +10,7 @@ import pytest
 from pymatgen.analysis.molecule_matcher import MoleculeMatcher
 from pymatgen.core import Molecule
 from pymatgen.io.packmol import PackmolBoxGen
-from pymatgen.util.testing import TEST_FILES_DIR, PymatgenTest
+from pymatgen.util.testing import TEST_FILES_DIR, MatSciTest
 
 TEST_DIR = f"{TEST_FILES_DIR}/io/packmol"
 # error message is different in CI for unknown reasons (as of 2024-04-12)
@@ -91,7 +91,7 @@ class TestPackmolSet(MatSciTest):
                 {"name": "LiTFSi", "number": 20, "coords": p2},
             ],
         )
-        # PymatgenTest makes each test change to a temporary directory
+        # MatSciTest makes each test change to a temporary directory
         # Check here we can run in the current directory
         pw.write_input(".")
         pw.run(".")
@@ -99,7 +99,7 @@ class TestPackmolSet(MatSciTest):
         assert os.path.isfile(f"{self.tmp_path}/packmol.stdout")
         out = Molecule.from_file(f"{self.tmp_path}/packmol_out.xyz")
         assert out.composition.num_atoms == 10 * 15 + 20 * 16
-        # PymatgenTest makes each test change to a temporary directory
+        # MatSciTest makes each test change to a temporary directory
         # Check here we can run in a relative directory
         pw.write_input("somedir")
         pw.run("somedir")

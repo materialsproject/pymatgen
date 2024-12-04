@@ -24,7 +24,7 @@ from pymatgen.core.surface import (
 )
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
 from pymatgen.symmetry.groups import SpaceGroup
-from pymatgen.util.testing import TEST_FILES_DIR, PymatgenTest
+from pymatgen.util.testing import TEST_FILES_DIR, MatSciTest
 
 PMG_CORE_DIR = os.path.dirname(pymatgen.core.__file__)
 

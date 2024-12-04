@@ -17,7 +17,7 @@ from pymatgen.io.qchem.outputs import (
     hessian_parser,
     orbital_coeffs_parser,
 )
-from pymatgen.util.testing import TEST_FILES_DIR, PymatgenTest
+from pymatgen.util.testing import TEST_FILES_DIR, MatSciTest
 
 try:
     from openbabel import openbabel

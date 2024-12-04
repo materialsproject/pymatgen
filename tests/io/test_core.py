@@ -10,7 +10,7 @@ from monty.serialization import MontyDecoder
 from pymatgen.core.structure import Structure
 from pymatgen.io.cif import CifParser, CifWriter
 from pymatgen.io.core import InputFile, InputSet
-from pymatgen.util.testing import TEST_FILES_DIR, PymatgenTest
+from pymatgen.util.testing import TEST_FILES_DIR, MatSciTest
 
 if TYPE_CHECKING:
     from typing_extensions import Self

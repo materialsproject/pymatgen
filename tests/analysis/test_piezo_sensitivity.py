@@ -17,7 +17,7 @@ from pymatgen.analysis.piezo_sensitivity import (
     rand_piezo,
 )
 from pymatgen.io.phonopy import get_phonopy_structure
-from pymatgen.util.testing import TEST_FILES_DIR, PymatgenTest
+from pymatgen.util.testing import TEST_FILES_DIR, MatSciTest
 
 try:
     from phonopy import Phonopy

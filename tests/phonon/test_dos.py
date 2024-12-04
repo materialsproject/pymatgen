@@ -9,7 +9,7 @@ from pytest import approx
 
 from pymatgen.core import Element
 from pymatgen.phonon.dos import CompletePhononDos, PhononDos
-from pymatgen.util.testing import TEST_FILES_DIR, PymatgenTest
+from pymatgen.util.testing import TEST_FILES_DIR, MatSciTest
 
 TEST_DIR = f"{TEST_FILES_DIR}/phonon/dos"
 

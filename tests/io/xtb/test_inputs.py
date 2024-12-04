@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from pymatgen.core.structure import Molecule
 from pymatgen.io.xtb.inputs import CRESTInput
-from pymatgen.util.testing import TEST_FILES_DIR, PymatgenTest
+from pymatgen.util.testing import TEST_FILES_DIR, MatSciTest
 
 __author__ = "Alex Epstein"
 __copyright__ = "Copyright 2020, The Materials Project"

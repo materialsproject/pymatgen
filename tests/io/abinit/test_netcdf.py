@@ -11,7 +11,7 @@ from numpy.testing import assert_allclose, assert_array_equal
 from pymatgen.core.structure import Structure
 from pymatgen.io.abinit import EtsfReader
 from pymatgen.io.abinit.netcdf import AbinitHeader
-from pymatgen.util.testing import TEST_FILES_DIR, PymatgenTest
+from pymatgen.util.testing import TEST_FILES_DIR, MatSciTest
 
 try:
     import netCDF4

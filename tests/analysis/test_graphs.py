@@ -23,7 +23,7 @@ from pymatgen.analysis.local_env import (
 from pymatgen.command_line.critic2_caller import Critic2Analysis
 from pymatgen.core import Lattice, Molecule, Site, Structure
 from pymatgen.core.structure import FunctionalGroups
-from pymatgen.util.testing import TEST_FILES_DIR, PymatgenTest
+from pymatgen.util.testing import TEST_FILES_DIR, MatSciTest
 
 try:
     from openbabel import openbabel

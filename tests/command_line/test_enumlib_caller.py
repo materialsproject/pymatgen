@@ -11,7 +11,7 @@ from pymatgen.core import Element, Structure
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
 from pymatgen.transformations.site_transformations import RemoveSitesTransformation
 from pymatgen.transformations.standard_transformations import SubstitutionTransformation
-from pymatgen.util.testing import TEST_FILES_DIR, PymatgenTest
+from pymatgen.util.testing import TEST_FILES_DIR, MatSciTest
 
 ENUM_CMD = which("enum.x") or which("multienum.x")
 MAKESTR_CMD = which("makestr.x") or which("makeStr.x") or which("makeStr.py")

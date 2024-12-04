@@ -12,7 +12,7 @@ from pymatgen.analysis.chempot_diagram import (
 )
 from pymatgen.core.composition import Element
 from pymatgen.entries.entry_tools import EntrySet
-from pymatgen.util.testing import TEST_FILES_DIR, PymatgenTest
+from pymatgen.util.testing import TEST_FILES_DIR, MatSciTest
 
 TEST_DIR = f"{TEST_FILES_DIR}/analysis"
 

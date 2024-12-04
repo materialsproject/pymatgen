@@ -19,7 +19,7 @@ from pymatgen.io.abinit.abiobjects import (
     species_by_znucl,
     structure_to_abivars,
 )
-from pymatgen.util.testing import TEST_FILES_DIR, PymatgenTest
+from pymatgen.util.testing import TEST_FILES_DIR, MatSciTest
 
 
 class TestLatticeFromAbivars(MatSciTest):

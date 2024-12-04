@@ -6,7 +6,7 @@ from matplotlib import pyplot as plt
 from numpy.testing import assert_allclose
 
 from pymatgen.analysis.transition_state import NEBAnalysis, combine_neb_plots
-from pymatgen.util.testing import TEST_FILES_DIR, PymatgenTest
+from pymatgen.util.testing import TEST_FILES_DIR, MatSciTest
 
 """
 TODO: Modify unittest doc.

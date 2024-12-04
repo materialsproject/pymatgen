@@ -23,7 +23,7 @@ from pymatgen.ext.matproj import MP_LOG_FILE, _MPResterBasic
 from pymatgen.ext.matproj_legacy import MPRestError, TaskType, _MPResterLegacy
 from pymatgen.phonon.bandstructure import PhononBandStructureSymmLine
 from pymatgen.phonon.dos import CompletePhononDos
-from pymatgen.util.testing import TEST_FILES_DIR, PymatgenTest
+from pymatgen.util.testing import TEST_FILES_DIR, MatSciTest
 
 PMG_MAPI_KEY = SETTINGS.get("PMG_MAPI_KEY", "")
 if (10 < len(PMG_MAPI_KEY) <= 20) and "PMG_MAPI_KEY" in SETTINGS:

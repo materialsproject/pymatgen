@@ -22,7 +22,7 @@ from pymatgen.io.cp2k.inputs import (
     Section,
     SectionList,
 )
-from pymatgen.util.testing import TEST_FILES_DIR, PymatgenTest
+from pymatgen.util.testing import TEST_FILES_DIR, MatSciTest
 
 TEST_DIR = f"{TEST_FILES_DIR}/io/cp2k"
 

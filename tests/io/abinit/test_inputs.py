@@ -18,7 +18,7 @@ from pymatgen.io.abinit.inputs import (
     ion_ioncell_relax_input,
     num_valence_electrons,
 )
-from pymatgen.util.testing import TEST_FILES_DIR, PymatgenTest
+from pymatgen.util.testing import TEST_FILES_DIR, MatSciTest
 
 TEST_DIR = f"{TEST_FILES_DIR}/io/abinit"
 

@@ -6,7 +6,7 @@ from numpy.testing import assert_allclose
 
 from pymatgen.core import Lattice, Structure
 from pymatgen.io.exciting import ExcitingInput
-from pymatgen.util.testing import TEST_FILES_DIR, PymatgenTest
+from pymatgen.util.testing import TEST_FILES_DIR, MatSciTest
 
 __author__ = "Christian Vorwerk"
 __copyright__ = "Copyright 2016"
