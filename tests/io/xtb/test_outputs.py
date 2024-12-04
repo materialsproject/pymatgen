@@ -7,7 +7,7 @@ from pytest import approx
 from pymatgen.core.structure import Molecule
 from pymatgen.io.qchem.outputs import check_for_structure_changes
 from pymatgen.io.xtb.outputs import CRESTOutput
-from pymatgen.util.testing import TEST_FILES_DIR
+from pymatgen.util.testing import TEST_FILES_DIR, PymatgenTest
 
 try:
     from openbabel import openbabel
@@ -23,7 +23,7 @@ TEST_DIR = f"{TEST_FILES_DIR}/io/xtb/sample_CREST_output"
 EXPECTED_DIR = f"{TEST_FILES_DIR}/io/xtb/expected_output"
 
 
-class TestCRESTOutput:
+class TestCRESTOutput(PymatgenTest):
     """
     Checks that all attributes of CRESTOutput match the expected values for a
     sample CREST output directory.

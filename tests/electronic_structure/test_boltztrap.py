@@ -26,7 +26,7 @@ TEST_DIR = f"{TEST_FILES_DIR}/electronic_structure/boltztrap"
 @pytest.mark.skipif(not which("x_trans"), reason="No x_trans.")
 class TestBoltztrapAnalyzer(TestCase):
     @classmethod
-    def setup_class(cls):
+    def setUpClass(cls):
         cls.bz = BoltztrapAnalyzer.from_files(f"{TEST_DIR}/transp/")
         cls.bz_bands = BoltztrapAnalyzer.from_files(f"{TEST_DIR}/bands/")
         cls.bz_up = BoltztrapAnalyzer.from_files(f"{TEST_DIR}/dos_up/", dos_spin=1)

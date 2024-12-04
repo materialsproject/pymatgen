@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 from datetime import datetime, timedelta, timezone
+from unittest import TestCase
 
 import numpy as np
 import pytest
@@ -19,8 +20,8 @@ __email__ = "ajain@lbl.gov"
 __date__ = "2/14/13"
 
 
-class TestStructureNL:
-    def setup_method(self):
+class TestStructureNL(TestCase):
+    def setUp(self):
         # set up a Structure
         self.struct = Structure(np.eye(3, 3) * 3, ["Fe"], [[0, 0, 0]])
         self.s2 = Structure(np.eye(3, 3) * 3, ["Al"], [[0, 0, 0]])

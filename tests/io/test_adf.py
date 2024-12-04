@@ -4,7 +4,7 @@ from pytest import approx
 
 from pymatgen.core.structure import Molecule
 from pymatgen.io.adf import AdfInput, AdfKey, AdfOutput, AdfTask
-from pymatgen.util.testing import TEST_FILES_DIR
+from pymatgen.util.testing import TEST_FILES_DIR, PymatgenTest
 
 __author__ = "Xin Chen, chenxin13@mails.tsinghua.edu.cn"
 
@@ -242,7 +242,7 @@ rhb18 = {
 }
 
 
-class TestAdfInput:
+class TestAdfInput(PymatgenTest):
     def test_main(self):
         tmp_file = f"{self.tmp_path}/adf.temp"
         mol = Molecule.from_str(rhb18_xyz, "xyz")

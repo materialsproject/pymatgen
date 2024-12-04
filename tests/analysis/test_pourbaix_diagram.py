@@ -12,15 +12,15 @@ from pymatgen.analysis.pourbaix_diagram import IonEntry, MultiEntry, PourbaixDia
 from pymatgen.core.composition import Composition
 from pymatgen.core.ion import Ion
 from pymatgen.entries.computed_entries import ComputedEntry
-from pymatgen.util.testing import TEST_FILES_DIR
+from pymatgen.util.testing import TEST_FILES_DIR, PymatgenTest
 
 TEST_DIR = f"{TEST_FILES_DIR}/analysis/pourbaix_diagram"
 
 
-class TestPourbaixEntry:
+class TestPourbaixEntry(PymatgenTest):
     """Test all functions using a fictitious entry"""
 
-    def setup_method(self):
+    def setUp(self):
         # comp = Composition("Mn2O3")
         self.sol_entry = ComputedEntry("Mn2O3", 49)
         ion = Ion.from_formula("MnO4-")
@@ -99,7 +99,7 @@ class TestPourbaixEntry:
 
 class TestPourbaixDiagram(TestCase):
     @classmethod
-    def setup_class(cls):
+    def setUpClass(cls):
         cls.test_data = loadfn(f"{TEST_DIR}/pourbaix_test_data.json")
         cls.pbx = PourbaixDiagram(cls.test_data["Zn"], filter_solids=True)
         cls.pbx_no_filter = PourbaixDiagram(cls.test_data["Zn"], filter_solids=False)
@@ -294,7 +294,7 @@ class TestPourbaixDiagram(TestCase):
 
 
 class TestPourbaixPlotter(TestCase):
-    def setup_method(self):
+    def setUp(self):
         self.test_data = loadfn(f"{TEST_DIR}/pourbaix_test_data.json")
         self.pd = PourbaixDiagram(self.test_data["Zn"])
         self.plotter = PourbaixPlotter(self.pd)

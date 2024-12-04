@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from pymatgen.core.structure import Molecule
 from pymatgen.io.xtb.inputs import CRESTInput
-from pymatgen.util.testing import TEST_FILES_DIR
+from pymatgen.util.testing import TEST_FILES_DIR, PymatgenTest
 
 __author__ = "Alex Epstein"
 __copyright__ = "Copyright 2020, The Materials Project"
@@ -12,7 +12,7 @@ TEST_DIR = f"{TEST_FILES_DIR}/io/xtb/sample_CREST_output"
 EXPECTED_DIR = f"{TEST_FILES_DIR}/io/xtb/expected_output"
 
 
-class TestCRESTInput:
+class TestCRESTInput(PymatgenTest):
     """
     Checks that all attributes of CRESTInput match the expected values for
     sample inputs.

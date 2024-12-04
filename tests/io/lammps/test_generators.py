@@ -3,14 +3,14 @@ from __future__ import annotations
 from pymatgen.core.structure import Structure
 from pymatgen.io.lammps.data import LammpsData
 from pymatgen.io.lammps.generators import LammpsMinimization
-from pymatgen.util.testing import TEST_FILES_DIR
+from pymatgen.util.testing import TEST_FILES_DIR, PymatgenTest
 
 TEST_DIR = f"{TEST_FILES_DIR}/io/lammps"
 
 
-class TestLammpsMinimization:
+class TestLammpsMinimization(PymatgenTest):
     @classmethod
-    def setup_class(cls):
+    def setUpClass(cls):
         cls.filename = f"{TEST_DIR}/lgps.in"
         cls.cif = f"{TEST_DIR}/lgps.cif"
         cls.structure = Structure.from_file(cls.cif)

@@ -8,13 +8,13 @@ from pytest import approx
 
 from pymatgen.electronic_structure.bandstructure import Kpoint
 from pymatgen.phonon.bandstructure import PhononBandStructureSymmLine
-from pymatgen.util.testing import TEST_FILES_DIR
+from pymatgen.util.testing import TEST_FILES_DIR, PymatgenTest
 
 TEST_DIR = f"{TEST_FILES_DIR}/electronic_structure/bandstructure"
 
 
-class TestPhononBandStructureSymmLine:
-    def setup_method(self):
+class TestPhononBandStructureSymmLine(PymatgenTest):
+    def setUp(self):
         with open(f"{TEST_DIR}/NaCl_phonon_bandstructure.json") as file:
             dct = json.load(file)
         self.bs = PhononBandStructureSymmLine.from_dict(dct)

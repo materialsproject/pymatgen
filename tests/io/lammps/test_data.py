@@ -14,14 +14,14 @@ from ruamel.yaml import YAML
 
 from pymatgen.core import Element, Lattice, Molecule, Structure
 from pymatgen.io.lammps.data import CombinedData, ForceField, LammpsBox, LammpsData, Topology, lattice_2_lmpbox
-from pymatgen.util.testing import TEST_FILES_DIR
+from pymatgen.util.testing import TEST_FILES_DIR, PymatgenTest
 
 TEST_DIR = f"{TEST_FILES_DIR}/io/lammps"
 
 
-class TestLammpsBox:
+class TestLammpsBox(PymatgenTest):
     @classmethod
-    def setup_class(cls):
+    def setUpClass(cls):
         cls.peptide = LammpsBox(
             bounds=[
                 [36.840194, 64.211560],
@@ -73,9 +73,9 @@ class TestLammpsBox:
         )
 
 
-class TestLammpsData:
+class TestLammpsData(PymatgenTest):
     @classmethod
-    def setup_class(cls):
+    def setUpClass(cls):
         cls.peptide = LammpsData.from_file(filename=f"{TEST_DIR}/data.peptide")
         cls.ethane = LammpsData.from_file(filename=f"{TEST_DIR}/ethane.data")
         cls.quartz = LammpsData.from_file(filename=f"{TEST_DIR}/data.quartz", atom_style="atomic")
@@ -665,9 +665,9 @@ class TestTopology(TestCase):
         assert "Dihedrals" not in topo_etoh2.topologies
 
 
-class TestForceField:
+class TestForceField(PymatgenTest):
     @classmethod
-    def setup_class(cls):
+    def setUpClass(cls):
         mass_info = [
             ("A", "H"),
             ("B", Element("C")),
@@ -820,7 +820,7 @@ class TestFunc(TestCase):
 
 class TestCombinedData(TestCase):
     @classmethod
-    def setup_class(cls):
+    def setUpClass(cls):
         cls.ec = LammpsData.from_file(filename=f"{TEST_DIR}/ec.data.gz")
         cls.fec = LammpsData.from_file(filename=f"{TEST_DIR}/fec.data.gz")
         cls.li = LammpsData.from_file(filename=f"{TEST_DIR}/li.data")

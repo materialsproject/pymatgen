@@ -7,7 +7,7 @@ from monty.serialization import loadfn
 from pymatgen.core.lattice import Lattice
 from pymatgen.core.structure import Structure
 from pymatgen.symmetry.bandstructure import HighSymmKpath
-from pymatgen.util.testing import TEST_FILES_DIR
+from pymatgen.util.testing import TEST_FILES_DIR, PymatgenTest
 
 try:
     from seekpath import get_path
@@ -17,7 +17,7 @@ except ImportError:
 TEST_DIR = f"{TEST_FILES_DIR}/electronic_structure/bandstructure"
 
 
-class TestHighSymmKpath:
+class TestHighSymmKpath(PymatgenTest):
     @pytest.mark.skipif(get_path is None, reason="No seek path present.")
     def test_kpath_generation(self):
         triclinic = [1, 2]

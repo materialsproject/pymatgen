@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import json
+from unittest import TestCase
 
 from monty.json import MontyDecoder
 
@@ -13,10 +14,10 @@ from pymatgen.alchemy.filters import (
 from pymatgen.alchemy.transmuters import StandardTransmuter
 from pymatgen.analysis.structure_matcher import StructureMatcher
 from pymatgen.core import Lattice, Species, Structure
-from pymatgen.util.testing import TEST_FILES_DIR, MatSciTest
+from pymatgen.util.testing import TEST_FILES_DIR, PymatgenTest
 
 
-class TestContainsSpecieFilter:
+class TestContainsSpecieFilter(PymatgenTest):
     def test_filtering(self):
         coords = [[0, 0, 0], [0.75, 0.75, 0.75], [0.5, 0.5, 0.5], [0.25, 0.25, 0.25]]
         lattice = Lattice([[3.0, 0.0, 0.0], [1.0, 3.0, 0], [0, -2.0, 3.0]])
@@ -51,7 +52,7 @@ class TestContainsSpecieFilter:
         assert isinstance(ContainsSpecieFilter.from_dict(dct), ContainsSpecieFilter)
 
 
-class TestSpecieProximityFilter(MatSciTest):
+class TestSpecieProximityFilter(PymatgenTest):
     def test_filter(self):
         struct = self.get_structure("Li10GeP2S12")
         sf = SpecieProximityFilter({"Li": 1})
@@ -69,8 +70,8 @@ class TestSpecieProximityFilter(MatSciTest):
         assert isinstance(SpecieProximityFilter.from_dict(dct), SpecieProximityFilter)
 
 
-class TestRemoveDuplicatesFilter:
-    def setup_method(self):
+class TestRemoveDuplicatesFilter(TestCase):
+    def setUp(self):
         with open(f"{TEST_FILES_DIR}/entries/TiO2_entries.json") as file:
             entries = json.load(file, cls=MontyDecoder)
         self._struct_list = [entry.structure for entry in entries]
@@ -88,8 +89,8 @@ class TestRemoveDuplicatesFilter:
         assert isinstance(RemoveDuplicatesFilter().from_dict(dct), RemoveDuplicatesFilter)
 
 
-class TestRemoveExistingFilter:
-    def setup_method(self):
+class TestRemoveExistingFilter(TestCase):
+    def setUp(self):
         with open(f"{TEST_FILES_DIR}/entries/TiO2_entries.json") as file:
             entries = json.load(file, cls=MontyDecoder)
         self._struct_list = [entry.structure for entry in entries]

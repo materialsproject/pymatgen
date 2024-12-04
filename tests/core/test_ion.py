@@ -10,7 +10,7 @@ from pymatgen.core.ion import Ion
 
 
 class TestIon(TestCase):
-    def setup_method(self):
+    def setUp(self):
         self.comp = []
         self.comp.append(Ion.from_formula("Li+"))
         self.comp.append(Ion.from_formula("MnO4-"))

@@ -27,13 +27,13 @@ from pymatgen.core.lattice import Lattice
 from pymatgen.core.structure import Structure
 from pymatgen.core.tensors import Tensor
 from pymatgen.core.units import FloatWithUnit
-from pymatgen.util.testing import TEST_FILES_DIR
+from pymatgen.util.testing import TEST_FILES_DIR, PymatgenTest
 
 TEST_DIR = f"{TEST_FILES_DIR}/analysis/elasticity"
 
 
-class TestElasticTensor:
-    def setup_method(self):
+class TestElasticTensor(PymatgenTest):
+    def setUp(self):
         self.voigt_1 = [
             [59.33, 28.08, 28.08, 0, 0, 0],
             [28.08, 59.31, 28.07, 0, 0, 0],
@@ -263,8 +263,8 @@ class TestElasticTensor:
         )
 
 
-class TestElasticTensorExpansion:
-    def setup_method(self):
+class TestElasticTensorExpansion(PymatgenTest):
+    def setUp(self):
         with open(f"{TEST_DIR}/test_toec_data.json") as file:
             self.data_dict = json.load(file)
         self.strains = [Strain(sm) for sm in self.data_dict["strains"]]
@@ -364,8 +364,8 @@ class TestElasticTensorExpansion:
         self.exp_cu_4.get_yield_stress([1, 0, 0])
 
 
-class TestNthOrderElasticTensor:
-    def setup_method(self):
+class TestNthOrderElasticTensor(PymatgenTest):
+    def setUp(self):
         with open(f"{TEST_DIR}/test_toec_data.json") as file:
             self.data_dict = json.load(file)
         self.strains = [Strain(sm) for sm in self.data_dict["strains"]]
@@ -401,10 +401,10 @@ class TestNthOrderElasticTensor:
         self.c3.energy_density(self.strains[0])
 
 
-class TestDiffFit:
+class TestDiffFit(PymatgenTest):
     """Test various functions related to diff fitting."""
 
-    def setup_method(self):
+    def setUp(self):
         with open(f"{TEST_DIR}/test_toec_data.json") as file:
             self.data_dict = json.load(file)
         self.strains = [Strain(sm) for sm in self.data_dict["strains"]]

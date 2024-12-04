@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 from shutil import which
+from unittest import TestCase
 
 import numpy as np
 import pytest
@@ -16,14 +17,15 @@ from pymatgen.transformations.site_transformations import (
     ReplaceSiteSpeciesTransformation,
     TranslateSitesTransformation,
 )
+from pymatgen.util.testing import PymatgenTest
 
 enum_cmd = which("enum.x") or which("multienum.x")
 makestr_cmd = which("makestr.x") or which("makeStr.x") or which("makeStr.py")
 enumlib_present = enum_cmd and makestr_cmd
 
 
-class TestTranslateSitesTransformation:
-    def setup_method(self):
+class TestTranslateSitesTransformation(PymatgenTest):
+    def setUp(self):
         coords = [
             [0, 0, 0],
             [0.375, 0.375, 0.375],
@@ -76,8 +78,8 @@ class TestTranslateSitesTransformation:
         str(t2)
 
 
-class TestReplaceSiteSpeciesTransformation:
-    def setup_method(self):
+class TestReplaceSiteSpeciesTransformation(TestCase):
+    def setUp(self):
         coords = [
             [0, 0, 0],
             [0.375, 0.375, 0.375],
@@ -108,8 +110,8 @@ class TestReplaceSiteSpeciesTransformation:
         assert struct.formula == "Na1 Li3 O4"
 
 
-class TestRemoveSitesTransformation:
-    def setup_method(self):
+class TestRemoveSitesTransformation(TestCase):
+    def setUp(self):
         coords = [
             [0, 0, 0],
             [0.375, 0.375, 0.375],
@@ -140,8 +142,8 @@ class TestRemoveSitesTransformation:
         assert struct.formula == "Li2 O4"
 
 
-class TestInsertSitesTransformation:
-    def setup_method(self):
+class TestInsertSitesTransformation(TestCase):
+    def setUp(self):
         coords = [
             [0, 0, 0],
             [0.375, 0.375, 0.375],
@@ -177,8 +179,8 @@ class TestInsertSitesTransformation:
         assert struct.formula == "Li4 Mn1 Fe1 O4"
 
 
-class TestPartialRemoveSitesTransformation:
-    def setup_method(self):
+class TestPartialRemoveSitesTransformation(TestCase):
+    def setUp(self):
         coords = [
             [0, 0, 0],
             [0.375, 0.375, 0.375],
@@ -262,7 +264,7 @@ class TestPartialRemoveSitesTransformation:
         )
 
 
-class TestAddSitePropertyTransformation:
+class TestAddSitePropertyTransformation(PymatgenTest):
     def test_apply_transformation(self):
         struct = self.get_structure("Li2O2")
         sd = [[True, True, True] for _ in struct]
@@ -277,8 +279,8 @@ class TestAddSitePropertyTransformation:
             assert_allclose(trans_set.site_properties[prop], manually_set.site_properties[prop])
 
 
-class TestRadialSiteDistortionTransformation:
-    def setup_method(self):
+class TestRadialSiteDistortionTransformation(PymatgenTest):
+    def setUp(self):
         self.molecule = Molecule(
             species=["C", "H", "H", "H", "H", "H", "H", "H", "H", "H", "H", "H", "H"],
             coords=[

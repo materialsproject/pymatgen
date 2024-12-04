@@ -23,7 +23,7 @@ from pymatgen.ext.matproj import MP_LOG_FILE, _MPResterBasic
 from pymatgen.ext.matproj_legacy import MPRestError, TaskType, _MPResterLegacy
 from pymatgen.phonon.bandstructure import PhononBandStructureSymmLine
 from pymatgen.phonon.dos import CompletePhononDos
-from pymatgen.util.testing import TEST_FILES_DIR
+from pymatgen.util.testing import TEST_FILES_DIR, PymatgenTest
 
 PMG_MAPI_KEY = SETTINGS.get("PMG_MAPI_KEY", "")
 if (10 < len(PMG_MAPI_KEY) <= 20) and "PMG_MAPI_KEY" in SETTINGS:
@@ -48,8 +48,8 @@ if skip_mprester_tests:
     not 10 < len(PMG_MAPI_KEY) <= 20,
     reason="Legacy PMG_MAPI_KEY environment variable not set.",
 )
-class TestMPResterOld:
-    def setup_method(self):
+class TestMPResterOld(PymatgenTest):
+    def setUp(self):
         self.rester = _MPResterLegacy()
 
     def test_get_all_materials_ids_doc(self):
@@ -528,8 +528,8 @@ class TestMPResterOld:
     not len(PMG_MAPI_KEY) > 20,
     reason="PMG_MAPI_KEY environment variable not set.",
 )
-class TestMPResterNewBasic:
-    def setup_method(self):
+class TestMPResterNewBasic(PymatgenTest):
+    def setUp(self):
         self.rester = _MPResterBasic()
 
     def test_get_summary(self):
@@ -903,10 +903,10 @@ class TestMPResterNewBasic:
 
     def test_parity_with_mp_api(self):
         try:
-            from mp_api.client import MPRester
+            from mp_api.client import MPRester as MpApi
         except Exception:
             pytest.skip("mp_api.client.MPRester cannot be imported for this test.")
-        mpr_mp_api = MPRester(PMG_MAPI_KEY)
+        mpr_mp_api = MpApi(PMG_MAPI_KEY)
         # Test summary
         mp_data = mpr_mp_api.summary.search(formula="Al2O3")
         pmg_data = self.rester.get_summary({"formula": "Al2O3"})

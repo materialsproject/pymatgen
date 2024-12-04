@@ -14,9 +14,10 @@ from pymatgen.core import DummySpecies, Element, Species, get_el_sp
 from pymatgen.core.periodic_table import ElementBase, ElementType
 from pymatgen.core.units import Ha_to_eV
 from pymatgen.io.core import ParseError
+from pymatgen.util.testing import PymatgenTest
 
 
-class TestElement:
+class TestElement(PymatgenTest):
     def test_init(self):
         assert Element("Fe").symbol == "Fe"
 
@@ -391,8 +392,8 @@ class TestElement:
         ]
 
 
-class TestSpecies:
-    def setup_method(self):
+class TestSpecies(PymatgenTest):
+    def setUp(self):
         self.specie1 = Species.from_str("Fe2+")
         self.specie2 = Species("Fe", 3)
         self.specie3 = Species("Fe", 2)

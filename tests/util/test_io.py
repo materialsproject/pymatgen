@@ -1,10 +1,10 @@
 from __future__ import annotations
 
 from pymatgen.util.io_utils import micro_pyawk
-from pymatgen.util.testing import VASP_OUT_DIR
+from pymatgen.util.testing import VASP_OUT_DIR, PymatgenTest
 
 
-class TestFunc:
+class TestFunc(PymatgenTest):
     def test_micro_pyawk(self):
         data = []
 

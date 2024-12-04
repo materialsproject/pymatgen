@@ -16,7 +16,7 @@ TEST_DIR = f"{TEST_FILES_DIR}/apps/battery"
 
 
 class TestVoltageProfilePlotter(TestCase):
-    def setup_method(self):
+    def setUp(self):
         entry_Li = ComputedEntry("Li", -1.90753119)
 
         with open(f"{TEST_DIR}/LiTiO2_batt.json") as file:

@@ -4,6 +4,7 @@ import pytest
 import requests
 
 from pymatgen.ext.optimade import OptimadeRester
+from pymatgen.util.testing import PymatgenTest
 
 try:
     # 403 is returned when server detects bot-like behavior
@@ -35,7 +36,7 @@ except requests.exceptions.ConnectionError:
     mc2d_down = True
 
 
-class TestOptimade:
+class TestOptimade(PymatgenTest):
     @pytest.mark.skipif(mp_website_down, reason="MP OPTIMADE is down.")
     def test_get_structures_mp(self):
         with OptimadeRester("mp") as optimade:

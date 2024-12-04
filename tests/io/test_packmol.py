@@ -10,7 +10,7 @@ import pytest
 from pymatgen.analysis.molecule_matcher import MoleculeMatcher
 from pymatgen.core import Molecule
 from pymatgen.io.packmol import PackmolBoxGen
-from pymatgen.util.testing import TEST_FILES_DIR
+from pymatgen.util.testing import TEST_FILES_DIR, PymatgenTest
 
 TEST_DIR = f"{TEST_FILES_DIR}/io/packmol"
 # error message is different in CI for unknown reasons (as of 2024-04-12)
@@ -48,7 +48,7 @@ water_atoms = ["H", "H", "O"]
 water = Molecule(water_atoms, water_coords)
 
 
-class TestPackmolSet:
+class TestPackmolSet(PymatgenTest):
     def test_packmol_with_molecule(self):
         """Test coords input as Molecule."""
         pw = PackmolBoxGen().get_input_set(

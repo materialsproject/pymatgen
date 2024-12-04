@@ -5,10 +5,11 @@ from numpy.testing import assert_allclose
 
 from pymatgen.core.operations import MagSymmOp, SymmOp
 from pymatgen.electronic_structure.core import Magmom
+from pymatgen.util.testing import PymatgenTest
 
 
-class TestSymmOp:
-    def setup_method(self):
+class TestSymmOp(PymatgenTest):
+    def setUp(self):
         self.op = SymmOp.from_axis_angle_and_translation([0, 0, 1], 30, translation_vec=[0, 0, 1])
 
     def test_properties(self):
@@ -235,7 +236,7 @@ class TestSymmOp:
         assert_allclose(symm_op.translation_vector, [0.5, 0.25, 0.75])
 
 
-class TestMagSymmOp:
+class TestMagSymmOp(PymatgenTest):
     def test_xyzt_string(self):
         xyzt_strings = ["x, y, z, +1", "x, y, z, -1", "-y+1/2, x+1/2, x+1/2, +1"]
 

@@ -21,7 +21,7 @@ MOL_TEST_DIR = f"{TEST_FILES_DIR}/io/gaussian"
 
 
 class TestVaspToComputedEntryDrone(TestCase):
-    def setup_method(self):
+    def setUp(self):
         self.drone = VaspToComputedEntryDrone(data=["efermi"])
         self.structure_drone = VaspToComputedEntryDrone(inc_structure=True)
 
@@ -54,7 +54,7 @@ class TestVaspToComputedEntryDrone(TestCase):
 
 
 class TestSimpleVaspToComputedEntryDrone(TestCase):
-    def setup_method(self):
+    def setUp(self):
         self.drone = SimpleVaspToComputedEntryDrone()
         self.structure_drone = SimpleVaspToComputedEntryDrone(inc_structure=True)
 
@@ -74,7 +74,7 @@ class TestSimpleVaspToComputedEntryDrone(TestCase):
 
 
 class TestGaussianToComputedEntryDrone(TestCase):
-    def setup_method(self):
+    def setUp(self):
         self.drone = GaussianToComputedEntryDrone(data=["corrections"])
         self.structure_drone = GaussianToComputedEntryDrone(inc_structure=True)
 

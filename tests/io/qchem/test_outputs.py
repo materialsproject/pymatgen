@@ -17,7 +17,7 @@ from pymatgen.io.qchem.outputs import (
     hessian_parser,
     orbital_coeffs_parser,
 )
-from pymatgen.util.testing import TEST_FILES_DIR
+from pymatgen.util.testing import TEST_FILES_DIR, PymatgenTest
 
 try:
     from openbabel import openbabel
@@ -260,7 +260,7 @@ MULTI_JOB_OUT_NAMES = {
 }
 
 
-class TestQCOutput:
+class TestQCOutput(PymatgenTest):
     @staticmethod
     def generate_single_job_dict():
         """Used to generate test dictionary for single jobs."""

@@ -23,7 +23,7 @@ mol = Molecule(["C", "H", "H", "H", "H"], coords)
 
 
 class TestNwTask(TestCase):
-    def setup_method(self):
+    def setUp(self):
         self.task = NwTask(
             0,
             1,
@@ -137,7 +137,7 @@ task esp """
 
 
 class TestNwInput(TestCase):
-    def setup_method(self):
+    def setUp(self):
         tasks = [
             NwTask.dft_task(mol, operation="optimize", xc="b3lyp", basis_set="6-31++G*"),
             NwTask.dft_task(mol, operation="freq", xc="b3lyp", basis_set="6-31++G*"),

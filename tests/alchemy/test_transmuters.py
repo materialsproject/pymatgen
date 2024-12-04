@@ -8,10 +8,10 @@ from pymatgen.transformations.standard_transformations import (
     RemoveSpeciesTransformation,
     SubstitutionTransformation,
 )
-from pymatgen.util.testing import TEST_FILES_DIR, VASP_IN_DIR
+from pymatgen.util.testing import TEST_FILES_DIR, VASP_IN_DIR, PymatgenTest
 
 
-class TestCifTransmuter:
+class TestCifTransmuter(PymatgenTest):
     def test_init(self):
         trafos = [SubstitutionTransformation({"Fe": "Mn", "Fe2+": "Mn2+"})]
         tsc = CifTransmuter.from_filenames([f"{TEST_FILES_DIR}/cif/MultiStructure.cif"], trafos)
@@ -22,7 +22,7 @@ class TestCifTransmuter:
             assert expected == els
 
 
-class TestPoscarTransmuter:
+class TestPoscarTransmuter(PymatgenTest):
     def test_init(self):
         trafos = [SubstitutionTransformation({"Fe": "Mn"})]
         tsc = PoscarTransmuter.from_filenames([f"{VASP_IN_DIR}/POSCAR", f"{VASP_IN_DIR}/POSCAR"], trafos)

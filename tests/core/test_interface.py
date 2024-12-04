@@ -8,13 +8,13 @@ from pymatgen.core.interface import GrainBoundary, GrainBoundaryGenerator, Inter
 from pymatgen.core.structure import Structure
 from pymatgen.core.surface import SlabGenerator
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
-from pymatgen.util.testing import TEST_FILES_DIR
+from pymatgen.util.testing import TEST_FILES_DIR, PymatgenTest
 
 TEST_DIR = f"{TEST_FILES_DIR}/core/grain_boundary"
 
 
-class TestGrainBoundary:
-    def setup_method(self):
+class TestGrainBoundary(PymatgenTest):
+    def setUp(self):
         self.Cu_conv = Structure.from_file(f"{TEST_DIR}/Cu_mp-30_conventional_standard.cif")
         GB_Cu_conv = GrainBoundaryGenerator(self.Cu_conv)
         self.Cu_GB1 = GB_Cu_conv.gb_from_parameters(
@@ -104,9 +104,9 @@ class TestGrainBoundary:
         assert_allclose(Cu_GB2_new.lattice.matrix, self.Cu_GB2.lattice.matrix)
 
 
-class TestGrainBoundaryGenerator:
+class TestGrainBoundaryGenerator(PymatgenTest):
     @classmethod
-    def setup_class(cls):
+    def setUpClass(cls):
         cls.Cu_prim = Structure.from_file(f"{TEST_DIR}/Cu_mp-30_primitive.cif")
         cls.GB_Cu_prim = GrainBoundaryGenerator(cls.Cu_prim)
         cls.Cu_conv = Structure.from_file(f"{TEST_DIR}/Cu_mp-30_conventional_standard.cif")
@@ -331,8 +331,8 @@ class TestGrainBoundaryGenerator:
         assert_allclose(close_angle, angle)
 
 
-class TestInterface:
-    def setup_method(self):
+class TestInterface(PymatgenTest):
+    def setUp(self):
         self.interface: Interface = self.get_structure("Si_SiO2_Interface")
 
     def test_basic_props(self):

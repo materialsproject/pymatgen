@@ -5,10 +5,11 @@ from numpy.testing import assert_allclose
 from pytest import approx
 
 from pymatgen.analysis.eos import EOS, NumericalEOS
+from pymatgen.util.testing import PymatgenTest
 
 
-class TestEOS:
-    def setup_method(self):
+class TestEOS(PymatgenTest):
+    def setUp(self):
         # Si data from Cormac
         self.volumes = [
             25.987454833,

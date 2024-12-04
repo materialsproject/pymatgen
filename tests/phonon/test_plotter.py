@@ -17,7 +17,7 @@ plt.rc("text", usetex=False)  # Disabling latex for testing
 
 
 class TestPhononDosPlotter(TestCase):
-    def setup_method(self):
+    def setUp(self):
         with open(f"{TEST_DIR}/NaCl_complete_ph_dos.json") as file:
             self.dos = CompletePhononDos.from_dict(json.load(file))
         self.plotter = PhononDosPlotter(sigma=0.2, stack=True)
@@ -55,7 +55,7 @@ class TestPhononDosPlotter(TestCase):
 
 
 class TestPhononBSPlotter(TestCase):
-    def setup_method(self):
+    def setUp(self):
         with open(f"{TEST_FILES_DIR}/electronic_structure/bandstructure/NaCl_phonon_bandstructure.json") as file:
             dct = json.loads(file.read())
         self.bs = PhononBandStructureSymmLine.from_dict(dct)
@@ -114,7 +114,7 @@ class TestPhononBSPlotter(TestCase):
 
 
 class TestThermoPlotter(TestCase):
-    def setup_method(self):
+    def setUp(self):
         with open(f"{TEST_DIR}/NaCl_complete_ph_dos.json") as file:
             self.dos = CompletePhononDos.from_dict(json.load(file))
         self.plotter = ThermoPlotter(self.dos, self.dos.structure)

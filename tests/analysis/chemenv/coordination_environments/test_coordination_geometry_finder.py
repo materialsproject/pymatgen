@@ -19,15 +19,15 @@ from pymatgen.analysis.chemenv.coordination_environments.coordination_geometry_f
     symmetry_measure,
 )
 from pymatgen.core.structure import Lattice, Structure
-from pymatgen.util.testing import TEST_FILES_DIR
+from pymatgen.util.testing import TEST_FILES_DIR, PymatgenTest
 
 __author__ = "waroquiers"
 
 json_dir = f"{TEST_FILES_DIR}/analysis/chemenv/json"
 
 
-class TestCoordinationGeometryFinder:
-    def setup_method(self):
+class TestCoordinationGeometryFinder(PymatgenTest):
+    def setUp(self):
         self.lgf = LocalGeometryFinder()
         self.lgf.setup_parameters(
             centering_type="standard",

@@ -9,10 +9,11 @@ from pytest import approx
 
 from pymatgen.core import Composition, Element, Lattice, PeriodicSite, Site, Species
 from pymatgen.electronic_structure.core import Magmom
+from pymatgen.util.testing import PymatgenTest
 
 
-class TestSite:
-    def setup_method(self):
+class TestSite(PymatgenTest):
+    def setUp(self):
         self.ordered_site = Site("Fe", [0.25, 0.35, 0.45])
         self.disordered_site = Site({"Fe": 0.5, "Mn": 0.5}, [0.25, 0.35, 0.45])
         self.propertied_site = Site("Fe2+", [0.25, 0.35, 0.45], {"magmom": 5.1, "charge": 4.2})
@@ -78,8 +79,8 @@ class TestSite:
             self.disordered_site.species = {"Cu": 0.5, "Gd": 0.6}
 
 
-class TestPeriodicSite:
-    def setup_method(self):
+class TestPeriodicSite(PymatgenTest):
+    def setUp(self):
         self.lattice = Lattice.cubic(10.0)
         self.si = Element("Si")
         self.site = PeriodicSite("Fe", [0.25, 0.35, 0.45], self.lattice)

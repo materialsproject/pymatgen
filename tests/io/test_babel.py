@@ -18,7 +18,7 @@ pybel = pytest.importorskip("openbabel.pybel")
 
 
 class TestBabelMolAdaptor(TestCase):
-    def setup_method(self):
+    def setUp(self):
         coords = [
             [0.000000, 0.000000, 0.000000],
             [0.000000, 0.000000, 1.089000],

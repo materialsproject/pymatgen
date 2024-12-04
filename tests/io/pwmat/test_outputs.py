@@ -1,12 +1,12 @@
 from __future__ import annotations
 
 from pymatgen.io.pwmat.outputs import DosSpin, Movement, OutFermi, Report
-from pymatgen.util.testing import TEST_FILES_DIR
+from pymatgen.util.testing import TEST_FILES_DIR, PymatgenTest
 
 TEST_DIR = f"{TEST_FILES_DIR}/io/pwmat"
 
 
-class TestMovement:
+class TestMovement(PymatgenTest):
     def test_init_and_properties(self):
         filepath = f"{TEST_DIR}/MOVEMENT.lzma"
         movement = Movement(filepath)
@@ -26,14 +26,14 @@ class TestMovement:
         assert movement.ionic_steps[0]["e_tot"] == -357677.2281
 
 
-class TestOutFermi:
+class TestOutFermi(PymatgenTest):
     def test_init_and_properties(self):
         filepath = f"{TEST_DIR}/OUT.FERMI.lzma"
         out_fermi = OutFermi(filepath)
         assert out_fermi.e_fermi == -2.359
 
 
-class TestReport:
+class TestReport(PymatgenTest):
     def test_init_and_properties(self):
         filepath = f"{TEST_DIR}/REPORT"
         report = Report(filepath)
@@ -46,7 +46,7 @@ class TestReport:
         assert report.hsps == {}
 
 
-class TestDosSpin:
+class TestDosSpin(PymatgenTest):
     def test_init_and_properties(self):
         filepath = f"{TEST_DIR}/DOS.spinup_projected"
         dos_spin = DosSpin(filepath)

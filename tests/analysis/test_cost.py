@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+from unittest import TestCase
+
 from pytest import approx
 
 from pymatgen.analysis.cost import CostAnalyzer, CostDBCSV, CostDBElements
@@ -8,8 +10,8 @@ from pymatgen.util.testing import TEST_FILES_DIR
 TEST_DIR = f"{TEST_FILES_DIR}/analysis/cost"
 
 
-class TestCostAnalyzer:
-    def setup_method(self):
+class TestCostAnalyzer(TestCase):
+    def setUp(self):
         self.ca1 = CostAnalyzer(CostDBCSV(f"{TEST_DIR}/costdb_1.csv"))
         self.ca2 = CostAnalyzer(CostDBCSV(f"{TEST_DIR}/costdb_2.csv"))
 
@@ -29,7 +31,7 @@ class TestCostAnalyzer:
         assert self.ca1.get_cost_per_kg("Ag") == self.ca2.get_cost_per_kg("Ag")
 
 
-class TestCostDB:
+class TestCostDB(TestCase):
     def test_sanity(self):
         ca = CostAnalyzer(CostDBElements())
         assert ca.get_cost_per_kg("PtO") > ca.get_cost_per_kg("MgO")

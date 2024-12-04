@@ -14,13 +14,13 @@ from pytest import approx
 from pymatgen.core import Element, Structure
 from pymatgen.electronic_structure.core import Orbital, OrbitalType, Spin
 from pymatgen.electronic_structure.dos import DOS, CompleteDos, FermiDos, LobsterCompleteDos
-from pymatgen.util.testing import TEST_FILES_DIR
+from pymatgen.util.testing import TEST_FILES_DIR, PymatgenTest
 
 TEST_DIR = f"{TEST_FILES_DIR}/electronic_structure/dos"
 
 
 class TestDos(TestCase):
-    def setup_method(self):
+    def setUp(self):
         with open(f"{TEST_DIR}/complete_dos.json") as file:
             self.dos = CompleteDos.from_dict(json.load(file))
 
@@ -58,7 +58,7 @@ class TestDos(TestCase):
 
 
 class TestFermiDos(TestCase):
-    def setup_method(self):
+    def setUp(self):
         with open(f"{TEST_DIR}/complete_dos.json") as file:
             self.dos = CompleteDos.from_dict(json.load(file))
         self.dos = FermiDos(self.dos)
@@ -105,7 +105,7 @@ class TestFermiDos(TestCase):
 
 
 class TestCompleteDos(TestCase):
-    def setup_method(self):
+    def setUp(self):
         with open(f"{TEST_DIR}/complete_dos.json") as file:
             self.dos = CompleteDos.from_dict(json.load(file))
         with zopen(f"{TEST_DIR}/pdag3_complete_dos.json.gz") as file:
@@ -323,8 +323,8 @@ class TestCompleteDos(TestCase):
             self.dos.get_dos_fp_similarity(dos_fp, dos_fp2, col=1, metric=metric, normalize=False)
 
 
-class TestDOS:
-    def setup_method(self):
+class TestDOS(PymatgenTest):
+    def setUp(self):
         with open(f"{TEST_DIR}/complete_dos.json") as file:
             dct = json.load(file)
             ys = list(zip(dct["densities"]["1"], dct["densities"]["-1"], strict=True))
@@ -359,7 +359,7 @@ class TestSpinPolarization(TestCase):
 
 
 class TestLobsterCompleteDos(TestCase):
-    def setup_method(self):
+    def setUp(self):
         with open(f"{TEST_DIR}/LobsterCompleteDos_spin.json") as file:
             data_spin = json.load(file)
         self.LobsterCompleteDOS_spin = LobsterCompleteDos.from_dict(data_spin)

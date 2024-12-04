@@ -13,7 +13,7 @@ from pymatgen.util.testing import TEST_FILES_DIR, VASP_IN_DIR
 
 
 class TestXYZ(TestCase):
-    def setup_method(self):
+    def setUp(self):
         coords = [
             [0, 0, 0],
             [0, 0, 1.089000],

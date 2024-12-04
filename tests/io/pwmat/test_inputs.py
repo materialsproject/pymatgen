@@ -18,7 +18,7 @@ from pymatgen.io.pwmat.inputs import (
     LineLocator,
     ListLocator,
 )
-from pymatgen.util.testing import TEST_FILES_DIR
+from pymatgen.util.testing import TEST_FILES_DIR, PymatgenTest
 
 TEST_DIR = f"{TEST_FILES_DIR}/io/pwmat"
 
@@ -43,7 +43,7 @@ def test_list_locator(exclusion: str, expected_idx: int):
     assert aim_idx == expected_idx
 
 
-class TestACstrExtractor:
+class TestACstrExtractor(PymatgenTest):
     def test_extract(self):
         filepath = f"{TEST_DIR}/atom.config"
         ac_extractor = ACExtractor(file_path=filepath)
@@ -60,7 +60,7 @@ class TestACstrExtractor:
             assert ac_extractor.magmoms[idx] == ac_str_extractor.get_magmoms()[idx]
 
 
-class TestAtomConfig:
+class TestAtomConfig(PymatgenTest):
     def test_init(self):
         filepath = f"{TEST_DIR}/atom.config"
         structure = Structure.from_file(filepath)
@@ -82,7 +82,7 @@ class TestAtomConfig:
         assert_allclose(atom_config.structure.lattice.abc, tmp_atom_config.structure.lattice.abc, 5)
 
 
-class TestGenKpt:
+class TestGenKpt(PymatgenTest):
     def test_from_structure(self):
         pytest.importorskip("seekpath")
         filepath = f"{TEST_DIR}/atom.config"
@@ -107,7 +107,7 @@ class TestGenKpt:
         assert gen_kpt.get_str() == tmp_gen_kpt_str
 
 
-class TestHighSymmetryPoint:
+class TestHighSymmetryPoint(PymatgenTest):
     def test_from_structure(self):
         pytest.importorskip("seekpath")
         filepath = f"{TEST_DIR}/atom.config"

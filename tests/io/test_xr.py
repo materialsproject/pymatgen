@@ -15,7 +15,7 @@ __date__ = "June 23, 2016"
 
 
 class TestXr(TestCase):
-    def setup_method(self):
+    def setUp(self):
         struct = Structure.from_file(f"{VASP_IN_DIR}/POSCAR")
         self.xr = Xr(struct)
 

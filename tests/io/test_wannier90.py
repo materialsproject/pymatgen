@@ -8,13 +8,13 @@ from numpy.testing import assert_allclose
 from pytest import approx
 
 from pymatgen.io.wannier90 import Unk
-from pymatgen.util.testing import TEST_FILES_DIR
+from pymatgen.util.testing import TEST_FILES_DIR, PymatgenTest
 
 TEST_DIR = f"{TEST_FILES_DIR}/io/wannier90"
 
 
-class TestUnk:
-    def setup_method(self):
+class TestUnk(PymatgenTest):
+    def setUp(self):
         rng = np.random.default_rng()
         self.data_std = rng.random((10, 5, 5, 5))
         self.unk_std = Unk(1, self.data_std)

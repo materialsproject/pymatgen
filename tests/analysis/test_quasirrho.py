@@ -15,7 +15,7 @@ TEST_DIR = f"{TEST_FILES_DIR}/analysis/quasirrho"
 class TestQuasiRRHO(TestCase):
     """Test class for QuasiRRHO"""
 
-    def setup_method(self):
+    def setUp(self):
         self.gout = GaussianOutput(f"{TEST_DIR}/quasirrho_gaufreq.log")
         self.linear_gout = GaussianOutput(f"{TEST_DIR}/co2.log.gz")
         self.qout = QCOutput(f"{TEST_DIR}/Frequency_no_equal.qout")

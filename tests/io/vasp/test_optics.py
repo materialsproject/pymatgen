@@ -7,7 +7,7 @@ from numpy.testing import assert_allclose
 
 from pymatgen.io.vasp.optics import DielectricFunctionCalculator, delta_func, delta_methfessel_paxton, step_func
 from pymatgen.io.vasp.outputs import Vasprun
-from pymatgen.util.testing import TEST_FILES_DIR
+from pymatgen.util.testing import TEST_FILES_DIR, PymatgenTest
 
 __author__ = "Jimmy-Xuan Shen"
 __copyright__ = "Copyright 2022, The Materials Project"
@@ -16,7 +16,7 @@ __email__ = "jmmshn@gmail.com"
 TEST_DIR = f"{TEST_FILES_DIR}/io/vasp"
 
 
-class TestVasprun:
+class TestVasprun(PymatgenTest):
     def test_optics(self):
         eps_data_path = f"{TEST_DIR}/fixtures/reproduce_eps"
         vrun = Vasprun(f"{eps_data_path}/vasprun.xml")

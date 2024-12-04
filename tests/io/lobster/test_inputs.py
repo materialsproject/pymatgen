@@ -8,7 +8,7 @@ from pymatgen.core.structure import Structure
 from pymatgen.io.lobster import Lobsterin
 from pymatgen.io.lobster.inputs import get_all_possible_basis_combinations
 from pymatgen.io.vasp.inputs import Incar, Kpoints, Potcar
-from pymatgen.util.testing import FAKE_POTCAR_DIR, TEST_FILES_DIR, VASP_IN_DIR, VASP_OUT_DIR
+from pymatgen.util.testing import FAKE_POTCAR_DIR, TEST_FILES_DIR, VASP_IN_DIR, VASP_OUT_DIR, PymatgenTest
 
 TEST_DIR = f"{TEST_FILES_DIR}/electronic_structure/cohp"
 
@@ -19,8 +19,8 @@ __email__ = "janine.george@uclouvain.be, esters@uoregon.edu"
 __date__ = "Dec 10, 2017"
 
 
-class TestLobsterin:
-    def setup_method(self):
+class TestLobsterin(PymatgenTest):
+    def setUp(self):
         self.Lobsterin = Lobsterin.from_file(f"{TEST_DIR}/lobsterin.1")
         self.Lobsterin2 = Lobsterin.from_file(f"{TEST_DIR}/lobsterin.2")
         self.Lobsterin3 = Lobsterin.from_file(f"{TEST_DIR}/lobsterin.3")
@@ -579,7 +579,7 @@ class TestLobsterin:
         new_lobsterin.to_json()
 
 
-class TestUtils:
+class TestUtils(PymatgenTest):
     def test_get_all_possible_basis_combinations(self):
         # this basis is just for testing (not correct)
         min_basis = ["Li 1s 2s ", "Na 1s 2s", "Si 1s 2s"]

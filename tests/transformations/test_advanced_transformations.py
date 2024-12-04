@@ -276,8 +276,8 @@ class TestSubstitutionPredictorTransformation:
 
 
 @pytest.mark.skipif(not enumlib_present, reason="enum_lib not present.")
-class TestMagOrderingTransformation:
-    def setup_method(self):
+class TestMagOrderingTransformation(PymatgenTest):
+    def setUp(self):
         lattice = Lattice.cubic(4.17)
         species = ["Ni", "O"]
         coords = [[0, 0, 0], [0.5, 0.5, 0.5]]
@@ -488,7 +488,7 @@ class TestMagOrderingTransformation:
 
 
 @pytest.mark.skipif(not enumlib_present, reason="enum_lib not present.")
-class TestDopingTransformation:
+class TestDopingTransformation(PymatgenTest):
     def test_apply_transformation(self):
         structure = PymatgenTest.get_structure("LiFePO4")
         spga = SpacegroupAnalyzer(structure, 0.1)
@@ -551,7 +551,7 @@ class TestDopingTransformation:
         assert find_codopant(Species("Fe", 2), 3) == Species("In", 3)
 
 
-class TestSlabTransformation:
+class TestSlabTransformation(PymatgenTest):
     def test_apply_transformation(self):
         struct = self.get_structure("LiFePO4")
         trans = SlabTransformation([0, 0, 1], 10, 10, shift=0.25)
@@ -570,7 +570,7 @@ class TestSlabTransformation:
         assert_allclose(slab_from_gen.cart_coords, slab_from_trans.cart_coords)
 
 
-class TestGrainBoundaryTransformation:
+class TestGrainBoundaryTransformation(PymatgenTest):
     def test_apply_transformation(self):
         Al_bulk = Structure.from_spacegroup("Fm-3m", Lattice.cubic(2.8575585), ["Al"], [[0, 0, 0]])
         gb_gen_params_s5 = {
@@ -590,7 +590,7 @@ class TestGrainBoundaryTransformation:
         assert_allclose(gb_from_generator.cart_coords, gb_from_trans.cart_coords)
 
 
-class TestDisorderedOrderedTransformation:
+class TestDisorderedOrderedTransformation(PymatgenTest):
     def test_apply_transformation(self):
         # nonsensical example just for testing purposes
         struct = self.get_structure("BaNiO3")
@@ -603,7 +603,7 @@ class TestDisorderedOrderedTransformation:
 
 
 @pytest.mark.skipif(not mcsqs_cmd, reason="mcsqs not present.")
-class TestSQSTransformation:
+class TestSQSTransformation(PymatgenTest):
     def test_apply_transformation(self):
         pzt_structs = loadfn(f"{TEST_FILES_DIR}/io/atat/mcsqs/pzt-structs.json")
         trans = SQSTransformation(scaling=[2, 1, 1], search_time=0.01, instances=1, wd=0)
@@ -649,7 +649,7 @@ class TestSQSTransformation:
 
 
 @pytest.mark.skipif(ClusterSpace is None, reason="icet not installed.")
-class TestSQSTransformationIcet:
+class TestSQSTransformationIcet(PymatgenTest):
     stored_run: dict = loadfn(f"{TEST_FILES_DIR}/transformations/icet-sqs-fcc-Mg_75-Al_25-scaling_8.json.gz")
     scaling: int = 8
 
@@ -699,7 +699,7 @@ class TestSQSTransformationIcet:
             assert isinstance(sqs_output[0][key], val)
 
 
-class TestCubicSupercellTransformation:
+class TestCubicSupercellTransformation(PymatgenTest):
     def test_apply_transformation_cubic_supercell(self):
         structure = self.get_structure("TlBiSe2")
         min_atoms = 100
@@ -848,7 +848,7 @@ class TestCubicSupercellTransformation:
         assert transformed_cubic.lattice.angles == transformed_orthorhombic.lattice.angles
 
 
-class TestAddAdsorbateTransformation:
+class TestAddAdsorbateTransformation(PymatgenTest):
     def test_apply_transformation(self):
         co = Molecule(["C", "O"], [[0, 0, 0], [0, 0, 1.23]])
         trans = AddAdsorbateTransformation(co)
@@ -859,7 +859,7 @@ class TestAddAdsorbateTransformation:
         assert out.reduced_formula == "Pt4CO"
 
 
-class TestSubstituteSurfaceSiteTransformation:
+class TestSubstituteSurfaceSiteTransformation(PymatgenTest):
     def test_apply_transformation(self):
         trans = SubstituteSurfaceSiteTransformation("Au")
         pt = Structure(Lattice.cubic(5), ["Pt"], [[0, 0, 0]])  # fictitious
@@ -870,7 +870,7 @@ class TestSubstituteSurfaceSiteTransformation:
 
 
 @pytest.mark.skipif(not hiphive, reason="hiphive not present")
-class TestMonteCarloRattleTransformation:
+class TestMonteCarloRattleTransformation(PymatgenTest):
     def test_apply_transformation(self):
         struct = self.get_structure("Si")
         mcrt = MonteCarloRattleTransformation(0.01, 2, seed=1)

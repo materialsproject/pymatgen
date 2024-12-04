@@ -25,7 +25,7 @@ TEST_DIR = f"{TEST_FILES_DIR}/electronic_structure/cohp/environments"
 
 
 class TestLobsterNeighbors(TestCase):
-    def setup_method(self):
+    def setUp(self):
         # test additional conditions first
         # only consider cation anion bonds
 

@@ -17,14 +17,14 @@ from pymatgen.analysis.chemenv.coordination_environments.structure_environments 
     StructureEnvironments,
 )
 from pymatgen.core import Species, Structure
-from pymatgen.util.testing import TEST_FILES_DIR
+from pymatgen.util.testing import TEST_FILES_DIR, PymatgenTest
 
 __author__ = "waroquiers"
 
 TEST_DIR = f"{TEST_FILES_DIR}/analysis/chemenv/structure_environments"
 
 
-class TestStructureEnvironments:
+class TestStructureEnvironments(PymatgenTest):
     def test_structure_environments(self):
         with open(f"{TEST_DIR}/se_mp-7000.json") as file:
             dct = json.load(file)

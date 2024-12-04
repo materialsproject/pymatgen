@@ -11,7 +11,7 @@ TEST_DIR = f"{TEST_FILES_DIR}/entries/correction_calculator"
 
 
 class TestCorrectionCalculator(TestCase):
-    def setup_method(self):
+    def setUp(self):
         self.exclude_polyanions = [
             "SO4",
             "CO3",

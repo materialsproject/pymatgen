@@ -20,13 +20,13 @@ from pymatgen.electronic_structure.bandstructure import (
 from pymatgen.electronic_structure.core import Orbital, Spin
 from pymatgen.electronic_structure.plotter import BSPlotterProjected
 from pymatgen.io.vasp import BSVasprun
-from pymatgen.util.testing import TEST_FILES_DIR, VASP_IN_DIR, VASP_OUT_DIR
+from pymatgen.util.testing import TEST_FILES_DIR, VASP_IN_DIR, VASP_OUT_DIR, PymatgenTest
 
 TEST_DIR = f"{TEST_FILES_DIR}/electronic_structure/bandstructure"
 
 
 class TestKpoint(TestCase):
-    def setup_method(self):
+    def setUp(self):
         self.lattice = Lattice.cubic(10.0)
         self.kpoint = Kpoint([0.1, 0.4, -0.5], self.lattice, label="X")
 
@@ -68,8 +68,8 @@ class TestKpoint(TestCase):
         assert kpoint.label == "X"
 
 
-class TestBandStructureSymmLine:
-    def setup_method(self):
+class TestBandStructureSymmLine(PymatgenTest):
+    def setUp(self):
         self.bs: BandStructureSymmLine = loadfn(f"{TEST_DIR}/Cu2O_361_bandstructure.json")
         self.bs2: BandStructureSymmLine = loadfn(f"{TEST_DIR}/CaO_2605_bandstructure.json")
         self.bs_spin: BandStructureSymmLine = loadfn(f"{TEST_DIR}/NiO_19009_bandstructure.json")
@@ -258,8 +258,8 @@ class TestBandStructureSymmLine:
         assert bs_scissored.efermi != approx(orig_efermi)
 
 
-class TestReconstructBandStructure:
-    def setup_method(self):
+class TestReconstructBandStructure(PymatgenTest):
+    def setUp(self):
         self.bs_cu: BandStructureSymmLine = loadfn(f"{TEST_DIR}/Cu_30_bandstructure.json")
         self.bs_cu2: BandStructureSymmLine = loadfn(f"{TEST_DIR}/Cu_30_bandstructure.json")
 
@@ -277,8 +277,8 @@ class TestReconstructBandStructure:
         bs.get_projection_on_elements()
 
 
-class TestLobsterBandStructureSymmLine:
-    def setup_method(self):
+class TestLobsterBandStructureSymmLine(PymatgenTest):
+    def setUp(self):
         with open(
             f"{TEST_FILES_DIR}/electronic_structure/cohp/Fatband_SiO2/Test_p/lobster_band_structure_spin.json",
         ) as file:

@@ -41,7 +41,7 @@ from pymatgen.io.vasp.outputs import (
     Xdatcar,
 )
 from pymatgen.io.wannier90 import Unk
-from pymatgen.util.testing import FAKE_POTCAR_DIR, TEST_FILES_DIR, VASP_IN_DIR, VASP_OUT_DIR
+from pymatgen.util.testing import FAKE_POTCAR_DIR, TEST_FILES_DIR, VASP_IN_DIR, VASP_OUT_DIR, PymatgenTest
 
 try:
     import h5py
@@ -53,7 +53,7 @@ TEST_DIR = f"{TEST_FILES_DIR}/io/vasp"
 kpts_opt_vrun_path = f"{TEST_DIR}/fixtures/kpoints_opt/vasprun.xml.gz"
 
 
-class TestVasprun:
+class TestVasprun(PymatgenTest):
     def test_vasprun_ml(self):
         # Test for ML MD simulation
         # The trajectory data is stored in md_data
@@ -832,7 +832,7 @@ class TestVasprun:
                 assert vrun.potcar_spec[ipot]["summary_stats"] == potcar[ipot]._summary_stats
 
 
-class TestOutcar:
+class TestOutcar(PymatgenTest):
     def test_init(self):
         outcar = Outcar(f"{VASP_OUT_DIR}/OUTCAR.gz")
         expected_mag = (
@@ -1423,7 +1423,7 @@ class TestOutcar:
             )
 
 
-class TestBSVasprun:
+class TestBSVasprun(PymatgenTest):
     def test_get_band_structure(self):
         filepath = f"{VASP_OUT_DIR}/vasprun_Si_bands.xml.gz"
         vasprun = BSVasprun(filepath, parse_potcar_file=False)
@@ -1477,7 +1477,7 @@ class TestBSVasprun:
         assert {*vrun_dct["output"]} >= {"eigenvalues", "eigenvalues_kpoints_opt"}
 
 
-class TestOszicar:
+class TestOszicar(PymatgenTest):
     def test_init(self):
         fpath = f"{VASP_OUT_DIR}/OSZICAR"
         oszicar = Oszicar(fpath)
@@ -1493,7 +1493,7 @@ class TestOszicar:
         assert set(oszicar.ionic_steps[-1]) == set({"F", "E0", "dE", "mag"})
 
 
-class TestLocpot:
+class TestLocpot(PymatgenTest):
     def test_init(self):
         filepath = f"{VASP_OUT_DIR}/LOCPOT.gz"
         locpot = Locpot.from_file(filepath)
@@ -1514,9 +1514,9 @@ class TestLocpot:
         assert {str(ele) for ele in locpot.structure.composition} == {"Mg", "Si"}
 
 
-class TestChgcar:
+class TestChgcar(PymatgenTest):
     @classmethod
-    def setup_class(cls):
+    def setUpClass(cls):
         filepath = f"{VASP_OUT_DIR}/CHGCAR.nospin.gz"
         cls.chgcar_no_spin = Chgcar.from_file(filepath)
 
@@ -1638,7 +1638,7 @@ class TestChgcar:
         )
 
 
-class TestAeccars:
+class TestAeccars(PymatgenTest):
     # https://github.com/materialsproject/pymatgen/pull/3343
     def test_read_write_file(self):
         aeccar0_test = Chgcar.from_file(f"{TEST_FILES_DIR}/command_line/bader/AECCAR0.gz")
@@ -1654,7 +1654,7 @@ class TestAeccars:
         assert_allclose(aeccar2.data["total"], aeccar2_read.data["total"])
 
 
-class TestElfcar:
+class TestElfcar(PymatgenTest):
     def test_init(self):
         elfcar = Elfcar.from_file(f"{VASP_OUT_DIR}/ELFCAR.gz")
         assert approx(np.mean(elfcar.data["total"])) == 0.19076207645194002
@@ -1674,7 +1674,7 @@ class TestElfcar:
         assert len(elfcar.linear_slice([0.0, 0.0, 0.0], [1.0, 1.0, 1.0])) == 100
 
 
-class TestProcar:
+class TestProcar(PymatgenTest):
     def test_init(self):
         filepath = f"{VASP_OUT_DIR}/PROCAR.simple"
         procar = Procar(filepath)
@@ -1817,8 +1817,8 @@ class TestDynmat:
         # TODO: test get_phonon_frequencies once cross-checked
 
 
-class TestWavecar:
-    def setup_method(self):
+class TestWavecar(PymatgenTest):
+    def setUp(self):
         latt_mat = np.array(np.eye(3) * 10, dtype=float)  # lattice vectors
         self.vol = np.dot(latt_mat[0, :], np.cross(latt_mat[1, :], latt_mat[2, :]))  # unit cell volume
         # reciprocal lattice vectors
@@ -2095,7 +2095,7 @@ class TestWavecar:
         assert unk == unk_ncl
 
 
-class TestEigenval:
+class TestEigenval(PymatgenTest):
     def test_init(self):
         eig = Eigenval(f"{VASP_OUT_DIR}/EIGENVAL.gz")
         assert eig.ispin == 1
@@ -2135,8 +2135,8 @@ class TestEigenval:
         assert props[3][1]
 
 
-class TestWaveder:
-    def setup_method(self):
+class TestWaveder(PymatgenTest):
+    def setUp(self):
         wder = Waveder.from_binary(f"{VASP_OUT_DIR}/WAVEDER", "float64")
         assert wder.nbands == 36
         assert wder.nkpoints == 56
@@ -2168,8 +2168,8 @@ class TestWaveder:
         _check(wderf)
 
 
-class TestWSWQ:
-    def setup_method(self):
+class TestWSWQ(PymatgenTest):
+    def setUp(self):
         self.wswq = WSWQ.from_file(f"{VASP_OUT_DIR}/WSWQ.gz")
 
     def test_consistency(self):

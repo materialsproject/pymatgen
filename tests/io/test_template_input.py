@@ -5,12 +5,12 @@ import os
 import pytest
 
 from pymatgen.io.template import TemplateInputGen
-from pymatgen.util.testing import TEST_FILES_DIR
+from pymatgen.util.testing import TEST_FILES_DIR, PymatgenTest
 
 TEST_DIR = f"{TEST_FILES_DIR}/io"
 
 
-class TestTemplateInputGen:
+class TestTemplateInputGen(PymatgenTest):
     def test_write_inputs(self):
         input_set = TemplateInputGen().get_input_set(
             template=f"{TEST_DIR}/template_input_file.txt",

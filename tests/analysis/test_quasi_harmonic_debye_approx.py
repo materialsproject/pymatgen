@@ -13,7 +13,7 @@ __author__ = "Kiran Mathew"
 
 
 class TestQuasiHarmonicDebyeApprox(TestCase):
-    def setup_method(self):
+    def setUp(self):
         struct = Structure.from_dict(
             {
                 "lattice": {
@@ -138,7 +138,7 @@ class TestQuasiHarmonicDebyeApprox(TestCase):
 
 
 class TestAnharmonicQuasiHarmonicDebyeApprox(TestCase):
-    def setup_method(self):
+    def setUp(self):
         struct = Structure.from_str(
             """FCC Al
 1.0

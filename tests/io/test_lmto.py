@@ -10,7 +10,7 @@ from pymatgen.core.units import Ry_to_eV
 from pymatgen.electronic_structure.core import Spin
 from pymatgen.io.lmto import LMTOCopl, LMTOCtrl
 from pymatgen.util.num import round_to_sigfigs
-from pymatgen.util.testing import TEST_FILES_DIR
+from pymatgen.util.testing import TEST_FILES_DIR, PymatgenTest
 
 __author__ = "Marco Esters"
 __copyright__ = "Copyright 2017, The Materials Project"
@@ -23,13 +23,13 @@ TEST_DIR = f"{TEST_FILES_DIR}/electronic_structure/cohp"
 MODULE_DIR = os.path.dirname(os.path.abspath(__file__))
 
 
-class TestCtrl:
-    def setup_method(self):
+class TestCtrl(PymatgenTest):
+    def setUp(self):
         os.chdir(TEST_DIR)
         self.ref_bise = LMTOCtrl.from_file(filename="CTRL.BiSe")
         self.ref_fe = LMTOCtrl.from_file()
 
-    def teardown_method(self):
+    def tearDown(self):
         os.chdir(MODULE_DIR)
 
     def test_dict(self):
@@ -47,14 +47,14 @@ class TestCtrl:
         assert self.ref_bise.structure.matches(ctrl_file.structure)
 
 
-class TestCopl:
-    def setup_method(self):
+class TestCopl(PymatgenTest):
+    def setUp(self):
         os.chdir(TEST_DIR)
         self.copl_bise = LMTOCopl("COPL.BiSe")
         self.copl_bise_eV = LMTOCopl(filename="COPL.BiSe", to_eV=True)
         self.copl_fe = LMTOCopl()
 
-    def teardown_method(self):
+    def tearDown(self):
         os.chdir(MODULE_DIR)
 
     def test_attributes(self):

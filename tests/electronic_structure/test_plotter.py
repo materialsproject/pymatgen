@@ -30,15 +30,15 @@ from pymatgen.electronic_structure.plotter import (
     plot_ellipsoid,
 )
 from pymatgen.io.vasp import Vasprun
-from pymatgen.util.testing import TEST_FILES_DIR, VASP_IN_DIR, VASP_OUT_DIR
+from pymatgen.util.testing import TEST_FILES_DIR, VASP_IN_DIR, VASP_OUT_DIR, PymatgenTest
 
 BAND_TEST_DIR = f"{TEST_FILES_DIR}/electronic_structure/bandstructure"
 
 rc("text", usetex=False)  # Disabling latex is needed for this test to work.
 
 
-class TestDosPlotter:
-    def setup_method(self):
+class TestDosPlotter(PymatgenTest):
+    def setUp(self):
         with open(f"{BAND_TEST_DIR}/../dos/complete_dos.json") as file:
             self.dos = CompleteDos.from_dict(json.load(file))
             self.plotter = DosPlotter(sigma=0.2, stack=True)
@@ -91,8 +91,8 @@ class TestDosPlotter:
         }
 
 
-class TestBSPlotter:
-    def setup_method(self):
+class TestBSPlotter(PymatgenTest):
+    def setUp(self):
         with open(f"{BAND_TEST_DIR}/CaO_2605_bandstructure.json") as file:
             dct = json.loads(file.read())
             self.bs = BandStructureSymmLine.from_dict(dct)
@@ -185,7 +185,7 @@ class TestBSPlotter:
 
 
 class TestBSPlotterProjected(TestCase):
-    def setup_method(self):
+    def setUp(self):
         with open(f"{BAND_TEST_DIR}/Cu2O_361_bandstructure.json") as file:
             self.bs_Cu2O = BandStructureSymmLine.from_dict(json.load(file))
         self.plotter_Cu2O = BSPlotterProjected(self.bs_Cu2O)
@@ -258,7 +258,7 @@ class TestBSDOSPlotter:
 
 
 class TestPlotBZ(TestCase):
-    def setup_method(self):
+    def setUp(self):
         self.rec_latt = Structure.from_file(f"{TEST_FILES_DIR}/io/cssr/Si.cssr").lattice.reciprocal_lattice
         self.kpath = [[[0.0, 0.0, 0.0], [0.5, 0.0, 0.5], [0.5, 0.25, 0.75], [0.375, 0.375, 0.75]]]
         self.labels = {
@@ -304,7 +304,7 @@ class TestPlotBZ(TestCase):
 @pytest.mark.skip("TODO: need someone to fix this")
 @pytest.mark.skipif(not which("x_trans"), reason="No x_trans executable found")
 class TestBoltztrapPlotter(TestCase):
-    def setup_method(self):
+    def setUp(self):
         bz = BoltztrapAnalyzer.from_files(f"{TEST_FILES_DIR}/boltztrap/transp/")
         self.plotter = BoltztrapPlotter(bz)
 
@@ -444,8 +444,8 @@ class TestBoltztrapPlotter(TestCase):
         plt.close()
 
 
-class TestCohpPlotter:
-    def setup_method(self):
+class TestCohpPlotter(PymatgenTest):
+    def setUp(self):
         path = f"{TEST_FILES_DIR}/electronic_structure/cohp/complete_cohp_lobster.json"
         with open(path) as file:
             self.cohp = CompleteCohp.from_dict(json.load(file))

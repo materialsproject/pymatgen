@@ -46,7 +46,7 @@ PMG_ENTRIES_DIR = os.path.dirname(os.path.abspath(pymatgen.entries.__file__))
 class TestCorrectionSpecificity(TestCase):
     """Make sure corrections are only applied to GGA or GGA+U entries."""
 
-    def setup_method(self):
+    def setUp(self):
         self.entry1 = ComputedEntry(
             "Fe2O3",
             -1,
@@ -205,7 +205,7 @@ def test_overlapping_adjustments():
 
 @pytest.mark.filterwarnings("ignore:MaterialsProjectCompatibility is deprecated")
 class TestMaterialsProjectCompatibility(TestCase):
-    def setup_method(self):
+    def setUp(self):
         self.entry1 = ComputedEntry(
             "Fe2O3",
             -1,
@@ -622,7 +622,7 @@ class TestMaterialsProjectCompatibility(TestCase):
 
 
 class TestMaterialsProjectCompatibility2020(TestCase):
-    def setup_method(self):
+    def setUp(self):
         self.entry1 = ComputedEntry(
             "Fe2O3",
             -1,
@@ -1316,7 +1316,7 @@ class TestMaterialsProjectCompatibility2020(TestCase):
 
 
 class TestMITCompatibility(TestCase):
-    def setup_method(self):
+    def setUp(self):
         self.compat = MITCompatibility(check_potcar_hash=True)
         self.gga_compat = MITCompatibility("GGA", check_potcar_hash=True)
         self.entry_O = ComputedEntry(
@@ -1656,7 +1656,7 @@ class TestMITCompatibility(TestCase):
 
 
 class TestOxideTypeCorrection(TestCase):
-    def setup_method(self):
+    def setUp(self):
         self.compat = MITCompatibility(check_potcar_hash=True)
 
     def test_no_struct_compat(self):
@@ -1827,7 +1827,7 @@ class TestOxideTypeCorrection(TestCase):
 
 
 class TestSulfideTypeCorrection2020(TestCase):
-    def setup_method(self):
+    def setUp(self):
         self.compat = MaterialsProject2020Compatibility(check_potcar_hash=False)
 
     def test_struct_no_struct(self):
@@ -1987,7 +1987,7 @@ class TestSulfideTypeCorrection2020(TestCase):
 
 
 class TestOxideTypeCorrectionNoPeroxideCorr(TestCase):
-    def setup_method(self):
+    def setUp(self):
         self.compat = MITCompatibility(correct_peroxide=False)
 
     def test_oxide_energy_corr(self):
@@ -2255,7 +2255,7 @@ class TestMaterialsProjectAqueousCompatibility:
 
 
 class TestAqueousCorrection(TestCase):
-    def setup_method(self):
+    def setUp(self):
         fp = f"{PMG_ENTRIES_DIR}/MITCompatibility.yaml"
         self.corr = AqueousCorrection(fp)
 
@@ -2282,7 +2282,7 @@ class TestAqueousCorrection(TestCase):
 
 
 class TestMITAqueousCompatibility(TestCase):
-    def setup_method(self):
+    def setUp(self):
         self.compat = MITCompatibility(check_potcar_hash=True)
         self.aqcompat = MITAqueousCompatibility(check_potcar_hash=True)
         fp = f"{PMG_ENTRIES_DIR}/MITCompatibility.yaml"
@@ -2393,7 +2393,7 @@ class TestMITAqueousCompatibility(TestCase):
 
 
 class TestCorrectionErrors2020Compatibility(TestCase):
-    def setup_method(self):
+    def setUp(self):
         self.compat = MaterialsProject2020Compatibility()
 
         params = {

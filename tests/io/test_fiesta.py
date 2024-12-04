@@ -10,7 +10,7 @@ TEST_DIR = f"{TEST_FILES_DIR}/io/fiesta"
 
 
 class TestFiestaInput(TestCase):
-    def setup_method(self):
+    def setUp(self):
         coords = [
             [0.000000, 0.000000, 0.000000],
             [0.000000, 0.000000, 1.089000],
@@ -72,7 +72,7 @@ class TestFiestaInput(TestCase):
 
 
 class TestFiestaOutput(TestCase):
-    def setup_method(self):
+    def setUp(self):
         self.log_fiesta = FiestaOutput(f"{TEST_DIR}/log_fiesta")
 
     def test_props(self):

@@ -9,12 +9,12 @@ from monty.serialization import dumpfn, loadfn
 from pymatgen.core import Element
 from pymatgen.entries.computed_entries import ComputedEntry
 from pymatgen.entries.entry_tools import EntrySet, group_entries_by_composition, group_entries_by_structure
-from pymatgen.util.testing import TEST_FILES_DIR
+from pymatgen.util.testing import TEST_FILES_DIR, PymatgenTest
 
 TEST_DIR = f"{TEST_FILES_DIR}/entries"
 
 
-class TestFunc:
+class TestFunc(PymatgenTest):
     def test_group_entries_by_structure(self):
         entries = loadfn(f"{TEST_DIR}/TiO2_entries.json")
         groups = group_entries_by_structure(entries)
@@ -49,8 +49,8 @@ class TestFunc:
             assert group == sorted(group, key=lambda e: e.energy_per_atom)
 
 
-class TestEntrySet:
-    def setup_method(self):
+class TestEntrySet(PymatgenTest):
+    def setUp(self):
         entries = loadfn(f"{TEST_DIR}/Li-Fe-P-O_entries.json")
         self.entry_set = EntrySet(entries)
 

@@ -6,6 +6,7 @@ from pytest import approx
 from pymatgen.analysis.diffraction.neutron import NDCalculator
 from pymatgen.core.lattice import Lattice
 from pymatgen.core.structure import Structure
+from pymatgen.util.testing import PymatgenTest
 
 """
 These calculated values were verified with VESTA and FullProf.
@@ -19,7 +20,7 @@ __email__ = "resnant@outlook.jp"
 __date__ = "4/19/18"
 
 
-class TestNDCalculator:
+class TestNDCalculator(PymatgenTest):
     def test_get_pattern(self):
         struct = self.get_structure("CsCl")
         c = NDCalculator(wavelength=1.54184)  # CuKa radiation

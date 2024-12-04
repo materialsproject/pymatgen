@@ -15,13 +15,13 @@ from pymatgen.electronic_structure.cohp import (
     get_integrated_cohp_in_energy_range,
 )
 from pymatgen.electronic_structure.core import Orbital, Spin
-from pymatgen.util.testing import TEST_FILES_DIR
+from pymatgen.util.testing import TEST_FILES_DIR, PymatgenTest
 
 TEST_DIR = f"{TEST_FILES_DIR}/electronic_structure/cohp"
 
 
 class TestCohp(TestCase):
-    def setup_method(self):
+    def setUp(self):
         with open(f"{TEST_DIR}/cohp.json") as file:
             self.cohp = Cohp.from_dict(json.load(file))
         self.cohp_only = Cohp(self.cohp.efermi, self.cohp.energies, self.cohp.cohp)
@@ -91,7 +91,7 @@ class TestCohp(TestCase):
 
 
 class TestIcohpValue(TestCase):
-    def setup_method(self):
+    def setUp(self):
         # without spin polarization
         label = "1"
         atom1 = "K1"
@@ -169,7 +169,7 @@ class TestIcohpValue(TestCase):
 
 
 class TestCombinedIcohp(TestCase):
-    def setup_method(self):
+    def setUp(self):
         # without spin polarization:
         are_coops = are_cobis = is_spin_polarized = False
         list_atom2 = ["K2", "K2", "K2", "K2", "K2", "K2"]
@@ -797,8 +797,8 @@ class TestCombinedIcohp(TestCase):
         assert self.icoopcollection_Fe.extremum_icohpvalue(summed_spin_channels=False, spin=Spin.down) == -0.05756
 
 
-class TestCompleteCohp:
-    def setup_method(self):
+class TestCompleteCohp(PymatgenTest):
+    def setUp(self):
         filepath = f"{TEST_DIR}/complete_cohp_lobster.json"
         with open(filepath) as file:
             self.cohp_lobster_dict = CompleteCohp.from_dict(json.load(file))
@@ -1263,7 +1263,7 @@ class TestCompleteCohp:
 
 
 class TestMethod(TestCase):
-    def setup_method(self):
+    def setUp(self):
         filepath = f"{TEST_DIR}/COHPCAR.lobster.gz"
         structure = f"{TEST_DIR}/POSCAR"
         self.cohp_lobster = CompleteCohp.from_file("lobster", filename=filepath, structure_file=structure)

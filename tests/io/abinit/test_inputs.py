@@ -18,7 +18,7 @@ from pymatgen.io.abinit.inputs import (
     ion_ioncell_relax_input,
     num_valence_electrons,
 )
-from pymatgen.util.testing import TEST_FILES_DIR
+from pymatgen.util.testing import TEST_FILES_DIR, PymatgenTest
 
 TEST_DIR = f"{TEST_FILES_DIR}/io/abinit"
 
@@ -33,7 +33,7 @@ def abiref_files(*filenames):
     return [f"{TEST_DIR}/{file}" for file in filenames]
 
 
-class TestAbinitInput:
+class TestAbinitInput(PymatgenTest):
     """Unit tests for BasicAbinitInput."""
 
     def test_api(self):
@@ -168,7 +168,7 @@ class TestAbinitInput:
         assert len(inp["kptbounds"]) == 12
 
 
-class TestMultiDataset:
+class TestMultiDataset(PymatgenTest):
     """Unit tests for BasicMultiDataset."""
 
     def test_api(self):
@@ -251,7 +251,7 @@ class TestMultiDataset:
         self.serialize_with_pickle(multi, test_eq=False)
 
 
-class TestShiftMode:
+class TestShiftMode(PymatgenTest):
     def test_shiftmode(self):
         gamma = ShiftMode.GammaCentered
         assert ShiftMode.from_object("G") == gamma
@@ -260,8 +260,8 @@ class TestShiftMode:
             ShiftMode.from_object({})
 
 
-class TestFactory:
-    def setup_method(self):
+class TestFactory(PymatgenTest):
+    def setUp(self):
         # Si ebands
         self.si_structure = Structure.from_file(abiref_file("si.cif"))
         self.si_pseudo = abiref_file("14si.pspnc")

@@ -7,12 +7,13 @@ from numpy.testing import assert_allclose
 from pytest import approx
 
 from pymatgen.analysis.chemenv.utils.coordination_geometry_utils import Plane
+from pymatgen.util.testing import PymatgenTest
 
 __author__ = "David Waroquiers"
 
 
-class TestPlanesUtils:
-    def setup_method(self):
+class TestPlanesUtils(PymatgenTest):
+    def setUp(self):
         # Test of plane 4x + 2y - 4z + 3 = 0 (used in most test cases)
         self.expected_coefficients = np.array([4, 2, -4, 3], float)
         self.p1 = np.array([0, 0, 0.75])

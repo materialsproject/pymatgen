@@ -17,13 +17,13 @@ from pymatgen.analysis.structure_matcher import (
 )
 from pymatgen.core import Element, Lattice, Structure, SymmOp
 from pymatgen.util.coord import find_in_coord_list_pbc
-from pymatgen.util.testing import TEST_FILES_DIR, VASP_IN_DIR
+from pymatgen.util.testing import TEST_FILES_DIR, VASP_IN_DIR, PymatgenTest
 
 TEST_DIR = f"{TEST_FILES_DIR}/analysis/structure_matcher"
 
 
-class TestStructureMatcher:
-    def setup_method(self):
+class TestStructureMatcher(PymatgenTest):
+    def setUp(self):
         with open(f"{TEST_FILES_DIR}/entries/TiO2_entries.json") as file:
             entries = json.load(file, cls=MontyDecoder)
         self.struct_list = [ent.structure for ent in entries]

@@ -14,7 +14,7 @@ TEST_DIR = f"{TEST_FILES_DIR}/apps/battery"
 
 
 class TestInsertionElectrode(TestCase):
-    def setup_method(self):
+    def setUp(self):
         self.entry_Li = ComputedEntry("Li", -1.90753119)
         self.entry_Ca = ComputedEntry("Ca", -1.99689568)
 

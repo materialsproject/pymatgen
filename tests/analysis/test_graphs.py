@@ -4,6 +4,7 @@ import copy
 import re
 from glob import glob
 from shutil import which
+from unittest import TestCase
 
 import networkx as nx
 import networkx.algorithms.isomorphism as iso
@@ -23,7 +24,7 @@ from pymatgen.analysis.local_env import (
 from pymatgen.command_line.critic2_caller import Critic2Analysis
 from pymatgen.core import Lattice, Molecule, Site, Structure
 from pymatgen.core.structure import FunctionalGroups
-from pymatgen.util.testing import TEST_FILES_DIR
+from pymatgen.util.testing import TEST_FILES_DIR, PymatgenTest
 
 try:
     from openbabel import openbabel
@@ -45,8 +46,8 @@ __date__ = "August 2017"
 TEST_DIR = f"{TEST_FILES_DIR}/analysis/graphs"
 
 
-class TestStructureGraph:
-    def setup_method(self):
+class TestStructureGraph(PymatgenTest):
+    def setUp(self):
         # trivial example, simple square lattice for testing
         structure = Structure(Lattice.tetragonal(5, 50), ["H"], [[0, 0, 0]])
         self.square_sg = StructureGraph.from_empty_graph(structure, edge_weight_name="", edge_weight_units="")
@@ -503,8 +504,8 @@ from    to  to_image
         assert list(sg.graph.edges)[-2:] == [(1, 3, 0), (1, 2, 0)]
 
 
-class TestMoleculeGraph:
-    def setup_method(self):
+class TestMoleculeGraph(TestCase):
+    def setUp(self):
         cyclohexene_xyz = f"{TEST_DIR}/cyclohexene.xyz"
         cyclohexene = Molecule.from_file(cyclohexene_xyz)
         self.cyclohexene = MoleculeGraph.from_empty_graph(

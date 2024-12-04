@@ -8,10 +8,11 @@ from pymatgen.core.lattice import Lattice
 from pymatgen.core.structure import Molecule, Structure
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
 from pymatgen.util.coord import in_coord_list
+from pymatgen.util.testing import PymatgenTest
 
 
-class TestAdsorbateSiteFinder:
-    def setup_method(self):
+class TestAdsorbateSiteFinder(PymatgenTest):
+    def setUp(self):
         self.structure = Structure.from_spacegroup("Fm-3m", Lattice.cubic(3.5), ["Ni"], [[0, 0, 0]])
         lattice = Lattice.cubic(3.010)
         frac_coords = [
