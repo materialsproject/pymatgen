@@ -1,7 +1,6 @@
 from __future__ import annotations
 
 import shutil
-from unittest import TestCase
 
 import numpy as np
 import pytest
@@ -41,7 +40,7 @@ BZT_INTERP_FN = f"{TEST_DIR}/bztInterp.json.gz"
 BZT_TRANSP_FN = f"{TEST_DIR}/bztTranspProps.json.gz"
 
 
-class TestVasprunBSLoader(TestCase):
+class TestVasprunBSLoader:
     def setup_method(self):
         self.loader = VasprunBSLoader(VASP_RUN)
         assert self.loader is not None
@@ -80,7 +79,7 @@ class TestVasprunBSLoader(TestCase):
         assert self.loader.get_volume() == approx(477.6256714925874, abs=1e-5)
 
 
-class TestBandstructureLoader(TestCase):
+class TestBandstructureLoader:
     def setup_method(self):
         self.loader = BandstructureLoader(BAND_STRUCT, VASP_RUN.structures[-1])
         assert self.loader is not None
@@ -107,7 +106,7 @@ class TestBandstructureLoader(TestCase):
         assert self.loader_sp_dn.ebands.shape == (14, 198)
 
 
-class TestVasprunLoader(TestCase):
+class TestVasprunLoader:
     def setup_method(self):
         self.loader = VasprunLoader(VASP_RUN)
         assert self.loader.proj.shape == (120, 20, 2, 9)
@@ -126,7 +125,7 @@ class TestVasprunLoader(TestCase):
         assert self.loader is not None
 
 
-class TestBztInterpolator(TestCase):
+class TestBztInterpolator:
     def setup_method(self):
         with ScratchDir("."):
             shutil.copy(BZT_INTERP_FN, ".")
@@ -205,7 +204,7 @@ class TestBztInterpolator(TestCase):
         assert pdos == approx(272.194174, abs=1e-5)
 
 
-class TestBztTransportProperties(TestCase):
+class TestBztTransportProperties:
     def setup_method(self):
         with ScratchDir("."):
             shutil.copy(BZT_TRANSP_FN, ".")

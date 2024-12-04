@@ -1,7 +1,5 @@
 from __future__ import annotations
 
-from unittest import TestCase
-
 import pytest
 
 from pymatgen.analysis.quasirrho import QuasiRRHO, get_avg_mom_inertia
@@ -12,7 +10,7 @@ from pymatgen.util.testing import TEST_FILES_DIR
 TEST_DIR = f"{TEST_FILES_DIR}/analysis/quasirrho"
 
 
-class TestQuasiRRHO(TestCase):
+class TestQuasiRRHO:
     """Test class for QuasiRRHO"""
 
     def setup_method(self):

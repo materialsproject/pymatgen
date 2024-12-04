@@ -7,7 +7,6 @@ import pickle
 import re
 import warnings
 from shutil import copyfile
-from unittest import TestCase
 from unittest.mock import patch
 
 import numpy as np
@@ -1297,7 +1296,7 @@ direct
 @pytest.mark.filterwarnings(
     "ignore:POTCAR data with symbol .* is not known to pymatgen:pymatgen.io.vasp.inputs.UnknownPotcarWarning"
 )
-class TestPotcarSingle(TestCase):
+class TestPotcarSingle:
     def setup_method(self):
         self.psingle_Mn_pv = PotcarSingle.from_file(f"{FAKE_POTCAR_DIR}/POT_GGA_PAW_PBE/POTCAR.Mn_pv.gz")
         self.psingle_Fe = PotcarSingle.from_file(f"{FAKE_POTCAR_DIR}/POT_GGA_PAW_PBE/POTCAR.Fe.gz")

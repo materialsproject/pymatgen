@@ -2,7 +2,6 @@ from __future__ import annotations
 
 import copy
 import platform
-from unittest import TestCase
 
 import pytest
 from pytest import approx
@@ -17,7 +16,7 @@ from pymatgen.util.testing import TEST_FILES_DIR
 pybel = pytest.importorskip("openbabel.pybel")
 
 
-class TestBabelMolAdaptor(TestCase):
+class TestBabelMolAdaptor:
     def setup_method(self):
         coords = [
             [0.000000, 0.000000, 0.000000],

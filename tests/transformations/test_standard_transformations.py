@@ -4,7 +4,6 @@ import functools
 import json
 import operator
 from shutil import which
-from unittest import TestCase
 
 import numpy as np
 import pytest
@@ -41,7 +40,7 @@ from pymatgen.util.testing import TEST_FILES_DIR, VASP_IN_DIR
 enumlib_present = which("enum.x") and which("makestr.x")
 
 
-class TestRotationTransformations(TestCase):
+class TestRotationTransformations:
     def setup_method(self):
         coords = [[0, 0, 0], [0.75, 0.5, 0.75]]
         lattice = [
@@ -108,7 +107,7 @@ class TestSubstitutionTransformation:
         assert struct_trafo.formula == "Na2 Se1 S1"
 
 
-class TestSupercellTransformation(TestCase):
+class TestSupercellTransformation:
     def setup_method(self):
         coords = [[0, 0, 0], [0.75, 0.75, 0.75], [0.5, 0.5, 0.5], [0.25, 0.25, 0.25]]
         lattice = [

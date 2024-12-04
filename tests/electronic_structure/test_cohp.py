@@ -1,7 +1,6 @@
 from __future__ import annotations
 
 import json
-from unittest import TestCase
 
 import pytest
 from numpy.testing import assert_allclose, assert_array_equal
@@ -20,7 +19,7 @@ from pymatgen.util.testing import TEST_FILES_DIR, PymatgenTest
 TEST_DIR = f"{TEST_FILES_DIR}/electronic_structure/cohp"
 
 
-class TestCohp(TestCase):
+class TestCohp:
     def setup_method(self):
         with open(f"{TEST_DIR}/cohp.json") as file:
             self.cohp = Cohp.from_dict(json.load(file))
@@ -90,7 +89,7 @@ class TestCohp(TestCase):
         assert self.cohp.has_antibnd_states_below_efermi(spin=Spin.up, limit=0.5) == {Spin.up: False}
 
 
-class TestIcohpValue(TestCase):
+class TestIcohpValue:
     def setup_method(self):
         # without spin polarization
         label = "1"
@@ -168,7 +167,7 @@ class TestIcohpValue(TestCase):
         assert str(self.icohpvalue_sp) == expected
 
 
-class TestCombinedIcohp(TestCase):
+class TestCombinedIcohp:
     def setup_method(self):
         # without spin polarization:
         are_coops = are_cobis = is_spin_polarized = False
@@ -1262,7 +1261,7 @@ class TestCompleteCohp(PymatgenTest):
         ).are_coops
 
 
-class TestMethod(TestCase):
+class TestMethod:
     def setup_method(self):
         filepath = f"{TEST_DIR}/COHPCAR.lobster.gz"
         structure = f"{TEST_DIR}/POSCAR"

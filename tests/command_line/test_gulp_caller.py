@@ -9,7 +9,6 @@ from __future__ import annotations
 import os
 import sys
 from shutil import which
-from unittest import TestCase
 
 import numpy as np
 import pytest
@@ -106,7 +105,7 @@ class TestGulpCaller:
         caller.run(buckingham_input)
 
 
-class TestGulpIO(TestCase):
+class TestGulpIO:
     def setup_method(self):
         self.structure = Structure.from_file(f"{VASP_IN_DIR}/POSCAR_Al12O18")
         self.gio = GulpIO()
@@ -276,7 +275,7 @@ class TestGulpIO(TestCase):
         self.gio.tersoff_input(self.structure)
 
 
-class TestGlobalFunctions(TestCase):
+class TestGlobalFunctions:
     def setup_method(self):
         mgo_latt = np.eye(3) * 4.212
         mgo_specie = ["Mg", "O"] * 4
@@ -327,7 +326,7 @@ class TestGlobalFunctions(TestCase):
         assert site_len == len(self.mgo_uc)
 
 
-class TestBuckinghamPotentialLewis(TestCase):
+class TestBuckinghamPotentialLewis:
     def setup_method(self):
         self.bpl = BuckinghamPotential("lewis")
 
@@ -354,7 +353,7 @@ class TestBuckinghamPotentialLewis(TestCase):
         assert self.bpl.spring_dict["O"] != ""
 
 
-class TestBuckinghamPotentialBush(TestCase):
+class TestBuckinghamPotentialBush:
     def setup_method(self):
         self.bpb = BuckinghamPotential("bush")
 

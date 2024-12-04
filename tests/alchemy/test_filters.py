@@ -1,7 +1,6 @@
 from __future__ import annotations
 
 import json
-from unittest import TestCase
 
 from monty.json import MontyDecoder
 
@@ -70,7 +69,7 @@ class TestSpecieProximityFilter(PymatgenTest):
         assert isinstance(SpecieProximityFilter.from_dict(dct), SpecieProximityFilter)
 
 
-class TestRemoveDuplicatesFilter(TestCase):
+class TestRemoveDuplicatesFilter:
     def setup_method(self):
         with open(f"{TEST_FILES_DIR}/entries/TiO2_entries.json") as file:
             entries = json.load(file, cls=MontyDecoder)
@@ -89,7 +88,7 @@ class TestRemoveDuplicatesFilter(TestCase):
         assert isinstance(RemoveDuplicatesFilter().from_dict(dct), RemoveDuplicatesFilter)
 
 
-class TestRemoveExistingFilter(TestCase):
+class TestRemoveExistingFilter:
     def setup_method(self):
         with open(f"{TEST_FILES_DIR}/entries/TiO2_entries.json") as file:
             entries = json.load(file, cls=MontyDecoder)

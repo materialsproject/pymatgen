@@ -1,7 +1,6 @@
 from __future__ import annotations
 
 import json
-from unittest import TestCase
 
 from monty.json import MontyDecoder, MontyEncoder
 from pytest import approx
@@ -13,7 +12,7 @@ from pymatgen.util.testing import TEST_FILES_DIR
 TEST_DIR = f"{TEST_FILES_DIR}/apps/battery"
 
 
-class TestInsertionElectrode(TestCase):
+class TestInsertionElectrode:
     def setup_method(self):
         self.entry_Li = ComputedEntry("Li", -1.90753119)
         self.entry_Ca = ComputedEntry("Ca", -1.99689568)

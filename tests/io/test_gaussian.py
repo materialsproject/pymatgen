@@ -1,7 +1,5 @@
 from __future__ import annotations
 
-from unittest import TestCase
-
 import pytest
 from pytest import approx
 
@@ -13,7 +11,7 @@ from pymatgen.util.testing import TEST_FILES_DIR
 TEST_DIR = f"{TEST_FILES_DIR}/io/gaussian"
 
 
-class TestGaussianInput(TestCase):
+class TestGaussianInput:
     def setup_method(self):
         coords = [
             [0, 0, 0],
@@ -278,7 +276,7 @@ H 0
         assert input_str == gau_str
 
 
-class TestGaussianOutput(TestCase):
+class TestGaussianOutput:
     # TODO: Add unittest for PCM type output.
 
     def setup_method(self):

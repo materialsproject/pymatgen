@@ -1,7 +1,6 @@
 from __future__ import annotations
 
 import json
-from unittest import TestCase
 
 from monty.json import MontyDecoder
 from pytest import approx
@@ -13,7 +12,7 @@ from pymatgen.util.testing import TEST_FILES_DIR
 TEST_DIR = f"{TEST_FILES_DIR}/apps/battery"
 
 
-class TestConversionElectrode(TestCase):
+class TestConversionElectrode:
     def setup_method(self):
         self.formulas = ["LiCoO2", "FeF3", "MnO2"]
         self.conversion_electrodes = {}

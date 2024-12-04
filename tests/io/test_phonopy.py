@@ -3,7 +3,6 @@ from __future__ import annotations
 import os
 import platform
 from pathlib import Path
-from unittest import TestCase
 
 import numpy as np
 import pytest
@@ -162,7 +161,7 @@ class TestGetDisplacedStructures(PymatgenTest):
     platform.system() == "Windows" and int(np.__version__[0]) >= 2,
     reason="See https://github.com/conda-forge/phonopy-feedstock/pull/158#issuecomment-2227506701",
 )
-class TestPhonopyFromForceConstants(TestCase):
+class TestPhonopyFromForceConstants:
     def setup_method(self) -> None:
         test_path = Path(TEST_DIR)
         structure_file = test_path / "POSCAR-NaCl"

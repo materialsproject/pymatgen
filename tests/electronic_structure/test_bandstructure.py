@@ -2,7 +2,6 @@ from __future__ import annotations
 
 import copy
 import json
-from unittest import TestCase
 
 import numpy as np
 import pytest
@@ -25,7 +24,7 @@ from pymatgen.util.testing import TEST_FILES_DIR, VASP_IN_DIR, VASP_OUT_DIR, Pym
 TEST_DIR = f"{TEST_FILES_DIR}/electronic_structure/bandstructure"
 
 
-class TestKpoint(TestCase):
+class TestKpoint:
     def setup_method(self):
         self.lattice = Lattice.cubic(10.0)
         self.kpoint = Kpoint([0.1, 0.4, -0.5], self.lattice, label="X")

@@ -2,7 +2,6 @@ from __future__ import annotations
 
 import json
 import re
-from unittest import TestCase
 
 import numpy as np
 import pytest
@@ -19,7 +18,7 @@ from pymatgen.util.testing import TEST_FILES_DIR, PymatgenTest
 TEST_DIR = f"{TEST_FILES_DIR}/electronic_structure/dos"
 
 
-class TestDos(TestCase):
+class TestDos:
     def setup_method(self):
         with open(f"{TEST_DIR}/complete_dos.json") as file:
             self.dos = CompleteDos.from_dict(json.load(file))
@@ -57,7 +56,7 @@ class TestDos(TestCase):
         assert not isinstance(dos_dict["densities"]["1"][0], np.float64)
 
 
-class TestFermiDos(TestCase):
+class TestFermiDos:
     def setup_method(self):
         with open(f"{TEST_DIR}/complete_dos.json") as file:
             self.dos = CompleteDos.from_dict(json.load(file))
@@ -104,7 +103,7 @@ class TestFermiDos(TestCase):
         assert not isinstance(dos_dict["densities"]["1"][0], np.float64)
 
 
-class TestCompleteDos(TestCase):
+class TestCompleteDos:
     def setup_method(self):
         with open(f"{TEST_DIR}/complete_dos.json") as file:
             self.dos = CompleteDos.from_dict(json.load(file))
@@ -351,14 +350,14 @@ class TestDOS(PymatgenTest):
         assert_allclose(self.dos.get_cbm_vbm(spin=Spin.down), (4.645, 1.8140000000000001))
 
 
-class TestSpinPolarization(TestCase):
+class TestSpinPolarization:
     def test_spin_polarization(self):
         dos_path = f"{TEST_DIR}/dos_spin_polarization_mp-865805.json"
         dos = loadfn(dos_path)
         assert dos.spin_polarization == approx(0.6460514663341762)
 
 
-class TestLobsterCompleteDos(TestCase):
+class TestLobsterCompleteDos:
     def setup_method(self):
         with open(f"{TEST_DIR}/LobsterCompleteDos_spin.json") as file:
             data_spin = json.load(file)

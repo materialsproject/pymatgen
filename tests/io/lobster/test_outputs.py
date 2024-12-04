@@ -3,7 +3,6 @@ from __future__ import annotations
 import copy
 import json
 import os
-from unittest import TestCase
 
 import numpy as np
 import pytest
@@ -398,7 +397,7 @@ class TestCohpcar(PymatgenTest):
         assert len(self.cobi6.orb_res_cohp["21"]["2py-1s-2s"]["COHP"][Spin.down]) == 12
 
 
-class TestDoscar(TestCase):
+class TestDoscar:
     def setup_method(self):
         # first for spin polarized version
         doscar = f"{VASP_OUT_DIR}/DOSCAR.lobster.spin"
@@ -1480,7 +1479,7 @@ class TestFatband(PymatgenTest):
         assert bs_p_x.get_projection_on_elements()[Spin.up][0][0]["Si"] == approx(3 * (0.001 + 0.064), abs=1e-2)
 
 
-class TestBandoverlaps(TestCase):
+class TestBandoverlaps:
     def setup_method(self):
         # test spin-polarized calc and non spin-polarized calc
 
@@ -1713,7 +1712,7 @@ class TestBandoverlaps(TestCase):
         assert len(bo_dict_new[Spin.down]["matrices"]) == 73
 
 
-class TestGrosspop(TestCase):
+class TestGrosspop:
     def setup_method(self):
         self.grosspop1 = Grosspop(f"{TEST_DIR}/GROSSPOP.lobster")
         self.grosspop_511_sp = Grosspop(f"{TEST_DIR}/GROSSPOP_511_sp.lobster.AlN.gz")
@@ -1863,7 +1862,7 @@ class TestGrosspop(TestCase):
             assert getattr(grosspop_from_dict, attr_name) == attr_value
 
 
-class TestIcohplist(TestCase):
+class TestIcohplist:
     def setup_method(self):
         self.icohp_bise = Icohplist(filename=f"{TEST_DIR}/ICOHPLIST.lobster.BiSe")
         self.icoop_bise = Icohplist(
@@ -2168,7 +2167,7 @@ class TestIcohplist(TestCase):
                 assert getattr(icohplist_from_dict, attr_name) == attr_value
 
 
-class TestNciCobiList(TestCase):
+class TestNciCobiList:
     def setup_method(self):
         self.ncicobi = NciCobiList(filename=f"{TEST_DIR}/NcICOBILIST.lobster")
         self.ncicobi_gz = NciCobiList(filename=f"{TEST_DIR}/NcICOBILIST.lobster.gz")

@@ -1,7 +1,6 @@
 from __future__ import annotations
 
 import os
-from unittest import TestCase
 
 import pytest
 from monty.tempfile import ScratchDir
@@ -20,7 +19,7 @@ TEST_DIR = f"{TEST_FILES_DIR}/apps/borg"
 MOL_TEST_DIR = f"{TEST_FILES_DIR}/io/gaussian"
 
 
-class TestVaspToComputedEntryDrone(TestCase):
+class TestVaspToComputedEntryDrone:
     def setup_method(self):
         self.drone = VaspToComputedEntryDrone(data=["efermi"])
         self.structure_drone = VaspToComputedEntryDrone(inc_structure=True)
@@ -53,7 +52,7 @@ class TestVaspToComputedEntryDrone(TestCase):
         assert isinstance(drone, VaspToComputedEntryDrone)
 
 
-class TestSimpleVaspToComputedEntryDrone(TestCase):
+class TestSimpleVaspToComputedEntryDrone:
     def setup_method(self):
         self.drone = SimpleVaspToComputedEntryDrone()
         self.structure_drone = SimpleVaspToComputedEntryDrone(inc_structure=True)
@@ -73,7 +72,7 @@ class TestSimpleVaspToComputedEntryDrone(TestCase):
         assert isinstance(drone, SimpleVaspToComputedEntryDrone)
 
 
-class TestGaussianToComputedEntryDrone(TestCase):
+class TestGaussianToComputedEntryDrone:
     def setup_method(self):
         self.drone = GaussianToComputedEntryDrone(data=["corrections"])
         self.structure_drone = GaussianToComputedEntryDrone(inc_structure=True)

@@ -1,7 +1,5 @@
 from __future__ import annotations
 
-from unittest import TestCase
-
 import numpy as np
 from pytest import approx
 
@@ -10,7 +8,7 @@ from pymatgen.core import Structure
 from pymatgen.util.testing import TEST_FILES_DIR
 
 
-class TestJahnTeller(TestCase):
+class TestJahnTeller:
     def setup_method(self):
         self.jt = JahnTellerAnalyzer()
 

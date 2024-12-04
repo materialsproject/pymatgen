@@ -1,7 +1,6 @@
 from __future__ import annotations
 
 from shutil import which
-from unittest import TestCase
 
 import pytest
 from monty.serialization import loadfn
@@ -24,7 +23,7 @@ makestr_cmd = which("makestr.x") or which("makeStr.x") or which("makeStr.py")
 enumlib_present = enum_cmd and makestr_cmd
 
 
-class TestCollinearMagneticStructureAnalyzer(TestCase):
+class TestCollinearMagneticStructureAnalyzer:
     def setup_method(self):
         self.Fe = Structure.from_file(f"{TEST_FILES_DIR}/cif/Fe.cif", primitive=True)
 

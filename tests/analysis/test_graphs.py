@@ -4,7 +4,6 @@ import copy
 import re
 from glob import glob
 from shutil import which
-from unittest import TestCase
 
 import networkx as nx
 import networkx.algorithms.isomorphism as iso
@@ -504,7 +503,7 @@ from    to  to_image
         assert list(sg.graph.edges)[-2:] == [(1, 3, 0), (1, 2, 0)]
 
 
-class TestMoleculeGraph(TestCase):
+class TestMoleculeGraph:
     def setup_method(self):
         cyclohexene_xyz = f"{TEST_DIR}/cyclohexene.xyz"
         cyclohexene = Molecule.from_file(cyclohexene_xyz)

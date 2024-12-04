@@ -5,7 +5,6 @@ import unittest
 import unittest.mock
 from itertools import combinations
 from numbers import Number
-from unittest import TestCase
 
 import matplotlib.pyplot as plt
 import numpy as np
@@ -37,7 +36,7 @@ from pymatgen.util.testing import TEST_FILES_DIR, PymatgenTest
 TEST_DIR = f"{TEST_FILES_DIR}/analysis"
 
 
-class TestPDEntry(TestCase):
+class TestPDEntry:
     def setup_method(self):
         comp = Composition("LiFeO2")
         self.entry = PDEntry(comp, 53, name="mp-757614")
@@ -113,7 +112,7 @@ class TestPDEntry(TestCase):
         assert len(entries) == 490, "Wrong number of entries!"
 
 
-class TestTransformedPDEntry(TestCase):
+class TestTransformedPDEntry:
     def setup_method(self):
         comp = Composition("LiFeO2")
         entry = PDEntry(comp, 53)
@@ -667,7 +666,7 @@ class TestPhaseDiagram(PymatgenTest):
                 PhaseDiagram(entries=entries)
 
 
-class TestGrandPotentialPhaseDiagram(TestCase):
+class TestGrandPotentialPhaseDiagram:
     def setup_method(self):
         self.entries = EntrySet.from_csv(f"{TEST_DIR}/pd_entries_test.csv")
         self.pd = GrandPotentialPhaseDiagram(self.entries, {Element("O"): -5})
@@ -703,7 +702,7 @@ class TestGrandPotentialPhaseDiagram(TestCase):
         )
 
 
-class TestCompoundPhaseDiagram(TestCase):
+class TestCompoundPhaseDiagram:
     def setup_method(self):
         self.entries = EntrySet.from_csv(f"{TEST_DIR}/pd_entries_test.csv")
         self.pd = CompoundPhaseDiagram(self.entries, [Composition("Li2O"), Composition("Fe2O3")])
@@ -741,7 +740,7 @@ class TestCompoundPhaseDiagram(TestCase):
         assert len(ret) == num
 
 
-class TestPatchedPhaseDiagram(TestCase):
+class TestPatchedPhaseDiagram:
     def setup_method(self):
         self.entries = EntrySet.from_csv(f"{TEST_DIR}/phase_diagram/reaction_entries_test.csv")
         # NOTE add He to test for correct behavior despite no patches involving He
@@ -891,7 +890,7 @@ class TestPatchedPhaseDiagram(TestCase):
         assert len(self.ppd.remove_redundant_spaces(test)) == 30
 
 
-class TestReactionDiagram(TestCase):
+class TestReactionDiagram:
     def setup_method(self):
         self.entries = list(EntrySet.from_csv(f"{TEST_DIR}/phase_diagram/reaction_entries_test.csv").entries)
         for entry in self.entries:
@@ -931,7 +930,7 @@ class TestReactionDiagram(TestCase):
         #     assert formula in formed_formula, f"{formed_formula=} not in {expected_formula=}"
 
 
-class TestPDPlotter(TestCase):
+class TestPDPlotter:
     def setup_method(self):
         entries = list(EntrySet.from_csv(f"{TEST_DIR}/pd_entries_test.csv"))
 

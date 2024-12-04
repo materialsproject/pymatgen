@@ -1,7 +1,6 @@
 from __future__ import annotations
 
 from dataclasses import asdict
-from unittest import TestCase
 
 import numpy as np
 import pytest
@@ -444,7 +443,7 @@ class TestSpacegroupAnalyzer(PymatgenTest):
             SpacegroupAnalyzer(struct, 0.1)
 
 
-class TestSpacegroup(TestCase):
+class TestSpacegroup:
     def setup_method(self):
         self.structure = Structure.from_file(f"{VASP_IN_DIR}/POSCAR")
         self.sg1 = SpacegroupAnalyzer(self.structure, 0.001).get_space_group_operations()
@@ -703,7 +702,7 @@ class TestPointGroupAnalyzer(PymatgenTest):
             spga.get_kpoint_weights(kpts)
 
 
-class TestFunc(TestCase):
+class TestFunc:
     def test_cluster_sites(self):
         site, cluster = cluster_sites(CH4, 0.1)
         assert isinstance(site, Site)

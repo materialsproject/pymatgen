@@ -1,7 +1,6 @@
 from __future__ import annotations
 
 import json
-from unittest import TestCase
 
 from monty.json import MontyDecoder
 
@@ -15,7 +14,7 @@ from pymatgen.util.testing import TEST_FILES_DIR
 TEST_DIR = f"{TEST_FILES_DIR}/apps/battery"
 
 
-class TestVoltageProfilePlotter(TestCase):
+class TestVoltageProfilePlotter:
     def setup_method(self):
         entry_Li = ComputedEntry("Li", -1.90753119)
 
