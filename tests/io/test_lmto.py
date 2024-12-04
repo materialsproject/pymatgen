@@ -29,7 +29,7 @@ class TestCtrl(PymatgenTest):
         self.ref_bise = LMTOCtrl.from_file(filename="CTRL.BiSe")
         self.ref_fe = LMTOCtrl.from_file()
 
-    def tearDown(self):
+    def teardown_method(self):
         os.chdir(MODULE_DIR)
 
     def test_dict(self):
@@ -54,7 +54,7 @@ class TestCopl(PymatgenTest):
         self.copl_bise_eV = LMTOCopl(filename="COPL.BiSe", to_eV=True)
         self.copl_fe = LMTOCopl()
 
-    def tearDown(self):
+    def teardown_method(self):
         os.chdir(MODULE_DIR)
 
     def test_attributes(self):
