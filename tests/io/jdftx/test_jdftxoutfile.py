@@ -6,7 +6,7 @@ import pytest
 
 from pymatgen.io.jdftx.outputs import JDFTXOutfile
 
-from .conftest import (
+from .outputs_test_utils import (
     etot_etype_outfile_known_simple,
     etot_etype_outfile_path,
     example_ionmin_outfile_known,

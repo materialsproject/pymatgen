@@ -802,8 +802,9 @@ class JDFTXStructure(MSONable):
             coords = site.coords if in_cart_coords else site.frac_coords
             sd = self.selective_dynamics[i] if self.selective_dynamics is not None else 1
             label = site.label
+            # TODO: This is needlessly complicated, simplify this
             if label not in valid_labels:
-                for varname in ["species_string", "specie.name"]:  # Add more as I learn more about what 'site' can be
+                for varname in ["species_string", "specie.name"]:
                     if _multi_hasattr(site, varname) and _multi_getattr(site, varname) in valid_labels:
                         label = _multi_getattr(site, varname)
                         break

@@ -130,6 +130,7 @@ class JOutStructures:
     elec_linmin: float | None = None
     charges: np.ndarray[float] | None = None
     magnetic_moments: np.ndarray[float] | None = None
+    selective_dynamics: list[int] | None = None
 
     @classmethod
     def _from_out_slice(cls, out_slice: list[str], opt_type: str = "IonicMinimize") -> JOutStructures:
