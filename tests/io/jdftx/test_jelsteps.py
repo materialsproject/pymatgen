@@ -7,7 +7,7 @@ from pytest import approx
 
 from pymatgen.io.jdftx.jelstep import JElStep, JElSteps
 
-from .conftest import (
+from .outputs_test_utils import (
     ex_fillings_line1,
     ex_fillings_line1_known,
     ex_iter_line1,
@@ -15,10 +15,10 @@ from .conftest import (
     ex_subspace_line1,
     ex_subspace_line1_known,
 )
-from .conftest import ex_jstep_known1 as ex_known1
-from .conftest import ex_jstep_known2 as ex_known2
-from .conftest import ex_jstep_lines1 as ex_lines1
-from .conftest import ex_jstep_lines2 as ex_lines2
+from .outputs_test_utils import ex_jstep_known1 as ex_known1
+from .outputs_test_utils import ex_jstep_known2 as ex_known2
+from .outputs_test_utils import ex_jstep_lines1 as ex_lines1
+from .outputs_test_utils import ex_jstep_lines2 as ex_lines2
 
 
 def is_right_known(val: Any, ex_known_val: Any):
@@ -102,6 +102,3 @@ def test_JElSteps_known(
         for i in range(len(ex_lines)):
             val2 = getattr(jeis[i], var)
             assert is_right_known(val2, ex_knowns[i][var])
-
-
-ex_text_slice = [ex_fillings_line1, ex_subspace_line1, ex_iter_line1]

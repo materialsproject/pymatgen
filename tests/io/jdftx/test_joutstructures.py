@@ -1,58 +1,14 @@
+"""Tests for the JOutStructures class."""
+
 from __future__ import annotations
 
 import pytest
 from pytest import approx
 
-from pymatgen.core.units import Ha_to_eV
 from pymatgen.io.jdftx.joutstructures import JOutStructure, JOutStructures
 
-from .conftest import ex_out_file_sections_dir
-
-ex_outslice_fname1 = ex_out_file_sections_dir / "ex_out_slice_latmin"
-ex_outslice1 = []
-with open(ex_outslice_fname1) as f:
-    ex_outslice1 = list.copy(list(f))
-ex_outslice1_known = {
-    "mu0_0": 0.713855355 * Ha_to_eV,
-    "mu0_-1": 0.703866408 * Ha_to_eV,
-    "nEminSteps0": 18,
-    "etype0": "F",
-    "E0": -246.531007900240667 * Ha_to_eV,
-    "conv0": True,
-    "mu-1_0": 0.704400512 * Ha_to_eV,
-    "mu-1_-1": 0.704399109 * Ha_to_eV,
-    "nEminSteps-1": 4,
-    "etype-1": "F",
-    "E-1": -246.531042396724303 * Ha_to_eV,
-    "nGeomSteps": 7,
-    "conv-1": True,
-    "nelec0_0": 64.0,
-    "nelec0_-1": 64.0,
-    "nelec-1_0": 64.0,
-    "nelec-1_-1": 64.0,
-}
-ex_outslice_fname2 = ex_out_file_sections_dir / "ex_out_slice_ionmin"
-with open(ex_outslice_fname2) as f:
-    ex_outslice2 = list.copy(list(f))
-ex_outslice2_known = {
-    "mu0_0": -0.190000000 * Ha_to_eV,
-    "mu0_-1": -0.190000000 * Ha_to_eV,
-    "nEminSteps0": 101,
-    "etype0": "G",
-    "E0": -1058.990493255521415 * Ha_to_eV,
-    "conv0": False,
-    "mu-1_0": -0.190000000 * Ha_to_eV,
-    "mu-1_-1": -0.190000000 * Ha_to_eV,
-    "nEminSteps-1": 13,
-    "etype-1": "G",
-    "E-1": -1059.062593502930213 * Ha_to_eV,
-    "nGeomSteps": 7,
-    "conv-1": True,
-    "nelec0_0": 325.000000,
-    "nelec0_-1": 325.610434,
-    "nelec-1_0": 325.541001,
-    "nelec-1_-1": 325.541406,
-}
+from .outputs_test_utils import ex_outfileslice1 as ex_outslice1
+from .outputs_test_utils import ex_outfileslice1_known as ex_outslice1_known
 
 
 @pytest.mark.parametrize(
@@ -60,9 +16,20 @@ ex_outslice2_known = {
     [(ex_outslice1, ex_outslice1_known, "lattice")],
 )
 def test_jstructures(ex_slice: list[str], ex_slice_known: dict[str, float], opt_type: str):
+    """General testing of the JOutStructures class.
+
+    Args:
+        ex_slice: The example slice to test.
+        ex_slice_known: The known values of the example slice.
+        opt_type: The optimization type
+    """
     jstruct = JOutStructures._from_out_slice(ex_slice, opt_type=opt_type)
     assert isinstance(jstruct, JOutStructures)
+    # Testing indexing
     assert isinstance(jstruct[0], JOutStructure)
+    # Indexing should be equivalent to indexing the slices attribute
+    assert jstruct[0] is jstruct.slices[0]
+    # Testing initialization matches known values stored in ex_slice_known
     assert jstruct[0].elecmindata[0].mu == approx(ex_slice_known["mu0_0"])
     assert jstruct[0].elecmindata[-1].mu == approx(ex_slice_known["mu0_-1"])
     assert jstruct[-1].elecmindata[0].mu == approx(ex_slice_known["mu-1_0"])
@@ -88,4 +55,5 @@ def test_jstructures(ex_slice: list[str], ex_slice_known: dict[str, float], opt_
     assert jstruct[-1].elecmindata.converged == ex_slice_known["conv-1"]
     assert jstruct.elecmindata.converged == ex_slice_known["conv-1"]
     assert len(jstruct) == ex_slice_known["nGeomSteps"]
-    assert jstruct.selective_dynamics is not None
+    # Lazy testing inherited attribute
+    assert isinstance(jstruct.selective_dynamics, list)

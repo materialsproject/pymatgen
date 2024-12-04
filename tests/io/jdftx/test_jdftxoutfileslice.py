@@ -2,7 +2,6 @@ from __future__ import annotations
 
 import math
 import re
-from pathlib import Path
 
 import numpy as np
 import pytest
@@ -10,11 +9,8 @@ import pytest
 from pymatgen.core.trajectory import Trajectory
 from pymatgen.core.units import Ha_to_eV, ang_to_bohr
 from pymatgen.io.jdftx.jdftxoutfileslice import JDFTXOutfileSlice
-from pymatgen.util.testing import TEST_FILES_DIR
 
-from .conftest import ex_outfileslice1 as ex_slice1
-
-ex_files_dir = Path(TEST_FILES_DIR) / "io" / "jdftx" / "example_files"
+from .outputs_test_utils import ex_outfileslice1 as ex_slice1
 
 
 def test_jdftxoutfileslice_stringify():

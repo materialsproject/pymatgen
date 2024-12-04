@@ -10,6 +10,7 @@ from __future__ import annotations
 
 import pprint
 from dataclasses import dataclass, field
+from pathlib import Path
 from typing import TYPE_CHECKING, Any
 
 from pymatgen.core.trajectory import Trajectory
@@ -17,8 +18,6 @@ from pymatgen.io.jdftx._output_utils import read_outfile_slices
 from pymatgen.io.jdftx.jdftxoutfileslice import JDFTXOutfileSlice
 
 if TYPE_CHECKING:
-    from pathlib import Path
-
     import numpy as np
 
     from pymatgen.core.structure import Structure
@@ -330,6 +329,31 @@ class JDFTXOutfile:
     electronic_output: float = field(init=False)
 
     @classmethod
+    def from_calc_dir(
+        cls, calc_dir: str | Path, is_bgw: bool = False, none_slice_on_error: bool = False
+    ) -> JDFTXOutfile:
+        """
+        Create a JDFTXOutfile object from a directory containing JDFTx out files.
+
+        Args:
+            calc_dir (str | Path): The path to the directory containing the JDFTx out files.
+            is_bgw (bool): Mark True if data must be usable for BGW calculations. This will change the behavior of the
+                parser to be stricter with certain criteria.
+            none_slice_on_error (bool): If True, will return None if an error occurs while parsing a slice instead of
+                halting the parsing process. This can be useful for parsing files with multiple slices where some slices
+                may be incomplete or corrupted.
+
+        Returns:
+            JDFTXOutfile: The JDFTXOutfile object.
+        """
+        file_path = _find_jdftx_out_file(Path(calc_dir))
+        texts = read_outfile_slices(file_path)
+        slices = [
+            JDFTXOutfileSlice._from_out_slice(text, is_bgw=is_bgw, none_on_error=none_slice_on_error) for text in texts
+        ]
+        return cls(slices=slices)
+
+    @classmethod
     def from_file(cls, file_path: str | Path, is_bgw: bool = False, none_slice_on_error: bool = False) -> JDFTXOutfile:
         """
         Create a JDFTXOutfile object from a JDFTx out file.
@@ -428,3 +452,21 @@ class JDFTXOutfile:
             str: The string representation of the JDFTXOutfile object.
         """
         return pprint.pformat(self)
+
+
+def _find_jdftx_out_file(calc_dir: Path) -> Path:
+    """
+    Find the JDFTx out file in a directory.
+
+    Args:
+        calc_dir (Path): The directory containing the JDFTx out file.
+
+    Returns:
+        Path: The path to the JDFTx out file.
+    """
+    out_files = list(calc_dir.glob("*.out")) + list(calc_dir.glob("out"))
+    if len(out_files) == 0:
+        raise FileNotFoundError("No JDFTx out file found in directory.")
+    if len(out_files) > 1:
+        raise FileNotFoundError("Multiple JDFTx out files found in directory.")
+    return out_files[0]
