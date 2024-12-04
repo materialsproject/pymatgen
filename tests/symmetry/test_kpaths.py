@@ -17,7 +17,7 @@ except ImportError:
 TEST_DIR = f"{TEST_FILES_DIR}/electronic_structure/bandstructure"
 
 
-class TestHighSymmKpath(PymatgenTest):
+class TestHighSymmKpath(MatSciTest):
     @pytest.mark.skipif(get_path is None, reason="No seek path present.")
     def test_kpath_generation(self):
         triclinic = [1, 2]

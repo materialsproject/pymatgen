@@ -13,7 +13,7 @@ from pymatgen.util.testing import TEST_FILES_DIR, PymatgenTest
 TEST_DIR = f"{TEST_FILES_DIR}/electronic_structure/bandstructure"
 
 
-class TestPhononBandStructureSymmLine(PymatgenTest):
+class TestPhononBandStructureSymmLine(MatSciTest):
     def setup_method(self):
         with open(f"{TEST_DIR}/NaCl_phonon_bandstructure.json") as file:
             dct = json.load(file)

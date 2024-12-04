@@ -21,7 +21,7 @@ except ImportError:
 TEST_DIR = f"{TEST_FILES_DIR}/io/abinit"
 
 
-class TestEtsfReader(PymatgenTest):
+class TestEtsfReader(MatSciTest):
     def setup_method(self):
         formulas = ["Si2"]
         self.GSR_paths = dct = {}
@@ -117,7 +117,7 @@ class TestEtsfReader(PymatgenTest):
                     assert structure.site_properties["magmom"] == ref_magmom_noncollinear
 
 
-class TestAbinitHeader(PymatgenTest):
+class TestAbinitHeader(MatSciTest):
     def test_api(self):
         head = AbinitHeader(foo=1, bar=2)
         assert head.foo == 1

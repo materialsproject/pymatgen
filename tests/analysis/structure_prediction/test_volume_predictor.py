@@ -10,7 +10,7 @@ from pymatgen.util.testing import TEST_FILES_DIR, PymatgenTest
 TEST_DIR = f"{TEST_FILES_DIR}/analysis/structure_prediction"
 
 
-class TestRLSVolumePredictor(PymatgenTest):
+class TestRLSVolumePredictor(MatSciTest):
     def test_predict(self):
         struct = PymatgenTest.get_structure("CsCl")
         nacl = PymatgenTest.get_structure("CsCl")
@@ -77,7 +77,7 @@ class TestRLSVolumePredictor(PymatgenTest):
         assert vol_pred.predict(cs_cl, na_cl) == approx(342.84905395082535)
 
 
-class TestDLSVolumePredictor(PymatgenTest):
+class TestDLSVolumePredictor(MatSciTest):
     def test_predict(self):
         vol_pred = DLSVolumePredictor()
         p_fast = DLSVolumePredictor(cutoff=0.0)  # for speed on compressed cells

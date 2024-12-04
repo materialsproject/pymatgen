@@ -23,7 +23,7 @@ TEST_DIR = f"{TEST_FILES_DIR}/electronic_structure/cohp"
 MODULE_DIR = os.path.dirname(os.path.abspath(__file__))
 
 
-class TestCtrl(PymatgenTest):
+class TestCtrl(MatSciTest):
     def setup_method(self):
         os.chdir(TEST_DIR)
         self.ref_bise = LMTOCtrl.from_file(filename="CTRL.BiSe")
@@ -47,7 +47,7 @@ class TestCtrl(PymatgenTest):
         assert self.ref_bise.structure.matches(ctrl_file.structure)
 
 
-class TestCopl(PymatgenTest):
+class TestCopl(MatSciTest):
     def setup_method(self):
         os.chdir(TEST_DIR)
         self.copl_bise = LMTOCopl("COPL.BiSe")

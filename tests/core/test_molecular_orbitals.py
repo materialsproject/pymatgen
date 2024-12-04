@@ -8,7 +8,7 @@ from pymatgen.util.testing import PymatgenTest
 test_case = MolecularOrbitals("NaCl")
 
 
-class TestMolecularOrbital(PymatgenTest):
+class TestMolecularOrbital(MatSciTest):
     def test_max_electronegativity(self):
         test_elec_neg = 2.23
         assert test_elec_neg == test_case.max_electronegativity()

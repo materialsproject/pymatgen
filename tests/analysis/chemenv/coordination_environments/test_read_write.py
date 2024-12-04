@@ -30,7 +30,7 @@ json_dir = f"{TEST_FILES_DIR}/analysis/chemenv/json"
 struct_env_dir = f"{TEST_FILES_DIR}/analysis/chemenv/structure_environments"
 
 
-class TestReadWriteChemenv(PymatgenTest):
+class TestReadWriteChemenv(MatSciTest):
     @classmethod
     def setup_class(cls):
         cls.lgf = LocalGeometryFinder()

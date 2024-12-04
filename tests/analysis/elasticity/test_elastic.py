@@ -32,7 +32,7 @@ from pymatgen.util.testing import TEST_FILES_DIR, PymatgenTest
 TEST_DIR = f"{TEST_FILES_DIR}/analysis/elasticity"
 
 
-class TestElasticTensor(PymatgenTest):
+class TestElasticTensor(MatSciTest):
     def setup_method(self):
         self.voigt_1 = [
             [59.33, 28.08, 28.08, 0, 0, 0],
@@ -263,7 +263,7 @@ class TestElasticTensor(PymatgenTest):
         )
 
 
-class TestElasticTensorExpansion(PymatgenTest):
+class TestElasticTensorExpansion(MatSciTest):
     def setup_method(self):
         with open(f"{TEST_DIR}/test_toec_data.json") as file:
             self.data_dict = json.load(file)
@@ -364,7 +364,7 @@ class TestElasticTensorExpansion(PymatgenTest):
         self.exp_cu_4.get_yield_stress([1, 0, 0])
 
 
-class TestNthOrderElasticTensor(PymatgenTest):
+class TestNthOrderElasticTensor(MatSciTest):
     def setup_method(self):
         with open(f"{TEST_DIR}/test_toec_data.json") as file:
             self.data_dict = json.load(file)
@@ -401,7 +401,7 @@ class TestNthOrderElasticTensor(PymatgenTest):
         self.c3.energy_density(self.strains[0])
 
 
-class TestDiffFit(PymatgenTest):
+class TestDiffFit(MatSciTest):
     """Test various functions related to diff fitting."""
 
     def setup_method(self):

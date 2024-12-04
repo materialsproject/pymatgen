@@ -16,7 +16,7 @@ __email__ = "jmmshn@gmail.com"
 TEST_DIR = f"{TEST_FILES_DIR}/io/vasp"
 
 
-class TestVasprun(PymatgenTest):
+class TestVasprun(MatSciTest):
     def test_optics(self):
         eps_data_path = f"{TEST_DIR}/fixtures/reproduce_eps"
         vrun = Vasprun(f"{eps_data_path}/vasprun.xml")

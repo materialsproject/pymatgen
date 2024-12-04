@@ -11,7 +11,7 @@ from pymatgen.util.testing import TEST_FILES_DIR, PymatgenTest
 TEST_DIR = f"{TEST_FILES_DIR}/symmetry/space_group_structs"
 
 
-class TestBandStructureSC(PymatgenTest):
+class TestBandStructureSC(MatSciTest):
     def test_kpath_generation(self):
         triclinic = [1, 2]
         monoclinic = range(3, 16)

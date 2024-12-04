@@ -17,7 +17,7 @@ from pymatgen.io.core import ParseError
 from pymatgen.util.testing import PymatgenTest
 
 
-class TestElement(PymatgenTest):
+class TestElement(MatSciTest):
     def test_init(self):
         assert Element("Fe").symbol == "Fe"
 
@@ -392,7 +392,7 @@ class TestElement(PymatgenTest):
         ]
 
 
-class TestSpecies(PymatgenTest):
+class TestSpecies(MatSciTest):
     def setup_method(self):
         self.specie1 = Species.from_str("Fe2+")
         self.specie2 = Species("Fe", 3)

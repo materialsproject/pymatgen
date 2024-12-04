@@ -24,7 +24,7 @@ __author__ = "waroquiers"
 TEST_DIR = f"{TEST_FILES_DIR}/analysis/chemenv/structure_environments"
 
 
-class TestStructureEnvironments(PymatgenTest):
+class TestStructureEnvironments(MatSciTest):
     def test_structure_environments(self):
         with open(f"{TEST_DIR}/se_mp-7000.json") as file:
             dct = json.load(file)

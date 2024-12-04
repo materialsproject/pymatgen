@@ -23,7 +23,7 @@ __email__ = "shyamd@lbl.gov"
 __date__ = "2/5/16"
 
 
-class TestZSLGen(PymatgenTest):
+class TestZSLGen(MatSciTest):
     def setup_method(self):
         # Film VO2
         self.film = SpacegroupAnalyzer(self.get_structure("VO2"), symprec=0.1).get_conventional_standard_structure()

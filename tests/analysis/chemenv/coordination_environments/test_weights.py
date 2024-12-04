@@ -39,7 +39,7 @@ class DummyVoronoiContainer:
     pass
 
 
-class StrategyWeights(PymatgenTest):
+class StrategyWeights(MatSciTest):
     def test_angle_weight(self):
         fake_nb_set = FakeNbSet()
         dummy_se = DummyStructureEnvironments()

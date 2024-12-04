@@ -15,7 +15,7 @@ __copyright__ = "Copyright 2018-2022, The Materials Project"
 TEST_DIR = f"{TEST_FILES_DIR}/io/qchem/new_qchem_files"
 
 
-class TestUtil(PymatgenTest):
+class TestUtil(MatSciTest):
     """test utils."""
 
     def test_lower_and_check_unique(self):

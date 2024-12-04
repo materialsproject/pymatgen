@@ -44,7 +44,7 @@ class FakeClass:
         return f"{self.a}\n{self.b}"
 
 
-class TestInputFile(PymatgenTest):
+class TestInputFile(MatSciTest):
     def test_file_io(self):
         with pytest.raises(FileNotFoundError, match="No such file or directory: 'fakepath.cif'"):
             StructInputFile.from_file("fakepath.cif")
@@ -64,7 +64,7 @@ class TestInputFile(PymatgenTest):
         assert sif.structure == temp_sif.structure
 
 
-class TestInputSet(PymatgenTest):
+class TestInputSet(MatSciTest):
     @classmethod
     def setup_class(cls):
         cls.sif1 = StructInputFile.from_file(f"{TEST_FILES_DIR}/cif/Li.cif")

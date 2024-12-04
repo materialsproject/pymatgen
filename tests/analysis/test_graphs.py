@@ -45,7 +45,7 @@ __date__ = "August 2017"
 TEST_DIR = f"{TEST_FILES_DIR}/analysis/graphs"
 
 
-class TestStructureGraph(PymatgenTest):
+class TestStructureGraph(MatSciTest):
     def setup_method(self):
         # trivial example, simple square lattice for testing
         structure = Structure(Lattice.tetragonal(5, 50), ["H"], [[0, 0, 0]])

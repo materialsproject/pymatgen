@@ -17,7 +17,7 @@ from pymatgen.util.testing import TEST_FILES_DIR, VASP_IN_DIR, VASP_OUT_DIR, Pym
 TEST_DIR = f"{TEST_FILES_DIR}/core/trajectory"
 
 
-class TestTrajectory(PymatgenTest):
+class TestTrajectory(MatSciTest):
     def setup_method(self):
         xdatcar = Xdatcar(f"{VASP_OUT_DIR}/XDATCAR_traj")
         self.traj = Trajectory.from_file(f"{VASP_OUT_DIR}/XDATCAR_traj")

@@ -12,7 +12,7 @@ from pymatgen.core.operations import SymmOp
 from pymatgen.util.testing import PymatgenTest
 
 
-class TestLattice(PymatgenTest):
+class TestLattice(MatSciTest):
     def setup_method(self):
         self.lattice = Lattice.cubic(10.0)
         self.cubic = self.lattice

@@ -8,7 +8,7 @@ from pymatgen.util.testing import TEST_FILES_DIR, PymatgenTest
 TEST_DIR = f"{TEST_FILES_DIR}/io/lammps"
 
 
-class TestLammpsMinimization(PymatgenTest):
+class TestLammpsMinimization(MatSciTest):
     @classmethod
     def setup_class(cls):
         cls.filename = f"{TEST_DIR}/lgps.in"

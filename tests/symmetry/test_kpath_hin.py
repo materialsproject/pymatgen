@@ -11,7 +11,7 @@ from pymatgen.util.testing import PymatgenTest
 pytest.importorskip("seekpath", reason="seekpath not installed")
 
 
-class TestKPathSeek(PymatgenTest):
+class TestKPathSeek(MatSciTest):
     def test_kpath_generation(self):
         triclinic = [1, 2]
         monoclinic = range(3, 16)

@@ -17,7 +17,7 @@ __status__ = "Beta"
 __date__ = "Feb 2017"
 
 
-class TestMagneticSpaceGroup(PymatgenTest):
+class TestMagneticSpaceGroup(MatSciTest):
     def setup_method(self):
         self.msg_1 = MagneticSpaceGroup([70, 530])
         self.msg_2 = MagneticSpaceGroup([62, 448])

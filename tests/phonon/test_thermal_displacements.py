@@ -11,7 +11,7 @@ from pymatgen.util.testing import TEST_FILES_DIR, PymatgenTest
 TEST_DIR = f"{TEST_FILES_DIR}/phonon/thermal_displacement_matrices"
 
 
-class TestThermalDisplacement(PymatgenTest):
+class TestThermalDisplacement(MatSciTest):
     """Test data from J. George's matlab code https://github.com/JaGeo/MolecularToolbox."""
 
     def setup_method(self) -> None:

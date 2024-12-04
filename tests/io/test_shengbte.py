@@ -10,7 +10,7 @@ f90nml = pytest.importorskip("f90nml")
 TEST_DIR = f"{TEST_FILES_DIR}/io/shengbte"
 
 
-class TestShengBTE(PymatgenTest):
+class TestShengBTE(MatSciTest):
     def setup_method(self):
         self.filename = f"{TEST_DIR}/CONTROL-CSLD_Si"
         self.test_dict = {

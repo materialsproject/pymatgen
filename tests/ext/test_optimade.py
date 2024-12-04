@@ -36,7 +36,7 @@ except requests.exceptions.ConnectionError:
     mc2d_down = True
 
 
-class TestOptimade(PymatgenTest):
+class TestOptimade(MatSciTest):
     @pytest.mark.skipif(mp_website_down, reason="MP OPTIMADE is down.")
     def test_get_structures_mp(self):
         with OptimadeRester("mp") as optimade:

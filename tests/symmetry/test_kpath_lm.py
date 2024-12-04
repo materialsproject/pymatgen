@@ -11,7 +11,7 @@ from pymatgen.symmetry.kpath import KPathLatimerMunro
 from pymatgen.util.testing import TEST_FILES_DIR, PymatgenTest
 
 
-class TestKPathLatimerMunro(PymatgenTest):
+class TestKPathLatimerMunro(MatSciTest):
     def test_kpath_generation(self):
         triclinic = [1, 2]
         monoclinic = range(3, 16)

@@ -10,7 +10,7 @@ from pymatgen.util.testing import TEST_FILES_DIR, PymatgenTest
 TEST_DIR = f"{TEST_FILES_DIR}/io"
 
 
-class TestTemplateInputGen(PymatgenTest):
+class TestTemplateInputGen(MatSciTest):
     def test_write_inputs(self):
         input_set = TemplateInputGen().get_input_set(
             template=f"{TEST_DIR}/template_input_file.txt",

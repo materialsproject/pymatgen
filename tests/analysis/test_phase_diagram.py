@@ -178,7 +178,7 @@ class TestTransformedPDEntry:
         assert norm_entry.composition == expected_comp
 
 
-class TestPhaseDiagram(PymatgenTest):
+class TestPhaseDiagram(MatSciTest):
     def setup_method(self):
         self.entries = EntrySet.from_csv(f"{TEST_DIR}/pd_entries_test.csv")
         self.pd = PhaseDiagram(self.entries)

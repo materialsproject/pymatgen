@@ -26,7 +26,7 @@ __author__ = "waroquiers"
 json_dir = f"{TEST_FILES_DIR}/analysis/chemenv/json"
 
 
-class TestCoordinationGeometryFinder(PymatgenTest):
+class TestCoordinationGeometryFinder(MatSciTest):
     def setup_method(self):
         self.lgf = LocalGeometryFinder()
         self.lgf.setup_parameters(

@@ -91,7 +91,7 @@ def test_yb_2_warning(input_set: VaspInputSet) -> None:
     assert expected in str(record[0].message)
 
 
-class TestSetChangeCheck(PymatgenTest):
+class TestSetChangeCheck(MatSciTest):
     def test_sets_changed(self):
         msg = (
             "WARNING! These tests will fail when you change an input set. They are included "
@@ -128,7 +128,7 @@ class TestSetChangeCheck(PymatgenTest):
             assert hash_str == known_hashes[input_set], f"{input_set=}\n{msg}"
 
 
-class TestVaspInputSet(PymatgenTest):
+class TestVaspInputSet(MatSciTest):
     @classmethod
     def setup_class(cls):
         filepath = f"{VASP_IN_DIR}/POSCAR"
@@ -165,7 +165,7 @@ class TestVaspInputSet(PymatgenTest):
         assert dict_set.potcar_functional == dict_set.user_potcar_functional
 
 
-class TestMITMPRelaxSet(PymatgenTest):
+class TestMITMPRelaxSet(MatSciTest):
     @classmethod
     def setup_class(cls):
         cls.set = MITRelaxSet
@@ -718,7 +718,7 @@ class TestMITMPRelaxSet(PymatgenTest):
         assert vis._get_nedos(0.1) == pytest.approx(741, abs=1)
 
 
-class TestMPStaticSet(PymatgenTest):
+class TestMPStaticSet(MatSciTest):
     def setup_method(self):
         self.set = MPStaticSet
 
@@ -870,7 +870,7 @@ class TestMPStaticSet(PymatgenTest):
         )
 
 
-class TestMatPESStaticSet(PymatgenTest):
+class TestMatPESStaticSet(MatSciTest):
     def setup_method(self):
         self.struct = Structure.from_file(f"{VASP_IN_DIR}/POSCAR")
         self.prev_incar = Incar.from_file(f"{VASP_IN_DIR}/INCAR")
@@ -987,7 +987,7 @@ class TestMatPESStaticSet(PymatgenTest):
         assert vis.kpoints is None
 
 
-class TestMPNonSCFSet(PymatgenTest):
+class TestMPNonSCFSet(MatSciTest):
     def setup_method(self):
         self.set = MPNonSCFSet
 
@@ -1153,7 +1153,7 @@ class TestMPNonSCFSet(PymatgenTest):
         assert vis.kpoints.style == Kpoints.supported_modes.Gamma
 
 
-class TestMagmomLdau(PymatgenTest):
+class TestMagmomLdau(MatSciTest):
     def test_structure_from_prev_run(self):
         vrun = Vasprun(f"{VASP_OUT_DIR}/vasprun.magmom_ldau.xml.gz")
         structure = vrun.final_structure
@@ -1188,7 +1188,7 @@ class TestMagmomLdau(PymatgenTest):
             assert vis.incar["MAGMOM"] == magmom_ans
 
 
-class TestMITMDSet(PymatgenTest):
+class TestMITMDSet(MatSciTest):
     def setup_method(self):
         self.set = MITMDSet
         filepath = f"{VASP_IN_DIR}/POSCAR"
@@ -1230,7 +1230,7 @@ class TestMITMDSet(PymatgenTest):
 
 
 @skip_if_no_psp_dir
-class TestMVLNPTMDSet(PymatgenTest):
+class TestMVLNPTMDSet(MatSciTest):
     def setup_method(self):
         file_path = f"{VASP_IN_DIR}/POSCAR"
         self.struct = Structure.from_file(file_path)
@@ -1266,7 +1266,7 @@ class TestMVLNPTMDSet(PymatgenTest):
         assert input_set.incar["NSW"] == 1000
 
 
-class TestMPMDSet(PymatgenTest):
+class TestMPMDSet(MatSciTest):
     def setup_method(self):
         filepath = f"{VASP_IN_DIR}/POSCAR"
         self.struct = Structure.from_file(filepath)
@@ -1308,7 +1308,7 @@ class TestMPMDSet(PymatgenTest):
         assert v.incar["NSW"] == 1000
 
 
-class TestMITNEBSet(PymatgenTest):
+class TestMITNEBSet(MatSciTest):
     def setup_method(self):
         c1 = [[0.5] * 3, [0.9] * 3]
         c2 = [[0.5] * 3, [0.9, 0.1, 0.1]]
@@ -1356,7 +1356,7 @@ class TestMITNEBSet(PymatgenTest):
         assert not os.path.isfile("04/POSCAR")
 
 
-class TestMPSOCSet(PymatgenTest):
+class TestMPSOCSet(MatSciTest):
     def setup_method(self):
         self.set = MPSOCSet
 
@@ -1393,7 +1393,7 @@ class TestMPSOCSet(PymatgenTest):
         assert vis.incar["SIGMA"] == 0.025
 
 
-class TestMPNMRSet(PymatgenTest):
+class TestMPNMRSet(MatSciTest):
     def test_incar(self):
         filepath = f"{TEST_FILES_DIR}/cif/Li.cif"
         structure = Structure.from_file(filepath)
@@ -1415,7 +1415,7 @@ class TestMPNMRSet(PymatgenTest):
 
 
 @skip_if_no_psp_dir
-class TestMVLSlabSet(PymatgenTest):
+class TestMVLSlabSet(MatSciTest):
     def setup_method(self):
         self.set = MVLSlabSet
         struct = self.get_structure("Li2O")
@@ -1487,7 +1487,7 @@ class TestMVLSlabSet(PymatgenTest):
         assert "structure" not in self.vis.as_dict(verbosity=1)
 
 
-class TestMVLElasticSet(PymatgenTest):
+class TestMVLElasticSet(MatSciTest):
     def test_incar(self):
         mvlparam = MVLElasticSet(self.get_structure("Graphite"))
         incar = mvlparam.incar
@@ -1498,7 +1498,7 @@ class TestMVLElasticSet(PymatgenTest):
 
 
 @skip_if_no_psp_dir
-class TestMVLGWSet(PymatgenTest):
+class TestMVLGWSet(MatSciTest):
     def setup_method(self):
         self.set = MVLGWSet
         self.struct = PymatgenTest.get_structure("Li2O")
@@ -1576,7 +1576,7 @@ class TestMVLGWSet(PymatgenTest):
         assert mvlgwgbse1.incar["ALGO"] == "Bse"
 
 
-class TestMPHSERelaxSet(PymatgenTest):
+class TestMPHSERelaxSet(MatSciTest):
     def setup_method(self):
         self.structure = dummy_structure
         self.set = MPHSERelaxSet
@@ -1643,7 +1643,7 @@ class TestMPHSERelaxSet(PymatgenTest):
         assert "VDW_S8" in vis_bj.incar
 
 
-class TestMPHSEBS(PymatgenTest):
+class TestMPHSEBS(MatSciTest):
     def setup_method(self):
         self.set = MPHSEBSSet
 
@@ -1699,7 +1699,7 @@ class TestMPHSEBS(PymatgenTest):
         assert len(vis.kpoints.kpts) == 180
 
 
-class TestMVLScanRelaxSet(PymatgenTest):
+class TestMVLScanRelaxSet(MatSciTest):
     def setup_method(self):
         self.set = MVLScanRelaxSet
         file_path = f"{VASP_IN_DIR}/POSCAR"
@@ -1777,7 +1777,7 @@ class TestMVLScanRelaxSet(PymatgenTest):
         assert v.user_incar_settings["NSW"] == 500
 
 
-class TestMPScanRelaxSet(PymatgenTest):
+class TestMPScanRelaxSet(MatSciTest):
     def setup_method(self):
         file_path = f"{VASP_IN_DIR}/POSCAR"
         self.struct = Structure.from_file(file_path)
@@ -1898,7 +1898,7 @@ class TestMPScanRelaxSet(PymatgenTest):
         assert os.path.isfile(f"{self.tmp_path}/POSCAR")
 
 
-class TestMPScanStaticSet(PymatgenTest):
+class TestMPScanStaticSet(MatSciTest):
     def setup_method(self):
         self.set = MPScanStaticSet
         self.prev_run = f"{TEST_DIR}/fixtures/scan_relaxation"
@@ -1988,7 +1988,7 @@ class TestMPScanStaticSet(PymatgenTest):
         assert lepsilon_vis.incar.get("NPAR") is None
 
 
-class TestFunc(PymatgenTest):
+class TestFunc(MatSciTest):
     @skip_if_no_psp_dir
     def test_batch_write_input(self):
         structs = list(map(PymatgenTest.get_structure, ("Li2O", "LiFePO4")))
@@ -2000,7 +2000,7 @@ class TestFunc(PymatgenTest):
 
 
 @skip_if_no_psp_dir
-class TestMVLGBSet(PymatgenTest):
+class TestMVLGBSet(MatSciTest):
     def setup_method(self):
         filepath = f"{TEST_FILES_DIR}/cif/Li.cif"
         self.struct = Structure.from_file(filepath)
@@ -2026,7 +2026,7 @@ class TestMVLGBSet(PymatgenTest):
         assert kpoints.kpts == [(k_a, k_b, 1)]
 
 
-class TestMVLRelax52Set(PymatgenTest):
+class TestMVLRelax52Set(MatSciTest):
     def setup_method(self):
         self.set = MVLRelax52Set
         file_path = f"{VASP_IN_DIR}/POSCAR"
@@ -2064,7 +2064,7 @@ class TestMVLRelax52Set(PymatgenTest):
         assert vasp_input.incar["NSW"] == 500
 
 
-class TestLobsterSet(PymatgenTest):
+class TestLobsterSet(MatSciTest):
     def setup_method(self):
         self.set = LobsterSet
         file_path = f"{VASP_IN_DIR}/POSCAR"
@@ -2163,7 +2163,7 @@ class TestLobsterSet(PymatgenTest):
 
 
 @skip_if_no_psp_dir
-class TestMPAbsorptionSet(PymatgenTest):
+class TestMPAbsorptionSet(MatSciTest):
     def setup_method(self):
         file_path = f"{TEST_DIR}/fixtures/absorption/static/POSCAR"
         self.structure = Structure.from_file(file_path)

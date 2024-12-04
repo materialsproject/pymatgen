@@ -5,7 +5,7 @@ from pymatgen.io.vasp import Vasprun
 from pymatgen.util.testing import VASP_OUT_DIR, PymatgenTest
 
 
-class TestXPS(PymatgenTest):
+class TestXPS(MatSciTest):
     def test_from_dos(self):
         vasp_run = Vasprun(f"{VASP_OUT_DIR}/vasprun.LiF.xml.gz")
         dos = vasp_run.complete_dos

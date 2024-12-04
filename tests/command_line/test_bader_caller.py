@@ -16,7 +16,7 @@ TEST_DIR = f"{TEST_FILES_DIR}/command_line/bader"
 
 
 @pytest.mark.skipif(not which("bader"), reason="bader executable not present")
-class TestBaderAnalysis(PymatgenTest):
+class TestBaderAnalysis(MatSciTest):
     def setup_method(self):
         warnings.catch_warnings()
 

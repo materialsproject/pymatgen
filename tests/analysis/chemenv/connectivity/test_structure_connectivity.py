@@ -14,7 +14,7 @@ from pymatgen.util.testing import TEST_FILES_DIR, PymatgenTest
 __author__ = "waroquiers"
 
 
-class TestStructureConnectivity(PymatgenTest):
+class TestStructureConnectivity(MatSciTest):
     def test_serialization(self):
         BaTiO3_se_fpath = f"{TEST_FILES_DIR}/analysis/chemenv/structure_environments/se_mp-5020.json"
         with open(BaTiO3_se_fpath) as file:

@@ -8,7 +8,7 @@ from pymatgen.electronic_structure.core import Magmom
 from pymatgen.util.testing import PymatgenTest
 
 
-class TestSymmOp(PymatgenTest):
+class TestSymmOp(MatSciTest):
     def setup_method(self):
         self.op = SymmOp.from_axis_angle_and_translation([0, 0, 1], 30, translation_vec=[0, 0, 1])
 
@@ -236,7 +236,7 @@ class TestSymmOp(PymatgenTest):
         assert_allclose(symm_op.translation_vector, [0.5, 0.25, 0.75])
 
 
-class TestMagSymmOp(PymatgenTest):
+class TestMagSymmOp(MatSciTest):
     def test_xyzt_string(self):
         xyzt_strings = ["x, y, z, +1", "x, y, z, -1", "-y+1/2, x+1/2, x+1/2, +1"]
 

@@ -21,7 +21,7 @@ __date__ = "May 05 2016"
 TEST_DIR = f"{TEST_FILES_DIR}/analysis/wulff"
 
 
-class TestWulffShape(PymatgenTest):
+class TestWulffShape(MatSciTest):
     def setup_method(self):
         with open(f"{TEST_DIR}/surface_samples.json") as data_file:
             surface_properties = json.load(data_file)

@@ -5,7 +5,7 @@ from monty.serialization import loadfn
 from pymatgen.util.testing import TEST_FILES_DIR, PymatgenTest
 
 
-class TestIRDielectricTensor(PymatgenTest):
+class TestIRDielectricTensor(MatSciTest):
     def setup_method(self):
         self.ir_spectra = loadfn(f"{TEST_FILES_DIR}/phonon/dos/ir_spectra_mp-991652_DDB.json")
 

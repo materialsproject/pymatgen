@@ -18,7 +18,7 @@ from pymatgen.util.testing import TEST_FILES_DIR, PymatgenTest
 TEST_DIR = f"{TEST_FILES_DIR}/io/lammps"
 
 
-class TestLammpsBox(PymatgenTest):
+class TestLammpsBox(MatSciTest):
     @classmethod
     def setup_class(cls):
         cls.peptide = LammpsBox(
@@ -72,7 +72,7 @@ class TestLammpsBox(PymatgenTest):
         )
 
 
-class TestLammpsData(PymatgenTest):
+class TestLammpsData(MatSciTest):
     @classmethod
     def setup_class(cls):
         cls.peptide = LammpsData.from_file(filename=f"{TEST_DIR}/data.peptide")
@@ -664,7 +664,7 @@ class TestTopology:
         assert "Dihedrals" not in topo_etoh2.topologies
 
 
-class TestForceField(PymatgenTest):
+class TestForceField(MatSciTest):
     @classmethod
     def setup_class(cls):
         mass_info = [

@@ -16,7 +16,7 @@ __email__ = "shyuep@gmail.com"
 __date__ = "5/22/14"
 
 
-class TestXRDCalculator(PymatgenTest):
+class TestXRDCalculator(MatSciTest):
     def test_type_wavelength(self):
         """Test TypeError is raised if wavelength is unaccepted type."""
         wavelength = [1.78, 2.78]  # just a list

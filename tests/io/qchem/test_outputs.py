@@ -260,7 +260,7 @@ MULTI_JOB_OUT_NAMES = {
 }
 
 
-class TestQCOutput(PymatgenTest):
+class TestQCOutput(MatSciTest):
     @staticmethod
     def generate_single_job_dict():
         """Used to generate test dictionary for single jobs."""

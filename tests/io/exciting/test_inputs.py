@@ -19,7 +19,7 @@ __date__ = "Dec 01, 2016"
 TEST_DIR = f"{TEST_FILES_DIR}/io/exciting"
 
 
-class TestExcitingInput(PymatgenTest):
+class TestExcitingInput(MatSciTest):
     def test_fromfile(self):
         # Test for the import of a structure directly from an exciting
         # input file

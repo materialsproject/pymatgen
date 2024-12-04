@@ -6,7 +6,7 @@ from pymatgen.core.xcfunc import XcFunc
 from pymatgen.util.testing import PymatgenTest
 
 
-class TestLibxcFunc(PymatgenTest):
+class TestLibxcFunc(MatSciTest):
     def setup_method(self) -> None:
         self.ixc_11 = XcFunc.from_abinit_ixc(11)
 

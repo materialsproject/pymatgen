@@ -13,7 +13,7 @@ from pymatgen.util.testing import TEST_FILES_DIR, PymatgenTest
 TEST_DIR = f"{TEST_FILES_DIR}/core/grain_boundary"
 
 
-class TestGrainBoundary(PymatgenTest):
+class TestGrainBoundary(MatSciTest):
     def setup_method(self):
         self.Cu_conv = Structure.from_file(f"{TEST_DIR}/Cu_mp-30_conventional_standard.cif")
         GB_Cu_conv = GrainBoundaryGenerator(self.Cu_conv)
@@ -104,7 +104,7 @@ class TestGrainBoundary(PymatgenTest):
         assert_allclose(Cu_GB2_new.lattice.matrix, self.Cu_GB2.lattice.matrix)
 
 
-class TestGrainBoundaryGenerator(PymatgenTest):
+class TestGrainBoundaryGenerator(MatSciTest):
     @classmethod
     def setup_class(cls):
         cls.Cu_prim = Structure.from_file(f"{TEST_DIR}/Cu_mp-30_primitive.cif")
@@ -331,7 +331,7 @@ class TestGrainBoundaryGenerator(PymatgenTest):
         assert_allclose(close_angle, angle)
 
 
-class TestInterface(PymatgenTest):
+class TestInterface(MatSciTest):
     def setup_method(self):
         self.interface: Interface = self.get_structure("Si_SiO2_Interface")
 

@@ -14,7 +14,7 @@ TEST_DIR = f"{TEST_FILES_DIR}/analysis/magnetic_orderings"
 
 
 @pytest.mark.skipif(not which("vampire-serial"), reason="vampire executable not present")
-class TestVampireCaller(PymatgenTest):
+class TestVampireCaller(MatSciTest):
     @classmethod
     def setup_class(cls):
         cls.Mn3Al = pd.read_json(f"{TEST_DIR}/Mn3Al.json")

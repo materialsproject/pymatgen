@@ -8,7 +8,7 @@ from pymatgen.util.testing import TEST_FILES_DIR, PymatgenTest
 TEST_DIR = f"{TEST_FILES_DIR}/analysis/topological"
 
 
-class TestSolar(PymatgenTest):
+class TestSolar(MatSciTest):
     def test_spillage_from_vasprun(self):
         wf_noso = f"{TEST_DIR}/WAVECAR-NonSOC"
         wf_so = f"{TEST_DIR}/WAVECAR-SOC"

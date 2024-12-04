@@ -18,7 +18,7 @@ MAKESTR_CMD = which("makestr.x") or which("makeStr.x") or which("makeStr.py")
 
 
 @pytest.mark.skipif(not (ENUM_CMD and MAKESTR_CMD), reason="enumlib not present.")
-class TestEnumlibAdaptor(PymatgenTest):
+class TestEnumlibAdaptor(MatSciTest):
     def test_init(self):
         struct = self.get_structure("LiFePO4")
         sub_trans = SubstitutionTransformation({"Li": {"Li": 0.5}})

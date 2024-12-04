@@ -23,7 +23,7 @@ TEST_DIR = f"{TEST_FILES_DIR}/io/xtb/sample_CREST_output"
 EXPECTED_DIR = f"{TEST_FILES_DIR}/io/xtb/expected_output"
 
 
-class TestCRESTOutput(PymatgenTest):
+class TestCRESTOutput(MatSciTest):
     """
     Checks that all attributes of CRESTOutput match the expected values for a
     sample CREST output directory.

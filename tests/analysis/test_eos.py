@@ -8,7 +8,7 @@ from pymatgen.analysis.eos import EOS, NumericalEOS
 from pymatgen.util.testing import PymatgenTest
 
 
-class TestEOS(PymatgenTest):
+class TestEOS(MatSciTest):
     def setup_method(self):
         # Si data from Cormac
         self.volumes = [

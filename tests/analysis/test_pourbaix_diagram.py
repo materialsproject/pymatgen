@@ -16,7 +16,7 @@ from pymatgen.util.testing import TEST_FILES_DIR, PymatgenTest
 TEST_DIR = f"{TEST_FILES_DIR}/analysis/pourbaix_diagram"
 
 
-class TestPourbaixEntry(PymatgenTest):
+class TestPourbaixEntry(MatSciTest):
     """Test all functions using a fictitious entry"""
 
     def setup_method(self):

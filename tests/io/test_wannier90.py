@@ -13,7 +13,7 @@ from pymatgen.util.testing import TEST_FILES_DIR, PymatgenTest
 TEST_DIR = f"{TEST_FILES_DIR}/io/wannier90"
 
 
-class TestUnk(PymatgenTest):
+class TestUnk(MatSciTest):
     def setup_method(self):
         rng = np.random.default_rng()
         self.data_std = rng.random((10, 5, 5, 5))

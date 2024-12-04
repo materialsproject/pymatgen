@@ -25,7 +25,7 @@ from pymatgen.util.testing import TEST_FILES_DIR, PymatgenTest
 __author__ = "waroquiers"
 
 
-class TestConnectedComponent(PymatgenTest):
+class TestConnectedComponent(MatSciTest):
     def test_init(self):
         # Generic connected component not using EnvironmentNodes
         # (as_dict won't work on such a ConnectedComponent instance)

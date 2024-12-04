@@ -22,7 +22,7 @@ from pymatgen.util.testing import TEST_FILES_DIR, VASP_IN_DIR, PymatgenTest
 TEST_DIR = f"{TEST_FILES_DIR}/analysis/structure_matcher"
 
 
-class TestStructureMatcher(PymatgenTest):
+class TestStructureMatcher(MatSciTest):
     def setup_method(self):
         with open(f"{TEST_FILES_DIR}/entries/TiO2_entries.json") as file:
             entries = json.load(file, cls=MontyDecoder)

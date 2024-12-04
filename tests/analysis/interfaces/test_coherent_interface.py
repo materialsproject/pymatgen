@@ -17,7 +17,7 @@ from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
 from pymatgen.util.testing import PymatgenTest
 
 
-class TestInterfaceBuilder(PymatgenTest):
+class TestInterfaceBuilder(MatSciTest):
     @classmethod
     def setup_class(cls):
         si_struct = cls.get_structure("Si")

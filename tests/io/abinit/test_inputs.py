@@ -33,7 +33,7 @@ def abiref_files(*filenames):
     return [f"{TEST_DIR}/{file}" for file in filenames]
 
 
-class TestAbinitInput(PymatgenTest):
+class TestAbinitInput(MatSciTest):
     """Unit tests for BasicAbinitInput."""
 
     def test_api(self):
@@ -168,7 +168,7 @@ class TestAbinitInput(PymatgenTest):
         assert len(inp["kptbounds"]) == 12
 
 
-class TestMultiDataset(PymatgenTest):
+class TestMultiDataset(MatSciTest):
     """Unit tests for BasicMultiDataset."""
 
     def test_api(self):
@@ -251,7 +251,7 @@ class TestMultiDataset(PymatgenTest):
         self.serialize_with_pickle(multi, test_eq=False)
 
 
-class TestShiftMode(PymatgenTest):
+class TestShiftMode(MatSciTest):
     def test_shiftmode(self):
         gamma = ShiftMode.GammaCentered
         assert ShiftMode.from_object("G") == gamma
@@ -260,7 +260,7 @@ class TestShiftMode(PymatgenTest):
             ShiftMode.from_object({})
 
 
-class TestFactory(PymatgenTest):
+class TestFactory(MatSciTest):
     def setup_method(self):
         # Si ebands
         self.si_structure = Structure.from_file(abiref_file("si.cif"))

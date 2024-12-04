@@ -12,7 +12,7 @@ from pymatgen.electronic_structure.core import Magmom
 from pymatgen.util.testing import PymatgenTest
 
 
-class TestSite(PymatgenTest):
+class TestSite(MatSciTest):
     def setup_method(self):
         self.ordered_site = Site("Fe", [0.25, 0.35, 0.45])
         self.disordered_site = Site({"Fe": 0.5, "Mn": 0.5}, [0.25, 0.35, 0.45])
@@ -79,7 +79,7 @@ class TestSite(PymatgenTest):
             self.disordered_site.species = {"Cu": 0.5, "Gd": 0.6}
 
 
-class TestPeriodicSite(PymatgenTest):
+class TestPeriodicSite(MatSciTest):
     def setup_method(self):
         self.lattice = Lattice.cubic(10.0)
         self.si = Element("Si")

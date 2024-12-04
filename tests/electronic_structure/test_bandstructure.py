@@ -67,7 +67,7 @@ class TestKpoint:
         assert kpoint.label == "X"
 
 
-class TestBandStructureSymmLine(PymatgenTest):
+class TestBandStructureSymmLine(MatSciTest):
     def setup_method(self):
         self.bs: BandStructureSymmLine = loadfn(f"{TEST_DIR}/Cu2O_361_bandstructure.json")
         self.bs2: BandStructureSymmLine = loadfn(f"{TEST_DIR}/CaO_2605_bandstructure.json")
@@ -257,7 +257,7 @@ class TestBandStructureSymmLine(PymatgenTest):
         assert bs_scissored.efermi != approx(orig_efermi)
 
 
-class TestReconstructBandStructure(PymatgenTest):
+class TestReconstructBandStructure(MatSciTest):
     def setup_method(self):
         self.bs_cu: BandStructureSymmLine = loadfn(f"{TEST_DIR}/Cu_30_bandstructure.json")
         self.bs_cu2: BandStructureSymmLine = loadfn(f"{TEST_DIR}/Cu_30_bandstructure.json")
@@ -276,7 +276,7 @@ class TestReconstructBandStructure(PymatgenTest):
         bs.get_projection_on_elements()
 
 
-class TestLobsterBandStructureSymmLine(PymatgenTest):
+class TestLobsterBandStructureSymmLine(MatSciTest):
     def setup_method(self):
         with open(
             f"{TEST_FILES_DIR}/electronic_structure/cohp/Fatband_SiO2/Test_p/lobster_band_structure_spin.json",

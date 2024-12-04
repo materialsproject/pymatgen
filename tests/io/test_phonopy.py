@@ -41,7 +41,7 @@ TEST_DIR = f"{TEST_FILES_DIR}/io/phonopy"
 PHONON_DIR = f"{TEST_FILES_DIR}/phonon"
 
 
-class TestPhonopyParser(PymatgenTest):
+class TestPhonopyParser(MatSciTest):
     def test_get_ph_bs(self):
         ph_bs = get_ph_bs_symm_line(f"{TEST_DIR}/NaCl_band.yaml", has_nac=True)
 
@@ -97,7 +97,7 @@ class TestPhonopyParser(PymatgenTest):
 
 
 @pytest.mark.skipif(Phonopy is None, reason="Phonopy not present")
-class TestStructureConversion(PymatgenTest):
+class TestStructureConversion(MatSciTest):
     def test_structure_conversion(self):
         struct_pmg = PymatgenTest.get_structure("LiFePO4")
         # add magmoms to site_properties
@@ -125,7 +125,7 @@ class TestStructureConversion(PymatgenTest):
 
 
 @pytest.mark.skipif(Phonopy is None, reason="Phonopy not present")
-class TestGetDisplacedStructures(PymatgenTest):
+class TestGetDisplacedStructures(MatSciTest):
     def test_get_displaced_structures(self):
         pmg_s = Structure.from_file(f"{TEST_DIR}/POSCAR-unitcell", primitive=False)
         supercell_matrix = np.diag((2, 1, 2))
@@ -245,7 +245,7 @@ class TestGruneisen:
 
 
 @pytest.mark.skipif(Phonopy is None, reason="Phonopy not present")
-class TestThermalDisplacementMatrices(PymatgenTest):
+class TestThermalDisplacementMatrices(MatSciTest):
     def test_get_thermal_displacement_matrix(self):
         list_matrices = get_thermal_displacement_matrices(
             f"{PHONON_DIR}/thermal_displacement_matrices/thermal_displacement_matrices.yaml",

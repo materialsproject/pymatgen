@@ -18,7 +18,7 @@ TEST_DIR = f"{TEST_FILES_DIR}/io/atat/mcsqs"
 
 
 @pytest.mark.skipif(not (which("mcsqs") and which("str2cif")), reason="mcsqs executable not present")
-class TestMcsqsCaller(PymatgenTest):
+class TestMcsqsCaller(MatSciTest):
     def setup_method(self):
         self.pzt_structs = loadfn(f"{TEST_DIR}/pzt-structs.json")
         self.pzt_structs2 = loadfn(f"{TEST_DIR}/pzt-structs-2.json")

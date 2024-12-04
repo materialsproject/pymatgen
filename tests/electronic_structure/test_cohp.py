@@ -796,7 +796,7 @@ class TestCombinedIcohp:
         assert self.icoopcollection_Fe.extremum_icohpvalue(summed_spin_channels=False, spin=Spin.down) == -0.05756
 
 
-class TestCompleteCohp(PymatgenTest):
+class TestCompleteCohp(MatSciTest):
     def setup_method(self):
         filepath = f"{TEST_DIR}/complete_cohp_lobster.json"
         with open(filepath) as file:

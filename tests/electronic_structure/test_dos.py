@@ -322,7 +322,7 @@ class TestCompleteDos:
             self.dos.get_dos_fp_similarity(dos_fp, dos_fp2, col=1, metric=metric, normalize=False)
 
 
-class TestDOS(PymatgenTest):
+class TestDOS(MatSciTest):
     def setup_method(self):
         with open(f"{TEST_DIR}/complete_dos.json") as file:
             dct = json.load(file)

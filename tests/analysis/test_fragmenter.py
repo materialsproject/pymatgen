@@ -17,7 +17,7 @@ __email__ = "samblau1@gmail.com"
 TEST_DIR = f"{TEST_FILES_DIR}/analysis/local_env/fragmenter_files"
 
 
-class TestFragmentMolecule(PymatgenTest):
+class TestFragmentMolecule(MatSciTest):
     @classmethod
     def setup_class(cls):
         cls.pc = Molecule.from_file(f"{TEST_DIR}/PC.xyz")

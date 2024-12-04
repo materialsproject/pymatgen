@@ -15,7 +15,7 @@ with open(f"{TEST_FILES_DIR}/analysis/spectrum_test/LiCoO2_k_xanes.json") as fil
     spect_data_dict = json.load(file, cls=MontyDecoder)
 
 
-class TestSpectrumPlotter(PymatgenTest):
+class TestSpectrumPlotter(MatSciTest):
     def setup_method(self):
         self.xanes = XAS.from_dict(spect_data_dict)
 

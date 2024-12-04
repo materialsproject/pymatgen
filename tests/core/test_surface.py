@@ -29,7 +29,7 @@ from pymatgen.util.testing import TEST_FILES_DIR, PymatgenTest
 PMG_CORE_DIR = os.path.dirname(pymatgen.core.__file__)
 
 
-class TestSlab(PymatgenTest):
+class TestSlab(MatSciTest):
     def setup_method(self):
         zno1 = Structure.from_file(f"{TEST_FILES_DIR}/surfaces/ZnO-wz.cif", primitive=False)
         zno55 = SlabGenerator(zno1, [1, 0, 0], 5, 5, lll_reduce=False, center_slab=False).get_slab()
@@ -346,7 +346,7 @@ class TestSlab(PymatgenTest):
         assert slab == Slab.from_dict(d)
 
 
-class TestSlabGenerator(PymatgenTest):
+class TestSlabGenerator(MatSciTest):
     def setup_method(self):
         lattice = Lattice.cubic(3.010)
         frac_coords = [
@@ -634,7 +634,7 @@ class TestSlabGenerator(PymatgenTest):
         assert slabs[1].energy, 6.0
 
 
-class ReconstructionGeneratorTests(PymatgenTest):
+class ReconstructionGeneratorTests(MatSciTest):
     def setup_method(self):
         lattice = Lattice.cubic(3.51)
         species = ["Ni"]
@@ -723,7 +723,7 @@ class ReconstructionGeneratorTests(PymatgenTest):
             assert any(len(match.group_structures([struct, slab])) == 1 for slab in slabs)
 
 
-class TestMillerIndexFinder(PymatgenTest):
+class TestMillerIndexFinder(MatSciTest):
     def setup_method(self):
         self.cscl = Structure.from_spacegroup("Pm-3m", Lattice.cubic(4.2), ["Cs", "Cl"], [[0, 0, 0], [0.5, 0.5, 0.5]])
         self.Fe = Structure.from_spacegroup("Im-3m", Lattice.cubic(2.82), ["Fe"], [[0, 0, 0]])

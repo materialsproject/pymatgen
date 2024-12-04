@@ -242,7 +242,7 @@ rhb18 = {
 }
 
 
-class TestAdfInput(PymatgenTest):
+class TestAdfInput(MatSciTest):
     def test_main(self):
         tmp_file = f"{self.tmp_path}/adf.temp"
         mol = Molecule.from_str(rhb18_xyz, "xyz")

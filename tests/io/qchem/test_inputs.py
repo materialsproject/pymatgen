@@ -20,7 +20,7 @@ __email__ = "samblau1@gmail.com"
 __credits__ = "Xiaohui Qu"
 
 
-class TestQCInput(PymatgenTest):
+class TestQCInput(MatSciTest):
     def test_molecule_template(self):
         species = ["C", "O"]
         coords = [

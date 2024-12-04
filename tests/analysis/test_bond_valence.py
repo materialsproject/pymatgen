@@ -10,7 +10,7 @@ from pymatgen.util.testing import TEST_FILES_DIR, PymatgenTest
 TEST_DIR = f"{TEST_FILES_DIR}/analysis/bond_valence"
 
 
-class TestBVAnalyzer(PymatgenTest):
+class TestBVAnalyzer(MatSciTest):
     def setup_method(self):
         self.analyzer = BVAnalyzer()
 
@@ -44,7 +44,7 @@ class TestBVAnalyzer(PymatgenTest):
         assert Species("Mn4+") in oxi_struct.composition.elements
 
 
-class TestBondValenceSum(PymatgenTest):
+class TestBondValenceSum(MatSciTest):
     def test_calculate_bv_sum(self):
         struct = Structure.from_file(f"{TEST_DIR}/LiMn2O4.json")
         neighbors = struct.get_neighbors(struct[0], 3.0)

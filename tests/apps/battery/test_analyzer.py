@@ -8,7 +8,7 @@ from pymatgen.core.structure import Structure
 from pymatgen.util.testing import TEST_FILES_DIR, PymatgenTest
 
 
-class TestBatteryAnalyzer(PymatgenTest):
+class TestBatteryAnalyzer(MatSciTest):
     def load_from_cif(self, filename, oxidations, working_ion="Li"):
         struct = Structure.from_file(f"{TEST_FILES_DIR}/cif/{filename}")
         struct.add_oxidation_state_by_element(oxidations)

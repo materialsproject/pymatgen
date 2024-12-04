@@ -10,7 +10,7 @@ from pymatgen.util.testing import TEST_FILES_DIR, PymatgenTest
 TEST_DIR = f"{TEST_FILES_DIR}/io/atat/mcsqs"
 
 
-class TestAtat(PymatgenTest):
+class TestAtat(MatSciTest):
     def test_mcsqs_import(self):
         test_str = """1.000000 0.000000 0.000000
 0.000000 1.000000 0.000000

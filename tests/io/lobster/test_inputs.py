@@ -19,7 +19,7 @@ __email__ = "janine.george@uclouvain.be, esters@uoregon.edu"
 __date__ = "Dec 10, 2017"
 
 
-class TestLobsterin(PymatgenTest):
+class TestLobsterin(MatSciTest):
     def setup_method(self):
         self.Lobsterin = Lobsterin.from_file(f"{TEST_DIR}/lobsterin.1")
         self.Lobsterin2 = Lobsterin.from_file(f"{TEST_DIR}/lobsterin.2")
@@ -579,7 +579,7 @@ class TestLobsterin(PymatgenTest):
         new_lobsterin.to_json()
 
 
-class TestUtils(PymatgenTest):
+class TestUtils(MatSciTest):
     def test_get_all_possible_basis_combinations(self):
         # this basis is just for testing (not correct)
         min_basis = ["Li 1s 2s ", "Na 1s 2s", "Si 1s 2s"]
