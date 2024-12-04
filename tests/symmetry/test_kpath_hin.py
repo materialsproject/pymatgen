@@ -6,7 +6,7 @@ from pytest import approx
 from pymatgen.core.lattice import Lattice
 from pymatgen.core.structure import Structure
 from pymatgen.symmetry.kpath import KPathSeek
-from pymatgen.util.testing import PymatgenTest
+from pymatgen.util.testing import MatSciTest
 
 pytest.importorskip("seekpath", reason="seekpath not installed")
 

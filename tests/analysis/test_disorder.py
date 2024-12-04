@@ -4,7 +4,7 @@ from pytest import approx
 
 from pymatgen.analysis.disorder import get_warren_cowley_parameters
 from pymatgen.core import Element, Structure
-from pymatgen.util.testing import PymatgenTest
+from pymatgen.util.testing import MatSciTest
 
 
 class TestOrderParameter(MatSciTest):

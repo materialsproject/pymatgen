@@ -13,7 +13,7 @@ from pytest import approx
 
 from pymatgen.core import Composition, DummySpecies, Element, Species
 from pymatgen.core.composition import ChemicalPotential
-from pymatgen.util.testing import PymatgenTest
+from pymatgen.util.testing import MatSciTest
 
 
 class TestComposition(MatSciTest):

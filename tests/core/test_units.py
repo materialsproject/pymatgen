@@ -26,7 +26,7 @@ from pymatgen.core.units import (
     eV_to_Ha,
     unitized,
 )
-from pymatgen.util.testing import PymatgenTest
+from pymatgen.util.testing import MatSciTest
 
 
 def test_unit_conversions():

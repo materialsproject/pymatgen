@@ -4,7 +4,7 @@ import numpy as np
 
 from pymatgen.core.structure import Structure
 from pymatgen.io.xcrysden import XSF
-from pymatgen.util.testing import PymatgenTest
+from pymatgen.util.testing import MatSciTest
 
 
 class TestXSF(MatSciTest):

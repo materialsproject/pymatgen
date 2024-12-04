@@ -4,7 +4,7 @@ import pytest
 import requests
 
 from pymatgen.ext.optimade import OptimadeRester
-from pymatgen.util.testing import PymatgenTest
+from pymatgen.util.testing import MatSciTest
 
 try:
     # 403 is returned when server detects bot-like behavior

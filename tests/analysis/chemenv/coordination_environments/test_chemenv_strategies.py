@@ -10,7 +10,7 @@ from pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies impo
     DistanceCutoffFloat,
     SimplestChemenvStrategy,
 )
-from pymatgen.util.testing import PymatgenTest
+from pymatgen.util.testing import MatSciTest
 
 __author__ = "waroquiers"
 

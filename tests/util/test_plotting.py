@@ -3,7 +3,7 @@ from __future__ import annotations
 import matplotlib.pyplot as plt
 
 from pymatgen.util.plotting import periodic_table_heatmap, van_arkel_triangle
-from pymatgen.util.testing import PymatgenTest
+from pymatgen.util.testing import MatSciTest
 
 try:
     import pymatviz

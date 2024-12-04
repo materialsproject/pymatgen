@@ -3,7 +3,7 @@ from __future__ import annotations
 import json
 
 from pymatgen.analysis.chemenv.connectivity.environment_nodes import EnvironmentNode
-from pymatgen.util.testing import PymatgenTest
+from pymatgen.util.testing import MatSciTest
 
 try:
     import bson

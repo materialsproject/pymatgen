@@ -5,7 +5,7 @@ from numpy.testing import assert_allclose
 
 from pymatgen.core.operations import MagSymmOp, SymmOp
 from pymatgen.electronic_structure.core import Magmom
-from pymatgen.util.testing import PymatgenTest
+from pymatgen.util.testing import MatSciTest
 
 
 class TestSymmOp(MatSciTest):

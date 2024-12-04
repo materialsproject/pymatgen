@@ -11,7 +11,7 @@ from pymatgen.analysis.chemenv.coordination_environments.coordination_geometries
     ExplicitPermutationsAlgorithm,
     SeparationPlane,
 )
-from pymatgen.util.testing import PymatgenTest
+from pymatgen.util.testing import MatSciTest
 
 __author__ = "waroquiers"
 

@@ -13,7 +13,7 @@ from pymatgen.analysis.interfaces.zsl import (
     vec_area,
 )
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
-from pymatgen.util.testing import PymatgenTest
+from pymatgen.util.testing import MatSciTest
 
 __author__ = "Shyam Dwaraknath"
 __copyright__ = "Copyright 2016, The Materials Project"

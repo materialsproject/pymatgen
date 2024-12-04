@@ -7,7 +7,7 @@ from numpy.testing import assert_allclose
 from pymatgen.analysis.elasticity.strain import Deformation, DeformedStructureSet, Strain, convert_strain_to_deformation
 from pymatgen.core.structure import Structure
 from pymatgen.core.tensors import Tensor
-from pymatgen.util.testing import PymatgenTest
+from pymatgen.util.testing import MatSciTest
 
 
 class TestDeformation(MatSciTest):

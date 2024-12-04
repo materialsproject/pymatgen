@@ -14,7 +14,7 @@ from pymatgen.analysis.interfaces.substrate_analyzer import SubstrateAnalyzer
 from pymatgen.core.lattice import Lattice
 from pymatgen.core.structure import Structure
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
-from pymatgen.util.testing import PymatgenTest
+from pymatgen.util.testing import MatSciTest
 
 
 class TestInterfaceBuilder(MatSciTest):

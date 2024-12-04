@@ -6,7 +6,7 @@ from pytest import approx
 from scipy import stats
 
 from pymatgen.core.spectrum import Spectrum
-from pymatgen.util.testing import PymatgenTest
+from pymatgen.util.testing import MatSciTest
 
 
 class TestSpectrum(MatSciTest):

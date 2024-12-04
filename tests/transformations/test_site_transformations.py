@@ -16,7 +16,7 @@ from pymatgen.transformations.site_transformations import (
     ReplaceSiteSpeciesTransformation,
     TranslateSitesTransformation,
 )
-from pymatgen.util.testing import PymatgenTest
+from pymatgen.util.testing import MatSciTest
 
 enum_cmd = which("enum.x") or which("multienum.x")
 makestr_cmd = which("makestr.x") or which("makeStr.x") or which("makeStr.py")

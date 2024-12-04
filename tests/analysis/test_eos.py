@@ -5,7 +5,7 @@ from numpy.testing import assert_allclose
 from pytest import approx
 
 from pymatgen.analysis.eos import EOS, NumericalEOS
-from pymatgen.util.testing import PymatgenTest
+from pymatgen.util.testing import MatSciTest
 
 
 class TestEOS(MatSciTest):

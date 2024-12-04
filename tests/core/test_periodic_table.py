@@ -14,7 +14,7 @@ from pymatgen.core import DummySpecies, Element, Species, get_el_sp
 from pymatgen.core.periodic_table import ElementBase, ElementType
 from pymatgen.core.units import Ha_to_eV
 from pymatgen.io.core import ParseError
-from pymatgen.util.testing import PymatgenTest
+from pymatgen.util.testing import MatSciTest
 
 
 class TestElement(MatSciTest):

@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 from pymatgen.core.libxcfunc import LibxcFunc
-from pymatgen.util.testing import PymatgenTest
+from pymatgen.util.testing import MatSciTest
 
 
 class TestLibxcFunc(MatSciTest):

@@ -16,7 +16,7 @@ from pymatgen.analysis.chemenv.utils.math_utils import (
     smootherstep,
     smoothstep,
 )
-from pymatgen.util.testing import PymatgenTest
+from pymatgen.util.testing import MatSciTest
 
 __author__ = "waroquiers"
 

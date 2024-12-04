@@ -9,7 +9,7 @@ from pytest import approx
 
 from pymatgen.core.lattice import Lattice, get_points_in_spheres
 from pymatgen.core.operations import SymmOp
-from pymatgen.util.testing import PymatgenTest
+from pymatgen.util.testing import MatSciTest
 
 
 class TestLattice(MatSciTest):

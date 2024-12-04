@@ -8,7 +8,7 @@ from pymatgen.core.lattice import Lattice
 from pymatgen.core.structure import Molecule, Structure
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
 from pymatgen.util.coord import in_coord_list
-from pymatgen.util.testing import PymatgenTest
+from pymatgen.util.testing import MatSciTest
 
 
 class TestAdsorbateSiteFinder(MatSciTest):

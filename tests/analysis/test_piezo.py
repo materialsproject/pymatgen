@@ -7,7 +7,7 @@ import pytest
 from numpy.testing import assert_allclose, assert_array_equal
 
 from pymatgen.analysis.piezo import PiezoTensor
-from pymatgen.util.testing import PymatgenTest
+from pymatgen.util.testing import MatSciTest
 
 __author__ = "Shyam Dwaraknath"
 __version__ = "0.1"
