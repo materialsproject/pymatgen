@@ -86,7 +86,7 @@ jobs:
           pip install torch==2.2.1
 
           # Install from wheels to test the content
-          uv build --wheel --quiet
+          uv build --wheel --no-build-logs
           WHEEL_FILE=$(ls dist/pymatgen*.whl)
           uv pip install $WHEEL_FILE[${{matrix.config.extras}}] --resolution=${{matrix.config.resolution}}
 
