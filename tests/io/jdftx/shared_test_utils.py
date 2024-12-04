@@ -1,3 +1,8 @@
+"""Test utilities for JDFTx tests shared between inputs and outputs parts.
+
+This module will inherit everything from inputs_test_utils.py and outputs_test_utils.py upon final implementation.
+"""
+
 from __future__ import annotations
 
 from pathlib import Path
