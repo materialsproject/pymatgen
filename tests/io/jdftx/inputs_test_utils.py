@@ -1,3 +1,9 @@
+"""Shared test utilities for JDFTx input files.
+
+This module contains shared testing functions and example data + known values for JDFTx input files.
+This module will be combined with shared_test_utils.py upon final implementation.
+"""
+
 from __future__ import annotations
 
 from pathlib import Path
