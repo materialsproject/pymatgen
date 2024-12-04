@@ -7,7 +7,7 @@ from monty.serialization import loadfn
 
 from pymatgen.command_line.mcsqs_caller import run_mcsqs
 from pymatgen.core.structure import Structure
-from pymatgen.util.testing import TEST_FILES_DIR
+from pymatgen.util.testing import TEST_FILES_DIR, MatSciTest
 
 __author__ = "Handong Ling, Rachel Woods-Robinson"
 __maintainer__ = "Handong Ling, Rachel Woods-Robinson"
@@ -18,8 +18,8 @@ TEST_DIR = f"{TEST_FILES_DIR}/io/atat/mcsqs"
 
 
 @pytest.mark.skipif(not (which("mcsqs") and which("str2cif")), reason="mcsqs executable not present")
-class TestMcsqsCaller:
-    def setUp(self):
+class TestMcsqsCaller(MatSciTest):
+    def setup_method(self):
         self.pzt_structs = loadfn(f"{TEST_DIR}/pzt-structs.json")
         self.pzt_structs2 = loadfn(f"{TEST_DIR}/pzt-structs-2.json")
         self.struct = self.get_structure("Pb2TiZrO6")
@@ -103,5 +103,5 @@ class TestMcsqsCaller:
         struct.replace_species({"Ti": {"Ti": 0.5, "Zr": 0.5}, "Zr": {"Ti": 0.5, "Zr": 0.5}})
         struct.replace_species({"Pb": {"Ti": 0.2, "Pb": 0.8}})
         struct.replace_species({"O": {"F": 0.8, "O": 0.2}})
-        with pytest.raises(RuntimeError, match="mcsqs exited before timeout reached"):
+        with pytest.raises(RuntimeError, match="mcsqs did not generate output files"):
             run_mcsqs(struct, {2: 6, 3: 4}, 10, 0.000001)

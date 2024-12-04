@@ -14,7 +14,7 @@ from pymatgen.alchemy.filters import (
 from pymatgen.alchemy.transmuters import StandardTransmuter
 from pymatgen.analysis.structure_matcher import StructureMatcher
 from pymatgen.core import Lattice, Species, Structure
-from pymatgen.util.testing import TEST_FILES_DIR
+from pymatgen.util.testing import TEST_FILES_DIR, MatSciTest
 
 
 class TestContainsSpecieFilter:
@@ -52,7 +52,7 @@ class TestContainsSpecieFilter:
         assert isinstance(ContainsSpecieFilter.from_dict(dct), ContainsSpecieFilter)
 
 
-class TestSpecieProximityFilter:
+class TestSpecieProximityFilter(MatSciTest):
     def test_filter(self):
         struct = self.get_structure("Li10GeP2S12")
         sf = SpecieProximityFilter({"Li": 1})
@@ -70,8 +70,8 @@ class TestSpecieProximityFilter:
         assert isinstance(SpecieProximityFilter.from_dict(dct), SpecieProximityFilter)
 
 
-class TestRemoveDuplicatesFilter(TestCase):
-    def setUp(self):
+class TestRemoveDuplicatesFilter:
+    def setup_method(self):
         with open(f"{TEST_FILES_DIR}/entries/TiO2_entries.json") as file:
             entries = json.load(file, cls=MontyDecoder)
         self._struct_list = [entry.structure for entry in entries]

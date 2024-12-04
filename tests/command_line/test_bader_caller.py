@@ -1,6 +1,5 @@
 from __future__ import annotations
 
-import warnings
 from shutil import which
 
 import numpy as np
@@ -10,16 +9,13 @@ from numpy.testing import assert_allclose
 from pytest import approx
 
 from pymatgen.command_line.bader_caller import BaderAnalysis, bader_analysis_from_path
-from pymatgen.util.testing import TEST_FILES_DIR, VASP_IN_DIR, VASP_OUT_DIR
+from pymatgen.util.testing import TEST_FILES_DIR, VASP_IN_DIR, VASP_OUT_DIR, MatSciTest
 
 TEST_DIR = f"{TEST_FILES_DIR}/command_line/bader"
 
 
 @pytest.mark.skipif(not which("bader"), reason="bader executable not present")
-class TestBaderAnalysis:
-    def setUp(self):
-        warnings.catch_warnings()
-
+class TestBaderAnalysis(MatSciTest):
     def test_init(self):
         # test with reference file
         analysis = BaderAnalysis(
