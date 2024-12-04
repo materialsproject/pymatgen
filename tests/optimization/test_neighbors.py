@@ -7,7 +7,7 @@ from pymatgen.optimization.neighbors import find_points_in_spheres
 
 
 class TestNeighbors:
-    def setUp(self):
+    def setup_method(self):
         self.lattice = Lattice.cubic(10.0)
         self.cubic = self.lattice
         self.tetragonal = Lattice.tetragonal(10, 20)

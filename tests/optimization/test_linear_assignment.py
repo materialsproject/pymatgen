@@ -1,7 +1,5 @@
 from __future__ import annotations
 
-from unittest import TestCase
-
 import numpy as np
 import pytest
 from pytest import approx
@@ -9,8 +7,8 @@ from pytest import approx
 from pymatgen.optimization.linear_assignment import LinearAssignment
 
 
-class TestLinearAssignment(TestCase):
-    def test(self):
+class TestLinearAssignment:
+    def test_case_one(self):
         w0 = np.array(
             [
                 [19, 95, 9, 43, 62, 90, 10, 77, 71, 27],
@@ -102,7 +100,7 @@ class TestLinearAssignment(TestCase):
         with pytest.raises(ValueError, match="cost matrix must have at least as many columns as rows"):
             LinearAssignment(w0.T)
 
-    def another_test_case(self):
+    def test_case_two(self):
         w1 = np.array(
             [
                 [
