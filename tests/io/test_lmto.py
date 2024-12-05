@@ -25,12 +25,8 @@ MODULE_DIR = os.path.dirname(os.path.abspath(__file__))
 
 class TestCtrl(MatSciTest):
     def setup_method(self):
-        os.chdir(TEST_DIR)
         self.ref_bise = LMTOCtrl.from_file(filename=f"{TEST_DIR}/CTRL.BiSe")
-        self.ref_fe = LMTOCtrl.from_file()
-
-    def teardown_method(self):
-        os.chdir(MODULE_DIR)
+        self.ref_fe = LMTOCtrl.from_file(filename=f"{TEST_DIR}/CTRL")
 
     def test_dict(self):
         assert self.ref_bise == LMTOCtrl.from_dict(self.ref_bise.as_dict())
@@ -49,13 +45,9 @@ class TestCtrl(MatSciTest):
 
 class TestCopl(MatSciTest):
     def setup_method(self):
-        os.chdir(TEST_DIR)
-        self.copl_bise = LMTOCopl("COPL.BiSe")
-        self.copl_bise_eV = LMTOCopl(filename="COPL.BiSe", to_eV=True)
-        self.copl_fe = LMTOCopl()
-
-    def teardown_method(self):
-        os.chdir(MODULE_DIR)
+        self.copl_bise = LMTOCopl(f"{TEST_DIR}/COPL.BiSe")
+        self.copl_bise_eV = LMTOCopl(filename=f"{TEST_DIR}/COPL.BiSe", to_eV=True)
+        self.copl_fe = LMTOCopl(f"{TEST_DIR}/COPL")
 
     def test_attributes(self):
         assert not self.copl_bise.is_spin_polarized
