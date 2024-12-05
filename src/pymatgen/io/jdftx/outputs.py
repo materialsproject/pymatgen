@@ -16,12 +16,7 @@ from typing import TYPE_CHECKING, Any
 import numpy as np
 
 from pymatgen.core.trajectory import Trajectory
-from pymatgen.io.jdftx._output_utils import (
-    _get_atom_orb_labels_dict,
-    _get_norbsperatom_from_bandfile_filepath,
-    get_proj_tju_from_file,
-    read_outfile_slices,
-)
+from pymatgen.io.jdftx._output_utils import _get_atom_orb_labels_dict, get_proj_tju_from_file, read_outfile_slices
 from pymatgen.io.jdftx.jdftxoutfileslice import JDFTXOutfileSlice
 
 if TYPE_CHECKING:
@@ -42,7 +37,7 @@ __author__ = "Ben Rich, Jacob Clary"
 # Dump files that are redundant to data contained in the outfile attribute are included for completeness
 # but commented out.
 dump_file_names = [
-    "bandProjectionsdos",
+    "bandProjections",
     "dosUp",
     "dosDn",
     "d_tot",
@@ -61,6 +56,11 @@ dump_file_names = [
     "tau_up",
     "tau_dn",
     "wfns",
+]
+
+implemented_store_vars = [
+    "bandProjections",
+    "eigenvals",
 ]
 
 
@@ -94,8 +94,6 @@ class JDFTXOutputs:
     bandProjections: np.ndarray | None = field(init=False)
     eigenvals: np.ndarray | None = field(init=False)
     # Misc metadata for interacting with the data
-    bandProjections_is_complex: bool | None = field(init=False)
-    norbsperatom: list[int] | None = field(init=False)
     atom_orb_labels_dict: dict[int, str] | None = field(init=False)
 
     @classmethod
@@ -122,6 +120,7 @@ class JDFTXOutputs:
         self._store_vars()
 
     def _init_paths(self):
+        self.paths = {}
         if self.calc_dir is None:
             raise ValueError("calc_dir must be set as not None before initializing.")
         outfile_path = _find_jdftx_out_file(self.calc_dir)
@@ -136,6 +135,9 @@ class JDFTXOutputs:
                 pass
 
     def _store_vars(self):
+        for var in implemented_store_vars:
+            if var not in self.store_vars:
+                setattr(self, var, None)
         for var in self.store_vars:
             self._store_var(var)
 
@@ -148,8 +150,6 @@ class JDFTXOutputs:
     def _store_bandProjections(self):
         if "bandProjections" in self.paths:
             self.bandProjections = get_proj_tju_from_file(self.paths["bandProjections"])
-            self.norbsperatom = _get_norbsperatom_from_bandfile_filepath(self.paths["bandProjections"])
-            self.bandProjections_is_complex = np.iscomplexobj(self.bandProjections)
             self.atom_orb_labels_dict = _get_atom_orb_labels_dict(self.paths["bandProjections"])
             nstates, nbands, nproj = self.bandProjections.shape
 
@@ -611,7 +611,7 @@ def _find_jdftx_dump_file(calc_dir: Path, dump_fname: str) -> list[Path]:
     Returns:
         Path: The path to the JDFTx out file.
     """
-    dump_files = list(calc_dir.glob("*.dump_fname")) + list(calc_dir.glob("dump_fname"))
+    dump_files = list(calc_dir.glob(f"*.{dump_fname}")) + list(calc_dir.glob(f"{dump_fname}"))
     dump_files = [f for f in dump_files if f.is_file()]
     if len(dump_files) == 0:
         raise FileNotFoundError(f"No JDFTx {dump_fname} file found in directory.")

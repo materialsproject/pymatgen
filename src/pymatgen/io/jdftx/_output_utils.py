@@ -417,36 +417,36 @@ def _get_nspecies_from_bandfile_filepath(bandfile_filepath: Path | str) -> int:
     return _get__from_bandfile_filepath(bandfile_filepath, 6)
 
 
-def _get_norbsperatom_from_bandfile_filepath(bandfile_filepath: Path | str) -> list[int]:
-    """Get number of orbitals per atom from bandprojections file.
+# def _get_norbsperatom_from_bandfile_filepath(bandfile_filepath: Path | str) -> list[int]:
+#     """Get number of orbitals per atom from bandprojections file.
 
-    Get the number of orbitals per atom from the bandprojections file.
+#     Get the number of orbitals per atom from the bandprojections file.
 
-    Args:
-        bandfile (Path | str): Path to bandprojections file.
+#     Args:
+#         bandfile (Path | str): Path to bandprojections file.
 
-    Returns:
-        list[int]: List of number of orbitals per atom.
-    """
-    nspecies = _get_nspecies_from_bandfile_filepath(bandfile_filepath)
-    norbsperatom = []
-    bandfile = read_file(bandfile_filepath)
-    for line, text in enumerate(bandfile):
-        tokens = text.split()
-        if line == 0:
-            int(tokens[6])
-        elif line >= 2:
-            if line < nspecies + 2:
-                natoms = int(tokens[1])
-                norbsperatom.extend(
-                    [
-                        int(tokens[2]),
-                    ]
-                    * natoms
-                )
-            else:
-                break
-    return norbsperatom
+#     Returns:
+#         list[int]: List of number of orbitals per atom.
+#     """
+#     nspecies = _get_nspecies_from_bandfile_filepath(bandfile_filepath)
+#     norbsperatom = []
+#     bandfile = read_file(bandfile_filepath)
+#     for line, text in enumerate(bandfile):
+#         tokens = text.split()
+#         if line == 0:
+#             int(tokens[6])
+#         elif line >= 2:
+#             if line < nspecies + 2:
+#                 natoms = int(tokens[1])
+#                 norbsperatom.extend(
+#                     [
+#                         int(tokens[2]),
+#                     ]
+#                     * natoms
+#                 )
+#             else:
+#                 break
+#     return norbsperatom
 
 
 def _parse_bandfile_reader(
