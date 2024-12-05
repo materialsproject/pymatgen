@@ -2,14 +2,23 @@
 
 from __future__ import annotations
 
+import warnings
 from pathlib import Path
+
+import pytest
 
 from pymatgen.core import Element, Structure
 from pymatgen.io.vasp.inputs import Kpoints
 from pymatgen.util.testing import PymatgenTest
 
+warnings.filterwarnings("ignore", message="PymatgenTest is deprecated", category=FutureWarning)
+
 
 class TestPymatgenTest(PymatgenTest):
+    def test_deprecated_warning(self):
+        with pytest.warns(FutureWarning, match="PymatgenTest is deprecated"):
+            TestPymatgenTest()
+
     def test_tmp_dir(self):
         current_dir = Path.cwd()
         assert current_dir == self.tmp_path
