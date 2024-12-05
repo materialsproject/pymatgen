@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import importlib
 from importlib.metadata import PackageNotFoundError
-from unittest import mock
+from unittest.mock import patch
 
 import numpy as np
 import pytest
@@ -356,7 +356,7 @@ def test_msonable_atoms():
 def test_no_ase_err():
     import pymatgen.io.ase
 
-    with mock.patch.dict("sys.modules", {"ase.atoms": None}):
+    with patch.dict("sys.modules", {"ase.atoms": None}):
         importlib.reload(pymatgen.io.ase)
         from pymatgen.io.ase import MSONAtoms
 

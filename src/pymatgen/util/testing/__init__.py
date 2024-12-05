@@ -15,6 +15,7 @@ from typing import TYPE_CHECKING
 from unittest import TestCase
 
 import pytest
+from monty.dev import deprecated
 from monty.json import MontyDecoder, MontyEncoder, MSONable
 from monty.serialization import loadfn
 
@@ -35,8 +36,15 @@ VASP_OUT_DIR = f"{TEST_FILES_DIR}/io/vasp/outputs"
 FAKE_POTCAR_DIR = f"{VASP_IN_DIR}/fake_potcars"
 
 
-class PymatgenTest(TestCase):
-    """Extends unittest.TestCase with several assert methods for array and str comparison."""
+class MatSciTest:
+    """`pytest` based test framework extended to facilitate testing with
+    the following methods:
+    - tmp_path (attribute): Temporary directory.
+    - get_structure: Load a Structure from `util.structures` with its name.
+    - assert_str_content_equal: Check if two strings are equal (ignore whitespaces).
+    - serialize_with_pickle: Test whether object(s) can be (de)serialized with pickle.
+    - assert_msonable: Test if obj is MSONable and return its serialized string.
+    """
 
     # dict of lazily-loaded test structures (initialized to None)
     TEST_STRUCTURES: ClassVar[dict[str | Path, Structure | None]] = dict.fromkeys(STRUCTURES_DIR.glob("*"))
@@ -149,3 +157,11 @@ class PymatgenTest(TestCase):
         if not issubclass(type(round_trip), type(obj)):
             raise TypeError(f"{type(round_trip)} != {type(obj)}")
         return json_str
+
+
+@deprecated(MatSciTest, deadline=(2026, 1, 1))
+class PymatgenTest(TestCase, MatSciTest):
+    """Extends unittest.TestCase with several assert methods for array and str comparison.
+
+    Deprecated: please use `MatSciTest` instead (migrate from `unittest` to `pytest`).
+    """

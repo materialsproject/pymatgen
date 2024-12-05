@@ -3,11 +3,11 @@ from __future__ import annotations
 import pytest
 
 from pymatgen.core.xcfunc import XcFunc
-from pymatgen.util.testing import PymatgenTest
+from pymatgen.util.testing import MatSciTest
 
 
-class TestLibxcFunc(PymatgenTest):
-    def setUp(self) -> None:
+class TestLibxcFunc(MatSciTest):
+    def setup_method(self) -> None:
         self.ixc_11 = XcFunc.from_abinit_ixc(11)
 
     def test_aliases(self):

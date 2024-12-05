@@ -1,7 +1,5 @@
 from __future__ import annotations
 
-from unittest import TestCase
-
 import numpy as np
 from numpy.testing import assert_allclose
 
@@ -12,8 +10,8 @@ from pymatgen.core.structure import Structure
 __author__ = "Kiran Mathew"
 
 
-class TestQuasiHarmonicDebyeApprox(TestCase):
-    def setUp(self):
+class TestQuasiHarmonicDebyeApprox:
+    def setup_method(self):
         struct = Structure.from_dict(
             {
                 "lattice": {
@@ -137,8 +135,8 @@ class TestQuasiHarmonicDebyeApprox(TestCase):
         assert_allclose(A, 0.494687, atol=1e-3)
 
 
-class TestAnharmonicQuasiHarmonicDebyeApprox(TestCase):
-    def setUp(self):
+class TestAnharmonicQuasiHarmonicDebyeApprox:
+    def setup_method(self):
         struct = Structure.from_str(
             """FCC Al
 1.0

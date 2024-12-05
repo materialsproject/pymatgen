@@ -12,13 +12,13 @@ from pymatgen.core.structure import Molecule, Structure
 from pymatgen.core.trajectory import Trajectory
 from pymatgen.io.qchem.outputs import QCOutput
 from pymatgen.io.vasp.outputs import Xdatcar
-from pymatgen.util.testing import TEST_FILES_DIR, VASP_IN_DIR, VASP_OUT_DIR, PymatgenTest
+from pymatgen.util.testing import TEST_FILES_DIR, VASP_IN_DIR, VASP_OUT_DIR, MatSciTest
 
 TEST_DIR = f"{TEST_FILES_DIR}/core/trajectory"
 
 
-class TestTrajectory(PymatgenTest):
-    def setUp(self):
+class TestTrajectory(MatSciTest):
+    def setup_method(self):
         xdatcar = Xdatcar(f"{VASP_OUT_DIR}/XDATCAR_traj")
         self.traj = Trajectory.from_file(f"{VASP_OUT_DIR}/XDATCAR_traj")
         self.structures = xdatcar.structures
