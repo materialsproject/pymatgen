@@ -15,6 +15,7 @@ from typing import TYPE_CHECKING
 from unittest import TestCase
 
 import pytest
+from monty.dev import deprecated
 from monty.json import MontyDecoder, MontyEncoder, MSONable
 from monty.serialization import loadfn
 
@@ -36,13 +37,13 @@ FAKE_POTCAR_DIR = f"{VASP_IN_DIR}/fake_potcars"
 
 
 class MatSciTest:
-    """TODO: name might need discussion.
-
-    TODO: finish docstring
-
-    TODO: reduce code duplicate
-
-    TODO: add deprecation warning
+    """`pytest` based test framework extended to facilitate testing with
+    the following methods:
+    - tmp_path (attribute): Temporary directory.
+    - get_structure: Load a Structure from `util.structures` with its name.
+    - assert_str_content_equal: Check if two strings are equal (ignore whitespaces).
+    - serialize_with_pickle: Test whether object(s) can be (de)serialized with pickle.
+    - assert_msonable: Test if obj is MSONable and return its serialized string.
     """
 
     # dict of lazily-loaded test structures (initialized to None)
@@ -158,6 +159,7 @@ class MatSciTest:
         return json_str
 
 
+@deprecated(MatSciTest)
 class PymatgenTest(TestCase):
     """Extends unittest.TestCase with several assert methods for array and str comparison.
 
