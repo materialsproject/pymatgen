@@ -218,16 +218,14 @@ def get_start_lines(
 
 
 def find_key_first(key_input: str, tempfile: list[str]) -> int | None:
-    """Find first instance of key in output file.
+    """Find the first instance of a key in the output file.
 
-    Find first instance of key in output file.
+    Args:
+        key_input (str): Key string to match.
+        tempfile (list[str]): Output from readlines() function in read_file method.
 
-    Parameters
-    ----------
-    key_input: str
-        key string to match
-    tempfile: List[str]
-        output from readlines() function in read_file method
+    Returns:
+        int | None: The index of the first occurrence of the key in the tempfile list, or None if the key is not found.
     """
     key_input = str(key_input)
     line = None
@@ -239,16 +237,15 @@ def find_key_first(key_input: str, tempfile: list[str]) -> int | None:
 
 
 def find_key(key_input: str, tempfile: list[str]) -> int | None:
-    """Find last instance of key in output file.
+    """
+    Find the last instance of a key in the output file.
 
-    Find last instance of key in output file.
+    Args:
+        key_input (str): Key string to match.
+        tempfile (list[str]): Output from readlines() function in read_file method.
 
-    Parameters
-    ----------
-    key_input: str
-        key string to match
-    tempfile: List[str]
-        output from readlines() function in read_file method
+    Returns:
+        int | None: The index of the last occurrence of the key in the tempfile list, or None if the key is not found.
     """
     key_input = str(key_input)
     line = None
@@ -265,28 +262,18 @@ def find_first_range_key(
     endline: int = -1,
     skip_pound: bool = False,
 ) -> list[int]:
-    """Find all lines that exactly begin with key_input in a range of lines.
-
+    """
     Find all lines that exactly begin with key_input in a range of lines.
 
-    Parameters
-    ----------
-    key_input: str
-        key string to match
-    tempfile: List[str]
-        output from readlines() function in read_file method
-    startline: int
-        line to start searching from
-    endline: int
-        line to stop searching at
-    skip_pound: bool
-        whether to skip lines that begin with a pound sign
+    Args:
+        key_input (str): Key string to match.
+        tempfile (list[str]): Output from readlines() function in read_file method.
+        startline (int): Line to start searching from.
+        endline (int): Line to stop searching at.
+        skip_pound (bool): Whether to skip lines that begin with a pound sign.
 
-    Returns
-    -------
-    L: list[int]
-        list of line numbers where key_input occurs
-
+    Returns:
+        list[int]: List of line numbers where key_input occurs.
     """
     key_input = str(key_input)
     startlen = len(key_input)
@@ -307,22 +294,17 @@ def find_first_range_key(
 
 
 def key_exists(key_input: str, tempfile: list[str]) -> bool:
-    """Check if key_input exists in tempfile.
+    """
+    Check if key_input exists in tempfile.
 
-    Search through tempfile for key_input. Return True if found,
-    False otherwise.
+    Search through tempfile for key_input. Return True if found, False otherwise.
 
-    Parameters
-    ----------
-    key_input: str
-        key string to match
-    tempfile: List[str]
-        output from readlines() function in read_file method
+    Args:
+        key_input (str): Key string to match.
+        tempfile (list[str]): Output from readlines() function in read_file method.
 
-    Returns
-    -------
-    bool
-        True if key_input exists in tempfile, False otherwise
+    Returns:
+        bool: True if key_input exists in tempfile, False otherwise.
     """
     line = find_key(key_input, tempfile)
     return line is not None
@@ -331,21 +313,265 @@ def key_exists(key_input: str, tempfile: list[str]) -> bool:
 def find_all_key(key_input: str, tempfile: list[str], startline: int = 0) -> list[int]:
     """Find all lines containing key_input.
 
-    Search through tempfile for all lines containing key_input. Returns a list
-    of line numbers.
+    Search through tempfile for all lines containing key_input. Returns a list of line numbers.
 
-    Parameters
-    ----------
-    key_input: str
-        key string to match
-    tempfile: List[str]
-        output from readlines() function in read_file method
-    startline: int
-        line to start searching from
+    Args:
+        key_input (str): Key string to match.
+        tempfile (list[str]): Output from readlines() function in read_file method.
+        startline (int): Line to start searching from.
 
-    Returns
-    -------
-    line_list: list[int]
-        list of line numbers where key_input occurs
+    Returns:
+        list[int]: List of line numbers where key_input occurs.
     """
     return [i for i in range(startline, len(tempfile)) if key_input in tempfile[i]]
+
+
+def _parse_bandfile_complex(bandfile_filepath: str | Path) -> np.ndarray[np.complex64]:
+    dtype = np.complex64
+    token_parser = _complex_token_parser
+    return _parse_bandfile_reader(bandfile_filepath, dtype, token_parser)
+
+
+def _parse_bandfile_normalized(bandfile_filepath: str | Path) -> np.ndarray[np.float32]:
+    dtype = np.float32
+    token_parser = _normalized_token_parser
+    return _parse_bandfile_reader(bandfile_filepath, dtype, token_parser)
+
+
+def _get__from_bandfile_filepath(bandfile_filepath: Path | str, tok_idx: int) -> int:
+    """
+    Get arbitrary integer from header of bandprojections file.
+
+    Args:
+        bandfile_filepath (Path | str): Path to bandprojections file.
+        tok_idx (int): Index of token to return.
+
+    Returns:
+        int: Integer from header of bandprojections file.
+    """
+    ret_data = None
+    bandfile = read_file(bandfile_filepath)
+    for iLine, line in enumerate(bandfile):
+        tokens = line.split()
+        if iLine == 0:
+            ret_data = int(tokens[tok_idx])
+            break
+    if ret_data is None:
+        raise ValueError("Provided an empty file")
+    return ret_data
+
+
+def _get_nstates_from_bandfile_filepath(bandfile_filepath: Path | str) -> int:
+    """Get number of states from bandprojections file.
+
+    Get the number of states from the bandprojections file.
+
+    Args:
+        bandfile_filepath (Path | str): Path to bandprojections file.
+
+    Returns:
+        int: Number of states.
+    """
+    return _get__from_bandfile_filepath(bandfile_filepath, 0)
+
+
+def _get_nbands_from_bandfile_filepath(bandfile_filepath: Path | str) -> int:
+    """Get number of bands from bandprojections file.
+
+    Get the number of bands from the bandprojections file.
+
+    Args:
+        bandfile_filepath (Path | str): Path to bandprojections file.
+
+    Returns:
+        int: Number of bands.
+    """
+    return _get__from_bandfile_filepath(bandfile_filepath, 2)
+
+
+def _get_nproj_from_bandfile_filepath(bandfile_filepath: Path | str) -> int:
+    """Get number of projections from bandprojections file.
+
+    Get the number of projections from the bandprojections file.
+
+    Args:
+        bandfile_filepath (Path | str): Path to bandprojections file.
+
+    Returns:
+        int: Number of projections.
+    """
+    return _get__from_bandfile_filepath(bandfile_filepath, 4)
+
+
+def _get_nspecies_from_bandfile_filepath(bandfile_filepath: Path | str) -> int:
+    """Get number of species (ion types) from bandprojections file.
+
+    Get the number of species (ion types) from the bandprojections file.
+
+    Args:
+        bandfile_filepath (Path | str): Path to bandprojections file.
+
+    Returns:
+        int: Number of species.
+    """
+    return _get__from_bandfile_filepath(bandfile_filepath, 6)
+
+
+def _get_norbsperatom_from_bandfile_filepath(bandfile_filepath: Path | str) -> list[int]:
+    """Get number of orbitals per atom from bandprojections file.
+
+    Get the number of orbitals per atom from the bandprojections file.
+
+    Args:
+        bandfile (Path | str): Path to bandprojections file.
+
+    Returns:
+        list[int]: List of number of orbitals per atom.
+    """
+    nspecies = _get_nspecies_from_bandfile_filepath(bandfile_filepath)
+    norbsperatom = []
+    bandfile = read_file(bandfile_filepath)
+    for line, text in enumerate(bandfile):
+        tokens = text.split()
+        if line == 0:
+            int(tokens[6])
+        elif line >= 2:
+            if line < nspecies + 2:
+                natoms = int(tokens[1])
+                norbsperatom.extend(
+                    [
+                        int(tokens[2]),
+                    ]
+                    * natoms
+                )
+            else:
+                break
+    return norbsperatom
+
+
+def _parse_bandfile_reader(
+    bandfile_filepath: str | Path, dtype: type, token_parser: Callable
+) -> np.ndarray[np.complex64] | np.ndarray[np.float32]:
+    nstates = _get_nstates_from_bandfile_filepath(bandfile_filepath)
+    nbands = _get_nbands_from_bandfile_filepath(bandfile_filepath)
+    nproj = _get_nproj_from_bandfile_filepath(bandfile_filepath)
+    nspecies = _get_nspecies_from_bandfile_filepath(bandfile_filepath)
+    # Header of length 3, and then each states occupies 1 (header) + nbands lineas
+    bandfile = read_file(bandfile_filepath)
+    expected_length = 2 + nspecies + (nstates * (1 + nbands))
+    if not expected_length == len(bandfile):
+        raise RuntimeError("Bandprojections file does not match expected length - ensure no edits have been made.")
+    proj_tju = np.zeros((nstates, nbands, nproj), dtype=dtype)
+    for line, text in enumerate(bandfile):
+        tokens = text.split()
+        if line >= nspecies + 2:
+            istate = (line - (nspecies + 2)) // (nbands + 1)
+            iband = (line - (nspecies + 2)) - istate * (nbands + 1) - 1
+            if iband >= 0 and istate < nstates:
+                proj_tju[istate, iband] = np.array(token_parser(tokens))
+    return proj_tju
+
+
+def _complex_token_parser(tokens: list[str]) -> np.ndarray[np.complex64]:
+    out = np.zeros(int(len(tokens) / 2), dtype=np.complex64)
+    ftokens = np.array(tokens, dtype=np.float32)
+    out += 1j * ftokens[1::2]
+    out += ftokens[::2]
+    return out
+
+
+def _normalized_token_parser(tokens: list[str]) -> np.ndarray[np.float32]:
+    return np.array(tokens, dtype=np.float32)
+
+
+def get_proj_tju_from_file(bandfile_filepath: Path | str) -> np.ndarray:
+    """Return projections from file in tju shape.
+
+    Return projections from file in (state, band, proj) shape. Collected in this shape before sabcju shape due to ready
+    availability of this shape in the file.
+
+    Args:
+        bandfile_filepath (Path | str): Path to bandprojections file.
+
+    Returns:
+        np.ndarray: Projections array in shape (state, band, proj).
+    """
+    is_complex = _is_complex_bandfile_filepath(bandfile_filepath)
+    return _parse_bandfile_complex(bandfile_filepath) if is_complex else _parse_bandfile_normalized(bandfile_filepath)
+
+
+def _is_complex_bandfile_filepath(bandfile_filepath: str | Path) -> bool:
+    """Determine if bandprojections file is complex.
+
+    Determine if the bandprojections file is complex. Needed before attempting pCOHP analysis.
+
+    Args:
+        bandfile_filepath (Path | str): Path to bandprojections file.
+
+    Returns:
+        bool: True if the bandprojections file is complex, False otherwise.
+    """
+    hash_lines = 0
+    val = True
+    with open(bandfile_filepath) as f:
+        for _i, line in enumerate(f):
+            if "#" in line:
+                hash_lines += 1
+                if hash_lines == 2:
+                    val = "|projection|^2" not in line
+                    break
+    f.close()
+    return val
+
+
+orb_ref_list = [
+    ["s"],
+    ["px", "py", "pz"],
+    ["dxy", "dxz", "dyz", "dx2y2", "dz2"],
+    ["fx3-3xy2", "fyx2-yz2", "fxz2", "fz3", "fyz2", "fxyz", "f3yx2-y3"],
+]
+
+
+def _get_atom_orb_labels_dict(bandfile_filepath: Path) -> dict[str, list[str]]:
+    """
+    Return a dictionary mapping each atom symbol to all atomic orbital projection string representations.
+
+    Return a dictionary mapping each atom symbol to all atomic orbital projection string representations.
+    For example:
+    {
+        "H": ["s"],
+        "O": ["s", "px", "py", "pz", "dxy", "dxz", "dyz", "dx2y2", "dz2"],
+        "Pt": ["0s", "1s", "0px", "0py", "0pz", "1px", "1py", "1pz", "dxy", "dxz", "dyz", "dx2y2", "dz2",
+               "fx3-3xy2", "fyx2-yz2", "fxz2", "fz3", "fyz2", "fxyz", "f3yx2-y3"]
+    }
+    where the numbers are needed when using pseudopotentials with multiple valence shells of the same angular momentum
+    and are NOT REPRESENTATIVE OF THE TRUE PRINCIPAL QUANTUM NUMBER.
+
+    Args:
+        bandfile_filepath (str | Path): The path to the bandfile.
+
+    Returns:
+        dict[str, list[str]]: A dictionary mapping each atom symbol to all atomic orbital projection string
+        representations.
+    """
+    bandfile = read_file(bandfile_filepath)
+    labels_dict: dict[str, list[str]] = {}
+
+    for i, line in enumerate(bandfile):
+        if i > 1:
+            if "#" in line:
+                break
+            lsplit = line.strip().split()
+            sym = lsplit[0]
+            labels_dict[sym] = []
+            lmax = int(lsplit[3])
+            for j in range(lmax + 1):
+                refs = orb_ref_list[j]
+                nShells = int(lsplit[4 + j])
+                for k in range(nShells):
+                    if nShells > 1:
+                        for r in refs:
+                            labels_dict[sym].append(f"{k}{r}")
+                    else:
+                        labels_dict[sym] += refs
+    return labels_dict

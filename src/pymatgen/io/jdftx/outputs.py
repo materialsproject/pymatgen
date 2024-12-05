@@ -13,13 +13,18 @@ from dataclasses import dataclass, field
 from pathlib import Path
 from typing import TYPE_CHECKING, Any
 
+import numpy as np
+
 from pymatgen.core.trajectory import Trajectory
-from pymatgen.io.jdftx._output_utils import read_outfile_slices
+from pymatgen.io.jdftx._output_utils import (
+    _get_atom_orb_labels_dict,
+    _get_norbsperatom_from_bandfile_filepath,
+    get_proj_tju_from_file,
+    read_outfile_slices,
+)
 from pymatgen.io.jdftx.jdftxoutfileslice import JDFTXOutfileSlice
 
 if TYPE_CHECKING:
-    import numpy as np
-
     from pymatgen.core.structure import Structure
     from pymatgen.io.jdftx.jelstep import JElSteps
     from pymatgen.io.jdftx.jminsettings import (
@@ -31,6 +36,132 @@ if TYPE_CHECKING:
     from pymatgen.io.jdftx.joutstructures import JOutStructures
 
 __author__ = "Ben Rich, Jacob Clary"
+
+
+# This will be a long list so keep alphabetical to make adding more files easier.
+# Dump files that are redundant to data contained in the outfile attribute are included for completeness
+# but commented out.
+dump_file_names = [
+    "bandProjectionsdos",
+    "dosUp",
+    "dosDn",
+    "d_tot",
+    "eigenvals",
+    # "eigStats"
+    # "Ecomponents",
+    "fillings",
+    # "force",
+    "Gvectors",
+    # "ionpos",
+    # "lattice",
+    "kPtsn",
+    "n_up",
+    "n_dn",
+    "tau",
+    "tau_up",
+    "tau_dn",
+    "wfns",
+]
+
+
+@dataclass
+class JDFTXOutputs:
+    """JDFTx outputs parsing class.
+
+    A class to read and process JDFTx outputs.
+
+    Methods:
+        from_calc_dir(calc_dir: str | Path, store_vars: list[str] = None) -> JDFTXOutputs:
+            Return JDFTXOutputs object from the path to a directory containing JDFTx out files.
+
+    Attributes:
+        calc_dir (str | Path): The path to the directory containing the JDFTx output files.
+        store_vars (list[str]): A list of the names of dump files to read and store.
+        paths (dict[str, Path]): A dictionary of the paths to the dump files.
+        outfile (JDFTXOutfile): The JDFTXOutfile object for the out file.
+        bandProjections (np.ndarray): The band projections. Stored in shape (nstates, nbands, nproj) where nstates
+            is nspin*nkpts (nkpts may not equal prod(kfolding) if symmetry reduction occurred), nbands is the number of
+            bands, and nproj is the number of projections. This shape is chosen instead of the pymatgen convention of
+            (nspin, nkpt, nbands, nion, nionproj) to save on memory as nonionproj is different depending on the ion
+            type. This array may also be complex if specified in 'band-projections-params' in the JDFTx input, allowing
+            for pCOHP analysis.
+    """
+
+    calc_dir: str | Path = field(init=True)
+    store_vars: list[str] = field(default_factory=list, init=True)
+    paths: dict[str, Path] = field(init=False)
+    outfile: JDFTXOutfile = field(init=False)
+    bandProjections: np.ndarray | None = field(init=False)
+    eigenvals: np.ndarray | None = field(init=False)
+    # Misc metadata for interacting with the data
+    bandProjections_is_complex: bool | None = field(init=False)
+    norbsperatom: list[int] | None = field(init=False)
+    atom_orb_labels_dict: dict[int, str] | None = field(init=False)
+
+    @classmethod
+    def from_calc_dir(cls, calc_dir: str | Path, store_vars: list[str] | None = None) -> JDFTXOutputs:
+        """
+        Create a JDFTXOutputs object from a directory containing JDFTx out files.
+
+        Args:
+            calc_dir (str | Path): The path to the directory containing the JDFTx out files.
+            is_bgw (bool): Mark True if data must be usable for BGW calculations. This will change the behavior of the
+                parser to be stricter with certain criteria.
+            none_slice_on_error (bool): If True, will return None if an error occurs while parsing a slice instead of
+                halting the parsing process. This can be useful for parsing files with multiple slices where some slices
+                may be incomplete or corrupted.
+        Returns:
+            JDFTXOutputs: The JDFTXOutputs object.
+        """
+        if store_vars is None:
+            store_vars = []
+        return cls(calc_dir=Path(calc_dir), store_vars=store_vars)
+
+    def __post_init__(self):
+        self._init_paths()
+        self._store_vars()
+
+    def _init_paths(self):
+        if self.calc_dir is None:
+            raise ValueError("calc_dir must be set as not None before initializing.")
+        outfile_path = _find_jdftx_out_file(self.calc_dir)
+        self.outfile = JDFTXOutfile.from_file(outfile_path)
+        prefix = self.outfile.prefix
+        for fname in dump_file_names:
+            try:
+                paths = _find_jdftx_dump_file(self.calc_dir, fname)
+                path = _disambiguate_paths(paths, fname, prefix)
+                self.paths[fname] = path
+            except FileNotFoundError:
+                pass
+
+    def _store_vars(self):
+        for var in self.store_vars:
+            self._store_var(var)
+
+    def _store_var(self, var: str):
+        if not hasattr(self, f"_store_{var}"):
+            raise NotImplementedError(f"Storing {var} is not currently implemented.")
+        init_method = getattr(self, f"_store_{var}")
+        init_method()
+
+    def _store_bandProjections(self):
+        if "bandProjections" in self.paths:
+            self.bandProjections = get_proj_tju_from_file(self.paths["bandProjections"])
+            self.norbsperatom = _get_norbsperatom_from_bandfile_filepath(self.paths["bandProjections"])
+            self.bandProjections_is_complex = np.iscomplexobj(self.bandProjections)
+            self.atom_orb_labels_dict = _get_atom_orb_labels_dict(self.paths["bandProjections"])
+            nstates, nbands, nproj = self.bandProjections.shape
+
+    def _store_eigenvals(self):
+        if "eigenvals" in self.paths:
+            self.eigenvals = np.fromfile(self.paths["eigenvals"])
+            tj = len(self.eigenvals)
+            nstates_float = tj / self.outfile.nbands
+            if not np.isclose(nstates_float, int(nstates_float)):
+                raise ValueError("Number of eigenvalues is not an integer multiple of number of bands.")
+            nstates = int(nstates_float)
+            self.eigenvals = self.eigenvals.reshape(nstates, self.outfile.nbands)
 
 
 _jof_atr_from_last_slice = [
@@ -464,9 +595,47 @@ def _find_jdftx_out_file(calc_dir: Path) -> Path:
     Returns:
         Path: The path to the JDFTx out file.
     """
-    out_files = list(calc_dir.glob("*.out")) + list(calc_dir.glob("out"))
-    if len(out_files) == 0:
-        raise FileNotFoundError("No JDFTx out file found in directory.")
+    out_files = _find_jdftx_dump_file(calc_dir, "out")
     if len(out_files) > 1:
         raise FileNotFoundError("Multiple JDFTx out files found in directory.")
     return out_files[0]
+
+
+def _find_jdftx_dump_file(calc_dir: Path, dump_fname: str) -> list[Path]:
+    """
+    Find the JDFTx out file in a directory.
+
+    Args:
+        calc_dir (Path): The directory containing the JDFTx out file.
+
+    Returns:
+        Path: The path to the JDFTx out file.
+    """
+    dump_files = list(calc_dir.glob("*.dump_fname")) + list(calc_dir.glob("dump_fname"))
+    dump_files = [f for f in dump_files if f.is_file()]
+    if len(dump_files) == 0:
+        raise FileNotFoundError(f"No JDFTx {dump_fname} file found in directory.")
+    return dump_files
+
+
+def _disambiguate_paths(paths: list[Path], dump_fname: str, prefix: str | None) -> Path:
+    """
+    Disambiguate a path.
+
+    Args:
+        paths (list[Path]): The paths to disambiguate.
+
+    Returns:
+        Path: The most relevant path.
+    """
+    if len(paths) == 1:
+        return paths[0]
+    _fprefix = ""
+    if prefix is not None:
+        _fprefix = f".{prefix}"
+    for path in paths:
+        if path.name == f"{dump_fname}{_fprefix}":
+            return path
+    raise FileNotFoundError(
+        f"Multiple JDFTx {dump_fname} files found in directory, but none match the prefix: {prefix}."
+    )
