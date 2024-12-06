@@ -1645,7 +1645,7 @@ class Kpoints(MSONable):
         Returns:
             Kpoints object
         """
-        with zopen(filename, mode="rt") as file:
+        with zopen(filename, mode="rt", encoding="utf-8") as file:
             return cls.from_str(file.read())
 
     @classmethod
