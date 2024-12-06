@@ -230,7 +230,7 @@ class TestReadWriteChemenv(PymatgenTest):
 
         detailed_voronoi_container = DetailedVoronoiContainer(structure=struct, valences=valences)
 
-        with open(f"{self.tmp_path}/se.json", mode="w", encoding="utf-8") as file:
+        with open(f"{self.tmp_path}/se.json", mode="w") as file:
             json.dump(detailed_voronoi_container.as_dict(), file)
 
         with open(f"{self.tmp_path}/se.json", encoding="utf-8") as file:
