@@ -27,7 +27,7 @@ def parse_libxc_docs(path):
         return int(dct["Number"]), dct
 
     dct = {}
-    with open(path) as file:
+    with open(path, encoding="utf-8") as file:
         section = []
         for line in file:
             if not line.startswith("-"):
@@ -100,7 +100,7 @@ def main():
     # Re-generate enumerations.
     # [0] read py module.
     xc_funcpy_path = f"{pmg_core}/libxcfunc.py"
-    with open(xc_funcpy_path) as file:
+    with open(xc_funcpy_path, encoding="utf-8") as file:
         lines = file.readlines()
 
     # [1] insert new enum values in list

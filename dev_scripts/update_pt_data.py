@@ -25,7 +25,7 @@ PTABLE_YAML_PATH = "periodic_table.yaml"
 
 def parse_oxi_state():
     data = loadfn(PTABLE_YAML_PATH)
-    with open("oxidation_states.txt") as file:
+    with open("oxidation_states.txt", encoding="utf-8") as file:
         oxi_data = file.read()
     oxi_data = re.sub("[\n\r]", "", oxi_data)
     patt = re.compile("<tr>(.*?)</tr>", re.MULTILINE)
@@ -63,7 +63,7 @@ def parse_oxi_state():
 
 def parse_ionic_radii():
     data = loadfn(PTABLE_YAML_PATH)
-    with open("ionic_radii.csv") as file:
+    with open("ionic_radii.csv", encoding="utf-8") as file:
         radii_data = file.read()
     radii_data = radii_data.split("\r")
     header = radii_data[0].split(",")
@@ -93,7 +93,7 @@ def parse_ionic_radii():
 
 def parse_radii():
     data = loadfn(PTABLE_YAML_PATH)
-    with open("radii.csv") as file:
+    with open("radii.csv", encoding="utf-8") as file:
         radii_data = file.read()
     radii_data = radii_data.split("\r")
 
@@ -283,7 +283,7 @@ def add_electron_affinities():
 def add_ionization_energies():
     """Update the periodic table data file with ground level and ionization energies from NIST."""
 
-    with open("NIST Atomic Ionization Energies Output.html") as file:
+    with open("NIST Atomic Ionization Energies Output.html", encoding="utf-8") as file:
         soup = BeautifulSoup(file.read(), "html.parser")
     table = None
     for table in soup.find_all("table"):

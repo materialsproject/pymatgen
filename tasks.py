@@ -97,10 +97,10 @@ def set_ver(ctx: Context, version: str):
         ctx (Context): The context.
         version (str): An input version.
     """
-    with open("pyproject.toml") as file:
+    with open("pyproject.toml", encoding="utf-8") as file:
         lines = [re.sub(r"^version = \"([^,]+)\"", f'version = "{version}"', line.rstrip()) for line in file]
 
-    with open("pyproject.toml", "w") as file:
+    with open("pyproject.toml", "w", encoding="utf-8") as file:
         file.write("\n".join(lines) + "\n")
 
     ctx.run("ruff check --fix src")
