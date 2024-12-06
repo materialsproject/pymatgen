@@ -220,7 +220,7 @@ class ThermalDisplacementMatrices(MSONable):
         writer.write_file(filename)
         # This will simply append the thermal displacement part to the CIF from the CifWriter
         # In the long run, CifWriter could be extended to handle thermal displacement matrices
-        with open(filename, mode="a") as file:
+        with open(filename, mode="a", encoding="utf-8") as file:
             file.write("loop_ \n")
             file.write("_atom_site_aniso_label\n")
             file.write("_atom_site_aniso_U_11\n")
