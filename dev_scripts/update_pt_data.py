@@ -13,7 +13,7 @@ from monty.dev import requires
 from monty.serialization import dumpfn, loadfn
 from ruamel import yaml
 
-from pymatgen.core import Element, get_el_sp
+from pymatgen.core import PKG_DIR, Element, get_el_sp
 
 try:
     from bs4 import BeautifulSoup
@@ -123,7 +123,7 @@ def parse_radii():
             print(el)
     with open("periodic_table2.yaml", mode="w") as file:
         yaml.dump(data, file)
-    with open("../pymatgen/core/periodic_table.json", mode="w") as file:
+    with open(f"{PKG_DIR}/core/periodic_table.json", mode="w") as file:
         json.dump(data, file)
 
 
@@ -142,7 +142,7 @@ def update_ionic_radii():
             del dct["Ionic_radii_ls"]
     with open("periodic_table2.yaml", mode="w") as file:
         yaml.dump(data, file)
-    with open("../pymatgen/core/periodic_table.json", mode="w") as file:
+    with open(f"{PKG_DIR}/core/periodic_table.json", mode="w") as file:
         json.dump(data, file)
 
 
@@ -180,19 +180,19 @@ def parse_shannon_radii():
             data[el]["Shannon radii"] = dict(radii[el])
 
     dumpfn(data, PTABLE_YAML_PATH)
-    with open("../pymatgen/core/periodic_table.json", mode="w") as file:
+    with open(f"{PKG_DIR}/core/periodic_table.json", mode="w") as file:
         json.dump(data, file)
 
 
 def gen_periodic_table():
     data = loadfn(PTABLE_YAML_PATH)
 
-    with open("../pymatgen/core/periodic_table.json", mode="w") as file:
+    with open(f"{PKG_DIR}/core/periodic_table.json", mode="w") as file:
         json.dump(data, file)
 
 
 def gen_iupac_ordering():
-    periodic_table = loadfn("../pymatgen/core/periodic_table.json")
+    periodic_table = loadfn(f"{PKG_DIR}/core/periodic_table.json")
     order = [
         ([18], range(6, 0, -1)),  # noble gasses
         ([1], range(7, 1, -1)),  # alkali metals
@@ -274,10 +274,10 @@ def add_electron_affinities():
         missing_electron_affinities = set(range(1, 93)) - Z_set
         raise ValueError(f"{missing_electron_affinities=}")
     print(element_electron_affinities)
-    pt = loadfn("../pymatgen/core/periodic_table.json")
+    pt = loadfn(f"{PKG_DIR}/core/periodic_table.json")
     for key, val in pt.items():
         val["Electron affinity"] = element_electron_affinities.get(Element(key).long_name)
-    dumpfn(pt, "../pymatgen/core/periodic_table.json")
+    dumpfn(pt, f"{PKG_DIR}/core/periodic_table.json")
 
 
 def add_ionization_energies():
@@ -302,11 +302,11 @@ def add_ionization_energies():
     if not set(data).issuperset(range(1, 93)):
         raise RuntimeError("Failed to get data up to Uranium")
 
-    pt = loadfn("../pymatgen/core/periodic_table.json")
+    pt = loadfn(f"{PKG_DIR}/core/periodic_table.json")
     for key, val in pt.items():
         del val["Ionization energy"]
         val["Ionization energies"] = data.get(Element(key).long_name, [])
-    dumpfn(pt, "../pymatgen/core/periodic_table.json")
+    dumpfn(pt, f"{PKG_DIR}/core/periodic_table.json")
 
 
 if __name__ == "__main__":
