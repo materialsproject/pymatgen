@@ -425,7 +425,7 @@ class TestPrimitiveCellTransformation:
         struct = trafo.apply_transformation(struct)
         assert len(struct) == 4
 
-        with open(f"{TEST_FILES_DIR}/transformations/TiO2_super.json") as file:
+        with open(f"{TEST_FILES_DIR}/transformations/TiO2_super.json", encoding="utf-8") as file:
             struct = json.load(file, cls=MontyDecoder)
             prim = trafo.apply_transformation(struct)
             assert prim.formula == "Ti4 O8"

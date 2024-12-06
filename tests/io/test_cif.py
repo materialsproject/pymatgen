@@ -22,7 +22,7 @@ MCIF_TEST_DIR = f"{TEST_FILES_DIR}/io/cif/mcif"
 
 class TestCifBlock(PymatgenTest):
     def test_to_str(self):
-        with open(f"{TEST_FILES_DIR}/cif/Graphite.cif") as file:
+        with open(f"{TEST_FILES_DIR}/cif/Graphite.cif", encoding="utf-8") as file:
             cif_str = file.read()
         cif_block = CifBlock.from_str(cif_str)
         cif_str_2 = str(CifBlock.from_str(str(cif_block)))
@@ -197,7 +197,7 @@ class TestCifIO(PymatgenTest):
         for struct in parser.parse_structures():
             assert struct.formula == "Li20.2 Ge2.06 P3.94 S24", "Incorrectly parsed cif."
 
-        with open(f"{TEST_FILES_DIR}/cif/FePO4.cif") as cif_file:
+        with open(f"{TEST_FILES_DIR}/cif/FePO4.cif", encoding="utf-8") as cif_file:
             cif_str = cif_file.read()
 
         parser = CifParser.from_str(cif_str)
@@ -771,7 +771,7 @@ loop_
 
     def test_not_check_occu(self):
         # Test large occupancy with check_occu turned off
-        with open(f"{TEST_FILES_DIR}/cif/site_type_symbol_test.cif") as cif_file:
+        with open(f"{TEST_FILES_DIR}/cif/site_type_symbol_test.cif", encoding="utf-8") as cif_file:
             cif_str = cif_file.read()
         cif_str = cif_str.replace("Te    Te 1.0000", "Te_label    Te 10.0", 1)
 
@@ -885,7 +885,7 @@ Si1 Si 0 0 0 1 0.0
             parser.parse_structures()
 
     def test_no_check_occu(self):
-        with open(f"{TEST_FILES_DIR}/cif/site_type_symbol_test.cif") as cif_file:
+        with open(f"{TEST_FILES_DIR}/cif/site_type_symbol_test.cif", encoding="utf-8") as cif_file:
             cif_str = cif_file.read()
         cif_str = cif_str.replace("Te    Te 1.0000", "Te    Te 1.5000", 1)
 
@@ -922,7 +922,7 @@ Si1 Si 0 0 0 1 0.0
 
     def test_missing_elements(self):
         cif_str = ""
-        with open(f"{TEST_FILES_DIR}/cif/MgNiF6.cif") as file:
+        with open(f"{TEST_FILES_DIR}/cif/MgNiF6.cif", encoding="utf-8") as file:
             for line in file:
                 if "_chemical_formula_sum" in line:
                     # remove this line
@@ -940,7 +940,7 @@ Si1 Si 0 0 0 1 0.0
 
     def test_incorrect_stoichiometry(self):
         cif_str = ""
-        with open(f"{TEST_FILES_DIR}/cif/MgNiF6.cif") as file:
+        with open(f"{TEST_FILES_DIR}/cif/MgNiF6.cif", encoding="utf-8") as file:
             for line in file:
                 if "_chemical_formula_sum" in line:
                     line = line.replace("F6", "F5")
@@ -952,12 +952,12 @@ Si1 Si 0 0 0 1 0.0
         assert "Incorrect stoichiometry" in failure_reason
 
     def test_missing_cif_composition(self):
-        with open(f"{TEST_FILES_DIR}/cif/LiFePO4.cif") as file:
+        with open(f"{TEST_FILES_DIR}/cif/LiFePO4.cif", encoding="utf-8") as file:
             cif_str = file.read()
         # remove only key that gives info about CIF composition in this file
         cif_str = "\n".join([line for line in cif_str.split("\n") if "_atom_site_type_symbol" not in line])
         test_cif_file = f"{self.tmp_path}/test_broken.cif"
-        with open(test_cif_file, "w+") as file:
+        with open(test_cif_file, "w+", encoding="utf-8") as file:
             file.write(cif_str)
 
         cif = CifParser(test_cif_file)
@@ -965,11 +965,11 @@ Si1 Si 0 0 0 1 0.0
         assert failure_reason == "Cannot determine chemical composition from CIF! 'NoneType' object is not iterable"
 
     def test_invalid_cif_composition(self):
-        with open(f"{TEST_FILES_DIR}/cif/LiFePO4.cif") as file:
+        with open(f"{TEST_FILES_DIR}/cif/LiFePO4.cif", encoding="utf-8") as file:
             cif_str = file.read()
 
         test_cif_file = f"{self.tmp_path}/test_broken.cif"
-        with open(test_cif_file, "w+") as file:
+        with open(test_cif_file, "w+", encoding="utf-8") as file:
             # replace Li with dummy atom X
             file.write(cif_str.replace("Li", "X"))
 
@@ -992,7 +992,7 @@ Si1 Si 0 0 0 1 0.0
         struct.add_site_property(label := "hello", [1.0] * (len(struct) - 1) + [-1.0])
         out_path = f"{self.tmp_path}/test2.cif"
         CifWriter(struct, write_site_properties=True).write_file(out_path)
-        with open(out_path) as file:
+        with open(out_path, encoding="utf-8") as file:
             cif_str = file.read()
         assert f"_atom_site_occupancy\n _atom_site_{label}\n" in cif_str
         assert "Fe  Fe0  1  0.21872822  0.75000000  0.47486711  1  1.0" in cif_str
@@ -1077,7 +1077,7 @@ Gd1 5.05 5.05 0.0"""
         assert s_ncl.matches(s_ncl_from_msg)
 
     def test_write(self):
-        with open(f"{MCIF_TEST_DIR}/GdB4-writer-ref.mcif") as file:
+        with open(f"{MCIF_TEST_DIR}/GdB4-writer-ref.mcif", encoding="utf-8") as file:
             cw_ref_str = file.read()
         s_ncl = self.mcif_ncl.parse_structures(primitive=False)[0]
 
@@ -1097,7 +1097,7 @@ Gd1 5.05 5.05 0.0"""
         s_ncl.add_site_property("magmom", float_magmoms)
         cw = CifWriter(s_ncl, write_magmoms=True)
 
-        with open(f"{MCIF_TEST_DIR}/GdB4-str-magnitudes-ref.mcif") as file:
+        with open(f"{MCIF_TEST_DIR}/GdB4-str-magnitudes-ref.mcif", encoding="utf-8") as file:
             cw_ref_str_magnitudes = file.read()
 
         assert str(cw).strip() == cw_ref_str_magnitudes.strip()
@@ -1115,7 +1115,7 @@ Gd1 5.05 5.05 0.0"""
         cw = CifWriter(s_manual, write_magmoms=True)
 
         # check oxidation state
-        with open(f"{MCIF_TEST_DIR}/CsCl-manual-oxi-ref.mcif") as file:
+        with open(f"{MCIF_TEST_DIR}/CsCl-manual-oxi-ref.mcif", encoding="utf-8") as file:
             cw_manual_oxi_string = file.read()
         s_manual.add_oxidation_state_by_site([1, 1])
         cw = CifWriter(s_manual, write_magmoms=True)
