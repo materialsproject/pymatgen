@@ -36,7 +36,6 @@ class TestUtil(PymatgenTest):
             binary = file.read()
             data_132 = [struct.unpack("d", binary[ii * 8 : (ii + 1) * 8])[0] for ii in range(len(binary) // 8)]
 
-        # TODO: why not utf-8 encoding?
         with zopen(f"{TEST_DIR}/parse_hess/HESS", mode="rt", encoding="ISO-8859-1") as file:
             data_hess = file.readlines()
 
