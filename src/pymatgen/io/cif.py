@@ -1297,7 +1297,7 @@ class CifParser:
                 "The default value of primitive was changed from True to False in "
                 "https://github.com/materialsproject/pymatgen/pull/3419. CifParser now returns the cell "
                 "in the CIF file as is. If you want the primitive cell, please set primitive=True explicitly.",
-                UserWarning,
+                stacklevel=2,
             )
 
         if primitive and symmetrized:
@@ -1705,7 +1705,7 @@ class CifWriter:
                 "Site labels are not unique, which is not compliant with the CIF spec "
                 "(https://www.iucr.org/__data/iucr/cifdic_html/1/cif_core.dic/Iatom_site_label.html):"
                 f"`{atom_site_label}`.",
-                UserWarning,
+                stacklevel=2,
             )
 
         blocks["_atom_site_type_symbol"] = atom_site_type_symbol

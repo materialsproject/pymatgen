@@ -524,7 +524,7 @@ class PMGDir(collections.abc.Mapping):
 
         warnings.warn(
             f"No parser defined for {item}. Contents are returned as a string.",
-            UserWarning,
+            stacklevel=2,
         )
         with zopen(fpath, "rt") as f:
             return f.read()

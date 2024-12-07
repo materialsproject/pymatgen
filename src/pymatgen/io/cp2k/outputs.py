@@ -428,10 +428,10 @@ class Cp2kOutput:
         if not all(self.data["scf_converged"]):
             warnings.warn(
                 "There is at least one unconverged SCF cycle in the provided CP2K calculation",
-                UserWarning,
+                stacklevel=2,
             )
         if any(self.data["geo_opt_not_converged"]):
-            warnings.warn("Geometry optimization did not converge", UserWarning)
+            warnings.warn("Geometry optimization did not converge")
 
     def parse_energies(self):
         """Get the total energy from a CP2K calculation. Presently, the energy reported in the

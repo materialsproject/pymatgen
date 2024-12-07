@@ -484,7 +484,7 @@ class Vasprun(MSONable):
                             else:
                                 warnings.warn(
                                     "Additional unlabelled dielectric data in vasprun.xml are stored as unlabelled.",
-                                    UserWarning,
+                                    stacklevel=2,
                                 )
                                 label = "unlabelled"
                         # VASP 6+ has labels for the density and current
@@ -537,7 +537,6 @@ class Vasprun(MSONable):
                 raise
             warnings.warn(
                 "XML is malformed. Parsing has stopped but partial data is available.",
-                UserWarning,
                 stacklevel=2,
             )
 

@@ -670,7 +670,6 @@ class VaspInputSet(InputGenerator, abc.ABC):
                     "multiplet and should typically be an integer. You are likely "
                     "better off changing the values of MAGMOM or simply setting "
                     "NUPDOWN directly in your INCAR settings.",
-                    UserWarning,
                     stacklevel=2,
                 )
             auto_updates["NUPDOWN"] = nupdown
@@ -1554,7 +1553,7 @@ class MatPESStaticSet(VaspInputSet):
         if self.user_potcar_functional.upper() != default_potcars:
             warnings.warn(
                 f"{self.user_potcar_functional=} is inconsistent with the recommended {default_potcars}.",
-                UserWarning,
+                stacklevel=2,
             )
 
         if self.xc_functional.upper() == "R2SCAN":
