@@ -756,7 +756,7 @@ class VaspInputSet(InputGenerator, abc.ABC):
             warnings.warn(
                 f"{msg} See VASP recommendations on ISMEAR for metals (https://www.vasp.at/wiki/index.php/ISMEAR).",
                 BadInputSetWarning,
-                stacklevel=1,
+                stacklevel=2,
             )
 
         return incar
