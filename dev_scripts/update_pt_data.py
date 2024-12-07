@@ -57,7 +57,7 @@ def parse_oxi_state():
             data[el]["Common oxidation states"] = common_oxi
         else:
             print(el)
-    with open("periodic_table2.yaml", mode="w") as file:
+    with open("periodic_table2.yaml", mode="w", encoding="utf-8") as file:
         yaml.dump(data, file)
 
 
@@ -87,7 +87,7 @@ def parse_ionic_radii():
                 data[el]["Ionic_radii"] = ionic_radii
         else:
             print(el)
-    with open("periodic_table2.yaml", mode="w") as file:
+    with open("periodic_table2.yaml", mode="w", encoding="utf-8") as file:
         yaml.dump(data, file)
 
 
@@ -121,9 +121,9 @@ def parse_radii():
             data[el]["Van der waals radius"] = vdw_radii
         else:
             print(el)
-    with open("periodic_table2.yaml", mode="w") as file:
+    with open("periodic_table2.yaml", mode="w", encoding="utf-8") as file:
         yaml.dump(data, file)
-    with open(f"{PKG_DIR}/core/periodic_table.json", mode="w") as file:
+    with open(f"{PKG_DIR}/core/periodic_table.json", mode="w", encoding="utf-8") as file:
         json.dump(data, file)
 
 
@@ -140,9 +140,9 @@ def update_ionic_radii():
         if "Ionic_radii_ls" in dct:
             dct["Ionic radii ls"] = {k: v / 100 for k, v in dct["Ionic_radii_ls"].items()}
             del dct["Ionic_radii_ls"]
-    with open("periodic_table2.yaml", mode="w") as file:
+    with open("periodic_table2.yaml", mode="w", encoding="utf-8") as file:
         yaml.dump(data, file)
-    with open(f"{PKG_DIR}/core/periodic_table.json", mode="w") as file:
+    with open(f"{PKG_DIR}/core/periodic_table.json", mode="w", encoding="utf-8") as file:
         json.dump(data, file)
 
 
@@ -180,14 +180,14 @@ def parse_shannon_radii():
             data[el]["Shannon radii"] = dict(radii[el])
 
     dumpfn(data, PTABLE_YAML_PATH)
-    with open(f"{PKG_DIR}/core/periodic_table.json", mode="w") as file:
+    with open(f"{PKG_DIR}/core/periodic_table.json", mode="w", encoding="utf-8") as file:
         json.dump(data, file)
 
 
 def gen_periodic_table():
     data = loadfn(PTABLE_YAML_PATH)
 
-    with open(f"{PKG_DIR}/core/periodic_table.json", mode="w") as file:
+    with open(f"{PKG_DIR}/core/periodic_table.json", mode="w", encoding="utf-8") as file:
         json.dump(data, file)
 
 

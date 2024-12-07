@@ -63,7 +63,7 @@ def write_libxc_docs_json(xc_funcs, json_path):
             if desc is not None:
                 xc_funcs[num][opt] = desc
 
-    with open(json_path, "w") as fh:
+    with open(json_path, "w", encoding="utf-8") as fh:
         json.dump(xc_funcs, fh)
 
     return xc_funcs
