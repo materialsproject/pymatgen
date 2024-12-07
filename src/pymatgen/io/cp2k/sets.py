@@ -238,7 +238,10 @@ class DftSet(Cp2kInput):
             ):
                 self.kpoints = None
             if ot and self.kpoints:
-                warnings.warn("As of 2022.1, kpoints not supported with OT. Defaulting to diagonalization")
+                warnings.warn(
+                    "As of 2022.1, kpoints not supported with OT. Defaulting to diagonalization",
+                    stacklevel=2,
+                )
                 ot = False
 
         # Build the global section
@@ -547,19 +550,24 @@ class DftSet(Cp2kInput):
             if basis is None:
                 if not basis_and_potential.get(el, {}).get("basis"):
                     raise ValueError(f"No explicit basis found for {el} and matching has failed.")
-                warnings.warn(f"Unable to validate basis for {el}. Exact name provided will be put in input file.")
+                warnings.warn(
+                    f"Unable to validate basis for {el}. Exact name provided will be put in input file.",
+                    stacklevel=2,
+                )
                 basis = basis_and_potential[el].get("basis")
 
             if aux_basis is None and basis_and_potential.get(el, {}).get("aux_basis"):
                 warnings.warn(
-                    f"Unable to validate auxiliary basis for {el}. Exact name provided will be put in input file."
+                    f"Unable to validate auxiliary basis for {el}. Exact name provided will be put in input file.",
+                    stacklevel=2,
                 )
                 aux_basis = basis_and_potential[el].get("aux_basis")
 
             if potential is None:
                 if basis_and_potential.get(el, {}).get("potential"):
                     warnings.warn(
-                        f"Unable to validate potential for {el}. Exact name provided will be put in input file."
+                        f"Unable to validate potential for {el}. Exact name provided will be put in input file.",
+                        stacklevel=2,
                     )
                     potential = basis_and_potential.get(el, {}).get("potential")
                 else:
@@ -873,7 +881,8 @@ class DftSet(Cp2kInput):
             if max_cutoff_radius < cutoff_radius:
                 warnings.warn(
                     "Provided cutoff radius exceeds half the minimum"
-                    " distance between atoms. I hope you know what you're doing."
+                    " distance between atoms. I hope you know what you're doing.",
+                    stacklevel=2,
                 )
 
         ip_keywords: dict[str, Keyword] = {}
@@ -962,7 +971,8 @@ class DftSet(Cp2kInput):
         else:
             warnings.warn(
                 "Unknown hybrid functional. Using PBE base functional and overriding all "
-                "settings manually. Proceed with caution."
+                "settings manually. Proceed with caution.",
+                stacklevel=2,
             )
             pbe = PBE("ORIG", scale_c=gga_c_fraction, scale_x=gga_x_fraction)
             xc_functional = XCFunctional(functionals=[], subsections={"PBE": pbe})
@@ -1224,7 +1234,8 @@ class DftSet(Cp2kInput):
             warnings.warn(
                 "Reference functional will not be checked for validity. "
                 "Calculation will fail if the reference functional "
-                "does not exist in the dftd3 reference data"
+                "does not exist in the dftd3 reference data",
+                stacklevel=2,
             )
             keywords["PARAMETER_FILE_NAME"] = Keyword("PARAMETER_FILE_NAME", "dftd3.dat")
             keywords["REFERENCE_FUNCTIONAL"] = Keyword("REFERENCE_FUNCTIONAL", reference_functional)
