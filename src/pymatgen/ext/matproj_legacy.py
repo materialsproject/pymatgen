@@ -170,7 +170,7 @@ class _MPResterLegacy:
             "To access the latest data with the new MPRester, obtain a new API key from "
             "https://materialsproject.org/api and consult the docs at https://docs.materialsproject.org/ "
             "for more information.",
-            DeprecationWarning,
+            FutureWarning,
             stacklevel=2,
         )
         if api_key is not None:
