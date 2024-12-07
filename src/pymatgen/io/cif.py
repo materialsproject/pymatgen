@@ -1757,9 +1757,9 @@ class CifWriter:
 
     def write_file(
         self,
-        filename: str | Path,
-        mode: Literal["w", "a", "wt", "at"] = "w",
+        filename: PathLike,
+        mode: Literal["wt", "at"] = "wt",
     ) -> None:
         """Write the CIF file."""
-        with zopen(filename, mode=mode) as file:  # DEBUG: bad default value
+        with zopen(filename, mode=mode) as file:
             file.write(str(self))
