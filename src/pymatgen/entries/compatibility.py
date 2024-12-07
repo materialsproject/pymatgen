@@ -14,6 +14,7 @@ from typing import TYPE_CHECKING, TypeAlias, cast
 import numpy as np
 from joblib import Parallel, delayed
 from monty.design_patterns import cached_class
+from monty.dev import deprecated
 from monty.json import MSONable
 from monty.serialization import loadfn
 from tqdm import tqdm
@@ -882,6 +883,11 @@ class CorrectionsList(Compatibility):
         print(f"The final energy after corrections is {dct['corrected_energy']:f}")
 
 
+@deprecated(
+    "MaterialsProject2020Compatibility",
+    "Materials Project formation energies use the newer MaterialsProject2020Compatibility scheme.",
+    category=DeprecationWarning,
+)
 class MaterialsProjectCompatibility(CorrectionsList):
     """This class implements the GGA/GGA+U mixing scheme, which allows mixing of
     entries. Note that this should only be used for VASP calculations using the
@@ -909,12 +915,6 @@ class MaterialsProjectCompatibility(CorrectionsList):
             check_potcar_hash (bool): Use potcar hash to verify potcars are correct.
             silence_deprecation (bool): Silence deprecation warning. Defaults to False.
         """
-        warnings.warn(  # added by @janosh on 2023-05-25
-            "MaterialsProjectCompatibility is deprecated, Materials Project formation energies "
-            "use the newer MaterialsProject2020Compatibility scheme.",
-            DeprecationWarning,
-            stacklevel=2,
-        )
         self.compat_type = compat_type
         self.correct_peroxide = correct_peroxide
         self.check_potcar_hash = check_potcar_hash
