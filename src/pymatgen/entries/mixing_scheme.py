@@ -156,7 +156,9 @@ class MaterialsProjectDFTMixingScheme(Compatibility):
 
         # We can't operate on single entries in this scheme
         if len(entries) == 1:
-            warnings.warn(f"{type(self).__name__} cannot process single entries. Supply a list of entries.")
+            warnings.warn(
+                f"{type(self).__name__} cannot process single entries. Supply a list of entries.", stacklevel=2
+            )
             return processed_entry_list
 
         # if inplace = False, process entries on a copy
@@ -210,7 +212,7 @@ class MaterialsProjectDFTMixingScheme(Compatibility):
                 adjustments = self.get_adjustments(entry, mixing_state_data)
             except CompatibilityError as exc:
                 if "WARNING!" in str(exc):
-                    warnings.warn(str(exc))
+                    warnings.warn(str(exc), stacklevel=2)
                 elif verbose:
                     print(f"  {exc}")
                 ignore_entry = True
@@ -228,7 +230,8 @@ class MaterialsProjectDFTMixingScheme(Compatibility):
                     warnings.warn(
                         f"Entry {entry.entry_id} already has an energy adjustment called {ea.name}, but its "
                         f"value differs from the value of {ea.value:.3f} calculated here. This "
-                        "Entry will be discarded."
+                        "Entry will be discarded.",
+                        stacklevel=2,
                     )
                 else:
                     # Add the correction to the energy_adjustments list
@@ -481,7 +484,8 @@ class MaterialsProjectDFTMixingScheme(Compatibility):
             if not isinstance(entry, ComputedStructureEntry):
                 warnings.warn(
                     f"Entry {entry.entry_id} is not a ComputedStructureEntry and will be ignored. "
-                    "The DFT mixing scheme requires structures for all entries"
+                    "The DFT mixing scheme requires structures for all entries",
+                    stacklevel=2,
                 )
                 continue
 
@@ -496,12 +500,12 @@ class MaterialsProjectDFTMixingScheme(Compatibility):
         try:
             pd_type_1 = PhaseDiagram(entries_type_1)
         except ValueError:
-            warnings.warn(f"{self.run_type_1} entries do not form a complete PhaseDiagram.")
+            warnings.warn(f"{self.run_type_1} entries do not form a complete PhaseDiagram.", stacklevel=2)
 
         try:
             pd_type_2 = PhaseDiagram(entries_type_2)
         except ValueError:
-            warnings.warn(f"{self.run_type_2} entries do not form a complete PhaseDiagram.")
+            warnings.warn(f"{self.run_type_2} entries do not form a complete PhaseDiagram.", stacklevel=2)
 
         # Objective: loop through all the entries, group them by structure matching (or fuzzy structure matching
         # where relevant). For each group, put a row in a pandas DataFrame with the composition of the run_type_1 entry,
@@ -582,7 +586,8 @@ class MaterialsProjectDFTMixingScheme(Compatibility):
             if not entry.parameters.get("run_type"):
                 warnings.warn(
                     f"Entry {entry_id} is missing parameters.run_type! This field"
-                    "is required. This entry will be ignored."
+                    "is required. This entry will be ignored.",
+                    stacklevel=2,
                 )
                 continue
 
@@ -590,7 +595,8 @@ class MaterialsProjectDFTMixingScheme(Compatibility):
             if run_type not in [*self.valid_rtypes_1, *self.valid_rtypes_2]:
                 warnings.warn(
                     f"Invalid {run_type=} for entry {entry_id}. Must be one of "
-                    f"{self.valid_rtypes_1 + self.valid_rtypes_2}. This entry will be ignored."
+                    f"{self.valid_rtypes_1 + self.valid_rtypes_2}. This entry will be ignored.",
+                    stacklevel=2,
                 )
                 continue
 
@@ -598,7 +604,8 @@ class MaterialsProjectDFTMixingScheme(Compatibility):
             if entry_id is None:
                 warnings.warn(
                     f"{entry_id=} for {formula=}. Unique entry_ids are required for every ComputedStructureEntry."
-                    " This entry will be ignored."
+                    " This entry will be ignored.",
+                    stacklevel=2,
                 )
                 continue
 
@@ -649,7 +656,8 @@ class MaterialsProjectDFTMixingScheme(Compatibility):
                 warnings.warn(
                     f"  {self.run_type_2} entries chemical system {entries_type_2.chemsys} is larger than "
                     f"{self.run_type_1} entries chemical system {entries_type_1.chemsys}. Entries outside the "
-                    f"{self.run_type_1} chemical system will be discarded"
+                    f"{self.run_type_1} chemical system will be discarded",
+                    stacklevel=2,
                 )
                 entries_type_2 = entries_type_2.get_subset_in_chemsys(chemsys)
         else:

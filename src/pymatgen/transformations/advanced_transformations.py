@@ -360,7 +360,8 @@ class EnumerateStructureTransformation(AbstractTransformation):
 
         if structure.is_ordered:
             warnings.warn(
-                f"Enumeration skipped for structure with composition {structure.composition} because it is ordered"
+                f"Enumeration skipped for structure with composition {structure.composition} because it is ordered",
+                stacklevel=2,
             )
             structures = [structure.copy()]
 
@@ -392,7 +393,7 @@ class EnumerateStructureTransformation(AbstractTransformation):
                 if structures:
                     break
             except EnumError:
-                warnings.warn(f"Unable to enumerate for {max_cell_size = }")
+                warnings.warn(f"Unable to enumerate for {max_cell_size = }", stacklevel=2)
 
         if structures is None:
             raise ValueError("Unable to enumerate")
@@ -580,7 +581,8 @@ class MagOrderParameterConstraint(MSONable):
             warnings.warn(
                 "Use care when using a non-standard order parameter, "
                 "though it can be useful in some cases it can also "
-                "lead to unintended behavior. Consult documentation."
+                "lead to unintended behavior. Consult documentation.",
+                stacklevel=2,
             )
 
         self.order_parameter = order_parameter
@@ -846,7 +848,8 @@ class MagOrderingTransformation(AbstractTransformation):
                     f"Specified max cell size ({enum_kwargs['max_cell_size']}) is "
                     "smaller than the minimum enumerable cell size "
                     f"({enum_kwargs['min_cell_size']}), changing max cell size to "
-                    f"{enum_kwargs['min_cell_size']}"
+                    f"{enum_kwargs['min_cell_size']}",
+                    stacklevel=2,
                 )
                 enum_kwargs["max_cell_size"] = enum_kwargs["min_cell_size"]
         else:

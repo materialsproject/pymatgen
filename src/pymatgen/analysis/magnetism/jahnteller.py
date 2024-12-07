@@ -286,7 +286,7 @@ class JahnTellerAnalyzer:
             )
             active = analysis["active"]
         except Exception as exc:
-            warnings.warn(f"Error analyzing {structure.reduced_formula}: {exc}")
+            warnings.warn(f"Error analyzing {structure.reduced_formula}: {exc}", stacklevel=2)
 
         return active
 
@@ -330,7 +330,7 @@ class JahnTellerAnalyzer:
                         structure.add_site_property("possible_jt_active", jt_sites)
             return structure
         except Exception as exc:
-            warnings.warn(f"Error analyzing {structure.reduced_formula}: {exc}")
+            warnings.warn(f"Error analyzing {structure.reduced_formula}: {exc}", stacklevel=2)
             return structure
 
     @staticmethod
@@ -380,7 +380,7 @@ class JahnTellerAnalyzer:
                 spin_config = self.spin_configs[motif][d_electrons][spin_state]
                 magnitude = JahnTellerAnalyzer.get_magnitude_of_effect_from_spin_config(motif, spin_config)
         else:
-            warnings.warn("No data for this species.")
+            warnings.warn("No data for this species.", stacklevel=2)
 
         return magnitude
 

@@ -139,7 +139,7 @@ class VaspToComputedEntryDrone(AbstractDrone):
                 # Since multiple files are ambiguous, we will always read
                 # the last one alphabetically.
                 filepath = max(vasprun_files)
-                warnings.warn(f"{len(vasprun_files)} vasprun.xml.* found. {filepath} is being parsed.")
+                warnings.warn(f"{len(vasprun_files)} vasprun.xml.* found. {filepath} is being parsed.", stacklevel=2)
 
         try:
             vasp_run = Vasprun(filepath)
@@ -252,7 +252,9 @@ class SimpleVaspToComputedEntryDrone(VaspToComputedEntryDrone):
                         # alphabetically for CONTCAR and OSZICAR.
 
                         files_to_parse[filename] = files[0] if filename == "POSCAR" else files[-1]
-                        warnings.warn(f"{len(files)} files found. {files_to_parse[filename]} is being parsed.")
+                        warnings.warn(
+                            f"{len(files)} files found. {files_to_parse[filename]} is being parsed.", stacklevel=2
+                        )
 
             if not set(files_to_parse).issuperset({"INCAR", "POTCAR", "CONTCAR", "OSZICAR", "POSCAR"}):
                 raise ValueError(

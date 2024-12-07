@@ -120,7 +120,10 @@ class IcetSQS:
 
         unrecognized_kwargs = {key for key in self.sqs_kwargs if key not in self.sqs_kwarg_names[sqs_method]}
         if len(unrecognized_kwargs) > 0:
-            warnings.warn(f"Ignoring unrecognized icet {sqs_method} kwargs: {', '.join(unrecognized_kwargs)}")
+            warnings.warn(
+                f"Ignoring unrecognized icet {sqs_method} kwargs: {', '.join(unrecognized_kwargs)}",
+                stacklevel=2,
+            )
 
         self.sqs_kwargs = {
             key: value for key, value in self.sqs_kwargs.items() if key in self.sqs_kwarg_names[sqs_method]

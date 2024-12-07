@@ -418,7 +418,10 @@ class Icohplist(MSONable):
                 version = "5.1.0"
             elif len(lines[0].split()) == 6:
                 version = "2.2.1"
-                warnings.warn("Please consider using a newer LOBSTER version. See www.cohp.de.")
+                warnings.warn(
+                    "Please consider using a newer LOBSTER version. See www.cohp.de.",
+                    stacklevel=2,
+                )
             else:
                 raise ValueError("Unsupported LOBSTER version.")
 
@@ -640,7 +643,8 @@ class NciCobiList:
                 self.orbital_wise = True
                 warnings.warn(
                     "This is an orbitalwise NcICOBILIST.lobster file. "
-                    "Currently, the orbitalwise information is not read!"
+                    "Currently, the orbitalwise information is not read!",
+                    stacklevel=2,
                 )
                 break  # condition has only to be met once
 
@@ -1392,8 +1396,14 @@ class Fatband:
             structure (Structure): Structure object.
             efermi (float): Fermi level in eV.
         """
-        warnings.warn("Make sure all relevant FATBAND files were generated and read in!")
-        warnings.warn("Use Lobster 3.2.0 or newer for fatband calculations!")
+        warnings.warn(
+            "Make sure all relevant FATBAND files were generated and read in!",
+            stacklevel=2,
+        )
+        warnings.warn(
+            "Use Lobster 3.2.0 or newer for fatband calculations!",
+            stacklevel=2,
+        )
 
         if structure is None:
             raise ValueError("A structure object has to be provided")

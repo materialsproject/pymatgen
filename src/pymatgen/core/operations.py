@@ -450,7 +450,7 @@ class SymmOp(MSONable):
         """
         # Check for invalid rotation matrix
         if not np.allclose(self.rotation_matrix, np.round(self.rotation_matrix)):
-            warnings.warn("Rotation matrix should be integer")
+            warnings.warn("Rotation matrix should be integer", stacklevel=2)
 
         return transformation_to_string(
             self.rotation_matrix,

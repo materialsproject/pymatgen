@@ -391,7 +391,7 @@ class ChemicalPotentialDiagram(MSONable):
         if formulas_to_draw:
             for formula in formulas_to_draw:
                 if formula not in domain_simplexes:
-                    warnings.warn(f"Specified formula to draw, {formula}, not found!")
+                    warnings.warn(f"Specified formula to draw, {formula}, not found!", stacklevel=2)
 
         if draw_formula_lines:
             data.extend(self._get_3d_formula_lines(draw_domains, formula_colors))

@@ -192,7 +192,8 @@ class BaderAnalysis:
 
             if self.version < 1.0:
                 warnings.warn(
-                    "Your installed version of Bader is outdated, calculation of vacuum charge may be incorrect."
+                    "Your installed version of Bader is outdated, calculation of vacuum charge may be incorrect.",
+                    stacklevel=2,
                 )
 
             # Parse ACF.dat file
@@ -460,7 +461,7 @@ class BaderAnalysis:
                 # kwarg to avoid this!
                 paths.sort(reverse=True)
                 if len(paths) > 1:
-                    warnings.warn(f"Multiple files detected, using {paths[0]}")
+                    warnings.warn(f"Multiple files detected, using {paths[0]}", stacklevel=2)
                 filepath = paths[0]
             else:
                 msg = f"Could not find {filename!r}"
@@ -468,7 +469,7 @@ class BaderAnalysis:
                     msg += ", interpret Bader results with severe caution."
                 elif filename == "POTCAR":
                     msg += ", cannot calculate charge transfer."
-                warnings.warn(msg)
+                warnings.warn(msg, stacklevel=2)
             return filepath
 
         chgcar_filename = _get_filepath("CHGCAR")
@@ -515,7 +516,7 @@ def bader_analysis_from_path(path: str, suffix: str = "") -> dict[str, Any]:
     def _get_filepath(filename: str, msg: str = "") -> str | None:
         paths = glob(glob_pattern := f"{path}/{filename}{suffix}*")
         if len(paths) == 0:
-            warnings.warn(msg or f"no matches for {glob_pattern=}")
+            warnings.warn(msg or f"no matches for {glob_pattern=}", stacklevel=2)
             return None
         if len(paths) > 1:
             # using reverse=True because, if multiple files are present,
@@ -523,7 +524,7 @@ def bader_analysis_from_path(path: str, suffix: str = "") -> dict[str, Any]:
             # and this would give 'static' over 'relax2' over 'relax'
             # however, better to use 'suffix' kwarg to avoid this!
             paths.sort(reverse=True)
-            warnings.warn(f"Multiple files detected, using {os.path.basename(path)}")
+            warnings.warn(f"Multiple files detected, using {os.path.basename(path)}", stacklevel=2)
         return paths[0]
 
     chgcar_path = _get_filepath("CHGCAR", "Could not find CHGCAR!")
@@ -533,17 +534,17 @@ def bader_analysis_from_path(path: str, suffix: str = "") -> dict[str, Any]:
 
     aeccar0_path = _get_filepath("AECCAR0")
     if not aeccar0_path:
-        warnings.warn("Could not find AECCAR0, interpret Bader results with severe caution!")
+        warnings.warn("Could not find AECCAR0, interpret Bader results with severe caution!", stacklevel=2)
     aeccar0 = Chgcar.from_file(aeccar0_path) if aeccar0_path else None
 
     aeccar2_path = _get_filepath("AECCAR2")
     if not aeccar2_path:
-        warnings.warn("Could not find AECCAR2, interpret Bader results with severe caution!")
+        warnings.warn("Could not find AECCAR2, interpret Bader results with severe caution!", stacklevel=2)
     aeccar2 = Chgcar.from_file(aeccar2_path) if aeccar2_path else None
 
     potcar_path = _get_filepath("POTCAR")
     if not potcar_path:
-        warnings.warn("Could not find POTCAR, cannot calculate charge transfer.")
+        warnings.warn("Could not find POTCAR, cannot calculate charge transfer.", stacklevel=2)
     potcar = Potcar.from_file(potcar_path) if potcar_path else None
 
     return bader_analysis_from_objects(chgcar, potcar, aeccar0, aeccar2)

@@ -193,7 +193,6 @@ ignore = [
 
     # Single rules
     "B023",    # Function definition does not bind loop variable
-    "B028",    # No explicit stacklevel keyword argument found
     "B904",    # Within an except clause, raise exceptions with ...
     "C408",    # unnecessary-collection-call
     "D105",    # Missing docstring in magic method

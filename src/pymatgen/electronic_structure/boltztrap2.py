@@ -31,6 +31,7 @@ from typing import TYPE_CHECKING
 
 import matplotlib.pyplot as plt
 import numpy as np
+from monty.dev import deprecated
 from monty.serialization import dumpfn, loadfn
 from tqdm import tqdm
 
@@ -182,6 +183,7 @@ class VasprunBSLoader:
         return accepted
 
 
+@deprecated(VasprunBSLoader, category=DeprecationWarning)
 class BandstructureLoader:
     """Loader for Bandstructure object."""
 
@@ -201,8 +203,6 @@ class BandstructureLoader:
             ne = vrun.parameters['NELECT']
             data = BandstructureLoader(bs,st,ne)
         """
-        warnings.warn("Deprecated Loader. Use VasprunBSLoader instead.")
-
         self.kpoints = np.array([kp.frac_coords for kp in bs_obj.kpoints])
 
         self.structure = bs_obj.structure if structure is None else structure
@@ -278,7 +278,8 @@ class BandstructureLoader:
         range in the spin up/down bands when calculating the DOS.
         """
         warnings.warn(
-            "This method does not work anymore in case of spin polarized case due to the concatenation of bands !"
+            "This method does not work anymore in case of spin polarized case due to the concatenation of bands !",
+            stacklevel=2,
         )
 
         lower_band = e_lower * np.ones((1, self.ebands.shape[1]))
@@ -301,13 +302,12 @@ class BandstructureLoader:
         return self.UCvol
 
 
+@deprecated(VasprunBSLoader, category=DeprecationWarning)
 class VasprunLoader:
     """Loader for Vasprun object."""
 
     def __init__(self, vrun_obj=None) -> None:
         """vrun_obj: Vasprun object."""
-        warnings.warn("Deprecated Loader. Use VasprunBSLoader instead.")
-
         if vrun_obj:
             self.kpoints = np.array(vrun_obj.actual_kpoints)
             self.structure = vrun_obj.final_structure
@@ -1199,7 +1199,10 @@ def merge_up_down_doses(dos_up, dos_dn):
     Returns:
         CompleteDos object
     """
-    warnings.warn("This function is not useful anymore. VasprunBSLoader deals with spin case.")
+    warnings.warn(
+        "This function is not useful anymore. VasprunBSLoader deals with spin case.", DeprecationWarning, stacklevel=2
+    )
+
     cdos = Dos(
         dos_up.efermi,
         dos_up.energies,

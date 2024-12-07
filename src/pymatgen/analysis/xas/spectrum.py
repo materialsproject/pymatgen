@@ -85,7 +85,6 @@ class XAS(Spectrum):
         if len(self.y[neg_intens_mask]) / len(self.y) > 0.05:
             warnings.warn(
                 "Double check the intensities. More than 5% of them are negative.",
-                UserWarning,
                 stacklevel=2,
             )
         self.zero_negative_intensity = zero_negative_intensity
@@ -216,7 +215,6 @@ class XAS(Spectrum):
             if abs(mu[idx] - mu[idx - 1]) / (mu[idx - 1]) > 0.1:
                 warnings.warn(
                     "There might exist a jump at the L2 and L3-edge junction.",
-                    UserWarning,
                     stacklevel=2,
                 )
 

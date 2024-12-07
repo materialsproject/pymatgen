@@ -193,7 +193,7 @@ class SlabEntry(ComputedStructureEntry):
         if slab_clean_comp.reduced_composition != ucell_entry.composition.reduced_composition:
             list_els = [next(iter(entry.composition.as_dict())) for entry in ref_entries]
             if not any(el in list_els for el in ucell_entry.composition.as_dict()):
-                warnings.warn("Elemental references missing for the non-dopant species.")
+                warnings.warn("Elemental references missing for the non-dopant species.", stacklevel=2)
 
         gamma = (Symbol("E_surf") - Symbol("Ebulk")) / (2 * Symbol("A"))
         ucell_comp = ucell_entry.composition
@@ -659,7 +659,7 @@ class SurfaceEnergyPlotter:
 
         solution = linsolve(all_eqns, all_parameters)
         if not solution:
-            warnings.warn("No solution")
+            warnings.warn("No solution", stacklevel=2)
             return solution
         return {param: next(iter(solution))[idx] for idx, param in enumerate(all_parameters)}
 

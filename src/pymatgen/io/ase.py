@@ -266,8 +266,7 @@ class AseAtomsAdaptor:
                     unsupported_constraint_type = True
             if unsupported_constraint_type:
                 warnings.warn(
-                    "Only FixAtoms is supported by Pymatgen. Other constraints will not be set.",
-                    UserWarning,
+                    "Only FixAtoms is supported by Pymatgen. Other constraints will not be set.", stacklevel=2
                 )
             sel_dyn = [[False] * 3 if atom.index in constraint_indices else [True] * 3 for atom in atoms]
         else:

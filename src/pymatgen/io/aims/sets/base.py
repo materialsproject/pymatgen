@@ -343,14 +343,14 @@ class AimsInputGenerator(InputGenerator):
             warn(
                 "WARNING: the k_grid is set in user_params and in the kpt_settings,"
                 " using the one passed in user_params.",
-                stacklevel=1,
+                stacklevel=2,
             )
         elif isinstance(structure, Structure) and ("k_grid" not in params):
             density = kpt_settings.get("density", 5.0)
             even = kpt_settings.get("even", True)
             params["k_grid"] = self.d2k(structure, density, even)
         elif isinstance(structure, Molecule) and "k_grid" in params:
-            warn("WARNING: removing unnecessary k_grid information", stacklevel=1)
+            warn("WARNING: removing unnecessary k_grid information", stacklevel=2)
             del params["k_grid"]
 
         return params

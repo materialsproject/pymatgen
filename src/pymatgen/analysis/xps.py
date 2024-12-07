@@ -96,5 +96,5 @@ class XPS(Spectrum):
                 if weight is not None:
                     total += pdos.get_densities() * weight
                 else:
-                    warnings.warn(f"No cross-section for {el}{orb}")
+                    warnings.warn(f"No cross-section for {el}{orb}", stacklevel=2)
         return XPS(-dos.energies, total / np.max(total))

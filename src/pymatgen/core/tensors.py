@@ -346,7 +346,7 @@ class Tensor(np.ndarray, MSONable):
         for ind, v in this_voigt_map.items():
             v_matrix[v] = self[ind]
         if not self.is_voigt_symmetric():
-            warnings.warn("Tensor is not symmetric, information may be lost in Voigt conversion.")
+            warnings.warn("Tensor is not symmetric, information may be lost in Voigt conversion.", stacklevel=2)
         return v_matrix * self._vscale
 
     def is_voigt_symmetric(self, tol: float = 1e-6) -> bool:
@@ -531,7 +531,7 @@ class Tensor(np.ndarray, MSONable):
         """
         sm = StructureMatcher()
         if not sm.fit(original_structure, new_structure):
-            warnings.warn("original and new structures do not match!")
+            warnings.warn("original and new structures do not match!", stacklevel=2)
         trans_1 = self.get_ieee_rotation(original_structure, refine_rotation)
         trans_2 = self.get_ieee_rotation(new_structure, refine_rotation)
         # Get the ieee format tensor
@@ -672,7 +672,7 @@ class Tensor(np.ndarray, MSONable):
                 print(f"Iteration {idx}: {np.max(diff)}")
         if not converged:
             max_diff = np.max(np.abs(self - test_new))
-            warnings.warn(f"Warning, populated tensor is not converged with max diff of {max_diff}")
+            warnings.warn(f"Warning, populated tensor is not converged with max diff of {max_diff}", stacklevel=2)
         return type(self)(test_new)
 
     def as_dict(self, voigt: bool = False) -> dict:

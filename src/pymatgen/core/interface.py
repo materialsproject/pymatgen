@@ -2072,7 +2072,8 @@ class GrainBoundaryGenerator:
             sigmas.sort()
             warnings.warn(
                 "This is not the possible sigma value according to the rotation axis!"
-                "The nearest neighbor sigma and its corresponding angle are returned"
+                "The nearest neighbor sigma and its corresponding angle are returned",
+                stacklevel=2,
             )
             rotation_angles = sigma_dict[sigmas[-1]]
         rotation_angles.sort()
@@ -2144,7 +2145,7 @@ class GrainBoundaryGenerator:
             t_matrix[1] = np.array(np.dot(scale_factor[1], csl))
             t_matrix[2] = csl[miller_nonzero[0]]
             if abs(np.linalg.det(t_matrix)) > 1000:
-                warnings.warn("Too large matrix. Suggest to use quick_gen=False")
+                warnings.warn("Too large matrix. Suggest to use quick_gen=False", stacklevel=2)
             return t_matrix
 
         c_index = 0
@@ -2235,7 +2236,7 @@ class GrainBoundaryGenerator:
             logger.info("Did not find the perpendicular c vector, increase max_j")
             while not normal_init:
                 if max_j == max_search:
-                    warnings.warn("Cannot find the perpendicular c vector, please increase max_search")
+                    warnings.warn("Cannot find the perpendicular c vector, please increase max_search", stacklevel=2)
                     break
                 max_j *= 3
                 max_j = min(max_j, max_search)
@@ -2298,7 +2299,7 @@ class GrainBoundaryGenerator:
             t_matrix *= -1
 
         if normal and abs(np.linalg.det(t_matrix)) > 1000:
-            warnings.warn("Too large matrix. Suggest to use Normal=False")
+            warnings.warn("Too large matrix. Suggest to use Normal=False", stacklevel=2)
         return t_matrix
 
     @staticmethod
@@ -2335,7 +2336,7 @@ class GrainBoundaryGenerator:
                 break
 
         if not reduced:
-            warnings.warn("Matrix reduction not performed, may lead to non-primitive GB cell.")
+            warnings.warn("Matrix reduction not performed, may lead to non-primitive GB cell.", stacklevel=2)
         return mat
 
     @staticmethod

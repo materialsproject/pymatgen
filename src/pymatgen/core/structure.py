@@ -605,7 +605,8 @@ class SiteCollection(collections.abc.Sequence, ABC):
         if not sp_in_structure >= sp_to_replace:
             warnings.warn(
                 "Some species to be substituted are not present in structure. Pls check your input. Species to be "
-                f"substituted = {sp_to_replace}; Species in structure = {sp_in_structure}"
+                f"substituted = {sp_to_replace}; Species in structure = {sp_in_structure}",
+                stacklevel=2,
             )
 
         for site in site_coll:
@@ -1260,7 +1261,7 @@ class IStructure(SiteCollection, MSONable):
                 props[key][idx] = val
         for key, val in props.items():
             if any(vv is None for vv in val):
-                warnings.warn(f"Not all sites have property {key}. Missing values are set to None.")
+                warnings.warn(f"Not all sites have property {key}. Missing values are set to None.", stacklevel=2)
         return cls(
             lattice,
             [site.species for site in sites],
@@ -1516,7 +1517,8 @@ class IStructure(SiteCollection, MSONable):
         if abs(formal_charge - self._charge) > 1e-8:
             warnings.warn(
                 f"Structure charge ({self._charge}) is set to be not equal to the sum of oxidation states"
-                f" ({formal_charge}). Use Structure.unset_charge() to reset the charge to None."
+                f" ({formal_charge}). Use Structure.unset_charge() to reset the charge to None.",
+                stacklevel=2,
             )
         return self._charge
 
@@ -4753,7 +4755,8 @@ class Structure(IStructure, collections.abc.MutableSequence):
                         else:
                             props[key] = None
                             warnings.warn(
-                                f"Sites with different site property {key} are merged. So property is set to none"
+                                f"Sites with different site property {key} are merged. So property is set to none",
+                                stacklevel=2,
                             )
             sites.append(PeriodicSite(species, coords, self.lattice, properties=props))
 

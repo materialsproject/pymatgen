@@ -652,7 +652,8 @@ class BandStructure:
                 "Trying from_dict failed. Now we are trying the old "
                 "format. Please convert your BS dicts to the new "
                 "format. The old format will be retired in pymatgen "
-                "5.0."
+                "5.0.",
+                stacklevel=2,
             )
             return cls.from_old_dict(dct)
 
@@ -980,7 +981,8 @@ class LobsterBandStructureSymmLine(BandStructureSymmLine):
                 "Trying from_dict failed. Now we are trying the old "
                 "format. Please convert your BS dicts to the new "
                 "format. The old format will be retired in pymatgen "
-                "5.0."
+                "5.0.",
+                stacklevel=2,
             )
             return cls.from_old_dict(dct)
 

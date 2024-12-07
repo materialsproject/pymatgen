@@ -191,7 +191,7 @@ class FEFFDictSet(AbstractFeffInputSet):
                         "For Molecule objects with a net charge it is recommended to set one or more"
                         " ION tags in the input file by modifying user_tag_settings."
                         " Consult the FEFFDictSet docstring and the FEFF10 User Guide for more information.",
-                        UserWarning,
+                        stacklevel=2,
                     )
             else:
                 raise ValueError("'structure' argument must be a Structure or Molecule!")
