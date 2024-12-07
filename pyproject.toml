@@ -250,8 +250,6 @@ addopts = "--durations=30 --quiet -r xXs --color=yes --import-mode=importlib"
 filterwarnings = [
     # NOTE: the last matching option is used
     "ignore::UserWarning",           # Ignore UserWarning
-    "default::FutureWarning",        # Show FutureWarnings
-    "default::DeprecationWarning",   # Show DeprecationWarnings
     # TODO: pybtex (perhaps some others) emits the following warnings
     'ignore:pkg_resources is deprecated as an API:DeprecationWarning',
     'ignore:distutils Version classes are deprecated:DeprecationWarning',
