@@ -526,7 +526,7 @@ class PMGDir(collections.abc.Mapping):
             f"No parser defined for {item}. Contents are returned as a string.",
             UserWarning,
         )
-        with zopen(fpath, "rt") as f:
+        with zopen(fpath, mode="rt") as f:
             return f.read()
 
     def get_files_by_name(self, name: str) -> dict[str, Any]:

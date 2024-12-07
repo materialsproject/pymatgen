@@ -58,6 +58,7 @@ class QCOutput(MSONable):
         self.data["errors"] = []
         self.data["warnings"] = {}
         self.text = ""
+        # TODO: why not utf-8 encoding?
         with zopen(filename, mode="rt", encoding="ISO-8859-1") as file:
             self.text = file.read()
 
@@ -2951,6 +2952,7 @@ def nbo_parser(filename: str) -> dict[str, list[pd.DataFrame]]:
         RuntimeError: If a section cannot be found.
     """
     # Open the lines
+    # TODO: why not utf-8 encoding?
     with zopen(filename, mode="rt", encoding="ISO-8859-1") as file:
         lines = file.readlines()
 

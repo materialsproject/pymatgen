@@ -642,7 +642,7 @@ class Lobsterin(UserDict, MSONable):
                 raise ValueError("Lobster only works with PAW! Use different POTCARs")
 
         # Warning about a bug in LOBSTER-4.1.0
-        with zopen(POTCAR_input, mode="r") as file:
+        with zopen(POTCAR_input, mode="rt") as file:
             data = file.read()
 
         if isinstance(data, bytes):

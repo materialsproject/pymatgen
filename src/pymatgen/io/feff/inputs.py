@@ -246,7 +246,7 @@ class Header(MSONable):
         Returns:
             Reads header string.
         """
-        with zopen(filename, mode="r") as file:
+        with zopen(filename, mode="rt") as file:
             lines = file.readlines()
             feff_header_str = []
             ln = 0

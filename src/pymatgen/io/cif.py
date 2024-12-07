@@ -1761,5 +1761,5 @@ class CifWriter:
         mode: Literal["w", "a", "wt", "at"] = "w",
     ) -> None:
         """Write the CIF file."""
-        with zopen(filename, mode=mode) as file:
+        with zopen(filename, mode=mode) as file:  # DEBUG: bad default value
             file.write(str(self))

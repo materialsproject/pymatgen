@@ -368,7 +368,7 @@ class GaussianInput:
         Returns:
             GaussianInput object
         """
-        with zopen(filename, mode="r") as file:
+        with zopen(filename, mode="rt") as file:
             return cls.from_str(file.read())
 
     def get_zmatrix(self):
@@ -447,9 +447,9 @@ class GaussianInput:
     def write_file(self, filename, cart_coords=False):
         """Write the input string into a file.
 
-        Option: see __str__ method
+        Option: see `__str__` method
         """
-        with zopen(filename, mode="w") as file:
+        with zopen(filename, mode="wt") as file:
             file.write(self.to_str(cart_coords))
 
     def as_dict(self):
@@ -1102,7 +1102,7 @@ class GaussianOutput:
         data = {"energies": [], "coords": {}}
 
         # read in file
-        with zopen(self.filename, mode="r") as file:
+        with zopen(self.filename, mode="rt") as file:
             line = file.readline()
 
             while line != "":
@@ -1188,7 +1188,7 @@ class GaussianOutput:
         transitions = []
 
         # read in file
-        with zopen(self.filename, mode="r") as file:
+        with zopen(self.filename, mode="rt") as file:
             line = file.readline()
             td = False
             while line != "":

@@ -2994,7 +2994,7 @@ class IStructure(SiteCollection, MSONable):
 
             geom_in = AimsGeometryIn.from_structure(self)
             if filename:
-                with zopen(filename, mode="w") as file:
+                with zopen(filename, mode="wt") as file:
                     file.write(geom_in.get_header(filename))
                     file.write(geom_in.content)
                     file.write("\n")
@@ -4009,7 +4009,7 @@ class IMolecule(SiteCollection, MSONable):
         """
         filename = str(filename)
 
-        with zopen(filename) as file:
+        with zopen(filename, mode="rt") as file:
             contents = file.read()
         fname = filename.lower()
         if fnmatch(fname, "*.xyz*"):
