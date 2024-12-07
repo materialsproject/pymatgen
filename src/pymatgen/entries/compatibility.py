@@ -296,7 +296,7 @@ class AnionCorrection(Correction):
             if entry.data.get("sulfide_type"):
                 sf_type = entry.data["sulfide_type"]
             elif hasattr(entry, "structure"):
-                warnings.warn(sf_type)
+                warnings.warn(sf_type, stacklevel=2)
                 sf_type = sulfide_type(entry.structure)
 
             # use the same correction for polysulfides and sulfides
@@ -329,7 +329,8 @@ class AnionCorrection(Correction):
                 else:
                     warnings.warn(
                         "No structure or oxide_type parameter present. Note that peroxide/superoxide corrections "
-                        "are not as reliable and relies only on detection of special formulas, e.g. Li2O2."
+                        "are not as reliable and relies only on detection of special formulas, e.g. Li2O2.",
+                        stacklevel=2,
                     )
                     rform = entry.reduced_formula
                     if rform in UCorrection.common_peroxides:
@@ -622,7 +623,7 @@ class Compatibility(MSONable, abc.ABC):
             if on_error == "raise":
                 raise
             if on_error == "warn":
-                warnings.warn(str(exc))
+                warnings.warn(str(exc), stacklevel=2)
             return None
 
         for e_adj in adjustments:
@@ -640,7 +641,8 @@ class Compatibility(MSONable, abc.ABC):
                 warnings.warn(
                     f"Entry {entry.entry_id} already has an energy adjustment called {e_adj.name}, but its "
                     f"value differs from the value of {e_adj.value:.3f} calculated here. This "
-                    "Entry will be discarded."
+                    "Entry will be discarded.",
+                    stacklevel=2,
                 )
 
             else:
@@ -911,6 +913,7 @@ class MaterialsProjectCompatibility(CorrectionsList):
             "MaterialsProjectCompatibility is deprecated, Materials Project formation energies "
             "use the newer MaterialsProject2020Compatibility scheme.",
             DeprecationWarning,
+            stacklevel=2,
         )
         self.compat_type = compat_type
         self.correct_peroxide = correct_peroxide
@@ -1130,7 +1133,8 @@ class MaterialsProject2020Compatibility(Compatibility):
                 else:
                     warnings.warn(
                         "No structure or oxide_type parameter present. Note that peroxide/superoxide corrections "
-                        "are not as reliable and relies only on detection of special formulas, e.g. Li2O2."
+                        "are not as reliable and relies only on detection of special formulas, e.g. Li2O2.",
+                        stacklevel=2,
                     )
 
                     common_peroxides = "Li2O2 Na2O2 K2O2 Cs2O2 Rb2O2 BeO2 MgO2 CaO2 SrO2 BaO2".split()
@@ -1180,7 +1184,8 @@ class MaterialsProject2020Compatibility(Compatibility):
             warnings.warn(
                 f"Failed to guess oxidation states for Entry {entry.entry_id} "
                 f"({entry.reduced_formula}). Assigning anion correction to "
-                "only the most electronegative atom."
+                "only the most electronegative atom.",
+                stacklevel=2,
             )
 
         for anion in ("Br", "I", "Se", "Si", "Sb", "Te", "H", "N", "F", "Cl"):
@@ -1418,7 +1423,8 @@ class MaterialsProjectAqueousCompatibility(Compatibility):
                 f"You did not provide the required O2 and H2O energies. {type(self).__name__} "
                 "needs these energies in order to compute the appropriate energy adjustments. It will try "
                 "to determine the values from ComputedEntry for O2 and H2O passed to process_entries, but "
-                "will fail if these entries are not provided."
+                "will fail if these entries are not provided.",
+                stacklevel=2,
             )
 
         # Standard state entropy of molecular-like compounds at 298K (-T delta S)
@@ -1604,7 +1610,8 @@ class MaterialsProjectAqueousCompatibility(Compatibility):
                 "being assigned the same energy. This should not cause problems "
                 "with Pourbaix diagram construction, but may be confusing. "
                 "Pass all entries to process_entries() at once in if you want to "
-                "preserve H2 polymorph energy differences."
+                "preserve H2 polymorph energy differences.",
+                stacklevel=2,
             )
 
         # extract the DFT energies of oxygen and water from the list of entries, if present
