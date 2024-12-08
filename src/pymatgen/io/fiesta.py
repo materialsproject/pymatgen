@@ -63,7 +63,7 @@ class Nwchem2Fiesta(MSONable):
         init_folder = os.getcwd()
         os.chdir(self.folder)
 
-        with zopen(self.log_file, mode="w") as fout:
+        with zopen(self.log_file, mode="wt") as fout:
             subprocess.call(
                 [
                     self._NWCHEM2FIESTA_cmd,
@@ -138,7 +138,7 @@ class FiestaRun(MSONable):
         if self.folder != init_folder:
             os.chdir(self.folder)
 
-        with zopen(self.log_file, mode="w") as fout:
+        with zopen(self.log_file, mode="wt") as fout:
             subprocess.call(
                 [
                     "mpirun",
@@ -161,7 +161,7 @@ class FiestaRun(MSONable):
         if self.folder != init_folder:
             os.chdir(self.folder)
 
-        with zopen(self.log_file, mode="w") as fout:
+        with zopen(self.log_file, mode="wt") as fout:
             subprocess.call(
                 [
                     "mpirun",
