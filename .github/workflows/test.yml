@@ -92,6 +92,9 @@ jobs:
           uv pip install dist/*.whl
           uv pip install pymatgen[${{ matrix.config.extras }}] --resolution=${{ matrix.config.resolution }}
 
+          # TODO: test monty change on zopen
+          uv pip install git+https://github.com/DanielYang59/monty.git@zopen-encoding
+
       - name: Install optional Ubuntu dependencies
         if: matrix.config.os == 'ubuntu-latest'
         run: |
