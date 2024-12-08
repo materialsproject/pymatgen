@@ -108,7 +108,7 @@ class TestCompleteDos(TestCase):
     def setUp(self):
         with open(f"{TEST_DIR}/complete_dos.json") as file:
             self.dos = CompleteDos.from_dict(json.load(file))
-        with zopen(f"{TEST_DIR}/pdag3_complete_dos.json.gz", mode="rt") as file:
+        with zopen(f"{TEST_DIR}/pdag3_complete_dos.json.gz", mode="rt", encoding="utf-8") as file:
             self.dos_pdag3 = CompleteDos.from_dict(json.load(file))
 
     def test_get_gap(self):
