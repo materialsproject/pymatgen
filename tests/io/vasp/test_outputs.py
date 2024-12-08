@@ -1552,7 +1552,7 @@ class TestChgcar(PymatgenTest):
 
     def test_write(self):
         self.chgcar_spin.write_file(out_path := f"{self.tmp_path}/CHGCAR_pmg")
-        with open(out_path) as file:
+        with open(out_path, encoding="utf-8") as file:
             for idx, line in enumerate(file):
                 if idx in (22130, 44255):
                     assert line == "augmentation occupancies   1  15\n"

@@ -647,7 +647,7 @@ class TestLammpsRun(PymatgenTest):
         ff = "pair_style eam\npair_coeff * * Cu_u3.eam"
         md = LammpsRun.md(data=ld, force_field=ff, temperature=1600.0, nsteps=10000)
         md.write_inputs(output_dir="md")
-        with open(f"{self.tmp_path}/md/in.md") as file:
+        with open(f"{self.tmp_path}/md/in.md", encoding="utf-8") as file:
             md_script = file.read()
         script_string = """# Sample input script template for MD
 
@@ -694,11 +694,11 @@ class TestFunc(PymatgenTest):
     @pytest.mark.filterwarnings("ignore:write_lammps_inputs is deprecated")
     def test_write_lammps_inputs(self):
         # script template
-        with open(f"{TEST_DIR}/kappa.txt") as file:
+        with open(f"{TEST_DIR}/kappa.txt", encoding="utf-8") as file:
             kappa_template = file.read()
         kappa_settings = {"method": "heat"}
         write_lammps_inputs(output_dir="heat", script_template=kappa_template, settings=kappa_settings)
-        with open(f"{self.tmp_path}/heat/in.lammps") as file:
+        with open(f"{self.tmp_path}/heat/in.lammps", encoding="utf-8") as file:
             kappa_script = file.read()
         fix_hot = re.search(r"fix\s+hot\s+all\s+([^\s]+)\s+", kappa_script)
         # placeholders supposed to be filled
@@ -711,7 +711,7 @@ class TestFunc(PymatgenTest):
         pair_style = re.search(r"pair_style\slj/cut\s+(.*)\n", kappa_script)
         assert pair_style.group(1) == "${rc}"
 
-        with open(f"{TEST_DIR}/in.peptide") as file:
+        with open(f"{TEST_DIR}/in.peptide", encoding="utf-8") as file:
             peptide_script = file.read()
         # copy data file
         src = f"{TEST_DIR}/data.quartz"
@@ -739,7 +739,7 @@ class TestLammpsTemplateGen(PymatgenTest):
         assert len(lis) == 1
         lis.write_input(self.tmp_path / "heat")
 
-        with open(self.tmp_path / "heat" / "in.lammps") as file:
+        with open(self.tmp_path / "heat" / "in.lammps", encoding="utf-8") as file:
             kappa_script = file.read()
         fix_hot = re.search(r"fix\s+hot\s+all\s+([^\s]+)\s+", kappa_script)
         # placeholders supposed to be filled

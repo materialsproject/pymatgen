@@ -17,7 +17,7 @@ __author__ = "waroquiers"
 class TestStructureConnectivity(PymatgenTest):
     def test_serialization(self):
         BaTiO3_se_fpath = f"{TEST_FILES_DIR}/analysis/chemenv/structure_environments/se_mp-5020.json"
-        with open(BaTiO3_se_fpath) as file:
+        with open(BaTiO3_se_fpath, encoding="utf-8") as file:
             dd = json.load(file)
         struct_envs = StructureEnvironments.from_dict(dd)
         lse = LightStructureEnvironments.from_structure_environments(

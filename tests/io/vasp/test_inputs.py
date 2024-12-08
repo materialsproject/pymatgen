@@ -426,7 +426,7 @@ direct
 
         # check output produced for lattice velocities has required format and spaces
         # added in https://github.com/materialsproject/pymatgen/pull/3433
-        with open(path) as file:
+        with open(path, encoding="utf-8") as file:
             lines = file.readlines()
         pattern = (r"  [-| ]?\d\.\d{7}E[+-]\d{2}" * 3)[1:]
         for line in lines[18:24]:
@@ -1664,7 +1664,7 @@ class TestVaspInput(PymatgenTest):
 
     def test_run_vasp(self):
         self.vasp_input.run_vasp(".", vasp_cmd=["cat", "INCAR"])
-        with open("vasp.out") as file:
+        with open("vasp.out", encoding="utf-8") as file:
             output = file.read()
             assert output.split("\n")[0] == "ALGO = Damped"
 

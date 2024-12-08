@@ -666,7 +666,7 @@ class QCOutput(MSONable):
         if text[0] == "":
             text = text[1:]
         for i, sub_text in enumerate(text):
-            with open(f"{filename}.{i}", mode="w") as temp:
+            with open(f"{filename}.{i}", mode="w", encoding="utf-8") as temp:
                 temp.write(sub_text)
             tempOutput = QCOutput(f"{filename}.{i}")
             to_return.append(tempOutput)

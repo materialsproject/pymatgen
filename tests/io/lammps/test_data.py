@@ -757,7 +757,7 @@ class TestForceField(PymatgenTest):
         filename = "ff_test.yaml"
         self.virus.to_file(filename=f"{self.tmp_path}/{filename}")
         yaml = YAML()
-        with open(filename) as file:
+        with open(filename, encoding="utf-8") as file:
             dct = yaml.load(file)
         # assert dct["mass_info"] == [list(m) for m in v.mass_info]
         assert dct["nonbond_coeffs"] == self.virus.nonbond_coeffs

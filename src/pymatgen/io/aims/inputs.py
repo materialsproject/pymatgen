@@ -213,7 +213,7 @@ class AimsGeometryIn(MSONable):
         if not overwrite and file_name.exists():
             raise ValueError(f"geometry.in file exists in {directory}")
 
-        with open(f"{directory}/geometry.in", mode="w") as file:
+        with open(f"{directory}/geometry.in", mode="w", encoding="utf-8") as file:
             file.write(self.get_header(file_name.as_posix()))
             file.write(self.content)
             file.write("\n")
@@ -665,7 +665,7 @@ class AimsControlIn(MSONable):
 
         content = self.get_content(structure, verbose_header)
 
-        with open(f"{directory}/control.in", mode="w") as file:
+        with open(f"{directory}/control.in", mode="w", encoding="utf-8") as file:
             file.write(f"#{'=' * 72}\n")
             file.write(f"# FHI-aims geometry file: {directory}/geometry.in\n")
             file.write("# File generated from pymatgen\n")

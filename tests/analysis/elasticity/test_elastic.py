@@ -67,9 +67,9 @@ class TestElasticTensor(PymatgenTest):
 
         self.elastic_tensor_1 = ElasticTensor(self.ft)
         filepath = f"{TEST_DIR}/Sn_def_stress.json"
-        with open(filepath) as file:
+        with open(filepath, encoding="utf-8") as file:
             self.def_stress_dict = json.load(file)
-        with open(f"{TEST_DIR}/test_toec_data.json") as file:
+        with open(f"{TEST_DIR}/test_toec_data.json", encoding="utf-8") as file:
             self.toec_dict = json.load(file)
         self.structure = self.get_structure("Sn")
 
@@ -265,7 +265,7 @@ class TestElasticTensor(PymatgenTest):
 
 class TestElasticTensorExpansion(PymatgenTest):
     def setUp(self):
-        with open(f"{TEST_DIR}/test_toec_data.json") as file:
+        with open(f"{TEST_DIR}/test_toec_data.json", encoding="utf-8") as file:
             self.data_dict = json.load(file)
         self.strains = [Strain(sm) for sm in self.data_dict["strains"]]
         self.pk_stresses = [Stress(d) for d in self.data_dict["pk_stresses"]]
@@ -366,7 +366,7 @@ class TestElasticTensorExpansion(PymatgenTest):
 
 class TestNthOrderElasticTensor(PymatgenTest):
     def setUp(self):
-        with open(f"{TEST_DIR}/test_toec_data.json") as file:
+        with open(f"{TEST_DIR}/test_toec_data.json", encoding="utf-8") as file:
             self.data_dict = json.load(file)
         self.strains = [Strain(sm) for sm in self.data_dict["strains"]]
         self.pk_stresses = [Stress(d) for d in self.data_dict["pk_stresses"]]
@@ -405,7 +405,7 @@ class TestDiffFit(PymatgenTest):
     """Test various functions related to diff fitting."""
 
     def setUp(self):
-        with open(f"{TEST_DIR}/test_toec_data.json") as file:
+        with open(f"{TEST_DIR}/test_toec_data.json", encoding="utf-8") as file:
             self.data_dict = json.load(file)
         self.strains = [Strain(sm) for sm in self.data_dict["strains"]]
         self.pk_stresses = [Stress(d) for d in self.data_dict["pk_stresses"]]
