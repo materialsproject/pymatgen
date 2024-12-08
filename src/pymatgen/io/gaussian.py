@@ -368,7 +368,7 @@ class GaussianInput:
         Returns:
             GaussianInput object
         """
-        with zopen(filename, mode="rt") as file:
+        with zopen(filename, mode="rt", encoding="utf-8") as file:
             return cls.from_str(file.read())
 
     def get_zmatrix(self):
@@ -449,7 +449,7 @@ class GaussianInput:
 
         Option: see `__str__` method
         """
-        with zopen(filename, mode="wt") as file:
+        with zopen(filename, mode="wt", encoding="utf-8") as file:
             file.write(self.to_str(cart_coords))
 
     def as_dict(self):
@@ -661,7 +661,7 @@ class GaussianOutput:
         opt_structures = []
         route_lower = {}
 
-        with zopen(filename, mode="rt") as file:
+        with zopen(filename, mode="rt", encoding="utf-8") as file:
             for line in file:
                 if parse_stage == 0:
                     if start_patt.search(line):
@@ -1102,7 +1102,7 @@ class GaussianOutput:
         data = {"energies": [], "coords": {}}
 
         # read in file
-        with zopen(self.filename, mode="rt") as file:
+        with zopen(self.filename, mode="rt", encoding="utf-8") as file:
             line = file.readline()
 
             while line != "":
@@ -1188,7 +1188,7 @@ class GaussianOutput:
         transitions = []
 
         # read in file
-        with zopen(self.filename, mode="rt") as file:
+        with zopen(self.filename, mode="rt", encoding="utf-8") as file:
             line = file.readline()
             td = False
             while line != "":

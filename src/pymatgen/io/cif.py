@@ -299,7 +299,7 @@ class CifFile:
         Returns:
             CifFile
         """
-        with zopen(filename, mode="rt", errors="replace") as file:
+        with zopen(filename, mode="rt", errors="replace", encoding="utf-8") as file:
             return cls.from_str(file.read())
 
 
@@ -1761,5 +1761,5 @@ class CifWriter:
         mode: Literal["wt", "at"] = "wt",
     ) -> None:
         """Write the CIF file."""
-        with zopen(filename, mode=mode) as file:
+        with zopen(filename, mode=mode, encoding="utf-8") as file:
             file.write(str(self))

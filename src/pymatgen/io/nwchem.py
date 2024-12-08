@@ -391,7 +391,7 @@ class NwInput(MSONable):
         Args:
             filename (str): Filename.
         """
-        with zopen(filename, mode="wt") as file:
+        with zopen(filename, mode="wt", encoding="utf-8") as file:
             file.write(str(self))
 
     def as_dict(self):
@@ -531,7 +531,7 @@ class NwInput(MSONable):
         Returns:
             NwInput object
         """
-        with zopen(filename, mode="rt") as file:
+        with zopen(filename, mode="rt", encoding="utf-8") as file:
             return cls.from_str(file.read())
 
 
@@ -554,7 +554,7 @@ class NwOutput:
         """
         self.filename = filename
 
-        with zopen(filename, mode="rt") as file:
+        with zopen(filename, mode="rt", encoding="utf-8") as file:
             data = file.read()
 
         chunks = re.split(r"NWChem Input Module", data)
