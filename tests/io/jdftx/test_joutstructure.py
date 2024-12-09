@@ -7,6 +7,7 @@ from pathlib import Path
 import pytest
 from pytest import approx
 
+from pymatgen.core import Structure
 from pymatgen.io.jdftx.joutstructure import JOutStructure
 from pymatgen.util.testing import TEST_FILES_DIR
 
@@ -63,3 +64,12 @@ def test_jstructure(eslice: list[str], eknowns: dict):
     assert jst.magnetic_moments[0] == approx(eknowns["mag0"])
     assert jst.charges[-1] == approx(eknowns["ox-1"])
     assert jst.magnetic_moments[-1] == approx(eknowns["mag-1"])
+
+
+@pytest.mark.parametrize(
+    ("eslice", "eknowns"), [(ex_slice1, ex_jstruc_slice1_known), (ex_slice2, ex_jstruc_slice2_known)]
+)
+def test_jstructure_structure(eslice: list[str], eknowns: dict):
+    jst = JOutStructure._from_text_slice(eslice, opt_type=eknowns["opt_type"])
+    assert isinstance(jst.structure, Structure)
+    assert not isinstance(jst.structure, JOutStructure)

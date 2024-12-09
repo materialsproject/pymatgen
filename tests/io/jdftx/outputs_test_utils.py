@@ -126,13 +126,34 @@ def jdftxoutfile_matches_known(joutfile: JDFTXOutfile, known: dict):
     assert joutfile.trajectory is not None
     assert joutfile.electronic_output is not None
     assert joutfile.structure is not None
-    # # Commenting out as we are no longer accessing "is_converged" as a property
-    # joutfile[-1].jstrucs = None
-    # assert joutfile.is_converged is None
 
 
 ex_out_files_dir = Path(TEST_FILES_DIR) / "io" / "jdftx" / "test_jdftx_out_files"
 ex_out_file_sections_dir = Path(TEST_FILES_DIR) / "io" / "jdftx" / "test_jdftx_out_file_sections"
+ex_calc_dirs_dir = Path(TEST_FILES_DIR) / "io" / "jdftx" / "test_jdftx_calc_dirs"
+
+n2_ex_calc_dir = ex_calc_dirs_dir / Path("N2")
+n2_ex_calc_dir_known_paths = {
+    "bandProjections": n2_ex_calc_dir / Path("bandProjections"),
+    "eigenvals": n2_ex_calc_dir / Path("eigenvals"),
+}
+n2_ex_calc_dir_bandprojections_metadata = {
+    "atom_orb_labels_dict": {
+        "N": ["s", "px", "py", "pz"],
+    },
+    "shape": (54, 15, 8),
+}
+
+
+nh3_ex_calc_dir = ex_calc_dirs_dir / Path("NH3")
+nh3_ex_calc_dir_known_paths = {
+    "bandProjections": nh3_ex_calc_dir / Path("bandProjections"),
+    "eigenvals": nh3_ex_calc_dir / Path("eigenvals"),
+}
+nh3_ex_calc_dir_bandprojections_metadata = {
+    "atom_orb_labels_dict": {"N": ["s", "px", "py", "pz"], "H": ["s"]},
+    "shape": (16, 14, 7),
+}
 
 example_sp_outfile_path = ex_out_files_dir / Path("example_sp.out")
 example_sp_outfile_known = {
