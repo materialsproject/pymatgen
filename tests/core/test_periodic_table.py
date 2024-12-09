@@ -187,6 +187,13 @@ class TestElement(PymatgenTest):
         assert np.isnan(valence[0])
         assert valence[1] == 0
 
+    def test_valences(self):
+        cases = {"Fe": [(2, 6)], "Cr": [(0, 1), (2, 5)], "Pt": [(0, 1), (2, 9)]}
+        for k, v in cases.items():
+            for ion_type in [Element, lambda sym: Species(sym, 0)]:
+                for i, vi in enumerate(ion_type(k).valences):
+                    assert vi == v[i]
+
     def test_term_symbols(self):
         cases = {
             "Li": [["2S0.5"]],  # s1
