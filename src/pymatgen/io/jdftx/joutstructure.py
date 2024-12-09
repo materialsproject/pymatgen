@@ -64,6 +64,8 @@ class JOutStructure(Structure):
         elec_grad_k (float | None): The most recent electronic grad_k.
         elec_alpha (float | None): The most recent electronic alpha.
         elec_linmin (float | None): The most recent electronic linmin.
+        structure (Structure | None): The Structure object of the system. (helpful for uses where the JOutStructure
+                                      metadata causes issues)
     """
 
     opt_type: str | None = None
@@ -103,6 +105,7 @@ class JOutStructure(Structure):
     elec_grad_k: float | None = None
     elec_alpha: float | None = None
     elec_linmin: float | None = None
+    structure: Structure | None = None
 
     def _elecmindata_postinit(self) -> None:
         """Post-initialization method for attributes taken from elecmindata."""
@@ -237,6 +240,8 @@ class JOutStructure(Structure):
         instance._init_e_sp_backup()
         # Setting attributes from elecmindata (set during _parse_emin_lines)
         instance._elecmindata_postinit()
+        # Done last in case of any changes to site-properties
+        instance._init_structure()
         return instance
 
     def _init_e_sp_backup(self) -> None:
@@ -680,6 +685,12 @@ class JOutStructure(Structure):
         else:
             generic_lines.append(line_text)
         return generic_lines, collecting, collected
+
+    def _init_structure(self) -> None:
+        """Initialize structure attribute."""
+        self.structure = Structure(
+            lattice=self.lattice, species=self.species, coords=self.cart_coords, site_properties=self.site_properties
+        )
 
     def to_dict(self) -> dict:
         """
