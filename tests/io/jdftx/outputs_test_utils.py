@@ -141,6 +141,7 @@ n2_ex_calc_dir_bandprojections_metadata = {
     "atom_orb_labels_dict": {
         "N": ["s", "px", "py", "pz"],
     },
+    "shape": (54, 15, 8),
 }
 
 
@@ -151,6 +152,7 @@ nh3_ex_calc_dir_known_paths = {
 }
 nh3_ex_calc_dir_bandprojections_metadata = {
     "atom_orb_labels_dict": {"N": ["s", "px", "py", "pz"], "H": ["s"]},
+    "shape": (16, 14, 7),
 }
 
 example_sp_outfile_path = ex_out_files_dir / Path("example_sp.out")

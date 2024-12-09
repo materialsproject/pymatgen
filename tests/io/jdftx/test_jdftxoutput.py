@@ -60,6 +60,15 @@ def test_store_vars(calc_dir: Path, store_vars: list[str]):
 def test_store_bandprojections(calc_dir: Path, known_metadata: dict):
     """Test that the stored band projections are correct."""
     jo = JDFTXOutputs.from_calc_dir(calc_dir, store_vars=["bandProjections"])
-    for var in known_metadata:
-        assert hasattr(jo.bandProjections, var)
-        assert_same_value(getattr(jo.bandProjections, var), known_metadata[var])
+    for var in ["atom_orb_labels_dict"]:
+        assert hasattr(jo, var)
+        assert_same_value(getattr(jo, var), known_metadata[var])
+    assert_same_value(jo.bandProjections.shape, known_metadata["shape"])
+
+
+@pytest.mark.parametrize("calc_dir", [n2_ex_calc_dir, nh3_ex_calc_dir])
+def test_store_eigenvals(calc_dir: Path):
+    jo = JDFTXOutputs.from_calc_dir(calc_dir, store_vars=["eigenvals"])
+    assert hasattr(jo, "eigenvals")
+    eigenvals = jo.eigenvals
+    assert eigenvals is not None

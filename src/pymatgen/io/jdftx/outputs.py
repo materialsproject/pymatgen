@@ -16,7 +16,12 @@ from typing import TYPE_CHECKING, Any
 import numpy as np
 
 from pymatgen.core.trajectory import Trajectory
-from pymatgen.io.jdftx._output_utils import _get_atom_orb_labels_dict, get_proj_tju_from_file, read_outfile_slices
+from pymatgen.io.jdftx._output_utils import (
+    _get_atom_orb_labels_dict,
+    _get_nbands_from_bandfile_filepath,
+    get_proj_tju_from_file,
+    read_outfile_slices,
+)
 from pymatgen.io.jdftx.jdftxoutfileslice import JDFTXOutfileSlice
 
 if TYPE_CHECKING:
@@ -144,23 +149,42 @@ class JDFTXOutputs:
     def _store_var(self, var: str):
         if not hasattr(self, f"_store_{var}"):
             raise NotImplementedError(f"Storing {var} is not currently implemented.")
+        if hasattr(self, f"_check_{var}"):
+            check_method = getattr(self, f"_check_{var}")
+            check_method()
         init_method = getattr(self, f"_store_{var}")
         init_method()
+
+    def _check_bandProjections(self):
+        """Check for misaligned data within bandProjections file."""
+        if "bandProjections" in self.paths:
+            if not self.paths["bandProjections"].exists():
+                raise RuntimeError("Allocated path for bandProjections does not exist.")
+            nbands = _get_nbands_from_bandfile_filepath(self.paths["bandProjections"])
+            if not nbands == self.outfile.nbands:
+                raise ValueError("Number of bands in bandProjections file does not match number of bands in outfile.")
 
     def _store_bandProjections(self):
         if "bandProjections" in self.paths:
             self.bandProjections = get_proj_tju_from_file(self.paths["bandProjections"])
             self.atom_orb_labels_dict = _get_atom_orb_labels_dict(self.paths["bandProjections"])
-            nstates, nbands, nproj = self.bandProjections.shape
+
+    def _check_eigenvals(self):
+        """Check for misaligned data within eigenvals file."""
+        if "eigenvals" in self.paths:
+            if not self.paths["eigenvals"].exists():
+                raise RuntimeError("Allocated path for eigenvals does not exist.")
+            # TODO: We should not have to load the entire file to find its length - replace with something more
+            # efficient once Claude lets me create an account.
+            tj = len(np.fromfile(self.paths["eigenvals"]))
+            nstates_float = tj / self.outfile.nbands
+            if not np.isclose(nstates_float, int(nstates_float)):
+                raise ValueError("Number of eigenvalues is not an integer multiple of number of bands.")
 
     def _store_eigenvals(self):
         if "eigenvals" in self.paths:
             self.eigenvals = np.fromfile(self.paths["eigenvals"])
-            tj = len(self.eigenvals)
-            nstates_float = tj / self.outfile.nbands
-            if not np.isclose(nstates_float, int(nstates_float)):
-                raise ValueError("Number of eigenvalues is not an integer multiple of number of bands.")
-            nstates = int(nstates_float)
+            nstates = int(len(self.eigenvals) / self.outfile.nbands)
             self.eigenvals = self.eigenvals.reshape(nstates, self.outfile.nbands)
 
 
@@ -620,7 +644,7 @@ def _find_jdftx_dump_file(calc_dir: Path, dump_fname: str) -> list[Path]:
 
 def _disambiguate_paths(paths: list[Path], dump_fname: str, prefix: str | None) -> Path:
     """
-    Disambiguate a path.
+    Determine the correct dump file path from a list of paths.
 
     Args:
         paths (list[Path]): The paths to disambiguate.

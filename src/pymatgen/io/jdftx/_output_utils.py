@@ -378,7 +378,8 @@ def _get_nstates_from_bandfile_filepath(bandfile_filepath: Path | str) -> int:
 def _get_nbands_from_bandfile_filepath(bandfile_filepath: Path | str) -> int:
     """Get number of bands from bandprojections file.
 
-    Get the number of bands from the bandprojections file.
+    Get the number of bands from the bandprojections file. The output here should match up with `nbands` from the
+    JDFTXOutfile object.
 
     Args:
         bandfile_filepath (Path | str): Path to bandprojections file.
@@ -415,38 +416,6 @@ def _get_nspecies_from_bandfile_filepath(bandfile_filepath: Path | str) -> int:
         int: Number of species.
     """
     return _get__from_bandfile_filepath(bandfile_filepath, 6)
-
-
-# def _get_norbsperatom_from_bandfile_filepath(bandfile_filepath: Path | str) -> list[int]:
-#     """Get number of orbitals per atom from bandprojections file.
-
-#     Get the number of orbitals per atom from the bandprojections file.
-
-#     Args:
-#         bandfile (Path | str): Path to bandprojections file.
-
-#     Returns:
-#         list[int]: List of number of orbitals per atom.
-#     """
-#     nspecies = _get_nspecies_from_bandfile_filepath(bandfile_filepath)
-#     norbsperatom = []
-#     bandfile = read_file(bandfile_filepath)
-#     for line, text in enumerate(bandfile):
-#         tokens = text.split()
-#         if line == 0:
-#             int(tokens[6])
-#         elif line >= 2:
-#             if line < nspecies + 2:
-#                 natoms = int(tokens[1])
-#                 norbsperatom.extend(
-#                     [
-#                         int(tokens[2]),
-#                     ]
-#                     * natoms
-#                 )
-#             else:
-#                 break
-#     return norbsperatom
 
 
 def _parse_bandfile_reader(
@@ -524,6 +493,7 @@ def _is_complex_bandfile_filepath(bandfile_filepath: str | Path) -> bool:
     return val
 
 
+# TODO: This is very likely redundant to something in pymatgen - replace with that if possible.
 orb_ref_list = [
     ["s"],
     ["px", "py", "pz"],
@@ -565,13 +535,15 @@ def _get_atom_orb_labels_dict(bandfile_filepath: Path) -> dict[str, list[str]]:
             sym = lsplit[0]
             labels_dict[sym] = []
             lmax = int(lsplit[3])
-            for j in range(lmax + 1):
-                refs = orb_ref_list[j]
-                nShells = int(lsplit[4 + j])
-                for k in range(nShells):
-                    if nShells > 1:
-                        for r in refs:
-                            labels_dict[sym].append(f"{k}{r}")
+            # Would prefer to use "l" rather than "L" here (as uppercase "L" means something else entirely) but
+            # pr*-c*mm*t thinks "l" is an ambiguous variable name.
+            for L in range(lmax + 1):
+                mls = orb_ref_list[L]
+                nshells = int(lsplit[4 + L])
+                for n in range(nshells):
+                    if nshells > 1:
+                        for ml in mls:
+                            labels_dict[sym].append(f"{n}{ml}")
                     else:
-                        labels_dict[sym] += refs
+                        labels_dict[sym] += mls
     return labels_dict
