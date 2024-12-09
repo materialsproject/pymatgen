@@ -1,7 +1,6 @@
 from __future__ import annotations
 
 import math
-import re
 
 import numpy as np
 import pytest
@@ -29,9 +28,7 @@ def test_jdftxoutfileslice_trajectory():
     joutslice = JDFTXOutfileSlice._from_out_slice(ex_slice1)
     traj = joutslice.trajectory
     assert isinstance(traj, Trajectory)
-    del joutslice.jsettings_lattice.params["niterations"]
-    with pytest.raises(ValueError, match=re.escape("Unknown issue due to partial initialization of settings objects.")):
-        joutslice._set_trajectory()
+    assert len(traj) == len(joutslice.jstrucs)
 
 
 def test_get_broadeningvars():

@@ -803,7 +803,7 @@ class JDFTXOutfileSlice:
         self.jsettings_electronic = self._get_settings_object(text, JMinSettingsElectronic)
         self.jsettings_lattice = self._get_settings_object(text, JMinSettingsLattice)
         self.jsettings_ionic = self._get_settings_object(text, JMinSettingsIonic)
-        if "niterations" in self.jsettings_lattice.params:
+        if self.jsettings_lattice is not None and "niterations" in self.jsettings_lattice.params:
             self.constant_lattice = int(self.jsettings_lattice.params["niterations"]) != 0
 
     def _set_geomopt_vars(self, text: list[str]) -> None:
