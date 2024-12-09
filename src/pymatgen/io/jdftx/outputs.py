@@ -15,7 +15,6 @@ from typing import TYPE_CHECKING, Any
 
 import numpy as np
 
-from pymatgen.core.trajectory import Trajectory
 from pymatgen.io.jdftx._output_utils import (
     _get_atom_orb_labels_dict,
     _get_nbands_from_bandfile_filepath,
@@ -26,6 +25,7 @@ from pymatgen.io.jdftx.jdftxoutfileslice import JDFTXOutfileSlice
 
 if TYPE_CHECKING:
     from pymatgen.core.structure import Structure
+    from pymatgen.core.trajectory import Trajectory
     from pymatgen.io.jdftx.jelstep import JElSteps
     from pymatgen.io.jdftx.jminsettings import (
         JMinSettingsElectronic,
@@ -536,20 +536,16 @@ class JDFTXOutfile:
                 setattr(self, var, getattr(self.slices[-1], var))
             self.trajectory = self._get_trajectory()
 
-    def _get_trajectory(self) -> Trajectory:
+    def _get_trajectory(self) -> Trajectory | None:
         """Set the trajectory attribute of the JDFTXOutfile object."""
-        constant_lattice = True
-        structures = []
-        for _i, slc in enumerate(self.slices):
-            structures += slc.jstrucs.slices
-            if constant_lattice and (slc.jsettings_lattice is not None):
-                if "niterations" in slc.jsettings_lattice.params:
-                    if int(slc.jsettings_lattice.params["niterations"]) > 1:
-                        constant_lattice = False
+        traj = None
+        for outfile_slice in self.slices:
+            if outfile_slice is not None:
+                if traj is None:
+                    traj = outfile_slice.trajectory
                 else:
-                    constant_lattice = False
-
-        return Trajectory.from_structures(structures=structures, constant_lattice=constant_lattice)
+                    traj.extend(outfile_slice.trajectory)
+        return traj
 
     def to_dict(self) -> dict:
         """
