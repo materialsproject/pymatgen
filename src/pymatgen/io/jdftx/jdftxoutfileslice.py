@@ -179,6 +179,7 @@ class JDFTXOutfileSlice:
     jsettings_electronic: JMinSettings | None = None
     jsettings_lattice: JMinSettings | None = None
     jsettings_ionic: JMinSettings | None = None
+    constant_lattice: bool | None = None
 
     xc_func: str | None = None
 
@@ -391,13 +392,9 @@ class JDFTXOutfileSlice:
         Returns:
             Trajectory: pymatgen Trajectory object containing intermediate Structure's of outfile slice calculation.
         """
-        constant_lattice = False
-        if self.jsettings_lattice is not None:
-            if "niterations" in self.jsettings_lattice.params:
-                constant_lattice = int(self.jsettings_lattice.params["niterations"]) == 0
-            else:
-                raise ValueError("Unknown issue due to partial initialization of settings objects.")
-        self.trajectory = Trajectory.from_structures(structures=self.jstrucs, constant_lattice=constant_lattice)
+        if self.jstrucs is not None:
+            structures = [slc.structure for slc in self.jstrucs.slices]
+            self.trajectory = Trajectory.from_structures(structures=structures, constant_lattice=self.constant_lattice)
 
     def _set_electronic_output(self) -> None:
         """Return a dictionary with all relevant electronic information.
@@ -806,6 +803,8 @@ class JDFTXOutfileSlice:
         self.jsettings_electronic = self._get_settings_object(text, JMinSettingsElectronic)
         self.jsettings_lattice = self._get_settings_object(text, JMinSettingsLattice)
         self.jsettings_ionic = self._get_settings_object(text, JMinSettingsIonic)
+        if self.jsettings_lattice is not None and "niterations" in self.jsettings_lattice.params:
+            self.constant_lattice = int(self.jsettings_lattice.params["niterations"]) != 0
 
     def _set_geomopt_vars(self, text: list[str]) -> None:
         """Set the geom_opt and geom_opt_type class variables.
