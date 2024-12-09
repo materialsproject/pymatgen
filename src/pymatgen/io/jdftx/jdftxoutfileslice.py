@@ -842,7 +842,7 @@ class JDFTXOutfileSlice:
         if self.jstrucs is not None:
             self._set_trajectory()
             self.mu = self._get_mu()
-            self.structure = self.jstrucs[-1]
+            self.structure = self.jstrucs[-1].structure
             self.eopt_type = self.jstrucs.eopt_type
             self.elecmindata = self.jstrucs.elecmindata
             self.stress = self.jstrucs.stress
