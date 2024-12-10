@@ -23,7 +23,7 @@ TEST_DIR = f"{TEST_FILES_DIR}/analysis/wulff"
 
 class TestWulffShape(PymatgenTest):
     def setUp(self):
-        with open(f"{TEST_DIR}/surface_samples.json") as data_file:
+        with open(f"{TEST_DIR}/surface_samples.json", encoding="utf-8") as data_file:
             surface_properties = json.load(data_file)
 
         surface_energies, miller_indices = {}, {}

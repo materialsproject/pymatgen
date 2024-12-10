@@ -232,7 +232,7 @@ class TestBandStructureSymmLine(PymatgenTest):
         assert set(d3) >= expected_keys, f"{expected_keys - set(d3)=}"
 
     def test_old_format_load(self):
-        with open(f"{TEST_DIR}/bs_ZnS_old.json") as file:
+        with open(f"{TEST_DIR}/bs_ZnS_old.json", encoding="utf-8") as file:
             dct = json.load(file)
             bs_old = BandStructureSymmLine.from_dict(dct)
             assert bs_old.get_projection_on_elements()[Spin.up][0][0]["Zn"] == 0.0971
@@ -281,12 +281,14 @@ class TestLobsterBandStructureSymmLine(PymatgenTest):
     def setUp(self):
         with open(
             f"{TEST_FILES_DIR}/electronic_structure/cohp/Fatband_SiO2/Test_p/lobster_band_structure_spin.json",
+            encoding="utf-8",
         ) as file:
             bs_spin_dict = json.load(file)
         self.bs_spin = LobsterBandStructureSymmLine.from_dict(bs_spin_dict)
 
         with open(
             f"{TEST_FILES_DIR}/electronic_structure/cohp/Fatband_SiO2/Test_p/lobster_band_structure.json",
+            encoding="utf-8",
         ) as file:
             bs_dict = json.load(file)
         self.bs_p = LobsterBandStructureSymmLine.from_dict(bs_dict)

@@ -551,7 +551,7 @@ class AdfInput:
                 unres_block = AdfKey("Unrestricted")
                 mol_blocks.append(unres_block)
 
-        with open(inp_file, "w+") as file:
+        with open(inp_file, "w+", encoding="utf-8") as file:
             for block in mol_blocks:
                 file.write(str(block) + "\n")
             file.write(str(self.task) + "\n")
@@ -656,7 +656,7 @@ class AdfOutput:
                     return
                 break
 
-        with open(logfile) as file:
+        with open(logfile, encoding="utf-8") as file:
             for line in file:
                 if match := error_patt.search(line):
                     self.is_failed = True

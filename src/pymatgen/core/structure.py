@@ -2960,7 +2960,7 @@ class IStructure(SiteCollection, MSONable):
 
             res_str = XSF(self).to_str()
             if filename:
-                with zopen(filename, mode="wt", encoding="utf8") as file:
+                with zopen(filename, mode="wt", encoding="utf-8") as file:
                     file.write(res_str)
             return res_str
         elif (
@@ -3009,7 +3009,7 @@ class IStructure(SiteCollection, MSONable):
 
             res_str = ResIO.structure_to_str(self)
             if filename:
-                with zopen(filename, mode="wt", encoding="utf8") as file:
+                with zopen(filename, mode="wt", encoding="utf-8") as file:
                     file.write(res_str)
             return res_str
         elif fmt == "pwmat" or fnmatch(filename.lower(), "*.pwmat") or fnmatch(filename.lower(), "*.config"):
@@ -3918,7 +3918,7 @@ class IMolecule(SiteCollection, MSONable):
         elif fmt == "json" or fnmatch(filename, "*.json*") or fnmatch(filename, "*.mson*"):
             json_str = json.dumps(self.as_dict())
             if filename:
-                with zopen(filename, mode="wt", encoding="utf8") as file:
+                with zopen(filename, mode="wt", encoding="utf-8") as file:
                     file.write(json_str)
             return json_str
         elif fmt in {"yaml", "yml"} or fnmatch(filename, "*.yaml*") or fnmatch(filename, "*.yml*"):
@@ -3927,7 +3927,7 @@ class IMolecule(SiteCollection, MSONable):
             yaml.dump(self.as_dict(), str_io)
             yaml_str = str_io.getvalue()
             if filename:
-                with zopen(filename, mode="wt", encoding="utf8") as file:
+                with zopen(filename, mode="wt", encoding="utf-8") as file:
                     file.write(yaml_str)
             return yaml_str
         else:

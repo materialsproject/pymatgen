@@ -48,7 +48,7 @@ class TestNEBAnalysis(PymatgenTest):
 
         neb_analysis1.setup_spline(spline_options={"saddle_point": "zero_slope"})
         assert_allclose(neb_analysis1.get_extrema()[1][0], (0.50023335723480078, 325.20003984140203))
-        with open(f"{TEST_DIR}/neb2/neb_analysis2.json") as file:
+        with open(f"{TEST_DIR}/neb2/neb_analysis2.json", encoding="utf-8") as file:
             neb_analysis2_dict = json.load(file)
         neb_analysis2 = NEBAnalysis.from_dict(neb_analysis2_dict)
         assert_allclose(neb_analysis2.get_extrema()[1][0], (0.37255257367467326, 562.40825334519991))
