@@ -1296,7 +1296,7 @@ direct
     def test_non_ascii_comment(self):
         """Non-ASCII comment like 'Γ' might not be encoded correctly in Windows."""
         kpoints = Kpoints.from_file(f"{VASP_IN_DIR}/KPOINTS_band")
-        assert kpoints.labels[0] == "Γ"
+        assert kpoints.labels[0] == "Γ", f"Γ is not encoded correctly, got {kpoints.labels[0]}"
 
 
 @pytest.mark.filterwarnings(
