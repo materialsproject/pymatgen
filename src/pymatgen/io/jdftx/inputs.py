@@ -170,6 +170,7 @@ class JDFTXInfile(dict, MSONable):
                     i, _ = tag_object._determine_format_option(tag, self_as_dict[tag])
                     tag_object = tag_object.format_options[i]
                 if tag_object.can_repeat and isinstance(self_as_dict[tag], list):
+                    # text += " ".join([tag_object.write(tag, entry) for entry in self_as_dict[tag]])
                     text += [tag_object.write(tag, entry) for entry in self_as_dict[tag]]
                 else:
                     text.append(tag_object.write(tag, self_as_dict[tag]))
@@ -630,7 +631,7 @@ class JDFTXInfile(dict, MSONable):
                 i, _ = tag_object._determine_format_option(tag, value)
             tag_object = tag_object.format_options[i]
         if not tag_object.can_repeat:
-            raise ValueError(f"The {tag} tag cannot be repeated and thus cannot be appended")
+            raise ValueError(f"The tag '{tag}' cannot be repeated and thus cannot be appended")
         params: dict[str, Any] = self.as_dict(skip_module_keys=True)
         processed_value = tag_object.read(tag, value) if isinstance(value, str) else value
         params = self._store_value(params, tag_object, tag, processed_value)
