@@ -1293,6 +1293,11 @@ direct
                     kpoints = Kpoints.automatic_density_by_lengths(struct, [len_density] * 3)
                     assert kpoints.style == Kpoints.supported_modes.Gamma
 
+    def test_non_ascii_comment(self):
+        """Non-ASCII comment like 'Γ' might not be encoded correctly in Windows."""
+        kpoints = Kpoints.from_file(f"{VASP_IN_DIR}/KPOINTS_band")
+        assert kpoints.labels[0] == "Γ"
+
 
 @pytest.mark.filterwarnings(
     "ignore:POTCAR data with symbol .* is not known to pymatgen:pymatgen.io.vasp.inputs.UnknownPotcarWarning"
