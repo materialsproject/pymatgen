@@ -51,7 +51,7 @@ def make_doc(ctx: Context) -> None:
         # ctx.run("rm pymatgen*tests*.md", warn=True)
         # ctx.run("rm pymatgen*.html", warn=True)
         # for filename in glob("pymatgen*.md"):
-        #     with open(filename) as file:
+        #     with open(filename, encoding="utf-8") as file:
         #         lines = [line.rstrip() for line in file if "Submodules" not in line]
         #     if filename == "pymatgen.md":
         #         preamble = ["---", "layout: default", "title: API Documentation", "nav_order: 6", "---", ""]
@@ -67,7 +67,7 @@ def make_doc(ctx: Context) -> None:
         #             "{:toc}",
         #             "",
         #         ]
-        #     with open(filename, mode="w") as file:
+        #     with open(filename, mode="w", encoding="utf-8") as file:
         #         file.write("\n".join(preamble + lines))
         ctx.run("rm -r markdown", warn=True)
         ctx.run("rm -r html", warn=True)

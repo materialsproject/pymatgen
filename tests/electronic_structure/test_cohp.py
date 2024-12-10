@@ -823,7 +823,7 @@ class TestCompleteCohp(PymatgenTest):
         filepath = f"{TEST_DIR}/COHPCAR.lobster.gz"
         structure = f"{TEST_DIR}/POSCAR"
         self.cohp_lobster = CompleteCohp.from_file("lobster", filename=filepath, structure_file=structure)
-        # with open(f"{TEST_DIR}/complete_cohp_lobster.json", "w") as file:
+        # with open(f"{TEST_DIR}/complete_cohp_lobster.json", "w", encoding="utf-8") as file:
         #     json.dump(self.cohp_lobster.as_dict(), file)
         filepath = f"{TEST_DIR}/COOPCAR.lobster.BiSe.gz"
         structure = f"{TEST_DIR}/POSCAR.BiSe"
@@ -833,7 +833,7 @@ class TestCompleteCohp(PymatgenTest):
         filepath = f"{TEST_DIR}/COHPCAR.lobster.orbitalwise.gz"
         structure = f"{TEST_DIR}/POSCAR.orbitalwise"
         self.cohp_orb = CompleteCohp.from_file("lobster", filename=filepath, structure_file=structure)
-        # with open(f"{TEST_DIR}/complete_cohp_orbitalwise.json", "w") as file:
+        # with open(f"{TEST_DIR}/complete_cohp_orbitalwise.json", "w", encoding="utf-8") as file:
         #     json.dump(self.cohp_orb.as_dict(), file)
         filepath = f"{TEST_DIR}/COHPCAR.lobster.notot.orbitalwise.gz"
         self.cohp_notot = CompleteCohp.from_file("lobster", filename=filepath, structure_file=structure)
