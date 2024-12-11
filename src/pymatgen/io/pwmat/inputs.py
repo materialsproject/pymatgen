@@ -36,7 +36,7 @@ class LineLocator(MSONable):
         """
         row_idxs: list[int] = []  # starts from 1 to be compatible with linecache package
         row_no: int = 0
-        with zopen(file_path, mode="rt", encoding="utf-8") as file:
+        with zopen(file_path, mode="rt") as file:
             for row_content in file:
                 row_no += 1
                 if content.upper() in row_content.upper() and (
@@ -418,7 +418,7 @@ class AtomConfig(MSONable):
         Returns:
             AtomConfig object.
         """
-        with zopen(filename, mode="rt", encoding="utf-8") as file:
+        with zopen(filename, "rt") as file:
             return cls.from_str(data=file.read(), mag=mag)
 
     @classmethod
@@ -466,7 +466,7 @@ class AtomConfig(MSONable):
 
     def write_file(self, filename: PathLike, **kwargs):
         """Write AtomConfig to a file."""
-        with zopen(filename, mode="wt", encoding="utf-8") as file:
+        with zopen(filename, "wt") as file:
             file.write(self.get_str(**kwargs))
 
     def as_dict(self):
@@ -588,7 +588,7 @@ class GenKpt(MSONable):
         Args:
             filename (PathLike): The absolute path of file to be written.
         """
-        with zopen(filename, mode="wt", encoding="utf-8") as file:
+        with zopen(filename, "wt") as file:
             file.write(self.get_str())
 
 
@@ -694,5 +694,5 @@ class HighSymmetryPoint(MSONable):
 
     def write_file(self, filename: PathLike):
         """Write HighSymmetryPoint to a file."""
-        with zopen(filename, mode="wt", encoding="utf-8") as file:
+        with zopen(filename, "wt") as file:
             file.write(self.get_str())

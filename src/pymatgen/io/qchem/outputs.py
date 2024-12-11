@@ -661,7 +661,7 @@ class QCOutput(MSONable):
         2.) Creates separate QCCalcs for each one from the sub-files.
         """
         to_return = []
-        with zopen(filename, mode="rt", encoding="utf-8") as file:
+        with zopen(filename, mode="rt") as file:
             text = re.split(r"\s*(?:Running\s+)*Job\s+\d+\s+of\s+\d+\s+", file.read())
         if text[0] == "":
             text = text[1:]

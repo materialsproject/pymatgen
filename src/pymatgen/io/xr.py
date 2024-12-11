@@ -68,7 +68,7 @@ class Xr:
         Args:
             filename (str): name of the file to write to.
         """
-        with zopen(filename, mode="wt", encoding="utf-8") as file:
+        with zopen(filename, mode="wt") as file:
             file.write(str(self) + "\n")
 
     @classmethod
@@ -155,5 +155,5 @@ class Xr:
             xr (Xr): Xr object corresponding to the input
                     file.
         """
-        with zopen(filename, mode="rt", encoding="utf-8") as file:
+        with zopen(filename, mode="rt") as file:
             return cls.from_str(file.read(), use_cores=use_cores, thresh=thresh)
