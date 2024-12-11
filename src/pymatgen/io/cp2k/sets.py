@@ -71,7 +71,6 @@ from pymatgen.io.vasp.inputs import Kpoints as VaspKpoints
 from pymatgen.io.vasp.inputs import KpointsSupportedModes
 
 if TYPE_CHECKING:
-    from pathlib import Path
     from typing import Literal
 
 __author__ = "Nicholas Winner"
