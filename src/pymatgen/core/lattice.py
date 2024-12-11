@@ -1792,7 +1792,7 @@ def get_integer_index(
     # Need to recalculate this after rounding as values may have changed
     int_miller_index = np.round(mi, 1).astype(int)
     if np.any(np.abs(mi - int_miller_index) > 1e-6) and verbose:
-        warnings.warn("Non-integer encountered in Miller index")
+        warnings.warn("Non-integer encountered in Miller index", stacklevel=2)
     else:
         mi = int_miller_index
 

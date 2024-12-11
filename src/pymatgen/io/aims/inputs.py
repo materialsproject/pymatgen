@@ -154,15 +154,21 @@ class AimsGeometryIn(MSONable):
                 content_lines.append(f"lattice_vector {lv[0]: .12e} {lv[1]: .12e} {lv[2]: .12e}")
 
         for site in structure:
-            element = site.species_string
+            element = site.species_string.split(",spin=")[0]
             charge = site.properties.get("charge", 0)
             spin = site.properties.get("magmom", None)
             coord = site.coords
             v = site.properties.get("velocity", [0.0, 0.0, 0.0])
+
             if isinstance(site.specie, Species) and site.specie.spin is not None:
                 if spin is not None and spin != site.specie.spin:
                     raise ValueError("species.spin and magnetic moments don't agree. Please only define one")
                 spin = site.specie.spin
+
+            if isinstance(site.specie, Species) and site.specie.oxi_state is not None:
+                if charge is not None and charge != site.specie.oxi_state:
+                    raise ValueError("species.oxi_state and charge don't agree. Please only define one")
+                charge = site.specie.oxi_state
 
             content_lines.append(f"atom {coord[0]: .12e} {coord[1]: .12e} {coord[2]: .12e} {element}")
             if charge != 0:
@@ -566,6 +572,7 @@ class AimsControlIn(MSONable):
             warn(
                 "Removing spin from parameters since no spin information is in the structure",
                 RuntimeWarning,
+                stacklevel=2,
             )
             parameters.pop("spin")
 
@@ -590,7 +597,7 @@ class AimsControlIn(MSONable):
                 width = parameters["smearing"][1]
                 if name == "methfessel-paxton":
                     order = parameters["smearing"][2]
-                    order = " %d" % order
+                    order = f" {order:d}"
                 else:
                     order = ""
 

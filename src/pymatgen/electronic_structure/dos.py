@@ -604,7 +604,7 @@ class FermiDos(Dos, MSONable):
             return self.get_fermi(concentration, temperature, **kwargs)
         except ValueError as exc:
             if warn:
-                warnings.warn(str(exc))
+                warnings.warn(str(exc), stacklevel=2)
 
             if abs(concentration) < c_ref:
                 if abs(concentration) < 1e-10:
@@ -1482,7 +1482,7 @@ class LobsterCompleteDos(CompleteDos):
         Returns:
             dict[Literal["e_g", "t2g"], Dos]: Summed e_g and t2g DOS for the site.
         """
-        warnings.warn("Are the orbitals correctly oriented? Are you sure?")
+        warnings.warn("Are the orbitals correctly oriented? Are you sure?", stacklevel=2)
 
         t2g_dos = []
         eg_dos = []
