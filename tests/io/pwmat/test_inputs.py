@@ -47,7 +47,7 @@ class TestACstrExtractor(PymatgenTest):
     def test_extract(self):
         filepath = f"{TEST_DIR}/atom.config"
         ac_extractor = ACExtractor(file_path=filepath)
-        with zopen(filepath, mode="rt") as file:
+        with zopen(filepath, mode="rt", encoding="utf-8") as file:
             ac_str_extractor = ACstrExtractor(atom_config_str="".join(file.readlines()))
         assert ac_extractor.n_atoms == ac_str_extractor.get_n_atoms()
         for idx in range(9):
@@ -102,7 +102,7 @@ class TestGenKpt(PymatgenTest):
         tmp_file = f"{self.tmp_path}/gen.kpt.testing.lzma"
         gen_kpt.write_file(tmp_file)
         tmp_gen_kpt_str = ""
-        with zopen(tmp_file, mode="rt") as file:
+        with zopen(tmp_file, mode="rt", encoding="utf-8") as file:
             tmp_gen_kpt_str = file.read()
         assert gen_kpt.get_str() == tmp_gen_kpt_str
 
@@ -128,7 +128,7 @@ class TestHighSymmetryPoint(PymatgenTest):
         tmp_filepath = f"{self.tmp_path}/HIGH_SYMMETRY_POINTS.testing.lzma"
         high_symmetry_points.write_file(tmp_filepath)
         tmp_high_symmetry_points_str = ""
-        with zopen(tmp_filepath, "rt") as file:
+        with zopen(tmp_filepath, "rt", encoding="utf-8") as file:
             tmp_high_symmetry_points_str = file.read()
         assert tmp_high_symmetry_points_str == high_symmetry_points.get_str()
 

@@ -147,7 +147,8 @@ class Trajectory(MSONable):
                 self.lattice = np.tile(lattice, (len(coords), 1, 1))
                 warnings.warn(
                     "Get constant_lattice=False, but only get a single lattice. "
-                    "Use this single lattice as the lattice for all frames."
+                    "Use this single lattice as the lattice for all frames.",
+                    stacklevel=2,
                 )
             else:
                 self.lattice = lattice
@@ -161,7 +162,8 @@ class Trajectory(MSONable):
             if base_positions is None:
                 warnings.warn(
                     "Without providing an array of starting positions, the positions "
-                    "for each time step will not be available."
+                    "for each time step will not be available.",
+                    stacklevel=2,
                 )
             self.base_positions = base_positions
         else:
@@ -465,7 +467,7 @@ class Trajectory(MSONable):
 
         xdatcar_str = "\n".join(lines) + "\n"
 
-        with zopen(filename, mode="wt") as file:
+        with zopen(filename, mode="wt", encoding="utf-8") as file:
             file.write(xdatcar_str)
 
     def as_dict(self) -> dict:

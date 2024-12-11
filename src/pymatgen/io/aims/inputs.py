@@ -133,7 +133,7 @@ class AimsGeometryIn(MSONable):
         Returns:
             AimsGeometryIn: The input object represented in the file
         """
-        with zopen(filepath, mode="rt") as in_file:
+        with zopen(filepath, mode="rt", encoding="utf-8") as in_file:
             content = in_file.read()
         return cls.from_str(content)
 
@@ -566,6 +566,7 @@ class AimsControlIn(MSONable):
             warn(
                 "Removing spin from parameters since no spin information is in the structure",
                 RuntimeWarning,
+                stacklevel=2,
             )
             parameters.pop("spin")
 
@@ -590,7 +591,7 @@ class AimsControlIn(MSONable):
                 width = parameters["smearing"][1]
                 if name == "methfessel-paxton":
                     order = parameters["smearing"][2]
-                    order = " %d" % order
+                    order = f" {order:d}"
                 else:
                     order = ""
 
@@ -752,7 +753,7 @@ class AimsSpeciesFile:
         Returns:
             AimsSpeciesFile
         """
-        with zopen(filename, mode="rt") as file:
+        with zopen(filename, mode="rt", encoding="utf-8") as file:
             return cls(data=file.read(), label=label)
 
     @classmethod
