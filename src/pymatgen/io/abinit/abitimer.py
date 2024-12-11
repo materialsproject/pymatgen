@@ -114,7 +114,7 @@ class AbinitTimerParser(collections.abc.Iterable):
         read_ok = []
         for filename in filenames:
             try:
-                file = open(filename)  # noqa: SIM115
+                file = open(filename, encoding="utf-8")  # noqa: SIM115
             except OSError:
                 logger.warning(f"Cannot open file {filename}")
                 continue
@@ -684,7 +684,7 @@ class AbinitTimer:
         is_str = isinstance(fileobj, str)
 
         if is_str:
-            fileobj = open(fileobj, mode="w")  # noqa: SIM115
+            fileobj = open(fileobj, mode="w", encoding="utf-8")  # noqa: SIM115
 
         for idx, section in enumerate(self.sections):
             fileobj.write(section.to_csvline(with_header=(idx == 0)))

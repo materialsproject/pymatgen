@@ -240,7 +240,7 @@ class StrategyWeights(PymatgenTest):
 
     def test_self_csms_weight(self):
         # Get the StructureEnvironments for K2NaNb2Fe7Si8H4O31 (mp-743972)
-        with open(f"{struct_env_dir}/se_mp-743972.json") as file:
+        with open(f"{struct_env_dir}/se_mp-743972.json", encoding="utf-8") as file:
             dct = json.load(file)
         struct_envs = StructureEnvironments.from_dict(dct)
 
@@ -316,7 +316,7 @@ class StrategyWeights(PymatgenTest):
         assert abs(self_w - 0.14204073172729198) < 1e-8
 
         # Get the StructureEnvironments for SiO2 (mp-7000)
-        with open(f"{struct_env_dir}/se_mp-7000.json") as file:
+        with open(f"{struct_env_dir}/se_mp-7000.json", encoding="utf-8") as file:
             dct = json.load(file)
         struct_envs = StructureEnvironments.from_dict(dct)
 
@@ -360,7 +360,7 @@ class StrategyWeights(PymatgenTest):
 
     def test_delta_csms_weight(self):
         # Get the StructureEnvironments for K2NaNb2Fe7Si8H4O31 (mp-743972)
-        with open(f"{struct_env_dir}/se_mp-743972.json") as file:
+        with open(f"{struct_env_dir}/se_mp-743972.json", encoding="utf-8") as file:
             dct = json.load(file)
         struct_envs = StructureEnvironments.from_dict(dct)
 
@@ -492,7 +492,7 @@ class StrategyWeights(PymatgenTest):
         assert abs(delta_w - 0.103515625) < 1e-8
 
         # Get the StructureEnvironments for SiO2 (mp-7000)
-        with open(f"{struct_env_dir}/se_mp-7000.json") as file:
+        with open(f"{struct_env_dir}/se_mp-7000.json", encoding="utf-8") as file:
             dct = json.load(file)
         struct_envs = StructureEnvironments.from_dict(dct)
 

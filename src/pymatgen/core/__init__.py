@@ -32,11 +32,11 @@ except PackageNotFoundError:  # pragma: no cover
     pass
 
 
-SETTINGS_FILE = os.path.join(os.path.expanduser("~"), ".config", ".pmgrc.yaml")
-OLD_SETTINGS_FILE = os.path.join(os.path.expanduser("~"), ".pmgrc.yaml")
-MODULE_DIR = os.path.dirname(os.path.abspath(__file__))
-PKG_DIR = os.path.dirname(MODULE_DIR)
-ROOT = os.path.dirname(PKG_DIR)
+SETTINGS_FILE: str = os.path.join(os.path.expanduser("~"), ".config", ".pmgrc.yaml")
+OLD_SETTINGS_FILE: str = os.path.join(os.path.expanduser("~"), ".pmgrc.yaml")
+MODULE_DIR: str = os.path.dirname(os.path.abspath(__file__))
+PKG_DIR: str = os.path.dirname(MODULE_DIR)
+ROOT: str = os.path.dirname(PKG_DIR)
 
 
 def _load_pmg_settings() -> dict[str, Any]:

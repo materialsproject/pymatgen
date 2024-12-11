@@ -79,7 +79,7 @@ def readfile(file_object):
     """
     if hasattr(file_object, "read"):
         return file_object.read()
-    with open(file_object) as file:
+    with open(file_object, encoding="utf-8") as file:
         return file.read()
 
 

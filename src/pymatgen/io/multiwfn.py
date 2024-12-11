@@ -180,7 +180,7 @@ def get_qtaim_descs(file: PathLike) -> dict[str, dict[str, Any]]:
     cp_sections = list()
     descriptors = dict()
 
-    with open(file) as f:
+    with open(file, encoding="utf-8") as f:
         lines = f.readlines()
         lines = [line[:-1] for line in lines]
 

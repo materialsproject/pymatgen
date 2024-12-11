@@ -148,7 +148,7 @@ class TestAirssProvider:
 
 class TestSpin:
     def test_read_spin(self):
-        with open(res_coc) as file:
+        with open(res_coc, encoding="utf-8") as file:
             lines = file.readlines()
         # add spin to a line
         lines[25] = f"{lines[25][:-1]} -1.4\n"
@@ -163,7 +163,7 @@ class TestSpin:
 
     def test_gh_2938_example(self):
         res_spin_file = f"{TEST_DIR}/spins-in-last-col.res"
-        with open(res_spin_file) as res_file:
+        with open(res_spin_file, encoding="utf-8") as res_file:
             contents = res_file.read()
 
         provider = AirssProvider.from_str(contents)
