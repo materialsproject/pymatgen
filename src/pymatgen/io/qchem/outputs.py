@@ -661,7 +661,7 @@ class QCOutput(MSONable):
         2.) Creates separate QCCalcs for each one from the sub-files.
         """
         to_return = []
-        with zopen(filename, mode="rt") as file:
+        with zopen(filename, mode="rt", encoding="utf-8") as file:
             text = re.split(r"\s*(?:Running\s+)*Job\s+\d+\s+of\s+\d+\s+", file.read())
         if text[0] == "":
             text = text[1:]
@@ -2308,7 +2308,8 @@ def check_for_structure_changes(mol1: Molecule, mol2: Molecule) -> str:
         if site.specie.symbol != mol2[ii].specie.symbol:
             warnings.warn(
                 "Comparing molecules with different atom ordering! "
-                "Turning off special treatment for coordinating metals."
+                "Turning off special treatment for coordinating metals.",
+                stacklevel=2,
             )
             special_elements = []
 
