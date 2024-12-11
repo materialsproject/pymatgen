@@ -66,6 +66,9 @@ jobs:
   release:
     needs: [build_wheels, build_sdist]
     runs-on: ubuntu-latest
+    environment:
+      name: pypi
+      url: https://pypi.org/p/pymatgen
     permissions:
       # For PyPI trusted publishing
       id-token: write
@@ -87,7 +90,3 @@ jobs:
         with:
           skip-existing: true
           verbose: true
-          repository-url: >
-            ${{ github.event_name == 'workflow_dispatch' &&
-            github.event.inputs.task == 'test-release' &&
-            'https://test.pypi.org/legacy/' || '' }}

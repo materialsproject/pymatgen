@@ -383,7 +383,7 @@ class StructureGraph(MSONable):
         # edges if appropriate
         if to_jimage is None:
             # assume we want the closest site
-            warnings.warn("Please specify to_jimage to be unambiguous, trying to automatically detect.")
+            warnings.warn("Please specify to_jimage to be unambiguous, trying to automatically detect.", stacklevel=2)
             dist, to_jimage = self.structure[from_index].distance_and_image(self.structure[to_index])
             if dist == 0:
                 # this will happen when from_index == to_index,
@@ -417,7 +417,7 @@ class StructureGraph(MSONable):
         # this is a convention to avoid duplicate hops
         if to_index == from_index:
             if to_jimage == (0, 0, 0):
-                warnings.warn("Tried to create a bond to itself, this doesn't make sense so was ignored.")
+                warnings.warn("Tried to create a bond to itself, this doesn't make sense so was ignored.", stacklevel=2)
                 return
 
             # ensure that the first non-zero jimage index is positive
@@ -439,7 +439,8 @@ class StructureGraph(MSONable):
                     if warn_duplicates:
                         warnings.warn(
                             "Trying to add an edge that already exists from "
-                            f"site {from_index} to site {to_index} in {to_jimage}."
+                            f"site {from_index} to site {to_index} in {to_jimage}.",
+                            stacklevel=2,
                         )
                     return
 
@@ -740,10 +741,10 @@ class StructureGraph(MSONable):
         else:
             if strategy_params is None:
                 strategy_params = {}
-            strat = strategy(**strategy_params)
+            _strategy = strategy(**strategy_params)
 
             for site in mapping.values():
-                neighbors = strat.get_nn_info(self.structure, site)
+                neighbors = _strategy.get_nn_info(self.structure, site)
 
                 for neighbor in neighbors:
                     self.add_edge(
@@ -1826,7 +1827,9 @@ class MoleculeGraph(MSONable):
         # between two sites
         existing_edge_data = self.graph.get_edge_data(from_index, to_index)
         if existing_edge_data and warn_duplicates:
-            warnings.warn(f"Trying to add an edge that already exists from site {from_index} to site {to_index}.")
+            warnings.warn(
+                f"Trying to add an edge that already exists from site {from_index} to site {to_index}.", stacklevel=2
+            )
             return
 
         # generic container for additional edge properties,

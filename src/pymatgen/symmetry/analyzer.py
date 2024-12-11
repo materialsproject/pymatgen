@@ -77,7 +77,7 @@ def _get_symmetry_dataset(cell, symprec, angle_tolerance):
     """
     dataset = spglib.get_symmetry_dataset(cell, symprec=symprec, angle_tolerance=angle_tolerance)
     if dataset is None:
-        raise SymmetryUndeterminedError
+        raise SymmetryUndeterminedError(spglib.get_error_message())
     return dataset
 
 
@@ -275,7 +275,7 @@ class SpacegroupAnalyzer:
             vectors in scaled positions.
         """
         with warnings.catch_warnings():
-            # TODO: DeprecationWarning: Use get_magnetic_symmetry() for cell with magnetic moments.
+            # TODO: get DeprecationWarning: Use get_magnetic_symmetry() for cell with magnetic moments.
             warnings.filterwarnings("ignore", message="Use get_magnetic_symmetry", category=DeprecationWarning)
             dct = spglib.get_symmetry(self._cell, symprec=self._symprec, angle_tolerance=self._angle_tol)
 
@@ -1674,7 +1674,8 @@ def generate_full_symmops(
             if len(full) > 1000:
                 warnings.warn(
                     f"{len(full)} matrices have been generated. The tol may be too small. Please terminate"
-                    " and rerun with a different tolerance."
+                    " and rerun with a different tolerance.",
+                    stacklevel=2,
                 )
 
     d = np.abs(full - identity) < tol

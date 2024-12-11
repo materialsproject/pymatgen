@@ -269,6 +269,7 @@ class VaspInputSet(InputGenerator, abc.ABC):
                 "will generate a KPOINTS file and ignore KSPACING."
                 "Remove the `user_kpoints_settings` argument to enable KSPACING.",
                 BadInputSetWarning,
+                stacklevel=2,
             )
 
         if self.vdw:
@@ -294,6 +295,7 @@ class VaspInputSet(InputGenerator, abc.ABC):
                 "the configuration file may not be available in the selected "
                 "functional.",
                 BadInputSetWarning,
+                stacklevel=2,
             )
 
         if self.user_potcar_settings:
@@ -305,6 +307,7 @@ class VaspInputSet(InputGenerator, abc.ABC):
                 "subclass of a desired input set and override the POTCAR in "
                 "the subclass to be explicit on the differences.",
                 BadInputSetWarning,
+                stacklevel=2,
             )
             for key, val in self.user_potcar_settings.items():
                 self._config_dict["POTCAR"][key] = val
@@ -432,6 +435,7 @@ class VaspInputSet(InputGenerator, abc.ABC):
                     "Yb_2 is known to often give bad results since Yb has oxidation state 3+ in most compounds.\n"
                     "See https://github.com/materialsproject/pymatgen/issues/2968 for details.",
                     BadInputSetWarning,
+                    stacklevel=2,
                 )
             if self.standardize and self.sym_prec:
                 structure = standardize_structure(
@@ -581,7 +585,8 @@ class VaspInputSet(InputGenerator, abc.ABC):
                             warnings.warn(
                                 "Co without an oxidation state is initialized as low spin by default in Pymatgen. "
                                 "If this default behavior is not desired, please set the spin on the magmom on the "
-                                "site directly to ensure correct initialization."
+                                "site directly to ensure correct initialization.",
+                                stacklevel=2,
                             )
                         mag.append(setting.get(str(site.specie)))
                     else:
@@ -589,7 +594,8 @@ class VaspInputSet(InputGenerator, abc.ABC):
                             warnings.warn(
                                 "Co without an oxidation state is initialized as low spin by default in Pymatgen. "
                                 "If this default behavior is not desired, please set the spin on the magmom on the "
-                                "site directly to ensure correct initialization."
+                                "site directly to ensure correct initialization.",
+                                stacklevel=2,
                             )
                         mag.append(setting.get(site.specie.symbol, 0.6))
                 incar[key] = mag
@@ -653,6 +659,7 @@ class VaspInputSet(InputGenerator, abc.ABC):
             warnings.warn(
                 "LASPH = True should be set for +U, meta-GGAs, hybrids, and vdW-DFT",
                 BadInputSetWarning,
+                stacklevel=2,
             )
 
         # Apply previous INCAR settings, be careful not to override user_incar_settings
@@ -671,7 +678,6 @@ class VaspInputSet(InputGenerator, abc.ABC):
                     "multiplet and should typically be an integer. You are likely "
                     "better off changing the values of MAGMOM or simply setting "
                     "NUPDOWN directly in your INCAR settings.",
-                    UserWarning,
                     stacklevel=2,
                 )
             auto_updates["NUPDOWN"] = nupdown
@@ -688,6 +694,7 @@ class VaspInputSet(InputGenerator, abc.ABC):
             warnings.warn(
                 "Hybrid functionals only support Algo = All, Damped, or Normal.",
                 BadInputSetWarning,
+                stacklevel=2,
             )
 
         if self.auto_ismear:
@@ -741,6 +748,7 @@ class VaspInputSet(InputGenerator, abc.ABC):
                 "generates an adequate number of KPOINTS, lower KSPACING, or "
                 "set ISMEAR = 0",
                 BadInputSetWarning,
+                stacklevel=2,
             )
 
         ismear = incar.get("ISMEAR", 1)
@@ -758,7 +766,7 @@ class VaspInputSet(InputGenerator, abc.ABC):
             warnings.warn(
                 f"{msg} See VASP recommendations on ISMEAR for metals (https://www.vasp.at/wiki/index.php/ISMEAR).",
                 BadInputSetWarning,
-                stacklevel=1,
+                stacklevel=2,
             )
 
         return incar
@@ -965,6 +973,7 @@ class VaspInputSet(InputGenerator, abc.ABC):
                     f"is known to correspond with functionals {p_single.identify_potcar(mode='data')[0]}. "
                     "Please verify that you are using the right POTCARs!",
                     BadInputSetWarning,
+                    stacklevel=2,
                 )
 
         return potcar
@@ -1037,7 +1046,8 @@ class VaspInputSet(InputGenerator, abc.ABC):
                 "Use of standardize=True with from_prev_run is not "
                 "recommended as there is no guarantee the copied "
                 "files will be appropriate for the standardized "
-                "structure."
+                "structure.",
+                stacklevel=2,
             )
 
         files_to_transfer = {}
@@ -1356,7 +1366,10 @@ class MPScanRelaxSet(VaspInputSet):
     def __post_init__(self) -> None:
         super().__post_init__()
         if self.vdw and self.vdw != "rvv10":
-            warnings.warn("Use of van der waals functionals other than rVV10 with SCAN is not supported at this time. ")
+            warnings.warn(
+                "Use of van der waals functionals other than rVV10 with SCAN is not supported at this time. ",
+                stacklevel=2,
+            )
             # Delete any vdw parameters that may have been added to the INCAR
             vdw_par = loadfn(f"{MODULE_DIR}/vdW_parameters.yaml")
             for k in vdw_par[self.vdw]:
@@ -1555,7 +1568,7 @@ class MatPESStaticSet(VaspInputSet):
         if self.user_potcar_functional.upper() != default_potcars:
             warnings.warn(
                 f"{self.user_potcar_functional=} is inconsistent with the recommended {default_potcars}.",
-                UserWarning,
+                stacklevel=2,
             )
 
         if self.xc_functional.upper() == "R2SCAN":
@@ -1790,14 +1803,18 @@ class MPNonSCFSet(VaspInputSet):
             )
 
         if (mode != "uniform" or self.nedos < 2000) and self.optics:
-            warnings.warn("It is recommended to use Uniform mode with a high NEDOS for optics calculations.")
+            warnings.warn(
+                "It is recommended to use Uniform mode with a high NEDOS for optics calculations.",
+                stacklevel=2,
+            )
 
         if self.standardize:
             warnings.warn(
                 "Use of standardize=True with from_prev_run is not "
                 "recommended as there is no guarantee the copied "
                 "files will be appropriate for the standardized"
-                " structure. copy_chgcar is enforced to be false."
+                " structure. copy_chgcar is enforced to be false.",
+                stacklevel=2,
             )
             self.copy_chgcar = False
 
@@ -2020,7 +2037,7 @@ class MPNMRSet(VaspInputSet):
                 SIGMA=0.01,
             )
         elif self.mode.lower() == "efg" and self.structure is not None:
-            isotopes = {ist.split("-")[0]: ist for ist in self.isotopes}
+            isotopes = {isotope.split("-")[0]: isotope for isotope in self.isotopes}
             quad_efg = [
                 float(Species(sp.name).get_nmr_quadrupole_moment(isotopes.get(sp.name)))
                 for sp in self.structure.species
@@ -2805,7 +2822,10 @@ class LobsterSet(VaspInputSet):
 
     def __post_init__(self) -> None:
         super().__post_init__()
-        warnings.warn("Make sure that all parameters are okay! This is a brand new implementation.")
+        warnings.warn(
+            "Make sure that all parameters are okay! This is a brand new implementation.",
+            stacklevel=2,
+        )
 
         if self.user_potcar_functional in ["PBE_52", "PBE_64"]:
             warnings.warn(
@@ -2813,6 +2833,7 @@ class LobsterSet(VaspInputSet):
                 "Basis functions for elements with obsoleted, updated or newly added POTCARs in "
                 f"{self.user_potcar_functional} will not be available and may cause errors or inaccuracies.",
                 BadInputSetWarning,
+                stacklevel=2,
             )
         if self.isym not in {-1, 0}:
             raise ValueError("Lobster cannot digest WAVEFUNCTIONS with symmetry. isym must be -1 or 0")

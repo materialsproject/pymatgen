@@ -418,7 +418,10 @@ class Icohplist(MSONable):
                 version = "5.1.0"
             elif len(lines[0].split()) == 6:
                 version = "2.2.1"
-                warnings.warn("Please consider using a newer LOBSTER version. See www.cohp.de.")
+                warnings.warn(
+                    "Please consider using a newer LOBSTER version. See www.cohp.de.",
+                    stacklevel=2,
+                )
             else:
                 raise ValueError("Unsupported LOBSTER version.")
 
@@ -444,11 +447,8 @@ class Icohplist(MSONable):
                 for line in lines:
                     if (
                         ("_" not in line.split()[1] and version != "5.1.0")
-                        or "_" not in line.split()[1]
-                        and version == "5.1.0"
-                        or (line.split()[1].count("_") == 1)
-                        and version == "5.1.0"
-                        and self.is_lcfo
+                        or ("_" not in line.split()[1] and version == "5.1.0")
+                        or ((line.split()[1].count("_") == 1) and version == "5.1.0" and self.is_lcfo)
                     ):
                         data_without_orbitals.append(line)
                     elif line.split()[1].count("_") >= 2 and version == "5.1.0":
@@ -640,7 +640,8 @@ class NciCobiList:
                 self.orbital_wise = True
                 warnings.warn(
                     "This is an orbitalwise NcICOBILIST.lobster file. "
-                    "Currently, the orbitalwise information is not read!"
+                    "Currently, the orbitalwise information is not read!",
+                    stacklevel=2,
                 )
                 break  # condition has only to be met once
 
@@ -768,9 +769,9 @@ class Doscar:
                     cdos = np.zeros((ndos, len(line)))
                     cdos[0] = np.array(line)
 
-                    for nd in range(1, ndos):
+                    for idx_dos in range(1, ndos):
                         line_parts = file.readline().split()
-                        cdos[nd] = np.array(line_parts)
+                        cdos[idx_dos] = np.array(line_parts)
                     dos.append(cdos)
 
                 line = file.readline()  # Read the next line to continue the loop
@@ -1392,8 +1393,14 @@ class Fatband:
             structure (Structure): Structure object.
             efermi (float): Fermi level in eV.
         """
-        warnings.warn("Make sure all relevant FATBAND files were generated and read in!")
-        warnings.warn("Use Lobster 3.2.0 or newer for fatband calculations!")
+        warnings.warn(
+            "Make sure all relevant FATBAND files were generated and read in!",
+            stacklevel=2,
+        )
+        warnings.warn(
+            "Use Lobster 3.2.0 or newer for fatband calculations!",
+            stacklevel=2,
+        )
 
         if structure is None:
             raise ValueError("A structure object has to be provided")
@@ -1710,29 +1717,17 @@ class Bandoverlaps(MSONable):
         Returns:
             bool: True if the quality of the projection is good.
         """
-        for matrix in self.band_overlaps_dict[Spin.up]["matrices"]:
-            for iband1, band1 in enumerate(matrix):
-                for iband2, band2 in enumerate(band1):
-                    if iband1 < number_occ_bands_spin_up and iband2 < number_occ_bands_spin_up:
-                        if iband1 == iband2:
-                            if abs(band2 - 1.0).all() > limit_deviation:
-                                return False
-                        elif band2.all() > limit_deviation:
-                            return False
+        if spin_polarized and number_occ_bands_spin_down is None:
+            raise ValueError("number_occ_bands_spin_down has to be specified")
 
-        if spin_polarized:
-            for matrix in self.band_overlaps_dict[Spin.down]["matrices"]:
-                for iband1, band1 in enumerate(matrix):
-                    for iband2, band2 in enumerate(band1):
-                        if number_occ_bands_spin_down is None:
-                            raise ValueError("number_occ_bands_spin_down has to be specified")
+        for spin in (Spin.up, Spin.down) if spin_polarized else (Spin.up,):
+            num_occ_bands = number_occ_bands_spin_up if spin is Spin.up else number_occ_bands_spin_down
 
-                        if iband1 < number_occ_bands_spin_down and iband2 < number_occ_bands_spin_down:
-                            if iband1 == iband2:
-                                if abs(band2 - 1.0).all() > limit_deviation:
-                                    return False
-                            elif band2.all() > limit_deviation:
-                                return False
+            for overlap_matrix in self.band_overlaps_dict[spin]["matrices"]:
+                sub_array = np.asarray(overlap_matrix)[:num_occ_bands, :num_occ_bands]
+
+                if not np.allclose(sub_array, np.identity(num_occ_bands), atol=limit_deviation, rtol=0):
+                    return False
 
         return True
 
