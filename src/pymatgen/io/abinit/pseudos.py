@@ -601,6 +601,8 @@ def _dict_from_lines(lines, key_nums, sep=None) -> dict:
     if len(lines) != len(key_nums):
         raise ValueError(f"{lines = }\n{key_nums = }")
 
+    # TODO: PR 4223: kwargs was using `monty.collections.Namespace`,
+    # revert to original implementation if needed
     kwargs: dict = {}
 
     for idx, nk in enumerate(key_nums):
