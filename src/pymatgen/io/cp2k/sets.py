@@ -371,7 +371,7 @@ class DftSet(Cp2kInput):
     def get_basis_and_potential(
         structure: Structure,
         basis_and_potential: dict[str, dict[str, Any]],
-        cp2k_data_dir: str | Path | None = None,
+        cp2k_data_dir: str | None = None,
     ) -> dict[str, dict[str, Any]]:
         """Get a dictionary of basis and potential info for constructing the input file.
 

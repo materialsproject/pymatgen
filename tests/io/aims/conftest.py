@@ -150,7 +150,7 @@ def compare_single_files(ref_file: PathLike, test_file: PathLike) -> None:
     with open(test_file) as tf:
         test_lines = tf.readlines()[5:]
 
-    with zopen(f"{ref_file}.gz", mode="rt", encoding="utf-8") as rf:
+    with zopen(f"{ref_file}.gz", mode="rt") as rf:
         ref_lines = rf.readlines()[5:]
 
     for test_line, ref_line in zip(test_lines, ref_lines, strict=True):
