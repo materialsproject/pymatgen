@@ -87,8 +87,7 @@ Issues = "https://github.com/materialsproject/pymatgen/issues"
 Pypi = "https://pypi.org/project/pymatgen"
 
 [project.optional-dependencies]
-# PR4128: netcdf4 1.7.[0/1] yanked, 1.7.1.post[1/2]/1.7.2 cause CI error
-abinit = ["netcdf4>=1.6.5,!=1.7.1.post1,!=1.7.1.post2,!=1.7.2"]
+abinit = ["netcdf4>=1.7.2"]
 ase = ["ase>=3.23.0"]
 ci = ["pytest-cov>=4", "pytest-split>=0.8", "pytest>=8"]
 docs = ["invoke", "sphinx", "sphinx_markdown_builder", "sphinx_rtd_theme"]
