@@ -113,9 +113,9 @@ class TestCorrectionSpecificity(TestCase):
 
         assert len(processed) == 2
 
-        assert self.entry1.correction != 0
-        assert self.entry2.correction != 0
-        assert self.entry3.correction == 0.0
+        assert self.entry1.correction != approx(0)
+        assert self.entry2.correction != approx(0)
+        assert self.entry3.correction == approx(0)
 
 
 # abstract Compatibility tests
@@ -2184,9 +2184,9 @@ class TestMaterialsProjectAqueousCompatibility:
 
         compat.process_entries([h2o_entry_1, h2o_entry_2, h2_entry_1, h2_entry_2, o2_entry_1])
 
-        assert compat.o2_energy == -4.9276
-        assert compat.h2o_energy == -5.195
-        assert compat.h2o_adjustments == -0.234
+        assert compat.o2_energy == approx(-4.9276)
+        assert compat.h2o_energy == approx(-5.195)
+        assert compat.h2o_adjustments == approx(-0.234)
 
         # the corrections should preserve the difference in energy among H2O and H2 polymorphs
         assert h2o_entry_2.energy_per_atom == approx(h2o_entry_1.energy_per_atom + 4.195)
