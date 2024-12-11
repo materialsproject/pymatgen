@@ -2953,7 +2953,7 @@ class IStructure(SiteCollection, MSONable):
         elif fmt == "json" or fnmatch(filename.lower(), "*.json*"):
             json_str = json.dumps(self.as_dict())
             if filename:
-                with zopen(filename, mode="wt", encoding="utf-8") as file:
+                with zopen(filename, mode="wt") as file:
                     file.write(json_str)
             return json_str
         elif fmt == "xsf" or fnmatch(filename.lower(), "*.xsf*"):
@@ -2961,7 +2961,7 @@ class IStructure(SiteCollection, MSONable):
 
             res_str = XSF(self).to_str()
             if filename:
-                with zopen(filename, mode="wt", encoding="utf-8") as file:
+                with zopen(filename, mode="wt", encoding="utf8") as file:
                     file.write(res_str)
             return res_str
         elif (
@@ -2987,7 +2987,7 @@ class IStructure(SiteCollection, MSONable):
             yaml.dump(self.as_dict(), str_io)
             yaml_str = str_io.getvalue()
             if filename:
-                with zopen(filename, mode="wt", encoding="utf-8") as file:
+                with zopen(filename, mode="wt") as file:
                     file.write(yaml_str)
             return yaml_str
         elif fmt == "aims" or fnmatch(filename, "geometry.in"):
@@ -2995,7 +2995,7 @@ class IStructure(SiteCollection, MSONable):
 
             geom_in = AimsGeometryIn.from_structure(self)
             if filename:
-                with zopen(filename, mode="wt", encoding="utf-8") as file:
+                with zopen(filename, mode="w") as file:
                     file.write(geom_in.get_header(filename))
                     file.write(geom_in.content)
                     file.write("\n")
@@ -3010,7 +3010,7 @@ class IStructure(SiteCollection, MSONable):
 
             res_str = ResIO.structure_to_str(self)
             if filename:
-                with zopen(filename, mode="wt", encoding="utf-8") as file:
+                with zopen(filename, mode="wt", encoding="utf8") as file:
                     file.write(res_str)
             return res_str
         elif fmt == "pwmat" or fnmatch(filename.lower(), "*.pwmat") or fnmatch(filename.lower(), "*.config"):
@@ -3173,7 +3173,7 @@ class IStructure(SiteCollection, MSONable):
             return struct
 
         fname = os.path.basename(filename)
-        with zopen(filename, mode="rt", errors="replace", encoding="utf-8") as file:
+        with zopen(filename, mode="rt", errors="replace") as file:
             contents = file.read()
         if fnmatch(fname.lower(), "*.cif*") or fnmatch(fname.lower(), "*.mcif*"):
             return cls.from_str(
@@ -3919,7 +3919,7 @@ class IMolecule(SiteCollection, MSONable):
         elif fmt == "json" or fnmatch(filename, "*.json*") or fnmatch(filename, "*.mson*"):
             json_str = json.dumps(self.as_dict())
             if filename:
-                with zopen(filename, mode="wt", encoding="utf-8") as file:
+                with zopen(filename, mode="wt", encoding="utf8") as file:
                     file.write(json_str)
             return json_str
         elif fmt in {"yaml", "yml"} or fnmatch(filename, "*.yaml*") or fnmatch(filename, "*.yml*"):
@@ -3928,7 +3928,7 @@ class IMolecule(SiteCollection, MSONable):
             yaml.dump(self.as_dict(), str_io)
             yaml_str = str_io.getvalue()
             if filename:
-                with zopen(filename, mode="wt", encoding="utf-8") as file:
+                with zopen(filename, mode="wt", encoding="utf8") as file:
                     file.write(yaml_str)
             return yaml_str
         else:
@@ -4010,7 +4010,7 @@ class IMolecule(SiteCollection, MSONable):
         """
         filename = str(filename)
 
-        with zopen(filename, mode="rt", encoding="utf-8") as file:
+        with zopen(filename) as file:
             contents = file.read()
         fname = filename.lower()
         if fnmatch(fname, "*.xyz*"):

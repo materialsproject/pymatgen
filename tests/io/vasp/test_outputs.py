@@ -1327,6 +1327,22 @@ class TestOutcar(PymatgenTest):
         outcar = Outcar(f"{VASP_OUT_DIR}/OUTCAR_merged_numbers2")
         assert "onsite_density_matrices" in outcar.as_dict()
 
+    def test_nbands(self):
+        # Test VASP 5.2.11
+        nbands = Outcar(f"{VASP_OUT_DIR}/OUTCAR.gz").data["nbands"]
+        assert nbands == 33
+        assert isinstance(nbands, int)
+
+        # Test VASP 5.4.4
+        assert Outcar(f"{VASP_OUT_DIR}/OUTCAR.LOPTICS.vasp544").data["nbands"] == 128
+
+        # Test VASP 6.3.0
+        assert Outcar(f"{VASP_OUT_DIR}/OUTCAR_vasp_6.3.gz").data["nbands"] == 64
+
+        # Test NBANDS set by user but overridden by VASP
+        # VASP 6.3.2
+        assert Outcar(f"{VASP_OUT_DIR}/OUTCAR.nbands_overridden.gz").data["nbands"] == 32
+
     def test_nplwvs(self):
         outcar = Outcar(f"{VASP_OUT_DIR}/OUTCAR.gz")
         assert outcar.data["nplwv"] == [[34560]]
@@ -2148,7 +2164,7 @@ class TestWaveder(PymatgenTest):
         wder_ref = np.loadtxt(f"{VASP_OUT_DIR}/WAVEDERF.Si.gz", skiprows=1)
 
         def _check(wder):
-            with zopen(f"{VASP_OUT_DIR}/WAVEDERF.Si.gz", mode="rt", encoding="utf-8") as file:
+            with zopen(f"{VASP_OUT_DIR}/WAVEDERF.Si.gz") as file:
                 first_line = [int(a) for a in file.readline().split()]
             assert wder.nkpoints == first_line[1]
             assert wder.nbands == first_line[2]
