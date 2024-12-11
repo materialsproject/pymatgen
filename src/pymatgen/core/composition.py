@@ -802,7 +802,8 @@ class Composition(collections.abc.Hashable, collections.abc.Mapping, MSONable, S
         """
         warnings.warn(
             "Composition.charge is experimental and may produce incorrect results. Use with "
-            "caution and open a GitHub issue pinging @janosh to report bad behavior."
+            "caution and open a GitHub issue pinging @janosh to report bad behavior.",
+            stacklevel=2,
         )
         oxi_states = [getattr(specie, "oxi_state", None) for specie in self]
         if {*oxi_states} <= {0, None}:
@@ -818,7 +819,8 @@ class Composition(collections.abc.Hashable, collections.abc.Mapping, MSONable, S
         """
         warnings.warn(
             "Composition.charge_balanced is experimental and may produce incorrect results. "
-            "Use with caution and open a GitHub issue pinging @janosh to report bad behavior."
+            "Use with caution and open a GitHub issue pinging @janosh to report bad behavior.",
+            stacklevel=2,
         )
         if self.charge is None:
             if {getattr(el, "oxi_state", None) for el in self} == {0}:
@@ -887,7 +889,8 @@ class Composition(collections.abc.Hashable, collections.abc.Mapping, MSONable, S
         if invalid_elems:
             warnings.warn(
                 "Some elements to be substituted are not present in composition. Please check your input. "
-                f"Problematic element = {invalid_elems}; {self}"
+                f"Problematic element = {invalid_elems}; {self}",
+                stacklevel=2,
             )
         for elem in invalid_elems:
             elem_map.pop(elem)
@@ -917,7 +920,8 @@ class Composition(collections.abc.Hashable, collections.abc.Mapping, MSONable, S
                 if el in self:
                     warnings.warn(
                         f"Same element ({el}) in both the keys and values of the substitution!"
-                        "This can be ambiguous, so be sure to check your result."
+                        "This can be ambiguous, so be sure to check your result.",
+                        stacklevel=2,
                     )
 
         return type(self)(new_comp)

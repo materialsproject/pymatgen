@@ -152,7 +152,10 @@ class VolumetricData(MSONable):
             VolumetricData corresponding to self + scale_factor * other.
         """
         if self.structure != other.structure:
-            warnings.warn("Structures are different. Make sure you know what you are doing...")
+            warnings.warn(
+                "Structures are different. Make sure you know what you are doing...",
+                stacklevel=2,
+            )
         if list(self.data) != list(other.data):
             raise ValueError("Data have different keys! Maybe one is spin-polarized and the other is not?")
 
@@ -524,7 +527,7 @@ class PMGDir(collections.abc.Mapping):
 
         warnings.warn(
             f"No parser defined for {item}. Contents are returned as a string.",
-            UserWarning,
+            stacklevel=2,
         )
         with zopen(fpath, mode="rt", encoding="utf-8") as f:
             return f.read()

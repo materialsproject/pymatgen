@@ -566,6 +566,7 @@ class AimsControlIn(MSONable):
             warn(
                 "Removing spin from parameters since no spin information is in the structure",
                 RuntimeWarning,
+                stacklevel=2,
             )
             parameters.pop("spin")
 

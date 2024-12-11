@@ -554,7 +554,10 @@ class Tags(dict):
             value: value associated with key in dictionary
         """
         if key.strip().upper() not in VALID_FEFF_TAGS:
-            warnings.warn(f"{key.strip()} not in VALID_FEFF_TAGS list")
+            warnings.warn(
+                f"{key.strip()} not in VALID_FEFF_TAGS list",
+                stacklevel=2,
+            )
         super().__setitem__(
             key.strip(),
             Tags.proc_val(key.strip(), val.strip()) if isinstance(val, str) else val,

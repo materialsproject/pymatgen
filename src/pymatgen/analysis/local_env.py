@@ -4025,7 +4025,8 @@ class CrystalNN(NearNeighbors):
                     warnings.warn(
                         "CrystalNN: cannot locate an appropriate radius, "
                         "covalent or atomic radii will be used, this can lead "
-                        "to non-optimal results."
+                        "to non-optimal results.",
+                        stacklevel=2,
                     )
                     diameter = _get_default_radius(structure[n]) + _get_default_radius(entry["site"])
 
@@ -4231,7 +4232,8 @@ def _get_radius(site):
     else:
         warnings.warn(
             "No oxidation states specified on sites! For better results, set "
-            "the site oxidation states in the structure."
+            "the site oxidation states in the structure.",
+            stacklevel=2,
         )
     return 0
 

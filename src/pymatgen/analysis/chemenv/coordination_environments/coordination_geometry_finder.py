@@ -2051,10 +2051,7 @@ class LocalGeometryFinder:
             The symmetry measures for the given coordination geometry for each permutation investigated.
         """
         if "NRANDOM" in kwargs:
-            warnings.warn(
-                "NRANDOM is deprecated, use n_random instead",
-                category=DeprecationWarning,
-            )
+            warnings.warn("NRANDOM is deprecated, use n_random instead", category=DeprecationWarning, stacklevel=2)
             n_random = kwargs.pop("NRANDOM")
         permutations_symmetry_measures = [None] * n_random
         permutations = []
