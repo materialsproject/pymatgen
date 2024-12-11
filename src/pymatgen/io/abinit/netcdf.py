@@ -25,7 +25,10 @@ try:
     import netCDF4
 except ImportError:
     netCDF4 = None
-    warnings.warn("Can't import netCDF4. Some features will be disabled unless you pip install netCDF4.")
+    warnings.warn(
+        "Can't import netCDF4. Some features will be disabled unless you pip install netCDF4.",
+        stacklevel=2,
+    )
 
 
 logger = logging.getLogger(__name__)
