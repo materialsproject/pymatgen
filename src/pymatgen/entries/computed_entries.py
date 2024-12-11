@@ -661,7 +661,8 @@ class ComputedStructureEntry(ComputedEntry):
         warnings.warn(
             f"Normalization of a `{type(self).__name__}` makes "
             "`self.composition` and `self.structure.composition` inconsistent"
-            " - please use self.composition for all further calculations."
+            " - please use self.composition for all further calculations.",
+            stacklevel=2,
         )
         # TODO: find a better solution for creating copies instead of as/from dict
         factor = self._normalization_factor(mode)

@@ -500,8 +500,7 @@ class AimsOutCalcChunk(AimsOutChunk):
         ) < 1e-3:
             warnings.warn(
                 "Total magnetic moment and sum of Mulliken spins are not consistent",
-                UserWarning,
-                stacklevel=1,
+                stacklevel=2,
             )
 
         if lattice is not None:

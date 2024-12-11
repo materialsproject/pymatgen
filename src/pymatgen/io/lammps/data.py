@@ -647,7 +647,7 @@ class LammpsData(MSONable):
             sort_id (bool): Whether sort each section by id. Default to
                 True.
         """
-        with zopen(filename, mode="rt") as file:
+        with zopen(filename, mode="rt", encoding="utf-8") as file:
             lines = file.readlines()
         kw_pattern = r"|".join(itertools.chain(*SECTION_KEYWORDS.values()))
         section_marks = [idx for idx, line in enumerate(lines) if re.search(kw_pattern, line)]
@@ -833,7 +833,10 @@ class LammpsData(MSONable):
             df_topology = pd.DataFrame(np.concatenate(topo_collector[key]), columns=SECTION_HEADERS[key][1:])
             df_topology["type"] = list(map(ff.maps[key].get, topo_labels[key]))
             if any(pd.isna(df_topology["type"])):  # Throw away undefined topologies
-                warnings.warn(f"Undefined {key.lower()} detected and removed")
+                warnings.warn(
+                    f"Undefined {key.lower()} detected and removed",
+                    stacklevel=2,
+                )
                 df_topology = df_topology.dropna(subset=["type"])
                 df_topology = df_topology.reset_index(drop=True)
             df_topology.index += 1
@@ -1436,7 +1439,7 @@ class CombinedData(LammpsData):
         Returns:
             pandas.DataFrame
         """
-        with zopen(filename, mode="rt") as file:
+        with zopen(filename, mode="rt", encoding="utf-8") as file:
             lines = file.readlines()
 
         str_io = StringIO("".join(lines[2:]))  # skip the 2nd line

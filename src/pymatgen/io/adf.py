@@ -645,7 +645,7 @@ class AdfOutput:
         # The last non-empty line of the logfile must match the end pattern.
         # Otherwise the job has some internal failure. The TAPE13 part of the
         # ADF manual has a detailed explanation.
-        with zopen(logfile, mode="rt") as file:
+        with zopen(logfile, mode="rt", encoding="utf-8") as file:
             for line in reverse_readline(file):
                 if line == "":
                     continue

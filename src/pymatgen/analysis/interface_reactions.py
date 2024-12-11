@@ -484,8 +484,10 @@ class InterfacialReactivity(MSONable):
 
         if not candidate:
             warnings.warn(
-                f"The reactant {composition.reduced_formula} has no matching entry with negative formation"
-                " energy, instead convex hull energy for this composition will be used for reaction energy calculation."
+                f"The reactant {composition.reduced_formula} has no matching entry "
+                "with negative formation energy, instead convex hull energy for "
+                "this composition will be used for reaction energy calculation.",
+                stacklevel=2,
             )
             return pd.get_hull_energy(composition)
         min_entry_energy = min(candidate)
@@ -545,8 +547,9 @@ class InterfacialReactivity(MSONable):
             The correction of chemical potential in eV/atom of the gas
             phase at given temperature and pressure.
         """
-        if element not in ["O", "N", "Cl", "F", "H"]:
-            warnings.warn(f"{element=} not one of valid options: ['O', 'N', 'Cl', 'F', 'H']")
+        valid_elements = {"O", "N", "Cl", "F", "H"}
+        if element not in valid_elements:
+            warnings.warn(f"{element=} not one of valid options: {valid_elements}", stacklevel=2)
             return 0
 
         std_temp = 298.15
