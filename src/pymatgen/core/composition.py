@@ -25,7 +25,7 @@ from pymatgen.util.string import Stringify, formula_double_format
 
 if TYPE_CHECKING:
     from collections.abc import Generator, Iterator
-    from typing import Any, ClassVar
+    from typing import Any, ClassVar, Literal
 
     from typing_extensions import Self
 
@@ -774,17 +774,25 @@ class Composition(collections.abc.Hashable, collections.abc.Mapping, MSONable, S
     def to_weight_dict(self) -> dict[str, float]:
         """
         Returns:
-            dict[str, float] with weight fraction of each component {"Ti": 0.90, "V": 0.06, "Al": 0.04}.
+            dict[str, float]: weight fractions of each component, e.g. {"Ti": 0.90, "V": 0.06, "Al": 0.04}.
         """
         return {str(el): self.get_wt_fraction(el) for el in self.elements}
 
     @property
-    def to_data_dict(self) -> dict[str, Any]:
+    def to_data_dict(
+        self,
+    ) -> dict[
+        Literal["reduced_cell_composition", "unit_cell_composition", "reduced_cell_formula", "elements", "nelements"],
+        Any,
+    ]:
         """
         Returns:
-            A dict with many keys and values relating to Composition/Formula,
-            including reduced_cell_composition, unit_cell_composition,
-            reduced_cell_formula, elements and nelements.
+            dict with the following keys:
+                - reduced_cell_composition
+                - unit_cell_composition
+                - reduced_cell_formula
+                - elements
+                - nelements.
         """
         return {
             "reduced_cell_composition": self.reduced_composition,
@@ -802,7 +810,8 @@ class Composition(collections.abc.Hashable, collections.abc.Mapping, MSONable, S
         """
         warnings.warn(
             "Composition.charge is experimental and may produce incorrect results. Use with "
-            "caution and open a GitHub issue pinging @janosh to report bad behavior."
+            "caution and open a GitHub issue pinging @janosh to report bad behavior.",
+            stacklevel=2,
         )
         oxi_states = [getattr(specie, "oxi_state", None) for specie in self]
         if {*oxi_states} <= {0, None}:
@@ -818,7 +827,8 @@ class Composition(collections.abc.Hashable, collections.abc.Mapping, MSONable, S
         """
         warnings.warn(
             "Composition.charge_balanced is experimental and may produce incorrect results. "
-            "Use with caution and open a GitHub issue pinging @janosh to report bad behavior."
+            "Use with caution and open a GitHub issue pinging @janosh to report bad behavior.",
+            stacklevel=2,
         )
         if self.charge is None:
             if {getattr(el, "oxi_state", None) for el in self} == {0}:
@@ -887,7 +897,8 @@ class Composition(collections.abc.Hashable, collections.abc.Mapping, MSONable, S
         if invalid_elems:
             warnings.warn(
                 "Some elements to be substituted are not present in composition. Please check your input. "
-                f"Problematic element = {invalid_elems}; {self}"
+                f"Problematic element = {invalid_elems}; {self}",
+                stacklevel=2,
             )
         for elem in invalid_elems:
             elem_map.pop(elem)
@@ -917,7 +928,8 @@ class Composition(collections.abc.Hashable, collections.abc.Mapping, MSONable, S
                 if el in self:
                     warnings.warn(
                         f"Same element ({el}) in both the keys and values of the substitution!"
-                        "This can be ambiguous, so be sure to check your result."
+                        "This can be ambiguous, so be sure to check your result.",
+                        stacklevel=2,
                     )
 
         return type(self)(new_comp)

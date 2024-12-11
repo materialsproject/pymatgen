@@ -204,7 +204,8 @@ class HighSymmKpath(KPathBase):
 
         warn(
             "K-path from the Hinuma et al. convention has been transformed to the basis of the reciprocal lattice"
-            "of the input structure. Use `KPathSeek` for the path in the original author-intended basis."
+            "of the input structure. Use `KPathSeek` for the path in the original author-intended basis.",
+            stacklevel=2,
         )
 
         return bs
