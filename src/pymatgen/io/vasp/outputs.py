@@ -157,7 +157,10 @@ def _vasprun_float(flt: float | str) -> float:
         flt = cast(str, flt)
         _flt: str = flt.strip()
         if _flt == "*" * len(_flt):
-            warnings.warn("Float overflow (*******) encountered in vasprun")
+            warnings.warn(
+                "Float overflow (*******) encountered in vasprun",
+                stacklevel=2,
+            )
             return np.nan
         raise
 
@@ -349,7 +352,11 @@ class Vasprun(MSONable):
             msg = f"{filename} is an unconverged VASP run.\n"
             msg += f"Electronic convergence reached: {self.converged_electronic}.\n"
             msg += f"Ionic convergence reached: {self.converged_ionic}."
-            warnings.warn(msg, UnconvergedVASPWarning)
+            warnings.warn(
+                msg,
+                UnconvergedVASPWarning,
+                stacklevel=2,
+            )
 
     def _parse(
         self,
@@ -484,7 +491,7 @@ class Vasprun(MSONable):
                             else:
                                 warnings.warn(
                                     "Additional unlabelled dielectric data in vasprun.xml are stored as unlabelled.",
-                                    UserWarning,
+                                    stacklevel=2,
                                 )
                                 label = "unlabelled"
                         # VASP 6+ has labels for the density and current
@@ -537,7 +544,6 @@ class Vasprun(MSONable):
                 raise
             warnings.warn(
                 "XML is malformed. Parsing has stopped but partial data is available.",
-                UserWarning,
                 stacklevel=2,
             )
 
@@ -689,7 +695,8 @@ class Vasprun(MSONable):
             warnings.warn(
                 "Calculation does not have a total energy. "
                 "Possibly a GW or similar kind of run. "
-                "Infinity is returned."
+                "Infinity is returned.",
+                stacklevel=2,
             )
             return float("inf")
 
@@ -801,7 +808,10 @@ class Vasprun(MSONable):
             run_type = "LDA"
         else:
             run_type = "unknown"
-            warnings.warn("Unknown run type!")
+            warnings.warn(
+                "Unknown run type!",
+                stacklevel=2,
+            )
 
         if self.is_hubbard or self.parameters.get("LDAU", True):
             run_type += "+U"
@@ -1216,7 +1226,10 @@ class Vasprun(MSONable):
             except Exception:
                 continue
 
-        warnings.warn("No POTCAR file with matching TITEL fields was found in\n" + "\n  ".join(potcar_paths))
+        warnings.warn(
+            "No POTCAR file with matching TITEL fields was found in\n" + "\n  ".join(potcar_paths),
+            stacklevel=2,
+        )
 
         return None
 
@@ -2136,7 +2149,15 @@ class Outcar:
         self.final_fr_energy = e_fr_energy
         self.data: dict = {}
 
-        # Read "total number of plane waves", NPLWV:
+        # Read "number of bands" (NBANDS)
+        self.read_pattern(
+            {"nbands": r"number\s+of\s+bands\s+NBANDS=\s+(\d+)"},
+            terminate_on_match=True,
+            postprocess=int,
+        )
+        self.data["nbands"] = self.data["nbands"][0][0]
+
+        # Read "total number of plane waves" (NPLWV)
         self.read_pattern(
             {"nplwv": r"total plane-waves  NPLWV =\s+(\*{6}|\d+)"},
             terminate_on_match=True,
@@ -2170,7 +2191,6 @@ class Outcar:
         # Read the drift
         self.read_pattern(
             {"drift": r"total drift:\s+([\.\-\d]+)\s+([\.\-\d]+)\s+([\.\-\d]+)"},
-            terminate_on_match=False,
             postprocess=float,
         )
         self.drift = self.data.get("drift", [])
@@ -4441,7 +4461,10 @@ def get_band_structure_from_vasp_multiple_branches(
                 branches.append(run.get_band_structure(efermi=efermi))
             else:
                 # TODO: It might be better to throw an exception
-                warnings.warn(f"Skipping {dname}. Unable to find {xml_file}")
+                warnings.warn(
+                    f"Skipping {dname}. Unable to find {xml_file}",
+                    stacklevel=2,
+                )
 
         return get_reconstructed_band_structure(branches, efermi)
 
@@ -4517,7 +4540,7 @@ class Xdatcar:
                     else:
                         preamble.append(line)
 
-                elif line == "" or "Direct configuration=" in line and len(coords_str) > 0:
+                elif line == "" or ("Direct configuration=" in line and len(coords_str) > 0):
                     parse_poscar = True
                     restart_preamble = False
                 else:
@@ -5274,7 +5297,10 @@ class Wavecar:
             A Chgcar object.
         """
         if phase and not np.all(self.kpoints[kpoint] == 0.0):
-            warnings.warn("phase is True should only be used for the Gamma kpoint! I hope you know what you're doing!")
+            warnings.warn(
+                "phase is True should only be used for the Gamma kpoint! I hope you know what you're doing!",
+                stacklevel=2,
+            )
 
         # Scaling of ng for the fft grid, need to restore value at the end
         temp_ng = self.ng
@@ -5608,7 +5634,8 @@ class Waveder(MSONable):
         if self.cder_real.shape[0] != self.cder_real.shape[1]:  # pragma: no cover
             warnings.warn(
                 "Not all band pairs are present in the WAVEDER file."
-                "If you want to get all the matrix elements set LVEL=.True. in the INCAR."
+                "If you want to get all the matrix elements set LVEL=.True. in the INCAR.",
+                stacklevel=2,
             )
         return self.cder_real + 1j * self.cder_imag
 

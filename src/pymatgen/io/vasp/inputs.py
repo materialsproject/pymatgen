@@ -264,6 +264,7 @@ class Poscar(MSONable):
             warnings.warn(
                 "check_for_POTCAR is deprecated. Use check_for_potcar instead.",
                 DeprecationWarning,
+                stacklevel=2,
             )
             check_for_potcar = cast(bool, kwargs.pop("check_for_POTCAR"))
 
@@ -468,6 +469,7 @@ class Poscar(MSONable):
                 warnings.warn(
                     f"Elements in POSCAR cannot be determined. Defaulting to false names {atomic_symbols}.",
                     BadPoscarWarning,
+                    stacklevel=2,
                 )
 
         # Read the atomic coordinates
@@ -483,6 +485,7 @@ class Poscar(MSONable):
                     warnings.warn(
                         "Selective dynamics values must be either 'T' or 'F'.",
                         BadPoscarWarning,
+                        stacklevel=2,
                     )
 
                 # Warn when elements contains Fluorine (F) (#3539)
@@ -493,6 +496,7 @@ class Poscar(MSONable):
                             "Make sure the 4th-6th entry each position line is selective dynamics info."
                         ),
                         BadPoscarWarning,
+                        stacklevel=2,
                     )
 
                 selective_dynamics.append([value == "T" for value in tokens[3:6]])
@@ -502,6 +506,7 @@ class Poscar(MSONable):
             warnings.warn(
                 "Ignoring selective dynamics tag, as no ionic degrees of freedom were fixed.",
                 BadPoscarWarning,
+                stacklevel=2,
             )
 
         struct = Structure(
@@ -625,7 +630,11 @@ class Poscar(MSONable):
                     # VASP is strict about the format when reading this quantity
                     lines.append(" ".join(f" {val: .7E}" for val in velo))
             except Exception:
-                warnings.warn("Lattice velocities are missing or corrupted.", BadPoscarWarning)
+                warnings.warn(
+                    "Lattice velocities are missing or corrupted.",
+                    BadPoscarWarning,
+                    stacklevel=2,
+                )
 
         if self.velocities:
             try:
@@ -633,7 +642,11 @@ class Poscar(MSONable):
                 for velo in self.velocities:
                     lines.append(" ".join(format_str.format(val) for val in velo))
             except Exception:
-                warnings.warn("Velocities are missing or corrupted.", BadPoscarWarning)
+                warnings.warn(
+                    "Velocities are missing or corrupted.",
+                    BadPoscarWarning,
+                    stacklevel=2,
+                )
 
         if self.predictor_corrector:
             lines.append("")
@@ -647,6 +660,7 @@ class Poscar(MSONable):
                 warnings.warn(
                     "Preamble information missing or corrupt. Writing Poscar with no predictor corrector data.",
                     BadPoscarWarning,
+                    stacklevel=2,
                 )
 
         return "\n".join(lines) + "\n"
@@ -2007,7 +2021,10 @@ class PotcarSingle:
             try:
                 keywords[key] = self.parse_functions[key](val)  # type: ignore[operator]
             except KeyError:
-                warnings.warn(f"Ignoring unknown variable type {key}")
+                warnings.warn(
+                    f"Ignoring unknown variable type {key}",
+                    stacklevel=2,
+                )
 
         PSCTR: dict[str, Any] = {}
 
@@ -2081,6 +2098,7 @@ class PotcarSingle:
                 f"POTCAR data with symbol {self.symbol} is not known to pymatgen. Your "
                 "POTCAR may be corrupted or pymatgen's POTCAR database is incomplete.",
                 UnknownPotcarWarning,
+                stacklevel=2,
             )
 
     def __eq__(self, other: object) -> bool:
@@ -2112,7 +2130,10 @@ class PotcarSingle:
     def electron_configuration(self) -> list[tuple[int, str, int]] | None:
         """Electronic configuration of the PotcarSingle."""
         if not self.nelectrons.is_integer():
-            warnings.warn("POTCAR has non-integer charge, electron configuration not well-defined.")
+            warnings.warn(
+                "POTCAR has non-integer charge, electron configuration not well-defined.",
+                stacklevel=2,
+            )
             return None
 
         el = Element.from_Z(self.atomic_no)
@@ -2421,7 +2442,10 @@ class PotcarSingle:
                 return cls(file.read(), symbol=symbol or None)
 
         except UnicodeDecodeError:
-            warnings.warn("POTCAR contains invalid unicode errors. We will attempt to read it by ignoring errors.")
+            warnings.warn(
+                "POTCAR contains invalid unicode errors. We will attempt to read it by ignoring errors.",
+                stacklevel=2,
+            )
 
             with codecs.open(str(filename), "r", encoding="utf-8", errors="ignore") as file:
                 return cls(file.read(), symbol=symbol or None)
@@ -2706,7 +2730,10 @@ def _gen_potcar_summary_stats(
         if os.path.isdir(cpsp_dir):
             func_dir_exist[func] = func_dir
         else:
-            warnings.warn(f"missing {func_dir} POTCAR directory")
+            warnings.warn(
+                f"missing {func_dir} POTCAR directory",
+                stacklevel=2,
+            )
 
     # Use append = True if a new POTCAR library is released to add new summary stats
     # without completely regenerating the dict of summary stats

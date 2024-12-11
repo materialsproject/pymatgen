@@ -428,10 +428,10 @@ class Cp2kOutput:
         if not all(self.data["scf_converged"]):
             warnings.warn(
                 "There is at least one unconverged SCF cycle in the provided CP2K calculation",
-                UserWarning,
+                stacklevel=2,
             )
         if any(self.data["geo_opt_not_converged"]):
-            warnings.warn("Geometry optimization did not converge", UserWarning)
+            warnings.warn("Geometry optimization did not converge", stacklevel=2)
 
     def parse_energies(self):
         """Get the total energy from a CP2K calculation. Presently, the energy reported in the
@@ -566,7 +566,7 @@ class Cp2kOutput:
             if os.path.isfile(os.path.join(self.dir, input_filename + ext)):
                 self.input = Cp2kInput.from_file(os.path.join(self.dir, input_filename + ext))
                 return
-        warnings.warn("Original input file not found. Some info may be lost.")
+        warnings.warn("Original input file not found. Some info may be lost.", stacklevel=2)
 
     def parse_global_params(self):
         """Parse the GLOBAL section parameters from CP2K output file into a dictionary."""
@@ -711,7 +711,8 @@ class Cp2kOutput:
             ]
 
         warnings.warn(
-            "Input file lost. Reading cell params from summary at top of output. Precision errors may result."
+            "Input file lost. Reading cell params from summary at top of output. Precision errors may result.",
+            stacklevel=2,
         )
         cell_volume = re.compile(r"\s+CELL\|\sVolume.*\s(\d+\.\d+)")
         vectors = re.compile(r"\s+CELL\| Vector.*\s(-?\d+\.\d+)\s+(-?\d+\.\d+)\s+(-?\d+\.\d+)")
@@ -1046,7 +1047,8 @@ class Cp2kOutput:
                         while True:
                             if "WARNING : did not converge" in line:
                                 warnings.warn(
-                                    "Convergence of eigenvalues for unoccupied subspace spin 1 did NOT converge"
+                                    "Convergence of eigenvalues for unoccupied subspace spin 1 did NOT converge",
+                                    stacklevel=2,
                                 )
                                 next(lines)
                                 next(lines)
@@ -1073,7 +1075,8 @@ class Cp2kOutput:
                             while True:
                                 if "WARNING : did not converge" in line:
                                     warnings.warn(
-                                        "Convergence of eigenvalues for unoccupied subspace spin 2 did NOT converge"
+                                        "Convergence of eigenvalues for unoccupied subspace spin 2 did NOT converge",
+                                        stacklevel=2,
                                     )
                                     next(lines)
                                     next(lines)
@@ -1105,7 +1108,7 @@ class Cp2kOutput:
                             "unoccupied": {Spin.up: None, Spin.down: None},
                         }
                     ]
-                    warnings.warn("Convergence of eigenvalues for one or more subspaces did NOT converge")
+                    warnings.warn("Convergence of eigenvalues for one or more subspaces did NOT converge", stacklevel=2)
 
         self.data["eigenvalues"] = eigenvalues
 

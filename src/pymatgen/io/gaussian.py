@@ -790,7 +790,10 @@ class GaussianOutput:
                                     "Density Matrix:" in line or mo_coeff_patt.search(line)
                                 ):
                                     end_mo = True
-                                    warnings.warn("POP=regular case, matrix coefficients not complete")
+                                    warnings.warn(
+                                        "POP=regular case, matrix coefficients not complete",
+                                        stacklevel=2,
+                                    )
                             file.readline()
 
                         self.eigenvectors = mat_mo
@@ -926,7 +929,8 @@ class GaussianOutput:
                         line = file.readline()
                         if " -- Stationary point found." not in line:
                             warnings.warn(
-                                f"\n{self.filename}: Optimization complete but this is not a stationary point"
+                                f"\n{self.filename}: Optimization complete but this is not a stationary point",
+                                stacklevel=2,
                             )
                         if standard_orientation:
                             opt_structures.append(std_structures[-1])
@@ -989,7 +993,10 @@ class GaussianOutput:
         self.opt_structures = opt_structures
 
         if not terminated:
-            warnings.warn(f"\n{self.filename}: Termination error or bad Gaussian output file !")
+            warnings.warn(
+                f"\n{self.filename}: Termination error or bad Gaussian output file !",
+                stacklevel=2,
+            )
 
     def _parse_hessian(self, file, structure):
         """Parse the hessian matrix in the output file.
