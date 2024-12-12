@@ -36,9 +36,9 @@ __copyright__ = "Copyright 2011-2020, The Materials Project"
 __version__ = "1.1"
 __date__ = "April 2020"
 
-with open(os.path.join(os.path.dirname(__file__), "data/g_els.json")) as file:
+with open(os.path.join(os.path.dirname(__file__), "data/g_els.json"), encoding="utf-8") as file:
     G_ELEMS = json.load(file)
-with open(os.path.join(os.path.dirname(__file__), "data/nist_gas_gf.json")) as file:
+with open(os.path.join(os.path.dirname(__file__), "data/nist_gas_gf.json"), encoding="utf-8") as file:
     G_GASES = json.load(file)
 
 
