@@ -593,7 +593,7 @@ class TestMaterialsProjectCompatibility:
         assert len(entries) == 2
 
     def test_parallel_process_entries(self):
-        # TODO: DeprecationWarning: This process (pid=xxxx) is multi-threaded,
+        # TODO: get DeprecationWarning: This process (pid=xxxx) is multi-threaded,
         # use of fork() may lead to deadlocks in the child.
         # pid = os.fork()
         with pytest.raises(
