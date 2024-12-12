@@ -842,11 +842,11 @@ class TestOutcar:
         """
         with ScratchDir("."):
             if compressed:
+                outcar = Outcar(f"{VASP_OUT_DIR}/OUTCAR.gz")
+            else:
                 copyfile(f"{VASP_OUT_DIR}/OUTCAR.gz", "./OUTCAR.gz")
                 decompress_file("./OUTCAR.gz")
                 outcar = Outcar("./OUTCAR")
-            else:
-                outcar = Outcar(f"{VASP_OUT_DIR}/OUTCAR.gz")
 
         expected_mag = (
             {"d": 0.0, "p": 0.003, "s": 0.002, "tot": 0.005},
