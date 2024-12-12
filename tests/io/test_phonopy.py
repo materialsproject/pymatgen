@@ -125,6 +125,10 @@ class TestStructureConversion(PymatgenTest):
         assert struct_pmg_round_trip.site_properties["magmom"] == struct_pmg.site_properties["magmom"]
 
 
+@pytest.mark.skipif(
+    platform.system() == "Windows" and int(np.__version__[0]) >= 2,
+    reason="See https://github.com/conda-forge/phonopy-feedstock/pull/158#issuecomment-2227506701",
+)
 @pytest.mark.skipif(Phonopy is None, reason="Phonopy not present")
 class TestGetDisplacedStructures(PymatgenTest):
     def test_get_displaced_structures(self):
@@ -157,11 +161,11 @@ class TestGetDisplacedStructures(PymatgenTest):
         assert os.path.isfile("test.yaml")
 
 
-@pytest.mark.skipif(Phonopy is None, reason="Phonopy not present")
 @pytest.mark.skipif(
     platform.system() == "Windows" and int(np.__version__[0]) >= 2,
     reason="See https://github.com/conda-forge/phonopy-feedstock/pull/158#issuecomment-2227506701",
 )
+@pytest.mark.skipif(Phonopy is None, reason="Phonopy not present")
 class TestPhonopyFromForceConstants(TestCase):
     def setUp(self) -> None:
         test_path = Path(TEST_DIR)
