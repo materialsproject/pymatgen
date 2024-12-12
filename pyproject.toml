@@ -247,8 +247,8 @@ docstring-code-format = true
 addopts = "--durations=30 --quiet -r xXs --color=yes --import-mode=importlib"
 filterwarnings = [
     # NOTE: the LAST matching option would be used
-    "ignore::UserWarning",                 # Ignore UserWarning
-    "error::EncodingWarning:monty",        # Mark `monty` EncodingWarning as error
+    "ignore::UserWarning",                                              # Ignore UserWarning
+    "error:We strongly encourage explicit `encoding`:EncodingWarning",  # Mark `zopen` EncodingWarning as error
     # TODO: pybtex (perhaps some others) emits the following warnings
     'ignore:pkg_resources is deprecated as an API:DeprecationWarning',
     'ignore:distutils Version classes are deprecated:DeprecationWarning',
