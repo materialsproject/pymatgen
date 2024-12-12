@@ -4766,13 +4766,13 @@ class Structure(IStructure, collections.abc.MutableSequence):
 
                 offset = self[clust_idx].frac_coords - coords
                 coords += ((offset - np.round(offset)) / (site_idx + 2)).astype(coords.dtype)
-                for key in props:
-                    if props[key] is not None and not np.array_equal(self[clust_idx].properties[key], props[key]):
-                        if mode.lower()[0] == "a" and isinstance(props[key], float | int):
+                for key, val in props.items():
+                    if val is not None and not np.array_equal(self[clust_idx].properties[key], val):
+                        if mode.lower()[0] == "a" and isinstance(val, float | int):
                             # update a running total
-                            props[key] = props[key] * (site_idx + 1) / (site_idx + 2) + self[clust_idx].properties[
-                                key
-                            ] / (site_idx + 2)
+                            props[key] = val * (site_idx + 1) / (site_idx + 2) + self[clust_idx].properties[key] / (
+                                site_idx + 2
+                            )
                         else:
                             props[key] = None
                             warnings.warn(
