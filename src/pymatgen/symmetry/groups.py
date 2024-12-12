@@ -18,6 +18,7 @@ import numpy as np
 from monty.design_patterns import cached_class
 from monty.serialization import loadfn
 
+from pymatgen.core.operations import SymmOp
 from pymatgen.util.string import Stringify
 
 if TYPE_CHECKING:
