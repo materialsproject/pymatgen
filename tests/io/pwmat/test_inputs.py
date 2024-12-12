@@ -47,7 +47,7 @@ class TestACstrExtractor(PymatgenTest):
     def test_extract(self):
         filepath = f"{TEST_DIR}/atom.config"
         ac_extractor = ACExtractor(file_path=filepath)
-        with zopen(filepath, mode="rt") as file:
+        with zopen(filepath, mode="rt", encoding="utf-8") as file:
             ac_str_extractor = ACstrExtractor(atom_config_str="".join(file.readlines()))
         assert ac_extractor.n_atoms == ac_str_extractor.get_n_atoms()
         for idx in range(9):
