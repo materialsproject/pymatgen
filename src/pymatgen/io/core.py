@@ -74,7 +74,7 @@ class InputFile(MSONable):
         Args:
             filename: The filename to output to, including path.
         """
-        with zopen(Path(filename), mode="wt") as file:
+        with zopen(Path(filename), mode="wt", encoding="utf-8") as file:
             file.write(self.get_str())
 
     @classmethod
@@ -102,7 +102,7 @@ class InputFile(MSONable):
         Returns:
             InputFile
         """
-        with zopen(Path(path), mode="rt") as file:
+        with zopen(Path(path), mode="rt", encoding="utf-8") as file:
             return cls.from_str(file.read())  # from_str not implemented
 
 
@@ -218,7 +218,7 @@ class InputSet(MSONable, MutableMapping):
             if isinstance(contents, InputFile):
                 contents.write_file(file_path)
             else:
-                with zopen(file_path, mode="wt") as file:
+                with zopen(file_path, mode="wt", encoding="utf-8") as file:
                     file.write(str(contents))
 
         if zip_inputs:

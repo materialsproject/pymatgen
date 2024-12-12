@@ -67,7 +67,7 @@ class BaseLammpsGenerator(InputGenerator):
         data: LammpsData = LammpsData.from_structure(structure) if isinstance(structure, Structure) else structure
 
         # Load the template
-        with zopen(self.template, mode="r") as file:
+        with zopen(self.template, mode="rt", encoding="utf-8") as file:
             template_str = file.read()
 
         # Replace all variables

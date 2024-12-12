@@ -70,7 +70,7 @@ class LDos(MSONable):
             dos_index = 1
             begin = 0
 
-            with zopen(pot_inp, mode="r") as potfile:
+            with zopen(pot_inp, mode="rt", encoding="utf-8") as potfile:
                 for line in potfile:
                     if len(pot_read_end.findall(line)) > 0:
                         break
@@ -95,7 +95,7 @@ class LDos(MSONable):
             dicts = Potential.pot_dict_from_str(pot_string)
             pot_dict = dicts[0]
 
-        with zopen(f"{ldos_file}00.dat", mode="r") as file:
+        with zopen(f"{ldos_file}00.dat", mode="rt", encoding="utf-8") as file:
             lines = file.readlines()
         e_fermi = float(lines[0].split()[4])
 
@@ -172,7 +172,7 @@ class LDos(MSONable):
             pot_inp = re.sub(r"feff.inp", r"pot.inp", feff_inp_file)
             pot_readstart = re.compile(".*iz.*lmaxsc.*xnatph.*xion.*folp.*")
             pot_readend = re.compile(".*ExternalPot.*switch.*")
-            with zopen(pot_inp, mode="r") as potfile:
+            with zopen(pot_inp, mode="rt", encoding="utf-8") as potfile:
                 for line in potfile:
                     if len(pot_readend.findall(line)) > 0:
                         break
@@ -203,7 +203,7 @@ class LDos(MSONable):
 
         for idx in range(len(dicts[0]) + 1):
             if len(str(idx)) == 1:
-                with zopen(f"{ldos_file}0{idx}.dat", mode="rt") as file:
+                with zopen(f"{ldos_file}0{idx}.dat", mode="rt", encoding="utf-8") as file:
                     lines = file.readlines()
                     s = float(lines[3].split()[2])
                     p = float(lines[4].split()[2])
@@ -212,7 +212,7 @@ class LDos(MSONable):
                     tot = float(lines[1].split()[4])
                     cht[str(idx)] = {pot_dict[idx]: {"s": s, "p": p, "d": d, "f": f1, "tot": tot}}
             else:
-                with zopen(f"{ldos_file}{idx}.dat", mode="rt") as file:
+                with zopen(f"{ldos_file}{idx}.dat", mode="rt", encoding="utf-8") as file:
                     lines = file.readlines()
                     s = float(lines[3].split()[2])
                     p = float(lines[4].split()[2])
