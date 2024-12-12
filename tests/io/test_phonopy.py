@@ -126,7 +126,7 @@ class TestStructureConversion(PymatgenTest):
 
 @pytest.mark.skipif(
     platform.system() == "Windows" and int(np.__version__[0]) >= 2,
-    reason="See https://github.com/conda-forge/phonopy-feedstock/pull/158#issuecomment-2227506701",
+    reason="cannot run NP2 on windows, see PR 4224",
 )
 @pytest.mark.skipif(Phonopy is None, reason="Phonopy not present")
 class TestGetDisplacedStructures(PymatgenTest):
@@ -162,7 +162,7 @@ class TestGetDisplacedStructures(PymatgenTest):
 
 @pytest.mark.skipif(
     platform.system() == "Windows" and int(np.__version__[0]) >= 2,
-    reason="See https://github.com/conda-forge/phonopy-feedstock/pull/158#issuecomment-2227506701",
+    reason="cannot run NP2 on windows, see PR 4224",
 )
 @pytest.mark.skipif(Phonopy is None, reason="Phonopy not present")
 class TestPhonopyFromForceConstants(TestCase):
