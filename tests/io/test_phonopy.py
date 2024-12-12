@@ -10,12 +10,11 @@ import pytest
 from numpy.testing import assert_allclose, assert_array_equal
 from pytest import approx
 
-from pymatgen.core import Element
+from pymatgen.core import Element, Structure
 from pymatgen.io.phonopy import (
     CompletePhononDos,
     PhononBandStructure,
     PhononBandStructureSymmLine,
-    Structure,
     get_complete_ph_dos,
     get_displaced_structures,
     get_gruneisen_ph_bs_symm_line,
