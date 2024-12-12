@@ -90,6 +90,9 @@ jobs:
           WHEEL_FILE=$(ls dist/pymatgen*.whl)
           uv pip install $WHEEL_FILE[${{matrix.config.extras}}] --resolution=${{matrix.config.resolution}}
 
+          # TODO: test monty fix for reverse readline
+          uv pip install git+https://github.com/materialsvirtuallab/monty.git@master
+
       - name: Install optional Ubuntu dependencies
         if: matrix.config.os == 'ubuntu-latest'
         run: |
