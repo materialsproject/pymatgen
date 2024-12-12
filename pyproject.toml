@@ -249,6 +249,8 @@ filterwarnings = [
     # NOTE: the LAST matching option would be used
     "ignore::UserWarning",                                              # Ignore UserWarning
     "error:We strongly encourage explicit `encoding`:EncodingWarning",  # Mark `zopen` EncodingWarning as error
+    # TODO: remove the following filter once `monty.io` dropped custom warning
+    "error:We strongly encourage explicit `encoding`:monty.io.EncodingWarning",
     # TODO: pybtex (perhaps some others) emits the following warnings
     'ignore:pkg_resources is deprecated as an API:DeprecationWarning',
     'ignore:distutils Version classes are deprecated:DeprecationWarning',
