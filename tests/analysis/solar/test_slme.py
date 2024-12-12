@@ -3,12 +3,12 @@ from __future__ import annotations
 from pytest import approx
 
 from pymatgen.analysis.solar.slme import optics, slme
-from pymatgen.util.testing import TEST_FILES_DIR, PymatgenTest
+from pymatgen.util.testing import TEST_FILES_DIR, MatSciTest
 
 TEST_DIR = f"{TEST_FILES_DIR}/analysis/solar"
 
 
-class TestSolar(PymatgenTest):
+class TestSolar(MatSciTest):
     def test_slme_from_vasprun(self):
         en, abz, dir_gap, indir_gap = optics(f"{TEST_DIR}/vasprun.xml")
         abz *= 100.0

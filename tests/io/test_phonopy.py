@@ -3,7 +3,6 @@ from __future__ import annotations
 import os
 import platform
 from pathlib import Path
-from unittest import TestCase
 
 import numpy as np
 import pytest
@@ -29,7 +28,7 @@ from pymatgen.io.phonopy import (
     get_pmg_structure,
     get_thermal_displacement_matrices,
 )
-from pymatgen.util.testing import TEST_FILES_DIR, PymatgenTest
+from pymatgen.util.testing import TEST_FILES_DIR, MatSciTest
 
 try:
     from phonopy import Phonopy
@@ -42,7 +41,7 @@ TEST_DIR = f"{TEST_FILES_DIR}/io/phonopy"
 PHONON_DIR = f"{TEST_FILES_DIR}/phonon"
 
 
-class TestPhonopyParser(PymatgenTest):
+class TestPhonopyParser(MatSciTest):
     def test_get_ph_bs(self):
         ph_bs = get_ph_bs_symm_line(f"{TEST_DIR}/NaCl_band.yaml", has_nac=True)
 
@@ -98,9 +97,9 @@ class TestPhonopyParser(PymatgenTest):
 
 
 @pytest.mark.skipif(Phonopy is None, reason="Phonopy not present")
-class TestStructureConversion(PymatgenTest):
+class TestStructureConversion(MatSciTest):
     def test_structure_conversion(self):
-        struct_pmg = PymatgenTest.get_structure("LiFePO4")
+        struct_pmg = MatSciTest.get_structure("LiFePO4")
         # add magmoms to site_properties
         struct_pmg.add_site_property("magmom", magmoms := [1] * len(struct_pmg))
         struct_ph = get_phonopy_structure(struct_pmg)
@@ -126,7 +125,7 @@ class TestStructureConversion(PymatgenTest):
 
 
 @pytest.mark.skipif(Phonopy is None, reason="Phonopy not present")
-class TestGetDisplacedStructures(PymatgenTest):
+class TestGetDisplacedStructures(MatSciTest):
     def test_get_displaced_structures(self):
         pmg_s = Structure.from_file(f"{TEST_DIR}/POSCAR-unitcell", primitive=False)
         supercell_matrix = np.diag((2, 1, 2))
@@ -162,8 +161,8 @@ class TestGetDisplacedStructures(PymatgenTest):
     platform.system() == "Windows" and int(np.__version__[0]) >= 2,
     reason="See https://github.com/conda-forge/phonopy-feedstock/pull/158#issuecomment-2227506701",
 )
-class TestPhonopyFromForceConstants(TestCase):
-    def setUp(self) -> None:
+class TestPhonopyFromForceConstants:
+    def setup_method(self) -> None:
         test_path = Path(TEST_DIR)
         structure_file = test_path / "POSCAR-NaCl"
         fc_file = test_path / "FORCE_CONSTANTS"
@@ -246,7 +245,7 @@ class TestGruneisen:
 
 
 @pytest.mark.skipif(Phonopy is None, reason="Phonopy not present")
-class TestThermalDisplacementMatrices(PymatgenTest):
+class TestThermalDisplacementMatrices(MatSciTest):
     def test_get_thermal_displacement_matrix(self):
         list_matrices = get_thermal_displacement_matrices(
             f"{PHONON_DIR}/thermal_displacement_matrices/thermal_displacement_matrices.yaml",

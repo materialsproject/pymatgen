@@ -1,7 +1,5 @@
 from __future__ import annotations
 
-from unittest import TestCase
-
 import numpy as np
 from numpy.testing import assert_allclose
 
@@ -16,8 +14,8 @@ __status__ = "Development"
 __date__ = "Apr 2017"
 
 
-class TestJonesFaithfulTransformation(TestCase):
-    def setUp(self):
+class TestJonesFaithfulTransformation:
+    def setup_method(self):
         self.test_strings = [
             "a,b,c;0,0,0",  # identity
             "a-b,a+b,2c;0,0,1/2",

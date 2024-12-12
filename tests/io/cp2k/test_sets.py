@@ -6,7 +6,7 @@ from pytest import approx
 
 from pymatgen.core.structure import Molecule, Structure
 from pymatgen.io.cp2k.sets import SETTINGS, Cp2kValidationError, DftSet, GaussianTypeOrbitalBasisSet, GthPotential
-from pymatgen.util.testing import TEST_FILES_DIR, PymatgenTest
+from pymatgen.util.testing import TEST_FILES_DIR, MatSciTest
 
 CP2K_TEST_DIR = f"{TEST_FILES_DIR}/io/cp2k"
 
@@ -46,7 +46,7 @@ BASIS_AND_POTENTIAL: dict[str, dict[str, GaussianTypeOrbitalBasisSet | GthPotent
 }
 
 
-class TestDftSet(PymatgenTest):
+class TestDftSet(MatSciTest):
     def test_dft_set(self) -> None:
         """Test various DFT set configurations."""
         SETTINGS["PMG_CP2K_DATA_DIR"] = CP2K_TEST_DIR

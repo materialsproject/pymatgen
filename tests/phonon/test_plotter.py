@@ -1,7 +1,6 @@
 from __future__ import annotations
 
 import json
-from unittest import TestCase
 
 import matplotlib.pyplot as plt
 import pytest
@@ -16,8 +15,8 @@ TEST_DIR = f"{TEST_FILES_DIR}/phonon/dos"
 plt.rc("text", usetex=False)  # Disabling latex for testing
 
 
-class TestPhononDosPlotter(TestCase):
-    def setUp(self):
+class TestPhononDosPlotter:
+    def setup_method(self):
         with open(f"{TEST_DIR}/NaCl_complete_ph_dos.json") as file:
             self.dos = CompletePhononDos.from_dict(json.load(file))
         self.plotter = PhononDosPlotter(sigma=0.2, stack=True)
@@ -54,8 +53,8 @@ class TestPhononDosPlotter(TestCase):
         assert ax3.get_ylim() == ax.get_xlim()
 
 
-class TestPhononBSPlotter(TestCase):
-    def setUp(self):
+class TestPhononBSPlotter:
+    def setup_method(self):
         with open(f"{TEST_FILES_DIR}/electronic_structure/bandstructure/NaCl_phonon_bandstructure.json") as file:
             dct = json.loads(file.read())
         self.bs = PhononBandStructureSymmLine.from_dict(dct)
@@ -113,8 +112,8 @@ class TestPhononBSPlotter(TestCase):
         assert ax is None
 
 
-class TestThermoPlotter(TestCase):
-    def setUp(self):
+class TestThermoPlotter:
+    def setup_method(self):
         with open(f"{TEST_DIR}/NaCl_complete_ph_dos.json") as file:
             self.dos = CompletePhononDos.from_dict(json.load(file))
         self.plotter = ThermoPlotter(self.dos, self.dos.structure)
