@@ -152,7 +152,11 @@ class KPathSetyawanCurtarolo(KPathBase):
         """
         if "magmom" in structure.site_properties:
             warn(
-                "'magmom' entry found in site properties but will be ignored for the Setyawan and Curtarolo convention."
+                (
+                    "'magmom' entry found in site properties but will be ignored "
+                    "for the Setyawan and Curtarolo convention."
+                ),
+                stacklevel=2,
             )
 
         super().__init__(structure, symprec=symprec, angle_tolerance=angle_tolerance, atol=atol)
@@ -168,7 +172,8 @@ class KPathSetyawanCurtarolo(KPathBase):
         if not np.allclose(self._structure.lattice.matrix, self._prim.lattice.matrix, atol=atol):
             warn(
                 "The input structure does not match the expected standard primitive! "
-                "The path may be incorrect. Use at your own risk."
+                "The path may be incorrect. Use at your own risk.",
+                stacklevel=2,
             )
 
         lattice_type = self._sym.get_lattice_type()
@@ -182,7 +187,7 @@ class KPathSetyawanCurtarolo(KPathBase):
             elif "I" in spg_symbol:
                 self._kpath = self.bcc()
             else:
-                warn(f"Unexpected value for {spg_symbol=}")
+                warn(f"Unexpected value for {spg_symbol=}", stacklevel=2)
 
         elif lattice_type == "tetragonal":
             if "P" in spg_symbol:
@@ -195,7 +200,7 @@ class KPathSetyawanCurtarolo(KPathBase):
                 else:
                     self._kpath = self.bctet2(c, a)
             else:
-                warn(f"Unexpected value for {spg_symbol=}")
+                warn(f"Unexpected value for {spg_symbol=}", stacklevel=2)
 
         elif lattice_type == "orthorhombic":
             a = self._conv.lattice.abc[0]
@@ -219,7 +224,7 @@ class KPathSetyawanCurtarolo(KPathBase):
             elif "C" in spg_symbol or "A" in spg_symbol:
                 self._kpath = self.orcc(a, b, c)
             else:
-                warn(f"Unexpected value for {spg_symbol=}")
+                warn(f"Unexpected value for {spg_symbol=}", stacklevel=2)
 
         elif lattice_type == "hexagonal":
             self._kpath = self.hex()
@@ -253,7 +258,7 @@ class KPathSetyawanCurtarolo(KPathBase):
                     if b * cos(alpha * pi / 180) / c + b**2 * sin(alpha * pi / 180) ** 2 / a**2 > 1:
                         self._kpath = self.mclc5(a, b, c, alpha * pi / 180)
             else:
-                warn(f"Unexpected value for {spg_symbol=}")
+                warn(f"Unexpected value for {spg_symbol=}", stacklevel=2)
 
         elif lattice_type == "triclinic":
             kalpha = self._rec_lattice.parameters[3]
@@ -269,7 +274,7 @@ class KPathSetyawanCurtarolo(KPathBase):
                 self._kpath = self.trib()
 
         else:
-            warn(f"Unknown lattice type {lattice_type}")
+            warn(f"Unknown lattice type {lattice_type}", stacklevel=2)
 
     @property
     def conventional(self):
@@ -909,7 +914,7 @@ class KPathSeek(KPathBase):
         site_data: list[Composition] = species
 
         if not system_is_tri:
-            warn("Non-zero 'magmom' data will be used to define unique atoms in the cell.")
+            warn("Non-zero 'magmom' data will be used to define unique atoms in the cell.", stacklevel=2)
             site_data = zip(species, [tuple(vec) for vec in sp["magmom"]], strict=True)  # type: ignore[assignment]
 
         unique_species: list[SpeciesLike] = []
@@ -1069,7 +1074,8 @@ class KPathLatimerMunro(KPathBase):
             print("reducible")
             warn(
                 "The unit cell of the input structure is not fully reduced!"
-                "The path may be incorrect. Use at your own risk."
+                "The path may be incorrect. Use at your own risk.",
+                stacklevel=2,
             )
 
         if magmom_axis is None:
@@ -1153,7 +1159,8 @@ class KPathLatimerMunro(KPathBase):
             if "magmom" in self._structure.site_properties:
                 warn(
                     "The parameter has_magmoms is False, but site_properties contains the key magmom."
-                    "This property will be removed and could result in different symmetry operations."
+                    "This property will be removed and could result in different symmetry operations.",
+                    stacklevel=2,
                 )
                 self._structure.remove_site_property("magmom")
             sga = SpacegroupAnalyzer(self._structure)
@@ -1634,7 +1641,8 @@ class KPathLatimerMunro(KPathBase):
         if "magmom" not in struct.site_properties:
             warn(
                 "The 'magmom' property is not set in the structure's site properties."
-                "All magnetic moments are being set to zero."
+                "All magnetic moments are being set to zero.",
+                stacklevel=2,
             )
             struct.add_site_property("magmom", [np.array([0, 0, 0]) for _ in range(len(struct))])
 
@@ -1654,7 +1662,10 @@ class KPathLatimerMunro(KPathBase):
                 new_magmoms.append(magmom * magmom_axis)
 
         if found_scalar and not axis_specified:
-            warn("At least one magmom had a scalar value and magmom_axis was not specified. Defaulted to z+ spinor.")
+            warn(
+                "At least one magmom had a scalar value and magmom_axis was not specified. Defaulted to z+ spinor.",
+                stacklevel=2,
+            )
 
         struct.remove_site_property("magmom")
         struct.add_site_property("magmom", new_magmoms)
