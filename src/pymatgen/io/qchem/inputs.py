@@ -373,7 +373,7 @@ class QCInput(InputFile):
             job_list (list[QCInput]): List of QChem jobs.
             filename (str): Name of the file to write.
         """
-        with zopen(filename, mode="wt") as file:
+        with zopen(filename, mode="wt", encoding="utf-8") as file:
             file.write(QCInput.multi_job_string(job_list))
 
     @classmethod
@@ -387,7 +387,7 @@ class QCInput(InputFile):
         Returns:
             QcInput
         """
-        with zopen(filename, mode="rt") as file:
+        with zopen(filename, mode="rt", encoding="utf-8") as file:
             return cls.from_str(file.read())
 
     @classmethod
@@ -401,7 +401,7 @@ class QCInput(InputFile):
         Returns:
             List of QCInput objects
         """
-        with zopen(filename, mode="rt") as file:
+        with zopen(filename, mode="rt", encoding="utf-8") as file:
             # the delimiter between QChem jobs is @@@
             multi_job_strings = file.read().split("@@@")
             # list of individual QChem jobs

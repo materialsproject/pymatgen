@@ -588,7 +588,7 @@ class Lobsterin(UserDict, MSONable):
         Returns:
             Lobsterin object
         """
-        with zopen(lobsterin, mode="rt") as file:
+        with zopen(lobsterin, mode="rt", encoding="utf-8") as file:
             lines = file.read().split("\n")
         if not lines:
             raise RuntimeError("lobsterin file contains no data.")
@@ -645,7 +645,7 @@ class Lobsterin(UserDict, MSONable):
                 raise ValueError("Lobster only works with PAW! Use different POTCARs")
 
         # Warning about a bug in LOBSTER-4.1.0
-        with zopen(POTCAR_input, mode="r") as file:
+        with zopen(POTCAR_input, mode="rt", encoding="utf-8") as file:
             data = file.read()
 
         if isinstance(data, bytes):
