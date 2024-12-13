@@ -86,7 +86,7 @@ def test_composition_energy_adjustment():
 def test_temp_energy_adjustment():
     ea = TemperatureEnergyAdjustment(-0.1, 298, 5, uncertainty_per_deg=0, name="entropy")
     assert ea.name == "entropy"
-    assert ea.value == -0.1 * 298 * 5
+    assert ea.value == approx(-0.1 * 298 * 5)
     assert ea.n_atoms == 5
     assert ea.temp == 298
     assert ea.explain == "Temperature-based energy adjustment (-0.1000 eV/K/atom x 298 K x 5 atoms)"

@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+from pytest import approx
+
 from pymatgen.io.pwmat.outputs import DosSpin, Movement, OutFermi, Report
 from pymatgen.util.testing import TEST_FILES_DIR, PymatgenTest
 
@@ -18,19 +20,19 @@ class TestMovement(PymatgenTest):
         assert "atom_forces" in movement.ionic_steps[0]
         assert "virial" in movement.ionic_steps[0]
         assert "atom_energies" in movement.ionic_steps[0]
-        assert movement.e_tots == -357677.2281
+        assert movement.e_tots == approx(-357677.2281)
         assert movement.atom_configs[0] == movement.ionic_steps[0]["atom_config"]
         assert list(movement.e_atoms) == []
         assert movement.atom_forces.shape == (1, 72, 3)
         assert movement.virials.shape == (1, 3, 3)
-        assert movement.ionic_steps[0]["e_tot"] == -357677.2281
+        assert movement.ionic_steps[0]["e_tot"] == approx(-357677.2281)
 
 
 class TestOutFermi(PymatgenTest):
     def test_init_and_properties(self):
         filepath = f"{TEST_DIR}/OUT.FERMI.lzma"
         out_fermi = OutFermi(filepath)
-        assert out_fermi.e_fermi == -2.359
+        assert out_fermi.e_fermi == approx(-2.359)
 
 
 class TestReport(PymatgenTest):

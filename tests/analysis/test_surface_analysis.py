@@ -358,7 +358,7 @@ class TestNanoscaleStability(PymatgenTest):
         w2 = self.nanoscale_stability.scaled_wulff(fcc_wulff, 10)
         assert w1.effective_radius == approx(w2.effective_radius)
         assert w1.effective_radius == approx(10)
-        assert approx(w2.effective_radius) == 10
+        assert w2.effective_radius == approx(10)
 
 
 def get_entry_dict(filename):

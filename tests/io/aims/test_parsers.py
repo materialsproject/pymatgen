@@ -5,6 +5,7 @@ import gzip
 import numpy as np
 import pytest
 from numpy.testing import assert_allclose
+from pytest import approx
 
 from pymatgen.core.tensors import Tensor
 from pymatgen.io.aims.parsers import (
@@ -63,7 +64,7 @@ def test_missing_parameter(attr_name, empty_header_chunk):
 
 
 def test_default_header_electronic_temperature(empty_header_chunk):
-    assert empty_header_chunk.electronic_temperature == 0.0
+    assert empty_header_chunk.electronic_temperature == approx(0.0)
 
 
 def test_default_header_initial_lattice(empty_header_chunk):
@@ -141,7 +142,7 @@ def test_header_initial_lattice(header_chunk, initial_lattice):
 
 
 def test_header_electronic_temperature(header_chunk):
-    assert header_chunk.electronic_temperature == 0.05
+    assert header_chunk.electronic_temperature == approx(0.05)
 
 
 def test_header_is_md(header_chunk):
@@ -246,7 +247,7 @@ def test_header_transfer_initial_structure(empty_calc_chunk, initial_lattice):
 
 
 def test_header_transfer_electronic_temperature(empty_calc_chunk):
-    assert empty_calc_chunk.electronic_temperature == 0.05
+    assert empty_calc_chunk.electronic_temperature == approx(0.05)
 
 
 def test_header_transfer_n_k_points(empty_calc_chunk):
