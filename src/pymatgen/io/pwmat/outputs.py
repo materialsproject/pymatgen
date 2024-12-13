@@ -341,7 +341,7 @@ class DosSpin(MSONable):
 
         Returns:
             labels (list[str]): The label of DOS, e.g. Total, Cr-3S, ...
-            dos (np.array): Value of density of state.
+            dos (NDArray): Value of density of state.
         """
         labels: list[str] = []
         labels = linecache.getline(str(self.filename), 1).split()[1:]
