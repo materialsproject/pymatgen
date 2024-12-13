@@ -4,7 +4,7 @@ import json
 
 from pymatgen.analysis.structure_prediction.substitutor import Substitutor
 from pymatgen.core import Composition, Species
-from pymatgen.util.testing import TEST_FILES_DIR, PymatgenTest
+from pymatgen.util.testing import TEST_FILES_DIR, MatSciTest
 
 TEST_DIR = f"{TEST_FILES_DIR}/analysis/struct_predictor"
 
@@ -20,8 +20,8 @@ def get_table():
         return json.load(file)
 
 
-class TestSubstitutor(PymatgenTest):
-    def setUp(self):
+class TestSubstitutor(MatSciTest):
+    def setup_method(self):
         self.substitutor = Substitutor(threshold=1e-3, lambda_table=get_table(), alpha=-5.0)
 
     def test_substitutor(self):
@@ -32,7 +32,7 @@ class TestSubstitutor(PymatgenTest):
         subs = self.substitutor.pred_from_comp(comp)
         assert len(subs) == 4, "incorrect number of substitutions"
 
-        structures = [{"structure": PymatgenTest.get_structure("Li2O"), "id": "pmgtest"}]
+        structures = [{"structure": MatSciTest.get_structure("Li2O"), "id": "pmgtest"}]
         subs = self.substitutor.pred_from_structures(["Na+", "O2-"], structures)
         assert subs[0].formula == "Na2 O1"
 

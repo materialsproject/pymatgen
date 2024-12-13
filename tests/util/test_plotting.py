@@ -3,7 +3,7 @@ from __future__ import annotations
 import matplotlib.pyplot as plt
 
 from pymatgen.util.plotting import periodic_table_heatmap, van_arkel_triangle
-from pymatgen.util.testing import PymatgenTest
+from pymatgen.util.testing import MatSciTest
 
 try:
     import pymatviz
@@ -12,7 +12,7 @@ except ImportError:
     pymatviz = None
 
 
-class TestFunc(PymatgenTest):
+class TestFunc(MatSciTest):
     def test_plot_periodic_heatmap(self):
         random_data = {"Te": 0.11083, "Au": 0.75756, "Th": 1.24758, "Ni": -2.0354}
         fig = periodic_table_heatmap(random_data)

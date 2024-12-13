@@ -5,38 +5,38 @@ from pytest import approx
 
 from pymatgen.analysis.structure_prediction.volume_predictor import DLSVolumePredictor, RLSVolumePredictor
 from pymatgen.core import Structure
-from pymatgen.util.testing import TEST_FILES_DIR, PymatgenTest
+from pymatgen.util.testing import TEST_FILES_DIR, MatSciTest
 
 TEST_DIR = f"{TEST_FILES_DIR}/analysis/structure_prediction"
 
 
-class TestRLSVolumePredictor(PymatgenTest):
+class TestRLSVolumePredictor(MatSciTest):
     def test_predict(self):
-        struct = PymatgenTest.get_structure("CsCl")
-        nacl = PymatgenTest.get_structure("CsCl")
+        struct = MatSciTest.get_structure("CsCl")
+        nacl = MatSciTest.get_structure("CsCl")
         nacl.replace_species({"Cs": "Na"})
         nacl.scale_lattice(184.384551033)
         predictor = RLSVolumePredictor(radii_type="ionic")
         assert predictor.predict(struct, nacl) == approx(342.84905395082535)
         predictor = RLSVolumePredictor(radii_type="atomic")
         assert predictor.predict(struct, nacl) == approx(391.884366481)
-        lif = PymatgenTest.get_structure("CsCl")
+        lif = MatSciTest.get_structure("CsCl")
         lif.replace_species({"Cs": "Li", "Cl": "F"})
         predictor = RLSVolumePredictor(radii_type="ionic")
         assert predictor.predict(lif, nacl) == approx(74.268402413690467)
         predictor = RLSVolumePredictor(radii_type="atomic")
         assert predictor.predict(lif, nacl) == approx(62.2808125839)
 
-        lfpo = PymatgenTest.get_structure("LiFePO4")
-        lmpo = PymatgenTest.get_structure("LiFePO4")
+        lfpo = MatSciTest.get_structure("LiFePO4")
+        lmpo = MatSciTest.get_structure("LiFePO4")
         lmpo.replace_species({"Fe": "Mn"})
         predictor = RLSVolumePredictor(radii_type="ionic")
         assert predictor.predict(lmpo, lfpo) == approx(310.08253254420134)
         predictor = RLSVolumePredictor(radii_type="atomic")
         assert predictor.predict(lmpo, lfpo) == approx(299.607967711)
 
-        sto = PymatgenTest.get_structure("SrTiO3")
-        scoo = PymatgenTest.get_structure("SrTiO3")
+        sto = MatSciTest.get_structure("SrTiO3")
+        scoo = MatSciTest.get_structure("SrTiO3")
         scoo.replace_species({"Ti4+": "Co4+"})
         predictor = RLSVolumePredictor(radii_type="ionic")
         assert predictor.predict(scoo, sto) == approx(56.162534974936463)
@@ -61,8 +61,8 @@ class TestRLSVolumePredictor(PymatgenTest):
         assert predictor.predict(apo, aps) == approx(1196.31384276)
 
     def test_modes(self):
-        cs_cl = PymatgenTest.get_structure("CsCl")
-        na_cl = PymatgenTest.get_structure("CsCl")
+        cs_cl = MatSciTest.get_structure("CsCl")
+        na_cl = MatSciTest.get_structure("CsCl")
         na_cl.replace_species({"Cs": "Na"})
         na_cl.scale_lattice(184.384551033)
         vol_pred = RLSVolumePredictor(radii_type="ionic", use_bv=False)
@@ -77,7 +77,7 @@ class TestRLSVolumePredictor(PymatgenTest):
         assert vol_pred.predict(cs_cl, na_cl) == approx(342.84905395082535)
 
 
-class TestDLSVolumePredictor(PymatgenTest):
+class TestDLSVolumePredictor(MatSciTest):
     def test_predict(self):
         vol_pred = DLSVolumePredictor()
         p_fast = DLSVolumePredictor(cutoff=0.0)  # for speed on compressed cells
@@ -94,7 +94,7 @@ class TestDLSVolumePredictor(PymatgenTest):
         assert vol_pred.predict(fen) == approx(fen.volume * 1.5)
         assert p_fast.predict(fen) == approx(fen.volume * 1.5)
 
-        lfpo = PymatgenTest.get_structure("LiFePO4")
+        lfpo = MatSciTest.get_structure("LiFePO4")
 
         lfpo.scale_lattice(lfpo.volume * 3.0)
         assert p_nolimit.predict(lfpo) == approx(291.62094410192924)
@@ -104,6 +104,6 @@ class TestDLSVolumePredictor(PymatgenTest):
         assert vol_pred.predict(lfpo) == approx(lfpo.volume * 1.5)
         assert p_fast.predict(lfpo) == approx(lfpo.volume * 1.5)
 
-        lmpo = PymatgenTest.get_structure("LiFePO4")
+        lmpo = MatSciTest.get_structure("LiFePO4")
         lmpo.replace_species({"Fe": "Mn"})
         assert vol_pred.predict(lmpo) == approx(290.795329052)
