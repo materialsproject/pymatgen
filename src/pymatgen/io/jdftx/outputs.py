@@ -248,6 +248,7 @@ _jof_atr_from_last_slice = [
     "elecmindata",
     "stress",
     "strain",
+    "forces",
     "nstep",
     "e",
     "grad_k",
@@ -468,6 +469,7 @@ class JDFTXOutfile:
     elecmindata: JElSteps = field(init=False)
     stress: np.ndarray = field(init=False)
     strain: np.ndarray = field(init=False)
+    forces: np.ndarray = field(init=False)
     nstep: int = field(init=False)
     e: float = field(init=False)
     grad_k: float = field(init=False)

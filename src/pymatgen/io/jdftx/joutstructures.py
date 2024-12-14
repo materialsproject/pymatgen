@@ -30,6 +30,7 @@ _joss_atrs_from_last_slice = [
     "elecmindata",
     "stress",
     "strain",
+    "forces",
     "nstep",
     "e",
     "grad_k",
@@ -47,6 +48,7 @@ _joss_atrs_from_last_slice = [
     "charges",
     "magnetic_moments",
     "selective_dynamics",
+    "structure",
 ]
 
 
@@ -97,6 +99,7 @@ class JOutStructures:
         charges (np.ndarray[float] | None): The most recent Lowdin-charges.
         magnetic_moments (np.ndarray[float] | None): The most recent Lowdin-magnetic moments.
         selective_dynamics (list[int] | None): The selective dynamics flags for the most recent JDFTx call.
+        structure (Structure | None): Cleaned pymatgen Structure object of final JOutStructure
     """
 
     out_slice_start_flag = "-------- Electronic minimization -----------"
@@ -114,6 +117,7 @@ class JOutStructures:
     elecmindata: JElSteps = None
     stress: np.ndarray | None = None
     strain: np.ndarray | None = None
+    forces: np.ndarray | None = None
     nstep: int | None = None
     e: float | None = None
     grad_k: float | None = None
@@ -131,6 +135,7 @@ class JOutStructures:
     charges: np.ndarray[float] | None = None
     magnetic_moments: np.ndarray[float] | None = None
     selective_dynamics: list[int] | None = None
+    structure: Structure | None = None
 
     @classmethod
     def _from_out_slice(cls, out_slice: list[str], opt_type: str = "IonicMinimize") -> JOutStructures:

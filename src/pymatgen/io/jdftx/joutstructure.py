@@ -76,6 +76,7 @@ class JOutStructure(Structure):
     elecmindata: JElSteps | None = None
     stress: np.ndarray | None = None
     strain: np.ndarray | None = None
+    forces: np.ndarray | None = None
     nstep: int | None = None
     e: float | None = None
     grad_k: float | None = None

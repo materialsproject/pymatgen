@@ -39,6 +39,27 @@ from pymatgen.io.jdftx.joutstructures import JOutStructures
 
 __author__ = "Ben Rich"
 
+_jofs_atr_from_jstrucs = [
+    "structure",
+    "eopt_type",
+    "elecmindata",
+    "stress",
+    "strain",
+    "forces",
+    "nstep",
+    "e",
+    "grad_k",
+    "alpha",
+    "linmin",
+    "abs_magneticmoment",
+    "tot_magneticmoment",
+    "elec_nstep",
+    "elec_e",
+    "elec_grad_k",
+    "elec_alpha",
+    "elec_linmin",
+]
+
 
 @dataclass
 class JDFTXOutfileSlice:
@@ -265,6 +286,7 @@ class JDFTXOutfileSlice:
     elecmindata: JElSteps | None = None
     stress: np.ndarray | None = None
     strain: np.ndarray | None = None
+    forces: np.ndarray | None = None
     nstep: int | None = None
     e: float | None = None
     grad_k: float | None = None
@@ -842,23 +864,25 @@ class JDFTXOutfileSlice:
         if self.jstrucs is not None:
             self._set_trajectory()
             self.mu = self._get_mu()
-            self.structure = self.jstrucs[-1].structure
-            self.eopt_type = self.jstrucs.eopt_type
-            self.elecmindata = self.jstrucs.elecmindata
-            self.stress = self.jstrucs.stress
-            self.strain = self.jstrucs.strain
-            self.nstep = self.jstrucs.nstep
-            self.e = self.jstrucs.e
-            self.grad_k = self.jstrucs.grad_k
-            self.alpha = self.jstrucs.alpha
-            self.linmin = self.jstrucs.linmin
-            self.abs_magneticmoment = self.jstrucs.abs_magneticmoment
-            self.tot_magneticmoment = self.jstrucs.tot_magneticmoment
-            self.elec_nstep = self.jstrucs.elec_nstep
-            self.elec_e = self.jstrucs.elec_e
-            self.elec_grad_k = self.jstrucs.elec_grad_k
-            self.elec_alpha = self.jstrucs.elec_alpha
-            self.elec_linmin = self.jstrucs.elec_linmin
+            for var in _jofs_atr_from_jstrucs:
+                setattr(self, var, getattr(self.jstrucs, var))
+            # self.structure = self.jstrucs[-1].structure
+            # self.eopt_type = self.jstrucs.eopt_type
+            # self.elecmindata = self.jstrucs.elecmindata
+            # self.stress = self.jstrucs.stress
+            # self.strain = self.jstrucs.strain
+            # self.nstep = self.jstrucs.nstep
+            # self.e = self.jstrucs.e
+            # self.grad_k = self.jstrucs.grad_k
+            # self.alpha = self.jstrucs.alpha
+            # self.linmin = self.jstrucs.linmin
+            # self.abs_magneticmoment = self.jstrucs.abs_magneticmoment
+            # self.tot_magneticmoment = self.jstrucs.tot_magneticmoment
+            # self.elec_nstep = self.jstrucs.elec_nstep
+            # self.elec_e = self.jstrucs.elec_e
+            # self.elec_grad_k = self.jstrucs.elec_grad_k
+            # self.elec_alpha = self.jstrucs.elec_alpha
+            # self.elec_linmin = self.jstrucs.elec_linmin
 
     def _set_backup_vars(self, text: list[str]) -> None:
         """Set backups for important variables.
