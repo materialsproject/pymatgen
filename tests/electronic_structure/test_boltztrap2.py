@@ -80,6 +80,7 @@ class TestVasprunBSLoader(TestCase):
         assert self.loader.get_volume() == approx(477.6256714925874, abs=1e-5)
 
 
+@pytest.mark.filterwarnings("ignore:BandstructureLoader is deprecated:DeprecationWarning")
 class TestBandstructureLoader(TestCase):
     def setUp(self):
         self.loader = BandstructureLoader(BAND_STRUCT, VASP_RUN.structures[-1])
