@@ -107,6 +107,7 @@ class TestBandstructureLoader(TestCase):
         assert self.loader_sp_dn.ebands.shape == (14, 198)
 
 
+@pytest.mark.filterwarnings("ignore:VasprunLoader is deprecated:DeprecationWarning")
 class TestVasprunLoader(TestCase):
     def setUp(self):
         self.loader = VasprunLoader(VASP_RUN)
