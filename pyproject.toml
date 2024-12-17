@@ -250,6 +250,7 @@ filterwarnings = [
     "ignore::Warning",               # Ignore all Warning
     "default::FutureWarning",        # Show FutureWarnings
     "default::DeprecationWarning",   # Show DeprecationWarnings
+    "error:dict interface:DeprecationWarning",  # mark spglib deprecation as error
     # TODO: pybtex (perhaps some others) emits the following warnings
     'ignore:pkg_resources is deprecated as an API:DeprecationWarning',
     'ignore:distutils Version classes are deprecated:DeprecationWarning',
