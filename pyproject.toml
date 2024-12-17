@@ -249,7 +249,7 @@ filterwarnings = [
     # NOTE: the last matching option is used
     "ignore::Warning",               # Ignore all Warning
     "default::FutureWarning",        # Show FutureWarnings
-    "default::DeprecationWarning",   # Show DeprecationWarnings
+    "error::DeprecationWarning",   # Show DeprecationWarnings  # TODO: revert
     # TODO: pybtex (perhaps some others) emits the following warnings
     'ignore:pkg_resources is deprecated as an API:DeprecationWarning',
     'ignore:distutils Version classes are deprecated:DeprecationWarning',
