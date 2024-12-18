@@ -2,12 +2,9 @@
 
 from __future__ import annotations
 
-import sys
 from pathlib import Path
 from types import GenericAlias
 from typing import TYPE_CHECKING, get_args
-
-import pytest
 
 from pymatgen.core import Composition, DummySpecies, Element, Species
 from pymatgen.entries import Entry
@@ -19,8 +16,6 @@ if TYPE_CHECKING:
 __author__ = "Janosh Riebesell"
 __date__ = "2022-10-20"
 __email__ = "janosh@lbl.gov"
-
-skip_below_py310 = pytest.mark.skipif(sys.version_info < (3, 10), reason="requires python 3.10 or higher")
 
 
 def _type_str(some_type: Any) -> str:
@@ -48,7 +43,6 @@ def test_entry_like():
     assert Entry.__name__ in str(EntryLike)
 
 
-@skip_below_py310
 def test_species_like():
     assert isinstance("H", SpeciesLike)
     assert isinstance(Element("H"), SpeciesLike)
@@ -56,7 +50,6 @@ def test_species_like():
     assert isinstance(DummySpecies("X"), SpeciesLike)
 
 
-@skip_below_py310
 def test_composition_like():
     assert isinstance("H", CompositionLike)
     assert isinstance(Element("H"), CompositionLike)
@@ -71,7 +64,6 @@ def test_pbc_like():
     assert get_args(PbcLike) == (bool, bool, bool)
 
 
-@skip_below_py310
 def test_pathlike():
     assert isinstance("path/to/file", PathLike)
     assert isinstance(Path("path/to/file"), PathLike)
