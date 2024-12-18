@@ -107,7 +107,7 @@ optional = [
     "hiphive>=1.3.1",
     "jarvis-tools>=2020.7.14",
     "matplotlib>=3.8",
-    "phonopy @ git+https://github.com/phonopy/phonopy.git@develop",  # TODO: test fix
+    "phonopy>=2.33.3",
     "seekpath>=2.0.1",
 ]
 # tblite only support Python 3.12+ through conda-forge
