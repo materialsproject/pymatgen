@@ -734,7 +734,6 @@ class TagContainer(AbstractTag):
                 # this could be relevant if someone manually sets the tag's can_repeat value to a non-list.
                 print_str_list = [self.subtags[subtag].write(subtag, entry) for entry in subvalue]
                 print_str = " ".join([v.strip() for v in print_str_list]) + " "
-                # print_str = " ".join(print_str_list)
             else:
                 print_str = self.subtags[subtag].write(subtag, subvalue).strip() + " "
 
