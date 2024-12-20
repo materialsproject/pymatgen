@@ -23,6 +23,7 @@ from monty.json import MSONable
 
 from pymatgen.core import Structure
 from pymatgen.core.periodic_table import Element
+from pymatgen.core.units import bohr_to_ang
 from pymatgen.io.jdftx.generic_tags import AbstractTag, BoolTagContainer, DumpTagContainer, MultiformatTag, TagContainer
 from pymatgen.io.jdftx.jdftxinfile_master_format import (
     __PHONON_TAGS__,
@@ -315,6 +316,7 @@ class JDFTXInfile(dict, MSONable):
         cls,
         structure: Structure,
         selective_dynamics: ArrayLike | None = None,
+        write_cart_coords: bool = False,
     ) -> JDFTXInfile:
         """Create a JDFTXInfile object from a pymatgen Structure.
 
@@ -327,6 +329,7 @@ class JDFTXInfile(dict, MSONable):
             JDFTXInfile: The created JDFTXInfile object.
         """
         jdftxstructure = JDFTXStructure(structure, selective_dynamics)
+        jdftxstructure.write_cart_coords = write_cart_coords
         return cls.from_jdftxstructure(jdftxstructure)
 
     @classmethod
@@ -652,6 +655,7 @@ class JDFTXStructure(MSONable):
     structure: Structure = None
     selective_dynamics: ArrayLike | None = None
     sort_structure: bool = False
+    write_cart_coords: bool = False
 
     def __post_init__(self) -> None:
         """Post init function for JDFTXStructure.
@@ -777,7 +781,7 @@ class JDFTXStructure(MSONable):
         )
         return cls(struct, selective_dynamics, sort_structure=sort_structure)
 
-    def get_str(self, in_cart_coords: bool = False) -> str:
+    def get_str(self, in_cart_coords: bool | None = None) -> str:
         """Return a string to be written as JDFTXInfile tags.
 
         Allows extra options as compared to calling str(JDFTXStructure) directly.
@@ -788,7 +792,10 @@ class JDFTXStructure(MSONable):
         Returns:
             str: Representation of JDFTXInfile structure tags.
         """
-        jdftx_tag_dict = {}
+        jdftx_tag_dict: dict[str, Any] = {}
+
+        if in_cart_coords is None:
+            in_cart_coords = self.write_cart_coords
 
         lattice = np.copy(self.structure.lattice.matrix)
         lattice = lattice.T  # transpose to get into column-vector format
@@ -796,11 +803,12 @@ class JDFTXStructure(MSONable):
 
         jdftx_tag_dict["lattice"] = lattice
         jdftx_tag_dict["ion"] = []
+        jdftx_tag_dict["coords-type"] = "Cartesian" if in_cart_coords else "Lattice"
         valid_labels = [
             value.symbol for key, value in Element.__dict__.items() if not key.startswith("_") and not callable(value)
         ]
         for i, site in enumerate(self.structure):
-            coords = site.coords if in_cart_coords else site.frac_coords
+            coords = site.coords * (1 / bohr_to_ang) if in_cart_coords else site.frac_coords
             sd = self.selective_dynamics[i] if self.selective_dynamics is not None else 1
             label = site.label
             # TODO: This is needlessly complicated, simplify this

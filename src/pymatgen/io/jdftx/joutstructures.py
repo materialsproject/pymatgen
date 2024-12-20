@@ -404,6 +404,8 @@ def _get_initial_coords(pre_out_slice: list[str]) -> np.ndarray:
         coords_type = pre_out_slice[coords_type_lines[0]].strip().split()[1]
         if coords_type.lower() != "cartesian":
             coords = np.dot(coords, _get_initial_lattice(pre_out_slice))
+        else:
+            coords *= bohr_to_ang
     return coords
 
 
