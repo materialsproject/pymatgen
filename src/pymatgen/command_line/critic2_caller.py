@@ -766,7 +766,7 @@ class Critic2Analysis(MSONable):
     def _parse_stdout(self, stdout):
         warnings.warn(
             "Parsing critic2 standard output is deprecated and will not be maintained, "
-            "please use the native JSON output in future.",
+            "please use the native JSON output in the future.",
             DeprecationWarning,
             stacklevel=2,
         )
