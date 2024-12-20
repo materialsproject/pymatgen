@@ -866,23 +866,6 @@ class JDFTXOutfileSlice:
             self.mu = self._get_mu()
             for var in _jofs_atr_from_jstrucs:
                 setattr(self, var, getattr(self.jstrucs, var))
-            # self.structure = self.jstrucs[-1].structure
-            # self.eopt_type = self.jstrucs.eopt_type
-            # self.elecmindata = self.jstrucs.elecmindata
-            # self.stress = self.jstrucs.stress
-            # self.strain = self.jstrucs.strain
-            # self.nstep = self.jstrucs.nstep
-            # self.e = self.jstrucs.e
-            # self.grad_k = self.jstrucs.grad_k
-            # self.alpha = self.jstrucs.alpha
-            # self.linmin = self.jstrucs.linmin
-            # self.abs_magneticmoment = self.jstrucs.abs_magneticmoment
-            # self.tot_magneticmoment = self.jstrucs.tot_magneticmoment
-            # self.elec_nstep = self.jstrucs.elec_nstep
-            # self.elec_e = self.jstrucs.elec_e
-            # self.elec_grad_k = self.jstrucs.elec_grad_k
-            # self.elec_alpha = self.jstrucs.elec_alpha
-            # self.elec_linmin = self.jstrucs.elec_linmin
 
     def _set_backup_vars(self, text: list[str]) -> None:
         """Set backups for important variables.
