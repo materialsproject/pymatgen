@@ -23,6 +23,8 @@ if TYPE_CHECKING:
 
     from typing_extensions import Self
 
+    from pymatgen.util.typing import PathLike
+
 __author__ = "Shyue Ping Ong, Germain Salvato-Vallverdu, Xin Chen"
 __copyright__ = "Copyright 2013, The Materials Virtual Lab"
 __version__ = "0.1"
@@ -306,9 +308,9 @@ class GaussianInput:
                 route += f" {line}"
                 route_index = idx
             # This condition allows for route cards spanning multiple lines
-            elif (line == "" or line.isspace()) and route_index:
+            elif (line == "" or line.isspace()) and route_index is not None:
                 break
-            if route_index:
+            if route_index is not None:
                 route += f" {line}"
                 route_index = idx
         functional, basis_set, route_paras, dieze_tag = read_route_line(route)
@@ -418,7 +420,12 @@ class GaussianInput:
             # don't use the slash if either or both are set as empty
             func_bset_str = f" {func_str}{bset_str}".rstrip()
 
-        output += (f"{self.dieze_tag}{func_bset_str} {para_dict_to_str(self.route_parameters)}", "", self.title, "")
+        output += (
+            f"{self.dieze_tag}{func_bset_str} {para_dict_to_str(self.route_parameters)}",
+            "",
+            self.title,
+            "",
+        )
 
         charge_str = "" if self.charge is None else f"{self.charge:.0f}"
         multip_str = "" if self.spin_multiplicity is None else f" {self.spin_multiplicity:.0f}"
@@ -571,13 +578,13 @@ class GaussianOutput:
             Save a matplotlib plot of the potential energy surface to a file
     """
 
-    def __init__(self, filename):
+    def __init__(self, filename: PathLike) -> None:
         """
         Args:
             filename: Filename of Gaussian output file.
         """
-        self.filename = filename
-        self._parse(filename)
+        self.filename = str(filename)
+        self._parse(self.filename)
 
     @property
     def final_energy(self):
@@ -783,7 +790,10 @@ class GaussianOutput:
                                     "Density Matrix:" in line or mo_coeff_patt.search(line)
                                 ):
                                     end_mo = True
-                                    warnings.warn("POP=regular case, matrix coefficients not complete")
+                                    warnings.warn(
+                                        "POP=regular case, matrix coefficients not complete",
+                                        stacklevel=2,
+                                    )
                             file.readline()
 
                         self.eigenvectors = mat_mo
@@ -919,7 +929,8 @@ class GaussianOutput:
                         line = file.readline()
                         if " -- Stationary point found." not in line:
                             warnings.warn(
-                                f"\n{self.filename}: Optimization complete but this is not a stationary point"
+                                f"\n{self.filename}: Optimization complete but this is not a stationary point",
+                                stacklevel=2,
                             )
                         if standard_orientation:
                             opt_structures.append(std_structures[-1])
@@ -982,7 +993,10 @@ class GaussianOutput:
         self.opt_structures = opt_structures
 
         if not terminated:
-            warnings.warn(f"\n{self.filename}: Termination error or bad Gaussian output file !")
+            warnings.warn(
+                f"\n{self.filename}: Termination error or bad Gaussian output file !",
+                stacklevel=2,
+            )
 
     def _parse_hessian(self, file, structure):
         """Parse the hessian matrix in the output file.

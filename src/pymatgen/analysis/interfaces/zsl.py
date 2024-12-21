@@ -108,7 +108,7 @@ class ZSLGenerator(MSONable):
         self.max_angle_tol = max_angle_tol
         self.bidirectional = bidirectional
 
-    def generate_sl_transformation_sets(self, film_area, substrate_area):
+    def generate_sl_transformation_sets(self, film_area: int, substrate_area: int) -> Iterator[tuple]:
         """Generate transformation sets for film/substrate pair given the
         area of the unit cell area for the film and substrate. The
         transformation sets map the film and substrate unit cells to super
@@ -118,7 +118,7 @@ class ZSLGenerator(MSONable):
             film_area (int): the unit cell area for the film
             substrate_area (int): the unit cell area for the substrate
 
-        Returns:
+        Yields:
             transformation_sets: a set of transformation_sets defined as:
                 1.) the transformation matrices for the film to create a
                 super lattice of area i*film area
@@ -162,10 +162,14 @@ class ZSLGenerator(MSONable):
         """
         for film_transformations, substrate_transformations in transformation_sets:
             # Apply transformations and reduce using Zur reduce methodology
-            films = np.array([reduce_vectors(*v) for v in np.dot(film_transformations, film_vectors)], dtype=float)
+            films = np.array(
+                [reduce_vectors(*v) for v in np.dot(film_transformations, film_vectors)],
+                dtype=float,
+            )
 
             substrates = np.array(
-                [reduce_vectors(*v) for v in np.dot(substrate_transformations, substrate_vectors)], dtype=float
+                [reduce_vectors(*v) for v in np.dot(substrate_transformations, substrate_vectors)],
+                dtype=float,
             )
 
             # Check if equivalent super lattices
@@ -349,7 +353,10 @@ def is_same_vectors(vec_set1, vec_set2, bidirectional=False, max_length_tol=0.03
     """
     if bidirectional:
         return _bidirectional_same_vectors(
-            vec_set1, vec_set2, max_length_tol=max_length_tol, max_angle_tol=max_angle_tol
+            vec_set1,
+            vec_set2,
+            max_length_tol=max_length_tol,
+            max_angle_tol=max_angle_tol,
         )
 
     return _unidirectional_is_same_vectors(

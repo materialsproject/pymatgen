@@ -150,6 +150,7 @@ class InterfacialReactivity(MSONable):
         critical_comp = self.pd.get_critical_compositions(self.comp1, self.comp2)
         x_kink, energy_kink, react_kink, energy_per_rxt_formula = [], [], [], []
 
+        # TODO: perhaps a bad idea to use full equality to compare coords
         if (c1_coord == c2_coord).all():
             x_kink = [0, 1]
             energy_kink = [self._get_energy(x) for x in x_kink]
@@ -186,7 +187,16 @@ class InterfacialReactivity(MSONable):
 
         index_kink = range(1, len(critical_comp) + 1)
 
-        return list(zip(index_kink, x_kink, energy_kink, react_kink, energy_per_rxt_formula, strict=True))
+        return list(
+            zip(
+                index_kink,
+                x_kink,
+                energy_kink,
+                react_kink,
+                energy_per_rxt_formula,
+                strict=True,
+            )
+        )
 
     def plot(self, backend: Literal["plotly", "matplotlib"] = "plotly") -> Figure | plt.Figure:
         """
@@ -442,7 +452,14 @@ class InterfacialReactivity(MSONable):
             products = ", ".join(
                 [htmlify(p.reduced_formula) for p in rxn.products if not np.isclose(rxn.get_coeff(p), 0)]
             )
-            annotation = {"x": x_coord, "y": y_coord, "text": products, "font": {"size": 18}, "ax": -25, "ay": 55}
+            annotation = {
+                "x": x_coord,
+                "y": y_coord,
+                "text": products,
+                "font": {"size": 18},
+                "ax": -25,
+                "ay": 55,
+            }
             annotations.append(annotation)
         return annotations
 
@@ -467,8 +484,10 @@ class InterfacialReactivity(MSONable):
 
         if not candidate:
             warnings.warn(
-                f"The reactant {composition.reduced_formula} has no matching entry with negative formation"
-                " energy, instead convex hull energy for this composition will be used for reaction energy calculation."
+                f"The reactant {composition.reduced_formula} has no matching entry "
+                "with negative formation energy, instead convex hull energy for "
+                "this composition will be used for reaction energy calculation.",
+                stacklevel=2,
             )
             return pd.get_hull_energy(composition)
         min_entry_energy = min(candidate)
@@ -511,7 +530,7 @@ class InterfacialReactivity(MSONable):
         return x * factor1 / ((1 - x) * factor2 + x * factor1)
 
     @classmethod
-    def get_chempot_correction(cls, element: str, temp: float, pres: float):
+    def get_chempot_correction(cls, element: str, temp: float, pres: float):  # codespell:ignore pres
         """Get the normalized correction term Δμ for chemical potential of a gas
         phase consisting of element at given temperature and pressure,
         referenced to that in the standard state (T_std = 298.15 K,
@@ -522,14 +541,15 @@ class InterfacialReactivity(MSONable):
         Args:
             element: The string representing the element.
             temp: The temperature of the gas phase in Kelvin.
-            pres: The pressure of the gas phase in Pa.
+            pres: The pressure of the gas phase in Pa.  # codespell:ignore pres
 
         Returns:
             The correction of chemical potential in eV/atom of the gas
             phase at given temperature and pressure.
         """
-        if element not in ["O", "N", "Cl", "F", "H"]:
-            warnings.warn(f"{element=} not one of valid options: ['O', 'N', 'Cl', 'F', 'H']")
+        valid_elements = {"O", "N", "Cl", "F", "H"}
+        if element not in valid_elements:
+            warnings.warn(f"{element=} not one of valid options: {valid_elements}", stacklevel=2)
             return 0
 
         std_temp = 298.15
@@ -544,7 +564,7 @@ class InterfacialReactivity(MSONable):
         cp_std = cp_dict[element]
         s_std = s_dict[element]
 
-        pv_correction = ideal_gas_const * temp * np.log(pres / std_pres)
+        pv_correction = ideal_gas_const * temp * np.log(pres / std_pres)  # codespell:ignore pres
         ts_correction = (
             -cp_std * (temp * np.log(temp) - std_temp * np.log(std_temp))
             + cp_std * (temp - std_temp) * (1 + np.log(std_temp))
@@ -574,7 +594,10 @@ class InterfacialReactivity(MSONable):
         """The minimum reaction energy E_min and corresponding mixing ratio x_min
         as tuple[float, float]: (x_min, E_min).
         """
-        return min(((x, energy) for _, x, energy, _, _ in self.get_kinks()), key=lambda tup: tup[1])
+        return min(
+            ((x, energy) for _, x, energy, _, _ in self.get_kinks()),
+            key=lambda tup: tup[1],
+        )
 
     @property
     def products(self):
@@ -631,7 +654,12 @@ class GrandPotentialInterfacialReactivity(InterfacialReactivity):
             raise TypeError("Please provide non-grand phase diagram to compute no_mixing_energy!")
 
         super().__init__(
-            c1=c1, c2=c2, pd=grand_pd, norm=norm, use_hull_energy=use_hull_energy, bypass_grand_warning=True
+            c1=c1,
+            c2=c2,
+            pd=grand_pd,
+            norm=norm,
+            use_hull_energy=use_hull_energy,
+            bypass_grand_warning=True,
         )
 
         self.pd_non_grand = pd_non_grand

@@ -176,7 +176,15 @@ class ExcitingInput(MSONable):
             data = file.read().replace("\n", "")
         return cls.from_str(data)
 
-    def write_etree(self, celltype, cartesian=False, bandstr=False, symprec: float = 0.4, angle_tolerance=5, **kwargs):
+    def write_etree(
+        self,
+        celltype,
+        cartesian=False,
+        bandstr=False,
+        symprec: float = 0.4,
+        angle_tolerance=5,
+        **kwargs,
+    ):
         """Write the exciting input parameters to an XML object.
 
         Args:
@@ -273,7 +281,12 @@ class ExcitingInput(MSONable):
                     symbol = kpath.kpath["path"][idx][j]
                     coords = kpath.kpath["kpoints"][symbol]
                     coord = f"{coords[0]:16.8f} {coords[1]:16.8f} {coords[2]:16.8f}"
-                    symbol_map = {"\\Gamma": "GAMMA", "\\Sigma": "SIGMA", "\\Delta": "DELTA", "\\Lambda": "LAMBDA"}
+                    symbol_map = {
+                        "\\Gamma": "GAMMA",
+                        "\\Sigma": "SIGMA",
+                        "\\Delta": "DELTA",
+                        "\\Lambda": "LAMBDA",
+                    }
                     symbol = symbol_map.get(symbol, symbol)
                     _ = ET.SubElement(path, "point", coord=coord, label=symbol)
 
@@ -282,7 +295,15 @@ class ExcitingInput(MSONable):
 
         return root
 
-    def write_string(self, celltype, cartesian=False, bandstr=False, symprec: float = 0.4, angle_tolerance=5, **kwargs):
+    def write_string(
+        self,
+        celltype,
+        cartesian=False,
+        bandstr=False,
+        symprec: float = 0.4,
+        angle_tolerance=5,
+        **kwargs,
+    ):
         """Write exciting input.xml as a string.
 
         Args:
@@ -317,7 +338,14 @@ class ExcitingInput(MSONable):
         return string
 
     def write_file(
-        self, celltype, filename, cartesian=False, bandstr=False, symprec: float = 0.4, angle_tolerance=5, **kwargs
+        self,
+        celltype,
+        filename,
+        cartesian=False,
+        bandstr=False,
+        symprec: float = 0.4,
+        angle_tolerance=5,
+        **kwargs,
     ):
         """Write exciting input file.
 

@@ -7,7 +7,6 @@ import math
 import warnings
 from fractions import Fraction
 from itertools import groupby, product
-from math import gcd
 from string import ascii_lowercase
 from typing import TYPE_CHECKING
 
@@ -21,13 +20,13 @@ from pymatgen.analysis.adsorption import AdsorbateSiteFinder
 from pymatgen.analysis.bond_valence import BVAnalyzer
 from pymatgen.analysis.energy_models import SymmetryModel
 from pymatgen.analysis.ewald import EwaldSummation
-from pymatgen.analysis.gb.grain import GrainBoundaryGenerator
 from pymatgen.analysis.local_env import MinimumDistanceNN
 from pymatgen.analysis.structure_matcher import SpinComparator, StructureMatcher
 from pymatgen.analysis.structure_prediction.substitution_probability import SubstitutionPredictor
 from pymatgen.command_line.enumlib_caller import EnumError, EnumlibAdaptor
 from pymatgen.command_line.mcsqs_caller import run_mcsqs
 from pymatgen.core import DummySpecies, Element, Species, Structure, get_el_sp
+from pymatgen.core.interface import GrainBoundaryGenerator
 from pymatgen.core.surface import SlabGenerator
 from pymatgen.electronic_structure.core import Spin
 from pymatgen.io.ase import AseAtomsAdaptor
@@ -132,7 +131,12 @@ class SuperTransformation(AbstractTransformation):
                     d["transformation"] = t
                     structures.append(d)
             else:
-                structures.append({"transformation": t, "structure": t.apply_transformation(structure)})
+                structures.append(
+                    {
+                        "transformation": t,
+                        "structure": t.apply_transformation(structure),
+                    }
+                )
         return structures
 
     def __repr__(self):
@@ -356,7 +360,8 @@ class EnumerateStructureTransformation(AbstractTransformation):
 
         if structure.is_ordered:
             warnings.warn(
-                f"Enumeration skipped for structure with composition {structure.composition} because it is ordered"
+                f"Enumeration skipped for structure with composition {structure.composition} because it is ordered",
+                stacklevel=2,
             )
             structures = [structure.copy()]
 
@@ -388,7 +393,7 @@ class EnumerateStructureTransformation(AbstractTransformation):
                 if structures:
                     break
             except EnumError:
-                warnings.warn(f"Unable to enumerate for {max_cell_size = }")
+                warnings.warn(f"Unable to enumerate for {max_cell_size = }", stacklevel=2)
 
         if structures is None:
             raise ValueError("Unable to enumerate")
@@ -420,7 +425,7 @@ class EnumerateStructureTransformation(AbstractTransformation):
             if contains_oxidation_state and self.sort_criteria == "ewald":
                 new_latt = struct.lattice
                 transformation = np.dot(new_latt.matrix, inv_latt)
-                transformation = tuple(tuple(int(round(cell)) for cell in row) for row in transformation)
+                transformation = tuple(tuple(round(cell) for cell in row) for row in transformation)
                 if transformation not in ewald_matrices:
                     s_supercell = structure * transformation
                     ewald = EwaldSummation(s_supercell)
@@ -576,7 +581,8 @@ class MagOrderParameterConstraint(MSONable):
             warnings.warn(
                 "Use care when using a non-standard order parameter, "
                 "though it can be useful in some cases it can also "
-                "lead to unintended behavior. Consult documentation."
+                "lead to unintended behavior. Consult documentation.",
+                stacklevel=2,
             )
 
         self.order_parameter = order_parameter
@@ -655,7 +661,7 @@ class MagOrderingTransformation(AbstractTransformation):
 
         def lcm(n1, n2):
             """Find least common multiple of two numbers."""
-            return n1 * n2 / gcd(n1, n2)
+            return n1 * n2 / math.gcd(n1, n2)
 
         # assumes all order parameters for a given species are the same
         mag_species_order_parameter = {}
@@ -678,7 +684,7 @@ class MagOrderingTransformation(AbstractTransformation):
         for sp, order_parameter in mag_species_order_parameter.items():
             denom = Fraction(order_parameter).limit_denominator(100).denominator
             num_atom_per_specie = mag_species_occurrences[sp]
-            n_gcd = gcd(denom, num_atom_per_specie)
+            n_gcd = math.gcd(denom, num_atom_per_specie)
             smallest_n.append(lcm(int(n_gcd), denom) / n_gcd)
 
         return max(smallest_n)
@@ -842,7 +848,8 @@ class MagOrderingTransformation(AbstractTransformation):
                     f"Specified max cell size ({enum_kwargs['max_cell_size']}) is "
                     "smaller than the minimum enumerable cell size "
                     f"({enum_kwargs['min_cell_size']}), changing max cell size to "
-                    f"{enum_kwargs['min_cell_size']}"
+                    f"{enum_kwargs['min_cell_size']}",
+                    stacklevel=2,
                 )
                 enum_kwargs["max_cell_size"] = enum_kwargs["min_cell_size"]
         else:
@@ -850,19 +857,19 @@ class MagOrderingTransformation(AbstractTransformation):
 
         trafo = EnumerateStructureTransformation(**enum_kwargs)
 
-        alls = trafo.apply_transformation(structure, return_ranked_list=return_ranked_list)
+        all_structs = trafo.apply_transformation(structure, return_ranked_list=return_ranked_list)
 
         # handle the fact that EnumerateStructureTransformation can either
         # return a single Structure or a list
-        if isinstance(alls, Structure):
+        if isinstance(all_structs, Structure):
             # remove dummy species and replace Spin.up or Spin.down
             # with spin magnitudes given in mag_species_spin arg
-            alls = self._remove_dummy_species(alls)
-            alls = self._add_spin_magnitudes(alls)  # type: ignore[arg-type]
+            all_structs = self._remove_dummy_species(all_structs)
+            all_structs = self._add_spin_magnitudes(all_structs)  # type: ignore[arg-type]
         else:
-            for idx, struct in enumerate(alls):
-                alls[idx]["structure"] = self._remove_dummy_species(struct["structure"])  # type: ignore[index]
-                alls[idx]["structure"] = self._add_spin_magnitudes(struct["structure"])  # type: ignore[index, arg-type]
+            for idx, struct in enumerate(all_structs):
+                all_structs[idx]["structure"] = self._remove_dummy_species(struct["structure"])  # type: ignore[index]
+                all_structs[idx]["structure"] = self._add_spin_magnitudes(struct["structure"])  # type: ignore[index, arg-type]
 
         try:
             num_to_return = int(return_ranked_list)
@@ -870,7 +877,7 @@ class MagOrderingTransformation(AbstractTransformation):
             num_to_return = 1
 
         if num_to_return == 1 or not return_ranked_list:
-            return alls[0]["structure"] if num_to_return else alls  # type: ignore[return-value, index]
+            return all_structs[0]["structure"] if num_to_return else all_structs  # type: ignore[return-value, index]
 
         # Remove duplicate structures and group according to energy model
         matcher = StructureMatcher(comparator=SpinComparator())
@@ -879,7 +886,7 @@ class MagOrderingTransformation(AbstractTransformation):
             return SpacegroupAnalyzer(struct, 0.1).get_space_group_number()
 
         out = []
-        for _, group in groupby(sorted((dct["structure"] for dct in alls), key=key), key):  # type: ignore[arg-type, index]
+        for _, group in groupby(sorted((dct["structure"] for dct in all_structs), key=key), key):  # type: ignore[arg-type, index]
             group = list(group)  # type: ignore[assignment]
             grouped = matcher.group_structures(group)
             out.extend([{"structure": g[0], "energy": self.energy_model.get_energy(g[0])} for g in grouped])
@@ -894,7 +901,11 @@ class MagOrderingTransformation(AbstractTransformation):
         return True
 
 
-def find_codopant(target: Species, oxidation_state: float, allowed_elements: Sequence[str] | None = None) -> Species:
+def find_codopant(
+    target: Species,
+    oxidation_state: float,
+    allowed_elements: Sequence[str] | None = None,
+) -> Species:
     """Find the element from "allowed elements" that (i) possesses the desired
     "oxidation state" and (ii) is closest in ionic radius to the target specie.
 
@@ -1021,7 +1032,7 @@ class DopingTransformation(AbstractTransformation):
         logger.info(f"Compatible species: {compatible_species}")
 
         lengths = structure.lattice.abc
-        scaling = [max(1, int(round(math.ceil(self.min_length / x)))) for x in lengths]
+        scaling = [max(1, math.ceil(self.min_length / x)) for x in lengths]
         logger.info(f"{lengths=}")
         logger.info(f"{scaling=}")
 
@@ -1054,7 +1065,14 @@ class DopingTransformation(AbstractTransformation):
                     n_dopant = common_charge / abs(ox)
                     nsp_to_remove = common_charge / abs(sp.oxi_state)  # type: ignore[arg-type]
                     logger.info(f"Doping {nsp_to_remove} {sp} with {n_dopant} {self.dopant}.")
-                    supercell.replace_species({sp: {sp: (nsp - nsp_to_remove) / nsp, self.dopant: n_dopant / nsp}})
+                    supercell.replace_species(
+                        {
+                            sp: {
+                                sp: (nsp - nsp_to_remove) / nsp,
+                                self.dopant: n_dopant / nsp,
+                            }
+                        }
+                    )
                 else:
                     ox_diff = int(abs(round(sp.oxi_state - ox)))
                     vac_ox = int(abs(sp_to_remove.oxi_state)) * ox_diff  # type: ignore[arg-type]
@@ -1067,7 +1085,10 @@ class DopingTransformation(AbstractTransformation):
                     )
                     supercell.replace_species(
                         {
-                            sp: {sp: (nsp - n_dopant) / nsp, self.dopant: n_dopant / nsp},
+                            sp: {
+                                sp: (nsp - n_dopant) / nsp,
+                                self.dopant: n_dopant / nsp,
+                            },
                             sp_to_remove: {sp_to_remove: (nx - nx_to_remove) / nx},
                         }
                     )
@@ -1314,7 +1335,7 @@ class GrainBoundaryTransformation(AbstractTransformation):
         ratio=True,
         plane=None,
         max_search=20,
-        tol_coi=1.0e-8,
+        tol_coi=1e-8,
         rm_ratio=0.7,
         quick_gen=False,
     ):
@@ -1370,9 +1391,6 @@ class GrainBoundaryTransformation(AbstractTransformation):
                 will be removed. Default to 0.7.
             quick_gen (bool): whether to quickly generate a supercell, if set to true, no need to
                 find the smallest cell.
-
-        Returns:
-            Grain boundary structure (gb (Structure) object).
         """
         self.rotation_axis = rotation_axis
         self.rotation_angle = rotation_angle
@@ -1511,7 +1529,11 @@ class CubicSupercellTransformation(AbstractTransformation):
                     lat_vecs, structure, target_sc_lat_vecs
                 )
                 # Check if constraints are satisfied
-                if self.check_constraints(length_vecs=length_vecs, n_atoms=n_atoms, superstructure=superstructure):
+                if self.check_constraints(
+                    length_vecs=length_vecs,
+                    n_atoms=n_atoms,
+                    superstructure=superstructure,
+                ):
                     return superstructure
 
                 # Increase threshold until proposed supercell meets requirements
@@ -2107,7 +2129,7 @@ class SQSTransformation(AbstractTransformation):
             structs = [group[0] for group in unique_structs_grouped]
 
         # sort structures by objective function
-        structs.sort(key=lambda x: x.objective_function if isinstance(x.objective_function, float) else -np.inf)
+        structs.sort(key=lambda x: (x.objective_function if isinstance(x.objective_function, float) else -np.inf))
 
         to_return = [{"structure": struct, "objective_function": struct.objective_function} for struct in structs]
 

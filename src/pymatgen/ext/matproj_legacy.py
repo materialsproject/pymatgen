@@ -169,19 +169,22 @@ class _MPResterLegacy:
             "You are using the legacy MPRester. This version of the MPRester will no longer be updated. "
             "To access the latest data with the new MPRester, obtain a new API key from "
             "https://materialsproject.org/api and consult the docs at https://docs.materialsproject.org/ "
-            "for more information."
+            "for more information.",
+            FutureWarning,
+            stacklevel=2,
         )
         if api_key is not None:
             self.api_key = api_key
         else:
             self.api_key = SETTINGS.get("PMG_MAPI_KEY", "")
+
         if endpoint is not None:
             self.preamble = endpoint
         else:
             self.preamble = SETTINGS.get("PMG_MAPI_ENDPOINT", "https://legacy.materialsproject.org/rest/v2")
 
         if self.preamble != "https://legacy.materialsproject.org/rest/v2":
-            warnings.warn(f"Non-default endpoint used: {self.preamble}")
+            warnings.warn(f"Non-default endpoint used: {self.preamble}", stacklevel=2)
 
         self.session = requests.Session()
         self.session.headers = {"x-api-key": self.api_key}
@@ -219,12 +222,13 @@ class _MPResterLegacy:
             else:
                 dct["MAPI_DB_VERSION"]["LOG"][db_version] += 1
 
-            # alert user if db version changed
+            # alert user if DB version changed
             last_accessed = dct["MAPI_DB_VERSION"]["LAST_ACCESSED"]
             if last_accessed and last_accessed != db_version:
-                print(
+                warnings.warn(
                     f"This database version has changed from the database last accessed ({last_accessed}).\n"
-                    f"Please see release notes on materialsproject.org for information about what has changed."
+                    f"Please see release notes on materialsproject.org for information about what has changed.",
+                    stacklevel=2,
                 )
             dct["MAPI_DB_VERSION"]["LAST_ACCESSED"] = db_version
 
@@ -263,7 +267,7 @@ class _MPResterLegacy:
                 data = json.loads(response.text, cls=MontyDecoder) if mp_decode else json.loads(response.text)
                 if data["valid_response"]:
                     if data.get("warning"):
-                        warnings.warn(data["warning"])
+                        warnings.warn(data["warning"], stacklevel=2)
                     return data["response"]
                 raise MPRestError(data["error"])
 
@@ -693,7 +697,8 @@ class _MPResterLegacy:
                         f"so structure for {new_material_id} returned. This is not an error, see "
                         f"documentation. If original task data for {material_id} is required, use "
                         "get_task_data(). To find the canonical mp-id from a task id use "
-                        "get_materials_id_from_task_id()."
+                        "get_materials_id_from_task_id().",
+                        stacklevel=2,
                     )
                 return self.get_structure_by_material_id(new_material_id)
             except MPRestError:
@@ -1035,7 +1040,7 @@ class _MPResterLegacy:
         data=None,
         histories=None,
         created_at=None,
-    ):
+    ) -> list[str]:
         """Submits a list of structures to the Materials Project as SNL files.
         The argument list mirrors the arguments for the StructureNL object,
         except that a list of structures with the same metadata is used as an
@@ -1065,7 +1070,7 @@ class _MPResterLegacy:
             created_at (datetime): A datetime object
 
         Returns:
-            A list of inserted submission ids.
+            list[str]: Inserted submission ids.
         """
         from pymatgen.util.provenance import StructureNL
 
@@ -1079,7 +1084,7 @@ class _MPResterLegacy:
             histories,
             created_at,
         )
-        self.submit_snl(snl_list)
+        return self.submit_snl(snl_list)
 
     def submit_snl(self, snl):
         """Submits a list of StructureNL to the Materials Project site.
@@ -1093,10 +1098,10 @@ class _MPResterLegacy:
             of StructureNL objects
 
         Returns:
-            A list of inserted submission ids.
+            list[str]: Inserted submission ids.
 
         Raises:
-            MPRestError
+            MPRestError: If submission fails.
         """
         snl = snl if isinstance(snl, list) else [snl]
         json_data = [s.as_dict() for s in snl]
@@ -1106,7 +1111,7 @@ class _MPResterLegacy:
             response = json.loads(response.text, cls=MontyDecoder)
             if response["valid_response"]:
                 if response.get("warning"):
-                    warnings.warn(response["warning"])
+                    warnings.warn(response["warning"], stacklevel=2)
                 return response["inserted_ids"]
             raise MPRestError(response["error"])
 
@@ -1132,7 +1137,7 @@ class _MPResterLegacy:
             response = json.loads(response.text, cls=MontyDecoder)
             if response["valid_response"]:
                 if response.get("warning"):
-                    warnings.warn(response["warning"])
+                    warnings.warn(response["warning"], stacklevel=2)
                 return response
             raise MPRestError(response["error"])
 
@@ -1160,7 +1165,7 @@ class _MPResterLegacy:
             response = json.loads(response.text)
             if response["valid_response"]:
                 if response.get("warning"):
-                    warnings.warn(response["warning"])
+                    warnings.warn(response["warning"], stacklevel=2)
                 return response["response"]
             raise MPRestError(response["error"])
 
@@ -1258,7 +1263,7 @@ class _MPResterLegacy:
             response = json.loads(response.text, cls=MontyDecoder)
             if response["valid_response"]:
                 if response.get("warning"):
-                    warnings.warn(response["warning"])
+                    warnings.warn(response["warning"], stacklevel=2)
                 return response["response"]
             raise MPRestError(response["error"])
         raise MPRestError(f"REST error with status code {response.status_code} and error {response.text}")
@@ -1556,7 +1561,8 @@ class _MPResterLegacy:
         warnings.warn(
             f"For {file_patterns=}] and {task_types=}, \n"
             f"the following ids are not found on NOMAD [{list(non_exist_ids)}]. \n"
-            f"If you need to upload them, please contact Patrick Huck at phuck@lbl.gov"
+            f"If you need to upload them, please contact Patrick Huck at phuck@lbl.gov",
+            stacklevel=2,
         )
 
     def _check_get_download_info_url_by_task_id(self, prefix, task_ids) -> list[str]:

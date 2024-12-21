@@ -164,7 +164,11 @@ class Header(MSONable):
     """
 
     def __init__(
-        self, struct: Structure | Molecule, source: str = "", comment: str = "", spacegroup_analyzer_settings=None
+        self,
+        struct: Structure | Molecule,
+        source: str = "",
+        comment: str = "",
+        spacegroup_analyzer_settings=None,
     ):
         """
         Args:
@@ -489,7 +493,17 @@ class Atoms(MSONable):
             site_symbol = site.specie.symbol
             ipot = self.pot_dict[site_symbol]
             dist = self._cluster.get_distance(0, idx)
-            lines += [[f"{site.x}", f"{site.y}", f"{site.z}", ipot, site_symbol, f"{dist}", idx]]
+            lines += [
+                [
+                    f"{site.x}",
+                    f"{site.y}",
+                    f"{site.z}",
+                    ipot,
+                    site_symbol,
+                    f"{dist}",
+                    idx,
+                ]
+            ]
 
         # sort by distance from absorbing atom
         return sorted(lines, key=lambda line: float(line[5]))
@@ -499,7 +513,10 @@ class Atoms(MSONable):
         lines_sorted = self.get_lines()
         # TODO: remove the formatting and update the unit tests
         lines_formatted = str(
-            tabulate(lines_sorted, headers=["*       x", "y", "z", "ipot", "Atom", "Distance", "Number"])
+            tabulate(
+                lines_sorted,
+                headers=["*       x", "y", "z", "ipot", "Atom", "Distance", "Number"],
+            )
         )
         atom_list = lines_formatted.replace("--", "**")
         return f"ATOMS\n{atom_list}\nEND\n"
@@ -537,7 +554,10 @@ class Tags(dict):
             value: value associated with key in dictionary
         """
         if key.strip().upper() not in VALID_FEFF_TAGS:
-            warnings.warn(f"{key.strip()} not in VALID_FEFF_TAGS list")
+            warnings.warn(
+                f"{key.strip()} not in VALID_FEFF_TAGS list",
+                stacklevel=2,
+            )
         super().__setitem__(
             key.strip(),
             Tags.proc_val(key.strip(), val.strip()) if isinstance(val, str) else val,
@@ -595,7 +615,12 @@ class Tags(dict):
                     beam_energy = self._stringify_val(self[key]["BEAM_ENERGY"])
                     beam_energy_list = beam_energy.split()
                     if int(beam_energy_list[1]) == 0:  # aver=0, specific beam direction
-                        lines.extend(([beam_energy], [self._stringify_val(self[key]["BEAM_DIRECTION"])]))
+                        lines.extend(
+                            (
+                                [beam_energy],
+                                [self._stringify_val(self[key]["BEAM_DIRECTION"])],
+                            )
+                        )
                     else:
                         # no cross terms for orientation averaged spectrum
                         beam_energy_list[2] = str(0)

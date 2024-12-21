@@ -173,7 +173,7 @@ class DetailedVoronoiContainer(MSONable):
 
                     min_dist = min([min_dist, distances[ridge_point2]])
                     for iii, sss in enumerate(self.structure):
-                        if neighbors[ridge_point2].is_periodic_image(sss, tolerance=1.0e-6):
+                        if neighbors[ridge_point2].is_periodic_image(sss, tolerance=1e-6):
                             idx = iii
                             break
                     results2.append(
@@ -563,14 +563,14 @@ class DetailedVoronoiContainer(MSONable):
         maps_and_surfaces = []
         for cn, value in self._unique_coordinated_neighbors_parameters_indices[isite].items():
             for imap, list_parameters_indices in enumerate(value):
-                thissurf = 0.0
+                this_surf = 0.0
                 for idp, iap, iacb in list_parameters_indices:
                     if iacb in additional_conditions:
-                        thissurf += surfaces[idp, iap]
+                        this_surf += surfaces[idp, iap]
                 maps_and_surfaces.append(
                     {
                         "map": (cn, imap),
-                        "surface": thissurf,
+                        "surface": this_surf,
                         "parameters_indices": list_parameters_indices,
                     }
                 )
@@ -596,14 +596,14 @@ class DetailedVoronoiContainer(MSONable):
         maps_and_surfaces = []
         for cn, value in self._unique_coordinated_neighbors_parameters_indices[isite].items():
             for imap, list_parameters_indices in enumerate(value):
-                thissurf = 0.0
+                this_surf = 0.0
                 for idp, iap, iacb in list_parameters_indices:
                     if iacb in additional_conditions:
-                        thissurf += surfaces[idp, iap]
+                        this_surf += surfaces[idp, iap]
                 maps_and_surfaces.append(
                     {
                         "map": (cn, imap),
-                        "surface": thissurf,
+                        "surface": this_surf,
                         "parameters_indices": list_parameters_indices,
                     }
                 )

@@ -37,7 +37,7 @@ class StandardTransmuter:
     transformations on many structures to generate TransformedStructures.
 
     Attributes:
-        transformed_structures (list[Structure]): List of all transformed structures.
+        transformed_structures (list[Structure]): All transformed structures.
     """
 
     def __init__(
@@ -155,7 +155,10 @@ class StandardTransmuter:
             structure_filter: StructureFilter to apply.
         """
         self.transformed_structures = list(
-            filter(lambda ts: structure_filter.test(ts.final_structure), self.transformed_structures)
+            filter(
+                lambda ts: structure_filter.test(ts.final_structure),
+                self.transformed_structures,
+            )
         )
         for ts in self.transformed_structures:
             ts.append_filter(structure_filter)
@@ -262,7 +265,7 @@ class CifTransmuter(StandardTransmuter):
         containing multiple structures.
 
         Args:
-            filenames: List of strings of the CIF files
+            filenames (list[str]): The CIF file paths.
             transformations: New transformations to be applied to all
                 structures
             primitive: Same meaning as in __init__.
@@ -286,7 +289,7 @@ class PoscarTransmuter(StandardTransmuter):
     def __init__(self, poscar_string, transformations=None, extend_collection=False):
         """
         Args:
-            poscar_string: List of POSCAR strings
+            poscar_string (list[str]): POSCAR strings.
             transformations: New transformations to be applied to all
                 structures.
             extend_collection: Whether to use more than one output structure
@@ -301,7 +304,7 @@ class PoscarTransmuter(StandardTransmuter):
         POSCAR filenames.
 
         Args:
-            poscar_filenames: List of POSCAR filenames
+            poscar_filenames (list[str]): The POSCAR file paths.
             transformations: New transformations to be applied to all
                 structures.
             extend_collection:

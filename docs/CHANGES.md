@@ -6,6 +6,64 @@ nav_order: 4
 
 # Changelog
 
+## 2024.11.13
+
+- CP2K fixes (@janosh)
+- Fix borg.hive.SimpleVaspToComputedEntryDrone.assimilate ValueError when core file missing (@DanielYang59)
+- Revert breaking analysis.local_env default_op_params/cn_opt_params rename (@DanielYang59)
+- Added new Flag for AutoOxiStateDecorationTransformation (@jmmshn)
+- Fixed execution of packmol in relative path. (@davidwaroquiers)
+- Improve element mismatch handling with POTCAR for Poscar.from_file/str (@DanielYang59)
+- Preprocess Structure Reduction Before Bulk Match (@lan496)
+- Add min "thickness" check in CifParser to filter invalid structure which leads to infinite loop (@DanielYang59)
+
+## 2024.10.29
+- VaspDir has been renamed and moved to pymatgen.io.common.PMGDir for more general support of all IO classes. Note that
+  this is a backwards incompatible change. It should not affect many users since VaspDir was introduced only in the last
+  one week.
+- Fixed execution of packmol in relative path. (@davidwaroquiers)
+- VaspDoc.get_incar_tags: Use Mediawiki API (@yantar92)
+- Fix comment pass in Kpoints constructors (@DanielYang59)
+
+## v2024.10.27
+- Bug fix for parsing of dielectric calculations from vasprun.xml.
+
+## v2024.10.25
+- VaspDir now supports nested directories. Also, supports returning strings where a parser is not defined.
+- Bug fix for parsing of BSE vaspruns.xml.
+
+## v2024.10.21
+- New `pyamtgen.io.vasp.VaspDir` class for easy navigation of VASP directories as pymatgen objects.
+- Fix gaussian input parser (@sio-salt)
+- Fix: preserve site properties over cell transform (@Lattay)
+- Make Incar keys case insensitive, fix init Incar from dict val processing for str/float/int (@DanielYang59)
+- Fix: Preserve PBC info in AseAtomsAdaptor (@jsukpark)
+- Migrate ext.COD from mysql to REST API (@DanielYang59)
+- Fix: Parsing bugs in io.pwscf.PWInput (@jsukpark)
+- Fix arg passing in inverse property of SymmOp (@DanielYang59)
+- Add support for use_structure_charge keyword in FHI-aims input generator (@ansobolev)
+- Fix: savefig in pmg.cli.plot (@DanielYang59)
+- Fix: Volumetric data and XDATCAR parsing for monatomic structures (@esoteric-ephemera)
+- Support to aims format from Structure instance (@ansobolev)
+- Fix: Bugfix for Ion CO2(aq) reduced formula (@rkingsbury)
+- Replace deprecated ExpCellFilter with FrechetCellFilter (@ab5424)
+
+## v2024.10.3
+- Enable parsing of "SCF energy" and "Total energy" from QCOutput for Q-chem 6.1.1+. (@Jaebeom-P)
+- Fix dict equality check with numpy array (@DanielYang59)
+- Fix usage of strict=True for zip in cp2k.outputs (@DanielYang59)
+- Fix bug with species defaults (@tpurcell90)
+- SLME Bug Fixes (@kavanase)
+
+
+## v2024.9.17.1
+
+- Emergency release No. 2 to fix yet another regression in chempot diagram. (Thanks @yang-ruoxi for fixing.)
+
+## v2024.9.17
+
+- Emergency release to fix broken phase diagram plotting due to completely unnecessary refactoring. (Thanks @yang-ruoxi for fixing.)
+
 ## v2024.9.10
 
 💥 **Breaking**: NumPy/Cython integer type changed from `np.long`/`np.int_` to int64 on Windows to align with NumPy 2.x, [changing the default integer type to int64 on Windows 64-bit systems](https://numpy.org/doc/stable/release/2.0.0-notes.html) in favor of the platform-dependent `np.int_` type.

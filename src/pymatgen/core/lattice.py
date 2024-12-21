@@ -465,7 +465,15 @@ class Lattice(MSONable):
         pbc = dct.get("pbc", (True, True, True))
         if "matrix" in dct:
             return cls(dct["matrix"], pbc=pbc)
-        return cls.from_parameters(dct["a"], dct["b"], dct["c"], dct["alpha"], dct["beta"], dct["gamma"], pbc=pbc)
+        return cls.from_parameters(
+            dct["a"],
+            dct["b"],
+            dct["c"],
+            dct["alpha"],
+            dct["beta"],
+            dct["gamma"],
+            pbc=pbc,
+        )
 
     @property
     def a(self) -> float:
@@ -560,7 +568,16 @@ class Lattice(MSONable):
         d = -(a + b + c)
         tol = 1e-10
 
-        selling_vector = np.array([np.dot(b, c), np.dot(a, c), np.dot(a, b), np.dot(a, d), np.dot(b, d), np.dot(c, d)])
+        selling_vector = np.array(
+            [
+                np.dot(b, c),
+                np.dot(a, c),
+                np.dot(a, b),
+                np.dot(a, d),
+                np.dot(b, d),
+                np.dot(c, d),
+            ]
+        )
         selling_vector = np.array([s if abs(s) > tol else 0 for s in selling_vector])
 
         reduction_matrices = [
@@ -954,9 +971,9 @@ class Lattice(MSONable):
         f_a, f_b, f_c = (frac[i] for i in inds)
         l_a, l_b, l_c = (np.sum(c**2, axis=-1) ** 0.5 for c in (c_a, c_b, c_c))
 
-        alpha_b = np.abs(get_angles(c_b, c_c, l_b, l_c) - alpha) < atol
-        beta_b = np.abs(get_angles(c_a, c_c, l_a, l_c) - beta) < atol
-        gamma_b = np.abs(get_angles(c_a, c_b, l_a, l_b) - gamma) < atol
+        alpha_b = np.isclose(get_angles(c_b, c_c, l_b, l_c), alpha, atol=atol, rtol=0)
+        beta_b = np.isclose(get_angles(c_a, c_c, l_a, l_c), beta, atol=atol, rtol=0)
+        gamma_b = np.isclose(get_angles(c_a, c_b, l_a, l_b), gamma, atol=atol, rtol=0)
 
         for idx, all_j in enumerate(gamma_b):
             inds = np.logical_and(all_j[:, None], np.logical_and(alpha_b, beta_b[idx][None, :]))
@@ -1007,7 +1024,10 @@ class Lattice(MSONable):
 
             None is returned if no matches are found.
         """
-        return next(self.find_all_mappings(other_lattice, ltol, atol, skip_rotation_matrix), None)
+        return next(
+            self.find_all_mappings(other_lattice, ltol, atol, skip_rotation_matrix),
+            None,
+        )
 
     def get_lll_reduced_lattice(self, delta: float = 0.75) -> Self:
         """Lenstra-Lenstra-Lovasz lattice basis reduction.
@@ -1141,14 +1161,28 @@ class Lattice(MSONable):
         for _ in range(100):
             # The steps are labelled as Ax as per the labelling scheme in the
             # paper.
-            A, B, C, E, N, Y = G[0, 0], G[1, 1], G[2, 2], 2 * G[1, 2], 2 * G[0, 2], 2 * G[0, 1]
+            A, B, C, E, N, Y = (
+                G[0, 0],
+                G[1, 1],
+                G[2, 2],
+                2 * G[1, 2],
+                2 * G[0, 2],
+                2 * G[0, 1],
+            )
 
             if B + e < A or (abs(A - B) < e and abs(E) > abs(N) + e):
                 # A1
                 M = np.array([[0, -1, 0], [-1, 0, 0], [0, 0, -1]])
                 G = np.dot(np.transpose(M), np.dot(G, M))
                 # update lattice parameters based on new G (gh-3657)
-                A, B, C, E, N, Y = G[0, 0], G[1, 1], G[2, 2], 2 * G[1, 2], 2 * G[0, 2], 2 * G[0, 1]
+                A, B, C, E, N, Y = (
+                    G[0, 0],
+                    G[1, 1],
+                    G[2, 2],
+                    2 * G[1, 2],
+                    2 * G[0, 2],
+                    2 * G[0, 1],
+                )
 
             if (C + e < B) or (abs(B - C) < e and abs(N) > abs(Y) + e):
                 # A2
@@ -1182,7 +1216,14 @@ class Lattice(MSONable):
                 M = np.diag((i, j, k))
                 G = np.dot(np.transpose(M), np.dot(G, M))
 
-            A, B, C, E, N, Y = G[0, 0], G[1, 1], G[2, 2], 2 * G[1, 2], 2 * G[0, 2], 2 * G[0, 1]
+            A, B, C, E, N, Y = (
+                G[0, 0],
+                G[1, 1],
+                G[2, 2],
+                2 * G[1, 2],
+                2 * G[0, 2],
+                2 * G[0, 1],
+            )
 
             # A5
             if abs(E) > B + e or (abs(E - B) < e and Y - e > 2 * N) or (abs(E + B) < e and -e > Y):
@@ -1377,16 +1418,23 @@ class Lattice(MSONable):
             from pymatgen.optimization.neighbors import find_points_in_spheres
         except ImportError:
             return self.get_points_in_sphere_py(frac_points=frac_points, center=center, r=r, zip_results=zip_results)
+
         else:
             frac_points = np.ascontiguousarray(frac_points, dtype=float)
-            latt_matrix = np.ascontiguousarray(self.matrix, dtype=float)
             cart_coords = np.ascontiguousarray(self.get_cartesian_coords(frac_points), dtype=float)
-            pbc = np.ascontiguousarray(self.pbc, dtype=np.int64)
             center_coords = np.ascontiguousarray([center], dtype=float)
+            pbc = np.ascontiguousarray(self.pbc, dtype=np.int64)
+            latt_matrix = np.ascontiguousarray(self.matrix, dtype=float)
 
             _, indices, images, distances = find_points_in_spheres(
-                all_coords=cart_coords, center_coords=center_coords, r=float(r), pbc=pbc, lattice=latt_matrix, tol=1e-8
+                all_coords=cart_coords,
+                center_coords=center_coords,
+                r=float(r),
+                pbc=pbc,
+                lattice=latt_matrix,
+                tol=1e-8,
             )
+
             if len(indices) < 1:
                 # Return empty np.array (not list or tuple) to ensure consistent return type
                 # whether sphere contains points or not
@@ -1546,7 +1594,12 @@ class Lattice(MSONable):
                     strict=True,
                 )
             )
-        return shifted_coords[within_r], np.sqrt(d_2[within_r]), indices[within_r[0]], images[within_r[1:]]
+        return (
+            shifted_coords[within_r],
+            np.sqrt(d_2[within_r]),
+            indices[within_r[0]],
+            images[within_r[1:]],
+        )
 
     def get_all_distances(
         self,
@@ -1587,15 +1640,18 @@ class Lattice(MSONable):
         """
         lengths = self.lengths
         angles = self.angles
-        right_angles = [i for i in range(3) if abs(angles[i] - 90) < hex_angle_tol]
+        right_angles = [i for i in range(3) if math.isclose(angles[i], 90, abs_tol=hex_angle_tol, rel_tol=0)]
         hex_angles = [
-            idx for idx in range(3) if abs(angles[idx] - 60) < hex_angle_tol or abs(angles[idx] - 120) < hex_angle_tol
+            idx
+            for idx in range(3)
+            if math.isclose(angles[idx], 60, abs_tol=hex_angle_tol, rel_tol=0)
+            or math.isclose(angles[idx], 120, abs_tol=hex_angle_tol, rel_tol=0)
         ]
 
         return (
             len(right_angles) == 2
             and len(hex_angles) == 1
-            and abs(lengths[right_angles[0]] - lengths[right_angles[1]]) < hex_length_tol
+            and math.isclose(lengths[right_angles[0]], lengths[right_angles[1]], abs_tol=hex_length_tol, rel_tol=0)
         )
 
     def get_distance_and_image(
@@ -1736,7 +1792,7 @@ def get_integer_index(
     # Need to recalculate this after rounding as values may have changed
     int_miller_index = np.round(mi, 1).astype(int)
     if np.any(np.abs(mi - int_miller_index) > 1e-6) and verbose:
-        warnings.warn("Non-integer encountered in Miller index")
+        warnings.warn("Non-integer encountered in Miller index", stacklevel=2)
     else:
         mi = int_miller_index
 

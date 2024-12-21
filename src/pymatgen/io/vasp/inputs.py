@@ -14,6 +14,7 @@ import os
 import re
 import subprocess
 import warnings
+from collections import Counter, UserDict
 from enum import Enum, unique
 from glob import glob
 from hashlib import sha256
@@ -260,7 +261,11 @@ class Poscar(MSONable):
             Poscar object.
         """
         if "check_for_POTCAR" in kwargs:
-            warnings.warn("check_for_POTCAR is deprecated. Use check_for_potcar instead.", DeprecationWarning)
+            warnings.warn(
+                "check_for_POTCAR is deprecated. Use check_for_potcar instead.",
+                DeprecationWarning,
+                stacklevel=2,
+            )
             check_for_potcar = cast(bool, kwargs.pop("check_for_POTCAR"))
 
         dirname: str = os.path.dirname(os.path.abspath(filename))
@@ -271,7 +276,10 @@ class Poscar(MSONable):
             and (potcars := glob(f"{dirname}/*POTCAR*"))
         ):
             try:
-                potcar = Potcar.from_file(min(potcars))
+                # Make sure exact match has highest priority
+                potcar_path = next((f for f in potcars if f == f"{dirname}/POTCAR"), min(potcars))
+
+                potcar = Potcar.from_file(potcar_path)
                 names = [sym.split("_")[0] for sym in potcar.symbols]
                 map(get_el_sp, names)  # ensure valid names
             except Exception:
@@ -312,7 +320,8 @@ class Poscar(MSONable):
         Args:
             data (str): String containing Poscar data.
             default_names ([str]): Default symbols for the POSCAR file,
-                usually coming from a POTCAR in the same directory.
+                usually coming from a POTCAR in the same directory. This
+                could be used to convert a VASP 4 POSCAR to POSCAR 5/6 format.
             read_velocities (bool): Whether to read or not velocities if they
                 are present in the POSCAR. Default is True.
 
@@ -328,8 +337,9 @@ class Poscar(MSONable):
         except IndexError:
             raise ValueError("Empty POSCAR")
 
-        # Parse positions
         lines: list[str] = list(clean_lines(chunks[0].split("\n"), remove_empty_lines=False))
+
+        # Parse comment/scale/lattice
         comment: str = lines[0]
         scale: float = float(lines[1])
         lattice: np.ndarray = np.array([[float(i) for i in line.split()] for line in lines[2:5]])
@@ -341,16 +351,38 @@ class Poscar(MSONable):
         else:
             lattice *= scale
 
-        vasp5_symbols: bool = False
+        # "atomic_symbols" is the "fully expanded" list of symbols,
+        # while "symbols" is the list as shown in POSCAR.
+        # For example with a POSCAR:
+        # ... (comment/scale/lattice)
+        # H O
+        # 2 1
+        # ...
+        # atomic_symbols is ["H", "H", "O"]
+        # symbols is ["H", "O"]
         atomic_symbols: list[str] = []
 
         try:
+            symbols: list[str] | None = None  # would be None for VASP 4
+
             n_atoms: list[int] = [int(i) for i in lines[5].split()]
+            vasp5or6_symbols: bool = False  # VASP 4 tag
             ipos: int = 6
 
         except ValueError:
-            vasp5_symbols = True
-            symbols: list[str] = [symbol.split("/")[0] for symbol in lines[5].split()]
+            vasp5or6_symbols = True
+
+            # In VASP 6.x.x, part of the POTCAR hash is written to POSCAR-style strings
+            # In VASP 6.4.2 and up, the POTCAR symbol is also written, ex.:
+            # ```MgSi
+            # 1.0
+            # -0.000011    4.138704    0.000002
+            # -2.981238    2.069353    3.675251
+            # 2.942054    2.069351    4.865237
+            # Mg_pv/f474ac0d  Si/79d9987ad87```
+            # whereas older VASP 5.x.x POSCAR strings would just have `Mg Si` on the last line
+
+            symbols = [symbol.split("/")[0].split("_")[0] for symbol in lines[5].split()]
 
             # Atoms and number of atoms in POSCAR written with VASP appear on
             # multiple lines when atoms of the same type are not grouped together
@@ -400,19 +432,25 @@ class Poscar(MSONable):
         cart: bool = pos_type[0] in "cCkK"
         n_sites: int = sum(n_atoms)
 
-        # If default_names is specified (usually coming from a POTCAR), use
-        # them. This is in line with VASP's parsing order that the POTCAR
+        # If default_names is specified (usually coming from a POTCAR), use them.
+        # This is in line with VASP's parsing order that the POTCAR
         # specified is the default used.
         if default_names is not None:
-            try:
+            # Use len(n_atoms) over len(symbols) as symbols is None for VASP 4 format
+            if len(n_atoms) > len(default_names):
+                raise ValueError(f"{default_names=} (likely from POTCAR) has fewer elements than POSCAR {symbols}")
+
+            if symbols is None or default_names[: len(symbols)] != symbols:
+                # After this VASP 4.x POSCAR would be converted to VASP 5/6 format
+                vasp5or6_symbols = True
+
                 atomic_symbols = []
                 for idx, n_atom in enumerate(n_atoms):
                     atomic_symbols.extend([default_names[idx]] * n_atom)
-                vasp5_symbols = True
-            except IndexError:
-                pass
 
-        if not vasp5_symbols:
+                warnings.warn(f"Elements in POSCAR would be overwritten by {default_names=}", stacklevel=2)
+
+        if not vasp5or6_symbols:
             ind: Literal[3, 6] = 6 if has_selective_dynamics else 3
             try:
                 # Check if names are appended at the end of the coordinates
@@ -420,7 +458,7 @@ class Poscar(MSONable):
                 # Ensure symbols are valid elements
                 if not all(Element.is_valid_symbol(sym) for sym in atomic_symbols):
                     raise ValueError("Non-valid symbols detected.")
-                vasp5_symbols = True
+                vasp5or6_symbols = True
 
             except (ValueError, IndexError):
                 # Defaulting to false names
@@ -431,6 +469,7 @@ class Poscar(MSONable):
                 warnings.warn(
                     f"Elements in POSCAR cannot be determined. Defaulting to false names {atomic_symbols}.",
                     BadPoscarWarning,
+                    stacklevel=2,
                 )
 
         # Read the atomic coordinates
@@ -443,7 +482,11 @@ class Poscar(MSONable):
             if selective_dynamics is not None:
                 # Warn when values contain suspicious entries
                 if any(value not in {"T", "F"} for value in tokens[3:6]):
-                    warnings.warn("Selective dynamics values must be either 'T' or 'F'.", BadPoscarWarning)
+                    warnings.warn(
+                        "Selective dynamics values must be either 'T' or 'F'.",
+                        BadPoscarWarning,
+                        stacklevel=2,
+                    )
 
                 # Warn when elements contains Fluorine (F) (#3539)
                 if atomic_symbols[idx] == "F" and len(tokens[3:]) >= 4 and "F" in tokens[3:7]:
@@ -453,6 +496,7 @@ class Poscar(MSONable):
                             "Make sure the 4th-6th entry each position line is selective dynamics info."
                         ),
                         BadPoscarWarning,
+                        stacklevel=2,
                     )
 
                 selective_dynamics.append([value == "T" for value in tokens[3:6]])
@@ -460,7 +504,9 @@ class Poscar(MSONable):
         # Warn when ALL degrees of freedom relaxed (#3539)
         if selective_dynamics is not None and all(all(i is True for i in in_list) for in_list in selective_dynamics):
             warnings.warn(
-                "Ignoring selective dynamics tag, as no ionic degrees of freedom were fixed.", BadPoscarWarning
+                "Ignoring selective dynamics tag, as no ionic degrees of freedom were fixed.",
+                BadPoscarWarning,
+                stacklevel=2,
             )
 
         struct = Structure(
@@ -514,7 +560,7 @@ class Poscar(MSONable):
             struct,
             comment,
             selective_dynamics,
-            vasp5_symbols,
+            vasp5or6_symbols,
             velocities=velocities,
             predictor_corrector=predictor_corrector,
             predictor_corrector_preamble=predictor_corrector_preamble,
@@ -584,7 +630,11 @@ class Poscar(MSONable):
                     # VASP is strict about the format when reading this quantity
                     lines.append(" ".join(f" {val: .7E}" for val in velo))
             except Exception:
-                warnings.warn("Lattice velocities are missing or corrupted.", BadPoscarWarning)
+                warnings.warn(
+                    "Lattice velocities are missing or corrupted.",
+                    BadPoscarWarning,
+                    stacklevel=2,
+                )
 
         if self.velocities:
             try:
@@ -592,7 +642,11 @@ class Poscar(MSONable):
                 for velo in self.velocities:
                     lines.append(" ".join(format_str.format(val) for val in velo))
             except Exception:
-                warnings.warn("Velocities are missing or corrupted.", BadPoscarWarning)
+                warnings.warn(
+                    "Velocities are missing or corrupted.",
+                    BadPoscarWarning,
+                    stacklevel=2,
+                )
 
         if self.predictor_corrector:
             lines.append("")
@@ -606,6 +660,7 @@ class Poscar(MSONable):
                 warnings.warn(
                     "Preamble information missing or corrupt. Writing Poscar with no predictor corrector data.",
                     BadPoscarWarning,
+                    stacklevel=2,
                 )
 
         return "\n".join(lines) + "\n"
@@ -698,43 +753,71 @@ class BadPoscarWarning(UserWarning):
     """Warning class for bad POSCAR entries."""
 
 
-class Incar(dict, MSONable):
+class Incar(UserDict, MSONable):
     """
-    Read and write INCAR files.
-    Essentially a dictionary with some helper functions.
+    A case-insensitive dictionary to read/write INCAR files with additional helper functions.
+
+    - Keys are stored in uppercase to allow case-insensitive access (set, get, del, update, setdefault).
+    - String values are capitalized by default, except for keys specified
+        in the `lower_str_keys/as_is_str_keys` of the `proc_val` method.
     """
 
     def __init__(self, params: dict[str, Any] | None = None) -> None:
         """
-        Create an Incar object.
+        Clean up params and create an Incar object.
 
         Args:
-            params (dict): Input parameters as a dictionary.
-        """
-        super().__init__()
-        if params is not None:
-            # If INCAR contains vector-like MAGMOMS given as a list
-            # of floats, convert to a list of lists
-            if (params.get("MAGMOM") and isinstance(params["MAGMOM"][0], int | float)) and (
-                params.get("LSORBIT") or params.get("LNONCOLLINEAR")
-            ):
-                val = []
-                for idx in range(len(params["MAGMOM"]) // 3):
-                    val.append(params["MAGMOM"][idx * 3 : (idx + 1) * 3])
-                params["MAGMOM"] = val
+            params (dict): INCAR parameters as a dictionary.
 
-            self.update(params)
+        Warnings:
+            BadIncarWarning: If there are duplicate in keys (case insensitive).
+        """
+        params = params or {}
+
+        # Check for case-insensitive duplicate keys
+        key_counter = Counter(key.strip().upper() for key in params)
+        if duplicates := [key for key, count in key_counter.items() if count > 1]:
+            warnings.warn(
+                f"Duplicate keys found (case-insensitive): {duplicates}",
+                BadIncarWarning,
+                stacklevel=2,
+            )
+
+        # If INCAR contains vector-like MAGMOMS given as a list
+        # of floats, convert to a list of lists
+        if (params.get("MAGMOM") and isinstance(params["MAGMOM"][0], int | float)) and (
+            params.get("LSORBIT") or params.get("LNONCOLLINEAR")
+        ):
+            val: list[list] = []
+            for idx in range(len(params["MAGMOM"]) // 3):
+                val.append(params["MAGMOM"][idx * 3 : (idx + 1) * 3])
+            params["MAGMOM"] = val
+
+        super().__init__(params)
 
     def __setitem__(self, key: str, val: Any) -> None:
         """
-        Add parameter-val pair to Incar. Warn if parameter is not in list of
-        valid INCAR tags. Also clean the parameter and val by stripping
-        leading and trailing white spaces.
+        Add parameter-val pair to Incar.
+        - Clean the parameter and val by stripping leading
+            and trailing white spaces.
+        - Cast keys to upper case.
         """
-        super().__setitem__(
-            key.strip(),
-            type(self).proc_val(key.strip(), val.strip()) if isinstance(val, str) else val,
-        )
+        key = key.strip().upper()
+        # Cast float/int to str such that proc_val would clean up their types
+        val = self.proc_val(key, str(val)) if isinstance(val, str | float | int) else val
+        super().__setitem__(key, val)
+
+    def __getitem__(self, key: str) -> Any:
+        """
+        Get value using a case-insensitive key.
+        """
+        return super().__getitem__(key.strip().upper())
+
+    def __delitem__(self, key: str) -> None:
+        super().__delitem__(key.strip().upper())
+
+    def __contains__(self, key: str) -> bool:
+        return super().__contains__(key.upper().strip())
 
     def __str__(self) -> str:
         return self.get_str(sort_keys=True, pretty=False)
@@ -750,6 +833,12 @@ class Incar(dict, MSONable):
                 raise ValueError(f"INCARs have conflicting values for {key}: {self[key]} != {val}")
             params[key] = val
         return type(self)(params)
+
+    def get(self, key: str, default: Any = None) -> Any:
+        """
+        Get a value for a case-insensitive key, return default if not found.
+        """
+        return super().get(key.strip().upper(), default)
 
     def as_dict(self) -> dict:
         """MSONable dict."""
@@ -843,24 +932,23 @@ class Incar(dict, MSONable):
         Returns:
             Incar object
         """
-        lines: list[str] = list(clean_lines(string.splitlines()))
         params: dict[str, Any] = {}
-        for line in lines:
+        for line in clean_lines(string.splitlines()):
             for sline in line.split(";"):
                 if match := re.match(r"(\w+)\s*=\s*(.*)", sline.strip()):
                     key: str = match[1].strip()
-                    val: Any = match[2].strip()
+                    val: str = match[2].strip()
                     params[key] = cls.proc_val(key, val)
         return cls(params)
 
     @staticmethod
-    def proc_val(key: str, val: Any) -> list | bool | float | int | str:
+    def proc_val(key: str, val: str) -> list | bool | float | int | str:
         """Helper method to convert INCAR parameters to proper types
         like ints, floats, lists, etc.
 
         Args:
-            key (str): INCAR parameter key
-            val (Any): Value of INCAR parameter.
+            key (str): INCAR parameter key.
+            val (str): Value of INCAR parameter.
         """
         list_keys = (
             "LDAUU",
@@ -895,6 +983,8 @@ class Incar(dict, MSONable):
             "AGGAC",
             "PARAM1",
             "PARAM2",
+            "ENCUT",
+            "NUPDOWN",
         )
         int_keys = (
             "NSW",
@@ -910,17 +1000,17 @@ class Incar(dict, MSONable):
             "NPAR",
             "LDAUPRINT",
             "LMAXMIX",
-            "ENCUT",
             "NSIM",
             "NKRED",
-            "NUPDOWN",
             "ISPIND",
             "LDAUTYPE",
             "IVDW",
         )
         lower_str_keys = ("ML_MODE",)
+        # String keywords to read "as is" (no case transformation, only stripped)
+        as_is_str_keys = ("SYSTEM",)
 
-        def smart_int_or_float(num_str: str) -> str | float:
+        def smart_int_or_float(num_str: str) -> float:
             """Determine whether a string represents an integer or a float."""
             if "." in num_str or "e" in num_str.lower():
                 return float(num_str)
@@ -953,6 +1043,9 @@ class Incar(dict, MSONable):
 
             if key in lower_str_keys:
                 return val.strip().lower()
+
+            if key in as_is_str_keys:
+                return val.strip()
 
         except ValueError:
             pass
@@ -1018,10 +1111,14 @@ class Incar(dict, MSONable):
         for tag, val in self.items():
             # Check if the tag exists
             if tag not in incar_params:
-                warnings.warn(f"Cannot find {tag} in the list of INCAR tags", BadIncarWarning, stacklevel=2)
+                warnings.warn(
+                    f"Cannot find {tag} in the list of INCAR tags",
+                    BadIncarWarning,
+                    stacklevel=2,
+                )
                 continue
 
-            # Check value and its type
+            # Check value type
             param_type: str = incar_params[tag].get("type")
             allowed_values: list[Any] = incar_params[tag].get("values")
 
@@ -1030,8 +1127,17 @@ class Incar(dict, MSONable):
 
             # Only check value when it's not None,
             # meaning there is recording for corresponding value
-            if allowed_values is not None and val not in allowed_values:
-                warnings.warn(f"{tag}: Cannot find {val} in the list of values", BadIncarWarning, stacklevel=2)
+            if allowed_values is not None:
+                allowed_values = [
+                    self.proc_val(tag, item) if isinstance(item, str) else item for item in allowed_values
+                ]
+
+                if val not in allowed_values:
+                    warnings.warn(
+                        f"{tag}: Cannot find {val} in the list of values",
+                        BadIncarWarning,
+                        stacklevel=2,
+                    )
 
 
 class BadIncarWarning(UserWarning):
@@ -1231,7 +1337,11 @@ class Kpoints(MSONable):
         self._style = style
 
     @classmethod
-    def automatic(cls, subdivisions: int) -> Self:
+    def automatic(
+        cls,
+        subdivisions: int,
+        comment: str = "Fully automatic kpoint scheme",
+    ) -> Self:
         """
         Constructor for a fully automatic Kpoint grid, with
         Gamma-centered grids and the number of subdivisions
@@ -1241,6 +1351,7 @@ class Kpoints(MSONable):
         Args:
             subdivisions (int): Number of subdivisions along
                 each reciprocal lattice vector.
+            comment (str): Comment in Kpoints.
 
         Returns:
             Kpoints
@@ -1248,7 +1359,7 @@ class Kpoints(MSONable):
         warnings.warn("Please use INCAR KSPACING tag.", DeprecationWarning, stacklevel=2)
 
         return cls(
-            "Fully automatic kpoint scheme",
+            comment,
             0,
             style=cls.supported_modes.Automatic,
             kpts=[
@@ -1257,7 +1368,12 @@ class Kpoints(MSONable):
         )
 
     @classmethod
-    def gamma_automatic(cls, kpts: Tuple3Ints = (1, 1, 1), shift: Vector3D = (0, 0, 0)) -> Self:
+    def gamma_automatic(
+        cls,
+        kpts: Tuple3Ints = (1, 1, 1),
+        shift: Vector3D = (0, 0, 0),
+        comment: str = "Automatic kpoint scheme",
+    ) -> Self:
         """
         Construct an automatic Gamma-centered Kpoint grid.
 
@@ -1265,14 +1381,26 @@ class Kpoints(MSONable):
             kpts: Subdivisions N_1, N_2 and N_3 along reciprocal lattice
                 vectors. Defaults to (1, 1, 1)
             shift: Shift to be applied to the kpoints. Defaults to (0, 0, 0).
+            comment (str): Comment in Kpoints.
 
         Returns:
             Kpoints
         """
-        return cls("Automatic kpoint scheme", 0, cls.supported_modes.Gamma, kpts=[kpts], kpts_shift=shift)
+        return cls(
+            comment,
+            0,
+            cls.supported_modes.Gamma,
+            kpts=[kpts],
+            kpts_shift=shift,
+        )
 
     @classmethod
-    def monkhorst_automatic(cls, kpts: Tuple3Ints = (2, 2, 2), shift: Vector3D = (0, 0, 0)) -> Self:
+    def monkhorst_automatic(
+        cls,
+        kpts: Tuple3Ints = (2, 2, 2),
+        shift: Vector3D = (0, 0, 0),
+        comment: str = "Automatic kpoint scheme",
+    ) -> Self:
         """
         Construct an automatic Monkhorst-Pack Kpoint grid.
 
@@ -1280,14 +1408,27 @@ class Kpoints(MSONable):
             kpts: Subdivisions N_1, N_2, N_3 along reciprocal lattice
                 vectors. Defaults to (2, 2, 2)
             shift: Shift to be applied to the kpoints. Defaults to (0, 0, 0).
+            comment (str): Comment in Kpoints.
 
         Returns:
             Kpoints
         """
-        return cls("Automatic kpoint scheme", 0, cls.supported_modes.Monkhorst, kpts=[kpts], kpts_shift=shift)
+        return cls(
+            comment,
+            0,
+            cls.supported_modes.Monkhorst,
+            kpts=[kpts],
+            kpts_shift=shift,
+        )
 
     @classmethod
-    def automatic_density(cls, structure: Structure, kppa: float, force_gamma: bool = False) -> Self:
+    def automatic_density(
+        cls,
+        structure: Structure,
+        kppa: float,
+        force_gamma: bool = False,
+        comment: str | None = None,
+    ) -> Self:
         """Get an automatic Kpoints object based on a structure and a kpoint
         density. Uses Gamma centered meshes for hexagonal cells and face-centered cells,
         Monkhorst-Pack grids otherwise.
@@ -1297,16 +1438,19 @@ class Kpoints(MSONable):
             reciprocal lattice vector proportional to its length.
 
         Args:
-            structure (Structure): Input structure
-            kppa (float): Grid density
+            structure (Structure): Input structure.
+            kppa (float): Grid density.
             force_gamma (bool): Force a gamma centered mesh (default is to
-                use gamma only for hexagonal cells or odd meshes)
+                use gamma only for hexagonal cells or odd meshes).
+            comment (str): Comment in Kpoints.
 
         Returns:
             Kpoints
         """
-        comment = f"pymatgen with grid density = {kppa:.0f} / number of atoms"
-        if math.fabs((math.floor(kppa ** (1 / 3) + 0.5)) ** 3 - kppa) < 1:
+        if comment is None:
+            comment = f"pymatgen with grid density = {kppa:.0f} / number of atoms"
+
+        if abs((math.floor(kppa ** (1 / 3) + 0.5)) ** 3 - kppa) < 1:
             kppa += kppa * 0.01
         lattice = structure.lattice
         lengths: Vector3D = lattice.abc
@@ -1332,7 +1476,12 @@ class Kpoints(MSONable):
         )
 
     @classmethod
-    def automatic_gamma_density(cls, structure: Structure, kppa: float) -> Self:
+    def automatic_gamma_density(
+        cls,
+        structure: Structure,
+        kppa: float,
+        comment: str | None = None,
+    ) -> Self:
         """Get an automatic Kpoints object based on a structure and a kpoint
         density. Uses Gamma centered meshes always. For GW.
 
@@ -1341,9 +1490,13 @@ class Kpoints(MSONable):
             reciprocal lattice vector proportional to its length.
 
         Args:
-            structure: Input structure
-            kppa: Grid density
+            structure (Structure): Input structure
+            kppa (float): Grid density
+            comment (str): Comment in Kpoints.
         """
+        if comment is None:
+            comment = f"pymatgen with grid density = {kppa:.0f} / number of atoms"
+
         lattice = structure.lattice
         a, b, c = lattice.abc
         n_grid = kppa / len(structure)
@@ -1359,8 +1512,6 @@ class Kpoints(MSONable):
 
         style = cls.supported_modes.Gamma
 
-        comment = f"pymatgen with grid density = {kppa:.0f} / number of atoms"
-
         n_kpts = 0
         return cls(
             comment,
@@ -1371,7 +1522,13 @@ class Kpoints(MSONable):
         )
 
     @classmethod
-    def automatic_density_by_vol(cls, structure: Structure, kppvol: int, force_gamma: bool = False) -> Self:
+    def automatic_density_by_vol(
+        cls,
+        structure: Structure,
+        kppvol: int,
+        force_gamma: bool = False,
+        comment: str | None = None,
+    ) -> Self:
         """Get an automatic Kpoints object based on a structure and a kpoint
         density per inverse Angstrom^3 of reciprocal cell.
 
@@ -1379,20 +1536,25 @@ class Kpoints(MSONable):
             Same as automatic_density()
 
         Args:
-            structure (Structure): Input structure
-            kppvol (int): Grid density per Angstrom^(-3) of reciprocal cell
-            force_gamma (bool): Force a gamma centered mesh
+            structure (Structure): Input structure.
+            kppvol (int): Grid density per Angstrom^(-3) of reciprocal cell.
+            force_gamma (bool): Force a gamma centered mesh.
+            comment (str): Comment in Kpoints.
 
         Returns:
             Kpoints
         """
         vol = structure.lattice.reciprocal_lattice.volume
         kppa = kppvol * vol * len(structure)
-        return cls.automatic_density(structure, kppa, force_gamma=force_gamma)
+        return cls.automatic_density(structure, kppa, force_gamma=force_gamma, comment=comment)
 
     @classmethod
     def automatic_density_by_lengths(
-        cls, structure: Structure, length_densities: Sequence[float], force_gamma: bool = False
+        cls,
+        structure: Structure,
+        length_densities: Sequence[float],
+        force_gamma: bool = False,
+        comment: str | None = None,
     ) -> Self:
         """Get an automatic Kpoints object based on a structure and a k-point
         density normalized by lattice constants.
@@ -1403,10 +1565,11 @@ class Kpoints(MSONable):
             have k-points of 50/a x 50/b x 1/c.
 
         Args:
-            structure (Structure): Input structure
-            length_densities (list[float]): Defines the density of k-points in each
+            structure (Structure): Input structure.
+            length_densities (list[float]): Defines the density of k-points in each.
             dimension, e.g. [50.0, 50.0, 1.0].
-            force_gamma (bool): Force a gamma centered mesh
+            force_gamma (bool): Force a gamma centered mesh.
+            comment (str): Comment in Kpoints.
 
         Returns:
             Kpoints
@@ -1414,7 +1577,8 @@ class Kpoints(MSONable):
         if len(length_densities) != 3:
             raise ValueError(f"The dimensions of length_densities must be 3, not {len(length_densities)}")
 
-        comment: str = f"k-point density of {length_densities}/[a, b, c]"
+        if comment is None:
+            comment = f"k-point density of {length_densities}/[a, b, c]"
 
         lattice = structure.lattice
 
@@ -1440,7 +1604,12 @@ class Kpoints(MSONable):
         )
 
     @classmethod
-    def automatic_linemode(cls, divisions: int, ibz: HighSymmKpath) -> Self:
+    def automatic_linemode(
+        cls,
+        divisions: int,
+        ibz: HighSymmKpath,
+        comment: str = "Line_mode KPOINTS file",
+    ) -> Self:
         """
         Convenient static constructor for a KPOINTS in mode line_mode.
         gamma centered Monkhorst-Pack grids and the number of subdivisions
@@ -1448,8 +1617,9 @@ class Kpoints(MSONable):
         VASP manual.
 
         Args:
-            divisions: Parameter determining the number of k-points along each high symmetry line.
-            ibz: HighSymmKpath object (pymatgen.symmetry.bandstructure)
+            divisions (int): Parameter determining the number of k-points along each high symmetry line.
+            ibz (HighSymmKpath): HighSymmKpath object (pymatgen.symmetry.bandstructure).
+            comment (str): Comment in Kpoints.
 
         Returns:
             Kpoints object
@@ -1467,7 +1637,7 @@ class Kpoints(MSONable):
             labels.append(path[-1])
 
         return cls(
-            "Line_mode KPOINTS file",
+            comment,
             style=cls.supported_modes.Line_mode,
             coord_type="Reciprocal",
             kpts=kpoints,
@@ -1511,7 +1681,7 @@ class Kpoints(MSONable):
 
         # Fully automatic KPOINTS
         if style == "a":
-            return cls.automatic(int(lines[3].split()[0].strip()))
+            return cls.automatic(int(lines[3].split()[0].strip()), comment=comment)
 
         coord_pattern = re.compile(r"^\s*([\d+.\-Ee]+)\s+([\d+.\-Ee]+)\s+([\d+.\-Ee]+)")
 
@@ -1534,7 +1704,11 @@ class Kpoints(MSONable):
 
                 kpts_shift = cast(Vector3D, tuple(_kpts_shift))
 
-            return cls.gamma_automatic(kpt, kpts_shift) if style == "g" else cls.monkhorst_automatic(kpt, kpts_shift)
+            return (
+                cls.gamma_automatic(kpt, kpts_shift, comment=comment)
+                if style == "g"
+                else cls.monkhorst_automatic(kpt, kpts_shift, comment=comment)
+            )
 
         # Automatic kpoints with basis
         if num_kpts <= 0:
@@ -1629,7 +1803,7 @@ class Kpoints(MSONable):
         with zopen(filename, mode="wt") as file:
             file.write(str(self))
 
-    def as_dict(self) -> dict:
+    def as_dict(self) -> dict[str, Any]:
         """MSONable dict."""
         dct = {
             "@module": type(self).__module__,
@@ -1654,7 +1828,7 @@ class Kpoints(MSONable):
         return dct
 
     @classmethod
-    def from_dict(cls, dct: dict) -> Self:
+    def from_dict(cls, dct: dict[str, Any]) -> Self:
         """
         Args:
             dct (dict): Dict representation.
@@ -1701,6 +1875,7 @@ def _parse_int(string: str) -> int:
 
 
 def _parse_list(string: str) -> list[float]:
+    """Parse a list of floats from a string."""
     return [float(y) for y in re.split(r"\s+", string.strip()) if not y.isalpha()]
 
 
@@ -1722,9 +1897,9 @@ class OrbitalDescription(NamedTuple):
 
 
 # Hashes computed from the full POTCAR file contents by pymatgen (not 1st-party VASP hashes)
-PYMATGEN_POTCAR_HASHES = loadfn(f"{MODULE_DIR}/vasp_potcar_pymatgen_hashes.json")
+PYMATGEN_POTCAR_HASHES: dict = loadfn(f"{MODULE_DIR}/vasp_potcar_pymatgen_hashes.json")
 # Written to some newer POTCARs by VASP
-VASP_POTCAR_HASHES = loadfn(f"{MODULE_DIR}/vasp_potcar_file_hashes.json")
+VASP_POTCAR_HASHES: dict = loadfn(f"{MODULE_DIR}/vasp_potcar_file_hashes.json")
 POTCAR_STATS_PATH: str = os.path.join(MODULE_DIR, "potcar-summary-stats.json.bz2")
 
 
@@ -1846,7 +2021,10 @@ class PotcarSingle:
             try:
                 keywords[key] = self.parse_functions[key](val)  # type: ignore[operator]
             except KeyError:
-                warnings.warn(f"Ignoring unknown variable type {key}")
+                warnings.warn(
+                    f"Ignoring unknown variable type {key}",
+                    stacklevel=2,
+                )
 
         PSCTR: dict[str, Any] = {}
 
@@ -1861,7 +2039,13 @@ class PotcarSingle:
             for line in lines[3:]:
                 if orbit := array_search.findall(line):
                     orbitals.append(
-                        Orbital(int(orbit[0]), int(orbit[1]), float(orbit[2]), float(orbit[3]), float(orbit[4]))
+                        Orbital(
+                            int(orbit[0]),
+                            int(orbit[1]),
+                            float(orbit[2]),
+                            float(orbit[3]),
+                            float(orbit[4]),
+                        )
                     )
             PSCTR["Orbitals"] = tuple(orbitals)
 
@@ -1914,6 +2098,7 @@ class PotcarSingle:
                 f"POTCAR data with symbol {self.symbol} is not known to pymatgen. Your "
                 "POTCAR may be corrupted or pymatgen's POTCAR database is incomplete.",
                 UnknownPotcarWarning,
+                stacklevel=2,
             )
 
     def __eq__(self, other: object) -> bool:
@@ -1945,7 +2130,10 @@ class PotcarSingle:
     def electron_configuration(self) -> list[tuple[int, str, int]] | None:
         """Electronic configuration of the PotcarSingle."""
         if not self.nelectrons.is_integer():
-            warnings.warn("POTCAR has non-integer charge, electron configuration not well-defined.")
+            warnings.warn(
+                "POTCAR has non-integer charge, electron configuration not well-defined.",
+                stacklevel=2,
+            )
             return None
 
         el = Element.from_Z(self.atomic_no)
@@ -2121,7 +2309,11 @@ class PotcarSingle:
                 if self.TITEL.replace(" ", "") == titel_no_spc:
                     for potcar_subvariant in self._potcar_summary_stats[func][titel_no_spc]:
                         if self.VRHFIN.replace(" ", "") == potcar_subvariant["VRHFIN"]:
-                            possible_match = {"POTCAR_FUNCTIONAL": func, "TITEL": titel_no_spc, **potcar_subvariant}
+                            possible_match = {
+                                "POTCAR_FUNCTIONAL": func,
+                                "TITEL": titel_no_spc,
+                                **potcar_subvariant,
+                            }
                             possible_potcar_matches.append(possible_match)
 
         def parse_fortran_style_str(input_str: str) -> str | bool | float | int:
@@ -2250,7 +2442,10 @@ class PotcarSingle:
                 return cls(file.read(), symbol=symbol or None)
 
         except UnicodeDecodeError:
-            warnings.warn("POTCAR contains invalid unicode errors. We will attempt to read it by ignoring errors.")
+            warnings.warn(
+                "POTCAR contains invalid unicode errors. We will attempt to read it by ignoring errors.",
+                stacklevel=2,
+            )
 
             with codecs.open(str(filename), "r", encoding="utf-8", errors="ignore") as file:
                 return cls(file.read(), symbol=symbol or None)
@@ -2277,9 +2472,7 @@ class PotcarSingle:
         functional_subdir = SETTINGS.get("PMG_VASP_PSP_SUB_DIRS", {}).get(functional, cls.functional_dir[functional])
         PMG_VASP_PSP_DIR = SETTINGS.get("PMG_VASP_PSP_DIR")
         if PMG_VASP_PSP_DIR is None:
-            raise PmgVaspPspDirError(
-                f"No POTCAR for {symbol} with {functional=} found. Please set the PMG_VASP_PSP_DIR in .pmgrc.yaml."
-            )
+            raise PmgVaspPspDirError("Set PMG_VASP_PSP_DIR=<directory-path> in .pmgrc.yaml (needed to find POTCARs)")
         if not os.path.isdir(PMG_VASP_PSP_DIR):
             raise FileNotFoundError(f"{PMG_VASP_PSP_DIR=} does not exist.")
 
@@ -2537,7 +2730,10 @@ def _gen_potcar_summary_stats(
         if os.path.isdir(cpsp_dir):
             func_dir_exist[func] = func_dir
         else:
-            warnings.warn(f"missing {func_dir} POTCAR directory")
+            warnings.warn(
+                f"missing {func_dir} POTCAR directory",
+                stacklevel=2,
+            )
 
     # Use append = True if a new POTCAR library is released to add new summary stats
     # without completely regenerating the dict of summary stats
@@ -2743,7 +2939,14 @@ class VaspInput(dict, MSONable):
         """
         super().__init__(**kwargs)
         self._potcar_filename = "POTCAR" + (".spec" if potcar_spec else "")
-        self.update({"INCAR": Incar(incar), "KPOINTS": kpoints, "POSCAR": poscar, self._potcar_filename: potcar})
+        self.update(
+            {
+                "INCAR": Incar(incar),
+                "KPOINTS": kpoints,
+                "POSCAR": poscar,
+                self._potcar_filename: potcar,
+            }
+        )
         if optional_files is not None:
             self.update(optional_files)
 
@@ -2828,7 +3031,10 @@ class VaspInput(dict, MSONable):
 
         files_to_transfer = files_to_transfer or {}
         for key, val in files_to_transfer.items():
-            with zopen(val, "rb") as fin, zopen(str(Path(output_dir) / key), "wb") as fout:
+            with (
+                zopen(val, "rb") as fin,
+                zopen(str(Path(output_dir) / key), "wb") as fout,
+            ):
                 copyfileobj(fin, fout)
 
     @classmethod

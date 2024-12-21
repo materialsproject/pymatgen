@@ -126,12 +126,12 @@ class ChargemolAnalysis:
 
         else:
             self.chgcar = self.structure = self.natoms = None
-            warnings.warn("No CHGCAR found. Some properties may be unavailable.", UserWarning)
+            warnings.warn("No CHGCAR found. Some properties may be unavailable.", stacklevel=2)
 
         if self._potcar_path:
             self.potcar = Potcar.from_file(self._potcar_path)
         else:
-            warnings.warn("No POTCAR found. Some properties may be unavailable.", UserWarning)
+            warnings.warn("No POTCAR found. Some properties may be unavailable.", stacklevel=2)
 
         self.aeccar0 = Chgcar.from_file(self._aeccar0_path) if self._aeccar0_path else None
         self.aeccar2 = Chgcar.from_file(self._aeccar2_path) if self._aeccar2_path else None
@@ -164,7 +164,7 @@ class ChargemolAnalysis:
             # however, better to use 'suffix' kwarg to avoid this!
             paths.sort(reverse=True)
             if len(paths) > 1:
-                warnings.warn(f"Multiple files detected, using {os.path.basename(paths[0])}")
+                warnings.warn(f"Multiple files detected, using {os.path.basename(paths[0])}", stacklevel=2)
             fpath = paths[0]
         return fpath
 
@@ -191,7 +191,12 @@ class ChargemolAnalysis:
             self._write_jobscript_for_chargemol(**job_control_kwargs)
 
             # Run Chargemol
-            with subprocess.Popen(CHARGEMOL_EXE, stdout=subprocess.PIPE, stdin=subprocess.PIPE, close_fds=True) as rs:
+            with subprocess.Popen(
+                CHARGEMOL_EXE,
+                stdout=subprocess.PIPE,
+                stdin=subprocess.PIPE,
+                close_fds=True,
+            ) as rs:
                 _stdout, stderr = rs.communicate()
             if rs.returncode != 0:
                 raise RuntimeError(

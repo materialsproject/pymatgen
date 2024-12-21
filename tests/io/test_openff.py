@@ -85,7 +85,7 @@ def test_mol_graph_from_openff_mol_cco():
     assert len(cco_mol_graph_1.graph.edges) == 8
 
     cco_pmg = Molecule(atoms, atom_coords)
-    cco_mol_graph_2 = MoleculeGraph.with_local_env_strategy(cco_pmg, OpenBabelNN())
+    cco_mol_graph_2 = MoleculeGraph.from_local_env_strategy(cco_pmg, OpenBabelNN())
 
     em = iso.categorical_edge_match("weight", 1)
 
@@ -96,7 +96,7 @@ def test_mol_graph_to_openff_pf6(mol_files):
     """transform a water MoleculeGraph to a OpenFF water molecule"""
     pf6_mol = Molecule.from_file(mol_files["PF6_xyz"])
     pf6_mol.set_charge_and_spin(charge=-1)
-    pf6_mol_graph = MoleculeGraph.with_edges(
+    pf6_mol_graph = MoleculeGraph.from_edges(
         pf6_mol,
         {
             (0, 1): {"weight": 1},
@@ -116,7 +116,7 @@ def test_mol_graph_to_openff_pf6(mol_files):
 
 def test_mol_graph_to_openff_cco(mol_files):
     cco_pmg = Molecule.from_file(mol_files["CCO_xyz"])
-    cco_mol_graph = MoleculeGraph.with_local_env_strategy(cco_pmg, OpenBabelNN())
+    cco_mol_graph = MoleculeGraph.from_local_env_strategy(cco_pmg, OpenBabelNN())
 
     cco_openff_1 = mol_graph_to_openff_mol(cco_mol_graph)
 

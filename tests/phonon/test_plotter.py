@@ -98,7 +98,10 @@ class TestPhononBSPlotter(TestCase):
         assert ax.get_title() == ""
         assert [itm.get_text() for itm in ax.get_legend().get_texts()] == list(labels)
         ax = self.plotter.plot_compare(self.plotter, units="mev")
-        assert [itm.get_text() for itm in ax.get_legend().get_texts()] == ["NaCl", "NaCl"]
+        assert [itm.get_text() for itm in ax.get_legend().get_texts()] == [
+            "NaCl",
+            "NaCl",
+        ]
         labels = ("NaCl", "NaCl 2", "NaCl 3")
         ax = self.plotter.plot_compare({labels[1]: self.plotter, labels[2]: self.plotter}, units="mev")
         assert [itm.get_text() for itm in ax.get_legend().get_texts()] == list(labels)
@@ -116,6 +119,7 @@ class TestThermoPlotter(TestCase):
             self.dos = CompletePhononDos.from_dict(json.load(file))
         self.plotter = ThermoPlotter(self.dos, self.dos.structure)
 
+    @pytest.mark.filterwarnings("ignore:More than 20 figures have been opened")
     def test_plot_functions(self):
         fig = self.plotter.plot_cv(5, 100, 5, show=False)
         assert isinstance(fig, plt.Figure)

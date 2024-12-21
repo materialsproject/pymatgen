@@ -32,6 +32,7 @@ elif len(PMG_MAPI_KEY) > 20:
     MP_URL = "https://api.materialsproject.org"
 else:
     MP_URL = "https://materialsproject.org"
+
 try:
     skip_mprester_tests = requests.get(MP_URL, timeout=60).status_code != 200
 
@@ -39,10 +40,13 @@ except (ModuleNotFoundError, ImportError, requests.exceptions.ConnectionError):
     # Skip all MPRester tests if some downstream problem on the website, mp-api or whatever.
     skip_mprester_tests = True
 
+if skip_mprester_tests:
+    pytest.skip("MP API is down", allow_module_level=True)
+
 
 @pytest.mark.skipif(
-    skip_mprester_tests or (not 10 < len(PMG_MAPI_KEY) <= 20),
-    reason="Legacy PMG_MAPI_KEY environment variable not set or MP API is down.",
+    not 10 < len(PMG_MAPI_KEY) <= 20,
+    reason="Legacy PMG_MAPI_KEY environment variable not set.",
 )
 class TestMPResterOld(PymatgenTest):
     def setUp(self):
@@ -85,7 +89,13 @@ class TestMPResterOld(PymatgenTest):
         expected_vals = vals.json()
 
         for prop in props:
-            if prop not in ["hubbards", "unit_cell_formula", "elements", "icsd_ids", "task_ids"]:
+            if prop not in [
+                "hubbards",
+                "unit_cell_formula",
+                "elements",
+                "icsd_ids",
+                "task_ids",
+            ]:
                 val = self.rester.get_data(mp_id, prop=prop)[0][prop]
                 if prop in ["energy", "energy_per_atom"]:
                     prop = f"final_{prop}"
@@ -515,8 +525,8 @@ class TestMPResterOld(PymatgenTest):
 
 
 @pytest.mark.skipif(
-    skip_mprester_tests or (not len(PMG_MAPI_KEY) > 20),
-    reason="PMG_MAPI_KEY environment variable not set or MP API is down.",
+    not len(PMG_MAPI_KEY) > 20,
+    reason="PMG_MAPI_KEY environment variable not set.",
 )
 class TestMPResterNewBasic(PymatgenTest):
     def setUp(self):

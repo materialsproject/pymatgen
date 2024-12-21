@@ -124,7 +124,7 @@ class TestPeriodicSite(PymatgenTest):
         assert (image == [-1, -1, -1]).all()
         distance, image = self.site.distance_and_image(other_site, [1, 0, 0])
         assert distance == approx(19.461500456028563)
-        # Test that old and new distance algo give the same ans for
+        # Test that old and new distance algo give the same answer for
         # "standard lattices"
         lattice = Lattice(np.eye(3))
         site1 = PeriodicSite("Fe", np.array([0.01, 0.02, 0.03]), lattice)
@@ -167,6 +167,26 @@ class TestPeriodicSite(PymatgenTest):
 
         assert self.labeled_site.label != site.label
         assert self.labeled_site == site
+
+    def test_equality_prop_with_np_array(self):
+        """Some property (e.g. selective dynamics for POSCAR) could be numpy arrays,
+        use "==" for equality check might fail in these cases.
+        """
+        site_0 = PeriodicSite(
+            "Fe",
+            [0.25, 0.35, 0.45],
+            self.lattice,
+            properties={"selective_dynamics": np.array([True, True, False])},
+        )
+        assert site_0 == site_0
+
+        site_1 = PeriodicSite(
+            "Fe",
+            [0.25, 0.35, 0.45],
+            self.lattice,
+            properties={"selective_dynamics": np.array([True, False, False])},
+        )
+        assert site_0 != site_1
 
     def test_as_from_dict(self):
         dct = self.site2.as_dict()

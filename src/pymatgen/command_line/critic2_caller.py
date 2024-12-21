@@ -107,7 +107,7 @@ class Critic2Caller:
         stderr = ""
         if _stderr:
             stderr = _stderr.decode()
-            warnings.warn(stderr)
+            warnings.warn(stderr, stacklevel=2)
 
         if rs.returncode != 0:
             raise RuntimeError(f"critic2 exited with return code {rs.returncode}: {stdout}")
@@ -332,7 +332,7 @@ def get_filepath(filename, warning, path, suffix):
     """
     paths = glob(os.path.join(path, f"{filename}{suffix}*"))
     if not paths:
-        warnings.warn(warning)
+        warnings.warn(warning, stacklevel=2)
         return None
     if len(paths) > 1:
         # using reverse=True because, if multiple files are present,
@@ -340,7 +340,7 @@ def get_filepath(filename, warning, path, suffix):
         # and this would give 'static' over 'relax2' over 'relax'
         # however, better to use 'suffix' kwarg to avoid this!
         paths.sort(reverse=True)
-        warnings.warn(f"Multiple files detected, using {os.path.basename(path)}")
+        warnings.warn(f"Multiple files detected, using {os.path.basename(path)}", stacklevel=2)
     return paths[0]
 
 
@@ -550,7 +550,8 @@ class Critic2Analysis(MSONable):
                             "Duplicate edge detected, try re-running "
                             "critic2 with custom parameters to fix this. "
                             "Mostly harmless unless user is also "
-                            "interested in rings/cages."
+                            "interested in rings/cages.",
+                            stacklevel=2,
                         )
                         logger.debug(
                             f"Duplicate edge between points {idx} (unique point {self.nodes[idx]['unique_idx']})"
@@ -655,9 +656,9 @@ class Critic2Analysis(MSONable):
                 p["multiplicity"],
                 p["field"],
                 p["gradient"],
-                coords=[x * bohr_to_angstrom for x in p["cartesian_coordinates"]]
-                if cpreport["units"] == "bohr"
-                else None,
+                coords=(
+                    [x * bohr_to_angstrom for x in p["cartesian_coordinates"]] if cpreport["units"] == "bohr" else None
+                ),
                 field_hessian=p["hessian"],
             )
             for p in cpreport["critical_points"]["nonequivalent_cps"]
@@ -700,7 +701,8 @@ class Critic2Analysis(MSONable):
         if len(node_mapping) != len(self.structure):
             warnings.warn(
                 f"Check that all sites in input structure ({len(self.structure)}) have "
-                f"been detected by critic2 ({ len(node_mapping)})."
+                f"been detected by critic2 ({ len(node_mapping)}).",
+                stacklevel=2,
             )
 
         self.nodes = {node_mapping.get(idx, idx): node for idx, node in self.nodes.items()}
@@ -755,7 +757,7 @@ class Critic2Analysis(MSONable):
 
         if zpsp:
             if len(charge_transfer) != len(charges):
-                warnings.warn(f"Something went wrong calculating charge transfer: {charge_transfer}")
+                warnings.warn(f"Something went wrong calculating charge transfer: {charge_transfer}", stacklevel=2)
             else:
                 structure.add_site_property("bader_charge_transfer", charge_transfer)
 
@@ -764,7 +766,9 @@ class Critic2Analysis(MSONable):
     def _parse_stdout(self, stdout):
         warnings.warn(
             "Parsing critic2 standard output is deprecated and will not be maintained, "
-            "please use the native JSON output in future."
+            "please use the native JSON output in future.",
+            DeprecationWarning,
+            stacklevel=2,
         )
 
         stdout = stdout.split("\n")

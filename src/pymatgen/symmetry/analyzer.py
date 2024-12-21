@@ -44,7 +44,15 @@ if TYPE_CHECKING:
     from pymatgen.symmetry.groups import CrystalSystem
     from pymatgen.util.typing import Kpoint
 
-    LatticeType = Literal["cubic", "hexagonal", "monoclinic", "orthorhombic", "rhombohedral", "tetragonal", "triclinic"]
+    LatticeType = Literal[
+        "cubic",
+        "hexagonal",
+        "monoclinic",
+        "orthorhombic",
+        "rhombohedral",
+        "tetragonal",
+        "triclinic",
+    ]
 
 logger = logging.getLogger(__name__)
 
@@ -69,7 +77,7 @@ def _get_symmetry_dataset(cell, symprec, angle_tolerance):
     """
     dataset = spglib.get_symmetry_dataset(cell, symprec=symprec, angle_tolerance=angle_tolerance)
     if dataset is None:
-        raise SymmetryUndeterminedError
+        raise SymmetryUndeterminedError(spglib.get_error_message())
     return dataset
 
 
@@ -266,7 +274,11 @@ class SpacegroupAnalyzer:
             "translations" gives the numpy float64 array of the translation
             vectors in scaled positions.
         """
-        dct = spglib.get_symmetry(self._cell, symprec=self._symprec, angle_tolerance=self._angle_tol)
+        with warnings.catch_warnings():
+            # TODO: get DeprecationWarning: Use get_magnetic_symmetry() for cell with magnetic moments.
+            warnings.filterwarnings("ignore", message="Use get_magnetic_symmetry", category=DeprecationWarning)
+            dct = spglib.get_symmetry(self._cell, symprec=self._symprec, angle_tolerance=self._angle_tol)
+
         if dct is None:
             symprec = self._symprec
             raise ValueError(
@@ -369,7 +381,7 @@ class SpacegroupAnalyzer:
         if keep_site_properties:
             site_properties = {}
             for k, v in self._site_props.items():
-                site_properties[k] = [v[i - 1] for i in numbers]
+                site_properties[k] = [v[self._numbers.index(i)] for i in numbers]
         else:
             site_properties = None
         struct = Structure(lattice, species, scaled_positions, site_properties=site_properties)
@@ -398,12 +410,16 @@ class SpacegroupAnalyzer:
         if keep_site_properties:
             site_properties = {}
             for key, val in self._site_props.items():
-                site_properties[key] = [val[i - 1] for i in numbers]
+                site_properties[key] = [val[self._numbers.index(i)] for i in numbers]
         else:
             site_properties = None
 
         return Structure(
-            lattice, species, scaled_positions, to_unit_cell=True, site_properties=site_properties
+            lattice,
+            species,
+            scaled_positions,
+            to_unit_cell=True,
+            site_properties=site_properties,
         ).get_reduced_structure()
 
     def get_ir_reciprocal_mesh(
@@ -487,7 +503,7 @@ class SpacegroupAnalyzer:
             # Check if the conventional representation is hexagonal or
             # rhombohedral
             lengths = conv.lattice.lengths
-            if abs(lengths[0] - lengths[2]) < 0.0001:
+            if abs(lengths[0] - lengths[2]) < 1e-4:
                 return np.eye
             return np.array([[-1, 1, 1], [2, 1, 1], [-1, -2, 1]], dtype=np.float64) / 3
 
@@ -531,7 +547,8 @@ class SpacegroupAnalyzer:
             The structure in a primitive standardized cell
         """
         conv = self.get_conventional_standard_structure(
-            international_monoclinic=international_monoclinic, keep_site_properties=keep_site_properties
+            international_monoclinic=international_monoclinic,
+            keep_site_properties=keep_site_properties,
         )
         lattice = self.get_lattice_type()
 
@@ -635,7 +652,14 @@ class SpacegroupAnalyzer:
                 transf[2] = [0, 0, 1]
                 a, b = sorted(lattice.abc[:2])
                 sorted_dic = sorted(
-                    ({"vec": lattice.matrix[i], "length": lattice.abc[i], "orig_index": i} for i in (0, 1)),
+                    (
+                        {
+                            "vec": lattice.matrix[i],
+                            "length": lattice.abc[i],
+                            "orig_index": i,
+                        }
+                        for i in (0, 1)
+                    ),
                     key=lambda k: k["length"],
                 )
                 for idx in range(2):
@@ -647,7 +671,14 @@ class SpacegroupAnalyzer:
                 transf[2] = [1, 0, 0]
                 a, b = sorted(lattice.abc[1:])
                 sorted_dic = sorted(
-                    ({"vec": lattice.matrix[i], "length": lattice.abc[i], "orig_index": i} for i in (1, 2)),
+                    (
+                        {
+                            "vec": lattice.matrix[i],
+                            "length": lattice.abc[i],
+                            "orig_index": i,
+                        }
+                        for i in (1, 2)
+                    ),
                     key=lambda k: k["length"],
                 )
                 for idx in range(2):
@@ -701,7 +732,14 @@ class SpacegroupAnalyzer:
                 transf = np.zeros(shape=(3, 3))
                 transf[2] = [0, 0, 1]
                 sorted_dic = sorted(
-                    ({"vec": lattice.matrix[i], "length": lattice.abc[i], "orig_index": i} for i in (0, 1)),
+                    (
+                        {
+                            "vec": lattice.matrix[i],
+                            "length": lattice.abc[i],
+                            "orig_index": i,
+                        }
+                        for i in (0, 1)
+                    ),
                     key=lambda k: k["length"],
                 )
                 a = sorted_dic[0]["length"]
@@ -956,7 +994,19 @@ class SpacegroupAnalyzer:
 
     def is_laue(self) -> bool:
         """Check if the point group of the structure has Laue symmetry (centrosymmetry)."""
-        laue = {"-1", "2/m", "mmm", "4/m", "4/mmm", "-3", "-3m", "6/m", "6/mmm", "m-3", "m-3m"}
+        laue = {
+            "-1",
+            "2/m",
+            "mmm",
+            "4/m",
+            "4/mmm",
+            "-3",
+            "-3m",
+            "6/m",
+            "6/mmm",
+            "m-3",
+            "m-3m",
+        }
 
         return str(self.get_point_group_symbol()) in laue
 
@@ -1329,6 +1379,15 @@ class PointGroupAnalyzer:
         return generate_full_symmops(self.symmops, self.tol)
 
     def get_rotational_symmetry_number(self) -> int:
+        """Get rotational symmetry number.
+
+        Returns:
+            int: Rotational symmetry number.
+        """
+        if self.sch_symbol == "D*h":
+            # Special case. H2 for example has rotational symmetry number 2
+            return 2
+
         """Get the rotational symmetry number."""
         symm_ops = self.get_symmetry_operations()
         symm_number = 0
@@ -1615,7 +1674,8 @@ def generate_full_symmops(
             if len(full) > 1000:
                 warnings.warn(
                     f"{len(full)} matrices have been generated. The tol may be too small. Please terminate"
-                    " and rerun with a different tolerance."
+                    " and rerun with a different tolerance.",
+                    stacklevel=2,
                 )
 
     d = np.abs(full - identity) < tol

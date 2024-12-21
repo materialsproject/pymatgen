@@ -266,17 +266,17 @@ def get_displaced_structures(pmg_structure, atom_disp=0.01, supercell_matrix=Non
     )
 
     if yaml_fname is not None:
-        displacements = phonon.get_displacements()
+        displacements = phonon.displacements
         write_disp_yaml(
             displacements=displacements,
-            supercell=phonon.get_supercell(),
+            supercell=phonon.supercell,
             filename=yaml_fname,
         )
 
     # Supercell structures with displacement
-    disp_supercells = phonon.get_supercells_with_displacements()
+    disp_supercells = phonon.supercells_with_displacements
     # Perfect supercell structure
-    init_supercell = phonon.get_supercell()
+    init_supercell = phonon.supercell
     # Structure list to be returned
     structure_list = [get_pmg_structure(init_supercell)]
 
@@ -313,7 +313,7 @@ def get_phonon_dos_from_fc(
     """
     structure_phonopy = get_phonopy_structure(structure)
     phonon = Phonopy(structure_phonopy, supercell_matrix=supercell_matrix, **kwargs)
-    phonon.set_force_constants(force_constants)
+    phonon.force_constants = force_constants
     phonon.run_mesh(
         mesh_density,
         is_mesh_symmetry=False,
@@ -329,7 +329,7 @@ def get_phonon_dos_from_fc(
 
     phonon.run_projected_dos(freq_min=freq_min, freq_max=freq_max, freq_pitch=freq_pitch)
 
-    dos_raw = phonon.projected_dos.get_partial_dos()
+    dos_raw = (phonon.projected_dos.frequency_points, phonon.projected_dos.projected_dos)
     p_doses = dict(zip(structure, dos_raw[1], strict=True))
 
     total_dos = PhononDos(dos_raw[0], dos_raw[1].sum(axis=0))
@@ -360,7 +360,7 @@ def get_phonon_band_structure_from_fc(
     """
     structure_phonopy = get_phonopy_structure(structure)
     phonon = Phonopy(structure_phonopy, supercell_matrix=supercell_matrix, **kwargs)
-    phonon.set_force_constants(force_constants)
+    phonon.force_constants = force_constants
     phonon.run_mesh(mesh_density, is_mesh_symmetry=False, is_gamma_center=True)
     mesh = phonon.get_mesh_dict()
 
@@ -394,14 +394,14 @@ def get_phonon_band_structure_symm_line_from_fc(
     """
     structure_phonopy = get_phonopy_structure(structure)
     phonon = Phonopy(structure_phonopy, supercell_matrix=supercell_matrix, symprec=symprec, **kwargs)
-    phonon.set_force_constants(force_constants)
+    phonon.force_constants = force_constants
 
     k_path = HighSymmKpath(structure, symprec=symprec)
 
     kpoints, labels = k_path.get_kpoints(line_density=line_density, coords_are_cartesian=False)
 
     phonon.run_qpoints(kpoints)
-    frequencies = phonon.qpoints.get_frequencies().T
+    frequencies = phonon.qpoints.frequencies.T
 
     labels_dict = {a: k for a, k in zip(labels, kpoints, strict=True) if a != ""}
 
@@ -641,7 +641,8 @@ def get_gruneisen_ph_bs_symm_line(gruneisen_path, structure=None, structure_path
 
 
 def get_thermal_displacement_matrices(
-    thermal_displacements_yaml="thermal_displacement_matrices.yaml", structure_path="POSCAR"
+    thermal_displacements_yaml="thermal_displacement_matrices.yaml",
+    structure_path="POSCAR",
 ):
     """Read "thermal_displacement_matrices.yaml" from phonopy and return a list of
     ThermalDisplacementMatrices objects.

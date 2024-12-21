@@ -83,7 +83,12 @@ class Control(MSONable, dict):
         "espresso",
     )
 
-    def __init__(self, ngrid: list[int] | None = None, temperature: float | dict[str, float] = 300, **kwargs):
+    def __init__(
+        self,
+        ngrid: list[int] | None = None,
+        temperature: float | dict[str, float] = 300,
+        **kwargs,
+    ):
         """
         Args:
             ngrid: Reciprocal space grid density as a list of 3 ints.
@@ -175,7 +180,10 @@ class Control(MSONable, dict):
         """
         for param in self.required_params:
             if param not in self.as_dict():
-                warnings.warn(f"Required parameter {param!r} not specified!")
+                warnings.warn(
+                    f"Required parameter {param!r} not specified!",
+                    stacklevel=2,
+                )
 
         alloc_dict = _get_subdict(self, self.allocations_keys)
         alloc_nml = f90nml.Namelist({"allocations": alloc_dict})

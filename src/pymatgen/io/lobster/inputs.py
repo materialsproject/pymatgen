@@ -70,6 +70,8 @@ class Lobsterin(UserDict, MSONable):
         "useDecimalPlaces",
         "COHPSteps",
         "basisRotation",
+        "gridDensityForPrinting",
+        "gridBufferForPrinting",
     )
 
     # These keywords need an additional string suffix
@@ -87,10 +89,13 @@ class Lobsterin(UserDict, MSONable):
     # The keywords themselves (without suffix) can trigger additional functionalities
     _BOOLEAN_KEYWORDS: tuple[str, ...] = (
         "saveProjectionToFile",
+        "skipCar",
         "skipdos",
         "skipcohp",
         "skipcoop",
         "skipcobi",
+        "skipMOFE",
+        "skipMolecularOrbitals",
         "skipMadelungEnergy",
         "loadProjectionFromFile",
         "printTotalSpilling",
@@ -103,6 +108,9 @@ class Lobsterin(UserDict, MSONable):
         "userecommendedbasisfunctions",
         "skipProjection",
         "printLmosOnAtoms",
+        "printMofeAtomWise",
+        "printMofeMoleculeWise",
+        "writeAtomicOrbitals",
         "writeBasisFunctions",
         "writeMatricesToFile",
         "noFFTforVisualization",
@@ -131,6 +139,7 @@ class Lobsterin(UserDict, MSONable):
         "createFatband",
         "customSTOforAtom",
         "cobiBetween",
+        "printLmosOnAtomswriteAtomicDensities",
     )
 
     # Generate {lowered: original} mappings
@@ -328,7 +337,10 @@ class Lobsterin(UserDict, MSONable):
         """
         # Read INCAR from file, which will be modified
         incar = Incar.from_file(incar_input)
-        warnings.warn("Please check your incar_input before using it. This method only changes three settings!")
+        warnings.warn(
+            "Please check your incar_input before using it. This method only changes three settings!",
+            stacklevel=2,
+        )
         if isym in {-1, 0}:
             incar["ISYM"] = isym
         else:
@@ -645,7 +657,8 @@ class Lobsterin(UserDict, MSONable):
                 "Lobster up to version 4.1.0."
                 "\n The keywords SHA256 and COPYR "
                 "cannot be handled by Lobster"
-                " \n and will lead to wrong results."
+                " \n and will lead to wrong results.",
+                stacklevel=2,
             )
 
         if potcar.functional != "PBE":
@@ -688,7 +701,8 @@ class Lobsterin(UserDict, MSONable):
             Lobsterin with standard settings
         """
         warnings.warn(
-            "Always check and test the provided basis functions. The spilling of your Lobster calculation might help"
+            "Always check and test the provided basis functions. The spilling of your Lobster calculation might help",
+            stacklevel=2,
         )
 
         if option not in {

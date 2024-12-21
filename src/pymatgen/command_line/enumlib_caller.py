@@ -235,7 +235,13 @@ class EnumlibAdaptor:
         output.extend((f"{len(index_species)}", f"{len(coord_str)}"))
         output.extend(coord_str)
 
-        output.extend((f"{self.min_cell_size} {self.max_cell_size}", str(self.enum_precision_parameter), "full"))
+        output.extend(
+            (
+                f"{self.min_cell_size} {self.max_cell_size}",
+                str(self.enum_precision_parameter),
+                "full",
+            )
+        )
 
         n_disordered = sum(len(s) for s in disordered_sites)
         base = int(
@@ -263,7 +269,7 @@ class EnumlibAdaptor:
             conc = amt / total_amounts
 
             if abs(conc * base - round(conc * base)) < 1e-5:
-                output.append(f"{int(round(conc * base))} {int(round(conc * base))} {base}")
+                output.append(f"{round(conc * base)} {round(conc * base)} {base}")
             else:
                 min_conc = math.floor(conc * base)
                 output.append(f"{min_conc - 1} {min_conc + 1} {base}")
@@ -366,7 +372,7 @@ class EnumlibAdaptor:
 
                 if len(self.ordered_sites) > 0:
                     transformation = np.dot(new_latt.matrix, inv_org_latt)
-                    transformation = [[int(round(cell)) for cell in row] for row in transformation]
+                    transformation = [[round(cell) for cell in row] for row in transformation]
                     logger.debug(f"Supercell matrix: {transformation}")
                     struct = ordered_structure * transformation
                     sites.extend([site.to_unit_cell() for site in struct])

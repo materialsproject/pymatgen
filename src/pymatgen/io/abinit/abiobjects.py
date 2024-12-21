@@ -185,7 +185,10 @@ def species_by_znucl(structure: Structure) -> list[Species]:
 
 
 def structure_to_abivars(
-    structure: Structure, enforce_znucl: list | None = None, enforce_typat: list | None = None, **kwargs
+    structure: Structure,
+    enforce_znucl: list | None = None,
+    enforce_typat: list | None = None,
+    **kwargs,
 ):
     """
     Receives a structure and returns a dictionary with ABINIT variables.
@@ -550,7 +553,11 @@ class ElectronsAlgorithm(dict, AbivarAble, MSONable):
 
     def as_dict(self):
         """Get JSON-able dict representation."""
-        return {"@module": type(self).__module__, "@class": type(self).__name__, **self.copy()}
+        return {
+            "@module": type(self).__module__,
+            "@class": type(self).__name__,
+            **self.copy(),
+        }
 
     @classmethod
     def from_dict(cls, dct: dict) -> Self:
@@ -753,7 +760,11 @@ class KSampling(AbivarAble, MSONable):
 
             kptbounds = np.reshape(kpts, (-1, 3))
 
-            abivars |= {"ndivsm": num_kpts, "kptbounds": kptbounds, "kptopt": -len(kptbounds) + 1}
+            abivars |= {
+                "ndivsm": num_kpts,
+                "kptbounds": kptbounds,
+                "kptopt": -len(kptbounds) + 1,
+            }
 
         elif mode == KSamplingModes.automatic:
             kpts = np.reshape(kpts, (-1, 3))
@@ -955,7 +966,7 @@ class KSampling(AbivarAble, MSONable):
 
         mult = (ngrid * lengths[0] * lengths[1] * lengths[2]) ** (1 / 3.0)
 
-        num_div = [int(round(1.0 / lengths[i] * mult)) for i in range(3)]
+        num_div = [round(1.0 / lengths[i] * mult) for i in range(3)]
         # ensure that num_div[i] > 0
         num_div = [i if i > 0 else 1 for i in num_div]
 

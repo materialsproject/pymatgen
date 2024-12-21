@@ -214,7 +214,10 @@ $end"""
 $end"""
         assert scan_test == scan_actual
 
-        bad_scan = {"stre": ["1 2 1.0 2.0 0.05", "3 4 1.5 2.0 0.05"], "bend": ["7 8 9 90 120 10"]}
+        bad_scan = {
+            "stre": ["1 2 1.0 2.0 0.05", "3 4 1.5 2.0 0.05"],
+            "bend": ["7 8 9 90 120 10"],
+        }
         with pytest.raises(ValueError, match="Q-Chem only supports PES_SCAN with two or less variables"):
             QCInput.scan_template(bad_scan)
 
@@ -242,12 +245,36 @@ $end"""
     def test_cdft_template(self):
         cdft = [
             [
-                {"value": 1.0, "coefficients": [1.0], "first_atoms": [1], "last_atoms": [27], "types": ["c"]},
-                {"value": 0.0, "coefficients": [1.0], "first_atoms": [1], "last_atoms": [27], "types": ["s"]},
+                {
+                    "value": 1.0,
+                    "coefficients": [1.0],
+                    "first_atoms": [1],
+                    "last_atoms": [27],
+                    "types": ["c"],
+                },
+                {
+                    "value": 0.0,
+                    "coefficients": [1.0],
+                    "first_atoms": [1],
+                    "last_atoms": [27],
+                    "types": ["s"],
+                },
             ],
             [
-                {"value": 0.0, "coefficients": [1.0], "first_atoms": [1], "last_atoms": [27], "types": ["c"]},
-                {"value": -1.0, "coefficients": [1.0], "first_atoms": [1], "last_atoms": [27], "types": ["s"]},
+                {
+                    "value": 0.0,
+                    "coefficients": [1.0],
+                    "first_atoms": [1],
+                    "last_atoms": [27],
+                    "types": ["c"],
+                },
+                {
+                    "value": -1.0,
+                    "coefficients": [1.0],
+                    "first_atoms": [1],
+                    "last_atoms": [27],
+                    "types": ["s"],
+                },
             ],
         ]
 
@@ -924,7 +951,11 @@ $scan
    bend 3 4 5 60 90 5
 $end"""
         scan_test = QCInput.read_scan(str_scan)
-        scan_actual = {"stre": ["1 2 1.1 1.4 0.03"], "bend": ["3 4 5 60 90 5"], "tors": []}
+        scan_actual = {
+            "stre": ["1 2 1.1 1.4 0.03"],
+            "bend": ["3 4 5 60 90 5"],
+            "tors": [],
+        }
 
         assert scan_test == scan_actual
 
@@ -947,7 +978,10 @@ $scan
    tors 6 7 8 9 -180 180 30
 $end"""
 
-        with pytest.raises(ValueError, match="No more than two variables are allows in the scan section"):
+        with pytest.raises(
+            ValueError,
+            match="No more than two variables are allows in the scan section",
+        ):
             QCInput.read_scan(str_scan_2)
 
     def test_read_negative(self):
@@ -1137,12 +1171,36 @@ $end
 
         result = [
             [
-                {"value": 1.0, "coefficients": [1.0], "first_atoms": [1], "last_atoms": [27], "types": [None]},
-                {"value": 0.0, "coefficients": [1.0], "first_atoms": [1], "last_atoms": [27], "types": ["s"]},
+                {
+                    "value": 1.0,
+                    "coefficients": [1.0],
+                    "first_atoms": [1],
+                    "last_atoms": [27],
+                    "types": [None],
+                },
+                {
+                    "value": 0.0,
+                    "coefficients": [1.0],
+                    "first_atoms": [1],
+                    "last_atoms": [27],
+                    "types": ["s"],
+                },
             ],
             [
-                {"value": 0.0, "coefficients": [1.0], "first_atoms": [1], "last_atoms": [27], "types": [None]},
-                {"value": -1.0, "coefficients": [1.0], "first_atoms": [1], "last_atoms": [27], "types": ["s"]},
+                {
+                    "value": 0.0,
+                    "coefficients": [1.0],
+                    "first_atoms": [1],
+                    "last_atoms": [27],
+                    "types": [None],
+                },
+                {
+                    "value": -1.0,
+                    "coefficients": [1.0],
+                    "first_atoms": [1],
+                    "last_atoms": [27],
+                    "types": ["s"],
+                },
             ],
         ]
 

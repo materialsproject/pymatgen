@@ -73,15 +73,21 @@ class QCOutput(MSONable):
 
         # Parse the Q-Chem major version
         if read_pattern(
-            self.text, {"key": r"A Quantum Leap Into The Future Of Chemistry\s+Q-Chem 4"}, terminate_on_match=True
+            self.text,
+            {"key": r"A Quantum Leap Into The Future Of Chemistry\s+Q-Chem 4"},
+            terminate_on_match=True,
         ).get("key") == [[]]:
             self.data["version"] = "4"
         elif read_pattern(
-            self.text, {"key": r"A Quantum Leap Into The Future Of Chemistry\s+Q-Chem 5"}, terminate_on_match=True
+            self.text,
+            {"key": r"A Quantum Leap Into The Future Of Chemistry\s+Q-Chem 5"},
+            terminate_on_match=True,
         ).get("key") == [[]]:
             self.data["version"] = "5"
         elif read_pattern(
-            self.text, {"key": r"A Quantum Leap Into The Future Of Chemistry\s+Q-Chem 6"}, terminate_on_match=True
+            self.text,
+            {"key": r"A Quantum Leap Into The Future Of Chemistry\s+Q-Chem 6"},
+            terminate_on_match=True,
         ).get("key") == [[]]:
             self.data["version"] = "6"
         else:
@@ -179,36 +185,52 @@ class QCOutput(MSONable):
             # If this is open-shell gap info:
             if read_pattern(self.text, {"key": r"Alpha HOMO Eigenvalue"}, terminate_on_match=True).get("key") == [[]]:
                 temp_alpha_HOMO = read_pattern(
-                    self.text, {"key": r"Alpha HOMO Eigenvalue\s*=\s*([\d\-\.]+)"}, terminate_on_match=True
+                    self.text,
+                    {"key": r"Alpha HOMO Eigenvalue\s*=\s*([\d\-\.]+)"},
+                    terminate_on_match=True,
                 ).get("key")
                 gap_info["alpha_HOMO"] = float(temp_alpha_HOMO[0][0])
                 temp_beta_HOMO = read_pattern(
-                    self.text, {"key": r"Beta  HOMO Eigenvalue\s*=\s*([\d\-\.]+)"}, terminate_on_match=True
+                    self.text,
+                    {"key": r"Beta  HOMO Eigenvalue\s*=\s*([\d\-\.]+)"},
+                    terminate_on_match=True,
                 ).get("key")
                 gap_info["beta_HOMO"] = float(temp_beta_HOMO[0][0])
                 temp_alpha_LUMO = read_pattern(
-                    self.text, {"key": r"Alpha LUMO Eigenvalue\s*=\s*([\d\-\.]+)"}, terminate_on_match=True
+                    self.text,
+                    {"key": r"Alpha LUMO Eigenvalue\s*=\s*([\d\-\.]+)"},
+                    terminate_on_match=True,
                 ).get("key")
                 gap_info["alpha_LUMO"] = float(temp_alpha_LUMO[0][0])
                 temp_beta_LUMO = read_pattern(
-                    self.text, {"key": r"Beta  LUMO Eigenvalue\s*=\s*([\d\-\.]+)"}, terminate_on_match=True
+                    self.text,
+                    {"key": r"Beta  LUMO Eigenvalue\s*=\s*([\d\-\.]+)"},
+                    terminate_on_match=True,
                 ).get("key")
                 gap_info["beta_LUMO"] = float(temp_beta_LUMO[0][0])
                 temp_alpha_gap = read_pattern(
-                    self.text, {"key": r"HOMO-Alpha LUMO gap\s*=\s*([\d\-\.]+)"}, terminate_on_match=True
+                    self.text,
+                    {"key": r"HOMO-Alpha LUMO gap\s*=\s*([\d\-\.]+)"},
+                    terminate_on_match=True,
                 ).get("key")
                 gap_info["alpha_gap"] = float(temp_alpha_gap[0][0])
                 temp_beta_gap = read_pattern(
-                    self.text, {"key": r"HOMO-Beta LUMO gap\s*=\s*([\d\-\.]+)"}, terminate_on_match=True
+                    self.text,
+                    {"key": r"HOMO-Beta LUMO gap\s*=\s*([\d\-\.]+)"},
+                    terminate_on_match=True,
                 ).get("key")
                 gap_info["beta_gap"] = float(temp_beta_gap[0][0])
 
             temp_HOMO = read_pattern(
-                self.text, {"key": r"    HOMO Eigenvalue\s*=\s*([\d\-\.]+)"}, terminate_on_match=True
+                self.text,
+                {"key": r"    HOMO Eigenvalue\s*=\s*([\d\-\.]+)"},
+                terminate_on_match=True,
             ).get("key")
             gap_info["HOMO"] = float(temp_HOMO[0][0])
             temp_LUMO = read_pattern(
-                self.text, {"key": r"    LUMO Eigenvalue\s*=\s*([\d\-\.]+)"}, terminate_on_match=True
+                self.text,
+                {"key": r"    LUMO Eigenvalue\s*=\s*([\d\-\.]+)"},
+                terminate_on_match=True,
             ).get("key")
             gap_info["LUMO"] = float(temp_LUMO[0][0])
             temp_KSgap = read_pattern(self.text, {"key": r"KS gap\s*=\s*([\d\-\.]+)"}, terminate_on_match=True).get(
@@ -451,14 +473,15 @@ class QCOutput(MSONable):
 
         # Parse data from Fragment Orbital DFT (FODFT) method
         self.data["fodft"] = read_pattern(
-            self.text, {"key": r"FODFT\(2n(?:[\-\+]1)?\)\@D(?:\^[\-\+])?A(?:\^\-)? for [EH]T"}
+            self.text,
+            {"key": r"FODFT\(2n(?:[\-\+]1)?\)\@D(?:\^[\-\+])?A(?:\^\-)? for [EH]T"},
         ).get("key")
         if self.data.get("fodft", []):
             temp_dict = read_pattern(
                 self.text,
                 {
                     "had": r"H_ad = (?:[\-\.0-9]+) \(([\-\.0-9]+) meV\)",
-                    "hda": r"H_da = (?:[\-\.0-9]+) \(([\-\.0-9]+) meV\)",
+                    "hda": r"H_da = (?:[\-\.0-9]+) \(([\-\.0-9]+) meV\)",  # codespell:ignore hda
                     "coupling": r"The (?:averaged )?electronic coupling: (?:[\-\.0-9]+) \(([\-\.0-9]+) meV\)",
                 },
             )
@@ -467,10 +490,10 @@ class QCOutput(MSONable):
                 self.data["fodft_had_eV"] = None
             else:
                 self.data["fodft_had_eV"] = float(temp_dict["had"][0][0]) / 1000
-            if temp_dict.get("hda") is None or len(temp_dict.get("hda", [])) == 0:
+            if temp_dict.get("hda") is None or len(temp_dict.get("hda", [])) == 0:  # codespell:ignore hda
                 self.data["fodft_hda_eV"] = None
             else:
-                self.data["fodft_hda_eV"] = float(temp_dict["hda"][0][0]) / 1000
+                self.data["fodft_hda_eV"] = float(temp_dict["hda"][0][0]) / 1000  # codespell:ignore hda
             if temp_dict.get("coupling") is None or len(temp_dict.get("coupling", [])) == 0:
                 self.data["fodft_coupling_eV"] = None
             else:
@@ -607,14 +630,18 @@ class QCOutput(MSONable):
 
         # Check if the calculation is a PES scan. If so, parse the relevant output
         self.data["scan_job"] = read_pattern(
-            self.text, {"key": r"(?i)\s*job(?:_)*type\s*(?:=)*\s*pes_scan"}, terminate_on_match=True
+            self.text,
+            {"key": r"(?i)\s*job(?:_)*type\s*(?:=)*\s*pes_scan"},
+            terminate_on_match=True,
         ).get("key")
         if self.data.get("scan_job", []):
             self._read_scan_data()
 
         # Check if an NBO calculation was performed. If so, parse the relevant output
         self.data["nbo_data"] = read_pattern(
-            self.text, {"key": r"N A T U R A L   A T O M I C   O R B I T A L"}, terminate_on_match=True
+            self.text,
+            {"key": r"N A T U R A L   A T O M I C   O R B I T A L"},
+            terminate_on_match=True,
         ).get("key")
         if self.data.get("nbo_data", []):
             self._read_nbo_data()
@@ -670,14 +697,22 @@ class QCOutput(MSONable):
             footer_pattern = r"Final Beta MO Eigenvalues"
         # Common for both spin restricted and unrestricted calculations is the alpha eigenvalues.
         alpha_eigenvalues = read_matrix_pattern(
-            header_pattern, footer_pattern, elements_pattern, self.text, postprocess=float
+            header_pattern,
+            footer_pattern,
+            elements_pattern,
+            self.text,
+            postprocess=float,
         )
         # The beta eigenvalues are only present if this is a spin-unrestricted calculation.
         if spin_unrestricted:
             header_pattern = r"Final Beta MO Eigenvalues"
             footer_pattern = r"Final Alpha MO Coefficients+\s*"
             self.data["beta_eigenvalues"] = read_matrix_pattern(
-                header_pattern, footer_pattern, elements_pattern, self.text, postprocess=float
+                header_pattern,
+                footer_pattern,
+                elements_pattern,
+                self.text,
+                postprocess=float,
             )
 
         self.data["alpha_eigenvalues"] = alpha_eigenvalues
@@ -699,7 +734,11 @@ class QCOutput(MSONable):
             footer_pattern = "Final Beta Fock Matrix"
         # Common for both spin restricted and unrestricted calculations is the alpha Fock matrix.
         alpha_fock_matrix = read_matrix_pattern(
-            header_pattern, footer_pattern, elements_pattern, self.text, postprocess=float
+            header_pattern,
+            footer_pattern,
+            elements_pattern,
+            self.text,
+            postprocess=float,
         )
 
         # Convert the matrices to the right dimension. Right now they are simply
@@ -714,7 +753,11 @@ class QCOutput(MSONable):
             header_pattern = r"Final Beta Fock Matrix"
             footer_pattern = "SCF time:"
             beta_fock_matrix = read_matrix_pattern(
-                header_pattern, footer_pattern, elements_pattern, self.text, postprocess=float
+                header_pattern,
+                footer_pattern,
+                elements_pattern,
+                self.text,
+                postprocess=float,
             )
 
             # Perform the same transformation for the beta Fock matrix.
@@ -738,7 +781,11 @@ class QCOutput(MSONable):
             footer_pattern = "Final Beta MO Coefficients"
         # Common for both spin restricted and unrestricted calculations is the alpha Fock matrix.
         alpha_coeff_matrix = read_matrix_pattern(
-            header_pattern, footer_pattern, elements_pattern, self.text, postprocess=float
+            header_pattern,
+            footer_pattern,
+            elements_pattern,
+            self.text,
+            postprocess=float,
         )
 
         # Convert the matrices to the right dimension. Right now they are simply
@@ -752,7 +799,11 @@ class QCOutput(MSONable):
             header_pattern = r"Final Beta MO Coefficients"
             footer_pattern = "Final Alpha Density Matrix"
             beta_coeff_matrix = read_matrix_pattern(
-                header_pattern, footer_pattern, elements_pattern, self.text, postprocess=float
+                header_pattern,
+                footer_pattern,
+                elements_pattern,
+                self.text,
+                postprocess=float,
             )
 
             # Perform the same transformation for the beta Fock matrix.
@@ -922,7 +973,10 @@ class QCOutput(MSONable):
 
         temp_SCF_energy = read_pattern(self.text, {"key": r"SCF   energy in the final basis set =\s*([\d\-\.]+)"}).get(
             "key"
-        )
+        ) or read_pattern(  # support Q-Chem 6.1.1+
+            self.text, {"key": r"SCF   energy =\s*([\d\-\.]+)"}
+        ).get("key")
+
         if temp_SCF_energy is not None:
             if len(temp_SCF_energy) == 1:
                 self.data["SCF_energy_in_the_final_basis_set"] = float(temp_SCF_energy[0][0])
@@ -934,7 +988,10 @@ class QCOutput(MSONable):
 
         temp_Total_energy = read_pattern(
             self.text, {"key": r"Total energy in the final basis set =\s*([\d\-\.]+)"}
+        ).get("key") or read_pattern(  # support Q-Chem 6.1.1+
+            self.text, {"key": r"Total energy =\s*([\d\-\.]+)"}
         ).get("key")
+
         if temp_Total_energy is not None:
             if len(temp_Total_energy) == 1:
                 self.data["Total_energy_in_the_final_basis_set"] = float(temp_Total_energy[0][0])
@@ -952,10 +1009,12 @@ class QCOutput(MSONable):
         """
         self.data["dipoles"] = {}
         temp_dipole_total = read_pattern(
-            self.text, {"key": r"X\s*[\d\-\.]+\s*Y\s*[\d\-\.]+\s*Z\s*[\d\-\.]+\s*Tot\s*([\d\-\.]+)"}
+            self.text,
+            {"key": r"X\s*[\d\-\.]+\s*Y\s*[\d\-\.]+\s*Z\s*[\d\-\.]+\s*Tot\s*([\d\-\.]+)"},
         ).get("key")
         temp_dipole = read_pattern(
-            self.text, {"key": r"X\s*([\d\-\.]+)\s*Y\s*([\d\-\.]+)\s*Z\s*([\d\-\.]+)\s*Tot\s*[\d\-\.]+"}
+            self.text,
+            {"key": r"X\s*([\d\-\.]+)\s*Y\s*([\d\-\.]+)\s*Z\s*([\d\-\.]+)\s*Tot\s*[\d\-\.]+"},
         ).get("key")
         if temp_dipole is not None:
             if len(temp_dipole_total) == 1:
@@ -1002,7 +1061,18 @@ class QCOutput(MSONable):
         )
         temp_octopole_moment = read_pattern(self.text, {"key": octo_mom_pat}).get("key")
         if temp_octopole_moment is not None:
-            keys = ("XXX", "XXY", "XYY", "YYY", "XXZ", "XYZ", "YYZ", "XZZ", "YZZ", "ZZZ")
+            keys = (
+                "XXX",
+                "XXY",
+                "XYY",
+                "YYY",
+                "XXZ",
+                "XYZ",
+                "YYZ",
+                "XZZ",
+                "YZZ",
+                "ZZZ",
+            )
             if len(temp_octopole_moment) == 1:
                 self.data["multipoles"]["octopole"] = {
                     key: float(temp_octopole_moment[0][idx]) for idx, key in enumerate(keys)
@@ -1143,9 +1213,11 @@ class QCOutput(MSONable):
             self.data["warnings"]["inconsistent_size"] = True
 
         # Check for AO linear depend
-        if read_pattern(self.text, {"key": r"Linear dependence detected in AO basis"}, terminate_on_match=True).get(
-            "key"
-        ) == [[]]:
+        if read_pattern(
+            self.text,
+            {"key": r"Linear dependence detected in AO basis"},
+            terminate_on_match=True,
+        ).get("key") == [[]]:
             self.data["warnings"]["linear_dependence"] = True
 
         # Check for Hessian without desired local structure
@@ -1181,15 +1253,19 @@ class QCOutput(MSONable):
             self.data["warnings"]["bad_lambda_take_NR_step"] = True
 
         # Check for a switch into Cartesian coordinates
-        if read_pattern(self.text, {"key": r"SWITCHING TO CARTESIAN OPTIMIZATION"}, terminate_on_match=True).get(
-            "key"
-        ) == [[]]:
+        if read_pattern(
+            self.text,
+            {"key": r"SWITCHING TO CARTESIAN OPTIMIZATION"},
+            terminate_on_match=True,
+        ).get("key") == [[]]:
             self.data["warnings"]["switch_to_cartesian"] = True
 
         # Check for problem with eigenvalue magnitude
-        if read_pattern(self.text, {"key": r"\*\*WARNING\*\* Magnitude of eigenvalue"}, terminate_on_match=True).get(
-            "key"
-        ) == [[]]:
+        if read_pattern(
+            self.text,
+            {"key": r"\*\*WARNING\*\* Magnitude of eigenvalue"},
+            terminate_on_match=True,
+        ).get("key") == [[]]:
             self.data["warnings"]["eigenvalue_magnitude"] = True
 
         # Check for problem with hereditary postivive definiteness
@@ -1346,7 +1422,7 @@ class QCOutput(MSONable):
         if len(parsed_gradients) >= 1:
             sorted_gradients = np.zeros(shape=(len(parsed_gradients), len(self.data["initial_molecule"]), 3))
             for ii, grad in enumerate(parsed_gradients):
-                for jj in range(int(len(grad) / 3)):
+                for jj in range(len(grad) // 3):
                     for kk in range(grad_format_length):
                         if grad[jj * 3][kk] != "None":
                             sorted_gradients[ii][jj * grad_format_length + kk][0] = grad[jj * 3][kk]
@@ -1381,7 +1457,7 @@ class QCOutput(MSONable):
 
                 sorted_gradients = np.zeros(shape=(len(parsed_gradients), len(self.data["initial_molecule"]), 3))
                 for ii, grad in enumerate(parsed_gradients):
-                    for jj in range(int(len(grad) / 3)):
+                    for jj in range(len(grad) // 3):
                         for kk in range(grad_format_length):
                             if grad[jj * 3][kk] != "None":
                                 sorted_gradients[ii][jj * grad_format_length + kk][0] = grad[jj * 3][kk]
@@ -1447,24 +1523,30 @@ class QCOutput(MSONable):
                     self.data["errors"] += ["out_of_opt_cycles"]
                 elif read_pattern(
                     self.text,
-                    {"key": r"UNABLE TO DETERMINE Lamda IN FormD"},
+                    {"key": r"UNABLE TO DETERMINE Lamda IN FormD"},  # codespell:ignore lamda
                     terminate_on_match=True,
                 ).get("key") == [[]]:
                     self.data["errors"] += ["unable_to_determine_lamda"]
-                elif read_pattern(self.text, {"key": r"Error in back_transform"}, terminate_on_match=True).get(
-                    "key"
-                ) == [[]]:
+                elif read_pattern(
+                    self.text,
+                    {"key": r"Error in back_transform"},
+                    terminate_on_match=True,
+                ).get("key") == [[]]:
                     self.data["errors"] += ["back_transform_error"]
-                elif read_pattern(self.text, {"key": r"pinv\(\)\: svd failed"}, terminate_on_match=True).get("key") == [
-                    []
-                ]:
+                elif read_pattern(
+                    self.text,
+                    {"key": r"pinv\(\)\: svd failed"},
+                    terminate_on_match=True,
+                ).get("key") == [[]]:
                     self.data["errors"] += ["svd_failed"]
 
     def _read_frequency_data(self):
         """Parse cpscf_nseg, frequencies, enthalpy, entropy, and mode vectors."""
-        if read_pattern(self.text, {"key": r"Calculating MO derivatives via CPSCF"}, terminate_on_match=True).get(
-            "key"
-        ) == [[]]:
+        if read_pattern(
+            self.text,
+            {"key": r"Calculating MO derivatives via CPSCF"},
+            terminate_on_match=True,
+        ).get("key") == [[]]:
             temp_cpscf_nseg = read_pattern(
                 self.text,
                 {"key": r"CPSCF will be done in([\d\s]+)segments to save memory"},
@@ -1656,13 +1738,17 @@ class QCOutput(MSONable):
         self._read_gradients()
 
         if len(self.data.get("errors")) == 0:
-            if read_pattern(self.text, {"key": r"MAXIMUM OPTIMIZATION CYCLES REACHED"}, terminate_on_match=True).get(
-                "key"
-            ) == [[]]:
+            if read_pattern(
+                self.text,
+                {"key": r"MAXIMUM OPTIMIZATION CYCLES REACHED"},
+                terminate_on_match=True,
+            ).get("key") == [[]]:
                 self.data["errors"] += ["out_of_opt_cycles"]
-            elif read_pattern(self.text, {"key": r"UNABLE TO DETERMINE Lamda IN FormD"}, terminate_on_match=True).get(
-                "key"
-            ) == [[]]:
+            elif read_pattern(
+                self.text,
+                {"key": r"UNABLE TO DETERMINE Lamda IN FormD"},  # codespell:ignore lamda
+                terminate_on_match=True,
+            ).get("key") == [[]]:
                 self.data["errors"] += ["unable_to_determine_lamda"]
 
         header_pattern = r"\s*\-+ Summary of potential scan\: \-+\s*"
@@ -1901,12 +1987,24 @@ class QCOutput(MSONable):
         """Parse output from charge- or spin-constrained DFT (CDFT) calculations."""
         # Parse constraint and optimization parameters
         temp_dict = read_pattern(
-            self.text, {"constraint": r"Constraint\s+(\d+)\s+:\s+([\-\.0-9]+)", "multiplier": r"\s*Lam\s+([\.\-0-9]+)"}
+            self.text,
+            {
+                "constraint": r"Constraint\s+(\d+)\s+:\s+([\-\.0-9]+)",
+                "multiplier": r"\s*Lam\s+([\.\-0-9]+)",
+            },
         )
 
         self.data["cdft_constraints_multipliers"] = []
-        for const, multip in zip(temp_dict.get("constraint", []), temp_dict.get("multiplier", []), strict=False):
-            entry = {"index": int(const[0]), "constraint": float(const[1]), "multiplier": float(multip[0])}
+        for const, multip in zip(
+            temp_dict.get("constraint", []),
+            temp_dict.get("multiplier", []),
+            strict=False,
+        ):
+            entry = {
+                "index": int(const[0]),
+                "constraint": float(const[1]),
+                "multiplier": float(multip[0]),
+            }
             self.data["cdft_constraints_multipliers"].append(entry)
 
         # Parse Becke populations
@@ -1998,8 +2096,14 @@ class QCOutput(MSONable):
             self.data["almo_hamiltonian"] = None
         else:
             self.data["almo_hamiltonian"] = [
-                [float(temp_dict["hamiltonian"][0][0]), float(temp_dict["hamiltonian"][0][1])],
-                [float(temp_dict["hamiltonian"][0][2]), float(temp_dict["hamiltonian"][0][3])],
+                [
+                    float(temp_dict["hamiltonian"][0][0]),
+                    float(temp_dict["hamiltonian"][0][1]),
+                ],
+                [
+                    float(temp_dict["hamiltonian"][0][2]),
+                    float(temp_dict["hamiltonian"][0][3]),
+                ],
             ]
         if temp_dict.get("overlap") is None or len(temp_dict.get("overlap", [])) == 0:
             self.data["almo_overlap_matrix"] = None
@@ -2019,15 +2123,27 @@ class QCOutput(MSONable):
             self.data["almo_diabat_basis_coeff"] = None
         else:
             self.data["almo_diabat_basis_coeff"] = [
-                [float(temp_dict["diabat_basis_coeff"][0][0]), float(temp_dict["diabat_basis_coeff"][0][1])],
-                [float(temp_dict["diabat_basis_coeff"][0][2]), float(temp_dict["diabat_basis_coeff"][0][3])],
+                [
+                    float(temp_dict["diabat_basis_coeff"][0][0]),
+                    float(temp_dict["diabat_basis_coeff"][0][1]),
+                ],
+                [
+                    float(temp_dict["diabat_basis_coeff"][0][2]),
+                    float(temp_dict["diabat_basis_coeff"][0][3]),
+                ],
             ]
         if temp_dict.get("h_coupling") is None or len(temp_dict.get("h_coupling", [])) == 0:
             self.data["almo_h_coupling_matrix"] = None
         else:
             self.data["almo_h_coupling_matrix"] = [
-                [float(temp_dict["h_coupling"][0][0]), float(temp_dict["h_coupling"][0][1])],
-                [float(temp_dict["h_coupling"][0][2]), float(temp_dict["h_coupling"][0][3])],
+                [
+                    float(temp_dict["h_coupling"][0][0]),
+                    float(temp_dict["h_coupling"][0][1]),
+                ],
+                [
+                    float(temp_dict["h_coupling"][0][2]),
+                    float(temp_dict["h_coupling"][0][3]),
+                ],
             ]
 
         # Electronic coupling
@@ -2094,15 +2210,19 @@ class QCOutput(MSONable):
             terminate_on_match=True,
         ).get("key") == [[]]:
             self.data["errors"] += ["driver_error"]
-        elif read_pattern(self.text, {"key": r"Basis not supported for the above atom"}, terminate_on_match=True).get(
-            "key"
-        ) == [[]]:
+        elif read_pattern(
+            self.text,
+            {"key": r"Basis not supported for the above atom"},
+            terminate_on_match=True,
+        ).get("key") == [[]]:
             self.data["errors"] += ["basis_not_supported"]
-        elif read_pattern(self.text, {"key": r"Unable to find relaxed density"}, terminate_on_match=True).get(
-            "key"
-        ) == [[]] or read_pattern(self.text, {"key": r"Out of Iterations- IterZ"}, terminate_on_match=True).get(
-            "key"
-        ) == [[]]:
+        elif read_pattern(
+            self.text,
+            {"key": r"Unable to find relaxed density"},
+            terminate_on_match=True,
+        ).get("key") == [[]] or read_pattern(
+            self.text, {"key": r"Out of Iterations- IterZ"}, terminate_on_match=True
+        ).get("key") == [[]]:
             self.data["errors"] += ["failed_cpscf"]
         elif read_pattern(
             self.text,
@@ -2188,7 +2308,8 @@ def check_for_structure_changes(mol1: Molecule, mol2: Molecule) -> str:
         if site.specie.symbol != mol2[ii].specie.symbol:
             warnings.warn(
                 "Comparing molecules with different atom ordering! "
-                "Turning off special treatment for coordinating metals."
+                "Turning off special treatment for coordinating metals.",
+                stacklevel=2,
             )
             special_elements = []
 
@@ -2659,7 +2780,11 @@ def parse_hybridization_character(lines: list[str]) -> list[pd.DataFrame]:
                     tc_data.append(TCentry)
 
             # Store values in a dataframe
-            lp_and_bd_and_tc_dfs += (pd.DataFrame(lp_data), pd.DataFrame(bd_data), pd.DataFrame(tc_data))
+            lp_and_bd_and_tc_dfs += (
+                pd.DataFrame(lp_data),
+                pd.DataFrame(bd_data),
+                pd.DataFrame(tc_data),
+            )
 
     return lp_and_bd_and_tc_dfs
 

@@ -22,7 +22,6 @@ import math
 import os
 import warnings
 from functools import reduce
-from math import gcd, isclose
 from typing import TYPE_CHECKING, cast
 
 import numpy as np
@@ -299,7 +298,7 @@ class Slab(Structure):
         # to surface (b) along the [hkl]-axis, surfaces are symmetric. Or because the
         # two surfaces of our slabs are always parallel to the (hkl) plane,
         # any operation where there's an (hkl) mirror plane has surface symmetry
-        return (
+        return bool(
             spg_analyzer.is_laue()
             or any(op.translation_vector[2] != 0 for op in symm_ops)
             or any(np.all(op.rotation_matrix[2] == np.array([0, 0, -1])) for op in symm_ops)
@@ -318,7 +317,7 @@ class Slab(Structure):
                 considered polar.
         """
         dip_per_unit_area = self.dipole / self.surface_area
-        return np.linalg.norm(dip_per_unit_area) > tol_dipole_per_unit_area
+        return bool(np.linalg.norm(dip_per_unit_area) > tol_dipole_per_unit_area)
 
     def get_surface_sites(self, tag: bool = False) -> dict[str, list]:
         """Get the surface sites and their indices in a dictionary.
@@ -425,7 +424,7 @@ class Slab(Structure):
         for op in ops:
             slab = self.copy()
             site_other = op.operate(point)
-            if isclose(site_other[2], point[2], abs_tol=1e-6):
+            if math.isclose(site_other[2], point[2], abs_tol=1e-6):
                 continue
 
             # Add dummy sites to check if the overall structure is symmetric
@@ -507,18 +506,21 @@ class Slab(Structure):
 
         # Determine what fraction the slab is of the total cell size in the
         # c direction. Round to nearest rational number.
-        n_layers_total = int(round(self.lattice.c / self.oriented_unit_cell.lattice.c))
-        n_layers_slab = int(round((sorted_csites[-1].c - sorted_csites[0].c) * n_layers_total))
+        n_layers_total = round(self.lattice.c / self.oriented_unit_cell.lattice.c)
+        n_layers_slab = round((sorted_csites[-1].c - sorted_csites[0].c) * n_layers_total)
         slab_ratio = n_layers_slab / n_layers_total
 
         spg_analyzer = SpacegroupAnalyzer(self)
         symm_structure = spg_analyzer.get_symmetrized_structure()
 
-        for surface_site, shift in [(sorted_csites[0], slab_ratio), (sorted_csites[-1], -slab_ratio)]:
+        for surface_site, shift in [
+            (sorted_csites[0], slab_ratio),
+            (sorted_csites[-1], -slab_ratio),
+        ]:
             to_move = []
             fixed = []
             for site in sites:
-                if abs(site.c - surface_site.c) < tol and (
+                if math.isclose(site.c, surface_site.c, abs_tol=tol) and (
                     (not same_species_only) or site.species == surface_site.species
                 ):
                     to_move.append(site)
@@ -535,12 +537,13 @@ class Slab(Structure):
                     "Odd number of sites to divide! Try changing "
                     "the tolerance to ensure even division of "
                     "sites or create supercells in a or b directions "
-                    "to allow for atoms to be moved!"
+                    "to allow for atoms to be moved!",
+                    stacklevel=2,
                 )
                 continue
             combinations = []
             for g in grouped:
-                combinations.append(list(itertools.combinations(g, int(len(g) / 2))))
+                combinations.append(list(itertools.combinations(g, len(g) // 2)))
 
             for selection in itertools.product(*combinations):
                 species = [site.species for site in fixed]
@@ -624,7 +627,9 @@ class Slab(Structure):
         """
         # Check if deprecated argument is used
         if specie is not None:
-            warnings.warn("The argument 'specie' is deprecated. Use 'species' instead.", DeprecationWarning)
+            warnings.warn(
+                "The argument 'specie' is deprecated. Use 'species' instead.", DeprecationWarning, stacklevel=2
+            )
             species = specie
 
         # Calculate target site as the center of sites
@@ -654,7 +659,9 @@ class Slab(Structure):
         """
         # Check if deprecated argument is used
         if specie is not None:
-            warnings.warn("The argument 'specie' is deprecated. Use 'species' instead.", DeprecationWarning)
+            warnings.warn(
+                "The argument 'specie' is deprecated. Use 'species' instead.", DeprecationWarning, stacklevel=2
+            )
             species = specie
 
         # Get the index of the equivalent site on the other side
@@ -729,7 +736,7 @@ class Slab(Structure):
             self.remove_sites(equi_sites)
 
         else:
-            warnings.warn("Equivalent sites could not be found for some indices. Surface unchanged.")
+            warnings.warn("Equivalent sites could not be found for some indices. Surface unchanged.", stacklevel=2)
 
 
 def center_slab(slab: Structure) -> Structure:
@@ -939,7 +946,7 @@ class SlabGenerator:
 
         def reduce_vector(vector: MillerIndex) -> MillerIndex:
             """Helper function to reduce vectors."""
-            divisor = abs(reduce(gcd, vector))  # type: ignore[arg-type]
+            divisor = abs(reduce(math.gcd, vector))  # type: ignore[arg-type]
             return cast(Tuple3Ints, tuple(int(idx / divisor) for idx in vector))
 
         def add_site_types() -> None:
@@ -951,7 +958,8 @@ class SlabGenerator:
                 spg_analyzer = SpacegroupAnalyzer(initial_structure)
                 initial_structure.add_site_property("bulk_wyckoff", spg_analyzer.get_symmetry_dataset().wyckoffs)
                 initial_structure.add_site_property(
-                    "bulk_equivalent", spg_analyzer.get_symmetry_dataset().equivalent_atoms.tolist()
+                    "bulk_equivalent",
+                    spg_analyzer.get_symmetry_dataset().equivalent_atoms.tolist(),
                 )
 
         def calculate_surface_normal() -> np.ndarray:
@@ -993,8 +1001,8 @@ class SlabGenerator:
                 lcm_miller = lcm(*(miller_index[i] for i, _d in non_orth_ind))
                 for (ii, _di), (jj, _dj) in itertools.combinations(non_orth_ind, 2):
                     scale_factor = [0, 0, 0]
-                    scale_factor[ii] = -int(round(lcm_miller / miller_index[ii]))
-                    scale_factor[jj] = int(round(lcm_miller / miller_index[jj]))
+                    scale_factor[ii] = -round(lcm_miller / miller_index[ii])
+                    scale_factor[jj] = round(lcm_miller / miller_index[jj])
                     slab_scale_factor.append(scale_factor)
                     if len(slab_scale_factor) == 2:
                         break
@@ -1015,7 +1023,7 @@ class SlabGenerator:
                     cosine = abs(np.dot(vec, normal) / osdm)
                     candidates.append((uvw, cosine, osdm))
                     # Stop searching if cosine equals 1 or -1
-                    if isclose(abs(cosine), 1, abs_tol=1e-8):
+                    if math.isclose(abs(cosine), 1, abs_tol=1e-8):
                         break
                 # We want the indices with the maximum absolute cosine,
                 # but smallest possible length.
@@ -1313,7 +1321,7 @@ class SlabGenerator:
                                     z_ranges.extend([(0, z_range[1]), (z_range[0] + 1, 1)])
 
                                 # Neglect overlapping positions
-                                elif not isclose(z_range[0], z_range[1], abs_tol=ztol):
+                                elif not math.isclose(z_range[0], z_range[1], abs_tol=ztol):
                                     z_ranges.append(z_range)
 
             return z_ranges
@@ -1547,7 +1555,7 @@ class SlabGenerator:
                     slab.remove_sites([z_coords.index(min(z_coords))])
 
                 if len(slab) <= len(self.parent):
-                    warnings.warn("Too many sites removed, please use a larger slab.")
+                    warnings.warn("Too many sites removed, please use a larger slab.", stacklevel=2)
                     break
 
                 # Check if the new Slab is symmetric
@@ -1697,7 +1705,7 @@ def get_d(slab: Slab) -> float:
 
     distance = None
     for site, next_site in itertools.pairwise(sorted_sites):
-        if not isclose(site.frac_coords[2], next_site.frac_coords[2], abs_tol=1e-6):
+        if not math.isclose(site.frac_coords[2], next_site.frac_coords[2], abs_tol=1e-6):
             distance = next_site.frac_coords[2] - site.frac_coords[2]
             break
 
@@ -1966,7 +1974,11 @@ def get_symmetrically_equivalent_miller_indices(
     """
     # Convert to hkl if hkil, because in_coord_list only handles tuples of 3
     if len(miller_index) >= 3:
-        _miller_index: MillerIndex = (miller_index[0], miller_index[1], miller_index[-1])
+        _miller_index: MillerIndex = (
+            miller_index[0],
+            miller_index[1],
+            miller_index[-1],
+        )
     else:
         _miller_index = (miller_index[0], miller_index[1], miller_index[2])
 
@@ -2056,7 +2068,7 @@ def get_symmetrically_distinct_miller_indices(
     unique_millers_conv: list = []
 
     for idx, miller in enumerate(miller_list):
-        denom = abs(reduce(gcd, miller))  # type: ignore[arg-type]
+        denom = abs(reduce(math.gcd, miller))  # type: ignore[arg-type]
         miller = cast(Tuple3Ints, tuple(int(idx / denom) for idx in miller))
         if not _is_in_miller_family(miller, unique_millers, symm_ops):
             if spg_analyzer.get_crystal_system() == "trigonal":
@@ -2064,7 +2076,7 @@ def get_symmetrically_distinct_miller_indices(
                 # the primitive symmetry operations and their
                 # corresponding hkls in the conventional setting
                 unique_millers.append(miller)
-                denom = abs(reduce(gcd, conv_hkl_list[idx]))  # type: ignore[arg-type]
+                denom = abs(reduce(math.gcd, conv_hkl_list[idx]))  # type: ignore[arg-type]
                 cmiller = tuple(int(idx / denom) for idx in conv_hkl_list[idx])
                 unique_millers_conv.append(cmiller)
             else:
@@ -2115,7 +2127,7 @@ def hkl_transformation(
 
     # Perform the transformation
     transf_hkl = np.dot(reduced_transf, miller_index)
-    divisor = abs(reduce(gcd, transf_hkl))  # type: ignore[arg-type]
+    divisor = abs(reduce(math.gcd, transf_hkl))  # type: ignore[arg-type]
     transf_hkl = np.array([idx // divisor for idx in transf_hkl])
 
     # Get positive Miller index

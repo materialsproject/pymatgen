@@ -130,7 +130,10 @@ class CorrectionCalculator:
 
             compound = self.calc_compounds.get(name)
             if not compound:
-                warnings.warn(f"Compound {name} is not found in provided computed entries and is excluded from the fit")
+                warnings.warn(
+                    f"Compound {name} is not found in provided computed entries and is excluded from the fit",
+                    stacklevel=2,
+                )
                 continue
 
             # filter out compounds with large uncertainties
@@ -139,14 +142,17 @@ class CorrectionCalculator:
                 allow = False
                 warnings.warn(
                     f"Compound {name} is excluded from the fit due to high experimental "
-                    f"uncertainty ({relative_uncertainty:.1%})"
+                    f"uncertainty ({relative_uncertainty:.1%})",
+                    stacklevel=2,
                 )
 
             # filter out compounds containing certain polyanions
             for anion in self.exclude_polyanions:
                 if anion in name or anion in cmpd_info["formula"]:
                     allow = False
-                    warnings.warn(f"Compound {name} contains the poly{anion=} and is excluded from the fit")
+                    warnings.warn(
+                        f"Compound {name} contains the poly{anion=} and is excluded from the fit", stacklevel=2
+                    )
                     break
 
             # filter out compounds that are unstable
@@ -157,7 +163,9 @@ class CorrectionCalculator:
                     raise ValueError("Missing e above hull data")
                 if eah > self.allow_unstable:
                     allow = False
-                    warnings.warn(f"Compound {name} is unstable and excluded from the fit (e_above_hull = {eah})")
+                    warnings.warn(
+                        f"Compound {name} is unstable and excluded from the fit (e_above_hull = {eah})", stacklevel=2
+                    )
 
             if allow:
                 comp = Composition(name)
@@ -234,7 +242,10 @@ class CorrectionCalculator:
         if np.isnan(mean_uncert):
             # no uncertainty values for any compounds, don't try to weight
             p_opt, self.pcov = curve_fit(
-                lambda x, *m: np.dot(x, m), self.coeff_mat, self.diffs, p0=np.ones(len(self.species))
+                lambda x, *m: np.dot(x, m),
+                self.coeff_mat,
+                self.diffs,
+                p0=np.ones(len(self.species)),
             )
         else:
             p_opt, self.pcov = curve_fit(

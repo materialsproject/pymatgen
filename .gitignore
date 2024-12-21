@@ -27,6 +27,7 @@ setuptools*
 .*_cache
 # VS Code
 .vscode/*
+.coverage*
 
 # Environments
 .env
@@ -37,3 +38,7 @@ ENV/
 env.bak/
 venv.bak/
 .pdm-python
+
+# Local runners
+actions-runner/
+actions-runner/*

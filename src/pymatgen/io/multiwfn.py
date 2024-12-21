@@ -56,7 +56,9 @@ QTAIM_CONDITIONALS = {
 
 
 def extract_info_from_cp_text(
-    lines_split: list[list[str]], cp_type: Literal["atom", "bond", "ring", "cage"], conditionals: dict[str, list[str]]
+    lines_split: list[list[str]],
+    cp_type: Literal["atom", "bond", "ring", "cage"],
+    conditionals: dict[str, list[str]],
 ) -> tuple[str, dict[str, Any]]:
     """
     Extract specific information from a Multiwfn QTAIM output.
@@ -239,7 +241,10 @@ def separate_cps_by_type(qtaim_descs: dict[Any, dict[str, Any]]) -> dict[str, di
 
 
 def match_atom_cp(
-    molecule: Molecule, index: int, atom_cp_dict: dict[str, dict[str, Any]], max_distance: float = 0.5
+    molecule: Molecule,
+    index: int,
+    atom_cp_dict: dict[str, dict[str, Any]],
+    max_distance: float = 0.5,
 ) -> tuple[str | None, dict]:
     """
     From a dictionary with an atom's position and element symbol, find the corresponding cp in the atom CP dictionary
@@ -276,7 +281,9 @@ def match_atom_cp(
 
 
 def map_atoms_cps(
-    molecule: Molecule, atom_cp_dict: dict[str, dict[str, Any]], max_distance: float = 0.5
+    molecule: Molecule,
+    atom_cp_dict: dict[str, dict[str, Any]],
+    max_distance: float = 0.5,
 ) -> tuple[
     dict[int, dict[str, Any]],
     list[int],
@@ -394,7 +401,10 @@ def add_atoms(
             sorted_atoms = sort_cps_by_distance(np.array(cp_desc["pos_ang"]), atom_info)
 
             if sorted_atoms[1][0] > dist_threshold_bond:
-                warnings.warn("Warning: bond CP is far from bonding atoms")
+                warnings.warn(
+                    "Warning: bond CP is far from bonding atoms",
+                    stacklevel=2,
+                )
 
             # Assume only two atoms involved in bond
             modified_organized_cps["bond"][cp_name]["atom_inds"] = sorted([ca[1] for ca in sorted_atoms[:2]])
@@ -421,7 +431,10 @@ def add_atoms(
                 sorted_atoms = sort_cps_by_distance(np.array(cp_desc["pos_ang"]), atom_info)
 
                 if sorted_atoms[1][0] > dist_threshold_bond:
-                    warnings.warn("Warning: bond CP is far from bonding atoms")
+                    warnings.warn(
+                        "Warning: bond CP is far from bonding atoms",
+                        stacklevel=2,
+                    )
 
                 bond_atoms_list = sorted([ca[1] for ca in sorted_atoms[:2]])
 
@@ -432,7 +445,10 @@ def add_atoms(
         max_close_dist = sorted_bonds[2][0]
 
         if max_close_dist > dist_threshold_ring_cage:
-            warnings.warn("Warning: ring CP is far from closest bond CPs.")
+            warnings.warn(
+                "Warning: ring CP is far from closest bond CPs.",
+                stacklevel=2,
+            )
 
         # Assume that the three closest bonds are all part of the ring
         bond_names = [bcp[1] for bcp in sorted_bonds[:3]]
@@ -459,7 +475,10 @@ def add_atoms(
 
         # Warn if the three closest bonds are further than the max distance
         if max_close_dist > dist_threshold_ring_cage:
-            warnings.warn("Warning: cage CP is far from closest ring CPs.")
+            warnings.warn(
+                "Warning: cage CP is far from closest ring CPs.",
+                stacklevel=2,
+            )
 
         # Assume that the three closest rings are all part of the cage
         ring_names = [rcp[1] for rcp in sorted_rings[:3]]
@@ -529,7 +548,10 @@ def process_multiwfn_qtaim(
     remapped_atoms, missing_atoms = map_atoms_cps(molecule, qtaim_descriptors["atom"], max_distance=max_distance_atom)
 
     if len(missing_atoms) > 0:
-        warnings.warn(f"Some atoms not mapped to atom CPs! Indices: {missing_atoms}")
+        warnings.warn(
+            f"Some atoms not mapped to atom CPs! Indices: {missing_atoms}",
+            stacklevel=2,
+        )
 
     qtaim_descriptors["atom"] = remapped_atoms
 

@@ -499,7 +499,8 @@ class AimsOutCalcChunk(AimsOutChunk):
             np.sum(magmom) - properties["magmom"]
         ) < 1e-3:
             warnings.warn(
-                "Total magnetic moment and sum of Mulliken spins are not consistent", UserWarning, stacklevel=1
+                "Total magnetic moment and sum of Mulliken spins are not consistent",
+                stacklevel=2,
             )
 
         if lattice is not None:
@@ -519,7 +520,9 @@ class AimsOutCalcChunk(AimsOutChunk):
             properties=properties,
         )
 
-    def _parse_lattice_atom_pos(self) -> tuple[list[str], list[Vector3D], list[Vector3D], Lattice | None]:
+    def _parse_lattice_atom_pos(
+        self,
+    ) -> tuple[list[str], list[Vector3D], list[Vector3D], Lattice | None]:
         """Parse the lattice and atomic positions of the structure.
 
         Returns:
@@ -573,36 +576,48 @@ class AimsOutCalcChunk(AimsOutChunk):
     def species(self) -> list[str]:
         """The list of atomic symbols for all atoms in the structure."""
         if "species" not in self._cache:
-            self._cache["species"], self._cache["coords"], self._cache["velocities"], self._cache["lattice"] = (
-                self._parse_lattice_atom_pos()
-            )
+            (
+                self._cache["species"],
+                self._cache["coords"],
+                self._cache["velocities"],
+                self._cache["lattice"],
+            ) = self._parse_lattice_atom_pos()
         return self._cache["species"]
 
     @property
     def coords(self) -> list[Vector3D]:
         """The cartesian coordinates of the atoms."""
         if "coords" not in self._cache:
-            self._cache["species"], self._cache["coords"], self._cache["velocities"], self._cache["lattice"] = (
-                self._parse_lattice_atom_pos()
-            )
+            (
+                self._cache["species"],
+                self._cache["coords"],
+                self._cache["velocities"],
+                self._cache["lattice"],
+            ) = self._parse_lattice_atom_pos()
         return self._cache["coords"]
 
     @property
     def velocities(self) -> list[Vector3D]:
         """The velocities of the atoms."""
         if "velocities" not in self._cache:
-            self._cache["species"], self._cache["coords"], self._cache["velocities"], self._cache["lattice"] = (
-                self._parse_lattice_atom_pos()
-            )
+            (
+                self._cache["species"],
+                self._cache["coords"],
+                self._cache["velocities"],
+                self._cache["lattice"],
+            ) = self._parse_lattice_atom_pos()
         return self._cache["velocities"]
 
     @property
     def lattice(self) -> Lattice:
         """The Lattice object for the structure."""
         if "lattice" not in self._cache:
-            self._cache["species"], self._cache["coords"], self._cache["velocities"], self._cache["lattice"] = (
-                self._parse_lattice_atom_pos()
-            )
+            (
+                self._cache["species"],
+                self._cache["coords"],
+                self._cache["velocities"],
+                self._cache["lattice"],
+            ) = self._parse_lattice_atom_pos()
         return self._cache["lattice"]
 
     @property

@@ -192,7 +192,11 @@ class Spectrum(MSONable):
             func: "gaussian" or "lorentzian" or a callable. If this is a callable, the sigma value is ignored. The
                 callable should only take a single argument (a numpy array) and return a set of weights.
         """
-        points = np.linspace(np.min(self.x) - np.mean(self.x), np.max(self.x) - np.mean(self.x), len(self.x))
+        points = np.linspace(
+            np.min(self.x) - np.mean(self.x),
+            np.max(self.x) - np.mean(self.x),
+            len(self.x),
+        )
         if callable(func):
             weights = func(points)
         elif func.lower() == "gaussian":

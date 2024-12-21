@@ -39,7 +39,7 @@ def get_reasonable_repetitions(n_atoms: int) -> Tuple3Ints:
 
 def eigenvectors_from_displacements(disp: np.ndarray, masses: np.ndarray) -> np.ndarray:
     """Calculate the eigenvectors from the atomic displacements."""
-    return np.einsum("nax,a->nax", disp, masses**0.5)
+    return np.einsum("nax,a->nax", disp, masses**0.5)  # codespell:ignore nax
 
 
 def estimate_band_connection(prev_eigvecs, eigvecs, prev_band_order) -> list[int]:
@@ -128,9 +128,19 @@ class PhononBandStructure(MSONable):
                 if np.linalg.norm(q_pt - np.array(labels_dict[key])) < 0.0001:
                     label = key
                     self.labels_dict[label] = Kpoint(
-                        q_pt, lattice, label=label, coords_are_cartesian=coords_are_cartesian
+                        q_pt,
+                        lattice,
+                        label=label,
+                        coords_are_cartesian=coords_are_cartesian,
                     )
-            self.qpoints += [Kpoint(q_pt, lattice, label=label, coords_are_cartesian=coords_are_cartesian)]
+            self.qpoints += [
+                Kpoint(
+                    q_pt,
+                    lattice,
+                    label=label,
+                    coords_are_cartesian=coords_are_cartesian,
+                )
+            ]
         self.bands = np.asarray(frequencies)
         self.nb_bands = len(self.bands)
         self.nb_qpoints = len(self.qpoints)
@@ -182,7 +192,7 @@ class PhononBandStructure(MSONable):
         Args:
             tol: Tolerance for determining if a frequency is imaginary. Defaults to 0.01.
         """
-        return self.min_freq()[1] + tol < 0
+        return bool(self.min_freq()[1] + tol < 0)
 
     def has_imaginary_gamma_freq(self, tol: float = 0.01) -> bool:
         """Check if there are imaginary modes at the gamma point and all close points.
@@ -397,7 +407,11 @@ class PhononBandStructureSymmLine(PhononBandStructure):
         return f"{type(self).__name__}({bands=}, {labels=})"
 
     def _reuse_init(
-        self, eigendisplacements: ArrayLike, frequencies: ArrayLike, has_nac: bool, qpoints: Sequence[Kpoint]
+        self,
+        eigendisplacements: ArrayLike,
+        frequencies: ArrayLike,
+        has_nac: bool,
+        qpoints: Sequence[Kpoint],
     ) -> None:
         self.distance = []
         self.branches = []
@@ -500,7 +514,12 @@ class PhononBandStructureSymmLine(PhononBandStructure):
                 start_idx, end_idx = branch["start_index"], branch["end_index"]
                 if start_idx <= pt_idx <= end_idx:
                     lst.append(
-                        {"name": branch["name"], "start_index": start_idx, "end_index": end_idx, "index": pt_idx}
+                        {
+                            "name": branch["name"],
+                            "start_index": start_idx,
+                            "end_index": end_idx,
+                            "index": pt_idx,
+                        }
                     )
         return lst
 
@@ -652,7 +671,7 @@ class PhononBandStructureSymmLine(PhononBandStructure):
             dct["has_nac"],
             eigendisplacements,
             dct["labels_dict"],
-            structure=Structure.from_dict(dct["structure"]) if "structure" in dct else None,
+            structure=(Structure.from_dict(dct["structure"]) if "structure" in dct else None),
         )
 
     def __eq__(self, other: object) -> bool:

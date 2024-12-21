@@ -5,6 +5,7 @@ and a ChemicalPotential class to represent potentials.
 from __future__ import annotations
 
 import collections
+import math
 import os
 import re
 import string
@@ -12,7 +13,6 @@ import warnings
 from collections import defaultdict
 from functools import total_ordering
 from itertools import combinations_with_replacement, product
-from math import isnan
 from typing import TYPE_CHECKING, cast
 
 from monty.fractions import gcd, gcd_float
@@ -25,7 +25,7 @@ from pymatgen.util.string import Stringify, formula_double_format
 
 if TYPE_CHECKING:
     from collections.abc import Generator, Iterator
-    from typing import Any, ClassVar
+    from typing import Any, ClassVar, Literal
 
     from typing_extensions import Self
 
@@ -36,41 +36,80 @@ MODULE_DIR = os.path.dirname(os.path.abspath(__file__))
 
 @total_ordering
 class Composition(collections.abc.Hashable, collections.abc.Mapping, MSONable, Stringify):
-    """Represents a Composition, which is essentially a {element:amount} mapping
-    type. Composition is written to be immutable and hashable,
-    unlike a standard Python dict.
+    """
+    Represents a `Composition`, a mapping of {element/species: amount} with
+    enhanced functionality tailored for handling chemical compositions. The class
+    is immutable, hashable, and designed for robust usage in material science
+    and chemistry computations.
 
-    Note that the key can be either an Element or a Species. Elements and Species
-    are treated differently. i.e., a Fe2+ is not the same as a Fe3+ Species and
-    would be put in separate keys. This differentiation is deliberate to
-    support using Composition to determine the fraction of a particular Species.
+    Key Features:
+        - Supports both `Element` and `Species` as keys, with differentiation
+        between oxidation states (e.g., Fe2+ and Fe3+ are distinct keys).
+        - Behaves like a dictionary but returns 0 for missing keys, making it
+        similar to a `defaultdict` while remaining immutable.
+        - Provides numerous utility methods for chemical computations, such as
+        calculating fractions, weights, and formula representations.
 
-    Works almost completely like a standard python dictionary, except that
-    __getitem__ is overridden to return 0 when an element is not found.
-    (somewhat like a defaultdict, except it is immutable).
+    Highlights:
+        - **Input Flexibility**: Accepts formulas as strings, dictionaries, or
+        keyword arguments for construction.
+        - **Convenience Methods**: Includes `get_fraction`, `reduced_formula`,
+        and weight-related utilities.
+        - **Enhanced Formula Representation**: Supports reduced, normalized, and
+        IUPAC-sorted formulas.
 
-    Also adds more convenience methods relevant to compositions, e.g.
-    get_fraction.
+    Examples:
+        >>> comp = Composition("LiFePO4")
+        >>> comp.get_atomic_fraction(Element("Li"))
+        0.14285714285714285
+        >>> comp.num_atoms
+        7.0
+        >>> comp.reduced_formula
+        'LiFePO4'
+        >>> comp.formula
+        'Li1 Fe1 P1 O4'
+        >>> comp.get_wt_fraction(Element("Li"))
+        0.04399794666951898
+        >>> comp.num_atoms
+        7.0
 
-    It should also be noted that many Composition related functionality takes
-    in a standard string as a convenient input. For example,
-    even though the internal representation of a Fe2O3 composition is
-    {Element("Fe"): 2, Element("O"): 3}, you can obtain the amount of Fe
-    simply by comp["Fe"] instead of the more verbose comp[Element("Fe")].
+    Attributes:
+        - `amount_tolerance` (float): Tolerance for distinguishing composition
+        amounts. Default is 1e-8 to minimize floating-point errors.
+        - `charge_balanced_tolerance` (float): Tolerance for verifying charge balance.
+        - `special_formulas` (dict): Custom formula mappings for specific compounds
+        (e.g., `"LiO"` → `"Li2O2"`).
+        - `oxi_prob` (dict or None): Prior probabilities of oxidation states, used
+        for oxidation state guessing.
 
-    >>> comp = Composition("LiFePO4")
-    >>> comp.get_atomic_fraction(Element("Li"))
-    0.14285714285714285
-    >>> comp.num_atoms
-    7.0
-    >>> comp.reduced_formula
-    'LiFePO4'
-    >>> comp.formula
-    'Li1 Fe1 P1 O4'
-    >>> comp.get_wt_fraction(Element("Li"))
-    0.04399794666951898
-    >>> comp.num_atoms
-    7.0
+    Functionality:
+        - Arithmetic Operations: Add, subtract, multiply, or divide compositions.
+        For example:
+            >>> comp1 = Composition("Fe2O3")
+            >>> comp2 = Composition("FeO")
+            >>> result = comp1 + comp2  # Produces "Fe3O4"
+        - Representation:
+            - `formula`: Full formula string with elements sorted by electronegativity.
+            - `reduced_formula`: Simplified formula with minimal ratios.
+            - `hill_formula`: Hill notation (C and H prioritized, others alphabetically sorted).
+        - Utilities:
+            - `get_atomic_fraction`: Returns the atomic fraction of a given element/species.
+            - `get_wt_fraction`: Returns the weight fraction of a given element/species.
+            - `is_element`: Checks if the composition is a pure element.
+            - `reduced_composition`: Normalizes the composition by the greatest common denominator.
+            - `fractional_composition`: Returns the normalized composition where sums equal 1.
+        - Oxidation State Handling:
+            - `oxi_state_guesses`: Suggests charge-balanced oxidation states.
+            - `charge_balanced`: Checks if the composition is charge balanced.
+            - `add_charges_from_oxi_state_guesses`: Assigns oxidation states based on guesses.
+        - Validation:
+            - `valid`: Ensures all elements/species are valid.
+
+    Notes:
+        - When constructing from strings, both `Element` and `Species` types are
+        handled. For example:
+            - `Composition("Fe2+")` differentiates Fe2+ from Fe3+.
+            - `Composition("Fe2O3")` auto-parses standard formulas.
     """
 
     # Tolerance in distinguishing different composition amounts.
@@ -129,7 +168,7 @@ class Composition(collections.abc.Hashable, collections.abc.Mapping, MSONable, S
             elem_map = args[0]
         elif len(args) == 1 and isinstance(args[0], str):
             elem_map = self._parse_formula(args[0])  # type: ignore[assignment]
-        elif len(args) == 1 and isinstance(args[0], float) and isnan(args[0]):
+        elif len(args) == 1 and isinstance(args[0], float) and math.isnan(args[0]):
             raise ValueError("float('NaN') is not a valid Composition, did you mean 'NaN'?")
         else:
             elem_map = dict(*args, **kwargs)  # type: ignore[assignment]
@@ -400,7 +439,7 @@ class Composition(collections.abc.Hashable, collections.abc.Mapping, MSONable, S
         all_int = all(abs(val - round(val)) < type(self).amount_tolerance for val in self.values())
         if not all_int:
             return self.formula.replace(" ", ""), 1
-        el_amt_dict = {key: int(round(val)) for key, val in self.get_el_amt_dict().items()}
+        el_amt_dict = {key: round(val) for key, val in self.get_el_amt_dict().items()}
         formula, factor = reduce_formula(el_amt_dict, iupac_ordering=iupac_ordering)
 
         if formula in type(self).special_formulas:
@@ -547,7 +586,8 @@ class Composition(collections.abc.Hashable, collections.abc.Mapping, MSONable, S
 
         return any(getattr(el, f"is_{category}") for el in self.elements)
 
-    def _parse_formula(self, formula: str, strict: bool = True) -> dict[str, float]:
+    @staticmethod
+    def _parse_formula(formula: str, strict: bool = True) -> dict[str, float]:
         """
         Args:
             formula (str): A string formula, e.g. Fe2O3, Li3Fe2(PO4)3.
@@ -639,7 +679,7 @@ class Composition(collections.abc.Hashable, collections.abc.Mapping, MSONable, S
         return cls(dct)
 
     @classmethod
-    def from_weight_dict(cls, weight_dict: dict[SpeciesLike, float]) -> Self:
+    def from_weight_dict(cls, weight_dict: dict[SpeciesLike, float], strict: bool = True, **kwargs) -> Self:
         """Create a Composition based on a dict of atomic fractions calculated
         from a dict of weight fractions. Allows for quick creation of the class
         from weight-based notations commonly used in the industry, such as
@@ -647,14 +687,56 @@ class Composition(collections.abc.Hashable, collections.abc.Mapping, MSONable, S
 
         Args:
             weight_dict (dict): {symbol: weight_fraction} dict.
+            strict (bool): Only allow valid Elements and Species in the Composition. Defaults to True.
+            **kwargs: Additional kwargs supported by the dict() constructor.
 
         Returns:
-            Composition
+            Composition in molar fractions.
+
+        Examples:
+            >>> Composition.from_weights({"Fe": 0.5, "Ni": 0.5})
+            Composition('Fe0.512434 Ni0.487566')
+            >>> Composition.from_weights({"Ti": 60, "Ni": 40})
+            Composition('Ti0.647796 Ni0.352204')
         """
         weight_sum = sum(val / Element(el).atomic_mass for el, val in weight_dict.items())
         comp_dict = {el: val / Element(el).atomic_mass / weight_sum for el, val in weight_dict.items()}
 
-        return cls(comp_dict)
+        return cls(comp_dict, strict=strict, **kwargs)
+
+    @classmethod
+    def from_weights(cls, *args, strict: bool = True, **kwargs) -> Self:
+        """Create a Composition from a weight-based formula.
+
+        Args:
+            *args: Any number of 2-tuples as key-value pairs.
+            strict (bool): Only allow valid Elements and Species in the Composition. Defaults to False.
+            allow_negative (bool): Whether to allow negative compositions. Defaults to False.
+            **kwargs: Additional kwargs supported by the dict() constructor.
+
+        Returns:
+            Composition in molar fractions.
+
+        Examples:
+            >>> Composition.from_weights("Fe50Ti50")
+            Composition('Fe0.461538 Ti0.538462')
+            >>> Composition.from_weights({"Fe": 0.5, "Ni": 0.5})
+            Composition('Fe0.512434 Ni0.487566')
+        """
+        if len(args) == 1 and isinstance(args[0], str):
+            elem_map: dict[str, float] = cls._parse_formula(args[0])
+        elif len(args) == 1 and isinstance(args[0], type(cls)):
+            elem_map = args[0]  # type: ignore[assignment]
+        elif len(args) == 1 and isinstance(args[0], float) and math.isnan(args[0]):
+            raise ValueError("float('NaN') is not a valid Composition, did you mean 'NaN'?")
+        else:
+            elem_map = dict(*args, **kwargs)  # type: ignore[assignment]
+
+        for val in elem_map.values():
+            if val < -cls.amount_tolerance:
+                raise ValueError("Weights in Composition cannot be negative!")
+
+        return cls.from_weight_dict(elem_map, strict=strict)
 
     def get_el_amt_dict(self) -> dict[str, float]:
         """
@@ -692,17 +774,25 @@ class Composition(collections.abc.Hashable, collections.abc.Mapping, MSONable, S
     def to_weight_dict(self) -> dict[str, float]:
         """
         Returns:
-            dict[str, float] with weight fraction of each component {"Ti": 0.90, "V": 0.06, "Al": 0.04}.
+            dict[str, float]: weight fractions of each component, e.g. {"Ti": 0.90, "V": 0.06, "Al": 0.04}.
         """
         return {str(el): self.get_wt_fraction(el) for el in self.elements}
 
     @property
-    def to_data_dict(self) -> dict[str, Any]:
+    def to_data_dict(
+        self,
+    ) -> dict[
+        Literal["reduced_cell_composition", "unit_cell_composition", "reduced_cell_formula", "elements", "nelements"],
+        Any,
+    ]:
         """
         Returns:
-            A dict with many keys and values relating to Composition/Formula,
-            including reduced_cell_composition, unit_cell_composition,
-            reduced_cell_formula, elements and nelements.
+            dict with the following keys:
+                - reduced_cell_composition
+                - unit_cell_composition
+                - reduced_cell_formula
+                - elements
+                - nelements.
         """
         return {
             "reduced_cell_composition": self.reduced_composition,
@@ -720,7 +810,8 @@ class Composition(collections.abc.Hashable, collections.abc.Mapping, MSONable, S
         """
         warnings.warn(
             "Composition.charge is experimental and may produce incorrect results. Use with "
-            "caution and open a GitHub issue pinging @janosh to report bad behavior."
+            "caution and open a GitHub issue pinging @janosh to report bad behavior.",
+            stacklevel=2,
         )
         oxi_states = [getattr(specie, "oxi_state", None) for specie in self]
         if {*oxi_states} <= {0, None}:
@@ -736,7 +827,8 @@ class Composition(collections.abc.Hashable, collections.abc.Mapping, MSONable, S
         """
         warnings.warn(
             "Composition.charge_balanced is experimental and may produce incorrect results. "
-            "Use with caution and open a GitHub issue pinging @janosh to report bad behavior."
+            "Use with caution and open a GitHub issue pinging @janosh to report bad behavior.",
+            stacklevel=2,
         )
         if self.charge is None:
             if {getattr(el, "oxi_state", None) for el in self} == {0}:
@@ -805,7 +897,8 @@ class Composition(collections.abc.Hashable, collections.abc.Mapping, MSONable, S
         if invalid_elems:
             warnings.warn(
                 "Some elements to be substituted are not present in composition. Please check your input. "
-                f"Problematic element = {invalid_elems}; {self}"
+                f"Problematic element = {invalid_elems}; {self}",
+                stacklevel=2,
             )
         for elem in invalid_elems:
             elem_map.pop(elem)
@@ -835,7 +928,8 @@ class Composition(collections.abc.Hashable, collections.abc.Mapping, MSONable, S
                 if el in self:
                     warnings.warn(
                         f"Same element ({el}) in both the keys and values of the substitution!"
-                        "This can be ambiguous, so be sure to check your result."
+                        "This can be ambiguous, so be sure to check your result.",
+                        stacklevel=2,
                     )
 
         return type(self)(new_comp)
@@ -1099,7 +1193,7 @@ class Composition(collections.abc.Hashable, collections.abc.Mapping, MSONable, S
             factor: Coefficient for this parse, e.g. (PO4)2 will feed in PO4
                 as the fuzzy_formula with a coefficient of 2.
 
-        Returns:
+        Yields:
             list[tuple[Composition, int]]: A list of tuples, with the first element being a Composition
                 and the second element being the number of points awarded that Composition interpretation.
         """

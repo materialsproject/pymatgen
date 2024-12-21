@@ -48,7 +48,14 @@ class StructureEnvironments(MSONable):
     class NeighborsSet:
         """Store a given set of neighbors of a given site (based on the detailed_voronoi)."""
 
-        def __init__(self, structure: Structure, isite, detailed_voronoi, site_voronoi_indices, sources=None):
+        def __init__(
+            self,
+            structure: Structure,
+            isite,
+            detailed_voronoi,
+            site_voronoi_indices,
+            sources=None,
+        ):
             """Constructor for NeighborsSet.
 
             Args:
@@ -1053,7 +1060,10 @@ class StructureEnvironments(MSONable):
                     "self": self.structure,
                     "other": other.structure,
                 },
-                {"difference": "PREVIOUS DIFFERENCE IS DISMISSIVE", "comparison": "differences_wrt"},
+                {
+                    "difference": "PREVIOUS DIFFERENCE IS DISMISSIVE",
+                    "comparison": "differences_wrt",
+                },
             )
             return differences
         if self.valences != other.valences:
@@ -1077,8 +1087,16 @@ class StructureEnvironments(MSONable):
         if self.voronoi != other.voronoi:
             if self.voronoi.is_close_to(other.voronoi):
                 differences += (
-                    {"difference": "voronoi", "comparison": "__eq__", "self": self.voronoi, "other": other.voronoi},
-                    {"difference": "PREVIOUS DIFFERENCE IS DISMISSIVE", "comparison": "differences_wrt"},
+                    {
+                        "difference": "voronoi",
+                        "comparison": "__eq__",
+                        "self": self.voronoi,
+                        "other": other.voronoi,
+                    },
+                    {
+                        "difference": "PREVIOUS DIFFERENCE IS DISMISSIVE",
+                        "comparison": "differences_wrt",
+                    },
                 )
                 return differences
 
@@ -1089,7 +1107,10 @@ class StructureEnvironments(MSONable):
                     "self": self.voronoi,
                     "other": other.voronoi,
                 },
-                {"difference": "PREVIOUS DIFFERENCE IS DISMISSIVE", "comparison": "differences_wrt"},
+                {
+                    "difference": "PREVIOUS DIFFERENCE IS DISMISSIVE",
+                    "comparison": "differences_wrt",
+                },
             )
             return differences
         for site_idx, self_site_nb_sets in enumerate(self.neighbors_sets):
@@ -1204,28 +1225,34 @@ class StructureEnvironments(MSONable):
             Bson-serializable dict representation of the StructureEnvironments object.
         """
         ce_list_dict = [
-            {str(cn): [ce.as_dict() if ce is not None else None for ce in ce_dict[cn]] for cn in ce_dict}
-            if ce_dict is not None
-            else None
+            (
+                {str(cn): [ce.as_dict() if ce is not None else None for ce in ce_dict[cn]] for cn in ce_dict}
+                if ce_dict is not None
+                else None
+            )
             for ce_dict in self.ce_list
         ]
         nbs_sets_dict = [
-            {str(cn): [nb_set.as_dict() for nb_set in nb_sets] for cn, nb_sets in site_nbs_sets.items()}
-            if site_nbs_sets is not None
-            else None
+            (
+                {str(cn): [nb_set.as_dict() for nb_set in nb_sets] for cn, nb_sets in site_nbs_sets.items()}
+                if site_nbs_sets is not None
+                else None
+            )
             for site_nbs_sets in self.neighbors_sets
         ]
         info_dict = {key: val for key, val in self.info.items() if key != "sites_info"}
         info_dict["sites_info"] = [
-            {
-                "nb_sets_info": {
-                    str(cn): {str(inb_set): nb_set_info for inb_set, nb_set_info in cn_sets.items()}
-                    for cn, cn_sets in site_info["nb_sets_info"].items()
-                },
-                "time": site_info["time"],
-            }
-            if "nb_sets_info" in site_info
-            else {}
+            (
+                {
+                    "nb_sets_info": {
+                        str(cn): {str(inb_set): nb_set_info for inb_set, nb_set_info in cn_sets.items()}
+                        for cn, cn_sets in site_info["nb_sets_info"].items()
+                    },
+                    "time": site_info["time"],
+                }
+                if "nb_sets_info" in site_info
+                else {}
+            )
             for site_info in self.info["sites_info"]
         ]
 
@@ -1255,43 +1282,49 @@ class StructureEnvironments(MSONable):
             StructureEnvironments object.
         """
         ce_list = [
-            None
-            if (ce_dict == "None" or ce_dict is None)
-            else {
-                int(cn): [
-                    None if (ced is None or ced == "None") else ChemicalEnvironments.from_dict(ced)
-                    for ced in ce_dict[cn]
-                ]
-                for cn in ce_dict
-            }
+            (
+                None
+                if (ce_dict == "None" or ce_dict is None)
+                else {
+                    int(cn): [
+                        (None if (ced is None or ced == "None") else ChemicalEnvironments.from_dict(ced))
+                        for ced in ce_dict[cn]
+                    ]
+                    for cn in ce_dict
+                }
+            )
             for ce_dict in dct["ce_list"]
         ]
         voronoi = DetailedVoronoiContainer.from_dict(dct["voronoi"])
         structure = Structure.from_dict(dct["structure"])
         neighbors_sets = [
-            {
-                int(cn): [
-                    cls.NeighborsSet.from_dict(nb_set_dict, structure=structure, detailed_voronoi=voronoi)
-                    for nb_set_dict in nb_sets
-                ]
-                for cn, nb_sets in site_nbs_sets_dict.items()
-            }
-            if site_nbs_sets_dict is not None
-            else None
+            (
+                {
+                    int(cn): [
+                        cls.NeighborsSet.from_dict(nb_set_dict, structure=structure, detailed_voronoi=voronoi)
+                        for nb_set_dict in nb_sets
+                    ]
+                    for cn, nb_sets in site_nbs_sets_dict.items()
+                }
+                if site_nbs_sets_dict is not None
+                else None
+            )
             for site_nbs_sets_dict in dct["neighbors_sets"]
         ]
         info = {key: val for key, val in dct["info"].items() if key != "sites_info"}
         if "sites_info" in dct["info"]:
             info["sites_info"] = [
-                {
-                    "nb_sets_info": {
-                        int(cn): {int(inb_set): nb_set_info for inb_set, nb_set_info in cn_sets.items()}
-                        for cn, cn_sets in site_info["nb_sets_info"].items()
-                    },
-                    "time": site_info["time"],
-                }
-                if "nb_sets_info" in site_info
-                else {}
+                (
+                    {
+                        "nb_sets_info": {
+                            int(cn): {int(inb_set): nb_set_info for inb_set, nb_set_info in cn_sets.items()}
+                            for cn, cn_sets in site_info["nb_sets_info"].items()
+                        },
+                        "time": site_info["time"],
+                    }
+                    if "nb_sets_info" in site_info
+                    else {}
+                )
                 for site_info in dct["info"]["sites_info"]
             ]
         return cls(
@@ -1537,7 +1570,11 @@ class LightStructureEnvironments(MSONable):
                         nb_image_cell = np.array(rounddiff, int)
                         n_all_nbs_sites_index = len(_all_nbs_sites)
                         _all_nbs_sites.append(
-                            {"site": nb_site, "index": nb_index_unitcell, "image_cell": nb_image_cell}
+                            {
+                                "site": nb_site,
+                                "index": nb_index_unitcell,
+                                "image_cell": nb_image_cell,
+                            }
                         )
                         all_nbs_sites.append(nb_site)
                     _all_nbs_sites_indices.append(n_all_nbs_sites_index)
@@ -1998,7 +2035,7 @@ class LightStructureEnvironments(MSONable):
                 for nb_site in self._all_nbs_sites
             ],
             "neighbors_sets": [
-                [nb_set.as_dict() for nb_set in site_nb_sets] if site_nb_sets is not None else None
+                ([nb_set.as_dict() for nb_set in site_nb_sets] if site_nb_sets is not None else None)
                 for site_nb_sets in self.neighbors_sets
             ],
             "valences": self.valences,
@@ -2036,12 +2073,14 @@ class LightStructureEnvironments(MSONable):
                 image_cell = np.array(rounddiff, int)
             all_nbs_sites.append({"site": site, "index": nb_site["index"], "image_cell": image_cell})
         neighbors_sets = [
-            [
-                cls.NeighborsSet.from_dict(nb_set, structure=structure, all_nbs_sites=all_nbs_sites)
-                for nb_set in site_nb_sets
-            ]
-            if site_nb_sets is not None
-            else None
+            (
+                [
+                    cls.NeighborsSet.from_dict(nb_set, structure=structure, all_nbs_sites=all_nbs_sites)
+                    for nb_set in site_nb_sets
+                ]
+                if site_nb_sets is not None
+                else None
+            )
             for site_nb_sets in dct["neighbors_sets"]
         ]
         return cls(

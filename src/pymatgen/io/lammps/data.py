@@ -414,7 +414,12 @@ class LammpsData(MSONable):
         parts = []
         for key, val in body_dict.items():
             index = key != "PairIJ Coeffs"
-            if hybrid and key in ["Bond Coeffs", "Angle Coeffs", "Dihedral Coeffs", "Improper Coeffs"]:
+            if hybrid and key in [
+                "Bond Coeffs",
+                "Angle Coeffs",
+                "Dihedral Coeffs",
+                "Improper Coeffs",
+            ]:
                 dfs: list[pd.DataFrame] = np.array_split(val, len(val.index))
                 df_string = ""
                 for idx, df in enumerate(dfs):
@@ -444,7 +449,11 @@ class LammpsData(MSONable):
                     df_string += line_string.replace("nan", "").rstrip() + "\n"
             else:
                 df_string = val.to_string(
-                    header=False, formatters=default_formatters, index_names=False, index=index, na_rep=""
+                    header=False,
+                    formatters=default_formatters,
+                    index_names=False,
+                    index=index,
+                    na_rep="",
                 )
             parts.append(section_template.format(kw=key, df=df_string))
         body = "\n".join(parts)
@@ -468,7 +477,10 @@ class LammpsData(MSONable):
             file.write(self.get_str(distance=distance, velocity=velocity, charge=charge))
 
     def disassemble(
-        self, atom_labels: Sequence[str] | None = None, guess_element: bool = True, ff_label: str = "ff_map"
+        self,
+        atom_labels: Sequence[str] | None = None,
+        guess_element: bool = True,
+        ff_label: str = "ff_map",
     ) -> tuple[LammpsBox, ForceField, list[Topology]]:
         """
         Breaks down LammpsData to building blocks
@@ -601,7 +613,11 @@ class LammpsData(MSONable):
             species = masses.loc[type_ids, "element"]
             labels = masses.loc[type_ids, "label"]
             coords = atoms[["x", "y", "z"]]
-            mol = Molecule(species.values, coords.values, site_properties={ff_label: labels.to_numpy()})
+            mol = Molecule(
+                species.values,
+                coords.values,
+                site_properties={ff_label: labels.to_numpy()},
+            )
             charges = atoms.get("q")
             velocities = atoms[["vx", "vy", "vz"]] if "vx" in atoms.columns else None
             topologies = {}
@@ -739,7 +755,11 @@ class LammpsData(MSONable):
 
     @classmethod
     def from_ff_and_topologies(
-        cls, box: LammpsBox, ff: ForceField, topologies: Sequence[Topology], atom_style: str = "full"
+        cls,
+        box: LammpsBox,
+        ff: ForceField,
+        topologies: Sequence[Topology],
+        atom_style: str = "full",
     ) -> Self:
         """
         Constructor building LammpsData from a ForceField object and a
@@ -759,15 +779,30 @@ class LammpsData(MSONable):
         if not atom_types.issubset(ff.maps["Atoms"]):
             raise ValueError("Unknown atom type found in topologies")
 
-        items = {"box": box, "atom_style": atom_style, "masses": ff.masses, "force_field": ff.force_field}
+        items = {
+            "box": box,
+            "atom_style": atom_style,
+            "masses": ff.masses,
+            "force_field": ff.force_field,
+        }
 
         mol_ids: list[int] = []
         charges: list[float] = []
         coords: list[np.ndarray] = []
         labels: list[str] = []
         v_collector: list | None = [] if topologies[0].velocities else None
-        topo_collector: dict[str, list] = {"Bonds": [], "Angles": [], "Dihedrals": [], "Impropers": []}
-        topo_labels: dict[str, list] = {"Bonds": [], "Angles": [], "Dihedrals": [], "Impropers": []}
+        topo_collector: dict[str, list] = {
+            "Bonds": [],
+            "Angles": [],
+            "Dihedrals": [],
+            "Impropers": [],
+        }
+        topo_labels: dict[str, list] = {
+            "Bonds": [],
+            "Angles": [],
+            "Dihedrals": [],
+            "Impropers": [],
+        }
         for idx, topo in enumerate(topologies):
             if topo.topologies:
                 shift = len(labels)
@@ -798,7 +833,10 @@ class LammpsData(MSONable):
             df_topology = pd.DataFrame(np.concatenate(topo_collector[key]), columns=SECTION_HEADERS[key][1:])
             df_topology["type"] = list(map(ff.maps[key].get, topo_labels[key]))
             if any(pd.isna(df_topology["type"])):  # Throw away undefined topologies
-                warnings.warn(f"Undefined {key.lower()} detected and removed")
+                warnings.warn(
+                    f"Undefined {key.lower()} detected and removed",
+                    stacklevel=2,
+                )
                 df_topology = df_topology.dropna(subset=["type"])
                 df_topology = df_topology.reset_index(drop=True)
             df_topology.index += 1
@@ -1012,7 +1050,11 @@ class Topology(MSONable):
 
         topologies = {
             k: v
-            for k, v in zip(SECTION_KEYWORDS["topology"][:3], [bond_list, angle_list, dihedral_list], strict=True)
+            for k, v in zip(
+                SECTION_KEYWORDS["topology"][:3],
+                [bond_list, angle_list, dihedral_list],
+                strict=True,
+            )
             if len(v) > 0
         } or None
         return cls(sites=molecule, topologies=topologies, **kwargs)
@@ -1033,7 +1075,12 @@ class ForceField(MSONable):
     def _is_valid(df: pd.DataFrame):
         return not pd.isna(df).to_numpy().any()
 
-    def __init__(self, mass_info: list, nonbond_coeffs: list | None = None, topo_coeffs: dict | None = None) -> None:
+    def __init__(
+        self,
+        mass_info: list,
+        nonbond_coeffs: list | None = None,
+        topo_coeffs: dict | None = None,
+    ) -> None:
         """
         Args:
             mass_info (list): List of atomic mass info. Elements,
@@ -1334,7 +1381,10 @@ class CombinedData(LammpsData):
         return ld_cp.structure
 
     def disassemble(
-        self, atom_labels: Sequence[str] | None = None, guess_element: bool = True, ff_label: str = "ff_map"
+        self,
+        atom_labels: Sequence[str] | None = None,
+        guess_element: bool = True,
+        ff_label: str = "ff_map",
     ):
         """
         Breaks down each LammpsData in CombinedData to building blocks
@@ -1434,7 +1484,12 @@ class CombinedData(LammpsData):
 
     @classmethod
     def from_lammpsdata(
-        cls, mols: list, names: list, list_of_numbers: list, coordinates: pd.DataFrame, atom_style: str | None = None
+        cls,
+        mols: list,
+        names: list,
+        list_of_numbers: list,
+        coordinates: pd.DataFrame,
+        atom_style: str | None = None,
     ) -> Self:
         """
         Constructor that can infer atom_style.

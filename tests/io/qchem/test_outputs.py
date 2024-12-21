@@ -287,7 +287,11 @@ class TestQCOutput(PymatgenTest):
                     if isinstance(out_data.get(key), dict):
                         assert out_data.get(key) == approx(SINGLE_JOB_DICT[filename].get(key))
                     else:
-                        assert_allclose(out_data.get(key), SINGLE_JOB_DICT[filename].get(key), atol=1e-6)
+                        assert_allclose(
+                            out_data.get(key),
+                            SINGLE_JOB_DICT[filename].get(key),
+                            atol=1e-6,
+                        )
                 except AssertionError as exc:
                     raise RuntimeError(f"Issue with {filename=} Exiting...") from exc
             except AssertionError as exc:
@@ -301,7 +305,11 @@ class TestQCOutput(PymatgenTest):
                     if isinstance(sub_output.data.get(key), dict):
                         assert sub_output.data.get(key) == approx(MULTI_JOB_DICT[filename][idx].get(key))
                     else:
-                        assert_allclose(sub_output.data.get(key), MULTI_JOB_DICT[filename][idx].get(key), atol=1e-6)
+                        assert_allclose(
+                            sub_output.data.get(key),
+                            MULTI_JOB_DICT[filename][idx].get(key),
+                            atol=1e-6,
+                        )
 
     # PR#3985: the following unit test is failing, and it seems that
     # the array dimension from out_data and SINGLE_JOB_DICT mismatch
@@ -533,11 +541,24 @@ class TestQCOutput(PymatgenTest):
         qc_out = QCOutput(f"{TEST_DIR}/6.1.1.wb97xv.out.gz")
         assert qc_out.data["final_energy"] == -76.43205015
         n_vals = sum(1 for val in qc_out.data.values() if val is not None)
-        assert n_vals == 21
+        assert n_vals == 23
+
+        qc_out_read_optimization = QCOutput(f"{TEST_DIR}/6.1.1.opt.out.gz")
+        qc_out_read_optimization._read_optimization_data()
+        assert qc_out_read_optimization.data["SCF_energy_in_the_final_basis_set"][-1] == -76.36097614
+        assert qc_out_read_optimization.data["Total_energy_in_the_final_basis_set"][-1] == -76.36097614
+
+        qc_out_read_frequency = QCOutput(f"{TEST_DIR}/6.1.1.freq.out.gz")
+        qc_out_read_frequency._read_frequency_data()
+        assert qc_out_read_frequency.data["SCF_energy_in_the_final_basis_set"] == -76.36097614
+        assert qc_out_read_frequency.data["Total_energy_in_the_final_basis_set"] == -76.36097614
 
 
 def test_gradient(tmp_path):
-    with gzip.open(f"{TEST_DIR}/131.0.gz", "rb") as f_in, open(tmp_path / "131.0", "wb") as f_out:
+    with (
+        gzip.open(f"{TEST_DIR}/131.0.gz", "rb") as f_in,
+        open(tmp_path / "131.0", "wb") as f_out,
+    ):
         shutil.copyfileobj(f_in, f_out)
     gradient = gradient_parser(tmp_path / "131.0")
     assert np.shape(gradient) == (14, 3)
@@ -545,7 +566,10 @@ def test_gradient(tmp_path):
 
 
 def test_hessian(tmp_path):
-    with gzip.open(f"{TEST_DIR}/132.0.gz", "rb") as f_in, open(tmp_path / "132.0", "wb") as f_out:
+    with (
+        gzip.open(f"{TEST_DIR}/132.0.gz", "rb") as f_in,
+        open(tmp_path / "132.0", "wb") as f_out,
+    ):
         shutil.copyfileobj(f_in, f_out)
     hessian = hessian_parser(tmp_path / "132.0", n_atoms=14)
     assert np.shape(hessian) == (42, 42)
@@ -557,7 +581,10 @@ def test_hessian(tmp_path):
 
 
 def test_prev_orbital_coeffs(tmp_path):
-    with gzip.open(f"{TEST_DIR}/53.0.gz", "rb") as f_in, open(tmp_path / "53.0", "wb") as f_out:
+    with (
+        gzip.open(f"{TEST_DIR}/53.0.gz", "rb") as f_in,
+        open(tmp_path / "53.0", "wb") as f_out,
+    ):
         shutil.copyfileobj(f_in, f_out)
     orbital_coeffs = orbital_coeffs_parser(tmp_path / "53.0")
     assert len(orbital_coeffs) == 360400

@@ -49,7 +49,7 @@ class BornEffectiveCharge:
         self.pointops = pointops
         self.BEC_operations = None
         if np.sum(self.bec) >= tol:
-            warnings.warn("Input born effective charge tensor does not satisfy charge neutrality")
+            warnings.warn("Input born effective charge tensor does not satisfy charge neutrality", stacklevel=2)
 
     def get_BEC_operations(self, eigtol=1e-5, opstol=1e-3):
         """Get the symmetry operations which maps the tensors
@@ -178,16 +178,16 @@ class InternalStrainTensor:
         self.structure = structure
         self.ist = ist
         self.pointops = pointops
-        self.IST_operations = None
+        self.IST_operations: list[list[list]] = []
 
         obj = self.ist
-        if not (obj - np.transpose(obj, (0, 1, 3, 2)) < tol).all():
-            warnings.warn("Input internal strain tensor does not satisfy standard symmetries")
+        if not np.allclose(obj, np.transpose(obj, (0, 1, 3, 2)), atol=tol, rtol=0):
+            warnings.warn("Input internal strain tensor does not satisfy standard symmetries", stacklevel=2)
 
-    def get_IST_operations(self, opstol=1e-3):
+    def get_IST_operations(self, opstol=1e-3) -> list[list[list]]:
         """Get the symmetry operations which maps the tensors
         belonging to equivalent sites onto each other in the form
-        [site index 1, site index 2, [Symmops mapping from site
+        [site index 1, site index 2, [SymmOps mapping from site
         index 1 to site index 2]].
 
         Args:
@@ -195,8 +195,7 @@ class InternalStrainTensor:
             operation relates two sites
 
         Returns:
-            list of symmetry operations mapping equivalent sites and
-            the indexes of those sites.
+            list[list[list]]: symmetry operations mapping equivalent sites and the indexes of those sites.
         """
         struct = self.structure
         ops = SpacegroupAnalyzer(struct).get_symmetry_operations(cartesian=True)
@@ -207,18 +206,19 @@ class InternalStrainTensor:
                 if op not in uniq_point_ops:
                     uniq_point_ops.append(op)
 
-        IST_operations = []
-        for atom in range(len(self.ist)):
+        IST_operations: list[list[list]] = []
+        for atom_idx in range(len(self.ist)):
             IST_operations.append([])
-            for j in range(atom):
+            for j in range(atom_idx):
                 for op in uniq_point_ops:
                     new = op.transform_tensor(self.ist[j])
 
                     # Check the matrix it references
-                    if np.allclose(new, self.ist[atom], atol=opstol):
-                        IST_operations[atom].append([j, op])
+                    if np.allclose(new, self.ist[atom_idx], atol=opstol):
+                        IST_operations[atom_idx].append([j, op])
 
         self.IST_operations = IST_operations
+        return IST_operations
 
     def get_rand_IST(self, max_force=1):
         """Generate a random internal strain tensor which obeys a structure's
@@ -620,17 +620,17 @@ class ForceConstantMatrix:
             for n in range(n_sites):
                 dyn_mass[m][n] = dyn[m][n] * np.sqrt(masses[m]) * np.sqrt(masses[n])
 
-        supercell = pn_struct.get_supercell()
-        primitive = pn_struct.get_primitive()
+        supercell = pn_struct.supercell
+        primitive = pn_struct.primitive
 
         converter = dyntofc.DynmatToForceConstants(primitive, supercell)
 
         dyn = np.reshape(np.swapaxes(dyn_mass, 1, 2), (n_sites * 3, n_sites * 3))
 
-        converter.set_dynamical_matrices(dynmat=[dyn])
+        converter.dynamical_matrices = [dyn]
 
         converter.run()
-        return converter.get_force_constants()
+        return converter.force_constants
 
 
 def get_piezo(BEC, IST, FCM, rcond=0.0001):
@@ -657,7 +657,7 @@ def get_piezo(BEC, IST, FCM, rcond=0.0001):
     )
 
     K = np.reshape(K, (n_sites, 3, n_sites, 3)).swapaxes(1, 2)
-    return np.einsum("ikl,ijlm,jmno->kno", BEC, K, IST) * 16.0216559424
+    return np.einsum("ikl,ijlm,jmno->kno", BEC, K, IST) * 16.0216559424  # codespell:ignore kno
 
 
 @requires(Phonopy, "phonopy not installed!")

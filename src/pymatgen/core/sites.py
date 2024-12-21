@@ -13,6 +13,7 @@ from pymatgen.core.composition import Composition
 from pymatgen.core.lattice import Lattice
 from pymatgen.core.periodic_table import DummySpecies, Element, Species, get_el_sp
 from pymatgen.util.coord import pbc_diff
+from pymatgen.util.misc import is_np_dict_equal
 
 if TYPE_CHECKING:
     from typing import Any
@@ -90,7 +91,7 @@ class Site(collections.abc.Hashable, MSONable):
 
     def __eq__(self, other: object) -> bool:
         """Site is equal to another site if the species and occupancies are the
-        same, and the coordinates are the same to some tolerance. `numpy.allclose`
+        same, and the coordinates are the same to some tolerance. `np.allclose`
         is used to determine if coordinates are close.
         """
         if not isinstance(other, type(self)):
@@ -99,7 +100,7 @@ class Site(collections.abc.Hashable, MSONable):
         return (
             self.species == other.species
             and np.allclose(self.coords, other.coords, atol=type(self).position_atol)
-            and self.properties == other.properties
+            and is_np_dict_equal(self.properties, other.properties)
         )
 
     def __hash__(self) -> int:
@@ -364,7 +365,7 @@ class PeriodicSite(Site, MSONable):
             self.species == other.species
             and self.lattice == other.lattice
             and np.allclose(self.coords, other.coords, atol=Site.position_atol)
-            and self.properties == other.properties
+            and is_np_dict_equal(self.properties, other.properties)
         )
 
     def __repr__(self) -> str:
@@ -479,7 +480,13 @@ class PeriodicSite(Site, MSONable):
         if in_place:
             self.frac_coords = np.array(frac_coords)
             return None
-        return type(self)(self.species, frac_coords, self.lattice, properties=self.properties, label=self.label)
+        return type(self)(
+            self.species,
+            frac_coords,
+            self.lattice,
+            properties=self.properties,
+            label=self.label,
+        )
 
     def is_periodic_image(
         self,

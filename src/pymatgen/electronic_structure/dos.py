@@ -604,7 +604,7 @@ class FermiDos(Dos, MSONable):
             return self.get_fermi(concentration, temperature, **kwargs)
         except ValueError as exc:
             if warn:
-                warnings.warn(str(exc))
+                warnings.warn(str(exc), stacklevel=2)
 
             if abs(concentration) < c_ref:
                 if abs(concentration) < 1e-10:
@@ -612,10 +612,16 @@ class FermiDos(Dos, MSONable):
 
                 # max(10, ...) is to avoid log(0<x<1) and log(1+x) where both are slow
                 f2 = self.get_fermi_interextrapolated(
-                    max(10, abs(concentration) * 10.0), temperature, warn=False, **kwargs
+                    max(10, abs(concentration) * 10.0),
+                    temperature,
+                    warn=False,
+                    **kwargs,
                 )
                 f1 = self.get_fermi_interextrapolated(
-                    -max(10, abs(concentration) * 10.0), temperature, warn=False, **kwargs
+                    -max(10, abs(concentration) * 10.0),
+                    temperature,
+                    warn=False,
+                    **kwargs,
                 )
                 c2 = np.log(abs(1 + self.get_doping(f2, temperature)))
                 c1 = -np.log(abs(1 + self.get_doping(f1, temperature)))
@@ -955,7 +961,15 @@ class CompleteDos(Dos):
         Returns:
             float: The band center in eV, often denoted epsilon_d for the d-band center.
         """
-        return self.get_n_moment(1, elements=elements, sites=sites, band=band, spin=spin, erange=erange, center=False)
+        return self.get_n_moment(
+            1,
+            elements=elements,
+            sites=sites,
+            band=band,
+            spin=spin,
+            erange=erange,
+            center=False,
+        )
 
     def get_band_width(
         self,
@@ -1264,7 +1278,13 @@ class CompleteDos(Dos):
                 raise ValueError("densities is None")
             if len(energies) < n_bins:
                 inds = np.where((energies >= min_e) & (energies <= max_e))
-                return DosFingerprint(energies[inds], densities[inds], fp_type, len(energies), np.diff(energies)[0])
+                return DosFingerprint(
+                    energies[inds],
+                    densities[inds],
+                    fp_type,
+                    len(energies),
+                    np.diff(energies)[0],
+                )
 
             if binning:
                 ener_bounds = np.linspace(min_e, max_e, n_bins + 1)
@@ -1356,7 +1376,8 @@ class CompleteDos(Dos):
 
         if not normalize and metric == "wasserstein":
             return wasserstein_distance(
-                u_values=np.cumsum(vec1 * fp1.bin_width), v_values=np.cumsum(vec2 * fp2.bin_width)
+                u_values=np.cumsum(vec1 * fp1.bin_width),
+                v_values=np.cumsum(vec2 * fp2.bin_width),
             )
 
         if normalize and metric == "cosine-sim":
@@ -1461,7 +1482,7 @@ class LobsterCompleteDos(CompleteDos):
         Returns:
             dict[Literal["e_g", "t2g"], Dos]: Summed e_g and t2g DOS for the site.
         """
-        warnings.warn("Are the orbitals correctly oriented? Are you sure?")
+        warnings.warn("Are the orbitals correctly oriented? Are you sure?", stacklevel=2)
 
         t2g_dos = []
         eg_dos = []

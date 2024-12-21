@@ -3,8 +3,8 @@
 from __future__ import annotations
 
 import itertools
+import math
 from collections import defaultdict
-from math import acos, pi
 from typing import TYPE_CHECKING
 from warnings import warn
 
@@ -249,9 +249,11 @@ class VoronoiConnectivity:
         self.cutoff = cutoff
         self.structure = structure
         recip_vec = np.array(self.structure.lattice.reciprocal_lattice.abc)
-        cutoff_vec = np.ceil(cutoff * recip_vec / (2 * pi))
+        cutoff_vec = np.ceil(cutoff * recip_vec / (2 * np.pi))
         offsets = np.mgrid[
-            -cutoff_vec[0] : cutoff_vec[0] + 1, -cutoff_vec[1] : cutoff_vec[1] + 1, -cutoff_vec[2] : cutoff_vec[2] + 1
+            -cutoff_vec[0] : cutoff_vec[0] + 1,
+            -cutoff_vec[1] : cutoff_vec[1] + 1,
+            -cutoff_vec[2] : cutoff_vec[2] + 1,
         ].T
         self.offsets = np.reshape(offsets, (-1, 3))
         # shape = [image, axis]
@@ -294,7 +296,10 @@ class VoronoiConnectivity:
                 connectivity[atom_j, atom_i, image_i] = val
 
             if -10.101 in vts[v]:
-                warn("Found connectivity with infinite vertex. Cutoff is too low, and results may be incorrect")
+                warn(
+                    "Found connectivity with infinite vertex. Cutoff is too low, and results may be incorrect",
+                    stacklevel=2,
+                )
         return connectivity
 
     @property
@@ -354,9 +359,9 @@ def solid_angle(center, coords):
         v = -np.dot(cross_products[i], cross_products[i + 1]) / (
             np.linalg.norm(cross_products[i]) * np.linalg.norm(cross_products[i + 1])
         )
-        vals.append(acos(np.clip(v, -1, 1)))
+        vals.append(math.acos(np.clip(v, -1, 1)))
     phi = sum(vals)
-    return phi + (3 - len(radii)) * pi
+    return phi + (3 - len(radii)) * np.pi
 
 
 def get_max_bond_lengths(structure, el_radius_updates=None):
@@ -454,7 +459,7 @@ class OxideType:
         if h_sites_frac_coords:
             dist_matrix = lattice.get_all_distances(o_sites_frac_coords, h_sites_frac_coords)
             if np.any(dist_matrix < relative_cutoff * 0.93):
-                return "hydroxide", int(len(np.where(dist_matrix < relative_cutoff * 0.93)[0]) / 2)
+                return "hydroxide", len(np.where(dist_matrix < relative_cutoff * 0.93)[0]) // 2
         dist_matrix = lattice.get_all_distances(o_sites_frac_coords, o_sites_frac_coords)
         np.fill_diagonal(dist_matrix, 1000)
         is_superoxide = is_peroxide = is_ozonide = False

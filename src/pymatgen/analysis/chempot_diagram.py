@@ -178,7 +178,11 @@ class ChemicalPotentialDiagram(MSONable):
                 elems = elems[:3]  # default to first three elements
 
         if len(elems) == 2 and self.dim == 2:
-            fig = self._get_2d_plot(elements=elems, label_stable=label_stable, element_padding=element_padding)
+            fig = self._get_2d_plot(
+                elements=elems,
+                label_stable=label_stable,
+                element_padding=element_padding,
+            )
         elif len(elems) == 2 and self.dim > 2:
             entries = [e for e in self.entries if set(e.elements).issubset(elems)]
             cpd = ChemicalPotentialDiagram(
@@ -257,7 +261,12 @@ class ChemicalPotentialDiagram(MSONable):
 
         return hyperplanes, hyperplane_entries
 
-    def _get_2d_plot(self, elements: list[Element], label_stable: bool | None, element_padding: float | None) -> Figure:
+    def _get_2d_plot(
+        self,
+        elements: list[Element],
+        label_stable: bool | None,
+        element_padding: float | None,
+    ) -> Figure:
         """Get a Plotly figure for a 2-dimensional chemical potential diagram."""
         domains = self.domains.copy()
         elem_indices = [self.elements.index(e) for e in elements]
@@ -382,7 +391,7 @@ class ChemicalPotentialDiagram(MSONable):
         if formulas_to_draw:
             for formula in formulas_to_draw:
                 if formula not in domain_simplexes:
-                    warnings.warn(f"Specified formula to draw, {formula}, not found!")
+                    warnings.warn(f"Specified formula to draw, {formula}, not found!", stacklevel=2)
 
         if draw_formula_lines:
             data.extend(self._get_3d_formula_lines(draw_domains, formula_colors))
@@ -646,7 +655,7 @@ def simple_pca(data: np.ndarray, k: int = 2) -> tuple[np.ndarray, np.ndarray, np
     Returns:
         tuple: projected data, eigenvalues, eigenvectors
     """
-    data -= np.mean(data.T, axis=1)  # centering the data
+    data = data - np.mean(data.T, axis=1)  # centering the data
     cov = np.cov(data.T)  # calculating covariance matrix
     v, w = np.linalg.eig(cov)  # performing eigendecomposition
     idx = v.argsort()[::-1]  # sorting the components

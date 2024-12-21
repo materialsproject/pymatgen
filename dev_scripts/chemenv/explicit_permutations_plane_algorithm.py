@@ -46,7 +46,8 @@ if __name__ == "__main__":
         perms_on_file = f"Permutations on file in this algorithm ({len(sep_plane_algo._permutations)}) "
         print(f"{perms_on_file}\n{sep_plane_algo._permutations}")
         permutations = sep_plane_algo.safe_separation_permutations(
-            ordered_plane=sep_plane_algo.ordered_plane, ordered_point_groups=sep_plane_algo.ordered_point_groups
+            ordered_plane=sep_plane_algo.ordered_plane,
+            ordered_point_groups=sep_plane_algo.ordered_point_groups,
         )
 
         sep_plane_algo._permutations = permutations
@@ -56,7 +57,10 @@ if __name__ == "__main__":
         lgf = LocalGeometryFinder()
         lgf.setup_parameters(structure_refinement=lgf.STRUCTURE_REFINEMENT_NONE)
         lgf.setup_test_perfect_environment(
-            cg_symbol, randomness=True, indices=range(cg.coordination_number), max_random_dist=0.05
+            cg_symbol,
+            randomness=True,
+            indices=range(cg.coordination_number),
+            max_random_dist=0.05,
         )
 
         lgf.perfect_geometry = AbstractGeometry.from_cg(cg=cg)
@@ -65,7 +69,8 @@ if __name__ == "__main__":
         local_plane = None
         found = False
         for n_points in range(
-            sep_plane_algo.minimum_number_of_points, min(sep_plane_algo.maximum_number_of_points, 4) + 1
+            sep_plane_algo.minimum_number_of_points,
+            min(sep_plane_algo.maximum_number_of_points, 4) + 1,
         ):
             if found:
                 break
@@ -73,19 +78,31 @@ if __name__ == "__main__":
                 points_combination = [lgf.local_geometry.coords[ipoint] for ipoint in ipoints]
                 if n_points == 2:
                     if collinear(
-                        points_combination[0], points_combination[1], lgf.local_geometry.central_site, tolerance=0.25
+                        points_combination[0],
+                        points_combination[1],
+                        lgf.local_geometry.central_site,
+                        tolerance=0.25,
                     ):
                         continue
                     local_plane = Plane.from_3points(
-                        points_combination[0], points_combination[1], lgf.local_geometry.central_site
+                        points_combination[0],
+                        points_combination[1],
+                        lgf.local_geometry.central_site,
                     )
                     found = True
                     break
                 elif n_points == 3:
-                    if collinear(points_combination[0], points_combination[1], points_combination[2], tolerance=0.25):
+                    if collinear(
+                        points_combination[0],
+                        points_combination[1],
+                        points_combination[2],
+                        tolerance=0.25,
+                    ):
                         continue
                     local_plane = Plane.from_3points(
-                        points_combination[0], points_combination[1], points_combination[2]
+                        points_combination[0],
+                        points_combination[1],
+                        points_combination[2],
                     )
                     found = True
                     break
@@ -123,7 +140,7 @@ if __name__ == "__main__":
         for icsm, csm in enumerate(csms):
             found = False
             for csm2 in csms_with_recorded_permutation:
-                if np.isclose(csm, csm2, rtol=0.0, atol=1.0e-6):
+                if np.isclose(csm, csm2, rtol=0.0, atol=1e-6):
                     found = True
                     break
             if not found:

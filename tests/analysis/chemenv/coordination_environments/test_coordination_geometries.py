@@ -212,7 +212,7 @@ class TestCoordinationGeometries(PymatgenTest):
             "PB:7",
             "ST:7",
             "ET:7",
-            "FO:7",
+            "FO:7",  # codespell:ignore fo
             "C:8",
             "SA:8",
             "SBT:8",
@@ -266,14 +266,22 @@ class TestCoordinationGeometries(PymatgenTest):
         assert len(all_cg.get_geometries()) == 68
         assert len(all_cg.get_geometries(coordination=3)) == 3
         assert sorted(all_cg.get_geometries(returned="mp_symbol")) == sorted(all_symbols)
-        assert sorted(all_cg.get_geometries(returned="mp_symbol", coordination=3)) == ["TL:3", "TS:3", "TY:3"]
+        assert sorted(all_cg.get_geometries(returned="mp_symbol", coordination=3)) == [
+            "TL:3",
+            "TS:3",
+            "TY:3",
+        ]
 
         assert all_cg.get_symbol_name_mapping(coordination=3) == {
             "TY:3": "Triangular non-coplanar",
             "TL:3": "Trigonal plane",
             "TS:3": "T-shaped",
         }
-        assert all_cg.get_symbol_cn_mapping(coordination=3) == {"TY:3": 3, "TL:3": 3, "TS:3": 3}
+        assert all_cg.get_symbol_cn_mapping(coordination=3) == {
+            "TY:3": 3,
+            "TL:3": 3,
+            "TS:3": 3,
+        }
         assert sorted(all_cg.get_implemented_geometries(coordination=4, returned="mp_symbol")) == [
             "S:4",
             "SS:4",
@@ -339,9 +347,39 @@ class TestCoordinationGeometries(PymatgenTest):
             "\\end{center}\n\n\\subsubsection*{A:2 : Angular}\n\nIUPAC : A-2\n\nIUCr : [2n]\n\n"
             "\\begin{center}\n\\includegraphics[scale=0.15]{images/A_2.png}\n\\end{center}\n\n"
         )
-        assert all_cg.minpoints == {6: 2, 7: 2, 8: 2, 9: 2, 10: 2, 11: 2, 12: 2, 13: 3, 20: 2}
-        assert all_cg.maxpoints == {6: 5, 7: 5, 8: 6, 9: 7, 10: 6, 11: 5, 12: 8, 13: 6, 20: 10}
-        assert all_cg.maxpoints_inplane == {6: 5, 7: 5, 8: 6, 9: 7, 10: 6, 11: 5, 12: 8, 13: 6, 20: 10}
+        assert all_cg.minpoints == {
+            6: 2,
+            7: 2,
+            8: 2,
+            9: 2,
+            10: 2,
+            11: 2,
+            12: 2,
+            13: 3,
+            20: 2,
+        }
+        assert all_cg.maxpoints == {
+            6: 5,
+            7: 5,
+            8: 6,
+            9: 7,
+            10: 6,
+            11: 5,
+            12: 8,
+            13: 6,
+            20: 10,
+        }
+        assert all_cg.maxpoints_inplane == {
+            6: 5,
+            7: 5,
+            8: 6,
+            9: 7,
+            10: 6,
+            11: 5,
+            12: 8,
+            13: 6,
+            20: 10,
+        }
         assert all_cg.separations_cg == {
             6: {
                 (0, 3, 3): ["O:6", "T:6"],
@@ -351,9 +389,9 @@ class TestCoordinationGeometries(PymatgenTest):
                 (0, 4, 2): ["T:6"],
             },
             7: {
-                (1, 3, 3): ["ET:7", "FO:7"],
+                (1, 3, 3): ["ET:7", "FO:7"],  # codespell:ignore fo
                 (2, 3, 2): ["PB:7", "ST:7", "ET:7"],
-                (1, 4, 2): ["ST:7", "FO:7"],
+                (1, 4, 2): ["ST:7", "FO:7"],  # codespell:ignore fo
                 (1, 5, 1): ["PB:7"],
             },
             8: {

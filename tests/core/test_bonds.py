@@ -68,8 +68,8 @@ class TestFunc:
         assert approx(get_bond_order("C", "C", 1.34) - 2) == 0
         assert approx(get_bond_order("C", "C", 1.4) - 1.7) == 0  # bond length in benzene
         assert approx(get_bond_order("C", "C", 1.54) - 1) == 0
-        assert approx(get_bond_order("C", "C", 2.5) - 0) == 0
-        assert approx(get_bond_order("C", "C", 9999) - 0) == 0
+        assert approx(get_bond_order("C", "C", 2.5)) == 0
+        assert approx(get_bond_order("C", "C", 9999)) == 0
         assert approx(get_bond_order("C", "Br", 1.9, default_bl=1.9) - 1) == 0
         assert approx(get_bond_order("C", "Br", 2, default_bl=1.9) - 0.7368421052631575) == 0
         assert approx(get_bond_order("C", "Br", 1.9, tol=0.5, default_bl=1.9) - 1) == 0

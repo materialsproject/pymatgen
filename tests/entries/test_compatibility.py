@@ -2,9 +2,9 @@ from __future__ import annotations
 
 import copy
 import json
+import math
 import os
 from collections import defaultdict
-from math import sqrt
 from pathlib import Path
 from typing import TYPE_CHECKING
 from unittest import TestCase
@@ -42,6 +42,7 @@ if TYPE_CHECKING:
 PMG_ENTRIES_DIR = os.path.dirname(os.path.abspath(pymatgen.entries.__file__))
 
 
+@pytest.mark.filterwarnings("ignore:MaterialsProjectCompatibility is deprecated")
 class TestCorrectionSpecificity(TestCase):
     """Make sure corrections are only applied to GGA or GGA+U entries."""
 
@@ -55,8 +56,14 @@ class TestCorrectionSpecificity(TestCase):
                 "hubbards": {"Fe": 5.3, "O": 0},
                 "run_type": "GGA+U",
                 "potcar_spec": [
-                    {"titel": "PAW_PBE Fe_pv 06Sep2000", "hash": "994537de5c4122b7f1b77fb604476db4"},
-                    {"titel": "PAW_PBE O 08Apr2002", "hash": "7a25bc5b9a5393f46600a4939d357982"},
+                    {
+                        "titel": "PAW_PBE Fe_pv 06Sep2000",
+                        "hash": "994537de5c4122b7f1b77fb604476db4",
+                    },
+                    {
+                        "titel": "PAW_PBE O 08Apr2002",
+                        "hash": "7a25bc5b9a5393f46600a4939d357982",
+                    },
                 ],
             },
         )
@@ -68,8 +75,14 @@ class TestCorrectionSpecificity(TestCase):
                 "is_hubbard": False,
                 "run_type": "GGA",
                 "potcar_spec": [
-                    {"titel": "PAW_PBE Fe_pv 06Sep2000", "hash": "994537de5c4122b7f1b77fb604476db4"},
-                    {"titel": "PAW_PBE S 08Apr2002", "hash": "7a25bc5b9a5393f46600a4939d357982"},
+                    {
+                        "titel": "PAW_PBE Fe_pv 06Sep2000",
+                        "hash": "994537de5c4122b7f1b77fb604476db4",
+                    },
+                    {
+                        "titel": "PAW_PBE S 08Apr2002",
+                        "hash": "7a25bc5b9a5393f46600a4939d357982",
+                    },
                 ],
             },
         )
@@ -82,8 +95,14 @@ class TestCorrectionSpecificity(TestCase):
                 "is_hubbard": False,
                 "run_type": "R2SCAN",
                 "potcar_spec": [
-                    {"titel": "PAW_PBE Fe_pv 06Sep2000", "hash": "994537de5c4122b7f1b77fb604476db4"},
-                    {"titel": "PAW_PBE O 08Apr2002", "hash": "7a25bc5b9a5393f46600a4939d357982"},
+                    {
+                        "titel": "PAW_PBE Fe_pv 06Sep2000",
+                        "hash": "994537de5c4122b7f1b77fb604476db4",
+                    },
+                    {
+                        "titel": "PAW_PBE O 08Apr2002",
+                        "hash": "7a25bc5b9a5393f46600a4939d357982",
+                    },
                 ],
             },
         )
@@ -184,6 +203,7 @@ def test_overlapping_adjustments():
     assert len(processed) == 0
 
 
+@pytest.mark.filterwarnings("ignore:MaterialsProjectCompatibility is deprecated")
 class TestMaterialsProjectCompatibility(TestCase):
     def setUp(self):
         self.entry1 = ComputedEntry(
@@ -195,8 +215,14 @@ class TestMaterialsProjectCompatibility(TestCase):
                 "hubbards": {"Fe": 5.3, "O": 0},
                 "run_type": "GGA+U",
                 "potcar_spec": [
-                    {"titel": "PAW_PBE Fe_pv 06Sep2000", "hash": "994537de5c4122b7f1b77fb604476db4"},
-                    {"titel": "PAW_PBE O 08Apr2002", "hash": "7a25bc5b9a5393f46600a4939d357982"},
+                    {
+                        "titel": "PAW_PBE Fe_pv 06Sep2000",
+                        "hash": "994537de5c4122b7f1b77fb604476db4",
+                    },
+                    {
+                        "titel": "PAW_PBE O 08Apr2002",
+                        "hash": "7a25bc5b9a5393f46600a4939d357982",
+                    },
                 ],
             },
         )
@@ -209,8 +235,14 @@ class TestMaterialsProjectCompatibility(TestCase):
                 "is_hubbard": False,
                 "run_type": "GGA",
                 "potcar_spec": [
-                    {"titel": "PAW_PBE Fe_pv 06Sep2000", "hash": "994537de5c4122b7f1b77fb604476db4"},
-                    {"titel": "PAW_PBE S 08Apr2002", "hash": "7a25bc5b9a5393f46600a4939d357982"},
+                    {
+                        "titel": "PAW_PBE Fe_pv 06Sep2000",
+                        "hash": "994537de5c4122b7f1b77fb604476db4",
+                    },
+                    {
+                        "titel": "PAW_PBE S 08Apr2002",
+                        "hash": "7a25bc5b9a5393f46600a4939d357982",
+                    },
                 ],
             },
         )
@@ -242,8 +274,14 @@ class TestMaterialsProjectCompatibility(TestCase):
                 "hubbards": {"Fe": 5.3, "O": 0},
                 "run_type": "GGA+U",
                 "potcar_spec": [
-                    {"titel": "PAW_PBE Fe_pv 06Sep2000", "hash": "994537de5c4122b7f1b77fb604476db4"},
-                    {"titel": "PAW_PBE O 08Apr2002", "hash": "7a25bc5b9a5393f46600a4939d357982"},
+                    {
+                        "titel": "PAW_PBE Fe_pv 06Sep2000",
+                        "hash": "994537de5c4122b7f1b77fb604476db4",
+                    },
+                    {
+                        "titel": "PAW_PBE O 08Apr2002",
+                        "hash": "7a25bc5b9a5393f46600a4939d357982",
+                    },
                 ],
             },
         )
@@ -256,8 +294,14 @@ class TestMaterialsProjectCompatibility(TestCase):
                 "hubbards": {"Fe": 4.3, "O": 0},
                 "run_type": "GGA+U",
                 "potcar_spec": [
-                    {"titel": "PAW_PBE Fe_pv 06Sep2000", "hash": "994537de5c4122b7f1b77fb604476db4"},
-                    {"titel": "PAW_PBE O 08Apr2002", "hash": "7a25bc5b9a5393f46600a4939d357982"},
+                    {
+                        "titel": "PAW_PBE Fe_pv 06Sep2000",
+                        "hash": "994537de5c4122b7f1b77fb604476db4",
+                    },
+                    {
+                        "titel": "PAW_PBE O 08Apr2002",
+                        "hash": "7a25bc5b9a5393f46600a4939d357982",
+                    },
                 ],
             },
         )
@@ -280,8 +324,14 @@ class TestMaterialsProjectCompatibility(TestCase):
                 "hubbards": {},
                 "run_type": "GGA",
                 "potcar_spec": [
-                    {"titel": "PAW_PBE Fe_pv 06Sep2000", "hash": "994537de5c4122b7f1b77fb604476db4"},
-                    {"titel": "PAW_PBE O 08Apr2002", "hash": "7a25bc5b9a5393f46600a4939d357982"},
+                    {
+                        "titel": "PAW_PBE Fe_pv 06Sep2000",
+                        "hash": "994537de5c4122b7f1b77fb604476db4",
+                    },
+                    {
+                        "titel": "PAW_PBE O 08Apr2002",
+                        "hash": "7a25bc5b9a5393f46600a4939d357982",
+                    },
                 ],
             },
         )
@@ -297,8 +347,14 @@ class TestMaterialsProjectCompatibility(TestCase):
                 "hubbards": {"Fe": 5.3, "O": 0},
                 "run_type": "GGA+U",
                 "potcar_spec": [
-                    {"titel": "PAW_PBE Fe_pv 06Sep2000", "hash": "994537de5c4122b7f1b77fb604476db4"},
-                    {"titel": "PAW_PBE O 08Apr2002", "hash": "7a25bc5b9a5393f46600a4939d357982"},
+                    {
+                        "titel": "PAW_PBE Fe_pv 06Sep2000",
+                        "hash": "994537de5c4122b7f1b77fb604476db4",
+                    },
+                    {
+                        "titel": "PAW_PBE O 08Apr2002",
+                        "hash": "7a25bc5b9a5393f46600a4939d357982",
+                    },
                 ],
             },
         )
@@ -317,8 +373,14 @@ class TestMaterialsProjectCompatibility(TestCase):
                 "hubbards": {"Fe": 5.3, "F": 0},
                 "run_type": "GGA+U",
                 "potcar_spec": [
-                    {"titel": "PAW_PBE Fe_pv 06Sep2000", "hash": "994537de5c4122b7f1b77fb604476db4"},
-                    {"titel": "PAW_PBE F 08Apr2002", "hash": "180141c33d032bfbfff30b3bea9d23dd"},
+                    {
+                        "titel": "PAW_PBE Fe_pv 06Sep2000",
+                        "hash": "994537de5c4122b7f1b77fb604476db4",
+                    },
+                    {
+                        "titel": "PAW_PBE F 08Apr2002",
+                        "hash": "180141c33d032bfbfff30b3bea9d23dd",
+                    },
                 ],
             },
         )
@@ -340,8 +402,14 @@ class TestMaterialsProjectCompatibility(TestCase):
                 "hubbards": {"Fe": 5.2, "O": 0},
                 "run_type": "GGA+U",
                 "potcar_spec": [
-                    {"titel": "PAW_PBE Fe_pv 06Sep2000", "hash": "994537de5c4122b7f1b77fb604476db4"},
-                    {"titel": "PAW_PBE O 08Apr2002", "hash": "7a25bc5b9a5393f46600a4939d357982"},
+                    {
+                        "titel": "PAW_PBE Fe_pv 06Sep2000",
+                        "hash": "994537de5c4122b7f1b77fb604476db4",
+                    },
+                    {
+                        "titel": "PAW_PBE O 08Apr2002",
+                        "hash": "7a25bc5b9a5393f46600a4939d357982",
+                    },
                 ],
             },
         )
@@ -357,8 +425,14 @@ class TestMaterialsProjectCompatibility(TestCase):
                 "hubbards": None,
                 "run_type": "GGA",
                 "potcar_spec": [
-                    {"titel": "PAW_PBE Fe_pv 06Sep2000", "hash": "994537de5c4122b7f1b77fb604476db4"},
-                    {"titel": "PAW_PBE O 08Apr2002", "hash": "7a25bc5b9a5393f46600a4939d357982"},
+                    {
+                        "titel": "PAW_PBE Fe_pv 06Sep2000",
+                        "hash": "994537de5c4122b7f1b77fb604476db4",
+                    },
+                    {
+                        "titel": "PAW_PBE O 08Apr2002",
+                        "hash": "7a25bc5b9a5393f46600a4939d357982",
+                    },
                 ],
             },
         )
@@ -374,8 +448,14 @@ class TestMaterialsProjectCompatibility(TestCase):
                 "hubbards": {"Al": 5.3, "O": 0},
                 "run_type": "GGA+U",
                 "potcar_spec": [
-                    {"titel": "PAW_PBE Al 06Sep2000", "hash": "805c888bbd2793e462311f6a20d873d9"},
-                    {"titel": "PAW_PBE O 08Apr2002", "hash": "7a25bc5b9a5393f46600a4939d357982"},
+                    {
+                        "titel": "PAW_PBE Al 06Sep2000",
+                        "hash": "805c888bbd2793e462311f6a20d873d9",
+                    },
+                    {
+                        "titel": "PAW_PBE O 08Apr2002",
+                        "hash": "7a25bc5b9a5393f46600a4939d357982",
+                    },
                 ],
             },
         )
@@ -391,8 +471,14 @@ class TestMaterialsProjectCompatibility(TestCase):
                 "hubbards": {"Fe": 5.3, "S": 0},
                 "run_type": "GGA+U",
                 "potcar_spec": [
-                    {"titel": "PAW_PBE Fe_pv 06Sep2000", "hash": "994537de5c4122b7f1b77fb604476db4"},
-                    {"titel": "PAW_PBE S 08Apr2002", "hash": "f7f8e4a74a6cbb8d63e41f4373b54df2"},
+                    {
+                        "titel": "PAW_PBE Fe_pv 06Sep2000",
+                        "hash": "994537de5c4122b7f1b77fb604476db4",
+                    },
+                    {
+                        "titel": "PAW_PBE S 08Apr2002",
+                        "hash": "f7f8e4a74a6cbb8d63e41f4373b54df2",
+                    },
                 ],
             },
         )
@@ -409,8 +495,14 @@ class TestMaterialsProjectCompatibility(TestCase):
                 "hubbards": {"Fe": 5.3, "O": 0},
                 "run_type": "GGA+U",
                 "potcar_spec": [
-                    {"titel": "PAW_PBE Fe 06Sep2000", "hash": "9530da8244e4dac17580869b4adab115"},
-                    {"titel": "PAW_PBE O 08Apr2002", "hash": "7a25bc5b9a5393f46600a4939d357982"},
+                    {
+                        "titel": "PAW_PBE Fe 06Sep2000",
+                        "hash": "9530da8244e4dac17580869b4adab115",
+                    },
+                    {
+                        "titel": "PAW_PBE O 08Apr2002",
+                        "hash": "7a25bc5b9a5393f46600a4939d357982",
+                    },
                 ],
             },
         )
@@ -424,7 +516,12 @@ class TestMaterialsProjectCompatibility(TestCase):
             parameters={
                 "is_hubbard": False,
                 "hubbards": {},
-                "potcar_spec": [{"titel": "PAW_PBE O 08Apr2002", "hash": "7a25bc5b9a5393f46600a4939d357982"}],
+                "potcar_spec": [
+                    {
+                        "titel": "PAW_PBE O 08Apr2002",
+                        "hash": "7a25bc5b9a5393f46600a4939d357982",
+                    }
+                ],
                 "run_type": "GGA",
             },
         )
@@ -444,8 +541,14 @@ class TestMaterialsProjectCompatibility(TestCase):
                 "hubbards": {"Fe": 5.3, "O": 0},
                 "run_type": "GGA+U",
                 "potcar_spec": [
-                    {"titel": "PAW_PBE Fe_pv 06Sep2000", "hash": "994537de5c4122b7f1b77fb604476db4"},
-                    {"titel": "PAW_PBE O 08Apr2002", "hash": "7a25bc5b9a5393f46600a4939d357982"},
+                    {
+                        "titel": "PAW_PBE Fe_pv 06Sep2000",
+                        "hash": "994537de5c4122b7f1b77fb604476db4",
+                    },
+                    {
+                        "titel": "PAW_PBE O 08Apr2002",
+                        "hash": "7a25bc5b9a5393f46600a4939d357982",
+                    },
                 ],
             },
         )
@@ -466,8 +569,14 @@ class TestMaterialsProjectCompatibility(TestCase):
                 "hubbards": {"Fe": 5.3, "O": 0},
                 "run_type": "GGA+U",
                 "potcar_spec": [
-                    {"titel": "PAW_PBE Fe_pv 06Sep2000", "hash": "994537de5c4122b7f1b77fb604476db4"},
-                    {"titel": "PAW_PBE O 08Apr2002", "hash": "7a25bc5b9a5393f46600a4939d357982"},
+                    {
+                        "titel": "PAW_PBE Fe_pv 06Sep2000",
+                        "hash": "994537de5c4122b7f1b77fb604476db4",
+                    },
+                    {
+                        "titel": "PAW_PBE O 08Apr2002",
+                        "hash": "7a25bc5b9a5393f46600a4939d357982",
+                    },
                 ],
             },
         )
@@ -485,13 +594,23 @@ class TestMaterialsProjectCompatibility(TestCase):
         assert len(entries) == 2
 
     def test_parallel_process_entries(self):
-        with pytest.raises(ValueError, match="Parallel processing is not possible with for 'inplace=True'"):
+        # TODO: get DeprecationWarning: This process (pid=xxxx) is multi-threaded,
+        # use of fork() may lead to deadlocks in the child.
+        # pid = os.fork()
+        with pytest.raises(
+            ValueError,
+            match="Parallel processing is not possible with for 'inplace=True'",
+        ):
             entries = self.compat.process_entries(
-                [self.entry1, self.entry2, self.entry3, self.entry4], inplace=True, n_workers=2
+                [self.entry1, self.entry2, self.entry3, self.entry4],
+                inplace=True,
+                n_workers=2,
             )
 
         entries = self.compat.process_entries(
-            [self.entry1, self.entry2, self.entry3, self.entry4], inplace=False, n_workers=2
+            [self.entry1, self.entry2, self.entry3, self.entry4],
+            inplace=False,
+            n_workers=2,
         )
         assert len(entries) == 2
 
@@ -513,8 +632,14 @@ class TestMaterialsProjectCompatibility2020(TestCase):
                 "hubbards": {"Fe": 5.3, "O": 0},
                 "run_type": "GGA+U",
                 "potcar_spec": [
-                    {"titel": "PAW_PBE Fe_pv 06Sep2000", "hash": "994537de5c4122b7f1b77fb604476db4"},
-                    {"titel": "PAW_PBE O 08Apr2002", "hash": "7a25bc5b9a5393f46600a4939d357982"},
+                    {
+                        "titel": "PAW_PBE Fe_pv 06Sep2000",
+                        "hash": "994537de5c4122b7f1b77fb604476db4",
+                    },
+                    {
+                        "titel": "PAW_PBE O 08Apr2002",
+                        "hash": "7a25bc5b9a5393f46600a4939d357982",
+                    },
                 ],
             },
         )
@@ -527,8 +652,14 @@ class TestMaterialsProjectCompatibility2020(TestCase):
                 "is_hubbard": False,
                 "run_type": "GGA",
                 "potcar_spec": [
-                    {"titel": "PAW_PBE Fe_pv 06Sep2000", "hash": "994537de5c4122b7f1b77fb604476db4"},
-                    {"titel": "PAW_PBE S 08Apr2002", "hash": "7a25bc5b9a5393f46600a4939d357982"},
+                    {
+                        "titel": "PAW_PBE Fe_pv 06Sep2000",
+                        "hash": "994537de5c4122b7f1b77fb604476db4",
+                    },
+                    {
+                        "titel": "PAW_PBE S 08Apr2002",
+                        "hash": "7a25bc5b9a5393f46600a4939d357982",
+                    },
                 ],
             },
         )
@@ -542,8 +673,14 @@ class TestMaterialsProjectCompatibility2020(TestCase):
                 "hubbards": {"Fe": 5.3, "O": 0},
                 "run_type": "GGA+U",
                 "potcar_spec": [
-                    {"titel": "PAW_PBE Fe_pv 06Sep2000", "hash": "994537de5c4122b7f1b77fb604476db4"},
-                    {"titel": "PAW_PBE O 08Apr2002", "hash": "7a25bc5b9a5393f46600a4939d357982"},
+                    {
+                        "titel": "PAW_PBE Fe_pv 06Sep2000",
+                        "hash": "994537de5c4122b7f1b77fb604476db4",
+                    },
+                    {
+                        "titel": "PAW_PBE O 08Apr2002",
+                        "hash": "7a25bc5b9a5393f46600a4939d357982",
+                    },
                 ],
             },
         )
@@ -556,8 +693,14 @@ class TestMaterialsProjectCompatibility2020(TestCase):
                 "hubbards": {"Fe": 4.3, "O": 0},
                 "run_type": "GGA+U",
                 "potcar_spec": [
-                    {"titel": "PAW_PBE Fe_pv 06Sep2000", "hash": "994537de5c4122b7f1b77fb604476db4"},
-                    {"titel": "PAW_PBE O 08Apr2002", "hash": "7a25bc5b9a5393f46600a4939d357982"},
+                    {
+                        "titel": "PAW_PBE Fe_pv 06Sep2000",
+                        "hash": "994537de5c4122b7f1b77fb604476db4",
+                    },
+                    {
+                        "titel": "PAW_PBE O 08Apr2002",
+                        "hash": "7a25bc5b9a5393f46600a4939d357982",
+                    },
                 ],
             },
         )
@@ -573,8 +716,14 @@ class TestMaterialsProjectCompatibility2020(TestCase):
                 "is_hubbard": False,
                 "run_type": "GGA",
                 "potcar_spec": [
-                    {"titel": "PAW_PBE Cu_pv 06Sep2000", "hash": "2d718b6be91068094207c9e861e11a89"},
-                    {"titel": "PAW_PBE I 08Apr2002", "hash": "f4ff16a495dd361ff5824ee61b418bb0"},
+                    {
+                        "titel": "PAW_PBE Cu_pv 06Sep2000",
+                        "hash": "2d718b6be91068094207c9e861e11a89",
+                    },
+                    {
+                        "titel": "PAW_PBE I 08Apr2002",
+                        "hash": "f4ff16a495dd361ff5824ee61b418bb0",
+                    },
                 ],
             },
         )
@@ -594,8 +743,14 @@ class TestMaterialsProjectCompatibility2020(TestCase):
                 "hubbards": {},
                 "run_type": "GGA",
                 "potcar_spec": [
-                    {"titel": "PAW_PBE Fe_pv 06Sep2000", "hash": "994537de5c4122b7f1b77fb604476db4"},
-                    {"titel": "PAW_PBE O 08Apr2002", "hash": "7a25bc5b9a5393f46600a4939d357982"},
+                    {
+                        "titel": "PAW_PBE Fe_pv 06Sep2000",
+                        "hash": "994537de5c4122b7f1b77fb604476db4",
+                    },
+                    {
+                        "titel": "PAW_PBE O 08Apr2002",
+                        "hash": "7a25bc5b9a5393f46600a4939d357982",
+                    },
                 ],
             },
         )
@@ -611,8 +766,14 @@ class TestMaterialsProjectCompatibility2020(TestCase):
                 "hubbards": {"Fe": 5.3, "O": 0},
                 "run_type": "GGA+U",
                 "potcar_spec": [
-                    {"titel": "PAW_PBE Fe_pv 06Sep2000", "hash": "994537de5c4122b7f1b77fb604476db4"},
-                    {"titel": "PAW_PBE O 08Apr2002", "hash": "7a25bc5b9a5393f46600a4939d357982"},
+                    {
+                        "titel": "PAW_PBE Fe_pv 06Sep2000",
+                        "hash": "994537de5c4122b7f1b77fb604476db4",
+                    },
+                    {
+                        "titel": "PAW_PBE O 08Apr2002",
+                        "hash": "7a25bc5b9a5393f46600a4939d357982",
+                    },
                 ],
             },
         )
@@ -627,7 +788,11 @@ class TestMaterialsProjectCompatibility2020(TestCase):
             parameters={
                 "run_type": "GGA",
                 "is_hubbard": False,
-                "pseudo_potential": {"functional": "PBE", "labels": ["Ga_d", "Te"], "pot_type": "paw"},
+                "pseudo_potential": {
+                    "functional": "PBE",
+                    "labels": ["Ga_d", "Te"],
+                    "pot_type": "paw",
+                },
                 "hubbards": {},
                 "potcar_symbols": ["PBE Ga_d", "PBE Te"],
                 "oxide_type": "None",
@@ -642,7 +807,11 @@ class TestMaterialsProjectCompatibility2020(TestCase):
             parameters={
                 "run_type": "GGA+U",
                 "is_hubbard": True,
-                "pseudo_potential": {"functional": "PBE", "labels": ["Mo_pv", "Cl", "O"], "pot_type": "paw"},
+                "pseudo_potential": {
+                    "functional": "PBE",
+                    "labels": ["Mo_pv", "Cl", "O"],
+                    "pot_type": "paw",
+                },
                 "hubbards": {"Mo": 4.38, "Cl": 0.0, "O": 0.0},
                 "potcar_symbols": ["PBE Mo_pv", "PBE Cl", "PBE O"],
                 "oxide_type": "oxide",
@@ -658,7 +827,11 @@ class TestMaterialsProjectCompatibility2020(TestCase):
             parameters={
                 "run_type": "GGA",
                 "is_hubbard": False,
-                "pseudo_potential": {"functional": "PBE", "labels": ["C", "N", "Cl"], "pot_type": "paw"},
+                "pseudo_potential": {
+                    "functional": "PBE",
+                    "labels": ["C", "N", "Cl"],
+                    "pot_type": "paw",
+                },
                 "hubbards": {},
                 "potcar_symbols": ["PBE C", "PBE N", "PBE Cl"],
                 "oxide_type": "None",
@@ -688,8 +861,14 @@ class TestMaterialsProjectCompatibility2020(TestCase):
                 "hubbards": {"Fe": 5.3, "F": 0},
                 "run_type": "GGA+U",
                 "potcar_spec": [
-                    {"titel": "PAW_PBE Fe_pv 06Sep2000", "hash": "994537de5c4122b7f1b77fb604476db4"},
-                    {"titel": "PAW_PBE F 08Apr2002", "hash": "180141c33d032bfbfff30b3bea9d23dd"},
+                    {
+                        "titel": "PAW_PBE Fe_pv 06Sep2000",
+                        "hash": "994537de5c4122b7f1b77fb604476db4",
+                    },
+                    {
+                        "titel": "PAW_PBE F 08Apr2002",
+                        "hash": "180141c33d032bfbfff30b3bea9d23dd",
+                    },
                 ],
             },
         )
@@ -839,8 +1018,14 @@ class TestMaterialsProjectCompatibility2020(TestCase):
                 "hubbards": {"Fe": 5.2, "O": 0},
                 "run_type": "GGA+U",
                 "potcar_spec": [
-                    {"titel": "PAW_PBE Fe_pv 06Sep2000", "hash": "994537de5c4122b7f1b77fb604476db4"},
-                    {"titel": "PAW_PBE O 08Apr2002", "hash": "7a25bc5b9a5393f46600a4939d357982"},
+                    {
+                        "titel": "PAW_PBE Fe_pv 06Sep2000",
+                        "hash": "994537de5c4122b7f1b77fb604476db4",
+                    },
+                    {
+                        "titel": "PAW_PBE O 08Apr2002",
+                        "hash": "7a25bc5b9a5393f46600a4939d357982",
+                    },
                 ],
             },
         )
@@ -856,8 +1041,14 @@ class TestMaterialsProjectCompatibility2020(TestCase):
                 "hubbards": None,
                 "run_type": "GGA",
                 "potcar_spec": [
-                    {"titel": "PAW_PBE Fe_pv 06Sep2000", "hash": "994537de5c4122b7f1b77fb604476db4"},
-                    {"titel": "PAW_PBE O 08Apr2002", "hash": "7a25bc5b9a5393f46600a4939d357982"},
+                    {
+                        "titel": "PAW_PBE Fe_pv 06Sep2000",
+                        "hash": "994537de5c4122b7f1b77fb604476db4",
+                    },
+                    {
+                        "titel": "PAW_PBE O 08Apr2002",
+                        "hash": "7a25bc5b9a5393f46600a4939d357982",
+                    },
                 ],
             },
         )
@@ -873,8 +1064,14 @@ class TestMaterialsProjectCompatibility2020(TestCase):
                 "hubbards": {"Al": 5.3, "O": 0},
                 "run_type": "GGA+U",
                 "potcar_spec": [
-                    {"titel": "PAW_PBE Al 06Sep2000", "hash": "805c888bbd2793e462311f6a20d873d9"},
-                    {"titel": "PAW_PBE O 08Apr2002", "hash": "7a25bc5b9a5393f46600a4939d357982"},
+                    {
+                        "titel": "PAW_PBE Al 06Sep2000",
+                        "hash": "805c888bbd2793e462311f6a20d873d9",
+                    },
+                    {
+                        "titel": "PAW_PBE O 08Apr2002",
+                        "hash": "7a25bc5b9a5393f46600a4939d357982",
+                    },
                 ],
             },
         )
@@ -890,8 +1087,14 @@ class TestMaterialsProjectCompatibility2020(TestCase):
                 "hubbards": {"Fe": 5.3, "S": 0},
                 "run_type": "GGA+U",
                 "potcar_spec": [
-                    {"titel": "PAW_PBE Fe_pv 06Sep2000", "hash": "994537de5c4122b7f1b77fb604476db4"},
-                    {"titel": "PAW_PBE S 08Apr2002", "hash": "f7f8e4a74a6cbb8d63e41f4373b54df2"},
+                    {
+                        "titel": "PAW_PBE Fe_pv 06Sep2000",
+                        "hash": "994537de5c4122b7f1b77fb604476db4",
+                    },
+                    {
+                        "titel": "PAW_PBE S 08Apr2002",
+                        "hash": "f7f8e4a74a6cbb8d63e41f4373b54df2",
+                    },
                 ],
             },
         )
@@ -904,8 +1107,14 @@ class TestMaterialsProjectCompatibility2020(TestCase):
             "hubbards": {"Fe": 5.3, "O": 0},
             "run_type": "GGA+U",
             "potcar_spec": [
-                {"titel": "PAW_PBE Fe 06Sep2000", "hash": "9530da8244e4dac17580869b4adab115"},
-                {"titel": "PAW_PBE O 08Apr2002", "hash": "7a25bc5b9a5393f46600a4939d357982"},
+                {
+                    "titel": "PAW_PBE Fe 06Sep2000",
+                    "hash": "9530da8244e4dac17580869b4adab115",
+                },
+                {
+                    "titel": "PAW_PBE O 08Apr2002",
+                    "hash": "7a25bc5b9a5393f46600a4939d357982",
+                },
             ],
         }
         entry = ComputedEntry("Fe2O3", -1, correction=0.0, parameters=params)
@@ -915,7 +1124,12 @@ class TestMaterialsProjectCompatibility2020(TestCase):
         params = {
             "is_hubbard": False,
             "hubbards": {},
-            "potcar_spec": [{"titel": "PAW_PBE O 08Apr2002", "hash": "7a25bc5b9a5393f46600a4939d357982"}],
+            "potcar_spec": [
+                {
+                    "titel": "PAW_PBE O 08Apr2002",
+                    "hash": "7a25bc5b9a5393f46600a4939d357982",
+                }
+            ],
             "run_type": "GGA",
         }
         entry = ComputedEntry("O", -1, correction=0.0, parameters=params)
@@ -923,6 +1137,7 @@ class TestMaterialsProjectCompatibility2020(TestCase):
         assert entry.energy == approx(-1)
         assert self.gga_compat.process_entry(entry).energy == approx(-1)
 
+    @pytest.mark.filterwarnings("ignore:MaterialsProjectCompatibility is deprecated")
     def test_get_explanation_dict(self):
         compat = MaterialsProjectCompatibility(check_potcar_hash=False)
         entry = ComputedEntry(
@@ -934,8 +1149,14 @@ class TestMaterialsProjectCompatibility2020(TestCase):
                 "hubbards": {"Fe": 5.3, "O": 0},
                 "run_type": "GGA+U",
                 "potcar_spec": [
-                    {"titel": "PAW_PBE Fe_pv 06Sep2000", "hash": "994537de5c4122b7f1b77fb604476db4"},
-                    {"titel": "PAW_PBE O 08Apr2002", "hash": "7a25bc5b9a5393f46600a4939d357982"},
+                    {
+                        "titel": "PAW_PBE Fe_pv 06Sep2000",
+                        "hash": "994537de5c4122b7f1b77fb604476db4",
+                    },
+                    {
+                        "titel": "PAW_PBE O 08Apr2002",
+                        "hash": "7a25bc5b9a5393f46600a4939d357982",
+                    },
                 ],
             },
         )
@@ -1033,7 +1254,11 @@ class TestMaterialsProjectCompatibility2020(TestCase):
         MaterialsProject2020Compatibility(check_potcar=False).process_entries(entry)
 
     def test_process_entry_with_oxidation_state(self):
-        params = {"is_hubbard": True, "hubbards": {"Fe": 5.3, "O": 0}, "run_type": "GGA+U"}
+        params = {
+            "is_hubbard": True,
+            "hubbards": {"Fe": 5.3, "O": 0},
+            "run_type": "GGA+U",
+        }
         entry = ComputedEntry({Species("Fe2+"): 2, Species("O2-"): 3}, -1, parameters=params)
 
         # Test that MaterialsProject2020Compatibility can process entries with oxidation states
@@ -1103,8 +1328,14 @@ class TestMITCompatibility(TestCase):
                 "hubbards": {"Fe": 4.0, "O": 0},
                 "run_type": "GGA+U",
                 "potcar_spec": [
-                    {"titel": "PAW_PBE Fe 06Sep2000", "hash": "9530da8244e4dac17580869b4adab115"},
-                    {"titel": "PAW_PBE O 08Apr2002", "hash": "7a25bc5b9a5393f46600a4939d357982"},
+                    {
+                        "titel": "PAW_PBE Fe 06Sep2000",
+                        "hash": "9530da8244e4dac17580869b4adab115",
+                    },
+                    {
+                        "titel": "PAW_PBE O 08Apr2002",
+                        "hash": "7a25bc5b9a5393f46600a4939d357982",
+                    },
                 ],
             },
         )
@@ -1118,8 +1349,14 @@ class TestMITCompatibility(TestCase):
                 "hubbards": {"Fe": 4.0, "F": 0},
                 "run_type": "GGA+U",
                 "potcar_spec": [
-                    {"titel": "PAW_PBE Fe 06Sep2000", "hash": "9530da8244e4dac17580869b4adab115"},
-                    {"titel": "PAW_PBE F 08Apr2002", "hash": "180141c33d032bfbfff30b3bea9d23dd"},
+                    {
+                        "titel": "PAW_PBE Fe 06Sep2000",
+                        "hash": "9530da8244e4dac17580869b4adab115",
+                    },
+                    {
+                        "titel": "PAW_PBE F 08Apr2002",
+                        "hash": "180141c33d032bfbfff30b3bea9d23dd",
+                    },
                 ],
             },
         )
@@ -1132,8 +1369,14 @@ class TestMITCompatibility(TestCase):
                 "hubbards": {"Fe": 1.9, "S": 0},
                 "run_type": "GGA+U",
                 "potcar_spec": [
-                    {"titel": "PAW_PBE Fe 06Sep2000", "hash": "9530da8244e4dac17580869b4adab115"},
-                    {"titel": "PAW_PBE S 08Apr2002", "hash": "d368db6899d8839859bbee4811a42a88"},
+                    {
+                        "titel": "PAW_PBE Fe 06Sep2000",
+                        "hash": "9530da8244e4dac17580869b4adab115",
+                    },
+                    {
+                        "titel": "PAW_PBE S 08Apr2002",
+                        "hash": "d368db6899d8839859bbee4811a42a88",
+                    },
                 ],
             },
         )
@@ -1163,8 +1406,14 @@ class TestMITCompatibility(TestCase):
                 "hubbards": {"Ni": 1.9, "S": 0},
                 "run_type": "GGA+U",
                 "potcar_spec": [
-                    {"titel": "PAW_PBE Ni 06Sep2000", "hash": "653f5772e68b2c7fd87ffd1086c0d710"},
-                    {"titel": "PAW_PBE S 08Apr2002", "hash": "d368db6899d8839859bbee4811a42a88"},
+                    {
+                        "titel": "PAW_PBE Ni 06Sep2000",
+                        "hash": "653f5772e68b2c7fd87ffd1086c0d710",
+                    },
+                    {
+                        "titel": "PAW_PBE S 08Apr2002",
+                        "hash": "d368db6899d8839859bbee4811a42a88",
+                    },
                 ],
             },
         )
@@ -1180,8 +1429,14 @@ class TestMITCompatibility(TestCase):
                 "hubbards": None,
                 "run_type": "GGA",
                 "potcar_spec": [
-                    {"titel": "PAW_PBE Ni 06Sep2000", "hash": "653f5772e68b2c7fd87ffd1086c0d710"},
-                    {"titel": "PAW_PBE S 08Apr2002", "hash": "d368db6899d8839859bbee4811a42a88"},
+                    {
+                        "titel": "PAW_PBE Ni 06Sep2000",
+                        "hash": "653f5772e68b2c7fd87ffd1086c0d710",
+                    },
+                    {
+                        "titel": "PAW_PBE S 08Apr2002",
+                        "hash": "d368db6899d8839859bbee4811a42a88",
+                    },
                 ],
             },
         )
@@ -1195,8 +1450,14 @@ class TestMITCompatibility(TestCase):
             "hubbards": {"Fe": 5.2, "O": 0},
             "run_type": "GGA+U",
             "potcar_spec": [
-                {"titel": "PAW_PBE Fe 06Sep2000", "hash": "9530da8244e4dac17580869b4adab115"},
-                {"titel": "PAW_PBE O 08Apr2002", "hash": "7a25bc5b9a5393f46600a4939d357982"},
+                {
+                    "titel": "PAW_PBE Fe 06Sep2000",
+                    "hash": "9530da8244e4dac17580869b4adab115",
+                },
+                {
+                    "titel": "PAW_PBE O 08Apr2002",
+                    "hash": "7a25bc5b9a5393f46600a4939d357982",
+                },
             ],
         }
         entry = ComputedEntry("Fe2O3", -1, correction=0.0, parameters=params)
@@ -1213,8 +1474,14 @@ class TestMITCompatibility(TestCase):
                 "hubbards": None,
                 "run_type": "GGA",
                 "potcar_spec": [
-                    {"titel": "PAW_PBE Fe 06Sep2000", "hash": "9530da8244e4dac17580869b4adab115"},
-                    {"titel": "PAW_PBE O 08Apr2002", "hash": "7a25bc5b9a5393f46600a4939d357982"},
+                    {
+                        "titel": "PAW_PBE Fe 06Sep2000",
+                        "hash": "9530da8244e4dac17580869b4adab115",
+                    },
+                    {
+                        "titel": "PAW_PBE O 08Apr2002",
+                        "hash": "7a25bc5b9a5393f46600a4939d357982",
+                    },
                 ],
             },
         )
@@ -1232,8 +1499,14 @@ class TestMITCompatibility(TestCase):
                 "hubbards": {"Fe": 4.0, "O": 0},
                 "run_type": "GGA+U",
                 "potcar_spec": [
-                    {"titel": "PAW_PBE Fe_pv 06Sep2000", "hash": "994537de5c4122b7f1b77fb604476db4"},
-                    {"titel": "PAW_PBE O 08Apr2002", "hash": "7a25bc5b9a5393f46600a4939d357982"},
+                    {
+                        "titel": "PAW_PBE Fe_pv 06Sep2000",
+                        "hash": "994537de5c4122b7f1b77fb604476db4",
+                    },
+                    {
+                        "titel": "PAW_PBE O 08Apr2002",
+                        "hash": "7a25bc5b9a5393f46600a4939d357982",
+                    },
                 ],
             },
         )
@@ -1248,7 +1521,12 @@ class TestMITCompatibility(TestCase):
             parameters={
                 "is_hubbard": False,
                 "hubbards": {},
-                "potcar_spec": [{"titel": "PAW_PBE O 08Apr2002", "hash": "7a25bc5b9a5393f46600a4939d357982"}],
+                "potcar_spec": [
+                    {
+                        "titel": "PAW_PBE O 08Apr2002",
+                        "hash": "7a25bc5b9a5393f46600a4939d357982",
+                    }
+                ],
                 "run_type": "GGA",
             },
         )
@@ -1267,8 +1545,14 @@ class TestMITCompatibility(TestCase):
                 "hubbards": {"Fe": 4.0, "O": 0},
                 "run_type": "GGA+U",
                 "potcar_spec": [
-                    {"titel": "PAW_PBE Fe 06Sep2000", "hash": "9530da8244e4dac17580869b4adab115"},
-                    {"titel": "PAW_PBE O 08Apr2002", "hash": "7a25bc5b9a5393f46600a4939d357982"},
+                    {
+                        "titel": "PAW_PBE Fe 06Sep2000",
+                        "hash": "9530da8244e4dac17580869b4adab115",
+                    },
+                    {
+                        "titel": "PAW_PBE O 08Apr2002",
+                        "hash": "7a25bc5b9a5393f46600a4939d357982",
+                    },
                 ],
             },
         )
@@ -1283,7 +1567,10 @@ class TestMITCompatibility(TestCase):
                 "run_type": "GGA+U",
                 "potcar_spec": [
                     {"titel": "PAW_PBE Fe 06Sep2000", "hash": "DifferentHash"},
-                    {"titel": "PAW_PBE O 08Apr2002", "hash": "7a25bc5b9a5393f46600a4939d357982"},
+                    {
+                        "titel": "PAW_PBE O 08Apr2002",
+                        "hash": "7a25bc5b9a5393f46600a4939d357982",
+                    },
                 ],
             },
         )
@@ -1347,8 +1634,14 @@ class TestMITCompatibility(TestCase):
                 "hubbards": {"Fe": 4.0, "O": 0},
                 "run_type": "GGA+U",
                 "potcar_spec": [
-                    {"titel": "PAW_PBE Fe 06Sep2000", "hash": "994537de5c4122b7f1b77fb604476db4"},
-                    {"titel": "PAW_PBE O 08Apr2002", "hash": "7a25bc5b9a5393f46600a4939d357982"},
+                    {
+                        "titel": "PAW_PBE Fe 06Sep2000",
+                        "hash": "994537de5c4122b7f1b77fb604476db4",
+                    },
+                    {
+                        "titel": "PAW_PBE O 08Apr2002",
+                        "hash": "7a25bc5b9a5393f46600a4939d357982",
+                    },
                 ],
             },
         )
@@ -1376,8 +1669,14 @@ class TestOxideTypeCorrection(TestCase):
                 "hubbards": None,
                 "run_type": "GGA",
                 "potcar_spec": [
-                    {"titel": "PAW_PBE Li 17Jan2003", "hash": "65e83282d1707ec078c1012afbd05be8"},
-                    {"titel": "PAW_PBE O 08Apr2002", "hash": "7a25bc5b9a5393f46600a4939d357982"},
+                    {
+                        "titel": "PAW_PBE Li 17Jan2003",
+                        "hash": "65e83282d1707ec078c1012afbd05be8",
+                    },
+                    {
+                        "titel": "PAW_PBE O 08Apr2002",
+                        "hash": "7a25bc5b9a5393f46600a4939d357982",
+                    },
                 ],
             },
         )
@@ -1407,8 +1706,14 @@ class TestOxideTypeCorrection(TestCase):
                 "hubbards": None,
                 "run_type": "GGA",
                 "potcar_spec": [
-                    {"titel": "PAW_PBE Li 17Jan2003", "hash": "65e83282d1707ec078c1012afbd05be8"},
-                    {"titel": "PAW_PBE O 08Apr2002", "hash": "7a25bc5b9a5393f46600a4939d357982"},
+                    {
+                        "titel": "PAW_PBE Li 17Jan2003",
+                        "hash": "65e83282d1707ec078c1012afbd05be8",
+                    },
+                    {
+                        "titel": "PAW_PBE O 08Apr2002",
+                        "hash": "7a25bc5b9a5393f46600a4939d357982",
+                    },
                 ],
             },
         )
@@ -1440,8 +1745,14 @@ class TestOxideTypeCorrection(TestCase):
                 "hubbards": None,
                 "run_type": "GGA",
                 "potcar_spec": [
-                    {"titel": "PAW_PBE Li 17Jan2003", "hash": "65e83282d1707ec078c1012afbd05be8"},
-                    {"titel": "PAW_PBE O 08Apr2002", "hash": "7a25bc5b9a5393f46600a4939d357982"},
+                    {
+                        "titel": "PAW_PBE Li 17Jan2003",
+                        "hash": "65e83282d1707ec078c1012afbd05be8",
+                    },
+                    {
+                        "titel": "PAW_PBE O 08Apr2002",
+                        "hash": "7a25bc5b9a5393f46600a4939d357982",
+                    },
                 ],
             },
         )
@@ -1469,8 +1780,14 @@ class TestOxideTypeCorrection(TestCase):
                 "hubbards": None,
                 "run_type": "GGA",
                 "potcar_spec": [
-                    {"titel": "PAW_PBE Li 17Jan2003", "hash": "65e83282d1707ec078c1012afbd05be8"},
-                    {"titel": "PAW_PBE O 08Apr2002", "hash": "7a25bc5b9a5393f46600a4939d357982"},
+                    {
+                        "titel": "PAW_PBE Li 17Jan2003",
+                        "hash": "65e83282d1707ec078c1012afbd05be8",
+                    },
+                    {
+                        "titel": "PAW_PBE O 08Apr2002",
+                        "hash": "7a25bc5b9a5393f46600a4939d357982",
+                    },
                 ],
             },
         )
@@ -1493,8 +1810,14 @@ class TestOxideTypeCorrection(TestCase):
                 "hubbards": None,
                 "run_type": "GGA",
                 "potcar_spec": [
-                    {"titel": "PAW_PBE Li 17Jan2003", "hash": "65e83282d1707ec078c1012afbd05be8"},
-                    {"titel": "PAW_PBE O 08Apr2002", "hash": "7a25bc5b9a5393f46600a4939d357982"},
+                    {
+                        "titel": "PAW_PBE Li 17Jan2003",
+                        "hash": "65e83282d1707ec078c1012afbd05be8",
+                    },
+                    {
+                        "titel": "PAW_PBE O 08Apr2002",
+                        "hash": "7a25bc5b9a5393f46600a4939d357982",
+                    },
                 ],
             },
         )
@@ -1682,8 +2005,14 @@ class TestOxideTypeCorrectionNoPeroxideCorr(TestCase):
                 "hubbards": None,
                 "run_type": "GGA",
                 "potcar_spec": [
-                    {"titel": "PAW_PBE Li 17Jan2003", "hash": "65e83282d1707ec078c1012afbd05be8"},
-                    {"titel": "PAW_PBE O 08Apr2002", "hash": "7a25bc5b9a5393f46600a4939d357982"},
+                    {
+                        "titel": "PAW_PBE Li 17Jan2003",
+                        "hash": "65e83282d1707ec078c1012afbd05be8",
+                    },
+                    {
+                        "titel": "PAW_PBE O 08Apr2002",
+                        "hash": "7a25bc5b9a5393f46600a4939d357982",
+                    },
                 ],
             },
         )
@@ -1712,8 +2041,14 @@ class TestOxideTypeCorrectionNoPeroxideCorr(TestCase):
             "hubbards": None,
             "run_type": "GGA",
             "potcar_spec": [
-                {"titel": "PAW_PBE Li 17Jan2003", "hash": "65e83282d1707ec078c1012afbd05be8"},
-                {"titel": "PAW_PBE O 08Apr2002", "hash": "7a25bc5b9a5393f46600a4939d357982"},
+                {
+                    "titel": "PAW_PBE Li 17Jan2003",
+                    "hash": "65e83282d1707ec078c1012afbd05be8",
+                },
+                {
+                    "titel": "PAW_PBE O 08Apr2002",
+                    "hash": "7a25bc5b9a5393f46600a4939d357982",
+                },
             ],
         }
         li2o2_entry = ComputedStructureEntry(struct, -3, parameters=cse_params)
@@ -1741,8 +2076,14 @@ class TestOxideTypeCorrectionNoPeroxideCorr(TestCase):
                 "hubbards": None,
                 "run_type": "GGA",
                 "potcar_spec": [
-                    {"titel": "PAW_PBE Li 17Jan2003", "hash": "65e83282d1707ec078c1012afbd05be8"},
-                    {"titel": "PAW_PBE O 08Apr2002", "hash": "7a25bc5b9a5393f46600a4939d357982"},
+                    {
+                        "titel": "PAW_PBE Li 17Jan2003",
+                        "hash": "65e83282d1707ec078c1012afbd05be8",
+                    },
+                    {
+                        "titel": "PAW_PBE O 08Apr2002",
+                        "hash": "7a25bc5b9a5393f46600a4939d357982",
+                    },
                 ],
             },
         )
@@ -1903,7 +2244,10 @@ class TestMaterialsProjectAqueousCompatibility:
             o2_energy=-10, h2o_energy=-20, h2o_adjustments=-0.5, solid_compat=None
         )
 
-        with pytest.raises(ValueError, match="Parallel processing is not possible with for 'inplace=True'"):
+        with pytest.raises(
+            ValueError,
+            match="Parallel processing is not possible with for 'inplace=True'",
+        ):
             entries = compat.process_entries(entry_list, inplace=True, n_workers=2)
 
         entries = compat.process_entries(entry_list, inplace=False, n_workers=2, on_error="raise")
@@ -1967,9 +2311,18 @@ class TestMITAqueousCompatibility(TestCase):
                 "hubbards": None,
                 "run_type": "GGA",
                 "potcar_spec": [
-                    {"titel": "PAW_PBE Li 17Jan2003", "hash": "65e83282d1707ec078c1012afbd05be8"},
-                    {"titel": "PAW_PBE O 08Apr2002", "hash": "7a25bc5b9a5393f46600a4939d357982"},
-                    {"titel": "PAW_PBE H 15Jun2001", "hash": "bb43c666e3d36577264afe07669e9582"},
+                    {
+                        "titel": "PAW_PBE Li 17Jan2003",
+                        "hash": "65e83282d1707ec078c1012afbd05be8",
+                    },
+                    {
+                        "titel": "PAW_PBE O 08Apr2002",
+                        "hash": "7a25bc5b9a5393f46600a4939d357982",
+                    },
+                    {
+                        "titel": "PAW_PBE H 15Jun2001",
+                        "hash": "bb43c666e3d36577264afe07669e9582",
+                    },
                 ],
             },
         )
@@ -2002,7 +2355,11 @@ class TestMITAqueousCompatibility(TestCase):
                 "is_hubbard": False,
                 "hubbards": None,
                 "run_type": "GGA",
-                "potcar_symbols": ["PAW_PBE Fe 17Jan2003", "PAW_PBE O 08Apr2002", "PAW_PBE H 15Jun2001"],
+                "potcar_symbols": [
+                    "PAW_PBE Fe 17Jan2003",
+                    "PAW_PBE O 08Apr2002",
+                    "PAW_PBE H 15Jun2001",
+                ],
             },
         )
 
@@ -2021,8 +2378,14 @@ class TestMITAqueousCompatibility(TestCase):
             correction=0.0,
             parameters={
                 "potcar_spec": [
-                    {"titel": "PAW_PBE Am 08May2007", "hash": "ed5eebd8a143e35a0c19e9f8a2c42a93"},
-                    {"titel": "PAW_PBE Si 05Jan2001", "hash": "b2b0ea6feb62e7cde209616683b8f7f5"},
+                    {
+                        "titel": "PAW_PBE Am 08May2007",
+                        "hash": "ed5eebd8a143e35a0c19e9f8a2c42a93",
+                    },
+                    {
+                        "titel": "PAW_PBE Si 05Jan2001",
+                        "hash": "b2b0ea6feb62e7cde209616683b8f7f5",
+                    },
                 ]
             },
         )
@@ -2038,8 +2401,14 @@ class TestCorrectionErrors2020Compatibility(TestCase):
             "hubbards": {"Fe": 5.3, "O": 0},
             "run_type": "GGA+U",
             "potcar_spec": [
-                {"titel": "PAW_PBE Fe_pv 06Sep2000", "hash": "994537de5c4122b7f1b77fb604476db4"},
-                {"titel": "PAW_PBE O 08Apr2002", "hash": "7a25bc5b9a5393f46600a4939d357982"},
+                {
+                    "titel": "PAW_PBE Fe_pv 06Sep2000",
+                    "hash": "994537de5c4122b7f1b77fb604476db4",
+                },
+                {
+                    "titel": "PAW_PBE O 08Apr2002",
+                    "hash": "7a25bc5b9a5393f46600a4939d357982",
+                },
             ],
         }
         self.entry1 = ComputedEntry("Fe2O3", -1, correction=0.0, parameters=params)
@@ -2048,8 +2417,14 @@ class TestCorrectionErrors2020Compatibility(TestCase):
             "is_hubbard": False,
             "run_type": "GGA",
             "potcar_spec": [
-                {"titel": "PAW_PBE Fe_pv 06Sep2000", "hash": "994537de5c4122b7f1b77fb604476db4"},
-                {"titel": "PAW_PBE S 08Apr2002", "hash": "7a25bc5b9a5393f46600a4939d357982"},
+                {
+                    "titel": "PAW_PBE Fe_pv 06Sep2000",
+                    "hash": "994537de5c4122b7f1b77fb604476db4",
+                },
+                {
+                    "titel": "PAW_PBE S 08Apr2002",
+                    "hash": "7a25bc5b9a5393f46600a4939d357982",
+                },
             ],
         }
         self.entry_sulfide = ComputedEntry("FeS", -1, 0.0, parameters=params)
@@ -2059,8 +2434,14 @@ class TestCorrectionErrors2020Compatibility(TestCase):
             "hubbards": {"Fe": 5.3, "O": 0},
             "run_type": "GGA+U",
             "potcar_spec": [
-                {"titel": "PAW_PBE Fe_pv 06Sep2000", "hash": "994537de5c4122b7f1b77fb604476db4"},
-                {"titel": "PAW_PBE O 08Apr2002", "hash": "7a25bc5b9a5393f46600a4939d357982"},
+                {
+                    "titel": "PAW_PBE Fe_pv 06Sep2000",
+                    "hash": "994537de5c4122b7f1b77fb604476db4",
+                },
+                {
+                    "titel": "PAW_PBE O 08Apr2002",
+                    "hash": "7a25bc5b9a5393f46600a4939d357982",
+                },
             ],
         }
         self.entry2 = ComputedEntry("Fe3O4", -2, correction=0.0, parameters=params)
@@ -2070,28 +2451,44 @@ class TestCorrectionErrors2020Compatibility(TestCase):
             "hubbards": {"Fe": 5.3, "F": 0},
             "run_type": "GGA+U",
             "potcar_spec": [
-                {"titel": "PAW_PBE Fe_pv 06Sep2000", "hash": "994537de5c4122b7f1b77fb604476db4"},
-                {"titel": "PAW_PBE F 08Apr2002", "hash": "180141c33d032bfbfff30b3bea9d23dd"},
+                {
+                    "titel": "PAW_PBE Fe_pv 06Sep2000",
+                    "hash": "994537de5c4122b7f1b77fb604476db4",
+                },
+                {
+                    "titel": "PAW_PBE F 08Apr2002",
+                    "hash": "180141c33d032bfbfff30b3bea9d23dd",
+                },
             ],
         }
         self.entry_fluoride = ComputedEntry("FeF3", -2, correction=0.0, parameters=params)
         potcar_spec = [
-            {"titel": "PAW_PBE Li_sv 10Sep2004", "hash": "8245d7383d7556214082aa40a887cd96"},
-            {"titel": "PAW_PBE H 15Jun2001", "hash": "bb43c666e3d36577264afe07669e9582"},
+            {
+                "titel": "PAW_PBE Li_sv 10Sep2004",
+                "hash": "8245d7383d7556214082aa40a887cd96",
+            },
+            {
+                "titel": "PAW_PBE H 15Jun2001",
+                "hash": "bb43c666e3d36577264afe07669e9582",
+            },
         ]
         self.entry_hydride = ComputedEntry(
             "LiH",
             -2,
             correction=0.0,
-            parameters={"is_hubbard": False, "run_type": "GGA", "potcar_spec": potcar_spec},
+            parameters={
+                "is_hubbard": False,
+                "run_type": "GGA",
+                "potcar_spec": potcar_spec,
+            },
         )
 
     def test_errors(self):
         for entry, expected in (
-            (self.entry1, sqrt((2 * 0.0101) ** 2 + (3 * 0.002) ** 2)),
-            (self.entry2, sqrt((3 * 0.0101) ** 2 + (4 * 0.002) ** 2)),
+            (self.entry1, math.sqrt((2 * 0.0101) ** 2 + (3 * 0.002) ** 2)),
+            (self.entry2, math.sqrt((3 * 0.0101) ** 2 + (4 * 0.002) ** 2)),
             (self.entry_sulfide, 0.0093),
-            (self.entry_fluoride, sqrt((3 * 0.0026) ** 2 + 0.0101**2)),
+            (self.entry_fluoride, math.sqrt((3 * 0.0026) ** 2 + 0.0101**2)),
             (self.entry_hydride, 0.0013),
         ):
             corrected_entry = self.compat.process_entry(entry)
@@ -2100,7 +2497,10 @@ class TestCorrectionErrors2020Compatibility(TestCase):
 
 @pytest.mark.parametrize(
     "u_config",
-    [MP2020_COMPAT_CONFIG["Corrections"]["GGAUMixingCorrections"], MP_COMPAT_CONFIG["Advanced"]["UCorrections"]],
+    [
+        MP2020_COMPAT_CONFIG["Corrections"]["GGAUMixingCorrections"],
+        MP_COMPAT_CONFIG["Advanced"]["UCorrections"],
+    ],
 )
 @pytest.mark.parametrize(
     ("comp", "expected"),

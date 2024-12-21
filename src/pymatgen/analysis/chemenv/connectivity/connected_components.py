@@ -159,7 +159,14 @@ def make_supergraph(graph, multiplicity, periodicity_vectors):
                 connecting_edges.append((n1, n2, key, new_data))
             else:
                 if not np.all(np.array(data["delta"]) == 0):
-                    print("delta not equal to periodicity nor 0 ... : ", n1, n2, key, data["delta"], data)
+                    print(
+                        "delta not equal to periodicity nor 0 ... : ",
+                        n1,
+                        n2,
+                        key,
+                        data["delta"],
+                        data,
+                    )
                     input("Are we ok with this ?")
                 other_edges.append((n1, n2, key, data))
 
@@ -211,9 +218,6 @@ class ConnectedComponent(MSONable):
             environments_data: Data of environment nodes.
             links_data: Data of links between environment nodes.
             graph: Graph of the connected component.
-
-        Returns:
-            ConnectedComponent: Instance of this class
         """
         self._periodicity_vectors: list[list] | None = None
         self._primitive_reduced_connected_subgraph = None
@@ -522,7 +526,10 @@ class ConnectedComponent(MSONable):
         return make_supergraph(self._connected_subgraph, multiplicity, self._periodicity_vectors)
 
     def show_graph(
-        self, graph: nx.MultiGraph | None = None, save_file: str | None = None, drawing_type: str = "internal"
+        self,
+        graph: nx.MultiGraph | None = None,
+        save_file: str | None = None,
+        drawing_type: str = "internal",
     ) -> None:
         """
         Displays the graph using the specified drawing type.

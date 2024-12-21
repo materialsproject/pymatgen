@@ -46,6 +46,9 @@ class TestSiteSymmetries(PymatgenTest):
 
     def test_get_shared_symmetries_operations(self):
         shared_ops = list(
-            map(list, ss.get_shared_symmetry_operations(self.piezo_struct, ss.get_site_symmetries(self.piezo_struct)))
+            map(
+                list,
+                ss.get_shared_symmetry_operations(self.piezo_struct, ss.get_site_symmetries(self.piezo_struct)),
+            )
         )
         assert shared_ops == self.shared_ops

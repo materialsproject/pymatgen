@@ -1133,7 +1133,7 @@ class IcohpCollection(MSONable):
         list_num: list[int],
         list_icohp: list[dict[Spin, float]],
         is_spin_polarized: bool,
-        list_orb_icohp: list[dict[str, dict[Literal["icohp", "orbitals"], Any]]] | None = None,
+        list_orb_icohp: (list[dict[str, dict[Literal["icohp", "orbitals"], Any]]] | None) = None,
         are_coops: bool = False,
         are_cobis: bool = False,
     ) -> None:
@@ -1247,7 +1247,9 @@ class IcohpCollection(MSONable):
         for label in label_list:
             icohp = self._icohplist[label]
             if icohp.num_bonds != 1:
-                warnings.warn("One of the ICOHP values is an average over bonds. This is currently not considered.")
+                warnings.warn(
+                    "One of the ICOHP values is an average over bonds. This is currently not considered.", stacklevel=2
+                )
 
             if icohp._is_spin_polarized and summed_spin_channels:
                 sum_icohp += icohp.summed_icohp
@@ -1350,7 +1352,7 @@ class IcohpCollection(MSONable):
 
         if not self._is_spin_polarized:
             if spin == Spin.down:
-                warnings.warn("This spin channel does not exist. I am switching to Spin.up")
+                warnings.warn("This spin channel does not exist. I am switching to Spin.up", stacklevel=2)
             spin = Spin.up
 
         for value in self._icohplist.values():

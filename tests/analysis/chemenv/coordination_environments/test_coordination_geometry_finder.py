@@ -106,7 +106,11 @@ class TestCoordinationGeometryFinder(PymatgenTest):
         ]
 
         # test to check that one can pass voronoi_distance_cutoff
-        struct = Structure(Lattice.cubic(25), ["O", "C", "O"], [[0.0, 0.0, 0.0], [0.0, 0.0, 1.17], [0.0, 0.0, 2.34]])
+        struct = Structure(
+            Lattice.cubic(25),
+            ["O", "C", "O"],
+            [[0.0, 0.0, 0.0], [0.0, 0.0, 1.17], [0.0, 0.0, 2.34]],
+        )
         self.lgf.setup_structure(structure=struct)
         self.lgf.compute_structure_environments(voronoi_distance_cutoff=25)
 
@@ -120,7 +124,13 @@ class TestCoordinationGeometryFinder(PymatgenTest):
         result = self.lgf.coordination_geometry_symmetry_measures_fallback_random(
             coordination_geometry=cg_tet, n_random=5, points_perfect=points_perfect_tet
         )
-        permutations_symmetry_measures, _permutations, _algos, _local2perfect_maps, _perfect2local_maps = result
+        (
+            permutations_symmetry_measures,
+            _permutations,
+            _algos,
+            _local2perfect_maps,
+            _perfect2local_maps,
+        ) = result
         for perm_csm_dict in permutations_symmetry_measures:
             assert perm_csm_dict["symmetry_measure"] == approx(0.140355832317)
 

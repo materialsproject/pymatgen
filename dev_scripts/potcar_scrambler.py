@@ -164,11 +164,14 @@ def generate_fake_potcar_libraries() -> None:
                 zpath(f"{func_dir}/{psp_name}/POTCAR"),
             ]
             if not any(map(os.path.isfile, paths_to_try)):
-                warnings.warn(f"Could not find {psp_name} in {paths_to_try}")
+                warnings.warn(f"Could not find {psp_name} in {paths_to_try}", stacklevel=2)
             for potcar_path in paths_to_try:
                 if os.path.isfile(potcar_path):
                     os.makedirs(rebase_dir, exist_ok=True)
-                    PotcarScrambler.from_file(input_filename=potcar_path, output_filename=f"{rebase_dir}/POTCAR.gz")
+                    PotcarScrambler.from_file(
+                        input_filename=potcar_path,
+                        output_filename=f"{rebase_dir}/POTCAR.gz",
+                    )
                     break
 
 

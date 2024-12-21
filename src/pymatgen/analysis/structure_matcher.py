@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import abc
 import itertools
+import math
 from functools import lru_cache
 from typing import TYPE_CHECKING, cast
 
@@ -441,9 +442,9 @@ class StructureMatcher(MSONable):
                 raise ValueError("Invalid argument for supercell_size.")
 
         if fu < 2 / 3:
-            return int(round(1 / fu)), False
+            return round(1 / fu), False
 
-        return int(round(fu)), True
+        return round(fu), True
 
     def _get_lattices(self, target_lattice, s, supercell_size=1):
         """
@@ -463,7 +464,7 @@ class StructureMatcher(MSONable):
             skip_rotation_matrix=True,
         )
         for latt, _, scale_m in lattices:
-            if abs(abs(np.linalg.det(scale_m)) - supercell_size) < 0.5:
+            if math.isclose(abs(np.linalg.det(scale_m)), supercell_size, abs_tol=0.5, rel_tol=0):
                 yield latt, scale_m
 
     def _get_supercells(self, struct1, struct2, fu, s1_supercell):
@@ -588,7 +589,11 @@ class StructureMatcher(MSONable):
         return np.array(mask, dtype=np.int64), inds, idx
 
     def fit(
-        self, struct1: Structure, struct2: Structure, symmetric: bool = False, skip_structure_reduction: bool = False
+        self,
+        struct1: Structure,
+        struct2: Structure,
+        symmetric: bool = False,
+        skip_structure_reduction: bool = False,
     ) -> bool:
         """Fit two structures.
 
@@ -633,7 +638,7 @@ class StructureMatcher(MSONable):
         if match1 is None or match2 is None:
             return False
 
-        return max(match1[0], match2[0]) <= self.stol
+        return bool(max(match1[0], match2[0]) <= self.stol)
 
     def get_rms_dist(self, struct1, struct2):
         """
@@ -1069,7 +1074,11 @@ class StructureMatcher(MSONable):
         return None
 
     def fit_anonymous(
-        self, struct1: Structure, struct2: Structure, niggli: bool = True, skip_structure_reduction: bool = False
+        self,
+        struct1: Structure,
+        struct2: Structure,
+        niggli: bool = True,
+        skip_structure_reduction: bool = False,
     ) -> bool:
         """
         Performs an anonymous fitting, which allows distinct species in one structure to map
@@ -1195,7 +1204,7 @@ class StructureMatcher(MSONable):
         sites = [temp.sites[i] for i in mapping if i is not None]
 
         if include_ignored_species:
-            start = int(round(len(temp) / len(struct2) * len(s2)))
+            start = round(len(temp) / len(struct2) * len(s2))
             sites.extend(temp.sites[start:])
 
         return Structure.from_sites(sites)

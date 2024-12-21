@@ -27,97 +27,114 @@ stipulated by the COD developers).
 
 from __future__ import annotations
 
-import re
-import subprocess
 import warnings
-from shutil import which
+from typing import TYPE_CHECKING
 
 import requests
-from monty.dev import requires
 
 from pymatgen.core.composition import Composition
 from pymatgen.core.structure import Structure
 
+if TYPE_CHECKING:
+    from typing import Literal
+
 
 class COD:
-    """An interface to the Crystallography Open Database."""
+    """An interface to the Crystallography Open Database.
 
-    url = "www.crystallography.net"
+    Reference:
+        https://wiki.crystallography.net/RESTful_API/
+    """
 
-    def query(self, sql: str) -> str:
-        """Perform a query.
-
-        Args:
-            sql: SQL string
-
-        Returns:
-            Response from SQL query.
-        """
-        response = subprocess.check_output(["mysql", "-u", "cod_reader", "-h", self.url, "-e", sql, "cod"])
-        return response.decode("utf-8")
-
-    @requires(which("mysql"), "mysql must be installed to use this query.")
-    def get_cod_ids(self, formula) -> list[int]:
-        """Query the COD for all cod ids associated with a formula. Requires
-        mysql executable to be in the path.
+    def __init__(self, timeout: int = 60):
+        """Initialize the COD class.
 
         Args:
-            formula (str): Formula.
-
-        Returns:
-            List of cod ids.
+            timeout (int): request timeout in seconds.
         """
-        # TODO: Remove dependency on external mysql call. MySQL-python package does not support Py3!
+        self.timeout = timeout
+        self.url = "https://www.crystallography.net"
+        self.api_url = f"{self.url}/cod/result"
 
-        # Standardize formula to the version used by COD
+    def get_cod_ids(self, formula: str) -> list[int]:
+        """Query the COD for all COD IDs associated with a formula.
+
+        Args:
+            formula (str): The formula to request
+        """
+        # Use hill_formula format as per COD request
         cod_formula = Composition(formula).hill_formula
-        sql = f'select file from data where formula="- {cod_formula} -"'  # noqa: S608
-        text = self.query(sql).split("\n")
-        cod_ids = []
-        for line in text:
-            if match := re.search(r"(\d+)", line):
-                cod_ids.append(int(match[1]))
-        return cod_ids
 
-    def get_structure_by_id(self, cod_id: int, timeout: int = 600, **kwargs) -> Structure:
-        """Query the COD for a structure by id.
+        # Set up query parameters
+        params = {"formula": cod_formula, "format": "json"}
+
+        response = requests.get(self.api_url, params=params, timeout=self.timeout)
+
+        # Raise an exception if the request fails
+        response.raise_for_status()
+
+        return [int(entry["file"]) for entry in response.json()]
+
+    def get_structure_by_id(self, cod_id: int, timeout: int | None = None, **kwargs) -> Structure:
+        """Query the COD for a structure by ID.
 
         Args:
-            cod_id (int): COD id.
-            timeout (int): Timeout for the request in seconds. Default = 600.
-            kwargs: All kwargs supported by Structure.from_str.
+            cod_id (int): COD ID.
+            timeout (int): DEPRECATED. request timeout in seconds.
+            kwargs: kwargs passed to Structure.from_str.
 
         Returns:
             A Structure.
         """
-        response = requests.get(f"https://{self.url}/cod/{cod_id}.cif", timeout=timeout)
+        # TODO: remove timeout arg and use class level timeout after 2025-10-17
+        if timeout is not None:
+            warnings.warn(
+                "separate timeout arg is deprecated, please use class level timeout", DeprecationWarning, stacklevel=2
+            )
+        timeout = timeout or self.timeout
+
+        response = requests.get(f"{self.url}/cod/{cod_id}.cif", timeout=timeout)
         return Structure.from_str(response.text, fmt="cif", **kwargs)
 
-    @requires(which("mysql"), "mysql must be installed to use this query.")
-    def get_structure_by_formula(self, formula: str, **kwargs) -> list[dict[str, str | int | Structure]]:
-        """Query the COD for structures by formula. Requires mysql executable to
-        be in the path.
+    def get_structure_by_formula(
+        self,
+        formula: str,
+        **kwargs,
+    ) -> list[dict[Literal["structure", "cod_id", "sg"], str | int | Structure]]:
+        """Query the COD for structures by formula.
 
         Args:
             formula (str): Chemical formula.
             kwargs: All kwargs supported by Structure.from_str.
 
         Returns:
-            A list of dict of the format [{"structure": Structure, "cod_id": int, "sg": "P n m a"}]
+            A list of dict of: {"structure": Structure, "cod_id": int, "sg": "P n m a"}
         """
-        structures: list[dict[str, str | int | Structure]] = []
-        sql = f'select file, sg from data where formula="- {Composition(formula).hill_formula} -"'  # noqa: S608
-        text = self.query(sql).split("\n")
-        text.pop(0)
-        for line in text:
-            if line.strip():
-                cod_id, sg = line.split("\t")
-                response = requests.get(f"https://{self.url}/cod/{cod_id.strip()}.cif", timeout=60)
-                try:
-                    struct = Structure.from_str(response.text, fmt="cif", **kwargs)
-                    structures.append({"structure": struct, "cod_id": int(cod_id), "sg": sg})
-                except Exception:
-                    warnings.warn(f"\nStructure.from_str failed while parsing CIF file:\n{response.text}")
-                    raise
+        # Prepare the query parameters
+        params = {
+            "formula": Composition(formula).hill_formula,
+            "format": "json",
+        }
+
+        response = requests.get(self.api_url, params=params, timeout=self.timeout)
+        response.raise_for_status()
+
+        structures: list[dict[Literal["structure", "cod_id", "sg"], str | int | Structure]] = []
+
+        # Parse the JSON response
+        for entry in response.json():
+            cod_id = entry["file"]
+            sg = entry.get("sg")
+
+            try:
+                struct = self.get_structure_by_id(cod_id, **kwargs)
+                structures.append({"structure": struct, "cod_id": int(cod_id), "sg": sg})
+
+            except Exception:
+                warnings.warn(
+                    f"Structure.from_str failed while parsing CIF file for COD ID {cod_id}",
+                    stacklevel=2,
+                )
+                raise
 
         return structures

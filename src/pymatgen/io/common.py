@@ -2,10 +2,15 @@
 
 from __future__ import annotations
 
+import collections
+import importlib
 import itertools
 import json
+import os
+import typing
 import warnings
 from copy import deepcopy
+from pathlib import Path
 from typing import TYPE_CHECKING
 
 import numpy as np
@@ -18,25 +23,37 @@ from pymatgen.core.units import ang_to_bohr, bohr_to_angstrom
 from pymatgen.electronic_structure.core import Spin
 
 if TYPE_CHECKING:
-    from pathlib import Path
-
-    from typing_extensions import Self
+    from typing_extensions import Any, Self
 
 
 class VolumetricData(MSONable):
     """
-    Simple volumetric object. Used to read LOCPOT/CHGCAR files produced by
-    vasp as well as cube files produced by other codes.
+    A representation of volumetric data commonly used in atomistic simulation outputs,
+    such as LOCPOT/CHGCAR files from VASP or cube files from other codes.
 
     Attributes:
-        structure (Structure): Structure associated with the Volumetric Data object.
-        is_spin_polarized (bool): True if run is spin polarized.
-        dim (tuple): Tuple of dimensions of volumetric grid in each direction (nx, ny, nz).
-        data (dict): Actual data as a dict of {string: np.array}. The string are "total"
-            and "diff", in accordance to the output format of Vasp LOCPOT and
-            CHGCAR files where the total spin density is written first, followed
-            by the difference spin density.
-        ngridpts (int): Total number of grid points in volumetric data.
+        structure (Structure):
+            The crystal structure associated with the volumetric data.
+            Represents the lattice and atomic coordinates using the `Structure` class.
+
+        is_spin_polarized (bool):
+            Indicates if the simulation is spin-polarized. True for spin-polarized data
+            (contains both total and spin-difference densities), False otherwise.
+
+        dim (tuple[int, int, int]):
+            The dimensions of the 3D volumetric grid along each axis in the format
+            (nx, ny, nz), where nx, ny, and nz represent the number of grid points
+            in the x, y, and z directions, respectively.
+
+        data (dict[str, np.ndarray]):
+            A dictionary containing the volumetric data. Keys include:
+            - `"total"`: A 3D NumPy array representing the total spin density.
+            - `"diff"` (optional): A 3D NumPy array representing the spin-difference
+              density (spin up - spin down). Typically present in spin-polarized calculations.
+
+        ngridpts (int):
+            The total number of grid points in the volumetric data, calculated as
+            `nx * ny * nz` using the grid dimensions.
     """
 
     def __init__(
@@ -135,7 +152,10 @@ class VolumetricData(MSONable):
             VolumetricData corresponding to self + scale_factor * other.
         """
         if self.structure != other.structure:
-            warnings.warn("Structures are different. Make sure you know what you are doing...")
+            warnings.warn(
+                "Structures are different. Make sure you know what you are doing...",
+                stacklevel=2,
+            )
         if list(self.data) != list(other.data):
             raise ValueError("Data have different keys! Maybe one is spin-polarized and the other is not?")
 
@@ -398,12 +418,128 @@ class VolumetricData(MSONable):
             sites.append(Site(line[0], np.multiply(bohr_to_angstrom, list(map(float, line[2:])))))
 
         structure = Structure(
-            lattice=[voxel_x * num_x_voxels, voxel_y * num_y_voxels, voxel_z * num_z_voxels],
+            lattice=[
+                voxel_x * num_x_voxels,
+                voxel_y * num_y_voxels,
+                voxel_z * num_z_voxels,
+            ],
             species=[s.specie for s in sites],
             coords=[s.coords for s in sites],
             coords_are_cartesian=True,
         )
 
         # Volumetric data
-        data = np.reshape(np.array(file.read().split()).astype(float), (num_x_voxels, num_y_voxels, num_z_voxels))
+        data = np.reshape(
+            np.array(file.read().split()).astype(float),
+            (num_x_voxels, num_y_voxels, num_z_voxels),
+        )
         return cls(structure=structure, data={"total": data})
+
+
+class PMGDir(collections.abc.Mapping):
+    """
+    User-friendly class to access all files in a directory as pymatgen objects in a dict. For now, only VASP files are
+    implemented but there is no reason why this cannot be extended to other types of files.
+    Note that the files are lazily parsed to minimize initialization costs since not all files will be needed by all
+    users.
+
+    Example:
+
+    ```
+    d = PMGDir(".")
+    print(d["INCAR"]["NELM"])
+    print(d["vasprun.xml"].parameters)
+    ```
+    """
+
+    FILE_MAPPINGS: typing.ClassVar = {
+        n: f"pymatgen.io.vasp.{n.capitalize()}"
+        for n in [
+            "INCAR",
+            "POSCAR",
+            "KPOINTS",
+            "POTCAR",
+            "vasprun",
+            "OUTCAR",
+            "OSZICAR",
+            "CHGCAR",
+            "WAVECAR",
+            "WAVEDER",
+            "LOCPOT",
+            "XDATCAR",
+            "EIGENVAL",
+            "PROCAR",
+            "ELFCAR",
+            "DYNMAT",
+        ]
+    } | {
+        "CONTCAR": "pymatgen.io.vasp.Poscar",
+        "IBZKPT": "pymatgen.io.vasp.Kpoints",
+        "WSWQ": "pymatgen.io.vasp.WSWQ",
+    }
+
+    def __init__(self, dirname: str | Path):
+        """
+        Args:
+            dirname: The directory containing the VASP calculation as a string or Path.
+        """
+        self.path = Path(dirname).absolute()
+        self.reset()
+
+    def reset(self):
+        """
+        Reset all loaded files and recheck the directory for files. Use this when the contents of the directory has
+        changed.
+        """
+        # Note that py3.12 has Path.walk(). But we need to use os.walk to ensure backwards compatibility for now.
+        self._files: dict[str, Any] = {
+            str((Path(d) / f).relative_to(self.path)): None for d, _, fnames in os.walk(self.path) for f in fnames
+        }
+
+    def __contains__(self, item):
+        return item in self._files
+
+    def __len__(self):
+        return len(self._files)
+
+    def __iter__(self):
+        return iter(self._files)
+
+    def __getitem__(self, item):
+        if self._files.get(item):
+            return self._files.get(item)
+        fpath = self.path / item
+
+        if not (self.path / item).exists():
+            raise ValueError(f"{item} not found in {self.path}. List of files are {self._files.keys()}.")
+
+        for k, cls_ in PMGDir.FILE_MAPPINGS.items():
+            if k in item:
+                modname, classname = cls_.rsplit(".", 1)
+                module = importlib.import_module(modname)
+                class_ = getattr(module, classname)
+                try:
+                    self._files[item] = class_.from_file(fpath)
+                except AttributeError:
+                    self._files[item] = class_(fpath)
+
+                return self._files[item]
+
+        warnings.warn(
+            f"No parser defined for {item}. Contents are returned as a string.",
+            stacklevel=2,
+        )
+        with zopen(fpath, "rt") as f:
+            return f.read()
+
+    def get_files_by_name(self, name: str) -> dict[str, Any]:
+        """
+        Returns all files with a given name. E.g., if you want all the OUTCAR files, set name="OUTCAR".
+
+        Returns:
+            {filename: object from PMGDir[filename]}
+        """
+        return {f: self[f] for f in self._files if name in f}
+
+    def __repr__(self):
+        return f"PMGDir({self.path})"
