@@ -31,7 +31,7 @@ from pymatgen.util.plotting import pretty_plot
 from pymatgen.util.string import Stringify
 
 if TYPE_CHECKING:
-    from typing import Any, Literal
+    from typing import Any, Literal, ClassVar
 
     import matplotlib.pyplot as plt
     from numpy.typing import NDArray
@@ -410,17 +410,18 @@ def ion_or_solid_comp_object(formula: str) -> Composition | Ion:
     Returns:
         Composition/Ion object
     """
+    # Formula for ion
     if re.match(r"\[([^\[\]]+)\]|\(aq\)", formula):
         comp_obj = Ion.from_formula(formula)
+
+    # Formula for solid
     elif re.search(r"\(s\)", formula):
         comp_obj = Composition(formula[:-3])
+
     else:
         comp_obj = Composition(formula)
+
     return comp_obj
-
-
-ELEMENTS_HO: set[Element] = {Element("H"), Element("O")}
-
 
 # TODO: the solids filter breaks some of the functionality of the
 # heatmap plotter, because the reference states for decomposition
@@ -432,6 +433,9 @@ ELEMENTS_HO: set[Element] = {Element("H"), Element("O")}
 # TODO: serialization is still a bit rough around the edges
 class PourbaixDiagram(MSONable):
     """Create a Pourbaix diagram from entries."""
+
+
+    elements_ho: ClassVar[set[Element]] = {Element("H"), Element("O")}
 
     def __init__(
         self,
@@ -466,7 +470,7 @@ class PourbaixDiagram(MSONable):
 
         # Get non-OH elements
         self.pbx_elts = list(
-            set(itertools.chain.from_iterable([entry.composition.elements for entry in entries])) - ELEMENTS_HO
+            set(itertools.chain.from_iterable([entry.composition.elements for entry in entries])) - self.elements_ho
         )
         self.dim = len(self.pbx_elts) - 1
 
@@ -478,7 +482,7 @@ class PourbaixDiagram(MSONable):
             self._unprocessed_entries = single_entries
             self._filtered_entries = single_entries
             self._conc_dict = None
-            self._elt_comp = {k: v for k, v in entries[0].composition.items() if k not in ELEMENTS_HO}
+            self._elt_comp = {k: v for k, v in entries[0].composition.items() if k not in self.elements_ho}
             self._multi_element = True
 
         # Process single entry inputs
@@ -498,7 +502,7 @@ class PourbaixDiagram(MSONable):
 
             # If a conc_dict is specified, override individual entry concentrations
             for entry in ion_entries:
-                ion_elts = list(set(entry.elements) - ELEMENTS_HO)
+                ion_elts = list(set(entry.elements) - self.elements_ho)
                 # TODO: the logic here for ion concentration setting is in two
                 # places, in PourbaixEntry and here, should be consolidated
                 if len(ion_elts) == 1:
@@ -869,7 +873,7 @@ class PourbaixDiagram(MSONable):
         # Check composition consistency between entry and Pourbaix diagram:
         pbx_comp = Composition(self._elt_comp).fractional_composition
         entry_pbx_comp = Composition(
-            {elt: coeff for elt, coeff in entry.composition.items() if elt not in ELEMENTS_HO}
+            {elt: coeff for elt, coeff in entry.composition.items() if elt not in self.elements_ho}
         ).fractional_composition
         if entry_pbx_comp != pbx_comp:
             raise ValueError("Composition of stability entry does not match Pourbaix Diagram")
