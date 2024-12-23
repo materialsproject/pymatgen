@@ -31,7 +31,7 @@ from pymatgen.util.plotting import pretty_plot
 from pymatgen.util.string import Stringify
 
 if TYPE_CHECKING:
-    from typing import Any, Literal, ClassVar
+    from typing import Any, ClassVar, Literal
 
     import matplotlib.pyplot as plt
     from numpy.typing import NDArray
@@ -423,6 +423,7 @@ def ion_or_solid_comp_object(formula: str) -> Composition | Ion:
 
     return comp_obj
 
+
 # TODO: the solids filter breaks some of the functionality of the
 # heatmap plotter, because the reference states for decomposition
 # don't include oxygen/hydrogen in the OER/HER regions
@@ -433,7 +434,6 @@ def ion_or_solid_comp_object(formula: str) -> Composition | Ion:
 # TODO: serialization is still a bit rough around the edges
 class PourbaixDiagram(MSONable):
     """Create a Pourbaix diagram from entries."""
-
 
     elements_ho: ClassVar[set[Element]] = {Element("H"), Element("O")}
 
