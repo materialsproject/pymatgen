@@ -531,7 +531,7 @@ class JDFTXOutfile:
         """
         texts = read_outfile_slices(file_path)
         if none_slice_on_error is None:
-            none_slice_bools = [i == len(texts) - 1 for i in range(len(texts))]
+            none_slice_bools = [i != len(texts) - 1 for i in range(len(texts))]
         else:
             none_slice_bools = [none_slice_on_error for i in range(len(texts))]
         slices = [
