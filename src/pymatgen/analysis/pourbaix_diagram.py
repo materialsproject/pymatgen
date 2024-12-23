@@ -106,6 +106,19 @@ class PourbaixEntry(MSONable, Stringify):
         else:
             self.entry_id = None
 
+    def __repr__(self):
+        energy, npH, nPhi, nH2O, entry_id = (
+            self.energy,
+            self.npH,
+            self.nPhi,
+            self.nH2O,
+            self.entry_id,
+        )
+        return (
+            f"{type(self).__name__}({self.entry.composition} with {energy=:.4f}, {npH=}, "
+            f"{nPhi=}, {nH2O=}, {entry_id=})"
+        )
+
     @property
     def npH(self):
         """The number of H."""
@@ -245,19 +258,6 @@ class PourbaixEntry(MSONable, Stringify):
 
         return self.entry.name
 
-    def __repr__(self):
-        energy, npH, nPhi, nH2O, entry_id = (
-            self.energy,
-            self.npH,
-            self.nPhi,
-            self.nH2O,
-            self.entry_id,
-        )
-        return (
-            f"{type(self).__name__}({self.entry.composition} with {energy=:.4f}, {npH=}, "
-            f"{nPhi=}, {nH2O=}, {entry_id=})"
-        )
-
 
 class MultiEntry(PourbaixEntry):
     """PourbaixEntry-like object for constructing multi-elemental Pourbaix diagrams."""
@@ -302,11 +302,6 @@ class MultiEntry(PourbaixEntry):
         # normalization_factor, num_atoms should work from superclass
         return self.__getattribute__(attr)
 
-    @property
-    def name(self):
-        """MultiEntry name, i.e. the name of each entry joined by ' + '."""
-        return " + ".join(entry.name for entry in self.entry_list)
-
     def __repr__(self):
         energy, npH, nPhi, nH2O, entry_id = (
             self.energy,
@@ -317,6 +312,11 @@ class MultiEntry(PourbaixEntry):
         )
         cls_name, species = type(self).__name__, self.name
         return f"Pourbaix{cls_name}({energy=:.4f}, {npH=}, {nPhi=}, {nH2O=}, {entry_id=}, {species=})"
+
+    @property
+    def name(self):
+        """MultiEntry name, i.e. the name of each entry joined by ' + '."""
+        return " + ".join(entry.name for entry in self.entry_list)
 
     def as_dict(self):
         """Get MSONable dict."""
@@ -367,6 +367,9 @@ class IonEntry(PDEntry):
         name = name or self.ion.reduced_formula
         super().__init__(composition=ion.composition, energy=energy, name=name, attribute=attribute)
 
+    def __repr__(self):
+        return f"IonEntry : {self.composition} with energy = {self.energy:.4f}"
+
     @classmethod
     def from_dict(cls, dct: dict) -> Self:
         """Get an IonEntry object from a dict."""
@@ -380,9 +383,6 @@ class IonEntry(PDEntry):
     def as_dict(self):
         """Create a dict of composition, energy, and ion name."""
         return {"ion": self.ion.as_dict(), "energy": self.energy, "name": self.name}
-
-    def __repr__(self):
-        return f"IonEntry : {self.composition} with energy = {self.energy:.4f}"
 
 
 def ion_or_solid_comp_object(formula):
