@@ -66,7 +66,7 @@ due.cite(
 
 logger = logging.getLogger(__name__)
 
-PREFAC = 0.0591
+PREFAC: float = 0.0591  # ln(10) * RT/nF in Nernst Equation
 
 
 # TODO: Revise to more closely reflect PDEntry, invoke from energy/composition
