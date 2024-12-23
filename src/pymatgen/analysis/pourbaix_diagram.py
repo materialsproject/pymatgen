@@ -31,10 +31,13 @@ from pymatgen.util.plotting import pretty_plot
 from pymatgen.util.string import Stringify
 
 if TYPE_CHECKING:
-    from typing import Any
+    from typing import Any, Literal
 
     import matplotlib.pyplot as plt
     from typing_extensions import Self
+
+    from pymatgen.core import DummySpecies, Species
+    from pymatgen.entries.computed_entries import ComputedStructureEntry
 
 __author__ = "Sai Jayaraman"
 __copyright__ = "Copyright 2012, The Materials Project"
@@ -66,8 +69,11 @@ PREFAC = 0.0591
 
 
 # TODO: Revise to more closely reflect PDEntry, invoke from energy/composition
+
 # TODO: PourbaixEntries depend implicitly on having entry energies be
 # formation energies, should be a better way to get from raw energies
+
+
 # TODO: uncorrected_energy is a bit of a misnomer, but not sure what to rename
 class PourbaixEntry(MSONable, Stringify):
     """
@@ -82,7 +88,12 @@ class PourbaixEntry(MSONable, Stringify):
     work. This may be changed to be more flexible in the future.
     """
 
-    def __init__(self, entry, entry_id=None, concentration=1e-6):
+    def __init__(
+        self,
+        entry: ComputedEntry | ComputedStructureEntry,
+        entry_id: str | None = None,
+        concentration: float = 1e-6,
+    ) -> None:
         """
         Args:
             entry (ComputedEntry | ComputedStructureEntry | PDEntry | IonEntry): An entry object
@@ -106,7 +117,7 @@ class PourbaixEntry(MSONable, Stringify):
         else:
             self.entry_id = None
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         energy, npH, nPhi, nH2O, entry_id = (
             self.energy,
             self.npH,
@@ -120,22 +131,22 @@ class PourbaixEntry(MSONable, Stringify):
         )
 
     @property
-    def npH(self):
+    def npH(self) -> float:
         """The number of H."""
         return self.entry.composition.get("H", 0) - 2 * self.entry.composition.get("O", 0)
 
     @property
-    def nH2O(self):
+    def nH2O(self) -> float:
         """The number of H2O."""
         return self.entry.composition.get("O", 0)
 
     @property
-    def nPhi(self):
+    def nPhi(self) -> float:
         """The number of electrons."""
         return self.npH - self.charge
 
     @property
-    def name(self):
+    def name(self) -> str:
         """The entry's name."""
         if self.phase_type == "Solid":
             return f"{self.entry.reduced_formula}(s)"
@@ -143,22 +154,22 @@ class PourbaixEntry(MSONable, Stringify):
         return self.entry.name
 
     @property
-    def energy(self):
+    def energy(self) -> float:
         """Total energy of the Pourbaix entry (at pH, V = 0 vs. SHE)."""
         # Note: this implicitly depends on formation energies as input
         return self.uncorrected_energy + self.conc_term - (MU_H2O * self.nH2O)
 
     @property
-    def energy_per_atom(self):
+    def energy_per_atom(self) -> float:
         """Energy per atom of the Pourbaix entry."""
         return self.energy / self.composition.num_atoms
 
     @property
-    def elements(self):
+    def elements(self) -> list[Element | Species | DummySpecies]:
         """Elements in the entry."""
         return self.entry.elements
 
-    def energy_at_conditions(self, pH, V):
+    def energy_at_conditions(self, pH: float, V: float) -> float:
         """Get free energy for a given pH and V.
 
         Args:
@@ -170,7 +181,7 @@ class PourbaixEntry(MSONable, Stringify):
         """
         return self.energy + self.npH * PREFAC * pH + self.nPhi * V
 
-    def get_element_fraction(self, element):
+    def get_element_fraction(self, element: Element | str) -> float:
         """Get the elemental fraction of a given non-OH element.
 
         Args:
@@ -183,13 +194,13 @@ class PourbaixEntry(MSONable, Stringify):
         return self.composition.get(element) * self.normalization_factor
 
     @property
-    def normalized_energy(self):
+    def normalized_energy(self) -> float:
         """Energy normalized by number of non H or O atoms, e.g.
         for Zn2O6, energy / 2 or for AgTe3(OH)3, energy / 4.
         """
         return self.energy * self.normalization_factor
 
-    def normalized_energy_at_conditions(self, pH, V):
+    def normalized_energy_at_conditions(self, pH: float, V: float) -> float:
         """Energy at an electrochemical condition, compatible with
         numpy arrays for pH/V input.
 
@@ -203,7 +214,7 @@ class PourbaixEntry(MSONable, Stringify):
         return self.energy_at_conditions(pH, V) * self.normalization_factor
 
     @property
-    def conc_term(self):
+    def conc_term(self) -> float:
         """The concentration contribution to the free energy. Should only be present
         when there are ions in the entry.
         """
@@ -215,14 +226,17 @@ class PourbaixEntry(MSONable, Stringify):
         Note that the pH, voltage, H2O factors are always calculated when
         constructing a PourbaixEntry object.
         """
-        dct = {"@module": type(self).__module__, "@class": type(self).__name__}
+        dct = {
+            "@module": type(self).__module__,
+            "@class": type(self).__name__,
+            "entry": self.entry.as_dict(),
+            "concentration": self.concentration,
+            "entry_id": self.entry_id,
+        }
         if isinstance(self.entry, IonEntry):
             dct["entry_type"] = "Ion"
         else:
             dct["entry_type"] = "Solid"
-        dct["entry"] = self.entry.as_dict()
-        dct["concentration"] = self.concentration
-        dct["entry_id"] = self.entry_id
         return dct
 
     @classmethod
@@ -237,17 +251,17 @@ class PourbaixEntry(MSONable, Stringify):
         return cls(entry, entry_id, concentration)
 
     @property
-    def normalization_factor(self):
+    def normalization_factor(self) -> float:
         """Sum of number of atoms minus the number of H and O in composition."""
         return 1.0 / (self.num_atoms - self.composition.get("H", 0) - self.composition.get("O", 0))
 
     @property
-    def composition(self):
+    def composition(self) -> Composition:
         """Composition."""
         return self.entry.composition
 
     @property
-    def num_atoms(self):
+    def num_atoms(self) -> float:
         """Number of atoms in current formula. Useful for normalization."""
         return self.composition.num_atoms
 
@@ -262,23 +276,23 @@ class PourbaixEntry(MSONable, Stringify):
 class MultiEntry(PourbaixEntry):
     """PourbaixEntry-like object for constructing multi-elemental Pourbaix diagrams."""
 
-    def __init__(self, entry_list, weights=None):
+    def __init__(self, entry_list: list[PourbaixEntry], weights: list[float] | None = None) -> None:
         """Initialize a MultiEntry.
 
         Args:
-            entry_list ([PourbaixEntry]): List of component PourbaixEntries
-            weights ([float]): Weights associated with each entry. Default is None
+            entry_list (list[PourbaixEntry]): Component PourbaixEntries.
+            weights (list[float]): Weights associated with each entry. Default is None
         """
         self.weights = weights or [1.0] * len(entry_list)
         self.entry_list = entry_list
 
-    def __getattr__(self, attr):
+    def __getattr__(self, attr: str) -> Any:
         """
         Because most of the attributes here are just weighted averages of the entry_list,
         we save some space by having a set of conditionals to define the attributes.
         """
         # Attributes that are weighted averages of entry attributes
-        if attr in [
+        if attr in {
             "energy",
             "npH",
             "nH2O",
@@ -287,7 +301,7 @@ class MultiEntry(PourbaixEntry):
             "composition",
             "uncorrected_energy",
             "elements",
-        ]:
+        }:
             # TODO: Composition could be changed for compat with sum
             start = Composition() if attr == "composition" else 0
             weighted_values = (
@@ -296,13 +310,13 @@ class MultiEntry(PourbaixEntry):
             return sum(weighted_values, start)
 
         # Attributes that are just lists of entry attributes
-        if attr in ["entry_id", "phase_type"]:
+        if attr in {"entry_id", "phase_type"}:
             return [getattr(entry, attr) for entry in self.entry_list]
 
         # normalization_factor, num_atoms should work from superclass
         return self.__getattribute__(attr)
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         energy, npH, nPhi, nH2O, entry_id = (
             self.energy,
             self.npH,
@@ -314,11 +328,11 @@ class MultiEntry(PourbaixEntry):
         return f"Pourbaix{cls_name}({energy=:.4f}, {npH=}, {nPhi=}, {nH2O=}, {entry_id=}, {species=})"
 
     @property
-    def name(self):
+    def name(self) -> str:
         """MultiEntry name, i.e. the name of each entry joined by ' + '."""
         return " + ".join(entry.name for entry in self.entry_list)
 
-    def as_dict(self):
+    def as_dict(self) -> dict[str, Any]:
         """Get MSONable dict."""
         return {
             "@module": type(self).__module__,
@@ -367,7 +381,7 @@ class IonEntry(PDEntry):
         name = name or self.ion.reduced_formula
         super().__init__(composition=ion.composition, energy=energy, name=name, attribute=attribute)
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         return f"IonEntry : {self.composition} with energy = {self.energy:.4f}"
 
     @classmethod
@@ -380,17 +394,17 @@ class IonEntry(PDEntry):
             dct.get("attribute"),
         )
 
-    def as_dict(self):
+    def as_dict(self) -> dict[Literal["ion", "energy", "name"], Any]:
         """Create a dict of composition, energy, and ion name."""
         return {"ion": self.ion.as_dict(), "energy": self.energy, "name": self.name}
 
 
-def ion_or_solid_comp_object(formula):
+def ion_or_solid_comp_object(formula: str) -> Composition | Ion:
     """Get an Ion or Composition object given a formula.
 
     Args:
-        formula: String formula. Eg. of ion: NaOH(aq), Na[+];
-            Eg. of solid: Fe2O3(s), Fe(s), Na2O
+        formula (str): Formula. E.g. of ion: NaOH(aq), Na[+];
+            E.g. of solid: Fe2O3(s), Fe(s), Na2O
 
     Returns:
         Composition/Ion object
@@ -404,7 +418,7 @@ def ion_or_solid_comp_object(formula):
     return comp_obj
 
 
-ELEMENTS_HO = {Element("H"), Element("O")}
+ELEMENTS_HO: set[Element] = {Element("H"), Element("O")}
 
 
 # TODO: the solids filter breaks some of the functionality of the
@@ -425,7 +439,7 @@ class PourbaixDiagram(MSONable):
         conc_dict: dict[str, float] | None = None,
         filter_solids: bool = True,
         nproc: int | None = None,
-    ):
+    ) -> None:
         """
         Args:
             entries ([PourbaixEntry] or [MultiEntry]): Entries list
