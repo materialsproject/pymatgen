@@ -411,17 +411,14 @@ def ion_or_solid_comp_object(formula: str) -> Composition | Ion:
         Composition/Ion object
     """
     # Formula for ion
-    if re.match(r"\[([^\[\]]+)\]|\(aq\)", formula):
-        comp_obj = Ion.from_formula(formula)
+    try:
+        return Ion.from_formula(formula)
 
     # Formula for solid
-    elif re.search(r"\(s\)", formula):
-        comp_obj = Composition(formula[:-3])
-
-    else:
-        comp_obj = Composition(formula)
-
-    return comp_obj
+    except ValueError:
+        if formula.endswith("(s)"):
+            return Composition(formula[:-3])
+        return Composition(formula)
 
 
 # TODO: the solids filter breaks some of the functionality of the
@@ -973,7 +970,7 @@ class PourbaixPlotter:
         """
         self._pbx = pourbaix_diagram
 
-    def show(self, *args, **kwargs):
+    def show(self, *args, **kwargs) -> None:
         """Show the Pourbaix plot.
 
         Args:

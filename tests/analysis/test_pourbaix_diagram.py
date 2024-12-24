@@ -8,7 +8,14 @@ import numpy as np
 from monty.serialization import dumpfn, loadfn
 from pytest import approx
 
-from pymatgen.analysis.pourbaix_diagram import IonEntry, MultiEntry, PourbaixDiagram, PourbaixEntry, PourbaixPlotter
+from pymatgen.analysis.pourbaix_diagram import (
+    IonEntry,
+    MultiEntry,
+    PourbaixDiagram,
+    PourbaixEntry,
+    PourbaixPlotter,
+    ion_or_solid_comp_object,
+)
 from pymatgen.core.composition import Composition
 from pymatgen.core.ion import Ion
 from pymatgen.entries.computed_entries import ComputedEntry
@@ -315,3 +322,36 @@ class TestPourbaixPlotter(TestCase):
         binary_plotter = PourbaixPlotter(pd_binary)
         ax = binary_plotter.plot_entry_stability(self.test_data["Ag-Te"][53])
         assert isinstance(ax, plt.Axes)
+
+
+class TestIonOrSolidCompObject:
+    def test_ion(self):
+        # Test cations
+        assert ion_or_solid_comp_object("Li+").charge == 1
+        assert ion_or_solid_comp_object("Li[+]").charge == 1
+        assert ion_or_solid_comp_object("Ca[2+]").charge == 2
+        assert ion_or_solid_comp_object("Ca[+2]").charge == 2
+        assert ion_or_solid_comp_object("Ca++").charge == 2
+        assert ion_or_solid_comp_object("Ca[++]").charge == 2
+        assert ion_or_solid_comp_object("Ca2+").charge == 1
+        assert ion_or_solid_comp_object("C2O4-2").charge == -2
+        assert ion_or_solid_comp_object("CO2").charge == 0
+
+        # Test anions
+        assert ion_or_solid_comp_object("Cl-").charge == -1
+        assert ion_or_solid_comp_object("Cl[-]").charge == -1
+        assert ion_or_solid_comp_object("SO4[-2]").charge == -2
+        assert ion_or_solid_comp_object("SO4-2").charge == -2
+        assert ion_or_solid_comp_object("SO42-").charge == -1
+        assert ion_or_solid_comp_object("SO4--").charge == -2
+        assert ion_or_solid_comp_object("SO4[--]").charge == -2
+        assert ion_or_solid_comp_object("N3-").charge == -1
+
+    def test_solid(self):
+        # Test end with "(s)"
+        assert ion_or_solid_comp_object("Fe2O3(s)") == Composition("Fe2O3")
+        assert ion_or_solid_comp_object("Fe(s)") == Composition("Fe1")
+
+        # Test end without "(s)"
+        # TODO: Na2O should be Composition instead of Ion?
+        assert ion_or_solid_comp_object("Na2O") == Ion.from_formula("Na2O")
