@@ -23,8 +23,6 @@ __email__ = "bkmedasani@lbl.gov,wenhao@mit.edu"
 __status__ = "Production"
 __date__ = "Jun 22, 2013M"
 
-MODULE_DIR = os.path.dirname(os.path.abspath(__file__))
-
 _anions = set(map(Element, ["O", "S", "F", "Cl", "Br", "N", "P"]))
 _cations = set(
     map(
@@ -645,7 +643,7 @@ class GulpConvergenceError(Exception):
 
 
 class BuckinghamPotential:
-    """Generate the Buckingham Potential Table from the bush.lib and lewis.lib.
+    """Generate the Buckingham Potential Table from the bush.lib or lewis.lib.
 
     Ref:
     T.S.Bush, J.D.Gale, C.R.A.Catlow and P.D. Battle,  J. Mater Chem.,
@@ -654,15 +652,16 @@ class BuckinghamPotential:
     1149-1161 (1985)
     """
 
-    def __init__(self, bush_lewis_flag):
+    def __init__(self, bush_lewis_flag, pot_file):
         """
         Args:
             bush_lewis_flag (str): Flag for using Bush or Lewis potential.
+            pot_file: The potential file, either bush.lib or lewis.lib.
         """
         if bush_lewis_flag not in {"bush", "lewis"}:
             raise ValueError(f"bush_lewis_flag should be bush or lewis, got {bush_lewis_flag}")
-        pot_file = "bush.lib" if bush_lewis_flag == "bush" else "lewis.lib"
-        with open(os.path.join(os.environ["GULP_LIB"], pot_file)) as file:
+
+        with open(pot_file) as file:
             # In lewis.lib there is no shell for cation
             species_dict, pot_dict, spring_dict = {}, {}, {}
             sp_flg, pot_flg, spring_flg = False, False, False
