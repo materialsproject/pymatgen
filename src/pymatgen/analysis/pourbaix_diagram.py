@@ -31,6 +31,7 @@ from pymatgen.util.plotting import pretty_plot
 from pymatgen.util.string import Stringify
 
 if TYPE_CHECKING:
+    from collections.abc import Sequence
     from typing import Any, ClassVar, Literal
 
     import matplotlib.pyplot as plt
@@ -112,7 +113,7 @@ class PourbaixEntry(MSONable, Stringify):
             self.charge = 0
         self.uncorrected_energy = entry.energy
         if entry_id is not None:
-            self.entry_id = entry_id
+            self.entry_id: str | None = entry_id
         elif getattr(entry, "entry_id", None):
             self.entry_id = entry.entry_id
         else:
@@ -277,15 +278,15 @@ class PourbaixEntry(MSONable, Stringify):
 class MultiEntry(PourbaixEntry):
     """PourbaixEntry-like object for constructing multi-elemental Pourbaix diagrams."""
 
-    def __init__(self, entry_list: list[PourbaixEntry], weights: list[float] | None = None) -> None:
+    def __init__(self, entry_list: Sequence[PourbaixEntry], weights: list[float] | None = None) -> None:
         """Initialize a MultiEntry.
 
         Args:
-            entry_list (list[PourbaixEntry]): Component PourbaixEntries.
+            entry_list (Sequence[PourbaixEntry]): Component PourbaixEntries.
             weights (list[float]): Weights associated with each entry. Default is None
         """
         self.weights = weights or [1.0] * len(entry_list)
-        self.entry_list = entry_list
+        self.entry_list = list(entry_list)
 
     def __getattr__(self, attr: str) -> Any:
         """
@@ -628,23 +629,23 @@ class PourbaixDiagram(MSONable):
 
         min_entries, valid_facets = self._get_hull_in_nph_nphi_space(entries)
 
-        combos = []
+        combos: list[list[frozenset]] = []
         for facet in valid_facets:
             for idx in range(1, self.dim + 2):
-                these_combos = []
+                these_combos: list[frozenset] = []
                 for combo in itertools.combinations(facet, idx):
                     these_entries = [min_entries[i] for i in combo]
                     these_combos.append(frozenset(these_entries))
                 combos.append(these_combos)
 
-        all_combos = set(itertools.chain.from_iterable(combos))
+        all_combos: set | list = set(itertools.chain.from_iterable(combos))
 
-        list_combos = []
-        for idx in all_combos:
-            list_combos.append(list(idx))
+        list_combos: list = []
+        for combo in all_combos:
+            list_combos.append(list(combo))
         all_combos = list_combos
 
-        multi_entries = []
+        multi_entries: list = []
 
         # Parallel processing of multi-entry generation
         if nproc is not None:
@@ -682,13 +683,13 @@ class PourbaixDiagram(MSONable):
         total_comp = Composition(self._elt_comp)
 
         # generate all combinations of compounds that have all elements
-        entry_combos = [itertools.combinations(entries, idx + 1) for idx in range(n_elems)]
-        entry_combos = itertools.chain.from_iterable(entry_combos)
+        entry_combos: list = [itertools.combinations(entries, idx + 1) for idx in range(n_elems)]
+        entry_combos = list(itertools.chain.from_iterable(entry_combos))
 
-        entry_combos = filter(lambda x: total_comp < MultiEntry(x).composition, entry_combos)
+        entry_combos = list(filter(lambda x: total_comp < MultiEntry(x).composition, entry_combos))
 
         # Generate and filter entries
-        processed_entries = []
+        processed_entries: list = []
         total = sum(comb(len(entries), idx + 1) for idx in range(n_elems))
         if total > 1e6:
             warnings.warn(
@@ -703,8 +704,8 @@ class PourbaixDiagram(MSONable):
             processed_entries = list(filter(bool, processed_entries))
         # Serial processing of multi-entry generation
         else:
-            for entry_combo in entry_combos:
-                processed_entry = self.process_multientry(entry_combo, total_comp)
+            for combo in entry_combos:
+                processed_entry = self.process_multientry(combo, total_comp)
                 if processed_entry is not None:
                     processed_entries.append(processed_entry)
 
@@ -712,7 +713,7 @@ class PourbaixDiagram(MSONable):
 
     @staticmethod
     def process_multientry(
-        entry_list: list, prod_comp: Composition, coeff_threshold: float = 1e-4
+        entry_list: Sequence, prod_comp: Composition, coeff_threshold: float = 1e-4
     ) -> MultiEntry | None:
         """Static method for finding a multientry based on
         a list of entries and a product composition.
@@ -722,7 +723,7 @@ class PourbaixDiagram(MSONable):
         with weights according to the coefficients if so.
 
         Args:
-            entry_list ([Entry]): list of entries from which to
+            entry_list (Sequence[Entry]): Entries from which to
                 create a MultiEntry
             prod_comp (Composition): composition constraint for setting
                 weights of MultiEntry
@@ -783,11 +784,12 @@ class PourbaixDiagram(MSONable):
             limits = [[-2, 16], [-4, 4]]
 
         # Get hyperplanes
-        hyperplanes = [
-            np.array([-PREFAC * entry.npH, -entry.nPhi, 0, -entry.energy]) * entry.normalization_factor
-            for entry in pourbaix_entries
-        ]
-        hyperplanes = np.array(hyperplanes)
+        hyperplanes = np.array(
+            [
+                np.array([-PREFAC * entry.npH, -entry.nPhi, 0, -entry.energy]) * entry.normalization_factor
+                for entry in pourbaix_entries
+            ]
+        )
         hyperplanes[:, 2] = 1
 
         max_contribs = np.max(np.abs(hyperplanes), axis=0)
@@ -806,7 +808,7 @@ class PourbaixDiagram(MSONable):
         hs_int = HalfspaceIntersection(hs_hyperplanes, np.array(interior_point))
 
         # organize the boundary points by entry
-        pourbaix_domains = {entry: [] for entry in pourbaix_entries}
+        pourbaix_domains: dict[PourbaixEntry, list] = {entry: [] for entry in pourbaix_entries}
         for intersection, facet in zip(hs_int.intersections, hs_int.dual_facets, strict=True):
             for v in facet:
                 if v < len(pourbaix_entries):
@@ -814,19 +816,22 @@ class PourbaixDiagram(MSONable):
                     pourbaix_domains[this_entry].append(intersection)
 
         # Remove entries with no Pourbaix region
-        pourbaix_domains: dict[PourbaixEntry, list] = {k: v for k, v in pourbaix_domains.items() if v}
-        pourbaix_domain_vertices: dict[PourbaixEntry, NDArray] = {}
+        pourbaix_domains = {k: v for k, v in pourbaix_domains.items() if v}
+        pourbaix_domain_vertices: dict[PourbaixEntry, NDArray[float]] = {}
 
         for entry, points in pourbaix_domains.items():
             points = np.array(points)[:, :2]
             # Initial sort to ensure consistency
             points = points[np.lexsort(np.transpose(points))]
-            center = np.mean(points, axis=0)
-            points_centered = points - center
+            center: NDArray[float] = np.mean(points, axis=0)
+            points_centered: NDArray[float] = points - center
 
             # Sort points by cross product of centered points,
             # isn't strictly necessary but useful for plotting tools
-            points_centered = sorted(points_centered, key=cmp_to_key(lambda x, y: x[0] * y[1] - x[1] * y[0]))
+            points_centered = sorted(
+                points_centered,
+                key=cmp_to_key(lambda x, y: x[0] * y[1] - x[1] * y[0]),  # type: ignore[index]
+            )
             points = points_centered + center
 
             # Create simplices corresponding to Pourbaix boundary
@@ -852,8 +857,8 @@ class PourbaixDiagram(MSONable):
     def get_decomposition_energy(
         self,
         entry: PourbaixEntry,
-        pH: float | list[float],
-        V: float | list[float],
+        pH: float,
+        V: float,
     ) -> NDArray:
         """Find decomposition to most stable entries in eV/atom,
         supports vectorized inputs for pH and V.
@@ -861,8 +866,8 @@ class PourbaixDiagram(MSONable):
         Args:
             entry (PourbaixEntry): PourbaixEntry corresponding to
                 compound to find the decomposition for
-            pH (float, list[float]): pH at which to find the decomposition
-            V (float, list[float]): voltage at which to find the decomposition
+            pH (float): pH at which to find the decomposition
+            V (float): voltage at which to find the decomposition
 
         Returns:
             Decomposition energy for the entry, i.e. the energy above
