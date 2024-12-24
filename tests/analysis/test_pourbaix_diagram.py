@@ -353,5 +353,4 @@ class TestIonOrSolidCompObject:
         assert ion_or_solid_comp_object("Fe(s)") == Composition("Fe1")
 
         # Test end without "(s)"
-        # TODO: Na2O should be Composition instead of Ion?
-        assert ion_or_solid_comp_object("Na2O") == Ion.from_formula("Na2O")
+        assert type(ion_or_solid_comp_object("Na2O")) is Composition
