@@ -401,14 +401,14 @@ class IonEntry(PDEntry):
 
 
 def ion_or_solid_comp_object(formula: str) -> Composition | Ion:
-    """Get an Ion or Composition object given a formula.
+    """Get an Ion or Composition from a formula.
 
     Args:
-        formula (str): Formula. E.g. of ion: NaOH(aq), Na[+];
-            E.g. of solid: Fe2O3(s), Fe(s), Na2O
+        formula (str): Formula. E.g. of ion: NaOH(aq), Na[+], Na+;
+            E.g. of solid: Fe2O3(s), Fe(s), Na2O.
 
     Returns:
-        Composition/Ion object
+        Composition/Ion object.
     """
     # Formula for ion
     if formula.endswith("(aq)") or re.search(r"\[.*\]$", formula) or "-" in formula or "+" in formula:
@@ -970,6 +970,25 @@ class PourbaixPlotter:
         """
         self._pbx = pourbaix_diagram
 
+    @staticmethod
+    def _generate_entry_label(entry: PourbaixEntry | MultiEntry) -> str:
+        """
+        Generates a label for the Pourbaix plotter.
+
+        Args:
+            entry (PourbaixEntry or MultiEntry): entry to get a label for
+        """
+        if isinstance(entry, MultiEntry):
+            return " + ".join(entry.name for entry in entry.entry_list)
+
+        # TODO - a more elegant solution could be added later to Stringify
+        # for example, the pattern re.sub(r"([-+][\d\.]*)", r"$^{\1}$", )
+        # will convert B(OH)4- to B(OH)$_4^-$.
+        # for this to work, the ion's charge always must be written AFTER
+        # the sign (e.g., Fe+2 not Fe2+)
+        string = entry.to_latex_string()
+        return re.sub(r"()\[([^)]*)\]", r"\1$^{\2}$", string)
+
     def show(self, *args, **kwargs) -> None:
         """Show the Pourbaix plot.
 
@@ -1040,7 +1059,7 @@ class PourbaixPlotter:
 
             if label_domains:
                 ax.annotate(
-                    generate_entry_label(entry),
+                    self._generate_entry_label(entry),
                     center,
                     ha="center",
                     va="center",
@@ -1093,7 +1112,7 @@ class PourbaixPlotter:
         # Plot stability map
         cax = ax.pcolor(pH, V, stability, cmap=cmap, vmin=0, vmax=e_hull_max)
         cbar = ax.figure.colorbar(cax)
-        cbar.set_label(f"Stability of {generate_entry_label(entry)} (eV/atom)")
+        cbar.set_label(f"Stability of {self._generate_entry_label(entry)} (eV/atom)")
 
         # Set ticklabels
         # ticklabels = [t.get_text() for t in cbar.ax.get_yticklabels()]
@@ -1112,22 +1131,3 @@ class PourbaixPlotter:
             list of vertices
         """
         return self._pbx._stable_domain_vertices[entry]
-
-
-def generate_entry_label(entry: PourbaixEntry | MultiEntry) -> str:
-    """
-    Generates a label for the Pourbaix plotter.
-
-    Args:
-        entry (PourbaixEntry or MultiEntry): entry to get a label for
-    """
-    if isinstance(entry, MultiEntry):
-        return " + ".join(entry.name for entry in entry.entry_list)
-
-    # TODO - a more elegant solution could be added later to Stringify
-    # for example, the pattern re.sub(r"([-+][\d\.]*)", r"$^{\1}$", )
-    # will convert B(OH)4- to B(OH)$_4^-$.
-    # for this to work, the ion's charge always must be written AFTER
-    # the sign (e.g., Fe+2 not Fe2+)
-    string = entry.to_latex_string()
-    return re.sub(r"()\[([^)]*)\]", r"\1$^{\2}$", string)
