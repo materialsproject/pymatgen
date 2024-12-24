@@ -23,8 +23,8 @@ __email__ = "bkmedasani@lbl.gov,wenhao@mit.edu"
 __status__ = "Production"
 __date__ = "Jun 22, 2013M"
 
-_anions = set(map(Element, ["O", "S", "F", "Cl", "Br", "N", "P"]))
-_cations = set(
+_ANIONS = set(map(Element, ["O", "S", "F", "Cl", "Br", "N", "P"]))
+_CATIONS = set(
     map(
         Element,
         [
@@ -158,7 +158,7 @@ class GulpIO:
             specie = site.specie
             core_site_desc = f"{specie.symbol} core {' '.join(coord)}\n"
             gin += core_site_desc
-            if (specie in _anions and anion_shell_flg) or (specie in _cations and cation_shell_flg):
+            if (specie in _ANIONS and anion_shell_flg) or (specie in _CATIONS and cation_shell_flg):
                 shel_site_desc = f"{specie.symbol} shel {' '.join(coord)}\n"
                 gin += shel_site_desc
             else:
