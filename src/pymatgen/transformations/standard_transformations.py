@@ -467,7 +467,9 @@ class OrderDisorderedStructureTransformation(AbstractTransformation):
         self.no_oxi_states = no_oxi_states
         self.symmetrized_structures = symmetrized_structures
 
-    def apply_transformation(self, structure: Structure, return_ranked_list: bool | int = False) -> Structure:
+    def apply_transformation(
+        self, structure: Structure, return_ranked_list: bool | int = False, occ_tol=0.25
+    ) -> Structure:
         """For this transformation, the apply_transformation method will return
         only the ordered structure with the lowest Ewald energy, to be
         consistent with the method signature of the other transformations.
@@ -478,6 +480,9 @@ class OrderDisorderedStructureTransformation(AbstractTransformation):
             structure: Oxidation state decorated disordered structure to order
             return_ranked_list (bool | int, optional): If return_ranked_list is int, that number of structures
                 is returned. If False, only the single lowest energy structure is returned. Defaults to False.
+            occ_tol (float): Occupancy tolerance. If the total occupancy of a group is within this value
+                of an integer, it will be rounded to that integer otherwise raise a ValueError.
+                Defaults to 0.25.
 
         Returns:
             Depending on returned_ranked list, either a transformed structure
@@ -536,7 +541,7 @@ class OrderDisorderedStructureTransformation(AbstractTransformation):
             )
             # round total occupancy to possible values
             for key, val in total_occupancy.items():
-                if abs(val - round(val)) > 0.25:
+                if abs(val - round(val)) > occ_tol:
                     raise ValueError("Occupancy fractions not consistent with size of unit cell")
                 total_occupancy[key] = round(val)
             # start with an ordered structure
