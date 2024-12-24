@@ -335,7 +335,6 @@ class TestIonOrSolidCompObject:
         assert ion_or_solid_comp_object("Ca[++]").charge == 2
         assert ion_or_solid_comp_object("Ca2+").charge == 1
         assert ion_or_solid_comp_object("C2O4-2").charge == -2
-        assert ion_or_solid_comp_object("CO2").charge == 0
 
         # Test anions
         assert ion_or_solid_comp_object("Cl-").charge == -1

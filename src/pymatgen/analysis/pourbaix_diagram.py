@@ -411,14 +411,14 @@ def ion_or_solid_comp_object(formula: str) -> Composition | Ion:
         Composition/Ion object
     """
     # Formula for ion
-    try:
+    if formula.endswith("(aq)") or re.search(r"\[.*\]$", formula) or "-" in formula or "+" in formula:
         return Ion.from_formula(formula)
 
     # Formula for solid
-    except ValueError:
-        if formula.endswith("(s)"):
-            return Composition(formula[:-3])
-        return Composition(formula)
+    if formula.endswith("(s)"):
+        return Composition(formula[:-3])
+
+    return Composition(formula)
 
 
 # TODO: the solids filter breaks some of the functionality of the
