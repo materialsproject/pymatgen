@@ -773,10 +773,11 @@ class PourbaixDiagram(MSONable):
             limits (list[list[float]]): limits in which to do the pourbaix
                 analysis
 
-        Returns:  # TODO: incorrect return type doc
-            Returns a dict of the form {entry: [boundary_points]}.
-            The list of boundary points are the sides of the N-1
-            dim polytope bounding the allowable ph-V range of each entry.
+        Returns:
+            tuple[dict[PourbaixEntry, list], dict[PourbaixEntry, NDArray]:
+                The first dict is of form: {entry: [boundary_points]}.
+                The list of boundary points are the sides of the N-1
+                dim polytope bounding the allowable ph-V range of each entry.
         """
         if limits is None:
             limits = [[-2, 16], [-4, 4]]
@@ -813,8 +814,8 @@ class PourbaixDiagram(MSONable):
                     pourbaix_domains[this_entry].append(intersection)
 
         # Remove entries with no Pourbaix region
-        pourbaix_domains = {k: v for k, v in pourbaix_domains.items() if v}
-        pourbaix_domain_vertices = {}
+        pourbaix_domains: dict[PourbaixEntry, list] = {k: v for k, v in pourbaix_domains.items() if v}
+        pourbaix_domain_vertices: dict[PourbaixEntry, NDArray] = {}
 
         for entry, points in pourbaix_domains.items():
             points = np.array(points)[:, :2]
