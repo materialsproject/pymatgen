@@ -727,9 +727,9 @@ class BuckinghamPotential:
 class TersoffPotential:
     """Generate Tersoff Potential Table from "OxideTersoffPotentialentials" file."""
 
-    def __init__(self):
+    def __init__(self, pot_file):
         """Init TersoffPotential."""
-        with open(f"{MODULE_DIR}/OxideTersoffPotentials") as file:
+        with open(pot_file) as file:
             data = {}
             for row in file:
                 metaloxi = row.split()[0]
