@@ -423,7 +423,7 @@ class TestOrderDisorderedStructureTransformation:
         assert len(output) == 3
         for entry in output:
             assert set(entry.keys()) == {"structure", "energy", "energy_above_minimum"}
-        
+
         output = trafo.apply_transformation(struct * [2, 2, 2], return_ranked_list=False)
         assert output.composition.reduced_formula == struct.composition.reduced_formula
 

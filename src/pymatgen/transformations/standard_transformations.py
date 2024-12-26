@@ -574,9 +574,13 @@ class OrderDisorderedStructureTransformation(AbstractTransformation):
                 manipulations.append([0, empty, list(group), None])
 
         if self.algo == self.ALGO_RANDOM:
-            rand_structures = get_randomly_manipulated_structures(struct=struct, manipulations=manipulations, n_return=n_to_return)
+            rand_structures = get_randomly_manipulated_structures(
+                struct=struct, manipulations=manipulations, n_return=n_to_return
+            )
             if return_ranked_list:
-                return [{"energy": 0.0, "energy_above_minimum": 0.0, "structure": s} for s in rand_structures[:n_to_return]]
+                return [
+                    {"energy": 0.0, "energy_above_minimum": 0.0, "structure": s} for s in rand_structures[:n_to_return]
+                ]
             return rand_structures[0]
 
         matrix = EwaldSummation(struct).total_energy_matrix
