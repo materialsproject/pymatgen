@@ -1631,11 +1631,13 @@ class Vasprun(MSONable):
         tdensities = {}
         idensities = {}
 
+        soc_run = len(elem.find("total").find("array").find("set").findall("set")) > 2
         for s in elem.find("total").find("array").find("set").findall("set"):  # type: ignore[union-attr]
-            print(f"Parsing {s.attrib[comment']}")
             data = np.array(_parse_vasp_array(s))
             energies = data[:, 0]
             spin = Spin.up if s.attrib["comment"] == "spin 1" else Spin.down
+            if spin != Spin.up and soc_run:  # other 'spins' are x,y,z SOC projections
+                continue
             tdensities[spin] = data[:, 1]
             idensities[spin] = data[:, 2]
 
@@ -1650,6 +1652,8 @@ class Vasprun(MSONable):
 
                 for ss in s.findall("set"):
                     spin = Spin.up if ss.attrib["comment"] == "spin 1" else Spin.down
+                    if spin != Spin.up and soc_run:  # other 'spins' are x,y,z SOC projections
+                        continue
                     data = np.array(_parse_vasp_array(ss))
                     _n_row, n_col = data.shape
                     for col_idx in range(1, n_col):
