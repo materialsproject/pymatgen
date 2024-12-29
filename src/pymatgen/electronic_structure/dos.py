@@ -518,15 +518,15 @@ class FermiDos(Dos, MSONable):
                 (P-type).
         """
         cb_integral = np.sum(
-            self.tdos[self.idx_mid_gap :]
-            * f0(self.energies[self.idx_mid_gap :], fermi_level, temperature)
-            * self.de[self.idx_mid_gap :],
+            self.tdos[max(self.idx_mid_gap, self.idx_vbm+1) :]
+            * f0(self.energies[max(self.idx_mid_gap, self.idx_vbm+1) :], fermi_level, temperature)
+            * self.de[max(self.idx_mid_gap, self.idx_vbm+1) :],
             axis=0,
         )
         vb_integral = np.sum(
-            self.tdos[: self.idx_mid_gap + 1]
-            * f0(-self.energies[: self.idx_mid_gap + 1], -fermi_level, temperature)
-            * self.de[: self.idx_mid_gap + 1],
+            self.tdos[: min(self.idx_mid_gap, self.idx_cbm - 1) + 1]
+            * f0(-self.energies[: min(self.idx_mid_gap, self.idx_cbm - 1) + 1], -fermi_level, temperature)
+            * self.de[: min(self.idx_mid_gap, self.idx_cbm - 1) + 1],
             axis=0,
         )
         return (vb_integral - cb_integral) / (self.volume * self.A_to_cm**3)
