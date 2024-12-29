@@ -1631,7 +1631,7 @@ class Vasprun(MSONable):
         tdensities = {}
         idensities = {}
 
-        soc_run = len(elem.find("total").find("array").find("set").findall("set")) > 2
+        soc_run = len(elem.find("total").find("array").find("set").findall("set")) > 2  # type: ignore[union-attr]
         for s in elem.find("total").find("array").find("set").findall("set"):  # type: ignore[union-attr]
             data = np.array(_parse_vasp_array(s))
             energies = data[:, 0]
