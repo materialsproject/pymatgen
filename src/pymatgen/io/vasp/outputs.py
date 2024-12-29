@@ -22,7 +22,6 @@ from monty.io import reverse_readfile, zopen
 from monty.json import MSONable, jsanitize
 from monty.os.path import zpath
 from monty.re import regrep
-from numpy.testing import assert_allclose
 from tqdm import tqdm
 
 from pymatgen.core import Composition, Element, Lattice, Structure
@@ -158,7 +157,10 @@ def _vasprun_float(flt: float | str) -> float:
         flt = cast(str, flt)
         _flt: str = flt.strip()
         if _flt == "*" * len(_flt):
-            warnings.warn("Float overflow (*******) encountered in vasprun")
+            warnings.warn(
+                "Float overflow (*******) encountered in vasprun",
+                stacklevel=2,
+            )
             return np.nan
         raise
 
@@ -350,7 +352,11 @@ class Vasprun(MSONable):
             msg = f"{filename} is an unconverged VASP run.\n"
             msg += f"Electronic convergence reached: {self.converged_electronic}.\n"
             msg += f"Ionic convergence reached: {self.converged_ionic}."
-            warnings.warn(msg, UnconvergedVASPWarning)
+            warnings.warn(
+                msg,
+                UnconvergedVASPWarning,
+                stacklevel=2,
+            )
 
     def _parse(
         self,
@@ -474,7 +480,7 @@ class Vasprun(MSONable):
                     elif tag == "dielectricfunction":
                         label = elem.attrib.get("comment", None)
                         if label is None:
-                            if self.incar.get("ALGO", "Normal").upper() == "BSE":
+                            if self.incar.get("ALGO", "Normal") == "Bse":
                                 label = "freq_dependent"
                             elif "density" not in self.dielectric_data:
                                 label = "density"
@@ -485,7 +491,7 @@ class Vasprun(MSONable):
                             else:
                                 warnings.warn(
                                     "Additional unlabelled dielectric data in vasprun.xml are stored as unlabelled.",
-                                    UserWarning,
+                                    stacklevel=2,
                                 )
                                 label = "unlabelled"
                         # VASP 6+ has labels for the density and current
@@ -538,7 +544,6 @@ class Vasprun(MSONable):
                 raise
             warnings.warn(
                 "XML is malformed. Parsing has stopped but partial data is available.",
-                UserWarning,
                 stacklevel=2,
             )
 
@@ -634,7 +639,7 @@ class Vasprun(MSONable):
             while set(final_elec_steps[idx]) == to_check:
                 idx += 1
             return idx + 1 != self.parameters["NELM"]
-        if self.incar.get("ALGO", "").upper() == "EXACT" and self.incar.get("NELM") == 1:
+        if self.incar.get("ALGO", "") == "Exact" and self.incar.get("NELM") == 1:
             return True
         return len(final_elec_steps) < self.parameters["NELM"]
 
@@ -690,7 +695,8 @@ class Vasprun(MSONable):
             warnings.warn(
                 "Calculation does not have a total energy. "
                 "Possibly a GW or similar kind of run. "
-                "Infinity is returned."
+                "Infinity is returned.",
+                stacklevel=2,
             )
             return float("inf")
 
@@ -793,16 +799,19 @@ class Vasprun(MSONable):
             "--",
             "None",
         }:
-            incar_tag = self.incar.get("METAGGA", "").strip().upper()
+            incar_tag = self.incar.get("METAGGA", "").upper()
             run_type = METAGGA_TYPES.get(incar_tag, incar_tag)
         elif self.parameters.get("GGA"):
-            incar_tag = self.parameters.get("GGA", "").strip().upper()
+            incar_tag = self.parameters.get("GGA", "").upper()
             run_type = GGA_TYPES.get(incar_tag, incar_tag)
         elif self.potcar_symbols[0].split()[0] == "PAW":
             run_type = "LDA"
         else:
             run_type = "unknown"
-            warnings.warn("Unknown run type!")
+            warnings.warn(
+                "Unknown run type!",
+                stacklevel=2,
+            )
 
         if self.is_hubbard or self.parameters.get("LDAU", True):
             run_type += "+U"
@@ -1217,7 +1226,10 @@ class Vasprun(MSONable):
             except Exception:
                 continue
 
-        warnings.warn("No POTCAR file with matching TITEL fields was found in\n" + "\n  ".join(potcar_paths))
+        warnings.warn(
+            "No POTCAR file with matching TITEL fields was found in\n" + "\n  ".join(potcar_paths),
+            stacklevel=2,
+        )
 
         return None
 
@@ -1521,7 +1533,7 @@ class Vasprun(MSONable):
     @staticmethod
     def _parse_diel(elem: XML_Element) -> tuple[list, list, list]:
         """Parse dielectric properties."""
-        if elem.find("real") and elem.find("imag"):
+        if elem.find("real") is not None and elem.find("imag") is not None:
             imag = [
                 [_vasprun_float(line) for line in r.text.split()]  # type: ignore[union-attr]
                 for r in elem.find("imag").find("array").find("set").findall("r")  # type: ignore[union-attr]
@@ -2138,7 +2150,15 @@ class Outcar:
         self.final_fr_energy = e_fr_energy
         self.data: dict = {}
 
-        # Read "total number of plane waves", NPLWV:
+        # Read "number of bands" (NBANDS)
+        self.read_pattern(
+            {"nbands": r"number\s+of\s+bands\s+NBANDS=\s+(\d+)"},
+            terminate_on_match=True,
+            postprocess=int,
+        )
+        self.data["nbands"] = self.data["nbands"][0][0]
+
+        # Read "total number of plane waves" (NPLWV)
         self.read_pattern(
             {"nplwv": r"total plane-waves  NPLWV =\s+(\*{6}|\d+)"},
             terminate_on_match=True,
@@ -2172,7 +2192,6 @@ class Outcar:
         # Read the drift
         self.read_pattern(
             {"drift": r"total drift:\s+([\.\-\d]+)\s+([\.\-\d]+)\s+([\.\-\d]+)"},
-            terminate_on_match=False,
             postprocess=float,
         )
         self.drift = self.data.get("drift", [])
@@ -2497,7 +2516,7 @@ class Outcar:
             List of chemical shieldings in the order of atoms from the OUTCAR. Maryland notation is adopted.
         """
         header_pattern = (
-            r"\s+CSA tensor \(J\. Mason, Solid State Nucl\. Magn\. Reson\. 2, "
+            r"\s+CSA tensor \(J\. Mason, Solid State Nucl\. Magn\. Reson\. 2, "  # codespell:ignore reson
             r"285 \(1993\)\)\s+"
             r"\s+-{50,}\s+"
             r"\s+EXCLUDING G=0 CONTRIBUTION\s+INCLUDING G=0 CONTRIBUTION\s+"
@@ -3904,23 +3923,23 @@ class Procar(MSONable):
     Attributes:
         data (dict): The PROCAR data of the form below. It should VASP uses 1-based indexing,
             but all indices are converted to 0-based here.
-            { spin: nd.array accessed with (k-point index, band index, ion index, orbital index) }
-        weights (np.array): The weights associated with each k-point as an nd.array of length nkpoints.
+            { spin: np.array accessed with (k-point index, band index, ion index, orbital index) }
+        weights (np.array): The weights associated with each k-point as an np.array of length nkpoints.
         phase_factors (dict): Phase factors, where present (e.g. LORBIT = 12). A dict of the form:
-            { spin: complex nd.array accessed with (k-point index, band index, ion index, orbital index) }
+            { spin: complex np.array accessed with (k-point index, band index, ion index, orbital index) }
         nbands (int): Number of bands.
         nkpoints (int): Number of k-points.
         nions (int): Number of ions.
         nspins (int): Number of spins.
         is_soc (bool): Whether the PROCAR contains spin-orbit coupling (LSORBIT = True) data.
-        kpoints (np.array): The k-points as an nd.array of shape (nkpoints, 3).
+        kpoints (np.array): The k-points as an np.array of shape (nkpoints, 3).
         occupancies (dict): The occupancies of the bands as a dict of the form:
-            { spin: nd.array accessed with (k-point index, band index) }
+            { spin: np.array accessed with (k-point index, band index) }
         eigenvalues (dict): The eigenvalues of the bands as a dict of the form:
-            { spin: nd.array accessed with (k-point index, band index) }
+            { spin: np.array accessed with (k-point index, band index) }
         xyz_data (dict): The PROCAR projections data along the x,y and z magnetisation projection
             directions, with is_soc = True (see VASP wiki for more info).
-            { 'x'/'y'/'z': nd.array accessed with (k-point index, band index, ion index, orbital index) }
+            { 'x'/'y'/'z': np.array accessed with (k-point index, band index, ion index, orbital index) }
     """
 
     def __init__(self, filename: PathLike | list[PathLike]):
@@ -4443,7 +4462,10 @@ def get_band_structure_from_vasp_multiple_branches(
                 branches.append(run.get_band_structure(efermi=efermi))
             else:
                 # TODO: It might be better to throw an exception
-                warnings.warn(f"Skipping {dname}. Unable to find {xml_file}")
+                warnings.warn(
+                    f"Skipping {dname}. Unable to find {xml_file}",
+                    stacklevel=2,
+                )
 
         return get_reconstructed_band_structure(branches, efermi)
 
@@ -4519,7 +4541,7 @@ class Xdatcar:
                     else:
                         preamble.append(line)
 
-                elif line == "" or "Direct configuration=" in line and len(coords_str) > 0:
+                elif line == "" or ("Direct configuration=" in line and len(coords_str) > 0):
                     parse_poscar = True
                     restart_preamble = False
                 else:
@@ -4974,8 +4996,8 @@ class Wavecar:
 
                     if i_spin == 0:
                         self.kpoints.append(kpoint)
-                    else:
-                        assert_allclose(self.kpoints[i_nk], kpoint)
+                    elif not np.allclose(self.kpoints[i_nk], kpoint, rtol=1e-7, atol=0):
+                        raise ValueError(f"kpoints of {i_nk=} mismatch")
 
                     if verbose:
                         print(f"kpoint {i_nk: 4} with {nplane: 5} plane waves at {kpoint}")
@@ -5276,7 +5298,10 @@ class Wavecar:
             A Chgcar object.
         """
         if phase and not np.all(self.kpoints[kpoint] == 0.0):
-            warnings.warn("phase is True should only be used for the Gamma kpoint! I hope you know what you're doing!")
+            warnings.warn(
+                "phase is True should only be used for the Gamma kpoint! I hope you know what you're doing!",
+                stacklevel=2,
+            )
 
         # Scaling of ng for the fft grid, need to restore value at the end
         temp_ng = self.ng
@@ -5610,7 +5635,8 @@ class Waveder(MSONable):
         if self.cder_real.shape[0] != self.cder_real.shape[1]:  # pragma: no cover
             warnings.warn(
                 "Not all band pairs are present in the WAVEDER file."
-                "If you want to get all the matrix elements set LVEL=.True. in the INCAR."
+                "If you want to get all the matrix elements set LVEL=.True. in the INCAR.",
+                stacklevel=2,
             )
         return self.cder_real + 1j * self.cder_imag
 

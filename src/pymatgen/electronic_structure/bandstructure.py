@@ -356,7 +356,7 @@ class BandStructure:
         list_ind_band = defaultdict(list)
         for spin in self.bands:
             for idx in range(self.nb_bands):
-                if math.fabs(self.bands[spin][idx][index] - max_tmp) < 0.001:
+                if math.isclose(self.bands[spin][idx][index], max_tmp, abs_tol=1e-3, rel_tol=0):
                     list_ind_band[spin].append(idx)
         proj = {}
         for spin, value in self.projections.items():
@@ -422,7 +422,7 @@ class BandStructure:
         list_index_band = defaultdict(list)
         for spin in self.bands:
             for idx in range(self.nb_bands):
-                if math.fabs(self.bands[spin][idx][index] - max_tmp) < 0.001:
+                if math.isclose(self.bands[spin][idx][index], max_tmp, abs_tol=1e-3, rel_tol=0):
                     list_index_band[spin].append(idx)
         proj = {}
         for spin, value in self.projections.items():
@@ -652,7 +652,8 @@ class BandStructure:
                 "Trying from_dict failed. Now we are trying the old "
                 "format. Please convert your BS dicts to the new "
                 "format. The old format will be retired in pymatgen "
-                "5.0."
+                "5.0.",
+                stacklevel=2,
             )
             return cls.from_old_dict(dct)
 
@@ -980,7 +981,8 @@ class LobsterBandStructureSymmLine(BandStructureSymmLine):
                 "Trying from_dict failed. Now we are trying the old "
                 "format. Please convert your BS dicts to the new "
                 "format. The old format will be retired in pymatgen "
-                "5.0."
+                "5.0.",
+                stacklevel=2,
             )
             return cls.from_old_dict(dct)
 

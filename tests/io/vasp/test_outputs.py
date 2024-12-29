@@ -304,7 +304,7 @@ class TestVasprun(PymatgenTest):
 
         # Test with ionic_step_offset
         vasprun_offset = Vasprun(filepath, 3, 6, parse_potcar_file=False)
-        assert len(vasprun_offset.ionic_steps) == int(len(vasp_run.ionic_steps) / 3) - 1
+        assert len(vasprun_offset.ionic_steps) == len(vasp_run.ionic_steps) // 3 - 1
         assert vasprun_offset.structures[0] == vasprun_skip.structures[2]
 
         assert vasprun_ggau.is_hubbard
@@ -331,6 +331,7 @@ class TestVasprun(PymatgenTest):
         assert not vasprun_unconverged.converged_electronic
         assert not vasprun_unconverged.converged
 
+    @pytest.mark.filterwarnings("ignore:MaterialsProjectCompatibility is deprecated")
     def test_dfpt(self):
         filepath = f"{VASP_OUT_DIR}/vasprun.dfpt.xml.gz"
         vasprun_dfpt = Vasprun(filepath, parse_potcar_file=False)
@@ -1325,6 +1326,22 @@ class TestOutcar(PymatgenTest):
         assert "onsite_density_matrices" in outcar.as_dict()
         outcar = Outcar(f"{VASP_OUT_DIR}/OUTCAR_merged_numbers2")
         assert "onsite_density_matrices" in outcar.as_dict()
+
+    def test_nbands(self):
+        # Test VASP 5.2.11
+        nbands = Outcar(f"{VASP_OUT_DIR}/OUTCAR.gz").data["nbands"]
+        assert nbands == 33
+        assert isinstance(nbands, int)
+
+        # Test VASP 5.4.4
+        assert Outcar(f"{VASP_OUT_DIR}/OUTCAR.LOPTICS.vasp544").data["nbands"] == 128
+
+        # Test VASP 6.3.0
+        assert Outcar(f"{VASP_OUT_DIR}/OUTCAR_vasp_6.3.gz").data["nbands"] == 64
+
+        # Test NBANDS set by user but overridden by VASP
+        # VASP 6.3.2
+        assert Outcar(f"{VASP_OUT_DIR}/OUTCAR.nbands_overridden.gz").data["nbands"] == 32
 
     def test_nplwvs(self):
         outcar = Outcar(f"{VASP_OUT_DIR}/OUTCAR.gz")

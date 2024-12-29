@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import copy
 import json
 import os
 from unittest import TestCase
@@ -649,8 +650,8 @@ class TestCharge(PymatgenTest):
         atomlist = ["O1", "Mn2"]
         types = ["O", "Mn"]
         num_atoms = 2
-        assert charge_Mulliken == self.charge2.Mulliken
-        assert charge_Loewdin == self.charge2.Loewdin
+        assert charge_Mulliken == self.charge2.mulliken
+        assert charge_Loewdin == self.charge2.loewdin
         assert atomlist == self.charge2.atomlist
         assert types == self.charge2.types
         assert num_atoms == self.charge2.num_atoms
@@ -1481,7 +1482,7 @@ class TestFatband(PymatgenTest):
 
 class TestBandoverlaps(TestCase):
     def setUp(self):
-        # test spin-polarized calc and non spinpolarized calc
+        # test spin-polarized calc and non spin-polarized calc
 
         self.band_overlaps1 = Bandoverlaps(f"{TEST_DIR}/bandOverlaps.lobster.1")
         self.band_overlaps2 = Bandoverlaps(f"{TEST_DIR}/bandOverlaps.lobster.2")
@@ -1490,19 +1491,19 @@ class TestBandoverlaps(TestCase):
         self.band_overlaps2_new = Bandoverlaps(f"{TEST_DIR}/bandOverlaps.lobster.new.2")
 
     def test_attributes(self):
-        # bandoverlapsdict
-        bo_dict = self.band_overlaps1.bandoverlapsdict
+        # band_overlaps_dict
+        bo_dict = self.band_overlaps1.band_overlaps_dict
         assert bo_dict[Spin.up]["max_deviations"][0] == approx(0.000278953)
-        assert self.band_overlaps1_new.bandoverlapsdict[Spin.up]["max_deviations"][10] == approx(0.0640933)
+        assert self.band_overlaps1_new.band_overlaps_dict[Spin.up]["max_deviations"][10] == approx(0.0640933)
         assert bo_dict[Spin.up]["matrices"][0].item(-1, -1) == approx(0.0188058)
-        assert self.band_overlaps1_new.bandoverlapsdict[Spin.up]["matrices"][10].item(-1, -1) == approx(1.0)
+        assert self.band_overlaps1_new.band_overlaps_dict[Spin.up]["matrices"][10].item(-1, -1) == approx(1.0)
         assert bo_dict[Spin.up]["matrices"][0].item(0, 0) == approx(1)
-        assert self.band_overlaps1_new.bandoverlapsdict[Spin.up]["matrices"][10].item(0, 0) == approx(0.995849)
+        assert self.band_overlaps1_new.band_overlaps_dict[Spin.up]["matrices"][10].item(0, 0) == approx(0.995849)
 
         assert bo_dict[Spin.down]["max_deviations"][-1] == approx(4.31567e-05)
-        assert self.band_overlaps1_new.bandoverlapsdict[Spin.down]["max_deviations"][9] == approx(0.064369)
+        assert self.band_overlaps1_new.band_overlaps_dict[Spin.down]["max_deviations"][9] == approx(0.064369)
         assert bo_dict[Spin.down]["matrices"][-1].item(0, -1) == approx(4.0066e-07)
-        assert self.band_overlaps1_new.bandoverlapsdict[Spin.down]["matrices"][9].item(0, -1) == approx(1.37447e-09)
+        assert self.band_overlaps1_new.band_overlaps_dict[Spin.down]["matrices"][9].item(0, -1) == approx(1.37447e-09)
 
         # maxDeviation
         assert self.band_overlaps1.max_deviation[0] == approx(0.000278953)
@@ -1515,9 +1516,18 @@ class TestBandoverlaps(TestCase):
         assert self.band_overlaps2.max_deviation[-1] == approx(1.48451e-05)
         assert self.band_overlaps2_new.max_deviation[-1] == approx(0.45154)
 
-    def test_has_good_quality(self):
+    def test_has_good_quality_maxDeviation(self):
         assert not self.band_overlaps1.has_good_quality_maxDeviation(limit_maxDeviation=0.1)
         assert not self.band_overlaps1_new.has_good_quality_maxDeviation(limit_maxDeviation=0.1)
+
+        assert self.band_overlaps1.has_good_quality_maxDeviation(limit_maxDeviation=100)
+        assert self.band_overlaps1_new.has_good_quality_maxDeviation(limit_maxDeviation=100)
+        assert self.band_overlaps2.has_good_quality_maxDeviation()
+        assert not self.band_overlaps2_new.has_good_quality_maxDeviation()
+        assert not self.band_overlaps2.has_good_quality_maxDeviation(limit_maxDeviation=0.0000001)
+        assert not self.band_overlaps2_new.has_good_quality_maxDeviation(limit_maxDeviation=0.0000001)
+
+    def test_has_good_quality_check_occupied_bands(self):
         assert not self.band_overlaps1.has_good_quality_check_occupied_bands(
             number_occ_bands_spin_up=9,
             number_occ_bands_spin_down=5,
@@ -1545,65 +1555,58 @@ class TestBandoverlaps(TestCase):
         assert not self.band_overlaps1.has_good_quality_check_occupied_bands(
             number_occ_bands_spin_up=1,
             number_occ_bands_spin_down=1,
-            limit_deviation=0.000001,
+            limit_deviation=1e-6,
             spin_polarized=True,
         )
         assert not self.band_overlaps1_new.has_good_quality_check_occupied_bands(
             number_occ_bands_spin_up=1,
             number_occ_bands_spin_down=1,
-            limit_deviation=0.000001,
+            limit_deviation=1e-6,
             spin_polarized=True,
         )
         assert not self.band_overlaps1.has_good_quality_check_occupied_bands(
             number_occ_bands_spin_up=1,
             number_occ_bands_spin_down=0,
-            limit_deviation=0.000001,
+            limit_deviation=1e-6,
             spin_polarized=True,
         )
         assert not self.band_overlaps1_new.has_good_quality_check_occupied_bands(
             number_occ_bands_spin_up=1,
             number_occ_bands_spin_down=0,
-            limit_deviation=0.000001,
+            limit_deviation=1e-6,
             spin_polarized=True,
         )
         assert not self.band_overlaps1.has_good_quality_check_occupied_bands(
             number_occ_bands_spin_up=0,
             number_occ_bands_spin_down=1,
-            limit_deviation=0.000001,
+            limit_deviation=1e-6,
             spin_polarized=True,
         )
         assert not self.band_overlaps1_new.has_good_quality_check_occupied_bands(
             number_occ_bands_spin_up=0,
             number_occ_bands_spin_down=1,
-            limit_deviation=0.000001,
+            limit_deviation=1e-6,
             spin_polarized=True,
         )
         assert not self.band_overlaps1.has_good_quality_check_occupied_bands(
             number_occ_bands_spin_up=4,
             number_occ_bands_spin_down=4,
-            limit_deviation=0.001,
+            limit_deviation=1e-3,
             spin_polarized=True,
         )
         assert not self.band_overlaps1_new.has_good_quality_check_occupied_bands(
             number_occ_bands_spin_up=4,
             number_occ_bands_spin_down=4,
-            limit_deviation=0.001,
+            limit_deviation=1e-3,
             spin_polarized=True,
         )
-
-        assert self.band_overlaps1.has_good_quality_maxDeviation(limit_maxDeviation=100)
-        assert self.band_overlaps1_new.has_good_quality_maxDeviation(limit_maxDeviation=100)
-        assert self.band_overlaps2.has_good_quality_maxDeviation()
-        assert not self.band_overlaps2_new.has_good_quality_maxDeviation()
-        assert not self.band_overlaps2.has_good_quality_maxDeviation(limit_maxDeviation=0.0000001)
-        assert not self.band_overlaps2_new.has_good_quality_maxDeviation(limit_maxDeviation=0.0000001)
         assert not self.band_overlaps2.has_good_quality_check_occupied_bands(
-            number_occ_bands_spin_up=10, limit_deviation=0.0000001
+            number_occ_bands_spin_up=10, limit_deviation=1e-7
         )
         assert not self.band_overlaps2_new.has_good_quality_check_occupied_bands(
-            number_occ_bands_spin_up=10, limit_deviation=0.0000001
+            number_occ_bands_spin_up=10, limit_deviation=1e-7
         )
-        assert not self.band_overlaps2.has_good_quality_check_occupied_bands(
+        assert self.band_overlaps2.has_good_quality_check_occupied_bands(
             number_occ_bands_spin_up=1, limit_deviation=0.1
         )
 
@@ -1614,13 +1617,88 @@ class TestBandoverlaps(TestCase):
             number_occ_bands_spin_up=1, limit_deviation=1e-8
         )
         assert self.band_overlaps2.has_good_quality_check_occupied_bands(number_occ_bands_spin_up=10, limit_deviation=1)
-        assert not self.band_overlaps2_new.has_good_quality_check_occupied_bands(
+        assert self.band_overlaps2_new.has_good_quality_check_occupied_bands(
             number_occ_bands_spin_up=2, limit_deviation=0.1
         )
         assert self.band_overlaps2.has_good_quality_check_occupied_bands(number_occ_bands_spin_up=1, limit_deviation=1)
         assert self.band_overlaps2_new.has_good_quality_check_occupied_bands(
             number_occ_bands_spin_up=1, limit_deviation=2
         )
+
+    def test_has_good_quality_check_occupied_bands_patched(self):
+        """Test with patched data."""
+
+        limit_deviation = 0.1
+
+        rng = np.random.default_rng(42)  # set seed for reproducibility
+
+        band_overlaps = copy.deepcopy(self.band_overlaps1_new)
+
+        number_occ_bands_spin_up_all = list(range(band_overlaps.band_overlaps_dict[Spin.up]["matrices"][0].shape[0]))
+        number_occ_bands_spin_down_all = list(
+            range(band_overlaps.band_overlaps_dict[Spin.down]["matrices"][0].shape[0])
+        )
+
+        for actual_deviation in [0.05, 0.1, 0.2, 0.5, 1.0]:
+            for spin in (Spin.up, Spin.down):
+                for number_occ_bands_spin_up, number_occ_bands_spin_down in zip(
+                    number_occ_bands_spin_up_all, number_occ_bands_spin_down_all, strict=False
+                ):
+                    for i_arr, array in enumerate(band_overlaps.band_overlaps_dict[spin]["matrices"]):
+                        number_occ_bands = number_occ_bands_spin_up if spin is Spin.up else number_occ_bands_spin_down
+
+                        shape = array.shape
+                        assert np.all(np.array(shape) >= number_occ_bands)
+                        assert len(shape) == 2
+                        assert shape[0] == shape[1]
+
+                        # Generate a noisy background array
+                        patch_array = rng.uniform(0, 10, shape)
+
+                        # Patch the top-left sub-array (the part that would be checked)
+                        patch_array[:number_occ_bands, :number_occ_bands] = np.identity(number_occ_bands) + rng.uniform(
+                            0, actual_deviation, (number_occ_bands, number_occ_bands)
+                        )
+
+                        band_overlaps.band_overlaps_dict[spin]["matrices"][i_arr] = patch_array
+
+                    result = band_overlaps.has_good_quality_check_occupied_bands(
+                        number_occ_bands_spin_up=number_occ_bands_spin_up,
+                        number_occ_bands_spin_down=number_occ_bands_spin_down,
+                        spin_polarized=True,
+                        limit_deviation=limit_deviation,
+                    )
+                    # Assert for expected results
+                    if (
+                        (
+                            actual_deviation == 0.05
+                            and number_occ_bands_spin_up <= 7
+                            and number_occ_bands_spin_down <= 7
+                            and spin is Spin.up
+                        )
+                        or (actual_deviation == 0.05 and spin is Spin.down)
+                        or actual_deviation == 0.1
+                        or (
+                            actual_deviation in [0.2, 0.5, 1.0]
+                            and number_occ_bands_spin_up == 0
+                            and number_occ_bands_spin_down == 0
+                        )
+                    ):
+                        assert result
+                    else:
+                        assert not result
+
+    def test_exceptions(self):
+        with pytest.raises(ValueError, match="number_occ_bands_spin_down has to be specified"):
+            self.band_overlaps1.has_good_quality_check_occupied_bands(
+                number_occ_bands_spin_up=4,
+                spin_polarized=True,
+            )
+        with pytest.raises(ValueError, match="number_occ_bands_spin_down has to be specified"):
+            self.band_overlaps1_new.has_good_quality_check_occupied_bands(
+                number_occ_bands_spin_up=4,
+                spin_polarized=True,
+            )
 
     def test_msonable(self):
         dict_data = self.band_overlaps2_new.as_dict()
@@ -2202,22 +2280,22 @@ class TestSitePotentials(PymatgenTest):
         self.sitepotential = SitePotential(filename=f"{TEST_DIR}/SitePotentials.lobster.perovskite")
 
     def test_attributes(self):
-        assert self.sitepotential.sitepotentials_Loewdin == [
+        assert self.sitepotential.sitepotentials_loewdin == [
             -8.77,
             -17.08,
             9.57,
             9.57,
             8.45,
         ]
-        assert self.sitepotential.sitepotentials_Mulliken == [
+        assert self.sitepotential.sitepotentials_mulliken == [
             -11.38,
             -19.62,
             11.18,
             11.18,
             10.09,
         ]
-        assert self.sitepotential.madelungenergies_Loewdin == approx(-28.64)
-        assert self.sitepotential.madelungenergies_Mulliken == approx(-40.02)
+        assert self.sitepotential.madelungenergies_loewdin == approx(-28.64)
+        assert self.sitepotential.madelungenergies_mulliken == approx(-40.02)
         assert self.sitepotential.atomlist == ["La1", "Ta2", "N3", "N4", "O5"]
         assert self.sitepotential.types == ["La", "Ta", "N", "N", "O"]
         assert self.sitepotential.num_atoms == 5
@@ -2253,8 +2331,8 @@ class TestMadelungEnergies(PymatgenTest):
         self.madelungenergies = MadelungEnergies(filename=f"{TEST_DIR}/MadelungEnergies.lobster.perovskite")
 
     def test_attributes(self):
-        assert self.madelungenergies.madelungenergies_Loewdin == approx(-28.64)
-        assert self.madelungenergies.madelungenergies_Mulliken == approx(-40.02)
+        assert self.madelungenergies.madelungenergies_loewdin == approx(-28.64)
+        assert self.madelungenergies.madelungenergies_mulliken == approx(-40.02)
         assert self.madelungenergies.ewald_splitting == approx(3.14)
 
     def test_msonable(self):

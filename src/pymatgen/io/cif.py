@@ -233,7 +233,7 @@ class CifBlock:
                     data[k].append(v.strip())
 
             elif issue := "".join(_str).strip():
-                warnings.warn(f"Possible issue in CIF file at line: {issue}")
+                warnings.warn(f"Possible issue in CIF file at line: {issue}", stacklevel=2)
 
         return cls(data, loops, header)
 
@@ -583,7 +583,7 @@ class CifParser:
                         continue
 
                     for comparison_frac in important_fracs:
-                        if abs(1 - frac / comparison_frac) < self._frac_tolerance:
+                        if math.isclose(frac / comparison_frac, 1, abs_tol=self._frac_tolerance, rel_tol=0):
                             fracs_to_change[label, idx] = str(comparison_frac)
 
         if fracs_to_change:
@@ -684,7 +684,7 @@ class CifParser:
                         return self.get_lattice(data, lengths, angles, lattice_type=lattice_type)
                     except AttributeError as exc:
                         self.warnings.append(str(exc))
-                        warnings.warn(str(exc))
+                        warnings.warn(str(exc), stacklevel=2)
 
                 else:
                     return None
@@ -734,7 +734,7 @@ class CifParser:
 
                 if isinstance(xyz, str):
                     msg = "A 1-line symmetry op P1 CIF is detected!"
-                    warnings.warn(msg)
+                    warnings.warn(msg, stacklevel=2)
                     self.warnings.append(msg)
                     xyz = [xyz]
                 try:
@@ -772,7 +772,7 @@ class CifParser:
                         if spg := space_groups.get(sg):
                             sym_ops = list(SpaceGroup(spg).symmetry_ops)
                             msg = msg_template.format(symmetry_label)
-                            warnings.warn(msg)
+                            warnings.warn(msg, stacklevel=2)
                             self.warnings.append(msg)
                             break
                     except ValueError:
@@ -791,7 +791,7 @@ class CifParser:
                                 xyz = _data["symops"]
                                 sym_ops = [SymmOp.from_xyz_str(s) for s in xyz]
                                 msg = msg_template.format(symmetry_label)
-                                warnings.warn(msg)
+                                warnings.warn(msg, stacklevel=2)
                                 self.warnings.append(msg)
                                 break
                     except Exception:
@@ -818,7 +818,7 @@ class CifParser:
 
         if not sym_ops:
             msg = "No _symmetry_equiv_pos_as_xyz type key found. Defaulting to P1."
-            warnings.warn(msg)
+            warnings.warn(msg, stacklevel=2)
             self.warnings.append(msg)
             sym_ops = [SymmOp.from_xyz_str(s) for s in ("x", "y", "z")]
 
@@ -880,7 +880,7 @@ class CifParser:
 
         if not mag_symm_ops:
             msg = "No magnetic symmetry detected, using primitive symmetry."
-            warnings.warn(msg)
+            warnings.warn(msg, stacklevel=2)
             self.warnings.append(msg)
             mag_symm_ops = [MagSymmOp.from_xyzt_str("x, y, z, 1")]
 
@@ -958,7 +958,7 @@ class CifParser:
 
         if parsed_sym is not None and (m_sp or not re.match(rf"{parsed_sym}\d*", sym)):
             msg = f"{sym} parsed as {parsed_sym}"
-            warnings.warn(msg)
+            warnings.warn(msg, stacklevel=2)
             self.warnings.append(msg)
 
         return parsed_sym
@@ -969,8 +969,22 @@ class CifParser:
         primitive: bool,
         symmetrized: bool,
         check_occu: bool = False,
+        min_thickness: float = 0.01,
     ) -> Structure | None:
-        """Generate structure from part of the CIF."""
+        """Generate structure from part of the CIF.
+
+        Args:
+            data (CifBlock): The data block to parse.
+            primitive (bool): Whether to return primitive unit cells.
+            symmetrized (bool): Whether to return SymmetrizedStructure.
+            check_occu (bool): Whether to check site for unphysical occupancy > 1.
+            min_thickness (float): Minimum thickness in Angstrom to consider structure as valid.
+                This is added to guard against unphysical small/thin structure,
+                which could result in infinite loop for searching near neighbours.
+
+        Returns:
+            Structure or None if not found.
+        """
 
         def get_num_implicit_hydrogens(symbol: str) -> int:
             """Get number of implicit hydrogens."""
@@ -991,6 +1005,12 @@ class CifParser:
             return False
 
         lattice = self.get_lattice(data)
+
+        # Check minimal lattice thickness
+        if lattice is not None:
+            thickness = [lattice.d_hkl((1, 0, 0)), lattice.d_hkl((0, 1, 0)), lattice.d_hkl((0, 0, 1))]
+            if any(t < min_thickness for t in thickness):
+                raise ValueError(f"{thickness=} Å below threshold, double check your structure.")
 
         # If magCIF, get magnetic symmetry moments and magmoms
         # else standard CIF, and use empty magmom dict
@@ -1091,7 +1111,7 @@ class CifParser:
                 "the occupancy_tolerance, they will be rescaled. "
                 f"The current occupancy_tolerance is set to: {self._occupancy_tolerance}"
             )
-            warnings.warn(msg)
+            warnings.warn(msg, stacklevel=2)
             self.warnings.append(msg)
 
         # Collect info for building Structure
@@ -1235,7 +1255,7 @@ class CifParser:
             if self.check_cif:
                 cif_failure_reason = self.check(struct)
                 if cif_failure_reason is not None:
-                    warnings.warn(cif_failure_reason)
+                    warnings.warn(cif_failure_reason, stacklevel=2)
 
             return struct
         return None
@@ -1277,7 +1297,7 @@ class CifParser:
                 "The default value of primitive was changed from True to False in "
                 "https://github.com/materialsproject/pymatgen/pull/3419. CifParser now returns the cell "
                 "in the CIF file as is. If you want the primitive cell, please set primitive=True explicitly.",
-                UserWarning,
+                stacklevel=2,
             )
 
         if primitive and symmetrized:
@@ -1297,11 +1317,11 @@ class CifParser:
                 if on_error == "raise":
                     raise ValueError(msg) from exc
                 if on_error == "warn":
-                    warnings.warn(msg)
+                    warnings.warn(msg, stacklevel=2)
                 self.warnings.append(msg)
 
         if self.warnings and on_error == "warn":
-            warnings.warn("Issues encountered while parsing CIF: " + "\n".join(self.warnings))
+            warnings.warn("Issues encountered while parsing CIF: " + "\n".join(self.warnings), stacklevel=2)
 
         if not structures:
             raise ValueError("Invalid CIF file with no structures!")
@@ -1540,7 +1560,10 @@ class CifWriter:
                 to the CIF as _atom_site_{property name}. Defaults to False.
         """
         if write_magmoms and symprec is not None:
-            warnings.warn("Magnetic symmetry cannot currently be detected by pymatgen, disabling symmetry detection.")
+            warnings.warn(
+                "Magnetic symmetry cannot currently be detected by pymatgen, disabling symmetry detection.",
+                stacklevel=2,
+            )
             symprec = None
 
         blocks: dict[str, Any] = {}
@@ -1685,7 +1708,7 @@ class CifWriter:
                 "Site labels are not unique, which is not compliant with the CIF spec "
                 "(https://www.iucr.org/__data/iucr/cifdic_html/1/cif_core.dic/Iatom_site_label.html):"
                 f"`{atom_site_label}`.",
-                UserWarning,
+                stacklevel=2,
             )
 
         blocks["_atom_site_type_symbol"] = atom_site_type_symbol

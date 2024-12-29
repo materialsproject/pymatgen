@@ -264,6 +264,7 @@ class Poscar(MSONable):
             warnings.warn(
                 "check_for_POTCAR is deprecated. Use check_for_potcar instead.",
                 DeprecationWarning,
+                stacklevel=2,
             )
             check_for_potcar = cast(bool, kwargs.pop("check_for_POTCAR"))
 
@@ -275,7 +276,10 @@ class Poscar(MSONable):
             and (potcars := glob(f"{dirname}/*POTCAR*"))
         ):
             try:
-                potcar = Potcar.from_file(min(potcars))
+                # Make sure exact match has highest priority
+                potcar_path = next((f for f in potcars if f == f"{dirname}/POTCAR"), min(potcars))
+
+                potcar = Potcar.from_file(potcar_path)
                 names = [sym.split("_")[0] for sym in potcar.symbols]
                 map(get_el_sp, names)  # ensure valid names
             except Exception:
@@ -316,7 +320,8 @@ class Poscar(MSONable):
         Args:
             data (str): String containing Poscar data.
             default_names ([str]): Default symbols for the POSCAR file,
-                usually coming from a POTCAR in the same directory.
+                usually coming from a POTCAR in the same directory. This
+                could be used to convert a VASP 4 POSCAR to POSCAR 5/6 format.
             read_velocities (bool): Whether to read or not velocities if they
                 are present in the POSCAR. Default is True.
 
@@ -332,8 +337,9 @@ class Poscar(MSONable):
         except IndexError:
             raise ValueError("Empty POSCAR")
 
-        # Parse positions
         lines: list[str] = list(clean_lines(chunks[0].split("\n"), remove_empty_lines=False))
+
+        # Parse comment/scale/lattice
         comment: str = lines[0]
         scale: float = float(lines[1])
         lattice: np.ndarray = np.array([[float(i) for i in line.split()] for line in lines[2:5]])
@@ -345,15 +351,26 @@ class Poscar(MSONable):
         else:
             lattice *= scale
 
-        vasp5_symbols: bool = False
+        # "atomic_symbols" is the "fully expanded" list of symbols,
+        # while "symbols" is the list as shown in POSCAR.
+        # For example with a POSCAR:
+        # ... (comment/scale/lattice)
+        # H O
+        # 2 1
+        # ...
+        # atomic_symbols is ["H", "H", "O"]
+        # symbols is ["H", "O"]
         atomic_symbols: list[str] = []
 
         try:
+            symbols: list[str] | None = None  # would be None for VASP 4
+
             n_atoms: list[int] = [int(i) for i in lines[5].split()]
+            vasp5or6_symbols: bool = False  # VASP 4 tag
             ipos: int = 6
 
         except ValueError:
-            vasp5_symbols = True
+            vasp5or6_symbols = True
 
             # In VASP 6.x.x, part of the POTCAR hash is written to POSCAR-style strings
             # In VASP 6.4.2 and up, the POTCAR symbol is also written, ex.:
@@ -365,7 +382,7 @@ class Poscar(MSONable):
             # Mg_pv/f474ac0d  Si/79d9987ad87```
             # whereas older VASP 5.x.x POSCAR strings would just have `Mg Si` on the last line
 
-            symbols: list[str] = [symbol.split("/")[0].split("_")[0] for symbol in lines[5].split()]
+            symbols = [symbol.split("/")[0].split("_")[0] for symbol in lines[5].split()]
 
             # Atoms and number of atoms in POSCAR written with VASP appear on
             # multiple lines when atoms of the same type are not grouped together
@@ -415,19 +432,25 @@ class Poscar(MSONable):
         cart: bool = pos_type[0] in "cCkK"
         n_sites: int = sum(n_atoms)
 
-        # If default_names is specified (usually coming from a POTCAR), use
-        # them. This is in line with VASP's parsing order that the POTCAR
+        # If default_names is specified (usually coming from a POTCAR), use them.
+        # This is in line with VASP's parsing order that the POTCAR
         # specified is the default used.
         if default_names is not None:
-            try:
+            # Use len(n_atoms) over len(symbols) as symbols is None for VASP 4 format
+            if len(n_atoms) > len(default_names):
+                raise ValueError(f"{default_names=} (likely from POTCAR) has fewer elements than POSCAR {symbols}")
+
+            if symbols is None or default_names[: len(symbols)] != symbols:
+                # After this VASP 4.x POSCAR would be converted to VASP 5/6 format
+                vasp5or6_symbols = True
+
                 atomic_symbols = []
                 for idx, n_atom in enumerate(n_atoms):
                     atomic_symbols.extend([default_names[idx]] * n_atom)
-                vasp5_symbols = True
-            except IndexError:
-                pass
 
-        if not vasp5_symbols:
+                warnings.warn(f"Elements in POSCAR would be overwritten by {default_names=}", stacklevel=2)
+
+        if not vasp5or6_symbols:
             ind: Literal[3, 6] = 6 if has_selective_dynamics else 3
             try:
                 # Check if names are appended at the end of the coordinates
@@ -435,7 +458,7 @@ class Poscar(MSONable):
                 # Ensure symbols are valid elements
                 if not all(Element.is_valid_symbol(sym) for sym in atomic_symbols):
                     raise ValueError("Non-valid symbols detected.")
-                vasp5_symbols = True
+                vasp5or6_symbols = True
 
             except (ValueError, IndexError):
                 # Defaulting to false names
@@ -446,6 +469,7 @@ class Poscar(MSONable):
                 warnings.warn(
                     f"Elements in POSCAR cannot be determined. Defaulting to false names {atomic_symbols}.",
                     BadPoscarWarning,
+                    stacklevel=2,
                 )
 
         # Read the atomic coordinates
@@ -461,6 +485,7 @@ class Poscar(MSONable):
                     warnings.warn(
                         "Selective dynamics values must be either 'T' or 'F'.",
                         BadPoscarWarning,
+                        stacklevel=2,
                     )
 
                 # Warn when elements contains Fluorine (F) (#3539)
@@ -471,6 +496,7 @@ class Poscar(MSONable):
                             "Make sure the 4th-6th entry each position line is selective dynamics info."
                         ),
                         BadPoscarWarning,
+                        stacklevel=2,
                     )
 
                 selective_dynamics.append([value == "T" for value in tokens[3:6]])
@@ -480,6 +506,7 @@ class Poscar(MSONable):
             warnings.warn(
                 "Ignoring selective dynamics tag, as no ionic degrees of freedom were fixed.",
                 BadPoscarWarning,
+                stacklevel=2,
             )
 
         struct = Structure(
@@ -533,7 +560,7 @@ class Poscar(MSONable):
             struct,
             comment,
             selective_dynamics,
-            vasp5_symbols,
+            vasp5or6_symbols,
             velocities=velocities,
             predictor_corrector=predictor_corrector,
             predictor_corrector_preamble=predictor_corrector_preamble,
@@ -603,7 +630,11 @@ class Poscar(MSONable):
                     # VASP is strict about the format when reading this quantity
                     lines.append(" ".join(f" {val: .7E}" for val in velo))
             except Exception:
-                warnings.warn("Lattice velocities are missing or corrupted.", BadPoscarWarning)
+                warnings.warn(
+                    "Lattice velocities are missing or corrupted.",
+                    BadPoscarWarning,
+                    stacklevel=2,
+                )
 
         if self.velocities:
             try:
@@ -611,7 +642,11 @@ class Poscar(MSONable):
                 for velo in self.velocities:
                     lines.append(" ".join(format_str.format(val) for val in velo))
             except Exception:
-                warnings.warn("Velocities are missing or corrupted.", BadPoscarWarning)
+                warnings.warn(
+                    "Velocities are missing or corrupted.",
+                    BadPoscarWarning,
+                    stacklevel=2,
+                )
 
         if self.predictor_corrector:
             lines.append("")
@@ -625,6 +660,7 @@ class Poscar(MSONable):
                 warnings.warn(
                     "Preamble information missing or corrupt. Writing Poscar with no predictor corrector data.",
                     BadPoscarWarning,
+                    stacklevel=2,
                 )
 
         return "\n".join(lines) + "\n"
@@ -723,7 +759,7 @@ class Incar(UserDict, MSONable):
 
     - Keys are stored in uppercase to allow case-insensitive access (set, get, del, update, setdefault).
     - String values are capitalized by default, except for keys specified
-        in the `lower_str_keys` of the `proc_val` method.
+        in the `lower_str_keys/as_is_str_keys` of the `proc_val` method.
     """
 
     def __init__(self, params: dict[str, Any] | None = None) -> None:
@@ -948,6 +984,7 @@ class Incar(UserDict, MSONable):
             "PARAM1",
             "PARAM2",
             "ENCUT",
+            "NUPDOWN",
         )
         int_keys = (
             "NSW",
@@ -965,12 +1002,13 @@ class Incar(UserDict, MSONable):
             "LMAXMIX",
             "NSIM",
             "NKRED",
-            "NUPDOWN",
             "ISPIND",
             "LDAUTYPE",
             "IVDW",
         )
         lower_str_keys = ("ML_MODE",)
+        # String keywords to read "as is" (no case transformation, only stripped)
+        as_is_str_keys = ("SYSTEM",)
 
         def smart_int_or_float(num_str: str) -> float:
             """Determine whether a string represents an integer or a float."""
@@ -1005,6 +1043,9 @@ class Incar(UserDict, MSONable):
 
             if key in lower_str_keys:
                 return val.strip().lower()
+
+            if key in as_is_str_keys:
+                return val.strip()
 
         except ValueError:
             pass
@@ -1087,9 +1128,9 @@ class Incar(UserDict, MSONable):
             # Only check value when it's not None,
             # meaning there is recording for corresponding value
             if allowed_values is not None:
-                # Note: param_type could be a Union type, e.g. "str | bool"
-                if "str" in param_type:
-                    allowed_values = [item.capitalize() if isinstance(item, str) else item for item in allowed_values]
+                allowed_values = [
+                    self.proc_val(tag, item) if isinstance(item, str) else item for item in allowed_values
+                ]
 
                 if val not in allowed_values:
                     warnings.warn(
@@ -1409,7 +1450,7 @@ class Kpoints(MSONable):
         if comment is None:
             comment = f"pymatgen with grid density = {kppa:.0f} / number of atoms"
 
-        if math.fabs((math.floor(kppa ** (1 / 3) + 0.5)) ** 3 - kppa) < 1:
+        if abs((math.floor(kppa ** (1 / 3) + 0.5)) ** 3 - kppa) < 1:
             kppa += kppa * 0.01
         lattice = structure.lattice
         lengths: Vector3D = lattice.abc
@@ -1980,7 +2021,10 @@ class PotcarSingle:
             try:
                 keywords[key] = self.parse_functions[key](val)  # type: ignore[operator]
             except KeyError:
-                warnings.warn(f"Ignoring unknown variable type {key}")
+                warnings.warn(
+                    f"Ignoring unknown variable type {key}",
+                    stacklevel=2,
+                )
 
         PSCTR: dict[str, Any] = {}
 
@@ -2054,6 +2098,7 @@ class PotcarSingle:
                 f"POTCAR data with symbol {self.symbol} is not known to pymatgen. Your "
                 "POTCAR may be corrupted or pymatgen's POTCAR database is incomplete.",
                 UnknownPotcarWarning,
+                stacklevel=2,
             )
 
     def __eq__(self, other: object) -> bool:
@@ -2085,7 +2130,10 @@ class PotcarSingle:
     def electron_configuration(self) -> list[tuple[int, str, int]] | None:
         """Electronic configuration of the PotcarSingle."""
         if not self.nelectrons.is_integer():
-            warnings.warn("POTCAR has non-integer charge, electron configuration not well-defined.")
+            warnings.warn(
+                "POTCAR has non-integer charge, electron configuration not well-defined.",
+                stacklevel=2,
+            )
             return None
 
         el = Element.from_Z(self.atomic_no)
@@ -2394,7 +2442,10 @@ class PotcarSingle:
                 return cls(file.read(), symbol=symbol or None)
 
         except UnicodeDecodeError:
-            warnings.warn("POTCAR contains invalid unicode errors. We will attempt to read it by ignoring errors.")
+            warnings.warn(
+                "POTCAR contains invalid unicode errors. We will attempt to read it by ignoring errors.",
+                stacklevel=2,
+            )
 
             with codecs.open(str(filename), "r", encoding="utf-8", errors="ignore") as file:
                 return cls(file.read(), symbol=symbol or None)
@@ -2679,7 +2730,10 @@ def _gen_potcar_summary_stats(
         if os.path.isdir(cpsp_dir):
             func_dir_exist[func] = func_dir
         else:
-            warnings.warn(f"missing {func_dir} POTCAR directory")
+            warnings.warn(
+                f"missing {func_dir} POTCAR directory",
+                stacklevel=2,
+            )
 
     # Use append = True if a new POTCAR library is released to add new summary stats
     # without completely regenerating the dict of summary stats

@@ -140,7 +140,7 @@ class WulffShape:
             symprec (float): for reciprocal lattice operation, default is 1e-5.
         """
         if any(se < 0 for se in e_surf_list):
-            warnings.warn("Unphysical (negative) surface energy detected.")
+            warnings.warn("Unphysical (negative) surface energy detected.", stacklevel=2)
 
         self.color_ind = list(range(len(miller_list)))
 
@@ -578,7 +578,7 @@ class WulffShape:
             x=[0],
             y=[0],
             z=[0],
-            colorbar=go.ColorBar(
+            colorbar=go.mesh3d.ColorBar(
                 title={
                     "text": f"Surface energy {units}",
                     "side": "right",

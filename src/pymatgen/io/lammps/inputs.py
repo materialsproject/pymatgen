@@ -273,7 +273,8 @@ class LammpsInputFile(InputFile):
             if commands or stage_name:
                 warnings.warn(
                     "A stage has been passed together with commands and stage_name. This is incompatible. "
-                    "Only the stage will be used."
+                    "Only the stage will be used.",
+                    stacklevel=2,
                 )
 
             # Make sure the given stage has the correct format
@@ -467,7 +468,10 @@ class LammpsInputFile(InputFile):
         self.stages = new_list_of_stages
 
         if n_removed == 0:
-            warnings.warn(f"{command} not found in the LammpsInputFile.")
+            warnings.warn(
+                f"{command} not found in the LammpsInputFile.",
+                stacklevel=2,
+            )
 
     def append(self, lmp_input_file: LammpsInputFile) -> None:
         """
@@ -913,14 +917,18 @@ class LammpsRun(MSONable):
             output_dir (str): Directory to output the input files.
             **kwargs: kwargs supported by LammpsData.write_file.
         """
-        write_lammps_inputs(
-            output_dir=output_dir,
-            script_template=self.script_template,
-            settings=self.settings,
-            data=self.data,
-            script_filename=self.script_filename,
-            **kwargs,
-        )
+        # TODO: write_lammps_inputs is deprecated
+        with warnings.catch_warnings():
+            warnings.filterwarnings("ignore", message="write_lammps_inputs is deprecated")
+
+            write_lammps_inputs(
+                output_dir=output_dir,
+                script_template=self.script_template,
+                settings=self.settings,
+                data=self.data,
+                script_filename=self.script_filename,
+                **kwargs,
+            )
 
     @classmethod
     def md(
@@ -1101,4 +1109,7 @@ def write_lammps_inputs(
         elif isinstance(data, str) and os.path.isfile(data):
             shutil.copyfile(data, os.path.join(output_dir, data_filename))
         else:
-            warnings.warn(f"No data file supplied. Skip writing {data_filename}.")
+            warnings.warn(
+                f"No data file supplied. Skip writing {data_filename}.",
+                stacklevel=2,
+            )

@@ -481,7 +481,7 @@ class QCOutput(MSONable):
                 self.text,
                 {
                     "had": r"H_ad = (?:[\-\.0-9]+) \(([\-\.0-9]+) meV\)",
-                    "hda": r"H_da = (?:[\-\.0-9]+) \(([\-\.0-9]+) meV\)",
+                    "hda": r"H_da = (?:[\-\.0-9]+) \(([\-\.0-9]+) meV\)",  # codespell:ignore hda
                     "coupling": r"The (?:averaged )?electronic coupling: (?:[\-\.0-9]+) \(([\-\.0-9]+) meV\)",
                 },
             )
@@ -490,10 +490,10 @@ class QCOutput(MSONable):
                 self.data["fodft_had_eV"] = None
             else:
                 self.data["fodft_had_eV"] = float(temp_dict["had"][0][0]) / 1000
-            if temp_dict.get("hda") is None or len(temp_dict.get("hda", [])) == 0:
+            if temp_dict.get("hda") is None or len(temp_dict.get("hda", [])) == 0:  # codespell:ignore hda
                 self.data["fodft_hda_eV"] = None
             else:
-                self.data["fodft_hda_eV"] = float(temp_dict["hda"][0][0]) / 1000
+                self.data["fodft_hda_eV"] = float(temp_dict["hda"][0][0]) / 1000  # codespell:ignore hda
             if temp_dict.get("coupling") is None or len(temp_dict.get("coupling", [])) == 0:
                 self.data["fodft_coupling_eV"] = None
             else:
@@ -1422,7 +1422,7 @@ class QCOutput(MSONable):
         if len(parsed_gradients) >= 1:
             sorted_gradients = np.zeros(shape=(len(parsed_gradients), len(self.data["initial_molecule"]), 3))
             for ii, grad in enumerate(parsed_gradients):
-                for jj in range(int(len(grad) / 3)):
+                for jj in range(len(grad) // 3):
                     for kk in range(grad_format_length):
                         if grad[jj * 3][kk] != "None":
                             sorted_gradients[ii][jj * grad_format_length + kk][0] = grad[jj * 3][kk]
@@ -1457,7 +1457,7 @@ class QCOutput(MSONable):
 
                 sorted_gradients = np.zeros(shape=(len(parsed_gradients), len(self.data["initial_molecule"]), 3))
                 for ii, grad in enumerate(parsed_gradients):
-                    for jj in range(int(len(grad) / 3)):
+                    for jj in range(len(grad) // 3):
                         for kk in range(grad_format_length):
                             if grad[jj * 3][kk] != "None":
                                 sorted_gradients[ii][jj * grad_format_length + kk][0] = grad[jj * 3][kk]
@@ -1523,7 +1523,7 @@ class QCOutput(MSONable):
                     self.data["errors"] += ["out_of_opt_cycles"]
                 elif read_pattern(
                     self.text,
-                    {"key": r"UNABLE TO DETERMINE Lamda IN FormD"},
+                    {"key": r"UNABLE TO DETERMINE Lamda IN FormD"},  # codespell:ignore lamda
                     terminate_on_match=True,
                 ).get("key") == [[]]:
                     self.data["errors"] += ["unable_to_determine_lamda"]
@@ -1746,7 +1746,7 @@ class QCOutput(MSONable):
                 self.data["errors"] += ["out_of_opt_cycles"]
             elif read_pattern(
                 self.text,
-                {"key": r"UNABLE TO DETERMINE Lamda IN FormD"},
+                {"key": r"UNABLE TO DETERMINE Lamda IN FormD"},  # codespell:ignore lamda
                 terminate_on_match=True,
             ).get("key") == [[]]:
                 self.data["errors"] += ["unable_to_determine_lamda"]
@@ -2308,7 +2308,8 @@ def check_for_structure_changes(mol1: Molecule, mol2: Molecule) -> str:
         if site.specie.symbol != mol2[ii].specie.symbol:
             warnings.warn(
                 "Comparing molecules with different atom ordering! "
-                "Turning off special treatment for coordinating metals."
+                "Turning off special treatment for coordinating metals.",
+                stacklevel=2,
             )
             special_elements = []
 

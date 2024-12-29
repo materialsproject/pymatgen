@@ -352,7 +352,7 @@ class ThermalDisplacementMatrices(MSONable):
                 f"{structure.lattice.alpha} {structure.lattice.beta} {structure.lattice.gamma}\n"
             )
             file.write("  0.000000   0.000000   0.000000   0.000000   0.000000   0.000000\n")  # error on parameters
-            file.write("STRUC\n")
+            file.write("STRUC\n")  # codespell:ignore struc
 
             for site_idx, site in enumerate(structure, start=1):
                 file.write(

@@ -192,7 +192,7 @@ class TransformedStructure(MSONable):
                 to create VASP input files from structures
             **kwargs: All keyword args supported by the VASP input set.
         """
-        dct = vasp_input_set(self.final_structure, **kwargs).get_vasp_input()
+        dct = vasp_input_set(self.final_structure, **kwargs).get_input_set()
         dct["transformations.json"] = json.dumps(self.as_dict())
         return dct
 
@@ -362,7 +362,7 @@ class TransformedStructure(MSONable):
             StructureNL: The generated StructureNL object.
         """
         if self.other_parameters:
-            warn("Data in TransformedStructure.other_parameters discarded during type conversion to SNL")
+            warn("Data in TransformedStructure.other_parameters discarded during type conversion to SNL", stacklevel=2)
         history = []
         for hist in self.history:
             snl_metadata = hist.pop("_snl", {})

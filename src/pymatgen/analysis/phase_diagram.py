@@ -759,7 +759,7 @@ class PhaseDiagram(MSONable):
             if on_error == "raise":
                 raise ValueError(f"Unable to get decomposition for {entry}") from exc
             if on_error == "warn":
-                warnings.warn(f"Unable to get decomposition for {entry}, encountered {exc}")
+                warnings.warn(f"Unable to get decomposition for {entry}, encountered {exc}", stacklevel=2)
             return None, None
         e_above_hull = entry.energy_per_atom - hull_energy
 
@@ -770,7 +770,7 @@ class PhaseDiagram(MSONable):
         if on_error == "raise":
             raise ValueError(msg)
         if on_error == "warn":
-            warnings.warn(msg)
+            warnings.warn(msg, stacklevel=2)
         return None, None  # 'ignore' and 'warn' case
 
     def get_e_above_hull(self, entry: PDEntry, **kwargs: Any) -> float | None:
@@ -906,7 +906,8 @@ class PhaseDiagram(MSONable):
         if len(competing_entries) > space_limit and not stable_only:
             warnings.warn(
                 f"There are {len(competing_entries)} competing entries "
-                f"for {entry.composition} - Calculating inner hull to discard additional unstable entries"
+                f"for {entry.composition} - Calculating inner hull to discard additional unstable entries",
+                stacklevel=2,
             )
 
             reduced_space = competing_entries - {*self._get_stable_entries_in_space(entry_elems)} | {
@@ -922,7 +923,8 @@ class PhaseDiagram(MSONable):
         if len(competing_entries) > space_limit:
             warnings.warn(
                 f"There are {len(competing_entries)} competing entries "
-                f"for {entry.composition} - Using SLSQP to find decomposition likely to be slow"
+                f"for {entry.composition} - Using SLSQP to find decomposition likely to be slow",
+                stacklevel=2,
             )
 
         decomp = _get_slsqp_decomp(entry.composition, competing_entries, tols, maxiter)
@@ -1014,7 +1016,9 @@ class PhaseDiagram(MSONable):
 
         clean_pots = []
         for c in sorted(critical_chempots):
-            if len(clean_pots) == 0 or abs(c - clean_pots[-1]) > PhaseDiagram.numerical_tol:
+            if len(clean_pots) == 0 or not math.isclose(
+                c, clean_pots[-1], abs_tol=PhaseDiagram.numerical_tol, rel_tol=0
+            ):
                 clean_pots.append(c)
         clean_pots.reverse()
         return tuple(clean_pots)
@@ -1827,7 +1831,7 @@ class PatchedPhaseDiagram(PhaseDiagram):
             return pd.get_decomposition(comp)
         except ValueError as exc:
             # NOTE warn when stitching across pds is being used
-            warnings.warn(f"{exc} Using SLSQP to find decomposition")
+            warnings.warn(f"{exc} Using SLSQP to find decomposition", stacklevel=2)
             competing_entries = self._get_stable_entries_in_space(frozenset(comp.elements))
             return _get_slsqp_decomp(comp, competing_entries)
 
@@ -1996,7 +2000,11 @@ class ReactionDiagram:
 
                     x = coeffs[-1]
 
-                    if all(c >= -tol for c in coeffs) and (abs(sum(coeffs[:-1]) - 1) < tol) and (tol < x < 1 - tol):
+                    if (
+                        all(c >= -tol for c in coeffs)
+                        and (math.isclose(sum(coeffs[:-1]), 1, abs_tol=tol, rel_tol=0))
+                        and (tol < x < 1 - tol)
+                    ):
                         c1 = x / r1.num_atoms
                         c2 = (1 - x) / r2.num_atoms
                         factor = 1 / (c1 + c2)

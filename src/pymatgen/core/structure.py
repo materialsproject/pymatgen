@@ -19,16 +19,13 @@ import sys
 import warnings
 from abc import ABC, abstractmethod
 from collections import defaultdict
-from collections.abc import MutableSequence
 from fnmatch import fnmatch
-from io import StringIO
 from typing import TYPE_CHECKING, Literal, cast, get_args
 
 import numpy as np
 from monty.dev import deprecated
 from monty.io import zopen
 from monty.json import MSONable
-from numpy import cross, eye
 from numpy.linalg import norm
 from ruamel.yaml import YAML
 from scipy.cluster.hierarchy import fcluster, linkage
@@ -246,7 +243,7 @@ class SiteCollection(collections.abc.Sequence, ABC):
     def sites(self, sites: Sequence[PeriodicSite]) -> None:
         """Set the sites in the Structure."""
         # If self is mutable Structure or Molecule, set _sites as list
-        is_mutable = isinstance(self._sites, MutableSequence)
+        is_mutable = isinstance(self._sites, collections.abc.MutableSequence)
         self._sites: list[PeriodicSite] | tuple[PeriodicSite, ...] = list(sites) if is_mutable else tuple(sites)
 
     @abstractmethod
@@ -606,7 +603,8 @@ class SiteCollection(collections.abc.Sequence, ABC):
         if not sp_in_structure >= sp_to_replace:
             warnings.warn(
                 "Some species to be substituted are not present in structure. Pls check your input. Species to be "
-                f"substituted = {sp_to_replace}; Species in structure = {sp_in_structure}"
+                f"substituted = {sp_to_replace}; Species in structure = {sp_in_structure}",
+                stacklevel=2,
             )
 
         for site in site_coll:
@@ -1099,9 +1097,8 @@ class IStructure(SiteCollection, MSONable):
         self._properties = properties or {}
 
     def __eq__(self, other: object) -> bool:
+        """Define equality by comparing all three attributes: lattice, sites, properties."""
         needed_attrs = ("lattice", "sites", "properties")
-
-        # Return NotImplemented as in https://docs.python.org/3/library/functools.html#functools.total_ordering
         if not all(hasattr(other, attr) for attr in needed_attrs):
             return NotImplemented
 
@@ -1110,8 +1107,10 @@ class IStructure(SiteCollection, MSONable):
 
         if other is self:
             return True
+
         if len(self) != len(other):
             return False
+
         if self.lattice != other.lattice:
             return False
         if self.properties != other.properties:
@@ -1261,7 +1260,7 @@ class IStructure(SiteCollection, MSONable):
                 props[key][idx] = val
         for key, val in props.items():
             if any(vv is None for vv in val):
-                warnings.warn(f"Not all sites have property {key}. Missing values are set to None.")
+                warnings.warn(f"Not all sites have property {key}. Missing values are set to None.", stacklevel=2)
         return cls(
             lattice,
             [site.species for site in sites],
@@ -1517,7 +1516,8 @@ class IStructure(SiteCollection, MSONable):
         if abs(formal_charge - self._charge) > 1e-8:
             warnings.warn(
                 f"Structure charge ({self._charge}) is set to be not equal to the sum of oxidation states"
-                f" ({formal_charge}). Use Structure.unset_charge() to reset the charge to None."
+                f" ({formal_charge}). Use Structure.unset_charge() to reset the charge to None.",
+                stacklevel=2,
             )
         return self._charge
 
@@ -2983,7 +2983,7 @@ class IStructure(SiteCollection, MSONable):
             return Prismatic(self).to_str()
         elif fmt in ("yaml", "yml") or fnmatch(filename, "*.yaml*") or fnmatch(filename, "*.yml*"):
             yaml = YAML()
-            str_io = StringIO()
+            str_io = io.StringIO()
             yaml.dump(self.as_dict(), str_io)
             yaml_str = str_io.getvalue()
             if filename:
@@ -3924,7 +3924,7 @@ class IMolecule(SiteCollection, MSONable):
             return json_str
         elif fmt in {"yaml", "yml"} or fnmatch(filename, "*.yaml*") or fnmatch(filename, "*.yml*"):
             yaml = YAML()
-            str_io = StringIO()
+            str_io = io.StringIO()
             yaml.dump(self.as_dict(), str_io)
             yaml_str = str_io.getvalue()
             if filename:
@@ -4614,7 +4614,7 @@ class Structure(IStructure, collections.abc.MutableSequence):
 
         theta %= 2 * np.pi
 
-        rm = expm(cross(eye(3), axis / norm(axis)) * theta)
+        rm = expm(np.cross(np.eye(3), axis / norm(axis)) * theta)
         for idx in indices:
             site = self[idx]
             coords = ((np.dot(rm, np.array(site.coords - anchor).T)).T + anchor).ravel()
@@ -4754,7 +4754,8 @@ class Structure(IStructure, collections.abc.MutableSequence):
                         else:
                             props[key] = None
                             warnings.warn(
-                                f"Sites with different site property {key} are merged. So property is set to none"
+                                f"Sites with different site property {key} are merged. So property is set to none",
+                                stacklevel=2,
                             )
             sites.append(PeriodicSite(species, coords, self.lattice, properties=props))
 
@@ -5214,7 +5215,7 @@ class Molecule(IMolecule, collections.abc.MutableSequence):
 
         theta %= 2 * np.pi
 
-        rm = expm(cross(eye(3), axis / norm(axis)) * theta)
+        rm = expm(np.cross(np.eye(3), axis / norm(axis)) * theta)
 
         for idx in indices:
             site = self[idx]

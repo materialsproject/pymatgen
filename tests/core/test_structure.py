@@ -882,8 +882,7 @@ Direct
             assert norm < 1e-3
 
     def test_get_dist_matrix(self):
-        ans = [[0.0, 2.3516318], [2.3516318, 0.0]]
-        assert_allclose(self.struct.distance_matrix, ans)
+        assert_allclose(self.struct.distance_matrix, [[0.0, 2.3516318], [2.3516318, 0.0]])
 
     def test_to_from_file_and_string(self):
         for fmt in ("cif", "json", "poscar", "cssr", "pwmat"):
@@ -2175,14 +2174,16 @@ Site: H (-0.5134, 0.8892, -0.3630)"""
         assert len(nn) == 0
 
     def test_get_dist_matrix(self):
-        ans = [
-            [0.0, 1.089, 1.08899995636, 1.08900040717, 1.08900040717],
-            [1.089, 0.0, 1.77832952654, 1.7783298026, 1.7783298026],
-            [1.08899995636, 1.77832952654, 0.0, 1.77833003783, 1.77833003783],
-            [1.08900040717, 1.7783298026, 1.77833003783, 0.0, 1.77833],
-            [1.08900040717, 1.7783298026, 1.77833003783, 1.77833, 0.0],
-        ]
-        assert_allclose(self.mol.distance_matrix, ans)
+        assert_allclose(
+            self.mol.distance_matrix,
+            [
+                [0.0, 1.089, 1.08899995636, 1.08900040717, 1.08900040717],
+                [1.089, 0.0, 1.77832952654, 1.7783298026, 1.7783298026],
+                [1.08899995636, 1.77832952654, 0.0, 1.77833003783, 1.77833003783],
+                [1.08900040717, 1.7783298026, 1.77833003783, 0.0, 1.77833],
+                [1.08900040717, 1.7783298026, 1.77833003783, 1.77833, 0.0],
+            ],
+        )
 
     def test_get_zmatrix(self):
         mol = IMolecule(["C", "H", "H", "H", "H"], self.coords)
@@ -2202,7 +2203,7 @@ Site: H (-0.5134, 0.8892, -0.3630)"""
             A4=109.471213
             D4=119.999966
         """
-        assert self.assert_str_content_equal(mol.get_zmatrix(), z_matrix)
+        self.assert_str_content_equal(mol.get_zmatrix(), z_matrix)
 
     def test_break_bond(self):
         mol1, mol2 = self.mol.break_bond(0, 1)

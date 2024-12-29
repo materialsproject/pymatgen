@@ -204,7 +204,8 @@ class HighSymmKpath(KPathBase):
 
         warn(
             "K-path from the Hinuma et al. convention has been transformed to the basis of the reciprocal lattice"
-            "of the input structure. Use `KPathSeek` for the path in the original author-intended basis."
+            "of the input structure. Use `KPathSeek` for the path in the original author-intended basis.",
+            stacklevel=2,
         )
 
         return bs
@@ -306,7 +307,7 @@ class HighSymmKpath(KPathBase):
         labels = [point.label for point in bandstructure.kpoints if point.label is not None]
 
         plot_axis = []
-        for i in range(int(len(labels) / 2)):
+        for i in range(len(labels) // 2):
             G.add_edges_from([(labels[2 * i], labels[(2 * i) + 1])])
             plot_axis.append((labels[2 * i], labels[(2 * i) + 1]))
 

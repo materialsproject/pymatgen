@@ -274,7 +274,11 @@ class SpacegroupAnalyzer:
             "translations" gives the numpy float64 array of the translation
             vectors in scaled positions.
         """
-        dct = spglib.get_symmetry(self._cell, symprec=self._symprec, angle_tolerance=self._angle_tol)
+        with warnings.catch_warnings():
+            # TODO: get DeprecationWarning: Use get_magnetic_symmetry() for cell with magnetic moments.
+            warnings.filterwarnings("ignore", message="Use get_magnetic_symmetry", category=DeprecationWarning)
+            dct = spglib.get_symmetry(self._cell, symprec=self._symprec, angle_tolerance=self._angle_tol)
+
         if dct is None:
             symprec = self._symprec
             raise ValueError(
@@ -499,7 +503,7 @@ class SpacegroupAnalyzer:
             # Check if the conventional representation is hexagonal or
             # rhombohedral
             lengths = conv.lattice.lengths
-            if abs(lengths[0] - lengths[2]) < 0.0001:
+            if abs(lengths[0] - lengths[2]) < 1e-4:
                 return np.eye
             return np.array([[-1, 1, 1], [2, 1, 1], [-1, -2, 1]], dtype=np.float64) / 3
 
@@ -1670,7 +1674,8 @@ def generate_full_symmops(
             if len(full) > 1000:
                 warnings.warn(
                     f"{len(full)} matrices have been generated. The tol may be too small. Please terminate"
-                    " and rerun with a different tolerance."
+                    " and rerun with a different tolerance.",
+                    stacklevel=2,
                 )
 
     d = np.abs(full - identity) < tol
