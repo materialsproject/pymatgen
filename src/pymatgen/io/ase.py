@@ -180,7 +180,14 @@ class AseAtomsAdaptor:
 
         # Set the selective dynamics with the FixCartesian class.
         if fix_atoms is not None:
-            atoms.set_constraint([FixCartesian(indices, mask=cmask) for cmask, indices in fix_atoms.values()])
+            atoms.set_constraint(
+                [
+                    FixAtoms(indices) if cmask == [True, True, True] else FixCartesian(indices, mask=cmask)
+                    for cmask, indices in fix_atoms.values()
+                    # Do not add empty constraints
+                    if any(indices)
+                ]
+            )
 
         # Add any remaining site properties to the ASE Atoms object
         for prop in structure.site_properties:
