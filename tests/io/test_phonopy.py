@@ -1,7 +1,6 @@
 from __future__ import annotations
 
 import os
-import platform
 from pathlib import Path
 from unittest import TestCase
 
@@ -10,12 +9,11 @@ import pytest
 from numpy.testing import assert_allclose, assert_array_equal
 from pytest import approx
 
-from pymatgen.core import Element
+from pymatgen.core import Element, Structure
 from pymatgen.io.phonopy import (
     CompletePhononDos,
     PhononBandStructure,
     PhononBandStructureSymmLine,
-    Structure,
     get_complete_ph_dos,
     get_displaced_structures,
     get_gruneisen_ph_bs_symm_line,
@@ -158,10 +156,6 @@ class TestGetDisplacedStructures(PymatgenTest):
 
 
 @pytest.mark.skipif(Phonopy is None, reason="Phonopy not present")
-@pytest.mark.skipif(
-    platform.system() == "Windows" and int(np.__version__[0]) >= 2,
-    reason="See https://github.com/conda-forge/phonopy-feedstock/pull/158#issuecomment-2227506701",
-)
 class TestPhonopyFromForceConstants(TestCase):
     def setUp(self) -> None:
         test_path = Path(TEST_DIR)
