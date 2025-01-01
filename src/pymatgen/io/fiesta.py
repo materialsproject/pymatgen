@@ -63,7 +63,7 @@ class Nwchem2Fiesta(MSONable):
         init_folder = os.getcwd()
         os.chdir(self.folder)
 
-        with zopen(self.log_file, mode="w") as fout:
+        with zopen(self.log_file, mode="wt", encoding="utf-8") as fout:
             subprocess.call(
                 [
                     self._NWCHEM2FIESTA_cmd,
@@ -138,7 +138,7 @@ class FiestaRun(MSONable):
         if self.folder != init_folder:
             os.chdir(self.folder)
 
-        with zopen(self.log_file, mode="w") as fout:
+        with zopen(self.log_file, mode="wt", encoding="utf-8") as fout:
             subprocess.call(
                 [
                     "mpirun",
@@ -161,7 +161,7 @@ class FiestaRun(MSONable):
         if self.folder != init_folder:
             os.chdir(self.folder)
 
-        with zopen(self.log_file, mode="w") as fout:
+        with zopen(self.log_file, mode="wt", encoding="utf-8") as fout:
             subprocess.call(
                 [
                     "mpirun",
@@ -214,7 +214,7 @@ class BasisSetReader:
         """
         self.filename = filename
 
-        with zopen(filename) as file:
+        with zopen(filename, mode="rt", encoding="utf-8") as file:
             basis_set = file.read()
 
         self.data = self._parse_file(basis_set)
@@ -533,7 +533,7 @@ $geometry
         Args:
             filename: Filename.
         """
-        with zopen(filename, mode="w") as file:
+        with zopen(filename, mode="wt", encoding="utf-8") as file:
             file.write(str(self))
 
     def as_dict(self):
@@ -712,7 +712,7 @@ $geometry
         Returns:
             FiestaInput object
         """
-        with zopen(filename) as file:
+        with zopen(filename, mode="rt", encoding="utf-8") as file:
             return cls.from_str(file.read())
 
 
@@ -730,7 +730,7 @@ class FiestaOutput:
         """
         self.filename = filename
 
-        with zopen(filename) as file:
+        with zopen(filename, mode="rt", encoding="utf-8") as file:
             data = file.read()
 
         chunks = re.split(r"GW Driver iteration", data)
@@ -821,7 +821,7 @@ class BSEOutput:
         """
         self.filename = filename
 
-        with zopen(filename) as file:
+        with zopen(filename, mode="rt", encoding="utf-8") as file:
             log_bse = file.read()
 
         # self.job_info = self._parse_preamble(preamble)

@@ -54,8 +54,9 @@ jobs:
     runs-on: ${{ matrix.config.os }}
 
     env:
-      PMG_MAPI_KEY: ${{ secrets.PMG_MAPI_KEY }}
       MPLBACKEND: Agg  # non-interactive backend for matplotlib
+      PMG_MAPI_KEY: ${{ secrets.PMG_MAPI_KEY }}
+      PYTHONWARNDEFAULTENCODING: "true"  # PEP 597: Enable optional EncodingWarning
 
     steps:
       - name: Check out repo
