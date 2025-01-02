@@ -755,19 +755,6 @@ class ElementBase(Enum):
         return self.is_lanthanoid or self.is_actinoid or self.symbol in {"Sc", "Y"}
 
     @property
-    @deprecated(
-        is_rare_earth,
-        message="is_rare_earth is corrected to include Y and Sc.",
-        deadline=(2025, 1, 1),
-    )
-    def is_rare_earth_metal(self) -> bool:
-        """True if element is a rare earth metal, Lanthanides (La) series and Actinides (Ac) series.
-
-        This property is Deprecated, and scheduled for removal after 2025-01-01.
-        """
-        return self.is_lanthanoid or self.is_actinoid
-
-    @property
     def is_metal(self) -> bool:
         """True if is a metal."""
         return (
