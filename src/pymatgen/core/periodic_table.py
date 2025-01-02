@@ -14,7 +14,6 @@ from pathlib import Path
 from typing import TYPE_CHECKING, overload
 
 import numpy as np
-from monty.dev import deprecated
 from monty.json import MSONable
 
 from pymatgen.core.units import SUPPORTED_UNIT_NAMES, FloatWithUnit, Ha_to_eV, Length, Mass, Unit
