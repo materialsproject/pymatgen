@@ -1,7 +1,6 @@
 from __future__ import annotations
 
 import os
-import platform
 from pathlib import Path
 
 import numpy as np
@@ -123,10 +122,6 @@ class TestStructureConversion(MatSciTest):
         assert struct_pmg_round_trip.site_properties["magmom"] == struct_pmg.site_properties["magmom"]
 
 
-@pytest.mark.skipif(
-    platform.system() == "Windows" and int(np.__version__[0]) >= 2,
-    reason="cannot run NP2 on windows, see PR 4224",
-)
 @pytest.mark.skipif(Phonopy is None, reason="Phonopy not present")
 class TestGetDisplacedStructures(MatSciTest):
     def test_get_displaced_structures(self):
@@ -159,10 +154,6 @@ class TestGetDisplacedStructures(MatSciTest):
         assert os.path.isfile("test.yaml")
 
 
-@pytest.mark.skipif(
-    platform.system() == "Windows" and int(np.__version__[0]) >= 2,
-    reason="cannot run NP2 on windows, see PR 4224",
-)
 @pytest.mark.skipif(Phonopy is None, reason="Phonopy not present")
 class TestPhonopyFromForceConstants:
     def setup_method(self) -> None:

@@ -469,11 +469,11 @@ class TestGibbsComputedStructureEntry:
             for temp in self.temps
         }
 
-        with open(f"{TEST_DIR}/Mn-O_entries.json") as file:
-            data = json.load(file)
         with open(f"{TEST_DIR}/structure_CO2.json") as file:
             self.co2_struct = MontyDecoder().process_decoded(json.load(file))
 
+        with open(f"{TEST_DIR}/Mn-O_entries.json") as file:
+            data = json.load(file)
         self.mp_entries = [MontyDecoder().process_decoded(d) for d in data]
 
     def test_gf_sisso(self):
