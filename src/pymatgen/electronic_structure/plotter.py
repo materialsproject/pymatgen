@@ -1246,7 +1246,7 @@ class BSPlotterProjected(BSPlotter):
                                 proj[b][str(spin)][band_idx][j][str(el)][o]
                                 for o in proj[b][str(spin)][band_idx][j][str(el)]
                             )
-                        if sum_e == 0.0:
+                        if math.isclose(sum_e, 0.0):
                             color = [0.0] * len(elt_ordered)
                         else:
                             color = [

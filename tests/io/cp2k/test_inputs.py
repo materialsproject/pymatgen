@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import numpy as np
 import pytest
-from numpy.testing import assert_allclose, assert_array_equal
+from numpy.testing import assert_allclose
 from pytest import approx
 
 from pymatgen.core.structure import Molecule, Structure
@@ -88,7 +88,7 @@ class TestBasis(PymatgenTest):
         assert kw.values[0] == "SZV-MOLOPT-GTH"
         mol_opt.info.admm = True
         kw = mol_opt.get_keyword()
-        assert_array_equal(kw.values, ["AUX_FIT", "SZV-MOLOPT-GTH"])
+        assert list(kw.values) == ["AUX_FIT", "SZV-MOLOPT-GTH"]
         mol_opt.info.admm = False
 
 

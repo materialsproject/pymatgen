@@ -137,7 +137,7 @@ def test_write_spins(tmp_path: Path):
     assert len(magmom_lines) == 4
 
     magmoms = np.array([float(line.strip().split()[-1]) for line in magmom_lines])
-    assert np.all(magmoms == 5.0)
+    assert_allclose(magmoms, 5.0)
 
     mg2mn4o8 = Structure(
         lattice=mg2mn4o8.lattice,
