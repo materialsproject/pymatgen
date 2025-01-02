@@ -2454,7 +2454,6 @@ nav_order: 6
       * [`ElementBase.is_noble_gas`](pymatgen.core.md#pymatgen.core.periodic_table.ElementBase.is_noble_gas)
       * [`ElementBase.is_post_transition_metal`](pymatgen.core.md#pymatgen.core.periodic_table.ElementBase.is_post_transition_metal)
       * [`ElementBase.is_quadrupolar`](pymatgen.core.md#pymatgen.core.periodic_table.ElementBase.is_quadrupolar)
-      * [`ElementBase.is_rare_earth_metal`](pymatgen.core.md#pymatgen.core.periodic_table.ElementBase.is_rare_earth_metal)
       * [`ElementBase.is_transition_metal`](pymatgen.core.md#pymatgen.core.periodic_table.ElementBase.is_transition_metal)
       * [`ElementBase.is_valid_symbol()`](pymatgen.core.md#pymatgen.core.periodic_table.ElementBase.is_valid_symbol)
       * [`ElementBase.iupac_ordering`](pymatgen.core.md#pymatgen.core.periodic_table.ElementBase.iupac_ordering)
