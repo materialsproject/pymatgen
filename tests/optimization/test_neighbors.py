@@ -4,11 +4,11 @@ import numpy as np
 
 from pymatgen.core.lattice import Lattice
 from pymatgen.optimization.neighbors import find_points_in_spheres
-from pymatgen.util.testing import PymatgenTest
+from pymatgen.util.testing import MatSciTest
 
 
-class TestNeighbors(PymatgenTest):
-    def setUp(self):
+class TestNeighbors(MatSciTest):
+    def setup_method(self):
         self.lattice = Lattice.cubic(10.0)
         self.cubic = self.lattice
         self.tetragonal = Lattice.tetragonal(10, 20)

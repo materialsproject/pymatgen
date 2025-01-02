@@ -1,11 +1,9 @@
 from __future__ import annotations
 
 import collections
-import unittest
-import unittest.mock
 from itertools import combinations
 from numbers import Number
-from unittest import TestCase
+from unittest.mock import patch
 
 import matplotlib.pyplot as plt
 import numpy as np
@@ -32,13 +30,13 @@ from pymatgen.analysis.phase_diagram import (
 from pymatgen.core import Composition, DummySpecies, Element
 from pymatgen.entries.computed_entries import ComputedEntry
 from pymatgen.entries.entry_tools import EntrySet
-from pymatgen.util.testing import TEST_FILES_DIR, PymatgenTest
+from pymatgen.util.testing import TEST_FILES_DIR, MatSciTest
 
 TEST_DIR = f"{TEST_FILES_DIR}/analysis"
 
 
-class TestPDEntry(TestCase):
-    def setUp(self):
+class TestPDEntry:
+    def setup_method(self):
         comp = Composition("LiFeO2")
         self.entry = PDEntry(comp, 53, name="mp-757614")
         self.gp_entry = GrandPotPDEntry(self.entry, {Element("O"): 1.5})
@@ -113,8 +111,8 @@ class TestPDEntry(TestCase):
         assert len(entries) == 490, "Wrong number of entries!"
 
 
-class TestTransformedPDEntry(TestCase):
-    def setUp(self):
+class TestTransformedPDEntry:
+    def setup_method(self):
         comp = Composition("LiFeO2")
         entry = PDEntry(comp, 53)
 
@@ -179,8 +177,8 @@ class TestTransformedPDEntry(TestCase):
         assert norm_entry.composition == expected_comp
 
 
-class TestPhaseDiagram(PymatgenTest):
-    def setUp(self):
+class TestPhaseDiagram(MatSciTest):
+    def setup_method(self):
         self.entries = EntrySet.from_csv(f"{TEST_DIR}/pd_entries_test.csv")
         self.pd = PhaseDiagram(self.entries)
 
@@ -667,8 +665,8 @@ class TestPhaseDiagram(PymatgenTest):
                 PhaseDiagram(entries=entries)
 
 
-class TestGrandPotentialPhaseDiagram(TestCase):
-    def setUp(self):
+class TestGrandPotentialPhaseDiagram:
+    def setup_method(self):
         self.entries = EntrySet.from_csv(f"{TEST_DIR}/pd_entries_test.csv")
         self.pd = GrandPotentialPhaseDiagram(self.entries, {Element("O"): -5})
         self.pd6 = GrandPotentialPhaseDiagram(self.entries, {Element("O"): -6})
@@ -703,8 +701,8 @@ class TestGrandPotentialPhaseDiagram(TestCase):
         )
 
 
-class TestCompoundPhaseDiagram(TestCase):
-    def setUp(self):
+class TestCompoundPhaseDiagram:
+    def setup_method(self):
         self.entries = EntrySet.from_csv(f"{TEST_DIR}/pd_entries_test.csv")
         self.pd = CompoundPhaseDiagram(self.entries, [Composition("Li2O"), Composition("Fe2O3")])
 
@@ -741,8 +739,8 @@ class TestCompoundPhaseDiagram(TestCase):
         assert len(ret) == num
 
 
-class TestPatchedPhaseDiagram(TestCase):
-    def setUp(self):
+class TestPatchedPhaseDiagram:
+    def setup_method(self):
         self.entries = EntrySet.from_csv(f"{TEST_DIR}/phase_diagram/reaction_entries_test.csv")
         # NOTE add He to test for correct behavior despite no patches involving He
         self.no_patch_entry = he_entry = PDEntry("He", -1.23)
@@ -891,8 +889,8 @@ class TestPatchedPhaseDiagram(TestCase):
         assert len(self.ppd.remove_redundant_spaces(test)) == 30
 
 
-class TestReactionDiagram(TestCase):
-    def setUp(self):
+class TestReactionDiagram:
+    def setup_method(self):
         self.entries = list(EntrySet.from_csv(f"{TEST_DIR}/phase_diagram/reaction_entries_test.csv").entries)
         for entry in self.entries:
             if entry.reduced_formula == "VPO5":
@@ -931,8 +929,8 @@ class TestReactionDiagram(TestCase):
         #     assert formula in formed_formula, f"{formed_formula=} not in {expected_formula=}"
 
 
-class TestPDPlotter(TestCase):
-    def setUp(self):
+class TestPDPlotter:
+    def setup_method(self):
         entries = list(EntrySet.from_csv(f"{TEST_DIR}/pd_entries_test.csv"))
 
         elemental_entries = [entry for entry in entries if entry.elements == [Element("Li")]]
@@ -1009,7 +1007,7 @@ class TestPDPlotter(TestCase):
 
         # test show()
         # suppress default plotly behavior of opening figure in browser by patching plotly.io.show to noop
-        with unittest.mock.patch("plotly.io.show") as mock_show:
+        with patch("plotly.io.show") as mock_show:
             assert self.plotter_ternary_plotly_2d.show() is None
             mock_show.assert_called_once()
 

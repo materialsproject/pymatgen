@@ -1,7 +1,6 @@
 from __future__ import annotations
 
 import platform
-from unittest import TestCase
 
 import pytest
 from monty.serialization import loadfn
@@ -12,8 +11,8 @@ from pymatgen.util.testing import TEST_FILES_DIR
 TEST_DIR = f"{TEST_FILES_DIR}/analysis/bond_dissociation"
 
 
-class TestBondDissociation(TestCase):
-    def setUp(self):
+class TestBondDissociation:
+    def setup_method(self):
         pytest.importorskip("openbabel")
         self.PC_65_principle = loadfn(f"{TEST_DIR}/PC_65_principle.json")
         self.PC_65_principle["initial_molecule"] = self.PC_65_principle["initial_molecule"].as_dict()
