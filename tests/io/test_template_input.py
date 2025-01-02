@@ -18,7 +18,7 @@ class TestTemplateInputGen(PymatgenTest):
             filename="hello_world.in",
         )
         input_set.write_input(self.tmp_path)
-        with open(f"{self.tmp_path}/hello_world.in") as file:
+        with open(f"{self.tmp_path}/hello_world.in", encoding="utf-8") as file:
             assert "298" in file.read()
 
         with pytest.raises(FileNotFoundError, match="No such file or directory:"):
@@ -42,7 +42,7 @@ class TestTemplateInputGen(PymatgenTest):
 
         input_set.write_input(self.tmp_path, overwrite=True)
 
-        with open(f"{self.tmp_path}/hello_world.in") as file:
+        with open(f"{self.tmp_path}/hello_world.in", encoding="utf-8") as file:
             assert "400" in file.read()
 
         input_set.write_input(self.tmp_path, zip_inputs=True)

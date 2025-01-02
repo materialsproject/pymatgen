@@ -661,7 +661,7 @@ class BuckinghamPotential:
         if bush_lewis_flag not in {"bush", "lewis"}:
             raise ValueError(f"bush_lewis_flag should be bush or lewis, got {bush_lewis_flag}")
 
-        with open(pot_file) as file:
+        with open(pot_file, encoding="utf-8") as file:
             # In lewis.lib there is no shell for cation
             species_dict, pot_dict, spring_dict = {}, {}, {}
             sp_flg, pot_flg, spring_flg = False, False, False
@@ -728,7 +728,7 @@ class TersoffPotential:
 
     def __init__(self, pot_file):
         """Init TersoffPotential."""
-        with open(pot_file) as file:
+        with open(pot_file, encoding="utf-8") as file:
             data = {}
             for row in file:
                 metaloxi = row.split()[0]

@@ -142,7 +142,7 @@ class TestCoordinationGeometryFinder(PymatgenTest):
 
         for json_file in files:
             with self.subTest(json_file=json_file):
-                with open(f"{json_dir}/{json_file}") as file:
+                with open(f"{json_dir}/{json_file}", encoding="utf-8") as file:
                     dct = json.load(file)
 
                 atom_indices = dct["atom_indices"]

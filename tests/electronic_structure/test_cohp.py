@@ -22,20 +22,20 @@ TEST_DIR = f"{TEST_FILES_DIR}/electronic_structure/cohp"
 
 class TestCohp(TestCase):
     def setUp(self):
-        with open(f"{TEST_DIR}/cohp.json") as file:
+        with open(f"{TEST_DIR}/cohp.json", encoding="utf-8") as file:
             self.cohp = Cohp.from_dict(json.load(file))
         self.cohp_only = Cohp(self.cohp.efermi, self.cohp.energies, self.cohp.cohp)
-        with open(f"{TEST_DIR}/coop.json") as file:
+        with open(f"{TEST_DIR}/coop.json", encoding="utf-8") as file:
             self.coop = Cohp.from_dict(json.load(file))
-        with open(f"{TEST_DIR}/cobi.json") as file:
+        with open(f"{TEST_DIR}/cobi.json", encoding="utf-8") as file:
             self.cobi = Cohp.from_dict(json.load(file))
 
     def test_as_from_dict(self):
-        with open(f"{TEST_DIR}/cohp.json") as file:
+        with open(f"{TEST_DIR}/cohp.json", encoding="utf-8") as file:
             cohp_dict = json.load(file)
         assert self.cohp.as_dict() == cohp_dict
 
-        with open(f"{TEST_DIR}/cobi.json") as file:
+        with open(f"{TEST_DIR}/cobi.json", encoding="utf-8") as file:
             cobi_dict = json.load(file)
         assert self.cobi.as_dict() == cobi_dict
 
@@ -68,12 +68,12 @@ class TestCohp(TestCase):
     def test_str(self):
         header = "#Energy          COOPUp          ICOOPUp        \n"
 
-        with open(f"{TEST_DIR}/cohp.str") as file:
+        with open(f"{TEST_DIR}/cohp.str", encoding="utf-8") as file:
             str_cohp = file.read()
         assert str(self.cohp) == str_cohp
         assert str(self.coop).strip().startswith(header)
 
-        with open(f"{TEST_DIR}/coop.str") as file:
+        with open(f"{TEST_DIR}/coop.str", encoding="utf-8") as file:
             str_coop = file.read()
         assert str(self.coop) == str_coop
         assert str(self.coop).strip().startswith(header)
@@ -800,20 +800,20 @@ class TestCombinedIcohp(TestCase):
 class TestCompleteCohp(PymatgenTest):
     def setUp(self):
         filepath = f"{TEST_DIR}/complete_cohp_lobster.json"
-        with open(filepath) as file:
+        with open(filepath, encoding="utf-8") as file:
             self.cohp_lobster_dict = CompleteCohp.from_dict(json.load(file))
         filepath = f"{TEST_DIR}/complete_coop_lobster.json"
-        with open(filepath) as file:
+        with open(filepath, encoding="utf-8") as file:
             self.coop_lobster_dict = CompleteCohp.from_dict(json.load(file))
         filepath = f"{TEST_DIR}/complete_cohp_lmto.json"
-        with open(filepath) as file:
+        with open(filepath, encoding="utf-8") as file:
             self.cohp_lmto_dict = CompleteCohp.from_dict(json.load(file))
         filepath = f"{TEST_DIR}/complete_cohp_orbitalwise.json"
-        with open(filepath) as file:
+        with open(filepath, encoding="utf-8") as file:
             self.cohp_orb_dict = CompleteCohp.from_dict(json.load(file))
         # Lobster 3.0
         filepath = f"{TEST_DIR}/complete_cohp_forb.json"
-        with open(filepath) as file:
+        with open(filepath, encoding="utf-8") as file:
             self.cohp_lobster_forb_dict = CompleteCohp.from_dict(json.load(file))
 
             # Lobster 2.0
@@ -823,7 +823,7 @@ class TestCompleteCohp(PymatgenTest):
         filepath = f"{TEST_DIR}/COHPCAR.lobster.gz"
         structure = f"{TEST_DIR}/POSCAR"
         self.cohp_lobster = CompleteCohp.from_file("lobster", filename=filepath, structure_file=structure)
-        # with open(f"{TEST_DIR}/complete_cohp_lobster.json", "w") as file:
+        # with open(f"{TEST_DIR}/complete_cohp_lobster.json", "w", encoding="utf-8") as file:
         #     json.dump(self.cohp_lobster.as_dict(), file)
         filepath = f"{TEST_DIR}/COOPCAR.lobster.BiSe.gz"
         structure = f"{TEST_DIR}/POSCAR.BiSe"
@@ -833,7 +833,7 @@ class TestCompleteCohp(PymatgenTest):
         filepath = f"{TEST_DIR}/COHPCAR.lobster.orbitalwise.gz"
         structure = f"{TEST_DIR}/POSCAR.orbitalwise"
         self.cohp_orb = CompleteCohp.from_file("lobster", filename=filepath, structure_file=structure)
-        # with open(f"{TEST_DIR}/complete_cohp_orbitalwise.json", "w") as file:
+        # with open(f"{TEST_DIR}/complete_cohp_orbitalwise.json", "w", encoding="utf-8") as file:
         #     json.dump(self.cohp_orb.as_dict(), file)
         filepath = f"{TEST_DIR}/COHPCAR.lobster.notot.orbitalwise.gz"
         self.cohp_notot = CompleteCohp.from_file("lobster", filename=filepath, structure_file=structure)

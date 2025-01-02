@@ -23,7 +23,6 @@ who outlined many of its possible uses:
 from __future__ import annotations
 
 import json
-import os
 import warnings
 from functools import lru_cache
 from itertools import groupby
@@ -36,6 +35,7 @@ from plotly.graph_objects import Figure, Mesh3d, Scatter, Scatter3d
 from scipy.spatial import ConvexHull, HalfspaceIntersection
 
 from pymatgen.analysis.phase_diagram import PDEntry, PhaseDiagram
+from pymatgen.core import PKG_DIR
 from pymatgen.core.composition import Composition, Element
 from pymatgen.util.coord import Simplex
 from pymatgen.util.due import Doi, due
@@ -44,7 +44,7 @@ from pymatgen.util.string import htmlify
 if TYPE_CHECKING:
     from pymatgen.entries.computed_entries import ComputedEntry
 
-with open(f"{os.path.dirname(__file__)}/../util/plotly_chempot_layouts.json") as file:
+with open(f"{PKG_DIR}/util/plotly_chempot_layouts.json", encoding="utf-8") as file:
     plotly_layouts = json.load(file)
 
 

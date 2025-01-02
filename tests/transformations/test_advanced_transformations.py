@@ -54,7 +54,7 @@ def get_table():
     default lambda table.
     """
     json_path = f"{TEST_FILES_DIR}/analysis/struct_predictor/test_lambda.json"
-    with open(json_path) as file:
+    with open(json_path, encoding="utf-8") as file:
         return json.load(file)
 
 

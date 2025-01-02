@@ -18,7 +18,7 @@ class TestConversionElectrode(TestCase):
         self.formulas = ["LiCoO2", "FeF3", "MnO2"]
         self.conversion_electrodes = {}
         for formula in self.formulas:
-            with open(f"{TEST_DIR}/{formula}_batt.json") as fid:
+            with open(f"{TEST_DIR}/{formula}_batt.json", encoding="utf-8") as fid:
                 entries = json.load(fid, cls=MontyDecoder)
             if formula in ["LiCoO2", "FeF3"]:
                 working_ion = "Li"
