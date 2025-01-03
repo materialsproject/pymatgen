@@ -13,7 +13,7 @@ from pytest import approx
 
 from pymatgen.core import Element, Structure
 from pymatgen.electronic_structure.core import Orbital, OrbitalType, Spin
-from pymatgen.electronic_structure.dos import DOS, CompleteDos, FermiDos, LobsterCompleteDos, Dos
+from pymatgen.electronic_structure.dos import DOS, CompleteDos, Dos, FermiDos, LobsterCompleteDos
 from pymatgen.util.testing import TEST_FILES_DIR, PymatgenTest
 
 TEST_DIR = f"{TEST_FILES_DIR}/electronic_structure/dos"
@@ -112,12 +112,15 @@ class TestFermiDos(TestCase):
             },
             efermi=0.8,
         )
-        fermi_dos = FermiDos(dos, structure=self.dos.structure,)
+        fermi_dos = FermiDos(
+            dos,
+            structure=self.dos.structure,
+        )
         assert fermi_dos.get_cbm_vbm() == (1.5, 0.5)
         assert np.isclose(
             fermi_dos.get_doping(fermi_level=1.0, temperature=300),
             -1385561583858093.5,  # <0 because e doping; greater DOS in CBM than VBM here, and efermi set to mid-gap
-            rtol=1e-3
+            rtol=1e-3,
         )
 
 
