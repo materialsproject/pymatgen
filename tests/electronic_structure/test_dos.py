@@ -13,7 +13,7 @@ from pytest import approx
 
 from pymatgen.core import Element, Structure
 from pymatgen.electronic_structure.core import Orbital, OrbitalType, Spin
-from pymatgen.electronic_structure.dos import DOS, CompleteDos, FermiDos, LobsterCompleteDos
+from pymatgen.electronic_structure.dos import DOS, CompleteDos, FermiDos, LobsterCompleteDos, Dos
 from pymatgen.util.testing import TEST_FILES_DIR, PymatgenTest
 
 TEST_DIR = f"{TEST_FILES_DIR}/electronic_structure/dos"
@@ -102,6 +102,23 @@ class TestFermiDos(TestCase):
         assert isinstance(dos_dict["densities"]["1"], list)
         assert isinstance(dos_dict["densities"]["1"][0], float)
         assert not isinstance(dos_dict["densities"]["1"][0], np.float64)
+
+    def test_get_vbm_cbm_doping(self):
+        dos = Dos(
+            energies=np.array([0.0, 0.5, 1.0, 1.5, 2.0]),
+            densities={
+                Spin.up: np.array([1.0, 2.0, 0.0, 3.0, 4.0]),
+                Spin.down: np.array([0.5, 1.0, 0.0, 1.5, 2.0]),
+            },
+            efermi=0.8,
+        )
+        fermi_dos = FermiDos(dos, structure=self.dos.structure,)
+        assert fermi_dos.get_cbm_vbm() == (1.5, 0.5)
+        assert np.isclose(
+            fermi_dos.get_doping(fermi_level=1.0, temperature=300),
+            -1385561583858093.5,  # <0 because e doping; greater DOS in CBM than VBM here, and efermi set to mid-gap
+            rtol=1e-3
+        )
 
 
 class TestCompleteDos(TestCase):
