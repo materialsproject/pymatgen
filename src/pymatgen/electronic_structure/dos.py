@@ -156,14 +156,13 @@ class DOS(Spectrum):
 
         # Work backwards until tolerance is reached
         i_gap_start = i_fermi
-        while i_gap_start >= 1 and tdos[i_gap_start - 1] <= tol:
+        while i_gap_start >= 1 and tdos[i_gap_start] <= tol:
             i_gap_start -= 1
 
         # Work forwards until tolerance is reached
-        i_gap_end = i_gap_start
+        i_gap_end = i_gap_start + 1
         while i_gap_end < tdos.shape[0] and tdos[i_gap_end] <= tol:
             i_gap_end += 1
-        i_gap_end -= 1
 
         return self.x[i_gap_end], self.x[i_gap_start]
 
@@ -378,14 +377,13 @@ class Dos(MSONable):
 
         # Work backwards until tolerance is reached
         i_gap_start = i_fermi
-        while i_gap_start >= 1 and tdos[i_gap_start - 1] <= tol:
+        while i_gap_start >= 1 and tdos[i_gap_start] <= tol:
             i_gap_start -= 1
 
         # Work forwards until tolerance is reached
-        i_gap_end = i_gap_start
+        i_gap_end = i_gap_start + 1
         while i_gap_end < tdos.shape[0] and tdos[i_gap_end] <= tol:
             i_gap_end += 1
-        i_gap_end -= 1
 
         return self.energies[i_gap_end], self.energies[i_gap_start]
 
