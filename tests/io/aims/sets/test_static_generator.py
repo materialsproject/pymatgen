@@ -24,7 +24,7 @@ def test_static_o2_charge(tmp_path):
     Si.set_charge(1)
     generator = StaticSetGenerator(parameters, use_structure_charge=True)
     input_set = generator.get_input_set(Si)
-    assert "charge                             1" in input_set.control_in
+    assert "charge                                            1" in input_set.control_in
 
 
 def test_static_si_no_kgrid(tmp_path):

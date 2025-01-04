@@ -2996,7 +2996,6 @@ class IStructure(SiteCollection, MSONable):
             geom_in = AimsGeometryIn.from_structure(self)
             if filename:
                 with zopen(filename, mode="w") as file:
-                    file.write(geom_in.get_header(filename))
                     file.write(geom_in.content)
                     file.write("\n")
             return geom_in.content

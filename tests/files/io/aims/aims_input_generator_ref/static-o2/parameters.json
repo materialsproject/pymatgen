@@ -1,5 +1,1 @@
-{
-  "xc": "pbe",
-  "relativistic": "atomic_zora scalar",
-  "species_dir": "/home/tpurcell/git/atomate2/tests/aims/species_dir/light"
-}
+{"xc": "pbe", "relativistic": "atomic_zora scalar", "species_dir": "light"}

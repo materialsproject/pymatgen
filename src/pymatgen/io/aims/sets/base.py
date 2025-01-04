@@ -10,10 +10,11 @@ from warnings import warn
 
 import numpy as np
 from monty.json import MontyDecoder, MontyEncoder
+from pyfhiaims.output_parser.aims_out_section import AimsParseError
 
 from pymatgen.core import Molecule, Structure
 from pymatgen.io.aims.inputs import AimsControlIn, AimsGeometryIn
-from pymatgen.io.aims.parsers import AimsParseError, read_aims_output
+from pymatgen.io.aims.outputs import AimsOutput
 from pymatgen.io.core import InputFile, InputGenerator, InputSet
 
 if TYPE_CHECKING:
@@ -254,10 +255,8 @@ class AimsInputGenerator(InputGenerator):
                 prev_params = json.load(param_file, cls=MontyDecoder)
 
             try:
-                aims_output: Sequence[Structure | Molecule] = read_aims_output(
-                    f"{split_prev_dir}/aims.out", index=slice(-1, None)
-                )
-                prev_structure = aims_output[0]
+                aims_output = AimsOutput.from_outfile(f"{split_prev_dir}/aims.out")
+                prev_structure = aims_output.get_results_for_image(-1)
 
                 prev_results = prev_structure.properties
                 prev_results.update(prev_structure.site_properties)

@@ -2,32 +2,48 @@
 
 from __future__ import annotations
 
+import gzip
+import warnings
+from pathlib import Path
 from typing import TYPE_CHECKING
 
 import numpy as np
 from monty.json import MontyDecoder, MSONable
+from pyfhiaims.output_parser.aims_out_header_section import AimsOutHeaderSection
+from pyfhiaims.output_parser.aims_out_section import AimsParseError
+from pyfhiaims.output_parser.aims_outputs import AimsOutput as FHIAimsOutput
 
-from pymatgen.io.aims.parsers import (
-    read_aims_header_info,
-    read_aims_header_info_from_content,
-    read_aims_output,
-    read_aims_output_from_content,
-)
+from pymatgen.core import Lattice, Structure
+from pymatgen.io.aims.inputs import aimsgeo2structure
 
 if TYPE_CHECKING:
     from collections.abc import Sequence
-    from pathlib import Path
     from typing import Any
 
     from typing_extensions import Self
 
-    from pymatgen.core import Molecule, Structure
+    from pymatgen.core import Molecule
     from pymatgen.util.typing import Matrix3D, Vector3D
 
 __author__ = "Andrey Sobolev and Thomas A. R. Purcell"
 __version__ = "1.0"
 __email__ = "andrey.n.sobolev@gmail.com and purcellt@arizona.edu"
 __date__ = "November 2023"
+
+
+AIMS_OUTPUT_KEY_MAP = {
+    "homo": "vbm",
+    "lumo": "cbm",
+}
+
+
+def remap_outputs(results: dict[str, Any]) -> dict[str, Any]:
+    """Remap FHIAimsOutput keys to AimsOutput keys"""
+    to_ret = results.copy()
+    for key, val in AIMS_OUTPUT_KEY_MAP.items():
+        to_ret[val] = to_ret.pop(key, None)
+
+    return to_ret
 
 
 class AimsOutput(MSONable):
@@ -73,11 +89,20 @@ class AimsOutput(MSONable):
 
         Returns:
             The AimsOutput object for the output file
-        """
-        metadata, structure_summary = read_aims_header_info(outfile)
-        results = read_aims_output(outfile, index=slice(0, None))
 
-        return cls(results, metadata, structure_summary)
+        Raises:
+            AimsParseError if file does not exist
+        """
+        for path in [Path(outfile), Path(f"{outfile}.gz")]:
+            if not path.exists():
+                continue
+            if path.suffix == ".gz":
+                with gzip.open(f"{outfile}.gz", mode="rt") as file:
+                    return cls.from_str(file.read())
+            else:
+                with open(outfile) as file:
+                    return cls.from_str(file.read())
+        raise AimsParseError(f"File {outfile} not found.")
 
     @classmethod
     def from_str(cls, content: str) -> Self:
@@ -89,8 +114,65 @@ class AimsOutput(MSONable):
         Returns:
             The AimsOutput for the output file content
         """
-        metadata, structure_summary = read_aims_header_info_from_content(content)
-        results = read_aims_output_from_content(content, index=slice(0, None))
+        aims_out_lines = [line.strip() for line in content.split("\n")]
+        header_lines = []
+        # Stop the header once the first SCF cycle begins
+        for line in aims_out_lines:
+            header_lines.append(line)
+            if (
+                "Convergence:    q app. |  density  | eigen (eV) | Etot (eV)" in line
+                or "Begin self-consistency iteration #" in line
+            ):
+                break
+
+        header = AimsOutHeaderSection(header_lines)
+        metadata = header.metadata_summary
+        structure_summary = header.header_summary
+        structure_summary["initial_structure"] = aimsgeo2structure(structure_summary.pop("initial_geometry"))
+        for site in structure_summary["initial_structure"]:
+            if abs(site.properties.get("magmom", 0.0)) < 1e-10:
+                site.properties.pop("magmom", None)
+
+        lattice = structure_summary.pop("initial_lattice", None)
+        if lattice is not None:
+            lattice = Lattice(lattice)
+        structure_summary["initial_lattice"] = lattice
+
+        outputs = FHIAimsOutput.from_aims_out_content(aims_out_lines)
+        results = []
+        for image in outputs:
+            image_results = remap_outputs(image._results)
+            structure = aimsgeo2structure(image._geometry)
+            site_prop_keys = {
+                "forces": "force",
+                "stresses": "atomic_virial_stress",
+                "hirshfeld_charges": "hirshfeld_charge",
+                "hirshfeld_volumes": "hirshfeld_volume",
+                "hirshfeld_atomic_dipoles": "hirshfeld_atomic_dipole",
+                "mulliken_charges": "charge",
+                "mulliken_spins": "magmom",
+            }
+            properties = {prop: image_results[prop] for prop in image_results if prop not in site_prop_keys}
+            site_properties = {}
+            for prop, site_key in site_prop_keys.items():
+                if prop in image_results:
+                    site_properties[site_key] = image_results[prop]
+
+            if ((magmom := site_properties.get("magmom")) is not None) and np.abs(
+                np.sum(magmom) - properties["magmom"]
+            ) < 1e-3:
+                warnings.warn(
+                    "Total magnetic moment and sum of Mulliken spins are not consistent",
+                    stacklevel=2,
+                )
+            if isinstance(structure, Structure):
+                structure._properties.update(properties)
+            else:
+                structure.properties.update(properties)
+            for st, site in enumerate(structure.sites):
+                site.properties = {key: val[st] for key, val in site_properties.items()}
+
+            results.append(structure)
 
         return cls(results, metadata, structure_summary)
 

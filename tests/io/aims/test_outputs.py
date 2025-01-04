@@ -2,15 +2,15 @@ from __future__ import annotations
 
 import gzip
 import json
+from pathlib import Path
 
 from monty.json import MontyDecoder, MontyEncoder
 from numpy.testing import assert_allclose
 
 from pymatgen.core import Structure
 from pymatgen.io.aims.outputs import AimsOutput
-from pymatgen.util.testing import TEST_FILES_DIR
 
-OUT_FILE_DIR = TEST_FILES_DIR / "io/aims/output_files"
+OUT_FILE_DIR = Path("/home/purcellt/git/pymatgen/tests/files/io/aims/output_files")
 
 
 def comp_images(test, ref):
@@ -27,7 +27,7 @@ def comp_images(test, ref):
 
 
 def test_aims_output_si():
-    si = AimsOutput.from_outfile(f"{OUT_FILE_DIR}/si.out.gz")
+    si = AimsOutput.from_outfile(f"{OUT_FILE_DIR}/si.out")
     with gzip.open(f"{OUT_FILE_DIR}/si_ref.json.gz") as ref_file:
         si_ref = json.load(ref_file, cls=MontyDecoder)
 
@@ -40,7 +40,7 @@ def test_aims_output_si():
 
 
 def test_aims_output_h2o():
-    h2o = AimsOutput.from_outfile(f"{OUT_FILE_DIR}/h2o.out.gz")
+    h2o = AimsOutput.from_outfile(f"{OUT_FILE_DIR}/h2o.out")
     with gzip.open(f"{OUT_FILE_DIR}/h2o_ref.json.gz", mode="rt") as ref_file:
         h2o_ref = json.load(ref_file, cls=MontyDecoder)
 
@@ -83,7 +83,7 @@ def test_aims_output_h2o_str():
 
 
 def test_aims_output_si_dict():
-    si = AimsOutput.from_outfile(f"{OUT_FILE_DIR}/si.out.gz")
+    si = AimsOutput.from_outfile(f"{OUT_FILE_DIR}/si.out")
     si = json.loads(json.dumps(si.as_dict(), cls=MontyEncoder), cls=MontyDecoder)
 
     with gzip.open(f"{OUT_FILE_DIR}/si_ref.json.gz") as ref_file:
@@ -98,7 +98,7 @@ def test_aims_output_si_dict():
 
 
 def test_aims_output_h2o_dict():
-    h2o = AimsOutput.from_outfile(f"{OUT_FILE_DIR}/h2o.out.gz")
+    h2o = AimsOutput.from_outfile(f"{OUT_FILE_DIR}/h2o.out")
     h2o = json.loads(json.dumps(h2o.as_dict(), cls=MontyEncoder), cls=MontyDecoder)
 
     with gzip.open(f"{OUT_FILE_DIR}/h2o_ref.json.gz", mode="rt") as ref_file:
