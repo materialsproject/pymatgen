@@ -54,6 +54,18 @@ kpts_opt_vrun_path = f"{TEST_DIR}/fixtures/kpoints_opt/vasprun.xml.gz"
 
 
 class TestVasprun(PymatgenTest):
+    def test_vasprun_soc(self):
+        # Test that SOC vaspruns are parsed appropriately, giving just Spin.Up tdos, idos and pdos
+        vasp_run = Vasprun(f"{VASP_OUT_DIR}/vasprun.int_Te_SOC.xml.gz")
+        dos_density_dicts_to_check = [vasp_run.complete_dos.densities, vasp_run.tdos.densities, vasp_run.idos.densities]
+        dos_density_dicts_to_check += [
+            densities for orbital_dict in vasp_run.complete_dos.pdos.values() for densities in orbital_dict.values()
+        ]
+        for i, dos_density_dict in enumerate(dos_density_dicts_to_check):
+            assert set(dos_density_dict.keys()) == {Spin.up}, f"Failed spin keys check for {i}th dos obj!"
+
+        assert vasp_run.complete_dos.spin_polarization is None
+
     def test_vasprun_ml(self):
         # Test for ML MD simulation
         # The trajectory data is stored in md_data
@@ -79,7 +91,6 @@ class TestVasprun(PymatgenTest):
     def test_vasprun_ediffg_set_to_0(self):
         # Test for case where EDIFFG is set to 0. This should pass if all ionic steps
         # complete and are electronically converged.
-        print(list(os.walk(VASP_OUT_DIR)))
         vasp_run = Vasprun(f"{VASP_OUT_DIR}/vasprun.ediffg_set_to_0.xml.gz")
         assert len(vasp_run.ionic_steps) == 3
         assert vasp_run.final_energy == approx(-34.60164204)
@@ -1326,6 +1337,22 @@ class TestOutcar(PymatgenTest):
         assert "onsite_density_matrices" in outcar.as_dict()
         outcar = Outcar(f"{VASP_OUT_DIR}/OUTCAR_merged_numbers2")
         assert "onsite_density_matrices" in outcar.as_dict()
+
+    def test_nbands(self):
+        # Test VASP 5.2.11
+        nbands = Outcar(f"{VASP_OUT_DIR}/OUTCAR.gz").data["nbands"]
+        assert nbands == 33
+        assert isinstance(nbands, int)
+
+        # Test VASP 5.4.4
+        assert Outcar(f"{VASP_OUT_DIR}/OUTCAR.LOPTICS.vasp544").data["nbands"] == 128
+
+        # Test VASP 6.3.0
+        assert Outcar(f"{VASP_OUT_DIR}/OUTCAR_vasp_6.3.gz").data["nbands"] == 64
+
+        # Test NBANDS set by user but overridden by VASP
+        # VASP 6.3.2
+        assert Outcar(f"{VASP_OUT_DIR}/OUTCAR.nbands_overridden.gz").data["nbands"] == 32
 
     def test_nplwvs(self):
         outcar = Outcar(f"{VASP_OUT_DIR}/OUTCAR.gz")

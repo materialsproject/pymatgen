@@ -20,7 +20,8 @@ except ImportError:
     unit = None
     warnings.warn(
         "To use the pymatgen.io.openff module install openff-toolkit and openff-units"
-        "with `conda install -c conda-forge openff-toolkit openff-units`."
+        "with `conda install -c conda-forge openff-toolkit openff-units`.",
+        stacklevel=2,
     )
 
 
