@@ -432,6 +432,7 @@ class JDFTXInfile(dict, MSONable):
         """
         # use dict representation so it's easy to get the right column for
         # moveScale, rather than checking for velocities
+        print(jdftxinfile.get_dict_representation(jdftxinfile), "INPUT DICT REP")
         jdftxstructure = JDFTXStructure.from_jdftxinfile(
             jdftxinfile.get_dict_representation(jdftxinfile),
             sort_structure=sort_structure,
@@ -765,6 +766,7 @@ class JDFTXStructure(MSONable):
 
         atomic_symbols = [x["species-id"] for x in jdftxinfile["ion"]]
         coords = np.array([[x["x0"], x["x1"], x["x2"]] for x in jdftxinfile["ion"]])
+        coords *= const.value("Bohr radius") * 10**10  # Bohr radius in Ang; convert to Ang
         selective_dynamics = np.array([x["moveScale"] for x in jdftxinfile["ion"]])
 
         coords_are_cartesian = False  # is default for JDFTx
