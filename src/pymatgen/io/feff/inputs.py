@@ -190,8 +190,8 @@ class Header(MSONable):
             self.periodic = True
             sym = SpacegroupAnalyzer(struct, **self.spacegroup_analyzer_settings)
             data = sym.get_symmetry_dataset()
-            self.space_number = data.get("number")
-            self.space_group = data.get("international")
+            self.space_number = data.number
+            self.space_group = data.international
         # for Molecule, skip the symmetry check
         elif isinstance(self.struct, Molecule):
             self.periodic = False
