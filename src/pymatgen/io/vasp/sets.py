@@ -1465,9 +1465,15 @@ class MP24RelaxSet(VaspInputSet):
         fac: tuple[float, ...] = (8, 8),
         bg_cut: tuple[float, ...] = (4.5,),
     ):
-        for icut, cutpt in enumerate(bg_cut):
-            min_bd = self.bandgap_tol if (icut == 0) else cutpt
-            if min_bd <= bandgap < cutpt:
+        
+        if bandgap < self.bandgap_tol:
+            return dks[0]
+        
+        min_bds = [self.bandgap_tol, *bg_cut]
+        max_bds = [*bg_cut, np.inf]
+
+        for icut, min_bd in enumerate(min_bds):
+            if min_bd <= bandgap < max_bds[icut]:
                 return self._sigmoid_interp(
                     bandgap,
                     min_dk=dks[icut],
@@ -1476,6 +1482,7 @@ class MP24RelaxSet(VaspInputSet):
                     center=center[icut],
                     fac=fac[icut],
                 )
+            
         return None
 
     @property
