@@ -1,7 +1,5 @@
 from __future__ import annotations
 
-import math
-import re
 from xml.etree import ElementTree as ET
 
 from numpy.testing import assert_allclose
@@ -167,12 +165,4 @@ class TestExcitingInput(PymatgenTest):
         root = tree.getroot()
         ref_str = ET.tostring(root, encoding="unicode")
 
-        ref_list = ref_str.strip().split()
-        test_list = test_str.strip().split()
-
-        # "scale" is float, direct compare might give surprising results
-        ref_scale = float(re.search(r'scale="([-+]?\d*\.\d+|\d+)"', ref_list.pop(7))[1])
-        test_scale = float(re.search(r'scale="([-+]?\d*\.\d+|\d+)"', test_list.pop(7))[1])
-
-        assert ref_list == test_list
-        assert math.isclose(ref_scale, test_scale)
+        assert ref_str.strip() == test_str.strip()
