@@ -1465,10 +1465,9 @@ class MP24RelaxSet(VaspInputSet):
         fac: tuple[float, ...] = (8, 8),
         bg_cut: tuple[float, ...] = (4.5,),
     ):
-        
         if bandgap < self.bandgap_tol:
             return dks[0]
-        
+
         min_bds = [self.bandgap_tol, *bg_cut]
         max_bds = [*bg_cut, np.inf]
 
@@ -1482,7 +1481,7 @@ class MP24RelaxSet(VaspInputSet):
                     center=center[icut],
                     fac=fac[icut],
                 )
-            
+
         return None
 
     @property
