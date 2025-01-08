@@ -12,6 +12,7 @@ from __future__ import annotations
 import os
 from dataclasses import dataclass, field
 from string import Template
+from typing import Literal
 from pathlib import Path
 import warnings
 import numpy as np
@@ -62,6 +63,63 @@ _STAGE_TO_KEYS = {'Initialization': ['units', 'atom_style', 'dimension', 'bounda
                   'Actions': ['timestep', 'run']} 
 
 
+@dataclass
+class LammpsSettings:
+    """Define schema for LAMMPS convience input class."""
+    units : Literal["metal"] = "metal"
+    atom_style : Literal["atomic"] = "atomic"
+    dimension : int = 3
+    boundary : tuple[str,str,str] = ("p", "p", "p")
+    pair_style : str = "lj/cut 10.0"
+    thermo: float = 100.
+    start_temp : float = 300.
+    end_temp : float = 300.
+    temperature : float | None = None
+    start_pressure : float = 0.
+    end_pressure : float = 0.
+    pressure : float | None = None
+    timestep : float = 0.001
+    friction : float = 0.1
+    log_interval : int = 100
+    traj_interval : int = 100
+    ensemble : Literal["nve","nvt","npt","nph"] = "nvt"
+    thermostat : Literal["nose-hoover", "langevin"] = "nose-hoover"
+    barostat : Literal["nose-hoover", "berendsen"] = "nose-hoover"
+    nsteps : int = 1000
+    tol : float = 1e-6
+    def __post_init__(self) -> None:
+        """ Validate input values."""
+        lammps_defined_types = {
+            "units": {"metal"},
+            "atom_style": {"atomic"},
+            "boundary": {"p","f","s","m","fs","fm"},
+            "ensemble" : {"nve","nvt","npt","nph"},
+            "thermostat": {"nose-hoover", "langevin"},
+            "barostat": {"nose-hoover", "berendsen"}
+        }
+        for attr, accept_vals in lammps_defined_types.items():
+            curr_val = getattr(self,attr, None)
+            if isinstance(curr_val, (list, tuple)):
+                is_ok = all(v in accept_vals for v in curr_val)
+            else:
+                is_ok = curr_val in accept_vals
+            if not is_ok:
+                raise ValueError(f"Error validating key {attr}: set to {curr_val}, should be one of {accept_vals}.")
+        if self.temperature is not None:
+            self.start_temp = self.temperature
+            self.end_temp = self.temperature
+        
+        if self.pressure is not None:
+            self.start_pressure = self.pressure
+            self.end_pressure = self.pressure
+            
+            
+    @property
+    def dict(self) -> dict:
+        dct = self.__dict__
+        for k in ("temperature", "pressure"):
+            dct.pop(k)
+        return dct
 
 @dataclass
 class BaseLammpsGenerator(InputGenerator):
@@ -170,8 +228,11 @@ class LammpsInputSettings(MSONable):
     settings = {} #raw strings given as input by the user/maker
     input_settings = {} #formatted settings for the LAMMPS input i/o functions in pmg
     
-    def __init__(self, settings : dict):  
-              
+    def __init__(self, settings : dict | LammpsSettings):
+        if isinstance(settings,dict):
+            settings = LammpsSettings(**settings)
+        settings = settings.dict
+        
         if settings.get('temperature', None):
             if isinstance(settings['temperature'], (int, float)):
                 settings.update({'start_temp': settings['temperature'], 'end_temp': settings['temperature']})
