@@ -2150,7 +2150,7 @@ class Outcar:
         self.final_energy = e0
         self.final_energy_wo_entrp = e_wo_entrp
         self.final_fr_energy = e_fr_energy
-        self.data: dict = {}
+        self.data: dict[str, Any] = {}
 
         # Read "number of bands" (NBANDS)
         self.read_pattern(
@@ -2200,11 +2200,11 @@ class Outcar:
 
         # Check if calculation is spin polarized
         self.read_pattern({"spin": r"ISPIN\s*=\s*2"})
-        self.spin = bool(self.data.get("spin", []))
+        self.spin = bool(self.data.get("spin", False))
 
         # Check if calculation is non-collinear
         self.read_pattern({"noncollinear": r"LNONCOLLINEAR\s*=\s*T"})
-        self.noncollinear = bool(self.data.get("noncollinear", []))
+        self.noncollinear = bool(self.data.get("noncollinear", False))
 
         # Check if the calculation type is DFPT
         self.read_pattern(
@@ -2220,7 +2220,7 @@ class Outcar:
 
         # Check if LEPSILON is True and read piezo data if so
         self.read_pattern({"epsilon": r"LEPSILON\s*=\s*T"})
-        if self.data.get("epsilon", []):
+        if self.data.get("epsilon", False):
             self.lepsilon = True
             self.read_lepsilon()
             # Only read ionic contribution if DFPT is turned on
@@ -2231,7 +2231,7 @@ class Outcar:
 
         # Check if LCALCPOL is True and read polarization data if so
         self.read_pattern({"calcpol": r"LCALCPOL\s*=\s*T"})
-        if self.data.get("calcpol", []):
+        if self.data.get("calcpol", False):
             self.lcalcpol = True
             self.read_lcalcpol()
             self.read_pseudo_zval()
@@ -2243,7 +2243,7 @@ class Outcar:
         self.ngf = None
         self.sampling_radii: list[float] | None = None
         self.read_pattern({"electrostatic": r"average \(electrostatic\) potential at core"})
-        if self.data.get("electrostatic", []):
+        if self.data.get("electrostatic", False):
             self.read_electrostatic_potential()
 
         self.read_pattern({"nmr_cs": r"LCHIMAG\s*=\s*(T)"})
