@@ -8,6 +8,7 @@ INCAR:
   EDIFFG: -0.02
   ENAUG: 1360
   ENCUT: 680
+  GGA_COMPAT: False
   IBRION: 2
   ISIF: 3
   ISMEAR: 0 # included to have some reasonable default

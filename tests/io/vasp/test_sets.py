@@ -29,6 +29,8 @@ from pymatgen.io.vasp.sets import (
     MITMDSet,
     MITNEBSet,
     MITRelaxSet,
+    MP24RelaxSet,
+    MP24StaticSet,
     MPAbsorptionSet,
     MPHSEBSSet,
     MPHSERelaxSet,
@@ -123,7 +125,7 @@ class TestSetChangeCheck(PymatgenTest):
             "MatPESStaticSet.yaml": "4ec60ad4bbbb9a756f1b3fea8ca4eab8fc767d8f6a67332e7af3908c910fd7c5",
             "MPAbsorptionSet.yaml": "e49cd0ab87864f1c244e9b5ceb4703243116ec1fbb8958a374ddff07f7a5625c",
             "PBE54Base.yaml": "cdffe123eca8b19354554b60a7f8de9b8776caac9e1da2bd2a0516b7bfac8634",
-            "MP24RelaxSet.yaml": "62035d9a270504f852f59c886165da5f5fa35a59f4c309695aac7120ad7a18ac",
+            "MP24RelaxSet.yaml": "35a5d4456f01d644cf41218725c5e0896c59e1658045ecd1544579cbb1ed7b85",
         }
 
         for input_set, hash_str in hashes.items():
@@ -2286,3 +2288,29 @@ def test_dict_set_alias():
     ):
         DictSet()
         assert isinstance(DictSet(), VaspInputSet)
+
+
+class TestMP24Sets(PymatgenTest):
+    @classmethod
+    def setUpClass(cls):
+        cls.relax_set = MP24RelaxSet
+        cls.static_set = MP24StaticSet
+
+        filepath = f"{VASP_IN_DIR}/POSCAR"
+        cls.structure = Structure.from_file(filepath)
+
+    def test_kspacing(self):
+        bandgaps = [0.0, 0.1, 0.5, 1.0, 2.0, 3, 5, 10, 1e4]
+        expected_kspacing = [
+            0.22,
+            0.22000976174867864,
+            0.2200466614246148,
+            0.22056799311325073,
+            0.2876525546497567,
+            0.40800309817134106,
+            0.44000114629141485,
+            0.4999999999540808,
+            0.5,
+        ]
+        for i, bandgap in enumerate(bandgaps):
+            assert self.relax_set()._multi_sigmoid_interp(bandgap) == approx(expected_kspacing[i])
