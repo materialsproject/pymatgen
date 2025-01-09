@@ -445,7 +445,7 @@ def _get_transformation_history(path: PathLike):
     """Check for a transformations.json* file and return the history."""
     if trans_json := glob(f"{path!s}/transformations.json*"):
         try:
-            with zopen(trans_json[0]) as file:
+            with zopen(trans_json[0], mode="rt", encoding="utf-8") as file:
                 return json.load(file)["history"]
         except Exception:
             return None
