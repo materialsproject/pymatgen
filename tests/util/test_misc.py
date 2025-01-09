@@ -46,12 +46,6 @@ class TestIsNpDictEqual:
 
     def test_diff_dtype(self):
         """Make sure it also works for other data types as value."""
-
-        @dataclass
-        class CustomClass:
-            name: str
-            value: int
-
         # Test with bool values
         dict1 = {"a": True}
         dict2 = {"a": True}
@@ -69,12 +63,30 @@ class TestIsNpDictEqual:
         assert not is_np_dict_equal(dict4, dict6)
 
         # Test with a custom data class
+        @dataclass
+        class CustomClass:
+            name: str
+            value: int
+
         dict7 = {"a": CustomClass(name="test", value=1)}
         dict8 = {"a": CustomClass(name="test", value=1)}
         assert is_np_dict_equal(dict7, dict8)
 
         dict9 = {"a": CustomClass(name="test", value=2)}
         assert not is_np_dict_equal(dict7, dict9)
+
+        # Test __eq__ method being used
+        @dataclass
+        class NewCustomClass:
+            name: str
+            value: int
+
+            def __eq__(self, other):
+                return True
+
+        dict7_1 = {"a": NewCustomClass(name="test", value=1)}
+        dict8_1 = {"a": NewCustomClass(name="hello", value=2)}
+        assert is_np_dict_equal(dict7_1, dict8_1)
 
         # Test with None
         dict10 = {"a": None}
