@@ -93,5 +93,5 @@ if __name__ == "__main__":
         cg._algorithms = [ExplicitPermutationsAlgorithm(permutations=explicit_permutations)]
         new_geom_dir = "new_geometry_files"
         os.makedirs(new_geom_dir, exist_ok=True)
-        with open(f"{new_geom_dir}/{cg_symbol}.json", mode="w") as file:
+        with open(f"{new_geom_dir}/{cg_symbol}.json", mode="w", encoding="utf-8") as file:
             json.dump(cg.as_dict(), file)

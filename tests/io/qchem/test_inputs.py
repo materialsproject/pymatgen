@@ -1233,7 +1233,7 @@ $end"""
         test_path = f"{TEST_DIR}/test.qin"
         ref_path = f"{TEST_DIR}/test_ref.qin"
 
-        with open(ref_path) as ref_file, open(test_path) as test_file:
+        with open(ref_path, encoding="utf-8") as ref_file, open(test_path, encoding="utf-8") as test_file:
             for l_test, l_ref in zip(test_file, ref_file, strict=True):
                 # By default, if this statement fails the offending line will be printed
                 assert l_test == l_ref
@@ -1248,7 +1248,7 @@ $end"""
         test_path = f"{TEST_DIR}/test_vdw.qin"
         ref_path = f"{TEST_DIR}/test_ref_vdw.qin"
 
-        with open(ref_path) as ref_file, open(test_path) as test_file:
+        with open(ref_path, encoding="utf-8") as ref_file, open(test_path, encoding="utf-8") as test_file:
             for l_test, l_ref in zip(test_file, ref_file, strict=True):
                 # By default, if this statement fails the offending line will be printed
                 assert l_test == l_ref
@@ -1261,7 +1261,7 @@ $end"""
         qcinp = QCInput.from_file(f"{TEST_DIR}/new_qchem_files/nbo7.qin")
         qcinp.write_file(test_path)
 
-        with open(test_path) as ref_file, open(ref_path) as test_file:
+        with open(test_path, encoding="utf-8") as ref_file, open(ref_path, encoding="utf-8") as test_file:
             for l_test, l_ref in zip(test_file, ref_file, strict=True):
                 # By default, if this statement fails the offending line will be printed
                 assert l_test == l_ref
@@ -1274,7 +1274,7 @@ $end"""
         test_path = f"{TEST_DIR}/new_qchem_files/e2pert.qin"
         ref_path = f"{TEST_DIR}/test_e2pert.qin"
 
-        with open(ref_path) as ref_file, open(test_path) as test_file:
+        with open(ref_path, encoding="utf-8") as ref_file, open(test_path, encoding="utf-8") as test_file:
             for l_test, l_ref in zip(test_file, ref_file, strict=True):
                 assert l_test == l_ref
 
@@ -1286,7 +1286,7 @@ $end"""
         test_path = f"{TEST_DIR}/new_qchem_files/custom_smd.qin"
         ref_path = f"{TEST_DIR}/test_custom_smd.qin"
 
-        with open(ref_path) as ref_file, open(test_path) as test_file:
+        with open(ref_path, encoding="utf-8") as ref_file, open(test_path, encoding="utf-8") as test_file:
             for l_test, l_ref in zip(test_file, ref_file, strict=True):
                 assert l_test == l_ref
 

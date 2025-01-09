@@ -1133,7 +1133,7 @@ def read_aims_header_info(
             with gzip.open(filename, mode="rt") as file:
                 content = file.read()
         else:
-            with open(filename) as file:
+            with open(filename, encoding="utf-8") as file:
                 content = file.read()
 
     if content is None:
@@ -1192,7 +1192,7 @@ def read_aims_output(
             with gzip.open(path, mode="rt") as file:
                 content = file.read()
         else:
-            with open(path) as file:
+            with open(path, encoding="utf-8") as file:
                 content = file.read()
 
     if content is None:

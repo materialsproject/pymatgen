@@ -32,7 +32,7 @@ def gen_potcar(dirname, filename):
     """
     if filename == "POTCAR.spec":
         fullpath = os.path.join(dirname, filename)
-        with open(fullpath) as file:
+        with open(fullpath, encoding="utf-8") as file:
             elements = file.readlines()
         symbols = [el.strip() for el in elements if el.strip() != ""]
         potcar = Potcar(symbols)

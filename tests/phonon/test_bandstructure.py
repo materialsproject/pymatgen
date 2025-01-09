@@ -15,11 +15,11 @@ TEST_DIR = f"{TEST_FILES_DIR}/electronic_structure/bandstructure"
 
 class TestPhononBandStructureSymmLine(PymatgenTest):
     def setUp(self):
-        with open(f"{TEST_DIR}/NaCl_phonon_bandstructure.json") as file:
+        with open(f"{TEST_DIR}/NaCl_phonon_bandstructure.json", encoding="utf-8") as file:
             dct = json.load(file)
         self.bs = PhononBandStructureSymmLine.from_dict(dct)
 
-        with open(f"{TEST_DIR}/Si_phonon_bandstructure.json") as file:
+        with open(f"{TEST_DIR}/Si_phonon_bandstructure.json", encoding="utf-8") as file:
             dct = json.load(file)
         self.bs2 = PhononBandStructureSymmLine.from_dict(dct)
 
