@@ -133,7 +133,7 @@ class AimsGeometryIn(MSONable):
         Returns:
             AimsGeometryIn: The input object represented in the file
         """
-        with zopen(filepath, mode="rt") as in_file:
+        with zopen(filepath, mode="rt", encoding="utf-8") as in_file:
             content = in_file.read()
         return cls.from_str(content)
 
@@ -198,11 +198,11 @@ class AimsGeometryIn(MSONable):
         """
         return textwrap.dedent(
             f"""\
-        #{'=' * 72}
+        #{"=" * 72}
         # FHI-aims geometry file: {filename}
         # File generated from pymatgen
         # {time.asctime()}
-        #{'=' * 72}
+        #{"=" * 72}
         """
         )
 
@@ -759,7 +759,7 @@ class AimsSpeciesFile:
         Returns:
             AimsSpeciesFile
         """
-        with zopen(filename, mode="rt") as file:
+        with zopen(filename, mode="rt", encoding="utf-8") as file:
             return cls(data=file.read(), label=label)
 
     @classmethod

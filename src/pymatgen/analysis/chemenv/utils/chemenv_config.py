@@ -127,7 +127,7 @@ class ChemEnvConfig:
         """Describe package options."""
         out = "Package options :\n"
         out += f" - Maximum distance factor : {self.package_options['default_max_distance_factor']:.4f}\n"
-        out += f" - Default strategy is \"{self.package_options['default_strategy']['strategy']}\" :\n"
+        out += f' - Default strategy is "{self.package_options["default_strategy"]["strategy"]}" :\n'
         strategy_class = strategies_class_lookup[self.package_options["default_strategy"]["strategy"]]
         out += f"{strategy_class.STRATEGY_DESCRIPTION}\n"
         out += "   with options :\n"

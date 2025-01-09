@@ -1119,9 +1119,9 @@ class TestCombinedData(TestCase):
         ff1_items = list(ff_1.items())
         key, target_df = ff1_items[rng.choice(len(ff1_items))]
         lic3o3h4.mols[1].force_field[key].index = lic3o3h4.mols[1].force_field[key].index.map(int)
-        assert (
-            pd.testing.assert_frame_equal(lic3o3h4.mols[1].force_field[key], target_df, check_dtype=False) is None
-        ), key
+        assert pd.testing.assert_frame_equal(lic3o3h4.mols[1].force_field[key], target_df, check_dtype=False) is None, (
+            key
+        )
         topo_1 = self.li_ec.mols[1].topology
         topo1_items = list(topo_1.items())
         key, target_df = topo1_items[rng.choice(len(topo1_items))]

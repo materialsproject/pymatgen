@@ -214,9 +214,9 @@ class TestCoordinationGeometryFinder(PymatgenTest):
                     max_cn=cg.coordination_number,
                     only_symbols=[mp_symbol],
                 )
-                assert (
-                    abs(se.get_csm(0, mp_symbol)["symmetry_measure"] - 0.0) < 1e-8
-                ), f"Failed to get perfect environment with {mp_symbol=}"
+                assert abs(se.get_csm(0, mp_symbol)["symmetry_measure"] - 0.0) < 1e-8, (
+                    f"Failed to get perfect environment with {mp_symbol=}"
+                )
 
     def test_disable_hints(self):
         allcg = AllCoordinationGeometries()

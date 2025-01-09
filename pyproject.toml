@@ -242,12 +242,18 @@ docstring-code-format = true
 "src/pymatgen/analysis/*" = ["D"]
 "src/pymatgen/io/*" = ["D"]
 "dev_scripts/*" = ["D"]
+"src/pymatgen/util/string.py" = ["A005"]
+"src/pymatgen/util/typing.py" = ["A005"]
+"src/pymatgen/util/io.py" = ["A005"]
 
 [tool.pytest.ini_options]
 addopts = "--durations=30 --quiet -r xXs --color=yes --import-mode=importlib"
 filterwarnings = [
-    # NOTE: the last matching option is used
-    "ignore::UserWarning",           # Ignore UserWarning
+    # NOTE: the LAST matching option would be used
+    "ignore::UserWarning",                                              # Ignore UserWarning
+    "error:We strongly encourage explicit `encoding`:EncodingWarning",  # Mark `zopen` EncodingWarning as error
+    # TODO: remove the following filter once `monty.io` dropped custom EncodingWarning
+    "error:We strongly encourage explicit `encoding`:monty.io.EncodingWarning",
     # TODO: pybtex (perhaps some others) emits the following warnings
     'ignore:pkg_resources is deprecated as an API:DeprecationWarning',
     'ignore:distutils Version classes are deprecated:DeprecationWarning',

@@ -103,12 +103,12 @@ class BorgQueen:
                 that if the filename ends with gz or bz2, the relevant gzip
                 or bz2 compression will be applied.
         """
-        with zopen(filename, mode="wt") as file:
+        with zopen(filename, mode="wt", encoding="utf-8") as file:
             json.dump(list(self._data), file, cls=MontyEncoder)
 
     def load_data(self, filename: PathLike) -> None:
         """Load assimilated data from a file."""
-        with zopen(filename, mode="rt") as file:
+        with zopen(filename, mode="rt", encoding="utf-8") as file:
             self._data = json.load(file, cls=MontyDecoder)
 
 

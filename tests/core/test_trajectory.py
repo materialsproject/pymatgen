@@ -81,17 +81,17 @@ class TestTrajectory(PymatgenTest):
         sliced_traj = self.traj[2:99:3]
         sliced_traj_from_structs = Trajectory.from_structures(self.structures[2:99:3])
 
-        assert len(sliced_traj) == len(
-            sliced_traj_from_structs
-        ), f"{len(sliced_traj)=} != {len(sliced_traj_from_structs)=}"
+        assert len(sliced_traj) == len(sliced_traj_from_structs), (
+            f"{len(sliced_traj)=} != {len(sliced_traj_from_structs)=}"
+        )
         assert all(sliced_traj[i] == sliced_traj_from_structs[i] for i in range(len(sliced_traj)))
 
         sliced_traj = self.traj[:-4:2]
         sliced_traj_from_structs = Trajectory.from_structures(self.structures[:-4:2])
 
-        assert len(sliced_traj) == len(
-            sliced_traj_from_structs
-        ), f"{len(sliced_traj)=} != {len(sliced_traj_from_structs)=}"
+        assert len(sliced_traj) == len(sliced_traj_from_structs), (
+            f"{len(sliced_traj)=} != {len(sliced_traj_from_structs)=}"
+        )
         assert all(sliced_traj[idx] == sliced_traj_from_structs[idx] for idx in range(len(sliced_traj)))
 
         sliced_traj = self.traj_mols[:2]
@@ -110,9 +110,9 @@ class TestTrajectory(PymatgenTest):
         sliced_traj = self.traj[[10, 30, 70]]
         sliced_traj_from_structs = Trajectory.from_structures([self.structures[i] for i in [10, 30, 70]])
 
-        assert len(sliced_traj) == len(
-            sliced_traj_from_structs
-        ), f"{len(sliced_traj)=} != {len(sliced_traj_from_structs)=}"
+        assert len(sliced_traj) == len(sliced_traj_from_structs), (
+            f"{len(sliced_traj)=} != {len(sliced_traj_from_structs)=}"
+        )
         assert all(sliced_traj[i] == sliced_traj_from_structs[i] for i in range(len(sliced_traj)))
 
         sliced_traj = self.traj_mols[[1, 3]]
