@@ -55,7 +55,7 @@ class Xr:
         # There are actually 10 more fields per site
         # in a typical xr file from GULP, for example.
         for idx, site in enumerate(self.structure, start=1):
-            output.append(f"{idx } {site.specie} {site.x:.4f} {site.y:.4f} {site.z:.4f}")
+            output.append(f"{idx} {site.specie} {site.x:.4f} {site.y:.4f} {site.z:.4f}")
         mat = self.structure.lattice.matrix
         for _ in range(2):
             for j in range(3):
