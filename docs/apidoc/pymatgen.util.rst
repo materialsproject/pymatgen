@@ -6,14 +6,6 @@ pymatgen.util package
    :undoc-members:
    :show-inheritance:
 
-Subpackages
------------
-
-.. toctree::
-   :maxdepth: 7
-
-   pymatgen.util.testing
-
 Submodules
 ----------
 
@@ -109,6 +101,14 @@ pymatgen.util.string module
 ---------------------------
 
 .. automodule:: pymatgen.util.string
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+pymatgen.util.testing module
+----------------------------
+
+.. automodule:: pymatgen.util.testing
    :members:
    :undoc-members:
    :show-inheritance:
