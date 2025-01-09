@@ -14,7 +14,6 @@ from pathlib import Path
 from typing import TYPE_CHECKING, overload
 
 import numpy as np
-from monty.dev import deprecated
 from monty.json import MSONable
 
 from pymatgen.core.units import SUPPORTED_UNIT_NAMES, FloatWithUnit, Ha_to_eV, Length, Mass, Unit
@@ -207,7 +206,7 @@ class ElementBase(Enum):
             key = item.capitalize().replace("_", " ")
             val = self._data.get(key)
             if val is None or str(val).startswith("no data"):
-                warnings.warn(f"No data available for {item} for {self.symbol}")
+                warnings.warn(f"No data available for {item} for {self.symbol}", stacklevel=2)
                 val = None
             elif isinstance(val, list | dict):
                 pass
@@ -246,7 +245,8 @@ class ElementBase(Enum):
                         and (match := re.findall(r"[\.\d]+", val))
                     ):
                         warnings.warn(
-                            f"Ambiguous values ({val}) for {item} of {self.symbol}. Returning first float value."
+                            f"Ambiguous values ({val}) for {item} of {self.symbol}. Returning first float value.",
+                            stacklevel=2,
                         )
                         return float(match[0])
             return val
@@ -293,7 +293,8 @@ class ElementBase(Enum):
             return X
         warnings.warn(
             f"No Pauling electronegativity for {self.symbol}. Setting to NaN. This has no physical meaning, "
-            "and is mainly done to avoid errors caused by the code expecting a float."
+            "and is mainly done to avoid errors caused by the code expecting a float.",
+            stacklevel=2,
         )
         return float("NaN")
 
@@ -342,7 +343,7 @@ class ElementBase(Enum):
     def ionization_energy(self) -> float | None:
         """First ionization energy of element."""
         if not self.ionization_energies:
-            warnings.warn(f"No data available for ionization_energy for {self.symbol}")
+            warnings.warn(f"No data available for ionization_energy for {self.symbol}", stacklevel=2)
             return None
         return self.ionization_energies[0]
 
@@ -753,19 +754,6 @@ class ElementBase(Enum):
         return self.is_lanthanoid or self.is_actinoid or self.symbol in {"Sc", "Y"}
 
     @property
-    @deprecated(
-        is_rare_earth,
-        message="is_rare_earth is corrected to include Y and Sc.",
-        deadline=(2025, 1, 1),
-    )
-    def is_rare_earth_metal(self) -> bool:
-        """True if element is a rare earth metal, Lanthanides (La) series and Actinides (Ac) series.
-
-        This property is Deprecated, and scheduled for removal after 2025-01-01.
-        """
-        return self.is_lanthanoid or self.is_actinoid
-
-    @property
     def is_metal(self) -> bool:
         """True if is a metal."""
         return (
@@ -876,7 +864,6 @@ class ElementBase(Enum):
             print(" ".join(row_str))
 
 
-@functools.total_ordering
 class Element(ElementBase):
     """Enum representing an element in the periodic table."""
 
@@ -1227,12 +1214,12 @@ class Species(MSONable, Stringify):
             oxi_str = str(int(self._oxi_state))
             warn_msg = f"No default ionic radius for {self}."
             if ion_rad := dct.get("Ionic radii hs", {}).get(oxi_str):
-                warnings.warn(f"{warn_msg} Using hs data.")
+                warnings.warn(f"{warn_msg} Using hs data.", stacklevel=2)
                 return ion_rad
             if ion_rad := dct.get("Ionic radii ls", {}).get(oxi_str):
-                warnings.warn(f"{warn_msg} Using ls data.")
+                warnings.warn(f"{warn_msg} Using ls data.", stacklevel=2)
                 return ion_rad
-        warnings.warn(f"No ionic radius for {self}!")
+        warnings.warn(f"No ionic radius for {self}!", stacklevel=2)
         return None
 
     @classmethod
@@ -1339,7 +1326,8 @@ class Species(MSONable, Stringify):
             if key != spin:
                 warnings.warn(
                     f"Specified {spin=} not consistent with database spin of {key}. "
-                    "Only one spin data available, and that value is returned."
+                    "Only one spin data available, and that value is returned.",
+                    stacklevel=2,
                 )
         else:
             data = radii[spin]
@@ -1597,14 +1585,12 @@ class DummySpecies(Species):
         return cls(dct["element"], dct["oxidation_state"], spin=dct.get("spin"))
 
 
-@functools.total_ordering
 class Specie(Species):
     """This maps the historical grammatically inaccurate Specie to Species
     to maintain backwards compatibility.
     """
 
 
-@functools.total_ordering
 class DummySpecie(DummySpecies):
     """This maps the historical grammatically inaccurate DummySpecie to DummySpecies
     to maintain backwards compatibility.
