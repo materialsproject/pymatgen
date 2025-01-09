@@ -242,6 +242,7 @@ docstring-code-format = true
 "src/pymatgen/analysis/*" = ["D"]
 "src/pymatgen/io/*" = ["D"]
 "dev_scripts/*" = ["D"]
+"src/pymatgen/util/string.py" = ["A005"]
 
 [tool.pytest.ini_options]
 addopts = "--durations=30 --quiet -r xXs --color=yes --import-mode=importlib"
