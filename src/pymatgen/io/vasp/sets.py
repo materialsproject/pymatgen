@@ -1359,7 +1359,7 @@ class MPScanRelaxSet(VaspInputSet):
 
         James W. Furness, Aaron D. Kaplan, Jinliang Ning, John P. Perdew, and Jianwei Sun.
         Accurate and Numerically Efficient r2SCAN Meta-Generalized Gradient Approximation.
-        The Journal of Physical Chemistry Letters 0, 11 DOI: 10.1021/acs.jpclett.0c02405
+        The Journal of Physical Chemistry Letters 11, 8208-8215 (2022) DOI: 10.1021/acs.jpclett.0c02405
     """
 
     bandgap: float | None = None
@@ -1388,6 +1388,38 @@ class MP24RelaxSet(VaspInputSet):
     Materials Project relax set after a 2023-2024 benchmarking effort.
 
     By default, this uses r2SCAN as the xc functional.
+    For discussion around this benchmarking effort, see:
+    https://github.com/materialsproject/foundation/pull/26
+
+    Citation info:
+    - r2SCAN:
+        James W. Furness, Aaron D. Kaplan, Jinliang Ning, John P. Perdew, and Jianwei Sun.
+        Accurate and Numerically Efficient r2SCAN Meta-Generalized Gradient Approximation.
+        J. Phys. Chem. Lett. 11, 8208-8215 (2022) DOI: 10.1021/acs.jpclett.0c02405
+    - r2SCAN-rVV10:
+        Jinliang Ning, Manish Kothakonda, James W. Furness, Aaron D. Kaplan, Sebastian Ehlert,
+            Jan Gerit Brandenburg, John P. Perdew, and Jianwei Sun.
+        Workhorse minimally empirical dispersion-corrected density functional with tests for
+            weakly bound systems: r2SCAN+rVV10.
+        Phys. Rev. B 106, 075422 (2022) DOI: 10.1103/PhysRevB.106.075422
+    - r2SCAN-D4:
+        Sebastian Ehlert, Uwe Huniar, Jinliang Ning, James W. Furness, Jianwei Sun,
+            Aaron D. Kaplan, John P. Perdew, and Jan Gerit Brandenburg.
+        r2SCAN-D4: Dispersion corrected meta-generalized gradient approximation for general chemical applications.
+        J. Chem. Phys. 154, 061101 (2021) DOI: 10.1063/5.0041008
+    - PBE:
+        John P. Perdew, Kieron Burke, and Matthias Ernzerhof,
+        Generalized Gradient Approximation Made Simple,
+        Phys. Rev. Lett. 77, 3865 (1996) DOI: 10.1103/PhysRevLett.77.3865
+    - PBEsol:
+        John P. Perdew, Adrienn Ruzsinszky, Gábor I. Csonka, Oleg A. Vydrov,
+            Gustavo E. Scuseria, Lucian A. Constantin, Xiaolan Zhou, and Kieron Burke.
+        Restoring the Density-Gradient Expansion for Exchange in Solids and Surfaces.
+        Phys. Rev. Lett. 100, 136406 (2009) DOI: 10.1103/PhysRevLett.100.136406
+    - PBE-D4 and PBEsol-D4:
+        Eike Caldeweyher,Jan-Michael Mewes, Sebastian Ehlert, and Stefan Grimme.
+        Extension and evaluation of the D4 London-dispersion model for periodic systems.
+        Phys. Chem. Chem. Phys. 22, 8499-8512 (2020) DOI: 10.1039/D0CP00502A
     """
 
     xc_functional: Literal["r2SCAN", "PBE", "PBEsol"] = "r2SCAN"
@@ -1749,6 +1781,9 @@ class MPScanStaticSet(MPScanRelaxSet):
 @dataclass
 class MP24StaticSet(MP24RelaxSet):
     """Create input files for a static calculation using MP24 parameters.
+
+    For class information, refer to `MP24RelaxSet`.
+    If you use this set, please consider citing the appropriate papers in `MP24RelaxSet`.
 
     Args:
         structure (Structure): Structure from previous run.
