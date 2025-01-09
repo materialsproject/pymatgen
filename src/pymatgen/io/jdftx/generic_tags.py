@@ -473,7 +473,7 @@ class FloatTag(AbstractTag):
         # - sign, 1 integer left of decimal, decimal, and precision.
         # larger numbers auto add places to left of decimal
         if self.prec is not None:
-            value = f"{value:{self.prec+3}.{self.prec}f}"
+            value = f"{value:{self.prec + 3}.{self.prec}f}"
         return self._write(tag, value)
 
     def get_token_len(self) -> int:
