@@ -65,13 +65,59 @@ _STAGE_TO_KEYS = {'Initialization': ['units', 'atom_style', 'dimension', 'bounda
 
 @dataclass
 class LammpsSettings:
-    """Define schema for LAMMPS convience input class."""
-    units : Literal["metal"] = "metal"
-    atom_style : Literal["atomic"] = "atomic"
+    """Define schema for LAMMPS convience input class.
+    Args:
+    units : str
+        LAMMPS units style.
+    atom_style : str
+        LAMMPS atom style.
+    dimension : int
+        LAMMPS box dimension.
+    boundary : tuple[str,str,str]
+        Box boundary conditions. Each boundary can be 'p', 'f', 's', 'm', 'fs', 'fm'.
+    pair_style : str
+        FF pair style type. Default is 'lj/cut 10.0'.
+    bond_style : str
+        FF bond style type.
+    angle_style : str
+        FF angle style type.
+    dihedral_style : str
+        FF dihedral style type.
+    start_temp : float
+        Initial temperature. Default is 300 K. Initial velocities are generated based on this temperature.
+    end_temp : float
+        Final temperature. Default is 300 K.
+    start_pressure : float | list | np.ndarray
+        Initial pressure. Default is 0 atm. Can be a single value or a list for anisotropic pressure.
+    end_pressure : float | list | np.ndarray
+        Final pressure. Default is 0 atm. Can be a single value or a list for anisotropic pressure.
+    timestep : float
+        Simulation timestep. Default is 0.001 ps.
+    friction : float
+        Thermostat/Barostat friction coefficient. Default is 0.1 ps^-1.
+    log_interval : int
+        Interval for logging thermodynamic data (energy, temperature, pressure, volume). Default is 100 steps.
+    traj_interval : int
+        Interval for writing trajectory data (positions, velocities, forces) to a dump file. Default is 100 steps.
+    ensemble : str
+        Simulation ensemble. Default is 'nvt'.
+    thermostat : str
+        Thermostat type. Default is 'nose-hoover'.
+    barostat : str
+        Barostat type. Default is 'nose-hoover'.
+    nsteps : int
+        Number of simulation steps. Default is 1000. This is also the maximum number of steps for minimization simulations.
+    tol : float
+        Convergence tolerance for minimization simulations. Default is 1e-6.
+    """
+    units : Literal["metal", "lj", "real", "si", "cgs", "electron", "micro", "nano"] = "metal"
+    atom_style : Literal["atomic", "angle", "body", "bond", "charge", "electron", "full", "molecular"] = "atomic"
     dimension : int = 3
     boundary : tuple[str,str,str] = ("p", "p", "p")
     pair_style : str = "lj/cut 10.0"
-    thermo: float = 100.
+    bond_style : str = None
+    angle_style : str = None
+    dihedral_style : str = None
     start_temp : float = 300.
     end_temp : float = 300.
     start_pressure : float | list | np.ndarray = 0.
@@ -80,7 +126,7 @@ class LammpsSettings:
     friction : float = 0.1
     log_interval : int = 100
     traj_interval : int = 100
-    ensemble : Literal["nve","nvt","npt","nph"] = "nvt"
+    ensemble : Literal["nve","nvt","npt","nph", "minimize"] = "nvt"
     thermostat : Literal["nose-hoover", "langevin"] = "nose-hoover"
     barostat : Literal["nose-hoover", "berendsen"] = "nose-hoover"
     nsteps : int = 1000
@@ -88,8 +134,8 @@ class LammpsSettings:
     def __post_init__(self) -> None:
         """ Validate input values."""
         lammps_defined_types = {
-            "units": {"metal"},
-            "atom_style": {"atomic"},
+            "units": {"metal", "lj", "real", "si", "cgs", "electron", "micro", "nano"},
+            "atom_style": {"atomic", "angle", "body", "bond", "charge", "electron", "full", "molecular"},
             "boundary": {"p","f","s","m","fs","fm"},
             "ensemble" : {"nve","nvt","npt","nph", "minimize"},
             "thermostat": {"nose-hoover", "langevin"},
