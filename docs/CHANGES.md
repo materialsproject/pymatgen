@@ -6,6 +6,15 @@ nav_order: 4
 
 # Changelog
 
+## 2025.1.9
+- Iterating Element no longer contains isotopes (D and T). (@DanielYang59)
+- Remove is_rare_earth_metal from ElementBase (@jdewasseigeosium)
+- Fix DOS parsing for SOC calculations (@kavanase)
+- Added Pure Random Algo to OrderDisorderedStructureTransformation (@jmmshn)
+- Fix ion formula check in ion_or_solid_comp_object of analysis.pourbaix_diagram (@DanielYang59)
+- AseAtomsAdaptor: Support arbitrary selective dynamics constraints (@yantar92)
+- Explicit UTF-8 encoding for zopen and open. (@DanielYang59)
+
 ## 2024.11.13
 
 - CP2K fixes (@janosh)
