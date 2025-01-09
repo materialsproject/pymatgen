@@ -1408,19 +1408,21 @@ class MP24RelaxSet(VaspInputSet):
 
         config_updates: dict[str, Any] = {}
         if self.xc_functional == "r2SCAN":
-            config_updates = {"METAGGA": to_func[self.xc_functional]}
+            config_updates |= {"METAGGA": to_func[self.xc_functional]}
             self._config_dict["INCAR"].pop("GGA", None)
         elif self.xc_functional in ["PBE", "PBEsol"]:
-            config_updates = {"GGA": to_func[self.xc_functional]}
+            config_updates |= {"GGA": to_func[self.xc_functional]}
             self._config_dict["INCAR"].pop("METAGGA", None)
         else:
             raise ValueError(f"Unknown XC functional {self.xc_functional}!")
 
         if self.dispersion == "rVV10":
             if self.xc_functional == "r2SCAN":
-                config_updates = {"BPARAM": 11.95, "CPARAM": 0.0093}
+                config_updates |= {"BPARAM": 11.95, "CPARAM": 0.0093, "LUSE_VDW": True}
             else:
-                raise ValueError("Use of rVV10 with functionals other than r2 / SCAN is not currently supported.")
+                raise ValueError(
+                    "Use of rVV10 with functionals other than r2 / SCAN is not currently supported in VASP."
+                )
 
         elif self.dispersion == "D4":
             d4_pars = {
@@ -1443,7 +1445,7 @@ class MP24RelaxSet(VaspInputSet):
                     "A2": 5.96771589,
                 },
             }
-            config_updates = {f"VDW_{k}": v for k, v in d4_pars[self.xc_functional].items()}
+            config_updates |= {"IVDW": 13, **{f"VDW_{k}": v for k, v in d4_pars[self.xc_functional].items()}}
 
         if len(config_updates) > 0:
             self._config_dict["INCAR"].update(config_updates)
@@ -1746,7 +1748,7 @@ class MPScanStaticSet(MPScanRelaxSet):
 
 @dataclass
 class MP24StaticSet(MP24RelaxSet):
-    """Create input files for a static calculation using MP24 parameters
+    """Create input files for a static calculation using MP24 parameters.
 
     Args:
         structure (Structure): Structure from previous run.

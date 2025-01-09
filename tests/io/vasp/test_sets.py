@@ -2291,13 +2291,18 @@ def test_dict_set_alias():
 
 
 class TestMP24Sets(PymatgenTest):
-    @classmethod
-    def setUpClass(cls):
-        cls.relax_set = MP24RelaxSet
-        cls.static_set = MP24StaticSet
+    def setUp(self):
+        self.relax_set = MP24RelaxSet
+        self.static_set = MP24StaticSet
 
         filepath = f"{VASP_IN_DIR}/POSCAR"
-        cls.structure = Structure.from_file(filepath)
+        self.structure = Structure.from_file(filepath)
+
+    @staticmethod
+    def matches_ref(test_val, ref_val) -> bool:
+        if isinstance(ref_val, float):
+            return test_val == approx(ref_val)
+        return test_val == ref_val
 
     def test_kspacing(self):
         bandgaps = [0.0, 0.1, 0.5, 1.0, 2.0, 3, 5, 10, 1e4]
@@ -2314,3 +2319,67 @@ class TestMP24Sets(PymatgenTest):
         ]
         for i, bandgap in enumerate(bandgaps):
             assert self.relax_set()._multi_sigmoid_interp(bandgap) == approx(expected_kspacing[i])
+
+    def test_default(self):
+        vis = self.relax_set(structure=self.structure)
+        expected_incar_relax = {
+            "ALGO": "Normal",
+            "EDIFF": 1.0e-05,
+            "EDIFFG": -0.02,
+            "ENAUG": 1360,
+            "ENCUT": 680,
+            "GGA_COMPAT": False,
+            "KSPACING": 0.22,
+            "ISMEAR": 0,
+            "SIGMA": 0.05,
+            "METAGGA": "R2scan",
+            "LMAXMIX": 6,
+            "LREAL": False,
+        }
+
+        assert all(self.matches_ref(vis.incar[k], v) for k, v in expected_incar_relax.items())
+
+        assert self.relax_set(self.structure, xc_functional="r2SCAN")._config_dict == vis._config_dict
+        assert vis.inherit_incar is False
+        assert vis.dispersion is None
+        assert vis.potcar_functional == "PBE_64"
+        assert vis.potcar_symbols == ["Fe_pv", "P", "O"]
+        assert vis.kpoints is None
+
+        vis = self.static_set(structure=self.structure, dispersion="rVV10")
+
+        expected_incar_static = {
+            "ISMEAR": -5,
+            "NSW": 0,
+            "LORBIT": 11,
+            "METAGGA": "R2scan",
+            "LUSE_VDW": True,
+            "BPARAM": 11.95,
+            "CPARAM": 0.0093,
+        }
+
+        assert all(self.matches_ref(vis.incar[k], v) for k, v in expected_incar_static.items())
+        assert (
+            self.static_set(self.structure, xc_functional="r2SCAN", dispersion="rVV10")._config_dict == vis._config_dict
+        )
+
+    def test_non_default_xc_func(self):
+        for xc_functional, vasp_name in {"PBE": "Pe", "PBEsol": "Ps"}.items():
+            vis = self.relax_set(structure=self.structure, xc_functional=xc_functional)
+            assert vis.incar.get("METAGGA") is None
+            assert vis.incar["GGA"] == vasp_name
+
+            vis = self.static_set(structure=self.structure, xc_functional=xc_functional, dispersion="D4")
+            assert vis.incar.get("METAGGA") is None
+            print(self.relax_set(structure=self.structure, xc_functional=xc_functional).incar)
+            assert vis.incar["GGA"] == vasp_name
+            assert all(
+                isinstance(vis.incar[k], float | int)
+                for k in (
+                    "IVDW",
+                    "VDW_A1",
+                    "VDW_A2",
+                    "VDW_S6",
+                    "VDW_S8",
+                )
+            )
