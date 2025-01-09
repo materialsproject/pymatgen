@@ -473,7 +473,7 @@ class OptimadeRester:
                         exceptions.add(str(exc))
 
         if exceptions:
-            _logger.error(f'Failed to parse returned data for {url}: {", ".join(exceptions)}')
+            _logger.error(f"Failed to parse returned data for {url}: {', '.join(exceptions)}")
 
         return snls
 

@@ -1067,10 +1067,7 @@ def get_aims_out_chunks(content: str | TextIOWrapper, header_chunk: AimsOutHeade
             # don't end chunk on next Re-initialization
             patterns = [
                 ("Self-consistency cycle not yet converged - restarting mixer to attempt better convergence."),
-                (
-                    "Components of the stress tensor (for mathematical "
-                    "background see comments in numerical_stress.f90)."
-                ),
+                ("Components of the stress tensor (for mathematical background see comments in numerical_stress.f90)."),
                 "Calculation of numerical stress completed",
             ]
             if any(pattern in line for pattern in patterns):
