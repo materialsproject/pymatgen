@@ -420,9 +420,9 @@ class TestLobsterBandStructureSymmLine(PymatgenTest):
         assert len(vbm["band_index"][Spin.up]) == 1, "wrong VBM number of bands"
         assert vbm["band_index"][Spin.up][0] == 23, "wrong VBM band index"
         assert vbm["kpoint_index"][0] == 68, "wrong VBM kpoint index"
-        assert vbm["kpoint"].frac_coords == approx(
-            [0.34615384615385, 0.30769230769231, 0.0]
-        ), "wrong VBM kpoint frac coords"
+        assert vbm["kpoint"].frac_coords == approx([0.34615384615385, 0.30769230769231, 0.0]), (
+            "wrong VBM kpoint frac coords"
+        )
         assert vbm["kpoint"].label is None, "wrong VBM kpoint label"
         vbm_spin = self.bs_spin.get_vbm()
         assert vbm_spin["energy"] == approx(0.6297027399999999), "wrong VBM energy"
@@ -430,9 +430,9 @@ class TestLobsterBandStructureSymmLine(PymatgenTest):
         assert len(vbm_spin["band_index"][Spin.down]) == 1, "wrong VBM number of bands"
         assert vbm_spin["band_index"][Spin.up][0] == 23, "wrong VBM band index"
         assert vbm_spin["kpoint_index"][0] == 68, "wrong VBM kpoint index"
-        assert vbm_spin["kpoint"].frac_coords == approx(
-            [0.34615384615385, 0.30769230769231, 0.0]
-        ), "wrong VBM kpoint frac coords"
+        assert vbm_spin["kpoint"].frac_coords == approx([0.34615384615385, 0.30769230769231, 0.0]), (
+            "wrong VBM kpoint frac coords"
+        )
         assert vbm_spin["kpoint"].label is None, "wrong VBM kpoint label"
 
     def test_get_band_gap(self):

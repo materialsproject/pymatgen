@@ -693,9 +693,7 @@ class Vasprun(MSONable):
 
         except (IndexError, KeyError):
             warnings.warn(
-                "Calculation does not have a total energy. "
-                "Possibly a GW or similar kind of run. "
-                "Infinity is returned.",
+                "Calculation does not have a total energy. Possibly a GW or similar kind of run. Infinity is returned.",
                 stacklevel=2,
             )
             return float("inf")

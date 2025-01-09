@@ -198,11 +198,11 @@ class AimsGeometryIn(MSONable):
         """
         return textwrap.dedent(
             f"""\
-        #{'=' * 72}
+        #{"=" * 72}
         # FHI-aims geometry file: {filename}
         # File generated from pymatgen
         # {time.asctime()}
-        #{'=' * 72}
+        #{"=" * 72}
         """
         )
 

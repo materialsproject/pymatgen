@@ -210,9 +210,9 @@ class TestPourbaixDiagram(TestCase):
     def test_get_decomposition(self):
         # Test a stable entry to ensure that it's zero in the stable region
         entry = self.test_data["Zn"][12]  # Should correspond to mp-2133
-        assert self.pbx.get_decomposition_energy(entry, 10, 1) == approx(
-            0.0, 5
-        ), "Decomposition energy of ZnO is not 0."
+        assert self.pbx.get_decomposition_energy(entry, 10, 1) == approx(0.0, 5), (
+            "Decomposition energy of ZnO is not 0."
+        )
 
         # Test an unstable entry to ensure that it's never zero
         entry = self.test_data["Zn"][11]

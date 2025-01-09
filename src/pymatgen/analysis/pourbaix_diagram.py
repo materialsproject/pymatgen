@@ -128,8 +128,7 @@ class PourbaixEntry(MSONable, Stringify):
             self.entry_id,
         )
         return (
-            f"{type(self).__name__}({self.entry.composition} with {energy=:.4f}, {npH=}, "
-            f"{nPhi=}, {nH2O=}, {entry_id=})"
+            f"{type(self).__name__}({self.entry.composition} with {energy=:.4f}, {npH=}, {nPhi=}, {nH2O=}, {entry_id=})"
         )
 
     @property

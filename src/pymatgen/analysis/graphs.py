@@ -631,8 +631,7 @@ class StructureGraph(MSONable):
                 self.graph.remove_edge(to_index, from_index, edge_index)
             else:
                 raise ValueError(
-                    f"Edge cannot be broken between {from_index} and {to_index}; "
-                    f"no edge exists between those sites."
+                    f"Edge cannot be broken between {from_index} and {to_index}; no edge exists between those sites."
                 )
 
     def remove_nodes(self, indices: Sequence[int | None]) -> None:
@@ -1976,8 +1975,7 @@ class MoleculeGraph(MSONable):
                 self.graph.remove_edge(to_index, from_index)
             else:
                 raise ValueError(
-                    f"Edge cannot be broken between {from_index} and {to_index}; "
-                    f"no edge exists between those sites."
+                    f"Edge cannot be broken between {from_index} and {to_index}; no edge exists between those sites."
                 )
 
     def remove_nodes(self, indices: list[int]) -> None:
