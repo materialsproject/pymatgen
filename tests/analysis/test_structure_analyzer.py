@@ -82,9 +82,9 @@ class TestMiscFunction(PymatgenTest):
     def test_average_coordination_number(self):
         xdatcar = Xdatcar(f"{VASP_OUT_DIR}/XDATCAR.MD")
         coordination_numbers = average_coordination_number(xdatcar.structures, freq=1)
-        assert coordination_numbers["Fe"] == approx(
-            4.771903318390836, 5
-        ), "Coordination number not calculated properly."
+        assert coordination_numbers["Fe"] == approx(4.771903318390836, 5), (
+            "Coordination number not calculated properly."
+        )
 
     def test_solid_angle(self):
         center = [2.294508207929496, 4.4078057081404, 2.299997773791287]
