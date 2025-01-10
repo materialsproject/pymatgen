@@ -977,9 +977,32 @@ class TestOutcar(PymatgenTest):
                 "tot": Magmom([0.0, 0.0, 0.0]),
             },
         )
+        expected_orbmom = (
+            {
+                "p": Magmom([0.0, 0.0, 0.0]),
+                "d": Magmom([0.109, 0.109, 0.109]),
+                "tot": Magmom([0.108, 0.108, 0.108]),
+            },
+            {
+                "p": Magmom([0.0, 0.0, 0.0]),
+                "d": Magmom([-0.109, -0.109, -0.109]),
+                "tot": Magmom([-0.108, -0.108, -0.108]),
+            },
+            {
+                "p": Magmom([0.0, 0.0, 0.0]),
+                "d": Magmom([0.0, 0.0, 0.0]),
+                "tot": Magmom([0.0, 0.0, 0.0]),
+            },
+            {
+                "p": Magmom([0.0, 0.0, 0.0]),
+                "d": Magmom([0.0, 0.0, 0.0]),
+                "tot": Magmom([0.0, 0.0, 0.0]),
+            },
+        )
         # test note: Magmom class uses np.allclose() when testing for equality
         # so fine to use == operator here
         assert outcar.magnetization == expected_mag, "Wrong vector magnetization read from Outcar for SOC calculation"
+        assert outcar.orbital_moment == expected_orbmom, "Wrong orbital moments read from Outcar for SOC calculation"
 
         assert outcar.noncollinear is True
 
