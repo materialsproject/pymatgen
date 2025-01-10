@@ -420,7 +420,7 @@ class TestDoscar(TestCase):
 
         self.DOSCAR_lcfo = Doscar(doscar=doscar3, structure_file=poscar3, is_lcfo=True)
 
-        with open(f"{TEST_FILES_DIR}/electronic_structure/dos/structure_KF.json") as file:
+        with open(f"{TEST_FILES_DIR}/electronic_structure/dos/structure_KF.json", encoding="utf-8") as file:
             data = json.load(file)
 
         self.structure = Structure.from_dict(data)

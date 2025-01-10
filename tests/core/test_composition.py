@@ -492,9 +492,9 @@ class TestComposition(PymatgenTest):
         assert self.comps[0].__add__(Fe) == NotImplemented
 
     def test_sub(self):
-        assert (
-            self.comps[0] - Composition("Li2O")
-        ).formula == "Li1 Fe2 P3 O11", "Incorrect composition after addition!"
+        assert (self.comps[0] - Composition("Li2O")).formula == "Li1 Fe2 P3 O11", (
+            "Incorrect composition after addition!"
+        )
         assert (self.comps[0] - {"Fe": 2, "O": 3}).formula == "Li3 P3 O9"
 
         with pytest.raises(ValueError, match="Amounts in Composition cannot be negative"):

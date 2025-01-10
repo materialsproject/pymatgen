@@ -104,7 +104,7 @@ EPS=12
         assert gau.functional == "b3lyp"
         assert gau.basis_set == "6-311+g(d,p)"
         filepath = f"{TEST_DIR}/g305_hb.txt"
-        with open(filepath) as file:
+        with open(filepath, encoding="utf-8") as file:
             txt = file.read()
         tokens = txt.split("--link1--")
         for idx, tok in enumerate(tokens):

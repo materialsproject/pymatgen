@@ -249,9 +249,9 @@ class TestStructureNL(TestCase):
             [complicated_node, self.valid_node],
         )
         round_trip_from_dict = StructureNL.from_dict(struct_nl.as_dict())
-        assert (
-            struct_nl == round_trip_from_dict
-        ), "to/from dict is broken when object embedding is used! Apparently MontyEncoding is broken..."
+        assert struct_nl == round_trip_from_dict, (
+            "to/from dict is broken when object embedding is used! Apparently MontyEncoding is broken..."
+        )
 
         # Test molecule
         mol_nl = StructureNL(self.mol, self.hulk, references=self.pmg)

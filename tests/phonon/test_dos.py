@@ -16,9 +16,9 @@ TEST_DIR = f"{TEST_FILES_DIR}/phonon/dos"
 
 class TestPhononDos(PymatgenTest):
     def setUp(self):
-        with open(f"{TEST_DIR}/NaCl_ph_dos.json") as file:
+        with open(f"{TEST_DIR}/NaCl_ph_dos.json", encoding="utf-8") as file:
             self.dos = PhononDos.from_dict(json.load(file))
-        with open(f"{TEST_DIR}/NaCl_complete_ph_dos.json") as file:
+        with open(f"{TEST_DIR}/NaCl_complete_ph_dos.json", encoding="utf-8") as file:
             self.structure = CompletePhononDos.from_dict(json.load(file)).structure
 
     def test_repr(self):
@@ -184,7 +184,7 @@ class TestPhononDos(PymatgenTest):
 
 class TestCompletePhononDos(PymatgenTest):
     def setUp(self):
-        with open(f"{TEST_DIR}/NaCl_complete_ph_dos.json") as file:
+        with open(f"{TEST_DIR}/NaCl_complete_ph_dos.json", encoding="utf-8") as file:
             self.cdos = CompletePhononDos.from_dict(json.load(file))
 
     def test_properties(self):

@@ -138,9 +138,9 @@ class TestPeriodicSite(PymatgenTest):
         dist_old, jimage_old = get_distance_and_image_old(site1, site2)
         dist_new, jimage_new = site1.distance_and_image(site2)
         assert dist_old - dist_new > -1e-8, "New distance algo should give smaller answers!"
-        assert (
-            not (abs(dist_old - dist_new) < 1e-8) ^ (jimage_old == jimage_new).all()
-        ), "If old dist == new dist, images must be the same!"
+        assert not (abs(dist_old - dist_new) < 1e-8) ^ (jimage_old == jimage_new).all(), (
+            "If old dist == new dist, images must be the same!"
+        )
         lattice = Lattice.from_parameters(3.0, 3.1, 10.0, 2.96, 2.0, 1.0)
         site = PeriodicSite("Fe", [0.1, 0.1, 0.1], lattice)
         site2 = PeriodicSite("Fe", [0.99, 0.99, 0.99], lattice)

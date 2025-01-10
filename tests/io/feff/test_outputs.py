@@ -25,9 +25,9 @@ class TestFeffLdos(TestCase):
 
     def test_complete_dos(self):
         complete_dos = TestFeffLdos.ldos.complete_dos
-        assert complete_dos.as_dict()["spd_dos"]["s"]["efermi"] == approx(
-            -11.430
-        ), "Failed to construct complete_dos dict properly"
+        assert complete_dos.as_dict()["spd_dos"]["s"]["efermi"] == approx(-11.430), (
+            "Failed to construct complete_dos dict properly"
+        )
 
     def test_as_dict_and_from_dict(self):
         l2 = TestFeffLdos.ldos.charge_transfer_to_str()
@@ -41,9 +41,9 @@ class TestFeffLdos(TestCase):
 
     def test_reci_complete_dos(self):
         complete_dos = TestFeffLdos.reci_dos.complete_dos
-        assert complete_dos.as_dict()["spd_dos"]["s"]["efermi"] == approx(
-            -9.672
-        ), "Failed to construct complete_dos dict properly"
+        assert complete_dos.as_dict()["spd_dos"]["s"]["efermi"] == approx(-9.672), (
+            "Failed to construct complete_dos dict properly"
+        )
 
     def test_reci_charge(self):
         charge_trans = TestFeffLdos.reci_dos.charge_transfer
