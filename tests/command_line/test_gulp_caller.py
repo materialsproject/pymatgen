@@ -8,12 +8,12 @@ from __future__ import annotations
 
 import os
 import sys
-import unittest
 from shutil import which
 from unittest import TestCase
 
 import numpy as np
 import pytest
+from pytest import approx
 
 from pymatgen.analysis.bond_valence import BVAnalyzer
 from pymatgen.command_line.gulp_caller import (
@@ -132,11 +132,11 @@ class TestGulpIO(TestCase):
         assert "cell" not in inp_str
         assert "cart" in inp_str
 
-    @unittest.skip("Not Implemented yet")
+    @pytest.mark.skip("Not Implemented yet")
     def test_specie_potential(self):
         pass
 
-    @unittest.expectedFailure
+    @pytest.mark.xfail
     def test_library_line_explicit_path(self):
         gin = self.gio.library_line("/Users/mbkumar/Research/Defects/GulpExe/Libraries/catlow.lib")
         assert "lib" in gin
@@ -267,7 +267,7 @@ class TestGulpIO(TestCase):
     Non-primitive unit cell  =          -16311.9732 kJ/(mole unit cells)
 --------------------------------------------------------------------------------"""
         energy = self.gio.get_energy(out_str)
-        assert energy == -169.06277218
+        assert energy == approx(-169.06277218)
 
     def test_get_relaxed_structure(self):
         # Output string obtained from running GULP on a terminal
@@ -277,10 +277,10 @@ class TestGulpIO(TestCase):
         struct = self.gio.get_relaxed_structure(out_str)
         assert isinstance(struct, Structure)
         assert len(struct) == 8
-        assert struct.lattice.a == 4.212
-        assert struct.lattice.alpha == 90
+        assert struct.lattice.a == approx(4.212)
+        assert struct.lattice.alpha == approx(90)
 
-    @unittest.skip("Test later")
+    @pytest.mark.skip("Test later")
     def test_tersoff_input(self):
         self.gio.tersoff_input(self.structure)
 

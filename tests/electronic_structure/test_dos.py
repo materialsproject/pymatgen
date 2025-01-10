@@ -77,7 +77,7 @@ class TestFermiDos(TestCase):
             assert calc_fermis[j] == approx(f_ref, abs=1e-4)
 
         sci_dos = FermiDos(self.dos, bandgap=3.0)
-        assert sci_dos.get_gap() == 3.0
+        assert sci_dos.get_gap() == approx(3.0)
         old_cbm, old_vbm = self.dos.get_cbm_vbm()
         old_gap = old_cbm - old_vbm
         new_cbm, new_vbm = sci_dos.get_cbm_vbm()

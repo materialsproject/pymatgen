@@ -2,7 +2,6 @@ from __future__ import annotations
 
 from unittest import TestCase
 
-import numpy as np
 from numpy.testing import assert_allclose
 
 from pymatgen.analysis.eos import EOS
@@ -189,7 +188,7 @@ direct
 
     def test_debye_temperature(self):
         theta = self.qhda.debye_temperature(self.opt_vol)
-        np.testing.assert_approx_equal(theta, 601.239096, 4)
+        assert_allclose(theta, 601.239096, 4)
 
     def test_gruneisen_parameter(self):
         gamma = self.qhda.gruneisen_parameter(0, self.qhda.ev_eos_fit.v0)

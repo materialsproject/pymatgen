@@ -85,7 +85,7 @@ class TestPhononDos(PymatgenTest):
         assert dos_2x.densities == approx(2 * self.dos.densities)
 
         # test commutativity
-        assert dos_2x * 1.234 == 1.234 * dos_2x
+        assert dos_2x * 1.234 == approx(1.234 * dos_2x)
 
     def test_eq(self):
         assert self.dos == self.dos
@@ -97,27 +97,27 @@ class TestPhononDos(PymatgenTest):
         assert self.dos.mae(self.dos) == 0
         assert self.dos.mae(self.dos + 1) == 1
         assert self.dos.mae(self.dos - 1) == 1
-        assert self.dos.mae(2 * self.dos) == pytest.approx(0.786546967)
-        assert (2 * self.dos).mae(self.dos) == pytest.approx(0.786546967)
+        assert self.dos.mae(2 * self.dos) == approx(0.786546967)
+        assert (2 * self.dos).mae(self.dos) == approx(0.786546967)
 
         # test two_sided=False after shifting DOS freqs so MAE requires interpolation
         dos2 = PhononDos(self.dos.frequencies + 0.01, self.dos.densities)
-        assert self.dos.mae(dos2 + 1, two_sided=False) == pytest.approx(0.999999999)
-        assert self.dos.mae(dos2 - 1, two_sided=False) == pytest.approx(1.00000000000031)
-        assert self.dos.mae(2 * dos2, two_sided=False) == pytest.approx(0.786546967)
+        assert self.dos.mae(dos2 + 1, two_sided=False) == approx(0.999999999)
+        assert self.dos.mae(dos2 - 1, two_sided=False) == approx(1.00000000000031)
+        assert self.dos.mae(2 * dos2, two_sided=False) == approx(0.786546967)
 
     def test_r2_score(self):
         assert self.dos.r2_score(self.dos) == 1
-        assert self.dos.r2_score(self.dos + 1) == pytest.approx(-0.45647319)
-        assert self.dos.r2_score(self.dos - 1) == pytest.approx(-0.45647319)
-        assert self.dos.r2_score(2 * self.dos) == pytest.approx(-0.901056070)
+        assert self.dos.r2_score(self.dos + 1) == approx(-0.45647319)
+        assert self.dos.r2_score(self.dos - 1) == approx(-0.45647319)
+        assert self.dos.r2_score(2 * self.dos) == approx(-0.901056070)
 
         # check that r2_score is 0 for DOS with same mean as self.dos
         densities = self.dos.densities
         mean_dos = PhononDos(self.dos.frequencies, np.full_like(densities, densities.mean()))
-        assert self.dos.r2_score(mean_dos) == pytest.approx(0)
+        assert self.dos.r2_score(mean_dos) == approx(0)
         # moving away from the mean should decrease r2_score
-        assert self.dos.r2_score(-mean_dos) == pytest.approx(-3.604224283)
+        assert self.dos.r2_score(-mean_dos) == approx(-3.604224283)
 
     def test_get_last_peak(self):
         peak_freq = self.dos.get_last_peak()

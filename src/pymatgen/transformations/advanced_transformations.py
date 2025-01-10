@@ -48,6 +48,8 @@ if TYPE_CHECKING:
     from collections.abc import Callable, Iterable, Sequence
     from typing import Any, Literal
 
+    from numpy.typing import NDArray
+
 
 __author__ = "Shyue Ping Ong, Stephen Dacek, Anubhav Jain, Matthew Horton, Alex Ganose"
 
@@ -67,6 +69,9 @@ class ChargeBalanceTransformation(AbstractTransformation):
         """
         self.charge_balance_sp = str(charge_balance_sp)
 
+    def __repr__(self):
+        return f"Charge Balance Transformation : Species to remove = {self.charge_balance_sp}"
+
     def apply_transformation(self, structure: Structure):
         """Apply the transformation.
 
@@ -85,9 +90,6 @@ class ChargeBalanceTransformation(AbstractTransformation):
             raise ValueError("addition of specie not yet supported by ChargeBalanceTransformation")
         trans = SubstitutionTransformation({self.charge_balance_sp: {self.charge_balance_sp: 1 - removal_fraction}})
         return trans.apply_transformation(structure)
-
-    def __repr__(self):
-        return f"Charge Balance Transformation : Species to remove = {self.charge_balance_sp}"
 
 
 class SuperTransformation(AbstractTransformation):
@@ -109,6 +111,9 @@ class SuperTransformation(AbstractTransformation):
         """
         self._transformations = transformations
         self.nstructures_per_trans = nstructures_per_trans
+
+    def __repr__(self):
+        return f"Super Transformation : Transformations = {' '.join(map(str, self._transformations))}"
 
     def apply_transformation(self, structure: Structure, return_ranked_list: bool | int = False):
         """Apply the transformation.
@@ -139,11 +144,8 @@ class SuperTransformation(AbstractTransformation):
                 )
         return structures
 
-    def __repr__(self):
-        return f"Super Transformation : Transformations = {' '.join(map(str, self._transformations))}"
-
     @property
-    def is_one_to_many(self) -> bool:
+    def is_one_to_many(self) -> Literal[True]:
         """Transform one structure to many."""
         return True
 
@@ -191,6 +193,9 @@ class MultipleSubstitutionTransformation:
         self.charge_balance_species = charge_balance_species
         self.order = order
 
+    def __repr__(self):
+        return f"Multiple Substitution Transformation : Substitution on {self.sp_to_replace}"
+
     def apply_transformation(self, structure: Structure, return_ranked_list: bool | int = False):
         """Apply the transformation.
 
@@ -233,11 +238,8 @@ class MultipleSubstitutionTransformation:
                 outputs.append({"structure": new_structure})
         return outputs
 
-    def __repr__(self):
-        return f"Multiple Substitution Transformation : Substitution on {self.sp_to_replace}"
-
     @property
-    def is_one_to_many(self) -> bool:
+    def is_one_to_many(self) -> Literal[True]:
         """Transform one structure to many."""
         return True
 
@@ -321,6 +323,9 @@ class EnumerateStructureTransformation(AbstractTransformation):
 
         if max_cell_size and max_disordered_sites:
             raise ValueError("Cannot set both max_cell_size and max_disordered_sites!")
+
+    def __repr__(self):
+        return "EnumerateStructureTransformation"
 
     def apply_transformation(
         self, structure: Structure, return_ranked_list: bool | int = False
@@ -468,11 +473,8 @@ class EnumerateStructureTransformation(AbstractTransformation):
             return self._all_structures[:num_to_return]
         return self._all_structures[0]["structure"]
 
-    def __repr__(self):
-        return "EnumerateStructureTransformation"
-
     @property
-    def is_one_to_many(self) -> bool:
+    def is_one_to_many(self) -> Literal[True]:
         """Transform one structure to many."""
         return True
 
@@ -493,6 +495,9 @@ class SubstitutionPredictorTransformation(AbstractTransformation):
         self.threshold = threshold
         self.scale_volumes = scale_volumes
         self._substitutor = SubstitutionPredictor(threshold=threshold, **kwargs)
+
+    def __repr__(self):
+        return "SubstitutionPredictorTransformation"
 
     def apply_transformation(self, structure: Structure, return_ranked_list: bool | int = False):
         """Apply the transformation.
@@ -528,11 +533,8 @@ class SubstitutionPredictorTransformation(AbstractTransformation):
             outputs.append(output)
         return outputs
 
-    def __repr__(self):
-        return "SubstitutionPredictorTransformation"
-
     @property
-    def is_one_to_many(self) -> bool:
+    def is_one_to_many(self) -> Literal[True]:
         """Transform one structure to many."""
         return True
 
@@ -895,7 +897,7 @@ class MagOrderingTransformation(AbstractTransformation):
         return self._all_structures[:num_to_return]  # type: ignore[return-value]
 
     @property
-    def is_one_to_many(self) -> bool:
+    def is_one_to_many(self) -> Literal[True]:
         """Transform one structure to many."""
         return True
 
@@ -984,15 +986,19 @@ class DopingTransformation(AbstractTransformation):
         self.allowed_doping_species = allowed_doping_species
         self.kwargs = kwargs
 
-    def apply_transformation(self, structure: Structure, return_ranked_list: bool | int = False):
+    def apply_transformation(
+        self,
+        structure: Structure,
+        return_ranked_list: bool | int = False,
+    ) -> list[dict[Literal["structure", "energy"], Structure | float]] | Structure:
         """
         Args:
-            structure (Structure): Input structure to dope
-            return_ranked_list (bool | int, optional): If return_ranked_list is int, that number of structures.
-                is returned. If False, only the single lowest energy structure is returned. Defaults to False.
+            structure (Structure): Input structure to dope.
+            return_ranked_list (bool | int, optional): If is int, that number of structures is returned.
+                If False, only the single lowest energy structure is returned. Defaults to False.
 
         Returns:
-            list[dict] | Structure: each dict has shape {"structure": Structure, "energy": float}.
+            list[dict] | Structure: each dict as {"structure": Structure, "energy": float}.
         """
         comp = structure.composition
         logger.info(f"Composition: {comp}")
@@ -1125,7 +1131,7 @@ class DopingTransformation(AbstractTransformation):
         return all_structures[0]["structure"]
 
     @property
-    def is_one_to_many(self) -> bool:
+    def is_one_to_many(self) -> Literal[True]:
         """Transform one structure to many."""
         return True
 
@@ -1253,7 +1259,7 @@ class DisorderOrderedTransformation(AbstractTransformation):
         return disordered_structures
 
     @property
-    def is_one_to_many(self) -> bool:
+    def is_one_to_many(self) -> Literal[True]:
         """Transform one structure to many."""
         return True
 
@@ -1714,7 +1720,7 @@ class AddAdsorbateTransformation(AbstractTransformation):
         return [{"structure": structure} for structure in structures[:return_ranked_list]]
 
     @property
-    def is_one_to_many(self) -> bool:
+    def is_one_to_many(self) -> Literal[True]:
         """Transform one structure to many."""
         return True
 
@@ -1868,16 +1874,25 @@ class SubstituteSurfaceSiteTransformation(AbstractTransformation):
         return [{"structure": structure} for structure in structures[:return_ranked_list]]
 
     @property
-    def is_one_to_many(self) -> bool:
+    def is_one_to_many(self) -> Literal[True]:
         """Transform one structure to many."""
         return True
 
 
-def _proj(b, a):
-    """Get vector projection (np.ndarray) of vector b (np.ndarray)
-    onto vector a (np.ndarray).
+def _proj(b: NDArray, a: NDArray) -> NDArray:
+    """Get vector projection of vector b onto vector a.
+
+    Args:
+        b (NDArray): Vector to be projected.
+        a (NDArray): Vector onto which `b` is projected.
+
+    Returns:
+        NDArray: Projection of `b` onto `a`.
     """
-    return (b.T @ (a / np.linalg.norm(a))) * (a / np.linalg.norm(a))
+    a = np.asarray(a)
+    b = np.asarray(b)
+
+    return (np.dot(b, a) / np.dot(a, a)) * a
 
 
 class SQSTransformation(AbstractTransformation):
@@ -2146,7 +2161,7 @@ class SQSTransformation(AbstractTransformation):
         return to_return
 
     @property
-    def is_one_to_many(self) -> bool:
+    def is_one_to_many(self) -> Literal[True]:
         """Transform one structure to many."""
         return True
 
@@ -2195,6 +2210,9 @@ class MonteCarloRattleTransformation(AbstractTransformation):
         self.random_state = np.random.RandomState(seed)
         self.kwargs = kwargs
 
+    def __repr__(self):
+        return f"{__name__} : rattle_std = {self.rattle_std}"
+
     def apply_transformation(self, structure: Structure) -> Structure:
         """Apply the transformation.
 
@@ -2216,6 +2234,3 @@ class MonteCarloRattleTransformation(AbstractTransformation):
             structure.cart_coords + displacements,
             coords_are_cartesian=True,
         )
-
-    def __repr__(self):
-        return f"{__name__} : rattle_std = {self.rattle_std}"

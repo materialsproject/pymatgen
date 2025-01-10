@@ -258,8 +258,8 @@ class TestLobsterin(PymatgenTest):
             f"{VASP_OUT_DIR}/vasprun.C2.xml.gz",
             option="standard_with_energy_range_from_vasprun",
         )
-        assert lobsterin_comp["COHPstartEnergy"] == -28.3679
-        assert lobsterin_comp["COHPendEnergy"] == 32.8968
+        assert lobsterin_comp["COHPstartEnergy"] == approx(-28.3679)
+        assert lobsterin_comp["COHPendEnergy"] == approx(32.8968)
         assert lobsterin_comp["COHPSteps"] == 301
 
     def test_diff(self):
@@ -299,11 +299,11 @@ class TestLobsterin(PymatgenTest):
     def test_dict_functionality(self):
         for key in ("COHPstartEnergy", "COHPstartEnergy", "COhPstartenergy"):
             start_energy = self.Lobsterin.get(key)
-            assert start_energy == -15.0, f"{start_energy=}, {key=}"
+            assert start_energy == approx(-15.0), f"{start_energy=}, {key=}"
 
         lobsterin_copy = self.Lobsterin.copy()
         lobsterin_copy.update({"cohpstarteNergy": -10.00})
-        assert lobsterin_copy["cohpstartenergy"] == -10.0
+        assert lobsterin_copy["cohpstartenergy"] == approx(-10.0)
         lobsterin_copy.pop("cohpstarteNergy")
         assert "cohpstartenergy" not in lobsterin_copy
         lobsterin_copy.pop("cohpendenergY")

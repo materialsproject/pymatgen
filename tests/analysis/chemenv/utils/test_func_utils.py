@@ -85,7 +85,7 @@ class TestFuncUtils:
         # csm_infinite_ratio = CSMInfiniteRatioFunction(function='power2_inverse_decreasing')
         assert csm_infinite_ratio.evaluate(0) == np.inf
         assert csm_infinite_ratio.evaluate(2) == approx(2.25)
-        assert csm_infinite_ratio.evaluate(4) == 0.5
+        assert csm_infinite_ratio.evaluate(4) == approx(0.5)
         assert csm_infinite_ratio.evaluate(8) == 0
         assert csm_infinite_ratio.evaluate(9) == 0
 
@@ -145,7 +145,7 @@ class TestFuncUtils:
         )
         assert delta_csm_ratio_function.evaluate(0) == 0
         assert delta_csm_ratio_function.evaluate(1) == 0
-        assert delta_csm_ratio_function.evaluate(2.5) == 0.5
+        assert delta_csm_ratio_function.evaluate(2.5) == approx(0.5)
         assert delta_csm_ratio_function.evaluate(4) == 1
         assert delta_csm_ratio_function.evaluate(5) == 1
 
@@ -155,6 +155,6 @@ class TestFuncUtils:
         )
         assert delta_csm_ratio_function.evaluate(0) == 0
         assert delta_csm_ratio_function.evaluate(2) == 0
-        assert delta_csm_ratio_function.evaluate(5) == 0.5
+        assert delta_csm_ratio_function.evaluate(5) == approx(0.5)
         assert delta_csm_ratio_function.evaluate(8) == 1
         assert delta_csm_ratio_function.evaluate(12) == 1

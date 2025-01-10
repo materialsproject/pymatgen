@@ -5,7 +5,7 @@ import json
 import numpy as np
 import pytest
 from monty.json import MontyDecoder
-from numpy.testing import assert_allclose, assert_array_equal
+from numpy.testing import assert_allclose
 from pytest import approx
 
 from pymatgen.analysis.xas.spectrum import XAS, site_weighted_spectrum
@@ -38,7 +38,7 @@ class TestXAS(PymatgenTest):
         self.site2_xanes = XAS.from_dict(site2_xanes_dict)
 
     def test_e0(self):
-        assert approx(self.k_xanes.e0) == 7728.565
+        assert self.k_xanes.e0 == approx(7728.565)
 
     def test_k(self):
         assert len(self.k_xanes.x) == len(self.k_xanes.k)
@@ -46,22 +46,22 @@ class TestXAS(PymatgenTest):
 
     def test_normalization(self):
         self.k_xanes.normalize(mode="sum")
-        assert approx(np.sum(self.k_xanes.y)) == 1.0
+        assert np.sum(self.k_xanes.y) == approx(1.0)
 
     def test_add_mul(self):
         scaled_spect = self.k_xanes + self.k_xanes
         scaled_spect2 = self.k_xanes * 3
         assert_allclose(scaled_spect.y, 2 * self.k_xanes.y)
         assert_allclose(scaled_spect2.y, 3 * self.k_xanes.y)
-        assert approx(self.k_xanes.get_interpolated_value(7720.422), abs=1e-3) == 0.274302
+        assert self.k_xanes.get_interpolated_value(7720.422) == approx(0.274302, abs=1e-3)
 
     def test_as_from_dict(self):
         xas = XAS.from_dict(self.k_xanes.as_dict())
         assert_allclose(xas.y, self.k_xanes.y)
 
     def test_attributes(self):
-        assert_array_equal(self.k_xanes.energy, self.k_xanes.x)
-        assert_array_equal(self.k_xanes.intensity, self.k_xanes.y)
+        assert_allclose(self.k_xanes.energy, self.k_xanes.x)
+        assert_allclose(self.k_xanes.intensity, self.k_xanes.y)
 
     def test_str(self):
         assert str(self.k_xanes) == "Co K Edge XANES for LiCoO2: <super: <class 'XAS'>, <XAS object>>"

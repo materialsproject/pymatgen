@@ -333,12 +333,12 @@ class TestQCOutput(PymatgenTest):
         assert len(mpoles["quadrupole"]) == 6
         assert len(mpoles["octopole"]) == 10
         assert len(mpoles["hexadecapole"]) == 15
-        assert mpoles["quadrupole"]["XX"] == -51.3957
-        assert mpoles["quadrupole"]["YZ"] == 3.5356
-        assert mpoles["octopole"]["XYY"] == -15.0294
-        assert mpoles["octopole"]["XZZ"] == -14.9756
-        assert mpoles["hexadecapole"]["YYYY"] == -326.317
-        assert mpoles["hexadecapole"]["XYZZ"] == 58.0584
+        assert mpoles["quadrupole"]["XX"] == approx(-51.3957)
+        assert mpoles["quadrupole"]["YZ"] == approx(3.5356)
+        assert mpoles["octopole"]["XYY"] == approx(-15.0294)
+        assert mpoles["octopole"]["XZZ"] == approx(-14.9756)
+        assert mpoles["hexadecapole"]["YYYY"] == approx(-326.317)
+        assert mpoles["hexadecapole"]["XYZZ"] == approx(58.0584)
 
         opt = QCOutput(f"{NEW_QCHEM_TEST_DIR}/ts.out")
         mpoles = opt.data["multipoles"]
@@ -373,26 +373,26 @@ class TestQCOutput(PymatgenTest):
         assert len(data["nbo_data"]["natural_populations"]) == 3
         assert len(data["nbo_data"]["hybridization_character"]) == 6
         assert len(data["nbo_data"]["perturbation_energy"]) == 2
-        assert data["nbo_data"]["natural_populations"][0]["Density"][5] == -0.08624
+        assert data["nbo_data"]["natural_populations"][0]["Density"][5] == approx(-0.08624)
         assert data["nbo_data"]["hybridization_character"][4]["atom 2 pol coeff"][35] == "-0.7059"
         next_to_last = list(data["nbo_data"]["perturbation_energy"][-1]["fock matrix element"])[-2]
-        assert data["nbo_data"]["perturbation_energy"][-1]["fock matrix element"][next_to_last] == 0.071
+        assert data["nbo_data"]["perturbation_energy"][-1]["fock matrix element"][next_to_last] == approx(0.071)
         assert data["nbo_data"]["perturbation_energy"][0]["acceptor type"][0] == "RY*"
 
     def test_nbo7_parsing(self):
         data = QCOutput(f"{NEW_QCHEM_TEST_DIR}/nbo7_1.qout").data
-        assert data["nbo_data"]["perturbation_energy"][0]["perturbation energy"][9] == 15.73
+        assert data["nbo_data"]["perturbation_energy"][0]["perturbation energy"][9] == approx(15.73)
         assert len(data["nbo_data"]["perturbation_energy"][0]["donor bond index"]) == 84
         assert len(data["nbo_data"]["perturbation_energy"][1]["donor bond index"]) == 29
 
         data = QCOutput(f"{NEW_QCHEM_TEST_DIR}/nbo7_2.qout").data
-        assert data["nbo_data"]["perturbation_energy"][0]["perturbation energy"][13] == 32.93
+        assert data["nbo_data"]["perturbation_energy"][0]["perturbation energy"][13] == approx(32.93)
         assert data["nbo_data"]["perturbation_energy"][0]["acceptor type"][13] == "LV"
         assert data["nbo_data"]["perturbation_energy"][0]["acceptor type"][12] == "RY"
         assert data["nbo_data"]["perturbation_energy"][0]["acceptor atom 1 symbol"][12] == "Mg"
 
         data = QCOutput(f"{NEW_QCHEM_TEST_DIR}/nbo7_3.qout").data
-        assert data["nbo_data"]["perturbation_energy"][0]["perturbation energy"][13] == 34.54
+        assert data["nbo_data"]["perturbation_energy"][0]["perturbation energy"][13] == approx(34.54)
         assert data["nbo_data"]["perturbation_energy"][0]["acceptor type"][13] == "BD*"
         assert data["nbo_data"]["perturbation_energy"][0]["acceptor atom 1 symbol"][13] == "B"
         assert data["nbo_data"]["perturbation_energy"][0]["acceptor atom 2 symbol"][13] == "Mg"
@@ -419,41 +419,41 @@ class TestQCOutput(PymatgenTest):
 
     def test_cdft_parsing(self):
         data = QCOutput(f"{NEW_QCHEM_TEST_DIR}/cdft_simple.qout").data
-        assert data["cdft_becke_excess_electrons"][0][0] == 0.432641
+        assert data["cdft_becke_excess_electrons"][0][0] == approx(0.432641)
         assert len(data["cdft_becke_population"][0]) == 12
-        assert data["cdft_becke_net_spin"][0][6] == -0.000316
+        assert data["cdft_becke_net_spin"][0][6] == approx(-0.000316)
 
     def test_cdft_dc_parsing(self):
         data = QCOutput.multiple_outputs_from_file(
             f"{NEW_QCHEM_TEST_DIR}/cdft_dc.qout",
             keep_sub_files=False,
         )[-1].data
-        assert data["direct_coupling_eV"] == 0.0103038246
+        assert data["direct_coupling_eV"] == approx(0.0103038246)
 
     def test_almo_msdft2_parsing(self):
         data = QCOutput(f"{NEW_QCHEM_TEST_DIR}/almo.out").data
         assert data["almo_coupling_states"] == [[[1, 2], [0, 1]], [[0, 1], [1, 2]]]
-        assert data["almo_hamiltonian"][0][0] == -156.62929
+        assert data["almo_hamiltonian"][0][0] == approx(-156.62929)
         assert data["almo_coupling_eV"] == approx(0.26895)
 
     def test_pod_parsing(self):
         data = QCOutput(f"{NEW_QCHEM_TEST_DIR}/pod2_gs.out").data
-        assert data["pod_coupling_eV"] == 0.247818
+        assert data["pod_coupling_eV"] == approx(0.247818)
 
     def test_fodft_parsing(self):
         data = QCOutput(f"{NEW_QCHEM_TEST_DIR}/fodft.out").data
-        assert data["fodft_coupling_eV"] == 0.268383
+        assert data["fodft_coupling_eV"] == approx(0.268383)
 
     def test_isosvp_water(self):
         data = QCOutput(f"{NEW_QCHEM_TEST_DIR}/isosvp_water_single.qcout").data
         assert data["solvent_method"] == "ISOSVP"
         # ISOSVP parameters
-        assert data["solvent_data"]["isosvp"]["isosvp_dielectric"] == 78.39
-        assert data["solvent_data"]["isosvp"]["final_soln_phase_e"] == -40.4850599393
-        assert data["solvent_data"]["isosvp"]["solute_internal_e"] == -40.4846329762
-        assert data["solvent_data"]["isosvp"]["change_solute_internal_e"] == 0.0000121967
-        assert data["solvent_data"]["isosvp"]["reaction_field_free_e"] == -0.0004269631
-        assert data["solvent_data"]["isosvp"]["total_solvation_free_e"] == -0.0004147664
+        assert data["solvent_data"]["isosvp"]["isosvp_dielectric"] == approx(78.39)
+        assert data["solvent_data"]["isosvp"]["final_soln_phase_e"] == approx(-40.4850599393)
+        assert data["solvent_data"]["isosvp"]["solute_internal_e"] == approx(-40.4846329762)
+        assert data["solvent_data"]["isosvp"]["change_solute_internal_e"] == approx(0.0000121967)
+        assert data["solvent_data"]["isosvp"]["reaction_field_free_e"] == approx(-0.0004269631)
+        assert data["solvent_data"]["isosvp"]["total_solvation_free_e"] == approx(-0.0004147664)
 
         # CMIRS parameters
         assert data["solvent_data"]["cmirs"]["CMIRS_enabled"] is False
@@ -464,11 +464,11 @@ class TestQCOutput(PymatgenTest):
 
         # ISOSVP parameters
         assert data["solvent_data"]["isosvp"]["isosvp_dielectric"] == 10
-        assert data["solvent_data"]["isosvp"]["final_soln_phase_e"] == -40.4850012952
-        assert data["solvent_data"]["isosvp"]["solute_internal_e"] == -40.4846362547
-        assert data["solvent_data"]["isosvp"]["change_solute_internal_e"] == 0.0000089182
-        assert data["solvent_data"]["isosvp"]["reaction_field_free_e"] == -0.0003650405
-        assert data["solvent_data"]["isosvp"]["total_solvation_free_e"] == -0.0003561223
+        assert data["solvent_data"]["isosvp"]["final_soln_phase_e"] == approx(-40.4850012952)
+        assert data["solvent_data"]["isosvp"]["solute_internal_e"] == approx(-40.4846362547)
+        assert data["solvent_data"]["isosvp"]["change_solute_internal_e"] == approx(0.0000089182)
+        assert data["solvent_data"]["isosvp"]["reaction_field_free_e"] == approx(-0.0003650405)
+        assert data["solvent_data"]["isosvp"]["total_solvation_free_e"] == approx(-0.0003561223)
 
         # CMIRS parameters
         assert data["solvent_data"]["cmirs"]["CMIRS_enabled"] is False
@@ -476,48 +476,48 @@ class TestQCOutput(PymatgenTest):
     def test_cmirs_benzene(self):
         data = QCOutput(f"{NEW_QCHEM_TEST_DIR}/cmirs_benzene_single.qcout").data
         assert data["solvent_method"] == "ISOSVP"
-        assert data["solvent_data"]["isosvp"]["isosvp_dielectric"] == 2.28
+        assert data["solvent_data"]["isosvp"]["isosvp_dielectric"] == approx(2.28)
         assert data["solvent_data"]["cmirs"]["CMIRS_enabled"]
-        assert data["solvent_data"]["cmirs"]["dispersion_e"] == 0.6955542829
-        assert data["solvent_data"]["cmirs"]["exchange_e"] == 0.2654553686
-        assert data["solvent_data"]["cmirs"]["min_neg_field_e"] == 0.0006019665
-        assert data["solvent_data"]["cmirs"]["max_pos_field_e"] == 0.0178177740
+        assert data["solvent_data"]["cmirs"]["dispersion_e"] == approx(0.6955542829)
+        assert data["solvent_data"]["cmirs"]["exchange_e"] == approx(0.2654553686)
+        assert data["solvent_data"]["cmirs"]["min_neg_field_e"] == approx(0.0006019665)
+        assert data["solvent_data"]["cmirs"]["max_pos_field_e"] == approx(0.0178177740)
 
     def test_cmirs_dielst10(self):
         data = QCOutput(f"{NEW_QCHEM_TEST_DIR}/cmirs_dielst10_single.qcout").data
         assert data["solvent_method"] == "ISOSVP"
         assert data["solvent_data"]["isosvp"]["isosvp_dielectric"] == 10
         assert data["solvent_data"]["cmirs"]["CMIRS_enabled"]
-        assert data["solvent_data"]["cmirs"]["dispersion_e"] == 0.6955550107
-        assert data["solvent_data"]["cmirs"]["exchange_e"] == 0.2652679507
-        assert data["solvent_data"]["cmirs"]["min_neg_field_e"] == 0.0005235850
-        assert data["solvent_data"]["cmirs"]["max_pos_field_e"] == 0.0179866718
+        assert data["solvent_data"]["cmirs"]["dispersion_e"] == approx(0.6955550107)
+        assert data["solvent_data"]["cmirs"]["exchange_e"] == approx(0.2652679507)
+        assert data["solvent_data"]["cmirs"]["min_neg_field_e"] == approx(0.0005235850)
+        assert data["solvent_data"]["cmirs"]["max_pos_field_e"] == approx(0.0179866718)
 
     def test_cmirs_water(self):
         data = QCOutput(f"{NEW_QCHEM_TEST_DIR}/cmirs_water_single.qcout").data
         assert data["solvent_method"] == "ISOSVP"
 
         # ISOSVP parameters
-        assert data["solvent_data"]["isosvp"]["isosvp_dielectric"] == 78.39
-        assert data["solvent_data"]["isosvp"]["final_soln_phase_e"] == -40.4752415075
-        assert data["solvent_data"]["isosvp"]["solute_internal_e"] == -40.4748535587
-        assert data["solvent_data"]["isosvp"]["change_solute_internal_e"] == 0.0000122982
-        assert data["solvent_data"]["isosvp"]["reaction_field_free_e"] == -0.0003879488
-        assert data["solvent_data"]["isosvp"]["total_solvation_free_e"] == 0.0037602703
+        assert data["solvent_data"]["isosvp"]["isosvp_dielectric"] == approx(78.39)
+        assert data["solvent_data"]["isosvp"]["final_soln_phase_e"] == approx(-40.4752415075)
+        assert data["solvent_data"]["isosvp"]["solute_internal_e"] == approx(-40.4748535587)
+        assert data["solvent_data"]["isosvp"]["change_solute_internal_e"] == approx(0.0000122982)
+        assert data["solvent_data"]["isosvp"]["reaction_field_free_e"] == approx(-0.0003879488)
+        assert data["solvent_data"]["isosvp"]["total_solvation_free_e"] == approx(0.0037602703)
 
         # CMIRS parameters
         assert data["solvent_data"]["cmirs"]["CMIRS_enabled"]
-        assert data["solvent_data"]["cmirs"]["dispersion_e"] == 0.6722278965
-        assert data["solvent_data"]["cmirs"]["exchange_e"] == 0.2652032616
-        assert data["solvent_data"]["cmirs"]["min_neg_field_e"] == 0.0004967767
-        assert data["solvent_data"]["cmirs"]["max_pos_field_e"] == 0.0180445935
+        assert data["solvent_data"]["cmirs"]["dispersion_e"] == approx(0.6722278965)
+        assert data["solvent_data"]["cmirs"]["exchange_e"] == approx(0.2652032616)
+        assert data["solvent_data"]["cmirs"]["min_neg_field_e"] == approx(0.0004967767)
+        assert data["solvent_data"]["cmirs"]["max_pos_field_e"] == approx(0.0180445935)
 
     def test_nbo_hyperbonds(self):
         data = QCOutput(f"{NEW_QCHEM_TEST_DIR}/hyper.qout").data
         assert len(data["nbo_data"]["hyperbonds"][0]["hyperbond index"]) == 2
         assert data["nbo_data"]["hyperbonds"][0]["BD(A-B)"][1] == 106
         assert data["nbo_data"]["hyperbonds"][0]["bond atom 2 symbol"][0] == "C"
-        assert data["nbo_data"]["hyperbonds"][0]["occ"][1] == 3.0802
+        assert data["nbo_data"]["hyperbonds"][0]["occ"][1] == approx(3.0802)
 
     def test_nbo_3_c(self):
         data = QCOutput(f"{NEW_QCHEM_TEST_DIR}/3C.qout").data
@@ -535,23 +535,23 @@ class TestQCOutput(PymatgenTest):
         assert perturb_ene[0]["donor atom 2 symbol"][2125] == "B12"
         assert perturb_ene[0]["donor atom 2 number"][2593] == "info_is_from_3C"
         assert perturb_ene[0]["acceptor type"][723] == "3C*"
-        assert perturb_ene[0]["perturbation energy"][3209] == 3.94
+        assert perturb_ene[0]["perturbation energy"][3209] == approx(3.94)
 
     def test_qchem_6_1_1(self):
         qc_out = QCOutput(f"{TEST_DIR}/6.1.1.wb97xv.out.gz")
-        assert qc_out.data["final_energy"] == -76.43205015
+        assert qc_out.data["final_energy"] == approx(-76.43205015)
         n_vals = sum(1 for val in qc_out.data.values() if val is not None)
         assert n_vals == 23
 
         qc_out_read_optimization = QCOutput(f"{TEST_DIR}/6.1.1.opt.out.gz")
         qc_out_read_optimization._read_optimization_data()
-        assert qc_out_read_optimization.data["SCF_energy_in_the_final_basis_set"][-1] == -76.36097614
-        assert qc_out_read_optimization.data["Total_energy_in_the_final_basis_set"][-1] == -76.36097614
+        assert qc_out_read_optimization.data["SCF_energy_in_the_final_basis_set"][-1] == approx(-76.36097614)
+        assert qc_out_read_optimization.data["Total_energy_in_the_final_basis_set"][-1] == approx(-76.36097614)
 
         qc_out_read_frequency = QCOutput(f"{TEST_DIR}/6.1.1.freq.out.gz")
         qc_out_read_frequency._read_frequency_data()
-        assert qc_out_read_frequency.data["SCF_energy_in_the_final_basis_set"] == -76.36097614
-        assert qc_out_read_frequency.data["Total_energy_in_the_final_basis_set"] == -76.36097614
+        assert qc_out_read_frequency.data["SCF_energy_in_the_final_basis_set"] == approx(-76.36097614)
+        assert qc_out_read_frequency.data["Total_energy_in_the_final_basis_set"] == approx(-76.36097614)
 
 
 def test_gradient(tmp_path):

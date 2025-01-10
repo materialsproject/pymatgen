@@ -1,7 +1,8 @@
 from __future__ import annotations
 
 import pytest
-from numpy.testing import assert_array_equal
+from numpy.testing import assert_allclose
+from pytest import approx
 
 from pymatgen.io.shengbte import Control
 from pymatgen.util.testing import TEST_FILES_DIR, PymatgenTest
@@ -42,10 +43,10 @@ class TestShengBTE(PymatgenTest):
         assert io["natoms"] == 2
         assert tuple(io["ngrid"]) == (25, 25, 25)
         assert io["norientations"] == 0
-        assert io["lfactor"] == 0.1
-        assert io["lattvec"][0] == [0.0, 2.734363999, 2.734363999]
-        assert io["lattvec"][1] == [2.734363999, 0.0, 2.734363999]
-        assert io["lattvec"][2] == [2.734363999, 2.734363999, 0.0]
+        assert io["lfactor"] == approx(0.1)
+        assert_allclose(io["lattvec"][0], [0.0, 2.734363999, 2.734363999])
+        assert_allclose(io["lattvec"][1], [2.734363999, 0.0, 2.734363999])
+        assert_allclose(io["lattvec"][2], [2.734363999, 2.734363999, 0.0])
         assert isinstance(io["elements"], list | str)
         if isinstance(io["elements"], list):
             all_strings = all(isinstance(item, str) for item in io["elements"])
@@ -54,10 +55,10 @@ class TestShengBTE(PymatgenTest):
         if isinstance(io["types"], list):
             all_ints = all(isinstance(item, int) for item in io["types"])
             assert all_ints
-        assert_array_equal(io["positions"], [[0.0, 0.0, 0.0], [0.25, 0.25, 0.25]])
+        assert_allclose(io["positions"], [[0.0, 0.0, 0.0], [0.25, 0.25, 0.25]])
         assert tuple(io["scell"]) == (5, 5, 5)
         assert io["t"] == 500
-        assert io["scalebroad"] == 0.5
+        assert io["scalebroad"] == approx(0.5)
         assert not io["isotopes"]
         assert not io["onlyharmonic"]
         assert not io["nonanalytic"]
