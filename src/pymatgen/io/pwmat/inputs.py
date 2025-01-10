@@ -495,7 +495,7 @@ class GenKpt(MSONable):
         """Initialization function.
 
         Args:
-            reciprocal_lattice (np.array): Reciprocal lattice with factor of 2*pi.
+            reciprocal_lattice (NDArray): Reciprocal lattice with factor of 2*pi.
             kpoints (dict[str, np.array]): Kpoints and their corresponding fractional coordinates.
             kpath (list[list[str]]): All kpaths, with each list representing one kpath.
             density (float): The density of kpoints mesh with factor of 2*pi.

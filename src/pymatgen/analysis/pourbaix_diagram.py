@@ -114,7 +114,7 @@ class PourbaixEntry(MSONable, Stringify):
         self.uncorrected_energy = entry.energy
         if entry_id is not None:
             self.entry_id: str | None = entry_id
-        elif getattr(entry, "entry_id", None):
+        elif getattr(entry, "entry_id", False):
             self.entry_id = entry.entry_id
         else:
             self.entry_id = None

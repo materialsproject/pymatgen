@@ -357,7 +357,7 @@ class StructureVis:
         Adding a partial sphere (to display partial occupancies.
 
         Args:
-            coords (np.array): Coordinates
+            coords (NDArray): Coordinates
             radius (float): Radius of sphere
             color (tuple): RGB color of sphere
             start (float): Starting angle.
