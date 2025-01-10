@@ -135,7 +135,7 @@ class Movement(MSONable):
                 'atom_forces' and 'virial'.
         """
         ionic_steps: list[dict] = []
-        with zopen(self.filename, "rt") as mvt:
+        with zopen(self.filename, mode="rt", encoding="utf-8") as mvt:
             tmp_step: dict = {}
             for ii in range(self.n_ionic_steps):
                 tmp_chunk: str = ""
@@ -168,7 +168,7 @@ class OutFermi(MSONable):
             filename (PathLike): The absolute path of OUT.FERMI file.
         """
         self.filename: PathLike = filename
-        with zopen(self.filename, "rt") as file:
+        with zopen(self.filename, mode="rt", encoding="utf-8") as file:
             self._e_fermi: float = np.round(float(file.readline().split()[-2].strip()), 3)
 
     @property
@@ -346,7 +346,7 @@ class DosSpin(MSONable):
         labels: list[str] = []
         labels = linecache.getline(str(self.filename), 1).split()[1:]
         dos_str: str = ""
-        with zopen(self.filename, mode="rt") as file:
+        with zopen(self.filename, mode="rt", encoding="utf-8") as file:
             file.readline()
             dos_str = file.read()
         dos: np.ndarray = np.loadtxt(StringIO(dos_str))

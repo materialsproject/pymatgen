@@ -91,6 +91,18 @@ def test_get_atoms_from_structure_dyn():
     STRUCTURE.add_site_property("selective_dynamics", [[False] * 3] * len(STRUCTURE))
     atoms = AseAtomsAdaptor.get_atoms(STRUCTURE)
     assert atoms.constraints[0].get_indices().tolist() == [atom.index for atom in atoms]
+    STRUCTURE.add_site_property("selective_dynamics", [[True] * 3] * len(STRUCTURE))
+    atoms = AseAtomsAdaptor.get_atoms(STRUCTURE)
+    assert len(atoms.constraints) == 0
+    rng = np.random.default_rng(seed=1234)
+    sel_dyn = [[rng.random() < 0.5, rng.random() < 0.5, rng.random() < 0.5] for _ in STRUCTURE]
+    STRUCTURE.add_site_property("selective_dynamics", sel_dyn)
+    atoms = AseAtomsAdaptor.get_atoms(STRUCTURE)
+    for c in atoms.constraints:
+        # print(c)
+        assert isinstance(c, ase.constraints.FixAtoms | ase.constraints.FixCartesian)
+        ase_mask = c.mask if isinstance(c, ase.constraints.FixCartesian) else [True, True, True]
+        assert len(c.index) == len([mask for mask in sel_dyn if np.array_equal(mask, ~np.array(ase_mask))])
 
 
 def test_get_atoms_from_molecule():
@@ -178,8 +190,10 @@ def test_get_structure_mag():
     "select_dyn",
     [
         [True, True, True],
+        [True, False, True],
         [False, False, False],
         np.array([True, True, True]),
+        np.array([True, False, True]),
         np.array([False, False, False]),
     ],
 )

@@ -80,7 +80,7 @@ def preprocessor(data: str, dir: str = ".") -> str:  # noqa: A002
             raise ValueError(f"length of inc should be 2, got {len(inc)}")
         inc = inc[1].strip("'")
         inc = inc.strip('"')
-        with zopen(os.path.join(dir, inc)) as file:
+        with zopen(os.path.join(dir, inc), mode="rt", encoding="utf-8") as file:
             data = re.sub(rf"{incl}", file.read(), data)
     variable_sets = re.findall(r"(@SET.+)", data, re.IGNORECASE)
     for match in variable_sets:

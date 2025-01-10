@@ -426,7 +426,7 @@ direct
 
         # check output produced for lattice velocities has required format and spaces
         # added in https://github.com/materialsproject/pymatgen/pull/3433
-        with open(path) as file:
+        with open(path, encoding="utf-8") as file:
             lines = file.readlines()
         pattern = (r"  [-| ]?\d\.\d{7}E[+-]\d{2}" * 3)[1:]
         for line in lines[18:24]:
@@ -1293,6 +1293,11 @@ direct
                     kpoints = Kpoints.automatic_density_by_lengths(struct, [len_density] * 3)
                     assert kpoints.style == Kpoints.supported_modes.Gamma
 
+    def test_non_ascii_comment(self):
+        """Non-ASCII comment like 'Γ' might not be encoded correctly in Windows."""
+        kpoints = Kpoints.from_file(f"{VASP_IN_DIR}/KPOINTS_band")
+        assert kpoints.labels[0] == "Γ", f"Γ is not encoded correctly, got {kpoints.labels[0]}"
+
 
 @pytest.mark.filterwarnings(
     "ignore:POTCAR data with symbol .* is not known to pymatgen:pymatgen.io.vasp.inputs.UnknownPotcarWarning"
@@ -1560,7 +1565,7 @@ class TestPotcar(PymatgenTest):
         }
 
     def test_potcar_map(self):
-        fe_potcar = zopen(f"{FAKE_POTCAR_DIR}/POT_GGA_PAW_PBE/POTCAR.Fe_pv.gz").read().decode("utf-8")
+        fe_potcar = zopen(f"{FAKE_POTCAR_DIR}/POT_GGA_PAW_PBE/POTCAR.Fe_pv.gz", mode="rt", encoding="utf-8").read()
         # specify V instead of Fe - this makes sure the test won't pass if the
         # code just grabs the POTCAR from the config file (the config file would
         # grab the V POTCAR)
@@ -1664,7 +1669,7 @@ class TestVaspInput(PymatgenTest):
 
     def test_run_vasp(self):
         self.vasp_input.run_vasp(".", vasp_cmd=["cat", "INCAR"])
-        with open("vasp.out") as file:
+        with open("vasp.out", encoding="utf-8") as file:
             output = file.read()
             assert output.split("\n")[0] == "ALGO = Damped"
 

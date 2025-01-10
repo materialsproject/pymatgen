@@ -523,8 +523,7 @@ class HeisenbergMapper:
 
         if mft_t > 1500:  # Not sensible!
             logging.warning(
-                "This mean field estimate is too high! Probably "
-                "the true low energy orderings were not given as inputs."
+                "This mean field estimate is too high! Probably the true low energy orderings were not given as inputs."
             )
 
         return mft_t

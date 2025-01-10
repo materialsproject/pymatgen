@@ -1805,7 +1805,7 @@ class PatchedPhaseDiagram(PhaseDiagram):
         Raises:
             ValueError: If no suitable PhaseDiagram is found for the entry.
         """
-        entry_space = frozenset(entry.elements) if isinstance(entry, Composition) else frozenset(entry.elements)
+        entry_space = frozenset(entry.elements)
 
         try:
             return self.pds[entry_space]

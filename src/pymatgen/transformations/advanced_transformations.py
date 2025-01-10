@@ -205,8 +205,7 @@ class MultipleSubstitutionTransformation:
         """
         if not return_ranked_list:
             raise ValueError(
-                "MultipleSubstitutionTransformation has no single"
-                " best structure output. Must use return_ranked_list."
+                "MultipleSubstitutionTransformation has no single best structure output. Must use return_ranked_list."
             )
         outputs = []
         for charge, el_list in self.substitution_dict.items():

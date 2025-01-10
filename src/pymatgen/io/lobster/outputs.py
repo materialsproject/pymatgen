@@ -121,7 +121,7 @@ class Cohpcar:
             else:
                 self._filename = "COHPCAR.lobster"
 
-        with zopen(self._filename, mode="rt") as file:
+        with zopen(self._filename, mode="rt", encoding="utf-8") as file:
             lines = file.read().split("\n")
 
         # The parameters line is the second line in a COHPCAR file.
@@ -405,7 +405,7 @@ class Icohplist(MSONable):
         # LOBSTER list files have an extra trailing blank line
         # and we don't need the header.
         if self._icohpcollection is None:
-            with zopen(self._filename, mode="rt") as file:
+            with zopen(self._filename, mode="rt", encoding="utf-8") as file:
                 all_lines = file.read().split("\n")
                 lines = all_lines[1:-1] if "spin" not in all_lines[1] else all_lines[2:-1]
             if len(lines) == 0:
@@ -622,7 +622,7 @@ class NciCobiList:
 
         # LOBSTER list files have an extra trailing blank line
         # and we don't need the header
-        with zopen(filename, mode="rt") as file:
+        with zopen(filename, mode="rt", encoding="utf-8") as file:
             lines = file.read().split("\n")[1:-1]
         if len(lines) == 0:
             raise RuntimeError("NcICOBILIST file contains no data.")
@@ -754,7 +754,7 @@ class Doscar:
 
         tdensities = {}
         itdensities = {}
-        with zopen(doscar, mode="rt") as file:
+        with zopen(doscar, mode="rt", encoding="utf-8") as file:
             file.readline()  # Skip the first line
             efermi = float([file.readline() for nn in range(4)][3].split()[17])
             dos = []
@@ -913,7 +913,7 @@ class Charge(MSONable):
         self.loewdin = [] if loewdin is None else loewdin
 
         if self.num_atoms is None:
-            with zopen(filename, mode="rt") as file:
+            with zopen(filename, mode="rt", encoding="utf-8") as file:
                 lines = file.read().split("\n")[3:-3]
             if len(lines) == 0:
                 raise RuntimeError("CHARGES file contains no data.")
@@ -1047,7 +1047,7 @@ class Lobsterout(MSONable):
                 else:
                     raise ValueError(f"{attr}={val} is not a valid attribute for Lobsterout")
         elif filename:
-            with zopen(filename, mode="rt") as file:
+            with zopen(filename, mode="rt", encoding="utf-8") as file:
                 lines = file.read().split("\n")
             if len(lines) == 0:
                 raise RuntimeError("lobsterout does not contain any data")
@@ -1445,7 +1445,7 @@ class Fatband:
             raise ValueError("No FATBAND files in folder or given")
 
         for fname in filenames:
-            with zopen(fname, mode="rt") as file:
+            with zopen(fname, mode="rt", encoding="utf-8") as file:
                 lines = file.read().split("\n")
 
             atom_names.append(os.path.split(fname)[1].split("_")[1].capitalize())
@@ -1479,7 +1479,7 @@ class Fatband:
         eigenvals: dict = {}
         p_eigenvals: dict = {}
         for ifilename, filename in enumerate(filenames):
-            with zopen(filename, mode="rt") as file:
+            with zopen(filename, mode="rt", encoding="utf-8") as file:
                 lines = file.read().split("\n")
 
             if ifilename == 0:
@@ -1627,7 +1627,7 @@ class Bandoverlaps(MSONable):
         self.max_deviation = [] if max_deviation is None else max_deviation
 
         if not self.band_overlaps_dict:
-            with zopen(filename, mode="rt") as file:
+            with zopen(filename, mode="rt", encoding="utf-8") as file:
                 lines = file.read().split("\n")
 
             spin_numbers = [0, 1] if lines[0].split()[-1] == "0" else [1, 2]
@@ -1767,7 +1767,7 @@ class Grosspop(MSONable):
         self.is_lcfo = is_lcfo
         self.list_dict_grosspop = [] if list_dict_grosspop is None else list_dict_grosspop
         if not self.list_dict_grosspop:
-            with zopen(filename, mode="rt") as file:
+            with zopen(filename, mode="rt", encoding="utf-8") as file:
                 lines = file.read().split("\n")
 
             # Read file to list of dict
@@ -1897,7 +1897,7 @@ class Wavefunction:
             imaginary (list[float]): Imaginary parts of wave function.
             distance (list[float]): Distances to the first point in wave function file.
         """
-        with zopen(filename, mode="rt") as file:
+        with zopen(filename, mode="rt", encoding="utf-8") as file:
             lines = file.read().split("\n")
 
         points = []
@@ -2067,7 +2067,7 @@ class MadelungEnergies(MSONable):
         self.madelungenergies_mulliken = None if madelungenergies_mulliken is None else madelungenergies_mulliken
 
         if self.ewald_splitting is None:
-            with zopen(filename, mode="rt") as file:
+            with zopen(filename, mode="rt", encoding="utf-8") as file:
                 lines = file.read().split("\n")[5]
             if len(lines) == 0:
                 raise RuntimeError("MadelungEnergies file contains no data.")
@@ -2138,7 +2138,7 @@ class SitePotential(MSONable):
         self.madelungenergies_mulliken: list | float = madelungenergies_mulliken or []
 
         if self.num_atoms is None:
-            with zopen(filename, mode="rt") as file:
+            with zopen(filename, mode="rt", encoding="utf-8") as file:
                 lines = file.read().split("\n")
             if len(lines) == 0:
                 raise RuntimeError("SitePotentials file contains no data.")
@@ -2291,7 +2291,7 @@ class LobsterMatrices:
         """
 
         self._filename = str(filename)
-        with zopen(self._filename, mode="rt") as file:
+        with zopen(self._filename, mode="rt", encoding="utf-8") as file:
             lines = file.readlines()
         if len(lines) == 0:
             raise RuntimeError("Please check provided input file, it seems to be empty")
@@ -2479,7 +2479,7 @@ class Bwdf(MSONable):
         self.bin_width = 0.0 if bin_width is None else bin_width
 
         if not self.bwdf:
-            with zopen(filename, mode="rt") as file:
+            with zopen(filename, mode="rt", encoding="utf-8") as file:
                 lines = file.read().split("\n")
             if len(lines) == 0:
                 raise RuntimeError("BWDF file contains no data.")

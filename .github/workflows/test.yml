@@ -52,11 +52,10 @@ jobs:
         split: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
 
     runs-on: ${{ matrix.config.os }}
-
     env:
-      PMG_MAPI_KEY: ${{ secrets.PMG_MAPI_KEY }}
       MPLBACKEND: Agg  # non-interactive backend for matplotlib
-
+      PMG_MAPI_KEY: ${{ secrets.PMG_MAPI_KEY }}
+      PYTHONWARNDEFAULTENCODING: "true"  # PEP 597: Enable optional EncodingWarning
     steps:
       - name: Check out repo
         uses: actions/checkout@v4
@@ -106,6 +105,8 @@ jobs:
 
       - name: pytest split ${{ matrix.split }}
         env:
+          MPLBACKEND: Agg  # non-interactive backend for matplotlib
+          PMG_MAPI_KEY: ${{ secrets.PMG_MAPI_KEY }}
           PMG_TEST_FILES_DIR: "${{ github.workspace }}/tests/files"
         run: |
           micromamba activate pmg
