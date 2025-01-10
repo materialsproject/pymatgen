@@ -757,7 +757,7 @@ class TestForceField(PymatgenTest):
         filename = "ff_test.yaml"
         self.virus.to_file(filename=f"{self.tmp_path}/{filename}")
         yaml = YAML()
-        with open(filename) as file:
+        with open(filename, encoding="utf-8") as file:
             dct = yaml.load(file)
         # assert dct["mass_info"] == [list(m) for m in v.mass_info]
         assert dct["nonbond_coeffs"] == self.virus.nonbond_coeffs
@@ -1119,9 +1119,9 @@ class TestCombinedData(TestCase):
         ff1_items = list(ff_1.items())
         key, target_df = ff1_items[rng.choice(len(ff1_items))]
         lic3o3h4.mols[1].force_field[key].index = lic3o3h4.mols[1].force_field[key].index.map(int)
-        assert (
-            pd.testing.assert_frame_equal(lic3o3h4.mols[1].force_field[key], target_df, check_dtype=False) is None
-        ), key
+        assert pd.testing.assert_frame_equal(lic3o3h4.mols[1].force_field[key], target_df, check_dtype=False) is None, (
+            key
+        )
         topo_1 = self.li_ec.mols[1].topology
         topo1_items = list(topo_1.items())
         key, target_df = topo1_items[rng.choice(len(topo1_items))]

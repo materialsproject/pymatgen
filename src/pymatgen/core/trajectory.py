@@ -455,19 +455,19 @@ class Trajectory(MSONable):
                 _lattice = self.lattice if self.constant_lattice else self.lattice[idx]
 
                 for latt_vec in _lattice:
-                    lines.append(f'{" ".join(map(str, latt_vec))}')
+                    lines.append(f"{' '.join(map(str, latt_vec))}")
 
                 lines.extend((" ".join(site_symbols), " ".join(map(str, n_atoms))))
 
             lines.append(f"Direct configuration=     {idx + 1}")
 
             for coord, specie in zip(coords, self.species, strict=True):
-                line = f'{" ".join(format_str.format(c) for c in coord)} {specie}'
+                line = f"{' '.join(format_str.format(c) for c in coord)} {specie}"
                 lines.append(line)
 
         xdatcar_str = "\n".join(lines) + "\n"
 
-        with zopen(filename, mode="wt") as file:
+        with zopen(filename, mode="wt", encoding="utf-8") as file:
             file.write(xdatcar_str)
 
     def as_dict(self) -> dict:

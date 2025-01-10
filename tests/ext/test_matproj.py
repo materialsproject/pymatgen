@@ -488,7 +488,7 @@ class TestMPResterOld(PymatgenTest):
 
         assert isinstance(db_version, str)
         yaml = YAML()
-        with open(MP_LOG_FILE) as file:
+        with open(MP_LOG_FILE, encoding="utf-8") as file:
             dct = yaml.load(file)
 
         assert dct["MAPI_DB_VERSION"]["LAST_ACCESSED"] == db_version
@@ -908,7 +908,7 @@ class TestMPResterNewBasic(PymatgenTest):
             pytest.skip("mp_api.client.MPRester cannot be imported for this test.")
         mpr_mp_api = MpApi(PMG_MAPI_KEY)
         # Test summary
-        mp_data = mpr_mp_api.summary.search(formula="Al2O3")
+        mp_data = mpr_mp_api.materials.search(formula="Al2O3")
         pmg_data = self.rester.get_summary({"formula": "Al2O3"})
         assert len(mp_data) == len(pmg_data)
 

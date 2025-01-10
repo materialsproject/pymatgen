@@ -431,9 +431,7 @@ class PartialRemoveSitesTransformation(AbstractTransformation):
             n_to_remove = round(n_to_remove)
             num_remove_dict[tuple(idx)] = n_to_remove
             n = len(idx)
-            total_combos += int(
-                round(math.factorial(n) / math.factorial(n_to_remove) / math.factorial(n - n_to_remove))
-            )
+            total_combos += round(math.factorial(n) / math.factorial(n_to_remove) / math.factorial(n - n_to_remove))
 
         self.logger.debug(f"Total combinations = {total_combos}")
 

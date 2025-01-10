@@ -55,7 +55,7 @@ class Xr:
         # There are actually 10 more fields per site
         # in a typical xr file from GULP, for example.
         for idx, site in enumerate(self.structure, start=1):
-            output.append(f"{idx } {site.specie} {site.x:.4f} {site.y:.4f} {site.z:.4f}")
+            output.append(f"{idx} {site.specie} {site.x:.4f} {site.y:.4f} {site.z:.4f}")
         mat = self.structure.lattice.matrix
         for _ in range(2):
             for j in range(3):
@@ -68,7 +68,7 @@ class Xr:
         Args:
             filename (str): name of the file to write to.
         """
-        with zopen(filename, mode="wt") as file:
+        with zopen(filename, mode="wt", encoding="utf-8") as file:
             file.write(str(self) + "\n")
 
     @classmethod
@@ -155,5 +155,5 @@ class Xr:
             xr (Xr): Xr object corresponding to the input
                     file.
         """
-        with zopen(filename, mode="rt") as file:
+        with zopen(filename, mode="rt", encoding="utf-8") as file:
             return cls.from_str(file.read(), use_cores=use_cores, thresh=thresh)

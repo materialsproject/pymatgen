@@ -274,9 +274,9 @@ class TestSpacegroupAnalyzer(PymatgenTest):
             site.properties["magmom"] = 1.0 if site.specie.name == "Na" else -1.0
         sg = SpacegroupAnalyzer(structure, symprec=1e-2)
         primitive_structure = sg.find_primitive(keep_site_properties=True)
-        assert len(primitive_structure) != len(
-            structure
-        ), "this test is only interesting if the number of sites changes"
+        assert len(primitive_structure) != len(structure), (
+            "this test is only interesting if the number of sites changes"
+        )
         for site in primitive_structure:
             assert (1.0 if site.specie.name == "Na" else -1.0) == site.properties["magmom"]
 
