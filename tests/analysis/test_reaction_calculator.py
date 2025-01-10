@@ -2,7 +2,6 @@ from __future__ import annotations
 
 import math
 from collections import defaultdict
-from unittest import TestCase
 
 import numpy as np
 import pytest
@@ -287,8 +286,8 @@ class TestReaction:
         assert str(rxn) == "LiMnCl3 + 3 LiCl + MnCl2 -> 2 Li2MnCl4"
 
 
-class TestBalancedReaction(TestCase):
-    def setUp(self) -> None:
+class TestBalancedReaction:
+    def setup_method(self) -> None:
         rct = {"K2SO4": 3, "Na2S": 1, "Li": 24}
         prod = {"KNaS": 2, "K2S": 2, "Li2O": 12}
         self.rxn = BalancedReaction(rct, prod)
@@ -334,8 +333,8 @@ class TestBalancedReaction(TestCase):
         assert hash(self.rxn) == 4774511606373046513
 
 
-class TestComputedReaction(TestCase):
-    def setUp(self):
+class TestComputedReaction:
+    def setup_method(self):
         dct = [
             {
                 "correction": 0,

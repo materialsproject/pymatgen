@@ -2,7 +2,6 @@ from __future__ import annotations
 
 import json
 import os
-from unittest import TestCase
 
 import numpy as np
 import pandas as pd
@@ -14,9 +13,9 @@ from pymatgen.util.testing import TEST_FILES_DIR
 TEST_DIR = f"{TEST_FILES_DIR}/io/lammps"
 
 
-class TestLammpsDump(TestCase):
+class TestLammpsDump:
     @classmethod
-    def setUpClass(cls):
+    def setup_class(cls):
         with open(f"{TEST_DIR}/dump.rdx_wc.100", encoding="utf-8") as file:
             rdx_str = file.read()
         cls.rdx = LammpsDump.from_str(string=rdx_str)
@@ -54,7 +53,7 @@ class TestLammpsDump(TestCase):
         pd.testing.assert_frame_equal(rdx.data, self.rdx.data)
 
 
-class TestFunc(TestCase):
+class TestFunc:
     def test_parse_lammps_dumps(self):
         # gzipped
         rdx_10_pattern = f"{TEST_DIR}/dump.rdx.gz"

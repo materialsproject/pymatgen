@@ -1,7 +1,5 @@
 from __future__ import annotations
 
-from unittest import TestCase
-
 import pandas as pd
 import pytest
 from pytest import approx
@@ -12,8 +10,8 @@ from pymatgen.io.xyz import XYZ
 from pymatgen.util.testing import TEST_FILES_DIR, VASP_IN_DIR
 
 
-class TestXYZ(TestCase):
-    def setUp(self):
+class TestXYZ:
+    def setup_method(self):
         coords = [
             [0, 0, 0],
             [0, 0, 1.089000],
