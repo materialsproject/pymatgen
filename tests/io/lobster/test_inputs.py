@@ -44,7 +44,7 @@ class TestLobsterin(PymatgenTest):
         assert self.Lobsterin == self.Lobsterin2
 
     def test_duplicates_from_file(self):
-        with open(f"{TEST_DIR}/lobsterin.1") as file:
+        with open(f"{TEST_DIR}/lobsterin.1", encoding="utf-8") as file:
             original_file = file.readlines()
 
         # String and float keywords does not allow duplicates

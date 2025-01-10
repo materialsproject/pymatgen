@@ -1,11 +1,11 @@
 from __future__ import annotations
 
 import json
+import math
 import os
 from fractions import Fraction
 from pathlib import Path
 from shutil import which
-from unittest import skipIf
 
 import numpy as np
 import pytest
@@ -29,6 +29,7 @@ from pymatgen.core.structure import (
 from pymatgen.electronic_structure.core import Magmom
 from pymatgen.io.ase import AseAtomsAdaptor
 from pymatgen.io.cif import CifParser
+from pymatgen.io.vasp.inputs import Poscar
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
 from pymatgen.util.testing import TEST_FILES_DIR, VASP_IN_DIR, PymatgenTest
 
@@ -40,11 +41,11 @@ except ImportError:
     ase = Atoms = Calculator = EMT = None
 
 
-enum_cmd = which("enum.x") or which("multienum.x")
-mcsqs_cmd = which("mcsqs")
+ENUM_CMD = which("enum.x") or which("multienum.x")
+MCSQS_CMD = which("mcsqs")
 
 
-class TestNeighbor(PymatgenTest):
+class TestNeighbor:
     def test_msonable(self):
         struct = PymatgenTest.get_structure("Li2O")
         nn = struct.get_neighbors(struct[0], r=3)
@@ -102,7 +103,7 @@ class TestIStructure(PymatgenTest):
         )
         self.V2O3 = IStructure.from_file(f"{TEST_FILES_DIR}/cif/V2O3.cif")
 
-    @skipIf(not (mcsqs_cmd and enum_cmd), reason="enumlib or mcsqs executable not present")
+    @pytest.mark.skipif(not (MCSQS_CMD and ENUM_CMD), reason="enumlib or mcsqs executable not present")
     def test_get_orderings(self):
         ordered = Structure.from_spacegroup("Im-3m", Lattice.cubic(3), ["Fe"], [[0, 0, 0]])
         assert ordered.get_orderings()[0] == ordered
@@ -897,13 +898,13 @@ Direct
 
         poscar_path = f"{self.tmp_path}/POSCAR.testing"
         poscar_str = self.struct.to(filename=poscar_path)
-        with open(poscar_path) as file:
+        with open(poscar_path, encoding="utf-8") as file:
             assert file.read() == poscar_str
         assert Structure.from_file(poscar_path) == self.struct
 
         yaml_path = f"{self.tmp_path}/Si_testing.yaml"
         yaml_str = self.struct.to(filename=yaml_path)
-        with open(yaml_path) as file:
+        with open(yaml_path, encoding="utf-8") as file:
             assert file.read() == yaml_str
         assert Structure.from_file(yaml_path) == self.struct
 
@@ -1532,7 +1533,7 @@ class TestStructure(PymatgenTest):
             assert Structure.from_file(f"json-struct{ext}") == self.struct
 
         # test Structure.from_file with unsupported file extension (using tmp JSON file with wrong ext)
-        Path(filename := f"{self.tmp_path}/bad.extension").write_text(self.struct.to(fmt="json"))
+        Path(filename := f"{self.tmp_path}/bad.extension").write_text(self.struct.to(fmt="json"), encoding="utf-8")
         with pytest.raises(ValueError, match="Unrecognized extension in filename="):
             self.struct.from_file(filename=filename)
 
@@ -1633,12 +1634,16 @@ class TestStructure(PymatgenTest):
             [0.5, 0.5, 1.501],
         ]
         struct = Structure(Lattice.cubic(1), species, coords)
-        struct.merge_sites(mode="s")
+        struct.merge_sites(mode="sum")
         assert struct[0].specie.symbol == "Ag"
         assert struct[1].species == Composition({"Cl": 0.35, "F": 0.25})
         assert_allclose(struct[1].frac_coords, [0.5, 0.5, 0.5005])
 
-        # Test for TaS2 with spacegroup 166 in 160 setting.
+        # Test illegal mode
+        with pytest.raises(ValueError, match="Illegal mode='illegal', should start with a/d/s"):
+            struct.merge_sites(mode="illegal")
+
+        # Test for TaS2 with spacegroup 166 in 160 setting
         lattice = Lattice.hexagonal(3.374351, 20.308941)
         species = ["Ta", "S", "S"]
         coords = [
@@ -1646,10 +1651,10 @@ class TestStructure(PymatgenTest):
             [0.333333, 0.666667, 0.353424],
             [0.666667, 0.333333, 0.535243],
         ]
-        tas2 = Structure.from_spacegroup(160, lattice, species, coords)
-        assert len(tas2) == 13
-        tas2.merge_sites(mode="d")
-        assert len(tas2) == 9
+        struct_tas2 = Structure.from_spacegroup(160, lattice, species, coords)
+        assert len(struct_tas2) == 13
+        struct_tas2.merge_sites(mode="delete")
+        assert len(struct_tas2) == 9
 
         lattice = Lattice.hexagonal(3.587776, 19.622793)
         species = ["Na", "V", "S", "S"]
@@ -1659,12 +1664,12 @@ class TestStructure(PymatgenTest):
             [0.333333, 0.666667, 0.399394],
             [0.666667, 0.333333, 0.597273],
         ]
-        navs2 = Structure.from_spacegroup(160, lattice, species, coords)
-        assert len(navs2) == 18
-        navs2.merge_sites(mode="d")
-        assert len(navs2) == 12
+        struct_navs2 = Structure.from_spacegroup(160, lattice, species, coords)
+        assert len(struct_navs2) == 18
+        struct_navs2.merge_sites(mode="delete")
+        assert len(struct_navs2) == 12
 
-        # Test that we can average the site properties that are floats
+        # Test that we can average the site properties that are numerical (float/int)
         lattice = Lattice.hexagonal(3.587776, 19.622793)
         species = ["Na", "V", "S", "S"]
         coords = [
@@ -1674,11 +1679,47 @@ class TestStructure(PymatgenTest):
             [0.666667, 0.333333, 0.597273],
         ]
         site_props = {"prop1": [3.0, 5.0, 7.0, 11.0]}
-        navs2 = Structure.from_spacegroup(160, lattice, species, coords, site_properties=site_props)
-        navs2.insert(0, "Na", coords[0], properties={"prop1": 100.0})
-        navs2.merge_sites(mode="a")
-        assert len(navs2) == 12
-        assert 51.5 in [itr.properties["prop1"] for itr in navs2]
+        struct_navs2 = Structure.from_spacegroup(160, lattice, species, coords, site_properties=site_props)
+        struct_navs2.insert(0, "Na", coords[0], properties={"prop1": 100})  # int property
+        struct_navs2.merge_sites(mode="average")
+        assert len(struct_navs2) == 12
+        assert any(math.isclose(site.properties["prop1"], 51.5) for site in struct_navs2)
+
+        # Test non-numerical property warning
+        struct_navs2.insert(0, "Na", coords[0], properties={"prop1": "hi"})
+        with pytest.warns(UserWarning, match="But property is set to None"):
+            struct_navs2.merge_sites(mode="average")
+
+        # Test property handling for np.array (selective dynamics)
+        poscar_str_0 = """Test POSCAR
+1.0
+3.840198 0.000000 0.000000
+1.920099 3.325710 0.000000
+0.000000 -2.217138 3.135509
+1 1
+Selective dynamics
+direct
+0.000000 0.000000 0.000000 T T T Si
+0.750000 0.500000 0.750000 F F F O
+"""
+        poscar_str_1 = """offset a bit
+1.0
+3.840198 0.000000 0.000000
+1.920099 3.325710 0.000000
+0.000000 -2.217138 3.135509
+1 1
+Selective dynamics
+direct
+0.100000 0.000000 0.000000 T T T Si
+0.750000 0.500000 0.750000 F F F O
+"""
+
+        struct_0 = Poscar.from_str(poscar_str_0).structure
+        struct_1 = Poscar.from_str(poscar_str_1).structure
+
+        for site in struct_0:
+            struct_1.append(site.species, site.frac_coords, properties=site.properties)
+        struct_1.merge_sites(mode="average")
 
     def test_properties(self):
         assert self.struct.num_sites == len(self.struct)
@@ -2308,14 +2349,14 @@ Site: H (-0.5134, 0.8892, -0.3630)"""
             assert isinstance(mol, IMolecule)
 
         ch4_xyz_str = self.mol.to(filename=f"{self.tmp_path}/CH4_testing.xyz")
-        with open("CH4_testing.xyz") as xyz_file:
+        with open("CH4_testing.xyz", encoding="utf-8") as xyz_file:
             assert xyz_file.read() == ch4_xyz_str
         ch4_mol = IMolecule.from_file(f"{self.tmp_path}/CH4_testing.xyz")
         ch4_mol.properties = self.mol.properties
         assert self.mol == ch4_mol
         ch4_yaml_str = self.mol.to(filename=f"{self.tmp_path}/CH4_testing.yaml")
 
-        with open("CH4_testing.yaml") as yaml_file:
+        with open("CH4_testing.yaml", encoding="utf-8") as yaml_file:
             assert yaml_file.read() == ch4_yaml_str
         ch4_mol = Molecule.from_file(f"{self.tmp_path}/CH4_testing.yaml")
         ch4_mol.properties = self.mol.properties
