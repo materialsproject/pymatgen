@@ -175,7 +175,7 @@ class InputVariable:
         line = "\n"
         for lst in values:
             for val in lst:
-                line += f" {val:{{fmt_spec}}}"
+                line += f" {val:{ {fmt_spec} }}"
             line += "\n"
 
         return line.rstrip("\n")

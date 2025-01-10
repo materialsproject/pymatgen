@@ -171,7 +171,7 @@ class CoordinationEnvironmentMorphing:
 
         for morphing in self.morphing_description:
             if morphing["site_type"] != "neighbor":
-                raise ValueError(f"Key \"site_type\" is {morphing['site_type']} while it can only be neighbor")
+                raise ValueError(f'Key "site_type" is {morphing["site_type"]} while it can only be neighbor')
 
             site_idx = morphing["ineighbor"] + 1
             if morphing["expansion_origin"] == "central_site":

@@ -488,7 +488,7 @@ class TestMPResterOld(MatSciTest):
 
         assert isinstance(db_version, str)
         yaml = YAML()
-        with open(MP_LOG_FILE) as file:
+        with open(MP_LOG_FILE, encoding="utf-8") as file:
             dct = yaml.load(file)
 
         assert dct["MAPI_DB_VERSION"]["LAST_ACCESSED"] == db_version

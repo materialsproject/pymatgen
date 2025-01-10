@@ -6,7 +6,6 @@ Atoms object and pymatgen Structure objects.
 from __future__ import annotations
 
 import warnings
-from collections.abc import Iterable
 from importlib.metadata import PackageNotFoundError
 from typing import TYPE_CHECKING
 
@@ -18,7 +17,7 @@ from pymatgen.core.structure import Lattice, Molecule, Structure
 try:
     from ase.atoms import Atoms
     from ase.calculators.singlepoint import SinglePointDFTCalculator
-    from ase.constraints import FixAtoms
+    from ase.constraints import FixAtoms, FixCartesian
     from ase.io.jsonio import decode, encode
     from ase.spacegroup import Spacegroup
 
@@ -26,7 +25,7 @@ try:
 
 except ImportError:
     NO_ASE_ERR = PackageNotFoundError("AseAtomsAdaptor requires the ASE package. Use `pip install ase`")
-    encode = decode = FixAtoms = SinglePointDFTCalculator = Spacegroup = None
+    encode = decode = FixAtoms = FixCartesian = SinglePointDFTCalculator = Spacegroup = None
 
     class Atoms:  # type: ignore[no-redef]
         def __init__(self, *args, **kwargs):
@@ -157,31 +156,38 @@ class AseAtomsAdaptor:
         # Get the oxidation states from the structure
         oxi_states: list[float | None] = [getattr(site.specie, "oxi_state", None) for site in structure]
 
-        # Read in selective dynamics if present. Note that the ASE FixAtoms class fixes (x,y,z), so
-        # here we make sure that [False, False, False] or [True, True, True] is set for the site selective
-        # dynamics property. As a consequence, if only a subset of dimensions are fixed, this won't get passed to ASE.
+        # Read in selective dynamics if present.
+        # Note that FixCartesian class uses an opposite notion of
+        # "fix" and "not fix" flags: in ASE True means fixed and False
+        # means not fixed.
+        fix_atoms: dict | None = None
         if "selective_dynamics" in structure.site_properties:
-            fix_atoms = []
+            fix_atoms = {
+                str([xc, yc, zc]): ([xc, yc, zc], [])
+                for xc in [True, False]
+                for yc in [True, False]
+                for zc in [True, False]
+            }
+            # [False, False, False] is free to move - no constraint in ASE.
+            del fix_atoms[str([False, False, False])]
             for site in structure:
                 selective_dynamics: ArrayLike = site.properties.get("selective_dynamics")  # type: ignore[assignment]
-                if (
-                    isinstance(selective_dynamics, Iterable)
-                    and True in selective_dynamics
-                    and False in selective_dynamics
-                ):
-                    raise ValueError(
-                        "ASE FixAtoms constraint does not support selective dynamics in only some dimensions. "
-                        f"Remove the {selective_dynamics=} and try again if you do not need them."
-                    )
-                is_fixed = bool(~np.all(site.properties["selective_dynamics"]))
-                fix_atoms.append(is_fixed)
-
+                for cmask_str in fix_atoms:
+                    cmask_site = (~np.array(selective_dynamics)).tolist()
+                    fix_atoms[cmask_str][1].append(cmask_str == str(cmask_site))
         else:
             fix_atoms = None
 
-        # Set the selective dynamics with the FixAtoms class.
+        # Set the selective dynamics with the FixCartesian class.
         if fix_atoms is not None:
-            atoms.set_constraint(FixAtoms(mask=fix_atoms))
+            atoms.set_constraint(
+                [
+                    FixAtoms(indices) if cmask == [True, True, True] else FixCartesian(indices, mask=cmask)
+                    for cmask, indices in fix_atoms.values()
+                    # Do not add empty constraints
+                    if any(indices)
+                ]
+            )
 
         # Add any remaining site properties to the ASE Atoms object
         for prop in structure.site_properties:
@@ -254,21 +260,40 @@ class AseAtomsAdaptor:
         oxi_states = atoms.get_array("oxi_states") if atoms.has("oxi_states") else None
 
         # If the ASE Atoms object has constraints, make sure that they are of the
-        # kind FixAtoms, which are the only ones that can be supported in Pymatgen.
+        # FixAtoms or FixCartesian kind, which are the only ones that
+        # can be supported in Pymatgen.
         # By default, FixAtoms fixes all three (x, y, z) dimensions.
         if atoms.constraints:
             unsupported_constraint_type = False
-            constraint_indices = []
+            constraint_indices: dict = {
+                str([xc, yc, zc]): ([xc, yc, zc], [])
+                for xc in [True, False]
+                for yc in [True, False]
+                for zc in [True, False]
+            }
             for constraint in atoms.constraints:
                 if isinstance(constraint, FixAtoms):
-                    constraint_indices.extend(constraint.get_indices().tolist())
+                    constraint_indices[str([False] * 3)][1].extend(constraint.get_indices().tolist())
+                elif isinstance(constraint, FixCartesian):
+                    cmask = (~np.array(constraint.mask)).tolist()
+                    constraint_indices[str(cmask)][1].extend(constraint.get_indices().tolist())
                 else:
                     unsupported_constraint_type = True
             if unsupported_constraint_type:
                 warnings.warn(
-                    "Only FixAtoms is supported by Pymatgen. Other constraints will not be set.", stacklevel=2
+                    "Only FixAtoms and FixCartesian is supported by Pymatgen. Other constraints will not be set.",
+                    stacklevel=2,
                 )
-            sel_dyn = [[False] * 3 if atom.index in constraint_indices else [True] * 3 for atom in atoms]
+            sel_dyn = []
+            for atom in atoms:
+                constrained = False
+                for mask, indices in constraint_indices.values():
+                    if atom.index in indices:
+                        sel_dyn.append(mask)
+                        constrained = True
+                        break  # Assume no duplicates
+                if not constrained:
+                    sel_dyn.append([False] * 3)
         else:
             sel_dyn = None
 

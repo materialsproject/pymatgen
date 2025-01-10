@@ -57,7 +57,7 @@ def get_lower_and_upper_f(surface_calculation_options):
             lower_points=lower_points, upper_points=upper_points, degree=degree
         )
     else:
-        raise ValueError(f"Surface calculation of type \"{surface_calculation_options['type']}\" is not implemented")
+        raise ValueError(f'Surface calculation of type "{surface_calculation_options["type"]}" is not implemented')
     return lower_and_upper_functions
 
 

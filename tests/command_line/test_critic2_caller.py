@@ -78,9 +78,9 @@ class TestCritic2Analysis:
     def setup_method(self):
         stdout_file = f"{TEST_DIR}/MoS2_critic2_stdout.txt"
         stdout_file_new_format = f"{TEST_DIR}/MoS2_critic2_stdout_new_format.txt"
-        with open(stdout_file) as file:
+        with open(stdout_file, encoding="utf-8") as file:
             reference_stdout = file.read()
-        with open(stdout_file_new_format) as file:
+        with open(stdout_file_new_format, encoding="utf-8") as file:
             reference_stdout_new_format = file.read()
 
         structure = Structure.from_file(f"{TEST_DIR}/MoS2.cif")
