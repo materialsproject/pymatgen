@@ -854,7 +854,7 @@ class StructureEnvironments(MSONable):
                 return dp
 
         else:
-            raise ValueError(f"Wrong value for distance parameter plot type \"{plot_type['distance_parameter'][0]}\"")
+            raise ValueError(f'Wrong value for distance parameter plot type "{plot_type["distance_parameter"][0]}"')
 
         if plot_type["angle_parameter"][0] == "one_minus_gamma":
             ylabel = "Angle parameter : $1.0-\\gamma$"
@@ -872,7 +872,7 @@ class StructureEnvironments(MSONable):
                 return ap
 
         else:
-            raise ValueError(f"Wrong value for angle parameter plot type \"{plot_type['angle_parameter'][0]}\"")
+            raise ValueError(f'Wrong value for angle parameter plot type "{plot_type["angle_parameter"][0]}"')
         dist_limits = [dp_func(dp) for dp in dist_limits]
         ang_limits = [ap_func(ap) for ap in ang_limits]
 

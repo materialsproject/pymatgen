@@ -36,7 +36,7 @@ class LineLocator(MSONable):
         """
         row_idxs: list[int] = []  # starts from 1 to be compatible with linecache package
         row_no: int = 0
-        with zopen(file_path, mode="rt") as file:
+        with zopen(file_path, mode="rt", encoding="utf-8") as file:
             for row_content in file:
                 row_no += 1
                 if content.upper() in row_content.upper() and (
@@ -136,7 +136,7 @@ class ACExtractor(ACExtractorBase):
         """
         content = "POSITION"
         idx_row = LineLocator.locate_all_lines(file_path=self.atom_config_path, content=content)[0]
-        with open(self.atom_config_path) as file:
+        with open(self.atom_config_path, encoding="utf-8") as file:
             atom_config_content = file.readlines()
         atomic_numbers_content = atom_config_content[idx_row : idx_row + self.n_atoms]
         atomic_numbers_lst = [int(row.split()[0]) for row in atomic_numbers_content]  # convert str to int
@@ -151,7 +151,7 @@ class ACExtractor(ACExtractorBase):
         coords_lst: list[np.ndarray] = []
         content: str = "POSITION"
         idx_row: int = LineLocator.locate_all_lines(file_path=self.atom_config_path, content=content)[0]
-        with open(self.atom_config_path) as file:
+        with open(self.atom_config_path, encoding="utf-8") as file:
             atom_config_content = file.readlines()
         """
         row_content:
@@ -174,7 +174,7 @@ class ACExtractor(ACExtractorBase):
         try:  # Error: not containing magmoms info.
             idx_row = LineLocator.locate_all_lines(file_path=self.atom_config_path, content=content)[-1]
 
-            with open(self.atom_config_path) as file:
+            with open(self.atom_config_path, encoding="utf-8") as file:
                 atom_config_content = file.readlines()
 
             magnetic_moments_content = atom_config_content[idx_row : idx_row + self.n_atoms]
@@ -418,7 +418,7 @@ class AtomConfig(MSONable):
         Returns:
             AtomConfig object.
         """
-        with zopen(filename, "rt") as file:
+        with zopen(filename, mode="rt", encoding="utf-8") as file:
             return cls.from_str(data=file.read(), mag=mag)
 
     @classmethod
@@ -466,7 +466,7 @@ class AtomConfig(MSONable):
 
     def write_file(self, filename: PathLike, **kwargs):
         """Write AtomConfig to a file."""
-        with zopen(filename, "wt") as file:
+        with zopen(filename, mode="wt", encoding="utf-8") as file:
             file.write(self.get_str(**kwargs))
 
     def as_dict(self):
@@ -588,7 +588,7 @@ class GenKpt(MSONable):
         Args:
             filename (PathLike): The absolute path of file to be written.
         """
-        with zopen(filename, "wt") as file:
+        with zopen(filename, mode="wt", encoding="utf-8") as file:
             file.write(self.get_str())
 
 
@@ -694,5 +694,5 @@ class HighSymmetryPoint(MSONable):
 
     def write_file(self, filename: PathLike):
         """Write HighSymmetryPoint to a file."""
-        with zopen(filename, "wt") as file:
+        with zopen(filename, mode="wt", encoding="utf-8") as file:
             file.write(self.get_str())
