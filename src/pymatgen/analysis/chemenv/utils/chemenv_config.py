@@ -127,7 +127,7 @@ class ChemEnvConfig:
         """Describe package options."""
         out = "Package options :\n"
         out += f" - Maximum distance factor : {self.package_options['default_max_distance_factor']:.4f}\n"
-        out += f" - Default strategy is \"{self.package_options['default_strategy']['strategy']}\" :\n"
+        out += f' - Default strategy is "{self.package_options["default_strategy"]["strategy"]}" :\n'
         strategy_class = strategies_class_lookup[self.package_options["default_strategy"]["strategy"]]
         out += f"{strategy_class.STRATEGY_DESCRIPTION}\n"
         out += "   with options :\n"
@@ -153,7 +153,7 @@ class ChemEnvConfig:
             if test != "Y":
                 print("Configuration not saved")
                 return config_file
-        with open(config_file, mode="w") as file:
+        with open(config_file, mode="w", encoding="utf-8") as file:
             json.dump(config_dict, file)
         print("Configuration saved")
         return config_file
@@ -171,7 +171,7 @@ class ChemEnvConfig:
             root_dir = f"{home}/.chemenv"
         config_file = f"{root_dir}/config.json"
         try:
-            with open(config_file) as file:
+            with open(config_file, encoding="utf-8") as file:
                 config_dict = json.load(file)
             return ChemEnvConfig(package_options=config_dict["package_options"])
 

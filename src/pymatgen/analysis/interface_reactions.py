@@ -6,7 +6,6 @@ solids, with or without an open element (e.g., flowing O2).
 from __future__ import annotations
 
 import json
-import os
 import warnings
 from typing import TYPE_CHECKING
 
@@ -18,6 +17,7 @@ from plotly.graph_objects import Figure, Scatter
 
 from pymatgen.analysis.phase_diagram import GrandPotentialPhaseDiagram, PhaseDiagram
 from pymatgen.analysis.reaction_calculator import Reaction
+from pymatgen.core import PKG_DIR
 from pymatgen.core.composition import Composition
 from pymatgen.util.due import Doi, due
 from pymatgen.util.plotting import pretty_plot
@@ -31,7 +31,7 @@ __maintainer__ = "Matthew McDermott"
 __email__ = "mcdermott@lbl.gov"
 __date__ = "Sep 1, 2021"
 
-with open(os.path.join(os.path.dirname(__file__), "..", "util", "plotly_interface_rxn_layouts.json")) as file:
+with open(f"{PKG_DIR}/util/plotly_interface_rxn_layouts.json", encoding="utf-8") as file:
     plotly_layouts = json.load(file)
 
 
@@ -93,8 +93,7 @@ class InterfacialReactivity(MSONable):
 
         if isinstance(pd, GrandPotentialPhaseDiagram) and not bypass_grand_warning:
             raise TypeError(
-                "Please use the GrandPotentialInterfacialReactivity "
-                "class for interfacial reactions with open elements!"
+                "Please use the GrandPotentialInterfacialReactivity class for interfacial reactions with open elements!"
             )
 
         self.c1 = c1

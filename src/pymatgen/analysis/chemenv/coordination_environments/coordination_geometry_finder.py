@@ -189,8 +189,7 @@ class AbstractGeometry:
                 )
             else:
                 outs.append(
-                    "Points are referenced to the centroid (calculated without the central site)"
-                    f" :\n  {self.centre}\n"
+                    f"Points are referenced to the centroid (calculated without the central site) :\n  {self.centre}\n"
                 )
         return "\n".join(outs)
 

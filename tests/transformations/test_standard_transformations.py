@@ -401,6 +401,32 @@ class TestOrderDisorderedStructureTransformation:
         output = trafo.apply_transformation(struct, return_ranked_list=3)
         assert output[0]["energy"] == approx(-234.57813667648315, abs=1e-4)
 
+    def test_random_sample(self):
+        struc_str = (
+            "3.333573 0.000000 1.924639\n"
+            "1.111191 3.142924 1.924639\n"
+            "0.000000 0.000000 3.849278\n"
+            "1.0 0.0 0.0\n"
+            "0.0 1.0 0.0\n"
+            "0.0 0.0 1.0\n"
+            "0.875000 0.875000 0.875000 Si=1\n"
+            "0.125000 0.125000 0.125000 Si=1"
+        )
+        si = Structure.from_str(struc_str, fmt="mcsqs")
+        struct = si * [3, 2, 1]
+        struct.replace(0, {"Fe": 0.5, "Ni": 0.5})
+        struct.replace(1, {"Fe": 0.5, "Ni": 0.5})
+        trafo = OrderDisorderedStructureTransformation(
+            algo=OrderDisorderedStructureTransformation.ALGO_RANDOM, no_oxi_states=True
+        )
+        output = trafo.apply_transformation(struct * [2, 2, 2], return_ranked_list=3)
+        assert len(output) == 3
+        for entry in output:
+            assert set(entry.keys()) == {"structure", "energy", "energy_above_minimum"}
+
+        output = trafo.apply_transformation(struct * [2, 2, 2], return_ranked_list=False)
+        assert output.composition.reduced_formula == struct.composition.reduced_formula
+
 
 class TestPrimitiveCellTransformation:
     def test_apply_transformation(self):
@@ -425,7 +451,7 @@ class TestPrimitiveCellTransformation:
         struct = trafo.apply_transformation(struct)
         assert len(struct) == 4
 
-        with open(f"{TEST_FILES_DIR}/transformations/TiO2_super.json") as file:
+        with open(f"{TEST_FILES_DIR}/transformations/TiO2_super.json", encoding="utf-8") as file:
             struct = json.load(file, cls=MontyDecoder)
             prim = trafo.apply_transformation(struct)
             assert prim.formula == "Ti4 O8"
