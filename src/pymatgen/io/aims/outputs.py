@@ -9,10 +9,11 @@ from typing import TYPE_CHECKING
 
 import numpy as np
 from monty.json import MontyDecoder, MSONable
-from pyfhiaims.output_parser.aims_out_header_section import AimsOutHeaderSection
-from pyfhiaims.output_parser.aims_out_section import AimsParseError
-from pyfhiaims.output_parser.aims_outputs import AimsOutput as FHIAimsOutput
+from pyfhiaims.outputs.stdout import AimsParseError, AimsStdout
 
+# from pyfhiaims.output_parser.aims_out_header_section import AimsOutHeaderSection
+# from pyfhiaims.output_parser.aims_out_section import AimsParseError
+# from pyfhiaims.output_parser.aims_outputs import AimsOutput as FHIAimsOutput
 from pymatgen.core import Lattice, Structure
 from pymatgen.io.aims.inputs import aimsgeo2structure
 
@@ -32,8 +33,7 @@ __date__ = "November 2023"
 
 
 AIMS_OUTPUT_KEY_MAP = {
-    "homo": "vbm",
-    "lumo": "cbm",
+    "total_energy": "energy",
 }
 
 
@@ -93,41 +93,23 @@ class AimsOutput(MSONable):
         Raises:
             AimsParseError if file does not exist
         """
+        aims_out = None
         for path in [Path(outfile), Path(f"{outfile}.gz")]:
             if not path.exists():
                 continue
             if path.suffix == ".gz":
                 with gzip.open(f"{outfile}.gz", mode="rt") as file:
-                    return cls.from_str(file.read())
+                    aims_out = AimsStdout(file)
             else:
                 with open(outfile) as file:
-                    return cls.from_str(file.read())
-        raise AimsParseError(f"File {outfile} not found.")
+                    aims_out = AimsStdout(file)
 
-    @classmethod
-    def from_str(cls, content: str) -> Self:
-        """Construct an AimsOutput from an output file.
+        if aims_out is None:
+            raise AimsParseError(f"File {outfile} not found.")
 
-        Args:
-            content (str): The content of the aims.out file
+        metadata = aims_out.metadata_summary
+        structure_summary = aims_out.header_summary
 
-        Returns:
-            The AimsOutput for the output file content
-        """
-        aims_out_lines = [line.strip() for line in content.split("\n")]
-        header_lines = []
-        # Stop the header once the first SCF cycle begins
-        for line in aims_out_lines:
-            header_lines.append(line)
-            if (
-                "Convergence:    q app. |  density  | eigen (eV) | Etot (eV)" in line
-                or "Begin self-consistency iteration #" in line
-            ):
-                break
-
-        header = AimsOutHeaderSection(header_lines)
-        metadata = header.metadata_summary
-        structure_summary = header.header_summary
         structure_summary["initial_structure"] = aimsgeo2structure(structure_summary.pop("initial_geometry"))
         for site in structure_summary["initial_structure"]:
             if abs(site.properties.get("magmom", 0.0)) < 1e-10:
@@ -138,9 +120,8 @@ class AimsOutput(MSONable):
             lattice = Lattice(lattice)
         structure_summary["initial_lattice"] = lattice
 
-        outputs = FHIAimsOutput.from_aims_out_content(aims_out_lines)
         results = []
-        for image in outputs:
+        for image in aims_out:
             image_results = remap_outputs(image._results)
             structure = aimsgeo2structure(image._geometry)
             site_prop_keys = {
