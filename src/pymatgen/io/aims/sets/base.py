@@ -10,7 +10,7 @@ from warnings import warn
 
 import numpy as np
 from monty.json import MontyDecoder, MontyEncoder
-from pyfhiaims.output_parser.aims_out_section import AimsParseError
+from pyfhiaims.outputs.stdout import AimsParseError
 
 from pymatgen.core import Molecule, Structure
 from pymatgen.io.aims.inputs import AimsControlIn, AimsGeometryIn
