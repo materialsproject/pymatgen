@@ -374,5 +374,5 @@ def test_no_ase_err():
         importlib.reload(pymatgen.io.ase)
         from pymatgen.io.ase import MSONAtoms
 
-        with pytest.raises(PackageNotFoundError, match="AseAtomsAdaptor requires the ASE package."):
+        with pytest.raises(PackageNotFoundError, match="ASE interface requires the ASE package."):
             MSONAtoms()

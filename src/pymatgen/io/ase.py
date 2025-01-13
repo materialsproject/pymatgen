@@ -5,26 +5,31 @@ Atoms object and pymatgen Structure objects.
 
 from __future__ import annotations
 
+from pathlib import Path
 import warnings
 from importlib.metadata import PackageNotFoundError
+from tempfile import NamedTemporaryFile
 from typing import TYPE_CHECKING
 
 import numpy as np
 from monty.json import MontyDecoder, MSONable, jsanitize
 
 from pymatgen.core.structure import Lattice, Molecule, Structure
+from pymatgen.core.trajectory import Trajectory as PmgTraj
 
 try:
     from ase.atoms import Atoms
-    from ase.calculators.singlepoint import SinglePointDFTCalculator
+    from ase.calculators.calculator import all_properties
+    from ase.calculators.singlepoint import SinglePointCalculator, SinglePointDFTCalculator
     from ase.constraints import FixAtoms, FixCartesian
+    from ase.io import Trajectory as AseTraj
     from ase.io.jsonio import decode, encode
     from ase.spacegroup import Spacegroup
 
     NO_ASE_ERR = None
 
 except ImportError:
-    NO_ASE_ERR = PackageNotFoundError("AseAtomsAdaptor requires the ASE package. Use `pip install ase`")
+    NO_ASE_ERR = PackageNotFoundError("The ASE interface requires the ASE package. Use `pip install ase`")
     encode = decode = FixAtoms = FixCartesian = SinglePointDFTCalculator = Spacegroup = None
 
     class Atoms:  # type: ignore[no-redef]
@@ -33,12 +38,15 @@ except ImportError:
 
 
 if TYPE_CHECKING:
-    from typing import Any
+    from typing import Any, Sequence
 
     from numpy.typing import ArrayLike
     from typing_extensions import Self
 
     from pymatgen.core.structure import SiteCollection
+
+    if NO_ASE_ERR is None:
+        from ase.io.trajectory import TrajectoryReader as AseTrajReader
 
 __author__ = "Shyue Ping Ong, Andrew S. Rosen"
 __copyright__ = "Copyright 2012, The Materials Project"
@@ -46,7 +54,6 @@ __version__ = "1.0"
 __maintainer__ = "Shyue Ping Ong"
 __email__ = "shyuep@gmail.com"
 __date__ = "Mar 8, 2012"
-
 
 class MSONAtoms(Atoms, MSONable):
     """A custom subclass of ASE Atoms that is MSONable, including `.as_dict()` and `.from_dict()` methods."""
@@ -403,3 +410,117 @@ class AseAtomsAdaptor:
         molecule.set_charge_and_spin(charge, spin_multiplicity=spin_mult)
 
         return molecule
+
+
+class AseTrajAdaptor:
+    
+    def __init__(self, property_map : dict[str,str] | None = None, atoms_adaptor : AseAtomsAdaptor | None = None) -> None:
+        self.property_map = property_map or {
+            "energy" : "energy",
+            "forces": "forces",
+            "stress": "stress",
+        }
+        self.adaptor = atoms_adaptor or AseAtomsAdaptor()
+
+        if (unrecognized_props := set(self.property_map).difference(set(all_properties)) ) != set():
+            raise ValueError(f"Unrecognized ASE calculator properties:\n{', '.join(unrecognized_props)}")
+
+    def ase_to_pmg_trajectory(
+        self,
+        trajectory : str | Path | AseTraj,
+        store_frame_properties : bool = True,
+        constant_lattice : bool | None = None,
+        additional_fields : Sequence[str] = ["temperature","velocities"],
+        lattice_tol : float = 1.e-6
+    ) -> PmgTraj:
+        
+        if isinstance(trajectory,str | Path):
+            trajectory = AseTraj(trajectory, "r")
+        
+        structures = []
+        frame_properties = []
+        if any(trajectory[0].pbc):
+            converter = self.adaptor.get_structure
+            traj_method = PmgTraj.from_structures
+        else:
+            converter = self.adaptor.get_molecule
+            traj_method = PmgTraj.from_molecules
+
+        for atoms in trajectory:
+            
+            site_properties = {}
+            if "velocities" in additional_fields:
+                site_properties["velocities"] = atoms.get_velocities()
+
+            structures.append(converter(atoms,site_properties=site_properties))
+
+            if store_frame_properties and atoms.calc:
+                props = {v : atoms.calc.get_property(k) for k, v in self.property_map.items()}
+                if "temperature" in additional_fields:
+                    props["temperature"] = atoms.get_temperature()
+                    
+                frame_properties.append(props)
+
+        if constant_lattice is None:
+            constant_lattice = all(
+                np.all(
+                    np.abs(
+                        ref_struct.lattice.matrix
+                        - structures[j].lattice.matrix
+                    )
+                )
+                < lattice_tol
+                for i, ref_struct in enumerate(structures)
+                for j in range(i + 1, len(structures))
+            )
+
+        return traj_method(
+            structures,
+            constant_lattice = constant_lattice,
+            frame_properties = frame_properties,
+        )
+
+
+    def pmg_to_ase_trajectory(
+        self,
+        trajectory : PmgTraj,
+        ase_traj_file: str | Path | None = None,
+    ) -> AseTrajReader:
+        """
+        Create an ASE Trajectory from a pymatgen trajectory.
+
+        Parameters
+        -----------
+        trajectory : pymatgen .Trajectory object
+        ase_traj_file : str, Path, or None (default)
+            If not None, the name of the file to write the ASE trajectory to.
+            
+        Returns
+        ----------
+        ase.io.Trajectory object.
+        """
+
+        ase_traj_file = ase_traj_file or NamedTemporaryFile().name
+
+        for idx, structure in enumerate(trajectory):
+            atoms = self.adaptor.get_atoms(
+                structure,
+                msonable=False,
+                velocities = structure.site_properties.get("velocities")
+            )
+
+            props = {
+                k: trajectory.frame_properties[idx][v]
+                for k, v in self.property_map.items()
+                if v in trajectory.frame_properties[idx]
+            }
+
+            if (magmoms := structure.site_properties.get("magmom")) is not None:
+                props["magmoms"] = magmoms
+
+            atoms.calc = SinglePointCalculator(atoms=atoms,**props)
+
+            with AseTraj(ase_traj_file, "a" if idx > 0 else "w", atoms=atoms) as _traj_file:
+                _traj_file.write()
+
+        return AseTraj(ase_traj_file, "r")

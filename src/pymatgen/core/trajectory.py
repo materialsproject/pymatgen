@@ -24,6 +24,11 @@ if TYPE_CHECKING:
 
     from pymatgen.util.typing import Matrix3D, PathLike, SitePropsType, Vector3D
 
+    try:
+        from ase.io.trajectory import TrajectoryReader as AseTrajReader
+    except ImportError:
+        AseTrajReader = None
+
 
 __author__ = "Eric Sivonxay, Shyam Dwaraknath, Mingjian Wen, Evan Spotte-Smith"
 __version__ = "0.1"
@@ -579,19 +584,10 @@ class Trajectory(MSONable):
 
         elif fnmatch(filename, "*.traj"):
             try:
-                from ase.io.trajectory import Trajectory as AseTrajectory
 
-                from pymatgen.io.ase import AseAtomsAdaptor
+                from pymatgen.io.ase import AseTrajAdaptor
 
-                ase_traj = AseTrajectory(filename)
-                # Periodic boundary conditions should be the same for all frames so just check the first
-                pbc = ase_traj[0].pbc
-
-                if any(pbc):
-                    structures = [AseAtomsAdaptor.get_structure(atoms) for atoms in ase_traj]
-                else:
-                    molecules = [AseAtomsAdaptor.get_molecule(atoms) for atoms in ase_traj]
-                    is_mol = True
+                return AseTrajAdaptor().ase_to_pmg_trajectory(filename)
 
             except ImportError as exc:
                 raise ImportError("ASE is required to read .traj files. pip install ase") from exc
@@ -734,3 +730,7 @@ class Trajectory(MSONable):
                 return [self.site_properties[idx] for idx in frames]
             raise ValueError("Unexpected frames type.")
         raise ValueError("Unexpected site_properties type.")
+    
+    def to_ase_trajectory(self, property_map : dict[str,str] | None = None, **kwargs) -> AseTrajReader:
+        from pymatgen.io.ase import AseTrajAdaptor
+        return AseTrajAdaptor(property_map=property_map).pmg_to_ase_trajectory(self, **kwargs)
