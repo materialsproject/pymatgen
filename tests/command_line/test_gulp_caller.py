@@ -272,7 +272,7 @@ class TestGulpIO(TestCase):
     def test_get_relaxed_structure(self):
         # Output string obtained from running GULP on a terminal
 
-        with open(f"{TEST_DIR}/example21.gout") as file:
+        with open(f"{TEST_DIR}/example21.gout", encoding="utf-8") as file:
             out_str = file.read()
         struct = self.gio.get_relaxed_structure(out_str)
         assert isinstance(struct, Structure)

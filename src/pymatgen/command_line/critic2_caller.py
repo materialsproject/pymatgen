@@ -701,7 +701,7 @@ class Critic2Analysis(MSONable):
         if len(node_mapping) != len(self.structure):
             warnings.warn(
                 f"Check that all sites in input structure ({len(self.structure)}) have "
-                f"been detected by critic2 ({ len(node_mapping)}).",
+                f"been detected by critic2 ({len(node_mapping)}).",
                 stacklevel=2,
             )
 
@@ -766,7 +766,7 @@ class Critic2Analysis(MSONable):
     def _parse_stdout(self, stdout):
         warnings.warn(
             "Parsing critic2 standard output is deprecated and will not be maintained, "
-            "please use the native JSON output in future.",
+            "please use the native JSON output in the future.",
             DeprecationWarning,
             stacklevel=2,
         )

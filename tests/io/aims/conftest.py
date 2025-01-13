@@ -57,7 +57,7 @@ def compare_files(test_name: str, work_dir: Path, ref_dir: Path) -> None:
         AssertionError: If a line is not the same
     """
     for file in glob(f"{work_dir / test_name}/*in"):
-        with open(file) as test_file:
+        with open(file, encoding="utf-8") as test_file:
             test_lines = [line.strip() for line in test_file if len(line.strip()) > 0 and line[0] != "#"]
 
         with gzip.open(f"{ref_dir / test_name / Path(file).name}.gz", "rt") as ref_file:
@@ -69,12 +69,12 @@ def compare_files(test_name: str, work_dir: Path, ref_dir: Path) -> None:
             else:
                 assert test_line == ref_line
 
-    with open(f"{ref_dir / test_name}/parameters.json") as ref_file:
+    with open(f"{ref_dir / test_name}/parameters.json", encoding="utf-8") as ref_file:
         ref = json.load(ref_file)
     ref.pop("species_dir", None)
     ref_output = ref.pop("output", None)
 
-    with open(f"{work_dir / test_name}/parameters.json") as check_file:
+    with open(f"{work_dir / test_name}/parameters.json", encoding="utf-8") as check_file:
         check = json.load(check_file)
 
     check.pop("species_dir", None)
@@ -147,10 +147,10 @@ def compare_single_files(ref_file: PathLike, test_file: PathLike) -> None:
     Raises:
         ValueError: If the files are not the same
     """
-    with open(test_file) as tf:
+    with open(test_file, encoding="utf-8") as tf:
         test_lines = tf.readlines()[5:]
 
-    with zopen(f"{ref_file}.gz", mode="rt") as rf:
+    with zopen(f"{ref_file}.gz", mode="rt", encoding="utf-8") as rf:
         ref_lines = rf.readlines()[5:]
 
     for test_line, ref_line in zip(test_lines, ref_lines, strict=True):

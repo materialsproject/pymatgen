@@ -120,6 +120,5 @@ class ThermoData:
 
     def __str__(self):
         return (
-            f"{self.type}_{self.formula}_{self.phaseinfo} = {self.value}, Valid T : {self.temp_range}, "
-            f"Ref = {self.ref}"
+            f"{self.type}_{self.formula}_{self.phaseinfo} = {self.value}, Valid T : {self.temp_range}, Ref = {self.ref}"
         )

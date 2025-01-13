@@ -2,7 +2,6 @@ from __future__ import annotations
 
 import hashlib
 import os
-import unittest
 from glob import glob
 from zipfile import ZipFile
 
@@ -29,6 +28,8 @@ from pymatgen.io.vasp.sets import (
     MITMDSet,
     MITNEBSet,
     MITRelaxSet,
+    MP24RelaxSet,
+    MP24StaticSet,
     MPAbsorptionSet,
     MPHSEBSSet,
     MPHSERelaxSet,
@@ -105,7 +106,7 @@ class TestSetChangeCheck(PymatgenTest):
         input_sets = glob(f"{MODULE_DIR}/*.yaml")
         hashes = {}
         for input_set in input_sets:
-            with open(input_set) as file:
+            with open(input_set, encoding="utf-8") as file:
                 text = file.read().encode("utf-8")
                 name = os.path.basename(input_set)
                 hashes[name] = hashlib.sha256(text).hexdigest()
@@ -116,13 +117,14 @@ class TestSetChangeCheck(PymatgenTest):
             "MPHSERelaxSet.yaml": "1779cb6a6af43ad54a12aec22882b9b8aa3469b764e29ac4ab486960d067b811",
             "VASPIncarBase.yaml": "8c1ce90d6697e45b650e1881e2b3d82a733dba17fb1bd73747a38261ec65a4c4",
             "MPSCANRelaxSet.yaml": "ad652ea740d06f9edd979494f31e25074b82b9fffdaaf7eff2ae5541fb0e6288",
-            "PBE64Base.yaml": "3434c918c17706feae397d0852f2224e771db94d7e4c988039e8658e66d87494",
+            "PBE64Base.yaml": "40e7e42159f59543b17f512666916001045f7644f422ccc45b8466d6a1cf0c48",
             "MPRelaxSet.yaml": "c9b0a519588fb3709509a9f9964632692584905e2961a0fe2e5f657561913083",
             "MITRelaxSet.yaml": "0b4bec619fa860dac648584853c3b3d5407e4148a85d0e95024fbd1dc315669d",
             "vdW_parameters.yaml": "7d2599a855533865335a313c043b6f89e03fc2633c88b6bc721723d94cc862bd",
             "MatPESStaticSet.yaml": "4ec60ad4bbbb9a756f1b3fea8ca4eab8fc767d8f6a67332e7af3908c910fd7c5",
             "MPAbsorptionSet.yaml": "e49cd0ab87864f1c244e9b5ceb4703243116ec1fbb8958a374ddff07f7a5625c",
             "PBE54Base.yaml": "cdffe123eca8b19354554b60a7f8de9b8776caac9e1da2bd2a0516b7bfac8634",
+            "MP24RelaxSet.yaml": "35a5d4456f01d644cf41218725c5e0896c59e1658045ecd1544579cbb1ed7b85",
         }
 
         for input_set, hash_str in hashes.items():
@@ -1607,7 +1609,6 @@ class TestMPHSERelaxSet(PymatgenTest):
         assert not vis.incar["LASPH"], "LASPH user setting not applied"
         assert vis.incar["VDW_SR"] == 1.5, "VDW_SR user setting not applied"
 
-    @unittest.skipIf(not os.path.exists(TEST_DIR), "Test files are not present.")
     def test_from_prev_calc(self):
         prev_run = os.path.join(TEST_DIR, "fixtures", "relaxation")
 
@@ -1624,7 +1625,6 @@ class TestMPHSERelaxSet(PymatgenTest):
         assert "VDW_A2" in vis_bj.incar
         assert "VDW_S8" in vis_bj.incar
 
-    @unittest.skipIf(not os.path.exists(TEST_DIR), "Test files are not present.")
     def test_override_from_prev_calc(self):
         prev_run = os.path.join(TEST_DIR, "fixtures", "relaxation")
 
@@ -2285,3 +2285,98 @@ def test_dict_set_alias():
     ):
         DictSet()
         assert isinstance(DictSet(), VaspInputSet)
+
+
+class TestMP24Sets(PymatgenTest):
+    def setUp(self):
+        self.relax_set = MP24RelaxSet
+        self.static_set = MP24StaticSet
+
+        filepath = f"{VASP_IN_DIR}/POSCAR"
+        self.structure = Structure.from_file(filepath)
+
+    @staticmethod
+    def matches_ref(test_val, ref_val) -> bool:
+        if isinstance(ref_val, float):
+            return test_val == approx(ref_val)
+        return test_val == ref_val
+
+    def test_kspacing(self):
+        bandgaps = [0.0, 0.1, 0.5, 1.0, 2.0, 3, 5, 10, 1e4]
+        expected_kspacing = [
+            0.22,
+            0.22000976174867864,
+            0.2200466614246148,
+            0.22056799311325073,
+            0.2876525546497567,
+            0.40800309817134106,
+            0.44000114629141485,
+            0.4999999999540808,
+            0.5,
+        ]
+        for i, bandgap in enumerate(bandgaps):
+            assert self.relax_set()._multi_sigmoid_interp(bandgap) == approx(expected_kspacing[i])
+
+    def test_default(self):
+        vis = self.relax_set(structure=self.structure)
+        expected_incar_relax = {
+            "ALGO": "Normal",
+            "EDIFF": 1.0e-05,
+            "EDIFFG": -0.02,
+            "ENAUG": 1360,
+            "ENCUT": 680,
+            "GGA_COMPAT": False,
+            "KSPACING": 0.22,
+            "ISMEAR": 0,
+            "SIGMA": 0.05,
+            "METAGGA": "R2scan",
+            "LMAXMIX": 6,
+            "LREAL": False,
+        }
+
+        assert all(self.matches_ref(vis.incar[k], v) for k, v in expected_incar_relax.items())
+
+        assert self.relax_set(self.structure, xc_functional="r2SCAN")._config_dict == vis._config_dict
+        assert vis.inherit_incar is False
+        assert vis.dispersion is None
+        assert vis.potcar_functional == "PBE_64"
+        assert vis.potcar_symbols == ["Fe_pv", "P", "O"]
+        assert vis.kpoints is None
+
+        vis = self.static_set(structure=self.structure, dispersion="rVV10")
+
+        expected_incar_static = {
+            "ISMEAR": -5,
+            "NSW": 0,
+            "LORBIT": 11,
+            "METAGGA": "R2scan",
+            "LUSE_VDW": True,
+            "BPARAM": 11.95,
+            "CPARAM": 0.0093,
+        }
+
+        assert all(self.matches_ref(vis.incar[k], v) for k, v in expected_incar_static.items())
+        assert (
+            self.static_set(self.structure, xc_functional="r2SCAN", dispersion="rVV10")._config_dict == vis._config_dict
+        )
+
+    def test_non_default_xc_func(self):
+        for xc_functional, vasp_name in {"PBE": "Pe", "PBEsol": "Ps"}.items():
+            vis = self.relax_set(structure=self.structure, xc_functional=xc_functional)
+            assert vis.incar.get("METAGGA") is None
+            assert vis.incar["GGA"] == vasp_name
+
+            vis = self.static_set(structure=self.structure, xc_functional=xc_functional, dispersion="D4")
+            assert vis.incar.get("METAGGA") is None
+            print(self.relax_set(structure=self.structure, xc_functional=xc_functional).incar)
+            assert vis.incar["GGA"] == vasp_name
+            assert all(
+                isinstance(vis.incar[k], float | int)
+                for k in (
+                    "IVDW",
+                    "VDW_A1",
+                    "VDW_A2",
+                    "VDW_S6",
+                    "VDW_S8",
+                )
+            )

@@ -285,7 +285,7 @@ class Poscar(MSONable):
             except Exception:
                 names = None
 
-        with zopen(filename, mode="rt") as file:
+        with zopen(filename, mode="rt", encoding="utf-8") as file:
             return cls.from_str(file.read(), names, read_velocities=read_velocities)
 
     @classmethod
@@ -671,7 +671,7 @@ class Poscar(MSONable):
         """Write POSCAR to a file. The supported kwargs are the same as those for
         the Poscar.get_str method and are passed through directly.
         """
-        with zopen(filename, mode="wt") as file:
+        with zopen(filename, mode="wt", encoding="utf-8") as file:
             file.write(self.get_str(**kwargs))
 
     def as_dict(self) -> dict:
@@ -906,7 +906,7 @@ class Incar(UserDict, MSONable):
         Args:
             filename (str): filename to write to.
         """
-        with zopen(filename, mode="wt") as file:
+        with zopen(filename, mode="wt", encoding="utf-8") as file:
             file.write(str(self))
 
     @classmethod
@@ -919,7 +919,7 @@ class Incar(UserDict, MSONable):
         Returns:
             Incar object
         """
-        with zopen(filename, mode="rt") as file:
+        with zopen(filename, mode="rt", encoding="utf-8") as file:
             return cls.from_str(file.read())
 
     @classmethod
@@ -1659,7 +1659,7 @@ class Kpoints(MSONable):
         Returns:
             Kpoints object
         """
-        with zopen(filename, mode="rt") as file:
+        with zopen(filename, mode="rt", encoding="utf-8") as file:
             return cls.from_str(file.read())
 
     @classmethod
@@ -1800,7 +1800,7 @@ class Kpoints(MSONable):
         Args:
             filename (PathLike): Filename to write to.
         """
-        with zopen(filename, mode="wt") as file:
+        with zopen(filename, mode="wt", encoding="utf-8") as file:
             file.write(str(self))
 
     def as_dict(self) -> dict[str, Any]:
@@ -2411,9 +2411,9 @@ class PotcarSingle:
         """Write PotcarSingle to a file.
 
         Args:
-            filename (str): Filename to write to.
+            filename (str): File to write to.
         """
-        with zopen(filename, mode="wt") as file:
+        with zopen(filename, mode="wt", encoding="utf-8") as file:
             file.write(str(self))
 
     def copy(self) -> Self:
@@ -2438,7 +2438,7 @@ class PotcarSingle:
         symbol = match[0] if match else ""
 
         try:
-            with zopen(filename, mode="rt") as file:
+            with zopen(filename, mode="rt", encoding="utf-8") as file:
                 return cls(file.read(), symbol=symbol or None)
 
         except UnicodeDecodeError:
@@ -2850,7 +2850,7 @@ class Potcar(list, MSONable):
         Returns:
             Potcar
         """
-        with zopen(filename, mode="rt") as file:
+        with zopen(filename, mode="rt", encoding="utf-8") as file:
             fdata = file.read()
 
         potcar = cls()
@@ -2873,7 +2873,7 @@ class Potcar(list, MSONable):
         Args:
             filename (PathLike): filename to write to.
         """
-        with zopen(filename, mode="wt") as file:
+        with zopen(filename, mode="wt", encoding="utf-8") as file:
             file.write(str(self))
 
     def set_symbols(
@@ -3009,7 +3009,7 @@ class VaspInput(dict, MSONable):
 
         for key, value in self.items():
             if value is not None:
-                with zopen(os.path.join(output_dir, key), mode="wt") as file:
+                with zopen(os.path.join(output_dir, key), mode="wt", encoding="utf-8") as file:
                     file.write(str(value))
 
         if cif_name:
@@ -3032,8 +3032,8 @@ class VaspInput(dict, MSONable):
         files_to_transfer = files_to_transfer or {}
         for key, val in files_to_transfer.items():
             with (
-                zopen(val, "rb") as fin,
-                zopen(str(Path(output_dir) / key), "wb") as fout,
+                zopen(val, mode="rb") as fin,
+                zopen(str(Path(output_dir) / key), mode="wb") as fout,
             ):
                 copyfileobj(fin, fout)
 

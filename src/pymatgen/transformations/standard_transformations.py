@@ -23,6 +23,7 @@ from pymatgen.transformations.site_transformations import PartialRemoveSitesTran
 from pymatgen.transformations.transformation_abc import AbstractTransformation
 
 if TYPE_CHECKING:
+    from numpy.random import Generator
     from typing_extensions import Self
 
     from pymatgen.core.sites import PeriodicSite
@@ -451,6 +452,7 @@ class OrderDisorderedStructureTransformation(AbstractTransformation):
     ALGO_FAST = 0
     ALGO_COMPLETE = 1
     ALGO_BEST_FIRST = 2
+    ALGO_RANDOM = -1
 
     def __init__(self, algo=ALGO_FAST, symmetrized_structures=False, no_oxi_states=False):
         """
@@ -467,7 +469,9 @@ class OrderDisorderedStructureTransformation(AbstractTransformation):
         self.no_oxi_states = no_oxi_states
         self.symmetrized_structures = symmetrized_structures
 
-    def apply_transformation(self, structure: Structure, return_ranked_list: bool | int = False) -> Structure:
+    def apply_transformation(
+        self, structure: Structure, return_ranked_list: bool | int = False, occ_tol=0.25
+    ) -> Structure:
         """For this transformation, the apply_transformation method will return
         only the ordered structure with the lowest Ewald energy, to be
         consistent with the method signature of the other transformations.
@@ -478,6 +482,9 @@ class OrderDisorderedStructureTransformation(AbstractTransformation):
             structure: Oxidation state decorated disordered structure to order
             return_ranked_list (bool | int, optional): If return_ranked_list is int, that number of structures
                 is returned. If False, only the single lowest energy structure is returned. Defaults to False.
+            occ_tol (float): Occupancy tolerance. If the total occupancy of a group is within this value
+                of an integer, it will be rounded to that integer otherwise raise a ValueError.
+                Defaults to 0.25.
 
         Returns:
             Depending on returned_ranked list, either a transformed structure
@@ -529,6 +536,17 @@ class OrderDisorderedStructureTransformation(AbstractTransformation):
         # generate the list of manipulations and input structure
         struct = Structure.from_sites(structure)
 
+        # We will first create an initial ordered structure by filling all sites
+        # with the species that has the highest oxidation state (initial_sp)
+        # replacing all other species on a given site.
+        # then, we process a list of manipulations to get the final structure.
+        # The manipulations are of the format:
+        # [oxi_ratio, 1, [0,1,2,3], Li+]
+        # which means -- Place 1 Li+ in any of these 4 sites
+        # the oxi_ratio is the ratio of the oxidation state of the species to
+        # the initial species. This is used to determine the energy of the
+        # manipulation in the EwaldMinimizer, but is not used in the purely random
+        # algorithm.
         manipulations = []
         for group in equivalent_sites:
             total_occupancy = dict(
@@ -536,7 +554,7 @@ class OrderDisorderedStructureTransformation(AbstractTransformation):
             )
             # round total occupancy to possible values
             for key, val in total_occupancy.items():
-                if abs(val - round(val)) > 0.25:
+                if abs(val - round(val)) > occ_tol:
                     raise ValueError("Occupancy fractions not consistent with size of unit cell")
                 total_occupancy[key] = round(val)
             # start with an ordered structure
@@ -554,6 +572,16 @@ class OrderDisorderedStructureTransformation(AbstractTransformation):
             empty = len(group) - sum(total_occupancy.values())
             if empty > 0.5:
                 manipulations.append([0, empty, list(group), None])
+
+        if self.algo == self.ALGO_RANDOM:
+            rand_structures = get_randomly_manipulated_structures(
+                struct=struct, manipulations=manipulations, n_return=n_to_return
+            )
+            if return_ranked_list:
+                return [
+                    {"energy": 0.0, "energy_above_minimum": 0.0, "structure": s} for s in rand_structures[:n_to_return]
+                ]
+            return rand_structures[0]
 
         matrix = EwaldSummation(struct).total_energy_matrix
         ewald_m = EwaldMinimizer(matrix, manipulations, n_to_return, self.algo)
@@ -891,3 +919,82 @@ class ScaleToRelaxedTransformation(AbstractTransformation):
 
     def __repr__(self):
         return "ScaleToRelaxedTransformation"
+
+
+def _sample_random_manipulation(manipulation, rng, manipulated) -> list[tuple[int, SpeciesLike]]:
+    """Sample a single random manipulation.
+
+    Each manipulation is given in the form of a tuple
+    `(oxi_ratio, nsites, indices, sp)` where:
+    Which means choose nsites from the list of indices and replace them
+    With the species `sp`.
+    """
+    _, nsites, indices, sp = manipulation
+    maniped_indices = [i for i, _ in manipulated]
+    allowed_sites = [i for i in indices if i not in maniped_indices]
+    if len(allowed_sites) < nsites:
+        raise RuntimeError(
+            "No valid manipulations possible. "
+            f" You have already applied a manipulation to each site in this group {indices}"
+        )
+    sampled_sites = rng.choice(allowed_sites, nsites, replace=False).tolist()
+    sampled_sites.sort()
+    return [(i, sp) for i in sampled_sites]
+
+
+def _get_manipulation(manipulations: list, rng: Generator, max_attempts, seen: set[tuple]) -> tuple:
+    """Apply each manipulation."""
+    for _ in range(max_attempts):
+        manipulated: list[tuple] = []
+        for manip_ in manipulations:
+            new_manips = _sample_random_manipulation(manip_, rng, manipulated)
+            manipulated += new_manips
+        tm_ = tuple(manipulated)
+        if tm_ not in seen:
+            return tm_
+    raise RuntimeError(
+        "Could not apply manipulations to structure"
+        "this is likely because you have already applied all the possible manipulations"
+    )
+
+
+def _apply_manip(struct, manipulations) -> Structure:
+    """Apply manipulations to a structure."""
+    struct_copy = struct.copy()
+    rm_indices = []
+    for manip in manipulations:
+        idx, sp = manip
+        if sp is None:
+            rm_indices.append(idx)
+        else:
+            struct_copy.replace(idx, sp)
+    struct_copy.remove_sites(rm_indices)
+    return struct_copy
+
+
+def get_randomly_manipulated_structures(
+    struct: Structure, manipulations: list, seed=None, n_return: int = 1
+) -> list[Structure]:
+    """Get a structure with random manipulations applied.
+
+    Args:
+        struct: Input structure
+        manipulations: List of manipulations to apply
+        seed: Seed for random number generator
+        n_return: Number of structures to return
+
+    Returns:
+        List of structures with manipulations applied.
+    """
+    rng = np.random.default_rng(seed)
+    seen: set[tuple] = set()
+    sampled_manips = []
+
+    for _ in range(n_return):
+        manip_ = _get_manipulation(manipulations, rng, 1000, seen)
+        seen.add(manip_)
+        sampled_manips.append(manip_)
+    output_structs = []
+    for manip_ in sampled_manips:
+        output_structs.append(_apply_manip(struct, manip_))
+    return output_structs

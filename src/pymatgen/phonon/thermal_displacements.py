@@ -220,7 +220,7 @@ class ThermalDisplacementMatrices(MSONable):
         writer.write_file(filename)
         # This will simply append the thermal displacement part to the CIF from the CifWriter
         # In the long run, CifWriter could be extended to handle thermal displacement matrices
-        with open(filename, mode="a") as file:
+        with open(filename, mode="a", encoding="utf-8") as file:
             file.write("loop_ \n")
             file.write("_atom_site_aniso_label\n")
             file.write("_atom_site_aniso_U_11\n")
@@ -272,8 +272,7 @@ class ThermalDisplacementMatrices(MSONable):
         for spec1, spec2 in zip(self.structure.species, other.structure.species, strict=True):
             if spec1 != spec2:
                 raise ValueError(
-                    "Species in both structures are not the same! "
-                    "Please use structures that are similar to each other"
+                    "Species in both structures are not the same! Please use structures that are similar to each other"
                 )
         # check if structures match
         structure_match = StructureMatcher()

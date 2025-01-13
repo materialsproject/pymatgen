@@ -17,10 +17,10 @@ TEST_DIR = f"{TEST_FILES_DIR}/io/lammps"
 class TestLammpsDump(TestCase):
     @classmethod
     def setUpClass(cls):
-        with open(f"{TEST_DIR}/dump.rdx_wc.100") as file:
+        with open(f"{TEST_DIR}/dump.rdx_wc.100", encoding="utf-8") as file:
             rdx_str = file.read()
         cls.rdx = LammpsDump.from_str(string=rdx_str)
-        with open(f"{TEST_DIR}/dump.tatb") as file:
+        with open(f"{TEST_DIR}/dump.tatb", encoding="utf-8") as file:
             tatb_str = file.read()
         cls.tatb = LammpsDump.from_str(string=tatb_str)
 
