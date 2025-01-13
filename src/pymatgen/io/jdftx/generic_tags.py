@@ -177,12 +177,15 @@ class AbstractTag(ClassPrintFormatter, ABC):
             int: The token length of the tag.
         """
 
-    def _write(self, tag: str, value: Any, multiline_override: bool = False) -> str:
+    def _write(self, tag: str, value: Any, multiline_override: bool = False, strip_override: bool = False) -> str:
         tag_str = f"{tag} " if self.write_tagname else ""
         if self.multiline_tag or multiline_override:
             tag_str += "\\\n"
         if self.write_value:
-            tag_str += f"{value}".strip() + " "
+            if not strip_override:
+                tag_str += f"{value}".strip() + " "
+            else:
+                tag_str += f"{value}"
         return tag_str
 
     def _get_token_len(self) -> int:
@@ -731,7 +734,6 @@ class TagContainer(AbstractTag):
                 # this could be relevant if someone manually sets the tag's can_repeat value to a non-list.
                 print_str_list = [self.subtags[subtag].write(subtag, entry) for entry in subvalue]
                 print_str = " ".join([v.strip() for v in print_str_list]) + " "
-                # print_str = " ".join(print_str_list)
             else:
                 print_str = self.subtags[subtag].write(subtag, subvalue).strip() + " "
 
@@ -740,9 +742,9 @@ class TagContainer(AbstractTag):
             elif self.linebreak_nth_entry is not None:
                 # handles special formatting with extra linebreak, e.g. for lattice tag
                 i_column = count % self.linebreak_nth_entry
-                if i_column == 1:
+                if i_column == 0:
                     final_value += f"{indent}{print_str}"
-                elif i_column == 0:
+                elif i_column == self.linebreak_nth_entry - 1:
                     final_value += f"{print_str}\\\n"
                 else:
                     final_value += f"{print_str}"
@@ -751,7 +753,12 @@ class TagContainer(AbstractTag):
         if self.multiline_tag or self.linebreak_nth_entry is not None:  # handles special formatting for lattice tag
             final_value = final_value[:-2]  # exclude final \\n from final print call
 
-        return self._write(tag, final_value, self.linebreak_nth_entry is not None)
+        return self._write(
+            tag,
+            final_value,
+            multiline_override=self.linebreak_nth_entry is not None,
+            strip_override=self.linebreak_nth_entry is not None,
+        )
 
     def get_token_len(self) -> int:
         """Get the token length of the tag.
