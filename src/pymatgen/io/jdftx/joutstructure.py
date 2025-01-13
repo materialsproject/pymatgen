@@ -690,11 +690,11 @@ class JOutStructure(Structure):
     def _init_structure(self) -> None:
         """Initialize structure attribute."""
         self.structure = Structure(
-            lattice=self.lattice, 
-            species=self.species, 
-            coords=self.cart_coords, 
+            lattice=self.lattice,
+            species=self.species,
+            coords=self.cart_coords,
             site_properties=self.site_properties,
-            coords_are_cartesian=True
+            coords_are_cartesian=True,
         )
 
     def to_dict(self) -> dict:
