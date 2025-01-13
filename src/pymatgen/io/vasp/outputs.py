@@ -5908,7 +5908,7 @@ class Vaspout(Vasprun):
             self.projected_eigenvalues = None
             self.projected_magnetisation = None
 
-        self.vasp_version = ".".join(f"{data['version'].get(tag,'')}" for tag in ("major", "minor", "patch"))
+        self.vasp_version = ".".join(f"{data['version'].get(tag, '')}" for tag in ("major", "minor", "patch"))
         # TODO: are the other generator tags, like computer platform, stored in vaspout.h5?
         self.generator = {"version": self.vasp_version}
 
@@ -6016,7 +6016,7 @@ class Vaspout(Vasprun):
             calc_potcar = Potcar.from_str(input_data["potcar"]["content"])
             self.potcar = calc_potcar if self.store_potcar else None
             # The `potcar_symbols` attr is extraordinarily confusingly
-            # named, these are really TITELs
+            # named, these are really TITELs # codespell:ignore
             self.potcar_symbols = [potcar.TITEL for potcar in calc_potcar]
 
             # For parity with vasprun.xml, we do not store the POTCAR symbols in
@@ -6202,7 +6202,7 @@ class Vaspout(Vasprun):
         _, fname_ext = os.path.splitext(filename)  # type: ignore[type-var]
 
         # determine if output file is to be compressed
-        is_compressed = fname_ext.lower() in {".bz2",".gz",".z",".xz", ".lzma"}
+        is_compressed = fname_ext.lower() in {".bz2", ".gz", ".z", ".xz", ".lzma"}
 
         with zopen(self.filename, "rb") as vout_file, h5py.File(vout_file, "r") as h5_file:
             hdf5_data = self._parse_hdf5_value(h5_file)
@@ -6223,7 +6223,7 @@ class Vaspout(Vasprun):
 
         # now compress the file
         if is_compressed:
-            with open(filename,"rb") as f:
+            with open(filename, "rb") as f:
                 byte_data = f.read()
-            with zopen(filename,"wb") as f:
+            with zopen(filename, "wb") as f:
                 f.write(byte_data)
