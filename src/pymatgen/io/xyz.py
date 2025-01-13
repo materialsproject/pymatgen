@@ -31,7 +31,11 @@ class XYZ:
         lattice.
     """
 
-    def __init__(self, mol: Molecule | Structure | Sequence[Molecule | Structure], coord_precision: int = 6) -> None:
+    def __init__(
+        self,
+        mol: Molecule | Structure | Sequence[Molecule | Structure],
+        coord_precision: int = 6,
+    ) -> None:
         """
         Args:
             mol (Molecule | Structure): Input molecule or structure or list thereof.
@@ -107,7 +111,7 @@ class XYZ:
         Returns:
             XYZ object
         """
-        with zopen(filename, mode="rt") as file:
+        with zopen(filename, mode="rt", encoding="utf-8") as file:
             return cls.from_str(file.read())
 
     def as_dataframe(self):
@@ -120,7 +124,12 @@ class XYZ:
         lines = str(self)
         str_io = StringIO(lines)
         df_xyz = pd.read_csv(
-            str_io, header=None, skiprows=(0, 1), comment="#", sep=r"\s+", names=("atom", "x", "y", "z")
+            str_io,
+            header=None,
+            skiprows=(0, 1),
+            comment="#",
+            sep=r"\s+",
+            names=("atom", "x", "y", "z"),
         )
         df_xyz.index += 1
         return df_xyz
@@ -142,5 +151,5 @@ class XYZ:
         Args:
             filename (str): File name of output file.
         """
-        with zopen(filename, mode="wt") as file:
+        with zopen(filename, mode="wt", encoding="utf-8") as file:
             file.write(str(self))

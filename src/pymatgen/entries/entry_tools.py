@@ -42,11 +42,21 @@ def _get_host(structure, species_to_remove):
 
 
 def _perform_grouping(args):
-    entries_json, hosts_json, ltol, stol, angle_tol, primitive_cell, scale, comparator, groups = args
+    (
+        entries_json,
+        hosts_json,
+        ltol,
+        stol,
+        angle_tol,
+        primitive_cell,
+        scale,
+        comparator,
+        groups,
+    ) = args
 
     entries = json.loads(entries_json, cls=MontyDecoder)
     hosts = json.loads(hosts_json, cls=MontyDecoder)
-    unmatched = list(zip(entries, hosts, strict=False))
+    unmatched = list(zip(entries, hosts, strict=True))
     while len(unmatched) > 0:
         ref_host = unmatched[0][1]
         logger.info(f"Reference tid = {unmatched[0][0].entry_id}, formula = {ref_host.formula}")
@@ -303,7 +313,7 @@ class EntrySet(collections.abc.MutableSet, MSONable):
         for entry in self.entries:
             els.update(entry.elements)
         elements = sorted(els, key=lambda a: a.X)
-        with open(filename, mode="w") as file:
+        with open(filename, mode="w", encoding="utf-8") as file:
             writer = csv.writer(
                 file,
                 delimiter=",",
@@ -312,7 +322,7 @@ class EntrySet(collections.abc.MutableSet, MSONable):
             )
             writer.writerow(["Name"] + [el.symbol for el in elements] + ["Energy"])
             for entry in self.entries:
-                row: list[str] = [entry.name if not latexify_names else re.sub(r"([0-9]+)", r"_{\1}", entry.name)]
+                row: list[str] = [(entry.name if not latexify_names else re.sub(r"([0-9]+)", r"_{\1}", entry.name))]
                 row.extend([str(entry.composition[el]) for el in elements])
                 row.append(str(entry.energy))
                 writer.writerow(row)

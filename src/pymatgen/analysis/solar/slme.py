@@ -11,7 +11,6 @@ References: 1) https://doi.org/10.1021/acs.chemmater.9b02166  &
 from __future__ import annotations
 
 import os
-from math import pi
 
 import matplotlib.pyplot as plt
 import numpy as np
@@ -64,7 +63,7 @@ def to_matrix(xx, yy, zz, xy, yz, xz):
         xz (float): xz component of the matrix.
 
     Returns:
-        np.array: The matrix, as a 3x3 numpy array.
+        np.ndarray: The matrix, as a 3x3 numpy array.
     """
     return np.array([[xx, xy, xz], [xy, yy, yz], [xz, yz, zz]])
 
@@ -79,7 +78,7 @@ def parse_dielectric_data(data):
             a list of ``[xx, yy, zz, xy , xz, yz ]`` dielectric tensor elements.
 
     Returns:
-        np.array: a Nx3 numpy array. Each row contains the eigenvalues
+        np.ndarray: a Nx3 numpy array. Each row contains the eigenvalues
             for the corresponding row in `data`.
     """
     return np.array([np.linalg.eig(to_matrix(*eps))[0] for eps in data])
@@ -98,7 +97,7 @@ def absorption_coefficient(dielectric):
             - element 2: imaginary dielectric tensors, in ``[xx, yy, zz, xy, xz, yz]`` format.
 
     Returns:
-        np.array: absorption coefficient using eV as frequency units (cm^-1).
+        np.ndarray: absorption coefficient using eV as frequency units (cm^-1).
     """
     energies_in_eV = np.array(dielectric[0])
     real_dielectric = parse_dielectric_data(dielectric[1])
@@ -110,7 +109,7 @@ def absorption_coefficient(dielectric):
         (
             2.0
             * np.sqrt(2.0)
-            * pi
+            * np.pi
             * eV_to_recip_cm
             * energies_in_eV
             * np.sqrt(-epsilon_1 + np.sqrt(epsilon_1**2 + epsilon_2**2))
@@ -169,8 +168,9 @@ def slme(
     e = constants.e  # Coulomb
 
     # Make sure the absorption coefficient has the right units (m^{-1})
+    absorbance_data = material_absorbance_data.copy()  # don't overwrite
     if absorbance_in_inverse_centimeters:
-        material_absorbance_data = material_absorbance_data * 100
+        absorbance_data *= 100
 
     # Load the Air Mass 1.5 Global tilt solar spectrum
     solar_spectrum_data_file = str(os.path.join(os.path.dirname(__file__), "am1.5G.dat"))
@@ -210,11 +210,11 @@ def slme(
 
     # creates cubic spline interpolating function, set up to use end values
     #  as the guesses if leaving the region where data exists
-    material_absorbance_data_function = interp1d(
+    absorbance_data_function = interp1d(
         material_wavelength_for_absorbance_data,
-        material_absorbance_data,
+        absorbance_data,
         kind="cubic",
-        fill_value=(material_absorbance_data[0], material_absorbance_data[-1]),
+        fill_value=(absorbance_data[0], absorbance_data[-1]),
         bounds_error=False,
     )
 
@@ -227,7 +227,7 @@ def slme(
             solar_spectra_wavelength[i] < 1e9 * ((c * h_e) / material_direct_allowed_gap)
             or cut_off_absorbance_below_direct_allowed_gap is False
         ):
-            material_interpolated_absorbance[i] = material_absorbance_data_function(solar_spectra_wavelength[i])
+            material_interpolated_absorbance[i] = absorbance_data_function(solar_spectra_wavelength[i])
 
     absorbed_by_wavelength = 1.0 - np.exp(-2.0 * material_interpolated_absorbance * thickness)
 
@@ -263,9 +263,12 @@ def slme(
     efficiency = max_power / power_in
 
     if plot_current_voltage:
-        V = np.linspace(0, 2, 200)
-        plt.plot(V, J(V))
-        plt.plot(V, power(V), linestyle="--")
+        V = np.linspace(0, test_voltage + 0.1, 200)
+        plt.plot(V, J(V), label="Current Density (mA/cm$^2$)")
+        plt.plot(V, power(V), linestyle="--", label="Power Density (mW/cm$^2$)")
+        plt.xlabel("Voltage (V)")
+        plt.ylabel("Current / Power Density (mA/cm$^2$ / mW/cm$^2$)")
+        plt.legend()
         plt.savefig("pp.png")
         plt.close()
 

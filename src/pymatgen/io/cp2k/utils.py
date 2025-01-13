@@ -76,15 +76,17 @@ def preprocessor(data: str, dir: str = ".") -> str:  # noqa: A002
     includes = re.findall(r"(@include.+)", data, re.IGNORECASE)
     for incl in includes:
         inc = incl.split()
-        assert len(inc) == 2  # @include filename
+        if len(inc) != 2:  # @include filename
+            raise ValueError(f"length of inc should be 2, got {len(inc)}")
         inc = inc[1].strip("'")
         inc = inc.strip('"')
-        with zopen(os.path.join(dir, inc)) as file:
+        with zopen(os.path.join(dir, inc), mode="rt", encoding="utf-8") as file:
             data = re.sub(rf"{incl}", file.read(), data)
     variable_sets = re.findall(r"(@SET.+)", data, re.IGNORECASE)
     for match in variable_sets:
         v = match.split()
-        assert len(v) == 3  # @SET VAR value
+        if len(v) != 3:  # @SET VAR value
+            raise ValueError(f"length of v should be 3, got {len(v)}")
         var, value = v[1:]
         data = re.sub(rf"{match}", "", data)
         data = re.sub(rf"\${{?{var}}}?", value, data)
@@ -161,15 +163,15 @@ def get_unique_site_indices(struct: Structure | Molecule):
         )
         for idx, site in enumerate(struct)
     ]
-    unique_itms = list(set(items))
-    _sites: dict[tuple, list] = {u: [] for u in unique_itms}
+    unique_items = list(set(items))
+    _sites: dict[tuple, list] = {u: [] for u in unique_items}
     for i, itm in enumerate(items):
         _sites[itm].append(i)
     sites = {}
     nums = dict.fromkeys(struct.symbol_set, 1)
-    for s in _sites:
-        sites[f"{s[0]}_{nums[s[0]]}"] = _sites[s]
-        nums[s[0]] += 1
+    for site, val in _sites.items():
+        sites[f"{site[0]}_{nums[site[0]]}"] = val
+        nums[site[0]] += 1
 
     return sites
 

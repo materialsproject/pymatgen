@@ -42,7 +42,7 @@ class SOCSpillage:
         n_rows, n_cols = A.shape
         eps = np.finfo(float).eps
         tol = max(n_rows, n_cols) * np.amax(s) * eps
-        num = np.sum(s > tol, dtype=int)
+        num = np.sum(s > tol, dtype=np.int64)
         orthonormal_basis = u[:, :num]
         return orthonormal_basis, num
 
@@ -90,11 +90,11 @@ class SOCSpillage:
                     n_elec_list.append([cup, cdn, cup + cdn])
         n_arr = np.array(n_elec_list)
 
-        n_up = int(round(np.mean(n_arr[:, 0])))
-        n_dn = int(round(np.mean(n_arr[:, 1])))
-        n_tot = int(round(np.mean(n_arr[:, 2])))
+        n_up = round(np.mean(n_arr[:, 0]))
+        n_dn = round(np.mean(n_arr[:, 1]))
+        n_tot = round(np.mean(n_arr[:, 2]))
 
-        n_elec = int(n_tot)
+        n_elec = n_tot
 
         # noso_homo_up = np.max(noso_bands[0, :, n_up - 1])
         # noso_lumo_up = np.min(noso_bands[0, :, n_up])

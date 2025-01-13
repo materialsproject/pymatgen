@@ -1,9 +1,7 @@
 # cython: language_level=3
 """
-This module contains an algorithm to solve the Linear Assignment Problem
+This module contains the LAPJV algorithm to solve the Linear Assignment Problem.
 """
-
-# isort: dont-add-imports
 
 import numpy as np
 
@@ -38,26 +36,21 @@ class LinearAssignment:
             rectangular
         epsilon: Tolerance for determining if solution vector is < 0
 
-    .. attribute: min_cost:
-
-        The minimum cost of the matching
-
-    .. attribute: solution:
-
-        The matching of the rows to columns. i.e solution = [1, 2, 0]
-        would match row 0 to column 1, row 1 to column 2 and row 2
-        to column 0. Total cost would be c[0, 1] + c[1, 2] + c[2, 0]
+    Attributes:
+        min_cost: The minimum cost of the matching.
+        solution: The matching of the rows to columns. i.e solution = [1, 2, 0]
+            would match row 0 to column 1, row 1 to column 2 and row 2
+            to column 0. Total cost would be c[0, 1] + c[1, 2] + c[2, 0].
     """
 
-    def __init__(self, costs, epsilon=1e-13):
-        # https://numpy.org/devdocs/numpy_2_0_migration_guide.html#adapting-to-changes-in-the-copy-keyword
+    def __init__(self, costs: np.ndarray, epsilon: float=1e-13) -> None:
         self.orig_c = np.asarray(costs, dtype=np.float64, order="C")
         self.nx, self.ny = self.orig_c.shape
         self.n = self.ny
 
         self.epsilon = fabs(epsilon)
 
-        # check that cost matrix is square
+        # Check that cost matrix is square
         if self.nx > self.ny:
             raise ValueError("cost matrix must have at least as many columns as rows")
 
@@ -67,9 +60,9 @@ class LinearAssignment:
             self.c = np.zeros((self.n, self.n), dtype=np.float64)
             self.c[:self.nx] = self.orig_c
 
-        # initialize solution vectors
-        self._x = np.empty(self.n, dtype=int)
-        self._y = np.empty(self.n, dtype=int)
+        # Initialize solution vectors
+        self._x = np.empty(self.n, dtype=np.int64)
+        self._y = np.empty(self.n, dtype=np.int64)
 
         self.min_cost = compute(self.n, self.c, self._x, self._y, self.epsilon)
         self.solution = self._x[:self.nx]
@@ -79,7 +72,7 @@ class LinearAssignment:
 @cython.wraparound(False)
 cdef np.float_t compute(int size, np.float_t[:, :] c, np.int64_t[:] x, np.int64_t[:] y, np.float_t eps) nogil:
 
-    # augment
+    # Augment
     cdef int i, j, k, i1, j1, f, f0, cnt, low, up, z, last, nrr
     cdef int n = size
     cdef bint b
@@ -93,7 +86,7 @@ cdef np.float_t compute(int size, np.float_t[:, :] c, np.int64_t[:] x, np.int64_
     for i in range(n):
         x[i] = -1
 
-    # column reduction
+    # Column reduction
     for j from n > j >= 0:
         col[j] = j
         h = c[0, j]
@@ -107,12 +100,12 @@ cdef np.float_t compute(int size, np.float_t[:, :] c, np.int64_t[:] x, np.int64_
             x[i1] = j
             y[j] = i1
         else:
-            # in the paper its x[i], but likely a typo
+            # NOTE: in the paper it's x[i], but likely a typo
             if x[i1] > -1:
                 x[i1] = -2 - x[i1]
             y[j] = -1
 
-    # reduction transfer
+    # Reduction transfer
     f = -1
     for i in range(n):
         if x[i] == -1:
@@ -129,12 +122,12 @@ cdef np.float_t compute(int size, np.float_t[:, :] c, np.int64_t[:] x, np.int64_
                         m = c[i, j] - v[j]
             v[j1] = v[j1] - m
 
-    # augmenting row reduction
+    # Augmenting row reduction
     for cnt in range(2):
         k = 0
         f0 = f
         f = -1
-        # this step isn't strictly necessary, and
+        # This step isn't strictly necessary, and
         # time is proportional to 1/eps in the worst case,
         # so break early by keeping track of nrr
         nrr = 0
@@ -172,7 +165,7 @@ cdef np.float_t compute(int size, np.float_t[:, :] c, np.int64_t[:] x, np.int64_
             x[i] = j1
             y[j1] = i
 
-    # augmentation
+    # Augmentation
     f0 = f
     for f in range(f0 + 1):
         i1 = fre[f]
@@ -182,7 +175,7 @@ cdef np.float_t compute(int size, np.float_t[:, :] c, np.int64_t[:] x, np.int64_
             d[j] = c[i1, j] - v[j]
             pred[j] = i1
         while True:
-            # the pascal code ends when a single augmentation is found
+            # The pascal code ends when a single augmentation is found
             # really we need to get back to the for f in range(f0+1) loop
             b = False
             if up == low:
@@ -231,7 +224,7 @@ cdef np.float_t compute(int size, np.float_t[:, :] c, np.int64_t[:] x, np.int64_
                     pred[j] = i
                     if fabs(h - m) < eps:
                         if y[j] == -1:
-                            # augment
+                            # Augment
                             for k in range(last+1):
                                 j1 = col[k]
                                 v[j1] = v[j1] + d[j1] - m

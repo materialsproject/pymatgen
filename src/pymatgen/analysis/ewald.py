@@ -288,7 +288,7 @@ class EwaldSummation(MSONable):
             self._initialized = True
 
         if self._charged:
-            warn("Per atom energies for charged structures not supported in EwaldSummation")
+            warn("Per atom energies for charged structures not supported in EwaldSummation", stacklevel=2)
         return np.sum(self._recip[:, site_index]) + np.sum(self._real[:, site_index]) + self._point[site_index]
 
     def _calc_ewald_terms(self):
@@ -332,7 +332,7 @@ class EwaldSummation(MSONable):
         s_reals = np.sum(oxi_states[None, :] * np.cos(grs), 1)
         s_imags = np.sum(oxi_states[None, :] * np.sin(grs), 1)
 
-        for g, g2, gr, exp_val, s_real, s_imag in zip(gs, g2s, grs, exp_vals, s_reals, s_imags, strict=False):
+        for g, g2, gr, exp_val, s_real, s_imag in zip(gs, g2s, grs, exp_vals, s_reals, s_imags, strict=True):
             # Uses the identity sin(x)+cos(x) = 2**0.5 sin(x + pi/4)
             m = np.sin((gr[None, :] + math.pi / 4) - gr[:, None])
             m *= exp_val / g2
@@ -408,7 +408,7 @@ class EwaldSummation(MSONable):
             f"Reciprocal = {self.reciprocal_space_energy}",
             f"Point = {self.point_energy}",
             f"Total = {self.total_energy}",
-            f"Forces:\n{self.forces}" if self._compute_forces else "Forces were not computed",
+            (f"Forces:\n{self.forces}" if self._compute_forces else "Forces were not computed"),
         ]
         return "\n".join(output)
 

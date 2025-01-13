@@ -398,14 +398,14 @@ task dft energy
 
 class TestNwOutput:
     def test_read(self):
-        nwo = NwOutput(f"{TEST_DIR}/CH4.nwout")
+        nw_output = NwOutput(f"{TEST_DIR}/CH4.nwout")
         nwo_cosmo = NwOutput(f"{TEST_DIR}/N2O4.nwout")
 
-        assert nwo[0]["charge"] == 0
-        assert nwo[-1]["charge"] == -1
-        assert len(nwo) == 5
-        assert approx(nwo[0]["energies"][-1], abs=1e-2) == -1102.6224491715582
-        assert approx(nwo[2]["energies"][-1], abs=1e-3) == -1102.9986291578023
+        assert nw_output[0]["charge"] == 0
+        assert nw_output[-1]["charge"] == -1
+        assert len(nw_output) == 5
+        assert approx(nw_output[0]["energies"][-1], abs=1e-2) == -1102.6224491715582
+        assert approx(nw_output[2]["energies"][-1], abs=1e-3) == -1102.9986291578023
         assert approx(nwo_cosmo[5]["energies"][0]["cosmo scf"], abs=1e-3) == -11156.354030653656
         assert approx(nwo_cosmo[5]["energies"][0]["gas phase"], abs=1e-3) == -11153.374133394364
         assert approx(nwo_cosmo[5]["energies"][0]["sol phase"], abs=1e-2) == -11156.353632962995
@@ -416,14 +416,14 @@ class TestNwOutput:
         assert approx(nwo_cosmo[7]["energies"][0]["gas phase"], abs=1e-2) == -11165.025443612385
         assert approx(nwo_cosmo[7]["energies"][0]["sol phase"], abs=1e-2) == -11165.227959110154
 
-        assert nwo[1]["hessian"][0][0] == approx(4.60187e01)
-        assert nwo[1]["hessian"][1][2] == approx(-1.14030e-08)
-        assert nwo[1]["hessian"][2][3] == approx(2.60819e01)
-        assert nwo[1]["hessian"][6][6] == approx(1.45055e02)
-        assert nwo[1]["hessian"][11][14] == approx(1.35078e01)
+        assert nw_output[1]["hessian"][0][0] == approx(4.60187e01)
+        assert nw_output[1]["hessian"][1][2] == approx(-1.14030e-08)
+        assert nw_output[1]["hessian"][2][3] == approx(2.60819e01)
+        assert nw_output[1]["hessian"][6][6] == approx(1.45055e02)
+        assert nw_output[1]["hessian"][11][14] == approx(1.35078e01)
 
         # CH4.nwout, line 722
-        assert nwo[0]["forces"][0][3] == approx(-0.001991)
+        assert nw_output[0]["forces"][0][3] == approx(-0.001991)
 
         # N2O4.nwout, line 1071
         assert nwo_cosmo[0]["forces"][0][4] == approx(0.011948)
@@ -431,47 +431,47 @@ class TestNwOutput:
         # There should be four DFT gradients.
         assert len(nwo_cosmo[0]["forces"]) == 4
 
-        ie = nwo[4]["energies"][-1] - nwo[2]["energies"][-1]
-        ea = nwo[2]["energies"][-1] - nwo[3]["energies"][-1]
+        ie = nw_output[4]["energies"][-1] - nw_output[2]["energies"][-1]
+        ea = nw_output[2]["energies"][-1] - nw_output[3]["energies"][-1]
         assert approx(ie) == 0.7575358648355177
         assert approx(ea, abs=1e-3) == -14.997877958701338
-        assert nwo[4]["basis_set"]["C"]["description"] == "6-311++G**"
+        assert nw_output[4]["basis_set"]["C"]["description"] == "6-311++G**"
 
-        nwo = NwOutput(f"{TEST_DIR}/H4C3O3_1.nwout")
-        assert nwo[-1]["has_error"]
-        assert nwo[-1]["errors"][0] == "Bad convergence"
+        nw_output = NwOutput(f"{TEST_DIR}/H4C3O3_1.nwout")
+        assert nw_output[-1]["has_error"]
+        assert nw_output[-1]["errors"][0] == "Bad convergence"
 
-        nwo = NwOutput(f"{TEST_DIR}/CH3CH2O.nwout")
-        assert nwo[-1]["has_error"]
-        assert nwo[-1]["errors"][0] == "Bad convergence"
+        nw_output = NwOutput(f"{TEST_DIR}/CH3CH2O.nwout")
+        assert nw_output[-1]["has_error"]
+        assert nw_output[-1]["errors"][0] == "Bad convergence"
 
-        nwo = NwOutput(f"{TEST_DIR}/C1N1Cl1_1.nwout")
-        assert nwo[-1]["has_error"]
-        assert nwo[-1]["errors"][0] == "autoz error"
+        nw_output = NwOutput(f"{TEST_DIR}/C1N1Cl1_1.nwout")
+        assert nw_output[-1]["has_error"]
+        assert nw_output[-1]["errors"][0] == "autoz error"
 
-        nwo = NwOutput(f"{TEST_DIR}/anthrachinon_wfs_16_ethyl.nwout")
-        assert nwo[-1]["has_error"]
-        assert nwo[-1]["errors"][0] == "Geometry optimization failed"
-        nwo = NwOutput(f"{TEST_DIR}/anthrachinon_wfs_15_carboxyl.nwout")
-        assert nwo[1]["frequencies"][0][0] == -70.47
-        assert len(nwo[1]["frequencies"][0][1]) == 27
-        assert nwo[1]["frequencies"][-1][0] == 3696.74
-        assert nwo[1]["frequencies"][-1][1][-1] == (0.20498, -0.94542, -0.00073)
-        assert nwo[1]["normal_frequencies"][1][0] == -70.72
-        assert nwo[1]["normal_frequencies"][3][0] == -61.92
-        assert nwo[1]["normal_frequencies"][1][1][-1] == (0.00056, 0.00042, 0.06781)
+        nw_output = NwOutput(f"{TEST_DIR}/anthrachinon_wfs_16_ethyl.nwout")
+        assert nw_output[-1]["has_error"]
+        assert nw_output[-1]["errors"][0] == "Geometry optimization failed"
+        nw_output = NwOutput(f"{TEST_DIR}/anthrachinon_wfs_15_carboxyl.nwout")
+        assert nw_output[1]["frequencies"][0][0] == -70.47
+        assert len(nw_output[1]["frequencies"][0][1]) == 27
+        assert nw_output[1]["frequencies"][-1][0] == 3696.74
+        assert nw_output[1]["frequencies"][-1][1][-1] == (0.20498, -0.94542, -0.00073)
+        assert nw_output[1]["normal_frequencies"][1][0] == -70.72
+        assert nw_output[1]["normal_frequencies"][3][0] == -61.92
+        assert nw_output[1]["normal_frequencies"][1][1][-1] == (0.00056, 0.00042, 0.06781)
 
     def test_parse_tddft(self):
-        nwo = NwOutput(f"{TEST_DIR}/phen_tddft.log")
-        roots = nwo.parse_tddft()
+        nw_output = NwOutput(f"{TEST_DIR}/phen_tddft.log")
+        roots = nw_output.parse_tddft()
         assert len(roots["singlet"]) == 20
         assert roots["singlet"][0]["energy"] == approx(3.9291)
         assert roots["singlet"][0]["osc_strength"] == approx(0.0)
         assert roots["singlet"][1]["osc_strength"] == approx(0.00177)
 
     def test_get_excitation_spectrum(self):
-        nwo = NwOutput(f"{TEST_DIR}/phen_tddft.log")
-        spectrum = nwo.get_excitation_spectrum()
+        nw_output = NwOutput(f"{TEST_DIR}/phen_tddft.log")
+        spectrum = nw_output.get_excitation_spectrum()
         assert len(spectrum.x) == 2000
         assert spectrum.x[0] == approx(1.9291)
         assert spectrum.y[0] == approx(0.0)

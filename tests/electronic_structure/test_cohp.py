@@ -22,20 +22,20 @@ TEST_DIR = f"{TEST_FILES_DIR}/electronic_structure/cohp"
 
 class TestCohp(TestCase):
     def setUp(self):
-        with open(f"{TEST_DIR}/cohp.json") as file:
+        with open(f"{TEST_DIR}/cohp.json", encoding="utf-8") as file:
             self.cohp = Cohp.from_dict(json.load(file))
         self.cohp_only = Cohp(self.cohp.efermi, self.cohp.energies, self.cohp.cohp)
-        with open(f"{TEST_DIR}/coop.json") as file:
+        with open(f"{TEST_DIR}/coop.json", encoding="utf-8") as file:
             self.coop = Cohp.from_dict(json.load(file))
-        with open(f"{TEST_DIR}/cobi.json") as file:
+        with open(f"{TEST_DIR}/cobi.json", encoding="utf-8") as file:
             self.cobi = Cohp.from_dict(json.load(file))
 
     def test_as_from_dict(self):
-        with open(f"{TEST_DIR}/cohp.json") as file:
+        with open(f"{TEST_DIR}/cohp.json", encoding="utf-8") as file:
             cohp_dict = json.load(file)
         assert self.cohp.as_dict() == cohp_dict
 
-        with open(f"{TEST_DIR}/cobi.json") as file:
+        with open(f"{TEST_DIR}/cobi.json", encoding="utf-8") as file:
             cobi_dict = json.load(file)
         assert self.cobi.as_dict() == cobi_dict
 
@@ -68,19 +68,25 @@ class TestCohp(TestCase):
     def test_str(self):
         header = "#Energy          COOPUp          ICOOPUp        \n"
 
-        with open(f"{TEST_DIR}/cohp.str") as file:
+        with open(f"{TEST_DIR}/cohp.str", encoding="utf-8") as file:
             str_cohp = file.read()
         assert str(self.cohp) == str_cohp
         assert str(self.coop).strip().startswith(header)
 
-        with open(f"{TEST_DIR}/coop.str") as file:
+        with open(f"{TEST_DIR}/coop.str", encoding="utf-8") as file:
             str_coop = file.read()
         assert str(self.coop) == str_coop
         assert str(self.coop).strip().startswith(header)
 
     def test_antibnd_states_below_efermi(self):
-        assert self.cohp.has_antibnd_states_below_efermi(spin=None) == {Spin.up: True, Spin.down: True}
-        assert self.cohp.has_antibnd_states_below_efermi(spin=None, limit=0.5) == {Spin.up: False, Spin.down: False}
+        assert self.cohp.has_antibnd_states_below_efermi(spin=None) == {
+            Spin.up: True,
+            Spin.down: True,
+        }
+        assert self.cohp.has_antibnd_states_below_efermi(spin=None, limit=0.5) == {
+            Spin.up: False,
+            Spin.down: False,
+        }
         assert self.cohp.has_antibnd_states_below_efermi(spin=Spin.up, limit=0.5) == {Spin.up: False}
 
 
@@ -165,9 +171,7 @@ class TestIcohpValue(TestCase):
 class TestCombinedIcohp(TestCase):
     def setUp(self):
         # without spin polarization:
-        are_coops = False
-        are_cobis = False
-        is_spin_polarized = False
+        are_coops = are_cobis = is_spin_polarized = False
         list_atom2 = ["K2", "K2", "K2", "K2", "K2", "K2"]
         list_icohp = [
             {Spin.up: -0.40075},
@@ -232,7 +236,10 @@ class TestCombinedIcohp(TestCase):
                 "list_length": [1.99474, 1.99474],
                 "list_translation": [[0, 0, -1], [0, 0, 0]],
                 "list_num": [1, 1],
-                "list_icohp": [{Spin.up: 0.29324, Spin.down: 0.29324}, {Spin.up: 0.29324, Spin.down: 0.29324}],
+                "list_icohp": [
+                    {Spin.up: 0.29324, Spin.down: 0.29324},
+                    {Spin.up: 0.29324, Spin.down: 0.29324},
+                ],
                 "is_spin_polarized": True,
                 "list_orb_icohp": [
                     {
@@ -793,20 +800,20 @@ class TestCombinedIcohp(TestCase):
 class TestCompleteCohp(PymatgenTest):
     def setUp(self):
         filepath = f"{TEST_DIR}/complete_cohp_lobster.json"
-        with open(filepath) as file:
+        with open(filepath, encoding="utf-8") as file:
             self.cohp_lobster_dict = CompleteCohp.from_dict(json.load(file))
         filepath = f"{TEST_DIR}/complete_coop_lobster.json"
-        with open(filepath) as file:
+        with open(filepath, encoding="utf-8") as file:
             self.coop_lobster_dict = CompleteCohp.from_dict(json.load(file))
         filepath = f"{TEST_DIR}/complete_cohp_lmto.json"
-        with open(filepath) as file:
+        with open(filepath, encoding="utf-8") as file:
             self.cohp_lmto_dict = CompleteCohp.from_dict(json.load(file))
         filepath = f"{TEST_DIR}/complete_cohp_orbitalwise.json"
-        with open(filepath) as file:
+        with open(filepath, encoding="utf-8") as file:
             self.cohp_orb_dict = CompleteCohp.from_dict(json.load(file))
         # Lobster 3.0
         filepath = f"{TEST_DIR}/complete_cohp_forb.json"
-        with open(filepath) as file:
+        with open(filepath, encoding="utf-8") as file:
             self.cohp_lobster_forb_dict = CompleteCohp.from_dict(json.load(file))
 
             # Lobster 2.0
@@ -816,7 +823,7 @@ class TestCompleteCohp(PymatgenTest):
         filepath = f"{TEST_DIR}/COHPCAR.lobster.gz"
         structure = f"{TEST_DIR}/POSCAR"
         self.cohp_lobster = CompleteCohp.from_file("lobster", filename=filepath, structure_file=structure)
-        # with open(f"{TEST_DIR}/complete_cohp_lobster.json", "w") as file:
+        # with open(f"{TEST_DIR}/complete_cohp_lobster.json", "w", encoding="utf-8") as file:
         #     json.dump(self.cohp_lobster.as_dict(), file)
         filepath = f"{TEST_DIR}/COOPCAR.lobster.BiSe.gz"
         structure = f"{TEST_DIR}/POSCAR.BiSe"
@@ -826,7 +833,7 @@ class TestCompleteCohp(PymatgenTest):
         filepath = f"{TEST_DIR}/COHPCAR.lobster.orbitalwise.gz"
         structure = f"{TEST_DIR}/POSCAR.orbitalwise"
         self.cohp_orb = CompleteCohp.from_file("lobster", filename=filepath, structure_file=structure)
-        # with open(f"{TEST_DIR}/complete_cohp_orbitalwise.json", "w") as file:
+        # with open(f"{TEST_DIR}/complete_cohp_orbitalwise.json", "w", encoding="utf-8") as file:
         #     json.dump(self.cohp_orb.as_dict(), file)
         filepath = f"{TEST_DIR}/COHPCAR.lobster.notot.orbitalwise.gz"
         self.cohp_notot = CompleteCohp.from_file("lobster", filename=filepath, structure_file=structure)
@@ -851,14 +858,20 @@ class TestCompleteCohp(PymatgenTest):
         filepath = f"{TEST_DIR}/COBICAR.lobster.GeTe.multi.orbitalwise.full"
         structure = f"{TEST_DIR}/POSCAR.GeTe"
         self.cobi_multi = CompleteCohp.from_file(
-            "lobster", filename=filepath, structure_file=structure, are_multi_center_cobis=True
+            "lobster",
+            filename=filepath,
+            structure_file=structure,
+            are_multi_center_cobis=True,
         )
 
         # COBI multi-center
         filepath = f"{TEST_DIR}/COBICAR.lobster.B2H6.spin"
         structure = f"{TEST_DIR}/POSCAR.B2H6"
         self.cobi_multi_B2H6 = CompleteCohp.from_file(
-            "lobster", filename=filepath, structure_file=structure, are_multi_center_cobis=True
+            "lobster",
+            filename=filepath,
+            structure_file=structure,
+            are_multi_center_cobis=True,
         )
 
         # COBI multi-center
@@ -900,7 +913,7 @@ class TestCompleteCohp(PymatgenTest):
         for cohp1, cohp2 in zip(
             self.cobi_multi_B2H6.get_cohp_by_label("average").cohp[Spin.up],
             self.cobi_multi_B2H6_average2.get_cohp_by_label("average").cohp[Spin.up],
-            strict=False,
+            strict=True,
         ):
             print(cohp1)
             print(cohp2)
@@ -909,21 +922,21 @@ class TestCompleteCohp(PymatgenTest):
         for cohp1, cohp2 in zip(
             self.cobi_multi_B2H6.get_cohp_by_label("average").cohp[Spin.down],
             self.cobi_multi_B2H6_average2.get_cohp_by_label("average").cohp[Spin.down],
-            strict=False,
+            strict=True,
         ):
             assert cohp1 == approx(cohp2, abs=1e-4)
 
         for icohp1, icohp2 in zip(
             self.cobi_multi_B2H6.get_cohp_by_label("average").icohp[Spin.up],
             self.cobi_multi_B2H6_average2.get_cohp_by_label("average").icohp[Spin.up],
-            strict=False,
+            strict=True,
         ):
             assert icohp1 == approx(icohp2, abs=1e-4)
 
         for icohp1, icohp2 in zip(
             self.cobi_multi_B2H6.get_cohp_by_label("average").icohp[Spin.down],
             self.cobi_multi_B2H6_average2.get_cohp_by_label("average").icohp[Spin.down],
-            strict=False,
+            strict=True,
         ):
             assert icohp1 == approx(icohp2, abs=1e-4)
 
@@ -1270,12 +1283,22 @@ class TestMethod(TestCase):
 
         cohp = self.cohp_lobster
         result = get_integrated_cohp_in_energy_range(
-            cohp, label="1", orbital=None, energy_range=None, relative_E_Fermi=True, summed_spin_channels=True
+            cohp,
+            label="1",
+            orbital=None,
+            energy_range=None,
+            relative_E_Fermi=True,
+            summed_spin_channels=True,
         )
         assert result == approx(-0.10218 - 0.19701)
 
         result = get_integrated_cohp_in_energy_range(
-            cohp, label="1", orbital=None, energy_range=None, relative_E_Fermi=True, summed_spin_channels=False
+            cohp,
+            label="1",
+            orbital=None,
+            energy_range=None,
+            relative_E_Fermi=True,
+            summed_spin_channels=False,
         )
         assert result[Spin.up] == approx(-0.10218)
         assert result[Spin.down] == approx(-0.19701)
@@ -1293,13 +1316,23 @@ class TestMethod(TestCase):
         assert result[Spin.up] == approx(-4.36062)
 
         result = get_integrated_cohp_in_energy_range(
-            self.cohp_orb, label="1", orbital=None, energy_range=None, relative_E_Fermi=True, summed_spin_channels=False
+            self.cohp_orb,
+            label="1",
+            orbital=None,
+            energy_range=None,
+            relative_E_Fermi=True,
+            summed_spin_channels=False,
         )
 
         assert result[Spin.up] == approx(-4.36062)
 
         result = get_integrated_cohp_in_energy_range(
-            self.cohp_orb, label="1", orbital=None, energy_range=None, relative_E_Fermi=True, summed_spin_channels=True
+            self.cohp_orb,
+            label="1",
+            orbital=None,
+            energy_range=None,
+            relative_E_Fermi=True,
+            summed_spin_channels=True,
         )
 
         assert result == approx(-4.36062)
@@ -1334,13 +1367,23 @@ class TestMethod(TestCase):
         cohp = self.cohp_lobster
         fermi = cohp.efermi
         result = get_integrated_cohp_in_energy_range(
-            cohp, label="1", orbital=None, energy_range=-0.60201, relative_E_Fermi=True, summed_spin_channels=True
+            cohp,
+            label="1",
+            orbital=None,
+            energy_range=-0.60201,
+            relative_E_Fermi=True,
+            summed_spin_channels=True,
         )
 
         assert result == approx(-0.10218 - 0.19701 + 0.14894 + 0.21889)
 
         result = get_integrated_cohp_in_energy_range(
-            cohp, label="1", orbital=None, energy_range=-0.60201, relative_E_Fermi=True, summed_spin_channels=False
+            cohp,
+            label="1",
+            orbital=None,
+            energy_range=-0.60201,
+            relative_E_Fermi=True,
+            summed_spin_channels=False,
         )
 
         assert result[Spin.up] == approx(-0.10218 + 0.14894)
@@ -1407,12 +1450,22 @@ class TestMethod(TestCase):
         cohp = self.cohp_lobster
         fermi = cohp.efermi
         result = get_integrated_cohp_in_energy_range(
-            cohp, label="1", orbital=None, energy_range=[-0.60201, 0], relative_E_Fermi=True, summed_spin_channels=True
+            cohp,
+            label="1",
+            orbital=None,
+            energy_range=[-0.60201, 0],
+            relative_E_Fermi=True,
+            summed_spin_channels=True,
         )
         assert result == approx(-0.10218 - 0.19701 + 0.14894 + 0.21889)
 
         result = get_integrated_cohp_in_energy_range(
-            cohp, label="1", orbital=None, energy_range=[-0.60201, 0], relative_E_Fermi=True, summed_spin_channels=False
+            cohp,
+            label="1",
+            orbital=None,
+            energy_range=[-0.60201, 0],
+            relative_E_Fermi=True,
+            summed_spin_channels=False,
         )
 
         assert result[Spin.up] == approx(-0.10218 + 0.14894)

@@ -101,7 +101,7 @@ class TestLatticeFromAbivars(PymatgenTest):
 
         assert [s.symbol for s in species_by_znucl(gan)] == ["Ga", "N"]
 
-        for itype1, itype2 in zip(def_typat, enforce_typat, strict=False):
+        for itype1, itype2 in zip(def_typat, enforce_typat, strict=True):
             assert def_znucl[itype1 - 1] == enforce_znucl[itype2 - 1]
 
         with pytest.raises(ValueError, match="Both enforce_znucl and enforce_typat are required"):
@@ -213,7 +213,14 @@ class TestRelaxation(PymatgenTest):
         atoms_only = RelaxationMethod.atoms_only()
 
         out_vars = atoms_and_cell.to_abivars()
-        assert {*out_vars} >= {"dilatmx", "ecutsm", "ionmov", "ntime", "optcell", "strfact"}
+        assert {*out_vars} >= {
+            "dilatmx",
+            "ecutsm",
+            "ionmov",
+            "ntime",
+            "optcell",
+            "strfact",
+        }
 
         # Test dict methods
         self.assert_msonable(atoms_and_cell)

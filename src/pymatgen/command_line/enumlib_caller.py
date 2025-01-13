@@ -235,7 +235,13 @@ class EnumlibAdaptor:
         output.extend((f"{len(index_species)}", f"{len(coord_str)}"))
         output.extend(coord_str)
 
-        output.extend((f"{self.min_cell_size} {self.max_cell_size}", str(self.enum_precision_parameter), "full"))
+        output.extend(
+            (
+                f"{self.min_cell_size} {self.max_cell_size}",
+                str(self.enum_precision_parameter),
+                "full",
+            )
+        )
 
         n_disordered = sum(len(s) for s in disordered_sites)
         base = int(
@@ -263,13 +269,13 @@ class EnumlibAdaptor:
             conc = amt / total_amounts
 
             if abs(conc * base - round(conc * base)) < 1e-5:
-                output.append(f"{int(round(conc * base))} {int(round(conc * base))} {base}")
+                output.append(f"{round(conc * base)} {round(conc * base)} {base}")
             else:
                 min_conc = math.floor(conc * base)
                 output.append(f"{min_conc - 1} {min_conc + 1} {base}")
         output.append("")
         logger.debug("Generated input file:\n" + "\n".join(output))
-        with open("struct_enum.in", mode="w") as file:
+        with open("struct_enum.in", mode="w", encoding="utf-8") as file:
             file.write("\n".join(output))
 
     def _run_multienum(self):
@@ -348,11 +354,10 @@ class EnumlibAdaptor:
             )
             inv_org_latt = np.linalg.inv(original_latt.matrix)
         else:
-            ordered_structure = None
-            inv_org_latt = None
+            ordered_structure = inv_org_latt = None
 
         for file in glob("vasp.*"):
-            with open(file) as file:
+            with open(file, encoding="utf-8") as file:
                 data = file.read()
                 data = re.sub(r"scale factor", "1", data)
                 data = re.sub(r"(\d+)-(\d+)", r"\1 -\2", data)
@@ -367,7 +372,7 @@ class EnumlibAdaptor:
 
                 if len(self.ordered_sites) > 0:
                     transformation = np.dot(new_latt.matrix, inv_org_latt)
-                    transformation = [[int(round(cell)) for cell in row] for row in transformation]
+                    transformation = [[round(cell) for cell in row] for row in transformation]
                     logger.debug(f"Supercell matrix: {transformation}")
                     struct = ordered_structure * transformation
                     sites.extend([site.to_unit_cell() for site in struct])

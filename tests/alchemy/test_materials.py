@@ -43,7 +43,8 @@ class TestTransformedStructure(PymatgenTest):
         t_struct = TransformedStructure(struct, [])
         t_struct.append_transformation(SupercellTransformation.from_scaling_factors(2, 1, 1))
         alt = t_struct.append_transformation(
-            PartialRemoveSpecieTransformation("Si4+", 0.5, algo=PartialRemoveSpecieTransformation.ALGO_COMPLETE), 5
+            PartialRemoveSpecieTransformation("Si4+", 0.5, algo=PartialRemoveSpecieTransformation.ALGO_COMPLETE),
+            5,
         )
         assert len(alt) == 2
 
@@ -63,7 +64,7 @@ class TestTransformedStructure(PymatgenTest):
         assert isinstance(deepcopy(self.trans), TransformedStructure)
 
     def test_from_dict(self):
-        with open(f"{TEST_DIR}/transformations.json") as file:
+        with open(f"{TEST_DIR}/transformations.json", encoding="utf-8") as file:
             dct = json.load(file)
         dct["other_parameters"] = {"tags": ["test"]}
         t_struct = TransformedStructure.from_dict(dct)

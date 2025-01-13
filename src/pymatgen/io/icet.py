@@ -49,7 +49,7 @@ class IcetSQS:
     }
     _sqs_kwarg_defaults: ClassVar[dict[str, Any]] = {
         "optimality_weight": None,
-        "tol": 1.0e-5,
+        "tol": 1e-5,
         "include_smaller_cells": False,  # for consistency with ATAT
         "pbc": (True, True, True),
     }
@@ -79,9 +79,6 @@ class IcetSQS:
                 "monte carlo" otherwise.
             sqs_kwargs (dict): kwargs to pass to the icet SQS generators.
                 See self.sqs_kwarg_names for possible options.
-
-        Returns:
-            None
         """
         if ClusterSpace is None:
             raise ImportError("IcetSQS requires the icet package. Use `pip install icet`")
@@ -123,7 +120,10 @@ class IcetSQS:
 
         unrecognized_kwargs = {key for key in self.sqs_kwargs if key not in self.sqs_kwarg_names[sqs_method]}
         if len(unrecognized_kwargs) > 0:
-            warnings.warn(f"Ignoring unrecognized icet {sqs_method} kwargs: {', '.join(unrecognized_kwargs)}")
+            warnings.warn(
+                f"Ignoring unrecognized icet {sqs_method} kwargs: {', '.join(unrecognized_kwargs)}",
+                stacklevel=2,
+            )
 
         self.sqs_kwargs = {
             key: value for key, value in self.sqs_kwargs.items() if key in self.sqs_kwarg_names[sqs_method]
@@ -150,7 +150,8 @@ class IcetSQS:
             concentrations=self.composition, cluster_space=cluster_space
         )
         self.sqs_vector = _get_sqs_cluster_vector(
-            cluster_space=cluster_space, target_concentrations=self.target_concentrations
+            cluster_space=cluster_space,
+            target_concentrations=self.target_concentrations,
         )
 
     def run(self) -> Sqs:
@@ -173,30 +174,33 @@ class IcetSQS:
             clusters=str(self._get_cluster_space()),
         )
 
-    def _get_site_composition(self) -> None:
+    def _get_site_composition(self) -> dict[str, dict]:
         """Get Icet-format composition from structure.
 
         Returns:
             Dict with sublattice compositions specified by uppercase letters,
-                e.g. In_x Ga_1-x As becomes:
-                {
+                e.g. In_x Ga_1-x As becomes: {
                     "A": {"In": x, "Ga": 1 - x},
                     "B": {"As": 1}
                 }
         """
         uppercase_letters = list(ascii_uppercase)
-        idx = 0
         self.composition: dict[str, dict] = {}
         for idx, site in enumerate(self._structure):
             site_comp = site.species.as_dict()
             if site_comp not in self.composition.values():
                 self.composition[uppercase_letters[idx]] = site_comp
-                idx += 1
+
+        return self.composition
 
     def _get_cluster_space(self) -> ClusterSpace:
         """Generate the ClusterSpace object for icet."""
         chemical_symbols = [list(site.species.as_dict()) for site in self._structure]
-        return ClusterSpace(structure=self._ordered_atoms, cutoffs=self.cutoffs_list, chemical_symbols=chemical_symbols)
+        return ClusterSpace(
+            structure=self._ordered_atoms,
+            cutoffs=self.cutoffs_list,
+            chemical_symbols=chemical_symbols,
+        )
 
     def get_icet_sqs_obj(self, material: Atoms | Structure, cluster_space: _ClusterSpace | None = None) -> float:
         """Get the SQS objective function.

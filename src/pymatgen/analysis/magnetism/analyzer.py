@@ -43,7 +43,7 @@ MODULE_DIR = os.path.dirname(os.path.abspath(__file__))
 try:
     DEFAULT_MAGMOMS = loadfn(f"{MODULE_DIR}/default_magmoms.yaml")
 except (FileNotFoundError, MarkedYAMLError):
-    warnings.warn("Could not load default_magmoms.yaml, falling back to VASPIncarBase.yaml")
+    warnings.warn("Could not load default_magmoms.yaml, falling back to VASPIncarBase.yaml", stacklevel=2)
     DEFAULT_MAGMOMS = loadfn(f"{MODULE_DIR}/../../io/vasp/VASPIncarBase.yaml")["INCAR"]["MAGMOM"]
 
 
@@ -159,7 +159,7 @@ class CollinearMagneticStructureAnalyzer:
             try:
                 structure = trans.apply_transformation(structure)
             except ValueError:
-                warnings.warn(f"Could not assign valences for {structure.reduced_formula}")
+                warnings.warn(f"Could not assign valences for {structure.reduced_formula}", stacklevel=2)
 
         # Check if structure has magnetic moments
         # on site properties or species spin properties,
@@ -170,8 +170,7 @@ class CollinearMagneticStructureAnalyzer:
         has_spin = False
         for comp in structure.species_and_occu:
             for sp in comp:
-                if getattr(sp, "spin", False):
-                    has_spin = True
+                has_spin |= bool(getattr(sp, "spin", False))
 
         # perform input sanitation ...
         # rest of class will assume magnetic moments are stored on site properties:
@@ -187,7 +186,8 @@ class CollinearMagneticStructureAnalyzer:
             if None in structure.site_properties["magmom"]:
                 warnings.warn(
                     "Be careful with mixing types in your magmom site properties. "
-                    "Any 'None' magmoms have been replaced with zero."
+                    "Any 'None' magmoms have been replaced with zero.",
+                    stacklevel=2,
                 )
             magmoms = [m or 0 for m in structure.site_properties["magmom"]]
         elif has_spin:
@@ -208,7 +208,8 @@ class CollinearMagneticStructureAnalyzer:
                 "This class is not designed to be used with "
                 "non-collinear structures. If your structure is "
                 "only slightly non-collinear (e.g. canted) may still "
-                "give useful results, but use with caution."
+                "give useful results, but use with caution.",
+                stacklevel=2,
             )
 
         # this is for collinear structures only, make sure magmoms are all floats
@@ -221,12 +222,14 @@ class CollinearMagneticStructureAnalyzer:
         # round magmoms on magnetic ions below threshold to zero
         # and on non magnetic ions below threshold_nonmag
         magmoms = [
-            magmom
-            if abs(magmom) > threshold and site.species_string in self.default_magmoms
-            else magmom
-            if abs(magmom) > threshold_nonmag and site.species_string not in self.default_magmoms
-            else 0
-            for magmom, site in zip(magmoms, structure, strict=False)
+            (
+                magmom
+                if abs(magmom) > threshold and site.species_string in self.default_magmoms
+                else (
+                    magmom if abs(magmom) > threshold_nonmag and site.species_string not in self.default_magmoms else 0
+                )
+            )
+            for magmom, site in zip(magmoms, structure, strict=True)
         ]
 
         # overwrite existing magmoms with default_magmoms
@@ -312,8 +315,8 @@ class CollinearMagneticStructureAnalyzer:
 
             except Exception as exc:
                 # TODO: typically a singular matrix warning, investigate this
-                warnings.warn("Failed to round magmoms intelligently, falling back to simple rounding.")
-                warnings.warn(str(exc))
+                warnings.warn("Failed to round magmoms intelligently, falling back to simple rounding.", stacklevel=2)
+                warnings.warn(str(exc), stacklevel=2)
 
             # and finally round roughly to the number of significant figures in our kde width
             n_decimals = len(str(round_magmoms_mode).split(".")[1]) + 1
@@ -482,7 +485,7 @@ class CollinearMagneticStructureAnalyzer:
                 (in which case a warning is issued).
         """
         if not self.is_collinear:
-            warnings.warn("Detecting ordering in non-collinear structures not yet implemented.")
+            warnings.warn("Detecting ordering in non-collinear structures not yet implemented.", stacklevel=2)
             return Ordering.Unknown
 
         if "magmom" not in self.structure.site_properties:
@@ -599,7 +602,10 @@ class MagneticStructureEnumerator:
         self,
         structure: Structure,
         default_magmoms: dict[str, float] | None = None,
-        strategies: list[str] | tuple[str, ...] = ("ferromagnetic", "antiferromagnetic"),
+        strategies: list[str] | tuple[str, ...] = (
+            "ferromagnetic",
+            "antiferromagnetic",
+        ),
         automatic: bool = True,
         truncate_by_symmetry: bool = True,
         transformation_kwargs: dict | None = None,
@@ -791,7 +797,7 @@ class MagneticStructureEnumerator:
         sga = SpacegroupAnalyzer(structure)
         structure_sym = sga.get_symmetrized_structure()
         wyckoff = ["n/a"] * len(structure)
-        for indices, symbol in zip(structure_sym.equivalent_indices, structure_sym.wyckoff_symbols, strict=False):
+        for indices, symbol in zip(structure_sym.equivalent_indices, structure_sym.wyckoff_symbols, strict=True):
             for index in indices:
                 wyckoff[index] = symbol
         is_magnetic_sites = [site.specie in types_mag_species for site in structure]
@@ -799,7 +805,7 @@ class MagneticStructureEnumerator:
         # set these symbols to None to filter them out later
         wyckoff = [
             symbol if is_magnetic_site else "n/a"
-            for symbol, is_magnetic_site in zip(wyckoff, is_magnetic_sites, strict=False)
+            for symbol, is_magnetic_site in zip(wyckoff, is_magnetic_sites, strict=True)
         ]
         structure.add_site_property("wyckoff", wyckoff)
         wyckoff_symbols = set(wyckoff) - {"n/a"}
@@ -912,7 +918,9 @@ class MagneticStructureEnumerator:
         transformations = {}
         for name, constraints in all_constraints.items():
             trans = MagOrderingTransformation(
-                mag_species_spin, order_parameter=constraints, **self.transformation_kwargs
+                mag_species_spin,
+                order_parameter=constraints,
+                **self.transformation_kwargs,
             )
 
             transformations[name] = trans

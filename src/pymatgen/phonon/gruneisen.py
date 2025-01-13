@@ -20,8 +20,7 @@ try:
     import phonopy
     from phonopy.phonon.dos import TotalDos
 except ImportError:
-    phonopy = None
-    TotalDos = None
+    phonopy = TotalDos = None
 
 if TYPE_CHECKING:
     from collections.abc import Sequence
@@ -99,13 +98,17 @@ class GruneisenParameter(MSONable):
         wdkt = w * const.tera / (const.value("Boltzmann constant in Hz/K") * t)
         exp_wdkt = np.exp(wdkt)
         cv = np.choose(
-            w > 0, (0, const.value("Boltzmann constant in eV/K") * wdkt**2 * exp_wdkt / (exp_wdkt - 1) ** 2)
+            w > 0,
+            (
+                0,
+                const.value("Boltzmann constant in eV/K") * wdkt**2 * exp_wdkt / (exp_wdkt - 1) ** 2,
+            ),
         )  # in eV
 
         gamma = self.gruneisen
 
         if squared:
-            gamma = gamma**2
+            gamma = gamma**2  # (ruff-preview) noqa: PLR6104
 
         if limit_frequencies == "debye":
             acoustic_debye_freq = self.acoustic_debye_temp * const.value("Boltzmann constant in Hz/K") / const.tera
@@ -119,7 +122,8 @@ class GruneisenParameter(MSONable):
             raise ValueError(f"{limit_frequencies} is not an accepted value for limit_frequencies.")
 
         weights = self.multiplicities
-        assert weights is not None, "Multiplicities are not defined."
+        if weights is None:
+            raise ValueError("Multiplicities are not defined.")
         g = np.dot(weights[ind[0]], np.multiply(cv, gamma)[ind]).sum() / np.dot(weights[ind[0]], cv[ind]).sum()
 
         if squared:
@@ -153,7 +157,8 @@ class GruneisenParameter(MSONable):
         Returns:
             The value of the thermal conductivity in W/(m*K)
         """
-        assert self.structure is not None, "Structure is not defined."
+        if self.structure is None:
+            raise ValueError("Structure is not defined.")
         average_mass = np.mean([s.specie.atomic_mass for s in self.structure]) * amu_to_kg
         if theta_d is None:
             theta_d = self.acoustic_debye_temp
@@ -214,7 +219,8 @@ class GruneisenParameter(MSONable):
         Returns:
             Debye temperature in K.
         """
-        assert self.structure is not None, "Structure is not defined."
+        if self.structure is None:
+            raise ValueError("Structure is not defined.")
         # Use of phonopy classes to compute Debye frequency
         t = self.tdos
         t.set_Debye_frequency(num_atoms=len(self.structure), freq_max_fit=freq_max_fit)
@@ -227,7 +233,8 @@ class GruneisenParameter(MSONable):
         """Acoustic Debye temperature in K, i.e. the Debye temperature divided by n_sites**(1/3).
         Adapted from abipy.
         """
-        assert self.structure is not None, "Structure is not defined."
+        if self.structure is None:
+            raise ValueError("Structure is not defined.")
         return self.debye_temp_limit / len(self.structure) ** (1 / 3)
 
 
@@ -389,7 +396,11 @@ class GruneisenPhononBandStructureSymmLine(GruneisenPhononBandStructure, PhononB
         )
 
         PhononBandStructureSymmLine._reuse_init(
-            self, eigendisplacements=eigendisplacements, frequencies=frequencies, has_nac=False, qpoints=qpoints
+            self,
+            eigendisplacements=eigendisplacements,
+            frequencies=frequencies,
+            has_nac=False,
+            qpoints=qpoints,
         )
 
     @classmethod

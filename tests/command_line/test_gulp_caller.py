@@ -51,7 +51,13 @@ class TestGulpCaller:
             [0, 0, 0.5],
             [0.5, 0.5, 0.5],
         ]
-        mgo_uc = Structure(mgo_lattice, mgo_specie, mgo_frac_cord, validate_proximity=True, to_unit_cell=True)
+        mgo_uc = Structure(
+            mgo_lattice,
+            mgo_specie,
+            mgo_frac_cord,
+            validate_proximity=True,
+            to_unit_cell=True,
+        )
         gio = GulpIO()
         gin = gio.keyword_line("optimise", "conp")
         gin += gio.structure_lines(mgo_uc, symm_flg=False)
@@ -152,7 +158,13 @@ class TestGulpIO(TestCase):
             [0, 0.5, 0.5],
             [0.5, 0.5, 0.5],
         ]
-        mgo_uc = Structure(mgo_latt, mgo_specie, mgo_frac_cord, validate_proximity=True, to_unit_cell=True)
+        mgo_uc = Structure(
+            mgo_latt,
+            mgo_specie,
+            mgo_frac_cord,
+            validate_proximity=True,
+            to_unit_cell=True,
+        )
         gin = self.gio.buckingham_potential(mgo_uc)
         assert "specie" in gin
         assert "buck" in gin
@@ -179,7 +191,13 @@ class TestGulpIO(TestCase):
             [0, 0.5, 0.5],
             [0.5, 0.5, 0.5],
         ]
-        mgo_uc = Structure(mgo_latt, mgo_specie, mgo_frac_cord, validate_proximity=True, to_unit_cell=True)
+        mgo_uc = Structure(
+            mgo_latt,
+            mgo_specie,
+            mgo_frac_cord,
+            validate_proximity=True,
+            to_unit_cell=True,
+        )
         gin = self.gio.buckingham_input(mgo_uc, keywords=("optimise", "conp"))
         assert "optimise" in gin
         assert "cell" in gin
@@ -204,7 +222,13 @@ class TestGulpIO(TestCase):
             [0, 0.5, 0.5],
             [0.5, 0.5, 0.5],
         ]
-        mgo_uc = Structure(mgo_latt, mgo_specie, mgo_frac_cord, validate_proximity=True, to_unit_cell=True)
+        mgo_uc = Structure(
+            mgo_latt,
+            mgo_specie,
+            mgo_frac_cord,
+            validate_proximity=True,
+            to_unit_cell=True,
+        )
         gin = self.gio.tersoff_potential(mgo_uc)
         assert "specie" in gin
         assert "Mg core" in gin
@@ -248,7 +272,7 @@ class TestGulpIO(TestCase):
     def test_get_relaxed_structure(self):
         # Output string obtained from running GULP on a terminal
 
-        with open(f"{TEST_DIR}/example21.gout") as file:
+        with open(f"{TEST_DIR}/example21.gout", encoding="utf-8") as file:
             out_str = file.read()
         struct = self.gio.get_relaxed_structure(out_str)
         assert isinstance(struct, Structure)
@@ -276,11 +300,17 @@ class TestGlobalFunctions(TestCase):
             [0, 0.5, 0.5],
             [0.5, 0.5, 0.5],
         ]
-        self.mgo_uc = Structure(mgo_latt, mgo_specie, mgo_frac_cord, validate_proximity=True, to_unit_cell=True)
+        self.mgo_uc = Structure(
+            mgo_latt,
+            mgo_specie,
+            mgo_frac_cord,
+            validate_proximity=True,
+            to_unit_cell=True,
+        )
         bv = BVAnalyzer()
         val = bv.get_valences(self.mgo_uc)
         el = [site.species_string for site in self.mgo_uc]
-        self.val_dict = dict(zip(el, val, strict=False))
+        self.val_dict = dict(zip(el, val, strict=True))
 
     def test_get_energy_tersoff(self):
         structure = Structure.from_file(f"{VASP_IN_DIR}/POSCAR_Al12O18")

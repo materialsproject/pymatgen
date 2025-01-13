@@ -22,7 +22,7 @@ def get_table():
     default lambda table.
     """
     json_path = f"{TEST_DIR}/test_lambda.json"
-    with open(json_path) as file:
+    with open(json_path, encoding="utf-8") as file:
         return json.load(file)
 
 

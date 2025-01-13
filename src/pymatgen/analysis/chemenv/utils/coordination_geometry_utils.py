@@ -57,7 +57,7 @@ def get_lower_and_upper_f(surface_calculation_options):
             lower_points=lower_points, upper_points=upper_points, degree=degree
         )
     else:
-        raise ValueError(f"Surface calculation of type \"{surface_calculation_options['type']}\" is not implemented")
+        raise ValueError(f'Surface calculation of type "{surface_calculation_options["type"]}" is not implemented')
     return lower_and_upper_functions
 
 
@@ -724,7 +724,7 @@ class Plane:
         Returns:
             bool: True if pp is in the plane.
         """
-        return np.abs(np.dot(self.normal_vector, pp) + self._coefficients[3]) <= dist_tolerance
+        return bool(np.abs(np.dot(self.normal_vector, pp) + self._coefficients[3]) <= dist_tolerance)
 
     def is_same_plane_as(self, plane) -> bool:
         """

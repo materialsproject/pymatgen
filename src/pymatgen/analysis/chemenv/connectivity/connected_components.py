@@ -142,8 +142,8 @@ def make_supergraph(graph, multiplicity, periodicity_vectors):
     if isinstance(multiplicity, int) or len(multiplicity) == 1:
         mult = multiplicity if isinstance(multiplicity, int) else multiplicity[0]
         nodes = graph.nodes(data=True)
-        inodes = [isite for isite, data in nodes]
-        indices_nodes = {isite: inodes.index(isite) for isite in inodes}
+        node_indices = [idx for idx, data in nodes]
+        indices_nodes = {idx: node_indices.index(idx) for idx in node_indices}
         edges = graph.edges(data=True, keys=True)
         connecting_edges = []
         other_edges = []
@@ -159,7 +159,14 @@ def make_supergraph(graph, multiplicity, periodicity_vectors):
                 connecting_edges.append((n1, n2, key, new_data))
             else:
                 if not np.all(np.array(data["delta"]) == 0):
-                    print("delta not equal to periodicity nor 0 ... : ", n1, n2, key, data["delta"], data)
+                    print(
+                        "delta not equal to periodicity nor 0 ... : ",
+                        n1,
+                        n2,
+                        key,
+                        data["delta"],
+                        data,
+                    )
                     input("Are we ok with this ?")
                 other_edges.append((n1, n2, key, data))
 
@@ -211,9 +218,6 @@ class ConnectedComponent(MSONable):
             environments_data: Data of environment nodes.
             links_data: Data of links between environment nodes.
             graph: Graph of the connected component.
-
-        Returns:
-            ConnectedComponent: Instance of this class
         """
         self._periodicity_vectors: list[list] | None = None
         self._primitive_reduced_connected_subgraph = None
@@ -522,7 +526,10 @@ class ConnectedComponent(MSONable):
         return make_supergraph(self._connected_subgraph, multiplicity, self._periodicity_vectors)
 
     def show_graph(
-        self, graph: nx.MultiGraph | None = None, save_file: str | None = None, drawing_type: str = "internal"
+        self,
+        graph: nx.MultiGraph | None = None,
+        save_file: str | None = None,
+        drawing_type: str = "internal",
     ) -> None:
         """
         Displays the graph using the specified drawing type.
@@ -707,8 +714,7 @@ class ConnectedComponent(MSONable):
                         nbunch=[node_neighbor], data=True, keys=True
                     )
                     logging.debug(
-                        f"            Delta image from {node=} to {node_neighbor=} : "
-                        f"({', '.join(map(str, d_delta))})"
+                        f"            Delta image from {node=} to {node_neighbor=} : ({', '.join(map(str, d_delta))})"
                     )
                     # Loop on the edges of this neighbor
                     for n1, n2, key, edata in node_neighbor_edges:

@@ -25,9 +25,9 @@ def get_delta(node1, node2, edge_data):
         edge_data:
     """
     if node1.isite == edge_data["start"] and node2.isite == edge_data["end"]:
-        return np.array(edge_data["delta"], dtype=int)
+        return np.array(edge_data["delta"], dtype=np.int64)
     if node2.isite == edge_data["start"] and node1.isite == edge_data["end"]:
-        return -np.array(edge_data["delta"], dtype=int)
+        return -np.array(edge_data["delta"], dtype=np.int64)
     raise ValueError("Trying to find a delta between two nodes with an edge that seems not to link these nodes.")
 
 
@@ -120,10 +120,7 @@ def _c2index_isreverse(c1, c2):
     elif c2_1_index == c2_0_index - 1:
         reverse = True
     else:
-        msg = (
-            "Second node of cycle c1 in cycle c2 is not just after or "
-            "just before first node of cycle c1 in cycle c2."
-        )
+        msg = "Second node of cycle c1 in cycle c2 is not just after or just before first node of cycle c1 in cycle c2."
         return None, None, msg
     return c2_0_index, reverse, ""
 
@@ -175,14 +172,17 @@ class SimpleGraphCycle(MSONable):
         if check_strict_ordering:
             try:
                 sorted_nodes = sorted(self.nodes)
-            except TypeError as te:
-                msg = te.args[0]
+            except TypeError as exc:
+                msg = exc.args[0]
                 if "'<' not supported between instances of" in msg:
                     return False, "The nodes are not sortable."
                 raise
             res = all(i < j for i, j in itertools.pairwise(sorted_nodes))
             if not res:
-                return False, "The list of nodes in the cycle cannot be strictly ordered."
+                return (
+                    False,
+                    "The list of nodes in the cycle cannot be strictly ordered.",
+                )
         return True, ""
 
     def validate(self, check_strict_ordering=False):
@@ -363,14 +363,17 @@ class MultiGraphCycle(MSONable):
         if check_strict_ordering:
             try:
                 sorted_nodes = sorted(self.nodes)
-            except TypeError as te:
-                msg = te.args[0]
+            except TypeError as exc:
+                msg = exc.args[0]
                 if "'<' not supported between instances of" in msg:
                     return False, "The nodes are not sortable."
                 raise
             is_ordered = all(node1 < node2 for node1, node2 in itertools.pairwise(sorted_nodes))
             if not is_ordered:
-                return False, "The list of nodes in the cycle cannot be strictly ordered."
+                return (
+                    False,
+                    "The list of nodes in the cycle cannot be strictly ordered.",
+                )
         return True, ""
 
     def validate(self, check_strict_ordering=False):

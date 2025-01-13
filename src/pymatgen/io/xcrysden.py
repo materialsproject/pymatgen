@@ -40,9 +40,15 @@ class XSF:
             lines.append(f" {cell[i][0]:.14f} {cell[i][1]:.14f} {cell[i][2]:.14f}")
 
         cart_coords = self.structure.cart_coords
-        lines.extend(("# Cartesian coordinates in Angstrom.", "PRIMCOORD", f" {len(cart_coords)} 1"))
+        lines.extend(
+            (
+                "# Cartesian coordinates in Angstrom.",
+                "PRIMCOORD",
+                f" {len(cart_coords)} 1",
+            )
+        )
 
-        for site, coord in zip(self.structure, cart_coords, strict=False):
+        for site, coord in zip(self.structure, cart_coords, strict=True):
             sp = site.specie.symbol if atom_symbol else f"{site.specie.Z}"
             x, y, z = coord
             lines.append(f"{sp} {x:20.14f} {y:20.14f} {z:20.14f}")

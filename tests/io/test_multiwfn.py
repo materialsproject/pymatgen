@@ -24,7 +24,7 @@ base_dir = TEST_FILES_DIR / "io" / "multiwfn"
 def test_parse_single_cp():
     # Test that extract_info_from_cp_text behaves as expected with parse_cp
     # Also tests atom parsing
-    with open(base_dir / "cp_just_atom.txt") as file:
+    with open(base_dir / "cp_just_atom.txt", encoding="utf-8") as file:
         contents = file.readlines()
         name1, desc1 = parse_cp(contents)
 
@@ -46,7 +46,7 @@ def test_parse_single_cp():
         assert "connected_bond_paths" not in desc1
 
     # Test atom parsing with CP not associated with a known nucleus
-    with open(base_dir / "cp_unknown_atom.txt") as file:
+    with open(base_dir / "cp_unknown_atom.txt", encoding="utf-8") as file:
         contents = file.readlines()
         name, desc = parse_cp(contents)
 
@@ -59,7 +59,7 @@ def test_parse_single_cp():
         assert desc["spin_density"] == pytest.approx(0.0)
 
     # Test bond parsing
-    with open(base_dir / "cp_just_bond.txt") as file:
+    with open(base_dir / "cp_just_bond.txt", encoding="utf-8") as file:
         contents = file.readlines()
         name, desc = parse_cp(contents)
 
@@ -71,7 +71,7 @@ def test_parse_single_cp():
         assert desc["lap_e_density"] == pytest.approx(1278.89597)
 
     # Test ring parsing
-    with open(base_dir / "cp_just_ring.txt") as file:
+    with open(base_dir / "cp_just_ring.txt", encoding="utf-8") as file:
         contents = file.readlines()
         name, desc = parse_cp(contents)
 
@@ -88,7 +88,7 @@ def test_parse_single_cp():
         assert desc["esp_total"] == pytest.approx(96.1572999)
 
     # Test cage parsing
-    with open(base_dir / "cp_just_cage.txt") as file:
+    with open(base_dir / "cp_just_cage.txt", encoding="utf-8") as file:
         contents = file.readlines()
         name, desc = parse_cp(contents)
 
@@ -103,7 +103,7 @@ def test_parse_single_cp():
         assert desc["eta"] == pytest.approx(0.083769)
 
     # Test parsing with unknown/improper CP type
-    with open(base_dir / "cp_fake_type.txt") as file:
+    with open(base_dir / "cp_fake_type.txt", encoding="utf-8") as file:
         contents = file.readlines()
         name, desc = parse_cp(contents)
         assert name is None
@@ -194,7 +194,16 @@ def test_add_atoms():
     assert sorted(modified["bond"]["1_bond"]["atom_inds"]) == [3, 14]
 
     # Test that bonds and atoms are being connected reasonably to rings
-    assert sorted(modified["ring"]["13_ring"]["atom_inds"]) == [35, 36, 37, 38, 39, 40, 42, 46]
+    assert sorted(modified["ring"]["13_ring"]["atom_inds"]) == [
+        35,
+        36,
+        37,
+        38,
+        39,
+        40,
+        42,
+        46,
+    ]
     assert sorted(modified["ring"]["13_ring"]["bond_names"]) == [
         "11_bond",
         "23_bond",
@@ -206,7 +215,19 @@ def test_add_atoms():
     ]
 
     # Test that rings, bonds, and atoms are being connected reasonably to cages
-    assert sorted(modified["cage"]["67_cage"]["atom_inds"]) == [0, 20, 22, 23, 24, 25, 27, 50, 51, 52, 55]
+    assert sorted(modified["cage"]["67_cage"]["atom_inds"]) == [
+        0,
+        20,
+        22,
+        23,
+        24,
+        25,
+        27,
+        50,
+        51,
+        52,
+        55,
+    ]
     assert sorted(modified["cage"]["67_cage"]["bond_names"]) == [
         "100_bond",
         "121_bond",
@@ -230,7 +251,11 @@ def test_add_atoms():
         "94_bond",
         "95_bond",
     ]
-    assert sorted(modified["cage"]["67_cage"]["ring_names"]) == ["62_ring", "66_ring", "70_ring"]
+    assert sorted(modified["cage"]["67_cage"]["ring_names"]) == [
+        "62_ring",
+        "66_ring",
+        "70_ring",
+    ]
 
     # Test with QTAIM-defined bonds
     remapped_atoms, _ = map_atoms_cps(mol, separated["atom"])
@@ -266,7 +291,16 @@ def test_process_multiwfn_qtaim():
     # Checking that atom info has been added
     assert sorted(descriptors["bond"]["1_bond"]["atom_inds"]) == [3, 14]
 
-    assert sorted(descriptors["ring"]["13_ring"]["atom_inds"]) == [35, 36, 37, 38, 39, 40, 42, 46]
+    assert sorted(descriptors["ring"]["13_ring"]["atom_inds"]) == [
+        35,
+        36,
+        37,
+        38,
+        39,
+        40,
+        42,
+        46,
+    ]
     assert sorted(descriptors["ring"]["13_ring"]["bond_names"]) == [
         "11_bond",
         "23_bond",
@@ -276,7 +310,19 @@ def test_process_multiwfn_qtaim():
         "5_bond",
         "8_bond",
     ]
-    assert sorted(descriptors["cage"]["67_cage"]["atom_inds"]) == [0, 20, 22, 23, 24, 25, 27, 50, 51, 52, 55]
+    assert sorted(descriptors["cage"]["67_cage"]["atom_inds"]) == [
+        0,
+        20,
+        22,
+        23,
+        24,
+        25,
+        27,
+        50,
+        51,
+        52,
+        55,
+    ]
     assert sorted(descriptors["cage"]["67_cage"]["bond_names"]) == [
         "100_bond",
         "121_bond",
@@ -300,4 +346,8 @@ def test_process_multiwfn_qtaim():
         "94_bond",
         "95_bond",
     ]
-    assert sorted(descriptors["cage"]["67_cage"]["ring_names"]) == ["62_ring", "66_ring", "70_ring"]
+    assert sorted(descriptors["cage"]["67_cage"]["ring_names"]) == [
+        "62_ring",
+        "66_ring",
+        "70_ring",
+    ]

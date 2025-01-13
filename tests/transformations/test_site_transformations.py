@@ -245,7 +245,14 @@ class TestPartialRemoveSitesTransformation(TestCase):
 
     def test_as_from_dict(self):
         dct = PartialRemoveSitesTransformation([tuple(range(4))], [0.5]).as_dict()
-        assert {*dct} == {"@module", "@class", "@version", "algo", "indices", "fractions"}
+        assert {*dct} == {
+            "@module",
+            "@class",
+            "@version",
+            "algo",
+            "indices",
+            "fractions",
+        }
         trafo = PartialRemoveSitesTransformation.from_dict(dct)
         struct = trafo.apply_transformation(self.struct)
         assert struct.formula == "Li2 O4"
@@ -326,7 +333,7 @@ class TestRadialSiteDistortionTransformation(PymatgenTest):
 
         trafo = RadialSiteDistortionTransformation(0, 1, nn_only=True)
         struct = trafo.apply_transformation(self.structure)
-        for c1, c2 in zip(self.structure[1:7], struct[1:7], strict=False):
+        for c1, c2 in zip(self.structure[1:7], struct[1:7], strict=True):
             assert c1.distance(c2) == 1.0
 
         assert np.array_equal(struct[0].coords, [0, 0, 0])
@@ -340,5 +347,5 @@ class TestRadialSiteDistortionTransformation(PymatgenTest):
     def test_second_nn(self):
         trafo = RadialSiteDistortionTransformation(0, 1, nn_only=False)
         struct = trafo.apply_transformation(self.molecule)
-        for c1, c2 in zip(self.molecule[7:], struct[7:], strict=False):
+        for c1, c2 in zip(self.molecule[7:], struct[7:], strict=True):
             assert abs(round(sum(c2.coords - c1.coords), 2)) == 0.33

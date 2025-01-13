@@ -17,10 +17,7 @@ from pymatgen.io.zeopp import (
 )
 from pymatgen.util.testing import TEST_FILES_DIR, VASP_IN_DIR
 
-try:
-    import zeo
-except ImportError:
-    zeo = None
+pytest.importorskip("zeo", reason="zeo not installed")
 
 TEST_DIR = f"{TEST_FILES_DIR}/io/zeopp"
 
@@ -32,7 +29,6 @@ __email__ = "bkmedasani@lbl.gov"
 __date__ = "Aug 2, 2013"
 
 
-@pytest.mark.skipif(zeo is None, reason="zeo not present")
 class TestZeoCssr(TestCase):
     def setUp(self):
         filepath = f"{VASP_IN_DIR}/POSCAR"
@@ -75,7 +71,6 @@ class TestZeoCssr(TestCase):
         assert isinstance(zeo_cssr.structure, Structure)
 
 
-@pytest.mark.skipif(zeo is None, reason="zeo not present")
 class TestZeoCssrOxi(TestCase):
     def setUp(self):
         filepath = f"{VASP_IN_DIR}/POSCAR"
@@ -119,7 +114,6 @@ class TestZeoCssrOxi(TestCase):
         assert isinstance(zeocssr.structure, Structure)
 
 
-@pytest.mark.skipif(zeo is None, reason="zeo not present")
 class TestZeoVoronoiXYZ(TestCase):
     def setUp(self):
         coords = [
@@ -150,7 +144,6 @@ H -0.363000 -0.513360 0.889165 0.200000"""
         assert isinstance(voronoi.molecule, Molecule)
 
 
-@pytest.mark.skipif(zeo is None, reason="zeo not present")
 class TestGetVoronoiNodes(TestCase):
     def setUp(self):
         filepath = f"{VASP_IN_DIR}/POSCAR"
@@ -158,7 +151,7 @@ class TestGetVoronoiNodes(TestCase):
         bv = BVAnalyzer()
         valences = bv.get_valences(self.structure)
         el = [site.species_string for site in self.structure]
-        valence_dict = dict(zip(el, valences, strict=False))
+        valence_dict = dict(zip(el, valences, strict=True))
         self.rad_dict = {}
         for key, val in valence_dict.items():
             self.rad_dict[key] = float(Species(key, val).ionic_radius)
@@ -174,12 +167,19 @@ class TestGetVoronoiNodes(TestCase):
         assert isinstance(vor_face_center_struct, Structure)
 
 
-@unittest.skip("file free_sph.cif not present")
+@unittest.skip("TODO: file free_sph.cif not present")
 class TestGetFreeSphereParams(TestCase):
     def setUp(self):
         filepath = f"{TEST_FILES_DIR}/cif/free_sph.cif"
         self.structure = Structure.from_file(filepath)
-        self.rad_dict = {"Ge": 0.67, "P": 0.52, "S": 1.7, "La": 1.17, "Zr": 0.86, "O": 1.26}
+        self.rad_dict = {
+            "Ge": 0.67,
+            "P": 0.52,
+            "S": 1.7,
+            "La": 1.17,
+            "Zr": 0.86,
+            "O": 1.26,
+        }
 
     def test_get_free_sphere_params(self):
         free_sph_params = get_free_sphere_params(self.structure, rad_dict=self.rad_dict)
@@ -189,7 +189,6 @@ class TestGetFreeSphereParams(TestCase):
         assert free_sph_params["inc_sph_along_free_sph_path_max_dia"] == approx(2.58251, abs=1e-1)
 
 
-@pytest.mark.skipif(zeo is None, reason="zeo not present")
 class TestGetHighAccuracyVoronoiNodes(TestCase):
     def setUp(self):
         filepath = f"{VASP_IN_DIR}/POSCAR"
@@ -197,7 +196,7 @@ class TestGetHighAccuracyVoronoiNodes(TestCase):
         bv = BVAnalyzer()
         valences = bv.get_valences(self.structure)
         el = [site.species_string for site in self.structure]
-        valence_dict = dict(zip(el, valences, strict=False))
+        valence_dict = dict(zip(el, valences, strict=True))
         self.rad_dict = {}
         for key, val in valence_dict.items():
             self.rad_dict[key] = float(Species(key, val).ionic_radius)
@@ -209,7 +208,6 @@ class TestGetHighAccuracyVoronoiNodes(TestCase):
         assert isinstance(vor_node_struct, Structure)
 
 
-@pytest.mark.skipif(zeo is None, reason="zeo not present")
 class TestGetVoronoiNodesMultiOxi(TestCase):
     def setUp(self):
         filepath = f"{VASP_IN_DIR}/POSCAR"
@@ -223,7 +221,7 @@ class TestGetVoronoiNodesMultiOxi(TestCase):
             radius = Species(el, valence).ionic_radius
             radii.append(radius)
         el = [site.species_string for site in self.structure]
-        self.rad_dict = dict(zip(el, radii, strict=False))
+        self.rad_dict = dict(zip(el, radii, strict=True))
 
     def test_get_voronoi_nodes(self):
         vor_node_struct, vor_edge_center_struct, vor_face_center_struct = get_voronoi_nodes(

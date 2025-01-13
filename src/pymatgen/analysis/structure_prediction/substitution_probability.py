@@ -59,7 +59,7 @@ class SubstitutionProbability:
         else:
             module_dir = os.path.dirname(__file__)
             json_file = f"{module_dir}/data/lambda.json"
-            with open(json_file) as file:
+            with open(json_file, encoding="utf-8") as file:
                 self._lambda_table = json.load(file)
 
         # build map of specie pairs to lambdas
@@ -150,9 +150,10 @@ class SubstitutionProbability:
             The conditional probability (assuming these species are in
             l2)
         """
-        assert len(l1) == len(l2)
+        if len(l1) != len(l2):
+            raise ValueError("lengths of l1 and l2 mismatch.")
         p = 1
-        for s1, s2 in zip(l1, l2, strict=False):
+        for s1, s2 in zip(l1, l2, strict=True):
             p *= self.cond_prob(s1, s2)
         return p
 
@@ -231,9 +232,9 @@ class SubstitutionPredictor:
                 if len(output_species) == len(species):
                     odict = {"probability": functools.reduce(mul, best_case_prob)}
                     if to_this_composition:
-                        odict["substitutions"] = dict(zip(output_species, species, strict=False))
+                        odict["substitutions"] = dict(zip(output_species, species, strict=True))
                     else:
-                        odict["substitutions"] = dict(zip(species, output_species, strict=False))
+                        odict["substitutions"] = dict(zip(species, output_species, strict=True))
                     if len(output_species) == len(set(output_species)):
                         output.append(odict)
                     return

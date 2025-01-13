@@ -59,7 +59,7 @@ class OptimadeRester:
     # regenerate on-demand from official providers.json using OptimadeRester.refresh_aliases()
     # these aliases are provided as a convenient shortcut for users of the OptimadeRester class
     aliases: ClassVar[dict[str, str]] = {
-        "aflow": "http://aflow.org/API/optimade/",
+        "aflow": "https://aflow.org/API/optimade/",
         "alexandria": "https://alexandria.icams.rub.de/pbe",
         "alexandria.pbe": "https://alexandria.icams.rub.de/pbe",
         "alexandria.pbesol": "https://alexandria.icams.rub.de/pbesol",
@@ -82,18 +82,26 @@ class OptimadeRester:
         "odbx": "https://optimade.odbx.science",
         "odbx.odbx_misc": "https://optimade-misc.odbx.science",
         "odbx.gnome": "https://optimade-gnome.odbx.science",
-        "omdb.omdb_production": "http://optimade.openmaterialsdb.se",
-        "oqmd": "http://oqmd.org/optimade/",
+        "omdb.omdb_production": "https://optimade.openmaterialsdb.se",
+        "oqmd": "https://oqmd.org/optimade/",
         "jarvis": "https://jarvis.nist.gov/optimade/jarvisdft",
         "tcod": "https://www.crystallography.net/tcod/optimade",
         "twodmatpedia": "http://optimade.2dmatpedia.org",
     }
 
     # The set of OPTIMADE fields that are required to define a `pymatgen.core.Structure`
-    mandatory_response_fields = ("lattice_vectors", "cartesian_site_positions", "species", "species_at_sites")
+    mandatory_response_fields = (
+        "lattice_vectors",
+        "cartesian_site_positions",
+        "species",
+        "species_at_sites",
+    )
 
     def __init__(
-        self, aliases_or_resource_urls: str | list[str] | None = None, refresh_aliases: bool = False, timeout: int = 5
+        self,
+        aliases_or_resource_urls: str | list[str] | None = None,
+        refresh_aliases: bool = False,
+        timeout: int = 5,
     ):
         """OPTIMADE is an effort to provide a standardized interface to retrieve information
         from many different materials science databases.
@@ -342,7 +350,11 @@ class OptimadeRester:
 
                 structures = self._get_snls_from_resource(json, url, identifier)
 
-                pbar = tqdm(total=json["meta"].get("data_returned", 0), desc=identifier, initial=len(structures))
+                pbar = tqdm(
+                    total=json["meta"].get("data_returned", 0),
+                    desc=identifier,
+                    initial=len(structures),
+                )
 
                 # TODO: check spec for `more_data_available` boolean, may simplify this conditional
                 while next_link := json.get("links", {}).get("next"):
@@ -379,7 +391,7 @@ class OptimadeRester:
         def _get_comp(sp_dict):
             return {
                 _sanitize_symbol(symbol): conc
-                for symbol, conc in zip(sp_dict["chemical_symbols"], sp_dict["concentration"], strict=False)
+                for symbol, conc in zip(sp_dict["chemical_symbols"], sp_dict["concentration"], strict=True)
             }
 
         for data in json["data"]:
@@ -405,7 +417,13 @@ class OptimadeRester:
                 snl = StructureNL(
                     structure,
                     authors={},
-                    history=[{"name": identifier, "url": url, "description": {"id": data["id"]}}],
+                    history=[
+                        {
+                            "name": identifier,
+                            "url": url,
+                            "description": {"id": data["id"]},
+                        }
+                    ],
                     data={"_optimade": namespaced_data},
                 )
 
@@ -425,14 +443,26 @@ class OptimadeRester:
                     namespaced_data = {
                         k: v
                         for k, v in data["attributes"].items()
-                        if k.startswith("_") or k not in {"lattice_vectors", "species", "cartesian_site_positions"}
+                        if k.startswith("_")
+                        or k
+                        not in {
+                            "lattice_vectors",
+                            "species",
+                            "cartesian_site_positions",
+                        }
                     }
 
                     # TODO: follow `references` to add reference information here
                     snl = StructureNL(
                         structure,
                         authors={},
-                        history=[{"name": identifier, "url": url, "description": {"id": data["id"]}}],
+                        history=[
+                            {
+                                "name": identifier,
+                                "url": url,
+                                "description": {"id": data["id"]},
+                            }
+                        ],
                         data={"_optimade": namespaced_data},
                     )
 
@@ -443,7 +473,7 @@ class OptimadeRester:
                         exceptions.add(str(exc))
 
         if exceptions:
-            _logger.error(f'Failed to parse returned data for {url}: {", ".join(exceptions)}')
+            _logger.error(f"Failed to parse returned data for {url}: {', '.join(exceptions)}")
 
         return snls
 

@@ -24,7 +24,12 @@ __date__ = "2024-1-16"
 class Movement(MSONable):
     """Parser for data in MOVEMENT which records trajectory during MD."""
 
-    def __init__(self, filename: PathLike, ionic_step_skip: int | None = None, ionic_step_offset: int | None = None):
+    def __init__(
+        self,
+        filename: PathLike,
+        ionic_step_skip: int | None = None,
+        ionic_step_offset: int | None = None,
+    ):
         """Initialization function.
 
         Args:
@@ -130,7 +135,7 @@ class Movement(MSONable):
                 'atom_forces' and 'virial'.
         """
         ionic_steps: list[dict] = []
-        with zopen(self.filename, "rt") as mvt:
+        with zopen(self.filename, mode="rt", encoding="utf-8") as mvt:
             tmp_step: dict = {}
             for ii in range(self.n_ionic_steps):
                 tmp_chunk: str = ""
@@ -163,7 +168,7 @@ class OutFermi(MSONable):
             filename (PathLike): The absolute path of OUT.FERMI file.
         """
         self.filename: PathLike = filename
-        with zopen(self.filename, "rt") as file:
+        with zopen(self.filename, mode="rt", encoding="utf-8") as file:
             self._e_fermi: float = np.round(float(file.readline().split()[-2].strip()), 3)
 
     @property
@@ -251,8 +256,8 @@ class Report(MSONable):
         num_rows: int = int(self._num_kpts)
         content: str = "total number of K-point:"
         row_idx: int = LineLocator.locate_all_lines(self.filename, content)[0]
-        kpts: np.array = np.zeros((self._num_kpts, 3))
-        kpts_weight: np.array = np.zeros(self._num_kpts)
+        kpts: np.ndarray = np.zeros((self._num_kpts, 3))
+        kpts_weight: np.ndarray = np.zeros(self._num_kpts)
         hsps: dict[str, np.array] = {}
         for ii in range(num_rows):
             #  0.00000     0.00000    0.00000     0.03704           G
@@ -263,7 +268,13 @@ class Report(MSONable):
 
             if len(tmp_row_lst) == 5:
                 hsps |= {
-                    tmp_row_lst[4]: np.array([float(tmp_row_lst[0]), float(tmp_row_lst[1]), float(tmp_row_lst[2])])
+                    tmp_row_lst[4]: np.array(
+                        [
+                            float(tmp_row_lst[0]),
+                            float(tmp_row_lst[1]),
+                            float(tmp_row_lst[2]),
+                        ]
+                    )
                 }
         return kpts, kpts_weight, hsps
 
@@ -335,10 +346,10 @@ class DosSpin(MSONable):
         labels: list[str] = []
         labels = linecache.getline(str(self.filename), 1).split()[1:]
         dos_str: str = ""
-        with zopen(self.filename, mode="rt") as file:
+        with zopen(self.filename, mode="rt", encoding="utf-8") as file:
             file.readline()
             dos_str = file.read()
-        dos: np.array = np.loadtxt(StringIO(dos_str))
+        dos: np.ndarray = np.loadtxt(StringIO(dos_str))
         return labels, dos
 
     @property

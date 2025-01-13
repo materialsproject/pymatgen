@@ -35,7 +35,8 @@ class TestStrategyOptions(PymatgenTest):
 
         # CSMFloat
         with pytest.raises(
-            ValueError, match="Continuous symmetry measure limits should be between 0 and 100, got 100.1"
+            ValueError,
+            match="Continuous symmetry measure limits should be between 0 and 100, got 100.1",
         ):
             CSMFloat(100.1)
         csm1 = CSMFloat(0.458)
@@ -93,11 +94,13 @@ class TestStrategyOptions(PymatgenTest):
         assert simplest_strategy.additional_condition == 3
 
         with pytest.raises(
-            ValueError, match="Continuous symmetry measure limits should be between 0 and 100, got -0.1"
+            ValueError,
+            match="Continuous symmetry measure limits should be between 0 and 100, got -0.1",
         ):
             simplest_strategy.setup_options({"continuous_symmetry_measure_cutoff": -0.1})
 
         with pytest.raises(
-            ValueError, match="Continuous symmetry measure limits should be between 0 and 100, got 100.1"
+            ValueError,
+            match="Continuous symmetry measure limits should be between 0 and 100, got 100.1",
         ):
             simplest_strategy.setup_options({"continuous_symmetry_measure_cutoff": 100.1})

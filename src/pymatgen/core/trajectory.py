@@ -15,7 +15,6 @@ from monty.io import zopen
 from monty.json import MSONable
 
 from pymatgen.core.structure import Composition, DummySpecies, Element, Lattice, Molecule, Species, Structure
-from pymatgen.io.ase import AseAtomsAdaptor
 
 if TYPE_CHECKING:
     from collections.abc import Iterator
@@ -46,7 +45,7 @@ class Trajectory(MSONable):
         coords: list[list[Vector3D]] | np.ndarray | list[np.ndarray],
         charge: float | None = None,
         spin_multiplicity: float | None = None,
-        lattice: Lattice | Matrix3D | list[Lattice] | list[Matrix3D] | np.ndarray | None = None,
+        lattice: (Lattice | Matrix3D | list[Lattice] | list[Matrix3D] | np.ndarray | None) = None,
         *,
         site_properties: SitePropsType | None = None,
         frame_properties: list[dict] | None = None,
@@ -148,7 +147,8 @@ class Trajectory(MSONable):
                 self.lattice = np.tile(lattice, (len(coords), 1, 1))
                 warnings.warn(
                     "Get constant_lattice=False, but only get a single lattice. "
-                    "Use this single lattice as the lattice for all frames."
+                    "Use this single lattice as the lattice for all frames.",
+                    stacklevel=2,
                 )
             else:
                 self.lattice = lattice
@@ -162,7 +162,8 @@ class Trajectory(MSONable):
             if base_positions is None:
                 warnings.warn(
                     "Without providing an array of starting positions, the positions "
-                    "for each time step will not be available."
+                    "for each time step will not be available.",
+                    stacklevel=2,
                 )
             self.base_positions = base_positions
         else:
@@ -219,7 +220,7 @@ class Trajectory(MSONable):
                     charge=charge,
                     spin_multiplicity=spin,
                     site_properties=self._get_site_props(frames),  # type: ignore[arg-type]
-                    properties=None if self.frame_properties is None else self.frame_properties[frames],
+                    properties=(None if self.frame_properties is None else self.frame_properties[frames]),
                 )
 
             lattice = self.lattice if self.constant_lattice else self.lattice[frames]
@@ -229,7 +230,7 @@ class Trajectory(MSONable):
                 self.species,
                 self.coords[frames],
                 site_properties=self._get_site_props(frames),  # type: ignore[arg-type]
-                properties=None if self.frame_properties is None else self.frame_properties[frames],
+                properties=(None if self.frame_properties is None else self.frame_properties[frames]),
                 to_unit_cell=True,
             )
 
@@ -454,19 +455,19 @@ class Trajectory(MSONable):
                 _lattice = self.lattice if self.constant_lattice else self.lattice[idx]
 
                 for latt_vec in _lattice:
-                    lines.append(f'{" ".join(map(str, latt_vec))}')
+                    lines.append(f"{' '.join(map(str, latt_vec))}")
 
                 lines.extend((" ".join(site_symbols), " ".join(map(str, n_atoms))))
 
             lines.append(f"Direct configuration=     {idx + 1}")
 
-            for coord, specie in zip(coords, self.species, strict=False):
-                line = f'{" ".join(format_str.format(c) for c in coord)} {specie}'
+            for coord, specie in zip(coords, self.species, strict=True):
+                line = f"{' '.join(format_str.format(c) for c in coord)} {specie}"
                 lines.append(line)
 
         xdatcar_str = "\n".join(lines) + "\n"
 
-        with zopen(filename, mode="wt") as file:
+        with zopen(filename, mode="wt", encoding="utf-8") as file:
             file.write(xdatcar_str)
 
     def as_dict(self) -> dict:
@@ -580,9 +581,12 @@ class Trajectory(MSONable):
             try:
                 from ase.io.trajectory import Trajectory as AseTrajectory
 
+                from pymatgen.io.ase import AseAtomsAdaptor
+
                 ase_traj = AseTrajectory(filename)
                 # Periodic boundary conditions should be the same for all frames so just check the first
                 pbc = ase_traj[0].pbc
+
                 if any(pbc):
                     structures = [AseAtomsAdaptor.get_structure(atoms) for atoms in ase_traj]
                 else:
@@ -642,8 +646,10 @@ class Trajectory(MSONable):
             return prop1
 
         # General case
-        assert prop1 is None or isinstance(prop1, list | dict)
-        assert prop2 is None or isinstance(prop2, list | dict)
+        if prop1 is not None and not isinstance(prop1, list | dict):
+            raise ValueError(f"prop1 should be None, list or dict, got {type(prop1).__name__}.")
+        if prop2 is not None and not isinstance(prop2, list | dict):
+            raise ValueError(f"prop2 should be None, list or dict, got {type(prop2).__name__}.")
 
         p1_candidates: dict[str, Any] = {
             "NoneType": [None] * len1,

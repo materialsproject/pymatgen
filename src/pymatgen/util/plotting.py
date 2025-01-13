@@ -131,7 +131,15 @@ def pretty_plot_two_axis(
         fig.set_dpi(dpi)
     if isinstance(y1, dict):
         for idx, (key, val) in enumerate(y1.items()):
-            ax1.plot(x, val, c=c1, marker="s", ls=styles[idx % len(styles)], label=key, **plot_kwargs)
+            ax1.plot(
+                x,
+                val,
+                c=c1,
+                marker="s",
+                ls=styles[idx % len(styles)],
+                label=key,
+                **plot_kwargs,
+            )
         ax1.legend(fontsize=label_size)
     else:
         ax1.plot(x, y1, c=c1, marker="s", ls="-", **plot_kwargs)
@@ -174,7 +182,7 @@ def pretty_polyfit_plot(x: ArrayLike, y: ArrayLike, deg: int = 1, xlabel=None, y
         kwargs: Keyword args passed to pretty_plot.
 
     Returns:
-        matplotlib.pyplot object.
+        plt.Axes
     """
     ax = pretty_plot(**kwargs)
     pp = np.polyfit(x, y, deg)
@@ -444,7 +452,12 @@ def van_arkel_triangle(list_of_materials: Sequence, annotate: bool = True):
     pt1 = np.array([(Element("F").X + Element("Fr").X) / 2, abs(Element("F").X - Element("Fr").X)])
     # Cs-Fr has the lowest average X. We set this as our
     # bottom left corner of the triangle (most metallic)
-    pt2 = np.array([(Element("Cs").X + Element("Fr").X) / 2, abs(Element("Cs").X - Element("Fr").X)])
+    pt2 = np.array(
+        [
+            (Element("Cs").X + Element("Fr").X) / 2,
+            abs(Element("Cs").X - Element("Fr").X),
+        ]
+    )
     # O-F has the highest average X. We set this as our
     # bottom right corner of the triangle (most covalent)
     pt3 = np.array([(Element("O").X + Element("F").X) / 2, abs(Element("O").X - Element("F").X)])
@@ -676,7 +689,7 @@ def add_fig_kwargs(func):
             tags = ascii_letters
             if len(fig.axes) > len(tags):
                 tags = (1 + len(ascii_letters) // len(fig.axes)) * ascii_letters
-            for ax, tag in zip(fig.axes, tags, strict=False):
+            for ax, tag in zip(fig.axes, tags, strict=True):
                 ax.annotate(f"({tag})", xy=(0.05, 0.95), xycoords="axes fraction")
 
         if tight_layout:

@@ -9,8 +9,8 @@ Microporous and Mesoporous Materials, 149 (2012) 134-141.
 
 Zeo++ Installation Steps:
 ========================
-A stable version of Zeo++ can be obtained from http://zeoplusplus.org.
-Instructions can be found at http://www.zeoplusplus.org/download.html
+A stable version of Zeo++ can be obtained from https://zeoplusplus.org.
+Instructions can be found at https://www.zeoplusplus.org/download.html
 
 Zeo++ Post-Installation Checking:
 ==============================
@@ -146,7 +146,7 @@ class ZeoCssr(Cssr):
         Returns:
             ZeoCssr object.
         """
-        with zopen(filename, mode="r") as file:
+        with zopen(filename, mode="rt", encoding="utf-8") as file:
             return cls.from_str(file.read())
 
 
@@ -200,7 +200,7 @@ class ZeoVoronoiXYZ(XYZ):
         Returns:
             XYZ object
         """
-        with zopen(filename) as file:
+        with zopen(filename, mode="rt", encoding="utf-8") as file:
             return cls.from_str(file.read())
 
     def __str__(self) -> str:
@@ -208,7 +208,10 @@ class ZeoVoronoiXYZ(XYZ):
         prec = self.precision
         for site in self._mols[0]:
             x, y, z = site.coords
-            symbol, voronoi_radius = site.specie.symbol, site.properties["voronoi_radius"]
+            symbol, voronoi_radius = (
+                site.specie.symbol,
+                site.properties["voronoi_radius"],
+            )
             output.append(f"{symbol} {z:.{prec}f} {x:.{prec}f} {y:.{prec}f} {voronoi_radius:.{prec}f}")
         return "\n".join(output)
 

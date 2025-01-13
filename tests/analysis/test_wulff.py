@@ -23,7 +23,7 @@ TEST_DIR = f"{TEST_FILES_DIR}/analysis/wulff"
 
 class TestWulffShape(PymatgenTest):
     def setUp(self):
-        with open(f"{TEST_DIR}/surface_samples.json") as data_file:
+        with open(f"{TEST_DIR}/surface_samples.json", encoding="utf-8") as data_file:
             surface_properties = json.load(data_file)
 
         surface_energies, miller_indices = {}, {}
@@ -159,7 +159,11 @@ class TestWulffShape(PymatgenTest):
         # Simple test to check if the values of some
         # properties are consistent with what we already have
 
-        wulff_shapes = {"mp-8636": self.wulff_Nb, "mp-72": self.wulff_Ti, "mp-101": self.wulff_Ir}
+        wulff_shapes = {
+            "mp-8636": self.wulff_Nb,
+            "mp-72": self.wulff_Ti,
+            "mp-101": self.wulff_Ir,
+        }
         for mp_id, wulff in wulff_shapes.items():
             properties = self.surface_properties[mp_id]
             assert round(wulff.weighted_surface_energy, 3) == round(properties["weighted_surface_energy"], 3)

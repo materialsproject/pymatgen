@@ -139,7 +139,10 @@ class NwTask(MSONable):
         if NWCHEM_BASIS_LIBRARY is not None:
             for b in set(self.basis_set.values()):
                 if re.sub(r"\*", "s", b.lower()) not in NWCHEM_BASIS_LIBRARY:
-                    warnings.warn(f"Basis set {b} not in NWCHEM_BASIS_LIBRARY")
+                    warnings.warn(
+                        f"Basis set {b} not in NWCHEM_BASIS_LIBRARY",
+                        stacklevel=2,
+                    )
 
         self.basis_set_option = basis_set_option
 
@@ -391,7 +394,7 @@ class NwInput(MSONable):
         Args:
             filename (str): Filename.
         """
-        with zopen(filename, mode="w") as file:
+        with zopen(filename, mode="wt", encoding="utf-8") as file:
             file.write(str(self))
 
     def as_dict(self):
@@ -531,7 +534,7 @@ class NwInput(MSONable):
         Returns:
             NwInput object
         """
-        with zopen(filename) as file:
+        with zopen(filename, mode="rt", encoding="utf-8") as file:
             return cls.from_str(file.read())
 
 
@@ -554,7 +557,7 @@ class NwOutput:
         """
         self.filename = filename
 
-        with zopen(filename) as file:
+        with zopen(filename, mode="rt", encoding="utf-8") as file:
             data = file.read()
 
         chunks = re.split(r"NWChem Input Module", data)
@@ -767,7 +770,7 @@ class NwOutput:
                 else:
                     vibs = [float(vib) for vib in line.strip().split()[1:]]
                     n_vibs = len(vibs)
-                    for mode, dis in zip(normal_frequencies[-n_vibs:], vibs, strict=False):
+                    for mode, dis in zip(normal_frequencies[-n_vibs:], vibs, strict=True):
                         mode[1].append(dis)
 
             elif parse_projected_freq:
@@ -778,7 +781,7 @@ class NwOutput:
                 else:
                     vibs = [float(vib) for vib in line.strip().split()[1:]]
                     n_vibs = len(vibs)
-                    for mode, dis in zip(frequencies[-n_vibs:], vibs, strict=False):
+                    for mode, dis in zip(frequencies[-n_vibs:], vibs, strict=True):
                         mode[1].append(dis)
 
             elif parse_bset:
@@ -787,7 +790,7 @@ class NwOutput:
                 else:
                     tokens = line.split()
                     if tokens[0] != "Tag" and not re.match(r"-+", tokens[0]):
-                        basis_set[tokens[0]] = dict(zip(bset_header[1:], tokens[1:], strict=False))
+                        basis_set[tokens[0]] = dict(zip(bset_header[1:], tokens[1:], strict=True))
                     elif tokens[0] == "Tag":
                         bset_header = tokens
                         bset_header.pop(4)
@@ -895,10 +898,10 @@ class NwOutput:
 
         if frequencies:
             for _freq, mode in frequencies:
-                mode[:] = zip(*[iter(mode)] * 3, strict=False)
+                mode[:] = zip(*[iter(mode)] * 3, strict=True)
         if normal_frequencies:
             for _freq, mode in normal_frequencies:
-                mode[:] = zip(*[iter(mode)] * 3, strict=False)
+                mode[:] = zip(*[iter(mode)] * 3, strict=True)
         if hessian:
             len_hess = len(hessian)
             for ii in range(len_hess):

@@ -12,7 +12,7 @@ from pymatgen.util.testing import TEST_FILES_DIR
 TEST_DIR = f"{TEST_FILES_DIR}/io/cp2k"
 
 
-class TestSet(TestCase):
+class TestCp2kOutput(TestCase):
     def setUp(self):
         self.out = Cp2kOutput(f"{TEST_DIR}/cp2k.out", auto_load=True)
 
@@ -39,7 +39,11 @@ class TestSet(TestCase):
         """Can get energy and forces."""
         assert self.out.final_energy == -197.40000341992783
         assert_allclose(
-            self.out.data["forces"][0], [[-0.00000001, -0.00000001, -0.00000001], [0.00000002, 0.00000002, 0.00000002]]
+            self.out.data["forces"][0],
+            [
+                [-0.00000001, -0.00000001, -0.00000001],
+                [0.00000002, 0.00000002, 0.00000002],
+            ],
         )
 
     def test_band(self):
@@ -62,16 +66,28 @@ class TestSet(TestCase):
         assert self.out.data["ANISO"][0] == approx(0.1498)
         assert_allclose(
             self.out.data["chi_soft"][0],
-            [[5.9508, -1.6579, -1.6579], [-1.6579, 5.9508, -1.6579], [-1.6579, -1.6579, 5.9508]],
+            [
+                [5.9508, -1.6579, -1.6579],
+                [-1.6579, 5.9508, -1.6579],
+                [-1.6579, -1.6579, 5.9508],
+            ],
         )
         assert_allclose(self.out.data["chi_local"][0], np.zeros((3, 3)))
         assert_allclose(
             self.out.data["chi_total"][0],
-            [[5.9508, -1.6579, -1.6579], [-1.6579, 5.9508, -1.6579], [-1.6579, -1.6579, 5.9508]],
+            [
+                [5.9508, -1.6579, -1.6579],
+                [-1.6579, 5.9508, -1.6579],
+                [-1.6579, -1.6579, 5.9508],
+            ],
         )
         assert_allclose(
             self.out.data["chi_total_ppm_cgs"][0],
-            [[0.3584, -0.0998, -0.0998], [-0.0998, 0.3584, -0.0998], [-0.0998, -0.0998, 0.3584]],
+            [
+                [0.3584, -0.0998, -0.0998],
+                [-0.0998, 0.3584, -0.0998],
+                [-0.0998, -0.0998, 0.3584],
+            ],
         )
 
     def test_gtensor(self):
@@ -82,11 +98,19 @@ class TestSet(TestCase):
         assert_allclose(self.out.data["gmatrix_soo"][0], np.zeros((3, 3)))
         assert_allclose(
             self.out.data["gmatrix_total"][0],
-            [[2.0023193044, 0.0, 0.0], [0.0, 2.0023193044, 0.0], [0.0, 0.0, 2.0023193044]],
+            [
+                [2.0023193044, 0.0, 0.0],
+                [0.0, 2.0023193044, 0.0],
+                [0.0, 0.0, 2.0023193044],
+            ],
         )
         assert_allclose(
             self.out.data["gtensor_total"][0],
-            [[2.0023193044, 0.0, 0.0], [0.0, 2.0023193044, 0.0], [0.0, 0.0, 2.0023193044]],
+            [
+                [2.0023193044, 0.0, 0.0],
+                [0.0, 2.0023193044, 0.0],
+                [0.0, 0.0, 2.0023193044],
+            ],
         )
         assert_allclose(
             self.out.data["delta_g"][0],

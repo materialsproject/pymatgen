@@ -98,9 +98,9 @@ class T(NamedTuple):
 
 
 _tolerances = {
-    "toldfe": T(1.0e-7, 1.0e-8, 1.0e-9),
-    "tolvrs": T(1.0e-7, 1.0e-8, 1.0e-9),
-    "tolwfr": T(1.0e-15, 1.0e-17, 1.0e-19),
+    "toldfe": T(1e-7, 1e-8, 1e-9),
+    "tolvrs": T(1e-7, 1e-8, 1e-9),
+    "tolwfr": T(1e-15, 1e-17, 1e-19),
     "tolrff": T(0.04, 0.02, 0.01),
 }
 del T
@@ -617,7 +617,7 @@ class AbstractInput(MutableMapping, abc.ABC):
         os.makedirs(dirname, exist_ok=True)
 
         # Write the input file.
-        with open(filepath, mode="w") as file:
+        with open(filepath, mode="w", encoding="utf-8") as file:
             file.write(str(self))
 
     def deepcopy(self):
@@ -1035,7 +1035,13 @@ class BasicMultiDataset:
 
     Error = BasicAbinitInputError
 
-    def __init__(self, structure: Structure | Sequence[Structure], pseudos, pseudo_dir="", ndtset=1):
+    def __init__(
+        self,
+        structure: Structure | Sequence[Structure],
+        pseudos,
+        pseudo_dir="",
+        ndtset=1,
+    ):
         """
         Args:
             structure: file with the structure, |Structure| object or dictionary with ABINIT geo variable
@@ -1069,16 +1075,17 @@ class BasicMultiDataset:
             raise ValueError(f"{ndtset=} cannot be <=0")
 
         if not isinstance(structure, list | tuple):
-            self._inputs = [BasicAbinitInput(structure=structure, pseudos=pseudos) for i in range(ndtset)]
+            self._inputs = [BasicAbinitInput(structure=structure, pseudos=pseudos) for _ in range(ndtset)]
         else:
-            assert len(structure) == ndtset
+            if len(structure) != ndtset:
+                raise ValueError("length of structure is not equal to ndtset")
             self._inputs = [BasicAbinitInput(structure=s, pseudos=pseudos) for s in structure]
 
     @classmethod
     def from_inputs(cls, inputs: list[BasicAbinitInput]) -> Self:
         """Construct a multidataset from a list of BasicAbinitInputs."""
         for inp in inputs:
-            if any(p1 != p2 for p1, p2 in zip(inputs[0].pseudos, inp.pseudos, strict=False)):
+            if any(p1 != p2 for p1, p2 in zip(inputs[0].pseudos, inp.pseudos, strict=True)):
                 raise ValueError("Pseudos must be consistent when from_inputs is invoked.")
 
         # Build BasicMultiDataset from input structures and pseudos and add inputs.
@@ -1089,7 +1096,7 @@ class BasicMultiDataset:
         )
 
         # Add variables
-        for inp, new_inp in zip(inputs, multi, strict=False):
+        for inp, new_inp in zip(inputs, multi, strict=True):
             new_inp.set_vars(**inp)
 
         return multi
@@ -1161,11 +1168,11 @@ class BasicMultiDataset:
     def __add__(self, other):
         """Self + other."""
         if isinstance(other, BasicAbinitInput):
-            new_mds = BasicMultiDataset.from_inputs(self)
+            new_mds = type(self).from_inputs(self)
             new_mds.append(other)
             return new_mds
-        if isinstance(other, BasicMultiDataset):
-            new_mds = BasicMultiDataset.from_inputs(self)
+        if isinstance(other, type(self)):
+            new_mds = type(self).from_inputs(self)
             new_mds.extend(other)
             return new_mds
 
@@ -1173,26 +1180,28 @@ class BasicMultiDataset:
 
     def __radd__(self, other):
         if isinstance(other, BasicAbinitInput):
-            new_mds = BasicMultiDataset.from_inputs([other])
+            new_mds = type(self).from_inputs([other])
             new_mds.extend(self)
-        elif isinstance(other, BasicMultiDataset):
-            new_mds = BasicMultiDataset.from_inputs(other)
+        elif isinstance(other, type(self)):
+            new_mds = type(self).from_inputs(other)
             new_mds.extend(self)
         else:
             raise NotImplementedError("Operation not supported")
 
     def append(self, abinit_input):
         """Add a BasicAbinitInput to the list."""
-        assert isinstance(abinit_input, BasicAbinitInput)
-        if any(p1 != p2 for p1, p2 in zip(abinit_input.pseudos, abinit_input.pseudos, strict=False)):
+        if not isinstance(abinit_input, BasicAbinitInput):
+            raise TypeError(f"abinit_input should be instance of BasicAbinitInput, got {type(abinit_input).__name__}")
+        if any(p1 != p2 for p1, p2 in zip(abinit_input.pseudos, abinit_input.pseudos, strict=True)):
             raise ValueError("Pseudos must be consistent when from_inputs is invoked.")
         self._inputs.append(abinit_input)
 
     def extend(self, abinit_inputs):
         """Extends self with a list of BasicAbinitInputs."""
-        assert all(isinstance(inp, BasicAbinitInput) for inp in abinit_inputs)
+        if any(not isinstance(inp, BasicAbinitInput) for inp in abinit_inputs):
+            raise TypeError("All obj in abinit_inputs should be instance of BasicAbinitInput")
         for inp in abinit_inputs:
-            if any(p1 != p2 for p1, p2 in zip(self[0].pseudos, inp.pseudos, strict=False)):
+            if any(p1 != p2 for p1, p2 in zip(self[0].pseudos, inp.pseudos, strict=True)):
                 raise ValueError("Pseudos must be consistent when from_inputs is invoked.")
         self._inputs.extend(abinit_inputs)
 

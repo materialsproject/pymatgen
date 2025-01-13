@@ -38,7 +38,7 @@ class TestChemicalPotentialDiagram(PymatgenTest):
 
         elems = [Element("Li"), Element("Fe"), Element("O")]
         energies = [-1.91301487, -6.5961471, -25.54966885]
-        correct_el_refs = dict(zip(elems, energies, strict=False))
+        correct_el_refs = dict(zip(elems, energies, strict=True))
 
         assert el_refs == approx(correct_el_refs)
 
@@ -46,12 +46,19 @@ class TestChemicalPotentialDiagram(PymatgenTest):
         el_refs = {elem: entry.energy for elem, entry in self.cpd_ternary_formal.el_refs.items()}
         elems = [Element("Li"), Element("Fe"), Element("O")]
         energies = [0, 0, 0]
-        correct_el_refs = dict(zip(elems, energies, strict=False))
+        correct_el_refs = dict(zip(elems, energies, strict=True))
         assert el_refs == approx(correct_el_refs)
 
     def test_border_hyperplanes(self):
         desired = np.array(
-            [[-1, 0, 0, -25], [1, 0, 0, 0], [0, -1, 0, -25], [0, 1, 0, 0], [0, 0, -1, -25], [0, 0, 1, 0]]
+            [
+                [-1, 0, 0, -25],
+                [1, 0, 0, 0],
+                [0, -1, 0, -25],
+                [0, 1, 0, 0],
+                [0, 0, -1, -25],
+                [0, 0, 1, 0],
+            ]
         )
         assert self.cpd_ternary.border_hyperplanes == approx(desired)
         assert self.cpd_ternary_formal.border_hyperplanes == approx(desired)

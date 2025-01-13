@@ -8,17 +8,17 @@ from pymatgen.util.testing import PymatgenTest
 
 try:
     # 403 is returned when server detects bot-like behavior
-    website_down = requests.get(OptimadeRester.aliases["mp"], timeout=60).status_code not in (200, 403)
+    mp_website_down = requests.get(OptimadeRester.aliases["mp"], timeout=60).status_code not in (200, 403)
 except requests.exceptions.ConnectionError:
-    website_down = True
+    mp_website_down = True
 
 try:
-    optimade_providers_down = requests.get("https://providers.optimade.org", timeout=600).status_code not in (200, 403)
+    optimade_providers_down = requests.get("https://providers.optimade.org", timeout=60).status_code not in (200, 403)
 except requests.exceptions.ConnectionError:
     optimade_providers_down = True
 
 try:
-    mc3d_down = requests.get(OptimadeRester.aliases["mcloud.mc3d"] + "/v1/info", timeout=600).status_code not in (
+    mc3d_down = requests.get(OptimadeRester.aliases["mcloud.mc3d"] + "/v1/info", timeout=60).status_code not in (
         200,
         403,
         301,
@@ -27,7 +27,7 @@ except requests.exceptions.ConnectionError:
     mc3d_down = True
 
 try:
-    mc2d_down = requests.get(OptimadeRester.aliases["mcloud.mc2d"] + "/v1/info", timeout=600).status_code not in (
+    mc2d_down = requests.get(OptimadeRester.aliases["mcloud.mc2d"] + "/v1/info", timeout=60).status_code not in (
         200,
         403,
         301,
@@ -37,7 +37,7 @@ except requests.exceptions.ConnectionError:
 
 
 class TestOptimade(PymatgenTest):
-    @pytest.mark.skipif(website_down, reason="MP OPTIMADE is down.")
+    @pytest.mark.skipif(mp_website_down, reason="MP OPTIMADE is down.")
     def test_get_structures_mp(self):
         with OptimadeRester("mp") as optimade:
             structs = optimade.get_structures(elements=["Ga", "N"], nelements=2)
@@ -51,11 +51,11 @@ class TestOptimade(PymatgenTest):
                 test_struct = next(iter(structs["mp"].values()))
                 assert [str(el) for el in test_struct.types_of_species] == ["Ga", "N"]
 
-                assert len(structs["mp"]) == len(
-                    raw_filter_structs["mp"]
-                ), f"Raw filter {_filter} did not return the same number of results as the query builder."
+                assert len(structs["mp"]) == len(raw_filter_structs["mp"]), (
+                    f"Raw filter {_filter} did not return the same number of results as the query builder."
+                )
 
-    @pytest.mark.skipif(website_down, reason="MP OPTIMADE is down.")
+    @pytest.mark.skipif(mp_website_down, reason="MP OPTIMADE is down.")
     def test_get_snls_mp(self):
         base_query = dict(elements=["Ga", "N"], nelements=2, nsites=[2, 6])
         with OptimadeRester("mp") as optimade:

@@ -39,7 +39,7 @@ class TransformedStructure(MSONable):
     def __init__(
         self,
         structure: Structure,
-        transformations: AbstractTransformation | Sequence[AbstractTransformation] | None = None,
+        transformations: (AbstractTransformation | Sequence[AbstractTransformation] | None) = None,
         history: list[AbstractTransformation | dict[str, Any]] | None = None,
         other_parameters: dict[str, Any] | None = None,
     ) -> None:
@@ -47,7 +47,7 @@ class TransformedStructure(MSONable):
 
         Args:
             structure (Structure): Input structure
-            transformations (list[Transformation]): List of transformations to apply.
+            transformations (list[Transformation]): Transformations to apply.
             history (list[Transformation]): Previous history.
             other_parameters (dict): Additional parameters to be added.
         """
@@ -192,7 +192,7 @@ class TransformedStructure(MSONable):
                 to create VASP input files from structures
             **kwargs: All keyword args supported by the VASP input set.
         """
-        dct = vasp_input_set(self.final_structure, **kwargs).get_vasp_input()
+        dct = vasp_input_set(self.final_structure, **kwargs).get_input_set()
         dct["transformations.json"] = json.dumps(self.as_dict())
         return dct
 
@@ -355,14 +355,14 @@ class TransformedStructure(MSONable):
         """Generate a StructureNL from TransformedStructure.
 
         Args:
-            authors (List[str]): List of authors contributing to the generated StructureNL.
+            authors (List[str]): Authors contributing to the generated StructureNL.
             **kwargs (Any): All kwargs supported by StructureNL.
 
         Returns:
             StructureNL: The generated StructureNL object.
         """
         if self.other_parameters:
-            warn("Data in TransformedStructure.other_parameters discarded during type conversion to SNL")
+            warn("Data in TransformedStructure.other_parameters discarded during type conversion to SNL", stacklevel=2)
         history = []
         for hist in self.history:
             snl_metadata = hist.pop("_snl", {})

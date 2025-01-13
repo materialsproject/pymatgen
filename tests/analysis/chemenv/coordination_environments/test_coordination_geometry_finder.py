@@ -1,10 +1,17 @@
 from __future__ import annotations
 
+import json
+import os
+
 import numpy as np
 import pytest
 from numpy.testing import assert_allclose
 from pytest import approx
 
+from pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies import (
+    SimpleAbundanceChemenvStrategy,
+    SimplestChemenvStrategy,
+)
 from pymatgen.analysis.chemenv.coordination_environments.coordination_geometries import AllCoordinationGeometries
 from pymatgen.analysis.chemenv.coordination_environments.coordination_geometry_finder import (
     AbstractGeometry,
@@ -27,7 +34,7 @@ class TestCoordinationGeometryFinder(PymatgenTest):
             structure_refinement=self.lgf.STRUCTURE_REFINEMENT_NONE,
         )
 
-    #     self.strategies = [SimplestChemenvStrategy(), SimpleAbundanceChemenvStrategy()]
+    # self.strategies = [SimplestChemenvStrategy(), SimpleAbundanceChemenvStrategy()]
 
     def test_abstract_geometry(self):
         cg_ts3 = self.lgf.allcg["TS:3"]
@@ -99,7 +106,11 @@ class TestCoordinationGeometryFinder(PymatgenTest):
         ]
 
         # test to check that one can pass voronoi_distance_cutoff
-        struct = Structure(Lattice.cubic(25), ["O", "C", "O"], [[0.0, 0.0, 0.0], [0.0, 0.0, 1.17], [0.0, 0.0, 2.34]])
+        struct = Structure(
+            Lattice.cubic(25),
+            ["O", "C", "O"],
+            [[0.0, 0.0, 0.0], [0.0, 0.0, 1.17], [0.0, 0.0, 2.34]],
+        )
         self.lgf.setup_structure(structure=struct)
         self.lgf.compute_structure_environments(voronoi_distance_cutoff=25)
 
@@ -113,49 +124,57 @@ class TestCoordinationGeometryFinder(PymatgenTest):
         result = self.lgf.coordination_geometry_symmetry_measures_fallback_random(
             coordination_geometry=cg_tet, n_random=5, points_perfect=points_perfect_tet
         )
-        permutations_symmetry_measures, _permutations, _algos, _local2perfect_maps, _perfect2local_maps = result
+        (
+            permutations_symmetry_measures,
+            _permutations,
+            _algos,
+            _local2perfect_maps,
+            _perfect2local_maps,
+        ) = result
         for perm_csm_dict in permutations_symmetry_measures:
             assert perm_csm_dict["symmetry_measure"] == approx(0.140355832317)
 
-    # def _strategy_test(self, strategy):
-    #     files = []
-    #     for _dirpath, _dirnames, filenames in os.walk(json_dir):
-    #         files.extend(filenames)
-    #         break
+    def _strategy_test(self, strategy):
+        files = []
+        for _dirpath, _dirnames, filenames in os.walk(json_dir):
+            files.extend(filenames)
+            break
 
-    #     for _ifile, json_file in enumerate(files):
-    #         with self.subTest(json_file=json_file):
-    #             with open(f"{json_dir}/{json_file}") as file:
-    #                 dct = json.load(file)
+        for json_file in files:
+            with self.subTest(json_file=json_file):
+                with open(f"{json_dir}/{json_file}", encoding="utf-8") as file:
+                    dct = json.load(file)
 
-    #             atom_indices = dct["atom_indices"]
-    #             expected_geoms = dct["expected_geoms"]
+                atom_indices = dct["atom_indices"]
+                expected_geoms = dct["expected_geoms"]
 
-    #             struct = Structure.from_dict(dct["structure"])
+                struct = Structure.from_dict(dct["structure"])
 
-    #             struct = self.lgf.setup_structure(struct)
-    #             se = self.lgf.compute_structure_environments_detailed_voronoi(
-    #                 only_indices=atom_indices, maximum_distance_factor=1.5
-    #             )
+                struct = self.lgf.setup_structure(struct)
+                se = self.lgf.compute_structure_environments_detailed_voronoi(
+                    only_indices=atom_indices, maximum_distance_factor=1.5
+                )
 
-    #             # All strategies should get the correct environment with their default parameters
-    #             strategy.set_structure_environments(se)
-    #             for ienv, isite in enumerate(atom_indices):
-    #                 ce = strategy.get_site_coordination_environment(struct[isite])
-    #                 try:
-    #                     coord_env = ce[0]
-    #                 except TypeError:
-    #                     coord_env = ce
-    #                 # Check that the environment found is the expected one
-    #                 assert coord_env == expected_geoms[ienv]
+                # All strategies should get the correct environment with their default parameters
+                strategy.set_structure_environments(se)
+                for ienv, isite in enumerate(atom_indices):
+                    ce = strategy.get_site_coordination_environment(struct[isite])
+                    try:
+                        coord_env = ce[0]
+                    except TypeError:
+                        coord_env = ce
+                    # Check that the environment found is the expected one
+                    assert coord_env == expected_geoms[ienv]
 
-    # def test_simplest_chemenv_strategy(self):
-    #     strategy = SimplestChemenvStrategy()
-    #     self._strategy_test(strategy)
+    @pytest.mark.skip("TODO: need someone to fix this")
+    def test_simplest_chemenv_strategy(self):
+        strategy = SimplestChemenvStrategy()
+        self._strategy_test(strategy)
 
-    # def test_simple_abundance_chemenv_strategy(self):
-    #     strategy = SimpleAbundanceChemenvStrategy()
-    #     self._strategy_test(strategy)
+    @pytest.mark.skip("TODO: need someone to fix this")
+    def test_simple_abundance_chemenv_strategy(self):
+        strategy = SimpleAbundanceChemenvStrategy()
+        self._strategy_test(strategy)
 
     def test_perfect_environments(self):
         allcg = AllCoordinationGeometries()
@@ -195,9 +214,9 @@ class TestCoordinationGeometryFinder(PymatgenTest):
                     max_cn=cg.coordination_number,
                     only_symbols=[mp_symbol],
                 )
-                assert (
-                    abs(se.get_csm(0, mp_symbol)["symmetry_measure"] - 0.0) < 1e-8
-                ), f"Failed to get perfect environment with {mp_symbol=}"
+                assert abs(se.get_csm(0, mp_symbol)["symmetry_measure"] - 0.0) < 1e-8, (
+                    f"Failed to get perfect environment with {mp_symbol=}"
+                )
 
     def test_disable_hints(self):
         allcg = AllCoordinationGeometries()

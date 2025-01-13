@@ -57,7 +57,7 @@ class Cssr:
         Args:
             filename (str): Filename to write to.
         """
-        with zopen(filename, mode="wt") as file:
+        with zopen(filename, mode="wt", encoding="utf-8") as file:
             file.write(str(self) + "\n")
 
     @classmethod
@@ -79,7 +79,10 @@ class Cssr:
         lattice = Lattice.from_parameters(*lengths, *angles)
         sp, coords = [], []
         for line in lines[4:]:
-            if match := re.match(r"\d+\s+(\w+)\s+([0-9\-\.]+)\s+([0-9\-\.]+)\s+([0-9\-\.]+)", line.strip()):
+            if match := re.match(
+                r"\d+\s+(\w+)\s+([0-9\-\.]+)\s+([0-9\-\.]+)\s+([0-9\-\.]+)",
+                line.strip(),
+            ):
                 sp.append(match[1])
                 coords.append([float(match[i]) for i in range(2, 5)])
         return cls(Structure(lattice, sp, coords))
@@ -95,5 +98,5 @@ class Cssr:
         Returns:
             Cssr object.
         """
-        with zopen(filename, mode="rt") as file:
+        with zopen(filename, mode="rt", encoding="utf-8") as file:
             return cls.from_str(file.read())

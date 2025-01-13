@@ -13,19 +13,19 @@ from monty.dev import requires
 from monty.serialization import dumpfn, loadfn
 from ruamel import yaml
 
-from pymatgen.core import Element, get_el_sp
+from pymatgen.core import PKG_DIR, Element, get_el_sp
 
 try:
     from bs4 import BeautifulSoup
 except ImportError:
     BeautifulSoup = None
 
-ptable_yaml_path = "periodic_table.yaml"
+PTABLE_YAML_PATH = "periodic_table.yaml"
 
 
 def parse_oxi_state():
-    data = loadfn(ptable_yaml_path)
-    with open("oxidation_states.txt") as file:
+    data = loadfn(PTABLE_YAML_PATH)
+    with open("oxidation_states.txt", encoding="utf-8") as file:
         oxi_data = file.read()
     oxi_data = re.sub("[\n\r]", "", oxi_data)
     patt = re.compile("<tr>(.*?)</tr>", re.MULTILINE)
@@ -57,13 +57,13 @@ def parse_oxi_state():
             data[el]["Common oxidation states"] = common_oxi
         else:
             print(el)
-    with open("periodic_table2.yaml", mode="w") as file:
+    with open("periodic_table2.yaml", mode="w", encoding="utf-8") as file:
         yaml.dump(data, file)
 
 
 def parse_ionic_radii():
-    data = loadfn(ptable_yaml_path)
-    with open("ionic_radii.csv") as file:
+    data = loadfn(PTABLE_YAML_PATH)
+    with open("ionic_radii.csv", encoding="utf-8") as file:
         radii_data = file.read()
     radii_data = radii_data.split("\r")
     header = radii_data[0].split(",")
@@ -87,13 +87,13 @@ def parse_ionic_radii():
                 data[el]["Ionic_radii"] = ionic_radii
         else:
             print(el)
-    with open("periodic_table2.yaml", mode="w") as file:
+    with open("periodic_table2.yaml", mode="w", encoding="utf-8") as file:
         yaml.dump(data, file)
 
 
 def parse_radii():
-    data = loadfn(ptable_yaml_path)
-    with open("radii.csv") as file:
+    data = loadfn(PTABLE_YAML_PATH)
+    with open("radii.csv", encoding="utf-8") as file:
         radii_data = file.read()
     radii_data = radii_data.split("\r")
 
@@ -121,14 +121,14 @@ def parse_radii():
             data[el]["Van der waals radius"] = vdw_radii
         else:
             print(el)
-    with open("periodic_table2.yaml", mode="w") as file:
+    with open("periodic_table2.yaml", mode="w", encoding="utf-8") as file:
         yaml.dump(data, file)
-    with open("../pymatgen/core/periodic_table.json", mode="w") as file:
+    with open(f"{PKG_DIR}/core/periodic_table.json", mode="w", encoding="utf-8") as file:
         json.dump(data, file)
 
 
 def update_ionic_radii():
-    data = loadfn(ptable_yaml_path)
+    data = loadfn(PTABLE_YAML_PATH)
 
     for dct in data.values():
         if "Ionic_radii" in dct:
@@ -140,14 +140,14 @@ def update_ionic_radii():
         if "Ionic_radii_ls" in dct:
             dct["Ionic radii ls"] = {k: v / 100 for k, v in dct["Ionic_radii_ls"].items()}
             del dct["Ionic_radii_ls"]
-    with open("periodic_table2.yaml", mode="w") as file:
+    with open("periodic_table2.yaml", mode="w", encoding="utf-8") as file:
         yaml.dump(data, file)
-    with open("../pymatgen/core/periodic_table.json", mode="w") as file:
+    with open(f"{PKG_DIR}/core/periodic_table.json", mode="w", encoding="utf-8") as file:
         json.dump(data, file)
 
 
 def parse_shannon_radii():
-    data = loadfn(ptable_yaml_path)
+    data = loadfn(PTABLE_YAML_PATH)
 
     from openpyxl import load_workbook
 
@@ -179,20 +179,20 @@ def parse_shannon_radii():
         if el in data:
             data[el]["Shannon radii"] = dict(radii[el])
 
-    dumpfn(data, ptable_yaml_path)
-    with open("../pymatgen/core/periodic_table.json", mode="w") as file:
+    dumpfn(data, PTABLE_YAML_PATH)
+    with open(f"{PKG_DIR}/core/periodic_table.json", mode="w", encoding="utf-8") as file:
         json.dump(data, file)
 
 
 def gen_periodic_table():
-    data = loadfn(ptable_yaml_path)
+    data = loadfn(PTABLE_YAML_PATH)
 
-    with open("../pymatgen/core/periodic_table.json", mode="w") as file:
+    with open(f"{PKG_DIR}/core/periodic_table.json", mode="w", encoding="utf-8") as file:
         json.dump(data, file)
 
 
 def gen_iupac_ordering():
-    periodic_table = loadfn("../pymatgen/core/periodic_table.json")
+    periodic_table = loadfn(f"{PKG_DIR}/core/periodic_table.json")
     order = [
         ([18], range(6, 0, -1)),  # noble gasses
         ([1], range(7, 1, -1)),  # alkali metals
@@ -217,16 +217,20 @@ def gen_iupac_ordering():
         ([17], range(6, 1, -1)),
     ]  # At -> F
 
-    order = sum((list(product(x, y)) for x, y in order), [])  # noqa: RUF017
+    order = [item for sublist in (list(product(x, y)) for x, y in order) for item in sublist]
     iupac_ordering_dict = dict(
-        zip([Element.from_row_and_group(row, group) for group, row in order], range(len(order)), strict=False)
+        zip(
+            [Element.from_row_and_group(row, group) for group, row in order],
+            range(len(order)),
+            strict=True,
+        )
     )
 
     # first clean periodic table of any IUPAC ordering
     for el in periodic_table:
         periodic_table[el].pop("IUPAC ordering", None)
 
-    # now add iupac ordering
+    # now add IUPAC ordering
     for el in periodic_table:
         if "IUPAC ordering" in periodic_table[el]:
             # sanity check that we don't cover the same element twice
@@ -239,7 +243,7 @@ def gen_iupac_ordering():
 def add_electron_affinities():
     """Update the periodic table data file with electron affinities."""
 
-    req = requests.get("https://wikipedia.org/wiki/Electron_affinity_(data_page)", timeout=600)
+    req = requests.get("https://wikipedia.org/wiki/Electron_affinity_(data_page)", timeout=60)
     soup = BeautifulSoup(req.text, "html.parser")
     table = None
     for table in soup.find_all("table"):
@@ -253,30 +257,33 @@ def add_electron_affinities():
         data += [row]
     data.pop(0)
 
-    ea = {}
+    element_electron_affinities = {}
     max_Z = max(Element(element).Z for element in Element.__members__)
     for r in data:
         # don't want superheavy elements or less common isotopes
-        if int(r[0]) > max_Z or r[2] in ea:
+        if int(r[0]) > max_Z or r[2] in element_electron_affinities:
             continue
         temp_str = re.sub(r"[\s\(\)]", "", r[3].strip("()[]"))
         # hyphen-like characters used that can't be parsed by .float
         bytes_rep = temp_str.encode("unicode_escape").replace(b"\\u2212", b"-")
-        ea[r[2]] = float(bytes_rep.decode("unicode_escape"))
+        element_electron_affinities[r[2]] = float(bytes_rep.decode("unicode_escape"))
 
-    Z_set = {Element.from_name(element).Z for element in ea}
-    assert Z_set.issuperset(range(1, 93))  # Ensure that we have data for up to U.
-    print(ea)
-    pt = loadfn("../pymatgen/core/periodic_table.json")
+    Z_set = {Element.from_name(element).Z for element in element_electron_affinities}
+    # Ensure that we have data for up to Uranium
+    if not Z_set.issuperset(range(1, 93)):
+        missing_electron_affinities = set(range(1, 93)) - Z_set
+        raise ValueError(f"{missing_electron_affinities=}")
+    print(element_electron_affinities)
+    pt = loadfn(f"{PKG_DIR}/core/periodic_table.json")
     for key, val in pt.items():
-        val["Electron affinity"] = ea.get(Element(key).long_name)
-    dumpfn(pt, "../pymatgen/core/periodic_table.json")
+        val["Electron affinity"] = element_electron_affinities.get(Element(key).long_name)
+    dumpfn(pt, f"{PKG_DIR}/core/periodic_table.json")
 
 
 def add_ionization_energies():
     """Update the periodic table data file with ground level and ionization energies from NIST."""
 
-    with open("NIST Atomic Ionization Energies Output.html") as file:
+    with open("NIST Atomic Ionization Energies Output.html", encoding="utf-8") as file:
         soup = BeautifulSoup(file.read(), "html.parser")
     table = None
     for table in soup.find_all("table"):
@@ -284,20 +291,22 @@ def add_ionization_energies():
             break
     data = defaultdict(list)
     for row in table.find_all("tr"):
-        row = [td.get_text().strip() for td in row.find_all("td")]
-        if row:
+        if row := [td.get_text().strip() for td in row.find_all("td")]:
             Z = int(row[0])
             val = re.sub(r"\s", "", row[8].strip("()[]"))
             val = None if val == "" else float(val)
             data[Z] += [val]
     print(data)
-    print(data[51])
-    assert set(data).issuperset(range(1, 93))  # Ensure that we have data for up to U.
-    pt = loadfn("../pymatgen/core/periodic_table.json")
+
+    # Ensure that we have data for up to U.
+    if not set(data).issuperset(range(1, 93)):
+        raise RuntimeError("Failed to get data up to Uranium")
+
+    pt = loadfn(f"{PKG_DIR}/core/periodic_table.json")
     for key, val in pt.items():
         del val["Ionization energy"]
         val["Ionization energies"] = data.get(Element(key).long_name, [])
-    dumpfn(pt, "../pymatgen/core/periodic_table.json")
+    dumpfn(pt, f"{PKG_DIR}/core/periodic_table.json")
 
 
 if __name__ == "__main__":

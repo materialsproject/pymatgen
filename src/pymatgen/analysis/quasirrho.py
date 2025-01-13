@@ -10,7 +10,7 @@ See: Grimme, S. Chem. Eur. J. 2012, 18, 9955.
 
 from __future__ import annotations
 
-from math import isclose
+import math
 from typing import TYPE_CHECKING
 
 import numpy as np
@@ -131,7 +131,13 @@ class QuasiRRHO:
         self.entropy_ho = None  # Ha/K
         self.free_energy_ho = None  # Ha
 
-        self._get_quasirrho_thermo(mol=mol, mult=mult, frequencies=frequencies, elec_energy=energy, sigma_r=sigma_r)
+        self._get_quasirrho_thermo(
+            mol=mol,
+            mult=mult,
+            frequencies=frequencies,
+            elec_energy=energy,
+            sigma_r=sigma_r,
+        )
 
     @classmethod
     def from_gaussian_output(cls, output: GaussianOutput, **kwargs) -> Self:
@@ -172,7 +178,12 @@ class QuasiRRHO:
         description="Supramolecular Binding Thermodynamics by Dispersion-Corrected Density Functional Theory",
     )
     def _get_quasirrho_thermo(
-        self, mol: Molecule, mult: int, sigma_r: int, frequencies: list[float], elec_energy: float
+        self,
+        mol: Molecule,
+        mult: int,
+        sigma_r: int,
+        frequencies: list[float],
+        elec_energy: float,
     ) -> None:
         """
         Calculate Quasi-RRHO thermochemistry.
@@ -210,7 +221,7 @@ class QuasiRRHO:
         linear = True
         for coord in coords[1:]:
             theta = abs(np.dot(coord - coords[0], v0) / np.linalg.norm(coord - coords[0]) / np.linalg.norm(v0))
-            if not isclose(theta, 1, abs_tol=1e-4):
+            if not math.isclose(theta, 1, abs_tol=1e-4):
                 linear = False
 
         # Rotational component of Entropy and Energy
@@ -226,9 +237,7 @@ class QuasiRRHO:
             er = 3 * ideal_gas_const * self.temp / 2
 
         # Vibrational component of Entropy and Energy
-        ev = 0
-        sv_quasiRRHO = 0
-        sv = 0
+        ev = sv_quasiRRHO = sv = 0
 
         for vt in vib_temps:
             ev += vt * (1 / 2 + 1 / (np.exp(vt / self.temp) - 1))

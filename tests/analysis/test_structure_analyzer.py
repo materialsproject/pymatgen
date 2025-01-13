@@ -34,7 +34,10 @@ class TestVoronoiAnalyzer(PymatgenTest):
         # Check for the presence of a Voronoi index and its frequency in
         # a ensemble (list) of Structures
         ensemble = self.va.analyze_structures(self.structs, step_freq=2, most_frequent_polyhedra=10)
-        assert ("[1 3 4 7 1 0 0 0]", 3) in ensemble, "Cannot find the right polyhedron in ensemble."
+        assert (
+            "[1 3 4 7 1 0 0 0]",
+            3,
+        ) in ensemble, "Cannot find the right polyhedron in ensemble."
 
 
 class TestRelaxationAnalyzer(TestCase):
@@ -79,9 +82,9 @@ class TestMiscFunction(PymatgenTest):
     def test_average_coordination_number(self):
         xdatcar = Xdatcar(f"{VASP_OUT_DIR}/XDATCAR.MD")
         coordination_numbers = average_coordination_number(xdatcar.structures, freq=1)
-        assert coordination_numbers["Fe"] == approx(
-            4.771903318390836, 5
-        ), "Coordination number not calculated properly."
+        assert coordination_numbers["Fe"] == approx(4.771903318390836, 5), (
+            "Coordination number not calculated properly."
+        )
 
     def test_solid_angle(self):
         center = [2.294508207929496, 4.4078057081404, 2.299997773791287]

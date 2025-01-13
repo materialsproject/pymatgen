@@ -3,8 +3,8 @@
 from __future__ import annotations
 
 import json
+import math
 import os
-from math import asin, cos, degrees, pi, radians, sin
 from typing import TYPE_CHECKING
 
 import numpy as np
@@ -47,7 +47,10 @@ WAVELENGTHS = {
     "AgKb1": 0.497082,
 }
 
-with open(os.path.join(os.path.dirname(__file__), "atomic_scattering_params.json"), encoding="utf-8") as file:
+with open(
+    os.path.join(os.path.dirname(__file__), "atomic_scattering_params.json"),
+    encoding="utf-8",
+) as file:
     ATOMIC_SCATTERING_PARAMS = json.load(file)
 
 
@@ -120,7 +123,8 @@ class XRDCalculator(AbstractDiffractionPatternCalculator):
             self.radiation = wavelength
             self.wavelength = WAVELENGTHS[wavelength]
         else:
-            raise TypeError(f"{type(wavelength)=} must be either float, int or str")
+            wavelength_type = type(wavelength).__name__
+            raise TypeError(f"{wavelength_type=} must be either float, int or str")
         self.symprec = symprec
         self.debye_waller_factors = debye_waller_factors or {}
 
@@ -154,7 +158,7 @@ class XRDCalculator(AbstractDiffractionPatternCalculator):
         min_r, max_r = (
             (0, 2 / wavelength)
             if two_theta_range is None
-            else [2 * sin(radians(t / 2)) / wavelength for t in two_theta_range]
+            else [2 * math.sin(math.radians(t / 2)) / wavelength for t in two_theta_range]
         )
 
         # Obtain crystallographic reciprocal lattice points within range
@@ -197,10 +201,10 @@ class XRDCalculator(AbstractDiffractionPatternCalculator):
 
         for hkl, g_hkl, ind, _ in sorted(recip_pts, key=lambda i: (i[1], -i[0][0], -i[0][1], -i[0][2])):
             # Force miller indices to be integers
-            hkl = [int(round(i)) for i in hkl]
+            hkl = [round(i) for i in hkl]
             if g_hkl != 0:
                 # Bragg condition
-                theta = asin(wavelength * g_hkl / 2)
+                theta = math.asin(wavelength * g_hkl / 2)
 
                 # s = sin(theta) / wavelength = 1 / 2d = |ghkl| / 2 (d =
                 # 1/|ghkl|)
@@ -231,15 +235,15 @@ class XRDCalculator(AbstractDiffractionPatternCalculator):
                 # Structure factor = sum of atomic scattering factors (with
                 # position factor exp(2j * pi * g.r and occupancies).
                 # Vectorized computation.
-                f_hkl = np.sum(fs * occus * np.exp(2j * pi * g_dot_r) * dw_correction)
+                f_hkl = np.sum(fs * occus * np.exp(2j * np.pi * g_dot_r) * dw_correction)
 
                 # Lorentz polarization correction for hkl
-                lorentz_factor = (1 + cos(2 * theta) ** 2) / (sin(theta) ** 2 * cos(theta))
+                lorentz_factor = (1 + math.cos(2 * theta) ** 2) / (math.sin(theta) ** 2 * math.cos(theta))
 
                 # Intensity for hkl is modulus square of structure factor
                 i_hkl = (f_hkl * f_hkl.conjugate()).real
 
-                two_theta = degrees(2 * theta)
+                two_theta = math.degrees(2 * theta)
 
                 if is_hex:
                     # Use Miller-Bravais indices for hexagonal lattices

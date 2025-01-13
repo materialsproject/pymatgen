@@ -51,7 +51,7 @@ def make_doc(ctx: Context) -> None:
         # ctx.run("rm pymatgen*tests*.md", warn=True)
         # ctx.run("rm pymatgen*.html", warn=True)
         # for filename in glob("pymatgen*.md"):
-        #     with open(filename) as file:
+        #     with open(filename, encoding="utf-8") as file:
         #         lines = [line.rstrip() for line in file if "Submodules" not in line]
         #     if filename == "pymatgen.md":
         #         preamble = ["---", "layout: default", "title: API Documentation", "nav_order: 6", "---", ""]
@@ -67,7 +67,7 @@ def make_doc(ctx: Context) -> None:
         #             "{:toc}",
         #             "",
         #         ]
-        #     with open(filename, mode="w") as file:
+        #     with open(filename, mode="w", encoding="utf-8") as file:
         #         file.write("\n".join(preamble + lines))
         ctx.run("rm -r markdown", warn=True)
         ctx.run("rm -r html", warn=True)
@@ -97,10 +97,10 @@ def set_ver(ctx: Context, version: str):
         ctx (Context): The context.
         version (str): An input version.
     """
-    with open("pyproject.toml") as file:
+    with open("pyproject.toml", encoding="utf-8") as file:
         lines = [re.sub(r"^version = \"([^,]+)\"", f'version = "{version}"', line.rstrip()) for line in file]
 
-    with open("pyproject.toml", "w") as file:
+    with open("pyproject.toml", "w", encoding="utf-8") as file:
         file.write("\n".join(lines) + "\n")
 
     ctx.run("ruff check --fix src")
@@ -134,7 +134,7 @@ def release_github(ctx: Context, version: str) -> None:
         "https://api.github.com/repos/materialsproject/pymatgen/releases",
         data=json.dumps(payload),
         headers={"Authorization": f"token {os.environ['GITHUB_RELEASES_TOKEN']}"},
-        timeout=600,
+        timeout=60,
     )
     print(response.text)
 
@@ -160,7 +160,8 @@ def update_changelog(ctx: Context, version: str | None = None, dry_run: bool = F
             pr_number = re_match[1]
             contributor, pr_name = re_match[2].split("/", 1)
             response = requests.get(
-                f"https://api.github.com/repos/materialsproject/pymatgen/pulls/{pr_number}", timeout=600
+                f"https://api.github.com/repos/materialsproject/pymatgen/pulls/{pr_number}",
+                timeout=60,
             )
             lines += [f"* PR #{pr_number} from @{contributor} {pr_name}"]
             json_resp = response.json()

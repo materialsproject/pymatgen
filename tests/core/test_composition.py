@@ -173,7 +173,7 @@ class TestComposition(PymatgenTest):
             1.21,
             2.43,
         )
-        for elem, val in zip(self.comps, electro_negs, strict=False):
+        for elem, val in zip(self.comps, electro_negs, strict=True):
             assert elem.average_electroneg == approx(val)
 
     def test_total_electrons(self):
@@ -215,7 +215,10 @@ class TestComposition(PymatgenTest):
         assert Composition("(C)((C)0.9(B)0.1)") == Composition("C1.9 B0.1")
 
         assert Composition("NaN").reduced_formula == "NaN"
-        with pytest.raises(ValueError, match=r"float\('NaN'\) is not a valid Composition, did you mean 'NaN'\?"):
+        with pytest.raises(
+            ValueError,
+            match=r"float\('NaN'\) is not a valid Composition, did you mean 'NaN'\?",
+        ):
             Composition(float("NaN"))
 
         # test bad formulas raise ValueError
@@ -255,7 +258,12 @@ class TestComposition(PymatgenTest):
             ["Co2 O3", "C1 O5"],
             ["N1 Ca1 Lu1", "U1 Al1 C1 N1"],
             ["N1 Ca1 Lu1", "U1 Al1 C1 N1"],
-            ["Li1 Co1 P2 N1 O10", "Li1 Co1 Po8 N1 O2", "Li1 P2 C1 N1 O11", "Li1 Po8 C1 N1 O3"],
+            [
+                "Li1 Co1 P2 N1 O10",
+                "Li1 Co1 Po8 N1 O2",
+                "Li1 P2 C1 N1 O11",
+                "Li1 Po8 C1 N1 O3",
+            ],
             ["Co2 P4 O4", "Co2 Po4", "P4 C2 O6", "Po4 C2 O2"],
             [],
         ]
@@ -387,8 +395,8 @@ class TestComposition(PymatgenTest):
             "P": 0.222604831158,
             "O": 0.459943320496,
         }
-        for el in correct_wt_frac:
-            assert correct_wt_frac[el] == approx(self.comps[0].get_wt_fraction(el)), "Wrong computed weight fraction"
+        for el, expected in correct_wt_frac.items():
+            assert self.comps[0].get_wt_fraction(el) == approx(expected), "Wrong computed weight fraction"
         assert self.comps[0].get_wt_fraction(Element("S")) == 0, "Wrong computed weight fractions"
 
     def test_from_dict(self):
@@ -406,7 +414,7 @@ class TestComposition(PymatgenTest):
         ]
         formula_list = ["Ti87.6 V5.5 Al6.9", "Ti44.98 Ni55.02", "H2O"]
 
-        for weight_dict, formula in zip(weight_dict_list, formula_list, strict=False):
+        for weight_dict, formula in zip(weight_dict_list, formula_list, strict=True):
             c1 = Composition(formula).fractional_composition
             c2 = Composition.from_weight_dict(weight_dict).fractional_composition
             assert set(c1.elements) == set(c2.elements)
@@ -417,6 +425,42 @@ class TestComposition(PymatgenTest):
         for comp in self.comps:
             c2 = Composition().from_weight_dict(comp.to_weight_dict)
             comp.almost_equals(c2)
+
+    def test_composition_from_weights(self):
+        ref_comp = Composition({"Fe": 0.5, "Ni": 0.5})
+
+        # Test basic weight-based composition
+        comp = Composition.from_weights({"Fe": ref_comp.get_wt_fraction("Fe"), "Ni": ref_comp.get_wt_fraction("Ni")})
+        assert comp["Fe"] == approx(ref_comp.get_atomic_fraction("Fe"))
+        assert comp["Ni"] == approx(ref_comp.get_atomic_fraction("Ni"))
+
+        # Test with another Composition instance
+        comp = Composition({"Fe": ref_comp.get_wt_fraction("Fe"), "Ni": ref_comp.get_wt_fraction("Ni")})
+        comp = Composition.from_weights(comp)
+        assert comp["Fe"] == approx(ref_comp.get_atomic_fraction("Fe"))
+        assert comp["Ni"] == approx(ref_comp.get_atomic_fraction("Ni"))
+
+        # Test with string input
+        comp = Composition.from_weights(f"Fe{ref_comp.get_wt_fraction('Fe')}Ni{ref_comp.get_wt_fraction('Ni')}")
+        assert comp["Fe"] == approx(ref_comp.get_atomic_fraction("Fe"))
+        assert comp["Ni"] == approx(ref_comp.get_atomic_fraction("Ni"))
+
+        # Test with kwargs
+        comp = Composition.from_weights(Fe=ref_comp.get_wt_fraction("Fe"), Ni=ref_comp.get_wt_fraction("Ni"))
+        assert comp["Fe"] == approx(ref_comp.get_atomic_fraction("Fe"))
+        assert comp["Ni"] == approx(ref_comp.get_atomic_fraction("Ni"))
+
+        # Test strict mode
+        with pytest.raises(ValueError, match="'Xx' is not a valid Element"):
+            Composition.from_weights({"Xx": 10}, strict=True)
+
+        # Test allow_negative
+        with pytest.raises(ValueError, match="Weights in Composition cannot be negative!"):
+            Composition.from_weights({"Fe": -55.845})
+
+        # Test NaN handling
+        with pytest.raises(ValueError, match=r"float\('NaN'\) is not a valid Composition"):
+            Composition.from_weights(float("nan"))
 
     def test_as_dict(self):
         comp = Composition.from_dict({"Fe": 4, "O": 6})
@@ -448,9 +492,9 @@ class TestComposition(PymatgenTest):
         assert self.comps[0].__add__(Fe) == NotImplemented
 
     def test_sub(self):
-        assert (
-            self.comps[0] - Composition("Li2O")
-        ).formula == "Li1 Fe2 P3 O11", "Incorrect composition after addition!"
+        assert (self.comps[0] - Composition("Li2O")).formula == "Li1 Fe2 P3 O11", (
+            "Incorrect composition after addition!"
+        )
         assert (self.comps[0] - {"Fe": 2, "O": 3}).formula == "Li3 P3 O9"
 
         with pytest.raises(ValueError, match="Amounts in Composition cannot be negative"):

@@ -70,6 +70,8 @@ class Lobsterin(UserDict, MSONable):
         "useDecimalPlaces",
         "COHPSteps",
         "basisRotation",
+        "gridDensityForPrinting",
+        "gridBufferForPrinting",
     )
 
     # These keywords need an additional string suffix
@@ -87,10 +89,13 @@ class Lobsterin(UserDict, MSONable):
     # The keywords themselves (without suffix) can trigger additional functionalities
     _BOOLEAN_KEYWORDS: tuple[str, ...] = (
         "saveProjectionToFile",
+        "skipCar",
         "skipdos",
         "skipcohp",
         "skipcoop",
         "skipcobi",
+        "skipMOFE",
+        "skipMolecularOrbitals",
         "skipMadelungEnergy",
         "loadProjectionFromFile",
         "printTotalSpilling",
@@ -103,6 +108,9 @@ class Lobsterin(UserDict, MSONable):
         "userecommendedbasisfunctions",
         "skipProjection",
         "printLmosOnAtoms",
+        "printMofeAtomWise",
+        "printMofeMoleculeWise",
+        "writeAtomicOrbitals",
         "writeBasisFunctions",
         "writeMatricesToFile",
         "noFFTforVisualization",
@@ -131,6 +139,7 @@ class Lobsterin(UserDict, MSONable):
         "createFatband",
         "customSTOforAtom",
         "cobiBetween",
+        "printLmosOnAtomswriteAtomicDensities",
     )
 
     # Generate {lowered: original} mappings
@@ -323,12 +332,15 @@ class Lobsterin(UserDict, MSONable):
             incar_input (PathLike): path to input INCAR
             incar_output (PathLike): path to output INCAR
             poscar_input (PathLike): path to input POSCAR
-            isym (Literal[-1, 0]): ISYM value.
+            isym (-1 | 0): ISYM value.
             further_settings (dict): A dict can be used to include further settings, e.g. {"ISMEAR":-5}
         """
         # Read INCAR from file, which will be modified
         incar = Incar.from_file(incar_input)
-        warnings.warn("Please check your incar_input before using it. This method only changes three settings!")
+        warnings.warn(
+            "Please check your incar_input before using it. This method only changes three settings!",
+            stacklevel=2,
+        )
         if isym in {-1, 0}:
             incar["ISYM"] = isym
         else:
@@ -457,7 +469,7 @@ class Lobsterin(UserDict, MSONable):
             POSCAR_input (PathLike): path to POSCAR
             KPOINTS_output (PathLike): path to output KPOINTS
             reciprocal_density (int): Grid density
-            isym (Literal[-1, 0]): ISYM value.
+            isym (-1 | 0): ISYM value.
             from_grid (bool): If True KPOINTS will be generated with the help of a grid given in input_grid.
                 Otherwise, they will be generated from the reciprocal_density
             input_grid (tuple): grid to generate the KPOINTS file
@@ -576,7 +588,7 @@ class Lobsterin(UserDict, MSONable):
         Returns:
             Lobsterin object
         """
-        with zopen(lobsterin, mode="rt") as file:
+        with zopen(lobsterin, mode="rt", encoding="utf-8") as file:
             lines = file.read().split("\n")
         if not lines:
             raise RuntimeError("lobsterin file contains no data.")
@@ -633,7 +645,7 @@ class Lobsterin(UserDict, MSONable):
                 raise ValueError("Lobster only works with PAW! Use different POTCARs")
 
         # Warning about a bug in LOBSTER-4.1.0
-        with zopen(POTCAR_input, mode="r") as file:
+        with zopen(POTCAR_input, mode="rt", encoding="utf-8") as file:
             data = file.read()
 
         if isinstance(data, bytes):
@@ -645,7 +657,8 @@ class Lobsterin(UserDict, MSONable):
                 "Lobster up to version 4.1.0."
                 "\n The keywords SHA256 and COPYR "
                 "cannot be handled by Lobster"
-                " \n and will lead to wrong results."
+                " \n and will lead to wrong results.",
+                stacklevel=2,
             )
 
         if potcar.functional != "PBE":
@@ -688,7 +701,8 @@ class Lobsterin(UserDict, MSONable):
             Lobsterin with standard settings
         """
         warnings.warn(
-            "Always check and test the provided basis functions. The spilling of your Lobster calculation might help"
+            "Always check and test the provided basis functions. The spilling of your Lobster calculation might help",
+            stacklevel=2,
         )
 
         if option not in {

@@ -36,7 +36,7 @@ __date__ = "Apr 28, 2012"
 needs_openbabel = requires(
     openbabel,
     "BabelMolAdaptor requires openbabel to be installed with Python bindings. "
-    "Please get it at http://openbabel.org (version >=3.0.0).",
+    "Please get it at https://openbabel.org (version >=3.0.0).",
 )
 
 
@@ -186,7 +186,8 @@ class BabelMolAdaptor:
             warnings.warn(
                 f"This input {forcefield=} is not supported "
                 "in openbabel. The forcefield will be reset as "
-                "default 'mmff94' for now."
+                "default 'mmff94' for now.",
+                stacklevel=2,
             )
             ff = openbabel.OBForceField.FindType("mmff94")
 
@@ -199,7 +200,8 @@ class BabelMolAdaptor:
                 "'SystematicRotorSearch', 'RandomRotorSearch' "
                 "and 'WeightedRotorSearch'. "
                 "The algorithm will be reset as default "
-                "'WeightedRotorSearch' for now."
+                "'WeightedRotorSearch' for now.",
+                stacklevel=2,
             )
             rotor_search = ff.WeightedRotorSearch
         rotor_search(*rotor_args)

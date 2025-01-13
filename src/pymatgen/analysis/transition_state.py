@@ -109,7 +109,7 @@ class NEBAnalysis(MSONable):
         rms_dist = [0]
         prev = structures[0]
         for st in structures[1:]:
-            dists = np.array([s2.distance(s1) for s1, s2 in zip(prev, st, strict=False)])
+            dists = np.array([s2.distance(s1) for s1, s2 in zip(prev, st, strict=True)])
             rms_dist.append(np.sqrt(np.sum(dists**2)))
             prev = st
         rms_dist = np.cumsum(rms_dist)
@@ -124,7 +124,13 @@ class NEBAnalysis(MSONable):
                 forces.append(outcar.data["tangent_force"])
         forces = np.array(forces)
         rms_dist = np.array(rms_dist)
-        return cls(r=rms_dist, energies=energies, forces=forces, structures=structures, **kwargs)
+        return cls(
+            r=rms_dist,
+            energies=energies,
+            forces=forces,
+            structures=structures,
+            **kwargs,
+        )
 
     def get_extrema(self, normalize_rxn_coordinate=True):
         """Get the positions of the extrema along the MEP. Both local
@@ -167,13 +173,22 @@ class NEBAnalysis(MSONable):
         xs = np.arange(0, np.max(self.r), 0.01)
         ys = self.spline(xs) * 1000
         relative_energies = self.energies - self.energies[0]
-        ax.plot(self.r * scale, relative_energies * 1000, "ro", xs * scale, ys, "k-", linewidth=2, markersize=10)
+        ax.plot(
+            self.r * scale,
+            relative_energies * 1000,
+            "ro",
+            xs * scale,
+            ys,
+            "k-",
+            linewidth=2,
+            markersize=10,
+        )
 
         ax.set_xlabel("Reaction Coordinate")
         ax.set_ylabel("Energy (meV)")
         ax.set_ylim((np.min(ys) - 10, np.max(ys) * 1.02 + 20))
         if label_barrier:
-            data = zip(xs * scale, ys, strict=False)
+            data = zip(xs * scale, ys, strict=True)
             barrier = max(data, key=lambda d: d[1])
             ax.plot([0, barrier[0]], [barrier[1], barrier[1]], "k--", linewidth=0.5)
             ax.annotate(
@@ -337,7 +352,7 @@ def combine_neb_plots(neb_analyses, arranged_neb_analyses=False, reverse_plot=Fa
                 + [(neb1_energies[-1] + neb2_energies[0]) / 2]
                 + neb2_energies[1:]
             )
-            neb1_structures = neb1_structures + neb2.structures[1:]
+            neb1_structures += neb2.structures[1:]
             neb1_forces = list(neb1_forces) + list(neb2.forces)[1:]
             neb1_r = list(neb1_r) + [i + neb1_r[-1] for i in list(neb2.r)[1:]]
 
@@ -356,14 +371,14 @@ def combine_neb_plots(neb_analyses, arranged_neb_analyses=False, reverse_plot=Fa
             neb1_r = list(neb2.r) + [i + list(neb2.r)[-1] for i in list(neb1_r)[1:]]
 
         elif abs(neb1_end_e - neb2_start_e) == min_e_diff:
-            neb1_energies = neb1_energies + neb2_energies[1:]
-            neb1_structures = neb1_structures + neb2.structures[1:]
+            neb1_energies += neb2_energies[1:]
+            neb1_structures += neb2.structures[1:]
             neb1_forces = list(neb1_forces) + list(neb2.forces)[1:]
             neb1_r = list(neb1_r) + [i + neb1_r[-1] for i in list(neb2.r)[1:]]
 
         else:
-            neb1_energies = neb1_energies + list(reversed(neb2_energies))[1:]
-            neb1_structures = neb1_structures + list(reversed(neb2.structures))[1:]
+            neb1_energies += list(reversed(neb2_energies))[1:]
+            neb1_structures += list(reversed(neb2.structures))[1:]
             neb1_forces = list(neb1_forces) + list(reversed(list(neb2.forces)))[1:]
             neb1_r = list(neb1_r) + list(
                 reversed([i * -1 - list(neb2.r)[-1] * -1 + list(neb1_r)[-1] for i in list(neb2.r)[:-1]])

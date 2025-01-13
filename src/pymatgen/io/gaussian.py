@@ -23,6 +23,8 @@ if TYPE_CHECKING:
 
     from typing_extensions import Self
 
+    from pymatgen.util.typing import PathLike
+
 __author__ = "Shyue Ping Ong, Germain Salvato-Vallverdu, Xin Chen"
 __copyright__ = "Copyright 2013, The Materials Virtual Lab"
 __version__ = "0.1"
@@ -294,7 +296,8 @@ class GaussianInput:
         for line in lines:
             if link0_patt.match(line):
                 match = link0_patt.match(line)
-                assert match is not None
+                if match is None:
+                    raise ValueError("no match found")
                 link0_dict[match[1].strip("=")] = match[2]
 
         route_patt = re.compile(r"^#[sSpPnN]*.*")
@@ -305,15 +308,16 @@ class GaussianInput:
                 route += f" {line}"
                 route_index = idx
             # This condition allows for route cards spanning multiple lines
-            elif (line == "" or line.isspace()) and route_index:
+            elif (line == "" or line.isspace()) and route_index is not None:
                 break
-            if route_index:
+            if route_index is not None:
                 route += f" {line}"
                 route_index = idx
         functional, basis_set, route_paras, dieze_tag = read_route_line(route)
         ind = 2
         title = []
-        assert route_index is not None, "route_index cannot be None"
+        if route_index is None:
+            raise ValueError("route_index cannot be None")
         while lines[route_index + ind].strip():
             title.append(lines[route_index + ind].strip())
             ind += 1
@@ -364,7 +368,7 @@ class GaussianInput:
         Returns:
             GaussianInput object
         """
-        with zopen(filename, mode="r") as file:
+        with zopen(filename, mode="rt", encoding="utf-8") as file:
             return cls.from_str(file.read())
 
     def get_zmatrix(self):
@@ -416,7 +420,12 @@ class GaussianInput:
             # don't use the slash if either or both are set as empty
             func_bset_str = f" {func_str}{bset_str}".rstrip()
 
-        output += (f"{self.dieze_tag}{func_bset_str} {para_dict_to_str(self.route_parameters)}", "", self.title, "")
+        output += (
+            f"{self.dieze_tag}{func_bset_str} {para_dict_to_str(self.route_parameters)}",
+            "",
+            self.title,
+            "",
+        )
 
         charge_str = "" if self.charge is None else f"{self.charge:.0f}"
         multip_str = "" if self.spin_multiplicity is None else f" {self.spin_multiplicity:.0f}"
@@ -438,9 +447,9 @@ class GaussianInput:
     def write_file(self, filename, cart_coords=False):
         """Write the input string into a file.
 
-        Option: see __str__ method
+        Option: see `__str__` method
         """
-        with zopen(filename, mode="w") as file:
+        with zopen(filename, mode="wt", encoding="utf-8") as file:
             file.write(self.to_str(cart_coords))
 
     def as_dict(self):
@@ -569,13 +578,13 @@ class GaussianOutput:
             Save a matplotlib plot of the potential energy surface to a file
     """
 
-    def __init__(self, filename):
+    def __init__(self, filename: PathLike) -> None:
         """
         Args:
             filename: Filename of Gaussian output file.
         """
-        self.filename = filename
-        self._parse(filename)
+        self.filename = str(filename)
+        self._parse(self.filename)
 
     @property
     def final_energy(self):
@@ -625,47 +634,34 @@ class GaussianOutput:
 
         bond_order_patt = re.compile(r"Wiberg bond index matrix in the NAO basis:")
 
-        self.properly_terminated = False
-        self.is_pcm = False
+        self.properly_terminated = self.is_pcm = self.is_spin = False
+        self.pcm = self.hessian = self.title = None
         self.stationary_type = "Minimum"
         self.corrections = {}
         self.energies = []
-        self.pcm = None
         self.errors = []
         self.Mulliken_charges = {}
         self.link0 = {}
         self.cart_forces = []
         self.frequencies = []
         self.eigenvalues = []
-        self.is_spin = False
-        self.hessian = None
         self.resumes = []
-        self.title = None
         self.bond_orders = {}
 
-        read_coord = 0
-        read_mulliken = False
-        read_eigen = False
+        read_mulliken = read_eigen = num_basis_found = terminated = parse_forces = False
+        read_mo = parse_hessian = standard_orientation = parse_bond_order = parse_freq = False
+        read_coord = parse_stage = 0
         eigen_txt = []
-        parse_stage = 0
-        num_basis_found = False
-        terminated = False
-        parse_forces = False
         forces = []
-        parse_freq = False
         frequencies = []
-        read_mo = False
-        parse_hessian = False
         route_line = ""
-        standard_orientation = False
-        parse_bond_order = False
         input_structures = []
         std_structures = []
         geom_orientation = None
         opt_structures = []
         route_lower = {}
 
-        with zopen(filename, mode="rt") as file:
+        with zopen(filename, mode="rt", encoding="utf-8") as file:
             for line in file:
                 if parse_stage == 0:
                     if start_patt.search(line):
@@ -794,7 +790,10 @@ class GaussianOutput:
                                     "Density Matrix:" in line or mo_coeff_patt.search(line)
                                 ):
                                     end_mo = True
-                                    warnings.warn("POP=regular case, matrix coefficients not complete")
+                                    warnings.warn(
+                                        "POP=regular case, matrix coefficients not complete",
+                                        stacklevel=2,
+                                    )
                             file.readline()
 
                         self.eigenvectors = mat_mo
@@ -836,23 +835,23 @@ class GaussianOutput:
                             while "Atom  AN" not in line:
                                 if "Frequencies --" in line:
                                     freqs = map(float, float_patt.findall(line))
-                                    for ifreq, freq in zip(ifreqs, freqs, strict=False):
+                                    for ifreq, freq in zip(ifreqs, freqs, strict=True):
                                         frequencies[ifreq]["frequency"] = freq
                                 elif "Red. masses --" in line:
                                     r_masses = map(float, float_patt.findall(line))
-                                    for ifreq, r_mass in zip(ifreqs, r_masses, strict=False):
+                                    for ifreq, r_mass in zip(ifreqs, r_masses, strict=True):
                                         frequencies[ifreq]["r_mass"] = r_mass
                                 elif "Frc consts  --" in line:
                                     f_consts = map(float, float_patt.findall(line))
-                                    for ifreq, f_const in zip(ifreqs, f_consts, strict=False):
+                                    for ifreq, f_const in zip(ifreqs, f_consts, strict=True):
                                         frequencies[ifreq]["f_constant"] = f_const
                                 elif "IR Inten    --" in line:
                                     IR_intens = map(float, float_patt.findall(line))
-                                    for ifreq, intens in zip(ifreqs, IR_intens, strict=False):
+                                    for ifreq, intens in zip(ifreqs, IR_intens, strict=True):
                                         frequencies[ifreq]["IR_intensity"] = intens
                                 else:
                                     syms = line.split()[:3]
-                                    for ifreq, sym in zip(ifreqs, syms, strict=False):
+                                    for ifreq, sym in zip(ifreqs, syms, strict=True):
                                         frequencies[ifreq]["symmetry"] = sym
                                 line = file.readline()
 
@@ -860,7 +859,7 @@ class GaussianOutput:
                             line = file.readline()
                             while normal_mode_patt.search(line):
                                 values = list(map(float, float_patt.findall(line)))
-                                for idx, ifreq in zip(range(0, len(values), 3), ifreqs, strict=False):
+                                for idx, ifreq in zip(range(0, len(values), 3), ifreqs, strict=True):
                                     frequencies[ifreq]["mode"].extend(values[idx : idx + 3])
                                 line = file.readline()
 
@@ -930,7 +929,8 @@ class GaussianOutput:
                         line = file.readline()
                         if " -- Stationary point found." not in line:
                             warnings.warn(
-                                f"\n{self.filename}: Optimization complete but this is not a stationary point"
+                                f"\n{self.filename}: Optimization complete but this is not a stationary point",
+                                stacklevel=2,
                             )
                         if standard_orientation:
                             opt_structures.append(std_structures[-1])
@@ -993,7 +993,10 @@ class GaussianOutput:
         self.opt_structures = opt_structures
 
         if not terminated:
-            warnings.warn(f"\n{self.filename}: Termination error or bad Gaussian output file !")
+            warnings.warn(
+                f"\n{self.filename}: Termination error or bad Gaussian output file !",
+                stacklevel=2,
+            )
 
     def _parse_hessian(self, file, structure):
         """Parse the hessian matrix in the output file.
@@ -1106,7 +1109,7 @@ class GaussianOutput:
         data = {"energies": [], "coords": {}}
 
         # read in file
-        with zopen(self.filename, mode="r") as file:
+        with zopen(self.filename, mode="rt", encoding="utf-8") as file:
             line = file.readline()
 
             while line != "":
@@ -1192,7 +1195,7 @@ class GaussianOutput:
         transitions = []
 
         # read in file
-        with zopen(self.filename, mode="r") as file:
+        with zopen(self.filename, mode="rt", encoding="utf-8") as file:
             line = file.readline()
             td = False
             while line != "":

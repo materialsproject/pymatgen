@@ -18,7 +18,7 @@ plt.rc("text", usetex=False)  # Disabling latex for testing
 
 class TestPhononDosPlotter(TestCase):
     def setUp(self):
-        with open(f"{TEST_DIR}/NaCl_complete_ph_dos.json") as file:
+        with open(f"{TEST_DIR}/NaCl_complete_ph_dos.json", encoding="utf-8") as file:
             self.dos = CompletePhononDos.from_dict(json.load(file))
         self.plotter = PhononDosPlotter(sigma=0.2, stack=True)
         self.plotter_no_stack = PhononDosPlotter(sigma=0.2, stack=False)
@@ -56,11 +56,15 @@ class TestPhononDosPlotter(TestCase):
 
 class TestPhononBSPlotter(TestCase):
     def setUp(self):
-        with open(f"{TEST_FILES_DIR}/electronic_structure/bandstructure/NaCl_phonon_bandstructure.json") as file:
+        with open(
+            f"{TEST_FILES_DIR}/electronic_structure/bandstructure/NaCl_phonon_bandstructure.json", encoding="utf-8"
+        ) as file:
             dct = json.loads(file.read())
         self.bs = PhononBandStructureSymmLine.from_dict(dct)
         self.plotter = PhononBSPlotter(self.bs, label="NaCl")
-        with open(f"{TEST_FILES_DIR}/electronic_structure/bandstructure/SrTiO3_phonon_bandstructure.json") as file:
+        with open(
+            f"{TEST_FILES_DIR}/electronic_structure/bandstructure/SrTiO3_phonon_bandstructure.json", encoding="utf-8"
+        ) as file:
             dct = json.loads(file.read())
         self.bs_sto = PhononBandStructureSymmLine.from_dict(dct)
         self.plotter_sto = PhononBSPlotter(self.bs_sto)
@@ -98,7 +102,10 @@ class TestPhononBSPlotter(TestCase):
         assert ax.get_title() == ""
         assert [itm.get_text() for itm in ax.get_legend().get_texts()] == list(labels)
         ax = self.plotter.plot_compare(self.plotter, units="mev")
-        assert [itm.get_text() for itm in ax.get_legend().get_texts()] == ["NaCl", "NaCl"]
+        assert [itm.get_text() for itm in ax.get_legend().get_texts()] == [
+            "NaCl",
+            "NaCl",
+        ]
         labels = ("NaCl", "NaCl 2", "NaCl 3")
         ax = self.plotter.plot_compare({labels[1]: self.plotter, labels[2]: self.plotter}, units="mev")
         assert [itm.get_text() for itm in ax.get_legend().get_texts()] == list(labels)
@@ -112,10 +119,11 @@ class TestPhononBSPlotter(TestCase):
 
 class TestThermoPlotter(TestCase):
     def setUp(self):
-        with open(f"{TEST_DIR}/NaCl_complete_ph_dos.json") as file:
+        with open(f"{TEST_DIR}/NaCl_complete_ph_dos.json", encoding="utf-8") as file:
             self.dos = CompletePhononDos.from_dict(json.load(file))
         self.plotter = ThermoPlotter(self.dos, self.dos.structure)
 
+    @pytest.mark.filterwarnings("ignore:More than 20 figures have been opened")
     def test_plot_functions(self):
         fig = self.plotter.plot_cv(5, 100, 5, show=False)
         assert isinstance(fig, plt.Figure)

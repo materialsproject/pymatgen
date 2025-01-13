@@ -24,7 +24,7 @@ TEST_DIR = f"{TEST_FILES_DIR}/analysis/structure_matcher"
 
 class TestStructureMatcher(PymatgenTest):
     def setUp(self):
-        with open(f"{TEST_FILES_DIR}/entries/TiO2_entries.json") as file:
+        with open(f"{TEST_FILES_DIR}/entries/TiO2_entries.json", encoding="utf-8") as file:
             entries = json.load(file, cls=MontyDecoder)
         self.struct_list = [ent.structure for ent in entries]
         self.oxi_structs = [
@@ -397,7 +397,11 @@ class TestStructureMatcher(PymatgenTest):
         )
         lattice = Lattice.orthorhombic(1, 2, 3)
         s1 = Structure(lattice, ["Si", "Si", "Ag"], [[0, 0, 0.1], [0, 0, 0.2], [0.7, 0.4, 0.5]])
-        s2 = Structure(lattice, ["Si", "Si", "Ag"], [[0, 0.1, 0], [0, 0.1, -0.95], [0.7, 0.5, 0.375]])
+        s2 = Structure(
+            lattice,
+            ["Si", "Si", "Ag"],
+            [[0, 0.1, 0], [0, 0.1, -0.95], [0.7, 0.5, 0.375]],
+        )
 
         s1, s2, fu, s1_supercell = sm._preprocess(s1, s2, niggli=False)
         assert s1_supercell is True
@@ -458,14 +462,18 @@ class TestStructureMatcher(PymatgenTest):
         lattice = Lattice.orthorhombic(1, 2, 3)
         s1 = Structure(lattice, ["Ag", "Si", "Si"], [[0.7, 0.4, 0.5], [0, 0, 0.1], [0, 0, 0.2]])
         s1.make_supercell([2, 1, 1])
-        s2 = Structure(lattice, ["Si", "Si", "Ag"], [[0, 0.1, -0.95], [0, 0.1, 0], [-0.7, 0.5, 0.375]])
+        s2 = Structure(
+            lattice,
+            ["Si", "Si", "Ag"],
+            [[0, 0.1, -0.95], [0, 0.1, 0], [-0.7, 0.5, 0.375]],
+        )
 
         shuffle = [0, 2, 1, 3, 4, 5]
         s1 = Structure.from_sites([s1[i] for i in shuffle])
 
         # test when s1 is exact supercell of s2
         result = sm.get_s2_like_s1(s1, s2)
-        for a, b in zip(s1, result, strict=False):
+        for a, b in zip(s1, result, strict=True):
             assert a.distance(b) < 0.08
             assert a.species == b.species
 
@@ -500,7 +508,7 @@ class TestStructureMatcher(PymatgenTest):
         s2_missing_site = s2.copy()
         del s2_missing_site[1]
         result = sm.get_s2_like_s1(s1, s2_missing_site)
-        for a, b in zip((s1[i] for i in (0, 2, 4, 5)), result, strict=False):
+        for a, b in zip((s1[i] for i in (0, 2, 4, 5)), result, strict=True):
             assert a.distance(b) < 0.08
             assert a.species == b.species
 
@@ -534,7 +542,7 @@ class TestStructureMatcher(PymatgenTest):
 
         result = sm.get_s2_like_s1(s1, s2)
 
-        for x, y in zip(s1, result, strict=False):
+        for x, y in zip(s1, result, strict=True):
             assert x.distance(y) < 0.08
 
     def test_get_mapping(self):
@@ -550,7 +558,11 @@ class TestStructureMatcher(PymatgenTest):
         lattice = Lattice.orthorhombic(1, 2, 3)
         struct1 = Structure(lattice, ["Ag", "Si", "Si"], [[0.7, 0.4, 0.5], [0, 0, 0.1], [0, 0, 0.2]])
         struct1.make_supercell([2, 1, 1])
-        struct2 = Structure(lattice, ["Si", "Si", "Ag"], [[0, 0.1, -0.95], [0, 0.1, 0], [-0.7, 0.5, 0.375]])
+        struct2 = Structure(
+            lattice,
+            ["Si", "Si", "Ag"],
+            [[0, 0.1, -0.95], [0, 0.1, 0], [-0.7, 0.5, 0.375]],
+        )
 
         shuffle = [2, 0, 1, 3, 5, 4]
         struct1 = Structure.from_sites([struct1[i] for i in shuffle])
@@ -584,14 +596,22 @@ class TestStructureMatcher(PymatgenTest):
 
         s1 = Structure(lattice, ["Si", "Si", "Ag"], [[0, 0, 0.1], [0, 0, 0.2], [0.7, 0.4, 0.5]])
         s1.make_supercell([2, 1, 1])
-        s2 = Structure(lattice, ["Si", "Si", "Ag"], [[0, 0.1, 0], [0, 0.1, -0.95], [-0.7, 0.5, 0.375]])
+        s2 = Structure(
+            lattice,
+            ["Si", "Si", "Ag"],
+            [[0, 0.1, 0], [0, 0.1, -0.95], [-0.7, 0.5, 0.375]],
+        )
         result = sm.get_supercell_matrix(s1, s2)
         assert (result == [[-2, 0, 0], [0, 1, 0], [0, 0, 1]]).all()
 
         s1 = Structure(lattice, ["Si", "Si", "Ag"], [[0, 0, 0.1], [0, 0, 0.2], [0.7, 0.4, 0.5]])
         s1.make_supercell([[1, -1, 0], [0, 0, -1], [0, 1, 0]])
 
-        s2 = Structure(lattice, ["Si", "Si", "Ag"], [[0, 0.1, 0], [0, 0.1, -0.95], [-0.7, 0.5, 0.375]])
+        s2 = Structure(
+            lattice,
+            ["Si", "Si", "Ag"],
+            [[0, 0.1, 0], [0, 0.1, -0.95], [-0.7, 0.5, 0.375]],
+        )
         result = sm.get_supercell_matrix(s1, s2)
         assert (result == [[-1, -1, 0], [0, 0, -1], [0, 1, 0]]).all()
 

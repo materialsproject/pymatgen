@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import itertools
+import warnings
 import xml.etree.ElementTree as ET
 from typing import TYPE_CHECKING
 
@@ -16,9 +17,12 @@ from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
 from pymatgen.symmetry.bandstructure import HighSymmKpath
 
 if TYPE_CHECKING:
-    from pathlib import Path
+    from typing import ClassVar, Literal
 
+    from numpy.typing import ArrayLike, NDArray
     from typing_extensions import Self
+
+    from pymatgen.util.typing import PathLike
 
 __author__ = "Christian Vorwerk"
 __copyright__ = "Copyright 2016"
@@ -37,10 +41,18 @@ class ExcitingInput(MSONable):
     Attributes:
         structure (Structure): Associated Structure.
         title (str): Optional title string.
-        lockxyz (numpy.ndarray): Lockxyz attribute for each site if available. A Nx3 array of booleans.
+        lockxyz (Nx3 NDArray of booleans): Lockxyz attribute for each site if available.
     """
 
-    def __init__(self, structure: Structure, title=None, lockxyz=None):
+    # Conversion factor between Bohr radius and Angstrom
+    bohr2ang: ClassVar[float] = const.value("Bohr radius") / const.value("Angstrom star")
+
+    def __init__(
+        self,
+        structure: Structure,
+        title: str | None = None,
+        lockxyz: ArrayLike | None = None,
+    ) -> None:
         """
         Args:
             structure (Structure): Structure object.
@@ -52,22 +64,19 @@ class ExcitingInput(MSONable):
         if structure.is_ordered:
             site_properties = {}
             if lockxyz:
-                site_properties["selective_dynamics"] = lockxyz
+                site_properties["selective_dynamics"] = np.asarray(lockxyz)
             self.structure = structure.copy(site_properties=site_properties)
             self.title = structure.formula if title is None else title
         else:
             raise ValueError("Structure with partial occupancies cannot be converted into exciting input!")
 
-    # define conversion factor between Bohr radius and Angstrom
-    bohr2ang = const.value("Bohr radius") / const.value("Angstrom star")
-
     @property
-    def lockxyz(self):
+    def lockxyz(self) -> NDArray:
         """Selective dynamics site properties."""
         return self.structure.site_properties.get("selective_dynamics")
 
     @lockxyz.setter
-    def lockxyz(self, lockxyz):
+    def lockxyz(self, lockxyz: ArrayLike) -> NDArray:
         self.structure.add_site_property("selective_dynamics", lockxyz)
 
     @classmethod
@@ -85,12 +94,14 @@ class ExcitingInput(MSONable):
         lockxyz = []
         # get title
         _title = root.find("title")
-        assert _title is not None, "title cannot be None."
+        if _title is None:
+            raise ValueError("title cannot be None.")
         title_in = str(_title.text)
         # Read elements and coordinates
         for nodes in species_node:
             _speciesfile = nodes.get("speciesfile")
-            assert _speciesfile is not None, "speciesfile cannot be None."
+            if _speciesfile is None:
+                raise ValueError("speciesfile cannot be None.")
             symbol = _speciesfile.split(".")[0]
             if len(symbol.split("_")) == 2:
                 symbol = symbol.split("_")[0]
@@ -102,7 +113,8 @@ class ExcitingInput(MSONable):
 
             for atom in nodes.iter("atom"):
                 _coord = atom.get("coord")
-                assert _coord is not None, "coordinate cannot be None."
+                if _coord is None:
+                    raise ValueError("coordinate cannot be None.")
                 x, y, z = _coord.split()
                 positions.append([float(x), float(y), float(z)])
                 elements.append(element)
@@ -113,7 +125,8 @@ class ExcitingInput(MSONable):
                     lxyz = []
 
                     _lockxyz = atom.get("lockxyz")
-                    assert _lockxyz is not None, "lockxyz cannot be None."
+                    if _lockxyz is None:
+                        raise ValueError("lockxyz cannot be None.")
                     for line in _lockxyz.split():
                         if line in ("True", "true"):
                             lxyz.append(True)
@@ -126,10 +139,11 @@ class ExcitingInput(MSONable):
         if struct.attrib.get("cartesian"):
             cartesian = True
             for p, j in itertools.product(positions, range(3)):
-                p[j] = p[j] * ExcitingInput.bohr2ang
+                p[j] *= ExcitingInput.bohr2ang
 
         _crystal = struct.find("crystal")
-        assert _crystal is not None, "crystal cannot be None."
+        if _crystal is None:
+            raise ValueError("crystal cannot be None.")
 
         # get the scale attribute
         scale_in = _crystal.get("scale")
@@ -142,7 +156,8 @@ class ExcitingInput(MSONable):
         # get basis vectors and scale them accordingly
         basisnode = _crystal.iter("basevect")
         for vect in basisnode:
-            assert vect.text is not None, "vectors cannot be None."
+            if vect.text is None:
+                raise ValueError("vect.text cannot be None.")
             x, y, z = vect.text.split()
             vectors.append(
                 [
@@ -158,7 +173,7 @@ class ExcitingInput(MSONable):
         return cls(structure_in, title_in, lockxyz)
 
     @classmethod
-    def from_file(cls, filename: str | Path) -> Self:
+    def from_file(cls, filename: PathLike) -> Self:
         """
         Args:
             filename: Filename.
@@ -166,30 +181,33 @@ class ExcitingInput(MSONable):
         Returns:
             ExcitingInput
         """
-        with zopen(filename, mode="rt") as file:
+        with zopen(filename, mode="rt", encoding="utf-8") as file:
             data = file.read().replace("\n", "")
         return cls.from_str(data)
 
-    def write_etree(self, celltype, cartesian=False, bandstr=False, symprec: float = 0.4, angle_tolerance=5, **kwargs):
-        """Write the exciting input parameters to an XML object.
+    def write_etree(
+        self,
+        celltype: Literal["unchanged", "conventional", "primitive"],
+        cartesian: bool = False,
+        bandstr: bool = False,
+        symprec: float = 0.4,
+        angle_tolerance: float = 5,
+        **kwargs,
+    ) -> ET.Element:
+        """Convert the exciting input parameters to an XML Element object.
 
         Args:
             celltype (str): Choice of unit cell. Can be either the unit cell
                 from self.structure ("unchanged"), the conventional cell
                 ("conventional"), or the primitive unit cell ("primitive").
-
             cartesian (bool): Whether the atomic positions are provided in
                 Cartesian or unit-cell coordinates. Default is False.
-
             bandstr (bool): Whether the bandstructure path along the
                 HighSymmKpath is included in the input file. Only supported if the
                 celltype is set to "primitive". Default is False.
-
             symprec (float): Tolerance for the symmetry finding. Default is 0.4.
-
             angle_tolerance (float): Angle tolerance for the symmetry finding.
-            Default is 5.
-
+                Default is 5.
             **kwargs: Additional parameters for the input file.
 
         Returns:
@@ -267,7 +285,12 @@ class ExcitingInput(MSONable):
                     symbol = kpath.kpath["path"][idx][j]
                     coords = kpath.kpath["kpoints"][symbol]
                     coord = f"{coords[0]:16.8f} {coords[1]:16.8f} {coords[2]:16.8f}"
-                    symbol_map = {"\\Gamma": "GAMMA", "\\Sigma": "SIGMA", "\\Delta": "DELTA", "\\Lambda": "LAMBDA"}
+                    symbol_map = {
+                        "\\Gamma": "GAMMA",
+                        "\\Sigma": "SIGMA",
+                        "\\Delta": "DELTA",
+                        "\\Lambda": "LAMBDA",
+                    }
                     symbol = symbol_map.get(symbol, symbol)
                     _ = ET.SubElement(path, "point", coord=coord, label=symbol)
 
@@ -276,64 +299,70 @@ class ExcitingInput(MSONable):
 
         return root
 
-    def write_string(self, celltype, cartesian=False, bandstr=False, symprec: float = 0.4, angle_tolerance=5, **kwargs):
-        """Write exciting input.xml as a string.
+    def write_string(
+        self,
+        celltype: Literal["unchanged", "conventional", "primitive"],
+        cartesian: bool = False,
+        bandstr: bool = False,
+        symprec: float = 0.4,
+        angle_tolerance: float = 5,
+        **kwargs,
+    ) -> str:
+        """Convert exciting input to a string.
 
         Args:
             celltype (str): Choice of unit cell. Can be either the unit cell
-            from self.structure ("unchanged"), the conventional cell
-            ("conventional"), or the primitive unit cell ("primitive").
-
+                from self.structure ("unchanged"), the conventional cell
+                ("conventional"), or the primitive unit cell ("primitive").
             cartesian (bool): Whether the atomic positions are provided in
-            Cartesian or unit-cell coordinates. Default is False.
-
+                Cartesian or unit-cell coordinates. Default is False.
             bandstr (bool): Whether the bandstructure path along the
-            HighSymmKpath is included in the input file. Only supported if the
-            celltype is set to "primitive". Default is False.
-
+                HighSymmKpath is included in the input file. Only supported if the
+                celltype is set to "primitive". Default is False.
             symprec (float): Tolerance for the symmetry finding. Default is 0.4.
-
             angle_tolerance (float): Angle tolerance for the symmetry finding.
-            Default is 5.
-
+                Default is 5.
             **kwargs: Additional parameters for the input file.
 
         Returns:
-            String
+            str
         """
         try:
             root = self.write_etree(celltype, cartesian, bandstr, symprec, angle_tolerance, **kwargs)
             self._indent(root)
             # output should be a string not a bytes object
             string = ET.tostring(root).decode("UTF-8")
+
         except Exception:
             raise ValueError("Incorrect celltype!")
+
         return string
 
     def write_file(
-        self, celltype, filename, cartesian=False, bandstr=False, symprec: float = 0.4, angle_tolerance=5, **kwargs
-    ):
+        self,
+        celltype: Literal["unchanged", "conventional", "primitive"],
+        filename: PathLike,
+        cartesian: bool = False,
+        bandstr: bool = False,
+        symprec: float = 0.4,
+        angle_tolerance: float = 5,
+        **kwargs,
+    ) -> None:
         """Write exciting input file.
 
         Args:
             celltype (str): Choice of unit cell. Can be either the unit cell
-            from self.structure ("unchanged"), the conventional cell
-            ("conventional"), or the primitive unit cell ("primitive").
-
-            filename (str): Filename for exciting input.
-
+                from self.structure ("unchanged"), the conventional cell
+                ("conventional"), or the primitive unit cell ("primitive").
+            filename (PathLike): Filename for exciting input.
             cartesian (bool): Whether the atomic positions are provided in
-            Cartesian or unit-cell coordinates. Default is False.
-
+                Cartesian or unit-cell coordinates. Default is False.
             bandstr (bool): Whether the bandstructure path along the
-            HighSymmKpath is included in the input file. Only supported if the
-            celltype is set to "primitive". Default is False.
-
+                HighSymmKpath is included in the input file. Only supported if the
+                celltype is set to "primitive". Default is False.
             symprec (float): Tolerance for the symmetry finding. Default is 0.4.
-
             angle_tolerance (float): Angle tolerance for the symmetry finding.
-            Default is 5.
-
+                Default is 5.
             **kwargs: Additional parameters for the input file.
         """
         try:
@@ -344,15 +373,15 @@ class ExcitingInput(MSONable):
         except Exception:
             raise ValueError("Incorrect celltype!")
 
-    # Missing PrettyPrint option in the current version of xml.etree.cElementTree
     @staticmethod
-    def _indent(elem, level=0):
+    def _indent(elem: ET.Element, level: int = 0) -> None:
         """
-        Helper method to indent elements.
+        Helper method to indent elements, as missing PrettyPrint option
+        in the current version of xml.etree.cElementTree.
 
         Args:
-            elem:
-            level:
+            elem (ET.Element): The Element to process.
+            level (int): The indentation level.
         """
         i = "\n" + level * "  "
         if len(elem):
@@ -367,19 +396,23 @@ class ExcitingInput(MSONable):
         elif level and (not elem.tail or not elem.tail.strip()):
             elem.tail = i
 
-    def _dicttoxml(self, paramdict_, element):
+    def _dicttoxml(self, paramdict_: dict, element: ET.Element) -> None:
         for key, value in paramdict_.items():
             if isinstance(value, str) and key == "text()":
                 element.text = value
+
             elif isinstance(value, str):
                 element.attrib[key] = value
+
             elif isinstance(value, list):
                 for item in value:
                     self._dicttoxml(item, ET.SubElement(element, key))
+
             elif isinstance(value, dict):
                 if element.findall(key) == []:
                     self._dicttoxml(value, ET.SubElement(element, key))
                 else:
                     self._dicttoxml(value, element.findall(key)[0])
+
             else:
-                print("cannot deal with", key, "=", value)
+                warnings.warn(f"cannot deal with {key} = {value}", stacklevel=2)

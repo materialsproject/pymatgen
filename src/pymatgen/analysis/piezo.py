@@ -28,7 +28,7 @@ class PiezoTensor(Tensor):
     def __new__(cls, input_array: ArrayLike, tol: float = 1e-3) -> Self:
         """
         Create an PiezoTensor object. The constructor throws an error if
-        the shape of the input_matrix argument is not 3x3x3, i. e. in true
+        the shape of the input_matrix argument is not 3x3x3, i.e. in true
         tensor notation. Note that the constructor uses __new__ rather than
         __init__ according to the standard method of subclassing numpy
         ndarrays.
@@ -38,15 +38,15 @@ class PiezoTensor(Tensor):
                 representing the piezo tensor
         """
         obj = super().__new__(cls, input_array, check_rank=3)
-        if not (obj - np.transpose(obj, (0, 2, 1)) < tol).all():
-            warnings.warn("Input piezo tensor does not satisfy standard symmetries")
+        if not np.allclose(obj, np.transpose(obj, (0, 2, 1)), atol=tol, rtol=0):
+            warnings.warn("Input piezo tensor does not satisfy standard symmetries", stacklevel=2)
         return obj.view(cls)
 
     @classmethod
     def from_vasp_voigt(cls, input_vasp_array: ArrayLike) -> Self:
         """
         Args:
-            input_vasp_array (nd.array): Voigt form of tensor.
+            input_vasp_array (ArrayLike): Voigt form of tensor.
 
         Returns:
             PiezoTensor

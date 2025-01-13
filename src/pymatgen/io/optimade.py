@@ -56,7 +56,7 @@ def _pymatgen_species(
             chemical_symbols.append(symbol)
             concentration.append(current_species["concentration"][index])
 
-        pymatgen_species.append(dict(zip(chemical_symbols, concentration, strict=False)))
+        pymatgen_species.append(dict(zip(chemical_symbols, concentration, strict=True)))
 
     return pymatgen_species
 
@@ -98,9 +98,9 @@ def _optimade_reduce_or_anonymize_formula(formula: str, alphabetize: bool = True
         species = [s for _, s in zip(numbers, _optimade_anonymous_element_generator(), strict=False)]
 
     elif alphabetize:
-        species, numbers = zip(*sorted(zip(species, numbers, strict=False)), strict=False)  # type: ignore[assignment]
+        species, numbers = zip(*sorted(zip(species, numbers, strict=True)), strict=True)  # type: ignore[assignment]
 
-    return "".join(f"{s}{n if n != 1 else ''}" for n, s in zip(numbers, species, strict=False))
+    return "".join(f"{s}{n if n != 1 else ''}" for n, s in zip(numbers, species, strict=True))
 
 
 class OptimadeStructureAdapter:

@@ -16,9 +16,9 @@ TEST_DIR = f"{TEST_FILES_DIR}/phonon/dos"
 
 class TestPhononDos(PymatgenTest):
     def setUp(self):
-        with open(f"{TEST_DIR}/NaCl_ph_dos.json") as file:
+        with open(f"{TEST_DIR}/NaCl_ph_dos.json", encoding="utf-8") as file:
             self.dos = PhononDos.from_dict(json.load(file))
-        with open(f"{TEST_DIR}/NaCl_complete_ph_dos.json") as file:
+        with open(f"{TEST_DIR}/NaCl_complete_ph_dos.json", encoding="utf-8") as file:
             self.structure = CompletePhononDos.from_dict(json.load(file)).structure
 
     def test_repr(self):
@@ -26,7 +26,8 @@ class TestPhononDos(PymatgenTest):
 
     def test_str(self):
         assert re.match(
-            r"#Frequency\s+Density\s+\n-0.66954\s+0.00000\n-0.63158\s+0.00000\n-0.59363\s+0.00000", str(self.dos)
+            r"#Frequency\s+Density\s+\n-0.66954\s+0.00000\n-0.63158\s+0.00000\n-0.59363\s+0.00000",
+            str(self.dos),
         )
 
     def test_properties(self):
@@ -128,19 +129,19 @@ class TestPhononDos(PymatgenTest):
         assert peak_freq == approx(4.9662820761)
 
     def test_get_dos_fp(self):
-        # normalize=True
+        # normalize is True
         dos_fp = self.dos.get_dos_fp(min_f=-1, max_f=5, n_bins=56, normalize=True)
         bin_width = np.diff(dos_fp.frequencies)[0][0]
         assert max(dos_fp.frequencies[0]) <= 5
         assert min(dos_fp.frequencies[0]) >= -1
         assert len(dos_fp.frequencies[0]) == 56
         assert sum(dos_fp.densities * bin_width) == approx(1)
-        # normalize=False
+        # normalize is False
         dos_fp2 = self.dos.get_dos_fp(min_f=-1, max_f=5, n_bins=56, normalize=False)
         bin_width2 = np.diff(dos_fp2.frequencies)[0][0]
         assert sum(dos_fp2.densities * bin_width2) == approx(13.722295798242834)
         assert dos_fp2.bin_width == approx(bin_width2)
-        # binning=False
+        # binning is False
         dos_fp = self.dos.get_dos_fp(min_f=None, max_f=None, n_bins=56, normalize=True, binning=False)
         assert dos_fp.n_bins == len(self.dos.frequencies)
 
@@ -174,13 +175,16 @@ class TestPhononDos(PymatgenTest):
 
         valid_metrics = ("tanimoto", "wasserstein", "cosine-sim")
         metric = "Dot"
-        with pytest.raises(ValueError, match=re.escape(f"Invalid {metric=}, choose from {valid_metrics}.")):
+        with pytest.raises(
+            ValueError,
+            match=re.escape(f"Invalid {metric=}, choose from {valid_metrics}."),
+        ):
             self.dos.get_dos_fp_similarity(dos_fp, dos_fp2, col=1, metric=metric, normalize=False)
 
 
 class TestCompletePhononDos(PymatgenTest):
     def setUp(self):
-        with open(f"{TEST_DIR}/NaCl_complete_ph_dos.json") as file:
+        with open(f"{TEST_DIR}/NaCl_complete_ph_dos.json", encoding="utf-8") as file:
             self.cdos = CompletePhononDos.from_dict(json.load(file))
 
     def test_properties(self):

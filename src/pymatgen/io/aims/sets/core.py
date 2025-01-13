@@ -76,7 +76,8 @@ class RelaxSetGenerator(AimsInputGenerator):
         elif isinstance(structure, Structure):
             updates["relax_unit_cell"] = "none"
 
-        return updates
+        prev_parameters.update(updates)
+        return prev_parameters
 
 
 @dataclass
@@ -155,7 +156,10 @@ class MDSetGenerator(AimsInputGenerator):
         dict
             A dictionary of updates to apply.
         """
-        updates: dict[str, Any] = {"MD_run": [self.time], "MD_time_step": self.time_step}
+        updates: dict[str, Any] = {
+            "MD_run": [self.time],
+            "MD_time_step": self.time_step,
+        }
 
         # check for ensemble type validity
         default_ensemble_types = {"nve": "", "nvt": "parrinello", "gle": "thermostat"}

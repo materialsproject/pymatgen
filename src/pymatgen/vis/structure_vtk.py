@@ -229,7 +229,7 @@ class StructureVis:
 
         matrix = struct.lattice.matrix if has_lattice else None
 
-        if self.show_unit_cell and has_lattice:
+        if self.show_unit_cell and has_lattice and matrix is not None:
             self.add_text([0, 0, 0], "o")
             for vec in matrix:
                 self.add_line((0, 0, 0), vec, colors[count])
@@ -257,7 +257,7 @@ class StructureVis:
                         exclude = True
                         break
                     max_radius = max(max_radius, sp.average_ionic_radius)
-                    color = color + occu * np.array(self.el_color_mapping.get(sp.symbol, [0, 0, 0]))
+                    color += occu * np.array(self.el_color_mapping.get(sp.symbol, [0, 0, 0]))
 
                 if not exclude:
                     max_radius = (1 + self.poly_radii_tol_factor) * (max_radius + anion_radius)
@@ -283,7 +283,7 @@ class StructureVis:
 
         camera = self.ren.GetActiveCamera()
         if reset_camera:
-            if has_lattice:
+            if has_lattice and matrix is not None:
                 # Adjust the camera for best viewing
                 lengths = struct.lattice.abc
                 pos = (matrix[1] + matrix[2]) * 0.5 + matrix[0] * max(lengths) / lengths[0] * 3.5
@@ -323,9 +323,7 @@ class StructureVis:
         Args:
             site: Site to add.
         """
-        start_angle = 0
-        radius = 0
-        total_occu = 0
+        start_angle = radius = total_occu = 0
 
         for specie, occu in site.species.items():
             radius += occu * (
@@ -359,7 +357,7 @@ class StructureVis:
         Adding a partial sphere (to display partial occupancies.
 
         Args:
-            coords (nd.array): Coordinates
+            coords (np.array): Coordinates
             radius (float): Radius of sphere
             color (tuple): RGB color of sphere
             start (float): Starting angle.
@@ -857,7 +855,15 @@ class StructureInteractorStyle(TrackballCamera):
         self.OnKeyPress()
 
 
-def make_movie(structures, output_filename="movie.mp4", zoom=1.0, fps=20, bitrate="10000k", quality=1, **kwargs):
+def make_movie(
+    structures,
+    output_filename="movie.mp4",
+    zoom=1.0,
+    fps=20,
+    bitrate="10000k",
+    quality=1,
+    **kwargs,
+):
     """
     Generate a movie from a sequence of structures using vtk and ffmpeg.
 
@@ -883,7 +889,19 @@ def make_movie(structures, output_filename="movie.mp4", zoom=1.0, fps=20, bitrat
         vis.set_structure(site)
         vis.write_image(filename.format(idx), 3)
     filename = f"image%0{sig_fig}d.png"
-    args = ["ffmpeg", "-y", "-i", filename, "-q:v", str(quality), "-r", str(fps), "-b:v", str(bitrate), output_filename]
+    args = [
+        "ffmpeg",
+        "-y",
+        "-i",
+        filename,
+        "-q:v",
+        str(quality),
+        "-r",
+        str(fps),
+        "-b:v",
+        str(bitrate),
+        output_filename,
+    ]
     with subprocess.Popen(args) as process:
         process.communicate()
 
@@ -1007,9 +1025,9 @@ class MultiStructuresVis(StructureVis):
             opacity = tag.get("opacity", 0.5)
             if site_index == "unit_cell_all":
                 struct_radii = self.all_vis_radii[self.istruct]
-                for isite, _site in enumerate(self.current_structure):
-                    vis_radius = 1.5 * tag.get("radius", struct_radii[isite])
-                    tags[isite, (0, 0, 0)] = {
+                for site_idx in range(len(self.current_structure)):
+                    vis_radius = 1.5 * tag.get("radius", struct_radii[site_idx])
+                    tags[site_idx, (0, 0, 0)] = {
                         "radius": vis_radius,
                         "color": color,
                         "opacity": opacity,
@@ -1028,8 +1046,8 @@ class MultiStructuresVis(StructureVis):
                 "opacity": opacity,
             }
         for site_and_cell_index, tag_style in tags.items():
-            isite, cell_index = site_and_cell_index
-            site = self.current_structure[isite]
+            site_idx, cell_index = site_and_cell_index
+            site = self.current_structure[site_idx]
             if cell_index == (0, 0, 0):
                 coords = site.coords
             else:
@@ -1123,12 +1141,12 @@ class MultiStructuresVis(StructureVis):
             info (str): Information.
         """
         self.info_txt_mapper = vtk.vtkTextMapper()
-        tprops = self.info_txt_mapper.GetTextProperty()
-        tprops.SetFontSize(14)
-        tprops.SetFontFamilyToTimes()
-        tprops.SetColor(0, 0, 1)
-        tprops.BoldOn()
-        tprops.SetVerticalJustificationToTop()
+        t_prop = self.info_txt_mapper.GetTextProperty()
+        t_prop.SetFontSize(14)
+        t_prop.SetFontFamilyToTimes()
+        t_prop.SetColor(0, 0, 1)
+        t_prop.BoldOn()
+        t_prop.SetVerticalJustificationToTop()
         self.info_txt = f"INFO : {info}"
         self.info_txt_actor = vtk.vtkActor2D()
         self.info_txt_actor.VisibilityOn()
@@ -1198,8 +1216,7 @@ class MultiStructuresInteractorStyle(StructureInteractorStyle):
                     parent.current_structure = parent.structures[parent.istruct]
                     parent.set_structure(parent.current_structure, reset_camera=False, to_unit_cell=False)
                     parent.display_info(
-                        f"Animated movie : structure {istruct + 1}/{len(parent.structures)} "
-                        f"(loop {iloop + 1}/{nloops})"
+                        f"Animated movie : structure {istruct + 1}/{len(parent.structures)} (loop {iloop + 1}/{nloops})"
                     )
                     parent.ren_win.Render()
                 time.sleep(tloops)

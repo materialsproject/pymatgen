@@ -42,7 +42,11 @@ class TestMcsqsCaller(PymatgenTest):
             "longest_pair_length",
             "num_points_in_cluster",
         }
-        assert set(sqs.clusters[0]["coordinates"][0]) == {"cluster_function", "coordinates", "num_possible_species"}
+        assert set(sqs.clusters[0]["coordinates"][0]) == {
+            "cluster_function",
+            "coordinates",
+            "num_possible_species",
+        }
 
     def test_mcsqs_caller_total_atoms(self):
         struct = self.struct.copy()

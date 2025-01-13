@@ -139,9 +139,21 @@ class TestTensor(PymatgenTest):
         assert_allclose(
             new_tensor,
             [
-                [[-0.871, -2.884, -1.928], [-2.152, -6.665, -4.196], [-1.026, -2.830, -1.572]],
-                [[0.044, 1.531, 1.804], [4.263, 21.008, 17.928], [5.170, 23.026, 18.722]],
-                [[1.679, 7.268, 5.821], [9.268, 38.321, 29.919], [8.285, 33.651, 26.000]],
+                [
+                    [-0.871, -2.884, -1.928],
+                    [-2.152, -6.665, -4.196],
+                    [-1.026, -2.830, -1.572],
+                ],
+                [
+                    [0.044, 1.531, 1.804],
+                    [4.263, 21.008, 17.928],
+                    [5.170, 23.026, 18.722],
+                ],
+                [
+                    [1.679, 7.268, 5.821],
+                    [9.268, 38.321, 29.919],
+                    [8.285, 33.651, 26.000],
+                ],
             ],
             3,
         )
@@ -226,7 +238,10 @@ class TestTensor(PymatgenTest):
         assert_allclose(rotated, transformed)
 
     def test_from_voigt(self):
-        with pytest.raises(ValueError, match="The requested array has an inhomogeneous shape after 1 dimensions."):
+        with pytest.raises(
+            ValueError,
+            match="The requested array has an inhomogeneous shape after 1 dimensions.",
+        ):
             Tensor.from_voigt(
                 [
                     [59.33, 28.08, 28.08, 0],
@@ -271,7 +286,7 @@ class TestTensor(PymatgenTest):
         reduced = symmetry_reduce(tbs, self.get_structure("Sn"))
         tkey = Tensor.from_values_indices([0.01], [(0, 0)])
         tval = reduced[tkey]
-        for tens_1, tens_2 in zip(tval, reduced[tbs[0]], strict=False):
+        for tens_1, tens_2 in zip(tval, reduced[tbs[0]], strict=True):
             assert approx(tens_1) == tens_2
         # Test set
         reduced[tkey] = "test_val"
@@ -304,7 +319,7 @@ class TestTensor(PymatgenTest):
         vtens = np.zeros([6] * 3)
         indices = [(0, 0, 0), (0, 0, 1), (0, 1, 2), (0, 3, 3), (0, 5, 5), (3, 4, 5)]
         values = [-1271.0, -814.0, -50.0, -3.0, -780.0, -95.0]
-        for v, idx in zip(values, indices, strict=False):
+        for v, idx in zip(values, indices, strict=True):
             vtens[idx] = v
         toec = Tensor.from_voigt(vtens)
         toec = toec.populate(sn, prec=1e-3, verbose=True)
@@ -382,7 +397,7 @@ class TestTensorCollection(PymatgenTest):
         tc_mod = getattr(tc_orig, attribute)
         if callable(tc_mod):
             tc_mod = tc_mod(*args, **kwargs)
-        for t_orig, t_mod in zip(tc_orig, tc_mod, strict=False):
+        for t_orig, t_mod in zip(tc_orig, tc_mod, strict=True):
             this_mod = getattr(t_orig, attribute)
             if callable(this_mod):
                 this_mod = this_mod(*args, **kwargs)
@@ -440,20 +455,20 @@ class TestTensorCollection(PymatgenTest):
         # from_voigt
         tc_input = list(np.random.default_rng().random((3, 6, 6)))
         tc = TensorCollection.from_voigt(tc_input)
-        for t_input, tensor in zip(tc_input, tc, strict=False):
+        for t_input, tensor in zip(tc_input, tc, strict=True):
             assert_allclose(Tensor.from_voigt(t_input), tensor)
 
     def test_serialization(self):
         # Test base serialize-deserialize
         dct = self.seq_tc.as_dict()
         new = TensorCollection.from_dict(dct)
-        for t, t_new in zip(self.seq_tc, new, strict=False):
+        for t, t_new in zip(self.seq_tc, new, strict=True):
             assert_allclose(t, t_new)
 
         voigt_symmetrized = self.rand_tc.voigt_symmetrized
         dct = voigt_symmetrized.as_dict(voigt=True)
         new_vsym = TensorCollection.from_dict(dct)
-        for t, t_new in zip(voigt_symmetrized, new_vsym, strict=False):
+        for t, t_new in zip(voigt_symmetrized, new_vsym, strict=True):
             assert_allclose(t, t_new)
 
 
@@ -482,7 +497,10 @@ class TestSquareTensor(PymatgenTest):
             match="Pymatgen only supports 3-dimensional tensors, and default tensor constructor uses standard notation",
         ):
             SquareTensor(non_sq_matrix)
-        with pytest.raises(ValueError, match="The requested array has an inhomogeneous shape after 1 dimensions."):
+        with pytest.raises(
+            ValueError,
+            match="The requested array has an inhomogeneous shape after 1 dimensions.",
+        ):
             SquareTensor(bad_matrix)
         with pytest.raises(ValueError, match="SquareTensor input must be rank 2"):
             SquareTensor(too_high_rank)

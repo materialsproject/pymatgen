@@ -213,7 +213,7 @@ class TestArrayWithUnit(PymatgenTest):
         """Similar to FloatWithUnitTest.test_time.
         Check whether EnergyArray and FloatWithUnit have same behavior.
         """
-        # here there's a minor difference because we have a ndarray with dtype=int
+        # here there's a minor difference because we have a ndarray with dtype=np.int64
         a = TimeArray(20, "h")
         assert a.to("s") == 3600 * 20
         # Test left and right multiplication.
@@ -261,7 +261,13 @@ class TestArrayWithUnit(PymatgenTest):
         ]
 
         for obj in objects_with_unit:
-            assert obj.unit in (Unit("Ha"), Unit("eV"), Unit("s^-1"), Unit("Ha s"), Unit("Ha eV^-1"))
+            assert obj.unit in (
+                Unit("Ha"),
+                Unit("eV"),
+                Unit("s^-1"),
+                Unit("Ha s"),
+                Unit("Ha eV^-1"),
+            )
 
         # Here we could return a FloatWithUnit object but I prefer this
         # a bare scalar since FloatWithUnit extends float while we could

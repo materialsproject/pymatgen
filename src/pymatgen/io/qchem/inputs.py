@@ -373,7 +373,7 @@ class QCInput(InputFile):
             job_list (list[QCInput]): List of QChem jobs.
             filename (str): Name of the file to write.
         """
-        with zopen(filename, mode="wt") as file:
+        with zopen(filename, mode="wt", encoding="utf-8") as file:
             file.write(QCInput.multi_job_string(job_list))
 
     @classmethod
@@ -387,7 +387,7 @@ class QCInput(InputFile):
         Returns:
             QcInput
         """
-        with zopen(filename, mode="rt") as file:
+        with zopen(filename, mode="rt", encoding="utf-8") as file:
             return cls.from_str(file.read())
 
     @classmethod
@@ -401,7 +401,7 @@ class QCInput(InputFile):
         Returns:
             List of QCInput objects
         """
-        with zopen(filename, mode="rt") as file:
+        with zopen(filename, mode="rt", encoding="utf-8") as file:
             # the delimiter between QChem jobs is @@@
             multi_job_strings = file.read().split("@@@")
             # list of individual QChem jobs
@@ -694,7 +694,7 @@ class QCInput(InputFile):
                     constraint["first_atoms"],
                     constraint["last_atoms"],
                     type_strings,
-                    strict=False,
+                    strict=True,
                 ):
                     if type_string != "":
                         cdft_list.append(f"   {coef} {first} {last} {type_string}")
@@ -835,7 +835,12 @@ class QCInput(InputFile):
             if charge is None:
                 mol = Molecule(species=species, coords=coords)
             else:
-                mol = Molecule(species=species, coords=coords, charge=charge, spin_multiplicity=spin_mult)
+                mol = Molecule(
+                    species=species,
+                    coords=coords,
+                    charge=charge,
+                    spin_multiplicity=spin_mult,
+                )
             return mol
 
         header = r"\s*(?:\-)*\d+\s+(?:\-)*\d+"
@@ -848,7 +853,7 @@ class QCInput(InputFile):
         matches = read_pattern(string, patterns)
 
         mol_table = read_table_pattern(string, header_pattern=header, row_pattern=row, footer_pattern=footer)
-        for match, table in zip(matches.get("charge_spin"), mol_table, strict=False):
+        for match, table in zip(matches.get("charge_spin"), mol_table, strict=True):
             charge = int(match[0])
             spin = int(match[1])
             species = [val[0] for val in table]
@@ -898,7 +903,12 @@ class QCInput(InputFile):
             c_header = r"^\s*CONSTRAINT\n"
             c_row = r"(\w.*)\n"
             c_footer = r"^\s*ENDCONSTRAINT\n"
-            c_table = read_table_pattern(string, header_pattern=c_header, row_pattern=c_row, footer_pattern=c_footer)
+            c_table = read_table_pattern(
+                string,
+                header_pattern=c_header,
+                row_pattern=c_row,
+                footer_pattern=c_footer,
+            )
             opt["CONSTRAINT"] = [val[0] for val in c_table[0]]
         if "FIXED" in opt_sections:
             f_header = r"^\s*FIXED\n"

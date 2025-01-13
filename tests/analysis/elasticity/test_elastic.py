@@ -8,7 +8,7 @@ import numpy as np
 import pytest
 from numpy.testing import assert_allclose
 from pytest import approx
-from scipy.misc import central_diff_weights
+from scipy import linalg
 
 from pymatgen.analysis.elasticity.elastic import (
     ComplianceTensor,
@@ -43,7 +43,7 @@ class TestElasticTensor(PymatgenTest):
             [0, 0, 0, 0, 0, 26.35],
         ]
         mat = np.random.default_rng().standard_normal((6, 6))
-        mat = mat + np.transpose(mat)
+        mat += np.transpose(mat)
         self.rand_elastic_tensor = ElasticTensor.from_voigt(mat)
         self.ft = np.array(
             [
@@ -67,9 +67,9 @@ class TestElasticTensor(PymatgenTest):
 
         self.elastic_tensor_1 = ElasticTensor(self.ft)
         filepath = f"{TEST_DIR}/Sn_def_stress.json"
-        with open(filepath) as file:
+        with open(filepath, encoding="utf-8") as file:
             self.def_stress_dict = json.load(file)
-        with open(f"{TEST_DIR}/test_toec_data.json") as file:
+        with open(f"{TEST_DIR}/test_toec_data.json", encoding="utf-8") as file:
             self.toec_dict = json.load(file)
         self.structure = self.get_structure("Sn")
 
@@ -165,10 +165,14 @@ class TestElasticTensor(PymatgenTest):
         for attr_name in struct_prop_dict:
             if attr_name not in ([*prop_dict, "structure"]):
                 with pytest.raises(
-                    ValueError, match="Bulk or shear modulus is negative, property cannot be determined"
+                    ValueError,
+                    match="Bulk or shear modulus is negative, property cannot be determined",
                 ):
                     getattr(test_et, attr_name)(struct)
-        with pytest.raises(ValueError, match="Bulk or shear modulus is negative, property cannot be determined"):
+        with pytest.raises(
+            ValueError,
+            match="Bulk or shear modulus is negative, property cannot be determined",
+        ):
             test_et.get_structure_property_dict(struct)
         noval_sprop_dict = test_et.get_structure_property_dict(struct, ignore_errors=True)
         assert noval_sprop_dict["snyder_ac"] is None
@@ -178,7 +182,8 @@ class TestElasticTensor(PymatgenTest):
         non_symm = self.ft
         non_symm[0, 1, 2, 2] += 1.0
         with pytest.warns(
-            UserWarning, match="Input elastic tensor does not satisfy standard Voigt symmetries"
+            UserWarning,
+            match="Input elastic tensor does not satisfy standard Voigt symmetries",
         ) as warns:
             ElasticTensor(non_symm)
         assert (
@@ -260,7 +265,7 @@ class TestElasticTensor(PymatgenTest):
 
 class TestElasticTensorExpansion(PymatgenTest):
     def setUp(self):
-        with open(f"{TEST_DIR}/test_toec_data.json") as file:
+        with open(f"{TEST_DIR}/test_toec_data.json", encoding="utf-8") as file:
             self.data_dict = json.load(file)
         self.strains = [Strain(sm) for sm in self.data_dict["strains"]]
         self.pk_stresses = [Stress(d) for d in self.data_dict["pk_stresses"]]
@@ -361,7 +366,7 @@ class TestElasticTensorExpansion(PymatgenTest):
 
 class TestNthOrderElasticTensor(PymatgenTest):
     def setUp(self):
-        with open(f"{TEST_DIR}/test_toec_data.json") as file:
+        with open(f"{TEST_DIR}/test_toec_data.json", encoding="utf-8") as file:
             self.data_dict = json.load(file)
         self.strains = [Strain(sm) for sm in self.data_dict["strains"]]
         self.pk_stresses = [Stress(d) for d in self.data_dict["pk_stresses"]]
@@ -400,7 +405,7 @@ class TestDiffFit(PymatgenTest):
     """Test various functions related to diff fitting."""
 
     def setUp(self):
-        with open(f"{TEST_DIR}/test_toec_data.json") as file:
+        with open(f"{TEST_DIR}/test_toec_data.json", encoding="utf-8") as file:
             self.data_dict = json.load(file)
         self.strains = [Strain(sm) for sm in self.data_dict["strains"]]
         self.pk_stresses = [Stress(d) for d in self.data_dict["pk_stresses"]]
@@ -422,7 +427,7 @@ class TestDiffFit(PymatgenTest):
         all_strains = [Strain.from_voigt(v).zeroed() for vec in vecs.values() for v in vec]
         rng.shuffle(all_strains)
         all_stresses = [Stress.from_voigt(rng.random(6)).zeroed() for _ in all_strains]
-        strain_dict = {k.tobytes(): v for k, v in zip(all_strains, all_stresses, strict=False)}
+        strain_dict = {k.tobytes(): v for k, v in zip(all_strains, all_stresses, strict=True)}
         ss_dict = get_strain_state_dict(all_strains, all_stresses, add_eq=False)
         # Check length of ss_dict
         assert len(strain_inds) == len(ss_dict)
@@ -430,7 +435,7 @@ class TestDiffFit(PymatgenTest):
         assert set(strain_states) == set(ss_dict)
         for data in ss_dict.values():
             # Check correspondence of strains/stresses
-            for strain, stress in zip(data["strains"], data["stresses"], strict=False):
+            for strain, stress in zip(data["strains"], data["stresses"], strict=True):
                 assert_allclose(
                     Stress.from_voigt(stress),
                     strain_dict[Strain.from_voigt(strain).tobytes()],
@@ -450,6 +455,43 @@ class TestDiffFit(PymatgenTest):
         assert_allclose(test_stresses[3], eq_stress)
 
     def test_get_diff_coeff(self):
+        def central_diff_weights(Np, ndiv):
+            """
+            Notes:
+                This function is taken from SciPy's deprecated implementation of
+                central difference weights. The original code can be found at:
+                https://github.com/scipy/scipy/blob/ea916c6f7f487bd53e98de08264
+                9d542cc6106ed/scipy/_lib/_finite_differences.py
+
+                License: This code is distributed under the BSD 3-Clause license.
+
+                Copyright (c) 2001-2002 Enthought, Inc. 2003-2024, SciPy Developers.
+                All rights reserved.
+
+            Return weights for an Np-point central derivative.
+
+            Assumes equally-spaced function points.
+
+            If weights are in the vector w, then
+            derivative is w[0] * f(x-ho*dx) + ... + w[-1] * f(x+h0*dx)
+
+            Args:
+                Np (int): Number of points for the central derivative.
+                ndiv (int, optional): Number of divisions. Default is 1.
+
+            Returns:
+                w (ndarray): Weights for an Np-point central derivative.
+                    Its size is `Np`.
+            """
+
+            ho = Np >> 1
+            x = np.arange(-ho, ho + 1.0)
+            x = x[:, np.newaxis]
+            X = x**0.0
+            for k in range(1, Np):
+                X = np.hstack([X, x**k])
+            return np.prod(np.arange(1, ndiv + 1), axis=0) * linalg.inv(X)[ndiv]
+
         forward_11 = get_diff_coeff([0, 1], 1)
         forward_13 = get_diff_coeff([0, 1, 2, 3], 1)
         backward_26 = get_diff_coeff(np.arange(-6, 1), 2)
@@ -474,11 +516,11 @@ class TestDiffFit(PymatgenTest):
         diff_fit(self.strains, self.pk_stresses, self.data_dict["eq_stress"])
         reduced = [
             (e, pk)
-            for e, pk in zip(self.strains, self.pk_stresses, strict=False)
+            for e, pk in zip(self.strains, self.pk_stresses, strict=True)
             if not (abs(abs(e) - 0.05) < 1e-10).any()
         ]
         # Get reduced dataset
-        r_strains, r_pk_stresses = zip(*reduced, strict=False)
+        r_strains, r_pk_stresses = zip(*reduced, strict=True)
         c2 = diff_fit(r_strains, r_pk_stresses, self.data_dict["eq_stress"], order=2)
         c2, c3, _c4 = diff_fit(r_strains, r_pk_stresses, self.data_dict["eq_stress"], order=4)
         c2, c3 = diff_fit(self.strains, self.pk_stresses, self.data_dict["eq_stress"], order=3)

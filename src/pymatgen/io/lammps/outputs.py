@@ -81,9 +81,8 @@ class LammpsDump(MSONable):
         Returns:
             LammpsDump
         """
-        items = {"timestep": dct["timestep"], "natoms": dct["natoms"]}
-        items["box"] = LammpsBox.from_dict(dct["box"])
-        items["data"] = pd.read_json(dct["data"], orient="split")
+        items = {"timestep": dct["timestep"], "natoms": dct["natoms"], "box": LammpsBox.from_dict(dct["box"])}
+        items["data"] = pd.read_json(StringIO(dct["data"]), orient="split")
         return cls(**items)
 
     def as_dict(self) -> dict[str, Any]:
@@ -116,7 +115,7 @@ def parse_lammps_dumps(file_pattern):
         files = sorted(files, key=lambda f: int(re.match(pattern, f)[1]))
 
     for filename in files:
-        with zopen(filename, mode="rt") as file:
+        with zopen(filename, mode="rt", encoding="utf-8") as file:
             dump_cache = []
             for line in file:
                 if line.startswith("ITEM: TIMESTEP"):
@@ -145,7 +144,7 @@ def parse_lammps_log(filename: str = "log.lammps") -> list[pd.DataFrame]:
     Returns:
         [pd.DataFrame] containing thermo data for each completed run.
     """
-    with zopen(filename, mode="rt") as file:
+    with zopen(filename, mode="rt", encoding="utf-8") as file:
         lines = file.readlines()
     begin_flag = (
         "Memory usage per processor =",
@@ -170,20 +169,21 @@ def parse_lammps_log(filename: str = "log.lammps") -> list[pd.DataFrame]:
             for ts in time_steps:
                 data = {}
                 step = re.match(multi_pattern, ts[0])
-                assert step is not None
+                if step is None:
+                    raise ValueError("step is None")
                 data["Step"] = int(step[1])
                 data |= {k: float(v) for k, v in re.findall(kv_pattern, "".join(ts[1:]))}
                 dicts.append(data)
-            df = pd.DataFrame(dicts)
+            df_thermo = pd.DataFrame(dicts)
             # rearrange the sequence of columns
             columns = ["Step"] + [k for k, v in re.findall(kv_pattern, "".join(time_steps[0][1:]))]
-            df = df[columns]
+            df_thermo = df_thermo[columns]
         # one line thermo data
         else:
-            df = pd.read_csv(StringIO("".join(lines)), sep=r"\s+")
-        return df
+            df_thermo = pd.read_csv(StringIO("".join(lines)), sep=r"\s+")
+        return df_thermo
 
     runs = []
-    for b, e in zip(begins, ends, strict=False):
+    for b, e in zip(begins, ends, strict=True):
         runs.append(_parse_thermo(lines[b + 1 : e]))
     return runs

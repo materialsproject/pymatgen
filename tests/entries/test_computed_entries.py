@@ -41,7 +41,11 @@ def test_energy_adjustment():
 def test_energy_adjustment_repr():
     comp_cls = MaterialsProject2020Compatibility()
     cls_name = type(comp_cls).__name__
-    for cls, label in ((None, "unknown"), (comp_cls, cls_name), ({"@class": cls_name}, cls_name)):
+    for cls, label in (
+        (None, "unknown"),
+        (comp_cls, cls_name),
+        ({"@class": cls_name}, cls_name),
+    ):
         ea = EnergyAdjustment(10, cls=cls)
         assert (
             repr(ea) == "EnergyAdjustment(name='Manual adjustment', value=10.0, uncertainty=nan, description='', "
@@ -466,11 +470,13 @@ class TestGibbsComputedStructureEntry(TestCase):
             for temp in self.temps
         }
 
-        with open(f"{TEST_DIR}/Mn-O_entries.json") as file:
+        with open(f"{TEST_DIR}/Mn-O_entries.json", encoding="utf-8") as file:
             data = json.load(file)
-        with open(f"{TEST_DIR}/structure_CO2.json") as file:
+        with open(f"{TEST_DIR}/structure_CO2.json", encoding="utf-8") as file:
             self.co2_struct = MontyDecoder().process_decoded(json.load(file))
 
+        with open(f"{TEST_DIR}/Mn-O_entries.json") as file:
+            data = json.load(file)
         self.mp_entries = [MontyDecoder().process_decoded(d) for d in data]
 
     def test_gf_sisso(self):

@@ -441,10 +441,10 @@ def main():
     args = parser.parse_args()
 
     try:
-        args.func  # noqa: B018
-    except AttributeError:
+        _ = args.func
+    except AttributeError as exc:
         parser.print_help()
-        raise SystemExit("Please specify a command.")
+        raise SystemExit("Please specify a command.") from exc
     return args.func(args)
 
 

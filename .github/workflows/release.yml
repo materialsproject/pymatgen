@@ -1,4 +1,5 @@
-name: Release # makes PyPI releases
+# Make PyPI releases
+name: Release
 
 on:
   release:
@@ -26,17 +27,17 @@ jobs:
       - name: Check out repo
         uses: actions/checkout@v4
 
-      - uses: actions/setup-python@v5
-        name: Install Python
+      - name: Install Python
+        uses: actions/setup-python@v5
         with:
           python-version: "3.12"
 
-      - name: Build sdist
+      - name: Build source distribution
         run: |
           pip install build
           python -m build --sdist
 
-      - uses: actions/upload-artifact@v3
+      - uses: actions/upload-artifact@v4
         with:
           path: dist/*.tar.gz
 
@@ -45,7 +46,7 @@ jobs:
     strategy:
       matrix:
         os: [ubuntu-latest, macos-14, windows-latest]
-        python-version: ["39", "310", "311", "312"]
+        python-version: ["310", "311", "312"]
     runs-on: ${{ matrix.os }}
     steps:
       - name: Check out repo
@@ -57,15 +58,19 @@ jobs:
           CIBW_BUILD: cp${{ matrix.python-version }}-*
 
       - name: Save artifact
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
+          name: dist-${{ matrix.os }}-${{ matrix.python-version }}
           path: ./wheelhouse/*.whl
 
   release:
     needs: [build_wheels, build_sdist]
     runs-on: ubuntu-latest
+    environment:
+      name: pypi
+      url: https://pypi.org/p/pymatgen
     permissions:
-      # For pypi trusted publishing
+      # For PyPI trusted publishing
       id-token: write
     steps:
       - name: Set up Python
@@ -74,14 +79,14 @@ jobs:
           python-version: "3.12"
 
       - name: Get build artifacts
-        uses: actions/download-artifact@v3
+        uses: actions/download-artifact@v4
         with:
-          name: artifact
+          pattern: dist-*
+          merge-multiple: true
           path: dist
 
-      - name: Publish to PyPi or TestPyPI
+      - name: Publish to PyPI or TestPyPI
         uses: pypa/gh-action-pypi-publish@release/v1
         with:
           skip-existing: true
           verbose: true
-          repository-url: ${{ github.event_name == 'workflow_dispatch' && github.event.inputs.task == 'test-release' && 'https://test.pypi.org/legacy/' || '' }}

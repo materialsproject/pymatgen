@@ -6,8 +6,229 @@ nav_order: 4
 
 # Changelog
 
+## 2025.1.9
+- Iterating Element no longer contains isotopes (D and T). (@DanielYang59)
+- Remove is_rare_earth_metal from ElementBase (@jdewasseigeosium)
+- Fix DOS parsing for SOC calculations (@kavanase)
+- Added Pure Random Algo to OrderDisorderedStructureTransformation (@jmmshn)
+- Fix ion formula check in ion_or_solid_comp_object of analysis.pourbaix_diagram (@DanielYang59)
+- AseAtomsAdaptor: Support arbitrary selective dynamics constraints (@yantar92)
+- Explicit UTF-8 encoding for zopen and open. (@DanielYang59)
+
+## 2024.11.13
+
+- CP2K fixes (@janosh)
+- Fix borg.hive.SimpleVaspToComputedEntryDrone.assimilate ValueError when core file missing (@DanielYang59)
+- Revert breaking analysis.local_env default_op_params/cn_opt_params rename (@DanielYang59)
+- Added new Flag for AutoOxiStateDecorationTransformation (@jmmshn)
+- Fixed execution of packmol in relative path. (@davidwaroquiers)
+- Improve element mismatch handling with POTCAR for Poscar.from_file/str (@DanielYang59)
+- Preprocess Structure Reduction Before Bulk Match (@lan496)
+- Add min "thickness" check in CifParser to filter invalid structure which leads to infinite loop (@DanielYang59)
+
+## 2024.10.29
+- VaspDir has been renamed and moved to pymatgen.io.common.PMGDir for more general support of all IO classes. Note that
+  this is a backwards incompatible change. It should not affect many users since VaspDir was introduced only in the last
+  one week.
+- Fixed execution of packmol in relative path. (@davidwaroquiers)
+- VaspDoc.get_incar_tags: Use Mediawiki API (@yantar92)
+- Fix comment pass in Kpoints constructors (@DanielYang59)
+
+## v2024.10.27
+- Bug fix for parsing of dielectric calculations from vasprun.xml.
+
+## v2024.10.25
+- VaspDir now supports nested directories. Also, supports returning strings where a parser is not defined.
+- Bug fix for parsing of BSE vaspruns.xml.
+
+## v2024.10.21
+- New `pyamtgen.io.vasp.VaspDir` class for easy navigation of VASP directories as pymatgen objects.
+- Fix gaussian input parser (@sio-salt)
+- Fix: preserve site properties over cell transform (@Lattay)
+- Make Incar keys case insensitive, fix init Incar from dict val processing for str/float/int (@DanielYang59)
+- Fix: Preserve PBC info in AseAtomsAdaptor (@jsukpark)
+- Migrate ext.COD from mysql to REST API (@DanielYang59)
+- Fix: Parsing bugs in io.pwscf.PWInput (@jsukpark)
+- Fix arg passing in inverse property of SymmOp (@DanielYang59)
+- Add support for use_structure_charge keyword in FHI-aims input generator (@ansobolev)
+- Fix: savefig in pmg.cli.plot (@DanielYang59)
+- Fix: Volumetric data and XDATCAR parsing for monatomic structures (@esoteric-ephemera)
+- Support to aims format from Structure instance (@ansobolev)
+- Fix: Bugfix for Ion CO2(aq) reduced formula (@rkingsbury)
+- Replace deprecated ExpCellFilter with FrechetCellFilter (@ab5424)
+
+## v2024.10.3
+- Enable parsing of "SCF energy" and "Total energy" from QCOutput for Q-chem 6.1.1+. (@Jaebeom-P)
+- Fix dict equality check with numpy array (@DanielYang59)
+- Fix usage of strict=True for zip in cp2k.outputs (@DanielYang59)
+- Fix bug with species defaults (@tpurcell90)
+- SLME Bug Fixes (@kavanase)
+
+
+## v2024.9.17.1
+
+- Emergency release No. 2 to fix yet another regression in chempot diagram. (Thanks @yang-ruoxi for fixing.)
+
+## v2024.9.17
+
+- Emergency release to fix broken phase diagram plotting due to completely unnecessary refactoring. (Thanks @yang-ruoxi for fixing.)
+
+## v2024.9.10
+
+💥 **Breaking**: NumPy/Cython integer type changed from `np.long`/`np.int_` to int64 on Windows to align with NumPy 2.x, [changing the default integer type to int64 on Windows 64-bit systems](https://numpy.org/doc/stable/release/2.0.0-notes.html) in favor of the platform-dependent `np.int_` type.
+Recommendation: Please explicitly declare `dtype=np.int64` when initializing a NumPy array if it's passed to a Cythonized pymatgen function like `find_points_in_spheres`. You may also want to test downstream packages with [NumPy 1.x on Windows in CI pipelines](https://numpy.org/devdocs/dev/depending_on_numpy.html#build-time-dependency).
+
+### 🛠 Enhancements
+
+* Formatting customization for `PWInput` by @jsukpark in https://github.com/materialsproject/pymatgen/pull/4001
+* DOS Fingerprints enhancements by @naik-aakash in https://github.com/materialsproject/pymatgen/pull/3946
+* Add HSE-specific vdW parameters for dftd3 and dftd3-bj to MPHSERelaxSet. by @hongyi-zhao in https://github.com/materialsproject/pymatgen/pull/3955
+* Add VASP setting for the dftd4 vdW functional and extend PBE_64 support. by @hongyi-zhao in https://github.com/materialsproject/pymatgen/pull/3967
+* Add SOC & multiple `PROCAR` parsing functionalities by @kavanase in https://github.com/materialsproject/pymatgen/pull/3890
+* Add modification to aims input to match atomate2 magnetic order script by @tpurcell90 in https://github.com/materialsproject/pymatgen/pull/3878
+
+### 🐛 Bug Fixes
+
+* Ion: fix CO2- and I3- parsing errors; enhance tests by @rkingsbury in https://github.com/materialsproject/pymatgen/pull/3991
+* Fix ruff PD901 and prefer `sum` over `len`+`if` by @janosh in https://github.com/materialsproject/pymatgen/pull/4012
+* Explicitly use `int64` in Numpy/cython code to avoid OS inconsistency by @DanielYang59 in https://github.com/materialsproject/pymatgen/pull/3992
+* Update `FermiDos.get_doping()` to be more robust by @kavanase in https://github.com/materialsproject/pymatgen/pull/3879
+* Fix missing `/src` in doc links to source code by @DanielYang59 in https://github.com/materialsproject/pymatgen/pull/4032
+* Fix `LNONCOLLINEAR` match in `Outcar` parser by @DanielYang59 in https://github.com/materialsproject/pymatgen/pull/4034
+* Fix in-place `VaspInput.incar` updates having no effect if `incar` is dict (not `Incar` instance) by @janosh in https://github.com/materialsproject/pymatgen/pull/4052
+* Fix typo in `Cp2kOutput.parse_hirshfeld` `add_site_property("hirshf[i->'']eld")` by @janosh in https://github.com/materialsproject/pymatgen/pull/4055
+* Fix `apply_operation(fractional=True)` by @kavanase in https://github.com/materialsproject/pymatgen/pull/4057
+
+### 💥 Breaking Changes
+
+* Pascal-case `PMG_VASP_PSP_DIR_Error` by @janosh in https://github.com/materialsproject/pymatgen/pull/4048
+
+### 📖 Documentation
+
+* Docstring tweaks for `io.vasp.inputs` and format tweaks for some other parts by @DanielYang59 in https://github.com/materialsproject/pymatgen/pull/3996
+* Replace HTTP URLs with HTTPS, avoid `from pytest import raises/mark` by @DanielYang59 in https://github.com/materialsproject/pymatgen/pull/4021
+* Fix incorrect attribute name in `Lobster.outputs.Cohpcar` docstring by @DanielYang59 in https://github.com/materialsproject/pymatgen/pull/4039
+
+### 🧹 House-Keeping
+
+* Use `strict=True` with `zip` to ensure length equality by @DanielYang59 in https://github.com/materialsproject/pymatgen/pull/4011
+
+### 🚀 Performance
+
+* add LRU cache to structure matcher by @kbuma in https://github.com/materialsproject/pymatgen/pull/4036
+
+### 🚧 CI
+
+* Install optional boltztrap, vampire and openbabel in CI by @DanielYang59 in https://github.com/materialsproject/pymatgen/pull/3985
+
+### 💡 Refactoring
+
+* Make AimsSpeciesFile a dataclass by @tpurcell90 in https://github.com/materialsproject/pymatgen/pull/4054
+
+### 🧪 Tests
+
+* Remove the `skip` mark for `test_delta_func` by @njzjz in https://github.com/materialsproject/pymatgen/pull/4014
+* Recover commented out code in tests and mark with `pytest.mark.skip` instead by @DanielYang59 in https://github.com/materialsproject/pymatgen/pull/4027
+* Add unit test for `io.vasp.help` by @DanielYang59 in https://github.com/materialsproject/pymatgen/pull/4020
+
+### 🧹 Linting
+
+* Fix failing ruff `PT001` on master by @DanielYang59 in https://github.com/materialsproject/pymatgen/pull/4003
+* Fix fixable `ruff` rules by @DanielYang59 in https://github.com/materialsproject/pymatgen/pull/4015
+* Fix `S101`, replace all `assert` in code base (except for tests) by @DanielYang59 in https://github.com/materialsproject/pymatgen/pull/4017
+* Fix `ruff` PLC0206 and PLR6104 by @janosh in https://github.com/materialsproject/pymatgen/pull/4035
+
+### 🏥 Package Health
+
+* Drop Python 3.9 support by @DanielYang59 in https://github.com/materialsproject/pymatgen/pull/4009
+* Avoid importing namespace package `pymatgen` directly  by @DanielYang59 in https://github.com/materialsproject/pymatgen/pull/4053
+
+### 🏷️ Type Hints
+
+* Set `kpoints` in `from_str` method as integer in auto Gamma and Monkhorst modes by @DanielYang59 in https://github.com/materialsproject/pymatgen/pull/3994
+* Improve type annotations for `io.lobster.{lobsterenv/outputs}` by @DanielYang59 in https://github.com/materialsproject/pymatgen/pull/3887
+
+### 🤷‍♂️ Other Changes
+
+* VaspInputSet.write_input: Improve error message by @yantar92 in https://github.com/materialsproject/pymatgen/pull/3999
+
+## New Contributors
+
+* @yantar92 made their first contribution in https://github.com/materialsproject/pymatgen/pull/3999
+* @kbuma made their first contribution in https://github.com/materialsproject/pymatgen/pull/4036
+
+**Full Changelog**: https://github.com/materialsproject/pymatgen/compare/v2024.8.9...v2024.9.10
+
 ## v2024.8.9
-- Revert bad split of sets.py, which broke downstream code.
+
+* Revert bad split of sets.py, which broke downstream code.
+
+### 🎉 New Features
+
+* Add multiwfn QTAIM parsing capabilities by @espottesmith in https://github.com/materialsproject/pymatgen/pull/3926
+
+### 🐛 Bug Fixes
+
+* Fix chemical system method for different oxidation states by @danielzuegner in https://github.com/materialsproject/pymatgen/pull/3915
+* Fix coordination number bug by @jmmshn in https://github.com/materialsproject/pymatgen/pull/3954
+* Fix Ion formula parsing bug; add more special formulas by @rkingsbury in https://github.com/materialsproject/pymatgen/pull/3942
+* Dedup `numpy`dependency in `pyproject` by @janosh in https://github.com/materialsproject/pymatgen/pull/3970
+* test_graph: add filename only to pdf list by @drew-parsons in https://github.com/materialsproject/pymatgen/pull/3972
+* Bugfix: `io.pwscf.PWInput.from_str()` by @jsukpark in https://github.com/materialsproject/pymatgen/pull/3931
+* Fix d2k function by @tpurcell90 in https://github.com/materialsproject/pymatgen/pull/3932
+* Assign frame properties to molecule/structure when indexing trajectory by @CompRhys in https://github.com/materialsproject/pymatgen/pull/3979
+
+### 🛠 Enhancements
+
+* `Element`/`Species`: order `full_electron_structure` by energy by @rkingsbury in https://github.com/materialsproject/pymatgen/pull/3944
+* Extend `CubicSupercell` transformation to also be able to look for orthorhombic cells by @JaGeo in https://github.com/materialsproject/pymatgen/pull/3938
+* Allow custom `.pmgrc.yaml` location via new `PMG_CONFIG_FILE` env var by @janosh in https://github.com/materialsproject/pymatgen/pull/3949
+* Fix MPRester tests and access phonon properties from the new API without having `mp-api` installed. by @AntObi in https://github.com/materialsproject/pymatgen/pull/3950
+* Adding Abinit magmoms from netCDF files to Structure.site_properties by @gbrunin in https://github.com/materialsproject/pymatgen/pull/3936
+* Parallel Joblib Process Entries by @CompRhys in https://github.com/materialsproject/pymatgen/pull/3933
+* Add OPTIMADE adapter by @ml-evs in https://github.com/materialsproject/pymatgen/pull/3876
+* Check Inputs to Trajectory. by @CompRhys in https://github.com/materialsproject/pymatgen/pull/3978
+
+### 📖 Documentation
+
+* Replace expired BoltzTraP link by @DanielYang59 in https://github.com/materialsproject/pymatgen/pull/3929
+* Correct method `get_projection_on_elements` docstring under `Procar` class by @DanielYang59 in https://github.com/materialsproject/pymatgen/pull/3945
+
+### 🧹 House-Keeping
+
+* Split VASP input sets into submodules by @janosh in https://github.com/materialsproject/pymatgen/pull/3865
+
+### 🚧 CI
+
+* Install some optional dependencies in CI by @DanielYang59 in https://github.com/materialsproject/pymatgen/pull/3786
+
+### 💡 Refactoring
+
+* Fix `Incar` `check_params` for `Union` type  by @DanielYang59 in https://github.com/materialsproject/pymatgen/pull/3958
+
+### 🏥 Package Health
+
+* build against NPY2 by @njzjz in https://github.com/materialsproject/pymatgen/pull/3894
+
+### 🏷️ Type Hints
+
+* Improve types for `electronic_structure.{bandstructure/cohp}` by @DanielYang59 in https://github.com/materialsproject/pymatgen/pull/3873
+* Improve types for `electronic_structure.{core/dos}`  by @DanielYang59 in https://github.com/materialsproject/pymatgen/pull/3880
+
+### 🤷‍♂️ Other Changes
+
+* switch to attr access interface for transformation matrix by @tsmathis in https://github.com/materialsproject/pymatgen/pull/3964
+* Fix import sorting by @janosh in https://github.com/materialsproject/pymatgen/pull/3968
+* Don't run `issue-metrics` on forks by @ab5424 in https://github.com/materialsproject/pymatgen/pull/3962
+* Enable Ruff rule family "N" and "S" by @DanielYang59 in https://github.com/materialsproject/pymatgen/pull/3892
+
+## New Contributors
+
+* @danielzuegner made their first contribution in https://github.com/materialsproject/pymatgen/pull/3915
+* @tsmathis made their first contribution in https://github.com/materialsproject/pymatgen/pull/3964
+* @jsukpark made their first contribution in https://github.com/materialsproject/pymatgen/pull/3931
+
+**Full Changelog**: https://github.com/materialsproject/pymatgen/compare/v2024.7.18...v2024.8.8
 
 ## v2024.8.8
 

@@ -6,7 +6,7 @@ from unittest import TestCase
 import numpy as np
 import pytest
 from numpy.testing import assert_allclose
-from pytest import approx, raises
+from pytest import approx
 from spglib import SpglibDataset
 
 from pymatgen.core import Lattice, Molecule, PeriodicSite, Site, Species, Structure
@@ -14,7 +14,7 @@ from pymatgen.io.vasp.outputs import Vasprun
 from pymatgen.symmetry.analyzer import (
     PointGroupAnalyzer,
     SpacegroupAnalyzer,
-    SymmetryUndetermined,
+    SymmetryUndeterminedError,
     cluster_sites,
     iterative_symmetrize,
 )
@@ -93,7 +93,7 @@ class TestSpacegroupAnalyzer(PymatgenTest):
             pg_ops = sg.get_point_group_operations()
             frac_symm_ops = sg.get_symmetry_operations()
             symm_ops = sg.get_symmetry_operations(cartesian=True)
-            for fop, op, pgop in zip(frac_symm_ops, symm_ops, pg_ops, strict=False):
+            for fop, op, pgop in zip(frac_symm_ops, symm_ops, pg_ops, strict=True):
                 # translation vector values should all be 0 or 0.5
                 t = fop.translation_vector * 2
                 assert_allclose(t - np.round(t), 0)
@@ -104,7 +104,12 @@ class TestSpacegroupAnalyzer(PymatgenTest):
                     new_cart = op.operate(site.coords)
                     assert_allclose(structure.lattice.get_fractional_coords(new_cart), new_frac)
                     found = False
-                    new_site = PeriodicSite(site.species, new_cart, structure.lattice, coords_are_cartesian=True)
+                    new_site = PeriodicSite(
+                        site.species,
+                        new_cart,
+                        structure.lattice,
+                        coords_are_cartesian=True,
+                    )
                     for test_site in structure:
                         if new_site.is_periodic_image(test_site, 1e-3):
                             found = True
@@ -201,6 +206,15 @@ class TestSpacegroupAnalyzer(PymatgenTest):
         refined_struct = sg.get_refined_structure(keep_site_properties=False)
         assert refined_struct.site_properties.get("magmom") is None
 
+        structure = Structure.from_file(f"{TEST_FILES_DIR}/cif/bcc_1927.cif")
+        for site in structure:
+            site.properties["magmom"] = 1.0 if site.specie.name == "Dy" else -1.0
+        sg = SpacegroupAnalyzer(structure, symprec=1e-2)
+        refined_struct = sg.get_refined_structure(keep_site_properties=True)
+        assert len(refined_struct) != len(structure), "this test is only interesting if the number of sites changes"
+        for site in refined_struct:
+            assert (1.0 if site.specie.name == "Dy" else -1.0) == site.properties["magmom"]
+
     def test_symmetrized_structure(self):
         symm_struct = self.sg.get_symmetrized_structure()
         assert symm_struct.lattice.angles == (90, 90, 90)
@@ -208,7 +222,16 @@ class TestSpacegroupAnalyzer(PymatgenTest):
 
         symm_struct = self.disordered_sg.get_symmetrized_structure()
         assert len(symm_struct.equivalent_sites) == 8
-        assert [len(i) for i in symm_struct.equivalent_sites] == [16, 4, 8, 4, 2, 8, 8, 8]
+        assert [len(i) for i in symm_struct.equivalent_sites] == [
+            16,
+            4,
+            8,
+            4,
+            2,
+            8,
+            8,
+            8,
+        ]
         s1 = symm_struct.equivalent_sites[1][1]
         s2 = symm_struct[symm_struct.equivalent_indices[1][1]]
         assert s1 == s2
@@ -245,6 +268,17 @@ class TestSpacegroupAnalyzer(PymatgenTest):
         spga = SpacegroupAnalyzer(structure)
         primitive_structure = spga.find_primitive(keep_site_properties=False)
         assert primitive_structure.site_properties.get("magmom") is None
+
+        structure = Structure.from_spacegroup("Fm-3m", np.eye(3) * 5.6, ["Na", "Cl"], [[0, 0, 0], [0.5, 0.5, 0.5]])
+        for site in structure:
+            site.properties["magmom"] = 1.0 if site.specie.name == "Na" else -1.0
+        sg = SpacegroupAnalyzer(structure, symprec=1e-2)
+        primitive_structure = sg.find_primitive(keep_site_properties=True)
+        assert len(primitive_structure) != len(structure), (
+            "this test is only interesting if the number of sites changes"
+        )
+        for site in primitive_structure:
+            assert (1.0 if site.specie.name == "Na" else -1.0) == site.properties["magmom"]
 
     def test_get_ir_reciprocal_mesh(self):
         grid = self.sg.get_ir_reciprocal_mesh()
@@ -339,13 +373,41 @@ class TestSpacegroupAnalyzer(PymatgenTest):
     def test_get_primitive_standard_structure(self):
         for file_name, expected_angles, expected_abc in [
             ("bcc_1927.cif", [109.47122063400001] * 3, [7.9657251015812145] * 3),
-            ("btet_1915.cif", [105.015053349, 105.015053349, 118.80658411899999], [4.1579321075608791] * 3),
-            ("orci_1010.cif", [134.78923546600001, 105.856239333, 91.276341676000001], [3.8428217771014852] * 3),
-            ("orcc_1003.cif", [90, 90, 164.985257335], [15.854897098324196, 15.854897098324196, 3.99648651]),
-            ("orac_632475.cif", [90, 90, 144.40557588533386], [5.2005185662, 5.20051856621, 3.53724120999]),
-            ("monoc_1028.cif", [63.579155761, 116.420844, 148.479651], [7.2908007159, 7.29080071, 6.87439263]),
-            ("hex_1170.cif", [90, 90, 120], [3.699919902005897, 3.699919902005897, 6.9779585500000003]),
-            ("rhomb_3478_conv.cif", [28.0491861, 28.049186140, 28.049186140], [5.93526274, 5.9352627428, 5.9352627428]),
+            (
+                "btet_1915.cif",
+                [105.015053349, 105.015053349, 118.80658411899999],
+                [4.1579321075608791] * 3,
+            ),
+            (
+                "orci_1010.cif",
+                [134.78923546600001, 105.856239333, 91.276341676000001],
+                [3.8428217771014852] * 3,
+            ),
+            (
+                "orcc_1003.cif",
+                [90, 90, 164.985257335],
+                [15.854897098324196, 15.854897098324196, 3.99648651],
+            ),
+            (
+                "orac_632475.cif",
+                [90, 90, 144.40557588533386],
+                [5.2005185662, 5.20051856621, 3.53724120999],
+            ),
+            (
+                "monoc_1028.cif",
+                [63.579155761, 116.420844, 148.479651],
+                [7.2908007159, 7.29080071, 6.87439263],
+            ),
+            (
+                "hex_1170.cif",
+                [90, 90, 120],
+                [3.699919902005897, 3.699919902005897, 6.9779585500000003],
+            ),
+            (
+                "rhomb_3478_conv.cif",
+                [28.0491861, 28.049186140, 28.049186140],
+                [5.93526274, 5.9352627428, 5.9352627428],
+            ),
         ]:
             structure = Structure.from_file(f"{TEST_FILES_DIR}/cif/{file_name}")
             spga = SpacegroupAnalyzer(structure, symprec=1e-2)
@@ -378,7 +440,7 @@ class TestSpacegroupAnalyzer(PymatgenTest):
 
     def test_bad_structure(self):
         struct = Structure(Lattice.cubic(5), ["H", "H"], [[0.0, 0.0, 0.0], [0.001, 0.0, 0.0]])
-        with raises(SymmetryUndetermined):
+        with pytest.raises(SymmetryUndeterminedError):
             SpacegroupAnalyzer(struct, 0.1)
 
 
@@ -510,6 +572,7 @@ class TestPointGroupAnalyzer(PymatgenTest):
         mol = Molecule.from_file(f"{TEST_DIR}/dh.xyz")
         pg_analyzer = PointGroupAnalyzer(mol, 0.1)
         assert pg_analyzer.sch_symbol == "D*h"
+        assert pg_analyzer.get_rotational_symmetry_number() == 2
 
     def test_linear(self):
         coords = [
@@ -520,9 +583,12 @@ class TestPointGroupAnalyzer(PymatgenTest):
         mol = Molecule(["C", "H", "H"], coords)
         pg_analyzer = PointGroupAnalyzer(mol)
         assert pg_analyzer.sch_symbol == "D*h"
+        assert pg_analyzer.get_rotational_symmetry_number() == 2
+
         mol = Molecule(["C", "H", "N"], coords)
         pg_analyzer = PointGroupAnalyzer(mol)
         assert pg_analyzer.sch_symbol == "C*v"
+        assert pg_analyzer.get_rotational_symmetry_number() == 1
 
     def test_asym_top(self):
         coords = [
@@ -610,7 +676,7 @@ class TestPointGroupAnalyzer(PymatgenTest):
             ir_mesh = spga.get_ir_reciprocal_mesh((4, 4, 4))
             weights = [i[1] for i in ir_mesh]
             weights = np.array(weights) / sum(weights)
-            for expected, weight in zip(weights, spga.get_kpoint_weights([i[0] for i in ir_mesh]), strict=False):
+            for expected, weight in zip(weights, spga.get_kpoint_weights([i[0] for i in ir_mesh]), strict=True):
                 assert weight == approx(expected)
 
         for name in ("SrTiO3", "LiFePO4", "Graphite"):
@@ -619,19 +685,20 @@ class TestPointGroupAnalyzer(PymatgenTest):
             ir_mesh = spga.get_ir_reciprocal_mesh((1, 2, 3))
             weights = [i[1] for i in ir_mesh]
             weights = np.array(weights) / sum(weights)
-            for expected, weight in zip(weights, spga.get_kpoint_weights([i[0] for i in ir_mesh]), strict=False):
+            for expected, weight in zip(weights, spga.get_kpoint_weights([i[0] for i in ir_mesh]), strict=True):
                 assert weight == approx(expected)
 
         vasp_run = Vasprun(f"{VASP_OUT_DIR}/vasprun.xml.gz")
         spga = SpacegroupAnalyzer(vasp_run.final_structure)
         wts = spga.get_kpoint_weights(vasp_run.actual_kpoints)
 
-        for w1, w2 in zip(vasp_run.actual_kpoints_weights, wts, strict=False):
+        for w1, w2 in zip(vasp_run.actual_kpoints_weights, wts, strict=True):
             assert w1 == approx(w2)
 
         kpts = [[0, 0, 0], [0.15, 0.15, 0.15], [0.2, 0.2, 0.2]]
         with pytest.raises(
-            ValueError, match="Unable to find 1:1 corresponding between input kpoints and irreducible grid"
+            ValueError,
+            match="Unable to find 1:1 corresponding between input kpoints and irreducible grid",
         ):
             spga.get_kpoint_weights(kpts)
 

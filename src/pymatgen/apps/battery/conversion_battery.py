@@ -80,7 +80,8 @@ class ConversionElectrode(AbstractElectrode):
         if len(profile) < 2:
             return None
 
-        assert working_ion_entry is not None
+        if working_ion_entry is None:
+            raise ValueError("working_ion_entry is None.")
         working_ion_symbol = working_ion_entry.elements[0].symbol
         normalization_els = {el: amt for el, amt in comp.items() if el != Element(working_ion_symbol)}
         framework = comp.as_dict()
@@ -215,8 +216,16 @@ class ConversionElectrode(AbstractElectrode):
         return 7
 
     def __repr__(self):
-        cls_name, formula, n_steps = type(self).__name__, self.initial_comp.reduced_formula, self.num_steps
-        avg_voltage, min_voltage, max_voltage = self.get_average_voltage(), self.min_voltage, self.max_voltage
+        cls_name, formula, n_steps = (
+            type(self).__name__,
+            self.initial_comp.reduced_formula,
+            self.num_steps,
+        )
+        avg_voltage, min_voltage, max_voltage = (
+            self.get_average_voltage(),
+            self.min_voltage,
+            self.max_voltage,
+        )
         output = [
             f"{cls_name} with {formula=} and {n_steps=}, {avg_voltage=:.3f} V, "
             f"{min_voltage=:.3f} V, {max_voltage=:.3f} V",

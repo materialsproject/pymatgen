@@ -13,7 +13,6 @@ from urllib.request import urlretrieve
 
 from monty.json import jsanitize
 from monty.serialization import dumpfn, loadfn
-from ruamel import yaml
 
 from pymatgen.core import OLD_SETTINGS_FILE, SETTINGS_FILE, Element
 from pymatgen.io.cp2k.inputs import GaussianTypeOrbitalBasisSet, GthPotential
@@ -26,6 +25,10 @@ if TYPE_CHECKING:
 
 def setup_cp2k_data(cp2k_data_dirs: list[str]) -> None:
     """Setup CP2K basis and potential data directory."""
+    # this function used to use ruamel.yaml which underwent breaking changes. was easier to
+    # migrate to PyYAML than fix
+    import yaml  # type: ignore[import]
+
     data_dir, target_dir = (os.path.abspath(dirc) for dirc in cp2k_data_dirs)
     try:
         os.mkdir(target_dir)
@@ -199,7 +202,7 @@ def build_bader(fortran_command="gfortran"):
     Args:
         fortran_command: The Fortran compiler command.
     """
-    bader_url = "http://theory.cm.utexas.edu/henkelman/code/bader/download/bader.tar.gz"
+    bader_url = "https://theory.cm.utexas.edu/henkelman/code/bader/download/bader.tar.gz"
     cwd = os.getcwd()
     state = True
     try:
@@ -272,7 +275,7 @@ def add_config_var(tokens: list[str], backup_suffix: str) -> None:
             print(f"Existing {rc_path} backed up to {rc_path}{backup_suffix}")
         dct = loadfn(rc_path)
     special_vals = {"true": True, "false": False, "none": None, "null": None}
-    for key, val in zip(tokens[::2], tokens[1::2], strict=False):
+    for key, val in zip(tokens[::2], tokens[1::2], strict=True):
         dct[key] = special_vals.get(val.lower(), val)
     dumpfn(dct, rc_path)
     print(f"New {rc_path} written!")
