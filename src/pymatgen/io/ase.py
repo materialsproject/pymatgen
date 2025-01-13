@@ -5,9 +5,9 @@ Atoms object and pymatgen Structure objects.
 
 from __future__ import annotations
 
-from pathlib import Path
 import warnings
 from importlib.metadata import PackageNotFoundError
+from pathlib import Path
 from tempfile import NamedTemporaryFile
 from typing import TYPE_CHECKING
 
@@ -38,7 +38,8 @@ except ImportError:
 
 
 if TYPE_CHECKING:
-    from typing import Any, Sequence
+    from collections.abc import Sequence
+    from typing import Any
 
     from numpy.typing import ArrayLike
     from typing_extensions import Self
@@ -54,6 +55,7 @@ __version__ = "1.0"
 __maintainer__ = "Shyue Ping Ong"
 __email__ = "shyuep@gmail.com"
 __date__ = "Mar 8, 2012"
+
 
 class MSONAtoms(Atoms, MSONable):
     """A custom subclass of ASE Atoms that is MSONable, including `.as_dict()` and `.from_dict()` methods."""
@@ -413,30 +415,60 @@ class AseAtomsAdaptor:
 
 
 class AseTrajAdaptor:
+    """
+    Define interfaces between pymatgen and ASE trajectories.
     
-    def __init__(self, property_map : dict[str,str] | None = None, atoms_adaptor : AseAtomsAdaptor | None = None) -> None:
+    Args:
+        property_map (dict[str,str]) : A mapping between pymatgen .Trajectory `frame_properties` keys and
+            the appropriate ASE calculator property name. Ex.: {"e_0_energy": "energy"} would map `e_0_energy`
+            in the pymatgen .Trajectory `frame_properties` to ASE's `get_potential_energy` function.
+            See `ase.calculators.calculator.all_properties` for a list of acceptable calculator properties.
+        atoms_adaptor (AseAtomsAdaptor or None) : optional .AseAtomsAdaptor to use in 
+            converting ASE .Atoms <--> pymatgen .Structure/.Molecule
+    """
+
+    def __init__(
+        self, property_map: dict[str, str] | None = None, atoms_adaptor: AseAtomsAdaptor | None = None
+    ) -> None:
         self.property_map = property_map or {
-            "energy" : "energy",
+            "energy": "energy",
             "forces": "forces",
             "stress": "stress",
         }
         self.adaptor = atoms_adaptor or AseAtomsAdaptor()
 
-        if (unrecognized_props := set(self.property_map).difference(set(all_properties)) ) != set():
+        if (unrecognized_props := set(self.property_map).difference(set(all_properties))) != set():
             raise ValueError(f"Unrecognized ASE calculator properties:\n{', '.join(unrecognized_props)}")
 
     def ase_to_pmg_trajectory(
         self,
-        trajectory : str | Path | AseTraj,
-        store_frame_properties : bool = True,
-        constant_lattice : bool | None = None,
-        additional_fields : Sequence[str] = ["temperature","velocities"],
-        lattice_tol : float = 1.e-6
+        trajectory: str | Path | AseTraj,
+        store_frame_properties: bool = True,
+        constant_lattice: bool | None = None,
+        lattice_match_tol: float = 1.0e-6,
+        additional_fields: Sequence[str] = ["temperature", "velocities"],
     ) -> PmgTraj:
-        
-        if isinstance(trajectory,str | Path):
+        """
+        Convert an ASE trajectory to a pymatgen trajectory.
+
+        Args:
+            trajectory (str, .Path, or AseTraj) : the ASE trajectory, or a file path to it if a str or .Path
+            store_frame_properties (bool) : Whether to store pymatgen .Trajectory `frame_properties` as
+                ASE calculator properties. Defaults to True
+            constant_lattice (bool or None) : if a bool, whether the lattice is constant in the .Trajectory.
+                If `None`, this is determined on the fly.
+            lattice_match_tol (float = 1.0e-6) : tolerance to which lattices are matched if
+                `constant_lattice = None`.            
+            additional_fields (Sequence of str, defaults to ["temperature", "velocities"]) :
+                Optional other fields to save in the pymatgen .Trajectory.
+                Valid options are "temperature" and "velocities".
+
+        Returns:
+            pymatgen .Trajectory
+        """
+        if isinstance(trajectory, str | Path):
             trajectory = AseTraj(trajectory, "r")
-        
+
         structures = []
         frame_properties = []
         if any(trajectory[0].pbc):
@@ -447,66 +479,54 @@ class AseTrajAdaptor:
             traj_method = PmgTraj.from_molecules
 
         for atoms in trajectory:
-            
             site_properties = {}
             if "velocities" in additional_fields:
                 site_properties["velocities"] = atoms.get_velocities()
 
-            structures.append(converter(atoms,site_properties=site_properties))
+            structures.append(converter(atoms, site_properties=site_properties))
 
             if store_frame_properties and atoms.calc:
-                props = {v : atoms.calc.get_property(k) for k, v in self.property_map.items()}
+                props = {v: atoms.calc.get_property(k) for k, v in self.property_map.items()}
                 if "temperature" in additional_fields:
                     props["temperature"] = atoms.get_temperature()
-                    
+
                 frame_properties.append(props)
 
         if constant_lattice is None:
             constant_lattice = all(
-                np.all(
-                    np.abs(
-                        ref_struct.lattice.matrix
-                        - structures[j].lattice.matrix
-                    )
-                )
-                < lattice_tol
+                np.all(np.abs(ref_struct.lattice.matrix - structures[j].lattice.matrix)) < lattice_match_tol
                 for i, ref_struct in enumerate(structures)
                 for j in range(i + 1, len(structures))
             )
 
         return traj_method(
             structures,
-            constant_lattice = constant_lattice,
-            frame_properties = frame_properties,
+            constant_lattice=constant_lattice,
+            frame_properties=frame_properties,
         )
-
 
     def pmg_to_ase_trajectory(
         self,
-        trajectory : PmgTraj,
+        trajectory: PmgTraj,
         ase_traj_file: str | Path | None = None,
     ) -> AseTrajReader:
         """
-        Create an ASE Trajectory from a pymatgen trajectory.
+        Convert a pymatgen .Trajectory to an ASE .Trajectory.
 
-        Parameters
-        -----------
-        trajectory : pymatgen .Trajectory object
-        ase_traj_file : str, Path, or None (default)
-            If not None, the name of the file to write the ASE trajectory to.
-            
-        Returns
-        ----------
-        ase.io.Trajectory object.
+        Args:
+            trajectory (pymatgen .Trajectory) : trajectory to convert
+            ase_traj_file (str, Path, or None (default) ) :  If not None, the name of
+            the file to write the ASE trajectory to.
+
+        Returns:
+            ase .Trajectory
         """
 
         ase_traj_file = ase_traj_file or NamedTemporaryFile().name
 
         for idx, structure in enumerate(trajectory):
             atoms = self.adaptor.get_atoms(
-                structure,
-                msonable=False,
-                velocities = structure.site_properties.get("velocities")
+                structure, msonable=False, velocities=structure.site_properties.get("velocities")
             )
 
             props = {
@@ -518,7 +538,7 @@ class AseTrajAdaptor:
             if (magmoms := structure.site_properties.get("magmom")) is not None:
                 props["magmoms"] = magmoms
 
-            atoms.calc = SinglePointCalculator(atoms=atoms,**props)
+            atoms.calc = SinglePointCalculator(atoms=atoms, **props)
 
             with AseTraj(ase_traj_file, "a" if idx > 0 else "w", atoms=atoms) as _traj_file:
                 _traj_file.write()

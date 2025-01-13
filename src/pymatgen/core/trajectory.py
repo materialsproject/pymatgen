@@ -584,7 +584,6 @@ class Trajectory(MSONable):
 
         elif fnmatch(filename, "*.traj"):
             try:
-
                 from pymatgen.io.ase import AseTrajAdaptor
 
                 return AseTrajAdaptor().ase_to_pmg_trajectory(filename)
@@ -730,7 +729,20 @@ class Trajectory(MSONable):
                 return [self.site_properties[idx] for idx in frames]
             raise ValueError("Unexpected frames type.")
         raise ValueError("Unexpected site_properties type.")
-    
-    def to_ase_trajectory(self, property_map : dict[str,str] | None = None, **kwargs) -> AseTrajReader:
+
+    def to_ase_trajectory(self, property_map: dict[str, str] | None = None, **kwargs) -> AseTrajReader:
+        """
+        Convert to an ASE trajectory.
+
+        Args:
+            property_map (dict[str, str]) : optional map to define how keys in `frame_properties`
+                are mapped to ASE calculator properties. The mapping should be `frame_properties`
+                key to ASE calculator property name.
+            **kwargs : kwargs to pass to `AseTrajAdaptor.pmg_to_ase_trajectory`
+
+        Returns:
+            ASE Trajectory
+        """
         from pymatgen.io.ase import AseTrajAdaptor
+
         return AseTrajAdaptor(property_map=property_map).pmg_to_ase_trajectory(self, **kwargs)
