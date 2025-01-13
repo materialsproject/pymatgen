@@ -76,6 +76,7 @@ class JOutStructure(Structure):
     elecmindata: JElSteps | None = None
     stress: np.ndarray | None = None
     strain: np.ndarray | None = None
+    forces: np.ndarray | None = None
     nstep: int | None = None
     e: float | None = None
     grad_k: float | None = None
@@ -530,7 +531,7 @@ class JOutStructure(Structure):
                 key = lsplit[0].strip()
                 val = float(lsplit[1].strip())
                 self.ecomponents[key] = val * Ha_to_eV
-        if key is not None and (self.etype is None) and (key in ["F", "G"]):
+        if key is not None and (self.etype is None) and (key in ["F", "G", "Etot"]):
             self.etype = key
 
     def _parse_lowdin_lines(self, lowdin_lines: list[str]) -> None:
@@ -689,7 +690,11 @@ class JOutStructure(Structure):
     def _init_structure(self) -> None:
         """Initialize structure attribute."""
         self.structure = Structure(
-            lattice=self.lattice, species=self.species, coords=self.cart_coords, site_properties=self.site_properties
+            lattice=self.lattice,
+            species=self.species,
+            coords=self.cart_coords,
+            site_properties=self.site_properties,
+            coords_are_cartesian=True,
         )
 
     def to_dict(self) -> dict:

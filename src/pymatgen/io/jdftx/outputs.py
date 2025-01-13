@@ -248,6 +248,7 @@ _jof_atr_from_last_slice = [
     "elecmindata",
     "stress",
     "strain",
+    "forces",
     "nstep",
     "e",
     "grad_k",
@@ -468,6 +469,7 @@ class JDFTXOutfile:
     elecmindata: JElSteps = field(init=False)
     stress: np.ndarray = field(init=False)
     strain: np.ndarray = field(init=False)
+    forces: np.ndarray = field(init=False)
     nstep: int = field(init=False)
     e: float = field(init=False)
     grad_k: float = field(init=False)
@@ -509,7 +511,9 @@ class JDFTXOutfile:
         return cls(slices=slices)
 
     @classmethod
-    def from_file(cls, file_path: str | Path, is_bgw: bool = False, none_slice_on_error: bool = False) -> JDFTXOutfile:
+    def from_file(
+        cls, file_path: str | Path, is_bgw: bool = False, none_slice_on_error: bool | None = None
+    ) -> JDFTXOutfile:
         """
         Create a JDFTXOutfile object from a JDFTx out file.
 
@@ -517,16 +521,22 @@ class JDFTXOutfile:
             file_path (str | Path): The path to the JDFTx out file.
             is_bgw (bool): Mark True if data must be usable for BGW calculations. This will change the behavior of the
                 parser to be stricter with certain criteria.
-            none_slice_on_error (bool): If True, will return None if an error occurs while parsing a slice instead of
-                halting the parsing process. This can be useful for parsing files with multiple slices where some slices
-                may be incomplete or corrupted.
+            none_slice_on_error (bool | None): If True, will return None if an error occurs while parsing a slice
+                instead of halting the parsing process. This can be useful for parsing files with multiple slices where
+                some slices may be incomplete or corrupted. If False, all slices may raise errors. If None, only the
+                final slice can raise an error upon parsing (default behavior)
 
         Returns:
             JDFTXOutfile: The JDFTXOutfile object.
         """
         texts = read_outfile_slices(file_path)
+        if none_slice_on_error is None:
+            none_slice_bools = [i != len(texts) - 1 for i in range(len(texts))]
+        else:
+            none_slice_bools = [none_slice_on_error for i in range(len(texts))]
         slices = [
-            JDFTXOutfileSlice._from_out_slice(text, is_bgw=is_bgw, none_on_error=none_slice_on_error) for text in texts
+            JDFTXOutfileSlice._from_out_slice(text, is_bgw=is_bgw, none_on_error=none_slice_bools[i])
+            for i, text in enumerate(texts)
         ]
         return cls(slices=slices)
 
