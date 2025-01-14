@@ -24,7 +24,7 @@ base_dir = TEST_FILES_DIR / "io" / "multiwfn"
 def test_parse_single_cp():
     # Test that extract_info_from_cp_text behaves as expected with parse_cp
     # Also tests atom parsing
-    with open(base_dir / "cp_just_atom.txt") as file:
+    with open(base_dir / "cp_just_atom.txt", encoding="utf-8") as file:
         contents = file.readlines()
         name1, desc1 = parse_cp(contents)
 
@@ -46,7 +46,7 @@ def test_parse_single_cp():
         assert "connected_bond_paths" not in desc1
 
     # Test atom parsing with CP not associated with a known nucleus
-    with open(base_dir / "cp_unknown_atom.txt") as file:
+    with open(base_dir / "cp_unknown_atom.txt", encoding="utf-8") as file:
         contents = file.readlines()
         name, desc = parse_cp(contents)
 
@@ -59,7 +59,7 @@ def test_parse_single_cp():
         assert desc["spin_density"] == pytest.approx(0.0)
 
     # Test bond parsing
-    with open(base_dir / "cp_just_bond.txt") as file:
+    with open(base_dir / "cp_just_bond.txt", encoding="utf-8") as file:
         contents = file.readlines()
         name, desc = parse_cp(contents)
 
@@ -71,7 +71,7 @@ def test_parse_single_cp():
         assert desc["lap_e_density"] == pytest.approx(1278.89597)
 
     # Test ring parsing
-    with open(base_dir / "cp_just_ring.txt") as file:
+    with open(base_dir / "cp_just_ring.txt", encoding="utf-8") as file:
         contents = file.readlines()
         name, desc = parse_cp(contents)
 
@@ -88,7 +88,7 @@ def test_parse_single_cp():
         assert desc["esp_total"] == pytest.approx(96.1572999)
 
     # Test cage parsing
-    with open(base_dir / "cp_just_cage.txt") as file:
+    with open(base_dir / "cp_just_cage.txt", encoding="utf-8") as file:
         contents = file.readlines()
         name, desc = parse_cp(contents)
 
@@ -103,7 +103,7 @@ def test_parse_single_cp():
         assert desc["eta"] == pytest.approx(0.083769)
 
     # Test parsing with unknown/improper CP type
-    with open(base_dir / "cp_fake_type.txt") as file:
+    with open(base_dir / "cp_fake_type.txt", encoding="utf-8") as file:
         contents = file.readlines()
         name, desc = parse_cp(contents)
         assert name is None

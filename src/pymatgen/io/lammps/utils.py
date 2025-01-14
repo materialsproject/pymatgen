@@ -305,7 +305,7 @@ class PackmolRunner:
         with tempfile.TemporaryDirectory() as scratch_dir:
             self._write_input(input_dir=scratch_dir)
             with (
-                open(os.path.join(scratch_dir, self.input_file)) as packmol_input,
+                open(os.path.join(scratch_dir, self.input_file), encoding="utf-8") as packmol_input,
                 Popen(self.packmol_bin, stdin=packmol_input, stdout=PIPE, stderr=PIPE) as proc,
             ):
                 stdout, stderr = proc.communicate()

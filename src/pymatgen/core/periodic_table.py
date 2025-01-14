@@ -1,4 +1,9 @@
-"""Classes representing Element, Species (Element + oxidation state) and PeriodicTable."""
+"""Classes representing:
+- Element: Element in the periodic table.
+- Species: Element with optional oxidation state and spin.
+- DummySpecies: Non-traditional Elements/Species (vacancies/...).
+- ElementType: element types (metal/noble_gas/halogen/s_block/...).
+"""
 
 from __future__ import annotations
 
@@ -8,7 +13,7 @@ import json
 import re
 import warnings
 from collections import Counter
-from enum import Enum, unique
+from enum import Enum, EnumMeta, unique
 from itertools import combinations, product
 from pathlib import Path
 from typing import TYPE_CHECKING, overload
@@ -864,7 +869,20 @@ class ElementBase(Enum):
             print(" ".join(row_str))
 
 
-class Element(ElementBase):
+class _ElementMeta(EnumMeta):
+    """Override Element to handle isotopes."""
+
+    def __iter__(cls):
+        """Skip named isotopes when iterating."""
+        return (elem for elem in super().__iter__() if not elem._is_named_isotope)
+
+    @property
+    def named_isotopes(cls):
+        """Get all named isotopes."""
+        return tuple(elem for elem in super().__iter__() if elem._is_named_isotope)
+
+
+class Element(ElementBase, metaclass=_ElementMeta):
     """Enum representing an element in the periodic table."""
 
     # This name = value convention is redundant and dumb, but unfortunately is
@@ -1631,8 +1649,6 @@ def get_el_sp(obj: int | SpeciesLike) -> Element | Species | DummySpecies:
     """
     # If obj is already an Element or Species, return as is
     if isinstance(obj, Element | Species | DummySpecies):
-        if getattr(obj, "_is_named_isotope", False):
-            return Element(obj.name) if isinstance(obj, Element) else Species(str(obj))
         return obj
 
     # If obj is an integer, return the Element with atomic number obj

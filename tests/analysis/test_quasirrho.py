@@ -68,9 +68,9 @@ class TestQuasiRRHO(TestCase):
         correct_g_ho = -187.642070
         correct_g_qrrho = -187.642725
         qrrho = QuasiRRHO.from_gaussian_output(self.linear_gout)
-        assert correct_g_ho == pytest.approx(
-            qrrho.free_energy_ho, rel=1e-5
-        ), f"Incorrect harmonic oscillator free energy, {correct_g_ho} != {qrrho.free_energy_ho}"
+        assert correct_g_ho == pytest.approx(qrrho.free_energy_ho, rel=1e-5), (
+            f"Incorrect harmonic oscillator free energy, {correct_g_ho} != {qrrho.free_energy_ho}"
+        )
         assert correct_g_qrrho == pytest.approx(qrrho.free_energy_quasiRRHO), "Incorrect  Quasi-RRHO free energy"
 
     def test_extreme_temperature_and_pressure(self):
