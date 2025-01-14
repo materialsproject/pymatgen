@@ -24,7 +24,7 @@ try:
     NO_ASE_ERR = None
 
 except ImportError:
-    NO_ASE_ERR = PackageNotFoundError("The AseAtomsAdaptor requires the ASE package. Use `pip install ase`")
+    NO_ASE_ERR = PackageNotFoundError("AseAtomsAdaptor requires the ASE package. Use `pip install ase`")
     encode = decode = FixAtoms = FixCartesian = SinglePointDFTCalculator = Spacegroup = None
 
     class Atoms:  # type: ignore[no-redef]
@@ -39,11 +39,6 @@ if TYPE_CHECKING:
     from typing_extensions import Self
 
     from pymatgen.core.structure import SiteCollection
-
-    if NO_ASE_ERR is None:
-        from ase.io.trajectory import TrajectoryReader as AseTrajReader
-    else:
-        AseTrajReader = None
 
 __author__ = "Shyue Ping Ong, Andrew S. Rosen"
 __copyright__ = "Copyright 2012, The Materials Project"
