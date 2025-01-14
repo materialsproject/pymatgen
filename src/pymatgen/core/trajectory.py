@@ -568,8 +568,6 @@ class Trajectory(MSONable):
             Trajectory: containing the structures or molecules in the file.
         """
         filename = str(Path(filename).expanduser().resolve())
-        is_mol = False
-        molecules = []
         structures = []
 
         if fnmatch(filename, "*XDATCAR*"):
@@ -594,9 +592,6 @@ class Trajectory(MSONable):
         else:
             supported_file_types = ("XDATCAR", "vasprun.xml", "*.traj")
             raise ValueError(f"Expect file to be one of {supported_file_types}; got {filename}.")
-
-        if is_mol:
-            return cls.from_molecules(molecules, **kwargs)
 
         return cls.from_structures(structures, constant_lattice=constant_lattice, **kwargs)
 
