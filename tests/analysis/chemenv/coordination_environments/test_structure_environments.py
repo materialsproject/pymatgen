@@ -26,7 +26,7 @@ TEST_DIR = f"{TEST_FILES_DIR}/analysis/chemenv/structure_environments"
 
 class TestStructureEnvironments(PymatgenTest):
     def test_structure_environments(self):
-        with open(f"{TEST_DIR}/se_mp-7000.json") as file:
+        with open(f"{TEST_DIR}/se_mp-7000.json", encoding="utf-8") as file:
             dct = json.load(file)
 
         struct_envs = StructureEnvironments.from_dict(dct)
@@ -143,7 +143,7 @@ class TestStructureEnvironments(PymatgenTest):
         assert ce != ce2
 
     def test_light_structure_environments(self):
-        with open(f"{TEST_DIR}/se_mp-7000.json") as file:
+        with open(f"{TEST_DIR}/se_mp-7000.json", encoding="utf-8") as file:
             dct = json.load(file)
 
         struct_envs = StructureEnvironments.from_dict(dct)

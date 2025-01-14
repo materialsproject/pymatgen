@@ -1,23 +1,23 @@
+
+
 <!DOCTYPE html>
-<html class="writer-html5" lang="en" >
+<html class="writer-html5" lang="en" data-content_root="./">
 <head>
   <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>pymatgen.util.testing package &mdash; pymatgen 2024.10.27 documentation</title>
-      <link rel="stylesheet" href="assets/pygments.css" type="text/css" />
-      <link rel="stylesheet" href="assets/css/theme.css" type="text/css" />
-      <link rel="stylesheet" href="assets/css/custom.css" type="text/css" />
-    <link rel="canonical" href="https://pymatgen.orgpymatgen.util.testing.html"/>
-  <!--[if lt IE 9]>
-    <script src="assets/js/html5shiv.min.js"></script>
-  <![endif]-->
+  <title>pymatgen.util.testing package &mdash; pymatgen 2024.11.13 documentation</title>
+      <link rel="stylesheet" type="text/css" href="assets/pygments.css?v=fa44fd50" />
+      <link rel="stylesheet" type="text/css" href="assets/css/theme.css?v=e59714d7" />
+      <link rel="stylesheet" type="text/css" href="assets/css/custom.css" />
+
   
-        <script src="assets/jquery.js?v=5d32c60e"></script>
-        <script src="assets/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-        <script src="assets/documentation_options.js?v=730c9539"></script>
-        <script src="assets/doctools.js?v=9bcbadda"></script>
-        <script src="assets/sphinx_highlight.js?v=dc90522c"></script>
+    <link rel="canonical" href="https://pymatgen.orgpymatgen.util.testing.html"/>
+      <script src="assets/jquery.js?v=5d32c60e"></script>
+      <script src="assets/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="assets/documentation_options.js?v=30ebc348"></script>
+      <script src="assets/doctools.js?v=9bcbadda"></script>
+      <script src="assets/sphinx_highlight.js?v=dc90522c"></script>
     <script src="assets/js/theme.js"></script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" /> 
@@ -34,9 +34,6 @@
           <a href="index.html">
             
           </a>
-              <div class="version">
-                2024.10.27
-              </div>
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
     <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
@@ -87,43 +84,75 @@
   <section id="module-pymatgen.util.testing">
 <span id="pymatgen-util-testing-package"></span><h1>pymatgen.util.testing package<a class="headerlink" href="#module-pymatgen.util.testing" title="Link to this heading"></a></h1>
 <p>This module implements testing utilities for materials science codes.</p>
-<p>While the primary use is within pymatgen, the functionality is meant to be useful for external materials science
-codes as well. For instance, obtaining example crystal structures to perform tests, specialized assert methods for
+<p>While the primary use is within pymatgen, the functionality is meant to
+be useful for external materials science codes as well. For instance, obtaining
+example crystal structures to perform tests, specialized assert methods for
 materials science, etc.</p>
 <dl class="py class">
 <dt class="sig sig-object py" id="pymatgen.util.testing.PymatgenTest">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">PymatgenTest</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">methodName</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'runTest'</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2024.10.27/src/pymatgen/core/../util/testing/__init__.py#L38-L151"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.util.testing.PymatgenTest" title="Link to this definition"></a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">PymatgenTest</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">methodName</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'runTest'</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2024.11.13/src/pymatgen/core/../util/testing.py#L45-L207"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.util.testing.PymatgenTest" title="Link to this definition"></a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">TestCase</span></code></p>
-<p>Extends unittest.TestCase with several assert methods for array and str comparison.</p>
+<p>Extends unittest.TestCase with several convenient methods for testing:
+- assert_msonable: Test if an object is MSONable and return the serialized object.
+- assert_str_content_equal: Test if two string are equal (ignore whitespaces).
+- get_structure: Load a Structure with its formula.
+- serialize_with_pickle: Test if object(s) can be (de)serialized with <cite>pickle</cite>.</p>
 <p>Create an instance of the class that will use the named test
 method when executed. Raises a ValueError if the instance does
 not have a method with the specified name.</p>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="pymatgen.util.testing.PymatgenTest.TEST_STRUCTURES">
-<span class="sig-name descname"><span class="pre">TEST_STRUCTURES</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">ClassVar</span><span class="p"><span class="pre">[</span></span><span class="pre">dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">Path</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference internal" href="pymatgen.core.html#pymatgen.core.structure.Structure" title="pymatgen.core.structure.Structure"><span class="pre">Structure</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">{PosixPath('/Users/shyue/repos/pymatgen/src/pymatgen/util/testing/../structures/BaNiO3.json'):</span> <span class="pre">None,</span> <span class="pre">PosixPath('/Users/shyue/repos/pymatgen/src/pymatgen/util/testing/../structures/CsCl.json'):</span> <span class="pre">None,</span> <span class="pre">PosixPath('/Users/shyue/repos/pymatgen/src/pymatgen/util/testing/../structures/Graphite.json'):</span> <span class="pre">None,</span> <span class="pre">PosixPath('/Users/shyue/repos/pymatgen/src/pymatgen/util/testing/../structures/He_BCC.json'):</span> <span class="pre">None,</span> <span class="pre">PosixPath('/Users/shyue/repos/pymatgen/src/pymatgen/util/testing/../structures/K2O2.json'):</span> <span class="pre">None,</span> <span class="pre">PosixPath('/Users/shyue/repos/pymatgen/src/pymatgen/util/testing/../structures/La2CoO4F.json'):</span> <span class="pre">None,</span> <span class="pre">PosixPath('/Users/shyue/repos/pymatgen/src/pymatgen/util/testing/../structures/Li10GeP2S12.json'):</span> <span class="pre">None,</span> <span class="pre">PosixPath('/Users/shyue/repos/pymatgen/src/pymatgen/util/testing/../structures/Li2O.json'):</span> <span class="pre">None,</span> <span class="pre">PosixPath('/Users/shyue/repos/pymatgen/src/pymatgen/util/testing/../structures/Li2O2.json'):</span> <span class="pre">None,</span> <span class="pre">PosixPath('/Users/shyue/repos/pymatgen/src/pymatgen/util/testing/../structures/Li3V2(PO4)3.json'):</span> <span class="pre">None,</span> <span class="pre">PosixPath('/Users/shyue/repos/pymatgen/src/pymatgen/util/testing/../structures/LiFePO4.json'):</span> <span class="pre">None,</span> <span class="pre">PosixPath('/Users/shyue/repos/pymatgen/src/pymatgen/util/testing/../structures/NaFePO4.json'):</span> <span class="pre">None,</span> <span class="pre">PosixPath('/Users/shyue/repos/pymatgen/src/pymatgen/util/testing/../structures/Pb2TiZrO6.json'):</span> <span class="pre">None,</span> <span class="pre">PosixPath('/Users/shyue/repos/pymatgen/src/pymatgen/util/testing/../structures/Si.json'):</span> <span class="pre">None,</span> <span class="pre">PosixPath('/Users/shyue/repos/pymatgen/src/pymatgen/util/testing/../structures/SiO2.json'):</span> <span class="pre">None,</span> <span class="pre">PosixPath('/Users/shyue/repos/pymatgen/src/pymatgen/util/testing/../structures/Si_SiO2_Interface.json'):</span> <span class="pre">None,</span> <span class="pre">PosixPath('/Users/shyue/repos/pymatgen/src/pymatgen/util/testing/../structures/Sn.json'):</span> <span class="pre">None,</span> <span class="pre">PosixPath('/Users/shyue/repos/pymatgen/src/pymatgen/util/testing/../structures/SrTiO3.json'):</span> <span class="pre">None,</span> <span class="pre">PosixPath('/Users/shyue/repos/pymatgen/src/pymatgen/util/testing/../structures/TiO2.json'):</span> <span class="pre">None,</span> <span class="pre">PosixPath('/Users/shyue/repos/pymatgen/src/pymatgen/util/testing/../structures/TlBiSe2.json'):</span> <span class="pre">None,</span> <span class="pre">PosixPath('/Users/shyue/repos/pymatgen/src/pymatgen/util/testing/../structures/VO2.json'):</span> <span class="pre">None}</span></em><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2024.10.27/src/pymatgen/util/testing.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.util.testing.PymatgenTest.TEST_STRUCTURES" title="Link to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">TEST_STRUCTURES</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">ClassVar</span><span class="p"><span class="pre">[</span></span><span class="pre">dict</span><span class="p"><span class="pre">[</span></span><span class="pre">PathLike</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference internal" href="pymatgen.core.html#pymatgen.core.structure.Structure" title="pymatgen.core.structure.Structure"><span class="pre">Structure</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">{PosixPath('/Users/shyue/repos/pymatgen/src/pymatgen/util/structures/BaNiO3.json'):</span> <span class="pre">None,</span> <span class="pre">PosixPath('/Users/shyue/repos/pymatgen/src/pymatgen/util/structures/CsCl.json'):</span> <span class="pre">None,</span> <span class="pre">PosixPath('/Users/shyue/repos/pymatgen/src/pymatgen/util/structures/Graphite.json'):</span> <span class="pre">None,</span> <span class="pre">PosixPath('/Users/shyue/repos/pymatgen/src/pymatgen/util/structures/He_BCC.json'):</span> <span class="pre">None,</span> <span class="pre">PosixPath('/Users/shyue/repos/pymatgen/src/pymatgen/util/structures/K2O2.json'):</span> <span class="pre">None,</span> <span class="pre">PosixPath('/Users/shyue/repos/pymatgen/src/pymatgen/util/structures/La2CoO4F.json'):</span> <span class="pre">None,</span> <span class="pre">PosixPath('/Users/shyue/repos/pymatgen/src/pymatgen/util/structures/Li10GeP2S12.json'):</span> <span class="pre">None,</span> <span class="pre">PosixPath('/Users/shyue/repos/pymatgen/src/pymatgen/util/structures/Li2O.json'):</span> <span class="pre">None,</span> <span class="pre">PosixPath('/Users/shyue/repos/pymatgen/src/pymatgen/util/structures/Li2O2.json'):</span> <span class="pre">None,</span> <span class="pre">PosixPath('/Users/shyue/repos/pymatgen/src/pymatgen/util/structures/Li3V2(PO4)3.json'):</span> <span class="pre">None,</span> <span class="pre">PosixPath('/Users/shyue/repos/pymatgen/src/pymatgen/util/structures/LiFePO4.json'):</span> <span class="pre">None,</span> <span class="pre">PosixPath('/Users/shyue/repos/pymatgen/src/pymatgen/util/structures/NaFePO4.json'):</span> <span class="pre">None,</span> <span class="pre">PosixPath('/Users/shyue/repos/pymatgen/src/pymatgen/util/structures/Pb2TiZrO6.json'):</span> <span class="pre">None,</span> <span class="pre">PosixPath('/Users/shyue/repos/pymatgen/src/pymatgen/util/structures/Si.json'):</span> <span class="pre">None,</span> <span class="pre">PosixPath('/Users/shyue/repos/pymatgen/src/pymatgen/util/structures/SiO2.json'):</span> <span class="pre">None,</span> <span class="pre">PosixPath('/Users/shyue/repos/pymatgen/src/pymatgen/util/structures/Si_SiO2_Interface.json'):</span> <span class="pre">None,</span> <span class="pre">PosixPath('/Users/shyue/repos/pymatgen/src/pymatgen/util/structures/Sn.json'):</span> <span class="pre">None,</span> <span class="pre">PosixPath('/Users/shyue/repos/pymatgen/src/pymatgen/util/structures/SrTiO3.json'):</span> <span class="pre">None,</span> <span class="pre">PosixPath('/Users/shyue/repos/pymatgen/src/pymatgen/util/structures/TiO2.json'):</span> <span class="pre">None,</span> <span class="pre">PosixPath('/Users/shyue/repos/pymatgen/src/pymatgen/util/structures/TlBiSe2.json'):</span> <span class="pre">None,</span> <span class="pre">PosixPath('/Users/shyue/repos/pymatgen/src/pymatgen/util/structures/VO2.json'):</span> <span class="pre">None}</span></em><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2024.11.13/src/pymatgen/util/testing.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.util.testing.PymatgenTest.TEST_STRUCTURES" title="Link to this definition"></a></dt>
 <dd></dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="pymatgen.util.testing.PymatgenTest.assert_msonable">
-<span class="sig-name descname"><span class="pre">assert_msonable</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">obj</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">MSONable</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">test_is_subclass</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">str</span></span></span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2024.10.27/src/pymatgen/core/../util/testing/__init__.py#L137-L151"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.util.testing.PymatgenTest.assert_msonable" title="Link to this definition"></a></dt>
-<dd><p>Test if obj is MSONable and verify the contract is fulfilled.</p>
+<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">assert_msonable</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">obj</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">test_is_subclass</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">str</span></span></span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2024.11.13/src/pymatgen/core/../util/testing.py#L66-L97"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.util.testing.PymatgenTest.assert_msonable" title="Link to this definition"></a></dt>
+<dd><p>Test if an object is MSONable and verify the contract is fulfilled,
+and return the serialized object.</p>
 <p>By default, the method tests whether obj is an instance of MSONable.
-This check can be deactivated by setting test_is_subclass=False.</p>
+This check can be deactivated by setting <cite>test_is_subclass</cite> to False.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>obj</strong> (<em>Any</em>) – The object to be checked.</p></li>
+<li><p><strong>test_is_subclass</strong> (<em>bool</em>) – Check if object is an instance of MSONable
+or its subclasses.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Serialized object.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>str</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="pymatgen.util.testing.PymatgenTest.assert_str_content_equal">
-<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">assert_str_content_equal</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">actual</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">expected</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2024.10.27/src/pymatgen/core/../util/testing/__init__.py#L65-L69"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.util.testing.PymatgenTest.assert_str_content_equal" title="Link to this definition"></a></dt>
-<dd><p>Test if two strings are equal, ignoring things like trailing spaces, etc.</p>
+<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">assert_str_content_equal</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">actual</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">expected</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2024.11.13/src/pymatgen/core/../util/testing.py#L99-L118"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.util.testing.PymatgenTest.assert_str_content_equal" title="Link to this definition"></a></dt>
+<dd><p>Test if two strings are equal, ignoring whitespaces.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>actual</strong> (<em>str</em>) – The string to be checked.</p></li>
+<li><p><strong>expected</strong> (<em>str</em>) – The reference string.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Raises<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>AssertionError</strong> – When two strings are not equal.</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="pymatgen.util.testing.PymatgenTest.get_structure">
-<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">get_structure</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="pymatgen.core.html#pymatgen.core.structure.Structure" title="pymatgen.core.structure.Structure"><span class="pre">Structure</span></a></span></span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2024.10.27/src/pymatgen/core/../util/testing/__init__.py#L50-L63"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.util.testing.PymatgenTest.get_structure" title="Link to this definition"></a></dt>
-<dd><p>Lazily load a structure from pymatgen/util/structures.</p>
+<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">get_structure</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="pymatgen.core.html#pymatgen.core.structure.Structure" title="pymatgen.core.structure.Structure"><span class="pre">Structure</span></a></span></span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2024.11.13/src/pymatgen/core/../util/testing.py#L120-L138"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.util.testing.PymatgenTest.get_structure" title="Link to this definition"></a></dt>
+<dd><p>Load a structure from <cite>pymatgen.util.structures</cite>.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>name</strong> (<em>str</em>) – Name of structure file.</p>
+<dd class="field-odd"><p><strong>name</strong> (<em>str</em>) – Name of the structure file, for example “LiFePO4”.</p>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
 <dd class="field-even"><p>Structure</p>
@@ -133,25 +162,26 @@ This check can be deactivated by setting test_is_subclass=False.</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="pymatgen.util.testing.PymatgenTest.serialize_with_pickle">
-<span class="sig-name descname"><span class="pre">serialize_with_pickle</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">objects</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">protocols</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Sequence</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">test_eq</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2024.10.27/src/pymatgen/core/../util/testing/__init__.py#L71-L135"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.util.testing.PymatgenTest.serialize_with_pickle" title="Link to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">serialize_with_pickle</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">objects</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">protocols</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Sequence</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">test_eq</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">list</span></span></span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2024.11.13/src/pymatgen/core/../util/testing.py#L140-L207"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.util.testing.PymatgenTest.serialize_with_pickle" title="Link to this definition"></a></dt>
 <dd><p>Test whether the object(s) can be serialized and deserialized with
-pickle. This method tries to serialize the objects with pickle and the
-protocols specified in input. Then it deserializes the pickle format
-and compares the two objects with the __eq__ operator if
-test_eq is True.</p>
+<cite>pickle</cite>. This method tries to serialize the objects with <cite>pickle</cite> and the
+protocols specified in input. Then it deserializes the pickled format
+and compares the two objects with the <cite>==</cite> operator if <cite>test_eq</cite>.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>objects</strong> – Object or list of objects.</p></li>
-<li><p><strong>protocols</strong> – List of pickle protocols to test. If protocols is None,
-HIGHEST_PROTOCOL is tested.</p></li>
-<li><p><strong>test_eq</strong> – If True, the deserialized object is compared with the
-original object using the __eq__ method.</p></li>
+<li><p><strong>objects</strong> (<em>Any</em>) – Object or list of objects.</p></li>
+<li><p><strong>protocols</strong> (<em>Sequence</em><em>[</em><em>int</em><em>]</em>) – List of pickle protocols to test.
+If protocols is None, HIGHEST_PROTOCOL is tested.</p></li>
+<li><p><strong>test_eq</strong> (<em>bool</em>) – If True, the deserialized object is compared
+with the original object using the <cite>__eq__</cite> method.</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><p>Nested list with the objects deserialized with the specified
-protocols.</p>
+<dd class="field-even"><p>Objects deserialized with the specified protocols.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>list[Any]</p>
 </dd>
 </dl>
 </dd></dl>

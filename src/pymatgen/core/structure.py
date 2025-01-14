@@ -19,9 +19,7 @@ import sys
 import warnings
 from abc import ABC, abstractmethod
 from collections import defaultdict
-from collections.abc import MutableSequence
 from fnmatch import fnmatch
-from io import StringIO
 from typing import TYPE_CHECKING, Literal, cast, get_args
 
 import numpy as np
@@ -48,7 +46,7 @@ from pymatgen.util.coord import all_distances, get_angle, lattice_points_in_supe
 
 if TYPE_CHECKING:
     from collections.abc import Callable, Iterable, Iterator, Sequence
-    from typing import Any, SupportsIndex
+    from typing import Any, ClassVar, SupportsIndex, TypeAlias
 
     import pandas as pd
     from ase import Atoms
@@ -61,7 +59,7 @@ if TYPE_CHECKING:
 
     from pymatgen.util.typing import CompositionLike, MillerIndex, PathLike, PbcLike, SpeciesLike
 
-FileFormats = Literal[
+FileFormats: TypeAlias = Literal[
     "cif",
     "poscar",
     "cssr",
@@ -75,7 +73,7 @@ FileFormats = Literal[
     "aims",
     "",
 ]
-StructureSources = Literal["Materials Project", "COD"]
+StructureSources: TypeAlias = Literal["Materials Project", "COD"]
 
 
 class Neighbor(Site):
@@ -216,8 +214,11 @@ class SiteCollection(collections.abc.Sequence, ABC):
     """
 
     # Tolerance in Angstrom for determining if sites are too close
-    DISTANCE_TOLERANCE = 0.5
-    _properties: dict
+    DISTANCE_TOLERANCE: ClassVar[float] = 0.5
+
+    def __init__(self) -> None:
+        """Init a SiteCollection."""
+        self._properties: dict
 
     def __contains__(self, site: object) -> bool:
         return site in self.sites
@@ -245,7 +246,7 @@ class SiteCollection(collections.abc.Sequence, ABC):
     def sites(self, sites: Sequence[PeriodicSite]) -> None:
         """Set the sites in the Structure."""
         # If self is mutable Structure or Molecule, set _sites as list
-        is_mutable = isinstance(self._sites, MutableSequence)
+        is_mutable = isinstance(self._sites, collections.abc.MutableSequence)
         self._sites: list[PeriodicSite] | tuple[PeriodicSite, ...] = list(sites) if is_mutable else tuple(sites)
 
     @abstractmethod
@@ -605,7 +606,8 @@ class SiteCollection(collections.abc.Sequence, ABC):
         if not sp_in_structure >= sp_to_replace:
             warnings.warn(
                 "Some species to be substituted are not present in structure. Pls check your input. Species to be "
-                f"substituted = {sp_to_replace}; Species in structure = {sp_in_structure}"
+                f"substituted = {sp_to_replace}; Species in structure = {sp_in_structure}",
+                stacklevel=2,
             )
 
         for site in site_coll:
@@ -1098,9 +1100,8 @@ class IStructure(SiteCollection, MSONable):
         self._properties = properties or {}
 
     def __eq__(self, other: object) -> bool:
+        """Define equality by comparing all three attributes: lattice, sites, properties."""
         needed_attrs = ("lattice", "sites", "properties")
-
-        # Return NotImplemented as in https://docs.python.org/3/library/functools.html#functools.total_ordering
         if not all(hasattr(other, attr) for attr in needed_attrs):
             return NotImplemented
 
@@ -1109,8 +1110,10 @@ class IStructure(SiteCollection, MSONable):
 
         if other is self:
             return True
+
         if len(self) != len(other):
             return False
+
         if self.lattice != other.lattice:
             return False
         if self.properties != other.properties:
@@ -1260,7 +1263,7 @@ class IStructure(SiteCollection, MSONable):
                 props[key][idx] = val
         for key, val in props.items():
             if any(vv is None for vv in val):
-                warnings.warn(f"Not all sites have property {key}. Missing values are set to None.")
+                warnings.warn(f"Not all sites have property {key}. Missing values are set to None.", stacklevel=2)
         return cls(
             lattice,
             [site.species for site in sites],
@@ -1516,7 +1519,8 @@ class IStructure(SiteCollection, MSONable):
         if abs(formal_charge - self._charge) > 1e-8:
             warnings.warn(
                 f"Structure charge ({self._charge}) is set to be not equal to the sum of oxidation states"
-                f" ({formal_charge}). Use Structure.unset_charge() to reset the charge to None."
+                f" ({formal_charge}). Use Structure.unset_charge() to reset the charge to None.",
+                stacklevel=2,
             )
         return self._charge
 
@@ -2952,7 +2956,7 @@ class IStructure(SiteCollection, MSONable):
         elif fmt == "json" or fnmatch(filename.lower(), "*.json*"):
             json_str = json.dumps(self.as_dict())
             if filename:
-                with zopen(filename, mode="wt") as file:
+                with zopen(filename, mode="wt", encoding="utf-8") as file:
                     file.write(json_str)
             return json_str
         elif fmt == "xsf" or fnmatch(filename.lower(), "*.xsf*"):
@@ -2960,7 +2964,7 @@ class IStructure(SiteCollection, MSONable):
 
             res_str = XSF(self).to_str()
             if filename:
-                with zopen(filename, mode="wt", encoding="utf8") as file:
+                with zopen(filename, mode="wt", encoding="utf-8") as file:
                     file.write(res_str)
             return res_str
         elif (
@@ -2982,11 +2986,11 @@ class IStructure(SiteCollection, MSONable):
             return Prismatic(self).to_str()
         elif fmt in ("yaml", "yml") or fnmatch(filename, "*.yaml*") or fnmatch(filename, "*.yml*"):
             yaml = YAML()
-            str_io = StringIO()
+            str_io = io.StringIO()
             yaml.dump(self.as_dict(), str_io)
             yaml_str = str_io.getvalue()
             if filename:
-                with zopen(filename, mode="wt") as file:
+                with zopen(filename, mode="wt", encoding="utf-8") as file:
                     file.write(yaml_str)
             return yaml_str
         elif fmt == "aims" or fnmatch(filename, "geometry.in"):
@@ -2994,7 +2998,7 @@ class IStructure(SiteCollection, MSONable):
 
             geom_in = AimsGeometryIn.from_structure(self)
             if filename:
-                with zopen(filename, mode="w") as file:
+                with zopen(filename, mode="wt", encoding="utf-8") as file:
                     file.write(geom_in.get_header(filename))
                     file.write(geom_in.content)
                     file.write("\n")
@@ -3009,7 +3013,7 @@ class IStructure(SiteCollection, MSONable):
 
             res_str = ResIO.structure_to_str(self)
             if filename:
-                with zopen(filename, mode="wt", encoding="utf8") as file:
+                with zopen(filename, mode="wt", encoding="utf-8") as file:
                     file.write(res_str)
             return res_str
         elif fmt == "pwmat" or fnmatch(filename.lower(), "*.pwmat") or fnmatch(filename.lower(), "*.config"):
@@ -3172,7 +3176,7 @@ class IStructure(SiteCollection, MSONable):
             return struct
 
         fname = os.path.basename(filename)
-        with zopen(filename, mode="rt", errors="replace") as file:
+        with zopen(filename, mode="rt", errors="replace", encoding="utf-8") as file:
             contents = file.read()
         if fnmatch(fname.lower(), "*.cif*") or fnmatch(fname.lower(), "*.mcif*"):
             return cls.from_str(
@@ -3918,16 +3922,16 @@ class IMolecule(SiteCollection, MSONable):
         elif fmt == "json" or fnmatch(filename, "*.json*") or fnmatch(filename, "*.mson*"):
             json_str = json.dumps(self.as_dict())
             if filename:
-                with zopen(filename, mode="wt", encoding="utf8") as file:
+                with zopen(filename, mode="wt", encoding="utf-8") as file:
                     file.write(json_str)
             return json_str
         elif fmt in {"yaml", "yml"} or fnmatch(filename, "*.yaml*") or fnmatch(filename, "*.yml*"):
             yaml = YAML()
-            str_io = StringIO()
+            str_io = io.StringIO()
             yaml.dump(self.as_dict(), str_io)
             yaml_str = str_io.getvalue()
             if filename:
-                with zopen(filename, mode="wt", encoding="utf8") as file:
+                with zopen(filename, mode="wt", encoding="utf-8") as file:
                     file.write(yaml_str)
             return yaml_str
         else:
@@ -4009,7 +4013,7 @@ class IMolecule(SiteCollection, MSONable):
         """
         filename = str(filename)
 
-        with zopen(filename) as file:
+        with zopen(filename, mode="rt", encoding="utf-8") as file:
             contents = file.read()
         fname = filename.lower()
         if fnmatch(fname, "*.xyz*"):
@@ -4716,44 +4720,64 @@ class Structure(IStructure, collections.abc.MutableSequence):
 
         return self
 
-    def merge_sites(self, tol: float = 0.01, mode: Literal["sum", "delete", "average"] = "sum") -> Self:
-        """Merges sites (adding occupancies) within tol of each other.
-        Removes site properties.
+    def merge_sites(
+        self,
+        tol: float = 0.01,
+        mode: Literal["sum", "delete", "average"] = "sum",
+    ) -> Self:
+        """Merges sites (by adding occupancies) within tolerance and removes
+            site properties in "sum/delete" modes.
 
         Args:
             tol (float): Tolerance for distance to merge sites.
-            mode ("sum" | "delete" | "average"): "delete" means duplicate sites are
-                deleted. "sum" means the occupancies are summed for the sites.
-                "average" means that the site is deleted but the properties are averaged
-                Only first letter is considered.
+            mode ("sum" | "delete" | "average"): Only first letter is considered at this moment.
+                - "delete": delete duplicate sites.
+                - "sum": sum the occupancies for the sites.
+                - "average": delete the site but average the properties if it's numerical.
 
         Returns:
-            Structure: self with merged sites.
+            Structure: Structure with merged sites.
         """
-        dist_mat = self.distance_matrix
+        # TODO: change the code the allow full name after 2025-12-01
+        # TODO2: add a test for mode value, currently it only checks if first letter is "s/a"
+        if mode.lower() not in {"sum", "delete", "average"} and mode.lower()[0] in {"s", "d", "a"}:
+            warnings.warn(
+                "mode would only allow full name sum/delete/average after 2025-12-01", DeprecationWarning, stacklevel=2
+            )
+
+        if mode.lower()[0] not in {"s", "d", "a"}:
+            raise ValueError(f"Illegal {mode=}, should start with a/d/s.")
+
+        dist_mat: NDArray = self.distance_matrix
         np.fill_diagonal(dist_mat, 0)
         clusters = fcluster(linkage(squareform((dist_mat + dist_mat.T) / 2)), tol, "distance")
-        sites = []
+
+        sites: list[PeriodicSite] = []
         for cluster in np.unique(clusters):
-            inds = np.where(clusters == cluster)[0]
-            species = self[inds[0]].species
-            coords = self[inds[0]].frac_coords
-            props = self[inds[0]].properties
-            for n, i in enumerate(inds[1:]):
-                sp = self[i].species
+            indexes = np.where(clusters == cluster)[0]
+            species: Composition = self[indexes[0]].species
+            coords: NDArray = self[indexes[0]].frac_coords
+            props: dict = self[indexes[0]].properties
+
+            for site_idx, clust_idx in enumerate(indexes[1:]):
+                # Sum occupancies in "sum" mode
                 if mode.lower()[0] == "s":
-                    species += sp
-                offset = self[i].frac_coords - coords
-                coords += ((offset - np.round(offset)) / (n + 2)).astype(coords.dtype)
-                for key in props:
-                    if props[key] is not None and self[i].properties[key] != props[key]:
-                        if mode.lower()[0] == "a" and isinstance(props[key], float):
+                    species += self[clust_idx].species
+
+                offset = self[clust_idx].frac_coords - coords
+                coords += ((offset - np.round(offset)) / (site_idx + 2)).astype(coords.dtype)
+                for key, val in props.items():
+                    if val is not None and not np.array_equal(self[clust_idx].properties[key], val):
+                        if mode.lower()[0] == "a" and isinstance(val, float | int):
                             # update a running total
-                            props[key] = props[key] * (n + 1) / (n + 2) + self[i].properties[key] / (n + 2)
+                            props[key] = val * (site_idx + 1) / (site_idx + 2) + self[clust_idx].properties[key] / (
+                                site_idx + 2
+                            )
                         else:
                             props[key] = None
                             warnings.warn(
-                                f"Sites with different site property {key} are merged. So property is set to none"
+                                f"Sites with different site property {key} are merged. But property is set to None",
+                                stacklevel=2,
                             )
             sites.append(PeriodicSite(species, coords, self.lattice, properties=props))
 

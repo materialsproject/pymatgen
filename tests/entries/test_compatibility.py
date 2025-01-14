@@ -594,7 +594,7 @@ class TestMaterialsProjectCompatibility(TestCase):
         assert len(entries) == 2
 
     def test_parallel_process_entries(self):
-        # TODO: DeprecationWarning: This process (pid=xxxx) is multi-threaded,
+        # TODO: get DeprecationWarning: This process (pid=xxxx) is multi-threaded,
         # use of fork() may lead to deadlocks in the child.
         # pid = os.fork()
         with pytest.raises(
@@ -1234,7 +1234,7 @@ class TestMaterialsProjectCompatibility2020(TestCase):
     def test_processing_entries_inplace(self):
         # load two entries in GGA_GGA_U_R2SCAN thermo type
         json_file = Path(f"{TEST_FILES_DIR}/entries/entries_thermo_type_GGA_GGA_U_R2SCAN.json")
-        with open(json_file) as file:
+        with open(json_file, encoding="utf-8") as file:
             entries = json.load(file, cls=MontyDecoder)
         # check whether the compatibility scheme can keep input entries unchanged
         entries_copy = copy.deepcopy(entries)

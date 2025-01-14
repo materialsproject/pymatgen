@@ -537,7 +537,8 @@ class Slab(Structure):
                     "Odd number of sites to divide! Try changing "
                     "the tolerance to ensure even division of "
                     "sites or create supercells in a or b directions "
-                    "to allow for atoms to be moved!"
+                    "to allow for atoms to be moved!",
+                    stacklevel=2,
                 )
                 continue
             combinations = []
@@ -627,8 +628,7 @@ class Slab(Structure):
         # Check if deprecated argument is used
         if specie is not None:
             warnings.warn(
-                "The argument 'specie' is deprecated. Use 'species' instead.",
-                DeprecationWarning,
+                "The argument 'specie' is deprecated. Use 'species' instead.", DeprecationWarning, stacklevel=2
             )
             species = specie
 
@@ -660,8 +660,7 @@ class Slab(Structure):
         # Check if deprecated argument is used
         if specie is not None:
             warnings.warn(
-                "The argument 'specie' is deprecated. Use 'species' instead.",
-                DeprecationWarning,
+                "The argument 'specie' is deprecated. Use 'species' instead.", DeprecationWarning, stacklevel=2
             )
             species = specie
 
@@ -737,7 +736,7 @@ class Slab(Structure):
             self.remove_sites(equi_sites)
 
         else:
-            warnings.warn("Equivalent sites could not be found for some indices. Surface unchanged.")
+            warnings.warn("Equivalent sites could not be found for some indices. Surface unchanged.", stacklevel=2)
 
 
 def center_slab(slab: Structure) -> Structure:
@@ -1556,7 +1555,7 @@ class SlabGenerator:
                     slab.remove_sites([z_coords.index(min(z_coords))])
 
                 if len(slab) <= len(self.parent):
-                    warnings.warn("Too many sites removed, please use a larger slab.")
+                    warnings.warn("Too many sites removed, please use a larger slab.", stacklevel=2)
                     break
 
                 # Check if the new Slab is symmetric

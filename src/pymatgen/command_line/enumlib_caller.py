@@ -275,7 +275,7 @@ class EnumlibAdaptor:
                 output.append(f"{min_conc - 1} {min_conc + 1} {base}")
         output.append("")
         logger.debug("Generated input file:\n" + "\n".join(output))
-        with open("struct_enum.in", mode="w") as file:
+        with open("struct_enum.in", mode="w", encoding="utf-8") as file:
             file.write("\n".join(output))
 
     def _run_multienum(self):
@@ -357,7 +357,7 @@ class EnumlibAdaptor:
             ordered_structure = inv_org_latt = None
 
         for file in glob("vasp.*"):
-            with open(file) as file:
+            with open(file, encoding="utf-8") as file:
                 data = file.read()
                 data = re.sub(r"scale factor", "1", data)
                 data = re.sub(r"(\d+)-(\d+)", r"\1 -\2", data)

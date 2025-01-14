@@ -84,7 +84,10 @@ MODULE_DIR = os.path.dirname(__file__)
 
 
 def _load_yaml_config(fname):
-    config = loadfn(f"{MODULE_DIR}/{fname}.yaml")
+    fname = f"{MODULE_DIR}/{fname}"
+    if not fname.endswith(".yaml"):
+        fname += ".yaml"
+    config = loadfn(fname)
     if "PARENT" in config:
         parent_config = _load_yaml_config(config["PARENT"])
         for k, v in parent_config.items():
@@ -268,6 +271,7 @@ class VaspInputSet(InputGenerator, abc.ABC):
                 "will generate a KPOINTS file and ignore KSPACING."
                 "Remove the `user_kpoints_settings` argument to enable KSPACING.",
                 BadInputSetWarning,
+                stacklevel=2,
             )
 
         if self.vdw:
@@ -293,6 +297,7 @@ class VaspInputSet(InputGenerator, abc.ABC):
                 "the configuration file may not be available in the selected "
                 "functional.",
                 BadInputSetWarning,
+                stacklevel=2,
             )
 
         if self.user_potcar_settings:
@@ -304,6 +309,7 @@ class VaspInputSet(InputGenerator, abc.ABC):
                 "subclass of a desired input set and override the POTCAR in "
                 "the subclass to be explicit on the differences.",
                 BadInputSetWarning,
+                stacklevel=2,
             )
             for key, val in self.user_potcar_settings.items():
                 self._config_dict["POTCAR"][key] = val
@@ -431,6 +437,7 @@ class VaspInputSet(InputGenerator, abc.ABC):
                     "Yb_2 is known to often give bad results since Yb has oxidation state 3+ in most compounds.\n"
                     "See https://github.com/materialsproject/pymatgen/issues/2968 for details.",
                     BadInputSetWarning,
+                    stacklevel=2,
                 )
             if self.standardize and self.sym_prec:
                 structure = standardize_structure(
@@ -580,7 +587,8 @@ class VaspInputSet(InputGenerator, abc.ABC):
                             warnings.warn(
                                 "Co without an oxidation state is initialized as low spin by default in Pymatgen. "
                                 "If this default behavior is not desired, please set the spin on the magmom on the "
-                                "site directly to ensure correct initialization."
+                                "site directly to ensure correct initialization.",
+                                stacklevel=2,
                             )
                         mag.append(setting.get(str(site.specie)))
                     else:
@@ -588,7 +596,8 @@ class VaspInputSet(InputGenerator, abc.ABC):
                             warnings.warn(
                                 "Co without an oxidation state is initialized as low spin by default in Pymatgen. "
                                 "If this default behavior is not desired, please set the spin on the magmom on the "
-                                "site directly to ensure correct initialization."
+                                "site directly to ensure correct initialization.",
+                                stacklevel=2,
                             )
                         mag.append(setting.get(site.specie.symbol, 0.6))
                 incar[key] = mag
@@ -617,7 +626,11 @@ class VaspInputSet(InputGenerator, abc.ABC):
             elif key == "KSPACING" and self.auto_kspacing:
                 # Default to metal if no prev calc available
                 bandgap = 0 if self.bandgap is None else self.bandgap
-                incar[key] = auto_kspacing(bandgap, self.bandgap_tol)
+                if new_kspacing := getattr(self, "kspacing_update", None):
+                    # allow custom KSPACING update
+                    incar[key] = new_kspacing
+                else:
+                    incar[key] = auto_kspacing(bandgap, self.bandgap_tol)
 
             else:
                 incar[key] = setting
@@ -652,6 +665,7 @@ class VaspInputSet(InputGenerator, abc.ABC):
             warnings.warn(
                 "LASPH = True should be set for +U, meta-GGAs, hybrids, and vdW-DFT",
                 BadInputSetWarning,
+                stacklevel=2,
             )
 
         # Apply previous INCAR settings, be careful not to override user_incar_settings
@@ -670,7 +684,6 @@ class VaspInputSet(InputGenerator, abc.ABC):
                     "multiplet and should typically be an integer. You are likely "
                     "better off changing the values of MAGMOM or simply setting "
                     "NUPDOWN directly in your INCAR settings.",
-                    UserWarning,
                     stacklevel=2,
                 )
             auto_updates["NUPDOWN"] = nupdown
@@ -687,6 +700,7 @@ class VaspInputSet(InputGenerator, abc.ABC):
             warnings.warn(
                 "Hybrid functionals only support Algo = All, Damped, or Normal.",
                 BadInputSetWarning,
+                stacklevel=2,
             )
 
         if self.auto_ismear:
@@ -740,6 +754,7 @@ class VaspInputSet(InputGenerator, abc.ABC):
                 "generates an adequate number of KPOINTS, lower KSPACING, or "
                 "set ISMEAR = 0",
                 BadInputSetWarning,
+                stacklevel=2,
             )
 
         ismear = incar.get("ISMEAR", 1)
@@ -757,7 +772,7 @@ class VaspInputSet(InputGenerator, abc.ABC):
             warnings.warn(
                 f"{msg} See VASP recommendations on ISMEAR for metals (https://www.vasp.at/wiki/index.php/ISMEAR).",
                 BadInputSetWarning,
-                stacklevel=1,
+                stacklevel=2,
             )
 
         return incar
@@ -964,6 +979,7 @@ class VaspInputSet(InputGenerator, abc.ABC):
                     f"is known to correspond with functionals {p_single.identify_potcar(mode='data')[0]}. "
                     "Please verify that you are using the right POTCARs!",
                     BadInputSetWarning,
+                    stacklevel=2,
                 )
 
         return potcar
@@ -1036,7 +1052,8 @@ class VaspInputSet(InputGenerator, abc.ABC):
                 "Use of standardize=True with from_prev_run is not "
                 "recommended as there is no guarantee the copied "
                 "files will be appropriate for the standardized "
-                "structure."
+                "structure.",
+                stacklevel=2,
             )
 
         files_to_transfer = {}
@@ -1284,7 +1301,7 @@ class MPRelaxSet(VaspInputSet):
 
 @due.dcite(
     Doi("10.1021/acs.jpclett.0c02405"),
-    description="AccurAccurate and Numerically Efficient r2SCAN Meta-Generalized Gradient Approximation",
+    description="Accurate and Numerically Efficient r2SCAN Meta-Generalized Gradient Approximation",
 )
 @due.dcite(
     Doi("10.1103/PhysRevLett.115.036402"),
@@ -1342,7 +1359,7 @@ class MPScanRelaxSet(VaspInputSet):
 
         James W. Furness, Aaron D. Kaplan, Jinliang Ning, John P. Perdew, and Jianwei Sun.
         Accurate and Numerically Efficient r2SCAN Meta-Generalized Gradient Approximation.
-        The Journal of Physical Chemistry Letters 0, 11 DOI: 10.1021/acs.jpclett.0c02405
+        The Journal of Physical Chemistry Letters 11, 8208-8215 (2022) DOI: 10.1021/acs.jpclett.0c02405
     """
 
     bandgap: float | None = None
@@ -1355,11 +1372,157 @@ class MPScanRelaxSet(VaspInputSet):
     def __post_init__(self) -> None:
         super().__post_init__()
         if self.vdw and self.vdw != "rvv10":
-            warnings.warn("Use of van der waals functionals other than rVV10 with SCAN is not supported at this time. ")
+            warnings.warn(
+                "Use of van der waals functionals other than rVV10 with SCAN is not supported at this time. ",
+                stacklevel=2,
+            )
             # Delete any vdw parameters that may have been added to the INCAR
             vdw_par = loadfn(f"{MODULE_DIR}/vdW_parameters.yaml")
             for k in vdw_par[self.vdw]:
                 self._config_dict["INCAR"].pop(k, None)
+
+
+@dataclass
+class MP24RelaxSet(VaspInputSet):
+    """
+    Materials Project relax set after a 2023-2024 benchmarking effort.
+
+    By default, this uses r2SCAN as the xc functional.
+    For discussion around this benchmarking effort, see:
+    https://github.com/materialsproject/foundation/pull/26
+
+    Citation info:
+    - r2SCAN:
+        James W. Furness, Aaron D. Kaplan, Jinliang Ning, John P. Perdew, and Jianwei Sun.
+        Accurate and Numerically Efficient r2SCAN Meta-Generalized Gradient Approximation.
+        J. Phys. Chem. Lett. 11, 8208-8215 (2022) DOI: 10.1021/acs.jpclett.0c02405
+    - r2SCAN-rVV10:
+        Jinliang Ning, Manish Kothakonda, James W. Furness, Aaron D. Kaplan, Sebastian Ehlert,
+            Jan Gerit Brandenburg, John P. Perdew, and Jianwei Sun.
+        Workhorse minimally empirical dispersion-corrected density functional with tests for
+            weakly bound systems: r2SCAN+rVV10.
+        Phys. Rev. B 106, 075422 (2022) DOI: 10.1103/PhysRevB.106.075422
+    - r2SCAN-D4:
+        Sebastian Ehlert, Uwe Huniar, Jinliang Ning, James W. Furness, Jianwei Sun,
+            Aaron D. Kaplan, John P. Perdew, and Jan Gerit Brandenburg.
+        r2SCAN-D4: Dispersion corrected meta-generalized gradient approximation for general chemical applications.
+        J. Chem. Phys. 154, 061101 (2021) DOI: 10.1063/5.0041008
+    - PBE:
+        John P. Perdew, Kieron Burke, and Matthias Ernzerhof,
+        Generalized Gradient Approximation Made Simple,
+        Phys. Rev. Lett. 77, 3865 (1996) DOI: 10.1103/PhysRevLett.77.3865
+    - PBEsol:
+        John P. Perdew, Adrienn Ruzsinszky, Gábor I. Csonka, Oleg A. Vydrov,
+            Gustavo E. Scuseria, Lucian A. Constantin, Xiaolan Zhou, and Kieron Burke.
+        Restoring the Density-Gradient Expansion for Exchange in Solids and Surfaces.
+        Phys. Rev. Lett. 100, 136406 (2009) DOI: 10.1103/PhysRevLett.100.136406
+    - PBE-D4 and PBEsol-D4:
+        Eike Caldeweyher,Jan-Michael Mewes, Sebastian Ehlert, and Stefan Grimme.
+        Extension and evaluation of the D4 London-dispersion model for periodic systems.
+        Phys. Chem. Chem. Phys. 22, 8499-8512 (2020) DOI: 10.1039/D0CP00502A
+    """
+
+    xc_functional: Literal["r2SCAN", "PBE", "PBEsol"] = "r2SCAN"
+    dispersion: Literal["rVV10", "D4"] | None = None
+    CONFIG = _load_yaml_config("MP24RelaxSet")
+    auto_ismear: bool = False
+    auto_kspacing: bool = True
+    inherit_incar: bool = False
+
+    def __post_init__(self) -> None:
+        super().__post_init__()
+
+        to_func = {
+            "r2SCAN": "R2SCAN",
+            "PBE": "PE",
+            "PBEsol": "PS",
+        }
+
+        config_updates: dict[str, Any] = {}
+        if self.xc_functional == "r2SCAN":
+            config_updates |= {"METAGGA": to_func[self.xc_functional]}
+            self._config_dict["INCAR"].pop("GGA", None)
+        elif self.xc_functional in ["PBE", "PBEsol"]:
+            config_updates |= {"GGA": to_func[self.xc_functional]}
+            self._config_dict["INCAR"].pop("METAGGA", None)
+        else:
+            raise ValueError(f"Unknown XC functional {self.xc_functional}!")
+
+        if self.dispersion == "rVV10":
+            if self.xc_functional == "r2SCAN":
+                config_updates |= {"BPARAM": 11.95, "CPARAM": 0.0093, "LUSE_VDW": True}
+            else:
+                raise ValueError(
+                    "Use of rVV10 with functionals other than r2 / SCAN is not currently supported in VASP."
+                )
+
+        elif self.dispersion == "D4":
+            d4_pars = {
+                "r2SCAN": {
+                    "S6": 1.0,
+                    "S8": 0.60187490,
+                    "A1": 0.51559235,
+                    "A2": 5.77342911,
+                },
+                "PBE": {
+                    "S6": 1.0,
+                    "S8": 0.95948085,
+                    "A1": 0.38574991,
+                    "A2": 4.80688534,
+                },
+                "PBEsol": {
+                    "S6": 1.0,
+                    "S8": 1.71885698,
+                    "A1": 0.47901421,
+                    "A2": 5.96771589,
+                },
+            }
+            config_updates |= {"IVDW": 13, **{f"VDW_{k}": v for k, v in d4_pars[self.xc_functional].items()}}
+
+        if len(config_updates) > 0:
+            self._config_dict["INCAR"].update(config_updates)
+
+    @staticmethod
+    def _sigmoid_interp(
+        bg, min_dk: float = 0.22, max_dk: float = 0.5, shape: float = 0.43, center: float = 4.15, fac: float = 12.0
+    ):
+        delta = shape * (bg - center)
+        sigmoid = delta / (1.0 + delta**fac) ** (1.0 / fac)
+        return 0.5 * (min_dk + max_dk + (max_dk - min_dk) * sigmoid)
+
+    def _multi_sigmoid_interp(
+        self,
+        bandgap: float,
+        dks: tuple[float, ...] = (0.22, 0.44, 0.5),
+        shape: tuple[float, ...] = (1.1, 2.5),
+        center: tuple[float, ...] = (2.35, 6.1),
+        fac: tuple[float, ...] = (8, 8),
+        bg_cut: tuple[float, ...] = (4.5,),
+    ):
+        if bandgap < self.bandgap_tol:
+            return dks[0]
+
+        min_bds = [self.bandgap_tol, *bg_cut]
+        max_bds = [*bg_cut, np.inf]
+
+        for icut, min_bd in enumerate(min_bds):
+            if min_bd <= bandgap < max_bds[icut]:
+                return self._sigmoid_interp(
+                    bandgap,
+                    min_dk=dks[icut],
+                    max_dk=dks[icut + 1],
+                    shape=shape[icut],
+                    center=center[icut],
+                    fac=fac[icut],
+                )
+
+        return None
+
+    @property
+    def kspacing_update(self):
+        if self.bandgap is None:
+            return 0.22
+        return self._multi_sigmoid_interp(self.bandgap)
 
 
 @dataclass
@@ -1554,11 +1717,12 @@ class MatPESStaticSet(VaspInputSet):
         if self.user_potcar_functional.upper() != default_potcars:
             warnings.warn(
                 f"{self.user_potcar_functional=} is inconsistent with the recommended {default_potcars}.",
-                UserWarning,
+                stacklevel=2,
             )
 
         if self.xc_functional.upper() == "R2SCAN":
-            self._config_dict["INCAR"].update({"METAGGA": "R2SCAN", "ALGO": "ALL", "GGA": None})
+            self._config_dict["INCAR"].update({"METAGGA": "R2SCAN", "ALGO": "ALL"})
+            self._config_dict["INCAR"].pop("GGA", None)
         if self.xc_functional.upper().endswith("+U"):
             self._config_dict["INCAR"]["LDAU"] = True
 
@@ -1588,6 +1752,7 @@ class MPScanStaticSet(MPScanRelaxSet):
     def incar_updates(self) -> dict[str, Any]:
         """Updates to the INCAR config for this calculation type."""
         updates: dict[str, Any] = {
+            "ALGO": "Fast",
             "LREAL": False,
             "NSW": 0,
             "LORBIT": 11,
@@ -1606,6 +1771,49 @@ class MPScanStaticSet(MPScanRelaxSet):
                 "NSW": 1,
                 "NPAR": None,
             }
+
+        if self.lcalcpol:
+            updates["LCALCPOL"] = True
+
+        return updates
+
+
+@dataclass
+class MP24StaticSet(MP24RelaxSet):
+    """Create input files for a static calculation using MP24 parameters.
+
+    For class information, refer to `MP24RelaxSet`.
+    If you use this set, please consider citing the appropriate papers in `MP24RelaxSet`.
+
+    Args:
+        structure (Structure): Structure from previous run.
+        bandgap (float): Bandgap of the structure in eV. The bandgap is used to
+            compute the appropriate k-point density and determine the smearing settings.
+        lepsilon (bool): Whether to add static dielectric calculation
+        lcalcpol (bool): Whether to turn on evaluation of the Berry phase approximations
+            for electronic polarization.
+        **kwargs: Keywords supported by MP24RelaxSet.
+    """
+
+    lepsilon: bool = False
+    lcalcpol: bool = False
+    inherit_incar: bool = False
+    auto_kspacing: bool = True
+
+    @property
+    def incar_updates(self) -> dict[str, Any]:
+        """Updates to the INCAR config for this calculation type."""
+        updates: dict[str, Any] = {
+            "NSW": 0,
+            "LORBIT": 11,
+            "ISMEAR": -5,
+        }
+
+        if self.lepsilon:
+            # LPEAD=T: numerical evaluation of overlap integral prevents
+            # LRF_COMMUTATOR errors and can lead to better expt. agreement
+            # but produces slightly different results
+            updates |= {"IBRION": 8, "LEPSILON": True, "LPEAD": True, "NSW": 1, "NPAR": None}
 
         if self.lcalcpol:
             updates["LCALCPOL"] = True
@@ -1789,14 +1997,18 @@ class MPNonSCFSet(VaspInputSet):
             )
 
         if (mode != "uniform" or self.nedos < 2000) and self.optics:
-            warnings.warn("It is recommended to use Uniform mode with a high NEDOS for optics calculations.")
+            warnings.warn(
+                "It is recommended to use Uniform mode with a high NEDOS for optics calculations.",
+                stacklevel=2,
+            )
 
         if self.standardize:
             warnings.warn(
                 "Use of standardize=True with from_prev_run is not "
                 "recommended as there is no guarantee the copied "
                 "files will be appropriate for the standardized"
-                " structure. copy_chgcar is enforced to be false."
+                " structure. copy_chgcar is enforced to be false.",
+                stacklevel=2,
             )
             self.copy_chgcar = False
 
@@ -2804,7 +3016,10 @@ class LobsterSet(VaspInputSet):
 
     def __post_init__(self) -> None:
         super().__post_init__()
-        warnings.warn("Make sure that all parameters are okay! This is a brand new implementation.")
+        warnings.warn(
+            "Make sure that all parameters are okay! This is a brand new implementation.",
+            stacklevel=2,
+        )
 
         if self.user_potcar_functional in ["PBE_52", "PBE_64"]:
             warnings.warn(
@@ -2812,6 +3027,7 @@ class LobsterSet(VaspInputSet):
                 "Basis functions for elements with obsoleted, updated or newly added POTCARs in "
                 f"{self.user_potcar_functional} will not be available and may cause errors or inaccuracies.",
                 BadInputSetWarning,
+                stacklevel=2,
             )
         if self.isym not in {-1, 0}:
             raise ValueError("Lobster cannot digest WAVEFUNCTIONS with symmetry. isym must be -1 or 0")

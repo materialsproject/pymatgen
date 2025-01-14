@@ -133,7 +133,7 @@ class AimsGeometryIn(MSONable):
         Returns:
             AimsGeometryIn: The input object represented in the file
         """
-        with zopen(filepath, mode="rt") as in_file:
+        with zopen(filepath, mode="rt", encoding="utf-8") as in_file:
             content = in_file.read()
         return cls.from_str(content)
 
@@ -154,15 +154,21 @@ class AimsGeometryIn(MSONable):
                 content_lines.append(f"lattice_vector {lv[0]: .12e} {lv[1]: .12e} {lv[2]: .12e}")
 
         for site in structure:
-            element = site.species_string
+            element = site.species_string.split(",spin=")[0]
             charge = site.properties.get("charge", 0)
             spin = site.properties.get("magmom", None)
             coord = site.coords
             v = site.properties.get("velocity", [0.0, 0.0, 0.0])
+
             if isinstance(site.specie, Species) and site.specie.spin is not None:
                 if spin is not None and spin != site.specie.spin:
                     raise ValueError("species.spin and magnetic moments don't agree. Please only define one")
                 spin = site.specie.spin
+
+            if isinstance(site.specie, Species) and site.specie.oxi_state is not None:
+                if charge is not None and charge != site.specie.oxi_state:
+                    raise ValueError("species.oxi_state and charge don't agree. Please only define one")
+                charge = site.specie.oxi_state
 
             content_lines.append(f"atom {coord[0]: .12e} {coord[1]: .12e} {coord[2]: .12e} {element}")
             if charge != 0:
@@ -192,11 +198,11 @@ class AimsGeometryIn(MSONable):
         """
         return textwrap.dedent(
             f"""\
-        #{'=' * 72}
+        #{"=" * 72}
         # FHI-aims geometry file: {filename}
         # File generated from pymatgen
         # {time.asctime()}
-        #{'=' * 72}
+        #{"=" * 72}
         """
         )
 
@@ -213,7 +219,7 @@ class AimsGeometryIn(MSONable):
         if not overwrite and file_name.exists():
             raise ValueError(f"geometry.in file exists in {directory}")
 
-        with open(f"{directory}/geometry.in", mode="w") as file:
+        with open(f"{directory}/geometry.in", mode="w", encoding="utf-8") as file:
             file.write(self.get_header(file_name.as_posix()))
             file.write(self.content)
             file.write("\n")
@@ -566,6 +572,7 @@ class AimsControlIn(MSONable):
             warn(
                 "Removing spin from parameters since no spin information is in the structure",
                 RuntimeWarning,
+                stacklevel=2,
             )
             parameters.pop("spin")
 
@@ -590,7 +597,7 @@ class AimsControlIn(MSONable):
                 width = parameters["smearing"][1]
                 if name == "methfessel-paxton":
                     order = parameters["smearing"][2]
-                    order = " %d" % order
+                    order = f" {order:d}"
                 else:
                     order = ""
 
@@ -665,7 +672,7 @@ class AimsControlIn(MSONable):
 
         content = self.get_content(structure, verbose_header)
 
-        with open(f"{directory}/control.in", mode="w") as file:
+        with open(f"{directory}/control.in", mode="w", encoding="utf-8") as file:
             file.write(f"#{'=' * 72}\n")
             file.write(f"# FHI-aims geometry file: {directory}/geometry.in\n")
             file.write("# File generated from pymatgen\n")
@@ -752,7 +759,7 @@ class AimsSpeciesFile:
         Returns:
             AimsSpeciesFile
         """
-        with zopen(filename, mode="rt") as file:
+        with zopen(filename, mode="rt", encoding="utf-8") as file:
             return cls(data=file.read(), label=label)
 
     @classmethod
