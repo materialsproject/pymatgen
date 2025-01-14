@@ -581,13 +581,11 @@ class Trajectory(MSONable):
             structures = Vasprun(filename).structures
 
         elif fnmatch(filename, "*.traj"):
-            try:
-                from pymatgen.io.ase import AseTrajAdaptor
+            from pymatgen.io.ase import NO_ASE_ERR, AseTrajAdaptor
 
+            if NO_ASE_ERR is None:
                 return AseTrajAdaptor().ase_to_pmg_trajectory(filename)
-
-            except ImportError as exc:
-                raise ImportError("ASE is required to read .traj files. pip install ase") from exc
+            raise ImportError("ASE is required to read .traj files. pip install ase")
 
         else:
             supported_file_types = ("XDATCAR", "vasprun.xml", "*.traj")
