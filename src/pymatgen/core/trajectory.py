@@ -795,7 +795,7 @@ class Trajectory(MSONable):
 
         structures = []
         frame_properties = []
-        converter = adaptor.get_structure if (is_mol := any(trajectory[0].pbc)) else adaptor.get_molecule
+        converter = adaptor.get_structure if (is_pbc := any(trajectory[0].pbc)) else adaptor.get_molecule
 
         for atoms in trajectory:
             site_properties = {}
@@ -818,9 +818,9 @@ class Trajectory(MSONable):
                 for j in range(i + 1, len(structures))
             )
 
-        if is_mol:
-            return cls.from_molecules(structures, constant_lattice=constant_lattice, frame_properties=frame_properties)
-        return cls.from_structures(
+        if is_pbc:
+            return cls.from_structures(structures, constant_lattice=constant_lattice, frame_properties=frame_properties)
+        return cls.from_molecules(
             structures,
             constant_lattice=constant_lattice,
             frame_properties=frame_properties,
