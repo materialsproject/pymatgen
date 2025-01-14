@@ -584,7 +584,7 @@ class Trajectory(MSONable):
 
         elif fnmatch(filename, "*.traj"):
             if NO_ASE_ERR is None:
-                return cls.ase_to_pmg_trajectory(
+                return cls.from_ase(
                     filename,
                     constant_lattice=constant_lattice,
                     store_frame_properties=True,
@@ -733,7 +733,7 @@ class Trajectory(MSONable):
             raise ValueError("Unexpected frames type.")
         raise ValueError("Unexpected site_properties type.")
 
-    def to_ase_trajectory(self, **kwargs) -> AseTrajectory:
+    def to_ase(self, **kwargs) -> AseTrajectory:
         """
         Convert to an ASE trajectory.
 
@@ -748,7 +748,7 @@ class Trajectory(MSONable):
         raise ImportError("ASE is required to write .traj files. pip install ase")
 
     @classmethod
-    def ase_to_pmg_trajectory(
+    def from_ase(
         cls,
         trajectory: str | Path | AseTrajectory,
         constant_lattice: bool | None = None,

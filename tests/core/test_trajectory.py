@@ -557,7 +557,7 @@ class TestTrajectory(PymatgenTest):
         traj = Trajectory.from_file(f"{TEST_DIR}/LiMnO2_chgnet_relax.json.gz")
 
         try:
-            ase_traj = traj.to_ase_trajectory()
+            ase_traj = traj.to_ase()
 
             assert len(ase_traj) == len(traj)
 
@@ -572,4 +572,4 @@ class TestTrajectory(PymatgenTest):
                 ImportError,
                 match="ASE is required to write .traj files. pip install ase",
             ):
-                ase_traj = traj.to_ase_trajectory()
+                ase_traj = traj.to_ase()
