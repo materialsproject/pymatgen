@@ -583,22 +583,22 @@ class Trajectory(MSONable):
             structures = Vasprun(filename).structures
 
         elif fnmatch(filename, "*.traj"):
-
             if NO_ASE_ERR is None:
                 return cls.ase_to_pmg_trajectory(
                     filename,
-                    constant_lattice = constant_lattice,
-                    store_frame_properties = True,
-                    additional_fields = None,
+                    constant_lattice=constant_lattice,
+                    store_frame_properties=True,
+                    additional_fields=None,
                 )
             raise ImportError("ASE is required to read .traj files. pip install ase")
 
         elif fnmatch(filename, "*.json*"):
             from monty.serialization import loadfn
-            return loadfn(filename,**kwargs)
+
+            return loadfn(filename, **kwargs)
 
         else:
-            supported_file_types = ("XDATCAR", "vasprun.xml", "*.traj",".json")
+            supported_file_types = ("XDATCAR", "vasprun.xml", "*.traj", ".json")
             raise ValueError(f"Expect file to be one of {supported_file_types}; got {filename}.")
 
         return cls.from_structures(structures, constant_lattice=constant_lattice, **kwargs)
@@ -744,7 +744,7 @@ class Trajectory(MSONable):
             ASE Trajectory
         """
         if NO_ASE_ERR is None:
-            return self.pmg_to_ase_trajectory(self,**kwargs)
+            return self.pmg_to_ase_trajectory(self, **kwargs)
         raise ImportError("ASE is required to write .traj files. pip install ase")
 
     @staticmethod
@@ -752,7 +752,7 @@ class Trajectory(MSONable):
         trajectory: str | Path | AseTrajectory,
         constant_lattice: bool | None = None,
         store_frame_properties: bool = True,
-        property_map : dict[str,str] | None = None,
+        property_map: dict[str, str] | None = None,
         lattice_match_tol: float = 1.0e-6,
         additional_fields: Sequence[str] | None = ["temperature", "velocities"],
     ) -> Trajectory:
@@ -761,10 +761,16 @@ class Trajectory(MSONable):
 
         Args:
             trajectory (str, .Path, or ASE .Trajectory) : the ASE trajectory, or a file path to it if a str or .Path
-            store_frame_properties (bool) : Whether to store pymatgen .Trajectory `frame_properties` as
-                ASE calculator properties. Defaults to True
             constant_lattice (bool or None) : if a bool, whether the lattice is constant in the .Trajectory.
                 If `None`, this is determined on the fly.
+            store_frame_properties (bool) : Whether to store pymatgen .Trajectory `frame_properties` as
+                ASE calculator properties. Defaults to True
+            property_map (dict[str,str]) : A mapping between ASE calculator properties and
+                pymatgen .Trajectory `frame_properties` keys. Ex.:
+                    property_map = {"energy": "e_0_energy"}
+                would map `e_0_energy` in the pymatgen .Trajectory `frame_properties`
+                to ASE's `get_potential_energy` function.
+                See `ase.calculators.calculator.all_properties` for a list of acceptable calculator properties.
             lattice_match_tol (float = 1.0e-6) : tolerance to which lattices are matched if
                 `constant_lattice = None`.
             additional_fields (Sequence of str, defaults to ["temperature", "velocities"]) :
@@ -825,7 +831,7 @@ class Trajectory(MSONable):
     @staticmethod
     def pmg_to_ase_trajectory(
         trajectory: Trajectory,
-        property_map : dict[str,str] | None = None,
+        property_map: dict[str, str] | None = None,
         ase_traj_file: str | Path | None = None,
     ) -> AseTrajectory:
         """
@@ -833,8 +839,8 @@ class Trajectory(MSONable):
 
         Args:
             trajectory (pymatgen .Trajectory) : trajectory to convert
-            property_map (dict[str,str]) : A mapping between ASE calculator properties and 
-                pymatgen .Trajectory `frame_properties` keys. Ex.: 
+            property_map (dict[str,str]) : A mapping between ASE calculator properties and
+                pymatgen .Trajectory `frame_properties` keys. Ex.:
                     property_map = {"energy": "e_0_energy"}
                 would map `e_0_energy` in the pymatgen .Trajectory `frame_properties`
                 to ASE's `get_potential_energy` function.
@@ -847,7 +853,7 @@ class Trajectory(MSONable):
         """
         from ase.calculators.calculator import all_properties
         from ase.calculators.singlepoint import SinglePointCalculator
-        
+
         property_map = property_map or {
             "energy": "energy",
             "forces": "forces",
@@ -865,9 +871,7 @@ class Trajectory(MSONable):
             ase_traj_file = temp_file.name
 
         for idx, structure in enumerate(trajectory):
-            atoms = adaptor.get_atoms(
-                structure, msonable=False, velocities=structure.site_properties.get("velocities")
-            )
+            atoms = adaptor.get_atoms(structure, msonable=False, velocities=structure.site_properties.get("velocities"))
 
             props = {
                 k: trajectory.frame_properties[idx][v]
