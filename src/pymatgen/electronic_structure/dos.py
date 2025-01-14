@@ -385,10 +385,7 @@ class Dos(MSONable):
         while i_gap_end < tdos.shape[0] and tdos[i_gap_end] <= tol:
             i_gap_end += 1
 
-        return (
-            self.energies[min(i_gap_end, len(self.energies)-1)],
-            self.energies[max(i_gap_start, 0)]
-        )
+        return (self.energies[min(i_gap_end, len(self.energies) - 1)], self.energies[max(i_gap_start, 0)])
 
     def get_gap(
         self,
