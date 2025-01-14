@@ -744,7 +744,7 @@ class Trajectory(MSONable):
             ASE Trajectory
         """
         if NO_ASE_ERR is None:
-            return self.pmg_to_ase_trajectory(self, **kwargs)
+            return self.to_ase_trajectory(self, **kwargs)
         raise ImportError("ASE is required to write .traj files. pip install ase")
 
     @classmethod
@@ -827,7 +827,7 @@ class Trajectory(MSONable):
         )
 
     @staticmethod
-    def pmg_to_ase_trajectory(
+    def to_ase_trajectory(
         trajectory: Trajectory,
         property_map: dict[str, str] | None = None,
         ase_traj_file: str | Path | None = None,
