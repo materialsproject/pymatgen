@@ -865,7 +865,7 @@ class Trajectory(MSONable):
 
         temp_file = None
         if ase_traj_file is None:
-            temp_file = NamedTemporaryFile()  # noqa: SIM115
+            temp_file = NamedTemporaryFile(delete=False)  # noqa: SIM115
             ase_traj_file = temp_file.name
 
         frame_props = trajectory.frame_properties or [{} for _ in range(len(trajectory))]
