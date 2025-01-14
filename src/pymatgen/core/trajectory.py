@@ -747,8 +747,9 @@ class Trajectory(MSONable):
             return self.pmg_to_ase_trajectory(self, **kwargs)
         raise ImportError("ASE is required to write .traj files. pip install ase")
 
-    @staticmethod
+    @classmethod
     def ase_to_pmg_trajectory(
+        cls,
         trajectory: str | Path | AseTrajectory,
         constant_lattice: bool | None = None,
         store_frame_properties: bool = True,
@@ -794,12 +795,7 @@ class Trajectory(MSONable):
 
         structures = []
         frame_properties = []
-        if any(trajectory[0].pbc):
-            converter = adaptor.get_structure
-            traj_method = Trajectory.from_structures
-        else:
-            converter = adaptor.get_molecule
-            traj_method = Trajectory.from_molecules
+        converter = adaptor.get_structure if (is_mol := any(trajectory[0].pbc)) else adaptor.get_molecule
 
         for atoms in trajectory:
             site_properties = {}
@@ -822,7 +818,9 @@ class Trajectory(MSONable):
                 for j in range(i + 1, len(structures))
             )
 
-        return traj_method(
+        if is_mol:
+            return cls.from_molecules(structures, constant_lattice=constant_lattice, frame_properties=frame_properties)
+        return cls.from_structures(
             structures,
             constant_lattice=constant_lattice,
             frame_properties=frame_properties,
@@ -870,14 +868,11 @@ class Trajectory(MSONable):
             temp_file = NamedTemporaryFile()  # noqa: SIM115
             ase_traj_file = temp_file.name
 
+        frame_props = trajectory.frame_properties or [{} for _ in range(len(trajectory))]
         for idx, structure in enumerate(trajectory):
             atoms = adaptor.get_atoms(structure, msonable=False, velocities=structure.site_properties.get("velocities"))
 
-            props = {
-                k: trajectory.frame_properties[idx][v]
-                for k, v in property_map.items()
-                if v in trajectory.frame_properties[idx]
-            }
+            props: dict[str, Any] = {k: frame_props[idx][v] for k, v in property_map.items() if v in frame_props[idx]}
 
             # Ensure that `charges` and `magmoms` are not lost from AseAtomsAdaptor
             for k in ("charges", "magmoms"):
