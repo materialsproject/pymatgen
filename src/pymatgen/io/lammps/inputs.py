@@ -1069,7 +1069,7 @@ def write_lammps_inputs(
         ...
         ... run             $nsteps'''
         >>> write_lammps_inputs(".", eam_template, settings={"temperature": 1600.0, "nsteps": 100})
-        >>> with open("in.lammps") as file:
+        >>> with open("in.lammps", encoding="utf-8") as file:
         ...     script = file.read()
         >>> print(script)
         units           metal

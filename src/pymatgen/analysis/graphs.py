@@ -975,7 +975,7 @@ class StructureGraph(MSONable):
 
         write_dot(g, f"{basename}.dot")
 
-        with open(filename, mode="w") as file:
+        with open(filename, mode="w", encoding="utf-8") as file:
             args = [algo, "-T", extension, f"{basename}.dot"]
             with subprocess.Popen(args, stdout=file, stdin=subprocess.PIPE, close_fds=True) as rs:
                 rs.communicate()
@@ -2644,7 +2644,7 @@ class MoleculeGraph(MSONable):
 
         write_dot(g, f"{basename}.dot")
 
-        with open(filename, mode="w") as file:
+        with open(filename, mode="w", encoding="utf-8") as file:
             args = [algo, "-T", extension, f"{basename}.dot"]
             with subprocess.Popen(args, stdout=file, stdin=subprocess.PIPE, close_fds=True) as rs:
                 rs.communicate()

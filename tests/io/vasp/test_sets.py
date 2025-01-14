@@ -106,7 +106,7 @@ class TestSetChangeCheck(PymatgenTest):
         input_sets = glob(f"{MODULE_DIR}/*.yaml")
         hashes = {}
         for input_set in input_sets:
-            with open(input_set) as file:
+            with open(input_set, encoding="utf-8") as file:
                 text = file.read().encode("utf-8")
                 name = os.path.basename(input_set)
                 hashes[name] = hashlib.sha256(text).hexdigest()
