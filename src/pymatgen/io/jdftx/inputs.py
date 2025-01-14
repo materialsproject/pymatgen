@@ -18,7 +18,6 @@ from typing import TYPE_CHECKING
 
 import numpy as np
 import scipy.constants as const
-from monty.io import zopen
 from monty.json import MSONable
 
 from pymatgen.core import Structure
@@ -185,7 +184,7 @@ class JDFTXInfile(dict, MSONable):
         Args:
             filename (PathLike): Filename to write to.
         """
-        with zopen(filename, mode="wt") as file:
+        with open(filename, mode="w") as file:
             file.write(str(self))
 
     @classmethod
@@ -211,7 +210,7 @@ class JDFTXInfile(dict, MSONable):
         path_parent = None
         if assign_path_parent:
             path_parent = Path(filename).parents[0]
-        with zopen(filename, mode="rt") as file:
+        with open(filename) as file:
             return cls.from_str(
                 file.read(),
                 dont_require_structure=dont_require_structure,
@@ -835,7 +834,7 @@ class JDFTXStructure(MSONable):
             filename (PathLike): Filename to write to.
             **kwargs: Kwargs to pass to JDFTXStructure.get_str.
         """
-        with zopen(filename, mode="wt") as file:
+        with open(filename, mode="w") as file:
             file.write(self.get_str(**kwargs))
 
     def as_dict(self) -> dict:
