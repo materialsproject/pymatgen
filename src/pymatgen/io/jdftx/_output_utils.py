@@ -14,7 +14,6 @@ from pathlib import Path
 from typing import TYPE_CHECKING, Any
 
 import numpy as np
-from monty.io import zopen
 
 if TYPE_CHECKING:
     from collections.abc import Callable
@@ -52,7 +51,7 @@ def read_file(file_name: str) -> list[str]:
     text: list[str]
         list of strings from file
     """
-    with zopen(file_name, "r") as f:
+    with open(file_name) as f:
         text = f.readlines()
     f.close()
     return text
