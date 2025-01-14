@@ -20,11 +20,10 @@ from monty.io import zopen
 from monty.json import MontyDecoder, MSONable
 from monty.os.path import zpath
 from pyfhiaims.control.control import AimsControlIn as PyFHIAimsControl
-from pyfhiaims.geometry.atom import FHIAimsAtom
 from pyfhiaims.geometry.geometry import AimsGeometry
 from pyfhiaims.species_defaults.species import SpeciesDefaults as PyFHIAimsSD
 
-from pymatgen.core import SETTINGS, Element, Lattice, Molecule, Species, Structure
+from pymatgen.core import SETTINGS, Element, Molecule, Structure
 
 if TYPE_CHECKING:
     from typing import Any
@@ -36,94 +35,6 @@ __author__ = "Thomas A. R. Purcell"
 __version__ = "1.0"
 __email__ = "purcellt@arizona.edu"
 __date__ = "November 2023"
-
-
-def structure2aimsgeo(structure: Structure | Molecule) -> AimsGeometry:
-    """Convert a structure into an AimsGeometry object
-
-    Args:
-        structure (Structure | Molecule): structure to convert
-
-    Returns:
-        AimsGeometry: The resulting AimsGeometry
-    """
-    lattice_vectors = getattr(structure, "lattice", None)
-    if lattice_vectors is not None:
-        lattice_vectors = lattice_vectors.matrix
-
-    atoms = []
-    for site in structure:
-        element = site.species_string.split(",spin=")[0]
-        charge = site.properties.get("charge", None)
-        spin = site.properties.get("magmom", None)
-        coord = site.coords
-        v = site.properties.get("velocity", None)
-
-        if isinstance(site.specie, Species) and site.specie.spin is not None:
-            if spin is not None and spin != site.specie.spin:
-                raise ValueError("species.spin and magnetic moments don't agree. Please only define one")
-            spin = site.specie.spin
-        elif spin is None:
-            spin = 0.0
-
-        if isinstance(site.specie, Species) and site.specie.oxi_state is not None:
-            if charge is not None and charge != site.specie.oxi_state:
-                raise ValueError("species.oxi_state and charge don't agree. Please only define one")
-            charge = site.specie.oxi_state
-        elif charge is None:
-            charge = 0.0
-
-        atoms.append(
-            FHIAimsAtom(
-                symbol=element,
-                position=coord,
-                velocity=v,
-                initial_charge=charge,
-                initial_moment=spin,
-            )
-        )
-
-    return AimsGeometry(atoms=atoms, lattice_vectors=lattice_vectors)
-
-
-def aimsgeo2structure(geometry: AimsGeometry) -> Structure | Molecule:
-    """Convert an AimsGeometry object into a Structure of Molecule
-
-    Args:
-        structure (Structure | Molecule): structure to convert
-
-    Returns:
-        Structure | Molecule: The resulting Strucucture/Molecule
-    """
-    charge = np.array([atom.initial_charge for atom in geometry.atoms])
-    magmom = np.array([atom.initial_moment for atom in geometry.atoms])
-    velocity: list[None | list[float]] = [atom.velocity for atom in geometry.atoms]
-    species = [atom.symbol for atom in geometry.atoms]
-    coords = [atom.position for atom in geometry.atoms]
-
-    for vv, vel in enumerate(velocity):
-        if vel is not None and np.sum(np.abs(vel)) < 1e-10:
-            velocity[vv] = None
-
-    lattice = Lattice(geometry.lattice_vectors) if geometry.lattice_vectors is not None else None
-
-    site_props = {"charge": charge, "magmom": magmom}
-    if any(vel is not None for vel in velocity):
-        site_props["velocity"] = velocity
-
-    if lattice is None:
-        structure = Molecule(species, coords, np.sum(charge), site_properties=site_props)
-    else:
-        structure = Structure(
-            lattice,
-            species,
-            coords,
-            np.sum(charge),
-            coords_are_cartesian=True,
-            site_properties=site_props,
-        )
-
-    return structure
 
 
 @dataclass
@@ -153,9 +64,8 @@ class AimsGeometryIn(MSONable):
             line.strip() for line in contents.split("\n") if len(line.strip()) > 0 and line.strip()[0] != "#"
         ]
         geometry = AimsGeometry.from_strings(content_lines)
-        structure = aimsgeo2structure(geometry)
 
-        return cls(_content="\n".join(content_lines), _structure=structure)
+        return cls(_content="\n".join(content_lines), _structure=geometry.structure)
 
     @classmethod
     def from_file(cls, filepath: str | Path) -> Self:
@@ -181,7 +91,7 @@ class AimsGeometryIn(MSONable):
         Returns:
             AimsGeometryIn: The input object for the structure
         """
-        geometry = structure2aimsgeo(structure)
+        geometry = AimsGeometry.from_structure(structure)
 
         content = textwrap.dedent(
             f"""\
@@ -346,7 +256,7 @@ class AimsControlIn(MSONable):
         if parameters["xc"] == "LDA":
             parameters["xc"] = "pw-lda"
 
-        geometry = structure2aimsgeo(structure)
+        geometry = AimsGeometry.from_structure(structure)
         magmom = np.array([atom.initial_moment for atom in geometry.atoms])
         if (
             parameters.get("spin", "") == "collinear"

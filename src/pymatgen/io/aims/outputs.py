@@ -11,11 +11,7 @@ import numpy as np
 from monty.json import MontyDecoder, MSONable
 from pyfhiaims.outputs.stdout import AimsParseError, AimsStdout
 
-# from pyfhiaims.output_parser.aims_out_header_section import AimsOutHeaderSection
-# from pyfhiaims.output_parser.aims_out_section import AimsParseError
-# from pyfhiaims.output_parser.aims_outputs import AimsOutput as FHIAimsOutput
 from pymatgen.core import Lattice, Structure
-from pymatgen.io.aims.inputs import aimsgeo2structure
 
 if TYPE_CHECKING:
     from collections.abc import Sequence
@@ -33,7 +29,7 @@ __date__ = "November 2023"
 
 
 AIMS_OUTPUT_KEY_MAP = {
-    "total_energy": "energy",
+    "free_energy": "energy",  # TARP These are the force consistent energies
 }
 
 
@@ -110,7 +106,7 @@ class AimsOutput(MSONable):
         metadata = aims_out.metadata_summary
         structure_summary = aims_out.header_summary
 
-        structure_summary["initial_structure"] = aimsgeo2structure(structure_summary.pop("initial_geometry"))
+        structure_summary["initial_structure"] = structure_summary.pop("initial_geometry").structure
         for site in structure_summary["initial_structure"]:
             if abs(site.properties.get("magmom", 0.0)) < 1e-10:
                 site.properties.pop("magmom", None)
@@ -123,7 +119,7 @@ class AimsOutput(MSONable):
         results = []
         for image in aims_out:
             image_results = remap_outputs(image._results)
-            structure = aimsgeo2structure(image._geometry)
+            structure = image.geometry.structure
             site_prop_keys = {
                 "forces": "force",
                 "stresses": "atomic_virial_stress",

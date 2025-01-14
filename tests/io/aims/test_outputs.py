@@ -35,7 +35,7 @@ def test_aims_output_si():
         si_ref = json.load(ref_file, cls=MontyDecoder)
 
     assert si_ref.metadata == si.metadata
-    # assert si_ref.structure_summary == si.structure_summary
+    assert si_ref.structure_summary == si.structure_summary
 
     assert si_ref.n_images == si.n_images
     for ii in range(si.n_images):
@@ -48,7 +48,7 @@ def test_aims_output_h2o():
         h2o_ref = json.load(ref_file, cls=MontyDecoder)
 
     assert h2o_ref.metadata == h2o.metadata
-    # assert h2o_ref.structure_summary == h2o.structure_summary
+    assert h2o_ref.structure_summary == h2o.structure_summary
 
     assert h2o_ref.n_images == h2o.n_images
     for ii in range(h2o.n_images):
@@ -63,7 +63,7 @@ def test_aims_output_si_dict():
         si_ref = json.load(ref_file, cls=MontyDecoder)
 
     assert si_ref.metadata == si.metadata
-    # assert si_ref.structure_summary == si.structure_summary
+    assert si_ref.structure_summary == si.structure_summary
 
     assert si_ref.n_images == si.n_images
     for ii in range(si.n_images):
@@ -78,7 +78,7 @@ def test_aims_output_h2o_dict():
         h2o_ref = json.load(ref_file, cls=MontyDecoder)
 
     assert h2o_ref.metadata == h2o.metadata
-    # assert h2o_ref.structure_summary == h2o.structure_summary
+    assert h2o_ref.structure_summary == h2o.structure_summary
 
     assert h2o_ref.n_images == h2o.n_images
     for ii in range(h2o.n_images):
