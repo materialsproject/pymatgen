@@ -31,6 +31,7 @@ try:
 except ImportError:
     NO_ASE_ERR = PackageNotFoundError("The ASE interface requires the ASE package. Use `pip install ase`")
     encode = decode = FixAtoms = FixCartesian = SinglePointDFTCalculator = Spacegroup = None
+    all_properties = SinglePointCalculator = AseTraj = None
 
     class Atoms:  # type: ignore[no-redef]
         def __init__(self, *args, **kwargs):
@@ -48,6 +49,8 @@ if TYPE_CHECKING:
 
     if NO_ASE_ERR is None:
         from ase.io.trajectory import TrajectoryReader as AseTrajReader
+    else:
+        AseTrajReader = None
 
 __author__ = "Shyue Ping Ong, Andrew S. Rosen"
 __copyright__ = "Copyright 2012, The Materials Project"
@@ -417,13 +420,13 @@ class AseAtomsAdaptor:
 class AseTrajAdaptor:
     """
     Define interfaces between pymatgen and ASE trajectories.
-    
+
     Args:
         property_map (dict[str,str]) : A mapping between pymatgen .Trajectory `frame_properties` keys and
             the appropriate ASE calculator property name. Ex.: {"e_0_energy": "energy"} would map `e_0_energy`
             in the pymatgen .Trajectory `frame_properties` to ASE's `get_potential_energy` function.
             See `ase.calculators.calculator.all_properties` for a list of acceptable calculator properties.
-        atoms_adaptor (AseAtomsAdaptor or None) : optional .AseAtomsAdaptor to use in 
+        atoms_adaptor (AseAtomsAdaptor or None) : optional .AseAtomsAdaptor to use in
             converting ASE .Atoms <--> pymatgen .Structure/.Molecule
     """
 
@@ -458,7 +461,7 @@ class AseTrajAdaptor:
             constant_lattice (bool or None) : if a bool, whether the lattice is constant in the .Trajectory.
                 If `None`, this is determined on the fly.
             lattice_match_tol (float = 1.0e-6) : tolerance to which lattices are matched if
-                `constant_lattice = None`.            
+                `constant_lattice = None`.
             additional_fields (Sequence of str, defaults to ["temperature", "velocities"]) :
                 Optional other fields to save in the pymatgen .Trajectory.
                 Valid options are "temperature" and "velocities".
@@ -522,7 +525,10 @@ class AseTrajAdaptor:
             ase .Trajectory
         """
 
-        ase_traj_file = ase_traj_file or NamedTemporaryFile().name
+        temp_file = None
+        if ase_traj_file is None:
+            temp_file = NamedTemporaryFile()  # noqa: SIM115
+            ase_traj_file = temp_file.name
 
         for idx, structure in enumerate(trajectory):
             atoms = self.adaptor.get_atoms(
@@ -535,12 +541,17 @@ class AseTrajAdaptor:
                 if v in trajectory.frame_properties[idx]
             }
 
-            if (magmoms := structure.site_properties.get("magmom")) is not None:
-                props["magmoms"] = magmoms
+            # Ensure that `charges` and `magmoms` are not lost from AseAtomsAdaptor
+            for k in ("charges", "magmoms"):
+                if k in atoms.calc.implemented_properties:
+                    props[k] = atoms.calc.get_property(k)
 
             atoms.calc = SinglePointCalculator(atoms=atoms, **props)
 
             with AseTraj(ase_traj_file, "a" if idx > 0 else "w", atoms=atoms) as _traj_file:
                 _traj_file.write()
+
+        if temp_file is not None:
+            temp_file.close()
 
         return AseTraj(ase_traj_file, "r")
