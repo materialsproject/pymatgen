@@ -10,8 +10,8 @@ from pymatgen.io.jdftx._output_utils import find_first_range_key, get_start_line
 from pymatgen.io.jdftx.joutstructures import _get_joutstructures_start_idx
 from pymatgen.io.jdftx.outputs import _find_jdftx_out_file
 
-from .outputs_test_utils import noeigstats_outfile_path, write_mt_file
-from .shared_test_utils import dump_files_dir
+from .outputs_test_utils import noeigstats_outfile_path
+from .shared_test_utils import write_mt_file
 
 
 def test_get_start_lines():
@@ -66,7 +66,7 @@ def test_get_joutstructures_start_idx():
     assert _get_joutstructures_start_idx(["ken", "ken"], out_slice_start_flag=start_flag) is None
 
 
-def test_find_jdftx_out_file():
+def test_find_jdftx_out_file(tmp_path):
     """Test the _find_jdftx_out_file function.
 
     This function is used to find the JDFTx out file in a directory.
@@ -74,18 +74,15 @@ def test_find_jdftx_out_file():
     and directories with multiple out files. And out file must match "*.out" or "out" exactly.
     """
     with pytest.raises(FileNotFoundError, match="No JDFTx out file found in directory."):
-        _find_jdftx_out_file(dump_files_dir)
-    write_mt_file("test.out")
-    assert _find_jdftx_out_file(dump_files_dir) == dump_files_dir / "test.out"
+        _find_jdftx_out_file(tmp_path)
+    write_mt_file(tmp_path, "test.out")
+    assert _find_jdftx_out_file(tmp_path) == tmp_path / "test.out"
     # out file has to match "*.out" or "out" exactly
-    write_mt_file("tinyout")
-    assert _find_jdftx_out_file(dump_files_dir) == dump_files_dir / "test.out"
-    remove(_find_jdftx_out_file(dump_files_dir))
-    write_mt_file("out")
-    assert _find_jdftx_out_file(dump_files_dir) == dump_files_dir / "out"
-    write_mt_file("tinyout.out")
+    write_mt_file(tmp_path, "tinyout")
+    assert _find_jdftx_out_file(tmp_path) == tmp_path / "test.out"
+    remove(_find_jdftx_out_file(tmp_path))
+    write_mt_file(tmp_path, "out")
+    assert _find_jdftx_out_file(tmp_path) == tmp_path / "out"
+    write_mt_file(tmp_path, "tinyout.out")
     with pytest.raises(FileNotFoundError, match="Multiple JDFTx out files found in directory."):
-        _find_jdftx_out_file(dump_files_dir)
-    # remove tmp files
-    for remaining in dump_files_dir.glob("*out"):
-        remove(remaining)
+        _find_jdftx_out_file(tmp_path)

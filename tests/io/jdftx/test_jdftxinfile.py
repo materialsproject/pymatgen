@@ -1,6 +1,5 @@
 from __future__ import annotations
 
-import os
 import re
 from copy import deepcopy
 from typing import TYPE_CHECKING, Any
@@ -21,7 +20,7 @@ from .inputs_test_utils import (
     ex_infile2_fname,
     ex_infile3_fname,
 )
-from .shared_test_utils import assert_same_value, dump_files_dir
+from .shared_test_utils import assert_same_value
 
 if TYPE_CHECKING:
     from collections.abc import Callable
@@ -47,6 +46,42 @@ def test_JDFTXInfile_known_lambda(infile_fname: str, bool_func: Callable[[JDFTXI
     assert bool_func(jif)
 
 
+def JDFTXInfile_self_consistency_tester(jif: JDFTXInfile, tmp_path: PathLike):
+    """Create an assortment of JDFTXinfile created from the same data but through different methods, and test that
+    they are all equivalent through "assert_idential_jif" """
+    dict_jif = jif.as_dict()
+    # # Commenting out tests with jif2 due to the list representation asserted
+    jif2 = JDFTXInfile.get_dict_representation(JDFTXInfile._from_dict(dict_jif))
+    str_list_jif = jif.get_text_list()
+    str_jif = "\n".join(str_list_jif)
+    jif3 = JDFTXInfile.from_str(str_jif)
+    tmp_fname = tmp_path / "tmp.in"
+    jif.write_file(tmp_fname)
+    jif4 = JDFTXInfile.from_file(tmp_fname)
+    jifs = [jif, jif2, jif3, jif4]
+    for i in range(len(jifs)):
+        for j in range(i + 1, len(jifs)):
+            print(f"{i}, {j}")
+            assert_idential_jif(jifs[i], jifs[j])
+
+
+def test_JDFTXInfile_from_dict(tmp_path) -> None:
+    jif = JDFTXInfile.from_file(ex_infile1_fname)
+    jif_dict = jif.as_dict()
+    # Test that dictionary can be modified and that _from_dict will fix set values
+    jif_dict["elec-cutoff"] = 20
+    jif2 = JDFTXInfile.from_dict(jif_dict)
+    JDFTXInfile_self_consistency_tester(jif2, tmp_path)
+
+
+@pytest.mark.parametrize("infile_fname", [ex_infile3_fname, ex_infile1_fname, ex_infile2_fname])
+def test_JDFTXInfile_self_consistency_fromfile(infile_fname: PathLike, tmp_path) -> None:
+    """Test that JDFTXInfile objects with different assortments of tags survive inter-conversion done within
+    "JDFTXInfile_self_consistency_tester"""
+    jif = JDFTXInfile.from_file(infile_fname)
+    JDFTXInfile_self_consistency_tester(jif, tmp_path)
+
+
 @pytest.mark.parametrize(
     ("val_key", "val"),
     [
@@ -63,22 +98,12 @@ def test_JDFTXInfile_known_lambda(infile_fname: str, bool_func: Callable[[JDFTXI
         ("elec-cutoff", 20),
     ],
 )
-def test_JDFTXInfile_set_values(val_key: str, val: Any):
+def test_JDFTXInfile_set_values(val_key: str, val: Any, tmp_path) -> None:
     """Test value setting for various tags"""
     jif = JDFTXInfile.from_file(ex_infile1_fname)
     jif[val_key] = val
     # Test that the JDFTXInfile object is still consistent
-    JDFTXInfile_self_consistency_tester(jif)
-
-
-def test_JDFTXInfile_from_dict():
-    """Test the from_dict method"""
-    jif = JDFTXInfile.from_file(ex_infile1_fname)
-    jif_dict = jif.as_dict()
-    # Test that dictionary can be modified and that _from_dict will fix set values
-    jif_dict["elec-cutoff"] = 20
-    jif2 = JDFTXInfile.from_dict(jif_dict)
-    JDFTXInfile_self_consistency_tester(jif2)
+    JDFTXInfile_self_consistency_tester(jif, tmp_path)
 
 
 @pytest.mark.parametrize(
@@ -91,7 +116,7 @@ def test_JDFTXInfile_from_dict():
         ("ion", "Fe 1 1 1 0"),
     ],
 )
-def test_JDFTXInfile_append_values(val_key: str, val: Any):
+def test_JDFTXInfile_append_values(val_key: str, val: Any, tmp_path) -> None:
     """Test the append_tag method"""
     jif = JDFTXInfile.from_file(ex_infile1_fname)
     val_old = None if val_key not in jif else deepcopy(jif[val_key])
@@ -99,7 +124,7 @@ def test_JDFTXInfile_append_values(val_key: str, val: Any):
     val_new = jif[val_key]
     assert val_old != val_new
     # Test that the append_tag does not break the JDFTXInfile object
-    JDFTXInfile_self_consistency_tester(jif)
+    JDFTXInfile_self_consistency_tester(jif, tmp_path)
 
 
 def test_JDFTXInfile_expected_exceptions():
@@ -215,34 +240,6 @@ def test_JDFTXInfile_knowns_simple(infile_fname: PathLike, knowns: dict):
     jif = JDFTXInfile.from_file(infile_fname)
     for key, val in knowns.items():
         assert_same_value(jif[key], val)
-
-
-@pytest.mark.parametrize("infile_fname", [ex_infile3_fname, ex_infile1_fname, ex_infile2_fname])
-def test_JDFTXInfile_self_consistency(infile_fname: PathLike):
-    """Test that JDFTXInfile objects with different assortments of tags survive inter-conversion done within
-    "JDFTXInfile_self_consistency_tester"""
-    jif = JDFTXInfile.from_file(infile_fname)
-    JDFTXInfile_self_consistency_tester(jif)
-
-
-def JDFTXInfile_self_consistency_tester(jif: JDFTXInfile):
-    """Create an assortment of JDFTXinfile created from the same data but through different methods, and test that
-    they are all equivalent through "assert_idential_jif" """
-    dict_jif = jif.as_dict()
-    # # Commenting out tests with jif2 due to the list representation asserted
-    jif2 = JDFTXInfile.get_dict_representation(JDFTXInfile._from_dict(dict_jif))
-    str_list_jif = jif.get_text_list()
-    str_jif = "\n".join(str_list_jif)
-    jif3 = JDFTXInfile.from_str(str_jif)
-    tmp_fname = dump_files_dir / "tmp.in"
-    jif.write_file(tmp_fname)
-    jif4 = JDFTXInfile.from_file(tmp_fname)
-    jifs = [jif, jif2, jif3, jif4]
-    for i in range(len(jifs)):
-        for j in range(i + 1, len(jifs)):
-            print(f"{i}, {j}")
-            assert_idential_jif(jifs[i], jifs[j])
-    os.remove(tmp_fname)
 
 
 def test_jdftxstructure():
