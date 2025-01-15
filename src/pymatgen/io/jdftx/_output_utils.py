@@ -501,7 +501,7 @@ orb_ref_list = [
 ]
 
 
-def _get_atom_orb_labels_dict(bandfile_filepath: Path) -> dict[str, list[str]]:
+def _get_atom_orb_labels_ref_dict(bandfile_filepath: Path) -> dict[str, list[str]]:
     """
     Return a dictionary mapping each atom symbol to all atomic orbital projection string representations.
 
@@ -546,3 +546,99 @@ def _get_atom_orb_labels_dict(bandfile_filepath: Path) -> dict[str, list[str]]:
                     else:
                         labels_dict[sym] += mls
     return labels_dict
+
+
+def _get_atom_count_list(bandfile_filepath: Path) -> list[tuple[str, int]]:
+    """
+    Return a list of tuples of atom symbols and counts.
+
+    Return a list of tuples of atom symbols and counts. This is superior to a dictionary as it maintains the order of
+    the atoms in the bandfile.
+
+    Args:
+        bandfile_filepath (str | Path): The path to the bandfile.
+
+    Returns:
+        list[tuple[str, int]]: A list of tuples of atom symbols and counts.
+    """
+    bandfile = read_file(bandfile_filepath)
+    atom_count_list = []
+
+    for i, line in enumerate(bandfile):
+        if i > 1:
+            if "#" in line:
+                break
+            lsplit = line.strip().split()
+            sym = lsplit[0].strip()
+            count = int(lsplit[1].strip())
+            atom_count_list.append((sym, count))
+    return atom_count_list
+
+
+def _get_orb_label_list_expected_len(labels_dict: dict[str, list[str]], atom_count_list: list[tuple[str, int]]) -> int:
+    """
+    Return the expected length of the atomic orbital projection string representation list.
+
+    Return the expected length of the atomic orbital projection string representation list.
+
+    Args:
+        labels_dict (dict[str, list[str]]): A dictionary mapping each atom symbol to all atomic orbital projection
+        string representations.
+        atom_count_list (list[tuple[str, int]]): A list of tuples of atom symbols and counts.
+
+    Returns:
+        int: The expected length of the atomic orbital projection string representation list.
+    """
+    expected_len = 0
+    for ion_tuple in atom_count_list:
+        ion = ion_tuple[0]
+        count = ion_tuple[1]
+        orbs = labels_dict[ion]
+        expected_len += count * len(orbs)
+    return expected_len
+
+
+def _get_orb_label(ion: str, idx: int, orb: str) -> str:
+    """
+    Return the string representation for an orbital projection.
+
+    Return the string representation for an orbital projection.
+
+    Args:
+        ion (str): The symbol of the atom.
+        idx (int): The index of the atom.
+        orb (str): The atomic orbital projection string representation.
+
+    Returns:
+        str: The atomic orbital projection string representation for the atom.
+    """
+    return f"{ion}#{idx + 1}({orb})"
+
+
+def _get_orb_label_list(bandfile_filepath: Path) -> tuple[str, ...]:
+    """
+    Return a tuple of all atomic orbital projection string representations.
+
+    Return a tuple of all atomic orbital projection string representations.
+
+    Args:
+        bandfile_filepath (str | Path): The path to the bandfile.
+
+    Returns:
+        tuple[str]: A list of all atomic orbital projection string representations.
+    """
+    labels_dict = _get_atom_orb_labels_ref_dict(bandfile_filepath)
+    atom_count_list = _get_atom_count_list(bandfile_filepath)
+    read_file(bandfile_filepath)
+    labels_list: list[str] = []
+    for ion_tuple in atom_count_list:
+        ion = ion_tuple[0]
+        orbs = labels_dict[ion]
+        count = ion_tuple[1]
+        for i in range(count):
+            for orb in orbs:
+                labels_list.append(_get_orb_label(ion, i, orb))
+    # This is most likely unnecessary, but it is a good check to have.
+    if len(labels_list) != _get_orb_label_list_expected_len(labels_dict, atom_count_list):
+        raise RuntimeError("Number of atomic orbital projections does not match expected length.")
+    return tuple(labels_list)
