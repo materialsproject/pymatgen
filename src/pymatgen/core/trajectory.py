@@ -733,20 +733,6 @@ class Trajectory(MSONable):
             raise ValueError("Unexpected frames type.")
         raise ValueError("Unexpected site_properties type.")
 
-    def to_ase(self, **kwargs) -> AseTrajectory:
-        """
-        Convert to an ASE trajectory.
-
-        Args:
-            **kwargs : kwargs to pass to `pmg_to_ase_trajectory`
-
-        Returns:
-            ASE Trajectory
-        """
-        if NO_ASE_ERR is None:
-            return self.to_ase_trajectory(self, **kwargs)
-        raise ImportError("ASE is required to write .traj files. pip install ase")
-
     @classmethod
     def from_ase(
         cls,
@@ -826,9 +812,8 @@ class Trajectory(MSONable):
             frame_properties=frame_properties,
         )
 
-    @staticmethod
-    def to_ase_trajectory(
-        trajectory: Trajectory,
+    def to_ase(
+        self,
         property_map: dict[str, str] | None = None,
         ase_traj_file: str | Path | None = None,
     ) -> AseTrajectory:
@@ -849,6 +834,9 @@ class Trajectory(MSONable):
         Returns:
             ase .Trajectory
         """
+        if NO_ASE_ERR is not None:
+            raise ImportError("ASE is required to write .traj files. pip install ase")
+
         from ase.calculators.calculator import all_properties
         from ase.calculators.singlepoint import SinglePointCalculator
 
@@ -868,8 +856,8 @@ class Trajectory(MSONable):
             temp_file = NamedTemporaryFile(delete=False)  # noqa: SIM115
             ase_traj_file = temp_file.name
 
-        frame_props = trajectory.frame_properties or [{} for _ in range(len(trajectory))]
-        for idx, structure in enumerate(trajectory):
+        frame_props = self.frame_properties or [{} for _ in range(len(self))]
+        for idx, structure in enumerate(self):
             atoms = adaptor.get_atoms(structure, msonable=False, velocities=structure.site_properties.get("velocities"))
 
             props: dict[str, Any] = {k: frame_props[idx][v] for k, v in property_map.items() if v in frame_props[idx]}
