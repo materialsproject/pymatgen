@@ -60,10 +60,11 @@ def test_store_vars(calc_dir: Path, store_vars: list[str]):
 def test_store_bandprojections(calc_dir: Path, known_metadata: dict):
     """Test that the stored band projections are correct."""
     jo = JDFTXOutputs.from_calc_dir(calc_dir, store_vars=["bandProjections"])
-    for var in ["atom_orb_labels_dict"]:
+    for var in ["orb_label_list"]:
         assert hasattr(jo, var)
         assert_same_value(getattr(jo, var), known_metadata[var])
     assert_same_value(jo.bandProjections.shape, known_metadata["shape"])
+    assert pytest.approx(jo.bandProjections[0, 0, 0]) == known_metadata["first val"]
 
 
 @pytest.mark.parametrize("calc_dir", [n2_ex_calc_dir, nh3_ex_calc_dir])
