@@ -105,6 +105,7 @@ class JDFTXOutputs:
     """
 
     calc_dir: str | Path = field(init=True)
+    outfile_name: str | Path | None = field(init=True)
     store_vars: list[str] = field(default_factory=list, init=True)
     paths: dict[str, Path] = field(init=False)
     outfile: JDFTXOutfile = field(init=False)
@@ -114,7 +115,9 @@ class JDFTXOutputs:
     orb_label_list: tuple[str, ...] | None = field(init=False)
 
     @classmethod
-    def from_calc_dir(cls, calc_dir: str | Path, store_vars: list[str] | None = None) -> JDFTXOutputs:
+    def from_calc_dir(
+        cls, calc_dir: str | Path, store_vars: list[str] | None = None, outfile_name: str | Path | None = None
+    ) -> JDFTXOutputs:
         """
         Create a JDFTXOutputs object from a directory containing JDFTx out files.
 
@@ -125,12 +128,15 @@ class JDFTXOutputs:
             none_slice_on_error (bool): If True, will return None if an error occurs while parsing a slice instead of
                 halting the parsing process. This can be useful for parsing files with multiple slices where some slices
                 may be incomplete or corrupted.
+            outfile_name (str | Path): The name of the outfile to use. If None, will search for the outfile in the
+                calc_dir. If provided, will concatenate with calc_dir as the outfile path. Use this if the calc_dir
+                contains multiple files that may be mistaken for the outfile (ie multiple files with the '.out' suffix).
         Returns:
             JDFTXOutputs: The JDFTXOutputs object.
         """
         if store_vars is None:
             store_vars = []
-        return cls(calc_dir=Path(calc_dir), store_vars=store_vars)
+        return cls(calc_dir=Path(calc_dir), store_vars=store_vars, outfile_name=outfile_name)
 
     def __post_init__(self):
         self._init_paths()
@@ -140,7 +146,12 @@ class JDFTXOutputs:
         self.paths = {}
         if self.calc_dir is None:
             raise ValueError("calc_dir must be set as not None before initializing.")
-        outfile_path = _find_jdftx_out_file(self.calc_dir)
+        if self.outfile_name is None:
+            outfile_path = _find_jdftx_out_file(self.calc_dir)
+        else:
+            outfile_path = self.calc_dir / self.outfile_name
+            if not outfile_path.exists():
+                raise FileNotFoundError(f"Provided outfile path {outfile_path} does not exist.")
         self.outfile = JDFTXOutfile.from_file(outfile_path)
         prefix = self.outfile.prefix
         for fname in dump_file_names:
