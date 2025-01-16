@@ -26,9 +26,7 @@ from pyfhiaims.species_defaults.species import SpeciesDefaults as PyFHIAimsSD
 from pymatgen.core import SETTINGS, Element, Molecule, Structure
 
 if TYPE_CHECKING:
-    from typing import Any
-
-    from typing_extensions import Self
+    from typing import Any, Self
 
 
 __author__ = "Thomas A. R. Purcell"
@@ -270,8 +268,7 @@ class AimsControlIn(MSONable):
             )
             parameters.pop("spin")
 
-        outputs = parameters.pop("output", [])
-        control_in = PyFHIAimsControl(parameters=parameters, outputs=outputs)
+        control_in = PyFHIAimsControl(parameters=parameters, outputs=parameters.pop("output", []))
 
         species_defaults_map = self._parameters.get("species_dir", SETTINGS.get("AIMS_SPECIES_DIR", ""))
         if not species_defaults_map:
@@ -371,31 +368,6 @@ class AimsControlIn(MSONable):
         with open(f"{directory}/control.in", mode="w") as file:
             file.write(content)
 
-    # def get_species_block(
-    #     self,
-    #     structure: Structure | Molecule,
-    #     basis_set: str | dict[str, str],
-    #     species_dir: str | Path | None = None,
-    # ) -> str:
-    #     """Get the basis set information for a structure
-
-    #     Args:
-    #         structure (Molecule or Structure): The structure to get the basis set information for
-    #         basis_set (str | dict[str, str]):
-    #             a name of a basis set (`light`, `tight`...) or a mapping from site labels to basis set names.
-    #             The name of a basis set can either correspond to the subfolder in `defaults_2020` folder
-    #             or be a full path from the `FHI-aims/species_defaults` directory.
-    #         species_dir (str | Path | None): The base species directory
-
-    #     Returns:
-    #         The block to add to the control.in file for the species
-
-    #     Raises:
-    #         ValueError: If a file for the species is not found
-    #     """
-    #     species_defaults = SpeciesDefaults.from_structure(structure, basis_set, species_dir)
-    #     return str(species_defaults)
-
     def as_dict(self) -> dict[str, Any]:
         """Get a dictionary representation of the geometry.in file."""
         dct: dict[str, Any] = {}
@@ -417,208 +389,3 @@ class AimsControlIn(MSONable):
         decoded = {key: MontyDecoder().process_decoded(val) for key, val in dct.items() if not key.startswith("@")}
 
         return cls(_parameters=decoded["parameters"])
-
-
-# @dataclass
-# class AimsSpeciesFile:
-#     """An FHI-aims single species' defaults file.
-
-#     Attributes:
-#         data (str): A string of the complete species defaults file
-#         label (str): A string representing the name of species
-#     """
-
-#     data: str = ""
-#     label: str | None = None
-
-#     def __post_init__(self) -> None:
-#         """Set default label"""
-#         if self.label is None:
-#             for line in self.data.splitlines():
-#                 if "species" in line:
-#                     self.label = line.split()[1]
-
-#     @classmethod
-#     def from_file(cls, filename: str, label: str | None = None) -> Self:
-#         """Initialize from file.
-
-#         Args:
-#             filename (str): The filename of the species' defaults file
-#             label (str): A string representing the name of species
-
-#         Returns:
-#             AimsSpeciesFile
-#         """
-#         with zopen(filename, mode="rt") as file:
-#             return cls(data=file.read(), label=label)
-
-#     @classmethod
-#     def from_element_and_basis_name(
-#         cls,
-#         element: str,
-#         basis: str,
-#         *,
-#         species_dir: str | Path | None = None,
-#         label: str | None = None,
-#     ) -> Self:
-#         """Initialize from element and basis names.
-
-#         Args:
-#             element (str): the element name (not to confuse with the species)
-#             basis (str): the directory in which the species' defaults file is located relative to the
-#                 root `species_defaults` (or `species_defaults/defaults_2020`) directory.`.
-#             label (str): A string representing the name of species. If not specified,
-#                 then equal to element
-
-#         Returns:
-#             AimsSpeciesFile
-#         """
-#         # check if element is in the Periodic Table (+ Emptium)
-#         if element != "Emptium":
-#             if not hasattr(Element, element):
-#                 raise ValueError(f"{element} is not a valid element name.")
-#             el_obj = Element(element)
-#             species_file_name = f"{el_obj.Z:02}_{element}_default"
-#         else:
-#             species_file_name = "00_Emptium_default"
-
-#         aims_species_dir = species_dir or SETTINGS.get("AIMS_SPECIES_DIR")
-
-#         if aims_species_dir is None:
-#             raise ValueError(
-#                 "No AIMS_SPECIES_DIR variable found in the config file. "
-#                 "Please set the variable in ~/.config/.pmgrc.yaml to the root of `species_defaults` "
-#                 "folder in FHIaims/ directory."
-#             )
-#         paths_to_try = [
-#             (Path(aims_species_dir) / basis / species_file_name).expanduser().as_posix(),
-#             (Path(aims_species_dir) / "defaults_2020" / basis / species_file_name).expanduser().as_posix(),
-#         ]
-#         for path in paths_to_try:
-#             path = zpath(path)
-#             if os.path.isfile(path):
-#                 return cls.from_file(path, label)
-
-#         raise RuntimeError(
-#             f"Can't find the species' defaults file for {element} in {basis} basis set. Paths tried: {paths_to_try}"
-#         )
-
-#     def __str__(self) -> str:
-#         """String representation of the species' defaults file"""
-#         return re.sub(
-#             r"^ *species +\w+",
-#             f"  species        {self.label}",
-#             self.data,
-#             flags=re.MULTILINE,
-#         )
-
-#     @property
-#     def element(self) -> str:
-#         if match := re.search(r"^ *species +(\w+)", self.data, flags=re.MULTILINE):
-#             return match[1]
-#         raise ValueError("Can't find element in species' defaults file")
-
-#     def as_dict(self) -> dict[str, Any]:
-#         """Dictionary representation of the species' defaults file."""
-#         return {
-#             "label": self.label,
-#             "data": self.data,
-#             "@module": type(self).__module__,
-#             "@class": type(self).__name__,
-#         }
-
-#     @classmethod
-#     def from_dict(cls, dct: dict[str, Any]) -> Self:
-#         """Deserialization of the AimsSpeciesFile object"""
-#         return cls(**dct)
-
-
-# class SpeciesDefaults(list, MSONable):
-#     """A list containing a set of species' defaults objects with
-#     methods to read and write them to files
-#     """
-
-#     def __init__(
-#         self,
-#         labels: Sequence[str],
-#         basis_set: str | dict[str, str],
-#         *,
-#         species_dir: str | Path | None = None,
-#         elements: dict[str, str] | None = None,
-#     ) -> None:
-#         """
-#         Args:
-#             labels (list[str]): a list of labels, for which to build species' defaults
-#             basis_set (str | dict[str, str]):
-#                 a name of a basis set (`light`, `tight`...) or a mapping from site labels to basis set names.
-#                 The name of a basis set can either correspond to the subfolder in `defaults_2020` folder
-#                 or be a full path from the `FHI-aims/species_defaults` directory.
-#             species_dir (str | Path | None): The base species directory
-#             elements (dict[str, str] | None):
-#                 a mapping from site labels to elements. If some label is not in this mapping,
-#                 it coincides with an element.
-#         """
-#         super().__init__()
-#         self.labels = labels
-#         self.basis_set = basis_set
-#         self.species_dir = species_dir
-
-#         if elements is None:
-#             elements = {}
-
-#         self.elements = {}
-#         for label in self.labels:
-#             label = re.sub(r",\s*spin\s*=\s*[+-]?([0-9]*[.])?[0-9]+", "", label)
-#             self.elements[label] = elements.get(label, label)
-#         self._set_species()
-
-#     def _set_species(self) -> None:
-#         """Initialize species defaults from the instance data"""
-#         del self[:]
-
-#         for label, el in self.elements.items():
-#             if isinstance(self.basis_set, dict):
-#                 basis_set = self.basis_set.get(label, None)
-#                 if basis_set is None:
-#                     raise ValueError(f"Basis set not found for specie {label} (represented by element {el})")
-#             else:
-#                 basis_set = self.basis_set
-#             self.append(
-#                 AimsSpeciesFile.from_element_and_basis_name(el, basis_set, species_dir=self.species_dir, label=label)
-#             )
-
-#     def __str__(self):
-#         """String representation of the species' defaults"""
-#         return "".join([str(x) for x in self])
-
-#     @classmethod
-#     def from_structure(
-#         cls,
-#         struct: Structure | Molecule,
-#         basis_set: str | dict[str, str],
-#         species_dir: str | Path | None = None,
-#     ):
-#         """Initialize species defaults from a structure."""
-#         labels = []
-#         elements = {}
-#         for site in struct:
-#             el = site.specie
-#             if site.species_string not in labels:
-#                 labels.append(site.species_string)
-#                 elements[site.species_string] = el.name
-#         return SpeciesDefaults(sorted(labels), basis_set, species_dir=species_dir, elements=elements)
-
-#     def to_dict(self):
-#         """Dictionary representation of the species' defaults"""
-#         return {
-#             "labels": self.labels,
-#             "elements": self.elements,
-#             "basis_set": self.basis_set,
-#             "@module": type(self).__module__,
-#             "@class": type(self).__name__,
-#         }
-
-#     @classmethod
-#     def from_dict(cls, dct: dict[str, Any]) -> SpeciesDefaults:
-#         """Deserialization of the SpeciesDefaults object"""
-#         return SpeciesDefaults(dct["labels"], dct["basis_set"], elements=dct["elements"])

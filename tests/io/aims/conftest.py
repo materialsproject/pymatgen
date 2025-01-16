@@ -153,6 +153,9 @@ def compare_single_files(ref_file: PathLike, test_file: PathLike) -> None:
     with zopen(f"{ref_file}.gz", mode="rt") as rf:
         ref_lines = rf.readlines()[5:]
 
+    print("".join(test_lines))
+    print("\n\n\n")
+    print("".join(ref_lines))
     for test_line, ref_line in zip(test_lines, ref_lines, strict=True):
         if "species_dir" in ref_line:
             continue

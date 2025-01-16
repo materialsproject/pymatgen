@@ -2,7 +2,6 @@
 
 from __future__ import annotations
 
-import gzip
 import warnings
 from pathlib import Path
 from typing import TYPE_CHECKING
@@ -15,9 +14,7 @@ from pymatgen.core import Lattice, Structure
 
 if TYPE_CHECKING:
     from collections.abc import Sequence
-    from typing import Any
-
-    from typing_extensions import Self
+    from typing import Any, Self
 
     from pymatgen.core import Molecule
     from pymatgen.util.typing import Matrix3D, Vector3D
@@ -47,33 +44,44 @@ class AimsOutput(MSONable):
 
     def __init__(
         self,
-        results: Molecule | Structure | Sequence[Molecule | Structure],
+        structures: Molecule | Structure | Sequence[Molecule | Structure],
+        results: dict[str, Any],
         metadata: dict[str, Any],
         structure_summary: dict[str, Any],
+        warnings: list[str] | None = None,
+        errors: list[str] | None = None,
     ) -> None:
         """
         Args:
-            results (Molecule or Structure or Sequence[Molecule or Structure]):  A list
+            structures (Molecule or Structure or Sequence[Molecule or Structure]):  A list
                 of all images in an output file
+            results (Dict[str, Any]): A dictionary of all parsed results from
+                the output file.
             metadata (Dict[str, Any]): The metadata of the executable used to perform
                 the calculation
             structure_summary (Dict[str, Any]): The summary of the starting
                 atomic structure.
+            warnings (List[str]): A list of warnings from the calculation
+            errors (List[str]): A list of errors from the calculation
         """
+        self._structures = structures
         self._results = results
         self._metadata = metadata
         self._structure_summary = structure_summary
+        self._warnings = warnings
+        self._errors = errors
 
     def as_dict(self) -> dict[str, Any]:
         """Create a dict representation of the outputs for MSONable."""
         dct: dict[str, Any] = {
             "@module": type(self).__module__,
             "@class": type(self).__name__,
+            "structures": self._structures,
+            "metadata": self._metadata,
+            "structure_summary": self._structure_summary,
+            "warnings": self._warnings,
+            "errors": self._errors,
         }
-
-        dct["results"] = self._results
-        dct["metadata"] = self._metadata
-        dct["structure_summary"] = self._structure_summary
         return dct
 
     @classmethod
@@ -87,24 +95,25 @@ class AimsOutput(MSONable):
             The AimsOutput object for the output file
 
         Raises:
-            AimsParseError if file does not exist
+            AimsParseError if a file does not exist
         """
         aims_out = None
         for path in [Path(outfile), Path(f"{outfile}.gz")]:
-            if not path.exists():
+            try:
+                aims_out = AimsStdout(path)
+            except FileNotFoundError:
                 continue
-            if path.suffix == ".gz":
-                with gzip.open(f"{outfile}.gz", mode="rt") as file:
-                    aims_out = AimsStdout(file)
-            else:
-                with open(outfile) as file:
-                    aims_out = AimsStdout(file)
 
         if aims_out is None:
             raise AimsParseError(f"File {outfile} not found.")
 
-        metadata = aims_out.metadata_summary
+        # remove all the numbers from metadata and put them into structure (more like input) summary
+        metadata = {k: v for k, v in aims_out.metadata.items() if not k.startswith("num_")}
+
         structure_summary = aims_out.header_summary
+        structure_summary.update(
+            **{k.replace("num_", "n_"): v for k, v in aims_out.metadata.items() if k.startswith("num_")}
+        )
 
         structure_summary["initial_structure"] = structure_summary.pop("initial_geometry").structure
         for site in structure_summary["initial_structure"]:
@@ -118,8 +127,7 @@ class AimsOutput(MSONable):
 
         results = []
         for image in aims_out:
-            image_results = remap_outputs(image._results)
-            structure = image.geometry.structure
+            image_results = remap_outputs(image.results)
             site_prop_keys = {
                 "forces": "force",
                 "stresses": "atomic_virial_stress",
@@ -142,16 +150,10 @@ class AimsOutput(MSONable):
                     "Total magnetic moment and sum of Mulliken spins are not consistent",
                     stacklevel=2,
                 )
-            if isinstance(structure, Structure):
-                structure._properties.update(properties)
-            else:
-                structure.properties.update(properties)
-            for st, site in enumerate(structure.sites):
-                site.properties = {key: val[st] for key, val in site_properties.items()}
-
+            structure = image.geometry.to_structure(properties=properties, site_properties=site_properties)
             results.append(structure)
 
-        return cls(results, metadata, structure_summary)
+        return cls(results, aims_out.results, metadata, structure_summary, aims_out.warnings, aims_out.errors)
 
     @classmethod
     def from_dict(cls, dct: dict[str, Any]) -> Self:
@@ -164,13 +166,16 @@ class AimsOutput(MSONable):
             AimsOutput
         """
         decoded = {k: MontyDecoder().process_decoded(v) for k, v in dct.items() if not k.startswith("@")}
-        for struct in decoded["results"]:
+        for struct in decoded["structures"]:
             struct.properties = {k: MontyDecoder().process_decoded(v) for k, v in struct.properties.items()}
 
         return cls(
+            decoded["structures"],
             decoded["results"],
             decoded["metadata"],
             decoded["structure_summary"],
+            decoded["warnings"],
+            decoded["errors"],
         )
 
     def get_results_for_image(self, image_ind: int) -> Structure | Molecule:
@@ -182,7 +187,7 @@ class AimsOutput(MSONable):
         Returns:
             The results of the image with index images_ind
         """
-        return self._results[image_ind]
+        return self._structures[image_ind]
 
     @property
     def structure_summary(self) -> dict[str, Any]:
@@ -197,7 +202,7 @@ class AimsOutput(MSONable):
     @property
     def n_images(self) -> int:
         """The number of images in results."""
-        return len(self._results)
+        return len(self._structures)
 
     @property
     def initial_structure(self) -> Structure | Molecule:
@@ -207,11 +212,16 @@ class AimsOutput(MSONable):
     @property
     def final_structure(self) -> Structure | Molecule:
         """The final structure for the calculation."""
-        return self._results[-1]
+        return self._structures[-1]
 
     @property
     def structures(self) -> Sequence[Structure | Molecule]:
         """All images in the output file."""
+        return self._structures
+
+    @property
+    def results(self) -> dict[str, Any]:
+        """All results for the calculation."""
         return self._results
 
     @property
@@ -247,12 +257,12 @@ class AimsOutput(MSONable):
     @property
     def completed(self) -> bool:
         """Did the calculation complete."""
-        return len(self._results) > 0
+        return len(self._structures) > 0
 
     @property
     def aims_version(self) -> str:
         """The version of FHI-aims used for the calculation."""
-        return self._metadata["version_number"]
+        return self._metadata["aims_version"]
 
     @property
     def forces(self) -> Sequence[Vector3D] | None:
@@ -279,5 +289,5 @@ class AimsOutput(MSONable):
     @property
     def all_forces(self) -> list[list[Vector3D]]:
         """The forces for all images in the calculation."""
-        all_forces_array = [res.site_properties.get("force", None) for res in self._results]
+        all_forces_array = [res.site_properties.get("force", None) for res in self._structures]
         return [af.tolist() if isinstance(af, np.ndarray) else af for af in all_forces_array]
