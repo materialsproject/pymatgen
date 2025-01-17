@@ -203,6 +203,7 @@ class Composition(collections.abc.Hashable, collections.abc.Mapping, MSONable, S
         return iter(self._data)
 
     def items(self) -> ItemsView[Species | Element | DummySpecies, float]:
+        """Returns Dict.items() for the Composition dict."""
         return self._data.items()
 
     def __contains__(self, key) -> bool:
