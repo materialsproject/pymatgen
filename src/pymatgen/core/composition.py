@@ -24,8 +24,8 @@ from pymatgen.core.units import Mass
 from pymatgen.util.string import Stringify, formula_double_format
 
 if TYPE_CHECKING:
-    from collections.abc import Generator, Iterator
-    from typing import Any, ClassVar, Literal, ItemsView
+    from collections.abc import Generator, ItemsView, Iterator
+    from typing import Any, ClassVar, Literal
 
     from typing_extensions import Self
 
