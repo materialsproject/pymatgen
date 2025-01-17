@@ -625,8 +625,8 @@ class TestComposition(PymatgenTest):
         # test species
         c1 = Composition({"Mg": 1, "Mg2+": -1}, allow_negative=True)
         assert c1.num_atoms == 2
-        assert c1.element_composition == Composition("Mg-1", allow_negative=True)
-        assert c1.average_electroneg == 0.655
+        assert c1.get_el_amt_dict() == {"Mg": 0}
+        assert c1.average_electroneg == 1.31  # correct Mg electronegativity
 
     def test_special_formulas(self):
         special_formulas = {
