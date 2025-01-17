@@ -173,7 +173,7 @@ class Composition(collections.abc.Hashable, collections.abc.Mapping, MSONable, S
         else:
             elem_map = dict(*args, **kwargs)  # type: ignore[assignment]
         elem_amt = {}
-        self._n_atoms = 0
+        self._n_atoms: int | float = 0
         for key, val in elem_map.items():
             if val < -type(self).amount_tolerance and not self.allow_negative:
                 raise ValueError("Amounts in Composition cannot be negative!")
@@ -184,7 +184,7 @@ class Composition(collections.abc.Hashable, collections.abc.Mapping, MSONable, S
         if strict and not self.valid:
             raise ValueError(f"Composition is not valid, contains: {', '.join(map(str, self.elements))}")
 
-    def __getitem__(self, key: SpeciesLike) -> float:
+    def __getitem__(self, key: SpeciesLike) -> int | float:
         try:
             sp = get_el_sp(key)
             if isinstance(sp, Species):
@@ -202,7 +202,7 @@ class Composition(collections.abc.Hashable, collections.abc.Mapping, MSONable, S
     def __iter__(self) -> Iterator[Species | Element | DummySpecies]:
         return iter(self._data)
 
-    def items(self) -> ItemsView[Species | Element | DummySpecies, float]:
+    def items(self) -> ItemsView[Species | Element | DummySpecies, int | float]:
         """Returns Dict.items() for the Composition dict."""
         return self._data.items()
 
