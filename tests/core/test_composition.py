@@ -144,6 +144,10 @@ class TestComposition(PymatgenTest):
             with pytest.raises(TypeError, match=f"{type(val).__name__!r} object is not iterable"):
                 Composition(val)
 
+    def test_init_mixed_valence(self):
+        assert Composition({"Fe3+": 2, "Fe2+": 2, "Li": 4, "O": 16, "P": 4}).formula == "Li4 Fe4 P4 O16"
+        assert Composition({"Fe3+": 2, "Fe": 2, "Li": 4, "O": 16, "P": 4}).formula == "Li4 Fe4 P4 O16"
+
     def test_str_and_repr(self):
         test_cases = [
             (
