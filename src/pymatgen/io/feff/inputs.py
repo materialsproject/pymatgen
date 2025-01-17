@@ -190,8 +190,8 @@ class Header(MSONable):
             self.periodic = True
             sym = SpacegroupAnalyzer(struct, **self.spacegroup_analyzer_settings)
             data = sym.get_symmetry_dataset()
-            self.space_number = data.get("number")
-            self.space_group = data.get("international")
+            self.space_number = data.number
+            self.space_group = data.international
         # for Molecule, skip the symmetry check
         elif isinstance(self.struct, Molecule):
             self.periodic = False
@@ -246,7 +246,7 @@ class Header(MSONable):
         Returns:
             Reads header string.
         """
-        with zopen(filename, mode="r") as file:
+        with zopen(filename, mode="rt", encoding="utf-8") as file:
             lines = file.readlines()
             feff_header_str = []
             ln = 0
@@ -434,8 +434,8 @@ class Atoms(MSONable):
         Returns:
             Atoms string.
         """
-        with zopen(filename, mode="rt") as fobject:
-            f = fobject.readlines()
+        with zopen(filename, mode="rt", encoding="utf-8") as file:
+            f = file.readlines()
             coords = 0
             atoms_str = []
 
@@ -527,7 +527,7 @@ class Atoms(MSONable):
         Args:
             filename: path for file to be written
         """
-        with zopen(filename, mode="wt") as file:
+        with zopen(filename, mode="wt", encoding="utf-8") as file:
             file.write(f"{self}\n")
 
 
@@ -654,7 +654,7 @@ class Tags(dict):
         Args:
             filename: filename and path to write to.
         """
-        with zopen(filename, mode="wt") as file:
+        with zopen(filename, mode="wt", encoding="utf-8") as file:
             file.write(f"{self}\n")
 
     @classmethod
@@ -668,7 +668,7 @@ class Tags(dict):
         Returns:
             Tags
         """
-        with zopen(filename, mode="rt") as file:
+        with zopen(filename, mode="rt", encoding="utf-8") as file:
             lines = list(clean_lines(file.readlines()))
         params = {}
         eels_params = []
@@ -828,8 +828,8 @@ class Potential(MSONable):
         Returns:
             FEFFPOT string.
         """
-        with zopen(filename, mode="rt") as f_object:
-            f = f_object.readlines()
+        with zopen(filename, mode="rt", encoding="utf-8") as file:
+            f = file.readlines()
             ln = -1
             pot_str = ["POTENTIALS\n"]
             pot_tag = -1
@@ -934,7 +934,7 @@ class Potential(MSONable):
         Args:
             filename: filename and path to write potential file to.
         """
-        with zopen(filename, mode="wt") as file:
+        with zopen(filename, mode="wt", encoding="utf-8") as file:
             file.write(str(self) + "\n")
 
 
@@ -976,7 +976,7 @@ class Paths(MSONable):
 
     def write_file(self, filename="paths.dat"):
         """Write paths.dat."""
-        with zopen(filename, mode="wt") as file:
+        with zopen(filename, mode="wt", encoding="utf-8") as file:
             file.write(str(self) + "\n")
 
 

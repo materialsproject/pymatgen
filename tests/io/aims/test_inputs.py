@@ -267,6 +267,7 @@ def test_aims_control_in(tmp_path: Path):
     with pytest.raises(ValueError, match="k-grid must be defined for periodic systems"):
         aims_control.write_file(si, directory=tmp_path, overwrite=True)
     aims_control["k_grid"] = [1, 1, 1]
+    aims_control["xc"] = "libxc LDA_X+LDA_C_PW"
 
     with pytest.raises(ValueError, match="control.in file already in "):
         aims_control.write_file(si, directory=tmp_path, overwrite=False)
@@ -276,7 +277,6 @@ def test_aims_control_in(tmp_path: Path):
 
     aims_control_from_dict = json.loads(json.dumps(aims_control.as_dict(), cls=MontyEncoder), cls=MontyDecoder)
     for key, val in aims_control.parameters.items():
-        print("\n\n", key, "\n", val, "\n", aims_control_from_dict[key], "\n\n")
         if key in ["output", "cubes"]:
             np.all(aims_control_from_dict[key] == val)
         assert aims_control_from_dict[key] == val

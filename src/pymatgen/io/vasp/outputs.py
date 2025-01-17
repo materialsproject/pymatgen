@@ -312,7 +312,7 @@ class Vasprun(MSONable):
         self.separate_spins = separate_spins
         self.exception_on_bad_xml = exception_on_bad_xml
 
-        with zopen(filename, mode="rt") as file:
+        with zopen(filename, mode="rt", encoding="utf-8") as file:
             if ionic_step_skip or ionic_step_offset:
                 # Remove parts of the xml file and parse the string
                 content: str = file.read()
@@ -693,9 +693,7 @@ class Vasprun(MSONable):
 
         except (IndexError, KeyError):
             warnings.warn(
-                "Calculation does not have a total energy. "
-                "Possibly a GW or similar kind of run. "
-                "Infinity is returned.",
+                "Calculation does not have a total energy. Possibly a GW or similar kind of run. Infinity is returned.",
                 stacklevel=2,
             )
             return float("inf")
@@ -1631,10 +1629,13 @@ class Vasprun(MSONable):
         tdensities = {}
         idensities = {}
 
+        soc_run = len(elem.find("total").find("array").find("set").findall("set")) > 2  # type: ignore[union-attr]
         for s in elem.find("total").find("array").find("set").findall("set"):  # type: ignore[union-attr]
             data = np.array(_parse_vasp_array(s))
             energies = data[:, 0]
             spin = Spin.up if s.attrib["comment"] == "spin 1" else Spin.down
+            if spin != Spin.up and soc_run:  # other 'spins' are x,y,z SOC projections
+                continue
             tdensities[spin] = data[:, 1]
             idensities[spin] = data[:, 2]
 
@@ -1649,6 +1650,8 @@ class Vasprun(MSONable):
 
                 for ss in s.findall("set"):
                     spin = Spin.up if ss.attrib["comment"] == "spin 1" else Spin.down
+                    if spin != Spin.up and soc_run:  # other 'spins' are x,y,z SOC projections
+                        continue
                     data = np.array(_parse_vasp_array(ss))
                     _n_row, n_col = data.shape
                     for col_idx in range(1, n_col):
@@ -1772,7 +1775,7 @@ class BSVasprun(Vasprun):
         self.occu_tol = occu_tol
         self.separate_spins = separate_spins
 
-        with zopen(filename, mode="rt") as file:
+        with zopen(filename, mode="rt", encoding="utf-8") as file:
             self.efermi = None
             parsed_header = False
             in_kpoints_opt = False
@@ -2124,7 +2127,7 @@ class Outcar:
 
         # Data from beginning of OUTCAR
         run_stats["cores"] = None
-        with zopen(filename, mode="rt") as file:
+        with zopen(filename, mode="rt", encoding="utf-8") as file:
             for line in file:
                 if "serial" in line:
                     # Activate serial parallelization
@@ -2147,7 +2150,7 @@ class Outcar:
         self.final_energy = e0
         self.final_energy_wo_entrp = e_wo_entrp
         self.final_fr_energy = e_fr_energy
-        self.data: dict = {}
+        self.data: dict[str, Any] = {}
 
         # Read "number of bands" (NBANDS)
         self.read_pattern(
@@ -2197,11 +2200,11 @@ class Outcar:
 
         # Check if calculation is spin polarized
         self.read_pattern({"spin": r"ISPIN\s*=\s*2"})
-        self.spin = bool(self.data.get("spin", []))
+        self.spin = bool(self.data.get("spin", False))
 
         # Check if calculation is non-collinear
         self.read_pattern({"noncollinear": r"LNONCOLLINEAR\s*=\s*T"})
-        self.noncollinear = bool(self.data.get("noncollinear", []))
+        self.noncollinear = bool(self.data.get("noncollinear", False))
 
         # Check if the calculation type is DFPT
         self.read_pattern(
@@ -2217,7 +2220,7 @@ class Outcar:
 
         # Check if LEPSILON is True and read piezo data if so
         self.read_pattern({"epsilon": r"LEPSILON\s*=\s*T"})
-        if self.data.get("epsilon", []):
+        if self.data.get("epsilon", False):
             self.lepsilon = True
             self.read_lepsilon()
             # Only read ionic contribution if DFPT is turned on
@@ -2228,7 +2231,7 @@ class Outcar:
 
         # Check if LCALCPOL is True and read polarization data if so
         self.read_pattern({"calcpol": r"LCALCPOL\s*=\s*T"})
-        if self.data.get("calcpol", []):
+        if self.data.get("calcpol", False):
             self.lcalcpol = True
             self.read_lcalcpol()
             self.read_pseudo_zval()
@@ -2240,7 +2243,7 @@ class Outcar:
         self.ngf = None
         self.sampling_radii: list[float] | None = None
         self.read_pattern({"electrostatic": r"average \(electrostatic\) potential at core"})
-        if self.data.get("electrostatic", []):
+        if self.data.get("electrostatic", False):
             self.read_electrostatic_potential()
 
         self.read_pattern({"nmr_cs": r"LCHIMAG\s*=\s*(T)"})
@@ -2382,7 +2385,7 @@ class Outcar:
         if last_one_only and first_one_only:
             raise ValueError("last_one_only and first_one_only options are incompatible")
 
-        with zopen(self.filename, mode="rt") as file:
+        with zopen(self.filename, mode="rt", encoding="utf-8") as file:
             text = file.read()
         table_pattern_text = header_pattern + r"\s*^(?P<table_body>(?:\s+" + row_pattern + r")+)\s+" + footer_pattern
         table_pattern = re.compile(table_pattern_text, re.MULTILINE | re.DOTALL)
@@ -2468,7 +2471,7 @@ class Outcar:
         data: dict[str, Any] = {"REAL": [], "IMAGINARY": []}
         count = 0
         component = "IMAGINARY"
-        with zopen(self.filename, mode="rt") as file:
+        with zopen(self.filename, mode="rt", encoding="utf-8") as file:
             for line in file:
                 line = line.strip()
                 if re.match(plasma_pattern, line):
@@ -2594,7 +2597,7 @@ class Outcar:
         row_pattern = r"\s+".join([r"([-]?\d+\.\d+)"] * 3)
         unsym_footer_pattern = r"^\s+SYMMETRIZED TENSORS\s+$"
 
-        with zopen(self.filename, mode="rt") as file:
+        with zopen(self.filename, mode="rt", encoding="utf-8") as file:
             text = file.read()
         unsym_table_pattern_text = header_pattern + first_part_pattern + r"(?P<table_body>.+)" + unsym_footer_pattern
         table_pattern = re.compile(unsym_table_pattern_text, re.MULTILINE | re.DOTALL)
@@ -3377,7 +3380,7 @@ class Outcar:
             The core state eigenenergie of the 2s AO of the 6th atom of the
             structure at the last ionic step is [5]["2s"][-1].
         """
-        with zopen(self.filename, mode="rt") as foutcar:
+        with zopen(self.filename, mode="rt", encoding="utf-8") as foutcar:
             line = foutcar.readline()
             cl: list[dict] = []
 
@@ -3419,7 +3422,7 @@ class Outcar:
             The average core potential of the 2nd atom of the structure at the
             last ionic step is: [-1][1]
         """
-        with zopen(self.filename, mode="rt") as foutcar:
+        with zopen(self.filename, mode="rt", encoding="utf-8") as foutcar:
             line = foutcar.readline()
             aps: list[list[float]] = []
             while line != "":
@@ -3615,7 +3618,7 @@ class VolumetricData(BaseVolumetricData):
         ngrid_pts = 0
         data_count = 0
         poscar = None
-        with zopen(filename, mode="rt") as file:
+        with zopen(filename, mode="rt", encoding="utf-8") as file:
             for line in file:
                 original_line = line
                 line = line.strip()
@@ -3749,7 +3752,7 @@ class VolumetricData(BaseVolumetricData):
             if isinstance(data, Iterable):
                 file.write("".join(data))
 
-        with zopen(file_name, mode="wt") as file:
+        with zopen(file_name, mode="wt", encoding="utf-8") as file:
             poscar = Poscar(self.structure)
 
             # Use original name if it's been set (e.g. from Chgcar)
@@ -4082,7 +4085,7 @@ class Procar(MSONable):
         if parsed_kpoints is None:
             parsed_kpoints = set()
 
-        with zopen(filename, mode="rt") as file_handle:
+        with zopen(filename, mode="rt", encoding="utf-8") as file:
             preamble_expr = re.compile(r"# of k-points:\s*(\d+)\s+# of bands:\s*(\d+)\s+# of ions:\s*(\d+)")
             kpoint_expr = re.compile(r"^k-point\s+(\d+).*weight = ([0-9\.]+)")
             band_expr = re.compile(r"^band\s+(\d+)")
@@ -4113,7 +4116,7 @@ class Procar(MSONable):
             # total and x,y,z) for each band, while non-SOC have only 1 list of projections:
             tot_count = 0
             band_count = 0
-            for line in file_handle:
+            for line in file:
                 if total_expr.match(line):
                     tot_count += 1
                 elif band_expr.match(line):
@@ -4121,7 +4124,7 @@ class Procar(MSONable):
                 if band_count == 2:
                     break
 
-            file_handle.seek(0)  # reset file handle to beginning
+            file.seek(0)  # reset file handle to beginning
             if tot_count == 1:
                 is_soc = False
             elif tot_count == 4:
@@ -4138,7 +4141,7 @@ class Procar(MSONable):
             skipping_kpoint = False  # true when skipping projections for a previously-parsed kpoint
             ion_line_count = 0  # printed twice when phase factors present
             proj_data_parsed_for_band = 0  # 0 for non-SOC, 1-4 for SOC/phase factors
-            for line in file_handle:
+            for line in file:
                 line = line.strip()
                 if ion_expr.match(line):
                     ion_line_count += 1
@@ -4373,8 +4376,8 @@ class Oszicar:
         electronic_pattern = re.compile(r"\s*\w+\s*:(.*)")
 
         header: list = []
-        with zopen(filename, mode="rt") as fid:
-            for line in fid:
+        with zopen(filename, mode="rt", encoding="utf-8") as file:
+            for line in file:
                 if match := electronic_pattern.match(line.strip()):
                     tokens = match[1].split()
                     data = {header[idx]: smart_convert(header[idx], tokens[idx]) for idx in range(len(tokens))}
@@ -4516,10 +4519,10 @@ class Xdatcar:
         if ionicstep_end is not None and ionicstep_end < 1:
             raise ValueError("End ionic step cannot be less than 1")
 
-        file_len = sum(1 for _ in zopen(filename, mode="rt"))
+        file_len = sum(1 for _ in zopen(filename, mode="rt", encoding="utf-8"))
         ionicstep_cnt = 1
         ionicstep_start = ionicstep_start or 0
-        with zopen(filename, mode="rt") as file:
+        with zopen(filename, mode="rt", encoding="utf-8") as file:
             title = None
             for iline, line in enumerate(file):
                 line = line.strip()
@@ -4615,7 +4618,7 @@ class Xdatcar:
             raise ValueError("End ionic step cannot be less than 1")
 
         ionicstep_cnt = 1
-        with zopen(filename, mode="rt") as file:
+        with zopen(filename, mode="rt", encoding="utf-8") as file:
             for line in file:
                 line = line.strip()
                 if preamble is None:
@@ -4703,7 +4706,7 @@ class Xdatcar:
             **kwargs: The same as those for the Xdatcar.get_str
                 method and are passed through directly.
         """
-        with zopen(filename, mode="wt") as file:
+        with zopen(filename, mode="wt", encoding="utf-8") as file:
             file.write(self.get_str(**kwargs))
 
 
@@ -4725,7 +4728,7 @@ class Dynmat:
         Args:
             filename: Name of file containing DYNMAT.
         """
-        with zopen(filename, mode="rt") as file:
+        with zopen(filename, mode="rt", encoding="utf-8") as file:
             lines = list(clean_lines(file.readlines()))
             self._nspecs, self._natoms, self._ndisps = map(int, lines[0].split())
             self._masses = map(float, lines[1].split())
@@ -5420,7 +5423,7 @@ class Eigenval:
         self.occu_tol = occu_tol
         self.separate_spins = separate_spins
 
-        with zopen(filename, mode="r") as file:
+        with zopen(filename, mode="rt", encoding="utf-8") as file:
             self.ispin = int(file.readline().split()[-1])
 
             # Remove useless header information
@@ -5571,7 +5574,7 @@ class Waveder(MSONable):
         Returns:
             A Waveder object.
         """
-        with zopen(filename, mode="rt") as file:
+        with zopen(filename, mode="rt", encoding="utf-8") as file:
             nspin, nkpts, nbands = file.readline().split()
         # 1 and 4 are the eigenvalues of the bands (this data is missing in the WAVEDER file)
         # 6:12 are the complex matrix elements in each cartesian direction.
