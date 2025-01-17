@@ -25,7 +25,7 @@ from pymatgen.util.string import Stringify, formula_double_format
 
 if TYPE_CHECKING:
     from collections.abc import Generator, Iterator
-    from typing import Any, ClassVar, Literal
+    from typing import Any, ClassVar, Literal, ItemsView
 
     from typing_extensions import Self
 
@@ -201,6 +201,9 @@ class Composition(collections.abc.Hashable, collections.abc.Mapping, MSONable, S
 
     def __iter__(self) -> Iterator[Species | Element | DummySpecies]:
         return iter(self._data)
+
+    def items(self) -> ItemsView[Species | Element | DummySpecies, float]:
+        return self._data.items()
 
     def __contains__(self, key) -> bool:
         try:
