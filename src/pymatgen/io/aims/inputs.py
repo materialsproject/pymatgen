@@ -19,7 +19,7 @@ import numpy as np
 from monty.io import zopen
 from monty.json import MontyDecoder, MSONable
 from monty.os.path import zpath
-from pyfhiaims.control.control import AimsControlIn as PyFHIAimsControl
+from pyfhiaims.control.control import AimsControl
 from pyfhiaims.geometry.geometry import AimsGeometry
 from pyfhiaims.species_defaults.species import SpeciesDefaults as PyFHIAimsSD
 
@@ -182,7 +182,7 @@ class AimsControlIn(MSONable):
             KeyError: If the key is not in self._parameters
         """
         if key not in self._parameters:
-            raise KeyError(f"{key} not set in AimsControlIn")
+            raise KeyError(f"{key} not set in AimsControl")
         return self._parameters[key]
 
     def __setitem__(self, key: str, value: Any) -> None:
@@ -268,7 +268,8 @@ class AimsControlIn(MSONable):
             )
             parameters.pop("spin")
 
-        control_in = PyFHIAimsControl(parameters=parameters, outputs=parameters.pop("output", []))
+        outputs = parameters.pop("output", [])
+        control_in = AimsControl(parameters=parameters, outputs=outputs)
 
         species_defaults_map = self._parameters.get("species_dir", SETTINGS.get("AIMS_SPECIES_DIR", ""))
         if not species_defaults_map:
@@ -384,7 +385,8 @@ class AimsControlIn(MSONable):
             dct (dict[str, Any]): The MontyEncoded dictionary
 
         Returns:
-            The AimsControlIn for dct
+            The AimsControl for dct
+
         """
         decoded = {key: MontyDecoder().process_decoded(val) for key, val in dct.items() if not key.startswith("@")}
 
