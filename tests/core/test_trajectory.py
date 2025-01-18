@@ -488,6 +488,12 @@ class TestTrajectory(MatSciTest):
 
             # Check composition of the first frame of the trajectory
             assert traj[0].formula == "Li2 Mn2 O4"
+
+            # Check that ASE calculator properties are converted to frame properties
+            assert all(
+                all(frame.get(k) is not None for k in ("energy", "forces", "stress")) for frame in traj.frame_properties
+            )
+
         except ImportError:
             with pytest.raises(
                 ImportError,
@@ -546,3 +552,24 @@ class TestTrajectory(MatSciTest):
             Trajectory(species=species, coords=unphysical_coords, lattice=const_lattice)
         with pytest.raises(ValueError, match="coords must have 3 dimensions!"):
             Trajectory(species=species, coords=wrong_dim_coords, lattice=const_lattice)
+
+    def test_to_ase_traj(self):
+        traj = Trajectory.from_file(f"{TEST_DIR}/LiMnO2_chgnet_relax.json.gz")
+
+        try:
+            ase_traj = traj.to_ase()
+
+            assert len(ase_traj) == len(traj)
+
+            # Ensure all frame properties and the magmoms are populated correctly
+            assert all(
+                all(atoms.calc.get_property(k) is not None for k in ("energy", "forces", "stress", "magmoms"))
+                for atoms in ase_traj
+            )
+
+        except ImportError:
+            with pytest.raises(
+                ImportError,
+                match="ASE is required to write .traj files. pip install ase",
+            ):
+                ase_traj = traj.to_ase()
