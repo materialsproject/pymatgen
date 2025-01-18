@@ -66,7 +66,7 @@ class TestFloatWithUnit(PymatgenTest):
         d = Energy(1, "Ha")
         assert a + d == approx(28.311386245987997)
         assert a - d == approx(-26.111386245987994)
-        assert a + 1 == 2.1
+        assert a + 1 == approx(2.1)
         assert str(a / d) == "1.1 eV Ha^-1"
 
         e_kj = Energy(1, "kJ")
@@ -82,7 +82,7 @@ class TestFloatWithUnit(PymatgenTest):
         b = a * 3
         assert float(b) == approx(60)
         assert str(b.unit) == "h"
-        assert float(3 * a) == 60.0
+        assert float(3 * a) == approx(60.0)
         a = Time(0.5, "d")
         assert float(a.to("s")) == approx(3600 * 24 * 0.5)
 
@@ -154,8 +154,8 @@ class TestFloatWithUnit(PymatgenTest):
 
         j_out = func5()
         assert j_out.unit == Unit("kg")
-        assert j_out[0] == 0.005
-        assert j_out[1] == 0.01
+        assert j_out[0] == approx(0.005)
+        assert j_out[1] == approx(0.01)
 
     def test_compound_operations(self):
         earth_acc = 9.81 * Length(1, "m") / (Time(1, "s") ** 2)
@@ -207,7 +207,7 @@ class TestArrayWithUnit(PymatgenTest):
         e2_in_ha = EnergyArray(1, "Ha")
         assert (e_in_ev + e2_in_ha) == approx(28.311386245987997)
         assert (e_in_ev - e2_in_ha) == approx(-26.111386245987994)
-        assert float(e_in_ev + 1) == 2.1
+        assert float(e_in_ev + 1) == approx(2.1)
 
     def test_time(self):
         """Similar to FloatWithUnitTest.test_time.
@@ -290,7 +290,7 @@ class TestArrayWithUnit(PymatgenTest):
 
     def test_as_base_units(self):
         pressure_arr = ArrayWithUnit([5, 10], "MPa")
-        assert_array_equal(ArrayWithUnit([5000000, 10000000], "Pa"), pressure_arr.as_base_units)
+        assert_array_equal(ArrayWithUnit([5e6, 1e7], "Pa"), pressure_arr.as_base_units)
 
 
 class TestDataPersistence(PymatgenTest):

@@ -395,14 +395,14 @@ direct
         # Parsing from an MD type run with velocities and predictor corrector data
         poscar = Poscar.from_file(f"{VASP_OUT_DIR}/CONTCAR.MD", check_for_potcar=False)
         assert np.sum(poscar.velocities) == approx(0.0065417961324)
-        assert poscar.predictor_corrector[0][0][0] == 0.33387820e00
-        assert poscar.predictor_corrector[0][1][1] == -0.10583589e-02
+        assert poscar.predictor_corrector[0][0][0] == approx(0.33387820e00)
+        assert poscar.predictor_corrector[0][1][1] == approx(-0.10583589e-02)
         assert poscar.lattice_velocities is None
 
         # Parsing from an MD type run with velocities, predictor corrector data and lattice velocities
         poscar = Poscar.from_file(f"{VASP_OUT_DIR}/CONTCAR.MD.npt", check_for_potcar=False)
         assert np.sum(poscar.velocities) == approx(-0.06193299494)
-        assert poscar.predictor_corrector[0][0][0] == 0.63981833
+        assert poscar.predictor_corrector[0][0][0] == approx(0.63981833)
         assert poscar.lattice_velocities.sum() == approx(16.49411358474)
 
     def test_write_md_poscar(self):
@@ -657,7 +657,7 @@ class TestIncar(PymatgenTest):
         incar = self.incar
         incar["LDAU"] = "T"
         assert incar["ALGO"] == "Damped", "Wrong Algo"
-        assert float(incar["EDIFF"]) == 1e-4, "Wrong EDIFF"
+        assert float(incar["EDIFF"]) == approx(1e-4), "Wrong EDIFF"
         assert isinstance(incar["LORBIT"], int)
 
     def test_check_for_duplicate(self):
@@ -928,7 +928,7 @@ TIME       =  0.4"""
         assert ans_string4_lsorbit == str(incar)
 
         incar = Incar.from_str(ans_string1)
-        assert incar["MAGMOM"] == [[0.0, 0.0, 3.0], [0, 1, 0], [2, 1, 2]]
+        assert_allclose(incar["MAGMOM"], [[0.0, 0.0, 3.0], [0, 1, 0], [2, 1, 2]])
         assert incar["LANGEVIN_GAMMA"] == [10, 10, 10]
 
         incar = Incar.from_str(ans_string2)
@@ -973,13 +973,13 @@ PREC = Accurate
 SIGMA = 0.1"""
         incar = Incar.from_str(incar_str)
         assert isinstance(incar["EINT"], list)
-        assert incar["EINT"][0] == -0.85
+        assert incar["EINT"][0] == approx(-0.85)
 
         incar_str += "\nLHFCALC = .TRUE. ; HFSCREEN = 0.2"
         incar_str += "\nALGO = All;"
         incar = Incar.from_str(incar_str)
         assert incar["LHFCALC"]
-        assert incar["HFSCREEN"] == 0.2
+        assert incar["HFSCREEN"] == approx(0.2)
         assert incar["ALGO"] == "All"
 
     def test_proc_types(self):
@@ -1047,12 +1047,18 @@ class TestKpoints:
 
         filepath = f"{VASP_IN_DIR}/KPOINTS_cartesian"
         kpoints = Kpoints.from_file(filepath)
-        assert kpoints.kpts == [
-            (0.25, 0, 0),
-            (0, 0.25, 0),
-            (0, 0, 0.25),
-        ], "Wrong kpoint lattice read"
-        assert kpoints.kpts_shift == (0.5, 0.5, 0.5)
+        (
+            assert_allclose(
+                kpoints.kpts,
+                [
+                    (0.25, 0, 0),
+                    (0, 0.25, 0),
+                    (0, 0, 0.25),
+                ],
+            ),
+            "Wrong kpoint lattice read",
+        )
+        assert_allclose(kpoints.kpts_shift, (0.5, 0.5, 0.5))
 
         # Gamma-centered Kpoint grid
         filepath = f"{VASP_IN_DIR}/KPOINTS_gamma"
@@ -1410,7 +1416,7 @@ class TestPotcarSingle(TestCase):
 
         # corrupt the file
         psingle = copy.deepcopy(self.psingle_Fe_54)
-        assert psingle.keywords["RCORE"] == 2.3
+        assert psingle.keywords["RCORE"] == approx(2.3)
         psingle.keywords["RCORE"] = 2.2
         assert not psingle.is_valid
 
@@ -1555,7 +1561,7 @@ class TestPotcar(PymatgenTest):
             "O",
         ], "Wrong symbols read in for POTCAR"
         potcar = Potcar(["Fe_pv", "O"])
-        assert potcar[0].enmax == 293.238
+        assert potcar[0].enmax == approx(293.238)
 
     def test_from_file(self):
         assert {d.header for d in self.potcar} == {

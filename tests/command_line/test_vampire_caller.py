@@ -44,4 +44,4 @@ class TestVampireCaller(PymatgenTest):
                 user_input_settings=settings,
             )
 
-            assert approx(vc.output.critical_temp) == 400
+            assert vc.output.critical_temp == approx(400)

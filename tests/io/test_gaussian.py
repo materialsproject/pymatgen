@@ -312,10 +312,10 @@ class TestGaussianOutput(TestCase):
         assert dct["input"]["functional"] == "hf"
         assert dct["output"]["final_energy"] == approx(-39.9768775602)
         assert len(gau.cart_forces) == 3
-        assert gau.cart_forces[0][5] == 0.009791094
-        assert gau.cart_forces[0][-1] == -0.003263698
-        assert gau.cart_forces[2][-1] == -0.000000032
-        assert gau.eigenvalues[Spin.up][-1] == 1.95586
+        assert gau.cart_forces[0][5] == approx(0.009791094)
+        assert gau.cart_forces[0][-1] == approx(-0.003263698)
+        assert gau.cart_forces[2][-1] == approx(-0.000000032)
+        assert gau.eigenvalues[Spin.up][-1] == approx(1.95586)
         assert gau.num_basis_func == 17
         assert gau.is_spin is False
 
@@ -323,11 +323,11 @@ class TestGaussianOutput(TestCase):
         assert len(ch2o_co2.frequencies) == 2
         assert len(ch2o_co2.frequencies[0]) == 6
         assert len(ch2o_co2.frequencies[1]) == 4
-        assert ch2o_co2.frequencies[0][0]["frequency"] == 1203.1940
+        assert ch2o_co2.frequencies[0][0]["frequency"] == approx(1203.1940)
         assert ch2o_co2.frequencies[0][0]["symmetry"] == 'A"'
-        assert ch2o_co2.frequencies[0][3]["IR_intensity"] == 60.9575
-        assert ch2o_co2.frequencies[0][3]["r_mass"] == 3.7543
-        assert ch2o_co2.frequencies[0][4]["f_constant"] == 5.4175
+        assert ch2o_co2.frequencies[0][3]["IR_intensity"] == approx(60.9575)
+        assert ch2o_co2.frequencies[0][3]["r_mass"] == approx(3.7543)
+        assert ch2o_co2.frequencies[0][4]["f_constant"] == approx(5.4175)
         assert ch2o_co2.frequencies[0][1]["mode"] == [
             0.15,
             0.00,
@@ -354,13 +354,13 @@ class TestGaussianOutput(TestCase):
             -0.33,
         ]
         assert ch2o_co2.frequencies[1][3]["symmetry"] == "SGU"
-        assert ch2o_co2.eigenvalues[Spin.up][3] == -1.18394
+        assert ch2o_co2.eigenvalues[Spin.up][3] == approx(-1.18394)
 
         h2o = GaussianOutput(f"{TEST_DIR}/H2O_gau_vib.out")
         assert len(h2o.frequencies[0]) == 3
-        assert h2o.frequencies[0][0]["frequency"] == 1662.8033
+        assert h2o.frequencies[0][0]["frequency"] == approx(1662.8033)
         assert h2o.frequencies[0][1]["symmetry"] == "A'"
-        assert h2o.hessian[0, 0] == 0.356872
+        assert h2o.hessian[0, 0] == approx(0.356872)
         assert h2o.hessian.shape == (9, 9)
         assert h2o.hessian[8, :].tolist() == [
             -0.143692e-01,
@@ -398,8 +398,8 @@ class TestGaussianOutput(TestCase):
         assert len(mo) == 2  # la 6
         assert len(mo[Spin.down]) == 13
         assert len(mo[Spin.down][0]) == 3
-        assert mo[Spin.down][5][0]["1S"] == -0.08771
-        assert mo[Spin.down][5][0]["2PZ"] == -0.21625
+        assert mo[Spin.down][5][0]["1S"] == approx(-0.08771)
+        assert mo[Spin.down][5][0]["2PZ"] == approx(-0.21625)
         assert gau.eigenvectors[Spin.up][:, 5].tolist() == [
             -0.08771,
             0.10840,
@@ -431,24 +431,24 @@ class TestGaussianOutput(TestCase):
 
         gau = GaussianOutput(f"{TEST_DIR}/H2O_gau_vib.out")
 
-        assert gau.bond_orders[0, 1] == 0.7582
-        assert gau.bond_orders[1, 2] == 0.0002
+        assert gau.bond_orders[0, 1] == approx(0.7582)
+        assert gau.bond_orders[1, 2] == approx(0.0002)
 
     def test_scan(self):
         gau = GaussianOutput(f"{TEST_DIR}/so2_scan.log")
         dct = gau.read_scan()
-        assert approx(dct["energies"][-1]) == -548.02102
+        assert dct["energies"][-1] == approx(-548.02102)
         assert len(dct["coords"]) == 1
         assert len(dct["energies"]) == len(gau.energies)
         assert len(dct["energies"]) == 21
         gau = GaussianOutput(f"{TEST_DIR}/so2_scan_opt.log")
         assert len(gau.opt_structures) == 21
         dct = gau.read_scan()
-        assert approx(dct["energies"][-1]) == -548.02336
+        assert dct["energies"][-1] == approx(-548.02336)
         assert len(dct["coords"]) == 2
         assert len(dct["energies"]) == 21
-        assert approx(dct["coords"]["DSO"][6]) == 1.60000
-        assert approx(dct["coords"]["ASO"][2]) == 124.01095
+        assert dct["coords"]["DSO"][6] == approx(1.60000)
+        assert dct["coords"]["ASO"][2] == approx(124.01095)
         gau = GaussianOutput(f"{TEST_DIR}/H2O_scan_G16.out")
         assert len(gau.opt_structures) == 21
         coords = [
@@ -458,16 +458,16 @@ class TestGaussianOutput(TestCase):
         ]
         assert gau.opt_structures[-1].cart_coords.tolist() == coords
         dct = gau.read_scan()
-        assert approx(dct["energies"][-1]) == -0.00523
+        assert dct["energies"][-1] == approx(-0.00523)
         assert len(dct["coords"]) == 3
         assert len(dct["energies"]) == 21
-        assert approx(dct["coords"]["R1"][6]) == 0.94710
-        assert approx(dct["coords"]["R2"][17]) == 0.94277
+        assert dct["coords"]["R1"][6] == approx(0.94710)
+        assert dct["coords"]["R2"][17] == approx(0.94277)
 
     def test_geo_opt(self):
         """Test an optimization where no "input orientation" is outputted."""
         gau = GaussianOutput(f"{TEST_DIR}/acene-n_gaussian09_opt.out")
-        assert approx(gau.energies[-1]) == -1812.58399675
+        assert gau.energies[-1] == approx(-1812.58399675)
         assert len(gau.structures) == 6
         # Test the first 3 atom coordinates
         coords = [

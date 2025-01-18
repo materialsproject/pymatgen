@@ -43,7 +43,7 @@ class TestPourbaixEntry(PymatgenTest):
         assert self.px_sol.entry.name == "Mn2O3", "Wrong Entry!"
         # assert self.PxIon.energy == 25, "Wrong Energy!"
         # assert self.PxSol.energy == 49, "Wrong Energy!"
-        assert self.px_ion.concentration == 1e-4, "Wrong concentration!"
+        assert self.px_ion.concentration == approx(1e-4), "Wrong concentration!"
 
     def test_calc_coeff_terms(self):
         assert self.px_ion.npH == -8, "Wrong npH!"

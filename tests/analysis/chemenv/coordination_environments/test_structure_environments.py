@@ -4,7 +4,7 @@ import json
 import os
 
 import numpy as np
-from numpy.testing import assert_allclose
+from numpy.testing import assert_allclose, assert_array_equal
 from pytest import approx
 
 from pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies import (
@@ -170,7 +170,7 @@ class TestStructureEnvironments(PymatgenTest):
         assert_allclose(neighb_indices, [sai["index"] for sai in nb_sai])
         nb_iai = nb_set.neighb_indices_and_images
         assert_allclose(neighb_indices, [iai["index"] for iai in nb_iai])
-        np.testing.assert_array_equal(neighb_images, [iai["image_cell"] for iai in nb_iai])
+        assert_array_equal(neighb_images, [iai["image_cell"] for iai in nb_iai])
 
         assert len(nb_set) == 4
         assert hash(nb_set) == 4

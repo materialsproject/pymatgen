@@ -53,7 +53,7 @@ class TestPhonopyParser(PymatgenTest):
             [0.0 + 0.0j, 0.14166569 + 0.04098339j, -0.14166569 - 0.04098339j],
         )
         assert ph_bs.has_eigendisplacements, True
-        assert_array_equal(ph_bs.min_freq()[0].frac_coords, [0, 0, 0])
+        assert_allclose(ph_bs.min_freq()[0].frac_coords, [0, 0, 0])
         assert ph_bs.min_freq()[1] == approx(-0.03700895020)
         assert ph_bs.has_imaginary_freq()
         assert not ph_bs.has_imaginary_freq(tol=0.5)

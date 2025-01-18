@@ -1320,10 +1320,16 @@ class Cp2kOutput:
         else:
             eigenvals = {Spin.up: bands_data.reshape((nbands, nkpts))}
 
-        occ = bands_data[:, 1][bands_data[:, -1] != 0.0]
+        # Filter out occupied and unoccupied states
+        occupied_mask = ~np.isclose(bands_data[:, -1], 0.0)
+        unoccupied_mask = np.isclose(bands_data[:, -1], 0.0)
+
+        occ = bands_data[:, 1][occupied_mask]
         homo = np.max(occ)
-        unocc = bands_data[:, 1][bands_data[:, -1] == 0.0]
+
+        unocc = bands_data[:, 1][unoccupied_mask]
         lumo = np.min(unocc)
+
         efermi = (lumo + homo) / 2
         self.efermi = efermi
 

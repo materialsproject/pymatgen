@@ -4,6 +4,7 @@ import numpy as np
 import pytest
 import scipy.special
 from numpy.testing import assert_allclose
+from pytest import approx
 
 from pymatgen.io.vasp.optics import DielectricFunctionCalculator, delta_func, delta_methfessel_paxton, step_func
 from pymatgen.io.vasp.outputs import Vasprun
@@ -23,8 +24,8 @@ class TestVasprun(PymatgenTest):
         dfc = DielectricFunctionCalculator.from_directory(eps_data_path)
         egrid, eps = dfc.get_epsilon(0, 0)
 
-        assert egrid[0] == 0
-        assert egrid[-1] == 59.3802
+        assert egrid[0] == approx(0)
+        assert egrid[-1] == approx(59.3802)
         assert len(egrid) == len(eps) == 3000
 
         _, eps_real_ref, eps_imag_ref = vrun.dielectric

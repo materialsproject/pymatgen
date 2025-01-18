@@ -199,7 +199,7 @@ class TestTEMCalculator(PymatgenTest):
         points = tem_calc.generate_points(-2, 2)
         cubic = Structure(lattice, ["Cs", "Cl"], [[0, 0, 0], [0.5, 0.5, 0.5]])
         first_pt = tem_calc.get_first_point(cubic, points)
-        assert 4.209 in first_pt.values()
+        assert any(val == approx(4.209) for val in first_pt.values())
 
     def test_interplanar_angle(self):
         # test interplanar angles. Reference values from KW Andrews,
