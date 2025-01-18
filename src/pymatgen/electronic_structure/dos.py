@@ -156,14 +156,13 @@ class DOS(Spectrum):
 
         # Work backwards until tolerance is reached
         i_gap_start = i_fermi
-        while i_gap_start >= 1 and tdos[i_gap_start - 1] <= tol:
+        while i_gap_start >= 1 and tdos[i_gap_start] <= tol:
             i_gap_start -= 1
 
         # Work forwards until tolerance is reached
-        i_gap_end = i_gap_start
+        i_gap_end = i_gap_start + 1
         while i_gap_end < tdos.shape[0] and tdos[i_gap_end] <= tol:
             i_gap_end += 1
-        i_gap_end -= 1
 
         return self.x[i_gap_end], self.x[i_gap_start]
 
@@ -378,16 +377,15 @@ class Dos(MSONable):
 
         # Work backwards until tolerance is reached
         i_gap_start = i_fermi
-        while i_gap_start >= 1 and tdos[i_gap_start - 1] <= tol:
+        while i_gap_start >= 1 and tdos[i_gap_start] <= tol:
             i_gap_start -= 1
 
         # Work forwards until tolerance is reached
-        i_gap_end = i_gap_start
+        i_gap_end = i_gap_start + 1
         while i_gap_end < tdos.shape[0] and tdos[i_gap_end] <= tol:
             i_gap_end += 1
-        i_gap_end -= 1
 
-        return self.energies[i_gap_end], self.energies[i_gap_start]
+        return (self.energies[min(i_gap_end, len(self.energies) - 1)], self.energies[max(i_gap_start, 0)])
 
     def get_gap(
         self,
@@ -518,15 +516,15 @@ class FermiDos(Dos, MSONable):
                 (P-type).
         """
         cb_integral = np.sum(
-            self.tdos[self.idx_mid_gap :]
-            * f0(self.energies[self.idx_mid_gap :], fermi_level, temperature)
-            * self.de[self.idx_mid_gap :],
+            self.tdos[max(self.idx_mid_gap, self.idx_vbm + 1) :]
+            * f0(self.energies[max(self.idx_mid_gap, self.idx_vbm + 1) :], fermi_level, temperature)
+            * self.de[max(self.idx_mid_gap, self.idx_vbm + 1) :],
             axis=0,
         )
         vb_integral = np.sum(
-            self.tdos[: self.idx_mid_gap + 1]
-            * f0(-self.energies[: self.idx_mid_gap + 1], -fermi_level, temperature)
-            * self.de[: self.idx_mid_gap + 1],
+            self.tdos[: min(self.idx_mid_gap, self.idx_cbm - 1) + 1]
+            * f0(-self.energies[: min(self.idx_mid_gap, self.idx_cbm - 1) + 1], -fermi_level, temperature)
+            * self.de[: min(self.idx_mid_gap, self.idx_cbm - 1) + 1],
             axis=0,
         )
         return (vb_integral - cb_integral) / (self.volume * self.A_to_cm**3)
