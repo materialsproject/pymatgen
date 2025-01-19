@@ -1,7 +1,6 @@
 from __future__ import annotations
 
 import json
-from unittest import TestCase
 
 import pytest
 from pytest import approx
@@ -22,8 +21,8 @@ coords = [
 mol = Molecule(["C", "H", "H", "H", "H"], coords)
 
 
-class TestNwTask(TestCase):
-    def setUp(self):
+class TestNwTask:
+    def setup_method(self):
         self.task = NwTask(
             0,
             1,
@@ -136,8 +135,8 @@ task esp """
         assert str(task) == answer
 
 
-class TestNwInput(TestCase):
-    def setUp(self):
+class TestNwInput:
+    def setup_method(self):
         tasks = [
             NwTask.dft_task(mol, operation="optimize", xc="b3lyp", basis_set="6-31++G*"),
             NwTask.dft_task(mol, operation="freq", xc="b3lyp", basis_set="6-31++G*"),

@@ -2,7 +2,6 @@ from __future__ import annotations
 
 import json
 import re
-from unittest import TestCase
 
 import numpy as np
 import pytest
@@ -14,13 +13,13 @@ from pytest import approx
 from pymatgen.core import Element, Structure
 from pymatgen.electronic_structure.core import Orbital, OrbitalType, Spin
 from pymatgen.electronic_structure.dos import DOS, CompleteDos, Dos, FermiDos, LobsterCompleteDos
-from pymatgen.util.testing import TEST_FILES_DIR, PymatgenTest
+from pymatgen.util.testing import TEST_FILES_DIR, MatSciTest
 
 TEST_DIR = f"{TEST_FILES_DIR}/electronic_structure/dos"
 
 
-class TestDos(TestCase):
-    def setUp(self):
+class TestDos:
+    def setup_method(self):
         with open(f"{TEST_DIR}/complete_dos.json", encoding="utf-8") as file:
             self.dos = CompleteDos.from_dict(json.load(file))
 
@@ -57,8 +56,8 @@ class TestDos(TestCase):
         assert not isinstance(dos_dict["densities"]["1"][0], np.float64)
 
 
-class TestFermiDos(TestCase):
-    def setUp(self):
+class TestFermiDos:
+    def setup_method(self):
         with open(f"{TEST_DIR}/complete_dos.json", encoding="utf-8") as file:
             self.dos = CompleteDos.from_dict(json.load(file))
         self.dos = FermiDos(self.dos)
@@ -124,8 +123,8 @@ class TestFermiDos(TestCase):
         )
 
 
-class TestCompleteDos(TestCase):
-    def setUp(self):
+class TestCompleteDos:
+    def setup_method(self):
         with open(f"{TEST_DIR}/complete_dos.json", encoding="utf-8") as file:
             self.dos = CompleteDos.from_dict(json.load(file))
         with zopen(f"{TEST_DIR}/pdag3_complete_dos.json.gz", mode="rt", encoding="utf-8") as file:
@@ -343,8 +342,8 @@ class TestCompleteDos(TestCase):
             self.dos.get_dos_fp_similarity(dos_fp, dos_fp2, col=1, metric=metric, normalize=False)
 
 
-class TestDOS(PymatgenTest):
-    def setUp(self):
+class TestDOS(MatSciTest):
+    def setup_method(self):
         with open(f"{TEST_DIR}/complete_dos.json", encoding="utf-8") as file:
             dct = json.load(file)
             ys = list(zip(dct["densities"]["1"], dct["densities"]["-1"], strict=True))
@@ -371,15 +370,15 @@ class TestDOS(PymatgenTest):
         assert_allclose(self.dos.get_cbm_vbm(spin=Spin.down), (4.7737, 1.6853))
 
 
-class TestSpinPolarization(TestCase):
+class TestSpinPolarization:
     def test_spin_polarization(self):
         dos_path = f"{TEST_DIR}/dos_spin_polarization_mp-865805.json"
         dos = loadfn(dos_path)
         assert dos.spin_polarization == approx(0.6460514663341762)
 
 
-class TestLobsterCompleteDos(TestCase):
-    def setUp(self):
+class TestLobsterCompleteDos:
+    def setup_method(self):
         with open(f"{TEST_DIR}/LobsterCompleteDos_spin.json", encoding="utf-8") as file:
             data_spin = json.load(file)
         self.LobsterCompleteDOS_spin = LobsterCompleteDos.from_dict(data_spin)

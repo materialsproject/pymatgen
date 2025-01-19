@@ -2,8 +2,6 @@
 
 from __future__ import annotations
 
-from unittest import TestCase
-
 from pymatgen.core.structure import Structure
 from pymatgen.io.cssr import Cssr
 from pymatgen.util.testing import TEST_FILES_DIR, VASP_IN_DIR
@@ -18,8 +16,8 @@ __date__ = "Jan 24, 2012"
 TEST_DIR = f"{TEST_FILES_DIR}/io/cssr"
 
 
-class TestCssr(TestCase):
-    def setUp(self):
+class TestCssr:
+    def setup_method(self):
         filepath = f"{VASP_IN_DIR}/POSCAR"
         self.cssr = Cssr(Structure.from_file(filepath))
 
