@@ -40,7 +40,7 @@ class MaterialsProjectDFTMixingScheme(Compatibility):
     may lead to unexpected results.
 
     This is the scheme used by the Materials Project to generate Phase Diagrams containing
-    a mixture of GGA(+U) and R2SCAN calculations. However in principle it can be used to
+    a mixture of GGA(+U) and r2SCAN calculations. However in principle it can be used to
     mix energies from any two functionals.
     """
 
@@ -64,7 +64,7 @@ class MaterialsProjectDFTMixingScheme(Compatibility):
             run_type_1: The first DFT run_type. Typically this is the majority or run type or
                 the "base case" onto which the other calculations are referenced. Valid choices
                 are any run_type recognized by Vasprun.run_type, such as "LDA", "GGA", "GGA+U",
-                "PBEsol", "SCAN", or "R2SCAN". The class will ignore any entries that have a
+                "PBEsol", "SCAN", or "r2SCAN". The class will ignore any entries that have a
                 run_type different than run_type_1 or run_type_2.
 
                 The list of run_type_1 entries provided to process_entries MUST form a complete
@@ -105,6 +105,9 @@ class MaterialsProjectDFTMixingScheme(Compatibility):
         self.run_type_2 = run_type_2
         self.valid_rtypes_1 = ["GGA", "GGA+U"] if self.run_type_1 == "GGA(+U)" else [self.run_type_1]
         self.valid_rtypes_2 = ["GGA", "GGA+U"] if self.run_type_2 == "GGA(+U)" else [self.run_type_2]
+        # allowing for variations of run_type
+        self.valid_rtypes_1 = ["r2SCAN", "R2SCAN"] if self.run_type_1 == "R2SCAN" else [self.run_type_1]
+        self.valid_rtypes_2 = ["r2SCAN", "R2SCAN"] if self.run_type_1 == "R2SCAN" else [self.run_type_2]
 
         self.compat_1 = compat_1
         self.compat_2 = compat_2
@@ -326,7 +329,7 @@ class MaterialsProjectDFTMixingScheme(Compatibility):
                 # For run_type_2 entries, there is no correction
                 return adjustments
 
-            # Discard GGA ground states whose structures already exist in R2SCAN.
+            # Discard GGA ground states whose structures already exist in r2SCAN.
             df_slice = mixing_state_data[(mixing_state_data["entry_id_1"] == entry.entry_id)]
 
             if df_slice["entry_id_2"].notna().item():
@@ -344,8 +347,8 @@ class MaterialsProjectDFTMixingScheme(Compatibility):
                     f"because there is a matching {self.run_type_2} material."
                 )
 
-            # If a GGA is not present in R2SCAN, correct its energy to give the same
-            # e_above_hull on the R2SCAN hull that it would have on the GGA hull
+            # If a GGA is not present in r2SCAN, correct its energy to give the same
+            # e_above_hull on the r2SCAN hull that it would have on the GGA hull
             hull_energy_1 = df_slice["hull_energy_1"].iloc[0]
             hull_energy_2 = df_slice["hull_energy_2"].iloc[0]
             correction = (hull_energy_2 - hull_energy_1) * entry.composition.num_atoms

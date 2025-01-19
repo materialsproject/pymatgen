@@ -2014,6 +2014,18 @@ class TestMaterialsProjectDFTMixingSchemeArgs:
         MaterialsProjectDFTMixingScheme().process_entries(entries, inplace=False)
         assert all(e.correction == e_copy.correction for e, e_copy in zip(entries, entries_copy, strict=True))
 
+    def test_run_type_variations(self):
+        """test that both 'r2SCAN' and 'R2SCAN' are valid run types in mixing scheme correction"""
+        # build a r2SCAN entry
+        R2SCAN_entry = ms_complete.scan_entries[0]
+        updated_dict = R2SCAN_entry.to_dict().update({"parameters": {"run_type": "r2SCAN"}})
+        r2SCAN_entry = ComputedStructureEntry.from_dict(updated_dict)
+        # test that 'r2SCAN' is a valid run type
+        scheme = MaterialsProjectDFTMixingScheme()
+        assert r2SCAN_entry.parameters.get("run_type") in scheme.valid_rtypes_1 + scheme.valid_rtypes_2
+        # test that 'R2SCAN' is a valid run type
+        assert R2SCAN_entry.parameters.get("run_type") in scheme.valid_rtypes_1 + scheme.valid_rtypes_2
+
     def test_check_potcar(self, ms_complete):
         """Entries with invalid or missing POTCAR raise error by default but should be ignored if
         check_potcar=False in MaterialsProjectDFTMixingScheme.
