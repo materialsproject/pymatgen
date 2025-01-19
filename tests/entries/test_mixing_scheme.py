@@ -2018,7 +2018,7 @@ class TestMaterialsProjectDFTMixingSchemeArgs:
         """test that both 'r2SCAN' and 'R2SCAN' are valid run types in mixing scheme correction"""
         # build a r2SCAN entry
         R2SCAN_entry = ms_complete.scan_entries[0]
-        updated_dict = R2SCAN_entry.to_dict().update({'parameters':{'run_type':'r2SCAN'}})
+        updated_dict = R2SCAN_entry.to_dict().update({"parameters": {"run_type": "r2SCAN"}})
         r2SCAN_entry = ComputedStructureEntry.from_dict(updated_dict)
         # test that 'r2SCAN' is a valid run type
         scheme = MaterialsProjectDFTMixingScheme()
