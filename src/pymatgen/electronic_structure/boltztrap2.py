@@ -869,8 +869,8 @@ class BztTransportProperties:
     #     Find the chemical potential (mu).
 
     #     Args:
-    #         epsilon (np.array): Array of energy values.
-    #         dos (np.array): Array of density of states values.
+    #         epsilon (NDArray): Array of energy values.
+    #         dos (NDArray): Array of density of states values.
     #         N0 (float): Background carrier concentration.
     #         T (float): Temperature in Kelvin.
     #         dosweight (float, optional): Weighting factor for the density of states. Default is 2.0.

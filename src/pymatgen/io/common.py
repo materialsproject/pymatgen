@@ -70,11 +70,11 @@ class VolumetricData(MSONable):
 
         Args:
             structure (Structure): associated with the volumetric data
-            data (dict[str, np.array]): Actual volumetric data.
-            distance_matrix (np.array): A pre-computed distance matrix if available.
+            data (dict[str, NDArray]): Actual volumetric data.
+            distance_matrix (NDArray): A pre-computed distance matrix if available.
                 Useful so pass distance_matrices between sums,
                 short-circuiting an otherwise expensive operation.
-            data_aug (np.array): Any extra information associated with volumetric data
+            data_aug (NDArray): Any extra information associated with volumetric data
                 (typically augmentation charges)
         """
         self.structure = structure
