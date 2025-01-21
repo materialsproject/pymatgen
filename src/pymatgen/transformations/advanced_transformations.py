@@ -789,7 +789,7 @@ class MagOrderingTransformation(AbstractTransformation):
             Structure: Structure with spin magnitudes added.
         """
         for idx, site in enumerate(structure):
-            if getattr(site.specie, "spin", None):
+            if getattr(site.specie, "spin", False):
                 spin = site.specie.spin
                 spin = getattr(site.specie, "spin", None)
                 sign = int(spin) if spin else 0
