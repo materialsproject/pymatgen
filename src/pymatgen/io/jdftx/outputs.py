@@ -16,8 +16,8 @@ from typing import TYPE_CHECKING, Any
 import numpy as np
 
 from pymatgen.io.jdftx._output_utils import (
-    _get_atom_orb_labels_dict,
     _get_nbands_from_bandfile_filepath,
+    _get_orb_label_list,
     get_proj_tju_from_file,
     read_outfile_slices,
 )
@@ -90,19 +90,34 @@ class JDFTXOutputs:
             (nspin, nkpt, nbands, nion, nionproj) to save on memory as nonionproj is different depending on the ion
             type. This array may also be complex if specified in 'band-projections-params' in the JDFTx input, allowing
             for pCOHP analysis.
+        eigenvals (np.ndarray): The eigenvalues. Stored in shape (nstates, nbands) where nstates is nspin*nkpts (nkpts
+            may not equal prod(kfolding) if symmetry reduction occurred) and nbands is the number of bands.
+        orb_label_list (tuple[str, ...]): A tuple of the orbital labels for the bandProjections file, where the i'th
+            element describes the i'th orbital. Orbital labels are formatted as "<ion>#<ion-number>(<orbital>)",
+            where <ion> is the element symbol of the ion, <ion-number> is the 1-based index of the ion-type in the
+            structure (ie C#2 would be the second carbon atom, but not necessarily the second ion in the structure),
+            and <orbital> is a string describing "l" and "ml" quantum numbers (ie "p_x" or "d_yz"). Note that while "z"
+            corresponds to the "z" axis, "x" and "y" are arbitrary and may not correspond to the actual x and y axes of
+            the structure. In the case where multiple shells of a given "l" are available within the projections, a
+            0-based index will appear mimicking a principle quantum number (ie "0px" for first shell and "1px" for
+            second shell). The actual principal quantum number is not stored in the JDFTx output files and must be
+            inferred by the user.
     """
 
     calc_dir: str | Path = field(init=True)
+    outfile_name: str | Path | None = field(init=True)
     store_vars: list[str] = field(default_factory=list, init=True)
     paths: dict[str, Path] = field(init=False)
     outfile: JDFTXOutfile = field(init=False)
     bandProjections: np.ndarray | None = field(init=False)
     eigenvals: np.ndarray | None = field(init=False)
     # Misc metadata for interacting with the data
-    atom_orb_labels_dict: dict[int, str] | None = field(init=False)
+    orb_label_list: tuple[str, ...] | None = field(init=False)
 
     @classmethod
-    def from_calc_dir(cls, calc_dir: str | Path, store_vars: list[str] | None = None) -> JDFTXOutputs:
+    def from_calc_dir(
+        cls, calc_dir: str | Path, store_vars: list[str] | None = None, outfile_name: str | Path | None = None
+    ) -> JDFTXOutputs:
         """
         Create a JDFTXOutputs object from a directory containing JDFTx out files.
 
@@ -113,12 +128,15 @@ class JDFTXOutputs:
             none_slice_on_error (bool): If True, will return None if an error occurs while parsing a slice instead of
                 halting the parsing process. This can be useful for parsing files with multiple slices where some slices
                 may be incomplete or corrupted.
+            outfile_name (str | Path): The name of the outfile to use. If None, will search for the outfile in the
+                calc_dir. If provided, will concatenate with calc_dir as the outfile path. Use this if the calc_dir
+                contains multiple files that may be mistaken for the outfile (ie multiple files with the '.out' suffix).
         Returns:
             JDFTXOutputs: The JDFTXOutputs object.
         """
         if store_vars is None:
             store_vars = []
-        return cls(calc_dir=Path(calc_dir), store_vars=store_vars)
+        return cls(calc_dir=Path(calc_dir), store_vars=store_vars, outfile_name=outfile_name)
 
     def __post_init__(self):
         self._init_paths()
@@ -128,7 +146,12 @@ class JDFTXOutputs:
         self.paths = {}
         if self.calc_dir is None:
             raise ValueError("calc_dir must be set as not None before initializing.")
-        outfile_path = _find_jdftx_out_file(self.calc_dir)
+        if self.outfile_name is None:
+            outfile_path = _find_jdftx_out_file(self.calc_dir)
+        else:
+            outfile_path = self.calc_dir / self.outfile_name
+            if not outfile_path.exists():
+                raise FileNotFoundError(f"Provided outfile path {outfile_path} does not exist.")
         self.outfile = JDFTXOutfile.from_file(outfile_path)
         prefix = self.outfile.prefix
         for fname in dump_file_names:
@@ -167,15 +190,13 @@ class JDFTXOutputs:
     def _store_bandProjections(self):
         if "bandProjections" in self.paths:
             self.bandProjections = get_proj_tju_from_file(self.paths["bandProjections"])
-            self.atom_orb_labels_dict = _get_atom_orb_labels_dict(self.paths["bandProjections"])
+            self.orb_label_list = _get_orb_label_list(self.paths["bandProjections"])
 
     def _check_eigenvals(self):
         """Check for misaligned data within eigenvals file."""
         if "eigenvals" in self.paths:
             if not self.paths["eigenvals"].exists():
                 raise RuntimeError("Allocated path for eigenvals does not exist.")
-            # TODO: We should not have to load the entire file to find its length - replace with something more
-            # efficient once Claude lets me create an account.
             tj = len(np.fromfile(self.paths["eigenvals"]))
             nstates_float = tj / self.outfile.nbands
             if not np.isclose(nstates_float, int(nstates_float)):
