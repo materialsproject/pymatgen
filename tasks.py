@@ -151,7 +151,6 @@ def update_changelog(ctx: Context, version: str | None = None, dry_run: bool = F
             updating the actual change log file. Defaults to False.
     """
     version = version or f"{datetime.now(tz=timezone.utc):%Y.%-m.%-d}"
-    __version__ = "2025.1.9"
     print(f"Getting all comments since {__version__}")
     output = subprocess.check_output(["git", "log", "--pretty=format:%s", f"v{__version__}..HEAD"])
     lines = []
