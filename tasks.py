@@ -210,6 +210,7 @@ def release(ctx: Context, version: str | None = None, nodoc: bool = False) -> No
     release_github(ctx, version)
 
     ctx.run("rm -f dist/*.*", warn=True)
+    ctx.run("pip install -e .", warn=True)
     ctx.run("python -m build", warn=True)
     ctx.run("twine upload --skip-existing dist/*.whl", warn=True)
     ctx.run("twine upload --skip-existing dist/*.tar.gz", warn=True)
