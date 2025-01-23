@@ -212,6 +212,7 @@ class JOutStructure(Structure):
             instance = cls(
                 lattice=init_structure.lattice.matrix,
                 species=init_structure.species,
+                coords_are_cartesian=True,
                 coords=init_structure.cart_coords,
                 site_properties=init_structure.site_properties,
             )
