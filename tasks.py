@@ -151,6 +151,7 @@ def update_changelog(ctx: Context, version: str | None = None, dry_run: bool = F
             updating the actual change log file. Defaults to False.
     """
     version = version or f"{datetime.now(tz=timezone.utc):%Y.%-m.%-d}"
+    __version__ = "2025.1.9"
     print(f"Getting all comments since {__version__}")
     output = subprocess.check_output(["git", "log", "--pretty=format:%s", f"v{__version__}..HEAD"])
     lines = []
@@ -174,11 +175,29 @@ def update_changelog(ctx: Context, version: str | None = None, dry_run: bool = F
                     lines += [f"    {ll}"]
         else:
             ignored_commits += [line]
+
+    body = "\n".join(lines)
+    try:
+        # Use OpenAI to improve changelog. Requires openai to be installed and an OPENAPI_KEY env variable.
+        from openai import OpenAI
+
+        client = OpenAI(api_key=os.environ["OPENAPI_KEY"])
+
+        messages = [{"role": "user", "content": f"summarize, include authors: '{body}'"}]
+        chat = client.chat.completions.create(model="gpt-4o", messages=messages)
+
+        reply = chat.choices[0].message.content
+        body = "\n".join(reply.split("\n")[1:])
+        body = body.strip()
+        print(f"ChatGPT Summary of Changes:\n{body}")
+
+    except BaseException as ex:
+        print(f"Unable to use openai due to {ex}")
     with open("docs/CHANGES.md", encoding="utf-8") as file:
         contents = file.read()
     delim = "##"
     tokens = contents.split(delim)
-    tokens.insert(1, f"## v{version}\n\n" + "\n".join(lines) + "\n")
+    tokens.insert(1, f"## v{version}\n\n{body}\n\n")
     if dry_run:
         print(tokens[0] + "##".join(tokens[1:]))
     else:

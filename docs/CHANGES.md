@@ -7,28 +7,22 @@ nav_order: 4
 # Changelog
 
 ## v2025.1.23
-- PR #4255 Make run_type in mixing scheme consistent with entries by @peikai
-    The run_type for entries had been changed from 'R2SCAN' to 'r2SCAN', whereas the `MaterialsProjectDFTMixingScheme()` is still expecting to find 'R2SCAN' entries.
-    As a result, all r2SCAN entries would be ignored when carrying out GGA(+U)/R2SCAN mixing scheme corrections, thereby affecting the construction of GGA(+U)/R2SCAN mixing phase diagram [^1].
-    Error message would be:
-    ```
-    pymatgen\entries\mixing_scheme.py:176: UserWarning: Invalid run_type='r2SCAN' for entry mp-1018134-r2SCAN. Must be one of ['GGA', 'GGA+U', 'R2SCAN']. This entry will be ignored.
-    ```
-    [^1]: https://docs.materialsproject.org/methodology/materials-methodology/thermodynamic-stability/phase-diagrams-pds#gga-ggau-r2scan
-- PR #4240 Minor update to make `FermiDos` more robust by @kavanase
-    This is a minor fix to the `get_doping` method in `FermiDos` to make it a little more robust, so that it can handle rare cases where there is only either 0 or 1 energy increments between the VBM and CBM indices (e.g. Dirac cone systems or toy test cases). This is done by starting the CB integral (for electron concentrations) from either the mid-gap index or, if mid-gap index is the VBM, from VBM+1 (= CBM index), and vice versa for the VB integral for hole concentrations.
-- PR #4254 Using libxc with FHI-aims requires an additional keyword  by @tpurcell90
-    automatically add the override warning when using libxc
-    Major changes:
-    - fix 1: libxc calls should automatically override warning
-- PR #4256 Fix `Composition` for mixed species & element compositions by @kavanase
-    `Composition` objects initialised as e.g. `Composition({"Cd2+": 1, "Cd": 1, "Te2-": 2})` do not behave as expected, giving e.g. `Composition.formula = "Cd3 Te2"` instead of `Cd2 Te2`. This is due to `Composition.__getitem__()` matching all species and elements/non-species of a given input string; so that `Composition["Cd"]` here would return `2` (as desired), but than `Composition.items()` (which is use for `get_el_amt_dict`, `formula` and more) gives `("Cd2+", 1), ("Cd", 2), ("Te", 2)` which is incorrect.
-    In the end, it's an easy fix to just define the `items()` method to avoid the `Composition.__getitem__()` (which is only needed when the user does `Composition[...]`).
-- PR #4253 ASE <---> pymatgen trajectory conversion  by @esoteric-ephemera
-    Adds feature to convert between ASE and pymatgen trajectories via `from_ase` and `to_ase` methods on `Trajectory`.  Allows for carrying energies, forces, stresses, etc. between ASE and pymatgen trajectories, rather than just structural info as previously implemented.
-    Merging would close #4252. From the discussion there: this PR ensures that any calculator attr's that are set by `AseAtomsAdaptor` are not lost in the trajectory conversion processs.
-    To-do:
-- Vasprun.get_computed_entry now generates unique entry_id using date, time and hash of final structure of calculation.
+
+1. **PR #4255 by @peikai**: This PR resolves an inconsistency in the `run_type` for entries in a mixing scheme. The entry type was changed to 'r2SCAN', but the `MaterialsProjectDFTMixingScheme()` expected 'R2SCAN', causing errors and ignored entries in GGA(+U)/R2SCAN mixing scheme corrections.
+
+2. **PR #4160 by @DanielYang59**: Enhancements and clarifications were made to the `io.vasp.outputs.Outcar` docstring/comment. This includes more specific type annotations for parsers and updating the default value in `getattr` to `False` for condition checks.
+
+3. **PR #4257 by @njzjz**: This PR covers the intention to build Linux arm64 wheels, referencing the availability of free hosted runners for public repositories. However, specific features and fixes were not detailed.
+
+4. **PR #4240 by @kavanase**: A minor fix in `FermiDos` improves the robustness of the `get_doping` method, addressing issues with handling rare cases with minimal energy increments between VBM and CBM indices.
+
+5. **PR #4254 by @tpurcell90**: Adjustments regarding the use of libxc with FHI-aims to automatically add an override warning call, ensuring the process behaves as expected.
+
+6. **PR #4256 by @kavanase**: Addresses a behavior issue with `Composition` for mixed species and element compositions, providing a fix that ensures compositions are interpreted correctly, avoiding incorrect results in representations and calculations.
+
+7. **PR #4253 by @esoteric-ephemera**: This PR introduces the ability to convert between ASE and pymatgen trajectories, maintaining additional data such as energies, forces, and stresses, thus improving integration between the two programs and addressing related issues.
+
+These updates range from bug fixes and enhancements to new features aimed at improving the functionality and reliability of the codebase.
 
 ## 2025.1.9
 - Iterating Element no longer contains isotopes (D and T). (@DanielYang59)
