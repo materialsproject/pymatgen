@@ -6,6 +6,24 @@ nav_order: 4
 
 # Changelog
 
+## v2025.1.23
+
+1. **PR #4255 by @peikai**: This PR resolves an inconsistency in the `run_type` for entries in a mixing scheme. The entry type was changed to 'r2SCAN', but the `MaterialsProjectDFTMixingScheme()` expected 'R2SCAN', causing errors and ignored entries in GGA(+U)/R2SCAN mixing scheme corrections.
+
+2. **PR #4160 by @DanielYang59**: Enhancements and clarifications were made to the `io.vasp.outputs.Outcar` docstring/comment. This includes more specific type annotations for parsers and updating the default value in `getattr` to `False` for condition checks.
+
+3. **PR #4257 by @njzjz**: This PR covers the intention to build Linux arm64 wheels, referencing the availability of free hosted runners for public repositories. However, specific features and fixes were not detailed.
+
+4. **PR #4240 by @kavanase**: A minor fix in `FermiDos` improves the robustness of the `get_doping` method, addressing issues with handling rare cases with minimal energy increments between VBM and CBM indices.
+
+5. **PR #4254 by @tpurcell90**: Adjustments regarding the use of libxc with FHI-aims to automatically add an override warning call, ensuring the process behaves as expected.
+
+6. **PR #4256 by @kavanase**: Addresses a behavior issue with `Composition` for mixed species and element compositions, providing a fix that ensures compositions are interpreted correctly, avoiding incorrect results in representations and calculations.
+
+7. **PR #4253 by @esoteric-ephemera**: This PR introduces the ability to convert between ASE and pymatgen trajectories, maintaining additional data such as energies, forces, and stresses, thus improving integration between the two programs and addressing related issues.
+
+These updates range from bug fixes and enhancements to new features aimed at improving the functionality and reliability of the codebase.
+
 ## 2025.1.9
 - Iterating Element no longer contains isotopes (D and T). (@DanielYang59)
 - Remove is_rare_earth_metal from ElementBase (@jdewasseigeosium)
