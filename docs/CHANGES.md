@@ -6,6 +6,30 @@ nav_order: 4
 
 # Changelog
 
+## v2025.1.23
+- PR #4255 Make run_type in mixing scheme consistent with entries by @peikai
+    The run_type for entries had been changed from 'R2SCAN' to 'r2SCAN', whereas the `MaterialsProjectDFTMixingScheme()` is still expecting to find 'R2SCAN' entries.
+    As a result, all r2SCAN entries would be ignored when carrying out GGA(+U)/R2SCAN mixing scheme corrections, thereby affecting the construction of GGA(+U)/R2SCAN mixing phase diagram [^1].
+    Error message would be:
+    ```
+    pymatgen\entries\mixing_scheme.py:176: UserWarning: Invalid run_type='r2SCAN' for entry mp-1018134-r2SCAN. Must be one of ['GGA', 'GGA+U', 'R2SCAN']. This entry will be ignored.
+    ```
+    [^1]: https://docs.materialsproject.org/methodology/materials-methodology/thermodynamic-stability/phase-diagrams-pds#gga-ggau-r2scan
+- PR #4240 Minor update to make `FermiDos` more robust by @kavanase
+    This is a minor fix to the `get_doping` method in `FermiDos` to make it a little more robust, so that it can handle rare cases where there is only either 0 or 1 energy increments between the VBM and CBM indices (e.g. Dirac cone systems or toy test cases). This is done by starting the CB integral (for electron concentrations) from either the mid-gap index or, if mid-gap index is the VBM, from VBM+1 (= CBM index), and vice versa for the VB integral for hole concentrations.
+- PR #4254 Using libxc with FHI-aims requires an additional keyword  by @tpurcell90
+    automatically add the override warning when using libxc
+    Major changes:
+    - fix 1: libxc calls should automatically override warning
+- PR #4256 Fix `Composition` for mixed species & element compositions by @kavanase
+    `Composition` objects initialised as e.g. `Composition({"Cd2+": 1, "Cd": 1, "Te2-": 2})` do not behave as expected, giving e.g. `Composition.formula = "Cd3 Te2"` instead of `Cd2 Te2`. This is due to `Composition.__getitem__()` matching all species and elements/non-species of a given input string; so that `Composition["Cd"]` here would return `2` (as desired), but than `Composition.items()` (which is use for `get_el_amt_dict`, `formula` and more) gives `("Cd2+", 1), ("Cd", 2), ("Te", 2)` which is incorrect.
+    In the end, it's an easy fix to just define the `items()` method to avoid the `Composition.__getitem__()` (which is only needed when the user does `Composition[...]`).
+- PR #4253 ASE <---> pymatgen trajectory conversion  by @esoteric-ephemera
+    Adds feature to convert between ASE and pymatgen trajectories via `from_ase` and `to_ase` methods on `Trajectory`.  Allows for carrying energies, forces, stresses, etc. between ASE and pymatgen trajectories, rather than just structural info as previously implemented.
+    Merging would close #4252. From the discussion there: this PR ensures that any calculator attr's that are set by `AseAtomsAdaptor` are not lost in the trajectory conversion processs.
+    To-do:
+- Vasprun.get_computed_entry now generates unique entry_id using date, time and hash of final structure of calculation.
+
 ## 2025.1.9
 - Iterating Element no longer contains isotopes (D and T). (@DanielYang59)
 - Remove is_rare_earth_metal from ElementBase (@jdewasseigeosium)

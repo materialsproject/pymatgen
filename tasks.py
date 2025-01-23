@@ -156,21 +156,16 @@ def update_changelog(ctx: Context, version: str | None = None, dry_run: bool = F
     lines = []
     ignored_commits = []
     for line in output.decode("utf-8").strip().split("\n"):
-        re_match = re.match(r"(.*)\(\#(\d+)\)", line)
+        re_match = re.match(r".*\(\#(\d+)\)", line)
         if re_match and "materialsproject/dependabot/pip" not in line:
-            pr_number = re_match[2]
-            pr_name = re_match[1]
+            pr_number = re_match[1].strip()
             response = requests.get(
                 f"https://api.github.com/repos/materialsproject/pymatgen/pulls/{pr_number}",
                 timeout=60,
             )
-            lines += [f"* PR #{pr_number} {pr_name}"]
-            json_resp = response.json()
-            import pprint
-
-            pprint.pprint(json_resp)
-            lines += [f"* PR #{pr_number} {pr_name} by @{json_resp['user']['login']}"]
-            if body := json_resp["body"]:
+            resp = response.json()
+            lines += [f"- PR #{pr_number} {resp['title'].strip()} by @{resp['user']['login']}"]
+            if body := resp["body"]:
                 for ll in map(str.strip, body.split("\n")):
                     if ll in ("", "## Summary"):
                         continue
