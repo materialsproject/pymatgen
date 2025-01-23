@@ -151,20 +151,25 @@ def update_changelog(ctx: Context, version: str | None = None, dry_run: bool = F
             updating the actual change log file. Defaults to False.
     """
     version = version or f"{datetime.now(tz=timezone.utc):%Y.%-m.%-d}"
+    print(f"Getting all comments since {__version__}")
     output = subprocess.check_output(["git", "log", "--pretty=format:%s", f"v{__version__}..HEAD"])
     lines = []
     ignored_commits = []
     for line in output.decode("utf-8").strip().split("\n"):
-        re_match = re.match(r"Merge pull request \#(\d+) from (.*)", line)
+        re_match = re.match(r"(.*)\(\#(\d+)\)", line)
         if re_match and "materialsproject/dependabot/pip" not in line:
-            pr_number = re_match[1]
-            contributor, pr_name = re_match[2].split("/", 1)
+            pr_number = re_match[2]
+            pr_name = re_match[1]
             response = requests.get(
                 f"https://api.github.com/repos/materialsproject/pymatgen/pulls/{pr_number}",
                 timeout=60,
             )
-            lines += [f"* PR #{pr_number} from @{contributor} {pr_name}"]
+            lines += [f"* PR #{pr_number} {pr_name}"]
             json_resp = response.json()
+            import pprint
+
+            pprint.pprint(json_resp)
+            lines += [f"* PR #{pr_number} {pr_name} by @{json_resp['user']['login']}"]
             if body := json_resp["body"]:
                 for ll in map(str.strip, body.split("\n")):
                     if ll in ("", "## Summary"):
@@ -172,7 +177,8 @@ def update_changelog(ctx: Context, version: str | None = None, dry_run: bool = F
                     if ll.startswith(("## Checklist", "## TODO")):
                         break
                     lines += [f"    {ll}"]
-        ignored_commits += [line]
+        else:
+            ignored_commits += [line]
     with open("docs/CHANGES.md", encoding="utf-8") as file:
         contents = file.read()
     delim = "##"
