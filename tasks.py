@@ -167,6 +167,7 @@ def update_changelog(ctx: Context, version: str | None = None, dry_run: bool = F
             lines += [f"* PR #{pr_number} {pr_name}"]
             json_resp = response.json()
             import pprint
+
             pprint.pprint(json_resp)
             lines += [f"* PR #{pr_number} {pr_name} by @{json_resp['user']['login']}"]
             if body := json_resp["body"]:
