@@ -11,7 +11,6 @@ import xml.etree.ElementTree as ET
 from collections import defaultdict
 from collections.abc import Iterable
 from dataclasses import dataclass
-from datetime import datetime, timezone
 from glob import glob
 from io import StringIO
 from pathlib import Path
@@ -868,7 +867,11 @@ class Vasprun(MSONable):
             ComputedStructureEntry/ComputedEntry
         """
         if entry_id is None:
-            entry_id = f"vasprun-{datetime.now(tz=timezone.utc)}"
+            calc_date = re.sub(" ", "", self.generator["DATE"])
+            calc_time = self.generator["TIME"]
+            hashed_structure = hash(str(self.final_structure))
+
+            entry_id = f"vasprun-{calc_date}-{calc_time}-{hashed_structure}"
         param_names = {
             "is_hubbard",
             "hubbards",

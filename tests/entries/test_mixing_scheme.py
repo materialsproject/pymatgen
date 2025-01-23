@@ -1844,10 +1844,10 @@ class TestMaterialsProjectDFTMixingSchemeArgs:
                 with pytest.raises(CompatibilityError, match="ground state"):
                     compat.get_adjustments(entry, mixing_state)
             elif entry.entry_id == "r2scan-3":
-                with pytest.raises(CompatibilityError, match="and no R2SCAN ground state"):
+                with pytest.raises(CompatibilityError, match="and no r2SCAN ground state"):
                     compat.get_adjustments(entry, mixing_state)
             elif entry.entry_id in ["gga-2", "gga-5", "gga-6", "gga-7"]:
-                with pytest.raises(CompatibilityError, match="there is a matching R2SCAN"):
+                with pytest.raises(CompatibilityError, match="there is a matching r2SCAN"):
                     compat.get_adjustments(entry, mixing_state)
             elif entry.parameters["run_type"] == "GGA":
                 assert not compat.get_adjustments(entry, mixing_state)
@@ -1861,7 +1861,7 @@ class TestMaterialsProjectDFTMixingSchemeArgs:
             if entry.parameters["run_type"] == "GGA":
                 assert entry.correction == 0
             elif entry.entry_id in ["r2scan-2", "r2scan-7"]:
-                assert "Replace R2SCAN energy with GGA" in entry.energy_adjustments[0].description
+                assert "Replace r2SCAN energy with GGA" in entry.energy_adjustments[0].description
             else:
                 assert "onto the GGA(+U) hull" in entry.energy_adjustments[0].description
 
@@ -1906,7 +1906,7 @@ class TestMaterialsProjectDFTMixingSchemeArgs:
                 ):
                     compat.get_adjustments(entry, state_data)
             else:
-                with pytest.raises(CompatibilityError, match="there is a matching R2SCAN"):
+                with pytest.raises(CompatibilityError, match="there is a matching r2SCAN"):
                     assert not compat.get_adjustments(entry, state_data)
 
         for entry in ms_complete.scan_entries:
@@ -1952,7 +1952,7 @@ class TestMaterialsProjectDFTMixingSchemeArgs:
                 ):
                     mixing_scheme_no_compat.get_adjustments(entry, ms_complete_duplicate_structs.state_data)
             else:
-                with pytest.raises(CompatibilityError, match="there is a matching R2SCAN"):
+                with pytest.raises(CompatibilityError, match="there is a matching r2SCAN"):
                     mixing_scheme_no_compat.get_adjustments(entry, ms_complete_duplicate_structs.state_data)
 
         # process_entries should discard all GGA entries and return all R2SCAN
@@ -1996,10 +1996,10 @@ class TestMaterialsProjectDFTMixingSchemeArgs:
                 ):
                     compat.get_adjustments(entry, ms_complete.state_data)
             else:
-                with pytest.raises(CompatibilityError, match="there is a matching R2SCAN"):
+                with pytest.raises(CompatibilityError, match="there is a matching r2SCAN"):
                     compat.get_adjustments(entry, ms_complete.state_data)
 
-        # process_entries should discard all GGA entries except gga-6 and return all R2SCAN
+        # process_entries should discard all GGA entries except gga-6 and return all r2SCAN
         # entries unmodified. gga-6 should be corrected to the R2SCAN hull
         entries = compat.process_entries(ms_complete.all_entries)
         assert len(entries) == 8
@@ -2013,6 +2013,14 @@ class TestMaterialsProjectDFTMixingSchemeArgs:
         entries_copy = copy.deepcopy(entries)
         MaterialsProjectDFTMixingScheme().process_entries(entries, inplace=False)
         assert all(e.correction == e_copy.correction for e, e_copy in zip(entries, entries_copy, strict=True))
+
+    def test_run_type_variations(self):
+        """Test that entries with run_type 'r2SCAN' would not be ignored in mixing scheme correction."""
+        scheme = MaterialsProjectDFTMixingScheme(run_type_1="GGA(+U)", run_type_2="r2SCAN")
+        assert scheme.valid_rtypes_2 == ["r2SCAN", "R2SCAN"]
+        """Test that 'r2SCAN' as an input run_type is not case-sensitive."""
+        scheme = MaterialsProjectDFTMixingScheme(run_type_1="GGA(+U)", run_type_2="R2SCAN")
+        assert scheme.valid_rtypes_2 == ["r2SCAN", "R2SCAN"]
 
     def test_check_potcar(self, ms_complete):
         """Entries with invalid or missing POTCAR raise error by default but should be ignored if
@@ -2058,7 +2066,7 @@ class TestMaterialsProjectDFTMixingSchemeStates:
                 ):
                     mixing_scheme_no_compat.get_adjustments(entry, ms_complete.state_data)
             else:
-                with pytest.raises(CompatibilityError, match="there is a matching R2SCAN"):
+                with pytest.raises(CompatibilityError, match="there is a matching r2SCAN"):
                     mixing_scheme_no_compat.get_adjustments(entry, ms_complete.state_data)
 
         # process_entries should discard all GGA entries and return all R2SCAN
@@ -2153,7 +2161,7 @@ class TestMaterialsProjectDFTMixingSchemeStates:
                 assert mixing_scheme_no_compat.get_adjustments(entry, ms_gga_1_scan_novel.state_data) == []
 
         for entry in ms_gga_1_scan_novel.scan_entries:
-            with pytest.raises(CompatibilityError, match="no R2SCAN ground states at this composition"):
+            with pytest.raises(CompatibilityError, match="no r2SCAN ground states at this composition"):
                 mixing_scheme_no_compat.get_adjustments(entry, ms_gga_1_scan_novel.state_data)
 
         entries = mixing_scheme_no_compat.process_entries(ms_gga_1_scan_novel.all_entries)
@@ -2190,7 +2198,7 @@ class TestMaterialsProjectDFTMixingSchemeStates:
                 ):
                     mixing_scheme_no_compat.get_adjustments(entry, ms_gga_2_scan_same.state_data)
             elif entry.entry_id == "gga-6":
-                with pytest.raises(CompatibilityError, match="there is a matching R2SCAN"):
+                with pytest.raises(CompatibilityError, match="there is a matching r2SCAN"):
                     mixing_scheme_no_compat.get_adjustments(entry, ms_gga_2_scan_same.state_data)
             else:
                 assert mixing_scheme_no_compat.get_adjustments(entry, ms_gga_2_scan_same.state_data) == []
@@ -2239,7 +2247,7 @@ class TestMaterialsProjectDFTMixingSchemeStates:
                 ):
                     mixing_scheme_no_compat.get_adjustments(entry, ms_gga_2_scan_diff_match.state_data)
             elif entry.entry_id == "gga-7":
-                with pytest.raises(CompatibilityError, match="there is a matching R2SCAN"):
+                with pytest.raises(CompatibilityError, match="there is a matching r2SCAN"):
                     mixing_scheme_no_compat.get_adjustments(entry, ms_gga_2_scan_diff_match.state_data)
             else:
                 assert mixing_scheme_no_compat.get_adjustments(entry, ms_gga_2_scan_diff_match.state_data) == []
@@ -2273,7 +2281,7 @@ class TestMaterialsProjectDFTMixingSchemeStates:
             if entry.entry_id == "r2scan-8":
                 # there is no matching GGA structure for r2scan-8, so there's no way
                 # to adjust its energy onto the GGA hull.
-                with pytest.raises(CompatibilityError, match="entry and no R2SCAN ground state"):
+                with pytest.raises(CompatibilityError, match="entry and no r2SCAN ground state"):
                     mixing_scheme_no_compat.get_adjustments(entry, ms_gga_2_scan_diff_no_match.state_data)
             elif entry.entry_id == "r2scan-4":
                 # r2scan-4 energy is -7 eV/atom. Needs to be adjusted to -6 eV/atom (3 atoms)
@@ -2366,7 +2374,7 @@ class TestMaterialsProjectDFTMixingSchemeStates:
 
         for entry in entries:
             if entry.parameters["run_type"] == "GGA":
-                assert "onto the R2SCAN hull" in entry.energy_adjustments[0].description
+                assert "onto the r2SCAN hull" in entry.energy_adjustments[0].description
                 assert_allclose(pd_mixed.get_e_above_hull(entry), gga_hull_e[entry.entry_id])
             else:
                 assert entry.correction == 0
@@ -2408,7 +2416,7 @@ class TestMaterialsProjectDFTMixingSchemeStates:
 
         for entry in entries:
             if entry.parameters["run_type"] == "GGA":
-                assert "onto the R2SCAN hull" in entry.energy_adjustments[0].description
+                assert "onto the r2SCAN hull" in entry.energy_adjustments[0].description
                 assert_allclose(pd_mixed.get_e_above_hull(entry), gga_hull_e[entry.entry_id])
             else:
                 assert entry.correction == 0
