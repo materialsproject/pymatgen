@@ -156,21 +156,16 @@ def update_changelog(ctx: Context, version: str | None = None, dry_run: bool = F
     lines = []
     ignored_commits = []
     for line in output.decode("utf-8").strip().split("\n"):
-        re_match = re.match(r"(.*)\(\#(\d+)\)", line)
+        re_match = re.match(r".*\(\#(\d+)\)", line)
         if re_match and "materialsproject/dependabot/pip" not in line:
-            pr_number = re_match[2]
-            pr_name = re_match[1]
+            pr_number = re_match[1].strip()
             response = requests.get(
                 f"https://api.github.com/repos/materialsproject/pymatgen/pulls/{pr_number}",
                 timeout=60,
             )
-            lines += [f"* PR #{pr_number} {pr_name}"]
-            json_resp = response.json()
-            import pprint
-
-            pprint.pprint(json_resp)
-            lines += [f"* PR #{pr_number} {pr_name} by @{json_resp['user']['login']}"]
-            if body := json_resp["body"]:
+            resp = response.json()
+            lines += [f"- PR #{pr_number} {resp['title'].strip()} by @{resp['user']['login']}"]
+            if body := resp["body"]:
                 for ll in map(str.strip, body.split("\n")):
                     if ll in ("", "## Summary"):
                         continue
@@ -179,11 +174,29 @@ def update_changelog(ctx: Context, version: str | None = None, dry_run: bool = F
                     lines += [f"    {ll}"]
         else:
             ignored_commits += [line]
+
+    body = "\n".join(lines)
+    try:
+        # Use OpenAI to improve changelog. Requires openai to be installed and an OPENAPI_KEY env variable.
+        from openai import OpenAI
+
+        client = OpenAI(api_key=os.environ["OPENAPI_KEY"])
+
+        messages = [{"role": "user", "content": f"summarize, include authors: '{body}'"}]
+        chat = client.chat.completions.create(model="gpt-4o", messages=messages)
+
+        reply = chat.choices[0].message.content
+        body = "\n".join(reply.split("\n")[1:])
+        body = body.strip()
+        print(f"ChatGPT Summary of Changes:\n{body}")
+
+    except BaseException as ex:
+        print(f"Unable to use openai due to {ex}")
     with open("docs/CHANGES.md", encoding="utf-8") as file:
         contents = file.read()
     delim = "##"
     tokens = contents.split(delim)
-    tokens.insert(1, f"## v{version}\n\n" + "\n".join(lines) + "\n")
+    tokens.insert(1, f"## v{version}\n\n{body}\n\n")
     if dry_run:
         print(tokens[0] + "##".join(tokens[1:]))
     else:
@@ -215,6 +228,7 @@ def release(ctx: Context, version: str | None = None, nodoc: bool = False) -> No
     release_github(ctx, version)
 
     ctx.run("rm -f dist/*.*", warn=True)
+    ctx.run("pip install -e .", warn=True)
     ctx.run("python -m build", warn=True)
     ctx.run("twine upload --skip-existing dist/*.whl", warn=True)
     ctx.run("twine upload --skip-existing dist/*.tar.gz", warn=True)

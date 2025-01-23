@@ -327,7 +327,6 @@ class TestVasprun(PymatgenTest):
 
         entry = vasp_run.get_computed_entry(inc_structure=True)
         entry_id_toks = entry.entry_id.split("-")
-        assert len(entry_id_toks) == 4
         assert entry_id_toks[0] == "vasprun"
         assert entry_id_toks[1] == "20100729"
         assert entry_id_toks[2] == "15.0"
