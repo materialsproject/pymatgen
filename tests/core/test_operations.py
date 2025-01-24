@@ -3,6 +3,7 @@ from __future__ import annotations
 import numpy as np
 import pytest
 from numpy.testing import assert_allclose
+from pytest import approx
 
 from pymatgen.core.operations import MagSymmOp, SymmOp
 from pymatgen.electronic_structure.core import Magmom
@@ -304,5 +305,5 @@ class TestMagSymmOp(MatSciTest):
 
         magop = MagSymmOp.from_symmop(op, -1)
         assert magop.time_reversal == -1
-        assert magop.tol == 0.02
+        assert magop.tol == approx(0.02)
         assert_allclose(magop.inverse.affine_matrix, np.linalg.inv(magop.affine_matrix))

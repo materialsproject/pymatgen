@@ -12,6 +12,7 @@ from shutil import which
 
 import numpy as np
 import pytest
+from pytest import approx
 
 from pymatgen.analysis.bond_valence import BVAnalyzer
 from pymatgen.command_line.gulp_caller import (
@@ -257,7 +258,7 @@ class TestGulpIO:
     Non-primitive unit cell  =          -16311.9732 kJ/(mole unit cells)
 --------------------------------------------------------------------------------"""
         energy = self.gio.get_energy(out_str)
-        assert energy == -169.06277218
+        assert energy == approx(-169.06277218)
 
     def test_get_relaxed_structure(self):
         # Output string obtained from running GULP on a terminal
@@ -267,8 +268,8 @@ class TestGulpIO:
         struct = self.gio.get_relaxed_structure(out_str)
         assert isinstance(struct, Structure)
         assert len(struct) == 8
-        assert struct.lattice.a == 4.212
-        assert struct.lattice.alpha == 90
+        assert struct.lattice.a == approx(4.212)
+        assert struct.lattice.alpha == approx(90)
 
     @pytest.mark.skip("Test later")
     def test_tersoff_input(self):

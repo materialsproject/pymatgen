@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import pandas as pd
+from pytest import approx
 
 from pymatgen.analysis.magnetism.heisenberg import HeisenbergMapper
 from pymatgen.core.structure import Structure
@@ -45,7 +46,7 @@ class TestHeisenbergMapper:
             assert n_interacts == 3
 
             dists = hm.dists
-            assert dists["nn"] == 2.51
+            assert dists["nn"] == approx(2.51)
 
     def test_exchange_params(self):
         for hm in self.hms:

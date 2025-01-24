@@ -35,7 +35,7 @@ class TestCp2kOutput:
 
     def energy_force(self):
         """Can get energy and forces."""
-        assert self.out.final_energy == -197.40000341992783
+        assert self.out.final_energy == approx(-197.40000341992783)
         assert_allclose(
             self.out.data["forces"][0],
             [
@@ -47,7 +47,7 @@ class TestCp2kOutput:
     def test_band(self):
         """Can parse bandstructure files."""
         assert self.out.band_structure
-        assert self.out.band_structure.get_band_gap().get("energy") == 0.27940141999999923
+        assert self.out.band_structure.get_band_gap().get("energy") == approx(0.27940141999999923)
 
     def test_dos(self):
         """Can parse dos files."""

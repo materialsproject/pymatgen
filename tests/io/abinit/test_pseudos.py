@@ -165,8 +165,8 @@ class TestPseudo(MatSciTest):
         ger.as_tmpfile()
 
         assert ger.symbol == "Ge"
-        assert ger.Z == 32.0
-        assert ger.Z_val == 4.0
+        assert ger.Z == approx(32.0)  # noqa: SIM300
+        assert ger.Z_val == approx(4.0)
         assert ger.isnc
         assert not ger.ispaw
         assert ger.l_max == 2
@@ -189,8 +189,8 @@ class TestPseudo(MatSciTest):
         self.assert_msonable(pb)
 
         assert pb.symbol == "Pb"
-        assert pb.Z == 82.0
-        assert pb.Z_val == 14.0
+        assert pb.Z == approx(82.0)  # noqa: SIM300
+        assert pb.Z_val == approx(14.0)
         assert pb.isnc
         assert not pb.ispaw
         assert pb.l_max == 2

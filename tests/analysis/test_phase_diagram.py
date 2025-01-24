@@ -49,8 +49,8 @@ class TestPDEntry:
         assert self.gp_entry.chemical_energy == 3, "Wrong energy!"
 
     def test_get_energy_per_atom(self):
-        assert self.entry.energy_per_atom == 53.0 / 4, "Wrong energy per atom!"
-        assert self.gp_entry.energy_per_atom == 50.0 / 2, "Wrong energy per atom!"
+        assert self.entry.energy_per_atom == approx(53.0 / 4), "Wrong energy per atom!"
+        assert self.gp_entry.energy_per_atom == approx(50.0 / 2), "Wrong energy per atom!"
 
     def test_get_name(self):
         assert self.entry.name == "mp-757614"
@@ -86,10 +86,10 @@ class TestPDEntry:
         entry = PDEntry.from_dict(dct)
 
         assert entry.name == "mp-757614"
-        assert entry.energy_per_atom == 53.0 / 4
+        assert entry.energy_per_atom == approx(53.0 / 4)
         gp_entry = GrandPotPDEntry.from_dict(gpd)
         assert gp_entry.name == "mp-757614"
-        assert gp_entry.energy_per_atom == 50.0 / 2
+        assert gp_entry.energy_per_atom == approx(50.0 / 2)
 
         d_anon = dct.copy()
         del d_anon["name"]
