@@ -896,7 +896,7 @@ Si1 Si 0 0 0 1 0.0
         for tol in (1.5, 10):
             parser = CifParser.from_str(cif_str, occupancy_tolerance=tol)
             structs = parser.parse_structures(primitive=False, check_occu=False)[0]
-            assert structs[0].species.as_dict()["Te"] == 1.5
+            assert structs[0].species.as_dict()["Te"] == approx(1.5)
 
     def test_cif_writer_write_file(self):
         struct1 = Structure.from_file(f"{VASP_IN_DIR}/POSCAR")
@@ -1104,7 +1104,7 @@ Gd1 5.05 5.05 0.0"""
         # test we're getting correct magmoms in ncl case
         s_ncl2 = self.mcif_ncl2.parse_structures()[0]
         list_magmoms = [list(m) for m in s_ncl2.site_properties["magmom"]]
-        assert list_magmoms[0][0] == 0.0
+        assert list_magmoms[0][0] == approx(0.0)
         assert list_magmoms[0][1] == approx(5.9160793408726366)
         assert list_magmoms[1][0] == approx(-5.1234749999999991)
         assert list_magmoms[1][1] == approx(2.9580396704363183)
