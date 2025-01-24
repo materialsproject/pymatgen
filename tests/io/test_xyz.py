@@ -89,8 +89,8 @@ C 1.16730636786 -1.38166622735 -2.771*^-06
 """
         xyz = XYZ.from_str(mol_str)
         mol = xyz.molecule
-        assert mol[0].z == -7.222e-06
-        assert mol[1].z == -2.771e-06
+        assert mol[0].z == approx(-7.222e-06)
+        assert mol[1].z == approx(-2.771e-06)
 
         mol_str = """3
 Random

@@ -3,11 +3,13 @@
 from __future__ import annotations
 
 import abc
-from typing import TYPE_CHECKING, Any
+from typing import TYPE_CHECKING
 
 from monty.json import MSONable
 
 if TYPE_CHECKING:
+    from typing import Any, Literal
+
     from pymatgen.core import Structure
 
 __author__ = "Shyue Ping Ong"
@@ -55,7 +57,7 @@ class AbstractTransformation(MSONable, abc.ABC):
         """
 
     @property
-    def is_one_to_many(self) -> bool:
+    def is_one_to_many(self) -> Literal[False]:
         """Determine if a Transformation is a one-to-many transformation. In that case, the
         apply_transformation method should have a keyword arg "return_ranked_list" which
         allows for the transformed structures to be returned as a ranked list.
@@ -64,7 +66,7 @@ class AbstractTransformation(MSONable, abc.ABC):
         return False
 
     @property
-    def use_multiprocessing(self) -> bool:
+    def use_multiprocessing(self) -> Literal[False]:
         """Indicates whether the transformation can be applied by a
         subprocessing pool. This should be overridden to return True for
         transformations that the transmuter can parallelize.
