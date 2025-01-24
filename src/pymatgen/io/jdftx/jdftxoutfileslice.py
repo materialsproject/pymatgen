@@ -25,7 +25,7 @@ from pymatgen.io.jdftx._output_utils import (
     find_first_range_key,
     find_key,
     find_key_first,
-    get_colon_var_t1,
+    get_colon_val,
     key_exists,
 )
 from pymatgen.io.jdftx.jminsettings import (
@@ -880,7 +880,7 @@ class JDFTXOutfileSlice:
             lines = find_all_key("nElectrons", text)
             val = None
             for line in lines[::-1]:
-                val = get_colon_var_t1(text[line], "nElectrons:")
+                val = get_colon_val(text[line], "nElectrons:")
                 if val is not None:
                     break
             self._total_electrons_backup = val
@@ -889,7 +889,7 @@ class JDFTXOutfileSlice:
             lines = find_all_key("mu", text)
             val = None
             for line in lines[::-1]:
-                val = get_colon_var_t1(text[line], "mu:")
+                val = get_colon_val(text[line], "mu:")
                 if val is not None:
                     break
             self._mu_backup = val

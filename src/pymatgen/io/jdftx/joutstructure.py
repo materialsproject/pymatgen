@@ -6,6 +6,7 @@ A mutant of the pymatgen Structure class for flexibility in holding JDFTx.
 from __future__ import annotations
 
 import pprint
+import warnings
 from typing import ClassVar
 
 import numpy as np
@@ -15,7 +16,7 @@ from pymatgen.core.units import Ha_to_eV, bohr_to_ang
 from pymatgen.io.jdftx._output_utils import (
     _brkt_list_of_3x3_to_nparray,
     correct_geom_opt_type,
-    get_colon_var_t1,
+    get_colon_val,
     is_lowdin_start_line,
 )
 from pymatgen.io.jdftx.jelstep import JElSteps
@@ -248,6 +249,7 @@ class JOutStructure(Structure):
 
     def _init_e_sp_backup(self) -> None:
         """Initialize self.e with coverage for single-point calculations."""
+        err_str = None
         if self.e is None:  # This doesn't defer to elecmindata.e due to the existence of a class variable e
             if self.etype is not None:
                 if self.ecomponents is not None:
@@ -256,11 +258,13 @@ class JOutStructure(Structure):
                     elif self.elecmindata is not None:
                         self.e = self.elecmindata.e
                     else:
-                        raise ValueError("Could not determine total energy due to lack of elecmindata")
+                        err_str = "Could not determine total energy due to lack of elecmindata"
                 else:
-                    raise ValueError("Could not determine total energy due to lack of ecomponents")
+                    err_str = "Could not determine total energy due to lack of ecomponents"
             else:
-                raise ValueError("Could not determine total energy due to lack of etype")
+                err_str = "Could not determine total energy due to lack of etype"
+        if err_str is not None:
+            warnings.warn(err_str, stacklevel=2)
 
     def _init_line_collections(self) -> dict:
         """Initialize line collection dict.
@@ -612,17 +616,17 @@ class JOutStructure(Structure):
         if len(opt_lines):
             for line in opt_lines:
                 if self._is_opt_start_line(line):
-                    nstep = int(get_colon_var_t1(line, "Iter:"))
+                    nstep = int(get_colon_val(line, "Iter:"))
                     self.nstep = nstep
-                    en = get_colon_var_t1(line, f"{self.etype}:")
+                    en = get_colon_val(line, f"{self.etype}:")
                     self.e = en * Ha_to_eV
-                    grad_k = get_colon_var_t1(line, "|grad|_K: ")
+                    grad_k = get_colon_val(line, "|grad|_K: ")
                     self.grad_k = grad_k
-                    alpha = get_colon_var_t1(line, "alpha: ")
+                    alpha = get_colon_val(line, "alpha: ")
                     self.alpha = alpha
-                    linmin = get_colon_var_t1(line, "linmin: ")
+                    linmin = get_colon_val(line, "linmin: ")
                     self.linmin = linmin
-                    t_s = get_colon_var_t1(line, "t[s]: ")
+                    t_s = get_colon_val(line, "t[s]: ")
                     self.t_s = t_s
                 elif self._is_opt_conv_line(line):
                     self.geom_converged = True
