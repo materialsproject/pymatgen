@@ -15,7 +15,7 @@ class TestCoordUtils:
     def test_get_linear_interpolated_value(self):
         x_vals = [0, 1, 2, 3, 4, 5]
         y_vals = [3, 6, 7, 8, 10, 12]
-        assert coord.get_linear_interpolated_value(x_vals, y_vals, 3.6) == 9.2
+        assert coord.get_linear_interpolated_value(x_vals, y_vals, 3.6) == approx(9.2)
         with pytest.raises(ValueError, match=r"x=6 is out of range of provided x_values \(0, 5\)"):
             coord.get_linear_interpolated_value(x_vals, y_vals, 6)
 

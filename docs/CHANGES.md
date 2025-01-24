@@ -6,6 +6,36 @@ nav_order: 4
 
 # Changelog
 
+## v2025.1.24
+
+1. **PR #4159 by @DanielYang59**
+   - Avoid using full equality `==` to compare float values to address issue #4158.
+   - Recommend using `assert_allclose` over `assert_array_equal` for float arrays due to numerical imprecision.
+   - Implement a ~3x speedup tweak to the `_proj` implementation.
+   - Partially replace sequence of float comparison using `==` for list/tuple/dict as referenced [here](https://github.com/materialsproject/pymatgen/blob/bd9fba9ec62437b5b62fbd0b2c2c723216cc5a2c/tests/core/test_bonds.py#L56).
+   - Introduce other type and comment tweaks.
+
+2. **PR #4190 by @benrich37**
+   - **Feature 0:** Hierarchical structure using class objects to represent data within a JDFTx out file.
+     - Main hierarchy classes:
+       - `JDFTXOutputs`
+         - `JDFTXOutputs.outfile`
+         - `JDFTXOutfile`
+         - `JDFTXOutfile.slices[i]`
+         - `JDFTXOutfileSlice`, etc.
+   - **Feature 1:** `outputs.py` module with `JDFTXOutfile` for representing a JDFTx out file.
+   - **Feature 2:** `jdftxoutfileslice.py` module with `JDFTXOutfileSlice` for file slices of a single JDFTx call.
+   - **Feature 3:** `joutstructures.py` with `JOutStructures` for representing structures from an out file slice.
+   - **Feature 4:** `joutstructure.py` with `JOutStructure` for each single structure within an out file.
+   - **Feature 5:** `jelstep.py` with `JElStep` and `JElSteps` for SCF steps and convergences.
+   - **Feature 6:** `jminsettings.py` with `JMinSettings` for minimization settings representations.
+
+3. **PR #4189 by @benrich37**
+   - **Feature 1:** `inputs.py` module containing `JDFTXInfile` for Pythonic representation of JDFTx calculation inputs.
+   - **Feature 2:** `generic_tags.py` module with "Tag" objects (`AbstractTag` and its inheritors) for JDFTx input structure representation.
+   - **Feature 3:** `jdftxinfile_master_format.py` for creating proper "Tag" objects for inputs.
+   - **Feature 4:** `jdftxinfile_ref_options.py` for holding lists of acceptable strings for input tags.
+
 ## v2025.1.23
 
 1. **PR #4255 by @peikai**: This PR resolves an inconsistency in the `run_type` for entries in a mixing scheme. The entry type was changed to 'r2SCAN', but the `MaterialsProjectDFTMixingScheme()` expected 'R2SCAN', causing errors and ignored entries in GGA(+U)/R2SCAN mixing scheme corrections.
