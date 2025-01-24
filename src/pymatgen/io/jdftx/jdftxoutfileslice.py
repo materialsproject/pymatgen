@@ -961,7 +961,8 @@ class JDFTXOutfileSlice:
             text (list[str]): Output of read_file for out file.
         """
         line = find_first_range_key("fluid ", text)
-        self.fluid = text[line[0]].split()[1]
+        val = text[line[0]].split()[1]
+        self.fluid = None if val.lower() == "none" else val
 
     def _set_total_electrons(self) -> None:
         """Sets total_electrons from most recent JOutStructure."""
