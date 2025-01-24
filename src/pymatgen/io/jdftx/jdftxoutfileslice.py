@@ -826,7 +826,7 @@ class JDFTXOutfileSlice:
         self.jsettings_lattice = self._get_settings_object(text, JMinSettingsLattice)
         self.jsettings_ionic = self._get_settings_object(text, JMinSettingsIonic)
         if self.jsettings_lattice is not None and "niterations" in self.jsettings_lattice.params:
-            self.constant_lattice = int(self.jsettings_lattice.params["niterations"]) != 0
+            self.constant_lattice = int(self.jsettings_lattice.params["niterations"]) == 0
 
     def _set_geomopt_vars(self, text: list[str]) -> None:
         """Set the geom_opt and geom_opt_type class variables.
