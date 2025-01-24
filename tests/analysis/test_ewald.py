@@ -114,6 +114,6 @@ class TestEwaldMinimizer(TestCase):
 
         # Comparison to LAMMPS result
         ham = EwaldSummation(struct, compute_forces=True)
-        assert approx(ham.total_energy, abs=1e-3) == -1226.3335
-        assert approx(ham.get_site_energy(0), abs=1e-3) == -45.8338
-        assert approx(ham.get_site_energy(8), abs=1e-3) == -27.2978
+        assert ham.total_energy == approx(-1226.3335, abs=1e-3)
+        assert ham.get_site_energy(0) == approx(-45.8338, abs=1e-3)
+        assert ham.get_site_energy(8) == approx(-27.2978, abs=1e-3)

@@ -126,8 +126,8 @@ class TestAdfKey:
 
         k2 = AdfKey.from_str("step rad=0.15 angle=10.0")
         assert k2.key == "step"
-        assert k2.options[0] == ["rad", 0.15]
-        assert k2.options[1] == ["angle", 10.0]
+        assert k2.options[0] == ["rad", approx(0.15)]
+        assert k2.options[1] == ["angle", approx(10.0)]
 
         k3 = AdfKey.from_str("GEOMETRY\noptim all\niterations 100\nEND\n")
         assert k3.key == "GEOMETRY"
@@ -145,8 +145,8 @@ class TestAdfKey:
         assert k4.key == "SCF"
         assert k4.subkeys[0].key == "iterations"
         assert k4.subkeys[1].key == "converge"
-        assert k4.subkeys[1].options[0] == 1e-7
-        assert k4.subkeys[2].options[0] == 0.2
+        assert k4.subkeys[1].options[0] == approx(1e-7)
+        assert k4.subkeys[2].options[0] == approx(0.2)
 
     def test_option_operations(self):
         k1 = AdfKey("Charge", [-1, 0])
@@ -157,9 +157,9 @@ class TestAdfKey:
 
         k2 = AdfKey.from_str("step rad=0.15 angle=10.0")
         k2.add_option(["length", 0.1])
-        assert k2.options[2] == ["length", 0.1]
+        assert k2.options[2] == ["length", approx(0.1)]
         k2.remove_option("rad")
-        assert k2.options[0] == ["angle", 10.0]
+        assert k2.options[0] == ["angle", approx(10.0)]
 
     def test_atom_block_key(self):
         block = AdfKey("atoms")

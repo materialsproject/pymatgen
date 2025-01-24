@@ -50,8 +50,6 @@ except ImportError:
 
 TEST_DIR = f"{TEST_FILES_DIR}/io/vasp"
 
-kpts_opt_vrun_path = f"{TEST_DIR}/fixtures/kpoints_opt/vasprun.xml.gz"
-
 
 class TestVasprun(PymatgenTest):
     def test_vasprun_soc(self):
@@ -98,7 +96,7 @@ class TestVasprun(PymatgenTest):
         assert vasp_run.converged_electronic is True
         assert vasp_run.converged is True
         assert vasp_run.parameters["EDIFFG"] == 0
-        assert vasp_run.parameters["EDIFF"] == 1e-5
+        assert vasp_run.parameters["EDIFF"] == approx(1e-5)
 
     def test_bad_random_seed(self):
         vasp_run = Vasprun(f"{VASP_OUT_DIR}/vasprun.bad_random_seed.xml.gz")
@@ -127,7 +125,7 @@ class TestVasprun(PymatgenTest):
     def test_BSE(self):
         vasp_run = Vasprun(f"{VASP_OUT_DIR}/vasprun.BSE.xml.gz")
         absorption_coeff = vasp_run.optical_absorption_coeff
-        assert absorption_coeff[1] == 0.8327903762077188
+        assert absorption_coeff[1] == approx(0.8327903762077188)
         assert vasp_run.final_structure == vasp_run.initial_structure
         assert "freq_dependent" in vasp_run.dielectric_data
 
@@ -224,7 +222,7 @@ class TestVasprun(PymatgenTest):
         assert vasp_run.parameters["NELM"] == 60
         # test pDOS parsing
 
-        assert vasp_run.complete_dos.spin_polarization == 1.0
+        assert vasp_run.complete_dos.spin_polarization == approx(1.0)
         assert Vasprun(f"{VASP_OUT_DIR}/vasprun.etest1.xml.gz").complete_dos.spin_polarization is None
 
         pdos0 = vasp_run.complete_dos.pdos[vasp_run.final_structure[0]]
@@ -319,7 +317,7 @@ class TestVasprun(PymatgenTest):
         assert vasprun_offset.structures[0] == vasprun_skip.structures[2]
 
         assert vasprun_ggau.is_hubbard
-        assert vasprun_ggau.hubbards["Fe"] == 4.3
+        assert vasprun_ggau.hubbards["Fe"] == approx(4.3)
         assert vasprun_ggau.projected_eigenvalues[Spin.up][0][0][96][0] == approx(0.0032)
         dct = vasprun_ggau.as_dict()
         assert dct["elements"] == ["Fe", "Li", "O", "P"]
@@ -330,6 +328,7 @@ class TestVasprun(PymatgenTest):
         assert entry_id_toks[0] == "vasprun"
         assert entry_id_toks[1] == "20100729"
         assert entry_id_toks[2] == "15.0"
+        assert entry_id_toks[3] == "da7b01a471dc249323505c0676ae7350"
 
         assert entry.parameters["run_type"] == "PBEO or other Hybrid Functional"
 
@@ -392,26 +391,26 @@ class TestVasprun(PymatgenTest):
 
     def test_dielectric(self):
         vasprun_diel = Vasprun(f"{VASP_OUT_DIR}/vasprun.dielectric.xml.gz", parse_potcar_file=False)
-        assert approx(vasprun_diel.dielectric[0][10]) == 0.4294
-        assert approx(vasprun_diel.dielectric[1][51][0]) == 19.941
-        assert approx(vasprun_diel.dielectric[1][51][1]) == 19.941
-        assert approx(vasprun_diel.dielectric[1][51][2]) == 19.941
-        assert approx(vasprun_diel.dielectric[1][51][3]) == 0.0
-        assert approx(vasprun_diel.dielectric[2][85][0]) == 34.186
-        assert approx(vasprun_diel.dielectric[2][85][1]) == 34.186
-        assert approx(vasprun_diel.dielectric[2][85][2]) == 34.186
-        assert approx(vasprun_diel.dielectric[2][85][3]) == 0.0
+        assert vasprun_diel.dielectric[0][10] == approx(0.4294)
+        assert vasprun_diel.dielectric[1][51][0] == approx(19.941)
+        assert vasprun_diel.dielectric[1][51][1] == approx(19.941)
+        assert vasprun_diel.dielectric[1][51][2] == approx(19.941)
+        assert vasprun_diel.dielectric[1][51][3] == approx(0.0)
+        assert vasprun_diel.dielectric[2][85][0] == approx(34.186)
+        assert vasprun_diel.dielectric[2][85][1] == approx(34.186)
+        assert vasprun_diel.dielectric[2][85][2] == approx(34.186)
+        assert vasprun_diel.dielectric[2][85][3] == approx(0.0)
 
     def test_dielectric_vasp608(self):
         # test reading dielectric constant in vasp 6.0.8
         vasp_xml_path = f"{VASP_OUT_DIR}/vasprun.dielectric_6.0.8.xml.gz"
         vasprun_diel = Vasprun(vasp_xml_path, parse_potcar_file=False)
-        assert approx(vasprun_diel.dielectric[0][10]) == 0.4338
-        assert approx(vasprun_diel.dielectric[1][51][0]) == 5.267
-        assert approx(vasprun_diel.dielectric_data["density"][0][10]) == 0.4338
-        assert approx(vasprun_diel.dielectric_data["density"][1][51][0]) == 5.267
-        assert approx(vasprun_diel.dielectric_data["velocity"][0][10]) == 0.4338
-        assert approx(vasprun_diel.dielectric_data["velocity"][1][51][0]) == 1.0741
+        assert vasprun_diel.dielectric[0][10] == approx(0.4338)
+        assert vasprun_diel.dielectric[1][51][0] == approx(5.267)
+        assert vasprun_diel.dielectric_data["density"][0][10] == approx(0.4338)
+        assert vasprun_diel.dielectric_data["density"][1][51][0] == approx(5.267)
+        assert vasprun_diel.dielectric_data["velocity"][0][10] == approx(0.4338)
+        assert vasprun_diel.dielectric_data["velocity"][1][51][0] == approx(1.0741)
         assert len(vasprun_diel.dielectric_data) == 2
 
     def test_indirect_vasprun(self):
@@ -426,18 +425,18 @@ class TestVasprun(PymatgenTest):
         vasp_xml_path = f"{VASP_OUT_DIR}/vasprun.optical_transitions.xml.gz"
         vasprun_optical = Vasprun(vasp_xml_path, parse_potcar_file=False)
         optical_trans = vasprun_optical.optical_transition
-        assert approx(optical_trans[0][0]) == 3.084
-        assert approx(optical_trans[3][0]) == 3.087
-        assert approx(optical_trans[0][1]) == 0.001
-        assert approx(optical_trans[1][1]) == 0.001
-        assert approx(optical_trans[7][1]) == 0.001
-        assert approx(optical_trans[19][1]) == 0.001
-        assert approx(optical_trans[54][0]) == 3.3799999999
-        assert approx(optical_trans[55][0]) == 3.381
-        assert approx(optical_trans[56][0]) == 3.381
-        assert approx(optical_trans[54][1]) == 10554.9860
-        assert approx(optical_trans[55][1]) == 0.0
-        assert approx(optical_trans[56][1]) == 0.001
+        assert optical_trans[0][0] == approx(3.084)
+        assert optical_trans[3][0] == approx(3.087)
+        assert optical_trans[0][1] == approx(0.001)
+        assert optical_trans[1][1] == approx(0.001)
+        assert optical_trans[7][1] == approx(0.001)
+        assert optical_trans[19][1] == approx(0.001)
+        assert optical_trans[54][0] == approx(3.3799999999)
+        assert optical_trans[55][0] == approx(3.381)
+        assert optical_trans[56][0] == approx(3.381)
+        assert optical_trans[54][1] == approx(10554.9860)
+        assert optical_trans[55][1] == approx(0.0)
+        assert optical_trans[56][1] == approx(0.001)
 
     def test_force_constants(self):
         vasprun_fc = Vasprun(f"{VASP_OUT_DIR}/vasprun.dfpt.phonon.xml.gz", parse_potcar_file=False)
@@ -772,7 +771,7 @@ class TestVasprun(PymatgenTest):
         assert props[3][1]
 
     def test_kpoints_opt(self):
-        vasp_run = Vasprun(kpts_opt_vrun_path, parse_projected_eigen=True)
+        vasp_run = Vasprun(f"{TEST_DIR}/fixtures/kpoints_opt/vasprun.xml.gz", parse_projected_eigen=True)
         # This calculation was run using KPOINTS_OPT
         kpt_opt_props = vasp_run.kpoints_opt_props
         # Check the k-points were read correctly.
@@ -799,7 +798,9 @@ class TestVasprun(PymatgenTest):
         assert vasp_run_dct["output"]["eigenvalues_kpoints_opt"]["1"][0][0][0] == approx(-6.1536)
 
     def test_kpoints_opt_band_structure(self):
-        vasp_run = Vasprun(kpts_opt_vrun_path, parse_potcar_file=False, parse_projected_eigen=True)
+        vasp_run = Vasprun(
+            f"{TEST_DIR}/fixtures/kpoints_opt/vasprun.xml.gz", parse_potcar_file=False, parse_projected_eigen=True
+        )
         bs = vasp_run.get_band_structure(f"{TEST_DIR}/fixtures/kpoints_opt/KPOINTS_OPT")
         assert isinstance(bs, BandStructureSymmLine)
         cbm = bs.get_cbm()
@@ -825,7 +826,7 @@ class TestVasprun(PymatgenTest):
         # At some point we might get a healthier vasprun.xml, but the point here
         # is to test the parser, not VASP.
         projected = bs.get_projections_on_elements_and_orbitals({"Si": ["s"]})
-        assert projected[Spin.up][0][58]["Si"]["s"] == -0.0271
+        assert projected[Spin.up][0][58]["Si"]["s"] == approx(-0.0271)
 
     def test_parse_potcar_cwd_relative(self):
         # Test to ensure that common use cases of vasprun parsing work
@@ -998,11 +999,11 @@ class TestOutcar(PymatgenTest):
     def test_pseudo_zval(self):
         filepath = f"{VASP_OUT_DIR}/OUTCAR.BaTiO3.polar"
         outcar = Outcar(filepath)
-        assert outcar.zval_dict == {"Ba": 10.00, "Ti": 10.00, "O": 6.00}
+        assert outcar.zval_dict == approx({"Ba": 10.0, "Ti": 10.0, "O": 6.0})
 
         filepath = f"{VASP_OUT_DIR}/OUTCAR.LaSnNO2.polar"
         outcar = Outcar(filepath)
-        assert outcar.zval_dict == {"La": 11.0, "N": 5.0, "O": 6.0, "Sn": 14.0}
+        assert outcar.zval_dict == approx({"La": 11.0, "N": 5.0, "O": 6.0, "Sn": 14.0})
 
     def test_dielectric(self):
         filepath = f"{VASP_OUT_DIR}/OUTCAR.dielectric"
@@ -1020,7 +1021,7 @@ class TestOutcar(PymatgenTest):
         assert outcar.dielectric_tensor_function[0][0, 0] == approx(8.96938800)
         assert outcar.dielectric_tensor_function[-1][0, 0] == approx(7.36167000e-01 + 1.53800000e-03j)
         assert len(outcar.dielectric_energies) == len(outcar.dielectric_tensor_function)
-        np.testing.assert_array_equal(
+        assert_allclose(
             outcar.dielectric_tensor_function[0],
             outcar.dielectric_tensor_function[0].transpose(),
         )
@@ -1045,7 +1046,7 @@ class TestOutcar(PymatgenTest):
         assert outcar.dielectric_tensor_function[0][0, 0] == approx(12.769435 + 0j)
         assert outcar.dielectric_tensor_function[-1][0, 0] == approx(0.828615 + 0.016594j)
         assert len(outcar.dielectric_energies) == len(outcar.dielectric_tensor_function)
-        np.testing.assert_array_equal(
+        assert_allclose(
             outcar.dielectric_tensor_function[0],
             outcar.dielectric_tensor_function[0].transpose(),
         )
@@ -1329,13 +1330,13 @@ class TestOutcar(PymatgenTest):
     def test_onsite_density_matrix(self):
         outcar = Outcar(f"{VASP_OUT_DIR}/OUTCAR.LinearResponseU.gz")
         matrices = outcar.data["onsite_density_matrices"]
-        assert matrices[0][Spin.up][0][0] == 1.0227
+        assert matrices[0][Spin.up][0][0] == approx(1.0227)
         assert len(matrices[0][Spin.up]) == 5
         assert len(matrices[0][Spin.up][0]) == 5
         assert "onsite_density_matrices" in outcar.as_dict()
         outcar = Outcar(f"{VASP_OUT_DIR}/OUTCAR_merged_numbers")
         matrices = outcar.data["onsite_density_matrices"]
-        assert matrices[0][Spin.up][0][-1] == 0.0
+        assert matrices[0][Spin.up][0][-1] == approx(0.0)
         assert len(matrices[0][Spin.up]) == 7
         assert len(matrices[0][Spin.up][0]) == 7
         assert "onsite_density_matrices" in outcar.as_dict()
@@ -1476,7 +1477,9 @@ class TestBSVasprun(PymatgenTest):
         assert "eigenvalues" in dct["output"]
 
     def test_kpoints_opt(self):
-        vasp_run = BSVasprun(kpts_opt_vrun_path, parse_potcar_file=False, parse_projected_eigen=True)
+        vasp_run = BSVasprun(
+            f"{TEST_DIR}/fixtures/kpoints_opt/vasprun.xml.gz", parse_potcar_file=False, parse_projected_eigen=True
+        )
         bs = vasp_run.get_band_structure(f"{TEST_DIR}/fixtures/kpoints_opt/KPOINTS_OPT")
         assert isinstance(bs, BandStructureSymmLine)
         cbm = bs.get_cbm()
@@ -1503,7 +1506,7 @@ class TestBSVasprun(PymatgenTest):
         # At some point we might get a healthier vasprun.xml, but the point here
         # is to test the parser, not VASP.
         projected = bs.get_projections_on_elements_and_orbitals({"Si": ["s"]})
-        assert projected[Spin.up][0][58]["Si"]["s"] == -0.0271
+        assert projected[Spin.up][0][58]["Si"]["s"] == approx(-0.0271)
         vrun_dct = vasp_run.as_dict()
         assert {*vrun_dct["output"]} >= {"eigenvalues", "eigenvalues_kpoints_opt"}
 
@@ -1528,7 +1531,7 @@ class TestLocpot(PymatgenTest):
     def test_init(self):
         filepath = f"{VASP_OUT_DIR}/LOCPOT.gz"
         locpot = Locpot.from_file(filepath)
-        assert approx(sum(locpot.get_average_along_axis(0))) == -217.05226954
+        assert sum(locpot.get_average_along_axis(0)) == approx(-217.05226954)
         assert locpot.get_axis_grid(0)[-1] == approx(2.87629, abs=1e-2)
         assert locpot.get_axis_grid(1)[-1] == approx(2.87629, abs=1e-2)
         assert locpot.get_axis_grid(2)[-1] == approx(2.87629, abs=1e-2)
@@ -1688,8 +1691,8 @@ class TestAeccars(PymatgenTest):
 class TestElfcar(PymatgenTest):
     def test_init(self):
         elfcar = Elfcar.from_file(f"{VASP_OUT_DIR}/ELFCAR.gz")
-        assert approx(np.mean(elfcar.data["total"])) == 0.19076207645194002
-        assert approx(np.mean(elfcar.data["diff"])) == 0.19076046677910055
+        assert np.mean(elfcar.data["total"]) == approx(0.19076207645194002)
+        assert np.mean(elfcar.data["diff"]) == approx(0.19076046677910055)
         reconstituted = Elfcar.from_dict(elfcar.as_dict())
         assert elfcar.data == reconstituted.data
         assert elfcar.poscar.structure == reconstituted.poscar.structure
@@ -1697,11 +1700,11 @@ class TestElfcar(PymatgenTest):
     def test_alpha(self):
         elfcar = Elfcar.from_file(f"{VASP_OUT_DIR}/ELFCAR.gz")
         alpha = elfcar.get_alpha()
-        assert approx(np.median(alpha.data["total"])) == 2.936678808979031
+        assert np.median(alpha.data["total"]) == approx(2.936678808979031)
 
     def test_interpolation(self):
         elfcar = Elfcar.from_file(f"{VASP_OUT_DIR}/ELFCAR.gz")
-        assert approx(elfcar.value_at(0.4, 0.5, 0.6)) == 0.0918471
+        assert elfcar.value_at(0.4, 0.5, 0.6) == approx(0.0918471)
         assert len(elfcar.linear_slice([0.0, 0.0, 0.0], [1.0, 1.0, 1.0])) == 100
 
 
@@ -1734,7 +1737,7 @@ class TestProcar(PymatgenTest):
         assert procar.eigenvalues[Spin.up].shape == (nk, nb)
         assert procar.kpoints.shape == (nk, 3)
         assert len(procar.weights) == nk
-        assert np.all(procar.kpoints[0][0] == 0.0)
+        assert_allclose(procar.kpoints[0][0], 0.0)
         assert procar.occupancies[Spin.up].shape == (nk, nb)
 
         # spot check some values:
@@ -1881,7 +1884,7 @@ class TestWavecar(PymatgenTest):
 
         assert wavecar.filename == f"{VASP_OUT_DIR}/WAVECAR.N2"
         assert wavecar.efermi == approx(-5.7232, abs=1e-4)
-        assert wavecar.encut == 25.0
+        assert wavecar.encut == approx(25.0)
         assert wavecar.nb == 9
         assert wavecar.nk == 1
         assert_allclose(wavecar.a, a)
@@ -1897,8 +1900,8 @@ class TestWavecar(PymatgenTest):
             for b in range(wavecar.nb):
                 assert len(wavecar.coeffs[k][b]) == len(wavecar.Gpoints[k])
 
-        # Test WAVECAR with fractional encut
-        assert self.w_frac_encut.encut == 100.5
+        # Test WAVECAR with fractional ENCUT
+        assert self.w_frac_encut.encut == approx(100.5)
 
         # Test malformed WAVECARs
         with pytest.raises(ValueError, match="Invalid rtag=.+, must be one of"):
@@ -1929,7 +1932,7 @@ class TestWavecar(PymatgenTest):
         wavecar = Wavecar(f"{VASP_OUT_DIR}/WAVECAR.N2.45210")
         assert wavecar.filename == f"{VASP_OUT_DIR}/WAVECAR.N2.45210"
         assert wavecar.efermi == approx(-5.7232, abs=1e-4)
-        assert wavecar.encut == 25.0
+        assert wavecar.encut == approx(25.0)
         assert wavecar.nb == 9
         assert wavecar.nk == 1
         assert_allclose(wavecar.a, self.latt_mat)

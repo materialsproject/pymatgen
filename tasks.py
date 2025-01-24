@@ -182,12 +182,12 @@ def update_changelog(ctx: Context, version: str | None = None, dry_run: bool = F
 
         client = OpenAI(api_key=os.environ["OPENAPI_KEY"])
 
-        messages = [{"role": "user", "content": f"summarize, include authors: '{body}'"}]
+        messages = [{"role": "user", "content": f"summarize as a markdown numbered list, include authors: '{body}'"}]
         chat = client.chat.completions.create(model="gpt-4o", messages=messages)
 
         reply = chat.choices[0].message.content
-        body = "\n".join(reply.split("\n")[1:])
-        body = body.strip()
+        body = "\n".join(reply.split("\n")[1:-1])
+        body = body.strip().strip("`")
         print(f"ChatGPT Summary of Changes:\n{body}")
 
     except BaseException as ex:

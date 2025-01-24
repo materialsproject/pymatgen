@@ -150,14 +150,14 @@ class TestLattice(PymatgenTest):
     def test_attributes(self):
         """Docstring for test_attributes."""
         lattice = Lattice.cubic(10.0)
-        assert lattice.a == 10.0
-        assert lattice.b == 10.0
-        assert lattice.c == 10.0
-        assert lattice.volume == 1000.0
+        assert lattice.a == approx(10)
+        assert lattice.b == approx(10)
+        assert lattice.c == approx(10)
+        assert lattice.volume == approx(1000)
         xyz = lattice.get_cartesian_coords([0.25, 0.35, 0.45])
-        assert xyz[0] == 2.5
-        assert xyz[1] == 3.5
-        assert xyz[2] == 4.5
+        assert xyz[0] == approx(2.5)
+        assert xyz[1] == approx(3.5)
+        assert xyz[2] == approx(4.5)
 
     def test_lattice_matrices(self):
         """If alpha == 90 and beta == 90, two matrices are identical."""
@@ -380,7 +380,7 @@ class TestLattice(PymatgenTest):
         ws_cell = Lattice(np.diag([10, 5, 1])).get_wigner_seitz_cell()
         assert len(ws_cell) == 6
         for vec in ws_cell[3]:
-            assert [abs(i) for i in vec] == [5.0, 2.5, 0.5]
+            assert_allclose([abs(i) for i in vec], [5.0, 2.5, 0.5])
 
     def test_dot_and_norm(self):
         frac_basis = np.eye(3)
