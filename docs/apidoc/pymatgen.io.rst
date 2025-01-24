@@ -14,6 +14,7 @@ Subpackages
    pymatgen.io.cp2k
    pymatgen.io.exciting
    pymatgen.io.feff
+   pymatgen.io.jdftx
    pymatgen.io.lammps
    pymatgen.io.lobster
    pymatgen.io.pwmat

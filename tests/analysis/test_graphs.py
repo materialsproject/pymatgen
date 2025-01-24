@@ -162,7 +162,7 @@ class TestStructureGraph(PymatgenTest):
             new_edge_properties={"foo": "bar"},
         )
         new_edge = square.graph.get_edge_data(0, 0)[0]
-        assert new_edge["weight"] == 0.0
+        assert new_edge["weight"] == approx(0.0)
         assert new_edge["foo"] == "bar"
 
         square.break_edge(0, 0, to_jimage=(1, 0, 0))
@@ -232,7 +232,7 @@ class TestStructureGraph(PymatgenTest):
         sg_with_graph = StructureGraph.from_local_env_strategy(structure_copy_graph, MinimumDistanceNN())
         sg_with_graph.substitute_group(1, "methyl", MinimumDistanceNN, graph_dict=graph_dict)
         edge = sg_with_graph.graph.get_edge_data(11, 13)[0]
-        assert edge["weight"] == 0.5
+        assert edge["weight"] == approx(0.5)
 
     def test_auto_image_detection(self):
         struct_graph = StructureGraph.from_empty_graph(self.structure)
@@ -662,7 +662,7 @@ class TestMoleculeGraph(TestCase):
         cyclohexene = copy.deepcopy(self.cyclohexene)
         cyclohexene.alter_edge(0, 1, new_weight=0.0, new_edge_properties={"foo": "bar"})
         new_edge = cyclohexene.graph.get_edge_data(0, 1)[0]
-        assert new_edge["weight"] == 0.0
+        assert new_edge["weight"] == approx(0.0)
         assert new_edge["foo"] == "bar"
 
         cyclohexene.break_edge(0, 1)
@@ -897,7 +897,7 @@ class TestMoleculeGraph(TestCase):
         # Check that MoleculeGraph input is handled properly
         eth_graph.substitute_group(5, molecule, MinimumDistanceNN, graph_dict=graph_dict)
         eth_mg.substitute_group(5, mol_graph, MinimumDistanceNN)
-        assert eth_graph.graph.get_edge_data(5, 6)[0]["weight"] == 1.0
+        assert eth_graph.graph.get_edge_data(5, 6)[0]["weight"] == approx(1.0)
         assert eth_mg == eth_graph
 
     def test_replace(self):

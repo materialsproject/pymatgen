@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import hashlib
 import itertools
 import math
 import os
@@ -11,7 +12,6 @@ import xml.etree.ElementTree as ET
 from collections import defaultdict
 from collections.abc import Iterable
 from dataclasses import dataclass
-from datetime import datetime, timezone
 from glob import glob
 from io import StringIO
 from pathlib import Path
@@ -783,13 +783,13 @@ class Vasprun(MSONable):
             4: "dDsC",
         }
 
-        if self.parameters.get("AEXX", 1.00) == 1.00:
+        if math.isclose(self.parameters.get("AEXX", 1.00), 1.00):
             run_type = "HF"
-        elif self.parameters.get("HFSCREEN", 0.30) == 0.30:
+        elif math.isclose(self.parameters.get("HFSCREEN", 0.30), 0.30):
             run_type = "HSE03"
-        elif self.parameters.get("HFSCREEN", 0.20) == 0.20:
+        elif math.isclose(self.parameters.get("HFSCREEN", 0.20), 0.20):
             run_type = "HSE06"
-        elif self.parameters.get("AEXX", 0.20) == 0.20:
+        elif math.isclose(self.parameters.get("AEXX", 0.20), 0.20):
             run_type = "B3LYP"
         elif self.parameters.get("LHFCALC", True):
             run_type = "PBEO or other Hybrid Functional"
@@ -868,7 +868,11 @@ class Vasprun(MSONable):
             ComputedStructureEntry/ComputedEntry
         """
         if entry_id is None:
-            entry_id = f"vasprun-{datetime.now(tz=timezone.utc)}"
+            calc_date = re.sub(" ", "", self.generator["DATE"])
+            calc_time = self.generator["TIME"]
+            hashed_structure = hashlib.md5(str(self.final_structure).encode("utf-8")).hexdigest()  # noqa: S324
+
+            entry_id = f"vasprun-{calc_date}-{calc_time}-{hashed_structure}"
         param_names = {
             "is_hubbard",
             "hubbards",
@@ -1028,7 +1032,7 @@ class Vasprun(MSONable):
             if (hybrid_band or force_hybrid_mode) and not use_kpoints_opt:
                 start_bs_index = 0
                 for i in range(len(self.actual_kpoints)):
-                    if self.actual_kpoints_weights[i] == 0.0:
+                    if math.isclose(self.actual_kpoints_weights[i], 0.0):
                         start_bs_index = i
                         break
                 for i in range(start_bs_index, len(kpoint_file.kpts)):
@@ -5383,7 +5387,7 @@ class Wavecar:
         Returns:
             A Chgcar object.
         """
-        if phase and not np.all(self.kpoints[kpoint] == 0.0):
+        if phase and not np.allclose(self.kpoints[kpoint], 0.0):
             warnings.warn(
                 "phase is True should only be used for the Gamma kpoint! I hope you know what you're doing!",
                 stacklevel=2,

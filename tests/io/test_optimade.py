@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import numpy as np
+from numpy.testing import assert_allclose
 
 from pymatgen.core import Structure
 from pymatgen.io.optimade import OptimadeStructureAdapter
@@ -18,7 +19,7 @@ def test_get_optimade_structure_roundtrip():
     assert optimade_structure["attributes"]["nelements"] == 3
     assert optimade_structure["attributes"]["chemical_formula_reduced"] == "FeO4P"
     assert optimade_structure["attributes"]["species_at_sites"] == 4 * ["Fe"] + 4 * ["P"] + 16 * ["O"]
-    np.testing.assert_array_almost_equal(
+    assert_allclose(
         np.abs(optimade_structure["attributes"]["lattice_vectors"]),
         np.abs(STRUCTURE.lattice.matrix),
     )

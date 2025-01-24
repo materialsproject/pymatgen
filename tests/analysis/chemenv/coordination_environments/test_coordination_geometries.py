@@ -89,7 +89,7 @@ class TestCoordinationGeometries(PymatgenTest):
         assert cg_oct.IUCr_symbol_str == "[6o]"
 
         cg_oct.permutations_safe_override = True
-        assert cg_oct.number_of_permutations == 720.0
+        assert cg_oct.number_of_permutations == 720
         assert cg_oct.ref_permutation([0, 3, 2, 4, 5, 1]) == (0, 3, 1, 5, 2, 4)
 
         sites = [FakeSite(coords=pp) for pp in cg_oct.points]

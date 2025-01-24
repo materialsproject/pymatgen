@@ -199,7 +199,7 @@ class TestAutoOxiStateDecorationTransformation:
         trafo = AutoOxiStateDecorationTransformation()
         dct = trafo.as_dict()
         trafo = AutoOxiStateDecorationTransformation.from_dict(dct)
-        assert trafo.analyzer.dist_scale_factor == 1.015
+        assert trafo.analyzer.dist_scale_factor == approx(1.015)
 
     def test_failure(self):
         trafo_fail = AutoOxiStateDecorationTransformation()

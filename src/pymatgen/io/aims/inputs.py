@@ -566,7 +566,7 @@ class AimsControlIn(MSONable):
         magmom = structure.site_properties.get("magmom", spins)
         if (
             parameters.get("spin", "") == "collinear"
-            and np.all(magmom == 0.0)
+            and np.allclose(magmom, 0.0)
             and ("default_initial_moment" not in parameters)
         ):
             warn(

@@ -4,6 +4,7 @@ import json
 from unittest import TestCase
 
 import pytest
+from numpy.testing import assert_allclose
 from pytest import approx
 
 from pymatgen.core.structure import Molecule
@@ -404,17 +405,17 @@ class TestNwOutput:
         assert nw_output[0]["charge"] == 0
         assert nw_output[-1]["charge"] == -1
         assert len(nw_output) == 5
-        assert approx(nw_output[0]["energies"][-1], abs=1e-2) == -1102.6224491715582
-        assert approx(nw_output[2]["energies"][-1], abs=1e-3) == -1102.9986291578023
-        assert approx(nwo_cosmo[5]["energies"][0]["cosmo scf"], abs=1e-3) == -11156.354030653656
-        assert approx(nwo_cosmo[5]["energies"][0]["gas phase"], abs=1e-3) == -11153.374133394364
-        assert approx(nwo_cosmo[5]["energies"][0]["sol phase"], abs=1e-2) == -11156.353632962995
-        assert approx(nwo_cosmo[6]["energies"][0]["cosmo scf"], abs=1e-2) == -11168.818934311605
-        assert approx(nwo_cosmo[6]["energies"][0]["gas phase"], abs=1e-2) == -11166.3624424611462
-        assert approx(nwo_cosmo[6]["energies"][0]["sol phase"], abs=1e-2) == -11168.818934311605
-        assert approx(nwo_cosmo[7]["energies"][0]["cosmo scf"], abs=1e-2) == -11165.227959110889
-        assert approx(nwo_cosmo[7]["energies"][0]["gas phase"], abs=1e-2) == -11165.025443612385
-        assert approx(nwo_cosmo[7]["energies"][0]["sol phase"], abs=1e-2) == -11165.227959110154
+        assert nw_output[0]["energies"][-1] == approx(-1102.6224491715582, abs=1e-2)
+        assert nw_output[2]["energies"][-1] == approx(-1102.9986291578023, abs=1e-3)
+        assert nwo_cosmo[5]["energies"][0]["cosmo scf"] == approx(-11156.354030653656, abs=1e-3)
+        assert nwo_cosmo[5]["energies"][0]["gas phase"] == approx(-11153.374133394364, abs=1e-3)
+        assert nwo_cosmo[5]["energies"][0]["sol phase"] == approx(-11156.353632962995, abs=1e-2)
+        assert nwo_cosmo[6]["energies"][0]["cosmo scf"] == approx(-11168.818934311605, abs=1e-2)
+        assert nwo_cosmo[6]["energies"][0]["gas phase"] == approx(-11166.3624424611462, abs=1e-2)
+        assert nwo_cosmo[6]["energies"][0]["sol phase"] == approx(-11168.818934311605, abs=1e-2)
+        assert nwo_cosmo[7]["energies"][0]["cosmo scf"] == approx(-11165.227959110889, abs=1e-2)
+        assert nwo_cosmo[7]["energies"][0]["gas phase"] == approx(-11165.025443612385, abs=1e-2)
+        assert nwo_cosmo[7]["energies"][0]["sol phase"] == approx(-11165.227959110154, abs=1e-2)
 
         assert nw_output[1]["hessian"][0][0] == approx(4.60187e01)
         assert nw_output[1]["hessian"][1][2] == approx(-1.14030e-08)
@@ -433,8 +434,8 @@ class TestNwOutput:
 
         ie = nw_output[4]["energies"][-1] - nw_output[2]["energies"][-1]
         ea = nw_output[2]["energies"][-1] - nw_output[3]["energies"][-1]
-        assert approx(ie) == 0.7575358648355177
-        assert approx(ea, abs=1e-3) == -14.997877958701338
+        assert ie == approx(0.7575358648355177)
+        assert ea == approx(-14.997877958701338, abs=1e-3)
         assert nw_output[4]["basis_set"]["C"]["description"] == "6-311++G**"
 
         nw_output = NwOutput(f"{TEST_DIR}/H4C3O3_1.nwout")
@@ -453,13 +454,13 @@ class TestNwOutput:
         assert nw_output[-1]["has_error"]
         assert nw_output[-1]["errors"][0] == "Geometry optimization failed"
         nw_output = NwOutput(f"{TEST_DIR}/anthrachinon_wfs_15_carboxyl.nwout")
-        assert nw_output[1]["frequencies"][0][0] == -70.47
+        assert nw_output[1]["frequencies"][0][0] == approx(-70.47)
         assert len(nw_output[1]["frequencies"][0][1]) == 27
-        assert nw_output[1]["frequencies"][-1][0] == 3696.74
-        assert nw_output[1]["frequencies"][-1][1][-1] == (0.20498, -0.94542, -0.00073)
-        assert nw_output[1]["normal_frequencies"][1][0] == -70.72
-        assert nw_output[1]["normal_frequencies"][3][0] == -61.92
-        assert nw_output[1]["normal_frequencies"][1][1][-1] == (0.00056, 0.00042, 0.06781)
+        assert nw_output[1]["frequencies"][-1][0] == approx(3696.74)
+        assert_allclose(nw_output[1]["frequencies"][-1][1][-1], (0.20498, -0.94542, -0.00073))
+        assert nw_output[1]["normal_frequencies"][1][0] == approx(-70.72)
+        assert nw_output[1]["normal_frequencies"][3][0] == approx(-61.92)
+        assert_allclose(nw_output[1]["normal_frequencies"][1][1][-1], (0.00056, 0.00042, 0.06781))
 
     def test_parse_tddft(self):
         nw_output = NwOutput(f"{TEST_DIR}/phen_tddft.log")
