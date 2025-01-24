@@ -566,9 +566,11 @@ class JDFTXOutfile:
             for var in _jof_atr_from_last_slice:
                 val = None
                 for i in range(len(self.slices)):
-                    val = getattr(self.slices[-i], var)
-                    if val is not None:
-                        break
+                    outslice = self.slices[-i]
+                    if outslice is not None:
+                        val = getattr(outslice, var)
+                        if val is not None:
+                            break
                 setattr(self, var, val)
             self.trajectory = self._get_trajectory()
 
