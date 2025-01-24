@@ -284,7 +284,7 @@ class TestVasprun(PymatgenTest):
         assert isinstance(vasp_run.kpoints, Kpoints), f"{vasp_run.kpoints=}"
         assert isinstance(vasp_run.eigenvalues, dict), f"{vasp_run.eigenvalues=}"
         assert vasp_run.final_energy == approx(-269.38319884, abs=1e-7)
-        assert vasp_run.tdos.get_gap() == approx(2.0589, abs=1e-4)
+        assert vasp_run.tdos.get_gap() == approx(2.3163, abs=1e-4)
         expected = (2.539, 4.0906, 1.5516, False)
         assert vasp_run.eigenvalue_band_properties == approx(expected)
         assert vasp_run.is_hubbard is False
@@ -326,7 +326,11 @@ class TestVasprun(PymatgenTest):
         assert dct["nelements"] == 4
 
         entry = vasp_run.get_computed_entry(inc_structure=True)
-        assert entry.entry_id.startswith("vasprun")
+        entry_id_toks = entry.entry_id.split("-")
+        assert entry_id_toks[0] == "vasprun"
+        assert entry_id_toks[1] == "20100729"
+        assert entry_id_toks[2] == "15.0"
+
         assert entry.parameters["run_type"] == "PBEO or other Hybrid Functional"
 
     def test_unconverged(self):
