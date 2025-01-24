@@ -6,6 +6,43 @@ nav_order: 4
 
 # Changelog
 
+## v2025.1.24
+
+**PR #4159** by @DanielYang59
+
+- **Objective**: Enhance the reliability and efficiency of float comparison in the codebase.
+- **Improvements**:
+  - Avoid using `==` for float comparisons to fix issue #4158.
+  - Replace `assert_array_equal` with suitable alternatives like `assert_allclose` for floating-point arrays to accommodate numerical imprecision.
+  - Improve the `_proj` function implementation, resulting in approximately a threefold speed increase.
+  - Substitute sequences of float comparisons using `==` in list/tuple/dict structures.
+  - Conduct various type and comment enhancements.
+
+**PR #4190** by @benrich37
+
+- **Objective**: Introduce a structured and organized approach to represent data from JDFTx output files.
+- **Key Features**:
+  - **Hierarchical Class Structure**: Implemented a hierarchy of classes to represent JDFTx output file data, without inheriting from one another. Key classes include:
+    - `JDFTXOutputs`, `JDFTXOutfile`, `JDFTXOutfileSlice`
+    - Sub-structures like `JOutStructures`, `JElSteps`, etc.
+  - **Modules Introduced**:
+    - `outputs.py`: Provides a robust Pythonic representation of a JDFTx output file.
+    - `jdftxoutfileslice.py`: Represents a “slice” of a JDFTx output file.
+    - `joutstructures.py`: Represents a series of structures within an output file slice.
+    - `joutstructure.py`: Represents a single structure within an output file.
+    - `jelstep.py`: Manages SCF steps and convergence data.
+    - `jminsettings.py`: Abstract class for managing input minimization settings, with subclasses for various settings types.
+
+**PR #4189** by @benrich37
+
+- **Objective**: Develop a Pythonic representation for inputs used in JDFTx calculations.
+- **Key Features**:
+  - `inputs.py` module introducing `JDFTXInfile` class.
+  - Helper modules:
+    - `generic_tags.py`: Includes "Tag" objects to define structures expected by JDFTx inputs.
+    - `jdftxinfile_master_format.py`: Facilitates the creation of appropriate "Tag" objects.
+    - `jdftxinfile_ref_options.py`: Contains lists of valid inputs for various tags, such as XC functionals for the "elec-ex-corr" tag.
+
 ## v2025.1.23
 
 1. **PR #4255 by @peikai**: This PR resolves an inconsistency in the `run_type` for entries in a mixing scheme. The entry type was changed to 'r2SCAN', but the `MaterialsProjectDFTMixingScheme()` expected 'R2SCAN', causing errors and ignored entries in GGA(+U)/R2SCAN mixing scheme corrections.
