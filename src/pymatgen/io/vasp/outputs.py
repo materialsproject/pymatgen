@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import hashlib
 import itertools
 import math
 import os
@@ -869,7 +870,7 @@ class Vasprun(MSONable):
         if entry_id is None:
             calc_date = re.sub(" ", "", self.generator["DATE"])
             calc_time = self.generator["TIME"]
-            hashed_structure = hash(str(self.final_structure))
+            hashed_structure = hashlib.md5(str(self.final_structure).encode("utf-8")).hexdigest()  # noqa: S324
 
             entry_id = f"vasprun-{calc_date}-{calc_time}-{hashed_structure}"
         param_names = {
