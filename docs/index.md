@@ -30,6 +30,9 @@ of the main features:
 
 - [Official documentation](https://pymatgen.org)
 - [matgenb] provides example Jupyter notebooks that demonstrate pymatgen functionality. Examples are shown below.
+- Dr Anubhav Jain (@computron) has created a series of [tutorials](https://github.com/computron/pymatgen_tutorials)
+  and [YouTube videos](https://www.youtube.com/playlist?list=PL7gkuUui8u7_M47KrV4tS4pLwhe7mDAjT), which is a good
+  resource, especially for beginners.
 - [pymatgen MatSci forum] or [GitHub discussion]: for questions that are not bug reports or feature requests.
 - Follow us on [Twitter](https://twitter.com/pymatgen) to get news and tips.
 - Bug reports or feature requests: Please submit an issue on [Github Issues].

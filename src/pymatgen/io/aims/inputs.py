@@ -566,7 +566,7 @@ class AimsControlIn(MSONable):
         magmom = structure.site_properties.get("magmom", spins)
         if (
             parameters.get("spin", "") == "collinear"
-            and np.all(magmom == 0.0)
+            and np.allclose(magmom, 0.0)
             and ("default_initial_moment" not in parameters)
         ):
             warn(
@@ -607,6 +607,10 @@ class AimsControlIn(MSONable):
                     content += self.get_aims_control_parameter_str(key, output_type, "%s")
             elif key == "vdw_correction_hirshfeld" and value:
                 content += self.get_aims_control_parameter_str(key, "", "%s")
+            elif key == "xc":
+                if "libxc" in value:
+                    content += self.get_aims_control_parameter_str("override_warning_libxc", ".true.", "%s")
+                content += self.get_aims_control_parameter_str(key, value, "%s")
             elif isinstance(value, bool):
                 content += self.get_aims_control_parameter_str(key, str(value).lower(), ".%s.")
             elif isinstance(value, tuple | list):

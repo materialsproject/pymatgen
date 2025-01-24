@@ -198,7 +198,7 @@ class TestSpacegroupAnalyzer(PymatgenTest):
         structure.add_site_property("magmom", [1.0] * len(structure))
         sg = SpacegroupAnalyzer(structure, 0.01)
         refined_struct = sg.get_refined_structure(keep_site_properties=True)
-        assert refined_struct.site_properties["magmom"] == [1.0] * len(refined_struct)
+        assert_allclose(refined_struct.site_properties["magmom"], [1.0] * len(refined_struct))
 
         structure = self.get_structure("Li2O")
         structure.add_site_property("magmom", [1.0] * len(structure))
@@ -235,7 +235,7 @@ class TestSpacegroupAnalyzer(PymatgenTest):
         s1 = symm_struct.equivalent_sites[1][1]
         s2 = symm_struct[symm_struct.equivalent_indices[1][1]]
         assert s1 == s2
-        assert self.sg4.get_symmetrized_structure()[0].magmom == 0.1
+        assert self.sg4.get_symmetrized_structure()[0].magmom == approx(0.1)
         assert symm_struct.wyckoff_symbols[0] == "16h"
 
         # Check copying
@@ -262,7 +262,7 @@ class TestSpacegroupAnalyzer(PymatgenTest):
         structure.add_site_property("magmom", [1.0] * len(structure))
         spga = SpacegroupAnalyzer(structure)
         primitive_structure = spga.find_primitive(keep_site_properties=True)
-        assert primitive_structure.site_properties["magmom"] == [1.0] * len(primitive_structure)
+        assert_allclose(primitive_structure.site_properties["magmom"], [1.0] * len(primitive_structure))
 
         structure.add_site_property("magmom", [1.0] * len(structure))
         spga = SpacegroupAnalyzer(structure)
@@ -362,7 +362,7 @@ class TestSpacegroupAnalyzer(PymatgenTest):
         structure.add_site_property("magmom", [1.0] * len(structure))
         spga = SpacegroupAnalyzer(structure, symprec=1e-2)
         conventional = spga.get_conventional_standard_structure(keep_site_properties=True)
-        assert conventional.site_properties["magmom"] == [1.0] * len(conventional)
+        assert_allclose(conventional.site_properties["magmom"], [1.0] * len(conventional))
 
         structure = Structure.from_file(STRUCTURE)
         structure.add_site_property("magmom", [1.0] * len(structure))
@@ -419,7 +419,7 @@ class TestSpacegroupAnalyzer(PymatgenTest):
         structure.add_site_property("magmom", [1.0] * len(structure))
         spga = SpacegroupAnalyzer(structure, symprec=1e-2)
         prim = spga.get_primitive_standard_structure(keep_site_properties=True)
-        assert prim.site_properties["magmom"] == [1.0] * len(prim)
+        assert_allclose(prim.site_properties["magmom"], [1.0] * len(prim))
 
         structure = Structure.from_file(f"{TEST_FILES_DIR}/cif/rhomb_3478_conv.cif")
         structure.add_site_property("magmom", [1.0] * len(structure))

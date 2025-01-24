@@ -144,6 +144,10 @@ class TestComposition(PymatgenTest):
             with pytest.raises(TypeError, match=f"{type(val).__name__!r} object is not iterable"):
                 Composition(val)
 
+    def test_init_mixed_valence(self):
+        assert Composition({"Fe3+": 2, "Fe2+": 2, "Li": 4, "O": 16, "P": 4}).formula == "Li4 Fe4 P4 O16"
+        assert Composition({"Fe3+": 2, "Fe": 2, "Li": 4, "O": 16, "P": 4}).formula == "Li4 Fe4 P4 O16"
+
     def test_str_and_repr(self):
         test_cases = [
             (
@@ -611,8 +615,8 @@ class TestComposition(PymatgenTest):
         # test num_atoms
         c1 = Composition("Mg-1Li", allow_negative=True)
         assert c1.num_atoms == 2
-        assert c1.get_atomic_fraction("Mg") == 0.5
-        assert c1.get_atomic_fraction("Li") == 0.5
+        assert c1.get_atomic_fraction("Mg") == approx(0.5)
+        assert c1.get_atomic_fraction("Li") == approx(0.5)
         assert c1.fractional_composition == Composition("Mg-0.5Li0.5", allow_negative=True)
 
         # test copy
@@ -621,8 +625,8 @@ class TestComposition(PymatgenTest):
         # test species
         c1 = Composition({"Mg": 1, "Mg2+": -1}, allow_negative=True)
         assert c1.num_atoms == 2
-        assert c1.element_composition == Composition("Mg-1", allow_negative=True)
-        assert c1.average_electroneg == 0.655
+        assert c1.get_el_amt_dict() == {"Mg": 0}
+        assert c1.average_electroneg == approx(1.31)  # correct Mg electronegativity)
 
     def test_special_formulas(self):
         special_formulas = {

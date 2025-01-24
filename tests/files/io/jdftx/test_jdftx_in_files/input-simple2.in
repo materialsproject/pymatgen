@@ -1,0 +1,13 @@
+
+electronic-scf nIterations 100 verbose yes
+
+symmetry-matrix \
+1 0 0 \
+0 1 0 \
+0 0 1 \
+0 0 0
+symmetry-matrix \
+1 0 0 \
+0 -1 0 \
+0 1 -1 \
+0.5 0.5 0.5
