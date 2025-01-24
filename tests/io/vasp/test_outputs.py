@@ -328,6 +328,7 @@ class TestVasprun(PymatgenTest):
         assert entry_id_toks[0] == "vasprun"
         assert entry_id_toks[1] == "20100729"
         assert entry_id_toks[2] == "15.0"
+        assert entry_id_toks[3] == "da7b01a471dc249323505c0676ae7350"
 
         assert entry.parameters["run_type"] == "PBEO or other Hybrid Functional"
 
