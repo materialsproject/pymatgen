@@ -324,7 +324,11 @@ class TestVasprun(PymatgenTest):
         assert dct["nelements"] == 4
 
         entry = vasp_run.get_computed_entry(inc_structure=True)
-        assert entry.entry_id.startswith("vasprun")
+        entry_id_toks = entry.entry_id.split("-")
+        assert entry_id_toks[0] == "vasprun"
+        assert entry_id_toks[1] == "20100729"
+        assert entry_id_toks[2] == "15.0"
+
         assert entry.parameters["run_type"] == "PBEO or other Hybrid Functional"
 
     def test_unconverged(self):

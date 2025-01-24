@@ -6,7 +6,7 @@
   <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>pymatgen namespace &mdash; pymatgen 2024.11.13 documentation</title>
+  <title>pymatgen namespace &mdash; pymatgen 2025.1.9 documentation</title>
       <link rel="stylesheet" type="text/css" href="assets/pygments.css?v=fa44fd50" />
       <link rel="stylesheet" type="text/css" href="assets/css/theme.css?v=e59714d7" />
       <link rel="stylesheet" type="text/css" href="assets/css/custom.css" />
@@ -15,7 +15,7 @@
     <link rel="canonical" href="https://pymatgen.orgpymatgen.html"/>
       <script src="assets/jquery.js?v=5d32c60e"></script>
       <script src="assets/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="assets/documentation_options.js?v=30ebc348"></script>
+      <script src="assets/documentation_options.js?v=e21c60d2"></script>
       <script src="assets/doctools.js?v=9bcbadda"></script>
       <script src="assets/sphinx_highlight.js?v=dc90522c"></script>
       <script async="async" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
@@ -2387,6 +2387,7 @@
 <li class="toctree-l4"><a class="reference internal" href="pymatgen.core.html#pymatgen.core.composition.Composition.get_wt_fraction"><code class="docutils literal notranslate"><span class="pre">Composition.get_wt_fraction()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="pymatgen.core.html#pymatgen.core.composition.Composition.hill_formula"><code class="docutils literal notranslate"><span class="pre">Composition.hill_formula</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="pymatgen.core.html#pymatgen.core.composition.Composition.is_element"><code class="docutils literal notranslate"><span class="pre">Composition.is_element</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="pymatgen.core.html#pymatgen.core.composition.Composition.items"><code class="docutils literal notranslate"><span class="pre">Composition.items()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="pymatgen.core.html#pymatgen.core.composition.Composition.iupac_formula"><code class="docutils literal notranslate"><span class="pre">Composition.iupac_formula</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="pymatgen.core.html#pymatgen.core.composition.Composition.num_atoms"><code class="docutils literal notranslate"><span class="pre">Composition.num_atoms</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="pymatgen.core.html#pymatgen.core.composition.Composition.oxi_prob"><code class="docutils literal notranslate"><span class="pre">Composition.oxi_prob</span></code></a></li>
@@ -3640,11 +3641,13 @@
 <li class="toctree-l3"><a class="reference internal" href="pymatgen.core.html#pymatgen.core.trajectory.Trajectory"><code class="docutils literal notranslate"><span class="pre">Trajectory</span></code></a><ul>
 <li class="toctree-l4"><a class="reference internal" href="pymatgen.core.html#pymatgen.core.trajectory.Trajectory.as_dict"><code class="docutils literal notranslate"><span class="pre">Trajectory.as_dict()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="pymatgen.core.html#pymatgen.core.trajectory.Trajectory.extend"><code class="docutils literal notranslate"><span class="pre">Trajectory.extend()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="pymatgen.core.html#pymatgen.core.trajectory.Trajectory.from_ase"><code class="docutils literal notranslate"><span class="pre">Trajectory.from_ase()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="pymatgen.core.html#pymatgen.core.trajectory.Trajectory.from_file"><code class="docutils literal notranslate"><span class="pre">Trajectory.from_file()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="pymatgen.core.html#pymatgen.core.trajectory.Trajectory.from_molecules"><code class="docutils literal notranslate"><span class="pre">Trajectory.from_molecules()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="pymatgen.core.html#pymatgen.core.trajectory.Trajectory.from_structures"><code class="docutils literal notranslate"><span class="pre">Trajectory.from_structures()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="pymatgen.core.html#pymatgen.core.trajectory.Trajectory.get_molecule"><code class="docutils literal notranslate"><span class="pre">Trajectory.get_molecule()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="pymatgen.core.html#pymatgen.core.trajectory.Trajectory.get_structure"><code class="docutils literal notranslate"><span class="pre">Trajectory.get_structure()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="pymatgen.core.html#pymatgen.core.trajectory.Trajectory.to_ase"><code class="docutils literal notranslate"><span class="pre">Trajectory.to_ase()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="pymatgen.core.html#pymatgen.core.trajectory.Trajectory.to_displacements"><code class="docutils literal notranslate"><span class="pre">Trajectory.to_displacements()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="pymatgen.core.html#pymatgen.core.trajectory.Trajectory.to_positions"><code class="docutils literal notranslate"><span class="pre">Trajectory.to_positions()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="pymatgen.core.html#pymatgen.core.trajectory.Trajectory.write_Xdatcar"><code class="docutils literal notranslate"><span class="pre">Trajectory.write_Xdatcar()</span></code></a></li>
@@ -4277,6 +4280,7 @@
 <li class="toctree-l4"><a class="reference internal" href="pymatgen.entries.html#pymatgen.entries.mixing_scheme.MaterialsProjectDFTMixingScheme.get_adjustments"><code class="docutils literal notranslate"><span class="pre">MaterialsProjectDFTMixingScheme.get_adjustments()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="pymatgen.entries.html#pymatgen.entries.mixing_scheme.MaterialsProjectDFTMixingScheme.get_mixing_state_data"><code class="docutils literal notranslate"><span class="pre">MaterialsProjectDFTMixingScheme.get_mixing_state_data()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="pymatgen.entries.html#pymatgen.entries.mixing_scheme.MaterialsProjectDFTMixingScheme.process_entries"><code class="docutils literal notranslate"><span class="pre">MaterialsProjectDFTMixingScheme.process_entries()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="pymatgen.entries.html#pymatgen.entries.mixing_scheme.MaterialsProjectDFTMixingScheme.run_type_2"><code class="docutils literal notranslate"><span class="pre">MaterialsProjectDFTMixingScheme.run_type_2</span></code></a></li>
 </ul>
 </li>
 </ul>
