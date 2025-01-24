@@ -164,12 +164,12 @@ class JOutStructures:
             raise Warning("iter type interpreted as single-point calculation, but multiple structures found")
         self.t_s = self._get_t_s()
         for var in _joss_atrs_from_last_slice:
+            val = None
             for i in range(len(self.slices)):
                 val = getattr(self.slices[-i], var)
                 if val is not None:
-                    setattr(self, var, val)
                     break
-                setattr(self, var, None)
+            setattr(self, var, val)
         self._check_convergence()
 
     def _get_t_s(self) -> float | None:

@@ -355,7 +355,12 @@ class JElSteps:
         if len(self.slices):
             self.nstep = self._get_nstep()
             for var in _jelsteps_atrs_from_last_slice:
-                setattr(self, var, getattr(self.slices[-1], var))
+                val = None
+                for i in range(len(self.slices)):
+                    val = getattr(self.slices[-i], var)
+                    if val is not None:
+                        break
+                setattr(self, var, val)
 
     def to_dict(self) -> dict[str, Any]:
         """Return dictionary representation of JElSteps object.
