@@ -826,7 +826,7 @@ class JDFTXOutfileSlice:
         self.jsettings_lattice = self._get_settings_object(text, JMinSettingsLattice)
         self.jsettings_ionic = self._get_settings_object(text, JMinSettingsIonic)
         if self.jsettings_lattice is not None and "niterations" in self.jsettings_lattice.params:
-            self.constant_lattice = int(self.jsettings_lattice.params["niterations"]) != 0
+            self.constant_lattice = int(self.jsettings_lattice.params["niterations"]) == 0
 
     def _set_geomopt_vars(self, text: list[str]) -> None:
         """Set the geom_opt and geom_opt_type class variables.
@@ -961,7 +961,8 @@ class JDFTXOutfileSlice:
             text (list[str]): Output of read_file for out file.
         """
         line = find_first_range_key("fluid ", text)
-        self.fluid = text[line[0]].split()[1]
+        val = text[line[0]].split()[1]
+        self.fluid = None if val.lower() == "none" else val
 
     def _set_total_electrons(self) -> None:
         """Sets total_electrons from most recent JOutStructure."""

@@ -505,8 +505,7 @@ class JOutStructure(Structure):
                 forces.append(force)
             forces = np.array(forces)
             if coords_type.lower() != "cartesian":
-                # TODO: Double check if forces are ever actually given in direct coordinates.
-                forces = np.dot(forces, self.lattice.matrix)
+                forces = np.dot(forces, np.linalg.inv(self.lattice.matrix))
             else:
                 forces *= 1 / bohr_to_ang
             forces *= Ha_to_eV
