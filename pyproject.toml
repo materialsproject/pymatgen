@@ -94,7 +94,7 @@ ci = ["pytest-cov>=4", "pytest-split>=0.8", "pytest>=8"]
 docs = ["invoke", "sphinx", "sphinx_markdown_builder", "sphinx_rtd_theme"]
 electronic_structure = ["fdint>=2.0.2"]
 mlp = ["chgnet>=0.4.0; python_version<'3.13'", "matgl>=1.1.3; python_version<'3.13'"]
-numba = ["numba>=0.55; python_version<'3.13'"]
+numba = ["numba>=0.55"]
 numpy-v1 = ["numpy>=1.25.0,<2"] # Test NP1 on Windows (buggy at this moment)
 optional = [
     "pymatgen[abinit,ase,mlp,tblite]",
