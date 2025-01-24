@@ -100,8 +100,7 @@ optional = [
     "pymatgen[abinit,ase,mlp,tblite]",
     "beautifulsoup4",
     # BoltzTraP2 build fails on Windows GitHub runners
-    # TODO: BoltzTraP2 depends on netcdf4 which doesn't support Python 3.13 yet
-    "BoltzTraP2>=24.9.4 ; platform_system != 'Windows' and python_version<'3.13'",
+    "BoltzTraP2>=24.9.4 ; platform_system != 'Windows'",
     "chemview>=0.6",
     "f90nml>=1.1.2",
     "galore>=0.6.1",
