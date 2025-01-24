@@ -348,7 +348,7 @@ def _get_init_structure(pre_out_slice: list[str]) -> Structure | None:
         lat_mat = _get_initial_lattice(pre_out_slice)
         coords = _get_initial_coords(pre_out_slice)
         species = _get_initial_species(pre_out_slice)
-        return Structure(lattice=lat_mat, species=species, coords=coords)
+        return Structure(lattice=lat_mat, species=species, coords=coords, coords_are_cartesian=True)
     except AttributeError:
         return None
 
