@@ -16,6 +16,7 @@ import copy
 import math
 import tempfile
 from typing import TYPE_CHECKING, NamedTuple
+import warnings
 
 import matplotlib as mpl
 import numpy as np
@@ -941,7 +942,6 @@ class LobsterNeighbors(NearNeighbors):
                 centralsite = site
                 copysite = copy.copy(centralsite)
                 cell_start = centralsite.frac_coords - copysite.to_unit_cell().frac_coords
-                print(cell_start)
                 neighbors_by_distance_start = self.structure.get_sites_in_sphere(
                     pt=centralsite.coords,
                     r=np.max(lengths_from_ICOHPs) + 0.5,
@@ -980,7 +980,6 @@ class LobsterNeighbors(NearNeighbors):
 
                 for neigh_idx, neigh in enumerate(neighbors_by_distance):
                     index_here2 = index_here_list[neigh_idx]
-                    print(index_here2)
                     for dist_idx, dist in enumerate(copied_distances_from_ICOHPs):
                         if (
                             np.isclose(dist, list_distances[neigh_idx], rtol=1e-4)
@@ -1008,16 +1007,11 @@ class LobsterNeighbors(NearNeighbors):
                             _list_neighisite.append(index_here2)
                             _neigh_coords.append(coords[neigh_idx])
                             _neigh_frac_coords.append(neigh.frac_coords)
-                            print("test")
-                            print(copied_translations_from_ICOHPs[dist_idx])
-                            print(translations_by_distance[neigh_idx])
-                            print(cell_start)
                             del copied_distances_from_ICOHPs[dist_idx]
                             del copied_neighbors_from_ICOHPs[dist_idx]
                             del copied_translations_from_ICOHPs[dist_idx]
                             break
 
-                print(_list_neighsite)
                 list_neighisite.append(_list_neighisite)
                 list_neighsite.append(_list_neighsite)
                 list_lengths.append(lengths_from_ICOHPs)
