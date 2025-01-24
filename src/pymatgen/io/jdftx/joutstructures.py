@@ -167,7 +167,7 @@ class JOutStructures:
             for i in range(len(self.slices)):
                 val = getattr(self.slices[-i], var)
                 if val is not None:
-                    setattr(self, var, getattr(self.slices[-1], var))
+                    setattr(self, var, val)
                     break
                 setattr(self, var, None)
         self._check_convergence()
