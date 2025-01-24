@@ -1,14 +1,20 @@
-"""Script to generate potential basis functions for the LOBSTER input files. """
+"""Script to generate potential basis functions for the LOBSTER input files."""
 
+from __future__ import annotations
 
+import os
+from pathlib import Path
+
+import yaml
 from monty.io import zopen
+
 from pymatgen.core import SETTINGS
 from pymatgen.io.vasp.inputs import Potcar
-from pathlib import Path
-import yaml
-import os
 
-def get_valence(filename: str = "POTCAR", available_basis_functions: list[str] | None = None, occupation_cutoff: float = 0.01) -> str:
+
+def get_valence(
+    filename: str = "POTCAR", available_basis_functions: list[str] | None = None, occupation_cutoff: float = 0.01
+) -> str:
     """
     Extracts the valence configuration from a POTCAR file.
 
@@ -27,7 +33,7 @@ def get_valence(filename: str = "POTCAR", available_basis_functions: list[str] |
     occupations: list[float] = []
     linenumber = 0
 
-    with zopen(filename, 'rt') as f:
+    with zopen(filename, "rt") as f:
         for line in f:
             if linenumber == 1:
                 valence = float(line.split()[0])
@@ -38,14 +44,13 @@ def get_valence(filename: str = "POTCAR", available_basis_functions: list[str] |
                 else:
                     number_atomic_orbitals = int(line.split()[0])
                     ready = True
+            elif counter <= number_atomic_orbitals:
+                if counter != 0:
+                    orbitals.append([int(line.split()[0]), int(line.split()[1])])
+                    occupations.append(float(line.split()[4]))
+                counter += 1
             else:
-                if counter <= number_atomic_orbitals:
-                    if counter != 0:
-                        orbitals.append([int(line.split()[0]), int(line.split()[1])])
-                        occupations.append(float(line.split()[4]))
-                    counter += 1
-                else:
-                    break
+                break
             linenumber += 1
 
     # Reverse the lists for processing
@@ -56,12 +61,11 @@ def get_valence(filename: str = "POTCAR", available_basis_functions: list[str] |
 
     valence_checker = valence
     for orbital in range(len(rev_orb)):
-        if not abs(valence_checker - 0.0) < 0.01:
-            if abs(rev_occ[orbital] - 0.0) >= occupation_cutoff:
-                valence_checker -= rev_occ[orbital]
-                basis.append(rev_orb[orbital])
+        if not abs(valence_checker - 0.0) < 0.01 and abs(rev_occ[orbital] - 0.0) >= occupation_cutoff:
+            valence_checker -= rev_occ[orbital]
+            basis.append(rev_orb[orbital])
 
-    basis = list(reversed(basis))
+    basis.reverse()
 
     # Convert orbital numbers to strings
     basis_result: list[str] = []
@@ -83,6 +87,7 @@ def get_valence(filename: str = "POTCAR", available_basis_functions: list[str] |
 
     return basis_string
 
+
 # Set occupation cutoff
 occupation_cutoff = 0.2  # if set to 0, also empty basis functions will be included
 
@@ -90,7 +95,7 @@ occupation_cutoff = 0.2  # if set to 0, also empty basis functions will be inclu
 source_potcar = Path(SETTINGS["PMG_VASP_PSP_DIR"]) / "POT_GGA_PAW_PBE_54"
 
 # Get all POTCAR subfolders, excluding GW potcars
-potcar_names: list[str] = [o for o in os.listdir(source_potcar)]
+potcar_names: list[str] = list(os.listdir(source_potcar))
 
 # Read in all available basis functions
 available_basis_functions: dict[str, list[str]] = {}
@@ -102,19 +107,19 @@ for datum in data:
     if len(datum_raw) > 2:
         available_basis_functions[datum_raw[1]] = datum_raw[2:]
 
-basis_dict: dict[str, dict[str, str]] = {'BASIS': {}}
+basis_dict: dict[str, dict[str, str]] = {"BASIS": {}}
 for potcar in potcar_names:
-    potential_type = potcar.split('.')[1]
-    element = potential_type.split('_')[0]
+    potential_type = potcar.split(".")[1]
+    element = potential_type.split("_")[0]
 
     if element in available_basis_functions:
         potcar_object = Potcar.from_file(source_potcar / potcar)
-        basis_dict['BASIS'][potcar_object.spec[0]['symbol']] = get_valence(
+        basis_dict["BASIS"][potcar_object.spec[0]["symbol"]] = get_valence(
             filename=source_potcar / potcar,
             available_basis_functions=available_basis_functions[element],
-            occupation_cutoff=occupation_cutoff
+            occupation_cutoff=occupation_cutoff,
         )
 
 # Save the basis dictionary to a YAML file
-with open('BASIS_PBE_54.yaml', 'w') as outfile:
+with open("BASIS_PBE_54.yaml", "w") as outfile:
     yaml.dump(basis_dict, outfile, default_flow_style=False)
