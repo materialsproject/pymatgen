@@ -451,7 +451,7 @@ class Composition(collections.abc.Hashable, collections.abc.Mapping, MSONable, S
         # Do not "completely reduce" certain formulas
         if formula in type(self).special_formulas:
             formula = type(self).special_formulas[formula]
-            factor //= 2  # factor will always be "2", use `//` to ensure int type
+            factor /= 2
 
         return formula, factor
 
