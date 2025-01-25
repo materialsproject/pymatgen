@@ -414,17 +414,17 @@ class Composition(collections.abc.Hashable, collections.abc.Mapping, MSONable, S
         """
         return self.get_reduced_composition_and_factor()[0]
 
-    def get_reduced_composition_and_factor(self) -> tuple[Self, int]:
+    def get_reduced_composition_and_factor(self) -> tuple[Self, float]:
         """Calculate a reduced composition and factor.
 
         Returns:
-            A normalized composition and a multiplicative factor, i.e.,
-            Li4Fe4P4O16 returns (Composition("LiFePO4"), 4).
+            tuple[Composition, float]: Normalized Composition and multiplicative factor,
+            i.e. "Li4Fe4P4O16" returns (Composition("LiFePO4"), 4).
         """
-        factor: int = self.get_reduced_formula_and_factor()[1]
+        factor: float = self.get_reduced_formula_and_factor()[1]
         return self / factor, factor
 
-    def get_reduced_formula_and_factor(self, iupac_ordering: bool = False) -> tuple[str, int]:
+    def get_reduced_formula_and_factor(self, iupac_ordering: bool = False) -> tuple[str, float]:
         """Calculate a reduced formula and factor.
 
         Args:
@@ -438,7 +438,7 @@ class Composition(collections.abc.Hashable, collections.abc.Mapping, MSONable, S
                 the elements.
 
         Returns:
-            tuple[str, int]: A normalized formula and a multiplicative factor,
+            tuple[str, float]: Normalized formula and multiplicative factor,
                 i.e., "Li4Fe4P4O16" returns (LiFePO4, 4).
         """
         all_int: bool = all(abs(val - round(val)) < type(self).amount_tolerance for val in self.values())
@@ -446,6 +446,7 @@ class Composition(collections.abc.Hashable, collections.abc.Mapping, MSONable, S
             return self.formula.replace(" ", ""), 1
 
         el_amt_dict: dict[str, int] = {key: round(val) for key, val in self.get_el_amt_dict().items()}
+        factor: float
         formula, factor = reduce_formula(el_amt_dict, iupac_ordering=iupac_ordering)
 
         # Do not "completely reduce" certain formulas
