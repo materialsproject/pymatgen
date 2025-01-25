@@ -115,11 +115,11 @@ class Composition(collections.abc.Hashable, collections.abc.Mapping, MSONable, S
     # Tolerance in distinguishing different composition amounts.
     # 1e-8 is fairly tight, but should cut out most floating point arithmetic
     # errors.
-    amount_tolerance = 1e-8
-    charge_balanced_tolerance = 1e-8
+    amount_tolerance: ClassVar[float] = 1e-8
+    charge_balanced_tolerance: ClassVar[float] = 1e-8
 
     # Special formula handling for peroxides and certain elements. This is so
-    # that formula output does not write LiO instead of Li2O2 for example.
+    # that formula output does not write "LiO" instead of "Li2O2" for example.
     special_formulas: ClassVar[dict[str, str]] = {
         "LiO": "Li2O2",
         "NaO": "Na2O2",
@@ -134,7 +134,8 @@ class Composition(collections.abc.Hashable, collections.abc.Mapping, MSONable, S
         "H": "H2",
     }
 
-    oxi_prob = None  # prior probability of oxidation used by oxi_state_guesses
+    # Prior probability of oxidation used by oxi_state_guesses
+    oxi_prob: ClassVar[dict | None] = None
 
     def __init__(self, *args, strict: bool = False, **kwargs) -> None:
         """Very flexible Composition construction, similar to the built-in Python
@@ -420,7 +421,7 @@ class Composition(collections.abc.Hashable, collections.abc.Mapping, MSONable, S
             A normalized composition and a multiplicative factor, i.e.,
             Li4Fe4P4O16 returns (Composition("LiFePO4"), 4).
         """
-        factor = self.get_reduced_formula_and_factor()[1]
+        factor: float = self.get_reduced_formula_and_factor()[1]
         return self / factor, factor
 
     def get_reduced_formula_and_factor(self, iupac_ordering: bool = False) -> tuple[str, float]:
@@ -428,22 +429,23 @@ class Composition(collections.abc.Hashable, collections.abc.Mapping, MSONable, S
 
         Args:
             iupac_ordering (bool, optional): Whether to order the
-                formula by the iupac "electronegativity" series, defined in
+                formula by the IUPAC "electronegativity" series, defined in
                 Table VI of "Nomenclature of Inorganic Chemistry (IUPAC
                 Recommendations 2005)". This ordering effectively follows
-                the groups and rows of the periodic table, except the
+                the groups and rows of the periodic table, except for
                 Lanthanides, Actinides and hydrogen. Note that polyanions
                 will still be determined based on the true electronegativity of
                 the elements.
 
         Returns:
-            A pretty normalized formula and a multiplicative factor, i.e.,
-            Li4Fe4P4O16 returns (LiFePO4, 4).
+            tuple[str, float]: A normalized formula and a multiplicative factor,
+                i.e., "Li4Fe4P4O16" returns (LiFePO4, 4).
         """
         all_int = all(abs(val - round(val)) < type(self).amount_tolerance for val in self.values())
         if not all_int:
             return self.formula.replace(" ", ""), 1
-        el_amt_dict = {key: round(val) for key, val in self.get_el_amt_dict().items()}
+
+        el_amt_dict: dict[str, int] = {key: round(val) for key, val in self.get_el_amt_dict().items()}
         formula, factor = reduce_formula(el_amt_dict, iupac_ordering=iupac_ordering)
 
         if formula in type(self).special_formulas:
@@ -1055,7 +1057,7 @@ class Composition(collections.abc.Hashable, collections.abc.Mapping, MSONable, S
                 raise ValueError(f"Composition {comp} cannot accommodate max_sites setting!")
 
         # Load prior probabilities of oxidation states, used to rank solutions
-        if not type(self).oxi_prob:
+        if type(self).oxi_prob is None:
             all_data = loadfn(f"{MODULE_DIR}/../analysis/icsd_bv.yaml")
             type(self).oxi_prob = {Species.from_str(sp): data for sp, data in all_data["occurrence"].items()}
         oxi_states_override = oxi_states_override or {}
