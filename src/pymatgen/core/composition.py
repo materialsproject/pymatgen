@@ -1327,7 +1327,7 @@ def reduce_formula(
     sym_amt: Mapping[str, float],
     iupac_ordering: bool = False,
 ) -> tuple[str, int]:
-    """Helper function to reduce `sym_amt` to a reduced formula and factor.
+    """Helper function to reduce a symbol-amount mapping.
 
     Args:
         sym_amt (dict[str, float]): Symbol to amount mapping.
@@ -1352,10 +1352,10 @@ def reduce_formula(
     if all(int(i) == i for i in sym_amt.values()):
         factor = abs(gcd(*(int(i) for i in sym_amt.values())))
 
-    poly_anions: list[str] = []
     # If the composition contains polyanion
+    poly_anions: list[str] = []
     if len(syms) >= 3 and get_el_sp(syms[-1]).X - get_el_sp(syms[-2]).X < 1.65:
-        poly_sym_amt = {syms[i]: sym_amt[syms[i]] / factor for i in [-2, -1]}
+        poly_sym_amt: dict[str, float] = {syms[i]: sym_amt[syms[i]] / factor for i in (-2, -1)}
         poly_form, poly_factor = reduce_formula(poly_sym_amt, iupac_ordering=iupac_ordering)
 
         if poly_factor != 1:

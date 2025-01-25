@@ -12,7 +12,7 @@ from numpy.testing import assert_allclose
 from pytest import approx
 
 from pymatgen.core import Composition, DummySpecies, Element, Species
-from pymatgen.core.composition import ChemicalPotential
+from pymatgen.core.composition import ChemicalPotential, CompositionError
 from pymatgen.util.testing import PymatgenTest
 
 
@@ -858,6 +858,12 @@ class TestComposition(PymatgenTest):
         composition = Composition({"D+": 2, "O": 1})
         assert composition.elements[0].oxi_state == 1
         assert "Deuterium" in [elem.long_name for elem in composition.elements]
+
+
+def test_composition_error():
+    error = CompositionError("Composition error")
+    assert isinstance(error, CompositionError)
+    assert str(error) == "Composition error"
 
 
 class TestChemicalPotential:
