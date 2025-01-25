@@ -414,7 +414,7 @@ class Composition(collections.abc.Hashable, collections.abc.Mapping, MSONable, S
         """
         return self.get_reduced_composition_and_factor()[0]
 
-    def get_reduced_composition_and_factor(self) -> tuple[Self, float]:
+    def get_reduced_composition_and_factor(self) -> tuple[Self, int]:
         """Calculate a reduced composition and factor.
 
         Returns:
