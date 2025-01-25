@@ -421,7 +421,7 @@ class Composition(collections.abc.Hashable, collections.abc.Mapping, MSONable, S
             A normalized composition and a multiplicative factor, i.e.,
             Li4Fe4P4O16 returns (Composition("LiFePO4"), 4).
         """
-        factor: float = self.get_reduced_formula_and_factor()[1]
+        factor: int = self.get_reduced_formula_and_factor()[1]
         return self / factor, factor
 
     def get_reduced_formula_and_factor(self, iupac_ordering: bool = False) -> tuple[str, int]:
