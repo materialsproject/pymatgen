@@ -48,6 +48,7 @@ if TYPE_CHECKING:
     from collections.abc import Callable, Iterable, Iterator, Sequence
     from typing import Any, ClassVar, SupportsIndex, TypeAlias
 
+    import moyopy
     import pandas as pd
     from ase import Atoms
     from ase.calculators.calculator import Calculator
@@ -3337,6 +3338,29 @@ class IStructure(SiteCollection, MSONable):
             Structure: with the requested cell type.
         """
         return self.to_cell("conventional", **kwargs)
+
+    def get_moyo_dataset(self, **kwargs) -> moyopy.MoyoDataset:
+        """Get a MoyoDataset object from the structure.
+
+        Args:
+            **kwargs: Additional arguments passed to MoyoDataset constructor.
+
+        Returns:
+            moyopy.MoyoDataset: Object containing moyopy symmetry analysis for structure.
+
+        Raises:
+            ImportError: If moyopy is not installed.
+        """
+        try:
+            import moyopy
+        except ImportError:
+            raise ImportError("moyopy is not installed. Run pip install moyopy.")
+
+        import moyopy.interface
+
+        # Convert structure to MoyoDataset format
+        moyo_cell = moyopy.interface.MoyoAdapter.from_structure(self)
+        return moyopy.MoyoDataset(cell=moyo_cell, **kwargs)
 
 
 class IMolecule(SiteCollection, MSONable):

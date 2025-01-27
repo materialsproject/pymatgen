@@ -6,6 +6,7 @@ import os
 from fractions import Fraction
 from pathlib import Path
 from shutil import which
+from unittest import mock
 
 import numpy as np
 import pytest
@@ -964,6 +965,26 @@ Direct
         new_sites = struct.sites[::-1]  # reverse order of sites
         struct.sites = new_sites
         assert struct.sites == new_sites
+
+    def test_get_moyo_dataset(self):
+        """Test getting MoyoDataset from structure."""
+        pytest.importorskip("moyopy")
+        import moyopy
+
+        dataset = self.struct.get_moyo_dataset()
+        assert isinstance(dataset, moyopy.MoyoDataset)
+        assert dataset.symprec == 0.0001
+        assert dataset.number == 227
+        assert dataset.wyckoffs == ["b", "b"]
+        assert dataset.std_cell.numbers == [14] * 8
+
+        # Test import error
+        import_err_msg = "moyopy is not installed. Run pip install moyopy."
+        with (
+            mock.patch.dict("sys.modules", {"moyopy": None}),
+            pytest.raises(ImportError, match=import_err_msg),
+        ):
+            self.struct.get_moyo_dataset()
 
 
 class TestStructure(PymatgenTest):
