@@ -1219,7 +1219,8 @@ class TestStructure(PymatgenTest):
         # Ensure all sites were perturbed by a distance of at most 0.1 Angstroms
         for site, site_orig in zip(struct, struct_orig, strict=True):
             cart_dist = site.distance(site_orig)
-            assert cart_dist <= 0.1, f"Distance {cart_dist} > 0.1"
+            # allow 1e-6 to account for numerical precision
+            assert cart_dist <= 0.1 + 1e-6, f"Distance {cart_dist} > 0.1"
 
         # Test that same seed gives same perturbation
         s1 = self.get_structure("Li2O")
