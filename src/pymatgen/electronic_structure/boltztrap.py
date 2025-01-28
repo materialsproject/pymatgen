@@ -41,7 +41,7 @@ from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
 from pymatgen.symmetry.bandstructure import HighSymmKpath
 
 if TYPE_CHECKING:
-    from typing import Literal
+    from typing import Any, Literal
 
     from numpy.typing import ArrayLike
     from typing_extensions import Self
@@ -1426,96 +1426,98 @@ class BoltztrapAnalyzer:
 
     def get_extreme(
         self,
-        target_prop,
-        maximize=True,
-        min_temp=None,
-        max_temp=None,
-        min_doping=None,
-        max_doping=None,
-        isotropy_tolerance=0.05,
-        use_average=True,
-    ):
+        target_prop: Literal["seebeck", "power factor", "conductivity", "kappa", "zt"],
+        maximize: bool = True,
+        min_temp: float | None = None,
+        max_temp: float | None = None,
+        min_doping: float | None = None,
+        max_doping: float | None = None,
+        isotropy_tolerance: float = 0.05,
+        use_average: bool = True,
+    ) -> dict[Literal["p", "n", "best"], dict[str, Any]]:
         """Use eigenvalues over a range of carriers, temperatures, and doping levels, to estimate the "best"
         value that can be achieved for the given target_property. Note that
         this method searches the doping dict only, not the full mu dict.
 
         Args:
-            target_prop: target property, i.e. "seebeck", "power factor", "conductivity", "kappa", or "zt"
-            maximize: True to maximize, False to minimize (e.g. kappa)
-            min_temp: minimum temperature allowed
-            max_temp: maximum temperature allowed
-            min_doping: minimum doping allowed (e.g., 1E18)
-            max_doping: maximum doping allowed (e.g., 1E20)
-            isotropy_tolerance: tolerance for isotropic (0.05 = 5%)
-            use_average: True for avg of eigenval, False for max eigenval
+            target_prop ("seebeck", "power factor", "conductivity", "kappa", "zt"): target property.
+            maximize (bool): True to maximize, False to minimize (e.g. kappa)
+            min_temp (float): minimum temperature allowed
+            max_temp (float): maximum temperature allowed
+            min_doping (float): minimum doping allowed (e.g., 1E18)
+            max_doping (float): maximum doping allowed (e.g., 1E20)
+            isotropy_tolerance (float): tolerance for isotropic (0.05 = 5%)
+            use_average (bool): True for average of eigenval, False for max eigenval.
 
         Returns:
-            A dictionary with keys {"p", "n", "best"} with sub-keys:
-            {"value", "temperature", "doping", "isotropic"}
+            A dictionary with the following keys: {"p", "n", "best"}.
+            Each key maps to a sub-dictionary with the following keys:
+                {"value", "temperature", "doping", "isotropic", "carrier_type"}.
         """
 
-        def is_isotropic(x, isotropy_tolerance) -> bool:
-            """Internal method to tell you if 3-vector "x" is isotropic.
+        def is_isotropic(x, isotropy_tolerance: float) -> bool:
+            """Helper function to determine if 3D vector is isotropic.
 
             Args:
                 x: the vector to determine isotropy for
-                isotropy_tolerance: tolerance, e.g. 0.05 is 5%
+                isotropy_tolerance (float): tolerance, e.g. 0.05 is 5%
             """
             if len(x) != 3:
-                raise ValueError("Invalid input to is_isotropic!")
+                raise ValueError("Invalid vector length to is_isotropic!")
 
             st = sorted(x)
+
             return bool(
                 all([st[0], st[1], st[2]])
                 and (abs((st[1] - st[0]) / st[1]) <= isotropy_tolerance)
-                and (abs(st[2] - st[0]) / st[2] <= isotropy_tolerance)
+                and (abs((st[2] - st[0]) / st[2]) <= isotropy_tolerance)
                 and (abs((st[2] - st[1]) / st[2]) <= isotropy_tolerance)
             )
 
         if target_prop.lower() == "seebeck":
-            d = self.get_seebeck(output="eigs", doping_levels=True)
+            dct = self.get_seebeck(output="eigs", doping_levels=True)
 
         elif target_prop.lower() == "power factor":
-            d = self.get_power_factor(output="eigs", doping_levels=True)
+            dct = self.get_power_factor(output="eigs", doping_levels=True)
 
         elif target_prop.lower() == "conductivity":
-            d = self.get_conductivity(output="eigs", doping_levels=True)
+            dct = self.get_conductivity(output="eigs", doping_levels=True)
 
         elif target_prop.lower() == "kappa":
-            d = self.get_thermal_conductivity(output="eigs", doping_levels=True)
+            dct = self.get_thermal_conductivity(output="eigs", doping_levels=True)
         elif target_prop.lower() == "zt":
-            d = self.get_zt(output="eigs", doping_levels=True)
+            dct = self.get_zt(output="eigs", doping_levels=True)
 
         else:
             raise ValueError(f"Unrecognized {target_prop=}")
 
-        abs_val = True  # take the absolute value of properties
+        abs_val: bool = True  # take the absolute value of properties
 
         x_val = x_temp = x_doping = x_isotropic = None
-        output = {}
+        output: dict[Literal["p", "n", "best"], dict[str, Any]] = {}
 
         min_temp = min_temp or 0
         max_temp = max_temp or float("inf")
         min_doping = min_doping or 0
         max_doping = max_doping or float("inf")
 
-        for pn in ("p", "n"):
-            for t in d[pn]:  # temperatures
-                if min_temp <= float(t) <= max_temp:
-                    for didx, evs in enumerate(d[pn][t]):
-                        doping_lvl = self.doping[pn][didx]
+        for pn_type in ("p", "n"):
+            for temperature in dct[pn_type]:
+                if min_temp <= float(temperature) <= max_temp:
+                    for idx, eig_vals in enumerate(dct[pn_type][temperature]):
+                        doping_lvl = self.doping[pn_type][idx]
                         if min_doping <= doping_lvl <= max_doping:
-                            isotropic = is_isotropic(evs, isotropy_tolerance)
+                            isotropic: bool = is_isotropic(eig_vals, isotropy_tolerance)
                             if abs_val:
-                                evs = [abs(x) for x in evs]
-                            val = float(sum(evs)) / len(evs) if use_average else max(evs)
+                                eig_vals = [abs(x) for x in eig_vals]
+                            val = float(sum(eig_vals)) / len(eig_vals) if use_average else max(eig_vals)
                             if x_val is None or (val > x_val and maximize) or (val < x_val and not maximize):
                                 x_val = val
-                                x_temp = t
+                                x_temp = temperature
                                 x_doping = doping_lvl
                                 x_isotropic = isotropic
 
-            output[pn] = {
+            output[pn_type] = {
                 "value": x_val,
                 "temperature": x_temp,
                 "doping": x_doping,
@@ -1524,7 +1526,7 @@ class BoltztrapAnalyzer:
             x_val = None
 
         if maximize:
-            max_type = "p" if output["p"]["value"] >= output["n"]["value"] else "n"
+            max_type: Literal["p", "n"] = "p" if output["p"]["value"] >= output["n"]["value"] else "n"
         else:
             max_type = "p" if output["p"]["value"] <= output["n"]["value"] else "n"
 
@@ -1589,10 +1591,10 @@ class BoltztrapAnalyzer:
         Example of use in case of spin polarized case:
 
             BoltztrapRunner(bs=bs,nelec=10,run_type="DOS",spin=1).run(path_dir='dos_up/')
-            an_up=BoltztrapAnalyzer.from_files("dos_up/boltztrap/",dos_spin=1)
+            an_up=BoltztrapAnalyzer.from_files("dos_up/boltztrap/", dos_spin=1)
 
             BoltztrapRunner(bs=bs,nelec=10,run_type="DOS",spin=-1).run(path_dir='dos_dw/')
-            an_dw=BoltztrapAnalyzer.from_files("dos_dw/boltztrap/",dos_spin=-1)
+            an_dw=BoltztrapAnalyzer.from_files("dos_dw/boltztrap/", dos_spin=-1)
 
             cdos=an_up.get_complete_dos(bs.structure,an_dw)
         """
@@ -1602,10 +1604,10 @@ class BoltztrapAnalyzer:
 
         if analyzer_for_second_spin:
             if not np.all(self.dos.energies == analyzer_for_second_spin.dos.energies):
-                raise BoltztrapError("Dos merging error: energies of the two dos are different")
+                raise BoltztrapError("DOS merging error: energies of the two DOS are different")
 
             if spin_1 == spin_2:
-                raise BoltztrapError("Dos merging error: spin component are the same")
+                raise BoltztrapError("DOS merging error: spin component are the same")
 
         for s in self._dos_partial:
             idx = int(s)
