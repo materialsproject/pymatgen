@@ -8,40 +8,33 @@ nav_order: 4
 
 ## v2025.1.24
 
-**PR #4159** by @DanielYang59
+1. **PR #4159 by @DanielYang59**
+   - Avoid using full equality `==` to compare float values to address issue #4158.
+   - Recommend using `assert_allclose` over `assert_array_equal` for float arrays due to numerical imprecision.
+   - Implement a ~3x speedup tweak to the `_proj` implementation.
+   - Partially replace sequence of float comparison using `==` for list/tuple/dict as referenced [here](https://github.com/materialsproject/pymatgen/blob/bd9fba9ec62437b5b62fbd0b2c2c723216cc5a2c/tests/core/test_bonds.py#L56).
+   - Introduce other type and comment tweaks.
 
-- **Objective**: Enhance the reliability and efficiency of float comparison in the codebase.
-- **Improvements**:
-  - Avoid using `==` for float comparisons to fix issue #4158.
-  - Replace `assert_array_equal` with suitable alternatives like `assert_allclose` for floating-point arrays to accommodate numerical imprecision.
-  - Improve the `_proj` function implementation, resulting in approximately a threefold speed increase.
-  - Substitute sequences of float comparisons using `==` in list/tuple/dict structures.
-  - Conduct various type and comment enhancements.
+2. **PR #4190 by @benrich37**
+   - **Feature 0:** Hierarchical structure using class objects to represent data within a JDFTx out file.
+     - Main hierarchy classes:
+       - `JDFTXOutputs`
+         - `JDFTXOutputs.outfile`
+         - `JDFTXOutfile`
+         - `JDFTXOutfile.slices[i]`
+         - `JDFTXOutfileSlice`, etc.
+   - **Feature 1:** `outputs.py` module with `JDFTXOutfile` for representing a JDFTx out file.
+   - **Feature 2:** `jdftxoutfileslice.py` module with `JDFTXOutfileSlice` for file slices of a single JDFTx call.
+   - **Feature 3:** `joutstructures.py` with `JOutStructures` for representing structures from an out file slice.
+   - **Feature 4:** `joutstructure.py` with `JOutStructure` for each single structure within an out file.
+   - **Feature 5:** `jelstep.py` with `JElStep` and `JElSteps` for SCF steps and convergences.
+   - **Feature 6:** `jminsettings.py` with `JMinSettings` for minimization settings representations.
 
-**PR #4190** by @benrich37
-
-- **Objective**: Introduce a structured and organized approach to represent data from JDFTx output files.
-- **Key Features**:
-  - **Hierarchical Class Structure**: Implemented a hierarchy of classes to represent JDFTx output file data, without inheriting from one another. Key classes include:
-    - `JDFTXOutputs`, `JDFTXOutfile`, `JDFTXOutfileSlice`
-    - Sub-structures like `JOutStructures`, `JElSteps`, etc.
-  - **Modules Introduced**:
-    - `outputs.py`: Provides a robust Pythonic representation of a JDFTx output file.
-    - `jdftxoutfileslice.py`: Represents a “slice” of a JDFTx output file.
-    - `joutstructures.py`: Represents a series of structures within an output file slice.
-    - `joutstructure.py`: Represents a single structure within an output file.
-    - `jelstep.py`: Manages SCF steps and convergence data.
-    - `jminsettings.py`: Abstract class for managing input minimization settings, with subclasses for various settings types.
-
-**PR #4189** by @benrich37
-
-- **Objective**: Develop a Pythonic representation for inputs used in JDFTx calculations.
-- **Key Features**:
-  - `inputs.py` module introducing `JDFTXInfile` class.
-  - Helper modules:
-    - `generic_tags.py`: Includes "Tag" objects to define structures expected by JDFTx inputs.
-    - `jdftxinfile_master_format.py`: Facilitates the creation of appropriate "Tag" objects.
-    - `jdftxinfile_ref_options.py`: Contains lists of valid inputs for various tags, such as XC functionals for the "elec-ex-corr" tag.
+3. **PR #4189 by @benrich37**
+   - **Feature 1:** `inputs.py` module containing `JDFTXInfile` for Pythonic representation of JDFTx calculation inputs.
+   - **Feature 2:** `generic_tags.py` module with "Tag" objects (`AbstractTag` and its inheritors) for JDFTx input structure representation.
+   - **Feature 3:** `jdftxinfile_master_format.py` for creating proper "Tag" objects for inputs.
+   - **Feature 4:** `jdftxinfile_ref_options.py` for holding lists of acceptable strings for input tags.
 
 ## v2025.1.23
 
