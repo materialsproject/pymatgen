@@ -118,6 +118,11 @@ class JOutStructure(Structure):
             for var in _jos_atrs_elec_from_elecmindata:
                 if hasattr(self.elecmindata, var):
                     setattr(self, f"elec_{var}", getattr(self.elecmindata, var))
+        else:
+            for var in _jos_atrs_from_elecmindata:
+                setattr(self, var, None)
+            for var in _jos_atrs_elec_from_elecmindata:
+                setattr(self, f"elec_{var}", None)
 
     @property
     def charges(self) -> np.ndarray | None:
@@ -404,6 +409,8 @@ class JOutStructure(Structure):
             if self.etype is None:
                 self._set_etype_from_emin_lines(emin_lines)
             self.elecmindata = JElSteps._from_text_slice(emin_lines, opt_type=self.eopt_type, etype=self.etype)
+        else:
+            self.elecmindata = JElSteps._from_nothing(opt_type=self.eopt_type, etype=self.etype)
 
     def _parse_lattice_lines(self, lattice_lines: list[str]) -> None:
         """Parse lattice lines.

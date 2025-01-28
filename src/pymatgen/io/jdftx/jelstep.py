@@ -350,6 +350,24 @@ class JElSteps:
         instance.etype = etype
         return instance
 
+    @classmethod
+    def _from_nothing(cls, opt_type: str = "ElecMinimize", etype: str = "F") -> JElSteps:
+        """Return JElSteps object.
+
+        Create an empty JElSteps object.
+
+        Args:
+            opt_type (str): The type of electronic minimization step.
+            etype (str): The type of energy component.
+        """
+        slices: list[JElStep] = []
+        converged = False
+        converged_reason = None
+        instance = cls(slices=slices, converged=converged, converged_reason=converged_reason)
+        instance.opt_type = opt_type
+        instance.etype = etype
+        return instance
+
     def __post_init__(self) -> None:
         """Post initialization method."""
         if len(self.slices):
@@ -361,6 +379,10 @@ class JElSteps:
                     if val is not None:
                         break
                 setattr(self, var, val)
+        else:
+            self.nstep = 0
+            for var in _jelsteps_atrs_from_last_slice:
+                setattr(self, var, None)
 
     def to_dict(self) -> dict[str, Any]:
         """Return dictionary representation of JElSteps object.
