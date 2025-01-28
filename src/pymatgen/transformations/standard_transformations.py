@@ -465,7 +465,7 @@ class OrderDisorderedStructureTransformation(AbstractTransformation):
                 ordering.
             occ_tol (float): Occupancy tolerance. If the total occupancy of a group is within this value
                 of an integer, it will be rounded to that integer otherwise raise a ValueError.
-                Defaults to 0.25.                
+                Defaults to 0.25.
         """
         self.algo = algo
         self._all_structures: list = []
@@ -473,9 +473,7 @@ class OrderDisorderedStructureTransformation(AbstractTransformation):
         self.symmetrized_structures = symmetrized_structures
         self.occ_tol = occ_tol
 
-    def apply_transformation(
-        self, structure: Structure, return_ranked_list: bool | int = False
-    ) -> Structure:
+    def apply_transformation(self, structure: Structure, return_ranked_list: bool | int = False) -> Structure:
         """For this transformation, the apply_transformation method will return
         only the ordered structure with the lowest Ewald energy, to be
         consistent with the method signature of the other transformations.
