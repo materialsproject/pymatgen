@@ -877,7 +877,7 @@ class JDFTXOutfileSlice:
         self.initial_structure = self._get_initial_structure(text)
         # In the case where no ion optimization updates are printed, JOutStructures
         self.jstrucs = JOutStructures._from_out_slice(
-            text, opt_type=self.geom_opt_type, initial_structure=self.initial_structure
+            text, opt_type=self.geom_opt_type, init_struc=self.initial_structure
         )
         if self.etype is None:
             self.etype = self.jstrucs[-1].etype
