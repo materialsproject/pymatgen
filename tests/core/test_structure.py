@@ -969,7 +969,16 @@ Direct
     def test_get_symmetry_dataset(self):
         """Test getting symmetry dataset from structure using different backends."""
         # Test spglib backend
-        dataset = self.struct.get_symmetry_dataset(backend="spglib")
+        for backend in ("spglib", "moyopy"):
+            dataset = self.struct.get_symmetry_dataset(backend=backend)
+            assert isinstance(dataset, dict)
+            assert dataset["number"] == 227
+            assert dataset["international"] == "Fd-3m"
+            assert len(dataset["orbits"]) == 2
+            pytest.approx(dataset["std_origin_shift"], [0, 0, 0])
+
+        dataset = self.struct.get_symmetry_dataset(backend="spglib", return_raw_dataset=True)
+
         assert dataset.number == 227  # Fd-3m space group
         assert dataset.international == "Fd-3m"
         assert len(dataset.rotations) > 0
@@ -977,7 +986,7 @@ Direct
 
         # Test moyopy backend if available
         moyopy = pytest.importorskip("moyopy")
-        dataset = self.struct.get_symmetry_dataset(backend="moyopy")
+        dataset = self.struct.get_symmetry_dataset(backend="moyopy", return_raw_dataset=True)
         assert isinstance(dataset, moyopy.MoyoDataset)
         assert dataset.prim_std_cell.numbers == [14, 14]  # Si atomic number is 14
 
