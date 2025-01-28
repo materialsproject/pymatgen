@@ -11,7 +11,7 @@ from dataclasses import dataclass, field
 from typing import Any
 
 from pymatgen.core.units import Ha_to_eV
-from pymatgen.io.jdftx._output_utils import get_colon_var_t1
+from pymatgen.io.jdftx._output_utils import get_colon_val
 
 __author__ = "Ben Rich"
 
@@ -111,16 +111,16 @@ class JElStep:
         Args:
             line_text (str): A line of text from a JDFTx out file containing the electronic minimization data.
         """
-        nstep_float = get_colon_var_t1(line_text, "Iter: ")
+        nstep_float = get_colon_val(line_text, "Iter: ")
         if isinstance(nstep_float, float):
             self.nstep = int(nstep_float)
         elif nstep_float is None:
             raise ValueError("Could not find nstep in line_text")
-        self.e = get_colon_var_t1(line_text, f"{self.etype}: ") * Ha_to_eV
-        self.grad_k = get_colon_var_t1(line_text, "|grad|_K: ")
-        self.alpha = get_colon_var_t1(line_text, "alpha: ")
-        self.linmin = get_colon_var_t1(line_text, "linmin: ")
-        self.t_s = get_colon_var_t1(line_text, "t[s]: ")
+        self.e = get_colon_val(line_text, f"{self.etype}: ") * Ha_to_eV
+        self.grad_k = get_colon_val(line_text, "|grad|_K: ")
+        self.alpha = get_colon_val(line_text, "alpha: ")
+        self.linmin = get_colon_val(line_text, "linmin: ")
+        self.t_s = get_colon_val(line_text, "t[s]: ")
 
     def _is_fillings_line(self, i: int, line_text: str) -> bool:
         """Return True if fillings line.
@@ -177,7 +177,7 @@ class JElStep:
             line_text (str): A line of text from a JDFTx out file containing the electronic
             minimization data.
         """
-        self.subspacerotationadjust = get_colon_var_t1(line_text, "SubspaceRotationAdjust: set factor to")
+        self.subspacerotationadjust = get_colon_val(line_text, "SubspaceRotationAdjust: set factor to")
 
     def _set_magdata(self, fillings_line: str) -> None:
         """Set class variables abs_magneticMoment, tot_magneticMoment.
@@ -190,8 +190,8 @@ class JElStep:
             minimization data.
         """
         _fillings_line = fillings_line.split("magneticMoment: [ ")[1].split(" ]")[0].strip()
-        self.abs_magneticmoment = get_colon_var_t1(_fillings_line, "Abs: ")
-        self.tot_magneticmoment = get_colon_var_t1(_fillings_line, "Tot: ")
+        self.abs_magneticmoment = get_colon_val(_fillings_line, "Abs: ")
+        self.tot_magneticmoment = get_colon_val(_fillings_line, "Tot: ")
 
     def _set_mu(self, fillings_line: str) -> None:
         """Set mu class variable.
@@ -203,7 +203,7 @@ class JElStep:
             fillings_line (str): A line of text from a JDFTx out file containing the electronic
             minimization data.
         """
-        self.mu = get_colon_var_t1(fillings_line, "mu: ") * Ha_to_eV
+        self.mu = get_colon_val(fillings_line, "mu: ") * Ha_to_eV
 
     def _set_nelectrons(self, fillings_line: str) -> None:
         """Set nelectrons class variable.
@@ -214,7 +214,7 @@ class JElStep:
         Args:
             fillings_line(str): A line of text from a JDFTx out file containing the electronic minimization data
         """
-        self.nelectrons = get_colon_var_t1(fillings_line, "nElectrons: ")
+        self.nelectrons = get_colon_val(fillings_line, "nElectrons: ")
 
     def to_dict(self) -> dict:
         """Return dictionary representation of JElStep object.
@@ -350,12 +350,39 @@ class JElSteps:
         instance.etype = etype
         return instance
 
+    @classmethod
+    def _from_nothing(cls, opt_type: str = "ElecMinimize", etype: str = "F") -> JElSteps:
+        """Return JElSteps object.
+
+        Create an empty JElSteps object.
+
+        Args:
+            opt_type (str): The type of electronic minimization step.
+            etype (str): The type of energy component.
+        """
+        slices: list[JElStep] = []
+        converged = False
+        converged_reason = None
+        instance = cls(slices=slices, converged=converged, converged_reason=converged_reason)
+        instance.opt_type = opt_type
+        instance.etype = etype
+        return instance
+
     def __post_init__(self) -> None:
         """Post initialization method."""
         if len(self.slices):
             self.nstep = self._get_nstep()
             for var in _jelsteps_atrs_from_last_slice:
-                setattr(self, var, getattr(self.slices[-1], var))
+                val = None
+                for i in range(len(self.slices)):
+                    val = getattr(self.slices[-i], var)
+                    if val is not None:
+                        break
+                setattr(self, var, val)
+        else:
+            self.nstep = 0
+            for var in _jelsteps_atrs_from_last_slice:
+                setattr(self, var, None)
 
     def to_dict(self) -> dict[str, Any]:
         """Return dictionary representation of JElSteps object.
