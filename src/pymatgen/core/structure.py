@@ -4635,16 +4635,16 @@ class Structure(IStructure, collections.abc.MutableSequence):
 
         return self
 
-    def perturb(self, distance: float, min_distance: float | None = None) -> Self:
+    def perturb(self, distance: float, min_distance: float | None = None, seed: int = 0) -> Self:
         """Perform a random perturbation of the sites in a structure to break
         symmetries. Modifies the structure in place.
 
         Args:
             distance (float): Distance in angstroms by which to perturb each site.
             min_distance (None, int, or float): if None, all displacements will
-                be equal amplitude. If int or float, perturb each site a
-                distance drawn from the uniform distribution between
-                'min_distance' and 'distance'.
+                be equal amplitude. If int or float, perturb each site a distance drawn
+                from the uniform distribution between 'min_distance' and 'distance'.
+            seed (int): Seed for the random number generator. Defaults to 0.
 
         Returns:
             Structure: self with perturbed sites.
@@ -4652,7 +4652,7 @@ class Structure(IStructure, collections.abc.MutableSequence):
 
         def get_rand_vec():
             # Deal with zero vectors
-            rng = np.random.default_rng()
+            rng = np.random.default_rng(seed=seed)
             vector = rng.standard_normal(3)
             vnorm = np.linalg.norm(vector)
             dist = distance
