@@ -23,8 +23,6 @@ from fnmatch import fnmatch
 from typing import TYPE_CHECKING, Literal, cast, get_args, overload
 
 import numpy as np
-from duecredit import due
-from duecredit.doi import Doi
 from monty.dev import deprecated
 from monty.io import zopen
 from monty.json import MSONable
@@ -45,6 +43,7 @@ from pymatgen.core.units import Length, Mass
 from pymatgen.electronic_structure.core import Magmom
 from pymatgen.symmetry.maggroups import MagneticSpaceGroup
 from pymatgen.util.coord import all_distances, get_angle, lattice_points_in_supercell
+from pymatgen.util.due import Doi, due
 
 if TYPE_CHECKING:
     from collections.abc import Callable, Iterable, Iterator, Sequence
