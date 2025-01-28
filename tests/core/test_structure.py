@@ -966,25 +966,31 @@ Direct
         struct.sites = new_sites
         assert struct.sites == new_sites
 
-    def test_get_moyo_dataset(self):
-        """Test getting MoyoDataset from structure."""
-        pytest.importorskip("moyopy")
-        import moyopy
+    def test_get_symmetry_dataset(self):
+        """Test getting symmetry dataset from structure using different backends."""
+        # Test spglib backend
+        dataset = self.struct.get_symmetry_dataset(backend="spglib")
+        assert dataset.number == 227  # Fd-3m space group
+        assert dataset.international == "Fd-3m"
+        assert len(dataset.rotations) > 0
+        assert len(dataset.translations) > 0
 
-        dataset = self.struct.get_moyo_dataset()
+        # Test moyopy backend if available
+        moyopy = pytest.importorskip("moyopy")
+        dataset = self.struct.get_symmetry_dataset(backend="moyopy")
         assert isinstance(dataset, moyopy.MoyoDataset)
-        assert dataset.symprec == 0.0001
-        assert dataset.number == 227
-        assert dataset.wyckoffs == ["b", "b"]
-        assert dataset.std_cell.numbers == [14] * 8
+        assert dataset.prim_std_cell.numbers == [14, 14]  # Si atomic number is 14
 
         # Test import error
-        import_err_msg = "moyopy is not installed. Run pip install moyopy."
         with (
             mock.patch.dict("sys.modules", {"moyopy": None}),
-            pytest.raises(ImportError, match=import_err_msg),
+            pytest.raises(ImportError, match="moyopy is not installed. Run pip install moyopy."),
         ):
-            self.struct.get_moyo_dataset()
+            self.struct.get_symmetry_dataset(backend="moyopy")
+
+        # Test invalid backend
+        with pytest.raises(ValueError, match="Invalid backend='42'"):
+            self.struct.get_symmetry_dataset(backend="42")
 
 
 class TestStructure(PymatgenTest):

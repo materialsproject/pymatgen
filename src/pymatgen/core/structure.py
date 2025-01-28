@@ -20,7 +20,7 @@ import warnings
 from abc import ABC, abstractmethod
 from collections import defaultdict
 from fnmatch import fnmatch
-from typing import TYPE_CHECKING, Literal, cast, get_args
+from typing import TYPE_CHECKING, Literal, cast, get_args, overload
 
 import numpy as np
 from monty.dev import deprecated
@@ -50,6 +50,7 @@ if TYPE_CHECKING:
 
     import moyopy
     import pandas as pd
+    import spglib
     from ase import Atoms
     from ase.calculators.calculator import Calculator
     from ase.io.trajectory import Trajectory
@@ -3339,28 +3340,50 @@ class IStructure(SiteCollection, MSONable):
         """
         return self.to_cell("conventional", **kwargs)
 
-    def get_moyo_dataset(self, **kwargs) -> moyopy.MoyoDataset:
-        """Get a MoyoDataset object from the structure.
+    @overload
+    def get_symmetry_dataset(self, backend: Literal["moyopy"], **kwargs) -> moyopy.MoyoDataset: ...
+
+    @overload
+    def get_symmetry_dataset(self, backend: Literal["spglib"], **kwargs) -> spglib.SpglibDataset: ...
+
+    def get_symmetry_dataset(
+        self, backend: Literal["moyopy", "spglib"] = "spglib", **kwargs
+    ) -> moyopy.MoyoDataset | spglib.SpglibDataset:
+        """Get a symmetry dataset from the structure using either moyopy or spglib backend.
 
         Args:
-            **kwargs: Additional arguments passed to MoyoDataset constructor.
+            backend ("moyopy" | "spglib"): Which symmetry analysis backend to use.
+                Defaults to "spglib".
+            **kwargs: Additional arguments passed to the respective backend's constructor.
+                For spglib, these are passed to SpacegroupAnalyzer (e.g. symprec, angle_tolerance).
+                For moyopy, these are passed to MoyoDataset constructor.
 
         Returns:
-            moyopy.MoyoDataset: Object containing moyopy symmetry analysis for structure.
+            MoyoDataset | SpglibDataset: Symmetry dataset from the chosen backend.
 
         Raises:
-            ImportError: If moyopy is not installed.
+            ImportError: If the requested backend is not installed.
+            ValueError: If an invalid backend is specified.
         """
-        try:
-            import moyopy
-        except ImportError:
-            raise ImportError("moyopy is not installed. Run pip install moyopy.")
+        if backend == "moyopy":
+            try:
+                import moyopy
+                import moyopy.interface
+            except ImportError:
+                raise ImportError("moyopy is not installed. Run pip install moyopy.")
 
-        import moyopy.interface
+            # Convert structure to MoyoDataset format
+            moyo_cell = moyopy.interface.MoyoAdapter.from_structure(self)
+            return moyopy.MoyoDataset(cell=moyo_cell, **kwargs)
 
-        # Convert structure to MoyoDataset format
-        moyo_cell = moyopy.interface.MoyoAdapter.from_structure(self)
-        return moyopy.MoyoDataset(cell=moyo_cell, **kwargs)
+        if backend == "spglib":
+            from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
+
+            sga = SpacegroupAnalyzer(self, **kwargs)
+            return sga.get_symmetry_dataset()
+
+        valid_backends = ("moyopy", "spglib")
+        raise ValueError(f"Invalid {backend=}, must be one of {valid_backends}")
 
 
 class IMolecule(SiteCollection, MSONable):
