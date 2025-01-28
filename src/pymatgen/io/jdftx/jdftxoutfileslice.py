@@ -863,8 +863,12 @@ class JDFTXOutfileSlice:
         """
         output_start_idx = _get_joutstructures_start_idx(text)
         if output_start_idx is None:
-            return None
-        return _get_init_structure(text[:output_start_idx])
+            init_struc = _get_init_structure(text)
+        else:
+            init_struc = _get_init_structure(text[:output_start_idx])
+        if init_struc is None:
+            raise ValueError("Provided out file slice's inputs preamble does not contain input structure data.")
+        return init_struc
 
     def _set_jstrucs(self, text: list[str]) -> None:
         """Set the jstrucs class variable.
