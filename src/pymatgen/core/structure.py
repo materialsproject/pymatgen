@@ -23,6 +23,8 @@ from fnmatch import fnmatch
 from typing import TYPE_CHECKING, Literal, cast, get_args, overload
 
 import numpy as np
+from duecredit import due
+from duecredit.doi import Doi
 from monty.dev import deprecated
 from monty.io import zopen
 from monty.json import MSONable
@@ -3343,6 +3345,10 @@ class IStructure(SiteCollection, MSONable):
     @overload
     def get_symmetry_dataset(self, backend: Literal["moyopy"], **kwargs) -> moyopy.MoyoDataset: ...
 
+    @due.dcite(
+        Doi("10.1080/27660400.2024.2384822"),
+        description="Spglib: a software library for crystal symmetry search",
+    )
     @overload
     def get_symmetry_dataset(self, backend: Literal["spglib"], **kwargs) -> spglib.SpglibDataset: ...
 
@@ -3350,6 +3356,12 @@ class IStructure(SiteCollection, MSONable):
         self, backend: Literal["moyopy", "spglib"] = "spglib", **kwargs
     ) -> moyopy.MoyoDataset | spglib.SpglibDataset:
         """Get a symmetry dataset from the structure using either moyopy or spglib backend.
+
+        If using the spglib backend (default), please cite:
+
+        Togo, A., Shinohara, K., & Tanaka, I. (2024). Spglib: a software library for crystal
+        symmetry search. Science and Technology of Advanced Materials: Methods, 4(1), 2384822-2384836.
+        https://doi.org/10.1080/27660400.2024.2384822
 
         Args:
             backend ("moyopy" | "spglib"): Which symmetry analysis backend to use.
