@@ -1454,37 +1454,38 @@ class BoltztrapAnalyzer:
             {"value", "temperature", "doping", "isotropic"}
         """
 
-        def is_isotropic(x, isotropy_tolerance) -> bool:
-            """Internal method to tell you if 3-vector "x" is isotropic.
+        def is_isotropic(x, isotropy_tolerance: float) -> bool:
+            """Helper function to determine if 3D vector is isotropic.
 
             Args:
                 x: the vector to determine isotropy for
-                isotropy_tolerance: tolerance, e.g. 0.05 is 5%
+                isotropy_tolerance (float): tolerance, e.g. 0.05 is 5%
             """
             if len(x) != 3:
-                raise ValueError("Invalid input to is_isotropic!")
+                raise ValueError("Invalid vector length to is_isotropic!")
 
             st = sorted(x)
+
             return bool(
                 all([st[0], st[1], st[2]])
                 and (abs((st[1] - st[0]) / st[1]) <= isotropy_tolerance)
-                and (abs(st[2] - st[0]) / st[2] <= isotropy_tolerance)
+                and (abs((st[2] - st[0]) / st[2]) <= isotropy_tolerance)
                 and (abs((st[2] - st[1]) / st[2]) <= isotropy_tolerance)
             )
 
         if target_prop.lower() == "seebeck":
-            d = self.get_seebeck(output="eigs", doping_levels=True)
+            dct = self.get_seebeck(output="eigs", doping_levels=True)
 
         elif target_prop.lower() == "power factor":
-            d = self.get_power_factor(output="eigs", doping_levels=True)
+            dct = self.get_power_factor(output="eigs", doping_levels=True)
 
         elif target_prop.lower() == "conductivity":
-            d = self.get_conductivity(output="eigs", doping_levels=True)
+            dct = self.get_conductivity(output="eigs", doping_levels=True)
 
         elif target_prop.lower() == "kappa":
-            d = self.get_thermal_conductivity(output="eigs", doping_levels=True)
+            dct = self.get_thermal_conductivity(output="eigs", doping_levels=True)
         elif target_prop.lower() == "zt":
-            d = self.get_zt(output="eigs", doping_levels=True)
+            dct = self.get_zt(output="eigs", doping_levels=True)
 
         else:
             raise ValueError(f"Unrecognized {target_prop=}")
@@ -1499,11 +1500,11 @@ class BoltztrapAnalyzer:
         min_doping = min_doping or 0
         max_doping = max_doping or float("inf")
 
-        for pn in ("p", "n"):
-            for t in d[pn]:  # temperatures
-                if min_temp <= float(t) <= max_temp:
-                    for didx, evs in enumerate(d[pn][t]):
-                        doping_lvl = self.doping[pn][didx]
+        for pn_type in ("p", "n"):
+            for temperature in dct[pn_type]:
+                if min_temp <= float(temperature) <= max_temp:
+                    for didx, evs in enumerate(dct[pn_type][temperature]):
+                        doping_lvl = self.doping[pn_type][didx]
                         if min_doping <= doping_lvl <= max_doping:
                             isotropic = is_isotropic(evs, isotropy_tolerance)
                             if abs_val:
@@ -1511,11 +1512,11 @@ class BoltztrapAnalyzer:
                             val = float(sum(evs)) / len(evs) if use_average else max(evs)
                             if x_val is None or (val > x_val and maximize) or (val < x_val and not maximize):
                                 x_val = val
-                                x_temp = t
+                                x_temp = temperature
                                 x_doping = doping_lvl
                                 x_isotropic = isotropic
 
-            output[pn] = {
+            output[pn_type] = {
                 "value": x_val,
                 "temperature": x_temp,
                 "doping": x_doping,
