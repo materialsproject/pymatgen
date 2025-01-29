@@ -6,6 +6,7 @@ import os
 from fractions import Fraction
 from pathlib import Path
 from shutil import which
+from unittest import mock
 
 import numpy as np
 import pytest
@@ -965,6 +966,41 @@ Direct
         struct.sites = new_sites
         assert struct.sites == new_sites
 
+    def test_get_symmetry_dataset(self):
+        """Test getting symmetry dataset from structure using different backends."""
+        # Test spglib backend
+        for backend in ("spglib", "moyopy"):
+            dataset = self.struct.get_symmetry_dataset(backend=backend)
+            assert isinstance(dataset, dict)
+            assert dataset["number"] == 227
+            assert dataset["international"] == "Fd-3m"
+            assert len(dataset["orbits"]) == 2
+            pytest.approx(dataset["std_origin_shift"], [0, 0, 0])
+
+        dataset = self.struct.get_symmetry_dataset(backend="spglib", return_raw_dataset=True)
+
+        assert dataset.number == 227  # Fd-3m space group
+        assert dataset.international == "Fd-3m"
+        assert len(dataset.rotations) > 0
+        assert len(dataset.translations) > 0
+
+        # Test moyopy backend if available
+        moyopy = pytest.importorskip("moyopy")
+        dataset = self.struct.get_symmetry_dataset(backend="moyopy", return_raw_dataset=True)
+        assert isinstance(dataset, moyopy.MoyoDataset)
+        assert dataset.prim_std_cell.numbers == [14, 14]  # Si atomic number is 14
+
+        # Test import error
+        with (
+            mock.patch.dict("sys.modules", {"moyopy": None}),
+            pytest.raises(ImportError, match="moyopy is not installed. Run pip install moyopy."),
+        ):
+            self.struct.get_symmetry_dataset(backend="moyopy")
+
+        # Test invalid backend
+        with pytest.raises(ValueError, match="Invalid backend='42'"):
+            self.struct.get_symmetry_dataset(backend="42")
+
 
 class TestStructure(PymatgenTest):
     def setUp(self):
@@ -1213,22 +1249,42 @@ class TestStructure(PymatgenTest):
         assert dct == struct.as_dict()
 
     def test_perturb(self):
-        dist = 0.1
-        pre_perturbation_sites = self.struct.copy()
-        returned = self.struct.perturb(distance=dist)
-        assert returned is self.struct
-        post_perturbation_sites = self.struct.sites
+        struct = self.get_structure("Li2O")
+        struct_orig = struct.copy()
+        struct.perturb(0.1)
+        # Ensure all sites were perturbed by a distance of at most 0.1 Angstroms
+        for site, site_orig in zip(struct, struct_orig, strict=True):
+            cart_dist = site.distance(site_orig)
+            # allow 1e-6 to account for numerical precision
+            assert cart_dist <= 0.1 + 1e-6, f"Distance {cart_dist} > 0.1"
 
-        for idx, site in enumerate(pre_perturbation_sites):
-            assert site.distance(post_perturbation_sites[idx]) == approx(dist), "Bad perturbation distance"
+        # Test that same seed gives same perturbation
+        s1 = self.get_structure("Li2O")
+        s2 = self.get_structure("Li2O")
+        s1.perturb(0.1, seed=42)
+        s2.perturb(0.1, seed=42)
+        for site1, site2 in zip(s1, s2, strict=True):
+            assert site1.distance(site2) < 1e-7  # should be exactly equal up to numerical precision
 
-        structure2 = pre_perturbation_sites.copy()
-        structure2.perturb(distance=dist, min_distance=0)
-        post_perturbation_sites2 = structure2.sites
+        # Test that different seeds give different perturbations
+        s3 = self.get_structure("Li2O")
+        s3.perturb(0.1, seed=100)
+        any_different = False
+        for site1, site3 in zip(s1, s3, strict=True):
+            if site1.distance(site3) > 1e-7:
+                any_different = True
+                break
+        assert any_different, "Different seeds should give different perturbations"
 
-        for idx, site in enumerate(pre_perturbation_sites):
-            assert site.distance(post_perturbation_sites2[idx]) <= dist
-            assert site.distance(post_perturbation_sites2[idx]) >= 0
+        # Test min_distance
+        s4 = self.get_structure("Li2O")
+        s4.perturb(0.1, min_distance=0.05, seed=42)
+        any_different = False
+        for site1, site4 in zip(s1, s4, strict=True):
+            if site1.distance(site4) > 1e-7:
+                any_different = True
+                break
+        assert any_different, "Using min_distance should give different perturbations"
 
     def test_add_oxidation_state_by_element(self):
         oxidation_states = {"Si": -4}
