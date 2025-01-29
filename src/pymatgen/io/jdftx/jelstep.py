@@ -374,7 +374,7 @@ class JElSteps:
             self.nstep = self._get_nstep()
             for var in _jelsteps_atrs_from_last_slice:
                 val = None
-                for i in range(len(self.slices)):
+                for i in range(1, len(self.slices) + 1):
                     val = getattr(self.slices[-i], var)
                     if val is not None:
                         break

@@ -170,7 +170,7 @@ class JOutStructures:
             raise Warning("iter type interpreted as single-point calculation, but multiple structures found")
         for var in _joss_atrs_from_last_slice:
             val = None
-            for i in range(len(self.slices)):
+            for i in range(1, len(self.slices) + 1):
                 val = getattr(self.slices[-i], var)
                 if val is not None:
                     break
