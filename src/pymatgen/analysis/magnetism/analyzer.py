@@ -666,9 +666,8 @@ class MagneticStructureEnumerator:
         self.max_unique_sites = 8
 
         # kwargs to pass to transformation (ultimately to enumlib)
-        default_transformation_kwargs = {"check_ordered_symmetry": False, "timeout": 5}
         transformation_kwargs = transformation_kwargs or {}
-        transformation_kwargs.update(default_transformation_kwargs)
+        transformation_kwargs = {"check_ordered_symmetry": False, "timeout": 5} | transformation_kwargs
         self.transformation_kwargs = transformation_kwargs
 
         # our magnetically ordered structures will be
