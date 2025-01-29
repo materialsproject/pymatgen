@@ -1,6 +1,5 @@
 from __future__ import annotations
 
-import unittest
 from shutil import which
 
 import numpy as np
@@ -119,11 +118,11 @@ class TestEnumlibAdaptor(PymatgenTest):
         for struct in structures:
             assert struct.formula == "Ca12 Al8 Si4 Ge8 O48"
 
-    @unittest.skip("Fails seemingly at random.")
     def test_timeout(self):
         struct = Structure.from_file(filename=f"{TEST_FILES_DIR}/cif/garnet.cif")
         SpacegroupAnalyzer(struct, 0.1)
         struct["Al3+"] = {"Al3+": 0.5, "Ga3+": 0.5}
-        adaptor = EnumlibAdaptor(struct, 1, 1, enum_precision_parameter=0.01, timeout=0.0000000000001)
+
+        adaptor = EnumlibAdaptor(struct, 1, 1, enum_precision_parameter=0.01, timeout=1e-2)
         with pytest.raises(TimeoutError, match="Enumeration took too long"):
             adaptor._run_multienum()
