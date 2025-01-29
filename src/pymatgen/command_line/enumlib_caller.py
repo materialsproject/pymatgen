@@ -33,7 +33,6 @@ import re
 import subprocess
 from glob import glob
 from shutil import which
-from threading import Timer
 from typing import TYPE_CHECKING
 
 import numpy as np
@@ -120,6 +119,7 @@ class EnumlibAdaptor:
             self.structure = finder.get_refined_structure()
         else:
             self.structure = structure
+
         self.min_cell_size = min_cell_size
         self.max_cell_size = max_cell_size
         self.symm_prec = symm_prec
@@ -290,23 +290,12 @@ class EnumlibAdaptor:
             int: number of structures.
         """
         with subprocess.Popen([ENUM_CMD], stdout=subprocess.PIPE, stdin=subprocess.PIPE, close_fds=True) as process:
-            if self.timeout:
-                timed_out = False
-                timer = Timer(self.timeout * 60, lambda p: p.kill(), [process])
+            timeout = self.timeout * 60 if self.timeout is not None else None
 
-                try:
-                    timer.start()
-                    output = process.communicate()[0].decode("utf-8")
-                finally:
-                    if not timer.is_alive():
-                        timed_out = True
-                    timer.cancel()
-
-                if timed_out:
-                    raise TimeoutError("Enumeration took too long")
-
-            else:
-                output = process.communicate()[0].decode("utf-8")
+            try:
+                output = process.communicate(timeout=timeout)[0].decode("utf-8")
+            except subprocess.TimeoutExpired as exc:
+                raise TimeoutError("Enumeration took too long") from exc
 
         count = 0
         start_count = False
