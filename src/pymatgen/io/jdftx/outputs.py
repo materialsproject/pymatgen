@@ -565,7 +565,7 @@ class JDFTXOutfile:
         if len(self.slices):
             for var in _jof_atr_from_last_slice:
                 val = None
-                for i in range(len(self.slices)):
+                for i in range(1, len(self.slices) + 1):
                     outslice = self.slices[-i]
                     if outslice is not None:
                         val = getattr(outslice, var)
