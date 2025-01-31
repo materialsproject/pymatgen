@@ -123,6 +123,6 @@ class TestEnumlibAdaptor(PymatgenTest):
         SpacegroupAnalyzer(struct, 0.1)
         struct["Al3+"] = {"Al3+": 0.5, "Ga3+": 0.5}
 
-        adaptor = EnumlibAdaptor(struct, enum_precision_parameter=0.01, timeout=1)
+        adaptor = EnumlibAdaptor(struct, enum_precision_parameter=0.01, timeout=0.01)
         with pytest.raises(TimeoutError, match="Enumeration took too long"):
-            adaptor._run_multienum()
+            adaptor.run()
