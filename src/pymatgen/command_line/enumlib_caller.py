@@ -175,7 +175,7 @@ class EnumlibAdaptor:
             if sites[0].is_ordered:
                 ordered_sites.append(sites)
             else:
-                sp_label = []
+                _sp_label: list[int] = []
                 species = dict(sites[0].species.items())
                 if sum(species.values()) < 1 - EnumlibAdaptor.amount_tol:
                     # Let us first make add a dummy element for every single
@@ -184,13 +184,13 @@ class EnumlibAdaptor:
                 for sp, amt in species.items():
                     if sp not in index_species:
                         index_species.append(sp)
-                        sp_label.append(len(index_species) - 1)
+                        _sp_label.append(len(index_species) - 1)
                         index_amounts.append(amt * len(sites))
                     else:
                         ind = index_species.index(sp)
-                        sp_label.append(ind)
+                        _sp_label.append(ind)
                         index_amounts[ind] += amt * len(sites)
-                sp_label = "/".join(f"{i}" for i in sorted(sp_label))
+                sp_label: str = "/".join(f"{i}" for i in sorted(_sp_label))
                 for site in sites:
                     coord_str.append(f"{coord_format.format(*site.coords)} {sp_label}")
                 disordered_sites.append(sites)
@@ -217,9 +217,8 @@ class EnumlibAdaptor:
                     logger.debug(f"Adding {sites[0].specie} in enum. New sg # {new_sg_num}")
                     index_species.append(sites[0].specie)
                     index_amounts.append(len(sites))
-                    sp_label = len(index_species) - 1
                     for site in sites:
-                        coord_str.append(f"{coord_format.format(*site.coords)} {sp_label}")
+                        coord_str.append(f"{coord_format.format(*site.coords)} {len(index_species) - 1}")
                     disordered_sites.append(sites)
                     curr_sites = temp_sites
                     sg_num = new_sg_num
@@ -289,6 +288,9 @@ class EnumlibAdaptor:
         Returns:
             int: number of structures.
         """
+        if ENUM_CMD is None:
+            raise RuntimeError("enumlib is not available")
+
         with subprocess.Popen([ENUM_CMD], stdout=subprocess.PIPE, stdin=subprocess.PIPE, close_fds=True) as process:
             timeout = self.timeout * 60 if self.timeout is not None else None
 
@@ -308,10 +310,13 @@ class EnumlibAdaptor:
         return count
 
     def _get_structures(self, num_structs: int) -> list[Structure]:
+        if MAKESTR_CMD is None:
+            raise RuntimeError("makestr.x is not available")
+
         structs: list[Structure] = []
 
         if ".py" in MAKESTR_CMD:
-            options = ("-input", "struct_enum.out", str(1), str(num_structs))
+            options: tuple[str, ...] = ("-input", "struct_enum.out", str(1), str(num_structs))
         else:
             options = ("struct_enum.out", str(0), str(num_structs - 1))
 
@@ -331,14 +336,14 @@ class EnumlibAdaptor:
         # are missing and set them to None
         # TODO: improve this by mapping ordered structure to original
         # disordered structure, and retrieving correct site properties
-        disordered_site_properties = {}
+        disordered_site_properties: dict = {}
 
         if len(self.ordered_sites) > 0:
             original_latt = self.ordered_sites[0].lattice
             # Need to strip sites of site_properties, which would otherwise
             # result in an index error. Hence Structure is reconstructed in
             # the next step.
-            site_properties = {}
+            site_properties: dict = {}
             for site in self.ordered_sites:
                 for k, v in site.properties.items():
                     disordered_site_properties[k] = None
@@ -357,8 +362,8 @@ class EnumlibAdaptor:
             ordered_structure = inv_org_latt = None
 
         for file in glob("vasp.*"):
-            with open(file, encoding="utf-8") as file:
-                data = file.read()
+            with open(file, encoding="utf-8") as f:
+                data = f.read()
                 data = re.sub(r"scale factor", "1", data)
                 data = re.sub(r"(\d+)-(\d+)", r"\1 -\2", data)
                 poscar = Poscar.from_str(data, self.index_species)
