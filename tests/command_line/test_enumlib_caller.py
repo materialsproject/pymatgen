@@ -35,7 +35,7 @@ class TestEnumlibAdaptor(PymatgenTest):
         assert len(structures) == 52
 
         sub_trans = SubstitutionTransformation({"Li": {"Li": 0.25}})
-        adaptor = EnumlibAdaptor(sub_trans.apply_transformation(struct), 1, 1, refine_structure=True)
+        adaptor = EnumlibAdaptor(sub_trans.apply_transformation(struct), refine_structure=True)
         adaptor.run()
         structures = adaptor.structures
         assert len(structures) == 1
@@ -55,7 +55,7 @@ class TestEnumlibAdaptor(PymatgenTest):
         # REmove some ordered sites to break symmetry.
         remove_trans = RemoveSitesTransformation([4, 7])
         struct_trafo = remove_trans.apply_transformation(struct_trafo)
-        adaptor = EnumlibAdaptor(struct_trafo, 1, 1, enum_precision_parameter=0.01)
+        adaptor = EnumlibAdaptor(struct_trafo, enum_precision_parameter=0.01)
         adaptor.run()
         structures = adaptor.structures
         assert len(structures) == 4
@@ -71,7 +71,7 @@ class TestEnumlibAdaptor(PymatgenTest):
         assert len(structures) == 10
 
         struct = Structure.from_file(f"{TEST_FILES_DIR}/command_line/enumlib/EnumerateTest.json")
-        adaptor = EnumlibAdaptor(struct, 1, 1)
+        adaptor = EnumlibAdaptor(struct)
         adaptor.run()
         structures = adaptor.structures
         assert len(structures) == 2
@@ -94,7 +94,7 @@ class TestEnumlibAdaptor(PymatgenTest):
         prim = spga.find_primitive()
         struct = prim.copy()
         struct["Al3+"] = {"Al3+": 0.5, "Ga3+": 0.5}
-        adaptor = EnumlibAdaptor(struct, 1, 1, enum_precision_parameter=0.01)
+        adaptor = EnumlibAdaptor(struct, enum_precision_parameter=0.01)
         adaptor.run()
         structures = adaptor.structures
         assert len(structures) == 7
@@ -102,7 +102,7 @@ class TestEnumlibAdaptor(PymatgenTest):
             assert struct.formula == "Ca12 Al4 Ga4 Si12 O48"
         struct = prim.copy()
         struct["Ca2+"] = {"Ca2+": 1 / 3, "Mg2+": 2 / 3}
-        adaptor = EnumlibAdaptor(struct, 1, 1, enum_precision_parameter=0.01)
+        adaptor = EnumlibAdaptor(struct, enum_precision_parameter=0.01)
         adaptor.run()
         structures = adaptor.structures
         assert len(structures) == 20
@@ -111,7 +111,7 @@ class TestEnumlibAdaptor(PymatgenTest):
 
         struct = prim.copy()
         struct["Si4+"] = {"Si4+": 1 / 3, "Ge4+": 2 / 3}
-        adaptor = EnumlibAdaptor(struct, 1, 1, enum_precision_parameter=0.01)
+        adaptor = EnumlibAdaptor(struct, enum_precision_parameter=0.01)
         adaptor.run()
         structures = adaptor.structures
         assert len(structures) == 18
@@ -123,6 +123,6 @@ class TestEnumlibAdaptor(PymatgenTest):
         SpacegroupAnalyzer(struct, 0.1)
         struct["Al3+"] = {"Al3+": 0.5, "Ga3+": 0.5}
 
-        adaptor = EnumlibAdaptor(struct, enum_precision_parameter=0.01, timeout=0.01)
+        adaptor = EnumlibAdaptor(struct, enum_precision_parameter=0.01, timeout=1e-4)
         with pytest.raises(TimeoutError, match="Enumeration took too long"):
             adaptor.run()
