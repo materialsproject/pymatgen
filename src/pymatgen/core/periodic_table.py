@@ -579,7 +579,7 @@ class ElementBase(Enum):
         L_symbols = "SPDFGHIKLMNOQRTUVWXYZ"
 
         term_symbols = self.term_symbols
-        term_symbol_flat = {  # type: ignore[var-annotated]
+        term_symbol_flat: dict = {
             term: {
                 "multiplicity": int(term[0]),
                 "L": L_symbols.index(term[1]),
