@@ -2127,35 +2127,52 @@ class PotcarSingle:
         return f"{cls_name}({symbol=}, {functional=}, {TITEL=}, {VRHFIN=}, {n_valence_elec=:.0f})"
 
     @property
-    def electron_configuration(self) -> list[tuple[int, str, int]] | None:
+    def electron_configuration(self) -> list[tuple[int, str, float]]:
         """Valence electronic configuration corresponding to the ZVAL,
         read from the "Atomic configuration" section of POTCAR.
 
-        If the POTCAR defines a non-integer number of electrons,
-            the configuration is not well-defined, and None is returned.
+        Returns:
+            list[tuple[int, str, float]]: A list of tuples containing:
+                - n (int): Principal quantum number.
+                - subshell (str): Subshell notation (s, p, d, f).
+                - occ (float): Occupation number, limited to ZVAL.
         """
-        # TODO: test non integer cases
-        if not self.nelectrons.is_integer():
-            warnings.warn(
-                "POTCAR has non-integer charge, electron configuration not well-defined.",
-                stacklevel=2,
-            )
-            return None
+        # Find "Atomic configuration" section
+        match = re.search(r"Atomic configuration", self.data)
+        if match is None:
+            raise RuntimeError("Cannot find atomic configuration section in POTCAR.")
 
-        el: Element = Element.from_Z(self.atomic_no)
-        full_config: list[tuple[int, str, int]] = el.full_electronic_structure
-        nelect: float = self.nelectrons
-        config: list[tuple[int, str, int]] = []
+        start_idx: int = self.data[: match.start()].count("\n")
 
-        while nelect > 0:
-            n, l, num_e = full_config.pop(-1)
-            # Skip fully filled d/f orbitals if there are higher n orbitals
-            if l in {"d", "f"} and num_e in {10, 14} and any(n_ > n for n_, _, _ in full_config):
-                continue
-            config.append((n, l, num_e))
-            nelect -= num_e
+        lines = self.data.splitlines()
 
-        return config
+        # Extract all subshells
+        match_entries = re.search(r"(\d+)\s+entries", lines[start_idx + 1])
+        if match_entries is None:
+            raise RuntimeError("Cannot find entries in POTCAR.")
+        num_entries: int = int(match_entries.group(1))
+
+        l_map: dict[int, str] = {0: "s", 1: "p", 2: "d", 3: "f", 4: "g", 5: "h"}
+        all_config: list[tuple[int, str, float]] = []
+        for line in lines[start_idx + 3 : start_idx + 3 + num_entries]:
+            parts = line.split()
+            n, l, _j, _E, occ = int(parts[0]), int(parts[1]), float(parts[2]), float(parts[3]), float(parts[4])
+
+            all_config.append((n, l_map[l], occ))
+
+        # Get valence electron configuration (defined by ZVAL)
+        valence_config: list[tuple[int, str, float]] = []
+        total_electrons = 0.0
+
+        for n, subshell, occ in reversed(all_config):
+            if occ >= 0.01:  # TODO: hard-coded occupancy cutoff
+                valence_config.append((n, subshell, occ))
+                total_electrons += occ
+
+            if total_electrons >= self.zval:
+                break
+
+        return list(reversed(valence_config))
 
     @property
     def element(self) -> str:
