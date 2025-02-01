@@ -2156,9 +2156,9 @@ class PotcarSingle:
         all_config: list[tuple[int, str, float]] = []
         for line in lines[start_idx + 3 : start_idx + 3 + num_entries]:
             parts = line.split()
-            n, l, _j, _E, occ = int(parts[0]), int(parts[1]), float(parts[2]), float(parts[3]), float(parts[4])
+            n, ang_moment, _j, _E, occ = int(parts[0]), int(parts[1]), float(parts[2]), float(parts[3]), float(parts[4])
 
-            all_config.append((n, l_map[l], occ))
+            all_config.append((n, l_map[ang_moment], occ))
 
         # Get valence electron configuration (defined by ZVAL)
         valence_config: list[tuple[int, str, float]] = []
