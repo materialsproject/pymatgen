@@ -26,7 +26,7 @@ from pymatgen.io.core import ParseError
 from pymatgen.util.string import Stringify, formula_double_format
 
 if TYPE_CHECKING:
-    from collections.abc import Callable, Sequence
+    from collections.abc import Callable
     from typing import Any, Literal
 
     from typing_extensions import Self
@@ -486,7 +486,7 @@ class ElementBase(Enum):
             return orb_str
 
         # Split e_str (e.g. for Fe "[Ar].3d6.4s2" into ["[Ar]", "3d6", "4s2"])
-        data: Sequence[str | tuple[int, str, int]] = [parse_orbital(s) for s in e_str.split(".")]
+        data: list = [parse_orbital(s) for s in e_str.split(".")]
 
         # Fully expand core-electron configuration (replace noble gas notation string)
         if isinstance(data[0], str):
