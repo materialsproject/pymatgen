@@ -2774,7 +2774,7 @@ def _gen_potcar_summary_stats(
                 }
             )
 
-    if summary_stats_filename:
+    if summary_stats_filename is not None:
         dumpfn(new_summary_stats, summary_stats_filename)
 
     return new_summary_stats
@@ -2903,16 +2903,16 @@ class Potcar(list, MSONable):
             functional (str): The functional to use. If None, the setting
                 PMG_DEFAULT_FUNCTIONAL in .pmgrc.yaml is used, or if this is
                 not set, it will default to PBE.
-            sym_potcar_map (dict): A map of symbol:raw POTCAR string. If
+            sym_potcar_map (dict): A map of symbol to raw POTCAR string. If
                 sym_potcar_map is specified, POTCARs will be generated from
                 the given map data rather than the config file location.
         """
         del self[:]
 
-        if sym_potcar_map:
-            self.extend(PotcarSingle(sym_potcar_map[el]) for el in symbols)
-        else:
+        if sym_potcar_map is None:
             self.extend(PotcarSingle.from_symbol_and_functional(el, functional) for el in symbols)
+        else:
+            self.extend(PotcarSingle(sym_potcar_map[el]) for el in symbols)
 
 
 class UnknownPotcarWarning(UserWarning):
