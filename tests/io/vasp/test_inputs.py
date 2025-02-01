@@ -1426,12 +1426,12 @@ class TestPotcarSingle(TestCase):
             ],
         )
 
-        # Test "sv" POTCARs (K_sv: 3s2 4s1 3p6)
+        # Test "sv" POTCARs (Ca_sv: 3s2 4s2 3p6)
         assert_config_equal(
-            PotcarSingle.from_file(f"{FAKE_POTCAR_DIR}/POT_GGA_PAW_PBE_54/POTCAR.K_sv.gz").electron_configuration,
+            PotcarSingle.from_file(f"{FAKE_POTCAR_DIR}/POT_GGA_PAW_PBE_54/POTCAR.Ca_sv.gz").electron_configuration,
             [
                 (3, "s", 2),
-                (4, "s", 1),
+                (4, "s", 2),
                 (3, "p", 6),
             ],
         )
