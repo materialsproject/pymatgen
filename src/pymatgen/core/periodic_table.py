@@ -35,11 +35,12 @@ if TYPE_CHECKING:
 
 # Load element data (periodic table) from JSON file
 with open(Path(__file__).absolute().parent / "periodic_table.json", encoding="utf-8") as ptable_json:
-    _pt_data: dict = json.load(ptable_json)
+    _PT_DATA: dict = json.load(ptable_json)
 
-_pt_row_sizes: tuple[int, ...] = (2, 8, 8, 18, 18, 32, 32)
+_PT_ROW_SIZES: tuple[int, ...] = (2, 8, 8, 18, 18, 32, 32)
 
-_madelung: list[tuple[int, str]] = [
+# Madelung energy ordering rule (lower to higher energy)
+_MADELUNG: list[tuple[int, str]] = [
     (1, "s"),
     (2, "s"),
     (2, "p"),
@@ -137,21 +138,21 @@ class ElementBase(Enum):
             Solid State Communications, 1984.
         """
         self.symbol = str(symbol)
-        data = _pt_data[symbol]
+        data = _PT_DATA[symbol]
 
         # Store key variables for quick access
         self.Z = data["Atomic no"]
 
         self._is_named_isotope = data.get("Is named isotope", False)
         if self._is_named_isotope:
-            for sym, info in _pt_data.items():
+            for sym, info in _PT_DATA.items():
                 if info["Atomic no"] == self.Z and not info.get("Is named isotope", False):
                     self.symbol = sym
                     break
             # For specified/named isotopes, treat the same as named element
             # (the most common isotope). Then we pad the data block with the
             # entries for the named element.
-            data = {**_pt_data[self.symbol], **data}
+            data = {**_PT_DATA[self.symbol], **data}
 
         at_r = data.get("Atomic radius", "no data")
         if str(at_r).startswith("no data"):
@@ -493,7 +494,7 @@ class ElementBase(Enum):
             data = list(Element(sym).full_electronic_structure) + data[1:]
 
         # Sort the final electronic structure by increasing energy level
-        return sorted(data, key=lambda x: _madelung.index((x[0], x[1])))
+        return sorted(data, key=lambda x: _MADELUNG.index((x[0], x[1])))
 
     @property
     def n_electrons(self) -> int:
@@ -610,7 +611,7 @@ class ElementBase(Enum):
         Returns:
             Element with atomic number Z.
         """
-        for sym, data in _pt_data.items():
+        for sym, data in _PT_DATA.items():
             atomic_mass_num = data.get("Atomic mass no") if A else None
             if data["Atomic no"] == Z and atomic_mass_num == A:
                 return Element(sym)
@@ -631,7 +632,7 @@ class ElementBase(Enum):
         uk_to_us = {"aluminium": "aluminum", "caesium": "cesium"}
         name = uk_to_us.get(name.lower(), name)
 
-        for sym, data in _pt_data.items():
+        for sym, data in _PT_DATA.items():
             if data["Name"] == name.capitalize():
                 return Element(sym)
 
@@ -658,7 +659,7 @@ class ElementBase(Enum):
         Note:
             The 18 group number system is used, i.e. noble gases are group 18.
         """
-        for sym in _pt_data:
+        for sym in _PT_DATA:
             el = Element(sym)
             if 57 <= el.Z <= 71:
                 el_pseudo_row = 8
@@ -698,7 +699,7 @@ class ElementBase(Enum):
             return 6
         if 89 <= z <= 103:
             return 7
-        for idx, size in enumerate(_pt_row_sizes, start=1):
+        for idx, size in enumerate(_PT_ROW_SIZES, start=1):
             total += size
             if total >= z:
                 return idx
@@ -1202,7 +1203,7 @@ class Species(MSONable, Stringify):
             sym = data[0].replace("[", "").replace("]", "")
             data = list(Element(sym).full_electronic_structure) + data[1:]
         # sort the final electronic structure by increasing energy level
-        return sorted(data, key=lambda x: _madelung.index((x[0], x[1])))
+        return sorted(data, key=lambda x: _MADELUNG.index((x[0], x[1])))
 
     # NOTE - copied exactly from Element. Refactoring / inheritance may improve
     # robustness
