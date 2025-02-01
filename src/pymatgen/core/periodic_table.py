@@ -26,20 +26,20 @@ from pymatgen.io.core import ParseError
 from pymatgen.util.string import Stringify, formula_double_format
 
 if TYPE_CHECKING:
-    from collections.abc import Callable
+    from collections.abc import Callable, Sequence
     from typing import Any, Literal
 
     from typing_extensions import Self
 
     from pymatgen.util.typing import SpeciesLike
 
-# Load element data from JSON file
+# Load element data (periodic table) from JSON file
 with open(Path(__file__).absolute().parent / "periodic_table.json", encoding="utf-8") as ptable_json:
-    _pt_data = json.load(ptable_json)
+    _pt_data: dict = json.load(ptable_json)
 
-_pt_row_sizes = (2, 8, 8, 18, 18, 32, 32)
+_pt_row_sizes: tuple[int, ...] = (2, 8, 8, 18, 18, 32, 32)
 
-_madelung = [
+_madelung: list[tuple[int, str]] = [
     (1, "s"),
     (2, "s"),
     (2, "p"),
@@ -144,8 +144,8 @@ class ElementBase(Enum):
 
         self._is_named_isotope = data.get("Is named isotope", False)
         if self._is_named_isotope:
-            for sym in _pt_data:
-                if _pt_data[sym]["Atomic no"] == self.Z and not _pt_data[sym].get("Is named isotope", False):
+            for sym, info in _pt_data.items():
+                if info["Atomic no"] == self.Z and not info.get("Is named isotope", False):
                     self.symbol = sym
                     break
             # For specified/named isotopes, treat the same as named element
@@ -452,32 +452,47 @@ class ElementBase(Enum):
 
     @property
     def full_electronic_structure(self) -> list[tuple[int, str, int]]:
-        """Full electronic structure as list of tuples, in order of increasing
+        """Full electronic structure in order of increasing
         energy level (according to the Madelung rule). Therefore, the final
         element in the list gives the electronic structure of the valence shell.
 
-        For example, the electronic structure for Fe is represented as:
-        [(1, "s", 2), (2, "s", 2), (2, "p", 6), (3, "s", 2), (3, "p", 6),
-        (4, "s", 2), (3, "d", 6)].
+        For example, the full electronic structure for Fe is:
+            [(1, "s", 2), (2, "s", 2), (2, "p", 6), (3, "s", 2), (3, "p", 6),
+            (4, "s", 2), (3, "d", 6)].
 
         References:
             Kramida, A., Ralchenko, Yu., Reader, J., and NIST ASD Team (2023). NIST
             Atomic Spectra Database (ver. 5.11). https://physics.nist.gov/asd [2024,
             June 3]. National Institute of Standards and Technology, Gaithersburg,
             MD. DOI: https://doi.org/10.18434/T4W30F
-        """
-        e_str = self.electronic_structure
 
-        def parse_orbital(orb_str):
+        Returns:
+            list[tuple[int, str, int]]: A list of tuples representing each subshell,
+            where each tuple contains:
+                - `n` (int): Principal quantum number.
+                - `orbital_type` (str): Orbital type (e.g., "s", "p", "d", "f").
+                - `electron_count` (int): Number of electrons in the subshell.
+        """
+        e_str: str = self.electronic_structure
+
+        def parse_orbital(orb_str: str) -> str | tuple[int, str, int]:
+            """Parse orbital information from split electron configuration string."""
+            # Parse valence subshell notation (e.g., "3d6" -> (3, "d", 6))
             if match := re.match(r"(\d+)([spdfg]+)(\d+)", orb_str):
                 return int(match[1]), match[2], int(match[3])
+
+            # Return core-electron configuration as-is (e.g. "[Ar]")
             return orb_str
 
-        data = [parse_orbital(s) for s in e_str.split(".")]
-        if data[0][0] == "[":
-            sym = data[0].replace("[", "").replace("]", "")
+        # Split e_str (e.g. for Fe "[Ar].3d6.4s2" into ["[Ar]", "3d6", "4s2"])
+        data: Sequence[str | tuple[int, str, int]] = [parse_orbital(s) for s in e_str.split(".")]
+
+        # Fully expand core-electron configuration (replace noble gas notation string)
+        if isinstance(data[0], str):
+            sym: str = data[0].replace("[", "").replace("]", "")
             data = list(Element(sym).full_electronic_structure) + data[1:]
-        # sort the final electronic structure by increasing energy level
+
+        # Sort the final electronic structure by increasing energy level
         return sorted(data, key=lambda x: _madelung.index((x[0], x[1])))
 
     @property

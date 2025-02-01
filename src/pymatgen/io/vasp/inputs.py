@@ -2136,9 +2136,9 @@ class PotcarSingle:
             )
             return None
 
-        el = Element.from_Z(self.atomic_no)
-        full_config = el.full_electronic_structure
-        nelect = self.nelectrons
+        el: Element = Element.from_Z(self.atomic_no)
+        full_config: list[tuple[int, str, int]] = el.full_electronic_structure
+        nelect: float = self.nelectrons
         config = []
         while nelect > 0:
             e = full_config.pop(-1)
