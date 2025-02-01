@@ -1377,13 +1377,60 @@ class TestPotcarSingle(TestCase):
         assert self.psingle_Mn_pv.nelectrons == 13
         assert self.psingle_Fe.nelectrons == 8
 
-    def test_electron_config(self):
+    def test_electron_configuration(self):
+        # TODO: use `approx` to compare floats
+
+        # Test s-block  (Li: 2s1)
+        assert PotcarSingle.from_file(f"{FAKE_POTCAR_DIR}/POT_GGA_PAW_PBE_54/POTCAR.Li.gz").electron_configuration == [
+            (2, "s", 1),
+        ]
+
+        # Test p-block  (O: 2s2 sp4)
+        assert PotcarSingle.from_file(f"{FAKE_POTCAR_DIR}/POT_GGA_PAW_PBE_54/POTCAR.O.gz").electron_configuration == [
+            (2, "s", 2),
+            (2, "p", 4),
+        ]
+
+        # Test d-block (Fe: 4s1 3d7)
+        assert self.psingle_Fe.electron_configuration == [(3, "d", 7), (4, "s", 1)]
+
+        # Test f-block (Ce: 5s2 6s2 5p6 5d1 4f1)
+        assert PotcarSingle.from_file(f"{FAKE_POTCAR_DIR}/POT_GGA_PAW_PBE_54/POTCAR.Ce.gz").electron_configuration == [
+            (5, "s", 2),
+            (6, "s", 2),
+            (5, "p", 6),
+            (5, "d", 1),
+            (4, "f", 1),
+        ]
+
+        # Test "sv" POTCARs (K_sv: 3s2 4s1 3p6)
+        assert PotcarSingle.from_file(
+            f"{FAKE_POTCAR_DIR}/POT_GGA_PAW_PBE_54/POTCAR.K_sv.gz"
+        ).electron_configuration == [
+            (3, "s", 2),
+            (4, "s", 1),
+            (3, "p", 6),
+        ]
+
+        # Test "pv" POTCARs
         assert self.psingle_Mn_pv.electron_configuration == [
             (3, "d", 5),
             (4, "s", 2),
             (3, "p", 6),
         ]
-        assert self.psingle_Fe.electron_configuration == [(3, "d", 6), (4, "s", 2)]
+
+        # Test non-integer occupancy (Be: 2s1.99 2p0.01)
+        assert PotcarSingle.from_file(f"{FAKE_POTCAR_DIR}/POT_GGA_PAW_PBE_54/POTCAR.Be.gz").electron_configuration == [
+            (2, "s", 1.99),
+            (2, "p", 0.01),
+        ]
+
+        # Test another non-integer occupancy (H.25: 1s0.25)
+        assert PotcarSingle.from_file(
+            f"{FAKE_POTCAR_DIR}/POT_GGA_PAW_PBE_54/POTCAR.H.25.gz"
+        ).electron_configuration == [
+            (1, "s", 0.25),
+        ]
 
     def test_attributes(self):
         for key, val in self.Mn_pv_attrs.items():
