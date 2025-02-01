@@ -2128,7 +2128,11 @@ class PotcarSingle:
 
     @property
     def electron_configuration(self) -> list[tuple[int, str, int]] | None:
-        """Electronic configuration of the PotcarSingle."""
+        """Valence electronic configuration corresponding to the ZVAL.
+
+        If the POTCAR defines a non-integer number of electrons,
+            the configuration is not well-defined, and None is returned.
+        """
         if not self.nelectrons.is_integer():
             warnings.warn(
                 "POTCAR has non-integer charge, electron configuration not well-defined.",
@@ -2139,11 +2143,11 @@ class PotcarSingle:
         el: Element = Element.from_Z(self.atomic_no)
         full_config: list[tuple[int, str, int]] = el.full_electronic_structure
         nelect: float = self.nelectrons
-        config = []
+        config: list[tuple[int, str, int]] = []
         while nelect > 0:
-            e = full_config.pop(-1)
-            config.append(e)
-            nelect -= e[-1]
+            e_config: tuple[int, str, int] = full_config.pop(-1)
+            config.append(e_config)
+            nelect -= e_config[-1]
         return config
 
     @property
