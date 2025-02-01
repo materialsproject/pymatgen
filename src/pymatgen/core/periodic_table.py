@@ -145,9 +145,9 @@ class ElementBase(Enum):
 
         self._is_named_isotope = data.get("Is named isotope", False)
         if self._is_named_isotope:
-            for sym, info in _PT_DATA.items():
+            for symbol, info in _PT_DATA.items():
                 if info["Atomic no"] == self.Z and not info.get("Is named isotope", False):
-                    self.symbol = sym
+                    self.symbol = symbol
                     break
             # For specified/named isotopes, treat the same as named element
             # (the most common isotope). Then we pad the data block with the
@@ -611,10 +611,10 @@ class ElementBase(Enum):
         Returns:
             Element with atomic number Z.
         """
-        for sym, data in _PT_DATA.items():
+        for symbol, data in _PT_DATA.items():
             atomic_mass_num = data.get("Atomic mass no") if A else None
             if data["Atomic no"] == Z and atomic_mass_num == A:
-                return Element(sym)
+                return Element(symbol)
 
         raise ValueError(f"Unexpected atomic number {Z=}")
 
@@ -659,8 +659,8 @@ class ElementBase(Enum):
         Note:
             The 18 group number system is used, i.e. noble gases are group 18.
         """
-        for sym in _PT_DATA:
-            el = Element(sym)
+        for symbol in _PT_DATA:
+            el = Element(symbol)
             if 57 <= el.Z <= 71:
                 el_pseudo_row = 8
                 el_pseudo_group = (el.Z - 54) % 32
