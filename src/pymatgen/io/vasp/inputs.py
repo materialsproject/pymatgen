@@ -2152,21 +2152,17 @@ class PotcarSingle:
             raise RuntimeError("Cannot find entries in POTCAR.")
         num_entries: int = int(match_entries.group(1))
 
+        # Get valence electron configuration (defined by ZVAL)
         l_map: dict[int, str] = {0: "s", 1: "p", 2: "d", 3: "f", 4: "g", 5: "h"}
-        all_config: list[tuple[int, str, float]] = []
-        for line in lines[start_idx + 3 : start_idx + 3 + num_entries]:
+
+        total_electrons = 0.0
+        valence_config: list[tuple[int, str, float]] = []
+        for line in lines[start_idx + 3 + num_entries - 1 : start_idx + 2 : -1]:
             parts = line.split()
             n, ang_moment, _j, _E, occ = int(parts[0]), int(parts[1]), float(parts[2]), float(parts[3]), float(parts[4])
 
-            all_config.append((n, l_map[ang_moment], occ))
-
-        # Get valence electron configuration (defined by ZVAL)
-        valence_config: list[tuple[int, str, float]] = []
-        total_electrons = 0.0
-
-        for n, subshell, occ in reversed(all_config):
             if occ >= 0.01:  # TODO: hard-coded occupancy cutoff
-                valence_config.append((n, subshell, occ))
+                valence_config.append((n, l_map[ang_moment], occ))
                 total_electrons += occ
 
             if total_electrons >= self.zval:
