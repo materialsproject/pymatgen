@@ -31,7 +31,7 @@ class SymmOp(MSONable):
     for efficiency. Read: https://wikipedia.org/wiki/Affine_transformation.
 
     Attributes:
-        affine_matrix (np.ndarray): A 4x4 array representing the symmetry operation.
+        affine_matrix (NDArray): A 4x4 array representing the symmetry operation.
     """
 
     def __init__(
@@ -116,7 +116,7 @@ class SymmOp(MSONable):
         affine_matrix[:3][:, 3] = translation_vec
         return cls(affine_matrix, tol)
 
-    def operate(self, point: ArrayLike) -> np.ndarray:
+    def operate(self, point: ArrayLike) -> NDArray:
         """Apply the operation on a point.
 
         Args:
@@ -128,7 +128,7 @@ class SymmOp(MSONable):
         affine_point = np.asarray([*point, 1])
         return np.dot(self.affine_matrix, affine_point)[:3]
 
-    def operate_multi(self, points: ArrayLike) -> np.ndarray:
+    def operate_multi(self, points: ArrayLike) -> NDArray:
         """Apply the operation on a list of points.
 
         Args:
@@ -141,7 +141,7 @@ class SymmOp(MSONable):
         affine_points = np.concatenate([points, np.ones(points.shape[:-1] + (1,))], axis=-1)
         return np.inner(affine_points, self.affine_matrix)[..., :-1]
 
-    def apply_rotation_only(self, vector: ArrayLike) -> np.ndarray:
+    def apply_rotation_only(self, vector: ArrayLike) -> NDArray:
         """Vectors should only be operated by the rotation matrix and not the
         translation vector.
 
@@ -150,7 +150,7 @@ class SymmOp(MSONable):
         """
         return np.dot(self.rotation_matrix, vector)
 
-    def transform_tensor(self, tensor: np.ndarray) -> np.ndarray:
+    def transform_tensor(self, tensor: NDArray) -> NDArray:
         """Apply rotation portion to a tensor. Note that tensor has to be in
         full form, not the Voigt form.
 
@@ -239,12 +239,12 @@ class SymmOp(MSONable):
         return False, False
 
     @property
-    def rotation_matrix(self) -> np.ndarray:
+    def rotation_matrix(self) -> NDArray:
         """A 3x3 numpy.array representing the rotation matrix."""
         return self.affine_matrix[:3][:, :3]
 
     @property
-    def translation_vector(self) -> np.ndarray:
+    def translation_vector(self) -> NDArray:
         """A rank 1 numpy.array of dim 3 representing the translation vector."""
         return self.affine_matrix[:3][:, 3]
 
