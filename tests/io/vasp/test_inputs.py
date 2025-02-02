@@ -1462,6 +1462,17 @@ class TestPotcarSingle(TestCase):
             ],
         )
 
+        # Test occupancy cut-off (Be: 2s1.99 2p0.01)
+        assert_config_equal(
+            PotcarSingle.from_file(f"{FAKE_POTCAR_DIR}/POT_GGA_PAW_PBE_54/POTCAR.Be.gz").get_electron_configuration(
+                occu_cutoff=0.1
+            ),
+            [
+                (1, "s", 2.0),
+                (2, "s", 1.99),
+            ],
+        )
+
     def test_attributes(self):
         for key, val in self.Mn_pv_attrs.items():
             assert getattr(self.psingle_Mn_pv, key) == val

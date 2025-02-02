@@ -2126,10 +2126,16 @@ class PotcarSingle:
         TITEL, VRHFIN, n_valence_elec = (self.keywords.get(key) for key in ("TITEL", "VRHFIN", "ZVAL"))
         return f"{cls_name}({symbol=}, {functional=}, {TITEL=}, {VRHFIN=}, {n_valence_elec=:.0f})"
 
-    @property
-    def electron_configuration(self) -> list[tuple[int, str, float]]:
+    def get_electron_configuration(
+        self,
+        occu_cutoff: float = 0.01,
+    ) -> list[tuple[int, str, float]]:
         """Valence electronic configuration corresponding to the ZVAL,
         read from the "Atomic configuration" section of POTCAR.
+
+        Args:
+            occu_cutoff (float): Occupancy cutoff below which an orbital
+                would be considered empty.
 
         Returns:
             list[tuple[int, str, float]]: A list of tuples containing:
@@ -2157,11 +2163,11 @@ class PotcarSingle:
 
         total_electrons = 0.0
         valence_config: list[tuple[int, str, float]] = []
-        for line in lines[start_idx + 3 + num_entries - 1 : start_idx + 2 : -1]:
+        for line in lines[start_idx + 2 + num_entries : start_idx + 2 : -1]:
             parts = line.split()
             n, ang_moment, _j, _E, occ = int(parts[0]), int(parts[1]), float(parts[2]), float(parts[3]), float(parts[4])
 
-            if occ >= 0.01:  # TODO: hard-coded occupancy cutoff
+            if occ >= occu_cutoff:
                 valence_config.append((n, l_map[ang_moment], occ))
                 total_electrons += occ
 
@@ -2169,6 +2175,19 @@ class PotcarSingle:
                 break
 
         return list(reversed(valence_config))
+
+    @property
+    def electron_configuration(self) -> list[tuple[int, str, float]]:
+        """Valence electronic configuration corresponding to the ZVAL,
+        read from the "Atomic configuration" section of POTCAR.
+
+        Returns:
+            list[tuple[int, str, float]]: A list of tuples containing:
+                - n (int): Principal quantum number.
+                - subshell (str): Subshell notation (s, p, d, f).
+                - occ (float): Occupation number, limited to ZVAL.
+        """
+        return self.get_electron_configuration()
 
     @property
     def element(self) -> str:
