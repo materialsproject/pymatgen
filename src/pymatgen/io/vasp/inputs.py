@@ -2128,14 +2128,16 @@ class PotcarSingle:
 
     def get_electron_configuration(
         self,
-        occu_cutoff: float = 0.01,
+        tol: float = 0.01,
     ) -> list[tuple[int, str, float]]:
         """Valence electronic configuration corresponding to the ZVAL,
         read from the "Atomic configuration" section of POTCAR.
 
         Args:
-            occu_cutoff (float): Occupancy cutoff below which an orbital
-                would be considered empty.
+            tol (float): Tolerance for occupation numbers.
+                - Orbitals with an occupation below `tol` are considered empty.
+                - Accumulation of electrons stops once the total occupation
+                  reaches `ZVAL - tol`, preventing unnecessary additions.
 
         Returns:
             list[tuple[int, str, float]]: A list of tuples containing:
@@ -2167,11 +2169,11 @@ class PotcarSingle:
             parts = line.split()
             n, ang_moment, _j, _E, occ = int(parts[0]), int(parts[1]), float(parts[2]), float(parts[3]), float(parts[4])
 
-            if occ >= occu_cutoff:
+            if occ >= tol:
                 valence_config.append((n, l_map[ang_moment], occ))
                 total_electrons += occ
 
-            if total_electrons >= self.zval:
+            if total_electrons >= self.zval - tol:
                 break
 
         return list(reversed(valence_config))
