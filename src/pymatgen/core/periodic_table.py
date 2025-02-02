@@ -1177,32 +1177,44 @@ class Species(MSONable, Stringify):
     # robustness
     @property
     def full_electronic_structure(self) -> list[tuple[int, str, int]]:
-        """Full electronic structure as list of tuples, in order of increasing
+        """Full electronic structure in order of increasing
         energy level (according to the Madelung rule). Therefore, the final
         element in the list gives the electronic structure of the valence shell.
 
-        For example, the electronic structure for Fe+2 is represented as:
-        [(1, "s", 2), (2, "s", 2), (2, "p", 6), (3, "s", 2), (3, "p", 6),
-        (3, "d", 6)].
+        For example, the full electronic structure for Fe is:
+            [(1, "s", 2), (2, "s", 2), (2, "p", 6), (3, "s", 2), (3, "p", 6),
+            (4, "s", 2), (3, "d", 6)].
 
         References:
             Kramida, A., Ralchenko, Yu., Reader, J., and NIST ASD Team (2023). NIST
             Atomic Spectra Database (ver. 5.11). https://physics.nist.gov/asd [2024,
             June 3]. National Institute of Standards and Technology, Gaithersburg,
             MD. DOI: https://doi.org/10.18434/T4W30F
-        """
-        e_str = self.electronic_structure
 
-        def parse_orbital(orb_str):
+        Returns:
+            list[tuple[int, str, int]]: A list of tuples representing each subshell,
+            where each tuple contains:
+                - `n` (int): Principal quantum number.
+                - `orbital_type` (str): Orbital type (e.g., "s", "p", "d", "f").
+                - `electron_count` (int): Number of electrons in the subshell.
+        """
+        e_str: str = self.electronic_structure
+
+        def parse_orbital(orb_str: str) -> str | tuple[int, str, int]:
+            """Parse orbital information from split electron configuration string."""
+            # Parse valence subshell notation (e.g., "3d6" -> (3, "d", 6))
             if match := re.match(r"(\d+)([spdfg]+)(\d+)", orb_str):
                 return int(match[1]), match[2], int(match[3])
+
+            # Return core-electron configuration as-is (e.g. "[Ar]")
             return orb_str
 
-        data = [parse_orbital(s) for s in e_str.split(".")]
-        if data[0][0] == "[":
+        data: list = [parse_orbital(s) for s in e_str.split(".")]
+        if isinstance(data[0], str):
             sym = data[0].replace("[", "").replace("]", "")
             data = list(Element(sym).full_electronic_structure) + data[1:]
-        # sort the final electronic structure by increasing energy level
+
+        # Sort the final electronic structure by increasing energy level
         return sorted(data, key=lambda x: _MADELUNG.index((x[0], x[1])))
 
     # NOTE - copied exactly from Element. Refactoring / inheritance may improve
