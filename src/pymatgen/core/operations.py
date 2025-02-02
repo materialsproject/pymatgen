@@ -19,7 +19,7 @@ from pymatgen.util.string import transformation_to_string
 if TYPE_CHECKING:
     from typing import Any
 
-    from numpy.typing import ArrayLike
+    from numpy.typing import ArrayLike, NDArray
     from typing_extensions import Self
 
 __author__ = "Shyue Ping Ong, Shyam Dwaraknath, Matthew Horton"
@@ -462,16 +462,17 @@ class SymmOp(MSONable):
     def from_xyz_str(cls, xyz_str: str) -> Self:
         """
         Args:
-            xyz_str: string of the form 'x, y, z', '-x, -y, z', '-2y+1/2, 3x+1/2, z-y+1/2', etc.
+            xyz_str (str): "x, y, z", "-x, -y, z", "-2y+1/2, 3x+1/2, z-y+1/2", etc.
 
         Returns:
             SymmOp
         """
-        rot_matrix = np.zeros((3, 3))
-        trans = np.zeros(3)
-        tokens = xyz_str.strip().replace(" ", "").lower().split(",")
+        rot_matrix: NDArray = np.zeros((3, 3))
+        trans: NDArray = np.zeros(3)
+        tokens: list[str] = xyz_str.strip().replace(" ", "").lower().split(",")
         re_rot = re.compile(r"([+-]?)([\d\.]*)/?([\d\.]*)([x-z])")
         re_trans = re.compile(r"([+-]?)([\d\.]+)/?([\d\.]*)(?![x-z])")
+
         for idx, tok in enumerate(tokens):
             # Build the rotation matrix
             for match in re_rot.finditer(tok):
@@ -480,11 +481,13 @@ class SymmOp(MSONable):
                     factor *= float(match[2]) / float(match[3]) if match[3] != "" else float(match[2])
                 j = ord(match[4]) - 120
                 rot_matrix[idx, j] = factor
+
             # Build the translation vector
             for match in re_trans.finditer(tok):
                 factor = -1 if match[1] == "-" else 1
                 num = float(match[2]) / float(match[3]) if match[3] != "" else float(match[2])
                 trans[idx] = num * factor
+
         return cls.from_rotation_and_translation(rot_matrix, trans)
 
     @classmethod
