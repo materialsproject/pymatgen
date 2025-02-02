@@ -1473,6 +1473,24 @@ class TestPotcarSingle(TestCase):
             ],
         )
 
+        # Test POT_PAW_PBE_64 PSPs
+        assert_config_equal(
+            PotcarSingle.from_file(f"{FAKE_POTCAR_DIR}/POT_PAW_PBE_64/POTCAR.O.gz").electron_configuration,
+            [
+                (2, "s", 2.0),
+                (2, "p", 4.0),
+            ],
+        )
+
+        assert_config_equal(
+            PotcarSingle.from_file(f"{FAKE_POTCAR_DIR}/POT_PAW_PBE_64/POTCAR.Fe_pv.gz").electron_configuration,
+            [
+                (3, "p", 6.0),
+                (3, "d", 7.0),
+                (4, "s", 1.0),
+            ],
+        )
+
     def test_attributes(self):
         for key, val in self.Mn_pv_attrs.items():
             assert getattr(self.psingle_Mn_pv, key) == val
