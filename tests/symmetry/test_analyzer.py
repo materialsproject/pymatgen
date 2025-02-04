@@ -86,6 +86,12 @@ class TestSpacegroupAnalyzer(PymatgenTest):
         assert self.sg.get_point_group_symbol() == "mmm"
         assert self.disordered_sg.get_point_group_symbol() == "4/mmm"
 
+    def test_get_pearson_symbol(self):
+        assert self.sg.get_pearson_symbol() == "oP24"
+        assert self.disordered_sg.get_pearson_symbol() == "tP58"
+        assert self.sg4.get_pearson_symbol() == "hP4"
+        assert self.sg3.get_pearson_symbol() == "oP24"
+
     def test_get_point_group_operations(self):
         sg: SpacegroupAnalyzer
         rng = np.random.default_rng()
