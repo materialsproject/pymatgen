@@ -26,7 +26,7 @@ TEST_DIR = f"{TEST_FILES_DIR}/symmetry/analyzer"
 
 class TestSpacegroupAnalyzer(PymatgenTest):
     def setUp(self):
-        # LiPO4
+        # FePO4
         self.structure = Structure.from_file(f"{VASP_IN_DIR}/POSCAR")
         self.sg = SpacegroupAnalyzer(self.structure, 0.001)
 
@@ -34,7 +34,7 @@ class TestSpacegroupAnalyzer(PymatgenTest):
         self.disordered_structure = self.get_structure("Li10GeP2S12")
         self.disordered_sg = SpacegroupAnalyzer(self.disordered_structure, 0.001)
 
-        # LiPO4 with order of sites changed so the atoms aren't grouped by element.
+        # FePO4 with order of sites changed so the atoms aren't grouped by element.
         struct = self.structure.copy()
         site = struct[0]
         del struct[0]
