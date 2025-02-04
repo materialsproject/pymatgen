@@ -259,6 +259,7 @@ class TestCifIO(PymatgenTest):
         # Need `parse_structures` call to update `symmetry_operations`
         _structure = parser.parse_structures(primitive=False, symmetrized=False)[0]
         assert parser.symmetry_operations[0] == SymmOp.from_xyz_str("x, y, z")
+        assert any("No _symmetry_equiv_pos_as_xyz type key found" in msg for msg in parser.warnings)
 
     def test_site_symbol_preference(self):
         parser = CifParser(f"{TEST_FILES_DIR}/cif/site_type_symbol_test.cif")
