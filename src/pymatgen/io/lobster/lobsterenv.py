@@ -942,8 +942,8 @@ class LobsterNeighbors(NearNeighbors):
 
             if len(neighbors_from_ICOHPs) > 0:
                 centralsite = site
-                copysite = copy.copy(centralsite)
-                #print(centralsite.frac_coords - copysite.to_unit_cell().frac_coords)
+                copy.copy(centralsite)
+                # print(centralsite.frac_coords - copysite.to_unit_cell().frac_coords)
                 neighbors_by_distance_start = self.structure.get_sites_in_sphere(
                     pt=centralsite.coords,
                     r=np.max(lengths_from_ICOHPs) + 0.5,
@@ -988,14 +988,12 @@ class LobsterNeighbors(NearNeighbors):
                                 np.isclose(dist, list_distances[neigh_idx], rtol=1e-4)
                                 and copied_neighbors_from_ICOHPs[dist_idx] == index_here2
                                 and (
-                                    (
-                                        copied_translations_from_ICOHPs[dist_idx][0]
-                                        == translations_by_distance[neigh_idx][0]
-                                        and copied_translations_from_ICOHPs[dist_idx][1]
-                                        == translations_by_distance[neigh_idx][1]
-                                        and copied_translations_from_ICOHPs[dist_idx][2]
-                                        == translations_by_distance[neigh_idx][2]
-                                    )
+                                    copied_translations_from_ICOHPs[dist_idx][0]
+                                    == translations_by_distance[neigh_idx][0]
+                                    and copied_translations_from_ICOHPs[dist_idx][1]
+                                    == translations_by_distance[neigh_idx][1]
+                                    and copied_translations_from_ICOHPs[dist_idx][2]
+                                    == translations_by_distance[neigh_idx][2]
                                     # or (
                                     #     copied_translations_from_ICOHPs[dist_idx][0]
                                     #     == -translations_by_distance[neigh_idx][0]
