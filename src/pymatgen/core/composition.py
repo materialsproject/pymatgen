@@ -619,6 +619,8 @@ class Composition(collections.abc.Hashable, collections.abc.Mapping, MSONable, S
         # Square brackets are used in formulas to denote coordination complexes (gh-3583)
         formula = formula.replace("[", "(")
         formula = formula.replace("]", ")")
+        formula = formula.replace("{", "(")
+        formula = formula.replace("}", ")")
 
         def get_sym_dict(form: str, factor: float) -> dict[str, float]:
             sym_dict: dict[str, float] = defaultdict(float)
