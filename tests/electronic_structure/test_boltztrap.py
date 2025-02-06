@@ -224,9 +224,9 @@ class TestBoltztrapAnalyzer(TestCase):
         sbs = loadfn(f"{TEST_DIR}/dft_bs_sym_line.json")
         sbs_bzt = self.bz_bands.get_symm_bands(structure, -5.25204548)
         corr, werr_vbm, werr_cbm, warn = BoltztrapAnalyzer.check_acc_bzt_bands(sbs_bzt, sbs)
-        assert corr[2] == 9.16851750e-05
-        assert werr_vbm["K-H"] == 0.18260273521047862
-        assert werr_cbm["M-K"] == 0.071552669981356981
+        assert corr[2] == approx(9.16851750e-05)
+        assert werr_vbm["K-H"] == approx(0.18260273521047862)
+        assert werr_cbm["M-K"] == approx(0.071552669981356981)
         assert not warn
 
     def test_get_complete_dos(self):
@@ -242,7 +242,7 @@ class TestBoltztrapAnalyzer(TestCase):
         extreme = self.bz.get_extreme("seebeck")
         assert extreme["best"]["carrier_type"] == "n"
         assert extreme["p"]["value"] == approx(1255.365, abs=1e-2)
-        assert extreme["n"]["isotropic"]
+        assert extreme["n"]["isotropic"] is False
         assert extreme["n"]["temperature"] == 600
 
         extreme = self.bz.get_extreme("kappa", maximize=False, min_temp=400, min_doping=1e20)

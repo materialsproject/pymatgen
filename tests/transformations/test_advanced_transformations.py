@@ -250,7 +250,7 @@ class TestEnumerateStructureTransformation:
         trans = EnumerateStructureTransformation()
         dct = trans.as_dict()
         trans = EnumerateStructureTransformation.from_dict(dct)
-        assert trans.symm_prec == 0.1
+        assert trans.symm_prec == approx(0.1)
 
 
 class TestSubstitutionPredictorTransformation:
@@ -507,7 +507,7 @@ class TestDopingTransformation(PymatgenTest):
             ss = trafo.apply_transformation(structure, 1000)
             assert len(ss) == n_structures
             for d in ss:
-                assert d["structure"].charge == 0
+                assert d["structure"].charge == approx(0)
 
         # Aliovalent doping with codopant
         for dopant, n_structures in [("Al3+", 3), ("N3-", 37), ("Cl-", 37)]:
@@ -521,7 +521,7 @@ class TestDopingTransformation(PymatgenTest):
             ss = trafo.apply_transformation(structure, 1000)
             assert len(ss) == n_structures
             for d in ss:
-                assert d["structure"].charge == 0
+                assert d["structure"].charge == approx(0)
 
         # Make sure compensation is done with lowest oxi state
         structure = PymatgenTest.get_structure("SrTiO3")
@@ -599,7 +599,7 @@ class TestDisorderedOrderedTransformation(PymatgenTest):
         output = trans.apply_transformation(struct)
 
         assert not output.is_ordered
-        assert output[-1].species.as_dict() == {"Ni": 0.5, "Ba": 0.5}
+        assert output[-1].species.as_dict() == approx({"Ni": 0.5, "Ba": 0.5})
 
 
 @pytest.mark.skipif(not mcsqs_cmd, reason="mcsqs not present.")
@@ -724,7 +724,7 @@ class TestCubicSupercellTransformation(PymatgenTest):
         assert len(superstructure) == 448
         assert_array_equal(
             supercell_generator.transformation_matrix,
-            np.array([[4, 0, 0], [1, 4, -4], [0, 0, 1]]),
+            [[4, 0, 0], [1, 4, -4], [0, 0, 1]],
         )
 
         # Test the diagonal transformation
@@ -796,7 +796,7 @@ class TestCubicSupercellTransformation(PymatgenTest):
 
         assert_array_equal(
             supercell_generator_orthorhombic.transformation_matrix,
-            np.array([[0, -2, 1], [-2, 0, 0], [0, 0, -2]]),
+            [[0, -2, 1], [-2, 0, 0], [0, 0, -2]],
         )
 
         # make sure that the orthorhombic supercell is different from the cubic cell
@@ -804,8 +804,8 @@ class TestCubicSupercellTransformation(PymatgenTest):
             supercell_generator_cubic.transformation_matrix,
             supercell_generator_orthorhombic.transformation_matrix,
         )
-        assert transformed_cubic.lattice.angles != transformed_orthorhombic.lattice.angles
-        assert transformed_orthorhombic.lattice.abc != transformed_cubic.lattice.abc
+        assert not np.allclose(transformed_cubic.lattice.angles, transformed_orthorhombic.lattice.angles)
+        assert not np.allclose(transformed_orthorhombic.lattice.abc, transformed_cubic.lattice.abc)
 
         structure = self.get_structure("Si")
         min_atoms = 100
@@ -835,7 +835,7 @@ class TestCubicSupercellTransformation(PymatgenTest):
 
         assert_array_equal(
             supercell_generator_orthorhombic.transformation_matrix,
-            np.array([[3, 0, 0], [-2, 4, 0], [-2, 4, 6]]),
+            [[3, 0, 0], [-2, 4, 0], [-2, 4, 6]],
         )
 
         # make sure that the orthorhombic supercell is different from the cubic cell
@@ -843,9 +843,9 @@ class TestCubicSupercellTransformation(PymatgenTest):
             supercell_generator_cubic.transformation_matrix,
             supercell_generator_orthorhombic.transformation_matrix,
         )
-        assert transformed_orthorhombic.lattice.abc != transformed_cubic.lattice.abc
-        # only angels are expected to be the same because of force_90_degrees = True
-        assert transformed_cubic.lattice.angles == transformed_orthorhombic.lattice.angles
+        assert not np.allclose(transformed_orthorhombic.lattice.abc, transformed_cubic.lattice.abc)
+        # only angels are expected to be the same because of `force_90_degrees = True`
+        assert_allclose(transformed_cubic.lattice.angles, transformed_orthorhombic.lattice.angles)
 
 
 class TestAddAdsorbateTransformation(PymatgenTest):

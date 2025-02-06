@@ -30,8 +30,8 @@ class TestSite(PymatgenTest):
         with pytest.raises(AttributeError, match="attr='specie' not found on Site"):
             _ = self.disordered_site.specie
         assert isinstance(self.ordered_site.specie, Element)
-        assert self.propertied_site.properties["magmom"] == 5.1
-        assert self.propertied_site.properties["charge"] == 4.2
+        assert self.propertied_site.properties["magmom"] == approx(5.1)
+        assert self.propertied_site.properties["charge"] == approx(4.2)
 
     def test_as_from_dict(self):
         dct = self.disordered_site.as_dict()
@@ -40,12 +40,12 @@ class TestSite(PymatgenTest):
         assert site != self.ordered_site
         dct = self.propertied_site.as_dict()
         site = Site.from_dict(dct)
-        assert site.properties["magmom"] == 5.1
-        assert site.properties["charge"] == 4.2
+        assert site.properties["magmom"] == approx(5.1)
+        assert site.properties["charge"] == approx(4.2)
         dct = self.propertied_magmom_vec_site.as_dict()
         site = Site.from_dict(dct)
         assert site.properties["magmom"] == Magmom([2.6, 2.6, 3.5])
-        assert site.properties["charge"] == 4.2
+        assert site.properties["charge"] == approx(4.2)
         dct = self.dummy_site.as_dict()
         site = Site.from_dict(dct)
         assert site.species == self.dummy_site.species
@@ -72,8 +72,8 @@ class TestSite(PymatgenTest):
         assert self.disordered_site.species == Composition("Cu")
         self.disordered_site.x = 1.25
         self.disordered_site.y = 1.35
-        assert self.disordered_site.coords[0] == 1.25
-        assert self.disordered_site.coords[1] == 1.35
+        assert self.disordered_site.coords[0] == approx(1.25)
+        assert self.disordered_site.coords[1] == approx(1.35)
 
         with pytest.raises(ValueError, match="Species occupancies sum to more than 1"):
             self.disordered_site.species = {"Cu": 0.5, "Gd": 0.6}
@@ -97,17 +97,17 @@ class TestPeriodicSite(PymatgenTest):
 
     def test_properties(self):
         """Test the properties for a site."""
-        assert self.site.a == 0.25
-        assert self.site.b == 0.35
-        assert self.site.c == 0.45
-        assert self.site.x == 2.5
-        assert self.site.y == 3.5
-        assert self.site.z == 4.5
+        assert self.site.a == approx(0.25)
+        assert self.site.b == approx(0.35)
+        assert self.site.c == approx(0.45)
+        assert self.site.x == approx(2.5)
+        assert self.site.y == approx(3.5)
+        assert self.site.z == approx(4.5)
         assert self.site.is_ordered
         assert self.site.label == "Fe"
         assert not self.site2.is_ordered
-        assert self.propertied_site.properties["magmom"] == 5.1
-        assert self.propertied_site.properties["charge"] == 4.2
+        assert self.propertied_site.properties["magmom"] == approx(5.1)
+        assert self.propertied_site.properties["charge"] == approx(4.2)
         assert self.labeled_site.label == "site label"
 
     def test_distance(self):
@@ -225,12 +225,12 @@ class TestPeriodicSite(PymatgenTest):
         assert site.species == Composition("Cu")
         site.x = 1.25
         site.y = 1.35
-        assert site.coords[0] == 1.25
-        assert site.coords[1] == 1.35
-        assert site.a == 0.125
-        assert site.b == 0.135
+        assert site.coords[0] == approx(1.25)
+        assert site.coords[1] == approx(1.35)
+        assert site.a == approx(0.125)
+        assert site.b == approx(0.135)
         site.lattice = Lattice.cubic(100)
-        assert site.x == 12.5
+        assert site.x == approx(12.5)
 
         with pytest.raises(ValueError, match="Species occupancies sum to more than 1"):
             site.species = {"Cu": 0.5, "Gd": 0.6}

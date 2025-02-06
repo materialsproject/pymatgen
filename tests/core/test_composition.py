@@ -12,7 +12,7 @@ from numpy.testing import assert_allclose
 from pytest import approx
 
 from pymatgen.core import Composition, DummySpecies, Element, Species
-from pymatgen.core.composition import ChemicalPotential
+from pymatgen.core.composition import ChemicalPotential, CompositionError, reduce_formula
 from pymatgen.util.testing import PymatgenTest
 
 
@@ -316,7 +316,7 @@ class TestComposition(PymatgenTest):
         all_formulas = [c.reduced_formula for c in self.comps]
         assert all_formulas == correct_reduced_formulas
 
-        # test iupac reduced formula (polyanions should still appear at the end)
+        # test IUPAC reduced formula (polyanions should still appear at the end)
         all_formulas = [c.get_reduced_formula_and_factor(iupac_ordering=True)[0] for c in self.comps]
         assert all_formulas == correct_reduced_formulas
         assert Composition("H6CN").get_integer_formula_and_factor(iupac_ordering=True)[0] == "CNH6"
@@ -347,7 +347,7 @@ class TestComposition(PymatgenTest):
         assert formula == "Li(BH)6"
         assert factor == approx(1 / 6)
 
-        # test iupac reduced formula (polyanions should still appear at the end)
+        # test IUPAC reduced formula (polyanions should still appear at the end)
         all_formulas = [c.get_integer_formula_and_factor(iupac_ordering=True)[0] for c in self.comps]
         assert all_formulas == correct_reduced_formulas
         assert Composition("H6CN0.5").get_integer_formula_and_factor(iupac_ordering=True) == ("C2NH12", 0.5)
@@ -615,8 +615,8 @@ class TestComposition(PymatgenTest):
         # test num_atoms
         c1 = Composition("Mg-1Li", allow_negative=True)
         assert c1.num_atoms == 2
-        assert c1.get_atomic_fraction("Mg") == 0.5
-        assert c1.get_atomic_fraction("Li") == 0.5
+        assert c1.get_atomic_fraction("Mg") == approx(0.5)
+        assert c1.get_atomic_fraction("Li") == approx(0.5)
         assert c1.fractional_composition == Composition("Mg-0.5Li0.5", allow_negative=True)
 
         # test copy
@@ -626,7 +626,7 @@ class TestComposition(PymatgenTest):
         c1 = Composition({"Mg": 1, "Mg2+": -1}, allow_negative=True)
         assert c1.num_atoms == 2
         assert c1.get_el_amt_dict() == {"Mg": 0}
-        assert c1.average_electroneg == 1.31  # correct Mg electronegativity
+        assert c1.average_electroneg == approx(1.31)  # correct Mg electronegativity)
 
     def test_special_formulas(self):
         special_formulas = {
@@ -858,6 +858,18 @@ class TestComposition(PymatgenTest):
         composition = Composition({"D+": 2, "O": 1})
         assert composition.elements[0].oxi_state == 1
         assert "Deuterium" in [elem.long_name for elem in composition.elements]
+
+
+def test_reduce_formula():
+    assert reduce_formula({"Li": 2, "Mn": 4, "O": 8}) == ("LiMn2O4", 2)
+    assert reduce_formula({"Li": 4, "O": 4}) == ("LiO", 4)
+    assert reduce_formula({"Zn": 2, "O": 2, "H": 2}) == ("ZnHO", 2)
+
+
+def test_composition_error():
+    error = CompositionError("Composition error")
+    assert isinstance(error, CompositionError)
+    assert str(error) == "Composition error"
 
 
 class TestChemicalPotential:

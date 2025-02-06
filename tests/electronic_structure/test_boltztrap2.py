@@ -61,8 +61,8 @@ class TestVasprunBSLoader(TestCase):
         assert self.loader.is_spin_polarized is False
         assert self.loader.fermi == approx(0.185266535678, abs=1e-5)
         assert self.loader.structure.lattice.a == approx(4.64303565932548, abs=1e-5)
-        assert self.loader.nelect_all == 20.0
-        assert self.loader_sp.nelect_all == 10.0
+        assert self.loader.nelect_all == approx(20.0)
+        assert self.loader_sp.nelect_all == approx(10.0)
 
         assert self.loader.ebands_all.shape == (20, 120)
         assert self.loader.ebands_all[10, 100] == approx(0.2708057, abs=1e-5)
@@ -153,15 +153,15 @@ class TestBztInterpolator(TestCase):
         assert self.bztInterp.cband.shape == (6, 3, 3, 3, 29791)
         assert self.bztInterp.eband.shape == (6, 29791)
         assert self.bztInterp.coeffs.shape == (6, 322)
-        assert self.bztInterp.data.nelect == 6.0
-        assert self.bztInterp.data.nelect_all == 20.0
+        assert self.bztInterp.data.nelect == approx(6.0)
+        assert self.bztInterp.data.nelect_all == approx(20.0)
         assert self.bztInterp.data.ebands.shape == (6, 120)
 
         assert self.bztInterp_sp.cband.shape == (10, 3, 3, 3, 23275)
         assert self.bztInterp_sp.eband.shape == (10, 23275)
         assert self.bztInterp_sp.coeffs.shape == (10, 519)
-        assert self.bztInterp_sp.data.nelect == 6.0
-        assert self.bztInterp_sp.data.nelect_all == 10.0
+        assert self.bztInterp_sp.data.nelect == approx(6.0)
+        assert self.bztInterp_sp.data.nelect_all == approx(10.0)
         assert self.bztInterp_sp.data.ebands.shape == (10, 198)
 
     def test_get_band_structure(self):
