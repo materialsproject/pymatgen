@@ -66,7 +66,7 @@ class TestMathUtils(PymatgenTest):
             560,
         ]
         center = get_center_of_arc([0.0, 0.0], [1.0, 0.0], 0.5)
-        assert center == (0.5, 0.0)
+        assert_allclose(center, (0.5, 0.0))
 
     def test_linearly_independent_vectors(self):
         v1, v2, v3 = np.eye(3)
@@ -87,100 +87,121 @@ class TestMathUtils(PymatgenTest):
         clamp0 = 0.0
         clamp1 = 1.0
         vals = np.linspace(5.0, 12.0, num=8)
-        assert scale_and_clamp(vals, edge0, edge1, clamp0, clamp1).tolist() == [
-            0.0,
-            0.0,
-            0.0,
-            0.25,
-            0.5,
-            0.75,
-            1.0,
-            1.0,
-        ]
+        assert_allclose(
+            scale_and_clamp(vals, edge0, edge1, clamp0, clamp1),
+            [
+                0.0,
+                0.0,
+                0.0,
+                0.25,
+                0.5,
+                0.75,
+                1.0,
+                1.0,
+            ],
+        )
 
     def test_smoothstep(self):
         vals = np.linspace(5.0, 12.0, num=8)
-        assert smoothstep(vals, edges=[0.0, 1.0]).tolist() == [1.0] * 8
-        assert smoothstep(vals, edges=[7.0, 11.0]).tolist() == [
-            0.0,
-            0.0,
-            0.0,
-            0.15625,
-            0.5,
-            0.84375,
-            1.0,
-            1.0,
-        ]
+        assert_allclose(smoothstep(vals, edges=[0.0, 1.0]), [1.0] * 8)
+        assert_allclose(
+            smoothstep(vals, edges=[7.0, 11.0]),
+            [
+                0.0,
+                0.0,
+                0.0,
+                0.15625,
+                0.5,
+                0.84375,
+                1.0,
+                1.0,
+            ],
+        )
 
     def test_smootherstep(self):
         vals = np.linspace(5.0, 12.0, num=8)
-        assert smootherstep(vals, edges=[0.0, 1.0]).tolist() == [1.0] * 8
-        assert smootherstep(vals, edges=[7.0, 11.0]).tolist() == [
-            0.0,
-            0.0,
-            0.0,
-            0.103515625,
-            0.5,
-            0.896484375,
-            1.0,
-            1.0,
-        ]
+        assert_allclose(smootherstep(vals, edges=[0.0, 1.0]), [1.0] * 8)
+        assert_allclose(
+            smootherstep(vals, edges=[7.0, 11.0]),
+            [
+                0.0,
+                0.0,
+                0.0,
+                0.103515625,
+                0.5,
+                0.896484375,
+                1.0,
+                1.0,
+            ],
+        )
 
     def test_power3_step(self):
         vals = np.linspace(5.0, 12.0, num=8)
-        assert power3_step(vals, edges=[0.0, 1.0]).tolist() == [1.0] * 8
-        assert power3_step(vals, edges=[7.0, 11.0]).tolist() == [
-            0.0,
-            0.0,
-            0.0,
-            0.15625,
-            0.5,
-            0.84375,
-            1.0,
-            1.0,
-        ]
+        assert_allclose(power3_step(vals, edges=[0.0, 1.0]), [1.0] * 8)
+        assert_allclose(
+            power3_step(vals, edges=[7.0, 11.0]),
+            [
+                0.0,
+                0.0,
+                0.0,
+                0.15625,
+                0.5,
+                0.84375,
+                1.0,
+                1.0,
+            ],
+        )
 
     def test_cosinus_step(self):
         vals = np.linspace(5.0, 12.0, num=8)
-        assert cosinus_step(vals, edges=[0.0, 1.0]).tolist() == [1.0] * 8
+        assert_allclose(cosinus_step(vals, edges=[0.0, 1.0]), [1.0] * 8)
         assert_allclose(
-            cosinus_step(vals, edges=[7.0, 11.0]).tolist(),
+            cosinus_step(vals, edges=[7.0, 11.0]),
             [0.0, 0.0, 0.0, 0.14644660940672616, 0.5, 0.8535533905932737, 1.0, 1.0],
             5,
         )
 
     def test_powern_parts_step(self):
         vals = np.linspace(5.0, 12.0, num=8)
-        assert powern_parts_step(vals, edges=[0.0, 1.0], nn=2).tolist() == [1.0] * 8
-        assert powern_parts_step(vals, edges=[0.0, 1.0], nn=3).tolist() == [1.0] * 8
-        assert powern_parts_step(vals, edges=[0.0, 1.0], nn=4).tolist() == [1.0] * 8
-        assert powern_parts_step(vals, edges=[7.0, 11.0], nn=2).tolist() == [
-            0.0,
-            0.0,
-            0.0,
-            0.125,
-            0.5,
-            0.875,
-            1.0,
-            1.0,
-        ]
-        assert powern_parts_step(vals, edges=[7.0, 11.0], nn=3).tolist() == [
-            0.0,
-            0.0,
-            0.0,
-            0.0625,
-            0.5,
-            0.9375,
-            1.0,
-            1.0,
-        ]
-        assert powern_parts_step(vals, edges=[7.0, 11.0], nn=4).tolist() == [
-            0.0,
-            0.0,
-            0.0,
-            0.03125,
-            0.5,
-            0.96875,
-            1.0,
-            1.0,
-        ]
+        assert_allclose(powern_parts_step(vals, edges=[0.0, 1.0], nn=2), [1.0] * 8)
+        assert_allclose(powern_parts_step(vals, edges=[0.0, 1.0], nn=3), [1.0] * 8)
+        assert_allclose(powern_parts_step(vals, edges=[0.0, 1.0], nn=4), [1.0] * 8)
+        assert_allclose(
+            powern_parts_step(vals, edges=[7.0, 11.0], nn=2),
+            [
+                0.0,
+                0.0,
+                0.0,
+                0.125,
+                0.5,
+                0.875,
+                1.0,
+                1.0,
+            ],
+        )
+        assert_allclose(
+            powern_parts_step(vals, edges=[7.0, 11.0], nn=3),
+            [
+                0.0,
+                0.0,
+                0.0,
+                0.0625,
+                0.5,
+                0.9375,
+                1.0,
+                1.0,
+            ],
+        )
+        assert_allclose(
+            powern_parts_step(vals, edges=[7.0, 11.0], nn=4),
+            [
+                0.0,
+                0.0,
+                0.0,
+                0.03125,
+                0.5,
+                0.96875,
+                1.0,
+                1.0,
+            ],
+        )

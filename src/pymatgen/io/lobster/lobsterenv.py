@@ -16,7 +16,6 @@ import copy
 import math
 import tempfile
 from typing import TYPE_CHECKING, NamedTuple
-import warnings
 
 import matplotlib as mpl
 import numpy as np
@@ -944,7 +943,7 @@ class LobsterNeighbors(NearNeighbors):
             if len(neighbors_from_ICOHPs) > 0:
                 centralsite = site
                 copysite = copy.copy(centralsite)
-                cell_start = centralsite.frac_coords - copysite.to_unit_cell().frac_coords
+                centralsite.frac_coords - copysite.to_unit_cell().frac_coords
                 neighbors_by_distance_start = self.structure.get_sites_in_sphere(
                     pt=centralsite.coords,
                     r=np.max(lengths_from_ICOHPs) + 0.5,

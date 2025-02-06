@@ -20,7 +20,7 @@ import warnings
 from abc import ABC, abstractmethod
 from collections import defaultdict
 from fnmatch import fnmatch
-from typing import TYPE_CHECKING, Literal, cast, get_args
+from typing import TYPE_CHECKING, Literal, cast, get_args, overload
 
 import numpy as np
 from monty.dev import deprecated
@@ -43,12 +43,15 @@ from pymatgen.core.units import Length, Mass
 from pymatgen.electronic_structure.core import Magmom
 from pymatgen.symmetry.maggroups import MagneticSpaceGroup
 from pymatgen.util.coord import all_distances, get_angle, lattice_points_in_supercell
+from pymatgen.util.due import Doi, due
 
 if TYPE_CHECKING:
     from collections.abc import Callable, Iterable, Iterator, Sequence
     from typing import Any, ClassVar, SupportsIndex, TypeAlias
 
+    import moyopy
     import pandas as pd
+    import spglib
     from ase import Atoms
     from ase.calculators.calculator import Calculator
     from ase.io.trajectory import Trajectory
@@ -3338,6 +3341,83 @@ class IStructure(SiteCollection, MSONable):
         """
         return self.to_cell("conventional", **kwargs)
 
+    @overload
+    def get_symmetry_dataset(self, backend: Literal["moyopy"], **kwargs) -> moyopy.MoyoDataset: ...
+
+    @due.dcite(
+        Doi("10.1080/27660400.2024.2384822"),
+        description="Spglib: a software library for crystal symmetry search",
+    )
+    @overload
+    def get_symmetry_dataset(self, backend: Literal["spglib"], **kwargs) -> spglib.SpglibDataset: ...
+
+    def get_symmetry_dataset(
+        self, backend: Literal["moyopy", "spglib"] = "spglib", return_raw_dataset=False, symprec: float = 1e-2, **kwargs
+    ) -> dict | moyopy.MoyoDataset | spglib.SpglibDataset:
+        """Get a symmetry dataset from the structure using either moyopy or spglib backend.
+
+        If using the spglib backend (default), please cite:
+
+        Togo, A., Shinohara, K., & Tanaka, I. (2024). Spglib: a software library for crystal
+        symmetry search. Science and Technology of Advanced Materials: Methods, 4(1), 2384822-2384836.
+        https://doi.org/10.1080/27660400.2024.2384822
+
+        Args:
+            backend ("moyopy" | "spglib"): Which symmetry analysis backend to use.
+                Defaults to "spglib".
+            return_raw_dataset (bool): Whether to return the raw Dataset object from the backend. The default is
+                False, which returns a dict with a common subset of the data present in both datasets. If you use the
+                raw Dataset object, we do not guarantee that the format of the output is not going to change.
+            symprec (float): Tolerance for symmetry determination. Defaults to 0.01 A.
+            **kwargs: Additional arguments passed to the respective backend's constructor.
+                For spglib, these are passed to SpacegroupAnalyzer (e.g. symprec, angle_tolerance).
+                For moyopy, these are passed to MoyoDataset constructor.
+
+        Returns:
+            MoyoDataset | SpglibDataset: Symmetry dataset from the chosen backend.
+
+        Raises:
+            ImportError: If the requested backend is not installed.
+            ValueError: If an invalid backend is specified.
+        """
+        if backend not in ("moyopy", "spglib"):
+            raise ValueError(f"Invalid {backend=}, must be one of moyopy or spglib.")
+
+        if backend == "moyopy":
+            try:
+                import moyopy
+                import moyopy.interface
+            except ImportError:
+                raise ImportError("moyopy is not installed. Run pip install moyopy.")
+
+            # Convert structure to MoyoDataset format
+            moyo_cell = moyopy.interface.MoyoAdapter.from_structure(self)
+            dataset = moyopy.MoyoDataset(cell=moyo_cell, symprec=symprec, **kwargs)
+
+        else:
+            from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
+
+            sga = SpacegroupAnalyzer(self, symprec=symprec, **kwargs)
+            dataset = sga.get_symmetry_dataset()
+
+        if return_raw_dataset:
+            return dataset
+
+        dictdata = {k: getattr(dataset, k) for k in ("hall_number", "number", "site_symmetry_symbols", "wyckoffs")}
+
+        if backend == "spglib":
+            dictdata["international"] = dataset.international
+            dictdata["orbits"] = dataset.crystallographic_orbits
+            dictdata["std_origin_shift"] = dataset.origin_shift
+        else:
+            from pymatgen.symmetry.groups import SpaceGroup
+
+            dictdata["international"] = SpaceGroup.from_int_number(dataset.number).symbol
+            dictdata["orbits"] = dataset.orbits
+            dictdata["std_origin_shift"] = dataset.std_origin_shift
+
+        return dictdata
+
 
 class IMolecule(SiteCollection, MSONable):
     """Basic immutable Molecule object without periodicity. Essentially a
@@ -4635,16 +4715,16 @@ class Structure(IStructure, collections.abc.MutableSequence):
 
         return self
 
-    def perturb(self, distance: float, min_distance: float | None = None) -> Self:
+    def perturb(self, distance: float, min_distance: float | None = None, seed: int = 0) -> Self:
         """Perform a random perturbation of the sites in a structure to break
         symmetries. Modifies the structure in place.
 
         Args:
             distance (float): Distance in angstroms by which to perturb each site.
             min_distance (None, int, or float): if None, all displacements will
-                be equal amplitude. If int or float, perturb each site a
-                distance drawn from the uniform distribution between
-                'min_distance' and 'distance'.
+                be equal amplitude. If int or float, perturb each site a distance drawn
+                from the uniform distribution between 'min_distance' and 'distance'.
+            seed (int): Seed for the random number generator. Defaults to 0.
 
         Returns:
             Structure: self with perturbed sites.
@@ -4652,7 +4732,7 @@ class Structure(IStructure, collections.abc.MutableSequence):
 
         def get_rand_vec():
             # Deal with zero vectors
-            rng = np.random.default_rng()
+            rng = np.random.default_rng(seed=seed)
             vector = rng.standard_normal(3)
             vnorm = np.linalg.norm(vector)
             dist = distance

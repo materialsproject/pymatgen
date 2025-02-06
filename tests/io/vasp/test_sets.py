@@ -208,7 +208,7 @@ class TestMITMPRelaxSet(PymatgenTest):
         assert vis.structure is None
         inputs = vis.get_input_set(structure=self.structure)
         assert {*inputs} == {"INCAR", "KPOINTS", "POSCAR", "POTCAR"}
-        assert vis.incar["LDAUU"] == [5.3, 0, 0]
+        assert_allclose(vis.incar["LDAUU"], [5.3, 0, 0])
         assert vis.as_dict()["structure"] is not None
         assert "structure" not in vis.as_dict(verbosity=1)
 
@@ -358,11 +358,11 @@ class TestMITMPRelaxSet(PymatgenTest):
     def test_get_incar(self):
         incar = self.mp_set.incar
 
-        assert incar["LDAUU"] == [5.3, 0, 0]
+        assert_allclose(incar["LDAUU"], [5.3, 0, 0])
         assert incar["EDIFF"] == approx(0.0012)
 
         incar = self.mit_set.incar
-        assert incar["LDAUU"] == [4.0, 0, 0]
+        assert_allclose(incar["LDAUU"], [4.0, 0, 0])
         assert incar["EDIFF"] == approx(1e-5)
 
         si = 14
@@ -393,42 +393,42 @@ class TestMITMPRelaxSet(PymatgenTest):
         # check fluorides
         struct = Structure(lattice, ["Fe", "F"], coords)
         incar = MPRelaxSet(struct).incar
-        assert incar["LDAUU"] == [5.3, 0]
-        assert incar["MAGMOM"] == [5, 0.6]
+        assert_allclose(incar["LDAUU"], [5.3, 0])
+        assert_allclose(incar["MAGMOM"], [5, 0.6])
 
         struct = Structure(lattice, ["Fe", "F"], coords)
         incar = self.set(struct).incar
-        assert incar["LDAUU"] == [4.0, 0]
+        assert_allclose(incar["LDAUU"], [4.0, 0])
 
         # This seems counterintuitive at first, but even if the prior INCAR has a MAGMOM flag,
         # because the structure has no site properties, the default MAGMOM is assigned from the
         # config dictionary.
         struct = Structure(lattice, ["Fe", "F"], coords)
         incar = MPStaticSet(struct, prev_incar=f"{VASP_IN_DIR}/INCAR").incar
-        assert incar["MAGMOM"] == [5, 0.6]
+        assert_allclose(incar["MAGMOM"], [5, 0.6])
 
         # Make sure this works with species.
         struct = Structure(lattice, ["Fe2+", "O2-"], coords)
         incar = MPRelaxSet(struct).incar
-        assert incar["LDAUU"] == [5.3, 0]
+        assert_allclose(incar["LDAUU"], [5.3, 0])
 
         struct = Structure(lattice, ["Fe", "Mn"], coords, site_properties={"magmom": (5.2, -4.5)})
         incar = MPRelaxSet(struct).incar
-        assert incar["MAGMOM"] == [-4.5, 5.2]
+        assert_allclose(incar["MAGMOM"], [-4.5, 5.2])
 
         incar = self.set(struct, sort_structure=False).incar
-        assert incar["MAGMOM"] == [5.2, -4.5]
+        assert_allclose(incar["MAGMOM"], [5.2, -4.5])
 
         struct = Structure(lattice, [Species("Fe2+", spin=4.1), "Mn"], coords)
         incar = MPRelaxSet(struct).incar
-        assert incar["MAGMOM"] == [5, 4.1]
+        assert_allclose(incar["MAGMOM"], [5, 4.1])
 
         struct = Structure(lattice, ["Mn3+", "Mn4+"], coords)
         incar = self.set(struct).incar
         assert incar["MAGMOM"] == [4, 3]
 
         user_set = MPRelaxSet(struct, user_incar_settings={"MAGMOM": {"Fe": 10, "S": -5, "Mn3+": 100}})
-        assert user_set.incar["MAGMOM"] == [100, 0.6]
+        assert_allclose(user_set.incar["MAGMOM"], [100, 0.6])
 
         no_encut_set = MPRelaxSet(struct, user_incar_settings={"ENCUT": None})
         assert "ENCUT" not in no_encut_set.incar
@@ -438,26 +438,26 @@ class TestMITMPRelaxSet(PymatgenTest):
 
         struct = Structure(lattice, ["Fe", "Fe", "S"], coords)
         incar = self.set(struct).incar
-        assert incar["LDAUU"] == [1.9, 0]
+        assert_allclose(incar["LDAUU"], [1.9, 0])
 
         # Make sure MP sulfides are ok.
         assert "LDAUU" not in MPRelaxSet(struct).incar
 
         struct = Structure(lattice, ["Fe", "S", "O"], coords)
         incar = self.set(struct).incar
-        assert incar["LDAUU"] == [4.0, 0, 0]
+        assert_allclose(incar["LDAUU"], [4.0, 0, 0])
 
         # Make sure MP sulfates are ok.
-        assert MPRelaxSet(struct).incar["LDAUU"] == [5.3, 0, 0]
+        assert_allclose(MPRelaxSet(struct).incar["LDAUU"], [5.3, 0, 0])
 
         # test for default LDAUU value
         user_set_ldauu_fallback = MPRelaxSet(struct, user_incar_settings={"LDAUU": {"Fe": 5.0, "S": 0}})
-        assert user_set_ldauu_fallback.incar["LDAUU"] == [5.0, 0, 0]
+        assert_allclose(user_set_ldauu_fallback.incar["LDAUU"], [5.0, 0, 0])
 
         # Expected to be oxide (O is the most electronegative atom)
         struct = Structure(lattice, ["Fe", "O", "S"], coords)
         incar = self.set(struct).incar
-        assert incar["LDAUU"] == [4.0, 0, 0]
+        assert_allclose(incar["LDAUU"], [4.0, 0, 0])
 
         # Expected to be chloride (Cl is the most electronegative atom)
         struct = Structure(lattice, ["Fe", "Cl", "S"], coords)
@@ -474,8 +474,8 @@ class TestMITMPRelaxSet(PymatgenTest):
                 "LDAUU": {"Fe": 1.8},
             },
         ).incar
-        assert incar["LDAUL"] == [3.0, 0, 0]
-        assert incar["LDAUU"] == [1.8, 0, 0]
+        assert_allclose(incar["LDAUL"], [3.0, 0, 0])
+        assert_allclose(incar["LDAUU"], [1.8, 0, 0])
 
         # test that van-der-Waals parameters are parsed correctly
 
@@ -488,7 +488,7 @@ class TestMITMPRelaxSet(PymatgenTest):
         incar = self.set(struct, vdw="optB86b").incar
         assert incar["GGA"] == "Mk"
         assert incar["LUSE_VDW"]
-        assert incar["PARAM1"] == 0.1234
+        assert incar["PARAM1"] == approx(0.1234)
 
         # Test that NELECT is updated when a charge is present
         si = 14
@@ -512,10 +512,10 @@ class TestMITMPRelaxSet(PymatgenTest):
 
         struct = Structure(lattice, ["Co", "O"], coords)
         mpr = MPRelaxSet(struct)
-        assert mpr.incar["MAGMOM"] == [0.6, 0.6]
+        assert_allclose(mpr.incar["MAGMOM"], [0.6, 0.6])
         struct = Structure(lattice, ["Co4+", "O"], coords)
         mpr = MPRelaxSet(struct)
-        assert mpr.incar["MAGMOM"] == [1, 0.6]
+        assert_allclose(mpr.incar["MAGMOM"], [1, 0.6])
 
         # test passing user_incar_settings and user_kpoint_settings of None
         for set_cls in [MPRelaxSet, MPStaticSet, MPNonSCFSet]:
@@ -561,7 +561,7 @@ class TestMITMPRelaxSet(PymatgenTest):
         mp_metal_set = MPMetalRelaxSet(self.get_structure("Sn"))
         incar = mp_metal_set.incar
         assert incar["ISMEAR"] == 1
-        assert incar["SIGMA"] == 0.2
+        assert incar["SIGMA"] == approx(0.2)
         kpoints = mp_metal_set.kpoints
         assert_allclose(kpoints.kpts[0], (5, 5, 5))
 
@@ -579,7 +579,7 @@ class TestMITMPRelaxSet(PymatgenTest):
 
         dct = mp_set.as_dict()
         val = MontyDecoder().process_decoded(dct)
-        assert val._config_dict["INCAR"]["LDAUU"]["O"]["Fe"] == 5.3
+        assert val._config_dict["INCAR"]["LDAUU"]["O"]["Fe"] == approx(5.3)
 
         dct = mp_user_set.as_dict()
         val = MontyDecoder().process_decoded(dct)
@@ -589,7 +589,7 @@ class TestMITMPRelaxSet(PymatgenTest):
     def test_hubbard_off_and_ediff_override(self):
         input_set = MPRelaxSet(self.structure, user_incar_settings={"LDAU": False, "EDIFF": 1e-10})
         assert "LDAUU" not in input_set.incar
-        assert input_set.incar["EDIFF"] == 1e-10
+        assert input_set.incar["EDIFF"] == approx(1e-10)
         # after testing, we have determined LMAXMIX should still be 4 for d-block
         # even if U is turned off (thanks Andrew Rosen for reporting)
         assert input_set.incar["LMAXMIX"] == 4
@@ -684,7 +684,7 @@ class TestMITMPRelaxSet(PymatgenTest):
         #     vis.get_input_set()
 
         vis = MPRelaxSet(struct, user_potcar_settings={"Fe": "Fe"}, validate_magmom=True)
-        assert vis.get_input_set()["INCAR"]["MAGMOM"] == [1.0] * len(struct)
+        assert_allclose(vis.get_input_set()["INCAR"]["MAGMOM"], [1.0] * len(struct))
 
         # Test the behavior of constraining the net magnetic moment with a non-integer
         struct = self.structure.copy()
@@ -718,7 +718,7 @@ class TestMITMPRelaxSet(PymatgenTest):
         # no `prev_vasprun` --> default value of NEDOS
         assert vis._get_nedos(0.1) == 2000
         vis.prev_vasprun = vrun
-        assert vis._get_nedos(0.1) == pytest.approx(741, abs=1)
+        assert vis._get_nedos(0.1) == approx(741, abs=1)
 
 
 class TestMPStaticSet(PymatgenTest):
@@ -758,7 +758,7 @@ class TestMPStaticSet(PymatgenTest):
         leps_vis = self.set.from_prev_calc(prev_calc_dir=prev_run, lepsilon=True)
         assert leps_vis.incar["LEPSILON"]
         assert leps_vis.incar["IBRION"] == 8
-        assert leps_vis.incar["EDIFF"] == 1e-5
+        assert leps_vis.incar["EDIFF"] == approx(1e-5)
         assert "NPAR" not in leps_vis.incar
         assert leps_vis.incar["NSW"] == 1
         assert non_prev_vis.kpoints.kpts == [(11, 10, 10)]
@@ -791,7 +791,7 @@ class TestMPStaticSet(PymatgenTest):
         # Make sure user KSPACING settings properly overrides KPOINTS.
         si = self.get_structure("Si")
         vis = self.set(si, user_incar_settings={"KSPACING": 0.22})
-        assert vis.incar["KSPACING"] == 0.22
+        assert vis.incar["KSPACING"] == approx(0.22)
         assert vis.kpoints is None
 
     def test_kspacing_override(self):
@@ -882,13 +882,13 @@ class TestMatPESStaticSet(PymatgenTest):
         input_set = MatPESStaticSet(self.struct)
         incar = input_set.incar
         assert incar["ALGO"] == "Normal"
-        assert incar["EDIFF"] == 1.0e-05
+        assert incar["EDIFF"] == approx(1.0e-05)
         assert incar["ENAUG"] == 1360
         assert incar["ENCUT"] == 680
         assert incar["GGA"] == "Pe"
         assert incar["ISMEAR"] == 0
         assert incar["ISPIN"] == 2
-        assert incar["KSPACING"] == 0.22
+        assert incar["KSPACING"] == approx(0.22)
         assert incar["LAECHG"]
         assert incar["LASPH"]
         assert incar["LCHARG"]
@@ -900,7 +900,7 @@ class TestMatPESStaticSet(PymatgenTest):
         assert incar["NELM"] == 200
         assert incar["NSW"] == 0
         assert incar["PREC"] == "Accurate"
-        assert incar["SIGMA"] == 0.05
+        assert incar["SIGMA"] == approx(0.05)
         assert incar["LMAXMIX"] == 6
         assert input_set.potcar_symbols == ["Fe_pv", "P", "O"]
 
@@ -921,13 +921,13 @@ class TestMatPESStaticSet(PymatgenTest):
             assert key not in incar, f"{key=} should be absent, got {incar[key]=}"
         # test if default in MatPESStaticSet is prioritized.
         assert incar["ALGO"] == "Normal"
-        assert incar["EDIFF"] == 1.0e-05
+        assert incar["EDIFF"] == approx(1.0e-05)
         assert incar["ENAUG"] == 1360
         assert incar["ENCUT"] == 680
         assert incar["GGA"] == "Pe"
         assert incar["ISMEAR"] == 0
         assert incar["ISPIN"] == 2
-        assert incar["KSPACING"] == 0.22
+        assert incar["KSPACING"] == approx(0.22)
         assert incar["LAECHG"]
         assert incar["LASPH"]
         assert incar["LCHARG"]
@@ -939,7 +939,7 @@ class TestMatPESStaticSet(PymatgenTest):
         assert incar["NELM"] == 200
         assert incar["NSW"] == 0
         assert incar["PREC"] == "Accurate"
-        assert incar["SIGMA"] == 0.05
+        assert incar["SIGMA"] == approx(0.05)
         # test POTCAR files are default PBE_64 PSPs and functional
         assert default_prev.potcar_symbols == ["Fe_pv", "P", "O"]
         assert default_prev.potcar_functional == "PBE_64"
@@ -964,7 +964,7 @@ class TestMatPESStaticSet(PymatgenTest):
         assert incar_u["GGA"] == "Pe"
         assert incar_u["ALGO"] == "Normal"
         # test POTCAR files are default PBE_64 PSPs and functional
-        assert incar_u["LDAUU"] == [5.3, 0, 0]
+        assert_allclose(incar_u["LDAUU"], [5.3, 0, 0])
         assert default_u.potcar_symbols == ["Fe_pv", "P", "O"]
         assert default_u.potcar_functional == "PBE_64"
         assert default_u.kpoints is None
@@ -1032,7 +1032,7 @@ class TestMPNonSCFSet(PymatgenTest):
         # Check that the ENCUT has been inherited.
         assert vis.incar["ENCUT"] == 600
         # Check that the user_incar_settings works
-        assert vis.incar["SIGMA"] == 0.025
+        assert vis.incar["SIGMA"] == approx(0.025)
         assert vis.kpoints.style == Kpoints.supported_modes.Reciprocal
 
         # Check as from dict.
@@ -1085,7 +1085,7 @@ class TestMPNonSCFSet(PymatgenTest):
 
         assert vis.incar["NSW"] == 0
         assert vis.incar["ENCUT"] == 600
-        assert vis.incar["SIGMA"] == 0.025
+        assert vis.incar["SIGMA"] == approx(0.025)
         assert vis.kpoints.style == Kpoints.supported_modes.Reciprocal
 
         vis = self.set(dummy_structure, mode="Line", copy_chgcar=True)
@@ -1132,7 +1132,7 @@ class TestMPNonSCFSet(PymatgenTest):
         assert vis.incar["ISYM"] == 2
 
         # Check OPTICS=True INCAR settings, LREAL needs to be False when LOPTICS=True
-        assert vis.incar["CSHIFT"] == 1e-5
+        assert vis.incar["CSHIFT"] == approx(1e-5)
         assert vis.incar["LREAL"] is False
         assert vis.incar["LOPTICS"]
 
@@ -1228,7 +1228,7 @@ class TestMITMDSet(PymatgenTest):
         vis.nsteps = (vis.end_temp - vis.start_temp) / vis.time_step
         assert vis.incar["TEBEG"] == 0
         assert vis.incar["TEEND"] == 1000
-        assert vis.incar["POTIM"] == 0.5
+        assert vis.incar["POTIM"] == approx(0.5)
         assert vis.incar["NSW"] == 2000
 
 
@@ -1288,20 +1288,20 @@ class TestMPMDSet(PymatgenTest):
         assert incar["IBRION"] == 0
         assert incar["ISIF"] == 0
         assert incar["ISYM"] == 0
-        assert incar["POTIM"] == 2.0
+        assert incar["POTIM"] == approx(2.0)
 
     def test_incar_no_ts_with_h(self):
         mpmdset = self.mp_md_set_noTS_with_H
         incar = mpmdset.incar
 
-        assert incar["POTIM"] == 0.5
+        assert incar["POTIM"] == approx(0.5)
         assert incar["NSW"] == 4000
 
     def test_incar_ts1(self):
         mpmdset = self.mp_md_set_TS1
         incar = mpmdset.incar
 
-        assert incar["POTIM"] == 1.0
+        assert incar["POTIM"] == approx(1.0)
         assert incar["NSW"] == 1000
 
     def test_as_from_dict(self):
@@ -1376,7 +1376,7 @@ class TestMPSOCSet(PymatgenTest):
         assert vis.incar["ICHARG"] == 11
         assert vis.incar["SAXIS"] == [1, 0, 0]
         assert vis.incar["MAGMOM"] == [[0, 0, 3]]
-        assert vis.incar["SIGMA"] == 0.025
+        assert vis.incar["SIGMA"] == approx(0.025)
 
     def test_override_from_prev_calc(self):
         # test override_from_prev_calc
@@ -1393,7 +1393,7 @@ class TestMPSOCSet(PymatgenTest):
         assert vis.incar["ICHARG"] == 11
         assert vis.incar["SAXIS"] == [1, 0, 0]
         assert vis.incar["MAGMOM"] == [[0, 0, 3]]
-        assert vis.incar["SIGMA"] == 0.025
+        assert vis.incar["SIGMA"] == approx(0.025)
 
 
 class TestMPNMRSet(PymatgenTest):
@@ -1407,14 +1407,14 @@ class TestMPNMRSet(PymatgenTest):
 
         vis = MPNMRSet(structure, mode="efg")
         assert not vis.incar.get("LCHIMAG")
-        assert vis.incar.get("QUAD_EFG") == [-0.808]
+        assert_allclose(vis.incar.get("QUAD_EFG"), [-0.808])
         for q in vis.incar["QUAD_EFG"]:
             assert isinstance(q, float)
             assert not isinstance(q, FloatWithUnit)
 
         vis = MPNMRSet(structure, mode="efg", isotopes=["Li-7"])
         assert not vis.incar.get("LCHIMAG")
-        assert vis.incar.get("QUAD_EFG") == [-40.1]
+        assert_allclose(vis.incar.get("QUAD_EFG"), [-40.1])
 
 
 @skip_if_no_psp_dir
@@ -1439,15 +1439,15 @@ class TestMVLSlabSet(PymatgenTest):
         # Make sure user incar settings properly override AMIX.
         si = self.get_structure("Si")
         vis = self.set(si, user_incar_settings={"AMIX": 0.1})
-        assert vis.incar["AMIX"] == 0.1
+        assert vis.incar["AMIX"] == approx(0.1)
 
     def test_bulk(self):
         incar_bulk = self.d_bulk["INCAR"]
         poscar_bulk = self.d_bulk["POSCAR"]
 
         assert incar_bulk["ISIF"] == 3
-        assert incar_bulk["EDIFF"] == 1e-4
-        assert incar_bulk["EDIFFG"] == -0.02
+        assert incar_bulk["EDIFF"] == approx(1e-4)
+        assert incar_bulk["EDIFFG"] == approx(-0.02)
         assert poscar_bulk.structure.formula == self.bulk.formula
 
     def test_slab(self):
@@ -1455,9 +1455,9 @@ class TestMVLSlabSet(PymatgenTest):
         poscar_slab = self.d_slab["POSCAR"]
         potcar_slab = self.d_slab["POTCAR"]
 
-        assert incar_slab["AMIN"] == 0.01
-        assert incar_slab["AMIX"] == 0.2
-        assert incar_slab["BMIX"] == 0.001
+        assert incar_slab["AMIN"] == approx(0.01)
+        assert incar_slab["AMIX"] == approx(0.2)
+        assert incar_slab["BMIX"] == approx(0.001)
         assert incar_slab["NELMIN"] == 8
         # No volume relaxation during slab calculations
         assert incar_slab["ISIF"] == 2
@@ -1496,7 +1496,7 @@ class TestMVLElasticSet(PymatgenTest):
         incar = mvlparam.incar
         assert incar["IBRION"] == 6
         assert incar["NFREE"] == 2
-        assert incar["POTIM"] == 0.015
+        assert incar["POTIM"] == approx(0.015)
         assert "NPAR" not in incar
 
 
@@ -1516,7 +1516,7 @@ class TestMVLGWSet(PymatgenTest):
             _ = self.set(mode=mode)
         mvlgwsc = self.set(self.struct)
         incar = mvlgwsc.incar
-        assert incar["SIGMA"] == 0.01
+        assert incar["SIGMA"] == approx(0.01)
         kpoints = mvlgwsc.kpoints
         assert kpoints.style == Kpoints.supported_modes.Gamma
         symbols = mvlgwsc.potcar.symbols
@@ -1593,21 +1593,21 @@ class TestMPHSERelaxSet(PymatgenTest):
     def test_vdw_and_lasph_dftd3(self):
         vis = self.set(self.structure, vdw="dftd3")
         assert vis.incar["LASPH"], "LASPH is not set to True"
-        assert vis.incar["VDW_SR"] == pytest.approx(1.129), "VDW_SR is not set correctly"
-        assert vis.incar["VDW_S8"] == pytest.approx(0.109), "VDW_S8 is not set correctly"
+        assert vis.incar["VDW_SR"] == approx(1.129), "VDW_SR is not set correctly"
+        assert vis.incar["VDW_S8"] == approx(0.109), "VDW_S8 is not set correctly"
 
     def test_vdw_and_lasph_dftd3_bj(self):
         vis = self.set(self.structure, vdw="dftd3-bj")
         assert vis.incar["LASPH"], "LASPH is not set to True"
-        assert vis.incar["VDW_A1"] == pytest.approx(0.383), "VDW_A1 is not set correctly"
-        assert vis.incar["VDW_S8"] == pytest.approx(2.310), "VDW_S8 is not set correctly"
-        assert vis.incar["VDW_A2"] == pytest.approx(5.685), "VDW_A2 is not set correctly"
+        assert vis.incar["VDW_A1"] == approx(0.383), "VDW_A1 is not set correctly"
+        assert vis.incar["VDW_S8"] == approx(2.310), "VDW_S8 is not set correctly"
+        assert vis.incar["VDW_A2"] == approx(5.685), "VDW_A2 is not set correctly"
 
     def test_user_incar_settings(self):
         user_incar_settings = {"LASPH": False, "VDW_SR": 1.5}
         vis = self.set(self.structure, vdw="dftd3", user_incar_settings=user_incar_settings)
         assert not vis.incar["LASPH"], "LASPH user setting not applied"
-        assert vis.incar["VDW_SR"] == 1.5, "VDW_SR user setting not applied"
+        assert vis.incar["VDW_SR"] == approx(1.5), "VDW_SR user setting not applied"
 
     def test_from_prev_calc(self):
         prev_run = os.path.join(TEST_DIR, "fixtures", "relaxation")
@@ -1660,7 +1660,7 @@ class TestMPHSEBS(PymatgenTest):
 
         vis = self.set.from_prev_calc(prev_calc_dir=prev_run, mode="line")
         assert vis.incar["LHFCALC"]
-        assert vis.incar["HFSCREEN"] == 0.2
+        assert vis.incar["HFSCREEN"] == approx(0.2)
         assert vis.incar["NSW"] == 0
         assert vis.incar["ISYM"] == 3
         assert len(vis.kpoints.kpts) == 180
@@ -1694,7 +1694,7 @@ class TestMPHSEBS(PymatgenTest):
         vis = self.set(dummy_structure, mode="line")
         vis = vis.override_from_prev_calc(prev_calc_dir=prev_run)
         assert vis.incar["LHFCALC"]
-        assert vis.incar["HFSCREEN"] == 0.2
+        assert vis.incar["HFSCREEN"] == approx(0.2)
         assert vis.incar["NSW"] == 0
         assert vis.incar["ISYM"] == 3
         assert len(vis.kpoints.kpts) == 180
@@ -1716,12 +1716,12 @@ class TestMVLScanRelaxSet(PymatgenTest):
         assert incar["METAGGA"] == "Scan"
         assert incar["ADDGRID"] is True
         assert incar["LASPH"] is True
-        assert incar["SIGMA"] == 0.05
+        assert incar["SIGMA"] == approx(0.05)
         assert incar["ISMEAR"] == -5
         assert incar["NSW"] == 500
         # Test SCAN+rVV10
         scan_rvv10_set = self.set(self.struct, vdw="rVV10")
-        assert scan_rvv10_set.incar["BPARAM"] == 15.7
+        assert scan_rvv10_set.incar["BPARAM"] == approx(15.7)
 
     @skip_if_no_psp_dir
     def test_potcar(self):
@@ -1796,9 +1796,9 @@ class TestMPScanRelaxSet(PymatgenTest):
         assert incar["ENCUT"] == 680
         assert incar["NSW"] == 500
         # the default POTCAR contains metals, but no prev calc set --> bandgap unknown
-        assert incar["KSPACING"] == 0.22
+        assert incar["KSPACING"] == approx(0.22)
         assert incar["ISMEAR"] == 0
-        assert incar["SIGMA"] == 0.2
+        assert incar["SIGMA"] == approx(0.2)
 
         # https://github.com/materialsproject/pymatgen/pull/3036
         for bandgap in (-1e-12, 1e-5, 1e-3):
@@ -1825,7 +1825,7 @@ class TestMPScanRelaxSet(PymatgenTest):
             incar = MPScanRelaxSet(self.struct, bandgap=0.01, bandgap_tol=bandgap_tol).incar
             assert incar["KSPACING"] == approx(expected_kspacing, abs=1e-5), f"{bandgap_tol=}, {bandgap=}"
             assert incar["ISMEAR"] == -5 if bandgap > bandgap_tol else 2
-            assert incar["SIGMA"] == 0.05 if bandgap > bandgap_tol else 0.2
+            assert incar["SIGMA"] == approx(0.05 if bandgap > bandgap_tol else 0.2)
 
     def test_kspacing(self):
         # Test that KSPACING is capped at 0.44 for insulators
@@ -1841,7 +1841,7 @@ class TestMPScanRelaxSet(PymatgenTest):
             incar = MPScanRelaxSet(struct, bandgap=bandgap).incar
             assert incar["KSPACING"] == approx(expected, abs=1e-5)
             assert incar["ISMEAR"] == -5 if bandgap > 1e-4 else 2
-            assert incar["SIGMA"] == 0.05 if bandgap > 1e-4 else 0.2
+            assert incar["SIGMA"] == approx(0.05 if bandgap > 1e-4 else 0.2)
 
     def test_incar_overrides(self):
         # use 'user_incar_settings' to override the KSPACING, ISMEAR, and SIGMA
@@ -1851,15 +1851,15 @@ class TestMPScanRelaxSet(PymatgenTest):
             user_incar_settings={"KSPACING": 0.5, "ISMEAR": 0, "SIGMA": 0.05},
         )
         incar = mp_scan_set2.incar
-        assert incar["KSPACING"] == 0.5
+        assert incar["KSPACING"] == approx(0.5)
         assert incar["ISMEAR"] == 0
-        assert incar["SIGMA"] == 0.05
+        assert incar["SIGMA"] == approx(0.05)
 
     # Test SCAN+rVV10
     def test_rvv10(self):
         scan_rvv10_set = MPScanRelaxSet(self.struct, vdw="rVV10")
         assert "LUSE_VDW" in scan_rvv10_set.incar
-        assert scan_rvv10_set.incar["BPARAM"] == 15.7
+        assert scan_rvv10_set.incar["BPARAM"] == approx(15.7)
 
     def test_other_vdw(self):
         # should raise a warning.
@@ -1918,7 +1918,7 @@ class TestMPScanStaticSet(PymatgenTest):
         # Check that ENCUT and other INCAR settings were inherited.
         assert vis.incar["ENCUT"] == 680
         assert vis.incar["METAGGA"] == "R2scan"
-        assert vis.incar["KSPACING"] == 0.34292842
+        assert vis.incar["KSPACING"] == approx(0.34292842)
 
         non_prev_vis = self.set(
             vis.structure,
@@ -1932,7 +1932,7 @@ class TestMPScanStaticSet(PymatgenTest):
         # Check that ENCUT and other INCAR settings were inherited.
         assert non_prev_vis.incar["METAGGA"] == "R2scan"
         # the KSPACING will have the default value here, since no previous calc
-        assert non_prev_vis.incar["KSPACING"] == 0.22
+        assert non_prev_vis.incar["KSPACING"] == approx(0.22)
         # Check that user incar settings are applied.
         assert non_prev_vis.incar["ENCUT"] == 800
         assert non_prev_vis.incar["LORBIT"] == 12
@@ -1972,7 +1972,7 @@ class TestMPScanStaticSet(PymatgenTest):
         # Check that ENCUT and other INCAR settings were inherited.
         assert vis.incar["ENCUT"] == 680
         assert vis.incar["METAGGA"] == "R2scan"
-        assert vis.incar["KSPACING"] == 0.34292842
+        assert vis.incar["KSPACING"] == approx(0.34292842)
 
         # Check LCALCPOL flag
         lcalcpol_vis = self.set(dummy_structure, lcalcpol=True)
@@ -2116,7 +2116,7 @@ class TestLobsterSet(PymatgenTest):
         assert incar1["ISMEAR"] == -5
         assert incar1["ISYM"] == -1
         assert incar1["ALGO"] == "Normal"
-        assert incar1["EDIFF"] == 1e-6
+        assert incar1["EDIFF"] == approx(1e-6)
         incar2 = self.lobsterset2.incar
         assert incar2["ISYM"] == 0
         assert incar2["ISMEAR"] == 0
