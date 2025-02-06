@@ -87,6 +87,7 @@ class LobsterNeighbors(NearNeighbors):
         filename_blist_sg2: PathLike | None = None,
         id_blist_sg1: Literal["icoop", "icobi"] = "icoop",
         id_blist_sg2: Literal["icoop", "icobi"] = "icobi",
+        backward_compatibility: bool = False,
     ) -> None:
         """
         Args:
@@ -126,6 +127,7 @@ class LobsterNeighbors(NearNeighbors):
             filename_blist_sg2 (PathLike): Path to additional ICOOP, ICOBI data for structure graphs.
             id_blist_sg1 ("icoop" | "icobi"): Identity of data in filename_blist_sg1.
             id_blist_sg2 ("icoop" | "icobi"): Identity of data in filename_blist_sg2.
+            backward_compatibility (bool): compatiblity with neighbor detection  prior 2025 (less strict).
         """
         if filename_icohp is not None:
             self.ICOHP = Icohplist(are_coops=are_coops, are_cobis=are_cobis, filename=filename_icohp)
@@ -148,6 +150,7 @@ class LobsterNeighbors(NearNeighbors):
 
         self.id_blist_sg1 = id_blist_sg1.lower()
         self.id_blist_sg2 = id_blist_sg2.lower()
+        self.backward_compatibility = backward_compatibility
 
         allowed_arguments = {"icoop", "icobi"}
         if self.id_blist_sg1 not in allowed_arguments or self.id_blist_sg2 not in allowed_arguments:
@@ -700,7 +703,7 @@ class LobsterNeighbors(NearNeighbors):
                             upperlimit=upperlimit,
                             only_bonds_to=self.only_bonds_to,
                         )
-
+                        # TODO: check if necessary!
                         done = False
                         for icohp in icohps.values():
                             atomnr1 = self._get_atomnumber(icohp._atom1)
@@ -981,28 +984,57 @@ class LobsterNeighbors(NearNeighbors):
                 for neigh_idx, neigh in enumerate(neighbors_by_distance):
                     index_here2 = index_here_list[neigh_idx]
                     for dist_idx, dist in enumerate(copied_distances_from_ICOHPs):
-                        if (
-                            np.isclose(dist, list_distances[neigh_idx], rtol=1e-4)
-                            and copied_neighbors_from_ICOHPs[dist_idx] == index_here2
-                            and (
-                                (
-                                    copied_translations_from_ICOHPs[dist_idx][0]
-                                    == -translations_by_distance[neigh_idx][0]
-                                    and copied_translations_from_ICOHPs[dist_idx][1]
-                                    == -translations_by_distance[neigh_idx][1]
-                                    and copied_translations_from_ICOHPs[dist_idx][2]
-                                    == -translations_by_distance[neigh_idx][2]
-                                )
-                                or (
-                                    copied_translations_from_ICOHPs[dist_idx][0]
-                                    == translations_by_distance[neigh_idx][0]
-                                    and copied_translations_from_ICOHPs[dist_idx][1]
-                                    == translations_by_distance[neigh_idx][1]
-                                    and copied_translations_from_ICOHPs[dist_idx][2]
-                                    == translations_by_distance[neigh_idx][2]
-                                )
+                        if not self.backward_compatibility:
+                            comparison = (
+                                np.isclose(dist, list_distances[neigh_idx], rtol=1e-4)
+                                and copied_neighbors_from_ICOHPs[dist_idx] == index_here2
+                                and ((
+                                    copied_translations_from_ICOHPs[dist_idx][0] ==
+                                translations_by_distance[neigh_idx][0]
+                                    and copied_translations_from_ICOHPs[dist_idx][1] ==
+                                    translations_by_distance[neigh_idx][1]
+                                    and copied_translations_from_ICOHPs[dist_idx][2] ==
+                                    translations_by_distance[neigh_idx][2]
+                                ) or
+                                     (
+                                         copied_translations_from_ICOHPs[dist_idx][0] ==
+                                         -translations_by_distance[neigh_idx][0]
+                                         and copied_translations_from_ICOHPs[dist_idx][1] ==
+                                         -translations_by_distance[neigh_idx][1]
+                                         and copied_translations_from_ICOHPs[dist_idx][2] ==
+                                         -translations_by_distance[neigh_idx][2]
+                                     )
+                                     )
+
                             )
-                        ):
+                        else:
+                            comparison = (
+                                 np.isclose(dist, list_distances[neigh_idx], rtol=1e-4)
+                                 and copied_neighbors_from_ICOHPs[dist_idx] == index_here2)
+                            # comparison = (
+                            #     np.isclose(dist, list_distances[neigh_idx], rtol=1e-4)
+                            #     and copied_neighbors_from_ICOHPs[dist_idx] == index_here2
+                            #     and (
+                            #         (
+                            #             copied_translations_from_ICOHPs[dist_idx][0] == -
+                            #         translations_by_distance[neigh_idx][0]
+                            #             and copied_translations_from_ICOHPs[dist_idx][1] == -
+                            #             translations_by_distance[neigh_idx][1]
+                            #             and copied_translations_from_ICOHPs[dist_idx][2] == -
+                            #             translations_by_distance[neigh_idx][2]
+                            #         )
+                            #         or (
+                            #             copied_translations_from_ICOHPs[dist_idx][0] ==
+                            #             translations_by_distance[neigh_idx][0]
+                            #             and copied_translations_from_ICOHPs[dist_idx][1] ==
+                            #             translations_by_distance[neigh_idx][1]
+                            #             and copied_translations_from_ICOHPs[dist_idx][2] ==
+                            #             translations_by_distance[neigh_idx][2]
+                            #         )
+                            #     )
+                            # )
+
+                        if comparison:
                             _list_neighsite.append(neigh)
                             _list_neighisite.append(index_here2)
                             _neigh_coords.append(coords[neigh_idx])
