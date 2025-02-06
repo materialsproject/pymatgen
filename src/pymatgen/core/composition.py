@@ -619,6 +619,7 @@ class Composition(collections.abc.Hashable, collections.abc.Mapping, MSONable, S
         # Square brackets are used in formulas to denote coordination complexes (gh-3583)
         formula = formula.replace("[", "(")
         formula = formula.replace("]", ")")
+        # next 2 lines covered by test_curly_bracket_deeply_nested_formulas
         formula = formula.replace("{", "(")
         formula = formula.replace("}", ")")
 
