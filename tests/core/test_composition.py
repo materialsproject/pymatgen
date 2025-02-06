@@ -860,7 +860,9 @@ class TestComposition(PymatgenTest):
         assert "Deuterium" in [elem.long_name for elem in composition.elements]
 
     def test_curly_bracket_deeply_nested_formulas(self):
-        """Test parsing of bulk metallic glass formulas with complex nested brackets."""
+        """Test parsing of bulk metallic glass formulas with complex nested brackets collected in
+        Ward et al. (2018) https://doi.org/10.1016/j.actamat.2018.08.002.
+        """
         for formula, expected in {
             "{[(Fe0.6Co0.4)0.75B0.2Si0.05]0.96Nb0.04}100": "Nb4 Fe43.2 Co28.8 Si4.8 B19.2",
             "{[(Fe0.6Co0.4)0.75B0.2Si0.05]0.96Nb0.04}99Cr1": "Nb3.96 Cr1 Fe42.768 Co28.512 Si4.752 B19.008",
