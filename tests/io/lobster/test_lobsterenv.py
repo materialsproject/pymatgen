@@ -36,7 +36,7 @@ class TestLobsterNeighbors(TestCase):
             structure=Structure.from_file(f"{TEST_DIR}/CONTCAR.mp-190.gz"),
             additional_condition=1,
             perc_strength_icohp=0.3,
-            noise_cutoff=0.0
+            noise_cutoff=0.0,
         )
 
         # all bonds
@@ -91,7 +91,7 @@ class TestLobsterNeighbors(TestCase):
             filename_icohp=f"{TEST_DIR}/ICOHPLIST.lobster.mp-353.gz",
             structure=Structure.from_file(f"{TEST_DIR}/CONTCAR.mp-353.gz"),
             additional_condition=0,
-            perc_strength_icohp=0.05
+            perc_strength_icohp=0.05,
         )
         self.chem_env_lobster1_second = LobsterNeighbors(
             are_coops=False,
@@ -128,7 +128,7 @@ class TestLobsterNeighbors(TestCase):
             filename_icohp=f"{TEST_DIR}/ICOHPLIST.lobster.mp-353.gz",
             structure=Structure.from_file(f"{TEST_DIR}/CONTCAR.mp-353.gz"),
             additional_condition=6,
-            perc_strength_icohp=0.05
+            perc_strength_icohp=0.05,
         )
         # coop / cobi
         self.chem_env_lobster1_coop_NaCl = LobsterNeighbors(
@@ -742,7 +742,7 @@ class TestLobsterNeighbors(TestCase):
             structure=Structure.from_file(f"{TEST_DIR}/CONTCAR.mp-7000.gz"),
             additional_condition=1,
             perc_strength_icohp=0.15,
-            noise_cutoff=0.0
+            noise_cutoff=0.0,
         )
         print(chemenv_here.get_info_icohps_between_neighbors(isites=[0]))
         assert len(chemenv_here.get_info_icohps_between_neighbors(isites=[0])[4]) == 6
@@ -923,5 +923,7 @@ class TestLobsterNeighbors(TestCase):
             -1.01,
         ]
 
-        assert_allclose(self.chem_env_w_obj.valences == [0.66] * 4 + [0.69] * 4 + [-0.68] * 3 +[-0.69] + [-0.67] * 4)  # charge_obj
+        assert_allclose(
+            self.chem_env_w_obj.valences == [0.66] * 4 + [0.69] * 4 + [-0.68] * 3 + [-0.69] + [-0.67] * 4
+        )  # charge_obj
         assert self.chem_env_lobster_NaSi_wo_charges.valences == [1] * 8 + [-1] * 8  # BVA
