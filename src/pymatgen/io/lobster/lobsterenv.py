@@ -86,7 +86,7 @@ class LobsterNeighbors(NearNeighbors):
         filename_blist_sg2: PathLike | None = None,
         id_blist_sg1: Literal["icoop", "icobi"] = "icoop",
         id_blist_sg2: Literal["icoop", "icobi"] = "icobi",
-        backward_compatibility: bool = True,
+        backward_compatibility: bool = False,
     ) -> None:
         """
         Args:
@@ -536,7 +536,7 @@ class LobsterNeighbors(NearNeighbors):
         _summed_icohps, _list_icohps, _number_bonds, labels, atoms, final_isites = self.get_info_icohps_to_neighbors(
             isites=isites, onlycation_isites=onlycation_isites
         )
-
+        print(_list_icohps)
         with tempfile.TemporaryDirectory() as tmp_dir:
             path = f"{tmp_dir}/POSCAR.vasp"
 
@@ -942,8 +942,6 @@ class LobsterNeighbors(NearNeighbors):
 
             if len(neighbors_from_ICOHPs) > 0:
                 centralsite = site
-                copysite = copy.copy(centralsite)
-                #print(centralsite.frac_coords - copysite.to_unit_cell().frac_coords)
                 neighbors_by_distance_start = self.structure.get_sites_in_sphere(
                     pt=centralsite.coords,
                     r=np.max(lengths_from_ICOHPs) + 0.5,
@@ -977,8 +975,14 @@ class LobsterNeighbors(NearNeighbors):
                 copied_neighbors_from_ICOHPs = copy.copy(neighbors_from_ICOHPs)
                 copied_distances_from_ICOHPs = copy.copy(lengths_from_ICOHPs)
                 copied_translations_from_ICOHPs = copy.copy(translations_ICOHPs)
+                copied_icohps_from_ICOHPs = copy.copy(selected_ICOHPs)
+                copied_keys_from_ICOHPs = copy.copy(keys_from_ICOHPs)
                 _neigh_coords = []
                 _neigh_frac_coords = []
+                _list_icohps=[]
+                _list_lengths=[]
+                _list_keys=[]
+                _list_translations=[]
 
                 for neigh_idx, neigh in enumerate(neighbors_by_distance):
                     index_here2 = index_here_list[neigh_idx]
@@ -990,20 +994,20 @@ class LobsterNeighbors(NearNeighbors):
                                 and (
                                     (
                                         copied_translations_from_ICOHPs[dist_idx][0]
-                                        == translations_by_distance[neigh_idx][0]
+                                        == -translations_by_distance[neigh_idx][0]
                                         and copied_translations_from_ICOHPs[dist_idx][1]
-                                        == translations_by_distance[neigh_idx][1]
+                                        == -translations_by_distance[neigh_idx][1]
                                         and copied_translations_from_ICOHPs[dist_idx][2]
-                                        == translations_by_distance[neigh_idx][2]
+                                        == -translations_by_distance[neigh_idx][2]
                                     )
-                                    # or (
-                                    #     copied_translations_from_ICOHPs[dist_idx][0]
-                                    #     == -translations_by_distance[neigh_idx][0]
-                                    #     and copied_translations_from_ICOHPs[dist_idx][1]
-                                    #     == -translations_by_distance[neigh_idx][1]
-                                    #     and copied_translations_from_ICOHPs[dist_idx][2]
-                                    #     == -translations_by_distance[neigh_idx][2]
-                                    # )
+                                     or (
+                                         copied_translations_from_ICOHPs[dist_idx][0]
+                                         == translations_by_distance[neigh_idx][0]
+                                         and copied_translations_from_ICOHPs[dist_idx][1]
+                                         == translations_by_distance[neigh_idx][1]
+                                         and copied_translations_from_ICOHPs[dist_idx][2]
+                                         == translations_by_distance[neigh_idx][2]
+                                     )
                                 )
                             )
                         else:
@@ -1011,45 +1015,31 @@ class LobsterNeighbors(NearNeighbors):
                                 np.isclose(dist, list_distances[neigh_idx], rtol=1e-4)
                                 and copied_neighbors_from_ICOHPs[dist_idx] == index_here2
                             )
-                            # comparison = (
-                            #     np.isclose(dist, list_distances[neigh_idx], rtol=1e-4)
-                            #     and copied_neighbors_from_ICOHPs[dist_idx] == index_here2
-                            #     and (
-                            #         (
-                            #             copied_translations_from_ICOHPs[dist_idx][0] == -
-                            #         translations_by_distance[neigh_idx][0]
-                            #             and copied_translations_from_ICOHPs[dist_idx][1] == -
-                            #             translations_by_distance[neigh_idx][1]
-                            #             and copied_translations_from_ICOHPs[dist_idx][2] == -
-                            #             translations_by_distance[neigh_idx][2]
-                            #         )
-                            #         or (
-                            #             copied_translations_from_ICOHPs[dist_idx][0] ==
-                            #             translations_by_distance[neigh_idx][0]
-                            #             and copied_translations_from_ICOHPs[dist_idx][1] ==
-                            #             translations_by_distance[neigh_idx][1]
-                            #             and copied_translations_from_ICOHPs[dist_idx][2] ==
-                            #             translations_by_distance[neigh_idx][2]
-                            #         )
-                            #     )
-                            # )
 
                         if comparison:
                             _list_neighsite.append(neigh)
                             _list_neighisite.append(index_here2)
                             _neigh_coords.append(coords[neigh_idx])
                             _neigh_frac_coords.append(neigh.frac_coords)
+                            _list_icohps.append(copied_icohps_from_ICOHPs[dist_idx])
+                            _list_lengths.append(copied_distances_from_ICOHPs[dist_idx])
+                            _list_keys.append(copied_keys_from_ICOHPs[dist_idx])
+                            _list_translations.append(copied_translations_from_ICOHPs[dist_idx])
                             del copied_distances_from_ICOHPs[dist_idx]
                             del copied_neighbors_from_ICOHPs[dist_idx]
                             del copied_translations_from_ICOHPs[dist_idx]
+                            del copied_icohps_from_ICOHPs[dist_idx]
+                            del copied_keys_from_ICOHPs[dist_idx]
                             break
 
                 list_neighisite.append(_list_neighisite)
                 list_neighsite.append(_list_neighsite)
-                list_lengths.append(lengths_from_ICOHPs)
-                list_keys.append(keys_from_ICOHPs)
+                list_lengths.append(_list_lengths)
+                list_keys.append(_list_keys)
                 list_coords.append(_neigh_coords)
-                list_icohps.append(selected_ICOHPs)
+                list_icohps.append(_list_icohps)
+                print(list_icohps)
+                print(list_lengths)
 
             else:
                 list_neighsite.append([])
