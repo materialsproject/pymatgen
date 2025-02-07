@@ -16,7 +16,7 @@ import copy
 import math
 import tempfile
 from typing import TYPE_CHECKING, NamedTuple
-
+import warnings
 import matplotlib as mpl
 import numpy as np
 from monty.dev import deprecated
@@ -940,6 +940,8 @@ class LobsterNeighbors(NearNeighbors):
                 translations_ICOHPs,
             ) = additional_conds
 
+            check_ICOHPs(lengths_from_ICOHPs=lengths_from_ICOHPs,selected_ICOHPs=selected_ICOHPs, translation=translations_ICOHPs)
+
             if len(neighbors_from_ICOHPs) > 0:
                 centralsite = site
                 neighbors_by_distance_start = self.structure.get_sites_in_sphere(
@@ -977,6 +979,7 @@ class LobsterNeighbors(NearNeighbors):
                 copied_translations_from_ICOHPs = copy.copy(translations_ICOHPs)
                 copied_icohps_from_ICOHPs = copy.copy(selected_ICOHPs)
                 copied_keys_from_ICOHPs = copy.copy(keys_from_ICOHPs)
+                print(copied_keys_from_ICOHPs)
                 _neigh_coords = []
                 _neigh_frac_coords = []
                 _list_icohps=[]
@@ -1038,9 +1041,8 @@ class LobsterNeighbors(NearNeighbors):
                 list_keys.append(_list_keys)
                 list_coords.append(_neigh_coords)
                 list_icohps.append(_list_icohps)
-                print(list_icohps)
-                print(list_lengths)
-
+                print(_list_keys)
+                print(keys_from_ICOHPs)
             else:
                 list_neighsite.append([])
                 list_neighisite.append([])
@@ -1048,6 +1050,7 @@ class LobsterNeighbors(NearNeighbors):
                 list_lengths.append([])
                 list_keys.append([])
                 list_coords.append([])
+
         return (
             list_icohps,
             list_keys,
@@ -1574,3 +1577,17 @@ class ICOHPNeighborsInfo(NamedTuple):
     labels: list[str]
     atoms: list[list[str]]
     central_isites: list[int] | None
+
+
+
+
+
+def check_ICOHPs(lengths_from_ICOHPs, selected_ICOHPs, translation, length_threshold=0.01, energy_threshold=0.1):
+    for i in range(len(lengths_from_ICOHPs)):
+        for j in range(i + 1, len(lengths_from_ICOHPs)):
+            if abs(lengths_from_ICOHPs[i] - lengths_from_ICOHPs[j]) < length_threshold:
+                if abs(selected_ICOHPs[i] - selected_ICOHPs[j]) > energy_threshold:
+                    if translation[i][0]==-translation[j][0] and translation[i][1]==-translation[j][1] and translation[i][2]==-translation[j][2]:
+                        warnings.warn(f"Lengths {lengths_from_ICOHPs[i]} and {lengths_from_ICOHPs[j]} are very close "
+                                      f"and translation exactly opposite, but corresponding ICOHPs {selected_ICOHPs[i]} "
+                                      f"and {selected_ICOHPs[j]} are not. Our neighbor detection might fail.")
