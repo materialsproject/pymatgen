@@ -15,8 +15,9 @@ import collections
 import copy
 import math
 import tempfile
-from typing import TYPE_CHECKING, NamedTuple
 import warnings
+from typing import TYPE_CHECKING, NamedTuple
+
 import matplotlib as mpl
 import numpy as np
 from monty.dev import deprecated
@@ -940,7 +941,11 @@ class LobsterNeighbors(NearNeighbors):
                 translations_ICOHPs,
             ) = additional_conds
 
-            check_ICOHPs(lengths_from_ICOHPs=lengths_from_ICOHPs,selected_ICOHPs=selected_ICOHPs, translation=translations_ICOHPs)
+            check_ICOHPs(
+                lengths_from_ICOHPs=lengths_from_ICOHPs,
+                selected_ICOHPs=selected_ICOHPs,
+                translation=translations_ICOHPs,
+            )
 
             if len(neighbors_from_ICOHPs) > 0:
                 centralsite = site
@@ -1579,15 +1584,19 @@ class ICOHPNeighborsInfo(NamedTuple):
     central_isites: list[int] | None
 
 
-
-
-
 def check_ICOHPs(lengths_from_ICOHPs, selected_ICOHPs, translation, length_threshold=0.01, energy_threshold=0.1):
     for i in range(len(lengths_from_ICOHPs)):
         for j in range(i + 1, len(lengths_from_ICOHPs)):
             if abs(lengths_from_ICOHPs[i] - lengths_from_ICOHPs[j]) < length_threshold:
                 if abs(selected_ICOHPs[i] - selected_ICOHPs[j]) > energy_threshold:
-                    if translation[i][0]==-translation[j][0] and translation[i][1]==-translation[j][1] and translation[i][2]==-translation[j][2]:
-                        warnings.warn(f"Lengths {lengths_from_ICOHPs[i]} and {lengths_from_ICOHPs[j]} are very close "
-                                      f"and translation exactly opposite, but corresponding ICOHPs {selected_ICOHPs[i]} "
-                                      f"and {selected_ICOHPs[j]} are not. Our neighbor detection might fail.")
+                    if (
+                        translation[i][0] == -translation[j][0]
+                        and translation[i][1] == -translation[j][1]
+                        and translation[i][2] == -translation[j][2]
+                    ):
+                        warnings.warn(
+                            f"Lengths {lengths_from_ICOHPs[i]} and {lengths_from_ICOHPs[j]} are very close "
+                            f"and translation exactly opposite, but corresponding ICOHPs {selected_ICOHPs[i]} "
+                            f"and {selected_ICOHPs[j]} are not. Our neighbor detection might fail.",
+                            stacklevel=2,
+                        )
