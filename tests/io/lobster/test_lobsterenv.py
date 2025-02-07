@@ -709,18 +709,20 @@ class TestLobsterNeighbors(TestCase):
         for bond in results[1]:
             assert bond == approx(-5.64612, abs=1e-2)
         assert results[2] == 6
-        assert results[3] == ['48', '27', '64', '73', '49', '30']
+        assert results[3] == ["48", "27", "64", "73", "49", "30"]
 
         results2 = self.chem_env_lobster1.get_info_icohps_to_neighbors(isites=None)
         assert results2[0] == approx(-33.87452)
         for bond in results2[1]:
             assert bond == approx(-5.64455, abs=1e-2)
         assert results2[2] == 6
+
         assert results2[3] == ['48', '27', '64', '73', '49', '30']
         from collections import Counter
         assert Counter(map(tuple, results2[4])) == Counter([
             ('Re1', 'O2'), ('Re1', 'O2'), ('Re1', 'O3'), ('Re1', 'O3'), ('Re1', 'O4'), ('Re1', 'O4')
         ])
+
 
     def test_get_sum_icohps_between_neighbors_of_atom(self):
         # will only look at icohps between cations or anions
@@ -923,6 +925,6 @@ class TestLobsterNeighbors(TestCase):
         ]
 
         assert_allclose(
-            self.chem_env_w_obj.valences , [0.66] * 4 + [0.69] * 4 + [-0.68] * 3 + [-0.69] + [-0.67] * 4
+            self.chem_env_w_obj.valences, [0.66] * 4 + [0.69] * 4 + [-0.68] * 3 + [-0.69] + [-0.67] * 4
         )  # charge_obj
         assert self.chem_env_lobster_NaSi_wo_charges.valences == [1] * 8 + [-1] * 8  # BVA
