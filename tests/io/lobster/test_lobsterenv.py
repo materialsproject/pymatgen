@@ -814,16 +814,15 @@ class TestLobsterNeighbors(TestCase):
         assert plot_label == "6 x O-Re (per bond)"
         assert isinstance(summed_cohpcar_mp_190, Cohp)
 
-        coph_thing = chem_env_lobster1.get_info_cohps_to_neighbors(
+        cohp_result = chem_env_lobster1.get_info_cohps_to_neighbors(
             path_to_cohpcar=cohpcar_lobster_mp_190,
             isites=[0],
             only_bonds_to=None,
             per_bond=False,
         )[1]
-        print(coph_thing.icohp[Spin.up][300])
-        print(np.sum(coph_thing.cohp[Spin.up][300]))
-        print(chem_env_lobster1.get_info_icohps_to_neighbors(isites=[0]))
-        assert coph_thing.icohp[Spin.up][300] == approx(chem_env_lobster1.get_info_icohps_to_neighbors(isites=[0])[0])
+        print(cohp_result.icohp[Spin.up][700])
+        print(chem_env_lobster1.get_info_icohps_to_neighbors(isites=[0])[0])
+        assert cohp_result.icohp[Spin.up][700] == approx(chem_env_lobster1.get_info_icohps_to_neighbors(isites=[0])[0])
 
         # summed_spin_channel
         coph_thing = chem_env_lobster1.get_info_cohps_to_neighbors(
@@ -833,7 +832,7 @@ class TestLobsterNeighbors(TestCase):
             per_bond=False,
             summed_spin_channels=True,
         )[1]
-        assert coph_thing.icohp[Spin.up][300] == approx(chem_env_lobster1.get_info_icohps_to_neighbors(isites=[0])[0])
+        assert coph_thing.icohp[Spin.up][700] == approx(chem_env_lobster1.get_info_icohps_to_neighbors(isites=[0])[0])
 
         plot_label, summed_cohpcar_mp_190_Te = chem_env_lobster1.get_info_cohps_to_neighbors(
             path_to_cohpcar=cohpcar_lobster_mp_190,
@@ -893,7 +892,7 @@ class TestLobsterNeighbors(TestCase):
         with pytest.raises(ValueError, match=expected_msg):
             # icohplist and cohpcar do not fit together
             self.chem_env_lobster1.get_info_cohps_to_neighbors(
-                path_to_cohpcar=cohpcar_lobster_mp_190,
+                path_to_cohpcar=f"{TEST_DIR}/COHPCAR.lobster.mp-190_2.gz",
                 isites=[0],
                 only_bonds_to=None,
                 per_bond=False,
@@ -902,7 +901,7 @@ class TestLobsterNeighbors(TestCase):
         with pytest.raises(ValueError, match=expected_msg):
             # icohplist and cohpcar do not fit together
             self.chem_env_lobster2.get_info_cohps_to_neighbors(
-                path_to_cohpcar=cohpcar_lobster_mp_190,
+                path_to_cohpcar=f"{TEST_DIR}/COHPCAR.lobster.mp-190_2.gz",
                 isites=[0],
                 only_bonds_to=None,
                 per_bond=False,

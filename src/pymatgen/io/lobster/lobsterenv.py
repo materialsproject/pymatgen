@@ -537,7 +537,6 @@ class LobsterNeighbors(NearNeighbors):
         _summed_icohps, _list_icohps, _number_bonds, labels, atoms, final_isites = self.get_info_icohps_to_neighbors(
             isites=isites, onlycation_isites=onlycation_isites
         )
-        print(_list_icohps)
         with tempfile.TemporaryDirectory() as tmp_dir:
             path = f"{tmp_dir}/POSCAR.vasp"
 
@@ -984,7 +983,6 @@ class LobsterNeighbors(NearNeighbors):
                 copied_translations_from_ICOHPs = copy.copy(translations_ICOHPs)
                 copied_icohps_from_ICOHPs = copy.copy(selected_ICOHPs)
                 copied_keys_from_ICOHPs = copy.copy(keys_from_ICOHPs)
-                print(copied_keys_from_ICOHPs)
                 _neigh_coords = []
                 _neigh_frac_coords = []
                 _list_icohps = []
@@ -1046,8 +1044,6 @@ class LobsterNeighbors(NearNeighbors):
                 list_keys.append(_list_keys)
                 list_coords.append(_neigh_coords)
                 list_icohps.append(_list_icohps)
-                print(_list_keys)
-                print(keys_from_ICOHPs)
             else:
                 list_neighsite.append([])
                 list_neighisite.append([])
