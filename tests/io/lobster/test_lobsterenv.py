@@ -2,7 +2,6 @@ from __future__ import annotations
 
 from unittest import TestCase
 
-import numpy as np
 import pytest
 from numpy.testing import assert_allclose
 from pytest import approx
