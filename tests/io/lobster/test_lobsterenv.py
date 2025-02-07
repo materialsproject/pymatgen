@@ -739,11 +739,11 @@ class TestLobsterNeighbors(TestCase):
             filename_icohp=f"{TEST_DIR}/ICOHPLIST.lobster.mp-7000.gz",
             structure=Structure.from_file(f"{TEST_DIR}/CONTCAR.mp-7000.gz"),
             additional_condition=1,
-            perc_strength_icohp=0.15,
+            perc_strength_icohp=0.05,
             noise_cutoff=0.0,
         )
-        print(chemenv_here.get_info_icohps_between_neighbors(isites=[0]))
-        assert len(chemenv_here.get_info_icohps_between_neighbors(isites=[0])[4]) == 6
+
+        assert len(chemenv_here.get_info_icohps_between_neighbors(isites=[0])[4]) == 2
 
     def test_get_plot_label(self):
         label = self.chem_env_lobster1._get_plot_label(
