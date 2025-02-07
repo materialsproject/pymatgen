@@ -979,10 +979,10 @@ class LobsterNeighbors(NearNeighbors):
                 copied_keys_from_ICOHPs = copy.copy(keys_from_ICOHPs)
                 _neigh_coords = []
                 _neigh_frac_coords = []
-                _list_icohps=[]
-                _list_lengths=[]
-                _list_keys=[]
-                _list_translations=[]
+                _list_icohps = []
+                _list_lengths = []
+                _list_keys = []
+                _list_translations = []
 
                 for neigh_idx, neigh in enumerate(neighbors_by_distance):
                     index_here2 = index_here_list[neigh_idx]
@@ -1000,14 +1000,14 @@ class LobsterNeighbors(NearNeighbors):
                                         and copied_translations_from_ICOHPs[dist_idx][2]
                                         == -translations_by_distance[neigh_idx][2]
                                     )
-                                     or (
-                                         copied_translations_from_ICOHPs[dist_idx][0]
-                                         == translations_by_distance[neigh_idx][0]
-                                         and copied_translations_from_ICOHPs[dist_idx][1]
-                                         == translations_by_distance[neigh_idx][1]
-                                         and copied_translations_from_ICOHPs[dist_idx][2]
-                                         == translations_by_distance[neigh_idx][2]
-                                     )
+                                    or (
+                                        copied_translations_from_ICOHPs[dist_idx][0]
+                                        == translations_by_distance[neigh_idx][0]
+                                        and copied_translations_from_ICOHPs[dist_idx][1]
+                                        == translations_by_distance[neigh_idx][1]
+                                        and copied_translations_from_ICOHPs[dist_idx][2]
+                                        == translations_by_distance[neigh_idx][2]
+                                    )
                                 )
                             )
                         else:
@@ -1022,7 +1022,7 @@ class LobsterNeighbors(NearNeighbors):
                             _neigh_coords.append(coords[neigh_idx])
                             _neigh_frac_coords.append(neigh.frac_coords)
                             _list_icohps.append(copied_icohps_from_ICOHPs[dist_idx])
-                            _list_lengths.append(copied_distances_from_ICOHPs[dist_idx])
+                            _list_lengths.append(dist)
                             _list_keys.append(copied_keys_from_ICOHPs[dist_idx])
                             _list_translations.append(copied_translations_from_ICOHPs[dist_idx])
                             del copied_distances_from_ICOHPs[dist_idx]
