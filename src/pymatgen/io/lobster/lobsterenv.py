@@ -1109,7 +1109,7 @@ class LobsterNeighbors(NearNeighbors):
                     lengths_from_ICOHPs.append(icohp._length)
                     icohps_from_ICOHPs.append(icohp.summed_icohp)
                     keys_from_ICOHPs.append(key)
-                    translation_from_ICOHPs.append(-icohp.translation)
+                    translation_from_ICOHPs.append(icohp.translation)
 
             # ONLY_ANION_CATION_BONDS
             elif additional_condition == 1:
@@ -1126,7 +1126,7 @@ class LobsterNeighbors(NearNeighbors):
                         lengths_from_ICOHPs.append(icohp._length)
                         icohps_from_ICOHPs.append(icohp.summed_icohp)
                         keys_from_ICOHPs.append(key)
-                        translation_from_ICOHPs.append(-icohp.translation)
+                        translation_from_ICOHPs.append(icohp.translation)
 
             # NO_ELEMENT_TO_SAME_ELEMENT_BONDS
             elif additional_condition == 2:
@@ -1143,7 +1143,7 @@ class LobsterNeighbors(NearNeighbors):
                         lengths_from_ICOHPs.append(icohp._length)
                         icohps_from_ICOHPs.append(icohp.summed_icohp)
                         keys_from_ICOHPs.append(key)
-                        translation_from_ICOHPs.append(-icohp.translation)
+                        translation_from_ICOHPs.append(icohp.translation)
 
             # ONLY_ANION_CATION_BONDS_AND_NO_ELEMENT_TO_SAME_ELEMENT_BONDS
             elif additional_condition == 3:
@@ -1162,7 +1162,7 @@ class LobsterNeighbors(NearNeighbors):
                         lengths_from_ICOHPs.append(icohp._length)
                         icohps_from_ICOHPs.append(icohp.summed_icohp)
                         keys_from_ICOHPs.append(key)
-                        translation_from_ICOHPs.append(-icohp.translation)
+                        translation_from_ICOHPs.append(icohp.translation)
 
             # ONLY_ELEMENT_TO_OXYGEN_BONDS
             elif additional_condition == 4:
@@ -1179,7 +1179,7 @@ class LobsterNeighbors(NearNeighbors):
                         lengths_from_ICOHPs.append(icohp._length)
                         icohps_from_ICOHPs.append(icohp.summed_icohp)
                         keys_from_ICOHPs.append(key)
-                        translation_from_ICOHPs.append(-icohp.translation)
+                        translation_from_ICOHPs.append(icohp.translation)
 
             # DO_NOT_CONSIDER_ANION_CATION_BONDS
             elif additional_condition == 5:
@@ -1196,7 +1196,7 @@ class LobsterNeighbors(NearNeighbors):
                         lengths_from_ICOHPs.append(icohp._length)
                         icohps_from_ICOHPs.append(icohp.summed_icohp)
                         keys_from_ICOHPs.append(key)
-                        translation_from_ICOHPs.append(-icohp.translation)
+                        translation_from_ICOHPs.append(icohp.translation)
 
             # ONLY_CATION_CATION_BONDS
             elif additional_condition == 6 and val1 > 0.0 and val2 > 0.0:  # type: ignore[operator]
@@ -1212,7 +1212,7 @@ class LobsterNeighbors(NearNeighbors):
                     lengths_from_ICOHPs.append(icohp._length)
                     icohps_from_ICOHPs.append(icohp.summed_icohp)
                     keys_from_ICOHPs.append(key)
-                    translation_from_ICOHPs.append(-icohp.translation)
+                    translation_from_ICOHPs.append(icohp.translation)
 
         return (
             keys_from_ICOHPs,
