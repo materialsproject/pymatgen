@@ -717,12 +717,12 @@ class TestLobsterNeighbors(TestCase):
             assert bond == approx(-5.64455, abs=1e-2)
         assert results2[2] == 6
 
-        assert results2[3] == ['48', '27', '64', '73', '49', '30']
+        assert results2[3] == ["48", "27", "64", "73", "49", "30"]
         from collections import Counter
-        assert Counter(map(tuple, results2[4])) == Counter([
-            ('Re1', 'O2'), ('Re1', 'O2'), ('Re1', 'O3'), ('Re1', 'O3'), ('Re1', 'O4'), ('Re1', 'O4')
-        ])
 
+        assert Counter(map(tuple, results2[4])) == Counter(
+            [("Re1", "O2"), ("Re1", "O2"), ("Re1", "O3"), ("Re1", "O3"), ("Re1", "O4"), ("Re1", "O4")]
+        )
 
     def test_get_sum_icohps_between_neighbors_of_atom(self):
         # will only look at icohps between cations or anions
@@ -823,9 +823,7 @@ class TestLobsterNeighbors(TestCase):
         print(coph_thing.icohp[Spin.up][300])
         print(np.sum(coph_thing.cohp[Spin.up][300]))
         print(chem_env_lobster1.get_info_icohps_to_neighbors(isites=[0]))
-        assert coph_thing.icohp[Spin.up][300] == approx(
-            chem_env_lobster1.get_info_icohps_to_neighbors(isites=[0])[0]
-        )
+        assert coph_thing.icohp[Spin.up][300] == approx(chem_env_lobster1.get_info_icohps_to_neighbors(isites=[0])[0])
 
         # summed_spin_channel
         coph_thing = chem_env_lobster1.get_info_cohps_to_neighbors(
