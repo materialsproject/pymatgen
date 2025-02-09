@@ -25,7 +25,10 @@ if TYPE_CHECKING:
     from pymatgen.core.structure import Structure
 
 MODULE_DIR = os.path.dirname(os.path.abspath(__file__))
-AFLOW_PROTOTYPE_LIBRARY = loadfn(f"{MODULE_DIR}/aflow_prototypes.json")
+try:
+    AFLOW_PROTOTYPE_LIBRARY = loadfn(f"{MODULE_DIR}/aflow_prototypes.json")
+except RuntimeError as exc:
+    raise ImportError("pybtex is needed to load AFLOW library") from exc
 
 
 @due.dcite(

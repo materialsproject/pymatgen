@@ -4,7 +4,7 @@ import pytest
 
 try:
     from pymatgen.analysis.prototypes import AflowPrototypeMatcher
-except RuntimeError:
+except ImportError:
     pytest.skip("pybtex is not available", allow_module_level=True)
 
 from pymatgen.util.testing import PymatgenTest
