@@ -1,6 +1,12 @@
 from __future__ import annotations
 
-from pymatgen.analysis.prototypes import AflowPrototypeMatcher
+import pytest
+
+try:
+    from pymatgen.analysis.prototypes import AflowPrototypeMatcher
+except RuntimeError:
+    pytest.skip("pybtex is not available", allow_module_level=True)
+
 from pymatgen.util.testing import PymatgenTest
 
 
