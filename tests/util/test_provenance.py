@@ -11,6 +11,13 @@ import pytest
 from pymatgen.core.structure import Molecule, Structure
 from pymatgen.util.provenance import Author, HistoryNode, StructureNL
 
+try:
+    # Not using find_spec because it would error out during import
+    import pybtex.database  # noqa: F401
+
+except ImportError:
+    pytest.skip("pybtex is not available", allow_module_level=True)
+
 __author__ = "Anubhav Jain"
 __credits__ = "Shyue Ping Ong"
 __copyright__ = "Copyright 2012, The Materials Project"

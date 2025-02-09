@@ -1357,8 +1357,8 @@ class CifParser:
         """
         try:
             from pybtex.database import BibliographyData, Entry
-        except ImportError:
-            raise RuntimeError("Bibliographic data extraction requires pybtex.")
+        except ImportError as exc:
+            raise RuntimeError("Bibliographic data extraction requires pybtex.") from exc
 
         bibtex_keys: dict[str, tuple[str, ...]] = {
             "author": ("_publ_author_name", "_citation_author_name"),

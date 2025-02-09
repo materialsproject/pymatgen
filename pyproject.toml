@@ -62,7 +62,6 @@ dependencies = [
     "palettable>=3.3.3",
     "pandas>=2",
     "plotly>=4.5.0,<6.0.0",
-    "pybtex>=0.24.0",
     "requests>=2.32",
     "ruamel.yaml>=0.17.0",
     # scipy<1.14.1 is incompatible with NumPy 2.0 on Windows
@@ -110,6 +109,7 @@ optional = [
     "matplotlib>=3.8",
     "openbabel-wheel>=3.1.1.20",
     "phonopy>=2.33.3",
+    "pybtex>=0.24.0",  # TODO: don't work on MacOS Python 3.13
     "seekpath>=2.0.1",
 ]
 # moyopy[interface] includes ase

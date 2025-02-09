@@ -9,16 +9,9 @@ from datetime import datetime, timezone
 from io import StringIO
 from typing import TYPE_CHECKING, NamedTuple
 
-from monty.dev import requires
 from monty.json import MontyDecoder, MontyEncoder
 
 from pymatgen.core.structure import Molecule, Structure
-
-try:
-    from pybtex import errors
-    from pybtex.database.input import bibtex
-except ImportError:
-    pybtex = bibtex = errors = None
 
 if TYPE_CHECKING:
     from collections.abc import Sequence
@@ -37,7 +30,6 @@ MAX_HNODES: int = 100  # maximum number of HistoryNodes in SNL file
 MAX_BIBTEX_CHARS: int = 20_000  # maximum number of characters for BibTeX reference
 
 
-@requires(bibtex is not None, "pybtex is not available")
 def is_valid_bibtex(reference: str) -> bool:
     """Use pybtex to validate that a reference is in proper BibTeX format.
 
@@ -47,6 +39,12 @@ def is_valid_bibtex(reference: str) -> bool:
     Returns:
         bool: True if reference is valid BibTeX.
     """
+    try:
+        from pybtex import errors
+        from pybtex.database.input import bibtex
+    except ImportError as exc:
+        raise ImportError("pybtex is not available") from exc
+
     # str is necessary since pybtex seems to have an issue with unicode.
     # The filter expression removes all non-ASCII characters.
     str_io = StringIO(reference.encode("ascii", "ignore").decode("ascii"))
