@@ -391,7 +391,7 @@ class TestQChemDictSet(PymatgenTest):
         qc_input = QCInput(molecule=test_molecule, rem=rem, smx={"solvent": "other"})
         for k, v in qc_input.as_dict().items():
             assert v == test_dict[k]
-        with open("solvent_data") as sd:
+        with open("solvent_data", encoding="utf-8") as sd:
             lines = sd.readlines()
             assert lines[0] == "90.00,1.415,0.00,0.735,20.2,0.00,0.00"
         os.remove("solvent_data")

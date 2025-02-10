@@ -463,7 +463,7 @@ class DetailedVoronoiContainer(MSONable):
             }
         else:
             raise ValueError(
-                f'Type {surface_calculation_options["type"]!r} for the surface calculation in DetailedVoronoiContainer '
+                f"Type {surface_calculation_options['type']!r} for the surface calculation in DetailedVoronoiContainer "
                 "is invalid"
             )
         max_dist = surface_calculation_options["distance_bounds"]["upper"] + 0.1

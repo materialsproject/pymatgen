@@ -555,7 +555,7 @@ class QChemDictSet(QCInput):
                     if rem["solvent_method"] != "pcm":
                         warnings.warn(
                             "The solvent section will be ignored unless solvent_method=pcm!",
-                            UserWarning,
+                            stacklevel=2,
                         )
                 if sec == "smx":
                     smx |= lower_and_check_unique(sec_dict)
@@ -589,17 +589,17 @@ class QChemDictSet(QCInput):
                             if self.cmirs_solvent is not None and v == "0":
                                 warnings.warn(
                                     "Setting IDEFESR=0 will disable the CMIRS calculation you requested!",
-                                    UserWarning,
+                                    stacklevel=2,
                                 )
                             if self.cmirs_solvent is None and v == "1":
                                 warnings.warn(
                                     "Setting IDEFESR=1 will have no effect unless you specify a cmirs_solvent!",
-                                    UserWarning,
+                                    stacklevel=2,
                                 )
                         if k == "dielst" and rem["solvent_method"] != "isosvp":
                             warnings.warn(
                                 "Setting DIELST will have no effect unless you specify a solvent_method=isosvp!",
-                                UserWarning,
+                                stacklevel=2,
                             )
 
                         svp[k] = v
@@ -643,7 +643,7 @@ class QChemDictSet(QCInput):
         """
         self.write_file(input_file)
         if self.smd_solvent in {"custom", "other"} and self.qchem_version == 5:
-            with zopen(os.path.join(os.path.dirname(input_file), "solvent_data"), mode="wt") as file:
+            with zopen(os.path.join(os.path.dirname(input_file), "solvent_data"), mode="wt", encoding="utf-8") as file:
                 file.write(self.custom_smd)
 
 

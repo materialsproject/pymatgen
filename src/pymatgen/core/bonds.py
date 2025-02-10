@@ -134,7 +134,10 @@ def obtain_all_bond_lengths(
             If None, a ValueError will be thrown.
 
     Returns:
-        A dict mapping bond order to bond length in angstrom
+        dict[float, float]: mapping bond order to bond length in Angstrom.
+
+    Todo:
+        it's better to avoid using float as dict keys.
     """
     if isinstance(sp1, Element):
         sp1 = sp1.symbol
@@ -189,7 +192,7 @@ def get_bond_order(
     # Distance shorter than the shortest bond length stored,
     # check if the distance is too short
     if dist < lens[-1] * (1 - tol):  # too short
-        warnings.warn(f"{dist:.2f} angstrom distance is too short for {sp1} and {sp2}")
+        warnings.warn(f"{dist:.2f} angstrom distance is too short for {sp1} and {sp2}", stacklevel=2)
     # return the highest bond order
     return trial_bond_order - 1
 
@@ -226,6 +229,7 @@ def get_bond_length(
     except (ValueError, KeyError):
         warnings.warn(
             f"No order {bond_order} bond lengths between {sp1} and {sp2} found in "
-            "database. Returning sum of atomic radius."
+            "database. Returning sum of atomic radius.",
+            stacklevel=2,
         )
         return sp1.atomic_radius + sp2.atomic_radius  # type: ignore[operator]

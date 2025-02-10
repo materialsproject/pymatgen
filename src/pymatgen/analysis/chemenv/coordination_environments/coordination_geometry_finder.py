@@ -189,8 +189,7 @@ class AbstractGeometry:
                 )
             else:
                 outs.append(
-                    "Points are referenced to the centroid (calculated without the central site)"
-                    f" :\n  {self.centre}\n"
+                    f"Points are referenced to the centroid (calculated without the central site) :\n  {self.centre}\n"
                 )
         return "\n".join(outs)
 
@@ -218,7 +217,9 @@ class AbstractGeometry:
         """
         if permutation is None:
             return self._points_wcs_csc
-        return np.concatenate((self._points_wcs_csc[:1], self._points_wocs_csc.take(permutation, axis=0)))
+        return np.concatenate(
+            (self._points_wcs_csc[:1], self._points_wocs_csc.take(np.array(permutation, dtype=np.intp), axis=0))
+        )
 
     def points_wocs_csc(self, permutation=None):
         """
@@ -227,7 +228,7 @@ class AbstractGeometry:
         """
         if permutation is None:
             return self._points_wocs_csc
-        return self._points_wocs_csc.take(permutation, axis=0)
+        return self._points_wocs_csc.take(np.array(permutation, dtype=np.intp), axis=0)
 
     def points_wcs_ctwcc(self, permutation=None):
         """
@@ -239,7 +240,7 @@ class AbstractGeometry:
         return np.concatenate(
             (
                 self._points_wcs_ctwcc[:1],
-                self._points_wocs_ctwcc.take(permutation, axis=0),
+                self._points_wocs_ctwcc.take(np.array(permutation, dtype=np.intp), axis=0),
             )
         )
 
@@ -250,7 +251,7 @@ class AbstractGeometry:
         """
         if permutation is None:
             return self._points_wocs_ctwcc
-        return self._points_wocs_ctwcc.take(permutation, axis=0)
+        return self._points_wocs_ctwcc.take(np.array(permutation, dtype=np.intp), axis=0)
 
     def points_wcs_ctwocc(self, permutation=None):
         """
@@ -262,7 +263,7 @@ class AbstractGeometry:
         return np.concatenate(
             (
                 self._points_wcs_ctwocc[:1],
-                self._points_wocs_ctwocc.take(permutation, axis=0),
+                self._points_wocs_ctwocc.take(np.array(permutation, dtype=np.intp), axis=0),
             )
         )
 
@@ -273,7 +274,7 @@ class AbstractGeometry:
         """
         if permutation is None:
             return self._points_wocs_ctwocc
-        return self._points_wocs_ctwocc.take(permutation, axis=0)
+        return self._points_wocs_ctwocc.take(np.array(permutation, dtype=np.intp), axis=0)
 
     @property
     def cn(self):
@@ -1976,6 +1977,7 @@ class LocalGeometryFinder:
         stop_search = False
         # TODO: do not do that several times ... also keep in memory
         if sepplane.ordered_plane:
+            separation_indices = [arr.astype(np.intp) for arr in separation_indices]
             inp = self.local_geometry.coords.take(separation_indices[1], axis=0)
             if sepplane.ordered_point_groups[0]:
                 pp_s0 = self.local_geometry.coords.take(separation_indices[0], axis=0)
@@ -2051,10 +2053,7 @@ class LocalGeometryFinder:
             The symmetry measures for the given coordination geometry for each permutation investigated.
         """
         if "NRANDOM" in kwargs:
-            warnings.warn(
-                "NRANDOM is deprecated, use n_random instead",
-                category=DeprecationWarning,
-            )
+            warnings.warn("NRANDOM is deprecated, use n_random instead", category=DeprecationWarning, stacklevel=2)
             n_random = kwargs.pop("NRANDOM")
         permutations_symmetry_measures = [None] * n_random
         permutations = []

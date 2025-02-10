@@ -500,8 +500,7 @@ class AimsOutCalcChunk(AimsOutChunk):
         ) < 1e-3:
             warnings.warn(
                 "Total magnetic moment and sum of Mulliken spins are not consistent",
-                UserWarning,
-                stacklevel=1,
+                stacklevel=2,
             )
 
         if lattice is not None:
@@ -1068,10 +1067,7 @@ def get_aims_out_chunks(content: str | TextIOWrapper, header_chunk: AimsOutHeade
             # don't end chunk on next Re-initialization
             patterns = [
                 ("Self-consistency cycle not yet converged - restarting mixer to attempt better convergence."),
-                (
-                    "Components of the stress tensor (for mathematical "
-                    "background see comments in numerical_stress.f90)."
-                ),
+                ("Components of the stress tensor (for mathematical background see comments in numerical_stress.f90)."),
                 "Calculation of numerical stress completed",
             ]
             if any(pattern in line for pattern in patterns):
@@ -1137,7 +1133,7 @@ def read_aims_header_info(
             with gzip.open(filename, mode="rt") as file:
                 content = file.read()
         else:
-            with open(filename) as file:
+            with open(filename, encoding="utf-8") as file:
                 content = file.read()
 
     if content is None:
@@ -1196,7 +1192,7 @@ def read_aims_output(
             with gzip.open(path, mode="rt") as file:
                 content = file.read()
         else:
-            with open(path) as file:
+            with open(path, encoding="utf-8") as file:
                 content = file.read()
 
     if content is None:

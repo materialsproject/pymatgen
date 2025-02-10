@@ -1,11 +1,12 @@
 from __future__ import annotations
 
 import json
+import math
 import os
 from fractions import Fraction
 from pathlib import Path
 from shutil import which
-from unittest import skipIf
+from unittest import mock
 
 import numpy as np
 import pytest
@@ -29,6 +30,7 @@ from pymatgen.core.structure import (
 from pymatgen.electronic_structure.core import Magmom
 from pymatgen.io.ase import AseAtomsAdaptor
 from pymatgen.io.cif import CifParser
+from pymatgen.io.vasp.inputs import Poscar
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
 from pymatgen.util.testing import TEST_FILES_DIR, VASP_IN_DIR, PymatgenTest
 
@@ -40,11 +42,11 @@ except ImportError:
     ase = Atoms = Calculator = EMT = None
 
 
-enum_cmd = which("enum.x") or which("multienum.x")
-mcsqs_cmd = which("mcsqs")
+ENUM_CMD = which("enum.x") or which("multienum.x")
+MCSQS_CMD = which("mcsqs")
 
 
-class TestNeighbor(PymatgenTest):
+class TestNeighbor:
     def test_msonable(self):
         struct = PymatgenTest.get_structure("Li2O")
         nn = struct.get_neighbors(struct[0], r=3)
@@ -102,7 +104,7 @@ class TestIStructure(PymatgenTest):
         )
         self.V2O3 = IStructure.from_file(f"{TEST_FILES_DIR}/cif/V2O3.cif")
 
-    @skipIf(not (mcsqs_cmd and enum_cmd), reason="enumlib or mcsqs executable not present")
+    @pytest.mark.skipif(not (MCSQS_CMD and ENUM_CMD), reason="enumlib or mcsqs executable not present")
     def test_get_orderings(self):
         ordered = Structure.from_spacegroup("Im-3m", Lattice.cubic(3), ["Fe"], [[0, 0, 0]])
         assert ordered.get_orderings()[0] == ordered
@@ -381,14 +383,14 @@ class TestIStructure(PymatgenTest):
         for inter_struct in interpolated_structs:
             assert inter_struct is not None, "Interpolation Failed!"
             assert interpolated_structs[0].lattice == inter_struct.lattice
-        assert_array_equal(interpolated_structs[1][1].frac_coords, [0.725, 0.5, 0.725])
+        assert_allclose(interpolated_structs[1][1].frac_coords, [0.725, 0.5, 0.725])
 
         # test ximages
         interpolated_structs = struct.interpolate(struct2, nimages=np.linspace(0.0, 1.0, 3))
         for inter_struct in interpolated_structs:
             assert inter_struct is not None, "Interpolation Failed!"
             assert interpolated_structs[0].lattice == inter_struct.lattice
-        assert_array_equal(interpolated_structs[1][1].frac_coords, [0.625, 0.5, 0.625])
+        assert_allclose(interpolated_structs[1][1].frac_coords, [0.625, 0.5, 0.625])
 
         bad_lattice = np.eye(3)
         struct2 = IStructure(bad_lattice, ["Si"] * 2, coords2)
@@ -452,30 +454,30 @@ class TestIStructure(PymatgenTest):
         for inter_struct in interpolated_structs:
             assert inter_struct is not None, "Interpolation Failed!"
             assert interpolated_structs[0].lattice == inter_struct.lattice
-        assert_array_equal(interpolated_structs[0][1].frac_coords, [0.75, 0.5, 0.75])
-        assert_array_equal(interpolated_structs[10][1].frac_coords, [0.5, 0.5, 0.5])
-        assert_array_equal(interpolated_structs[20][1].frac_coords, [0.25, 0.5, 0.25])
+        assert_allclose(interpolated_structs[0][1].frac_coords, [0.75, 0.5, 0.75])
+        assert_allclose(interpolated_structs[10][1].frac_coords, [0.5, 0.5, 0.5])
+        assert_allclose(interpolated_structs[20][1].frac_coords, [0.25, 0.5, 0.25])
         # testing large negative values
         interpolated_structs = struct.interpolate(struct2, 20, end_amplitude=-2)
         for inter_struct in interpolated_structs:
             assert inter_struct is not None, "Interpolation Failed!"
             assert interpolated_structs[0].lattice == inter_struct.lattice
-        assert_array_equal(interpolated_structs[0][1].frac_coords, [0.75, 0.5, 0.75])
-        assert_array_equal(interpolated_structs[10][1].frac_coords, [1.0, 0.5, 1.0])
-        assert_array_equal(interpolated_structs[20][1].frac_coords, [1.25, 0.5, 1.25])
+        assert_allclose(interpolated_structs[0][1].frac_coords, [0.75, 0.5, 0.75])
+        assert_allclose(interpolated_structs[10][1].frac_coords, [1.0, 0.5, 1.0])
+        assert_allclose(interpolated_structs[20][1].frac_coords, [1.25, 0.5, 1.25])
         # testing partial interpolation
         interpolated_structs = struct.interpolate(struct2, 5, end_amplitude=-0.5)
         for inter_struct in interpolated_structs:
             assert inter_struct is not None, "Interpolation Failed!"
             assert interpolated_structs[0].lattice == inter_struct.lattice
-        assert_array_equal(interpolated_structs[0][1].frac_coords, [0.75, 0.5, 0.75])
-        assert_array_equal(interpolated_structs[5][1].frac_coords, [0.875, 0.5, 0.875])
+        assert_allclose(interpolated_structs[0][1].frac_coords, [0.75, 0.5, 0.75])
+        assert_allclose(interpolated_structs[5][1].frac_coords, [0.875, 0.5, 0.875])
         # testing end_amplitude=0
         interpolated_structs = struct.interpolate(struct2, 5, end_amplitude=0)
         for inter_struct in interpolated_structs:
             assert inter_struct is not None, "Interpolation Failed!"
             assert interpolated_structs[0].lattice == inter_struct.lattice
-            assert_array_equal(inter_struct[1].frac_coords, [0.75, 0.5, 0.75])
+            assert_allclose(inter_struct[1].frac_coords, [0.75, 0.5, 0.75])
 
     def test_interpolate_lattice(self):
         coords = [[0, 0, 0], [0.75, 0.5, 0.75]]
@@ -521,8 +523,8 @@ class TestIStructure(PymatgenTest):
         # Assert that volume is monotonic (should be shrinking for negative end_amplitude)
         assert int_s[1].volume <= struct.volume
         # Assert that coordinate shift is reversed
-        assert_array_equal(int_s[1][1].frac_coords, [0.875, 0.5, 0.875])
-        assert_array_equal(int_s[2][1].frac_coords, [1.0, 0.5, 1.0])
+        assert_allclose(int_s[1][1].frac_coords, [0.875, 0.5, 0.875])
+        assert_allclose(int_s[2][1].frac_coords, [1.0, 0.5, 1.0])
 
     def test_interpolate_lattice_rotation(self):
         l1 = Lattice(np.eye(3))
@@ -586,7 +588,7 @@ class TestIStructure(PymatgenTest):
         struct = Structure.from_file(f"{TEST_FILES_DIR}/core/structure/Fe310.json.gz")
         constraints = {"a": 2.83133, "b": 4.69523, "gamma": 107.54840}
         prim_struct = struct.get_primitive_structure(constrain_latt=constraints)
-        assert {key: getattr(prim_struct.lattice, key) for key in constraints} == pytest.approx(constraints)
+        assert {key: getattr(prim_struct.lattice, key) for key in constraints} == approx(constraints)
 
     def test_primitive_with_similar_constraints(self):
         struct = Structure.from_file(f"{TEST_FILES_DIR}/core/structure/Fe310.json.gz")
@@ -789,7 +791,7 @@ Direct
         struct = Structure.from_spacegroup(100, [[1, 0, 0], [0, 1, 0], [0, 0, 2]], ["Fe"], [[0.0, 0.0, 0.0]])
         c_indices, p_indices, offsets, distances, s_indices, sym_ops = struct.get_symmetric_neighbor_list(0.8, sg=100)
         assert len(c_indices) == len(p_indices) == len(offsets) == len(distances) == 8
-        assert c_indices == pytest.approx([0, 1, 1, 1, 0, 0, 0, 0])
+        assert_array_equal(c_indices, [0, 1, 1, 1, 0, 0, 0, 0])
         assert len(np.unique(s_indices)) == 1
         assert s_indices[0] == 0
         assert all(~np.isnan(s_indices))
@@ -897,13 +899,13 @@ Direct
 
         poscar_path = f"{self.tmp_path}/POSCAR.testing"
         poscar_str = self.struct.to(filename=poscar_path)
-        with open(poscar_path) as file:
+        with open(poscar_path, encoding="utf-8") as file:
             assert file.read() == poscar_str
         assert Structure.from_file(poscar_path) == self.struct
 
         yaml_path = f"{self.tmp_path}/Si_testing.yaml"
         yaml_str = self.struct.to(filename=yaml_path)
-        with open(yaml_path) as file:
+        with open(yaml_path, encoding="utf-8") as file:
             assert file.read() == yaml_str
         assert Structure.from_file(yaml_path) == self.struct
 
@@ -963,6 +965,41 @@ Direct
         new_sites = struct.sites[::-1]  # reverse order of sites
         struct.sites = new_sites
         assert struct.sites == new_sites
+
+    def test_get_symmetry_dataset(self):
+        """Test getting symmetry dataset from structure using different backends."""
+        # Test spglib backend
+        for backend in ("spglib", "moyopy"):
+            dataset = self.struct.get_symmetry_dataset(backend=backend)
+            assert isinstance(dataset, dict)
+            assert dataset["number"] == 227
+            assert dataset["international"] == "Fd-3m"
+            assert len(dataset["orbits"]) == 2
+            pytest.approx(dataset["std_origin_shift"], [0, 0, 0])
+
+        dataset = self.struct.get_symmetry_dataset(backend="spglib", return_raw_dataset=True)
+
+        assert dataset.number == 227  # Fd-3m space group
+        assert dataset.international == "Fd-3m"
+        assert len(dataset.rotations) > 0
+        assert len(dataset.translations) > 0
+
+        # Test moyopy backend if available
+        moyopy = pytest.importorskip("moyopy")
+        dataset = self.struct.get_symmetry_dataset(backend="moyopy", return_raw_dataset=True)
+        assert isinstance(dataset, moyopy.MoyoDataset)
+        assert dataset.prim_std_cell.numbers == [14, 14]  # Si atomic number is 14
+
+        # Test import error
+        with (
+            mock.patch.dict("sys.modules", {"moyopy": None}),
+            pytest.raises(ImportError, match="moyopy is not installed. Run pip install moyopy."),
+        ):
+            self.struct.get_symmetry_dataset(backend="moyopy")
+
+        # Test invalid backend
+        with pytest.raises(ValueError, match="Invalid backend='42'"):
+            self.struct.get_symmetry_dataset(backend="42")
 
 
 class TestStructure(PymatgenTest):
@@ -1175,10 +1212,10 @@ class TestStructure(PymatgenTest):
         struct = self.struct
         returned = struct.add_site_property("charge", [4.1, -5])
         assert returned is struct
-        assert struct[0].charge == 4.1
-        assert struct[1].charge == -5
+        assert struct[0].charge == approx(4.1)
+        assert struct[1].charge == approx(-5)
         struct.add_site_property("magmom", [3, 2])
-        assert struct[0].charge == 4.1
+        assert struct[0].charge == approx(4.1)
         assert struct[0].magmom == 3
         returned = struct.remove_site_property("magmom")
         assert returned is struct
@@ -1212,22 +1249,42 @@ class TestStructure(PymatgenTest):
         assert dct == struct.as_dict()
 
     def test_perturb(self):
-        dist = 0.1
-        pre_perturbation_sites = self.struct.copy()
-        returned = self.struct.perturb(distance=dist)
-        assert returned is self.struct
-        post_perturbation_sites = self.struct.sites
+        struct = self.get_structure("Li2O")
+        struct_orig = struct.copy()
+        struct.perturb(0.1)
+        # Ensure all sites were perturbed by a distance of at most 0.1 Angstroms
+        for site, site_orig in zip(struct, struct_orig, strict=True):
+            cart_dist = site.distance(site_orig)
+            # allow 1e-6 to account for numerical precision
+            assert cart_dist <= 0.1 + 1e-6, f"Distance {cart_dist} > 0.1"
 
-        for idx, site in enumerate(pre_perturbation_sites):
-            assert site.distance(post_perturbation_sites[idx]) == approx(dist), "Bad perturbation distance"
+        # Test that same seed gives same perturbation
+        s1 = self.get_structure("Li2O")
+        s2 = self.get_structure("Li2O")
+        s1.perturb(0.1, seed=42)
+        s2.perturb(0.1, seed=42)
+        for site1, site2 in zip(s1, s2, strict=True):
+            assert site1.distance(site2) < 1e-7  # should be exactly equal up to numerical precision
 
-        structure2 = pre_perturbation_sites.copy()
-        structure2.perturb(distance=dist, min_distance=0)
-        post_perturbation_sites2 = structure2.sites
+        # Test that different seeds give different perturbations
+        s3 = self.get_structure("Li2O")
+        s3.perturb(0.1, seed=100)
+        any_different = False
+        for site1, site3 in zip(s1, s3, strict=True):
+            if site1.distance(site3) > 1e-7:
+                any_different = True
+                break
+        assert any_different, "Different seeds should give different perturbations"
 
-        for idx, site in enumerate(pre_perturbation_sites):
-            assert site.distance(post_perturbation_sites2[idx]) <= dist
-            assert site.distance(post_perturbation_sites2[idx]) >= 0
+        # Test min_distance
+        s4 = self.get_structure("Li2O")
+        s4.perturb(0.1, min_distance=0.05, seed=42)
+        any_different = False
+        for site1, site4 in zip(s1, s4, strict=True):
+            if site1.distance(site4) > 1e-7:
+                any_different = True
+                break
+        assert any_different, "Using min_distance should give different perturbations"
 
     def test_add_oxidation_state_by_element(self):
         oxidation_states = {"Si": -4}
@@ -1351,10 +1408,13 @@ class TestStructure(PymatgenTest):
         initial_coord = struct[1].coords
         returned = struct.apply_strain(0.01)
         assert returned is struct
-        assert approx(struct.lattice.abc) == (
-            3.8785999130369997,
-            3.878600984287687,
-            3.8785999130549516,
+        assert_allclose(
+            struct.lattice.abc,
+            (
+                3.8785999130369997,
+                3.878600984287687,
+                3.8785999130549516,
+            ),
         )
         assert_allclose(struct[1].coords, initial_coord * 1.01)
         a1, b1, c1 = struct.lattice.abc
@@ -1532,7 +1592,7 @@ class TestStructure(PymatgenTest):
             assert Structure.from_file(f"json-struct{ext}") == self.struct
 
         # test Structure.from_file with unsupported file extension (using tmp JSON file with wrong ext)
-        Path(filename := f"{self.tmp_path}/bad.extension").write_text(self.struct.to(fmt="json"))
+        Path(filename := f"{self.tmp_path}/bad.extension").write_text(self.struct.to(fmt="json"), encoding="utf-8")
         with pytest.raises(ValueError, match="Unrecognized extension in filename="):
             self.struct.from_file(filename=filename)
 
@@ -1633,12 +1693,16 @@ class TestStructure(PymatgenTest):
             [0.5, 0.5, 1.501],
         ]
         struct = Structure(Lattice.cubic(1), species, coords)
-        struct.merge_sites(mode="s")
+        struct.merge_sites(mode="sum")
         assert struct[0].specie.symbol == "Ag"
         assert struct[1].species == Composition({"Cl": 0.35, "F": 0.25})
         assert_allclose(struct[1].frac_coords, [0.5, 0.5, 0.5005])
 
-        # Test for TaS2 with spacegroup 166 in 160 setting.
+        # Test illegal mode
+        with pytest.raises(ValueError, match="Illegal mode='illegal', should start with a/d/s"):
+            struct.merge_sites(mode="illegal")
+
+        # Test for TaS2 with spacegroup 166 in 160 setting
         lattice = Lattice.hexagonal(3.374351, 20.308941)
         species = ["Ta", "S", "S"]
         coords = [
@@ -1646,10 +1710,10 @@ class TestStructure(PymatgenTest):
             [0.333333, 0.666667, 0.353424],
             [0.666667, 0.333333, 0.535243],
         ]
-        tas2 = Structure.from_spacegroup(160, lattice, species, coords)
-        assert len(tas2) == 13
-        tas2.merge_sites(mode="d")
-        assert len(tas2) == 9
+        struct_tas2 = Structure.from_spacegroup(160, lattice, species, coords)
+        assert len(struct_tas2) == 13
+        struct_tas2.merge_sites(mode="delete")
+        assert len(struct_tas2) == 9
 
         lattice = Lattice.hexagonal(3.587776, 19.622793)
         species = ["Na", "V", "S", "S"]
@@ -1659,12 +1723,12 @@ class TestStructure(PymatgenTest):
             [0.333333, 0.666667, 0.399394],
             [0.666667, 0.333333, 0.597273],
         ]
-        navs2 = Structure.from_spacegroup(160, lattice, species, coords)
-        assert len(navs2) == 18
-        navs2.merge_sites(mode="d")
-        assert len(navs2) == 12
+        struct_navs2 = Structure.from_spacegroup(160, lattice, species, coords)
+        assert len(struct_navs2) == 18
+        struct_navs2.merge_sites(mode="delete")
+        assert len(struct_navs2) == 12
 
-        # Test that we can average the site properties that are floats
+        # Test that we can average the site properties that are numerical (float/int)
         lattice = Lattice.hexagonal(3.587776, 19.622793)
         species = ["Na", "V", "S", "S"]
         coords = [
@@ -1674,11 +1738,47 @@ class TestStructure(PymatgenTest):
             [0.666667, 0.333333, 0.597273],
         ]
         site_props = {"prop1": [3.0, 5.0, 7.0, 11.0]}
-        navs2 = Structure.from_spacegroup(160, lattice, species, coords, site_properties=site_props)
-        navs2.insert(0, "Na", coords[0], properties={"prop1": 100.0})
-        navs2.merge_sites(mode="a")
-        assert len(navs2) == 12
-        assert 51.5 in [itr.properties["prop1"] for itr in navs2]
+        struct_navs2 = Structure.from_spacegroup(160, lattice, species, coords, site_properties=site_props)
+        struct_navs2.insert(0, "Na", coords[0], properties={"prop1": 100})  # int property
+        struct_navs2.merge_sites(mode="average")
+        assert len(struct_navs2) == 12
+        assert any(math.isclose(site.properties["prop1"], 51.5) for site in struct_navs2)
+
+        # Test non-numerical property warning
+        struct_navs2.insert(0, "Na", coords[0], properties={"prop1": "hi"})
+        with pytest.warns(UserWarning, match="But property is set to None"):
+            struct_navs2.merge_sites(mode="average")
+
+        # Test property handling for np.array (selective dynamics)
+        poscar_str_0 = """Test POSCAR
+1.0
+3.840198 0.000000 0.000000
+1.920099 3.325710 0.000000
+0.000000 -2.217138 3.135509
+1 1
+Selective dynamics
+direct
+0.000000 0.000000 0.000000 T T T Si
+0.750000 0.500000 0.750000 F F F O
+"""
+        poscar_str_1 = """offset a bit
+1.0
+3.840198 0.000000 0.000000
+1.920099 3.325710 0.000000
+0.000000 -2.217138 3.135509
+1 1
+Selective dynamics
+direct
+0.100000 0.000000 0.000000 T T T Si
+0.750000 0.500000 0.750000 F F F O
+"""
+
+        struct_0 = Poscar.from_str(poscar_str_0).structure
+        struct_1 = Poscar.from_str(poscar_str_1).structure
+
+        for site in struct_0:
+            struct_1.append(site.species, site.frac_coords, properties=site.properties)
+        struct_1.merge_sites(mode="average")
 
     def test_properties(self):
         assert self.struct.num_sites == len(self.struct)
@@ -2122,8 +2222,8 @@ Site: H (-0.5134, 0.8892, -0.3630)"""
             self.coords,
             site_properties={"magmom": [0.5, -0.5, 1, 2, 3]},
         )
-        assert propertied_mol[0].magmom == 0.5
-        assert propertied_mol[1].magmom == -0.5
+        assert propertied_mol[0].magmom == approx(0.5)
+        assert propertied_mol[1].magmom == approx(-0.5)
 
     def test_chemical_system(self):
         assert self.mol.chemical_system == "C-H"
@@ -2203,7 +2303,7 @@ Site: H (-0.5134, 0.8892, -0.3630)"""
             A4=109.471213
             D4=119.999966
         """
-        assert self.assert_str_content_equal(mol.get_zmatrix(), z_matrix)
+        self.assert_str_content_equal(mol.get_zmatrix(), z_matrix)
 
     def test_break_bond(self):
         mol1, mol2 = self.mol.break_bond(0, 1)
@@ -2280,10 +2380,10 @@ Site: H (-0.5134, 0.8892, -0.3630)"""
             properties={"test_properties": "test"},
         )
         dct = propertied_mol.as_dict()
-        assert dct["sites"][0]["properties"]["magmom"] == 0.5
+        assert dct["sites"][0]["properties"]["magmom"] == approx(0.5)
         mol = Molecule.from_dict(dct)
         assert propertied_mol == mol
-        assert mol[0].magmom == 0.5
+        assert mol[0].magmom == approx(0.5)
         assert mol.formula == "H4 C1"
         assert mol.charge == 1
         assert mol.properties == {"test_properties": "test"}
@@ -2308,14 +2408,14 @@ Site: H (-0.5134, 0.8892, -0.3630)"""
             assert isinstance(mol, IMolecule)
 
         ch4_xyz_str = self.mol.to(filename=f"{self.tmp_path}/CH4_testing.xyz")
-        with open("CH4_testing.xyz") as xyz_file:
+        with open("CH4_testing.xyz", encoding="utf-8") as xyz_file:
             assert xyz_file.read() == ch4_xyz_str
         ch4_mol = IMolecule.from_file(f"{self.tmp_path}/CH4_testing.xyz")
         ch4_mol.properties = self.mol.properties
         assert self.mol == ch4_mol
         ch4_yaml_str = self.mol.to(filename=f"{self.tmp_path}/CH4_testing.yaml")
 
-        with open("CH4_testing.yaml") as yaml_file:
+        with open("CH4_testing.yaml", encoding="utf-8") as yaml_file:
             assert yaml_file.read() == ch4_yaml_str
         ch4_mol = Molecule.from_file(f"{self.tmp_path}/CH4_testing.yaml")
         ch4_mol.properties = self.mol.properties
@@ -2410,11 +2510,11 @@ class TestMolecule(PymatgenTest):
     def test_add_remove_site_property(self):
         returned = self.mol.add_site_property("charge", [4.1, -2, -2, -2, -2])
         assert returned is self.mol
-        assert self.mol[0].charge == 4.1
-        assert self.mol[1].charge == -2
+        assert self.mol[0].charge == approx(4.1)
+        assert self.mol[1].charge == approx(-2)
 
         self.mol.add_site_property("magmom", [3, 2, 2, 2, 2])
-        assert self.mol[0].charge == 4.1
+        assert self.mol[0].charge == approx(4.1)
         assert self.mol[0].magmom == 3
         returned = self.mol.remove_site_property("magmom")
         assert returned is self.mol

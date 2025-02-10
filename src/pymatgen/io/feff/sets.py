@@ -104,10 +104,10 @@ class AbstractFeffInputSet(MSONable, abc.ABC):
         )
 
         for k, v in feff.items():
-            with open(os.path.join(output_dir, k), mode="w") as file:
+            with open(os.path.join(output_dir, k), mode="w", encoding="utf-8") as file:
                 file.write(str(v))
 
-        with open(f"{output_dir}/feff.inp", mode="w") as file:
+        with open(f"{output_dir}/feff.inp", mode="w", encoding="utf-8") as file:
             file.write(feff_input)
 
         # write the structure to CIF file
@@ -191,7 +191,7 @@ class FEFFDictSet(AbstractFeffInputSet):
                         "For Molecule objects with a net charge it is recommended to set one or more"
                         " ION tags in the input file by modifying user_tag_settings."
                         " Consult the FEFFDictSet docstring and the FEFF10 User Guide for more information.",
-                        UserWarning,
+                        stacklevel=2,
                     )
             else:
                 raise ValueError("'structure' argument must be a Structure or Molecule!")

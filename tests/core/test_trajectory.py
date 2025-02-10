@@ -81,17 +81,17 @@ class TestTrajectory(PymatgenTest):
         sliced_traj = self.traj[2:99:3]
         sliced_traj_from_structs = Trajectory.from_structures(self.structures[2:99:3])
 
-        assert len(sliced_traj) == len(
-            sliced_traj_from_structs
-        ), f"{len(sliced_traj)=} != {len(sliced_traj_from_structs)=}"
+        assert len(sliced_traj) == len(sliced_traj_from_structs), (
+            f"{len(sliced_traj)=} != {len(sliced_traj_from_structs)=}"
+        )
         assert all(sliced_traj[i] == sliced_traj_from_structs[i] for i in range(len(sliced_traj)))
 
         sliced_traj = self.traj[:-4:2]
         sliced_traj_from_structs = Trajectory.from_structures(self.structures[:-4:2])
 
-        assert len(sliced_traj) == len(
-            sliced_traj_from_structs
-        ), f"{len(sliced_traj)=} != {len(sliced_traj_from_structs)=}"
+        assert len(sliced_traj) == len(sliced_traj_from_structs), (
+            f"{len(sliced_traj)=} != {len(sliced_traj_from_structs)=}"
+        )
         assert all(sliced_traj[idx] == sliced_traj_from_structs[idx] for idx in range(len(sliced_traj)))
 
         sliced_traj = self.traj_mols[:2]
@@ -110,9 +110,9 @@ class TestTrajectory(PymatgenTest):
         sliced_traj = self.traj[[10, 30, 70]]
         sliced_traj_from_structs = Trajectory.from_structures([self.structures[i] for i in [10, 30, 70]])
 
-        assert len(sliced_traj) == len(
-            sliced_traj_from_structs
-        ), f"{len(sliced_traj)=} != {len(sliced_traj_from_structs)=}"
+        assert len(sliced_traj) == len(sliced_traj_from_structs), (
+            f"{len(sliced_traj)=} != {len(sliced_traj_from_structs)=}"
+        )
         assert all(sliced_traj[i] == sliced_traj_from_structs[i] for i in range(len(sliced_traj)))
 
         sliced_traj = self.traj_mols[[1, 3]]
@@ -488,6 +488,12 @@ class TestTrajectory(PymatgenTest):
 
             # Check composition of the first frame of the trajectory
             assert traj[0].formula == "Li2 Mn2 O4"
+
+            # Check that ASE calculator properties are converted to frame properties
+            assert all(
+                all(frame.get(k) is not None for k in ("energy", "forces", "stress")) for frame in traj.frame_properties
+            )
+
         except ImportError:
             with pytest.raises(
                 ImportError,
@@ -546,3 +552,24 @@ class TestTrajectory(PymatgenTest):
             Trajectory(species=species, coords=unphysical_coords, lattice=const_lattice)
         with pytest.raises(ValueError, match="coords must have 3 dimensions!"):
             Trajectory(species=species, coords=wrong_dim_coords, lattice=const_lattice)
+
+    def test_to_ase_traj(self):
+        traj = Trajectory.from_file(f"{TEST_DIR}/LiMnO2_chgnet_relax.json.gz")
+
+        try:
+            ase_traj = traj.to_ase()
+
+            assert len(ase_traj) == len(traj)
+
+            # Ensure all frame properties and the magmoms are populated correctly
+            assert all(
+                all(atoms.calc.get_property(k) is not None for k in ("energy", "forces", "stress", "magmoms"))
+                for atoms in ase_traj
+            )
+
+        except ImportError:
+            with pytest.raises(
+                ImportError,
+                match="ASE is required to write .traj files. pip install ase",
+            ):
+                ase_traj = traj.to_ase()

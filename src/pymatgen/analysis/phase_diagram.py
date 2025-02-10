@@ -759,7 +759,7 @@ class PhaseDiagram(MSONable):
             if on_error == "raise":
                 raise ValueError(f"Unable to get decomposition for {entry}") from exc
             if on_error == "warn":
-                warnings.warn(f"Unable to get decomposition for {entry}, encountered {exc}")
+                warnings.warn(f"Unable to get decomposition for {entry}, encountered {exc}", stacklevel=2)
             return None, None
         e_above_hull = entry.energy_per_atom - hull_energy
 
@@ -770,7 +770,7 @@ class PhaseDiagram(MSONable):
         if on_error == "raise":
             raise ValueError(msg)
         if on_error == "warn":
-            warnings.warn(msg)
+            warnings.warn(msg, stacklevel=2)
         return None, None  # 'ignore' and 'warn' case
 
     def get_e_above_hull(self, entry: PDEntry, **kwargs: Any) -> float | None:
@@ -906,7 +906,8 @@ class PhaseDiagram(MSONable):
         if len(competing_entries) > space_limit and not stable_only:
             warnings.warn(
                 f"There are {len(competing_entries)} competing entries "
-                f"for {entry.composition} - Calculating inner hull to discard additional unstable entries"
+                f"for {entry.composition} - Calculating inner hull to discard additional unstable entries",
+                stacklevel=2,
             )
 
             reduced_space = competing_entries - {*self._get_stable_entries_in_space(entry_elems)} | {
@@ -922,7 +923,8 @@ class PhaseDiagram(MSONable):
         if len(competing_entries) > space_limit:
             warnings.warn(
                 f"There are {len(competing_entries)} competing entries "
-                f"for {entry.composition} - Using SLSQP to find decomposition likely to be slow"
+                f"for {entry.composition} - Using SLSQP to find decomposition likely to be slow",
+                stacklevel=2,
             )
 
         decomp = _get_slsqp_decomp(entry.composition, competing_entries, tols, maxiter)
@@ -1803,7 +1805,7 @@ class PatchedPhaseDiagram(PhaseDiagram):
         Raises:
             ValueError: If no suitable PhaseDiagram is found for the entry.
         """
-        entry_space = frozenset(entry.elements) if isinstance(entry, Composition) else frozenset(entry.elements)
+        entry_space = frozenset(entry.elements)
 
         try:
             return self.pds[entry_space]
@@ -1829,7 +1831,7 @@ class PatchedPhaseDiagram(PhaseDiagram):
             return pd.get_decomposition(comp)
         except ValueError as exc:
             # NOTE warn when stitching across pds is being used
-            warnings.warn(f"{exc} Using SLSQP to find decomposition")
+            warnings.warn(f"{exc} Using SLSQP to find decomposition", stacklevel=2)
             competing_entries = self._get_stable_entries_in_space(frozenset(comp.elements))
             return _get_slsqp_decomp(comp, competing_entries)
 

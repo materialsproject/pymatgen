@@ -24,8 +24,8 @@ from pymatgen.core.units import Mass
 from pymatgen.util.string import Stringify, formula_double_format
 
 if TYPE_CHECKING:
-    from collections.abc import Generator, Iterator
-    from typing import Any, ClassVar
+    from collections.abc import Generator, ItemsView, Iterator, Mapping
+    from typing import Any, ClassVar, Literal
 
     from typing_extensions import Self
 
@@ -115,11 +115,11 @@ class Composition(collections.abc.Hashable, collections.abc.Mapping, MSONable, S
     # Tolerance in distinguishing different composition amounts.
     # 1e-8 is fairly tight, but should cut out most floating point arithmetic
     # errors.
-    amount_tolerance = 1e-8
-    charge_balanced_tolerance = 1e-8
+    amount_tolerance: ClassVar[float] = 1e-8
+    charge_balanced_tolerance: ClassVar[float] = 1e-8
 
     # Special formula handling for peroxides and certain elements. This is so
-    # that formula output does not write LiO instead of Li2O2 for example.
+    # that formula output does not write "LiO" instead of "Li2O2" for example.
     special_formulas: ClassVar[dict[str, str]] = {
         "LiO": "Li2O2",
         "NaO": "Na2O2",
@@ -134,7 +134,8 @@ class Composition(collections.abc.Hashable, collections.abc.Mapping, MSONable, S
         "H": "H2",
     }
 
-    oxi_prob = None  # prior probability of oxidation used by oxi_state_guesses
+    # Prior probability of oxidation used by oxi_state_guesses
+    oxi_prob: ClassVar[dict | None] = None
 
     def __init__(self, *args, strict: bool = False, **kwargs) -> None:
         """Very flexible Composition construction, similar to the built-in Python
@@ -173,7 +174,7 @@ class Composition(collections.abc.Hashable, collections.abc.Mapping, MSONable, S
         else:
             elem_map = dict(*args, **kwargs)  # type: ignore[assignment]
         elem_amt = {}
-        self._n_atoms = 0
+        self._n_atoms: int | float = 0
         for key, val in elem_map.items():
             if val < -type(self).amount_tolerance and not self.allow_negative:
                 raise ValueError("Amounts in Composition cannot be negative!")
@@ -184,7 +185,7 @@ class Composition(collections.abc.Hashable, collections.abc.Mapping, MSONable, S
         if strict and not self.valid:
             raise ValueError(f"Composition is not valid, contains: {', '.join(map(str, self.elements))}")
 
-    def __getitem__(self, key: SpeciesLike) -> float:
+    def __getitem__(self, key: SpeciesLike) -> int | float:
         try:
             sp = get_el_sp(key)
             if isinstance(sp, Species):
@@ -201,6 +202,10 @@ class Composition(collections.abc.Hashable, collections.abc.Mapping, MSONable, S
 
     def __iter__(self) -> Iterator[Species | Element | DummySpecies]:
         return iter(self._data)
+
+    def items(self) -> ItemsView[Species | Element | DummySpecies, int | float]:
+        """Returns Dict.items() for the Composition dict."""
+        return self._data.items()
 
     def __contains__(self, key) -> bool:
         try:
@@ -364,7 +369,7 @@ class Composition(collections.abc.Hashable, collections.abc.Mapping, MSONable, S
         """
         sym_amt = self.get_el_amt_dict()
         syms = sorted(sym_amt, key=lambda sym: get_el_sp(sym).X)
-        formula = [f"{s}{formula_double_format(sym_amt[s], ignore_ones= False)}" for s in syms]
+        formula = [f"{s}{formula_double_format(sym_amt[s], ignore_ones=False)}" for s in syms]
         return " ".join(formula)
 
     @property
@@ -386,7 +391,7 @@ class Composition(collections.abc.Hashable, collections.abc.Mapping, MSONable, S
         """
         sym_amt = self.get_el_amt_dict()
         syms = sorted(sym_amt, key=lambda s: get_el_sp(s).iupac_ordering)
-        formula = [f"{s}{formula_double_format(sym_amt[s], ignore_ones= False)}" for s in syms]
+        formula = [f"{s}{formula_double_format(sym_amt[s], ignore_ones=False)}" for s in syms]
         return " ".join(formula)
 
     @property
@@ -413,10 +418,10 @@ class Composition(collections.abc.Hashable, collections.abc.Mapping, MSONable, S
         """Calculate a reduced composition and factor.
 
         Returns:
-            A normalized composition and a multiplicative factor, i.e.,
-            Li4Fe4P4O16 returns (Composition("LiFePO4"), 4).
+            tuple[Composition, float]: Normalized Composition and multiplicative factor,
+            i.e. "Li4Fe4P4O16" returns (Composition("LiFePO4"), 4).
         """
-        factor = self.get_reduced_formula_and_factor()[1]
+        factor: float = self.get_reduced_formula_and_factor()[1]
         return self / factor, factor
 
     def get_reduced_formula_and_factor(self, iupac_ordering: bool = False) -> tuple[str, float]:
@@ -424,24 +429,27 @@ class Composition(collections.abc.Hashable, collections.abc.Mapping, MSONable, S
 
         Args:
             iupac_ordering (bool, optional): Whether to order the
-                formula by the iupac "electronegativity" series, defined in
+                formula by the IUPAC "electronegativity" series, defined in
                 Table VI of "Nomenclature of Inorganic Chemistry (IUPAC
                 Recommendations 2005)". This ordering effectively follows
-                the groups and rows of the periodic table, except the
+                the groups and rows of the periodic table, except for
                 Lanthanides, Actinides and hydrogen. Note that polyanions
                 will still be determined based on the true electronegativity of
                 the elements.
 
         Returns:
-            A pretty normalized formula and a multiplicative factor, i.e.,
-            Li4Fe4P4O16 returns (LiFePO4, 4).
+            tuple[str, float]: Normalized formula and multiplicative factor,
+                i.e., "Li4Fe4P4O16" returns (LiFePO4, 4).
         """
-        all_int = all(abs(val - round(val)) < type(self).amount_tolerance for val in self.values())
+        all_int: bool = all(abs(val - round(val)) < type(self).amount_tolerance for val in self.values())
         if not all_int:
             return self.formula.replace(" ", ""), 1
-        el_amt_dict = {key: round(val) for key, val in self.get_el_amt_dict().items()}
+
+        el_amt_dict: dict[str, int] = {key: round(val) for key, val in self.get_el_amt_dict().items()}
+        factor: float
         formula, factor = reduce_formula(el_amt_dict, iupac_ordering=iupac_ordering)
 
+        # Do not "completely reduce" certain formulas
         if formula in type(self).special_formulas:
             formula = type(self).special_formulas[formula]
             factor /= 2
@@ -454,10 +462,10 @@ class Composition(collections.abc.Hashable, collections.abc.Mapping, MSONable, S
         """Calculate an integer formula and factor.
 
         Args:
-            max_denominator (int): all amounts in the el:amt dict are
-                first converted to a Fraction with this maximum denominator
+            max_denominator (int): all amounts in the el_amt dict are
+                first converted to a Fraction with this maximum denominator.
             iupac_ordering (bool, optional): Whether to order the
-                formula by the iupac "electronegativity" series, defined in
+                formula by the IUPAC "electronegativity" series, defined in
                 Table VI of "Nomenclature of Inorganic Chemistry (IUPAC
                 Recommendations 2005)". This ordering effectively follows
                 the groups and rows of the periodic table, except the
@@ -466,13 +474,14 @@ class Composition(collections.abc.Hashable, collections.abc.Mapping, MSONable, S
                 the elements.
 
         Returns:
-            A pretty normalized formula and a multiplicative factor, i.e.,
-            Li0.5O0.25 returns (Li2O, 0.25). O0.25 returns (O2, 0.125)
+            A normalized formula and a multiplicative factor, i.e.,
+            "Li0.5O0.25" returns (Li2O, 0.25). "O0.25" returns (O2, 0.125)
         """
-        el_amt = self.get_el_amt_dict()
-        _gcd = gcd_float(list(el_amt.values()), 1 / max_denominator)
+        el_amt: dict[str, float] = self.get_el_amt_dict()
+        _gcd: float = gcd_float(list(el_amt.values()), 1 / max_denominator)
 
-        dct = {key: round(val / _gcd) for key, val in el_amt.items()}
+        dct: dict[str, int] = {key: round(val / _gcd) for key, val in el_amt.items()}
+        factor: float
         formula, factor = reduce_formula(dct, iupac_ordering=iupac_ordering)
         if formula in type(self).special_formulas:
             formula = type(self).special_formulas[formula]
@@ -481,8 +490,8 @@ class Composition(collections.abc.Hashable, collections.abc.Mapping, MSONable, S
 
     @property
     def reduced_formula(self) -> str:
-        """A pretty normalized formula, i.e., LiFePO4 instead of
-        Li4Fe4P4O16.
+        """A normalized formula, i.e., "LiFePO4" instead of
+        "Li4Fe4P4O16".
         """
         return self.get_reduced_formula_and_factor()[0]
 
@@ -774,17 +783,25 @@ class Composition(collections.abc.Hashable, collections.abc.Mapping, MSONable, S
     def to_weight_dict(self) -> dict[str, float]:
         """
         Returns:
-            dict[str, float] with weight fraction of each component {"Ti": 0.90, "V": 0.06, "Al": 0.04}.
+            dict[str, float]: weight fractions of each component, e.g. {"Ti": 0.90, "V": 0.06, "Al": 0.04}.
         """
         return {str(el): self.get_wt_fraction(el) for el in self.elements}
 
     @property
-    def to_data_dict(self) -> dict[str, Any]:
+    def to_data_dict(
+        self,
+    ) -> dict[
+        Literal["reduced_cell_composition", "unit_cell_composition", "reduced_cell_formula", "elements", "nelements"],
+        Any,
+    ]:
         """
         Returns:
-            A dict with many keys and values relating to Composition/Formula,
-            including reduced_cell_composition, unit_cell_composition,
-            reduced_cell_formula, elements and nelements.
+            dict with the following keys:
+                - reduced_cell_composition
+                - unit_cell_composition
+                - reduced_cell_formula
+                - elements
+                - nelements.
         """
         return {
             "reduced_cell_composition": self.reduced_composition,
@@ -802,7 +819,8 @@ class Composition(collections.abc.Hashable, collections.abc.Mapping, MSONable, S
         """
         warnings.warn(
             "Composition.charge is experimental and may produce incorrect results. Use with "
-            "caution and open a GitHub issue pinging @janosh to report bad behavior."
+            "caution and open a GitHub issue pinging @janosh to report bad behavior.",
+            stacklevel=2,
         )
         oxi_states = [getattr(specie, "oxi_state", None) for specie in self]
         if {*oxi_states} <= {0, None}:
@@ -818,7 +836,8 @@ class Composition(collections.abc.Hashable, collections.abc.Mapping, MSONable, S
         """
         warnings.warn(
             "Composition.charge_balanced is experimental and may produce incorrect results. "
-            "Use with caution and open a GitHub issue pinging @janosh to report bad behavior."
+            "Use with caution and open a GitHub issue pinging @janosh to report bad behavior.",
+            stacklevel=2,
         )
         if self.charge is None:
             if {getattr(el, "oxi_state", None) for el in self} == {0}:
@@ -887,7 +906,8 @@ class Composition(collections.abc.Hashable, collections.abc.Mapping, MSONable, S
         if invalid_elems:
             warnings.warn(
                 "Some elements to be substituted are not present in composition. Please check your input. "
-                f"Problematic element = {invalid_elems}; {self}"
+                f"Problematic element = {invalid_elems}; {self}",
+                stacklevel=2,
             )
         for elem in invalid_elems:
             elem_map.pop(elem)
@@ -917,7 +937,8 @@ class Composition(collections.abc.Hashable, collections.abc.Mapping, MSONable, S
                 if el in self:
                     warnings.warn(
                         f"Same element ({el}) in both the keys and values of the substitution!"
-                        "This can be ambiguous, so be sure to check your result."
+                        "This can be ambiguous, so be sure to check your result.",
+                        stacklevel=2,
                     )
 
         return type(self)(new_comp)
@@ -1039,7 +1060,7 @@ class Composition(collections.abc.Hashable, collections.abc.Mapping, MSONable, S
                 raise ValueError(f"Composition {comp} cannot accommodate max_sites setting!")
 
         # Load prior probabilities of oxidation states, used to rank solutions
-        if not type(self).oxi_prob:
+        if type(self).oxi_prob is None:
             all_data = loadfn(f"{MODULE_DIR}/../analysis/icsd_bv.yaml")
             type(self).oxi_prob = {Species.from_str(sp): data for sp, data in all_data["occurrence"].items()}
         oxi_states_override = oxi_states_override or {}
@@ -1303,38 +1324,38 @@ class Composition(collections.abc.Hashable, collections.abc.Mapping, MSONable, S
 
 
 def reduce_formula(
-    sym_amt: dict[str, float] | dict[str, int],
+    sym_amt: Mapping[str, float],
     iupac_ordering: bool = False,
-) -> tuple[str, float]:
-    """Helper function to reduce a sym_amt dict to a reduced formula and factor.
+) -> tuple[str, int]:
+    """Helper function to reduce a symbol-amount mapping.
 
     Args:
-        sym_amt (dict): {symbol: amount}.
+        sym_amt (dict[str, float]): Symbol to amount mapping.
         iupac_ordering (bool, optional): Whether to order the
-            formula by the iupac "electronegativity" series, defined in
+            formula by the IUPAC "electronegativity" series, defined in
             Table VI of "Nomenclature of Inorganic Chemistry (IUPAC
             Recommendations 2005)". This ordering effectively follows
-            the groups and rows of the periodic table, except the
+            the groups and rows of the periodic table, except for
             Lanthanides, Actinides and hydrogen. Note that polyanions
             will still be determined based on the true electronegativity of
             the elements.
 
     Returns:
-        tuple[str, float]: reduced formula and factor.
+        tuple[str, int]: reduced formula and factor.
     """
-    syms = sorted(sym_amt, key=lambda x: [get_el_sp(x).X, x])
+    syms: list[str] = sorted(sym_amt, key=lambda x: [get_el_sp(x).X, x])
 
     syms = list(filter(lambda x: abs(sym_amt[x]) > Composition.amount_tolerance, syms))
 
-    factor = 1
-    # Enforce integers for doing gcd.
+    # Enforce integer for calculating greatest common divisor
+    factor: int = 1
     if all(int(i) == i for i in sym_amt.values()):
         factor = abs(gcd(*(int(i) for i in sym_amt.values())))
 
-    poly_anions = []
-    # if the composition contains a poly anion
+    # If the composition contains polyanion
+    poly_anions: list[str] = []
     if len(syms) >= 3 and get_el_sp(syms[-1]).X - get_el_sp(syms[-2]).X < 1.65:
-        poly_sym_amt = {syms[i]: sym_amt[syms[i]] / factor for i in [-2, -1]}
+        poly_sym_amt: dict[str, float] = {syms[i]: sym_amt[syms[i]] / factor for i in (-2, -1)}
         poly_form, poly_factor = reduce_formula(poly_sym_amt, iupac_ordering=iupac_ordering)
 
         if poly_factor != 1:
@@ -1353,9 +1374,17 @@ def reduce_formula(
     return "".join([*reduced_form, *poly_anions]), factor
 
 
+class CompositionError(Exception):
+    """Composition exceptions."""
+
+
 class ChemicalPotential(dict, MSONable):
-    """Represent set of chemical potentials. Can be: multiplied/divided by a Number
-    multiplied by a Composition (returns an energy) added/subtracted with other ChemicalPotentials.
+    """Represent set of chemical potentials.
+
+    Can be:
+        - multiplied/divided by a Number
+        - multiplied by a Composition (returns an energy)
+        - added/subtracted with other ChemicalPotentials
     """
 
     def __init__(self, *args, **kwargs) -> None:
@@ -1408,7 +1437,3 @@ class ChemicalPotential(dict, MSONable):
         if strict and (missing := set(composition) - set(self)):
             raise ValueError(f"Potentials not specified for {missing}")
         return sum(self.get(key, 0) * val for key, val in composition.items())
-
-
-class CompositionError(Exception):
-    """Exception class for composition errors."""

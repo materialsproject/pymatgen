@@ -18,10 +18,11 @@ import numpy as np
 from monty.design_patterns import cached_class
 from monty.serialization import loadfn
 
+from pymatgen.core.operations import SymmOp
 from pymatgen.util.string import Stringify
 
 if TYPE_CHECKING:
-    from typing import ClassVar, Literal
+    from typing import ClassVar, Literal, TypeAlias
 
     from numpy.typing import ArrayLike
     from typing_extensions import Self
@@ -29,9 +30,9 @@ if TYPE_CHECKING:
     from pymatgen.core.lattice import Lattice
 
     # Don't import at runtime to avoid circular import
-    from pymatgen.core.operations import SymmOp  # noqa: TCH004
+    from pymatgen.core.operations import SymmOp  # noqa: TC004
 
-    CrystalSystem = Literal[
+    CrystalSystem: TypeAlias = Literal[
         "cubic",
         "hexagonal",
         "monoclinic",
@@ -106,7 +107,8 @@ class SymmetryGroup(Sequence, Stringify, ABC):
         """
         warnings.warn(
             "This is not fully functional. Only trivial subsets are tested right now. "
-            "This will not work if the crystallographic directions of the two groups are different."
+            "This will not work if the crystallographic directions of the two groups are different.",
+            stacklevel=2,
         )
         return set(self.symmetry_ops).issubset(supergroup.symmetry_ops)
 
@@ -121,7 +123,8 @@ class SymmetryGroup(Sequence, Stringify, ABC):
         """
         warnings.warn(
             "This is not fully functional. Only trivial subsets are tested right now. "
-            "This will not work if the crystallographic directions of the two groups are different."
+            "This will not work if the crystallographic directions of the two groups are different.",
+            stacklevel=2,
         )
         return set(subgroup.symmetry_ops).issubset(self.symmetry_ops)
 
@@ -229,7 +232,8 @@ class PointGroup(SymmetryGroup):
             raise NotImplementedError
         warnings.warn(
             "This is not fully functional. Only trivial subsets are tested right now. "
-            "This will not work if the crystallographic directions of the two groups are different."
+            "This will not work if the crystallographic directions of the two groups are different.",
+            stacklevel=2,
         )
         return set(self.symmetry_ops).issubset(supergroup.symmetry_ops)
 
@@ -376,7 +380,8 @@ class SpaceGroup(SymmetryGroup):
                     self.full_symbol = spg["hermann_mauguin_u"]
                     warnings.warn(
                         f"Full symbol not available, falling back to short Hermann Mauguin symbol "
-                        f"{self.symbol} instead"
+                        f"{self.symbol} instead",
+                        stacklevel=2,
                     )
                     self.point_group = spg["point_group"]
                 self.int_number = spg["number"]

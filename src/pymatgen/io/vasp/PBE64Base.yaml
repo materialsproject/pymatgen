@@ -11,7 +11,7 @@ POTCAR:
   At: At
   Au: Au
   B: B
-  Ba: Ba_sv
+  Ba: Ba_sv_GW
   Be: Be_sv
   Bi: Bi
   Br: Br
@@ -26,8 +26,8 @@ POTCAR:
   Cr: Cr_pv
   Cs: Cs_sv
   Cu: Cu_pv
-  Dy: Dy_3
-  Er: Er_3
+  Dy: Dy_h
+  Er: Er_h
   Eu: Eu
   F: F
   Fe: Fe_pv
@@ -39,7 +39,7 @@ POTCAR:
   He: He
   Hf: Hf_pv
   Hg: Hg
-  Ho: Ho_3
+  Ho: Ho_h
   I: I
   In: In_d
   Ir: Ir
@@ -54,7 +54,7 @@ POTCAR:
   N: N
   Na: Na_pv
   Nb: Nb_pv
-  Nd: Nd_3
+  Nd: Nd_h
   Ne: Ne
   Ni: Ni_pv
   Np: Np
@@ -64,9 +64,9 @@ POTCAR:
   Pa: Pa
   Pb: Pb_d
   Pd: Pd
-  Pm: Pm_3
+  Pm: Pm_h
   Po: Po_d
-  Pr: Pr_3
+  Pr: Pr_h
   Pt: Pt
   Pu: Pu
   Ra: Ra_sv
@@ -80,22 +80,22 @@ POTCAR:
   Sc: Sc_sv
   Se: Se
   Si: Si
-  Sm: Sm_3
+  Sm: Sm_h
   Sn: Sn_d
   Sr: Sr_sv
   Ta: Ta_pv
-  Tb: Tb_3
+  Tb: Tb_h
   Tc: Tc_pv
   Te: Te
   Th: Th
   Ti: Ti_pv
   Tl: Tl_d
-  Tm: Tm_3
+  Tm: Tm_h
   U: U
   V: V_pv
   W: W_sv
-  Xe: Xe
+  Xe: Xe_GW
   Y: Y_sv
-  Yb: Yb_3
+  Yb: Yb_h
   Zn: Zn
   Zr: Zr_sv
