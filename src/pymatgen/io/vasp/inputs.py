@@ -2126,25 +2126,70 @@ class PotcarSingle:
         TITEL, VRHFIN, n_valence_elec = (self.keywords.get(key) for key in ("TITEL", "VRHFIN", "ZVAL"))
         return f"{cls_name}({symbol=}, {functional=}, {TITEL=}, {VRHFIN=}, {n_valence_elec=:.0f})"
 
-    @property
-    def electron_configuration(self) -> list[tuple[int, str, int]] | None:
-        """Electronic configuration of the PotcarSingle."""
-        if not self.nelectrons.is_integer():
-            warnings.warn(
-                "POTCAR has non-integer charge, electron configuration not well-defined.",
-                stacklevel=2,
-            )
-            return None
+    def get_electron_configuration(
+        self,
+        tol: float = 0.01,
+    ) -> list[tuple[int, str, float]]:
+        """Valence electronic configuration corresponding to the ZVAL,
+        read from the "Atomic configuration" section of POTCAR.
 
-        el = Element.from_Z(self.atomic_no)
-        full_config = el.full_electronic_structure
-        nelect = self.nelectrons
-        config = []
-        while nelect > 0:
-            e = full_config.pop(-1)
-            config.append(e)
-            nelect -= e[-1]
-        return config
+        Args:
+            tol (float): Tolerance for occupation numbers.
+                - Orbitals with an occupation below `tol` are considered empty.
+                - Accumulation of electrons stops once the total occupation
+                  reaches `ZVAL - tol`, preventing unnecessary additions.
+
+        Returns:
+            list[tuple[int, str, float]]: A list of tuples containing:
+                - n (int): Principal quantum number.
+                - subshell (str): Subshell notation (s, p, d, f).
+                - occ (float): Occupation number, limited to ZVAL.
+        """
+        # Find "Atomic configuration" section
+        match = re.search(r"Atomic configuration", self.data)
+        if match is None:
+            raise RuntimeError("Cannot find atomic configuration section in POTCAR.")
+
+        start_idx: int = self.data[: match.start()].count("\n")
+
+        lines = self.data.splitlines()
+
+        # Extract all subshells
+        match_entries = re.search(r"(\d+)\s+entries", lines[start_idx + 1])
+        if match_entries is None:
+            raise RuntimeError("Cannot find entries in POTCAR.")
+        num_entries: int = int(match_entries.group(1))
+
+        # Get valence electron configuration (defined by ZVAL)
+        l_map: dict[int, str] = {0: "s", 1: "p", 2: "d", 3: "f", 4: "g", 5: "h"}
+
+        total_electrons = 0.0
+        valence_config: list[tuple[int, str, float]] = []
+        for line in lines[start_idx + 2 + num_entries : start_idx + 2 : -1]:
+            parts = line.split()
+            n, ang_moment, _j, _E, occ = int(parts[0]), int(parts[1]), float(parts[2]), float(parts[3]), float(parts[4])
+
+            if occ >= tol:
+                valence_config.append((n, l_map[ang_moment], occ))
+                total_electrons += occ
+
+            if total_electrons >= self.zval - tol:
+                break
+
+        return list(reversed(valence_config))
+
+    @property
+    def electron_configuration(self) -> list[tuple[int, str, float]]:
+        """Valence electronic configuration corresponding to the ZVAL,
+        read from the "Atomic configuration" section of POTCAR.
+
+        Returns:
+            list[tuple[int, str, float]]: A list of tuples containing:
+                - n (int): Principal quantum number.
+                - subshell (str): Subshell notation (s, p, d, f).
+                - occ (float): Occupation number, limited to ZVAL.
+        """
+        return self.get_electron_configuration()
 
     @property
     def element(self) -> str:
@@ -2763,7 +2808,7 @@ def _gen_potcar_summary_stats(
                 }
             )
 
-    if summary_stats_filename:
+    if summary_stats_filename is not None:
         dumpfn(new_summary_stats, summary_stats_filename)
 
     return new_summary_stats
@@ -2892,16 +2937,16 @@ class Potcar(list, MSONable):
             functional (str): The functional to use. If None, the setting
                 PMG_DEFAULT_FUNCTIONAL in .pmgrc.yaml is used, or if this is
                 not set, it will default to PBE.
-            sym_potcar_map (dict): A map of symbol:raw POTCAR string. If
+            sym_potcar_map (dict): A map of symbol to raw POTCAR string. If
                 sym_potcar_map is specified, POTCARs will be generated from
                 the given map data rather than the config file location.
         """
         del self[:]
 
-        if sym_potcar_map:
-            self.extend(PotcarSingle(sym_potcar_map[el]) for el in symbols)
-        else:
+        if sym_potcar_map is None:
             self.extend(PotcarSingle.from_symbol_and_functional(el, functional) for el in symbols)
+        else:
+            self.extend(PotcarSingle(sym_potcar_map[el]) for el in symbols)
 
 
 class UnknownPotcarWarning(UserWarning):
