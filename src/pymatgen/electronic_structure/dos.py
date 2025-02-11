@@ -274,10 +274,7 @@ class Dos(MSONable):
             dict[Spin, float]: Density for energy for each spin.
         """
         return {
-            spin: get_linear_interpolated_value(
-                self.energies, self.densities[spin], energy
-            )
-            for spin in self.densities
+            spin: get_linear_interpolated_value(self.energies, self.densities[spin], energy) for spin in self.densities
         }
 
     def get_interpolated_gap(

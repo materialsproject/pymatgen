@@ -359,7 +359,7 @@ class TestDOS(PymatgenTest):
         assert self.dos.get_interpolated_gap(tol=0.001, abs_tol=False, spin=None)[0] == approx(
             2.16815942458015, abs=1e-7
         )
-        assert_allclose(self.dos.get_cbm_vbm() , (3.8837, 1.8139), atol=1e-4)
+        assert_allclose(self.dos.get_cbm_vbm(), (3.8837, 1.8139), atol=1e-4)
 
         assert self.dos.get_interpolated_value(9.9)[0] == approx(1.744588888888891, abs=1e-7)
         assert self.dos.get_interpolated_value(9.9)[1] == approx(1.756888888888886, abs=1e-7)
