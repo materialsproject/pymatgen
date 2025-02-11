@@ -115,11 +115,11 @@ class DOS(Spectrum):
         # Interpolate between adjacent values
         terminal_dens = tdos[vbm_start : vbm_start + 2][::-1]
         terminal_energies = energies[vbm_start : vbm_start + 2][::-1]
-        start = get_linear_interpolated_value(terminal_dens, terminal_energies, tol)
+        vbm = get_linear_interpolated_value(terminal_dens, terminal_energies, tol)
         terminal_dens = tdos[cbm_start - 1 : cbm_start + 1]
         terminal_energies = energies[cbm_start - 1 : cbm_start + 1]
-        end = get_linear_interpolated_value(terminal_dens, terminal_energies, tol)
-        return end - start, end, start
+        cbm = get_linear_interpolated_value(terminal_dens, terminal_energies, tol)
+        return cbm - vbm, cbm, vbm
 
     def get_cbm_vbm(self, tol: float = 1e-4, abs_tol: bool = False, spin: Spin | None = None) -> tuple[float, float]:
         """
@@ -308,10 +308,12 @@ class Dos(MSONable):
         Returns:
             dict[Spin, float]: Density for energy for each spin.
         """
-        energies = {}
-        for spin in self.densities:
-            energies[spin] = get_linear_interpolated_value(self.energies, self.densities[spin], energy)
-        return energies
+        return {
+            spin: get_linear_interpolated_value(
+                self.energies, self.densities[spin], energy
+            )
+            for spin in self.densities
+        }
 
     def get_interpolated_gap(
         self,
@@ -350,13 +352,13 @@ class Dos(MSONable):
         # Interpolate between adjacent values
         terminal_dens = tdos[vbm_start : vbm_start + 2][::-1]
         terminal_energies = energies[vbm_start : vbm_start + 2][::-1]
-        start = get_linear_interpolated_value(terminal_dens, terminal_energies, tol)
+        vbm = get_linear_interpolated_value(terminal_dens, terminal_energies, tol)
 
         terminal_dens = tdos[cbm_start - 1 : cbm_start + 1]
         terminal_energies = energies[cbm_start - 1 : cbm_start + 1]
-        end = get_linear_interpolated_value(terminal_dens, terminal_energies, tol)
+        cbm = get_linear_interpolated_value(terminal_dens, terminal_energies, tol)
 
-        return end - start, end, start
+        return cbm - vbm, cbm, vbm
 
     def get_cbm_vbm(self, tol: float = 1e-4, abs_tol: bool = False, spin: Spin | None = None) -> tuple[float, float]:
         """
