@@ -123,7 +123,9 @@ class DOS(Spectrum):
 
     def get_cbm_vbm(self, tol: float = 1e-4, abs_tol: bool = False, spin: Spin | None = None) -> tuple[float, float]:
         """
-        Expects a DOS object and finds the CBM and VBM eigenvalues.
+        Expects a DOS object and finds the CBM and VBM eigenvalues,
+        using interpolation to determine the points at which the
+        DOS crosses the threshold `tol`.
 
         `tol` may need to be increased for systems with noise/disorder.
 
@@ -159,12 +161,22 @@ class DOS(Spectrum):
         while i_gap_start >= 1 and tdos[i_gap_start] <= tol:
             i_gap_start -= 1
 
+        # get energy at which interpolated DOS between i_gap_start and i_gap_start + 1 == tol:
+        terminal_dens = tdos[i_gap_start: i_gap_start + 2][::-1]
+        terminal_energies = self.x[i_gap_start: i_gap_start + 2][::-1]
+        vbm = get_linear_interpolated_value(terminal_dens, terminal_energies, tol)
+
         # Work forwards until tolerance is reached
         i_gap_end = i_gap_start + 1
         while i_gap_end < tdos.shape[0] and tdos[i_gap_end] <= tol:
             i_gap_end += 1
 
-        return self.x[i_gap_end], self.x[i_gap_start]
+        # get energy at which interpolated DOS between i_gap_end and i_gap_end - 1 == tol:
+        terminal_dens = tdos[i_gap_end - 1: i_gap_end + 1]
+        terminal_energies = self.x[i_gap_end - 1: i_gap_end + 1]
+        cbm = get_linear_interpolated_value(terminal_dens, terminal_energies, tol)
+
+        return cbm, vbm
 
     def get_gap(self, tol: float = 1e-4, abs_tol: bool = False, spin: Spin | None = None) -> float:
         """
@@ -348,7 +360,9 @@ class Dos(MSONable):
 
     def get_cbm_vbm(self, tol: float = 1e-4, abs_tol: bool = False, spin: Spin | None = None) -> tuple[float, float]:
         """
-        Expects a DOS object and finds the CBM and VBM eigenvalues.
+        Expects a DOS object and finds the CBM and VBM eigenvalues,
+        using interpolation to determine the points at which the
+        DOS crosses the threshold `tol`.
 
         `tol` may need to be increased for systems with noise/disorder.
 
@@ -380,12 +394,22 @@ class Dos(MSONable):
         while i_gap_start >= 1 and tdos[i_gap_start] <= tol:
             i_gap_start -= 1
 
+        # get energy at which interpolated DOS between i_gap_start and i_gap_start + 1 == tol:
+        terminal_dens = tdos[i_gap_start: i_gap_start + 2][::-1]
+        terminal_energies = self.energies[i_gap_start: i_gap_start + 2][::-1]
+        vbm = get_linear_interpolated_value(terminal_dens, terminal_energies, tol)
+
         # Work forwards until tolerance is reached
         i_gap_end = i_gap_start + 1
         while i_gap_end < tdos.shape[0] and tdos[i_gap_end] <= tol:
             i_gap_end += 1
 
-        return (self.energies[min(i_gap_end, len(self.energies) - 1)], self.energies[max(i_gap_start, 0)])
+        # get energy at which interpolated DOS between i_gap_end and i_gap_end - 1 == tol:
+        terminal_dens = tdos[i_gap_end - 1 : i_gap_end + 1]
+        terminal_energies = self.energies[i_gap_end - 1 : i_gap_end + 1]
+        cbm = get_linear_interpolated_value(terminal_dens, terminal_energies, tol)
+
+        return cbm, vbm
 
     def get_gap(
         self,
