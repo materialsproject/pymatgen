@@ -140,42 +140,7 @@ class DOS(Spectrum):
         Returns:
             tuple[float, float]: Energies in eV corresponding to the CBM and VBM.
         """
-        # Determine tolerance
-        if spin is None:
-            tdos = self.y if len(self.ydim) == 1 else np.sum(self.y, axis=1)
-        elif spin == Spin.up:
-            tdos = self.y[:, 0]
-        else:
-            tdos = self.y[:, 1]
-
-        if not abs_tol:
-            tol = tol * tdos.sum() / tdos.shape[0]
-
-        # Find index of Fermi level
-        i_fermi = 0
-        while self.x[i_fermi] <= self.efermi:
-            i_fermi += 1
-
-        # Work backwards until tolerance is reached
-        i_gap_start = i_fermi
-        while i_gap_start >= 1 and tdos[i_gap_start] <= tol:
-            i_gap_start -= 1
-
-        # get energy at which interpolated DOS between i_gap_start and i_gap_start + 1 == tol:
-        terminal_dens = tdos[i_gap_start: i_gap_start + 2][::-1]
-        terminal_energies = self.x[i_gap_start: i_gap_start + 2][::-1]
-        vbm = get_linear_interpolated_value(terminal_dens, terminal_energies, tol)
-
-        # Work forwards until tolerance is reached
-        i_gap_end = i_gap_start + 1
-        while i_gap_end < tdos.shape[0] and tdos[i_gap_end] <= tol:
-            i_gap_end += 1
-
-        # get energy at which interpolated DOS between i_gap_end and i_gap_end - 1 == tol:
-        terminal_dens = tdos[i_gap_end - 1: i_gap_end + 1]
-        terminal_energies = self.x[i_gap_end - 1: i_gap_end + 1]
-        cbm = get_linear_interpolated_value(terminal_dens, terminal_energies, tol)
-
+        _gap, cbm, vbm = self.get_interpolated_gap(tol, abs_tol, spin)
         return cbm, vbm
 
     def get_gap(self, tol: float = 1e-4, abs_tol: bool = False, spin: Spin | None = None) -> float:
@@ -379,38 +344,7 @@ class Dos(MSONable):
         Returns:
             tuple[float, float]: Energies in eV corresponding to the CBM and VBM.
         """
-        # Determine tolerance
-        tdos = self.get_densities(spin)
-        if tdos is None:
-            raise ValueError("tdos is None")
-        if not abs_tol:
-            tol = tol * tdos.sum() / tdos.shape[0]
-
-        # Find index of Fermi level
-        i_fermi = 0
-        while self.energies[i_fermi] <= self.efermi:
-            i_fermi += 1
-
-        # Work backwards until tolerance is reached
-        i_gap_start = i_fermi
-        while i_gap_start >= 1 and tdos[i_gap_start] <= tol:
-            i_gap_start -= 1
-
-        # get energy at which interpolated DOS between i_gap_start and i_gap_start + 1 == tol:
-        terminal_dens = tdos[i_gap_start: i_gap_start + 2][::-1]
-        terminal_energies = self.energies[i_gap_start: i_gap_start + 2][::-1]
-        vbm = get_linear_interpolated_value(terminal_dens, terminal_energies, tol)
-
-        # Work forwards until tolerance is reached
-        i_gap_end = i_gap_start + 1
-        while i_gap_end < tdos.shape[0] and tdos[i_gap_end] <= tol:
-            i_gap_end += 1
-
-        # get energy at which interpolated DOS between i_gap_end and i_gap_end - 1 == tol:
-        terminal_dens = tdos[i_gap_end - 1 : i_gap_end + 1]
-        terminal_energies = self.energies[i_gap_end - 1 : i_gap_end + 1]
-        cbm = get_linear_interpolated_value(terminal_dens, terminal_energies, tol)
-
+        _gap, cbm, vbm = self.get_interpolated_gap(tol, abs_tol, spin)
         return cbm, vbm
 
     def get_gap(
