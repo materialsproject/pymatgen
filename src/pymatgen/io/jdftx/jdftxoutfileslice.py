@@ -58,6 +58,7 @@ _jofs_atr_from_jstrucs = [
     "elec_grad_k",
     "elec_alpha",
     "elec_linmin",
+    "t_s",
 ]
 
 

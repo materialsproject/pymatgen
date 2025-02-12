@@ -757,7 +757,8 @@ class TagContainer(AbstractTag):
             tag,
             final_value,
             multiline_override=self.linebreak_nth_entry is not None,
-            strip_override=self.linebreak_nth_entry is not None,
+            # strip_override=(self.linebreak_nth_entry is not None),
+            strip_override=((self.linebreak_nth_entry is not None) or self.multiline_tag),
         )
 
     def get_token_len(self) -> int:
