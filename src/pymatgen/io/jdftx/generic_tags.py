@@ -726,17 +726,16 @@ class TagContainer(AbstractTag):
 
         final_value = ""
         indent = "    "
-        for count, (subtag, subvalue) in enumerate(value.items()):
+        # Gather all subtag print values into a list
+        print_str_list = []
+        for subtag, subvalue in value.items():
             if self.subtags[subtag].can_repeat and isinstance(subvalue, list):
-                # if a subtag.can_repeat, it is assumed that subvalue is a list
-                # the 2nd condition ensures this
-                # if it is not a list, then the tag will still be printed by the else
-                # this could be relevant if someone manually sets the tag's can_repeat value to a non-list.
-                print_str_list = [self.subtags[subtag].write(subtag, entry) for entry in subvalue]
-                print_str = " ".join([v.strip() for v in print_str_list]) + " "
+                print_str_list += [self.subtags[subtag].write(subtag, entry).strip() + " " for entry in subvalue]
             else:
-                print_str = self.subtags[subtag].write(subtag, subvalue).strip() + " "
-
+                print_str_list.append(self.subtags[subtag].write(subtag.strip() + " ", subvalue))
+        # Concatenate all subtag print values into a single string, with line breaks at appropriate
+        # locations if needed
+        for count, print_str in enumerate(print_str_list):
             if self.multiline_tag:
                 final_value += f"{indent}{print_str}\\\n"
             elif self.linebreak_nth_entry is not None:
