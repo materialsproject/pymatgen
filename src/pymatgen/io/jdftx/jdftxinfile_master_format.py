@@ -989,7 +989,8 @@ MASTER_TAG_LIST: dict[str, dict[str, Any]] = {
             }
         ),
         "density-of-states": TagContainer(
-            multiline_tag=True,
+            multiline_tag=False,
+            linebreak_nth_entry=5,
             subtags={
                 "Total": BoolTag(write_value=False),
                 "Slice": TagContainer(
