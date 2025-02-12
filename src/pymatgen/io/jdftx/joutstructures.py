@@ -49,6 +49,7 @@ _joss_atrs_from_last_slice = [
     "magnetic_moments",
     "selective_dynamics",
     "structure",
+    "t_s",
 ]
 
 
@@ -109,7 +110,6 @@ class JOutStructures:
     geom_converged_reason: str | None = None
     elec_converged: bool = False
     elec_converged_reason: str | None = None
-    _t_s: float | None = None
     t_s: float | None = None
     slices: list[JOutStructure] = field(default_factory=list, init=True)
     eopt_type: str | None = None
@@ -192,17 +192,16 @@ class JOutStructures:
     def _get_t_s(self) -> float | None:
         """Return time of calculation.
 
+        Return time of calculation. Backup function to reference elecmindata for t_s for single point calculations.
+
         Returns:
             float: The total time in seconds for the calculation.
         """
-        if self._t_s is not None:
-            return self._t_s
-        if len(self):
-            if (self.opt_type in ["single point", None]) and (isinstance(self.elecmindata.t_s, float)):
-                self._t_s = self.elecmindata.t_s
-            else:
-                self._t_s = None
-        return self._t_s
+        if self.t_s is not None:
+            return self.t_s
+        if len(self) and ((self.opt_type in ["single point", None]) and (isinstance(self.elecmindata.t_s, float))):
+            return self.elecmindata.t_s
+        return None
 
     def _check_convergence(self) -> None:
         """Set convergence flags.
