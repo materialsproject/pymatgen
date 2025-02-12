@@ -179,7 +179,8 @@ class AbstractTag(ClassPrintFormatter, ABC):
 
     def _write(self, tag: str, value: Any, multiline_override: bool = False, strip_override: bool = False) -> str:
         tag_str = f"{tag} " if self.write_tagname else ""
-        if self.multiline_tag or multiline_override:
+        # if self.multiline_tag or multiline_override:
+        if multiline_override:
             tag_str += "\\\n"
         if self.write_value:
             if not strip_override:
@@ -736,28 +737,30 @@ class TagContainer(AbstractTag):
         # Concatenate all subtag print values into a single string, with line breaks at appropriate
         # locations if needed
         for count, print_str in enumerate(print_str_list):
-            if self.multiline_tag:
-                final_value += f"{indent}{print_str}\\\n"
-            elif self.linebreak_nth_entry is not None:
+            # if self.multiline_tag:
+            #     final_value += f"{indent}{print_str}\\\n"
+            # elif self.linebreak_nth_entry is not None:
+            if self.linebreak_nth_entry is not None:
                 # handles special formatting with extra linebreak, e.g. for lattice tag
                 i_column = count % self.linebreak_nth_entry
                 if i_column == 0:
                     final_value += f"{indent}{print_str}"
-                elif i_column == self.linebreak_nth_entry - 1:
-                    final_value += f"{print_str}\\\n"
                 else:
                     final_value += f"{print_str}"
+                if i_column == self.linebreak_nth_entry - 1:
+                    final_value += "\\\n"
             else:
                 final_value += f"{print_str}"
-        if self.multiline_tag or self.linebreak_nth_entry is not None:  # handles special formatting for lattice tag
+        if self.linebreak_nth_entry is not None:  # handles special formatting for lattice tag
+            # if self.multiline_tag or self.linebreak_nth_entry is not None:
             final_value = final_value[:-2]  # exclude final \\n from final print call
 
         return self._write(
             tag,
             final_value,
             multiline_override=self.linebreak_nth_entry is not None,
-            # strip_override=(self.linebreak_nth_entry is not None),
-            strip_override=((self.linebreak_nth_entry is not None) or self.multiline_tag),
+            strip_override=(self.linebreak_nth_entry is not None),
+            # strip_override=((self.linebreak_nth_entry is not None) or self.multiline_tag),
         )
 
     def get_token_len(self) -> int:
