@@ -251,7 +251,8 @@ MASTER_TAG_LIST: dict[str, dict[str, Any]] = {
             }
         ),
         "exchange-params": TagContainer(
-            multiline_tag=True,
+            linebreak_nth_entry=1,
+            multiline_tag=False,
             subtags={
                 "blockSize": IntTag(),
                 "nOuterVxx": IntTag(),
@@ -422,7 +423,8 @@ MASTER_TAG_LIST: dict[str, dict[str, Any]] = {
             }
         ),
         "electron-scattering": TagContainer(
-            multiline_tag=True,
+            linebreak_nth_entry=1,
+            multiline_tag=False,
             subtags={
                 "eta": FloatTag(optional=False),
                 "Ecut": FloatTag(),
@@ -586,25 +588,29 @@ MASTER_TAG_LIST: dict[str, dict[str, Any]] = {
         ),
         "elec-eigen-algo": StrTag(options=["CG", "Davidson"]),
         "ionic-minimize": TagContainer(
-            multiline_tag=True,
+            linebreak_nth_entry=1,
+            multiline_tag=False,
             subtags={
                 **deepcopy(jdftxminimize_subtagdict),
             },
         ),
         "lattice-minimize": TagContainer(
-            multiline_tag=True,
+            linebreak_nth_entry=1,
+            multiline_tag=False,
             subtags={
                 **deepcopy(jdftxminimize_subtagdict),
             },
         ),
         "electronic-minimize": TagContainer(
-            multiline_tag=True,
+            linebreak_nth_entry=1,
+            multiline_tag=False,
             subtags={
                 **deepcopy(jdftxminimize_subtagdict),
             },
         ),
         "electronic-scf": TagContainer(
-            multiline_tag=True,
+            linebreak_nth_entry=1,
+            multiline_tag=False,
             subtags={
                 "energyDiffThreshold": FloatTag(),
                 "history": IntTag(),
@@ -622,7 +628,8 @@ MASTER_TAG_LIST: dict[str, dict[str, Any]] = {
             },
         ),
         "fluid-minimize": TagContainer(
-            multiline_tag=True,
+            linebreak_nth_entry=1,
+            multiline_tag=False,
             subtags={
                 **deepcopy(jdftxminimize_subtagdict),
             },
@@ -636,7 +643,8 @@ MASTER_TAG_LIST: dict[str, dict[str, Any]] = {
             }
         ),
         "perturb-minimize": TagContainer(
-            multiline_tag=True,
+            linebreak_nth_entry=1,
+            multiline_tag=False,
             subtags={
                 "algorithm": StrTag(options=["MINRES", "CGIMINRES"]),
                 "CGBypass": BoolTag(),
@@ -819,7 +827,8 @@ MASTER_TAG_LIST: dict[str, dict[str, Any]] = {
         ),
         "fluid-solve-frequency": StrTag(options=["Default", "Gummel", "Inner"]),
         "fluid-site-params": TagContainer(
-            multiline_tag=True,
+            linebreak_nth_entry=1,
+            multiline_tag=False,
             can_repeat=True,
             subtags={
                 "component": StrTag(
@@ -872,7 +881,8 @@ MASTER_TAG_LIST: dict[str, dict[str, Any]] = {
             ]
         ),
         "pcm-nonlinear-scf": TagContainer(
-            multiline_tag=True,
+            linebreak_nth_entry=1,
+            multiline_tag=False,
             subtags={
                 "energyDiffThreshold": FloatTag(),
                 "history": IntTag(),
@@ -883,7 +893,8 @@ MASTER_TAG_LIST: dict[str, dict[str, Any]] = {
             },
         ),
         "pcm-params": TagContainer(
-            multiline_tag=True,
+            linebreak_nth_entry=1,
+            multiline_tag=False,
             subtags={
                 "cavityFile": StrTag(),
                 "cavityPressure": FloatTag(),
@@ -943,7 +954,8 @@ MASTER_TAG_LIST: dict[str, dict[str, Any]] = {
             }
         ),
         "ionic-dynamics": TagContainer(
-            multiline_tag=True,
+            linebreak_nth_entry=1,
+            multiline_tag=False,
             subtags={
                 "B0": FloatTag(),
                 "chainLengthP": FloatTag(),
@@ -989,8 +1001,7 @@ MASTER_TAG_LIST: dict[str, dict[str, Any]] = {
             }
         ),
         "density-of-states": TagContainer(
-            multiline_tag=False,
-            linebreak_nth_entry=5,
+            linebreak_nth_entry=1,
             subtags={
                 "Total": BoolTag(write_value=False),
                 "Slice": TagContainer(
@@ -1079,7 +1090,8 @@ MASTER_TAG_LIST: dict[str, dict[str, Any]] = {
             ],
         ),
         "bgw-params": TagContainer(
-            multiline_tag=True,
+            linebreak_nth_entry=1,
+            multiline_tag=False,
             subtags={
                 "nBandsDense": IntTag(),
                 "nBandsV": IntTag(),
