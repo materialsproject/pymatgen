@@ -1042,6 +1042,17 @@ class IcohpValue(MSONable):
         """
         return self._is_spin_polarized
 
+    @property
+    def translation(self) -> list[int, int, int]:
+        """
+        Returns the translation vector with respect to the origin cell
+        as defined in LOBSTER.
+
+        Returns:
+            list[int, int, int]
+        """
+        return self._translation
+
     def icohpvalue(self, spin: Spin = Spin.up) -> float:
         """
         Args:
