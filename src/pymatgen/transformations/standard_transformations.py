@@ -454,7 +454,7 @@ class OrderDisorderedStructureTransformation(AbstractTransformation):
     ALGO_BEST_FIRST = 2
     ALGO_RANDOM = -1
 
-    def __init__(self, algo=ALGO_FAST, symmetrized_structures=False, no_oxi_states=False):
+    def __init__(self, algo=ALGO_FAST, symmetrized_structures=False, no_oxi_states=False, occ_tol=0.25):
         """
         Args:
             algo (int): Algorithm to use.
@@ -463,15 +463,17 @@ class OrderDisorderedStructureTransformation(AbstractTransformation):
                 should be used for the grouping of sites.
             no_oxi_states (bool): Whether to remove oxidation states prior to
                 ordering.
+            occ_tol (float): Occupancy tolerance. If the total occupancy of a group is within this value
+                of an integer, it will be rounded to that integer otherwise raise a ValueError.
+                Defaults to 0.25.
         """
         self.algo = algo
         self._all_structures: list = []
         self.no_oxi_states = no_oxi_states
         self.symmetrized_structures = symmetrized_structures
+        self.occ_tol = occ_tol
 
-    def apply_transformation(
-        self, structure: Structure, return_ranked_list: bool | int = False, occ_tol=0.25
-    ) -> Structure:
+    def apply_transformation(self, structure: Structure, return_ranked_list: bool | int = False) -> Structure:
         """For this transformation, the apply_transformation method will return
         only the ordered structure with the lowest Ewald energy, to be
         consistent with the method signature of the other transformations.
@@ -482,9 +484,6 @@ class OrderDisorderedStructureTransformation(AbstractTransformation):
             structure: Oxidation state decorated disordered structure to order
             return_ranked_list (bool | int, optional): If return_ranked_list is int, that number of structures
                 is returned. If False, only the single lowest energy structure is returned. Defaults to False.
-            occ_tol (float): Occupancy tolerance. If the total occupancy of a group is within this value
-                of an integer, it will be rounded to that integer otherwise raise a ValueError.
-                Defaults to 0.25.
 
         Returns:
             Depending on returned_ranked list, either a transformed structure
@@ -554,7 +553,7 @@ class OrderDisorderedStructureTransformation(AbstractTransformation):
             )
             # round total occupancy to possible values
             for key, val in total_occupancy.items():
-                if abs(val - round(val)) > occ_tol:
+                if abs(val - round(val)) > self.occ_tol:
                     raise ValueError("Occupancy fractions not consistent with size of unit cell")
                 total_occupancy[key] = round(val)
             # start with an ordered structure
