@@ -282,7 +282,7 @@ class TestVasprun(PymatgenTest):
         assert isinstance(vasp_run.kpoints, Kpoints), f"{vasp_run.kpoints=}"
         assert isinstance(vasp_run.eigenvalues, dict), f"{vasp_run.eigenvalues=}"
         assert vasp_run.final_energy == approx(-269.38319884, abs=1e-7)
-        assert vasp_run.tdos.get_gap() == approx(2.3163, abs=1e-4)
+        assert vasp_run.tdos.get_gap() == approx(2.0698, abs=1e-4)
         expected = (2.539, 4.0906, 1.5516, False)
         assert vasp_run.eigenvalue_band_properties == approx(expected)
         assert vasp_run.is_hubbard is False

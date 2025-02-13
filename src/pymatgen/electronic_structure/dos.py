@@ -115,15 +115,17 @@ class DOS(Spectrum):
         # Interpolate between adjacent values
         terminal_dens = tdos[vbm_start : vbm_start + 2][::-1]
         terminal_energies = energies[vbm_start : vbm_start + 2][::-1]
-        start = get_linear_interpolated_value(terminal_dens, terminal_energies, tol)
+        vbm = get_linear_interpolated_value(terminal_dens, terminal_energies, tol)
         terminal_dens = tdos[cbm_start - 1 : cbm_start + 1]
         terminal_energies = energies[cbm_start - 1 : cbm_start + 1]
-        end = get_linear_interpolated_value(terminal_dens, terminal_energies, tol)
-        return end - start, end, start
+        cbm = get_linear_interpolated_value(terminal_dens, terminal_energies, tol)
+        return cbm - vbm, cbm, vbm
 
     def get_cbm_vbm(self, tol: float = 1e-4, abs_tol: bool = False, spin: Spin | None = None) -> tuple[float, float]:
         """
-        Expects a DOS object and finds the CBM and VBM eigenvalues.
+        Expects a DOS object and finds the CBM and VBM eigenvalues,
+        using interpolation to determine the points at which the
+        DOS crosses the threshold `tol`.
 
         `tol` may need to be increased for systems with noise/disorder.
 
@@ -138,33 +140,8 @@ class DOS(Spectrum):
         Returns:
             tuple[float, float]: Energies in eV corresponding to the CBM and VBM.
         """
-        # Determine tolerance
-        if spin is None:
-            tdos = self.y if len(self.ydim) == 1 else np.sum(self.y, axis=1)
-        elif spin == Spin.up:
-            tdos = self.y[:, 0]
-        else:
-            tdos = self.y[:, 1]
-
-        if not abs_tol:
-            tol = tol * tdos.sum() / tdos.shape[0]
-
-        # Find index of Fermi level
-        i_fermi = 0
-        while self.x[i_fermi] <= self.efermi:
-            i_fermi += 1
-
-        # Work backwards until tolerance is reached
-        i_gap_start = i_fermi
-        while i_gap_start >= 1 and tdos[i_gap_start] <= tol:
-            i_gap_start -= 1
-
-        # Work forwards until tolerance is reached
-        i_gap_end = i_gap_start + 1
-        while i_gap_end < tdos.shape[0] and tdos[i_gap_end] <= tol:
-            i_gap_end += 1
-
-        return self.x[i_gap_end], self.x[i_gap_start]
+        _gap, cbm, vbm = self.get_interpolated_gap(tol, abs_tol, spin)
+        return cbm, vbm
 
     def get_gap(self, tol: float = 1e-4, abs_tol: bool = False, spin: Spin | None = None) -> float:
         """
@@ -296,10 +273,9 @@ class Dos(MSONable):
         Returns:
             dict[Spin, float]: Density for energy for each spin.
         """
-        energies = {}
-        for spin in self.densities:
-            energies[spin] = get_linear_interpolated_value(self.energies, self.densities[spin], energy)
-        return energies
+        return {
+            spin: get_linear_interpolated_value(self.energies, self.densities[spin], energy) for spin in self.densities
+        }
 
     def get_interpolated_gap(
         self,
@@ -330,6 +306,9 @@ class Dos(MSONable):
         energies = self.energies
         below_fermi = [i for i in range(len(energies)) if energies[i] < self.efermi and tdos[i] > tol]
         above_fermi = [i for i in range(len(energies)) if energies[i] > self.efermi and tdos[i] > tol]
+        if not below_fermi or not above_fermi:
+            return 0.0, self.efermi, self.efermi
+
         vbm_start = max(below_fermi)
         cbm_start = min(above_fermi)
         if vbm_start == cbm_start:
@@ -338,17 +317,19 @@ class Dos(MSONable):
         # Interpolate between adjacent values
         terminal_dens = tdos[vbm_start : vbm_start + 2][::-1]
         terminal_energies = energies[vbm_start : vbm_start + 2][::-1]
-        start = get_linear_interpolated_value(terminal_dens, terminal_energies, tol)
+        vbm = get_linear_interpolated_value(terminal_dens, terminal_energies, tol)
 
         terminal_dens = tdos[cbm_start - 1 : cbm_start + 1]
         terminal_energies = energies[cbm_start - 1 : cbm_start + 1]
-        end = get_linear_interpolated_value(terminal_dens, terminal_energies, tol)
+        cbm = get_linear_interpolated_value(terminal_dens, terminal_energies, tol)
 
-        return end - start, end, start
+        return cbm - vbm, cbm, vbm
 
     def get_cbm_vbm(self, tol: float = 1e-4, abs_tol: bool = False, spin: Spin | None = None) -> tuple[float, float]:
         """
-        Expects a DOS object and finds the CBM and VBM eigenvalues.
+        Expects a DOS object and finds the CBM and VBM eigenvalues,
+        using interpolation to determine the points at which the
+        DOS crosses the threshold `tol`.
 
         `tol` may need to be increased for systems with noise/disorder.
 
@@ -363,29 +344,8 @@ class Dos(MSONable):
         Returns:
             tuple[float, float]: Energies in eV corresponding to the CBM and VBM.
         """
-        # Determine tolerance
-        tdos = self.get_densities(spin)
-        if tdos is None:
-            raise ValueError("tdos is None")
-        if not abs_tol:
-            tol = tol * tdos.sum() / tdos.shape[0]
-
-        # Find index of Fermi level
-        i_fermi = 0
-        while self.energies[i_fermi] <= self.efermi:
-            i_fermi += 1
-
-        # Work backwards until tolerance is reached
-        i_gap_start = i_fermi
-        while i_gap_start >= 1 and tdos[i_gap_start] <= tol:
-            i_gap_start -= 1
-
-        # Work forwards until tolerance is reached
-        i_gap_end = i_gap_start + 1
-        while i_gap_end < tdos.shape[0] and tdos[i_gap_end] <= tol:
-            i_gap_end += 1
-
-        return (self.energies[min(i_gap_end, len(self.energies) - 1)], self.energies[max(i_gap_start, 0)])
+        _gap, cbm, vbm = self.get_interpolated_gap(tol, abs_tol, spin)
+        return cbm, vbm
 
     def get_gap(
         self,
