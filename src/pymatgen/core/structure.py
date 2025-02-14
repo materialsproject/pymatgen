@@ -4673,9 +4673,8 @@ class Structure(IStructure, collections.abc.MutableSequence):
         the structure in place.
 
         Args:
-            indices (list): List of site indices on which to perform the
-                translation.
-            theta (float): Angle in radians
+            indices (list): Site indices on which to perform the rotation.
+            theta (float): Angle in radians.
             axis (3x1 array): Rotation axis vector.
             anchor (3x1 array): Point of rotation.
             to_unit_cell (bool): Whether new sites are transformed to unit cell
@@ -5294,9 +5293,8 @@ class Molecule(IMolecule, collections.abc.MutableSequence):
         """Rotate specific sites by some angle around vector at anchor.
 
         Args:
-            indices (list): List of site indices on which to perform the
-                translation.
-            theta (float): Angle in radians
+            indices (list): Site indices on which to perform the rotation.
+            theta (float): Angle in radians.
             axis (3x1 array): Rotation axis vector.
             anchor (3x1 array): Point of rotation.
 
