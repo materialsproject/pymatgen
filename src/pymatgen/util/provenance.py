@@ -9,6 +9,7 @@ from datetime import datetime, timezone
 from io import StringIO
 from typing import TYPE_CHECKING, NamedTuple
 
+from monty.dev import requires
 from monty.json import MontyDecoder, MontyEncoder
 
 from pymatgen.core.structure import Molecule, Structure
@@ -35,6 +36,7 @@ MAX_HNODES = 100  # maximum number of HistoryNodes in SNL file
 MAX_BIBTEX_CHARS = 20_000  # maximum number of characters for BibTeX reference
 
 
+@requires(bibtex is not None, "pybtex is not available")
 def is_valid_bibtex(reference: str) -> bool:
     """Use pybtex to validate that a reference is in proper BibTeX format.
 
