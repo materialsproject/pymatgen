@@ -143,6 +143,13 @@ class EOSBase(ABC):
     @property
     def b0_GPa(self) -> FloatWithUnit:
         """The bulk modulus in GPa. This assumes the energy and volumes are in eV and Ang^3."""
+        print(f"{self.b0=}")
+        print("unit conversion:", FloatWithUnit(1, "eV ang^-3").to("GPa"))  # DEBUG: scipy const
+        import scipy
+
+        print(f"scipy version: {scipy.__version__}")
+
+        print(f"BLAS implementation: {np.show_config()}")
         return FloatWithUnit(self.b0, "eV ang^-3").to("GPa")
 
     @property
