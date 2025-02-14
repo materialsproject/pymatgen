@@ -425,9 +425,6 @@ class TestEOS(PymatgenTest):
     def test_numerical_eos_values(self):
         assert_allclose(self.num_eos_fit.e0, -10.84749, atol=1e-3)
         assert_allclose(self.num_eos_fit.v0, 40.857201, atol=1e-1)
-        print(f"{self.num_eos_fit.b0=}")
-        print(f"{self.num_eos_fit.b0_GPa=}")
-
         assert_allclose(self.num_eos_fit.b0, 0.55, atol=1e-2)
         assert_allclose(self.num_eos_fit.b0_GPa, 89.0370727, atol=1e-1)
         assert_allclose(self.num_eos_fit.b1, 4.344039, atol=1e-2)
