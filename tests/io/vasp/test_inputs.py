@@ -1377,13 +1377,118 @@ class TestPotcarSingle(TestCase):
         assert self.psingle_Mn_pv.nelectrons == 13
         assert self.psingle_Fe.nelectrons == 8
 
-    def test_electron_config(self):
-        assert self.psingle_Mn_pv.electron_configuration == [
-            (3, "d", 5),
-            (4, "s", 2),
+    def test_electron_configuration(self):
+        def assert_config_equal(actual_config, expected_config) -> None:
+            """
+            Helper function to assert that the electron configuration is equal.
+            Each configuration contains: (n: int, l: str, occ: float).
+            """
+            assert len(actual_config) == len(expected_config), "Configurations have different lengths"
+
+            for expected, actual in zip(expected_config, actual_config, strict=False):
+                assert expected[0] == actual[0], f"Principal quantum number mismatch: {expected[0]} != {actual[0]}"
+                assert expected[1] == actual[1], f"Subshell mismatch: {expected[1]} != {actual[1]}"
+
+                assert expected[2] == approx(actual[2]), f"Occupation number mismatch: {expected[2]} != {actual[2]}"
+
+        # Test s-block  (Li: 2s1)
+        assert_config_equal(
+            PotcarSingle.from_file(f"{FAKE_POTCAR_DIR}/POT_GGA_PAW_PBE_54/POTCAR.Li.gz").electron_configuration,
+            [
+                (2.0, "s", 1.0),
+            ],
+        )
+
+        # Test p-block  (O: 2s2 sp4)
+        assert_config_equal(
+            PotcarSingle.from_file(f"{FAKE_POTCAR_DIR}/POT_GGA_PAW_PBE_54/POTCAR.O.gz").electron_configuration,
+            [
+                (2, "s", 2.0),
+                (2, "p", 4.0),
+            ],
+        )
+
+        # Test d-block (Fe: 3d7 4s1)
+        assert_config_equal(
+            PotcarSingle.from_file(f"{FAKE_POTCAR_DIR}/POT_GGA_PAW_PBE_54/POTCAR.Fe.gz").electron_configuration,
+            [(3, "d", 7.0), (4, "s", 1.0)],
+        )
+
+        # Test f-block (Ce: 5s2 6s2 5p6 5d1 4f1)
+        assert_config_equal(
+            PotcarSingle.from_file(f"{FAKE_POTCAR_DIR}/POT_GGA_PAW_PBE_54/POTCAR.Ce.gz").electron_configuration,
+            [
+                (5, "s", 2),
+                (6, "s", 2),
+                (5, "p", 6),
+                (5, "d", 1),
+                (4, "f", 1),
+            ],
+        )
+
+        # Test "sv" POTCARs (Ca_sv: 3s2 4s2 3p6)
+        assert_config_equal(
+            PotcarSingle.from_file(f"{FAKE_POTCAR_DIR}/POT_GGA_PAW_PBE_54/POTCAR.Ca_sv.gz").electron_configuration,
+            [
+                (3, "s", 2),
+                (4, "s", 2),
+                (3, "p", 6),
+            ],
+        )
+
+        # Test "pv" POTCARs (Fe_pv: 3p6 3d7 4s1)
+        assert PotcarSingle.from_file(
+            f"{FAKE_POTCAR_DIR}/POT_GGA_PAW_PBE_54/POTCAR.Fe_pv.gz"
+        ).electron_configuration == [
             (3, "p", 6),
+            (3, "d", 7),
+            (4, "s", 1),
         ]
-        assert self.psingle_Fe.electron_configuration == [(3, "d", 6), (4, "s", 2)]
+
+        # Test non-integer occupancy (Be: 2s1.99 2p0.01)
+        assert_config_equal(
+            PotcarSingle.from_file(f"{FAKE_POTCAR_DIR}/POT_GGA_PAW_PBE_54/POTCAR.Be.gz").electron_configuration,
+            [
+                (2, "s", 1.99),
+                (2, "p", 0.01),
+            ],
+        )
+
+        # Test another non-integer occupancy (H.25: 1s0.25)
+        assert_config_equal(
+            PotcarSingle.from_file(f"{FAKE_POTCAR_DIR}/POT_GGA_PAW_PBE_54/POTCAR.H.25.gz").electron_configuration,
+            [
+                (1, "s", 0.25),
+            ],
+        )
+
+        # Test occupancy tolerance (Be: 2s1.99 2p0.01)
+        assert_config_equal(
+            PotcarSingle.from_file(f"{FAKE_POTCAR_DIR}/POT_GGA_PAW_PBE_54/POTCAR.Be.gz").get_electron_configuration(
+                tol=0.1
+            ),
+            [
+                (2, "s", 1.99),
+            ],
+        )
+
+        # Test POT_PAW_PBE_64 PSPs
+        assert_config_equal(
+            PotcarSingle.from_file(f"{FAKE_POTCAR_DIR}/POT_PAW_PBE_64/POTCAR.O.gz").electron_configuration,
+            [
+                (2, "s", 2.0),
+                (2, "p", 4.0),
+            ],
+        )
+
+        assert_config_equal(
+            PotcarSingle.from_file(f"{FAKE_POTCAR_DIR}/POT_PAW_PBE_64/POTCAR.Fe_pv.gz").electron_configuration,
+            [
+                (3, "p", 6.0),
+                (3, "d", 7.0),
+                (4, "s", 1.0),
+            ],
+        )
 
     def test_attributes(self):
         for key, val in self.Mn_pv_attrs.items():
