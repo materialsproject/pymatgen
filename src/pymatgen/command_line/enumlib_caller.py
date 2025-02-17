@@ -134,8 +134,10 @@ class EnumlibAdaptor:
             logger.debug(f"Temp dir : {tmp_dir}")
             # Generate input files
             self._gen_input_file()
+
             # Perform the actual enumeration
             num_structs = self._run_multienum()
+
             # Read in the enumeration output as structures.
             if num_structs > 0:
                 self.structures = self._get_structures(num_structs)
@@ -297,6 +299,8 @@ class EnumlibAdaptor:
             try:
                 output = process.communicate(timeout=timeout)[0].decode("utf-8")
             except subprocess.TimeoutExpired as exc:
+                process.kill()
+                process.wait()
                 raise TimeoutError("Enumeration took too long") from exc
 
         count = 0
