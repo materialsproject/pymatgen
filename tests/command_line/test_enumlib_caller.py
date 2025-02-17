@@ -125,5 +125,5 @@ class TestEnumlibAdaptor(PymatgenTest):
 
         adaptor = EnumlibAdaptor(struct, max_cell_size=10, timeout=0.05)  # timeout in minute
 
-        with pytest.raises(TimeoutError, match="Enumeration took too long"):
+        with pytest.raises(TimeoutError, match="Enumeration took more than timeout 0.05 minutes"):
             adaptor.run()

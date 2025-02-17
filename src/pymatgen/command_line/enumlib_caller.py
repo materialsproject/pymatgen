@@ -301,7 +301,7 @@ class EnumlibAdaptor:
             except subprocess.TimeoutExpired as exc:
                 process.kill()
                 process.wait()
-                raise TimeoutError("Enumeration took too long") from exc
+                raise TimeoutError(f"Enumeration took more than timeout {self.timeout} minutes") from exc
 
         count = 0
         start_count = False
