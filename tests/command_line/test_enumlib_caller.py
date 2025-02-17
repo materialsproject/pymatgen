@@ -17,6 +17,8 @@ enum_cmd = which("enum.x") or which("multienum.x")
 makestr_cmd = which("makestr.x") or which("makeStr.x") or which("makeStr.py")
 enumlib_present = enum_cmd and makestr_cmd
 
+ENUMLIB_TEST_FILES_DIR: str = f"{TEST_FILES_DIR}/command_line/enumlib"
+
 
 @pytest.mark.skipif(not enumlib_present, reason="enum_lib not present.")
 class TestEnumlibAdaptor(PymatgenTest):
@@ -70,7 +72,7 @@ class TestEnumlibAdaptor(PymatgenTest):
         structures = adaptor.structures
         assert len(structures) == 10
 
-        struct = Structure.from_file(f"{TEST_FILES_DIR}/command_line/enumlib/EnumerateTest.json")
+        struct = Structure.from_file(f"{ENUMLIB_TEST_FILES_DIR}/EnumerateTest.json")
         adaptor = EnumlibAdaptor(struct)
         adaptor.run()
         structures = adaptor.structures
@@ -119,10 +121,9 @@ class TestEnumlibAdaptor(PymatgenTest):
             assert struct.formula == "Ca12 Al8 Si4 Ge8 O48"
 
     def test_timeout(self):
-        struct = Structure.from_file(filename=f"{TEST_FILES_DIR}/cif/garnet.cif")
-        SpacegroupAnalyzer(struct, 0.1)
-        struct["Al3+"] = {"Al3+": 0.5, "Ga3+": 0.5}
+        struct = Structure.from_file(f"{ENUMLIB_TEST_FILES_DIR}/test_timeout.json.gz")
 
-        adaptor = EnumlibAdaptor(struct, enum_precision_parameter=0.01, timeout=1e-4)
+        adaptor = EnumlibAdaptor(struct, max_cell_size=10, timeout=0.05)  # timeout in minute
+
         with pytest.raises(TimeoutError, match="Enumeration took too long"):
             adaptor.run()
