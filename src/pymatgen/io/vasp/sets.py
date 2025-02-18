@@ -3521,7 +3521,8 @@ def _combine_kpoints(*kpoints_objects: Kpoints | None) -> Kpoints:
     _kpoints: list[Sequence[Kpoint]] = []
     _weights = []
 
-    for kpoints_object in filter(None, kpoints_objects):  # type: ignore[var-annotated]
+    kpoints_object: Kpoints
+    for kpoints_object in filter(None, kpoints_objects):
         if kpoints_object.style != Kpoints.supported_modes.Reciprocal:
             raise ValueError("Can only combine kpoints with style=Kpoints.supported_modes.Reciprocal")
         if kpoints_object.labels is None:
