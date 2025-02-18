@@ -3352,7 +3352,7 @@ class IStructure(SiteCollection, MSONable):
     def get_symmetry_dataset(self, backend: Literal["spglib"], **kwargs) -> spglib.SpglibDataset: ...
 
     def get_symmetry_dataset(
-        self, backend: Literal["moyopy", "spglib"] = "spglib", return_raw_dataset=False, **kwargs
+        self, backend: Literal["moyopy", "spglib"] = "spglib", return_raw_dataset=False, symprec: float = 1e-2, **kwargs
     ) -> dict | moyopy.MoyoDataset | spglib.SpglibDataset:
         """Get a symmetry dataset from the structure using either moyopy or spglib backend.
 
@@ -3368,6 +3368,7 @@ class IStructure(SiteCollection, MSONable):
             return_raw_dataset (bool): Whether to return the raw Dataset object from the backend. The default is
                 False, which returns a dict with a common subset of the data present in both datasets. If you use the
                 raw Dataset object, we do not guarantee that the format of the output is not going to change.
+            symprec (float): Tolerance for symmetry determination. Defaults to 0.01 A.
             **kwargs: Additional arguments passed to the respective backend's constructor.
                 For spglib, these are passed to SpacegroupAnalyzer (e.g. symprec, angle_tolerance).
                 For moyopy, these are passed to MoyoDataset constructor.
@@ -3391,12 +3392,12 @@ class IStructure(SiteCollection, MSONable):
 
             # Convert structure to MoyoDataset format
             moyo_cell = moyopy.interface.MoyoAdapter.from_structure(self)
-            dataset = moyopy.MoyoDataset(cell=moyo_cell, **kwargs)
+            dataset = moyopy.MoyoDataset(cell=moyo_cell, symprec=symprec, **kwargs)
 
         else:
             from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
 
-            sga = SpacegroupAnalyzer(self, **kwargs)
+            sga = SpacegroupAnalyzer(self, symprec=symprec, **kwargs)
             dataset = sga.get_symmetry_dataset()
 
         if return_raw_dataset:
@@ -4672,9 +4673,8 @@ class Structure(IStructure, collections.abc.MutableSequence):
         the structure in place.
 
         Args:
-            indices (list): List of site indices on which to perform the
-                translation.
-            theta (float): Angle in radians
+            indices (list): Site indices on which to perform the rotation.
+            theta (float): Angle in radians.
             axis (3x1 array): Rotation axis vector.
             anchor (3x1 array): Point of rotation.
             to_unit_cell (bool): Whether new sites are transformed to unit cell
@@ -5293,9 +5293,8 @@ class Molecule(IMolecule, collections.abc.MutableSequence):
         """Rotate specific sites by some angle around vector at anchor.
 
         Args:
-            indices (list): List of site indices on which to perform the
-                translation.
-            theta (float): Angle in radians
+            indices (list): Site indices on which to perform the rotation.
+            theta (float): Angle in radians.
             axis (3x1 array): Rotation axis vector.
             anchor (3x1 array): Point of rotation.
 

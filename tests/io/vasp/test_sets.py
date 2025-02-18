@@ -22,6 +22,7 @@ from pymatgen.io.vasp.outputs import Vasprun
 from pymatgen.io.vasp.sets import (
     MODULE_DIR,
     BadInputSetWarning,
+    CINEBSet,
     DictSet,
     LobsterSet,
     MatPESStaticSet,
@@ -49,6 +50,7 @@ from pymatgen.io.vasp.sets import (
     MVLRelax52Set,
     MVLScanRelaxSet,
     MVLSlabSet,
+    NEBSet,
     VaspInputGenerator,
     VaspInputSet,
     batch_write_input,
@@ -1311,40 +1313,49 @@ class TestMPMDSet(PymatgenTest):
         assert v.incar["NSW"] == 1000
 
 
-class TestMITNEBSet(PymatgenTest):
+class TestNEBSet(PymatgenTest):
     def setUp(self):
         c1 = [[0.5] * 3, [0.9] * 3]
         c2 = [[0.5] * 3, [0.9, 0.1, 0.1]]
         s1 = Structure(Lattice.cubic(5), ["Si", "Si"], c1)
         s2 = Structure(Lattice.cubic(5), ["Si", "Si"], c2)
         self.structures = [Structure.from_sites(s.sites, to_unit_cell=True) for s in s1.interpolate(s2, 3, pbc=True)]
-        self.vis = MITNEBSet(self.structures)
+        self.vis = NEBSet(self.structures)
+        self.vis_MIT = MITNEBSet(self.structures)
+        self.vis_cineb = CINEBSet(self.structures)
 
     def test_potcar_symbols(self):
         syms = self.vis.potcar_symbols
         assert syms == ["Si"]
 
     def test_unset_encut(self):
-        vis = MITNEBSet(self.structures, unset_encut=True)
+        vis = NEBSet(self.structures, unset_encut=True)
         assert "ENCUT" not in vis.incar
         n_structs = 2
         with pytest.raises(
             ValueError,
             match=f"You need at least 3 structures for an NEB, got {n_structs}",
         ):
-            _ = MITNEBSet(self.structures[:n_structs], unset_encut=True)
+            _ = NEBSet(self.structures[:n_structs], unset_encut=True)
 
     def test_incar(self):
         incar = self.vis.incar
         assert "LDAUU" not in incar
-        assert incar["EDIFF"] == approx(0.00001)
+        assert incar["EDIFF"] == approx(0.00005)
+        assert self.vis_MIT.incar["EDIFF"] == approx(0.00001)
+        assert "LCLIMB" in self.vis_cineb.incar
 
     def test_kpoints(self):
         kpoints = self.vis.kpoints
-        assert kpoints.kpts == [(25,)]
-        assert kpoints.style == Kpoints.supported_modes.Automatic
+        assert kpoints.kpts == [(5, 5, 5)]
+        assert kpoints.style == Kpoints.supported_modes.Gamma
+        assert self.vis_MIT.kpoints.kpts == [(25,)]
+        assert self.vis_MIT.kpoints.style == Kpoints.supported_modes.Automatic
 
     def test_as_from_dict(self):
+        dct = self.vis_MIT.as_dict()
+        v = MontyDecoder().process_decoded(dct)
+        assert v.incar["IMAGES"] == 2
         dct = self.vis.as_dict()
         v = MontyDecoder().process_decoded(dct)
         assert v.incar["IMAGES"] == 2
