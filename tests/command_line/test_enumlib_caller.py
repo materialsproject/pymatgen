@@ -16,6 +16,8 @@ from pymatgen.util.testing import TEST_FILES_DIR, MatSciTest
 ENUM_CMD = which("enum.x") or which("multienum.x")
 MAKESTR_CMD = which("makestr.x") or which("makeStr.x") or which("makeStr.py")
 
+ENUMLIB_TEST_FILES_DIR: str = f"{TEST_FILES_DIR}/command_line/enumlib"
+
 
 @pytest.mark.skipif(not (ENUM_CMD and MAKESTR_CMD), reason="enumlib not present.")
 class TestEnumlibAdaptor(MatSciTest):
@@ -34,7 +36,7 @@ class TestEnumlibAdaptor(MatSciTest):
         assert len(structures) == 52
 
         sub_trans = SubstitutionTransformation({"Li": {"Li": 0.25}})
-        adaptor = EnumlibAdaptor(sub_trans.apply_transformation(struct), 1, 1, refine_structure=True)
+        adaptor = EnumlibAdaptor(sub_trans.apply_transformation(struct), refine_structure=True)
         adaptor.run()
         structures = adaptor.structures
         assert len(structures) == 1
@@ -54,7 +56,7 @@ class TestEnumlibAdaptor(MatSciTest):
         # REmove some ordered sites to break symmetry.
         remove_trans = RemoveSitesTransformation([4, 7])
         struct_trafo = remove_trans.apply_transformation(struct_trafo)
-        adaptor = EnumlibAdaptor(struct_trafo, 1, 1, enum_precision_parameter=0.01)
+        adaptor = EnumlibAdaptor(struct_trafo, enum_precision_parameter=0.01)
         adaptor.run()
         structures = adaptor.structures
         assert len(structures) == 4
@@ -69,8 +71,8 @@ class TestEnumlibAdaptor(MatSciTest):
         structures = adaptor.structures
         assert len(structures) == 10
 
-        struct = Structure.from_file(f"{TEST_FILES_DIR}/command_line/enumlib/EnumerateTest.json")
-        adaptor = EnumlibAdaptor(struct, 1, 1)
+        struct = Structure.from_file(f"{ENUMLIB_TEST_FILES_DIR}/EnumerateTest.json.gz")
+        adaptor = EnumlibAdaptor(struct)
         adaptor.run()
         structures = adaptor.structures
         assert len(structures) == 2
@@ -93,7 +95,7 @@ class TestEnumlibAdaptor(MatSciTest):
         prim = spga.find_primitive()
         struct = prim.copy()
         struct["Al3+"] = {"Al3+": 0.5, "Ga3+": 0.5}
-        adaptor = EnumlibAdaptor(struct, 1, 1, enum_precision_parameter=0.01)
+        adaptor = EnumlibAdaptor(struct, enum_precision_parameter=0.01)
         adaptor.run()
         structures = adaptor.structures
         assert len(structures) == 7
@@ -101,7 +103,7 @@ class TestEnumlibAdaptor(MatSciTest):
             assert struct.formula == "Ca12 Al4 Ga4 Si12 O48"
         struct = prim.copy()
         struct["Ca2+"] = {"Ca2+": 1 / 3, "Mg2+": 2 / 3}
-        adaptor = EnumlibAdaptor(struct, 1, 1, enum_precision_parameter=0.01)
+        adaptor = EnumlibAdaptor(struct, enum_precision_parameter=0.01)
         adaptor.run()
         structures = adaptor.structures
         assert len(structures) == 20
@@ -110,18 +112,17 @@ class TestEnumlibAdaptor(MatSciTest):
 
         struct = prim.copy()
         struct["Si4+"] = {"Si4+": 1 / 3, "Ge4+": 2 / 3}
-        adaptor = EnumlibAdaptor(struct, 1, 1, enum_precision_parameter=0.01)
+        adaptor = EnumlibAdaptor(struct, enum_precision_parameter=0.01)
         adaptor.run()
         structures = adaptor.structures
         assert len(structures) == 18
         for struct in structures:
             assert struct.formula == "Ca12 Al8 Si4 Ge8 O48"
 
-    @pytest.mark.skip("Fails seemingly at random.")
     def test_timeout(self):
-        struct = Structure.from_file(filename=f"{TEST_FILES_DIR}/cif/garnet.cif")
-        SpacegroupAnalyzer(struct, 0.1)
-        struct["Al3+"] = {"Al3+": 0.5, "Ga3+": 0.5}
-        adaptor = EnumlibAdaptor(struct, 1, 1, enum_precision_parameter=0.01, timeout=0.0000000000001)
-        with pytest.raises(TimeoutError, match="Enumeration took too long"):
-            adaptor._run_multienum()
+        struct = Structure.from_file(f"{ENUMLIB_TEST_FILES_DIR}/test_timeout.json.gz")
+
+        adaptor = EnumlibAdaptor(struct, max_cell_size=10, timeout=0.05)  # timeout in minute
+
+        with pytest.raises(TimeoutError, match="Enumeration took more than timeout 0.05 minutes"):
+            adaptor.run()

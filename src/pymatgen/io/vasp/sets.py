@@ -2599,23 +2599,91 @@ class MVLRelax52Set(VaspInputSet):
     _valid_potcars: Sequence[str] | None = ("PBE_52", "PBE_54", "PBE_64")
 
 
-class MITNEBSet(VaspInputSet):
+@dataclass
+class MITMDSet(VaspInputSet):
+    """Write a VASP MD run. This DOES NOT do multiple stage runs.
+
+    Args:
+        structure (Structure): Input structure.
+        start_temp (float): Starting temperature.
+        end_temp (float): Final temperature.
+        nsteps (int): Number of time steps for simulations. NSW parameter.
+        time_step (float): The time step for the simulation. The POTIM
+            parameter. Defaults to 2fs.
+        spin_polarized (bool): Whether to do spin polarized calculations.
+            The ISPIN parameter. Defaults to False.
+        **kwargs: Other kwargs supported by VaspInputSet.
+    """
+
+    structure: Structure | None = None
+    start_temp: float = 0.0
+    end_temp: float = 300.0
+    nsteps: int = 1000
+    time_step: float = 2
+    spin_polarized: bool = False
+    CONFIG = MITRelaxSet.CONFIG
+
+    @property
+    def incar_updates(self) -> dict[str, Any]:
+        """Updates to the INCAR config for this calculation type."""
+        # MD default settings
+        return {
+            "TEBEG": self.start_temp,
+            "TEEND": self.end_temp,
+            "NSW": self.nsteps,
+            "EDIFF_PER_ATOM": 0.000001,
+            "LSCALU": False,
+            "LCHARG": False,
+            "LPLANE": False,
+            "LWAVE": True,
+            "ISMEAR": 0,
+            "NELMIN": 4,
+            "LREAL": True,
+            "BMIX": 1,
+            "MAXMIX": 20,
+            "NELM": 500,
+            "NSIM": 4,
+            "ISYM": 0,
+            "ISIF": 0,
+            "IBRION": 0,
+            "NBLOCK": 1,
+            "KBLOCK": 100,
+            "SMASS": 0,
+            "POTIM": self.time_step,
+            "PREC": "Low",
+            "ISPIN": 2 if self.spin_polarized else 1,
+            "LDAU": False,
+            "ENCUT": None,
+        }
+
+    @property
+    def kpoints_updates(self) -> Kpoints:
+        """Updates to the kpoints configuration for this calculation type."""
+        return Kpoints.gamma_automatic()
+
+
+class NEBSet(VaspInputSet):
     """Write NEB inputs.
 
     Note that EDIFF is not on a per atom basis for this input set.
     """
 
-    def __init__(self, structures: list[Structure], unset_encut: bool = False, **kwargs) -> None:
+    def __init__(
+        self, structures: list[Structure], unset_encut: bool = False, parent_set="MPRelaxSet", **kwargs
+    ) -> None:
         """
         Args:
             structures: List of Structure objects.
             unset_encut (bool): Whether to unset ENCUT.
+            parent_set (str): The parent input set to inherit from. Defaults to MPRelaxSet. This should be a string
+                name to support MSONable.
             **kwargs: Other kwargs supported by VaspInputSet.
         """
         if len(structures) < 3:
             raise ValueError(f"You need at least 3 structures for an NEB, got {len(structures)}")
         kwargs["sort_structure"] = False
-        super().__init__(structures[0], MITRelaxSet.CONFIG, **kwargs)
+        self.parent = globals()[parent_set]
+        super().__init__(structures[0], self.parent.CONFIG, **kwargs)
         self.structures = self._process_structures(structures)
 
         self.unset_encut = False
@@ -2634,6 +2702,7 @@ class MITNEBSet(VaspInputSet):
             "LDAU": False,
         }
         self._config_dict["INCAR"].update(defaults)
+        self.parent_set = parent_set
 
     @property
     def poscar(self) -> Poscar:
@@ -2698,7 +2767,7 @@ class MITNEBSet(VaspInputSet):
             if write_cif:
                 poscar.structure.to(filename=str(d / f"{idx}.cif"))
         if write_endpoint_inputs:
-            end_point_param = MITRelaxSet(self.structures[0], user_incar_settings=self.user_incar_settings)
+            end_point_param = self.parent(self.structures[0], user_incar_settings=self.user_incar_settings)
 
             for image in ("00", str(len(self.structures) - 1).zfill(2)):
                 end_point_param.incar.write_file(str(output_dir / image / "INCAR"))
@@ -2715,67 +2784,60 @@ class MITNEBSet(VaspInputSet):
             neb_path.to(filename=f"{output_dir}/path.cif")
 
 
-@dataclass
-class MITMDSet(VaspInputSet):
-    """Write a VASP MD run. This DOES NOT do multiple stage runs.
-
-    Args:
-        structure (Structure): Input structure.
-        start_temp (float): Starting temperature.
-        end_temp (float): Final temperature.
-        nsteps (int): Number of time steps for simulations. NSW parameter.
-        time_step (float): The time step for the simulation. The POTIM
-            parameter. Defaults to 2fs.
-        spin_polarized (bool): Whether to do spin polarized calculations.
-            The ISPIN parameter. Defaults to False.
-        **kwargs: Other kwargs supported by VaspInputSet.
+class CINEBSet(NEBSet):
+    """
+    MAVRL-tested settings for CI-NEB calculations. Note that these parameters
+    requires the VTST modification of VASP from the Henkelman group. See
+    http://theory.cm.utexas.edu/vtsttools/.
     """
 
-    structure: Structure | None = None
-    start_temp: float = 0.0
-    end_temp: float = 300.0
-    nsteps: int = 1000
-    time_step: float = 2
-    spin_polarized: bool = False
-    CONFIG = MITRelaxSet.CONFIG
+    def __init__(self, structures: list[Structure], **kwargs) -> None:
+        r"""
+        Args:
+            structures: Input structures.
+            **kwargs: Keyword args supported by VaspInputSets.
+        """
+        user_incar_settings = kwargs.get("user_incar_settings", {})
 
-    @property
-    def incar_updates(self) -> dict[str, Any]:
-        """Updates to the INCAR config for this calculation type."""
-        # MD default settings
-        return {
-            "TEBEG": self.start_temp,
-            "TEEND": self.end_temp,
-            "NSW": self.nsteps,
-            "EDIFF_PER_ATOM": 0.000001,
-            "LSCALU": False,
-            "LCHARG": False,
-            "LPLANE": False,
-            "LWAVE": True,
+        # CI-NEB settings
+        defaults = {
+            "EDIFF": 5e-5,
+            "EDIFFG": -0.02,
+            "IBRION": 3,
+            "ICHAIN": 0,
+            "IOPT": 1,
+            "ISIF": 2,
             "ISMEAR": 0,
-            "NELMIN": 4,
-            "LREAL": True,
-            "BMIX": 1,
-            "MAXMIX": 20,
-            "NELM": 500,
-            "NSIM": 4,
-            "ISYM": 0,
-            "ISIF": 0,
-            "IBRION": 0,
-            "NBLOCK": 1,
-            "KBLOCK": 100,
-            "SMASS": 0,
-            "POTIM": self.time_step,
-            "PREC": "Low",
-            "ISPIN": 2 if self.spin_polarized else 1,
+            "ISPIN": 2,
+            "LCHARG": False,
+            "LCLIMB": True,
             "LDAU": False,
-            "ENCUT": None,
+            "LORBIT": 0,
+            "NSW": 200,
+            "POTIM": 0,
+            "SPRING": -5,
+            "ALGO": "Normal",
         }
+        if user_incar_settings != {}:
+            defaults.update(user_incar_settings)
 
-    @property
-    def kpoints_updates(self) -> Kpoints:
-        """Updates to the kpoints configuration for this calculation type."""
-        return Kpoints.gamma_automatic()
+        kwargs["user_incar_settings"] = defaults
+
+        super().__init__(structures, **kwargs)
+
+
+class MITNEBSet(NEBSet):
+    """
+    NEBSet using MITRelaxSet as parent. Retained for compatibility.
+    """
+
+    def __init__(self, structures: list[Structure], **kwargs) -> None:
+        """
+        Args:
+            structures: List of Structure objects.
+            **kwargs: Other kwargs supported by VaspInputSet.
+        """
+        super().__init__(structures, parent_set="MITRelaxSet", **kwargs)
 
 
 @dataclass
@@ -3460,7 +3522,8 @@ def _combine_kpoints(*kpoints_objects: Kpoints | None) -> Kpoints:
     _kpoints: list[Sequence[Kpoint]] = []
     _weights = []
 
-    for kpoints_object in filter(None, kpoints_objects):  # type: ignore[var-annotated]
+    kpoints_object: Kpoints
+    for kpoints_object in filter(None, kpoints_objects):
         if kpoints_object.style != Kpoints.supported_modes.Reciprocal:
             raise ValueError("Can only combine kpoints with style=Kpoints.supported_modes.Reciprocal")
         if kpoints_object.labels is None:
