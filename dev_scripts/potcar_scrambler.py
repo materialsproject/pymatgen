@@ -21,7 +21,7 @@ if TYPE_CHECKING:
 
 class PotcarScrambler:
     """
-    Takes a POTCAR and replaces its values with completely random values
+    Takes a POTCAR and replaces its values with completely random values.
     Does type matching and attempts precision matching on floats to ensure
     file is read correctly by Potcar and PotcarSingle classes.
 
@@ -40,14 +40,15 @@ class PotcarScrambler:
 
     def __init__(self, potcars: Potcar | PotcarSingle) -> None:
         self.PSP_list = [potcars] if isinstance(potcars, PotcarSingle) else potcars
-        self.scrambled_potcars_str = ""
+        self.scrambled_potcars_str: str = ""
         for psp in self.PSP_list:
             scrambled_potcar_str = self.scramble_single_potcar(psp)
             self.scrambled_potcars_str += scrambled_potcar_str
 
     def _rand_float_from_str_with_prec(self, input_str: str, bloat: float = 1.5) -> float:
-        n_prec = len(input_str.split(".")[1])
-        bd = max(1, bloat * abs(float(input_str)))  # ensure we don't get 0
+        """Generate a random float from str to replace true values."""
+        n_prec: int = len(input_str.split(".")[1])
+        bd: float = max(1.0, bloat * abs(float(input_str)))  # ensure we don't get 0
         return round(bd * np.random.default_rng().random(), n_prec)
 
     def _read_fortran_str_and_scramble(self, input_str: str, bloat: float = 1.5):
@@ -124,14 +125,16 @@ class PotcarScrambler:
         return scrambled_potcar_str
 
     def to_file(self, filename: str) -> None:
+        """Write scrambled POTCAR to file."""
         with zopen(filename, mode="wt", encoding="utf-8") as file:
             file.write(self.scrambled_potcars_str)
 
     @classmethod
     def from_file(cls, input_filename: str, output_filename: str | None = None) -> Self:
+        """Read a POTCAR from file and generate a scrambled version."""
         psp = Potcar.from_file(input_filename)
         psp_scrambled = cls(psp)
-        if output_filename:
+        if output_filename is not None:
             psp_scrambled.to_file(output_filename)
         return psp_scrambled
 
