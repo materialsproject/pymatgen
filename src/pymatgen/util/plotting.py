@@ -268,8 +268,8 @@ def periodic_table_heatmap(
                 kwargs.setdefault("color_bar", {}).setdefault("title", cbar_label)
                 print('cbar_label is deprecated, use color_bar={"title": cbar_label} instead')
             if cbar_label_size != 14:
-                kwargs.setdefault("color_bar", {}).setdefault("titlefont", {}).setdefault("size", cbar_label_size)
-                print('cbar_label_size is deprecated, use color_bar={"titlefont": {"size": cbar_label_size}} instead')
+                kwargs.setdefault("color_bar", {}).setdefault("title.font", {}).setdefault("size", cbar_label_size)
+                print('cbar_label_size is deprecated, use color_bar={"title.font": {"size": cbar_label_size}} instead')
             if cmap:
                 kwargs.setdefault("colorscale", cmap)
                 print("cmap is deprecated, use colorscale=cmap instead")
