@@ -55,7 +55,7 @@
     "yanchor": "middle"
   },
   "default_2d_axis_layout": {
-    "titlefont": {
+    "title.font": {
       "size": 24
     },
     "gridcolor": "#dbdbdb",
@@ -68,7 +68,7 @@
     "showline": true
   },
   "default_3d_axis_layout": {
-    "titlefont": {
+    "title.font": {
       "size": 18
     },
     "gridcolor": "#dbdbdb",
