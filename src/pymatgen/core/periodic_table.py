@@ -33,13 +33,14 @@ if TYPE_CHECKING:
 
     from pymatgen.util.typing import SpeciesLike
 
-# Load element data from JSON file
+# Load element data (periodic table) from JSON file
 with open(Path(__file__).absolute().parent / "periodic_table.json", encoding="utf-8") as ptable_json:
-    _pt_data = json.load(ptable_json)
+    _PT_DATA: dict = json.load(ptable_json)
 
-_pt_row_sizes = (2, 8, 8, 18, 18, 32, 32)
+_PT_ROW_SIZES: tuple[int, ...] = (2, 8, 8, 18, 18, 32, 32)
 
-_madelung = [
+# Madelung energy ordering rule (lower to higher energy)
+_MADELUNG: list[tuple[int, str]] = [
     (1, "s"),
     (2, "s"),
     (2, "p"),
@@ -137,21 +138,21 @@ class ElementBase(Enum):
             Solid State Communications, 1984.
         """
         self.symbol = str(symbol)
-        data = _pt_data[symbol]
+        data = _PT_DATA[symbol]
 
         # Store key variables for quick access
         self.Z = data["Atomic no"]
 
         self._is_named_isotope = data.get("Is named isotope", False)
         if self._is_named_isotope:
-            for sym in _pt_data:
-                if _pt_data[sym]["Atomic no"] == self.Z and not _pt_data[sym].get("Is named isotope", False):
+            for sym, info in _PT_DATA.items():
+                if info["Atomic no"] == self.Z and not info.get("Is named isotope", False):
                     self.symbol = sym
                     break
             # For specified/named isotopes, treat the same as named element
             # (the most common isotope). Then we pad the data block with the
             # entries for the named element.
-            data = {**_pt_data[self.symbol], **data}
+            data = {**_PT_DATA[self.symbol], **data}
 
         at_r = data.get("Atomic radius", "no data")
         if str(at_r).startswith("no data"):
@@ -452,33 +453,48 @@ class ElementBase(Enum):
 
     @property
     def full_electronic_structure(self) -> list[tuple[int, str, int]]:
-        """Full electronic structure as list of tuples, in order of increasing
+        """Full electronic structure in order of increasing
         energy level (according to the Madelung rule). Therefore, the final
         element in the list gives the electronic structure of the valence shell.
 
-        For example, the electronic structure for Fe is represented as:
-        [(1, "s", 2), (2, "s", 2), (2, "p", 6), (3, "s", 2), (3, "p", 6),
-        (4, "s", 2), (3, "d", 6)].
+        For example, the full electronic structure for Fe is:
+            [(1, "s", 2), (2, "s", 2), (2, "p", 6), (3, "s", 2), (3, "p", 6),
+            (4, "s", 2), (3, "d", 6)].
 
         References:
             Kramida, A., Ralchenko, Yu., Reader, J., and NIST ASD Team (2023). NIST
             Atomic Spectra Database (ver. 5.11). https://physics.nist.gov/asd [2024,
             June 3]. National Institute of Standards and Technology, Gaithersburg,
             MD. DOI: https://doi.org/10.18434/T4W30F
-        """
-        e_str = self.electronic_structure
 
-        def parse_orbital(orb_str):
+        Returns:
+            list[tuple[int, str, int]]: A list of tuples representing each subshell,
+            where each tuple contains:
+                - `n` (int): Principal quantum number.
+                - `orbital_type` (str): Orbital type (e.g., "s", "p", "d", "f").
+                - `electron_count` (int): Number of electrons in the subshell.
+        """
+        e_str: str = self.electronic_structure
+
+        def parse_orbital(orb_str: str) -> str | tuple[int, str, int]:
+            """Parse orbital information from split electron configuration string."""
+            # Parse valence subshell notation (e.g., "3d6" -> (3, "d", 6))
             if match := re.match(r"(\d+)([spdfg]+)(\d+)", orb_str):
                 return int(match[1]), match[2], int(match[3])
+
+            # Return core-electron configuration as-is (e.g. "[Ar]")
             return orb_str
 
-        data = [parse_orbital(s) for s in e_str.split(".")]
-        if data[0][0] == "[":
-            sym = data[0].replace("[", "").replace("]", "")
+        # Split e_str (e.g. for Fe "[Ar].3d6.4s2" into ["[Ar]", "3d6", "4s2"])
+        data: list = [parse_orbital(s) for s in e_str.split(".")]
+
+        # Fully expand core-electron configuration (replace noble gas notation string)
+        if isinstance(data[0], str):
+            sym: str = data[0].replace("[", "").replace("]", "")
             data = list(Element(sym).full_electronic_structure) + data[1:]
-        # sort the final electronic structure by increasing energy level
-        return sorted(data, key=lambda x: _madelung.index((x[0], x[1])))
+
+        # Sort the final electronic structure by increasing energy level
+        return sorted(data, key=lambda x: _MADELUNG.index((x[0], x[1])))
 
     @property
     def n_electrons(self) -> int:
@@ -563,7 +579,7 @@ class ElementBase(Enum):
         L_symbols = "SPDFGHIKLMNOQRTUVWXYZ"
 
         term_symbols = self.term_symbols
-        term_symbol_flat = {  # type: ignore[var-annotated]
+        term_symbol_flat: dict = {
             term: {
                 "multiplicity": int(term[0]),
                 "L": L_symbols.index(term[1]),
@@ -595,7 +611,7 @@ class ElementBase(Enum):
         Returns:
             Element with atomic number Z.
         """
-        for sym, data in _pt_data.items():
+        for sym, data in _PT_DATA.items():
             atomic_mass_num = data.get("Atomic mass no") if A else None
             if data["Atomic no"] == Z and atomic_mass_num == A:
                 return Element(sym)
@@ -616,7 +632,7 @@ class ElementBase(Enum):
         uk_to_us = {"aluminium": "aluminum", "caesium": "cesium"}
         name = uk_to_us.get(name.lower(), name)
 
-        for sym, data in _pt_data.items():
+        for sym, data in _PT_DATA.items():
             if data["Name"] == name.capitalize():
                 return Element(sym)
 
@@ -643,7 +659,7 @@ class ElementBase(Enum):
         Note:
             The 18 group number system is used, i.e. noble gases are group 18.
         """
-        for sym in _pt_data:
+        for sym in _PT_DATA:
             el = Element(sym)
             if 57 <= el.Z <= 71:
                 el_pseudo_row = 8
@@ -683,7 +699,7 @@ class ElementBase(Enum):
             return 6
         if 89 <= z <= 103:
             return 7
-        for idx, size in enumerate(_pt_row_sizes, start=1):
+        for idx, size in enumerate(_PT_ROW_SIZES, start=1):
             total += size
             if total >= z:
                 return idx
@@ -1161,33 +1177,45 @@ class Species(MSONable, Stringify):
     # robustness
     @property
     def full_electronic_structure(self) -> list[tuple[int, str, int]]:
-        """Full electronic structure as list of tuples, in order of increasing
+        """Full electronic structure in order of increasing
         energy level (according to the Madelung rule). Therefore, the final
         element in the list gives the electronic structure of the valence shell.
 
-        For example, the electronic structure for Fe+2 is represented as:
-        [(1, "s", 2), (2, "s", 2), (2, "p", 6), (3, "s", 2), (3, "p", 6),
-        (3, "d", 6)].
+        For example, the full electronic structure for Fe is:
+            [(1, "s", 2), (2, "s", 2), (2, "p", 6), (3, "s", 2), (3, "p", 6),
+            (4, "s", 2), (3, "d", 6)].
 
         References:
             Kramida, A., Ralchenko, Yu., Reader, J., and NIST ASD Team (2023). NIST
             Atomic Spectra Database (ver. 5.11). https://physics.nist.gov/asd [2024,
             June 3]. National Institute of Standards and Technology, Gaithersburg,
             MD. DOI: https://doi.org/10.18434/T4W30F
-        """
-        e_str = self.electronic_structure
 
-        def parse_orbital(orb_str):
+        Returns:
+            list[tuple[int, str, int]]: A list of tuples representing each subshell,
+            where each tuple contains:
+                - `n` (int): Principal quantum number.
+                - `orbital_type` (str): Orbital type (e.g., "s", "p", "d", "f").
+                - `electron_count` (int): Number of electrons in the subshell.
+        """
+        e_str: str = self.electronic_structure
+
+        def parse_orbital(orb_str: str) -> str | tuple[int, str, int]:
+            """Parse orbital information from split electron configuration string."""
+            # Parse valence subshell notation (e.g., "3d6" -> (3, "d", 6))
             if match := re.match(r"(\d+)([spdfg]+)(\d+)", orb_str):
                 return int(match[1]), match[2], int(match[3])
+
+            # Return core-electron configuration as-is (e.g. "[Ar]")
             return orb_str
 
-        data = [parse_orbital(s) for s in e_str.split(".")]
-        if data[0][0] == "[":
+        data: list = [parse_orbital(s) for s in e_str.split(".")]
+        if isinstance(data[0], str):
             sym = data[0].replace("[", "").replace("]", "")
             data = list(Element(sym).full_electronic_structure) + data[1:]
-        # sort the final electronic structure by increasing energy level
-        return sorted(data, key=lambda x: _madelung.index((x[0], x[1])))
+
+        # Sort the final electronic structure by increasing energy level
+        return sorted(data, key=lambda x: _MADELUNG.index((x[0], x[1])))
 
     # NOTE - copied exactly from Element. Refactoring / inheritance may improve
     # robustness

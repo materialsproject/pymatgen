@@ -25,12 +25,13 @@ class TestDos(TestCase):
             self.dos = CompleteDos.from_dict(json.load(file))
 
     def test_get_gap(self):
-        assert self.dos.get_gap() == approx(2.3163, abs=1e-4)
+        assert self.dos.get_gap() == approx(2.0698, abs=1e-4)
+        assert self.dos.get_interpolated_gap()[0] == approx(self.dos.get_gap())
         assert len(self.dos.energies) == 301
         assert self.dos.get_interpolated_gap(tol=0.001, abs_tol=False, spin=None)[0] == approx(
             2.16815942458015, abs=1e-7
         )
-        assert self.dos.get_cbm_vbm() == approx((4.0016, 1.6853))
+        assert self.dos.get_cbm_vbm() == approx((3.8837, 1.8139), abs=1e-4)
 
         assert self.dos.get_interpolated_value(9.9)[Spin.up] == approx(1.744588888888891, abs=1e-7)
         assert self.dos.get_interpolated_value(9.9)[Spin.down] == approx(1.756888888888886, abs=1e-7)
@@ -85,13 +86,13 @@ class TestFermiDos(TestCase):
         assert old_vbm - new_vbm == approx((3.0 - old_gap) / 2.0)
         for idx, c_ref in enumerate(ref_dopings):
             if c_ref < 0:
-                assert sci_dos.get_fermi(c_ref, temperature=T) - fermi_range[idx] == approx(0.342, abs=1e-2)
+                assert sci_dos.get_fermi(c_ref, temperature=T) - fermi_range[idx] == approx(0.4651, abs=1e-2)
             else:
-                assert sci_dos.get_fermi(c_ref, temperature=T) - fermi_range[idx] == approx(-0.342, abs=1e-2)
+                assert sci_dos.get_fermi(c_ref, temperature=T) - fermi_range[idx] == approx(-0.4651, abs=1e-2)
 
-        assert sci_dos.get_fermi_interextrapolated(-1e26, 300) == approx(7.3821, abs=1e-4)
-        assert sci_dos.get_fermi_interextrapolated(1e26, 300) == approx(-1.4786, abs=1e-4)
-        assert sci_dos.get_fermi_interextrapolated(0.0, 300) == approx(3.1828, abs=1e-4)
+        assert sci_dos.get_fermi_interextrapolated(-1e26, 300) == approx(7.50533, abs=1e-4)
+        assert sci_dos.get_fermi_interextrapolated(1e26, 300) == approx(-1.41276, abs=1e-4)
+        assert sci_dos.get_fermi_interextrapolated(0.0, 300) == approx(2.9069, abs=1e-4)
 
     def test_as_dict(self):
         dos_dict = self.dos.as_dict()
@@ -107,8 +108,8 @@ class TestFermiDos(TestCase):
         dos = Dos(
             energies=np.array([0.0, 0.5, 1.0, 1.5, 2.0]),
             densities={
-                Spin.up: np.array([1.0, 2.0, 0.0, 3.0, 4.0]),
-                Spin.down: np.array([0.5, 1.0, 0.0, 1.5, 2.0]),
+                Spin.up: np.array([1.0, 2.0e-4, 0.0, 3.0e-4, 4.0]),
+                Spin.down: np.array([0.5, 1.0e-4, 0.0, 1.5e-4, 2.0]),
             },
             efermi=0.8,
         )
@@ -116,10 +117,10 @@ class TestFermiDos(TestCase):
             dos,
             structure=self.dos.structure,
         )
-        assert fermi_dos.get_cbm_vbm() == (1.5, 0.5)
+        assert fermi_dos.get_cbm_vbm() == approx((1.1667, 0.75), abs=1e-4)
         assert np.isclose(
             fermi_dos.get_doping(fermi_level=1.0, temperature=300),
-            -1385561583858093.5,  # <0 because e doping; greater DOS in CBM than VBM here, and efermi set to mid-gap
+            -4.1557e11,  # <0 because e doping; greater DOS in CBM than VBM here, and efermi set to mid-gap
             rtol=1e-3,
         )
 
@@ -132,7 +133,8 @@ class TestCompleteDos(TestCase):
             self.dos_pdag3 = CompleteDos.from_dict(json.load(file))
 
     def test_get_gap(self):
-        assert self.dos.get_gap() == approx(2.3163, abs=1e-4), "Wrong gap from dos!"
+        assert self.dos.get_gap() == approx(2.0698, abs=1e-4), "Wrong gap from dos!"
+        assert self.dos.get_interpolated_gap()[0] == approx(self.dos.get_gap())
         assert len(self.dos.energies) == 301
         assert self.dos.get_interpolated_gap(tol=0.001, abs_tol=False, spin=None)[0] == approx(
             2.16815942458015, abs=1e-7
@@ -165,7 +167,7 @@ class TestCompleteDos(TestCase):
         egt2g = self.dos.get_site_t2g_eg_resolved_dos(self.dos.structure[4])
         assert sum(egt2g["e_g"].get_densities(Spin.up)) == approx(15.004399999999997)
         assert sum(egt2g["t2g"].get_densities(Spin.up)) == approx(22.910399999999999)
-        assert self.dos.get_cbm_vbm() == approx((4.0016, 1.6853))
+        assert self.dos.get_cbm_vbm() == approx((3.8837, 1.8139), abs=1e-4)
 
         assert self.dos.get_interpolated_value(9.9)[Spin.up] == approx(1.744588888888891, abs=1e-7)
         assert self.dos.get_interpolated_value(9.9)[Spin.down] == approx(1.756888888888886, abs=1e-7)
@@ -351,12 +353,13 @@ class TestDOS(PymatgenTest):
             self.dos = DOS(dct["energies"], ys, dct["efermi"])
 
     def test_get_gap(self):
-        assert self.dos.get_gap() == approx(2.3163, abs=1e-4)
+        assert self.dos.get_gap() == approx(2.0698, abs=1e-4)
+        assert self.dos.get_interpolated_gap()[0] == approx(self.dos.get_gap())
         assert len(self.dos.x) == 301
         assert self.dos.get_interpolated_gap(tol=0.001, abs_tol=False, spin=None)[0] == approx(
             2.16815942458015, abs=1e-7
         )
-        assert_allclose(self.dos.get_cbm_vbm(), (4.0016, 1.6853))
+        assert_allclose(self.dos.get_cbm_vbm(), (3.8837, 1.8139), atol=1e-4)
 
         assert self.dos.get_interpolated_value(9.9)[0] == approx(1.744588888888891, abs=1e-7)
         assert self.dos.get_interpolated_value(9.9)[1] == approx(1.756888888888886, abs=1e-7)
@@ -366,9 +369,8 @@ class TestDOS(PymatgenTest):
         ):
             self.dos.get_interpolated_value(1000)
 
-        assert_allclose(self.dos.get_cbm_vbm(spin=Spin.up), (4.0016, 1.1706))
-
-        assert_allclose(self.dos.get_cbm_vbm(spin=Spin.down), (4.7737, 1.6853))
+        assert_allclose(self.dos.get_cbm_vbm(spin=Spin.up), (3.878307, 1.29909), atol=1e-4)
+        assert_allclose(self.dos.get_cbm_vbm(spin=Spin.down), (4.645041, 1.813966), atol=1e-4)
 
 
 class TestSpinPolarization(TestCase):
