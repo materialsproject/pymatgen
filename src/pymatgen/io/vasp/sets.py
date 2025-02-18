@@ -2816,6 +2816,7 @@ class CINEBSet(NEBSet):
             "NSW": 200,
             "POTIM": 0,
             "SPRING": -5,
+            "ALGO": "Normal",
         }
         if user_incar_settings != {}:
             defaults.update(user_incar_settings)
