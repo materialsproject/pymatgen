@@ -11,6 +11,7 @@ from pymatgen.core.structure import PeriodicSite, Structure
 
 if TYPE_CHECKING:
     from collections.abc import Sequence
+    from typing import Any
 
     from typing_extensions import Self
 
@@ -19,12 +20,12 @@ if TYPE_CHECKING:
 
 class SymmetrizedStructure(Structure):
     """This class represents a symmetrized structure, i.e. a structure
-    where the spacegroup and symmetry operations are defined. This class is
+    where the space group and symmetry operations are defined. This class is
     typically not called but instead is typically obtained by calling
     pymatgen.symmetry.analyzer.SpacegroupAnalyzer.get_symmetrized_structure.
 
     Attributes:
-        equivalent_indices (list[List[int]]): A list of lists of indices of the sites in the structure that are
+        equivalent_indices (list[list[int]]): Indices of the sites in the structure that are
             considered equivalent based on the symmetry operations of the space group.
     """
 
@@ -67,33 +68,6 @@ class SymmetrizedStructure(Structure):
         self.wyckoff_letters = wyckoff_letters
         self.wyckoff_symbols = [f"{len(symb)}{symb[0]}" for symb in wyckoff_symbols]
 
-    def copy(self) -> Self:
-        """Make a copy of the SymmetrizedStructure."""
-        return type(self)(
-            self,
-            spacegroup=self.spacegroup,
-            equivalent_positions=self.site_labels,
-            wyckoff_letters=self.wyckoff_letters,
-        )
-
-    def find_equivalent_sites(self, site: PeriodicSite) -> list[PeriodicSite]:
-        """Find all symmetrically equivalent sites for a particular site.
-
-        Args:
-            site (PeriodicSite): A site in the structure
-
-        Raises:
-            ValueError: if site is not in the structure.
-
-        Returns:
-            list[PeriodicSite]: all symmetrically equivalent sites.
-        """
-        for sites in self.equivalent_sites:
-            if site in sites:
-                return sites
-
-        raise ValueError("Site not in structure")
-
     def __repr__(self) -> str:
         return str(self)
 
@@ -123,7 +97,34 @@ class SymmetrizedStructure(Structure):
         outs.append(tabulate(data, headers=["#", "SP", "a", "b", "c", "Wyckoff", *keys]))
         return "\n".join(outs)
 
-    def as_dict(self):
+    def copy(self) -> Self:
+        """Make a copy of the SymmetrizedStructure."""
+        return type(self)(
+            self,
+            spacegroup=self.spacegroup,
+            equivalent_positions=self.site_labels,
+            wyckoff_letters=self.wyckoff_letters,
+        )
+
+    def find_equivalent_sites(self, site: PeriodicSite) -> list[PeriodicSite]:
+        """Find all symmetrically equivalent sites for a particular site.
+
+        Args:
+            site (PeriodicSite): A site in the structure.
+
+        Raises:
+            ValueError: if site is not in the structure.
+
+        Returns:
+            list[PeriodicSite]: all symmetrically equivalent sites.
+        """
+        for sites in self.equivalent_sites:
+            if site in sites:
+                return sites
+
+        raise ValueError("Site not in structure")
+
+    def as_dict(self) -> dict[str, Any]:
         """MSONable dict."""
         structure = Structure.from_sites(self.sites)
         return {
@@ -134,7 +135,7 @@ class SymmetrizedStructure(Structure):
         }
 
     @classmethod
-    def from_dict(cls, dct: dict) -> Self:
+    def from_dict(cls, dct: dict[str, Any]) -> Self:
         """
         Args:
             dct (dict): Dict representation.
