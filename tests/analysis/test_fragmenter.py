@@ -8,7 +8,7 @@ from pymatgen.analysis.fragmenter import Fragmenter
 from pymatgen.analysis.graphs import MoleculeGraph
 from pymatgen.analysis.local_env import OpenBabelNN
 from pymatgen.core.structure import Molecule
-from pymatgen.util.testing import TEST_FILES_DIR, PymatgenTest
+from pymatgen.util.testing import TEST_FILES_DIR, MatSciTest
 
 __author__ = "Samuel Blau"
 __email__ = "samblau1@gmail.com"
@@ -17,9 +17,9 @@ __email__ = "samblau1@gmail.com"
 TEST_DIR = f"{TEST_FILES_DIR}/analysis/local_env/fragmenter_files"
 
 
-class TestFragmentMolecule(PymatgenTest):
+class TestFragmentMolecule(MatSciTest):
     @classmethod
-    def setUpClass(cls):
+    def setup_class(cls):
         cls.pc = Molecule.from_file(f"{TEST_DIR}/PC.xyz")
         cls.ec = Molecule.from_file(f"{TEST_DIR}/EC.xyz")
         cls.pos_pc = Molecule.from_file(f"{TEST_DIR}/PC.xyz")

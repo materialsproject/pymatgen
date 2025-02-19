@@ -1,7 +1,6 @@
 from __future__ import annotations
 
 import json
-from unittest import TestCase
 
 from monty.json import MontyDecoder
 
@@ -14,10 +13,10 @@ from pymatgen.alchemy.filters import (
 from pymatgen.alchemy.transmuters import StandardTransmuter
 from pymatgen.analysis.structure_matcher import StructureMatcher
 from pymatgen.core import Lattice, Species, Structure
-from pymatgen.util.testing import TEST_FILES_DIR, PymatgenTest
+from pymatgen.util.testing import TEST_FILES_DIR, MatSciTest
 
 
-class TestContainsSpecieFilter(PymatgenTest):
+class TestContainsSpecieFilter(MatSciTest):
     def test_filtering(self):
         coords = [[0, 0, 0], [0.75, 0.75, 0.75], [0.5, 0.5, 0.5], [0.25, 0.25, 0.25]]
         lattice = Lattice([[3.0, 0.0, 0.0], [1.0, 3.0, 0], [0, -2.0, 3.0]])
@@ -52,7 +51,7 @@ class TestContainsSpecieFilter(PymatgenTest):
         assert isinstance(ContainsSpecieFilter.from_dict(dct), ContainsSpecieFilter)
 
 
-class TestSpecieProximityFilter(PymatgenTest):
+class TestSpecieProximityFilter(MatSciTest):
     def test_filter(self):
         struct = self.get_structure("Li10GeP2S12")
         sf = SpecieProximityFilter({"Li": 1})
@@ -70,8 +69,8 @@ class TestSpecieProximityFilter(PymatgenTest):
         assert isinstance(SpecieProximityFilter.from_dict(dct), SpecieProximityFilter)
 
 
-class TestRemoveDuplicatesFilter(TestCase):
-    def setUp(self):
+class TestRemoveDuplicatesFilter:
+    def setup_method(self):
         with open(f"{TEST_FILES_DIR}/entries/TiO2_entries.json", encoding="utf-8") as file:
             entries = json.load(file, cls=MontyDecoder)
         self._struct_list = [entry.structure for entry in entries]
@@ -89,8 +88,8 @@ class TestRemoveDuplicatesFilter(TestCase):
         assert isinstance(RemoveDuplicatesFilter().from_dict(dct), RemoveDuplicatesFilter)
 
 
-class TestRemoveExistingFilter(TestCase):
-    def setUp(self):
+class TestRemoveExistingFilter:
+    def setup_method(self):
         with open(f"{TEST_FILES_DIR}/entries/TiO2_entries.json", encoding="utf-8") as file:
             entries = json.load(file, cls=MontyDecoder)
         self._struct_list = [entry.structure for entry in entries]

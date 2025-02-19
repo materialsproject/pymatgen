@@ -1,7 +1,5 @@
 from __future__ import annotations
 
-from unittest import TestCase
-
 import numpy as np
 import pytest
 from numpy.testing import assert_allclose
@@ -25,8 +23,8 @@ __date__ = "Jan 14, 2021"
 TEST_DIR = f"{TEST_FILES_DIR}/electronic_structure/cohp/environments"
 
 
-class TestLobsterNeighbors(TestCase):
-    def setUp(self):
+class TestLobsterNeighbors:
+    def setup_method(self):
         # test additional conditions first
         # only consider cation anion bonds
 

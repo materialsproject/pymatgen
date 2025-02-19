@@ -1,7 +1,5 @@
 from __future__ import annotations
 
-from unittest import TestCase
-
 from pytest import approx
 
 from pymatgen.io.feff.outputs import LDos, Xmu
@@ -10,7 +8,7 @@ from pymatgen.util.testing import TEST_FILES_DIR
 FEFF_TEST_DIR = f"{TEST_FILES_DIR}/io/feff"
 
 
-class TestFeffLdos(TestCase):
+class TestFeffLdos:
     filepath1 = f"{FEFF_TEST_DIR}/feff.inp"
     filepath2 = f"{FEFF_TEST_DIR}/ldos"
     ldos = LDos.from_file(filepath1, filepath2)
@@ -51,7 +49,7 @@ class TestFeffLdos(TestCase):
         assert charge_trans["1"]["O"]["tot"] == approx(-0.594)
 
 
-class TestXmu(TestCase):
+class TestXmu:
     def test_init(self):
         filepath1 = f"{FEFF_TEST_DIR}/xmu.dat"
         filepath2 = f"{FEFF_TEST_DIR}/feff.inp"
