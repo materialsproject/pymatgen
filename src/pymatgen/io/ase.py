@@ -5,10 +5,10 @@ Atoms object and pymatgen Structure objects.
 
 from __future__ import annotations
 
+import copy
 import warnings
 from importlib.metadata import PackageNotFoundError
 from typing import TYPE_CHECKING
-import copy
 
 import numpy as np
 from monty.json import MontyDecoder, MSONable, jsanitize
@@ -303,7 +303,6 @@ class AseAtomsAdaptor:
         # If present, convert Spacegroup object to JSON-serializable dict
         if properties.get("spacegroup") and isinstance(properties["spacegroup"], Spacegroup):
             properties["spacegroup"] = properties["spacegroup"].todict()
-        
 
         # Return a Molecule object if that was specifically requested;
         # otherwise return a Structure object as expected
