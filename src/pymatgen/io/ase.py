@@ -5,8 +5,8 @@ Atoms object and pymatgen Structure objects.
 
 from __future__ import annotations
 
-from copy import deepcopy
 import warnings
+from copy import deepcopy
 from importlib.metadata import PackageNotFoundError
 from typing import TYPE_CHECKING
 
