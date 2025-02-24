@@ -820,7 +820,7 @@ class CifParser:
             msg = "No _symmetry_equiv_pos_as_xyz type key found. Defaulting to P1."
             warnings.warn(msg, stacklevel=2)
             self.warnings.append(msg)
-            sym_ops = [SymmOp.from_xyz_str(s) for s in ("x", "y", "z")]
+            sym_ops = [SymmOp.from_xyz_str("x, y, z")]
 
         return sym_ops
 

@@ -24,7 +24,8 @@ from pymatgen.core.units import FloatWithUnit
 from pymatgen.util.plotting import add_fig_kwargs, get_ax_fig, pretty_plot
 
 if TYPE_CHECKING:
-    from typing import ClassVar
+    from collections.abc import Sequence
+    from typing import Any, ClassVar
 
     import matplotlib.pyplot as plt
 
@@ -40,7 +41,11 @@ class EOSBase(ABC):
     implementations.
     """
 
-    def __init__(self, volumes, energies):
+    def __init__(
+        self,
+        volumes: Sequence[float],
+        energies: Sequence[float],
+    ) -> None:
         """
         Args:
             volumes (Sequence[float]): in Ang^3.
@@ -50,18 +55,28 @@ class EOSBase(ABC):
         self.energies = np.array(energies)
         # minimum energy(e0), buk modulus(b0),
         # derivative of bulk modulus w.r.t. pressure(b1), minimum volume(v0)
-        self._params = None
+        self._params: Sequence | None = None
         # the eos function parameters. It is the same as _params except for
         # equation of states that uses polynomial fits(delta_factor and
         # numerical_eos)
-        self.eos_params = None
+        self.eos_params: Sequence | None = None
 
-    def _initial_guess(self):
+    def __call__(self, volume: float) -> float:
+        """
+        Args:
+            volume (float | list[float]): volume(s) in Ang^3.
+
+        Returns:
+            Compute EOS with this volume.
+        """
+        return self.func(volume)
+
+    def _initial_guess(self) -> tuple[float, float, float, float]:
         """
         Quadratic fit to get an initial guess for the parameters.
 
         Returns:
-            tuple: 4 floats for (e0, b0, b1, v0)
+            tuple[float, float, float, float]: e0, b0, b1, v0
         """
         a, b, c = np.polyfit(self.volumes, self.energies, 2)
         self.eos_params = [a, b, c]
@@ -78,7 +93,7 @@ class EOSBase(ABC):
 
         return e0, b0, b1, v0
 
-    def fit(self):
+    def fit(self) -> None:
         """
         Do the fitting. Does least square fitting. If you want to use custom
         fitting, must override this.
@@ -120,24 +135,20 @@ class EOSBase(ABC):
         """
         return self._func(np.array(volume), self.eos_params)
 
-    def __call__(self, volume: float) -> float:
-        """
-        Args:
-            volume (float | list[float]): volume(s) in Ang^3.
-
-        Returns:
-            Compute EOS with this volume.
-        """
-        return self.func(volume)
-
     @property
     def e0(self) -> float:
         """The min energy."""
+        if self._params is None:
+            raise RuntimeError("params have not be initialized.")
+
         return self._params[0]
 
     @property
     def b0(self) -> float:
         """The bulk modulus in units of energy/unit of volume^3."""
+        if self._params is None:
+            raise RuntimeError("params have not be initialized.")
+
         return self._params[1]
 
     @property
@@ -156,11 +167,18 @@ class EOSBase(ABC):
         return self._params[3]
 
     @property
-    def results(self):
+    def results(self) -> dict[str, Any]:
         """A summary dict."""
         return {"e0": self.e0, "b0": self.b0, "b1": self.b1, "v0": self.v0}
 
-    def plot(self, width=8, height=None, ax: plt.Axes = None, dpi=None, **kwargs):
+    def plot(
+        self,
+        width: float = 8,
+        height: float | None = None,
+        ax: plt.Axes = None,
+        dpi: float | None = None,
+        **kwargs,
+    ) -> plt.Axes:
         """
         Plot the equation of state.
 
@@ -170,7 +188,7 @@ class EOSBase(ABC):
                 golden ratio.
             ax (plt.Axes): If supplied, changes will be made to the existing Axes.
                 Otherwise, new Axes will be created.
-            dpi:
+            dpi (float): DPI.
             kwargs (dict): additional args fed to pyplot.plot.
                 supported keys: style, color, text, label
 
@@ -211,16 +229,18 @@ class EOSBase(ABC):
         return ax
 
     @add_fig_kwargs
-    def plot_ax(self, ax: plt.Axes = None, fontsize=12, **kwargs):
+    def plot_ax(
+        self,
+        ax: plt.Axes | None = None,
+        fontsize: float = 12,
+        **kwargs,
+    ) -> plt.Figure:
         """
         Plot the equation of state on axis `ax`.
 
         Args:
             ax: matplotlib Axes or None if a new figure should be created.
             fontsize: Legend fontsize.
-            color (str): plot color.
-            label (str): Plot label
-            text (str): Legend text (options)
 
         Returns:
             plt.Figure: matplotlib figure.
@@ -270,7 +290,7 @@ class EOSBase(ABC):
 class Murnaghan(EOSBase):
     """Murnaghan EOS."""
 
-    def _func(self, volume, params):
+    def _func(self, volume, params: tuple[float, float, float, float]):
         """From PRB 28,5480 (1983)."""
         e0, b0, b1, v0 = tuple(params)
         return e0 + b0 * volume / b1 * (((v0 / volume) ** b1) / (b1 - 1.0) + 1.0) - v0 * b0 / (b1 - 1.0)
@@ -279,7 +299,7 @@ class Murnaghan(EOSBase):
 class Birch(EOSBase):
     """Birch EOS."""
 
-    def _func(self, volume, params):
+    def _func(self, volume, params: tuple[float, float, float, float]):
         """From Intermetallic compounds: Principles and Practice, Vol. I:
         Principles Chapter 9 pages 195-210 by M. Mehl. B. Klein,
         D. Papaconstantopoulos.
@@ -296,7 +316,7 @@ class Birch(EOSBase):
 class BirchMurnaghan(EOSBase):
     """BirchMurnaghan EOS."""
 
-    def _func(self, volume, params):
+    def _func(self, volume, params: tuple[float, float, float, float]):
         """BirchMurnaghan equation from PRB 70, 224107."""
         e0, b0, b1, v0 = tuple(params)
         eta = (v0 / volume) ** (1 / 3)
@@ -306,7 +326,7 @@ class BirchMurnaghan(EOSBase):
 class PourierTarantola(EOSBase):
     """Pourier-Tarantola EOS."""
 
-    def _func(self, volume, params):
+    def _func(self, volume, params: tuple[float, float, float, float]):
         """Pourier-Tarantola equation from PRB 70, 224107."""
         e0, b0, b1, v0 = tuple(params)
         eta = (volume / v0) ** (1 / 3)
@@ -317,7 +337,7 @@ class PourierTarantola(EOSBase):
 class Vinet(EOSBase):
     """Vinet EOS."""
 
-    def _func(self, volume, params):
+    def _func(self, volume, params: tuple[float, float, float, float]):
         """Vinet equation from PRB 70, 224107."""
         e0, b0, b1, v0 = tuple(params)
         eta = (volume / v0) ** (1 / 3)
@@ -335,7 +355,7 @@ class PolynomialEOS(EOSBase):
     def _func(self, volume, params):
         return np.poly1d(list(params))(volume)
 
-    def fit(self, order):
+    def fit(self, order: int) -> None:
         """
         Do polynomial fitting and set the parameters. Uses numpy polyfit.
 
@@ -345,7 +365,7 @@ class PolynomialEOS(EOSBase):
         self.eos_params = np.polyfit(self.volumes, self.energies, order)
         self._set_params()
 
-    def _set_params(self):
+    def _set_params(self) -> None:
         """
         Use the fit polynomial to compute the parameter e0, b0, b1 and v0
         and set to the _params attribute.
@@ -372,7 +392,7 @@ class DeltaFactor(PolynomialEOS):
         x = volume ** (-2 / 3.0)
         return np.poly1d(list(params))(x)
 
-    def fit(self, order=3):
+    def fit(self, order: int = 3) -> None:
         """Overridden since this eos works with volume**(2/3) instead of volume."""
         x = self.volumes ** (-2 / 3.0)
         self.eos_params = np.polyfit(x, self.energies, order)
@@ -407,7 +427,12 @@ class DeltaFactor(PolynomialEOS):
 class NumericalEOS(PolynomialEOS):
     """A numerical EOS."""
 
-    def fit(self, min_ndata_factor=3, max_poly_order_factor=5, min_poly_order=2):
+    def fit(
+        self,
+        min_ndata_factor: int = 3,
+        max_poly_order_factor: int = 5,
+        min_poly_order: int = 2,
+    ) -> None:
         """Fit the input data to the 'numerical eos', the equation of state employed
         in the quasiharmonic Debye model described in the paper:
         10.1103/PhysRevB.90.174107.
@@ -539,7 +564,7 @@ class EOS:
        eos_fit.plot()
     """
 
-    MODELS: ClassVar = {
+    MODELS: ClassVar[dict[str, Any]] = {
         "murnaghan": Murnaghan,
         "birch": Birch,
         "birch_murnaghan": BirchMurnaghan,
@@ -549,7 +574,7 @@ class EOS:
         "numerical_eos": NumericalEOS,
     }
 
-    def __init__(self, eos_name="murnaghan"):
+    def __init__(self, eos_name: str = "murnaghan") -> None:
         """
         Args:
             eos_name (str): Type of EOS to fit.
@@ -562,7 +587,7 @@ class EOS:
         self._eos_name = eos_name
         self.model = self.MODELS[eos_name]
 
-    def fit(self, volumes, energies):
+    def fit(self, volumes: Sequence[float], energies: Sequence[float]) -> EOSBase:
         """Fit energies as function of volumes.
 
         Args:
