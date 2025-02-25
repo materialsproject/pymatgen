@@ -112,7 +112,7 @@ class DOS(Spectrum):
 
         vbm_start = max(below_fermi)
         cbm_start = min(above_fermi)
-        if vbm_start == cbm_start:
+        if vbm_start in [cbm_start, cbm_start - 1]:
             return 0.0, self.efermi, self.efermi
 
         # Interpolate between adjacent values
@@ -314,7 +314,7 @@ class Dos(MSONable):
 
         vbm_start = max(below_fermi)
         cbm_start = min(above_fermi)
-        if vbm_start == cbm_start:
+        if vbm_start in [cbm_start, cbm_start - 1]:
             return 0.0, self.efermi, self.efermi
 
         # Interpolate between adjacent values
