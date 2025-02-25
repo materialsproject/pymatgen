@@ -13,11 +13,11 @@ from pytest import approx
 
 from pymatgen.core import Composition, DummySpecies, Element, Species
 from pymatgen.core.composition import ChemicalPotential, CompositionError, reduce_formula
-from pymatgen.util.testing import PymatgenTest
+from pymatgen.util.testing import MatSciTest
 
 
-class TestComposition(PymatgenTest):
-    def setUp(self):
+class TestComposition(MatSciTest):
+    def setup_method(self):
         self.comps = [
             Composition("Li3Fe2(PO4)3"),
             Composition("Li3Fe(PO4)O"),
