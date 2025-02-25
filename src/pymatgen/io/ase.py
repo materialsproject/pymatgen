@@ -6,6 +6,7 @@ Atoms object and pymatgen Structure objects.
 from __future__ import annotations
 
 import warnings
+from copy import deepcopy
 from importlib.metadata import PackageNotFoundError
 from typing import TYPE_CHECKING
 
@@ -204,7 +205,7 @@ class AseAtomsAdaptor:
 
         # Atoms.info <---> Structure.properties
         if properties := structure.properties:
-            atoms.info = properties
+            atoms.info = deepcopy(properties)
 
         # Regenerate Spacegroup object from `.todict()` representation
         if isinstance(atoms.info.get("spacegroup"), dict):
@@ -298,10 +299,10 @@ class AseAtomsAdaptor:
             sel_dyn = None
 
         # Atoms.info <---> Structure.properties
-        # But first make sure `spacegroup` is JSON serializable
-        if atoms.info.get("spacegroup") and isinstance(atoms.info["spacegroup"], Spacegroup):
-            atoms.info["spacegroup"] = atoms.info["spacegroup"].todict()
-        properties = getattr(atoms, "info", {})
+        properties = deepcopy(getattr(atoms, "info", {}))
+        # If present, convert Spacegroup object to JSON-serializable dict
+        if properties.get("spacegroup") and isinstance(properties["spacegroup"], Spacegroup):
+            properties["spacegroup"] = properties["spacegroup"].todict()
 
         # Return a Molecule object if that was specifically requested;
         # otherwise return a Structure object as expected
