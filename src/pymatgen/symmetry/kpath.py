@@ -634,7 +634,7 @@ class KPathSetyawanCurtarolo(KPathBase):
             "A": np.array([0.5, 0.5, 0.0]),
             "C": np.array([0.0, 0.5, 0.5]),
             "D": np.array([0.5, 0.0, 0.5]),
-            "D_1": np.array([0.5, 0.5, -0.5]),
+            "D_1": np.array([0.5, 0.0, -0.5]),
             "E": np.array([0.5, 0.5, 0.5]),
             "H": np.array([0.0, eta, 1 - nu]),
             "H_1": np.array([0.0, 1 - eta, nu]),
