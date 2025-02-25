@@ -135,7 +135,7 @@ def get_linear_interpolated_value(x_values: ArrayLike, y_values: ArrayLike, x: f
     """
     arr = np.array(sorted(zip(x_values, y_values, strict=True), key=lambda d: d[0]))
 
-    indices = np.where(arr[:, 0] >= x)[0]
+    indices = np.where(arr[:, 0] > x)[0]
 
     if len(indices) == 0 or indices[0] == 0:
         raise ValueError(f"{x=} is out of range of provided x_values ({min(x_values)}, {max(x_values)})")

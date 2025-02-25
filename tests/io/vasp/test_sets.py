@@ -1342,7 +1342,9 @@ class TestNEBSet(PymatgenTest):
         incar = self.vis.incar
         assert "LDAUU" not in incar
         assert incar["EDIFF"] == approx(0.00005)
-        assert self.vis_MIT.incar["EDIFF"] == approx(0.00001)
+        assert self.vis_MIT.incar["EDIFF"] == approx(0.00005)
+        assert incar["NSW"] == 200
+        assert incar["IBRION"] == 3
         assert "LCLIMB" in self.vis_cineb.incar
 
     def test_kpoints(self):
