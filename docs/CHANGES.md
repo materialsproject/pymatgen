@@ -6,6 +6,54 @@ nav_order: 4
 
 # Changelog
 
+## v2025.2.18
+
+1. **PR #4288**: `Dos.get_cbm_vbm` updates by @kavanase
+   - Improvements for determining VBM/CBM eigenvalues from a DOS object to match expected values for `emmet-core` tests.
+
+2. **PR #4278**: [Breaking] Fix valence electron configuration parsing by @DanielYang59
+   - Addresses valence electron configuration parsing issue in `PotcarSingle.electron_configuration`, resolving #4269.
+
+3. **PR #4275**: Fix default `transformation_kwargs` in `MagneticStructureEnumerator` by @DanielYang59
+   - Corrects default `transformation_kwargs` to close #4184, with additional comment and type cleanup.
+
+4. **PR #4274**: Move `occ_tol` to init in `OrderDisorderedStructureTransformation` by @Tinaatucsd
+   - Resolved incompatibility with `StandardTransmuter` by moving `occ_tol` to class initialization.
+
+5. **PR #4276**: Fix timeout in `EnumlibAdaptor` by @DanielYang59
+   - Adjusts timeout handling to fix #4185 with associated unit test corrections.
+
+6. **PR #4280**: Pre-commit autoupdate by @pre-commit-ci[bot]
+   - Updates multiple pre-commit configurations, including ruff-pre-commit and markdownlint-cli.
+
+7. **PR #4290**: Migrate type annotation tweaks from #4100 by @DanielYang59
+   - Integrates type annotation improvements to aid review, addressing #4286.
+
+8. **PR #4291**: Remove deprecated memory units from `core` by @DanielYang59
+   - Eliminates outdated memory units in `core` for clarity.
+
+9. **PR #4292**: Fix for `plotly` `PDPlotter`/`ChemicalPotentialDiagram.get_plot()` by @kavanase
+   - Resolves deprecated `titlefont` issue in plotly v6, updating dependency requirements.
+
+10. **PR #4283**: `Composition` support formula strings with curly brackets by @janosh
+    - Expands formula parsing to include curly brackets, with added tests for verification.
+
+11. **PR #4279**: Fix P1 SymmOp string for `CifParser.get_symops` by @DanielYang59
+    - Corrects SymmOp string to close #4230, supplemented by a unit test.
+
+12. **PR #4265**: Clarify return type for `core.Composition.reduced_composition` by @DanielYang59
+    - Refines return types and cleans up types in `core.Composition`.
+
+13. **PR #4268**: Add `Structure.get_symmetry_dataset` method by @janosh
+    - Introduces convenience method for `moyopy` symmetry analysis with a new optional dependency set.
+
+14. **PR #4271**: Add missing parenthesis to `BoltztrapAnalyzer.get_extreme.is_isotropic` by @DanielYang59
+    - Minor syntax fix and cleanup for the method, resolving #4165.
+
+15. **PR #4270**: Add `seed: int = 0` parameter to `Structure.perturb()` by @janosh
+
+16. New NEBSet and CINEBSet for NEB calculations. These replace the old MITNEBSet. @shyuep
+
 ## v2025.1.24
 
 1. **PR #4159 by @DanielYang59**
