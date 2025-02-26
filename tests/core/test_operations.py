@@ -1,16 +1,17 @@
 from __future__ import annotations
 
 import numpy as np
+import pytest
 from numpy.testing import assert_allclose
 from pytest import approx
 
 from pymatgen.core.operations import MagSymmOp, SymmOp
 from pymatgen.electronic_structure.core import Magmom
-from pymatgen.util.testing import PymatgenTest
+from pymatgen.util.testing import MatSciTest
 
 
-class TestSymmOp(PymatgenTest):
-    def setUp(self):
+class TestSymmOp(MatSciTest):
+    def setup_method(self):
         self.op = SymmOp.from_axis_angle_and_translation([0, 0, 1], 30, translation_vec=[0, 0, 1])
 
     def test_properties(self):
@@ -229,7 +230,8 @@ class TestSymmOp(PymatgenTest):
         assert op4 == op5
         assert op3 == op5
 
-        self.assertWarns(UserWarning, self.op.as_xyz_str)
+        with pytest.warns(UserWarning, match="Rotation matrix should be integer"):
+            self.op.as_xyz_str()
 
         symm_op = SymmOp.from_xyz_str("0.5+x, 0.25+y, 0.75+z")
         assert_allclose(symm_op.translation_vector, [0.5, 0.25, 0.75])
@@ -237,7 +239,7 @@ class TestSymmOp(PymatgenTest):
         assert_allclose(symm_op.translation_vector, [0.5, 0.25, 0.75])
 
 
-class TestMagSymmOp(PymatgenTest):
+class TestMagSymmOp(MatSciTest):
     def test_xyzt_string(self):
         xyzt_strings = ["x, y, z, +1", "x, y, z, -1", "-y+1/2, x+1/2, x+1/2, +1"]
 

@@ -1,7 +1,10 @@
+"""Test testing utils."""
+
 from __future__ import annotations
 
 import json
 import os
+import warnings
 from pathlib import Path
 from unittest.mock import patch
 
@@ -17,8 +20,19 @@ from pymatgen.util.testing import (
     TEST_FILES_DIR,
     VASP_IN_DIR,
     VASP_OUT_DIR,
+    MatSciTest,
     PymatgenTest,
 )
+
+warnings.filterwarnings("ignore", message="PymatgenTest is deprecated", category=FutureWarning)
+
+
+class TestPymatgenTest(PymatgenTest):
+    """Test deprecated PymatgenTest."""
+
+    def test_deprecated_warning(self):
+        with pytest.warns(FutureWarning, match="PymatgenTest is deprecated"):
+            TestPymatgenTest()
 
 
 def test_paths():
@@ -34,7 +48,7 @@ def test_paths():
     assert any(f.startswith("POTCAR") for _root, _dir, files in os.walk(FAKE_POTCAR_DIR) for f in files)
 
 
-class TestPMGTestTmpDir(PymatgenTest):
+class TestTmpDir(MatSciTest):
     def test_tmp_dir_initialization(self):
         """Test that the working directory is correctly set to a temporary directory."""
         current_dir = Path.cwd()
@@ -55,7 +69,7 @@ class TestPMGTestTmpDir(PymatgenTest):
         assert test_file.read_text() == "Hello, pytest!"
 
 
-class TestPMGTestAssertMSONable(PymatgenTest):
+class TestAssertMSONable(MatSciTest):
     def test_valid_msonable(self):
         """Test a valid MSONable object."""
         kpts_obj = Kpoints.monkhorst_automatic((2, 2, 2), [0, 0, 0])
@@ -119,7 +133,7 @@ class TestPMGTestAssertMSONable(PymatgenTest):
             mock_decoder.assert_called()
 
 
-class TestPymatgenTest(PymatgenTest):
+class TestMatSciTest(MatSciTest):
     def test_assert_str_content_equal(self):
         # Cases where strings are equal
         self.assert_str_content_equal("hello world", "hello world")
