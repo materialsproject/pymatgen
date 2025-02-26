@@ -107,9 +107,12 @@ class DOS(Spectrum):
         energies = self.x
         below_fermi = [i for i in range(len(energies)) if energies[i] < self.efermi and tdos[i] > tol]
         above_fermi = [i for i in range(len(energies)) if energies[i] > self.efermi and tdos[i] > tol]
+        if not below_fermi or not above_fermi:
+            return 0.0, self.efermi, self.efermi
+
         vbm_start = max(below_fermi)
         cbm_start = min(above_fermi)
-        if vbm_start == cbm_start:
+        if vbm_start in [cbm_start, cbm_start - 1]:
             return 0.0, self.efermi, self.efermi
 
         # Interpolate between adjacent values
@@ -311,7 +314,7 @@ class Dos(MSONable):
 
         vbm_start = max(below_fermi)
         cbm_start = min(above_fermi)
-        if vbm_start == cbm_start:
+        if vbm_start in [cbm_start, cbm_start - 1]:
             return 0.0, self.efermi, self.efermi
 
         # Interpolate between adjacent values

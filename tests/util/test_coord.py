@@ -19,6 +19,11 @@ class TestCoordUtils:
         with pytest.raises(ValueError, match=r"x=6 is out of range of provided x_values \(0, 5\)"):
             coord.get_linear_interpolated_value(x_vals, y_vals, 6)
 
+        # test when x is equal to first value in x_vals (previously broke, fixed in #4299):
+        assert coord.get_linear_interpolated_value(x_vals, y_vals, 0) == approx(3)
+        with pytest.raises(ValueError, match=r"x=-0.5 is out of range of provided x_values \(0, 5\)"):
+            coord.get_linear_interpolated_value(x_vals, y_vals, -0.5)
+
     def test_in_coord_list(self):
         coords = [[0, 0, 0], [0.5, 0.5, 0.5]]
         test_coord = [0.1, 0.1, 0.1]
