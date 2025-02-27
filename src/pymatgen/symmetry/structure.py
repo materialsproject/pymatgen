@@ -2,12 +2,13 @@
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, cast
 
 import numpy as np
+from monty.json import MontyEncoder
 from tabulate import tabulate
 
-from pymatgen.core.structure import PeriodicSite, Structure
+from pymatgen.core.structure import FileFormats, PeriodicSite, Structure
 
 if TYPE_CHECKING:
     from collections.abc import Sequence
@@ -16,6 +17,7 @@ if TYPE_CHECKING:
     from typing_extensions import Self
 
     from pymatgen.symmetry.analyzer import SpacegroupOperations
+    from pymatgen.util.typing import PathLike
 
 
 class SymmetrizedStructure(Structure):
@@ -128,6 +130,8 @@ class SymmetrizedStructure(Structure):
         """MSONable dict."""
         structure = Structure.from_sites(self.sites)
         return {
+            "@module": type(self).__module__,
+            "@class": type(self).__name__,
             "structure": structure.as_dict(),
             "spacegroup": self.spacegroup,
             "equivalent_positions": self.site_labels,
@@ -149,3 +153,11 @@ class SymmetrizedStructure(Structure):
             equivalent_positions=dct["equivalent_positions"],
             wyckoff_letters=dct["wyckoff_letters"],
         )
+
+    def to(self, filename: PathLike = "", fmt: FileFormats = "", **kwargs) -> str:
+        """Use `MontyEncoder` as default JSON encoder."""
+        filename, fmt = str(filename), cast(FileFormats, fmt.lower())
+        if fmt == "json":
+            kwargs.setdefault("cls", MontyEncoder)
+
+        return super().to(filename, fmt, **kwargs)
