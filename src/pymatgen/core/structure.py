@@ -2940,6 +2940,10 @@ class IStructure(SiteCollection, MSONable):
         """
         filename, fmt = str(filename), cast(FileFormats, fmt.lower())
 
+        # Default to JSON if filename not specified
+        if filename == "" and fmt == "":
+            fmt = "json"
+
         if fmt == "cif" or fnmatch(filename.lower(), "*.cif*"):
             from pymatgen.io.cif import CifWriter
 
