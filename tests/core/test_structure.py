@@ -931,7 +931,7 @@ Direct
             self.struct.to(fmt="badformat")
 
         # Default as JSON (no exception expected)
-        self.struct.to()
+        assert self.struct.to() == self.struct.to(fmt="json")
 
         self.struct.to(filename=(gz_json_path := "POSCAR.testing.gz"))
         struct = Structure.from_file(gz_json_path)
