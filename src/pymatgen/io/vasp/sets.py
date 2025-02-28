@@ -2441,13 +2441,18 @@ class MVLSlabSet(VaspInputSet):
         # Define elements that require LDA+U
         ldau_elts = {"O", "F"}
 
-        # Determine non-adsorbate elements
-        if self.structure.site_properties.get("surface_properties"):
-            non_adsorbate_elts = {
-                s.specie.symbol for s in self.structure if s.properties["surface_properties"] != "adsorbate"
-            }
-        else:
-            non_adsorbate_elts = {s.specie.symbol for s in self.structure}
+        # Initialize non_adsorbate_elts as an empty set
+        non_adsorbate_elts = set()
+
+        # Check if self.structure is not None
+        if self.structure is not None:
+            # Determine non-adsorbate elements
+            if self.structure.site_properties and self.structure.site_properties.get("surface_properties"):
+                non_adsorbate_elts = {
+                    s.specie.symbol for s in self.structure if s.properties["surface_properties"] != "adsorbate"
+                }
+            else:
+                non_adsorbate_elts = {s.specie.symbol for s in self.structure}
 
         # Determine if LDA+U should be applied
         ldau = bool(non_adsorbate_elts & ldau_elts)
