@@ -2440,7 +2440,7 @@ class MVLSlabSet(VaspInputSet):
 
         # Define elements that require LDA+U
         ldau_elts = {"O", "F"}
-    
+
         # Determine non-adsorbate elements
         if self.structure.site_properties.get("surface_properties"):
             non_adsorbate_elts = {
@@ -2448,7 +2448,7 @@ class MVLSlabSet(VaspInputSet):
             }
         else:
             non_adsorbate_elts = {s.specie.symbol for s in self.structure}
-    
+
         # Determine if LDA+U should be applied
         ldau = bool(non_adsorbate_elts & ldau_elts)
 
@@ -2463,9 +2463,9 @@ class MVLSlabSet(VaspInputSet):
             "ISMEAR": 0,
             "SIGMA": 0.05,
             "ISIF": 3,
-            "ISYM":0,
+            "ISYM": 0,
         }
-        
+
         if not self.bulk:
             updates |= {"ISIF": 2, "LVTOT": True, "NELMIN": 8}
             if self.set_mix:
