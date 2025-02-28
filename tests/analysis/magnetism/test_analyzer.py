@@ -19,9 +19,9 @@ from pymatgen.util.testing import TEST_FILES_DIR
 
 TEST_DIR = f"{TEST_FILES_DIR}/analysis/magnetic_orderings"
 
-enum_cmd = which("enum.x") or which("multienum.x")
-makestr_cmd = which("makestr.x") or which("makeStr.x") or which("makeStr.py")
-enumlib_present = enum_cmd and makestr_cmd
+ENUM_CMD = which("enum.x") or which("multienum.x")
+MAKESTR_CMD = which("makestr.x") or which("makeStr.x") or which("makeStr.py")
+ENUMLIB_PRESENT = ENUM_CMD and MAKESTR_CMD
 
 
 class TestCollinearMagneticStructureAnalyzer(TestCase):
@@ -259,10 +259,10 @@ Magmoms Sites
         assert msa.structure.site_properties["magmom"] == [-5, 5, 0, 0]
 
 
+@pytest.mark.skipif(not ENUMLIB_PRESENT, reason="enumlib not present")
 class TestMagneticStructureEnumerator:
-    @pytest.mark.skipif(not enumlib_present, reason="enumlib not present")
     def test_ordering_enumeration(self):
-        # simple afm
+        # simple AFM
         structure = Structure.from_file(f"{TEST_DIR}/LaMnO3.json")
         enumerator = MagneticStructureEnumerator(structure)
         assert enumerator.input_origin == "afm"
@@ -277,7 +277,7 @@ class TestMagneticStructureEnumerator:
         enumerator = MagneticStructureEnumerator(structure)
         assert enumerator.input_origin == "afm_by_Cr"
 
-        # afm requiring large cell size
+        # AFM requiring large cell size
         # (enable for further development of workflow, too slow for CI)
 
         # structure = Structure.from_file(f"{ref_dir}/CuO.json")
@@ -296,6 +296,19 @@ class TestMagneticStructureEnumerator:
             transformation_kwargs={"max_cell_size": 2},
         )
         assert enumerator.input_origin == "afm_by_motif_2a"
+
+    def test_default_transformation_kwargs(self):
+        structure = Structure.from_file(f"{TEST_DIR}/LaMnO3.json")
+
+        # Make sure user input would not be overwritten by default values
+        transformation_kwargs = {"timeout": 10, "check_ordered_symmetry": True}
+        enumerator = MagneticStructureEnumerator(structure, transformation_kwargs=transformation_kwargs)
+        assert enumerator.transformation_kwargs["timeout"] == 10
+        assert enumerator.transformation_kwargs["check_ordered_symmetry"] is True
+
+        enumerator = MagneticStructureEnumerator(structure, transformation_kwargs=None)
+        assert enumerator.transformation_kwargs["timeout"] == 5
+        assert enumerator.transformation_kwargs["check_ordered_symmetry"] is False
 
 
 class TestMagneticDeformation:
