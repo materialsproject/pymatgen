@@ -266,7 +266,7 @@ class SpacegroupAnalyzer:
             "cubic": "c",
         }
 
-        num_sites_conventional = len(self._space_group_data["std_types"])
+        num_sites_conventional = len(self._space_group_data.std_types)
         return f"{CRYSTAL_FAMILY_SYMBOLS[cry_sys]}{centering}{num_sites_conventional}"
 
     def get_symmetry_dataset(self) -> SpglibDataset:
