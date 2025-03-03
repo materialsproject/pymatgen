@@ -2918,7 +2918,7 @@ class IStructure(SiteCollection, MSONable):
         return cls.from_sites(sites, charge=charge, properties=dct.get("properties"))
 
     def to(self, filename: PathLike = "", fmt: FileFormats = "", **kwargs) -> str:
-        """Output the structure to a file or string.
+        """Output the structure to a string (and to a file when filename is given).
 
         Args:
             filename (PathLike): If provided, output will be written to a file. If
@@ -2939,6 +2939,10 @@ class IStructure(SiteCollection, MSONable):
                 is provided, the same string is written to the file.
         """
         filename, fmt = str(filename), cast(FileFormats, fmt.lower())
+
+        # Default to JSON if filename not specified
+        if filename == "" and fmt == "":
+            fmt = "json"
 
         if fmt == "cif" or fnmatch(filename.lower(), "*.cif*"):
             from pymatgen.io.cif import CifWriter
