@@ -524,14 +524,16 @@ MASTER_TAG_LIST: dict[str, dict[str, Any]] = {
                 TagContainer(subtags={"random": BoolTag(write_value=False, optional=False)}),
                 TagContainer(
                     subtags={
-                        "read": StrTag(write_value=False, optional=False),
+                        "read": BoolTag(write_value=False, optional=False),
+                        "filename": StrTag(write_tagname=False, optional=False),
                         "nBandsOld": IntTag(write_tagname=False),
                         "EcutOld": FloatTag(write_tagname=False),
                     }
                 ),
                 TagContainer(
                     subtags={
-                        "read-rs": StrTag(write_value=False, optional=False),
+                        "read-rs": BoolTag(write_value=False, optional=False),
+                        "filename-pattern": StrTag(write_tagname=False, optional=False),
                         "nBandsOld": IntTag(write_tagname=False),
                         "NxOld": IntTag(write_tagname=False),
                         "NyOld": IntTag(write_tagname=False),
@@ -981,12 +983,38 @@ MASTER_TAG_LIST: dict[str, dict[str, Any]] = {
         ),
     },
     "export": {
-        "dump-name": StrTag(),
+        "dump-name": TagContainer(
+            allow_list_representation=True,
+            subtags={
+                "format": StrTag(
+                    write_tagname=False,
+                    optional=False,
+                ),
+                "freq1": StrTag(
+                    options=["Init", "Ionic", "Electronic", "Fluid", "Gummel", "End"],
+                    write_tagname=False,
+                    optional=True,
+                ),
+                "format1": StrTag(
+                    write_tagname=False,
+                    optional=True,
+                ),
+                "freq2": StrTag(
+                    options=["Init", "Ionic", "Electronic", "Fluid", "Gummel", "End"],
+                    write_tagname=False,
+                    optional=True,
+                ),
+                "format2": StrTag(
+                    write_tagname=False,
+                    optional=True,
+                ),
+            },
+        ),
         "dump-interval": TagContainer(
             can_repeat=True,
             subtags={
                 "freq": StrTag(
-                    options=["Ionic", "Electronic", "Fluid", "Gummel"],
+                    options=["Init", "Ionic", "Electronic", "Fluid", "Gummel", "End"],
                     write_tagname=False,
                     optional=False,
                 ),
@@ -1207,3 +1235,4 @@ def get_tag_object(tag: str) -> AbstractTag:
         AbstractTag: The tag object.
     """
     return MASTER_TAG_LIST[__TAG_GROUPS__[tag]][tag]
+
