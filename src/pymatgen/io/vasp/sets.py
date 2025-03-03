@@ -2409,9 +2409,12 @@ class MVLGWSet(VaspInputSet):
         input_set = cls(_dummy_structure, mode=mode, **kwargs)
         return input_set.override_from_prev_calc(prev_calc_dir=prev_calc_dir)
 
-""" 
+
+"""
 Parameters for MVLSlabSet class set were updated in March 2025 to match the MPSurfaceSet in atomate1
 """
+
+
 @dataclass
 class MVLSlabSet(VaspInputSet):
     """Write a set of slab VASP runs, including both slabs (along the c direction)
