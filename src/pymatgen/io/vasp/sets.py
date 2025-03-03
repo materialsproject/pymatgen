@@ -2409,7 +2409,9 @@ class MVLGWSet(VaspInputSet):
         input_set = cls(_dummy_structure, mode=mode, **kwargs)
         return input_set.override_from_prev_calc(prev_calc_dir=prev_calc_dir)
 
-
+""" 
+Parameters for MVLSlabSet class set were updated in March 2025 to match the MPSurfaceSet in atomate1
+"""
 @dataclass
 class MVLSlabSet(VaspInputSet):
     """Write a set of slab VASP runs, including both slabs (along the c direction)
@@ -2525,51 +2527,6 @@ class MVLSlabSet(VaspInputSet):
         if verbosity == 1:
             dct.pop("structure", None)
         return dct
-
-
-class MPSurfaceSet(MVLSlabSet):
-    """
-    Input class for MP slab calcs, mostly to change parameters
-    and defaults slightly
-    """
-
-    def __init__(self, structure, bulk=False, auto_dipole=None, **kwargs):
-        # If not a bulk calc, turn get_locpot/auto_dipole on by default
-        auto_dipole = auto_dipole or not bulk
-        super().__init__(structure, bulk=bulk, auto_dipole=False, **kwargs)
-        # This is a hack, but should be fixed when this is ported over to
-        # pymatgen to account for vasp native dipole fix
-        if auto_dipole:
-            self._config_dict["INCAR"].update({"LDIPOL": True, "IDIPOL": 3})
-            self.auto_dipole = True
-
-    @property
-    def incar(self):
-        incar = super().incar
-
-        # Determine LDAU based on slab chemistry without adsorbates
-        ldau_elts = {"O", "F"}
-        if self.structure.site_properties.get("surface_properties"):
-            non_adsorbate_elts = {
-                s.specie.symbol for s in self.structure if s.properties["surface_properties"] != "adsorbate"
-            }
-        else:
-            non_adsorbate_elts = {s.specie.symbol for s in self.structure}
-        ldau = bool(non_adsorbate_elts & ldau_elts)
-
-        # Should give better forces for optimization
-        incar_config = {
-            "EDIFFG": -0.05,
-            "ENAUG": 4000,
-            "IBRION": 1,
-            "POTIM": 1.0,
-            "LDAU": ldau,
-            "EDIFF": 1e-5,
-            "ISYM": 0,
-        }
-        incar.update(incar_config)
-        incar.update(self.user_incar_settings)
-        return incar
 
 
 @dataclass
