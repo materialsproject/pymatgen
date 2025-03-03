@@ -105,6 +105,21 @@ def test_get_atoms_from_structure_dyn():
         assert len(c.index) == len([mask for mask in sel_dyn if np.array_equal(mask, ~np.array(ase_mask))])
 
 
+def test_get_atoms_from_structure_spacegroup():
+    # Get structure with space group dictionary in properties
+    space_group_info = STRUCTURE.get_space_group_info()
+    STRUCTURE.properties["spacegroup"] = {"number": space_group_info[1], "setting": 1}
+
+    # Convert to atoms and check that structure was not modified
+    atoms = AseAtomsAdaptor.get_atoms(STRUCTURE)
+    assert isinstance(STRUCTURE.properties["spacegroup"], dict)
+    assert isinstance(atoms.info["spacegroup"], ase.spacegroup.Spacegroup)
+
+    # Check that space group matches
+    assert atoms.info["spacegroup"].no == STRUCTURE.properties["spacegroup"]["number"]
+    assert atoms.info["spacegroup"].setting == STRUCTURE.properties["spacegroup"]["setting"]
+
+
 def test_get_atoms_from_molecule():
     mol = Molecule.from_file(XYZ_STRUCTURE)
     atoms = AseAtomsAdaptor.get_atoms(mol)
@@ -215,6 +230,23 @@ def test_get_structure_dyn(select_dyn):
     ase_atoms = AseAtomsAdaptor.get_atoms(structure)
 
     assert len(ase_atoms) == len(structure)
+
+
+def test_get_structure_spacegroup():
+    # set up Atoms object with spacegroup information
+    a = 4.05
+    atoms = ase.spacegroup.crystal("Al", [(0, 0, 0)], spacegroup=225, cellpar=[a, a, a, 90, 90, 90])
+    assert "spacegroup" in atoms.info
+    assert isinstance(atoms.info["spacegroup"], ase.spacegroup.Spacegroup)
+
+    # Test that get_structure does not mutate atoms
+    structure = AseAtomsAdaptor.get_structure(atoms)
+    assert isinstance(atoms.info["spacegroup"], ase.spacegroup.Spacegroup)
+    assert isinstance(structure.properties["spacegroup"], dict)
+
+    # Test that spacegroup info matches
+    assert atoms.info["spacegroup"].no == structure.properties["spacegroup"]["number"]
+    assert atoms.info["spacegroup"].setting == structure.properties["spacegroup"]["setting"]
 
 
 def test_get_molecule():
