@@ -3,7 +3,7 @@ from __future__ import annotations
 import json
 
 from pymatgen.analysis.chemenv.connectivity.environment_nodes import EnvironmentNode
-from pymatgen.util.testing import PymatgenTest
+from pymatgen.util.testing import MatSciTest
 
 try:
     import bson
@@ -13,7 +13,7 @@ except ModuleNotFoundError:
 __author__ = "waroquiers"
 
 
-class TestEnvironmentNodes(PymatgenTest):
+class TestEnvironmentNodes(MatSciTest):
     def test_equal(self):
         struct = self.get_structure("SiO2")
         en = EnvironmentNode(central_site=struct[0], i_central_site=0, ce_symbol="T:4")

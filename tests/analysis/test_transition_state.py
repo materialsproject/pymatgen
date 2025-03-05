@@ -6,7 +6,7 @@ from matplotlib import pyplot as plt
 from numpy.testing import assert_allclose
 
 from pymatgen.analysis.transition_state import NEBAnalysis, combine_neb_plots
-from pymatgen.util.testing import TEST_FILES_DIR, PymatgenTest
+from pymatgen.util.testing import TEST_FILES_DIR, MatSciTest
 
 """
 TODO: Modify unittest doc.
@@ -23,7 +23,7 @@ __date__ = "2/5/16"
 TEST_DIR = f"{TEST_FILES_DIR}/io/vasp/fixtures/neb_analysis"
 
 
-class TestNEBAnalysis(PymatgenTest):
+class TestNEBAnalysis(MatSciTest):
     def test_run(self):
         neb_analysis1 = NEBAnalysis.from_dir(f"{TEST_DIR}/neb1/neb")
         neb_analysis1_from_dict = NEBAnalysis.from_dict(neb_analysis1.as_dict())

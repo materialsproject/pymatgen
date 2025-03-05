@@ -6,11 +6,11 @@ from pytest import approx
 from scipy import stats
 
 from pymatgen.core.spectrum import Spectrum
-from pymatgen.util.testing import PymatgenTest
+from pymatgen.util.testing import MatSciTest
 
 
-class TestSpectrum(PymatgenTest):
-    def setUp(self):
+class TestSpectrum(MatSciTest):
+    def setup_method(self):
         rng = np.random.default_rng()
         self.spec1 = Spectrum(np.arange(0, 10, 0.1), rng.standard_normal(100))
         self.spec2 = Spectrum(np.arange(0, 10, 0.1), rng.standard_normal(100))

@@ -11,7 +11,7 @@ from pymatgen.core.units import Ry_to_eV
 from pymatgen.electronic_structure.core import Spin
 from pymatgen.io.lmto import LMTOCopl, LMTOCtrl
 from pymatgen.util.num import round_to_sigfigs
-from pymatgen.util.testing import TEST_FILES_DIR, PymatgenTest
+from pymatgen.util.testing import TEST_FILES_DIR, MatSciTest
 
 __author__ = "Marco Esters"
 __copyright__ = "Copyright 2017, The Materials Project"
@@ -24,20 +24,16 @@ TEST_DIR = f"{TEST_FILES_DIR}/electronic_structure/cohp"
 MODULE_DIR = os.path.dirname(os.path.abspath(__file__))
 
 
-class TestCtrl(PymatgenTest):
-    def setUp(self):
-        os.chdir(TEST_DIR)
-        self.ref_bise = LMTOCtrl.from_file(filename="CTRL.BiSe")
-        self.ref_fe = LMTOCtrl.from_file()
-
-    def tearDown(self):
-        os.chdir(MODULE_DIR)
+class TestCtrl(MatSciTest):
+    def setup_method(self):
+        self.ref_bise = LMTOCtrl.from_file(filename=f"{TEST_DIR}/CTRL.BiSe")
+        self.ref_fe = LMTOCtrl.from_file(filename=f"{TEST_DIR}/CTRL")
 
     def test_dict(self):
         assert self.ref_bise == LMTOCtrl.from_dict(self.ref_bise.as_dict())
 
     def test_structure(self):
-        bise_poscar = Structure.from_file("POSCAR.BiSe")
+        bise_poscar = Structure.from_file(f"{TEST_DIR}/POSCAR.BiSe")
         assert bise_poscar.matches(self.ref_bise.structure)
         assert self.ref_bise == LMTOCtrl(self.ref_bise.structure, header="Bi6Se6, hexagonal")
 
@@ -48,15 +44,11 @@ class TestCtrl(PymatgenTest):
         assert self.ref_bise.structure.matches(ctrl_file.structure)
 
 
-class TestCopl(PymatgenTest):
-    def setUp(self):
-        os.chdir(TEST_DIR)
-        self.copl_bise = LMTOCopl("COPL.BiSe")
-        self.copl_bise_eV = LMTOCopl(filename="COPL.BiSe", to_eV=True)
-        self.copl_fe = LMTOCopl()
-
-    def tearDown(self):
-        os.chdir(MODULE_DIR)
+class TestCopl(MatSciTest):
+    def setup_method(self):
+        self.copl_bise = LMTOCopl(f"{TEST_DIR}/COPL.BiSe")
+        self.copl_bise_eV = LMTOCopl(filename=f"{TEST_DIR}/COPL.BiSe", to_eV=True)
+        self.copl_fe = LMTOCopl(f"{TEST_DIR}/COPL")
 
     def test_attributes(self):
         assert not self.copl_bise.is_spin_polarized

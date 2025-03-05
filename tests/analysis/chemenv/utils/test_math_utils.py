@@ -16,12 +16,12 @@ from pymatgen.analysis.chemenv.utils.math_utils import (
     smootherstep,
     smoothstep,
 )
-from pymatgen.util.testing import PymatgenTest
+from pymatgen.util.testing import MatSciTest
 
 __author__ = "waroquiers"
 
 
-class TestMathUtils(PymatgenTest):
+class TestMathUtils(MatSciTest):
     def test_list_cartesian_product(self):
         list_of_lists = [[0, 1], [2, 5, 4], [5]]
         assert _cartesian_product(lists=list_of_lists) == [
