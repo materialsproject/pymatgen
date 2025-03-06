@@ -47,6 +47,7 @@ class SymmetrizedStructure(Structure):
         """
         self.spacegroup = spacegroup
         uniq, inverse = np.unique(equivalent_positions, return_inverse=True)
+        inverse = np.atleast_1d(inverse)  # Ensures `inverse` is 1D
         self.site_labels = equivalent_positions
 
         super().__init__(

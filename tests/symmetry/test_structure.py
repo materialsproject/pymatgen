@@ -26,6 +26,7 @@ class TestSymmetrizedStructure(PymatgenTest):
         assert isinstance(SymmetrizedStructure.from_dict(dct), SymmetrizedStructure)
 
     def test_serialize(self):
+        assert isinstance(self.symm_structure, SymmetrizedStructure)
         self.assert_msonable(self.symm_structure)
 
         self.symm_structure.to(fmt="json")
