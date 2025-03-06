@@ -37,7 +37,6 @@ from pymatgen.core.structure import Molecule, Structure
 from pymatgen.io.cssr import Cssr
 from pymatgen.io.xyz import XYZ
 
-
 try:
     from zeo.cluster import prune_voronoi_network_close_node
     from zeo.netstorage import AtomNetwork
