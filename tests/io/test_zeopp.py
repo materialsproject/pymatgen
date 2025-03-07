@@ -242,11 +242,11 @@ class TestGetVoronoiNodesMultiOxi(TestCase):
 
 class TestZeoSource(TestCase):
     """Test for zeo_source to verify which library was imported."""
-    
+
     def test_zeo_source_is_defined(self):
         """Test that zeo_source is defined and is either 'zeo' or 'pyzeo'."""
         assert zeo_source in ["zeo", "pyzeo"]
-        
+
     def test_zeo_found_is_true(self):
         """Test that zeo_found is True when either library is imported."""
         assert zeo_found is True

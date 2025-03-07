@@ -246,6 +246,29 @@ class SpacegroupAnalyzer:
             return "rhombohedral"
         return "hexagonal" if system == "trigonal" else system
 
+    def get_pearson_symbol(self) -> str:
+        """Get the Pearson symbol for the structure.
+
+        Returns:
+            str: Pearson symbol for structure.
+        """
+        cry_sys = self.get_crystal_system()
+        spg_sym = self.get_space_group_symbol()
+        centering = "C" if spg_sym[0] in ("A", "B", "C", "S") else spg_sym[0]
+
+        CRYSTAL_FAMILY_SYMBOLS = {
+            "triclinic": "a",
+            "monoclinic": "m",
+            "orthorhombic": "o",
+            "tetragonal": "t",
+            "trigonal": "h",
+            "hexagonal": "h",
+            "cubic": "c",
+        }
+
+        num_sites_conventional = len(self._space_group_data.std_types)
+        return f"{CRYSTAL_FAMILY_SYMBOLS[cry_sys]}{centering}{num_sites_conventional}"
+
     def get_symmetry_dataset(self) -> SpglibDataset:
         """Get the symmetry dataset as a SpglibDataset.
 
