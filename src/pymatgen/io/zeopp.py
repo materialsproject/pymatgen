@@ -37,21 +37,22 @@ from pymatgen.core.structure import Molecule, Structure
 from pymatgen.io.cssr import Cssr
 from pymatgen.io.xyz import XYZ
 
-
 try:
     from zeo.cluster import prune_voronoi_network_close_node
     from zeo.netstorage import AtomNetwork
 
     zeo_found = True
+    zeo_source = "zeo"
 except ImportError:
-    # if zeo fails try to import from pyzeo after
     try:
-        from pyzeo import AtomNetwork
-        from pyzeo.extension import prune_voronoi_network_close_node
+        from pyzeo.cluster import prune_voronoi_network_close_node
+        from pyzeo.netstorage import AtomNetwork
 
         zeo_found = True
+        zeo_source = "pyzeo"
     except ImportError:
         zeo_found = False
+        zeo_source = None
         AtomNetwork = prune_voronoi_network_close_node = None
 
 

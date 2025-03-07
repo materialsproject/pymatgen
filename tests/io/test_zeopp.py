@@ -14,10 +14,24 @@ from pymatgen.io.zeopp import (
     get_free_sphere_params,
     get_high_accuracy_voronoi_nodes,
     get_voronoi_nodes,
+    zeo_found,
+    zeo_source,
 )
 from pymatgen.util.testing import TEST_FILES_DIR, VASP_IN_DIR
 
-pytest.importorskip("zeo", reason="zeo not installed")
+# Try to import zeo or pyzeo
+try:
+    import zeo
+    HAS_ZEO = True
+except ImportError:
+    try:
+        import pyzeo
+        HAS_ZEO = True
+    except ImportError:
+        HAS_ZEO = False
+
+if not HAS_ZEO:
+    pytest.skip("neither zeo nor pyzeo is installed", allow_module_level=True)
 
 TEST_DIR = f"{TEST_FILES_DIR}/io/zeopp"
 
@@ -230,3 +244,15 @@ class TestGetVoronoiNodesMultiOxi(TestCase):
         assert isinstance(vor_node_struct, Structure)
         assert isinstance(vor_edge_center_struct, Structure)
         assert isinstance(vor_face_center_struct, Structure)
+
+
+class TestZeoSource(TestCase):
+    """Test for zeo_source to verify which library was imported."""
+    
+    def test_zeo_source_is_defined(self):
+        """Test that zeo_source is defined and is either 'zeo' or 'pyzeo'."""
+        assert zeo_source in ["zeo", "pyzeo"]
+        
+    def test_zeo_found_is_true(self):
+        """Test that zeo_found is True when either library is imported."""
+        assert zeo_found is True

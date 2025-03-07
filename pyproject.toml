@@ -95,6 +95,7 @@ electronic_structure = ["fdint>=2.0.2"]
 mlp = ["chgnet>=0.3.8", "matgl>=1.1.3"]
 numba = ["numba>=0.55"]
 numpy-v1 = ["numpy>=1.25.0,<2"] # Test NP1 on Windows (quite buggy ATM)
+zeopp = ["pyzeo"]  # Note: requires voro++ and zeo++ to be installed as binaries
 optional = [
     "pymatgen[abinit,ase,mlp,tblite]",
     "beautifulsoup4",
