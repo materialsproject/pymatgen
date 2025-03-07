@@ -45,8 +45,8 @@ try:
     zeo_source = "zeo"
 except ImportError:
     try:
-        from pyzeo.cluster import prune_voronoi_network_close_node
-        from pyzeo.netstorage import AtomNetwork
+        from pyzeo.extension import prune_voronoi_network_close_node
+        from pyzeo import AtomNetwork
 
         zeo_found = True
         zeo_source = "pyzeo"
