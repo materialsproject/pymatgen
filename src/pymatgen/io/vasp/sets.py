@@ -2663,7 +2663,8 @@ class MITMDSet(VaspInputSet):
 
 
 class NEBSet(VaspInputSet):
-    """Write NEB inputs.
+    """An input set for NEB calculations. These are based on NEB parameters that have been extensively tested by the
+    Materials Virtual Lab.
 
     Note that EDIFF is not on a per atom basis for this input set.
     """
@@ -2695,11 +2696,19 @@ class NEBSet(VaspInputSet):
 
         # NEB specific defaults
         defaults = {
+            "EDIFF": 5e-5,
+            "EDIFFG": -0.02,
             "IMAGES": len(structures) - 2,
-            "IBRION": 1,
             "ISYM": 0,
+            "ISIF": 2,
             "LCHARG": False,
             "LDAU": False,
+            "LORBIT": 0,
+            "NSW": 200,
+            "ALGO": "Normal",
+            "IBRION": 3,
+            "IOPT": 1,
+            "POTIM": 0,
         }
         self._config_dict["INCAR"].update(defaults)
         self.parent_set = parent_set
@@ -2799,22 +2808,10 @@ class CINEBSet(NEBSet):
         """
         user_incar_settings = kwargs.get("user_incar_settings", {})
 
-        # CI-NEB settings
+        # Additional CI-NEB settings
         defaults = {
-            "EDIFF": 5e-5,
-            "EDIFFG": -0.02,
-            "IBRION": 3,
             "ICHAIN": 0,
-            "IOPT": 1,
-            "ISIF": 2,
-            "ISMEAR": 0,
-            "ISPIN": 2,
-            "LCHARG": False,
             "LCLIMB": True,
-            "LDAU": False,
-            "LORBIT": 0,
-            "NSW": 200,
-            "POTIM": 0,
             "SPRING": -5,
         }
         if user_incar_settings != {}:
@@ -3521,7 +3518,8 @@ def _combine_kpoints(*kpoints_objects: Kpoints | None) -> Kpoints:
     _kpoints: list[Sequence[Kpoint]] = []
     _weights = []
 
-    for kpoints_object in filter(None, kpoints_objects):  # type: ignore[var-annotated]
+    kpoints_object: Kpoints
+    for kpoints_object in filter(None, kpoints_objects):
         if kpoints_object.style != Kpoints.supported_modes.Reciprocal:
             raise ValueError("Can only combine kpoints with style=Kpoints.supported_modes.Reciprocal")
         if kpoints_object.labels is None:
