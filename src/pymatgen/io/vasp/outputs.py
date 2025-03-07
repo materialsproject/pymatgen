@@ -5875,31 +5875,34 @@ class Vaspout(Vasprun):
                 TODO: this information is not currently included in vaspout.h5, add later?
         """
         with zopen(self.filename, "rb") as vout_file, h5py.File(vout_file, "r") as h5_file:
-            data = self._parse_hdf5_value(h5_file)
 
-        self._parse_params(data["input"])
-        self._get_ionic_steps(data["intermediate"]["ion_dynamics"])
+            # Loading only certain blocks into memory at a given time to lessen memory usage
+            vasp_version = self._parse_hdf5_value(h5_file["version"])
+            self._parse_params(self._parse_hdf5_value(h5_file["input"]))
+            self._get_ionic_steps(self._parse_hdf5_value(h5_file["intermediate"]["ion_dynamics"]))
 
-        # -----
-        # TODO: determine if these following fields are stored in vaspout.h5
-        self.kpoints_opt_props = None
-        self.md_data = []
-        # -----
+            # -----
+            # TODO: determine if these following fields are stored in vaspout.h5
+            self.kpoints_opt_props = None
+            self.md_data = []
+            # -----
+            
+            outputs = self._parse_hdf5_value(h5_file["results"])
 
-        self._parse_results(data["results"])
+        self._parse_results(outputs)
 
         if parse_dos:
             try:
                 self._parse_dos(
-                    electron_dos=data["results"]["electron_dos"],
-                    projectors=data["results"].get("projectors", {}).get("lchar", None),
+                    electron_dos=outputs["electron_dos"],
+                    projectors=outputs.get("projectors", {}).get("lchar", None),
                 )
                 self.dos_has_errors = False
             except Exception:
                 self.dos_has_errors = True
 
         if parse_eigen:
-            self.eigenvalues = self._parse_eigen(data["results"]["electron_eigenvalues"])
+            self.eigenvalues = self._parse_eigen(outputs["electron_eigenvalues"])
 
         self.projected_eigenvalues = None
         self.projected_magnetisation = None
@@ -5908,7 +5911,8 @@ class Vaspout(Vasprun):
             self.projected_eigenvalues = None
             self.projected_magnetisation = None
 
-        self.vasp_version = ".".join(f"{data['version'].get(tag, '')}" for tag in ("major", "minor", "patch"))
+        self.vasp_version = ".".join(f"{vasp_version.get(tag, '')}" for tag in ("major", "minor", "patch"))
+            
         # TODO: are the other generator tags, like computer platform, stored in vaspout.h5?
         self.generator = {"version": self.vasp_version}
 
@@ -6004,6 +6008,10 @@ class Vaspout(Vasprun):
                 self.actual_kpoints,
                 self.actual_kpoints_weights,
             ) = self._parse_kpoints(input_data["kpoints"])  # type: ignore[assignment]
+
+        self.kpoints_opt = None
+        if input_data.get("kpoints_opt"):
+            self.kpoints_opt = self._parse_kpoints(input_data["kpoints_opt"])
 
         self.initial_structure = self._parse_structure(input_data["poscar"])
         self.atomic_symbols = self._parse_atominfo(self.initial_structure.composition)
