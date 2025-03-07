@@ -1,4 +1,5 @@
 # Run the complete test suite incl. many external command line dependencies (like Openbabel)
+
 # as well as the pymatgen.ext package. Coverage used to be computed based on this workflow.
 name: Tests
 
@@ -76,6 +77,28 @@ jobs:
       - name: Install uv
         uses: astral-sh/setup-uv@v4
 
+      - name: Install ZEO++ (Linux and macOS)
+        if: matrix.config.os == 'ubuntu-latest' || matrix.config.os == 'macos-latest'
+        run: |
+          # Download and extract ZEO++
+          wget -q http://www.zeoplusplus.org/zeo++-0.3.tar.gz
+          tar -xzf zeo++-0.3.tar.gz
+
+          # Compile Voro++ library first
+          cd zeo++-0.3/voro++/src
+          make
+
+          # Add Voro++ to PATH
+          echo "$(pwd)" >> $GITHUB_PATH
+
+          # Compile ZEO++
+          cd ../../
+          make
+
+          # Add ZEO++ to PATH
+          echo "$(pwd)" >> $GITHUB_PATH
+
+
       - name: Install pymatgen and dependencies via uv
         run: |
           micromamba activate pmg
@@ -110,6 +133,12 @@ jobs:
           PMG_TEST_FILES_DIR: "${{ github.workspace }}/tests/files"
         run: |
           micromamba activate pmg
+          # Print environment info and if ZEO++ is available
+          if [ "${{ matrix.config.os }}" == "ubuntu-latest" ] || [ "${{ matrix.config.os }}" == "macos-latest" ]; then
+            which network || echo "ZEO++ not found in PATH"
+            python -c "try: import zeo; print('ZEO++ Python module found'); except ImportError: print('ZEO++ Python module not found')"
+          fi
+
           pytest --splits 10 --group ${{ matrix.split }} --durations-path tests/files/.pytest-split-durations tests
 
   trigger_atomate2_ci:
