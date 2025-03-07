@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import importlib.util
 import unittest
 from unittest import TestCase
 
@@ -19,16 +20,9 @@ from pymatgen.io.zeopp import (
 )
 from pymatgen.util.testing import TEST_FILES_DIR, VASP_IN_DIR
 
-# Try to import zeo or pyzeo
-try:
-    import zeo
-    HAS_ZEO = True
-except ImportError:
-    try:
-        import pyzeo
-        HAS_ZEO = True
-    except ImportError:
-        HAS_ZEO = False
+# Check if either zeo or pyzeo is available
+HAS_ZEO = (importlib.util.find_spec("zeo") is not None or 
+           importlib.util.find_spec("pyzeo") is not None)
 
 if not HAS_ZEO:
     pytest.skip("neither zeo nor pyzeo is installed", allow_module_level=True)
