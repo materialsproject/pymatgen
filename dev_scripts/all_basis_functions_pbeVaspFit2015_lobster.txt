@@ -1,0 +1,103 @@
+1 H 1s
+2 He 1s
+3 Li 1s 2s 2p
+4 Be 1s 2s 2p
+5 B 1s 2s 2p
+6 C 1s 2s 2p
+7 N 1s 2s 2p
+8 O 1s 2s 2p
+9 F 1s 2s 2p
+10 Ne 1s 2s 2p
+11 Na 1s 2s 2p 3s 3p
+12 Mg 1s 2s 2p 3s 3p
+13 Al 1s 2s 2p 3s 3p
+14 Si 1s 2s 2p 3s 3p
+15 P 1s 2s 2p 3s 3p
+16 S 1s 2s 2p 3s 3p
+17 Cl 1s 2s 2p 3s 3p
+18 Ar 1s 2s 2p 3s 3p
+19 K 1s 2s 2p 3s 3p 4s 4p
+20 Ca 1s 2s 2p 3s 3p 4s 4p
+21 Sc 1s 2s 2p 3s 3p 3d 4s 4p
+22 Ti 1s 2s 2p 3s 3p 3d 4s 4p
+23 V 1s 2s 2p 3s 3p 3d 4s 4p
+24 Cr 1s 2s 2p 3s 3p 3d 4s 4p
+25 Mn 1s 2s 2p 3s 3p 3d 4s 4p
+26 Fe 1s 2s 2p 3s 3p 3d 4s 4p
+27 Co 1s 2s 2p 3s 3p 3d 4s 4p
+28 Ni 1s 2s 2p 3s 3p 3d 4s 4p
+29 Cu 1s 2s 2p 3s 3p 3d 4s 4p
+30 Zn 1s 2s 2p 3s 3p 3d 4s 4p
+31 Ga 1s 2s 2p 3s 3p 3d 4s 4p
+32 Ge 1s 2s 2p 3s 3p 3d 4s 4p
+33 As 1s 2s 2p 3s 3p 3d 4s 4p
+34 Se 1s 2s 2p 3s 3p 3d 4s 4p
+35 Br 1s 2s 2p 3s 3p 3d 4s 4p
+36 Kr 1s 2s 2p 3s 3p 3d 4s 4p
+37 Rb 1s 2s 2p 3s 3p 3d 4s 4p 5s 5p
+38 Sr 1s 2s 2p 3s 3p 3d 4s 4p 5s 5p
+39 Y 1s 2s 2p 3s 3p 3d 4s 4p 4d 5s 5p
+40 Zr 1s 2s 2p 3s 3p 3d 4s 4p 4d 5s 5p
+41 Nb 1s 2s 2p 3s 3p 3d 4s 4p 4d 5s 5p
+42 Mo 1s 2s 2p 3s 3p 3d 4s 4p 4d 5s 5p
+43 Tc 1s 2s 2p 3s 3p 3d 4s 4p 4d 5s 5p
+44 Ru 1s 2s 2p 3s 3p 3d 4s 4p 4d 5s 5p
+45 Rh 1s 2s 2p 3s 3p 3d 4s 4p 4d 5s 5p
+46 Pd 1s 2s 2p 3s 3p 3d 4s 4p 4d 5s 5p
+47 Ag 1s 2s 2p 3s 3p 3d 4s 4p 4d 5s 5p
+48 Cd 1s 2s 2p 3s 3p 3d 4s 4p 4d 5s 5p
+49 In 1s 2s 2p 3s 3p 3d 4s 4p 4d 5s 5p
+50 Sn 1s 2s 2p 3s 3p 3d 4s 4p 4d 5s 5p
+51 Sb 1s 2s 2p 3s 3p 3d 4s 4p 4d 5s 5p
+52 Te 1s 2s 2p 3s 3p 3d 4s 4p 4d 5s 5p
+53 I 1s 2s 2p 3s 3p 3d 4s 4p 4d 5s 5p
+54 Xe 1s 2s 2p 3s 3p 3d 4s 4p 4d 5s 5p
+55 Cs 1s 2s 2p 3s 3p 3d 4s 4p 4d 5s 5p 6s 6p
+56 Ba 1s 2s 2p 3s 3p 3d 4s 4p 4d 5s 5p 6s 6p
+57 La 1s 2s 2p 3s 3p 3d 4s 4p 4d 4f 5s 5p 5d 6s 6p
+58 Ce 1s 2s 2p 3s 3p 3d 4s 4p 4d 4f 5s 5p 5d 6s 6p
+59 Pr 1s 2s 2p 3s 3p 3d 4s 4p 4d 4f 5s 5p 5d 6s 6p
+60 Nd 1s 2s 2p 3s 3p 3d 4s 4p 4d 4f 5s 5p 5d 6s 6p
+61 Pm 1s 2s 2p 3s 3p 3d 4s 4p 4d 4f 5s 5p 5d 6s 6p
+62 Sm 1s 2s 2p 3s 3p 3d 4s 4p 4d 4f 5s 5p 5d 6s 6p
+63 Eu 1s 2s 2p 3s 3p 3d 4s 4p 4d 4f 5s 5p 5d 6s 6p
+64 Gd 1s 2s 2p 3s 3p 3d 4s 4p 4d 4f 5s 5p 5d 6s 6p
+65 Tb 1s 2s 2p 3s 3p 3d 4s 4p 4d 4f 5s 5p 5d 6s 6p
+66 Dy 1s 2s 2p 3s 3p 3d 4s 4p 4d 4f 5s 5p 5d 6s 6p
+67 Ho 1s 2s 2p 3s 3p 3d 4s 4p 4d 4f 5s 5p 5d 6s 6p
+68 Er 1s 2s 2p 3s 3p 3d 4s 4p 4d 4f 5s 5p 5d 6s 6p
+69 Tm 1s 2s 2p 3s 3p 3d 4s 4p 4d 4f 5s 5p 5d 6s 6p
+70 Yb 1s 2s 2p 3s 3p 3d 4s 4p 4d 4f 5s 5p 5d 6s 6p
+71 Lu 1s 2s 2p 3s 3p 3d 4s 4p 4d 4f 5s 5p 5d 6s 6p
+72 Hf 1s 2s 2p 3s 3p 3d 4s 4p 4d 4f 5s 5p 5d 6s 6p
+73 Ta 1s 2s 2p 3s 3p 3d 4s 4p 4d 4f 5s 5p 5d 6s 6p
+74 W 1s 2s 2p 3s 3p 3d 4s 4p 4d 4f 5s 5p 5d 6s 6p
+75 Re 1s 2s 2p 3s 3p 3d 4s 4p 4d 4f 5s 5p 5d 6s
+76 Os 1s 2s 2p 3s 3p 3d 4s 4p 4d 4f 5s 5p 5d 6s 6p
+77 Ir 1s 2s 2p 3s 3p 3d 4s 4p 4d 4f 5s 5p 5d 6s 6p
+78 Pt 1s 2s 2p 3s 3p 3d 4s 4p 4d 4f 5s 5p 5d 6s 6p
+79 Au 1s 2s 2p 3s 3p 3d 4s 4p 4d 4f 5s 5p 5d 6s 6p
+80 Hg 1s 2s 2p 3s 3p 3d 4s 4p 4d 4f 5s 5p 5d 6s 6p
+81 Tl 1s 2s 2p 3s 3p 3d 4s 4p 4d 4f 5s 5p 5d 6s 6p
+82 Pb 1s 2s 2p 3s 3p 3d 4s 4p 4d 4f 5s 5p 5d 6s 6p
+83 Bi 1s 2s 2p 3s 3p 3d 4s 4p 4d 4f 5s 5p 5d 6s 6p
+84 Po 1s 2s 2p 3s 3p 3d 4s 4p 4d 4f 5s 5p 5d 6s 6p
+85 At 1s 2s 2p 3s 3p 3d 4s 4p 4d 4f 5s 5p 5d 6s 6p
+86 Rn 1s 2s 2p 3s 3p 3d 4s 4p 4d 4f 5s 5p 5d 6s 6p
+87 Fr 1s 2s 2p 3s 3p 3d 4s 4p 4d 4f 5s 5p 5d 6s 6p 7s 7p
+88 Ra 1s 2s 2p 3s 3p 3d 4s 4p 4d 4f 5s 5p 5d 6s 6p 7s 7p
+89 Ac 1s 2s 2p 3s 3p 3d 4s 4p 4d 4f 5s 5p 5d 5f 6s 6p 6d 7s 7p
+90 Th 1s 2s 2p 3s 3p 3d 4s 4p 4d 4f 5s 5p 5d 5f 6s 6p 6d 7s 7p
+91 Pa 1s 2s 2p 3s 3p 3d 4s 4p 4d 4f 5s 5p 5d 5f 6s 6p 6d 7s 7p
+92 U 1s 2s 2p 3s 3p 3d 4s 4p 4d 4f 5s 5p 5d 5f 6s 6p 6d 7s 7p
+93 Np 1s 2s 2p 3s 3p 3d 4s 4p 4d 4f 5s 5p 5d 5f 6s 6p 6d 7s 7p
+94 Pu 1s 2s 2p 3s 3p 3d 4s 4p 4d 4f 5s 5p 5d 5f 6s 6p 6d 7s 7p
+95 Am 1s 2s 2p 3s 3p 3d 4s 4p 4d 4f 5s 5p 5d 5f 6s 6p 6d 7s 7p
+96 Cm 1s 2s 2p 3s 3p 3d 4s 4p 4d 4f 5s 5p 5d 5f 6s 6p 6d 7s 7p
+97 Bk 1s 2s 2p 3s 3p 3d 4s 4p 4d 4f 5s 5p 5d 5f 6s 6p 6d 7s
+98 Cf 1s 2s 2p 3s 3p 3d 4s 4p 4d 4f 5s 5p 5d 5f 6s 6p 7s
+99 Es 1s 2s 2p 3s 3p 3d 4s 4p 4d 4f 5s 5p 5d 5f 6s 6p 7s
+100 Fm 1s 2s 2p 3s 3p 3d 4s 4p 4d 4f 5s 5p 5d 5f 6s 6p 7s
+101 Md 1s 2s 2p 3s 3p 3d 4s 4p 4d 4f 5s 5p 5d 5f 6s 6p 7s
+102 No 1s 2s 2p 3s 3p 3d 4s 4p 4d 4f 5s 5p 5d 5f 6s 6p 7s
+103 Lr 1s 2s 2p 3s 3p 3d 4s 4p 4d 4f 5s 5p 5d 5f 6s 6p 6d 7s
