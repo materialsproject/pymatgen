@@ -27,7 +27,7 @@ class PotcarScrambler:
 
     Used to generate copyright-compliant POTCARs for PMG tests.
 
-    In case of questions, contact Aaron Kaplan <adkaplan@lbl.gov>.
+    In case of questions, contact Aaron Kaplan <aaron.kaplan.physics@gmail.com>.
 
     Recommended use:
         PotcarScrambler.from_file(
@@ -202,3 +202,21 @@ def potcar_cleanser() -> None:
 if __name__ == "__main__":
     potcar_cleanser()
     # generate_fake_potcar_libraries()
+
+    """
+    Note that vaspout.h5 files also contain full POTCARs. While the
+    Vaspout class in `pymatgen.io.vasp.outputs` contains a method to
+    replace the POTCAR with its spec (`remove_potcar_and_write_file`),
+    for test purposes, its often useful to have a fake POTCAR in place
+    of the real one.
+
+    To use the scrambler on a vaspout.h5:
+    ```
+    vout = Vaspout("< path to vaspout.h5>")
+    scrambled = PotcarScrambler(vout.potcar)
+    vout.remove_potcar_and_write_file(
+        filename = "< path to output vaspout.h5>",
+        fake_potcar_str = scrambled.scrambled_potcars_str
+    )
+    ```
+    """
