@@ -44,8 +44,7 @@ class AimsOutput(MSONable):
 
     def __init__(
         self,
-        structures: Molecule | Structure | Sequence[Molecule | Structure],
-        results: dict[str, Any],
+        results: Molecule | Structure | Sequence[Molecule | Structure],
         metadata: dict[str, Any],
         structure_summary: dict[str, Any],
         warnings: list[str] | None = None,
@@ -53,10 +52,8 @@ class AimsOutput(MSONable):
     ) -> None:
         """
         Args:
-            structures (Molecule or Structure or Sequence[Molecule or Structure]):  A list
+            results (Molecule or Structure or Sequence[Molecule or Structure]):  A list
                 of all images in an output file
-            results (Dict[str, Any]): A dictionary of all parsed results from
-                the output file.
             metadata (Dict[str, Any]): The metadata of the executable used to perform
                 the calculation
             structure_summary (Dict[str, Any]): The summary of the starting
@@ -64,7 +61,6 @@ class AimsOutput(MSONable):
             warnings (List[str]): A list of warnings from the calculation
             errors (List[str]): A list of errors from the calculation
         """
-        self._structures = structures
         self._results = results
         self._metadata = metadata
         self._structure_summary = structure_summary
@@ -76,20 +72,21 @@ class AimsOutput(MSONable):
         dct: dict[str, Any] = {
             "@module": type(self).__module__,
             "@class": type(self).__name__,
-            "structures": self._structures,
             "metadata": self._metadata,
             "structure_summary": self._structure_summary,
+            "results": self._results,
             "warnings": self._warnings,
             "errors": self._errors,
         }
         return dct
 
     @classmethod
-    def from_outfile(cls, outfile: str | Path) -> Self:
+    def from_outfile(cls, outfile: str | Path, verbose_metadata=False) -> Self:
         """Construct an AimsOutput from an output file.
 
         Args:
-            outfile: str | Path: The aims.out file to parse
+            outfile (str | Path): The aims.out file to parse
+            verbose_metadata (bool): If True, include all parsed results in the metadata
 
         Returns:
             The AimsOutput object for the output file
@@ -153,7 +150,9 @@ class AimsOutput(MSONable):
             structure = image.geometry.to_structure(properties=properties, site_properties=site_properties)
             results.append(structure)
 
-        return cls(results, aims_out.results, metadata, structure_summary, aims_out.warnings, aims_out.errors)
+        if verbose_metadata:
+            metadata["all_parsed_info"] = aims_out.results
+        return cls(results, metadata, structure_summary, aims_out.warnings, aims_out.errors)
 
     @classmethod
     def from_dict(cls, dct: dict[str, Any]) -> Self:
@@ -166,11 +165,10 @@ class AimsOutput(MSONable):
             AimsOutput
         """
         decoded = {k: MontyDecoder().process_decoded(v) for k, v in dct.items() if not k.startswith("@")}
-        for struct in decoded["structures"]:
+        for struct in decoded["results"]:
             struct.properties = {k: MontyDecoder().process_decoded(v) for k, v in struct.properties.items()}
 
         return cls(
-            decoded["structures"],
             decoded["results"],
             decoded["metadata"],
             decoded["structure_summary"],
@@ -187,7 +185,7 @@ class AimsOutput(MSONable):
         Returns:
             The results of the image with index images_ind
         """
-        return self._structures[image_ind]
+        return self._results[image_ind]
 
     @property
     def structure_summary(self) -> dict[str, Any]:
@@ -202,7 +200,7 @@ class AimsOutput(MSONable):
     @property
     def n_images(self) -> int:
         """The number of images in results."""
-        return len(self._structures)
+        return len(self._results)
 
     @property
     def initial_structure(self) -> Structure | Molecule:
@@ -212,16 +210,11 @@ class AimsOutput(MSONable):
     @property
     def final_structure(self) -> Structure | Molecule:
         """The final structure for the calculation."""
-        return self._structures[-1]
+        return self._results[-1]
 
     @property
     def structures(self) -> Sequence[Structure | Molecule]:
         """All images in the output file."""
-        return self._structures
-
-    @property
-    def results(self) -> dict[str, Any]:
-        """All results for the calculation."""
         return self._results
 
     @property
@@ -257,7 +250,7 @@ class AimsOutput(MSONable):
     @property
     def completed(self) -> bool:
         """Did the calculation complete."""
-        return len(self._structures) > 0
+        return len(self._results) > 0
 
     @property
     def aims_version(self) -> str:
@@ -289,5 +282,5 @@ class AimsOutput(MSONable):
     @property
     def all_forces(self) -> list[list[Vector3D]]:
         """The forces for all images in the calculation."""
-        all_forces_array = [res.site_properties.get("force", None) for res in self._structures]
+        all_forces_array = [res.site_properties.get("force", None) for res in self._results]
         return [af.tolist() if isinstance(af, np.ndarray) else af for af in all_forces_array]
