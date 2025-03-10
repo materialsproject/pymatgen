@@ -42,7 +42,7 @@ try:
     from zeo.netstorage import AtomNetwork
 
     zeo_found = True
-    zeo_source = "zeo"
+    zeo_source: str | None = "zeo"
 except ImportError:
     try:
         from pyzeo import AtomNetwork
