@@ -24,19 +24,19 @@ from pymatgen.entries.compatibility import MaterialsProjectCompatibility
 from pymatgen.io.vasp.inputs import Incar, Kpoints, Poscar, Potcar
 from pymatgen.io.vasp.outputs import (
     WSWQ,
+    BandgapProps,
     BSVasprun,
     Chgcar,
     Dynmat,
     Eigenval,
     Elfcar,
+    KpointOptProps,
     Locpot,
     Oszicar,
     Outcar,
     Procar,
     UnconvergedVASPWarning,
     Vaspout,
-    BandgapProps,
-    KpointOptProps,
     VaspParseError,
     Vasprun,
     Wavecar,
@@ -2281,17 +2281,22 @@ class TestVaspout(PymatgenTest):
         assert cleansed_vout.potcar is None
 
     def test_kpoints_opt(self):
-        
         assert isinstance(self.vaspout_kpoints_opt.kpoints_opt_props, KpointOptProps)
         assert isinstance(self.vaspout_kpoints_opt.kpoints_opt_props.kpoints, Kpoints)
         assert isinstance(self.vaspout_kpoints_opt.kpoints_opt_props.actual_kpoints, list)
         assert all(
             getattr(self.vaspout_kpoints_opt.kpoints_opt_props, k, None) is not None
-            for k in ("tdos","idos","pdos","efermi","eigenvalues",)
+            for k in (
+                "tdos",
+                "idos",
+                "pdos",
+                "efermi",
+                "eigenvalues",
+            )
         )
 
         assert all(
-            isinstance(bg_prop, BandgapProps) 
-            for v in self.vaspout_kpoints_opt.bandgap_props.values() 
+            isinstance(bg_prop, BandgapProps)
+            for v in self.vaspout_kpoints_opt.bandgap_props.values()
             for bg_prop in v.values()
-        )                
+        )

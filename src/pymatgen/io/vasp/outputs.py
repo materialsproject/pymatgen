@@ -51,7 +51,7 @@ except ImportError:
 
 if TYPE_CHECKING:
     from collections.abc import Callable, Sequence
-    from typing import Any, Literal, TypeAlias
+    from typing import Literal, TypeAlias
 
     # Avoid name conflict with pymatgen.core.Element
     from xml.etree.ElementTree import Element as XML_Element
@@ -187,16 +187,17 @@ class KpointOptProps:
     actual_kpoints_weights: list | None = None
     dos_has_errors: bool | None = None
 
+
 @dataclass
 class BandgapProps(MSONable):
+    vbm: float | None = None
+    cbm: float | None = None
+    direct_gap_eigenvalues: tuple[float, float] | None = None
+    efermi: float | None = None
+    vbm_k: tuple[float, float, float] | None = None
+    cbm_k: tuple[float, float, float] | None = None
+    direct_gap_k: tuple[float, float, float] | None = None
 
-    vbm : float | None = None
-    cbm : float | None = None
-    direct_gap_eigenvalues : tuple[float,float] | None = None
-    efermi : float | None = None
-    vbm_k : tuple[float, float, float] | None = None
-    cbm_k : tuple[float, float, float] | None = None
-    direct_gap_k : tuple[float, float, float] | None = None
 
 class Vasprun(MSONable):
     """
@@ -5973,21 +5974,20 @@ class Vaspout(Vasprun):
                 TODO: this information is not currently included in vaspout.h5, add later?
         """
         with zopen(self.filename, "rb") as vout_file, h5py.File(vout_file, "r") as h5_file:
-
             # Loading only certain blocks into memory at a given time to lessen memory usage
             vasp_version = self._parse_hdf5_value(h5_file["version"])
             self._parse_params(self._parse_hdf5_value(h5_file["input"]))
             self._get_ionic_steps(self._parse_hdf5_value(h5_file["intermediate"]["ion_dynamics"]))
-            
-            self.bandgap_props : dict[str,dict[str,BandgapProps]] | None = None
+
+            self.bandgap_props: dict[str, dict[str, BandgapProps]] | None = None
             if h5_file["intermediate"].get("band"):
-                self.bandgap_props = self._parse_bandgap_props(h5_file["intermediate"]["band"])
+                self.bandgap_props = self._parse_bandgap_props(self._parse_hdf5_value(h5_file["intermediate"]["band"]))
 
             # -----
             # TODO: determine if these following fields are stored in vaspout.h5
             self.md_data = []
             # -----
-            
+
             outputs = self._parse_hdf5_value(h5_file["results"])
 
         self._parse_results(outputs)
@@ -6004,7 +6004,7 @@ class Vaspout(Vasprun):
                     self._parse_dos(
                         electron_dos=outputs["electron_dos"],
                         projectors=outputs.get("projectors_kpoints_opt", {}).get("lchar", None),
-                        kpoints_opt=True
+                        kpoints_opt=True,
                     )
 
             except Exception:
@@ -6012,8 +6012,12 @@ class Vaspout(Vasprun):
 
         if parse_eigen:
             self.eigenvalues = self._parse_eigen(outputs["electron_eigenvalues"])
-            if (eigv := outputs.get("electron_eigenvalues_kpoints_opt") ):
-                self.kpoints_opt_props.eigenvalues = self._parse_eigen(eigv, ispin = outputs["electron_eigenvalues"]["ispin"], nb_tot=outputs["electron_eigenvalues"]["nb_tot"])
+            if (eigv := outputs.get("electron_eigenvalues_kpoints_opt")) and self.kpoints_opt_props:
+                self.kpoints_opt_props.eigenvalues = self._parse_eigen(
+                    eigv,
+                    ispin=outputs["electron_eigenvalues"]["ispin"],
+                    nb_tot=outputs["electron_eigenvalues"]["nb_tot"],
+                )
 
         self.projected_eigenvalues = None
         self.projected_magnetisation = None
@@ -6023,7 +6027,7 @@ class Vaspout(Vasprun):
             self.projected_magnetisation = None
 
         self.vasp_version = ".".join(f"{vasp_version.get(tag, '')}" for tag in ("major", "minor", "patch"))
-            
+
         # TODO: are the other generator tags, like computer platform, stored in vaspout.h5?
         self.generator = {"version": self.vasp_version}
 
@@ -6054,7 +6058,7 @@ class Vaspout(Vasprun):
         )
 
     @staticmethod
-    def _parse_kpoints(kpoints: dict) -> tuple[Kpoints, Sequence, Sequence]:  # type: ignore[override]
+    def _parse_kpoints(kpoints: dict) -> tuple[Kpoints, list | None, list | None]:  # type: ignore[override]
         _kpoints_style_from_mode = {
             KpointsSupportedModes.Reciprocal: {"mode": "e", "coordinate_space": "R"},
             KpointsSupportedModes.Automatic: {"mode": "a"},
@@ -6075,19 +6079,19 @@ class Vaspout(Vasprun):
         if coord_type := kpoints.get("coordinate_space"):
             kpts["coord_type"] = "Reciprocal" if coord_type == "R" else "Cartesian"
 
-        actual_kpoints : list | None = None
-        actual_kpoint_weights : list | None = None
+        actual_kpoints = None
+        actual_kpoint_weights = None
         if kpoints.get("coordinates_kpoints"):
             kpts["num_kpts"] = len(kpoints["coordinates_kpoints"])
             kpts["labels"] = [None for _ in range(kpts["num_kpts"])]
             for i, idx in enumerate(kpoints.get("positions_labels_kpoints", [])):
                 kpts["labels"][idx - 1] = kpoints["labels_kpoints"][i]
-            
+
             kpts["kpts"] = kpoints["coordinates_kpoints"]
             actual_kpoints = kpoints["coordinates_kpoints"]
 
             # NB: no weights for KPOINTS_OPT
-            actual_kpoint_weights = kpoints.get("weights_kpoints",[1. for _ in range(len(actual_kpoints))])
+            actual_kpoint_weights = kpoints.get("weights_kpoints", [1.0 for _ in range(len(actual_kpoints))])
 
         elif all(kpoints.get(f"nkp{axis}") for axis in ("x", "y", "z")):
             kpts["num_kpts"] = kpoints["number_kpoints"]
@@ -6123,13 +6127,13 @@ class Vaspout(Vasprun):
                 self.actual_kpoints_weights,
             ) = self._parse_kpoints(input_data["kpoints"])  # type: ignore[assignment]
 
-        self.kpoints_opt_props : None | KpointOptProps = None
+        self.kpoints_opt_props: None | KpointOptProps = None
         if input_data.get("kpoints_opt"):
             self.kpoints_opt_props = KpointOptProps()
             (
                 self.kpoints_opt_props.kpoints,
                 self.kpoints_opt_props.actual_kpoints,
-                self.kpoints_opt_props.actual_kpoints_weights 
+                self.kpoints_opt_props.actual_kpoints_weights,
             ) = self._parse_kpoints(input_data["kpoints_opt"])
 
         self.initial_structure = self._parse_structure(input_data["poscar"])
@@ -6176,9 +6180,9 @@ class Vaspout(Vasprun):
 
         # label s, p, d,... contributions to charge and magnetic moment in same way as Outcar
         _to_outcar_tag = {
-            "total charge": "charge", # older style
+            "total charge": "charge",  # older style
             "magnetization (x)": "magnetization",
-            "charge": "charge", # newer style
+            "charge": "charge",  # newer style
             "x": "magnetization",
         }
 
@@ -6212,26 +6216,26 @@ class Vaspout(Vasprun):
                 "electronic_steps": [],
             }
             if chg_dens_props := ion_dynamics.get("magnetism"):
-
-                # Appears to be VASP <= 6.4.2
-                if (old_style := chg_dens_props.get("component_tags")):
+                old_style = chg_dens_props.get("component_tags", [])  # Appears to be VASP <= 6.4.2
+                new_style = chg_dens_props.get("spin_moments", {})  # Appears to be VASP >= 6.4.3
+                if old_style:
                     components = old_style
                     moments = chg_dens_props["moments"]
                     orbitals = chg_dens_props["orbital_tags"]
-                
-                # Appears to be VASP >= 6.4.3
-                elif (new_style := chg_dens_props.get("spin_moments")):
+
+                elif new_style:
                     components = new_style["components"]
                     moments = new_style.get("values")
                     orbitals = new_style["orbitals"]
+                else:
+                    warnings.warn(
+                        "Unknown format for the on-site charges and magnetic moments in vaspout.h5.", stacklevel=2
+                    )
 
                 if old_style or new_style:
-                    for ik, k in enumerate(components):
+                    for ik, k in enumerate(components):  # pyright: ignore[reportPossiblyUnboundVariable]
                         site_prop = [
-                            {
-                                orb: moments[istep][ik][iion][iorb]
-                                for iorb, orb in enumerate(orbitals)
-                            }
+                            {orb: moments[istep][ik][iion][iorb] for iorb, orb in enumerate(orbitals)}  # pyright: ignore[reportPossiblyUnboundVariable]
                             for iion in range(len(self.poscar.structure))
                         ]
                         for iion in range(len(self.poscar.structure)):
@@ -6243,11 +6247,8 @@ class Vaspout(Vasprun):
     def _parse_results(self, results: dict) -> None:
         self.final_structure = self._parse_structure(results["positions"])
 
-    def _parse_dos(self, electron_dos: dict, projectors: list | None = None, kpoints_opt : bool = False):  # type: ignore[override]
-        
-        dos = {
-            "efermi": electron_dos["efermi"]
-        }
+    def _parse_dos(self, electron_dos: dict, projectors: list | None = None, kpoints_opt: bool = False):  # type: ignore[override]
+        dos = {"efermi": electron_dos["efermi"]}
         densities: dict = {}
         for dos_type in (
             "dos",
@@ -6289,25 +6290,25 @@ class Vaspout(Vasprun):
                 dos["pdos"] += [site_res_pdos]
 
         if kpoints_opt:
-            for k,v in dos.items():
-                setattr(self.kpoints_opt_props,k,v)
+            for k, v in dos.items():
+                setattr(self.kpoints_opt_props, k, v)
         else:
-            for k,v in dos.items():
-                setattr(self,k,v)
+            for k, v in dos.items():
+                setattr(self, k, v)
 
     @staticmethod
-    def _parse_eigen(eigenvalues_complete: dict, ispin : int | None = None, nb_tot : int | None = None):  # type: ignore[override]
+    def _parse_eigen(eigenvalues_complete: dict, ispin: int | None = None, nb_tot: int | None = None):  # type: ignore[override]
         eigenvalues = {}
         ispin = ispin or eigenvalues_complete["ispin"]
         nb_tot = nb_tot or eigenvalues_complete["nb_tot"]
-        nkpoints = eigenvalues_complete.get("kpoints") or len(eigenvalues_complete.get("kpoint_coords"))
-        for ispin in range(ispin):
-            eigenvalues[Spin.up if ispin == 0 else Spin.down] = np.array(
+        nkpoints = eigenvalues_complete.get("kpoints") or len(eigenvalues_complete.get("kpoint_coords", []))
+        for i_spin in range(ispin):
+            eigenvalues[Spin.up if i_spin == 0 else Spin.down] = np.array(
                 [
                     [
                         [
-                            eigenvalues_complete["eigenvalues"][ispin][i][j],
-                            eigenvalues_complete["fermiweights"][ispin][i][j],
+                            eigenvalues_complete["eigenvalues"][i_spin][i][j],
+                            eigenvalues_complete["fermiweights"][i_spin][i][j],
                         ]
                         for j in range(nb_tot)
                     ]
@@ -6315,9 +6316,9 @@ class Vaspout(Vasprun):
                 ]
             )
         return eigenvalues
-    
+
     @staticmethod
-    def _parse_bandgap_props(band_props : dict[str,list]) -> dict[str,dict[str,BandgapProps]]:
+    def _parse_bandgap_props(band_props: dict[str, list]) -> dict[str, dict[str, BandgapProps]] | None:
         """
         Parse the bandgap properties VASP calculates.
 
@@ -6332,44 +6333,50 @@ class Vaspout(Vasprun):
 
         """
 
-        known_gap_keys = ("gap_from_kpoint","gap_from_weight")
+        known_gap_keys = ("gap_from_kpoint", "gap_from_weight")
+        spin_keys: tuple[str, ...] = tuple()
         for ref_k in known_gap_keys:
-            if band_props.get(ref_k):
+            if bps := band_props.get(ref_k, []):
+                if len(bps[0]) == 1:
+                    spin_keys = ("total",)
+                elif len(bps[0]) == 3:
+                    spin_keys = (
+                        "total",
+                        Spin.up.name,
+                        Spin.down.name,
+                    )
+                else:
+                    warnings.warn(f"Unknown bandgap property shape {len(band_props)} in vaspout.h5.", stacklevel=2)
                 break
-        
-        if len(band_props[ref_k][0]) == 1:
-            spin_keys = ("total",)
-        elif len(band_props[ref_k][0]) == 3:
-            spin_keys = ("total",Spin.up, Spin.down,)
-        else:
-            raise ValueError(f"Unknown bandgap property shape {len(band_props)}.")
 
-        props = {}
+        if len(spin_keys) == 0:
+            return None
+
+        bg_props: dict[str, dict[str, BandgapProps]] = {}
         for k in [x for x in known_gap_keys if band_props.get(x)]:
-            props[k] = {}
+            bg_props[k] = {}
             for i, spin in enumerate(spin_keys):
-                
-                vals = {
-                    label : band_props[k][0][i][idx] for idx, label in enumerate(band_props["labels"])
-                }
-                
-                props[k][spin] = {
+                vals = {label: band_props[k][0][i][idx] for idx, label in enumerate(band_props["labels"])}
+
+                props = {
                     "vbm": vals.get("valence band maximum"),
                     "cbm": vals.get("conduction band minimum"),
                 }
-                if all(dgv := tuple(vals.get(x) for x in ("direct gap bottom", "direct gap top"))):
-                    props[k][spin]["direct_gap_eigenvalues"] = dgv
 
-                for band_pos, band_label in {
+                if all(dgv := tuple(vals.get(x) for x in ("direct gap bottom", "direct gap top"))):
+                    props["direct_gap_eigenvalues"] = dgv
+
+                for band_pos, band_pos_label in {
                     "VBM": "vbm",
                     "CBM": "cbm",
                     "direct": "direct_gap",
                 }.items():
-                    if all (kv := tuple(vals.get(f"{x} ({band_pos})") for x in ("kx","ky","kz"))):
-                        props[k][band_label] = kv
-                props[k][spin] = BandgapProps(**props[k][spin])
-        return props
-    
+                    if all(kv := tuple(vals.get(f"{x} ({band_pos})") for x in ("kx", "ky", "kz"))):
+                        props[f"{band_pos_label}_k"] = kv
+                bg_props[k][spin] = BandgapProps(**props)
+
+        return bg_props
+
     @property
     @unitized("eV")
     def final_energy(self):
