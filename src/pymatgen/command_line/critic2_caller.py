@@ -701,7 +701,7 @@ class Critic2Analysis(MSONable):
         if len(node_mapping) != len(self.structure):
             warnings.warn(
                 f"Check that all sites in input structure ({len(self.structure)}) have "
-                f"been detected by critic2 ({ len(node_mapping)}).",
+                f"been detected by critic2 ({len(node_mapping)}).",
                 stacklevel=2,
             )
 

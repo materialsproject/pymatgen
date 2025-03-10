@@ -26,6 +26,8 @@ Please submit a pull request to update this page when if release a new add-on pa
 
 * [pymatgen-io-fleur](http://pypi.org/project/pymatgen-io-fleur): Provides modules for reading and writing files used by the [`fleur`](https://www.flapw.de/rel) DFT code. This package is maintained by the juDFT team.
 * [pymatgen-io-openmm](https://github.com/orionarcher/pymatgen-io-openmm): Provides easy IO for performing molecular dynamics on solutions with OpenMM. This package is maintained by Orion Archer Cohen.
+* [pymatgen-io-espresso](https://github.com/Griffin-Group/pymatgen-io-espresso): Provides support for the [Quantum ESPRESSO (QE)](https://www.quantum-espresso.org) DFT code. This package was created by [Omar Ashour](https://github.com/oashour) and maintained in the [Griffin Group](https://sineadgriffin.com) repository.
+* [pymatgen-io-validation](https://github.com/materialsproject/pymatgen-io-validation/): Provides comprehensive validation of VASP calculations. This package was created by [Matthew Kuner](https://github.com/matthewkuner) and maintained in the Materials Project repository.
 
 ## External Tools
 

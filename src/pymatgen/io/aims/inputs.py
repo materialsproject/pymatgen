@@ -75,7 +75,7 @@ class AimsGeometryIn(MSONable):
         Returns:
             AimsGeometryIn: The input object represented in the file
         """
-        with zopen(filepath, mode="rt") as in_file:
+        with zopen(filepath, mode="rt", encoding="utf-8") as in_file:
             content = in_file.read()
         return cls.from_str(content)
 
@@ -93,11 +93,11 @@ class AimsGeometryIn(MSONable):
 
         content = textwrap.dedent(
             f"""\
-            #{'=' * 79}
+            #{"=" * 79}
             # FHI-aims geometry file: geometry.in
             # File generated from pymatgen
             # {time.asctime()}
-            #{'=' * 79}
+            #{"=" * 79}
             """
         )
         content += geometry.to_string()
@@ -126,7 +126,8 @@ class AimsGeometryIn(MSONable):
         if not overwrite and file_name.exists():
             raise ValueError(f"geometry.in file exists in {directory}")
 
-        with open(f"{directory}/geometry.in", mode="w") as file:
+        with open(f"{directory}/geometry.in", mode="w", encoding="utf-8") as file:
+            file.write(self.get_header(file_name.as_posix()))
             file.write(self.content)
             file.write("\n")
 
@@ -258,7 +259,7 @@ class AimsControlIn(MSONable):
         magmom = np.array([atom.initial_moment for atom in geometry.atoms])
         if (
             parameters.get("spin", "") == "collinear"
-            and np.all(magmom == 0.0)
+            and np.allclose(magmom, 0.0)
             and ("default_initial_moment" not in parameters)
         ):
             warn(

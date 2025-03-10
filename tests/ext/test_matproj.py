@@ -311,7 +311,7 @@ class TestMPResterOld(PymatgenTest):
 
     def test_get_exp_entry(self):
         entry = self.rester.get_exp_entry("Fe2O3")
-        assert entry.energy == -825.5
+        assert entry.energy == approx(-825.5)
 
     @pytest.mark.skip("TODO: Need someone to fix this")
     def test_submit_query_delete_snl(self):
@@ -488,7 +488,7 @@ class TestMPResterOld(PymatgenTest):
 
         assert isinstance(db_version, str)
         yaml = YAML()
-        with open(MP_LOG_FILE) as file:
+        with open(MP_LOG_FILE, encoding="utf-8") as file:
             dct = yaml.load(file)
 
         assert dct["MAPI_DB_VERSION"]["LAST_ACCESSED"] == db_version
@@ -773,7 +773,7 @@ class TestMPResterNewBasic(PymatgenTest):
     @pytest.mark.skip("TODO: need someone to fix this")
     def test_get_exp_entry(self):
         entry = self.rester.get_exp_entry("Fe2O3")
-        assert entry.energy == -825.5
+        assert entry.energy == approx(-825.5)
 
     @pytest.mark.skip("TODO: need someone to fix this")
     def test_get_stability(self):

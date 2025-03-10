@@ -299,7 +299,7 @@ class CifFile:
         Returns:
             CifFile
         """
-        with zopen(filename, mode="rt", errors="replace") as file:
+        with zopen(filename, mode="rt", errors="replace", encoding="utf-8") as file:
             return cls.from_str(file.read())
 
 
@@ -820,7 +820,7 @@ class CifParser:
             msg = "No _symmetry_equiv_pos_as_xyz type key found. Defaulting to P1."
             warnings.warn(msg, stacklevel=2)
             self.warnings.append(msg)
-            sym_ops = [SymmOp.from_xyz_str(s) for s in ("x", "y", "z")]
+            sym_ops = [SymmOp.from_xyz_str("x, y, z")]
 
         return sym_ops
 
@@ -1760,9 +1760,9 @@ class CifWriter:
 
     def write_file(
         self,
-        filename: str | Path,
-        mode: Literal["w", "a", "wt", "at"] = "w",
+        filename: PathLike,
+        mode: Literal["wt", "at"] = "wt",
     ) -> None:
         """Write the CIF file."""
-        with zopen(filename, mode=mode) as file:
+        with zopen(filename, mode=mode, encoding="utf-8") as file:
             file.write(str(self))

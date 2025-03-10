@@ -71,7 +71,10 @@ See [GitHub releases](https://github.com/materialsproject/pymatgen/releases), [`
 
 ## Using pymatgen
 
-Please refer to the official [`pymatgen` docs] for tutorials and examples.
+Please refer to the official [`pymatgen` docs] for tutorials and examples. Dr Anubhav Jain (@computron) has also created
+a series of [tutorials](https://github.com/computron/pymatgen_tutorials)
+and [YouTube videos](https://www.youtube.com/playlist?list=PL7gkuUui8u7_M47KrV4tS4pLwhe7mDAjT), which is a good
+resource, especially for beginners.
 
 ## How to cite pymatgen
 

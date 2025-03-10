@@ -200,7 +200,7 @@ class _MPResterLegacy:
             logger.debug(f"Connection established to Materials Project database, version {db_version}.")
 
             try:
-                with open(MP_LOG_FILE) as file:
+                with open(MP_LOG_FILE, encoding="utf-8") as file:
                     dct = dict(yaml.load(file)) or {}
             except (OSError, TypeError):
                 # TypeError: 'NoneType' object is not iterable occurs if MP_LOG_FILE exists but is empty
@@ -236,7 +236,7 @@ class _MPResterLegacy:
             # base Exception is not ideal (perhaps a PermissionError, etc.) but this is not critical
             # and should be allowed to fail regardless of reason
             try:
-                with open(MP_LOG_FILE, mode="w") as file:
+                with open(MP_LOG_FILE, mode="w", encoding="utf-8") as file:
                     yaml.dump(dct, file)
             except Exception:
                 pass

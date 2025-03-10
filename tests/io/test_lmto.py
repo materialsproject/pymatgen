@@ -3,7 +3,8 @@ from __future__ import annotations
 import os
 
 import numpy as np
-from numpy.testing import assert_array_equal
+from numpy.testing import assert_allclose
+from pytest import approx
 
 from pymatgen.core.structure import Structure
 from pymatgen.core.units import Ry_to_eV
@@ -81,19 +82,19 @@ class TestCopl(PymatgenTest):
         labels_fe = ["Fe1-Fe1"] + [f"Fe1-Fe1-{i}" for i in range(1, 8)]
         assert sorted(self.copl_fe.cohp_data) == labels_fe
         for bond in labels_fe:
-            assert self.copl_fe.cohp_data[bond]["length"] == 2.482
+            assert self.copl_fe.cohp_data[bond]["length"] == approx(2.482)
             assert self.copl_fe.cohp_data[bond]["sites"] == (0, 0)
 
     def test_energies(self):
-        assert self.copl_bise.efermi == -0.17223
-        assert self.copl_bise_eV.efermi == -2.3433
-        assert self.copl_fe.efermi == -0.085683
+        assert self.copl_bise.efermi == approx(-0.17223)
+        assert self.copl_bise_eV.efermi == approx(-2.3433)
+        assert self.copl_fe.efermi == approx(-0.085683)
         ener_eV = np.array(
             [round_to_sigfigs(energy, 5) for energy in self.copl_bise.energies * Ry_to_eV],
             dtype=float,
         )
-        assert_array_equal(ener_eV, self.copl_bise_eV.energies)
+        assert_allclose(ener_eV, self.copl_bise_eV.energies)
         copl_icohp = self.copl_bise.cohp_data["Bi1-Se7"]["ICOHP"][Spin.up]
         icohp = np.array([round_to_sigfigs(i, 5) for i in copl_icohp * Ry_to_eV], dtype=float)
         icohp_eV = self.copl_bise_eV.cohp_data["Bi1-Se7"]["ICOHP"][Spin.up]
-        assert_array_equal(icohp, icohp_eV)
+        assert_allclose(icohp, icohp_eV)
