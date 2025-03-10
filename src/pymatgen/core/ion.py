@@ -141,7 +141,7 @@ class Ion(Composition, MSONable, Stringify):
 
         Args:
             iupac_ordering (bool, optional): Whether to order the
-                formula by the iupac "electronegativity" series, defined in
+                formula by the IUPAC "electronegativity" series, defined in
                 Table VI of "Nomenclature of Inorganic Chemistry (IUPAC
                 Recommendations 2005)". This ordering effectively follows
                 the groups and rows of the periodic table, except the

@@ -6,6 +6,7 @@ from unittest import mock
 import pytest
 from monty.io import zopen
 from numpy.testing import assert_allclose
+from pytest import approx
 
 import pymatgen
 from pymatgen.core import Composition, Structure
@@ -88,7 +89,7 @@ class TestGenKpt(PymatgenTest):
         filepath = f"{TEST_DIR}/atom.config"
         structure = Structure.from_file(filepath)
         gen_kpt = GenKpt.from_structure(structure, dim=2, density=0.01)
-        assert gen_kpt.density == pytest.approx(0.0628318530)
+        assert gen_kpt.density == approx(0.0628318530)
         assert gen_kpt.reciprocal_lattice.shape == (3, 3)
         assert gen_kpt.kpath["path"] == [["GAMMA", "M", "K", "GAMMA"]]
 
@@ -115,7 +116,7 @@ class TestHighSymmetryPoint(PymatgenTest):
         high_symmetry_points = HighSymmetryPoint.from_structure(structure, dim=2, density=0.01)
         assert list(high_symmetry_points.kpath) == ["kpoints", "path"]
         assert len(high_symmetry_points.kpath["path"]) == 1
-        assert high_symmetry_points.density == pytest.approx(0.0628318530)
+        assert high_symmetry_points.density == approx(0.0628318530)
         assert high_symmetry_points.reciprocal_lattice.shape == (3, 3)
 
     def test_write_file(self):

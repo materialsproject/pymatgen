@@ -2,10 +2,11 @@ from __future__ import annotations
 
 import numpy as np
 import pytest
+from monty.tempfile import ScratchDir
 from pytest import approx
 
 from pymatgen.analysis.structure_matcher import StructureMatcher
-from pymatgen.core import Composition, DummySpecies, Element, Lattice, Species, Structure
+from pymatgen.core import Composition, DummySpecies, Element, Lattice, Species, Structure, SymmOp
 from pymatgen.electronic_structure.core import Magmom
 from pymatgen.io.cif import CifBlock, CifParser, CifWriter
 from pymatgen.symmetry.structure import SymmetrizedStructure
@@ -242,6 +243,23 @@ class TestCifIO(PymatgenTest):
             [4, 5, 6, 7, 8, 9, 10, 11],
         ]
         assert set(sym_structure.labels) == {"O1", "Li1"}
+
+    def test_no_sym_ops(self):
+        with ScratchDir("."):
+            with open(f"{TEST_FILES_DIR}/cif/Li2O.cif") as fin, open("test.cif", "w") as fout:
+                for line_num, line in enumerate(fin, start=1):
+                    # Skip "_symmetry_equiv_pos_as_xyz", "_symmetry_space_group_name_H-M"
+                    # and "_symmetry_Int_Tables_number" sections such that
+                    # no symmop info would be available
+                    if line_num not in range(44, 236) and line_num not in {40, 41}:
+                        fout.write(line)
+
+            parser = CifParser("test.cif")
+
+        # Need `parse_structures` call to update `symmetry_operations`
+        _structure = parser.parse_structures(primitive=False, symmetrized=False)[0]
+        assert parser.symmetry_operations[0] == SymmOp.from_xyz_str("x, y, z")
+        assert any("No _symmetry_equiv_pos_as_xyz type key found" in msg for msg in parser.warnings)
 
     def test_site_symbol_preference(self):
         parser = CifParser(f"{TEST_FILES_DIR}/cif/site_type_symbol_test.cif")
@@ -896,7 +914,7 @@ Si1 Si 0 0 0 1 0.0
         for tol in (1.5, 10):
             parser = CifParser.from_str(cif_str, occupancy_tolerance=tol)
             structs = parser.parse_structures(primitive=False, check_occu=False)[0]
-            assert structs[0].species.as_dict()["Te"] == 1.5
+            assert structs[0].species.as_dict()["Te"] == approx(1.5)
 
     def test_cif_writer_write_file(self):
         struct1 = Structure.from_file(f"{VASP_IN_DIR}/POSCAR")
@@ -1104,7 +1122,7 @@ Gd1 5.05 5.05 0.0"""
         # test we're getting correct magmoms in ncl case
         s_ncl2 = self.mcif_ncl2.parse_structures()[0]
         list_magmoms = [list(m) for m in s_ncl2.site_properties["magmom"]]
-        assert list_magmoms[0][0] == 0.0
+        assert list_magmoms[0][0] == approx(0.0)
         assert list_magmoms[0][1] == approx(5.9160793408726366)
         assert list_magmoms[1][0] == approx(-5.1234749999999991)
         assert list_magmoms[1][1] == approx(2.9580396704363183)

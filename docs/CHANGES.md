@@ -6,6 +6,102 @@ nav_order: 4
 
 # Changelog
 
+## v2025.2.18
+
+1. **PR #4288**: `Dos.get_cbm_vbm` updates by @kavanase
+   - Improvements for determining VBM/CBM eigenvalues from a DOS object to match expected values for `emmet-core` tests.
+
+2. **PR #4278**: [Breaking] Fix valence electron configuration parsing by @DanielYang59
+   - Addresses valence electron configuration parsing issue in `PotcarSingle.electron_configuration`, resolving #4269.
+
+3. **PR #4275**: Fix default `transformation_kwargs` in `MagneticStructureEnumerator` by @DanielYang59
+   - Corrects default `transformation_kwargs` to close #4184, with additional comment and type cleanup.
+
+4. **PR #4274**: Move `occ_tol` to init in `OrderDisorderedStructureTransformation` by @Tinaatucsd
+   - Resolved incompatibility with `StandardTransmuter` by moving `occ_tol` to class initialization.
+
+5. **PR #4276**: Fix timeout in `EnumlibAdaptor` by @DanielYang59
+   - Adjusts timeout handling to fix #4185 with associated unit test corrections.
+
+6. **PR #4280**: Pre-commit autoupdate by @pre-commit-ci[bot]
+   - Updates multiple pre-commit configurations, including ruff-pre-commit and markdownlint-cli.
+
+7. **PR #4290**: Migrate type annotation tweaks from #4100 by @DanielYang59
+   - Integrates type annotation improvements to aid review, addressing #4286.
+
+8. **PR #4291**: Remove deprecated memory units from `core` by @DanielYang59
+   - Eliminates outdated memory units in `core` for clarity.
+
+9. **PR #4292**: Fix for `plotly` `PDPlotter`/`ChemicalPotentialDiagram.get_plot()` by @kavanase
+   - Resolves deprecated `titlefont` issue in plotly v6, updating dependency requirements.
+
+10. **PR #4283**: `Composition` support formula strings with curly brackets by @janosh
+    - Expands formula parsing to include curly brackets, with added tests for verification.
+
+11. **PR #4279**: Fix P1 SymmOp string for `CifParser.get_symops` by @DanielYang59
+    - Corrects SymmOp string to close #4230, supplemented by a unit test.
+
+12. **PR #4265**: Clarify return type for `core.Composition.reduced_composition` by @DanielYang59
+    - Refines return types and cleans up types in `core.Composition`.
+
+13. **PR #4268**: Add `Structure.get_symmetry_dataset` method by @janosh
+    - Introduces convenience method for `moyopy` symmetry analysis with a new optional dependency set.
+
+14. **PR #4271**: Add missing parenthesis to `BoltztrapAnalyzer.get_extreme.is_isotropic` by @DanielYang59
+    - Minor syntax fix and cleanup for the method, resolving #4165.
+
+15. **PR #4270**: Add `seed: int = 0` parameter to `Structure.perturb()` by @janosh
+
+16. New NEBSet and CINEBSet for NEB calculations. These replace the old MITNEBSet. @shyuep
+
+## v2025.1.24
+
+1. **PR #4159 by @DanielYang59**
+   - Avoid using full equality `==` to compare float values to address issue #4158.
+   - Recommend using `assert_allclose` over `assert_array_equal` for float arrays due to numerical imprecision.
+   - Implement a ~3x speedup tweak to the `_proj` implementation.
+   - Partially replace sequence of float comparison using `==` for list/tuple/dict as referenced [here](https://github.com/materialsproject/pymatgen/blob/bd9fba9ec62437b5b62fbd0b2c2c723216cc5a2c/tests/core/test_bonds.py#L56).
+   - Introduce other type and comment tweaks.
+
+2. **PR #4190 by @benrich37**
+   - **Feature 0:** Hierarchical structure using class objects to represent data within a JDFTx out file.
+     - Main hierarchy classes:
+       - `JDFTXOutputs`
+         - `JDFTXOutputs.outfile`
+         - `JDFTXOutfile`
+         - `JDFTXOutfile.slices[i]`
+         - `JDFTXOutfileSlice`, etc.
+   - **Feature 1:** `outputs.py` module with `JDFTXOutfile` for representing a JDFTx out file.
+   - **Feature 2:** `jdftxoutfileslice.py` module with `JDFTXOutfileSlice` for file slices of a single JDFTx call.
+   - **Feature 3:** `joutstructures.py` with `JOutStructures` for representing structures from an out file slice.
+   - **Feature 4:** `joutstructure.py` with `JOutStructure` for each single structure within an out file.
+   - **Feature 5:** `jelstep.py` with `JElStep` and `JElSteps` for SCF steps and convergences.
+   - **Feature 6:** `jminsettings.py` with `JMinSettings` for minimization settings representations.
+
+3. **PR #4189 by @benrich37**
+   - **Feature 1:** `inputs.py` module containing `JDFTXInfile` for Pythonic representation of JDFTx calculation inputs.
+   - **Feature 2:** `generic_tags.py` module with "Tag" objects (`AbstractTag` and its inheritors) for JDFTx input structure representation.
+   - **Feature 3:** `jdftxinfile_master_format.py` for creating proper "Tag" objects for inputs.
+   - **Feature 4:** `jdftxinfile_ref_options.py` for holding lists of acceptable strings for input tags.
+
+## v2025.1.23
+
+1. **PR #4255 by @peikai**: This PR resolves an inconsistency in the `run_type` for entries in a mixing scheme. The entry type was changed to 'r2SCAN', but the `MaterialsProjectDFTMixingScheme()` expected 'R2SCAN', causing errors and ignored entries in GGA(+U)/R2SCAN mixing scheme corrections.
+
+2. **PR #4160 by @DanielYang59**: Enhancements and clarifications were made to the `io.vasp.outputs.Outcar` docstring/comment. This includes more specific type annotations for parsers and updating the default value in `getattr` to `False` for condition checks.
+
+3. **PR #4257 by @njzjz**: This PR covers the intention to build Linux arm64 wheels, referencing the availability of free hosted runners for public repositories. However, specific features and fixes were not detailed.
+
+4. **PR #4240 by @kavanase**: A minor fix in `FermiDos` improves the robustness of the `get_doping` method, addressing issues with handling rare cases with minimal energy increments between VBM and CBM indices.
+
+5. **PR #4254 by @tpurcell90**: Adjustments regarding the use of libxc with FHI-aims to automatically add an override warning call, ensuring the process behaves as expected.
+
+6. **PR #4256 by @kavanase**: Addresses a behavior issue with `Composition` for mixed species and element compositions, providing a fix that ensures compositions are interpreted correctly, avoiding incorrect results in representations and calculations.
+
+7. **PR #4253 by @esoteric-ephemera**: This PR introduces the ability to convert between ASE and pymatgen trajectories, maintaining additional data such as energies, forces, and stresses, thus improving integration between the two programs and addressing related issues.
+
+These updates range from bug fixes and enhancements to new features aimed at improving the functionality and reliability of the codebase.
+
 ## 2025.1.9
 - Iterating Element no longer contains isotopes (D and T). (@DanielYang59)
 - Remove is_rare_earth_metal from ElementBase (@jdewasseigeosium)

@@ -4,6 +4,7 @@ from unittest import TestCase
 
 import numpy as np
 import pytest
+from numpy.testing import assert_allclose
 from pytest import approx
 
 from pymatgen.analysis.graphs import StructureGraph
@@ -910,5 +911,5 @@ class TestLobsterNeighbors(TestCase):
             -0.54,
             -0.54,
         ]
-        assert self.chem_env_w_obj.valences == [0.67] * 4 + [0.7] * 4 + [-0.7] * 4 + [-0.68] * 4  # charge_obj
+        assert_allclose(self.chem_env_w_obj.valences, [0.67] * 4 + [0.7] * 4 + [-0.7] * 4 + [-0.68] * 4)  # charge_obj
         assert self.chem_env_lobster_NaSi_wo_charges.valences == [1] * 8 + [-1] * 8  # BVA

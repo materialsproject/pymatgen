@@ -40,7 +40,7 @@ class MaterialsProjectDFTMixingScheme(Compatibility):
     may lead to unexpected results.
 
     This is the scheme used by the Materials Project to generate Phase Diagrams containing
-    a mixture of GGA(+U) and R2SCAN calculations. However in principle it can be used to
+    a mixture of GGA(+U) and r2SCAN calculations. However in principle it can be used to
     mix energies from any two functionals.
     """
 
@@ -48,7 +48,7 @@ class MaterialsProjectDFTMixingScheme(Compatibility):
         self,
         structure_matcher: StructureMatcher | None = None,
         run_type_1: str = "GGA(+U)",
-        run_type_2: str = "R2SCAN",
+        run_type_2: str = "r2SCAN",
         compat_1: (Compatibility | None) = MaterialsProject2020Compatibility(),  # noqa: B008
         compat_2: Compatibility | None = None,
         fuzzy_matching: bool = True,
@@ -64,7 +64,7 @@ class MaterialsProjectDFTMixingScheme(Compatibility):
             run_type_1: The first DFT run_type. Typically this is the majority or run type or
                 the "base case" onto which the other calculations are referenced. Valid choices
                 are any run_type recognized by Vasprun.run_type, such as "LDA", "GGA", "GGA+U",
-                "PBEsol", "SCAN", or "R2SCAN". The class will ignore any entries that have a
+                "PBEsol", "SCAN", or "r2SCAN". The class will ignore any entries that have a
                 run_type different than run_type_1 or run_type_2.
 
                 The list of run_type_1 entries provided to process_entries MUST form a complete
@@ -103,8 +103,10 @@ class MaterialsProjectDFTMixingScheme(Compatibility):
             raise ValueError(f"run_type_1={run_type_2=}. The mixing scheme is meaningless unless run_types different")
         self.run_type_1 = run_type_1
         self.run_type_2 = run_type_2
-        self.valid_rtypes_1 = ["GGA", "GGA+U"] if self.run_type_1 == "GGA(+U)" else [self.run_type_1]
-        self.valid_rtypes_2 = ["GGA", "GGA+U"] if self.run_type_2 == "GGA(+U)" else [self.run_type_2]
+        """Valid run_type, allowing for archive R2SCAN entries"""
+        valid_rtype_dict = {"GGA(+U)": ["GGA", "GGA+U"], "R2SCAN": ["r2SCAN", "R2SCAN"]}
+        self.valid_rtypes_1 = valid_rtype_dict.get(run_type_1.upper(), [self.run_type_1])
+        self.valid_rtypes_2 = valid_rtype_dict.get(run_type_2.upper(), [self.run_type_2])
 
         self.compat_1 = compat_1
         self.compat_2 = compat_2
@@ -253,7 +255,7 @@ class MaterialsProjectDFTMixingScheme(Compatibility):
 
     def get_adjustments(self, entry, mixing_state_data: pd.DataFrame | None = None):
         """Get the corrections applied to a particular entry. Note that get_adjustments is not
-        intended to be called directly in the R2SCAN mixing scheme. Call process_entries instead,
+        intended to be called directly in the r2SCAN mixing scheme. Call process_entries instead,
         and it will pass the required arguments to get_adjustments.
 
         Args:
@@ -326,7 +328,7 @@ class MaterialsProjectDFTMixingScheme(Compatibility):
                 # For run_type_2 entries, there is no correction
                 return adjustments
 
-            # Discard GGA ground states whose structures already exist in R2SCAN.
+            # Discard GGA ground states whose structures already exist in r2SCAN.
             df_slice = mixing_state_data[(mixing_state_data["entry_id_1"] == entry.entry_id)]
 
             if df_slice["entry_id_2"].notna().item():
@@ -344,8 +346,8 @@ class MaterialsProjectDFTMixingScheme(Compatibility):
                     f"because there is a matching {self.run_type_2} material."
                 )
 
-            # If a GGA is not present in R2SCAN, correct its energy to give the same
-            # e_above_hull on the R2SCAN hull that it would have on the GGA hull
+            # If a GGA is not present in r2SCAN, correct its energy to give the same
+            # e_above_hull on the r2SCAN hull that it would have on the GGA hull
             hull_energy_1 = df_slice["hull_energy_1"].iloc[0]
             hull_energy_2 = df_slice["hull_energy_2"].iloc[0]
             correction = (hull_energy_2 - hull_energy_1) * entry.composition.num_atoms

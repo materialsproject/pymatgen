@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import abc
+import math
 from collections import defaultdict
 from typing import TYPE_CHECKING
 
@@ -285,7 +286,7 @@ class ChargeBalanceFilter(AbstractStructureFilter):
 
     def test(self, structure: Structure):
         """True if structure is neutral."""
-        return structure.charge == 0.0
+        return math.isclose(structure.charge, 0.0)
 
 
 class SpeciesMaxDistFilter(AbstractStructureFilter):
