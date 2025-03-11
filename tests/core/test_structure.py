@@ -930,6 +930,9 @@ Direct
         with pytest.raises(ValueError, match="Invalid fmt='badformat'"):
             self.struct.to(fmt="badformat")
 
+        # Default as JSON (no exception expected)
+        assert self.struct.to() == self.struct.to(fmt="json")
+
         self.struct.to(filename=(gz_json_path := "POSCAR.testing.gz"))
         struct = Structure.from_file(gz_json_path)
         assert struct == self.struct

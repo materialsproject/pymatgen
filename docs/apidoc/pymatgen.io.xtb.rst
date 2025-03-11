@@ -3,8 +3,8 @@ pymatgen.io.xtb package
 
 .. automodule:: pymatgen.io.xtb
    :members:
-   :undoc-members:
    :show-inheritance:
+   :undoc-members:
 
 Submodules
 ----------
@@ -14,13 +14,13 @@ pymatgen.io.xtb.inputs module
 
 .. automodule:: pymatgen.io.xtb.inputs
    :members:
-   :undoc-members:
    :show-inheritance:
+   :undoc-members:
 
 pymatgen.io.xtb.outputs module
 ------------------------------
 
 .. automodule:: pymatgen.io.xtb.outputs
    :members:
-   :undoc-members:
    :show-inheritance:
+   :undoc-members:

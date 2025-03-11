@@ -3,5 +3,5 @@ pymatgen.analysis.chemenv.coordination\_environments.coordination\_geometries\_f
 
 .. automodule:: pymatgen.analysis.chemenv.coordination_environments.coordination_geometries_files
    :members:
-   :undoc-members:
    :show-inheritance:
+   :undoc-members:

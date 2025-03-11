@@ -3745,25 +3745,28 @@ class EconNN(NearNeighbors):
 
         if self.use_fictive_radius:
             # calculate fictive ionic radii
-            fict_ionic_radii = [_get_fictive_ionic_radius(site, neighbor) for neighbor in neighbors]
+            fictive_ionic_radii = [_get_fictive_ionic_radius(site, neighbor) for neighbor in neighbors]
         else:
             # just use the bond distance
-            fict_ionic_radii = [neighbor.nn_distance for neighbor in neighbors]
+            fictive_ionic_radii = [neighbor.nn_distance for neighbor in neighbors]
 
         # calculate mean fictive ionic radius
-        mefir = _get_mean_fictive_ionic_radius(fict_ionic_radii)
+        mean_fictive_ionic_radius = _get_mean_fictive_ionic_radius(fictive_ionic_radii)
 
         # iteratively solve MEFIR; follows equation 4 in Hoppe's EconN paper
-        prev_mefir = float("inf")
-        while abs(prev_mefir - mefir) > 1e-4:
+        prev_mean_fictive_ionic_radius = float("inf")
+        while abs(prev_mean_fictive_ionic_radius - mean_fictive_ionic_radius) > 1e-4:
             # this is guaranteed to converge
-            prev_mefir = mefir
-            mefir = _get_mean_fictive_ionic_radius(fict_ionic_radii, minimum_fir=mefir)
+            prev_mean_fictive_ionic_radius = mean_fictive_ionic_radius
+            mean_fictive_ionic_radius = _get_mean_fictive_ionic_radius(
+                fictive_ionic_radii,
+                minimum_fir=mean_fictive_ionic_radius,
+            )
 
         siw = []
-        for nn, fir in zip(neighbors, fict_ionic_radii, strict=True):
+        for nn, fictive_ionic_radius in zip(neighbors, fictive_ionic_radii, strict=True):
             if nn.nn_distance < self.cutoff:
-                w = math.exp(1 - (fir / mefir) ** 6)
+                w = math.exp(1 - (fictive_ionic_radius / mean_fictive_ionic_radius) ** 6)
                 if w > self.tol:
                     bonded_site = {
                         "site": nn,
