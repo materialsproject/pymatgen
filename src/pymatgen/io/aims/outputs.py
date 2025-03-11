@@ -240,7 +240,9 @@ class AimsOutput(MSONable):
     @property
     def direct_band_gap(self) -> float:
         """The direct band gap for the final structure in the calculation."""
-        return self.get_results_for_image(-1).properties["direct_gap"]
+        return self.get_results_for_image(-1).properties.get(
+            "direct_gap", self.get_results_for_image(-1).properties["gap"]
+        )
 
     @property
     def final_energy(self) -> float:
