@@ -956,6 +956,18 @@ Direct
         assert self.struct.to(out_path) == self.struct.to_file(out_path)
         assert os.path.isfile(out_path)
 
+    def test_to_from_ase_atoms(self):
+        pytest.importorskip("ase")
+
+        atoms = self.struct.to_ase_atoms()
+        assert isinstance(atoms, Atoms)
+        assert len(atoms) == len(self.struct)
+
+        assert AseAtomsAdaptor.get_structure(atoms) == self.struct
+
+        assert IStructure.from_ase_atoms(atoms) == self.struct
+        assert type(IStructure.from_ase_atoms(atoms)) is IStructure
+
     def test_pbc(self):
         assert self.struct.pbc == (True, True, True)
         assert self.struct.is_3d_periodic
@@ -2106,11 +2118,15 @@ Sites (8)
 
     def test_to_from_ase_atoms(self):
         pytest.importorskip("ase")
+
         atoms = self.struct.to_ase_atoms()
         assert isinstance(atoms, Atoms)
         assert len(atoms) == len(self.struct)
+
         assert AseAtomsAdaptor.get_structure(atoms) == self.struct
+
         assert Structure.from_ase_atoms(atoms) == self.struct
+        assert type(Structure.from_ase_atoms(atoms)) is Structure
 
         labeled_atoms = self.labeled_structure.to_ase_atoms()
         assert Structure.from_ase_atoms(labeled_atoms) == self.labeled_structure
@@ -2429,6 +2445,14 @@ Site: H (-0.5134, 0.8892, -0.3630)"""
         assert self.mol.to(out_path) == self.mol.to_file(out_path)
         assert os.path.isfile(out_path)
 
+    def test_to_from_ase_atoms(self):
+        pytest.importorskip("ase")
+
+        atoms = self.mol.to_ase_atoms()
+        assert isinstance(atoms, Atoms)
+
+        assert type(IMolecule.from_ase_atoms(atoms)) is IMolecule
+
 
 class TestMolecule(PymatgenTest):
     def setUp(self):
@@ -2687,9 +2711,13 @@ class TestMolecule(PymatgenTest):
         assert relaxed.dynamics == {"type": "optimization", "optimizer": "FIRE"}
         assert relaxed.calc.results["energy"] == approx(-113.61346199239306)
 
-    def test_to_ase_atoms(self):
+    def test_to_from_ase_atoms(self):
         pytest.importorskip("ase")
+
         atoms = self.mol.to_ase_atoms()
         assert isinstance(atoms, Atoms)
         assert len(atoms) == len(self.mol)
+
         assert AseAtomsAdaptor.get_molecule(atoms) == self.mol
+
+        assert type(Molecule.from_ase_atoms(atoms)) is Molecule
