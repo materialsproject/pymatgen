@@ -11,29 +11,29 @@ pymatgen.ext.cod module
 
 .. automodule:: pymatgen.ext.cod
    :members:
-   :undoc-members:
    :show-inheritance:
+   :undoc-members:
 
 pymatgen.ext.matproj module
 ---------------------------
 
 .. automodule:: pymatgen.ext.matproj
    :members:
-   :undoc-members:
    :show-inheritance:
+   :undoc-members:
 
 pymatgen.ext.matproj\_legacy module
 -----------------------------------
 
 .. automodule:: pymatgen.ext.matproj_legacy
    :members:
-   :undoc-members:
    :show-inheritance:
+   :undoc-members:
 
 pymatgen.ext.optimade module
 ----------------------------
 
 .. automodule:: pymatgen.ext.optimade
    :members:
-   :undoc-members:
    :show-inheritance:
+   :undoc-members:

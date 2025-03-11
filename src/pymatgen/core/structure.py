@@ -2918,50 +2918,59 @@ class IStructure(SiteCollection, MSONable):
         return cls.from_sites(sites, charge=charge, properties=dct.get("properties"))
 
     def to(self, filename: PathLike = "", fmt: FileFormats = "", **kwargs) -> str:
-        """Output the structure to a file or string.
+        """Output the structure to a string (and to a file when filename is given).
 
         Args:
             filename (PathLike): If provided, output will be written to a file. If
                 fmt is not specified, the format is determined from the
                 filename. Defaults is None, i.e. string output.
             fmt (str): Format to output to. Defaults to JSON unless filename
-                is provided. If fmt is specifies, it overrides whatever the
+                is provided. If specified, it overrides whatever the
                 filename is. Options include "cif", "poscar", "cssr", "json",
                 "xsf", "mcsqs", "prismatic", "yaml", "yml", "fleur-inpgen", "pwmat",
                 "aims".
-                Non-case sensitive.
-            **kwargs: Kwargs passthru to relevant methods. e.g. This allows
-                the passing of parameters like symprec to the
-                CifWriter.__init__ method for generation of symmetric CIFs.
+                Case insensitive.
+            **kwargs: Kwargs pass thru to relevant methods. This allows
+                the passing of parameters like `symprec` to the
+                `CifWriter.__init__ method` for generation of symmetric CIFs.
 
         Returns:
-            str: String representation of molecule in given format. If a filename
+            str: String representation of structure in given format. If a filename
                 is provided, the same string is written to the file.
         """
         filename, fmt = str(filename), cast(FileFormats, fmt.lower())
+
+        # Default to JSON if filename not specified
+        if filename == "" and fmt == "":
+            fmt = "json"
 
         if fmt == "cif" or fnmatch(filename.lower(), "*.cif*"):
             from pymatgen.io.cif import CifWriter
 
             writer: Any = CifWriter(self, **kwargs)
+
         elif fmt == "mcif" or fnmatch(filename.lower(), "*.mcif*"):
             from pymatgen.io.cif import CifWriter
 
             writer = CifWriter(self, write_magmoms=True, **kwargs)
+
         elif fmt == "poscar" or fnmatch(filename, "*POSCAR*"):
             from pymatgen.io.vasp import Poscar
 
             writer = Poscar(self, **kwargs)
+
         elif fmt == "cssr" or fnmatch(filename.lower(), "*.cssr*"):
             from pymatgen.io.cssr import Cssr
 
             writer = Cssr(self)
+
         elif fmt == "json" or fnmatch(filename.lower(), "*.json*"):
-            json_str = json.dumps(self.as_dict())
+            json_str = json.dumps(self.as_dict(), **kwargs)
             if filename:
                 with zopen(filename, mode="wt", encoding="utf-8") as file:
                     file.write(json_str)
             return json_str
+
         elif fmt == "xsf" or fnmatch(filename.lower(), "*.xsf*"):
             from pymatgen.io.xcrysden import XSF
 
@@ -2970,6 +2979,7 @@ class IStructure(SiteCollection, MSONable):
                 with zopen(filename, mode="wt", encoding="utf-8") as file:
                     file.write(res_str)
             return res_str
+
         elif (
             fmt == "mcsqs"
             or fnmatch(filename, "*rndstr.in*")
@@ -2983,10 +2993,12 @@ class IStructure(SiteCollection, MSONable):
                 with zopen(filename, mode="wt", encoding="ascii") as file:
                     file.write(res_str)
             return res_str
+
         elif fmt == "prismatic" or fnmatch(filename, "*prismatic*"):
             from pymatgen.io.prismatic import Prismatic
 
             return Prismatic(self).to_str()
+
         elif fmt in ("yaml", "yml") or fnmatch(filename, "*.yaml*") or fnmatch(filename, "*.yml*"):
             yaml = YAML()
             str_io = io.StringIO()
@@ -2996,6 +3008,7 @@ class IStructure(SiteCollection, MSONable):
                 with zopen(filename, mode="wt", encoding="utf-8") as file:
                     file.write(yaml_str)
             return yaml_str
+
         elif fmt == "aims" or fnmatch(filename, "geometry.in"):
             from pymatgen.io.aims.inputs import AimsGeometryIn
 
@@ -3006,11 +3019,13 @@ class IStructure(SiteCollection, MSONable):
                     file.write(geom_in.content)
                     file.write("\n")
             return geom_in.content
+
         # fleur support implemented in external namespace pkg https://github.com/JuDFTteam/pymatgen-io-fleur
         elif fmt == "fleur-inpgen" or fnmatch(filename, "*.in*"):
             from pymatgen.io.fleur import FleurInput
 
             writer = FleurInput(self, **kwargs)
+
         elif fmt == "res" or fnmatch(filename, "*.res"):
             from pymatgen.io.res import ResIO
 
@@ -3019,10 +3034,12 @@ class IStructure(SiteCollection, MSONable):
                 with zopen(filename, mode="wt", encoding="utf-8") as file:
                     file.write(res_str)
             return res_str
+
         elif fmt == "pwmat" or fnmatch(filename.lower(), "*.pwmat") or fnmatch(filename.lower(), "*.config"):
             from pymatgen.io.pwmat import AtomConfig
 
             writer = AtomConfig(self, **kwargs)
+
         else:
             if fmt == "":
                 raise ValueError(f"Format not specified and could not infer from {filename=}")
