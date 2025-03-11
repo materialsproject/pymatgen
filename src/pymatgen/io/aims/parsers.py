@@ -810,7 +810,7 @@ class AimsOutCalcChunk(AimsOutChunk):
 
     @property
     def structure(self) -> Structure | Molecule:
-        """The pytmagen SiteCollection of the chunk."""
+        """The pymatgen SiteCollection of the chunk."""
         if "structure" not in self._cache:
             self._cache["structure"] = self._parse_structure()
         return self._cache["structure"]
