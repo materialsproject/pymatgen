@@ -2,32 +2,41 @@
 
 from __future__ import annotations
 
+import warnings
+from pathlib import Path
 from typing import TYPE_CHECKING
 
 import numpy as np
 from monty.json import MontyDecoder, MSONable
+from pyfhiaims.outputs.stdout import AimsParseError, AimsStdout
 
-from pymatgen.io.aims.parsers import (
-    read_aims_header_info,
-    read_aims_header_info_from_content,
-    read_aims_output,
-    read_aims_output_from_content,
-)
+from pymatgen.core import Lattice, Structure
 
 if TYPE_CHECKING:
     from collections.abc import Sequence
-    from pathlib import Path
-    from typing import Any
+    from typing import Any, Self
 
-    from typing_extensions import Self
-
-    from pymatgen.core import Molecule, Structure
+    from pymatgen.core import Molecule
     from pymatgen.util.typing import Matrix3D, Vector3D
 
 __author__ = "Andrey Sobolev and Thomas A. R. Purcell"
 __version__ = "1.0"
 __email__ = "andrey.n.sobolev@gmail.com and purcellt@arizona.edu"
 __date__ = "November 2023"
+
+
+AIMS_OUTPUT_KEY_MAP = {
+    "free_energy": "energy",  # TARP These are the force consistent energies
+}
+
+
+def remap_outputs(results: dict[str, Any]) -> dict[str, Any]:
+    """Remap FHIAimsOutput keys to AimsOutput keys"""
+    to_ret = results.copy()
+    for key, val in AIMS_OUTPUT_KEY_MAP.items():
+        to_ret[val] = to_ret.pop(key, None)
+
+    return to_ret
 
 
 class AimsOutput(MSONable):
@@ -38,6 +47,8 @@ class AimsOutput(MSONable):
         results: Molecule | Structure | Sequence[Molecule | Structure],
         metadata: dict[str, Any],
         structure_summary: dict[str, Any],
+        warnings: list[str] | None = None,
+        errors: list[str] | None = None,
     ) -> None:
         """
         Args:
@@ -47,52 +58,101 @@ class AimsOutput(MSONable):
                 the calculation
             structure_summary (Dict[str, Any]): The summary of the starting
                 atomic structure.
+            warnings (List[str]): A list of warnings from the calculation
+            errors (List[str]): A list of errors from the calculation
         """
         self._results = results
         self._metadata = metadata
         self._structure_summary = structure_summary
+        self._warnings = warnings
+        self._errors = errors
 
     def as_dict(self) -> dict[str, Any]:
         """Create a dict representation of the outputs for MSONable."""
         dct: dict[str, Any] = {
             "@module": type(self).__module__,
             "@class": type(self).__name__,
+            "metadata": self._metadata,
+            "structure_summary": self._structure_summary,
+            "results": self._results,
+            "warnings": self._warnings,
+            "errors": self._errors,
         }
-
-        dct["results"] = self._results
-        dct["metadata"] = self._metadata
-        dct["structure_summary"] = self._structure_summary
         return dct
 
     @classmethod
-    def from_outfile(cls, outfile: str | Path) -> Self:
+    def from_outfile(cls, outfile: str | Path, verbose_metadata=False) -> Self:
         """Construct an AimsOutput from an output file.
 
         Args:
-            outfile: str | Path: The aims.out file to parse
+            outfile (str | Path): The aims.out file to parse
+            verbose_metadata (bool): If True, include all parsed results in the metadata
 
         Returns:
             The AimsOutput object for the output file
+
+        Raises:
+            AimsParseError if a file does not exist
         """
-        metadata, structure_summary = read_aims_header_info(outfile)
-        results = read_aims_output(outfile, index=slice(0, None))
+        aims_out = None
+        for path in [Path(outfile), Path(f"{outfile}.gz")]:
+            try:
+                aims_out = AimsStdout(path)
+            except FileNotFoundError:
+                continue
 
-        return cls(results, metadata, structure_summary)
+        if aims_out is None:
+            raise AimsParseError(f"File {outfile} not found.")
 
-    @classmethod
-    def from_str(cls, content: str) -> Self:
-        """Construct an AimsOutput from an output file.
+        # remove all the numbers from metadata and put them into structure (more like input) summary
+        metadata = {k: v for k, v in aims_out.metadata.items() if not k.startswith("num_")}
 
-        Args:
-            content (str): The content of the aims.out file
+        structure_summary = aims_out.header_summary
+        structure_summary.update(
+            **{k.replace("num_", "n_"): v for k, v in aims_out.metadata.items() if k.startswith("num_")}
+        )
 
-        Returns:
-            The AimsOutput for the output file content
-        """
-        metadata, structure_summary = read_aims_header_info_from_content(content)
-        results = read_aims_output_from_content(content, index=slice(0, None))
+        structure_summary["initial_structure"] = structure_summary.pop("initial_geometry").structure
+        for site in structure_summary["initial_structure"]:
+            if abs(site.properties.get("magmom", 0.0)) < 1e-10:
+                site.properties.pop("magmom", None)
 
-        return cls(results, metadata, structure_summary)
+        lattice = structure_summary.pop("initial_lattice", None)
+        if lattice is not None:
+            lattice = Lattice(lattice)
+        structure_summary["initial_lattice"] = lattice
+
+        results = []
+        for image in aims_out:
+            image_results = remap_outputs(image.results)
+            site_prop_keys = {
+                "forces": "force",
+                "stresses": "atomic_virial_stress",
+                "hirshfeld_charges": "hirshfeld_charge",
+                "hirshfeld_volumes": "hirshfeld_volume",
+                "hirshfeld_atomic_dipoles": "hirshfeld_atomic_dipole",
+                "mulliken_charges": "charge",
+                "mulliken_spins": "magmom",
+            }
+            properties = {prop: image_results[prop] for prop in image_results if prop not in site_prop_keys}
+            site_properties = {}
+            for prop, site_key in site_prop_keys.items():
+                if prop in image_results:
+                    site_properties[site_key] = image_results[prop]
+
+            if ((magmom := site_properties.get("magmom")) is not None) and np.abs(
+                np.sum(magmom) - properties["magmom"]
+            ) < 1e-3:
+                warnings.warn(
+                    "Total magnetic moment and sum of Mulliken spins are not consistent",
+                    stacklevel=2,
+                )
+            structure = image.geometry.to_structure(properties=properties, site_properties=site_properties)
+            results.append(structure)
+
+        if verbose_metadata:
+            metadata["all_parsed_info"] = aims_out.results
+        return cls(results, metadata, structure_summary, aims_out.warnings, aims_out.errors)
 
     @classmethod
     def from_dict(cls, dct: dict[str, Any]) -> Self:
@@ -112,6 +172,8 @@ class AimsOutput(MSONable):
             decoded["results"],
             decoded["metadata"],
             decoded["structure_summary"],
+            decoded["warnings"],
+            decoded["errors"],
         )
 
     def get_results_for_image(self, image_ind: int) -> Structure | Molecule:
@@ -178,7 +240,9 @@ class AimsOutput(MSONable):
     @property
     def direct_band_gap(self) -> float:
         """The direct band gap for the final structure in the calculation."""
-        return self.get_results_for_image(-1).properties["direct_gap"]
+        return self.get_results_for_image(-1).properties.get(
+            "direct_gap", self.get_results_for_image(-1).properties["gap"]
+        )
 
     @property
     def final_energy(self) -> float:
@@ -193,7 +257,7 @@ class AimsOutput(MSONable):
     @property
     def aims_version(self) -> str:
         """The version of FHI-aims used for the calculation."""
-        return self._metadata["version_number"]
+        return self._metadata["aims_version"]
 
     @property
     def forces(self) -> Sequence[Vector3D] | None:

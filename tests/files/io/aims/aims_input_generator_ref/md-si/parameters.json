@@ -1,1 +1,0 @@
-{"xc": "pbe", "relativistic": "atomic_zora scalar", "MD_run": "10.0 NVT_parrinello 300 0.4", "MD_time_step": 0.002, "MD_MB_init": 300, "species_dir": "/home/andrey/workspace/pymatgen/tests/io/aims/species_directory/light", "k_grid": [2, 2, 2]}
