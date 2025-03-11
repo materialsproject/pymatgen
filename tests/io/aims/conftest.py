@@ -18,6 +18,8 @@ if TYPE_CHECKING:
 
     from pymatgen.util.typing import PathLike
 
+pyfhiaims = pytest.importorskip("pyfhiaims")
+
 
 @pytest.fixture(autouse=True)
 def _set_aims_species_dir_env_var(monkeypatch: pytest.MonkeyPatch) -> None:
