@@ -3,8 +3,8 @@ pymatgen.analysis.chemenv package
 
 .. automodule:: pymatgen.analysis.chemenv
    :members:
-   :undoc-members:
    :show-inheritance:
+   :undoc-members:
 
 Subpackages
 -----------
