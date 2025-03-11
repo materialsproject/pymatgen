@@ -88,6 +88,7 @@ Pypi = "https://pypi.org/project/pymatgen"
 
 [project.optional-dependencies]
 abinit = ["netcdf4>=1.7.2"]
+aims = ["pyfhiaims"]
 ase = ["ase>=3.23.0"]
 ci = ["pytest-cov>=4", "pytest-split>=0.8", "pytest>=8", "pymatgen[symmetry]"]
 docs = ["invoke", "sphinx", "sphinx_markdown_builder", "sphinx_rtd_theme"]
@@ -97,7 +98,7 @@ numba = ["numba>=0.55"]
 numpy-v1 = ["numpy>=1.25.0,<2"] # Test NP1 on Windows (quite buggy ATM)
 zeopp = ["pyzeo"]  # Note: requires voro++ and zeo++ to be installed as binaries
 optional = [
-    "pymatgen[abinit,ase,mlp,tblite]",
+    "pymatgen[abinit,ase,mlp,tblite,aims]",
     "beautifulsoup4",
     # BoltzTraP2 build fails on Windows GitHub runners
     "BoltzTraP2>=24.9.4 ; platform_system != 'Windows'",
