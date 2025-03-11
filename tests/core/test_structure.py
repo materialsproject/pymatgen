@@ -2104,7 +2104,7 @@ Sites (8)
         assert struct.formula == "Dy8 Sb6"
         assert conventional.formula == "Dy16 Sb12"
 
-    def test_to_ase_atoms(self):
+    def test_to_from_ase_atoms(self):
         pytest.importorskip("ase")
         atoms = self.struct.to_ase_atoms()
         assert isinstance(atoms, Atoms)
