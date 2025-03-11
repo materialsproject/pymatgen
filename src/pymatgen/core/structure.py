@@ -983,7 +983,7 @@ class SiteCollection(collections.abc.Sequence, ABC):
         raise ValueError(f"Unknown {calculator=}.")
 
     def to_ase_atoms(self, **kwargs) -> Atoms:
-        """Convert the structure/molecule to an ase.Atoms object.
+        """Convert the Structure/Molecule to an ase.Atoms object.
 
         Args:
             kwargs: Passed to ase.Atoms init.
@@ -4132,6 +4132,19 @@ class IMolecule(SiteCollection, MSONable):
             new.__class__ = cls
             return new
         raise ValueError("Cannot determine file type.")
+
+    def from_ase_atoms(self, **kwargs) -> Self:
+        """Convert ase.Atoms to pymatgen Molecule.
+
+        Args:
+            kwargs: Passed to AseAtomsAdaptor.get_molecule.
+
+        Returns:
+            IMolecule
+        """
+        from pymatgen.io.ase import AseAtomsAdaptor
+
+        return AseAtomsAdaptor.get_molecule(self, **kwargs)
 
 
 class Structure(IStructure, collections.abc.MutableSequence):
