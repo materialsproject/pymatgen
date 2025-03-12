@@ -36,6 +36,7 @@ from pymatgen.util.testing import TEST_FILES_DIR, VASP_IN_DIR, PymatgenTest
 
 try:
     from ase.atoms import Atoms
+    from ase.build import molecule
     from ase.calculators.calculator import Calculator
     from ase.calculators.emt import EMT
 except ImportError:
@@ -2721,3 +2722,7 @@ class TestMolecule(PymatgenTest):
         assert AseAtomsAdaptor.get_molecule(atoms) == self.mol
 
         assert type(Molecule.from_ase_atoms(atoms)) is Molecule
+
+        # Make sure kwargs are correctly passed
+        atoms = molecule("CH3")
+        Molecule.from_ase_atoms(atoms, charge_spin_check=False)
