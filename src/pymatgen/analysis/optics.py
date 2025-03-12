@@ -7,32 +7,46 @@ from __future__ import annotations
 import math
 
 import numpy as np
-import pandas as pd
 import scipy.constants as const
 
 
 class DielectricAnalysis:
     """
-    Represents the analysis of dielectric properties derived from energy-dependent
-    dielectric functions. This includes calculations for wavelength, refractive index,
-    extinction coefficient, reflectivity, absorptivity, and transmittance based on
-    real and imaginary parts of the dielectric tensors.
+    Class to compute optical properties of materials based on provided energy levels, real and imaginary
+    components of the dielectric function. The resulting properties include wavelength, refractive index
+    (`n`), extinction coefficient (`k`), reflectivity (`R`), absorptivity (`L`), and transmittance (`T`)
+    for up to six configurations.
 
-    This class is designed to process dielectric tensors (both real and imaginary)
-    across different energy levels and provide detailed tabular data. It is useful
-    for understanding optical and electronic properties of materials.
+    This class provides capabilities to compute these properties from supplied dielectric data or parsed
+    data from VASP calculation results.
 
-    :ivar data: DataFrame containing calculated properties such as wavelength,
-        refractive index, extinction coefficient, reflectivity, absorptivity, and
-        transmittance for each tensor component.
-    :type data: pandas.DataFrame
+    :ivar energies: Array of energy levels in electron volts (eV).
+    :type energies: numpy.ndarray
+    :ivar eps_real: Array of real parts of the dielectric function for different configurations.
+                    The structure aligns with the input list provided at initialization.
+    :type eps_real: numpy.ndarray
+    :ivar eps_imag: Array of imaginary parts of the dielectric function matching the structure of eps_real.
+    :type eps_imag: numpy.ndarray
+    :ivar wavelengths: Array of wavelengths (in nanometers) corresponding to the energy levels.
+                       Computed using Planck's constant and the speed of light.
+    :type wavelengths: numpy.ndarray
+    :ivar n: Array of refractive indices for each energy level and corresponding configuration.
+    :type n: numpy.ndarray
+    :ivar k: Array of extinction coefficients for each energy level and corresponding configuration.
+    :type k: numpy.ndarray
+    :ivar R: Array of reflectivity values for each energy level and corresponding configuration.
+    :type R: numpy.ndarray
+    :ivar L: Array of absorptivity values for each energy level and corresponding configuration.
+    :type L: numpy.ndarray
+    :ivar T: Array of transmittance values for each energy level and corresponding configuration.
+    :type T: numpy.ndarray
     """
 
     def __init__(self, energies: list[float], eps_real: list[list[float]], eps_imag: list[list[float]]) -> None:
         """
         Class to compute optical properties of materials based on provided energy levels, real and imaginary components
         of the dielectric function. The resulting properties include wavelength, refractive index (`n`), extinction
-        coefficient (`k`), reflectivity (`R`), absorptivity (`L`), and transmittance (`T`) for up to six configurations.
+        coefficient (`k`), reflectivity (`R`), absorptivity (`L`), and transmittance (`T`).
 
         :param energies: List of energy levels in electron volts (eV).
         :type energies: list[float]
@@ -43,41 +57,24 @@ class DielectricAnalysis:
         :param eps_imag: 2D list of imaginary parts of the dielectric function matching the structure of eps_real.
         :type eps_imag: list[list[float]]
         """
+        self.energies = np.array(energies)
+        self.eps_real = np.array(eps_real)
+        self.eps_imag = np.array(eps_imag)
 
-        data = pd.DataFrame(
-            {
-                "energy": energies,
-            }
-        )
-        data["wavelength"] = (
+        self.wavelengths = (
             const.physical_constants["Planck constant in eV s"][0]
             * const.physical_constants["speed of light in vacuum"][0]
-            / data["energy"]
+            / self.energies
             * 1e9
         )
-        eps_real = np.array(eps_real)
-        eps_imag = np.array(eps_imag)
 
-        for i in range(6):
-            data[f"eps_{i}_real"] = eps_real[:, i]  # type: ignore[call-overload]
-            data[f"eps_{i}_imag"] = eps_imag[:, i]  # type: ignore[call-overload]
+        self.n = (1 / math.sqrt(2)) * ((self.eps_real**2 + self.eps_imag**2) ** 0.5 + self.eps_real) ** 0.5
 
-            data[f"n_{i}"] = (1 / math.sqrt(2)) * (
-                (data[f"eps_{i}_real"] ** 2 + data[f"eps_{i}_imag"] ** 2) ** 0.5 + data[f"eps_{i}_real"]
-            ) ** 0.5
-            data[f"k_{i}"] = (1 / math.sqrt(2)) * (
-                (data[f"eps_{i}_real"] ** 2 + data[f"eps_{i}_imag"] ** 2) ** 0.5 - data[f"eps_{i}_real"]
-            ) ** 0.5
+        self.k = (1 / math.sqrt(2)) * ((self.eps_real**2 + self.eps_imag**2) ** 0.5 - self.eps_real) ** 0.5
 
-            # reflectivity
-            data[f"R_{i}"] = ((data[f"n_{i}"] - 1) ** 2 + data[f"k_{i}"] ** 2) / (
-                (data[f"n_{i}"] + 1) ** 2 + data[f"k_{i}"] ** 2
-            )
-            # absorptivity
-            data[f"L_{i}"] = data[f"eps_{i}_imag"] / (data[f"eps_{i}_real"] ** 2 + data[f"eps_{i}_imag"] ** 2)
-            data[f"T_{i}"] = 1 - data[f"R_{i}"] - data[f"L_{i}"]
-
-        self.data = data
+        self.R = ((self.n - 1) ** 2 + self.k**2) / ((self.n + 1) ** 2 + self.k**2)  # reflectivity
+        self.L = self.eps_imag / (self.eps_real**2 + self.eps_imag**2)  # absorptivity
+        self.T = 1 - self.R - self.L
 
     @classmethod
     def from_vasprun(cls, vasprun):
