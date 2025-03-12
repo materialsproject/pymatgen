@@ -966,7 +966,7 @@ Direct
         assert AseAtomsAdaptor.get_structure(atoms) == self.struct
 
         assert IStructure.from_ase_atoms(atoms) == self.struct
-        assert type(IStructure.from_ase_atoms(atoms)) is IStructure
+        assert type(IStructure.from_ase_atoms(atoms)) is Structure
 
     def test_pbc(self):
         assert self.struct.pbc == (True, True, True)
@@ -2451,7 +2451,7 @@ Site: H (-0.5134, 0.8892, -0.3630)"""
         atoms = self.mol.to_ase_atoms()
         assert isinstance(atoms, Atoms)
 
-        assert type(IMolecule.from_ase_atoms(atoms)) is IMolecule
+        assert type(IMolecule.from_ase_atoms(atoms)) is Molecule
 
 
 class TestMolecule(PymatgenTest):
