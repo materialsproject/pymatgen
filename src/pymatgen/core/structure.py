@@ -3296,14 +3296,14 @@ class IStructure(SiteCollection, MSONable):
         struct.__class__ = cls
         return struct
 
-    def from_ase_atoms(self, **kwargs) -> Structure:
+    def from_ase_atoms(self, **kwargs) -> Self:
         """Convert ase.Atoms to pymatgen Structure.
 
         Args:
             kwargs: Passed to AseAtomsAdaptor.get_structure.
 
         Returns:
-            Structure
+            IStructure
         """
         from pymatgen.io.ase import AseAtomsAdaptor
 
@@ -4133,14 +4133,14 @@ class IMolecule(SiteCollection, MSONable):
             return new
         raise ValueError("Cannot determine file type.")
 
-    def from_ase_atoms(self, **kwargs) -> Molecule:
+    def from_ase_atoms(self, **kwargs) -> Self:
         """Convert ase.Atoms to pymatgen Molecule.
 
         Args:
             kwargs: Passed to AseAtomsAdaptor.get_molecule.
 
         Returns:
-            Molecule
+            IMolecule
         """
         from pymatgen.io.ase import AseAtomsAdaptor
 

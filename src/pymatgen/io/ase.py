@@ -8,12 +8,12 @@ from __future__ import annotations
 import warnings
 from copy import deepcopy
 from importlib.metadata import PackageNotFoundError
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, TypeVar
 
 import numpy as np
 from monty.json import MontyDecoder, MSONable, jsanitize
 
-from pymatgen.core.structure import Lattice, Molecule, Structure
+from pymatgen.core.structure import IMolecule, IStructure, Lattice, Molecule, Structure
 
 try:
     from ase.atoms import Atoms
@@ -47,6 +47,9 @@ __version__ = "1.0"
 __maintainer__ = "Shyue Ping Ong"
 __email__ = "shyuep@gmail.com"
 __date__ = "Mar 8, 2012"
+
+StructT = TypeVar("StructT", bound=IStructure)
+MolT = TypeVar("MolT", bound=IMolecule)
 
 
 class MSONAtoms(Atoms, MSONable):
@@ -230,7 +233,7 @@ class AseAtomsAdaptor:
         return atoms
 
     @staticmethod
-    def get_structure(atoms: Atoms, cls: type[Structure] = Structure, **cls_kwargs) -> Structure:
+    def get_structure(atoms: Atoms, cls: type[StructT] = Structure, **cls_kwargs) -> StructT:
         """Get pymatgen structure from ASE Atoms.
 
         Args:
@@ -239,7 +242,7 @@ class AseAtomsAdaptor:
             **cls_kwargs: Any additional kwargs to pass to the cls
 
         Returns:
-            Structure: Equivalent pymatgen Structure
+            (I)Structure: Equivalent pymatgen Structure/IStructure
         """
         symbols = atoms.get_chemical_symbols()
         positions = atoms.get_positions()
@@ -377,16 +380,16 @@ class AseAtomsAdaptor:
         return structure
 
     @staticmethod
-    def get_molecule(atoms: Atoms, cls: type[Molecule] = Molecule, **cls_kwargs) -> Molecule:
+    def get_molecule(atoms: Atoms, cls: type[MolT] = Molecule, **cls_kwargs) -> MolT:
         """Get pymatgen molecule from ASE Atoms.
 
         Args:
             atoms: ASE Atoms object
-            cls: The Molecule class to instantiate (defaults to pymatgen molecule)
+            cls: The Molecule class to instantiate (defaults to pymatgen Molecule)
             **cls_kwargs: Any additional kwargs to pass to the cls
 
         Returns:
-            Molecule: Equivalent pymatgen.core.structure.Molecule
+            (I)Molecule: Equivalent pymatgen Molecule/IMolecule
         """
         molecule = AseAtomsAdaptor.get_structure(atoms, cls=cls, **cls_kwargs)
 
