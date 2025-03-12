@@ -8,12 +8,12 @@ from __future__ import annotations
 import warnings
 from copy import deepcopy
 from importlib.metadata import PackageNotFoundError
-from typing import TYPE_CHECKING, TypeVar
+from typing import TYPE_CHECKING
 
 import numpy as np
 from monty.json import MontyDecoder, MSONable, jsanitize
 
-from pymatgen.core.structure import IMolecule, IStructure, Lattice, Molecule, Structure
+from pymatgen.core.structure import Lattice, Molecule, Structure
 
 try:
     from ase.atoms import Atoms
@@ -47,9 +47,6 @@ __version__ = "1.0"
 __maintainer__ = "Shyue Ping Ong"
 __email__ = "shyuep@gmail.com"
 __date__ = "Mar 8, 2012"
-
-StructT = TypeVar("StructT", bound=IStructure)
-MolT = TypeVar("MolT", bound=IMolecule)
 
 
 class MSONAtoms(Atoms, MSONable):
@@ -195,13 +192,13 @@ class AseAtomsAdaptor:
 
         # Add any remaining site properties to the ASE Atoms object
         for prop in structure.site_properties:
-            if prop not in [
+            if prop not in {
                 "magmom",
                 "charge",
                 "final_magmom",
                 "final_charge",
                 "selective_dynamics",
-            ]:
+            }:
                 atoms.set_array(prop, np.array(structure.site_properties[prop]))
         if any(oxi_states):
             atoms.set_array("oxi_states", np.array(oxi_states))
@@ -233,8 +230,12 @@ class AseAtomsAdaptor:
         return atoms
 
     @staticmethod
-    def get_structure(atoms: Atoms, cls: type[StructT] = Structure, **cls_kwargs) -> StructT:
-        """Get pymatgen structure from ASE Atoms.
+    def get_structure(
+        atoms: Atoms,
+        cls: type[Structure] = Structure,
+        **cls_kwargs,
+    ) -> Structure | Molecule:
+        """Get pymatgen Structure from ASE Atoms.
 
         Args:
             atoms: ASE Atoms object
@@ -242,7 +243,7 @@ class AseAtomsAdaptor:
             **cls_kwargs: Any additional kwargs to pass to the cls
 
         Returns:
-            (I)Structure: Equivalent pymatgen Structure/IStructure
+            Structure/Molecule: Equivalent pymatgen Structure/Molecule
         """
         symbols = atoms.get_chemical_symbols()
         positions = atoms.get_positions()
@@ -364,7 +365,7 @@ class AseAtomsAdaptor:
 
         # Add any remaining site properties to the Pymatgen structure object
         for prop in atoms.arrays:
-            if prop not in [
+            if prop not in {
                 "numbers",
                 "positions",
                 "magmom",
@@ -374,14 +375,14 @@ class AseAtomsAdaptor:
                 "charge",
                 "final_charge",
                 "oxi_states",
-            ]:
+            }:
                 structure.add_site_property(prop, atoms.get_array(prop).tolist())
 
         return structure
 
     @staticmethod
-    def get_molecule(atoms: Atoms, cls: type[MolT] = Molecule, **cls_kwargs) -> MolT:
-        """Get pymatgen molecule from ASE Atoms.
+    def get_molecule(atoms: Atoms, cls: type[Molecule] = Molecule, **cls_kwargs) -> Molecule:
+        """Get pymatgen Molecule from ASE Atoms.
 
         Args:
             atoms: ASE Atoms object
@@ -389,7 +390,7 @@ class AseAtomsAdaptor:
             **cls_kwargs: Any additional kwargs to pass to the cls
 
         Returns:
-            (I)Molecule: Equivalent pymatgen Molecule/IMolecule
+            Molecule: Equivalent pymatgen Molecule
         """
         molecule = AseAtomsAdaptor.get_structure(atoms, cls=cls, **cls_kwargs)
 
