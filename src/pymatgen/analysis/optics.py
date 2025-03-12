@@ -61,12 +61,8 @@ class DielectricAnalysis:
         self.eps_real = np.array(eps_real)
         self.eps_imag = np.array(eps_imag)
 
-        self.wavelengths = (
-            const.physical_constants["Planck constant in eV s"][0]
-            * const.physical_constants["speed of light in vacuum"][0]
-            / self.energies
-            * 1e9
-        )
+        # Wavelengths are in nm.
+        self.wavelengths = const.h / const.e * const.c / self.energies * 1e9
 
         self.n = (1 / math.sqrt(2)) * ((self.eps_real**2 + self.eps_imag**2) ** 0.5 + self.eps_real) ** 0.5
 
