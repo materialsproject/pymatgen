@@ -69,9 +69,8 @@ Windows and Linux.
 
 ### v2024.?.?
 
-The `symbol` attribute of `SpaceGroup` now always refers to its Hermann-Mauguin symbol
-(see [#3859](https://github.com/materialsproject/pymatgen/pull/3859)). In order to replace
-the old symbol, run
+* The `symbol` attribute of `SpaceGroup` now always refers to its Hermann-Mauguin symbol
+(see [#3859](https://github.com/materialsproject/pymatgen/pull/3859)). In order to replace the old symbol, run
 
 ```py
 from pymatgen.symmetry.groups import SpaceGroup
@@ -84,6 +83,8 @@ except ValueError:
     else:
         new_symbol = SpaceGroup(old_symbol[:-1]).symbol
 ```
+
+* `from_ase_atoms` constructor for `(I)Structure/(I)Molecule` now returns the corresponding type instead of the mutable types only, see [#4321](https://github.com/materialsproject/pymatgen/pull/4321).
 
 ### v2024.5.31
 
@@ -108,7 +109,7 @@ except ValueError:
 
 ### v2024.1.26
 
-The mixture of `(get|from)_str` and `(get|from)_string` methods on various `pymatgen` classes were migrated to a consistent `(get|from)_str` everywhere in [#3158](https://github.com/materialsproject/pymatgen/pull/3158) and several follow-up PRs. The deprecation release was [v2023.8.10](https://github.com/materialsproject/pymatgen/releases/tag/v2023.8.10) and the removal release resulting in a breaking change was [v2024.1.26](https://github.com/materialsproject/pymatgen/releases/tag/v2024.1.26). Migration to the new API in all cases is to replace:
+* The mixture of `(get|from)_str` and `(get|from)_string` methods on various `pymatgen` classes were migrated to a consistent `(get|from)_str` everywhere in [#3158](https://github.com/materialsproject/pymatgen/pull/3158) and several follow-up PRs. The deprecation release was [v2023.8.10](https://github.com/materialsproject/pymatgen/releases/tag/v2023.8.10) and the removal release resulting in a breaking change was [v2024.1.26](https://github.com/materialsproject/pymatgen/releases/tag/v2024.1.26). Migration to the new API in all cases is to replace:
 
 ```diff
 - (to|from|as|get)_string
@@ -117,21 +118,21 @@ The mixture of `(get|from)_str` and `(get|from)_string` methods on various `pyma
 
 ### v2023.7.11
 
-Rename `[SomeCode]ParserError` to `[SomeCode]ParseError` and inherit from `SyntaxError`. [#3140](https://github.com/materialsproject/pymatgen/pull/3140)
+* Rename `[SomeCode]ParserError` to `[SomeCode]ParseError` and inherit from `SyntaxError`. [#3140](https://github.com/materialsproject/pymatgen/pull/3140)
 
 ### v2022.9.28
 
-Merge `Waverder` and `Wavederf` objects into a single `Waverder` object. [#2666](https://github.com/materialsproject/pymatgen/pull/2666)
+* Merge `Waverder` and `Wavederf` objects into a single `Waverder` object. [#2666](https://github.com/materialsproject/pymatgen/pull/2666)
 
 ### v2022.2.1
 
-Moved defect-specific code under `defects` module. [#2582](https://github.com/materialsproject/pymatgen/pull/2582)
+* Moved defect-specific code under `defects` module. [#2582](https://github.com/materialsproject/pymatgen/pull/2582)
 
-Removal of deprecated functions. [#2405](https://github.com/materialsproject/pymatgen/pull/2405) [#2397](https://github.com/materialsproject/pymatgen/pull/2397)
+* Removal of deprecated functions. [#2405](https://github.com/materialsproject/pymatgen/pull/2405) [#2397](https://github.com/materialsproject/pymatgen/pull/2397)
 
 ### v2022.01.08
 
-Dropped Python 3.7 support for compatibility with the latest `numpy`.
+* Dropped Python 3.7 support for compatibility with the latest `numpy`.
 
 ### v2022.0.0
 
@@ -179,20 +180,20 @@ need to be done by hand.
 
 ### v2021.3.3
 
-The variable `pymatgen.SETTINGS` has been moved to `pymatgen.settings.SETTINGS`. Since this is
+* The variable `pymatgen.SETTINGS` has been moved to `pymatgen.settings.SETTINGS`. Since this is
 mostly used internally within pymatgen, it is not expected to lead to significant external issues.
 
 ### v2021.2.8.1
 
-The minimum version of Python was increased from 3.6 to 3.7 following the lead of numpy. However,
+* The minimum version of Python was increased from 3.6 to 3.7 following the lead of NumPy. However,
 at this point there are no exclusively Python 3.7+ features used in pymatgen so pymatgen may still
 be able to be installed manually on Python 3.6 systems, although this usage is not supported.
 
-Support for `aconvasp` has been removed since the corresponding tests were failing and this module
+* Support for `aconvasp` has been removed since the corresponding tests were failing and this module
 was not being maintained.
 
 ### v2020.10.20
 
-The band structure plotting functionality, `BSPlotter`, has been overhauled to allow plotting of
+* The band structure plotting functionality, `BSPlotter`, has been overhauled to allow plotting of
 multiple band structures. This might cause issues for tools relying on the internal structure
 of BSPlotter's plot data.
