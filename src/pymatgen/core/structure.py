@@ -4136,22 +4136,19 @@ class IMolecule(SiteCollection, MSONable):
         raise ValueError("Cannot determine file type.")
 
     @classmethod
-    def from_ase_atoms(cls, atoms: Atoms, **kwargs) -> Molecule:
-        """Convert ase.Atoms to pymatgen Molecule.
+    def from_ase_atoms(cls, atoms: Atoms, **kwargs) -> Self:
+        """Convert ase.Atoms to pymatgen (I)Molecule.
 
         Args:
             atoms (Atom): ASE Atoms object
-            kwargs: Passed to AseAtomsAdaptor.get_molecule.
+            kwargs: Passed to AseAtomsAdaptor.get_structure.
 
         Returns:
-            Molecule
+            Self
         """
         from pymatgen.io.ase import AseAtomsAdaptor
 
-        # TODO: `cls`` is hard coded as `Molecule` here because inside
-        # the get_molecule method `set_charge_and_spin` is called,
-        # which is not available for `IMolecule`
-        return AseAtomsAdaptor.get_molecule(atoms, cls=Molecule, **kwargs)
+        return AseAtomsAdaptor.get_structure(atoms, cls=cls, **kwargs)
 
 
 class Structure(IStructure, collections.abc.MutableSequence):
