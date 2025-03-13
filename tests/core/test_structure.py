@@ -1995,7 +1995,8 @@ direct
         assert relaxed.dynamics["optimizer"] == "FIRE"
         assert len(traj) == 15
         assert traj[0] != traj[-1]
-        os.remove("opt.traj")  # fails if file missing
+
+        assert os.path.isfile("opt.traj")
 
     def test_relax_ase_opt_kwargs(self):
         pytest.importorskip("ase")
@@ -2673,7 +2674,8 @@ class TestMolecule(PymatgenTest):
         assert relaxed.dynamics["optimizer"] == "BFGS"
         assert len(traj) == 5
         assert traj[0] != traj[-1]
-        os.remove("opt.traj")  # fails if file missing
+
+        assert os.path.isfile("opt.traj")
 
     def test_relax_ase_mol_return_traj(self):
         pytest.importorskip("ase")
