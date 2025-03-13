@@ -84,7 +84,11 @@ class AseAtomsAdaptor:
     """Adaptor serves as a bridge between ASE Atoms and pymatgen objects."""
 
     @staticmethod
-    def get_atoms(structure: SiteCollection, msonable: bool = True, **kwargs) -> MSONAtoms | Atoms:
+    def get_atoms(
+        structure: SiteCollection,
+        msonable: bool = True,
+        **kwargs,
+    ) -> MSONAtoms | Atoms:
         """Get ASE Atoms object from pymatgen structure or molecule.
 
         Args:
@@ -232,7 +236,7 @@ class AseAtomsAdaptor:
     @staticmethod
     def get_structure(
         atoms: Atoms,
-        cls: type[Structure] = Structure,
+        cls: type[Structure | Molecule] = Structure,
         **cls_kwargs,
     ) -> Structure | Molecule:
         """Get pymatgen Structure from ASE Atoms.
