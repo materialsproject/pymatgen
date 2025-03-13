@@ -1,5 +1,5 @@
 """
-This module provides conversion between the Atomic Simulation Environment
+This module provides conversion between the Atomic Simulation Environment (ASE)
 Atoms object and pymatgen Structure objects.
 """
 
@@ -165,9 +165,9 @@ class AseAtomsAdaptor:
         if "selective_dynamics" in structure.site_properties:
             fix_atoms = {
                 str([xc, yc, zc]): ([xc, yc, zc], [])
-                for xc in [True, False]
-                for yc in [True, False]
-                for zc in [True, False]
+                for xc in (True, False)
+                for yc in (True, False)
+                for zc in (True, False)
             }
             # [False, False, False] is free to move - no constraint in ASE.
             del fix_atoms[str([False, False, False])]
@@ -238,9 +238,9 @@ class AseAtomsAdaptor:
         """Get pymatgen Structure from ASE Atoms.
 
         Args:
-            atoms: ASE Atoms object
+            atoms (Atoms): ASE Atoms object
             cls: The Structure class to instantiate (defaults to pymatgen Structure)
-            **cls_kwargs: Any additional kwargs to pass to the cls
+            **cls_kwargs: Any additional kwargs to pass to the cls constructor
 
         Returns:
             Structure/Molecule: Equivalent pymatgen Structure/Molecule
@@ -272,9 +272,9 @@ class AseAtomsAdaptor:
             unsupported_constraint_type = False
             constraint_indices: dict = {
                 str([xc, yc, zc]): ([xc, yc, zc], [])
-                for xc in [True, False]
-                for yc in [True, False]
-                for zc in [True, False]
+                for xc in (True, False)
+                for yc in (True, False)
+                for zc in (True, False)
             }
             for constraint in atoms.constraints:
                 if isinstance(constraint, FixAtoms):
@@ -385,9 +385,9 @@ class AseAtomsAdaptor:
         """Get pymatgen Molecule from ASE Atoms.
 
         Args:
-            atoms: ASE Atoms object
+            atoms (Atom): ASE Atoms object
             cls: The Molecule class to instantiate (defaults to pymatgen Molecule)
-            **cls_kwargs: Any additional kwargs to pass to the cls
+            **cls_kwargs: Any additional kwargs to pass to the cls constructor
 
         Returns:
             Molecule: Equivalent pymatgen Molecule
