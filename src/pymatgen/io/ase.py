@@ -8,12 +8,12 @@ from __future__ import annotations
 import warnings
 from copy import deepcopy
 from importlib.metadata import PackageNotFoundError
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, TypeVar
 
 import numpy as np
 from monty.json import MontyDecoder, MSONable, jsanitize
 
-from pymatgen.core.structure import Lattice, Molecule, Structure
+from pymatgen.core.structure import IMolecule, IStructure, Lattice, Molecule, Structure
 
 try:
     from ase.atoms import Atoms
@@ -47,6 +47,9 @@ __version__ = "1.0"
 __maintainer__ = "Shyue Ping Ong"
 __email__ = "shyuep@gmail.com"
 __date__ = "Mar 8, 2012"
+
+StructT = TypeVar("StructT", bound=IStructure | IMolecule)
+MolT = TypeVar("MolT", bound=IMolecule)
 
 
 class MSONAtoms(Atoms, MSONable):
@@ -236,18 +239,18 @@ class AseAtomsAdaptor:
     @staticmethod
     def get_structure(
         atoms: Atoms,
-        cls: type[Structure | Molecule] = Structure,
+        cls: type[StructT] = Structure,
         **cls_kwargs,
-    ) -> Structure | Molecule:
-        """Get pymatgen Structure from ASE Atoms.
+    ) -> StructT:
+        """Get pymatgen structure from ASE Atoms.
 
         Args:
             atoms (Atoms): ASE Atoms object
-            cls: The Structure class to instantiate (defaults to pymatgen Structure)
+            cls: The structure class to instantiate (defaults to pymatgen Structure)
             **cls_kwargs: Any additional kwargs to pass to the cls constructor
 
         Returns:
-            Structure/Molecule: Equivalent pymatgen Structure/Molecule
+            (I)Structure/(I)Molecule: Equivalent pymatgen (I)Structure/(I)Molecule
         """
         symbols = atoms.get_chemical_symbols()
         positions = atoms.get_positions()
@@ -312,11 +315,12 @@ class AseAtomsAdaptor:
         if properties.get("spacegroup") and isinstance(properties["spacegroup"], Spacegroup):
             properties["spacegroup"] = properties["spacegroup"].todict()
 
-        # Return a Molecule object if that was specifically requested;
-        # otherwise return a Structure object as expected
-        if cls == Molecule:
+        # Return an (I)Molecule object if that was specifically requested;
+        # otherwise return an (I)Structure object as expected
+        if issubclass(cls, IMolecule):
             structure = cls(symbols, positions, properties=properties, **cls_kwargs)
-        else:
+
+        elif issubclass(cls, IStructure):
             structure = cls(
                 Lattice(lattice, pbc=atoms.pbc),
                 symbols,
@@ -325,6 +329,9 @@ class AseAtomsAdaptor:
                 properties=properties,
                 **cls_kwargs,
             )
+
+        else:
+            raise TypeError(f"Unsupported {cls=}")
 
         # Atoms.calc <---> Structure.calc
         if calc := getattr(atoms, "calc", None):
@@ -385,16 +392,16 @@ class AseAtomsAdaptor:
         return structure
 
     @staticmethod
-    def get_molecule(atoms: Atoms, cls: type[Molecule] = Molecule, **cls_kwargs) -> Molecule:
-        """Get pymatgen Molecule from ASE Atoms.
+    def get_molecule(atoms: Atoms, cls: type[MolT] = Molecule, **cls_kwargs) -> Molecule:
+        """Get pymatgen molecule from ASE Atoms.
 
         Args:
             atoms (Atom): ASE Atoms object
-            cls: The Molecule class to instantiate (defaults to pymatgen Molecule)
+            cls: The molecule class to instantiate (defaults to pymatgen Molecule)
             **cls_kwargs: Any additional kwargs to pass to the cls constructor
 
         Returns:
-            Molecule: Equivalent pymatgen Molecule
+            (I)Molecule: Equivalent pymatgen (I)Molecule
         """
         molecule = AseAtomsAdaptor.get_structure(atoms, cls=cls, **cls_kwargs)
 

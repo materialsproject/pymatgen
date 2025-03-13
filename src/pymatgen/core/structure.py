@@ -983,7 +983,7 @@ class SiteCollection(collections.abc.Sequence, ABC):
         raise ValueError(f"Unknown {calculator=}.")
 
     def to_ase_atoms(self, **kwargs) -> Atoms:
-        """Convert the Structure/Molecule to an ase.Atoms object.
+        """Convert the structure/molecule to an ase.Atoms object.
 
         Args:
             kwargs: Passed to ase.Atoms init.
@@ -3296,20 +3296,22 @@ class IStructure(SiteCollection, MSONable):
         struct.__class__ = cls
         return struct
 
-    def from_ase_atoms(self, **kwargs) -> Structure:
-        """Convert ase.Atoms to pymatgen Structure.
+    @classmethod
+    def from_ase_atoms(cls, atoms: Atoms, **kwargs) -> Self:
+        """Convert ase.Atoms to pymatgen IStructure.
 
         Args:
+            atoms (Atom): ASE Atoms object
             kwargs: Passed to AseAtomsAdaptor.get_structure.
 
         Returns:
-            Structure
+            Self
         """
         from pymatgen.io.ase import AseAtomsAdaptor
 
-        return AseAtomsAdaptor.get_structure(self, **kwargs)
+        return AseAtomsAdaptor.get_structure(atoms, cls=cls, **kwargs)
 
-    CellType = Literal["primitive", "conventional"]
+    CellType: TypeAlias = Literal["primitive", "conventional"]
 
     def to_cell(self, cell_type: IStructure.CellType, **kwargs) -> Structure:
         """Get a cell based on the current structure.
@@ -3328,7 +3330,7 @@ class IStructure(SiteCollection, MSONable):
         if cell_type not in valid_cell_types:
             raise ValueError(f"Invalid {cell_type=}, valid values are {valid_cell_types}")
 
-        method_keys = ["international_monoclinic", "keep_site_properties"]
+        method_keys = ("international_monoclinic", "keep_site_properties")
         method_kwargs = {key: kwargs.pop(key) for key in method_keys if key in kwargs}
 
         sga = SpacegroupAnalyzer(self, **kwargs)
@@ -3651,14 +3653,14 @@ class IMolecule(SiteCollection, MSONable):
         at index ind1 and ind2.
 
         Args:
-            ind1 (int): 1st site index
-            ind2 (int): 2nd site index
+            ind1 (int): 1st site index.
+            ind2 (int): 2nd site index.
             tol (float): Relative tolerance to test. Basically, the code checks if the distance
                 between the sites is less than (1 + tol) * typical bond distances.
                 Defaults to 0.2, i.e. 20% longer.
 
         Returns:
-            tuple[IMolecule, IMolecule]: The clusters formed from breaking the bond.
+            tuple[Self, Self]: The clusters formed from breaking the bond.
         """
         clusters = ([self[ind1]], [self[ind2]])
 
@@ -4133,10 +4135,12 @@ class IMolecule(SiteCollection, MSONable):
             return new
         raise ValueError("Cannot determine file type.")
 
-    def from_ase_atoms(self, **kwargs) -> Molecule:
+    @classmethod
+    def from_ase_atoms(cls, atoms: Atoms, **kwargs) -> Molecule:
         """Convert ase.Atoms to pymatgen Molecule.
 
         Args:
+            atoms (Atom): ASE Atoms object
             kwargs: Passed to AseAtomsAdaptor.get_molecule.
 
         Returns:
@@ -4144,7 +4148,10 @@ class IMolecule(SiteCollection, MSONable):
         """
         from pymatgen.io.ase import AseAtomsAdaptor
 
-        return AseAtomsAdaptor.get_molecule(self, **kwargs)
+        # TODO: `cls`` is hard coded as `Molecule` here because inside
+        # the get_molecule method `set_charge_and_spin` is called,
+        # which is not available for `IMolecule`
+        return AseAtomsAdaptor.get_molecule(atoms, cls=Molecule, **kwargs)
 
 
 class Structure(IStructure, collections.abc.MutableSequence):
@@ -5194,6 +5201,7 @@ class Molecule(IMolecule, collections.abc.MutableSequence):
             Molecule: self with new charge and spin multiplicity set.
         """
         self._charge = charge
+
         n_electrons = 0.0
         for site in self:
             for sp, amt in site.species.items():
@@ -5201,6 +5209,7 @@ class Molecule(IMolecule, collections.abc.MutableSequence):
                     n_electrons += sp.Z * amt
         n_electrons -= charge
         self._nelectrons = n_electrons
+
         if spin_multiplicity:
             if self._charge_spin_check and (n_electrons + spin_multiplicity) % 2 != 1:
                 raise ValueError(
