@@ -392,7 +392,7 @@ class AseAtomsAdaptor:
         return structure
 
     @staticmethod
-    def get_molecule(atoms: Atoms, cls: type[MolT] = Molecule, **cls_kwargs) -> Molecule:
+    def get_molecule(atoms: Atoms, cls: type[MolT] = Molecule, **cls_kwargs) -> MolT:
         """Get pymatgen molecule from ASE Atoms.
 
         Args:

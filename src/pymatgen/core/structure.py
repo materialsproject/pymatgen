@@ -995,6 +995,21 @@ class SiteCollection(collections.abc.Sequence, ABC):
 
         return AseAtomsAdaptor.get_atoms(self, **kwargs)
 
+    @classmethod
+    def from_ase_atoms(cls, atoms: Atoms, **kwargs) -> Self:
+        """Convert ase.Atoms to pymatgen (IStructure)/(I)Molecule.
+
+        Args:
+            atoms (Atom): ASE Atoms object
+            kwargs: Passed to AseAtomsAdaptor.get_structure.
+
+        Returns:
+            Self
+        """
+        from pymatgen.io.ase import AseAtomsAdaptor
+
+        return AseAtomsAdaptor.get_structure(atoms, cls=cls, **kwargs)
+
 
 class IStructure(SiteCollection, MSONable):
     """Basic immutable Structure object with periodicity. Essentially a sequence
@@ -3296,21 +3311,6 @@ class IStructure(SiteCollection, MSONable):
         struct.__class__ = cls
         return struct
 
-    @classmethod
-    def from_ase_atoms(cls, atoms: Atoms, **kwargs) -> Self:
-        """Convert ase.Atoms to pymatgen IStructure.
-
-        Args:
-            atoms (Atom): ASE Atoms object
-            kwargs: Passed to AseAtomsAdaptor.get_structure.
-
-        Returns:
-            Self
-        """
-        from pymatgen.io.ase import AseAtomsAdaptor
-
-        return AseAtomsAdaptor.get_structure(atoms, cls=cls, **kwargs)
-
     CellType: TypeAlias = Literal["primitive", "conventional"]
 
     def to_cell(self, cell_type: IStructure.CellType, **kwargs) -> Structure:
@@ -4134,21 +4134,6 @@ class IMolecule(SiteCollection, MSONable):
             new.__class__ = cls
             return new
         raise ValueError("Cannot determine file type.")
-
-    @classmethod
-    def from_ase_atoms(cls, atoms: Atoms, **kwargs) -> Self:
-        """Convert ase.Atoms to pymatgen (I)Molecule.
-
-        Args:
-            atoms (Atom): ASE Atoms object
-            kwargs: Passed to AseAtomsAdaptor.get_structure.
-
-        Returns:
-            Self
-        """
-        from pymatgen.io.ase import AseAtomsAdaptor
-
-        return AseAtomsAdaptor.get_structure(atoms, cls=cls, **kwargs)
 
 
 class Structure(IStructure, collections.abc.MutableSequence):
