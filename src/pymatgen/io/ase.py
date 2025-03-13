@@ -315,8 +315,8 @@ class AseAtomsAdaptor:
         if properties.get("spacegroup") and isinstance(properties["spacegroup"], Spacegroup):
             properties["spacegroup"] = properties["spacegroup"].todict()
 
-        # Return an (I)Molecule object if that was specifically requested;
-        # otherwise return an (I)Structure object as expected
+        # Return a (I)Molecule object if that was specifically requested;
+        # otherwise return a (I)Structure object as expected
         if issubclass(cls, IMolecule):
             structure = cls(symbols, positions, properties=properties, **cls_kwargs)
 

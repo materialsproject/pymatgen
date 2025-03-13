@@ -40,7 +40,7 @@ try:
     from ase.calculators.calculator import Calculator
     from ase.calculators.emt import EMT
 except ImportError:
-    ase = Atoms = Calculator = EMT = None
+    Atoms = Calculator = EMT = None
 
 
 ENUM_CMD = which("enum.x") or which("multienum.x")
