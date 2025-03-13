@@ -34,10 +34,13 @@ As a rule of thumb, `pymatgen` will support whatever versions of Python the late
 
 ## Recent Breaking Changes
 
-### v2024.?.?
+### v2025.?.?
 
-* The `symbol` attribute of `SpaceGroup` now always refers to its Hermann-Mauguin symbol
-(see [#3859](https://github.com/materialsproject/pymatgen/pull/3859)). In order to replace the old symbol, run
+* `from_ase_atoms` constructor for `(I)Structure/(I)Molecule` now returns the corresponding type instead of the mutable types only, see [#4321](https://github.com/materialsproject/pymatgen/pull/4321).
+
+### v2024.7.18
+
+* The `symbol` attribute of `SpaceGroup` now always refers to its Hermann-Mauguin symbol (see [#3859](https://github.com/materialsproject/pymatgen/pull/3859)). In order to replace the old symbol, run:
 
 ```py
 from pymatgen.symmetry.groups import SpaceGroup
@@ -50,8 +53,6 @@ except ValueError:
     else:
         new_symbol = SpaceGroup(old_symbol[:-1]).symbol
 ```
-
-* `from_ase_atoms` constructor for `(I)Structure/(I)Molecule` now returns the corresponding type instead of the mutable types only, see [#4321](https://github.com/materialsproject/pymatgen/pull/4321).
 
 ### v2024.5.31
 
