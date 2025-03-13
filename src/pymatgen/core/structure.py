@@ -997,7 +997,7 @@ class SiteCollection(collections.abc.Sequence, ABC):
 
     @classmethod
     def from_ase_atoms(cls, atoms: Atoms, **kwargs) -> Self:
-        """Convert ase.Atoms to pymatgen (IStructure)/(I)Molecule.
+        """Convert ase.Atoms to pymatgen (I)Structure/(I)Molecule.
 
         Args:
             atoms (Atom): ASE Atoms object
