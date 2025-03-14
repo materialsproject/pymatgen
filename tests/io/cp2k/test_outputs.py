@@ -1,7 +1,5 @@
 from __future__ import annotations
 
-from unittest import TestCase
-
 import numpy as np
 from numpy.testing import assert_allclose
 from pytest import approx
@@ -12,8 +10,8 @@ from pymatgen.util.testing import TEST_FILES_DIR
 TEST_DIR = f"{TEST_FILES_DIR}/io/cp2k"
 
 
-class TestCp2kOutput(TestCase):
-    def setUp(self):
+class TestCp2kOutput:
+    def setup_method(self):
         self.out = Cp2kOutput(f"{TEST_DIR}/cp2k.out", auto_load=True)
 
     def test_files(self):

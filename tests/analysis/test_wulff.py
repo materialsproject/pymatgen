@@ -9,7 +9,7 @@ from pymatgen.core.lattice import Lattice
 from pymatgen.core.structure import Structure
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
 from pymatgen.util.coord import in_coord_list
-from pymatgen.util.testing import TEST_FILES_DIR, PymatgenTest
+from pymatgen.util.testing import TEST_FILES_DIR, MatSciTest
 
 __author__ = "Zihan Xu, Richard Tran, Balachandran Radhakrishnan"
 __copyright__ = "Copyright 2013, The Materials Virtual Lab"
@@ -21,8 +21,8 @@ __date__ = "May 05 2016"
 TEST_DIR = f"{TEST_FILES_DIR}/analysis/wulff"
 
 
-class TestWulffShape(PymatgenTest):
-    def setUp(self):
+class TestWulffShape(MatSciTest):
+    def setup_method(self):
         with open(f"{TEST_DIR}/surface_samples.json", encoding="utf-8") as data_file:
             surface_properties = json.load(data_file)
 

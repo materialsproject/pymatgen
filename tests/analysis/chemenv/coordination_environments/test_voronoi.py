@@ -5,14 +5,14 @@ import numpy as np
 from pymatgen.analysis.chemenv.coordination_environments.voronoi import DetailedVoronoiContainer
 from pymatgen.core.lattice import Lattice
 from pymatgen.core.structure import Structure
-from pymatgen.util.testing import TEST_FILES_DIR, PymatgenTest
+from pymatgen.util.testing import TEST_FILES_DIR, MatSciTest
 
 __author__ = "waroquiers"
 
 img_files_dir = f"{TEST_FILES_DIR}/analysis/chemenv/images"
 
 
-class TestVoronoiContainer(PymatgenTest):
+class TestVoronoiContainer(MatSciTest):
     def test_voronoi(self):
         # Define a cubic lattice and a list of species (to be used for the fake structures)
         cubic_lattice = Lattice.cubic(10)

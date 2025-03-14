@@ -11,17 +11,16 @@ from pymatgen.core import Element, Structure
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
 from pymatgen.transformations.site_transformations import RemoveSitesTransformation
 from pymatgen.transformations.standard_transformations import SubstitutionTransformation
-from pymatgen.util.testing import TEST_FILES_DIR, PymatgenTest
+from pymatgen.util.testing import TEST_FILES_DIR, MatSciTest
 
-enum_cmd = which("enum.x") or which("multienum.x")
-makestr_cmd = which("makestr.x") or which("makeStr.x") or which("makeStr.py")
-enumlib_present = enum_cmd and makestr_cmd
+ENUM_CMD = which("enum.x") or which("multienum.x")
+MAKESTR_CMD = which("makestr.x") or which("makeStr.x") or which("makeStr.py")
 
 ENUMLIB_TEST_FILES_DIR: str = f"{TEST_FILES_DIR}/command_line/enumlib"
 
 
-@pytest.mark.skipif(not enumlib_present, reason="enum_lib not present.")
-class TestEnumlibAdaptor(PymatgenTest):
+@pytest.mark.skipif(not (ENUM_CMD and MAKESTR_CMD), reason="enumlib not present.")
+class TestEnumlibAdaptor(MatSciTest):
     def test_init(self):
         struct = self.get_structure("LiFePO4")
         sub_trans = SubstitutionTransformation({"Li": {"Li": 0.5}})

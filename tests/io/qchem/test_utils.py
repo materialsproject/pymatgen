@@ -7,7 +7,7 @@ from monty.io import zopen
 from pytest import approx
 
 from pymatgen.io.qchem.utils import lower_and_check_unique, process_parsed_hess
-from pymatgen.util.testing import TEST_FILES_DIR, PymatgenTest
+from pymatgen.util.testing import TEST_FILES_DIR, MatSciTest
 
 __author__ = "Ryan Kingsbury, Samuel Blau"
 __copyright__ = "Copyright 2018-2022, The Materials Project"
@@ -16,7 +16,7 @@ __copyright__ = "Copyright 2018-2022, The Materials Project"
 TEST_DIR = f"{TEST_FILES_DIR}/io/qchem/new_qchem_files"
 
 
-class TestUtil(PymatgenTest):
+class TestUtil(MatSciTest):
     """test utils."""
 
     def test_lower_and_check_unique(self):

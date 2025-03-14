@@ -1,10 +1,10 @@
 from __future__ import annotations
 
 from pymatgen.analysis.prototypes import AflowPrototypeMatcher
-from pymatgen.util.testing import PymatgenTest
+from pymatgen.util.testing import MatSciTest
 
 
-class TestAflowPrototypeMatcher(PymatgenTest):
+class TestAflowPrototypeMatcher(MatSciTest):
     def test_prototype_matching(self):
         af = AflowPrototypeMatcher()
 
