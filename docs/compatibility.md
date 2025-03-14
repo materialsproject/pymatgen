@@ -10,19 +10,13 @@ Pymatgen is a tool used for academic research and is actively developed by a lar
 
 However, `pymatgen` is also used as a library by other tools, and as such breaking changes such as the removal or renaming of existing interfaces, or substantive changes in the output of existing code, are tried to be kept to a minimum. This is especially true of all classes contained in the `pymatgen.core` module.
 
+Where at all possible, the `pymatgen` maintainers try to allow for a reasonable deprecation schedule. For example, the `Site.species` change in `v2019.3.13` had a deprecation schedule of about 9 months. However, some changes such as the reorganization of `pymatgen` into namespace packages in `v2021.3.4` cannot be easily done via a deprecation schedule.
+
 Despite this, it is sometimes necessary to make breaking changes to enable future development, or because other libraries we depend upon might change their own requirements. If a breaking change is causing significant issues, please post on the [GitHub Issues](https://github.com/materialsproject/pymatgen/issues) page to see if it can be resolved.
 
 ## Depending on Pymatgen
 
-Pymatgen uses [calendar versioning](http://calver.org) with a YYYY-MM-DD format. This has generally worked well since changes to core `pymatgen` functionality that most other codes depend on are rare. There have been only two instances in recent memory that breaking changes have been made.
-
-* v2021.3.4 - Reorganization of `pymatgen` into namespace packages, which required the removal
-  of root-level imports.
-* v2019.3.13 - Renaming of `Site.species_and_occu` to `Site.species`.
-
-Where at all possible, the `pymatgen` maintainers try to allow for a reasonable deprecation schedule. For example, the `Site.species` change had a deprecation schedule of about 9 months. However, some changes such as the recent reorganization of `pymatgen` into namespace packages cannot be easily done via a deprecation schedule.
-
-As a compromise solution, `pymatgen` has adopted **temporary** semantic versioning. A v2021.3.5 was released after v2021.3.4 to reverse the changes made, and new versions v2022.0.x were released that contains the breaking change (removal of root imports). We will continue to release critical updates to 2021.x.x versions. This allows end users to continue using 2021.x.x versions without having to deal with the breaking changes. However, it is recommended that users make the move to be compatible with 2022.0.x before Jan 1 2022, during which `pymatgen` will only support the new namespace architecture and the versioning scheme will go back to calendar versioning.
+Pymatgen uses [calendar versioning](http://calver.org) with a `YYYY-MM-DD` format. This has generally worked well since changes to core `pymatgen` functionality that most other codes depend on are rare.
 
 As the developer of a tool that depends on `pymatgen`, you can prevent upgrades of the major Pymatgen version by specifying a version range like `pymatgen>=2021.1,<2022` or, more succinctly, using the [compatible release operator](https://www.python.org/dev/peps/pep-0440/#compatible-release) `pymatgen~=2021.1`. This will prevent `pip` (and other package managers) from pulling in `Pymatgen` versions with breaking changes that may end up breaking your tool.
 
@@ -30,7 +24,7 @@ An even more conservative approach is to pin the `Pymatgen` dependency to a fixe
 
 ## Minimum Python Version
 
-As a rule of thumb, `pymatgen` will support whatever versions of Python the latest version of `numpy` supports (at the time of writing, this is Python 3.10+). You can also check what versions of Python are being tested automatically as part of our continuous integration testing on GitHub. We currently test `pymatgen` on macOS, Windows and Linux.
+As a rule of thumb, `pymatgen` will support whatever versions of Python the latest version of `numpy` supports (at the time of writing, this is Python 3.10+). You can also check what versions of Python are being tested automatically as part of our [continuous integration pipeline](https://github.com/materialsproject/pymatgen/blob/master/.github/workflows/test.yml) on GitHub. We currently test `pymatgen` on macOS, Windows and Linux.
 
 ## Recent Breaking Changes
 
@@ -120,20 +114,19 @@ from pymatgen import Orbital, Spin  # now "from pymatgen.electronic_structure.co
 from pymatgen import MPRester  # now "from pymatgen.ext.matproj ..."
 ```
 
-If your existing code uses `from pymatgen import <something>`, you will need to make
-modifications.
+If your existing code uses `from pymatgen import <something>`, you will need to make modifications.
 
 The easiest way is to use an IDE to run a Search and Replace.
 - First, replace any `from pymatgen import MPRester` with `from pymatgen.ext.matproj import MPRester`.
 - Then, replace `from pymatgen import` with `from pymatgen.core import`.
-- Alternatively, if you are using a Mac command line, you can try:
+- Alternatively, if you are using a macOS command line (`zsh` by default), you can try:
 
-```bash
+```zsh
 find . -name '*.py' | xargs sed -i "" 's/from pymatgen import MPRester/from pymatgen.ext.matproj import MPRester/g'
 find . -name '*.py' | xargs sed -i "" 's/from pymatgen import/from pymatgen.core import/g'
 ```
 
-From a Linux command line, you can try::
+From a Linux command line (`bash` by default), you can try:
 
 ```bash
 find . -name '*.py' | xargs sed -i 's/from pymatgen import MPRester/from pymatgen.ext.matproj import MPRester/g'
@@ -141,6 +134,12 @@ find . -name '*.py' | xargs sed -i 's/from pymatgen import/from pymatgen.core im
 ```
 
 This should resolve most import errors and only a few more modifications may need to be done by hand.
+
+### v2021.3.4
+
+* Reorganization of `pymatgen` into namespace packages, which required the removal of root-level imports.
+
+  As a compromise solution, `pymatgen` has adopted **temporary** semantic versioning. v2021.3.5 was released after v2021.3.4 to reverse the changes made, and new versions v2022.0.x were released that contains the breaking change (removal of root imports). We will continue to release critical updates to 2021.x.x versions. This allows end users to continue using 2021.x.x versions without having to deal with the breaking changes. However, it is recommended that users make the move to be compatible with 2022.0.x before Jan 1 2022, during which `pymatgen` will only support the new namespace architecture and the versioning scheme will go back to calendar versioning.
 
 ### v2021.3.3
 
@@ -155,3 +154,7 @@ This should resolve most import errors and only a few more modifications may nee
 ### v2020.10.20
 
 * The band structure plotting functionality, `BSPlotter`, has been overhauled to allow plotting of multiple band structures. This might cause issues for tools relying on the internal structure of BSPlotter's plot data.
+
+### v2019.3.13
+
+* Renaming of `Site.species_and_occu` to `Site.species`.
