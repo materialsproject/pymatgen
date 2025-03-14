@@ -8,9 +8,9 @@ nav_order: 3
 
 Pymatgen is a tool used for academic research and is actively developed by a large community of people. As such, releases are frequent, and new features and capabilities are constantly being added.
 
-However, `pymatgen` is also used as a library by other tools, and as such breaking changes such as the removal or renaming of existing functionality, or substantive changes in the output of existing code, are tried to be kept to a minimum. This is especially true of all classes contained in the `pymatgen.core` module.
+However, `pymatgen` is also used as a library by other tools, and as such breaking changes such as the removal or renaming of existing interfaces, or substantive changes in the output of existing code, are tried to be kept to a minimum. This is especially true of all classes contained in the `pymatgen.core` module.
 
-Despite this, it is sometimes necessary to make breaking changes to enable future development, or because other libraries we depend upon might change their own requirements. If a breaking change is causing significant issues, please post on the GitHub Issues page to see if it can be resolved.
+Despite this, it is sometimes necessary to make breaking changes to enable future development, or because other libraries we depend upon might change their own requirements. If a breaking change is causing significant issues, please post on the [GitHub Issues](https://github.com/materialsproject/pymatgen/issues) page to see if it can be resolved.
 
 ## Depending on Pymatgen
 
@@ -30,7 +30,7 @@ An even more conservative approach is to pin the `Pymatgen` dependency to a fixe
 
 ## Minimum Python Version
 
-As a rule of thumb, `pymatgen` will support whatever versions of Python the latest version of `numpy` supports (at the time of writing, this is Python 3.8+). You can also check what versions of Python are being tested automatically as part of our continuous integration testing on GitHub. We currently test `pymatgen` on Mac, Windows and Linux.
+As a rule of thumb, `pymatgen` will support whatever versions of Python the latest version of `numpy` supports (at the time of writing, this is Python 3.10+). You can also check what versions of Python are being tested automatically as part of our continuous integration testing on GitHub. We currently test `pymatgen` on macOS, Windows and Linux.
 
 ## Recent Breaking Changes
 
