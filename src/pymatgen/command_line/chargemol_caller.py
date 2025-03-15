@@ -409,7 +409,7 @@ class ChargemolAnalysis:
             bo = ".true." if compute_bond_orders else ".false."
             lines += f"\n<compute BOs>\n{bo}\n</compute BOs>\n"
 
-        with open("job_control.txt", mode="w") as file:
+        with open("job_control.txt", mode="w", encoding="utf-8") as file:
             file.write(lines)
 
     @staticmethod
@@ -422,7 +422,7 @@ class ChargemolAnalysis:
         idx = 0
         start = False
         dipoles = []
-        with open(filepath) as file:
+        with open(filepath, encoding="utf-8") as file:
             for line in file:
                 if "The following XYZ" in line:
                     start = True
@@ -549,7 +549,7 @@ class ChargemolAnalysis:
         """
         props = []
         if os.path.isfile(xyz_path):
-            with open(xyz_path) as file:
+            with open(xyz_path, encoding="utf-8") as file:
                 for idx, line in enumerate(file):
                     if idx <= 1:
                         continue
@@ -574,7 +574,7 @@ class ChargemolAnalysis:
         props = []
         if os.path.isfile(ddec_analysis_path):
             start = False
-            with open(ddec_analysis_path) as file:
+            with open(ddec_analysis_path, encoding="utf-8") as file:
                 for line in file:
                     if "computed CM5" in line:
                         start = True

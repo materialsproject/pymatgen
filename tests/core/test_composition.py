@@ -12,7 +12,7 @@ from numpy.testing import assert_allclose
 from pytest import approx
 
 from pymatgen.core import Composition, DummySpecies, Element, Species
-from pymatgen.core.composition import ChemicalPotential
+from pymatgen.core.composition import ChemicalPotential, CompositionError, reduce_formula
 from pymatgen.util.testing import PymatgenTest
 
 
@@ -143,6 +143,10 @@ class TestComposition(PymatgenTest):
         for val in (1, 2.5):
             with pytest.raises(TypeError, match=f"{type(val).__name__!r} object is not iterable"):
                 Composition(val)
+
+    def test_init_mixed_valence(self):
+        assert Composition({"Fe3+": 2, "Fe2+": 2, "Li": 4, "O": 16, "P": 4}).formula == "Li4 Fe4 P4 O16"
+        assert Composition({"Fe3+": 2, "Fe": 2, "Li": 4, "O": 16, "P": 4}).formula == "Li4 Fe4 P4 O16"
 
     def test_str_and_repr(self):
         test_cases = [
@@ -312,7 +316,7 @@ class TestComposition(PymatgenTest):
         all_formulas = [c.reduced_formula for c in self.comps]
         assert all_formulas == correct_reduced_formulas
 
-        # test iupac reduced formula (polyanions should still appear at the end)
+        # test IUPAC reduced formula (polyanions should still appear at the end)
         all_formulas = [c.get_reduced_formula_and_factor(iupac_ordering=True)[0] for c in self.comps]
         assert all_formulas == correct_reduced_formulas
         assert Composition("H6CN").get_integer_formula_and_factor(iupac_ordering=True)[0] == "CNH6"
@@ -343,7 +347,7 @@ class TestComposition(PymatgenTest):
         assert formula == "Li(BH)6"
         assert factor == approx(1 / 6)
 
-        # test iupac reduced formula (polyanions should still appear at the end)
+        # test IUPAC reduced formula (polyanions should still appear at the end)
         all_formulas = [c.get_integer_formula_and_factor(iupac_ordering=True)[0] for c in self.comps]
         assert all_formulas == correct_reduced_formulas
         assert Composition("H6CN0.5").get_integer_formula_and_factor(iupac_ordering=True) == ("C2NH12", 0.5)
@@ -611,8 +615,8 @@ class TestComposition(PymatgenTest):
         # test num_atoms
         c1 = Composition("Mg-1Li", allow_negative=True)
         assert c1.num_atoms == 2
-        assert c1.get_atomic_fraction("Mg") == 0.5
-        assert c1.get_atomic_fraction("Li") == 0.5
+        assert c1.get_atomic_fraction("Mg") == approx(0.5)
+        assert c1.get_atomic_fraction("Li") == approx(0.5)
         assert c1.fractional_composition == Composition("Mg-0.5Li0.5", allow_negative=True)
 
         # test copy
@@ -621,8 +625,8 @@ class TestComposition(PymatgenTest):
         # test species
         c1 = Composition({"Mg": 1, "Mg2+": -1}, allow_negative=True)
         assert c1.num_atoms == 2
-        assert c1.element_composition == Composition("Mg-1", allow_negative=True)
-        assert c1.average_electroneg == 0.655
+        assert c1.get_el_amt_dict() == {"Mg": 0}
+        assert c1.average_electroneg == approx(1.31)  # correct Mg electronegativity)
 
     def test_special_formulas(self):
         special_formulas = {
@@ -854,6 +858,31 @@ class TestComposition(PymatgenTest):
         composition = Composition({"D+": 2, "O": 1})
         assert composition.elements[0].oxi_state == 1
         assert "Deuterium" in [elem.long_name for elem in composition.elements]
+
+    def test_curly_bracket_deeply_nested_formulas(self):
+        """Test parsing of bulk metallic glass formulas with complex nested brackets collected in
+        Ward et al. (2018) https://doi.org/10.1016/j.actamat.2018.08.002.
+        """
+        for formula, expected in {
+            "{[(Fe0.6Co0.4)0.75B0.2Si0.05]0.96Nb0.04}100": "Nb4 Fe43.2 Co28.8 Si4.8 B19.2",
+            "{[(Fe0.6Co0.4)0.75B0.2Si0.05]0.96Nb0.04}99Cr1": "Nb3.96 Cr1 Fe42.768 Co28.512 Si4.752 B19.008",
+            "{[(Fe0.6Co0.4)0.75B0.2Si0.05]0.96Nb0.04}98Cr2": "Nb3.92 Cr2 Fe42.336 Co28.224 Si4.704 B18.816",
+            "{[(Fe0.6Co0.4)0.75B0.2Si0.05]0.96Nb0.04}97Cr3": "Nb3.88 Cr3 Fe41.904 Co27.936 Si4.656 B18.624",
+            "{[(Fe0.6Co0.4)0.75B0.2Si0.05]0.96Nb0.04}96Cr4": "Nb3.84 Cr4 Fe41.472 Co27.648 Si4.608 B18.432",
+        }.items():
+            assert Composition(formula).formula == expected
+
+
+def test_reduce_formula():
+    assert reduce_formula({"Li": 2, "Mn": 4, "O": 8}) == ("LiMn2O4", 2)
+    assert reduce_formula({"Li": 4, "O": 4}) == ("LiO", 4)
+    assert reduce_formula({"Zn": 2, "O": 2, "H": 2}) == ("ZnHO", 2)
+
+
+def test_composition_error():
+    error = CompositionError("Composition error")
+    assert isinstance(error, CompositionError)
+    assert str(error) == "Composition error"
 
 
 class TestChemicalPotential:

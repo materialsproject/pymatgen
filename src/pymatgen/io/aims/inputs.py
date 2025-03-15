@@ -219,7 +219,7 @@ class AimsGeometryIn(MSONable):
         if not overwrite and file_name.exists():
             raise ValueError(f"geometry.in file exists in {directory}")
 
-        with open(f"{directory}/geometry.in", mode="w") as file:
+        with open(f"{directory}/geometry.in", mode="w", encoding="utf-8") as file:
             file.write(self.get_header(file_name.as_posix()))
             file.write(self.content)
             file.write("\n")
@@ -566,7 +566,7 @@ class AimsControlIn(MSONable):
         magmom = structure.site_properties.get("magmom", spins)
         if (
             parameters.get("spin", "") == "collinear"
-            and np.all(magmom == 0.0)
+            and np.allclose(magmom, 0.0)
             and ("default_initial_moment" not in parameters)
         ):
             warn(
@@ -607,6 +607,10 @@ class AimsControlIn(MSONable):
                     content += self.get_aims_control_parameter_str(key, output_type, "%s")
             elif key == "vdw_correction_hirshfeld" and value:
                 content += self.get_aims_control_parameter_str(key, "", "%s")
+            elif key == "xc":
+                if "libxc" in value:
+                    content += self.get_aims_control_parameter_str("override_warning_libxc", ".true.", "%s")
+                content += self.get_aims_control_parameter_str(key, value, "%s")
             elif isinstance(value, bool):
                 content += self.get_aims_control_parameter_str(key, str(value).lower(), ".%s.")
             elif isinstance(value, tuple | list):
@@ -672,7 +676,7 @@ class AimsControlIn(MSONable):
 
         content = self.get_content(structure, verbose_header)
 
-        with open(f"{directory}/control.in", mode="w") as file:
+        with open(f"{directory}/control.in", mode="w", encoding="utf-8") as file:
             file.write(f"#{'=' * 72}\n")
             file.write(f"# FHI-aims geometry file: {directory}/geometry.in\n")
             file.write("# File generated from pymatgen\n")

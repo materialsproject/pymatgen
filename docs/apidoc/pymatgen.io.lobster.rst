@@ -3,8 +3,8 @@ pymatgen.io.lobster package
 
 .. automodule:: pymatgen.io.lobster
    :members:
-   :undoc-members:
    :show-inheritance:
+   :undoc-members:
 
 Submodules
 ----------
@@ -14,21 +14,21 @@ pymatgen.io.lobster.inputs module
 
 .. automodule:: pymatgen.io.lobster.inputs
    :members:
-   :undoc-members:
    :show-inheritance:
+   :undoc-members:
 
 pymatgen.io.lobster.lobsterenv module
 -------------------------------------
 
 .. automodule:: pymatgen.io.lobster.lobsterenv
    :members:
-   :undoc-members:
    :show-inheritance:
+   :undoc-members:
 
 pymatgen.io.lobster.outputs module
 ----------------------------------
 
 .. automodule:: pymatgen.io.lobster.outputs
    :members:
-   :undoc-members:
    :show-inheritance:
+   :undoc-members:

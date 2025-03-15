@@ -4,6 +4,7 @@ import struct
 
 import pytest
 from monty.io import zopen
+from pytest import approx
 
 from pymatgen.io.qchem.utils import lower_and_check_unique, process_parsed_hess
 from pymatgen.util.testing import TEST_FILES_DIR, PymatgenTest
@@ -21,7 +22,7 @@ class TestUtil(PymatgenTest):
     def test_lower_and_check_unique(self):
         dct = {"sVp": {"RHOISO": 0.0009}, "jobType": "SP"}
         d2 = lower_and_check_unique(dct)
-        assert d2 == {"svp": {"RHOISO": 0.0009}, "job_type": "sp"}
+        assert d2 == {"svp": {"RHOISO": approx(0.0009)}, "job_type": "sp"}
         d3 = lower_and_check_unique(d2["svp"])
         assert d3 == {"rhoiso": "0.0009"}
         d4 = {"jobType": "SP", "JOBtype": "SP"}

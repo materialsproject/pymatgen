@@ -42,9 +42,19 @@ try:
     from zeo.netstorage import AtomNetwork
 
     zeo_found = True
+    zeo_source: str | None = "zeo"
 except ImportError:
-    zeo_found = False
-    AtomNetwork = prune_voronoi_network_close_node = None
+    try:
+        from pyzeo import AtomNetwork
+        from pyzeo.extension import prune_voronoi_network_close_node
+
+        zeo_found = True
+        zeo_source = "pyzeo"
+    except ImportError:
+        zeo_found = False
+        zeo_source = None
+        AtomNetwork = prune_voronoi_network_close_node = None
+
 
 if TYPE_CHECKING:
     from pathlib import Path

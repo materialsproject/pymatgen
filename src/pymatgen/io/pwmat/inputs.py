@@ -136,7 +136,7 @@ class ACExtractor(ACExtractorBase):
         """
         content = "POSITION"
         idx_row = LineLocator.locate_all_lines(file_path=self.atom_config_path, content=content)[0]
-        with open(self.atom_config_path) as file:
+        with open(self.atom_config_path, encoding="utf-8") as file:
             atom_config_content = file.readlines()
         atomic_numbers_content = atom_config_content[idx_row : idx_row + self.n_atoms]
         atomic_numbers_lst = [int(row.split()[0]) for row in atomic_numbers_content]  # convert str to int
@@ -151,7 +151,7 @@ class ACExtractor(ACExtractorBase):
         coords_lst: list[np.ndarray] = []
         content: str = "POSITION"
         idx_row: int = LineLocator.locate_all_lines(file_path=self.atom_config_path, content=content)[0]
-        with open(self.atom_config_path) as file:
+        with open(self.atom_config_path, encoding="utf-8") as file:
             atom_config_content = file.readlines()
         """
         row_content:
@@ -174,7 +174,7 @@ class ACExtractor(ACExtractorBase):
         try:  # Error: not containing magmoms info.
             idx_row = LineLocator.locate_all_lines(file_path=self.atom_config_path, content=content)[-1]
 
-            with open(self.atom_config_path) as file:
+            with open(self.atom_config_path, encoding="utf-8") as file:
                 atom_config_content = file.readlines()
 
             magnetic_moments_content = atom_config_content[idx_row : idx_row + self.n_atoms]
@@ -495,7 +495,7 @@ class GenKpt(MSONable):
         """Initialization function.
 
         Args:
-            reciprocal_lattice (np.array): Reciprocal lattice with factor of 2*pi.
+            reciprocal_lattice (NDArray): Reciprocal lattice with factor of 2*pi.
             kpoints (dict[str, np.array]): Kpoints and their corresponding fractional coordinates.
             kpath (list[list[str]]): All kpaths, with each list representing one kpath.
             density (float): The density of kpoints mesh with factor of 2*pi.

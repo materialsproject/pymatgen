@@ -20,7 +20,7 @@ import warnings
 from abc import ABC, abstractmethod
 from collections import defaultdict
 from fnmatch import fnmatch
-from typing import TYPE_CHECKING, Literal, cast, get_args
+from typing import TYPE_CHECKING, Literal, cast, get_args, overload
 
 import numpy as np
 from monty.dev import deprecated
@@ -43,12 +43,15 @@ from pymatgen.core.units import Length, Mass
 from pymatgen.electronic_structure.core import Magmom
 from pymatgen.symmetry.maggroups import MagneticSpaceGroup
 from pymatgen.util.coord import all_distances, get_angle, lattice_points_in_supercell
+from pymatgen.util.due import Doi, due
 
 if TYPE_CHECKING:
     from collections.abc import Callable, Iterable, Iterator, Sequence
-    from typing import Any, SupportsIndex
+    from typing import Any, ClassVar, SupportsIndex, TypeAlias
 
+    import moyopy
     import pandas as pd
+    import spglib
     from ase import Atoms
     from ase.calculators.calculator import Calculator
     from ase.io.trajectory import Trajectory
@@ -59,7 +62,7 @@ if TYPE_CHECKING:
 
     from pymatgen.util.typing import CompositionLike, MillerIndex, PathLike, PbcLike, SpeciesLike
 
-FileFormats = Literal[
+FileFormats: TypeAlias = Literal[
     "cif",
     "poscar",
     "cssr",
@@ -73,7 +76,7 @@ FileFormats = Literal[
     "aims",
     "",
 ]
-StructureSources = Literal["Materials Project", "COD"]
+StructureSources: TypeAlias = Literal["Materials Project", "COD"]
 
 
 class Neighbor(Site):
@@ -214,8 +217,11 @@ class SiteCollection(collections.abc.Sequence, ABC):
     """
 
     # Tolerance in Angstrom for determining if sites are too close
-    DISTANCE_TOLERANCE = 0.5
-    _properties: dict
+    DISTANCE_TOLERANCE: ClassVar[float] = 0.5
+
+    def __init__(self) -> None:
+        """Init a SiteCollection."""
+        self._properties: dict
 
     def __contains__(self, site: object) -> bool:
         return site in self.sites
@@ -2912,50 +2918,59 @@ class IStructure(SiteCollection, MSONable):
         return cls.from_sites(sites, charge=charge, properties=dct.get("properties"))
 
     def to(self, filename: PathLike = "", fmt: FileFormats = "", **kwargs) -> str:
-        """Output the structure to a file or string.
+        """Output the structure to a string (and to a file when filename is given).
 
         Args:
             filename (PathLike): If provided, output will be written to a file. If
                 fmt is not specified, the format is determined from the
                 filename. Defaults is None, i.e. string output.
             fmt (str): Format to output to. Defaults to JSON unless filename
-                is provided. If fmt is specifies, it overrides whatever the
+                is provided. If specified, it overrides whatever the
                 filename is. Options include "cif", "poscar", "cssr", "json",
                 "xsf", "mcsqs", "prismatic", "yaml", "yml", "fleur-inpgen", "pwmat",
                 "aims".
-                Non-case sensitive.
-            **kwargs: Kwargs passthru to relevant methods. e.g. This allows
-                the passing of parameters like symprec to the
-                CifWriter.__init__ method for generation of symmetric CIFs.
+                Case insensitive.
+            **kwargs: Kwargs pass thru to relevant methods. This allows
+                the passing of parameters like `symprec` to the
+                `CifWriter.__init__ method` for generation of symmetric CIFs.
 
         Returns:
-            str: String representation of molecule in given format. If a filename
+            str: String representation of structure in given format. If a filename
                 is provided, the same string is written to the file.
         """
         filename, fmt = str(filename), cast(FileFormats, fmt.lower())
+
+        # Default to JSON if filename not specified
+        if filename == "" and fmt == "":
+            fmt = "json"
 
         if fmt == "cif" or fnmatch(filename.lower(), "*.cif*"):
             from pymatgen.io.cif import CifWriter
 
             writer: Any = CifWriter(self, **kwargs)
+
         elif fmt == "mcif" or fnmatch(filename.lower(), "*.mcif*"):
             from pymatgen.io.cif import CifWriter
 
             writer = CifWriter(self, write_magmoms=True, **kwargs)
+
         elif fmt == "poscar" or fnmatch(filename, "*POSCAR*"):
             from pymatgen.io.vasp import Poscar
 
             writer = Poscar(self, **kwargs)
+
         elif fmt == "cssr" or fnmatch(filename.lower(), "*.cssr*"):
             from pymatgen.io.cssr import Cssr
 
             writer = Cssr(self)
+
         elif fmt == "json" or fnmatch(filename.lower(), "*.json*"):
-            json_str = json.dumps(self.as_dict())
+            json_str = json.dumps(self.as_dict(), **kwargs)
             if filename:
                 with zopen(filename, mode="wt", encoding="utf-8") as file:
                     file.write(json_str)
             return json_str
+
         elif fmt == "xsf" or fnmatch(filename.lower(), "*.xsf*"):
             from pymatgen.io.xcrysden import XSF
 
@@ -2964,6 +2979,7 @@ class IStructure(SiteCollection, MSONable):
                 with zopen(filename, mode="wt", encoding="utf-8") as file:
                     file.write(res_str)
             return res_str
+
         elif (
             fmt == "mcsqs"
             or fnmatch(filename, "*rndstr.in*")
@@ -2977,10 +2993,12 @@ class IStructure(SiteCollection, MSONable):
                 with zopen(filename, mode="wt", encoding="ascii") as file:
                     file.write(res_str)
             return res_str
+
         elif fmt == "prismatic" or fnmatch(filename, "*prismatic*"):
             from pymatgen.io.prismatic import Prismatic
 
             return Prismatic(self).to_str()
+
         elif fmt in ("yaml", "yml") or fnmatch(filename, "*.yaml*") or fnmatch(filename, "*.yml*"):
             yaml = YAML()
             str_io = io.StringIO()
@@ -2990,6 +3008,7 @@ class IStructure(SiteCollection, MSONable):
                 with zopen(filename, mode="wt", encoding="utf-8") as file:
                     file.write(yaml_str)
             return yaml_str
+
         elif fmt == "aims" or fnmatch(filename, "geometry.in"):
             from pymatgen.io.aims.inputs import AimsGeometryIn
 
@@ -3000,11 +3019,13 @@ class IStructure(SiteCollection, MSONable):
                     file.write(geom_in.content)
                     file.write("\n")
             return geom_in.content
+
         # fleur support implemented in external namespace pkg https://github.com/JuDFTteam/pymatgen-io-fleur
         elif fmt == "fleur-inpgen" or fnmatch(filename, "*.in*"):
             from pymatgen.io.fleur import FleurInput
 
             writer = FleurInput(self, **kwargs)
+
         elif fmt == "res" or fnmatch(filename, "*.res"):
             from pymatgen.io.res import ResIO
 
@@ -3013,10 +3034,12 @@ class IStructure(SiteCollection, MSONable):
                 with zopen(filename, mode="wt", encoding="utf-8") as file:
                     file.write(res_str)
             return res_str
+
         elif fmt == "pwmat" or fnmatch(filename.lower(), "*.pwmat") or fnmatch(filename.lower(), "*.config"):
             from pymatgen.io.pwmat import AtomConfig
 
             writer = AtomConfig(self, **kwargs)
+
         else:
             if fmt == "":
                 raise ValueError(f"Format not specified and could not infer from {filename=}")
@@ -3334,6 +3357,83 @@ class IStructure(SiteCollection, MSONable):
             Structure: with the requested cell type.
         """
         return self.to_cell("conventional", **kwargs)
+
+    @overload
+    def get_symmetry_dataset(self, backend: Literal["moyopy"], **kwargs) -> moyopy.MoyoDataset: ...
+
+    @due.dcite(
+        Doi("10.1080/27660400.2024.2384822"),
+        description="Spglib: a software library for crystal symmetry search",
+    )
+    @overload
+    def get_symmetry_dataset(self, backend: Literal["spglib"], **kwargs) -> spglib.SpglibDataset: ...
+
+    def get_symmetry_dataset(
+        self, backend: Literal["moyopy", "spglib"] = "spglib", return_raw_dataset=False, symprec: float = 1e-2, **kwargs
+    ) -> dict | moyopy.MoyoDataset | spglib.SpglibDataset:
+        """Get a symmetry dataset from the structure using either moyopy or spglib backend.
+
+        If using the spglib backend (default), please cite:
+
+        Togo, A., Shinohara, K., & Tanaka, I. (2024). Spglib: a software library for crystal
+        symmetry search. Science and Technology of Advanced Materials: Methods, 4(1), 2384822-2384836.
+        https://doi.org/10.1080/27660400.2024.2384822
+
+        Args:
+            backend ("moyopy" | "spglib"): Which symmetry analysis backend to use.
+                Defaults to "spglib".
+            return_raw_dataset (bool): Whether to return the raw Dataset object from the backend. The default is
+                False, which returns a dict with a common subset of the data present in both datasets. If you use the
+                raw Dataset object, we do not guarantee that the format of the output is not going to change.
+            symprec (float): Tolerance for symmetry determination. Defaults to 0.01 A.
+            **kwargs: Additional arguments passed to the respective backend's constructor.
+                For spglib, these are passed to SpacegroupAnalyzer (e.g. symprec, angle_tolerance).
+                For moyopy, these are passed to MoyoDataset constructor.
+
+        Returns:
+            MoyoDataset | SpglibDataset: Symmetry dataset from the chosen backend.
+
+        Raises:
+            ImportError: If the requested backend is not installed.
+            ValueError: If an invalid backend is specified.
+        """
+        if backend not in ("moyopy", "spglib"):
+            raise ValueError(f"Invalid {backend=}, must be one of moyopy or spglib.")
+
+        if backend == "moyopy":
+            try:
+                import moyopy
+                import moyopy.interface
+            except ImportError:
+                raise ImportError("moyopy is not installed. Run pip install moyopy.")
+
+            # Convert structure to MoyoDataset format
+            moyo_cell = moyopy.interface.MoyoAdapter.from_structure(self)
+            dataset = moyopy.MoyoDataset(cell=moyo_cell, symprec=symprec, **kwargs)
+
+        else:
+            from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
+
+            sga = SpacegroupAnalyzer(self, symprec=symprec, **kwargs)
+            dataset = sga.get_symmetry_dataset()
+
+        if return_raw_dataset:
+            return dataset
+
+        dictdata = {k: getattr(dataset, k) for k in ("hall_number", "number", "site_symmetry_symbols", "wyckoffs")}
+
+        if backend == "spglib":
+            dictdata["international"] = dataset.international
+            dictdata["orbits"] = dataset.crystallographic_orbits
+            dictdata["std_origin_shift"] = dataset.origin_shift
+        else:
+            from pymatgen.symmetry.groups import SpaceGroup
+
+            dictdata["international"] = SpaceGroup.from_int_number(dataset.number).symbol
+            dictdata["orbits"] = dataset.orbits
+            dictdata["std_origin_shift"] = dataset.std_origin_shift
+
+        return dictdata
 
 
 class IMolecule(SiteCollection, MSONable):
@@ -4590,9 +4690,8 @@ class Structure(IStructure, collections.abc.MutableSequence):
         the structure in place.
 
         Args:
-            indices (list): List of site indices on which to perform the
-                translation.
-            theta (float): Angle in radians
+            indices (list): Site indices on which to perform the rotation.
+            theta (float): Angle in radians.
             axis (3x1 array): Rotation axis vector.
             anchor (3x1 array): Point of rotation.
             to_unit_cell (bool): Whether new sites are transformed to unit cell
@@ -4632,16 +4731,16 @@ class Structure(IStructure, collections.abc.MutableSequence):
 
         return self
 
-    def perturb(self, distance: float, min_distance: float | None = None) -> Self:
+    def perturb(self, distance: float, min_distance: float | None = None, seed: int = 0) -> Self:
         """Perform a random perturbation of the sites in a structure to break
         symmetries. Modifies the structure in place.
 
         Args:
             distance (float): Distance in angstroms by which to perturb each site.
             min_distance (None, int, or float): if None, all displacements will
-                be equal amplitude. If int or float, perturb each site a
-                distance drawn from the uniform distribution between
-                'min_distance' and 'distance'.
+                be equal amplitude. If int or float, perturb each site a distance drawn
+                from the uniform distribution between 'min_distance' and 'distance'.
+            seed (int): Seed for the random number generator. Defaults to 0.
 
         Returns:
             Structure: self with perturbed sites.
@@ -4649,7 +4748,7 @@ class Structure(IStructure, collections.abc.MutableSequence):
 
         def get_rand_vec():
             # Deal with zero vectors
-            rng = np.random.default_rng()
+            rng = np.random.default_rng(seed=seed)
             vector = rng.standard_normal(3)
             vnorm = np.linalg.norm(vector)
             dist = distance
@@ -4717,44 +4816,63 @@ class Structure(IStructure, collections.abc.MutableSequence):
 
         return self
 
-    def merge_sites(self, tol: float = 0.01, mode: Literal["sum", "delete", "average"] = "sum") -> Self:
-        """Merges sites (adding occupancies) within tol of each other.
-        Removes site properties.
+    def merge_sites(
+        self,
+        tol: float = 0.01,
+        mode: Literal["sum", "delete", "average"] = "sum",
+    ) -> Self:
+        """Merges sites (by adding occupancies) within tolerance and removes
+            site properties in "sum/delete" modes.
 
         Args:
             tol (float): Tolerance for distance to merge sites.
-            mode ("sum" | "delete" | "average"): "delete" means duplicate sites are
-                deleted. "sum" means the occupancies are summed for the sites.
-                "average" means that the site is deleted but the properties are averaged
-                Only first letter is considered.
+            mode ("sum" | "delete" | "average"): Only first letter is considered at this moment.
+                - "delete": delete duplicate sites.
+                - "sum": sum the occupancies for the sites.
+                - "average": delete the site but average the properties if it's numerical.
 
         Returns:
-            Structure: self with merged sites.
+            Structure: Structure with merged sites.
         """
-        dist_mat = self.distance_matrix
+        # TODO: change the code the allow full name after 2025-12-01
+        # TODO2: add a test for mode value, currently it only checks if first letter is "s/a"
+        if mode.lower() not in {"sum", "delete", "average"} and mode.lower()[0] in {"s", "d", "a"}:
+            warnings.warn(
+                "mode would only allow full name sum/delete/average after 2025-12-01", DeprecationWarning, stacklevel=2
+            )
+
+        if mode.lower()[0] not in {"s", "d", "a"}:
+            raise ValueError(f"Illegal {mode=}, should start with a/d/s.")
+
+        dist_mat: NDArray = self.distance_matrix
         np.fill_diagonal(dist_mat, 0)
         clusters = fcluster(linkage(squareform((dist_mat + dist_mat.T) / 2)), tol, "distance")
-        sites = []
+
+        sites: list[PeriodicSite] = []
         for cluster in np.unique(clusters):
-            inds = np.where(clusters == cluster)[0]
-            species = self[inds[0]].species
-            coords = self[inds[0]].frac_coords
-            props = self[inds[0]].properties
-            for n, i in enumerate(inds[1:]):
-                sp = self[i].species
+            indexes = np.where(clusters == cluster)[0]
+            species: Composition = self[indexes[0]].species
+            coords: NDArray = self[indexes[0]].frac_coords
+            props: dict = self[indexes[0]].properties
+
+            for site_idx, clust_idx in enumerate(indexes[1:]):
+                # Sum occupancies in "sum" mode
                 if mode.lower()[0] == "s":
-                    species += sp
-                offset = self[i].frac_coords - coords
-                coords += ((offset - np.round(offset)) / (n + 2)).astype(coords.dtype)
-                for key in props:
-                    if props[key] is not None and self[i].properties[key] != props[key]:
-                        if mode.lower()[0] == "a" and isinstance(props[key], float):
+                    species += self[clust_idx].species
+
+                offset = self[clust_idx].frac_coords - coords
+                coords += ((offset - np.round(offset)) / (site_idx + 2)).astype(coords.dtype)
+                for key, val in props.items():
+                    if val is not None and not np.array_equal(self[clust_idx].properties[key], val):
+                        if mode.lower()[0] == "a" and isinstance(val, float | int):
                             # update a running total
-                            props[key] = props[key] * (n + 1) / (n + 2) + self[i].properties[key] / (n + 2)
+                            props[key] = val * (site_idx + 1) / (site_idx + 2) + self[clust_idx].properties[key] / (
+                                site_idx + 2
+                            )
                         else:
                             props[key] = None
                             warnings.warn(
-                                f"Sites with different site property {key} are merged. So property is set to none",
+                                f"Sites with different site property {key} are merged. But property is set to None",
                                 stacklevel=2,
                             )
             sites.append(PeriodicSite(species, coords, self.lattice, properties=props))
@@ -5192,9 +5310,8 @@ class Molecule(IMolecule, collections.abc.MutableSequence):
         """Rotate specific sites by some angle around vector at anchor.
 
         Args:
-            indices (list): List of site indices on which to perform the
-                translation.
-            theta (float): Angle in radians
+            indices (list): Site indices on which to perform the rotation.
+            theta (float): Angle in radians.
             axis (3x1 array): Rotation axis vector.
             anchor (3x1 array): Point of rotation.
 

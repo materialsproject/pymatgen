@@ -8,6 +8,7 @@ from __future__ import annotations
 import collections
 import logging
 import os
+import re
 import sys
 
 import matplotlib.pyplot as plt
@@ -114,7 +115,7 @@ class AbinitTimerParser(collections.abc.Iterable):
         read_ok = []
         for filename in filenames:
             try:
-                file = open(filename)  # noqa: SIM115
+                file = open(filename, encoding="utf-8")  # noqa: SIM115
             except OSError:
                 logger.warning(f"Cannot open file {filename}")
                 continue
@@ -141,7 +142,16 @@ class AbinitTimerParser(collections.abc.Iterable):
 
         def parse_line(line):
             """Parse single line."""
-            name, vals = line[:25], line[25:].split()
+            # Assume the first element of the values is a float. Use the first
+            # float appearing as a split between the name and the values.
+            # Also only digits, "." and spaces can be present after the fist float.
+            match = re.search(r"\s(\d+\.\d+[-\d.\s]*)$", line)
+            if not match:
+                raise self.Error(f"Cannot properly split line in label and values: {line}")
+            split_index = match.start()
+            name = line[:split_index].rstrip()
+            vals = line[split_index:].strip().split()
+
             try:
                 ctime, cfract, wtime, wfract, ncalls, gflops = vals
             except ValueError:
@@ -684,7 +694,7 @@ class AbinitTimer:
         is_str = isinstance(fileobj, str)
 
         if is_str:
-            fileobj = open(fileobj, mode="w")  # noqa: SIM115
+            fileobj = open(fileobj, mode="w", encoding="utf-8")  # noqa: SIM115
 
         for idx, section in enumerate(self.sections):
             fileobj.write(section.to_csvline(with_header=(idx == 0)))
@@ -712,15 +722,11 @@ class AbinitTimer:
 
     def get_dataframe(self, sort_key="wall_time", **kwargs):
         """Return a pandas DataFrame with entries sorted according to `sort_key`."""
-        frame = pd.DataFrame(columns=AbinitTimerSection.FIELDS)
-
-        for osect in self.order_sections(sort_key):
-            frame = frame.append(osect.to_dict(), ignore_index=True)
+        data = [osect.to_dict() for osect in self.order_sections(sort_key)]
+        frame = pd.DataFrame(data, columns=AbinitTimerSection.FIELDS)
 
         # Monkey patch
         frame.info = self.info
-        frame.cpu_time = self.cpu_time
-        frame.wall_time = self.wall_time
         frame.mpi_nprocs = self.mpi_nprocs
         frame.omp_nthreads = self.omp_nthreads
         frame.mpi_rank = self.mpi_rank
