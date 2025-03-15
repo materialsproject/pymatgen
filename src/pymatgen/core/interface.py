@@ -23,7 +23,6 @@ from pymatgen.core.sites import PeriodicSite, Site
 from pymatgen.core.structure import Structure
 from pymatgen.core.surface import Slab
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
-from pymatgen.util.typing import Tuple3Ints
 
 if TYPE_CHECKING:
     from collections.abc import Callable, Sequence
@@ -33,7 +32,7 @@ if TYPE_CHECKING:
     from typing_extensions import Self
 
     from pymatgen.core import Element
-    from pymatgen.util.typing import CompositionLike, Matrix3D, MillerIndex, Tuple3Floats, Vector3D
+    from pymatgen.util.typing import CompositionLike, Matrix3D, MillerIndex, Tuple3Floats, Tuple3Ints, Vector3D
 
 Tuple4Ints = tuple[int, int, int, int]
 logger = logging.getLogger(__name__)
@@ -529,10 +528,10 @@ class GrainBoundaryGenerator:
                 w = w1 - 2 * v1 - u1
                 _rotation_axis = (u, v, w)
             else:
-                _rotation_axis = cast(Tuple4Ints, tuple(rotation_axis))
+                _rotation_axis = cast("Tuple4Ints", tuple(rotation_axis))
 
         elif len(rotation_axis) == 3:
-            _rotation_axis = cast(Tuple3Ints, tuple(rotation_axis))
+            _rotation_axis = cast("Tuple3Ints", tuple(rotation_axis))
 
         else:
             raise ValueError("Invalid length of rotation axis.")
@@ -547,7 +546,7 @@ class GrainBoundaryGenerator:
                 u1, v1, w1 = plane[0], plane[1], plane[3]
                 plane = (u1, v1, w1)
             elif len(plane) == 3:
-                plane = cast(Tuple3Ints, tuple(plane))
+                plane = cast("Tuple3Ints", tuple(plane))
 
         # Set the plane for grain boundary when plane is None
         if plane is None:
@@ -586,14 +585,14 @@ class GrainBoundaryGenerator:
                 _plane = np.matmul(_rotation_axis, metric)
                 fractions = [Fraction(x).limit_denominator() for x in _plane]
                 least_mul = reduce(lcm, [fraction.denominator for fraction in fractions])
-                _plane = cast(Tuple3Ints, tuple(round(x * least_mul) for x in _plane))
+                _plane = cast("Tuple3Ints", tuple(round(x * least_mul) for x in _plane))
 
         else:
             _plane = plane
 
         if reduce(math.gcd, _plane) != 1:
             index = reduce(math.gcd, _plane)
-            _plane = cast(Tuple3Ints, tuple(round(x / index) for x in _plane))
+            _plane = cast("Tuple3Ints", tuple(round(x / index) for x in _plane))
 
         t1, t2 = self.get_trans_mat(
             r_axis=_rotation_axis,
@@ -888,7 +887,7 @@ class GrainBoundaryGenerator:
 
         else:
             raise RuntimeError("Lattice type not implemented.")
-        return cast(list[int], ratio)
+        return cast("list[int]", ratio)
 
     @staticmethod
     def get_trans_mat(
@@ -971,7 +970,7 @@ class GrainBoundaryGenerator:
         # Make sure gcd(r_axis) == 1
         if reduce(math.gcd, r_axis) != 1:
             r_axis = cast(
-                Tuple3Ints | Tuple4Ints,
+                "Tuple3Ints | Tuple4Ints",
                 tuple(round(x / reduce(math.gcd, r_axis)) for x in r_axis),
             )
 
@@ -1021,19 +1020,19 @@ class GrainBoundaryGenerator:
                 fractions = [Fraction(x).limit_denominator() for x in surface]
                 least_mul = reduce(lcm, [fraction.denominator for fraction in fractions])
                 surface = cast(
-                    Tuple3Ints | Tuple4Ints,
+                    "Tuple3Ints | Tuple4Ints",
                     tuple(round(x * least_mul) for x in surface),
                 )
 
         if reduce(math.gcd, surface) != 1:
             index = reduce(math.gcd, surface)
-            surface = cast(Tuple3Ints | Tuple4Ints, tuple(round(x / index) for x in surface))
+            surface = cast("Tuple3Ints | Tuple4Ints", tuple(round(x / index) for x in surface))
 
         lam = None
         if lat_type == "h":
             # Set the values for u, v, w, mu, mv, m, n, d, x
             # Check the reference for the meaning of these parameters
-            u, v, w = cast(Tuple3Ints, r_axis)
+            u, v, w = cast("Tuple3Ints", r_axis)
             # Make sure mu, mv are coprime integers
             if ratio is None:
                 mu, mv = (1, 1)
@@ -1090,7 +1089,7 @@ class GrainBoundaryGenerator:
         elif lat_type == "r":
             # Set the values for u, v, w, mu, mv ,m, n, d
             # Check the reference for the meaning of these parameters
-            u, v, w = cast(Tuple3Ints, r_axis)
+            u, v, w = cast("Tuple3Ints", r_axis)
             # make sure mu, mv are coprime integers
             if ratio is None:
                 mu, mv = (1, 1)
@@ -1163,7 +1162,7 @@ class GrainBoundaryGenerator:
             r_matrix = (np.array(r_list) / com_fac / sigma).reshape(3, 3)
 
         else:
-            u, v, w = cast(Tuple3Ints, r_axis)
+            u, v, w = cast("Tuple3Ints", r_axis)
             mu = mv = None  # type: ignore[assignment]
             if lat_type == "c":
                 mu = lam = mv = 1
@@ -1201,7 +1200,7 @@ class GrainBoundaryGenerator:
                         if u != 0 and (w != 0 or (v != 0)):
                             raise RuntimeError("For irrational a2, CSL only exist for [1,0,0] or [0,v,w] and m = 0")
                 else:
-                    mu, lam, mv = cast(list[int], ratio)
+                    mu, lam, mv = cast("list[int]", ratio)
                     if u == 0 and v == 0:
                         mu = 1
                     if u == 0 and w == 0:
@@ -1218,7 +1217,7 @@ class GrainBoundaryGenerator:
                 raise ValueError("mv is None.")
 
             if reduce(math.gcd, [mu, lam, mv]) != 1:
-                temp = cast(int, reduce(math.gcd, [mu, lam, mv]))
+                temp = cast("int", reduce(math.gcd, [mu, lam, mv]))
                 mu = round(mu / temp)
                 mv = round(mv / temp)
                 lam = round(lam / temp)
@@ -1268,14 +1267,14 @@ class GrainBoundaryGenerator:
             raise ValueError("surface is None.")
         fractions = [Fraction(x).limit_denominator() for x in surface]
         least_mul = reduce(lcm, [fraction.denominator for fraction in fractions])
-        surface = cast(Tuple3Ints, tuple(round(x * least_mul) for x in surface))
+        surface = cast("Tuple3Ints", tuple(round(x * least_mul) for x in surface))
         if reduce(math.gcd, surface) != 1:
             index = reduce(math.gcd, surface)
-            surface = cast(Tuple3Ints, tuple(round(x / index) for x in surface))
+            surface = cast("Tuple3Ints", tuple(round(x / index) for x in surface))
         r_axis = np.rint(np.matmul(r_axis, np.linalg.inv(trans_cry))).astype(int)
         if reduce(math.gcd, r_axis) != 1:
             r_axis = cast(
-                Tuple3Ints,
+                "Tuple3Ints",
                 tuple(round(x / reduce(math.gcd, r_axis)) for x in r_axis),
             )
         r_matrix = np.dot(np.dot(np.linalg.inv(trans_cry.T), r_matrix), trans_cry.T)
@@ -1366,7 +1365,7 @@ class GrainBoundaryGenerator:
         """
         # Make sure math.gcd(r_axis) == 1
         if reduce(math.gcd, r_axis) != 1:
-            r_axis = cast(Tuple3Ints, tuple(round(x / reduce(math.gcd, r_axis)) for x in r_axis))
+            r_axis = cast("Tuple3Ints", tuple(round(x / reduce(math.gcd, r_axis)) for x in r_axis))
 
         # Count the number of odds in r_axis
         odd_r = len(list(filter(lambda x: x % 2 == 1, r_axis)))
@@ -1443,7 +1442,7 @@ class GrainBoundaryGenerator:
         # Make sure math.gcd(r_axis) == 1
         if reduce(math.gcd, r_axis) != 1:
             r_axis = cast(
-                Tuple3Ints | Tuple4Ints,
+                "Tuple3Ints | Tuple4Ints",
                 tuple(round(x / reduce(math.gcd, r_axis)) for x in r_axis),
             )
 
@@ -1568,7 +1567,7 @@ class GrainBoundaryGenerator:
 
         # Make sure math.(r_axis) == 1
         if reduce(math.gcd, r_axis) != 1:
-            r_axis = cast(Tuple3Ints, tuple(round(x / reduce(math.gcd, r_axis)) for x in r_axis))
+            r_axis = cast("Tuple3Ints", tuple(round(x / reduce(math.gcd, r_axis)) for x in r_axis))
         u, v, w = r_axis  # type: ignore[misc]
 
         # Make sure mu, mv are coprime integers
@@ -1687,7 +1686,7 @@ class GrainBoundaryGenerator:
         """
         # Make sure math.gcd(r_axis) == 1
         if reduce(math.gcd, r_axis) != 1:
-            r_axis = cast(Tuple3Ints, tuple(round(x / reduce(math.gcd, r_axis)) for x in r_axis))
+            r_axis = cast("Tuple3Ints", tuple(round(x / reduce(math.gcd, r_axis)) for x in r_axis))
 
         u, v, w = r_axis
 
@@ -1792,7 +1791,7 @@ class GrainBoundaryGenerator:
         """
         # Make sure math.gcd(r_axis) == 1
         if reduce(math.gcd, r_axis) != 1:
-            r_axis = cast(Tuple3Ints, tuple(round(x / reduce(math.gcd, r_axis)) for x in r_axis))
+            r_axis = cast("Tuple3Ints", tuple(round(x / reduce(math.gcd, r_axis)) for x in r_axis))
 
         u, v, w = r_axis
 
@@ -2022,7 +2021,7 @@ class GrainBoundaryGenerator:
 
         if lat_type == "c":
             logger.info("Make sure this is for cubic system")
-            sigma_dict = GrainBoundaryGenerator.enum_sigma_cubic(cutoff=sigma, r_axis=cast(Tuple3Ints, r_axis))
+            sigma_dict = GrainBoundaryGenerator.enum_sigma_cubic(cutoff=sigma, r_axis=cast("Tuple3Ints", r_axis))
 
         elif lat_type == "t":
             logger.info("Make sure this is for tetragonal system")
@@ -2030,16 +2029,16 @@ class GrainBoundaryGenerator:
                 logger.info("Make sure this is for irrational c2/a2 ratio")
             sigma_dict = GrainBoundaryGenerator.enum_sigma_tet(
                 cutoff=sigma,
-                r_axis=cast(Tuple3Ints, r_axis),
-                c2_a2_ratio=cast(tuple[int, int], ratio),
+                r_axis=cast("Tuple3Ints", r_axis),
+                c2_a2_ratio=cast("tuple[int, int]", ratio),
             )
 
         elif lat_type == "o":
             logger.info("Make sure this is for orthorhombic system")
             sigma_dict = GrainBoundaryGenerator.enum_sigma_ort(
                 cutoff=sigma,
-                r_axis=cast(Tuple3Ints, r_axis),
-                c2_b2_a2_ratio=cast(Tuple3Ints, ratio),
+                r_axis=cast("Tuple3Ints", r_axis),
+                c2_b2_a2_ratio=cast("Tuple3Ints", ratio),
             )
 
         elif lat_type == "h":
@@ -2047,7 +2046,7 @@ class GrainBoundaryGenerator:
             if ratio is None:
                 logger.info("Make sure this is for irrational c2/a2 ratio")
             sigma_dict = GrainBoundaryGenerator.enum_sigma_hex(
-                cutoff=sigma, r_axis=r_axis, c2_a2_ratio=cast(tuple[int, int], ratio)
+                cutoff=sigma, r_axis=r_axis, c2_a2_ratio=cast("tuple[int, int]", ratio)
             )
 
         elif lat_type == "r":
@@ -2056,8 +2055,8 @@ class GrainBoundaryGenerator:
                 logger.info("Make sure this is for irrational (1+2*cos(alpha)/cos(alpha) ratio")
             sigma_dict = GrainBoundaryGenerator.enum_sigma_rho(
                 cutoff=sigma,
-                r_axis=cast(Tuple3Ints, r_axis),
-                ratio_alpha=cast(tuple[int, int], ratio),
+                r_axis=cast("Tuple3Ints", r_axis),
+                ratio_alpha=cast("tuple[int, int]", ratio),
             )
 
         else:
@@ -2374,7 +2373,7 @@ class GrainBoundaryGenerator:
                 miller[true_index] = com_lcm
                 miller[index[0]] = frac[0].numerator * round(com_lcm / frac[0].denominator)
                 miller[index[1]] = frac[1].numerator * round(com_lcm / frac[1].denominator)
-        return cast(Tuple3Ints, miller)
+        return cast("Tuple3Ints", miller)
 
 
 def fix_pbc(structure: Structure, matrix: NDArray = None) -> Structure:
