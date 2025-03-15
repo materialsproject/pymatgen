@@ -637,16 +637,6 @@ class TestMPResterNewBasic(PymatgenTest):
         with pytest.raises(IndexError, match="list index out of range"):
             self.rester.get_entry_by_material_id("mp-2022")  # "mp-2022" does not exist
 
-    @pytest.mark.skip("TODO: need someone to fix this")
-    def test_query(self):
-        criteria = {"elements": {"$in": ["Li", "Na", "K"], "$all": ["O"]}}
-        props = ["pretty_formula", "energy"]
-        data = self.rester.query(criteria=criteria, properties=props, chunk_size=0)
-        assert len(data) > 6
-        data = self.rester.query(criteria="*2O", properties=props, chunk_size=0)
-        assert len(data) >= 52
-        assert "Li2O" in (d["pretty_formula"] for d in data)
-
     def test_get_phonon_data_by_material_id(self):
         bs = self.rester.get_phonon_bandstructure_by_material_id("mp-661")
         assert isinstance(bs, PhononBandStructureSymmLine)
