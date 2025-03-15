@@ -126,7 +126,7 @@ find . -name '*.py' | xargs sed -i "" 's/from pymatgen import MPRester/from pyma
 find . -name '*.py' | xargs sed -i "" 's/from pymatgen import/from pymatgen.core import/g'
 ```
 
-From a Linux command line (`bash` by default), you can try:
+From a Linux command line (`bash` for example), you can try:
 
 ```bash
 find . -name '*.py' | xargs sed -i 's/from pymatgen import MPRester/from pymatgen.ext.matproj import MPRester/g'
