@@ -540,67 +540,6 @@ class TestMPResterNewBasic(PymatgenTest):
         doc = self.rester.get_doc(mids.pop(0))
         assert doc["formula_pretty"] == "Al2O3"
 
-    @pytest.mark.skip("TODO: need someone to fix this")
-    def test_get_data(self):
-        props = {
-            "energy",
-            "energy_per_atom",
-            "formation_energy_per_atom",
-            "nsites",
-            "unit_cell_formula",
-            "pretty_formula",
-            "is_hubbard",
-            "elements",
-            "nelements",
-            "e_above_hull",
-            "hubbards",
-            "is_compatible",
-            "task_ids",
-            "density",
-            "icsd_ids",
-            "total_magnetization",
-        }
-        mp_id = "mp-1143"
-        vals = requests.get(f"https://legacy.materialsproject.org/materials/{mp_id}/json/", timeout=60)
-        expected_vals = vals.json()
-
-        for prop in props:
-            if prop not in [
-                "hubbards",
-                "unit_cell_formula",
-                "elements",
-                "icsd_ids",
-                "task_ids",
-            ]:
-                val = self.rester.get_data(mp_id, prop=prop)[0][prop]
-                if prop in ["energy", "energy_per_atom"]:
-                    prop = "final_" + prop
-                assert expected_vals[prop] == approx(val), f"Failed with property {prop}"
-            elif prop in ["elements", "icsd_ids", "task_ids"]:
-                upstream_vals = set(self.rester.get_data(mp_id, prop=prop)[0][prop])
-                assert set(expected_vals[prop]) <= upstream_vals
-            else:
-                assert expected_vals[prop] == self.rester.get_data(mp_id, prop=prop)[0][prop]
-
-        props = ["structure", "initial_structure", "final_structure", "entry"]
-        for prop in props:
-            obj = self.rester.get_data(mp_id, prop=prop)[0][prop]
-            if prop.endswith("structure"):
-                assert isinstance(obj, Structure)
-            elif prop == "entry":
-                obj = self.rester.get_data(mp_id, prop=prop)[0][prop]
-                assert isinstance(obj, ComputedEntry)
-
-        # Test chemsys search
-        data = self.rester.get_data("Fe-Li-O", prop="unit_cell_formula")
-        assert len(data) > 1
-        elements = {Element("Li"), Element("Fe"), Element("O")}
-        for d in data:
-            assert set(Composition(d["unit_cell_formula"]).elements).issubset(elements)
-
-        with pytest.raises(MPRestError, match="REST query returned with error status code 404"):
-            self.rester.get_data("Fe2O3", "badmethod")
-
     def test_get_entries_and_in_chemsys(self):
         # One large system test.
         syms = ["Li", "Fe", "O", "P", "Mn"]
