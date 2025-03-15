@@ -579,13 +579,6 @@ class BoltztrapRunner(MSONable):
             for c in os.listdir(path_dir):
                 os.remove(os.path.join(path_dir, c))
 
-        FORMAT = "%(message)s"
-        logging.basicConfig(
-            level=logging.INFO,
-            format=FORMAT,
-            filename=f"{path_dir}/../boltztrap.out",
-        )
-
         with cd(path_dir):
             lpfac_start = self.lpfac
             converged = False
