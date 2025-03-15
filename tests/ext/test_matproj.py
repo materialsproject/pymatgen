@@ -380,7 +380,7 @@ class TestMPResterOld(PymatgenTest):
 
     def test_get_cohesive_energy(self):
         e_coh = self.rester.get_cohesive_energy("mp-13")
-        assert e_coh, 5.04543279
+        assert e_coh == approx(5.04543279)
 
     def test_get_gb_data(self):
         mo_gbs = self.rester.get_gb_data(chemsys="Mo")
@@ -530,6 +530,10 @@ class TestMPResterOld(PymatgenTest):
 )
 class TestMPResterNewBasic(PymatgenTest):
     def setUp(self):
+        """
+        TODO: self.rester is None for some reason, leading to
+            multiple test methods failure, need someone to fix this
+        """
         self.rester = _MPResterBasic()
 
     def test_get_summary(self):
@@ -836,7 +840,7 @@ class TestMPResterNewBasic(PymatgenTest):
     @pytest.mark.skip("TODO: need someone to fix this")
     def test_get_cohesive_energy(self):
         ecoh = self.rester.get_cohesive_energy("mp-13")
-        assert ecoh, 5.04543279
+        assert ecoh == approx(5.04543279)
 
     @pytest.mark.skip("TODO: need someone to fix this")
     def test_get_gb_data(self):
