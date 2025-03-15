@@ -25,19 +25,19 @@ from pymatgen.phonon.bandstructure import PhononBandStructureSymmLine
 from pymatgen.phonon.dos import CompletePhononDos
 from pymatgen.util.testing import TEST_FILES_DIR, PymatgenTest
 
-PMG_MAPI_KEY = SETTINGS.get("PMG_MAPI_KEY", "")
+PMG_MAPI_KEY: str = SETTINGS.get("PMG_MAPI_KEY", "")
+
 if (10 < len(PMG_MAPI_KEY) <= 20) and "PMG_MAPI_KEY" in SETTINGS:
-    MP_URL = "https://legacy.materialsproject.org"
+    MP_URL: str = "https://legacy.materialsproject.org"
 elif len(PMG_MAPI_KEY) > 20:
     MP_URL = "https://api.materialsproject.org"
 else:
     MP_URL = "https://materialsproject.org"
 
+# Skip all MPRester tests if some downstream problem on the website, mp-api or whatever.
 try:
     skip_mprester_tests = requests.get(MP_URL, timeout=60).status_code != 200
-
 except (ModuleNotFoundError, ImportError, requests.exceptions.ConnectionError):
-    # Skip all MPRester tests if some downstream problem on the website, mp-api or whatever.
     skip_mprester_tests = True
 
 if skip_mprester_tests:
@@ -530,10 +530,6 @@ class TestMPResterOld(PymatgenTest):
 )
 class TestMPResterNewBasic(PymatgenTest):
     def setUp(self):
-        """
-        TODO: self.rester is None for some reason, leading to
-            multiple test methods failure, need someone to fix this
-        """
         self.rester = _MPResterBasic()
 
     def test_get_summary(self):
