@@ -2725,6 +2725,10 @@ class TestMolecule(PymatgenTest):
 
         assert type(Molecule.from_ase_atoms(atoms)) is Molecule
 
+        atoms = molecule("CH3")
+        with pytest.raises(ValueError, match="not possible for this molecule"):
+            Molecule.from_ase_atoms(atoms, spin_multiplicity=1)
+
         # Make sure kwargs are correctly passed
         atoms = molecule("CH3")
-        Molecule.from_ase_atoms(atoms, charge_spin_check=False)
+        assert type(Molecule.from_ase_atoms(atoms, charge_spin_check=False)) is Molecule
