@@ -460,7 +460,7 @@ class ComputedEntry(Entry):
         if not all(hasattr(other, attr) for attr in needed_attrs):
             return NotImplemented
 
-        other = cast(ComputedEntry, other)
+        other = cast("ComputedEntry", other)
 
         # Equality is defined based on composition and energy.
         # If structures are involved, it is assumed that a {composition, energy} is

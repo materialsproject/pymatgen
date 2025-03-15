@@ -65,7 +65,6 @@ if TYPE_CHECKING:
 
     from pymatgen.core import Structure
 
-logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
 due.cite(

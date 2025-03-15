@@ -142,7 +142,7 @@ class JahnTellerAnalyzer:
                     motif_order_parameter = None
 
                 if motif in ["oct", "tet"]:
-                    motif = cast(Literal["oct", "tet"], motif)  # mypy needs help
+                    motif = cast("Literal['oct', 'tet']", motif)  # mypy needs help
 
                     # guess spin of metal ion
                     if guesstimate_spin and "magmom" in site.properties:

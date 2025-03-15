@@ -16,6 +16,8 @@ __maintainer__ = "David Waroquiers"
 __email__ = "david.waroquiers@gmail.com"
 __date__ = "June 25, 2019"
 
+logger = logging.getLogger(__name__)
+
 
 class ConnectivityFinder:
     """Main class used to find the structure connectivity of a structure."""
@@ -43,7 +45,7 @@ class ConnectivityFinder:
             a StructureConnectivity object describing the connectivity of
         the environments in the structure
         """
-        logging.info("Setup of structure connectivity graph")
+        logger.info("Setup of structure connectivity graph")
         structure_connectivity = StructureConnectivity(light_structure_environments)
         structure_connectivity.add_sites()
         for site_idx, _site in enumerate(light_structure_environments.structure):

@@ -396,7 +396,7 @@ class TestElement(PymatgenTest):
         Element.print_periodic_table()
 
     def test_is(self):
-        assert Element("Bi").is_post_transition_metal, True
+        assert Element("Bi").is_post_transition_metal
 
     def test_isotope(self):
         elems = [Element(el) for el in ("H", "D", "T")]

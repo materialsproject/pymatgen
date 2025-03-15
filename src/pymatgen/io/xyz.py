@@ -41,7 +41,7 @@ class XYZ:
             mol (Molecule | Structure): Input molecule or structure or list thereof.
             coord_precision: Precision to be used for coordinates.
         """
-        self._mols = cast(list[SiteCollection], [mol] if isinstance(mol, SiteCollection) else mol)
+        self._mols = cast("list[SiteCollection]", [mol] if isinstance(mol, SiteCollection) else mol)
         self.precision = coord_precision
 
     @property

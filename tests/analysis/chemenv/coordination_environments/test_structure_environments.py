@@ -101,7 +101,7 @@ class TestStructureEnvironments(PymatgenTest):
 
         ce = struct_envs.ce_list[isite][4][0]
 
-        assert len(ce), 4
+        assert len(ce) == 4
 
         symbol, min_geometry = ce.minimum_geometry(symmetry_measure_type="csm_wocs_ctwocc")
         assert symbol == "T:4"

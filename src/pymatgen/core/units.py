@@ -631,7 +631,7 @@ class ArrayWithUnit(np.ndarray):
     @property
     def unit(self) -> Unit:
         """The unit, e.g. "eV"."""
-        return cast(Unit, self._unit)
+        return cast("Unit", self._unit)
 
     def to(self, new_unit: str | Unit) -> Self:
         """Convert to a new unit.

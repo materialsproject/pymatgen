@@ -320,7 +320,7 @@ class AnionCorrection(Correction):
 
                 elif hasattr(entry, "structure"):
                     ox_type, n_bonds = cast(
-                        tuple[str, int],
+                        "tuple[str, int]",
                         oxide_type(entry.structure, 1.05, return_nbonds=True),
                     )
                     if ox_type in self.oxide_correction:

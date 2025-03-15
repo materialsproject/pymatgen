@@ -22,6 +22,8 @@ from pymatgen.analysis.chemenv.utils.math_utils import get_linearly_independent_
 if TYPE_CHECKING:
     from typing_extensions import Self
 
+logger = logging.getLogger(__name__)
+
 
 def draw_network(env_graph, pos, ax, sg=None, periodicity_vectors=None):
     """Draw network of environments in a matplotlib figure axes.
@@ -650,7 +652,7 @@ class ConnectedComponent(MSONable):
         Returns:
             nx.MultiGraph: Elastic centered subgraph.
         """
-        logging.info("In elastic centering")
+        logger.info("In elastic centering")
         # Loop on start_nodes, sometimes some nodes cannot be elastically taken
         # inside the cell if you start from a specific node
         n_test_nodes = 0
@@ -670,17 +672,17 @@ class ConnectedComponent(MSONable):
         tree_level = 0
         while True:
             tree_level += 1
-            logging.debug(f"In tree level {tree_level} ({len(current_nodes)} nodes)")
+            logger.debug(f"In tree level {tree_level} ({len(current_nodes)} nodes)")
             new_current_nodes = []
             # Loop on nodes in this level of the tree
             for node in current_nodes:
                 inode += 1
-                logging.debug(f"  In node #{inode}/{len(current_nodes)} in level {tree_level} ({node})")
+                logger.debug(f"  In node #{inode}/{len(current_nodes)} in level {tree_level} ({node})")
                 node_neighbors = list(tree.neighbors(n=node))
                 node_edges = centered_connected_subgraph.edges(nbunch=[node], data=True, keys=True)
                 # Loop on neighbors of a node (from the tree used)
                 for inode_neighbor, node_neighbor in enumerate(node_neighbors):
-                    logging.debug(
+                    logger.debug(
                         f"    Testing neighbor #{inode_neighbor}/{len(node_neighbors)} ({node_neighbor}) of "
                         f"node #{inode} ({node})"
                     )
@@ -698,22 +700,22 @@ class ConnectedComponent(MSONable):
                             else:
                                 raise ValueError("Should not be here ...")
                             ddeltas.append(thisdelta)
-                    logging.debug(
+                    logger.debug(
                         "        ddeltas : " + ", ".join(f"({', '.join(str(ddd) for ddd in dd)})" for dd in ddeltas)
                     )
                     if ddeltas.count((0, 0, 0)) > 1:
                         raise ValueError("Should not have more than one 000 delta ...")
                     if already_inside:
-                        logging.debug("          Edge inside the cell ... continuing to next neighbor")
+                        logger.debug("          Edge inside the cell ... continuing to next neighbor")
                         continue
-                    logging.debug("          Edge outside the cell ... getting neighbor back inside")
+                    logger.debug("          Edge outside the cell ... getting neighbor back inside")
                     if (0, 0, 0) in ddeltas:
                         ddeltas.remove((0, 0, 0))
                     d_delta = np.array(ddeltas[0], int)
                     node_neighbor_edges = centered_connected_subgraph.edges(
                         nbunch=[node_neighbor], data=True, keys=True
                     )
-                    logging.debug(
+                    logger.debug(
                         f"            Delta image from {node=} to {node_neighbor=} : ({', '.join(map(str, d_delta))})"
                     )
                     # Loop on the edges of this neighbor
@@ -731,7 +733,7 @@ class ConnectedComponent(MSONable):
                                 )
                             else:
                                 raise ValueError("DUHH")
-                            logging.debug(
+                            logger.debug(
                                 f"                  {n1} to node {n2} now has delta "
                                 f"{centered_connected_subgraph[n1][n2][key]['delta']}"
                             )

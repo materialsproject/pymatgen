@@ -31,6 +31,8 @@ __email__ = "ncfrey@lbl.gov"
 __status__ = "Development"
 __date__ = "June 2019"
 
+logger = logging.getLogger(__name__)
+
 VAMP_EXE = which("vampire-serial")
 
 
@@ -137,7 +139,7 @@ class VampireCaller:
         if stderr:
             van_helsing = stderr.decode()
             if len(van_helsing) > 27:  # Suppress blank warning msg
-                logging.warning(van_helsing)
+                logger.warning(van_helsing)
 
         if process.returncode != 0:
             raise RuntimeError(f"Vampire exited with return code {process.returncode}.")

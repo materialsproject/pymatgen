@@ -28,6 +28,8 @@ __maintainer__ = "Will Richards"
 __email__ = "wrichard@mit.edu"
 __date__ = "Aug 31, 2012"
 
+logger = logging.getLogger(__name__)
+
 
 @due.dcite(
     Doi("10.1021/ic102031h"),
@@ -218,7 +220,7 @@ class Substitutor(MSONable):
                     _recurse([*output_prob, prob], [*output_species, sp])
 
         _recurse([], [])
-        logging.info(f"{len(output)} substitutions found")
+        logger.info(f"{len(output)} substitutions found")
         return output
 
     def pred_from_comp(self, composition) -> list[dict]:
@@ -235,7 +237,7 @@ class Substitutor(MSONable):
                 charge += f_el.oxi_state * composition[i_el]
             if charge == 0:
                 output.append(pred)
-        logging.info(f"{len(output)} charge balanced compositions found")
+        logger.info(f"{len(output)} charge balanced compositions found")
         return output
 
     def as_dict(self):

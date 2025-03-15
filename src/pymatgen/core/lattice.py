@@ -183,7 +183,7 @@ class Lattice(MSONable):
         if len(pbc) != 3 or any(item not in {True, False} for item in pbc):
             raise ValueError(f"pbc must be a tuple of three True/False values, got {pbc}")
 
-        self._pbc = cast(tuple[bool, bool, bool], tuple(pbc))
+        self._pbc = cast("tuple[bool, bool, bool]", tuple(pbc))
 
     @property
     def is_3d_periodic(self) -> bool:

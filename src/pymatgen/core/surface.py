@@ -34,7 +34,6 @@ from pymatgen.core import Lattice, PeriodicSite, Structure, get_el_sp
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
 from pymatgen.util.coord import in_coord_list
 from pymatgen.util.due import Doi, due
-from pymatgen.util.typing import Tuple3Ints
 
 if TYPE_CHECKING:
     from collections.abc import Sequence
@@ -45,7 +44,7 @@ if TYPE_CHECKING:
 
     from pymatgen.core.composition import Element, Species
     from pymatgen.symmetry.groups import CrystalSystem
-    from pymatgen.util.typing import MillerIndex
+    from pymatgen.util.typing import MillerIndex, Tuple3Ints
 
 __author__ = "Richard Tran, Wenhao Sun, Zihan Xu, Shyue Ping Ong"
 
@@ -947,7 +946,7 @@ class SlabGenerator:
         def reduce_vector(vector: MillerIndex) -> MillerIndex:
             """Helper function to reduce vectors."""
             divisor = abs(reduce(math.gcd, vector))  # type: ignore[arg-type]
-            return cast(Tuple3Ints, tuple(int(idx / divisor) for idx in vector))
+            return cast("Tuple3Ints", tuple(int(idx / divisor) for idx in vector))
 
         def add_site_types() -> None:
             """Add Wyckoff symbols and equivalent sites to the initial structure."""
@@ -1372,7 +1371,7 @@ class SlabGenerator:
         else:
             final_slabs = slabs
 
-        return cast(list[Slab], sorted(final_slabs, key=lambda slab: slab.energy))
+        return cast("list[Slab]", sorted(final_slabs, key=lambda slab: slab.energy))
 
     def repair_broken_bonds(
         self,
@@ -2069,7 +2068,7 @@ def get_symmetrically_distinct_miller_indices(
 
     for idx, miller in enumerate(miller_list):
         denom = abs(reduce(math.gcd, miller))  # type: ignore[arg-type]
-        miller = cast(Tuple3Ints, tuple(int(idx / denom) for idx in miller))
+        miller = cast("Tuple3Ints", tuple(int(idx / denom) for idx in miller))
         if not _is_in_miller_family(miller, unique_millers, symm_ops):
             if spg_analyzer.get_crystal_system() == "trigonal":
                 # Now we find the distinct primitive hkls using

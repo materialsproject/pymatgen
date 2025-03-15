@@ -1,15 +1,11 @@
 from __future__ import annotations
 
-import logging
-
 from pymatgen.analysis.chemenv.coordination_environments.coordination_geometries import AllCoordinationGeometries
 from pymatgen.analysis.chemenv.coordination_environments.coordination_geometry_finder import LocalGeometryFinder
 
 all_cg = AllCoordinationGeometries()
 
 lgf = LocalGeometryFinder()
-logging.basicConfig(format="%(levelname)s:%(module)s:%(funcName)s:%(message)s", level="DEBUG")
-
 
 mp_symbol = "DD:20"
 coordination = 20

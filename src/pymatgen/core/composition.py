@@ -570,7 +570,7 @@ class Composition(collections.abc.Hashable, collections.abc.Mapping, MSONable, S
         Returns:
             float: Weight fraction for element el in Composition.
         """
-        el_mass = cast(float, get_el_sp(el).atomic_mass)
+        el_mass = cast("float", get_el_sp(el).atomic_mass)
         return el_mass * abs(self[el]) / self.weight
 
     def contains_element_type(self, category: str) -> bool:

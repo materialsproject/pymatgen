@@ -25,19 +25,19 @@ from pymatgen.phonon.bandstructure import PhononBandStructureSymmLine
 from pymatgen.phonon.dos import CompletePhononDos
 from pymatgen.util.testing import TEST_FILES_DIR, PymatgenTest
 
-PMG_MAPI_KEY = SETTINGS.get("PMG_MAPI_KEY", "")
+PMG_MAPI_KEY: str = SETTINGS.get("PMG_MAPI_KEY", "")
+
 if (10 < len(PMG_MAPI_KEY) <= 20) and "PMG_MAPI_KEY" in SETTINGS:
-    MP_URL = "https://legacy.materialsproject.org"
+    MP_URL: str = "https://legacy.materialsproject.org"
 elif len(PMG_MAPI_KEY) > 20:
     MP_URL = "https://api.materialsproject.org"
 else:
     MP_URL = "https://materialsproject.org"
 
+# Skip all MPRester tests if some downstream problem on the website, mp-api or whatever.
 try:
     skip_mprester_tests = requests.get(MP_URL, timeout=60).status_code != 200
-
 except (ModuleNotFoundError, ImportError, requests.exceptions.ConnectionError):
-    # Skip all MPRester tests if some downstream problem on the website, mp-api or whatever.
     skip_mprester_tests = True
 
 if skip_mprester_tests:
@@ -368,7 +368,7 @@ class TestMPResterOld(PymatgenTest):
 
     def test_get_cohesive_energy(self):
         e_coh = self.rester.get_cohesive_energy("mp-13")
-        assert e_coh, 5.04543279
+        assert e_coh == approx(5.04543279)
 
     def test_get_gb_data(self):
         mo_gbs = self.rester.get_gb_data(chemsys="Mo")

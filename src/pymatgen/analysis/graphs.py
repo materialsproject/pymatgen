@@ -790,7 +790,7 @@ class StructureGraph(MSONable):
 
             # from_site if jimage arg != (0, 0, 0)
             relative_jimage = np.subtract(to_jimage, jimage)
-            u_site = cast(PeriodicSite, self.structure[u])  # tell mypy that u_site is a PeriodicSite
+            u_site = cast("PeriodicSite", self.structure[u])  # tell mypy that u_site is a PeriodicSite
             dist = u_site.distance(self.structure[v], jimage=relative_jimage)
 
             weight = data.get("weight")

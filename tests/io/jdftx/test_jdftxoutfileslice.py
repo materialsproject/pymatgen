@@ -16,7 +16,7 @@ def test_jdftxoutfileslice_stringify():
     joutslice = JDFTXOutfileSlice._from_out_slice(ex_slice1)
     out_str = str(joutslice)
     assert isinstance(out_str, str)
-    assert len(out_str)
+    assert out_str
 
 
 def test_jdftxoutfileslice_converge():

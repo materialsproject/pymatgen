@@ -71,7 +71,7 @@ class BondDissociationEnergies(MSONable):
                     raise RuntimeError(f"{key=} must be present in all fragment entries! Exiting...")
 
         # Define expected charges
-        final_mol = cast(dict, molecule_entry["final_molecule"])
+        final_mol = cast("dict", molecule_entry["final_molecule"])
         final_charge = int(final_mol["charge"])  # type: ignore[index]
         if not allow_additional_charge_separation:
             if final_charge == 0:
