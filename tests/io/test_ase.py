@@ -184,6 +184,10 @@ def test_get_structure():
     ):
         struct = AseAtomsAdaptor.get_structure(atoms, validate_proximity=True)
 
+    # Test invalid class type
+    with pytest.raises(TypeError, match="Unsupported cls="):
+        struct = AseAtomsAdaptor.get_structure(atoms, cls=Lattice)
+
 
 def test_get_structure_mag():
     atoms = ase.io.read(f"{VASP_IN_DIR}/POSCAR")
