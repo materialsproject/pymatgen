@@ -742,8 +742,9 @@ class TestMPResterNewBasic(PymatgenTest):
     def test_parity_with_mp_api(self):
         try:
             from mp_api.client import MPRester as MpApi
-        except Exception:
+        except ModuleNotFoundError:
             pytest.skip("mp_api.client.MPRester cannot be imported for this test.")
+
         mpr_mp_api = MpApi(PMG_MAPI_KEY)
         # Test summary
         mp_data = mpr_mp_api.materials.search(formula="Al2O3")
