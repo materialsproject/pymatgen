@@ -50,7 +50,7 @@ except ImportError:
     h5py = None
 
 if TYPE_CHECKING:
-    from collections.abc import Callable, Sequence
+    from collections.abc import Callable, Iterator, Sequence
     from typing import Literal, TypeAlias
 
     # Avoid name conflict with pymatgen.core.Element
@@ -4670,6 +4670,27 @@ class Xdatcar:
 
     def __str__(self) -> str:
         return self.get_str()
+
+    def __len__(self) -> int:
+        return len(self.structures)
+
+    def __iter__(self) -> Iterator[Structure]:
+        """Iterator of Xdatcar, yielding a pymatgen Structure."""
+        for idx in range(len(self)):
+            yield self.structures[idx]
+
+    def __getitem__(self, frames: int | slice | list[int] | np.ndarray) -> Structure | list[Structure]:
+        """Get a subset of the Xdatcar.
+
+        Args:
+            frames (int, slice, list of int, or numpy Array): Indices of the Xdatcar to return.
+
+        Returns:
+            Structure, if frames is an int; otherwise, a list of Structure
+        """
+        if isinstance(frames, int | slice):
+            return self.structures[frames]
+        return [self.structures[idx] for idx in frames]
 
     @property
     def site_symbols(self) -> list[str]:

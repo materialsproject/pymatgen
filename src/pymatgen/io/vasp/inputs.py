@@ -477,6 +477,17 @@ class Poscar(MSONable):
         selective_dynamics: list[list[bool]] | None = [] if has_selective_dynamics else None
         for idx in range(n_sites):
             tokens: list[str] = lines[ipos + 1 + idx].split()
+
+            # Attempt to fix bad formatting in POSCAR/CONTCAR/XDATCAR
+            if len(tokens) < 3:
+                new_tokens = []
+                for token in tokens:
+                    new_tokens.extend([t if i == 0 else f"-{t}" for i, t in enumerate(token.split("-")) if len(t) > 0])
+                if len(new_tokens) == 3:
+                    tokens = new_tokens
+                else:
+                    raise BadPoscarWarning(f"Cannot parse coordinates on this line:\n{lines[ipos + 1 + idx]}")
+
             crd_scale: float = scale if cart else 1
             coords.append([float(j) * crd_scale for j in tokens[:3]])
             if selective_dynamics is not None:
