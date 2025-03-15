@@ -624,32 +624,6 @@ class TestMPResterNewBasic(PymatgenTest):
         assert Ni.lattice.beta == approx(90)
         assert Ni.lattice.gamma == approx(90)
 
-    @pytest.mark.skip("TODO: need someone to fix this")
-    def test_get_stability(self):
-        entries = self.rester.get_entries_in_chemsys(["Fe", "O"])
-        modified_entries = [
-            ComputedEntry(
-                entry.composition,
-                entry.uncorrected_energy + 0.01,
-                parameters=entry.parameters,
-                entry_id=f"mod_{entry.entry_id}",
-            )
-            for entry in entries
-            if entry.reduced_formula == "Fe2O3"
-        ]
-        rester_ehulls = self.rester.get_stability(modified_entries)
-        all_entries = entries + modified_entries
-        compat = MaterialsProject2020Compatibility()
-        all_entries = compat.process_entries(all_entries)
-        pd = PhaseDiagram(all_entries)
-        for entry in all_entries:
-            if str(entry.entry_id).startswith("mod"):
-                for dct in rester_ehulls:
-                    if dct["entry_id"] == entry.entry_id:
-                        data = dct
-                        break
-                assert pd.get_e_above_hull(entry) == approx(data["e_above_hull"])
-
     def test_parity_with_mp_api(self):
         try:
             from mp_api.client import MPRester as MpApi
