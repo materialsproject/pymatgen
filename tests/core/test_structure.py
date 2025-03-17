@@ -36,10 +36,11 @@ from pymatgen.util.testing import TEST_FILES_DIR, VASP_IN_DIR, PymatgenTest
 
 try:
     from ase.atoms import Atoms
+    from ase.build import molecule
     from ase.calculators.calculator import Calculator
     from ase.calculators.emt import EMT
 except ImportError:
-    ase = Atoms = Calculator = EMT = None
+    Atoms = Calculator = EMT = None
 
 
 ENUM_CMD = which("enum.x") or which("multienum.x")
@@ -955,6 +956,18 @@ Direct
         out_path = f"{self.tmp_path}/POSCAR"
         assert self.struct.to(out_path) == self.struct.to_file(out_path)
         assert os.path.isfile(out_path)
+
+    def test_to_from_ase_atoms(self):
+        pytest.importorskip("ase")
+
+        atoms = self.struct.to_ase_atoms()
+        assert isinstance(atoms, Atoms)
+        assert len(atoms) == len(self.struct)
+
+        assert AseAtomsAdaptor.get_structure(atoms) == self.struct
+
+        assert IStructure.from_ase_atoms(atoms) == self.struct
+        assert type(IStructure.from_ase_atoms(atoms)) is IStructure
 
     def test_pbc(self):
         assert self.struct.pbc == (True, True, True)
@@ -1982,7 +1995,8 @@ direct
         assert relaxed.dynamics["optimizer"] == "FIRE"
         assert len(traj) == 15
         assert traj[0] != traj[-1]
-        os.remove("opt.traj")  # fails if file missing
+
+        assert os.path.isfile("opt.traj")
 
     def test_relax_ase_opt_kwargs(self):
         pytest.importorskip("ase")
@@ -2104,13 +2118,17 @@ Sites (8)
         assert struct.formula == "Dy8 Sb6"
         assert conventional.formula == "Dy16 Sb12"
 
-    def test_to_ase_atoms(self):
+    def test_to_from_ase_atoms(self):
         pytest.importorskip("ase")
+
         atoms = self.struct.to_ase_atoms()
         assert isinstance(atoms, Atoms)
         assert len(atoms) == len(self.struct)
+
         assert AseAtomsAdaptor.get_structure(atoms) == self.struct
+
         assert Structure.from_ase_atoms(atoms) == self.struct
+        assert type(Structure.from_ase_atoms(atoms)) is Structure
 
         labeled_atoms = self.labeled_structure.to_ase_atoms()
         assert Structure.from_ase_atoms(labeled_atoms) == self.labeled_structure
@@ -2429,6 +2447,14 @@ Site: H (-0.5134, 0.8892, -0.3630)"""
         assert self.mol.to(out_path) == self.mol.to_file(out_path)
         assert os.path.isfile(out_path)
 
+    def test_to_from_ase_atoms(self):
+        pytest.importorskip("ase")
+
+        atoms = self.mol.to_ase_atoms()
+        assert isinstance(atoms, Atoms)
+
+        assert type(IMolecule.from_ase_atoms(atoms)) is IMolecule
+
 
 class TestMolecule(PymatgenTest):
     def setUp(self):
@@ -2648,7 +2674,8 @@ class TestMolecule(PymatgenTest):
         assert relaxed.dynamics["optimizer"] == "BFGS"
         assert len(traj) == 5
         assert traj[0] != traj[-1]
-        os.remove("opt.traj")  # fails if file missing
+
+        assert os.path.isfile("opt.traj")
 
     def test_relax_ase_mol_return_traj(self):
         pytest.importorskip("ase")
@@ -2687,9 +2714,21 @@ class TestMolecule(PymatgenTest):
         assert relaxed.dynamics == {"type": "optimization", "optimizer": "FIRE"}
         assert relaxed.calc.results["energy"] == approx(-113.61346199239306)
 
-    def test_to_ase_atoms(self):
+    def test_to_from_ase_atoms(self):
         pytest.importorskip("ase")
+
         atoms = self.mol.to_ase_atoms()
         assert isinstance(atoms, Atoms)
         assert len(atoms) == len(self.mol)
+
         assert AseAtomsAdaptor.get_molecule(atoms) == self.mol
+
+        assert type(Molecule.from_ase_atoms(atoms)) is Molecule
+
+        atoms = molecule("CH3")
+        with pytest.raises(ValueError, match="not possible for this molecule"):
+            Molecule.from_ase_atoms(atoms, spin_multiplicity=1)
+
+        # Make sure kwargs are correctly passed
+        atoms = molecule("CH3")
+        assert type(Molecule.from_ase_atoms(atoms, charge_spin_check=False)) is Molecule
