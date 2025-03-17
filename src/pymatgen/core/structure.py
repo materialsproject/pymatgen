@@ -785,7 +785,7 @@ class SiteCollection(collections.abc.Sequence, ABC):
 
         Args:
             calculator (str | Calculator): An ASE Calculator or a string from the following case-insensitive
-                options: "m3gnet", "gfn2-xtb", "chgnet".
+                options: "m3gnet", "gfn2-xtb", "chgnet" or any string supported by MatGL.
             verbose (bool): whether to print stdout. Defaults to False.
                 Has no effect when calculator=='chgnet'.
 
@@ -795,7 +795,7 @@ class SiteCollection(collections.abc.Sequence, ABC):
         """
         from pymatgen.io.ase import AseAtomsAdaptor
 
-        if isinstance(self, Molecule) and isinstance(calculator, str) and calculator.lower() in ("chgnet", "m3gnet"):
+        if isinstance(self, Molecule) and isinstance(calculator, str) and calculator.lower() != "gfn2-xtb":
             raise ValueError(f"Can't use {calculator=} for a Molecule")
         calculator = self._prep_calculator(calculator)
 
@@ -815,7 +815,7 @@ class SiteCollection(collections.abc.Sequence, ABC):
 
     def _relax(
         self,
-        calculator: Literal["M3GNet", "gfn2-xtb"] | Calculator,
+        calculator: str | Calculator,
         relax_cell: bool = True,
         optimizer: (
             Literal[
@@ -871,10 +871,7 @@ class SiteCollection(collections.abc.Sequence, ABC):
         opt_kwargs = opt_kwargs or {}
         is_molecule = isinstance(self, Molecule)
         # UIP=universal interatomic potential
-        run_uip = isinstance(calculator, str) and calculator.lower() in (
-            "m3gnet",
-            "chgnet",
-        )
+        run_uip = isinstance(calculator, str)
 
         calc_params = {} if is_molecule else dict(stress_weight=stress_weight)
         calculator = self._prep_calculator(calculator, **calc_params)
@@ -960,14 +957,15 @@ class SiteCollection(collections.abc.Sequence, ABC):
                 raise ImportError("chgnet not installed. Try `pip install chgnet`.")
             return CHGNetCalculator()
 
-        if calculator.lower() == "m3gnet":
+        if "m3gnet" in calculator.lower() or "tensornet" in calculator.lower():
             try:
                 import matgl
-                from matgl.ext.ase import M3GNetCalculator
+                from matgl.ext.ase import PESCalculator
             except ImportError:
                 raise ImportError("matgl not installed. Try `pip install matgl`.")
-            potential = matgl.load_model("M3GNet-MP-2021.2.8-PES")
-            return M3GNetCalculator(potential=potential, **params)
+            calculator = "M3GNet-MP-2021.2.8-PES" if calculator.lower() == "m3gnet" else calculator
+            potential = matgl.load_model(calculator)
+            return PESCalculator(potential=potential, **params)
 
         if calculator.lower() == "gfn2-xtb":
             try:
@@ -4896,7 +4894,7 @@ class Structure(IStructure, collections.abc.MutableSequence):
 
     def relax(
         self,
-        calculator: str | Calculator = "m3gnet",
+        calculator: str | Calculator = "TensorNet-MatPES-PBE-v2025.1-PES",
         relax_cell: bool = True,
         optimizer: str | Optimizer = "FIRE",
         steps: int = 500,
@@ -4909,8 +4907,8 @@ class Structure(IStructure, collections.abc.MutableSequence):
         """Perform a crystal structure relaxation using an ASE calculator.
 
         Args:
-            calculator: An ASE Calculator or a string from the following options: "m3gnet".
-                Defaults to 'm3gnet', i.e. the M3GNet universal potential.
+            calculator: An ASE Calculator or a string from the following options: "TensorNet-MatPES-PBE-v2025.1-PES".
+                Defaults to 'TensorNet-MatPES-PBE-v2025.1-PES' universal potential.
             relax_cell (bool): whether to relax the lattice cell. Defaults to True.
             optimizer (str): name of the ASE optimizer class to use
             steps (int): max number of steps for relaxation. Defaults to 500.
@@ -4941,14 +4939,14 @@ class Structure(IStructure, collections.abc.MutableSequence):
 
     def calculate(
         self,
-        calculator: str | Calculator = "m3gnet",
+        calculator: str | Calculator = "TensorNet-MatPES-PBE-v2025.1-PES",
         verbose: bool = False,
     ) -> Calculator:
         """Perform an ASE calculation.
 
         Args:
-            calculator: An ASE Calculator or a string from the following options: "m3gnet".
-                Defaults to 'm3gnet', i.e. the M3GNet universal potential.
+            calculator: An ASE Calculator or a string from the following options: "TensorNet-MatPES-PBE-v2025.1-PES".
+                Defaults to 'TensorNet-MatPES-PBE-v2025.1-PES' universal potential.
             verbose (bool): whether to print stdout. Defaults to False.
 
         Returns:
