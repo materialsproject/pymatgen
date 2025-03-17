@@ -1,8 +1,6 @@
 from __future__ import annotations
 
 import importlib.util
-import unittest
-from unittest import TestCase
 
 import pytest
 from pytest import approx
@@ -36,8 +34,8 @@ __email__ = "bkmedasani@lbl.gov"
 __date__ = "Aug 2, 2013"
 
 
-class TestZeoCssr(TestCase):
-    def setUp(self):
+class TestZeoCssr:
+    def setup_method(self):
         filepath = f"{VASP_IN_DIR}/POSCAR"
         self.zeo_cssr = ZeoCssr(Structure.from_file(filepath))
 
@@ -78,8 +76,8 @@ class TestZeoCssr(TestCase):
         assert isinstance(zeo_cssr.structure, Structure)
 
 
-class TestZeoCssrOxi(TestCase):
-    def setUp(self):
+class TestZeoCssrOxi:
+    def setup_method(self):
         filepath = f"{VASP_IN_DIR}/POSCAR"
         structure = BVAnalyzer().get_oxi_state_decorated_structure(Structure.from_file(filepath))
         self.zeo_cssr = ZeoCssr(structure)
@@ -121,8 +119,8 @@ class TestZeoCssrOxi(TestCase):
         assert isinstance(zeocssr.structure, Structure)
 
 
-class TestZeoVoronoiXYZ(TestCase):
-    def setUp(self):
+class TestZeoVoronoiXYZ:
+    def setup_method(self):
         coords = [
             [0.000000, 0.000000, 0.000000],
             [0.000000, 0.000000, 1.089000],
@@ -151,8 +149,8 @@ H -0.363000 -0.513360 0.889165 0.200000"""
         assert isinstance(voronoi.molecule, Molecule)
 
 
-class TestGetVoronoiNodes(TestCase):
-    def setUp(self):
+class TestGetVoronoiNodes:
+    def setup_method(self):
         filepath = f"{VASP_IN_DIR}/POSCAR"
         self.structure = Structure.from_file(filepath)
         bv = BVAnalyzer()
@@ -174,9 +172,9 @@ class TestGetVoronoiNodes(TestCase):
         assert isinstance(vor_face_center_struct, Structure)
 
 
-@unittest.skip("TODO: file free_sph.cif not present")
-class TestGetFreeSphereParams(TestCase):
-    def setUp(self):
+@pytest.mark.skip("TODO: file free_sph.cif not present")
+class TestGetFreeSphereParams:
+    def setup_method(self):
         filepath = f"{TEST_FILES_DIR}/cif/free_sph.cif"
         self.structure = Structure.from_file(filepath)
         self.rad_dict = {
@@ -196,8 +194,8 @@ class TestGetFreeSphereParams(TestCase):
         assert free_sph_params["inc_sph_along_free_sph_path_max_dia"] == approx(2.58251, abs=1e-1)
 
 
-class TestGetHighAccuracyVoronoiNodes(TestCase):
-    def setUp(self):
+class TestGetHighAccuracyVoronoiNodes:
+    def setup_method(self):
         filepath = f"{VASP_IN_DIR}/POSCAR"
         self.structure = Structure.from_file(filepath)
         bv = BVAnalyzer()
@@ -215,8 +213,8 @@ class TestGetHighAccuracyVoronoiNodes(TestCase):
         assert isinstance(vor_node_struct, Structure)
 
 
-class TestGetVoronoiNodesMultiOxi(TestCase):
-    def setUp(self):
+class TestGetVoronoiNodesMultiOxi:
+    def setup_method(self):
         filepath = f"{VASP_IN_DIR}/POSCAR"
         self.structure = Structure.from_file(filepath)
         bv = BVAnalyzer()
@@ -239,7 +237,7 @@ class TestGetVoronoiNodesMultiOxi(TestCase):
         assert isinstance(vor_face_center_struct, Structure)
 
 
-class TestZeoSource(TestCase):
+class TestZeoSource:
     """Test for zeo_source to verify which library was imported."""
 
     def test_zeo_source_is_defined(self):

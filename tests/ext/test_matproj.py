@@ -23,7 +23,7 @@ from pymatgen.ext.matproj import MP_LOG_FILE, _MPResterBasic
 from pymatgen.ext.matproj_legacy import MPRestError, TaskType, _MPResterLegacy
 from pymatgen.phonon.bandstructure import PhononBandStructureSymmLine
 from pymatgen.phonon.dos import CompletePhononDos
-from pymatgen.util.testing import TEST_FILES_DIR, PymatgenTest
+from pymatgen.util.testing import TEST_FILES_DIR, MatSciTest
 
 PMG_MAPI_KEY: str = SETTINGS.get("PMG_MAPI_KEY", "")
 
@@ -48,8 +48,8 @@ if skip_mprester_tests:
     not 10 < len(PMG_MAPI_KEY) <= 20,
     reason="Legacy PMG_MAPI_KEY environment variable not set.",
 )
-class TestMPResterOld(PymatgenTest):
-    def setUp(self):
+class TestMPResterOld(MatSciTest):
+    def setup_method(self):
         self.rester = _MPResterLegacy()
 
     def test_get_all_materials_ids_doc(self):
@@ -516,8 +516,8 @@ class TestMPResterOld(PymatgenTest):
     not len(PMG_MAPI_KEY) > 20,
     reason="PMG_MAPI_KEY environment variable not set.",
 )
-class TestMPResterNewBasic(PymatgenTest):
-    def setUp(self):
+class TestMPResterNewBasic(MatSciTest):
+    def setup_method(self):
         self.rester = _MPResterBasic()
 
     def test_get_summary(self):

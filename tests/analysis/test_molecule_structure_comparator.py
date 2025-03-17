@@ -1,7 +1,5 @@
 from __future__ import annotations
 
-from unittest import TestCase
-
 import pytest
 
 from pymatgen.analysis.molecule_structure_comparator import MoleculeStructureComparator
@@ -15,7 +13,7 @@ __author__ = "xiaohuiqu"
 TEST_DIR = f"{TEST_FILES_DIR}/analysis/structural_change"
 
 
-class TestMoleculeStructureComparator(TestCase):
+class TestMoleculeStructureComparator:
     def test_are_equal(self):
         msc1 = MoleculeStructureComparator()
         mol1 = Molecule.from_file(f"{TEST_DIR}/t1.xyz")
