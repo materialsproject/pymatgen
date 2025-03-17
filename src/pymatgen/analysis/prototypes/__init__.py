@@ -72,20 +72,14 @@ except ImportError:
     has_moyopy = False
 
 MODULE_DIR = os.path.dirname(os.path.abspath(__file__))
-AFLOW_PROTOTYPE_LIBRARY = loadfn(f"{MODULE_DIR}/aflow_prototypes.json")
+AFLOW_PROTOTYPE_LIBRARY = loadfn(f"{MODULE_DIR}/aflow_prototypes.json.gz")
+WYCKOFF_MULTIPLICITY_DICT = loadfn(f"{MODULE_DIR}/wyckoff-position-multiplicities.json.gz")
+WYCKOFF_POSITION_PARAM_DICT = loadfn(f"{MODULE_DIR}/wyckoff-position-params.json.gz")
+WYCKOFF_POSITION_RELAB_DICT = loadfn(f"{MODULE_DIR}/wyckoff-position-relabelings.json.gz")
 
-with open(join(MODULE_DIR, "wyckoff-position-multiplicities.json")) as file:
-    # dictionary mapping Wyckoff letters in a given space group to their multiplicity
-    wyckoff_multiplicity_dict = json.load(file)
-
-with open(join(MODULE_DIR, "wyckoff-position-params.json")) as file:
-    param_dict = json.load(file)
-
-with open(join(MODULE_DIR, "wyckoff-position-relabelings.json")) as file:
-    relab_dict = json.load(file)
-
-relab_dict = {
-    spg_num: [{int(key): line for key, line in val.items()} for val in vals] for spg_num, vals in relab_dict.items()
+WYCKOFF_POSITION_RELAB_DICT = {
+    spg_num: [{int(key): line for key, line in val.items()} for val in vals]
+    for spg_num, vals in WYCKOFF_POSITION_RELAB_DICT.items()
 }
 
 CRYSTAL_FAMILY_SYMBOLS = {
@@ -253,21 +247,6 @@ def count_values_for_wyckoff(
     )
 
 
-def get_centering(spg_sym: str) -> str:
-    """Get the centering for the structure, e.g. (A, B, C, S)."""
-    return "C" if spg_sym[0] in ("A", "B", "C", "S") else spg_sym[0]
-
-
-def get_pearson_symbol_from_spg_analyzer(spg_analyzer: SpacegroupAnalyzer) -> str:
-    """Get the Pearson symbol for the structure."""
-    cry_sys = spg_analyzer.get_crystal_system()
-    spg_sym = spg_analyzer.get_space_group_symbol()
-    centering = get_centering(spg_sym)
-
-    num_sites_conventional = len(spg_analyzer.get_symmetry_dataset().std_types)
-    return f"{CRYSTAL_FAMILY_SYMBOLS[cry_sys]}{centering}{num_sites_conventional}"
-
-
 @due.dcite(
     Doi("10.1126/sciadv.abn4117"),
     description="Rapid discovery of stable materials by coordinate-free coarse graining.",
@@ -362,7 +341,7 @@ def get_protostructure_label_from_aflow(
             sep_el_wyks["alpha"],
             sep_el_wyks["numeric"],
             spg_num,
-            wyckoff_multiplicity_dict,
+            WYCKOFF_MULTIPLICITY_DICT,
         )
 
     element_wyckoffs = "_".join(element_wyckoffs)
@@ -409,7 +388,7 @@ def _get_all_wyckoffs_substring_and_element_dict(
     for el, group in groupby(equivalent_wyckoff_labels, key=lambda x: x[1]):
         # NOTE create a list from the iterator so that we can use it without exhausting
         list_group = list(group)
-        element_dict[el] = sum(wyckoff_multiplicity_dict[str(spg_num)][e[2]] for e in list_group)
+        element_dict[el] = sum(WYCKOFF_MULTIPLICITY_DICT[str(spg_num)][e[2]] for e in list_group)
         # group by Wyckoff letter to get Wyckoff site multiplicity from len
         element_wyckoffs.append(
             "".join(
@@ -442,7 +421,7 @@ def get_protostructure_label_from_spg_analyzer(
     sym_struct = spg_analyzer.get_symmetrized_structure()
 
     spg_num = spg_analyzer.get_space_group_number()
-    pearson_symbol = get_pearson_symbol_from_spg_analyzer(spg_analyzer)
+    pearson_symbol = spg_analyzer.get_pearson_symbol()
     prototype_form = get_prototype_formula_from_composition(sym_struct.composition)
     chemsys = sym_struct.chemical_system
 
@@ -601,7 +580,7 @@ def canonicalize_element_wyckoffs(element_wyckoffs: str, spg_num: int | str) -> 
         str: element_wyckoff string with canonical ordering of the wyckoff letters.
     """
     isopointal_element_wyckoffs = list(
-        {element_wyckoffs.translate(str.maketrans(trans)) for trans in relab_dict[str(spg_num)]}
+        {element_wyckoffs.translate(str.maketrans(trans)) for trans in WYCKOFF_POSITION_RELAB_DICT[str(spg_num)]}
     )
 
     scored_element_wyckoffs = [
@@ -753,7 +732,8 @@ def count_crystal_dof(protostructure_label: str) -> int:
     _, pearson_symbol, spg_num, *element_wyckoffs = aflow_label.split("_")
 
     return (
-        _count_from_dict(element_wyckoffs, param_dict, spg_num) + CRYSTAL_LATTICE_PARAMETERS_COUNTS[pearson_symbol[0]]
+        _count_from_dict(element_wyckoffs, WYCKOFF_POSITION_PARAM_DICT, spg_num)
+        + CRYSTAL_LATTICE_PARAMETERS_COUNTS[pearson_symbol[0]]
     )
 
 
@@ -771,7 +751,7 @@ def count_crystal_sites(protostructure_label: str) -> int:
     aflow_label, _ = protostructure_label.split(":")  # chop off chemical system
     _, _, spg_num, *element_wyckoffs = aflow_label.split("_")
 
-    return _count_from_dict(element_wyckoffs, wyckoff_multiplicity_dict, spg_num)
+    return _count_from_dict(element_wyckoffs, WYCKOFF_MULTIPLICITY_DICT, spg_num)
 
 
 def _count_from_dict(element_wyckoffs: list[str], lookup_dict: dict, spg_num: str) -> int:
@@ -835,7 +815,7 @@ def get_prototype_from_protostructure(protostructure_label: str) -> str:
         {
             all_wyckoffs.translate(str.maketrans(trans))
             for all_wyckoffs in all_wyckoffs_permutations
-            for trans in relab_dict[spg_num]
+            for trans in WYCKOFF_POSITION_RELAB_DICT[spg_num]
         }
     )
 
@@ -956,14 +936,14 @@ def get_random_structure_for_protostructure(protostructure_label: str, **kwargs)
         [
             site
             for count, wyckoff_letter in zip(d["numeric"], d["alpha"], strict=True)
-            for site in [f"{wyckoff_multiplicity_dict[spg_num][wyckoff_letter]}{wyckoff_letter}"] * int(count)
+            for site in [f"{WYCKOFF_MULTIPLICITY_DICT[spg_num][wyckoff_letter]}{wyckoff_letter}"] * int(count)
         ]
         for d in sep_el_wyks
     ]
 
     species_counts = [
         sum(
-            wyckoff_multiplicity_dict[spg_num][wyckoff_letter] * int(count)
+            WYCKOFF_MULTIPLICITY_DICT[spg_num][wyckoff_letter] * int(count)
             for count, wyckoff_letter in zip(d["numeric"], d["alpha"], strict=True)
         )
         for d in sep_el_wyks

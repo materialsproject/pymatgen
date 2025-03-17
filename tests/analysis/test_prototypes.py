@@ -8,6 +8,7 @@ from shutil import which
 import pytest
 
 from pymatgen.analysis.prototypes import (
+    WYCKOFF_POSITION_RELAB_DICT,
     AflowPrototypeMatcher,
     _find_translations,
     count_crystal_dof,
@@ -25,7 +26,6 @@ from pymatgen.analysis.prototypes import (
     get_prototype_formula_from_composition,
     get_prototype_from_protostructure,
     get_random_structure_for_protostructure,
-    relab_dict,
 )
 from pymatgen.core.structure import Composition, Lattice, Structure
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
@@ -224,7 +224,7 @@ def test_get_prototype_from_protostructure(protostructure_label, expected):
     element_wyckoff = "_".join(wyckoffs)
 
     isopointal_element_wyckoffs = list(
-        {element_wyckoff.translate(str.maketrans(trans)) for trans in relab_dict[spg_num]}
+        {element_wyckoff.translate(str.maketrans(trans)) for trans in WYCKOFF_POSITION_RELAB_DICT[spg_num]}
     )
 
     protostructure_labels = [
