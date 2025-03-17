@@ -33,8 +33,9 @@ except ImportError:
     openbabel = None
 
 if TYPE_CHECKING:
-    from typing import Any
     from pathlib import Path
+    from typing import Any
+
     from numpy.typing import NDArray
 
 __author__ = "Samuel Blau, Brandon Wood, Shyam Dwaraknath, Evan Spotte-Smith, Ryan Kingsbury"
