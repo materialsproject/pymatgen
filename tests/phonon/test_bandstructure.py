@@ -44,7 +44,7 @@ class TestPhononBandStructureSymmLine(PymatgenTest):
             self.bs.eigendisplacements[3][50][0],
             [0.0 + 0.0j, 0.14166569 + 0.04098339j, -0.14166569 - 0.04098339j],
         )
-        assert self.bs.has_eigendisplacements, True
+        assert self.bs.has_eigendisplacements
 
         assert_allclose(self.bs.asr_breaking(), [-0.0370089502, -0.0370089502, -0.0221388897])
 
