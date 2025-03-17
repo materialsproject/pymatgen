@@ -157,7 +157,7 @@ class SymmetrizedStructure(Structure):
 
     def to(self, filename: PathLike = "", fmt: FileFormats = "", **kwargs) -> str:
         """Use `MontyEncoder` as default JSON encoder."""
-        filename, fmt = str(filename), cast(FileFormats, fmt.lower())
+        filename, fmt = str(filename), cast("FileFormats", fmt.lower())
         if fmt == "json":
             kwargs.setdefault("cls", MontyEncoder)
 
