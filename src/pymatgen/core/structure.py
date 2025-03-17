@@ -320,7 +320,7 @@ class SiteCollection(collections.abc.Sequence, ABC):
                     types.append(sp)
 
         # Cannot use set since we want a deterministic algorithm
-        return cast(tuple[Element | Species | DummySpecies, ...], tuple(sorted(set(types))))
+        return cast("tuple[Element | Species | DummySpecies, ...]", tuple(sorted(set(types))))
 
     @property
     def types_of_specie(self) -> tuple[Element | Species | DummySpecies, ...]:
@@ -1111,7 +1111,7 @@ class IStructure(SiteCollection, MSONable):
             return NotImplemented
 
         # TODO (DanielYang59): fix below type
-        other = cast(Structure, other)  # make mypy happy
+        other = cast("Structure", other)  # make mypy happy
 
         if other is self:
             return True
@@ -2940,7 +2940,7 @@ class IStructure(SiteCollection, MSONable):
             str: String representation of structure in given format. If a filename
                 is provided, the same string is written to the file.
         """
-        filename, fmt = str(filename), cast(FileFormats, fmt.lower())
+        filename, fmt = str(filename), cast("FileFormats", fmt.lower())
 
         # Default to JSON if filename not specified
         if filename == "" and fmt == "":
@@ -3528,7 +3528,7 @@ class IMolecule(SiteCollection, MSONable):
         if not all(hasattr(other, attr) for attr in needed_attrs):
             return NotImplemented
 
-        other = cast(IMolecule | Molecule, other)
+        other = cast("IMolecule | Molecule", other)
 
         if len(self) != len(other):
             return False
@@ -3758,7 +3758,7 @@ class IMolecule(SiteCollection, MSONable):
             site_dict = site.as_dict()
             del site_dict["@module"]
             del site_dict["@class"]
-            cast(list, dct["sites"]).append(site_dict)
+            cast("list", dct["sites"]).append(site_dict)
         return dct
 
     @classmethod
@@ -4066,7 +4066,7 @@ class IMolecule(SiteCollection, MSONable):
             IMolecule or Molecule.
         """
         fmt = cast(
-            Literal["xyz", "gjf", "g03", "g09", "com", "inp", "json", "yaml"],
+            "Literal['xyz', 'gjf', 'g03', 'g09', 'com', 'inp', 'json', 'yaml']",
             fmt.lower(),
         )
 
@@ -4359,7 +4359,7 @@ class Structure(IStructure, collections.abc.MutableSequence):
                 if site.distance(new_site) < self.DISTANCE_TOLERANCE:
                     raise ValueError("New site is too close to an existing site!")
 
-        cast(list[PeriodicSite], self.sites).insert(idx, new_site)
+        cast("list[PeriodicSite]", self.sites).insert(idx, new_site)
 
         return self
 
@@ -4396,7 +4396,7 @@ class Structure(IStructure, collections.abc.MutableSequence):
             frac_coords = coords
 
         new_site = PeriodicSite(species, frac_coords, self._lattice, properties=properties, label=label)
-        cast(list[PeriodicSite], self.sites)[idx] = new_site
+        cast("list[PeriodicSite]", self.sites)[idx] = new_site
 
         return self
 
@@ -5232,7 +5232,7 @@ class Molecule(IMolecule, collections.abc.MutableSequence):
             for site in self:
                 if site.distance(new_site) < self.DISTANCE_TOLERANCE:
                     raise ValueError("New site is too close to an existing site!")
-        cast(list[PeriodicSite], self.sites).insert(idx, new_site)
+        cast("list[PeriodicSite]", self.sites).insert(idx, new_site)
 
         return self
 

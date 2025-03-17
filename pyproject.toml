@@ -220,6 +220,7 @@ ignore = [
     "S603",    # Check source for use of "subprocess" call
     "S607",    # Start process with relative path
     "SIM105",  # Use contextlib.suppress() instead of try-except-pass
+    "SIM905",  # Split static strings
     "TRY003",  # Avoid specifying long messages outside the exception class
     "TRY300",  # Check for return statements in try blocks
     "TRY301",  # Check for raise statements within try blocks
