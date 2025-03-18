@@ -1,0 +1,11 @@
+# Exclude entire directories
+prune .github/
+prune dev_scripts/
+prune docs/
+prune examples/
+prune tests/
+
+# Exclude individual files
+exclude .* \
+    ADMIN.md CONTRIBUTING.md SECURITY.md \
+    CITATION.cff pdm.lock tasks.py
