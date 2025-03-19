@@ -580,11 +580,11 @@ class ComputedStructureEntry(ComputedEntry):
             entry_id: An optional id to uniquely identify the entry.
         """
         if composition:
-            if isinstance(composition,Composition):
+            if isinstance(composition, Composition):
                 pass
             else:
                 composition = Composition(composition)
-            #composition = Composition(composition)
+            # composition = Composition(composition)
             if (
                 composition.get_integer_formula_and_factor()[0]
                 != structure.composition.get_integer_formula_and_factor()[0]
