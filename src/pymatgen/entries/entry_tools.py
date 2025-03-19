@@ -130,7 +130,7 @@ def group_entries_by_structure(
         for entry, host in entries_host:
             symm_entries[comparator.get_structure_hash(host)].append((entry, host))
 
-        logging.info(f"Using {ncpus} cpus")
+        logger.info(f"Using {ncpus} cpus")
         manager = mp.Manager()
         groups = manager.list()
         with mp.Pool(ncpus) as pool:
@@ -171,8 +171,8 @@ def group_entries_by_structure(
     entry_groups = []
     for g in groups:
         entry_groups.append(json.loads(g, cls=MontyDecoder))
-    logging.info(f"Finished at {datetime.now(tz=timezone.utc)}")
-    logging.info(f"Took {datetime.now(tz=timezone.utc) - start}")
+    logger.info(f"Finished at {datetime.now(tz=timezone.utc)}")
+    logger.info(f"Took {datetime.now(tz=timezone.utc) - start}")
     return entry_groups
 
 

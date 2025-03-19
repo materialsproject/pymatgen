@@ -144,7 +144,7 @@ class Trajectory(MSONable):
             if isinstance(lattice, Lattice):
                 lattice = lattice.matrix
             elif isinstance(lattice, list) and isinstance(lattice[0], Lattice):
-                lattice = [cast(Lattice, x).matrix for x in lattice]
+                lattice = [cast("Lattice", x).matrix for x in lattice]
             lattice = np.asarray(lattice)
 
             if lattice.shape[-2:] != (3, 3):
@@ -675,7 +675,7 @@ class Trajectory(MSONable):
         if prop1 is prop2 is None:
             return None
         if prop1 is None:
-            return [None] * len1 + list(cast(list[dict], prop2))
+            return [None] * len1 + list(cast("list[dict]", prop2))
         if prop2 is None:
             return list(prop1) + [None] * len2
         return list(prop1) + list(prop2)

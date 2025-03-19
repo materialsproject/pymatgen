@@ -92,7 +92,7 @@ ase = ["ase>=3.23.0"]
 ci = ["pytest-cov>=4", "pytest-split>=0.8", "pytest>=8", "pymatgen[symmetry]"]
 docs = ["invoke", "sphinx", "sphinx_markdown_builder", "sphinx_rtd_theme"]
 electronic_structure = ["fdint>=2.0.2"]
-mlp = ["chgnet>=0.3.8", "matgl>=1.1.3"]
+mlp = ["chgnet>=0.3.8", "matgl>=1.2.1"]
 numba = ["numba>=0.55"]
 numpy-v1 = ["numpy>=1.25.0,<2"] # Test NP1 on Windows (quite buggy ATM)
 zeopp = ["pyzeo"]  # Note: requires voro++ and zeo++ to be installed as binaries
@@ -220,6 +220,7 @@ ignore = [
     "S603",    # Check source for use of "subprocess" call
     "S607",    # Start process with relative path
     "SIM105",  # Use contextlib.suppress() instead of try-except-pass
+    "SIM905",  # Split static strings
     "TRY003",  # Avoid specifying long messages outside the exception class
     "TRY300",  # Check for return statements in try blocks
     "TRY301",  # Check for raise statements within try blocks

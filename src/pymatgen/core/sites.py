@@ -137,7 +137,7 @@ class Site(collections.abc.Hashable, MSONable):
     @property
     def species(self) -> Composition:
         """The species on the site as a composition, e.g. Fe0.5Mn0.5."""
-        return cast(Composition, self._species)
+        return cast("Composition", self._species)
 
     @species.setter
     def species(self, species: SpeciesLike | CompositionLike) -> None:
@@ -151,7 +151,7 @@ class Site(collections.abc.Hashable, MSONable):
         if total_occu > 1 + Composition.amount_tolerance:
             raise ValueError("Species occupancies sum to more than 1!")
 
-        self._species = cast(Composition, species)
+        self._species = cast("Composition", species)
 
     @property
     def label(self) -> str:
@@ -346,7 +346,7 @@ class PeriodicSite(Site, MSONable):
 
         self._lattice: Lattice = lattice
         self._frac_coords: np.ndarray = np.asarray(frac_coords)
-        self._species: Composition = cast(Composition, species)
+        self._species: Composition = cast("Composition", species)
         self._coords: np.ndarray | None = None
         self.properties: dict = properties or {}
         self._label = label

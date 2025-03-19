@@ -61,8 +61,9 @@ __maintainer__ = "David Waroquiers"
 __email__ = "david.waroquiers@gmail.com"
 __date__ = "Feb 20, 2016"
 
-debug = False
-DIST_TOLERANCES = [0.02, 0.05, 0.1, 0.2, 0.3]
+logger = logging.getLogger(__name__)
+
+DIST_TOLERANCES: list[float] = [0.02, 0.05, 0.1, 0.2, 0.3]
 
 due.cite(
     Doi("10.1021/acs.chemmater.7b02766"),
@@ -685,7 +686,7 @@ class LocalGeometryFinder:
             sites_indices = [*set(indices) & set(only_indices)]
 
         # Get the VoronoiContainer for the sites defined by their indices (sites_indices)
-        logging.debug("Getting DetailedVoronoiContainer")
+        logger.debug("Getting DetailedVoronoiContainer")
         if voronoi_normalized_distance_tolerance is None:
             normalized_distance_tolerance = DetailedVoronoiContainer.default_normalized_distance_tolerance
         else:
@@ -707,7 +708,7 @@ class LocalGeometryFinder:
             normalized_angle_tolerance=normalized_angle_tolerance,
             voronoi_cutoff=voronoi_distance_cutoff,
         )
-        logging.debug("DetailedVoronoiContainer has been set up")
+        logger.debug("DetailedVoronoiContainer has been set up")
 
         # Initialize the StructureEnvironments object (either from initial_structure_environments or from scratch)
         if initial_structure_environments is not None:
@@ -756,14 +757,14 @@ class LocalGeometryFinder:
         # Loop on all the sites
         for site_idx, site in enumerate(self.structure):
             if site_idx not in sites_indices:
-                logging.debug(f" ... in site #{site_idx}/{len(self.structure)} ({site.species_string}) : skipped")
+                logger.debug(f" ... in site #{site_idx}/{len(self.structure)} ({site.species_string}) : skipped")
                 continue
             if break_it:
-                logging.debug(
+                logger.debug(
                     f" ... in site #{site_idx}/{len(self.structure)} ({site.species_string}) : skipped (timelimit)"
                 )
                 continue
-            logging.debug(f" ... in site #{site_idx}/{len(self.structure)} ({site.species_string})")
+            logger.debug(f" ... in site #{site_idx}/{len(self.structure)} ({site.species_string})")
             t1 = time.process_time()
             if optimization > 0:
                 self.detailed_voronoi.local_planes[site_idx] = {}
@@ -782,7 +783,7 @@ class LocalGeometryFinder:
                 if cn not in all_cns:
                     continue
                 for inb_set, nb_set in enumerate(nb_sets):
-                    logging.debug(f"    ... getting environments for nb_set ({cn}, {inb_set})")
+                    logger.debug(f"    ... getting environments for nb_set ({cn}, {inb_set})")
                     t_nbset1 = time.process_time()
                     ce = self.update_nb_set_environments(
                         se=struct_envs,
@@ -802,7 +803,7 @@ class LocalGeometryFinder:
                             # Get possibly missing neighbors sets
                             if cg.neighbors_sets_hints is None:
                                 continue
-                            logging.debug(f"       ... getting hints from cg with mp_symbol {cg_symbol!r} ...")
+                            logger.debug(f"       ... getting hints from cg with mp_symbol {cg_symbol!r} ...")
                             hints_info = {
                                 "csm": cg_dict["symmetry_measure"],
                                 "nb_set": nb_set,
@@ -811,7 +812,7 @@ class LocalGeometryFinder:
                             for nb_sets_hints in cg.neighbors_sets_hints:
                                 suggested_nb_set_voronoi_indices = nb_sets_hints.hints(hints_info)
                                 for idx_new, new_nb_set_voronoi_indices in enumerate(suggested_nb_set_voronoi_indices):
-                                    logging.debug(f"           hint # {idx_new}")
+                                    logger.debug(f"           hint # {idx_new}")
                                     new_nb_set = struct_envs.NeighborsSet(
                                         structure=struct_envs.structure,
                                         isite=site_idx,
@@ -844,10 +845,10 @@ class LocalGeometryFinder:
                                                 "cn_new_nb_set": cn_new_nb_set,
                                             }
                                         )
-                                        logging.debug("              => to be computed")
+                                        logger.debug("              => to be computed")
                                     else:
-                                        logging.debug("              => already present")
-            logging.debug("    ... getting environments for nb_sets added from hints")
+                                        logger.debug("              => already present")
+            logger.debug("    ... getting environments for nb_sets added from hints")
             for missing_nb_set_to_add in to_add_from_hints:
                 struct_envs.add_neighbors_set(isite=site_idx, nb_set=missing_nb_set_to_add["new_nb_set"])
             for missing_nb_set_to_add in to_add_from_hints:
@@ -855,7 +856,7 @@ class LocalGeometryFinder:
                 cn_new_nb_set = missing_nb_set_to_add["cn_new_nb_set"]
                 new_nb_set = missing_nb_set_to_add["new_nb_set"]
                 inew_nb_set = struct_envs.neighbors_sets[isite_new_nb_set][cn_new_nb_set].index(new_nb_set)
-                logging.debug(f"    ... getting environments for nb_set ({cn_new_nb_set}, {inew_nb_set}) - from hints")
+                logger.debug(f"    ... getting environments for nb_set ({cn_new_nb_set}, {inew_nb_set}) - from hints")
                 t_nbset1 = time.process_time()
                 self.update_nb_set_environments(
                     se=struct_envs,
@@ -880,9 +881,9 @@ class LocalGeometryFinder:
                 if time_left < 2.0 * max_time_one_site:
                     break_it = True
             max_time_one_site = max(max_time_one_site, t2 - t1)
-            logging.debug(f"    ... computed in {t2 - t1:.2f} seconds")
+            logger.debug(f"    ... computed in {t2 - t1:.2f} seconds")
         time_end = time.process_time()
-        logging.debug(f"    ... compute_structure_environments ended in {time_end - time_init:.2f} seconds")
+        logger.debug(f"    ... compute_structure_environments ended in {time_end - time_init:.2f} seconds")
         return struct_envs
 
     def update_nb_set_environments(self, se, isite, cn, inb_set, nb_set, recompute=False, optimization=None):
@@ -903,12 +904,12 @@ class LocalGeometryFinder:
         neighb_coords = nb_set.neighb_coordsOpt if optimization == 2 else nb_set.neighb_coords
         self.setup_local_geometry(isite, coords=neighb_coords, optimization=optimization)
         if optimization > 0:
-            logging.debug("Getting StructureEnvironments with optimized algorithm")
+            logger.debug("Getting StructureEnvironments with optimized algorithm")
             nb_set.local_planes = {}
             nb_set.separations = {}
             cncgsm = self.get_coordination_symmetry_measures_optim(nb_set=nb_set, optimization=optimization)
         else:
-            logging.debug("Getting StructureEnvironments with standard algorithm")
+            logger.debug("Getting StructureEnvironments with standard algorithm")
             cncgsm = self.get_coordination_symmetry_measures()
         for coord_geom_symb, dct in cncgsm.items():
             other_csms = {
@@ -1306,7 +1307,7 @@ class LocalGeometryFinder:
 
         result_dict = {}
         for geometry in test_geometries:
-            logging.log(
+            logger.log(
                 level=5,
                 msg="Getting Continuous Symmetry Measure with Separation Plane "
                 f'algorithm for geometry "{geometry.ce_symbol}"',
@@ -1637,10 +1638,10 @@ class LocalGeometryFinder:
                 from perfect to local environment.
         """
         if optimization == 2:
-            logging.log(level=5, msg="... using optimization = 2")
+            logger.log(level=5, msg="... using optimization = 2")
             cgcsmoptim = self._cg_csm_separation_plane_optim2
         elif optimization == 1:
-            logging.log(level=5, msg="... using optimization = 2")
+            logger.log(level=5, msg="... using optimization = 2")
             cgcsmoptim = self._cg_csm_separation_plane_optim1
         else:
             raise ValueError("Optimization should be 1 or 2")

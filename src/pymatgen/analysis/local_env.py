@@ -676,9 +676,9 @@ class NearNeighbors:
             types: list[str] = []
             params: list[dict[str, float] | None] = []
             for name in names:
-                types.append(cast(str, CN_OPT_PARAMS[cn][name][0]))
+                types.append(cast("str", CN_OPT_PARAMS[cn][name][0]))
                 tmp: dict[str, float] | None = (
-                    cast(dict[str, float], CN_OPT_PARAMS[cn][name][1]) if len(CN_OPT_PARAMS[cn][name]) > 1 else None
+                    cast("dict[str, float]", CN_OPT_PARAMS[cn][name][1]) if len(CN_OPT_PARAMS[cn][name]) > 1 else None
                 )
                 params.append(tmp)
             lsops = LocalStructOrderParams(types, parameters=params)

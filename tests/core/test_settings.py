@@ -26,13 +26,13 @@ def test_load_settings(tmp_path: Path, monkeypatch: MonkeyPatch) -> None:
     assert _load_pmg_settings() == {}
 
     # should return empty dict if file is empty
-    settings_file.write_text("")
+    settings_file.write_text("", encoding="utf-8")
     assert _load_pmg_settings() == {}
 
-    settings_file.write_text("PMG_VASP_PSP_DIR: /path/to/psp")
+    settings_file.write_text("PMG_VASP_PSP_DIR: /path/to/psp", encoding="utf-8")
     assert _load_pmg_settings() == {"PMG_VASP_PSP_DIR": "/path/to/psp"}
 
-    settings_file.write_text("PMG_MAPI_KEY: FOOBAR")
+    settings_file.write_text("PMG_MAPI_KEY: FOOBAR", encoding="utf-8")
     assert _load_pmg_settings() == {"PMG_MAPI_KEY": "FOOBAR"}
 
     # env vars should override .pmgrc.yaml
@@ -46,7 +46,7 @@ def test_load_settings(tmp_path: Path, monkeypatch: MonkeyPatch) -> None:
         assert _load_pmg_settings()["PMG_VASP_PSP_DIR"] == "/home/fakeuser/psp"
 
     # should return empty dict if file is invalid
-    settings_file.write_text("---")
+    settings_file.write_text("---", encoding="utf-8")
     assert _load_pmg_settings() == {}
 
 
@@ -63,8 +63,8 @@ def test_env_var_pmg_config_file(tmp_path: Path, monkeypatch: MonkeyPatch) -> No
     # Test that PMG_CONFIG_FILE takes precedence over the default location
     settings_file = tmp_path / ".pmgrc.yaml"
     monkeypatch.setattr("pymatgen.core.SETTINGS_FILE", settings_file)
-    settings_file.write_text("PMG_DEFAULT_SETTING: default_value")
-    custom_config_file.write_text("PMG_CUSTOM_SETTING: custom_value")
+    settings_file.write_text("PMG_DEFAULT_SETTING: default_value", encoding="utf-8")
+    custom_config_file.write_text("PMG_CUSTOM_SETTING: custom_value", encoding="utf-8")
 
     with monkeypatch.context() as ctx:
         ctx.setenv("PMG_CONFIG_FILE", str(custom_config_file))
