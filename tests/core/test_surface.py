@@ -630,8 +630,8 @@ class TestSlabGenerator(PymatgenTest):
         # expect 2 and 6 bonds broken so we check for this.
         # Number of broken bonds are floats due to primitive
         # flag check and subsequent transformation of slabs.
-        assert slabs[0].energy, 2.0
-        assert slabs[1].energy, 6.0
+        assert slabs[0].energy == approx(8.0)
+        assert slabs[1].energy == approx(24.0)
 
 
 class ReconstructionGeneratorTests(PymatgenTest):

@@ -15,12 +15,12 @@ import scipy.constants as sc
 from pymatgen.analysis.diffraction.core import AbstractDiffractionPatternCalculator
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
 from pymatgen.util.string import latexify_spacegroup, unicodeify_spacegroup
-from pymatgen.util.typing import Tuple3Ints
 
 if TYPE_CHECKING:
     from numpy.typing import NDArray
 
     from pymatgen.core import Structure
+    from pymatgen.util.typing import Tuple3Ints
 
 __author__ = "Frank Wan, Jason Liang"
 __copyright__ = "Copyright 2020, The Materials Project"
@@ -121,7 +121,7 @@ class TEMCalculator(AbstractDiffractionPatternCalculator):
             return []
         filtered = np.where(np.dot(np.array(self.beam_direction), np.transpose(points)) == laue_zone)
         result = points[filtered]
-        return cast(list[Tuple3Ints], [tuple(x) for x in result.tolist()])
+        return cast("list[Tuple3Ints]", [tuple(x) for x in result.tolist()])
 
     def get_interplanar_spacings(
         self, structure: Structure, points: list[Tuple3Ints] | np.ndarray
