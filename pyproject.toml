@@ -89,7 +89,7 @@ Pypi = "https://pypi.org/project/pymatgen"
 [project.optional-dependencies]
 abinit = ["netcdf4>=1.7.2"]
 ase = ["ase>=3.23.0"]
-ci = ["pytest-cov>=4", "pytest-split>=0.8", "pytest>=8", "pymatgen[symmetry]"]
+ci = ["pytest-cov>=4", "pytest-split>=0.8", "pytest>=8", "pymatgen[prototypes]"]
 docs = ["invoke", "sphinx", "sphinx_markdown_builder", "sphinx_rtd_theme"]
 electronic_structure = ["fdint>=2.0.2"]
 mlp = ["chgnet>=0.3.8", "matgl>=1.2.1"]
@@ -111,6 +111,7 @@ optional = [
     "phonopy>=2.33.3",
     "seekpath>=2.0.1",
 ]
+prototypes = ["pyxtal>=1.0", "pymatgen[symmetry]"]
 # moyopy[interface] includes ase
 symmetry = ["moyopy[interface]>=0.3", "spglib>=2.5"]
 # tblite only support Python 3.12+ through conda-forge
@@ -141,6 +142,7 @@ include = ["pymatgen", "pymatgen.*"]
 "pymatgen.analysis.structure_prediction" = ["*.yaml", "data/*.json"]
 "pymatgen.analysis.diffraction" = ["*.json"]
 "pymatgen.analysis.magnetism" = ["default_magmoms.yaml"]
+"pymatgen.analysis.prototypes" = ["*.json.gz"]
 "pymatgen.analysis.solar" = ["am1.5G.dat"]
 "pymatgen.entries" = ["*.json.gz", "*.yaml", "data/*.json"]
 "pymatgen.core" = ["*.json"]
