@@ -1649,6 +1649,16 @@ class TestPotcarSingle(TestCase):
         assert psingle == self.psingle_Mn_pv
         assert psingle is not self.psingle_Mn_pv
 
+    def test_spec(self):
+        for psingle in [self.psingle_Fe, self.psingle_Fe_54, self.psingle_Mn_pv]:
+            expected_spec = {
+                "titel": psingle.TITEL,
+                "hash": psingle.md5_header_hash,
+                "summary_stats": psingle._summary_stats,
+                "symbol": psingle.symbol,
+            }
+            assert expected_spec == psingle.spec(extra_spec=["symbol"])
+
 
 @pytest.mark.filterwarnings(
     "ignore:POTCAR data with symbol .* is not known to pymatgen:pymatgen.io.vasp.inputs.UnknownPotcarWarning"
@@ -1726,6 +1736,19 @@ class TestPotcar(PymatgenTest):
 
     def test_pickle(self):
         pickle.dumps(self.potcar)
+
+    def test_from_spec(self):
+        orig_potcar = Potcar(symbols=["Fe", "P", "O"], functional="PBE")
+        new_potcar = Potcar.from_spec(orig_potcar.spec)
+        assert str(new_potcar) == str(orig_potcar)
+        assert all(
+            [PotcarSingle.compare_potcar_stats(p._summary_stats, orig_potcar[ip]._summary_stats)]
+            for ip, p in enumerate(new_potcar)
+            if p.TITEL == orig_potcar[ip].TITEL
+        )
+
+    # def tearDown(self):
+    #     SETTINGS["PMG_DEFAULT_FUNCTIONAL"] = "PBE"
 
 
 @pytest.mark.filterwarnings("ignore:Please use INCAR KSPACING tag:DeprecationWarning")

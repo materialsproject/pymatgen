@@ -183,7 +183,7 @@ class TestLobsterin(PymatgenTest):
                 assert "skipcohp" not in lobsterin1
                 assert "skipcoop" not in lobsterin1
             if option == "standard_from_projection":
-                assert lobsterin1["loadProjectionFromFile"], True
+                assert lobsterin1["loadProjectionFromFile"]
             if option in [
                 "onlyprojection",
                 "onlycohp",
@@ -192,33 +192,33 @@ class TestLobsterin(PymatgenTest):
                 "onlycohpcoop",
                 "onlycohpcoopcobi",
             ]:
-                assert lobsterin1["skipdos"], True
-                assert lobsterin1["skipPopulationAnalysis"], True
-                assert lobsterin1["skipGrossPopulation"], True
-                assert lobsterin1["skipMadelungEnergy"], True
+                assert lobsterin1["skipdos"]
+                assert lobsterin1["skipPopulationAnalysis"]
+                assert lobsterin1["skipGrossPopulation"]
+                assert lobsterin1["skipMadelungEnergy"]
 
             if option == "onlydos":
-                assert lobsterin1["skipPopulationAnalysis"], True
-                assert lobsterin1["skipGrossPopulation"], True
-                assert lobsterin1["skipcohp"], True
-                assert lobsterin1["skipcoop"], True
-                assert lobsterin1["skipcobi"], True
-                assert lobsterin1["skipMadelungEnergy"], True
+                assert lobsterin1["skipPopulationAnalysis"]
+                assert lobsterin1["skipGrossPopulation"]
+                assert lobsterin1["skipcohp"]
+                assert lobsterin1["skipcoop"]
+                assert lobsterin1["skipcobi"]
+                assert lobsterin1["skipMadelungEnergy"]
             if option == "onlycohp":
-                assert lobsterin1["skipcoop"], True
-                assert lobsterin1["skipcobi"], True
+                assert lobsterin1["skipcoop"]
+                assert lobsterin1["skipcobi"]
             if option == "onlycoop":
-                assert lobsterin1["skipcohp"], True
-                assert lobsterin1["skipcobi"], True
+                assert lobsterin1["skipcohp"]
+                assert lobsterin1["skipcobi"]
             if option == "onlyprojection":
-                assert lobsterin1["skipdos"], True
+                assert lobsterin1["skipdos"]
             if option == "onlymadelung":
-                assert lobsterin1["skipPopulationAnalysis"], True
-                assert lobsterin1["skipGrossPopulation"], True
-                assert lobsterin1["skipcohp"], True
-                assert lobsterin1["skipcoop"], True
-                assert lobsterin1["skipcobi"], True
-                assert lobsterin1["skipdos"], True
+                assert lobsterin1["skipPopulationAnalysis"]
+                assert lobsterin1["skipGrossPopulation"]
+                assert lobsterin1["skipcohp"]
+                assert lobsterin1["skipcoop"]
+                assert lobsterin1["skipcobi"]
+                assert lobsterin1["skipdos"]
         # test basis functions by dict
         lobsterin_new = Lobsterin.standard_calculations_from_vasp_files(
             f"{VASP_IN_DIR}/POSCAR_Fe3O4",

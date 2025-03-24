@@ -265,7 +265,7 @@ class _MPResterBasic:
         conventional_unit_cell=False,
         sort_by_e_above_hull=False,
     ):
-        """Get  a list of ComputedEntries or ComputedStructureEntries corresponding
+        """Get a list of ComputedEntries or ComputedStructureEntries corresponding
         to a chemical system, formula, or materials_id or full criteria.
 
         Args:

@@ -633,7 +633,7 @@ class JDFTXOutfileSlice:
         lines1 = find_all_key("Dumping ", text)
         lines2 = find_all_key("eigStats' ...", text)
         lines3 = [lines1[i] for i in range(len(lines1)) if lines1[i] in lines2]
-        if not len(lines3):
+        if not lines3:
             varsdict["emin"] = None
             varsdict["homo"] = None
             varsdict["efermi"] = None
@@ -772,7 +772,7 @@ class JDFTXOutfileSlice:
                     started = False
             elif start_flag in line_text:
                 started = True
-            elif len(line_texts):
+            elif line_texts:
                 break
         return line_texts
 

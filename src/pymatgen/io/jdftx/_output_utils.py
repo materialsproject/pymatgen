@@ -211,7 +211,7 @@ def get_start_lines(
         start_lines.append(i)
     if i is None:
         raise ValueError("Outfile parser fed an empty file.")
-    if not len(start_lines):
+    if not start_lines:
         raise ValueError("No JDFTx calculations found in file.")
     return start_lines
 

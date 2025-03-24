@@ -3,8 +3,8 @@ pymatgen.apps package
 
 .. automodule:: pymatgen.apps
    :members:
-   :undoc-members:
    :show-inheritance:
+   :undoc-members:
 
 Subpackages
 -----------
