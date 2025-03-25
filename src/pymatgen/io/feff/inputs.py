@@ -808,7 +808,6 @@ class Potential(MSONable):
         if not struct.is_ordered:
             raise ValueError("Structure with partial occupancies cannot be converted into atomic coordinates!")
 
-    
         self.struct = struct
         self.radius = radius
         self.absorbing_atom, self.center_index = get_absorbing_atom_symbol_index(absorbing_atom, struct)
