@@ -6,10 +6,9 @@ import os
 import re
 from typing import TYPE_CHECKING
 
-from monty.io import reverse_readline
+from monty.io import reverse_readfile
 from monty.itertools import chunks
 from monty.json import MSONable
-from monty.serialization import zopen
 
 from pymatgen.core.structure import Molecule
 
@@ -645,16 +644,15 @@ class AdfOutput:
         # The last non-empty line of the logfile must match the end pattern.
         # Otherwise the job has some internal failure. The TAPE13 part of the
         # ADF manual has a detailed explanation.
-        with zopen(logfile, mode="rt", encoding="utf-8") as file:
-            for line in reverse_readline(file):
-                if line == "":
-                    continue
-                if end_patt.search(line) is None:
-                    self.is_internal_crash = True
-                    self.error = "Internal crash. TAPE13 is generated!"
-                    self.is_failed = True
-                    return
-                break
+        for line in reverse_readfile(logfile):
+            if line.strip() == "":
+                continue
+            if end_patt.search(line) is None:
+                self.is_internal_crash = True
+                self.error = "Internal crash. TAPE13 is generated!"
+                self.is_failed = True
+                return
+            break
 
         with open(logfile, encoding="utf-8") as file:
             for line in file:
