@@ -325,6 +325,7 @@ exclude = ["**/tests"]
 
 [dependency-groups]
 dev = [
+    "pre-commit>=4.2.0",
     "pytest>=8.3.5",
     "pytest-cov>=6.0.0",
     "pytest-split>=0.10.0",
@@ -333,4 +334,9 @@ lint = [
     "mypy>=1.15.0",
     "pyright>=1.1.398",
     "ruff>=0.11.2",
+]
+maintain = [
+    "invoke>=2.2.0",
+    "sphinx>=8.1.3",
+    "sphinx-markdown-builder>=0.6.8",
 ]

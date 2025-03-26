@@ -26,11 +26,11 @@ jobs:
 
       - name: ruff
         run: |
-          ruff check .
-          ruff format --check .
+          uv run ruff check .
+          uv run ruff format --check .
 
       - name: mypy
-        run: mypy -p pymatgen
+        run: uv run mypy -p pymatgen
 
       - name: pyright
-        run: pyright
+        run: uv run pyright
