@@ -858,7 +858,7 @@ class CifParser:
                             MagSymmOp.from_rotation_and_translation_and_time_reversal(
                                 rotation_matrix=op.rotation_matrix,
                                 translation_vec=new_translation,
-                                time_reversal=cast(Literal[-1, 1], new_time_reversal),
+                                time_reversal=cast("Literal[-1, 1]", new_time_reversal),
                             )
                         )
                 mag_symm_ops = all_ops
