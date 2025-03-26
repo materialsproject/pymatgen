@@ -30,7 +30,7 @@ jobs:
           ruff format --check .
 
       - name: mypy
-        run: mypy src
+        run: mypy --no-namespace-packages src
 
       - name: pyright
         run: pyright
