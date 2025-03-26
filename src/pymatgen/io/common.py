@@ -381,58 +381,55 @@ class VolumetricData(MSONable):
     @classmethod
     def from_cube(cls, filename: str | Path) -> Self:
         """
-        Initialize the cube object and store the data as data.
+        Initialize the cube object and store the data as pymatgen objects.
 
         Args:
             filename (str): of the cube to read
         """
-        file = zopen(filename, mode="rt", encoding="utf-8")
+        # Limit the number of I/O operations by reading the entire file at once
+        with zopen(filename, mode="rt", encoding="utf-8") as f:
+            lines = f.readlines()
 
-        # skip header lines
-        file.readline()
-        file.readline()
+        # Parse the number of atoms from line 3 (first two lines are headers)
+        n_atoms = int(lines[2].split()[0])
 
-        # number of atoms followed by the position of the origin of the volumetric data
-        line = file.readline().split()
-        n_atoms = int(line[0])
+        # Pre-parse voxel data into arrays
+        def parse_voxel(line):
+            parts = line.split()
+            return int(parts[0]), np.array(parts[1:], dtype=float) * bohr_to_angstrom
 
-        # The number of voxels along each axis (x, y, z) followed by the axis vector.
-        line = file.readline().split()
-        num_x_voxels = int(line[0])
-        voxel_x = np.array([bohr_to_angstrom * float(val) for val in line[1:]])
+        # Extract voxel information from lines 4-6
+        num_x_voxels, voxel_x = parse_voxel(lines[3])
+        num_y_voxels, voxel_y = parse_voxel(lines[4])
+        num_z_voxels, voxel_z = parse_voxel(lines[5])
 
-        line = file.readline().split()
-        num_y_voxels = int(line[0])
-        voxel_y = np.array([bohr_to_angstrom * float(val) for val in line[1:]])
+        # Parse atomic site data (starts at line 7 and continues for n_atoms lines)
+        # Each line contains: atomic number, charge, x, y, z coordinates (in Bohr units)
+        atom_data_start = 6
+        atom_data_end = atom_data_start + n_atoms
+        sites = [
+            Site(line.split()[0], np.array(line.split()[2:], dtype=float) * bohr_to_angstrom)
+            for line in lines[atom_data_start:atom_data_end]
+        ]
 
-        line = file.readline().split()
-        num_z_voxels = int(line[0])
-        voxel_z = np.array([bohr_to_angstrom * float(val) for val in line[1:]])
-
-        # The last section in the header is one line for each atom consisting of 5 numbers,
-        # the first is the atom number, second is charge,
-        # the last three are the x,y,z coordinates of the atom center.
-        sites = []
-        for _ in range(n_atoms):
-            line = file.readline().split()
-            sites.append(Site(line[0], np.multiply(bohr_to_angstrom, list(map(float, line[2:])))))
-
+        # Generate a Pymatgen Structure object from extracted data
         structure = Structure(
-            lattice=[
-                voxel_x * num_x_voxels,
-                voxel_y * num_y_voxels,
-                voxel_z * num_z_voxels,
-            ],
-            species=[s.specie for s in sites],
-            coords=[s.coords for s in sites],
+            lattice=[voxel_x * num_x_voxels, voxel_y * num_y_voxels, voxel_z * num_z_voxels],
+            species=[site.specie for site in sites],
+            coords=[site.coords for site in sites],
             coords_are_cartesian=True,
         )
 
-        # Volumetric data
-        data = np.reshape(
-            np.array(file.read().split()).astype(float),
-            (num_x_voxels, num_y_voxels, num_z_voxels),
-        )
+        # Extract volumetric data (starts after atomic site data)
+        volumetric_data_start = atom_data_end
+        volumetric_data_lines = lines[volumetric_data_start:]
+
+        # Convert the text-based volumetric data into a NumPy array (much faster)
+        volumetric_data = np.fromstring(" ".join(volumetric_data_lines), sep=" ", dtype=float)
+
+        # Reshape 1D data array into a 3D grid matching the voxel dimensions
+        data = volumetric_data.reshape((num_x_voxels, num_y_voxels, num_z_voxels))
+
         return cls(structure=structure, data={"total": data})
 
 

@@ -33,6 +33,7 @@ except ImportError:
     openbabel = None
 
 if TYPE_CHECKING:
+    from pathlib import Path
     from typing import Any
 
     from numpy.typing import NDArray
@@ -2938,7 +2939,7 @@ def parse_perturbation_energy(lines: list[str]) -> list[pd.DataFrame]:
     return e2_dfs
 
 
-def nbo_parser(filename: str) -> dict[str, list[pd.DataFrame]]:
+def nbo_parser(filename: str | Path) -> dict[str, list[pd.DataFrame]]:
     """
     Parse all the important sections of NBO output.
 
@@ -2964,7 +2965,7 @@ def nbo_parser(filename: str) -> dict[str, list[pd.DataFrame]]:
     return dfs
 
 
-def gradient_parser(filename: str = "131.0") -> NDArray:
+def gradient_parser(filename: str | Path = "131.0") -> NDArray:
     """
     Parse the gradient data from a gradient scratch file.
 
@@ -2990,7 +2991,7 @@ def gradient_parser(filename: str = "131.0") -> NDArray:
     return np.array(grad)
 
 
-def hessian_parser(filename: str = "132.0", n_atoms: int | None = None) -> NDArray:
+def hessian_parser(filename: str | Path = "132.0", n_atoms: int | None = None) -> NDArray:
     """
     Parse the Hessian data from a Hessian scratch file.
 
@@ -3010,7 +3011,7 @@ def hessian_parser(filename: str = "132.0", n_atoms: int | None = None) -> NDArr
     return np.array(hessian)
 
 
-def orbital_coeffs_parser(filename: str = "53.0") -> NDArray:
+def orbital_coeffs_parser(filename: str | Path = "53.0") -> NDArray:
     """
     Parse the orbital coefficients from a scratch file.
 

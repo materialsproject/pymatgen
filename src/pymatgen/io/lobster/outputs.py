@@ -31,7 +31,6 @@ from pymatgen.electronic_structure.dos import Dos, LobsterCompleteDos
 from pymatgen.io.vasp.inputs import Kpoints
 from pymatgen.io.vasp.outputs import Vasprun, VolumetricData
 from pymatgen.util.due import Doi, due
-from pymatgen.util.typing import PathLike
 
 if TYPE_CHECKING:
     from typing import Any, ClassVar, Literal
@@ -40,7 +39,7 @@ if TYPE_CHECKING:
 
     from pymatgen.core.structure import IStructure
     from pymatgen.electronic_structure.cohp import IcohpCollection
-    from pymatgen.util.typing import Tuple3Ints, Vector3D
+    from pymatgen.util.typing import PathLike, Tuple3Ints, Vector3D
 
 __author__ = "Janine George, Marco Esters"
 __copyright__ = "Copyright 2017, The Materials Project"
@@ -1439,7 +1438,7 @@ class Fatband:
                     filenames_new.append(os.path.join(filenames, name))
             filenames = filenames_new  # type: ignore[assignment]
 
-        filenames = cast(list[PathLike], filenames)
+        filenames = cast("list[PathLike]", filenames)
 
         if len(filenames) == 0:
             raise ValueError("No FATBAND files in folder or given")

@@ -6,6 +6,37 @@ nav_order: 4
 
 # Changelog
 
+## v2025.3.10
+
+1. **PR #3680** - Add support for `vaspout.h5`, improvements to POTCAR handling by @esoteric-ephemera
+   - Added support for parsing `vaspout.h5` and improvements in POTCAR handling.
+   - Major additions include methods for processing `vaspout.h5` and ensuring compatibility with existing VASP I/O infrastructure.
+   
+2. **PR #4319** - Update `abitimer` in `io.abinit` by @gpetretto
+   - Fixes parsing issues for newer versions of Abinit.
+   - Updates compatibility with `pandas > 2` and includes test files for validation.
+
+3. **PR #4315** - Patch to allow `pyzeo` integration by @daniel-sintef
+   - Provides a patch to swap out `zeo++` with `pyzeo`, which is a more actively maintained version.
+   
+4. **PR #4281** - Add method to get the Pearson symbol to `SpaceGroupAnalyzer` by @CompRhys
+   - Introduced a new method to retrieve the Pearson Symbol in `SpaceGroupAnalyzer`.
+
+6. **PR #4295** - Pass `kwargs` to `IStructure.to` method in JSON format by @DanielYang59
+   - Provides finer control over `json.dumps` behavior during format conversion.
+
+7. **PR #4306** - `IStructure.to` defaults to JSON when `filename` is unspecified by @DanielYang59
+   - Adjusts default file output behavior to JSON.
+
+8. **PR #4297** - Bugfix for `Structure/ase.Atoms` interconversion by @wolearyc
+   - Ensures deep copying to avoid shared memory issues between `Atoms.info` and `Structure.properties`.
+
+9. **PR #4304** - `MagneticStructureEnumerator`: Expose `max_orderings` argument by @mkhorton
+    - Makes `max_orderings` configurable via keyword argument.
+
+10. **PR #4299** - Update inequality in `get_linear_interpolated_value` by @kavanase
+    - Fixes interpolation logic to handle edge cases more robustly.
+
 ## v2025.2.18
 
 1. **PR #4288**: `Dos.get_cbm_vbm` updates by @kavanase

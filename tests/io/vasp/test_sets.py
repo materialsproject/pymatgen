@@ -1342,7 +1342,9 @@ class TestNEBSet(PymatgenTest):
         incar = self.vis.incar
         assert "LDAUU" not in incar
         assert incar["EDIFF"] == approx(0.00005)
-        assert self.vis_MIT.incar["EDIFF"] == approx(0.00001)
+        assert self.vis_MIT.incar["EDIFF"] == approx(0.00005)
+        assert incar["NSW"] == 200
+        assert incar["IBRION"] == 3
         assert "LCLIMB" in self.vis_cineb.incar
 
     def test_kpoints(self):
@@ -2136,11 +2138,11 @@ class TestLobsterSet(PymatgenTest):
 
     def test_kpoints(self):
         kpoints1 = self.lobsterset1.kpoints
-        assert kpoints1.comment.split()[6], 6138
+        assert kpoints1.comment.split()[5] == "6138"
         kpoints2 = self.lobsterset2.kpoints
-        assert kpoints2.comment.split()[6], 6138
+        assert kpoints2.comment.split()[5] == "6138"
         kpoints3 = self.lobsterset3.kpoints
-        assert kpoints3.comment.split()[6], 6000
+        assert kpoints3.comment.split()[5] == "6000"
 
     @skip_if_no_psp_dir
     def test_potcar(self):
@@ -2170,7 +2172,7 @@ class TestLobsterSet(PymatgenTest):
         assert incar1["ISYM"] == -1
         assert incar1["ALGO"] == "Normal"
         kpoints1 = lobsterset_new.kpoints
-        assert kpoints1.comment.split()[6], 6138
+        assert kpoints1.comment.split()[5] == "6138"
         assert lobsterset_new.user_potcar_functional == "PBE_54"
 
 
