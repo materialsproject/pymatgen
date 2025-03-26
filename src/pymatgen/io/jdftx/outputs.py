@@ -68,6 +68,11 @@ implemented_store_vars = [
     "eigenvals",
 ]
 
+# List of attributes that need to be assigned else confuse pprint
+name_me = [
+    "orb_label_list",
+]
+
 
 @dataclass
 class JDFTXOutputs:
@@ -153,7 +158,7 @@ class JDFTXOutputs:
             if not outfile_path.exists():
                 raise FileNotFoundError(f"Provided outfile path {outfile_path} does not exist.")
         self.outfile = JDFTXOutfile.from_file(outfile_path)
-        prefix = self.outfile.prefix
+        prefix = self.outfile.prefix if hasattr(self.outfile, "prefix") else None
         for fname in dump_file_names:
             try:
                 paths = _find_jdftx_dump_file(self.calc_dir, fname)
@@ -163,6 +168,9 @@ class JDFTXOutputs:
                 pass
 
     def _store_vars(self):
+        # OTherwise orb_label_list goes unassigned and it confused pprint
+        for var in name_me:
+            setattr(self, var, None)
         for var in implemented_store_vars:
             if var not in self.store_vars:
                 setattr(self, var, None)
@@ -191,6 +199,10 @@ class JDFTXOutputs:
         if "bandProjections" in self.paths:
             self.bandProjections = get_proj_tju_from_file(self.paths["bandProjections"])
             self.orb_label_list = _get_orb_label_list(self.paths["bandProjections"])
+        # OTherwise orb_label_list goes unassigned and it confused pprint
+        else:
+            self.bandProjections = None
+            self.orb_label_list = None
 
     def _check_eigenvals(self):
         """Check for misaligned data within eigenvals file."""
