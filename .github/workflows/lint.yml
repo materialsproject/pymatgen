@@ -30,7 +30,7 @@ jobs:
           ruff format --check .
 
       - name: mypy
-        run: mypy --no-namespace-packages src
+        run: mypy -p pymatgen
 
       - name: pyright
         run: pyright
