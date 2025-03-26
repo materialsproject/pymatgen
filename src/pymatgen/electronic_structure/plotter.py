@@ -19,7 +19,6 @@ from matplotlib.collections import LineCollection
 from matplotlib.gridspec import GridSpec
 from monty.dev import requires
 from monty.json import jsanitize
-from numpy.typing import ArrayLike
 
 from pymatgen.core import Element
 from pymatgen.electronic_structure.bandstructure import BandStructureSymmLine
@@ -35,6 +34,8 @@ except ImportError:
 if TYPE_CHECKING:
     from collections.abc import Sequence
     from typing import Literal
+
+    from numpy.typing import ArrayLike
 
     from pymatgen.electronic_structure.dos import CompleteDos, Dos
 
@@ -164,8 +165,8 @@ class DosPlotter:
         # Note that this complicated processing of energies is to allow for
         # stacked plots in matplotlib.
         for dos in self._doses.values():
-            energies = cast(ArrayLike, dos["energies"])
-            densities = cast(ArrayLike, dos["densities"])
+            energies = cast("ArrayLike", dos["energies"])
+            densities = cast("ArrayLike", dos["densities"])
             if not ys:
                 ys = {
                     Spin.up: np.zeros(energies.shape),
@@ -2438,7 +2439,7 @@ class BSDOSPlotter:
             if spin in bs.bands:
                 band_energies[spin] = []
                 for band in bs.bands[spin]:
-                    band = cast(list[float], band)
+                    band = cast("list[float]", band)
                     band_energies[spin].append([e - bs.efermi for e in band])  # type: ignore[arg-type]
 
         # renormalize the DOS energies to Fermi level

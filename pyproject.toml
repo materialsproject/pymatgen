@@ -57,7 +57,7 @@ dependencies = [
     "joblib>=1",
     "matplotlib>=3.8",
     "monty>=2025.1.9",
-    "networkx>=2.7",  # PR4116
+    "networkx>=2.7", # PR4116
     "palettable>=3.3.3",
     "pandas>=2",
     "plotly>=5.0.0",
@@ -69,7 +69,7 @@ dependencies = [
     # https://github.com/scipy/scipy/issues/21052
     "scipy>=1.14.1; platform_system == 'Windows'",
     "spglib>=2.5",
-    "sympy>=1.3",  # PR #4116
+    "sympy>=1.3", # PR #4116
     "tabulate>=0.9",
     "tqdm>=4.60",
     "uncertainties>=3.1.4",
@@ -89,10 +89,10 @@ Pypi = "https://pypi.org/project/pymatgen"
 [project.optional-dependencies]
 abinit = ["netcdf4>=1.7.2"]
 ase = ["ase>=3.23.0"]
-ci = ["pytest-cov>=4", "pytest-split>=0.8", "pytest>=8", "pymatgen[symmetry]"]
+ci = ["pytest-cov>=4", "pytest-split>=0.8", "pytest>=8", "pymatgen[prototypes]"]
 docs = ["invoke", "sphinx", "sphinx_markdown_builder", "sphinx_rtd_theme"]
 electronic_structure = ["fdint>=2.0.2"]
-mlp = ["chgnet>=0.3.8", "matgl>=1.1.3"]
+mlp = ["chgnet>=0.3.8", "matgl>=1.2.1"]
 numba = ["numba>=0.55"]
 numpy-v1 = ["numpy>=1.25.0,<2"] # Test NP1 on Windows (quite buggy ATM)
 zeopp = ["pyzeo"]  # Note: requires voro++ and zeo++ to be installed as binaries
@@ -111,6 +111,7 @@ optional = [
     "phonopy>=2.33.3",
     "seekpath>=2.0.1",
 ]
+prototypes = ["pyxtal>=1.0", "pymatgen[symmetry]"]
 # moyopy[interface] includes ase
 symmetry = ["moyopy[interface]>=0.3", "spglib>=2.5"]
 # tblite only support Python 3.12+ through conda-forge
@@ -141,6 +142,7 @@ include = ["pymatgen", "pymatgen.*"]
 "pymatgen.analysis.structure_prediction" = ["*.yaml", "data/*.json"]
 "pymatgen.analysis.diffraction" = ["*.json"]
 "pymatgen.analysis.magnetism" = ["default_magmoms.yaml"]
+"pymatgen.analysis.prototypes" = ["*.json.gz"]
 "pymatgen.analysis.solar" = ["am1.5G.dat"]
 "pymatgen.entries" = ["*.json.gz", "*.yaml", "data/*.json"]
 "pymatgen.core" = ["*.json"]
@@ -220,6 +222,7 @@ ignore = [
     "S603",    # Check source for use of "subprocess" call
     "S607",    # Start process with relative path
     "SIM105",  # Use contextlib.suppress() instead of try-except-pass
+    "SIM905",  # Split static strings
     "TRY003",  # Avoid specifying long messages outside the exception class
     "TRY300",  # Check for return statements in try blocks
     "TRY301",  # Check for raise statements within try blocks
@@ -319,3 +322,21 @@ reportMissingImports = false
 reportMissingModuleSource = false
 reportInvalidTypeForm = false
 exclude = ["**/tests"]
+
+[dependency-groups]
+dev = [
+    "pre-commit>=4.2.0",
+    "pytest>=8.3.5",
+    "pytest-cov>=6.0.0",
+    "pytest-split>=0.10.0",
+]
+lint = [
+    "mypy>=1.15.0",
+    "pyright>=1.1.398",
+    "ruff>=0.11.2",
+]
+maintain = [
+    "invoke>=2.2.0",
+    "sphinx>=8.1.3",
+    "sphinx-markdown-builder>=0.6.8",
+]

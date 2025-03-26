@@ -12,14 +12,13 @@ import numpy as np
 
 from pymatgen.core import Lattice, Molecule, Structure
 from pymatgen.core.tensors import Tensor
-from pymatgen.util.typing import Tuple3Floats
 
 if TYPE_CHECKING:
     from collections.abc import Generator, Sequence
     from io import TextIOWrapper
     from typing import Any
 
-    from pymatgen.util.typing import Matrix3D, Vector3D
+    from pymatgen.util.typing import Matrix3D, Tuple3Floats, Vector3D
 
 __author__ = "Thomas A. R. Purcell and Andrey Sobolev"
 __version__ = "1.0"
@@ -565,9 +564,9 @@ class AimsOutCalcChunk(AimsOutChunk):
             elif "atom   " in line:
                 line_split = line.split()
                 species.append(line_split[4])
-                coords.append(cast(Tuple3Floats, tuple(float(inp) for inp in line_split[1:4])))
+                coords.append(cast("Tuple3Floats", tuple(float(inp) for inp in line_split[1:4])))
             elif "velocity   " in line:
-                velocities.append(cast(Tuple3Floats, tuple(float(inp) for inp in line.split()[1:4])))
+                velocities.append(cast("Tuple3Floats", tuple(float(inp) for inp in line.split()[1:4])))
 
         lattice = Lattice(lattice_vectors) if len(lattice_vectors) == 3 else None
         return species, coords, velocities, lattice
@@ -810,7 +809,7 @@ class AimsOutCalcChunk(AimsOutChunk):
 
     @property
     def structure(self) -> Structure | Molecule:
-        """The pytmagen SiteCollection of the chunk."""
+        """The pymatgen SiteCollection of the chunk."""
         if "structure" not in self._cache:
             self._cache["structure"] = self._parse_structure()
         return self._cache["structure"]
