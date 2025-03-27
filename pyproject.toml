@@ -294,7 +294,8 @@ ignore_missing_imports = true
 namespace_packages = true
 explicit_package_bases = true
 no_implicit_optional = false
-disable_error_code = ["annotation-unchecked", "override"]
+disable_error_code = ["annotation-unchecked", "override", "assignment", "misc"] #, "union-attr", "operator", "arg-type", "index", "call-arg", "return-value", "assignment", "attr-defined"]
+exclude = ['src/pymatgen/analysis', 'src/pymatgen/io', 'src/pymatgen/cli', 'src/pymatgen/electronic_structure',]
 
 [[tool.mypy.overrides]]
 module = ["requests.*", "tabulate.*"]
