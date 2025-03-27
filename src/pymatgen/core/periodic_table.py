@@ -502,13 +502,13 @@ class ElementBase(Enum):
         return sum(t[-1] for t in self.full_electronic_structure)
 
     @property
-    def valence(self) -> tuple[int | np.nan, int]:
+    def valence(self) -> tuple[int | float, int]:
         """Valence subshell angular moment (L) and number of valence e- (v_e),
         obtained from full electron config, where L=0, 1, 2, or 3 for s, p, d,
         and f orbitals, respectively.
         """
         if self.group == 18:
-            return np.nan, 0  # The number of valence of noble gas is 0
+            return float("nan"), 0  # The number of valence of noble gas is 0
 
         L_symbols = "SPDFGHIKLMNOQRTUVWXYZ"
         valence: list[tuple[int, int]] = []
@@ -536,7 +536,7 @@ class ElementBase(Enum):
         L, v_e = self.valence
 
         # for one electron in subshell L
-        ml = list(range(-L, L + 1))
+        ml = list(range(-L, L + 1))  # type: ignore[arg-type]
         ms = [1 / 2, -1 / 2]
         # all possible configurations of ml,ms for one e in subshell L
         ml_ms = list(product(ml, ms))
@@ -545,7 +545,7 @@ class ElementBase(Enum):
         n = (2 * L + 1) * 2
         # the combination of n_e electrons configurations
         # C^{n}_{n_e}
-        e_config_combs = list(combinations(range(n), v_e))
+        e_config_combs = list(combinations(range(n), v_e))  # type: ignore[arg-type]
 
         # Total ML = sum(ml1, ml2), Total MS = sum(ms1, ms2)
         TL = [sum(ml_ms[comb[e]][0] for e in range(v_e)) for comb in e_config_combs]
@@ -1227,13 +1227,13 @@ class Species(MSONable, Stringify):
     # NOTE - copied exactly from Element. Refactoring / inheritance may improve
     # robustness
     @property
-    def valence(self) -> tuple[int | np.nan, int]:
+    def valence(self) -> tuple[int | float, int]:
         """Valence subshell angular moment (L) and number of valence e- (v_e),
         obtained from full electron config, where L=0, 1, 2, or 3 for s, p, d,
         and f orbitals, respectively.
         """
         if self.group == 18:
-            return np.nan, 0  # The number of valence of noble gas is 0
+            return float("nan"), 0  # The number of valence of noble gas is 0
 
         L_symbols = "SPDFGHIKLMNOQRTUVWXYZ"
         valence: list[tuple[int, int]] = []
