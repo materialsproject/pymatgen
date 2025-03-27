@@ -32,6 +32,11 @@ from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
 from pymatgen.util.testing import TEST_FILES_DIR, PymatgenTest
 
 try:
+    from pymatgen.analysis.prototypes import AflowPrototypeMatcher
+except ImportError:
+    pytest.skip("pybtex is not available", allow_module_level=True)
+
+try:
     import pyxtal
 except ImportError:
     pyxtal = None

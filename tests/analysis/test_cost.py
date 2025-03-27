@@ -2,10 +2,18 @@ from __future__ import annotations
 
 from unittest import TestCase
 
+import pytest
 from pytest import approx
 
 from pymatgen.analysis.cost import CostAnalyzer, CostDBCSV, CostDBElements
 from pymatgen.util.testing import TEST_FILES_DIR
+
+try:
+    # Not using find_spec because it would error out during import
+    import pybtex.database  # noqa: F401
+
+except ImportError:
+    pytest.skip("pybtex is not available", allow_module_level=True)
 
 TEST_DIR = f"{TEST_FILES_DIR}/analysis/cost"
 
