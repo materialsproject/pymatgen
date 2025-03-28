@@ -90,7 +90,7 @@ Pypi = "https://pypi.org/project/pymatgen"
 abinit = ["netcdf4>=1.7.2"]
 ase = ["ase>=3.23.0"]
 electronic_structure = ["fdint>=2.0.2"]
-mlp = ["matgl>=1.2.5"]
+mlp = ["chgnet>=0.3.8", "matgl>=1.2.3"]
 numba = ["numba>=0.55"]
 numpy-v1 = ["numpy>=1.25.0,<2"] # Test NP1 on Windows (quite buggy ATM)
 zeopp = ["pyzeo"]  # Note: requires voro++ and zeo++ to be installed
@@ -344,5 +344,6 @@ maintain = [
     "ruff>=0.11.3",
     "sphinx>=8.1.3",
     "sphinx-markdown-builder>=0.6.8",
+    "sphinx-rtd-theme>=3.0.2",
     "sphinx-rtd-theme>=3.0.2",
 ]
