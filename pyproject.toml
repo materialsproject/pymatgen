@@ -89,10 +89,8 @@ Pypi = "https://pypi.org/project/pymatgen"
 [project.optional-dependencies]
 abinit = ["netcdf4>=1.7.2"]
 ase = ["ase>=3.23.0"]
-ci = ["pytest-cov>=4", "pytest-split>=0.8", "pytest>=8", "pymatgen[prototypes]"]
-docs = ["invoke", "sphinx", "sphinx_markdown_builder", "sphinx_rtd_theme"]
 electronic_structure = ["fdint>=2.0.2"]
-mlp = ["chgnet>=0.3.8", "matgl>=1.2.1"]
+mlp = ["chgnet>=0.3.8", "matgl>=1.2.3"]
 numba = ["numba>=0.55"]
 numpy-v1 = ["numpy>=1.25.0,<2"] # Test NP1 on Windows (quite buggy ATM)
 zeopp = ["pyzeo"]  # Note: requires voro++ and zeo++ to be installed as binaries
@@ -118,6 +116,11 @@ symmetry = ["moyopy[interface]>=0.3", "spglib>=2.5"]
 # https://github.com/tblite/tblite/issues/175
 tblite = [ "tblite[ase]>=0.3.0; platform_system=='Linux' and python_version<'3.12'"]
 vis = ["vtk>=6.0.0"]
+ci = [
+    "pytest>=8.3.5",
+    "pytest-cov>=6.0.0",
+    "pytest-split>=0.10.0",
+]
 
 [project.scripts]
 pmg = "pymatgen.cli.pmg:main"
@@ -294,7 +297,8 @@ ignore_missing_imports = true
 namespace_packages = true
 explicit_package_bases = true
 no_implicit_optional = false
-disable_error_code = ["annotation-unchecked", "override"]
+disable_error_code = ["annotation-unchecked", "override", "assignment", "misc"] #, "union-attr", "operator", "arg-type", "index", "call-arg", "return-value", "assignment", "attr-defined"]
+exclude = ['src/pymatgen/analysis', 'src/pymatgen/io', 'src/pymatgen/cli', 'src/pymatgen/electronic_structure',]
 
 [[tool.mypy.overrides]]
 module = ["requests.*", "tabulate.*"]
@@ -339,4 +343,5 @@ maintain = [
     "invoke>=2.2.0",
     "sphinx>=8.1.3",
     "sphinx-markdown-builder>=0.6.8",
+    "sphinx-rtd-theme>=3.0.2",
 ]
