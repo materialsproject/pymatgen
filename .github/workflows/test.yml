@@ -104,6 +104,7 @@ jobs:
           micromamba activate pmg
 
           # Install from wheels to test the content
+          uv sync
           uv build --wheel --no-build-logs
           WHEEL_FILE=$(ls dist/pymatgen*.whl)
           uv pip install $WHEEL_FILE[${{matrix.config.extras}}] --resolution=${{matrix.config.resolution}}
