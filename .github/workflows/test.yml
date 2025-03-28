@@ -34,19 +34,19 @@ jobs:
           - os: windows-latest
             python: "3.10"
             resolution: highest
-            extras: ci,optional
+            extras: ci,optional,prototypes
           - os: windows-latest
             python: "3.10"
             resolution: highest
-            extras: ci,optional,numpy-v1 # Test NP1 on Windows (quite buggy ATM)
+            extras: ci,prototypes,optional,numpy-v1 # Test NP1 on Windows (quite buggy ATM)
           - os: ubuntu-latest
             python: "3.12"
             resolution: lowest-direct
-            extras: ci,optional
+            extras: ci,prototypes,optional
           - os: macos-latest
             python: "3.11"
             resolution: lowest-direct
-            extras: ci # test with only required dependencies installed
+            extras: ci,prototypes # test with only required dependencies installed
 
         # pytest-split automatically distributes work load so parallel jobs finish in similar time
         # update durations file with `pytest --store-durations --durations-path tests/files/.pytest-split-durations`
