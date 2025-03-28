@@ -1,5 +1,8 @@
-"""Developer script to convert YAML periodic table to JSON format.
-Created on 2011-11-15."""
+#!/usr/bin/env python3
+
+"""Developer script to create `periodic_table.json`
+from various sources.
+"""
 
 from __future__ import annotations
 
@@ -9,16 +12,11 @@ from collections import defaultdict
 from itertools import product
 
 import requests
-from monty.dev import requires
+from bs4 import BeautifulSoup
 from monty.serialization import dumpfn, loadfn
 from ruamel import yaml
 
 from pymatgen.core import PKG_DIR, Element, get_el_sp
-
-try:
-    from bs4 import BeautifulSoup
-except ImportError:
-    BeautifulSoup = None
 
 PTABLE_YAML_PATH = "periodic_table.yaml"
 
@@ -239,7 +237,6 @@ def gen_iupac_ordering():
         periodic_table[el]["IUPAC ordering"] = iupac_ordering_dict[get_el_sp(el)]
 
 
-@requires(BeautifulSoup, "BeautifulSoup must be installed to use this method.")
 def add_electron_affinities():
     """Update the periodic table data file with electron affinities."""
 
@@ -310,7 +307,11 @@ def add_ionization_energies():
 
 
 if __name__ == "__main__":
+    # parse_oxi_state()
+    # parse_ionic_radii()
+    # parse_radii()
     # parse_shannon_radii()
+    gen_iupac_ordering()
     # add_ionization_energies()
-    add_electron_affinities()
+    # add_electron_affinities()
     # gen_periodic_table()
