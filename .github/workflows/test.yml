@@ -34,19 +34,19 @@ jobs:
           - os: windows-latest
             python: "3.10"
             resolution: highest
-            extras: ci,optional
+            extras: ci,optional,prototypes
           - os: windows-latest
             python: "3.10"
             resolution: highest
-            extras: ci,optional,numpy-v1 # Test NP1 on Windows (quite buggy ATM)
+            extras: ci,prototypes,optional,numpy-v1 # Test NP1 on Windows (quite buggy ATM)
           - os: ubuntu-latest
             python: "3.12"
             resolution: lowest-direct
-            extras: ci,optional
+            extras: ci,prototypes,optional
           - os: macos-latest
             python: "3.11"
             resolution: lowest-direct
-            extras: ci # test with only required dependencies installed
+            extras: ci,prototypes # test with only required dependencies installed
 
         # pytest-split automatically distributes work load so parallel jobs finish in similar time
         # update durations file with `pytest --store-durations --durations-path tests/files/.pytest-split-durations`
@@ -102,10 +102,6 @@ jobs:
       - name: Install pymatgen and dependencies via uv
         run: |
           micromamba activate pmg
-          # TODO1 (use uv over pip) uv install torch is flaky, track #3826
-          # TODO2 (pin torch version): DGL library (matgl) doesn't support torch > 2.2.1,
-          # see: https://discuss.dgl.ai/t/filenotfounderror-cannot-find-dgl-c-graphbolt-library/4302
-          pip install torch==2.2.1
 
           # Install from wheels to test the content
           uv build --wheel --no-build-logs
