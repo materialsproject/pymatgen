@@ -799,18 +799,22 @@ class Tags(dict):
 class Potential(MSONable):
     """FEFF atomic potential."""
 
-    def __init__(self, struct, absorbing_atom, radius):
+    def __init__(self, struct, absorbing_atom, radius=None):
         """
         Args:
             struct (Structure): Structure object.
             absorbing_atom (str | int): Absorbing atom symbol or site index.
+            radius (float): radius of the atom cluster in Angstroms.
         """
         if not struct.is_ordered:
             raise ValueError("Structure with partial occupancies cannot be converted into atomic coordinates!")
 
-    
         self.struct = struct
-        self.radius = radius
+        if radius:
+            self.radius = radius
+        else:
+            self.radius = self.struct.distance_matrix.max()
+
         self.absorbing_atom, self.center_index = get_absorbing_atom_symbol_index(absorbing_atom, struct)
         atom_sym = get_absorbing_atom_symbol_index(absorbing_atom, struct)[0]
         self._cluster = self._set_cluster()
