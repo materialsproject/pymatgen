@@ -34,6 +34,8 @@ if TYPE_CHECKING:
     from pymatgen.util.typing import SpeciesLike
 
 # Load element data (periodic table) from JSON file
+# Note that you should not update this json file manually. EDits should be done on the `periodic_table.yaml`
+# file in the `dev_scripts` directory, and gen_pt_json.py can then be run to convert the yaml to json.
 with open(Path(__file__).absolute().parent / "periodic_table.json", encoding="utf-8") as ptable_json:
     _PT_DATA: dict = json.load(ptable_json)
 
