@@ -269,7 +269,7 @@ class FEFFDictSet(AbstractFeffInputSet):
         Returns:
             Potential
         """
-        return Potential(self.structure, self.absorbing_atom)
+        return Potential(self.structure, self.absorbing_atom, self.radius)
 
     @property
     def atoms(self) -> Atoms:
