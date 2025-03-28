@@ -580,7 +580,11 @@ class ComputedStructureEntry(ComputedEntry):
             entry_id: An optional id to uniquely identify the entry.
         """
         if composition:
-            composition = Composition(composition)
+            if isinstance(composition, Composition):
+                pass
+            else:
+                composition = Composition(composition)
+            # composition = Composition(composition)
             if (
                 composition.get_integer_formula_and_factor()[0]
                 != structure.composition.get_integer_formula_and_factor()[0]
@@ -830,7 +834,7 @@ class GibbsComputedStructureEntry(ComputedStructureEntry):
                 )
                 sum_g_i += amt * g_interp(self.temp)
         else:
-            sum_g_i = sum(amt * G_ELEMS[str(self.temp)][elem] for elem, amt in elems.items())
+            sum_g_i = sum(amt * G_ELEMS[str(int(self.temp))][elem] for elem, amt in elems.items())
 
         return sum_g_i
 
