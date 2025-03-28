@@ -2695,6 +2695,11 @@ abinit = [
 ase = [
     { name = "ase" },
 ]
+ci = [
+    { name = "pytest" },
+    { name = "pytest-cov" },
+    { name = "pytest-split" },
+]
 electronic-structure = [
     { name = "fdint" },
 ]
@@ -2796,6 +2801,9 @@ requires-dist = [
     { name = "pybtex", specifier = ">=0.24.0" },
     { name = "pymatgen", extras = ["abinit", "ase", "mlp", "tblite"], marker = "extra == 'optional'" },
     { name = "pymatgen", extras = ["symmetry"], marker = "extra == 'prototypes'" },
+    { name = "pytest", marker = "extra == 'ci'", specifier = ">=8.3.5" },
+    { name = "pytest-cov", marker = "extra == 'ci'", specifier = ">=6.0.0" },
+    { name = "pytest-split", marker = "extra == 'ci'", specifier = ">=0.10.0" },
     { name = "pyxtal", marker = "extra == 'prototypes'", specifier = ">=1.0" },
     { name = "pyzeo", marker = "extra == 'zeopp'" },
     { name = "requests", specifier = ">=2.32" },
@@ -2812,7 +2820,7 @@ requires-dist = [
     { name = "uncertainties", specifier = ">=3.1.4" },
     { name = "vtk", marker = "extra == 'vis'", specifier = ">=6.0.0" },
 ]
-provides-extras = ["abinit", "ase", "electronic-structure", "mlp", "numba", "numpy-v1", "zeopp", "optional", "prototypes", "symmetry", "tblite", "vis"]
+provides-extras = ["abinit", "ase", "electronic-structure", "mlp", "numba", "numpy-v1", "zeopp", "optional", "prototypes", "symmetry", "tblite", "vis", "ci"]
 
 [package.metadata.requires-dev]
 dev = [
