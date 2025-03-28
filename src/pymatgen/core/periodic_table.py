@@ -176,7 +176,7 @@ class ElementBase(Enum):
             item (str): Attribute name.
 
         Raises:
-            AttributeError: If item not in _pt_data.
+            AttributeError: If item not in _PT_DATA.
         """
         if item in {
             "mendeleev_no",
