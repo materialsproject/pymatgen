@@ -548,7 +548,7 @@ class Composition(collections.abc.Hashable, collections.abc.Mapping, MSONable, S
     @property
     def weight(self) -> float:
         """Total molecular weight of Composition."""
-        return Mass(sum(amount * el.atomic_mass for el, amount in self.items()), "amu")
+        return Mass(sum(amount * el.atomic_mass for el, amount in self.items()), "amu")  # type: ignore[operator]
 
     def get_atomic_fraction(self, el: SpeciesLike) -> float:
         """Calculate atomic fraction of an Element or Species.
@@ -570,7 +570,7 @@ class Composition(collections.abc.Hashable, collections.abc.Mapping, MSONable, S
         Returns:
             float: Weight fraction for element el in Composition.
         """
-        el_mass = cast(float, get_el_sp(el).atomic_mass)
+        el_mass = cast("float", get_el_sp(el).atomic_mass)
         return el_mass * abs(self[el]) / self.weight
 
     def contains_element_type(self, category: str) -> bool:

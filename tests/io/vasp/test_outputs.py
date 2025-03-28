@@ -854,9 +854,20 @@ class TestVasprun(PymatgenTest):
                 assert vrun.potcar_spec[ipot]["summary_stats"] == potcar[ipot]._summary_stats
 
 
-class TestOutcar(PymatgenTest):
-    def test_init(self):
-        outcar = Outcar(f"{VASP_OUT_DIR}/OUTCAR.gz")
+class TestOutcar:
+    @pytest.mark.parametrize("compressed", [True, False])
+    def test_init(self, compressed: bool):
+        """Test from both compressed and uncompressed versions,
+        as there was a bug in monty causing different behaviours.
+        """
+        with ScratchDir("."):
+            if compressed:
+                outcar = Outcar(f"{VASP_OUT_DIR}/OUTCAR.gz")
+            else:
+                copyfile(f"{VASP_OUT_DIR}/OUTCAR.gz", "./OUTCAR.gz")
+                decompress_file("./OUTCAR.gz")
+                outcar = Outcar("./OUTCAR")
+
         expected_mag = (
             {"d": 0.0, "p": 0.003, "s": 0.002, "tot": 0.005},
             {"d": 0.798, "p": 0.008, "s": 0.007, "tot": 0.813},
@@ -1876,7 +1887,18 @@ class TestXdatcar:
 
         xdatcar = Xdatcar(f"{VASP_OUT_DIR}/XDATCAR_monatomic.gz")
         assert len(xdatcar.structures) == 10
+        assert len(xdatcar) == len(xdatcar.structures)
+
+        idxs = [1, 2, 3]
+        assert xdatcar[idxs] == [xdatcar.structures[i] for i in idxs]
+        assert all(isinstance(struct, Structure) for struct in xdatcar)
+
         assert all(len(structure.composition) == 1 for structure in xdatcar.structures)
+
+    def test_bad_format(self):
+        # ensure XDATCAR can be read even when formatting is poor
+        xdatcar = Xdatcar(f"{VASP_OUT_DIR}/XDATCAR.bad_fmt.gz")
+        assert isinstance(xdatcar, Xdatcar)
 
 
 class TestDynmat:

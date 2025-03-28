@@ -36,7 +36,6 @@ from pymatgen.core import SETTINGS, Element, Lattice, Structure, get_el_sp
 from pymatgen.electronic_structure.core import Magmom
 from pymatgen.util.io_utils import clean_lines
 from pymatgen.util.string import str_delimited
-from pymatgen.util.typing import Kpoint, Tuple3Floats, Tuple3Ints, Vector3D
 
 if TYPE_CHECKING:
     from collections.abc import Sequence
@@ -46,7 +45,7 @@ if TYPE_CHECKING:
     from typing_extensions import Self
 
     from pymatgen.symmetry.bandstructure import HighSymmKpath
-    from pymatgen.util.typing import PathLike
+    from pymatgen.util.typing import Kpoint, PathLike, Tuple3Floats, Tuple3Ints, Vector3D
 
 
 __author__ = "Shyue Ping Ong, Geoffroy Hautier, Rickard Armiento, Vincent L Chevrier, Stephen Dacek"
@@ -266,7 +265,7 @@ class Poscar(MSONable):
                 DeprecationWarning,
                 stacklevel=2,
             )
-            check_for_potcar = cast(bool, kwargs.pop("check_for_POTCAR"))
+            check_for_potcar = cast("bool", kwargs.pop("check_for_POTCAR"))
 
         dirname: str = os.path.dirname(os.path.abspath(filename))
         names: list[str] | None = None
@@ -477,6 +476,17 @@ class Poscar(MSONable):
         selective_dynamics: list[list[bool]] | None = [] if has_selective_dynamics else None
         for idx in range(n_sites):
             tokens: list[str] = lines[ipos + 1 + idx].split()
+
+            # Attempt to fix bad formatting in POSCAR/CONTCAR/XDATCAR
+            if len(tokens) < 3:
+                new_tokens = []
+                for token in tokens:
+                    new_tokens.extend([t if i == 0 else f"-{t}" for i, t in enumerate(token.split("-")) if len(t) > 0])
+                if len(new_tokens) == 3:
+                    tokens = new_tokens
+                else:
+                    raise BadPoscarWarning(f"Cannot parse coordinates on this line:\n{lines[ipos + 1 + idx]}")
+
             crd_scale: float = scale if cart else 1
             coords.append([float(j) * crd_scale for j in tokens[:3]])
             if selective_dynamics is not None:
@@ -1292,7 +1302,7 @@ class Kpoints(MSONable):
             return list(map(tuple, self._kpts))  # type: ignore[arg-type]
 
         if all(isinstance(point, int | float) for point in self._kpts) and len(self._kpts) == 3:
-            return [cast(Kpoint, tuple(self._kpts))]
+            return [cast("Kpoint", tuple(self._kpts))]
 
         raise ValueError(f"Invalid Kpoint {self._kpts}.")
 
@@ -1457,7 +1467,7 @@ class Kpoints(MSONable):
         ngrid = kppa / len(structure)
         mult: float = (ngrid * lengths[0] * lengths[1] * lengths[2]) ** (1 / 3)
 
-        num_div: Tuple3Ints = cast(Tuple3Ints, [math.floor(max(mult / length, 1)) for length in lengths])
+        num_div: Tuple3Ints = cast("Tuple3Ints", [math.floor(max(mult / length, 1)) for length in lengths])
 
         is_hexagonal: bool = lattice.is_hexagonal()
         is_face_centered: bool = structure.get_space_group_info()[0][0] == "F"
@@ -1502,7 +1512,7 @@ class Kpoints(MSONable):
         n_grid = kppa / len(structure)
 
         multip = (n_grid * a * b * c) ** (1 / 3)
-        n_div: list[int] = cast(list[int], [round(multip / length) for length in lattice.abc])
+        n_div: list[int] = cast("list[int]", [round(multip / length) for length in lattice.abc])
 
         # Ensure that all num_div[i] > 0
         n_div = [idx if idx > 0 else 1 for idx in n_div]
@@ -1517,7 +1527,7 @@ class Kpoints(MSONable):
             comment,
             n_kpts,
             style,
-            [cast(Tuple3Ints, tuple(n_div))],
+            [cast("Tuple3Ints", tuple(n_div))],
             (0, 0, 0),
         )
 
@@ -1690,7 +1700,7 @@ class Kpoints(MSONable):
             _kpt: list[int] = [int(i) for i in lines[3].split()]
             if len(_kpt) != 3:
                 raise ValueError("Invalid Kpoint length.")
-            kpt: Tuple3Ints = cast(Tuple3Ints, tuple(_kpt))
+            kpt: Tuple3Ints = cast("Tuple3Ints", tuple(_kpt))
 
             kpts_shift: Vector3D = (0, 0, 0)
             if len(lines) > 4 and coord_pattern.match(lines[4]):
@@ -1702,7 +1712,7 @@ class Kpoints(MSONable):
                 if len(_kpts_shift) != 3:
                     raise ValueError("Invalid kpoint shift length.")
 
-                kpts_shift = cast(Vector3D, tuple(_kpts_shift))
+                kpts_shift = cast("Vector3D", tuple(_kpts_shift))
 
             return (
                 cls.gamma_automatic(kpt, kpts_shift, comment=comment)
@@ -1714,10 +1724,10 @@ class Kpoints(MSONable):
         if num_kpts <= 0:
             _style = cls.supported_modes.Cartesian if style in "ck" else cls.supported_modes.Reciprocal
             _kpts_shift = [float(i) for i in lines[6].split()]
-            kpts_shift = cast(Vector3D, tuple(_kpts_shift)) if len(_kpts_shift) == 3 else (0, 0, 0)
+            kpts_shift = cast("Vector3D", tuple(_kpts_shift)) if len(_kpts_shift) == 3 else (0, 0, 0)
 
             kpts: list[Kpoint] = [
-                cast(Kpoint, tuple(float(j) for j in lines[line_idx].split())) for line_idx in range(3, 6)
+                cast("Kpoint", tuple(float(j) for j in lines[line_idx].split())) for line_idx in range(3, 6)
             ]
 
             return cls(
@@ -1763,7 +1773,7 @@ class Kpoints(MSONable):
 
         for idx in range(3, 3 + num_kpts):
             tokens = lines[idx].split()
-            kpts.append(cast(Tuple3Floats, tuple(float(i) for i in tokens[:3])))
+            kpts.append(cast("Tuple3Floats", tuple(float(i) for i in tokens[:3])))
             kpts_weights.append(float(tokens[3]))
             if len(tokens) > 4:
                 labels.append(tokens[4])
@@ -1837,7 +1847,7 @@ class Kpoints(MSONable):
             Kpoints
         """
         comment = dct.get("comment", "")
-        generation_style = cast(KpointsSupportedModes, dct.get("generation_style"))
+        generation_style = cast("KpointsSupportedModes", dct.get("generation_style"))
         kpts = dct.get("kpoints", ((1, 1, 1),))
         kpts_shift = dct.get("usershift", (0, 0, 0))
         num_kpts = dct.get("nkpoints", 0)
