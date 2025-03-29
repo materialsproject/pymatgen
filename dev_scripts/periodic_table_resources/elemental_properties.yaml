@@ -23,7 +23,6 @@ Ac:
   Mineral hardness: no data
   Molar volume: 22.55 cm<sup>3</sup>
   Name: Actinium
-  Oxidation states: [3]
   Poissons ratio: no data
   Reflectivity: no data %
   Refractive index: no data
@@ -64,7 +63,6 @@ Ag:
   Mineral hardness: '2.5'
   Molar volume: 10.27 cm<sup>3</sup>
   Name: Silver
-  Oxidation states: [1, 2, 3]
   Poissons ratio: '0.37'
   Reflectivity: 97 %
   Refractive index: no data
@@ -136,7 +134,6 @@ Al:
   Mineral hardness: '2.75'
   Molar volume: 10.00 cm<sup>3</sup>
   Name: Aluminum
-  Oxidation states: [1, 3]
   Poissons ratio: '0.35'
   Reflectivity: 71 %
   Refractive index: no data
@@ -181,7 +178,6 @@ Am:
   Mineral hardness: no data
   Molar volume: 17.63 cm<sup>3</sup>
   Name: Americium
-  Oxidation states: [2, 3, 4, 5, 6]
   Poissons ratio: no data
   Reflectivity: no data %
   Refractive index: no data
@@ -275,7 +271,6 @@ As:
   Mineral hardness: '3.5'
   Molar volume: 12.95 cm<sup>3</sup>
   Name: Arsenic
-  Oxidation states: [-3, 2, 3, 5]
   Poissons ratio: no data
   Reflectivity: no data %
   Refractive index: '1.001552'
@@ -323,7 +318,6 @@ At:
   Mineral hardness: no data
   Molar volume: no data cm<sup>3</sup>
   Name: Astatine
-  Oxidation states: [-1, 1, 3, 5]
   Poissons ratio: no data
   Reflectivity: no data %
   Refractive index: no data
@@ -364,7 +358,6 @@ Au:
   Mineral hardness: '2.5'
   Molar volume: 10.21 cm<sup>3</sup>
   Name: Gold
-  Oxidation states: [-1, 1, 2, 3, 5]
   Poissons ratio: '0.44'
   Reflectivity: 95 %
   Refractive index: no data
@@ -415,7 +408,6 @@ B:
   Mineral hardness: '9.3'
   Molar volume: 4.39 cm<sup>3</sup>
   Name: Boron
-  Oxidation states: [1, 2, 3]
   Poissons ratio: no data
   Reflectivity: no data %
   Refractive index: no data
@@ -463,7 +455,6 @@ Ba:
   Mineral hardness: '1.25'
   Molar volume: 38.16 cm<sup>3</sup>
   Name: Barium
-  Oxidation states: [2]
   Poissons ratio: no data
   Reflectivity: no data %
   Refractive index: no data
@@ -521,7 +512,6 @@ Be:
   Mineral hardness: '5.5'
   Molar volume: 4.85 cm<sup>3</sup>
   Name: Beryllium
-  Oxidation states: [2]
   Poissons ratio: '0.032'
   Reflectivity: no data %
   Refractive index: no data
@@ -569,7 +559,6 @@ Bi:
   Mineral hardness: '2.25'
   Molar volume: 21.31 cm<sup>3</sup>
   Name: Bismuth
-  Oxidation states: [-3, 3, 5]
   Poissons ratio: '0.33'
   Reflectivity: no data %
   Refractive index: no data
@@ -618,7 +607,6 @@ Bk:
   Mineral hardness: no data
   Molar volume: 16.84 cm<sup>3</sup>
   Name: Berkelium
-  Oxidation states: [3, 4]
   Poissons ratio: no data
   Reflectivity: no data %
   Refractive index: no data
@@ -666,7 +654,6 @@ Br:
   Mineral hardness: no data
   Molar volume: 19.78 cm<sup>3</sup>
   Name: Bromine
-  Oxidation states: [-1, 1, 3, 4, 5, 7]
   Poissons ratio: no data
   Reflectivity: no data %
   Refractive index: '1.001132'
@@ -722,7 +709,6 @@ C:
   Mineral hardness: 0.5 (graphite; diamond is 10.0)(no units)
   Molar volume: 5.29 cm<sup>3</sup>
   Name: Carbon
-  Oxidation states: [-4, -3, -2, -1, 1, 2, 3, 4]
   Poissons ratio: no data
   Reflectivity: 27 %
   Refractive index: 2.417 (diamond)(no units)
@@ -769,7 +755,6 @@ Ca:
   Mineral hardness: '1.75'
   Molar volume: 26.20 cm<sup>3</sup>
   Name: Calcium
-  Oxidation states: [2]
   Poissons ratio: '0.31'
   Reflectivity: no data %
   Refractive index: no data
@@ -825,7 +810,6 @@ Cd:
   Mineral hardness: '2.0'
   Molar volume: 13.00 cm<sup>3</sup>
   Name: Cadmium
-  Oxidation states: [1, 2]
   Poissons ratio: '0.30'
   Reflectivity: 67 %
   Refractive index: no data
@@ -882,7 +866,6 @@ Ce:
   Mineral hardness: '2.5'
   Molar volume: 20.69 cm<sup>3</sup>
   Name: Cerium
-  Oxidation states: [2, 3, 4]
   Poissons ratio: '0.24'
   Reflectivity: no data %
   Refractive index: no data
@@ -949,7 +932,6 @@ Cf:
   Mineral hardness: no data
   Molar volume: 16.50 cm<sup>3</sup>
   Name: Californium
-  Oxidation states: [2, 3, 4]
   Poissons ratio: no data
   Reflectivity: no data %
   Refractive index: no data
@@ -996,7 +978,6 @@ Cl:
   Mineral hardness: no data
   Molar volume: 17.39 cm<sup>3</sup>
   Name: Chlorine
-  Oxidation states: [-1, 1, 2, 3, 4, 5, 6, 7]
   Poissons ratio: no data
   Reflectivity: no data %
   Refractive index: '1.000773'
@@ -1046,7 +1027,6 @@ Cm:
   Mineral hardness: no data
   Molar volume: 18.05 cm<sup>3</sup>
   Name: Curium
-  Oxidation states: [3, 4]
   Poissons ratio: no data
   Reflectivity: no data %
   Refractive index: no data
@@ -1096,7 +1076,6 @@ Co:
   Mineral hardness: '5.0'
   Molar volume: 6.67 cm<sup>3</sup>
   Name: Cobalt
-  Oxidation states: [-1, 1, 2, 3, 4, 5]
   Poissons ratio: '0.31'
   Reflectivity: 67 %
   Refractive index: no data
@@ -1157,7 +1136,6 @@ Cr:
   Mineral hardness: '8.5'
   Molar volume: 7.23 cm<sup>3</sup>
   Name: Chromium
-  Oxidation states: [-2, -1, 1, 2, 3, 4, 5, 6]
   Poissons ratio: '0.21'
   Reflectivity: no data %
   Refractive index: no data
@@ -1227,7 +1205,6 @@ Cs:
   Mineral hardness: '0.2'
   Molar volume: 70.94 cm<sup>3</sup>
   Name: Cesium
-  Oxidation states: [1]
   Poissons ratio: no data
   Reflectivity: no data %
   Refractive index: no data
@@ -1283,7 +1260,6 @@ Cu:
   Mineral hardness: '3.0'
   Molar volume: 7.11 cm<sup>3</sup>
   Name: Copper
-  Oxidation states: [1, 2, 3, 4]
   Poissons ratio: '0.34'
   Reflectivity: 90 %
   Refractive index: no data
@@ -1347,7 +1323,6 @@ Dy:
   Mineral hardness: no data
   Molar volume: 19.01 cm<sup>3</sup>
   Name: Dysprosium
-  Oxidation states: [2, 3]
   Poissons ratio: '0.25'
   Reflectivity: no data %
   Refractive index: no data
@@ -1408,7 +1383,6 @@ Er:
   Mineral hardness: no data
   Molar volume: 18.46 cm<sup>3</sup>
   Name: Erbium
-  Oxidation states: [3]
   Poissons ratio: '0.24'
   Reflectivity: no data %
   Refractive index: no data
@@ -1455,7 +1429,6 @@ Es:
   Mineral hardness: no data
   Molar volume: 28.52 cm<sup>3</sup>
   Name: Einsteinium
-  Oxidation states: [2, 3]
   Poissons ratio: no data
   Reflectivity: no data %
   Refractive index: no data
@@ -1492,7 +1465,6 @@ Eu:
   Mineral hardness: no data
   Molar volume: 28.97 cm<sup>3</sup>
   Name: Europium
-  Oxidation states: [2, 3]
   Poissons ratio: '0.15'
   Reflectivity: no data %
   Refractive index: no data
@@ -1557,7 +1529,6 @@ F:
   Mineral hardness: no data
   Molar volume: 11.20 cm<sup>3</sup>
   Name: Fluorine
-  Oxidation states: [-1]
   Poissons ratio: no data
   Reflectivity: no data %
   Refractive index: '1.000195'
@@ -1613,7 +1584,6 @@ Fe:
   Mineral hardness: '4.0'
   Molar volume: 7.09 cm<sup>3</sup>
   Name: Iron
-  Oxidation states: [-2, -1, 1, 2, 3, 4, 5, 6]
   Poissons ratio: '0.29'
   Reflectivity: 65 %
   Refractive index: no data
@@ -1676,7 +1646,6 @@ Fm:
   Mineral hardness: no data
   Molar volume: no data cm<sup>3</sup>
   Name: Fermium
-  Oxidation states: [2, 3]
   Poissons ratio: no data
   Reflectivity: no data %
   Refractive index: no data
@@ -1713,7 +1682,6 @@ Fr:
   Mineral hardness: no data
   Molar volume: no data cm<sup>3</sup>
   Name: Francium
-  Oxidation states: [1]
   Poissons ratio: no data
   Reflectivity: no data %
   Refractive index: no data
@@ -1754,7 +1722,6 @@ Ga:
   Mineral hardness: '1.5'
   Molar volume: 11.80 cm<sup>3</sup>
   Name: Gallium
-  Oxidation states: [1, 2, 3]
   Poissons ratio: no data
   Reflectivity: no data %
   Refractive index: no data
@@ -1802,7 +1769,6 @@ Gd:
   Mineral hardness: no data
   Molar volume: 19.90 cm<sup>3</sup>
   Name: Gadolinium
-  Oxidation states: [1, 2, 3]
   Poissons ratio: '0.26'
   Reflectivity: no data %
   Refractive index: no data
@@ -1852,7 +1818,6 @@ Ge:
   Mineral hardness: '6.0'
   Molar volume: 13.63 cm<sup>3</sup>
   Name: Germanium
-  Oxidation states: [-4, 1, 2, 3, 4]
   Poissons ratio: no data
   Reflectivity: no data %
   Refractive index: no data
@@ -1898,7 +1863,6 @@ H:
   Mineral hardness: no data
   Molar volume: 11.42 cm<sup>3</sup>
   Name: Hydrogen
-  Oxidation states: [-1, 1]
   Poissons ratio: no data
   Reflectivity: no data %
   Refractive index: 1.000132 (gas; liquid 1.12)(no units)
@@ -1975,7 +1939,6 @@ Hf:
   Mineral hardness: '5.5'
   Molar volume: 13.44 cm<sup>3</sup>
   Name: Hafnium
-  Oxidation states: [2, 3, 4]
   Poissons ratio: '0.37'
   Reflectivity: no data %
   Refractive index: no data
@@ -2026,7 +1989,6 @@ Hg:
   Mineral hardness: '1.5'
   Molar volume: 14.09 cm<sup>3</sup>
   Name: Mercury
-  Oxidation states: [1, 2, 4]
   Poissons ratio: no data
   Reflectivity: 73 %
   Refractive index: '1.000933'
@@ -2084,7 +2046,6 @@ Ho:
   Mineral hardness: no data
   Molar volume: 18.74 cm<sup>3</sup>
   Name: Holmium
-  Oxidation states: [3]
   Poissons ratio: '0.23'
   Reflectivity: no data %
   Refractive index: no data
@@ -2135,7 +2096,6 @@ I:
   Mineral hardness: no data
   Molar volume: 25.72 cm<sup>3</sup>
   Name: Iodine
-  Oxidation states: [-1, 1, 3, 5, 7]
   Poissons ratio: no data
   Reflectivity: no data %
   Refractive index: no data
@@ -2191,7 +2151,6 @@ In:
   Mineral hardness: '1.2'
   Molar volume: 15.76 cm<sup>3</sup>
   Name: Indium
-  Oxidation states: [1, 2, 3]
   Poissons ratio: no data
   Reflectivity: no data %
   Refractive index: no data
@@ -2239,7 +2198,6 @@ Ir:
   Mineral hardness: '6.5'
   Molar volume: 8.52 cm<sup>3</sup>
   Name: Iridium
-  Oxidation states: [-3, -1, 1, 2, 3, 4, 5, 6]
   Poissons ratio: '0.26'
   Reflectivity: 78 %
   Refractive index: no data
@@ -2288,7 +2246,6 @@ K:
   Mineral hardness: '0.4'
   Molar volume: 45.94 cm<sup>3</sup>
   Name: Potassium
-  Oxidation states: [-1, 1]
   Poissons ratio: no data
   Reflectivity: no data %
   Refractive index: no data
@@ -2382,7 +2339,6 @@ La:
   Mineral hardness: '2.5'
   Molar volume: 22.39 cm<sup>3</sup>
   Name: Lanthanum
-  Oxidation states: [2, 3]
   Poissons ratio: '0.28'
   Reflectivity: no data %
   Refractive index: no data
@@ -2437,7 +2393,6 @@ Li:
   Mineral hardness: '0.6'
   Molar volume: 13.02 cm<sup>3</sup>
   Name: Lithium
-  Oxidation states: [1]
   Poissons ratio: no data
   Reflectivity: no data %
   Refractive index: no data
@@ -2481,7 +2436,6 @@ Lr:
   Mineral hardness: no data
   Molar volume: no data cm<sup>3</sup>
   Name: Lawrencium
-  Oxidation states: [3]
   Poissons ratio: no data
   Reflectivity: no data %
   Refractive index: no data
@@ -2518,7 +2472,6 @@ Lu:
   Mineral hardness: no data
   Molar volume: 17.78 cm<sup>3</sup>
   Name: Lutetium
-  Oxidation states: [3]
   Poissons ratio: '0.26'
   Reflectivity: no data %
   Refractive index: no data
@@ -2562,7 +2515,6 @@ Md:
   Mineral hardness: no data
   Molar volume: no data cm<sup>3</sup>
   Name: Mendelevium
-  Oxidation states: [2, 3]
   Poissons ratio: no data
   Reflectivity: no data %
   Refractive index: no data
@@ -2597,7 +2549,6 @@ Mg:
   Mineral hardness: '2.5'
   Molar volume: 14.00 cm<sup>3</sup>
   Name: Magnesium
-  Oxidation states: [1, 2]
   Poissons ratio: '0.29'
   Reflectivity: 74 %
   Refractive index: no data
@@ -2649,7 +2600,6 @@ Mn:
   Mineral hardness: '6.0'
   Molar volume: 7.35 cm<sup>3</sup>
   Name: Manganese
-  Oxidation states: [-3, -2, -1, 1, 2, 3, 4, 5, 6, 7]
   Poissons ratio: no data
   Reflectivity: no data %
   Refractive index: no data
@@ -2728,7 +2678,6 @@ Mo:
   Mineral hardness: '5.5'
   Molar volume: 9.38 cm<sup>3</sup>
   Name: Molybdenum
-  Oxidation states: [-2, -1, 1, 2, 3, 4, 5, 6]
   Poissons ratio: '0.31'
   Reflectivity: 58 %
   Refractive index: no data
@@ -2792,7 +2741,6 @@ N:
   Mineral hardness: no data
   Molar volume: 13.54 cm<sup>3</sup>
   Name: Nitrogen
-  Oxidation states: [-3, -2, -1, 1, 2, 3, 4, 5]
   Poissons ratio: no data
   Reflectivity: no data %
   Refractive index: 1.000298 (gas; liquid 1.197)(no units)
@@ -2843,7 +2791,6 @@ Na:
   Mineral hardness: '0.5'
   Molar volume: 23.78 cm<sup>3</sup>
   Name: Sodium
-  Oxidation states: [-1, 1]
   Poissons ratio: no data
   Reflectivity: no data %
   Refractive index: no data
@@ -2902,7 +2849,6 @@ Nb:
   Mineral hardness: '6.0'
   Molar volume: 10.83 cm<sup>3</sup>
   Name: Niobium
-  Oxidation states: [-1, 2, 3, 4, 5]
   Poissons ratio: '0.40'
   Reflectivity: no data %
   Refractive index: no data
@@ -2964,7 +2910,6 @@ Nd:
   Mineral hardness: no data
   Molar volume: 20.59 cm<sup>3</sup>
   Name: Neodymium
-  Oxidation states: [2, 3]
   Poissons ratio: '0.28'
   Reflectivity: no data %
   Refractive index: no data
@@ -3055,7 +3000,6 @@ Ni:
   Mineral hardness: '4.0'
   Molar volume: 6.59 cm<sup>3</sup>
   Name: Nickel
-  Oxidation states: [-1, 1, 2, 3, 4]
   Poissons ratio: '0.31'
   Reflectivity: 72 %
   Refractive index: no data
@@ -3109,7 +3053,6 @@ Ni:
   Mineral hardness: no data
   Molar volume: no data cm<sup>3</sup>
   Name: Nobelium
-  Oxidation states: [2, 3]
   Poissons ratio: no data
   Reflectivity: no data %
   Refractive index: no data
@@ -3148,7 +3091,6 @@ Np:
   Mineral hardness: no data
   Molar volume: 11.59 cm<sup>3</sup>
   Name: Neptunium
-  Oxidation states: [3, 4, 5, 6, 7]
   Poissons ratio: no data
   Reflectivity: no data %
   Refractive index: no data
@@ -3211,7 +3153,6 @@ O:
   Mineral hardness: no data
   Molar volume: 17.36 cm<sup>3</sup>
   Name: Oxygen
-  Oxidation states: [-2, -1, 1, 2]
   Poissons ratio: no data
   Reflectivity: no data %
   Refractive index: 1.000271 (gas; liquid 1.221)(no units)
@@ -3264,7 +3205,6 @@ Os:
   Mineral hardness: '7.0'
   Molar volume: 8.42 cm<sup>3</sup>
   Name: Osmium
-  Oxidation states: [-2, -1, 1, 2, 3, 4, 5, 6, 7, 8]
   Poissons ratio: '0.25'
   Reflectivity: no data %
   Refractive index: no data
@@ -3323,7 +3263,6 @@ P:
   Mineral hardness: no data
   Molar volume: 17.02 cm<sup>3</sup>
   Name: Phosphorus
-  Oxidation states: [-3, -2, -1, 1, 2, 3, 4, 5]
   Poissons ratio: no data
   Reflectivity: no data %
   Refractive index: '1.001212'
@@ -3375,7 +3314,6 @@ Pa:
   Mineral hardness: no data
   Molar volume: 15.18 cm<sup>3</sup>
   Name: Protactinium
-  Oxidation states: [3, 4, 5]
   Poissons ratio: no data
   Reflectivity: no data %
   Refractive index: no data
@@ -3434,7 +3372,6 @@ Pb:
   Mineral hardness: '1.5'
   Molar volume: 18.26 cm<sup>3</sup>
   Name: Lead
-  Oxidation states: [-4, 2, 4]
   Poissons ratio: '0.44'
   Reflectivity: no data %
   Refractive index: no data
@@ -3509,7 +3446,6 @@ Pd:
   Mineral hardness: '4.75'
   Molar volume: 8.56 cm<sup>3</sup>
   Name: Palladium
-  Oxidation states: [2, 4]
   Poissons ratio: '0.39'
   Reflectivity: 72 %
   Refractive index: no data
@@ -3565,7 +3501,6 @@ Pm:
   Mineral hardness: no data
   Molar volume: 20.23 cm<sup>3</sup>
   Name: Promethium
-  Oxidation states: [3]
   Poissons ratio: '0.28'
   Reflectivity: no data %
   Refractive index: no data
@@ -3612,7 +3547,6 @@ Po:
   Mineral hardness: no data
   Molar volume: 22.97 cm<sup>3</sup>
   Name: Polonium
-  Oxidation states: [-2, 2, 4, 6]
   Poissons ratio: no data
   Reflectivity: no data %
   Refractive index: no data
@@ -3661,7 +3595,6 @@ Pr:
   Mineral hardness: no data
   Molar volume: 20.80 cm<sup>3</sup>
   Name: Praseodymium
-  Oxidation states: [2, 3, 4]
   Poissons ratio: '0.28'
   Reflectivity: no data %
   Refractive index: no data
@@ -3715,7 +3648,6 @@ Pt:
   Mineral hardness: '3.5'
   Molar volume: 9.09 cm<sup>3</sup>
   Name: Platinum
-  Oxidation states: [-2, 2, 4, 5, 6]
   Poissons ratio: '0.38'
   Reflectivity: 73 %
   Refractive index: no data
@@ -3765,7 +3697,6 @@ Pu:
   Mineral hardness: no data
   Molar volume: 12.29 cm<sup>3</sup>
   Name: Plutonium
-  Oxidation states: [3, 4, 5, 6, 7]
   Poissons ratio: '0.21'
   Reflectivity: no data %
   Refractive index: no data
@@ -3822,7 +3753,6 @@ Ra:
   Mineral hardness: no data
   Molar volume: 41.09 cm<sup>3</sup>
   Name: Radium
-  Oxidation states: [2]
   Poissons ratio: no data
   Reflectivity: no data %
   Refractive index: no data
@@ -3866,7 +3796,6 @@ Rb:
   Mineral hardness: '0.3'
   Molar volume: 55.76 cm<sup>3</sup>
   Name: Rubidium
-  Oxidation states: [1]
   Poissons ratio: no data
   Reflectivity: no data %
   Refractive index: no data
@@ -3929,7 +3858,6 @@ Re:
   Mineral hardness: '7.0'
   Molar volume: 8.86 cm<sup>3</sup>
   Name: Rhenium
-  Oxidation states: [-3, -1, 1, 2, 3, 4, 5, 6, 7]
   Poissons ratio: '0.30'
   Reflectivity: no data %
   Refractive index: no data
@@ -3985,7 +3913,6 @@ Rh:
   Mineral hardness: '6.0'
   Molar volume: 8.28 cm<sup>3</sup>
   Name: Rhodium
-  Oxidation states: [-1, 1, 2, 3, 4, 5, 6]
   Poissons ratio: '0.26'
   Reflectivity: 84 %
   Refractive index: no data
@@ -4069,7 +3996,6 @@ Ru:
   Mineral hardness: '6.5'
   Molar volume: 8.17 cm<sup>3</sup>
   Name: Ruthenium
-  Oxidation states: [-2, 1, 2, 3, 4, 5, 6, 7, 8]
   Poissons ratio: '0.30'
   Reflectivity: no data %
   Refractive index: no data
@@ -4125,7 +4051,6 @@ S:
   Mineral hardness: '2.0'
   Molar volume: 15.53 cm<sup>3</sup>
   Name: Sulfur
-  Oxidation states: [-2, -1, 1, 2, 3, 4, 5, 6]
   Poissons ratio: no data
   Reflectivity: no data %
   Refractive index: '1.001111'
@@ -4178,7 +4103,6 @@ Sb:
   Mineral hardness: '3.0'
   Molar volume: 18.19 cm<sup>3</sup>
   Name: Antimony
-  Oxidation states: [-3, 3, 5]
   Poissons ratio: no data
   Reflectivity: 55 %
   Refractive index: no data
@@ -4229,7 +4153,6 @@ Sc:
   Mineral hardness: no data
   Molar volume: 15.00 cm<sup>3</sup>
   Name: Scandium
-  Oxidation states: [1, 2, 3]
   Poissons ratio: '0.28'
   Reflectivity: no data %
   Refractive index: no data
@@ -4273,7 +4196,6 @@ Se:
   Mineral hardness: '2.0'
   Molar volume: 16.42 cm<sup>3</sup>
   Name: Selenium
-  Oxidation states: [-2, 2, 4, 6]
   Poissons ratio: '0.33'
   Reflectivity: no data %
   Refractive index: '1.000895'
@@ -4324,7 +4246,6 @@ Si:
   Mineral hardness: '6.5'
   Molar volume: 12.06 cm<sup>3</sup>
   Name: Silicon
-  Oxidation states: [-4, -3, -2, -1, 1, 2, 3, 4]
   Poissons ratio: no data
   Reflectivity: 28 %
   Refractive index: no data
@@ -4369,7 +4290,6 @@ Sm:
   Mineral hardness: no data
   Molar volume: 19.98 cm<sup>3</sup>
   Name: Samarium
-  Oxidation states: [2, 3]
   Poissons ratio: '0.27'
   Reflectivity: no data %
   Refractive index: no data
@@ -4433,7 +4353,6 @@ Sn:
   Mineral hardness: '1.5'
   Molar volume: 16.29 cm<sup>3</sup>
   Name: Tin
-  Oxidation states: [-4, 2, 4]
   Poissons ratio: '0.36'
   Reflectivity: 54 %
   Refractive index: no data
@@ -4486,7 +4405,6 @@ Sr:
   Mineral hardness: '1.5'
   Molar volume: 33.94 cm<sup>3</sup>
   Name: Strontium
-  Oxidation states: [2]
   Poissons ratio: '0.28'
   Reflectivity: no data %
   Refractive index: no data
@@ -4543,7 +4461,6 @@ Ta:
   Mineral hardness: '6.5'
   Molar volume: 10.85 cm<sup>3</sup>
   Name: Tantalum
-  Oxidation states: [-1, 2, 3, 4, 5]
   Poissons ratio: '0.34'
   Reflectivity: 78 %
   Refractive index: no data
@@ -4599,7 +4516,6 @@ Tb:
   Mineral hardness: no data
   Molar volume: 19.30 cm<sup>3</sup>
   Name: Terbium
-  Oxidation states: [1, 3, 4]
   Poissons ratio: '0.26'
   Reflectivity: no data %
   Refractive index: no data
@@ -4655,7 +4571,6 @@ Tc:
   Mineral hardness: no data
   Molar volume: 8.63 cm<sup>3</sup>
   Name: Technetium
-  Oxidation states: [-3, -1, 1, 2, 3, 4, 5, 6, 7]
   Poissons ratio: no data
   Reflectivity: no data %
   Refractive index: no data
@@ -4708,7 +4623,6 @@ Te:
   Mineral hardness: '2.25'
   Molar volume: 20.46 cm<sup>3</sup>
   Name: Tellurium
-  Oxidation states: [-2, 2, 4, 5, 6]
   Poissons ratio: no data
   Reflectivity: 50 %
   Refractive index: '1.000991'
@@ -4768,7 +4682,6 @@ Th:
   Mineral hardness: '3.0'
   Molar volume: 19.80 cm<sup>3</sup>
   Name: Thorium
-  Oxidation states: [2, 3, 4]
   Poissons ratio: '0.27'
   Reflectivity: no data %
   Refractive index: no data
@@ -4824,7 +4737,6 @@ Ti:
   Mineral hardness: '6.0'
   Molar volume: 10.64 cm<sup>3</sup>
   Name: Titanium
-  Oxidation states: [-1, 2, 3, 4]
   Poissons ratio: '0.32'
   Reflectivity: no data %
   Refractive index: no data
@@ -4883,7 +4795,6 @@ Tl:
   Mineral hardness: '1.2'
   Molar volume: 17.22 cm<sup>3</sup>
   Name: Thallium
-  Oxidation states: [1, 3]
   Poissons ratio: '0.45'
   Reflectivity: no data %
   Refractive index: no data
@@ -4941,7 +4852,6 @@ Tm:
   Mineral hardness: no data
   Molar volume: 19.1 cm<sup>3</sup>
   Name: Thulium
-  Oxidation states: [2, 3]
   Poissons ratio: '0.21'
   Reflectivity: no data %
   Refractive index: no data
@@ -4997,7 +4907,6 @@ U:
   Mineral hardness: '6.0'
   Molar volume: 12.49 cm<sup>3</sup>
   Name: Uranium
-  Oxidation states: [3, 4, 5, 6]
   Poissons ratio: '0.23'
   Reflectivity: no data %
   Refractive index: no data
@@ -5077,7 +4986,6 @@ V:
   Mineral hardness: '7.0'
   Molar volume: 8.32 cm<sup>3</sup>
   Name: Vanadium
-  Oxidation states: [-1, 1, 2, 3, 4, 5]
   Poissons ratio: '0.37'
   Reflectivity: 61 %
   Refractive index: no data
@@ -5143,7 +5051,6 @@ W:
   Mineral hardness: '7.5'
   Molar volume: 9.47 cm<sup>3</sup>
   Name: Tungsten
-  Oxidation states: [-2, -1, 1, 2, 3, 4, 5, 6]
   Poissons ratio: '0.28'
   Reflectivity: 62 %
   Refractive index: no data
@@ -5242,7 +5149,6 @@ Y:
   Mineral hardness: no data
   Molar volume: 19.88 cm<sup>3</sup>
   Name: Yttrium
-  Oxidation states: [1, 2, 3]
   Poissons ratio: '0.24'
   Reflectivity: no data %
   Refractive index: no data
@@ -5293,7 +5199,6 @@ Yb:
   Mineral hardness: no data
   Molar volume: 24.84 cm<sup>3</sup>
   Name: Ytterbium
-  Oxidation states: [2, 3]
   Poissons ratio: '0.21'
   Reflectivity: no data %
   Refractive index: no data
@@ -5353,7 +5258,6 @@ Zn:
   Mineral hardness: '2.5'
   Molar volume: 9.16 cm<sup>3</sup>
   Name: Zinc
-  Oxidation states: [1, 2]
   Poissons ratio: '0.25'
   Reflectivity: 80 %
   Refractive index: '1.002050'
@@ -5403,7 +5307,6 @@ Zr:
   Mineral hardness: '5.0'
   Molar volume: 14.02 cm<sup>3</sup>
   Name: Zirconium
-  Oxidation states: [1, 2, 3, 4]
   Poissons ratio: '0.34'
   Reflectivity: no data %
   Refractive index: no data
@@ -5442,7 +5345,6 @@ D:
   Common oxidation states: [-1, 1]
   Is named isotope: true
   Name: Deuterium
-  Oxidation states: [-1, -1]
   Shannon radii:
     1:
       II:
@@ -5456,5 +5358,4 @@ T:
   Common oxidation states: [-1, -1]
   Is named isotope: true
   Name: Tritium
-  Oxidation states: [-1, -1]
   Electron affinity:
