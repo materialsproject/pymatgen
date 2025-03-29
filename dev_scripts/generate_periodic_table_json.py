@@ -50,7 +50,11 @@ def parse_yaml(file: PathLike) -> dict[PropStr, dict[Element, ElemPropertyValue]
     """Parse a YAML file.
 
     Expected YAML format:
-        TODO:
+        We expect each YAML file to contain one or more properties.
+        Each property should follow this structure:
+            - `unit` (optional): The unit of measurement for the values.
+            - `reference` (optional): The reference or source from which the data is derived.
+            - `data`: Dict mapping each element symbol (e.g., "Fe") to its corresponding value.
 
     Args:
         working_dir (PathLike): directory containing all YAMLs.
