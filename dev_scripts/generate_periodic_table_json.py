@@ -68,8 +68,9 @@ def parse_yaml(file: PathLike) -> dict[PropStr, dict[Element, ElemPropertyValue]
     result: dict[PropStr, dict[Element, ElemPropertyValue]] = {}
 
     for prop_name, prop_info in raw.items():
-        print(f"    - Found property: '{prop_name}' ")
+        print(f"  - Found property: '{prop_name}' ")
 
+        # TODO: convert unit to pymatgen Unit?
         unit = prop_info.get("unit")
         reference = prop_info.get("reference")
         data = prop_info.get("data")
@@ -100,9 +101,12 @@ def generate_json(*sources: dict[PropStr, dict[Element, ElemPropertyValue]]) -> 
 
 
 def main():
+    # TODO: save an intermediate YAML copy for manual inspection,
+    # otherwise JSON is hard to read
     generate_json(
-        # parse_yaml(f"{RESOURCES_DIR}/elemental_properties.yaml"),
+        parse_yaml(f"{RESOURCES_DIR}/elemental_properties.yaml"),
         parse_yaml(f"{RESOURCES_DIR}/oxidation_states.yaml"),
+        parse_yaml(f"{RESOURCES_DIR}/ionization_energies.yaml"),
     )
 
 
