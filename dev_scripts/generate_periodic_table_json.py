@@ -13,13 +13,12 @@ Each parser function must return:
 That is:
 - The top-level dictionary maps **property names** (as strings) to their corresponding data.
 - For each property, the value is another dictionary mapping:
-    - `Element` to `ElemPropertyValue`(includes the actual value and optional unit/reference)
+    - `Element` to `ElemPropertyValue`(includes the actual value and optional unit)
 
 This ensures that all parsers, regardless of data source, return a consistent format that
 can be merged into the overall dataset using `generate_json`.
 
 TODO:
-    - allow reference from either property or element
     - would zipped JSON be more efficient (IO bound or not?)
 """
 
@@ -51,7 +50,6 @@ DEFAULT_VALUE: str = "no data"  # The default value if not provided
 class ElemPropertyValue:
     value: Any = DEFAULT_VALUE
     unit: Unit | None = None
-    reference: str | None = None
 
 
 PropStr: TypeAlias = str
@@ -65,7 +63,6 @@ def parse_yaml(file: PathLike) -> Sources:
         We expect each YAML file to contain one or more properties.
         Each property should follow this structure:
             - `unit` (optional): The unit of measurement for the values.
-            - `reference` (optional): The reference or source from which the data is derived.
             - `data`: Dict mapping each element symbol (e.g., "Fe") to its corresponding value.
 
     Args:
@@ -90,13 +87,9 @@ def parse_yaml(file: PathLike) -> Sources:
 
         # TODO: convert to pymatgen Unit
         unit = prop_info.get("unit")
-        reference = prop_info.get("reference")
         data = prop_info.get("data")
 
-        result[prop_name] = {
-            Element(elem): ElemPropertyValue(value=value, unit=unit, reference=reference)
-            for elem, value in data.items()
-        }
+        result[prop_name] = {Element(elem): ElemPropertyValue(value=value, unit=unit) for elem, value in data.items()}
 
     return result
 
