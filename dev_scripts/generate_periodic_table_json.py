@@ -25,9 +25,11 @@ TODO:
 
 from __future__ import annotations
 
+import os
 from dataclasses import dataclass
 from typing import TYPE_CHECKING
 
+import pandas as pd
 from ruamel.yaml import YAML
 
 from pymatgen.core import Element
@@ -42,12 +44,7 @@ if TYPE_CHECKING:
 ELEMENTS: tuple[str, ...] = tuple([elem.name for elem in Element])
 ISOTOPES: tuple[str, ...] = tuple(elem for elem in Element.__members__ if elem not in ELEMENTS)
 
-# The global default value if not provided
-DEFAULT_VALUE: str = "no data"
-
-RESOURCES_DIR: str = "periodic_table_resources"
-
-PropStr: TypeAlias = str
+DEFAULT_VALUE: str = "no data"  # The default value if not provided
 
 
 @dataclass
@@ -57,7 +54,11 @@ class ElemPropertyValue:
     reference: str | None = None
 
 
-def parse_yaml(file: PathLike) -> dict[PropStr, dict[Element, ElemPropertyValue]]:
+PropStr: TypeAlias = str
+Sources: TypeAlias = dict[PropStr, dict[Element, ElemPropertyValue]]
+
+
+def parse_yaml(file: PathLike) -> Sources:
     """Parse a YAML file.
 
     Expected YAML format:
@@ -71,21 +72,23 @@ def parse_yaml(file: PathLike) -> dict[PropStr, dict[Element, ElemPropertyValue]
         working_dir (PathLike): directory containing all YAMLs.
 
     Returns:
-        dict[str, dict[Element, ElemPropertyValue]]: A property to
-            {Element: ElemPropertyValue} mapping.
+        Sources: A property to {Element: ElemPropertyValue} mapping.
     """
+    if not os.path.isfile(file):
+        raise FileNotFoundError(f"YAML file {file} does not exist")
+
     print(f"Parsing YAML file: '{file}'")
 
     yaml = YAML()
     with open(file, encoding="utf-8") as f:
         raw = yaml.load(f)
 
-    result: dict[PropStr, dict[Element, ElemPropertyValue]] = {}
+    result: Sources = {}
 
     for prop_name, prop_info in raw.items():
         print(f"  - Found property: '{prop_name}' ")
 
-        # TODO: convert unit to pymatgen Unit?
+        # TODO: convert to pymatgen Unit
         unit = prop_info.get("unit")
         reference = prop_info.get("reference")
         data = prop_info.get("data")
@@ -98,10 +101,58 @@ def parse_yaml(file: PathLike) -> dict[PropStr, dict[Element, ElemPropertyValue]
     return result
 
 
-def generate_json(*sources: dict[PropStr, dict[Element, ElemPropertyValue]]) -> None:
-    """Generate the final JSON from sources, each source may contain multiple properties."""
+def parse_csv(
+    file: PathLike,
+    dtype: Any | None = None,
+) -> Sources:
+    """Parse a CSV file.
+
+    Expected CSV format:
+        We expected each CSV file to contain one or more properties,
+        where each property occupies a single column and the column name
+        would be used as the property name.
+        The index (first) column should be the elements.  TODO: clarify
+
+    Args:
+        file (PathLike): The CSV file to parse.
+
+    Returns:
+        Sources: A property to {Element: ElemPropertyValue} mapping.
+    """
+    if not os.path.isfile(file):
+        raise FileNotFoundError(f"CSV file {file} does not exist")
+
+    print(f"Parsing CSV file: '{file}'")
+
+    # Expect the first column to be the element symbols
+    data_df = pd.read_csv(file)
+    data_df = data_df.set_index(data_df.columns[0])
+
+    result: Sources = {}
+
+    for prop in data_df.columns:
+        print(f"  - Found property: '{prop}' ")
+
+        prop_values = {}
+        for symbol, value in data_df[prop].items():
+            if pd.isna(value):
+                value = DEFAULT_VALUE
+            elif dtype is not None:
+                try:
+                    value = dtype(value)
+                except (ValueError, TypeError):
+                    value = str(value)
+
+            prop_values[Element(symbol)] = ElemPropertyValue(value=value)
+        result[prop] = prop_values
+
+    return result
+
+
+def generate_yaml_and_json(*sources: Sources) -> None:
+    """Generate the intermediate YAML and final JSON from sources."""
     # Check for duplicate and combine all sources
-    combined: dict[PropStr, dict[Element, ElemPropertyValue]] = {}
+    combined: Sources = {}
     seen_props: set[PropStr] = set()
 
     for source in sources:
@@ -111,17 +162,22 @@ def generate_json(*sources: dict[PropStr, dict[Element, ElemPropertyValue]]) -> 
             seen_props.add(prop_name)
             combined[prop_name] = element_map
 
+    # Save an intermediate YAML copy for manual inspection,
+    # otherwise JSON is hard to read
+    # TODO: WIP
+
     # Output to JSON (element->property->value format, and drop metadata)
     # TODO: WIP
 
 
 def main():
-    # TODO: save an intermediate YAML copy for manual inspection,
-    # otherwise JSON is hard to read
-    generate_json(
+    RESOURCES_DIR: str = "periodic_table_resources"
+
+    generate_yaml_and_json(
         parse_yaml(f"{RESOURCES_DIR}/elemental_properties.yaml"),
         parse_yaml(f"{RESOURCES_DIR}/oxidation_states.yaml"),
         parse_yaml(f"{RESOURCES_DIR}/ionization_energies.yaml"),
+        parse_csv(f"{RESOURCES_DIR}/radii.csv", dtype=lambda x: float(x) / 100),
     )
 
 
