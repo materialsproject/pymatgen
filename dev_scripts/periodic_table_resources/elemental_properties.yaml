@@ -218,7 +218,6 @@ Atomic orbitals:
   Ag: {1s: -900.324578, 2p: -120.913351, 2s: -129.859807, 3d: -13.367803, 3p: -20.06763,
     3s: -23.678437, 4d: -0.298706, 4p: -2.086602, 4s: -3.22309, 5s: -0.157407}
   Al: {1s: -55.156044, 2p: -2.564018, 2s: -3.934827, 3p: -0.102545, 3s: -0.286883}
-  Am: no data
   Ar: {1s: -113.800134, 2p: -8.443439, 2s: -10.794172, 3p: -0.38233, 3s: -0.883384}
   As: {1s: -423.336658, 2p: -47.527869, 2s: -53.093086, 3d: -1.542767, 3p: -4.851725,
     3s: -6.730755, 4p: -0.197497, 4s: -0.52367}
@@ -236,7 +235,6 @@ Atomic orbitals:
   Bi: {1s: -2975.550959, 2p: -484.716359, 2s: -502.950758, 3d: -95.532476, 3p: -111.883393,
     3s: -120.613998, 4d: -16.084817, 4f: -6.382744, 4p: -23.218641, 4s: -27.07034,
     5d: -1.139408, 5p: -3.293637, 5s: -4.611934, 6p: -0.180198, 6s: -0.426129}
-  Bk: no data
   Br: {1s: -480.182643, 2p: -55.67796, 2s: -61.710022, 3d: -2.52211, 3p: -6.298805,
     3s: -8.409057, 4p: -0.295334, 4s: -0.720066}
   C: {1s: -9.947718, 2p: -0.199186, 2s: -0.500866}
@@ -247,9 +245,7 @@ Atomic orbitals:
   Ce: {1s: -1406.148284, 2p: -206.925148, 2s: -218.684842, 3d: -32.412569, 3p: -41.938282,
     3s: -47.035283, 4d: -4.192548, 4f: -0.337442, 4p: -7.532106, 4s: -9.432744, 5d: -0.14055,
     5p: -0.85011, 5s: -1.369728, 6s: -0.133974}
-  Cf: no data
   Cl: {1s: -100.369229, 2p: -7.039982, 2s: -9.187993, 3p: -0.32038, 3s: -0.754458}
-  Cm: no data
   Co: {1s: -275.616639, 2p: -28.152095, 2s: -32.379758, 3d: -0.322368, 3p: -2.388285,
     3s: -3.651812, 4s: -0.204497}
   Cr: {1s: -213.881191, 2p: -20.526273, 2s: -24.113457, 3d: -0.118123, 3p: -1.65423,
@@ -265,14 +261,12 @@ Atomic orbitals:
   Er: {1s: -1961.799176, 2p: -302.01827, 2s: -316.310631, 3d: -51.682149, 3p: -63.818655,
     3s: -70.310142, 4d: -6.127443, 4f: -0.278577, 4p: -10.819574, 4s: -13.423547,
     5p: -0.935202, 5s: -1.616073, 6s: -0.134905}
-  Es: no data
   Eu: {1s: -1672.309322, 2p: -252.176697, 2s: -265.199534, 3d: -41.465518, 3p: -52.281987,
     3s: -58.068128, 4d: -5.03242, 4f: -0.232773, 4p: -9.025455, 4s: -11.267747, 5p: -0.853575,
     5s: -1.444087, 6s: -0.129426}
   F: {1s: -24.189391, 2p: -0.415606, 2s: -1.086859}
   Fe: {1s: -254.225505, 2p: -25.551766, 2s: -29.56486, 3d: -0.295049, 3p: -2.187523,
     3s: -3.360621, 4s: -0.197978}
-  Fm: no data
   Fr: {1s: -3283.263399, 2p: -542.41424, 2s: -561.73045, 3d: -111.085223, 3p: -128.607136,
     3s: -137.959632, 4d: -20.812462, 4f: -10.050648, 4p: -28.648131, 4s: -32.861013,
     5d: -2.360991, 5p: -4.97328, 5s: -6.509516, 6p: -0.466197, 6s: -0.841848, 7s: -0.076176}
@@ -309,11 +303,9 @@ Atomic orbitals:
     3s: -44.856283, 4d: -3.95801, 4p: -7.167724, 4s: -9.000543, 5d: -0.141085, 5p: -0.824498,
     5s: -1.324936, 6s: -0.132233}
   Li: {1s: -1.878564, 2s: -0.10554}
-  Lr: no data
   Lu: {1s: -2146.885351, 2p: -334.330902, 2s: -349.390492, 3d: -58.592982, 3p: -71.538779,
     3s: -78.462398, 4d: -7.113364, 4f: -0.568096, 4p: -12.250904, 4s: -15.08337, 5d: -0.103686,
     5p: -1.111991, 5s: -1.872086, 6s: -0.155112}
-  Md: no data
   Mg: {1s: -45.973167, 2p: -1.71897, 2s: -2.903746, 3s: -0.175427}
   Mn: {1s: -233.696912, 2p: -23.066297, 2s: -26.866646, 3d: -0.26654, 3p: -1.99145,
     3s: -3.076637, 4s: -0.191136}
@@ -329,8 +321,6 @@ Atomic orbitals:
   Ne: {1s: -30.305855, 2p: -0.498034, 2s: -1.322809}
   Ni: {1s: -297.870824, 2p: -30.868027, 2s: -35.312112, 3d: -0.348699, 3p: -2.594158,
     3s: -3.950717, 4s: -0.210764}
-  No: no data
-  Np: no data
   O: {1s: -18.758245, 2p: -0.338381, 2s: -0.871362}
   Os: {1s: -2475.238617, 2p: -393.15408, 2s: -409.522396, 3d: -72.497183, 3p: -86.837047,
     3s: -94.501324, 4d: -10.176082, 4f: -2.321175, 4p: -16.119671, 4s: -19.362527,
@@ -357,7 +347,6 @@ Atomic orbitals:
   Pt: {1s: -2613.096532, 2p: -417.96053, 2s: -434.858003, 3d: -78.400271, 3p: -93.309108,
     3s: -101.274869, 4d: -11.419476, 4f: -3.038049, 4p: -17.697297, 4s: -21.110651,
     5d: -0.273634, 5p: -1.884256, 5s: -2.950526, 6s: -0.161308}
-  Pu: no data
   Ra: {1s: -3362.736563, 2p: -557.513214, 2s: -577.101208, 3d: -115.306476, 3p: -133.12325,
     3s: -142.632426, 4d: -22.208125, 4f: -11.181066, 4p: -30.221208, 4s: -34.525628,
     5d: -2.819853, 5p: -5.547203, 5s: -7.139137, 6p: -0.634674, 6s: -1.05135, 7s: -0.113732}
@@ -437,38 +426,30 @@ Atomic radius:
   Am: 1.75
   Ar: 0.71
   As: 1.15
-  At: no data
   Au: 1.35
   B: 0.85
   Ba: 2.15
   Be: 1.05
   Bi: 1.6
-  Bk: no data
   Br: 1.15
   C: 0.7
   Ca: 1.8
   Cd: 1.55
   Ce: 1.85
-  Cf: no data
   Cl: 1.0
-  Cm: no data
   Co: 1.35
   Cr: 1.4
   Cs: 2.6
   Cu: 1.35
   Dy: 1.75
   Er: 1.75
-  Es: no data
   Eu: 1.85
   F: 0.5
   Fe: 1.4
-  Fm: no data
-  Fr: no data
   Ga: 1.3
   Gd: 1.8
   Ge: 1.25
   H: 0.25
-  He: no data
   Hf: 1.55
   Hg: 1.5
   Ho: 1.75
@@ -476,12 +457,9 @@ Atomic radius:
   In: 1.55
   Ir: 1.35
   K: 2.2
-  Kr: no data
   La: 1.95
   Li: 1.45
-  Lr: no data
   Lu: 1.75
-  Md: no data
   Mg: 1.5
   Mn: 1.4
   Mo: 1.45
@@ -489,9 +467,7 @@ Atomic radius:
   Na: 1.8
   Nb: 1.45
   Nd: 1.85
-  Ne: no data
   Ni: 1.35
-  No: no data
   Np: 1.75
   O: 0.6
   Os: 1.3
@@ -508,7 +484,6 @@ Atomic radius:
   Rb: 2.35
   Re: 1.35
   Rh: 1.35
-  Rn: no data
   Ru: 1.3
   S: 1.0
   Sb: 1.45
@@ -529,45 +504,34 @@ Atomic radius:
   U: 1.75
   V: 1.35
   W: 1.35
-  Xe: no data
   Y: 1.8
   Yb: 1.75
   Zn: 1.35
   Zr: 1.55
 Atomic radius calculated:
-  Ac: no data
   Ag: 1.65
   Al: 1.18
-  Am: no data
   Ar: 0.71
   As: 1.14
-  At: no data
   Au: 1.74
   B: 0.87
   Ba: 2.53
   Be: 1.12
   Bi: 1.43
-  Bk: no data
   Br: 0.94
   C: 0.67
   Ca: 1.94
   Cd: 1.61
-  Ce: no data
-  Cf: no data
   Cl: 0.79
-  Cm: no data
   Co: 1.52
   Cr: 1.66
   Cs: 2.98
   Cu: 1.45
   Dy: 2.28
   Er: 2.26
-  Es: no data
   Eu: 2.31
   F: 0.42
   Fe: 1.56
-  Fm: no data
-  Fr: no data
   Ga: 1.36
   Gd: 2.33
   Ge: 1.25
@@ -575,17 +539,13 @@ Atomic radius calculated:
   He: 0.31
   Hf: 2.08
   Hg: 1.71
-  Ho: no data
   I: 1.15
   In: 1.56
   Ir: 1.8
   K: 2.43
   Kr: 0.88
-  La: no data
   Li: 1.67
-  Lr: no data
   Lu: 2.17
-  Md: no data
   Mg: 1.45
   Mn: 1.61
   Mo: 1.9
@@ -595,20 +555,15 @@ Atomic radius calculated:
   Nd: 2.06
   Ne: 0.38
   Ni: 1.49
-  No: no data
-  Np: no data
   O: 0.48
   Os: 1.85
   P: 0.98
-  Pa: no data
   Pb: 1.54
   Pd: 1.69
   Pm: 2.05
   Po: 1.35
   Pr: 2.47
   Pt: 1.77
-  Pu: no data
-  Ra: no data
   Rb: 2.65
   Re: 1.88
   Rh: 1.73
@@ -626,11 +581,9 @@ Atomic radius calculated:
   Tb: 2.25
   Tc: 1.83
   Te: 1.23
-  Th: no data
   Ti: 1.76
   Tl: 1.56
   Tm: 2.22
-  U: no data
   V: 1.71
   W: 1.93
   Xe: 1.08
@@ -645,19 +598,16 @@ Boiling point:
   Am: 2880 K
   Ar: 87.3 K
   As: 887 K
-  At: no data K
   Au: 3129 K
   B: 4200 K
   Ba: 2143 K
   Be: 2742 K
   Bi: 1837 K
-  Bk: no data K
   Br: 332 K
   C: 4300 K
   Ca: 1757 K
   Cd: 1040 K
   Ce: 3633 K
-  Cf: no data K
   Cl: 239.11 K
   Cm: 3383 K
   Co: 3200 K
@@ -666,12 +616,9 @@ Boiling point:
   Cu: 3200 K
   Dy: 2840 K
   Er: 3141 K
-  Es: no data K
   Eu: 1800 K
   F: 85.03 K
   Fe: 3134 K
-  Fm: no data K
-  Fr: no data K
   Ga: 2477 K
   Gd: 3523 K
   Ge: 3093 K
@@ -687,9 +634,7 @@ Boiling point:
   Kr: 119.93 K
   La: 3743 K
   Li: 1615 K
-  Lr: no data K
   Lu: 3675 K
-  Md: no data K
   Mg: 1363 K
   Mn: 2334 K
   Mo: 4912 K
@@ -699,12 +644,10 @@ Boiling point:
   Nd: 3373 K
   Ne: 27.07 K
   Ni: 3186 K
-  No: no data K
   Np: 4273 K
   O: 90.2 K
   Os: 5285 K
   P: 550 K
-  Pa: no data K
   Pb: 2022 K
   Pd: 3236 K
   Pm: 3273 K
@@ -743,96 +686,53 @@ Boiling point:
   Zn: 1180 K
   Zr: 4682 K
 Brinell hardness:
-  Ac: no data MN m<sup>-2</sup>
   Ag: 24.5 MN m<sup>-2</sup>
   Al: 245 MN m<sup>-2</sup>
-  Am: no data MN m<sup>-2</sup>
-  Ar: no data MN m<sup>-2</sup>
   As: 1440 MN m<sup>-2</sup>
-  At: no data MN m<sup>-2</sup>
   Au: 2450 MN m<sup>-2</sup>
-  B: no data MN m<sup>-2</sup>
-  Ba: no data MN m<sup>-2</sup>
   Be: 600 MN m<sup>-2</sup>
   Bi: 94.2 MN m<sup>-2</sup>
-  Bk: no data MN m<sup>-2</sup>
-  Br: no data MN m<sup>-2</sup>
-  C: no data MN m<sup>-2</sup>
   Ca: 167 MN m<sup>-2</sup>
   Cd: 203 MN m<sup>-2</sup>
   Ce: 412 MN m<sup>-2</sup>
-  Cf: no data MN m<sup>-2</sup>
-  Cl: no data MN m<sup>-2</sup>
-  Cm: no data MN m<sup>-2</sup>
   Co: 700 MN m<sup>-2</sup>
   Cr: 1120 MN m<sup>-2</sup>
   Cs: 0.14 MN m<sup>-2</sup>
   Cu: 874 MN m<sup>-2</sup>
   Dy: 500 MN m<sup>-2</sup>
   Er: 814 MN m<sup>-2</sup>
-  Es: no data MN m<sup>-2</sup>
-  Eu: no data MN m<sup>-2</sup>
-  F: no data MN m<sup>-2</sup>
   Fe: 490 MN m<sup>-2</sup>
-  Fm: no data MN m<sup>-2</sup>
-  Fr: no data MN m<sup>-2</sup>
   Ga: 60 MN m<sup>-2</sup>
-  Gd: no data MN m<sup>-2</sup>
-  Ge: no data MN m<sup>-2</sup>
-  H: no data MN m<sup>-2</sup>
-  He: no data MN m<sup>-2</sup>
   Hf: 1700 MN m<sup>-2</sup>
-  Hg: no data MN m<sup>-2</sup>
   Ho: 746 MN m<sup>-2</sup>
-  I: no data MN m<sup>-2</sup>
   In: 8.83 MN m<sup>-2</sup>
   Ir: 1670 MN m<sup>-2</sup>
   K: 0.363 MN m<sup>-2</sup>
-  Kr: no data MN m<sup>-2</sup>
   La: 363 MN m<sup>-2</sup>
-  Li: no data MN m<sup>-2</sup>
-  Lr: no data MN m<sup>-2</sup>
   Lu: 893 MN m<sup>-2</sup>
-  Md: no data MN m<sup>-2</sup>
   Mg: 260 MN m<sup>-2</sup>
   Mn: 196 MN m<sup>-2</sup>
   Mo: 1500 MN m<sup>-2</sup>
-  N: no data MN m<sup>-2</sup>
   Na: 0.69 MN m<sup>-2</sup>
   Nb: 736 MN m<sup>-2</sup>
   Nd: 265 MN m<sup>-2</sup>
-  Ne: no data MN m<sup>-2</sup>
   Ni: 700 MN m<sup>-2</sup>
-  No: no data MN m<sup>-2</sup>
-  Np: no data MN m<sup>-2</sup>
-  O: no data MN m<sup>-2</sup>
   Os: 3920 MN m<sup>-2</sup>
-  P: no data MN m<sup>-2</sup>
-  Pa: no data MN m<sup>-2</sup>
   Pb: 38.3 MN m<sup>-2</sup>
   Pd: 37.3 MN m<sup>-2</sup>
-  Pm: no data MN m<sup>-2</sup>
-  Po: no data MN m<sup>-2</sup>
   Pr: 481 MN m<sup>-2</sup>
   Pt: 392 MN m<sup>-2</sup>
-  Pu: no data MN m<sup>-2</sup>
-  Ra: no data MN m<sup>-2</sup>
   Rb: 0.216 MN m<sup>-2</sup>
   Re: 1320 MN m<sup>-2</sup>
   Rh: 1100 MN m<sup>-2</sup>
-  Rn: no data MN m<sup>-2</sup>
   Ru: 2160 MN m<sup>-2</sup>
-  S: no data MN m<sup>-2</sup>
   Sb: 294 MN m<sup>-2</sup>
   Sc: 750 MN m<sup>-2</sup>
   Se: 736 MN m<sup>-2</sup>
-  Si: no data MN m<sup>-2</sup>
   Sm: 441 MN m<sup>-2</sup>
   Sn: 51 MN m<sup>-2</sup>
-  Sr: no data MN m<sup>-2</sup>
   Ta: 800 MN m<sup>-2</sup>
   Tb: 677 MN m<sup>-2</sup>
-  Tc: no data MN m<sup>-2</sup>
   Te: 180 MN m<sup>-2</sup>
   Th: 400 MN m<sup>-2</sup>
   Ti: 716 MN m<sup>-2</sup>
@@ -841,90 +741,59 @@ Brinell hardness:
   U: 2400 MN m<sup>-2</sup>
   V: 628 MN m<sup>-2</sup>
   W: 2570 MN m<sup>-2</sup>
-  Xe: no data MN m<sup>-2</sup>
   Y: 589 MN m<sup>-2</sup>
   Yb: 343 MN m<sup>-2</sup>
   Zn: 412 MN m<sup>-2</sup>
   Zr: 650 MN m<sup>-2</sup>
 Bulk modulus:
-  Ac: no data GPa
   Ag: 100 GPa
   Al: 76 GPa
-  Am: no data GPa
-  Ar: no data GPa
   As: 22 GPa
-  At: no data GPa
   Au: 220 GPa
   B: 320 GPa
   Ba: 9.6 GPa
   Be: 130 GPa
   Bi: 31 GPa
-  Bk: no data GPa
   Br: 1.9 GPa
   C: 33 GPa
   Ca: 17 GPa
   Cd: 42 GPa
   Ce: 22 GPa
-  Cf: no data GPa
   Cl: 1.1 (liquid)GPa
-  Cm: no data GPa
   Co: 180 GPa
   Cr: 160 GPa
   Cs: 1.6 GPa
   Cu: 140 GPa
   Dy: 41 GPa
   Er: 44 GPa
-  Es: no data GPa
   Eu: 8.3 GPa
-  F: no data GPa
   Fe: 170 GPa
-  Fm: no data GPa
-  Fr: no data GPa
-  Ga: no data GPa
   Gd: 38 GPa
-  Ge: no data GPa
-  H: no data GPa
-  He: no data GPa
   Hf: 110 GPa
   Hg: 25 GPa
   Ho: 40 GPa
   I: 7.7 GPa
-  In: no data GPa
   Ir: 320 GPa
   K: 3.1 GPa
-  Kr: no data GPa
   La: 28 GPa
   Li: 11 GPa
-  Lr: no data GPa
   Lu: 48 GPa
-  Md: no data GPa
   Mg: 45 GPa
   Mn: 120 GPa
   Mo: 230 GPa
-  N: no data GPa
   Na: 6.3 GPa
   Nb: 170 GPa
   Nd: 32 GPa
-  Ne: no data GPa
   Ni: 180 GPa
-  No: no data GPa
-  Np: no data GPa
-  O: no data GPa
-  Os: no data GPa
   P: 11 GPa
-  Pa: no data GPa
   Pb: 46 GPa
   Pd: 180 GPa
   Pm: 33 GPa
-  Po: no data GPa
   Pr: 29 GPa
   Pt: 230 GPa
-  Pu: no data GPa
-  Ra: no data GPa
   Rb: 2.5 GPa
   Re: 370 GPa
   Rh: 380 GPa
-  Rn: no data GPa
   Ru: 220 GPa
   S: 7.7 GPa
   Sb: 42 GPa
@@ -933,10 +802,8 @@ Bulk modulus:
   Si: 100 GPa
   Sm: 38 GPa
   Sn: 58 GPa
-  Sr: no data GPa
   Ta: 200 GPa
   Tb: 38.7 GPa
-  Tc: no data GPa
   Te: 65 GPa
   Th: 54 GPa
   Ti: 110 GPa
@@ -945,103 +812,62 @@ Bulk modulus:
   U: 100 GPa
   V: 160 GPa
   W: 310 GPa
-  Xe: no data GPa
   Y: 41 GPa
   Yb: 31 GPa
   Zn: 70 GPa
-  Zr: no data GPa
 Coefficient of linear thermal expansion:
-  Ac: no data x10<sup>-6</sup>K<sup>-1</sup>
   Ag: 18.9 x10<sup>-6</sup>K<sup>-1</sup>
   Al: 23.1 x10<sup>-6</sup>K<sup>-1</sup>
-  Am: no data x10<sup>-6</sup>K<sup>-1</sup>
-  Ar: no data x10<sup>-6</sup>K<sup>-1</sup>
-  As: no data x10<sup>-6</sup>K<sup>-1</sup>
-  At: no data x10<sup>-6</sup>K<sup>-1</sup>
   Au: 14.2 x10<sup>-6</sup>K<sup>-1</sup>
   B: 6 x10<sup>-6</sup>K<sup>-1</sup>
   Ba: 20.6 x10<sup>-6</sup>K<sup>-1</sup>
   Be: 11.3 x10<sup>-6</sup>K<sup>-1</sup>
   Bi: 13.4 x10<sup>-6</sup>K<sup>-1</sup>
-  Bk: no data x10<sup>-6</sup>K<sup>-1</sup>
-  Br: no data x10<sup>-6</sup>K<sup>-1</sup>
   C: 7.1 x10<sup>-6</sup>K<sup>-1</sup>
   Ca: 22.3 x10<sup>-6</sup>K<sup>-1</sup>
   Cd: 30.8 x10<sup>-6</sup>K<sup>-1</sup>
   Ce: 6.3 x10<sup>-6</sup>K<sup>-1</sup>
-  Cf: no data x10<sup>-6</sup>K<sup>-1</sup>
-  Cl: no data x10<sup>-6</sup>K<sup>-1</sup>
-  Cm: no data x10<sup>-6</sup>K<sup>-1</sup>
   Co: 13.0 x10<sup>-6</sup>K<sup>-1</sup>
   Cr: 4.9 x10<sup>-6</sup>K<sup>-1</sup>
-  Cs: no data x10<sup>-6</sup>K<sup>-1</sup>
   Cu: 16.5 x10<sup>-6</sup>K<sup>-1</sup>
   Dy: 9.9 x10<sup>-6</sup>K<sup>-1</sup>
   Er: 12.2 x10<sup>-6</sup>K<sup>-1</sup>
-  Es: no data x10<sup>-6</sup>K<sup>-1</sup>
   Eu: 35 x10<sup>-6</sup>K<sup>-1</sup>
-  F: no data x10<sup>-6</sup>K<sup>-1</sup>
   Fe: 11.8 x10<sup>-6</sup>K<sup>-1</sup>
-  Fm: no data x10<sup>-6</sup>K<sup>-1</sup>
-  Fr: no data x10<sup>-6</sup>K<sup>-1</sup>
   Ga: 120 x10<sup>-6</sup>K<sup>-1</sup>
   Gd: 9.4 x10<sup>-6</sup>K<sup>-1</sup>
   Ge: 6 x10<sup>-6</sup>K<sup>-1</sup>
-  H: no data x10<sup>-6</sup>K<sup>-1</sup>
-  He: no data x10<sup>-6</sup>K<sup>-1</sup>
   Hf: 5.9 x10<sup>-6</sup>K<sup>-1</sup>
-  Hg: no data x10<sup>-6</sup>K<sup>-1</sup>
   Ho: 11.2 x10<sup>-6</sup>K<sup>-1</sup>
-  I: no data x10<sup>-6</sup>K<sup>-1</sup>
   In: 32.1 x10<sup>-6</sup>K<sup>-1</sup>
   Ir: 6.4 x10<sup>-6</sup>K<sup>-1</sup>
-  K: no data x10<sup>-6</sup>K<sup>-1</sup>
-  Kr: no data x10<sup>-6</sup>K<sup>-1</sup>
   La: 12.1 x10<sup>-6</sup>K<sup>-1</sup>
   Li: 46 x10<sup>-6</sup>K<sup>-1</sup>
-  Lr: no data x10<sup>-6</sup>K<sup>-1</sup>
   Lu: 9.9 x10<sup>-6</sup>K<sup>-1</sup>
-  Md: no data x10<sup>-6</sup>K<sup>-1</sup>
   Mg: 8.2 x10<sup>-6</sup>K<sup>-1</sup>
   Mn: 21.7 x10<sup>-6</sup>K<sup>-1</sup>
   Mo: 4.8 x10<sup>-6</sup>K<sup>-1</sup>
-  N: no data x10<sup>-6</sup>K<sup>-1</sup>
   Na: 71 x10<sup>-6</sup>K<sup>-1</sup>
   Nb: 7.3 x10<sup>-6</sup>K<sup>-1</sup>
   Nd: 9.6 x10<sup>-6</sup>K<sup>-1</sup>
-  Ne: no data x10<sup>-6</sup>K<sup>-1</sup>
   Ni: 13.4 x10<sup>-6</sup>K<sup>-1</sup>
-  No: no data x10<sup>-6</sup>K<sup>-1</sup>
-  Np: no data x10<sup>-6</sup>K<sup>-1</sup>
-  O: no data x10<sup>-6</sup>K<sup>-1</sup>
   Os: 5.1 x10<sup>-6</sup>K<sup>-1</sup>
-  P: no data x10<sup>-6</sup>K<sup>-1</sup>
-  Pa: no data x10<sup>-6</sup>K<sup>-1</sup>
   Pb: 28.9 x10<sup>-6</sup>K<sup>-1</sup>
   Pd: 11.8 x10<sup>-6</sup>K<sup>-1</sup>
   Pm: 11 x10<sup>-6</sup>K<sup>-1</sup>
-  Po: no data x10<sup>-6</sup>K<sup>-1</sup>
   Pr: 6.7 x10<sup>-6</sup>K<sup>-1</sup>
   Pt: 8.8 x10<sup>-6</sup>K<sup>-1</sup>
-  Pu: no data x10<sup>-6</sup>K<sup>-1</sup>
-  Ra: no data x10<sup>-6</sup>K<sup>-1</sup>
-  Rb: no data x10<sup>-6</sup>K<sup>-1</sup>
   Re: 6.2 x10<sup>-6</sup>K<sup>-1</sup>
   Rh: 8.2 x10<sup>-6</sup>K<sup>-1</sup>
-  Rn: no data x10<sup>-6</sup>K<sup>-1</sup>
   Ru: 6.4 x10<sup>-6</sup>K<sup>-1</sup>
-  S: no data x10<sup>-6</sup>K<sup>-1</sup>
   Sb: 11 x10<sup>-6</sup>K<sup>-1</sup>
   Sc: 10.2 x10<sup>-6</sup>K<sup>-1</sup>
-  Se: no data x10<sup>-6</sup>K<sup>-1</sup>
   Si: 2.6 x10<sup>-6</sup>K<sup>-1</sup>
   Sm: 12.7 x10<sup>-6</sup>K<sup>-1</sup>
   Sn: 22 x10<sup>-6</sup>K<sup>-1</sup>
   Sr: 22.5 x10<sup>-6</sup>K<sup>-1</sup>
   Ta: 6.3 x10<sup>-6</sup>K<sup>-1</sup>
   Tb: 10.3 x10<sup>-6</sup>K<sup>-1</sup>
-  Tc: no data x10<sup>-6</sup>K<sup>-1</sup>
-  Te: no data x10<sup>-6</sup>K<sup>-1</sup>
   Th: 11.0 x10<sup>-6</sup>K<sup>-1</sup>
   Ti: 8.6 x10<sup>-6</sup>K<sup>-1</sup>
   Tl: 29.9 x10<sup>-6</sup>K<sup>-1</sup>
@@ -1049,7 +875,6 @@ Coefficient of linear thermal expansion:
   U: 13.9 x10<sup>-6</sup>K<sup>-1</sup>
   V: 8.4 x10<sup>-6</sup>K<sup>-1</sup>
   W: 4.5 x10<sup>-6</sup>K<sup>-1</sup>
-  Xe: no data x10<sup>-6</sup>K<sup>-1</sup>
   Y: 10.6 x10<sup>-6</sup>K<sup>-1</sup>
   Yb: 26.3 x10<sup>-6</sup>K<sup>-1</sup>
   Zn: 30.2 x10<sup>-6</sup>K<sup>-1</sup>
@@ -1155,130 +980,45 @@ Common oxidation states:
   D: [-1, 1]
   T: [-1, -1]
 Critical temperature:
-  Ac: no data K
-  Ag: no data K
-  Al: no data K
-  Am: no data K
   Ar: 150.8 K
   As: 1700 K
-  At: no data K
-  Au: no data K
-  B: no data K
-  Ba: no data K
-  Be: no data K
-  Bi: no data K
-  Bk: no data K
   Br: 586 K
-  C: no data K
-  Ca: no data K
-  Cd: no data K
-  Ce: no data K
-  Cf: no data K
   Cl: 417 K
-  Cm: no data K
-  Co: no data K
-  Cr: no data K
   Cs: 1938 K
-  Cu: no data K
-  Dy: no data K
-  Er: no data K
-  Es: no data K
-  Eu: no data K
   F: 144 K
-  Fe: no data K
-  Fm: no data K
-  Fr: no data K
-  Ga: no data K
-  Gd: no data K
-  Ge: no data K
   H: 33 K
   He: 5.19 K
-  Hf: no data K
   Hg: 1750 K
-  Ho: no data K
   I: 819 K
-  In: no data K
-  Ir: no data K
   K: 2223 K
   Kr: 209.4 K
-  La: no data K
   Li: 3223 K
-  Lr: no data K
-  Lu: no data K
-  Md: no data K
-  Mg: no data K
-  Mn: no data K
-  Mo: no data K
   N: 126.2 K
   Na: 2573 K
-  Nb: no data K
-  Nd: no data K
   Ne: 44.4 K
-  Ni: no data K
-  No: no data K
-  Np: no data K
   O: 154.6 K
-  Os: no data K
   P: 994 K
-  Pa: no data K
-  Pb: no data K
-  Pd: no data K
-  Pm: no data K
-  Po: no data K
-  Pr: no data K
-  Pt: no data K
-  Pu: no data K
-  Ra: no data K
   Rb: 2093 K
-  Re: no data K
-  Rh: no data K
   Rn: 377 K
-  Ru: no data K
   S: 1314 K
-  Sb: no data K
-  Sc: no data K
   Se: 1766 K
-  Si: no data K
-  Sm: no data K
-  Sn: no data K
-  Sr: no data K
-  Ta: no data K
-  Tb: no data K
-  Tc: no data K
-  Te: no data K
-  Th: no data K
-  Ti: no data K
-  Tl: no data K
-  Tm: no data K
-  U: no data K
-  V: no data K
-  W: no data K
   Xe: 289.7 K
-  Y: no data K
-  Yb: no data K
-  Zn: no data K
-  Zr: no data K
 Density of solid:
   Ac: 10070 kg m<sup>-3</sup>
   Ag: 10490 kg m<sup>-3</sup>
   Al: 2700 kg m<sup>-3</sup>
-  Am: no data kg m<sup>-3</sup>
-  Ar: no data kg m<sup>-3</sup>
   As: 5727 kg m<sup>-3</sup>
-  At: no data kg m<sup>-3</sup>
   Au: 19300 kg m<sup>-3</sup>
   B: 2460 kg m<sup>-3</sup>
   Ba: 3510 kg m<sup>-3</sup>
   Be: 1848 kg m<sup>-3</sup>
   Bi: 9780 kg m<sup>-3</sup>
   Bk: 14780 kg m<sup>-3</sup>
-  Br: no data kg m<sup>-3</sup>
   C: 2267 kg m<sup>-3</sup>
   Ca: 1550 kg m<sup>-3</sup>
   Cd: 8650 kg m<sup>-3</sup>
   Ce: 6689 kg m<sup>-3</sup>
   Cf: 15100 kg m<sup>-3</sup>
-  Cl: no data kg m<sup>-3</sup>
   Cm: 13510 kg m<sup>-3</sup>
   Co: 8900 kg m<sup>-3</sup>
   Cr: 7140 kg m<sup>-3</sup>
@@ -1286,42 +1026,28 @@ Density of solid:
   Cu: 8920 kg m<sup>-3</sup>
   Dy: 8551 kg m<sup>-3</sup>
   Er: 9066 kg m<sup>-3</sup>
-  Es: no data kg m<sup>-3</sup>
   Eu: 5244 kg m<sup>-3</sup>
-  F: no data kg m<sup>-3</sup>
   Fe: 7874 kg m<sup>-3</sup>
-  Fm: no data kg m<sup>-3</sup>
-  Fr: no data kg m<sup>-3</sup>
   Ga: 5904 kg m<sup>-3</sup>
   Gd: 7901 kg m<sup>-3</sup>
   Ge: 5323 kg m<sup>-3</sup>
-  H: no data kg m<sup>-3</sup>
-  He: no data kg m<sup>-3</sup>
   Hf: 13310 kg m<sup>-3</sup>
-  Hg: no data kg m<sup>-3</sup>
   Ho: 8795 kg m<sup>-3</sup>
   I: 4940 kg m<sup>-3</sup>
   In: 7310 kg m<sup>-3</sup>
   Ir: 22650 kg m<sup>-3</sup>
   K: 856 kg m<sup>-3</sup>
-  Kr: no data kg m<sup>-3</sup>
   La: 6146 kg m<sup>-3</sup>
   Li: 535 kg m<sup>-3</sup>
-  Lr: no data kg m<sup>-3</sup>
   Lu: 9841 kg m<sup>-3</sup>
-  Md: no data kg m<sup>-3</sup>
   Mg: 1738 kg m<sup>-3</sup>
   Mn: 7470 kg m<sup>-3</sup>
   Mo: 10280 kg m<sup>-3</sup>
-  N: no data kg m<sup>-3</sup>
   Na: 968 kg m<sup>-3</sup>
   Nb: 8570 kg m<sup>-3</sup>
   Nd: 6800 kg m<sup>-3</sup>
-  Ne: no data kg m<sup>-3</sup>
   Ni: 8908 kg m<sup>-3</sup>
-  No: no data kg m<sup>-3</sup>
   Np: 20450 kg m<sup>-3</sup>
-  O: no data kg m<sup>-3</sup>
   Os: 22610 kg m<sup>-3</sup>
   P: 1823 kg m<sup>-3</sup>
   Pa: 15370 kg m<sup>-3</sup>
@@ -1336,7 +1062,6 @@ Density of solid:
   Rb: 1532 kg m<sup>-3</sup>
   Re: 21020 kg m<sup>-3</sup>
   Rh: 12450 kg m<sup>-3</sup>
-  Rn: no data kg m<sup>-3</sup>
   Ru: 12370 kg m<sup>-3</sup>
   S: 1960 kg m<sup>-3</sup>
   Sb: 6697 kg m<sup>-3</sup>
@@ -1357,50 +1082,36 @@ Density of solid:
   U: 19050 kg m<sup>-3</sup>
   V: 6110 kg m<sup>-3</sup>
   W: 19250 kg m<sup>-3</sup>
-  Xe: no data kg m<sup>-3</sup>
   Y: 4472 kg m<sup>-3</sup>
   Yb: 6570 kg m<sup>-3</sup>
   Zn: 7140 kg m<sup>-3</sup>
   Zr: 6511 kg m<sup>-3</sup>
 Electrical resistivity:
-  Ac: no data 10<sup>-8</sup> &Omega; m
   Ag: 1.63 10<sup>-8</sup> &Omega; m
   Al: 2.7 10<sup>-8</sup> &Omega; m
-  Am: no data 10<sup>-8</sup> &Omega; m
-  Ar: no data 10<sup>-8</sup> &Omega; m
   As: 33 10<sup>-8</sup> &Omega; m
-  At: no data 10<sup>-8</sup> &Omega; m
   Au: 2.2 10<sup>-8</sup> &Omega; m
   B: '&gt; 10<sup>12</sup>10<sup>-8</sup> &Omega; m'
   Ba: 34 10<sup>-8</sup> &Omega; m
   Be: 3.8 10<sup>-8</sup> &Omega; m
   Bi: 130 10<sup>-8</sup> &Omega; m
-  Bk: no data 10<sup>-8</sup> &Omega; m
   Br: '&gt; 10<sup>18</sup>10<sup>-8</sup> &Omega; m'
   C: about 1000 - direction dependent10<sup>-8</sup> &Omega; m
   Ca: 3.4 10<sup>-8</sup> &Omega; m
   Cd: 7 10<sup>-8</sup> &Omega; m
   Ce: 74 10<sup>-8</sup> &Omega; m
-  Cf: no data 10<sup>-8</sup> &Omega; m
   Cl: '&gt; 10<sup>10</sup>10<sup>-8</sup> &Omega; m'
-  Cm: no data 10<sup>-8</sup> &Omega; m
   Co: 6 10<sup>-8</sup> &Omega; m
   Cr: 12.7 10<sup>-8</sup> &Omega; m
   Cs: 21 10<sup>-8</sup> &Omega; m
   Cu: 1.72 10<sup>-8</sup> &Omega; m
   Dy: 92.6 10<sup>-8</sup> &Omega; m
   Er: 86.0 10<sup>-8</sup> &Omega; m
-  Es: no data 10<sup>-8</sup> &Omega; m
   Eu: 90 10<sup>-8</sup> &Omega; m
-  F: no data 10<sup>-8</sup> &Omega; m
   Fe: 10 10<sup>-8</sup> &Omega; m
-  Fm: no data 10<sup>-8</sup> &Omega; m
-  Fr: no data 10<sup>-8</sup> &Omega; m
   Ga: about  14 10<sup>-8</sup> &Omega; m
   Gd: 131 10<sup>-8</sup> &Omega; m
   Ge: about 50000 10<sup>-8</sup> &Omega; m
-  H: no data 10<sup>-8</sup> &Omega; m
-  He: no data 10<sup>-8</sup> &Omega; m
   Hf: 34 10<sup>-8</sup> &Omega; m
   Hg: 96 10<sup>-8</sup> &Omega; m
   Ho: 81.4 10<sup>-8</sup> &Omega; m
@@ -1408,24 +1119,17 @@ Electrical resistivity:
   In: 8 10<sup>-8</sup> &Omega; m
   Ir: 4.7 10<sup>-8</sup> &Omega; m
   K: 7.5 10<sup>-8</sup> &Omega; m
-  Kr: no data 10<sup>-8</sup> &Omega; m
   La: 61.5 10<sup>-8</sup> &Omega; m
   Li: 9.5 10<sup>-8</sup> &Omega; m
-  Lr: no data 10<sup>-8</sup> &Omega; m
   Lu: 58 10<sup>-8</sup> &Omega; m
-  Md: no data 10<sup>-8</sup> &Omega; m
   Mg: 4.4 10<sup>-8</sup> &Omega; m
   Mn: 144 10<sup>-8</sup> &Omega; m
   Mo: 5.5 10<sup>-8</sup> &Omega; m
-  N: no data 10<sup>-8</sup> &Omega; m
   Na: 4.9 10<sup>-8</sup> &Omega; m
   Nb: 15.2 10<sup>-8</sup> &Omega; m
   Nd: 64.3 10<sup>-8</sup> &Omega; m
-  Ne: no data 10<sup>-8</sup> &Omega; m
   Ni: 7.2 10<sup>-8</sup> &Omega; m
-  No: no data 10<sup>-8</sup> &Omega; m
   Np: 120 10<sup>-8</sup> &Omega; m
-  O: no data 10<sup>-8</sup> &Omega; m
   Os: 8.1 10<sup>-8</sup> &Omega; m
   P: about 10 10<sup>-8</sup> &Omega; m
   Pa: 18 10<sup>-8</sup> &Omega; m
@@ -1440,7 +1144,6 @@ Electrical resistivity:
   Rb: 13.3 10<sup>-8</sup> &Omega; m
   Re: 18 10<sup>-8</sup> &Omega; m
   Rh: 4.3 10<sup>-8</sup> &Omega; m
-  Rn: no data 10<sup>-8</sup> &Omega; m
   Ru: 7.1 10<sup>-8</sup> &Omega; m
   S: '&gt; 10<sup>23</sup>10<sup>-8</sup> &Omega; m'
   Sb: 40 10<sup>-8</sup> &Omega; m
@@ -1461,7 +1164,6 @@ Electrical resistivity:
   U: 28 10<sup>-8</sup> &Omega; m
   V: 20 10<sup>-8</sup> &Omega; m
   W: 5.4 10<sup>-8</sup> &Omega; m
-  Xe: no data 10<sup>-8</sup> &Omega; m
   Y: about 60 10<sup>-8</sup> &Omega; m
   Yb: 25.0 10<sup>-8</sup> &Omega; m
   Zn: 6.0 10<sup>-8</sup> &Omega; m
@@ -1670,19 +1372,16 @@ Liquid range:
   Am: 1431 K
   Ar: 3.5 K
   As: 203 K
-  At: no data K
   Au: 1791.67 K
   B: 1851 K
   Ba: 1143 K
   Be: 1182 K
   Bi: 1292.6 K
-  Bk: no data K
   Br: 66.2 K
   C: 500 K
   Ca: 642 K
   Cd: 445.78 K
   Ce: 2565 K
-  Cf: no data K
   Cl: 67.51 K
   Cm: 1770 K
   Co: 1432 K
@@ -1691,12 +1390,9 @@ Liquid range:
   Cu: 1842.23 K
   Dy: 1160 K
   Er: 1371 K
-  Es: no data K
   Eu: 701 K
   F: 31.5 K
   Fe: 1323 K
-  Fm: no data K
-  Fr: no data K
   Ga: 2174.09 K
   Gd: 1938 K
   Ge: 1881.6 K
@@ -1712,9 +1408,7 @@ Liquid range:
   Kr: 4.14 K
   La: 2550 K
   Li: 1161.31 K
-  Lr: no data K
   Lu: 1750 K
-  Md: no data K
   Mg: 440 K
   Mn: 815 K
   Mo: 2016 K
@@ -1724,12 +1418,10 @@ Liquid range:
   Nd: 2076 K
   Ne: 2.51 K
   Ni: 1458 K
-  No: no data K
   Np: 3363 K
   O: 35.4 K
   Os: 1979 K
   P: 232.7 K
-  Pa: no data K
   Pb: 1421.39 K
   Pd: 1407.95 K
   Pm: 1900 K
@@ -1976,107 +1668,60 @@ Mendeleev no:
   Zn: 76
   Zr: 49
 Mineral hardness:
-  Ac: no data
   Ag: '2.5'
   Al: '2.75'
-  Am: no data
-  Ar: no data
   As: '3.5'
-  At: no data
   Au: '2.5'
   B: '9.3'
   Ba: '1.25'
   Be: '5.5'
   Bi: '2.25'
-  Bk: no data
-  Br: no data
   C: 0.5 (graphite; diamond is 10.0)(no units)
   Ca: '1.75'
   Cd: '2.0'
   Ce: '2.5'
-  Cf: no data
-  Cl: no data
-  Cm: no data
   Co: '5.0'
   Cr: '8.5'
   Cs: '0.2'
   Cu: '3.0'
-  Dy: no data
-  Er: no data
-  Es: no data
-  Eu: no data
-  F: no data
   Fe: '4.0'
-  Fm: no data
-  Fr: no data
   Ga: '1.5'
-  Gd: no data
   Ge: '6.0'
-  H: no data
-  He: no data
   Hf: '5.5'
   Hg: '1.5'
-  Ho: no data
-  I: no data
   In: '1.2'
   Ir: '6.5'
   K: '0.4'
-  Kr: no data
   La: '2.5'
   Li: '0.6'
-  Lr: no data
-  Lu: no data
-  Md: no data
   Mg: '2.5'
   Mn: '6.0'
   Mo: '5.5'
-  N: no data
   Na: '0.5'
   Nb: '6.0'
-  Nd: no data
-  Ne: no data
   Ni: '4.0'
-  No: no data
-  Np: no data
-  O: no data
   Os: '7.0'
-  P: no data
-  Pa: no data
   Pb: '1.5'
   Pd: '4.75'
-  Pm: no data
-  Po: no data
-  Pr: no data
   Pt: '3.5'
-  Pu: no data
-  Ra: no data
   Rb: '0.3'
   Re: '7.0'
   Rh: '6.0'
-  Rn: no data
   Ru: '6.5'
   S: '2.0'
   Sb: '3.0'
-  Sc: no data
   Se: '2.0'
   Si: '6.5'
-  Sm: no data
   Sn: '1.5'
   Sr: '1.5'
   Ta: '6.5'
-  Tb: no data
-  Tc: no data
   Te: '2.25'
   Th: '3.0'
   Ti: '6.0'
   Tl: '1.2'
-  Tm: no data
   U: '6.0'
   V: '7.0'
   W: '7.5'
-  Xe: no data
-  Y: no data
-  Yb: no data
   Zn: '2.5'
   Zr: '5.0'
 Molar volume:
@@ -2086,7 +1731,6 @@ Molar volume:
   Am: 17.63 cm<sup>3</sup>
   Ar: 22.56 cm<sup>3</sup>
   As: 12.95 cm<sup>3</sup>
-  At: no data cm<sup>3</sup>
   Au: 10.21 cm<sup>3</sup>
   B: 4.39 cm<sup>3</sup>
   Ba: 38.16 cm<sup>3</sup>
@@ -2111,8 +1755,6 @@ Molar volume:
   Eu: 28.97 cm<sup>3</sup>
   F: 11.20 cm<sup>3</sup>
   Fe: 7.09 cm<sup>3</sup>
-  Fm: no data cm<sup>3</sup>
-  Fr: no data cm<sup>3</sup>
   Ga: 11.80 cm<sup>3</sup>
   Gd: 19.90 cm<sup>3</sup>
   Ge: 13.63 cm<sup>3</sup>
@@ -2128,9 +1770,7 @@ Molar volume:
   Kr: 27.99 cm<sup>3</sup>
   La: 22.39 cm<sup>3</sup>
   Li: 13.02 cm<sup>3</sup>
-  Lr: no data cm<sup>3</sup>
   Lu: 17.78 cm<sup>3</sup>
-  Md: no data cm<sup>3</sup>
   Mg: 14.00 cm<sup>3</sup>
   Mn: 7.35 cm<sup>3</sup>
   Mo: 9.38 cm<sup>3</sup>
@@ -2140,7 +1780,6 @@ Molar volume:
   Nd: 20.59 cm<sup>3</sup>
   Ne: 13.23 cm<sup>3</sup>
   Ni: 6.59 cm<sup>3</sup>
-  No: no data cm<sup>3</sup>
   Np: 11.59 cm<sup>3</sup>
   O: 17.36 cm<sup>3</sup>
   Os: 8.42 cm<sup>3</sup>
@@ -2290,97 +1929,49 @@ Name:
   D: Deuterium
   T: Tritium
 Poissons ratio:
-  Ac: no data
   Ag: '0.37'
   Al: '0.35'
-  Am: no data
-  Ar: no data
-  As: no data
-  At: no data
   Au: '0.44'
-  B: no data
-  Ba: no data
   Be: '0.032'
   Bi: '0.33'
-  Bk: no data
-  Br: no data
-  C: no data
   Ca: '0.31'
   Cd: '0.30'
   Ce: '0.24'
-  Cf: no data
-  Cl: no data
-  Cm: no data
   Co: '0.31'
   Cr: '0.21'
-  Cs: no data
   Cu: '0.34'
   Dy: '0.25'
   Er: '0.24'
-  Es: no data
   Eu: '0.15'
-  F: no data
   Fe: '0.29'
-  Fm: no data
-  Fr: no data
-  Ga: no data
   Gd: '0.26'
-  Ge: no data
-  H: no data
-  He: no data
   Hf: '0.37'
-  Hg: no data
   Ho: '0.23'
-  I: no data
-  In: no data
   Ir: '0.26'
-  K: no data
-  Kr: no data
   La: '0.28'
-  Li: no data
-  Lr: no data
   Lu: '0.26'
-  Md: no data
   Mg: '0.29'
-  Mn: no data
   Mo: '0.31'
-  N: no data
-  Na: no data
   Nb: '0.40'
   Nd: '0.28'
-  Ne: no data
   Ni: '0.31'
-  No: no data
-  Np: no data
-  O: no data
   Os: '0.25'
-  P: no data
-  Pa: no data
   Pb: '0.44'
   Pd: '0.39'
   Pm: '0.28'
-  Po: no data
   Pr: '0.28'
   Pt: '0.38'
   Pu: '0.21'
-  Ra: no data
-  Rb: no data
   Re: '0.30'
   Rh: '0.26'
-  Rn: no data
   Ru: '0.30'
-  S: no data
-  Sb: no data
   Sc: '0.28'
   Se: '0.33'
-  Si: no data
   Sm: '0.27'
   Sn: '0.36'
   Sr: '0.28'
   Ta: '0.34'
   Tb: '0.26'
-  Tc: no data
-  Te: no data
   Th: '0.27'
   Ti: '0.32'
   Tl: '0.45'
@@ -2388,310 +1979,104 @@ Poissons ratio:
   U: '0.23'
   V: '0.37'
   W: '0.28'
-  Xe: no data
   Y: '0.24'
   Yb: '0.21'
   Zn: '0.25'
   Zr: '0.34'
 Reflectivity:
-  Ac: no data %
   Ag: 97 %
   Al: 71 %
-  Am: no data %
-  Ar: no data %
-  As: no data %
-  At: no data %
   Au: 95 %
-  B: no data %
-  Ba: no data %
-  Be: no data %
-  Bi: no data %
-  Bk: no data %
-  Br: no data %
   C: 27 %
-  Ca: no data %
   Cd: 67 %
-  Ce: no data %
-  Cf: no data %
-  Cl: no data %
-  Cm: no data %
   Co: 67 %
-  Cr: no data %
-  Cs: no data %
   Cu: 90 %
-  Dy: no data %
-  Er: no data %
-  Es: no data %
-  Eu: no data %
-  F: no data %
   Fe: 65 %
-  Fm: no data %
-  Fr: no data %
-  Ga: no data %
-  Gd: no data %
-  Ge: no data %
-  H: no data %
-  He: no data %
-  Hf: no data %
   Hg: 73 %
-  Ho: no data %
-  I: no data %
-  In: no data %
   Ir: 78 %
-  K: no data %
-  Kr: no data %
-  La: no data %
-  Li: no data %
-  Lr: no data %
-  Lu: no data %
-  Md: no data %
   Mg: 74 %
-  Mn: no data %
   Mo: 58 %
-  N: no data %
-  Na: no data %
-  Nb: no data %
-  Nd: no data %
-  Ne: no data %
   Ni: 72 %
-  No: no data %
-  Np: no data %
-  O: no data %
-  Os: no data %
-  P: no data %
-  Pa: no data %
-  Pb: no data %
   Pd: 72 %
-  Pm: no data %
-  Po: no data %
-  Pr: no data %
   Pt: 73 %
-  Pu: no data %
-  Ra: no data %
-  Rb: no data %
-  Re: no data %
   Rh: 84 %
-  Rn: no data %
-  Ru: no data %
-  S: no data %
   Sb: 55 %
-  Sc: no data %
-  Se: no data %
   Si: 28 %
-  Sm: no data %
   Sn: 54 %
-  Sr: no data %
   Ta: 78 %
-  Tb: no data %
-  Tc: no data %
   Te: 50 %
-  Th: no data %
-  Ti: no data %
-  Tl: no data %
-  Tm: no data %
-  U: no data %
   V: 61 %
   W: 62 %
-  Xe: no data %
-  Y: no data %
-  Yb: no data %
   Zn: 80 %
-  Zr: no data %
 Refractive index:
-  Ac: no data
-  Ag: no data
-  Al: no data
-  Am: no data
   Ar: '1.000281'
   As: '1.001552'
-  At: no data
-  Au: no data
-  B: no data
-  Ba: no data
-  Be: no data
-  Bi: no data
-  Bk: no data
   Br: '1.001132'
   C: 2.417 (diamond)(no units)
-  Ca: no data
-  Cd: no data
-  Ce: no data
-  Cf: no data
   Cl: '1.000773'
-  Cm: no data
-  Co: no data
-  Cr: no data
-  Cs: no data
-  Cu: no data
-  Dy: no data
-  Er: no data
-  Es: no data
-  Eu: no data
   F: '1.000195'
-  Fe: no data
-  Fm: no data
-  Fr: no data
-  Ga: no data
-  Gd: no data
-  Ge: no data
   H: 1.000132 (gas; liquid 1.12)(no units)
   He: 1.000035 (gas; liquid 1.028)(no units)
-  Hf: no data
   Hg: '1.000933'
-  Ho: no data
-  I: no data
-  In: no data
-  Ir: no data
-  K: no data
   Kr: '1.000427'
-  La: no data
-  Li: no data
-  Lr: no data
-  Lu: no data
-  Md: no data
-  Mg: no data
-  Mn: no data
-  Mo: no data
   N: 1.000298 (gas; liquid 1.197)(no units)
-  Na: no data
-  Nb: no data
-  Nd: no data
   Ne: '1.000067'
-  Ni: no data
-  No: no data
-  Np: no data
   O: 1.000271 (gas; liquid 1.221)(no units)
-  Os: no data
   P: '1.001212'
-  Pa: no data
-  Pb: no data
-  Pd: no data
-  Pm: no data
-  Po: no data
-  Pr: no data
-  Pt: no data
-  Pu: no data
-  Ra: no data
-  Rb: no data
-  Re: no data
-  Rh: no data
-  Rn: no data
-  Ru: no data
   S: '1.001111'
-  Sb: no data
-  Sc: no data
   Se: '1.000895'
-  Si: no data
-  Sm: no data
-  Sn: no data
-  Sr: no data
-  Ta: no data
-  Tb: no data
-  Tc: no data
   Te: '1.000991'
-  Th: no data
-  Ti: no data
-  Tl: no data
-  Tm: no data
-  U: no data
-  V: no data
-  W: no data
   Xe: '1.000702'
-  Y: no data
-  Yb: no data
   Zn: '1.002050'
-  Zr: no data
 Rigidity modulus:
-  Ac: no data GPa
   Ag: 30 GPa
   Al: 26 GPa
-  Am: no data GPa
-  Ar: no data GPa
-  As: no data GPa
-  At: no data GPa
   Au: 27 GPa
-  B: no data GPa
   Ba: 4.9 GPa
   Be: 132 GPa
   Bi: 12 GPa
-  Bk: no data GPa
-  Br: no data GPa
-  C: no data GPa
   Ca: 7.4 GPa
   Cd: 19 GPa
   Ce: 14 GPa
-  Cf: no data GPa
-  Cl: no data GPa
-  Cm: no data GPa
   Co: 75 GPa
   Cr: 115 GPa
-  Cs: no data GPa
   Cu: 48 GPa
   Dy: 25 GPa
   Er: 28 GPa
-  Es: no data GPa
   Eu: 7.9 GPa
-  F: no data GPa
   Fe: 82 GPa
-  Fm: no data GPa
-  Fr: no data GPa
-  Ga: no data GPa
   Gd: 22 GPa
-  Ge: no data GPa
-  H: no data GPa
-  He: no data GPa
   Hf: 30 GPa
-  Hg: no data GPa
   Ho: 26 GPa
-  I: no data GPa
-  In: no data GPa
   Ir: 210 GPa
   K: 1.3 GPa
-  Kr: no data GPa
   La: 14 GPa
   Li: 4.2 GPa
-  Lr: no data GPa
   Lu: 27 GPa
-  Md: no data GPa
   Mg: 17 GPa
-  Mn: no data GPa
   Mo: 20 GPa
-  N: no data GPa
   Na: 3.3 GPa
   Nb: 38 GPa
   Nd: 16 GPa
-  Ne: no data GPa
   Ni: 76 GPa
-  No: no data GPa
-  Np: no data GPa
-  O: no data GPa
   Os: 222 GPa
-  P: no data GPa
-  Pa: no data GPa
   Pb: 5.6 GPa
   Pd: 44 GPa
   Pm: 18 GPa
-  Po: no data GPa
   Pr: 15 GPa
   Pt: 61 GPa
   Pu: 43 GPa
-  Ra: no data GPa
-  Rb: no data GPa
   Re: 178 GPa
   Rh: 150 GPa
-  Rn: no data GPa
   Ru: 173 GPa
-  S: no data GPa
   Sb: 20 GPa
   Sc: 29 GPa
   Se: 3.7 GPa
-  Si: no data GPa
   Sm: 20 GPa
   Sn: 18 GPa
   Sr: 6.1 GPa
   Ta: 69 GPa
   Tb: 22 GPa
-  Tc: no data GPa
   Te: 16 GPa
   Th: 31 GPa
   Ti: 44 GPa
@@ -2700,7 +2085,6 @@ Rigidity modulus:
   U: 111 GPa
   V: 47 GPa
   W: 161 GPa
-  Xe: no data GPa
   Y: 26 GPa
   Yb: 9.9 GPa
   Zn: 43 GPa
@@ -3985,107 +3369,37 @@ Shannon radii:
       II:
         '': {crystal_radius: 0.04, ionic_radius: -0.1}
 Superconduction temperature:
-  Ac: no data K
-  Ag: no data K
   Al: 1.175 K
   Am: 0.6 K
-  Ar: no data K
-  As: no data K
-  At: no data K
-  Au: no data K
-  B: no data K
-  Ba: no data K
   Be: 0.026 K
-  Bi: no data K
-  Bk: no data K
-  Br: no data K
-  C: no data K
-  Ca: no data K
   Cd: 0.517 K
   Ce: 0.022  (under pressure)K
-  Cf: no data K
-  Cl: no data K
-  Cm: no data K
-  Co: no data K
-  Cr: no data K
-  Cs: no data K
-  Cu: no data K
-  Dy: no data K
-  Er: no data K
-  Es: no data K
-  Eu: no data K
-  F: no data K
-  Fe: no data K
-  Fm: no data K
-  Fr: no data K
   Ga: 1.083 K
   Gd: 1.083 K
-  Ge: no data K
-  H: no data K
-  He: no data K
   Hf: 0.128 K
   Hg: 3.95 K
-  Ho: no data K
-  I: no data K
   In: 3.41 K
   Ir: 0.11 K
-  K: no data K
-  Kr: no data K
   La: 6.00 K
-  Li: no data K
-  Lr: no data K
   Lu: 0.022 K
-  Md: no data K
-  Mg: no data K
-  Mn: no data K
   Mo: 0.915 K
-  N: no data K
-  Na: no data K
   Nb: 9.25 K
-  Nd: no data K
-  Ne: no data K
-  Ni: no data K
-  No: no data K
-  Np: no data K
-  O: no data K
   Os: 0.66 K
-  P: no data K
   Pa: 1.4 K
   Pb: 7.2 K
-  Pd: no data K
-  Pm: no data K
-  Po: no data K
-  Pr: no data K
-  Pt: no data K
-  Pu: no data K
-  Ra: no data K
-  Rb: no data K
   Re: 1.70 K
-  Rh: no data K
-  Rn: no data K
   Ru: 0.49 K
-  S: no data K
-  Sb: no data K
   Sc: 0.05  (under pressure)K
-  Se: no data K
-  Si: no data K
-  Sm: no data K
   Sn: 3.72 K
-  Sr: no data K
   Ta: 4.47 K
-  Tb: no data K
   Tc: 7.8 K
-  Te: no data K
   Th: 1.38 K
   Ti: 0.40 K
   Tl: 2.38 K
-  Tm: no data K
   U: 0.2 K
   V: 5.40 K
   W: 0.015 K
-  Xe: no data K
   Y: 1.3  (under pressure)K
-  Yb: no data K
   Zn: 0.85 K
   Zr: 0.61 K
 Thermal conductivity:
@@ -4107,7 +3421,6 @@ Thermal conductivity:
   Ca: 200 W m<sup>-1</sup> K<sup>-1</sup>
   Cd: 97 W m<sup>-1</sup> K<sup>-1</sup>
   Ce: 11 W m<sup>-1</sup> K<sup>-1</sup>
-  Cf: no data W m<sup>-1</sup> K<sup>-1</sup>
   Cl: 0.0089 W m<sup>-1</sup> K<sup>-1</sup>
   Cm: 8.8 W m<sup>-1</sup> K<sup>-1</sup>
   Co: 100 W m<sup>-1</sup> K<sup>-1</sup>
@@ -4116,12 +3429,9 @@ Thermal conductivity:
   Cu: 400 W m<sup>-1</sup> K<sup>-1</sup>
   Dy: 11 W m<sup>-1</sup> K<sup>-1</sup>
   Er: 15 W m<sup>-1</sup> K<sup>-1</sup>
-  Es: no data W m<sup>-1</sup> K<sup>-1</sup>
   Eu: 14 W m<sup>-1</sup> K<sup>-1</sup>
   F: 0.0277 W m<sup>-1</sup> K<sup>-1</sup>
   Fe: 80 W m<sup>-1</sup> K<sup>-1</sup>
-  Fm: no data W m<sup>-1</sup> K<sup>-1</sup>
-  Fr: no data W m<sup>-1</sup> K<sup>-1</sup>
   Ga: 29 W m<sup>-1</sup> K<sup>-1</sup>
   Gd: 11 W m<sup>-1</sup> K<sup>-1</sup>
   Ge: 60 W m<sup>-1</sup> K<sup>-1</sup>
@@ -4137,9 +3447,7 @@ Thermal conductivity:
   Kr: 0.00943 W m<sup>-1</sup> K<sup>-1</sup>
   La: 13 W m<sup>-1</sup> K<sup>-1</sup>
   Li: 85 W m<sup>-1</sup> K<sup>-1</sup>
-  Lr: no data W m<sup>-1</sup> K<sup>-1</sup>
   Lu: 16 W m<sup>-1</sup> K<sup>-1</sup>
-  Md: no data W m<sup>-1</sup> K<sup>-1</sup>
   Mg: 160 W m<sup>-1</sup> K<sup>-1</sup>
   Mn: 7.8 W m<sup>-1</sup> K<sup>-1</sup>
   Mo: 139 W m<sup>-1</sup> K<sup>-1</sup>
@@ -4149,7 +3457,6 @@ Thermal conductivity:
   Nd: 17 W m<sup>-1</sup> K<sup>-1</sup>
   Ne: 0.0491 W m<sup>-1</sup> K<sup>-1</sup>
   Ni: 91 W m<sup>-1</sup> K<sup>-1</sup>
-  No: no data W m<sup>-1</sup> K<sup>-1</sup>
   Np: 6 W m<sup>-1</sup> K<sup>-1</sup>
   O: 0.02658 W m<sup>-1</sup> K<sup>-1</sup>
   Os: 88 W m<sup>-1</sup> K<sup>-1</sup>
@@ -4193,10 +3500,8 @@ Thermal conductivity:
   Zn: 120 W m<sup>-1</sup> K<sup>-1</sup>
   Zr: 23 W m<sup>-1</sup> K<sup>-1</sup>
 Van der waals radius:
-  Ac: no data
   Ag: 1.72
   Al: 1.84
-  Am: no data
   Ar: 1.88
   As: 1.85
   At: 2.02
@@ -4205,131 +3510,71 @@ Van der waals radius:
   Ba: 2.68
   Be: 1.53
   Bi: 2.07
-  Bk: no data
   Br: 1.85
   C: 1.7
   Ca: 2.31
   Cd: 1.58
-  Ce: no data
-  Cf: no data
   Cl: 1.75
-  Cm: no data
-  Co: no data
-  Cr: no data
   Cs: 3.43
   Cu: 1.4
-  Dy: no data
-  Er: no data
-  Es: no data
-  Eu: no data
   F: 1.47
-  Fe: no data
-  Fm: no data
   Fr: 3.48
   Ga: 1.87
-  Gd: no data
   Ge: 2.11
   H: 1.2
   He: 1.4
-  Hf: no data
   Hg: 1.55
-  Ho: no data
   I: 1.98
   In: 1.93
-  Ir: no data
   K: 2.75
   Kr: 2.02
-  La: no data
   Li: 1.82
-  Lr: no data
-  Lu: no data
-  Md: no data
   Mg: 1.73
-  Mn: no data
-  Mo: no data
   N: 1.55
   Na: 2.27
-  Nb: no data
-  Nd: no data
   Ne: 1.54
   Ni: 1.63
-  No: no data
-  Np: no data
   O: 1.52
-  Os: no data
   P: 1.8
-  Pa: no data
   Pb: 2.02
   Pd: 1.63
-  Pm: no data
   Po: 1.97
-  Pr: no data
   Pt: 1.75
-  Pu: no data
   Ra: 2.83
   Rb: 3.03
-  Re: no data
-  Rh: no data
   Rn: 2.2
-  Ru: no data
   S: 1.8
   Sb: 2.06
   Sc: 2.11
   Se: 1.9
   Si: 2.1
-  Sm: no data
   Sn: 2.17
   Sr: 2.49
-  Ta: no data
-  Tb: no data
-  Tc: no data
   Te: 2.06
-  Th: no data
-  Ti: no data
   Tl: 1.96
-  Tm: no data
   U: 1.86
-  V: no data
-  W: no data
   Xe: 2.16
-  Y: no data
-  Yb: no data
   Zn: 1.39
-  Zr: no data
 Velocity of sound:
-  Ac: no data m s<sup>-1</sup>
   Ag: 2600 m s<sup>-1</sup>
   Al: 5100 m s<sup>-1</sup>
-  Am: no data m s<sup>-1</sup>
   Ar: 319 m s<sup>-1</sup>
-  As: no data m s<sup>-1</sup>
-  At: no data m s<sup>-1</sup>
   Au: 1740 m s<sup>-1</sup>
   B: 16200 m s<sup>-1</sup>
   Ba: 1620 m s<sup>-1</sup>
   Be: 13000 m s<sup>-1</sup>
   Bi: 1790 m s<sup>-1</sup>
-  Bk: no data m s<sup>-1</sup>
-  Br: no data m s<sup>-1</sup>
   C: 18350 m s<sup>-1</sup>
   Ca: 3810 m s<sup>-1</sup>
   Cd: 2310 m s<sup>-1</sup>
   Ce: 2100 m s<sup>-1</sup>
-  Cf: no data m s<sup>-1</sup>
   Cl: 206 m s<sup>-1</sup>
-  Cm: no data m s<sup>-1</sup>
   Co: 4720 m s<sup>-1</sup>
   Cr: 5940 m s<sup>-1</sup>
-  Cs: no data m s<sup>-1</sup>
   Cu: 3570 m s<sup>-1</sup>
   Dy: 2710 m s<sup>-1</sup>
   Er: 2830 m s<sup>-1</sup>
-  Es: no data m s<sup>-1</sup>
-  Eu: no data m s<sup>-1</sup>
-  F: no data m s<sup>-1</sup>
   Fe: 4910 m s<sup>-1</sup>
-  Fm: no data m s<sup>-1</sup>
-  Fr: no data m s<sup>-1</sup>
   Ga: 2740 m s<sup>-1</sup>
   Gd: 2680 m s<sup>-1</sup>
   Ge: 5400 m s<sup>-1</sup>
@@ -4338,16 +3583,12 @@ Velocity of sound:
   Hf: 3010 m s<sup>-1</sup>
   Hg: 1407 m s<sup>-1</sup>
   Ho: 2760 m s<sup>-1</sup>
-  I: no data m s<sup>-1</sup>
   In: 1215 m s<sup>-1</sup>
   Ir: 4825 m s<sup>-1</sup>
   K: 2000 m s<sup>-1</sup>
   Kr: 1120 m s<sup>-1</sup>
   La: 2475 m s<sup>-1</sup>
   Li: 6000 m s<sup>-1</sup>
-  Lr: no data m s<sup>-1</sup>
-  Lu: no data m s<sup>-1</sup>
-  Md: no data m s<sup>-1</sup>
   Mg: 4602 m s<sup>-1</sup>
   Mn: 5150 m s<sup>-1</sup>
   Mo: 6190 m s<sup>-1</sup>
@@ -4357,41 +3598,28 @@ Velocity of sound:
   Nd: 2330 m s<sup>-1</sup>
   Ne: 936 m s<sup>-1</sup>
   Ni: 4970 m s<sup>-1</sup>
-  No: no data m s<sup>-1</sup>
-  Np: no data m s<sup>-1</sup>
   O: 317.5 m s<sup>-1</sup>
   Os: 4940 m s<sup>-1</sup>
-  P: no data m s<sup>-1</sup>
-  Pa: no data m s<sup>-1</sup>
   Pb: 1260 m s<sup>-1</sup>
   Pd: 3070 m s<sup>-1</sup>
-  Pm: no data m s<sup>-1</sup>
-  Po: no data m s<sup>-1</sup>
   Pr: 2280 m s<sup>-1</sup>
   Pt: 2680 m s<sup>-1</sup>
   Pu: 2260 m s<sup>-1</sup>
-  Ra: no data m s<sup>-1</sup>
   Rb: 1300 m s<sup>-1</sup>
   Re: 4700 m s<sup>-1</sup>
   Rh: 4700 m s<sup>-1</sup>
-  Rn: no data m s<sup>-1</sup>
   Ru: 5970 m s<sup>-1</sup>
-  S: no data m s<sup>-1</sup>
   Sb: 3420 m s<sup>-1</sup>
-  Sc: no data m s<sup>-1</sup>
   Se: 3350 m s<sup>-1</sup>
   Si: 2200 m s<sup>-1</sup>
   Sm: 2130 m s<sup>-1</sup>
   Sn: 2500 m s<sup>-1</sup>
-  Sr: no data m s<sup>-1</sup>
   Ta: 3400 m s<sup>-1</sup>
   Tb: 2620 m s<sup>-1</sup>
-  Tc: no data m s<sup>-1</sup>
   Te: 2610 m s<sup>-1</sup>
   Th: 2490 m s<sup>-1</sup>
   Ti: 4140 m s<sup>-1</sup>
   Tl: 818 m s<sup>-1</sup>
-  Tm: no data m s<sup>-1</sup>
   U: 3155 m s<sup>-1</sup>
   V: 4560 m s<sup>-1</sup>
   W: 5174 m s<sup>-1</sup>
@@ -4401,108 +3629,44 @@ Velocity of sound:
   Zn: 3700 m s<sup>-1</sup>
   Zr: 3800 m s<sup>-1</sup>
 Vickers hardness:
-  Ac: no data MN m<sup>-2</sup>
   Ag: 251 MN m<sup>-2</sup>
   Al: 167 MN m<sup>-2</sup>
-  Am: no data MN m<sup>-2</sup>
-  Ar: no data MN m<sup>-2</sup>
-  As: no data MN m<sup>-2</sup>
-  At: no data MN m<sup>-2</sup>
   Au: 216 MN m<sup>-2</sup>
   B: 49000 MN m<sup>-2</sup>
-  Ba: no data MN m<sup>-2</sup>
   Be: 1670 MN m<sup>-2</sup>
-  Bi: no data MN m<sup>-2</sup>
-  Bk: no data MN m<sup>-2</sup>
-  Br: no data MN m<sup>-2</sup>
-  C: no data MN m<sup>-2</sup>
-  Ca: no data MN m<sup>-2</sup>
-  Cd: no data MN m<sup>-2</sup>
   Ce: 270 MN m<sup>-2</sup>
-  Cf: no data MN m<sup>-2</sup>
-  Cl: no data MN m<sup>-2</sup>
-  Cm: no data MN m<sup>-2</sup>
   Co: 1043 MN m<sup>-2</sup>
   Cr: 1060 MN m<sup>-2</sup>
-  Cs: no data MN m<sup>-2</sup>
   Cu: 369 MN m<sup>-2</sup>
   Dy: 540 MN m<sup>-2</sup>
   Er: 589 MN m<sup>-2</sup>
-  Es: no data MN m<sup>-2</sup>
   Eu: 167 MN m<sup>-2</sup>
-  F: no data MN m<sup>-2</sup>
   Fe: 608 MN m<sup>-2</sup>
-  Fm: no data MN m<sup>-2</sup>
-  Fr: no data MN m<sup>-2</sup>
-  Ga: no data MN m<sup>-2</sup>
   Gd: 570 MN m<sup>-2</sup>
-  Ge: no data MN m<sup>-2</sup>
-  H: no data MN m<sup>-2</sup>
-  He: no data MN m<sup>-2</sup>
   Hf: 1760 MN m<sup>-2</sup>
-  Hg: no data MN m<sup>-2</sup>
   Ho: 481 MN m<sup>-2</sup>
-  I: no data MN m<sup>-2</sup>
-  In: no data MN m<sup>-2</sup>
   Ir: 1760 MN m<sup>-2</sup>
-  K: no data MN m<sup>-2</sup>
-  Kr: no data MN m<sup>-2</sup>
   La: 491 MN m<sup>-2</sup>
-  Li: no data MN m<sup>-2</sup>
-  Lr: no data MN m<sup>-2</sup>
   Lu: 1160 MN m<sup>-2</sup>
-  Md: no data MN m<sup>-2</sup>
-  Mg: no data MN m<sup>-2</sup>
-  Mn: no data MN m<sup>-2</sup>
   Mo: 1530 MN m<sup>-2</sup>
-  N: no data MN m<sup>-2</sup>
-  Na: no data MN m<sup>-2</sup>
   Nb: 1320 MN m<sup>-2</sup>
   Nd: 343 MN m<sup>-2</sup>
-  Ne: no data MN m<sup>-2</sup>
   Ni: 638 MN m<sup>-2</sup>
-  No: no data MN m<sup>-2</sup>
-  Np: no data MN m<sup>-2</sup>
-  O: no data MN m<sup>-2</sup>
-  Os: no data MN m<sup>-2</sup>
-  P: no data MN m<sup>-2</sup>
-  Pa: no data MN m<sup>-2</sup>
-  Pb: no data MN m<sup>-2</sup>
   Pd: 461 MN m<sup>-2</sup>
-  Pm: no data MN m<sup>-2</sup>
-  Po: no data MN m<sup>-2</sup>
   Pr: 400 MN m<sup>-2</sup>
   Pt: 549 MN m<sup>-2</sup>
-  Pu: no data MN m<sup>-2</sup>
-  Ra: no data MN m<sup>-2</sup>
-  Rb: no data MN m<sup>-2</sup>
   Re: 2450 MN m<sup>-2</sup>
   Rh: 1246 MN m<sup>-2</sup>
-  Rn: no data MN m<sup>-2</sup>
-  Ru: no data MN m<sup>-2</sup>
-  S: no data MN m<sup>-2</sup>
-  Sb: no data MN m<sup>-2</sup>
-  Sc: no data MN m<sup>-2</sup>
-  Se: no data MN m<sup>-2</sup>
-  Si: no data MN m<sup>-2</sup>
   Sm: 412 MN m<sup>-2</sup>
-  Sn: no data MN m<sup>-2</sup>
-  Sr: no data MN m<sup>-2</sup>
   Ta: 873 MN m<sup>-2</sup>
   Tb: 863 MN m<sup>-2</sup>
-  Tc: no data MN m<sup>-2</sup>
-  Te: no data MN m<sup>-2</sup>
   Th: 350 MN m<sup>-2</sup>
   Ti: 970 MN m<sup>-2</sup>
-  Tl: no data MN m<sup>-2</sup>
   Tm: 520 MN m<sup>-2</sup>
   U: 1960 MN m<sup>-2</sup>
   V: 628 MN m<sup>-2</sup>
   W: 3430 MN m<sup>-2</sup>
-  Xe: no data MN m<sup>-2</sup>
-  Y: no data MN m<sup>-2</sup>
   Yb: 206 MN m<sup>-2</sup>
-  Zn: no data MN m<sup>-2</sup>
   Zr: 903 MN m<sup>-2</sup>
 X:
   Ac: 1.1
@@ -4606,96 +3770,57 @@ X:
   Zn: 1.65
   Zr: 1.33
 Youngs modulus:
-  Ac: no data GPa
   Ag: 83 GPa
   Al: 70 GPa
-  Am: no data GPa
-  Ar: no data GPa
   As: 8 GPa
-  At: no data GPa
   Au: 78 GPa
-  B: no data GPa
   Ba: 13 GPa
   Be: 287 GPa
   Bi: 32 GPa
-  Bk: no data GPa
-  Br: no data GPa
-  C: no data GPa
   Ca: 20 GPa
   Cd: 50 GPa
   Ce: 34 GPa
-  Cf: no data GPa
-  Cl: no data GPa
-  Cm: no data GPa
   Co: 209 GPa
   Cr: 279 GPa
   Cs: 1.7 GPa
   Cu: 130 GPa
   Dy: 61 GPa
   Er: 70 GPa
-  Es: no data GPa
   Eu: 18 GPa
-  F: no data GPa
   Fe: 211 GPa
-  Fm: no data GPa
-  Fr: no data GPa
-  Ga: no data GPa
   Gd: 55 GPa
-  Ge: no data GPa
-  H: no data GPa
-  He: no data GPa
   Hf: 78 GPa
-  Hg: no data GPa
   Ho: 65 GPa
-  I: no data GPa
   In: 11 GPa
   Ir: 528 GPa
-  K: no data GPa
-  Kr: no data GPa
   La: 37 GPa
   Li: 4.9 GPa
-  Lr: no data GPa
   Lu: 69 GPa
-  Md: no data GPa
   Mg: 45 GPa
   Mn: 198 GPa
   Mo: 329 GPa
-  N: no data GPa
   Na: 10 GPa
   Nb: 105 GPa
   Nd: 41 GPa
-  Ne: no data GPa
   Ni: 200 GPa
-  No: no data GPa
-  Np: no data GPa
-  O: no data GPa
-  Os: no data GPa
-  P: no data GPa
-  Pa: no data GPa
   Pb: 16 GPa
   Pd: 121 GPa
   Pm: 46 GPa
-  Po: no data GPa
   Pr: 37 GPa
   Pt: 168 GPa
   Pu: 96 GPa
-  Ra: no data GPa
   Rb: 2.4 GPa
   Re: 463 GPa
   Rh: 275 GPa
-  Rn: no data GPa
   Ru: 447 GPa
-  S: no data GPa
   Sb: 55 GPa
   Sc: 74 GPa
   Se: 10 GPa
   Si: 47 GPa
   Sm: 50 GPa
   Sn: 50 GPa
-  Sr: no data GPa
   Ta: 186 GPa
   Tb: 56 GPa
-  Tc: no data GPa
   Te: 43 GPa
   Th: 79 GPa
   Ti: 116 GPa
@@ -4704,7 +3829,6 @@ Youngs modulus:
   U: 208 GPa
   V: 128 GPa
   W: 411 GPa
-  Xe: no data GPa
   Y: 64 GPa
   Yb: 24 GPa
   Zn: 108 GPa
