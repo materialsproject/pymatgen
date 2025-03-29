@@ -7,19 +7,15 @@ Parser interface requirement:
     please follow the interface requirement:  # TODO:
         - Should generate Mapping[Element, ElemPropertyValue]
 
-Workflow:
-    - Parse basic properties: atomic number/mass and so on  # TODO: revise this
-    - TODO: finish workflow
-
 TODO:
     - allow reference from either property or element
-    - Would zipped JSON be more efficient (IO bound or not?)
+    - allow global default + per-property default
+    - would zipped JSON be more efficient (IO bound or not?)
 """
 
 from __future__ import annotations
 
 from dataclasses import dataclass
-from pathlib import Path
 from typing import TYPE_CHECKING
 
 from ruamel.yaml import YAML
@@ -48,11 +44,16 @@ class ElemPropertyValue:
     reference: str | None = None
 
 
-def parse_yamls(working_dir: PathLike) -> dict[PropStr, dict[Element, ElemPropertyValue]]:
-    """Parse all YAML files in given directory.
+def parse_yaml(file: PathLike) -> dict[PropStr, dict[Element, ElemPropertyValue]]:
+    """Parse a YAML file.
 
     Expected YAML format:
         TODO:
+
+    TODO:
+        - Allow a "per property" default value aside from the global
+            default as "no data", for example "Is named isotope"
+            should default to false instead of "no data"
 
     Args:
         working_dir (PathLike): directory containing all YAMLs.
@@ -61,51 +62,51 @@ def parse_yamls(working_dir: PathLike) -> dict[PropStr, dict[Element, ElemProper
         dict[str, dict[Element, ElemPropertyValue]]: A property to
             {Element: ElemPropertyValue} mapping.
     """
-
-    def parse_yaml(file: PathLike) -> dict[PropStr, dict[Element, ElemPropertyValue]]:
-        print(f"Parsing YAML file: {yaml_file}")
-
-        with open(file, encoding="utf-8") as f:
-            raw = yaml.load(f)
-
-        result: dict[PropStr, dict[Element, ElemPropertyValue]] = {}
-
-        for prop_name, prop_info in raw.items():
-            print(f"    - Found property '{prop_name}' ")
-
-            unit = prop_info.get("unit")
-            reference = prop_info.get("reference")
-            data = prop_info.get("data")
-
-            result[prop_name] = {
-                Element(elem): ElemPropertyValue(value=value, unit=unit, reference=reference)
-                for elem, value in data.items()
-            }
-
-        return result
+    print(f"Parsing YAML file: '{file}'")
 
     yaml = YAML()
+    with open(file, encoding="utf-8") as f:
+        raw = yaml.load(f)
 
-    yaml_files = [file for file in Path(working_dir).glob("*.yaml") if not file.name.startswith(".")]
+    result: dict[PropStr, dict[Element, ElemPropertyValue]] = {}
 
-    combined: dict[PropStr, dict[str, ElemPropertyValue]] = {}
+    for prop_name, prop_info in raw.items():
+        print(f"    - Found property: '{prop_name}' ")
+
+        unit = prop_info.get("unit")
+        reference = prop_info.get("reference")
+        data = prop_info.get("data")
+
+        result[prop_name] = {
+            Element(elem): ElemPropertyValue(value=value, unit=unit, reference=reference)
+            for elem, value in data.items()
+        }
+
+    return result
+
+
+def generate_json(*sources: dict[PropStr, dict[Element, ElemPropertyValue]]) -> None:
+    """Generate the final JSON from sources, each source may contain multiple properties."""
+    # Check for duplicate and combine all sources
+    combined: dict[PropStr, dict[Element, ElemPropertyValue]] = {}
     seen_props: set[PropStr] = set()
 
-    for yaml_file in yaml_files:
-        prop_data = parse_yaml(yaml_file)
-
-        for prop_name, element_map in prop_data.items():
+    for source in sources:
+        for prop_name, element_map in source.items():
             if prop_name in seen_props:
-                raise ValueError(f"Duplicate property found: '{prop_name}' in file {yaml_file}")
-
+                raise ValueError(f"Duplicate property found: '{prop_name}' in source")
             seen_props.add(prop_name)
             combined[prop_name] = element_map
 
-    return combined
+    # Output to JSON (element->property->value format, and drop metadata)
+    # TODO: WIP
 
 
 def main():
-    parse_yamls(RESOURCES_DIR)
+    generate_json(
+        # parse_yaml(f"{RESOURCES_DIR}/elemental_properties.yaml"),
+        parse_yaml(f"{RESOURCES_DIR}/oxidation_states.yaml"),
+    )
 
 
 if __name__ == "__main__":

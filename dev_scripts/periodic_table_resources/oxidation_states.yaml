@@ -1,6 +1,7 @@
 Oxidation states:
   unit: null
   reference: https://en.wikipedia.org/wiki/Template:List_of_oxidation_states_of_the_elements
+  default: null
   data:
     H: [-1, 1]
     Li: [1]
