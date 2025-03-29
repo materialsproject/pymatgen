@@ -1,99 +1,198 @@
-Ac: [3]
-Ag: [1, 2, 3]
-Al: [1, 3]
-Am: [2, 3, 4, 5, 6]
-As: [-3, 2, 3, 5]
-At: [-1, 1, 3, 5]
-Au: [-1, 1, 2, 3, 5]
-B: [1, 2, 3]
-Ba: [2]
-Be: [2]
-Bi: [-3, 3, 5]
-Bk: [3, 4]
-Br: [-1, 1, 3, 4, 5, 7]
-C: [-4, -3, -2, -1, 1, 2, 3, 4]
-Ca: [2]
-Cd: [1, 2]
-Ce: [2, 3, 4]
-Cf: [2, 3, 4]
-Cl: [-1, 1, 2, 3, 4, 5, 6, 7]
-Cm: [3, 4]
-Co: [-1, 1, 2, 3, 4, 5]
-Cr: [-2, -1, 1, 2, 3, 4, 5, 6]
-Cs: [1]
-Cu: [1, 2, 3, 4]
-Dy: [2, 3]
-Er: [3]
-Es: [2, 3]
-Eu: [2, 3]
-F: [-1]
-Fe: [-2, -1, 1, 2, 3, 4, 5, 6]
-Fm: [2, 3]
-Fr: [1]
-Ga: [1, 2, 3]
-Gd: [1, 2, 3]
-Ge: [-4, 1, 2, 3, 4]
-H: [-1, 1]
-Hf: [2, 3, 4]
-Hg: [1, 2, 4]
-Ho: [3]
-I: [-1, 1, 3, 5, 7]
-In: [1, 2, 3]
-Ir: [-3, -1, 1, 2, 3, 4, 5, 6]
-K: [-1, 1]
-La: [2, 3]
-Li: [1]
-Lr: [3]
-Lu: [3]
-Md: [2, 3]
-Mg: [1, 2]
-Mn: [-3, -2, -1, 1, 2, 3, 4, 5, 6, 7]
-Mo: [-2, -1, 1, 2, 3, 4, 5, 6]
-N: [-3, -2, -1, 1, 2, 3, 4, 5]
-Na: [-1, 1]
-Nb: [-1, 2, 3, 4, 5]
-Nd: [2, 3]
-Ni: [-1, 1, 2, 3, 4]
-No: [2, 3]
-Np: [3, 4, 5, 6, 7]
-O: [-2, -1, 1, 2]
-Os: [-2, -1, 1, 2, 3, 4, 5, 6, 7, 8]
-P: [-3, -2, -1, 1, 2, 3, 4, 5]
-Pa: [3, 4, 5]
-Pb: [-4, 2, 4]
-Pd: [2, 4]
-Pm: [3]
-Po: [-2, 2, 4, 6]
-Pr: [2, 3, 4]
-Pt: [-2, 2, 4, 5, 6]
-Pu: [3, 4, 5, 6, 7]
-Ra: [2]
-Rb: [1]
-Re: [-3, -1, 1, 2, 3, 4, 5, 6, 7]
-Rh: [-1, 1, 2, 3, 4, 5, 6]
-Ru: [-2, 1, 2, 3, 4, 5, 6, 7, 8]
-S: [-2, -1, 1, 2, 3, 4, 5, 6]
-Sb: [-3, 3, 5]
-Sc: [1, 2, 3]
-Se: [-2, 2, 4, 6]
-Si: [-4, -3, -2, -1, 1, 2, 3, 4]
-Sm: [2, 3]
-Sn: [-4, 2, 4]
-Sr: [2]
-Ta: [-1, 2, 3, 4, 5]
-Tb: [1, 3, 4]
-Tc: [-3, -1, 1, 2, 3, 4, 5, 6, 7]
-Te: [-2, 2, 4, 5, 6]
-Th: [2, 3, 4]
-Ti: [-1, 2, 3, 4]
-Tl: [1, 3]
-Tm: [2, 3]
-U: [3, 4, 5, 6]
-V: [-1, 1, 2, 3, 4, 5]
-W: [-2, -1, 1, 2, 3, 4, 5, 6]
-Y: [1, 2, 3]
-Yb: [2, 3]
-Zn: [1, 2]
-Zr: [1, 2, 3, 4]
-D: [-1, -1]
-T: [-1, -1]
+Ac:
+  Oxidation states: [3]
+Ag:
+  Oxidation states: [1, 2, 3]
+Al:
+  Oxidation states: [1, 3]
+Am:
+  Oxidation states: [2, 3, 4, 5, 6]
+As:
+  Oxidation states: [-3, 2, 3, 5]
+At:
+  Oxidation states: [-1, 1, 3, 5]
+Au:
+  Oxidation states: [-1, 1, 2, 3, 5]
+B:
+  Oxidation states: [1, 2, 3]
+Ba:
+  Oxidation states: [2]
+Be:
+  Oxidation states: [2]
+Bi:
+  Oxidation states: [-3, 3, 5]
+Bk:
+  Oxidation states: [3, 4]
+Br:
+  Oxidation states: [-1, 1, 3, 4, 5, 7]
+C:
+  Oxidation states: [-4, -3, -2, -1, 1, 2, 3, 4]
+Ca:
+  Oxidation states: [2]
+Cd:
+  Oxidation states: [1, 2]
+Ce:
+  Oxidation states: [2, 3, 4]
+Cf:
+  Oxidation states: [2, 3, 4]
+Cl:
+  Oxidation states: [-1, 1, 2, 3, 4, 5, 6, 7]
+Cm:
+  Oxidation states: [3, 4]
+Co:
+  Oxidation states: [-1, 1, 2, 3, 4, 5]
+Cr:
+  Oxidation states: [-2, -1, 1, 2, 3, 4, 5, 6]
+Cs:
+  Oxidation states: [1]
+Cu:
+  Oxidation states: [1, 2, 3, 4]
+Dy:
+  Oxidation states: [2, 3]
+Er:
+  Oxidation states: [3]
+Es:
+  Oxidation states: [2, 3]
+Eu:
+  Oxidation states: [2, 3]
+F:
+  Oxidation states: [-1]
+Fe:
+  Oxidation states: [-2, -1, 1, 2, 3, 4, 5, 6]
+Fm:
+  Oxidation states: [2, 3]
+Fr:
+  Oxidation states: [1]
+Ga:
+  Oxidation states: [1, 2, 3]
+Gd:
+  Oxidation states: [1, 2, 3]
+Ge:
+  Oxidation states: [-4, 1, 2, 3, 4]
+H:
+  Oxidation states: [-1, 1]
+Hf:
+  Oxidation states: [2, 3, 4]
+Hg:
+  Oxidation states: [1, 2, 4]
+Ho:
+  Oxidation states: [3]
+I:
+  Oxidation states: [-1, 1, 3, 5, 7]
+In:
+  Oxidation states: [1, 2, 3]
+Ir:
+  Oxidation states: [-3, -1, 1, 2, 3, 4, 5, 6]
+K:
+  Oxidation states: [-1, 1]
+La:
+  Oxidation states: [2, 3]
+Li:
+  Oxidation states: [1]
+Lr:
+  Oxidation states: [3]
+Lu:
+  Oxidation states: [3]
+Md:
+  Oxidation states: [2, 3]
+Mg:
+  Oxidation states: [1, 2]
+Mn:
+  Oxidation states: [-3, -2, -1, 1, 2, 3, 4, 5, 6, 7]
+Mo:
+  Oxidation states: [-2, -1, 1, 2, 3, 4, 5, 6]
+N:
+  Oxidation states: [-3, -2, -1, 1, 2, 3, 4, 5]
+Na:
+  Oxidation states: [-1, 1]
+Nb:
+  Oxidation states: [-1, 2, 3, 4, 5]
+Nd:
+  Oxidation states: [2, 3]
+Ni:
+  Oxidation states: [-1, 1, 2, 3, 4]
+No:
+  Oxidation states: [2, 3]
+Np:
+  Oxidation states: [3, 4, 5, 6, 7]
+O:
+  Oxidation states: [-2, -1, 1, 2]
+Os:
+  Oxidation states: [-2, -1, 1, 2, 3, 4, 5, 6, 7, 8]
+P:
+  Oxidation states: [-3, -2, -1, 1, 2, 3, 4, 5]
+Pa:
+  Oxidation states: [3, 4, 5]
+Pb:
+  Oxidation states: [-4, 2, 4]
+Pd:
+  Oxidation states: [2, 4]
+Pm:
+  Oxidation states: [3]
+Po:
+  Oxidation states: [-2, 2, 4, 6]
+Pr:
+  Oxidation states: [2, 3, 4]
+Pt:
+  Oxidation states: [-2, 2, 4, 5, 6]
+Pu:
+  Oxidation states: [3, 4, 5, 6, 7]
+Ra:
+  Oxidation states: [2]
+Rb:
+  Oxidation states: [1]
+Re:
+  Oxidation states: [-3, -1, 1, 2, 3, 4, 5, 6, 7]
+Rh:
+  Oxidation states: [-1, 1, 2, 3, 4, 5, 6]
+Ru:
+  Oxidation states: [-2, 1, 2, 3, 4, 5, 6, 7, 8]
+S:
+  Oxidation states: [-2, -1, 1, 2, 3, 4, 5, 6]
+Sb:
+  Oxidation states: [-3, 3, 5]
+Sc:
+  Oxidation states: [1, 2, 3]
+Se:
+  Oxidation states: [-2, 2, 4, 6]
+Si:
+  Oxidation states: [-4, -3, -2, -1, 1, 2, 3, 4]
+Sm:
+  Oxidation states: [2, 3]
+Sn:
+  Oxidation states: [-4, 2, 4]
+Sr:
+  Oxidation states: [2]
+Ta:
+  Oxidation states: [-1, 2, 3, 4, 5]
+Tb:
+  Oxidation states: [1, 3, 4]
+Tc:
+  Oxidation states: [-3, -1, 1, 2, 3, 4, 5, 6, 7]
+Te:
+  Oxidation states: [-2, 2, 4, 5, 6]
+Th:
+  Oxidation states: [2, 3, 4]
+Ti:
+  Oxidation states: [-1, 2, 3, 4]
+Tl:
+  Oxidation states: [1, 3]
+Tm:
+  Oxidation states: [2, 3]
+U:
+  Oxidation states: [3, 4, 5, 6]
+V:
+  Oxidation states: [-1, 1, 2, 3, 4, 5]
+W:
+  Oxidation states: [-2, -1, 1, 2, 3, 4, 5, 6]
+Y:
+  Oxidation states: [1, 2, 3]
+Yb:
+  Oxidation states: [2, 3]
+Zn:
+  Oxidation states: [1, 2]
+Zr:
+  Oxidation states: [1, 2, 3, 4]
+D:
+  Oxidation states: [-1, -1]
+T:
+  Oxidation states: [-1, -1]
