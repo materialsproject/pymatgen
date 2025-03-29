@@ -3994,7 +3994,6 @@ Atomic mass no:
     D: 2
     T: 3
 Is named isotope:
-  default: false
   data:
     D: true
     T: true

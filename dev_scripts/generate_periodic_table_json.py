@@ -9,7 +9,6 @@ Parser interface requirement:
 
 TODO:
     - allow reference from either property or element
-    - allow global default + per-property default
     - would zipped JSON be more efficient (IO bound or not?)
 """
 
@@ -32,6 +31,9 @@ if TYPE_CHECKING:
 ELEMENTS: tuple[str, ...] = tuple([elem.name for elem in Element])
 ISOTOPES: tuple[str, ...] = tuple(elem for elem in Element.__members__ if elem not in ELEMENTS)
 
+# The global default value if not provided
+DEFAULT_VALUE: str = "no data"
+
 RESOURCES_DIR: str = "periodic_table_resources"
 
 PropStr: TypeAlias = str
@@ -39,7 +41,7 @@ PropStr: TypeAlias = str
 
 @dataclass
 class ElemPropertyValue:
-    value: Any = "no data"  # TODO: better missing value handling?
+    value: Any = DEFAULT_VALUE
     unit: Unit | None = None
     reference: str | None = None
 
@@ -49,11 +51,6 @@ def parse_yaml(file: PathLike) -> dict[PropStr, dict[Element, ElemPropertyValue]
 
     Expected YAML format:
         TODO:
-
-    TODO:
-        - Allow a "per property" default value aside from the global
-            default as "no data", for example "Is named isotope"
-            should default to false instead of "no data"
 
     Args:
         working_dir (PathLike): directory containing all YAMLs.
