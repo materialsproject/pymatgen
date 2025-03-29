@@ -3,9 +3,20 @@
 """Create `core.periodic_table.json` from source files.
 
 Parser interface requirement:
-    In cases where a separate parser is needed for certain property,
-    please follow the interface requirement:  # TODO:
-        - Should generate Mapping[Element, ElemPropertyValue]
+    In cases where a separate parser is needed for certain properties
+    (e.g., when the data must be parsed from a non-YAML format such as HTML, CSV, etc.),
+    please follow the required interface:
+
+Each parser function must return:
+    dict[PropStr, dict[Element, ElemPropertyValue]]
+
+That is:
+- The top-level dictionary maps **property names** (as strings) to their corresponding data.
+- For each property, the value is another dictionary mapping:
+    - `Element` to `ElemPropertyValue`(includes the actual value and optional unit/reference)
+
+This ensures that all parsers, regardless of data source, return a consistent format that
+can be merged into the overall dataset using `generate_json`.
 
 TODO:
     - allow reference from either property or element
