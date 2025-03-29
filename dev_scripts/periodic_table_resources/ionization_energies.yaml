@@ -1,6 +1,6 @@
 Ionization energies:
   unit: 'kJ/mol'
-  reference: 'NIST Atomic Ionization Energies'  # TODO: more detailed link?
+  reference: 'https://www.nist.gov/pml/atomic-spectra-database'
   data:
     H: [13.598434599702]
     He: [24.587389011, 54.417765486]
