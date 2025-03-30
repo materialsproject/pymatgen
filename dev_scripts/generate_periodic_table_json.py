@@ -226,33 +226,19 @@ def parse_shannon_radii(file: PathLike, unit: Unit = "nm") -> Property:
 
     Empty spin states are stored as empty strings.
     Charges and coordinations are kept as strings (instead of converting to int).
-
-    TODO:
-        - there seems to be an OH ion, ignored for now, need to check original
-            implement, and perhaps drop from CSV completely
     """
     nested_per_element: dict[Element, dict[str, dict[str, dict[str, dict[str, float]]]]] = {}
 
     with open(file, newline="", encoding="utf-8-sig") as f:
-        reader = csv.DictReader(f)
-        for row in reader:
-            elem_str = row["Element"].strip()
-            try:
-                elem = Element(elem_str)
-            except ValueError:
-                warnings.warn(f"Cannot convert '{elem_str}' to Element — skipping.", stacklevel=2)
-                continue
-
+        for row in csv.DictReader(f):
+            elem: Element = Element(row["Element"].strip())
             charge: str = row["Charge"].strip()
             coordination: str = row["Coordination"].strip()
             spin: Literal["Low Spin", "High Spin", ""] = row["Spin State"].strip()
 
-            crystal_radius: float = float(row["Crystal Radius"])
-            ionic_radius: float = float(row["Ionic Radius"])
-
             nested_per_element.setdefault(elem, {}).setdefault(charge, {}).setdefault(coordination, {})[spin] = {
-                "crystal_radius": crystal_radius,
-                "ionic_radius": ionic_radius,
+                "crystal_radius": float(row["Crystal Radius"]),
+                "ionic_radius": float(row["Ionic Radius"]),
             }
 
     # Flatten into Property.data with ElemPropertyValue per element
