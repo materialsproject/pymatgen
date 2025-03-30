@@ -169,7 +169,7 @@ def main():
     generate_yaml_and_json(
         parse_yaml(f"{RESOURCES_DIR}/elemental_properties.yaml"),
         parse_yaml(f"{RESOURCES_DIR}/oxidation_states.yaml"),
-        parse_yaml(f"{RESOURCES_DIR}/ionization_energies.yaml"),
+        parse_yaml(f"{RESOURCES_DIR}/ionization_energies_nist.yaml"),  # Parsed from HTML
         parse_csv(f"{RESOURCES_DIR}/radii.csv", dtype=lambda x: float(x) / 100),
     )
 
