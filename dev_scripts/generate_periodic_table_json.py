@@ -19,12 +19,16 @@ This ensures that all parsers, regardless of data source, return a consistent fo
 can be merged into the overall dataset using `generate_json`.
 
 TODO:
-    - would zipped JSON be more efficient (IO bound or not?)
+    - make `ionic_radii.csv` headers property names
+    - convert Shannon Radii to CSV (better version control and no `openpyxl` needed)
+    - gen_iupac_ordering
+    - add_electron_affinities
 """
 
 from __future__ import annotations
 
 import os
+import warnings
 from dataclasses import dataclass
 from typing import TYPE_CHECKING
 
@@ -34,6 +38,7 @@ from ruamel.yaml import YAML
 from pymatgen.core import Element
 
 if TYPE_CHECKING:
+    from collections.abc import Callable
     from typing import Any, TypeAlias
 
     from pymatgen.core.units import Unit
@@ -94,20 +99,21 @@ def parse_yaml(file: PathLike) -> Sources:
     return result
 
 
-def parse_csv(
-    file: PathLike,
-    dtype: Any | None = None,
-) -> Sources:
+def parse_csv(file: PathLike, transform: Callable | None = None) -> Sources:
     """Parse a CSV file.
 
     Expected CSV format:
         We expected each CSV file to contain one or more properties,
         where each property occupies a single column and the column name
         would be used as the property name.
-        The index (first) column should be the elements.  TODO: clarify
+        The index (first) column should be the elements.
+
+    TODO: clarify index column or better element handling?
 
     Args:
         file (PathLike): The CSV file to parse.
+        transform (Callable): Optional function to convert each value.
+            If provided, it will be applied to each non-null cell value.
 
     Returns:
         Sources: A property to {Element: ElemPropertyValue} mapping.
@@ -130,10 +136,11 @@ def parse_csv(
         for symbol, value in data_df[prop].items():
             if pd.isna(value):
                 value = DEFAULT_VALUE
-            elif dtype is not None:
+            elif transform is not None:
                 try:
-                    value = dtype(value)
+                    value = transform(value)
                 except (ValueError, TypeError):
+                    warnings.warn(f"Cannot transform {value=}, keep as string", stacklevel=2)
                     value = str(value)
 
             prop_values[Element(symbol)] = ElemPropertyValue(value=value)
@@ -170,7 +177,7 @@ def main():
         parse_yaml(f"{RESOURCES_DIR}/elemental_properties.yaml"),
         parse_yaml(f"{RESOURCES_DIR}/oxidation_states.yaml"),
         parse_yaml(f"{RESOURCES_DIR}/ionization_energies_nist.yaml"),  # Parsed from HTML
-        parse_csv(f"{RESOURCES_DIR}/radii.csv", dtype=lambda x: float(x) / 100),
+        parse_csv(f"{RESOURCES_DIR}/radii.csv", transform=lambda x: float(x) / 100),
     )
 
 
