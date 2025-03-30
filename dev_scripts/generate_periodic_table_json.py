@@ -9,7 +9,6 @@ a sequence of `Property`.
 TODO:
     - use pymatgen Unit
     - gen_iupac_ordering
-    - add_electron_affinities
 """
 
 from __future__ import annotations
@@ -18,9 +17,11 @@ import csv
 import os
 import warnings
 from dataclasses import dataclass
+from io import StringIO
 from typing import TYPE_CHECKING
 
 import pandas as pd
+import requests
 from ruamel.yaml import YAML
 
 from pymatgen.core import Element
@@ -158,8 +159,8 @@ def parse_csv(
 
 def parse_ionic_radii(
     file: PathLike,
+    unit: Unit,
     prop_base: str = "Ionic radii",
-    unit: Unit = "nm",
 ) -> list[Property]:
     """Parse ionic radii from CSV.
 
@@ -204,7 +205,7 @@ def parse_ionic_radii(
     return [Property(name=name, unit=unit, data=data) for name, data in result.items()]
 
 
-def parse_shannon_radii(file: PathLike, unit: Unit = "nm") -> Property:
+def parse_shannon_radii(file: PathLike, unit: Unit) -> Property:
     """Parse Shannon radii from CSV.
 
     For each element, the ElemPropertyValue has the following structure:
@@ -233,16 +234,109 @@ def parse_shannon_radii(file: PathLike, unit: Unit = "nm") -> Property:
                 "ionic_radius": float(row["Ionic Radius"]),
             }
 
-    # Flatten into Property.data with ElemPropertyValue per element
-    data = {elem: ElemPropertyValue(value=nested_data) for elem, nested_data in nested_per_element.items()}
-
+    # Flatten into {Element: ElemPropertyValue} mapping
+    data: dict[Element, ElemPropertyValue] = {
+        elem: ElemPropertyValue(value=nested_data) for elem, nested_data in nested_per_element.items()
+    }
     return Property(name="Shannon radii", data=data, unit=unit)
 
 
-def generate_yaml_and_json(*sources: Property) -> None:
-    """Generate the intermediate YAML and final JSON from Properties."""
+def get_electron_affinities() -> Property:
+    """Get electron affinities data from Wikipedia."""
+    print("Getting electron affinities from Wikipedia:")
+    print("  - Provide property: 'Electron affinity'")
+
+    url: str = "https://en.wikipedia.org/wiki/Electron_affinity_(data_page)"
+    tables = pd.read_html(StringIO(requests.get(url, timeout=5).text))
+
+    # Get the "Elements Electron affinity" table (with unit eV)
+    ea_df = next(
+        table
+        for table in tables
+        if "Electron affinity (kJ/mol)" in table.columns and table["Name"].astype(str).str.contains("Hydrogen").any()
+    )
+    ea_df = ea_df.drop(columns=["References", "Electron affinity (kJ/mol)", "Element"])
+
+    # Drop superheavy elements
+    max_z: int = max(Element(element).Z for element in Element.__members__)
+    ea_df = ea_df[pd.to_numeric(ea_df["Z"], errors="coerce") <= max_z]
+
+    # # Drop heavy isotopes (by detecting duplicate Z)
+    # ea_df = ea_df.drop_duplicates(subset="Z", keep="first")
+
+    # Ensure we cover all elements up to Uranium (Z=92)
+    if not (z_values := set(ea_df["Z"])).issuperset(range(1, 93)):
+        raise ValueError(f"miss electron affinities: {set(range(1, 93)) - z_values}")
+
+    # Clean up electron affinity data
+    ea_df["Electron affinity (eV)"] = (
+        ea_df["Electron affinity (eV)"]
+        .str.replace("−", "-")  # Use the Unicode minus (-)  # noqa: RUF001
+        .str.split("(")  # remove uncertainty ("0.754 195(19)")
+        .str[0]
+        .str.replace(" ", "")  # "0.754 195(19)"
+    ).astype(float)
+
+    data = {
+        Element.from_name(name.strip()): value
+        for name, value in zip(ea_df["Name"], ea_df["Electron affinity (eV)"], strict=True)
+    }
+    return Property(name="Electron affinity", data=data, unit="eV")
+
+
+def generate_iupac_ordering():
+    pass
+    #     order = [
+    #     ([18], range(6, 0, -1)),  # noble gasses
+    #     ([1], range(7, 1, -1)),  # alkali metals
+    #     ([2], range(7, 1, -1)),  # alkali earth metals
+    #     (range(17, 2, -1), [9]),  # actinides
+    #     (range(17, 2, -1), [8]),  # lanthanides
+    #     ([3], (5, 4)),  # Y, Sc
+    #     ([4], (6, 5, 4)),  # Hf -> Ti
+    #     ([5], (6, 5, 4)),  # Ta -> V
+    #     ([6], (6, 5, 4)),  # W -> Cr
+    #     ([7], (6, 5, 4)),  # Re -> Mn
+    #     ([8], (6, 5, 4)),  # Os -> Fe
+    #     ([9], (6, 5, 4)),  # Ir -> Co
+    #     ([10], (6, 5, 4)),  # Pt -> Ni
+    #     ([11], (6, 5, 4)),  # Au -> Cu
+    #     ([12], (6, 5, 4)),  # Hg -> Zn
+    #     ([13], range(6, 1, -1)),  # Tl -> B
+    #     ([14], range(6, 1, -1)),  # Pb -> C
+    #     ([15], range(6, 1, -1)),  # Bi -> N
+    #     ([1], [1]),  # Hydrogen
+    #     ([16], range(6, 1, -1)),  # Po -> O
+    #     ([17], range(6, 1, -1)),
+    # ]  # At -> F
+
+    # order = [item for sublist in (list(product(x, y)) for x, y in order) for item in sublist]
+    # iupac_ordering_dict = dict(
+    #     zip(
+    #         [Element.from_row_and_group(row, group) for group, row in order],
+    #         range(len(order)),
+    #         strict=True,
+    #     )
+    # )
+
+
+def main():
+    # Generate and gather Property
+    RESOURCES_DIR: str = "periodic_table_resources"
+
+    properties = (
+        *parse_yaml(f"{RESOURCES_DIR}/elemental_properties.yaml"),
+        *parse_yaml(f"{RESOURCES_DIR}/oxidation_states.yaml"),
+        *parse_yaml(f"{RESOURCES_DIR}/ionization_energies_nist.yaml"),  # Parsed from HTML
+        *parse_csv(f"{RESOURCES_DIR}/radii.csv", transform=lambda x: float(x) / 100, unit="nm"),
+        *parse_ionic_radii(f"{RESOURCES_DIR}/ionic_radii.csv", unit="nm"),
+        parse_shannon_radii(f"{RESOURCES_DIR}/Shannon_Radii.csv", unit="nm"),
+        get_electron_affinities(),
+        # generate_iupac_ordering(),
+    )
+
     # Check for duplicate
-    prop_names: list[str] = [prop.name for prop in sources]
+    prop_names: list[str] = [prop.name for prop in properties]
     if len(prop_names) != len(set(prop_names)):
         raise ValueError("Duplicate property name found in Property list.")
 
@@ -251,19 +345,6 @@ def generate_yaml_and_json(*sources: Property) -> None:
 
     # Output to JSON (element->property->value format, and drop metadata)
     # TODO: WIP
-
-
-def main():
-    RESOURCES_DIR: str = "periodic_table_resources"
-
-    generate_yaml_and_json(
-        *parse_yaml(f"{RESOURCES_DIR}/elemental_properties.yaml"),
-        *parse_yaml(f"{RESOURCES_DIR}/oxidation_states.yaml"),
-        *parse_yaml(f"{RESOURCES_DIR}/ionization_energies_nist.yaml"),  # Parsed from HTML
-        *parse_csv(f"{RESOURCES_DIR}/radii.csv", transform=lambda x: float(x) / 100, unit="nm"),
-        *parse_ionic_radii(f"{RESOURCES_DIR}/ionic_radii.csv"),
-        parse_shannon_radii(f"{RESOURCES_DIR}/Shannon_Radii.csv"),
-    )
 
 
 if __name__ == "__main__":
