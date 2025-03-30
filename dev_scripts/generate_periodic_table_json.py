@@ -20,7 +20,6 @@ can be merged into the overall dataset using `generate_json`.
 
 TODO:
     - use pymatgen Unit
-    - convert Shannon Radii to CSV (better version control and no `openpyxl` needed)
     - gen_iupac_ordering
     - add_electron_affinities
 """
@@ -56,7 +55,7 @@ DEFAULT_VALUE: str = "no data"  # The default value if not provided
 class ElemPropertyValue:
     value: Any = DEFAULT_VALUE
     # unit: Unit | None = None  # Don't allow per-value unit for now
-    # reference: str | None = None
+    reference: str | None = None  # Parser not implemented
 
 
 @dataclass
@@ -218,17 +217,35 @@ def parse_ionic_radii(
     return [Property(name=name, unit=unit, data=data) for name, data in result.items()]
 
 
-def parse_shannon_radii(file: PathLike):
-    pass
+def parse_shannon_radii(file: PathLike, unit: Unit = "nm") -> Property:
+    """Parse Shannon radii from CSV."""
+    # i = 2
+    # el = charge = cn = None
+    # radii = defaultdict(dict)
+
+    # while sheet[f"E{i}"].value:
+    #     if sheet[f"A{i}"].value:
+    #         el = sheet[f"A{i}"].value
+    #     if sheet[f"B{i}"].value:
+    #         charge = int(sheet[f"B{i}"].value)
+    #         radii[el][charge] = {}
+    #     if sheet[f"C{i}"].value:
+    #         cn = sheet[f"C{i}"].value
+    #         radii[el][charge].setdefault(cn, {})
+
+    #     spin = sheet[f"D{i}"].value if sheet[f"D{i}"].value is not None else ""
+
+    #     radii[el][charge][cn][spin] = {
+    #         "crystal_radius": float(sheet[f"E{i}"].value),
+    #         "ionic_radius": float(sheet[f"F{i}"].value),
+    #     }
+    #     i += 1
 
 
-def generate_yaml_and_json(*sources: list[Property]) -> None:
+def generate_yaml_and_json(*sources: Property) -> None:
     """Generate the intermediate YAML and final JSON from Properties."""
-    # Flatten all Property
-    all_properties: list[Property] = [prop for group in sources for prop in group]
-
     # Check for duplicate
-    prop_names: list[str] = [prop.name for prop in all_properties]
+    prop_names: list[str] = [prop.name for prop in sources]
     if len(prop_names) != len(set(prop_names)):
         raise ValueError("Duplicate property name found in Property list.")
 
@@ -243,12 +260,12 @@ def main():
     RESOURCES_DIR: str = "periodic_table_resources"
 
     generate_yaml_and_json(
-        parse_yaml(f"{RESOURCES_DIR}/elemental_properties.yaml"),
-        parse_yaml(f"{RESOURCES_DIR}/oxidation_states.yaml"),
-        parse_yaml(f"{RESOURCES_DIR}/ionization_energies_nist.yaml"),  # Parsed from HTML
-        parse_csv(f"{RESOURCES_DIR}/radii.csv", transform=lambda x: float(x) / 100, unit="nm"),
-        parse_ionic_radii(f"{RESOURCES_DIR}/ionic_radii.csv"),
-        # parse_shannon_radii(f"{RESOURCES_DIR}/Shannon_Radii.xlsx"),
+        *parse_yaml(f"{RESOURCES_DIR}/elemental_properties.yaml"),
+        *parse_yaml(f"{RESOURCES_DIR}/oxidation_states.yaml"),
+        *parse_yaml(f"{RESOURCES_DIR}/ionization_energies_nist.yaml"),  # Parsed from HTML
+        *parse_csv(f"{RESOURCES_DIR}/radii.csv", transform=lambda x: float(x) / 100, unit="nm"),
+        *parse_ionic_radii(f"{RESOURCES_DIR}/ionic_radii.csv"),
+        parse_shannon_radii(f"{RESOURCES_DIR}/Shannon_Radii.csv"),
     )
 
 
