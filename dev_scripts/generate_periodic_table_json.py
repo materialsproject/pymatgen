@@ -39,7 +39,7 @@ from pymatgen.core import Element
 
 if TYPE_CHECKING:
     from collections.abc import Callable
-    from typing import Any
+    from typing import Any, Literal
 
     from pymatgen.core.units import Unit
     from pymatgen.util.typing import PathLike
@@ -194,10 +194,8 @@ def parse_ionic_radii(
         f"{prop_base} ls": {},
     }
 
-    with open(file, encoding="utf-8") as f:
-        reader = csv.DictReader(f)
-
-        for row in reader:
+    with open(file, newline="", encoding="utf-8") as f:
+        for row in csv.DictReader(f):
             elem = Element(row["Element"].strip())
             spin = row.get("Spin", "").strip().lower()
             prop_name = f"{prop_base} {spin}".strip()
@@ -218,28 +216,49 @@ def parse_ionic_radii(
 
 
 def parse_shannon_radii(file: PathLike, unit: Unit = "nm") -> Property:
-    """Parse Shannon radii from CSV."""
-    # i = 2
-    # el = charge = cn = None
-    # radii = defaultdict(dict)
+    """Parse Shannon radii from CSV.
 
-    # while sheet[f"E{i}"].value:
-    #     if sheet[f"A{i}"].value:
-    #         el = sheet[f"A{i}"].value
-    #     if sheet[f"B{i}"].value:
-    #         charge = int(sheet[f"B{i}"].value)
-    #         radii[el][charge] = {}
-    #     if sheet[f"C{i}"].value:
-    #         cn = sheet[f"C{i}"].value
-    #         radii[el][charge].setdefault(cn, {})
+    For each element, the ElemPropertyValue has the following structure:
+        value[charge][coordination][spin_state] = {
+            "crystal_radius": float,
+            "ionic_radius": float,
+        }
 
-    #     spin = sheet[f"D{i}"].value if sheet[f"D{i}"].value is not None else ""
+    Empty spin states are stored as empty strings.
+    Charges and coordinations are kept as strings (instead of converting to int).
 
-    #     radii[el][charge][cn][spin] = {
-    #         "crystal_radius": float(sheet[f"E{i}"].value),
-    #         "ionic_radius": float(sheet[f"F{i}"].value),
-    #     }
-    #     i += 1
+    TODO:
+        - there seems to be an OH ion, ignored for now, need to check original
+            implement, and perhaps drop from CSV completely
+    """
+    nested_per_element: dict[Element, dict[str, dict[str, dict[str, dict[str, float]]]]] = {}
+
+    with open(file, newline="", encoding="utf-8-sig") as f:
+        reader = csv.DictReader(f)
+        for row in reader:
+            elem_str = row["Element"].strip()
+            try:
+                elem = Element(elem_str)
+            except ValueError:
+                warnings.warn(f"Cannot convert '{elem_str}' to Element — skipping.", stacklevel=2)
+                continue
+
+            charge: str = row["Charge"].strip()
+            coordination: str = row["Coordination"].strip()
+            spin: Literal["Low Spin", "High Spin", ""] = row["Spin State"].strip()
+
+            crystal_radius: float = float(row["Crystal Radius"])
+            ionic_radius: float = float(row["Ionic Radius"])
+
+            nested_per_element.setdefault(elem, {}).setdefault(charge, {}).setdefault(coordination, {})[spin] = {
+                "crystal_radius": crystal_radius,
+                "ionic_radius": ionic_radius,
+            }
+
+    # Flatten into Property.data with ElemPropertyValue per element
+    data = {elem: ElemPropertyValue(value=nested_data) for elem, nested_data in nested_per_element.items()}
+
+    return Property(name="Shannon radii", data=data, unit=unit)
 
 
 def generate_yaml_and_json(*sources: Property) -> None:
