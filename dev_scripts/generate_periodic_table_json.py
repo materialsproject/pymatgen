@@ -19,6 +19,7 @@ This ensures that all parsers, regardless of data source, return a consistent fo
 can be merged into the overall dataset using `generate_json`.
 
 TODO:
+    - use pymatgen Unit
     - convert Shannon Radii to CSV (better version control and no `openpyxl` needed)
     - gen_iupac_ordering
     - add_electron_affinities
@@ -39,7 +40,7 @@ from pymatgen.core import Element
 
 if TYPE_CHECKING:
     from collections.abc import Callable
-    from typing import Any, TypeAlias
+    from typing import Any
 
     from pymatgen.core.units import Unit
     from pymatgen.util.typing import PathLike
@@ -54,7 +55,7 @@ DEFAULT_VALUE: str = "no data"  # The default value if not provided
 @dataclass
 class ElemPropertyValue:
     value: Any = DEFAULT_VALUE
-    unit: Unit | None = None
+    # unit: Unit | None = None  # Don't allow per-value unit for now
     # reference: str | None = None
 
 
@@ -92,17 +93,14 @@ def parse_yaml(file: PathLike) -> list[Property]:
     for prop_name, prop_info in raw.items():
         print(f"  - Found property: '{prop_name}' ")
 
-        # TODO: convert to pymatgen Unit
-        unit = prop_info.get("unit")
         data_block = prop_info.get("data")
-
-        data = {Element(elem): ElemPropertyValue(value=val, unit=unit) for elem, val in data_block.items()}
+        data = {Element(elem): ElemPropertyValue(value=val) for elem, val in data_block.items()}
 
         result.append(
             Property(
                 name=prop_name,
-                unit=unit,
-                # reference=reference,
+                unit=prop_info.get("unit"),
+                reference=prop_info.get("reference"),
                 data=data,
             )
         )
@@ -114,6 +112,7 @@ def parse_csv(
     file: PathLike,
     transform: Callable | None = None,
     unit: Unit | None = None,
+    reference: str | None = None,
 ) -> list[Property]:
     """Parse a CSV file.
 
@@ -129,7 +128,8 @@ def parse_csv(
         file (PathLike): The CSV file to parse.
         transform (Callable): Optional function to convert each value.
             If provided, it will be applied to each non-null cell value.
-        unit (Unit): Unit passed to ElemPropertyValue.
+        unit (Unit): Unit passed to Property.
+        reference (str): Reference passed to Property.
     """
     if not os.path.isfile(file):
         raise FileNotFoundError(f"CSV file {file} does not exist")
@@ -150,7 +150,8 @@ def parse_csv(
     for prop in data_df.columns:
         print(f"  - Found property: '{prop}' ")
 
-        data = {}
+        data: dict[Element, ElemPropertyValue] = {}
+
         for symbol, value in data_df[prop].items():
             if pd.isna(value):
                 value = DEFAULT_VALUE
@@ -161,16 +162,9 @@ def parse_csv(
                     warnings.warn(f"Cannot transform {value=}, keep as string", stacklevel=2)
                     value = str(value)
 
-            data[Element(symbol)] = ElemPropertyValue(value=value, unit=unit)
+            data[Element(symbol)] = ElemPropertyValue(value=value)
 
-        result.append(
-            Property(
-                name=prop,
-                unit=unit,
-                # reference=None,
-                data=data,
-            )
-        )
+        result.append(Property(name=prop, unit=unit, reference=reference, data=data))
 
     return result
 
@@ -195,7 +189,7 @@ def parse_ionic_radii(
     """
     print(f"Parsing {prop_base} CSV file: '{file}'")
 
-    sources: dict[str, dict[Element, ElemPropertyValue]] = {
+    result: dict[str, dict[Element, ElemPropertyValue]] = {
         prop_base: {},
         f"{prop_base} hs": {},
         f"{prop_base} ls": {},
@@ -216,15 +210,12 @@ def parse_ionic_radii(
                 if ox not in {"Element", "Spin"} and val.strip() != ""
             }
 
-            sources[prop_name][elem] = ElemPropertyValue(value=ox_state_data, unit=unit)
+            result[prop_name][elem] = ElemPropertyValue(value=ox_state_data)
             # Copy high-spin radii to the base "Ionic radii"
             if spin == "hs":
-                sources[prop_base][elem] = ElemPropertyValue(value=ox_state_data, unit=unit)
+                result[prop_base][elem] = ElemPropertyValue(value=ox_state_data)
 
-    # Build Property objects
-    result: list[Property] = [Property(name=name, unit=unit, data=data) for name, data in sources.items()]
-
-    return tuple(result)
+    return [Property(name=name, unit=unit, data=data) for name, data in result.items()]
 
 
 def parse_shannon_radii(file: PathLike):
