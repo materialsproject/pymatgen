@@ -2,21 +2,9 @@
 
 """Create `core.periodic_table.json` from source files.
 
-Parser interface requirement:
-    In cases where a separate parser is needed for certain properties
-    (e.g., when the data must be parsed from a non-YAML format such as HTML, CSV, etc.),
-    please follow the required interface:
-
-Each parser function must return:
-    dict[PropStr, dict[Element, ElemPropertyValue]]
-
-That is:
-- The top-level dictionary maps **property names** (as strings) to their corresponding data.
-- For each property, the value is another dictionary mapping:
-    - `Element` to `ElemPropertyValue`(includes the actual value and optional unit)
-
-This ensures that all parsers, regardless of data source, return a consistent format that
-can be merged into the overall dataset using `generate_json`.
+Each source file may be parsed using a common or custom parser. In cases where
+a custom parser is required, it should return either a single `Property` or
+a sequence of `Property`.
 
 TODO:
     - use pymatgen Unit
@@ -29,7 +17,7 @@ from __future__ import annotations
 import csv
 import os
 import warnings
-from dataclasses import dataclass, field
+from dataclasses import dataclass
 from typing import TYPE_CHECKING
 
 import pandas as pd
@@ -61,9 +49,9 @@ class ElemPropertyValue:
 @dataclass
 class Property:
     name: str
+    data: dict[Element, ElemPropertyValue]
     unit: Unit | None = None
     reference: str | None = None
-    data: dict[Element, ElemPropertyValue] = field(default_factory=dict)
 
 
 def parse_yaml(file: PathLike) -> list[Property]:
@@ -186,7 +174,8 @@ def parse_ionic_radii(
             - High spin ("hs") data is also copied into the base "Ionic radii" property.
         - Radii values are divided by 100 (converted from pm to nm).
     """
-    print(f"Parsing {prop_base} CSV file: '{file}'")
+    print(f"Parsing {prop_base} file: '{file}'")
+    print(f"  - Provide property: '{prop_base} (ls/hs)'")
 
     result: dict[str, dict[Element, ElemPropertyValue]] = {
         prop_base: {},
@@ -227,6 +216,9 @@ def parse_shannon_radii(file: PathLike, unit: Unit = "nm") -> Property:
     Empty spin states are stored as empty strings.
     Charges and coordinations are kept as strings (instead of converting to int).
     """
+    print(f"Parsing Shannon radii file: '{file}'")
+    print("  - Provide property: 'Shannon radii'")
+
     nested_per_element: dict[Element, dict[str, dict[str, dict[str, dict[str, float]]]]] = {}
 
     with open(file, newline="", encoding="utf-8-sig") as f:
