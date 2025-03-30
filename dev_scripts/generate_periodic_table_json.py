@@ -153,7 +153,11 @@ def parse_csv(
     return result
 
 
-def parse_ionic_radii(file: PathLike) -> Sources:
+def parse_ionic_radii(
+    file: PathLike,
+    prop_base: str = "Ionic radii",
+    unit: Unit = "nm",
+) -> Sources:
     """Parse ionic radii from CSV.
 
     CSV Format:
@@ -167,12 +171,12 @@ def parse_ionic_radii(file: PathLike) -> Sources:
             - High spin ("hs") data is also copied into the base "Ionic radii" property.
         - Radii values are divided by 100 (converted from pm to nm).
     """
-    print(f"Parsing ionic radii CSV file: '{file}'")
+    print(f"Parsing {prop_base} CSV file: '{file}'")
 
     sources: Sources = {
-        "Ionic radii": {},
-        "Ionic radii hs": {},
-        "Ionic radii ls": {},
+        prop_base: {},
+        f"{prop_base} hs": {},
+        f"{prop_base} ls": {},
     }
 
     with open(file, encoding="utf-8") as f:
@@ -181,7 +185,7 @@ def parse_ionic_radii(file: PathLike) -> Sources:
         for row in reader:
             elem = Element(row["Element"].strip())
             spin = row.get("Spin", "").strip().lower()
-            prop_name = f"Ionic radii {spin}".strip()
+            prop_name = f"{prop_base} {spin}".strip()
 
             # Collect non-empty fields
             ox_state_data = {
@@ -190,10 +194,10 @@ def parse_ionic_radii(file: PathLike) -> Sources:
                 if ox not in {"Element", "Spin"} and val.strip() != ""
             }
 
-            sources[prop_name][elem] = ElemPropertyValue(value=ox_state_data, unit="nm")
+            sources[prop_name][elem] = ElemPropertyValue(value=ox_state_data, unit=unit)
             # Copy high-spin radii to the base "Ionic radii"
             if spin == "hs":
-                sources["Ionic radii"][elem] = ElemPropertyValue(value=ox_state_data, unit="nm")
+                sources[prop_base][elem] = ElemPropertyValue(value=ox_state_data, unit=unit)
 
     return sources
 
