@@ -8,7 +8,6 @@ a sequence of `Property`.
 
 TODO:
     - use pymatgen Unit
-    - gen_iupac_ordering
 """
 
 from __future__ import annotations
@@ -18,6 +17,7 @@ import os
 import warnings
 from dataclasses import dataclass
 from io import StringIO
+from itertools import product
 from typing import TYPE_CHECKING
 
 import pandas as pd
@@ -284,40 +284,48 @@ def get_electron_affinities() -> Property:
     return Property(name="Electron affinity", data=data, unit="eV")
 
 
-def generate_iupac_ordering():
-    pass
-    #     order = [
-    #     ([18], range(6, 0, -1)),  # noble gasses
-    #     ([1], range(7, 1, -1)),  # alkali metals
-    #     ([2], range(7, 1, -1)),  # alkali earth metals
-    #     (range(17, 2, -1), [9]),  # actinides
-    #     (range(17, 2, -1), [8]),  # lanthanides
-    #     ([3], (5, 4)),  # Y, Sc
-    #     ([4], (6, 5, 4)),  # Hf -> Ti
-    #     ([5], (6, 5, 4)),  # Ta -> V
-    #     ([6], (6, 5, 4)),  # W -> Cr
-    #     ([7], (6, 5, 4)),  # Re -> Mn
-    #     ([8], (6, 5, 4)),  # Os -> Fe
-    #     ([9], (6, 5, 4)),  # Ir -> Co
-    #     ([10], (6, 5, 4)),  # Pt -> Ni
-    #     ([11], (6, 5, 4)),  # Au -> Cu
-    #     ([12], (6, 5, 4)),  # Hg -> Zn
-    #     ([13], range(6, 1, -1)),  # Tl -> B
-    #     ([14], range(6, 1, -1)),  # Pb -> C
-    #     ([15], range(6, 1, -1)),  # Bi -> N
-    #     ([1], [1]),  # Hydrogen
-    #     ([16], range(6, 1, -1)),  # Po -> O
-    #     ([17], range(6, 1, -1)),
-    # ]  # At -> F
+def generate_iupac_ordering() -> list[Property]:
+    print("Generating IUPAC ordering:")
+    print("  - Provide property: 'iupac_ordering'")  # TODO: duplicate
+    print("  - Provide property: 'IUPAC ordering'")
 
-    # order = [item for sublist in (list(product(x, y)) for x, y in order) for item in sublist]
-    # iupac_ordering_dict = dict(
-    #     zip(
-    #         [Element.from_row_and_group(row, group) for group, row in order],
-    #         range(len(order)),
-    #         strict=True,
-    #     )
-    # )
+    _order = [
+        ([18], range(6, 0, -1)),  # noble gasses
+        ([1], range(7, 1, -1)),  # alkali metals
+        ([2], range(7, 1, -1)),  # alkali earth metals
+        (range(17, 2, -1), [9]),  # actinides
+        (range(17, 2, -1), [8]),  # lanthanides
+        ([3], (5, 4)),  # Y, Sc
+        ([4], (6, 5, 4)),  # Hf -> Ti
+        ([5], (6, 5, 4)),  # Ta -> V
+        ([6], (6, 5, 4)),  # W -> Cr
+        ([7], (6, 5, 4)),  # Re -> Mn
+        ([8], (6, 5, 4)),  # Os -> Fe
+        ([9], (6, 5, 4)),  # Ir -> Co
+        ([10], (6, 5, 4)),  # Pt -> Ni
+        ([11], (6, 5, 4)),  # Au -> Cu
+        ([12], (6, 5, 4)),  # Hg -> Zn
+        ([13], range(6, 1, -1)),  # Tl -> B
+        ([14], range(6, 1, -1)),  # Pb -> C
+        ([15], range(6, 1, -1)),  # Bi -> N
+        ([1], [1]),  # Hydrogen
+        ([16], range(6, 1, -1)),  # Po -> O
+        ([17], range(6, 1, -1)),  # At -> F
+    ]
+    order: list[tuple[int, int]] = [item for sublist in (list(product(x, y)) for x, y in _order) for item in sublist]
+
+    iupac_ordering_dict = dict(
+        zip(
+            [Element.from_row_and_group(row, group) for group, row in order],
+            range(len(order)),
+            strict=True,
+        )
+    )
+
+    return [
+        Property(name="iupac_ordering", data=iupac_ordering_dict),
+        Property(name="IUPAC ordering", data=iupac_ordering_dict),
+    ]
 
 
 def main():
@@ -332,7 +340,7 @@ def main():
         *parse_ionic_radii(f"{RESOURCES_DIR}/ionic_radii.csv", unit="nm"),
         parse_shannon_radii(f"{RESOURCES_DIR}/Shannon_Radii.csv", unit="nm"),
         get_electron_affinities(),
-        # generate_iupac_ordering(),
+        *generate_iupac_ordering(),
     )
 
     # Check for duplicate
