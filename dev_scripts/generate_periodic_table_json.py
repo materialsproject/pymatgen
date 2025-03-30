@@ -103,12 +103,12 @@ def parse_csv(file: PathLike, transform: Callable | None = None) -> Sources:
     """Parse a CSV file.
 
     Expected CSV format:
-        We expected each CSV file to contain one or more properties,
-        where each property occupies a single column and the column name
-        would be used as the property name.
-        The index (first) column should be the elements.
-
-    TODO: clarify index column or better element handling?
+        - The CSV must contain a column named "element" (case-insensitive),
+          which will be used as the index for mapping values to elements.
+        - All other columns are treated as distinct property names, with each
+          column header used as the property name (e.g., "Atomic mass").
+        - Each row corresponds to a single element, and each cell represents
+          the value of a property for that element.
 
     Args:
         file (PathLike): The CSV file to parse.
@@ -123,9 +123,14 @@ def parse_csv(file: PathLike, transform: Callable | None = None) -> Sources:
 
     print(f"Parsing CSV file: '{file}'")
 
-    # Expect the first column to be the element symbols
+    # Try to locate the column named "element" (case-insensitive)
     data_df = pd.read_csv(file)
-    data_df = data_df.set_index(data_df.columns[0])
+    try:
+        index_col = data_df.columns[data_df.columns.str.lower().str.strip() == "element"][0]
+    except IndexError:
+        raise ValueError(f"Could not find an 'element' column in CSV: {file}")
+
+    data_df = data_df.set_index(index_col)
 
     result: Sources = {}
 
