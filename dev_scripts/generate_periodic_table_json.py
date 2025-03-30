@@ -19,7 +19,6 @@ This ensures that all parsers, regardless of data source, return a consistent fo
 can be merged into the overall dataset using `generate_json`.
 
 TODO:
-    - make `ionic_radii.csv` headers property names
     - convert Shannon Radii to CSV (better version control and no `openpyxl` needed)
     - gen_iupac_ordering
     - add_electron_affinities
@@ -27,6 +26,7 @@ TODO:
 
 from __future__ import annotations
 
+import csv
 import os
 import warnings
 from dataclasses import dataclass
@@ -72,9 +72,6 @@ def parse_yaml(file: PathLike) -> Sources:
 
     Args:
         working_dir (PathLike): directory containing all YAMLs.
-
-    Returns:
-        Sources: A property to {Element: ElemPropertyValue} mapping.
     """
     if not os.path.isfile(file):
         raise FileNotFoundError(f"YAML file {file} does not exist")
@@ -114,9 +111,6 @@ def parse_csv(file: PathLike, transform: Callable | None = None) -> Sources:
         file (PathLike): The CSV file to parse.
         transform (Callable): Optional function to convert each value.
             If provided, it will be applied to each non-null cell value.
-
-    Returns:
-        Sources: A property to {Element: ElemPropertyValue} mapping.
     """
     if not os.path.isfile(file):
         raise FileNotFoundError(f"CSV file {file} does not exist")
@@ -127,8 +121,8 @@ def parse_csv(file: PathLike, transform: Callable | None = None) -> Sources:
     data_df = pd.read_csv(file)
     try:
         index_col = data_df.columns[data_df.columns.str.lower().str.strip() == "element"][0]
-    except IndexError:
-        raise ValueError(f"Could not find an 'element' column in CSV: {file}")
+    except IndexError as exc:
+        raise ValueError(f"Could not find an 'element' column in CSV: {file}") from exc
 
     data_df = data_df.set_index(index_col)
 
@@ -154,8 +148,57 @@ def parse_csv(file: PathLike, transform: Callable | None = None) -> Sources:
     return result
 
 
+def parse_ionic_radii(file: PathLike) -> Sources:
+    """Parse ionic radii from CSV.
+
+    CSV Format:
+        - Must include columns: "Element", "Spin", and oxidation states (-3 to +8).
+        - "Spin" can be empty, "hs" (high spin) or "ls" (low spin).
+
+    Behavior:
+        - For each row:
+            - If "Spin" is empty, the element is added under "Ionic radii".
+            - If "Spin" is "hs" or "ls", the element is added under "Ionic radii hs"/"ls".
+            - High spin ("hs") data is also copied into the base "Ionic radii" property.
+        - Radii values are divided by 100 (converted from pm to nm).
+    """
+    print(f"Parsing ionic radii CSV file: '{file}'")
+
+    sources: Sources = {
+        "Ionic radii": {},
+        "Ionic radii hs": {},
+        "Ionic radii ls": {},
+    }
+
+    with open(file, encoding="utf-8") as f:
+        reader = csv.DictReader(f)
+
+        for row in reader:
+            elem = Element(row["Element"].strip())
+            spin = row.get("Spin", "").strip().lower()
+            prop_name = f"Ionic radii {spin}".strip()
+
+            # Collect non-empty fields
+            ox_state_data = {
+                ox: float(val) / 100  # NOTE: radii divided by 100
+                for ox, val in row.items()
+                if ox not in {"Element", "Spin"} and val.strip() != ""
+            }
+
+            sources[prop_name][elem] = ElemPropertyValue(value=ox_state_data, unit="nm")
+            # Copy high-spin radii to the base "Ionic radii"
+            if spin == "hs":
+                sources["Ionic radii"][elem] = ElemPropertyValue(value=ox_state_data, unit="nm")
+
+    return sources
+
+
+def parse_shannon_radii(file: PathLike):
+    pass
+
+
 def generate_yaml_and_json(*sources: Sources) -> None:
-    """Generate the intermediate YAML and final JSON from sources."""
+    """Generate the intermediate YAML and final JSON from Sources."""
     # Check for duplicate and combine all sources
     combined: Sources = {}
     seen_props: set[PropStr] = set()
@@ -167,8 +210,7 @@ def generate_yaml_and_json(*sources: Sources) -> None:
             seen_props.add(prop_name)
             combined[prop_name] = element_map
 
-    # Save an intermediate YAML copy for manual inspection,
-    # otherwise JSON is hard to read
+    # Save an intermediate YAML copy for manual inspection, otherwise JSON is hard to read
     # TODO: WIP
 
     # Output to JSON (element->property->value format, and drop metadata)
@@ -183,6 +225,8 @@ def main():
         parse_yaml(f"{RESOURCES_DIR}/oxidation_states.yaml"),
         parse_yaml(f"{RESOURCES_DIR}/ionization_energies_nist.yaml"),  # Parsed from HTML
         parse_csv(f"{RESOURCES_DIR}/radii.csv", transform=lambda x: float(x) / 100),
+        parse_ionic_radii(f"{RESOURCES_DIR}/ionic_radii.csv"),
+        # parse_shannon_radii(f"{RESOURCES_DIR}/Shannon_Radii.xlsx"),
     )
 
 
