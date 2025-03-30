@@ -222,18 +222,15 @@ def parse_shannon_radii(file: PathLike):
     pass
 
 
-def generate_yaml_and_json(*sources) -> None:
+def generate_yaml_and_json(*sources: list[Property]) -> None:
     """Generate the intermediate YAML and final JSON from Properties."""
-    # # Check for duplicate and combine all sources
-    # combined: Sources = {}
-    # seen_props: set[PropStr] = set()
+    # Flatten all Property
+    all_properties: list[Property] = [prop for group in sources for prop in group]
 
-    # for source in sources:
-    #     for prop_name, element_map in source.items():
-    #         if prop_name in seen_props:
-    #             raise ValueError(f"Duplicate property found: '{prop_name}' in source")
-    #         seen_props.add(prop_name)
-    #         combined[prop_name] = element_map
+    # Check for duplicate
+    prop_names: list[str] = [prop.name for prop in all_properties]
+    if len(prop_names) != len(set(prop_names)):
+        raise ValueError("Duplicate property name found in Property list.")
 
     # Save an intermediate YAML copy for manual inspection, otherwise JSON is hard to read
     # TODO: WIP
