@@ -96,7 +96,11 @@ def parse_yaml(file: PathLike) -> Sources:
     return result
 
 
-def parse_csv(file: PathLike, transform: Callable | None = None) -> Sources:
+def parse_csv(
+    file: PathLike,
+    transform: Callable | None = None,
+    unit: Unit | None = None,
+) -> Sources:
     """Parse a CSV file.
 
     Expected CSV format:
@@ -111,6 +115,7 @@ def parse_csv(file: PathLike, transform: Callable | None = None) -> Sources:
         file (PathLike): The CSV file to parse.
         transform (Callable): Optional function to convert each value.
             If provided, it will be applied to each non-null cell value.
+        unit (Unit): Unit passed to ElemPropertyValue.
     """
     if not os.path.isfile(file):
         raise FileNotFoundError(f"CSV file {file} does not exist")
@@ -142,7 +147,7 @@ def parse_csv(file: PathLike, transform: Callable | None = None) -> Sources:
                     warnings.warn(f"Cannot transform {value=}, keep as string", stacklevel=2)
                     value = str(value)
 
-            prop_values[Element(symbol)] = ElemPropertyValue(value=value)
+            prop_values[Element(symbol)] = ElemPropertyValue(value=value, unit=unit)
         result[prop] = prop_values
 
     return result
@@ -224,7 +229,7 @@ def main():
         parse_yaml(f"{RESOURCES_DIR}/elemental_properties.yaml"),
         parse_yaml(f"{RESOURCES_DIR}/oxidation_states.yaml"),
         parse_yaml(f"{RESOURCES_DIR}/ionization_energies_nist.yaml"),  # Parsed from HTML
-        parse_csv(f"{RESOURCES_DIR}/radii.csv", transform=lambda x: float(x) / 100),
+        parse_csv(f"{RESOURCES_DIR}/radii.csv", transform=lambda x: float(x) / 100, unit="nm"),
         parse_ionic_radii(f"{RESOURCES_DIR}/ionic_radii.csv"),
         # parse_shannon_radii(f"{RESOURCES_DIR}/Shannon_Radii.xlsx"),
     )
