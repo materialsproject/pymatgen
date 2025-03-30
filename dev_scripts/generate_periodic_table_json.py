@@ -29,7 +29,7 @@ from __future__ import annotations
 import csv
 import os
 import warnings
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from typing import TYPE_CHECKING
 
 import pandas as pd
@@ -55,13 +55,18 @@ DEFAULT_VALUE: str = "no data"  # The default value if not provided
 class ElemPropertyValue:
     value: Any = DEFAULT_VALUE
     unit: Unit | None = None
+    # reference: str | None = None
 
 
-PropStr: TypeAlias = str
-Sources: TypeAlias = dict[PropStr, dict[Element, ElemPropertyValue]]
+@dataclass
+class Property:
+    name: str
+    unit: Unit | None = None
+    reference: str | None = None
+    data: dict[Element, ElemPropertyValue] = field(default_factory=dict)
 
 
-def parse_yaml(file: PathLike) -> Sources:
+def parse_yaml(file: PathLike) -> list[Property]:
     """Parse a YAML file.
 
     Expected YAML format:
@@ -82,16 +87,25 @@ def parse_yaml(file: PathLike) -> Sources:
     with open(file, encoding="utf-8") as f:
         raw = yaml.load(f)
 
-    result: Sources = {}
+    result: list[Property] = []
 
     for prop_name, prop_info in raw.items():
         print(f"  - Found property: '{prop_name}' ")
 
         # TODO: convert to pymatgen Unit
         unit = prop_info.get("unit")
-        data = prop_info.get("data")
+        data_block = prop_info.get("data")
 
-        result[prop_name] = {Element(elem): ElemPropertyValue(value=value, unit=unit) for elem, value in data.items()}
+        data = {Element(elem): ElemPropertyValue(value=val, unit=unit) for elem, val in data_block.items()}
+
+        result.append(
+            Property(
+                name=prop_name,
+                unit=unit,
+                # reference=reference,
+                data=data,
+            )
+        )
 
     return result
 
@@ -100,7 +114,7 @@ def parse_csv(
     file: PathLike,
     transform: Callable | None = None,
     unit: Unit | None = None,
-) -> Sources:
+) -> list[Property]:
     """Parse a CSV file.
 
     Expected CSV format:
@@ -131,12 +145,12 @@ def parse_csv(
 
     data_df = data_df.set_index(index_col)
 
-    result: Sources = {}
+    result: list[Property] = []
 
     for prop in data_df.columns:
         print(f"  - Found property: '{prop}' ")
 
-        prop_values = {}
+        data = {}
         for symbol, value in data_df[prop].items():
             if pd.isna(value):
                 value = DEFAULT_VALUE
@@ -147,8 +161,16 @@ def parse_csv(
                     warnings.warn(f"Cannot transform {value=}, keep as string", stacklevel=2)
                     value = str(value)
 
-            prop_values[Element(symbol)] = ElemPropertyValue(value=value, unit=unit)
-        result[prop] = prop_values
+            data[Element(symbol)] = ElemPropertyValue(value=value, unit=unit)
+
+        result.append(
+            Property(
+                name=prop,
+                unit=unit,
+                # reference=None,
+                data=data,
+            )
+        )
 
     return result
 
@@ -157,7 +179,7 @@ def parse_ionic_radii(
     file: PathLike,
     prop_base: str = "Ionic radii",
     unit: Unit = "nm",
-) -> Sources:
+) -> list[Property]:
     """Parse ionic radii from CSV.
 
     CSV Format:
@@ -173,7 +195,7 @@ def parse_ionic_radii(
     """
     print(f"Parsing {prop_base} CSV file: '{file}'")
 
-    sources: Sources = {
+    sources: dict[str, dict[Element, ElemPropertyValue]] = {
         prop_base: {},
         f"{prop_base} hs": {},
         f"{prop_base} ls": {},
@@ -199,25 +221,28 @@ def parse_ionic_radii(
             if spin == "hs":
                 sources[prop_base][elem] = ElemPropertyValue(value=ox_state_data, unit=unit)
 
-    return sources
+    # Build Property objects
+    result: list[Property] = [Property(name=name, unit=unit, data=data) for name, data in sources.items()]
+
+    return tuple(result)
 
 
 def parse_shannon_radii(file: PathLike):
     pass
 
 
-def generate_yaml_and_json(*sources: Sources) -> None:
-    """Generate the intermediate YAML and final JSON from Sources."""
-    # Check for duplicate and combine all sources
-    combined: Sources = {}
-    seen_props: set[PropStr] = set()
+def generate_yaml_and_json(*sources) -> None:
+    """Generate the intermediate YAML and final JSON from Properties."""
+    # # Check for duplicate and combine all sources
+    # combined: Sources = {}
+    # seen_props: set[PropStr] = set()
 
-    for source in sources:
-        for prop_name, element_map in source.items():
-            if prop_name in seen_props:
-                raise ValueError(f"Duplicate property found: '{prop_name}' in source")
-            seen_props.add(prop_name)
-            combined[prop_name] = element_map
+    # for source in sources:
+    #     for prop_name, element_map in source.items():
+    #         if prop_name in seen_props:
+    #             raise ValueError(f"Duplicate property found: '{prop_name}' in source")
+    #         seen_props.add(prop_name)
+    #         combined[prop_name] = element_map
 
     # Save an intermediate YAML copy for manual inspection, otherwise JSON is hard to read
     # TODO: WIP
