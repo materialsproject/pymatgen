@@ -15,6 +15,7 @@ from __future__ import annotations
 import csv
 import os
 import warnings
+from collections import Counter
 from dataclasses import dataclass
 from io import StringIO
 from itertools import product
@@ -160,6 +161,7 @@ def parse_csv(
 def parse_ionic_radii(
     file: PathLike,
     unit: Unit,
+    reference: str,
     prop_base: str = "Ionic radii",
 ) -> list[Property]:
     """Parse ionic radii from CSV.
@@ -202,10 +204,10 @@ def parse_ionic_radii(
             if spin == "hs":
                 result[prop_base][elem] = ElemPropertyValue(value=ox_state_data)
 
-    return [Property(name=name, unit=unit, data=data) for name, data in result.items()]
+    return [Property(name=name, unit=unit, data=data, reference=reference) for name, data in result.items()]
 
 
-def parse_shannon_radii(file: PathLike, unit: Unit) -> Property:
+def parse_shannon_radii(file: PathLike, unit: Unit, reference: str | None = None) -> Property:
     """Parse Shannon radii from CSV.
 
     For each element, the ElemPropertyValue has the following structure:
@@ -216,6 +218,8 @@ def parse_shannon_radii(file: PathLike, unit: Unit) -> Property:
 
     Empty spin states are stored as empty strings.
     Charges and coordinations are kept as strings (instead of converting to int).
+
+    TODO: data source/reference is unknown
     """
     print(f"Parsing Shannon radii file: '{file}'")
     print("  - Provide property: 'Shannon radii'")
@@ -238,7 +242,7 @@ def parse_shannon_radii(file: PathLike, unit: Unit) -> Property:
     data: dict[Element, ElemPropertyValue] = {
         elem: ElemPropertyValue(value=nested_data) for elem, nested_data in nested_per_element.items()
     }
-    return Property(name="Shannon radii", data=data, unit=unit)
+    return Property(name="Shannon radii", data=data, unit=unit, reference=reference)
 
 
 def get_electron_affinities() -> Property:
@@ -337,7 +341,9 @@ def main():
         *parse_yaml(f"{RESOURCES_DIR}/oxidation_states.yaml"),
         *parse_yaml(f"{RESOURCES_DIR}/ionization_energies_nist.yaml"),  # Parsed from HTML
         *parse_csv(f"{RESOURCES_DIR}/radii.csv", transform=lambda x: float(x) / 100, unit="nm"),
-        *parse_ionic_radii(f"{RESOURCES_DIR}/ionic_radii.csv", unit="nm"),
+        *parse_ionic_radii(
+            f"{RESOURCES_DIR}/ionic_radii.csv", unit="nm", reference="https://en.wikipedia.org/wiki/Ionic_radius"
+        ),
         parse_shannon_radii(f"{RESOURCES_DIR}/Shannon_Radii.csv", unit="nm"),
         get_electron_affinities(),
         *generate_iupac_ordering(),
@@ -345,8 +351,10 @@ def main():
 
     # Check for duplicate
     prop_names: list[str] = [prop.name for prop in properties]
-    if len(prop_names) != len(set(prop_names)):
-        raise ValueError("Duplicate property name found in Property list.")
+    counter = Counter(prop_names)
+    duplicates: list[str] = [name for name, count in counter.items() if count > 1]
+    if duplicates:
+        raise ValueError(f"Duplicate property found: {', '.join(duplicates)}")
 
     # Save an intermediate YAML copy for manual inspection, otherwise JSON is hard to read
     # TODO: WIP
