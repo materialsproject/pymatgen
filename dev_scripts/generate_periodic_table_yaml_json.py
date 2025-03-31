@@ -55,7 +55,6 @@ DEFAULT_VALUE: str = "no data"  # The default value if not provided
 @dataclass
 class ElemPropertyValue:
     value: Any = DEFAULT_VALUE
-    # unit: Unit | None = None  # Don't allow per-value unit for now
     reference: str | None = None  # Parser not implemented
 
 
@@ -374,7 +373,6 @@ def generate_yaml_and_json(
             element_to_props["_unit"][prop.name] = str(prop.unit)
 
         for elem, prop_val in prop.data.items():
-            # Currently only allow use per-property unit
             element_to_props[elem.name][prop.name] = prop_val.value
 
     with open(json_file, "w", encoding="utf-8") as f:
