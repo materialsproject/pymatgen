@@ -228,6 +228,7 @@ class ElementBase(Enum):
                     tokens = no_bracket.replace("about", "").strip().split(" ", 1)
                     if len(tokens) == 2:
                         try:
+                            # TODO: use new unit source
                             if "10<sup>" in tokens[1]:
                                 base_power = re.findall(r"([+-]?\d+)", tokens[1])
                                 factor = "e" + base_power[1]

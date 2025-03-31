@@ -267,14 +267,13 @@ def parse_shannon_radii(
     return Property(name="Shannon radii", data=data, unit=unit, reference=reference)
 
 
-def generate_iupac_ordering() -> list[Property]:
+def generate_iupac_ordering() -> Property:
     """Ordering according to Table VI of "Nomenclature of Inorganic Chemistry
     (IUPAC Recommendations 2005)". This ordering effectively follows the
     groups and rows of the periodic table, except the Lanthanides, Actinides
     and hydrogen.
     """
     print("Generating IUPAC ordering:")
-    print("  - Provide property: 'iupac_ordering'")  # TODO: duplicate
     print("  - Provide property: 'IUPAC ordering'")
 
     _orders = [
@@ -307,10 +306,7 @@ def generate_iupac_ordering() -> list[Property]:
         for index, (group, row) in enumerate(orders)
     }
 
-    return [
-        Property(name="iupac_ordering", data=iupac_ordering_dict),
-        Property(name="IUPAC ordering", data=iupac_ordering_dict),
-    ]
+    return Property(name="IUPAC ordering", data=iupac_ordering_dict)
 
 
 def generate_yaml_and_json(
@@ -394,7 +390,7 @@ def main():
             f"{RESOURCES_DIR}/ionic_radii.csv", unit="ang", reference="https://en.wikipedia.org/wiki/Ionic_radius"
         ),
         parse_shannon_radii(f"{RESOURCES_DIR}/Shannon_Radii.csv", unit="ang"),
-        *generate_iupac_ordering(),
+        generate_iupac_ordering(),
     )
 
     generate_yaml_and_json(

@@ -180,8 +180,7 @@
     },
     "Thermal conductivity": 12,
     "Van der waals radius": "no data",
-    "X": 1.1,
-    "iupac_ordering": 32
+    "X": 1.1
   },
   "Ag": {
     "Atomic mass": 107.8682,
@@ -368,8 +367,7 @@
     "Velocity of sound": 2600,
     "Vickers hardness": 251,
     "X": 1.93,
-    "Youngs modulus": 83,
-    "iupac_ordering": 72
+    "Youngs modulus": 83
   },
   "Al": {
     "Atomic mass": 26.9815386,
@@ -464,8 +462,7 @@
     "Velocity of sound": 5100,
     "Vickers hardness": 167,
     "X": 1.61,
-    "Youngs modulus": 70,
-    "iupac_ordering": 80
+    "Youngs modulus": 70
   },
   "Am": {
     "Atomic mass": 243,
@@ -650,8 +647,7 @@
     "Superconduction temperature": 0.6,
     "Thermal conductivity": 10,
     "Van der waals radius": "no data",
-    "X": 1.3,
-    "iupac_ordering": 26
+    "X": 1.3
   },
   "Ar": {
     "Atomic mass": 39.948,
@@ -703,8 +699,7 @@
     "Refractive index": 1.000281,
     "Thermal conductivity": 0.01772,
     "Van der waals radius": 1.88,
-    "Velocity of sound": 319,
-    "iupac_ordering": 3
+    "Velocity of sound": 319
   },
   "As": {
     "Atomic mass": 74.9216,
@@ -828,8 +823,7 @@
     "Thermal conductivity": 50,
     "Van der waals radius": 1.85,
     "X": 2.18,
-    "Youngs modulus": 8,
-    "iupac_ordering": 89
+    "Youngs modulus": 8
   },
   "At": {
     "Atomic mass": 210,
@@ -976,8 +970,7 @@
     },
     "Thermal conductivity": "2 (estimate)",
     "Van der waals radius": 2.02,
-    "X": 2.2,
-    "iupac_ordering": 98
+    "X": 2.2
   },
   "Au": {
     "Atomic mass": 196.966569,
@@ -1155,8 +1148,7 @@
     "Velocity of sound": 1740,
     "Vickers hardness": 216,
     "X": 2.54,
-    "Youngs modulus": 78,
-    "iupac_ordering": 71
+    "Youngs modulus": 78
   },
   "B": {
     "Atomic mass": 10.811,
@@ -1238,8 +1230,7 @@
     "Van der waals radius": 1.92,
     "Velocity of sound": 16200,
     "Vickers hardness": 49000,
-    "X": 2.04,
-    "iupac_ordering": 81
+    "X": 2.04
   },
   "Ba": {
     "Atomic mass": 137.327,
@@ -1399,8 +1390,7 @@
     "Van der waals radius": 2.68,
     "Velocity of sound": 1620,
     "X": 0.89,
-    "Youngs modulus": 13,
-    "iupac_ordering": 13
+    "Youngs modulus": 13
   },
   "Be": {
     "Atomic mass": 9.012182,
@@ -1481,8 +1471,7 @@
     "Velocity of sound": 13000,
     "Vickers hardness": 1670,
     "X": 1.57,
-    "Youngs modulus": 287,
-    "iupac_ordering": 17
+    "Youngs modulus": 287
   },
   "Bi": {
     "Atomic mass": 208.9804,
@@ -1664,8 +1653,7 @@
     "Van der waals radius": 2.07,
     "Velocity of sound": 1790,
     "X": 2.02,
-    "Youngs modulus": 32,
-    "iupac_ordering": 87
+    "Youngs modulus": 32
   },
   "Bk": {
     "Atomic mass": 247,
@@ -1817,8 +1805,7 @@
       }
     },
     "Thermal conductivity": 10,
-    "X": 1.3,
-    "iupac_ordering": 24
+    "X": 1.3
   },
   "Br": {
     "Atomic mass": 79.904,
@@ -1960,8 +1947,7 @@
     },
     "Thermal conductivity": 0.12,
     "Van der waals radius": 1.85,
-    "X": 2.96,
-    "iupac_ordering": 100
+    "X": 2.96
   },
   "C": {
     "Atomic mass": 12.0107,
@@ -2055,8 +2041,7 @@
     "Thermal conductivity": 140,
     "Van der waals radius": 1.7,
     "Velocity of sound": 18350,
-    "X": 2.55,
-    "iupac_ordering": 86
+    "X": 2.55
   },
   "Ca": {
     "Atomic mass": 40.078,
@@ -2174,8 +2159,7 @@
     "Van der waals radius": 2.31,
     "Velocity of sound": 3810,
     "X": 1,
-    "Youngs modulus": 20,
-    "iupac_ordering": 15
+    "Youngs modulus": 20
   },
   "Cd": {
     "Atomic mass": 112.411,
@@ -2324,8 +2308,7 @@
     "Van der waals radius": 1.58,
     "Velocity of sound": 2310,
     "X": 1.69,
-    "Youngs modulus": 50,
-    "iupac_ordering": 75
+    "Youngs modulus": 50
   },
   "Ce": {
     "Atomic mass": 140.116,
@@ -2519,8 +2502,7 @@
     "Velocity of sound": 2100,
     "Vickers hardness": 270,
     "X": 1.12,
-    "Youngs modulus": 34,
-    "iupac_ordering": 46
+    "Youngs modulus": 34
   },
   "Cf": {
     "Atomic mass": 251,
@@ -2673,8 +2655,7 @@
         }
       }
     },
-    "X": 1.3,
-    "iupac_ordering": 23
+    "X": 1.3
   },
   "Cl": {
     "Atomic mass": 35.453,
@@ -2792,8 +2773,7 @@
     "Thermal conductivity": 0.0089,
     "Van der waals radius": 1.75,
     "Velocity of sound": 206,
-    "X": 3.16,
-    "iupac_ordering": 101
+    "X": 3.16
   },
   "Cm": {
     "Atomic mass": 247,
@@ -2946,8 +2926,7 @@
       }
     },
     "Thermal conductivity": 8.8,
-    "X": 1.3,
-    "iupac_ordering": 25
+    "X": 1.3
   },
   "Co": {
     "Atomic mass": 58.933195,
@@ -3113,8 +3092,7 @@
     "Velocity of sound": 4720,
     "Vickers hardness": 1043,
     "X": 1.88,
-    "Youngs modulus": 209,
-    "iupac_ordering": 67
+    "Youngs modulus": 209
   },
   "Cr": {
     "Atomic mass": 51.9961,
@@ -3291,8 +3269,7 @@
     "Velocity of sound": 5940,
     "Vickers hardness": 1060,
     "X": 1.66,
-    "Youngs modulus": 279,
-    "iupac_ordering": 58
+    "Youngs modulus": 279
   },
   "Cs": {
     "Atomic mass": 132.9054519,
@@ -3444,8 +3421,7 @@
     "Thermal conductivity": 36,
     "Van der waals radius": 3.43,
     "X": 0.79,
-    "Youngs modulus": 1.7,
-    "iupac_ordering": 7
+    "Youngs modulus": 1.7
   },
   "Cu": {
     "Atomic mass": 63.546,
@@ -3600,8 +3576,7 @@
     "Velocity of sound": 3570,
     "Vickers hardness": 369,
     "X": 1.9,
-    "Youngs modulus": 130,
-    "iupac_ordering": 73
+    "Youngs modulus": 130
   },
   "Dy": {
     "Atomic mass": 162.5,
@@ -3778,8 +3753,7 @@
     "Velocity of sound": 2710,
     "Vickers hardness": 540,
     "X": 1.22,
-    "Youngs modulus": 61,
-    "iupac_ordering": 38
+    "Youngs modulus": 61
   },
   "Er": {
     "Atomic mass": 167.259,
@@ -3936,8 +3910,7 @@
     "Velocity of sound": 2830,
     "Vickers hardness": 589,
     "X": 1.24,
-    "Youngs modulus": 70,
-    "iupac_ordering": 36
+    "Youngs modulus": 70
   },
   "Es": {
     "Atomic mass": 252,
@@ -4061,8 +4034,7 @@
       2,
       3
     ],
-    "X": 1.3,
-    "iupac_ordering": 22
+    "X": 1.3
   },
   "Eu": {
     "Atomic mass": 151.964,
@@ -4251,8 +4223,7 @@
     "Van der waals radius": "no data",
     "Vickers hardness": 167,
     "X": 1.2,
-    "Youngs modulus": 18,
-    "iupac_ordering": 41
+    "Youngs modulus": 18
   },
   "F": {
     "Atomic mass": 18.9984032,
@@ -4344,8 +4315,7 @@
     },
     "Thermal conductivity": 0.0277,
     "Van der waals radius": 1.47,
-    "X": 3.98,
-    "iupac_ordering": 102
+    "X": 3.98
   },
   "Fe": {
     "Atomic mass": 55.845,
@@ -4530,8 +4500,7 @@
     "Velocity of sound": 4910,
     "Vickers hardness": 608,
     "X": 1.83,
-    "Youngs modulus": 211,
-    "iupac_ordering": 64
+    "Youngs modulus": 211
   },
   "Fm": {
     "Atomic mass": 257,
@@ -4655,8 +4624,7 @@
       2,
       3
     ],
-    "X": 1.3,
-    "iupac_ordering": 21
+    "X": 1.3
   },
   "Fr": {
     "Atomic mass": 223,
@@ -4800,8 +4768,7 @@
       }
     },
     "Van der waals radius": 3.48,
-    "X": 0.7,
-    "iupac_ordering": 6
+    "X": 0.7
   },
   "Ga": {
     "Atomic mass": 69.723,
@@ -4910,8 +4877,7 @@
     "Thermal conductivity": 29,
     "Van der waals radius": 1.87,
     "Velocity of sound": 2740,
-    "X": 1.81,
-    "iupac_ordering": 79
+    "X": 1.81
   },
   "Gd": {
     "Atomic mass": 157.25,
@@ -5067,8 +5033,7 @@
     "Velocity of sound": 2680,
     "Vickers hardness": 570,
     "X": 1.2,
-    "Youngs modulus": 55,
-    "iupac_ordering": 40
+    "Youngs modulus": 55
   },
   "Ge": {
     "Atomic mass": 72.64,
@@ -5186,8 +5151,7 @@
     "Thermal conductivity": 60,
     "Van der waals radius": 2.11,
     "Velocity of sound": 5400,
-    "X": 2.01,
-    "iupac_ordering": 84
+    "X": 2.01
   },
   "H": {
     "Atomic mass": 1.00794,
@@ -5251,8 +5215,7 @@
     "Thermal conductivity": 0.1805,
     "Van der waals radius": 1.2,
     "Velocity of sound": 1270,
-    "X": 2.2,
-    "iupac_ordering": 92
+    "X": 2.2
   },
   "He": {
     "Atomic mass": 4.002602,
@@ -5284,8 +5247,7 @@
     "Refractive index": "1.000035 (gas; liquid 1.028)",
     "Thermal conductivity": 0.1513,
     "Van der waals radius": 1.4,
-    "Velocity of sound": 970,
-    "iupac_ordering": 5
+    "Velocity of sound": 970
   },
   "Hf": {
     "Atomic mass": 178.49,
@@ -5451,8 +5413,7 @@
     "Velocity of sound": 3010,
     "Vickers hardness": 1760,
     "X": 1.3,
-    "Youngs modulus": 78,
-    "iupac_ordering": 50
+    "Youngs modulus": 78
   },
   "Hg": {
     "Atomic mass": 200.59,
@@ -5643,8 +5604,7 @@
     "Thermal conductivity": 8.3,
     "Van der waals radius": 1.55,
     "Velocity of sound": 1407,
-    "X": 2,
-    "iupac_ordering": 74
+    "X": 2
   },
   "Ho": {
     "Atomic mass": 164.93032,
@@ -5800,8 +5760,7 @@
     "Velocity of sound": 2760,
     "Vickers hardness": 481,
     "X": 1.23,
-    "Youngs modulus": 65,
-    "iupac_ordering": 37
+    "Youngs modulus": 65
   },
   "I": {
     "Atomic mass": 126.90447,
@@ -5964,8 +5923,7 @@
     },
     "Thermal conductivity": 0.449,
     "Van der waals radius": 1.98,
-    "X": 2.66,
-    "iupac_ordering": 99
+    "X": 2.66
   },
   "In": {
     "Atomic mass": 114.818,
@@ -6101,8 +6059,7 @@
     "Van der waals radius": 1.93,
     "Velocity of sound": 1215,
     "X": 1.78,
-    "Youngs modulus": 11,
-    "iupac_ordering": 78
+    "Youngs modulus": 11
   },
   "Ir": {
     "Atomic mass": 192.217,
@@ -6283,8 +6240,7 @@
     "Velocity of sound": 4825,
     "Vickers hardness": 1760,
     "X": 2.2,
-    "Youngs modulus": 528,
-    "iupac_ordering": 65
+    "Youngs modulus": 528
   },
   "K": {
     "Atomic mass": 39.0983,
@@ -6407,8 +6363,7 @@
     "Thermal conductivity": 100,
     "Van der waals radius": 2.75,
     "Velocity of sound": 2000,
-    "X": 0.82,
-    "iupac_ordering": 9
+    "X": 0.82
   },
   "Kr": {
     "Atomic mass": 83.798,
@@ -6482,8 +6437,7 @@
     "Thermal conductivity": 0.00943,
     "Van der waals radius": 2.02,
     "Velocity of sound": 1120,
-    "X": 3,
-    "iupac_ordering": 2
+    "X": 3
   },
   "La": {
     "Atomic mass": 138.90547,
@@ -6648,8 +6602,7 @@
     "Velocity of sound": 2475,
     "Vickers hardness": 491,
     "X": 1.1,
-    "Youngs modulus": 37,
-    "iupac_ordering": 47
+    "Youngs modulus": 37
   },
   "Li": {
     "Atomic mass": 6.941,
@@ -6727,8 +6680,7 @@
     "Van der waals radius": 1.82,
     "Velocity of sound": 6000,
     "X": 0.98,
-    "Youngs modulus": 4.9,
-    "iupac_ordering": 11
+    "Youngs modulus": 4.9
   },
   "Lr": {
     "Atomic mass": 262,
@@ -6854,8 +6806,7 @@
     "Oxidation states": [
       3
     ],
-    "X": 1.3,
-    "iupac_ordering": 18
+    "X": 1.3
   },
   "Lu": {
     "Atomic mass": 174.967,
@@ -7010,8 +6961,7 @@
     "Van der waals radius": "no data",
     "Vickers hardness": 1160,
     "X": 1.27,
-    "Youngs modulus": 69,
-    "iupac_ordering": 33
+    "Youngs modulus": 69
   },
   "Md": {
     "Atomic mass": 258,
@@ -7136,8 +7086,7 @@
       2,
       3
     ],
-    "X": 1.3,
-    "iupac_ordering": 20
+    "X": 1.3
   },
   "Mg": {
     "Atomic mass": 24.305,
@@ -7234,8 +7183,7 @@
     "Van der waals radius": 1.73,
     "Velocity of sound": 4602,
     "X": 1.31,
-    "Youngs modulus": 45,
-    "iupac_ordering": 16
+    "Youngs modulus": 45
   },
   "Mn": {
     "Atomic mass": 54.938045,
@@ -7446,8 +7394,7 @@
     "Van der waals radius": "no data",
     "Velocity of sound": 5150,
     "X": 1.55,
-    "Youngs modulus": 198,
-    "iupac_ordering": 61
+    "Youngs modulus": 198
   },
   "Mo": {
     "Atomic mass": 95.94,
@@ -7625,8 +7572,7 @@
     "Velocity of sound": 6190,
     "Vickers hardness": 1530,
     "X": 2.16,
-    "Youngs modulus": 329,
-    "iupac_ordering": 57
+    "Youngs modulus": 329
   },
   "N": {
     "Atomic mass": 14.0067,
@@ -7730,8 +7676,7 @@
     "Thermal conductivity": 0.02583,
     "Van der waals radius": 1.55,
     "Velocity of sound": 333.6,
-    "X": 3.04,
-    "iupac_ordering": 91
+    "X": 3.04
   },
   "Na": {
     "Atomic mass": 22.98976928,
@@ -7844,8 +7789,7 @@
     "Van der waals radius": 2.27,
     "Velocity of sound": 3200,
     "X": 0.93,
-    "Youngs modulus": 10,
-    "iupac_ordering": 10
+    "Youngs modulus": 10
   },
   "Nb": {
     "Atomic mass": 92.90638,
@@ -8005,8 +7949,7 @@
     "Velocity of sound": 3480,
     "Vickers hardness": 1320,
     "X": 1.6,
-    "Youngs modulus": 105,
-    "iupac_ordering": 54
+    "Youngs modulus": 105
   },
   "Nd": {
     "Atomic mass": 144.242,
@@ -8172,8 +8115,7 @@
     "Velocity of sound": 2330,
     "Vickers hardness": 343,
     "X": 1.14,
-    "Youngs modulus": 41,
-    "iupac_ordering": 44
+    "Youngs modulus": 41
   },
   "Ne": {
     "Atomic mass": 20.1797,
@@ -8218,8 +8160,7 @@
     "Refractive index": 1.000067,
     "Thermal conductivity": 0.0491,
     "Van der waals radius": 1.54,
-    "Velocity of sound": 936,
-    "iupac_ordering": 4
+    "Velocity of sound": 936
   },
   "Ni": {
     "Atomic mass": 58.6934,
@@ -8371,8 +8312,7 @@
     "Velocity of sound": 4970,
     "Vickers hardness": 638,
     "X": 1.91,
-    "Youngs modulus": 200,
-    "iupac_ordering": 70
+    "Youngs modulus": 200
   },
   "No": {
     "Atomic mass": 259,
@@ -8508,8 +8448,7 @@
         }
       }
     },
-    "X": 1.3,
-    "iupac_ordering": 19
+    "X": 1.3
   },
   "Np": {
     "Atomic mass": 237,
@@ -8702,8 +8641,7 @@
     },
     "Thermal conductivity": 6,
     "Van der waals radius": "no data",
-    "X": 1.36,
-    "iupac_ordering": 28
+    "X": 1.36
   },
   "O": {
     "Atomic mass": 15.9994,
@@ -8795,8 +8733,7 @@
     "Thermal conductivity": 0.02658,
     "Van der waals radius": 1.52,
     "Velocity of sound": 317.5,
-    "X": 3.44,
-    "iupac_ordering": 97
+    "X": 3.44
   },
   "Os": {
     "Atomic mass": 190.23,
@@ -8991,8 +8928,7 @@
     "Thermal conductivity": 88,
     "Van der waals radius": "no data",
     "Velocity of sound": 4940,
-    "X": 2.2,
-    "iupac_ordering": 62
+    "X": 2.2
   },
   "P": {
     "Atomic mass": 30.973762,
@@ -9102,8 +9038,7 @@
     },
     "Thermal conductivity": 0.236,
     "Van der waals radius": 1.8,
-    "X": 2.19,
-    "iupac_ordering": 90
+    "X": 2.19
   },
   "Pa": {
     "Atomic mass": 231.03588,
@@ -9296,8 +9231,7 @@
     "Superconduction temperature": 1.4,
     "Thermal conductivity": 47,
     "Van der waals radius": "no data",
-    "X": 1.5,
-    "iupac_ordering": 30
+    "X": 1.5
   },
   "Pb": {
     "Atomic mass": 207.2,
@@ -9527,8 +9461,7 @@
     "Van der waals radius": 2.02,
     "Velocity of sound": 1260,
     "X": 2.33,
-    "Youngs modulus": 16,
-    "iupac_ordering": 82
+    "Youngs modulus": 16
   },
   "Pd": {
     "Atomic mass": 106.42,
@@ -9680,8 +9613,7 @@
     "Velocity of sound": 3070,
     "Vickers hardness": 461,
     "X": 2.2,
-    "Youngs modulus": 121,
-    "iupac_ordering": 69
+    "Youngs modulus": 121
   },
   "Pm": {
     "Atomic mass": 145,
@@ -9819,8 +9751,7 @@
     "Thermal conductivity": 15,
     "Van der waals radius": "no data",
     "X": 1.13,
-    "Youngs modulus": 46,
-    "iupac_ordering": 43
+    "Youngs modulus": 46
   },
   "Po": {
     "Atomic mass": 210,
@@ -9988,8 +9919,7 @@
     },
     "Thermal conductivity": 20,
     "Van der waals radius": 1.97,
-    "X": 2,
-    "iupac_ordering": 93
+    "X": 2
   },
   "Pr": {
     "Atomic mass": 140.90765,
@@ -10149,8 +10079,7 @@
     "Velocity of sound": 2280,
     "Vickers hardness": 400,
     "X": 1.13,
-    "Youngs modulus": 37,
-    "iupac_ordering": 45
+    "Youngs modulus": 37
   },
   "Pt": {
     "Atomic mass": 195.084,
@@ -10329,8 +10258,7 @@
     "Velocity of sound": 2680,
     "Vickers hardness": 549,
     "X": 2.28,
-    "Youngs modulus": 168,
-    "iupac_ordering": 68
+    "Youngs modulus": 168
   },
   "Pu": {
     "Atomic mass": 244,
@@ -10510,8 +10438,7 @@
     "Van der waals radius": "no data",
     "Velocity of sound": 2260,
     "X": 1.28,
-    "Youngs modulus": 96,
-    "iupac_ordering": 27
+    "Youngs modulus": 96
   },
   "Ra": {
     "Atomic mass": 226,
@@ -10671,8 +10598,7 @@
     },
     "Thermal conductivity": 19,
     "Van der waals radius": 2.83,
-    "X": 0.9,
-    "iupac_ordering": 12
+    "X": 0.9
   },
   "Rb": {
     "Atomic mass": 85.4678,
@@ -10816,8 +10742,7 @@
     "Van der waals radius": 3.03,
     "Velocity of sound": 1300,
     "X": 0.82,
-    "Youngs modulus": 2.4,
-    "iupac_ordering": 8
+    "Youngs modulus": 2.4
   },
   "Re": {
     "Atomic mass": 186.207,
@@ -11011,8 +10936,7 @@
     "Velocity of sound": 4700,
     "Vickers hardness": 2450,
     "X": 1.9,
-    "Youngs modulus": 463,
-    "iupac_ordering": 59
+    "Youngs modulus": 463
   },
   "Rh": {
     "Atomic mass": 102.9055,
@@ -11152,8 +11076,7 @@
     "Velocity of sound": 4700,
     "Vickers hardness": 1246,
     "X": 2.28,
-    "Youngs modulus": 275,
-    "iupac_ordering": 66
+    "Youngs modulus": 275
   },
   "Rn": {
     "Atomic mass": 220,
@@ -11282,8 +11205,7 @@
     "Name": "Radon",
     "Thermal conductivity": 0.00361,
     "Van der waals radius": 2.2,
-    "X": 2.2,
-    "iupac_ordering": 0
+    "X": 2.2
   },
   "Ru": {
     "Atomic mass": 101.07,
@@ -11446,8 +11368,7 @@
     "Van der waals radius": "no data",
     "Velocity of sound": 5970,
     "X": 2.2,
-    "Youngs modulus": 447,
-    "iupac_ordering": 63
+    "Youngs modulus": 447
   },
   "S": {
     "Atomic mass": 32.065,
@@ -11567,8 +11488,7 @@
     },
     "Thermal conductivity": 0.205,
     "Van der waals radius": 1.8,
-    "X": 2.58,
-    "iupac_ordering": 96
+    "X": 2.58
   },
   "Sb": {
     "Atomic mass": 121.76,
@@ -11723,8 +11643,7 @@
     "Van der waals radius": 2.06,
     "Velocity of sound": 3420,
     "X": 2.05,
-    "Youngs modulus": 55,
-    "iupac_ordering": 88
+    "Youngs modulus": 55
   },
   "Sc": {
     "Atomic mass": 44.955912,
@@ -11821,8 +11740,7 @@
     "Thermal conductivity": 16,
     "Van der waals radius": 2.11,
     "X": 1.36,
-    "Youngs modulus": 74,
-    "iupac_ordering": 49
+    "Youngs modulus": 74
   },
   "Se": {
     "Atomic mass": 78.96,
@@ -11959,8 +11877,7 @@
     "Van der waals radius": 1.9,
     "Velocity of sound": 3350,
     "X": 2.55,
-    "Youngs modulus": 10,
-    "iupac_ordering": 95
+    "Youngs modulus": 10
   },
   "Si": {
     "Atomic mass": 28.0855,
@@ -12051,8 +11968,7 @@
     "Van der waals radius": 2.1,
     "Velocity of sound": 2200,
     "X": 1.9,
-    "Youngs modulus": 47,
-    "iupac_ordering": 85
+    "Youngs modulus": 47
   },
   "Sm": {
     "Atomic mass": 150.36,
@@ -12232,8 +12148,7 @@
     "Velocity of sound": 2130,
     "Vickers hardness": 412,
     "X": 1.17,
-    "Youngs modulus": 50,
-    "iupac_ordering": 42
+    "Youngs modulus": 50
   },
   "Sn": {
     "Atomic mass": 118.71,
@@ -12389,8 +12304,7 @@
     "Van der waals radius": 2.17,
     "Velocity of sound": 2500,
     "X": 1.96,
-    "Youngs modulus": 50,
-    "iupac_ordering": 83
+    "Youngs modulus": 50
   },
   "Sr": {
     "Atomic mass": 87.62,
@@ -12524,8 +12438,7 @@
     },
     "Thermal conductivity": 35,
     "Van der waals radius": 2.49,
-    "X": 0.95,
-    "iupac_ordering": 14
+    "X": 0.95
   },
   "Ta": {
     "Atomic mass": 180.94788,
@@ -12709,8 +12622,7 @@
     "Velocity of sound": 3400,
     "Vickers hardness": 873,
     "X": 1.5,
-    "Youngs modulus": 186,
-    "iupac_ordering": 53
+    "Youngs modulus": 186
   },
   "Tb": {
     "Atomic mass": 158.92535,
@@ -12882,8 +12794,7 @@
     "Velocity of sound": 2620,
     "Vickers hardness": 863,
     "X": 1.1,
-    "Youngs modulus": 56,
-    "iupac_ordering": 39
+    "Youngs modulus": 56
   },
   "Tc": {
     "Atomic mass": 98,
@@ -13018,8 +12929,7 @@
     "Superconduction temperature": 7.8,
     "Thermal conductivity": 51,
     "Van der waals radius": "no data",
-    "X": 1.9,
-    "iupac_ordering": 60
+    "X": 1.9
   },
   "Te": {
     "Atomic mass": 127.6,
@@ -13189,8 +13099,7 @@
     "Van der waals radius": 2.06,
     "Velocity of sound": 2610,
     "X": 2.1,
-    "Youngs modulus": 43,
-    "iupac_ordering": 94
+    "Youngs modulus": 43
   },
   "Th": {
     "Atomic mass": 232.03806,
@@ -13389,8 +13298,7 @@
     "Velocity of sound": 2490,
     "Vickers hardness": 350,
     "X": 1.3,
-    "Youngs modulus": 79,
-    "iupac_ordering": 31
+    "Youngs modulus": 79
   },
   "Ti": {
     "Atomic mass": 47.867,
@@ -13524,8 +13432,7 @@
     "Velocity of sound": 4140,
     "Vickers hardness": 970,
     "X": 1.54,
-    "Youngs modulus": 116,
-    "iupac_ordering": 52
+    "Youngs modulus": 116
   },
   "Tl": {
     "Atomic mass": 204.3833,
@@ -13717,8 +13624,7 @@
     "Van der waals radius": 1.96,
     "Velocity of sound": 818,
     "X": 1.62,
-    "Youngs modulus": 8,
-    "iupac_ordering": 77
+    "Youngs modulus": 8
   },
   "Tm": {
     "Atomic mass": 168.93421,
@@ -13885,8 +13791,7 @@
     "Van der waals radius": "no data",
     "Vickers hardness": 520,
     "X": 1.25,
-    "Youngs modulus": 74,
-    "iupac_ordering": 35
+    "Youngs modulus": 74
   },
   "U": {
     "Atomic mass": 238.02891,
@@ -14143,8 +14048,7 @@
     "Velocity of sound": 3155,
     "Vickers hardness": 1960,
     "X": 1.38,
-    "Youngs modulus": 208,
-    "iupac_ordering": 29
+    "Youngs modulus": 208
   },
   "V": {
     "Atomic mass": 50.9415,
@@ -14301,8 +14205,7 @@
     "Velocity of sound": 4560,
     "Vickers hardness": 628,
     "X": 1.63,
-    "Youngs modulus": 128,
-    "iupac_ordering": 55
+    "Youngs modulus": 128
   },
   "W": {
     "Atomic mass": 183.84,
@@ -14494,8 +14397,7 @@
     "Velocity of sound": 5174,
     "Vickers hardness": 3430,
     "X": 2.36,
-    "Youngs modulus": 411,
-    "iupac_ordering": 56
+    "Youngs modulus": 411
   },
   "Xe": {
     "Atomic mass": 131.293,
@@ -14609,8 +14511,7 @@
     "Thermal conductivity": 0.00565,
     "Van der waals radius": 2.16,
     "Velocity of sound": 1090,
-    "X": 2.6,
-    "iupac_ordering": 1
+    "X": 2.6
   },
   "Y": {
     "Atomic mass": 88.90585,
@@ -14737,8 +14638,7 @@
     "Van der waals radius": "no data",
     "Velocity of sound": 3300,
     "X": 1.22,
-    "Youngs modulus": 64,
-    "iupac_ordering": 48
+    "Youngs modulus": 64
   },
   "Yb": {
     "Atomic mass": 173.04,
@@ -14920,8 +14820,7 @@
     "Velocity of sound": 1590,
     "Vickers hardness": 206,
     "X": 1.1,
-    "Youngs modulus": 24,
-    "iupac_ordering": 34
+    "Youngs modulus": 24
   },
   "Zn": {
     "Atomic mass": 65.409,
@@ -15041,8 +14940,7 @@
     "Van der waals radius": 1.39,
     "Velocity of sound": 3700,
     "X": 1.65,
-    "Youngs modulus": 108,
-    "iupac_ordering": 76
+    "Youngs modulus": 108
   },
   "Zr": {
     "Atomic mass": 91.224,
@@ -15186,8 +15084,7 @@
     "Velocity of sound": 3800,
     "Vickers hardness": 903,
     "X": 1.33,
-    "Youngs modulus": 68,
-    "iupac_ordering": 51
+    "Youngs modulus": 68
   },
   "Rf": {
     "Atomic mass": 267,

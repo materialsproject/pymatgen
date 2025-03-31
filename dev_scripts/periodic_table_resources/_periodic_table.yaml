@@ -4216,16 +4216,3 @@ Youngs modulus:
     Nd: 41, Pm: 46, Sm: 50, Eu: 18, Gd: 55, Tb: 56, Dy: 61, Ho: 65, Er: 70, Tm: 74,
     Yb: 24, Lu: 69, Hf: 78, Ta: 186, W: 411, Re: 463, Ir: 528, Pt: 168, Au: 78, Tl: 8,
     Pb: 16, Bi: 32, Th: 79, U: 208, Pu: 96}
-iupac_ordering:
-  unit:
-  reference:
-  data: {H: 92, He: 5, Li: 11, Be: 17, B: 81, C: 86, N: 91, O: 97, F: 102, Ne: 4,
-    Na: 10, Mg: 16, Al: 80, Si: 85, P: 90, S: 96, Cl: 101, Ar: 3, K: 9, Ca: 15, Sc: 49,
-    Ti: 52, V: 55, Cr: 58, Mn: 61, Fe: 64, Co: 67, Ni: 70, Cu: 73, Zn: 76, Ga: 79,
-    Ge: 84, As: 89, Se: 95, Br: 100, Kr: 2, Rb: 8, Sr: 14, Y: 48, Zr: 51, Nb: 54,
-    Mo: 57, Tc: 60, Ru: 63, Rh: 66, Pd: 69, Ag: 72, Cd: 75, In: 78, Sn: 83, Sb: 88,
-    Te: 94, I: 99, Xe: 1, Cs: 7, Ba: 13, La: 47, Ce: 46, Pr: 45, Nd: 44, Pm: 43, Sm: 42,
-    Eu: 41, Gd: 40, Tb: 39, Dy: 38, Ho: 37, Er: 36, Tm: 35, Yb: 34, Lu: 33, Hf: 50,
-    Ta: 53, W: 56, Re: 59, Os: 62, Ir: 65, Pt: 68, Au: 71, Hg: 74, Tl: 77, Pb: 82,
-    Bi: 87, Po: 93, At: 98, Rn: 0, Fr: 6, Ra: 12, Ac: 32, Th: 31, Pa: 30, U: 29, Np: 28,
-    Pu: 27, Am: 26, Cm: 25, Bk: 24, Cf: 23, Es: 22, Fm: 21, Md: 20, No: 19, Lr: 18}
