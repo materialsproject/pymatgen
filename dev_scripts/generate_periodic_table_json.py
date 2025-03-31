@@ -80,8 +80,10 @@ def parse_yaml(file: PathLike) -> list[Property]:
     for prop_name, prop_info in raw.items():
         print(f"  - Found property: '{prop_name}' ")
 
-        data_block = prop_info.get("data")
-        data = {Element(elem): ElemPropertyValue(value=val) for elem, val in data_block.items()}
+        if "data" not in prop_info:
+            raise ValueError(f"Missing 'data' block for property '{prop_name}' in YAML {file}")
+
+        data = {Element(elem): ElemPropertyValue(value=val) for elem, val in prop_info["data"].items()}
 
         result.append(
             Property(
@@ -253,7 +255,7 @@ def generate_iupac_ordering() -> list[Property]:
     print("  - Provide property: 'iupac_ordering'")  # TODO: duplicate
     print("  - Provide property: 'IUPAC ordering'")
 
-    _order = [
+    _orders = [
         ([18], range(6, 0, -1)),  # noble gasses
         ([1], range(7, 1, -1)),  # alkali metals
         ([2], range(7, 1, -1)),  # alkali earth metals
@@ -276,12 +278,12 @@ def generate_iupac_ordering() -> list[Property]:
         ([16], range(6, 1, -1)),  # Po -> O
         ([17], range(6, 1, -1)),  # At -> F
     ]
-    order: list[tuple[int, int]] = [item for sublist in (list(product(x, y)) for x, y in _order) for item in sublist]
+    orders: list[tuple[int, int]] = [item for sublist in (list(product(x, y)) for x, y in _orders) for item in sublist]
 
     iupac_ordering_dict = dict(
         zip(
-            [Element.from_row_and_group(row, group) for group, row in order],
-            range(len(order)),
+            [Element.from_row_and_group(row, group) for group, row in orders],
+            range(len(orders)),
             strict=True,
         )
     )
