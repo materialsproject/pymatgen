@@ -37,9 +37,7 @@ if TYPE_CHECKING:
 # Note that you should not update this json file manually. EDits should be done on the `periodic_table.yaml`
 # file in the `dev_scripts` directory, and gen_pt_json.py can then be run to convert the yaml to json.
 with open(Path(__file__).absolute().parent / "periodic_table.json", encoding="utf-8") as ptable_json:
-    raw_data: dict = json.load(ptable_json)
-    _PT_UNIT: dict[str, str] = raw_data.pop("_unit")
-    _PT_DATA: dict[str, Any] = raw_data
+    _PT_DATA: dict[str, Any] = json.load(ptable_json)
 
 _PT_ROW_SIZES: tuple[int, ...] = (2, 8, 8, 18, 18, 32, 32)
 
@@ -162,13 +160,13 @@ class ElementBase(Enum):
         if str(at_r).startswith("no data"):
             self._atomic_radius = None
         else:
-            self._atomic_radius = Length(at_r, _PT_UNIT["Atomic radius"])
-        self._atomic_mass = Mass(data["Atomic mass"], _PT_UNIT["Atomic mass"])
+            self._atomic_radius = Length(at_r, "ang")
+        self._atomic_mass = Mass(data["Atomic mass"], "amu")
 
         self._atomic_mass_number = None
         self.A = data.get("Atomic mass no")
         if self.A:
-            self._atomic_mass_number = Mass(self.A, _PT_UNIT["Atomic mass no"])
+            self._atomic_mass_number = Mass(self.A, "amu")
 
         self.long_name = data["Name"]
         self._data = data
@@ -228,7 +226,6 @@ class ElementBase(Enum):
                     tokens = no_bracket.replace("about", "").strip().split(" ", 1)
                     if len(tokens) == 2:
                         try:
-                            # TODO: use new unit source
                             if "10<sup>" in tokens[1]:
                                 base_power = re.findall(r"([+-]?\d+)", tokens[1])
                                 factor = "e" + base_power[1]
@@ -389,7 +386,7 @@ class ElementBase(Enum):
             radius = sum(radii.values()) / len(radii)
         else:
             radius = 0.0
-        return FloatWithUnit(radius, _PT_UNIT["Ionic radii"])
+        return FloatWithUnit(radius, "ang")
 
     @property
     def average_cationic_radius(self) -> FloatWithUnit:
@@ -398,8 +395,8 @@ class ElementBase(Enum):
         data is present.
         """
         if "Ionic radii" in self._data and (radii := [v for k, v in self._data["Ionic radii"].items() if int(k) > 0]):
-            return FloatWithUnit(sum(radii) / len(radii), _PT_UNIT["Ionic radii"])
-        return FloatWithUnit(0.0, _PT_UNIT["Ionic radii"])
+            return FloatWithUnit(sum(radii) / len(radii), "ang")
+        return FloatWithUnit(0.0, "ang")
 
     @property
     def average_anionic_radius(self) -> FloatWithUnit:
@@ -408,8 +405,8 @@ class ElementBase(Enum):
         data is present.
         """
         if "Ionic radii" in self._data and (radii := [v for k, v in self._data["Ionic radii"].items() if int(k) < 0]):
-            return FloatWithUnit(sum(radii) / len(radii), _PT_UNIT["Ionic radii"])
-        return FloatWithUnit(0.0, _PT_UNIT["Ionic radii"])
+            return FloatWithUnit(sum(radii) / len(radii), "ang")
+        return FloatWithUnit(0.0, "ang")
 
     @property
     def ionic_radii(self) -> dict[int, FloatWithUnit]:
@@ -417,7 +414,7 @@ class ElementBase(Enum):
         {oxidation state: ionic radii}. Radii are given in angstrom.
         """
         if "Ionic radii" in self._data:
-            return {int(k): FloatWithUnit(v, _PT_UNIT["Ionic radii"]) for k, v in self._data["Ionic radii"].items()}
+            return {int(k): FloatWithUnit(v, "ang") for k, v in self._data["Ionic radii"].items()}
         return {}
 
     @property
@@ -841,10 +838,7 @@ class ElementBase(Enum):
         """A dictionary the nuclear electric quadrupole moment in units of
         e*millibarns for various isotopes.
         """
-        return {
-            k: FloatWithUnit(v, _PT_UNIT["NMR Quadrupole Moment"])
-            for k, v in self.data.get("NMR Quadrupole Moment", {}).items()
-        }
+        return {k: FloatWithUnit(v, "mbarn") for k, v in self.data.get("NMR Quadrupole Moment", {}).items()}
 
     @property
     def iupac_ordering(self) -> int:
