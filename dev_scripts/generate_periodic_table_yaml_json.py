@@ -359,16 +359,20 @@ def generate_yaml_and_json(
     # Output to JSON (element -> property -> value format, and drop metadata)
     element_to_props: dict[str, dict[str, Any]] = defaultdict(dict)
 
-    # Insert units under a special `_unit` key
-    element_to_props["_unit"] = {}
+    # # Insert units under a special `_unit` key
+    # element_to_props["_unit"] = {}
 
     for prop in properties:
-        # Store unit for this property if available
-        if prop.unit is not None:
-            element_to_props["_unit"][prop.name] = str(prop.unit)
+        # # Store unit for this property if available
+        # if prop.unit is not None:
+        #     element_to_props["_unit"][prop.name] = str(prop.unit)
 
         for elem, prop_val in prop.data.items():
-            element_to_props[elem.name][prop.name] = prop_val.value
+            unit = prop.unit
+            if unit is None:
+                element_to_props[elem.name][prop.name] = prop_val.value
+            else:
+                element_to_props[elem.name][prop.name] = f"{prop_val.value} {unit}"
 
     with open(json_file, "w", encoding="utf-8") as f:
         json.dump(element_to_props, f, indent=2)
@@ -385,11 +389,11 @@ def main():
         *parse_yaml(f"{RESOURCES_DIR}/oxidation_states.yaml"),
         *parse_yaml(f"{RESOURCES_DIR}/ionization_energies_nist.yaml"),  # Parsed from HTML
         *parse_yaml(f"{RESOURCES_DIR}/electron_affinities.yaml"),
-        *parse_csv(f"{RESOURCES_DIR}/radii.csv", transform=float, unit="ang"),
+        *parse_csv(f"{RESOURCES_DIR}/radii.csv", transform=float, unit=None),
         *parse_ionic_radii(
-            f"{RESOURCES_DIR}/ionic_radii.csv", unit="ang", reference="https://en.wikipedia.org/wiki/Ionic_radius"
+            f"{RESOURCES_DIR}/ionic_radii.csv", unit=None, reference="https://en.wikipedia.org/wiki/Ionic_radius"
         ),
-        parse_shannon_radii(f"{RESOURCES_DIR}/Shannon_Radii.csv", unit="ang"),
+        parse_shannon_radii(f"{RESOURCES_DIR}/Shannon_Radii.csv", unit=None),
         generate_iupac_ordering(),
     )
 

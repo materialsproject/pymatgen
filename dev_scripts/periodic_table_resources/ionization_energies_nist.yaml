@@ -1,5 +1,4 @@
 Ionization energies:
-  unit: 'kJ/mol'
   reference: 'https://www.nist.gov/pml/atomic-spectra-database'
   data:
     H: [13.598434599702]

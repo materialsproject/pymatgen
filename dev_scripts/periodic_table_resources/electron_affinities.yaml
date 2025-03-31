@@ -1,5 +1,4 @@
 Electron affinity:
-  unit: eV
   reference: https://en.wikipedia.org/wiki/Electron_affinity_(data_page)
   data:
     H: 0.75467

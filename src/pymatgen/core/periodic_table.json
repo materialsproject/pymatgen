@@ -23,11 +23,11 @@
     },
     "Atomic radius": 1.95,
     "Atomic radius calculated": "no data",
-    "Boiling point": 3573,
+    "Boiling point": "3573 K",
     "Common oxidation states": [
       3
     ],
-    "Density of solid": 10070,
+    "Density of solid": "10070 sup^2 kg m",
     "Electron affinity": 0.35,
     "Electronic structure": {
       "0": "[Rn].6d<sup>1</sup>.7s<sup>2</sup>",
@@ -129,10 +129,10 @@
       119938.6,
       122062.9
     ],
-    "Liquid range": 2250,
-    "Melting point": 1323,
+    "Liquid range": "2250 K",
+    "Melting point": "1323 K",
     "Mendeleev no": 48,
-    "Molar volume": 22.55,
+    "Molar volume": "22.55 sup^2 cm",
     "Name": "Actinium",
     "Oxidation states": [
       3
@@ -147,7 +147,7 @@
         }
       }
     },
-    "Thermal conductivity": 12,
+    "Thermal conductivity": "12 sup^4 K W m",
     "Van der waals radius": "no data",
     "X": 1.1
   },
@@ -168,15 +168,15 @@
     },
     "Atomic radius": 1.6,
     "Atomic radius calculated": 1.65,
-    "Boiling point": 2435,
-    "Brinell hardness": 24.5,
-    "Bulk modulus": 100,
-    "Coefficient of linear thermal expansion": 18.9,
+    "Boiling point": "2435 K",
+    "Brinell hardness": "24.5 sup^2 MN m",
+    "Bulk modulus": "100 GPa",
+    "Coefficient of linear thermal expansion": "18.9 x^10 sup^4 K",
     "Common oxidation states": [
       1
     ],
-    "Density of solid": 10490,
-    "Electrical resistivity": 1.63,
+    "Density of solid": "10490 sup^2 kg m",
+    "Electrical resistivity": "1.63 sup^2 Omega m",
     "Electron affinity": 1.30447,
     "Electronic structure": {
       "0": "[Kr].4d<sup>10</sup>.5s<sup>1</sup>",
@@ -243,11 +243,11 @@
       30097.318,
       30965.698
     ],
-    "Liquid range": 1200.07,
-    "Melting point": 1234.93,
+    "Liquid range": "1200.07 K",
+    "Melting point": "1234.93 K",
     "Mendeleev no": 71,
     "Mineral hardness": 2.5,
-    "Molar volume": 10.27,
+    "Molar volume": "10.27 sup^2 cm",
     "Name": "Silver",
     "Oxidation states": [
       1,
@@ -255,8 +255,8 @@
       3
     ],
     "Poissons ratio": 0.37,
-    "Reflectivity": 97,
-    "Rigidity modulus": 30,
+    "Reflectivity": "97 ",
+    "Rigidity modulus": "30 GPa",
     "Shannon radii": {
       "1": {
         "II": {
@@ -331,12 +331,12 @@
         }
       }
     },
-    "Thermal conductivity": 430,
+    "Thermal conductivity": "430 sup^4 K W m",
     "Van der waals radius": 1.72,
-    "Velocity of sound": 2600,
-    "Vickers hardness": 251,
+    "Velocity of sound": "2600 sup^2 m s",
+    "Vickers hardness": "251 sup^2 MN m",
     "X": 1.93,
-    "Youngs modulus": 83
+    "Youngs modulus": "83 GPa"
   },
   "Al": {
     "Atomic mass": 26.9815386,
@@ -350,15 +350,15 @@
     },
     "Atomic radius": 1.25,
     "Atomic radius calculated": 1.18,
-    "Boiling point": 2792,
-    "Brinell hardness": 245,
-    "Bulk modulus": 76,
-    "Coefficient of linear thermal expansion": 23.1,
+    "Boiling point": "2792 K",
+    "Brinell hardness": "245 sup^2 MN m",
+    "Bulk modulus": "76 GPa",
+    "Coefficient of linear thermal expansion": "23.1 x^10 sup^4 K",
     "Common oxidation states": [
       3
     ],
-    "Density of solid": 2700,
-    "Electrical resistivity": 2.7,
+    "Density of solid": "2700 sup^2 kg m",
+    "Electrical resistivity": "2.7 sup^2 Omega m",
     "Electron affinity": 0.43283,
     "Electronic structure": {
       "0": "[Ne].3s<sup>2</sup>.3p<sup>1</sup>",
@@ -387,11 +387,11 @@
       2085.97702,
       2304.14007
     ],
-    "Liquid range": 1858.53,
-    "Melting point": 933.47,
+    "Liquid range": "1858.53 K",
+    "Melting point": "933.47 K",
     "Mendeleev no": 80,
     "Mineral hardness": 2.75,
-    "Molar volume": 10.0,
+    "Molar volume": "10.0 sup^2 cm",
     "NMR Quadrupole Moment": {
       "Al-27": 146.6
     },
@@ -401,8 +401,8 @@
       3
     ],
     "Poissons ratio": 0.35,
-    "Reflectivity": 71,
-    "Rigidity modulus": 26,
+    "Reflectivity": "71 ",
+    "Rigidity modulus": "26 GPa",
     "Shannon radii": {
       "3": {
         "IV": {
@@ -425,20 +425,20 @@
         }
       }
     },
-    "Superconduction temperature": 1.175,
-    "Thermal conductivity": 235,
+    "Superconduction temperature": "1.175 K",
+    "Thermal conductivity": "235 sup^4 K W m",
     "Van der waals radius": 1.84,
-    "Velocity of sound": 5100,
-    "Vickers hardness": 167,
+    "Velocity of sound": "5100 sup^2 m s",
+    "Vickers hardness": "167 sup^2 MN m",
     "X": 1.61,
-    "Youngs modulus": 70
+    "Youngs modulus": "70 GPa"
   },
   "Am": {
     "Atomic mass": 243,
     "Atomic no": 95,
     "Atomic radius": 1.75,
     "Atomic radius calculated": "no data",
-    "Boiling point": 2880,
+    "Boiling point": "2880 K",
     "Common oxidation states": [
       3
     ],
@@ -551,10 +551,10 @@
       139769.5,
       142161.0
     ],
-    "Liquid range": 1431,
-    "Melting point": 1449,
+    "Liquid range": "1431 K",
+    "Melting point": "1449 K",
     "Mendeleev no": 42,
-    "Molar volume": 17.63,
+    "Molar volume": "17.63 sup^2 cm",
     "Name": "Americium",
     "Oxidation states": [
       2,
@@ -613,8 +613,8 @@
         }
       }
     },
-    "Superconduction temperature": 0.6,
-    "Thermal conductivity": 10,
+    "Superconduction temperature": "0.6 K",
+    "Thermal conductivity": "10 sup^4 K W m",
     "Van der waals radius": "no data",
     "X": 1.3
   },
@@ -630,8 +630,8 @@
     },
     "Atomic radius": 0.71,
     "Atomic radius calculated": 0.71,
-    "Boiling point": 87.3,
-    "Critical temperature": 150.8,
+    "Boiling point": "87.3 K",
+    "Critical temperature": "150.8 K",
     "Electron affinity": -1.0,
     "Electronic structure": {
       "0": "[Ne].3s<sup>2</sup>.3p<sup>6</sup>"
@@ -658,17 +658,17 @@
       4120.6657,
       4426.2229
     ],
-    "Liquid range": 3.5,
+    "Liquid range": "3.5 K",
     "Max oxidation state": 0,
-    "Melting point": 83.8,
+    "Melting point": "83.8 K",
     "Mendeleev no": 3,
     "Min oxidation state": 0,
-    "Molar volume": 22.56,
+    "Molar volume": "22.56 sup^2 cm",
     "Name": "Argon",
     "Refractive index": 1.000281,
-    "Thermal conductivity": 0.01772,
+    "Thermal conductivity": "0.01772 sup^4 K W m",
     "Van der waals radius": 1.88,
-    "Velocity of sound": 319
+    "Velocity of sound": "319 sup^2 m s"
   },
   "As": {
     "Atomic mass": 74.9216,
@@ -685,17 +685,17 @@
     },
     "Atomic radius": 1.15,
     "Atomic radius calculated": 1.14,
-    "Boiling point": 887,
-    "Brinell hardness": 1440,
-    "Bulk modulus": 22,
+    "Boiling point": "887 K",
+    "Brinell hardness": "1440 sup^2 MN m",
+    "Bulk modulus": "22 GPa",
     "Common oxidation states": [
       -3,
       3,
       5
     ],
-    "Critical temperature": 1700,
-    "Density of solid": 5727,
-    "Electrical resistivity": 33,
+    "Critical temperature": "1700 K",
+    "Density of solid": "5727 sup^2 kg m",
+    "Electrical resistivity": "33 sup^2 Omega m",
     "Electron affinity": 0.804486,
     "Electronic structure": {
       "0": "[Ar].3d<sup>10</sup>.4s<sup>2</sup>.4p<sup>3</sup>",
@@ -752,11 +752,11 @@
       14447.678,
       15028.907
     ],
-    "Liquid range": 203,
-    "Melting point": 1090,
+    "Liquid range": "203 K",
+    "Melting point": "1090 K",
     "Mendeleev no": 89,
     "Mineral hardness": 3.5,
-    "Molar volume": 12.95,
+    "Molar volume": "12.95 sup^2 cm",
     "Name": "Arsenic",
     "Oxidation states": [
       -3,
@@ -789,10 +789,10 @@
         }
       }
     },
-    "Thermal conductivity": 50,
+    "Thermal conductivity": "50 sup^4 K W m",
     "Van der waals radius": 1.85,
     "X": 2.18,
-    "Youngs modulus": 8
+    "Youngs modulus": "8 GPa"
   },
   "At": {
     "Atomic mass": 210,
@@ -918,7 +918,7 @@
       107923.4,
       109886.0
     ],
-    "Melting point": 575,
+    "Melting point": "575 K",
     "Mendeleev no": 96,
     "Name": "Astatine",
     "Oxidation states": [
@@ -937,7 +937,7 @@
         }
       }
     },
-    "Thermal conductivity": "2 (estimate)",
+    "Thermal conductivity": "2 (estimate) sup^4 K W m",
     "Van der waals radius": 2.02,
     "X": 2.2
   },
@@ -962,15 +962,15 @@
     },
     "Atomic radius": 1.35,
     "Atomic radius calculated": 1.74,
-    "Boiling point": 3129,
-    "Brinell hardness": 2450,
-    "Bulk modulus": 220,
-    "Coefficient of linear thermal expansion": 14.2,
+    "Boiling point": "3129 K",
+    "Brinell hardness": "2450 sup^2 MN m",
+    "Bulk modulus": "220 GPa",
+    "Coefficient of linear thermal expansion": "14.2 x^10 sup^4 K",
     "Common oxidation states": [
       3
     ],
-    "Density of solid": 19300,
-    "Electrical resistivity": 2.2,
+    "Density of solid": "19300 sup^2 kg m",
+    "Electrical resistivity": "2.2 sup^2 Omega m",
     "Electron affinity": 2.30861,
     "Electronic structure": {
       "0": "[Xe].4f<sup>14</sup>.5d<sup>10</sup>.6s<sup>1</sup>",
@@ -1064,11 +1064,11 @@
       91515.82,
       93254.3
     ],
-    "Liquid range": 1791.67,
-    "Melting point": 1337.33,
+    "Liquid range": "1791.67 K",
+    "Melting point": "1337.33 K",
     "Mendeleev no": 70,
     "Mineral hardness": 2.5,
-    "Molar volume": 10.21,
+    "Molar volume": "10.21 sup^2 cm",
     "Name": "Gold",
     "Oxidation states": [
       -1,
@@ -1078,8 +1078,8 @@
       5
     ],
     "Poissons ratio": 0.44,
-    "Reflectivity": 95,
-    "Rigidity modulus": 27,
+    "Reflectivity": "95 ",
+    "Rigidity modulus": "27 GPa",
     "Shannon radii": {
       "1": {
         "VI": {
@@ -1112,12 +1112,12 @@
         }
       }
     },
-    "Thermal conductivity": 320,
+    "Thermal conductivity": "320 sup^4 K W m",
     "Van der waals radius": 1.66,
-    "Velocity of sound": 1740,
-    "Vickers hardness": 216,
+    "Velocity of sound": "1740 sup^2 m s",
+    "Vickers hardness": "216 sup^2 MN m",
     "X": 2.54,
-    "Youngs modulus": 78
+    "Youngs modulus": "78 GPa"
   },
   "B": {
     "Atomic mass": 10.811,
@@ -1129,14 +1129,14 @@
     },
     "Atomic radius": 0.85,
     "Atomic radius calculated": 0.87,
-    "Boiling point": 4200,
-    "Bulk modulus": 320,
-    "Coefficient of linear thermal expansion": 6,
+    "Boiling point": "4200 K",
+    "Bulk modulus": "320 GPa",
+    "Coefficient of linear thermal expansion": "6 x^10 sup^4 K",
     "Common oxidation states": [
       3
     ],
-    "Density of solid": 2460,
-    "Electrical resistivity": "&gt; 10<sup>12</sup>",
+    "Density of solid": "2460 sup^2 kg m",
+    "Electrical resistivity": "&gt; 10<sup>12</sup> sup^2 Omega m",
     "Electron affinity": 0.279723,
     "Electronic structure": {
       "0": "[He].2s<sup>2</sup>.2p<sup>1</sup>",
@@ -1158,11 +1158,11 @@
       259.3715,
       340.2260229
     ],
-    "Liquid range": 1851,
-    "Melting point": 2349,
+    "Liquid range": "1851 K",
+    "Melting point": "2349 K",
     "Mendeleev no": 86,
     "Mineral hardness": 9.3,
-    "Molar volume": 4.39,
+    "Molar volume": "4.39 sup^2 cm",
     "NMR Quadrupole Moment": {
       "B-10": 84.59,
       "B-11": 40.59
@@ -1195,10 +1195,10 @@
         }
       }
     },
-    "Thermal conductivity": 27,
+    "Thermal conductivity": "27 sup^4 K W m",
     "Van der waals radius": 1.92,
-    "Velocity of sound": 16200,
-    "Vickers hardness": 49000,
+    "Velocity of sound": "16200 sup^2 m s",
+    "Vickers hardness": "49000 sup^2 MN m",
     "X": 2.04
   },
   "Ba": {
@@ -1220,14 +1220,14 @@
     },
     "Atomic radius": 2.15,
     "Atomic radius calculated": 2.53,
-    "Boiling point": 2143,
-    "Bulk modulus": 9.6,
-    "Coefficient of linear thermal expansion": 20.6,
+    "Boiling point": "2143 K",
+    "Bulk modulus": "9.6 GPa",
+    "Coefficient of linear thermal expansion": "20.6 x^10 sup^4 K",
     "Common oxidation states": [
       2
     ],
-    "Density of solid": 3510,
-    "Electrical resistivity": 34,
+    "Density of solid": "3510 sup^2 kg m",
+    "Electrical resistivity": "34 sup^2 Omega m",
     "Electron affinity": 0.14462,
     "Electronic structure": {
       "0": "[Xe].6s<sup>2</sup>",
@@ -1299,16 +1299,16 @@
       43485.366,
       44561.47
     ],
-    "Liquid range": 1143,
-    "Melting point": 1000,
+    "Liquid range": "1143 K",
+    "Melting point": "1000 K",
     "Mendeleev no": 14,
     "Mineral hardness": 1.25,
-    "Molar volume": 38.16,
+    "Molar volume": "38.16 sup^2 cm",
     "Name": "Barium",
     "Oxidation states": [
       2
     ],
-    "Rigidity modulus": 4.9,
+    "Rigidity modulus": "4.9 GPa",
     "Shannon radii": {
       "2": {
         "VI": {
@@ -1355,11 +1355,11 @@
         }
       }
     },
-    "Thermal conductivity": 18,
+    "Thermal conductivity": "18 sup^4 K W m",
     "Van der waals radius": 2.68,
-    "Velocity of sound": 1620,
+    "Velocity of sound": "1620 sup^2 m s",
     "X": 0.89,
-    "Youngs modulus": 13
+    "Youngs modulus": "13 GPa"
   },
   "Be": {
     "Atomic mass": 9.012182,
@@ -1370,15 +1370,15 @@
     },
     "Atomic radius": 1.05,
     "Atomic radius calculated": 1.12,
-    "Boiling point": 2742,
-    "Brinell hardness": 600,
-    "Bulk modulus": 130,
-    "Coefficient of linear thermal expansion": 11.3,
+    "Boiling point": "2742 K",
+    "Brinell hardness": "600 sup^2 MN m",
+    "Bulk modulus": "130 GPa",
+    "Coefficient of linear thermal expansion": "11.3 x^10 sup^4 K",
     "Common oxidation states": [
       2
     ],
-    "Density of solid": 1848,
-    "Electrical resistivity": 3.8,
+    "Density of solid": "1848 sup^2 kg m",
+    "Electrical resistivity": "3.8 sup^2 Omega m",
     "Electron affinity": -0.5,
     "Electronic structure": {
       "0": "[He].2s<sup>2</sup>",
@@ -1398,11 +1398,11 @@
       153.896205,
       217.7185861
     ],
-    "Liquid range": 1182,
-    "Melting point": 1560,
+    "Liquid range": "1182 K",
+    "Melting point": "1560 K",
     "Mendeleev no": 77,
     "Mineral hardness": 5.5,
-    "Molar volume": 4.85,
+    "Molar volume": "4.85 sup^2 cm",
     "NMR Quadrupole Moment": {
       "Be-9": 52.88
     },
@@ -1411,7 +1411,7 @@
       2
     ],
     "Poissons ratio": 0.032,
-    "Rigidity modulus": 132,
+    "Rigidity modulus": "132 GPa",
     "Shannon radii": {
       "2": {
         "III": {
@@ -1434,13 +1434,13 @@
         }
       }
     },
-    "Superconduction temperature": 0.026,
-    "Thermal conductivity": 190,
+    "Superconduction temperature": "0.026 K",
+    "Thermal conductivity": "190 sup^4 K W m",
     "Van der waals radius": 1.53,
-    "Velocity of sound": 13000,
-    "Vickers hardness": 1670,
+    "Velocity of sound": "13000 sup^2 m s",
+    "Vickers hardness": "1670 sup^2 MN m",
     "X": 1.57,
-    "Youngs modulus": 287
+    "Youngs modulus": "287 GPa"
   },
   "Bi": {
     "Atomic mass": 208.9804,
@@ -1464,15 +1464,15 @@
     },
     "Atomic radius": 1.6,
     "Atomic radius calculated": 1.43,
-    "Boiling point": 1837,
-    "Brinell hardness": 94.2,
-    "Bulk modulus": 31,
-    "Coefficient of linear thermal expansion": 13.4,
+    "Boiling point": "1837 K",
+    "Brinell hardness": "94.2 sup^2 MN m",
+    "Bulk modulus": "31 GPa",
+    "Coefficient of linear thermal expansion": "13.4 x^10 sup^4 K",
     "Common oxidation states": [
       3
     ],
-    "Density of solid": 9780,
-    "Electrical resistivity": 130,
+    "Density of solid": "9780 sup^2 kg m",
+    "Electrical resistivity": "130 sup^2 Omega m",
     "Electron affinity": 0.942362,
     "Electronic structure": {
       "0": "[Xe].4f<sup>14</sup>.5d<sup>10</sup>.6s<sup>2</sup>.6p<sup>3</sup>",
@@ -1575,11 +1575,11 @@
       102251.76,
       104132.8
     ],
-    "Liquid range": 1292.6,
-    "Melting point": 544.4,
+    "Liquid range": "1292.6 K",
+    "Melting point": "544.4 K",
     "Mendeleev no": 87,
     "Mineral hardness": 2.25,
-    "Molar volume": 21.31,
+    "Molar volume": "21.31 sup^2 cm",
     "Name": "Bismuth",
     "Oxidation states": [
       -3,
@@ -1587,7 +1587,7 @@
       5
     ],
     "Poissons ratio": 0.33,
-    "Rigidity modulus": 12,
+    "Rigidity modulus": "12 GPa",
     "Shannon radii": {
       "3": {
         "V": {
@@ -1618,11 +1618,11 @@
         }
       }
     },
-    "Thermal conductivity": 8,
+    "Thermal conductivity": "8 sup^4 K W m",
     "Van der waals radius": 2.07,
-    "Velocity of sound": 1790,
+    "Velocity of sound": "1790 sup^2 m s",
     "X": 2.02,
-    "Youngs modulus": 32
+    "Youngs modulus": "32 GPa"
   },
   "Bk": {
     "Atomic mass": 247,
@@ -1630,7 +1630,7 @@
     "Common oxidation states": [
       3
     ],
-    "Density of solid": 14780,
+    "Density of solid": "14780 sup^2 kg m",
     "Electron affinity": -1.72,
     "Electronic structure": {
       "0": "[Rn].5f<sup>9</sup>.7s<sup>2</sup>",
@@ -1741,9 +1741,9 @@
       146904.7,
       149398.0
     ],
-    "Melting point": 1259,
+    "Melting point": "1259 K",
     "Mendeleev no": 40,
-    "Molar volume": 16.84,
+    "Molar volume": "16.84 sup^2 cm",
     "Name": "Berkelium",
     "Oxidation states": [
       3,
@@ -1773,7 +1773,7 @@
         }
       }
     },
-    "Thermal conductivity": 10,
+    "Thermal conductivity": "10 sup^4 K W m",
     "X": 1.3
   },
   "Br": {
@@ -1791,8 +1791,8 @@
     },
     "Atomic radius": 1.15,
     "Atomic radius calculated": 0.94,
-    "Boiling point": 332,
-    "Bulk modulus": 1.9,
+    "Boiling point": "332 K",
+    "Bulk modulus": "1.9 GPa",
     "Common oxidation states": [
       -1,
       1,
@@ -1800,8 +1800,8 @@
       5,
       7
     ],
-    "Critical temperature": 586,
-    "Electrical resistivity": "&gt; 10<sup>18</sup>",
+    "Critical temperature": "586 K",
+    "Electrical resistivity": "&gt; 10<sup>18</sup> sup^2 Omega m",
     "Electron affinity": 3.363588,
     "Electronic structure": {
       "0": "[Ar].3d<sup>10</sup>.4s<sup>2</sup>.4p<sup>5</sup>",
@@ -1860,10 +1860,10 @@
       16317.011,
       16937.127
     ],
-    "Liquid range": 66.2,
-    "Melting point": 265.8,
+    "Liquid range": "66.2 K",
+    "Melting point": "265.8 K",
     "Mendeleev no": 98,
-    "Molar volume": 19.78,
+    "Molar volume": "19.78 sup^2 cm",
     "Name": "Bromine",
     "Oxidation states": [
       -1,
@@ -1914,7 +1914,7 @@
         }
       }
     },
-    "Thermal conductivity": 0.12,
+    "Thermal conductivity": "0.12 sup^4 K W m",
     "Van der waals radius": 1.85,
     "X": 2.96
   },
@@ -1928,15 +1928,15 @@
     },
     "Atomic radius": 0.7,
     "Atomic radius calculated": 0.67,
-    "Boiling point": 4300,
-    "Bulk modulus": 33,
-    "Coefficient of linear thermal expansion": 7.1,
+    "Boiling point": "4300 K",
+    "Bulk modulus": "33 GPa",
+    "Coefficient of linear thermal expansion": "7.1 x^10 sup^4 K",
     "Common oxidation states": [
       -4,
       4
     ],
-    "Density of solid": 2267,
-    "Electrical resistivity": "about 1000 - direction dependent",
+    "Density of solid": "2267 sup^2 kg m",
+    "Electrical resistivity": "about 1000 - direction dependent sup^2 Omega m",
     "Electron affinity": 1.2621136,
     "Electronic structure": {
       "0": "[He].2s<sup>2</sup>.2p<sup>2</sup>",
@@ -1964,11 +1964,11 @@
       392.090518,
       489.993198
     ],
-    "Liquid range": 500,
-    "Melting point": 3800,
+    "Liquid range": "500 K",
+    "Melting point": "3800 K",
     "Mendeleev no": 95,
     "Mineral hardness": "0.5 (graphite; diamond is 10.0)",
-    "Molar volume": 5.29,
+    "Molar volume": "5.29 sup^2 cm",
     "NMR Quadrupole Moment": {
       "C-11": 33.27
     },
@@ -1983,7 +1983,7 @@
       3,
       4
     ],
-    "Reflectivity": 27,
+    "Reflectivity": "27 ",
     "Refractive index": "2.417 (diamond)",
     "Shannon radii": {
       "4": {
@@ -2007,9 +2007,9 @@
         }
       }
     },
-    "Thermal conductivity": 140,
+    "Thermal conductivity": "140 sup^4 K W m",
     "Van der waals radius": 1.7,
-    "Velocity of sound": 18350,
+    "Velocity of sound": "18350 sup^2 m s",
     "X": 2.55
   },
   "Ca": {
@@ -2025,15 +2025,15 @@
     },
     "Atomic radius": 1.8,
     "Atomic radius calculated": 1.94,
-    "Boiling point": 1757,
-    "Brinell hardness": 167,
-    "Bulk modulus": 17,
-    "Coefficient of linear thermal expansion": 22.3,
+    "Boiling point": "1757 K",
+    "Brinell hardness": "167 sup^2 MN m",
+    "Bulk modulus": "17 GPa",
+    "Coefficient of linear thermal expansion": "22.3 x^10 sup^4 K",
     "Common oxidation states": [
       2
     ],
-    "Density of solid": 1550,
-    "Electrical resistivity": 3.4,
+    "Density of solid": "1550 sup^2 kg m",
+    "Electrical resistivity": "3.4 sup^2 Omega m",
     "Electron affinity": 0.02455,
     "Electronic structure": {
       "0": "[Ar].4s<sup>2</sup>",
@@ -2069,11 +2069,11 @@
       5128.8578,
       5469.8616
     ],
-    "Liquid range": 642,
-    "Melting point": 1115,
+    "Liquid range": "642 K",
+    "Melting point": "1115 K",
     "Mendeleev no": 16,
     "Mineral hardness": 1.75,
-    "Molar volume": 26.2,
+    "Molar volume": "26.2 sup^2 cm",
     "NMR Quadrupole Moment": {
       "Ca-41": -66.5,
       "Ca-43": -40.8
@@ -2083,7 +2083,7 @@
       2
     ],
     "Poissons ratio": 0.31,
-    "Rigidity modulus": 7.4,
+    "Rigidity modulus": "7.4 GPa",
     "Shannon radii": {
       "2": {
         "VI": {
@@ -2124,11 +2124,11 @@
         }
       }
     },
-    "Thermal conductivity": 200,
+    "Thermal conductivity": "200 sup^4 K W m",
     "Van der waals radius": 2.31,
-    "Velocity of sound": 3810,
+    "Velocity of sound": "3810 sup^2 m s",
     "X": 1,
-    "Youngs modulus": 20
+    "Youngs modulus": "20 GPa"
   },
   "Cd": {
     "Atomic mass": 112.411,
@@ -2147,15 +2147,15 @@
     },
     "Atomic radius": 1.55,
     "Atomic radius calculated": 1.61,
-    "Boiling point": 1040,
-    "Brinell hardness": 203,
-    "Bulk modulus": 42,
-    "Coefficient of linear thermal expansion": 30.8,
+    "Boiling point": "1040 K",
+    "Brinell hardness": "203 sup^2 MN m",
+    "Bulk modulus": "42 GPa",
+    "Coefficient of linear thermal expansion": "30.8 x^10 sup^4 K",
     "Common oxidation states": [
       2
     ],
-    "Density of solid": 8650,
-    "Electrical resistivity": 7,
+    "Density of solid": "8650 sup^2 kg m",
+    "Electrical resistivity": "7 sup^2 Omega m",
     "Electron affinity": -0.7,
     "Electronic structure": {
       "0": "[Kr].4d<sup>10</sup>.5s<sup>2</sup>",
@@ -2219,19 +2219,19 @@
       31451.062,
       32341.49
     ],
-    "Liquid range": 445.78,
-    "Melting point": 594.22,
+    "Liquid range": "445.78 K",
+    "Melting point": "594.22 K",
     "Mendeleev no": 75,
     "Mineral hardness": 2.0,
-    "Molar volume": 13.0,
+    "Molar volume": "13.0 sup^2 cm",
     "Name": "Cadmium",
     "Oxidation states": [
       1,
       2
     ],
     "Poissons ratio": 0.3,
-    "Reflectivity": 67,
-    "Rigidity modulus": 19,
+    "Reflectivity": "67 ",
+    "Rigidity modulus": "19 GPa",
     "Shannon radii": {
       "2": {
         "IV": {
@@ -2272,12 +2272,12 @@
         }
       }
     },
-    "Superconduction temperature": 0.517,
-    "Thermal conductivity": 97,
+    "Superconduction temperature": "0.517 K",
+    "Thermal conductivity": "97 sup^4 K W m",
     "Van der waals radius": 1.58,
-    "Velocity of sound": 2310,
+    "Velocity of sound": "2310 sup^2 m s",
     "X": 1.69,
-    "Youngs modulus": 50
+    "Youngs modulus": "50 GPa"
   },
   "Ce": {
     "Atomic mass": 140.116,
@@ -2300,16 +2300,16 @@
     },
     "Atomic radius": 1.85,
     "Atomic radius calculated": "no data",
-    "Boiling point": 3633,
-    "Brinell hardness": 412,
-    "Bulk modulus": 22,
-    "Coefficient of linear thermal expansion": 6.3,
+    "Boiling point": "3633 K",
+    "Brinell hardness": "412 sup^2 MN m",
+    "Bulk modulus": "22 GPa",
+    "Coefficient of linear thermal expansion": "6.3 x^10 sup^4 K",
     "Common oxidation states": [
       3,
       4
     ],
-    "Density of solid": 6689,
-    "Electrical resistivity": 74,
+    "Density of solid": "6689 sup^2 kg m",
+    "Electrical resistivity": "74 sup^2 Omega m",
     "Electron affinity": 0.60016,
     "Electronic structure": {
       "0": "[Xe].4f<sup>1</sup>.5d<sup>1</sup>.6s<sup>2</sup>",
@@ -2386,11 +2386,11 @@
       46840.306,
       47965.72
     ],
-    "Liquid range": 2565,
-    "Melting point": 1068,
+    "Liquid range": "2565 K",
+    "Melting point": "1068 K",
     "Mendeleev no": 32,
     "Mineral hardness": 2.5,
-    "Molar volume": 20.69,
+    "Molar volume": "20.69 sup^2 cm",
     "Name": "Cerium",
     "Oxidation states": [
       2,
@@ -2398,7 +2398,7 @@
       4
     ],
     "Poissons ratio": 0.24,
-    "Rigidity modulus": 14,
+    "Rigidity modulus": "14 GPa",
     "Shannon radii": {
       "3": {
         "VI": {
@@ -2465,13 +2465,13 @@
         }
       }
     },
-    "Superconduction temperature": "0.022  (under pressure)",
-    "Thermal conductivity": 11,
+    "Superconduction temperature": "0.022  (under pressure) K",
+    "Thermal conductivity": "11 sup^4 K W m",
     "Van der waals radius": "no data",
-    "Velocity of sound": 2100,
-    "Vickers hardness": 270,
+    "Velocity of sound": "2100 sup^2 m s",
+    "Vickers hardness": "270 sup^2 MN m",
     "X": 1.12,
-    "Youngs modulus": 34
+    "Youngs modulus": "34 GPa"
   },
   "Cf": {
     "Atomic mass": 251,
@@ -2479,7 +2479,7 @@
     "Common oxidation states": [
       3
     ],
-    "Density of solid": 15100,
+    "Density of solid": "15100 sup^2 kg m",
     "Electron affinity": -1.01,
     "Electronic structure": {
       "0": "[Rn].5f<sup>10</sup>.7s<sup>2</sup>",
@@ -2591,9 +2591,9 @@
       150579.3,
       153124.0
     ],
-    "Melting point": 1173,
+    "Melting point": "1173 K",
     "Mendeleev no": 39,
-    "Molar volume": 16.5,
+    "Molar volume": "16.5 sup^2 cm",
     "Name": "Californium",
     "Oxidation states": [
       2,
@@ -2638,8 +2638,8 @@
     },
     "Atomic radius": 1.0,
     "Atomic radius calculated": 0.79,
-    "Boiling point": 239.11,
-    "Bulk modulus": "1.1 (liquid)",
+    "Boiling point": "239.11 K",
+    "Bulk modulus": "1.1 (liquid) GPa",
     "Common oxidation states": [
       -1,
       1,
@@ -2647,8 +2647,8 @@
       5,
       7
     ],
-    "Critical temperature": 417,
-    "Electrical resistivity": "&gt; 10<sup>10</sup>",
+    "Critical temperature": "417 K",
+    "Electrical resistivity": "&gt; 10<sup>10</sup> sup^2 Omega m",
     "Electron affinity": 3.612725,
     "Electronic structure": {
       "0": "[Ne].3s<sup>2</sup>.3p<sup>5</sup>",
@@ -2687,10 +2687,10 @@
       3658.3438,
       3946.2909
     ],
-    "Liquid range": 67.51,
-    "Melting point": 171.6,
+    "Liquid range": "67.51 K",
+    "Melting point": "171.6 K",
     "Mendeleev no": 99,
-    "Molar volume": 17.39,
+    "Molar volume": "17.39 sup^2 cm",
     "NMR Quadrupole Moment": {
       "Cl-35": -81.65,
       "Cl-37": -64.35
@@ -2739,19 +2739,19 @@
         }
       }
     },
-    "Thermal conductivity": 0.0089,
+    "Thermal conductivity": "0.0089 sup^4 K W m",
     "Van der waals radius": 1.75,
-    "Velocity of sound": 206,
+    "Velocity of sound": "206 sup^2 m s",
     "X": 3.16
   },
   "Cm": {
     "Atomic mass": 247,
     "Atomic no": 96,
-    "Boiling point": 3383,
+    "Boiling point": "3383 K",
     "Common oxidation states": [
       3
     ],
-    "Density of solid": 13510,
+    "Density of solid": "13510 sup^2 kg m",
     "Electron affinity": 0.28,
     "Electronic structure": {
       "0": "[Rn].5f<sup>7</sup>.6d<sup>1</sup>.7s<sup>2</sup>",
@@ -2861,10 +2861,10 @@
       143299.6,
       145743.0
     ],
-    "Liquid range": 1770,
-    "Melting point": 1613,
+    "Liquid range": "1770 K",
+    "Melting point": "1613 K",
     "Mendeleev no": 41,
-    "Molar volume": 18.05,
+    "Molar volume": "18.05 sup^2 cm",
     "Name": "Curium",
     "Oxidation states": [
       3,
@@ -2894,7 +2894,7 @@
         }
       }
     },
-    "Thermal conductivity": 8.8,
+    "Thermal conductivity": "8.8 sup^4 K W m",
     "X": 1.3
   },
   "Co": {
@@ -2911,16 +2911,16 @@
     },
     "Atomic radius": 1.35,
     "Atomic radius calculated": 1.52,
-    "Boiling point": 3200,
-    "Brinell hardness": 700,
-    "Bulk modulus": 180,
-    "Coefficient of linear thermal expansion": 13.0,
+    "Boiling point": "3200 K",
+    "Brinell hardness": "700 sup^2 MN m",
+    "Bulk modulus": "180 GPa",
+    "Coefficient of linear thermal expansion": "13.0 x^10 sup^4 K",
     "Common oxidation states": [
       2,
       3
     ],
-    "Density of solid": 8900,
-    "Electrical resistivity": 6,
+    "Density of solid": "8900 sup^2 kg m",
+    "Electrical resistivity": "6 sup^2 Omega m",
     "Electron affinity": 0.662255,
     "Electronic structure": {
       "0": "[Ar].3d<sup>7</sup>.4s<sup>2</sup>",
@@ -2978,11 +2978,11 @@
       9544.1833,
       10012.122
     ],
-    "Liquid range": 1432,
-    "Melting point": 1768,
+    "Liquid range": "1432 K",
+    "Melting point": "1768 K",
     "Mendeleev no": 64,
     "Mineral hardness": 5.0,
-    "Molar volume": 6.67,
+    "Molar volume": "6.67 sup^2 cm",
     "NMR Quadrupole Moment": {
       "Co-59": 420.3
     },
@@ -2996,8 +2996,8 @@
       5
     ],
     "Poissons ratio": 0.31,
-    "Reflectivity": 67,
-    "Rigidity modulus": 75,
+    "Reflectivity": "67 ",
+    "Rigidity modulus": "75 GPa",
     "Shannon radii": {
       "2": {
         "IV": {
@@ -3056,12 +3056,12 @@
         }
       }
     },
-    "Thermal conductivity": 100,
+    "Thermal conductivity": "100 sup^4 K W m",
     "Van der waals radius": "no data",
-    "Velocity of sound": 4720,
-    "Vickers hardness": 1043,
+    "Velocity of sound": "4720 sup^2 m s",
+    "Vickers hardness": "1043 sup^2 MN m",
     "X": 1.88,
-    "Youngs modulus": 209
+    "Youngs modulus": "209 GPa"
   },
   "Cr": {
     "Atomic mass": 51.9961,
@@ -3077,16 +3077,16 @@
     },
     "Atomic radius": 1.4,
     "Atomic radius calculated": 1.66,
-    "Boiling point": 2944,
-    "Brinell hardness": 1120,
-    "Bulk modulus": 160,
-    "Coefficient of linear thermal expansion": 4.9,
+    "Boiling point": "2944 K",
+    "Brinell hardness": "1120 sup^2 MN m",
+    "Bulk modulus": "160 GPa",
+    "Coefficient of linear thermal expansion": "4.9 x^10 sup^4 K",
     "Common oxidation states": [
       3,
       6
     ],
-    "Density of solid": 7140,
-    "Electrical resistivity": 12.7,
+    "Density of solid": "7140 sup^2 kg m",
+    "Electrical resistivity": "12.7 sup^2 Omega m",
     "Electron affinity": 0.675928,
     "Electronic structure": {
       "0": "[Ar].3d<sup>5</sup>.4s<sup>1</sup>",
@@ -3142,11 +3142,11 @@
       7481.8628,
       7894.7992
     ],
-    "Liquid range": 764,
-    "Melting point": 2180,
+    "Liquid range": "764 K",
+    "Melting point": "2180 K",
     "Mendeleev no": 57,
     "Mineral hardness": 8.5,
-    "Molar volume": 7.23,
+    "Molar volume": "7.23 sup^2 cm",
     "NMR Quadrupole Moment": {
       "Cr-53": -150.5
     },
@@ -3162,7 +3162,7 @@
       6
     ],
     "Poissons ratio": 0.21,
-    "Rigidity modulus": 115,
+    "Rigidity modulus": "115 GPa",
     "Shannon radii": {
       "2": {
         "VI": {
@@ -3233,12 +3233,12 @@
         }
       }
     },
-    "Thermal conductivity": 94,
+    "Thermal conductivity": "94 sup^4 K W m",
     "Van der waals radius": "no data",
-    "Velocity of sound": 5940,
-    "Vickers hardness": 1060,
+    "Velocity of sound": "5940 sup^2 m s",
+    "Vickers hardness": "1060 sup^2 MN m",
     "X": 1.66,
-    "Youngs modulus": 279
+    "Youngs modulus": "279 GPa"
   },
   "Cs": {
     "Atomic mass": 132.9054519,
@@ -3259,15 +3259,15 @@
     },
     "Atomic radius": 2.6,
     "Atomic radius calculated": 2.98,
-    "Boiling point": 944,
-    "Brinell hardness": 0.14,
-    "Bulk modulus": 1.6,
+    "Boiling point": "944 K",
+    "Brinell hardness": "0.14 sup^2 MN m",
+    "Bulk modulus": "1.6 GPa",
     "Common oxidation states": [
       1
     ],
-    "Critical temperature": 1938,
-    "Density of solid": 1879,
-    "Electrical resistivity": 21,
+    "Critical temperature": "1938 K",
+    "Density of solid": "1879 sup^2 kg m",
+    "Electrical resistivity": "21 sup^2 Omega m",
     "Electron affinity": 0.4715983,
     "Electronic structure": {
       "0": "[Xe].6s<sup>1</sup>",
@@ -3338,11 +3338,11 @@
       41861.075,
       42912.99
     ],
-    "Liquid range": 642.41,
-    "Melting point": 301.59,
+    "Liquid range": "642.41 K",
+    "Melting point": "301.59 K",
     "Mendeleev no": 8,
     "Mineral hardness": 0.2,
-    "Molar volume": 70.94,
+    "Molar volume": "70.94 sup^2 cm",
     "Name": "Cesium",
     "Oxidation states": [
       1
@@ -3387,10 +3387,10 @@
         }
       }
     },
-    "Thermal conductivity": 36,
+    "Thermal conductivity": "36 sup^4 K W m",
     "Van der waals radius": 3.43,
     "X": 0.79,
-    "Youngs modulus": 1.7
+    "Youngs modulus": "1.7 GPa"
   },
   "Cu": {
     "Atomic mass": 63.546,
@@ -3406,15 +3406,15 @@
     },
     "Atomic radius": 1.35,
     "Atomic radius calculated": 1.45,
-    "Boiling point": 3200,
-    "Brinell hardness": 874,
-    "Bulk modulus": 140,
-    "Coefficient of linear thermal expansion": 16.5,
+    "Boiling point": "3200 K",
+    "Brinell hardness": "874 sup^2 MN m",
+    "Bulk modulus": "140 GPa",
+    "Coefficient of linear thermal expansion": "16.5 x^10 sup^4 K",
     "Common oxidation states": [
       2
     ],
-    "Density of solid": 8920,
-    "Electrical resistivity": 1.72,
+    "Density of solid": "8920 sup^2 kg m",
+    "Electrical resistivity": "1.72 sup^2 Omega m",
     "Electron affinity": 1.23578,
     "Electronic structure": {
       "0": "[Ar].3d<sup>10</sup>.4s<sup>1</sup>",
@@ -3465,11 +3465,11 @@
       11062.4313,
       11567.613
     ],
-    "Liquid range": 1842.23,
-    "Melting point": 1357.77,
+    "Liquid range": "1842.23 K",
+    "Melting point": "1357.77 K",
     "Mendeleev no": 72,
     "Mineral hardness": 3.0,
-    "Molar volume": 7.11,
+    "Molar volume": "7.11 sup^2 cm",
     "NMR Quadrupole Moment": {
       "Cu-63": -220.15,
       "Cu-65": -204.14
@@ -3482,8 +3482,8 @@
       4
     ],
     "Poissons ratio": 0.34,
-    "Reflectivity": 90,
-    "Rigidity modulus": 48,
+    "Reflectivity": "90 ",
+    "Rigidity modulus": "48 GPa",
     "Shannon radii": {
       "1": {
         "II": {
@@ -3540,12 +3540,12 @@
         }
       }
     },
-    "Thermal conductivity": 400,
+    "Thermal conductivity": "400 sup^4 K W m",
     "Van der waals radius": 1.4,
-    "Velocity of sound": 3570,
-    "Vickers hardness": 369,
+    "Velocity of sound": "3570 sup^2 m s",
+    "Vickers hardness": "369 sup^2 MN m",
     "X": 1.9,
-    "Youngs modulus": 130
+    "Youngs modulus": "130 GPa"
   },
   "Dy": {
     "Atomic mass": 162.5,
@@ -3567,15 +3567,15 @@
     },
     "Atomic radius": 1.75,
     "Atomic radius calculated": 2.28,
-    "Boiling point": 2840,
-    "Brinell hardness": 500,
-    "Bulk modulus": 41,
-    "Coefficient of linear thermal expansion": 9.9,
+    "Boiling point": "2840 K",
+    "Brinell hardness": "500 sup^2 MN m",
+    "Bulk modulus": "41 GPa",
+    "Coefficient of linear thermal expansion": "9.9 x^10 sup^4 K",
     "Common oxidation states": [
       3
     ],
-    "Density of solid": 8551,
-    "Electrical resistivity": 92.6,
+    "Density of solid": "8551 sup^2 kg m",
+    "Electrical resistivity": "92.6 sup^2 Omega m",
     "Electron affinity": 0.015,
     "Electronic structure": {
       "0": "[Xe].4f<sup>10</sup>.6s<sup>2</sup>",
@@ -3658,17 +3658,17 @@
       61736.56,
       63073.5
     ],
-    "Liquid range": 1160,
-    "Melting point": 1680,
+    "Liquid range": "1160 K",
+    "Melting point": "1680 K",
     "Mendeleev no": 24,
-    "Molar volume": 19.01,
+    "Molar volume": "19.01 sup^2 cm",
     "Name": "Dysprosium",
     "Oxidation states": [
       2,
       3
     ],
     "Poissons ratio": 0.25,
-    "Rigidity modulus": 25,
+    "Rigidity modulus": "25 GPa",
     "Shannon radii": {
       "2": {
         "VI": {
@@ -3717,12 +3717,12 @@
         }
       }
     },
-    "Thermal conductivity": 11,
+    "Thermal conductivity": "11 sup^4 K W m",
     "Van der waals radius": "no data",
-    "Velocity of sound": 2710,
-    "Vickers hardness": 540,
+    "Velocity of sound": "2710 sup^2 m s",
+    "Vickers hardness": "540 sup^2 MN m",
     "X": 1.22,
-    "Youngs modulus": 61
+    "Youngs modulus": "61 GPa"
   },
   "Er": {
     "Atomic mass": 167.259,
@@ -3744,15 +3744,15 @@
     },
     "Atomic radius": 1.75,
     "Atomic radius calculated": 2.26,
-    "Boiling point": 3141,
-    "Brinell hardness": 814,
-    "Bulk modulus": 44,
-    "Coefficient of linear thermal expansion": 12.2,
+    "Boiling point": "3141 K",
+    "Brinell hardness": "814 sup^2 MN m",
+    "Bulk modulus": "44 GPa",
+    "Coefficient of linear thermal expansion": "12.2 x^10 sup^4 K",
     "Common oxidation states": [
       3
     ],
-    "Density of solid": 9066,
-    "Electrical resistivity": 86.0,
+    "Density of solid": "9066 sup^2 kg m",
+    "Electrical resistivity": "86.0 sup^2 Omega m",
     "Electron affinity": 0.312,
     "Electronic structure": {
       "0": "[Xe].4f<sup>12</sup>.6s<sup>2</sup>",
@@ -3836,16 +3836,16 @@
       65848.24,
       67241.9
     ],
-    "Liquid range": 1371,
-    "Melting point": 1802,
+    "Liquid range": "1371 K",
+    "Melting point": "1802 K",
     "Mendeleev no": 22,
-    "Molar volume": 18.46,
+    "Molar volume": "18.46 sup^2 cm",
     "Name": "Erbium",
     "Oxidation states": [
       3
     ],
     "Poissons ratio": 0.24,
-    "Rigidity modulus": 28,
+    "Rigidity modulus": "28 GPa",
     "Shannon radii": {
       "3": {
         "VI": {
@@ -3874,12 +3874,12 @@
         }
       }
     },
-    "Thermal conductivity": 15,
+    "Thermal conductivity": "15 sup^4 K W m",
     "Van der waals radius": "no data",
-    "Velocity of sound": 2830,
-    "Vickers hardness": 589,
+    "Velocity of sound": "2830 sup^2 m s",
+    "Vickers hardness": "589 sup^2 MN m",
     "X": 1.24,
-    "Youngs modulus": 70
+    "Youngs modulus": "70 GPa"
   },
   "Es": {
     "Atomic mass": 252,
@@ -3995,9 +3995,9 @@
       154328.1,
       156926.0
     ],
-    "Melting point": 1133,
+    "Melting point": "1133 K",
     "Mendeleev no": 38,
-    "Molar volume": 28.52,
+    "Molar volume": "28.52 sup^2 cm",
     "Name": "Einsteinium",
     "Oxidation states": [
       2,
@@ -4025,15 +4025,15 @@
     },
     "Atomic radius": 1.85,
     "Atomic radius calculated": 2.31,
-    "Boiling point": 1800,
-    "Bulk modulus": 8.3,
-    "Coefficient of linear thermal expansion": 35,
+    "Boiling point": "1800 K",
+    "Bulk modulus": "8.3 GPa",
+    "Coefficient of linear thermal expansion": "35 x^10 sup^4 K",
     "Common oxidation states": [
       2,
       3
     ],
-    "Density of solid": 5244,
-    "Electrical resistivity": 90,
+    "Density of solid": "5244 sup^2 kg m",
+    "Electrical resistivity": "90 sup^2 Omega m",
     "Electron affinity": 0.116,
     "Electronic structure": {
       "0": "[Xe].4f<sup>7</sup>.6s<sup>2</sup>",
@@ -4115,17 +4115,17 @@
       55865.92,
       57120.64
     ],
-    "Liquid range": 701,
-    "Melting point": 1099,
+    "Liquid range": "701 K",
+    "Melting point": "1099 K",
     "Mendeleev no": 18,
-    "Molar volume": 28.97,
+    "Molar volume": "28.97 sup^2 cm",
     "Name": "Europium",
     "Oxidation states": [
       2,
       3
     ],
     "Poissons ratio": 0.15,
-    "Rigidity modulus": 7.9,
+    "Rigidity modulus": "7.9 GPa",
     "Shannon radii": {
       "2": {
         "VI": {
@@ -4188,11 +4188,11 @@
         }
       }
     },
-    "Thermal conductivity": 14,
+    "Thermal conductivity": "14 sup^4 K W m",
     "Van der waals radius": "no data",
-    "Vickers hardness": 167,
+    "Vickers hardness": "167 sup^2 MN m",
     "X": 1.2,
-    "Youngs modulus": 18
+    "Youngs modulus": "18 GPa"
   },
   "F": {
     "Atomic mass": 18.9984032,
@@ -4204,11 +4204,11 @@
     },
     "Atomic radius": 0.5,
     "Atomic radius calculated": 0.42,
-    "Boiling point": 85.03,
+    "Boiling point": "85.03 K",
     "Common oxidation states": [
       -1
     ],
-    "Critical temperature": 144,
+    "Critical temperature": "144 K",
     "Electron affinity": 3.4011898,
     "Electronic structure": {
       "0": "[He].2s<sup>2</sup>.2p<sup>5</sup>",
@@ -4234,10 +4234,10 @@
       953.89805,
       1103.11748
     ],
-    "Liquid range": 31.5,
-    "Melting point": 53.53,
+    "Liquid range": "31.5 K",
+    "Melting point": "53.53 K",
     "Mendeleev no": 102,
-    "Molar volume": 11.2,
+    "Molar volume": "11.2 sup^2 cm",
     "NMR Quadrupole Moment": {
       "F-19": -94.2
     },
@@ -4282,7 +4282,7 @@
         }
       }
     },
-    "Thermal conductivity": 0.0277,
+    "Thermal conductivity": "0.0277 sup^4 K W m",
     "Van der waals radius": 1.47,
     "X": 3.98
   },
@@ -4300,16 +4300,16 @@
     },
     "Atomic radius": 1.4,
     "Atomic radius calculated": 1.56,
-    "Boiling point": 3134,
-    "Brinell hardness": 490,
-    "Bulk modulus": 170,
-    "Coefficient of linear thermal expansion": 11.8,
+    "Boiling point": "3134 K",
+    "Brinell hardness": "490 sup^2 MN m",
+    "Bulk modulus": "170 GPa",
+    "Coefficient of linear thermal expansion": "11.8 x^10 sup^4 K",
     "Common oxidation states": [
       2,
       3
     ],
-    "Density of solid": 7874,
-    "Electrical resistivity": 10,
+    "Density of solid": "7874 sup^2 kg m",
+    "Electrical resistivity": "10 sup^2 Omega m",
     "Electron affinity": 0.153236,
     "Electronic structure": {
       "0": "[Ar].3d<sup>6</sup>.4s<sup>2</sup>",
@@ -4364,11 +4364,11 @@
       8828.1879,
       9277.6818
     ],
-    "Liquid range": 1323,
-    "Melting point": 1811,
+    "Liquid range": "1323 K",
+    "Melting point": "1811 K",
     "Mendeleev no": 61,
     "Mineral hardness": 4.0,
-    "Molar volume": 7.09,
+    "Molar volume": "7.09 sup^2 cm",
     "NMR Quadrupole Moment": {
       "Fe-57": 160
     },
@@ -4384,8 +4384,8 @@
       6
     ],
     "Poissons ratio": 0.29,
-    "Reflectivity": 65,
-    "Rigidity modulus": 82,
+    "Reflectivity": "65 ",
+    "Rigidity modulus": "82 GPa",
     "Shannon radii": {
       "2": {
         "IV": {
@@ -4464,12 +4464,12 @@
         }
       }
     },
-    "Thermal conductivity": 80,
+    "Thermal conductivity": "80 sup^4 K W m",
     "Van der waals radius": "no data",
-    "Velocity of sound": 4910,
-    "Vickers hardness": 608,
+    "Velocity of sound": "4910 sup^2 m s",
+    "Vickers hardness": "608 sup^2 MN m",
     "X": 1.83,
-    "Youngs modulus": 211
+    "Youngs modulus": "211 GPa"
   },
   "Fm": {
     "Atomic mass": 257,
@@ -4586,7 +4586,7 @@
       158152.5,
       160804.0
     ],
-    "Melting point": "about 1800",
+    "Melting point": "about 1800 K",
     "Mendeleev no": 37,
     "Name": "Fermium",
     "Oxidation states": [
@@ -4720,7 +4720,7 @@
       113817.2,
       115859.0
     ],
-    "Melting point": "maybe about 300",
+    "Melting point": "maybe about 300 K",
     "Mendeleev no": 7,
     "Name": "Francium",
     "Oxidation states": [
@@ -4754,14 +4754,14 @@
     },
     "Atomic radius": 1.3,
     "Atomic radius calculated": 1.36,
-    "Boiling point": 2477,
-    "Brinell hardness": 60,
-    "Coefficient of linear thermal expansion": 120,
+    "Boiling point": "2477 K",
+    "Brinell hardness": "60 sup^2 MN m",
+    "Coefficient of linear thermal expansion": "120 x^10 sup^4 K",
     "Common oxidation states": [
       3
     ],
-    "Density of solid": 5904,
-    "Electrical resistivity": "about  14",
+    "Density of solid": "5904 sup^2 kg m",
+    "Electrical resistivity": "about  14 sup^2 Omega m",
     "Electron affinity": 0.301166,
     "Electronic structure": {
       "0": "[Ar].3d<sup>10</sup>.4s<sup>2</sup>.4p<sup>1</sup>",
@@ -4809,11 +4809,11 @@
       12696.5575,
       13239.489
     ],
-    "Liquid range": 2174.09,
-    "Melting point": 302.91,
+    "Liquid range": "2174.09 K",
+    "Melting point": "302.91 K",
     "Mendeleev no": 81,
     "Mineral hardness": 1.5,
-    "Molar volume": 11.8,
+    "Molar volume": "11.8 sup^2 cm",
     "Name": "Gallium",
     "Oxidation states": [
       1,
@@ -4842,10 +4842,10 @@
         }
       }
     },
-    "Superconduction temperature": 1.083,
-    "Thermal conductivity": 29,
+    "Superconduction temperature": "1.083 K",
+    "Thermal conductivity": "29 sup^4 K W m",
     "Van der waals radius": 1.87,
-    "Velocity of sound": 2740,
+    "Velocity of sound": "2740 sup^2 m s",
     "X": 1.81
   },
   "Gd": {
@@ -4869,14 +4869,14 @@
     },
     "Atomic radius": 1.8,
     "Atomic radius calculated": 2.33,
-    "Boiling point": 3523,
-    "Bulk modulus": 38,
-    "Coefficient of linear thermal expansion": 9.4,
+    "Boiling point": "3523 K",
+    "Bulk modulus": "38 GPa",
+    "Coefficient of linear thermal expansion": "9.4 x^10 sup^4 K",
     "Common oxidation states": [
       3
     ],
-    "Density of solid": 7901,
-    "Electrical resistivity": 131,
+    "Density of solid": "7901 sup^2 kg m",
+    "Electrical resistivity": "131 sup^2 Omega m",
     "Electron affinity": 0.212,
     "Electronic structure": {
       "0": "[Xe].4f<sup>7</sup>.5d<sup>1</sup>.6s<sup>2</sup>",
@@ -4956,10 +4956,10 @@
       57783.9,
       59065.53
     ],
-    "Liquid range": 1938,
-    "Melting point": 1585,
+    "Liquid range": "1938 K",
+    "Melting point": "1585 K",
     "Mendeleev no": 27,
-    "Molar volume": 19.9,
+    "Molar volume": "19.9 sup^2 cm",
     "Name": "Gadolinium",
     "Oxidation states": [
       1,
@@ -4967,7 +4967,7 @@
       3
     ],
     "Poissons ratio": 0.26,
-    "Rigidity modulus": 22,
+    "Rigidity modulus": "22 GPa",
     "Shannon radii": {
       "3": {
         "VI": {
@@ -4996,13 +4996,13 @@
         }
       }
     },
-    "Superconduction temperature": 1.083,
-    "Thermal conductivity": 11,
+    "Superconduction temperature": "1.083 K",
+    "Thermal conductivity": "11 sup^4 K W m",
     "Van der waals radius": "no data",
-    "Velocity of sound": 2680,
-    "Vickers hardness": 570,
+    "Velocity of sound": "2680 sup^2 m s",
+    "Vickers hardness": "570 sup^2 MN m",
     "X": 1.2,
-    "Youngs modulus": 55
+    "Youngs modulus": "55 GPa"
   },
   "Ge": {
     "Atomic mass": 72.64,
@@ -5019,15 +5019,15 @@
     },
     "Atomic radius": 1.25,
     "Atomic radius calculated": 1.25,
-    "Boiling point": 3093,
-    "Coefficient of linear thermal expansion": 6,
+    "Boiling point": "3093 K",
+    "Coefficient of linear thermal expansion": "6 x^10 sup^4 K",
     "Common oxidation states": [
       -4,
       2,
       4
     ],
-    "Density of solid": 5323,
-    "Electrical resistivity": "about 50000",
+    "Density of solid": "5323 sup^2 kg m",
+    "Electrical resistivity": "about 50000 sup^2 Omega m",
     "Electron affinity": 1.2326764,
     "Electronic structure": {
       "0": "[Ar].3d<sup>10</sup>.4s<sup>2</sup>.4p<sup>2</sup>",
@@ -5080,11 +5080,11 @@
       13557.4208,
       14119.43
     ],
-    "Liquid range": 1881.6,
-    "Melting point": 1211.4,
+    "Liquid range": "1881.6 K",
+    "Melting point": "1211.4 K",
     "Mendeleev no": 84,
     "Mineral hardness": 6.0,
-    "Molar volume": 13.63,
+    "Molar volume": "13.63 sup^2 cm",
     "Name": "Germanium",
     "Oxidation states": [
       -4,
@@ -5117,9 +5117,9 @@
         }
       }
     },
-    "Thermal conductivity": 60,
+    "Thermal conductivity": "60 sup^4 K W m",
     "Van der waals radius": 2.11,
-    "Velocity of sound": 5400,
+    "Velocity of sound": "5400 sup^2 m s",
     "X": 2.01
   },
   "H": {
@@ -5131,12 +5131,12 @@
     },
     "Atomic radius": 0.25,
     "Atomic radius calculated": 0.53,
-    "Boiling point": 20.28,
+    "Boiling point": "20.28 K",
     "Common oxidation states": [
       -1,
       1
     ],
-    "Critical temperature": 33,
+    "Critical temperature": "33 K",
     "Electron affinity": 0.75467,
     "Electronic structure": {
       "0": "1s<sup>1</sup>",
@@ -5152,10 +5152,10 @@
     "Ionization energies": [
       13.598434599702
     ],
-    "Liquid range": 6.27,
-    "Melting point": 14.01,
+    "Liquid range": "6.27 K",
+    "Melting point": "14.01 K",
     "Mendeleev no": 103,
-    "Molar volume": 11.42,
+    "Molar volume": "11.42 sup^2 cm",
     "NMR Quadrupole Moment": {
       "H-2": 2.86
     },
@@ -5181,9 +5181,9 @@
         }
       }
     },
-    "Thermal conductivity": 0.1805,
+    "Thermal conductivity": "0.1805 sup^4 K W m",
     "Van der waals radius": 1.2,
-    "Velocity of sound": 1270,
+    "Velocity of sound": "1270 sup^2 m s",
     "X": 2.2
   },
   "He": {
@@ -5194,8 +5194,8 @@
     },
     "Atomic radius": "no data",
     "Atomic radius calculated": 0.31,
-    "Boiling point": 4.22,
-    "Critical temperature": 5.19,
+    "Boiling point": "4.22 K",
+    "Critical temperature": "5.19 K",
     "Electron affinity": -0.5,
     "Electronic structure": {
       "0": "1s<sup>2</sup>"
@@ -5206,17 +5206,17 @@
       24.587389011,
       54.417765486
     ],
-    "Liquid range": 3.27,
+    "Liquid range": "3.27 K",
     "Max oxidation state": 0,
-    "Melting point": 0.95,
+    "Melting point": "0.95 K",
     "Mendeleev no": 1,
     "Min oxidation state": 0,
-    "Molar volume": 21.0,
+    "Molar volume": "21.0 sup^2 cm",
     "Name": "Helium",
     "Refractive index": "1.000035 (gas; liquid 1.028)",
-    "Thermal conductivity": 0.1513,
+    "Thermal conductivity": "0.1513 sup^4 K W m",
     "Van der waals radius": 1.4,
-    "Velocity of sound": 970
+    "Velocity of sound": "970 sup^2 m s"
   },
   "Hf": {
     "Atomic mass": 178.49,
@@ -5239,15 +5239,15 @@
     },
     "Atomic radius": 1.55,
     "Atomic radius calculated": 2.08,
-    "Boiling point": 4876,
-    "Brinell hardness": 1700,
-    "Bulk modulus": 110,
-    "Coefficient of linear thermal expansion": 5.9,
+    "Boiling point": "4876 K",
+    "Brinell hardness": "1700 sup^2 MN m",
+    "Bulk modulus": "110 GPa",
+    "Coefficient of linear thermal expansion": "5.9 x^10 sup^4 K",
     "Common oxidation states": [
       4
     ],
-    "Density of solid": 13310,
-    "Electrical resistivity": 34,
+    "Density of solid": "13310 sup^2 kg m",
+    "Electrical resistivity": "34 sup^2 Omega m",
     "Electron affinity": 0.178,
     "Electronic structure": {
       "0": "[Xe].4f<sup>14</sup>.5d<sup>2</sup>.6s<sup>2</sup>",
@@ -5335,11 +5335,11 @@
       74565.93,
       76077.8
     ],
-    "Liquid range": 2370,
-    "Melting point": 2506,
+    "Liquid range": "2370 K",
+    "Melting point": "2506 K",
     "Mendeleev no": 50,
     "Mineral hardness": 5.5,
-    "Molar volume": 13.44,
+    "Molar volume": "13.44 sup^2 cm",
     "Name": "Hafnium",
     "Oxidation states": [
       2,
@@ -5347,7 +5347,7 @@
       4
     ],
     "Poissons ratio": 0.37,
-    "Rigidity modulus": 30,
+    "Rigidity modulus": "30 GPa",
     "Shannon radii": {
       "4": {
         "IV": {
@@ -5376,13 +5376,13 @@
         }
       }
     },
-    "Superconduction temperature": 0.128,
-    "Thermal conductivity": 23,
+    "Superconduction temperature": "0.128 K",
+    "Thermal conductivity": "23 sup^4 K W m",
     "Van der waals radius": "no data",
-    "Velocity of sound": 3010,
-    "Vickers hardness": 1760,
+    "Velocity of sound": "3010 sup^2 m s",
+    "Vickers hardness": "1760 sup^2 MN m",
     "X": 1.3,
-    "Youngs modulus": 78
+    "Youngs modulus": "78 GPa"
   },
   "Hg": {
     "Atomic mass": 200.59,
@@ -5405,14 +5405,14 @@
     },
     "Atomic radius": 1.5,
     "Atomic radius calculated": 1.71,
-    "Boiling point": 629.88,
-    "Bulk modulus": 25,
+    "Boiling point": "629.88 K",
+    "Bulk modulus": "25 GPa",
     "Common oxidation states": [
       1,
       2
     ],
-    "Critical temperature": 1750,
-    "Electrical resistivity": 96,
+    "Critical temperature": "1750 K",
+    "Electrical resistivity": "96 sup^2 Omega m",
     "Electron affinity": -0.5,
     "Electronic structure": {
       "0": "[Xe].4f<sup>14</sup>.5d<sup>10</sup>.6s<sup>2</sup>",
@@ -5511,11 +5511,11 @@
       94124.7,
       95897.7
     ],
-    "Liquid range": 395.56,
-    "Melting point": 234.32,
+    "Liquid range": "395.56 K",
+    "Melting point": "234.32 K",
     "Mendeleev no": 74,
     "Mineral hardness": 1.5,
-    "Molar volume": 14.09,
+    "Molar volume": "14.09 sup^2 cm",
     "NMR Quadrupole Moment": {
       "Hg-201": 387.6
     },
@@ -5525,7 +5525,7 @@
       2,
       4
     ],
-    "Reflectivity": 73,
+    "Reflectivity": "73 ",
     "Refractive index": 1.000933,
     "Shannon radii": {
       "1": {
@@ -5569,10 +5569,10 @@
         }
       }
     },
-    "Superconduction temperature": 3.95,
-    "Thermal conductivity": 8.3,
+    "Superconduction temperature": "3.95 K",
+    "Thermal conductivity": "8.3 sup^4 K W m",
     "Van der waals radius": 1.55,
-    "Velocity of sound": 1407,
+    "Velocity of sound": "1407 sup^2 m s",
     "X": 2
   },
   "Ho": {
@@ -5595,15 +5595,15 @@
     },
     "Atomic radius": 1.75,
     "Atomic radius calculated": "no data",
-    "Boiling point": 2993,
-    "Brinell hardness": 746,
-    "Bulk modulus": 40,
-    "Coefficient of linear thermal expansion": 11.2,
+    "Boiling point": "2993 K",
+    "Brinell hardness": "746 sup^2 MN m",
+    "Bulk modulus": "40 GPa",
+    "Coefficient of linear thermal expansion": "11.2 x^10 sup^4 K",
     "Common oxidation states": [
       3
     ],
-    "Density of solid": 8795,
-    "Electrical resistivity": 81.4,
+    "Density of solid": "8795 sup^2 kg m",
+    "Electrical resistivity": "81.4 sup^2 Omega m",
     "Electron affinity": 0.338,
     "Electronic structure": {
       "0": "[Xe].4f<sup>11</sup>.6s<sup>2</sup>",
@@ -5686,16 +5686,16 @@
       63772.43,
       65136.8
     ],
-    "Liquid range": 1259,
-    "Melting point": 1734,
+    "Liquid range": "1259 K",
+    "Melting point": "1734 K",
     "Mendeleev no": 23,
-    "Molar volume": 18.74,
+    "Molar volume": "18.74 sup^2 cm",
     "Name": "Holmium",
     "Oxidation states": [
       3
     ],
     "Poissons ratio": 0.23,
-    "Rigidity modulus": 26,
+    "Rigidity modulus": "26 GPa",
     "Shannon radii": {
       "3": {
         "VI": {
@@ -5724,12 +5724,12 @@
         }
       }
     },
-    "Thermal conductivity": 16,
+    "Thermal conductivity": "16 sup^4 K W m",
     "Van der waals radius": "no data",
-    "Velocity of sound": 2760,
-    "Vickers hardness": 481,
+    "Velocity of sound": "2760 sup^2 m s",
+    "Vickers hardness": "481 sup^2 MN m",
     "X": 1.23,
-    "Youngs modulus": 65
+    "Youngs modulus": "65 GPa"
   },
   "I": {
     "Atomic mass": 126.90447,
@@ -5749,8 +5749,8 @@
     },
     "Atomic radius": 1.4,
     "Atomic radius calculated": 1.15,
-    "Boiling point": 457.4,
-    "Bulk modulus": 7.7,
+    "Boiling point": "457.4 K",
+    "Bulk modulus": "7.7 GPa",
     "Common oxidation states": [
       -1,
       1,
@@ -5758,9 +5758,9 @@
       5,
       7
     ],
-    "Critical temperature": 819,
-    "Density of solid": 4940,
-    "Electrical resistivity": "&gt; 10<sup>15</sup>",
+    "Critical temperature": "819 K",
+    "Density of solid": "4940 sup^2 kg m",
+    "Electrical resistivity": "&gt; 10<sup>15</sup> sup^2 Omega m",
     "Electron affinity": 3.059052,
     "Electronic structure": {
       "0": "[Kr].4d<sup>10</sup>.5s<sup>2</sup>.5p<sup>5</sup>",
@@ -5836,10 +5836,10 @@
       38716.996,
       39721.41
     ],
-    "Liquid range": 70.55,
-    "Melting point": 386.85,
+    "Liquid range": "70.55 K",
+    "Melting point": "386.85 K",
     "Mendeleev no": 97,
-    "Molar volume": 25.72,
+    "Molar volume": "25.72 sup^2 cm",
     "NMR Quadrupole Moment": {
       "I-127": -696.12,
       "I-129": -604.1
@@ -5890,7 +5890,7 @@
         }
       }
     },
-    "Thermal conductivity": 0.449,
+    "Thermal conductivity": "0.449 sup^4 K W m",
     "Van der waals radius": 1.98,
     "X": 2.66
   },
@@ -5912,14 +5912,14 @@
     },
     "Atomic radius": 1.55,
     "Atomic radius calculated": 1.56,
-    "Boiling point": 2345,
-    "Brinell hardness": 8.83,
-    "Coefficient of linear thermal expansion": 32.1,
+    "Boiling point": "2345 K",
+    "Brinell hardness": "8.83 sup^2 MN m",
+    "Coefficient of linear thermal expansion": "32.1 x^10 sup^4 K",
     "Common oxidation states": [
       3
     ],
-    "Density of solid": 7310,
-    "Electrical resistivity": 8,
+    "Density of solid": "7310 sup^2 kg m",
+    "Electrical resistivity": "8 sup^2 Omega m",
     "Electron affinity": 0.299,
     "Electronic structure": {
       "0": "[Kr].4d<sup>10</sup>.5s<sup>2</sup>.5p<sup>1</sup>",
@@ -5986,11 +5986,11 @@
       32837.592,
       33750.31
     ],
-    "Liquid range": 1915.25,
-    "Melting point": 429.75,
+    "Liquid range": "1915.25 K",
+    "Melting point": "429.75 K",
     "Mendeleev no": 79,
     "Mineral hardness": 1.2,
-    "Molar volume": 15.76,
+    "Molar volume": "15.76 sup^2 cm",
     "NMR Quadrupole Moment": {
       "In-113": 759.8,
       "In-115": 770.8
@@ -6023,12 +6023,12 @@
         }
       }
     },
-    "Superconduction temperature": 3.41,
-    "Thermal conductivity": 82,
+    "Superconduction temperature": "3.41 K",
+    "Thermal conductivity": "82 sup^4 K W m",
     "Van der waals radius": 1.93,
-    "Velocity of sound": 1215,
+    "Velocity of sound": "1215 sup^2 m s",
     "X": 1.78,
-    "Youngs modulus": 11
+    "Youngs modulus": "11 GPa"
   },
   "Ir": {
     "Atomic mass": 192.217,
@@ -6051,16 +6051,16 @@
     },
     "Atomic radius": 1.35,
     "Atomic radius calculated": 1.8,
-    "Boiling point": 4701,
-    "Brinell hardness": 1670,
-    "Bulk modulus": 320,
-    "Coefficient of linear thermal expansion": 6.4,
+    "Boiling point": "4701 K",
+    "Brinell hardness": "1670 sup^2 MN m",
+    "Bulk modulus": "320 GPa",
+    "Coefficient of linear thermal expansion": "6.4 x^10 sup^4 K",
     "Common oxidation states": [
       3,
       4
     ],
-    "Density of solid": 22650,
-    "Electrical resistivity": 4.7,
+    "Density of solid": "22650 sup^2 kg m",
+    "Electrical resistivity": "4.7 sup^2 Omega m",
     "Electron affinity": 1.564057,
     "Electronic structure": {
       "0": "[Xe].4f<sup>14</sup>.5d<sup>7</sup>.6s<sup>2</sup>",
@@ -6158,11 +6158,11 @@
       86438.9,
       88113.3
     ],
-    "Liquid range": 1962,
-    "Melting point": 2739,
+    "Liquid range": "1962 K",
+    "Melting point": "2739 K",
     "Mendeleev no": 66,
     "Mineral hardness": 6.5,
-    "Molar volume": 8.52,
+    "Molar volume": "8.52 sup^2 cm",
     "Name": "Iridium",
     "Oxidation states": [
       -3,
@@ -6175,8 +6175,8 @@
       6
     ],
     "Poissons ratio": 0.26,
-    "Reflectivity": 78,
-    "Rigidity modulus": 210,
+    "Reflectivity": "78 ",
+    "Rigidity modulus": "210 GPa",
     "Shannon radii": {
       "3": {
         "VI": {
@@ -6203,13 +6203,13 @@
         }
       }
     },
-    "Superconduction temperature": 0.11,
-    "Thermal conductivity": 150,
+    "Superconduction temperature": "0.11 K",
+    "Thermal conductivity": "150 sup^4 K W m",
     "Van der waals radius": "no data",
-    "Velocity of sound": 4825,
-    "Vickers hardness": 1760,
+    "Velocity of sound": "4825 sup^2 m s",
+    "Vickers hardness": "1760 sup^2 MN m",
     "X": 2.2,
-    "Youngs modulus": 528
+    "Youngs modulus": "528 GPa"
   },
   "K": {
     "Atomic mass": 39.0983,
@@ -6224,15 +6224,15 @@
     },
     "Atomic radius": 2.2,
     "Atomic radius calculated": 2.43,
-    "Boiling point": 1032,
-    "Brinell hardness": 0.363,
-    "Bulk modulus": 3.1,
+    "Boiling point": "1032 K",
+    "Brinell hardness": "0.363 sup^2 MN m",
+    "Bulk modulus": "3.1 GPa",
     "Common oxidation states": [
       1
     ],
-    "Critical temperature": 2223,
-    "Density of solid": 856,
-    "Electrical resistivity": 7.5,
+    "Critical temperature": "2223 K",
+    "Density of solid": "856 sup^2 kg m",
+    "Electrical resistivity": "7.5 sup^2 Omega m",
     "Electron affinity": 0.501459,
     "Electronic structure": {
       "0": "[Ar].4s<sup>1</sup>",
@@ -6267,11 +6267,11 @@
       4610.87018,
       4934.0484
     ],
-    "Liquid range": 695.47,
-    "Melting point": 336.53,
+    "Liquid range": "695.47 K",
+    "Melting point": "336.53 K",
     "Mendeleev no": 10,
     "Mineral hardness": 0.4,
-    "Molar volume": 45.94,
+    "Molar volume": "45.94 sup^2 cm",
     "NMR Quadrupole Moment": {
       "K-39": 58.5,
       "K-40": -73,
@@ -6282,7 +6282,7 @@
       -1,
       1
     ],
-    "Rigidity modulus": 1.3,
+    "Rigidity modulus": "1.3 GPa",
     "Shannon radii": {
       "1": {
         "IV": {
@@ -6329,9 +6329,9 @@
         }
       }
     },
-    "Thermal conductivity": 100,
+    "Thermal conductivity": "100 sup^4 K W m",
     "Van der waals radius": 2.75,
-    "Velocity of sound": 2000,
+    "Velocity of sound": "2000 sup^2 m s",
     "X": 0.82
   },
   "Kr": {
@@ -6349,8 +6349,8 @@
     },
     "Atomic radius": "no data",
     "Atomic radius calculated": 0.88,
-    "Boiling point": 119.93,
-    "Critical temperature": 209.4,
+    "Boiling point": "119.93 K",
+    "Critical temperature": "209.4 K",
     "Electron affinity": -1.0,
     "Electronic structure": {
       "0": "[Ar].3d<sup>10</sup>.4s<sup>2</sup>.4p<sup>6</sup>"
@@ -6395,17 +6395,17 @@
       17296.421,
       17936.209
     ],
-    "Liquid range": 4.14,
+    "Liquid range": "4.14 K",
     "Max oxidation state": 0,
-    "Melting point": 115.79,
+    "Melting point": "115.79 K",
     "Mendeleev no": 4,
     "Min oxidation state": 0,
-    "Molar volume": 27.99,
+    "Molar volume": "27.99 sup^2 cm",
     "Name": "Krypton",
     "Refractive index": 1.000427,
-    "Thermal conductivity": 0.00943,
+    "Thermal conductivity": "0.00943 sup^4 K W m",
     "Van der waals radius": 2.02,
-    "Velocity of sound": 1120,
+    "Velocity of sound": "1120 sup^2 m s",
     "X": 3
   },
   "La": {
@@ -6428,15 +6428,15 @@
     },
     "Atomic radius": 1.95,
     "Atomic radius calculated": "no data",
-    "Boiling point": 3743,
-    "Brinell hardness": 363,
-    "Bulk modulus": 28,
-    "Coefficient of linear thermal expansion": 12.1,
+    "Boiling point": "3743 K",
+    "Brinell hardness": "363 sup^2 MN m",
+    "Bulk modulus": "28 GPa",
+    "Coefficient of linear thermal expansion": "12.1 x^10 sup^4 K",
     "Common oxidation states": [
       3
     ],
-    "Density of solid": 6146,
-    "Electrical resistivity": 61.5,
+    "Density of solid": "6146 sup^2 kg m",
+    "Electrical resistivity": "61.5 sup^2 Omega m",
     "Electron affinity": 0.557546,
     "Electronic structure": {
       "0": "[Xe].5d<sup>1</sup>.6s<sup>2</sup>",
@@ -6510,11 +6510,11 @@
       45144.996,
       46245.6
     ],
-    "Liquid range": 2550,
-    "Melting point": 1193,
+    "Liquid range": "2550 K",
+    "Melting point": "1193 K",
     "Mendeleev no": 33,
     "Mineral hardness": 2.5,
-    "Molar volume": 22.39,
+    "Molar volume": "22.39 sup^2 cm",
     "NMR Quadrupole Moment": {
       "La-139": 200.6
     },
@@ -6524,7 +6524,7 @@
       3
     ],
     "Poissons ratio": 0.28,
-    "Rigidity modulus": 14,
+    "Rigidity modulus": "14 GPa",
     "Shannon radii": {
       "3": {
         "VI": {
@@ -6565,13 +6565,13 @@
         }
       }
     },
-    "Superconduction temperature": 6.0,
-    "Thermal conductivity": 13,
+    "Superconduction temperature": "6.0 K",
+    "Thermal conductivity": "13 sup^4 K W m",
     "Van der waals radius": "no data",
-    "Velocity of sound": 2475,
-    "Vickers hardness": 491,
+    "Velocity of sound": "2475 sup^2 m s",
+    "Vickers hardness": "491 sup^2 MN m",
     "X": 1.1,
-    "Youngs modulus": 37
+    "Youngs modulus": "37 GPa"
   },
   "Li": {
     "Atomic mass": 6.941,
@@ -6582,15 +6582,15 @@
     },
     "Atomic radius": 1.45,
     "Atomic radius calculated": 1.67,
-    "Boiling point": 1615,
-    "Bulk modulus": 11,
-    "Coefficient of linear thermal expansion": 46,
+    "Boiling point": "1615 K",
+    "Bulk modulus": "11 GPa",
+    "Coefficient of linear thermal expansion": "46 x^10 sup^4 K",
     "Common oxidation states": [
       1
     ],
-    "Critical temperature": 3223,
-    "Density of solid": 535,
-    "Electrical resistivity": 9.5,
+    "Critical temperature": "3223 K",
+    "Density of solid": "535 sup^2 kg m",
+    "Electrical resistivity": "9.5 sup^2 Omega m",
     "Electron affinity": 0.618049,
     "Electronic structure": {
       "0": "[He].2s<sup>1</sup>",
@@ -6609,11 +6609,11 @@
       75.640097,
       122.45435914
     ],
-    "Liquid range": 1161.31,
-    "Melting point": 453.69,
+    "Liquid range": "1161.31 K",
+    "Melting point": "453.69 K",
     "Mendeleev no": 12,
     "Mineral hardness": 0.6,
-    "Molar volume": 13.02,
+    "Molar volume": "13.02 sup^2 cm",
     "NMR Quadrupole Moment": {
       "Li-6": -0.808,
       "Li-7": -40.1
@@ -6622,7 +6622,7 @@
     "Oxidation states": [
       1
     ],
-    "Rigidity modulus": 4.2,
+    "Rigidity modulus": "4.2 GPa",
     "Shannon radii": {
       "1": {
         "IV": {
@@ -6645,11 +6645,11 @@
         }
       }
     },
-    "Thermal conductivity": 85,
+    "Thermal conductivity": "85 sup^4 K W m",
     "Van der waals radius": 1.82,
-    "Velocity of sound": 6000,
+    "Velocity of sound": "6000 sup^2 m s",
     "X": 0.98,
-    "Youngs modulus": 4.9
+    "Youngs modulus": "4.9 GPa"
   },
   "Lr": {
     "Atomic mass": 262,
@@ -6769,7 +6769,7 @@
       null,
       172930.0
     ],
-    "Melting point": "about 1900",
+    "Melting point": "about 1900 K",
     "Mendeleev no": 34,
     "Name": "Lawrencium",
     "Oxidation states": [
@@ -6798,15 +6798,15 @@
     },
     "Atomic radius": 1.75,
     "Atomic radius calculated": 2.17,
-    "Boiling point": 3675,
-    "Brinell hardness": 893,
-    "Bulk modulus": 48,
-    "Coefficient of linear thermal expansion": 9.9,
+    "Boiling point": "3675 K",
+    "Brinell hardness": "893 sup^2 MN m",
+    "Bulk modulus": "48 GPa",
+    "Coefficient of linear thermal expansion": "9.9 x^10 sup^4 K",
     "Common oxidation states": [
       3
     ],
-    "Density of solid": 9841,
-    "Electrical resistivity": 58,
+    "Density of solid": "9841 sup^2 kg m",
+    "Electrical resistivity": "58 sup^2 Omega m",
     "Electron affinity": 0.2388,
     "Electronic structure": {
       "0": "[Xe].4f<sup>14</sup>.5d<sup>1</sup>.6s<sup>2</sup>",
@@ -6893,16 +6893,16 @@
       72322.91,
       73804.8
     ],
-    "Liquid range": 1750,
-    "Melting point": 1925,
+    "Liquid range": "1750 K",
+    "Melting point": "1925 K",
     "Mendeleev no": 20,
-    "Molar volume": 17.78,
+    "Molar volume": "17.78 sup^2 cm",
     "Name": "Lutetium",
     "Oxidation states": [
       3
     ],
     "Poissons ratio": 0.26,
-    "Rigidity modulus": 27,
+    "Rigidity modulus": "27 GPa",
     "Shannon radii": {
       "3": {
         "VI": {
@@ -6925,12 +6925,12 @@
         }
       }
     },
-    "Superconduction temperature": 0.022,
-    "Thermal conductivity": 16,
+    "Superconduction temperature": "0.022 K",
+    "Thermal conductivity": "16 sup^4 K W m",
     "Van der waals radius": "no data",
-    "Vickers hardness": 1160,
+    "Vickers hardness": "1160 sup^2 MN m",
     "X": 1.27,
-    "Youngs modulus": 69
+    "Youngs modulus": "69 GPa"
   },
   "Md": {
     "Atomic mass": 258,
@@ -7048,7 +7048,7 @@
       null,
       164764.0
     ],
-    "Melting point": "about 1100",
+    "Melting point": "about 1100 K",
     "Mendeleev no": 36,
     "Name": "Mendelevium",
     "Oxidation states": [
@@ -7068,15 +7068,15 @@
     },
     "Atomic radius": 1.5,
     "Atomic radius calculated": 1.45,
-    "Boiling point": 1363,
-    "Brinell hardness": 260,
-    "Bulk modulus": 45,
-    "Coefficient of linear thermal expansion": 8.2,
+    "Boiling point": "1363 K",
+    "Brinell hardness": "260 sup^2 MN m",
+    "Bulk modulus": "45 GPa",
+    "Coefficient of linear thermal expansion": "8.2 x^10 sup^4 K",
     "Common oxidation states": [
       2
     ],
-    "Density of solid": 1738,
-    "Electrical resistivity": 4.4,
+    "Density of solid": "1738 sup^2 kg m",
+    "Electrical resistivity": "4.4 sup^2 Omega m",
     "Electron affinity": -0.4,
     "Electronic structure": {
       "0": "[Ne].3s<sup>2</sup>",
@@ -7104,11 +7104,11 @@
       1761.80488,
       1962.66366
     ],
-    "Liquid range": 440,
-    "Melting point": 923,
+    "Liquid range": "440 K",
+    "Melting point": "923 K",
     "Mendeleev no": 73,
     "Mineral hardness": 2.5,
-    "Molar volume": 14.0,
+    "Molar volume": "14.0 sup^2 cm",
     "NMR Quadrupole Moment": {
       "Mg-25": 199.4
     },
@@ -7118,8 +7118,8 @@
       2
     ],
     "Poissons ratio": 0.29,
-    "Reflectivity": 74,
-    "Rigidity modulus": 17,
+    "Reflectivity": "74 ",
+    "Rigidity modulus": "17 GPa",
     "Shannon radii": {
       "2": {
         "IV": {
@@ -7148,11 +7148,11 @@
         }
       }
     },
-    "Thermal conductivity": 160,
+    "Thermal conductivity": "160 sup^4 K W m",
     "Van der waals radius": 1.73,
-    "Velocity of sound": 4602,
+    "Velocity of sound": "4602 sup^2 m s",
     "X": 1.31,
-    "Youngs modulus": 45
+    "Youngs modulus": "45 GPa"
   },
   "Mn": {
     "Atomic mass": 54.938045,
@@ -7168,17 +7168,17 @@
     },
     "Atomic radius": 1.4,
     "Atomic radius calculated": 1.61,
-    "Boiling point": 2334,
-    "Brinell hardness": 196,
-    "Bulk modulus": 120,
-    "Coefficient of linear thermal expansion": 21.7,
+    "Boiling point": "2334 K",
+    "Brinell hardness": "196 sup^2 MN m",
+    "Bulk modulus": "120 GPa",
+    "Coefficient of linear thermal expansion": "21.7 x^10 sup^4 K",
     "Common oxidation states": [
       2,
       4,
       7
     ],
-    "Density of solid": 7470,
-    "Electrical resistivity": 144,
+    "Density of solid": "7470 sup^2 kg m",
+    "Electrical resistivity": "144 sup^2 Omega m",
     "Electron affinity": -0.5,
     "Electronic structure": {
       "0": "[Ar].3d<sup>5</sup>.4s<sup>2</sup>",
@@ -7238,11 +7238,11 @@
       8140.7872,
       8571.9488
     ],
-    "Liquid range": 815,
-    "Melting point": 1519,
+    "Liquid range": "815 K",
+    "Melting point": "1519 K",
     "Mendeleev no": 60,
     "Mineral hardness": 6.0,
-    "Molar volume": 7.35,
+    "Molar volume": "7.35 sup^2 cm",
     "NMR Quadrupole Moment": {
       "Mn-55": 330.1
     },
@@ -7359,11 +7359,11 @@
         }
       }
     },
-    "Thermal conductivity": 7.8,
+    "Thermal conductivity": "7.8 sup^4 K W m",
     "Van der waals radius": "no data",
-    "Velocity of sound": 5150,
+    "Velocity of sound": "5150 sup^2 m s",
     "X": 1.55,
-    "Youngs modulus": 198
+    "Youngs modulus": "198 GPa"
   },
   "Mo": {
     "Atomic mass": 95.94,
@@ -7382,16 +7382,16 @@
     },
     "Atomic radius": 1.45,
     "Atomic radius calculated": 1.9,
-    "Boiling point": 4912,
-    "Brinell hardness": 1500,
-    "Bulk modulus": 230,
-    "Coefficient of linear thermal expansion": 4.8,
+    "Boiling point": "4912 K",
+    "Brinell hardness": "1500 sup^2 MN m",
+    "Bulk modulus": "230 GPa",
+    "Coefficient of linear thermal expansion": "4.8 x^10 sup^4 K",
     "Common oxidation states": [
       4,
       6
     ],
-    "Density of solid": 10280,
-    "Electrical resistivity": 5.5,
+    "Density of solid": "10280 sup^2 kg m",
+    "Electrical resistivity": "5.5 sup^2 Omega m",
     "Electron affinity": 0.74723,
     "Electronic structure": {
       "0": "[Kr].4d<sup>5</sup>.5s<sup>1</sup>",
@@ -7458,11 +7458,11 @@
       23810.654,
       24572.156
     ],
-    "Liquid range": 2016,
-    "Melting point": 2896,
+    "Liquid range": "2016 K",
+    "Melting point": "2896 K",
     "Mendeleev no": 56,
     "Mineral hardness": 5.5,
-    "Molar volume": 9.38,
+    "Molar volume": "9.38 sup^2 cm",
     "Name": "Molybdenum",
     "Oxidation states": [
       -2,
@@ -7475,8 +7475,8 @@
       6
     ],
     "Poissons ratio": 0.31,
-    "Reflectivity": 58,
-    "Rigidity modulus": 20,
+    "Reflectivity": "58 ",
+    "Rigidity modulus": "20 GPa",
     "Shannon radii": {
       "3": {
         "VI": {
@@ -7535,13 +7535,13 @@
         }
       }
     },
-    "Superconduction temperature": 0.915,
-    "Thermal conductivity": 139,
+    "Superconduction temperature": "0.915 K",
+    "Thermal conductivity": "139 sup^4 K W m",
     "Van der waals radius": "no data",
-    "Velocity of sound": 6190,
-    "Vickers hardness": 1530,
+    "Velocity of sound": "6190 sup^2 m s",
+    "Vickers hardness": "1530 sup^2 MN m",
     "X": 2.16,
-    "Youngs modulus": 329
+    "Youngs modulus": "329 GPa"
   },
   "N": {
     "Atomic mass": 14.0067,
@@ -7553,13 +7553,13 @@
     },
     "Atomic radius": 0.65,
     "Atomic radius calculated": 0.56,
-    "Boiling point": 77.36,
+    "Boiling point": "77.36 K",
     "Common oxidation states": [
       -3,
       3,
       5
     ],
-    "Critical temperature": 126.2,
+    "Critical temperature": "126.2 K",
     "Electron affinity": -0.07,
     "Electronic structure": {
       "0": "[He].2s<sup>2</sup>.2p<sup>3</sup>",
@@ -7591,10 +7591,10 @@
       552.06733,
       667.046121
     ],
-    "Liquid range": 14.31,
-    "Melting point": 63.05,
+    "Liquid range": "14.31 K",
+    "Melting point": "63.05 K",
     "Mendeleev no": 100,
-    "Molar volume": 13.54,
+    "Molar volume": "13.54 sup^2 cm",
     "NMR Quadrupole Moment": {
       "N-14": 20.44
     },
@@ -7642,9 +7642,9 @@
         }
       }
     },
-    "Thermal conductivity": 0.02583,
+    "Thermal conductivity": "0.02583 sup^4 K W m",
     "Van der waals radius": 1.55,
-    "Velocity of sound": 333.6,
+    "Velocity of sound": "333.6 sup^2 m s",
     "X": 3.04
   },
   "Na": {
@@ -7658,16 +7658,16 @@
     },
     "Atomic radius": 1.8,
     "Atomic radius calculated": 1.9,
-    "Boiling point": 1156,
-    "Brinell hardness": 0.69,
-    "Bulk modulus": 6.3,
-    "Coefficient of linear thermal expansion": 71,
+    "Boiling point": "1156 K",
+    "Brinell hardness": "0.69 sup^2 MN m",
+    "Bulk modulus": "6.3 GPa",
+    "Coefficient of linear thermal expansion": "71 x^10 sup^4 K",
     "Common oxidation states": [
       1
     ],
-    "Critical temperature": 2573,
-    "Density of solid": 968,
-    "Electrical resistivity": 4.9,
+    "Critical temperature": "2573 K",
+    "Density of solid": "968 sup^2 kg m",
+    "Electrical resistivity": "4.9 sup^2 Omega m",
     "Electron affinity": 0.547926,
     "Electronic structure": {
       "0": "[Ne].3s<sup>1</sup>",
@@ -7694,11 +7694,11 @@
       1465.134502,
       1648.7022
     ],
-    "Liquid range": 785.13,
-    "Melting point": 370.87,
+    "Liquid range": "785.13 K",
+    "Melting point": "370.87 K",
     "Mendeleev no": 11,
     "Mineral hardness": 0.5,
-    "Molar volume": 23.78,
+    "Molar volume": "23.78 sup^2 cm",
     "NMR Quadrupole Moment": {
       "Na-23": 104.1
     },
@@ -7707,7 +7707,7 @@
       -1,
       1
     ],
-    "Rigidity modulus": 3.3,
+    "Rigidity modulus": "3.3 GPa",
     "Shannon radii": {
       "1": {
         "IV": {
@@ -7754,11 +7754,11 @@
         }
       }
     },
-    "Thermal conductivity": 140,
+    "Thermal conductivity": "140 sup^4 K W m",
     "Van der waals radius": 2.27,
-    "Velocity of sound": 3200,
+    "Velocity of sound": "3200 sup^2 m s",
     "X": 0.93,
-    "Youngs modulus": 10
+    "Youngs modulus": "10 GPa"
   },
   "Nb": {
     "Atomic mass": 92.90638,
@@ -7777,15 +7777,15 @@
     },
     "Atomic radius": 1.45,
     "Atomic radius calculated": 1.98,
-    "Boiling point": 5017,
-    "Brinell hardness": 736,
-    "Bulk modulus": 170,
-    "Coefficient of linear thermal expansion": 7.3,
+    "Boiling point": "5017 K",
+    "Brinell hardness": "736 sup^2 MN m",
+    "Bulk modulus": "170 GPa",
+    "Coefficient of linear thermal expansion": "7.3 x^10 sup^4 K",
     "Common oxidation states": [
       5
     ],
-    "Density of solid": 8570,
-    "Electrical resistivity": 15.2,
+    "Density of solid": "8570 sup^2 kg m",
+    "Electrical resistivity": "15.2 sup^2 Omega m",
     "Electron affinity": 0.9174,
     "Electronic structure": {
       "0": "[Kr].4d<sup>4</sup>.5s<sup>1</sup>",
@@ -7847,11 +7847,11 @@
       22648.046,
       23388.801
     ],
-    "Liquid range": 2267,
-    "Melting point": 2750,
+    "Liquid range": "2267 K",
+    "Melting point": "2750 K",
     "Mendeleev no": 53,
     "Mineral hardness": 6.0,
-    "Molar volume": 10.83,
+    "Molar volume": "10.83 sup^2 cm",
     "Name": "Niobium",
     "Oxidation states": [
       -1,
@@ -7861,7 +7861,7 @@
       5
     ],
     "Poissons ratio": 0.4,
-    "Rigidity modulus": 38,
+    "Rigidity modulus": "38 GPa",
     "Shannon radii": {
       "3": {
         "VI": {
@@ -7912,13 +7912,13 @@
         }
       }
     },
-    "Superconduction temperature": 9.25,
-    "Thermal conductivity": 54,
+    "Superconduction temperature": "9.25 K",
+    "Thermal conductivity": "54 sup^4 K W m",
     "Van der waals radius": "no data",
-    "Velocity of sound": 3480,
-    "Vickers hardness": 1320,
+    "Velocity of sound": "3480 sup^2 m s",
+    "Vickers hardness": "1320 sup^2 MN m",
     "X": 1.6,
-    "Youngs modulus": 105
+    "Youngs modulus": "105 GPa"
   },
   "Nd": {
     "Atomic mass": 144.242,
@@ -7940,15 +7940,15 @@
     },
     "Atomic radius": 1.85,
     "Atomic radius calculated": 2.06,
-    "Boiling point": 3373,
-    "Brinell hardness": 265,
-    "Bulk modulus": 32,
-    "Coefficient of linear thermal expansion": 9.6,
+    "Boiling point": "3373 K",
+    "Brinell hardness": "265 sup^2 MN m",
+    "Bulk modulus": "32 GPa",
+    "Coefficient of linear thermal expansion": "9.6 x^10 sup^4 K",
     "Common oxidation states": [
       3
     ],
-    "Density of solid": 6800,
-    "Electrical resistivity": 64.3,
+    "Density of solid": "6800 sup^2 kg m",
+    "Electrical resistivity": "64.3 sup^2 Omega m",
     "Electron affinity": 0.09749,
     "Electronic structure": {
       "0": "[Xe].4f<sup>4</sup>.6s<sup>2</sup>",
@@ -8026,17 +8026,17 @@
       50339.59,
       51515.58
     ],
-    "Liquid range": 2076,
-    "Melting point": 1297,
+    "Liquid range": "2076 K",
+    "Melting point": "1297 K",
     "Mendeleev no": 30,
-    "Molar volume": 20.59,
+    "Molar volume": "20.59 sup^2 cm",
     "Name": "Neodymium",
     "Oxidation states": [
       2,
       3
     ],
     "Poissons ratio": 0.28,
-    "Rigidity modulus": 16,
+    "Rigidity modulus": "16 GPa",
     "Shannon radii": {
       "2": {
         "VIII": {
@@ -8079,12 +8079,12 @@
         }
       }
     },
-    "Thermal conductivity": 17,
+    "Thermal conductivity": "17 sup^4 K W m",
     "Van der waals radius": "no data",
-    "Velocity of sound": 2330,
-    "Vickers hardness": 343,
+    "Velocity of sound": "2330 sup^2 m s",
+    "Vickers hardness": "343 sup^2 MN m",
     "X": 1.14,
-    "Youngs modulus": 41
+    "Youngs modulus": "41 GPa"
   },
   "Ne": {
     "Atomic mass": 20.1797,
@@ -8096,8 +8096,8 @@
     },
     "Atomic radius": "no data",
     "Atomic radius calculated": 0.38,
-    "Boiling point": 27.07,
-    "Critical temperature": 44.4,
+    "Boiling point": "27.07 K",
+    "Critical temperature": "44.4 K",
     "Electron affinity": -1.2,
     "Electronic structure": {
       "0": "[He].2s<sup>2</sup>.2p<sup>6</sup>"
@@ -8116,20 +8116,20 @@
       1195.80784,
       1362.19916
     ],
-    "Liquid range": 2.51,
+    "Liquid range": "2.51 K",
     "Max oxidation state": 0,
-    "Melting point": 24.56,
+    "Melting point": "24.56 K",
     "Mendeleev no": 2,
     "Min oxidation state": 0,
-    "Molar volume": 13.23,
+    "Molar volume": "13.23 sup^2 cm",
     "NMR Quadrupole Moment": {
       "Ne-21": 101.55
     },
     "Name": "Neon",
     "Refractive index": 1.000067,
-    "Thermal conductivity": 0.0491,
+    "Thermal conductivity": "0.0491 sup^4 K W m",
     "Van der waals radius": 1.54,
-    "Velocity of sound": 936
+    "Velocity of sound": "936 sup^2 m s"
   },
   "Ni": {
     "Atomic mass": 58.6934,
@@ -8145,15 +8145,15 @@
     },
     "Atomic radius": 1.35,
     "Atomic radius calculated": 1.49,
-    "Boiling point": 3186,
-    "Brinell hardness": 700,
-    "Bulk modulus": 180,
-    "Coefficient of linear thermal expansion": 13.4,
+    "Boiling point": "3186 K",
+    "Brinell hardness": "700 sup^2 MN m",
+    "Bulk modulus": "180 GPa",
+    "Coefficient of linear thermal expansion": "13.4 x^10 sup^4 K",
     "Common oxidation states": [
       2
     ],
-    "Density of solid": 8908,
-    "Electrical resistivity": 7.2,
+    "Density of solid": "8908 sup^2 kg m",
+    "Electrical resistivity": "7.2 sup^2 Omega m",
     "Electron affinity": 1.15716,
     "Electronic structure": {
       "0": "[Ar].3d<sup>8</sup>.4s<sup>2</sup>",
@@ -8209,11 +8209,11 @@
       10288.8862,
       10775.386
     ],
-    "Liquid range": 1458,
-    "Melting point": 1728,
+    "Liquid range": "1458 K",
+    "Melting point": "1728 K",
     "Mendeleev no": 67,
     "Mineral hardness": 4.0,
-    "Molar volume": 6.59,
+    "Molar volume": "6.59 sup^2 cm",
     "NMR Quadrupole Moment": {
       "Ni-61": 162.15
     },
@@ -8226,8 +8226,8 @@
       4
     ],
     "Poissons ratio": 0.31,
-    "Reflectivity": 72,
-    "Rigidity modulus": 76,
+    "Reflectivity": "72 ",
+    "Rigidity modulus": "76 GPa",
     "Shannon radii": {
       "2": {
         "IV": {
@@ -8276,12 +8276,12 @@
         }
       }
     },
-    "Thermal conductivity": 91,
+    "Thermal conductivity": "91 sup^4 K W m",
     "Van der waals radius": 1.63,
-    "Velocity of sound": 4970,
-    "Vickers hardness": 638,
+    "Velocity of sound": "4970 sup^2 m s",
+    "Vickers hardness": "638 sup^2 MN m",
     "X": 1.91,
-    "Youngs modulus": 200
+    "Youngs modulus": "200 GPa"
   },
   "No": {
     "Atomic mass": 259,
@@ -8400,7 +8400,7 @@
       null,
       168806.0
     ],
-    "Melting point": "about 1100",
+    "Melting point": "about 1100 K",
     "Mendeleev no": 35,
     "Name": "Nobelium",
     "Oxidation states": [
@@ -8424,12 +8424,12 @@
     "Atomic no": 93,
     "Atomic radius": 1.75,
     "Atomic radius calculated": "no data",
-    "Boiling point": 4273,
+    "Boiling point": "4273 K",
     "Common oxidation states": [
       5
     ],
-    "Density of solid": 20450,
-    "Electrical resistivity": 120,
+    "Density of solid": "20450 sup^2 kg m",
+    "Electrical resistivity": "120 sup^2 Omega m",
     "Electron affinity": 0.48,
     "Electronic structure": {
       "0": "[Rn].5f<sup>4</sup>.6d<sup>1</sup>.7s<sup>2</sup>",
@@ -8540,10 +8540,10 @@
       132901.8,
       135202.0
     ],
-    "Liquid range": 3363,
-    "Melting point": 910,
+    "Liquid range": "3363 K",
+    "Melting point": "910 K",
     "Mendeleev no": 44,
-    "Molar volume": 11.59,
+    "Molar volume": "11.59 sup^2 cm",
     "Name": "Neptunium",
     "Oxidation states": [
       3,
@@ -8608,7 +8608,7 @@
         }
       }
     },
-    "Thermal conductivity": 6,
+    "Thermal conductivity": "6 sup^4 K W m",
     "Van der waals radius": "no data",
     "X": 1.36
   },
@@ -8622,11 +8622,11 @@
     },
     "Atomic radius": 0.6,
     "Atomic radius calculated": 0.48,
-    "Boiling point": 90.2,
+    "Boiling point": "90.2 K",
     "Common oxidation states": [
       -2
     ],
-    "Critical temperature": 154.6,
+    "Critical temperature": "154.6 K",
     "Electron affinity": 1.461105,
     "Electronic structure": {
       "0": "[He].2s<sup>2</sup>.2p<sup>4</sup>",
@@ -8650,10 +8650,10 @@
       739.32683,
       871.409883
     ],
-    "Liquid range": 35.4,
-    "Melting point": 54.8,
+    "Liquid range": "35.4 K",
+    "Melting point": "54.8 K",
     "Mendeleev no": 101,
-    "Molar volume": 17.36,
+    "Molar volume": "17.36 sup^2 cm",
     "NMR Quadrupole Moment": {
       "O-17": -25.58
     },
@@ -8699,9 +8699,9 @@
         }
       }
     },
-    "Thermal conductivity": 0.02658,
+    "Thermal conductivity": "0.02658 sup^4 K W m",
     "Van der waals radius": 1.52,
-    "Velocity of sound": 317.5,
+    "Velocity of sound": "317.5 sup^2 m s",
     "X": 3.44
   },
   "Os": {
@@ -8725,14 +8725,14 @@
     },
     "Atomic radius": 1.3,
     "Atomic radius calculated": 1.85,
-    "Boiling point": 5285,
-    "Brinell hardness": 3920,
-    "Coefficient of linear thermal expansion": 5.1,
+    "Boiling point": "5285 K",
+    "Brinell hardness": "3920 sup^2 MN m",
+    "Coefficient of linear thermal expansion": "5.1 x^10 sup^4 K",
     "Common oxidation states": [
       4
     ],
-    "Density of solid": 22610,
-    "Electrical resistivity": 8.1,
+    "Density of solid": "22610 sup^2 kg m",
+    "Electrical resistivity": "8.1 sup^2 Omega m",
     "Electron affinity": 1.077661,
     "Electronic structure": {
       "0": "[Xe].4f<sup>14</sup>.5d<sup>6</sup>.6s<sup>2</sup>",
@@ -8825,11 +8825,11 @@
       83976.21,
       85614.4
     ],
-    "Liquid range": 1979,
-    "Melting point": 3306,
+    "Liquid range": "1979 K",
+    "Melting point": "3306 K",
     "Mendeleev no": 63,
     "Mineral hardness": 7.0,
-    "Molar volume": 8.42,
+    "Molar volume": "8.42 sup^2 cm",
     "Name": "Osmium",
     "Oxidation states": [
       -2,
@@ -8844,7 +8844,7 @@
       8
     ],
     "Poissons ratio": 0.25,
-    "Rigidity modulus": 222,
+    "Rigidity modulus": "222 GPa",
     "Shannon radii": {
       "4": {
         "VI": {
@@ -8893,10 +8893,10 @@
         }
       }
     },
-    "Superconduction temperature": 0.66,
-    "Thermal conductivity": 88,
+    "Superconduction temperature": "0.66 K",
+    "Thermal conductivity": "88 sup^4 K W m",
     "Van der waals radius": "no data",
-    "Velocity of sound": 4940,
+    "Velocity of sound": "4940 sup^2 m s",
     "X": 2.2
   },
   "P": {
@@ -8911,16 +8911,16 @@
     },
     "Atomic radius": 1.0,
     "Atomic radius calculated": 0.98,
-    "Boiling point": 550,
-    "Bulk modulus": 11,
+    "Boiling point": "550 K",
+    "Bulk modulus": "11 GPa",
     "Common oxidation states": [
       -3,
       3,
       5
     ],
-    "Critical temperature": 994,
-    "Density of solid": 1823,
-    "Electrical resistivity": "about 10",
+    "Critical temperature": "994 K",
+    "Density of solid": "1823 sup^2 kg m",
+    "Electrical resistivity": "about 10 sup^2 Omega m",
     "Electron affinity": 0.746609,
     "Electronic structure": {
       "0": "[Ne].3s<sup>2</sup>.3p<sup>3</sup>",
@@ -8959,10 +8959,10 @@
       2816.90879,
       3069.8416
     ],
-    "Liquid range": 232.7,
-    "Melting point": "(white P) 317.3",
+    "Liquid range": "232.7 K",
+    "Melting point": "(white P) 317.3 K",
     "Mendeleev no": 90,
-    "Molar volume": 17.02,
+    "Molar volume": "17.02 sup^2 cm",
     "Name": "Phosphorus",
     "Oxidation states": [
       -3,
@@ -9005,7 +9005,7 @@
         }
       }
     },
-    "Thermal conductivity": 0.236,
+    "Thermal conductivity": "0.236 sup^4 K W m",
     "Van der waals radius": 1.8,
     "X": 2.19
   },
@@ -9037,8 +9037,8 @@
     "Common oxidation states": [
       5
     ],
-    "Density of solid": 15370,
-    "Electrical resistivity": 18,
+    "Density of solid": "15370 sup^2 kg m",
+    "Electrical resistivity": "18 sup^2 Omega m",
     "Electron affinity": 0.55,
     "Electronic structure": {
       "0": "[Rn].5f<sup>2</sup>.6d<sup>1</sup>.7s<sup>2</sup>",
@@ -9144,9 +9144,9 @@
       126296.6,
       128507.1
     ],
-    "Melting point": 1841,
+    "Melting point": "1841 K",
     "Mendeleev no": 46,
-    "Molar volume": 15.18,
+    "Molar volume": "15.18 sup^2 cm",
     "Name": "Protactinium",
     "Oxidation states": [
       3,
@@ -9197,8 +9197,8 @@
         }
       }
     },
-    "Superconduction temperature": 1.4,
-    "Thermal conductivity": 47,
+    "Superconduction temperature": "1.4 K",
+    "Thermal conductivity": "47 sup^4 K W m",
     "Van der waals radius": "no data",
     "X": 1.5
   },
@@ -9224,16 +9224,16 @@
     },
     "Atomic radius": 1.8,
     "Atomic radius calculated": 1.54,
-    "Boiling point": 2022,
-    "Brinell hardness": 38.3,
-    "Bulk modulus": 46,
-    "Coefficient of linear thermal expansion": 28.9,
+    "Boiling point": "2022 K",
+    "Brinell hardness": "38.3 sup^2 MN m",
+    "Bulk modulus": "46 GPa",
+    "Coefficient of linear thermal expansion": "28.9 x^10 sup^4 K",
     "Common oxidation states": [
       2,
       4
     ],
-    "Density of solid": 11340,
-    "Electrical resistivity": 21,
+    "Density of solid": "11340 sup^2 kg m",
+    "Electrical resistivity": "21 sup^2 Omega m",
     "Electron affinity": 0.356721,
     "Electronic structure": {
       "0": "[Xe].4f<sup>14</sup>.5d<sup>10</sup>.6s<sup>2</sup>.6p<sup>2</sup>",
@@ -9334,11 +9334,11 @@
       99491.85,
       101336.4
     ],
-    "Liquid range": 1421.39,
-    "Melting point": 600.61,
+    "Liquid range": "1421.39 K",
+    "Melting point": "600.61 K",
     "Mendeleev no": 82,
     "Mineral hardness": 1.5,
-    "Molar volume": 18.26,
+    "Molar volume": "18.26 sup^2 cm",
     "Name": "Lead",
     "Oxidation states": [
       -4,
@@ -9346,7 +9346,7 @@
       4
     ],
     "Poissons ratio": 0.44,
-    "Rigidity modulus": 5.6,
+    "Rigidity modulus": "5.6 GPa",
     "Shannon radii": {
       "2": {
         "IVPY": {
@@ -9425,12 +9425,12 @@
         }
       }
     },
-    "Superconduction temperature": 7.2,
-    "Thermal conductivity": 35,
+    "Superconduction temperature": "7.2 K",
+    "Thermal conductivity": "35 sup^4 K W m",
     "Van der waals radius": 2.02,
-    "Velocity of sound": 1260,
+    "Velocity of sound": "1260 sup^2 m s",
     "X": 2.33,
-    "Youngs modulus": 16
+    "Youngs modulus": "16 GPa"
   },
   "Pd": {
     "Atomic mass": 106.42,
@@ -9448,16 +9448,16 @@
     },
     "Atomic radius": 1.4,
     "Atomic radius calculated": 1.69,
-    "Boiling point": 3236,
-    "Brinell hardness": 37.3,
-    "Bulk modulus": 180,
-    "Coefficient of linear thermal expansion": 11.8,
+    "Boiling point": "3236 K",
+    "Brinell hardness": "37.3 sup^2 MN m",
+    "Bulk modulus": "180 GPa",
+    "Coefficient of linear thermal expansion": "11.8 x^10 sup^4 K",
     "Common oxidation states": [
       2,
       4
     ],
-    "Density of solid": 12023,
-    "Electrical resistivity": 10.8,
+    "Density of solid": "12023 sup^2 kg m",
+    "Electrical resistivity": "10.8 sup^2 Omega m",
     "Electron affinity": 0.56214,
     "Electronic structure": {
       "0": "[Kr].4d<sup>10</sup>",
@@ -9524,19 +9524,19 @@
       28776.034,
       29622.6
     ],
-    "Liquid range": 1407.95,
-    "Melting point": 1828.05,
+    "Liquid range": "1407.95 K",
+    "Melting point": "1828.05 K",
     "Mendeleev no": 69,
     "Mineral hardness": 4.75,
-    "Molar volume": 8.56,
+    "Molar volume": "8.56 sup^2 cm",
     "Name": "Palladium",
     "Oxidation states": [
       2,
       4
     ],
     "Poissons ratio": 0.39,
-    "Reflectivity": 72,
-    "Rigidity modulus": 44,
+    "Reflectivity": "72 ",
+    "Rigidity modulus": "44 GPa",
     "Shannon radii": {
       "1": {
         "II": {
@@ -9577,12 +9577,12 @@
         }
       }
     },
-    "Thermal conductivity": 72,
+    "Thermal conductivity": "72 sup^4 K W m",
     "Van der waals radius": 1.63,
-    "Velocity of sound": 3070,
-    "Vickers hardness": 461,
+    "Velocity of sound": "3070 sup^2 m s",
+    "Vickers hardness": "461 sup^2 MN m",
     "X": 2.2,
-    "Youngs modulus": 121
+    "Youngs modulus": "121 GPa"
   },
   "Pm": {
     "Atomic mass": 145,
@@ -9604,14 +9604,14 @@
     },
     "Atomic radius": 1.85,
     "Atomic radius calculated": 2.05,
-    "Boiling point": 3273,
-    "Bulk modulus": 33,
-    "Coefficient of linear thermal expansion": 11,
+    "Boiling point": "3273 K",
+    "Bulk modulus": "33 GPa",
+    "Coefficient of linear thermal expansion": "11 x^10 sup^4 K",
     "Common oxidation states": [
       3
     ],
-    "Density of solid": 7264,
-    "Electrical resistivity": "about 75",
+    "Density of solid": "7264 sup^2 kg m",
+    "Electrical resistivity": "about 75 sup^2 Omega m",
     "Electron affinity": 0.129,
     "Electronic structure": {
       "0": "[Xe].4f<sup>5</sup>.6s<sup>2</sup>",
@@ -9685,16 +9685,16 @@
       52144.29,
       53346.1
     ],
-    "Liquid range": 1900,
-    "Melting point": 1373,
+    "Liquid range": "1900 K",
+    "Melting point": "1373 K",
     "Mendeleev no": 29,
-    "Molar volume": 20.23,
+    "Molar volume": "20.23 sup^2 cm",
     "Name": "Promethium",
     "Oxidation states": [
       3
     ],
     "Poissons ratio": 0.28,
-    "Rigidity modulus": 18,
+    "Rigidity modulus": "18 GPa",
     "Shannon radii": {
       "3": {
         "VI": {
@@ -9717,10 +9717,10 @@
         }
       }
     },
-    "Thermal conductivity": 15,
+    "Thermal conductivity": "15 sup^4 K W m",
     "Van der waals radius": "no data",
     "X": 1.13,
-    "Youngs modulus": 46
+    "Youngs modulus": "46 GPa"
   },
   "Po": {
     "Atomic mass": 210,
@@ -9744,14 +9744,14 @@
     },
     "Atomic radius": 1.9,
     "Atomic radius calculated": 1.35,
-    "Boiling point": 1235,
+    "Boiling point": "1235 K",
     "Common oxidation states": [
       -2,
       2,
       4
     ],
-    "Density of solid": 9196,
-    "Electrical resistivity": 40,
+    "Density of solid": "9196 sup^2 kg m",
+    "Electrical resistivity": "40 sup^2 Omega m",
     "Electron affinity": 1.4,
     "Electronic structure": {
       "0": "[Xe].4f<sup>14</sup>.5d<sup>10</sup>.6s<sup>2</sup>.6p<sup>4</sup>",
@@ -9851,10 +9851,10 @@
       105064.3,
       106982.7
     ],
-    "Liquid range": 708,
-    "Melting point": 527,
+    "Liquid range": "708 K",
+    "Melting point": "527 K",
     "Mendeleev no": 91,
-    "Molar volume": 22.97,
+    "Molar volume": "22.97 sup^2 cm",
     "Name": "Polonium",
     "Oxidation states": [
       -2,
@@ -9886,7 +9886,7 @@
         }
       }
     },
-    "Thermal conductivity": 20,
+    "Thermal conductivity": "20 sup^4 K W m",
     "Van der waals radius": 1.97,
     "X": 2
   },
@@ -9910,15 +9910,15 @@
     },
     "Atomic radius": 1.85,
     "Atomic radius calculated": 2.47,
-    "Boiling point": 3563,
-    "Brinell hardness": 481,
-    "Bulk modulus": 29,
-    "Coefficient of linear thermal expansion": 6.7,
+    "Boiling point": "3563 K",
+    "Brinell hardness": "481 sup^2 MN m",
+    "Bulk modulus": "29 GPa",
+    "Coefficient of linear thermal expansion": "6.7 x^10 sup^4 K",
     "Common oxidation states": [
       3
     ],
-    "Density of solid": 6640,
-    "Electrical resistivity": 70,
+    "Density of solid": "6640 sup^2 kg m",
+    "Electrical resistivity": "70 sup^2 Omega m",
     "Electron affinity": 0.10923,
     "Electronic structure": {
       "0": "[Xe].4f<sup>3</sup>.6s<sup>2</sup>",
@@ -9995,10 +9995,10 @@
       48571.71,
       49722.25
     ],
-    "Liquid range": 2355,
-    "Melting point": 1208,
+    "Liquid range": "2355 K",
+    "Melting point": "1208 K",
     "Mendeleev no": 31,
-    "Molar volume": 20.8,
+    "Molar volume": "20.8 sup^2 cm",
     "Name": "Praseodymium",
     "Oxidation states": [
       2,
@@ -10006,7 +10006,7 @@
       4
     ],
     "Poissons ratio": 0.28,
-    "Rigidity modulus": 15,
+    "Rigidity modulus": "15 GPa",
     "Shannon radii": {
       "3": {
         "VI": {
@@ -10043,12 +10043,12 @@
         }
       }
     },
-    "Thermal conductivity": 13,
+    "Thermal conductivity": "13 sup^4 K W m",
     "Van der waals radius": "no data",
-    "Velocity of sound": 2280,
-    "Vickers hardness": 400,
+    "Velocity of sound": "2280 sup^2 m s",
+    "Vickers hardness": "400 sup^2 MN m",
     "X": 1.13,
-    "Youngs modulus": 37
+    "Youngs modulus": "37 GPa"
   },
   "Pt": {
     "Atomic mass": 195.084,
@@ -10071,16 +10071,16 @@
     },
     "Atomic radius": 1.35,
     "Atomic radius calculated": 1.77,
-    "Boiling point": 4098,
-    "Brinell hardness": 392,
-    "Bulk modulus": 230,
-    "Coefficient of linear thermal expansion": 8.8,
+    "Boiling point": "4098 K",
+    "Brinell hardness": "392 sup^2 MN m",
+    "Bulk modulus": "230 GPa",
+    "Coefficient of linear thermal expansion": "8.8 x^10 sup^4 K",
     "Common oxidation states": [
       2,
       4
     ],
-    "Density of solid": 21090,
-    "Electrical resistivity": 10.6,
+    "Density of solid": "21090 sup^2 kg m",
+    "Electrical resistivity": "10.6 sup^2 Omega m",
     "Electron affinity": 2.1251,
     "Electronic structure": {
       "0": "[Xe].4f<sup>14</sup>.5d<sup>9</sup>.6s<sup>1</sup>",
@@ -10174,11 +10174,11 @@
       88955.18,
       90659.7
     ],
-    "Liquid range": 2056.6,
-    "Melting point": 2041.4,
+    "Liquid range": "2056.6 K",
+    "Melting point": "2041.4 K",
     "Mendeleev no": 68,
     "Mineral hardness": 3.5,
-    "Molar volume": 9.09,
+    "Molar volume": "9.09 sup^2 cm",
     "Name": "Platinum",
     "Oxidation states": [
       -2,
@@ -10188,8 +10188,8 @@
       6
     ],
     "Poissons ratio": 0.38,
-    "Reflectivity": 73,
-    "Rigidity modulus": 61,
+    "Reflectivity": "73 ",
+    "Rigidity modulus": "61 GPa",
     "Shannon radii": {
       "2": {
         "IVSQ": {
@@ -10222,24 +10222,24 @@
         }
       }
     },
-    "Thermal conductivity": 72,
+    "Thermal conductivity": "72 sup^4 K W m",
     "Van der waals radius": 1.75,
-    "Velocity of sound": 2680,
-    "Vickers hardness": 549,
+    "Velocity of sound": "2680 sup^2 m s",
+    "Vickers hardness": "549 sup^2 MN m",
     "X": 2.28,
-    "Youngs modulus": 168
+    "Youngs modulus": "168 GPa"
   },
   "Pu": {
     "Atomic mass": 244,
     "Atomic no": 94,
     "Atomic radius": 1.75,
     "Atomic radius calculated": "no data",
-    "Boiling point": 3503,
+    "Boiling point": "3503 K",
     "Common oxidation states": [
       4
     ],
-    "Density of solid": 19816,
-    "Electrical resistivity": 150,
+    "Density of solid": "19816 sup^2 kg m",
+    "Electrical resistivity": "150 sup^2 Omega m",
     "Electron affinity": -0.5,
     "Electronic structure": {
       "0": "[Rn].5f<sup>6</sup>.7s<sup>2</sup>",
@@ -10349,10 +10349,10 @@
       136299.2,
       138646.0
     ],
-    "Liquid range": 2590.5,
-    "Melting point": 912.5,
+    "Liquid range": "2590.5 K",
+    "Melting point": "912.5 K",
     "Mendeleev no": 43,
-    "Molar volume": 12.29,
+    "Molar volume": "12.29 sup^2 cm",
     "Name": "Plutonium",
     "Oxidation states": [
       3,
@@ -10362,7 +10362,7 @@
       7
     ],
     "Poissons ratio": 0.21,
-    "Rigidity modulus": 43,
+    "Rigidity modulus": "43 GPa",
     "Shannon radii": {
       "3": {
         "VI": {
@@ -10403,11 +10403,11 @@
         }
       }
     },
-    "Thermal conductivity": 6,
+    "Thermal conductivity": "6 sup^4 K W m",
     "Van der waals radius": "no data",
-    "Velocity of sound": 2260,
+    "Velocity of sound": "2260 sup^2 m s",
     "X": 1.28,
-    "Youngs modulus": 96
+    "Youngs modulus": "96 GPa"
   },
   "Ra": {
     "Atomic mass": 226,
@@ -10432,12 +10432,12 @@
     },
     "Atomic radius": 2.15,
     "Atomic radius calculated": "no data",
-    "Boiling point": 2010,
+    "Boiling point": "2010 K",
     "Common oxidation states": [
       2
     ],
-    "Density of solid": 5000,
-    "Electrical resistivity": 100,
+    "Density of solid": "5000 sup^2 kg m",
+    "Electrical resistivity": "100 sup^2 Omega m",
     "Electron affinity": 0.1,
     "Electronic structure": {
       "0": "[Rn].7s<sup>2</sup>",
@@ -10538,10 +10538,10 @@
       116848.7,
       118931.3
     ],
-    "Liquid range": 1037,
-    "Melting point": 973,
+    "Liquid range": "1037 K",
+    "Melting point": "973 K",
     "Mendeleev no": 13,
-    "Molar volume": 41.09,
+    "Molar volume": "41.09 sup^2 cm",
     "NMR Quadrupole Moment": {
       "Ra-223": 1210.3
     },
@@ -10565,7 +10565,7 @@
         }
       }
     },
-    "Thermal conductivity": 19,
+    "Thermal conductivity": "19 sup^4 K W m",
     "Van der waals radius": 2.83,
     "X": 0.9
   },
@@ -10585,15 +10585,15 @@
     },
     "Atomic radius": 2.35,
     "Atomic radius calculated": 2.65,
-    "Boiling point": 961,
-    "Brinell hardness": 0.216,
-    "Bulk modulus": 2.5,
+    "Boiling point": "961 K",
+    "Brinell hardness": "0.216 sup^2 MN m",
+    "Bulk modulus": "2.5 GPa",
     "Common oxidation states": [
       1
     ],
-    "Critical temperature": 2093,
-    "Density of solid": 1532,
-    "Electrical resistivity": 13.3,
+    "Critical temperature": "2093 K",
+    "Density of solid": "1532 sup^2 kg m",
+    "Electrical resistivity": "13.3 sup^2 Omega m",
     "Electron affinity": 0.485916,
     "Electronic structure": {
       "0": "[Kr].5s<sup>1</sup>",
@@ -10646,11 +10646,11 @@
       18305.884,
       18965.516
     ],
-    "Liquid range": 648.54,
-    "Melting point": 312.46,
+    "Liquid range": "648.54 K",
+    "Melting point": "312.46 K",
     "Mendeleev no": 9,
     "Mineral hardness": 0.3,
-    "Molar volume": 55.76,
+    "Molar volume": "55.76 sup^2 cm",
     "Name": "Rubidium",
     "Oxidation states": [
       1
@@ -10707,11 +10707,11 @@
         }
       }
     },
-    "Thermal conductivity": 58,
+    "Thermal conductivity": "58 sup^4 K W m",
     "Van der waals radius": 3.03,
-    "Velocity of sound": 1300,
+    "Velocity of sound": "1300 sup^2 m s",
     "X": 0.82,
-    "Youngs modulus": 2.4
+    "Youngs modulus": "2.4 GPa"
   },
   "Re": {
     "Atomic mass": 186.207,
@@ -10734,15 +10734,15 @@
     },
     "Atomic radius": 1.35,
     "Atomic radius calculated": 1.88,
-    "Boiling point": 5869,
-    "Brinell hardness": 1320,
-    "Bulk modulus": 370,
-    "Coefficient of linear thermal expansion": 6.2,
+    "Boiling point": "5869 K",
+    "Brinell hardness": "1320 sup^2 MN m",
+    "Bulk modulus": "370 GPa",
+    "Coefficient of linear thermal expansion": "6.2 x^10 sup^4 K",
     "Common oxidation states": [
       4
     ],
-    "Density of solid": 21020,
-    "Electrical resistivity": 18,
+    "Density of solid": "21020 sup^2 kg m",
+    "Electrical resistivity": "18 sup^2 Omega m",
     "Electron affinity": 0.060396,
     "Electronic structure": {
       "0": "[Xe].4f<sup>14</sup>.5d<sup>5</sup>.6s<sup>2</sup>",
@@ -10840,11 +10840,11 @@
       81556.9,
       83162.3
     ],
-    "Liquid range": 2410,
-    "Melting point": 3459,
+    "Liquid range": "2410 K",
+    "Melting point": "3459 K",
     "Mendeleev no": 58,
     "Mineral hardness": 7.0,
-    "Molar volume": 8.86,
+    "Molar volume": "8.86 sup^2 cm",
     "Name": "Rhenium",
     "Oxidation states": [
       -3,
@@ -10858,7 +10858,7 @@
       7
     ],
     "Poissons ratio": 0.3,
-    "Rigidity modulus": 178,
+    "Rigidity modulus": "178 GPa",
     "Shannon radii": {
       "4": {
         "VI": {
@@ -10899,13 +10899,13 @@
         }
       }
     },
-    "Superconduction temperature": 1.7,
-    "Thermal conductivity": 48,
+    "Superconduction temperature": "1.7 K",
+    "Thermal conductivity": "48 sup^4 K W m",
     "Van der waals radius": "no data",
-    "Velocity of sound": 4700,
-    "Vickers hardness": 2450,
+    "Velocity of sound": "4700 sup^2 m s",
+    "Vickers hardness": "2450 sup^2 MN m",
     "X": 1.9,
-    "Youngs modulus": 463
+    "Youngs modulus": "463 GPa"
   },
   "Rh": {
     "Atomic mass": 102.9055,
@@ -10924,15 +10924,15 @@
     },
     "Atomic radius": 1.35,
     "Atomic radius calculated": 1.73,
-    "Boiling point": 3968,
-    "Brinell hardness": 1100,
-    "Bulk modulus": 380,
-    "Coefficient of linear thermal expansion": 8.2,
+    "Boiling point": "3968 K",
+    "Brinell hardness": "1100 sup^2 MN m",
+    "Bulk modulus": "380 GPa",
+    "Coefficient of linear thermal expansion": "8.2 x^10 sup^4 K",
     "Common oxidation states": [
       3
     ],
-    "Density of solid": 12450,
-    "Electrical resistivity": 4.3,
+    "Density of solid": "12450 sup^2 kg m",
+    "Electrical resistivity": "4.3 sup^2 Omega m",
     "Electron affinity": 1.14289,
     "Electronic structure": {
       "0": "[Kr].4d<sup>8</sup>.5s<sup>1</sup>",
@@ -10996,11 +10996,11 @@
       27486.983,
       28311.965
     ],
-    "Liquid range": 1731,
-    "Melting point": 2237,
+    "Liquid range": "1731 K",
+    "Melting point": "2237 K",
     "Mendeleev no": 65,
     "Mineral hardness": 6.0,
-    "Molar volume": 8.28,
+    "Molar volume": "8.28 sup^2 cm",
     "Name": "Rhodium",
     "Oxidation states": [
       -1,
@@ -11012,8 +11012,8 @@
       6
     ],
     "Poissons ratio": 0.26,
-    "Reflectivity": 84,
-    "Rigidity modulus": 150,
+    "Reflectivity": "84 ",
+    "Rigidity modulus": "150 GPa",
     "Shannon radii": {
       "3": {
         "VI": {
@@ -11040,12 +11040,12 @@
         }
       }
     },
-    "Thermal conductivity": 150,
+    "Thermal conductivity": "150 sup^4 K W m",
     "Van der waals radius": "no data",
-    "Velocity of sound": 4700,
-    "Vickers hardness": 1246,
+    "Velocity of sound": "4700 sup^2 m s",
+    "Vickers hardness": "1246 sup^2 MN m",
     "X": 2.28,
-    "Youngs modulus": 275
+    "Youngs modulus": "275 GPa"
   },
   "Rn": {
     "Atomic mass": 220,
@@ -11069,8 +11069,8 @@
     },
     "Atomic radius": "no data",
     "Atomic radius calculated": 1.2,
-    "Boiling point": 211.3,
-    "Critical temperature": 377,
+    "Boiling point": "211.3 K",
+    "Critical temperature": "377 K",
     "Electron affinity": -0.7,
     "Electronic structure": {
       "0": "[Xe].4f<sup>14</sup>.5d<sup>10</sup>.6s<sup>2</sup>.6p<sup>6</sup>"
@@ -11165,14 +11165,14 @@
       110842.0,
       112843.7
     ],
-    "Liquid range": 9.3,
+    "Liquid range": "9.3 K",
     "Max oxidation state": 0,
-    "Melting point": 202,
+    "Melting point": "202 K",
     "Mendeleev no": 6,
     "Min oxidation state": 0,
-    "Molar volume": 50.5,
+    "Molar volume": "50.5 sup^2 cm",
     "Name": "Radon",
-    "Thermal conductivity": 0.00361,
+    "Thermal conductivity": "0.00361 sup^4 K W m",
     "Van der waals radius": 2.2,
     "X": 2.2
   },
@@ -11193,16 +11193,16 @@
     },
     "Atomic radius": 1.3,
     "Atomic radius calculated": 1.78,
-    "Boiling point": 4423,
-    "Brinell hardness": 2160,
-    "Bulk modulus": 220,
-    "Coefficient of linear thermal expansion": 6.4,
+    "Boiling point": "4423 K",
+    "Brinell hardness": "2160 sup^2 MN m",
+    "Bulk modulus": "220 GPa",
+    "Coefficient of linear thermal expansion": "6.4 x^10 sup^4 K",
     "Common oxidation states": [
       3,
       4
     ],
-    "Density of solid": 12370,
-    "Electrical resistivity": 7.1,
+    "Density of solid": "12370 sup^2 kg m",
+    "Electrical resistivity": "7.1 sup^2 Omega m",
     "Electron affinity": 1.04627,
     "Electronic structure": {
       "0": "[Kr].4d<sup>7</sup>.5s<sup>1</sup>",
@@ -11271,11 +11271,11 @@
       26229.895,
       27033.502
     ],
-    "Liquid range": 1816,
-    "Melting point": 2607,
+    "Liquid range": "1816 K",
+    "Melting point": "2607 K",
     "Mendeleev no": 62,
     "Mineral hardness": 6.5,
-    "Molar volume": 8.17,
+    "Molar volume": "8.17 sup^2 cm",
     "Name": "Ruthenium",
     "Oxidation states": [
       -2,
@@ -11289,7 +11289,7 @@
       8
     ],
     "Poissons ratio": 0.3,
-    "Rigidity modulus": 173,
+    "Rigidity modulus": "173 GPa",
     "Shannon radii": {
       "3": {
         "VI": {
@@ -11332,12 +11332,12 @@
         }
       }
     },
-    "Superconduction temperature": 0.49,
-    "Thermal conductivity": 120,
+    "Superconduction temperature": "0.49 K",
+    "Thermal conductivity": "120 sup^4 K W m",
     "Van der waals radius": "no data",
-    "Velocity of sound": 5970,
+    "Velocity of sound": "5970 sup^2 m s",
     "X": 2.2,
-    "Youngs modulus": 447
+    "Youngs modulus": "447 GPa"
   },
   "S": {
     "Atomic mass": 32.065,
@@ -11351,17 +11351,17 @@
     },
     "Atomic radius": 1.0,
     "Atomic radius calculated": 0.88,
-    "Boiling point": 717.87,
-    "Bulk modulus": 7.7,
+    "Boiling point": "717.87 K",
+    "Bulk modulus": "7.7 GPa",
     "Common oxidation states": [
       -2,
       2,
       4,
       6
     ],
-    "Critical temperature": 1314,
-    "Density of solid": 1960,
-    "Electrical resistivity": "&gt; 10<sup>23</sup>",
+    "Critical temperature": "1314 K",
+    "Density of solid": "1960 sup^2 kg m",
+    "Electrical resistivity": "&gt; 10<sup>23</sup> sup^2 Omega m",
     "Electron affinity": 2.0771045,
     "Electronic structure": {
       "0": "[Ne].3s<sup>2</sup>.3p<sup>4</sup>",
@@ -11402,11 +11402,11 @@
       3223.7807,
       3494.1879
     ],
-    "Liquid range": 329.51,
-    "Melting point": 388.36,
+    "Liquid range": "329.51 K",
+    "Melting point": "388.36 K",
     "Mendeleev no": 94,
     "Mineral hardness": 2.0,
-    "Molar volume": 15.53,
+    "Molar volume": "15.53 sup^2 cm",
     "NMR Quadrupole Moment": {
       "S-33": -67.8,
       "S-35": 47.1
@@ -11455,7 +11455,7 @@
         }
       }
     },
-    "Thermal conductivity": 0.205,
+    "Thermal conductivity": "0.205 sup^4 K W m",
     "Van der waals radius": 1.8,
     "X": 2.58
   },
@@ -11477,17 +11477,17 @@
     },
     "Atomic radius": 1.45,
     "Atomic radius calculated": 1.33,
-    "Boiling point": 1860,
-    "Brinell hardness": 294,
-    "Bulk modulus": 42,
-    "Coefficient of linear thermal expansion": 11,
+    "Boiling point": "1860 K",
+    "Brinell hardness": "294 sup^2 MN m",
+    "Bulk modulus": "42 GPa",
+    "Coefficient of linear thermal expansion": "11 x^10 sup^4 K",
     "Common oxidation states": [
       -3,
       3,
       5
     ],
-    "Density of solid": 6697,
-    "Electrical resistivity": 40,
+    "Density of solid": "6697 sup^2 kg m",
+    "Electrical resistivity": "40 sup^2 Omega m",
     "Electron affinity": 1.047401,
     "Electronic structure": {
       "0": "[Kr].4d<sup>10</sup>.5s<sup>2</sup>.5p<sup>3</sup>",
@@ -11561,11 +11561,11 @@
       35710.028,
       36668.05
     ],
-    "Liquid range": 956.22,
-    "Melting point": 903.78,
+    "Liquid range": "956.22 K",
+    "Melting point": "903.78 K",
     "Mendeleev no": 88,
     "Mineral hardness": 3.0,
-    "Molar volume": 18.19,
+    "Molar volume": "18.19 sup^2 cm",
     "NMR Quadrupole Moment": {
       "Sb-121": -543.11,
       "Sb-123": -692.14
@@ -11576,8 +11576,8 @@
       3,
       5
     ],
-    "Reflectivity": 55,
-    "Rigidity modulus": 20,
+    "Reflectivity": "55 ",
+    "Rigidity modulus": "20 GPa",
     "Shannon radii": {
       "3": {
         "IVPY": {
@@ -11608,11 +11608,11 @@
         }
       }
     },
-    "Thermal conductivity": 24,
+    "Thermal conductivity": "24 sup^4 K W m",
     "Van der waals radius": 2.06,
-    "Velocity of sound": 3420,
+    "Velocity of sound": "3420 sup^2 m s",
     "X": 2.05,
-    "Youngs modulus": 55
+    "Youngs modulus": "55 GPa"
   },
   "Sc": {
     "Atomic mass": 44.955912,
@@ -11628,15 +11628,15 @@
     },
     "Atomic radius": 1.6,
     "Atomic radius calculated": 1.84,
-    "Boiling point": 3103,
-    "Brinell hardness": 750,
-    "Bulk modulus": 57,
-    "Coefficient of linear thermal expansion": 10.2,
+    "Boiling point": "3103 K",
+    "Brinell hardness": "750 sup^2 MN m",
+    "Bulk modulus": "57 GPa",
+    "Coefficient of linear thermal expansion": "10.2 x^10 sup^4 K",
     "Common oxidation states": [
       3
     ],
-    "Density of solid": 2985,
-    "Electrical resistivity": "about 55",
+    "Density of solid": "2985 sup^2 kg m",
+    "Electrical resistivity": "about 55 sup^2 Omega m",
     "Electron affinity": 0.17938,
     "Electronic structure": {
       "0": "[Ar].3d<sup>1</sup>.4s<sup>2</sup>",
@@ -11674,10 +11674,10 @@
       5674.9037,
       6033.7542
     ],
-    "Liquid range": 1289,
-    "Melting point": 1814,
+    "Liquid range": "1289 K",
+    "Melting point": "1814 K",
     "Mendeleev no": 19,
-    "Molar volume": 15.0,
+    "Molar volume": "15.0 sup^2 cm",
     "NMR Quadrupole Moment": {
       "Sc-45": -220.2
     },
@@ -11688,7 +11688,7 @@
       3
     ],
     "Poissons ratio": 0.28,
-    "Rigidity modulus": 29,
+    "Rigidity modulus": "29 GPa",
     "Shannon radii": {
       "3": {
         "VI": {
@@ -11705,11 +11705,11 @@
         }
       }
     },
-    "Superconduction temperature": "0.05  (under pressure)",
-    "Thermal conductivity": 16,
+    "Superconduction temperature": "0.05  (under pressure) K",
+    "Thermal conductivity": "16 sup^4 K W m",
     "Van der waals radius": 2.11,
     "X": 1.36,
-    "Youngs modulus": 74
+    "Youngs modulus": "74 GPa"
   },
   "Se": {
     "Atomic mass": 78.96,
@@ -11726,18 +11726,18 @@
     },
     "Atomic radius": 1.15,
     "Atomic radius calculated": 1.03,
-    "Boiling point": 958,
-    "Brinell hardness": 736,
-    "Bulk modulus": 8.3,
+    "Boiling point": "958 K",
+    "Brinell hardness": "736 sup^2 MN m",
+    "Bulk modulus": "8.3 GPa",
     "Common oxidation states": [
       -2,
       2,
       4,
       6
     ],
-    "Critical temperature": 1766,
-    "Density of solid": 4819,
-    "Electrical resistivity": "high",
+    "Critical temperature": "1766 K",
+    "Density of solid": "4819 sup^2 kg m",
+    "Electrical resistivity": "high sup^2 Omega m",
     "Electron affinity": 2.0206047,
     "Electronic structure": {
       "0": "[Ar].3d<sup>10</sup>.4s<sup>2</sup>.4p<sup>4</sup>",
@@ -11795,11 +11795,11 @@
       15367.491,
       15968.084
     ],
-    "Liquid range": 464,
-    "Melting point": 494,
+    "Liquid range": "464 K",
+    "Melting point": "494 K",
     "Mendeleev no": 93,
     "Mineral hardness": 2.0,
-    "Molar volume": 16.42,
+    "Molar volume": "16.42 sup^2 cm",
     "Name": "Selenium",
     "Oxidation states": [
       -2,
@@ -11809,7 +11809,7 @@
     ],
     "Poissons ratio": 0.33,
     "Refractive index": 1.000895,
-    "Rigidity modulus": 3.7,
+    "Rigidity modulus": "3.7 GPa",
     "Shannon radii": {
       "-2": {
         "VI": {
@@ -11842,11 +11842,11 @@
         }
       }
     },
-    "Thermal conductivity": 0.52,
+    "Thermal conductivity": "0.52 sup^4 K W m",
     "Van der waals radius": 1.9,
-    "Velocity of sound": 3350,
+    "Velocity of sound": "3350 sup^2 m s",
     "X": 2.55,
-    "Youngs modulus": 10
+    "Youngs modulus": "10 GPa"
   },
   "Si": {
     "Atomic mass": 28.0855,
@@ -11860,15 +11860,15 @@
     },
     "Atomic radius": 1.1,
     "Atomic radius calculated": 1.11,
-    "Boiling point": 3173,
-    "Bulk modulus": 100,
-    "Coefficient of linear thermal expansion": 2.6,
+    "Boiling point": "3173 K",
+    "Bulk modulus": "100 GPa",
+    "Coefficient of linear thermal expansion": "2.6 x^10 sup^4 K",
     "Common oxidation states": [
       -4,
       4
     ],
-    "Density of solid": 2330,
-    "Electrical resistivity": "about 100000",
+    "Density of solid": "2330 sup^2 kg m",
+    "Electrical resistivity": "about 100000 sup^2 Omega m",
     "Electron affinity": 1.3895212,
     "Electronic structure": {
       "0": "[Ne].3s<sup>2</sup>.3p<sup>2</sup>",
@@ -11900,11 +11900,11 @@
       2437.65815,
       2673.17755
     ],
-    "Liquid range": 1486,
-    "Melting point": 1687,
+    "Liquid range": "1486 K",
+    "Melting point": "1687 K",
     "Mendeleev no": 85,
     "Mineral hardness": 6.5,
-    "Molar volume": 12.06,
+    "Molar volume": "12.06 sup^2 cm",
     "Name": "Silicon",
     "Oxidation states": [
       -4,
@@ -11916,7 +11916,7 @@
       3,
       4
     ],
-    "Reflectivity": 28,
+    "Reflectivity": "28 ",
     "Shannon radii": {
       "4": {
         "IV": {
@@ -11933,11 +11933,11 @@
         }
       }
     },
-    "Thermal conductivity": 150,
+    "Thermal conductivity": "150 sup^4 K W m",
     "Van der waals radius": 2.1,
-    "Velocity of sound": 2200,
+    "Velocity of sound": "2200 sup^2 m s",
     "X": 1.9,
-    "Youngs modulus": 47
+    "Youngs modulus": "47 GPa"
   },
   "Sm": {
     "Atomic mass": 150.36,
@@ -11959,15 +11959,15 @@
     },
     "Atomic radius": 1.85,
     "Atomic radius calculated": 2.38,
-    "Boiling point": 2076,
-    "Brinell hardness": 441,
-    "Bulk modulus": 38,
-    "Coefficient of linear thermal expansion": 12.7,
+    "Boiling point": "2076 K",
+    "Brinell hardness": "441 sup^2 MN m",
+    "Bulk modulus": "38 GPa",
+    "Coefficient of linear thermal expansion": "12.7 x^10 sup^4 K",
     "Common oxidation states": [
       3
     ],
-    "Density of solid": 7353,
-    "Electrical resistivity": 94,
+    "Density of solid": "7353 sup^2 kg m",
+    "Electrical resistivity": "94 sup^2 Omega m",
     "Electron affinity": 0.162,
     "Electronic structure": {
       "0": "[Xe].4f<sup>6</sup>.6s<sup>2</sup>",
@@ -12047,17 +12047,17 @@
       53986.12,
       55214.23
     ],
-    "Liquid range": 731,
-    "Melting point": 1345,
+    "Liquid range": "731 K",
+    "Melting point": "1345 K",
     "Mendeleev no": 28,
-    "Molar volume": 19.98,
+    "Molar volume": "19.98 sup^2 cm",
     "Name": "Samarium",
     "Oxidation states": [
       2,
       3
     ],
     "Poissons ratio": 0.27,
-    "Rigidity modulus": 20,
+    "Rigidity modulus": "20 GPa",
     "Shannon radii": {
       "2": {
         "VII": {
@@ -12112,12 +12112,12 @@
         }
       }
     },
-    "Thermal conductivity": 13,
+    "Thermal conductivity": "13 sup^4 K W m",
     "Van der waals radius": "no data",
-    "Velocity of sound": 2130,
-    "Vickers hardness": 412,
+    "Velocity of sound": "2130 sup^2 m s",
+    "Vickers hardness": "412 sup^2 MN m",
     "X": 1.17,
-    "Youngs modulus": 50
+    "Youngs modulus": "50 GPa"
   },
   "Sn": {
     "Atomic mass": 118.71,
@@ -12137,17 +12137,17 @@
     },
     "Atomic radius": 1.45,
     "Atomic radius calculated": 1.45,
-    "Boiling point": 2875,
-    "Brinell hardness": 51,
-    "Bulk modulus": 58,
-    "Coefficient of linear thermal expansion": 22,
+    "Boiling point": "2875 K",
+    "Brinell hardness": "51 sup^2 MN m",
+    "Bulk modulus": "58 GPa",
+    "Coefficient of linear thermal expansion": "22 x^10 sup^4 K",
     "Common oxidation states": [
       -4,
       2,
       4
     ],
-    "Density of solid": 7310,
-    "Electrical resistivity": 11.5,
+    "Density of solid": "7310 sup^2 kg m",
+    "Electrical resistivity": "11.5 sup^2 Omega m",
     "Electron affinity": 1.11207,
     "Electronic structure": {
       "0": "[Kr].4d<sup>10</sup>.5s<sup>2</sup>.5p<sup>2</sup>",
@@ -12217,11 +12217,11 @@
       34257.143,
       35192.39
     ],
-    "Liquid range": 2369.92,
-    "Melting point": 505.08,
+    "Liquid range": "2369.92 K",
+    "Melting point": "505.08 K",
     "Mendeleev no": 83,
     "Mineral hardness": 1.5,
-    "Molar volume": 16.29,
+    "Molar volume": "16.29 sup^2 cm",
     "NMR Quadrupole Moment": {
       "Sn-119": -132.1
     },
@@ -12232,8 +12232,8 @@
       4
     ],
     "Poissons ratio": 0.36,
-    "Reflectivity": 54,
-    "Rigidity modulus": 18,
+    "Reflectivity": "54 ",
+    "Rigidity modulus": "18 GPa",
     "Shannon radii": {
       "4": {
         "IV": {
@@ -12268,12 +12268,12 @@
         }
       }
     },
-    "Superconduction temperature": 3.72,
-    "Thermal conductivity": 67,
+    "Superconduction temperature": "3.72 K",
+    "Thermal conductivity": "67 sup^4 K W m",
     "Van der waals radius": 2.17,
-    "Velocity of sound": 2500,
+    "Velocity of sound": "2500 sup^2 m s",
     "X": 1.96,
-    "Youngs modulus": 50
+    "Youngs modulus": "50 GPa"
   },
   "Sr": {
     "Atomic mass": 87.62,
@@ -12291,13 +12291,13 @@
     },
     "Atomic radius": 2.0,
     "Atomic radius calculated": 2.19,
-    "Boiling point": 1655,
-    "Coefficient of linear thermal expansion": 22.5,
+    "Boiling point": "1655 K",
+    "Coefficient of linear thermal expansion": "22.5 x^10 sup^4 K",
     "Common oxidation states": [
       2
     ],
-    "Density of solid": 2630,
-    "Electrical resistivity": 13.5,
+    "Density of solid": "2630 sup^2 kg m",
+    "Electrical resistivity": "13.5 sup^2 Omega m",
     "Electron affinity": 0.05206,
     "Electronic structure": {
       "0": "[Kr].5s<sup>2</sup>",
@@ -12351,11 +12351,11 @@
       19345.588,
       20025.233
     ],
-    "Liquid range": 605,
-    "Melting point": 1050,
+    "Liquid range": "605 K",
+    "Melting point": "1050 K",
     "Mendeleev no": 15,
     "Mineral hardness": 1.5,
-    "Molar volume": 33.94,
+    "Molar volume": "33.94 sup^2 cm",
     "NMR Quadrupole Moment": {
       "Sr-87": 305.2
     },
@@ -12364,7 +12364,7 @@
       2
     ],
     "Poissons ratio": 0.28,
-    "Rigidity modulus": 6.1,
+    "Rigidity modulus": "6.1 GPa",
     "Shannon radii": {
       "2": {
         "VI": {
@@ -12405,7 +12405,7 @@
         }
       }
     },
-    "Thermal conductivity": 35,
+    "Thermal conductivity": "35 sup^4 K W m",
     "Van der waals radius": 2.49,
     "X": 0.95
   },
@@ -12430,15 +12430,15 @@
     },
     "Atomic radius": 1.45,
     "Atomic radius calculated": 2.0,
-    "Boiling point": 5731,
-    "Brinell hardness": 800,
-    "Bulk modulus": 200,
-    "Coefficient of linear thermal expansion": 6.3,
+    "Boiling point": "5731 K",
+    "Brinell hardness": "800 sup^2 MN m",
+    "Bulk modulus": "200 GPa",
+    "Coefficient of linear thermal expansion": "6.3 x^10 sup^4 K",
     "Common oxidation states": [
       5
     ],
-    "Density of solid": 16650,
-    "Electrical resistivity": 13.5,
+    "Density of solid": "16650 sup^2 kg m",
+    "Electrical resistivity": "13.5 sup^2 Omega m",
     "Electron affinity": 0.328859,
     "Electronic structure": {
       "0": "[Xe].4f<sup>14</sup>.5d<sup>3</sup>.6s<sup>2</sup>",
@@ -12531,11 +12531,11 @@
       76852.03,
       78394.7
     ],
-    "Liquid range": 2441,
-    "Melting point": 3290,
+    "Liquid range": "2441 K",
+    "Melting point": "3290 K",
     "Mendeleev no": 52,
     "Mineral hardness": 6.5,
-    "Molar volume": 10.85,
+    "Molar volume": "10.85 sup^2 cm",
     "Name": "Tantalum",
     "Oxidation states": [
       -1,
@@ -12545,8 +12545,8 @@
       5
     ],
     "Poissons ratio": 0.34,
-    "Reflectivity": 78,
-    "Rigidity modulus": 69,
+    "Reflectivity": "78 ",
+    "Rigidity modulus": "69 GPa",
     "Shannon radii": {
       "3": {
         "VI": {
@@ -12585,13 +12585,13 @@
         }
       }
     },
-    "Superconduction temperature": 4.47,
-    "Thermal conductivity": 57,
+    "Superconduction temperature": "4.47 K",
+    "Thermal conductivity": "57 sup^4 K W m",
     "Van der waals radius": "no data",
-    "Velocity of sound": 3400,
-    "Vickers hardness": 873,
+    "Velocity of sound": "3400 sup^2 m s",
+    "Vickers hardness": "873 sup^2 MN m",
     "X": 1.5,
-    "Youngs modulus": 186
+    "Youngs modulus": "186 GPa"
   },
   "Tb": {
     "Atomic mass": 158.92535,
@@ -12613,15 +12613,15 @@
     },
     "Atomic radius": 1.75,
     "Atomic radius calculated": 2.25,
-    "Boiling point": 3503,
-    "Brinell hardness": 677,
-    "Bulk modulus": 38.7,
-    "Coefficient of linear thermal expansion": 10.3,
+    "Boiling point": "3503 K",
+    "Brinell hardness": "677 sup^2 MN m",
+    "Bulk modulus": "38.7 GPa",
+    "Coefficient of linear thermal expansion": "10.3 x^10 sup^4 K",
     "Common oxidation states": [
       3
     ],
-    "Density of solid": 8219,
-    "Electrical resistivity": 115,
+    "Density of solid": "8219 sup^2 kg m",
+    "Electrical resistivity": "115 sup^2 Omega m",
     "Electron affinity": 0.13131,
     "Electronic structure": {
       "0": "[Xe].4f<sup>9</sup>.6s<sup>2</sup>",
@@ -12704,10 +12704,10 @@
       59739.3,
       61049.65
     ],
-    "Liquid range": 1874,
-    "Melting point": 1629,
+    "Liquid range": "1874 K",
+    "Melting point": "1629 K",
     "Mendeleev no": 26,
-    "Molar volume": 19.3,
+    "Molar volume": "19.3 sup^2 cm",
     "Name": "Terbium",
     "Oxidation states": [
       1,
@@ -12715,7 +12715,7 @@
       4
     ],
     "Poissons ratio": 0.26,
-    "Rigidity modulus": 22,
+    "Rigidity modulus": "22 GPa",
     "Shannon radii": {
       "3": {
         "VI": {
@@ -12758,12 +12758,12 @@
         }
       }
     },
-    "Thermal conductivity": 11,
+    "Thermal conductivity": "11 sup^4 K W m",
     "Van der waals radius": "no data",
-    "Velocity of sound": 2620,
-    "Vickers hardness": 863,
+    "Velocity of sound": "2620 sup^2 m s",
+    "Vickers hardness": "863 sup^2 MN m",
     "X": 1.1,
-    "Youngs modulus": 56
+    "Youngs modulus": "56 GPa"
   },
   "Tc": {
     "Atomic mass": 98,
@@ -12782,13 +12782,13 @@
     },
     "Atomic radius": 1.35,
     "Atomic radius calculated": 1.83,
-    "Boiling point": 4538,
+    "Boiling point": "4538 K",
     "Common oxidation states": [
       4,
       7
     ],
-    "Density of solid": 11500,
-    "Electrical resistivity": "about 22",
+    "Density of solid": "11500 sup^2 kg m",
+    "Electrical resistivity": "about 22 sup^2 Omega m",
     "Electron affinity": 0.55,
     "Electronic structure": {
       "0": "[Kr].4d<sup>5</sup>.5s<sup>2</sup>",
@@ -12847,10 +12847,10 @@
       25004.533,
       25786.99
     ],
-    "Liquid range": 2108,
-    "Melting point": 2430,
+    "Liquid range": "2108 K",
+    "Melting point": "2430 K",
     "Mendeleev no": 59,
-    "Molar volume": 8.63,
+    "Molar volume": "8.63 sup^2 cm",
     "Name": "Technetium",
     "Oxidation states": [
       -3,
@@ -12895,8 +12895,8 @@
         }
       }
     },
-    "Superconduction temperature": 7.8,
-    "Thermal conductivity": 51,
+    "Superconduction temperature": "7.8 K",
+    "Thermal conductivity": "51 sup^4 K W m",
     "Van der waals radius": "no data",
     "X": 1.9
   },
@@ -12918,17 +12918,17 @@
     },
     "Atomic radius": 1.4,
     "Atomic radius calculated": 1.23,
-    "Boiling point": 1261,
-    "Brinell hardness": 180,
-    "Bulk modulus": 65,
+    "Boiling point": "1261 K",
+    "Brinell hardness": "180 sup^2 MN m",
+    "Bulk modulus": "65 GPa",
     "Common oxidation states": [
       -2,
       2,
       4,
       6
     ],
-    "Density of solid": 6240,
-    "Electrical resistivity": "about 10000",
+    "Density of solid": "6240 sup^2 kg m",
+    "Electrical resistivity": "about 10000 sup^2 Omega m",
     "Electron affinity": 1.970875,
     "Electronic structure": {
       "0": "[Kr].4d<sup>10</sup>.5s<sup>2</sup>.5p<sup>4</sup>",
@@ -13004,11 +13004,11 @@
       37196.522,
       38177.56
     ],
-    "Liquid range": 538.34,
-    "Melting point": 722.66,
+    "Liquid range": "538.34 K",
+    "Melting point": "722.66 K",
     "Mendeleev no": 92,
     "Mineral hardness": 2.25,
-    "Molar volume": 20.46,
+    "Molar volume": "20.46 sup^2 cm",
     "Name": "Tellurium",
     "Oxidation states": [
       -2,
@@ -13017,9 +13017,9 @@
       5,
       6
     ],
-    "Reflectivity": 50,
+    "Reflectivity": "50 ",
     "Refractive index": 1.000991,
-    "Rigidity modulus": 16,
+    "Rigidity modulus": "16 GPa",
     "Shannon radii": {
       "-2": {
         "VI": {
@@ -13064,11 +13064,11 @@
         }
       }
     },
-    "Thermal conductivity": 3,
+    "Thermal conductivity": "3 sup^4 K W m",
     "Van der waals radius": 2.06,
-    "Velocity of sound": 2610,
+    "Velocity of sound": "2610 sup^2 m s",
     "X": 2.1,
-    "Youngs modulus": 43
+    "Youngs modulus": "43 GPa"
   },
   "Th": {
     "Atomic mass": 232.03806,
@@ -13094,15 +13094,15 @@
     },
     "Atomic radius": 1.8,
     "Atomic radius calculated": "no data",
-    "Boiling point": 5093,
-    "Brinell hardness": 400,
-    "Bulk modulus": 54,
-    "Coefficient of linear thermal expansion": 11.0,
+    "Boiling point": "5093 K",
+    "Brinell hardness": "400 sup^2 MN m",
+    "Bulk modulus": "54 GPa",
+    "Coefficient of linear thermal expansion": "11.0 x^10 sup^4 K",
     "Common oxidation states": [
       4
     ],
-    "Density of solid": 11724,
-    "Electrical resistivity": 15,
+    "Density of solid": "11724 sup^2 kg m",
+    "Electrical resistivity": "15 sup^2 Omega m",
     "Electron affinity": 0.60769,
     "Electronic structure": {
       "0": "[Rn].6d<sup>2</sup>.7s<sup>2</sup>",
@@ -13208,11 +13208,11 @@
       123086.4,
       125253.4
     ],
-    "Liquid range": 2978,
-    "Melting point": 2115,
+    "Liquid range": "2978 K",
+    "Melting point": "2115 K",
     "Mendeleev no": 47,
     "Mineral hardness": 3.0,
-    "Molar volume": 19.8,
+    "Molar volume": "19.8 sup^2 cm",
     "Name": "Thorium",
     "Oxidation states": [
       2,
@@ -13220,7 +13220,7 @@
       4
     ],
     "Poissons ratio": 0.27,
-    "Rigidity modulus": 31,
+    "Rigidity modulus": "31 GPa",
     "Shannon radii": {
       "4": {
         "VI": {
@@ -13261,13 +13261,13 @@
         }
       }
     },
-    "Superconduction temperature": 1.38,
-    "Thermal conductivity": 54,
+    "Superconduction temperature": "1.38 K",
+    "Thermal conductivity": "54 sup^4 K W m",
     "Van der waals radius": "no data",
-    "Velocity of sound": 2490,
-    "Vickers hardness": 350,
+    "Velocity of sound": "2490 sup^2 m s",
+    "Vickers hardness": "350 sup^2 MN m",
     "X": 1.3,
-    "Youngs modulus": 79
+    "Youngs modulus": "79 GPa"
   },
   "Ti": {
     "Atomic mass": 47.867,
@@ -13283,15 +13283,15 @@
     },
     "Atomic radius": 1.4,
     "Atomic radius calculated": 1.76,
-    "Boiling point": 3560,
-    "Brinell hardness": 716,
-    "Bulk modulus": 110,
-    "Coefficient of linear thermal expansion": 8.6,
+    "Boiling point": "3560 K",
+    "Brinell hardness": "716 sup^2 MN m",
+    "Bulk modulus": "110 GPa",
+    "Coefficient of linear thermal expansion": "8.6 x^10 sup^4 K",
     "Common oxidation states": [
       4
     ],
-    "Density of solid": 4507,
-    "Electrical resistivity": "about 40",
+    "Density of solid": "4507 sup^2 kg m",
+    "Electrical resistivity": "about 40 sup^2 Omega m",
     "Electron affinity": 0.07554,
     "Electronic structure": {
       "0": "[Ar].3d<sup>2</sup>.4s<sup>2</sup>",
@@ -13333,11 +13333,11 @@
       6249.0226,
       6625.8073
     ],
-    "Liquid range": 1619,
-    "Melting point": 1941,
+    "Liquid range": "1619 K",
+    "Melting point": "1941 K",
     "Mendeleev no": 51,
     "Mineral hardness": 6.0,
-    "Molar volume": 10.64,
+    "Molar volume": "10.64 sup^2 cm",
     "NMR Quadrupole Moment": {
       "Ti-47": 302.1,
       "Ti-49": 247.11
@@ -13350,7 +13350,7 @@
       4
     ],
     "Poissons ratio": 0.32,
-    "Rigidity modulus": 44,
+    "Rigidity modulus": "44 GPa",
     "Shannon radii": {
       "2": {
         "VI": {
@@ -13395,13 +13395,13 @@
         }
       }
     },
-    "Superconduction temperature": 0.4,
-    "Thermal conductivity": 22,
+    "Superconduction temperature": "0.4 K",
+    "Thermal conductivity": "22 sup^4 K W m",
     "Van der waals radius": "no data",
-    "Velocity of sound": 4140,
-    "Vickers hardness": 970,
+    "Velocity of sound": "4140 sup^2 m s",
+    "Vickers hardness": "970 sup^2 MN m",
     "X": 1.54,
-    "Youngs modulus": 116
+    "Youngs modulus": "116 GPa"
   },
   "Tl": {
     "Atomic mass": 204.3833,
@@ -13425,16 +13425,16 @@
     },
     "Atomic radius": 1.9,
     "Atomic radius calculated": 1.56,
-    "Boiling point": 1746,
-    "Brinell hardness": 26.4,
-    "Bulk modulus": 43,
-    "Coefficient of linear thermal expansion": 29.9,
+    "Boiling point": "1746 K",
+    "Brinell hardness": "26.4 sup^2 MN m",
+    "Bulk modulus": "43 GPa",
+    "Coefficient of linear thermal expansion": "29.9 x^10 sup^4 K",
     "Common oxidation states": [
       1,
       3
     ],
-    "Density of solid": 11850,
-    "Electrical resistivity": 15,
+    "Density of solid": "11850 sup^2 kg m",
+    "Electrical resistivity": "15 sup^2 Omega m",
     "Electron affinity": 0.320053,
     "Electronic structure": {
       "0": "[Xe].4f<sup>14</sup>.5d<sup>10</sup>.6s<sup>2</sup>.6p<sup>1</sup>",
@@ -13534,18 +13534,18 @@
       96783.21,
       98591.6
     ],
-    "Liquid range": 1169,
-    "Melting point": 577,
+    "Liquid range": "1169 K",
+    "Melting point": "577 K",
     "Mendeleev no": 78,
     "Mineral hardness": 1.2,
-    "Molar volume": 17.22,
+    "Molar volume": "17.22 sup^2 cm",
     "Name": "Thallium",
     "Oxidation states": [
       1,
       3
     ],
     "Poissons ratio": 0.45,
-    "Rigidity modulus": 2.8,
+    "Rigidity modulus": "2.8 GPa",
     "Shannon radii": {
       "1": {
         "VI": {
@@ -13588,12 +13588,12 @@
         }
       }
     },
-    "Superconduction temperature": 2.38,
-    "Thermal conductivity": 46,
+    "Superconduction temperature": "2.38 K",
+    "Thermal conductivity": "46 sup^4 K W m",
     "Van der waals radius": 1.96,
-    "Velocity of sound": 818,
+    "Velocity of sound": "818 sup^2 m s",
     "X": 1.62,
-    "Youngs modulus": 8
+    "Youngs modulus": "8 GPa"
   },
   "Tm": {
     "Atomic mass": 168.93421,
@@ -13615,15 +13615,15 @@
     },
     "Atomic radius": 1.75,
     "Atomic radius calculated": 2.22,
-    "Boiling point": 2223,
-    "Brinell hardness": 471,
-    "Bulk modulus": 45,
-    "Coefficient of linear thermal expansion": 13.3,
+    "Boiling point": "2223 K",
+    "Brinell hardness": "471 sup^2 MN m",
+    "Bulk modulus": "45 GPa",
+    "Coefficient of linear thermal expansion": "13.3 x^10 sup^4 K",
     "Common oxidation states": [
       3
     ],
-    "Density of solid": 9321,
-    "Electrical resistivity": 67.6,
+    "Density of solid": "9321 sup^2 kg m",
+    "Electrical resistivity": "67.6 sup^2 Omega m",
     "Electron affinity": 1.029,
     "Electronic structure": {
       "0": "[Xe].4f<sup>13</sup>.6s<sup>2</sup>",
@@ -13709,17 +13709,17 @@
       67965.26,
       69387.3
     ],
-    "Liquid range": 405,
-    "Melting point": 1818,
+    "Liquid range": "405 K",
+    "Melting point": "1818 K",
     "Mendeleev no": 21,
-    "Molar volume": 19.1,
+    "Molar volume": "19.1 sup^2 cm",
     "Name": "Thulium",
     "Oxidation states": [
       2,
       3
     ],
     "Poissons ratio": 0.21,
-    "Rigidity modulus": 31,
+    "Rigidity modulus": "31 GPa",
     "Shannon radii": {
       "2": {
         "VI": {
@@ -13756,11 +13756,11 @@
         }
       }
     },
-    "Thermal conductivity": 17,
+    "Thermal conductivity": "17 sup^4 K W m",
     "Van der waals radius": "no data",
-    "Vickers hardness": 520,
+    "Vickers hardness": "520 sup^2 MN m",
     "X": 1.25,
-    "Youngs modulus": 74
+    "Youngs modulus": "74 GPa"
   },
   "U": {
     "Atomic mass": 238.02891,
@@ -13787,15 +13787,15 @@
     },
     "Atomic radius": 1.75,
     "Atomic radius calculated": "no data",
-    "Boiling point": 4200,
-    "Brinell hardness": 2400,
-    "Bulk modulus": 100,
-    "Coefficient of linear thermal expansion": 13.9,
+    "Boiling point": "4200 K",
+    "Brinell hardness": "2400 sup^2 MN m",
+    "Bulk modulus": "100 GPa",
+    "Coefficient of linear thermal expansion": "13.9 x^10 sup^4 K",
     "Common oxidation states": [
       6
     ],
-    "Density of solid": 19050,
-    "Electrical resistivity": 28,
+    "Density of solid": "19050 sup^2 kg m",
+    "Electrical resistivity": "28 sup^2 Omega m",
     "Electron affinity": 0.31497,
     "Electronic structure": {
       "0": "[Rn].5f<sup>3</sup>.6d<sup>1</sup>.7s<sup>2</sup>",
@@ -13909,11 +13909,11 @@
       129570.3,
       131821.0
     ],
-    "Liquid range": 2794.7,
-    "Melting point": 1405.3,
+    "Liquid range": "2794.7 K",
+    "Melting point": "1405.3 K",
     "Mendeleev no": 45,
     "Mineral hardness": 6.0,
-    "Molar volume": 12.49,
+    "Molar volume": "12.49 sup^2 cm",
     "Name": "Uranium",
     "Oxidation states": [
       3,
@@ -13922,7 +13922,7 @@
       6
     ],
     "Poissons ratio": 0.23,
-    "Rigidity modulus": 111,
+    "Rigidity modulus": "111 GPa",
     "Shannon radii": {
       "3": {
         "VI": {
@@ -14011,13 +14011,13 @@
         }
       }
     },
-    "Superconduction temperature": 0.2,
-    "Thermal conductivity": 27,
+    "Superconduction temperature": "0.2 K",
+    "Thermal conductivity": "27 sup^4 K W m",
     "Van der waals radius": 1.86,
-    "Velocity of sound": 3155,
-    "Vickers hardness": 1960,
+    "Velocity of sound": "3155 sup^2 m s",
+    "Vickers hardness": "1960 sup^2 MN m",
     "X": 1.38,
-    "Youngs modulus": 208
+    "Youngs modulus": "208 GPa"
   },
   "V": {
     "Atomic mass": 50.9415,
@@ -14033,15 +14033,15 @@
     },
     "Atomic radius": 1.35,
     "Atomic radius calculated": 1.71,
-    "Boiling point": 3680,
-    "Brinell hardness": 628,
-    "Bulk modulus": 160,
-    "Coefficient of linear thermal expansion": 8.4,
+    "Boiling point": "3680 K",
+    "Brinell hardness": "628 sup^2 MN m",
+    "Bulk modulus": "160 GPa",
+    "Coefficient of linear thermal expansion": "8.4 x^10 sup^4 K",
     "Common oxidation states": [
       5
     ],
-    "Density of solid": 6110,
-    "Electrical resistivity": 20,
+    "Density of solid": "6110 sup^2 kg m",
+    "Electrical resistivity": "20 sup^2 Omega m",
     "Electron affinity": 0.52766,
     "Electronic structure": {
       "0": "[Ar].3d<sup>3</sup>.4s<sup>2</sup>",
@@ -14089,11 +14089,11 @@
       6851.3109,
       7246.1226
     ],
-    "Liquid range": 1497,
-    "Melting point": 2183,
+    "Liquid range": "1497 K",
+    "Melting point": "2183 K",
     "Mendeleev no": 54,
     "Mineral hardness": 7.0,
-    "Molar volume": 8.32,
+    "Molar volume": "8.32 sup^2 cm",
     "NMR Quadrupole Moment": {
       "V-50": 210.4,
       "V-51": -52.1
@@ -14108,8 +14108,8 @@
       5
     ],
     "Poissons ratio": 0.37,
-    "Reflectivity": 61,
-    "Rigidity modulus": 47,
+    "Reflectivity": "61 ",
+    "Rigidity modulus": "47 GPa",
     "Shannon radii": {
       "2": {
         "VI": {
@@ -14168,13 +14168,13 @@
         }
       }
     },
-    "Superconduction temperature": 5.4,
-    "Thermal conductivity": 31,
+    "Superconduction temperature": "5.4 K",
+    "Thermal conductivity": "31 sup^4 K W m",
     "Van der waals radius": "no data",
-    "Velocity of sound": 4560,
-    "Vickers hardness": 628,
+    "Velocity of sound": "4560 sup^2 m s",
+    "Vickers hardness": "628 sup^2 MN m",
     "X": 1.63,
-    "Youngs modulus": 128
+    "Youngs modulus": "128 GPa"
   },
   "W": {
     "Atomic mass": 183.84,
@@ -14197,16 +14197,16 @@
     },
     "Atomic radius": 1.35,
     "Atomic radius calculated": 1.93,
-    "Boiling point": 5828,
-    "Brinell hardness": 2570,
-    "Bulk modulus": 310,
-    "Coefficient of linear thermal expansion": 4.5,
+    "Boiling point": "5828 K",
+    "Brinell hardness": "2570 sup^2 MN m",
+    "Bulk modulus": "310 GPa",
+    "Coefficient of linear thermal expansion": "4.5 x^10 sup^4 K",
     "Common oxidation states": [
       4,
       6
     ],
-    "Density of solid": 19250,
-    "Electrical resistivity": 5.4,
+    "Density of solid": "19250 sup^2 kg m",
+    "Electrical resistivity": "5.4 sup^2 Omega m",
     "Electron affinity": 0.8165,
     "Electronic structure": {
       "0": "[Xe].4f<sup>14</sup>.5d<sup>4</sup>.6s<sup>2</sup>",
@@ -14303,11 +14303,11 @@
       79181.94,
       80755.6
     ],
-    "Liquid range": 2133,
-    "Melting point": 3695,
+    "Liquid range": "2133 K",
+    "Melting point": "3695 K",
     "Mendeleev no": 55,
     "Mineral hardness": 7.5,
-    "Molar volume": 9.47,
+    "Molar volume": "9.47 sup^2 cm",
     "Name": "Tungsten",
     "Oxidation states": [
       -2,
@@ -14320,8 +14320,8 @@
       6
     ],
     "Poissons ratio": 0.28,
-    "Reflectivity": 62,
-    "Rigidity modulus": 161,
+    "Reflectivity": "62 ",
+    "Rigidity modulus": "161 GPa",
     "Shannon radii": {
       "4": {
         "VI": {
@@ -14360,13 +14360,13 @@
         }
       }
     },
-    "Superconduction temperature": 0.015,
-    "Thermal conductivity": 170,
+    "Superconduction temperature": "0.015 K",
+    "Thermal conductivity": "170 sup^4 K W m",
     "Van der waals radius": "no data",
-    "Velocity of sound": 5174,
-    "Vickers hardness": 3430,
+    "Velocity of sound": "5174 sup^2 m s",
+    "Vickers hardness": "3430 sup^2 MN m",
     "X": 2.36,
-    "Youngs modulus": 411
+    "Youngs modulus": "411 GPa"
   },
   "Xe": {
     "Atomic mass": 131.293,
@@ -14386,8 +14386,8 @@
     },
     "Atomic radius": "no data",
     "Atomic radius calculated": 1.08,
-    "Boiling point": 165.1,
-    "Critical temperature": 289.7,
+    "Boiling point": "165.1 K",
+    "Critical temperature": "289.7 K",
     "Electron affinity": -0.8,
     "Electronic structure": {
       "0": "[Kr].4d<sup>10</sup>.5s<sup>2</sup>.5p<sup>6</sup>"
@@ -14453,12 +14453,12 @@
       40271.724,
       41299.71
     ],
-    "Liquid range": 3.7,
+    "Liquid range": "3.7 K",
     "Max oxidation state": 8,
-    "Melting point": 161.4,
+    "Melting point": "161.4 K",
     "Mendeleev no": 5,
     "Min oxidation state": 2,
-    "Molar volume": 35.92,
+    "Molar volume": "35.92 sup^2 cm",
     "Name": "Xenon",
     "Refractive index": 1.000702,
     "Shannon radii": {
@@ -14477,9 +14477,9 @@
         }
       }
     },
-    "Thermal conductivity": 0.00565,
+    "Thermal conductivity": "0.00565 sup^4 K W m",
     "Van der waals radius": 2.16,
-    "Velocity of sound": 1090,
+    "Velocity of sound": "1090 sup^2 m s",
     "X": 2.6
   },
   "Y": {
@@ -14499,15 +14499,15 @@
     },
     "Atomic radius": 1.8,
     "Atomic radius calculated": 2.12,
-    "Boiling point": 3609,
-    "Brinell hardness": 589,
-    "Bulk modulus": 41,
-    "Coefficient of linear thermal expansion": 10.6,
+    "Boiling point": "3609 K",
+    "Brinell hardness": "589 sup^2 MN m",
+    "Bulk modulus": "41 GPa",
+    "Coefficient of linear thermal expansion": "10.6 x^10 sup^4 K",
     "Common oxidation states": [
       3
     ],
-    "Density of solid": 4472,
-    "Electrical resistivity": "about 60",
+    "Density of solid": "4472 sup^2 kg m",
+    "Electrical resistivity": "about 60 sup^2 Omega m",
     "Electron affinity": 0.31129,
     "Electronic structure": {
       "0": "[Kr].4d<sup>1</sup>.5s<sup>2</sup>",
@@ -14562,10 +14562,10 @@
       20415.717,
       21115.55
     ],
-    "Liquid range": 1810,
-    "Melting point": 1799,
+    "Liquid range": "1810 K",
+    "Melting point": "1799 K",
     "Mendeleev no": 25,
-    "Molar volume": 19.88,
+    "Molar volume": "19.88 sup^2 cm",
     "Name": "Yttrium",
     "Oxidation states": [
       1,
@@ -14573,7 +14573,7 @@
       3
     ],
     "Poissons ratio": 0.24,
-    "Rigidity modulus": 26,
+    "Rigidity modulus": "26 GPa",
     "Shannon radii": {
       "3": {
         "VI": {
@@ -14602,12 +14602,12 @@
         }
       }
     },
-    "Superconduction temperature": "1.3  (under pressure)",
-    "Thermal conductivity": 17,
+    "Superconduction temperature": "1.3  (under pressure) K",
+    "Thermal conductivity": "17 sup^4 K W m",
     "Van der waals radius": "no data",
-    "Velocity of sound": 3300,
+    "Velocity of sound": "3300 sup^2 m s",
     "X": 1.22,
-    "Youngs modulus": 64
+    "Youngs modulus": "64 GPa"
   },
   "Yb": {
     "Atomic mass": 173.04,
@@ -14629,15 +14629,15 @@
     },
     "Atomic radius": 1.75,
     "Atomic radius calculated": 2.22,
-    "Boiling point": 1469,
-    "Brinell hardness": 343,
-    "Bulk modulus": 31,
-    "Coefficient of linear thermal expansion": 26.3,
+    "Boiling point": "1469 K",
+    "Brinell hardness": "343 sup^2 MN m",
+    "Bulk modulus": "31 GPa",
+    "Coefficient of linear thermal expansion": "26.3 x^10 sup^4 K",
     "Common oxidation states": [
       3
     ],
-    "Density of solid": 6570,
-    "Electrical resistivity": 25.0,
+    "Density of solid": "6570 sup^2 kg m",
+    "Electrical resistivity": "25.0 sup^2 Omega m",
     "Electron affinity": -0.02,
     "Electronic structure": {
       "0": "[Xe].4f<sup>14</sup>.6s<sup>2</sup>",
@@ -14725,17 +14725,17 @@
       70123.04,
       71574.8
     ],
-    "Liquid range": 372,
-    "Melting point": 1097,
+    "Liquid range": "372 K",
+    "Melting point": "1097 K",
     "Mendeleev no": 17,
-    "Molar volume": 24.84,
+    "Molar volume": "24.84 sup^2 cm",
     "Name": "Ytterbium",
     "Oxidation states": [
       2,
       3
     ],
     "Poissons ratio": 0.21,
-    "Rigidity modulus": 9.9,
+    "Rigidity modulus": "9.9 GPa",
     "Shannon radii": {
       "2": {
         "VI": {
@@ -14784,12 +14784,12 @@
         }
       }
     },
-    "Thermal conductivity": 39,
+    "Thermal conductivity": "39 sup^4 K W m",
     "Van der waals radius": "no data",
-    "Velocity of sound": 1590,
-    "Vickers hardness": 206,
+    "Velocity of sound": "1590 sup^2 m s",
+    "Vickers hardness": "206 sup^2 MN m",
     "X": 1.1,
-    "Youngs modulus": 24
+    "Youngs modulus": "24 GPa"
   },
   "Zn": {
     "Atomic mass": 65.409,
@@ -14805,15 +14805,15 @@
     },
     "Atomic radius": 1.35,
     "Atomic radius calculated": 1.42,
-    "Boiling point": 1180,
-    "Brinell hardness": 412,
-    "Bulk modulus": 70,
-    "Coefficient of linear thermal expansion": 30.2,
+    "Boiling point": "1180 K",
+    "Brinell hardness": "412 sup^2 MN m",
+    "Bulk modulus": "70 GPa",
+    "Coefficient of linear thermal expansion": "30.2 x^10 sup^4 K",
     "Common oxidation states": [
       2
     ],
-    "Density of solid": 7140,
-    "Electrical resistivity": 6.0,
+    "Density of solid": "7140 sup^2 kg m",
+    "Electrical resistivity": "6.0 sup^2 Omega m",
     "Electron affinity": -0.6,
     "Electronic structure": {
       "0": "[Ar].3d<sup>10</sup>.4s<sup>2</sup>",
@@ -14859,11 +14859,11 @@
       11864.9399,
       12388.929
     ],
-    "Liquid range": 487.32,
-    "Melting point": 692.68,
+    "Liquid range": "487.32 K",
+    "Melting point": "692.68 K",
     "Mendeleev no": 76,
     "Mineral hardness": 2.5,
-    "Molar volume": 9.16,
+    "Molar volume": "9.16 sup^2 cm",
     "NMR Quadrupole Moment": {
       "Zn-67": 150.15
     },
@@ -14873,9 +14873,9 @@
       2
     ],
     "Poissons ratio": 0.25,
-    "Reflectivity": 80,
+    "Reflectivity": "80 ",
     "Refractive index": 1.00205,
-    "Rigidity modulus": 43,
+    "Rigidity modulus": "43 GPa",
     "Shannon radii": {
       "2": {
         "IV": {
@@ -14904,12 +14904,12 @@
         }
       }
     },
-    "Superconduction temperature": 0.85,
-    "Thermal conductivity": 120,
+    "Superconduction temperature": "0.85 K",
+    "Thermal conductivity": "120 sup^4 K W m",
     "Van der waals radius": 1.39,
-    "Velocity of sound": 3700,
+    "Velocity of sound": "3700 sup^2 m s",
     "X": 1.65,
-    "Youngs modulus": 108
+    "Youngs modulus": "108 GPa"
   },
   "Zr": {
     "Atomic mass": 91.224,
@@ -14928,14 +14928,14 @@
     },
     "Atomic radius": 1.55,
     "Atomic radius calculated": 2.06,
-    "Boiling point": 4682,
-    "Brinell hardness": 650,
-    "Coefficient of linear thermal expansion": 5.7,
+    "Boiling point": "4682 K",
+    "Brinell hardness": "650 sup^2 MN m",
+    "Coefficient of linear thermal expansion": "5.7 x^10 sup^4 K",
     "Common oxidation states": [
       4
     ],
-    "Density of solid": 6511,
-    "Electrical resistivity": 43.3,
+    "Density of solid": "6511 sup^2 kg m",
+    "Electrical resistivity": "43.3 sup^2 Omega m",
     "Electron affinity": 0.43328,
     "Electronic structure": {
       "0": "[Kr].4d<sup>2</sup>.5s<sup>2</sup>",
@@ -14993,11 +14993,11 @@
       21516.469,
       22236.678
     ],
-    "Liquid range": 2554,
-    "Melting point": 2128,
+    "Liquid range": "2554 K",
+    "Melting point": "2128 K",
     "Mendeleev no": 49,
     "Mineral hardness": 5.0,
-    "Molar volume": 14.02,
+    "Molar volume": "14.02 sup^2 cm",
     "Name": "Zirconium",
     "Oxidation states": [
       1,
@@ -15006,7 +15006,7 @@
       4
     ],
     "Poissons ratio": 0.34,
-    "Rigidity modulus": 33,
+    "Rigidity modulus": "33 GPa",
     "Shannon radii": {
       "4": {
         "IV": {
@@ -15047,13 +15047,13 @@
         }
       }
     },
-    "Superconduction temperature": 0.61,
-    "Thermal conductivity": 23,
+    "Superconduction temperature": "0.61 K",
+    "Thermal conductivity": "23 sup^4 K W m",
     "Van der waals radius": "no data",
-    "Velocity of sound": 3800,
-    "Vickers hardness": 903,
+    "Velocity of sound": "3800 sup^2 m s",
+    "Vickers hardness": "903 sup^2 MN m",
     "X": 1.33,
-    "Youngs modulus": 68
+    "Youngs modulus": "68 GPa"
   },
   "Rf": {
     "Atomic mass": 267,
