@@ -1,5 +1,4 @@
 Atomic mass:
-  unit: amu
   data:
     Ac: 227
     Ag: 107.8682
@@ -3576,7 +3575,6 @@ ICSD oxidation states:
     Zn: [2]
     Zr: [2, 3, 4]
 NMR Quadrupole Moment:
-  unit: mbarn
   data:
     Al:
       Al-27: 146.6
@@ -3676,7 +3674,6 @@ Min oxidation state:
     Rn: 0
     Xe: 2
 Atomic mass no:
-  unit: amu
   data:
     H: 1
     D: 2
