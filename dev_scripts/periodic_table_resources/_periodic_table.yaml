@@ -1096,7 +1096,7 @@ Boiling point:
     Pb: 2022, Bi: 1837, Po: 1235, Rn: 211.3, Ra: 2010, Ac: 3573, Th: 5093, U: 4200,
     Np: 4273, Pu: 3503, Am: 2880, Cm: 3383}
 Brinell hardness:
-  unit: sup^2 MN m
+  unit: MN m^-2
   reference:
   data: {Be: 600, Na: 0.69, Mg: 260, Al: 245, K: 0.363, Ca: 167, Sc: 750, Ti: 716,
     V: 628, Cr: 1120, Mn: 196, Fe: 490, Co: 700, Ni: 700, Cu: 874, Zn: 412, Ga: 60,
@@ -1236,7 +1236,7 @@ Critical temperature:
     P: 994, S: 1314, Cl: 417, Ar: 150.8, K: 2223, As: 1700, Se: 1766, Br: 586, Kr: 209.4,
     Rb: 2093, I: 819, Xe: 289.7, Cs: 1938, Hg: 1750, Rn: 377}
 Density of solid:
-  unit: sup^2 kg m
+  unit: kg m^-3
   reference:
   data: {Li: 535, Be: 1848, B: 2460, C: 2267, Na: 968, Mg: 1738, Al: 2700, Si: 2330,
     P: 1823, S: 1960, K: 856, Ca: 1550, Sc: 2985, Ti: 4507, V: 6110, Cr: 7140, Mn: 7470,
@@ -1250,7 +1250,7 @@ Density of solid:
     Ac: 10070, Th: 11724, Pa: 15370, U: 19050, Np: 20450, Pu: 19816, Cm: 13510, Bk: 14780,
     Cf: 15100}
 Electrical resistivity:
-  unit: sup^2 Omega m
+  unit: m ohm
   reference:
   data: {Li: 9.5, Be: 3.8, B: '&gt; 10<sup>12</sup>', C: about 1000 - direction dependent,
     Na: 4.9, Mg: 4.4, Al: 2.7, Si: about 100000, P: about 10, S: '&gt; 10<sup>23</sup>',
@@ -2592,7 +2592,7 @@ Mineral hardness:
     Hf: 5.5, Ta: 6.5, W: 7.5, Re: 7.0, Os: 7.0, Ir: 6.5, Pt: 3.5, Au: 2.5, Hg: 1.5,
     Tl: 1.2, Pb: 1.5, Bi: 2.25, Th: 3.0, U: 6.0}
 Molar volume:
-  unit: sup^2 cm
+  unit: cm^3
   reference:
   data: {H: 11.42, He: 21.0, Li: 13.02, Be: 4.85, B: 4.39, C: 5.29, N: 13.54, O: 17.36,
     F: 11.20, Ne: 13.23, Na: 23.78, Mg: 14.00, Al: 10.00, Si: 12.06, P: 17.02, S: 15.53,
@@ -4142,7 +4142,7 @@ Superconduction temperature:
     Lu: 0.022, Hf: 0.128, Ta: 4.47, W: 0.015, Re: 1.70, Os: 0.66, Ir: 0.11, Hg: 3.95,
     Tl: 2.38, Pb: 7.2, Th: 1.38, Pa: 1.4, U: 0.2, Am: 0.6}
 Thermal conductivity:
-  unit: sup^4 K W m
+  unit: W K^-1 m^-1
   reference:
   data: {H: 0.1805, He: 0.1513, Li: 85, Be: 190, B: 27, C: 140, N: 0.02583, O: 0.02658,
     F: 0.0277, Ne: 0.0491, Na: 140, Mg: 160, Al: 235, Si: 150, P: 0.236, S: 0.205,
@@ -4172,7 +4172,7 @@ Van der waals radius:
     Pb: 2.02, Bi: 2.07, Po: 1.97, At: 2.02, Rn: 2.2, Fr: 3.48, Ra: 2.83, Ac: no data,
     Th: no data, Pa: no data, U: 1.86, Np: no data, Pu: no data, Am: no data}
 Velocity of sound:
-  unit: sup^2 m s
+  unit: m s^-1
   reference:
   data: {H: 1270, He: 970, Li: 6000, Be: 13000, B: 16200, C: 18350, N: 333.6, O: 317.5,
     Ne: 936, Na: 3200, Mg: 4602, Al: 5100, Si: 2200, Cl: 206, Ar: 319, K: 2000, Ca: 3810,
@@ -4184,7 +4184,7 @@ Velocity of sound:
     Hf: 3010, Ta: 3400, W: 5174, Re: 4700, Os: 4940, Ir: 4825, Pt: 2680, Au: 1740,
     Hg: 1407, Tl: 818, Pb: 1260, Bi: 1790, Th: 2490, U: 3155, Pu: 2260}
 Vickers hardness:
-  unit: sup^2 MN m
+  unit: MN m^-2
   reference:
   data: {Be: 1670, B: 49000, Al: 167, Ti: 970, V: 628, Cr: 1060, Fe: 608, Co: 1043,
     Ni: 638, Cu: 369, Zr: 903, Nb: 1320, Mo: 1530, Rh: 1246, Pd: 461, Ag: 251, La: 491,

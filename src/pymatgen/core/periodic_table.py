@@ -213,13 +213,16 @@ class ElementBase(Enum):
             "ionization_energies",
             "metallic_radius",
         }:
-            key = item.capitalize().replace("_", " ")
-            val = self._data.get(key)
+            key: str = item.capitalize().replace("_", " ")
+            val: Any = self._data.get(key)
+
             if val is None or str(val).startswith("no data"):
                 warnings.warn(f"No data available for {item} for {self.symbol}", stacklevel=2)
                 val = None
+
             elif isinstance(val, list | dict):
                 pass
+
             else:
                 try:
                     val = float(val)
@@ -228,31 +231,33 @@ class ElementBase(Enum):
                     tokens = no_bracket.replace("about", "").strip().split(" ", 1)
                     if len(tokens) == 2:
                         try:
-                            # TODO: use new unit source
-                            if "10<sup>" in tokens[1]:
+                            if item in {"electrical_resistivity", "coefficient_of_linear_thermal_expansion"}:
                                 base_power = re.findall(r"([+-]?\d+)", tokens[1])
-                                factor = "e" + base_power[1]
+                                factor: str = "e" + base_power[1]
                                 if tokens[0] in {"&gt;", "high"}:
+                                    # DEBUG: the following seems like a bug
                                     tokens[0] = "1"  # return the border value
                                 tokens[0] += factor
+                                # TODO: need to modify unit in source yaml
                                 if item == "electrical_resistivity":
-                                    unit = "ohm m"
-                                elif item == "coefficient_of_linear_thermal_expansion":
-                                    unit = "K^-1"
+                                    unit: str = "ohm m"
                                 else:
-                                    unit = tokens[1]
+                                    unit = "K^-1"  # coefficient_of_linear_thermal_expansion
                                 val = FloatWithUnit(float(tokens[0]), unit)
+
                             else:
-                                unit = tokens[1].replace("<sup>", "^").replace("</sup>", "").replace("&Omega;", "ohm")
-                                units = Unit(unit)
-                                if set(units).issubset(SUPPORTED_UNIT_NAMES):
+                                unit = _PT_UNIT[key]
+                                if set(Unit(unit)).issubset(SUPPORTED_UNIT_NAMES):
                                     val = FloatWithUnit(float(tokens[0]), unit)
+
                         except ValueError:
                             # Ignore error. val will just remain a string.
                             pass
+
                     if (
                         item in {"refractive_index", "melting_point"}
                         and isinstance(val, str)
+                        # TODO: remove re find if possible
                         and (match := re.findall(r"[\.\d]+", val))
                     ):
                         warnings.warn(
