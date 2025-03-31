@@ -2608,7 +2608,7 @@ Molar volume:
     Pa: 15.18, U: 12.49, Np: 11.59, Pu: 12.29, Am: 17.63, Cm: 18.05, Bk: 16.84, Cf: 16.50,
     Es: 28.52}
 NMR Quadrupole Moment:
-  unit:
+  unit: mbarn
   reference:
   data:
     H:

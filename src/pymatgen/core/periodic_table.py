@@ -231,7 +231,7 @@ class ElementBase(Enum):
                             if "10<sup>" in tokens[1]:
                                 base_power = re.findall(r"([+-]?\d+)", tokens[1])
                                 factor = "e" + base_power[1]
-                                if tokens[0] in ["&gt;", "high"]:
+                                if tokens[0] in {"&gt;", "high"}:
                                     tokens[0] = "1"  # return the border value
                                 tokens[0] += factor
                                 if item == "electrical_resistivity":
@@ -250,7 +250,7 @@ class ElementBase(Enum):
                             # Ignore error. val will just remain a string.
                             pass
                     if (
-                        item in ("refractive_index", "melting_point")
+                        item in {"refractive_index", "melting_point"}
                         and isinstance(val, str)
                         and (match := re.findall(r"[\.\d]+", val))
                     ):
@@ -388,7 +388,7 @@ class ElementBase(Enum):
             radius = sum(radii.values()) / len(radii)
         else:
             radius = 0.0
-        return FloatWithUnit(radius, "ang")
+        return FloatWithUnit(radius, _PT_UNIT["Ionic radii"])
 
     @property
     def average_cationic_radius(self) -> FloatWithUnit:
@@ -397,8 +397,8 @@ class ElementBase(Enum):
         data is present.
         """
         if "Ionic radii" in self._data and (radii := [v for k, v in self._data["Ionic radii"].items() if int(k) > 0]):
-            return FloatWithUnit(sum(radii) / len(radii), "ang")
-        return FloatWithUnit(0.0, "ang")
+            return FloatWithUnit(sum(radii) / len(radii), _PT_UNIT["Ionic radii"])
+        return FloatWithUnit(0.0, _PT_UNIT["Ionic radii"])
 
     @property
     def average_anionic_radius(self) -> FloatWithUnit:
@@ -407,8 +407,8 @@ class ElementBase(Enum):
         data is present.
         """
         if "Ionic radii" in self._data and (radii := [v for k, v in self._data["Ionic radii"].items() if int(k) < 0]):
-            return FloatWithUnit(sum(radii) / len(radii), "ang")
-        return FloatWithUnit(0.0, "ang")
+            return FloatWithUnit(sum(radii) / len(radii), _PT_UNIT["Ionic radii"])
+        return FloatWithUnit(0.0, _PT_UNIT["Ionic radii"])
 
     @property
     def ionic_radii(self) -> dict[int, FloatWithUnit]:
@@ -416,7 +416,7 @@ class ElementBase(Enum):
         {oxidation state: ionic radii}. Radii are given in angstrom.
         """
         if "Ionic radii" in self._data:
-            return {int(k): FloatWithUnit(v, "ang") for k, v in self._data["Ionic radii"].items()}
+            return {int(k): FloatWithUnit(v, _PT_UNIT["Ionic radii"]) for k, v in self._data["Ionic radii"].items()}
         return {}
 
     @property
@@ -840,7 +840,10 @@ class ElementBase(Enum):
         """A dictionary the nuclear electric quadrupole moment in units of
         e*millibarns for various isotopes.
         """
-        return {k: FloatWithUnit(v, "mbarn") for k, v in self.data.get("NMR Quadrupole Moment", {}).items()}
+        return {
+            k: FloatWithUnit(v, _PT_UNIT["NMR Quadrupole Moment"])
+            for k, v in self.data.get("NMR Quadrupole Moment", {}).items()
+        }
 
     @property
     def iupac_ordering(self) -> int:

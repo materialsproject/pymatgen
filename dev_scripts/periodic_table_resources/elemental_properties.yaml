@@ -3576,6 +3576,7 @@ ICSD oxidation states:
     Zn: [2]
     Zr: [2, 3, 4]
 NMR Quadrupole Moment:
+  unit: mbarn
   data:
     Al:
       Al-27: 146.6
