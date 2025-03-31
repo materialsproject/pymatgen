@@ -389,7 +389,7 @@ def main():
         *parse_yaml(f"{RESOURCES_DIR}/oxidation_states.yaml"),
         *parse_yaml(f"{RESOURCES_DIR}/ionization_energies_nist.yaml"),  # Parsed from HTML
         *parse_yaml(f"{RESOURCES_DIR}/electron_affinities.yaml"),
-        *parse_csv(f"{RESOURCES_DIR}/radii.csv", transform=lambda x: float(x) / 100, unit="ang"),
+        *parse_csv(f"{RESOURCES_DIR}/radii.csv", transform=float, unit="ang"),
         *parse_ionic_radii(
             f"{RESOURCES_DIR}/ionic_radii.csv", unit="ang", reference="https://en.wikipedia.org/wiki/Ionic_radius"
         ),
