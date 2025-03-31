@@ -228,7 +228,7 @@ class ElementBase(Enum):
                     val = float(val)
                 except ValueError:
                     no_bracket = re.sub(r"\(.*\)", "", val)
-                    tokens = no_bracket.strip().split(" ", 1)
+                    tokens = no_bracket.replace("about", "").strip().split(" ", 1)
                     if len(tokens) == 2:
                         try:
                             if item in {"electrical_resistivity", "coefficient_of_linear_thermal_expansion"}:
@@ -237,9 +237,8 @@ class ElementBase(Enum):
                                 if tokens[0] in {"&gt;", "high"}:
                                     # DEBUG: the following seems like a bug
                                     tokens[0] = "1"  # return the border value
-
                                 tokens[0] += factor
-
+                                # TODO: need to modify unit in source yaml
                                 if item == "electrical_resistivity":
                                     unit: str = "ohm m"
                                 else:
@@ -247,7 +246,6 @@ class ElementBase(Enum):
                                 val = FloatWithUnit(float(tokens[0]), unit)
 
                             else:
-                                # TODO: unit for reflectivity is lost during JSON generation
                                 unit = _PT_UNIT[key]
                                 if set(Unit(unit)).issubset(SUPPORTED_UNIT_NAMES):
                                     val = FloatWithUnit(float(tokens[0]), unit)

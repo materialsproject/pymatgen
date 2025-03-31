@@ -7,7 +7,7 @@
     "Boiling point": "K",
     "Brinell hardness": "MN m^-2",
     "Bulk modulus": "GPa",
-    "Coefficient of linear thermal expansion": "x^10 K^-1",
+    "Coefficient of linear thermal expansion": "x^10 sup^4 K",
     "Critical temperature": "K",
     "Density of solid": "kg m^-3",
     "Electrical resistivity": "m ohm",
@@ -1967,7 +1967,7 @@
       4
     ],
     "Density of solid": 2267,
-    "Electrical resistivity": 1000,
+    "Electrical resistivity": "about 1000 - direction dependent",
     "Electron affinity": 1.2621136,
     "Electronic structure": {
       "0": "[He].2s<sup>2</sup>.2p<sup>2</sup>",
@@ -4617,7 +4617,7 @@
       158152.5,
       160804.0
     ],
-    "Melting point": 1800,
+    "Melting point": "about 1800",
     "Mendeleev no": 37,
     "Name": "Fermium",
     "Oxidation states": [
@@ -4751,7 +4751,7 @@
       113817.2,
       115859.0
     ],
-    "Melting point": 300,
+    "Melting point": "maybe about 300",
     "Mendeleev no": 7,
     "Name": "Francium",
     "Oxidation states": [
@@ -4792,7 +4792,7 @@
       3
     ],
     "Density of solid": 5904,
-    "Electrical resistivity": 14,
+    "Electrical resistivity": "about  14",
     "Electron affinity": 0.301166,
     "Electronic structure": {
       "0": "[Ar].3d<sup>10</sup>.4s<sup>2</sup>.4p<sup>1</sup>",
@@ -5058,7 +5058,7 @@
       4
     ],
     "Density of solid": 5323,
-    "Electrical resistivity": 50000,
+    "Electrical resistivity": "about 50000",
     "Electron affinity": 1.2326764,
     "Electronic structure": {
       "0": "[Ar].3d<sup>10</sup>.4s<sup>2</sup>.4p<sup>2</sup>",
@@ -6800,7 +6800,7 @@
       null,
       172930.0
     ],
-    "Melting point": 1900,
+    "Melting point": "about 1900",
     "Mendeleev no": 34,
     "Name": "Lawrencium",
     "Oxidation states": [
@@ -7079,7 +7079,7 @@
       null,
       164764.0
     ],
-    "Melting point": 1100,
+    "Melting point": "about 1100",
     "Mendeleev no": 36,
     "Name": "Mendelevium",
     "Oxidation states": [
@@ -8431,7 +8431,7 @@
       null,
       168806.0
     ],
-    "Melting point": 1100,
+    "Melting point": "about 1100",
     "Mendeleev no": 35,
     "Name": "Nobelium",
     "Oxidation states": [
@@ -8951,7 +8951,7 @@
     ],
     "Critical temperature": 994,
     "Density of solid": 1823,
-    "Electrical resistivity": 10,
+    "Electrical resistivity": "about 10",
     "Electron affinity": 0.746609,
     "Electronic structure": {
       "0": "[Ne].3s<sup>2</sup>.3p<sup>3</sup>",
@@ -9642,7 +9642,7 @@
       3
     ],
     "Density of solid": 7264,
-    "Electrical resistivity": 75,
+    "Electrical resistivity": "about 75",
     "Electron affinity": 0.129,
     "Electronic structure": {
       "0": "[Xe].4f<sup>5</sup>.6s<sup>2</sup>",
@@ -11667,7 +11667,7 @@
       3
     ],
     "Density of solid": 2985,
-    "Electrical resistivity": 55,
+    "Electrical resistivity": "about 55",
     "Electron affinity": 0.17938,
     "Electronic structure": {
       "0": "[Ar].3d<sup>1</sup>.4s<sup>2</sup>",
@@ -11899,7 +11899,7 @@
       4
     ],
     "Density of solid": 2330,
-    "Electrical resistivity": 100000,
+    "Electrical resistivity": "about 100000",
     "Electron affinity": 1.3895212,
     "Electronic structure": {
       "0": "[Ne].3s<sup>2</sup>.3p<sup>2</sup>",
@@ -12819,7 +12819,7 @@
       7
     ],
     "Density of solid": 11500,
-    "Electrical resistivity": 22,
+    "Electrical resistivity": "about 22",
     "Electron affinity": 0.55,
     "Electronic structure": {
       "0": "[Kr].4d<sup>5</sup>.5s<sup>2</sup>",
@@ -12959,7 +12959,7 @@
       6
     ],
     "Density of solid": 6240,
-    "Electrical resistivity": 10000,
+    "Electrical resistivity": "about 10000",
     "Electron affinity": 1.970875,
     "Electronic structure": {
       "0": "[Kr].4d<sup>10</sup>.5s<sup>2</sup>.5p<sup>4</sup>",
@@ -13322,7 +13322,7 @@
       4
     ],
     "Density of solid": 4507,
-    "Electrical resistivity": 40,
+    "Electrical resistivity": "about 40",
     "Electron affinity": 0.07554,
     "Electronic structure": {
       "0": "[Ar].3d<sup>2</sup>.4s<sup>2</sup>",
@@ -14538,7 +14538,7 @@
       3
     ],
     "Density of solid": 4472,
-    "Electrical resistivity": 60,
+    "Electrical resistivity": "about 60",
     "Electron affinity": 0.31129,
     "Electronic structure": {
       "0": "[Kr].4d<sup>1</sup>.5s<sup>2</sup>",
