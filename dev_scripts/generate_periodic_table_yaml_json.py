@@ -35,6 +35,7 @@ import warnings
 from collections import Counter, defaultdict
 from dataclasses import dataclass
 from itertools import product
+from pathlib import Path
 from typing import TYPE_CHECKING
 
 import pandas as pd
@@ -383,7 +384,7 @@ def generate_yaml_and_json(
 
 def main():
     # Generate and gather Property
-    RESOURCES_DIR: str = "periodic_table_resources"
+    RESOURCES_DIR: str = f"{Path(__file__).parent}/periodic_table_resources"
 
     properties: tuple[Property, ...] = (
         *parse_yaml(f"{RESOURCES_DIR}/elemental_properties.yaml"),
