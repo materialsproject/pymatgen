@@ -163,12 +163,12 @@ class ElementBase(Enum):
             self._atomic_radius = None
         else:
             self._atomic_radius = Length(at_r, _PT_UNIT["Atomic radius"])
-        self._atomic_mass = Mass(data["Atomic mass"], "amu")
+        self._atomic_mass = Mass(data["Atomic mass"], _PT_UNIT["Atomic mass"])
 
         self._atomic_mass_number = None
         self.A = data.get("Atomic mass no")
         if self.A:
-            self._atomic_mass_number = Mass(self.A, "amu")
+            self._atomic_mass_number = Mass(self.A, _PT_UNIT["Atomic mass no"])
 
         self.long_name = data["Name"]
         self._data = data
