@@ -5,6 +5,9 @@
 Each source file may be parsed using a common or custom parser. In cases where
 a custom parser is required, it should return either a single `Property` or
 a sequence of `Property`.
+
+TODO:
+    Output YAML should order elements by Z instead of alphabetically.
 """
 
 from __future__ import annotations
@@ -20,10 +23,10 @@ from typing import TYPE_CHECKING
 import pandas as pd
 from ruamel.yaml import YAML
 
-from pymatgen.core import Element, Unit
+from pymatgen.core import PKG_DIR, Element, Unit
 
 if TYPE_CHECKING:
-    from collections.abc import Callable
+    from collections.abc import Callable, Iterable
     from typing import Any, Literal
 
     from pymatgen.util.typing import PathLike
@@ -180,7 +183,7 @@ def parse_ionic_radii(
         - Radii values are divided by 100 (converted from pm to nm).
     """
     print(f"Parsing {prop_base} file: '{file}'")
-    print(f"  - Provide property: '{prop_base} (ls/hs)'")
+    print(f"  - Provide properties: '{prop_base} (ls/hs)'")
 
     result: dict[str, dict[Element, ElemPropertyValue]] = {
         prop_base: {},
@@ -209,7 +212,12 @@ def parse_ionic_radii(
     return [Property(name=name, unit=unit, data=data, reference=reference) for name, data in result.items()]
 
 
-def parse_shannon_radii(file: PathLike, *, unit: Unit, reference: str | None = None) -> Property:
+def parse_shannon_radii(
+    file: PathLike,
+    *,
+    unit: Unit,
+    reference: str | None = None,
+) -> Property:
     """Parse Shannon radii from CSV.
 
     For each element, the ElemPropertyValue has the following structure:
@@ -282,13 +290,10 @@ def generate_iupac_ordering() -> list[Property]:
     ]
     orders: list[tuple[int, int]] = [item for sublist in (list(product(x, y)) for x, y in _orders) for item in sublist]
 
-    iupac_ordering_dict = dict(
-        zip(
-            [Element.from_row_and_group(row, group) for group, row in orders],
-            range(len(orders)),
-            strict=True,
-        )
-    )
+    iupac_ordering_dict: dict[Element, ElemPropertyValue] = {
+        Element.from_row_and_group(row, group): ElemPropertyValue(value=index)
+        for index, (group, row) in enumerate(orders)
+    }
 
     return [
         Property(name="iupac_ordering", data=iupac_ordering_dict),
@@ -296,11 +301,69 @@ def generate_iupac_ordering() -> list[Property]:
     ]
 
 
+def generate_yaml_and_json(
+    properties: Iterable[Property],
+    *,
+    yaml_file: PathLike,
+    json_file: PathLike,
+) -> None:
+    """
+    Generate a human-readable YAML and a production-ready JSON file from properties.
+
+    The YAML file is a readable aggregation of all properties in the following structure:
+        Property name -> {
+            unit: <unit string or null>,
+            reference: <reference string or null>,
+            data: {
+                <element as str>: <value>
+            }
+        }
+
+    The JSON file is a compact, production-format structure (no metadata):
+        <element symbol> -> {
+            <property name>: <value unit>
+        }
+
+    Args:
+        properties (Iterable[Property]): A sequence of Property objects to serialize.
+        yaml_file (PathLike): Path to output YAML file (for development).
+        json_file (PathLike): Path to output JSON file (for production).
+
+    Raises:
+        ValueError: If duplicate property names are found in the input.
+    """
+    # Check for duplicate
+    counter: Counter = Counter([prop.name for prop in properties])
+    if duplicates := [name for name, count in counter.items() if count > 1]:
+        raise ValueError(f"Duplicate property found: {', '.join(duplicates)}")
+
+    # Save a YAML copy for development
+    yaml_data: dict[str, dict[Literal["unit", "reference", "data"], Any]] = {}
+    for prop in properties:
+        yaml_data[prop.name] = {
+            "unit": str(prop.unit) if prop.unit is not None else None,
+            "reference": prop.reference,
+            "data": {elem.name: value.value for elem, value in prop.data.items()},
+        }
+
+    yaml = YAML()
+    yaml.default_flow_style = None
+    with open(yaml_file, "w", encoding="utf-8") as f:
+        yaml.dump(yaml_data, f)
+
+    print("=" * 50)
+    print(f"Saved YAML to: {yaml_file}")
+
+    # Output to JSON (element->property->value format, and drop metadata)
+    # TODO: WIP
+    print(f"Saved JSON to: {json_file}")
+
+
 def main():
     # Generate and gather Property
     RESOURCES_DIR: str = "periodic_table_resources"
 
-    properties = (
+    properties: tuple[Property, ...] = (
         *parse_yaml(f"{RESOURCES_DIR}/elemental_properties.yaml"),
         *parse_yaml(f"{RESOURCES_DIR}/oxidation_states.yaml"),
         *parse_yaml(f"{RESOURCES_DIR}/ionization_energies_nist.yaml"),  # Parsed from HTML
@@ -313,18 +376,12 @@ def main():
         *generate_iupac_ordering(),
     )
 
-    # Check for duplicate
-    prop_names: list[str] = [prop.name for prop in properties]
-    counter = Counter(prop_names)
-    duplicates: list[str] = [name for name, count in counter.items() if count > 1]
-    if duplicates:
-        raise ValueError(f"Duplicate property found: {', '.join(duplicates)}")
-
-    # Save an intermediate YAML copy for manual inspection, otherwise JSON is hard to read
-    # TODO: WIP
-
-    # Output to JSON (element->property->value format, and drop metadata)
-    # TODO: WIP
+    # Generate YAML and JSON
+    generate_yaml_and_json(
+        properties,
+        yaml_file=f"{RESOURCES_DIR}/_periodic_table.yaml",
+        json_file=f"{PKG_DIR}/core/periodic_table.json",
+    )
 
 
 if __name__ == "__main__":
