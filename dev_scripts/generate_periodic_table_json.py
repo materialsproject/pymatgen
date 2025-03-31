@@ -338,10 +338,15 @@ def generate_yaml_and_json(
     # Save a YAML copy for development
     yaml_data: dict[str, dict[Literal["unit", "reference", "data"], Any]] = {}
     for prop in properties:
+        # Sort elements by atomic number (Z)
+        sorted_data = dict(
+            sorted(((elem.name, val.value) for elem, val in prop.data.items()), key=lambda pair: Element(pair[0]).Z)
+        )
+
         yaml_data[prop.name] = {
             "unit": str(prop.unit) if prop.unit is not None else None,
             "reference": prop.reference,
-            "data": {elem.name: value.value for elem, value in prop.data.items()},
+            "data": sorted_data,
         }
 
     yaml = YAML()
