@@ -213,9 +213,7 @@ def parse_ionic_radii(
 
             # Collect non-empty fields
             ox_state_data = {
-                ox: float(val) / 100  # NOTE: radii divided by 100
-                for ox, val in row.items()
-                if ox not in {"Element", "Spin"} and val.strip() != ""
+                ox: float(val) for ox, val in row.items() if ox not in {"Element", "Spin"} and val.strip() != ""
             }
 
             result[prop_name][elem] = ElemPropertyValue(value=ox_state_data)
@@ -393,7 +391,7 @@ def main():
         *parse_yaml(f"{RESOURCES_DIR}/electron_affinities.yaml"),
         *parse_csv(f"{RESOURCES_DIR}/radii.csv", transform=lambda x: float(x) / 100, unit="ang"),
         *parse_ionic_radii(
-            f"{RESOURCES_DIR}/ionic_radii.csv", unit="pm", reference="https://en.wikipedia.org/wiki/Ionic_radius"
+            f"{RESOURCES_DIR}/ionic_radii.csv", unit="ang", reference="https://en.wikipedia.org/wiki/Ionic_radius"
         ),
         parse_shannon_radii(f"{RESOURCES_DIR}/Shannon_Radii.csv", unit="ang"),
         *generate_iupac_ordering(),

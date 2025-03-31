@@ -1764,7 +1764,7 @@ IUPAC ordering:
     Bi: 87, Po: 93, At: 98, Rn: 0, Fr: 6, Ra: 12, Ac: 32, Th: 31, Pa: 30, U: 29, Np: 28,
     Pu: 27, Am: 26, Cm: 25, Bk: 24, Cf: 23, Es: 22, Fm: 21, Md: 20, No: 19, Lr: 18}
 Ionic radii:
-  unit: pm
+  unit: ang
   reference: https://en.wikipedia.org/wiki/Ionic_radius
   data:
     Li: {'1': 0.9}
@@ -1823,7 +1823,7 @@ Ionic radii:
     Pr: {'3': 1.13, '4': 0.99}
     Nd: {'2': 1.43, '3': 1.123}
     Pm: {'3': 1.11}
-    Sm: {'2': 1.36, '3': 1.0979999999999999}
+    Sm: {'2': 1.36, '3': 1.098}
     Eu: {'2': 1.31, '3': 1.087}
     Gd: {'3': 1.075}
     Tb: {'3': 1.063, '4': 0.9}
@@ -1860,7 +1860,7 @@ Ionic radii:
     Bk: {'3': 1.1, '4': 0.97}
     Cf: {'3': 1.09, '4': 0.961}
 Ionic radii hs:
-  unit: pm
+  unit: ang
   reference: https://en.wikipedia.org/wiki/Ionic_radius
   data:
     Cr: *id001
@@ -1869,7 +1869,7 @@ Ionic radii hs:
     Co: *id004
     Ni: *id005
 Ionic radii ls:
-  unit: pm
+  unit: ang
   reference: https://en.wikipedia.org/wiki/Ionic_radius
   data:
     Cr: {'2': 0.87, '3': 0.755, '4': 0.69, '5': 0.63, '6': 0.58}

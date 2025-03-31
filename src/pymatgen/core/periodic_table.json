@@ -12,9 +12,9 @@
     "Density of solid": "sup^2 kg m",
     "Electrical resistivity": "sup^2 Omega m",
     "Electron affinity": "eV",
-    "Ionic radii": "pm",
-    "Ionic radii hs": "pm",
-    "Ionic radii ls": "pm",
+    "Ionic radii": "ang",
+    "Ionic radii hs": "ang",
+    "Ionic radii ls": "ang",
     "Ionization energies": "kJ mol",
     "Liquid range": "K",
     "Melting point": "K",
@@ -12095,7 +12095,7 @@
     "IUPAC ordering": 42,
     "Ionic radii": {
       "2": 1.36,
-      "3": 1.0979999999999999
+      "3": 1.098
     },
     "Ionization energies": [
       5.64371,
