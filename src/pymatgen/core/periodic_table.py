@@ -162,7 +162,7 @@ class ElementBase(Enum):
         if str(at_r).startswith("no data"):
             self._atomic_radius = None
         else:
-            self._atomic_radius = Length(at_r, "ang")
+            self._atomic_radius = Length(at_r, _PT_UNIT["Atomic radius"])
         self._atomic_mass = Mass(data["Atomic mass"], "amu")
 
         self._atomic_mass_number = None

@@ -1050,7 +1050,7 @@ Atomic orbitals:
       6s: -1.325976
       7s: -0.130948
 Atomic radius:
-  unit: nm
+  unit: ang
   reference:
   data: {H: 0.25, He: no data, Li: 1.45, Be: 1.05, B: 0.85, C: 0.7, N: 0.65, O: 0.6,
     F: 0.5, Ne: no data, Na: 1.8, Mg: 1.5, Al: 1.25, Si: 1.1, P: 1.0, S: 1.0, Cl: 1.0,
@@ -1065,7 +1065,7 @@ Atomic radius:
     At: no data, Rn: no data, Fr: no data, Ra: 2.15, Ac: 1.95, Th: 1.8, Pa: 1.8, U: 1.75,
     Np: 1.75, Pu: 1.75, Am: 1.75}
 Atomic radius calculated:
-  unit: nm
+  unit: ang
   reference:
   data: {H: 0.53, He: 0.31, Li: 1.67, Be: 1.12, B: 0.87, C: 0.67, N: 0.56, O: 0.48,
     F: 0.42, Ne: 0.38, Na: 1.9, Mg: 1.45, Al: 1.18, Si: 1.11, P: 0.98, S: 0.88, Cl: 0.79,
@@ -1764,7 +1764,7 @@ IUPAC ordering:
     Bi: 87, Po: 93, At: 98, Rn: 0, Fr: 6, Ra: 12, Ac: 32, Th: 31, Pa: 30, U: 29, Np: 28,
     Pu: 27, Am: 26, Cm: 25, Bk: 24, Cf: 23, Es: 22, Fm: 21, Md: 20, No: 19, Lr: 18}
 Ionic radii:
-  unit: nm
+  unit: pm
   reference: https://en.wikipedia.org/wiki/Ionic_radius
   data:
     Li: {'1': 0.9}
@@ -1860,7 +1860,7 @@ Ionic radii:
     Bk: {'3': 1.1, '4': 0.97}
     Cf: {'3': 1.09, '4': 0.961}
 Ionic radii hs:
-  unit: nm
+  unit: pm
   reference: https://en.wikipedia.org/wiki/Ionic_radius
   data:
     Cr: *id001
@@ -1869,7 +1869,7 @@ Ionic radii hs:
     Co: *id004
     Ni: *id005
 Ionic radii ls:
-  unit: nm
+  unit: pm
   reference: https://en.wikipedia.org/wiki/Ionic_radius
   data:
     Cr: {'2': 0.87, '3': 0.755, '4': 0.69, '5': 0.63, '6': 0.58}
@@ -2851,7 +2851,7 @@ Rigidity modulus:
     Re: 178, Os: 222, Ir: 210, Pt: 61, Au: 27, Tl: 2.8, Pb: 5.6, Bi: 12, Th: 31, U: 111,
     Pu: 43}
 Shannon radii:
-  unit: nm
+  unit: ang
   reference:
   data:
     D:
@@ -4156,7 +4156,7 @@ Thermal conductivity:
     At: 2 (estimate), Rn: 0.00361, Ra: 19, Ac: 12, Th: 54, Pa: 47, U: 27, Np: 6, Pu: 6,
     Am: 10, Cm: 8.8, Bk: 10}
 Van der waals radius:
-  unit: nm
+  unit: ang
   reference:
   data: {H: 1.2, He: 1.4, Li: 1.82, Be: 1.53, B: 1.92, C: 1.7, N: 1.55, O: 1.52, F: 1.47,
     Ne: 1.54, Na: 2.27, Mg: 1.73, Al: 1.84, Si: 2.1, P: 1.8, S: 1.8, Cl: 1.75, Ar: 1.88,
