@@ -5,9 +5,6 @@
 Each source file may be parsed using a common or custom parser. In cases where
 a custom parser is required, it should return either a single `Property` or
 a sequence of `Property`.
-
-TODO:
-    - use pymatgen Unit
 """
 
 from __future__ import annotations
@@ -23,13 +20,12 @@ from typing import TYPE_CHECKING
 import pandas as pd
 from ruamel.yaml import YAML
 
-from pymatgen.core import Element
+from pymatgen.core import Element, Unit
 
 if TYPE_CHECKING:
     from collections.abc import Callable
     from typing import Any, Literal
 
-    from pymatgen.core.units import Unit
     from pymatgen.util.typing import PathLike
 
 
@@ -52,6 +48,10 @@ class Property:
     data: dict[Element, ElemPropertyValue]
     unit: Unit | None = None
     reference: str | None = None
+
+    def __post_init__(self):
+        if self.unit is not None and isinstance(self.unit, str):
+            self.unit = Unit(self.unit)
 
 
 def parse_yaml(file: PathLike) -> list[Property]:
@@ -99,6 +99,7 @@ def parse_yaml(file: PathLike) -> list[Property]:
 
 def parse_csv(
     file: PathLike,
+    *,
     transform: Callable | None = None,
     unit: Unit | None = None,
     reference: str | None = None,
@@ -160,6 +161,7 @@ def parse_csv(
 
 def parse_ionic_radii(
     file: PathLike,
+    *,
     unit: Unit,
     reference: str,
     prop_base: str = "Ionic radii",
@@ -207,7 +209,7 @@ def parse_ionic_radii(
     return [Property(name=name, unit=unit, data=data, reference=reference) for name, data in result.items()]
 
 
-def parse_shannon_radii(file: PathLike, unit: Unit, reference: str | None = None) -> Property:
+def parse_shannon_radii(file: PathLike, *, unit: Unit, reference: str | None = None) -> Property:
     """Parse Shannon radii from CSV.
 
     For each element, the ElemPropertyValue has the following structure:
