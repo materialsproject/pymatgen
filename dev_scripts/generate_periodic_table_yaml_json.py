@@ -5,6 +5,25 @@
 Each source file may be parsed using a common or custom parser. In cases where
 a custom parser is required, it should return either a single `Property` or
 a sequence of `Property`.
+
+The YAML file is a readable aggregation of all properties in the following structure:
+    Property name -> {
+        unit: <unit string or null>,
+        reference: <reference string or null>,
+        data: {
+            <element as str>: <value>
+        }
+    }
+
+The JSON file is a compact, production-format structure (no metadata):
+    <element symbol> -> {
+        <property name>: <value unit>
+    }
+
+    Units are stored separately in a special top-level key:
+            "_unit" -> {
+                <property name>: <unit string>
+            }
 """
 
 from __future__ import annotations
@@ -305,20 +324,6 @@ def generate_yaml_and_json(
     """
     Generate a human-readable YAML and a production-ready JSON file from properties.
 
-    The YAML file is a readable aggregation of all properties in the following structure:
-        Property name -> {
-            unit: <unit string or null>,
-            reference: <reference string or null>,
-            data: {
-                <element as str>: <value>
-            }
-        }
-
-    The JSON file is a compact, production-format structure (no metadata):
-        <element symbol> -> {
-            <property name>: <value unit>
-        }
-
     Args:
         properties (Iterable[Property]): A sequence of Property objects to serialize.
         yaml_file (PathLike): Path to output YAML file (for development).
@@ -339,7 +344,7 @@ def generate_yaml_and_json(
     yaml_data: dict[str, dict[Literal["unit", "reference", "data"], Any]] = {}
     for prop in properties:
         # Sort elements by atomic number (Z)
-        sorted_data = dict(
+        sorted_data: dict[str, Any] = dict(
             sorted(((elem.name, val.value) for elem, val in prop.data.items()), key=lambda pair: Element(pair[0]).Z)
         )
 
@@ -395,7 +400,6 @@ def main():
         *generate_iupac_ordering(),
     )
 
-    # Generate YAML and JSON
     generate_yaml_and_json(
         properties,
         yaml_file=f"{RESOURCES_DIR}/_periodic_table.yaml",
