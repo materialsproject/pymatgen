@@ -1117,7 +1117,7 @@ Bulk modulus:
     Ta: 200, W: 310, Re: 370, Ir: 320, Pt: 230, Au: 220, Hg: 25, Tl: 43, Pb: 46, Bi: 31,
     Th: 54, U: 100}
 Coefficient of linear thermal expansion:
-  unit: x^10 sup^4 K
+  unit: x^10 K^-1
   reference:
   data: {Li: 46, Be: 11.3, B: 6, C: 7.1, Na: 71, Mg: 8.2, Al: 23.1, Si: 2.6, Ca: 22.3,
     Sc: 10.2, Ti: 8.6, V: 8.4, Cr: 4.9, Mn: 21.7, Fe: 11.8, Co: 13.0, Ni: 13.4, Cu: 16.5,
@@ -1252,14 +1252,13 @@ Density of solid:
 Electrical resistivity:
   unit: m ohm
   reference:
-  data: {Li: 9.5, Be: 3.8, B: '&gt; 10<sup>12</sup>', C: about 1000 - direction dependent,
-    Na: 4.9, Mg: 4.4, Al: 2.7, Si: about 100000, P: about 10, S: '&gt; 10<sup>23</sup>',
-    Cl: '&gt; 10<sup>10</sup>', K: 7.5, Ca: 3.4, Sc: about 55, Ti: about 40, V: 20,
-    Cr: 12.7, Mn: 144, Fe: 10, Co: 6, Ni: 7.2, Cu: 1.72, Zn: 6.0, Ga: about  14, Ge: about
-      50000, As: 33, Se: high, Br: '&gt; 10<sup>18</sup>', Rb: 13.3, Sr: 13.5, Y: about
-      60, Zr: 43.3, Nb: 15.2, Mo: 5.5, Tc: about 22, Ru: 7.1, Rh: 4.3, Pd: 10.8, Ag: 1.63,
-    Cd: 7, In: 8, Sn: 11.5, Sb: 40, Te: about 10000, I: '&gt; 10<sup>15</sup>', Cs: 21,
-    Ba: 34, La: 61.5, Ce: 74, Pr: 70, Nd: 64.3, Pm: about 75, Sm: 94, Eu: 90, Gd: 131,
+  data: {Li: 9.5, Be: 3.8, B: '&gt; 10<sup>12</sup>', C: 1000, Na: 4.9, Mg: 4.4, Al: 2.7,
+    Si: 100000, P: 10, S: '&gt; 10<sup>23</sup>', Cl: '&gt; 10<sup>10</sup>', K: 7.5,
+    Ca: 3.4, Sc: 55, Ti: 40, V: 20, Cr: 12.7, Mn: 144, Fe: 10, Co: 6, Ni: 7.2, Cu: 1.72,
+    Zn: 6.0, Ga: 14, Ge: 50000, As: 33, Se: high, Br: '&gt; 10<sup>18</sup>', Rb: 13.3,
+    Sr: 13.5, Y: 60, Zr: 43.3, Nb: 15.2, Mo: 5.5, Tc: 22, Ru: 7.1, Rh: 4.3, Pd: 10.8,
+    Ag: 1.63, Cd: 7, In: 8, Sn: 11.5, Sb: 40, Te: 10000, I: '&gt; 10<sup>15</sup>',
+    Cs: 21, Ba: 34, La: 61.5, Ce: 74, Pr: 70, Nd: 64.3, Pm: 75, Sm: 94, Eu: 90, Gd: 131,
     Tb: 115, Dy: 92.6, Ho: 81.4, Er: 86.0, Tm: 67.6, Yb: 25.0, Lu: 58, Hf: 34, Ta: 13.5,
     W: 5.4, Re: 18, Os: 8.1, Ir: 4.7, Pt: 10.6, Au: 2.2, Hg: 96, Tl: 15, Pb: 21, Bi: 130,
     Po: 40, Ra: 100, Th: 15, Pa: 18, U: 28, Np: 120, Pu: 150}
@@ -2561,9 +2560,9 @@ Melting point:
     Eu: 1099, Gd: 1585, Tb: 1629, Dy: 1680, Ho: 1734, Er: 1802, Tm: 1818, Yb: 1097,
     Lu: 1925, Hf: 2506, Ta: 3290, W: 3695, Re: 3459, Os: 3306, Ir: 2739, Pt: 2041.4,
     Au: 1337.33, Hg: 234.32, Tl: 577, Pb: 600.61, Bi: 544.4, Po: 527, At: 575, Rn: 202,
-    Fr: maybe about 300, Ra: 973, Ac: 1323, Th: 2115, Pa: 1841, U: 1405.3, Np: 910,
-    Pu: 912.5, Am: 1449, Cm: 1613, Bk: 1259, Cf: 1173, Es: 1133, Fm: about 1800, Md: about
-      1100, No: about 1100, Lr: about 1900}
+    Fr: 300, Ra: 973, Ac: 1323, Th: 2115, Pa: 1841, U: 1405.3, Np: 910, Pu: 912.5,
+    Am: 1449, Cm: 1613, Bk: 1259, Cf: 1173, Es: 1133, Fm: 1800, Md: 1100, No: 1100,
+    Lr: 1900}
 Mendeleev no:
   unit:
   reference:
