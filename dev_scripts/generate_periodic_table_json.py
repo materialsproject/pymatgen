@@ -244,6 +244,11 @@ def parse_shannon_radii(file: PathLike, unit: Unit, reference: str | None = None
 
 
 def generate_iupac_ordering() -> list[Property]:
+    """Ordering according to Table VI of "Nomenclature of Inorganic Chemistry
+    (IUPAC Recommendations 2005)". This ordering effectively follows the
+    groups and rows of the periodic table, except the Lanthanides, Actinides
+    and hydrogen.
+    """
     print("Generating IUPAC ordering:")
     print("  - Provide property: 'iupac_ordering'")  # TODO: duplicate
     print("  - Provide property: 'IUPAC ordering'")
