@@ -17,12 +17,10 @@ import os
 import warnings
 from collections import Counter
 from dataclasses import dataclass
-from io import StringIO
 from itertools import product
 from typing import TYPE_CHECKING
 
 import pandas as pd
-import requests
 from ruamel.yaml import YAML
 
 from pymatgen.core import Element
@@ -245,49 +243,6 @@ def parse_shannon_radii(file: PathLike, unit: Unit, reference: str | None = None
     return Property(name="Shannon radii", data=data, unit=unit, reference=reference)
 
 
-def get_electron_affinities() -> Property:
-    """Get electron affinities data from Wikipedia."""
-    print("Getting electron affinities from Wikipedia:")
-    print("  - Provide property: 'Electron affinity'")
-
-    url: str = "https://en.wikipedia.org/wiki/Electron_affinity_(data_page)"
-    tables = pd.read_html(StringIO(requests.get(url, timeout=5).text))
-
-    # Get the "Elements Electron affinity" table (with unit eV)
-    ea_df = next(
-        table
-        for table in tables
-        if "Electron affinity (kJ/mol)" in table.columns and table["Name"].astype(str).str.contains("Hydrogen").any()
-    )
-    ea_df = ea_df.drop(columns=["References", "Electron affinity (kJ/mol)", "Element"])
-
-    # Drop superheavy elements
-    max_z: int = max(Element(element).Z for element in Element.__members__)
-    ea_df = ea_df[pd.to_numeric(ea_df["Z"], errors="coerce") <= max_z]
-
-    # # Drop heavy isotopes (by detecting duplicate Z)
-    # ea_df = ea_df.drop_duplicates(subset="Z", keep="first")
-
-    # Ensure we cover all elements up to Uranium (Z=92)
-    if not (z_values := set(ea_df["Z"])).issuperset(range(1, 93)):
-        raise ValueError(f"miss electron affinities: {set(range(1, 93)) - z_values}")
-
-    # Clean up electron affinity data
-    ea_df["Electron affinity (eV)"] = (
-        ea_df["Electron affinity (eV)"]
-        .str.replace("−", "-")  # Use the Unicode minus (-)  # noqa: RUF001
-        .str.split("(")  # remove uncertainty ("0.754 195(19)")
-        .str[0]
-        .str.replace(" ", "")  # "0.754 195(19)"
-    ).astype(float)
-
-    data = {
-        Element.from_name(name.strip()): value
-        for name, value in zip(ea_df["Name"], ea_df["Electron affinity (eV)"], strict=True)
-    }
-    return Property(name="Electron affinity", data=data, unit="eV")
-
-
 def generate_iupac_ordering() -> list[Property]:
     print("Generating IUPAC ordering:")
     print("  - Provide property: 'iupac_ordering'")  # TODO: duplicate
@@ -340,12 +295,12 @@ def main():
         *parse_yaml(f"{RESOURCES_DIR}/elemental_properties.yaml"),
         *parse_yaml(f"{RESOURCES_DIR}/oxidation_states.yaml"),
         *parse_yaml(f"{RESOURCES_DIR}/ionization_energies_nist.yaml"),  # Parsed from HTML
+        *parse_yaml(f"{RESOURCES_DIR}/electron_affinities.yaml"),
         *parse_csv(f"{RESOURCES_DIR}/radii.csv", transform=lambda x: float(x) / 100, unit="nm"),
         *parse_ionic_radii(
             f"{RESOURCES_DIR}/ionic_radii.csv", unit="nm", reference="https://en.wikipedia.org/wiki/Ionic_radius"
         ),
         parse_shannon_radii(f"{RESOURCES_DIR}/Shannon_Radii.csv", unit="nm"),
-        get_electron_affinities(),
         *generate_iupac_ordering(),
     )
 
