@@ -37,7 +37,9 @@ if TYPE_CHECKING:
 # Note that you should not update this json file manually. EDits should be done on the `periodic_table.yaml`
 # file in the `dev_scripts` directory, and gen_pt_json.py can then be run to convert the yaml to json.
 with open(Path(__file__).absolute().parent / "periodic_table.json", encoding="utf-8") as ptable_json:
-    _PT_DATA: dict = json.load(ptable_json)
+    raw_data: dict = json.load(ptable_json)
+    _PT_UNIT: dict[str, str] = raw_data.pop("_unit")
+    _PT_DATA: dict[str, Any] = raw_data
 
 _PT_ROW_SIZES: tuple[int, ...] = (2, 8, 8, 18, 18, 32, 32)
 

@@ -17,6 +17,10 @@ Atomic mass:
     Sr: 87.62, Ta: 180.94788, Tb: 158.92535, Tc: 98.0, Te: 127.6, Th: 232.03806, Ti: 47.867,
     Tl: 204.3833, Tm: 168.93421, U: 238.02891, V: 50.9415, W: 183.84, Xe: 131.293,
     Y: 88.90585, Yb: 173.04, Zn: 65.409, Zr: 91.224, D: 2.013553212712, T: 3.0155007134}
+Atomic mass no:
+  unit:
+  reference:
+  data: {D: 2, T: 3}
 Atomic no:
   unit:
   reference:
@@ -245,6 +249,37 @@ Atomic orbitals:
       3s: -4.573041, 4s: -0.222725}
     Zr: {1s: -639.292236, 2p: -80.010043, 2s: -87.237062, 3d: -6.544643, 3p: -11.514415,
       3s: -14.230432, 4d: -0.150673, 4p: -1.186597, 4s: -1.918971, 5s: -0.162391}
+Atomic radius:
+  unit: nm
+  reference:
+  data: {H: 0.25, He: no data, Li: 1.45, Be: 1.05, B: 0.85, C: 0.7, N: 0.65, O: 0.6,
+    F: 0.5, Ne: no data, Na: 1.8, Mg: 1.5, Al: 1.25, Si: 1.1, P: 1.0, S: 1.0, Cl: 1.0,
+    Ar: 0.71, K: 2.2, Ca: 1.8, Sc: 1.6, Ti: 1.4, V: 1.35, Cr: 1.4, Mn: 1.4, Fe: 1.4,
+    Co: 1.35, Ni: 1.35, Cu: 1.35, Zn: 1.35, Ga: 1.3, Ge: 1.25, As: 1.15, Se: 1.15,
+    Br: 1.15, Kr: no data, Rb: 2.35, Sr: 2.0, Y: 1.8, Zr: 1.55, Nb: 1.45, Mo: 1.45,
+    Tc: 1.35, Ru: 1.3, Rh: 1.35, Pd: 1.4, Ag: 1.6, Cd: 1.55, In: 1.55, Sn: 1.45, Sb: 1.45,
+    Te: 1.4, I: 1.4, Xe: no data, Cs: 2.6, Ba: 2.15, La: 1.95, Ce: 1.85, Pr: 1.85,
+    Nd: 1.85, Pm: 1.85, Sm: 1.85, Eu: 1.85, Gd: 1.8, Tb: 1.75, Dy: 1.75, Ho: 1.75,
+    Er: 1.75, Tm: 1.75, Yb: 1.75, Lu: 1.75, Hf: 1.55, Ta: 1.45, W: 1.35, Re: 1.35,
+    Os: 1.3, Ir: 1.35, Pt: 1.35, Au: 1.35, Hg: 1.5, Tl: 1.9, Pb: 1.8, Bi: 1.6, Po: 1.9,
+    At: no data, Rn: no data, Fr: no data, Ra: 2.15, Ac: 1.95, Th: 1.8, Pa: 1.8, U: 1.75,
+    Np: 1.75, Pu: 1.75, Am: 1.75}
+Atomic radius calculated:
+  unit: nm
+  reference:
+  data: {H: 0.53, He: 0.31, Li: 1.67, Be: 1.12, B: 0.87, C: 0.67, N: 0.56, O: 0.48,
+    F: 0.42, Ne: 0.38, Na: 1.9, Mg: 1.45, Al: 1.18, Si: 1.11, P: 0.98, S: 0.88, Cl: 0.79,
+    Ar: 0.71, K: 2.43, Ca: 1.94, Sc: 1.84, Ti: 1.76, V: 1.71, Cr: 1.66, Mn: 1.61,
+    Fe: 1.56, Co: 1.52, Ni: 1.49, Cu: 1.45, Zn: 1.42, Ga: 1.36, Ge: 1.25, As: 1.14,
+    Se: 1.03, Br: 0.94, Kr: 0.88, Rb: 2.65, Sr: 2.19, Y: 2.12, Zr: 2.06, Nb: 1.98,
+    Mo: 1.9, Tc: 1.83, Ru: 1.78, Rh: 1.73, Pd: 1.69, Ag: 1.65, Cd: 1.61, In: 1.56,
+    Sn: 1.45, Sb: 1.33, Te: 1.23, I: 1.15, Xe: 1.08, Cs: 2.98, Ba: 2.53, La: no data,
+    Ce: no data, Pr: 2.47, Nd: 2.06, Pm: 2.05, Sm: 2.38, Eu: 2.31, Gd: 2.33, Tb: 2.25,
+    Dy: 2.28, Ho: no data, Er: 2.26, Tm: 2.22, Yb: 2.22, Lu: 2.17, Hf: 2.08, Ta: 2.0,
+    W: 1.93, Re: 1.88, Os: 1.85, Ir: 1.8, Pt: 1.77, Au: 1.74, Hg: 1.71, Tl: 1.56,
+    Pb: 1.54, Bi: 1.43, Po: 1.35, At: no data, Rn: 1.2, Fr: no data, Ra: no data,
+    Ac: no data, Th: no data, Pa: no data, U: no data, Np: no data, Pu: no data, Am: no
+      data}
 Boiling point:
   unit: K
   reference:
@@ -430,6 +465,25 @@ Electrical resistivity:
     Sn: 11.5, Sr: 13.5, Ta: 13.5, Tb: 115, Tc: about 22, Te: about 10000, Th: 15,
     Ti: about 40, Tl: 15, Tm: 67.6, U: 28, V: 20, W: 5.4, Y: about 60, Yb: 25.0, Zn: 6.0,
     Zr: 43.3}
+Electron affinity:
+  unit: eV
+  reference: https://en.wikipedia.org/wiki/Electron_affinity_(data_page)
+  data: {H: 0.75467, He: -0.5, Li: 0.618049, Be: -0.5, B: 0.279723, C: 1.2621136,
+    N: -0.07, O: 1.461105, F: 3.4011898, Ne: -1.2, Na: 0.547926, Mg: -0.4, Al: 0.43283,
+    Si: 1.3895212, P: 0.746609, S: 2.0771045, Cl: 3.612725, Ar: -1.0, K: 0.501459,
+    Ca: 0.02455, Sc: 0.17938, Ti: 0.07554, V: 0.52766, Cr: 0.675928, Mn: -0.5, Fe: 0.153236,
+    Co: 0.662255, Ni: 1.15716, Cu: 1.23578, Zn: -0.6, Ga: 0.301166, Ge: 1.2326764,
+    As: 0.804486, Se: 2.0206047, Br: 3.363588, Kr: -1.0, Rb: 0.485916, Sr: 0.05206,
+    Y: 0.31129, Zr: 0.43328, Nb: 0.9174, Mo: 0.74723, Tc: 0.55, Ru: 1.04627, Rh: 1.14289,
+    Pd: 0.56214, Ag: 1.30447, Cd: -0.7, In: 0.299, Sn: 1.11207, Sb: 1.047401, Te: 1.970875,
+    I: 3.059052, Xe: -0.8, Cs: 0.4715983, Ba: 0.14462, La: 0.557546, Ce: 0.60016,
+    Pr: 0.10923, Nd: 0.09749, Pm: 0.129, Sm: 0.162, Eu: 0.116, Gd: 0.212, Tb: 0.13131,
+    Dy: 0.015, Ho: 0.338, Er: 0.312, Tm: 1.029, Yb: -0.02, Lu: 0.2388, Hf: 0.178,
+    Ta: 0.328859, W: 0.8165, Re: 0.060396, Os: 1.077661, Ir: 1.564057, Pt: 2.1251,
+    Au: 2.30861, Hg: -0.5, Tl: 0.320053, Pb: 0.356721, Bi: 0.942362, Po: 1.4, At: 2.41578,
+    Rn: -0.7, Fr: 0.486, Ra: 0.1, Ac: 0.35, Th: 0.60769, Pa: 0.55, U: 0.31497, Np: 0.48,
+    Pu: -0.5, Am: 0.1, Cm: 0.28, Bk: -1.72, Cf: -1.01, Es: -0.3, Fm: 0.35, Md: 0.98,
+    No: -2.33, Lr: -0.31, Rg: 1.565, Nh: 0.69, Mc: 0.366, Lv: 0.776, Ts: 1.719, Og: 0.08}
 Electronic structure:
   unit:
   reference:
@@ -480,198 +534,6 @@ Electronic structure:
     W: '[Xe].4f<sup>14</sup>.5d<sup>4</sup>.6s<sup>2</sup>', Xe: '[Kr].4d<sup>10</sup>.5s<sup>2</sup>.5p<sup>6</sup>',
     Y: '[Kr].4d<sup>1</sup>.5s<sup>2</sup>', Yb: '[Xe].4f<sup>14</sup>.6s<sup>2</sup>',
     Zn: '[Ar].3d<sup>10</sup>.4s<sup>2</sup>', Zr: '[Kr].4d<sup>2</sup>.5s<sup>2</sup>'}
-Liquid range:
-  unit: K
-  reference:
-  data: {Ac: 2250, Ag: 1200.07, Al: 1858.53, Am: 1431, Ar: 3.5, As: 203, Au: 1791.67,
-    B: 1851, Ba: 1143, Be: 1182, Bi: 1292.6, Br: 66.2, C: 500, Ca: 642, Cd: 445.78,
-    Ce: 2565, Cl: 67.51, Cm: 1770, Co: 1432, Cr: 764, Cs: 642.41, Cu: 1842.23, Dy: 1160,
-    Er: 1371, Eu: 701, F: 31.5, Fe: 1323, Ga: 2174.09, Gd: 1938, Ge: 1881.6, H: 6.27,
-    He: 3.27, Hf: 2370, Hg: 395.56, Ho: 1259, I: 70.55, In: 1915.25, Ir: 1962, K: 695.47,
-    Kr: 4.14, La: 2550, Li: 1161.31, Lu: 1750, Mg: 440, Mn: 815, Mo: 2016, N: 14.31,
-    Na: 785.13, Nb: 2267, Nd: 2076, Ne: 2.51, Ni: 1458, Np: 3363, O: 35.4, Os: 1979,
-    P: 232.7, Pb: 1421.39, Pd: 1407.95, Pm: 1900, Po: 708, Pr: 2355, Pt: 2056.6, Pu: 2590.5,
-    Ra: 1037, Rb: 648.54, Re: 2410, Rh: 1731, Rn: 9.3, Ru: 1816, S: 329.51, Sb: 956.22,
-    Sc: 1289, Se: 464, Si: 1486, Sm: 731, Sn: 2369.92, Sr: 605, Ta: 2441, Tb: 1874,
-    Tc: 2108, Te: 538.34, Th: 2978, Ti: 1619, Tl: 1169, Tm: 405, U: 2794.7, V: 1497,
-    W: 2133, Xe: 3.7, Y: 1810, Yb: 372, Zn: 487.32, Zr: 2554}
-Melting point:
-  unit: K
-  reference:
-  data: {Ac: 1323, Ag: 1234.93, Al: 933.47, Am: 1449, Ar: 83.8, As: 1090, At: 575,
-    Au: 1337.33, B: 2349, Ba: 1000, Be: 1560, Bi: 544.4, Bk: 1259, Br: 265.8, C: 3800,
-    Ca: 1115, Cd: 594.22, Ce: 1068, Cf: 1173, Cl: 171.6, Cm: 1613, Co: 1768, Cr: 2180,
-    Cs: 301.59, Cu: 1357.77, Dy: 1680, Er: 1802, Es: 1133, Eu: 1099, F: 53.53, Fe: 1811,
-    Fm: about 1800, Fr: maybe about 300, Ga: 302.91, Gd: 1585, Ge: 1211.4, H: 14.01,
-    He: 0.95, Hf: 2506, Hg: 234.32, Ho: 1734, I: 386.85, In: 429.75, Ir: 2739, K: 336.53,
-    Kr: 115.79, La: 1193, Li: 453.69, Lr: about 1900, Lu: 1925, Md: about 1100, Mg: 923,
-    Mn: 1519, Mo: 2896, N: 63.05, Na: 370.87, Nb: 2750, Nd: 1297, Ne: 24.56, Ni: 1728,
-    No: about 1100, Np: 910, O: 54.8, Os: 3306, P: (white P) 317.3, Pa: 1841, Pb: 600.61,
-    Pd: 1828.05, Pm: 1373, Po: 527, Pr: 1208, Pt: 2041.4, Pu: 912.5, Ra: 973, Rb: 312.46,
-    Re: 3459, Rh: 2237, Rn: 202, Ru: 2607, S: 388.36, Sb: 903.78, Sc: 1814, Se: 494,
-    Si: 1687, Sm: 1345, Sn: 505.08, Sr: 1050, Ta: 3290, Tb: 1629, Tc: 2430, Te: 722.66,
-    Th: 2115, Ti: 1941, Tl: 577, Tm: 1818, U: 1405.3, V: 2183, W: 3695, Xe: 161.4,
-    Y: 1799, Yb: 1097, Zn: 692.68, Zr: 2128}
-Mendeleev no:
-  unit:
-  reference:
-  data: {Ac: 48, Ag: 71, Al: 80, Am: 42, Ar: 3, As: 89, At: 96, Au: 70, B: 86, Ba: 14,
-    Be: 77, Bi: 87, Bk: 40, Br: 98, C: 95, Ca: 16, Cd: 75, Ce: 32, Cf: 39, Cl: 99,
-    Cm: 41, Co: 64, Cr: 57, Cs: 8, Cu: 72, Dy: 24, Er: 22, Es: 38, Eu: 18, F: 102,
-    Fe: 61, Fm: 37, Fr: 7, Ga: 81, Gd: 27, Ge: 84, H: 103, He: 1, Hf: 50, Hg: 74,
-    Ho: 23, I: 97, In: 79, Ir: 66, K: 10, Kr: 4, La: 33, Li: 12, Lr: 34, Lu: 20, Md: 36,
-    Mg: 73, Mn: 60, Mo: 56, N: 100, Na: 11, Nb: 53, Nd: 30, Ne: 2, Ni: 67, No: 35,
-    Np: 44, O: 101, Os: 63, P: 90, Pa: 46, Pb: 82, Pd: 69, Pm: 29, Po: 91, Pr: 31,
-    Pt: 68, Pu: 43, Ra: 13, Rb: 9, Re: 58, Rh: 65, Rn: 6, Ru: 62, S: 94, Sb: 88, Sc: 19,
-    Se: 93, Si: 85, Sm: 28, Sn: 83, Sr: 15, Ta: 52, Tb: 26, Tc: 59, Te: 92, Th: 47,
-    Ti: 51, Tl: 78, Tm: 21, U: 45, V: 54, W: 55, Xe: 5, Y: 25, Yb: 17, Zn: 76, Zr: 49}
-Mineral hardness:
-  unit:
-  reference:
-  data: {Ag: 2.5, Al: 2.75, As: 3.5, Au: 2.5, B: 9.3, Ba: 1.25, Be: 5.5, Bi: 2.25,
-    C: 0.5 (graphite; diamond is 10.0), Ca: 1.75, Cd: 2.0, Ce: 2.5, Co: 5.0, Cr: 8.5,
-    Cs: 0.2, Cu: 3.0, Fe: 4.0, Ga: 1.5, Ge: 6.0, Hf: 5.5, Hg: 1.5, In: 1.2, Ir: 6.5,
-    K: 0.4, La: 2.5, Li: 0.6, Mg: 2.5, Mn: 6.0, Mo: 5.5, Na: 0.5, Nb: 6.0, Ni: 4.0,
-    Os: 7.0, Pb: 1.5, Pd: 4.75, Pt: 3.5, Rb: 0.3, Re: 7.0, Rh: 6.0, Ru: 6.5, S: 2.0,
-    Sb: 3.0, Se: 2.0, Si: 6.5, Sn: 1.5, Sr: 1.5, Ta: 6.5, Te: 2.25, Th: 3.0, Ti: 6.0,
-    Tl: 1.2, U: 6.0, V: 7.0, W: 7.5, Zn: 2.5, Zr: 5.0}
-Molar volume:
-  unit: sup^2 cm
-  reference:
-  data: {Ac: 22.55, Ag: 10.27, Al: 10.00, Am: 17.63, Ar: 22.56, As: 12.95, Au: 10.21,
-    B: 4.39, Ba: 38.16, Be: 4.85, Bi: 21.31, Bk: 16.84, Br: 19.78, C: 5.29, Ca: 26.20,
-    Cd: 13.00, Ce: 20.69, Cf: 16.50, Cl: 17.39, Cm: 18.05, Co: 6.67, Cr: 7.23, Cs: 70.94,
-    Cu: 7.11, Dy: 19.01, Er: 18.46, Es: 28.52, Eu: 28.97, F: 11.20, Fe: 7.09, Ga: 11.80,
-    Gd: 19.90, Ge: 13.63, H: 11.42, He: 21.0, Hf: 13.44, Hg: 14.09, Ho: 18.74, I: 25.72,
-    In: 15.76, Ir: 8.52, K: 45.94, Kr: 27.99, La: 22.39, Li: 13.02, Lu: 17.78, Mg: 14.00,
-    Mn: 7.35, Mo: 9.38, N: 13.54, Na: 23.78, Nb: 10.83, Nd: 20.59, Ne: 13.23, Ni: 6.59,
-    Np: 11.59, O: 17.36, Os: 8.42, P: 17.02, Pa: 15.18, Pb: 18.26, Pd: 8.56, Pm: 20.23,
-    Po: 22.97, Pr: 20.80, Pt: 9.09, Pu: 12.29, Ra: 41.09, Rb: 55.76, Re: 8.86, Rh: 8.28,
-    Rn: 50.50, Ru: 8.17, S: 15.53, Sb: 18.19, Sc: 15.00, Se: 16.42, Si: 12.06, Sm: 19.98,
-    Sn: 16.29, Sr: 33.94, Ta: 10.85, Tb: 19.30, Tc: 8.63, Te: 20.46, Th: 19.80, Ti: 10.64,
-    Tl: 17.22, Tm: 19.1, U: 12.49, V: 8.32, W: 9.47, Xe: 35.92, Y: 19.88, Yb: 24.84,
-    Zn: 9.16, Zr: 14.02}
-Name:
-  unit:
-  reference:
-  data: {Ac: Actinium, Ag: Silver, Al: Aluminum, Am: Americium, Ar: Argon, As: Arsenic,
-    At: Astatine, Au: Gold, B: Boron, Ba: Barium, Be: Beryllium, Bi: Bismuth, Bk: Berkelium,
-    Br: Bromine, C: Carbon, Ca: Calcium, Cd: Cadmium, Ce: Cerium, Cf: Californium,
-    Cl: Chlorine, Cm: Curium, Co: Cobalt, Cr: Chromium, Cs: Cesium, Cu: Copper, Dy: Dysprosium,
-    Er: Erbium, Es: Einsteinium, Eu: Europium, F: Fluorine, Fe: Iron, Fm: Fermium,
-    Fr: Francium, Ga: Gallium, Gd: Gadolinium, Ge: Germanium, H: Hydrogen, He: Helium,
-    Hf: Hafnium, Hg: Mercury, Ho: Holmium, I: Iodine, In: Indium, Ir: Iridium, K: Potassium,
-    Kr: Krypton, La: Lanthanum, Li: Lithium, Lr: Lawrencium, Lu: Lutetium, Md: Mendelevium,
-    Mg: Magnesium, Mn: Manganese, Mo: Molybdenum, N: Nitrogen, Na: Sodium, Nb: Niobium,
-    Nd: Neodymium, Ne: Neon, Ni: Nickel, No: Nobelium, Np: Neptunium, O: Oxygen, Os: Osmium,
-    P: Phosphorus, Pa: Protactinium, Pb: Lead, Pd: Palladium, Pm: Promethium, Po: Polonium,
-    Pr: Praseodymium, Pt: Platinum, Pu: Plutonium, Ra: Radium, Rb: Rubidium, Re: Rhenium,
-    Rh: Rhodium, Rn: Radon, Ru: Ruthenium, S: Sulfur, Sb: Antimony, Sc: Scandium,
-    Se: Selenium, Si: Silicon, Sm: Samarium, Sn: Tin, Sr: Strontium, Ta: Tantalum,
-    Tb: Terbium, Tc: Technetium, Te: Tellurium, Th: Thorium, Ti: Titanium, Tl: Thallium,
-    Tm: Thulium, U: Uranium, V: Vanadium, W: Tungsten, Xe: Xenon, Y: Yttrium, Yb: Ytterbium,
-    Zn: Zinc, Zr: Zirconium, D: Deuterium, T: Tritium}
-Poissons ratio:
-  unit:
-  reference:
-  data: {Ag: 0.37, Al: 0.35, Au: 0.44, Be: 0.032, Bi: 0.33, Ca: 0.31, Cd: 0.30, Ce: 0.24,
-    Co: 0.31, Cr: 0.21, Cu: 0.34, Dy: 0.25, Er: 0.24, Eu: 0.15, Fe: 0.29, Gd: 0.26,
-    Hf: 0.37, Ho: 0.23, Ir: 0.26, La: 0.28, Lu: 0.26, Mg: 0.29, Mo: 0.31, Nb: 0.40,
-    Nd: 0.28, Ni: 0.31, Os: 0.25, Pb: 0.44, Pd: 0.39, Pm: 0.28, Pr: 0.28, Pt: 0.38,
-    Pu: 0.21, Re: 0.30, Rh: 0.26, Ru: 0.30, Sc: 0.28, Se: 0.33, Sm: 0.27, Sn: 0.36,
-    Sr: 0.28, Ta: 0.34, Tb: 0.26, Th: 0.27, Ti: 0.32, Tl: 0.45, Tm: 0.21, U: 0.23,
-    V: 0.37, W: 0.28, Y: 0.24, Yb: 0.21, Zn: 0.25, Zr: 0.34}
-Reflectivity:
-  unit: ''
-  reference:
-  data: {Ag: 97, Al: 71, Au: 95, C: 27, Cd: 67, Co: 67, Cu: 90, Fe: 65, Hg: 73, Ir: 78,
-    Mg: 74, Mo: 58, Ni: 72, Pd: 72, Pt: 73, Rh: 84, Sb: 55, Si: 28, Sn: 54, Ta: 78,
-    Te: 50, V: 61, W: 62, Zn: 80}
-Refractive index:
-  unit:
-  reference:
-  data: {Ar: 1.000281, As: 1.001552, Br: 1.001132, C: 2.417 (diamond), Cl: 1.000773,
-    F: 1.000195, H: 1.000132 (gas; liquid 1.12), He: 1.000035 (gas; liquid 1.028),
-    Hg: 1.000933, Kr: 1.000427, N: 1.000298 (gas; liquid 1.197), Ne: 1.000067, O: 1.000271
-      (gas; liquid 1.221), P: 1.001212, S: 1.001111, Se: 1.000895, Te: 1.000991, Xe: 1.000702,
-    Zn: 1.002050}
-Rigidity modulus:
-  unit: GPa
-  reference:
-  data: {Ag: 30, Al: 26, Au: 27, Ba: 4.9, Be: 132, Bi: 12, Ca: 7.4, Cd: 19, Ce: 14,
-    Co: 75, Cr: 115, Cu: 48, Dy: 25, Er: 28, Eu: 7.9, Fe: 82, Gd: 22, Hf: 30, Ho: 26,
-    Ir: 210, K: 1.3, La: 14, Li: 4.2, Lu: 27, Mg: 17, Mo: 20, Na: 3.3, Nb: 38, Nd: 16,
-    Ni: 76, Os: 222, Pb: 5.6, Pd: 44, Pm: 18, Pr: 15, Pt: 61, Pu: 43, Re: 178, Rh: 150,
-    Ru: 173, Sb: 20, Sc: 29, Se: 3.7, Sm: 20, Sn: 18, Sr: 6.1, Ta: 69, Tb: 22, Te: 16,
-    Th: 31, Ti: 44, Tl: 2.8, Tm: 31, U: 111, V: 47, W: 161, Y: 26, Yb: 9.9, Zn: 43,
-    Zr: 33}
-Superconduction temperature:
-  unit: K
-  reference:
-  data: {Al: 1.175, Am: 0.6, Be: 0.026, Cd: 0.517, Ce: 0.022  (under pressure), Ga: 1.083,
-    Gd: 1.083, Hf: 0.128, Hg: 3.95, In: 3.41, Ir: 0.11, La: 6.00, Lu: 0.022, Mo: 0.915,
-    Nb: 9.25, Os: 0.66, Pa: 1.4, Pb: 7.2, Re: 1.70, Ru: 0.49, Sc: 0.05  (under pressure),
-    Sn: 3.72, Ta: 4.47, Tc: 7.8, Th: 1.38, Ti: 0.40, Tl: 2.38, U: 0.2, V: 5.40, W: 0.015,
-    Y: 1.3  (under pressure), Zn: 0.85, Zr: 0.61}
-Thermal conductivity:
-  unit: sup^4 K W m
-  reference:
-  data: {Ac: 12, Ag: 430, Al: 235, Am: 10, Ar: 0.01772, As: 50, At: 2 (estimate),
-    Au: 320, B: 27, Ba: 18, Be: 190, Bi: 8, Bk: 10, Br: 0.12, C: 140, Ca: 200, Cd: 97,
-    Ce: 11, Cl: 0.0089, Cm: 8.8, Co: 100, Cr: 94, Cs: 36, Cu: 400, Dy: 11, Er: 15,
-    Eu: 14, F: 0.0277, Fe: 80, Ga: 29, Gd: 11, Ge: 60, H: 0.1805, He: 0.1513, Hf: 23,
-    Hg: 8.3, Ho: 16, I: 0.449, In: 82, Ir: 150, K: 100, Kr: 0.00943, La: 13, Li: 85,
-    Lu: 16, Mg: 160, Mn: 7.8, Mo: 139, N: 0.02583, Na: 140, Nb: 54, Nd: 17, Ne: 0.0491,
-    Ni: 91, Np: 6, O: 0.02658, Os: 88, P: 0.236, Pa: 47, Pb: 35, Pd: 72, Pm: 15, Po: 20,
-    Pr: 13, Pt: 72, Pu: 6, Ra: 19, Rb: 58, Re: 48, Rh: 150, Rn: 0.00361, Ru: 120,
-    S: 0.205, Sb: 24, Sc: 16, Se: 0.52, Si: 150, Sm: 13, Sn: 67, Sr: 35, Ta: 57, Tb: 11,
-    Tc: 51, Te: 3, Th: 54, Ti: 22, Tl: 46, Tm: 17, U: 27, V: 31, W: 170, Xe: 0.00565,
-    Y: 17, Yb: 39, Zn: 120, Zr: 23}
-Velocity of sound:
-  unit: sup^2 m s
-  reference:
-  data: {Ag: 2600, Al: 5100, Ar: 319, Au: 1740, B: 16200, Ba: 1620, Be: 13000, Bi: 1790,
-    C: 18350, Ca: 3810, Cd: 2310, Ce: 2100, Cl: 206, Co: 4720, Cr: 5940, Cu: 3570,
-    Dy: 2710, Er: 2830, Fe: 4910, Ga: 2740, Gd: 2680, Ge: 5400, H: 1270, He: 970,
-    Hf: 3010, Hg: 1407, Ho: 2760, In: 1215, Ir: 4825, K: 2000, Kr: 1120, La: 2475,
-    Li: 6000, Mg: 4602, Mn: 5150, Mo: 6190, N: 333.6, Na: 3200, Nb: 3480, Nd: 2330,
-    Ne: 936, Ni: 4970, O: 317.5, Os: 4940, Pb: 1260, Pd: 3070, Pr: 2280, Pt: 2680,
-    Pu: 2260, Rb: 1300, Re: 4700, Rh: 4700, Ru: 5970, Sb: 3420, Se: 3350, Si: 2200,
-    Sm: 2130, Sn: 2500, Ta: 3400, Tb: 2620, Te: 2610, Th: 2490, Ti: 4140, Tl: 818,
-    U: 3155, V: 4560, W: 5174, Xe: 1090, Y: 3300, Yb: 1590, Zn: 3700, Zr: 3800}
-Vickers hardness:
-  unit: sup^2 MN m
-  reference:
-  data: {Ag: 251, Al: 167, Au: 216, B: 49000, Be: 1670, Ce: 270, Co: 1043, Cr: 1060,
-    Cu: 369, Dy: 540, Er: 589, Eu: 167, Fe: 608, Gd: 570, Hf: 1760, Ho: 481, Ir: 1760,
-    La: 491, Lu: 1160, Mo: 1530, Nb: 1320, Nd: 343, Ni: 638, Pd: 461, Pr: 400, Pt: 549,
-    Re: 2450, Rh: 1246, Sm: 412, Ta: 873, Tb: 863, Th: 350, Ti: 970, Tm: 520, U: 1960,
-    V: 628, W: 3430, Yb: 206, Zr: 903}
-X:
-  unit:
-  reference:
-  data: {Ac: 1.1, Ag: 1.93, Al: 1.61, Am: 1.3, As: 2.18, At: 2.2, Au: 2.54, B: 2.04,
-    Ba: 0.89, Be: 1.57, Bi: 2.02, Bk: 1.3, Br: 2.96, C: 2.55, Ca: 1.0, Cd: 1.69, Ce: 1.12,
-    Cf: 1.3, Cl: 3.16, Cm: 1.3, Co: 1.88, Cr: 1.66, Cs: 0.79, Cu: 1.9, Dy: 1.22, Er: 1.24,
-    Es: 1.3, Eu: 1.2, F: 3.98, Fe: 1.83, Fm: 1.3, Fr: 0.7, Ga: 1.81, Gd: 1.2, Ge: 2.01,
-    H: 2.2, Hf: 1.3, Hg: 2.0, Ho: 1.23, I: 2.66, In: 1.78, Ir: 2.2, K: 0.82, Kr: 3.0,
-    La: 1.1, Li: 0.98, Lr: 1.3, Lu: 1.27, Md: 1.3, Mg: 1.31, Mn: 1.55, Mo: 2.16, N: 3.04,
-    Na: 0.93, Nb: 1.6, Nd: 1.14, Ni: 1.91, No: 1.3, Np: 1.36, O: 3.44, Os: 2.2, P: 2.19,
-    Pa: 1.5, Pb: 2.33, Pd: 2.2, Pm: 1.13, Po: 2.0, Pr: 1.13, Pt: 2.28, Pu: 1.28, Ra: 0.9,
-    Rb: 0.82, Re: 1.9, Rh: 2.28, Rn: 2.2, Ru: 2.2, S: 2.58, Sb: 2.05, Sc: 1.36, Se: 2.55,
-    Si: 1.9, Sm: 1.17, Sn: 1.96, Sr: 0.95, Ta: 1.5, Tb: 1.1, Tc: 1.9, Te: 2.1, Th: 1.3,
-    Ti: 1.54, Tl: 1.62, Tm: 1.25, U: 1.38, V: 1.63, W: 2.36, Xe: 2.6, Y: 1.22, Yb: 1.1,
-    Zn: 1.65, Zr: 1.33}
-Youngs modulus:
-  unit: GPa
-  reference:
-  data: {Ag: 83, Al: 70, As: 8, Au: 78, Ba: 13, Be: 287, Bi: 32, Ca: 20, Cd: 50, Ce: 34,
-    Co: 209, Cr: 279, Cs: 1.7, Cu: 130, Dy: 61, Er: 70, Eu: 18, Fe: 211, Gd: 55, Hf: 78,
-    Ho: 65, In: 11, Ir: 528, La: 37, Li: 4.9, Lu: 69, Mg: 45, Mn: 198, Mo: 329, Na: 10,
-    Nb: 105, Nd: 41, Ni: 200, Pb: 16, Pd: 121, Pm: 46, Pr: 37, Pt: 168, Pu: 96, Rb: 2.4,
-    Re: 463, Rh: 275, Ru: 447, Sb: 55, Sc: 74, Se: 10, Si: 47, Sm: 50, Sn: 50, Ta: 186,
-    Tb: 56, Te: 43, Th: 79, Ti: 116, Tl: 8, Tm: 74, U: 208, V: 128, W: 411, Y: 64,
-    Yb: 24, Zn: 108, Zr: 68}
 ICSD oxidation states:
   unit:
   reference:
@@ -751,123 +613,134 @@ ICSD oxidation states:
     Yb: [2, 3]
     Zn: [2]
     Zr: [2, 3, 4]
-Max oxidation state:
+IUPAC ordering:
   unit:
   reference:
-  data: {Ar: 0.0, He: 0.0, Kr: 0.0, Ne: 0.0, Rn: 0.0, Xe: 8.0}
-Min oxidation state:
-  unit:
-  reference:
-  data: {Ar: 0.0, He: 0.0, Kr: 0.0, Ne: 0.0, Rn: 0.0, Xe: 2.0}
-Atomic mass no:
-  unit:
-  reference:
-  data: {D: 2, T: 3}
-Is named isotope:
-  unit:
-  reference:
-  data: {D: true, T: true}
-Oxidation states:
-  unit:
-  reference: https://en.wikipedia.org/wiki/Template:List_of_oxidation_states_of_the_elements
+  data: {Rn: 0, Xe: 1, Kr: 2, Ar: 3, Ne: 4, He: 5, Fr: 6, Cs: 7, Rb: 8, K: 9, Na: 10,
+    Li: 11, Ra: 12, Ba: 13, Sr: 14, Ca: 15, Mg: 16, Be: 17, Lr: 18, No: 19, Md: 20,
+    Fm: 21, Es: 22, Cf: 23, Bk: 24, Cm: 25, Am: 26, Pu: 27, Np: 28, U: 29, Pa: 30,
+    Th: 31, Ac: 32, Lu: 33, Yb: 34, Tm: 35, Er: 36, Ho: 37, Dy: 38, Tb: 39, Gd: 40,
+    Eu: 41, Sm: 42, Pm: 43, Nd: 44, Pr: 45, Ce: 46, La: 47, Y: 48, Sc: 49, Hf: 50,
+    Zr: 51, Ti: 52, Ta: 53, Nb: 54, V: 55, W: 56, Mo: 57, Cr: 58, Re: 59, Tc: 60,
+    Mn: 61, Os: 62, Ru: 63, Fe: 64, Ir: 65, Rh: 66, Co: 67, Pt: 68, Pd: 69, Ni: 70,
+    Au: 71, Ag: 72, Cu: 73, Hg: 74, Cd: 75, Zn: 76, Tl: 77, In: 78, Ga: 79, Al: 80,
+    B: 81, Pb: 82, Sn: 83, Ge: 84, Si: 85, C: 86, Bi: 87, Sb: 88, As: 89, P: 90, N: 91,
+    H: 92, Po: 93, Te: 94, Se: 95, S: 96, O: 97, At: 98, I: 99, Br: 100, Cl: 101,
+    F: 102}
+Ionic radii:
+  unit: nm
+  reference: https://en.wikipedia.org/wiki/Ionic_radius
   data:
-    H: [-1, 1]
-    Li: [1]
-    Be: [2]
-    B: [1, 2, 3]
-    C: [-4, -3, -2, -1, 1, 2, 3, 4]
-    N: [-3, -2, -1, 1, 2, 3, 4, 5]
-    O: [-2, -1, 1, 2]
-    F: [-1]
-    Na: [-1, 1]
-    Mg: [1, 2]
-    Al: [1, 3]
-    Si: [-4, -3, -2, -1, 1, 2, 3, 4]
-    P: [-3, -2, -1, 1, 2, 3, 4, 5]
-    S: [-2, -1, 1, 2, 3, 4, 5, 6]
-    Cl: [-1, 1, 2, 3, 4, 5, 6, 7]
-    K: [-1, 1]
-    Ca: [2]
-    Sc: [1, 2, 3]
-    Ti: [-1, 2, 3, 4]
-    V: [-1, 1, 2, 3, 4, 5]
-    Cr: [-2, -1, 1, 2, 3, 4, 5, 6]
-    Mn: [-3, -2, -1, 1, 2, 3, 4, 5, 6, 7]
-    Fe: [-2, -1, 1, 2, 3, 4, 5, 6]
-    Co: [-1, 1, 2, 3, 4, 5]
-    Ni: [-1, 1, 2, 3, 4]
-    Cu: [1, 2, 3, 4]
-    Zn: [1, 2]
-    Ga: [1, 2, 3]
-    Ge: [-4, 1, 2, 3, 4]
-    As: [-3, 2, 3, 5]
-    Se: [-2, 2, 4, 6]
-    Br: [-1, 1, 3, 4, 5, 7]
-    Rb: [1]
-    Sr: [2]
-    Y: [1, 2, 3]
-    Zr: [1, 2, 3, 4]
-    Nb: [-1, 2, 3, 4, 5]
-    Mo: [-2, -1, 1, 2, 3, 4, 5, 6]
-    Tc: [-3, -1, 1, 2, 3, 4, 5, 6, 7]
-    Ru: [-2, 1, 2, 3, 4, 5, 6, 7, 8]
-    Rh: [-1, 1, 2, 3, 4, 5, 6]
-    Pd: [2, 4]
-    Ag: [1, 2, 3]
-    Cd: [1, 2]
-    In: [1, 2, 3]
-    Sn: [-4, 2, 4]
-    Sb: [-3, 3, 5]
-    Te: [-2, 2, 4, 5, 6]
-    I: [-1, 1, 3, 5, 7]
-    Cs: [1]
-    Ba: [2]
-    La: [2, 3]
-    Ce: [2, 3, 4]
-    Pr: [2, 3, 4]
-    Nd: [2, 3]
-    Pm: [3]
-    Sm: [2, 3]
-    Eu: [2, 3]
-    Gd: [1, 2, 3]
-    Tb: [1, 3, 4]
-    Dy: [2, 3]
-    Ho: [3]
-    Er: [3]
-    Tm: [2, 3]
-    Yb: [2, 3]
-    Lu: [3]
-    Hf: [2, 3, 4]
-    Ta: [-1, 2, 3, 4, 5]
-    W: [-2, -1, 1, 2, 3, 4, 5, 6]
-    Re: [-3, -1, 1, 2, 3, 4, 5, 6, 7]
-    Os: [-2, -1, 1, 2, 3, 4, 5, 6, 7, 8]
-    Ir: [-3, -1, 1, 2, 3, 4, 5, 6]
-    Pt: [-2, 2, 4, 5, 6]
-    Au: [-1, 1, 2, 3, 5]
-    Hg: [1, 2, 4]
-    Tl: [1, 3]
-    Pb: [-4, 2, 4]
-    Bi: [-3, 3, 5]
-    Po: [-2, 2, 4, 6]
-    At: [-1, 1, 3, 5]
-    Fr: [1]
-    Ra: [2]
-    Ac: [3]
-    Th: [2, 3, 4]
-    Pa: [3, 4, 5]
-    U: [3, 4, 5, 6]
-    Np: [3, 4, 5, 6, 7]
-    Pu: [3, 4, 5, 6, 7]
-    Am: [2, 3, 4, 5, 6]
-    Cm: [3, 4]
-    Bk: [3, 4]
-    Cf: [2, 3, 4]
-    Es: [2, 3]
-    Fm: [2, 3]
-    Md: [2, 3]
-    No: [2, 3]
-    Lr: [3]
+    Li: {'1': 0.9}
+    Be: {'2': 0.59}
+    B: {'3': 0.41}
+    C: {'4': 0.3}
+    N: {'-3': 1.32, '3': 0.3, '5': 0.27}
+    O: {'-2': 1.26}
+    F: {'-1': 1.19, '7': 0.22}
+    Na: {'1': 1.16}
+    Mg: {'2': 0.86}
+    Al: {'3': 0.675}
+    Si: {'4': 0.54}
+    P: {'3': 0.58, '5': 0.52}
+    S: {'-2': 1.7, '4': 0.51, '6': 0.43}
+    Cl: {'-1': 1.67, '5': 0.26, '7': 0.41}
+    K: {'1': 1.52}
+    Ca: {'2': 1.14}
+    Sc: {'3': 0.885}
+    Ti: {'2': 1.0, '3': 0.81, '4': 0.745}
+    V: {'2': 0.93, '3': 0.78, '4': 0.72, '5': 0.68}
+    Cr: &id001 {'2': 0.94}
+    Mn: &id002 {'2': 0.97, '3': 0.785}
+    Fe: &id003 {'2': 0.92, '3': 0.785}
+    Co: &id004 {'2': 0.885, '3': 0.75, '4': 0.67}
+    Ni: &id005 {'3': 0.74}
+    Cu: {'1': 0.91, '2': 0.87, '3': 0.68}
+    Zn: {'2': 0.88}
+    Ga: {'3': 0.76}
+    Ge: {'2': 0.87, '4': 0.67}
+    As: {'3': 0.72, '5': 0.6}
+    Se: {'-2': 1.84, '4': 0.64, '6': 0.56}
+    Br: {'-1': 1.82, '3': 0.73, '5': 0.45, '7': 0.53}
+    Rb: {'1': 1.66}
+    Sr: {'2': 1.32}
+    Y: {'3': 1.04}
+    Zr: {'4': 0.86}
+    Nb: {'3': 0.86, '4': 0.82, '5': 0.78}
+    Mo: {'3': 0.83, '4': 0.79, '5': 0.75, '6': 0.73}
+    Tc: {'4': 0.785, '5': 0.74, '7': 0.7}
+    Ru: {'3': 0.82, '4': 0.76, '5': 0.705, '7': 0.52, '8': 0.5}
+    Rh: {'3': 0.805, '4': 0.74, '5': 0.69}
+    Pd: {'1': 0.73, '2': 1.0, '3': 0.9, '4': 0.755}
+    Ag: {'1': 1.29, '2': 1.08, '3': 0.89}
+    Cd: {'2': 1.09}
+    In: {'3': 0.94}
+    Sn: {'4': 0.83}
+    Sb: {'3': 0.9, '5': 0.76}
+    Te: {'-2': 2.07, '4': 1.11, '6': 0.7}
+    I: {'-1': 2.06, '5': 1.09, '7': 0.67}
+    Xe: {'8': 0.62}
+    Cs: {'1': 1.81}
+    Ba: {'2': 1.49}
+    La: {'3': 1.172}
+    Ce: {'3': 1.15, '4': 1.01}
+    Pr: {'3': 1.13, '4': 0.99}
+    Nd: {'2': 1.43, '3': 1.123}
+    Pm: {'3': 1.11}
+    Sm: {'2': 1.36, '3': 1.0979999999999999}
+    Eu: {'2': 1.31, '3': 1.087}
+    Gd: {'3': 1.075}
+    Tb: {'3': 1.063, '4': 0.9}
+    Dy: {'2': 1.21, '3': 1.052}
+    Ho: {'3': 1.041}
+    Er: {'3': 1.03}
+    Tm: {'2': 1.17, '3': 1.02}
+    Yb: {'2': 1.16, '3': 1.008}
+    Lu: {'3': 1.001}
+    Hf: {'4': 0.85}
+    Ta: {'3': 0.86, '4': 0.82, '5': 0.78}
+    W: {'4': 0.8, '5': 0.76, '6': 0.74}
+    Re: {'4': 0.77, '5': 0.72, '6': 0.69, '7': 0.67}
+    Os: {'4': 0.77, '5': 0.715, '6': 0.685, '7': 0.665, '8': 0.53}
+    Ir: {'3': 0.82, '4': 0.765, '5': 0.71}
+    Pt: {'2': 0.94, '4': 0.765, '5': 0.71}
+    Au: {'1': 1.51, '3': 0.99, '5': 0.71}
+    Hg: {'1': 1.33, '2': 1.16}
+    Tl: {'1': 1.64, '3': 1.025}
+    Pb: {'2': 1.33, '4': 0.915}
+    Bi: {'3': 1.17, '5': 0.9}
+    Po: {'4': 1.08, '6': 0.81}
+    At: {'7': 0.76}
+    Fr: {'1': 1.94}
+    Ra: {'2': 1.62}
+    Ac: {'3': 1.26}
+    Th: {'4': 1.08}
+    Pa: {'3': 1.16, '4': 1.04, '5': 0.92}
+    U: {'3': 1.165, '4': 1.03, '5': 0.9, '6': 0.87}
+    Np: {'2': 1.24, '3': 1.15, '4': 1.01, '5': 0.89, '6': 0.86, '7': 0.85}
+    Pu: {'3': 1.14, '4': 1.0, '5': 0.88, '6': 0.85}
+    Am: {'2': 1.4, '3': 1.115, '4': 0.99}
+    Cm: {'3': 1.11, '4': 0.99}
+    Bk: {'3': 1.1, '4': 0.97}
+    Cf: {'3': 1.09, '4': 0.961}
+Ionic radii hs:
+  unit: nm
+  reference: https://en.wikipedia.org/wiki/Ionic_radius
+  data:
+    Cr: *id001
+    Mn: *id002
+    Fe: *id003
+    Co: *id004
+    Ni: *id005
+Ionic radii ls:
+  unit: nm
+  reference: https://en.wikipedia.org/wiki/Ionic_radius
+  data:
+    Cr: {'2': 0.87, '3': 0.755, '4': 0.69, '5': 0.63, '6': 0.58}
+    Mn: {'2': 0.81, '3': 0.72, '4': 0.67, '5': 0.47, '6': 0.395, '7': 0.6}
+    Fe: {'2': 0.75, '3': 0.69, '4': 0.725, '6': 0.39}
+    Co: {'2': 0.79, '3': 0.685}
+    Ni: {'2': 0.83, '3': 0.7, '4': 0.62}
 Ionization energies:
   unit: kJ mol
   reference: https://www.nist.gov/pml/atomic-spectra-database
@@ -1515,186 +1388,244 @@ Ionization energies:
       11930.0, 12140.0, 12380.0, 12600.0, 12810.0, 13500.0, 13700.0, 14000.0, 14200.0,
       14800.0, 15000.0, 15300.0, 15500.0, 18400.0, 18600.0, 19100.0, 19400.0, 37400.0,
       37900.0, 38500.0, 39100.0, 49800.0, 50700.0, 51600.0, null, null, 204400.0]
-Electron affinity:
-  unit: eV
-  reference: https://en.wikipedia.org/wiki/Electron_affinity_(data_page)
-  data: {H: 0.75467, He: -0.5, Li: 0.618049, Be: -0.5, B: 0.279723, C: 1.2621136,
-    N: -0.07, O: 1.461105, F: 3.4011898, Ne: -1.2, Na: 0.547926, Mg: -0.4, Al: 0.43283,
-    Si: 1.3895212, P: 0.746609, S: 2.0771045, Cl: 3.612725, Ar: -1.0, K: 0.501459,
-    Ca: 0.02455, Sc: 0.17938, Ti: 0.07554, V: 0.52766, Cr: 0.675928, Mn: -0.5, Fe: 0.153236,
-    Co: 0.662255, Ni: 1.15716, Cu: 1.23578, Zn: -0.6, Ga: 0.301166, Ge: 1.2326764,
-    As: 0.804486, Se: 2.0206047, Br: 3.363588, Kr: -1.0, Rb: 0.485916, Sr: 0.05206,
-    Y: 0.31129, Zr: 0.43328, Nb: 0.9174, Mo: 0.74723, Tc: 0.55, Ru: 1.04627, Rh: 1.14289,
-    Pd: 0.56214, Ag: 1.30447, Cd: -0.7, In: 0.299, Sn: 1.11207, Sb: 1.047401, Te: 1.970875,
-    I: 3.059052, Xe: -0.8, Cs: 0.4715983, Ba: 0.14462, La: 0.557546, Ce: 0.60016,
-    Pr: 0.10923, Nd: 0.09749, Pm: 0.129, Sm: 0.162, Eu: 0.116, Gd: 0.212, Tb: 0.13131,
-    Dy: 0.015, Ho: 0.338, Er: 0.312, Tm: 1.029, Yb: -0.02, Lu: 0.2388, Hf: 0.178,
-    Ta: 0.328859, W: 0.8165, Re: 0.060396, Os: 1.077661, Ir: 1.564057, Pt: 2.1251,
-    Au: 2.30861, Hg: -0.5, Tl: 0.320053, Pb: 0.356721, Bi: 0.942362, Po: 1.4, At: 2.41578,
-    Rn: -0.7, Fr: 0.486, Ra: 0.1, Ac: 0.35, Th: 0.60769, Pa: 0.55, U: 0.31497, Np: 0.48,
-    Pu: -0.5, Am: 0.1, Cm: 0.28, Bk: -1.72, Cf: -1.01, Es: -0.3, Fm: 0.35, Md: 0.98,
-    No: -2.33, Lr: -0.31, Rg: 1.565, Nh: 0.69, Mc: 0.366, Lv: 0.776, Ts: 1.719, Og: 0.08}
-Atomic radius:
-  unit: nm
+Is named isotope:
+  unit:
   reference:
-  data: {H: 0.25, He: no data, Li: 1.45, Be: 1.05, B: 0.85, C: 0.7, N: 0.65, O: 0.6,
-    F: 0.5, Ne: no data, Na: 1.8, Mg: 1.5, Al: 1.25, Si: 1.1, P: 1.0, S: 1.0, Cl: 1.0,
-    Ar: 0.71, K: 2.2, Ca: 1.8, Sc: 1.6, Ti: 1.4, V: 1.35, Cr: 1.4, Mn: 1.4, Fe: 1.4,
-    Co: 1.35, Ni: 1.35, Cu: 1.35, Zn: 1.35, Ga: 1.3, Ge: 1.25, As: 1.15, Se: 1.15,
-    Br: 1.15, Kr: no data, Rb: 2.35, Sr: 2.0, Y: 1.8, Zr: 1.55, Nb: 1.45, Mo: 1.45,
-    Tc: 1.35, Ru: 1.3, Rh: 1.35, Pd: 1.4, Ag: 1.6, Cd: 1.55, In: 1.55, Sn: 1.45, Sb: 1.45,
-    Te: 1.4, I: 1.4, Xe: no data, Cs: 2.6, Ba: 2.15, La: 1.95, Ce: 1.85, Pr: 1.85,
-    Nd: 1.85, Pm: 1.85, Sm: 1.85, Eu: 1.85, Gd: 1.8, Tb: 1.75, Dy: 1.75, Ho: 1.75,
-    Er: 1.75, Tm: 1.75, Yb: 1.75, Lu: 1.75, Hf: 1.55, Ta: 1.45, W: 1.35, Re: 1.35,
-    Os: 1.3, Ir: 1.35, Pt: 1.35, Au: 1.35, Hg: 1.5, Tl: 1.9, Pb: 1.8, Bi: 1.6, Po: 1.9,
-    At: no data, Rn: no data, Fr: no data, Ra: 2.15, Ac: 1.95, Th: 1.8, Pa: 1.8, U: 1.75,
-    Np: 1.75, Pu: 1.75, Am: 1.75}
-Atomic radius calculated:
-  unit: nm
+  data: {D: true, T: true}
+Liquid range:
+  unit: K
   reference:
-  data: {H: 0.53, He: 0.31, Li: 1.67, Be: 1.12, B: 0.87, C: 0.67, N: 0.56, O: 0.48,
-    F: 0.42, Ne: 0.38, Na: 1.9, Mg: 1.45, Al: 1.18, Si: 1.11, P: 0.98, S: 0.88, Cl: 0.79,
-    Ar: 0.71, K: 2.43, Ca: 1.94, Sc: 1.84, Ti: 1.76, V: 1.71, Cr: 1.66, Mn: 1.61,
-    Fe: 1.56, Co: 1.52, Ni: 1.49, Cu: 1.45, Zn: 1.42, Ga: 1.36, Ge: 1.25, As: 1.14,
-    Se: 1.03, Br: 0.94, Kr: 0.88, Rb: 2.65, Sr: 2.19, Y: 2.12, Zr: 2.06, Nb: 1.98,
-    Mo: 1.9, Tc: 1.83, Ru: 1.78, Rh: 1.73, Pd: 1.69, Ag: 1.65, Cd: 1.61, In: 1.56,
-    Sn: 1.45, Sb: 1.33, Te: 1.23, I: 1.15, Xe: 1.08, Cs: 2.98, Ba: 2.53, La: no data,
-    Ce: no data, Pr: 2.47, Nd: 2.06, Pm: 2.05, Sm: 2.38, Eu: 2.31, Gd: 2.33, Tb: 2.25,
-    Dy: 2.28, Ho: no data, Er: 2.26, Tm: 2.22, Yb: 2.22, Lu: 2.17, Hf: 2.08, Ta: 2.0,
-    W: 1.93, Re: 1.88, Os: 1.85, Ir: 1.8, Pt: 1.77, Au: 1.74, Hg: 1.71, Tl: 1.56,
-    Pb: 1.54, Bi: 1.43, Po: 1.35, At: no data, Rn: 1.2, Fr: no data, Ra: no data,
-    Ac: no data, Th: no data, Pa: no data, U: no data, Np: no data, Pu: no data, Am: no
-      data}
-Van der waals radius:
-  unit: nm
+  data: {Ac: 2250, Ag: 1200.07, Al: 1858.53, Am: 1431, Ar: 3.5, As: 203, Au: 1791.67,
+    B: 1851, Ba: 1143, Be: 1182, Bi: 1292.6, Br: 66.2, C: 500, Ca: 642, Cd: 445.78,
+    Ce: 2565, Cl: 67.51, Cm: 1770, Co: 1432, Cr: 764, Cs: 642.41, Cu: 1842.23, Dy: 1160,
+    Er: 1371, Eu: 701, F: 31.5, Fe: 1323, Ga: 2174.09, Gd: 1938, Ge: 1881.6, H: 6.27,
+    He: 3.27, Hf: 2370, Hg: 395.56, Ho: 1259, I: 70.55, In: 1915.25, Ir: 1962, K: 695.47,
+    Kr: 4.14, La: 2550, Li: 1161.31, Lu: 1750, Mg: 440, Mn: 815, Mo: 2016, N: 14.31,
+    Na: 785.13, Nb: 2267, Nd: 2076, Ne: 2.51, Ni: 1458, Np: 3363, O: 35.4, Os: 1979,
+    P: 232.7, Pb: 1421.39, Pd: 1407.95, Pm: 1900, Po: 708, Pr: 2355, Pt: 2056.6, Pu: 2590.5,
+    Ra: 1037, Rb: 648.54, Re: 2410, Rh: 1731, Rn: 9.3, Ru: 1816, S: 329.51, Sb: 956.22,
+    Sc: 1289, Se: 464, Si: 1486, Sm: 731, Sn: 2369.92, Sr: 605, Ta: 2441, Tb: 1874,
+    Tc: 2108, Te: 538.34, Th: 2978, Ti: 1619, Tl: 1169, Tm: 405, U: 2794.7, V: 1497,
+    W: 2133, Xe: 3.7, Y: 1810, Yb: 372, Zn: 487.32, Zr: 2554}
+Max oxidation state:
+  unit:
   reference:
-  data: {H: 1.2, He: 1.4, Li: 1.82, Be: 1.53, B: 1.92, C: 1.7, N: 1.55, O: 1.52, F: 1.47,
-    Ne: 1.54, Na: 2.27, Mg: 1.73, Al: 1.84, Si: 2.1, P: 1.8, S: 1.8, Cl: 1.75, Ar: 1.88,
-    K: 2.75, Ca: 2.31, Sc: 2.11, Ti: no data, V: no data, Cr: no data, Mn: no data,
-    Fe: no data, Co: no data, Ni: 1.63, Cu: 1.4, Zn: 1.39, Ga: 1.87, Ge: 2.11, As: 1.85,
-    Se: 1.9, Br: 1.85, Kr: 2.02, Rb: 3.03, Sr: 2.49, Y: no data, Zr: no data, Nb: no
-      data, Mo: no data, Tc: no data, Ru: no data, Rh: no data, Pd: 1.63, Ag: 1.72,
-    Cd: 1.58, In: 1.93, Sn: 2.17, Sb: 2.06, Te: 2.06, I: 1.98, Xe: 2.16, Cs: 3.43,
-    Ba: 2.68, La: no data, Ce: no data, Pr: no data, Nd: no data, Pm: no data, Sm: no
-      data, Eu: no data, Gd: no data, Tb: no data, Dy: no data, Ho: no data, Er: no
-      data, Tm: no data, Yb: no data, Lu: no data, Hf: no data, Ta: no data, W: no
-      data, Re: no data, Os: no data, Ir: no data, Pt: 1.75, Au: 1.66, Hg: 1.55, Tl: 1.96,
-    Pb: 2.02, Bi: 2.07, Po: 1.97, At: 2.02, Rn: 2.2, Fr: 3.48, Ra: 2.83, Ac: no data,
-    Th: no data, Pa: no data, U: 1.86, Np: no data, Pu: no data, Am: no data}
-Ionic radii:
-  unit: nm
-  reference: https://en.wikipedia.org/wiki/Ionic_radius
+  data: {Ar: 0.0, He: 0.0, Kr: 0.0, Ne: 0.0, Rn: 0.0, Xe: 8.0}
+Melting point:
+  unit: K
+  reference:
+  data: {Ac: 1323, Ag: 1234.93, Al: 933.47, Am: 1449, Ar: 83.8, As: 1090, At: 575,
+    Au: 1337.33, B: 2349, Ba: 1000, Be: 1560, Bi: 544.4, Bk: 1259, Br: 265.8, C: 3800,
+    Ca: 1115, Cd: 594.22, Ce: 1068, Cf: 1173, Cl: 171.6, Cm: 1613, Co: 1768, Cr: 2180,
+    Cs: 301.59, Cu: 1357.77, Dy: 1680, Er: 1802, Es: 1133, Eu: 1099, F: 53.53, Fe: 1811,
+    Fm: about 1800, Fr: maybe about 300, Ga: 302.91, Gd: 1585, Ge: 1211.4, H: 14.01,
+    He: 0.95, Hf: 2506, Hg: 234.32, Ho: 1734, I: 386.85, In: 429.75, Ir: 2739, K: 336.53,
+    Kr: 115.79, La: 1193, Li: 453.69, Lr: about 1900, Lu: 1925, Md: about 1100, Mg: 923,
+    Mn: 1519, Mo: 2896, N: 63.05, Na: 370.87, Nb: 2750, Nd: 1297, Ne: 24.56, Ni: 1728,
+    No: about 1100, Np: 910, O: 54.8, Os: 3306, P: (white P) 317.3, Pa: 1841, Pb: 600.61,
+    Pd: 1828.05, Pm: 1373, Po: 527, Pr: 1208, Pt: 2041.4, Pu: 912.5, Ra: 973, Rb: 312.46,
+    Re: 3459, Rh: 2237, Rn: 202, Ru: 2607, S: 388.36, Sb: 903.78, Sc: 1814, Se: 494,
+    Si: 1687, Sm: 1345, Sn: 505.08, Sr: 1050, Ta: 3290, Tb: 1629, Tc: 2430, Te: 722.66,
+    Th: 2115, Ti: 1941, Tl: 577, Tm: 1818, U: 1405.3, V: 2183, W: 3695, Xe: 161.4,
+    Y: 1799, Yb: 1097, Zn: 692.68, Zr: 2128}
+Mendeleev no:
+  unit:
+  reference:
+  data: {Ac: 48, Ag: 71, Al: 80, Am: 42, Ar: 3, As: 89, At: 96, Au: 70, B: 86, Ba: 14,
+    Be: 77, Bi: 87, Bk: 40, Br: 98, C: 95, Ca: 16, Cd: 75, Ce: 32, Cf: 39, Cl: 99,
+    Cm: 41, Co: 64, Cr: 57, Cs: 8, Cu: 72, Dy: 24, Er: 22, Es: 38, Eu: 18, F: 102,
+    Fe: 61, Fm: 37, Fr: 7, Ga: 81, Gd: 27, Ge: 84, H: 103, He: 1, Hf: 50, Hg: 74,
+    Ho: 23, I: 97, In: 79, Ir: 66, K: 10, Kr: 4, La: 33, Li: 12, Lr: 34, Lu: 20, Md: 36,
+    Mg: 73, Mn: 60, Mo: 56, N: 100, Na: 11, Nb: 53, Nd: 30, Ne: 2, Ni: 67, No: 35,
+    Np: 44, O: 101, Os: 63, P: 90, Pa: 46, Pb: 82, Pd: 69, Pm: 29, Po: 91, Pr: 31,
+    Pt: 68, Pu: 43, Ra: 13, Rb: 9, Re: 58, Rh: 65, Rn: 6, Ru: 62, S: 94, Sb: 88, Sc: 19,
+    Se: 93, Si: 85, Sm: 28, Sn: 83, Sr: 15, Ta: 52, Tb: 26, Tc: 59, Te: 92, Th: 47,
+    Ti: 51, Tl: 78, Tm: 21, U: 45, V: 54, W: 55, Xe: 5, Y: 25, Yb: 17, Zn: 76, Zr: 49}
+Min oxidation state:
+  unit:
+  reference:
+  data: {Ar: 0.0, He: 0.0, Kr: 0.0, Ne: 0.0, Rn: 0.0, Xe: 2.0}
+Mineral hardness:
+  unit:
+  reference:
+  data: {Ag: 2.5, Al: 2.75, As: 3.5, Au: 2.5, B: 9.3, Ba: 1.25, Be: 5.5, Bi: 2.25,
+    C: 0.5 (graphite; diamond is 10.0), Ca: 1.75, Cd: 2.0, Ce: 2.5, Co: 5.0, Cr: 8.5,
+    Cs: 0.2, Cu: 3.0, Fe: 4.0, Ga: 1.5, Ge: 6.0, Hf: 5.5, Hg: 1.5, In: 1.2, Ir: 6.5,
+    K: 0.4, La: 2.5, Li: 0.6, Mg: 2.5, Mn: 6.0, Mo: 5.5, Na: 0.5, Nb: 6.0, Ni: 4.0,
+    Os: 7.0, Pb: 1.5, Pd: 4.75, Pt: 3.5, Rb: 0.3, Re: 7.0, Rh: 6.0, Ru: 6.5, S: 2.0,
+    Sb: 3.0, Se: 2.0, Si: 6.5, Sn: 1.5, Sr: 1.5, Ta: 6.5, Te: 2.25, Th: 3.0, Ti: 6.0,
+    Tl: 1.2, U: 6.0, V: 7.0, W: 7.5, Zn: 2.5, Zr: 5.0}
+Molar volume:
+  unit: sup^2 cm
+  reference:
+  data: {Ac: 22.55, Ag: 10.27, Al: 10.00, Am: 17.63, Ar: 22.56, As: 12.95, Au: 10.21,
+    B: 4.39, Ba: 38.16, Be: 4.85, Bi: 21.31, Bk: 16.84, Br: 19.78, C: 5.29, Ca: 26.20,
+    Cd: 13.00, Ce: 20.69, Cf: 16.50, Cl: 17.39, Cm: 18.05, Co: 6.67, Cr: 7.23, Cs: 70.94,
+    Cu: 7.11, Dy: 19.01, Er: 18.46, Es: 28.52, Eu: 28.97, F: 11.20, Fe: 7.09, Ga: 11.80,
+    Gd: 19.90, Ge: 13.63, H: 11.42, He: 21.0, Hf: 13.44, Hg: 14.09, Ho: 18.74, I: 25.72,
+    In: 15.76, Ir: 8.52, K: 45.94, Kr: 27.99, La: 22.39, Li: 13.02, Lu: 17.78, Mg: 14.00,
+    Mn: 7.35, Mo: 9.38, N: 13.54, Na: 23.78, Nb: 10.83, Nd: 20.59, Ne: 13.23, Ni: 6.59,
+    Np: 11.59, O: 17.36, Os: 8.42, P: 17.02, Pa: 15.18, Pb: 18.26, Pd: 8.56, Pm: 20.23,
+    Po: 22.97, Pr: 20.80, Pt: 9.09, Pu: 12.29, Ra: 41.09, Rb: 55.76, Re: 8.86, Rh: 8.28,
+    Rn: 50.50, Ru: 8.17, S: 15.53, Sb: 18.19, Sc: 15.00, Se: 16.42, Si: 12.06, Sm: 19.98,
+    Sn: 16.29, Sr: 33.94, Ta: 10.85, Tb: 19.30, Tc: 8.63, Te: 20.46, Th: 19.80, Ti: 10.64,
+    Tl: 17.22, Tm: 19.1, U: 12.49, V: 8.32, W: 9.47, Xe: 35.92, Y: 19.88, Yb: 24.84,
+    Zn: 9.16, Zr: 14.02}
+Name:
+  unit:
+  reference:
+  data: {Ac: Actinium, Ag: Silver, Al: Aluminum, Am: Americium, Ar: Argon, As: Arsenic,
+    At: Astatine, Au: Gold, B: Boron, Ba: Barium, Be: Beryllium, Bi: Bismuth, Bk: Berkelium,
+    Br: Bromine, C: Carbon, Ca: Calcium, Cd: Cadmium, Ce: Cerium, Cf: Californium,
+    Cl: Chlorine, Cm: Curium, Co: Cobalt, Cr: Chromium, Cs: Cesium, Cu: Copper, Dy: Dysprosium,
+    Er: Erbium, Es: Einsteinium, Eu: Europium, F: Fluorine, Fe: Iron, Fm: Fermium,
+    Fr: Francium, Ga: Gallium, Gd: Gadolinium, Ge: Germanium, H: Hydrogen, He: Helium,
+    Hf: Hafnium, Hg: Mercury, Ho: Holmium, I: Iodine, In: Indium, Ir: Iridium, K: Potassium,
+    Kr: Krypton, La: Lanthanum, Li: Lithium, Lr: Lawrencium, Lu: Lutetium, Md: Mendelevium,
+    Mg: Magnesium, Mn: Manganese, Mo: Molybdenum, N: Nitrogen, Na: Sodium, Nb: Niobium,
+    Nd: Neodymium, Ne: Neon, Ni: Nickel, No: Nobelium, Np: Neptunium, O: Oxygen, Os: Osmium,
+    P: Phosphorus, Pa: Protactinium, Pb: Lead, Pd: Palladium, Pm: Promethium, Po: Polonium,
+    Pr: Praseodymium, Pt: Platinum, Pu: Plutonium, Ra: Radium, Rb: Rubidium, Re: Rhenium,
+    Rh: Rhodium, Rn: Radon, Ru: Ruthenium, S: Sulfur, Sb: Antimony, Sc: Scandium,
+    Se: Selenium, Si: Silicon, Sm: Samarium, Sn: Tin, Sr: Strontium, Ta: Tantalum,
+    Tb: Terbium, Tc: Technetium, Te: Tellurium, Th: Thorium, Ti: Titanium, Tl: Thallium,
+    Tm: Thulium, U: Uranium, V: Vanadium, W: Tungsten, Xe: Xenon, Y: Yttrium, Yb: Ytterbium,
+    Zn: Zinc, Zr: Zirconium, D: Deuterium, T: Tritium}
+Oxidation states:
+  unit:
+  reference: https://en.wikipedia.org/wiki/Template:List_of_oxidation_states_of_the_elements
   data:
-    Li: {'1': 0.9}
-    Be: {'2': 0.59}
-    B: {'3': 0.41}
-    C: {'4': 0.3}
-    N: {'-3': 1.32, '3': 0.3, '5': 0.27}
-    O: {'-2': 1.26}
-    F: {'-1': 1.19, '7': 0.22}
-    Na: {'1': 1.16}
-    Mg: {'2': 0.86}
-    Al: {'3': 0.675}
-    Si: {'4': 0.54}
-    P: {'3': 0.58, '5': 0.52}
-    S: {'-2': 1.7, '4': 0.51, '6': 0.43}
-    Cl: {'-1': 1.67, '5': 0.26, '7': 0.41}
-    K: {'1': 1.52}
-    Ca: {'2': 1.14}
-    Sc: {'3': 0.885}
-    Ti: {'2': 1.0, '3': 0.81, '4': 0.745}
-    V: {'2': 0.93, '3': 0.78, '4': 0.72, '5': 0.68}
-    Cr: &id001 {'2': 0.94}
-    Mn: &id002 {'2': 0.97, '3': 0.785}
-    Fe: &id003 {'2': 0.92, '3': 0.785}
-    Co: &id004 {'2': 0.885, '3': 0.75, '4': 0.67}
-    Ni: &id005 {'3': 0.74}
-    Cu: {'1': 0.91, '2': 0.87, '3': 0.68}
-    Zn: {'2': 0.88}
-    Ga: {'3': 0.76}
-    Ge: {'2': 0.87, '4': 0.67}
-    As: {'3': 0.72, '5': 0.6}
-    Se: {'-2': 1.84, '4': 0.64, '6': 0.56}
-    Br: {'-1': 1.82, '3': 0.73, '5': 0.45, '7': 0.53}
-    Rb: {'1': 1.66}
-    Sr: {'2': 1.32}
-    Y: {'3': 1.04}
-    Zr: {'4': 0.86}
-    Nb: {'3': 0.86, '4': 0.82, '5': 0.78}
-    Mo: {'3': 0.83, '4': 0.79, '5': 0.75, '6': 0.73}
-    Tc: {'4': 0.785, '5': 0.74, '7': 0.7}
-    Ru: {'3': 0.82, '4': 0.76, '5': 0.705, '7': 0.52, '8': 0.5}
-    Rh: {'3': 0.805, '4': 0.74, '5': 0.69}
-    Pd: {'1': 0.73, '2': 1.0, '3': 0.9, '4': 0.755}
-    Ag: {'1': 1.29, '2': 1.08, '3': 0.89}
-    Cd: {'2': 1.09}
-    In: {'3': 0.94}
-    Sn: {'4': 0.83}
-    Sb: {'3': 0.9, '5': 0.76}
-    Te: {'-2': 2.07, '4': 1.11, '6': 0.7}
-    I: {'-1': 2.06, '5': 1.09, '7': 0.67}
-    Xe: {'8': 0.62}
-    Cs: {'1': 1.81}
-    Ba: {'2': 1.49}
-    La: {'3': 1.172}
-    Ce: {'3': 1.15, '4': 1.01}
-    Pr: {'3': 1.13, '4': 0.99}
-    Nd: {'2': 1.43, '3': 1.123}
-    Pm: {'3': 1.11}
-    Sm: {'2': 1.36, '3': 1.0979999999999999}
-    Eu: {'2': 1.31, '3': 1.087}
-    Gd: {'3': 1.075}
-    Tb: {'3': 1.063, '4': 0.9}
-    Dy: {'2': 1.21, '3': 1.052}
-    Ho: {'3': 1.041}
-    Er: {'3': 1.03}
-    Tm: {'2': 1.17, '3': 1.02}
-    Yb: {'2': 1.16, '3': 1.008}
-    Lu: {'3': 1.001}
-    Hf: {'4': 0.85}
-    Ta: {'3': 0.86, '4': 0.82, '5': 0.78}
-    W: {'4': 0.8, '5': 0.76, '6': 0.74}
-    Re: {'4': 0.77, '5': 0.72, '6': 0.69, '7': 0.67}
-    Os: {'4': 0.77, '5': 0.715, '6': 0.685, '7': 0.665, '8': 0.53}
-    Ir: {'3': 0.82, '4': 0.765, '5': 0.71}
-    Pt: {'2': 0.94, '4': 0.765, '5': 0.71}
-    Au: {'1': 1.51, '3': 0.99, '5': 0.71}
-    Hg: {'1': 1.33, '2': 1.16}
-    Tl: {'1': 1.64, '3': 1.025}
-    Pb: {'2': 1.33, '4': 0.915}
-    Bi: {'3': 1.17, '5': 0.9}
-    Po: {'4': 1.08, '6': 0.81}
-    At: {'7': 0.76}
-    Fr: {'1': 1.94}
-    Ra: {'2': 1.62}
-    Ac: {'3': 1.26}
-    Th: {'4': 1.08}
-    Pa: {'3': 1.16, '4': 1.04, '5': 0.92}
-    U: {'3': 1.165, '4': 1.03, '5': 0.9, '6': 0.87}
-    Np: {'2': 1.24, '3': 1.15, '4': 1.01, '5': 0.89, '6': 0.86, '7': 0.85}
-    Pu: {'3': 1.14, '4': 1.0, '5': 0.88, '6': 0.85}
-    Am: {'2': 1.4, '3': 1.115, '4': 0.99}
-    Cm: {'3': 1.11, '4': 0.99}
-    Bk: {'3': 1.1, '4': 0.97}
-    Cf: {'3': 1.09, '4': 0.961}
-Ionic radii hs:
-  unit: nm
-  reference: https://en.wikipedia.org/wiki/Ionic_radius
-  data:
-    Cr: *id001
-    Mn: *id002
-    Fe: *id003
-    Co: *id004
-    Ni: *id005
-Ionic radii ls:
-  unit: nm
-  reference: https://en.wikipedia.org/wiki/Ionic_radius
-  data:
-    Cr: {'2': 0.87, '3': 0.755, '4': 0.69, '5': 0.63, '6': 0.58}
-    Mn: {'2': 0.81, '3': 0.72, '4': 0.67, '5': 0.47, '6': 0.395, '7': 0.6}
-    Fe: {'2': 0.75, '3': 0.69, '4': 0.725, '6': 0.39}
-    Co: {'2': 0.79, '3': 0.685}
-    Ni: {'2': 0.83, '3': 0.7, '4': 0.62}
+    H: [-1, 1]
+    Li: [1]
+    Be: [2]
+    B: [1, 2, 3]
+    C: [-4, -3, -2, -1, 1, 2, 3, 4]
+    N: [-3, -2, -1, 1, 2, 3, 4, 5]
+    O: [-2, -1, 1, 2]
+    F: [-1]
+    Na: [-1, 1]
+    Mg: [1, 2]
+    Al: [1, 3]
+    Si: [-4, -3, -2, -1, 1, 2, 3, 4]
+    P: [-3, -2, -1, 1, 2, 3, 4, 5]
+    S: [-2, -1, 1, 2, 3, 4, 5, 6]
+    Cl: [-1, 1, 2, 3, 4, 5, 6, 7]
+    K: [-1, 1]
+    Ca: [2]
+    Sc: [1, 2, 3]
+    Ti: [-1, 2, 3, 4]
+    V: [-1, 1, 2, 3, 4, 5]
+    Cr: [-2, -1, 1, 2, 3, 4, 5, 6]
+    Mn: [-3, -2, -1, 1, 2, 3, 4, 5, 6, 7]
+    Fe: [-2, -1, 1, 2, 3, 4, 5, 6]
+    Co: [-1, 1, 2, 3, 4, 5]
+    Ni: [-1, 1, 2, 3, 4]
+    Cu: [1, 2, 3, 4]
+    Zn: [1, 2]
+    Ga: [1, 2, 3]
+    Ge: [-4, 1, 2, 3, 4]
+    As: [-3, 2, 3, 5]
+    Se: [-2, 2, 4, 6]
+    Br: [-1, 1, 3, 4, 5, 7]
+    Rb: [1]
+    Sr: [2]
+    Y: [1, 2, 3]
+    Zr: [1, 2, 3, 4]
+    Nb: [-1, 2, 3, 4, 5]
+    Mo: [-2, -1, 1, 2, 3, 4, 5, 6]
+    Tc: [-3, -1, 1, 2, 3, 4, 5, 6, 7]
+    Ru: [-2, 1, 2, 3, 4, 5, 6, 7, 8]
+    Rh: [-1, 1, 2, 3, 4, 5, 6]
+    Pd: [2, 4]
+    Ag: [1, 2, 3]
+    Cd: [1, 2]
+    In: [1, 2, 3]
+    Sn: [-4, 2, 4]
+    Sb: [-3, 3, 5]
+    Te: [-2, 2, 4, 5, 6]
+    I: [-1, 1, 3, 5, 7]
+    Cs: [1]
+    Ba: [2]
+    La: [2, 3]
+    Ce: [2, 3, 4]
+    Pr: [2, 3, 4]
+    Nd: [2, 3]
+    Pm: [3]
+    Sm: [2, 3]
+    Eu: [2, 3]
+    Gd: [1, 2, 3]
+    Tb: [1, 3, 4]
+    Dy: [2, 3]
+    Ho: [3]
+    Er: [3]
+    Tm: [2, 3]
+    Yb: [2, 3]
+    Lu: [3]
+    Hf: [2, 3, 4]
+    Ta: [-1, 2, 3, 4, 5]
+    W: [-2, -1, 1, 2, 3, 4, 5, 6]
+    Re: [-3, -1, 1, 2, 3, 4, 5, 6, 7]
+    Os: [-2, -1, 1, 2, 3, 4, 5, 6, 7, 8]
+    Ir: [-3, -1, 1, 2, 3, 4, 5, 6]
+    Pt: [-2, 2, 4, 5, 6]
+    Au: [-1, 1, 2, 3, 5]
+    Hg: [1, 2, 4]
+    Tl: [1, 3]
+    Pb: [-4, 2, 4]
+    Bi: [-3, 3, 5]
+    Po: [-2, 2, 4, 6]
+    At: [-1, 1, 3, 5]
+    Fr: [1]
+    Ra: [2]
+    Ac: [3]
+    Th: [2, 3, 4]
+    Pa: [3, 4, 5]
+    U: [3, 4, 5, 6]
+    Np: [3, 4, 5, 6, 7]
+    Pu: [3, 4, 5, 6, 7]
+    Am: [2, 3, 4, 5, 6]
+    Cm: [3, 4]
+    Bk: [3, 4]
+    Cf: [2, 3, 4]
+    Es: [2, 3]
+    Fm: [2, 3]
+    Md: [2, 3]
+    No: [2, 3]
+    Lr: [3]
+Poissons ratio:
+  unit:
+  reference:
+  data: {Ag: 0.37, Al: 0.35, Au: 0.44, Be: 0.032, Bi: 0.33, Ca: 0.31, Cd: 0.30, Ce: 0.24,
+    Co: 0.31, Cr: 0.21, Cu: 0.34, Dy: 0.25, Er: 0.24, Eu: 0.15, Fe: 0.29, Gd: 0.26,
+    Hf: 0.37, Ho: 0.23, Ir: 0.26, La: 0.28, Lu: 0.26, Mg: 0.29, Mo: 0.31, Nb: 0.40,
+    Nd: 0.28, Ni: 0.31, Os: 0.25, Pb: 0.44, Pd: 0.39, Pm: 0.28, Pr: 0.28, Pt: 0.38,
+    Pu: 0.21, Re: 0.30, Rh: 0.26, Ru: 0.30, Sc: 0.28, Se: 0.33, Sm: 0.27, Sn: 0.36,
+    Sr: 0.28, Ta: 0.34, Tb: 0.26, Th: 0.27, Ti: 0.32, Tl: 0.45, Tm: 0.21, U: 0.23,
+    V: 0.37, W: 0.28, Y: 0.24, Yb: 0.21, Zn: 0.25, Zr: 0.34}
+Reflectivity:
+  unit: ''
+  reference:
+  data: {Ag: 97, Al: 71, Au: 95, C: 27, Cd: 67, Co: 67, Cu: 90, Fe: 65, Hg: 73, Ir: 78,
+    Mg: 74, Mo: 58, Ni: 72, Pd: 72, Pt: 73, Rh: 84, Sb: 55, Si: 28, Sn: 54, Ta: 78,
+    Te: 50, V: 61, W: 62, Zn: 80}
+Refractive index:
+  unit:
+  reference:
+  data: {Ar: 1.000281, As: 1.001552, Br: 1.001132, C: 2.417 (diamond), Cl: 1.000773,
+    F: 1.000195, H: 1.000132 (gas; liquid 1.12), He: 1.000035 (gas; liquid 1.028),
+    Hg: 1.000933, Kr: 1.000427, N: 1.000298 (gas; liquid 1.197), Ne: 1.000067, O: 1.000271
+      (gas; liquid 1.221), P: 1.001212, S: 1.001111, Se: 1.000895, Te: 1.000991, Xe: 1.000702,
+    Zn: 1.002050}
+Rigidity modulus:
+  unit: GPa
+  reference:
+  data: {Ag: 30, Al: 26, Au: 27, Ba: 4.9, Be: 132, Bi: 12, Ca: 7.4, Cd: 19, Ce: 14,
+    Co: 75, Cr: 115, Cu: 48, Dy: 25, Er: 28, Eu: 7.9, Fe: 82, Gd: 22, Hf: 30, Ho: 26,
+    Ir: 210, K: 1.3, La: 14, Li: 4.2, Lu: 27, Mg: 17, Mo: 20, Na: 3.3, Nb: 38, Nd: 16,
+    Ni: 76, Os: 222, Pb: 5.6, Pd: 44, Pm: 18, Pr: 15, Pt: 61, Pu: 43, Re: 178, Rh: 150,
+    Ru: 173, Sb: 20, Sc: 29, Se: 3.7, Sm: 20, Sn: 18, Sr: 6.1, Ta: 69, Tb: 22, Te: 16,
+    Th: 31, Ti: 44, Tl: 2.8, Tm: 31, U: 111, V: 47, W: 161, Y: 26, Yb: 9.9, Zn: 43,
+    Zr: 33}
 Shannon radii:
   unit: nm
   reference:
@@ -2978,21 +2909,90 @@ Shannon radii:
           '': {crystal_radius: 0.98, ionic_radius: 0.84}
         IX:
           '': {crystal_radius: 1.03, ionic_radius: 0.89}
-iupac_ordering:
+Superconduction temperature:
+  unit: K
+  reference:
+  data: {Al: 1.175, Am: 0.6, Be: 0.026, Cd: 0.517, Ce: 0.022  (under pressure), Ga: 1.083,
+    Gd: 1.083, Hf: 0.128, Hg: 3.95, In: 3.41, Ir: 0.11, La: 6.00, Lu: 0.022, Mo: 0.915,
+    Nb: 9.25, Os: 0.66, Pa: 1.4, Pb: 7.2, Re: 1.70, Ru: 0.49, Sc: 0.05  (under pressure),
+    Sn: 3.72, Ta: 4.47, Tc: 7.8, Th: 1.38, Ti: 0.40, Tl: 2.38, U: 0.2, V: 5.40, W: 0.015,
+    Y: 1.3  (under pressure), Zn: 0.85, Zr: 0.61}
+Thermal conductivity:
+  unit: sup^4 K W m
+  reference:
+  data: {Ac: 12, Ag: 430, Al: 235, Am: 10, Ar: 0.01772, As: 50, At: 2 (estimate),
+    Au: 320, B: 27, Ba: 18, Be: 190, Bi: 8, Bk: 10, Br: 0.12, C: 140, Ca: 200, Cd: 97,
+    Ce: 11, Cl: 0.0089, Cm: 8.8, Co: 100, Cr: 94, Cs: 36, Cu: 400, Dy: 11, Er: 15,
+    Eu: 14, F: 0.0277, Fe: 80, Ga: 29, Gd: 11, Ge: 60, H: 0.1805, He: 0.1513, Hf: 23,
+    Hg: 8.3, Ho: 16, I: 0.449, In: 82, Ir: 150, K: 100, Kr: 0.00943, La: 13, Li: 85,
+    Lu: 16, Mg: 160, Mn: 7.8, Mo: 139, N: 0.02583, Na: 140, Nb: 54, Nd: 17, Ne: 0.0491,
+    Ni: 91, Np: 6, O: 0.02658, Os: 88, P: 0.236, Pa: 47, Pb: 35, Pd: 72, Pm: 15, Po: 20,
+    Pr: 13, Pt: 72, Pu: 6, Ra: 19, Rb: 58, Re: 48, Rh: 150, Rn: 0.00361, Ru: 120,
+    S: 0.205, Sb: 24, Sc: 16, Se: 0.52, Si: 150, Sm: 13, Sn: 67, Sr: 35, Ta: 57, Tb: 11,
+    Tc: 51, Te: 3, Th: 54, Ti: 22, Tl: 46, Tm: 17, U: 27, V: 31, W: 170, Xe: 0.00565,
+    Y: 17, Yb: 39, Zn: 120, Zr: 23}
+Van der waals radius:
+  unit: nm
+  reference:
+  data: {H: 1.2, He: 1.4, Li: 1.82, Be: 1.53, B: 1.92, C: 1.7, N: 1.55, O: 1.52, F: 1.47,
+    Ne: 1.54, Na: 2.27, Mg: 1.73, Al: 1.84, Si: 2.1, P: 1.8, S: 1.8, Cl: 1.75, Ar: 1.88,
+    K: 2.75, Ca: 2.31, Sc: 2.11, Ti: no data, V: no data, Cr: no data, Mn: no data,
+    Fe: no data, Co: no data, Ni: 1.63, Cu: 1.4, Zn: 1.39, Ga: 1.87, Ge: 2.11, As: 1.85,
+    Se: 1.9, Br: 1.85, Kr: 2.02, Rb: 3.03, Sr: 2.49, Y: no data, Zr: no data, Nb: no
+      data, Mo: no data, Tc: no data, Ru: no data, Rh: no data, Pd: 1.63, Ag: 1.72,
+    Cd: 1.58, In: 1.93, Sn: 2.17, Sb: 2.06, Te: 2.06, I: 1.98, Xe: 2.16, Cs: 3.43,
+    Ba: 2.68, La: no data, Ce: no data, Pr: no data, Nd: no data, Pm: no data, Sm: no
+      data, Eu: no data, Gd: no data, Tb: no data, Dy: no data, Ho: no data, Er: no
+      data, Tm: no data, Yb: no data, Lu: no data, Hf: no data, Ta: no data, W: no
+      data, Re: no data, Os: no data, Ir: no data, Pt: 1.75, Au: 1.66, Hg: 1.55, Tl: 1.96,
+    Pb: 2.02, Bi: 2.07, Po: 1.97, At: 2.02, Rn: 2.2, Fr: 3.48, Ra: 2.83, Ac: no data,
+    Th: no data, Pa: no data, U: 1.86, Np: no data, Pu: no data, Am: no data}
+Velocity of sound:
+  unit: sup^2 m s
+  reference:
+  data: {Ag: 2600, Al: 5100, Ar: 319, Au: 1740, B: 16200, Ba: 1620, Be: 13000, Bi: 1790,
+    C: 18350, Ca: 3810, Cd: 2310, Ce: 2100, Cl: 206, Co: 4720, Cr: 5940, Cu: 3570,
+    Dy: 2710, Er: 2830, Fe: 4910, Ga: 2740, Gd: 2680, Ge: 5400, H: 1270, He: 970,
+    Hf: 3010, Hg: 1407, Ho: 2760, In: 1215, Ir: 4825, K: 2000, Kr: 1120, La: 2475,
+    Li: 6000, Mg: 4602, Mn: 5150, Mo: 6190, N: 333.6, Na: 3200, Nb: 3480, Nd: 2330,
+    Ne: 936, Ni: 4970, O: 317.5, Os: 4940, Pb: 1260, Pd: 3070, Pr: 2280, Pt: 2680,
+    Pu: 2260, Rb: 1300, Re: 4700, Rh: 4700, Ru: 5970, Sb: 3420, Se: 3350, Si: 2200,
+    Sm: 2130, Sn: 2500, Ta: 3400, Tb: 2620, Te: 2610, Th: 2490, Ti: 4140, Tl: 818,
+    U: 3155, V: 4560, W: 5174, Xe: 1090, Y: 3300, Yb: 1590, Zn: 3700, Zr: 3800}
+Vickers hardness:
+  unit: sup^2 MN m
+  reference:
+  data: {Ag: 251, Al: 167, Au: 216, B: 49000, Be: 1670, Ce: 270, Co: 1043, Cr: 1060,
+    Cu: 369, Dy: 540, Er: 589, Eu: 167, Fe: 608, Gd: 570, Hf: 1760, Ho: 481, Ir: 1760,
+    La: 491, Lu: 1160, Mo: 1530, Nb: 1320, Nd: 343, Ni: 638, Pd: 461, Pr: 400, Pt: 549,
+    Re: 2450, Rh: 1246, Sm: 412, Ta: 873, Tb: 863, Th: 350, Ti: 970, Tm: 520, U: 1960,
+    V: 628, W: 3430, Yb: 206, Zr: 903}
+X:
   unit:
   reference:
-  data: {Rn: 0, Xe: 1, Kr: 2, Ar: 3, Ne: 4, He: 5, Fr: 6, Cs: 7, Rb: 8, K: 9, Na: 10,
-    Li: 11, Ra: 12, Ba: 13, Sr: 14, Ca: 15, Mg: 16, Be: 17, Lr: 18, No: 19, Md: 20,
-    Fm: 21, Es: 22, Cf: 23, Bk: 24, Cm: 25, Am: 26, Pu: 27, Np: 28, U: 29, Pa: 30,
-    Th: 31, Ac: 32, Lu: 33, Yb: 34, Tm: 35, Er: 36, Ho: 37, Dy: 38, Tb: 39, Gd: 40,
-    Eu: 41, Sm: 42, Pm: 43, Nd: 44, Pr: 45, Ce: 46, La: 47, Y: 48, Sc: 49, Hf: 50,
-    Zr: 51, Ti: 52, Ta: 53, Nb: 54, V: 55, W: 56, Mo: 57, Cr: 58, Re: 59, Tc: 60,
-    Mn: 61, Os: 62, Ru: 63, Fe: 64, Ir: 65, Rh: 66, Co: 67, Pt: 68, Pd: 69, Ni: 70,
-    Au: 71, Ag: 72, Cu: 73, Hg: 74, Cd: 75, Zn: 76, Tl: 77, In: 78, Ga: 79, Al: 80,
-    B: 81, Pb: 82, Sn: 83, Ge: 84, Si: 85, C: 86, Bi: 87, Sb: 88, As: 89, P: 90, N: 91,
-    H: 92, Po: 93, Te: 94, Se: 95, S: 96, O: 97, At: 98, I: 99, Br: 100, Cl: 101,
-    F: 102}
-IUPAC ordering:
+  data: {Ac: 1.1, Ag: 1.93, Al: 1.61, Am: 1.3, As: 2.18, At: 2.2, Au: 2.54, B: 2.04,
+    Ba: 0.89, Be: 1.57, Bi: 2.02, Bk: 1.3, Br: 2.96, C: 2.55, Ca: 1.0, Cd: 1.69, Ce: 1.12,
+    Cf: 1.3, Cl: 3.16, Cm: 1.3, Co: 1.88, Cr: 1.66, Cs: 0.79, Cu: 1.9, Dy: 1.22, Er: 1.24,
+    Es: 1.3, Eu: 1.2, F: 3.98, Fe: 1.83, Fm: 1.3, Fr: 0.7, Ga: 1.81, Gd: 1.2, Ge: 2.01,
+    H: 2.2, Hf: 1.3, Hg: 2.0, Ho: 1.23, I: 2.66, In: 1.78, Ir: 2.2, K: 0.82, Kr: 3.0,
+    La: 1.1, Li: 0.98, Lr: 1.3, Lu: 1.27, Md: 1.3, Mg: 1.31, Mn: 1.55, Mo: 2.16, N: 3.04,
+    Na: 0.93, Nb: 1.6, Nd: 1.14, Ni: 1.91, No: 1.3, Np: 1.36, O: 3.44, Os: 2.2, P: 2.19,
+    Pa: 1.5, Pb: 2.33, Pd: 2.2, Pm: 1.13, Po: 2.0, Pr: 1.13, Pt: 2.28, Pu: 1.28, Ra: 0.9,
+    Rb: 0.82, Re: 1.9, Rh: 2.28, Rn: 2.2, Ru: 2.2, S: 2.58, Sb: 2.05, Sc: 1.36, Se: 2.55,
+    Si: 1.9, Sm: 1.17, Sn: 1.96, Sr: 0.95, Ta: 1.5, Tb: 1.1, Tc: 1.9, Te: 2.1, Th: 1.3,
+    Ti: 1.54, Tl: 1.62, Tm: 1.25, U: 1.38, V: 1.63, W: 2.36, Xe: 2.6, Y: 1.22, Yb: 1.1,
+    Zn: 1.65, Zr: 1.33}
+Youngs modulus:
+  unit: GPa
+  reference:
+  data: {Ag: 83, Al: 70, As: 8, Au: 78, Ba: 13, Be: 287, Bi: 32, Ca: 20, Cd: 50, Ce: 34,
+    Co: 209, Cr: 279, Cs: 1.7, Cu: 130, Dy: 61, Er: 70, Eu: 18, Fe: 211, Gd: 55, Hf: 78,
+    Ho: 65, In: 11, Ir: 528, La: 37, Li: 4.9, Lu: 69, Mg: 45, Mn: 198, Mo: 329, Na: 10,
+    Nb: 105, Nd: 41, Ni: 200, Pb: 16, Pd: 121, Pm: 46, Pr: 37, Pt: 168, Pu: 96, Rb: 2.4,
+    Re: 463, Rh: 275, Ru: 447, Sb: 55, Sc: 74, Se: 10, Si: 47, Sm: 50, Sn: 50, Ta: 186,
+    Tb: 56, Te: 43, Th: 79, Ti: 116, Tl: 8, Tm: 74, U: 208, V: 128, W: 411, Y: 64,
+    Yb: 24, Zn: 108, Zr: 68}
+iupac_ordering:
   unit:
   reference:
   data: {Rn: 0, Xe: 1, Kr: 2, Ar: 3, Ne: 4, He: 5, Fr: 6, Cs: 7, Rb: 8, K: 9, Na: 10,

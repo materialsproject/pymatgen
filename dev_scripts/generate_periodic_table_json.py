@@ -5,17 +5,15 @@
 Each source file may be parsed using a common or custom parser. In cases where
 a custom parser is required, it should return either a single `Property` or
 a sequence of `Property`.
-
-TODO:
-    Output YAML should order elements by Z instead of alphabetically.
 """
 
 from __future__ import annotations
 
 import csv
+import json
 import os
 import warnings
-from collections import Counter
+from collections import Counter, defaultdict
 from dataclasses import dataclass
 from itertools import product
 from typing import TYPE_CHECKING
@@ -31,9 +29,6 @@ if TYPE_CHECKING:
 
     from pymatgen.util.typing import PathLike
 
-
-ELEMENTS: tuple[str, ...] = tuple([elem.name for elem in Element])
-ISOTOPES: tuple[str, ...] = tuple(elem for elem in Element.__members__ if elem not in ELEMENTS)
 
 DEFAULT_VALUE: str = "no data"  # The default value if not provided
 
@@ -337,6 +332,9 @@ def generate_yaml_and_json(
     if duplicates := [name for name, count in counter.items() if count > 1]:
         raise ValueError(f"Duplicate property found: {', '.join(duplicates)}")
 
+    # Sort properties by name alphabetically
+    properties = sorted(properties, key=lambda prop: prop.name)
+
     # Save a YAML copy for development
     yaml_data: dict[str, dict[Literal["unit", "reference", "data"], Any]] = {}
     for prop in properties:
@@ -354,8 +352,24 @@ def generate_yaml_and_json(
     print("=" * 50)
     print(f"Saved YAML to: {yaml_file}")
 
-    # Output to JSON (element->property->value format, and drop metadata)
-    # TODO: WIP
+    # Output to JSON (element -> property -> value format, and drop metadata)
+    element_to_props: dict[str, dict[str, Any]] = defaultdict(dict)
+
+    # Insert units under a special `_unit` key
+    element_to_props["_unit"] = {}
+
+    for prop in properties:
+        # Store unit for this property if available
+        if prop.unit is not None:
+            element_to_props["_unit"][prop.name] = str(prop.unit)
+
+        for elem, prop_val in prop.data.items():
+            # Currently only allow use per-property unit
+            element_to_props[elem.name][prop.name] = prop_val.value
+
+    with open(json_file, "w", encoding="utf-8") as f:
+        json.dump(element_to_props, f, indent=2)
+
     print(f"Saved JSON to: {json_file}")
 
 
