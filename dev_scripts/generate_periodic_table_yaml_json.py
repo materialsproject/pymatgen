@@ -382,7 +382,7 @@ def generate_yaml_and_json(
                 element_to_props[elem.name][prop.name] = output
 
     with open(json_file, "w", encoding="utf-8") as f:
-        json.dump(element_to_props, f, indent=2)
+        json.dump(element_to_props, f, indent=4)
 
     print(f"Saved JSON to: {json_file}")
 
