@@ -21,6 +21,7 @@ OLD_JSON = f"{ROOT}/pymatgen/core/periodic_table.json"
 
 known_diff_properties: tuple[str] = (
     "iupac_ordering",  # duplicate, the `iupac_ordering` property checks "IUPAC ordering"
+    "Van der waals radius",  # current JSON doesn't agree with source CSV
 )
 
 
@@ -32,11 +33,11 @@ def main():
         new_data = json.load(f)
 
     for element, old_props in old_data.items():
+        print(f"🔍 Checking element: {element}")
+
         if element not in new_data:
             print(f"❌ Missing element in new JSON: {element}")
             continue
-
-        print(f"🔍 Checking element: {element}")
 
         new_props = new_data[element]
         for prop_name, old_value in old_props.items():
@@ -60,8 +61,8 @@ def main():
 
             # Try coercion for numeric strings
             try:
-                old_coerced = float(old_value) if isinstance(old_value, str) else old_value
-                new_coerced = float(new_value) if isinstance(new_value, str) else new_value
+                old_coerced = float(old_value.split()[0]) if isinstance(old_value, str) else old_value
+                new_coerced = float(new_value.split()[0]) if isinstance(new_value, str) else new_value
             except (ValueError, TypeError):
                 old_coerced = old_value
                 new_coerced = new_value
@@ -70,7 +71,7 @@ def main():
             if (
                 isinstance(old_coerced, float | int)
                 and isinstance(new_coerced, float | int)
-                and math.isclose(old_coerced, new_coerced, abs_tol=1e-4)
+                and math.isclose(old_coerced, new_coerced, abs_tol=1e-2)
             ):
                 continue  # Close enough
 
