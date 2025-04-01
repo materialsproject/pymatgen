@@ -22,6 +22,7 @@ OLD_JSON = f"{ROOT}/pymatgen/core/periodic_table.json"
 known_diff_properties: tuple[str] = (
     "iupac_ordering",  # duplicate, the `iupac_ordering` property checks "IUPAC ordering"
     "Van der waals radius",  # current JSON doesn't agree with source CSV
+    "Metallic radius",  # current JSON doesn't agree with source CSV
 )
 
 
