@@ -229,7 +229,7 @@ class ElementBase(Enum):
                             if "10<sup>" in tokens[1]:
                                 base_power = re.findall(r"([+-]?\d+)", tokens[1])
                                 factor = "e" + base_power[1]
-                                if tokens[0] in {"&gt;", "high"}:
+                                if tokens[0] == "&gt;":
                                     tokens[0] = "1"  # return the border value
                                 tokens[0] += factor
                                 if item == "electrical_resistivity":
