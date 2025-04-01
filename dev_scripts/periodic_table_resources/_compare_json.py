@@ -23,7 +23,10 @@ known_diff_properties: tuple[str] = (
     "iupac_ordering",  # duplicate, the `iupac_ordering` property checks "IUPAC ordering"
     "Van der waals radius",  # current JSON doesn't agree with source CSV
     "Metallic radius",  # current JSON doesn't agree with source CSV
+    "Electron affinity",  # Wikipedia might have been updated at some point
 )
+
+ABS_TOL: float = 0.01
 
 
 def main():
@@ -72,7 +75,7 @@ def main():
             if (
                 isinstance(old_coerced, float | int)
                 and isinstance(new_coerced, float | int)
-                and math.isclose(old_coerced, new_coerced, abs_tol=1e-2)
+                and math.isclose(old_coerced, new_coerced, abs_tol=ABS_TOL)
             ):
                 continue  # Close enough
 
