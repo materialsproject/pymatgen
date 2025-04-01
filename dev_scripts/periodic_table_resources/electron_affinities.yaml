@@ -2,6 +2,7 @@ Electron affinity:
   reference: https://en.wikipedia.org/wiki/Electron_affinity_(data_page)
   data:
     H: 0.75467
+    D: 0.754674
     He: -0.5
     Li: 0.618049
     Be: -0.5
