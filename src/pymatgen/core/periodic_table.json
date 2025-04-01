@@ -857,7 +857,7 @@
             14447.678,
             15028.907
         ],
-        "Electron affinity": 0.80482
+        "Electron affinity": 0.8044863
     },
     "At": {
         "Atomic mass": 210,
@@ -5602,7 +5602,7 @@
         "Ionization energies": [
             13.598434599702
         ],
-        "Electron affinity": 0.754598
+        "Electron affinity": 0.75419519
     },
     "He": {
         "Atomic mass": 4.002602,
@@ -6688,7 +6688,7 @@
             86438.9,
             88113.3
         ],
-        "Electron affinity": 1.5643615
+        "Electron affinity": 1.56405712
     },
     "K": {
         "Atomic mass": 39.0983,
@@ -9607,7 +9607,7 @@
             83976.21,
             85614.4
         ],
-        "Electron affinity": 1.0778013
+        "Electron affinity": 1.07766124
     },
     "P": {
         "Atomic mass": 30.973762,
@@ -12191,7 +12191,7 @@
             26229.895,
             27033.502
         ],
-        "Electron affinity": 1.0463825
+        "Electron affinity": 1.046272
     },
     "S": {
         "Atomic mass": 32.065,
@@ -12589,7 +12589,7 @@
             5674.9037,
             6033.7542
         ],
-        "Electron affinity": 0.1882
+        "Electron affinity": 0.17938023
     },
     "Se": {
         "Atomic mass": 78.96,
@@ -13513,7 +13513,7 @@
             76852.03,
             78394.7
         ],
-        "Electron affinity": 0.32312
+        "Electron affinity": 0.32885923
     },
     "Tb": {
         "Atomic mass": 158.92535,
@@ -15353,7 +15353,7 @@
             79181.94,
             80755.6
         ],
-        "Electron affinity": 0.816268
+        "Electron affinity": 0.81650082
     },
     "Xe": {
         "Atomic mass": 131.293,
@@ -15615,7 +15615,7 @@
             20415.717,
             21115.55
         ],
-        "Electron affinity": 0.30712
+        "Electron affinity": 0.3112922
     },
     "Yb": {
         "Atomic mass": 173.04,
