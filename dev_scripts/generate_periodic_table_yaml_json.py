@@ -24,6 +24,10 @@ The JSON file is a compact, production-format structure (no metadata):
             "_unit" -> {
                 <property name>: <unit string>
             }
+
+TODO: this script is still WIP, it would now:
+    - Generate a duplicate JSON instead of overwriting the one in `core` dir
+    - Append unit as string instead of as a separate field
 """
 
 from __future__ import annotations
@@ -41,7 +45,7 @@ from typing import TYPE_CHECKING
 import pandas as pd
 from ruamel.yaml import YAML
 
-from pymatgen.core import PKG_DIR, Element, Unit
+from pymatgen.core import Element, Unit
 
 if TYPE_CHECKING:
     from collections.abc import Callable, Iterable
@@ -400,7 +404,8 @@ def main():
     generate_yaml_and_json(
         properties,
         yaml_file=f"{RESOURCES_DIR}/_periodic_table.yaml",
-        json_file=f"{PKG_DIR}/core/periodic_table.json",
+        json_file=f"{RESOURCES_DIR}/_periodic_table.json",
+        # json_file=f"{PKG_DIR}/core/periodic_table.json",
     )
 
 
