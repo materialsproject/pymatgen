@@ -15939,6 +15939,10 @@
     ],
     "Is named isotope": true,
     "Name": "Deuterium",
+    "Oxidation states": [
+      -1,
+      1
+    ],
     "Shannon radii": {
       "1": {
         "II": {
@@ -15959,6 +15963,10 @@
       1
     ],
     "Is named isotope": true,
-    "Name": "Tritium"
+    "Name": "Tritium",
+    "Oxidation states": [
+      -1,
+      1
+    ]
   }
 }

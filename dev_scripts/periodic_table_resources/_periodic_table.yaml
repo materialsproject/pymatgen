@@ -2737,6 +2737,8 @@ Oxidation states:
   reference: https://en.wikipedia.org/wiki/Template:List_of_oxidation_states_of_the_elements
   data:
     H: [-1, 1]
+    D: [-1, 1]
+    T: [-1, 1]
     Li: [1]
     Be: [2]
     B: [1, 2, 3]
