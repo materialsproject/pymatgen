@@ -2653,7 +2653,7 @@
             46840.306,
             47965.72
         ],
-        "Electron affinity": 0.572
+        "Electron affinity": 0.60016027
     },
     "Cf": {
         "Atomic mass": 251,
@@ -3992,7 +3992,7 @@
             61736.56,
             63073.5
         ],
-        "Electron affinity": 0.352
+        "Electron affinity": 0.0153
     },
     "Er": {
         "Atomic mass": 167.259,
@@ -5393,7 +5393,7 @@
             57783.9,
             59065.53
         ],
-        "Electron affinity": 0.137
+        "Electron affinity": 0.21230
     },
     "Ge": {
         "Atomic mass": 72.64,
@@ -6503,7 +6503,7 @@
             32837.592,
             33750.31
         ],
-        "Electron affinity": 0.383926
+        "Electron affinity": 0.299
     },
     "Ir": {
         "Atomic mass": 192.217,
@@ -14222,7 +14222,7 @@
             123086.4,
             125253.4
         ],
-        "Electron affinity": 1.17
+        "Electron affinity": 0.607696
     },
     "Ti": {
         "Atomic mass": 47.867,
@@ -14996,7 +14996,7 @@
             129570.3,
             131821
         ],
-        "Electron affinity": 0.53
+        "Electron affinity": 0.314979
     },
     "V": {
         "Atomic mass": 50.9415,
@@ -16882,7 +16882,7 @@
         "Name": "Oganesson",
         "Ground level": null,
         "Ionization energies": [],
-        "Electron affinity": 0.0561,
+        "Electron affinity": 0.0806,
         "Van der waals radius": "no data"
     },
     "D": {
