@@ -28,6 +28,7 @@ The JSON file is a compact, production-format structure (no metadata):
 TODO: this script is still WIP, it would now:
     - Generate a duplicate JSON instead of overwriting the one in `core` dir
     - Append unit as string instead of as a separate field
+    - Unit should be converted to pymatgen Unit
 """
 
 from __future__ import annotations
@@ -45,7 +46,7 @@ from typing import TYPE_CHECKING
 import pandas as pd
 from ruamel.yaml import YAML
 
-from pymatgen.core import Element, Unit
+from pymatgen.core import Element
 
 if TYPE_CHECKING:
     from collections.abc import Callable, Iterable
@@ -67,12 +68,13 @@ class ElemPropertyValue:
 class Property:
     name: str
     data: dict[Element, ElemPropertyValue]
-    unit: Unit | None = None
+    unit: str | None = None
     reference: str | None = None
 
-    def __post_init__(self):
-        if self.unit is not None and isinstance(self.unit, str):
-            self.unit = Unit(self.unit)
+    # TODO: don't do unit conversion for now
+    # def __post_init__(self):
+    #     if self.unit is not None and isinstance(self.unit, str):
+    #         self.unit = Unit(self.unit)
 
 
 def parse_yaml(file: PathLike) -> list[Property]:
@@ -122,7 +124,7 @@ def parse_csv(
     file: PathLike,
     *,
     transform: Callable | None = None,
-    unit: Unit | None = None,
+    unit: str | None = None,
     reference: str | None = None,
 ) -> list[Property]:
     """Parse a CSV file.
@@ -139,7 +141,7 @@ def parse_csv(
         file (PathLike): The CSV file to parse.
         transform (Callable): Optional function to convert each value.
             If provided, it will be applied to each non-null cell value.
-        unit (Unit): Unit passed to Property.
+        unit (str): Unit passed to Property.
         reference (str): Reference passed to Property.
     """
     if not os.path.isfile(file):
@@ -183,7 +185,7 @@ def parse_csv(
 def parse_ionic_radii(
     file: PathLike,
     *,
-    unit: Unit,
+    unit: str,
     reference: str,
     prop_base: str = "Ionic radii",
 ) -> list[Property]:
@@ -231,7 +233,7 @@ def parse_ionic_radii(
 def parse_shannon_radii(
     file: PathLike,
     *,
-    unit: Unit,
+    unit: str,
     reference: str | None = None,
 ) -> Property:
     """Parse Shannon radii from CSV.
@@ -376,7 +378,8 @@ def generate_yaml_and_json(
             if unit is None:
                 element_to_props[elem.name][prop.name] = prop_val.value
             else:
-                element_to_props[elem.name][prop.name] = f"{prop_val.value} {unit}"
+                output = str(prop_val.value) + " " + str(unit)
+                element_to_props[elem.name][prop.name] = output
 
     with open(json_file, "w", encoding="utf-8") as f:
         json.dump(element_to_props, f, indent=2)
