@@ -77,28 +77,6 @@ jobs:
       - name: Install uv
         uses: astral-sh/setup-uv@v4
 
-      - name: Install ZEO++ (Linux and macOS)
-        if: matrix.config.os == 'ubuntu-latest' || matrix.config.os == 'macos-latest'
-        run: |
-          # Download and extract ZEO++
-          wget -q http://www.zeoplusplus.org/zeo++-0.3.tar.gz
-          tar -xzf zeo++-0.3.tar.gz
-
-          # Compile Voro++ library first
-          cd zeo++-0.3/voro++/src
-          make
-
-          # Add Voro++ to PATH
-          echo "$(pwd)" >> $GITHUB_PATH
-
-          # Compile ZEO++
-          cd ../../
-          make
-
-          # Add ZEO++ to PATH
-          echo "$(pwd)" >> $GITHUB_PATH
-
-
       - name: Install pymatgen and dependencies via uv
         run: |
           micromamba activate pmg
@@ -108,8 +86,8 @@ jobs:
           WHEEL_FILE=$(ls dist/pymatgen*.whl)
           uv pip install $WHEEL_FILE[${{matrix.config.extras}}] --resolution=${{matrix.config.resolution}}
 
-      - name: Install optional Ubuntu dependencies
-        if: matrix.config.os == 'ubuntu-latest'
+      - name: Install optional Ubuntu and macOS dependencies
+        if: matrix.config.os == 'ubuntu-latest' || matrix.config.os == 'macos-latest'
         run: |
           # Install BoltzTraP
           wget -q -O BoltzTraP.tar.bz2 https://owncloud.tuwien.ac.at/index.php/s/s2d55LYlZnioa3s/download
@@ -121,6 +99,12 @@ jobs:
           tar -zxf vampire-5.0-linux.tar.gz
           mv linux vampire-5.0
           echo "$(realpath vampire-5.0/)" >> $GITHUB_PATH
+
+          # Install Voro++ and ZEO++
+          wget -q http://www.zeoplusplus.org/zeo++-0.3.tar.gz && tar -xzf zeo++-0.3.tar.gz
+
+          cd zeo++-0.3/voro++/src && make && echo "$(pwd)" >> $GITHUB_PATH && cd ../..
+          make && echo "$(pwd)" >> $GITHUB_PATH
 
       - name: pytest split ${{ matrix.split }}
         env:
