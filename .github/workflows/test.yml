@@ -101,8 +101,8 @@ jobs:
           # Install Voro++ and ZEO++
           wget -q http://www.zeoplusplus.org/zeo++-0.3.tar.gz && tar -xzf zeo++-0.3.tar.gz
 
-          cd zeo++-0.3/voro++/src && make && realpath . >> $GITHUB_PATH && cd ../..
-          make && realpath . >> $GITHUB_PATH
+          cd zeo++-0.3/voro++/src && make -s && realpath . >> $GITHUB_PATH && cd ../..
+          make -s && realpath . >> $GITHUB_PATH
 
       - name: pytest split ${{ matrix.split }}
         env:
