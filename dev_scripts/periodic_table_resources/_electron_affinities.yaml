@@ -1,8 +1,8 @@
 Electron affinity:
-  reference: https://wikipedia.org/wiki/Electron_affinity_(data_page)
+  unit: eV
+  reference: https://en.wikipedia.org/wiki/Electron_affinity_(data_page)
   data:
     H: 0.75419519
-    D: 0.754674
     He: -0.52
     Li: 0.61804922
     Be: -0.52

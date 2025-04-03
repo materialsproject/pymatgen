@@ -39,11 +39,13 @@ import os
 import warnings
 from collections import Counter, defaultdict
 from dataclasses import dataclass
+from io import StringIO
 from itertools import product
 from pathlib import Path
 from typing import TYPE_CHECKING
 
 import pandas as pd
+import requests
 from ruamel.yaml import YAML
 
 from pymatgen.core import Element
@@ -56,6 +58,8 @@ if TYPE_CHECKING:
 
 
 DEFAULT_VALUE: str = "no data"  # The default value if not provided
+
+RESOURCES_DIR: str = f"{Path(__file__).parent}/periodic_table_resources"
 
 
 @dataclass
@@ -191,10 +195,6 @@ def parse_ionic_radii(
 ) -> list[Property]:
     """Parse ionic radii from CSV.
 
-    CSV Format:
-        - Must include columns: "Element", "Spin", and oxidation states (-3 to +8).
-        - "Spin" can be empty, "hs" (high spin) or "ls" (low spin).
-
     Behavior:
         - For each row:
             - If "Spin" is empty, the element is added under "Ionic radii".
@@ -271,6 +271,64 @@ def parse_shannon_radii(
         elem: ElemPropertyValue(value=nested_data) for elem, nested_data in nested_per_element.items()
     }
     return Property(name="Shannon radii", data=data, unit=unit, reference=reference)
+
+
+def get_and_parse_electronic_affinities(prop_name: str = "Electron affinity") -> Property:
+    """Get electronic affinities from Wikipedia and save a local YAML copy."""
+    # Get data table from Wikipedia
+    url: str = "https://en.wikipedia.org/wiki/Electron_affinity_(data_page)"
+    tables = pd.read_html(StringIO(requests.get(url, timeout=5).text))
+
+    # Get the "Elements Electron affinity" table (with unit eV)
+    ea_df = next(
+        table
+        for table in tables
+        if f"{prop_name} (kJ/mol)" in table.columns and table["Name"].astype(str).str.contains("Hydrogen").any()
+    )
+    ea_df = ea_df.drop(columns=["References", f"{prop_name} (kJ/mol)", "Element"])
+
+    # Drop superheavy elements
+    max_z: int = max(Element(element).Z for element in Element.__members__)
+    ea_df = ea_df[pd.to_numeric(ea_df["Z"], errors="coerce") <= max_z]
+
+    # Drop heavy isotopes
+    ea_df = ea_df.drop_duplicates(subset="Z", keep="first")
+
+    # Ensure we cover all elements up to Uranium (Z=92)
+    if not (z_values := set(ea_df["Z"])).issuperset(range(1, 93)):
+        raise ValueError(f"miss electron affinities: {set(range(1, 93)) - z_values}")
+
+    # Clean up electron affinity data
+    ea_df[f"{prop_name} (eV)"] = (
+        ea_df[f"{prop_name} (eV)"]
+        .str.replace("−", "-")  # Use the Unicode minus (-)  # noqa: RUF001
+        .str.replace("(", "")  # "0.754 195(19)"
+        .str.replace(")", "")
+        .str.replace(" ", "")
+        .str.replace("†", "")  # Remove dagger mark
+    ).astype(float)
+
+    # Save a local YAML copy
+    yaml = YAML()
+    yaml.default_flow_style = False
+
+    data: dict[Element, float] = {
+        Element.from_name(name.strip()): value
+        for name, value in zip(ea_df["Name"], ea_df[f"{prop_name} (eV)"], strict=True)
+    }
+
+    output_data = {
+        prop_name: {
+            "unit": "eV",
+            "reference": url,
+            "data": {el.symbol: val for el, val in sorted(data.items(), key=lambda x: x[0].Z)},
+        }
+    }
+
+    with open(f"{RESOURCES_DIR}/_electron_affinities.yaml", "w", encoding="utf-8") as f:
+        yaml.dump(output_data, f)
+
+    return parse_yaml(f"{RESOURCES_DIR}/_electron_affinitIES.yaml")[0]
 
 
 def generate_iupac_ordering() -> Property:
@@ -389,13 +447,11 @@ def generate_yaml_and_json(
 
 def main():
     # Generate and gather Property
-    RESOURCES_DIR: str = f"{Path(__file__).parent}/periodic_table_resources"
-
     properties: tuple[Property, ...] = (
         *parse_yaml(f"{RESOURCES_DIR}/elemental_properties.yaml"),
         *parse_yaml(f"{RESOURCES_DIR}/oxidation_states.yaml"),
         *parse_yaml(f"{RESOURCES_DIR}/ionization_energies_nist.yaml"),  # Parsed from HTML
-        *parse_yaml(f"{RESOURCES_DIR}/electron_affinities.yaml"),
+        get_and_parse_electronic_affinities(),
         *parse_csv(f"{RESOURCES_DIR}/radii.csv", transform=float, unit=None),
         *parse_ionic_radii(
             f"{RESOURCES_DIR}/ionic_radii.csv", unit=None, reference="https://en.wikipedia.org/wiki/Ionic_radius"

@@ -28,7 +28,7 @@
             3
         ],
         "Density of solid": "10070 kg m<sup>-3</sup>",
-        "Electron affinity": 0.35,
+        "Electron affinity": "0.35 eV",
         "Electronic structure": {
             "0": "[Rn].6d<sup>1</sup>.7s<sup>2</sup>",
             "3": "[Xe].4f<sup>14</sup>.5d<sup>10</sup>.6s<sup>2</sup>.6p<sup>6</sup>"
@@ -178,7 +178,7 @@
         ],
         "Density of solid": "10490 kg m<sup>-3</sup>",
         "Electrical resistivity": "1.63 10<sup>-8</sup> &Omega; m",
-        "Electron affinity": 1.304473,
+        "Electron affinity": "1.304473 eV",
         "Electronic structure": {
             "0": "[Kr].4d<sup>10</sup>.5s<sup>1</sup>",
             "1": "[Kr].4d<sup>10</sup>"
@@ -361,7 +361,7 @@
         ],
         "Density of solid": "2700 kg m<sup>-3</sup>",
         "Electrical resistivity": "2.7 10<sup>-8</sup> &Omega; m",
-        "Electron affinity": 0.432835,
+        "Electron affinity": "0.432835 eV",
         "Electronic structure": {
             "0": "[Ne].3s<sup>2</sup>.3p<sup>1</sup>",
             "3": "1s<sup>2</sup>.2s<sup>2</sup>.2p<sup>6</sup>"
@@ -445,7 +445,7 @@
         "Common oxidation states": [
             3
         ],
-        "Electron affinity": 0.1,
+        "Electron affinity": "0.1 eV",
         "Electronic structure": {
             "0": "[Rn].5f<sup>7</sup>.7s<sup>2</sup>",
             "3": "[Rn].5f<sup>6</sup>"
@@ -636,7 +636,7 @@
         "Atomic radius calculated": 0.71,
         "Boiling point": "87.3 K",
         "Critical temperature": "150.8 K",
-        "Electron affinity": -1.02,
+        "Electron affinity": "-1.02 eV",
         "Electronic structure": {
             "0": "[Ne].3s<sup>2</sup>.3p<sup>6</sup>"
         },
@@ -701,7 +701,7 @@
         "Critical temperature": "1700 K",
         "Density of solid": "5727 kg m<sup>-3</sup>",
         "Electrical resistivity": "33 10<sup>-8</sup> &Omega; m",
-        "Electron affinity": 0.8044863,
+        "Electron affinity": "0.8044863 eV",
         "Electronic structure": {
             "0": "[Ar].3d<sup>10</sup>.4s<sup>2</sup>.4p<sup>3</sup>",
             "3": "[Ar].3d<sup>10</sup>.4s<sup>2</sup>",
@@ -826,7 +826,7 @@
             -1,
             1
         ],
-        "Electron affinity": 2.415787,
+        "Electron affinity": "2.415787 eV",
         "Electronic structure": {
             "0": "[Xe].4f<sup>14</sup>.5d<sup>10</sup>.6s<sup>2</sup>.6p<sup>5</sup>",
             "1": "[Xe].4f<sup>14</sup>.5d<sup>10</sup>.6s<sup>2</sup>.6p<sup>4</sup>",
@@ -978,7 +978,7 @@
         ],
         "Density of solid": "19300 kg m<sup>-3</sup>",
         "Electrical resistivity": "2.2 10<sup>-8</sup> &Omega; m",
-        "Electron affinity": 2.30861025,
+        "Electron affinity": "2.30861025 eV",
         "Electronic structure": {
             "0": "[Xe].4f<sup>14</sup>.5d<sup>10</sup>.6s<sup>1</sup>",
             "3": "[Xe].4f<sup>14</sup>.5d<sup>8</sup>"
@@ -1145,7 +1145,7 @@
         ],
         "Density of solid": "2460 kg m<sup>-3</sup>",
         "Electrical resistivity": "&gt; 10<sup>12</sup> 10<sup>-8</sup> &Omega; m",
-        "Electron affinity": 0.27972325,
+        "Electron affinity": "0.27972325 eV",
         "Electronic structure": {
             "0": "[He].2s<sup>2</sup>.2p<sup>1</sup>",
             "3": "1s<sup>2</sup>"
@@ -1237,7 +1237,7 @@
         ],
         "Density of solid": "3510 kg m<sup>-3</sup>",
         "Electrical resistivity": "34 10<sup>-8</sup> &Omega; m",
-        "Electron affinity": 0.144626,
+        "Electron affinity": "0.144626 eV",
         "Electronic structure": {
             "0": "[Xe].6s<sup>2</sup>",
             "2": "[Kr].4d<sup>10</sup>.5s<sup>2</sup>.5p<sup>6</sup>"
@@ -1389,7 +1389,7 @@
         ],
         "Density of solid": "1848 kg m<sup>-3</sup>",
         "Electrical resistivity": "3.8 10<sup>-8</sup> &Omega; m",
-        "Electron affinity": -0.52,
+        "Electron affinity": "-0.52 eV",
         "Electronic structure": {
             "0": "[He].2s<sup>2</sup>",
             "2": "1s<sup>2</sup>"
@@ -1484,7 +1484,7 @@
         ],
         "Density of solid": "9780 kg m<sup>-3</sup>",
         "Electrical resistivity": "130 10<sup>-8</sup> &Omega; m",
-        "Electron affinity": 0.94236213,
+        "Electron affinity": "0.94236213 eV",
         "Electronic structure": {
             "0": "[Xe].4f<sup>14</sup>.5d<sup>10</sup>.6s<sup>2</sup>.6p<sup>3</sup>",
             "3": "[Xe].4f<sup>14</sup>.5d<sup>10</sup>.6s<sup>2</sup>"
@@ -1645,7 +1645,7 @@
             3
         ],
         "Density of solid": "14780 kg m<sup>-3</sup>",
-        "Electron affinity": -1.72,
+        "Electron affinity": "-1.72 eV",
         "Electronic structure": {
             "0": "[Rn].5f<sup>9</sup>.7s<sup>2</sup>",
             "3": "[Rn].5f<sup>8</sup>"
@@ -1818,7 +1818,7 @@
         ],
         "Critical temperature": "586 K",
         "Electrical resistivity": "&gt; 10<sup>18</sup> 10<sup>-8</sup> &Omega; m",
-        "Electron affinity": 3.3635883,
+        "Electron affinity": "3.3635883 eV",
         "Electronic structure": {
             "0": "[Ar].3d<sup>10</sup>.4s<sup>2</sup>.4p<sup>5</sup>",
             "-1": "[Ar].3d<sup>10</sup>.4s<sup>2</sup>.4p<sup>6</sup>",
@@ -1954,7 +1954,7 @@
         ],
         "Density of solid": "2267 kg m<sup>-3</sup>",
         "Electrical resistivity": "about 1000 - direction dependent 10<sup>-8</sup> &Omega; m",
-        "Electron affinity": 1.262122611,
+        "Electron affinity": "1.262122611 eV",
         "Electronic structure": {
             "0": "[He].2s<sup>2</sup>.2p<sup>2</sup>",
             "-4": "[He].2s<sup>2</sup>.2p<sup>6</sup>",
@@ -2052,7 +2052,7 @@
         ],
         "Density of solid": "1550 kg m<sup>-3</sup>",
         "Electrical resistivity": "3.4 10<sup>-8</sup> &Omega; m",
-        "Electron affinity": 0.024551,
+        "Electron affinity": "0.024551 eV",
         "Electronic structure": {
             "0": "[Ar].4s<sup>2</sup>",
             "2": "[Ne].3s<sup>2</sup>.3p<sup>6</sup>"
@@ -2175,7 +2175,7 @@
         ],
         "Density of solid": "8650 kg m<sup>-3</sup>",
         "Electrical resistivity": "7 10<sup>-8</sup> &Omega; m",
-        "Electron affinity": -0.72,
+        "Electron affinity": "-0.72 eV",
         "Electronic structure": {
             "0": "[Kr].4d<sup>10</sup>.5s<sup>2</sup>",
             "2": "[Kr].4d<sup>10</sup>"
@@ -2330,7 +2330,7 @@
         ],
         "Density of solid": "6689 kg m<sup>-3</sup>",
         "Electrical resistivity": "74 10<sup>-8</sup> &Omega; m",
-        "Electron affinity": 0.60016027,
+        "Electron affinity": "0.60016027 eV",
         "Electronic structure": {
             "0": "[Xe].4f<sup>1</sup>.5d<sup>1</sup>.6s<sup>2</sup>",
             "3": "[Xe].4f<sup>1</sup>",
@@ -2503,7 +2503,7 @@
             3
         ],
         "Density of solid": "15100 kg m<sup>-3</sup>",
-        "Electron affinity": -1.01,
+        "Electron affinity": "-1.01 eV",
         "Electronic structure": {
             "0": "[Rn].5f<sup>10</sup>.7s<sup>2</sup>",
             "3": "[Rn].5f<sup>9</sup>"
@@ -2674,7 +2674,7 @@
         ],
         "Critical temperature": "417 K",
         "Electrical resistivity": "&gt; 10<sup>10</sup> 10<sup>-8</sup> &Omega; m",
-        "Electron affinity": 3.61272528,
+        "Electron affinity": "3.61272528 eV",
         "Electronic structure": {
             "0": "[Ne].3s<sup>2</sup>.3p<sup>5</sup>",
             "-1": "[Ne].3s<sup>2</sup>.3p<sup>6</sup>",
@@ -2780,7 +2780,7 @@
             3
         ],
         "Density of solid": "13510 kg m<sup>-3</sup>",
-        "Electron affinity": 0.28,
+        "Electron affinity": "0.28 eV",
         "Electronic structure": {
             "0": "[Rn].5f<sup>7</sup>.6d<sup>1</sup>.7s<sup>2</sup>",
             "3": "[Rn].5f<sup>7</sup>"
@@ -2951,7 +2951,7 @@
         ],
         "Density of solid": "8900 kg m<sup>-3</sup>",
         "Electrical resistivity": "6 10<sup>-8</sup> &Omega; m",
-        "Electron affinity": 0.66225547,
+        "Electron affinity": "0.66225547 eV",
         "Electronic structure": {
             "0": "[Ar].3d<sup>7</sup>.4s<sup>2</sup>",
             "2": "[Ar].3d<sup>7</sup>",
@@ -3118,7 +3118,7 @@
         ],
         "Density of solid": "7140 kg m<sup>-3</sup>",
         "Electrical resistivity": "12.7 10<sup>-8</sup> &Omega; m",
-        "Electron affinity": 0.67592827,
+        "Electron affinity": "0.67592827 eV",
         "Electronic structure": {
             "0": "[Ar].3d<sup>5</sup>.4s<sup>1</sup>",
             "2": "[Ar].3d<sup>4</sup>",
@@ -3300,7 +3300,7 @@
         "Critical temperature": "1938 K",
         "Density of solid": "1879 kg m<sup>-3</sup>",
         "Electrical resistivity": "21 10<sup>-8</sup> &Omega; m",
-        "Electron affinity": 0.471598338,
+        "Electron affinity": "0.471598338 eV",
         "Electronic structure": {
             "0": "[Xe].6s<sup>1</sup>",
             "1": "[Kr].4d<sup>10</sup>.5s<sup>2</sup>.5p<sup>6</sup>"
@@ -3448,7 +3448,7 @@
         ],
         "Density of solid": "8920 kg m<sup>-3</sup>",
         "Electrical resistivity": "1.72 10<sup>-8</sup> &Omega; m",
-        "Electron affinity": 1.235784,
+        "Electron affinity": "1.235784 eV",
         "Electronic structure": {
             "0": "[Ar].3d<sup>10</sup>.4s<sup>1</sup>",
             "1": "[Ar].3d<sup>10</sup>",
@@ -3610,7 +3610,7 @@
         ],
         "Density of solid": "8551 kg m<sup>-3</sup>",
         "Electrical resistivity": "92.6 10<sup>-8</sup> &Omega; m",
-        "Electron affinity": 0.0153,
+        "Electron affinity": "0.0153 eV",
         "Electronic structure": {
             "0": "[Xe].4f<sup>10</sup>.6s<sup>2</sup>",
             "3": "[Xe].4f<sup>9</sup>"
@@ -3788,7 +3788,7 @@
         ],
         "Density of solid": "9066 kg m<sup>-3</sup>",
         "Electrical resistivity": "86.0 10<sup>-8</sup> &Omega; m",
-        "Electron affinity": 0.312,
+        "Electron affinity": "0.312 eV",
         "Electronic structure": {
             "0": "[Xe].4f<sup>12</sup>.6s<sup>2</sup>",
             "3": "[Xe].4f<sup>11</sup>"
@@ -3925,7 +3925,7 @@
         "Common oxidation states": [
             3
         ],
-        "Electron affinity": -0.3,
+        "Electron affinity": "-0.3 eV",
         "Electronic structure": {
             "0": "[Rn].5f<sup>11</sup>.7s<sup>2</sup>",
             "3": "[Rn].5f<sup>10</sup>"
@@ -4074,7 +4074,7 @@
         ],
         "Density of solid": "5244 kg m<sup>-3</sup>",
         "Electrical resistivity": "90 10<sup>-8</sup> &Omega; m",
-        "Electron affinity": 0.11613,
+        "Electron affinity": "0.11613 eV",
         "Electronic structure": {
             "0": "[Xe].4f<sup>7</sup>.6s<sup>2</sup>",
             "2": "[Xe].4f<sup>7</sup>",
@@ -4250,7 +4250,7 @@
             -1
         ],
         "Critical temperature": "144 K",
-        "Electron affinity": 3.401189824,
+        "Electron affinity": "3.401189824 eV",
         "Electronic structure": {
             "0": "[He].2s<sup>2</sup>.2p<sup>5</sup>",
             "-1": "[He].2s<sup>2</sup>.2p<sup>6</sup>"
@@ -4352,7 +4352,7 @@
         ],
         "Density of solid": "7874 kg m<sup>-3</sup>",
         "Electrical resistivity": "10 10<sup>-8</sup> &Omega; m",
-        "Electron affinity": 0.15323635,
+        "Electron affinity": "0.15323635 eV",
         "Electronic structure": {
             "0": "[Ar].3d<sup>6</sup>.4s<sup>2</sup>",
             "2": "[Ar].3d<sup>6</sup>",
@@ -4520,7 +4520,7 @@
         "Common oxidation states": [
             3
         ],
-        "Electron affinity": 0.35,
+        "Electron affinity": "0.35 eV",
         "Electronic structure": {
             "0": "[Rn].5f<sup>12</sup>.7s<sup>2</sup>",
             "3": "[Rn].5f<sup>11</sup>"
@@ -4664,7 +4664,7 @@
         "Common oxidation states": [
             1
         ],
-        "Electron affinity": 0.486,
+        "Electron affinity": "0.486 eV",
         "Electronic structure": {
             "0": "[Rn].7s<sup>1</sup>",
             "1": "[Hg].6p<sup>6</sup>"
@@ -4806,7 +4806,7 @@
         ],
         "Density of solid": "5904 kg m<sup>-3</sup>",
         "Electrical resistivity": "about  14 10<sup>-8</sup> &Omega; m",
-        "Electron affinity": 0.30116615,
+        "Electron affinity": "0.30116615 eV",
         "Electronic structure": {
             "0": "[Ar].3d<sup>10</sup>.4s<sup>2</sup>.4p<sup>1</sup>",
             "3": "[Ar].3d<sup>10</sup>"
@@ -4922,7 +4922,7 @@
         ],
         "Density of solid": "7901 kg m<sup>-3</sup>",
         "Electrical resistivity": "131 10<sup>-8</sup> &Omega; m",
-        "Electron affinity": 0.2123,
+        "Electron affinity": "0.2123 eV",
         "Electronic structure": {
             "0": "[Xe].4f<sup>7</sup>.5d<sup>1</sup>.6s<sup>2</sup>",
             "3": "[Xe].4f<sup>7</sup>"
@@ -5074,7 +5074,7 @@
         ],
         "Density of solid": "5323 kg m<sup>-3</sup>",
         "Electrical resistivity": "about 50000 10<sup>-8</sup> &Omega; m",
-        "Electron affinity": 1.232676413,
+        "Electron affinity": "1.232676413 eV",
         "Electronic structure": {
             "0": "[Ar].3d<sup>10</sup>.4s<sup>2</sup>.4p<sup>2</sup>",
             "-4": "[Ar].3d<sup>10</sup>.4s<sup>2</sup>.4p<sup>6</sup>",
@@ -5184,7 +5184,7 @@
             1
         ],
         "Critical temperature": "33 K",
-        "Electron affinity": 0.75419519,
+        "Electron affinity": "0.75419519 eV",
         "Electronic structure": {
             "0": "1s<sup>1</sup>",
             "-1": "1s<sup>2</sup>",
@@ -5244,7 +5244,7 @@
         "Atomic radius calculated": 0.31,
         "Boiling point": "4.22 K",
         "Critical temperature": "5.19 K",
-        "Electron affinity": -0.52,
+        "Electron affinity": "-0.52 eV",
         "Electronic structure": {
             "0": "1s<sup>2</sup>"
         },
@@ -5297,7 +5297,7 @@
         ],
         "Density of solid": "13310 kg m<sup>-3</sup>",
         "Electrical resistivity": "34 10<sup>-8</sup> &Omega; m",
-        "Electron affinity": 0.17807,
+        "Electron affinity": "0.17807 eV",
         "Electronic structure": {
             "0": "[Xe].4f<sup>14</sup>.5d<sup>2</sup>.6s<sup>2</sup>",
             "4": "[Xe].4f<sup>14</sup>"
@@ -5463,7 +5463,7 @@
         ],
         "Critical temperature": "1750 K",
         "Electrical resistivity": "96 10<sup>-8</sup> &Omega; m",
-        "Electron affinity": -0.52,
+        "Electron affinity": "-0.52 eV",
         "Electronic structure": {
             "0": "[Xe].4f<sup>14</sup>.5d<sup>10</sup>.6s<sup>2</sup>",
             "1": "[Xe].4f<sup>14</sup>.5d<sup>10</sup>.6s<sup>1</sup>",
@@ -5655,7 +5655,7 @@
         ],
         "Density of solid": "8795 kg m<sup>-3</sup>",
         "Electrical resistivity": "81.4 10<sup>-8</sup> &Omega; m",
-        "Electron affinity": 0.338,
+        "Electron affinity": "0.338 eV",
         "Electronic structure": {
             "0": "[Xe].4f<sup>11</sup>.6s<sup>2</sup>",
             "3": "[Xe].4f<sup>10</sup>"
@@ -5813,7 +5813,7 @@
         "Critical temperature": "819 K",
         "Density of solid": "4940 kg m<sup>-3</sup>",
         "Electrical resistivity": "&gt; 10<sup>15</sup> 10<sup>-8</sup> &Omega; m",
-        "Electron affinity": 3.059046537,
+        "Electron affinity": "3.059046537 eV",
         "Electronic structure": {
             "0": "[Kr].4d<sup>10</sup>.5s<sup>2</sup>.5p<sup>5</sup>",
             "-1": "[Kr].4d<sup>10</sup>.5s<sup>2</sup>.5p<sup>6</sup>",
@@ -5973,7 +5973,7 @@
         ],
         "Density of solid": "7310 kg m<sup>-3</sup>",
         "Electrical resistivity": "8 10<sup>-8</sup> &Omega; m",
-        "Electron affinity": 0.299,
+        "Electron affinity": "0.299 eV",
         "Electronic structure": {
             "0": "[Kr].4d<sup>10</sup>.5s<sup>2</sup>.5p<sup>1</sup>",
             "3": "[Kr].4d<sup>10</sup>"
@@ -6115,7 +6115,7 @@
         ],
         "Density of solid": "22650 kg m<sup>-3</sup>",
         "Electrical resistivity": "4.7 10<sup>-8</sup> &Omega; m",
-        "Electron affinity": 1.56405712,
+        "Electron affinity": "1.56405712 eV",
         "Electronic structure": {
             "0": "[Xe].4f<sup>14</sup>.5d<sup>7</sup>.6s<sup>2</sup>",
             "3": "[Xe].4f<sup>14</sup>.5d<sup>6</sup>",
@@ -6288,7 +6288,7 @@
         "Critical temperature": "2223 K",
         "Density of solid": "856 kg m<sup>-3</sup>",
         "Electrical resistivity": "7.5 10<sup>-8</sup> &Omega; m",
-        "Electron affinity": 0.50145913,
+        "Electron affinity": "0.50145913 eV",
         "Electronic structure": {
             "0": "[Ar].4s<sup>1</sup>",
             "1": "[Ne].3s<sup>2</sup>.3p<sup>6</sup>"
@@ -6407,7 +6407,7 @@
         "Atomic radius calculated": 0.88,
         "Boiling point": "119.93 K",
         "Critical temperature": "209.4 K",
-        "Electron affinity": -1.02,
+        "Electron affinity": "-1.02 eV",
         "Electronic structure": {
             "0": "[Ar].3d<sup>10</sup>.4s<sup>2</sup>.4p<sup>6</sup>"
         },
@@ -6494,7 +6494,7 @@
         ],
         "Density of solid": "6146 kg m<sup>-3</sup>",
         "Electrical resistivity": "61.5 10<sup>-8</sup> &Omega; m",
-        "Electron affinity": 0.5575462,
+        "Electron affinity": "0.5575462 eV",
         "Electronic structure": {
             "0": "[Xe].5d<sup>1</sup>.6s<sup>2</sup>",
             "3": "[Cd].5p<sup>6</sup>"
@@ -6649,7 +6649,7 @@
         "Critical temperature": "3223 K",
         "Density of solid": "535 kg m<sup>-3</sup>",
         "Electrical resistivity": "9.5 10<sup>-8</sup> &Omega; m",
-        "Electron affinity": 0.61804922,
+        "Electron affinity": "0.61804922 eV",
         "Electronic structure": {
             "0": "[He].2s<sup>1</sup>",
             "1": "1s<sup>2</sup>"
@@ -6716,7 +6716,7 @@
         "Common oxidation states": [
             3
         ],
-        "Electron affinity": -0.31,
+        "Electron affinity": "-0.31 eV",
         "Electronic structure": {
             "0": "[Rn].5f<sup>14</sup>.7s<sup>2</sup>.7p<sup>1</sup>",
             "3": "[Rn].5f<sup>14</sup>"
@@ -6866,7 +6866,7 @@
         ],
         "Density of solid": "9841 kg m<sup>-3</sup>",
         "Electrical resistivity": "58 10<sup>-8</sup> &Omega; m",
-        "Electron affinity": 0.23887,
+        "Electron affinity": "0.23887 eV",
         "Electronic structure": {
             "0": "[Xe].4f<sup>14</sup>.5d<sup>1</sup>.6s<sup>2</sup>",
             "3": "[Xe].4f<sup>14</sup>"
@@ -6998,7 +6998,7 @@
         "Common oxidation states": [
             3
         ],
-        "Electron affinity": 0.98,
+        "Electron affinity": "0.98 eV",
         "Electronic structure": {
             "0": "[Rn].5f<sup>13</sup>.7s<sup>2</sup>",
             "3": "[Rn].5f<sup>12</sup>"
@@ -7137,7 +7137,7 @@
         ],
         "Density of solid": "1738 kg m<sup>-3</sup>",
         "Electrical resistivity": "4.4 10<sup>-8</sup> &Omega; m",
-        "Electron affinity": -0.42,
+        "Electron affinity": "-0.42 eV",
         "Electronic structure": {
             "0": "[Ne].3s<sup>2</sup>",
             "2": "[He].2s<sup>2</sup>.2p<sup>6</sup>"
@@ -7240,7 +7240,7 @@
         ],
         "Density of solid": "7470 kg m<sup>-3</sup>",
         "Electrical resistivity": "144 10<sup>-8</sup> &Omega; m",
-        "Electron affinity": -0.52,
+        "Electron affinity": "-0.52 eV",
         "Electronic structure": {
             "0": "[Ar].3d<sup>5</sup>.4s<sup>2</sup>",
             "2": "[Ar].3d<sup>5</sup>",
@@ -7454,7 +7454,7 @@
         ],
         "Density of solid": "10280 kg m<sup>-3</sup>",
         "Electrical resistivity": "5.5 10<sup>-8</sup> &Omega; m",
-        "Electron affinity": 0.747238,
+        "Electron affinity": "0.747238 eV",
         "Electronic structure": {
             "0": "[Kr].4d<sup>5</sup>.5s<sup>1</sup>",
             "3": "[Kr].4d<sup>3</sup>",
@@ -7623,7 +7623,7 @@
             5
         ],
         "Critical temperature": "126.2 K",
-        "Electron affinity": -0.07,
+        "Electron affinity": "-0.07 eV",
         "Electronic structure": {
             "0": "[He].2s<sup>2</sup>.2p<sup>3</sup>",
             "-3": "[He].2s<sup>2</sup>.2p<sup>6</sup>",
@@ -7732,7 +7732,7 @@
         "Critical temperature": "2573 K",
         "Density of solid": "968 kg m<sup>-3</sup>",
         "Electrical resistivity": "4.9 10<sup>-8</sup> &Omega; m",
-        "Electron affinity": 0.54792625,
+        "Electron affinity": "0.54792625 eV",
         "Electronic structure": {
             "0": "[Ne].3s<sup>1</sup>",
             "1": "[He].2s<sup>2</sup>.2p<sup>6</sup>"
@@ -7851,7 +7851,7 @@
         ],
         "Density of solid": "8570 kg m<sup>-3</sup>",
         "Electrical resistivity": "15.2 10<sup>-8</sup> &Omega; m",
-        "Electron affinity": 0.917407,
+        "Electron affinity": "0.917407 eV",
         "Electronic structure": {
             "0": "[Kr].4d<sup>4</sup>.5s<sup>1</sup>",
             "5": "[Ar].3d<sup>10</sup>.4s<sup>2</sup>.4p<sup>6</sup>"
@@ -8015,7 +8015,7 @@
         ],
         "Density of solid": "6800 kg m<sup>-3</sup>",
         "Electrical resistivity": "64.3 10<sup>-8</sup> &Omega; m",
-        "Electron affinity": 0.0974933,
+        "Electron affinity": "0.0974933 eV",
         "Electronic structure": {
             "0": "[Xe].4f<sup>4</sup>.6s<sup>2</sup>",
             "3": "[Xe].4f<sup>3</sup>"
@@ -8165,7 +8165,7 @@
         "Atomic radius calculated": 0.38,
         "Boiling point": "27.07 K",
         "Critical temperature": "44.4 K",
-        "Electron affinity": -1.22,
+        "Electron affinity": "-1.22 eV",
         "Electronic structure": {
             "0": "[He].2s<sup>2</sup>.2p<sup>6</sup>"
         },
@@ -8222,7 +8222,7 @@
         ],
         "Density of solid": "8908 kg m<sup>-3</sup>",
         "Electrical resistivity": "7.2 10<sup>-8</sup> &Omega; m",
-        "Electron affinity": 1.1571612,
+        "Electron affinity": "1.1571612 eV",
         "Electronic structure": {
             "0": "[Ar].3d<sup>8</sup>.4s<sup>2</sup>",
             "2": "[Ar].3d<sup>8</sup>",
@@ -8358,7 +8358,7 @@
         "Common oxidation states": [
             3
         ],
-        "Electron affinity": -2.33,
+        "Electron affinity": "-2.33 eV",
         "Electronic structure": {
             "0": "[Rn].5f<sup>14</sup>.7s<sup>2</sup>",
             "3": "[Rn].5f<sup>13</sup>"
@@ -8499,7 +8499,7 @@
         ],
         "Density of solid": "20450 kg m<sup>-3</sup>",
         "Electrical resistivity": "120 10<sup>-8</sup> &Omega; m",
-        "Electron affinity": 0.48,
+        "Electron affinity": "0.48 eV",
         "Electronic structure": {
             "0": "[Rn].5f<sup>4</sup>.6d<sup>1</sup>.7s<sup>2</sup>",
             "5": "[Rn].5f<sup>2</sup>"
@@ -8697,7 +8697,7 @@
             -2
         ],
         "Critical temperature": "154.6 K",
-        "Electron affinity": 1.461112979,
+        "Electron affinity": "1.461112979 eV",
         "Electronic structure": {
             "0": "[He].2s<sup>2</sup>.2p<sup>4</sup>",
             "-2": "[He].2s<sup>2</sup>.2p<sup>6</sup>"
@@ -8804,7 +8804,7 @@
         ],
         "Density of solid": "22610 kg m<sup>-3</sup>",
         "Electrical resistivity": "8.1 10<sup>-8</sup> &Omega; m",
-        "Electron affinity": 1.07766124,
+        "Electron affinity": "1.07766124 eV",
         "Electronic structure": {
             "0": "[Xe].4f<sup>14</sup>.5d<sup>6</sup>.6s<sup>2</sup>",
             "4": "[Xe].4f<sup>14</sup>.5d<sup>4</sup>"
@@ -8993,7 +8993,7 @@
         "Critical temperature": "994 K",
         "Density of solid": "1823 kg m<sup>-3</sup>",
         "Electrical resistivity": "about 10 10<sup>-8</sup> &Omega; m",
-        "Electron affinity": 0.74660911,
+        "Electron affinity": "0.74660911 eV",
         "Electronic structure": {
             "0": "[Ne].3s<sup>2</sup>.3p<sup>3</sup>",
             "-3": "[Ne].3s<sup>2</sup>.3p<sup>6</sup>",
@@ -9112,7 +9112,7 @@
         ],
         "Density of solid": "15370 kg m<sup>-3</sup>",
         "Electrical resistivity": "18 10<sup>-8</sup> &Omega; m",
-        "Electron affinity": 0.55,
+        "Electron affinity": "0.55 eV",
         "Electronic structure": {
             "0": "[Rn].5f<sup>2</sup>.6d<sup>1</sup>.7s<sup>2</sup>",
             "5": "[Hg].6p<sup>6</sup>"
@@ -9308,7 +9308,7 @@
         ],
         "Density of solid": "11340 kg m<sup>-3</sup>",
         "Electrical resistivity": "21 10<sup>-8</sup> &Omega; m",
-        "Electron affinity": 0.3567212,
+        "Electron affinity": "0.3567212 eV",
         "Electronic structure": {
             "0": "[Xe].4f<sup>14</sup>.5d<sup>10</sup>.6s<sup>2</sup>.6p<sup>2</sup>",
             "2": "[Xe].4f<sup>14</sup>.5d<sup>10</sup>.6s<sup>2</sup>",
@@ -9533,7 +9533,7 @@
         ],
         "Density of solid": "12023 kg m<sup>-3</sup>",
         "Electrical resistivity": "10.8 10<sup>-8</sup> &Omega; m",
-        "Electron affinity": 0.5621412,
+        "Electron affinity": "0.5621412 eV",
         "Electronic structure": {
             "0": "[Kr].4d<sup>10</sup>",
             "2": "[Kr].4d<sup>8</sup>",
@@ -9688,7 +9688,7 @@
         ],
         "Density of solid": "7264 kg m<sup>-3</sup>",
         "Electrical resistivity": "about 75 10<sup>-8</sup> &Omega; m",
-        "Electron affinity": 0.129,
+        "Electron affinity": "0.129 eV",
         "Electronic structure": {
             "0": "[Xe].4f<sup>5</sup>.6s<sup>2</sup>",
             "3": "[Xe].4f<sup>4</sup>"
@@ -9829,7 +9829,7 @@
         ],
         "Density of solid": "9196 kg m<sup>-3</sup>",
         "Electrical resistivity": "40 10<sup>-8</sup> &Omega; m",
-        "Electron affinity": 1.407,
+        "Electron affinity": "1.407 eV",
         "Electronic structure": {
             "0": "[Xe].4f<sup>14</sup>.5d<sup>10</sup>.6s<sup>2</sup>.6p<sup>4</sup>",
             "-2": "[Xe].4f<sup>14</sup>.5d<sup>10</sup>.6s<sup>2</sup>.6p<sup>6</sup>",
@@ -9997,7 +9997,7 @@
         ],
         "Density of solid": "6640 kg m<sup>-3</sup>",
         "Electrical resistivity": "70 10<sup>-8</sup> &Omega; m",
-        "Electron affinity": 0.1092346,
+        "Electron affinity": "0.1092346 eV",
         "Electronic structure": {
             "0": "[Xe].4f<sup>3</sup>.6s<sup>2</sup>",
             "3": "[Xe].4f<sup>2</sup>"
@@ -10160,7 +10160,7 @@
         ],
         "Density of solid": "21090 kg m<sup>-3</sup>",
         "Electrical resistivity": "10.6 10<sup>-8</sup> &Omega; m",
-        "Electron affinity": 2.125105,
+        "Electron affinity": "2.125105 eV",
         "Electronic structure": {
             "0": "[Xe].4f<sup>14</sup>.5d<sup>9</sup>.6s<sup>1</sup>",
             "2": "[Xe].4f<sup>14</sup>.5d<sup>8</sup>",
@@ -10320,7 +10320,7 @@
         ],
         "Density of solid": "19816 kg m<sup>-3</sup>",
         "Electrical resistivity": "150 10<sup>-8</sup> &Omega; m",
-        "Electron affinity": -0.5,
+        "Electron affinity": "-0.5 eV",
         "Electronic structure": {
             "0": "[Rn].5f<sup>6</sup>.7s<sup>2</sup>",
             "4": "[Rn].5f<sup>4</sup>"
@@ -10519,7 +10519,7 @@
         ],
         "Density of solid": "5000 kg m<sup>-3</sup>",
         "Electrical resistivity": "100 10<sup>-8</sup> &Omega; m",
-        "Electron affinity": 0.1,
+        "Electron affinity": "0.1 eV",
         "Electronic structure": {
             "0": "[Rn].7s<sup>2</sup>",
             "2": "[Hg].6p<sup>6</sup>"
@@ -10676,7 +10676,7 @@
         "Critical temperature": "2093 K",
         "Density of solid": "1532 kg m<sup>-3</sup>",
         "Electrical resistivity": "13.3 10<sup>-8</sup> &Omega; m",
-        "Electron affinity": 0.48591621,
+        "Electron affinity": "0.48591621 eV",
         "Electronic structure": {
             "0": "[Kr].5s<sup>1</sup>",
             "1": "[Ar].3d<sup>10</sup>.4s<sup>2</sup>.4p<sup>6</sup>"
@@ -10826,7 +10826,7 @@
         ],
         "Density of solid": "21020 kg m<sup>-3</sup>",
         "Electrical resistivity": "18 10<sup>-8</sup> &Omega; m",
-        "Electron affinity": 0.06039664,
+        "Electron affinity": "0.06039664 eV",
         "Electronic structure": {
             "0": "[Xe].4f<sup>14</sup>.5d<sup>5</sup>.6s<sup>2</sup>",
             "4": "[Xe].4f<sup>14</sup>.5d<sup>3</sup>"
@@ -11017,7 +11017,7 @@
         ],
         "Density of solid": "12450 kg m<sup>-3</sup>",
         "Electrical resistivity": "4.3 10<sup>-8</sup> &Omega; m",
-        "Electron affinity": 1.142892,
+        "Electron affinity": "1.142892 eV",
         "Electronic structure": {
             "0": "[Kr].4d<sup>8</sup>.5s<sup>1</sup>",
             "3": "[Kr].4d<sup>6</sup>"
@@ -11156,7 +11156,7 @@
         "Atomic radius calculated": 1.2,
         "Boiling point": "211.3 K",
         "Critical temperature": "377 K",
-        "Electron affinity": -0.72,
+        "Electron affinity": "-0.72 eV",
         "Electronic structure": {
             "0": "[Xe].4f<sup>14</sup>.5d<sup>10</sup>.6s<sup>2</sup>.6p<sup>6</sup>"
         },
@@ -11289,7 +11289,7 @@
         ],
         "Density of solid": "12370 kg m<sup>-3</sup>",
         "Electrical resistivity": "7.1 10<sup>-8</sup> &Omega; m",
-        "Electron affinity": 1.046272,
+        "Electron affinity": "1.046272 eV",
         "Electronic structure": {
             "0": "[Kr].4d<sup>7</sup>.5s<sup>1</sup>",
             "3": "[Kr].4d<sup>5</sup>",
@@ -11449,7 +11449,7 @@
         "Critical temperature": "1314 K",
         "Density of solid": "1960 kg m<sup>-3</sup>",
         "Electrical resistivity": "&gt; 10<sup>23</sup> 10<sup>-8</sup> &Omega; m",
-        "Electron affinity": 2.07710426,
+        "Electron affinity": "2.07710426 eV",
         "Electronic structure": {
             "0": "[Ne].3s<sup>2</sup>.3p<sup>4</sup>",
             "-2": "[Ne].3s<sup>2</sup>.3p<sup>6</sup>",
@@ -11576,7 +11576,7 @@
         ],
         "Density of solid": "6697 kg m<sup>-3</sup>",
         "Electrical resistivity": "40 10<sup>-8</sup> &Omega; m",
-        "Electron affinity": 1.04740119,
+        "Electron affinity": "1.04740119 eV",
         "Electronic structure": {
             "0": "[Kr].4d<sup>10</sup>.5s<sup>2</sup>.5p<sup>3</sup>",
             "-3": "[Kr].4d<sup>10</sup>.5s<sup>2</sup>.5p<sup>6</sup>",
@@ -11726,7 +11726,7 @@
         ],
         "Density of solid": "2985 kg m<sup>-3</sup>",
         "Electrical resistivity": "about 55 10<sup>-8</sup> &Omega; m",
-        "Electron affinity": 0.17938023,
+        "Electron affinity": "0.17938023 eV",
         "Electronic structure": {
             "0": "[Ar].3d<sup>1</sup>.4s<sup>2</sup>",
             "3": "[Ne].3s<sup>2</sup>.3p<sup>6</sup>"
@@ -11828,7 +11828,7 @@
         "Critical temperature": "1766 K",
         "Density of solid": "4819 kg m<sup>-3</sup>",
         "Electrical resistivity": "high 10<sup>-8</sup> &Omega; m",
-        "Electron affinity": 2.020604712,
+        "Electron affinity": "2.020604712 eV",
         "Electronic structure": {
             "0": "[Ar].3d<sup>10</sup>.4s<sup>2</sup>.4p<sup>4</sup>",
             "-2": "[Ar].3d<sup>10</sup>.4s<sup>2</sup>.4p<sup>6</sup>",
@@ -11960,7 +11960,7 @@
         ],
         "Density of solid": "2330 kg m<sup>-3</sup>",
         "Electrical resistivity": "about 100000 10<sup>-8</sup> &Omega; m",
-        "Electron affinity": 1.38952128,
+        "Electron affinity": "1.38952128 eV",
         "Electronic structure": {
             "0": "[Ne].3s<sup>2</sup>.3p<sup>2</sup>",
             "-4": "[Ne].3s<sup>2</sup>.3p<sup>6</sup>",
@@ -12060,7 +12060,7 @@
         ],
         "Density of solid": "7353 kg m<sup>-3</sup>",
         "Electrical resistivity": "94 10<sup>-8</sup> &Omega; m",
-        "Electron affinity": 0.162,
+        "Electron affinity": "0.162 eV",
         "Electronic structure": {
             "0": "[Xe].4f<sup>6</sup>.6s<sup>2</sup>",
             "3": "[Xe].4f<sup>5</sup>"
@@ -12241,7 +12241,7 @@
         ],
         "Density of solid": "7310 kg m<sup>-3</sup>",
         "Electrical resistivity": "11.5 10<sup>-8</sup> &Omega; m",
-        "Electron affinity": 1.1120702,
+        "Electron affinity": "1.1120702 eV",
         "Electronic structure": {
             "0": "[Kr].4d<sup>10</sup>.5s<sup>2</sup>.5p<sup>2</sup>",
             "-4": "[Kr].4d<sup>10</sup>.5s<sup>2</sup>.5p<sup>6</sup>",
@@ -12392,7 +12392,7 @@
         ],
         "Density of solid": "2630 kg m<sup>-3</sup>",
         "Electrical resistivity": "13.5 10<sup>-8</sup> &Omega; m",
-        "Electron affinity": 0.052066,
+        "Electron affinity": "0.052066 eV",
         "Electronic structure": {
             "0": "[Kr].5s<sup>2</sup>",
             "2": "[Ar].3d<sup>10</sup>.4s<sup>2</sup>.4p<sup>6</sup>"
@@ -12534,7 +12534,7 @@
         ],
         "Density of solid": "16650 kg m<sup>-3</sup>",
         "Electrical resistivity": "13.5 10<sup>-8</sup> &Omega; m",
-        "Electron affinity": 0.32885923,
+        "Electron affinity": "0.32885923 eV",
         "Electronic structure": {
             "0": "[Xe].4f<sup>14</sup>.5d<sup>3</sup>.6s<sup>2</sup>",
             "5": "[Xe].4f<sup>14</sup>"
@@ -12718,7 +12718,7 @@
         ],
         "Density of solid": "8219 kg m<sup>-3</sup>",
         "Electrical resistivity": "115 10<sup>-8</sup> &Omega; m",
-        "Electron affinity": 0.131318,
+        "Electron affinity": "0.131318 eV",
         "Electronic structure": {
             "0": "[Xe].4f<sup>9</sup>.6s<sup>2</sup>",
             "3": "[Xe].4f<sup>8</sup>"
@@ -12886,7 +12886,7 @@
         ],
         "Density of solid": "11500 kg m<sup>-3</sup>",
         "Electrical resistivity": "about 22 10<sup>-8</sup> &Omega; m",
-        "Electron affinity": 0.552,
+        "Electron affinity": "0.552 eV",
         "Electronic structure": {
             "0": "[Kr].4d<sup>5</sup>.5s<sup>2</sup>",
             "4": "[Kr].4d<sup>3</sup>",
@@ -13027,7 +13027,7 @@
         ],
         "Density of solid": "6240 kg m<sup>-3</sup>",
         "Electrical resistivity": "about 10000 10<sup>-8</sup> &Omega; m",
-        "Electron affinity": 1.9708757,
+        "Electron affinity": "1.9708757 eV",
         "Electronic structure": {
             "0": "[Kr].4d<sup>10</sup>.5s<sup>2</sup>.5p<sup>4</sup>",
             "-2": "[Kr].4d<sup>10</sup>.5s<sup>2</sup>.5p<sup>6</sup>",
@@ -13202,7 +13202,7 @@
         ],
         "Density of solid": "11724 kg m<sup>-3</sup>",
         "Electrical resistivity": "15 10<sup>-8</sup> &Omega; m",
-        "Electron affinity": 0.607696,
+        "Electron affinity": "0.607696 eV",
         "Electronic structure": {
             "0": "[Rn].6d<sup>2</sup>.7s<sup>2</sup>",
             "4": "[Hg].6p<sup>6</sup>"
@@ -13392,7 +13392,7 @@
         ],
         "Density of solid": "4507 kg m<sup>-3</sup>",
         "Electrical resistivity": "about 40 10<sup>-8</sup> &Omega; m",
-        "Electron affinity": 0.075545,
+        "Electron affinity": "0.075545 eV",
         "Electronic structure": {
             "0": "[Ar].3d<sup>2</sup>.4s<sup>2</sup>",
             "4": "[Ne].3s<sup>2</sup>.3p<sup>6</sup>"
@@ -13536,7 +13536,7 @@
         ],
         "Density of solid": "11850 kg m<sup>-3</sup>",
         "Electrical resistivity": "15 10<sup>-8</sup> &Omega; m",
-        "Electron affinity": 0.32005319,
+        "Electron affinity": "0.32005319 eV",
         "Electronic structure": {
             "0": "[Xe].4f<sup>14</sup>.5d<sup>10</sup>.6s<sup>2</sup>.6p<sup>1</sup>",
             "1": "[Xe].4f<sup>14</sup>.5d<sup>10</sup>.6s<sup>2</sup>",
@@ -13726,7 +13726,7 @@
         ],
         "Density of solid": "9321 kg m<sup>-3</sup>",
         "Electrical resistivity": "67.6 10<sup>-8</sup> &Omega; m",
-        "Electron affinity": 1.02922,
+        "Electron affinity": "1.02922 eV",
         "Electronic structure": {
             "0": "[Xe].4f<sup>13</sup>.6s<sup>2</sup>",
             "3": "[Xe].4f<sup>12</sup>"
@@ -13899,7 +13899,7 @@
         ],
         "Density of solid": "19050 kg m<sup>-3</sup>",
         "Electrical resistivity": "28 10<sup>-8</sup> &Omega; m",
-        "Electron affinity": 0.314979,
+        "Electron affinity": "0.314979 eV",
         "Electronic structure": {
             "0": "[Rn].5f<sup>3</sup>.6d<sup>1</sup>.7s<sup>2</sup>",
             "6": "[Hg].6p<sup>6</sup>"
@@ -14146,7 +14146,7 @@
         ],
         "Density of solid": "6110 kg m<sup>-3</sup>",
         "Electrical resistivity": "20 10<sup>-8</sup> &Omega; m",
-        "Electron affinity": 0.527662,
+        "Electron affinity": "0.527662 eV",
         "Electronic structure": {
             "0": "[Ar].3d<sup>3</sup>.4s<sup>2</sup>",
             "2": "[Ar].3d<sup>3</sup>",
@@ -14312,7 +14312,7 @@
         ],
         "Density of solid": "19250 kg m<sup>-3</sup>",
         "Electrical resistivity": "5.4 10<sup>-8</sup> &Omega; m",
-        "Electron affinity": 0.81650082,
+        "Electron affinity": "0.81650082 eV",
         "Electronic structure": {
             "0": "[Xe].4f<sup>14</sup>.5d<sup>4</sup>.6s<sup>2</sup>",
             "4": "[Xe].4f<sup>14</sup>.5d<sup>2</sup>",
@@ -14494,7 +14494,7 @@
         "Atomic radius calculated": 1.08,
         "Boiling point": "165.1 K",
         "Critical temperature": "289.7 K",
-        "Electron affinity": -0.82,
+        "Electron affinity": "-0.82 eV",
         "Electronic structure": {
             "0": "[Kr].4d<sup>10</sup>.5s<sup>2</sup>.5p<sup>6</sup>"
         },
@@ -14615,7 +14615,7 @@
         ],
         "Density of solid": "4472 kg m<sup>-3</sup>",
         "Electrical resistivity": "about 60 10<sup>-8</sup> &Omega; m",
-        "Electron affinity": 0.3112922,
+        "Electron affinity": "0.3112922 eV",
         "Electronic structure": {
             "0": "[Kr].4d<sup>1</sup>.5s<sup>2</sup>",
             "3": "[Ar].3d<sup>10</sup>.4s<sup>2</sup>.4p<sup>6</sup>"
@@ -14746,7 +14746,7 @@
         ],
         "Density of solid": "6570 kg m<sup>-3</sup>",
         "Electrical resistivity": "25.0 10<sup>-8</sup> &Omega; m",
-        "Electron affinity": -0.02,
+        "Electron affinity": "-0.02 eV",
         "Electronic structure": {
             "0": "[Xe].4f<sup>14</sup>.6s<sup>2</sup>",
             "3": "[Xe].4f<sup>13</sup>"
@@ -14923,7 +14923,7 @@
         ],
         "Density of solid": "7140 kg m<sup>-3</sup>",
         "Electrical resistivity": "6.0 10<sup>-8</sup> &Omega; m",
-        "Electron affinity": -0.62,
+        "Electron affinity": "-0.62 eV",
         "Electronic structure": {
             "0": "[Ar].3d<sup>10</sup>.4s<sup>2</sup>",
             "2": "[Ar].3d<sup>10</sup>"
@@ -15046,7 +15046,7 @@
         ],
         "Density of solid": "6511 kg m<sup>-3</sup>",
         "Electrical resistivity": "43.3 10<sup>-8</sup> &Omega; m",
-        "Electron affinity": 0.433289,
+        "Electron affinity": "0.433289 eV",
         "Electronic structure": {
             "0": "[Kr].4d<sup>2</sup>.5s<sup>2</sup>",
             "4": "[Ar].3d<sup>10</sup>.4s<sup>2</sup>.4p<sup>6</sup>"
@@ -15886,7 +15886,7 @@
     "Rg": {
         "Atomic mass": 282,
         "Atomic no": 111,
-        "Electron affinity": 1.565,
+        "Electron affinity": "1.565 eV",
         "Name": "Roentgenium"
     },
     "Cn": {
@@ -15897,7 +15897,7 @@
     "Nh": {
         "Atomic mass": 286,
         "Atomic no": 113,
-        "Electron affinity": 0.69,
+        "Electron affinity": "0.69 eV",
         "Name": "Nihonium"
     },
     "Fl": {
@@ -15908,25 +15908,25 @@
     "Mc": {
         "Atomic mass": 290,
         "Atomic no": 115,
-        "Electron affinity": 0.366,
+        "Electron affinity": "0.366 eV",
         "Name": "Moscovium"
     },
     "Lv": {
         "Atomic mass": 293,
         "Atomic no": 116,
-        "Electron affinity": 0.776,
+        "Electron affinity": "0.776 eV",
         "Name": "Livermorium"
     },
     "Ts": {
         "Atomic mass": 294,
         "Atomic no": 117,
-        "Electron affinity": 1.719,
+        "Electron affinity": "1.719 eV",
         "Name": "Tennessine"
     },
     "Og": {
         "Atomic mass": 294,
         "Atomic no": 118,
-        "Electron affinity": 0.0806,
+        "Electron affinity": "0.0806 eV",
         "Name": "Oganesson"
     },
     "D": {
@@ -15937,7 +15937,6 @@
             -1,
             1
         ],
-        "Electron affinity": 0.754674,
         "Is named isotope": true,
         "Name": "Deuterium",
         "Oxidation states": [
