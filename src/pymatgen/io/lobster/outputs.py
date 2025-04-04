@@ -412,11 +412,8 @@ class Icohplist(MSONable):
             all_lines = [line for line in all_lines if line.strip()]
 
             # Determine the header length:
-            if "spin" not in all_lines[1]:
-                lines = all_lines[1:]
-            else:
-                lines = all_lines[2:]
-            
+            lines = all_lines[1:] if "spin" not in all_lines[1] else all_lines[2:]
+
             if len(lines) == 0:
                 raise RuntimeError("ICOHPLIST file contains no data.")
 
