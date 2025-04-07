@@ -43,7 +43,7 @@ def make_doc(ctx: Context) -> None:
 
         # Note: we use HTML building for the API docs to preserve search functionality.
         ctx.run("sphinx-build -b html apidoc html")  # HTML building.
-        ctx.run("rm apidocs/*.rst", warn=True)
+        ctx.run("rm apidoc/*.rst", warn=True)
         ctx.run("mv html/pymatgen*.html .")
         ctx.run("mv html/modules.html .")
 
