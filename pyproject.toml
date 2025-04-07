@@ -98,7 +98,7 @@ optional = [
     "pymatgen[abinit,ase,mlp,tblite]",
     "beautifulsoup4",
     # BoltzTraP2 build fails on Windows GitHub runners
-    "BoltzTraP2>=24.9.4 ; platform_system != 'Windows'",
+    "BoltzTraP2>=24.9.4",
     "chemview>=0.6",
     "f90nml>=1.1.2",
     "galore>=0.6.1",
