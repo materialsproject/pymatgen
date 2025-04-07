@@ -93,11 +93,10 @@ electronic_structure = ["fdint>=2.0.2"]
 mlp = ["matgl>=1.2.5"]
 numba = ["numba>=0.55"]
 numpy-v1 = ["numpy>=1.25.0,<2"] # Test NP1 on Windows (quite buggy ATM)
-zeopp = ["pyzeo"]  # Note: requires voro++ and zeo++ to be installed as binaries
+zeopp = ["pyzeo"]  # Note: requires voro++ and zeo++ to be installed
 optional = [
     "pymatgen[abinit,ase,mlp,tblite]",
     "beautifulsoup4",
-    # BoltzTraP2 build fails on Windows GitHub runners
     "BoltzTraP2>=24.9.4",
     "chemview>=0.6",
     "f90nml>=1.1.2",
