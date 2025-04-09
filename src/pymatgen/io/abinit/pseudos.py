@@ -1784,11 +1784,8 @@ class PseudoTable(collections.abc.Sequence, MSONable):
         """
         print(self.to_table(filter_function=filter_function), file=stream)
 
-    def to_table(self, filter_function=None) -> str:
-        """Return string with data in tabular form.
-
-        TODO: rename to `to_xxx`, but there's another `as_table` method already
-        """
+    def as_table_str(self, filter_function=None) -> str:
+        """Return string with data in tabular form."""
         table = []
         for p in self:
             if filter_function is not None and filter_function(p):
@@ -1799,6 +1796,10 @@ class PseudoTable(collections.abc.Sequence, MSONable):
             headers=["basename", "symbol", "Z_val", "l_max", "l_local", "XC", "type"],
             tablefmt="grid",
         )
+
+    @deprecated(as_table_str, deadline=(2026, 4, 4))
+    def to_table(self, *args, **kwargs):
+        return self.as_table_str(*args, **kwargs)
 
     def sorted(self, attrname, reverse=False):
         """Sort the table according to the value of attribute attrname.
