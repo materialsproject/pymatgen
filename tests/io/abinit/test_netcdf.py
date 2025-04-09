@@ -124,4 +124,5 @@ class TestAbinitHeader(PymatgenTest):
         assert str(head)
         assert head.as_str(verbose=2, title="title")
         # PLEASE DO NOT REMOVE THIS LINE AS THIS API HAS BEEN AROUND FOR SEVERAL YEARS,
-        assert head.to_string(verbose=2, title="title")
+        with pytest.warns(FutureWarning, match="to_string is deprecated"):
+            assert head.to_string(verbose=2, title="title")

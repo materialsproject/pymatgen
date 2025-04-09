@@ -925,7 +925,7 @@ class DetailedVoronoiContainer(MSONable):
         Returns:
             dictionary that is BSON-encodable.
         """
-        bson_nb_voro_list2 = self.to_bson_voronoi_list2()
+        bson_nb_voro_list2 = self.as_bson_voronoi_list2()
         return {
             "@module": type(self).__module__,
             "@class": type(self).__name__,
