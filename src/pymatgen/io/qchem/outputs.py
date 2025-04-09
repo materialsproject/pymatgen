@@ -1981,7 +1981,7 @@ class QCOutput(MSONable):
         dfs = nbo_parser(self.filename)
         nbo_data = {}
         for key, value in dfs.items():
-            nbo_data[key] = [df.as_dict() for df in value]
+            nbo_data[key] = [df.to_dict() for df in value]
         self.data["nbo_data"] = nbo_data
 
     def _read_cdft(self):
