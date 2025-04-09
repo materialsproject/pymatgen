@@ -139,6 +139,7 @@ class SymmetryGroup(Sequence, Stringify, ABC):
 
     @deprecated(as_latex_string, deadline=(2026, 4, 4))
     def to_latex_string(self) -> str:
+        """Deprecated."""
         return self.as_latex_string()
 
 
@@ -705,6 +706,7 @@ class SpaceGroup(SymmetryGroup):
 
     @deprecated(as_pretty_string, deadline=(2026, 4, 4))
     def to_pretty_string(self) -> str:
+        """Deprecated."""
         return self.as_pretty_string()
 
 

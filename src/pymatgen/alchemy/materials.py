@@ -379,6 +379,7 @@ class TransformedStructure(MSONable):
 
     @deprecated(as_snl, deadline=(2026, 4, 4))
     def to_snl(self, *args, **kwargs) -> StructureNL:
+        """Deprecated."""
         return self.as_snl(*args, **kwargs)
 
     @classmethod

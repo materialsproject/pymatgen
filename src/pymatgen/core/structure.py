@@ -531,6 +531,7 @@ class SiteCollection(collections.abc.Sequence, ABC):
 
     @deprecated(as_file, deadline=(2026, 4, 4))
     def to_file(self, *args, **kwargs):
+        """Deprecated."""
         return self.as_file(*args, **kwargs)
 
     @classmethod
@@ -992,6 +993,7 @@ class SiteCollection(collections.abc.Sequence, ABC):
 
     @deprecated(as_ase_atoms, deadline=(2026, 4, 4))
     def to_ase_atoms(self, **kwargs) -> Atoms:
+        """Deprecated."""
         return self.as_ase_atoms(**kwargs)
 
     @classmethod
@@ -3337,6 +3339,7 @@ class IStructure(SiteCollection, MSONable):
 
     @deprecated(as_cell, deadline=(2026, 4, 4))
     def to_cell(self, *args, **kwargs):
+        """Deprecated."""
         return self.as_cell(*args, **kwargs)
 
     def as_primitive(self, **kwargs) -> Structure:
@@ -3353,6 +3356,7 @@ class IStructure(SiteCollection, MSONable):
 
     @deprecated(as_primitive, deadline=(2026, 4, 4))
     def to_primitive(self, **kwargs):
+        """Deprecated."""
         return self.as_primitive(**kwargs)
 
     def as_conventional(self, **kwargs) -> Structure:
@@ -3369,6 +3373,7 @@ class IStructure(SiteCollection, MSONable):
 
     @deprecated(as_conventional, deadline=(2026, 4, 4))
     def to_conventional(self, **kwargs):
+        """Deprecated."""
         return self.as_conventional(**kwargs)
 
     @overload

@@ -90,6 +90,7 @@ class Stringify:
 
     @deprecated(as_latex_string, deadline=(2026, 4, 4))
     def to_latex_string(self) -> str:
+        """Deprecated."""
         return self.as_latex_string()
 
     def as_html_string(self) -> str:
@@ -108,6 +109,7 @@ class Stringify:
 
     @deprecated(as_html_string, deadline=(2026, 1, 1))
     def to_html_string(self) -> str:
+        """Deprecated."""
         return self.as_html_string()
 
     def as_unicode_string(self) -> str:
@@ -127,6 +129,7 @@ class Stringify:
 
     @deprecated(as_unicode_string, deadline=(2026, 4, 4))
     def to_unicode_string(self) -> str:
+        """Deprecated."""
         return self.as_unicode_string()
 
 

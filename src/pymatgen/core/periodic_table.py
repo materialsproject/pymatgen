@@ -1326,6 +1326,7 @@ class Species(MSONable, Stringify):
 
     @deprecated(as_pretty_string, deadline=(2026, 4, 4))
     def to_pretty_string(self) -> str:
+        """Deprecated."""
         return self.as_pretty_string()
 
     def get_nmr_quadrupole_moment(self, isotope: str | None = None) -> float:

@@ -330,6 +330,7 @@ class EntrySet(collections.abc.MutableSet, MSONable):
 
     @deprecated(as_csv, deadline=(2026, 4, 4))
     def to_csv(self, *args, **kwargs):
+        """Deprecated."""
         return self.as_csv(*args, **kwargs)
 
     @classmethod

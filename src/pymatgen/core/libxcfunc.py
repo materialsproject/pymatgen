@@ -507,4 +507,5 @@ class LibxcFunc(Enum):
 
     @deprecated(as_json, deadline=(2026, 4, 4))
     def to_json(self) -> str:
+        """Deprecated."""
         return self.as_json()

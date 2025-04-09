@@ -491,6 +491,7 @@ class PeriodicSite(Site, MSONable):
 
     @deprecated(as_unit_cell, deadline=(2026, 4, 4))
     def to_unit_cell(self, *args, **kwargs):
+        """Deprecated."""
         return self.as_unit_cell(*args, **kwargs)
 
     def is_periodic_image(

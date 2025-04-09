@@ -336,6 +336,7 @@ class Trajectory(MSONable):
 
     @deprecated(as_positions, deadline=(2026, 4, 4))
     def to_positions(self) -> None:
+        """Deprecated."""
         return self.as_positions()
 
     def as_displacements(self) -> None:
@@ -367,6 +368,7 @@ class Trajectory(MSONable):
 
     @deprecated(as_displacements, deadline=(2026, 4, 4))
     def to_displacements(self) -> None:
+        """Deprecated."""
         return self.as_displacements()
 
     def extend(self, trajectory: Self) -> None:
@@ -889,4 +891,5 @@ class Trajectory(MSONable):
 
     @deprecated(as_ase, deadline=(2026, 4, 4))
     def to_ase(self, *args, **kwargs):
+        """Deprecated."""
         return self.as_ase(*args, **kwargs)

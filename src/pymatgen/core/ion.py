@@ -302,6 +302,7 @@ class Ion(Composition, MSONable, Stringify):
     @property
     @deprecated(as_reduced_dict, deadline=(2026, 4, 4))
     def to_reduced_dict(self) -> dict:
+        """Deprecated."""
         return self.as_reduced_dict()
 
     @property
@@ -355,4 +356,5 @@ class Ion(Composition, MSONable, Stringify):
 
     @deprecated(as_pretty_string, deadline=(2026, 4, 4))
     def to_pretty_string(self) -> str:
+        """Deprecated."""
         return self.as_pretty_string()

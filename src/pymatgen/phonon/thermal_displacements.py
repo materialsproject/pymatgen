@@ -500,6 +500,7 @@ class ThermalDisplacementMatrices(MSONable):
 
     @deprecated(as_structure_with_site_properties_Ucif, deadline=(2026, 4, 4))
     def to_structure_with_site_properties_Ucif(self) -> Structure:
+        """Deprecated."""
         return self.as_structure_with_site_properties_Ucif()
 
     @classmethod
