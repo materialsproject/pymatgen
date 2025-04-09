@@ -131,7 +131,7 @@ class Mcsqs:
                     species_occ = [species_occ[0], 1.0]
 
                 if "_" in species_occ[0]:
-                    # see to_str() method in this file, since , and = are not valid
+                    # see `as_str` in this file, since , and = are not valid
                     # species names in AT-AT we replace "," with "__" and "=" with "___",
                     # for pymatgen to parse these back correctly we have to replace them back
                     species_occ[0] = species_occ[0].replace("___", "=").replace("__", ",")

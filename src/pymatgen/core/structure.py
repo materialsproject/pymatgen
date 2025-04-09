@@ -2975,7 +2975,7 @@ class IStructure(SiteCollection, MSONable):
         elif fmt == "xsf" or fnmatch(filename.lower(), "*.xsf*"):
             from pymatgen.io.xcrysden import XSF
 
-            res_str = XSF(self).to_str()
+            res_str = XSF(self).as_str()
             if filename:
                 with zopen(filename, mode="wt", encoding="utf-8") as file:
                     file.write(res_str)
@@ -2989,7 +2989,7 @@ class IStructure(SiteCollection, MSONable):
         ):
             from pymatgen.io.atat import Mcsqs
 
-            res_str = Mcsqs(self).to_str()
+            res_str = Mcsqs(self).as_str()
             if filename:
                 with zopen(filename, mode="wt", encoding="ascii") as file:
                     file.write(res_str)
@@ -2998,7 +2998,7 @@ class IStructure(SiteCollection, MSONable):
         elif fmt == "prismatic" or fnmatch(filename, "*prismatic*"):
             from pymatgen.io.prismatic import Prismatic
 
-            return Prismatic(self).to_str()
+            return Prismatic(self).as_str()
 
         elif fmt in ("yaml", "yml") or fnmatch(filename, "*.yaml*") or fnmatch(filename, "*.yml*"):
             yaml = YAML()

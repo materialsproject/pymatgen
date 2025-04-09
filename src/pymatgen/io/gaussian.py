@@ -170,7 +170,7 @@ class GaussianInput:
             self.basis_set = "Gen"
 
     def __str__(self):
-        return self.to_str()
+        return self.as_str()
 
     @property
     def molecule(self):
@@ -394,14 +394,14 @@ class GaussianInput:
                 Defaults to False.
         """
 
-        def para_dict_to_str(para, joiner=" "):
+        def para_dict_as_str(para, joiner=" "):
             para_str = []
             # sorted is only done to make unit tests work reliably
             for par, val in sorted(para.items()):
                 if val is None or val == "":
                     para_str.append(par)
                 elif isinstance(val, dict):
-                    val_str = para_dict_to_str(val, joiner=",")
+                    val_str = para_dict_as_str(val, joiner=",")
                     para_str.append(f"{par}=({val_str})")
                 else:
                     para_str.append(f"{par}={val}")
@@ -409,7 +409,7 @@ class GaussianInput:
 
         output = []
         if self.link0_parameters:
-            output.append(para_dict_to_str(self.link0_parameters, "\n"))
+            output.append(para_dict_as_str(self.link0_parameters, "\n"))
 
         # Handle functional or basis set to None, empty string or whitespace
         func_str = "" if self.functional is None else self.functional.strip()
@@ -422,7 +422,7 @@ class GaussianInput:
             func_bset_str = f" {func_str}{bset_str}".rstrip()
 
         output += (
-            f"{self.dieze_tag}{func_bset_str} {para_dict_to_str(self.route_parameters)}",
+            f"{self.dieze_tag}{func_bset_str} {para_dict_as_str(self.route_parameters)}",
             "",
             self.title,
             "",
@@ -442,7 +442,7 @@ class GaussianInput:
         output.append("")
         if self.gen_basis is not None:
             output.append(f"{self.gen_basis}\n")
-        output.extend((para_dict_to_str(self.input_parameters, "\n"), "\n"))
+        output.extend((para_dict_as_str(self.input_parameters, "\n"), "\n"))
         return "\n".join(output)
 
     @deprecated(as_str, deadline=(2026, 4, 4))
@@ -455,7 +455,7 @@ class GaussianInput:
         Option: see `__str__` method
         """
         with zopen(filename, mode="wt", encoding="utf-8") as file:
-            file.write(self.to_str(cart_coords))
+            file.write(self.as_str(cart_coords))
 
     def as_dict(self):
         """MSONable dict."""
@@ -569,7 +569,7 @@ class GaussianOutput:
             printed using `pop=NBOREAD` and `$nbo bndidx $end`.
 
     Methods:
-        to_input()
+        as_input()
             Return a GaussianInput object using the last geometry and the same
             calculation parameters.
 

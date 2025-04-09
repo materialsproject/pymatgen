@@ -306,7 +306,7 @@ class LammpsData(MSONable):
         molecule = topologies[0].sites
         coords = molecule.cart_coords - np.array(self.box.bounds)[:, 0]
         species = molecule.species
-        lattice = self.box.to_lattice()
+        lattice = self.box.as_lattice()
         site_properties = {}
         if "q" in atoms:
             site_properties["charge"] = atoms["q"].to_numpy()
@@ -881,7 +881,7 @@ class LammpsData(MSONable):
             rot_velos = rot.operate_multi(velos)
             site_properties["velocities"] = rot_velos
         boxed_s = Structure(
-            box.to_lattice(),
+            box.as_lattice(),
             struct.species,
             coords,
             site_properties=site_properties,

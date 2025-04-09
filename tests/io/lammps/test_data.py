@@ -753,9 +753,9 @@ class TestForceField(PymatgenTest):
             ("h1", "h1", "c4", "h1"): 2,
         }
 
-    def test_to_file(self):
+    def test_as_file(self):
         filename = "ff_test.yaml"
-        self.virus.to_file(filename=f"{self.tmp_path}/{filename}")
+        self.virus.as_file(filename=f"{self.tmp_path}/{filename}")
         yaml = YAML()
         with open(filename, encoding="utf-8") as file:
             dct = yaml.load(file)

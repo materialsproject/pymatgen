@@ -321,10 +321,10 @@ class AbivarAble(abc.ABC):
     #    """Build the object from a dictionary with Abinit variables."""
 
     def __str__(self):
-        return pformat(self.to_abivars(), indent=1, width=80, depth=None)
+        return pformat(self.as_abivars(), indent=1, width=80, depth=None)
 
     def __contains__(self, key):
-        return key in self.to_abivars()
+        return key in self.as_abivars()
 
 
 @singleton
@@ -657,12 +657,12 @@ class Electrons(AbivarAble, MSONable):
 
     def as_abivars(self):
         """Return dictionary with Abinit variables."""
-        abivars = self.spin_mode.to_abivars()
+        abivars = self.spin_mode.as_abivars()
 
         abivars |= {"nband": self.nband, "fband": self.fband, "charge": self.charge}
 
         if self.smearing:
-            abivars.update(self.smearing.to_abivars())
+            abivars.update(self.smearing.as_abivars())
 
         if self.algorithm:
             abivars.update(self.algorithm)
@@ -1149,7 +1149,7 @@ class RelaxationMethod(AbivarAble, MSONable):
         if self.abivars.atoms_constraints:
             # Add input variables for constrained relaxation.
             raise NotImplementedError("")
-            out_vars.update(self.abivars.atoms_constraints.to_abivars())
+            out_vars.update(self.abivars.atoms_constraints.as_abivars())
 
         # Cell relaxation.
         if self.move_cell:
@@ -1458,7 +1458,7 @@ class Screening(AbivarAble):
 
         # Variables for the Hilber transform.
         if self.use_hilbert:
-            abivars.update(self.hilbert.to_abivars())
+            abivars.update(self.hilbert.as_abivars())
 
         return abivars
 
@@ -1597,7 +1597,7 @@ class SelfEnergy(AbivarAble):
 
         # ppmodel variables
         if self.use_ppmodel:
-            abivars |= self.ppmodel.to_abivars()
+            abivars |= self.ppmodel.as_abivars()
 
         return abivars
 

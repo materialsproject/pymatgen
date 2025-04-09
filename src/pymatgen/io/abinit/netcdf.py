@@ -500,6 +500,6 @@ class AbinitHeader(AttrDict):
     def to_str(self, *args, **kwargs):
         return self.as_str(*args, **kwargs)
 
-    @deprecated(as_str)
+    @deprecated(as_str, deadline=(2026, 4, 4))
     def to_string(self, *args, **kwargs):
         return self.as_str(*args, **kwargs)
