@@ -15,6 +15,7 @@ from collections import defaultdict
 from datetime import datetime, timezone
 from typing import TYPE_CHECKING
 
+from monty.dev import deprecated
 from monty.json import MontyDecoder, MontyEncoder, MSONable
 
 from pymatgen.analysis.phase_diagram import PDEntry
@@ -300,7 +301,7 @@ class EntrySet(collections.abc.MutableSet, MSONable):
         """Get MSONable dict."""
         return {"entries": list(self.entries)}
 
-    def to_csv(self, filename: str, latexify_names: bool = False) -> None:
+    def as_csv(self, filename: str, latexify_names: bool = False) -> None:
         """Exports PDEntries to a csv.
 
         Args:
@@ -326,6 +327,10 @@ class EntrySet(collections.abc.MutableSet, MSONable):
                 row.extend([str(entry.composition[el]) for el in elements])
                 row.append(str(entry.energy))
                 writer.writerow(row)
+
+    @deprecated(as_csv, deadline=(2026, 4, 4))
+    def to_csv(self, filename: str, latexify_names: bool = False) -> None:
+        return self.as_csv(filename=filename, latexify_names=latexify_names)
 
     @classmethod
     def from_csv(cls, filename: str) -> Self:

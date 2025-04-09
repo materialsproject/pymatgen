@@ -132,7 +132,7 @@ class PotcarScrambler:
     @classmethod
     def from_file(cls, input_filename: str, output_filename: str | None = None) -> Self:
         """Read a POTCAR from file and generate a scrambled version."""
-        psp = Potcar.from_file(input_filename)
+        psp = Potcar.fr_om_file(input_filename)
         psp_scrambled = cls(psp)
         if output_filename is not None:
             psp_scrambled.as_file(output_filename)

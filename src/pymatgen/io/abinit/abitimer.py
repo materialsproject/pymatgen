@@ -546,7 +546,7 @@ class ParallelEfficiency(dict):
         data.sort(key=lambda t: t[1], reverse=reverse)
         return tuple(sect_name for (sect_name, e) in data)
 
-    def totable(self, stop=None, reverse=True):
+    def as_table(self, stop=None, reverse=True):
         """Get table (list of lists) with timing results.
 
         Args:
@@ -567,6 +567,10 @@ class ParallelEfficiency(dict):
             table.append([sect_name] + [f"{val:.2f}" for val in vals])
 
         return table
+
+    @deprecated(as_table, deadline=(2026, 4, 4))
+    def totable(self, stop=None, reverse=True):
+        return self.as_table(stop=stop, reverse=reverse)
 
     def good_sections(self, key="wall_time", criterion="mean", nmax=5):
         """Return first `nmax` sections with best value of key `key` using criterion `criterion`."""

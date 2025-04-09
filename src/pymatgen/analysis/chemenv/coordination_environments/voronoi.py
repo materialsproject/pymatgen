@@ -8,6 +8,7 @@ from typing import TYPE_CHECKING
 
 import matplotlib.pyplot as plt
 import numpy as np
+from monty.dev import deprecated
 from monty.json import MSONable
 from scipy.spatial import Voronoi
 
@@ -888,7 +889,7 @@ class DetailedVoronoiContainer(MSONable):
             return NotImplemented
         return all(getattr(self, attr) == getattr(other, attr) for attr in needed_attrs)
 
-    def to_bson_voronoi_list2(self):
+    def as_bson_voronoi_list2(self):
         """
         Transforms the voronoi_list into a vlist + bson_nb_voro_list, that are BSON-encodable.
 
@@ -912,6 +913,10 @@ class DetailedVoronoiContainer(MSONable):
                 site_voro.append([[nb_dict["index"], [float(c) for c in diff]], site_dict])
             bson_nb_voro_list2[ivoro] = site_voro
         return bson_nb_voro_list2
+
+    @deprecated(as_bson_voronoi_list2, deadline=(2026, 4, 4))
+    def to_bson_voronoi_list2(self):
+        return self.as_bson_voronoi_list2()
 
     def as_dict(self):
         """

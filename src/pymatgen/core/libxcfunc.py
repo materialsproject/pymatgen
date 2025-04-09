@@ -12,6 +12,7 @@ import os
 from enum import Enum, unique
 from typing import TYPE_CHECKING
 
+from monty.dev import deprecated
 from monty.json import MontyEncoder
 
 if TYPE_CHECKING:
@@ -500,6 +501,10 @@ class LibxcFunc(Enum):
         """Deserialize from MSONable dict representation."""
         return cls[dct["name"]]
 
-    def to_json(self) -> str:
+    def as_json(self) -> str:
         """Get a JSON string representation of the LibxcFunc."""
         return json.dumps(self.as_dict(), cls=MontyEncoder)
+
+    @deprecated(as_json, deadline=(2026, 4, 4))
+    def to_json(self) -> str:
+        return self.as_json()

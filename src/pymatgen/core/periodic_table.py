@@ -19,6 +19,7 @@ from pathlib import Path
 from typing import TYPE_CHECKING, overload
 
 import numpy as np
+from monty.dev import deprecated
 from monty.json import MSONable
 
 from pymatgen.core.units import SUPPORTED_UNIT_NAMES, FloatWithUnit, Ha_to_eV, Length, Mass, Unit
@@ -1313,7 +1314,7 @@ class Species(MSONable, Stringify):
             return cls(sym, 0 if oxi is None else oxi, **properties)
         raise ValueError("Invalid species string")
 
-    def to_pretty_string(self) -> str:
+    def as_pretty_string(self) -> str:
         """String without properties."""
         output = self.symbol
         if self.oxi_state is not None:
@@ -1322,6 +1323,10 @@ class Species(MSONable, Stringify):
                 abs_charge = f"{abs_charge:.2f}"
             output += f"{abs_charge}{'+' if self.oxi_state >= 0 else '-'}"
         return output
+
+    @deprecated(as_pretty_string, deadline=(2026, 4, 4))
+    def to_pretty_string(self) -> str:
+        return self.as_pretty_string()
 
     def get_nmr_quadrupole_moment(self, isotope: str | None = None) -> float:
         """Get the nuclear electric quadrupole moment in units of e * millibarns.

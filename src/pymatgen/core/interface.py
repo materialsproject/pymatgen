@@ -151,17 +151,17 @@ class GrainBoundary(Structure):
             f"ab_shift: {self.ab_shift}",
         ]
 
-        def to_str(number: float, rjust: int = 10) -> str:
+        def as_str(number: float, rjust: int = 10) -> str:
             """Convert a float to string and right justify."""
             return (f"{number:0.6f}").rjust(rjust)
 
         outs += (
-            f"abc   : {' '.join(to_str(i) for i in self.lattice.abc)}",
-            f"angles: {' '.join(to_str(i) for i in self.lattice.angles)}",
+            f"abc   : {' '.join(as_str(i) for i in self.lattice.abc)}",
+            f"angles: {' '.join(as_str(i) for i in self.lattice.angles)}",
             f"Sites ({len(self)})",
         )
         for idx, site in enumerate(self, start=1):
-            outs.append(f"{idx} {site.species_string} {' '.join(to_str(coord, 12) for coord in site.frac_coords)}")
+            outs.append(f"{idx} {site.species_string} {' '.join(as_str(coord, 12) for coord in site.frac_coords)}")
         return "\n".join(outs)
 
     def copy(self) -> Self:
