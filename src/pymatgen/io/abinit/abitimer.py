@@ -619,9 +619,20 @@ class AbinitTimerSection:
         self.ncalls = int(ncalls)
         self.gflops = float(gflops)
 
-    def to_tuple(self):
+    def __str__(self):
+        """String representation."""
+        string = ""
+        for a in AbinitTimerSection.FIELDS:
+            string = f"{a} = {self.__dict__[a]},"
+        return string[:-1]
+
+    def as_tuple(self):
         """Get the values as a tuple."""
         return tuple(self.__dict__[at] for at in AbinitTimerSection.FIELDS)
+
+    @deprecated(as_tuple, deadline=(2026, 4, 4))
+    def to_tuple(self):
+        return self.as_tuple()
 
     def as_dict(self):
         """Get the values as a dictionary."""
@@ -631,7 +642,7 @@ class AbinitTimerSection:
     def to_dict(self):
         return self.as_dict()
 
-    def to_csvline(self, with_header=False):
+    def as_csvline(self, with_header=False):
         """Return a string with data in CSV format. Add header if `with_header`."""
         string = ""
 
@@ -641,12 +652,9 @@ class AbinitTimerSection:
         string += ", ".join(str(v) for v in self.to_tuple()) + "\n"
         return string
 
-    def __str__(self):
-        """String representation."""
-        string = ""
-        for a in AbinitTimerSection.FIELDS:
-            string = f"{a} = {self.__dict__[a]},"
-        return string[:-1]
+    @deprecated(as_csvline, deadline=(2026, 4, 4))
+    def to_csvline(self, with_header=False):
+        return self.as_csvline(with_header=with_header)
 
 
 class AbinitTimer:
@@ -694,7 +702,7 @@ class AbinitTimer:
             raise ValueError(f"{sect.name=} != {section_name=}")
         return sect
 
-    def to_csv(self, fileobj=sys.stdout):
+    def as_csv(self, fileobj=sys.stdout):
         """Write data on file fileobj using CSV format."""
         is_str = isinstance(fileobj, str)
 
@@ -708,7 +716,11 @@ class AbinitTimer:
         if is_str:
             fileobj.close()
 
-    def to_table(self, sort_key="wall_time", stop=None):
+    @deprecated(as_csv, deadline=(2026, 4, 4))
+    def to_csv(self, fileobj=sys.stdout):
+        return self.as_csv(fileobj=fileobj)
+
+    def as_table(self, sort_key="wall_time", stop=None):
         """Return a table (list of lists) with timer data."""
         table = [list(AbinitTimerSection.FIELDS)]
         ord_sections = self.order_sections(sort_key)
@@ -717,14 +729,18 @@ class AbinitTimer:
             ord_sections = ord_sections[:stop]
 
         for osect in ord_sections:
-            row = list(map(str, osect.to_tuple()))
+            row = list(map(str, osect.as_tuple()))
             table.append(row)
 
         return table
 
-    @deprecated(to_table, deadline=(2026, 4, 4))
+    @deprecated(as_table, deadline=(2026, 4, 4))
+    def to_table(self, sort_key="wall_time", stop=None):
+        return self.as_table(sort_key=sort_key, stop=stop)
+
+    @deprecated(as_table, deadline=(2026, 4, 4))
     def totable(self, sort_key="wall_time", stop=None):
-        return self.to_table(sort_key=sort_key, stop=stop)
+        return self.as_table(sort_key=sort_key, stop=stop)
 
     def get_dataframe(self, sort_key="wall_time", **kwargs):
         """Return a pandas DataFrame with entries sorted according to `sort_key`."""

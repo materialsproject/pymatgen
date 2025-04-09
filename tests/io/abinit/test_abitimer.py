@@ -32,7 +32,7 @@ class TestAbinitTimer(PymatgenTest):
         assert timer.cpu_time == 5.1
         assert timer.get_dataframe() is not None
 
-        assert timer.to_table()
+        assert timer.as_table()
 
         assert len(timer.get_values("cpu_time")) == 30
 
@@ -51,7 +51,7 @@ class TestAbinitTimer(PymatgenTest):
         assert timer.cpu_time == 0.3
         assert timer.get_dataframe() is not None
 
-        assert timer.to_table()
+        assert timer.as_table()
 
         assert len(timer.get_values("cpu_time")) == 30
 
