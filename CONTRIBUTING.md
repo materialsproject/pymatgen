@@ -96,7 +96,10 @@ Given that `pymatgen` is intended to be a long-term code base, we adopt very str
    pre-commit run --all-files  # ensure your entire codebase passes linters
    ```
 
+   **Naming conventions for conversion methods**. We prefer consistent naming patterns such as `from_xxx` (e.g., `from_str`, `from_dict`) and `as_xxx` (e.g., `as_dict`, `as_json`) for methods that convert between types or representations.
+
 3. **Python 3**. We only support Python 3.10+.
+
 4. **Documentation** is required for all modules, classes and methods. We prefer [Google Style Docstrings](https://www.sphinx-doc.org/en/master/usage/extensions/example_google.html). In particular, the method doc strings should make clear the arguments expected and the return values. For complex algorithms (e.g., an Ewald summation), a summary of the algorithm should be provided and preferably with a link to a publication outlining the method in detail.
 
 For the above, if in doubt, please refer to the core classes in `pymatgen` for examples of what is expected.
