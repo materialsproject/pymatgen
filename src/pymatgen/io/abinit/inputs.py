@@ -17,6 +17,7 @@ from typing import TYPE_CHECKING, NamedTuple
 
 import numpy as np
 from monty.collections import AttrDict
+from monty.dev import deprecated
 from monty.json import MSONable
 
 from pymatgen.core.structure import Structure
@@ -609,7 +610,7 @@ class AbstractInput(MutableMapping, abc.ABC):
         return f"<{type(self).__name__} at {id(self)}>"
 
     def __str__(self):
-        return self.to_str()
+        return self.as_str()
 
     def write(self, filepath="run.abi"):
         """Write the input file to file to filepath."""
@@ -695,8 +696,12 @@ class AbstractInput(MutableMapping, abc.ABC):
         """Check if key is a valid name. Raise self.Error if not valid."""
 
     @abc.abstractmethod
-    def to_str(self):
+    def as_str(self):
         """Get a string with the input."""
+
+    @deprecated(as_str, deadline=(2026, 4, 4))
+    def to_str(self):
+        return self.as_str()
 
 
 class BasicAbinitInputError(Exception):
@@ -818,7 +823,7 @@ class BasicAbinitInput(AbstractInput, MSONable):
                 "Use Structure objects to prepare the input file."
             )
 
-    def to_str(self, post=None, with_structure=True, with_pseudos=True, exclude=None):
+    def as_str(self, post=None, with_structure=True, with_pseudos=True, exclude=None):
         """String representation.
 
         Args:
@@ -866,6 +871,10 @@ class BasicAbinitInput(AbstractInput, MSONable):
 
         out += "\n#".join(ppinfo)
         return out
+
+    @deprecated(as_str, deadline=(2026, 4, 4))
+    def to_str(self, *args, **kwargs):
+        return self.as_str(*args, **kwargs)
 
     @property
     def comment(self):
@@ -1223,9 +1232,9 @@ class BasicMultiDataset:
         return all(self[0].structure == inp.structure for inp in self)
 
     def __str__(self):
-        return self.to_str()
+        return self.as_str()
 
-    def to_str(self, with_pseudos=True):
+    def as_str(self, with_pseudos=True):
         """String representation i.e. the input file read by Abinit.
 
         Args:
@@ -1243,7 +1252,7 @@ class BasicMultiDataset:
                 return np.array_equal(vref, otherv)
 
             # Don't repeat variable that are common to the different datasets.
-            # Put them in the `Global Variables` section and exclude these variables in inp.to_str
+            # Put them in the `Global Variables` section and exclude these variables in inp.as_str
             global_vars = set()
             for k0, v0 in self[0].items():
                 isame = True
@@ -1263,7 +1272,7 @@ class BasicMultiDataset:
 
             has_same_structures = self.has_same_structures
             if has_same_structures:
-                # Write structure here and disable structure output in input.to_str
+                # Write structure here and disable structure output in input.as_str
                 lines.extend((w * "#", "#" + "STRUCTURE".center(w - 1), w * "#"))
                 for key, value in aobj.structure_to_abivars(self[0].structure).items():
                     vname = key
@@ -1272,7 +1281,7 @@ class BasicMultiDataset:
             for i, inp in enumerate(self):
                 header = f"### DATASET {i + 1} ###"
                 is_last = i == self.ndtset - 1
-                s = inp.to_str(
+                s = inp.as_str(
                     post=str(i + 1),
                     with_pseudos=is_last and with_pseudos,
                     with_structure=not has_same_structures,
@@ -1290,7 +1299,11 @@ class BasicMultiDataset:
         # and we have variables that end with the dataset index e.g. acell1
         # We don't want to specify ndtset here since abinit will start to add DS# to
         # the input and output files thus complicating the algorithms we have to use to locate the files.
-        return self[0].to_str(with_pseudos=with_pseudos)
+        return self[0].as_str(with_pseudos=with_pseudos)
+
+    @deprecated(as_str, deadline=(2026, 4, 4))
+    def to_str(self, *args, **kwargs):
+        return self.as_str(*args, **kwargs)
 
     def write(self, filepath="run.abi"):
         """Write ndset input files to disk. The name of the file

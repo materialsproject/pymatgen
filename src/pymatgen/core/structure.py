@@ -525,9 +525,13 @@ class SiteCollection(collections.abc.Sequence, ABC):
         """
         raise NotImplementedError
 
-    def to_file(self, filename: str = "", fmt: FileFormats = "") -> str | None:
+    def as_file(self, filename: str = "", fmt: FileFormats = "") -> str | None:
         """A more intuitive alias for .to()."""
         return self.to(filename, fmt)
+
+    @deprecated(as_file, deadline=(2026, 4, 4))
+    def to_file(self, *args, **kwargs):
+        return self.as_file(*args, **kwargs)
 
     @classmethod
     @abstractmethod
@@ -973,7 +977,7 @@ class SiteCollection(collections.abc.Sequence, ABC):
 
         raise ValueError(f"Unknown {calculator=}.")
 
-    def to_ase_atoms(self, **kwargs) -> Atoms:
+    def as_ase_atoms(self, **kwargs) -> Atoms:
         """Convert the structure/molecule to an ase.Atoms object.
 
         Args:
@@ -985,6 +989,10 @@ class SiteCollection(collections.abc.Sequence, ABC):
         from pymatgen.io.ase import AseAtomsAdaptor
 
         return AseAtomsAdaptor.get_atoms(self, **kwargs)
+
+    @deprecated(as_ase_atoms, deadline=(2026, 4, 4))
+    def to_ase_atoms(self, **kwargs) -> Atoms:
+        return self.as_ase_atoms(**kwargs)
 
     @classmethod
     def from_ase_atoms(cls, atoms: Atoms, **kwargs) -> Self:
@@ -3304,7 +3312,7 @@ class IStructure(SiteCollection, MSONable):
 
     CellType: TypeAlias = Literal["primitive", "conventional"]
 
-    def to_cell(self, cell_type: IStructure.CellType, **kwargs) -> Structure:
+    def as_cell(self, cell_type: IStructure.CellType, **kwargs) -> Structure:
         """Get a cell based on the current structure.
 
         Args:
@@ -3327,7 +3335,11 @@ class IStructure(SiteCollection, MSONable):
         sga = SpacegroupAnalyzer(self, **kwargs)
         return getattr(sga, f"get_{cell_type}_standard_structure")(**method_kwargs)
 
-    def to_primitive(self, **kwargs) -> Structure:
+    @deprecated(as_cell, deadline=(2026, 4, 4))
+    def to_cell(self, *args, **kwargs):
+        return self.as_cell(*args, **kwargs)
+
+    def as_primitive(self, **kwargs) -> Structure:
         """Get a primitive cell based on the current structure.
 
         Args:
@@ -3337,9 +3349,13 @@ class IStructure(SiteCollection, MSONable):
         Returns:
             Structure: with the requested cell type.
         """
-        return self.to_cell("primitive", **kwargs)
+        return self.as_cell("primitive", **kwargs)
 
-    def to_conventional(self, **kwargs) -> Structure:
+    @deprecated(as_primitive, deadline=(2026, 4, 4))
+    def to_primitive(self, **kwargs):
+        return self.as_primitive(**kwargs)
+
+    def as_conventional(self, **kwargs) -> Structure:
         """Get a conventional cell based on the current structure.
 
         Args:
@@ -3349,7 +3365,11 @@ class IStructure(SiteCollection, MSONable):
         Returns:
             Structure: with the requested cell type.
         """
-        return self.to_cell("conventional", **kwargs)
+        return self.as_cell("conventional", **kwargs)
+
+    @deprecated(as_conventional, deadline=(2026, 4, 4))
+    def to_conventional(self, **kwargs):
+        return self.as_conventional(**kwargs)
 
     @overload
     def get_symmetry_dataset(self, backend: Literal["moyopy"], **kwargs) -> moyopy.MoyoDataset: ...
