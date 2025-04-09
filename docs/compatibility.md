@@ -31,7 +31,7 @@ As a rule of thumb, `pymatgen` will support whatever versions of Python the late
 ### v2025.?.?
 
 * `from_ase_atoms` constructor for `(I)Structure/(I)Molecule` now returns the corresponding type instead of the mutable types only, see [#4321](https://github.com/materialsproject/pymatgen/pull/4321).
-* All conversion methods now prefer `as_xxx` naming over `to_xxx` (e.g. `as_dict` over `to_dict`), and `to_xxx` would be removed after one year.
+* `abinit`, `aims` and `JDFTx` IO modules would prefer `as_dict` methods over `to_dict` for serialization.
 
 ### v2024.7.18
 
