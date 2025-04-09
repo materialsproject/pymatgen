@@ -49,7 +49,7 @@ def get_dir_indir_gap(run=""):
     return dir_gap, indir_gap
 
 
-def to_matrix(xx, yy, zz, xy, yz, xz):
+def as_matrix(xx, yy, zz, xy, yz, xz):
     """
     Convert a list of matrix components to a symmetric 3x3 matrix.
     Inputs should be in the order xx, yy, zz, xy, yz, xz.
@@ -81,7 +81,7 @@ def parse_dielectric_data(data):
         np.ndarray: a Nx3 numpy array. Each row contains the eigenvalues
             for the corresponding row in `data`.
     """
-    return np.array([np.linalg.eig(to_matrix(*eps))[0] for eps in data])
+    return np.array([np.linalg.eig(as_matrix(*eps))[0] for eps in data])
 
 
 def absorption_coefficient(dielectric):

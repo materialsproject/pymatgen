@@ -124,7 +124,7 @@ class PotcarScrambler:
             )
         return scrambled_potcar_str
 
-    def to_file(self, filename: str) -> None:
+    def as_file(self, filename: str) -> None:
         """Write scrambled POTCAR to file."""
         with zopen(filename, mode="wt", encoding="utf-8") as file:
             file.write(self.scrambled_potcars_str)
@@ -135,7 +135,7 @@ class PotcarScrambler:
         psp = Potcar.from_file(input_filename)
         psp_scrambled = cls(psp)
         if output_filename is not None:
-            psp_scrambled.to_file(output_filename)
+            psp_scrambled.as_file(output_filename)
         return psp_scrambled
 
 
