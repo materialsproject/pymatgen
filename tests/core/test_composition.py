@@ -230,10 +230,10 @@ class TestComposition(PymatgenTest):
             with pytest.raises(ValueError, match=f"Invalid formula={bad_formula!r}"):
                 Composition(bad_formula)
 
-    def test_to_latex_html_unicode(self):
-        assert self.comps[0].to_latex_string() == "Li$_{3}$Fe$_{2}$P$_{3}$O$_{12}$"
-        assert self.comps[0].to_html_string() == "Li<sub>3</sub>Fe<sub>2</sub>P<sub>3</sub>O<sub>12</sub>"
-        assert self.comps[0].to_unicode_string() == "Li₃Fe₂P₃O₁₂"
+    def test_as_latex_html_unicode(self):
+        assert self.comps[0].as_latex_string() == "Li$_{3}$Fe$_{2}$P$_{3}$O$_{12}$"
+        assert self.comps[0].as_html_string() == "Li<sub>3</sub>Fe<sub>2</sub>P<sub>3</sub>O<sub>12</sub>"
+        assert self.comps[0].as_unicode_string() == "Li₃Fe₂P₃O₁₂"
 
     def test_iupac_formula(self):
         correct_formulas = [
@@ -425,9 +425,9 @@ class TestComposition(PymatgenTest):
             for el in c1.elements:
                 assert c1[el] == approx(c2[el], abs=1e-3)
 
-    def test_to_from_weight_dict(self):
+    def test_as_from_weight_dict(self):
         for comp in self.comps:
-            c2 = Composition().from_weight_dict(comp.to_weight_dict)
+            c2 = Composition().from_weight_dict(comp.as_weight_dict())
             comp.almost_equals(c2)
 
     def test_composition_from_weights(self):
@@ -473,7 +473,7 @@ class TestComposition(PymatgenTest):
         assert dct["Fe"] == correct_dict["Fe"]
         assert dct["O"] == correct_dict["O"]
         correct_dict = {"Fe": 2.0, "O": 3.0}
-        dct = comp.to_reduced_dict
+        dct = comp.as_reduced_dict()
         assert isinstance(dct, dict)
         assert dct["Fe"] == correct_dict["Fe"]
         assert dct["O"] == correct_dict["O"]
@@ -481,11 +481,11 @@ class TestComposition(PymatgenTest):
     def test_pickle(self):
         for comp in self.comps:
             self.serialize_with_pickle(comp)
-            self.serialize_with_pickle(comp.to_data_dict)
+            self.serialize_with_pickle(comp.as_data_dict())
 
-    def test_to_data_dict(self):
+    def test_as_data_dict(self):
         comp = Composition("Fe0.00009Ni0.99991")
-        dct = comp.to_data_dict
+        dct = comp.as_data_dict()
         assert dct["reduced_cell_composition"]["Fe"] == approx(9e-5)
 
     def test_add(self):

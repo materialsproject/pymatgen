@@ -12,6 +12,8 @@ import re
 from fractions import Fraction
 from typing import TYPE_CHECKING
 
+from monty.dev import deprecated
+
 if TYPE_CHECKING:
     from collections.abc import Sequence
     from typing import Any, Literal, TextIO
@@ -55,13 +57,20 @@ class Stringify:
 
     STRING_MODE = "SUBSCRIPT"
 
-    def to_pretty_string(self) -> str:
+    def as_pretty_string(self) -> str:
         """A pretty string representation. By default, the __str__ output is used, but this method can be
         overridden if a different representation from default is desired.
         """
         return str(self)
 
-    def to_latex_string(self) -> str:
+    @deprecated(as_pretty_string, deadline=(2026, 4, 4))
+    def to_pretty_string(self) -> str:
+        """A pretty string representation. By default, the __str__ output is used, but this method can be
+        overridden if a different representation from default is desired.
+        """
+        return self.as_pretty_string()
+
+    def as_latex_string(self) -> str:
         """Generate a LaTeX formatted string. The mode is set by the class variable STRING_MODE, which defaults to
         "SUBSCRIPT". e.g. Fe2O3 is transformed to Fe$_{2}$O$_{3}$. Setting STRING_MODE to "SUPERSCRIPT" creates
         superscript, e.g. Fe2+ becomes Fe^{2+}. The initial string is obtained from the class's __str__ method.
@@ -79,7 +88,11 @@ class Stringify:
             return re.sub(r"([A-Za-z\(\)])([\d\+\-\.]+)", r"\1$^{\2}$", str_)
         return str_
 
-    def to_html_string(self) -> str:
+    @deprecated(as_latex_string, deadline=(2026, 4, 4))
+    def to_latex_string(self) -> str:
+        return self.as_latex_string()
+
+    def as_html_string(self) -> str:
         """Generate a HTML formatted string. This uses the output from to_latex_string to generate a HTML output.
 
         Returns:
@@ -93,7 +106,11 @@ class Stringify:
             str_,
         )
 
-    def to_unicode_string(self) -> str:
+    @deprecated(as_html_string, deadline=(2026, 1, 1))
+    def to_html_string(self) -> str:
+        return self.as_html_string()
+
+    def as_unicode_string(self) -> str:
         """Unicode string with proper sub and superscripts. Note that this works only
         with systems where the sub and superscripts are pure integers.
         """
@@ -107,6 +124,10 @@ class Stringify:
             s2 = [SUPERSCRIPT_UNICODE[s] for s in match[1]]
             str_ = str_.replace(s1, "".join(s2))
         return str_
+
+    @deprecated(as_unicode_string, deadline=(2026, 4, 4))
+    def to_unicode_string(self) -> str:
+        return self.as_unicode_string()
 
 
 def str_delimited(
