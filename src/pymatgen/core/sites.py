@@ -490,8 +490,8 @@ class PeriodicSite(Site, MSONable):
         )
 
     @deprecated(as_unit_cell, deadline=(2026, 4, 4))
-    def to_unit_cell(self, in_place: bool = False) -> Self | None:
-        return self.as_unit_cell(in_place=in_place)
+    def to_unit_cell(self, *args, **kwargs):
+        return self.as_unit_cell(*args, **kwargs)
 
     def is_periodic_image(
         self,

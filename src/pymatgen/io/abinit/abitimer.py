@@ -657,8 +657,8 @@ class AbinitTimerSection:
         return string
 
     @deprecated(as_csvline, deadline=(2026, 4, 4))
-    def to_csvline(self, with_header=False):
-        return self.as_csvline(with_header=with_header)
+    def to_csvline(self, *args, **kwargs):
+        return self.as_csvline(*args, **kwargs)
 
 
 class AbinitTimer:
@@ -721,8 +721,8 @@ class AbinitTimer:
             fileobj.close()
 
     @deprecated(as_csv, deadline=(2026, 4, 4))
-    def to_csv(self, fileobj=sys.stdout):
-        return self.as_csv(fileobj=fileobj)
+    def to_csv(self, *args, **kwargs):
+        return self.as_csv(*args, **kwargs)
 
     def as_table(self, sort_key="wall_time", stop=None):
         """Return a table (list of lists) with timer data."""
@@ -739,12 +739,12 @@ class AbinitTimer:
         return table
 
     @deprecated(as_table, deadline=(2026, 4, 4))
-    def to_table(self, sort_key="wall_time", stop=None):
-        return self.as_table(sort_key=sort_key, stop=stop)
+    def to_table(self, *args, **kwargs):
+        return self.as_table(*args, **kwargs)
 
     @deprecated(as_table, deadline=(2026, 4, 4))
-    def totable(self, sort_key="wall_time", stop=None):
-        return self.as_table(sort_key=sort_key, stop=stop)
+    def totable(self, *args, **kwargs):
+        return self.as_table(*args, **kwargs)
 
     def get_dataframe(self, sort_key="wall_time", **kwargs):
         """Return a pandas DataFrame with entries sorted according to `sort_key`."""

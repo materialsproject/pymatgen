@@ -378,8 +378,8 @@ class TransformedStructure(MSONable):
         return StructureNL(self.final_structure, authors, history=history, **kwargs)
 
     @deprecated(as_snl, deadline=(2026, 4, 4))
-    def to_snl(self, authors: list[str], **kwargs) -> StructureNL:
-        return self.as_snl(authors, **kwargs)
+    def to_snl(self, *args, **kwargs) -> StructureNL:
+        return self.as_snl(*args, **kwargs)
 
     @classmethod
     def from_snl(cls, snl: StructureNL) -> Self:

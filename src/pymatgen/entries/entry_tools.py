@@ -329,8 +329,8 @@ class EntrySet(collections.abc.MutableSet, MSONable):
                 writer.writerow(row)
 
     @deprecated(as_csv, deadline=(2026, 4, 4))
-    def to_csv(self, filename: str, latexify_names: bool = False) -> None:
-        return self.as_csv(filename=filename, latexify_names=latexify_names)
+    def to_csv(self, *args, **kwargs):
+        return self.as_csv(*args, **kwargs)
 
     @classmethod
     def from_csv(cls, filename: str) -> Self:
