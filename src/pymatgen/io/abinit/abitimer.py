@@ -722,9 +722,9 @@ class AbinitTimer:
 
         return table
 
-    @deprecated(to_table, deadline=(2026, 4, 4))
-    def totable(self, sort_key="wall_time", stop=None):
-        return self.to_table(sort_key=sort_key, stop=stop)
+    @deprecated(to_table)
+    def totable(self, *args, **kwargs):
+        return self.to_table(*args, **kwargs)
 
     def get_dataframe(self, sort_key="wall_time", **kwargs):
         """Return a pandas DataFrame with entries sorted according to `sort_key`."""
