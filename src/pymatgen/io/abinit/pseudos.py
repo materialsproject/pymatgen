@@ -1625,7 +1625,7 @@ class PseudoTable(collections.abc.Sequence, MSONable):
         return f"<{type(self).__name__} at {id(self)}>"
 
     def __str__(self) -> str:
-        return self.to_table()
+        return self.as_table_str()
 
     @property
     def allnc(self) -> bool:
@@ -1782,7 +1782,7 @@ class PseudoTable(collections.abc.Sequence, MSONable):
                 For example, setting filter_function = lambda p: p.Z_val > 2 will print
                 a periodic table containing only pseudos with Z_val > 2.
         """
-        print(self.to_table(filter_function=filter_function), file=stream)
+        print(self.as_table_str(filter_function=filter_function), file=stream)
 
     def as_table_str(self, filter_function=None) -> str:
         """Return string with data in tabular form."""

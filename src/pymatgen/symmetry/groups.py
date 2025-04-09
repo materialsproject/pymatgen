@@ -134,7 +134,7 @@ class SymmetryGroup(Sequence, Stringify, ABC):
         Returns:
             A latex formatted group symbol with proper subscripts and overlines.
         """
-        sym = re.sub(r"_(\d+)", r"$_{\1}$", self.to_pretty_string())
+        sym = re.sub(r"_(\d+)", r"$_{\1}$", self.as_pretty_string())
         return re.sub(r"-(\d)", r"$\\overline{\1}$", sym)
 
     @deprecated(as_latex_string, deadline=(2026, 4, 4))

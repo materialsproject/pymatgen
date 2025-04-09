@@ -246,7 +246,7 @@ class TestSpaceGroup:
         warning_msg = "Full symbol not available, falling back to short Hermann Mauguin symbol P2_1ma instead"
         # TODO need to find a way to reset the warnings registry.
         # by default, warnings are raised only once and the same warning being tested here is raised below by
-        # assert sg.to_unicode_string() == "P2₁ma"
+        # assert sg.as_unicode_string() == "P2₁ma"
         # so don't move this test below test_string
 
         with pytest.warns(UserWarning, match=warning_msg) as warns:
@@ -255,17 +255,17 @@ class TestSpaceGroup:
 
     def test_string(self):
         sg = SpaceGroup("R-3c")
-        assert sg.to_latex_string() == r"R$\overline{3}$c"
+        assert sg.as_latex_string() == r"R$\overline{3}$c"
         sg = SpaceGroup("P6/mmm")
-        assert sg.to_latex_string() == "P6/mmm"
+        assert sg.as_latex_string() == "P6/mmm"
         sg = SpaceGroup("P4_1")
-        assert sg.to_unicode_string() == "P4₁"
+        assert sg.as_unicode_string() == "P4₁"
         sg = SpaceGroup("P41")  # Added after issue #3862
-        assert sg.to_unicode_string() == "P4₁"
+        assert sg.as_unicode_string() == "P4₁"
         sg = SpaceGroup("P21ma")  # Added after issue #3862
-        assert sg.to_unicode_string() == "P2₁ma"
+        assert sg.as_unicode_string() == "P2₁ma"
         sg = SpaceGroup("P2_1ma")  # Added after issue #3862
-        assert sg.to_unicode_string() == "P2₁ma"
+        assert sg.as_unicode_string() == "P2₁ma"
 
     def test_repr(self):
         for num in range(1, 231):

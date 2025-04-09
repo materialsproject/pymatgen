@@ -34,7 +34,7 @@ logger = logging.getLogger(__name__)
 
 # List of Abinit variables used to specify the structure.
 # This variables should not be passed to set_vars since
-# they will be generated with structure.to_abivars()
+# they will be generated with structure.as_abivars()
 GEOVARS = (
     "acell",
     "rprim",
@@ -369,8 +369,8 @@ def ebands_input(
     if scf_electrons.nband is None:
         scf_electrons.nband = _find_scf_nband(structure, multi.pseudos, scf_electrons, multi[0].get("spinat"))
 
-    multi[0].set_vars(scf_ksampling.to_abivars())
-    multi[0].set_vars(scf_electrons.to_abivars())
+    multi[0].set_vars(scf_ksampling.as_abivars())
+    multi[0].set_vars(scf_electrons.as_abivars())
     multi[0].set_vars(_stopping_criterion("scf", accuracy))
     if ndivsm == 0:
         return multi
@@ -387,8 +387,8 @@ def ebands_input(
         fband=None,
     )
 
-    multi[1].set_vars(nscf_ksampling.to_abivars())
-    multi[1].set_vars(nscf_electrons.to_abivars())
+    multi[1].set_vars(nscf_ksampling.as_abivars())
+    multi[1].set_vars(nscf_electrons.as_abivars())
     multi[1].set_vars(_stopping_criterion("nscf", accuracy))
 
     # DOS calculation with different values of kppa.
@@ -404,8 +404,8 @@ def ebands_input(
                 nband=nscf_nband,
             )
             dt = 2 + i
-            multi[dt].set_vars(dos_ksampling.to_abivars())
-            multi[dt].set_vars(dos_electrons.to_abivars())
+            multi[dt].set_vars(dos_ksampling.as_abivars())
+            multi[dt].set_vars(dos_electrons.as_abivars())
             multi[dt].set_vars(_stopping_criterion("nscf", accuracy))
 
     return multi
@@ -465,13 +465,13 @@ def ion_ioncell_relax_input(
     ion_relax = aobj.RelaxationMethod.atoms_only(atoms_constraints=None)
     ioncell_relax = aobj.RelaxationMethod.atoms_and_cell(atoms_constraints=None)
 
-    multi.set_vars(electrons.to_abivars())
-    multi.set_vars(ksampling.to_abivars())
+    multi.set_vars(electrons.as_abivars())
+    multi.set_vars(ksampling.as_abivars())
 
-    multi[0].set_vars(ion_relax.to_abivars())
+    multi[0].set_vars(ion_relax.as_abivars())
     multi[0].set_vars(_stopping_criterion("relax", accuracy))
 
-    multi[1].set_vars(ioncell_relax.to_abivars())
+    multi[1].set_vars(ioncell_relax.as_abivars())
     multi[1].set_vars(_stopping_criterion("relax", accuracy))
 
     return multi
@@ -801,9 +801,9 @@ class BasicAbinitInput(AbstractInput, MSONable):
         """For a list of AbiVarable objects, add the corresponding variables to the input."""
         dct = {}
         for obj in abi_objects:
-            if not hasattr(obj, "to_abivars"):
-                raise TypeError(f"type {type(obj).__name__} does not have `to_abivars` method")
-            dct.update(self.set_vars(obj.to_abivars()))
+            if not hasattr(obj, "as_abivars"):
+                raise TypeError(f"type {type(obj).__name__} does not have `as_abivars` method")
+            dct.update(self.set_vars(obj.as_abivars()))
         return dct
 
     def __setitem__(self, key, value):

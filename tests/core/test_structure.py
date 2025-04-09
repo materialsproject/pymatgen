@@ -887,7 +887,7 @@ Direct
     def test_get_dist_matrix(self):
         assert_allclose(self.struct.distance_matrix, [[0.0, 2.3516318], [2.3516318, 0.0]])
 
-    def test_to_from_file_and_string(self):
+    def test_as_from_file_and_string(self):
         for fmt in ("cif", "json", "poscar", "cssr", "pwmat"):
             struct = self.struct.to(fmt=fmt)
             assert struct is not None
@@ -952,15 +952,15 @@ Direct
         self.struct.to(filename=json_path)
         assert os.path.isfile(json_path)
 
-    def test_to_file_alias(self):
+    def test_as_file_alias(self):
         out_path = f"{self.tmp_path}/POSCAR"
-        assert self.struct.to(out_path) == self.struct.to_file(out_path)
+        assert self.struct.to(out_path) == self.struct.as_file(out_path)
         assert os.path.isfile(out_path)
 
-    def test_to_from_ase_atoms(self):
+    def test_as_from_ase_atoms(self):
         pytest.importorskip("ase")
 
-        atoms = self.struct.to_ase_atoms()
+        atoms = self.struct.as_ase_atoms()
         assert isinstance(atoms, Atoms)
         assert len(atoms) == len(self.struct)
 
@@ -1566,7 +1566,7 @@ class TestStructure(PymatgenTest):
         assert dct["charge"] == 0
         assert dct["properties"] == {"foo": "bar"}
 
-    def test_to_from_abivars(self):
+    def test_as_from_abivars(self):
         """Test as_dict, from_dict with fmt == abivars."""
         # Properties are not supported if fmt="abivars" as its not a serialization protocol
         # but a format that allows one to get a dict with the abinit variables defining the structure.
@@ -1578,8 +1578,8 @@ class TestStructure(PymatgenTest):
         assert s2 == struct
         assert isinstance(s2, Structure)
 
-    def test_to_from_file_str(self):
-        # to/from string
+    def test_as_from_file_str(self):
+        # as/from string
         for fmt in (
             "cif",
             "json",
@@ -2037,9 +2037,9 @@ Sites (8)
             struct = Structure.from_prototype(prototype, ["Cs", "Cl"], a=5)
             assert struct.lattice.is_orthogonal
 
-    def test_to_primitive(self):
+    def test_as_primitive(self):
         struct = Structure.from_file(f"{TEST_FILES_DIR}/cif/orci_1010.cif")
-        primitive = struct.to_primitive()
+        primitive = struct.as_primitive()
 
         assert struct != primitive
         sga = SpacegroupAnalyzer(struct)
@@ -2047,9 +2047,9 @@ Sites (8)
         assert struct.formula == "Mn1 B4"
         assert primitive.formula == "Mn1 B4"
 
-    def test_to_conventional(self):
+    def test_as_conventional(self):
         struct = Structure.from_file(f"{TEST_FILES_DIR}/cif/bcc_1927.cif")
-        conventional = struct.to_conventional()
+        conventional = struct.as_conventional()
 
         assert struct != conventional
         sga = SpacegroupAnalyzer(struct)
@@ -2057,10 +2057,10 @@ Sites (8)
         assert struct.formula == "Dy8 Sb6"
         assert conventional.formula == "Dy16 Sb12"
 
-    def test_to_from_ase_atoms(self):
+    def test_as_from_ase_atoms(self):
         pytest.importorskip("ase")
 
-        atoms = self.struct.to_ase_atoms()
+        atoms = self.struct.as_ase_atoms()
         assert isinstance(atoms, Atoms)
         assert len(atoms) == len(self.struct)
 
@@ -2069,11 +2069,11 @@ Sites (8)
         assert Structure.from_ase_atoms(atoms) == self.struct
         assert type(Structure.from_ase_atoms(atoms)) is Structure
 
-        labeled_atoms = self.labeled_structure.to_ase_atoms()
+        labeled_atoms = self.labeled_structure.as_ase_atoms()
         assert Structure.from_ase_atoms(labeled_atoms) == self.labeled_structure
 
         with pytest.raises(ValueError, match="ASE Atoms only supports ordered structures"):
-            self.disordered.to_ase_atoms()
+            self.disordered.as_ase_atoms()
 
     def test_struct_with_isotope(self):
         struct = Structure.from_file(f"{VASP_IN_DIR}/POSCAR_LiFePO4")
@@ -2353,7 +2353,7 @@ Site: H (-0.5134, 0.8892, -0.3630)"""
         assert dct["charge"] == 0
         assert dct["spin_multiplicity"] == 1
 
-    def test_to_from_file_str(self):
+    def test_as_from_file_str(self):
         self.mol.properties["test_prop"] = 42
         for fmt in ("xyz", "json", "g03", "yaml", "yml"):
             mol = self.mol.to(fmt=fmt)
@@ -2381,15 +2381,15 @@ Site: H (-0.5134, 0.8892, -0.3630)"""
         ch4_mol.properties = self.mol.properties
         assert self.mol == ch4_mol
 
-    def test_to_file_alias(self):
+    def test_as_file_alias(self):
         out_path = f"{self.tmp_path}/mol.gjf"
-        assert self.mol.to(out_path) == self.mol.to_file(out_path)
+        assert self.mol.to(out_path) == self.mol.as_file(out_path)
         assert os.path.isfile(out_path)
 
-    def test_to_from_ase_atoms(self):
+    def test_as_from_ase_atoms(self):
         pytest.importorskip("ase")
 
-        atoms = self.mol.to_ase_atoms()
+        atoms = self.mol.as_ase_atoms()
         assert isinstance(atoms, Atoms)
 
         assert type(IMolecule.from_ase_atoms(atoms)) is IMolecule
@@ -2552,7 +2552,7 @@ class TestMolecule(PymatgenTest):
         benzene.substitute(13, sub)
         assert benzene.formula == "H9 C8 Br1"
 
-    def test_to_from_file_str(self):
+    def test_as_from_file_str(self):
         for fmt in ["xyz", "json", "g03"]:
             mol = self.mol.to(fmt=fmt)
             assert mol is not None
@@ -2653,10 +2653,10 @@ class TestMolecule(PymatgenTest):
         assert relaxed.dynamics == {"type": "optimization", "optimizer": "FIRE"}
         assert relaxed.calc.results["energy"] == approx(-113.61346199239306)
 
-    def test_to_from_ase_atoms(self):
+    def test_as_from_ase_atoms(self):
         pytest.importorskip("ase")
 
-        atoms = self.mol.to_ase_atoms()
+        atoms = self.mol.as_ase_atoms()
         assert isinstance(atoms, Atoms)
         assert len(atoms) == len(self.mol)
 

@@ -123,13 +123,13 @@ class TestTrajectory(PymatgenTest):
 
     def test_conversion(self):
         # Convert to displacements and back, and then check structures.
-        self.traj.to_displacements()
-        self.traj.to_positions()
+        self.traj.as_displacements()
+        self.traj.as_positions()
 
         assert all(struct == self.structures[idx] for idx, struct in enumerate(self.traj))
 
-        self.traj_mols.to_displacements()
-        self.traj_mols.to_positions()
+        self.traj_mols.as_displacements()
+        self.traj_mols.as_positions()
 
         assert all(mol == self.molecules[idx] for idx, mol in enumerate(self.traj_mols))
 
@@ -432,7 +432,7 @@ class TestTrajectory(PymatgenTest):
             displacements[idx + 1, :, :] = displacement
 
         traj = Trajectory.from_structures(structures, constant_lattice=True)
-        traj.to_displacements()
+        traj.as_displacements()
 
         assert_allclose(traj.coords, displacements)
 
@@ -553,11 +553,11 @@ class TestTrajectory(PymatgenTest):
         with pytest.raises(ValueError, match="coords must have 3 dimensions!"):
             Trajectory(species=species, coords=wrong_dim_coords, lattice=const_lattice)
 
-    def test_to_ase_traj(self):
+    def test_as_ase_traj(self):
         traj = Trajectory.from_file(f"{TEST_DIR}/LiMnO2_chgnet_relax.json.gz")
 
         try:
-            ase_traj = traj.to_ase()
+            ase_traj = traj.as_ase()
 
             assert len(ase_traj) == len(traj)
 
@@ -572,4 +572,4 @@ class TestTrajectory(PymatgenTest):
                 ImportError,
                 match="ASE is required to write .traj files. pip install ase",
             ):
-                ase_traj = traj.to_ase()
+                ase_traj = traj.as_ase()

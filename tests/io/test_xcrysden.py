@@ -19,24 +19,24 @@ class TestXSF(PymatgenTest):
 
     def test_xsf(self):
         xsf = XSF(self.struct)
-        assert self.struct, XSF.from_str(xsf.to_str())
+        assert self.struct, XSF.from_str(xsf.as_str())
         xsf = XSF(self.struct)
-        assert self.struct, XSF.from_str(xsf.to_str())
+        assert self.struct, XSF.from_str(xsf.as_str())
 
     def test_append_vect(self):
         self.struct.add_site_property("vect", np.eye(2, 3))
-        xsf_str = XSF(self.struct).to_str()
+        xsf_str = XSF(self.struct).as_str()
         last_line_split = xsf_str.split("\n")[-1].split()
         assert len(last_line_split) == 7
         assert last_line_split[-1] == "0.00000000000000"
         assert last_line_split[-2] == "1.00000000000000"
         assert last_line_split[-3] == "0.00000000000000"
 
-    def test_to_str(self):
+    def test_as_str(self):
         structure = self.get_structure("Li2O")
         xsf = XSF(structure)
         assert (
-            xsf.to_str()
+            xsf.as_str()
             == """CRYSTAL
 # Primitive lattice vectors in Angstrom
 PRIMVEC
@@ -52,7 +52,7 @@ Li     1.00309136982516     0.73718000001594     1.58060372967982"""
         )
 
         assert (
-            xsf.to_str(atom_symbol=False)
+            xsf.as_str(atom_symbol=False)
             == """CRYSTAL
 # Primitive lattice vectors in Angstrom
 PRIMVEC

@@ -176,7 +176,7 @@ class TestIon(TestCase):
         assert dct == correct_dict
         assert dct["charge"] == correct_dict["charge"]
         correct_dict = {"Mn": 1.0, "O": 4.0, "charge": -1}
-        dct = ion.to_reduced_dict
+        dct = ion.as_reduced_dict()
         assert dct == correct_dict
         assert dct["charge"] == correct_dict["charge"]
 
@@ -207,7 +207,7 @@ class TestIon(TestCase):
     def test_len(self):
         assert len(self.comp[1]) == 2, "Lengths are not equal!"
 
-    def test_to_latex_string(self):
+    def test_as_latex_string(self):
         correct_latex = [
             "Li$^{+1}$",
             "MnO$_{4}$$^{-1}$",
@@ -219,5 +219,5 @@ class TestIon(TestCase):
             "Ca$^{+2}$",
             "NaOH",
         ]
-        all_latex = [c.to_latex_string() for c in self.comp]
+        all_latex = [c.as_latex_string() for c in self.comp]
         assert all_latex == correct_latex

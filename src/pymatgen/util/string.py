@@ -78,7 +78,7 @@ class Stringify:
         Returns:
             str: for LaTeX display with proper sub-/superscripts.
         """
-        str_ = self.to_pretty_string()
+        str_ = self.as_pretty_string()
         # First we process strings that already have _ and ^ by escaping the relevant parts.
         str_ = re.sub(r"_(\d+)", r"$_{\1}$", str_)
         str_ = re.sub(r"\^([\d\+\-]+)", r"$^{\1}$", str_)
@@ -93,12 +93,12 @@ class Stringify:
         return self.as_latex_string()
 
     def as_html_string(self) -> str:
-        """Generate a HTML formatted string. This uses the output from to_latex_string to generate a HTML output.
+        """Generate a HTML formatted string. This uses the output from as_latex_string to generate a HTML output.
 
         Returns:
             HTML formatted string.
         """
-        str_ = re.sub(r"\$_\{([^}]+)\}\$", r"<sub>\1</sub>", self.to_latex_string())
+        str_ = re.sub(r"\$_\{([^}]+)\}\$", r"<sub>\1</sub>", self.as_latex_string())
         str_ = re.sub(r"\$\^\{([^}]+)\}\$", r"<sup>\1</sup>", str_)
         return re.sub(
             r"\$\\overline\{([^}]+)\}\$",
@@ -114,7 +114,7 @@ class Stringify:
         """Unicode string with proper sub and superscripts. Note that this works only
         with systems where the sub and superscripts are pure integers.
         """
-        str_ = self.to_latex_string()
+        str_ = self.as_latex_string()
         for match in re.finditer(r"\$_\{(\d+)\}\$", str_):
             s1 = match.group()
             s2 = [SUBSCRIPT_UNICODE[s] for s in match[1]]
@@ -206,7 +206,7 @@ def latexify(formula: str, bold: bool = False) -> str:
     """Generate a LaTeX formatted formula. e.g. Fe2O3 is transformed to
     Fe$_{2}$O$_{3}$.
 
-    Note that Composition now has `to_latex_string` method that may
+    Note that Composition now has `as_latex_string` method that may
     be used instead.
 
     Args:
@@ -240,7 +240,7 @@ def unicodeify(formula: str) -> str:
     """Generate a formula with unicode subscripts, e.g. Fe2O3 is transformed
     to Fe₂O₃. Does not support formulae with decimal points.
 
-    Note that Composition now has a to_unicode_string() method that may
+    Note that Composition now has a as_unicode_string() method that may
     be used instead.
 
     Args:
@@ -259,7 +259,7 @@ def latexify_spacegroup(spacegroup_symbol: str) -> str:
     r"""Generate a latex formatted spacegroup. e.g. P2_1/c is converted to
     P2$_{1}$/c and P-1 is converted to P$\\overline{1}$.
 
-    Note that SymmetryGroup now has a to_latex_string() method that may
+    Note that SymmetryGroup now has a as_latex_string method that may
     be called instead.
 
     Args:
@@ -276,7 +276,7 @@ def unicodeify_spacegroup(spacegroup_symbol: str) -> str:
     r"""Generate a unicode formatted spacegroup. e.g. P2$_{1}$/c is converted to
     P2₁/c and P$\\overline{1}$ is converted to P̅1.
 
-    Note that SymmetryGroup now has a to_unicode_string() method that
+    Note that SymmetryGroup now has a as_unicode_string() method that
     may be called instead.
 
     Args:
@@ -307,7 +307,7 @@ def unicodeify_species(specie_string: str) -> str:
     """Generate a unicode formatted species string, with appropriate
     superscripts for oxidation states.
 
-    Note that Species now has `to_unicode_string` method that
+    Note that Species now has `as_unicode_string` method that
     may be used instead.
 
     Args:

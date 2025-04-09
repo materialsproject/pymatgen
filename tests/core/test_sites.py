@@ -207,15 +207,15 @@ class TestPeriodicSite(PymatgenTest):
         assert site.species == self.dummy_site.species
         assert site.label == self.dummy_site.label
 
-    def test_to_unit_cell(self):
+    def test_as_unit_cell(self):
         site = PeriodicSite("Fe", np.array([1.25, 2.35, 4.46]), self.lattice)
-        site.to_unit_cell(in_place=True)
+        site.as_unit_cell(in_place=True)
         val = [0.25, 0.35, 0.46]
         assert_allclose(site.frac_coords, val)
 
         lattice_pbc = Lattice(self.lattice.matrix, pbc=(True, True, False))
         site = PeriodicSite("Fe", np.array([1.25, 2.35, 4.46]), lattice_pbc)
-        site.to_unit_cell(in_place=True)
+        site.as_unit_cell(in_place=True)
         val = [0.25, 0.35, 4.46]
         assert_allclose(site.frac_coords, val)
 

@@ -996,7 +996,7 @@ class PourbaixPlotter:
         # will convert B(OH)4- to B(OH)$_4^-$.
         # for this to work, the ion's charge always must be written AFTER
         # the sign (e.g., Fe+2 not Fe2+)
-        string = entry.to_latex_string()
+        string = entry.as_latex_string()
         return re.sub(r"()\[([^)]*)\]", r"\1$^{\2}$", string)
 
     def show(self, *args, **kwargs) -> None:

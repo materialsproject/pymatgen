@@ -83,7 +83,7 @@ class TestAtat(PymatgenTest):
 0.000000 0.500000 0.000000 O2-=1.0
 0.500000 0.000000 0.000000 O2-=1.0"""
 
-        assert Mcsqs(struct).to_str() == ref_str
+        assert Mcsqs(struct).as_str() == ref_str
 
     def test_mcsqs_cif_nacl(self):
         # CIF file from str2cif (utility distributed with atat)

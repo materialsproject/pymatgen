@@ -62,11 +62,11 @@ class TestLammpsBox(PymatgenTest):
         assert_allclose(quartz.get_box_shift([0, 1, -1]), [-2.4567, 4.2551, -5.4052], 4)
         assert_allclose(quartz.get_box_shift([1, -1, 0]), [4.9134 + 2.4567, -4.2551, 0], 4)
 
-    def test_to_lattice(self):
-        peptide = self.peptide.to_lattice()
+    def test_as_lattice(self):
+        peptide = self.peptide.as_lattice()
         assert_allclose(peptide.abc, [27.371367] * 3)
         assert peptide.is_orthogonal
-        quartz = self.quartz.to_lattice()
+        quartz = self.quartz.as_lattice()
         assert_allclose(
             quartz.matrix,
             [[4.913400, 0, 0], [-2.456700, 4.255129, 0], [0, 0, 5.405200]],
@@ -794,7 +794,7 @@ class TestFunc(TestCase):
         init_structure = Structure(init_latt, ["H"] * 10, frac_coords)
         origin = rng.random(3) * 10 - 5
         box, symm_op = lattice_2_lmpbox(lattice=init_latt, origin=origin)
-        boxed_latt = box.to_lattice()
+        boxed_latt = box.as_lattice()
         assert_allclose(init_latt.abc, boxed_latt.abc)
         assert_allclose(init_latt.angles, boxed_latt.angles)
         cart_coords = symm_op.operate_multi(init_structure.cart_coords) - origin

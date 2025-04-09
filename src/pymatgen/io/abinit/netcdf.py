@@ -354,7 +354,7 @@ def structure_from_ncdata(ncdata, site_properties=None, cls=Structure):
     structure = cls(lattice, species, red_coords, site_properties=dct)
 
     # Quick and dirty hack.
-    # I need an abipy structure since I need to_abivars and other methods.
+    # I need an abipy structure since I need as_abivars and other methods.
     try:
         from abipy.core.structure import Structure as AbipyStructure
 
@@ -480,7 +480,7 @@ class AbinitHeader(AttrDict):
     #        v.__doc__ = _HDR_VARIABLES[k].doc
 
     def __str__(self):
-        return self.to_str()
+        return self.as_str()
 
     def as_str(self, verbose=0, title=None, **kwargs):
         """String representation. kwargs are passed to `pprint.pformat`.
@@ -500,6 +500,6 @@ class AbinitHeader(AttrDict):
     def to_str(self, *args, **kwargs):
         return self.as_str(*args, **kwargs)
 
-    @deprecated(as_str, deadline=(2026, 4, 4))
+    @deprecated(as_str)
     def to_string(self, *args, **kwargs):
         return self.as_str(*args, **kwargs)
