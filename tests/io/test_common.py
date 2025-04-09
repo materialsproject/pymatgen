@@ -16,7 +16,7 @@ def test_cube_io_faithful(tmp_path: Path) -> None:
 
     cube_file = VolumetricData.from_cube(in_path)
     out_path = f"{tmp_path}/cube-gh-2817.xyz"
-    cube_file.as_cube(out_path)
+    cube_file.to_cube(out_path)
     out_cube = VolumetricData.from_cube(out_path)
 
     # structure should be preserved round-trip to/from cube file

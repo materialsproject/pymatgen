@@ -71,7 +71,7 @@ class TestAtomConfig(PymatgenTest):
     def test_from_file(self):
         filepath = f"{TEST_DIR}/atom.config"
         atom_config = AtomConfig.from_file(filename=filepath, mag=True)
-        assert Composition("Cr2I6").as_pretty_string() == atom_config.true_names
+        assert Composition("Cr2I6").to_pretty_string() == atom_config.true_names
         assert all("magmom" in site.properties for site in atom_config.structure)
 
     def test_write_file(self):

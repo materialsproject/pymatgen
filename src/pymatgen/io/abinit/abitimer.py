@@ -15,7 +15,6 @@ import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
 from matplotlib.gridspec import GridSpec
-from monty.dev import deprecated
 
 from pymatgen.io.core import ParseError
 from pymatgen.util.plotting import add_fig_kwargs, get_ax_fig
@@ -546,7 +545,7 @@ class ParallelEfficiency(dict):
         data.sort(key=lambda t: t[1], reverse=reverse)
         return tuple(sect_name for (sect_name, e) in data)
 
-    def as_table(self, stop=None, reverse=True):
+    def totable(self, stop=None, reverse=True):
         """Get table (list of lists) with timing results.
 
         Args:
@@ -567,10 +566,6 @@ class ParallelEfficiency(dict):
             table.append([sect_name] + [f"{val:.2f}" for val in vals])
 
         return table
-
-    @deprecated(as_table, deadline=(2026, 4, 4))
-    def totable(self, stop=None, reverse=True):
-        return self.as_table(stop=stop, reverse=reverse)
 
     def good_sections(self, key="wall_time", criterion="mean", nmax=5):
         """Return first `nmax` sections with best value of key `key` using criterion `criterion`."""
@@ -623,30 +618,15 @@ class AbinitTimerSection:
         self.ncalls = int(ncalls)
         self.gflops = float(gflops)
 
-    def __str__(self):
-        """String representation."""
-        string = ""
-        for a in AbinitTimerSection.FIELDS:
-            string = f"{a} = {self.__dict__[a]},"
-        return string[:-1]
-
-    def as_tuple(self):
+    def to_tuple(self):
         """Get the values as a tuple."""
         return tuple(self.__dict__[at] for at in AbinitTimerSection.FIELDS)
 
-    @deprecated(as_tuple, deadline=(2026, 4, 4))
-    def to_tuple(self):
-        return self.as_tuple()
-
-    def as_dict(self):
+    def to_dict(self):
         """Get the values as a dictionary."""
         return {at: self.__dict__[at] for at in AbinitTimerSection.FIELDS}
 
-    @deprecated(as_dict, deadline=(2026, 4, 4))
-    def to_dict(self):
-        return self.as_dict()
-
-    def as_csvline(self, with_header=False):
+    def to_csvline(self, with_header=False):
         """Return a string with data in CSV format. Add header if `with_header`."""
         string = ""
 
@@ -656,9 +636,12 @@ class AbinitTimerSection:
         string += ", ".join(str(v) for v in self.to_tuple()) + "\n"
         return string
 
-    @deprecated(as_csvline, deadline=(2026, 4, 4))
-    def to_csvline(self, *args, **kwargs):
-        return self.as_csvline(*args, **kwargs)
+    def __str__(self):
+        """String representation."""
+        string = ""
+        for a in AbinitTimerSection.FIELDS:
+            string = f"{a} = {self.__dict__[a]},"
+        return string[:-1]
 
 
 class AbinitTimer:
@@ -706,7 +689,7 @@ class AbinitTimer:
             raise ValueError(f"{sect.name=} != {section_name=}")
         return sect
 
-    def as_csv(self, fileobj=sys.stdout):
+    def to_csv(self, fileobj=sys.stdout):
         """Write data on file fileobj using CSV format."""
         is_str = isinstance(fileobj, str)
 
@@ -720,11 +703,7 @@ class AbinitTimer:
         if is_str:
             fileobj.close()
 
-    @deprecated(as_csv, deadline=(2026, 4, 4))
-    def to_csv(self, *args, **kwargs):
-        return self.as_csv(*args, **kwargs)
-
-    def as_table(self, sort_key="wall_time", stop=None):
+    def to_table(self, sort_key="wall_time", stop=None):
         """Return a table (list of lists) with timer data."""
         table = [list(AbinitTimerSection.FIELDS)]
         ord_sections = self.order_sections(sort_key)
@@ -733,22 +712,17 @@ class AbinitTimer:
             ord_sections = ord_sections[:stop]
 
         for osect in ord_sections:
-            row = list(map(str, osect.as_tuple()))
+            row = list(map(str, osect.to_tuple()))
             table.append(row)
 
         return table
 
-    @deprecated(as_table, deadline=(2026, 4, 4))
-    def to_table(self, *args, **kwargs):
-        return self.as_table(*args, **kwargs)
-
-    @deprecated(as_table, deadline=(2026, 4, 4))
-    def totable(self, *args, **kwargs):
-        return self.as_table(*args, **kwargs)
+    # Maintain old API
+    totable = to_table
 
     def get_dataframe(self, sort_key="wall_time", **kwargs):
         """Return a pandas DataFrame with entries sorted according to `sort_key`."""
-        data = [osect.as_dict() for osect in self.order_sections(sort_key)]
+        data = [osect.to_dict() for osect in self.order_sections(sort_key)]
         frame = pd.DataFrame(data, columns=AbinitTimerSection.FIELDS)
 
         # Monkey patch

@@ -7,7 +7,6 @@ import json
 from typing import TYPE_CHECKING, cast
 
 import numpy as np
-from monty.dev import deprecated
 from monty.json import MontyDecoder, MontyEncoder, MSONable
 
 from pymatgen.core.composition import Composition
@@ -475,7 +474,7 @@ class PeriodicSite(Site, MSONable):
         self.coords[2] = z
         self._frac_coords = self._lattice.get_fractional_coords(self.coords)
 
-    def as_unit_cell(self, in_place: bool = False) -> Self | None:
+    def to_unit_cell(self, in_place: bool = False) -> Self | None:
         """Move frac coords to within the unit cell."""
         frac_coords = [np.mod(f, 1) if p else f for p, f in zip(self.lattice.pbc, self.frac_coords, strict=True)]
         if in_place:
@@ -488,11 +487,6 @@ class PeriodicSite(Site, MSONable):
             properties=self.properties,
             label=self.label,
         )
-
-    @deprecated(as_unit_cell, deadline=(2026, 4, 4))
-    def to_unit_cell(self, *args, **kwargs):
-        """Deprecated."""
-        return self.as_unit_cell(*args, **kwargs)
 
     def is_periodic_image(
         self,

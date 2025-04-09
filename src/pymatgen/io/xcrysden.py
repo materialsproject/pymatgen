@@ -4,8 +4,6 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING
 
-from monty.dev import deprecated
-
 from pymatgen.core import Element, Structure
 
 if TYPE_CHECKING:
@@ -27,7 +25,7 @@ class XSF:
         """
         self.structure = structure
 
-    def as_str(self, atom_symbol: bool = True) -> str:
+    def to_str(self, atom_symbol: bool = True) -> str:
         """Get a string with the structure in XSF format
         See http://www.xcrysden.org/doc/XSF.html.
 
@@ -59,10 +57,6 @@ class XSF:
                 lines[-1] += f" {vx:20.14f} {vy:20.14f} {vz:20.14f}"
 
         return "\n".join(lines)
-
-    @deprecated(as_str, deadline=(2026, 4, 4))
-    def to_str(self, *args, **kwargs) -> str:
-        return self.as_str(*args, **kwargs)
 
     @classmethod
     def from_str(cls, input_string: str, cls_=None) -> Self:

@@ -10,8 +10,6 @@ import pprint
 from dataclasses import dataclass, field
 from typing import TYPE_CHECKING, Any
 
-from monty.dev import deprecated
-
 if TYPE_CHECKING:
     from pymatgen.io.jdftx.jelstep import JElSteps
 
@@ -24,7 +22,7 @@ from pymatgen.io.jdftx.joutstructure import JOutStructure
 
 __author__ = "Ben Rich"
 
-_joss_atrs_from_last_slice = (
+_joss_atrs_from_last_slice = [
     "etype",
     "eopt_type",
     "emin_flag",
@@ -51,7 +49,7 @@ _joss_atrs_from_last_slice = (
     "magnetic_moments",
     "selective_dynamics",
     "structure",
-)
+]
 
 
 @dataclass
@@ -198,7 +196,7 @@ class JOutStructures:
             self.geom_converged = True
             self.geom_converged_reason = jst.geom_converged_reason
 
-    def as_dict(self) -> dict:
+    def to_dict(self) -> dict:
         """
         Convert the JOutStructures object to a dictionary.
 
@@ -208,18 +206,14 @@ class JOutStructures:
         dct = {}
         for fld in self.__dataclass_fields__:
             if fld == "slices":
-                dct[fld] = [slc.as_dict() for slc in self.slices]
+                dct[fld] = [slc.to_dict() for slc in self.slices]
                 continue
             value = getattr(self, fld)
-            if hasattr(value, "as_dict"):
-                dct[fld] = value.as_dict()
+            if hasattr(value, "to_dict"):
+                dct[fld] = value.to_dict()
             else:
                 dct[fld] = value
         return dct
-
-    @deprecated(as_dict, deadline=(2025, 10, 4))
-    def to_dict(self):
-        return self.as_dict()
 
     def __getitem__(self, key: int | str) -> JOutStructure | Any:
         """Return item.

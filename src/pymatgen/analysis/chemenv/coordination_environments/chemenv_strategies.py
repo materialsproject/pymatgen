@@ -259,7 +259,7 @@ class AbstractChemenvStrategy(MSONable, abc.ABC):
             site_idx = self.structure_environments.structure.index(psite)
         except ValueError:
             try:
-                uc_psite = psite.as_unit_cell()
+                uc_psite = psite.to_unit_cell()
                 site_idx = self.structure_environments.structure.index(uc_psite)
             except ValueError:
                 for site_idx2, site2 in enumerate(self.structure_environments.structure):
@@ -273,7 +273,7 @@ class AbstractChemenvStrategy(MSONable, abc.ABC):
         # the unit cell that corresponds to psite (Translation II)
         equiv_site = self.structure_environments.structure[
             self.structure_environments.sites_map[site_idx]
-        ].as_unit_cell()
+        ].to_unit_cell()
         # equivsite = self.structure_environments.structure[self.structure_environments.sites_map[isite]]
         dist_equiv_site = (
             self.structure_environments.structure[self.structure_environments.sites_map[site_idx]].frac_coords

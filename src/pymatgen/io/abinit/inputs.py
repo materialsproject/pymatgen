@@ -17,7 +17,6 @@ from typing import TYPE_CHECKING, NamedTuple
 
 import numpy as np
 from monty.collections import AttrDict
-from monty.dev import deprecated
 from monty.json import MSONable
 
 from pymatgen.core.structure import Structure
@@ -34,7 +33,7 @@ logger = logging.getLogger(__name__)
 
 # List of Abinit variables used to specify the structure.
 # This variables should not be passed to set_vars since
-# they will be generated with structure.as_abivars()
+# they will be generated with structure.to_abivars()
 GEOVARS = (
     "acell",
     "rprim",
@@ -369,8 +368,8 @@ def ebands_input(
     if scf_electrons.nband is None:
         scf_electrons.nband = _find_scf_nband(structure, multi.pseudos, scf_electrons, multi[0].get("spinat"))
 
-    multi[0].set_vars(scf_ksampling.as_abivars())
-    multi[0].set_vars(scf_electrons.as_abivars())
+    multi[0].set_vars(scf_ksampling.to_abivars())
+    multi[0].set_vars(scf_electrons.to_abivars())
     multi[0].set_vars(_stopping_criterion("scf", accuracy))
     if ndivsm == 0:
         return multi
@@ -387,8 +386,8 @@ def ebands_input(
         fband=None,
     )
 
-    multi[1].set_vars(nscf_ksampling.as_abivars())
-    multi[1].set_vars(nscf_electrons.as_abivars())
+    multi[1].set_vars(nscf_ksampling.to_abivars())
+    multi[1].set_vars(nscf_electrons.to_abivars())
     multi[1].set_vars(_stopping_criterion("nscf", accuracy))
 
     # DOS calculation with different values of kppa.
@@ -404,8 +403,8 @@ def ebands_input(
                 nband=nscf_nband,
             )
             dt = 2 + i
-            multi[dt].set_vars(dos_ksampling.as_abivars())
-            multi[dt].set_vars(dos_electrons.as_abivars())
+            multi[dt].set_vars(dos_ksampling.to_abivars())
+            multi[dt].set_vars(dos_electrons.to_abivars())
             multi[dt].set_vars(_stopping_criterion("nscf", accuracy))
 
     return multi
@@ -465,13 +464,13 @@ def ion_ioncell_relax_input(
     ion_relax = aobj.RelaxationMethod.atoms_only(atoms_constraints=None)
     ioncell_relax = aobj.RelaxationMethod.atoms_and_cell(atoms_constraints=None)
 
-    multi.set_vars(electrons.as_abivars())
-    multi.set_vars(ksampling.as_abivars())
+    multi.set_vars(electrons.to_abivars())
+    multi.set_vars(ksampling.to_abivars())
 
-    multi[0].set_vars(ion_relax.as_abivars())
+    multi[0].set_vars(ion_relax.to_abivars())
     multi[0].set_vars(_stopping_criterion("relax", accuracy))
 
-    multi[1].set_vars(ioncell_relax.as_abivars())
+    multi[1].set_vars(ioncell_relax.to_abivars())
     multi[1].set_vars(_stopping_criterion("relax", accuracy))
 
     return multi
@@ -610,7 +609,7 @@ class AbstractInput(MutableMapping, abc.ABC):
         return f"<{type(self).__name__} at {id(self)}>"
 
     def __str__(self):
-        return self.as_str()
+        return self.to_str()
 
     def write(self, filepath="run.abi"):
         """Write the input file to file to filepath."""
@@ -696,12 +695,8 @@ class AbstractInput(MutableMapping, abc.ABC):
         """Check if key is a valid name. Raise self.Error if not valid."""
 
     @abc.abstractmethod
-    def as_str(self):
-        """Get a string with the input."""
-
-    @deprecated(as_str, deadline=(2026, 4, 4))
     def to_str(self):
-        return self.as_str()
+        """Get a string with the input."""
 
 
 class BasicAbinitInputError(Exception):
@@ -801,9 +796,9 @@ class BasicAbinitInput(AbstractInput, MSONable):
         """For a list of AbiVarable objects, add the corresponding variables to the input."""
         dct = {}
         for obj in abi_objects:
-            if not hasattr(obj, "as_abivars"):
-                raise TypeError(f"type {type(obj).__name__} does not have `as_abivars` method")
-            dct.update(self.set_vars(obj.as_abivars()))
+            if not hasattr(obj, "to_abivars"):
+                raise TypeError(f"type {type(obj).__name__} does not have `to_abivars` method")
+            dct.update(self.set_vars(obj.to_abivars()))
         return dct
 
     def __setitem__(self, key, value):
@@ -823,7 +818,7 @@ class BasicAbinitInput(AbstractInput, MSONable):
                 "Use Structure objects to prepare the input file."
             )
 
-    def as_str(self, post=None, with_structure=True, with_pseudos=True, exclude=None):
+    def to_str(self, post=None, with_structure=True, with_pseudos=True, exclude=None):
         """String representation.
 
         Args:
@@ -871,10 +866,6 @@ class BasicAbinitInput(AbstractInput, MSONable):
 
         out += "\n#".join(ppinfo)
         return out
-
-    @deprecated(as_str, deadline=(2026, 4, 4))
-    def to_str(self, *args, **kwargs):
-        return self.as_str(*args, **kwargs)
 
     @property
     def comment(self):
@@ -1232,9 +1223,9 @@ class BasicMultiDataset:
         return all(self[0].structure == inp.structure for inp in self)
 
     def __str__(self):
-        return self.as_str()
+        return self.to_str()
 
-    def as_str(self, with_pseudos=True):
+    def to_str(self, with_pseudos=True):
         """String representation i.e. the input file read by Abinit.
 
         Args:
@@ -1252,7 +1243,7 @@ class BasicMultiDataset:
                 return np.array_equal(vref, otherv)
 
             # Don't repeat variable that are common to the different datasets.
-            # Put them in the `Global Variables` section and exclude these variables in inp.as_str
+            # Put them in the `Global Variables` section and exclude these variables in inp.to_str
             global_vars = set()
             for k0, v0 in self[0].items():
                 isame = True
@@ -1272,7 +1263,7 @@ class BasicMultiDataset:
 
             has_same_structures = self.has_same_structures
             if has_same_structures:
-                # Write structure here and disable structure output in input.as_str
+                # Write structure here and disable structure output in input.to_str
                 lines.extend((w * "#", "#" + "STRUCTURE".center(w - 1), w * "#"))
                 for key, value in aobj.structure_to_abivars(self[0].structure).items():
                     vname = key
@@ -1281,7 +1272,7 @@ class BasicMultiDataset:
             for i, inp in enumerate(self):
                 header = f"### DATASET {i + 1} ###"
                 is_last = i == self.ndtset - 1
-                s = inp.as_str(
+                s = inp.to_str(
                     post=str(i + 1),
                     with_pseudos=is_last and with_pseudos,
                     with_structure=not has_same_structures,
@@ -1299,11 +1290,7 @@ class BasicMultiDataset:
         # and we have variables that end with the dataset index e.g. acell1
         # We don't want to specify ndtset here since abinit will start to add DS# to
         # the input and output files thus complicating the algorithms we have to use to locate the files.
-        return self[0].as_str(with_pseudos=with_pseudos)
-
-    @deprecated(as_str, deadline=(2026, 4, 4))
-    def to_str(self, *args, **kwargs):
-        return self.as_str(*args, **kwargs)
+        return self[0].to_str(with_pseudos=with_pseudos)
 
     def write(self, filepath="run.abi"):
         """Write ndset input files to disk. The name of the file

@@ -16,7 +16,6 @@ from typing import TYPE_CHECKING, overload
 
 import numpy as np
 from monty.design_patterns import cached_class
-from monty.dev import deprecated
 from monty.serialization import loadfn
 
 from pymatgen.core.operations import SymmOp
@@ -129,18 +128,13 @@ class SymmetryGroup(Sequence, Stringify, ABC):
         )
         return set(subgroup.symmetry_ops).issubset(self.symmetry_ops)
 
-    def as_latex_string(self) -> str:
+    def to_latex_string(self) -> str:
         """
         Returns:
             A latex formatted group symbol with proper subscripts and overlines.
         """
-        sym = re.sub(r"_(\d+)", r"$_{\1}$", self.as_pretty_string())
+        sym = re.sub(r"_(\d+)", r"$_{\1}$", self.to_pretty_string())
         return re.sub(r"-(\d)", r"$\\overline{\1}$", sym)
-
-    @deprecated(as_latex_string, deadline=(2026, 4, 4))
-    def to_latex_string(self) -> str:
-        """Deprecated."""
-        return self.as_latex_string()
 
 
 @cached_class
@@ -697,17 +691,12 @@ class SpaceGroup(SymmetryGroup):
             f"Spacegroup {self.symbol} with international number {self.int_number} and order {len(self.symmetry_ops)}"
         )
 
-    def as_pretty_string(self) -> str:
+    def to_pretty_string(self) -> str:
         """
         Returns:
             str: A pretty string representation of the space group.
         """
         return self.symbol
-
-    @deprecated(as_pretty_string, deadline=(2026, 4, 4))
-    def to_pretty_string(self) -> str:
-        """Deprecated."""
-        return self.as_pretty_string()
 
 
 def sg_symbol_from_int_number(int_number: int, hexagonal: bool = True) -> str:

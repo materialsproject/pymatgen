@@ -835,7 +835,7 @@ class VoronoiNN(NearNeighbors):
         # the original unit cell. We start off with these central atoms to ensure they
         # are included in the tessellation
 
-        sites = [x.as_unit_cell() for x in structure]
+        sites = [x.to_unit_cell() for x in structure]
         indices = [(idx, 0, 0, 0) for idx in range(len(structure))]
 
         # Get all neighbors within a certain cutoff. Record both the list of these neighbors and the site indices.

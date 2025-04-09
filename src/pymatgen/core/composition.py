@@ -15,7 +15,6 @@ from functools import total_ordering
 from itertools import combinations_with_replacement, product
 from typing import TYPE_CHECKING, cast
 
-from monty.dev import deprecated
 from monty.fractions import gcd, gcd_float
 from monty.json import MSONable
 from monty.serialization import loadfn
@@ -315,17 +314,12 @@ class Composition(collections.abc.Hashable, collections.abc.Mapping, MSONable, S
     def __str__(self) -> str:
         return " ".join(f"{key}{formula_double_format(val, ignore_ones=False)}" for key, val in self.as_dict().items())
 
-    def as_pretty_string(self) -> str:
+    def to_pretty_string(self) -> str:
         """
         Returns:
             str: Same output as __str__() but without spaces.
         """
         return re.sub(r"\s+", "", str(self))
-
-    @deprecated(as_pretty_string, deadline=(2026, 4, 4))
-    def to_pretty_string(self) -> str:
-        """Deprecated."""
-        return self.as_pretty_string()
 
     @property
     def average_electroneg(self) -> float:
@@ -780,7 +774,8 @@ class Composition(collections.abc.Hashable, collections.abc.Mapping, MSONable, S
             dct[str(el)] += amt
         return dict(dct)
 
-    def as_reduced_dict(self) -> dict[str, float]:
+    @property
+    def to_reduced_dict(self) -> dict[str, float]:
         """
         Returns:
             dict[str, float]: element symbols mapped to reduced amount e.g. {"Fe": 2.0, "O":3.0}.
@@ -788,12 +783,7 @@ class Composition(collections.abc.Hashable, collections.abc.Mapping, MSONable, S
         return self.reduced_composition.as_dict()
 
     @property
-    @deprecated(as_reduced_dict, deadline=(2026, 4, 4))
-    def to_reduced_dict(self) -> dict[str, float]:
-        """Deprecated."""
-        return self.as_reduced_dict()
-
-    def as_weight_dict(self) -> dict[str, float]:
+    def to_weight_dict(self) -> dict[str, float]:
         """
         Returns:
             dict[str, float]: weight fractions of each component, e.g. {"Ti": 0.90, "V": 0.06, "Al": 0.04}.
@@ -801,12 +791,7 @@ class Composition(collections.abc.Hashable, collections.abc.Mapping, MSONable, S
         return {str(el): self.get_wt_fraction(el) for el in self.elements}
 
     @property
-    @deprecated(as_weight_dict, deadline=(2026, 4, 4))
-    def to_weight_dict(self) -> dict[str, float]:
-        """Deprecated."""
-        return self.as_weight_dict()
-
-    def as_data_dict(
+    def to_data_dict(
         self,
     ) -> dict[
         Literal["reduced_cell_composition", "unit_cell_composition", "reduced_cell_formula", "elements", "nelements"],
@@ -828,12 +813,6 @@ class Composition(collections.abc.Hashable, collections.abc.Mapping, MSONable, S
             "elements": list(map(str, self)),
             "nelements": len(self),
         }
-
-    @property
-    @deprecated(as_data_dict, deadline=(2026, 4, 4))
-    def to_data_dict(self):
-        """Deprecated."""
-        return self.as_data_dict()
 
     @property
     def charge(self) -> float | None:

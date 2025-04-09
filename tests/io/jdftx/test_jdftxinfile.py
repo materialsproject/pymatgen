@@ -30,7 +30,7 @@ if TYPE_CHECKING:
 
 def test_jdftxinfile_structuregen():
     jif = JDFTXInfile.from_file(ex_infile1_fname)
-    jdftxstruct = jif.as_jdftxstructure(jif)
+    jdftxstruct = jif.to_jdftxstructure(jif)
     assert isinstance(jdftxstruct, JDFTXStructure)
 
 
@@ -196,7 +196,7 @@ def test_JDFTXInfile_niche_cases():
     err_str = f"The '{tag}' tag appears multiple times in this input when it should not!"
     with pytest.raises(ValueError, match=err_str):
         jif._store_value(params, tag_object, tag, value)
-    struct = jif.as_pmg_structure(jif)
+    struct = jif.to_pmg_structure(jif)
     assert isinstance(struct, Structure)
     noneout = jif.validate_tags(return_list_rep=True)
     assert noneout is None
@@ -245,7 +245,7 @@ def test_JDFTXInfile_knowns_simple(infile_fname: PathLike, knowns: dict):
 def test_jdftxstructure():
     """Test the JDFTXStructure object associated with the JDFTXInfile object"""
     jif = JDFTXInfile.from_file(ex_infile2_fname)
-    struct = jif.as_jdftxstructure(jif)
+    struct = jif.to_jdftxstructure(jif)
     assert isinstance(struct, JDFTXStructure)
     struc_str = str(struct)
     assert isinstance(struc_str, str)
@@ -262,7 +262,7 @@ def test_jdftxstructure():
 
 def test_pmg_struc():
     jif = JDFTXInfile.from_file(ex_infile2_fname)
-    struc1 = jif.as_pmg_structure(jif)
+    struc1 = jif.to_pmg_structure(jif)
     struc2 = jif.structure
     for s in [struc1, struc2]:
         assert isinstance(s, Structure)

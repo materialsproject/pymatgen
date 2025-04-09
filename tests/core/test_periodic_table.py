@@ -523,7 +523,7 @@ class TestSpecies(PymatgenTest):
         els = map(get_el_sp, ["N3-", "Si4+", "Si3+"])
         assert sorted(els) == [Species("Si", 3), Species("Si", 4), Species("N", -3)]
 
-    def test_as_from_str(self):
+    def test_to_from_str(self):
         fe3 = Species("Fe", 3, spin=5)
         assert str(fe3) == "Fe3+,spin=5"
         fe = Species.from_str("Fe3+,spin=5")
@@ -544,10 +544,10 @@ class TestSpecies(PymatgenTest):
         assert str(mo0) == "Mo,spin=5"
 
     def test_stringify(self):
-        assert self.specie2.as_latex_string() == "Fe$^{3+}$"
-        assert self.specie2.as_unicode_string() == "Fe³⁺"
-        assert Species("S", -2).as_latex_string() == "S$^{2-}$"
-        assert Species("S", -2).as_unicode_string() == "S²⁻"
+        assert self.specie2.to_latex_string() == "Fe$^{3+}$"
+        assert self.specie2.to_unicode_string() == "Fe³⁺"
+        assert Species("S", -2).to_latex_string() == "S$^{2-}$"
+        assert Species("S", -2).to_unicode_string() == "S²⁻"
 
 
 @pytest.mark.parametrize(
@@ -604,13 +604,13 @@ class TestDummySpecies:
         assert sp.oxi_state == 0
         sp = DummySpecies.from_str("X2+")
         assert sp.oxi_state == 2
-        assert sp.as_latex_string() == "X$^{2+}$"
+        assert sp.to_latex_string() == "X$^{2+}$"
         sp = DummySpecies.from_str("X2+spin=5")
         assert sp.oxi_state == 2
         assert sp.spin == 5
-        assert sp.as_latex_string() == "X$^{2+}$"
-        assert sp.as_html_string() == "X<sup>2+</sup>"
-        assert sp.as_unicode_string() == "X²⁺"
+        assert sp.to_latex_string() == "X$^{2+}$"
+        assert sp.to_html_string() == "X<sup>2+</sup>"
+        assert sp.to_unicode_string() == "X²⁺"
 
     def test_pickle(self):
         el1 = DummySpecies("X", 3)

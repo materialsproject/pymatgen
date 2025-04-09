@@ -114,7 +114,7 @@ class TestSpinMode(PymatgenTest):
         other_polarized = SpinMode.as_spinmode("polarized")
         unpolarized = SpinMode.as_spinmode("unpolarized")
 
-        polarized.as_abivars()
+        polarized.to_abivars()
 
         assert polarized is other_polarized
         assert polarized == other_polarized
@@ -131,7 +131,7 @@ class TestSpinMode(PymatgenTest):
 class TestSmearing(PymatgenTest):
     def test_base(self):
         fd1ev = Smearing.as_smearing("fermi_dirac:1 eV")
-        fd1ev.as_abivars()
+        fd1ev.to_abivars()
 
         assert fd1ev
 
@@ -159,7 +159,7 @@ class TestSmearing(PymatgenTest):
 class TestElectronsAlgorithm(PymatgenTest):
     def test_base(self):
         algo = ElectronsAlgorithm(nstep=70)
-        _ = algo.as_abivars()
+        _ = algo.to_abivars()
 
         # Test pickle
         self.serialize_with_pickle(algo)
@@ -175,7 +175,7 @@ class TestElectrons(PymatgenTest):
         assert default_electrons.nspinor == 1
         assert default_electrons.nspden == 2
 
-        _ = default_electrons.as_abivars()
+        _ = default_electrons.to_abivars()
 
         # new = Electron.from_dict(default_electrons.as_dict())
 
@@ -200,7 +200,7 @@ class TestKSampling(PymatgenTest):
         monkhorst = KSampling.monkhorst((3, 3, 3), (0.5, 0.5, 0.5), 0, use_symmetries=False, use_time_reversal=False)
         gamma_centered = KSampling.gamma_centered((3, 3, 3), use_symmetries=False, use_time_reversal=False)
 
-        monkhorst.as_abivars()
+        monkhorst.to_abivars()
 
         # Test dict methods
         self.assert_msonable(monkhorst)
@@ -212,7 +212,7 @@ class TestRelaxation(PymatgenTest):
         atoms_and_cell = RelaxationMethod.atoms_and_cell()
         atoms_only = RelaxationMethod.atoms_only()
 
-        out_vars = atoms_and_cell.as_abivars()
+        out_vars = atoms_and_cell.to_abivars()
         assert {*out_vars} >= {
             "dilatmx",
             "ecutsm",
@@ -230,7 +230,7 @@ class TestRelaxation(PymatgenTest):
 class TestPPModel(PymatgenTest):
     def test_base(self):
         godby = PPModel.as_ppmodel("godby:12 eV")
-        godby.as_abivars()
+        godby.to_abivars()
         assert godby
 
         same_godby = PPModel.as_ppmodel(f"godby:{12.0 / Ha_to_eV}")

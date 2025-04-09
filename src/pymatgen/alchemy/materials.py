@@ -11,7 +11,6 @@ from datetime import datetime, timezone
 from typing import TYPE_CHECKING
 from warnings import warn
 
-from monty.dev import deprecated
 from monty.json import MSONable, jsanitize
 
 from pymatgen.core.structure import Structure
@@ -352,7 +351,7 @@ class TransformedStructure(MSONable):
         struct = Structure.from_dict(dct)
         return cls(struct, history=dct["history"], other_parameters=dct.get("other_parameters"))
 
-    def as_snl(self, authors: list[str], **kwargs) -> StructureNL:
+    def to_snl(self, authors: list[str], **kwargs) -> StructureNL:
         """Generate a StructureNL from TransformedStructure.
 
         Args:
@@ -376,11 +375,6 @@ class TransformedStructure(MSONable):
             ]
 
         return StructureNL(self.final_structure, authors, history=history, **kwargs)
-
-    @deprecated(as_snl, deadline=(2026, 4, 4))
-    def to_snl(self, *args, **kwargs) -> StructureNL:
-        """Deprecated."""
-        return self.as_snl(*args, **kwargs)
 
     @classmethod
     def from_snl(cls, snl: StructureNL) -> Self:

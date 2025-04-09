@@ -317,7 +317,7 @@ class TestThermalDisplacement(PymatgenTest):
 
     def test_to_structure_with_site_properties(self):
         # test creation of structure with site properties
-        structure = self.thermal.as_structure_with_site_properties_Ucif()
+        structure = self.thermal.to_structure_with_site_properties_Ucif()
         # test reading of structure with site properties
         new_thermals = ThermalDisplacementMatrices.from_structure_with_site_properties_Ucif(structure)
         assert_allclose(

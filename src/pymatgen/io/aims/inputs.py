@@ -16,7 +16,6 @@ from typing import TYPE_CHECKING
 from warnings import warn
 
 import numpy as np
-from monty.dev import deprecated
 from monty.io import zopen
 from monty.json import MontyDecoder, MSONable
 from monty.os.path import zpath
@@ -923,7 +922,7 @@ class SpeciesDefaults(list, MSONable):
                 elements[site.species_string] = el.name
         return SpeciesDefaults(sorted(labels), basis_set, species_dir=species_dir, elements=elements)
 
-    def as_dict(self):
+    def to_dict(self):
         """Dictionary representation of the species' defaults"""
         return {
             "labels": self.labels,
@@ -932,10 +931,6 @@ class SpeciesDefaults(list, MSONable):
             "@module": type(self).__module__,
             "@class": type(self).__name__,
         }
-
-    @deprecated(replacement=as_dict, deadline=(2026, 4, 4))
-    def to_dict(self):
-        return self.as_dict()
 
     @classmethod
     def from_dict(cls, dct: dict[str, Any]) -> SpeciesDefaults:

@@ -133,7 +133,7 @@ class PWInput:
                     site_descriptions[name] = site.properties
                     c += 1
 
-        def as_str(v):
+        def to_str(v):
             if isinstance(v, str):
                 return f"{v!r}"
             if isinstance(v, float):
@@ -153,10 +153,10 @@ class PWInput:
                 if isinstance(v1[k2], list):
                     n = 1
                     for _ in v1[k2][: len(site_descriptions)]:
-                        sub.append(f"{indent}{k2}({n}) = {as_str(v1[k2][n - 1])}")
+                        sub.append(f"{indent}{k2}({n}) = {to_str(v1[k2][n - 1])}")
                         n += 1
                 else:
-                    sub.append(f"{indent}{k2} = {as_str(v1[k2])}")
+                    sub.append(f"{indent}{k2} = {to_str(v1[k2])}")
             if k1 == "system":
                 if "ibrav" not in self.sections[k1]:
                     sub.append(f"{indent}ibrav = 0")

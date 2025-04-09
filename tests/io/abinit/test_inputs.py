@@ -72,9 +72,9 @@ class TestAbinitInput(PymatgenTest):
         assert "ecut" in inp
         assert "foo" not in inp
 
-        # Test as_str
-        assert inp.as_str(with_structure=True, with_pseudos=True)
-        assert inp.as_str(with_structure=False, with_pseudos=False)
+        # Test to_string
+        assert inp.to_str(with_structure=True, with_pseudos=True)
+        assert inp.to_str(with_structure=False, with_pseudos=False)
 
         inp.set_vars(ecut=5, toldfe=1e-6)
         assert inp["ecut"] == 5
@@ -88,7 +88,7 @@ class TestAbinitInput(PymatgenTest):
         with pytest.raises(inp.Error):
             inp.set_vars(unit_cell)
 
-        with pytest.raises(TypeError, match="type dict does not have `as_abivars` method"):
+        with pytest.raises(TypeError, match="type dict does not have `to_abivars` method"):
             inp.add_abiobjects({})
 
         with pytest.raises(KeyError) as exc:
@@ -225,7 +225,7 @@ class TestMultiDataset(PymatgenTest):
         split = multi.split_datasets()
         assert len(split) == 2
         assert all(split[idx] == multi[idx] for idx in range(multi.ndtset))
-        assert multi.as_str(with_pseudos=False)
+        assert multi.to_str(with_pseudos=False)
 
         tmpdir = tempfile.mkdtemp()
         filepath = f"{tmpdir}/run.abi"

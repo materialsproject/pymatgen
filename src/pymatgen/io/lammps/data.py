@@ -23,7 +23,6 @@ from typing import TYPE_CHECKING
 
 import numpy as np
 import pandas as pd
-from monty.dev import deprecated
 from monty.io import zopen
 from monty.json import MSONable
 from monty.serialization import loadfn
@@ -185,7 +184,7 @@ class LammpsBox(MSONable):
         """
         return np.inner(i, self._matrix.T)
 
-    def as_lattice(self) -> Lattice:
+    def to_lattice(self) -> Lattice:
         """Convert the simulation box to a more powerful Lattice backend.
         Note that Lattice is always periodic in 3D space while a
         simulation box is not necessarily periodic in all dimensions.
@@ -194,10 +193,6 @@ class LammpsBox(MSONable):
             Lattice
         """
         return Lattice(self._matrix)
-
-    @deprecated(as_lattice, deadline=(2026, 4, 4))
-    def to_lattice(self):
-        return self.as_lattice()
 
 
 def lattice_2_lmpbox(lattice: Lattice, origin: Sequence = (0, 0, 0)) -> tuple[LammpsBox, SymmOp]:
@@ -306,7 +301,7 @@ class LammpsData(MSONable):
         molecule = topologies[0].sites
         coords = molecule.cart_coords - np.array(self.box.bounds)[:, 0]
         species = molecule.species
-        lattice = self.box.as_lattice()
+        lattice = self.box.to_lattice()
         site_properties = {}
         if "q" in atoms:
             site_properties["charge"] = atoms["q"].to_numpy()
@@ -881,7 +876,7 @@ class LammpsData(MSONable):
             rot_velos = rot.operate_multi(velos)
             site_properties["velocities"] = rot_velos
         boxed_s = Structure(
-            box.as_lattice(),
+            box.to_lattice(),
             struct.species,
             coords,
             site_properties=site_properties,
@@ -1228,7 +1223,7 @@ class ForceField(MSONable):
             all_data |= {k: process_data(v) for k, v in class2_data.items()}
         return all_data, {f"{kw[:-7]}s": mapper}
 
-    def as_file(self, filename: str) -> None:
+    def to_file(self, filename: str) -> None:
         """Save force field to a file in YAML format.
 
         Args:
@@ -1242,10 +1237,6 @@ class ForceField(MSONable):
         with open(filename, mode="w", encoding="utf-8") as file:
             yaml = YAML()
             yaml.dump(dct, file)
-
-    @deprecated(as_file, deadline=(2026, 4, 4))
-    def to_file(self, *args, **kwargs):
-        self.as_file(*args, **kwargs)
 
     @classmethod
     def from_file(cls, filename: str) -> Self:

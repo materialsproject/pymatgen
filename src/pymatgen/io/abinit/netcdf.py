@@ -9,7 +9,7 @@ from typing import TYPE_CHECKING
 
 import numpy as np
 from monty.collections import AttrDict
-from monty.dev import deprecated, requires
+from monty.dev import requires
 from monty.functools import lazy_property
 from monty.string import marquee
 
@@ -354,7 +354,7 @@ def structure_from_ncdata(ncdata, site_properties=None, cls=Structure):
     structure = cls(lattice, species, red_coords, site_properties=dct)
 
     # Quick and dirty hack.
-    # I need an abipy structure since I need as_abivars and other methods.
+    # I need an abipy structure since I need to_abivars and other methods.
     try:
         from abipy.core.structure import Structure as AbipyStructure
 
@@ -480,9 +480,9 @@ class AbinitHeader(AttrDict):
     #        v.__doc__ = _HDR_VARIABLES[k].doc
 
     def __str__(self):
-        return self.as_str()
+        return self.to_str()
 
-    def as_str(self, verbose=0, title=None, **kwargs):
+    def to_str(self, verbose=0, title=None, **kwargs):
         """String representation. kwargs are passed to `pprint.pformat`.
 
         Args:
@@ -496,10 +496,6 @@ class AbinitHeader(AttrDict):
             return "\n".join([marquee(title, mark="="), header_str])
         return header_str
 
-    @deprecated(as_str, deadline=(2026, 4, 4))
-    def to_str(self, *args, **kwargs):
-        return self.as_str(*args, **kwargs)
-
-    @deprecated(as_str, deadline=(2026, 4, 4))
-    def to_string(self, *args, **kwargs):
-        return self.as_str(*args, **kwargs)
+    # to_string alias required for backwards compatibility
+    # PLEASE DO NOT REMOVE THIS LINE AS THIS API HAS BEEN AROUND FOR SEVERAL YEARS
+    to_string = to_str

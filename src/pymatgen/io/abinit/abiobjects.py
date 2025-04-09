@@ -11,7 +11,6 @@ from typing import TYPE_CHECKING, NamedTuple, cast
 import numpy as np
 from monty.collections import AttrDict
 from monty.design_patterns import singleton
-from monty.dev import deprecated
 from monty.json import MontyDecoder, MontyEncoder, MSONable
 
 from pymatgen.core import ArrayWithUnit, Lattice, Species, Structure, units
@@ -309,22 +308,18 @@ class AbivarAble(abc.ABC):
     """An AbivarAble object provides a method to_abivars that returns a dictionary with the abinit variables."""
 
     @abc.abstractmethod
-    def as_abivars(self):
-        """Get a dictionary with the abinit variables."""
-
-    @deprecated(as_abivars, deadline=(2026, 4, 4))
     def to_abivars(self):
-        return self.as_abivars()
+        """Get a dictionary with the abinit variables."""
 
     # @abc.abstractmethod
     # def from_abivars(cls, vars):
     #    """Build the object from a dictionary with Abinit variables."""
 
     def __str__(self):
-        return pformat(self.as_abivars(), indent=1, width=80, depth=None)
+        return pformat(self.to_abivars(), indent=1, width=80, depth=None)
 
     def __contains__(self, key):
-        return key in self.as_abivars()
+        return key in self.to_abivars()
 
 
 @singleton
@@ -381,13 +376,9 @@ class SpinMode(SpinModeTuple, AbivarAble, MSONable):
         except KeyError:
             raise KeyError(f"Wrong value for spin_mode: {obj}")
 
-    def as_abivars(self):
+    def to_abivars(self):
         """Dictionary with Abinit input variables."""
         return {"nsppol": self.nsppol, "nspinor": self.nspinor, "nspden": self.nspden}
-
-    @deprecated(as_abivars, deadline=(2026, 4, 4))
-    def to_abivars(self):
-        return self.as_abivars()
 
     def as_dict(self):
         """JSON-friendly dict representation of SpinMode."""
@@ -498,15 +489,11 @@ class Smearing(AbivarAble, MSONable):
         """For calculations without smearing."""
         return Smearing(1, 0.0)
 
-    def as_abivars(self):
+    def to_abivars(self):
         """Return dictionary with Abinit variables."""
         if self.mode == "nosmearing":
             return {"occopt": 1, "tsmear": 0.0}
         return {"occopt": self.occopt, "tsmear": self.tsmear}
-
-    @deprecated(as_abivars, deadline=(2026, 4, 4))
-    def to_abivars(self):
-        return self.as_abivars()
 
     def as_dict(self):
         """JSON-friendly dict representation of Smearing."""
@@ -560,13 +547,9 @@ class ElectronsAlgorithm(dict, AbivarAble, MSONable):
             if key not in self._DEFAULT:
                 raise ValueError(f"{type(self).__name__}: No default value has been provided for {key=}")
 
-    def as_abivars(self):
+    def to_abivars(self):
         """Dictionary with Abinit input variables."""
         return self.copy()
-
-    @deprecated(as_abivars, deadline=(2026, 4, 4))
-    def to_abivars(self):
-        return self.as_abivars()
 
     def as_dict(self):
         """Get JSON-able dict representation."""
@@ -655,24 +638,20 @@ class Electrons(AbivarAble, MSONable):
         dct["algorithm"] = MontyDecoder().process_decoded(dct["algorithm"]) if dct["algorithm"] else None
         return cls(**dct)
 
-    def as_abivars(self):
+    def to_abivars(self):
         """Return dictionary with Abinit variables."""
-        abivars = self.spin_mode.as_abivars()
+        abivars = self.spin_mode.to_abivars()
 
         abivars |= {"nband": self.nband, "fband": self.fband, "charge": self.charge}
 
         if self.smearing:
-            abivars.update(self.smearing.as_abivars())
+            abivars.update(self.smearing.to_abivars())
 
         if self.algorithm:
             abivars.update(self.algorithm)
 
         # abivars["#comment"] = self.comment
         return abivars
-
-    @deprecated(as_abivars, deadline=(2026, 4, 4))
-    def to_abivars(self):
-        return self.as_abivars()
 
 
 @unique
@@ -1004,13 +983,9 @@ class KSampling(AbivarAble, MSONable):
             comment=comment,
         )
 
-    def as_abivars(self):
+    def to_abivars(self):
         """Dictionary with Abinit variables."""
         return self.abivars
-
-    @deprecated(as_abivars, deadline=(2026, 4, 4))
-    def to_abivars(self):
-        return self.as_abivars()
 
     def as_dict(self):
         """Get JSON-able dict representation."""
@@ -1042,13 +1017,9 @@ class KSampling(AbivarAble, MSONable):
 class Constraints(AbivarAble):
     """Define the constraints for structural relaxation."""
 
-    def as_abivars(self):
+    def to_abivars(self):
         """Dictionary with Abinit variables."""
         raise NotImplementedError("")
-
-    @deprecated(as_abivars, deadline=(2026, 4, 4))
-    def to_abivars(self):
-        return self.as_abivars()
 
 
 class RelaxationMethod(AbivarAble, MSONable):
@@ -1133,7 +1104,7 @@ class RelaxationMethod(AbivarAble, MSONable):
         """True if lattice parameters must be optimized."""
         return self.abivars.optcell != 0
 
-    def as_abivars(self):
+    def to_abivars(self):
         """Get a dictionary with the abinit variables."""
         # These variables are always present.
         out_vars = {
@@ -1149,7 +1120,7 @@ class RelaxationMethod(AbivarAble, MSONable):
         if self.abivars.atoms_constraints:
             # Add input variables for constrained relaxation.
             raise NotImplementedError("")
-            out_vars.update(self.abivars.atoms_constraints.as_abivars())
+            out_vars.update(self.abivars.atoms_constraints.to_abivars())
 
         # Cell relaxation.
         if self.move_cell:
@@ -1161,10 +1132,6 @@ class RelaxationMethod(AbivarAble, MSONable):
             )
 
         return out_vars
-
-    @deprecated(as_abivars, deadline=(2026, 4, 4))
-    def to_abivars(self):
-        return self.as_abivars()
 
     def as_dict(self):
         """Convert to dictionary."""
@@ -1257,15 +1224,11 @@ class PPModel(AbivarAble, MSONable):
     def __repr__(self):
         return f"<{type(self).__name__} at {id(self)}, mode = {self.mode}>"
 
-    def as_abivars(self):
+    def to_abivars(self):
         """Return dictionary with Abinit variables."""
         if self:
             return {"ppmodel": self.mode.value, "ppmfrq": self.plasmon_freq}
         return {}
-
-    @deprecated(as_abivars, deadline=(2026, 4, 4))
-    def to_abivars(self):
-        return self.as_abivars()
 
     @classmethod
     def get_noppmodel(cls):
@@ -1325,7 +1288,7 @@ class HilbertTransform(AbivarAble):
         self.freqremin = freqremin
         self.nfreqim = nfreqim
 
-    def as_abivars(self):
+    def to_abivars(self):
         """Get a dictionary with the abinit variables."""
         return {
             # Spectral function
@@ -1339,10 +1302,6 @@ class HilbertTransform(AbivarAble):
             "freqremin": self.freqremin,
         }
 
-    @deprecated(as_abivars, deadline=(2026, 4, 4))
-    def to_abivars(self):
-        return self.as_abivars()
-
 
 class ModelDielectricFunction(AbivarAble):
     """Model dielectric function used for BSE calculation."""
@@ -1354,13 +1313,9 @@ class ModelDielectricFunction(AbivarAble):
         """
         self.mdf_epsinf = mdf_epsinf
 
-    def as_abivars(self):
+    def to_abivars(self):
         """Return dictionary with abinit variables."""
         return {"mdf_epsinf": self.mdf_epsinf}
-
-    @deprecated(as_abivars, deadline=(2026, 4, 4))
-    def to_abivars(self):
-        return self.as_abivars()
 
 
 ##########################################################################################
@@ -1441,7 +1396,7 @@ class Screening(AbivarAble):
     #    dig1 = str(self._SC_MODES[self.sc_mode]
     #    return dig1.strip() + dig0.strip()
 
-    def as_abivars(self):
+    def to_abivars(self):
         """Get a dictionary with the abinit variables."""
         abivars = {
             "ecuteps": self.ecuteps,
@@ -1458,13 +1413,9 @@ class Screening(AbivarAble):
 
         # Variables for the Hilber transform.
         if self.use_hilbert:
-            abivars.update(self.hilbert.as_abivars())
+            abivars.update(self.hilbert.to_abivars())
 
         return abivars
-
-    @deprecated(as_abivars, deadline=(2026, 4, 4))
-    def to_abivars(self):
-        return self.as_abivars()
 
 
 class SelfEnergy(AbivarAble):
@@ -1574,7 +1525,7 @@ class SelfEnergy(AbivarAble):
         """1 if symmetries can be used to reduce the number of q-points."""
         return 1 if self.sc_mode == "one_shot" else 0
 
-    def as_abivars(self):
+    def to_abivars(self):
         """Get a dictionary with the abinit variables."""
         abivars = {
             "gwcalctyp": self.gwcalctyp,
@@ -1597,13 +1548,9 @@ class SelfEnergy(AbivarAble):
 
         # ppmodel variables
         if self.use_ppmodel:
-            abivars |= self.ppmodel.as_abivars()
+            abivars |= self.ppmodel.to_abivars()
 
         return abivars
-
-    @deprecated(as_abivars, deadline=(2026, 4, 4))
-    def to_abivars(self):
-        return self.as_abivars()
 
 
 class ExcHamiltonian(AbivarAble):
@@ -1720,7 +1667,7 @@ class ExcHamiltonian(AbivarAble):
         """True if we are performing the direct diagonalization of the BSE Hamiltonian."""
         return self.algo == "direct_diago"
 
-    def as_abivars(self):
+    def to_abivars(self):
         """Get a dictionary with the abinit variables."""
         abivars = {
             "bs_calctype": 1,
@@ -1756,7 +1703,3 @@ class ExcHamiltonian(AbivarAble):
         abivars.update(self.kwargs)
 
         return abivars
-
-    @deprecated(as_abivars, deadline=(2026, 4, 4))
-    def to_abivars(self):
-        return self.as_abivars()

@@ -525,14 +525,9 @@ class SiteCollection(collections.abc.Sequence, ABC):
         """
         raise NotImplementedError
 
-    def as_file(self, filename: str = "", fmt: FileFormats = "") -> str | None:
+    def to_file(self, filename: str = "", fmt: FileFormats = "") -> str | None:
         """A more intuitive alias for .to()."""
         return self.to(filename, fmt)
-
-    @deprecated(as_file, deadline=(2026, 4, 4))
-    def to_file(self, *args, **kwargs):
-        """Deprecated."""
-        return self.as_file(*args, **kwargs)
 
     @classmethod
     @abstractmethod
@@ -978,7 +973,7 @@ class SiteCollection(collections.abc.Sequence, ABC):
 
         raise ValueError(f"Unknown {calculator=}.")
 
-    def as_ase_atoms(self, **kwargs) -> Atoms:
+    def to_ase_atoms(self, **kwargs) -> Atoms:
         """Convert the structure/molecule to an ase.Atoms object.
 
         Args:
@@ -990,11 +985,6 @@ class SiteCollection(collections.abc.Sequence, ABC):
         from pymatgen.io.ase import AseAtomsAdaptor
 
         return AseAtomsAdaptor.get_atoms(self, **kwargs)
-
-    @deprecated(as_ase_atoms, deadline=(2026, 4, 4))
-    def to_ase_atoms(self, **kwargs) -> Atoms:
-        """Deprecated."""
-        return self.as_ase_atoms(**kwargs)
 
     @classmethod
     def from_ase_atoms(cls, atoms: Atoms, **kwargs) -> Self:
@@ -1193,14 +1183,14 @@ class IStructure(SiteCollection, MSONable):
         return "\n".join(outs)
 
     def __str__(self) -> str:
-        def as_str(x) -> str:
+        def to_str(x) -> str:
             return f"{x:>10.6f}"
 
         outs = [
             f"Full Formula ({self.composition.formula})",
             f"Reduced Formula: {self.composition.reduced_formula}",
-            f"abc   : {' '.join(as_str(i) for i in self.lattice.abc)}",
-            f"angles: {' '.join(as_str(i) for i in self.lattice.angles)}",
+            f"abc   : {' '.join(to_str(i) for i in self.lattice.abc)}",
+            f"angles: {' '.join(to_str(i) for i in self.lattice.angles)}",
             f"pbc   : {' '.join(str(p).rjust(10) for p in self.lattice.pbc)}",
         ]
 
@@ -1212,7 +1202,7 @@ class IStructure(SiteCollection, MSONable):
         keys = sorted(props)
         for idx, site in enumerate(self):
             row = [str(idx), site.species_string]
-            row.extend([as_str(j) for j in site.frac_coords])
+            row.extend([to_str(j) for j in site.frac_coords])
             for key in keys:
                 row.append(props[key][idx])
             data.append(row)
@@ -2977,7 +2967,7 @@ class IStructure(SiteCollection, MSONable):
         elif fmt == "xsf" or fnmatch(filename.lower(), "*.xsf*"):
             from pymatgen.io.xcrysden import XSF
 
-            res_str = XSF(self).as_str()
+            res_str = XSF(self).to_str()
             if filename:
                 with zopen(filename, mode="wt", encoding="utf-8") as file:
                     file.write(res_str)
@@ -2991,7 +2981,7 @@ class IStructure(SiteCollection, MSONable):
         ):
             from pymatgen.io.atat import Mcsqs
 
-            res_str = Mcsqs(self).as_str()
+            res_str = Mcsqs(self).to_str()
             if filename:
                 with zopen(filename, mode="wt", encoding="ascii") as file:
                     file.write(res_str)
@@ -3000,7 +2990,7 @@ class IStructure(SiteCollection, MSONable):
         elif fmt == "prismatic" or fnmatch(filename, "*prismatic*"):
             from pymatgen.io.prismatic import Prismatic
 
-            return Prismatic(self).as_str()
+            return Prismatic(self).to_str()
 
         elif fmt in ("yaml", "yml") or fnmatch(filename, "*.yaml*") or fnmatch(filename, "*.yml*"):
             yaml = YAML()
@@ -3314,7 +3304,7 @@ class IStructure(SiteCollection, MSONable):
 
     CellType: TypeAlias = Literal["primitive", "conventional"]
 
-    def as_cell(self, cell_type: IStructure.CellType, **kwargs) -> Structure:
+    def to_cell(self, cell_type: IStructure.CellType, **kwargs) -> Structure:
         """Get a cell based on the current structure.
 
         Args:
@@ -3337,12 +3327,7 @@ class IStructure(SiteCollection, MSONable):
         sga = SpacegroupAnalyzer(self, **kwargs)
         return getattr(sga, f"get_{cell_type}_standard_structure")(**method_kwargs)
 
-    @deprecated(as_cell, deadline=(2026, 4, 4))
-    def to_cell(self, *args, **kwargs):
-        """Deprecated."""
-        return self.as_cell(*args, **kwargs)
-
-    def as_primitive(self, **kwargs) -> Structure:
+    def to_primitive(self, **kwargs) -> Structure:
         """Get a primitive cell based on the current structure.
 
         Args:
@@ -3352,14 +3337,9 @@ class IStructure(SiteCollection, MSONable):
         Returns:
             Structure: with the requested cell type.
         """
-        return self.as_cell("primitive", **kwargs)
+        return self.to_cell("primitive", **kwargs)
 
-    @deprecated(as_primitive, deadline=(2026, 4, 4))
-    def to_primitive(self, **kwargs):
-        """Deprecated."""
-        return self.as_primitive(**kwargs)
-
-    def as_conventional(self, **kwargs) -> Structure:
+    def to_conventional(self, **kwargs) -> Structure:
         """Get a conventional cell based on the current structure.
 
         Args:
@@ -3369,12 +3349,7 @@ class IStructure(SiteCollection, MSONable):
         Returns:
             Structure: with the requested cell type.
         """
-        return self.as_cell("conventional", **kwargs)
-
-    @deprecated(as_conventional, deadline=(2026, 4, 4))
-    def to_conventional(self, **kwargs):
-        """Deprecated."""
-        return self.as_conventional(**kwargs)
+        return self.to_cell("conventional", **kwargs)
 
     @overload
     def get_symmetry_dataset(self, backend: Literal["moyopy"], **kwargs) -> moyopy.MoyoDataset: ...
@@ -4814,7 +4789,7 @@ class Structure(IStructure, collections.abc.MutableSequence):
         supercell: Structure = struct * scaling_matrix
         if to_unit_cell:
             for site in supercell:
-                site.as_unit_cell(in_place=True)
+                site.to_unit_cell(in_place=True)
         struct.sites = supercell.sites
         struct.lattice = supercell.lattice
 

@@ -926,7 +926,7 @@ Si1 Si 0 0 0 1 0.0
 
         # test write_file append mode='a'
         struct2 = Structure.from_file(f"{TEST_FILES_DIR}/cif/Graphite.cif")
-        CifWriter(struct2).write_file(out_path, mode="at")
+        CifWriter(struct2).write_file(out_path, mode="a")
 
         read_structs = CifParser(out_path).parse_structures()
         assert len(read_structs) == 2

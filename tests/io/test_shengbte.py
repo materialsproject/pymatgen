@@ -64,7 +64,7 @@ class TestShengBTE(PymatgenTest):
         assert not io["nonanalytic"]
         assert not io["nanowires"]
 
-        io.as_file(filename=f"{self.tmp_path}/test_control")
+        io.to_file(filename=f"{self.tmp_path}/test_control")
 
         with open(f"{self.tmp_path}/test_control", encoding="utf-8") as file:
             test_str = file.read()
@@ -74,7 +74,7 @@ class TestShengBTE(PymatgenTest):
 
     def test_from_dict(self):
         io = Control.from_dict(self.test_dict)
-        io.as_file(filename=f"{self.tmp_path}/test_control")
+        io.to_file(filename=f"{self.tmp_path}/test_control")
         with open(f"{self.tmp_path}/test_control", encoding="utf-8") as file:
             test_str = file.read()
         with open(f"{TEST_DIR}/CONTROL-CSLD_Si", encoding="utf-8") as reference_file:

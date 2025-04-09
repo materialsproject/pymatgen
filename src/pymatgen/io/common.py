@@ -14,7 +14,6 @@ from pathlib import Path
 from typing import TYPE_CHECKING
 
 import numpy as np
-from monty.dev import deprecated
 from monty.io import zopen
 from monty.json import MSONable
 from scipy.interpolate import RegularGridInterpolator
@@ -291,7 +290,7 @@ class VolumetricData(MSONable):
             total = np.sum(np.sum(total_spin_dens, axis=0), 0)
         return total / ng[(ind + 1) % 3] / ng[(ind + 2) % 3]
 
-    def as_hdf5(self, filename):
+    def to_hdf5(self, filename):
         """Write the VolumetricData to a HDF5 format, which is a highly optimized
         format for reading storing large data. The mapping of the VolumetricData
         to this file format is as follows:
@@ -326,10 +325,6 @@ class VolumetricData(MSONable):
             file.attrs["name"] = self.name
             file.attrs["structure_json"] = json.dumps(self.structure.as_dict())
 
-    @deprecated(as_hdf5, deadline=(2026, 4, 4))
-    def to_hdf5(self, *args, **kwargs):
-        return self.as_hdf5(*args, **kwargs)
-
     @classmethod
     def from_hdf5(cls, filename: str, **kwargs) -> Self:
         """
@@ -351,7 +346,7 @@ class VolumetricData(MSONable):
             structure = Structure.from_dict(json.loads(file.attrs["structure_json"]))
             return cls(structure, data=data, data_aug=data_aug, **kwargs)
 
-    def as_cube(self, filename, comment: str = ""):
+    def to_cube(self, filename, comment: str = ""):
         """Write the total volumetric data to a cube file format, which consists of two comment lines,
         a header section defining the structure IN BOHR, and the data.
 
@@ -382,10 +377,6 @@ class VolumetricData(MSONable):
                 file.write(f"{' ' if dat > 0 else ''}{dat:.6e} ")
                 if idx % 6 == 0:
                     file.write("\n")
-
-    @deprecated(as_cube, deadline=(2026, 4, 4))
-    def to_cube(self, *args, **kwargs):
-        return self.as_cube(*args, **kwargs)
 
     @classmethod
     def from_cube(cls, filename: str | Path) -> Self:

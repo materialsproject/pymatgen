@@ -15,7 +15,6 @@ from multiprocessing import Pool
 from typing import TYPE_CHECKING
 
 import numpy as np
-from monty.dev import deprecated
 from monty.json import MontyDecoder, MSONable
 from scipy.spatial import ConvexHull, HalfspaceIntersection
 from scipy.special import comb
@@ -267,16 +266,12 @@ class PourbaixEntry(MSONable, Stringify):
         """Number of atoms in current formula. Useful for normalization."""
         return self.composition.num_atoms
 
-    def as_pretty_string(self) -> str:
+    def to_pretty_string(self) -> str:
         """A pretty string representation."""
         if self.phase_type == "Solid":
             return f"{self.entry.reduced_formula}(s)"
 
         return self.entry.name
-
-    @deprecated(as_pretty_string, deadline=(2026, 4, 4))
-    def to_pretty_string(self) -> str:
-        return self.as_pretty_string()
 
 
 class MultiEntry(PourbaixEntry):
@@ -996,7 +991,7 @@ class PourbaixPlotter:
         # will convert B(OH)4- to B(OH)$_4^-$.
         # for this to work, the ion's charge always must be written AFTER
         # the sign (e.g., Fe+2 not Fe2+)
-        string = entry.as_latex_string()
+        string = entry.to_latex_string()
         return re.sub(r"()\[([^)]*)\]", r"\1$^{\2}$", string)
 
     def show(self, *args, **kwargs) -> None:

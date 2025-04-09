@@ -114,7 +114,7 @@ class TestTransformedStructure(PymatgenTest):
     def test_snl(self):
         self.trans.set_parameter("author", "will")
         with pytest.warns(UserWarning) as warns:
-            struct_nl = self.trans.as_snl([("will", "will@test.com")])
+            struct_nl = self.trans.to_snl([("will", "will@test.com")])
 
         assert len(warns) >= 1, f"Warning not raised on type conversion with other_parameters {len(warns)=}"
         assert (
@@ -127,6 +127,6 @@ class TestTransformedStructure(PymatgenTest):
 
         hist = ("testname", "testURL", {"test": "testing"})
         struct_nl = StructureNL(t_struct.final_structure, [("will", "will@test.com")], history=[hist])
-        t_struct = TransformedStructure.from_snl(struct_nl).as_snl([("notwill", "notwill@test.com")])
+        t_struct = TransformedStructure.from_snl(struct_nl).to_snl([("notwill", "notwill@test.com")])
         assert t_struct.history == [hist]
         assert t_struct.authors == [("notwill", "notwill@test.com")]
