@@ -728,7 +728,7 @@ class AbinitTimer:
 
     def get_dataframe(self, sort_key="wall_time", **kwargs):
         """Return a pandas DataFrame with entries sorted according to `sort_key`."""
-        data = [osect.to_dict() for osect in self.order_sections(sort_key)]
+        data = [osect.as_dict() for osect in self.order_sections(sort_key)]
         frame = pd.DataFrame(data, columns=AbinitTimerSection.FIELDS)
 
         # Monkey patch
