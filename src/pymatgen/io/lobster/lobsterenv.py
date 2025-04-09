@@ -956,7 +956,7 @@ class LobsterNeighbors(NearNeighbors):
                 index_here_list = []
                 coords = []
                 for neigh_new in sorted(neighbors_by_distance_start, key=lambda x: x[1]):
-                    site_here = neigh_new[0].to_unit_cell()
+                    site_here = neigh_new[0].as_unit_cell()
                     index_here = neigh_new[2]
                     index_here_list.append(index_here)
                     cell_here = neigh_new[3]

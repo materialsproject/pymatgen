@@ -384,7 +384,7 @@ class EnumlibAdaptor:
                     transformation = [[round(cell) for cell in row] for row in transformation]
                     logger.debug(f"Supercell matrix: {transformation}")
                     struct = ordered_structure * transformation
-                    sites.extend([site.to_unit_cell() for site in struct])
+                    sites.extend([site.as_unit_cell() for site in struct])
                     super_latt = sites[-1].lattice
                 else:
                     super_latt = new_latt

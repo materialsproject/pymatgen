@@ -211,7 +211,7 @@ class Trajectory(MSONable):
             Subset of trajectory
         """
         # Convert to position mode if not already
-        self.to_positions()
+        self.as_positions()
 
         # For integer input, return the structure at that frame
         if isinstance(frames, int):
@@ -346,7 +346,7 @@ class Trajectory(MSONable):
         not work for absolute coords because the atoms are to be wrapped into the
         simulation box.
 
-        This is the opposite operation of to_positions().
+        This is the opposite operation of as_positions().
         """
         if self.coords_are_displacement:
             return
@@ -402,8 +402,8 @@ class Trajectory(MSONable):
             )
 
         # Ensure both trajectories are in positions before combining
-        self.to_positions()
-        trajectory.to_positions()
+        self.as_positions()
+        trajectory.as_positions()
 
         self.site_properties = self._combine_site_props(
             self.site_properties,
@@ -453,7 +453,7 @@ class Trajectory(MSONable):
             raise TypeError("write_Xdatcar can only be used with Structure-based Trajectory objects!")
 
         # Ensure trajectory is in position form
-        self.to_positions()
+        self.as_positions()
 
         if system is None:
             system = f"{self[0].reduced_formula}"

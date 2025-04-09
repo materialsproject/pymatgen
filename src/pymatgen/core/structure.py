@@ -4814,7 +4814,7 @@ class Structure(IStructure, collections.abc.MutableSequence):
         supercell: Structure = struct * scaling_matrix
         if to_unit_cell:
             for site in supercell:
-                site.to_unit_cell(in_place=True)
+                site.as_unit_cell(in_place=True)
         struct.sites = supercell.sites
         struct.lattice = supercell.lattice
 

@@ -230,8 +230,8 @@ class TestComposition(PymatgenTest):
             with pytest.raises(ValueError, match=f"Invalid formula={bad_formula!r}"):
                 Composition(bad_formula)
 
-    def test_as_latex_html_unicode(self):  # TODO: debug
-        assert self.comps[0].to_latex_string() == "Li$_{3}$Fe$_{2}$P$_{3}$O$_{12}$"
+    def test_as_latex_html_unicode(self):
+        assert self.comps[0].as_latex_string() == "Li$_{3}$Fe$_{2}$P$_{3}$O$_{12}$"
         assert self.comps[0].as_html_string() == "Li<sub>3</sub>Fe<sub>2</sub>P<sub>3</sub>O<sub>12</sub>"
         assert self.comps[0].as_unicode_string() == "Li₃Fe₂P₃O₁₂"
 
