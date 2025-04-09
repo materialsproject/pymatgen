@@ -20,6 +20,7 @@ from xml.etree import ElementTree as ET
 
 import numpy as np
 from monty.collections import AttrDict
+from monty.dev import deprecated
 from monty.functools import lazy_property
 from monty.itertools import iterator_from_slice
 from monty.json import MontyDecoder, MSONable
@@ -126,9 +127,9 @@ class Pseudo(MSONable, abc.ABC):
             return f"<{type(self).__name__} at {self.filepath}>"
 
     def __str__(self) -> str:
-        return self.to_str()
+        return self.as_str()
 
-    def to_str(self, verbose=0) -> str:
+    def as_str(self, verbose=0) -> str:
         """String representation."""
         lines: list[str] = []
         lines += (
@@ -150,6 +151,10 @@ class Pseudo(MSONable, abc.ABC):
                 lines.append(f"  hint for {accuracy} accuracy: {hint}")
 
         return "\n".join(lines)
+
+    @deprecated(as_str, deadline=(2026, 4, 4))
+    def to_str(self, *args, **kwargs):
+        return self.as_str(*args, **kwargs)
 
     @property
     @abc.abstractmethod
@@ -1779,8 +1784,11 @@ class PseudoTable(collections.abc.Sequence, MSONable):
         """
         print(self.to_table(filter_function=filter_function), file=stream)
 
-    def to_table(self, filter_function=None):
-        """Return string with data in tabular form."""
+    def to_table(self, filter_function=None) -> str:
+        """Return string with data in tabular form.
+
+        TODO: rename to `to_xxx`, but there's another `as_table` method already
+        """
         table = []
         for p in self:
             if filter_function is not None and filter_function(p):

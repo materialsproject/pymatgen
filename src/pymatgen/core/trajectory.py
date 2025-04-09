@@ -12,6 +12,7 @@ from tempfile import NamedTemporaryFile
 from typing import TYPE_CHECKING, TypeAlias, cast
 
 import numpy as np
+from monty.dev import deprecated
 from monty.io import zopen
 from monty.json import MSONable
 
@@ -318,7 +319,7 @@ class Trajectory(MSONable):
 
         return mol
 
-    def to_positions(self) -> None:
+    def as_positions(self) -> None:
         """Convert displacements between consecutive frames into positions.
 
         base_positions and coords should both be in fractional coords or
@@ -333,7 +334,11 @@ class Trajectory(MSONable):
         self.coords = positions
         self.coords_are_displacement = False
 
-    def to_displacements(self) -> None:
+    @deprecated(as_positions, deadline=(2026, 4, 4))
+    def to_positions(self) -> None:
+        return self.as_positions()
+
+    def as_displacements(self) -> None:
         """Convert positions of trajectory into displacements between consecutive frames.
 
         base_positions and coords should both be in fractional coords. Does
@@ -359,6 +364,10 @@ class Trajectory(MSONable):
 
         self.coords = displacements
         self.coords_are_displacement = True
+
+    @deprecated(as_displacements, deadline=(2026, 4, 4))
+    def to_displacements(self) -> None:
+        return self.as_displacements()
 
     def extend(self, trajectory: Self) -> None:
         """Append a trajectory to the current one.
@@ -812,7 +821,7 @@ class Trajectory(MSONable):
             frame_properties=frame_properties,
         )
 
-    def to_ase(
+    def as_ase(
         self,
         property_map: dict[str, str] | None = None,
         ase_traj_file: str | Path | None = None,
@@ -877,3 +886,7 @@ class Trajectory(MSONable):
             temp_file.close()
 
         return ase_traj
+
+    @deprecated(as_ase, deadline=(2026, 4, 4))
+    def to_ase(self, *args, **kwargs):
+        return self.as_ase(*args, **kwargs)

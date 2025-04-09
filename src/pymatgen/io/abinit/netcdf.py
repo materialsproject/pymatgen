@@ -9,7 +9,7 @@ from typing import TYPE_CHECKING
 
 import numpy as np
 from monty.collections import AttrDict
-from monty.dev import requires
+from monty.dev import deprecated, requires
 from monty.functools import lazy_property
 from monty.string import marquee
 
@@ -482,7 +482,7 @@ class AbinitHeader(AttrDict):
     def __str__(self):
         return self.to_str()
 
-    def to_str(self, verbose=0, title=None, **kwargs):
+    def as_str(self, verbose=0, title=None, **kwargs):
         """String representation. kwargs are passed to `pprint.pformat`.
 
         Args:
@@ -496,6 +496,10 @@ class AbinitHeader(AttrDict):
             return "\n".join([marquee(title, mark="="), header_str])
         return header_str
 
-    # to_string alias required for backwards compatibility
-    # PLEASE DO NOT REMOVE THIS LINE AS THIS API HAS BEEN AROUND FOR SEVERAL YEARS
-    to_string = to_str
+    @deprecated(as_str, deadline=(2026, 4, 4))
+    def to_str(self, *args, **kwargs):
+        return self.as_str(*args, **kwargs)
+
+    @deprecated(as_str, deadline=(2026, 4, 4))
+    def to_string(self, *args, **kwargs):
+        return self.as_str(*args, **kwargs)

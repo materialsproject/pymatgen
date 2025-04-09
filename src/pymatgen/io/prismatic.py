@@ -4,6 +4,8 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING
 
+from monty.dev import deprecated
+
 if TYPE_CHECKING:
     from pymatgen.core import Structure
 
@@ -22,7 +24,7 @@ class Prismatic:
         self.structure = structure
         self.comment = comment
 
-    def to_str(self) -> str:
+    def as_str(self) -> str:
         """
         Returns:
             str: Prismatic XYZ file. This is similar to XYZ format
@@ -38,3 +40,7 @@ class Prismatic:
         lines.append("-1")
 
         return "\n".join(lines)
+
+    @deprecated(as_str, deadline=(2026, 4, 4))
+    def to_str(self):
+        return self.as_str()

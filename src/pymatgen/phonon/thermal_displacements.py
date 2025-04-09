@@ -7,6 +7,7 @@ from functools import partial
 from typing import TYPE_CHECKING
 
 import numpy as np
+from monty.dev import deprecated
 from monty.json import MSONable
 
 from pymatgen.analysis.structure_matcher import StructureMatcher
@@ -463,7 +464,7 @@ class ThermalDisplacementMatrices(MSONable):
             temperature=temperature,
         )
 
-    def to_structure_with_site_properties_Ucif(self) -> Structure:
+    def as_structure_with_site_properties_Ucif(self) -> Structure:
         """Transfers this object into a structure with site properties (Ucif).
         This is useful for sorting the atoms in the structure including site properties.
         e.g. with code like this:
@@ -496,6 +497,10 @@ class ThermalDisplacementMatrices(MSONable):
             site_properties["U12_cif"].append(atom_ucif[5])
 
         return self.structure.copy(site_properties=site_properties)
+
+    @deprecated(as_structure_with_site_properties_Ucif, deadline=(2026, 4, 4))
+    def to_structure_with_site_properties_Ucif(self) -> Structure:
+        return self.as_structure_with_site_properties_Ucif()
 
     @classmethod
     def from_structure_with_site_properties_Ucif(cls, structure: Structure, temperature: float | None = None) -> Self:

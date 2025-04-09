@@ -8,6 +8,7 @@ from typing import TYPE_CHECKING
 
 import numpy as np
 import scipy.constants as cst
+from monty.dev import deprecated
 from monty.io import zopen
 from scipy.stats import norm
 
@@ -167,6 +168,9 @@ class GaussianInput:
         self.gen_basis = gen_basis
         if gen_basis is not None:
             self.basis_set = "Gen"
+
+    def __str__(self):
+        return self.to_str()
 
     @property
     def molecule(self):
@@ -382,10 +386,7 @@ class GaussianInput:
             outs.append(f"{site.species_string} {' '.join(f'{x:0.6f}' for x in site.coords)}")
         return "\n".join(outs)
 
-    def __str__(self):
-        return self.to_str()
-
-    def to_str(self, cart_coords=False):
+    def as_str(self, cart_coords=False):
         """Return GaussianInput string.
 
         Args:
@@ -443,6 +444,10 @@ class GaussianInput:
             output.append(f"{self.gen_basis}\n")
         output.extend((para_dict_to_str(self.input_parameters, "\n"), "\n"))
         return "\n".join(output)
+
+    @deprecated(as_str, deadline=(2026, 4, 4))
+    def to_str(self, *args, **kwargs):
+        return self.as_str(*args, **kwargs)
 
     def write_file(self, filename, cart_coords=False):
         """Write the input string into a file.
@@ -1272,7 +1277,7 @@ class GaussianOutput:
         _d, plt = self.get_spectre_plot(sigma, step)
         plt.savefig(filename, format=img_format)
 
-    def to_input(
+    def as_input(
         self,
         mol=None,
         charge=None,
@@ -1333,3 +1338,7 @@ class GaussianOutput:
             link0_parameters=link0_parameters,
             dieze_tag=dieze_tag,
         )
+
+    @deprecated(as_input, deadline=(2026, 4, 4))
+    def to_input(self, *args, **kwargs):
+        return self.as_input(*args, **kwargs)

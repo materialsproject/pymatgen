@@ -18,6 +18,7 @@ from typing import TYPE_CHECKING
 
 import numpy as np
 import scipy.constants as const
+from monty.dev import deprecated
 from monty.json import MSONable
 
 from pymatgen.core import Structure
@@ -400,7 +401,7 @@ class JDFTXInfile(dict, MSONable):
         return cls(params)
 
     @classmethod
-    def to_jdftxstructure(cls, jdftxinfile: JDFTXInfile, sort_structure: bool = False) -> JDFTXStructure:
+    def as_jdftxstructure(cls, jdftxinfile: JDFTXInfile, sort_structure: bool = False) -> JDFTXStructure:
         """Convert JDFTXInfile to JDFTXStructure object.
 
         Converts JDFTx lattice, lattice-scale, ion tags into JDFTXStructure, with Pymatgen structure as attribute.
@@ -416,7 +417,12 @@ class JDFTXInfile(dict, MSONable):
         return JDFTXStructure.from_jdftxinfile(jdftxinfile_dict, sort_structure=sort_structure)
 
     @classmethod
-    def to_pmg_structure(cls, jdftxinfile: JDFTXInfile, sort_structure: bool = False) -> Structure:
+    @deprecated(as_jdftxstructure, deadline=(2025, 10, 4))
+    def to_jdftxstructure(cls, *args, **kwargs):
+        return cls.as_jdftxstructure(*args, **kwargs)
+
+    @classmethod
+    def as_pmg_structure(cls, jdftxinfile: JDFTXInfile, sort_structure: bool = False) -> Structure:
         """Convert JDFTXInfile to pymatgen Structure object.
 
         Converts JDFTx lattice, lattice-scale, ion tags into pymatgen Structure.
@@ -437,6 +443,11 @@ class JDFTXInfile(dict, MSONable):
             sort_structure=sort_structure,
         )
         return jdftxstructure.structure
+
+    @classmethod
+    @deprecated(as_pmg_structure, deadline=(2025, 10, 4))
+    def to_pmg_structure(cls, *args, **kwargs):
+        return cls.as_pmg_structure(*args, **kwargs)
 
     @staticmethod
     def _needs_conversion(conversion: str, value: dict | list[dict] | list | list[list]) -> bool:

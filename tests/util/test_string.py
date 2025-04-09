@@ -27,7 +27,7 @@ class SubStr(Stringify):
 class SupStr(Stringify):
     STRING_MODE = "SUPERSCRIPT"
 
-    def to_pretty_string(self) -> str:
+    def as_pretty_string(self) -> str:
         return "Fe2+"
 
     def __str__(self):
@@ -35,17 +35,17 @@ class SupStr(Stringify):
 
 
 class TestStringify:
-    def test_to_latex_string(self):
-        assert SubStr().to_latex_string() == "Fe$_{8}$O$_{12}$"
-        assert SupStr().to_latex_string() == "Fe$^{2+}$"
+    def test_as_latex_string(self):
+        assert SubStr().as_latex_string() == "Fe$_{8}$O$_{12}$"
+        assert SupStr().as_latex_string() == "Fe$^{2+}$"
 
-    def test_to_html_string(self):
-        assert SubStr().to_html_string() == "Fe<sub>8</sub>O<sub>12</sub>"
-        assert SupStr().to_html_string() == "Fe<sup>2+</sup>"
+    def test_as_html_string(self):
+        assert SubStr().as_html_string() == "Fe<sub>8</sub>O<sub>12</sub>"
+        assert SupStr().as_html_string() == "Fe<sup>2+</sup>"
 
-    def test_to_unicode_string(self):
-        assert SubStr().to_unicode_string() == "Fe₈O₁₂"
-        assert SupStr().to_unicode_string() == "Fe²⁺"
+    def test_as_unicode_string(self):
+        assert SubStr().as_unicode_string() == "Fe₈O₁₂"
+        assert SupStr().as_unicode_string() == "Fe²⁺"
 
 
 class TestFunc:

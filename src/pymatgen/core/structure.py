@@ -1183,14 +1183,14 @@ class IStructure(SiteCollection, MSONable):
         return "\n".join(outs)
 
     def __str__(self) -> str:
-        def to_str(x) -> str:
+        def as_str(x) -> str:
             return f"{x:>10.6f}"
 
         outs = [
             f"Full Formula ({self.composition.formula})",
             f"Reduced Formula: {self.composition.reduced_formula}",
-            f"abc   : {' '.join(to_str(i) for i in self.lattice.abc)}",
-            f"angles: {' '.join(to_str(i) for i in self.lattice.angles)}",
+            f"abc   : {' '.join(as_str(i) for i in self.lattice.abc)}",
+            f"angles: {' '.join(as_str(i) for i in self.lattice.angles)}",
             f"pbc   : {' '.join(str(p).rjust(10) for p in self.lattice.pbc)}",
         ]
 
@@ -1202,7 +1202,7 @@ class IStructure(SiteCollection, MSONable):
         keys = sorted(props)
         for idx, site in enumerate(self):
             row = [str(idx), site.species_string]
-            row.extend([to_str(j) for j in site.frac_coords])
+            row.extend([as_str(j) for j in site.frac_coords])
             for key in keys:
                 row.append(props[key][idx])
             data.append(row)

@@ -6,7 +6,7 @@ import warnings
 from typing import TYPE_CHECKING
 
 import numpy as np
-from monty.dev import requires
+from monty.dev import deprecated, requires
 from monty.json import MSONable
 
 from pymatgen.core.structure import Structure
@@ -172,7 +172,7 @@ class Control(MSONable, dict):
         f90nml,
         "ShengBTE Control object requires f90nml to be installed. Please get it at https://pypi.org/project/f90nml.",
     )
-    def to_file(self, filename: str = "CONTROL") -> None:
+    def as_file(self, filename: str = "CONTROL") -> None:
         """Write ShengBTE CONTROL file from 'Control' object.
 
         Args:
@@ -203,6 +203,10 @@ class Control(MSONable, dict):
 
         with open(filename, mode="w", encoding="utf-8") as file:
             file.write(control_str)
+
+    @deprecated(as_file, deadline=(2026, 4, 4))
+    def to_file(self, *args, **kwargs):
+        self.as_file(*args, **kwargs)
 
     @classmethod
     def from_structure(cls, structure: Structure, reciprocal_density: int | None = 50000, **kwargs) -> Self:

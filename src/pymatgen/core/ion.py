@@ -6,6 +6,7 @@ import re
 from copy import deepcopy
 from typing import TYPE_CHECKING
 
+from monty.dev import deprecated
 from monty.json import MSONable
 
 from pymatgen.core.composition import Composition, reduce_formula
@@ -288,8 +289,7 @@ class Ion(Composition, MSONable, Stringify):
         composition = Composition(dct_copy)
         return cls(composition, charge)
 
-    @property
-    def to_reduced_dict(self) -> dict:
+    def as_reduced_dict(self) -> dict:
         """
         Returns:
             dict with element symbol and reduced amount e.g.
@@ -298,6 +298,11 @@ class Ion(Composition, MSONable, Stringify):
         dct = self.composition.to_reduced_dict
         dct["charge"] = self.charge
         return dct
+
+    @property
+    @deprecated(as_reduced_dict, deadline=(2026, 4, 4))
+    def to_reduced_dict(self) -> dict:
+        return self.as_reduced_dict()
 
     @property
     def composition(self) -> Composition:
@@ -341,9 +346,13 @@ class Ion(Composition, MSONable, Stringify):
         """
         return self._get_oxi_state_guesses(all_oxi_states, max_sites, oxi_states_override, self.charge)[0]  # type: ignore[return-value]
 
-    def to_pretty_string(self) -> str:
+    def as_pretty_string(self) -> str:
         """Pretty string with proper superscripts."""
         _str = super().reduced_formula
         if val := formula_double_format(self.charge, ignore_ones=False):
             _str += f"^{val:+}"
         return _str
+
+    @deprecated(as_pretty_string, deadline=(2026, 4, 4))
+    def to_pretty_string(self) -> str:
+        return self.as_pretty_string()

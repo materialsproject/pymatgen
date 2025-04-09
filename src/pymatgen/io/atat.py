@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import numpy as np
+from monty.dev import deprecated
 
 from pymatgen.core import Lattice, Structure, get_el_sp
 
@@ -27,7 +28,7 @@ class Mcsqs:
         """
         self.structure = structure
 
-    def to_str(self):
+    def as_str(self):
         """
         Returns:
             str: a structure in mcsqs rndstr.in format.
@@ -53,6 +54,10 @@ class Mcsqs:
             output.append(f"{a:6f} {b:6f} {c:6f} {species_str}")
 
         return "\n".join(output)
+
+    @deprecated(as_str, deadline=(2026, 4, 4))
+    def to_str(self):
+        return self.as_str()
 
     @staticmethod
     def structure_from_str(data):
