@@ -13,6 +13,7 @@ from dataclasses import dataclass
 from typing import TYPE_CHECKING, ClassVar
 
 import numpy as np
+from monty.dev import deprecated
 
 if TYPE_CHECKING:
     from pymatgen.io.jdftx.jelstep import JElSteps
@@ -39,7 +40,7 @@ from pymatgen.io.jdftx.joutstructures import JOutStructures, _get_joutstructures
 
 __author__ = "Ben Rich"
 
-_jofs_atr_from_jstrucs = [
+_jofs_atr_from_jstrucs = (
     "structure",
     "eopt_type",
     "elecmindata",
@@ -58,8 +59,7 @@ _jofs_atr_from_jstrucs = [
     "elec_grad_k",
     "elec_alpha",
     "elec_linmin",
-    "t_s",
-]
+)
 
 
 @dataclass
@@ -1147,7 +1147,7 @@ class JDFTXOutfileSlice:
         """
         raise NotImplementedError("There is no need to write a JDFTx out file")
 
-    def to_dict(self) -> dict:
+    def as_dict(self) -> dict:
         """Convert dataclass to dictionary representation.
 
         Returns:
@@ -1156,11 +1156,15 @@ class JDFTXOutfileSlice:
         dct = {}
         for fld in self.__dataclass_fields__:
             value = getattr(self, fld)
-            if hasattr(value, "to_dict"):
-                dct[fld] = value.to_dict()
+            if hasattr(value, "as_dict"):
+                dct[fld] = value.as_dict()
             else:
                 dct[fld] = value
         return dct
+
+    @deprecated(as_dict, deadline=(2025, 10, 4))
+    def to_dict(self):
+        return self.as_dict()
 
     # TODO: Re-do this now that there are no properties
     def __repr__(self) -> str:
