@@ -4765,9 +4765,8 @@ class Xdatcar:
                 raise ValueError("preamble is None")
             poscar = Poscar.from_str("\n".join([*preamble, "Direct", *coords_str]))
 
-            if (
-                (ionicstep_end is None and ionicstep_cnt >= ionicstep_start)
-                or ionicstep_start <= ionicstep_cnt < ionicstep_end  # type: ignore[operator]
+            if (ionicstep_end is None and ionicstep_cnt >= ionicstep_start) or (
+                ionicstep_end is not None and ionicstep_start <= ionicstep_cnt < ionicstep_end
             ):
                 structures.append(poscar.structure)
         self.structures = structures
