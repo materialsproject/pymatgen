@@ -92,14 +92,20 @@ class _MPResterBasic:
         class Summary(NamedTuple):
             search: Callable
 
+        class Materials(NamedTuple):
+            summary: Summary
+
         self.summary = Summary(self.summary_search)
+        self.materials = Materials(self.summary)
 
     def __getattr__(self, item):
-        if item in ("summary", "materials", "thermo"):
-            raise AttributeError(
-                f"{item} is not an attribute of this implementation of MPRester, which only supports functionality"
-                "used by 80% of users. If you are looking for the full functionality MPRester, pls install the mp-api ."
-            )
+        if item == "materials":
+            return self.summary
+
+        raise AttributeError(
+            f"{item} is not an attribute of this implementation of MPRester, which only supports functionality "
+            "used by 80% of users. If you are looking for the full functionality MPRester, pls install the mp-api ."
+        )
 
     def __enter__(self) -> Self:
         """Support for "with" context."""
