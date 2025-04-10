@@ -13,12 +13,6 @@ from monty.json import MontyDecoder, MontyEncoder
 
 from pymatgen.core.structure import Molecule, Structure
 
-try:
-    from pybtex import errors
-    from pybtex.database.input import bibtex
-except ImportError:
-    pybtex = bibtex = errors = None
-
 if TYPE_CHECKING:
     from collections.abc import Sequence
     from typing import Any
@@ -45,6 +39,12 @@ def is_valid_bibtex(reference: str) -> bool:
     Returns:
         bool: True if reference is valid BibTeX.
     """
+    try:
+        from pybtex import errors
+        from pybtex.database.input import bibtex
+    except ImportError as exc:
+        raise RuntimeError("validating requires pybtex") from exc
+
     # str is necessary since pybtex seems to have an issue with unicode.
     # The filter expression removes all non-ASCII characters.
     str_io = StringIO(reference.encode("ascii", "ignore").decode("ascii"))
