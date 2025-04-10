@@ -305,7 +305,7 @@ class AseAtomsAdaptor:
                         constrained = True
                         break  # Assume no duplicates
                 if not constrained:
-                    sel_dyn.append([False] * 3)
+                    sel_dyn.append([True] * 3)
         else:
             sel_dyn = None
 

@@ -1,7 +1,7 @@
 # Run the complete test suite incl. many external command line dependencies (like Openbabel)
 
 # as well as the pymatgen.ext package. Coverage used to be computed based on this workflow.
-name: Tests
+name: Test
 
 on:
   push:
@@ -34,19 +34,19 @@ jobs:
           - os: windows-latest
             python: "3.13"
             resolution: highest
-            extras: ci,optional
+            extras: ci,optional,prototypes
           - os: windows-latest
             python: "3.13"
             resolution: highest
-            extras: ci,optional,numpy-v1 # Test NP1 on Windows (quite buggy ATM)
+            extras: ci,prototypes,optional,numpy-v1 # Test NP1 on Windows (quite buggy ATM)
           - os: ubuntu-latest
             python: "3.13"
             resolution: lowest-direct
-            extras: ci,optional
+            extras: ci,prototypes,optional
           - os: macos-latest
             python: "3.13"
             resolution: lowest-direct
-            extras: ci # test with only required dependencies installed
+            extras: ci,prototypes # test with only required dependencies installed
 
         # pytest-split automatically distributes work load so parallel jobs finish in similar time
         # update durations file with `pytest --store-durations --durations-path tests/files/.pytest-split-durations`
@@ -100,7 +100,6 @@ jobs:
           # Add ZEO++ to PATH
           echo "$(pwd)" >> $GITHUB_PATH
 
-
       - name: Install pymatgen and dependencies via uv
         run: |
           micromamba activate pmg
@@ -109,6 +108,14 @@ jobs:
           uv build --wheel --no-build-logs
           WHEEL_FILE=$(ls dist/pymatgen*.whl)
           uv pip install $WHEEL_FILE[${{matrix.config.extras}}] --resolution=${{matrix.config.resolution}}
+
+      - name: Install DGL and MatGL specially on ubuntu.
+        if: matrix.config.os == 'ubuntu-latest'
+        run: |
+          micromamba activate pmg
+          pip install --upgrade dgl -f https://data.dgl.ai/wheels/torch-2.4/repo.html
+          pip install --upgrade matgl>=1.2.6
+          pip install torch==2.2.0 torchdata==0.7.1
 
       - name: Install optional Ubuntu dependencies
         if: matrix.config.os == 'ubuntu-latest'

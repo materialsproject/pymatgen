@@ -14,6 +14,7 @@ from pathlib import Path
 from typing import TYPE_CHECKING, Any
 
 import numpy as np
+from monty.dev import deprecated
 
 from pymatgen.io.jdftx._output_utils import (
     _get_nbands_from_bandfile_filepath,
@@ -41,7 +42,7 @@ __author__ = "Ben Rich, Jacob Clary"
 # This will be a long list so keep alphabetical to make adding more files easier.
 # Dump files that are redundant to data contained in the outfile attribute are included for completeness
 # but commented out.
-dump_file_names = [
+dump_file_names = (
     "bandProjections",
     "dosUp",
     "dosDn",
@@ -61,12 +62,12 @@ dump_file_names = [
     "tau_up",
     "tau_dn",
     "wfns",
-]
+)
 
-implemented_store_vars = [
+implemented_store_vars = (
     "bandProjections",
     "eigenvals",
-]
+)
 
 
 @dataclass
@@ -578,7 +579,7 @@ class JDFTXOutfile:
                     traj.extend(outfile_slice.trajectory)
         return traj
 
-    def to_dict(self) -> dict:
+    def as_dict(self) -> dict:
         """
         Convert the JDFTXOutfile object to a dictionary.
 
@@ -588,11 +589,15 @@ class JDFTXOutfile:
         dct = {}
         for fld in self.__dataclass_fields__:
             if fld == "slices":
-                dct[fld] = [slc.to_dict() for slc in self.slices]
+                dct[fld] = [slc.as_dict() for slc in self.slices]
                 continue
             value = getattr(self, fld)
             dct[fld] = value
         return dct
+
+    @deprecated(as_dict, deadline=(2025, 10, 4))
+    def to_dict(self):
+        return self.as_dict()
 
     ###########################################################################
     # Magic methods

@@ -799,20 +799,48 @@ class Tags(dict):
 class Potential(MSONable):
     """FEFF atomic potential."""
 
-    def __init__(self, struct, absorbing_atom):
+    def __init__(self, struct, absorbing_atom, radius=None):
         """
         Args:
             struct (Structure): Structure object.
             absorbing_atom (str | int): Absorbing atom symbol or site index.
+            radius (float): radius of the atom cluster in Angstroms.
         """
         if not struct.is_ordered:
             raise ValueError("Structure with partial occupancies cannot be converted into atomic coordinates!")
 
         self.struct = struct
-        atom_sym = get_absorbing_atom_symbol_index(absorbing_atom, struct)[0]
-        self.pot_dict = get_atom_map(struct, atom_sym)
+        if radius:
+            self.radius = radius
+        else:
+            self.radius = self.struct.distance_matrix.max()
 
-        self.absorbing_atom, _ = get_absorbing_atom_symbol_index(absorbing_atom, struct)
+        self.absorbing_atom, self.center_index = get_absorbing_atom_symbol_index(absorbing_atom, struct)
+        atom_sym = get_absorbing_atom_symbol_index(absorbing_atom, struct)[0]
+        self._cluster = self._set_cluster()
+        self.pot_dict = get_atom_map(self._cluster, atom_sym)
+
+    def _set_cluster(self):
+        """
+        Compute and set the cluster of atoms as a Molecule object. The site
+        coordinates are translated such that the absorbing atom (aka central
+        atom) is at the origin.
+
+        Returns:
+            Molecule
+        """
+        center = self.struct[self.center_index].coords
+        # this method builds a supercell containing all periodic images of
+        # the unit cell within the specified radius, excluding the central atom
+        sphere = self.struct.get_neighbors(self.struct[self.center_index], self.radius)
+
+        symbols = [self.absorbing_atom]
+        coords = [[0, 0, 0]]
+        for site_dist in sphere:
+            site_symbol = re.sub(r"[^aA-zZ]+", "", site_dist[0].species_string)
+            symbols.append(site_symbol)
+            coords.append(site_dist[0].coords - center)
+        return Molecule(symbols, coords)
 
     @staticmethod
     def pot_string_from_file(filename="feff.inp"):
@@ -902,7 +930,7 @@ class Potential(MSONable):
         """
         central_element = Element(self.absorbing_atom)
         ipotrow = [[0, central_element.Z, central_element.symbol, -1, -1, 0.0001, 0]]
-        for el, amt in self.struct.composition.items():
+        for el, amt in self._cluster.composition.items():
             # if there is only one atom and it is the absorbing element, it should
             # be excluded from this list. Otherwise the error `No atoms or overlap
             # cards for unique pot X` will be encountered.
