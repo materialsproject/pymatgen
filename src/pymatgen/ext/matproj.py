@@ -92,14 +92,17 @@ class _MPResterBasic:
         class Summary(NamedTuple):
             search: Callable
 
-        # This is a hack, but it fakes most of the functionality of mp-api's summary.search.
         class Materials(NamedTuple):
             summary: Summary
 
         self.summary = Summary(self.summary_search)
         self.materials = Materials(self.summary)
+        self.materials = Materials(self.summary)
 
     def __getattr__(self, item):
+        if item == "materials":
+            return self.summary
+
         raise AttributeError(
             f"{item} is not an attribute of this implementation of MPRester, which only supports functionality "
             "used by 80% of users. If you are looking for the full functionality MPRester, pls install the mp-api ."
