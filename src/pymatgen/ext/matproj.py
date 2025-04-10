@@ -92,15 +92,16 @@ class _MPResterBasic:
         class Summary(NamedTuple):
             search: Callable
 
-        # This is a hack, but it fakes most of the functionality of mp-api's summary.search.
         class Materials(NamedTuple):
             summary: Summary
 
         self.summary = Summary(self.summary_search)
         self.materials = Materials(self.summary)
-        self.materials = Materials(self.summary)
 
     def __getattr__(self, item):
+        if item == "materials":
+            return self.summary
+
         raise AttributeError(
             f"{item} is not an attribute of this implementation of MPRester, which only supports functionality "
             "used by 80% of users. If you are looking for the full functionality MPRester, pls install the mp-api ."
@@ -143,23 +144,12 @@ class _MPResterBasic:
         return all_data
 
     def summary_search(self, **kwargs) -> list[dict]:
-        """
-        Mirrors mp-api's mpr.materials.summary.search functionality. Searches for materials based on the specified
-        criteria. A notable difference with the mp-api's implementation is that this uses the web API to do searches.
-        So the keywords follow the actual API spec, which is as it should be. For instance, number of sites is `nsites`
-        and number of elements is `nelements`. The mp-api package has this weird renaming that maps `num_elements` to
-        `nelements` and `num_sites` to  `nsites`.
+        """This function mirrors the mp-api's summary.search functionality.
 
-        Parameters:
-        - **kwargs: keyword arguments for filtering materials. Fields that do not start with underscores are
-        filters, while those that start with underscores are fields to retrieve. Possible filters include:
-          - _fields (optional): list of fields to retrieve for each material
-          - Other parameters: filter criteria, where each parameter key corresponds to the field to filter and the
-            parameter value corresponds to the filter value
-
-        Returns:
-        - list of dictionaries, each dictionary representing a material retrieved based on the filtering criteria
-
+        Args:
+            **kwargs: This function only takes kwargs. All kwargs that do not start with an underscore are treated as
+                search criteria and those with underscores are treated as params. Example usage:
+                MPRester().summary.search(material_ids="mp-19770,mp-19017", _fields="formula_pretty,energy_above_hull")
         """
         criteria = {k: v for k, v in kwargs.items() if not k.startswith("_")}
         params = [f"{k}={v}" for k, v in kwargs.items() if k.startswith("_") and k != "_fields"]
