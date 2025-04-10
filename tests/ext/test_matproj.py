@@ -624,6 +624,10 @@ class TestMPResterNewBasic(PymatgenTest):
         assert Ni.lattice.beta == approx(90)
         assert Ni.lattice.gamma == approx(90)
 
+    def test_fake_mpapi_interface(self):
+        data = self.rester.materials.summary.search(formula="Al2O3")
+        assert len(data) > 0
+
     def test_parity_with_mp_api(self):
         try:
             from mp_api.client import MPRester as MpApi

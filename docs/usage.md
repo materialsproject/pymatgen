@@ -96,8 +96,8 @@ For example,::
 The MontyDecoder depends on finding a "@module" and "@class" key in the dict
 to decode the necessary python object. In general, the MontyEncoder will
 add these keys if they are not present, but for better long term stability
-(e.g., there may be situations where to_dict is called directly rather than
-through the encoder), the easiest way is to add the following to any to_dict
+(e.g., there may be situations where as_dict is called directly rather than
+through the encoder), the easiest way is to add the following to any as_dict
 property::
 
     d["@module"] = type(self).__module__
