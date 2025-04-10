@@ -950,14 +950,7 @@ class SiteCollection(collections.abc.Sequence, ABC):
         if not isinstance(calculator, str):
             return calculator
 
-        if calculator.lower() == "chgnet":
-            try:
-                from chgnet.model import CHGNetCalculator
-            except ImportError:
-                raise ImportError("chgnet not installed. Try `pip install chgnet`.")
-            return CHGNetCalculator()
-
-        if "m3gnet" in calculator.lower() or "tensornet" in calculator.lower():
+        if "m3gnet" in calculator.lower() or "tensornet" in calculator.lower() or "chgnet" in calculator.lower():
             try:
                 import matgl
                 from matgl.ext.ase import PESCalculator

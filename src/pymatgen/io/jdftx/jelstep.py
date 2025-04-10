@@ -10,6 +10,8 @@ import warnings
 from dataclasses import dataclass, field
 from typing import Any
 
+from monty.dev import deprecated
+
 from pymatgen.core.units import Ha_to_eV
 from pymatgen.io.jdftx._output_utils import get_colon_var_t1
 
@@ -216,7 +218,7 @@ class JElStep:
         """
         self.nelectrons = get_colon_var_t1(fillings_line, "nElectrons: ")
 
-    def to_dict(self) -> dict:
+    def as_dict(self) -> dict:
         """Return dictionary representation of JElStep object.
 
         Returns:
@@ -225,11 +227,15 @@ class JElStep:
         dct = {}
         for fld in self.__dataclass_fields__:
             value = getattr(self, fld)
-            if hasattr(value, "to_dict"):
-                dct[fld] = value.to_dict()
+            if hasattr(value, "as_dict"):
+                dct[fld] = value.as_dict()
             else:
                 dct[fld] = value
         return dct
+
+    @deprecated(as_dict, deadline=(2025, 10, 4))
+    def to_dict(self):
+        return self.as_dict()
 
     def __str__(self) -> str:
         """
@@ -357,7 +363,7 @@ class JElSteps:
             for var in _jelsteps_atrs_from_last_slice:
                 setattr(self, var, getattr(self.slices[-1], var))
 
-    def to_dict(self) -> dict[str, Any]:
+    def as_dict(self) -> dict[str, Any]:
         """Return dictionary representation of JElSteps object.
 
         Returns:
@@ -366,14 +372,18 @@ class JElSteps:
         dct = {}
         for fld in self.__dataclass_fields__:
             if fld == "slices":
-                dct[fld] = [slc.to_dict() for slc in self.slices]
+                dct[fld] = [slc.as_dict() for slc in self.slices]
                 continue
             value = getattr(self, fld)
-            if hasattr(value, "to_dict"):
-                dct[fld] = value.to_dict()
+            if hasattr(value, "as_dict"):
+                dct[fld] = value.as_dict()
             else:
                 dct[fld] = value
         return dct
+
+    @deprecated(as_dict, deadline=(2025, 10, 4))
+    def to_dict(self):
+        return self.as_dict()
 
     def __getitem__(self, key: int | str) -> JElStep | Any:
         """Return item.
