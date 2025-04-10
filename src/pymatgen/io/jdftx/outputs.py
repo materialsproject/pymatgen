@@ -69,11 +69,6 @@ implemented_store_vars = (
     "eigenvals",
 )
 
-# List of attributes that need to be assigned else confuse pprint
-name_me = [
-    "orb_label_list",
-]
-
 
 @dataclass
 class JDFTXOutputs:
@@ -159,7 +154,7 @@ class JDFTXOutputs:
             if not outfile_path.exists():
                 raise FileNotFoundError(f"Provided outfile path {outfile_path} does not exist.")
         self.outfile = JDFTXOutfile.from_file(outfile_path)
-        prefix = self.outfile.prefix if hasattr(self.outfile, "prefix") else None
+        prefix = self.outfile.prefix
         for fname in dump_file_names:
             try:
                 paths = _find_jdftx_dump_file(self.calc_dir, fname)
@@ -169,9 +164,6 @@ class JDFTXOutputs:
                 pass
 
     def _store_vars(self):
-        # OTherwise orb_label_list goes unassigned and it confused pprint
-        for var in name_me:
-            setattr(self, var, None)
         for var in implemented_store_vars:
             if var not in self.store_vars:
                 setattr(self, var, None)
@@ -200,10 +192,6 @@ class JDFTXOutputs:
         if "bandProjections" in self.paths:
             self.bandProjections = get_proj_tju_from_file(self.paths["bandProjections"])
             self.orb_label_list = _get_orb_label_list(self.paths["bandProjections"])
-        # OTherwise orb_label_list goes unassigned and it confused pprint
-        else:
-            self.bandProjections = None
-            self.orb_label_list = None
 
     def _check_eigenvals(self):
         """Check for misaligned data within eigenvals file."""
@@ -577,14 +565,7 @@ class JDFTXOutfile:
     def __post_init__(self):
         if len(self.slices):
             for var in _jof_atr_from_last_slice:
-                val = None
-                for i in range(1, len(self.slices) + 1):
-                    outslice = self.slices[-i]
-                    if outslice is not None:
-                        val = getattr(outslice, var)
-                        if val is not None:
-                            break
-                setattr(self, var, val)
+                setattr(self, var, getattr(self.slices[-1], var))
             self.trajectory = self._get_trajectory()
 
     def _get_trajectory(self) -> Trajectory | None:
