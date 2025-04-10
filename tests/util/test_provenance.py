@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 from datetime import datetime, timedelta, timezone
+from importlib.util import find_spec
 from unittest import TestCase
 
 import numpy as np
@@ -10,6 +11,10 @@ import pytest
 
 from pymatgen.core.structure import Molecule, Structure
 from pymatgen.util.provenance import Author, HistoryNode, StructureNL
+
+if find_spec("pybtex") is None:
+    pytest.skip("pybtex not available", allow_module_level=True)
+
 
 __author__ = "Anubhav Jain"
 __credits__ = "Shyue Ping Ong"

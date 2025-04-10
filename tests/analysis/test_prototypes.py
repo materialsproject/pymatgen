@@ -7,29 +7,33 @@ from shutil import which
 
 import pytest
 
-from pymatgen.analysis.prototypes import (
-    WYCKOFF_POSITION_RELAB_DICT,
-    AflowPrototypeMatcher,
-    _find_translations,
-    count_crystal_dof,
-    count_crystal_sites,
-    count_distinct_wyckoff_letters,
-    count_wyckoff_positions,
-    get_anonymous_formula_from_prototype_formula,
-    get_formula_from_protostructure_label,
-    get_protostructure_label,
-    get_protostructure_label_from_aflow,
-    get_protostructure_label_from_moyopy,
-    get_protostructure_label_from_spg_analyzer,
-    get_protostructure_label_from_spglib,
-    get_protostructures_from_aflow_label_and_composition,
-    get_prototype_formula_from_composition,
-    get_prototype_from_protostructure,
-    get_random_structure_for_protostructure,
-)
 from pymatgen.core.structure import Composition, Lattice, Structure
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
 from pymatgen.util.testing import TEST_FILES_DIR, PymatgenTest
+
+try:
+    from pymatgen.analysis.prototypes import (
+        WYCKOFF_POSITION_RELAB_DICT,
+        AflowPrototypeMatcher,
+        _find_translations,
+        count_crystal_dof,
+        count_crystal_sites,
+        count_distinct_wyckoff_letters,
+        count_wyckoff_positions,
+        get_anonymous_formula_from_prototype_formula,
+        get_formula_from_protostructure_label,
+        get_protostructure_label,
+        get_protostructure_label_from_aflow,
+        get_protostructure_label_from_moyopy,
+        get_protostructure_label_from_spg_analyzer,
+        get_protostructure_label_from_spglib,
+        get_protostructures_from_aflow_label_and_composition,
+        get_prototype_formula_from_composition,
+        get_prototype_from_protostructure,
+        get_random_structure_for_protostructure,
+    )
+except RuntimeError:
+    pytest.skip("pytex is not available", allow_module_level=True)
 
 try:
     import pyxtal

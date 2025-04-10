@@ -14,7 +14,8 @@ from pymatgen.util.testing import TEST_FILES_DIR, VASP_IN_DIR, PymatgenTest
 
 try:
     import pybtex
-except ImportError:
+    import pybtex.database
+except (ImportError, RuntimeError):
     pybtex = None
 
 
@@ -166,6 +167,7 @@ loop_
 
 
 class TestCifIO(PymatgenTest):
+    @pytest.mark.skipif(pybtex is None, reason="pybtex not present")
     def test_cif_parser(self):
         parser = CifParser(f"{TEST_FILES_DIR}/cif/LiFePO4.cif")
         for struct in parser.parse_structures():
@@ -926,7 +928,7 @@ Si1 Si 0 0 0 1 0.0
 
         # test write_file append mode='a'
         struct2 = Structure.from_file(f"{TEST_FILES_DIR}/cif/Graphite.cif")
-        CifWriter(struct2).write_file(out_path, mode="a")
+        CifWriter(struct2).write_file(out_path, mode="at")
 
         read_structs = CifParser(out_path).parse_structures()
         assert len(read_structs) == 2
