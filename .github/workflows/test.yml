@@ -112,7 +112,8 @@ jobs:
         run: |
           micromamba activate pmg
           pip install --upgrade dgl -f https://data.dgl.ai/wheels/torch-2.4/repo.html
-          pip install --upgrade matgl>=1.2.5
+          pip install torch==2.2.0 torchdata==0.7.1
+          pip install --upgrade matgl>=1.2.6
 
       - name: Install optional Ubuntu dependencies
         if: matrix.config.os == 'ubuntu-latest'
