@@ -110,7 +110,7 @@ jobs:
           uv pip install $WHEEL_FILE[${{matrix.config.extras}}] --resolution=${{matrix.config.resolution}}
 
       - name: Install DGL and MatGL specially on ubuntu.
-        if: matrix.config.os == 'ubuntu-latest'
+        if: matrix.config.os == 'ubuntu-latest' && matrix.config.python < '3.13'
         run: |
           micromamba activate pmg
           pip install --upgrade dgl -f https://data.dgl.ai/wheels/torch-2.4/repo.html
