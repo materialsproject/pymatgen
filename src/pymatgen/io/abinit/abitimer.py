@@ -15,6 +15,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
 from matplotlib.gridspec import GridSpec
+from monty.dev import deprecated
 
 from pymatgen.io.core import ParseError
 from pymatgen.util.plotting import add_fig_kwargs, get_ax_fig
@@ -622,9 +623,13 @@ class AbinitTimerSection:
         """Get the values as a tuple."""
         return tuple(self.__dict__[at] for at in AbinitTimerSection.FIELDS)
 
-    def to_dict(self):
+    def as_dict(self):
         """Get the values as a dictionary."""
         return {at: self.__dict__[at] for at in AbinitTimerSection.FIELDS}
+
+    @deprecated(as_dict, deadline=(2026, 4, 4))
+    def to_dict(self):
+        return self.as_dict()
 
     def to_csvline(self, with_header=False):
         """Return a string with data in CSV format. Add header if `with_header`."""
@@ -717,12 +722,13 @@ class AbinitTimer:
 
         return table
 
-    # Maintain old API
-    totable = to_table
+    @deprecated(to_table)
+    def totable(self, *args, **kwargs):
+        return self.to_table(*args, **kwargs)
 
     def get_dataframe(self, sort_key="wall_time", **kwargs):
         """Return a pandas DataFrame with entries sorted according to `sort_key`."""
-        data = [osect.to_dict() for osect in self.order_sections(sort_key)]
+        data = [osect.as_dict() for osect in self.order_sections(sort_key)]
         frame = pd.DataFrame(data, columns=AbinitTimerSection.FIELDS)
 
         # Monkey patch
