@@ -97,7 +97,8 @@ zeopp = ["pyzeo"]  # Note: requires voro++ and zeo++ to be installed
 optional = [
     "pymatgen[abinit,ase,mlp,tblite]",
     "beautifulsoup4",
-    "BoltzTraP2>=24.9.4",
+    # PR4347: BoltzTraP2 needs to bump cmake version for spglib build
+    # "BoltzTraP2>=24.9.4",
     "chemview>=0.6",
     "f90nml>=1.1.2",
     "galore>=0.6.1",
