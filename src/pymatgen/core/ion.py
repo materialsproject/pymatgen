@@ -6,6 +6,7 @@ import re
 from copy import deepcopy
 from typing import TYPE_CHECKING
 
+from monty.dev import deprecated
 from monty.json import MSONable
 
 from pymatgen.core.composition import Composition, reduce_formula
@@ -288,16 +289,21 @@ class Ion(Composition, MSONable, Stringify):
         composition = Composition(dct_copy)
         return cls(composition, charge)
 
-    @property
-    def to_reduced_dict(self) -> dict:
+    def as_reduced_dict(self) -> dict:
         """
         Returns:
             dict with element symbol and reduced amount e.g.
                 {"Fe": 2.0, "O":3.0}.
         """
-        dct = self.composition.to_reduced_dict
+        dct = self.composition.as_reduced_dict()
         dct["charge"] = self.charge
         return dct
+
+    @property
+    @deprecated(as_reduced_dict, deadline=(2026, 4, 4))
+    def to_reduced_dict(self) -> dict:
+        """Deprecated."""
+        return self.as_reduced_dict()
 
     @property
     def composition(self) -> Composition:
