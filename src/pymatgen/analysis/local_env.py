@@ -676,9 +676,9 @@ class NearNeighbors:
             types: list[str] = []
             params: list[dict[str, float] | None] = []
             for name in names:
-                types.append(cast(str, CN_OPT_PARAMS[cn][name][0]))
+                types.append(cast("str", CN_OPT_PARAMS[cn][name][0]))
                 tmp: dict[str, float] | None = (
-                    cast(dict[str, float], CN_OPT_PARAMS[cn][name][1]) if len(CN_OPT_PARAMS[cn][name]) > 1 else None
+                    cast("dict[str, float]", CN_OPT_PARAMS[cn][name][1]) if len(CN_OPT_PARAMS[cn][name]) > 1 else None
                 )
                 params.append(tmp)
             lsops = LocalStructOrderParams(types, parameters=params)
@@ -3745,25 +3745,28 @@ class EconNN(NearNeighbors):
 
         if self.use_fictive_radius:
             # calculate fictive ionic radii
-            firs = [_get_fictive_ionic_radius(site, neighbor) for neighbor in neighbors]
+            fictive_ionic_radii = [_get_fictive_ionic_radius(site, neighbor) for neighbor in neighbors]
         else:
             # just use the bond distance
-            firs = [neighbor.nn_distance for neighbor in neighbors]
+            fictive_ionic_radii = [neighbor.nn_distance for neighbor in neighbors]
 
         # calculate mean fictive ionic radius
-        mefir = _get_mean_fictive_ionic_radius(firs)
+        mean_fictive_ionic_radius = _get_mean_fictive_ionic_radius(fictive_ionic_radii)
 
         # iteratively solve MEFIR; follows equation 4 in Hoppe's EconN paper
-        prev_mefir = float("inf")
-        while abs(prev_mefir - mefir) > 1e-4:
+        prev_mean_fictive_ionic_radius = float("inf")
+        while abs(prev_mean_fictive_ionic_radius - mean_fictive_ionic_radius) > 1e-4:
             # this is guaranteed to converge
-            prev_mefir = mefir
-            mefir = _get_mean_fictive_ionic_radius(firs, minimum_fir=mefir)
+            prev_mean_fictive_ionic_radius = mean_fictive_ionic_radius
+            mean_fictive_ionic_radius = _get_mean_fictive_ionic_radius(
+                fictive_ionic_radii,
+                minimum_fir=mean_fictive_ionic_radius,
+            )
 
         siw = []
-        for nn, fir in zip(neighbors, firs, strict=True):
+        for nn, fictive_ionic_radius in zip(neighbors, fictive_ionic_radii, strict=True):
             if nn.nn_distance < self.cutoff:
-                w = math.exp(1 - (fir / mefir) ** 6)
+                w = math.exp(1 - (fictive_ionic_radius / mean_fictive_ionic_radius) ** 6)
                 if w > self.tol:
                     bonded_site = {
                         "site": nn,
@@ -4025,7 +4028,8 @@ class CrystalNN(NearNeighbors):
                     warnings.warn(
                         "CrystalNN: cannot locate an appropriate radius, "
                         "covalent or atomic radii will be used, this can lead "
-                        "to non-optimal results."
+                        "to non-optimal results.",
+                        stacklevel=2,
                     )
                     diameter = _get_default_radius(structure[n]) + _get_default_radius(entry["site"])
 
@@ -4231,7 +4235,8 @@ def _get_radius(site):
     else:
         warnings.warn(
             "No oxidation states specified on sites! For better results, set "
-            "the site oxidation states in the structure."
+            "the site oxidation states in the structure.",
+            stacklevel=2,
         )
     return 0
 

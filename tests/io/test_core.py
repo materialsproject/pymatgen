@@ -5,7 +5,7 @@ import os
 from typing import TYPE_CHECKING
 
 import pytest
-from monty.serialization import MontyDecoder
+from monty.json import MontyDecoder
 
 from pymatgen.core.structure import Structure
 from pymatgen.io.cif import CifParser, CifWriter
@@ -166,10 +166,10 @@ class TestInputSet(PymatgenTest):
         assert len(os.listdir("input_dir")) == 3
         parser = CifParser(filename="input_dir/cif1")
         assert parser.parse_structures()[0] == self.sif1.structure
-        with open("input_dir/file_from_str") as file:
+        with open("input_dir/file_from_str", encoding="utf-8") as file:
             file_from_str = file.read()
             assert file_from_str == "hello you"
-        with open("input_dir/file_from_str_cast") as file:
+        with open("input_dir/file_from_str_cast", encoding="utf-8") as file:
             file_from_str_cast = file.read()
             assert file_from_str_cast == "Aha\nBeh"
 

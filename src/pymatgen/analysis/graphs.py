@@ -383,7 +383,7 @@ class StructureGraph(MSONable):
         # edges if appropriate
         if to_jimage is None:
             # assume we want the closest site
-            warnings.warn("Please specify to_jimage to be unambiguous, trying to automatically detect.")
+            warnings.warn("Please specify to_jimage to be unambiguous, trying to automatically detect.", stacklevel=2)
             dist, to_jimage = self.structure[from_index].distance_and_image(self.structure[to_index])
             if dist == 0:
                 # this will happen when from_index == to_index,
@@ -417,7 +417,7 @@ class StructureGraph(MSONable):
         # this is a convention to avoid duplicate hops
         if to_index == from_index:
             if to_jimage == (0, 0, 0):
-                warnings.warn("Tried to create a bond to itself, this doesn't make sense so was ignored.")
+                warnings.warn("Tried to create a bond to itself, this doesn't make sense so was ignored.", stacklevel=2)
                 return
 
             # ensure that the first non-zero jimage index is positive
@@ -439,7 +439,8 @@ class StructureGraph(MSONable):
                     if warn_duplicates:
                         warnings.warn(
                             "Trying to add an edge that already exists from "
-                            f"site {from_index} to site {to_index} in {to_jimage}."
+                            f"site {from_index} to site {to_index} in {to_jimage}.",
+                            stacklevel=2,
                         )
                     return
 
@@ -630,8 +631,7 @@ class StructureGraph(MSONable):
                 self.graph.remove_edge(to_index, from_index, edge_index)
             else:
                 raise ValueError(
-                    f"Edge cannot be broken between {from_index} and {to_index}; "
-                    f"no edge exists between those sites."
+                    f"Edge cannot be broken between {from_index} and {to_index}; no edge exists between those sites."
                 )
 
     def remove_nodes(self, indices: Sequence[int | None]) -> None:
@@ -790,7 +790,7 @@ class StructureGraph(MSONable):
 
             # from_site if jimage arg != (0, 0, 0)
             relative_jimage = np.subtract(to_jimage, jimage)
-            u_site = cast(PeriodicSite, self.structure[u])  # tell mypy that u_site is a PeriodicSite
+            u_site = cast("PeriodicSite", self.structure[u])  # tell mypy that u_site is a PeriodicSite
             dist = u_site.distance(self.structure[v], jimage=relative_jimage)
 
             weight = data.get("weight")
@@ -975,7 +975,7 @@ class StructureGraph(MSONable):
 
         write_dot(g, f"{basename}.dot")
 
-        with open(filename, mode="w") as file:
+        with open(filename, mode="w", encoding="utf-8") as file:
             args = [algo, "-T", extension, f"{basename}.dot"]
             with subprocess.Popen(args, stdout=file, stdin=subprocess.PIPE, close_fds=True) as rs:
                 rs.communicate()
@@ -1826,7 +1826,9 @@ class MoleculeGraph(MSONable):
         # between two sites
         existing_edge_data = self.graph.get_edge_data(from_index, to_index)
         if existing_edge_data and warn_duplicates:
-            warnings.warn(f"Trying to add an edge that already exists from site {from_index} to site {to_index}.")
+            warnings.warn(
+                f"Trying to add an edge that already exists from site {from_index} to site {to_index}.", stacklevel=2
+            )
             return
 
         # generic container for additional edge properties,
@@ -1973,8 +1975,7 @@ class MoleculeGraph(MSONable):
                 self.graph.remove_edge(to_index, from_index)
             else:
                 raise ValueError(
-                    f"Edge cannot be broken between {from_index} and {to_index}; "
-                    f"no edge exists between those sites."
+                    f"Edge cannot be broken between {from_index} and {to_index}; no edge exists between those sites."
                 )
 
     def remove_nodes(self, indices: list[int]) -> None:
@@ -2643,7 +2644,7 @@ class MoleculeGraph(MSONable):
 
         write_dot(g, f"{basename}.dot")
 
-        with open(filename, mode="w") as file:
+        with open(filename, mode="w", encoding="utf-8") as file:
             args = [algo, "-T", extension, f"{basename}.dot"]
             with subprocess.Popen(args, stdout=file, stdin=subprocess.PIPE, close_fds=True) as rs:
                 rs.communicate()

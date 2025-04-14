@@ -49,7 +49,7 @@ class SiteOrderedIStructure(IStructure):
         """Check for IStructure equality and same site order."""
         if not super().__eq__(other):
             return False
-        other = cast(SiteOrderedIStructure, other)  # make mypy happy
+        other = cast("SiteOrderedIStructure", other)  # make mypy happy
 
         return list(self.sites) == list(other.sites)
 

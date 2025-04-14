@@ -18,7 +18,7 @@ class TestConversionElectrode(TestCase):
         self.formulas = ["LiCoO2", "FeF3", "MnO2"]
         self.conversion_electrodes = {}
         for formula in self.formulas:
-            with open(f"{TEST_DIR}/{formula}_batt.json") as fid:
+            with open(f"{TEST_DIR}/{formula}_batt.json", encoding="utf-8") as fid:
                 entries = json.load(fid, cls=MontyDecoder)
             if formula in ["LiCoO2", "FeF3"]:
                 working_ion = "Li"
@@ -124,7 +124,7 @@ class TestConversionElectrode(TestCase):
             dct = pair.as_dict()
             pair2 = ConversionVoltagePair.from_dict(dct)
             for prop in ["voltage", "mass_charge", "mass_discharge"]:
-                assert getattr(pair, prop) == getattr(pair2, prop), 2
+                assert getattr(pair, prop) == getattr(pair2, prop)  # 2
 
             # try to create an electrode from a dict and test methods
             dct = conv_electrode.as_dict()

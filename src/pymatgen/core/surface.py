@@ -34,7 +34,6 @@ from pymatgen.core import Lattice, PeriodicSite, Structure, get_el_sp
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
 from pymatgen.util.coord import in_coord_list
 from pymatgen.util.due import Doi, due
-from pymatgen.util.typing import Tuple3Ints
 
 if TYPE_CHECKING:
     from collections.abc import Sequence
@@ -45,7 +44,7 @@ if TYPE_CHECKING:
 
     from pymatgen.core.composition import Element, Species
     from pymatgen.symmetry.groups import CrystalSystem
-    from pymatgen.util.typing import MillerIndex
+    from pymatgen.util.typing import MillerIndex, Tuple3Ints
 
 __author__ = "Richard Tran, Wenhao Sun, Zihan Xu, Shyue Ping Ong"
 
@@ -537,7 +536,8 @@ class Slab(Structure):
                     "Odd number of sites to divide! Try changing "
                     "the tolerance to ensure even division of "
                     "sites or create supercells in a or b directions "
-                    "to allow for atoms to be moved!"
+                    "to allow for atoms to be moved!",
+                    stacklevel=2,
                 )
                 continue
             combinations = []
@@ -627,8 +627,7 @@ class Slab(Structure):
         # Check if deprecated argument is used
         if specie is not None:
             warnings.warn(
-                "The argument 'specie' is deprecated. Use 'species' instead.",
-                DeprecationWarning,
+                "The argument 'specie' is deprecated. Use 'species' instead.", DeprecationWarning, stacklevel=2
             )
             species = specie
 
@@ -660,8 +659,7 @@ class Slab(Structure):
         # Check if deprecated argument is used
         if specie is not None:
             warnings.warn(
-                "The argument 'specie' is deprecated. Use 'species' instead.",
-                DeprecationWarning,
+                "The argument 'specie' is deprecated. Use 'species' instead.", DeprecationWarning, stacklevel=2
             )
             species = specie
 
@@ -737,7 +735,7 @@ class Slab(Structure):
             self.remove_sites(equi_sites)
 
         else:
-            warnings.warn("Equivalent sites could not be found for some indices. Surface unchanged.")
+            warnings.warn("Equivalent sites could not be found for some indices. Surface unchanged.", stacklevel=2)
 
 
 def center_slab(slab: Structure) -> Structure:
@@ -948,7 +946,7 @@ class SlabGenerator:
         def reduce_vector(vector: MillerIndex) -> MillerIndex:
             """Helper function to reduce vectors."""
             divisor = abs(reduce(math.gcd, vector))  # type: ignore[arg-type]
-            return cast(Tuple3Ints, tuple(int(idx / divisor) for idx in vector))
+            return cast("Tuple3Ints", tuple(int(idx / divisor) for idx in vector))
 
         def add_site_types() -> None:
             """Add Wyckoff symbols and equivalent sites to the initial structure."""
@@ -1373,7 +1371,7 @@ class SlabGenerator:
         else:
             final_slabs = slabs
 
-        return cast(list[Slab], sorted(final_slabs, key=lambda slab: slab.energy))
+        return cast("list[Slab]", sorted(final_slabs, key=lambda slab: slab.energy))
 
     def repair_broken_bonds(
         self,
@@ -1556,7 +1554,7 @@ class SlabGenerator:
                     slab.remove_sites([z_coords.index(min(z_coords))])
 
                 if len(slab) <= len(self.parent):
-                    warnings.warn("Too many sites removed, please use a larger slab.")
+                    warnings.warn("Too many sites removed, please use a larger slab.", stacklevel=2)
                     break
 
                 # Check if the new Slab is symmetric
@@ -2070,7 +2068,7 @@ def get_symmetrically_distinct_miller_indices(
 
     for idx, miller in enumerate(miller_list):
         denom = abs(reduce(math.gcd, miller))  # type: ignore[arg-type]
-        miller = cast(Tuple3Ints, tuple(int(idx / denom) for idx in miller))
+        miller = cast("Tuple3Ints", tuple(int(idx / denom) for idx in miller))
         if not _is_in_miller_family(miller, unique_millers, symm_ops):
             if spg_analyzer.get_crystal_system() == "trigonal":
                 # Now we find the distinct primitive hkls using

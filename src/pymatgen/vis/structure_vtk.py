@@ -357,7 +357,7 @@ class StructureVis:
         Adding a partial sphere (to display partial occupancies.
 
         Args:
-            coords (np.array): Coordinates
+            coords (NDArray): Coordinates
             radius (float): Radius of sphere
             color (tuple): RGB color of sphere
             start (float): Starting angle.
@@ -1216,8 +1216,7 @@ class MultiStructuresInteractorStyle(StructureInteractorStyle):
                     parent.current_structure = parent.structures[parent.istruct]
                     parent.set_structure(parent.current_structure, reset_camera=False, to_unit_cell=False)
                     parent.display_info(
-                        f"Animated movie : structure {istruct + 1}/{len(parent.structures)} "
-                        f"(loop {iloop + 1}/{nloops})"
+                        f"Animated movie : structure {istruct + 1}/{len(parent.structures)} (loop {iloop + 1}/{nloops})"
                     )
                     parent.ren_win.Render()
                 time.sleep(tloops)

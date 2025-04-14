@@ -126,12 +126,12 @@ class ChargemolAnalysis:
 
         else:
             self.chgcar = self.structure = self.natoms = None
-            warnings.warn("No CHGCAR found. Some properties may be unavailable.", UserWarning)
+            warnings.warn("No CHGCAR found. Some properties may be unavailable.", stacklevel=2)
 
         if self._potcar_path:
             self.potcar = Potcar.from_file(self._potcar_path)
         else:
-            warnings.warn("No POTCAR found. Some properties may be unavailable.", UserWarning)
+            warnings.warn("No POTCAR found. Some properties may be unavailable.", stacklevel=2)
 
         self.aeccar0 = Chgcar.from_file(self._aeccar0_path) if self._aeccar0_path else None
         self.aeccar2 = Chgcar.from_file(self._aeccar2_path) if self._aeccar2_path else None
@@ -164,7 +164,7 @@ class ChargemolAnalysis:
             # however, better to use 'suffix' kwarg to avoid this!
             paths.sort(reverse=True)
             if len(paths) > 1:
-                warnings.warn(f"Multiple files detected, using {os.path.basename(paths[0])}")
+                warnings.warn(f"Multiple files detected, using {os.path.basename(paths[0])}", stacklevel=2)
             fpath = paths[0]
         return fpath
 
@@ -409,7 +409,7 @@ class ChargemolAnalysis:
             bo = ".true." if compute_bond_orders else ".false."
             lines += f"\n<compute BOs>\n{bo}\n</compute BOs>\n"
 
-        with open("job_control.txt", mode="w") as file:
+        with open("job_control.txt", mode="w", encoding="utf-8") as file:
             file.write(lines)
 
     @staticmethod
@@ -422,7 +422,7 @@ class ChargemolAnalysis:
         idx = 0
         start = False
         dipoles = []
-        with open(filepath) as file:
+        with open(filepath, encoding="utf-8") as file:
             for line in file:
                 if "The following XYZ" in line:
                     start = True
@@ -549,7 +549,7 @@ class ChargemolAnalysis:
         """
         props = []
         if os.path.isfile(xyz_path):
-            with open(xyz_path) as file:
+            with open(xyz_path, encoding="utf-8") as file:
                 for idx, line in enumerate(file):
                     if idx <= 1:
                         continue
@@ -574,7 +574,7 @@ class ChargemolAnalysis:
         props = []
         if os.path.isfile(ddec_analysis_path):
             start = False
-            with open(ddec_analysis_path) as file:
+            with open(ddec_analysis_path, encoding="utf-8") as file:
                 for line in file:
                     if "computed CM5" in line:
                         start = True

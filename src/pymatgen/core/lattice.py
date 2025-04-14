@@ -183,7 +183,7 @@ class Lattice(MSONable):
         if len(pbc) != 3 or any(item not in {True, False} for item in pbc):
             raise ValueError(f"pbc must be a tuple of three True/False values, got {pbc}")
 
-        self._pbc = cast(tuple[bool, bool, bool], tuple(pbc))
+        self._pbc = cast("tuple[bool, bool, bool]", tuple(pbc))
 
     @property
     def is_3d_periodic(self) -> bool:
@@ -1792,7 +1792,7 @@ def get_integer_index(
     # Need to recalculate this after rounding as values may have changed
     int_miller_index = np.round(mi, 1).astype(int)
     if np.any(np.abs(mi - int_miller_index) > 1e-6) and verbose:
-        warnings.warn("Non-integer encountered in Miller index")
+        warnings.warn("Non-integer encountered in Miller index", stacklevel=2)
     else:
         mi = int_miller_index
 

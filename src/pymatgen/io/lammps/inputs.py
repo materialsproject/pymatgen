@@ -273,7 +273,8 @@ class LammpsInputFile(InputFile):
             if commands or stage_name:
                 warnings.warn(
                     "A stage has been passed together with commands and stage_name. This is incompatible. "
-                    "Only the stage will be used."
+                    "Only the stage will be used.",
+                    stacklevel=2,
                 )
 
             # Make sure the given stage has the correct format
@@ -467,7 +468,10 @@ class LammpsInputFile(InputFile):
         self.stages = new_list_of_stages
 
         if n_removed == 0:
-            warnings.warn(f"{command} not found in the LammpsInputFile.")
+            warnings.warn(
+                f"{command} not found in the LammpsInputFile.",
+                stacklevel=2,
+            )
 
     def append(self, lmp_input_file: LammpsInputFile) -> None:
         """
@@ -549,7 +553,7 @@ class LammpsInputFile(InputFile):
                 If False, a single block is assumed.
         """
         filename = filename if isinstance(filename, Path) else Path(filename)
-        with zopen(filename, mode="wt") as file:
+        with zopen(filename, mode="wt", encoding="utf-8") as file:
             file.write(self.get_str(ignore_comments=ignore_comments, keep_stages=keep_stages))
 
     @classmethod
@@ -649,7 +653,7 @@ class LammpsInputFile(InputFile):
             LammpsInputFile
         """
         filename = path if isinstance(path, Path) else Path(path)
-        with zopen(filename, mode="rt") as file:
+        with zopen(filename, mode="rt", encoding="utf-8") as file:
             return cls.from_str(file.read(), ignore_comments=ignore_comments, keep_stages=keep_stages)
 
     def __repr__(self) -> str:
@@ -1065,7 +1069,7 @@ def write_lammps_inputs(
         ...
         ... run             $nsteps'''
         >>> write_lammps_inputs(".", eam_template, settings={"temperature": 1600.0, "nsteps": 100})
-        >>> with open("in.lammps") as file:
+        >>> with open("in.lammps", encoding="utf-8") as file:
         ...     script = file.read()
         >>> print(script)
         units           metal
@@ -1105,4 +1109,7 @@ def write_lammps_inputs(
         elif isinstance(data, str) and os.path.isfile(data):
             shutil.copyfile(data, os.path.join(output_dir, data_filename))
         else:
-            warnings.warn(f"No data file supplied. Skip writing {data_filename}.")
+            warnings.warn(
+                f"No data file supplied. Skip writing {data_filename}.",
+                stacklevel=2,
+            )

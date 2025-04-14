@@ -199,8 +199,7 @@ class TestThermalDisplacement(PymatgenTest):
     def test_write_file(self):
         printed = False
         self.thermal.write_cif(f"{self.tmp_path}/U.cif")
-        with open(f"{self.tmp_path}/U.cif") as file:
-            file.seek(0)  # set position to start of file
+        with open(f"{self.tmp_path}/U.cif", encoding="utf-8") as file:
             lines = file.read().splitlines()  # now we won't have those newlines
             if "_atom_site_aniso_U_12" in lines:
                 printed = True
@@ -335,8 +334,7 @@ class TestThermalDisplacement(PymatgenTest):
         self.thermal.visualize_directionality_quality_criterion(
             filename=f"{self.tmp_path}/U.vesta", other=self.thermal, which_structure=0
         )
-        with open(f"{self.tmp_path}/U.vesta") as file:
-            file.seek(0)  # set position to start of file
+        with open(f"{self.tmp_path}/U.vesta", encoding="utf-8") as file:
             lines = file.read().splitlines()  # now we won't have those newlines
             if "VECTR" in lines:
                 printed = True

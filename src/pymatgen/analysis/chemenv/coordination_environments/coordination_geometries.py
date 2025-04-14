@@ -861,18 +861,18 @@ class AllCoordinationGeometries(dict):
         dict.__init__(self)
         self.cg_list: list[CoordinationGeometry] = []
         if only_symbols is None:
-            with open(f"{MODULE_DIR}/coordination_geometries_files/allcg.txt") as file:
+            with open(f"{MODULE_DIR}/coordination_geometries_files/allcg.txt", encoding="utf-8") as file:
                 data = file.readlines()
             for line in data:
                 cg_file = f"{MODULE_DIR}/{line.strip()}"
-                with open(cg_file) as file:
+                with open(cg_file, encoding="utf-8") as file:
                     dd = json.load(file)
                 self.cg_list.append(CoordinationGeometry.from_dict(dd))
         else:
             for symbol in only_symbols:
                 fsymbol = symbol.replace(":", "#")
                 cg_file = f"{MODULE_DIR}/coordination_geometries_files/{fsymbol}.json"
-                with open(cg_file) as file:
+                with open(cg_file, encoding="utf-8") as file:
                     dd = json.load(file)
                 self.cg_list.append(CoordinationGeometry.from_dict(dd))
 

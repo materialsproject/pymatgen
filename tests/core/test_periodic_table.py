@@ -29,6 +29,25 @@ class TestElement(PymatgenTest):
 
         assert id(Element("Fe")) == id(Element("Fe"))  # Test caching
 
+    def test_iter(self):
+        # Make sure isotopes don't show during iteration
+        assert [elem.name for elem in Element] == (
+            "H,He,Li,Be,B,C,N,O,F,Ne,Na,Mg,Al,Si,P,S,Cl,Ar,K,Ca,Sc,Ti,V,Cr,"
+            "Mn,Fe,Co,Ni,Cu,Zn,Ga,Ge,As,Se,Br,Kr,Rb,Sr,Y,Zr,Nb,Mo,Tc,Ru,Rh,Pd,"
+            "Ag,Cd,In,Sn,Sb,Te,I,Xe,Cs,Ba,La,Ce,Pr,Nd,Pm,Sm,Eu,Gd,Tb,Dy,Ho,Er,Tm,"
+            "Yb,Lu,Hf,Ta,W,Re,Os,Ir,Pt,Au,Hg,Tl,Pb,Bi,Po,At,Rn,Fr,Ra,Ac,Th,Pa,U,Np,"
+            "Pu,Am,Cm,Bk,Cf,Es,Fm,Md,No,Lr,Rf,Db,Sg,Bh,Hs,Mt,Ds,Rg,Cn,Nh,Fl,Mc,Lv,Ts,Og"
+        ).split(",")
+
+        # Make sure isotopes are still in members
+        assert list(Element.__members__) == (
+            "H,D,T,He,Li,Be,B,C,N,O,F,Ne,Na,Mg,Al,Si,P,S,Cl,Ar,K,Ca,Sc,Ti,V,Cr,"
+            "Mn,Fe,Co,Ni,Cu,Zn,Ga,Ge,As,Se,Br,Kr,Rb,Sr,Y,Zr,Nb,Mo,Tc,Ru,Rh,Pd,"
+            "Ag,Cd,In,Sn,Sb,Te,I,Xe,Cs,Ba,La,Ce,Pr,Nd,Pm,Sm,Eu,Gd,Tb,Dy,Ho,Er,Tm,"
+            "Yb,Lu,Hf,Ta,W,Re,Os,Ir,Pt,Au,Hg,Tl,Pb,Bi,Po,At,Rn,Fr,Ra,Ac,Th,Pa,U,Np,"
+            "Pu,Am,Cm,Bk,Cf,Es,Fm,Md,No,Lr,Rf,Db,Sg,Bh,Hs,Mt,Ds,Rg,Cn,Nh,Fl,Mc,Lv,Ts,Og"
+        ).split(",")
+
     def test_missing_and_confusing_data(self):
         with pytest.warns(UserWarning, match="No data available"):
             _ = Element.H.metallic_radius
@@ -346,18 +365,18 @@ class TestElement(PymatgenTest):
 
     def test_radii(self):
         el = Element.Pd
-        assert el.atomic_radius == 1.40
-        assert el.atomic_radius_calculated == 1.69
-        assert el.van_der_waals_radius == 2.10
+        assert el.atomic_radius == approx(1.40)
+        assert el.atomic_radius_calculated == approx(1.69)
+        assert el.van_der_waals_radius == approx(2.10)
 
     def test_data(self):
-        assert Element.Pd.data["Atomic radius"] == 1.4
+        assert Element.Pd.data["Atomic radius"] == approx(1.4)
         al = Element.Al
         val = al.thermal_conductivity
         assert val == 235
         assert str(val.unit) == "W K^-1 m^-1"
         val = al.electrical_resistivity
-        assert val == 2.7e-08
+        assert val == approx(2.7e-08)
         assert str(val.unit) == "m ohm"
 
     def test_sort(self):
@@ -377,7 +396,7 @@ class TestElement(PymatgenTest):
         Element.print_periodic_table()
 
     def test_is(self):
-        assert Element("Bi").is_post_transition_metal, True
+        assert Element("Bi").is_post_transition_metal
 
     def test_isotope(self):
         elems = [Element(el) for el in ("H", "D", "T")]
@@ -390,6 +409,8 @@ class TestElement(PymatgenTest):
             2.013553212712,
             3.0155007134,
         ]
+
+        assert Element.named_isotopes == (Element.D, Element.T)
 
 
 class TestSpecies(PymatgenTest):
@@ -406,8 +427,8 @@ class TestSpecies(PymatgenTest):
         assert Species("O0+", spin=2) == Species("O", 0, spin=2)
 
     def test_ionic_radius(self):
-        assert self.specie2.ionic_radius == 78.5 / 100
-        assert self.specie3.ionic_radius == 92 / 100
+        assert self.specie2.ionic_radius == approx(78.5 / 100)
+        assert self.specie3.ionic_radius == approx(92 / 100)
         assert Species("Mn", 4).ionic_radius == approx(0.67)
 
     def test_eq(self):
@@ -471,18 +492,18 @@ class TestSpecies(PymatgenTest):
         assert spin == 2
 
     def test_get_nmr_mom(self):
-        assert Species("H").get_nmr_quadrupole_moment() == 2.860
-        assert Species("Li").get_nmr_quadrupole_moment() == -0.808
-        assert Species("Li").get_nmr_quadrupole_moment("Li-7") == -40.1
-        assert Species("Si").get_nmr_quadrupole_moment() == 0.0
+        assert Species("H").get_nmr_quadrupole_moment() == approx(2.860)
+        assert Species("Li").get_nmr_quadrupole_moment() == approx(-0.808)
+        assert Species("Li").get_nmr_quadrupole_moment("Li-7") == approx(-40.1)
+        assert Species("Si").get_nmr_quadrupole_moment() == approx(0)
         with pytest.raises(ValueError, match="No quadrupole moment for isotope='Li-109'"):
             Species("Li").get_nmr_quadrupole_moment("Li-109")
 
     def test_get_shannon_radius(self):
-        assert Species("Li", 1).get_shannon_radius("IV") == 0.59
+        assert Species("Li", 1).get_shannon_radius("IV") == approx(0.59)
         mn2 = Species("Mn", 2)
-        assert mn2.get_shannon_radius("IV", "High Spin") == 0.66
-        assert mn2.get_shannon_radius("V", "High Spin") == 0.75
+        assert mn2.get_shannon_radius("IV", "High Spin") == approx(0.66)
+        assert mn2.get_shannon_radius("V", "High Spin") == approx(0.75)
 
         with pytest.warns(
             UserWarning,
@@ -491,12 +512,12 @@ class TestSpecies(PymatgenTest):
         ) as warns:
             radius = mn2.get_shannon_radius("V")
             assert len(warns) == 1
-            assert radius == 0.75
+            assert radius == approx(0.75)
 
-        assert mn2.get_shannon_radius("VI", "Low Spin") == 0.67
-        assert mn2.get_shannon_radius("VI", "High Spin") == 0.83
-        assert mn2.get_shannon_radius("VII", "High Spin") == 0.9
-        assert mn2.get_shannon_radius("VIII") == 0.96
+        assert mn2.get_shannon_radius("VI", "Low Spin") == approx(0.67)
+        assert mn2.get_shannon_radius("VI", "High Spin") == approx(0.83)
+        assert mn2.get_shannon_radius("VII", "High Spin") == approx(0.9)
+        assert mn2.get_shannon_radius("VIII") == approx(0.96)
 
     def test_sort(self):
         els = map(get_el_sp, ["N3-", "Si4+", "Si3+"])
@@ -548,7 +569,7 @@ class TestSpecies(PymatgenTest):
 def test_symbol_oxi_state_str(symbol_oxi, expected_element, expected_oxi_state):
     species = Species(symbol_oxi)
     assert species._el.symbol == expected_element
-    assert species._oxi_state == pytest.approx(expected_oxi_state, rel=1.0e-6)
+    assert species._oxi_state == approx(expected_oxi_state, rel=1.0e-6)
 
 
 def test_symbol_oxi_state_str_raises():

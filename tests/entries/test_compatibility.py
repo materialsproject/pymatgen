@@ -113,9 +113,9 @@ class TestCorrectionSpecificity(TestCase):
 
         assert len(processed) == 2
 
-        assert self.entry1.correction != 0
-        assert self.entry2.correction != 0
-        assert self.entry3.correction == 0.0
+        assert self.entry1.correction != approx(0)
+        assert self.entry2.correction != approx(0)
+        assert self.entry3.correction == approx(0)
 
 
 # abstract Compatibility tests
@@ -594,7 +594,7 @@ class TestMaterialsProjectCompatibility(TestCase):
         assert len(entries) == 2
 
     def test_parallel_process_entries(self):
-        # TODO: DeprecationWarning: This process (pid=xxxx) is multi-threaded,
+        # TODO: get DeprecationWarning: This process (pid=xxxx) is multi-threaded,
         # use of fork() may lead to deadlocks in the child.
         # pid = os.fork()
         with pytest.raises(
@@ -1234,7 +1234,7 @@ class TestMaterialsProjectCompatibility2020(TestCase):
     def test_processing_entries_inplace(self):
         # load two entries in GGA_GGA_U_R2SCAN thermo type
         json_file = Path(f"{TEST_FILES_DIR}/entries/entries_thermo_type_GGA_GGA_U_R2SCAN.json")
-        with open(json_file) as file:
+        with open(json_file, encoding="utf-8") as file:
             entries = json.load(file, cls=MontyDecoder)
         # check whether the compatibility scheme can keep input entries unchanged
         entries_copy = copy.deepcopy(entries)
@@ -2184,9 +2184,9 @@ class TestMaterialsProjectAqueousCompatibility:
 
         compat.process_entries([h2o_entry_1, h2o_entry_2, h2_entry_1, h2_entry_2, o2_entry_1])
 
-        assert compat.o2_energy == -4.9276
-        assert compat.h2o_energy == -5.195
-        assert compat.h2o_adjustments == -0.234
+        assert compat.o2_energy == approx(-4.9276)
+        assert compat.h2o_energy == approx(-5.195)
+        assert compat.h2o_adjustments == approx(-0.234)
 
         # the corrections should preserve the difference in energy among H2O and H2 polymorphs
         assert h2o_entry_2.energy_per_atom == approx(h2o_entry_1.energy_per_atom + 4.195)

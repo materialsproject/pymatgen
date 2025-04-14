@@ -101,7 +101,9 @@ def get_dopants_from_shannon_radii(bonded_structure, num_dopants=5, match_oxi_si
         try:
             species_radius = species.get_shannon_radius(cn_roman)
         except KeyError:
-            warnings.warn(f"Shannon radius not found for {species} with coordination number {cn}.\nSkipping...")
+            warnings.warn(
+                f"Shannon radius not found for {species} with coordination number {cn}.\nSkipping...", stacklevel=2
+            )
             continue
 
         if cn not in cn_to_radii_map:

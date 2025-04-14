@@ -4,7 +4,8 @@ import math
 
 import numpy as np
 import pytest
-from monty.serialization import MontyDecoder, loadfn
+from monty.json import MontyDecoder
+from monty.serialization import loadfn
 from numpy.testing import assert_allclose
 from pytest import approx
 
@@ -287,7 +288,7 @@ class TestTensor(PymatgenTest):
         tkey = Tensor.from_values_indices([0.01], [(0, 0)])
         tval = reduced[tkey]
         for tens_1, tens_2 in zip(tval, reduced[tbs[0]], strict=True):
-            assert approx(tens_1) == tens_2
+            assert tens_1 == approx(tens_2)
         # Test set
         reduced[tkey] = "test_val"
         assert reduced[tkey] == "test_val"
@@ -517,8 +518,8 @@ class TestSquareTensor(PymatgenTest):
 
         # determinant
         assert self.rand_sqtensor.det == np.linalg.det(self.rand_sqtensor)
-        assert self.non_invertible.det == 0.0
-        assert self.non_symm.det == 0.009
+        assert self.non_invertible.det == approx(0)
+        assert self.non_symm.det == approx(0.009)
 
         # symmetrized
         assert self.rand_sqtensor.symmetrized == approx(0.5 * (self.rand_sqtensor + self.rand_sqtensor.trans))

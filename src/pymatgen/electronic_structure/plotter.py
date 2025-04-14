@@ -19,7 +19,6 @@ from matplotlib.collections import LineCollection
 from matplotlib.gridspec import GridSpec
 from monty.dev import requires
 from monty.json import jsanitize
-from numpy.typing import ArrayLike
 
 from pymatgen.core import Element
 from pymatgen.electronic_structure.bandstructure import BandStructureSymmLine
@@ -35,6 +34,8 @@ except ImportError:
 if TYPE_CHECKING:
     from collections.abc import Sequence
     from typing import Literal
+
+    from numpy.typing import ArrayLike
 
     from pymatgen.electronic_structure.dos import CompleteDos, Dos
 
@@ -164,8 +165,8 @@ class DosPlotter:
         # Note that this complicated processing of energies is to allow for
         # stacked plots in matplotlib.
         for dos in self._doses.values():
-            energies = cast(ArrayLike, dos["energies"])
-            densities = cast(ArrayLike, dos["densities"])
+            energies = cast("ArrayLike", dos["energies"])
+            densities = cast("ArrayLike", dos["densities"])
             if not ys:
                 ys = {
                     Spin.up: np.zeros(energies.shape),
@@ -570,9 +571,9 @@ class BSPlotter:
                 # reducing smooth_k when the number
                 # of points are fewer then k
                 smooth_k = len(dist) - 1
-                warnings.warn(warning_m_fewer_k)
+                warnings.warn(warning_m_fewer_k, stacklevel=2)
             elif len(dist) == 1:
-                warnings.warn("Skipping single point branch")
+                warnings.warn("Skipping single point branch", stacklevel=2)
                 continue
 
             int_distances.append(np.linspace(dist[0], dist[-1], smooth_np))
@@ -587,7 +588,7 @@ class BSPlotter:
             int_energies.append(np.vstack(br_en))
 
             if np.any(np.isnan(int_energies[-1])):
-                warnings.warn(warning_nan)
+                warnings.warn(warning_nan, stacklevel=2)
 
         return int_distances, int_energies
 
@@ -860,7 +861,7 @@ class BSPlotter:
         Returns:
             plt.Axes: matplotlib Axes object with both band structures
         """
-        warnings.warn("Deprecated method. Use BSPlotter([sbs1,sbs2,...]).get_plot() instead.")
+        warnings.warn("Deprecated method. Use BSPlotter([sbs1,sbs2,...]).get_plot() instead.", stacklevel=2)
 
         # TODO: add exception if the band structures are not compatible
         ax = self.get_plot()
@@ -928,7 +929,8 @@ class BSPlotterProjected(BSPlotter):
         if isinstance(bs, list):
             warnings.warn(
                 "Multiple band structures are not handled by BSPlotterProjected. "
-                "Only the first in the list will be considered"
+                "Only the first in the list will be considered",
+                stacklevel=2,
             )
             bs = bs[0]
 
@@ -1245,7 +1247,7 @@ class BSPlotterProjected(BSPlotter):
                                 proj[b][str(spin)][band_idx][j][str(el)][o]
                                 for o in proj[b][str(spin)][band_idx][j][str(el)]
                             )
-                        if sum_e == 0.0:
+                        if math.isclose(sum_e, 0.0):
                             color = [0.0] * len(elt_ordered)
                         else:
                             color = [
@@ -2347,7 +2349,8 @@ class BSDOSPlotter:
             warnings.warn(
                 "Cannot get element projected data; either the projection data "
                 "doesn't exist, or you don't have a compound with exactly 2 "
-                "or 3 or 4 unique elements."
+                "or 3 or 4 unique elements.",
+                stacklevel=2,
             )
             bs_projection = None
 
@@ -2436,7 +2439,7 @@ class BSDOSPlotter:
             if spin in bs.bands:
                 band_energies[spin] = []
                 for band in bs.bands[spin]:
-                    band = cast(list[float], band)
+                    band = cast("list[float]", band)
                     band_energies[spin].append([e - bs.efermi for e in band])  # type: ignore[arg-type]
 
         # renormalize the DOS energies to Fermi level
