@@ -97,7 +97,6 @@ class JOutStructure(Structure):
         "lowdin",
         "opt",
     ]
-    selective_dynamics: list[int] | None = None
     mu: float | None = None
     nelectrons: float | None = None
     abs_magneticmoment: float | None = None
@@ -169,6 +168,29 @@ class JOutStructure(Structure):
             self.add_site_property("magmom", list(magnetic_moments))
         elif "magmom" in self.site_properties:
             self.remove_site_property("magmom")
+
+    @property
+    def selective_dynamics(self) -> list[list[int]] | None:
+        """Return the selective dynamics.
+
+        Returns:
+            list[list[int]]: The selective dynamics of the atoms in the system.
+        """
+        if "selective_dynamics" not in self.site_properties:
+            return None
+        return self.site_properties["selective_dynamics"]
+
+    @selective_dynamics.setter
+    def selective_dynamics(self, selective_dynamics: np.ndarray | list[list[int]]) -> None:
+        """Set the selective dynamics.
+
+        Args:
+            magnetic_moments (np.ndarray): The selective dynamics of the atoms in the system.
+        """
+        if selective_dynamics is not None:
+            self.add_site_property("selective_dynamics", list(selective_dynamics))
+        elif "selective_dynamics" in self.site_properties:
+            self.remove_site_property("selective_dynamics")
 
     def __init__(
         self,
@@ -481,12 +503,14 @@ class JOutStructure(Structure):
             coords_type = coords_type.strip().split()[0].strip()
             posns: list[np.ndarray] = []
             names: list[str] = []
-            selective_dynamics: list[int] = []
+            selective_dynamics: list[list[int]] = []
             for i in range(natoms):
-                line = posns_lines[i + 1]
+                line = posns_lines[i + 1].rstrip("\n")
                 name = line.split()[1].strip()
                 posn = np.array([float(x.strip()) for x in line.split()[2:5]])
-                sd = int(line.split()[5])
+                sd = [int(v) for v in line.split()[5:]]
+                if len(sd) == 1:
+                    sd = [sd[0], sd[0], sd[0]]
                 names.append(name)
                 posns.append(posn)
                 selective_dynamics.append(sd)
