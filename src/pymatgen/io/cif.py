@@ -1349,6 +1349,10 @@ class CifParser:
     def get_bibtex_string(self) -> str:
         """Get BibTeX reference from CIF file.
 
+        TODO:
+            - parse '_publ_section_references' when it exists?
+            - CIF specification supports multiple citations.
+
         Returns:
             BibTeX string.
         """
