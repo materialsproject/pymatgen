@@ -6,7 +6,6 @@ import copy
 import itertools
 import logging
 import math
-import typing
 import warnings
 from collections import Counter
 from typing import TYPE_CHECKING, cast
@@ -86,7 +85,11 @@ class DosPlotter:
         self.sigma = sigma
         self._norm_val = True
         self._doses: dict[
-            str, dict[Literal["energies", "densities", "efermi"], float | ArrayLike | dict[Spin, ArrayLike]]
+            str,
+            dict[
+                Literal["energies", "densities", "efermi"],
+                float | ArrayLike | dict[Spin, ArrayLike],
+            ],
         ] = {}
 
     def add_dos(self, label: str, dos: Dos) -> None:
@@ -130,7 +133,6 @@ class DosPlotter:
         """
         return jsanitize(self._doses)
 
-    @typing.no_type_check
     def get_plot(
         self,
         xlim: tuple[float, float] | None = None,
@@ -163,8 +165,8 @@ class DosPlotter:
         # Note that this complicated processing of energies is to allow for
         # stacked plots in matplotlib.
         for dos in self._doses.values():
-            energies = dos["energies"]
-            densities = dos["densities"]
+            energies = cast("ArrayLike", dos["energies"])
+            densities = cast("ArrayLike", dos["densities"])
             if not ys:
                 ys = {
                     Spin.up: np.zeros(energies.shape),
@@ -201,9 +203,22 @@ class DosPlotter:
                     if self.stack:
                         ax.fill(x, y, color=colors[idx % n_colors], label=str(key))
                     elif spin == Spin.down and beta_dashed:
-                        ax.plot(x, y, color=colors[idx % n_colors], label=str(key), linestyle="--", linewidth=3)
+                        ax.plot(
+                            x,
+                            y,
+                            color=colors[idx % n_colors],
+                            label=str(key),
+                            linestyle="--",
+                            linewidth=3,
+                        )
                     else:
-                        ax.plot(x, y, color=colors[idx % n_colors], label=str(key), linewidth=3)
+                        ax.plot(
+                            x,
+                            y,
+                            color=colors[idx % n_colors],
+                            label=str(key),
+                            linewidth=3,
+                        )
 
         if xlim:
             ax.set_xlim(xlim)
@@ -211,17 +226,21 @@ class DosPlotter:
             ax.set_ylim(ylim)
         elif not invert_axes:
             xlim = ax.get_xlim()
+            if xlim is None:
+                raise RuntimeError("xlim cannot be None.")
             relevant_y = [p[1] for p in all_pts if xlim[0] < p[0] < xlim[1]]
             ax.set_ylim((min(relevant_y), max(relevant_y)))
         if not xlim and invert_axes:
             ylim = ax.get_ylim()
+            if ylim is None:
+                raise RuntimeError("ylim cannot be None.")
             relevant_y = [p[0] for p in all_pts if ylim[0] < p[1] < ylim[1]]
             ax.set_xlim((min(relevant_y), max(relevant_y)))
 
         if self.zero_at_efermi:
             xlim = ax.get_xlim()
             ylim = ax.get_ylim()
-            ax.plot(xlim, [0, 0], "k--", linewidth=2) if invert_axes else ax.plot([0, 0], ylim, "k--", linewidth=2)
+            (ax.plot(xlim, [0, 0], "k--", linewidth=2) if invert_axes else ax.plot([0, 0], ylim, "k--", linewidth=2))
 
         if invert_axes:
             ax.set_ylabel("Energies (eV)")
@@ -483,7 +502,7 @@ class BSPlotter:
                 cbm_plot.append(
                     (
                         bs.distance[index],
-                        cbm["energy"] - zero_energy if zero_to_efermi else cbm["energy"],
+                        (cbm["energy"] - zero_energy if zero_to_efermi else cbm["energy"]),
                     )
                 )
 
@@ -491,7 +510,7 @@ class BSPlotter:
                 vbm_plot.append(
                     (
                         bs.distance[index],
-                        vbm["energy"] - zero_energy if zero_to_efermi else vbm["energy"],
+                        (vbm["energy"] - zero_energy if zero_to_efermi else vbm["energy"]),
                     )
                 )
 
@@ -552,9 +571,9 @@ class BSPlotter:
                 # reducing smooth_k when the number
                 # of points are fewer then k
                 smooth_k = len(dist) - 1
-                warnings.warn(warning_m_fewer_k)
+                warnings.warn(warning_m_fewer_k, stacklevel=2)
             elif len(dist) == 1:
-                warnings.warn("Skipping single point branch")
+                warnings.warn("Skipping single point branch", stacklevel=2)
                 continue
 
             int_distances.append(np.linspace(dist[0], dist[-1], smooth_np))
@@ -569,7 +588,7 @@ class BSPlotter:
             int_energies.append(np.vstack(br_en))
 
             if np.any(np.isnan(int_energies[-1])):
-                warnings.warn(warning_nan)
+                warnings.warn(warning_nan, stacklevel=2)
 
         return int_distances, int_energies
 
@@ -842,7 +861,7 @@ class BSPlotter:
         Returns:
             plt.Axes: matplotlib Axes object with both band structures
         """
-        warnings.warn("Deprecated method. Use BSPlotter([sbs1,sbs2,...]).get_plot() instead.")
+        warnings.warn("Deprecated method. Use BSPlotter([sbs1,sbs2,...]).get_plot() instead.", stacklevel=2)
 
         # TODO: add exception if the band structures are not compatible
         ax = self.get_plot()
@@ -910,7 +929,8 @@ class BSPlotterProjected(BSPlotter):
         if isinstance(bs, list):
             warnings.warn(
                 "Multiple band structures are not handled by BSPlotterProjected. "
-                "Only the first in the list will be considered"
+                "Only the first in the list will be considered",
+                stacklevel=2,
             )
             bs = bs[0]
 
@@ -1223,11 +1243,11 @@ class BSPlotterProjected(BSPlotter):
                     for j in range(len(data["energy"][str(spin)][b][band_idx]) - 1):
                         sum_e = 0.0
                         for el in elt_ordered:
-                            sum_e = sum_e + sum(
+                            sum_e += sum(
                                 proj[b][str(spin)][band_idx][j][str(el)][o]
                                 for o in proj[b][str(spin)][band_idx][j][str(el)]
                             )
-                        if sum_e == 0.0:
+                        if math.isclose(sum_e, 0.0):
                             color = [0.0] * len(elt_ordered)
                         else:
                             color = [
@@ -1247,7 +1267,10 @@ class BSPlotterProjected(BSPlotter):
 
                         ax.plot(
                             [data["distances"][b][j], data["distances"][b][j + 1]],
-                            [data["energy"][str(spin)][b][band_idx][j], data["energy"][str(spin)][b][band_idx][j + 1]],
+                            [
+                                data["energy"][str(spin)][b][band_idx][j],
+                                data["energy"][str(spin)][b][band_idx][j + 1],
+                            ],
                             sign,
                             color=color,
                             linewidth=band_linewidth,
@@ -1991,8 +2014,7 @@ class BSPlotterProjected(BSPlotter):
                 if len(sum_atoms[elt]) == 1:
                     raise ValueError(f"We do not sum projection over only one atom: {elt}")
 
-        max_number_figs = 0
-        decrease = 0
+        max_number_figs = decrease = 0
         for elt in dictio:
             max_number_figs += len(dictio[elt]) * len(dictpa[elt])
 
@@ -2327,7 +2349,8 @@ class BSDOSPlotter:
             warnings.warn(
                 "Cannot get element projected data; either the projection data "
                 "doesn't exist, or you don't have a compound with exactly 2 "
-                "or 3 or 4 unique elements."
+                "or 3 or 4 unique elements.",
+                stacklevel=2,
             )
             bs_projection = None
 
@@ -2390,7 +2413,7 @@ class BSDOSPlotter:
         # set basic axes limits for the plot
         bs_ax.set_xlim(0, x_distances_list[-1][-1])
         bs_ax.set_ylim(emin, emax)
-        if dos:
+        if dos and dos_ax is not None:
             dos_ax.set_ylim(emin, emax)
 
         # add BS xticks, labels, etc.
@@ -2405,7 +2428,7 @@ class BSDOSPlotter:
         bs_ax.set_yticklabels(np.arange(emin, emax + 1e-5, self.egrid_interval), size=self.tick_fontsize)
         bs_ax.set_axisbelow(b=True)
         bs_ax.grid(color=[0.5, 0.5, 0.5], linestyle="dotted", linewidth=1)
-        if dos:
+        if dos and dos_ax is not None:
             dos_ax.set_yticks(np.arange(emin, emax + 1e-5, self.egrid_interval))
             dos_ax.set_yticklabels([])
             dos_ax.grid(color=[0.5, 0.5, 0.5], linestyle="dotted", linewidth=1)
@@ -2416,7 +2439,7 @@ class BSDOSPlotter:
             if spin in bs.bands:
                 band_energies[spin] = []
                 for band in bs.bands[spin]:
-                    band = cast(list[float], band)
+                    band = cast("list[float]", band)
                     band_energies[spin].append([e - bs.efermi for e in band])  # type: ignore[arg-type]
 
         # renormalize the DOS energies to Fermi level
@@ -2446,7 +2469,7 @@ class BSDOSPlotter:
 
                         current_pos += len(x_distances)
 
-        if dos:
+        if dos and dos_ax is not None:
             # Plot the DOS and projected DOS
             for spin in (Spin.up, Spin.down):
                 if spin in dos.densities:
@@ -2545,9 +2568,16 @@ class BSDOSPlotter:
             elif len(elements) == 3:
                 self._rgb_triangle(bs_ax, elements[1], elements[2], elements[0], loc=self.bs_legend)
             elif len(elements) == 4:
-                self._cmyk_triangle(bs_ax, elements[1], elements[2], elements[0], elements[3], loc=self.bs_legend)
+                self._cmyk_triangle(
+                    bs_ax,
+                    elements[1],
+                    elements[2],
+                    elements[0],
+                    elements[3],
+                    loc=self.bs_legend,
+                )
         # add legend for DOS
-        if dos and self.dos_legend:
+        if dos and self.dos_legend and dos_ax is not None:
             dos_ax.legend(
                 fancybox=True,
                 prop={"size": self.legend_fontsize, "family": self.font},
@@ -2555,7 +2585,7 @@ class BSDOSPlotter:
             )
 
         plt.subplots_adjust(wspace=0.1)
-        if dos:
+        if dos and dos_ax is not None:
             return bs_ax, dos_ax
         return bs_ax
 
@@ -2584,7 +2614,10 @@ class BSDOSPlotter:
         blue = [0.5 * (blue[i] + blue[i + 1]) for i in range(n_seg)]
         alpha = np.ones(n_seg, float) * alpha
         lc = LineCollection(
-            seg, colors=list(zip(red, green, blue, alpha, strict=True)), linewidth=2, linestyles=linestyles
+            seg,
+            colors=list(zip(red, green, blue, alpha, strict=True)),
+            linewidth=2,
+            linestyles=linestyles,
         )
         ax.add_collection(lc)
 
@@ -2630,7 +2663,11 @@ class BSDOSPlotter:
                             ]  # prefer blue, then red, then green or magenta, then yellow, then cyan, then black
                             if len(elements) == 4:
                                 # convert cmyk to rgb
-                                c = [(1 - c[0]) * (1 - c[3]), ((1 - c[1]) * (1 - c[3])), ((1 - c[2]) * (1 - c[3]))]
+                                c = [
+                                    (1 - c[0]) * (1 - c[3]),
+                                    ((1 - c[1]) * (1 - c[3])),
+                                    ((1 - c[2]) * (1 - c[3])),
+                                ]
                             else:
                                 c = [c[0], c[1], c[2]]
 
@@ -2681,9 +2718,23 @@ class BSDOSPlotter:
         # add the labels
         common = {"fontsize": 13, "family": "Times New Roman"}
         inset_ax.text(0.70, -0.2, m_label, **common, color=(0, 0, 0), horizontalalignment="left")
-        inset_ax.text(0.325, 0.70, c_label, **common, color=(0, 0, 0), horizontalalignment="center")
+        inset_ax.text(
+            0.325,
+            0.70,
+            c_label,
+            **common,
+            color=(0, 0, 0),
+            horizontalalignment="center",
+        )
         inset_ax.text(-0.05, -0.2, y_label, **common, color=(0, 0, 0), horizontalalignment="right")
-        inset_ax.text(0.325, 0.22, k_label, **common, color=(1, 1, 1), horizontalalignment="center")
+        inset_ax.text(
+            0.325,
+            0.22,
+            k_label,
+            **common,
+            color=(1, 1, 1),
+            horizontalalignment="center",
+        )
 
         inset_ax.axis("off")
 
@@ -2961,7 +3012,12 @@ class BoltztrapPlotter:
         plt.tight_layout()
         return ax
 
-    def plot_seebeck_mu(self, temp: float = 600, output: str = "eig", xlim: Sequence[float] | None = None):
+    def plot_seebeck_mu(
+        self,
+        temp: float = 600,
+        output: str = "eig",
+        xlim: Sequence[float] | None = None,
+    ):
         """Plot the seebeck coefficient in function of Fermi level.
 
         Args:
@@ -3155,7 +3211,10 @@ class BoltztrapPlotter:
         return ax
 
     def plot_conductivity_temp(
-        self, doping="all", output: Literal["average", "eigs"] = "average", relaxation_time=1e-14
+        self,
+        doping="all",
+        output: Literal["average", "eigs"] = "average",
+        relaxation_time=1e-14,
     ):
         """Plot the conductivity in function of temperature for different doping levels.
 
@@ -3210,7 +3269,10 @@ class BoltztrapPlotter:
         return ax
 
     def plot_power_factor_temp(
-        self, doping="all", output: Literal["average", "eigs"] = "average", relaxation_time=1e-14
+        self,
+        doping="all",
+        output: Literal["average", "eigs"] = "average",
+        relaxation_time=1e-14,
     ):
         """Plot the Power Factor in function of temperature for different doping levels.
 
@@ -3263,7 +3325,12 @@ class BoltztrapPlotter:
         plt.tight_layout()
         return ax
 
-    def plot_zt_temp(self, doping="all", output: Literal["average", "eigs"] = "average", relaxation_time=1e-14):
+    def plot_zt_temp(
+        self,
+        doping="all",
+        output: Literal["average", "eigs"] = "average",
+        relaxation_time=1e-14,
+    ):
         """Plot the figure of merit zT in function of temperature for different doping levels.
 
         Args:
@@ -3392,7 +3459,12 @@ class BoltztrapPlotter:
                             label=f"{xyz} {temp} K",
                         )
                 elif output == "average":
-                    ax.semilogx(self._bz.doping[dop_type], sbk[dop_type][temp], marker="s", label=f"{temp} K")
+                    ax.semilogx(
+                        self._bz.doping[dop_type],
+                        sbk[dop_type][temp],
+                        marker="s",
+                        label=f"{temp} K",
+                    )
             ax.set_title(f"{dop_type}-type", fontsize=20)
             if idx == 0:
                 ax.set_ylabel("Seebeck coefficient ($\\mu$V/K)", fontsize=30.0)
@@ -3408,7 +3480,12 @@ class BoltztrapPlotter:
 
         return ax
 
-    def plot_conductivity_dop(self, temps="all", output: Literal["average", "eigs"] = "average", relaxation_time=1e-14):
+    def plot_conductivity_dop(
+        self,
+        temps="all",
+        output: Literal["average", "eigs"] = "average",
+        relaxation_time=1e-14,
+    ):
         """Plot the conductivity in function of doping levels for different
         temperatures.
 
@@ -3461,7 +3538,12 @@ class BoltztrapPlotter:
 
         return ax
 
-    def plot_power_factor_dop(self, temps="all", output: Literal["average", "eigs"] = "average", relaxation_time=1e-14):
+    def plot_power_factor_dop(
+        self,
+        temps="all",
+        output: Literal["average", "eigs"] = "average",
+        relaxation_time=1e-14,
+    ):
         """Plot the Power Factor in function of doping levels for different temperatures.
 
         Args:
@@ -3493,7 +3575,12 @@ class BoltztrapPlotter:
                             label=f"{xyz} {temp} K",
                         )
                 elif output == "average":
-                    ax.semilogx(self._bz.doping[dop_type], pow_factor[dop_type][temp], marker="s", label=f"{temp} K")
+                    ax.semilogx(
+                        self._bz.doping[dop_type],
+                        pow_factor[dop_type][temp],
+                        marker="s",
+                        label=f"{temp} K",
+                    )
             ax.set_title(f"{dop_type}-type", fontsize=20)
             if idx == 0:
                 ax.set_ylabel("Power Factor  ($\\mu$W/(mK$^2$))", fontsize=30.0)
@@ -3509,7 +3596,12 @@ class BoltztrapPlotter:
 
         return ax
 
-    def plot_zt_dop(self, temps="all", output: Literal["average", "eigs"] = "average", relaxation_time=1e-14):
+    def plot_zt_dop(
+        self,
+        temps="all",
+        output: Literal["average", "eigs"] = "average",
+        relaxation_time=1e-14,
+    ):
         """Plot the figure of merit zT in function of doping levels for different
         temperatures.
 
@@ -3820,7 +3912,13 @@ class CohpPlotter:
                             linewidth=3,
                         )
                     else:
-                        ax.plot(x, y, color=colors[idx % ncolors], linestyle="--", linewidth=3)
+                        ax.plot(
+                            x,
+                            y,
+                            color=colors[idx % ncolors],
+                            linestyle="--",
+                            linewidth=3,
+                        )
 
         if xlim:
             ax.set_xlim(xlim)
@@ -3901,7 +3999,7 @@ class CohpPlotter:
         plt.show()
 
 
-@requires(mlab is not None, "MayAvi mlab not imported! Please install mayavi.")
+@requires(mlab is not None, "MayAvi mlab not installed! Please install mayavi.")
 def plot_fermi_surface(
     data,
     structure,
@@ -4254,12 +4352,19 @@ def fold_point(p, lattice, coords_are_cartesian=False):
                     smallest_distance = dist
 
     if not np.allclose(closest_lattice_point, (0, 0, 0)):
-        p = p - closest_lattice_point
+        p -= closest_lattice_point
 
     return p
 
 
-def plot_points(points, lattice=None, coords_are_cartesian=False, fold=False, ax: plt.Axes = None, **kwargs):
+def plot_points(
+    points,
+    lattice=None,
+    coords_are_cartesian=False,
+    fold=False,
+    ax: plt.Axes = None,
+    **kwargs,
+):
     """Add Points to a matplotlib Axes.
 
     Args:

@@ -65,14 +65,14 @@ which is a general python supplementary library arising from pymatgen.
 The output from an as_dict method is always json/yaml serializable. So if you
 want to save a structure, you may do the following::
 
-    with open('structure.json', 'w') as file:
+    with open("structure.json", "w", encoding="utf-8") as file:
         json.dump(structure.as_dict(), file)
 
 Similarly, to get the structure back from a json, you can do the following to
 restore the structure (or any object with an as_dict method) from the json as
 follows::
 
-    with open('structure.json') as file:
+    with open("structure.json", encoding="utf-8") as file:
         dct = json.load(file)
         structure = Structure.from_dict(dct)
 
@@ -96,8 +96,8 @@ For example,::
 The MontyDecoder depends on finding a "@module" and "@class" key in the dict
 to decode the necessary python object. In general, the MontyEncoder will
 add these keys if they are not present, but for better long term stability
-(e.g., there may be situations where to_dict is called directly rather than
-through the encoder), the easiest way is to add the following to any to_dict
+(e.g., there may be situations where as_dict is called directly rather than
+through the encoder), the easiest way is to add the following to any as_dict
 property::
 
     d["@module"] = type(self).__module__

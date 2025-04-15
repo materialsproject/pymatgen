@@ -193,14 +193,22 @@ lattice_br_gga = Lattice.from_dict(
     {
         "@module": "pymatgen.core.lattice",
         "@class": "Lattice",
-        "matrix": [[2.129324, -4.226095, 0.0], [2.129324, 4.226095, 0.0], [0.0, 0.0, 8.743796]],
+        "matrix": [
+            [2.129324, -4.226095, 0.0],
+            [2.129324, 4.226095, 0.0],
+            [0.0, 0.0, 8.743796],
+        ],
     }
 )
 lattice_br_r2scan = Lattice.from_dict(
     {
         "@module": "pymatgen.core.lattice",
         "@class": "Lattice",
-        "matrix": [[0.0, -4.25520892, -0.0], [-3.56974866, 2.12760446, 0.0], [0.0, 0.0, -8.74536848]],
+        "matrix": [
+            [0.0, -4.25520892, -0.0],
+            [-3.56974866, 2.12760446, 0.0],
+            [0.0, 0.0, -8.74536848],
+        ],
     }
 )
 
@@ -210,10 +218,16 @@ def ms_complete():
     """Mixing state where we have R2SCAN for all GGA."""
     gga_entries = [
         ComputedStructureEntry(
-            Structure(lattice1, ["Sn"], [[0, 0, 0]]), 0, parameters={"run_type": "GGA"}, entry_id="gga-1"
+            Structure(lattice1, ["Sn"], [[0, 0, 0]]),
+            0,
+            parameters={"run_type": "GGA"},
+            entry_id="gga-1",
         ),
         ComputedStructureEntry(
-            Structure(lattice1, ["Br"], [[0, 0, 0]]), 1, parameters={"run_type": "GGA"}, entry_id="gga-2"
+            Structure(lattice1, ["Br"], [[0, 0, 0]]),
+            1,
+            parameters={"run_type": "GGA"},
+            entry_id="gga-2",
         ),
         ComputedStructureEntry(
             Structure(
@@ -239,7 +253,20 @@ def ms_complete():
         ComputedStructureEntry(
             Structure(
                 lattice2,
-                ["Sn", "Sn", "Sn", "Sn", "Br", "Br", "Br", "Br", "Br", "Br", "Br", "Br"],
+                [
+                    "Sn",
+                    "Sn",
+                    "Sn",
+                    "Sn",
+                    "Br",
+                    "Br",
+                    "Br",
+                    "Br",
+                    "Br",
+                    "Br",
+                    "Br",
+                    "Br",
+                ],
                 [
                     [0.25, 0.393393, 0.663233],
                     [0.75, 0.606607, 0.336767],
@@ -284,10 +311,16 @@ def ms_complete():
     ]
     scan_entries = [
         ComputedStructureEntry(
-            Structure(lattice1, ["Sn"], [[0, 0, 0]]), -1, parameters={"run_type": "R2SCAN"}, entry_id="r2scan-1"
+            Structure(lattice1, ["Sn"], [[0, 0, 0]]),
+            -1,
+            parameters={"run_type": "R2SCAN"},
+            entry_id="r2scan-1",
         ),
         ComputedStructureEntry(
-            Structure(lattice1, ["Br"], [[0, 0, 0]]), -1, parameters={"run_type": "R2SCAN"}, entry_id="r2scan-2"
+            Structure(lattice1, ["Br"], [[0, 0, 0]]),
+            -1,
+            parameters={"run_type": "R2SCAN"},
+            entry_id="r2scan-2",
         ),
         ComputedStructureEntry(
             Structure(
@@ -313,7 +346,20 @@ def ms_complete():
         ComputedStructureEntry(
             Structure(
                 lattice2,
-                ["Sn", "Sn", "Sn", "Sn", "Br", "Br", "Br", "Br", "Br", "Br", "Br", "Br"],
+                [
+                    "Sn",
+                    "Sn",
+                    "Sn",
+                    "Sn",
+                    "Br",
+                    "Br",
+                    "Br",
+                    "Br",
+                    "Br",
+                    "Br",
+                    "Br",
+                    "Br",
+                ],
                 [
                     [0.25, 0.393393, 0.663233],
                     [0.75, 0.606607, 0.336767],
@@ -334,7 +380,11 @@ def ms_complete():
             entry_id="r2scan-5",
         ),
         ComputedStructureEntry(
-            Structure(lattice3.scale(0.25), ["Sn", "Br", "Br"], [[0, 0, 0], [0.5, 0.5, 0.5], [1, 1, 1]]),
+            Structure(
+                lattice3.scale(0.25),
+                ["Sn", "Br", "Br"],
+                [[0, 0, 0], [0.5, 0.5, 0.5], [1, 1, 1]],
+            ),
             -18,
             parameters={"run_type": "R2SCAN"},
             entry_id="r2scan-6",
@@ -358,12 +408,90 @@ def ms_complete():
     ]
     row_list = [
         ["Br", 64, 4, True, "gga-3", "r2scan-3", "GGA", "R2SCAN", 0.0, 0.0, 0.0, -1.0],
-        ["Br", 191, 1, False, "gga-2", "r2scan-2", "GGA", "R2SCAN", 1.0, -1.0, 0.0, -1.0],
-        ["Sn", 191, 1, True, "gga-1", "r2scan-1", "GGA", "R2SCAN", 0.0, -1.0, 0.0, -1.0],
-        ["SnBr2", 65, 3, True, "gga-4", "r2scan-4", "GGA", "R2SCAN", -6.0, -7.0, -6.0, -8.0],
-        ["SnBr2", 2, 12, False, "gga-5", "r2scan-5", "GGA", "R2SCAN", -5.0, -8.0, -6.0, -8.0],
-        ["SnBr2", 71, 3, False, "gga-6", "r2scan-6", "GGA", "R2SCAN", -4.0, -6.0, -6.0, -8.0],
-        ["SnBr4", 8, 5, False, "gga-7", "r2scan-7", "GGA", "R2SCAN", -3.0, -6.0, -3.6, -6.0],
+        [
+            "Br",
+            191,
+            1,
+            False,
+            "gga-2",
+            "r2scan-2",
+            "GGA",
+            "R2SCAN",
+            1.0,
+            -1.0,
+            0.0,
+            -1.0,
+        ],
+        [
+            "Sn",
+            191,
+            1,
+            True,
+            "gga-1",
+            "r2scan-1",
+            "GGA",
+            "R2SCAN",
+            0.0,
+            -1.0,
+            0.0,
+            -1.0,
+        ],
+        [
+            "SnBr2",
+            65,
+            3,
+            True,
+            "gga-4",
+            "r2scan-4",
+            "GGA",
+            "R2SCAN",
+            -6.0,
+            -7.0,
+            -6.0,
+            -8.0,
+        ],
+        [
+            "SnBr2",
+            2,
+            12,
+            False,
+            "gga-5",
+            "r2scan-5",
+            "GGA",
+            "R2SCAN",
+            -5.0,
+            -8.0,
+            -6.0,
+            -8.0,
+        ],
+        [
+            "SnBr2",
+            71,
+            3,
+            False,
+            "gga-6",
+            "r2scan-6",
+            "GGA",
+            "R2SCAN",
+            -4.0,
+            -6.0,
+            -6.0,
+            -8.0,
+        ],
+        [
+            "SnBr4",
+            8,
+            5,
+            False,
+            "gga-7",
+            "r2scan-7",
+            "GGA",
+            "R2SCAN",
+            -3.0,
+            -6.0,
+            -3.6,
+            -6.0,
+        ],
     ]
     mixing_state = pd.DataFrame(row_list, columns=columns)
 
@@ -377,13 +505,104 @@ def ms_scan_only(ms_complete):
     scan_entries = ms_complete.scan_entries
 
     row_list = [
-        ["Br", 64, 4, False, None, "r2scan-3", None, "R2SCAN", np.nan, 0.0, np.nan, -1.0],
-        ["Br", 191, 1, False, None, "r2scan-2", None, "R2SCAN", np.nan, -1.0, np.nan, -1.0],
-        ["Sn", 191, 1, False, None, "r2scan-1", None, "R2SCAN", np.nan, -1.0, np.nan, -1.0],
-        ["SnBr2", 2, 12, False, None, "r2scan-5", None, "R2SCAN", np.nan, -8.0, np.nan, -8.0],
-        ["SnBr2", 65, 3, False, None, "r2scan-4", None, "R2SCAN", np.nan, -7.0, np.nan, -8.0],
-        ["SnBr2", 71, 3, False, None, "r2scan-6", None, "R2SCAN", np.nan, -6.0, np.nan, -8.0],
-        ["SnBr4", 8, 5, False, None, "r2scan-7", None, "R2SCAN", np.nan, -6.0, np.nan, -6.0],
+        [
+            "Br",
+            64,
+            4,
+            False,
+            None,
+            "r2scan-3",
+            None,
+            "R2SCAN",
+            np.nan,
+            0.0,
+            np.nan,
+            -1.0,
+        ],
+        [
+            "Br",
+            191,
+            1,
+            False,
+            None,
+            "r2scan-2",
+            None,
+            "R2SCAN",
+            np.nan,
+            -1.0,
+            np.nan,
+            -1.0,
+        ],
+        [
+            "Sn",
+            191,
+            1,
+            False,
+            None,
+            "r2scan-1",
+            None,
+            "R2SCAN",
+            np.nan,
+            -1.0,
+            np.nan,
+            -1.0,
+        ],
+        [
+            "SnBr2",
+            2,
+            12,
+            False,
+            None,
+            "r2scan-5",
+            None,
+            "R2SCAN",
+            np.nan,
+            -8.0,
+            np.nan,
+            -8.0,
+        ],
+        [
+            "SnBr2",
+            65,
+            3,
+            False,
+            None,
+            "r2scan-4",
+            None,
+            "R2SCAN",
+            np.nan,
+            -7.0,
+            np.nan,
+            -8.0,
+        ],
+        [
+            "SnBr2",
+            71,
+            3,
+            False,
+            None,
+            "r2scan-6",
+            None,
+            "R2SCAN",
+            np.nan,
+            -6.0,
+            np.nan,
+            -8.0,
+        ],
+        [
+            "SnBr4",
+            8,
+            5,
+            False,
+            None,
+            "r2scan-7",
+            None,
+            "R2SCAN",
+            np.nan,
+            -6.0,
+            np.nan,
+            -6.0,
+        ],
     ]
 
     mixing_state = pd.DataFrame(row_list, columns=columns)
@@ -425,7 +644,20 @@ def ms_gga_1_scan(ms_complete):
         ["Br", 64, 4, True, "gga-3", None, "GGA", None, 0.0, np.nan, 0.0, np.nan],
         ["Br", 191, 1, False, "gga-2", None, "GGA", None, 1.0, np.nan, 0.0, np.nan],
         ["Sn", 191, 1, True, "gga-1", None, "GGA", None, 0.0, np.nan, 0.0, np.nan],
-        ["SnBr2", 65, 3, True, "gga-4", "r2scan-4", "GGA", "R2SCAN", -6.0, -7, -6.0, np.nan],
+        [
+            "SnBr2",
+            65,
+            3,
+            True,
+            "gga-4",
+            "r2scan-4",
+            "GGA",
+            "R2SCAN",
+            -6.0,
+            -7,
+            -6.0,
+            np.nan,
+        ],
         ["SnBr2", 2, 12, False, "gga-5", None, "GGA", None, -5.0, np.nan, -6.0, np.nan],
         ["SnBr2", 71, 3, False, "gga-6", None, "GGA", None, -4.0, np.nan, -6.0, np.nan],
         ["SnBr4", 8, 5, False, "gga-7", None, "GGA", None, -3.0, np.nan, -3.6, np.nan],
@@ -454,7 +686,20 @@ def ms_gga_1_scan_novel(ms_complete):
         ["Br", 64, 4, True, "gga-3", None, "GGA", None, 0.0, np.nan, 0.0, np.nan],
         ["Br", 191, 1, False, "gga-2", None, "GGA", None, 1.0, np.nan, 0.0, np.nan],
         ["Sn", 191, 1, True, "gga-1", None, "GGA", None, 0.0, np.nan, 0.0, np.nan],
-        ["SnBr", 8, 4, False, None, "r2scan-9", None, "R2SCAN", np.nan, -5.0, -4.5, np.nan],
+        [
+            "SnBr",
+            8,
+            4,
+            False,
+            None,
+            "r2scan-9",
+            None,
+            "R2SCAN",
+            np.nan,
+            -5.0,
+            -4.5,
+            np.nan,
+        ],
         ["SnBr2", 65, 3, True, "gga-4", None, "GGA", None, -6.0, np.nan, -6.0, np.nan],
         ["SnBr2", 2, 12, False, "gga-5", None, "GGA", None, -5.0, np.nan, -6.0, np.nan],
         ["SnBr2", 71, 3, False, "gga-6", None, "GGA", None, -4.0, np.nan, -6.0, np.nan],
@@ -477,9 +722,35 @@ def ms_gga_2_scan_same(ms_complete):
         ["Br", 64, 4, True, "gga-3", None, "GGA", None, 0.0, np.nan, 0.0, np.nan],
         ["Br", 191, 1, False, "gga-2", None, "GGA", None, 1.0, np.nan, 0.0, np.nan],
         ["Sn", 191, 1, True, "gga-1", None, "GGA", None, 0.0, np.nan, 0.0, np.nan],
-        ["SnBr2", 65, 3, True, "gga-4", "r2scan-4", "GGA", "R2SCAN", -6.0, -7, -6.0, np.nan],
+        [
+            "SnBr2",
+            65,
+            3,
+            True,
+            "gga-4",
+            "r2scan-4",
+            "GGA",
+            "R2SCAN",
+            -6.0,
+            -7,
+            -6.0,
+            np.nan,
+        ],
         ["SnBr2", 2, 12, False, "gga-5", None, "GGA", None, -5.0, np.nan, -6.0, np.nan],
-        ["SnBr2", 71, 3, False, "gga-6", "r2scan-6", "GGA", "R2SCAN", -4.0, -6, -6.0, np.nan],
+        [
+            "SnBr2",
+            71,
+            3,
+            False,
+            "gga-6",
+            "r2scan-6",
+            "GGA",
+            "R2SCAN",
+            -4.0,
+            -6,
+            -6.0,
+            np.nan,
+        ],
         ["SnBr4", 8, 5, False, "gga-7", None, "GGA", None, -3.0, np.nan, -3.6, np.nan],
     ]
     mixing_state = pd.DataFrame(row_list, columns=columns)
@@ -501,10 +772,36 @@ def ms_gga_2_scan_diff_match(ms_complete):
         ["Br", 64, 4, True, "gga-3", None, "GGA", None, 0.0, np.nan, 0.0, np.nan],
         ["Br", 191, 1, False, "gga-2", None, "GGA", None, 1.0, np.nan, 0.0, np.nan],
         ["Sn", 191, 1, True, "gga-1", None, "GGA", None, 0.0, np.nan, 0.0, np.nan],
-        ["SnBr2", 65, 3, True, "gga-4", "r2scan-4", "GGA", "R2SCAN", -6.0, -7, -6.0, np.nan],
+        [
+            "SnBr2",
+            65,
+            3,
+            True,
+            "gga-4",
+            "r2scan-4",
+            "GGA",
+            "R2SCAN",
+            -6.0,
+            -7,
+            -6.0,
+            np.nan,
+        ],
         ["SnBr2", 2, 12, False, "gga-5", None, "GGA", None, -5.0, np.nan, -6.0, np.nan],
         ["SnBr2", 71, 3, False, "gga-6", None, "GGA", None, -4.0, np.nan, -6.0, np.nan],
-        ["SnBr4", 8, 5, False, "gga-7", "r2scan-7", "GGA", "R2SCAN", -3.0, -6, -3.6, np.nan],
+        [
+            "SnBr4",
+            8,
+            5,
+            False,
+            "gga-7",
+            "r2scan-7",
+            "GGA",
+            "R2SCAN",
+            -3.0,
+            -6,
+            -3.6,
+            np.nan,
+        ],
     ]
     mixing_state = pd.DataFrame(row_list, columns=columns)
     return MixingState(gga_entries, scan_entries, mixing_state)
@@ -542,11 +839,37 @@ def ms_gga_2_scan_diff_no_match(ms_complete):
         ["Br", 64, 4, True, "gga-3", None, "GGA", None, 0.0, np.nan, 0.0, np.nan],
         ["Br", 191, 1, False, "gga-2", None, "GGA", None, 1.0, np.nan, 0.0, np.nan],
         ["Sn", 191, 1, True, "gga-1", None, "GGA", None, 0.0, np.nan, 0.0, np.nan],
-        ["SnBr2", 65, 3, True, "gga-4", "r2scan-4", "GGA", "R2SCAN", -6.0, -7.0, -6.0, np.nan],
+        [
+            "SnBr2",
+            65,
+            3,
+            True,
+            "gga-4",
+            "r2scan-4",
+            "GGA",
+            "R2SCAN",
+            -6.0,
+            -7.0,
+            -6.0,
+            np.nan,
+        ],
         ["SnBr2", 2, 12, False, "gga-5", None, "GGA", None, -5.0, np.nan, -6.0, np.nan],
         ["SnBr2", 71, 3, False, "gga-6", None, "GGA", None, -4.0, np.nan, -6.0, np.nan],
         ["SnBr4", 8, 5, False, "gga-7", None, "GGA", None, -3.0, np.nan, -3.6, np.nan],
-        ["SnBr4", 44, 5, False, None, "r2scan-8", None, "R2SCAN", np.nan, -5.0, -3.6, np.nan],
+        [
+            "SnBr4",
+            44,
+            5,
+            False,
+            None,
+            "r2scan-8",
+            None,
+            "R2SCAN",
+            np.nan,
+            -5.0,
+            -3.6,
+            np.nan,
+        ],
     ]
     mixing_state = pd.DataFrame(row_list, columns=columns)
     return MixingState(gga_entries, scan_entries, mixing_state)
@@ -566,8 +889,34 @@ def ms_all_gga_scan_gs(ms_complete):
     row_list = [
         ["Br", 64, 4, True, "gga-3", "r2scan-3", "GGA", "R2SCAN", 0.0, 0.0, 0.0, 0.0],
         ["Br", 191, 1, False, "gga-2", None, "GGA", None, 1.0, np.nan, 0.0, 0.0],
-        ["Sn", 191, 1, True, "gga-1", "r2scan-1", "GGA", "R2SCAN", 0.0, -1.0, 0.0, -1.0],
-        ["SnBr2", 65, 3, True, "gga-4", "r2scan-4", "GGA", "R2SCAN", -6.0, -7.0, -6.0, -7.0],
+        [
+            "Sn",
+            191,
+            1,
+            True,
+            "gga-1",
+            "r2scan-1",
+            "GGA",
+            "R2SCAN",
+            0.0,
+            -1.0,
+            0.0,
+            -1.0,
+        ],
+        [
+            "SnBr2",
+            65,
+            3,
+            True,
+            "gga-4",
+            "r2scan-4",
+            "GGA",
+            "R2SCAN",
+            -6.0,
+            -7.0,
+            -6.0,
+            -7.0,
+        ],
         ["SnBr2", 2, 12, False, "gga-5", None, "GGA", None, -5.0, np.nan, -6.0, -7.0],
         ["SnBr2", 71, 3, False, "gga-6", None, "GGA", None, -4.0, np.nan, -6.0, -7.0],
         ["SnBr4", 8, 5, False, "gga-7", None, "GGA", None, -3.0, np.nan, -3.6, -4.2],
@@ -606,9 +955,48 @@ def ms_all_gga_scan_gs_plus_novel(ms_all_gga_scan_gs):
     row_list = [
         ["Br", 64, 4, True, "gga-3", "r2scan-3", "GGA", "R2SCAN", 0.0, 0.0, 0.0, 0.0],
         ["Br", 191, 1, False, "gga-2", None, "GGA", None, 1.0, np.nan, 0.0, 0.0],
-        ["Sn", 191, 1, True, "gga-1", "r2scan-1", "GGA", "R2SCAN", 0.0, -1.0, 0.0, -1.0],
-        ["SnBr", 8, 4, False, None, "r2scan-9", None, "R2SCAN", np.nan, -5.0, -4.5, -5.5],
-        ["SnBr2", 65, 3, True, "gga-4", "r2scan-4", "GGA", "R2SCAN", -6.0, -7.0, -6.0, -7.0],
+        [
+            "Sn",
+            191,
+            1,
+            True,
+            "gga-1",
+            "r2scan-1",
+            "GGA",
+            "R2SCAN",
+            0.0,
+            -1.0,
+            0.0,
+            -1.0,
+        ],
+        [
+            "SnBr",
+            8,
+            4,
+            False,
+            None,
+            "r2scan-9",
+            None,
+            "R2SCAN",
+            np.nan,
+            -5.0,
+            -4.5,
+            -5.5,
+        ],
+        [
+            "SnBr2",
+            65,
+            3,
+            True,
+            "gga-4",
+            "r2scan-4",
+            "GGA",
+            "R2SCAN",
+            -6.0,
+            -7.0,
+            -6.0,
+            -7.0,
+        ],
         ["SnBr2", 2, 12, False, "gga-5", None, "GGA", None, -5.0, np.nan, -6.0, -7.0],
         ["SnBr2", 71, 3, False, "gga-6", None, "GGA", None, -4.0, np.nan, -6.0, -7.0],
         ["SnBr4", 8, 5, False, "gga-7", None, "GGA", None, -3.0, np.nan, -3.6, -4.2],
@@ -646,13 +1034,104 @@ def ms_all_scan_novel(ms_complete):
 
     row_list = [
         ["Br", 64, 4, True, "gga-3", "r2scan-3", "GGA", "R2SCAN", 0.0, 0.0, 0.0, -1.0],
-        ["Br", 191, 1, False, "gga-2", "r2scan-2", "GGA", "R2SCAN", 1.0, -1.0, 0.0, -1.0],
-        ["Sn", 191, 1, True, "gga-1", "r2scan-1", "GGA", "R2SCAN", 0.0, -1.0, 0.0, -1.0],
-        ["SnBr2", 65, 3, True, "gga-4", "r2scan-4", "GGA", "R2SCAN", -6.0, -7.0, -6.0, -8.0],
-        ["SnBr2", 2, 12, False, "gga-5", "r2scan-5", "GGA", "R2SCAN", -5.0, -8.0, -6.0, -8.0],
-        ["SnBr2", 71, 3, False, "gga-6", "r2scan-6", "GGA", "R2SCAN", -4.0, -6.0, -6.0, -8.0],
-        ["SnBr4", 8, 5, False, "gga-7", "r2scan-7", "GGA", "R2SCAN", -3.0, -6.0, -3.6, -6.0],
-        ["SnBr4", 8, 5, False, None, "r2scan-8", None, "R2SCAN", np.nan, -6.0, -3.6, -6.0],
+        [
+            "Br",
+            191,
+            1,
+            False,
+            "gga-2",
+            "r2scan-2",
+            "GGA",
+            "R2SCAN",
+            1.0,
+            -1.0,
+            0.0,
+            -1.0,
+        ],
+        [
+            "Sn",
+            191,
+            1,
+            True,
+            "gga-1",
+            "r2scan-1",
+            "GGA",
+            "R2SCAN",
+            0.0,
+            -1.0,
+            0.0,
+            -1.0,
+        ],
+        [
+            "SnBr2",
+            65,
+            3,
+            True,
+            "gga-4",
+            "r2scan-4",
+            "GGA",
+            "R2SCAN",
+            -6.0,
+            -7.0,
+            -6.0,
+            -8.0,
+        ],
+        [
+            "SnBr2",
+            2,
+            12,
+            False,
+            "gga-5",
+            "r2scan-5",
+            "GGA",
+            "R2SCAN",
+            -5.0,
+            -8.0,
+            -6.0,
+            -8.0,
+        ],
+        [
+            "SnBr2",
+            71,
+            3,
+            False,
+            "gga-6",
+            "r2scan-6",
+            "GGA",
+            "R2SCAN",
+            -4.0,
+            -6.0,
+            -6.0,
+            -8.0,
+        ],
+        [
+            "SnBr4",
+            8,
+            5,
+            False,
+            "gga-7",
+            "r2scan-7",
+            "GGA",
+            "R2SCAN",
+            -3.0,
+            -6.0,
+            -3.6,
+            -6.0,
+        ],
+        [
+            "SnBr4",
+            8,
+            5,
+            False,
+            None,
+            "r2scan-8",
+            None,
+            "R2SCAN",
+            np.nan,
+            -6.0,
+            -3.6,
+            -6.0,
+        ],
     ]
     mixing_state = pd.DataFrame(row_list, columns=columns)
     return MixingState(gga_entries, scan_entries, mixing_state)
@@ -665,13 +1144,104 @@ def ms_incomplete_gga_all_scan(ms_complete):
     scan_entries = ms_complete.scan_entries
 
     row_list = [
-        ["Br", 64, 4, False, "gga-3", "r2scan-3", "GGA", "R2SCAN", 0.0, 0.0, np.nan, -1.0],
-        ["Br", 191, 1, False, "gga-2", "r2scan-2", "GGA", "R2SCAN", 1.0, -1.0, np.nan, -1.0],
-        ["Sn", 191, 1, False, None, "r2scan-1", None, "R2SCAN", np.nan, -1.0, np.nan, -1.0],
-        ["SnBr2", 65, 3, False, "gga-4", "r2scan-4", "GGA", "R2SCAN", -6.0, -7.0, np.nan, -8.0],
-        ["SnBr2", 2, 12, False, "gga-5", "r2scan-5", "GGA", "R2SCAN", -5.0, -8.0, np.nan, -8.0],
-        ["SnBr2", 71, 3, False, "gga-6", "r2scan-6", "GGA", "R2SCAN", -4.0, -6.0, np.nan, -8.0],
-        ["SnBr4", 8, 5, False, "gga-7", "r2scan-7", "GGA", "R2SCAN", -3.0, -6.0, np.nan, -6.0],
+        [
+            "Br",
+            64,
+            4,
+            False,
+            "gga-3",
+            "r2scan-3",
+            "GGA",
+            "R2SCAN",
+            0.0,
+            0.0,
+            np.nan,
+            -1.0,
+        ],
+        [
+            "Br",
+            191,
+            1,
+            False,
+            "gga-2",
+            "r2scan-2",
+            "GGA",
+            "R2SCAN",
+            1.0,
+            -1.0,
+            np.nan,
+            -1.0,
+        ],
+        [
+            "Sn",
+            191,
+            1,
+            False,
+            None,
+            "r2scan-1",
+            None,
+            "R2SCAN",
+            np.nan,
+            -1.0,
+            np.nan,
+            -1.0,
+        ],
+        [
+            "SnBr2",
+            65,
+            3,
+            False,
+            "gga-4",
+            "r2scan-4",
+            "GGA",
+            "R2SCAN",
+            -6.0,
+            -7.0,
+            np.nan,
+            -8.0,
+        ],
+        [
+            "SnBr2",
+            2,
+            12,
+            False,
+            "gga-5",
+            "r2scan-5",
+            "GGA",
+            "R2SCAN",
+            -5.0,
+            -8.0,
+            np.nan,
+            -8.0,
+        ],
+        [
+            "SnBr2",
+            71,
+            3,
+            False,
+            "gga-6",
+            "r2scan-6",
+            "GGA",
+            "R2SCAN",
+            -4.0,
+            -6.0,
+            np.nan,
+            -8.0,
+        ],
+        [
+            "SnBr4",
+            8,
+            5,
+            False,
+            "gga-7",
+            "r2scan-7",
+            "GGA",
+            "R2SCAN",
+            -3.0,
+            -6.0,
+            np.nan,
+            -6.0,
+        ],
     ]
     mixing_state = pd.DataFrame(row_list, columns=columns)
 
@@ -738,12 +1308,90 @@ def ms_complete_duplicate_structs(ms_complete):
 
     row_list = [
         ["Br", 64, 4, True, "gga-3", "r2scan-3", "GGA", "R2SCAN", 0.0, 0.0, 0.0, -1.0],
-        ["Br", 191, 1, False, "gga-2", "r2scan-2", "GGA", "R2SCAN", 1.0, -1.0, 0.0, -1.0],
-        ["Sn", 191, 1, True, "gga-1", "r2scan-1", "GGA", "R2SCAN", 0.0, -1.0, 0.0, -1.0],
-        ["SnBr2", 65, 3, True, "gga-4", "r2scan-4", "GGA", "R2SCAN", -6.0, -7.0, -6.0, -8.0],
-        ["SnBr2", 2, 12, False, "gga-5", "r2scan-5", "GGA", "R2SCAN", -5.0, -8.0, -6.0, -8.0],
-        ["SnBr2", 71, 3, False, "gga-6", "r2scan-6", "GGA", "R2SCAN", -4.0, -6.0, -6.0, -8.0],
-        ["SnBr4", 8, 5, False, "gga-7", "r2scan-7", "GGA", "R2SCAN", -3.0, -6.0, -3.6, -6.0],
+        [
+            "Br",
+            191,
+            1,
+            False,
+            "gga-2",
+            "r2scan-2",
+            "GGA",
+            "R2SCAN",
+            1.0,
+            -1.0,
+            0.0,
+            -1.0,
+        ],
+        [
+            "Sn",
+            191,
+            1,
+            True,
+            "gga-1",
+            "r2scan-1",
+            "GGA",
+            "R2SCAN",
+            0.0,
+            -1.0,
+            0.0,
+            -1.0,
+        ],
+        [
+            "SnBr2",
+            65,
+            3,
+            True,
+            "gga-4",
+            "r2scan-4",
+            "GGA",
+            "R2SCAN",
+            -6.0,
+            -7.0,
+            -6.0,
+            -8.0,
+        ],
+        [
+            "SnBr2",
+            2,
+            12,
+            False,
+            "gga-5",
+            "r2scan-5",
+            "GGA",
+            "R2SCAN",
+            -5.0,
+            -8.0,
+            -6.0,
+            -8.0,
+        ],
+        [
+            "SnBr2",
+            71,
+            3,
+            False,
+            "gga-6",
+            "r2scan-6",
+            "GGA",
+            "R2SCAN",
+            -4.0,
+            -6.0,
+            -6.0,
+            -8.0,
+        ],
+        [
+            "SnBr4",
+            8,
+            5,
+            False,
+            "gga-7",
+            "r2scan-7",
+            "GGA",
+            "R2SCAN",
+            -3.0,
+            -6.0,
+            -3.6,
+            -6.0,
+        ],
     ]
     mixing_state = pd.DataFrame(row_list, columns=columns)
 
@@ -810,10 +1458,16 @@ class TestMaterialsProjectDFTMixingSchemeArgs:
         """Unique entry_ids are required."""
         gga_entries = [
             ComputedStructureEntry(
-                Structure(lattice1, ["Sn"], [[0, 0, 0]]), 0, parameters={"run_type": "GGA"}, entry_id="gga"
+                Structure(lattice1, ["Sn"], [[0, 0, 0]]),
+                0,
+                parameters={"run_type": "GGA"},
+                entry_id="gga",
             ),
             ComputedStructureEntry(
-                Structure(lattice1, ["Br"], [[0, 0, 0]]), 1, parameters={"run_type": "GGA"}, entry_id="gga"
+                Structure(lattice1, ["Br"], [[0, 0, 0]]),
+                1,
+                parameters={"run_type": "GGA"},
+                entry_id="gga",
             ),
             ComputedStructureEntry(
                 Structure(
@@ -833,10 +1487,16 @@ class TestMaterialsProjectDFTMixingSchemeArgs:
         ]
         scan_entries = [
             ComputedStructureEntry(
-                Structure(lattice1, ["Sn"], [[0, 0, 0]]), -1, parameters={"run_type": "R2SCAN"}, entry_id="r2scan-1"
+                Structure(lattice1, ["Sn"], [[0, 0, 0]]),
+                -1,
+                parameters={"run_type": "R2SCAN"},
+                entry_id="r2scan-1",
             ),
             ComputedStructureEntry(
-                Structure(lattice1, ["Br"], [[0, 0, 0]]), -1, parameters={"run_type": "R2SCAN"}, entry_id="r2scan-2"
+                Structure(lattice1, ["Br"], [[0, 0, 0]]),
+                -1,
+                parameters={"run_type": "R2SCAN"},
+                entry_id="r2scan-2",
             ),
             ComputedStructureEntry(
                 Structure(
@@ -917,7 +1577,10 @@ class TestMaterialsProjectDFTMixingSchemeArgs:
         lattice = Lattice.from_parameters(a=1, b=1, c=1, alpha=90, beta=90, gamma=60)
         entries = [
             ComputedStructureEntry(
-                Structure(lattice, ["Sn"], [[0, 0, 0]]), 0, parameters={"run_type": "R2SCAN"}, entry_id="r2scan-1"
+                Structure(lattice, ["Sn"], [[0, 0, 0]]),
+                0,
+                parameters={"run_type": "R2SCAN"},
+                entry_id="r2scan-1",
             ),
             ComputedStructureEntry(Structure(lattice, ["Br"], [[0, 0, 0]]), 0, parameters={}),
             ComputedStructureEntry(
@@ -955,13 +1618,22 @@ class TestMaterialsProjectDFTMixingSchemeArgs:
         lattice = Lattice.from_parameters(a=1, b=1, c=1, alpha=90, beta=90, gamma=60)
         entries = [
             ComputedStructureEntry(
-                Structure(lattice, ["Sn"], [[0, 0, 0]]), 0, parameters={"run_type": "GGA"}, entry_id="gga-1"
+                Structure(lattice, ["Sn"], [[0, 0, 0]]),
+                0,
+                parameters={"run_type": "GGA"},
+                entry_id="gga-1",
             ),
             ComputedStructureEntry(
-                Structure(lattice, ["Br"], [[0, 0, 0]]), 0, parameters={"run_type": "GGA"}, entry_id="gga-2"
+                Structure(lattice, ["Br"], [[0, 0, 0]]),
+                0,
+                parameters={"run_type": "GGA"},
+                entry_id="gga-2",
             ),
             ComputedStructureEntry(
-                Structure(lattice, ["Br"], [[0, 0, 0]]), 0, parameters={"run_type": "LDA"}, entry_id="lda-1"
+                Structure(lattice, ["Br"], [[0, 0, 0]]),
+                0,
+                parameters={"run_type": "LDA"},
+                entry_id="lda-1",
             ),
             ComputedStructureEntry(
                 Structure(lattice, ["Sn", "Br", "Br"], [[0, 0, 0], [0.5, 0.5, 0.5], [1, 1, 1]]),
@@ -973,7 +1645,13 @@ class TestMaterialsProjectDFTMixingSchemeArgs:
                 Structure(
                     lattice,
                     ["Sn", "Br", "Br", "Br", "Br"],
-                    [[0, 0, 0], [0.2, 0.2, 0.2], [0.4, 0.4, 0.4], [0.7, 0.7, 0.7], [1, 1, 1]],
+                    [
+                        [0, 0, 0],
+                        [0.2, 0.2, 0.2],
+                        [0.4, 0.4, 0.4],
+                        [0.7, 0.7, 0.7],
+                        [1, 1, 1],
+                    ],
                 ),
                 0,
                 parameters={"run_type": "GGA"},
@@ -1018,7 +1696,13 @@ class TestMaterialsProjectDFTMixingSchemeArgs:
             Structure(
                 lattice3,
                 ["Sn", "Br", "Br", "Br", "Br"],
-                [[0, 0, 0], [0.2, 0.2, 0.2], [0.4, 0.4, 0.4], [0.7, 0.7, 0.7], [1, 1, 1]],
+                [
+                    [0, 0, 0],
+                    [0.2, 0.2, 0.2],
+                    [0.4, 0.4, 0.4],
+                    [0.7, 0.7, 0.7],
+                    [1, 1, 1],
+                ],
             ),
             -25,
             parameters={"run_type": "R2SCAN"},
@@ -1030,7 +1714,8 @@ class TestMaterialsProjectDFTMixingSchemeArgs:
 
         # process_entries should discard all GGA entries and return all R2SCAN
         entries = mixing_scheme_no_compat.process_entries(
-            [*ms_complete.all_entries, foreign_entry], mixing_state_data=ms_complete.state_data
+            [*ms_complete.all_entries, foreign_entry],
+            mixing_state_data=ms_complete.state_data,
         )
         assert len(entries) == 7
         for entry in entries:
@@ -1049,13 +1734,104 @@ class TestMaterialsProjectDFTMixingSchemeArgs:
         """
         row_list = [
             ["Br", 64, 4, True, "gga-3", None, "GGA", None, 0.0, np.nan, 0.0, -1.0],
-            ["Br", 191, 1, False, "gga-2", "r2scan-2", "GGA", "R2SCAN", 1.0, -1.0, 0.0, -1.0],
-            ["Br", 64, 4, False, None, "r2scan-3", None, "R2SCAN", np.nan, 0.0, 0.0, -1.0],
-            ["Sn", 191, 1, True, "gga-1", "r2scan-1", "GGA", "R2SCAN", 0.0, -1.0, 0.0, -1.0],
-            ["SnBr2", 65, 3, True, "gga-4", "r2scan-4", "GGA", "R2SCAN", -6.0, -7.0, -6.0, -8.0],
-            ["SnBr2", 2, 12, False, "gga-5", "r2scan-5", "GGA", "R2SCAN", -5.0, -8.0, -6.0, -8.0],
-            ["SnBr2", 71, 3, False, "gga-6", "r2scan-6", "GGA", "R2SCAN", -4.0, -6.0, -6.0, -8.0],
-            ["SnBr4", 8, 5, False, "gga-7", "r2scan-7", "GGA", "R2SCAN", -3.0, -6.0, -3.6, -6.0],
+            [
+                "Br",
+                191,
+                1,
+                False,
+                "gga-2",
+                "r2scan-2",
+                "GGA",
+                "R2SCAN",
+                1.0,
+                -1.0,
+                0.0,
+                -1.0,
+            ],
+            [
+                "Br",
+                64,
+                4,
+                False,
+                None,
+                "r2scan-3",
+                None,
+                "R2SCAN",
+                np.nan,
+                0.0,
+                0.0,
+                -1.0,
+            ],
+            [
+                "Sn",
+                191,
+                1,
+                True,
+                "gga-1",
+                "r2scan-1",
+                "GGA",
+                "R2SCAN",
+                0.0,
+                -1.0,
+                0.0,
+                -1.0,
+            ],
+            [
+                "SnBr2",
+                65,
+                3,
+                True,
+                "gga-4",
+                "r2scan-4",
+                "GGA",
+                "R2SCAN",
+                -6.0,
+                -7.0,
+                -6.0,
+                -8.0,
+            ],
+            [
+                "SnBr2",
+                2,
+                12,
+                False,
+                "gga-5",
+                "r2scan-5",
+                "GGA",
+                "R2SCAN",
+                -5.0,
+                -8.0,
+                -6.0,
+                -8.0,
+            ],
+            [
+                "SnBr2",
+                71,
+                3,
+                False,
+                "gga-6",
+                "r2scan-6",
+                "GGA",
+                "R2SCAN",
+                -4.0,
+                -6.0,
+                -6.0,
+                -8.0,
+            ],
+            [
+                "SnBr4",
+                8,
+                5,
+                False,
+                "gga-7",
+                "r2scan-7",
+                "GGA",
+                "R2SCAN",
+                -3.0,
+                -6.0,
+                -3.6,
+                -6.0,
+            ],
         ]
         mixing_state = pd.DataFrame(row_list, columns=columns)
 
@@ -1068,10 +1844,10 @@ class TestMaterialsProjectDFTMixingSchemeArgs:
                 with pytest.raises(CompatibilityError, match="ground state"):
                     compat.get_adjustments(entry, mixing_state)
             elif entry.entry_id == "r2scan-3":
-                with pytest.raises(CompatibilityError, match="and no R2SCAN ground state"):
+                with pytest.raises(CompatibilityError, match="and no r2SCAN ground state"):
                     compat.get_adjustments(entry, mixing_state)
             elif entry.entry_id in ["gga-2", "gga-5", "gga-6", "gga-7"]:
-                with pytest.raises(CompatibilityError, match="there is a matching R2SCAN"):
+                with pytest.raises(CompatibilityError, match="there is a matching r2SCAN"):
                     compat.get_adjustments(entry, mixing_state)
             elif entry.parameters["run_type"] == "GGA":
                 assert not compat.get_adjustments(entry, mixing_state)
@@ -1085,7 +1861,7 @@ class TestMaterialsProjectDFTMixingSchemeArgs:
             if entry.parameters["run_type"] == "GGA":
                 assert entry.correction == 0
             elif entry.entry_id in ["r2scan-2", "r2scan-7"]:
-                assert "Replace R2SCAN energy with GGA" in entry.energy_adjustments[0].description
+                assert "Replace r2SCAN energy with GGA" in entry.energy_adjustments[0].description
             else:
                 assert "onto the GGA(+U) hull" in entry.energy_adjustments[0].description
 
@@ -1095,7 +1871,8 @@ class TestMaterialsProjectDFTMixingSchemeArgs:
         or overlap.
         """
         with pytest.raises(
-            ValueError, match="run_type_1=run_type_2='GGA'. The mixing scheme is meaningless unless run_types different"
+            ValueError,
+            match="run_type_1=run_type_2='GGA'. The mixing scheme is meaningless unless run_types different",
         ):
             MaterialsProjectDFTMixingScheme(run_type_1="GGA", run_type_2="GGA")
 
@@ -1123,10 +1900,13 @@ class TestMaterialsProjectDFTMixingSchemeArgs:
 
         for entry in ms_complete.gga_entries:
             if entry.entry_id in ["gga-1", "gga-3", "gga-4"]:
-                with pytest.raises(CompatibilityError, match="because it is a GGA\\(\\+U\\) ground state"):
+                with pytest.raises(
+                    CompatibilityError,
+                    match="because it is a GGA\\(\\+U\\) ground state",
+                ):
                     compat.get_adjustments(entry, state_data)
             else:
-                with pytest.raises(CompatibilityError, match="there is a matching R2SCAN"):
+                with pytest.raises(CompatibilityError, match="there is a matching r2SCAN"):
                     assert not compat.get_adjustments(entry, state_data)
 
         for entry in ms_complete.scan_entries:
@@ -1166,10 +1946,13 @@ class TestMaterialsProjectDFTMixingSchemeArgs:
                     mixing_scheme_no_compat.get_adjustments(entry, ms_complete_duplicate_structs.state_data)
                 continue
             if entry.entry_id in ["gga-1", "gga-3", "gga-4"]:
-                with pytest.raises(CompatibilityError, match="because it is a GGA\\(\\+U\\) ground state"):
+                with pytest.raises(
+                    CompatibilityError,
+                    match="because it is a GGA\\(\\+U\\) ground state",
+                ):
                     mixing_scheme_no_compat.get_adjustments(entry, ms_complete_duplicate_structs.state_data)
             else:
-                with pytest.raises(CompatibilityError, match="there is a matching R2SCAN"):
+                with pytest.raises(CompatibilityError, match="there is a matching r2SCAN"):
                     mixing_scheme_no_compat.get_adjustments(entry, ms_complete_duplicate_structs.state_data)
 
         # process_entries should discard all GGA entries and return all R2SCAN
@@ -1207,13 +1990,16 @@ class TestMaterialsProjectDFTMixingSchemeArgs:
                 continue
 
             if entry.entry_id in ["gga-1", "gga-3", "gga-4"]:
-                with pytest.raises(CompatibilityError, match="because it is a GGA\\(\\+U\\) ground state"):
+                with pytest.raises(
+                    CompatibilityError,
+                    match="because it is a GGA\\(\\+U\\) ground state",
+                ):
                     compat.get_adjustments(entry, ms_complete.state_data)
             else:
-                with pytest.raises(CompatibilityError, match="there is a matching R2SCAN"):
+                with pytest.raises(CompatibilityError, match="there is a matching r2SCAN"):
                     compat.get_adjustments(entry, ms_complete.state_data)
 
-        # process_entries should discard all GGA entries except gga-6 and return all R2SCAN
+        # process_entries should discard all GGA entries except gga-6 and return all r2SCAN
         # entries unmodified. gga-6 should be corrected to the R2SCAN hull
         entries = compat.process_entries(ms_complete.all_entries)
         assert len(entries) == 8
@@ -1221,12 +2007,20 @@ class TestMaterialsProjectDFTMixingSchemeArgs:
     def test_processing_entries_inplace(self):
         # load two entries in GGA_GGA_U_R2SCAN thermo type
         entriesJson = Path(f"{TEST_FILES_DIR}/entries/entries_thermo_type_GGA_GGA_U_R2SCAN.json")
-        with open(entriesJson) as file:
+        with open(entriesJson, encoding="utf-8") as file:
             entries = json.load(file, cls=MontyDecoder)
         # check whether the compatibility scheme can keep input entries unchanged
         entries_copy = copy.deepcopy(entries)
         MaterialsProjectDFTMixingScheme().process_entries(entries, inplace=False)
         assert all(e.correction == e_copy.correction for e, e_copy in zip(entries, entries_copy, strict=True))
+
+    def test_run_type_variations(self):
+        """Test that entries with run_type 'r2SCAN' would not be ignored in mixing scheme correction."""
+        scheme = MaterialsProjectDFTMixingScheme(run_type_1="GGA(+U)", run_type_2="r2SCAN")
+        assert scheme.valid_rtypes_2 == ["r2SCAN", "R2SCAN"]
+        """Test that 'r2SCAN' as an input run_type is not case-sensitive."""
+        scheme = MaterialsProjectDFTMixingScheme(run_type_1="GGA(+U)", run_type_2="R2SCAN")
+        assert scheme.valid_rtypes_2 == ["r2SCAN", "R2SCAN"]
 
     def test_check_potcar(self, ms_complete):
         """Entries with invalid or missing POTCAR raise error by default but should be ignored if
@@ -1266,10 +2060,13 @@ class TestMaterialsProjectDFTMixingSchemeStates:
 
         for entry in ms_complete.gga_entries:
             if entry.entry_id in ["gga-1", "gga-3", "gga-4"]:
-                with pytest.raises(CompatibilityError, match="because it is a GGA\\(\\+U\\) ground state"):
+                with pytest.raises(
+                    CompatibilityError,
+                    match="because it is a GGA\\(\\+U\\) ground state",
+                ):
                     mixing_scheme_no_compat.get_adjustments(entry, ms_complete.state_data)
             else:
-                with pytest.raises(CompatibilityError, match="there is a matching R2SCAN"):
+                with pytest.raises(CompatibilityError, match="there is a matching r2SCAN"):
                     mixing_scheme_no_compat.get_adjustments(entry, ms_complete.state_data)
 
         # process_entries should discard all GGA entries and return all R2SCAN
@@ -1327,7 +2124,10 @@ class TestMaterialsProjectDFTMixingSchemeStates:
 
         for entry in ms_gga_1_scan.gga_entries:
             if entry.entry_id == "gga-4":
-                with pytest.raises(CompatibilityError, match="because it is a GGA\\(\\+U\\) ground state"):
+                with pytest.raises(
+                    CompatibilityError,
+                    match="because it is a GGA\\(\\+U\\) ground state",
+                ):
                     mixing_scheme_no_compat.get_adjustments(entry, ms_gga_1_scan.state_data)
             else:
                 assert mixing_scheme_no_compat.get_adjustments(entry, ms_gga_1_scan.state_data) == []
@@ -1361,7 +2161,7 @@ class TestMaterialsProjectDFTMixingSchemeStates:
                 assert mixing_scheme_no_compat.get_adjustments(entry, ms_gga_1_scan_novel.state_data) == []
 
         for entry in ms_gga_1_scan_novel.scan_entries:
-            with pytest.raises(CompatibilityError, match="no R2SCAN ground states at this composition"):
+            with pytest.raises(CompatibilityError, match="no r2SCAN ground states at this composition"):
                 mixing_scheme_no_compat.get_adjustments(entry, ms_gga_1_scan_novel.state_data)
 
         entries = mixing_scheme_no_compat.process_entries(ms_gga_1_scan_novel.all_entries)
@@ -1392,10 +2192,13 @@ class TestMaterialsProjectDFTMixingSchemeStates:
 
         for entry in ms_gga_2_scan_same.gga_entries:
             if entry.entry_id == "gga-4":
-                with pytest.raises(CompatibilityError, match="because it is a GGA\\(\\+U\\) ground state"):
+                with pytest.raises(
+                    CompatibilityError,
+                    match="because it is a GGA\\(\\+U\\) ground state",
+                ):
                     mixing_scheme_no_compat.get_adjustments(entry, ms_gga_2_scan_same.state_data)
             elif entry.entry_id == "gga-6":
-                with pytest.raises(CompatibilityError, match="there is a matching R2SCAN"):
+                with pytest.raises(CompatibilityError, match="there is a matching r2SCAN"):
                     mixing_scheme_no_compat.get_adjustments(entry, ms_gga_2_scan_same.state_data)
             else:
                 assert mixing_scheme_no_compat.get_adjustments(entry, ms_gga_2_scan_same.state_data) == []
@@ -1438,10 +2241,13 @@ class TestMaterialsProjectDFTMixingSchemeStates:
 
         for entry in ms_gga_2_scan_diff_match.gga_entries:
             if entry.entry_id == "gga-4":
-                with pytest.raises(CompatibilityError, match="because it is a GGA\\(\\+U\\) ground state"):
+                with pytest.raises(
+                    CompatibilityError,
+                    match="because it is a GGA\\(\\+U\\) ground state",
+                ):
                     mixing_scheme_no_compat.get_adjustments(entry, ms_gga_2_scan_diff_match.state_data)
             elif entry.entry_id == "gga-7":
-                with pytest.raises(CompatibilityError, match="there is a matching R2SCAN"):
+                with pytest.raises(CompatibilityError, match="there is a matching r2SCAN"):
                     mixing_scheme_no_compat.get_adjustments(entry, ms_gga_2_scan_diff_match.state_data)
             else:
                 assert mixing_scheme_no_compat.get_adjustments(entry, ms_gga_2_scan_diff_match.state_data) == []
@@ -1475,7 +2281,7 @@ class TestMaterialsProjectDFTMixingSchemeStates:
             if entry.entry_id == "r2scan-8":
                 # there is no matching GGA structure for r2scan-8, so there's no way
                 # to adjust its energy onto the GGA hull.
-                with pytest.raises(CompatibilityError, match="entry and no R2SCAN ground state"):
+                with pytest.raises(CompatibilityError, match="entry and no r2SCAN ground state"):
                     mixing_scheme_no_compat.get_adjustments(entry, ms_gga_2_scan_diff_no_match.state_data)
             elif entry.entry_id == "r2scan-4":
                 # r2scan-4 energy is -7 eV/atom. Needs to be adjusted to -6 eV/atom (3 atoms)
@@ -1487,7 +2293,10 @@ class TestMaterialsProjectDFTMixingSchemeStates:
 
         for entry in ms_gga_2_scan_diff_no_match.gga_entries:
             if entry.entry_id == "gga-4":
-                with pytest.raises(CompatibilityError, match="because it is a GGA\\(\\+U\\) ground state"):
+                with pytest.raises(
+                    CompatibilityError,
+                    match="because it is a GGA\\(\\+U\\) ground state",
+                ):
                     mixing_scheme_no_compat.get_adjustments(entry, ms_gga_2_scan_diff_no_match.state_data)
             else:
                 assert mixing_scheme_no_compat.get_adjustments(entry, ms_gga_2_scan_diff_no_match.state_data) == []
@@ -1499,7 +2308,10 @@ class TestMaterialsProjectDFTMixingSchemeStates:
                 assert entry.correction == 3
                 assert entry.parameters["run_type"] == "R2SCAN"
             else:
-                assert entry.entry_id not in ("gga-4", "r2scan-8"), f"{entry.entry_id=} should have been discarded"
+                assert entry.entry_id not in (
+                    "gga-4",
+                    "r2scan-8",
+                ), f"{entry.entry_id=} should have been discarded"
                 assert entry.correction == 0, f"{entry.entry_id}"
                 assert entry.parameters["run_type"] == "GGA"
 
@@ -1541,7 +2353,10 @@ class TestMaterialsProjectDFTMixingSchemeStates:
 
         for entry in ms_all_gga_scan_gs.gga_entries:
             if entry.entry_id in ["gga-1", "gga-3", "gga-4"]:
-                with pytest.raises(CompatibilityError, match="because it is a GGA\\(\\+U\\) ground state"):
+                with pytest.raises(
+                    CompatibilityError,
+                    match="because it is a GGA\\(\\+U\\) ground state",
+                ):
                     mixing_scheme_no_compat.get_adjustments(entry, ms_all_gga_scan_gs.state_data)
             else:
                 assert mixing_scheme_no_compat.get_adjustments(entry, ms_all_gga_scan_gs.state_data) != []
@@ -1559,7 +2374,7 @@ class TestMaterialsProjectDFTMixingSchemeStates:
 
         for entry in entries:
             if entry.parameters["run_type"] == "GGA":
-                assert "onto the R2SCAN hull" in entry.energy_adjustments[0].description
+                assert "onto the r2SCAN hull" in entry.energy_adjustments[0].description
                 assert_allclose(pd_mixed.get_e_above_hull(entry), gga_hull_e[entry.entry_id])
             else:
                 assert entry.correction == 0
@@ -1580,7 +2395,10 @@ class TestMaterialsProjectDFTMixingSchemeStates:
 
         for entry in ms_all_gga_scan_gs_plus_novel.gga_entries:
             if entry.entry_id in ["gga-1", "gga-3", "gga-4"]:
-                with pytest.raises(CompatibilityError, match="because it is a GGA\\(\\+U\\) ground state"):
+                with pytest.raises(
+                    CompatibilityError,
+                    match="because it is a GGA\\(\\+U\\) ground state",
+                ):
                     mixing_scheme_no_compat.get_adjustments(entry, ms_all_gga_scan_gs_plus_novel.state_data)
             else:
                 assert mixing_scheme_no_compat.get_adjustments(entry, ms_all_gga_scan_gs_plus_novel.state_data) != []
@@ -1598,7 +2416,7 @@ class TestMaterialsProjectDFTMixingSchemeStates:
 
         for entry in entries:
             if entry.parameters["run_type"] == "GGA":
-                assert "onto the R2SCAN hull" in entry.energy_adjustments[0].description
+                assert "onto the r2SCAN hull" in entry.energy_adjustments[0].description
                 assert_allclose(pd_mixed.get_e_above_hull(entry), gga_hull_e[entry.entry_id])
             else:
                 assert entry.correction == 0

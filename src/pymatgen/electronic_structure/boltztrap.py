@@ -41,7 +41,7 @@ from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
 from pymatgen.symmetry.bandstructure import HighSymmKpath
 
 if TYPE_CHECKING:
-    from typing import Literal
+    from typing import Any, Literal
 
     from numpy.typing import ArrayLike
     from typing_extensions import Self
@@ -56,6 +56,8 @@ __maintainer__ = "Geoffroy Hautier"
 __email__ = "geoffroy@uclouvain.be"
 __status__ = "Development"
 __date__ = "August 23, 2013"
+
+logger = logging.getLogger(__name__)
 
 
 class BoltztrapRunner(MSONable):
@@ -255,7 +257,7 @@ class BoltztrapRunner(MSONable):
         Args:
             output_file: Filename
         """
-        with open(output_file, mode="w") as file:
+        with open(output_file, mode="w", encoding="utf-8") as file:
             file.write("test\n")
             file.write(f"{len(self._bs.kpoints)}\n")
 
@@ -341,7 +343,7 @@ class BoltztrapRunner(MSONable):
         """
         # This function is useless in std version of BoltzTraP code
         # because x_trans script overwrite BoltzTraP.def
-        with open(output_file, mode="w") as file:
+        with open(output_file, mode="w", encoding="utf-8") as file:
             so = ""
             if self._bs.is_spin_polarized or self.soc:
                 so = "so"
@@ -374,7 +376,7 @@ class BoltztrapRunner(MSONable):
         for orb_idx, orb in enumerate(Orbital):
             for site_nb in range(len(self._bs.structure)):
                 if orb_idx < len(self._bs.projections[Spin.up][0][0]):
-                    with open(f"{output_file_proj}_{site_nb}_{orb}", mode="w") as file:
+                    with open(f"{output_file_proj}_{site_nb}_{orb}", mode="w", encoding="utf-8") as file:
                         file.write(f"{self._bs.structure.formula}\n")
                         file.write(f"{len(self._bs.kpoints)}\n")
                         for kpt_idx, kpt in enumerate(self._bs.kpoints):
@@ -392,7 +394,7 @@ class BoltztrapRunner(MSONable):
                             file.write(f"{a:12.8f} {b:12.8f} {c:12.8f} {len(tmp_proj)}\n")
                             for t in tmp_proj:
                                 file.write(f"{float(t):18.8f}\n")
-        with open(output_file_def, mode="w") as file:
+        with open(output_file_def, mode="w", encoding="utf-8") as file:
             so = ""
             if self._bs.is_spin_polarized:
                 so = "so"
@@ -425,10 +427,10 @@ class BoltztrapRunner(MSONable):
         Args:
             output_file: Filename
         """
-        set_gap = 1 if self.scissor > 0.0001 else 0
+        set_gap = 1 if self.scissor > 1e-4 else 0
 
         if self.run_type in ("BOLTZ", "DOS"):
-            with open(output_file, mode="w") as fout:
+            with open(output_file, mode="w", encoding="utf-8") as fout:
                 fout.write("GENE          # use generic interface\n")
                 fout.write(
                     f"1 0 {set_gap} {Energy(self.scissor, 'eV').to('Ry')}         "
@@ -455,7 +457,7 @@ class BoltztrapRunner(MSONable):
                     fout.write(str(-d) + "\n")
 
         elif self.run_type == "FERMI":
-            with open(output_file, mode="w") as fout:
+            with open(output_file, mode="w", encoding="utf-8") as fout:
                 fout.write("GENE          # use generic interface\n")
                 fout.write("1 0 0 0.0         # iskip (not presently used) idebug setgap shiftgap \n")
                 fout.write(
@@ -477,7 +479,7 @@ class BoltztrapRunner(MSONable):
             elif isinstance(self.kpt_line[0], Kpoint):
                 self.kpt_line = [kp.frac_coords for kp in self.kpt_line]
 
-            with open(output_file, mode="w") as fout:
+            with open(output_file, mode="w", encoding="utf-8") as fout:
                 fout.write("GENE          # use generic interface\n")
                 fout.write(
                     f"1 0 {set_gap} {Energy(self.scissor, 'eV').to('Ry')}         # iskip (not presently used) "
@@ -577,13 +579,6 @@ class BoltztrapRunner(MSONable):
             for c in os.listdir(path_dir):
                 os.remove(os.path.join(path_dir, c))
 
-        FORMAT = "%(message)s"
-        logging.basicConfig(
-            level=logging.INFO,
-            format=FORMAT,
-            filename=f"{path_dir}/../boltztrap.out",
-        )
-
         with cd(path_dir):
             lpfac_start = self.lpfac
             converged = False
@@ -593,7 +588,7 @@ class BoltztrapRunner(MSONable):
                 if time.perf_counter() - self.start_time > self.timeout:
                     raise BoltztrapError(f"no doping convergence after timeout of {self.timeout} s")
 
-                logging.info(f"lpfac, energy_grid: {self.lpfac} {self.energy_grid}")
+                logger.info(f"lpfac, energy_grid: {self.lpfac} {self.energy_grid}")
 
                 while self.lpfac <= max_lpfac and not converged:
                     if time.perf_counter() - self.start_time > self.timeout:
@@ -607,18 +602,21 @@ class BoltztrapRunner(MSONable):
                         bt_exe.append("-so")
 
                     with subprocess.Popen(
-                        bt_exe, stdout=subprocess.PIPE, stdin=subprocess.PIPE, stderr=subprocess.PIPE
+                        bt_exe,
+                        stdout=subprocess.PIPE,
+                        stdin=subprocess.PIPE,
+                        stderr=subprocess.PIPE,
                     ) as process:
                         process.wait()
 
                         for c in process.communicate():
-                            logging.info(c.decode())
+                            logger.info(c.decode())
                             if "error in factorization" in c.decode():
                                 raise BoltztrapError("error in factorization")
 
                     warning = ""
 
-                    with open(os.path.join(path_dir, f"{dir_bz_name}.outputtrans")) as file:
+                    with open(os.path.join(path_dir, f"{dir_bz_name}.outputtrans"), encoding="utf-8") as file:
                         for line in file:
                             if "Option unknown" in line:
                                 raise BoltztrapError("DOS mode needs a custom version of BoltzTraP code is needed")
@@ -656,14 +654,14 @@ class BoltztrapRunner(MSONable):
 
                     if warning:
                         self.lpfac += 10
-                        logging.warning(f"Warning detected: {warning}! Increase lpfac to {self.lpfac}")
+                        logger.warning(f"Warning detected: {warning}! Increase lpfac to {self.lpfac}")
 
                     else:
                         converged = True
 
                 if not converged:
                     self.energy_grid /= 10
-                    logging.info(f"Could not converge with max lpfac; Decrease egrid to {self.energy_grid}")
+                    logger.info(f"Could not converge with max lpfac; Decrease egrid to {self.energy_grid}")
 
             if not converged:
                 lpfac, energy_grid = self.lpfac, self.energy_grid
@@ -876,7 +874,11 @@ class BoltztrapAnalyzer:
             bands_dict = {Spin.up: bz_bands_in_eV[:, idx_list[:, 1]].tolist()}
 
             return BandStructureSymmLine(
-                kpt_line, bands_dict, structure.lattice.reciprocal_lattice, efermi, labels_dict=labels_dict
+                kpt_line,
+                bands_dict,
+                structure.lattice.reciprocal_lattice,
+                efermi,
+                labels_dict=labels_dict,
             )
 
         except Exception:
@@ -1353,7 +1355,11 @@ class BoltztrapAnalyzer:
         return sbk_mass
 
     def get_complexity_factor(
-        self, output: Literal["average", "tensor"] = "average", temp=300, doping_levels=False, Lambda=0.5
+        self,
+        output: Literal["average", "tensor"] = "average",
+        temp=300,
+        doping_levels=False,
+        Lambda=0.5,
     ):
         """Fermi surface complexity factor respect to calculated as explained in Ref.
         Gibbs, Z. M. et al., Effective mass and fermi surface complexity factor
@@ -1415,96 +1421,98 @@ class BoltztrapAnalyzer:
 
     def get_extreme(
         self,
-        target_prop,
-        maximize=True,
-        min_temp=None,
-        max_temp=None,
-        min_doping=None,
-        max_doping=None,
-        isotropy_tolerance=0.05,
-        use_average=True,
-    ):
+        target_prop: Literal["seebeck", "power factor", "conductivity", "kappa", "zt"],
+        maximize: bool = True,
+        min_temp: float | None = None,
+        max_temp: float | None = None,
+        min_doping: float | None = None,
+        max_doping: float | None = None,
+        isotropy_tolerance: float = 0.05,
+        use_average: bool = True,
+    ) -> dict[Literal["p", "n", "best"], dict[str, Any]]:
         """Use eigenvalues over a range of carriers, temperatures, and doping levels, to estimate the "best"
         value that can be achieved for the given target_property. Note that
         this method searches the doping dict only, not the full mu dict.
 
         Args:
-            target_prop: target property, i.e. "seebeck", "power factor", "conductivity", "kappa", or "zt"
-            maximize: True to maximize, False to minimize (e.g. kappa)
-            min_temp: minimum temperature allowed
-            max_temp: maximum temperature allowed
-            min_doping: minimum doping allowed (e.g., 1E18)
-            max_doping: maximum doping allowed (e.g., 1E20)
-            isotropy_tolerance: tolerance for isotropic (0.05 = 5%)
-            use_average: True for avg of eigenval, False for max eigenval
+            target_prop ("seebeck", "power factor", "conductivity", "kappa", "zt"): target property.
+            maximize (bool): True to maximize, False to minimize (e.g. kappa)
+            min_temp (float): minimum temperature allowed
+            max_temp (float): maximum temperature allowed
+            min_doping (float): minimum doping allowed (e.g., 1E18)
+            max_doping (float): maximum doping allowed (e.g., 1E20)
+            isotropy_tolerance (float): tolerance for isotropic (0.05 = 5%)
+            use_average (bool): True for average of eigenval, False for max eigenval.
 
         Returns:
-            A dictionary with keys {"p", "n", "best"} with sub-keys:
-            {"value", "temperature", "doping", "isotropic"}
+            A dictionary with the following keys: {"p", "n", "best"}.
+            Each key maps to a sub-dictionary with the following keys:
+                {"value", "temperature", "doping", "isotropic", "carrier_type"}.
         """
 
-        def is_isotropic(x, isotropy_tolerance) -> bool:
-            """Internal method to tell you if 3-vector "x" is isotropic.
+        def is_isotropic(x, isotropy_tolerance: float) -> bool:
+            """Helper function to determine if 3D vector is isotropic.
 
             Args:
                 x: the vector to determine isotropy for
-                isotropy_tolerance: tolerance, e.g. 0.05 is 5%
+                isotropy_tolerance (float): tolerance, e.g. 0.05 is 5%
             """
             if len(x) != 3:
-                raise ValueError("Invalid input to is_isotropic!")
+                raise ValueError("Invalid vector length to is_isotropic!")
 
             st = sorted(x)
+
             return bool(
                 all([st[0], st[1], st[2]])
                 and (abs((st[1] - st[0]) / st[1]) <= isotropy_tolerance)
-                and (abs(st[2] - st[0]) / st[2] <= isotropy_tolerance)
+                and (abs((st[2] - st[0]) / st[2]) <= isotropy_tolerance)
                 and (abs((st[2] - st[1]) / st[2]) <= isotropy_tolerance)
             )
 
         if target_prop.lower() == "seebeck":
-            d = self.get_seebeck(output="eigs", doping_levels=True)
+            dct = self.get_seebeck(output="eigs", doping_levels=True)
 
         elif target_prop.lower() == "power factor":
-            d = self.get_power_factor(output="eigs", doping_levels=True)
+            dct = self.get_power_factor(output="eigs", doping_levels=True)
 
         elif target_prop.lower() == "conductivity":
-            d = self.get_conductivity(output="eigs", doping_levels=True)
+            dct = self.get_conductivity(output="eigs", doping_levels=True)
 
         elif target_prop.lower() == "kappa":
-            d = self.get_thermal_conductivity(output="eigs", doping_levels=True)
+            dct = self.get_thermal_conductivity(output="eigs", doping_levels=True)
         elif target_prop.lower() == "zt":
-            d = self.get_zt(output="eigs", doping_levels=True)
+            dct = self.get_zt(output="eigs", doping_levels=True)
 
         else:
             raise ValueError(f"Unrecognized {target_prop=}")
 
-        abs_val = True  # take the absolute value of properties
+        abs_val: bool = True  # take the absolute value of properties
 
         x_val = x_temp = x_doping = x_isotropic = None
-        output = {}
+        output: dict[Literal["p", "n", "best"], dict[str, Any]] = {}
 
         min_temp = min_temp or 0
         max_temp = max_temp or float("inf")
         min_doping = min_doping or 0
         max_doping = max_doping or float("inf")
 
-        for pn in ("p", "n"):
-            for t in d[pn]:  # temperatures
-                if min_temp <= float(t) <= max_temp:
-                    for didx, evs in enumerate(d[pn][t]):
-                        doping_lvl = self.doping[pn][didx]
+        for pn_type in ("p", "n"):
+            for temperature in dct[pn_type]:
+                if min_temp <= float(temperature) <= max_temp:
+                    for idx, eig_vals in enumerate(dct[pn_type][temperature]):
+                        doping_lvl = self.doping[pn_type][idx]
                         if min_doping <= doping_lvl <= max_doping:
-                            isotropic = is_isotropic(evs, isotropy_tolerance)
+                            isotropic: bool = is_isotropic(eig_vals, isotropy_tolerance)
                             if abs_val:
-                                evs = [abs(x) for x in evs]
-                            val = float(sum(evs)) / len(evs) if use_average else max(evs)
+                                eig_vals = [abs(x) for x in eig_vals]
+                            val = float(sum(eig_vals)) / len(eig_vals) if use_average else max(eig_vals)
                             if x_val is None or (val > x_val and maximize) or (val < x_val and not maximize):
                                 x_val = val
-                                x_temp = t
+                                x_temp = temperature
                                 x_doping = doping_lvl
                                 x_isotropic = isotropic
 
-            output[pn] = {
+            output[pn_type] = {
                 "value": x_val,
                 "temperature": x_temp,
                 "doping": x_doping,
@@ -1513,7 +1521,7 @@ class BoltztrapAnalyzer:
             x_val = None
 
         if maximize:
-            max_type = "p" if output["p"]["value"] >= output["n"]["value"] else "n"
+            max_type: Literal["p", "n"] = "p" if output["p"]["value"] >= output["n"]["value"] else "n"
         else:
             max_type = "p" if output["p"]["value"] <= output["n"]["value"] else "n"
 
@@ -1578,10 +1586,10 @@ class BoltztrapAnalyzer:
         Example of use in case of spin polarized case:
 
             BoltztrapRunner(bs=bs,nelec=10,run_type="DOS",spin=1).run(path_dir='dos_up/')
-            an_up=BoltztrapAnalyzer.from_files("dos_up/boltztrap/",dos_spin=1)
+            an_up=BoltztrapAnalyzer.from_files("dos_up/boltztrap/", dos_spin=1)
 
             BoltztrapRunner(bs=bs,nelec=10,run_type="DOS",spin=-1).run(path_dir='dos_dw/')
-            an_dw=BoltztrapAnalyzer.from_files("dos_dw/boltztrap/",dos_spin=-1)
+            an_dw=BoltztrapAnalyzer.from_files("dos_dw/boltztrap/", dos_spin=-1)
 
             cdos=an_up.get_complete_dos(bs.structure,an_dw)
         """
@@ -1591,10 +1599,10 @@ class BoltztrapAnalyzer:
 
         if analyzer_for_second_spin:
             if not np.all(self.dos.energies == analyzer_for_second_spin.dos.energies):
-                raise BoltztrapError("Dos merging error: energies of the two dos are different")
+                raise BoltztrapError("DOS merging error: energies of the two DOS are different")
 
             if spin_1 == spin_2:
-                raise BoltztrapError("Dos merging error: spin component are the same")
+                raise BoltztrapError("DOS merging error: spin component are the same")
 
         for s in self._dos_partial:
             idx = int(s)
@@ -1611,7 +1619,10 @@ class BoltztrapAnalyzer:
             total_dos = Dos(
                 self.dos.efermi,
                 self.dos.energies,
-                {spin_1: self.dos.densities[spin_1], spin_2: analyzer_for_second_spin.dos.densities[spin_2]},
+                {
+                    spin_1: self.dos.densities[spin_1],
+                    spin_2: analyzer_for_second_spin.dos.densities[spin_2],
+                },
             )
         else:
             total_dos = self.dos
@@ -1671,7 +1682,7 @@ class BoltztrapAnalyzer:
         run_type = warning = efermi = gap = None
         doping_levels = []
 
-        with open(f"{path_dir}/boltztrap.outputtrans") as file:
+        with open(f"{path_dir}/boltztrap.outputtrans", encoding="utf-8") as file:
             for line in file:
                 if "WARNING" in line:
                     warning = line
@@ -1702,7 +1713,7 @@ class BoltztrapAnalyzer:
         data_dos = {"total": [], "partial": {}}
         # parse the total DOS data
         # format is energy, DOS, integrated DOS
-        with open(f"{path_dir}/boltztrap.transdos") as file:
+        with open(f"{path_dir}/boltztrap.transdos", encoding="utf-8") as file:
             count_series = 0  # TODO: why is count_series needed?
             for line in file:
                 if line.lstrip().startswith("#"):
@@ -1740,7 +1751,7 @@ class BoltztrapAnalyzer:
                 tokens = file_name.split(".")[1].split("_")
                 site = tokens[1]
                 orb = "_".join(tokens[2:])
-                with open(os.path.join(path_dir, file_name)) as file:
+                with open(os.path.join(path_dir, file_name), encoding="utf-8") as file:
                     for line in file:
                         if not line.lstrip().startswith(" #"):
                             if site not in data_dos["partial"]:
@@ -1773,7 +1784,7 @@ class BoltztrapAnalyzer:
             dict: various inputs that had been used in the BoltzTraP run.
         """
         intrans = {}
-        with open(f"{path_dir}/boltztrap.intrans") as file:
+        with open(f"{path_dir}/boltztrap.intrans", encoding="utf-8") as file:
             for line in file:
                 if "iskip" in line:
                     intrans["scissor"] = Energy(float(line.split(" ")[3]), "Ry").to("eV")
@@ -1791,7 +1802,7 @@ class BoltztrapAnalyzer:
         Returns:
             float: volume of the structure in Angstrom^3
         """
-        with open(f"{path_dir}/boltztrap.struct") as file:
+        with open(f"{path_dir}/boltztrap.struct", encoding="utf-8") as file:
             tokens = file.readlines()
             return Lattice(
                 [[Length(float(tokens[i].split()[j]), "bohr").to("ang") for j in range(3)] for i in range(1, 4)]
@@ -1821,7 +1832,7 @@ class BoltztrapAnalyzer:
 
         # parse the full conductivity/Seebeck/kappa0/etc data
         # also initialize t_steps and mu_steps
-        with open(f"{path_dir}/boltztrap.condtens") as file:
+        with open(f"{path_dir}/boltztrap.condtens", encoding="utf-8") as file:
             for line in file:
                 if not line.startswith("#"):
                     mu_steps.add(float(line.split()[0]))
@@ -1829,20 +1840,20 @@ class BoltztrapAnalyzer:
                     data_full.append([float(c) for c in line.split()])
 
         # parse the full Hall tensor
-        with open(f"{path_dir}/boltztrap.halltens") as file:
+        with open(f"{path_dir}/boltztrap.halltens", encoding="utf-8") as file:
             for line in file:
                 if not line.startswith("#"):
                     data_hall.append([float(c) for c in line.split()])
 
         if len(doping_levels) != 0:
             # parse doping levels version of full cond. tensor, etc.
-            with open(f"{path_dir}/boltztrap.condtens_fixdoping") as file:
+            with open(f"{path_dir}/boltztrap.condtens_fixdoping", encoding="utf-8") as file:
                 for line in file:
                     if not line.startswith("#") and len(line) > 2:
                         data_doping_full.append([float(c) for c in line.split()])
 
             # parse doping levels version of full hall tensor
-            with open(f"{path_dir}/boltztrap.halltens_fixdoping") as file:
+            with open(f"{path_dir}/boltztrap.halltens_fixdoping", encoding="utf-8") as file:
                 for line in file:
                     if not line.startswith("#") and len(line) > 2:
                         data_doping_hall.append([float(c) for c in line.split()])

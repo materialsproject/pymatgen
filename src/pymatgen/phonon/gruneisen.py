@@ -20,8 +20,7 @@ try:
     import phonopy
     from phonopy.phonon.dos import TotalDos
 except ImportError:
-    phonopy = None
-    TotalDos = None
+    phonopy = TotalDos = None
 
 if TYPE_CHECKING:
     from collections.abc import Sequence
@@ -99,13 +98,17 @@ class GruneisenParameter(MSONable):
         wdkt = w * const.tera / (const.value("Boltzmann constant in Hz/K") * t)
         exp_wdkt = np.exp(wdkt)
         cv = np.choose(
-            w > 0, (0, const.value("Boltzmann constant in eV/K") * wdkt**2 * exp_wdkt / (exp_wdkt - 1) ** 2)
+            w > 0,
+            (
+                0,
+                const.value("Boltzmann constant in eV/K") * wdkt**2 * exp_wdkt / (exp_wdkt - 1) ** 2,
+            ),
         )  # in eV
 
         gamma = self.gruneisen
 
         if squared:
-            gamma = gamma**2
+            gamma = gamma**2  # (ruff-preview) noqa: PLR6104
 
         if limit_frequencies == "debye":
             acoustic_debye_freq = self.acoustic_debye_temp * const.value("Boltzmann constant in Hz/K") / const.tera
@@ -393,7 +396,11 @@ class GruneisenPhononBandStructureSymmLine(GruneisenPhononBandStructure, PhononB
         )
 
         PhononBandStructureSymmLine._reuse_init(
-            self, eigendisplacements=eigendisplacements, frequencies=frequencies, has_nac=False, qpoints=qpoints
+            self,
+            eigendisplacements=eigendisplacements,
+            frequencies=frequencies,
+            has_nac=False,
+            qpoints=qpoints,
         )
 
     @classmethod

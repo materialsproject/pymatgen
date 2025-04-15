@@ -214,7 +214,10 @@ $end"""
 $end"""
         assert scan_test == scan_actual
 
-        bad_scan = {"stre": ["1 2 1.0 2.0 0.05", "3 4 1.5 2.0 0.05"], "bend": ["7 8 9 90 120 10"]}
+        bad_scan = {
+            "stre": ["1 2 1.0 2.0 0.05", "3 4 1.5 2.0 0.05"],
+            "bend": ["7 8 9 90 120 10"],
+        }
         with pytest.raises(ValueError, match="Q-Chem only supports PES_SCAN with two or less variables"):
             QCInput.scan_template(bad_scan)
 
@@ -242,12 +245,36 @@ $end"""
     def test_cdft_template(self):
         cdft = [
             [
-                {"value": 1.0, "coefficients": [1.0], "first_atoms": [1], "last_atoms": [27], "types": ["c"]},
-                {"value": 0.0, "coefficients": [1.0], "first_atoms": [1], "last_atoms": [27], "types": ["s"]},
+                {
+                    "value": 1.0,
+                    "coefficients": [1.0],
+                    "first_atoms": [1],
+                    "last_atoms": [27],
+                    "types": ["c"],
+                },
+                {
+                    "value": 0.0,
+                    "coefficients": [1.0],
+                    "first_atoms": [1],
+                    "last_atoms": [27],
+                    "types": ["s"],
+                },
             ],
             [
-                {"value": 0.0, "coefficients": [1.0], "first_atoms": [1], "last_atoms": [27], "types": ["c"]},
-                {"value": -1.0, "coefficients": [1.0], "first_atoms": [1], "last_atoms": [27], "types": ["s"]},
+                {
+                    "value": 0.0,
+                    "coefficients": [1.0],
+                    "first_atoms": [1],
+                    "last_atoms": [27],
+                    "types": ["c"],
+                },
+                {
+                    "value": -1.0,
+                    "coefficients": [1.0],
+                    "first_atoms": [1],
+                    "last_atoms": [27],
+                    "types": ["s"],
+                },
             ],
         ]
 
@@ -924,7 +951,11 @@ $scan
    bend 3 4 5 60 90 5
 $end"""
         scan_test = QCInput.read_scan(str_scan)
-        scan_actual = {"stre": ["1 2 1.1 1.4 0.03"], "bend": ["3 4 5 60 90 5"], "tors": []}
+        scan_actual = {
+            "stre": ["1 2 1.1 1.4 0.03"],
+            "bend": ["3 4 5 60 90 5"],
+            "tors": [],
+        }
 
         assert scan_test == scan_actual
 
@@ -947,7 +978,10 @@ $scan
    tors 6 7 8 9 -180 180 30
 $end"""
 
-        with pytest.raises(ValueError, match="No more than two variables are allows in the scan section"):
+        with pytest.raises(
+            ValueError,
+            match="No more than two variables are allows in the scan section",
+        ):
             QCInput.read_scan(str_scan_2)
 
     def test_read_negative(self):
@@ -1137,12 +1171,36 @@ $end
 
         result = [
             [
-                {"value": 1.0, "coefficients": [1.0], "first_atoms": [1], "last_atoms": [27], "types": [None]},
-                {"value": 0.0, "coefficients": [1.0], "first_atoms": [1], "last_atoms": [27], "types": ["s"]},
+                {
+                    "value": 1.0,
+                    "coefficients": [1.0],
+                    "first_atoms": [1],
+                    "last_atoms": [27],
+                    "types": [None],
+                },
+                {
+                    "value": 0.0,
+                    "coefficients": [1.0],
+                    "first_atoms": [1],
+                    "last_atoms": [27],
+                    "types": ["s"],
+                },
             ],
             [
-                {"value": 0.0, "coefficients": [1.0], "first_atoms": [1], "last_atoms": [27], "types": [None]},
-                {"value": -1.0, "coefficients": [1.0], "first_atoms": [1], "last_atoms": [27], "types": ["s"]},
+                {
+                    "value": 0.0,
+                    "coefficients": [1.0],
+                    "first_atoms": [1],
+                    "last_atoms": [27],
+                    "types": [None],
+                },
+                {
+                    "value": -1.0,
+                    "coefficients": [1.0],
+                    "first_atoms": [1],
+                    "last_atoms": [27],
+                    "types": ["s"],
+                },
             ],
         ]
 
@@ -1175,7 +1233,7 @@ $end"""
         test_path = f"{TEST_DIR}/test.qin"
         ref_path = f"{TEST_DIR}/test_ref.qin"
 
-        with open(ref_path) as ref_file, open(test_path) as test_file:
+        with open(ref_path, encoding="utf-8") as ref_file, open(test_path, encoding="utf-8") as test_file:
             for l_test, l_ref in zip(test_file, ref_file, strict=True):
                 # By default, if this statement fails the offending line will be printed
                 assert l_test == l_ref
@@ -1190,7 +1248,7 @@ $end"""
         test_path = f"{TEST_DIR}/test_vdw.qin"
         ref_path = f"{TEST_DIR}/test_ref_vdw.qin"
 
-        with open(ref_path) as ref_file, open(test_path) as test_file:
+        with open(ref_path, encoding="utf-8") as ref_file, open(test_path, encoding="utf-8") as test_file:
             for l_test, l_ref in zip(test_file, ref_file, strict=True):
                 # By default, if this statement fails the offending line will be printed
                 assert l_test == l_ref
@@ -1203,7 +1261,7 @@ $end"""
         qcinp = QCInput.from_file(f"{TEST_DIR}/new_qchem_files/nbo7.qin")
         qcinp.write_file(test_path)
 
-        with open(test_path) as ref_file, open(ref_path) as test_file:
+        with open(test_path, encoding="utf-8") as ref_file, open(ref_path, encoding="utf-8") as test_file:
             for l_test, l_ref in zip(test_file, ref_file, strict=True):
                 # By default, if this statement fails the offending line will be printed
                 assert l_test == l_ref
@@ -1216,7 +1274,7 @@ $end"""
         test_path = f"{TEST_DIR}/new_qchem_files/e2pert.qin"
         ref_path = f"{TEST_DIR}/test_e2pert.qin"
 
-        with open(ref_path) as ref_file, open(test_path) as test_file:
+        with open(ref_path, encoding="utf-8") as ref_file, open(test_path, encoding="utf-8") as test_file:
             for l_test, l_ref in zip(test_file, ref_file, strict=True):
                 assert l_test == l_ref
 
@@ -1228,7 +1286,7 @@ $end"""
         test_path = f"{TEST_DIR}/new_qchem_files/custom_smd.qin"
         ref_path = f"{TEST_DIR}/test_custom_smd.qin"
 
-        with open(ref_path) as ref_file, open(test_path) as test_file:
+        with open(ref_path, encoding="utf-8") as ref_file, open(test_path, encoding="utf-8") as test_file:
             for l_test, l_ref in zip(test_file, ref_file, strict=True):
                 assert l_test == l_ref
 

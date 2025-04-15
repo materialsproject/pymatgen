@@ -42,9 +42,19 @@ try:
     from zeo.netstorage import AtomNetwork
 
     zeo_found = True
+    zeo_source: str | None = "zeo"
 except ImportError:
-    zeo_found = False
-    AtomNetwork = prune_voronoi_network_close_node = None
+    try:
+        from pyzeo import AtomNetwork
+        from pyzeo.extension import prune_voronoi_network_close_node
+
+        zeo_found = True
+        zeo_source = "pyzeo"
+    except ImportError:
+        zeo_found = False
+        zeo_source = None
+        AtomNetwork = prune_voronoi_network_close_node = None
+
 
 if TYPE_CHECKING:
     from pathlib import Path
@@ -146,7 +156,7 @@ class ZeoCssr(Cssr):
         Returns:
             ZeoCssr object.
         """
-        with zopen(filename, mode="r") as file:
+        with zopen(filename, mode="rt", encoding="utf-8") as file:
             return cls.from_str(file.read())
 
 
@@ -200,7 +210,7 @@ class ZeoVoronoiXYZ(XYZ):
         Returns:
             XYZ object
         """
-        with zopen(filename) as file:
+        with zopen(filename, mode="rt", encoding="utf-8") as file:
             return cls.from_str(file.read())
 
     def __str__(self) -> str:
@@ -208,7 +218,10 @@ class ZeoVoronoiXYZ(XYZ):
         prec = self.precision
         for site in self._mols[0]:
             x, y, z = site.coords
-            symbol, voronoi_radius = site.specie.symbol, site.properties["voronoi_radius"]
+            symbol, voronoi_radius = (
+                site.specie.symbol,
+                site.properties["voronoi_radius"],
+            )
             output.append(f"{symbol} {z:.{prec}f} {x:.{prec}f} {y:.{prec}f} {voronoi_radius:.{prec}f}")
         return "\n".join(output)
 

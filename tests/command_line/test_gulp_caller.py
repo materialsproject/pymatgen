@@ -8,12 +8,12 @@ from __future__ import annotations
 
 import os
 import sys
-import unittest
 from shutil import which
 from unittest import TestCase
 
 import numpy as np
 import pytest
+from pytest import approx
 
 from pymatgen.analysis.bond_valence import BVAnalyzer
 from pymatgen.command_line.gulp_caller import (
@@ -51,7 +51,13 @@ class TestGulpCaller:
             [0, 0, 0.5],
             [0.5, 0.5, 0.5],
         ]
-        mgo_uc = Structure(mgo_lattice, mgo_specie, mgo_frac_cord, validate_proximity=True, to_unit_cell=True)
+        mgo_uc = Structure(
+            mgo_lattice,
+            mgo_specie,
+            mgo_frac_cord,
+            validate_proximity=True,
+            to_unit_cell=True,
+        )
         gio = GulpIO()
         gin = gio.keyword_line("optimise", "conp")
         gin += gio.structure_lines(mgo_uc, symm_flg=False)
@@ -126,11 +132,11 @@ class TestGulpIO(TestCase):
         assert "cell" not in inp_str
         assert "cart" in inp_str
 
-    @unittest.skip("Not Implemented yet")
+    @pytest.mark.skip("Not Implemented yet")
     def test_specie_potential(self):
         pass
 
-    @unittest.expectedFailure
+    @pytest.mark.xfail
     def test_library_line_explicit_path(self):
         gin = self.gio.library_line("/Users/mbkumar/Research/Defects/GulpExe/Libraries/catlow.lib")
         assert "lib" in gin
@@ -152,7 +158,13 @@ class TestGulpIO(TestCase):
             [0, 0.5, 0.5],
             [0.5, 0.5, 0.5],
         ]
-        mgo_uc = Structure(mgo_latt, mgo_specie, mgo_frac_cord, validate_proximity=True, to_unit_cell=True)
+        mgo_uc = Structure(
+            mgo_latt,
+            mgo_specie,
+            mgo_frac_cord,
+            validate_proximity=True,
+            to_unit_cell=True,
+        )
         gin = self.gio.buckingham_potential(mgo_uc)
         assert "specie" in gin
         assert "buck" in gin
@@ -179,7 +191,13 @@ class TestGulpIO(TestCase):
             [0, 0.5, 0.5],
             [0.5, 0.5, 0.5],
         ]
-        mgo_uc = Structure(mgo_latt, mgo_specie, mgo_frac_cord, validate_proximity=True, to_unit_cell=True)
+        mgo_uc = Structure(
+            mgo_latt,
+            mgo_specie,
+            mgo_frac_cord,
+            validate_proximity=True,
+            to_unit_cell=True,
+        )
         gin = self.gio.buckingham_input(mgo_uc, keywords=("optimise", "conp"))
         assert "optimise" in gin
         assert "cell" in gin
@@ -204,7 +222,13 @@ class TestGulpIO(TestCase):
             [0, 0.5, 0.5],
             [0.5, 0.5, 0.5],
         ]
-        mgo_uc = Structure(mgo_latt, mgo_specie, mgo_frac_cord, validate_proximity=True, to_unit_cell=True)
+        mgo_uc = Structure(
+            mgo_latt,
+            mgo_specie,
+            mgo_frac_cord,
+            validate_proximity=True,
+            to_unit_cell=True,
+        )
         gin = self.gio.tersoff_potential(mgo_uc)
         assert "specie" in gin
         assert "Mg core" in gin
@@ -243,20 +267,20 @@ class TestGulpIO(TestCase):
     Non-primitive unit cell  =          -16311.9732 kJ/(mole unit cells)
 --------------------------------------------------------------------------------"""
         energy = self.gio.get_energy(out_str)
-        assert energy == -169.06277218
+        assert energy == approx(-169.06277218)
 
     def test_get_relaxed_structure(self):
         # Output string obtained from running GULP on a terminal
 
-        with open(f"{TEST_DIR}/example21.gout") as file:
+        with open(f"{TEST_DIR}/example21.gout", encoding="utf-8") as file:
             out_str = file.read()
         struct = self.gio.get_relaxed_structure(out_str)
         assert isinstance(struct, Structure)
         assert len(struct) == 8
-        assert struct.lattice.a == 4.212
-        assert struct.lattice.alpha == 90
+        assert struct.lattice.a == approx(4.212)
+        assert struct.lattice.alpha == approx(90)
 
-    @unittest.skip("Test later")
+    @pytest.mark.skip("Test later")
     def test_tersoff_input(self):
         self.gio.tersoff_input(self.structure)
 
@@ -276,7 +300,13 @@ class TestGlobalFunctions(TestCase):
             [0, 0.5, 0.5],
             [0.5, 0.5, 0.5],
         ]
-        self.mgo_uc = Structure(mgo_latt, mgo_specie, mgo_frac_cord, validate_proximity=True, to_unit_cell=True)
+        self.mgo_uc = Structure(
+            mgo_latt,
+            mgo_specie,
+            mgo_frac_cord,
+            validate_proximity=True,
+            to_unit_cell=True,
+        )
         bv = BVAnalyzer()
         val = bv.get_valences(self.mgo_uc)
         el = [site.species_string for site in self.mgo_uc]

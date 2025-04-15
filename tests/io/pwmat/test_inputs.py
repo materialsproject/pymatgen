@@ -1,9 +1,14 @@
 from __future__ import annotations
 
+import importlib
+from unittest import mock
+
 import pytest
 from monty.io import zopen
 from numpy.testing import assert_allclose
+from pytest import approx
 
+import pymatgen
 from pymatgen.core import Composition, Structure
 from pymatgen.io.pwmat.inputs import (
     ACExtractor,
@@ -43,7 +48,7 @@ class TestACstrExtractor(PymatgenTest):
     def test_extract(self):
         filepath = f"{TEST_DIR}/atom.config"
         ac_extractor = ACExtractor(file_path=filepath)
-        with zopen(filepath, mode="rt") as file:
+        with zopen(filepath, mode="rt", encoding="utf-8") as file:
             ac_str_extractor = ACstrExtractor(atom_config_str="".join(file.readlines()))
         assert ac_extractor.n_atoms == ac_str_extractor.get_n_atoms()
         for idx in range(9):
@@ -84,7 +89,7 @@ class TestGenKpt(PymatgenTest):
         filepath = f"{TEST_DIR}/atom.config"
         structure = Structure.from_file(filepath)
         gen_kpt = GenKpt.from_structure(structure, dim=2, density=0.01)
-        assert gen_kpt.density == pytest.approx(0.0628318530)
+        assert gen_kpt.density == approx(0.0628318530)
         assert gen_kpt.reciprocal_lattice.shape == (3, 3)
         assert gen_kpt.kpath["path"] == [["GAMMA", "M", "K", "GAMMA"]]
 
@@ -98,7 +103,7 @@ class TestGenKpt(PymatgenTest):
         tmp_file = f"{self.tmp_path}/gen.kpt.testing.lzma"
         gen_kpt.write_file(tmp_file)
         tmp_gen_kpt_str = ""
-        with zopen(tmp_file, mode="rt") as file:
+        with zopen(tmp_file, mode="rt", encoding="utf-8") as file:
             tmp_gen_kpt_str = file.read()
         assert gen_kpt.get_str() == tmp_gen_kpt_str
 
@@ -111,7 +116,7 @@ class TestHighSymmetryPoint(PymatgenTest):
         high_symmetry_points = HighSymmetryPoint.from_structure(structure, dim=2, density=0.01)
         assert list(high_symmetry_points.kpath) == ["kpoints", "path"]
         assert len(high_symmetry_points.kpath["path"]) == 1
-        assert high_symmetry_points.density == pytest.approx(0.0628318530)
+        assert high_symmetry_points.density == approx(0.0628318530)
         assert high_symmetry_points.reciprocal_lattice.shape == (3, 3)
 
     def test_write_file(self):
@@ -124,15 +129,24 @@ class TestHighSymmetryPoint(PymatgenTest):
         tmp_filepath = f"{self.tmp_path}/HIGH_SYMMETRY_POINTS.testing.lzma"
         high_symmetry_points.write_file(tmp_filepath)
         tmp_high_symmetry_points_str = ""
-        with zopen(tmp_filepath, "rt") as file:
+        with zopen(tmp_filepath, "rt", encoding="utf-8") as file:
             tmp_high_symmetry_points_str = file.read()
         assert tmp_high_symmetry_points_str == high_symmetry_points.get_str()
 
 
-def test_err_msg_on_seekpath_not_installed(monkeypatch):
+def test_err_msg_on_seekpath_not_installed():
     """Simulate and test error message when seekpath is not installed."""
-    try:
-        import seekpath  # noqa: F401
-    except ImportError:
-        with pytest.raises(RuntimeError, match="SeeK-path needs to be installed to use the convention of Hinuma et al"):
+
+    with mock.patch.dict("sys.modules", {"seekpath": None}):
+        # As the import error is raised during init of KPathSeek,
+        # have to import it as well (order matters)
+        importlib.reload(pymatgen.symmetry.kpath)
+        importlib.reload(pymatgen.io.pwmat.inputs)
+
+        from pymatgen.io.pwmat.inputs import GenKpt
+
+        with pytest.raises(
+            RuntimeError,
+            match="SeeK-path needs to be installed to use the convention of Hinuma et al",
+        ):
             GenKpt.from_structure(Structure.from_file(f"{TEST_DIR}/atom.config"), dim=2, density=0.01)

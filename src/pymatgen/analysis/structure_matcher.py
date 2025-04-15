@@ -4,12 +4,14 @@ from __future__ import annotations
 
 import abc
 import itertools
-from typing import TYPE_CHECKING
+import math
+from functools import lru_cache
+from typing import TYPE_CHECKING, cast
 
 import numpy as np
 from monty.json import MSONable
 
-from pymatgen.core import Composition, Lattice, Structure, get_el_sp
+from pymatgen.core import SETTINGS, Composition, IStructure, Lattice, Structure, get_el_sp
 from pymatgen.optimization.linear_assignment import LinearAssignment
 from pymatgen.util.coord import lattice_points_in_supercell
 from pymatgen.util.coord_cython import is_coord_subset_pbc, pbc_shortest_vectors
@@ -29,6 +31,31 @@ __maintainer__ = "William Davidson Richards"
 __email__ = "wrichard@mit.edu"
 __status__ = "Production"
 __date__ = "Dec 3, 2012"
+LRU_CACHE_SIZE = SETTINGS.get("STRUCTURE_MATCHER_CACHE_SIZE", 300)
+
+
+class SiteOrderedIStructure(IStructure):
+    """
+    Imutable structure where the order of sites matters.
+
+    In caching reduced structures (see `StructureMatcher._get_reduced_structure`)
+    the order of input sites can be important.
+    In general, the order of sites in a structure does not matter, but when
+    a method like `StructureMatcher.get_s2_like_s1` tries to put s2's sites in
+    the same order as s1, the site order matters.
+    """
+
+    def __eq__(self, other: object) -> bool:
+        """Check for IStructure equality and same site order."""
+        if not super().__eq__(other):
+            return False
+        other = cast("SiteOrderedIStructure", other)  # make mypy happy
+
+        return list(self.sites) == list(other.sites)
+
+    def __hash__(self) -> int:
+        """Use the composition hash for now."""
+        return super().__hash__()
 
 
 class AbstractComparator(MSONable, abc.ABC):
@@ -415,9 +442,9 @@ class StructureMatcher(MSONable):
                 raise ValueError("Invalid argument for supercell_size.")
 
         if fu < 2 / 3:
-            return int(round(1 / fu)), False
+            return round(1 / fu), False
 
-        return int(round(fu)), True
+        return round(fu), True
 
     def _get_lattices(self, target_lattice, s, supercell_size=1):
         """
@@ -437,7 +464,7 @@ class StructureMatcher(MSONable):
             skip_rotation_matrix=True,
         )
         for latt, _, scale_m in lattices:
-            if abs(abs(np.linalg.det(scale_m)) - supercell_size) < 0.5:
+            if math.isclose(abs(np.linalg.det(scale_m)), supercell_size, abs_tol=0.5, rel_tol=0):
                 yield latt, scale_m
 
     def _get_supercells(self, struct1, struct2, fu, s1_supercell):
@@ -562,7 +589,11 @@ class StructureMatcher(MSONable):
         return np.array(mask, dtype=np.int64), inds, idx
 
     def fit(
-        self, struct1: Structure, struct2: Structure, symmetric: bool = False, skip_structure_reduction: bool = False
+        self,
+        struct1: Structure,
+        struct2: Structure,
+        symmetric: bool = False,
+        skip_structure_reduction: bool = False,
     ) -> bool:
         """Fit two structures.
 
@@ -607,7 +638,7 @@ class StructureMatcher(MSONable):
         if match1 is None or match2 is None:
             return False
 
-        return max(match1[0], match2[0]) <= self.stol
+        return bool(max(match1[0], match2[0]) <= self.stol)
 
     def get_rms_dist(self, struct1, struct2):
         """
@@ -939,15 +970,25 @@ class StructureMatcher(MSONable):
                     break
         return matches
 
-    @classmethod
-    def _get_reduced_structure(cls, struct: Structure, primitive_cell: bool = True, niggli: bool = True) -> Structure:
-        """Helper method to find a reduced structure."""
+    @staticmethod
+    @lru_cache(maxsize=LRU_CACHE_SIZE)
+    def _get_reduced_istructure(
+        struct: SiteOrderedIStructure, primitive_cell: bool = True, niggli: bool = True
+    ) -> SiteOrderedIStructure:
+        """Helper method to find a reduced imutable structure."""
         reduced = struct.copy()
         if niggli:
             reduced = reduced.get_reduced_structure(reduction_algo="niggli")
         if primitive_cell:
             reduced = reduced.get_primitive_structure()
         return reduced
+
+    @classmethod
+    def _get_reduced_structure(cls, struct: Structure, primitive_cell: bool = True, niggli: bool = True) -> Structure:
+        """Helper method to find a reduced structure."""
+        return Structure.from_sites(
+            cls._get_reduced_istructure(SiteOrderedIStructure.from_sites(struct), primitive_cell, niggli)
+        )
 
     def get_rms_anonymous(self, struct1, struct2):
         """
@@ -1033,7 +1074,11 @@ class StructureMatcher(MSONable):
         return None
 
     def fit_anonymous(
-        self, struct1: Structure, struct2: Structure, niggli: bool = True, skip_structure_reduction: bool = False
+        self,
+        struct1: Structure,
+        struct2: Structure,
+        niggli: bool = True,
+        skip_structure_reduction: bool = False,
     ) -> bool:
         """
         Performs an anonymous fitting, which allows distinct species in one structure to map
@@ -1159,7 +1204,7 @@ class StructureMatcher(MSONable):
         sites = [temp.sites[i] for i in mapping if i is not None]
 
         if include_ignored_species:
-            start = int(round(len(temp) / len(struct2) * len(s2)))
+            start = round(len(temp) / len(struct2) * len(s2))
             sites.extend(temp.sites[start:])
 
         return Structure.from_sites(sites)

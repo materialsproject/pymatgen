@@ -34,7 +34,10 @@ class TestVoronoiAnalyzer(PymatgenTest):
         # Check for the presence of a Voronoi index and its frequency in
         # a ensemble (list) of Structures
         ensemble = self.va.analyze_structures(self.structs, step_freq=2, most_frequent_polyhedra=10)
-        assert ("[1 3 4 7 1 0 0 0]", 3) in ensemble, "Cannot find the right polyhedron in ensemble."
+        assert (
+            "[1 3 4 7 1 0 0 0]",
+            3,
+        ) in ensemble, "Cannot find the right polyhedron in ensemble."
 
 
 class TestRelaxationAnalyzer(TestCase):
@@ -45,10 +48,10 @@ class TestRelaxationAnalyzer(TestCase):
 
     def test_vol_and_para_changes(self):
         for val in self.analyzer.get_percentage_lattice_parameter_changes().values():
-            assert approx(val) == -0.0092040921155279731
+            assert val == approx(-0.0092040921155279731)
             latt_change = val
         vol_change = self.analyzer.get_percentage_volume_change()
-        assert approx(vol_change) == -0.0273589101391
+        assert vol_change == approx(-0.0273589101391)
         # This is a simple cubic cell, so the latt and vol change are simply
         # Related. So let's test that.
         assert (1 + latt_change) ** 3 - 1 == approx(vol_change)
@@ -56,7 +59,7 @@ class TestRelaxationAnalyzer(TestCase):
     def test_get_percentage_bond_dist_changes(self):
         for v in self.analyzer.get_percentage_bond_dist_changes().values():
             for v2 in v.values():
-                assert approx(v2) == -0.009204092115527862
+                assert v2 == approx(-0.009204092115527862)
 
 
 class TestVoronoiConnectivity(PymatgenTest):
@@ -79,9 +82,9 @@ class TestMiscFunction(PymatgenTest):
     def test_average_coordination_number(self):
         xdatcar = Xdatcar(f"{VASP_OUT_DIR}/XDATCAR.MD")
         coordination_numbers = average_coordination_number(xdatcar.structures, freq=1)
-        assert coordination_numbers["Fe"] == approx(
-            4.771903318390836, 5
-        ), "Coordination number not calculated properly."
+        assert coordination_numbers["Fe"] == approx(4.771903318390836, 5), (
+            "Coordination number not calculated properly."
+        )
 
     def test_solid_angle(self):
         center = [2.294508207929496, 4.4078057081404, 2.299997773791287]

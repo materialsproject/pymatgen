@@ -9,8 +9,6 @@ import os
 from typing import TYPE_CHECKING
 
 import numpy as np
-from matplotlib import patches
-from matplotlib.path import Path
 from monty.serialization import loadfn
 from scipy.spatial import Delaunay
 
@@ -58,7 +56,11 @@ class AdsorbateSiteFinder:
     """
 
     def __init__(
-        self, slab: Slab, selective_dynamics: bool = False, height: float = 0.9, mi_vec: ArrayLike | None = None
+        self,
+        slab: Slab,
+        selective_dynamics: bool = False,
+        height: float = 0.9,
+        mi_vec: ArrayLike | None = None,
     ) -> None:
         """Create an AdsorbateSiteFinder object.
 
@@ -150,7 +152,10 @@ class AdsorbateSiteFinder:
                 surf_props += ["surface"]
             else:
                 surf_props += ["subsurface"]
-        new_site_properties = {"surface_properties": surf_props, "undercoords": under_coords}
+        new_site_properties = {
+            "surface_properties": surf_props,
+            "undercoords": under_coords,
+        }
         new_slab = this_slab.copy(site_properties=new_site_properties)
         return cls(new_slab, selective_dynamics)
 
@@ -348,8 +353,8 @@ class AdsorbateSiteFinder:
         sites. Helper method for the find_adsorption_sites algorithm.
 
         Args:
-            site_list (list of sites): list of sites
-            indices (list of ints): list of ints from which to select
+            site_list (list[Site]): sites from which to select
+            indices (list[int]): indices of sites from which to select
                 sites from site list
             cartesian (bool): whether to get average fractional or
                 Cartesian coordinate
@@ -413,7 +418,7 @@ class AdsorbateSiteFinder:
         """
         sd_list = []
         sd_list = [
-            [False, False, False] if site.properties["surface_properties"] == "subsurface" else [True, True, True]
+            ([False, False, False] if site.properties["surface_properties"] == "subsurface" else [True, True, True])
             for site in slab
         ]
         new_sp = slab.site_properties
@@ -543,7 +548,7 @@ class AdsorbateSiteFinder:
             atom (str): atom corresponding to substitutional dopant
             sub_both_sides (bool): If true, substitute an equivalent
                 site on the other surface
-            target_species (list): List of specific species to substitute
+            target_species (list): Specific species to substitute
             range_tol (float): Find viable substitution sites at a specific
                 distance from the surface +- this tolerance
             dist_from_surf (float): Distance from the surface to find viable
@@ -657,6 +662,10 @@ def plot_slab(
         decay (float): how the alpha-value decays along the z-axis
         inverse (bool): invert z axis to plot opposite surface
     """
+    # Expensive import (PR4128)
+    from matplotlib import patches
+    from matplotlib.path import Path
+
     orig_slab = slab.copy()
     slab = reorient_z(slab)
     orig_cell = slab.lattice.matrix.copy()
@@ -678,7 +687,14 @@ def plot_slab(
     # Draw circles at sites and stack them accordingly
     for idx, coord in enumerate(coords):
         radius = sites[idx].species.elements[0].atomic_radius * scale
-        ax.add_patch(patches.Circle(coord[:2] - lattice_sum * (repeat // 2), radius, color="w", zorder=2 * idx))
+        ax.add_patch(
+            patches.Circle(
+                coord[:2] - lattice_sum * (repeat // 2),
+                radius,
+                color="w",
+                zorder=2 * idx,
+            )
+        )
         color = color_dict[sites[idx].species.elements[0].symbol]
         ax.add_patch(
             patches.Circle(
@@ -701,7 +717,15 @@ def plot_slab(
         ads_sites = asf.find_adsorption_sites()["all"]
         symm_op = get_rot(orig_slab)
         ads_sites = [symm_op.operate(ads_site)[:2].tolist() for ads_site in ads_sites]
-        ax.plot(*zip(*ads_sites, strict=True), color="k", marker="x", markersize=10, mew=1, linestyle="", zorder=10000)
+        ax.plot(
+            *zip(*ads_sites, strict=True),
+            color="k",
+            marker="x",
+            markersize=10,
+            mew=1,
+            linestyle="",
+            zorder=10000,
+        )
     # Draw unit cell
     if draw_unit_cell:
         vertices = np.insert(vertices, 1, lattice_sum, axis=0).tolist()

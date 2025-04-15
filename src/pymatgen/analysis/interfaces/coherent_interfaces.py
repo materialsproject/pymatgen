@@ -6,7 +6,6 @@ from itertools import product
 from typing import TYPE_CHECKING
 
 import numpy as np
-from numpy.testing import assert_allclose
 from scipy.linalg import polar
 
 from pymatgen.analysis.elasticity.strain import Deformation
@@ -34,14 +33,22 @@ class CoherentInterfaceBuilder:
         film_miller: Tuple3Ints,
         substrate_miller: Tuple3Ints,
         zslgen: ZSLGenerator | None = None,
+        termination_ftol: float = 0.25,
+        label_index: bool = False,  # necessary to add index to termination
+        filter_out_sym_slabs: bool = True,
     ):
         """
         Args:
-            substrate_structure: structure of substrate
-            film_structure: structure of film
-            film_miller: miller index of the film layer
-            substrate_miller: miller index for the substrate layer
-            zslgen: BiDirectionalZSL if you want custom lattice matching tolerances for coherency.
+            substrate_structure (Structure): substrate structure
+            film_structure (Structure): film structure
+            film_miller (tuple[int, int, int]): miller index for the film layer
+            substrate_miller (tuple[int, int, int]): miller index for the substrate layer
+            zslgen (ZSLGenerator | None): BiDirectionalZSL if you want custom lattice matching tolerances for coherency.
+            termination_ftol (float): tolerance to distinguish different terminating atomic planes.
+            label_index (bool): If True add an extra index at the beginning of the termination label.
+            filter_out_sym_slabs (bool): If True filter out identical slabs with different terminations.
+                This might need to be set as False to find more non-identical terminations because slab
+                identity separately does not mean combinational identity.
         """
         # Bulk structures
         self.substrate_structure = substrate_structure
@@ -49,7 +56,9 @@ class CoherentInterfaceBuilder:
         self.film_miller = film_miller
         self.substrate_miller = substrate_miller
         self.zslgen = zslgen or ZSLGenerator(bidirectional=True)
-
+        self.termination_ftol = termination_ftol
+        self.label_index = label_index
+        self.filter_out_sym_slabs = filter_out_sym_slabs
         self._find_matches()
         self._find_terminations()
 
@@ -91,21 +100,15 @@ class CoherentInterfaceBuilder:
         for match in self.zsl_matches:
             xform = get_2d_transform(film_vectors, match.film_vectors)
             strain, _rot = polar(xform)
-            assert_allclose(
-                strain,
-                np.round(strain),
-                atol=1e-12,
-                err_msg="Film lattice vectors changed during ZSL match, check your ZSL Generator parameters",
-            )
+            if not np.allclose(strain, np.round(strain), rtol=1e-7, atol=1e-12):
+                raise ValueError("Film lattice vectors changed during ZSL match, check your ZSL Generator parameters")
 
             xform = get_2d_transform(substrate_vectors, match.substrate_vectors)
             strain, _rot = polar(xform)
-            assert_allclose(
-                strain,
-                strain.astype(int),
-                atol=1e-12,
-                err_msg="Substrate lattice vectors changed during ZSL match, check your ZSL Generator parameters",
-            )
+            if not np.allclose(strain, strain.astype(int), rtol=1e-7, atol=1e-12):
+                raise ValueError(
+                    "Substrate lattice vectors changed during ZSL match, check your ZSL Generator parameters"
+                )
 
     def _find_terminations(self):
         """Find all terminations."""
@@ -131,19 +134,30 @@ class CoherentInterfaceBuilder:
             reorient_lattice=False,  # This is necessary to not screw up the lattice
         )
 
-        film_slabs = film_sg.get_slabs()
-        sub_slabs = sub_sg.get_slabs()
-
+        film_slabs = film_sg.get_slabs(ftol=self.termination_ftol, filter_out_sym_slabs=self.filter_out_sym_slabs)
+        sub_slabs = sub_sg.get_slabs(ftol=self.termination_ftol, filter_out_sym_slabs=self.filter_out_sym_slabs)
         film_shifts = [slab.shift for slab in film_slabs]
-        film_terminations = [label_termination(slab) for slab in film_slabs]
+
+        if self.label_index:
+            film_terminations = [
+                label_termination(slab, self.termination_ftol, t_idx) for t_idx, slab in enumerate(film_slabs, start=1)
+            ]
+        else:
+            film_terminations = [label_termination(slab, self.termination_ftol) for slab in film_slabs]
 
         sub_shifts = [slab.shift for slab in sub_slabs]
-        sub_terminations = [label_termination(slab) for slab in sub_slabs]
+        if self.label_index:
+            sub_terminations = [
+                label_termination(slab, self.termination_ftol, t_idx) for t_idx, slab in enumerate(sub_slabs, start=1)
+            ]
+        else:
+            sub_terminations = [label_termination(slab, self.termination_ftol) for slab in sub_slabs]
 
         self._terminations = {
             (film_label, sub_label): (film_shift, sub_shift)
             for (film_label, film_shift), (sub_label, sub_shift) in product(
-                zip(film_terminations, film_shifts, strict=True), zip(sub_terminations, sub_shifts, strict=True)
+                zip(film_terminations, film_shifts, strict=True),
+                zip(sub_terminations, sub_shifts, strict=True),
             )
         }
         self.terminations = list(self._terminations)
@@ -205,18 +219,12 @@ class CoherentInterfaceBuilder:
             ).astype(int)
             film_sl_slab = film_slab.copy()
             film_sl_slab.make_supercell(super_film_transform)
-            assert_allclose(
-                film_sl_slab.lattice.matrix[2],
-                film_slab.lattice.matrix[2],
-                atol=1e-08,
-                err_msg="2D transformation affected C-axis for Film transformation",
-            )
-            assert_allclose(
-                film_sl_slab.lattice.matrix[:2],
-                match.film_sl_vectors,
-                atol=1e-08,
-                err_msg="Transformation didn't make proper supercell for film",
-            )
+            if not np.allclose(film_sl_slab.lattice.matrix[2], film_slab.lattice.matrix[2], rtol=1e-7, atol=1e-08):
+                raise ValueError(
+                    "2D transformation affected C-axis for Film transformation",
+                )
+            if not np.allclose(film_sl_slab.lattice.matrix[:2], match.film_sl_vectors, rtol=1e-7, atol=1e-08):
+                raise ValueError("Transformation didn't make proper supercell for film")
 
             # Build substrate superlattice
             super_sub_transform = np.round(
@@ -224,18 +232,10 @@ class CoherentInterfaceBuilder:
             ).astype(int)
             sub_sl_slab = sub_slab.copy()
             sub_sl_slab.make_supercell(super_sub_transform)
-            assert_allclose(
-                sub_sl_slab.lattice.matrix[2],
-                sub_slab.lattice.matrix[2],
-                atol=1e-08,
-                err_msg="2D transformation affected C-axis for Film transformation",
-            )
-            assert_allclose(
-                sub_sl_slab.lattice.matrix[:2],
-                match.substrate_sl_vectors,
-                atol=1e-08,
-                err_msg="Transformation didn't make proper supercell for substrate",
-            )
+            if not np.allclose(sub_sl_slab.lattice.matrix[2], sub_slab.lattice.matrix[2], rtol=1e-7, atol=1e-08):
+                raise ValueError("2D transformation affected C-axis for Film transformation")
+            if not np.allclose(sub_sl_slab.lattice.matrix[:2], match.substrate_sl_vectors, rtol=1e-7, atol=1e-08):
+                raise ValueError("Transformation didn't make proper supercell for substrate")
 
             # Add extra info
             match_dict = match.as_dict()
@@ -272,9 +272,7 @@ def get_rot_3d_for_2d(film_matrix, sub_matrix) -> np.ndarray:
     sub_matrix = np.array(sub_matrix)
     sub_matrix = sub_matrix.tolist()[:2]
     temp_sub = np.cross(sub_matrix[0], sub_matrix[1]).astype(float)  # conversion to float necessary if using numba
-    temp_sub = temp_sub * fast_norm(
-        np.array(film_matrix[2], dtype=float)
-    )  # conversion to float necessary if using numba
+    temp_sub *= fast_norm(np.array(film_matrix[2], dtype=float))  # conversion to float necessary if using numba
     sub_matrix.append(temp_sub)
 
     transform_matrix = np.transpose(np.linalg.solve(film_matrix, sub_matrix))

@@ -32,7 +32,7 @@ class TestBaderAnalysis(PymatgenTest):
         assert analysis.data[0]["charge"] == analysis.get_charge(0)
         assert analysis.nelectrons == 96
         assert analysis.vacuum_charge == approx(0)
-        ans = [
+        results = [
             -1.3863218,
             -1.3812175,
             -1.3812175,
@@ -49,7 +49,7 @@ class TestBaderAnalysis(PymatgenTest):
             1.024357,
         ]
         for idx in range(14):
-            assert ans[idx] == approx(analysis.get_charge_transfer(idx), abs=1e-3)
+            assert results[idx] == approx(analysis.get_charge_transfer(idx), abs=1e-3)
         assert analysis.get_partial_charge(0) == -analysis.get_charge_transfer(0)
         struct = analysis.get_oxidation_state_decorated_structure()
         assert struct[0].specie.oxi_state == approx(1.3863218, abs=1e-3)
@@ -116,7 +116,9 @@ class TestBaderAnalysis(PymatgenTest):
         assert summary["reference_used"]
         assert sum(summary["magmom"]) == approx(28, abs=1e-1)
 
+    @pytest.mark.filterwarnings("ignore:_parse_atomic_densities is deprecated")
     def test_atom_parsing(self):
+        """TODO: Deprecated, remove after 2025-2-26, see PR3652."""
         # test with reference file
         analysis = BaderAnalysis(
             chgcar_filename=f"{VASP_OUT_DIR}/CHGCAR.Fe3O4.gz",
@@ -137,6 +139,7 @@ class TestBaderAnalysis(PymatgenTest):
             monkeypatch.setenv("PATH", "")
 
             with pytest.raises(
-                RuntimeError, match="Requires bader or bader.exe to be in the PATH or the absolute path"
+                RuntimeError,
+                match="Requires bader or bader.exe to be in the PATH or the absolute path",
             ):
                 BaderAnalysis(chgcar_filename=f"{VASP_OUT_DIR}/CHGCAR.Fe3O4.gz")

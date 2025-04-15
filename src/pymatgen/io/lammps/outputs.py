@@ -81,9 +81,8 @@ class LammpsDump(MSONable):
         Returns:
             LammpsDump
         """
-        items = {"timestep": dct["timestep"], "natoms": dct["natoms"]}
-        items["box"] = LammpsBox.from_dict(dct["box"])
-        items["data"] = pd.read_json(dct["data"], orient="split")
+        items = {"timestep": dct["timestep"], "natoms": dct["natoms"], "box": LammpsBox.from_dict(dct["box"])}
+        items["data"] = pd.read_json(StringIO(dct["data"]), orient="split")
         return cls(**items)
 
     def as_dict(self) -> dict[str, Any]:
@@ -116,7 +115,7 @@ def parse_lammps_dumps(file_pattern):
         files = sorted(files, key=lambda f: int(re.match(pattern, f)[1]))
 
     for filename in files:
-        with zopen(filename, mode="rt") as file:
+        with zopen(filename, mode="rt", encoding="utf-8") as file:
             dump_cache = []
             for line in file:
                 if line.startswith("ITEM: TIMESTEP"):
@@ -145,7 +144,7 @@ def parse_lammps_log(filename: str = "log.lammps") -> list[pd.DataFrame]:
     Returns:
         [pd.DataFrame] containing thermo data for each completed run.
     """
-    with zopen(filename, mode="rt") as file:
+    with zopen(filename, mode="rt", encoding="utf-8") as file:
         lines = file.readlines()
     begin_flag = (
         "Memory usage per processor =",

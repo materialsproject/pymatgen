@@ -67,7 +67,11 @@ class TestPackmolSet(PymatgenTest):
         """Test coords input as strings."""
         pw = PackmolBoxGen().get_input_set(
             molecules=[
-                {"name": "EMC", "number": 10, "coords": f"{TEST_DIR}/subdir with spaces/EMC.xyz"},
+                {
+                    "name": "EMC",
+                    "number": 10,
+                    "coords": f"{TEST_DIR}/subdir with spaces/EMC.xyz",
+                },
                 {"name": "LiTFSi", "number": 20, "coords": f"{TEST_DIR}/LiTFSi.xyz"},
             ],
         )
@@ -87,10 +91,21 @@ class TestPackmolSet(PymatgenTest):
                 {"name": "LiTFSi", "number": 20, "coords": p2},
             ],
         )
-        pw.write_input(self.tmp_path)
-        pw.run(self.tmp_path)
+        # PymatgenTest makes each test change to a temporary directory
+        # Check here we can run in the current directory
+        pw.write_input(".")
+        pw.run(".")
         assert os.path.isfile(f"{self.tmp_path}/packmol_out.xyz")
+        assert os.path.isfile(f"{self.tmp_path}/packmol.stdout")
         out = Molecule.from_file(f"{self.tmp_path}/packmol_out.xyz")
+        assert out.composition.num_atoms == 10 * 15 + 20 * 16
+        # PymatgenTest makes each test change to a temporary directory
+        # Check here we can run in a relative directory
+        pw.write_input("somedir")
+        pw.run("somedir")
+        assert os.path.isfile(f"{self.tmp_path}/somedir/packmol_out.xyz")
+        out = Molecule.from_file(f"{self.tmp_path}/somedir/packmol_out.xyz")
+        assert os.path.isfile(f"{self.tmp_path}/somedir/packmol.stdout")
         assert out.composition.num_atoms == 10 * 15 + 20 * 16
 
     def test_control_params(self):
@@ -107,7 +122,7 @@ class TestPackmolSet(PymatgenTest):
             ],
         )
         input_set.write_input(self.tmp_path)
-        with open(f"{self.tmp_path}/packmol.inp") as file:
+        with open(f"{self.tmp_path}/packmol.inp", encoding="utf-8") as file:
             input_string = file.read()
             assert "maxit 0" in input_string
             assert "nloop 0" in input_string
@@ -139,7 +154,7 @@ class TestPackmolSet(PymatgenTest):
             box=[0, 0, 0, 2, 2, 2],
         )
         pw.write_input(self.tmp_path)
-        with open(f"{self.tmp_path}/packmol.inp") as file:
+        with open(f"{self.tmp_path}/packmol.inp", encoding="utf-8") as file:
             input_string = file.read()
             assert "inside box 0 0 0 2 2 2" in input_string
         with pytest.raises(ValueError, match=ERR_MSG_173):
@@ -220,7 +235,9 @@ class TestPackmolSet(PymatgenTest):
         """
         os.mkdir(f"{self.tmp_path}/subdirectory with spaces")
         pw = PackmolBoxGen(
-            inputfile="input.in", outputfile=Path("output.xyz"), stdoutfile=Path("stdout.txt")
+            inputfile="input.in",
+            outputfile=Path("output.xyz"),
+            stdoutfile=Path("stdout.txt"),
         ).get_input_set(
             molecules=[
                 {"name": "water", "number": 10, "coords": water},

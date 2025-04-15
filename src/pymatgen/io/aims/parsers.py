@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import gzip
+import warnings
 from dataclasses import dataclass, field
 from pathlib import Path
 from typing import TYPE_CHECKING, cast
@@ -11,14 +12,13 @@ import numpy as np
 
 from pymatgen.core import Lattice, Molecule, Structure
 from pymatgen.core.tensors import Tensor
-from pymatgen.util.typing import Tuple3Floats
 
 if TYPE_CHECKING:
     from collections.abc import Generator, Sequence
     from io import TextIOWrapper
     from typing import Any
 
-    from pymatgen.util.typing import Matrix3D, Vector3D
+    from pymatgen.util.typing import Matrix3D, Tuple3Floats, Vector3D
 
 __author__ = "Thomas A. R. Purcell and Andrey Sobolev"
 __version__ = "1.0"
@@ -486,11 +486,21 @@ class AimsOutCalcChunk(AimsOutChunk):
             "hirshfeld_charges": "hirshfeld_charge",
             "hirshfeld_volumes": "hirshfeld_volume",
             "hirshfeld_atomic_dipoles": "hirshfeld_atomic_dipole",
+            "mulliken_charges": "charge",
+            "mulliken_spins": "magmom",
         }
         properties = {prop: results[prop] for prop in results if prop not in site_prop_keys}
         for prop, site_key in site_prop_keys.items():
             if prop in results:
                 site_properties[site_key] = results[prop]
+
+        if ((magmom := site_properties.get("magmom")) is not None) and np.abs(
+            np.sum(magmom) - properties["magmom"]
+        ) < 1e-3:
+            warnings.warn(
+                "Total magnetic moment and sum of Mulliken spins are not consistent",
+                stacklevel=2,
+            )
 
         if lattice is not None:
             return Structure(
@@ -501,6 +511,7 @@ class AimsOutCalcChunk(AimsOutChunk):
                 properties=properties,
                 coords_are_cartesian=True,
             )
+
         return Molecule(
             species,
             coords,
@@ -536,7 +547,7 @@ class AimsOutCalcChunk(AimsOutChunk):
             velocities = list(self.initial_structure.site_properties.get("velocity", []))
             lattice = self.initial_lattice
 
-            return (species, coords, velocities, lattice)
+            return species, coords, velocities, lattice
 
         line_start += 1
 
@@ -553,9 +564,9 @@ class AimsOutCalcChunk(AimsOutChunk):
             elif "atom   " in line:
                 line_split = line.split()
                 species.append(line_split[4])
-                coords.append(cast(Tuple3Floats, tuple(float(inp) for inp in line_split[1:4])))
+                coords.append(cast("Tuple3Floats", tuple(float(inp) for inp in line_split[1:4])))
             elif "velocity   " in line:
-                velocities.append(cast(Tuple3Floats, tuple(float(inp) for inp in line.split()[1:4])))
+                velocities.append(cast("Tuple3Floats", tuple(float(inp) for inp in line.split()[1:4])))
 
         lattice = Lattice(lattice_vectors) if len(lattice_vectors) == 3 else None
         return species, coords, velocities, lattice
@@ -564,36 +575,48 @@ class AimsOutCalcChunk(AimsOutChunk):
     def species(self) -> list[str]:
         """The list of atomic symbols for all atoms in the structure."""
         if "species" not in self._cache:
-            self._cache["species"], self._cache["coords"], self._cache["velocities"], self._cache["lattice"] = (
-                self._parse_lattice_atom_pos()
-            )
+            (
+                self._cache["species"],
+                self._cache["coords"],
+                self._cache["velocities"],
+                self._cache["lattice"],
+            ) = self._parse_lattice_atom_pos()
         return self._cache["species"]
 
     @property
     def coords(self) -> list[Vector3D]:
         """The cartesian coordinates of the atoms."""
         if "coords" not in self._cache:
-            self._cache["species"], self._cache["coords"], self._cache["velocities"], self._cache["lattice"] = (
-                self._parse_lattice_atom_pos()
-            )
+            (
+                self._cache["species"],
+                self._cache["coords"],
+                self._cache["velocities"],
+                self._cache["lattice"],
+            ) = self._parse_lattice_atom_pos()
         return self._cache["coords"]
 
     @property
     def velocities(self) -> list[Vector3D]:
         """The velocities of the atoms."""
         if "velocities" not in self._cache:
-            self._cache["species"], self._cache["coords"], self._cache["velocities"], self._cache["lattice"] = (
-                self._parse_lattice_atom_pos()
-            )
+            (
+                self._cache["species"],
+                self._cache["coords"],
+                self._cache["velocities"],
+                self._cache["lattice"],
+            ) = self._parse_lattice_atom_pos()
         return self._cache["velocities"]
 
     @property
     def lattice(self) -> Lattice:
         """The Lattice object for the structure."""
         if "lattice" not in self._cache:
-            self._cache["species"], self._cache["coords"], self._cache["velocities"], self._cache["lattice"] = (
-                self._parse_lattice_atom_pos()
-            )
+            (
+                self._cache["species"],
+                self._cache["coords"],
+                self._cache["velocities"],
+                self._cache["lattice"],
+            ) = self._parse_lattice_atom_pos()
         return self._cache["lattice"]
 
     @property
@@ -755,9 +778,38 @@ class AimsOutCalcChunk(AimsOutChunk):
             "hirshfeld_dipole": hirshfeld_dipole,
         }
 
+    def _parse_mulliken(
+        self,
+    ) -> None:
+        """Parse the Mulliken charges and spins."""
+        line_start = self.reverse_search_for(["Performing Mulliken charge analysis"])
+        if line_start == LINE_NOT_FOUND:
+            self._cache.update(mulliken_charges=None, mulliken_spins=None)
+            return
+
+        line_start = self.reverse_search_for(["Summary of the per-atom charge analysis"])
+        mulliken_charges = np.array(
+            [float(self.lines[ind].split()[3]) for ind in range(line_start + 3, line_start + 3 + self.n_atoms)]
+        )
+
+        line_start = self.reverse_search_for(["Summary of the per-atom spin analysis"])
+        if line_start == LINE_NOT_FOUND:
+            mulliken_spins = None
+        else:
+            mulliken_spins = np.array(
+                [float(self.lines[ind].split()[2]) for ind in range(line_start + 3, line_start + 3 + self.n_atoms)]
+            )
+
+        self._cache.update(
+            {
+                "mulliken_charges": mulliken_charges,
+                "mulliken_spins": mulliken_spins,
+            }
+        )
+
     @property
     def structure(self) -> Structure | Molecule:
-        """The pytmagen SiteCollection of the chunk."""
+        """The pymatgen SiteCollection of the chunk."""
         if "structure" not in self._cache:
             self._cache["structure"] = self._parse_structure()
         return self._cache["structure"]
@@ -775,6 +827,8 @@ class AimsOutCalcChunk(AimsOutChunk):
             "dipole": self.dipole,
             "fermi_energy": self.E_f,
             "n_iter": self.n_iter,
+            "mulliken_charges": self.mulliken_charges,
+            "mulliken_spins": self.mulliken_spins,
             "hirshfeld_charges": self.hirshfeld_charges,
             "hirshfeld_dipole": self.hirshfeld_dipole,
             "hirshfeld_volumes": self.hirshfeld_volumes,
@@ -867,6 +921,20 @@ class AimsOutCalcChunk(AimsOutChunk):
     def converged(self) -> bool:
         """True if the calculation is converged."""
         return (len(self.lines) > 0) and ("Have a nice day." in self.lines[-5:])
+
+    @property
+    def mulliken_charges(self) -> Sequence[float] | None:
+        """The Mulliken charges of the system"""
+        if "mulliken_charges" not in self._cache:
+            self._parse_mulliken()
+        return self._cache["mulliken_charges"]
+
+    @property
+    def mulliken_spins(self) -> Sequence[float] | None:
+        """The Mulliken spins of the system"""
+        if "mulliken_spins" not in self._cache:
+            self._parse_mulliken()
+        return self._cache["mulliken_spins"]
 
     @property
     def hirshfeld_charges(self) -> Sequence[float] | None:
@@ -998,10 +1066,7 @@ def get_aims_out_chunks(content: str | TextIOWrapper, header_chunk: AimsOutHeade
             # don't end chunk on next Re-initialization
             patterns = [
                 ("Self-consistency cycle not yet converged - restarting mixer to attempt better convergence."),
-                (
-                    "Components of the stress tensor (for mathematical "
-                    "background see comments in numerical_stress.f90)."
-                ),
+                ("Components of the stress tensor (for mathematical background see comments in numerical_stress.f90)."),
                 "Calculation of numerical stress completed",
             ]
             if any(pattern in line for pattern in patterns):
@@ -1067,7 +1132,7 @@ def read_aims_header_info(
             with gzip.open(filename, mode="rt") as file:
                 content = file.read()
         else:
-            with open(filename) as file:
+            with open(filename, encoding="utf-8") as file:
                 content = file.read()
 
     if content is None:
@@ -1091,14 +1156,13 @@ def read_aims_output_from_content(
     """
     header_chunk = get_header_chunk(content)
     chunks = list(get_aims_out_chunks(content, header_chunk))
+    if header_chunk.is_relaxation and any("Final atomic structure:" in line for line in chunks[-1].lines):
+        chunks[-2].lines += chunks[-1].lines
+        chunks = chunks[:-1]
 
     check_convergence(chunks, non_convergence_ok)
     # Relaxations have an additional footer chunk due to how it is split
-    images = (
-        [chunk.structure for chunk in chunks[:-1]]
-        if header_chunk.is_relaxation
-        else [chunk.structure for chunk in chunks]
-    )
+    images = [chunk.structure for chunk in chunks]
     return images[index]
 
 
@@ -1127,7 +1191,7 @@ def read_aims_output(
             with gzip.open(path, mode="rt") as file:
                 content = file.read()
         else:
-            with open(path) as file:
+            with open(path, encoding="utf-8") as file:
                 content = file.read()
 
     if content is None:

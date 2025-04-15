@@ -23,10 +23,8 @@ __email__ = "bkmedasani@lbl.gov,wenhao@mit.edu"
 __status__ = "Production"
 __date__ = "Jun 22, 2013M"
 
-MODULE_DIR = os.path.dirname(os.path.abspath(__file__))
-
-_anions = set(map(Element, ["O", "S", "F", "Cl", "Br", "N", "P"]))
-_cations = set(
+_ANIONS = set(map(Element, ["O", "S", "F", "Cl", "Br", "N", "P"]))
+_CATIONS = set(
     map(
         Element,
         [
@@ -92,144 +90,6 @@ _cations = set(
         ],
     )
 )
-_gulp_kw = {
-    # Control of calculation type
-    "angle",
-    "bond",
-    "cosmo",
-    "cosmic",
-    "cost",
-    "defect",
-    "distance",
-    "eem",
-    "efg",
-    "fit",
-    "free_energy",
-    "gasteiger",
-    "genetic",
-    "gradients",
-    "md",
-    "montecarlo",
-    "noautobond",
-    "noenergy",
-    "optimise",
-    "pot",
-    "predict",
-    "preserve_Q",
-    "property",
-    "phonon",
-    "qeq",
-    "qbond",
-    "single",
-    "sm",
-    "static_first",
-    "torsion",
-    "transition_state",
-    # Geometric variable specification
-    "breathe",
-    "bulk_noopt",
-    "cellonly",
-    "conp",
-    "conv",
-    "isotropic",
-    "orthorhombic",
-    "nobreathe",
-    "noflgs",
-    "shell",
-    "unfix",
-    # Algorithm
-    "c6",
-    "dipole",
-    "fbfgs",
-    "fix_molecule",
-    "full",
-    "hill",
-    "kfull",
-    "marvinSE",
-    "madelung",
-    "minimum_image",
-    "molecule",
-    "molmec",
-    "molq",
-    "newda",
-    "noanisotropic_2b",
-    "nod2sym",
-    "nodsymmetry",
-    "noelectrostatics",
-    "noexclude",
-    "nofcentral",
-    "nofirst_point",
-    "noksymmetry",
-    "nolist_md",
-    "nomcediff",
-    "nonanal",
-    "noquicksearch",
-    "noreal",
-    "norecip",
-    "norepulsive",
-    "nosasinitevery",
-    "nosderv",
-    "nozeropt",
-    "numerical",
-    "qiter",
-    "qok",
-    "spatial",
-    "storevectors",
-    "nomolecularinternalke",
-    "voigt",
-    "zsisa",
-    # Optimization method
-    "conjugate",
-    "dfp",
-    "lbfgs",
-    "numdiag",
-    "positive",
-    "rfo",
-    "unit",
-    # Output control
-    "average",
-    "broaden_dos",
-    "cartesian",
-    "compare",
-    "conserved",
-    "dcharge",
-    "dynamical_matrix",
-    "eigenvectors",
-    "global",
-    "hessian",
-    "hexagonal",
-    "intensity",
-    "linmin",
-    "meanke",
-    "nodensity_out",
-    "nodpsym",
-    "nofrequency",
-    "nokpoints",
-    "operators",
-    "outcon",
-    "prt_eam",
-    "prt_two",
-    "prt_regi_before",
-    "qsas",
-    "restore",
-    "save",
-    "terse",
-    # Structure control
-    "lower_symmetry",
-    "nosymmetry",
-    # PDF control
-    "PDF",
-    "PDFcut",
-    "PDFbelow",
-    "PDFkeep",
-    "coreinfo",
-    "nowidth",
-    "nopartial",
-    # Miscellaneous
-    "nomodcoord",
-    "oldunits",
-    "zero_potential",
-}
 
 
 class GulpIO:
@@ -243,8 +103,6 @@ class GulpIO:
         Args:
             args: 1st line keywords
         """
-        # if len(list(filter(lambda x: x in _gulp_kw, args))) != len(args):
-        #    raise GulpError("Wrong keywords given")
         gin = " ".join(args)
         gin += "\n"
         return gin
@@ -300,7 +158,7 @@ class GulpIO:
             specie = site.specie
             core_site_desc = f"{specie.symbol} core {' '.join(coord)}\n"
             gin += core_site_desc
-            if (specie in _anions and anion_shell_flg) or (specie in _cations and cation_shell_flg):
+            if (specie in _ANIONS and anion_shell_flg) or (specie in _CATIONS and cation_shell_flg):
                 shel_site_desc = f"{specie.symbol} shel {' '.join(coord)}\n"
                 gin += shel_site_desc
             else:
@@ -785,7 +643,7 @@ class GulpConvergenceError(Exception):
 
 
 class BuckinghamPotential:
-    """Generate the Buckingham Potential Table from the bush.lib and lewis.lib.
+    """Generate the Buckingham Potential Table from the bush.lib or lewis.lib.
 
     Ref:
     T.S.Bush, J.D.Gale, C.R.A.Catlow and P.D. Battle,  J. Mater Chem.,
@@ -794,15 +652,16 @@ class BuckinghamPotential:
     1149-1161 (1985)
     """
 
-    def __init__(self, bush_lewis_flag):
+    def __init__(self, bush_lewis_flag, pot_file):
         """
         Args:
             bush_lewis_flag (str): Flag for using Bush or Lewis potential.
+            pot_file: The potential file, either bush.lib or lewis.lib.
         """
         if bush_lewis_flag not in {"bush", "lewis"}:
             raise ValueError(f"bush_lewis_flag should be bush or lewis, got {bush_lewis_flag}")
-        pot_file = "bush.lib" if bush_lewis_flag == "bush" else "lewis.lib"
-        with open(os.path.join(os.environ["GULP_LIB"], pot_file)) as file:
+
+        with open(pot_file, encoding="utf-8") as file:
             # In lewis.lib there is no shell for cation
             species_dict, pot_dict, spring_dict = {}, {}, {}
             sp_flg, pot_flg, spring_flg = False, False, False
@@ -867,9 +726,9 @@ class BuckinghamPotential:
 class TersoffPotential:
     """Generate Tersoff Potential Table from "OxideTersoffPotentialentials" file."""
 
-    def __init__(self):
+    def __init__(self, pot_file):
         """Init TersoffPotential."""
-        with open(f"{MODULE_DIR}/OxideTersoffPotentials") as file:
+        with open(pot_file, encoding="utf-8") as file:
             data = {}
             for row in file:
                 metaloxi = row.split()[0]

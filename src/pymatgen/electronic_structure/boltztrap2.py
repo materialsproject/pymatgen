@@ -31,11 +31,11 @@ from typing import TYPE_CHECKING
 
 import matplotlib.pyplot as plt
 import numpy as np
+from monty.dev import deprecated
 from monty.serialization import dumpfn, loadfn
 from tqdm import tqdm
 
 from pymatgen.electronic_structure.bandstructure import BandStructure, BandStructureSymmLine, Spin
-from pymatgen.electronic_structure.boltztrap import BoltztrapError
 from pymatgen.electronic_structure.dos import CompleteDos, Dos, Orbital
 from pymatgen.electronic_structure.plotter import BSPlotter, DosPlotter
 from pymatgen.io.ase import AseAtomsAdaptor
@@ -51,8 +51,8 @@ if TYPE_CHECKING:
 try:
     from BoltzTraP2 import bandlib as BL
     from BoltzTraP2 import fite, sphere, units
-except ImportError:
-    raise BoltztrapError("BoltzTraP2 has to be installed and working")
+except ImportError as exc:
+    raise ImportError("BoltzTraP2 has to be installed and working") from exc
 
 
 __author__ = "Francesco Ricci"
@@ -85,7 +85,7 @@ class VasprunBSLoader:
         elif isinstance(obj, BandStructure):
             bs_obj = obj
         else:
-            raise BoltztrapError("The object provided is neither a Bandstructure nor a Vasprun.")
+            raise TypeError("The object provided is neither a Bandstructure nor a Vasprun.")
 
         self.kpoints = np.array([kp.frac_coords for kp in bs_obj.kpoints])
 
@@ -94,7 +94,7 @@ class VasprunBSLoader:
         elif structure:
             self.structure = structure
         else:
-            raise BoltztrapError("A structure must be given.")
+            raise ValueError("A structure must be given.")
 
         self.atoms = AseAtomsAdaptor.get_atoms(self.structure)
         self.proj_all = None
@@ -131,7 +131,7 @@ class VasprunBSLoader:
         elif self.vbm_idx:
             self.nelect_all = self.vbm_idx + self.cbm_idx + 1
         else:
-            raise BoltztrapError("nelect must be given.")
+            raise ValueError("nelect must be given.")
 
     @classmethod
     def from_file(cls, vasprun_file: str | Path) -> Self:
@@ -183,6 +183,7 @@ class VasprunBSLoader:
         return accepted
 
 
+@deprecated(VasprunBSLoader, category=DeprecationWarning)
 class BandstructureLoader:
     """Loader for Bandstructure object."""
 
@@ -202,8 +203,6 @@ class BandstructureLoader:
             ne = vrun.parameters['NELECT']
             data = BandstructureLoader(bs,st,ne)
         """
-        warnings.warn("Deprecated Loader. Use VasprunBSLoader instead.")
-
         self.kpoints = np.array([kp.frac_coords for kp in bs_obj.kpoints])
 
         self.structure = bs_obj.structure if structure is None else structure
@@ -279,7 +278,8 @@ class BandstructureLoader:
         range in the spin up/down bands when calculating the DOS.
         """
         warnings.warn(
-            "This method does not work anymore in case of spin polarized case due to the concatenation of bands !"
+            "This method does not work anymore in case of spin polarized case due to the concatenation of bands !",
+            stacklevel=2,
         )
 
         lower_band = e_lower * np.ones((1, self.ebands.shape[1]))
@@ -302,13 +302,12 @@ class BandstructureLoader:
         return self.UCvol
 
 
+@deprecated(VasprunBSLoader, category=DeprecationWarning)
 class VasprunLoader:
     """Loader for Vasprun object."""
 
     def __init__(self, vrun_obj=None) -> None:
         """vrun_obj: Vasprun object."""
-        warnings.warn("Deprecated Loader. Use VasprunBSLoader instead.")
-
         if vrun_obj:
             self.kpoints = np.array(vrun_obj.actual_kpoints)
             self.structure = vrun_obj.final_structure
@@ -322,7 +321,7 @@ class VasprunLoader:
                     self.proj = next(iter(vrun_obj.projected_eigenvalues.values()))
 
             elif len(vrun_obj.eigenvalues) == 2:
-                raise BoltztrapError("spin bs case not implemented")
+                raise NotImplementedError("spin bs case not implemented")
 
             self.lattvec = self.atoms.get_cell().T * units.Angstrom
 
@@ -466,7 +465,7 @@ class BztInterpolator:
             self.equivalences, coeffs = loadfn(fname)
             bands_loaded = False
         else:
-            raise BoltztrapError("Something wrong reading the data file!")
+            raise RuntimeError("Something wrong reading the data file!")
         self.coeffs = coeffs[0] + coeffs[1] * 1j
         return bands_loaded
 
@@ -476,7 +475,13 @@ class BztInterpolator:
         """
         if bands:
             dumpfn(
-                [self.equivalences, [self.coeffs.real, self.coeffs.imag], self.eband, self.vvband, self.cband],
+                [
+                    self.equivalences,
+                    [self.coeffs.real, self.coeffs.imag],
+                    self.eband,
+                    self.vvband,
+                    self.cband,
+                ],
                 fname,
             )
         else:
@@ -572,13 +577,17 @@ class BztInterpolator:
     def get_partial_doses(self, tdos, eband_ud, spins, enr, npts_mu, T, progress):
         """Return a CompleteDos object interpolating the projections.
 
-        tdos: total dos previously calculated
-        npts_mu: number of energy points of the Dos
-        T: parameter used to smooth the Dos
-        progress: Default False, If True a progress bar is shown.
+        Args:
+            tdos: total dos previously calculated
+            eband_ud: list of bands for each spin
+            spins: list of spins
+            enr: energy range
+            npts_mu: number of energy points of the Dos
+            T: parameter used to smooth the Dos
+            progress: Default False, If True a progress bar is shown.
         """
         if not self.data.proj:
-            raise BoltztrapError("No projections loaded.")
+            raise ValueError("No projections loaded.")
 
         bkp_data_ebands = np.copy(self.data.ebands)
 
@@ -774,7 +783,12 @@ class BztTransportProperties:
         if temp_r is None:
             temp_r = self.temp_r
 
-        self.Conductivity_doping, self.Seebeck_doping, self.Kappa_doping, self.Carriers_conc_doping = {}, {}, {}, {}
+        (
+            self.Conductivity_doping,
+            self.Seebeck_doping,
+            self.Kappa_doping,
+            self.Carriers_conc_doping,
+        ) = ({}, {}, {}, {})
 
         self.Power_Factor_doping, self.Effective_mass_doping = {}, {}
 
@@ -814,7 +828,13 @@ class BztTransportProperties:
                 )
 
                 cond[idx_t], sbk[idx_t], kappa[idx_t], hall[idx_t] = BL.calc_Onsager_coefficients(
-                    L0, L1, L2, mu_doping[dop_type][idx_t], np.array([temp]), self.volume, Lm11
+                    L0,
+                    L1,
+                    L2,
+                    mu_doping[dop_type][idx_t],
+                    np.array([temp]),
+                    self.volume,
+                    Lm11,
                 )
 
                 dc[idx_t] = self.nelect + N
@@ -849,8 +869,8 @@ class BztTransportProperties:
     #     Find the chemical potential (mu).
 
     #     Args:
-    #         epsilon (np.array): Array of energy values.
-    #         dos (np.array): Array of density of states values.
+    #         epsilon (NDArray): Array of energy values.
+    #         dos (NDArray): Array of density of states values.
     #         N0 (float): Background carrier concentration.
     #         T (float): Temperature in Kelvin.
     #         dosweight (float, optional): Weighting factor for the density of states. Default is 2.0.
@@ -944,7 +964,7 @@ class BztPlotter:
 
     Example:
         bztPlotter = BztPlotter(bztTransp,bztInterp)
-        fig = self.bztPlotter.plot_props('S', 'mu', 'temp', temps=[300, 500])
+        fig = self.bztPlotter.plot_props("S", "mu", "temp", temps=[300, 500])
         fig.show()
     """
 
@@ -1032,13 +1052,13 @@ class BztPlotter:
         props_short = tuple(p[: len(prop_y)] for p in props)
 
         if prop_y not in props_short:
-            raise BoltztrapError("prop_y not valid")
+            raise ValueError("prop_y not valid")
 
         if prop_x not in {"mu", "doping", "temp"}:
-            raise BoltztrapError("prop_x not valid")
+            raise ValueError("prop_x not valid")
 
         if prop_z not in {"doping", "temp"}:
-            raise BoltztrapError("prop_z not valid")
+            raise ValueError("prop_z not valid")
 
         idx_prop = props_short.index(prop_y)
 
@@ -1074,7 +1094,7 @@ class BztPlotter:
                 plt.xlabel(r"$\mu$ (eV)", fontsize=30)
                 plt.xlim(xlim)
             else:
-                raise BoltztrapError(
+                raise ValueError(
                     "only prop_x=mu and prop_z=temp are \
                     available for c.c. and Hall c.c.!"
                 )
@@ -1151,7 +1171,7 @@ class BztPlotter:
     def plot_bands(self):
         """Plot a band structure on symmetry line using BSPlotter()."""
         if self.bzt_interp is None:
-            raise BoltztrapError("BztInterpolator not present")
+            raise ValueError("BztInterpolator not present")
 
         sbs = self.bzt_interp.get_band_structure()
 
@@ -1160,7 +1180,7 @@ class BztPlotter:
     def plot_dos(self, T=None, npoints=10000):
         """Plot the total Dos using DosPlotter()."""
         if self.bzt_interp is None:
-            raise BoltztrapError("BztInterpolator not present")
+            raise ValueError("BztInterpolator not present")
 
         tdos = self.bzt_interp.get_dos(T=T, npts_mu=npoints)
         dosPlotter = DosPlotter()
@@ -1179,7 +1199,10 @@ def merge_up_down_doses(dos_up, dos_dn):
     Returns:
         CompleteDos object
     """
-    warnings.warn("This function is not useful anymore. VasprunBSLoader deals with spin case.")
+    warnings.warn(
+        "This function is not useful anymore. VasprunBSLoader deals with spin case.", DeprecationWarning, stacklevel=2
+    )
+
     cdos = Dos(
         dos_up.efermi,
         dos_up.energies,

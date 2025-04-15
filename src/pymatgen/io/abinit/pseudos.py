@@ -19,7 +19,7 @@ from typing import TYPE_CHECKING, NamedTuple
 from xml.etree import ElementTree as ET
 
 import numpy as np
-from monty.collections import AttrDict, Namespace
+from monty.collections import AttrDict
 from monty.functools import lazy_property
 from monty.itertools import iterator_from_slice
 from monty.json import MontyDecoder, MSONable
@@ -92,12 +92,11 @@ class Pseudo(MSONable, abc.ABC):
     """
 
     @classmethod
-    def as_pseudo(cls, obj):
-        """
-        Convert obj into a pseudo. Accepts:
+    def as_pseudo(cls, obj: Self | str) -> Self:
+        """Convert obj into a Pseudo.
 
-            * Pseudo object.
-            * string defining a valid path.
+        Args:
+            obj (str | Pseudo): Path to the pseudo file or a Pseudo object.
         """
         return obj if isinstance(obj, cls) else cls.from_file(obj)
 
@@ -227,7 +226,7 @@ class Pseudo(MSONable, abc.ABC):
             text = file.read()
             # usedforsecurity=False needed in FIPS mode (Federal Information Processing Standards)
             # https://github.com/materialsproject/pymatgen/issues/2804
-            md5 = hashlib.new("md5", usedforsecurity=False)  # hashlib.md5(usedforsecurity=False) is py39+
+            md5 = hashlib.md5(usedforsecurity=False)
             md5.update(text.encode("utf-8"))
             return md5.hexdigest()
 
@@ -602,7 +601,9 @@ def _dict_from_lines(lines, key_nums, sep=None) -> dict:
     if len(lines) != len(key_nums):
         raise ValueError(f"{lines = }\n{key_nums = }")
 
-    kwargs = Namespace()
+    # TODO: PR 4223: kwargs was using `monty.collections.Namespace`,
+    # revert to original implementation if needed
+    kwargs: dict = {}
 
     for idx, nk in enumerate(key_nums):
         if nk == 0:

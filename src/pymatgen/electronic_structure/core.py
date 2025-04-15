@@ -27,13 +27,13 @@ class Spin(Enum):
     up, down = 1, -1
 
     def __int__(self) -> Literal[-1, 1]:
-        return cast(Literal[-1, 1], self.value)
+        return cast("Literal[-1, 1]", self.value)
 
     def __float__(self) -> float:
         return float(self.value)
 
     def __str__(self) -> Literal["-1", "1"]:
-        return cast(Literal["-1", "1"], str(self.value))
+        return cast("Literal['-1', '1']", str(self.value))
 
 
 @unique
@@ -46,7 +46,7 @@ class OrbitalType(Enum):
     f = 3
 
     def __str__(self) -> Literal["s", "p", "d", "f"]:
-        return cast(Literal["s", "p", "d", "f"], str(self.name))
+        return cast("Literal['s', 'p', 'd', 'f']", str(self.name))
 
 
 @unique
@@ -142,7 +142,7 @@ class Magmom(MSONable):
 
         magmom: NDArray = np.array(moment, dtype="d")
         if magmom.ndim == 0:
-            magmom = magmom * (0, 0, 1)
+            magmom = magmom * (0, 0, 1)  # (ruff-preview) noqa: PLR6104
 
         self.moment = magmom
 
@@ -243,7 +243,7 @@ class Magmom(MSONable):
             saxis: Vector3D,
         ) -> tuple[Vector3D, Vector3D, Vector3D]:
             """Get the matrix to transform spin axis to z-axis."""
-            saxis = saxis / np.linalg.norm(saxis)
+            saxis /= np.linalg.norm(saxis)
 
             alpha = np.arctan2(saxis[1], saxis[0])
             beta = np.arctan2(np.sqrt(saxis[0] ** 2 + saxis[1] ** 2), saxis[2])
@@ -263,7 +263,7 @@ class Magmom(MSONable):
             saxis: Vector3D,
         ) -> tuple[Vector3D, Vector3D, Vector3D]:
             """Get the inverse of matrix to transform spin axis to z-axis."""
-            saxis = saxis / np.linalg.norm(saxis)
+            saxis /= np.linalg.norm(saxis)
 
             alpha = np.arctan2(saxis[1], saxis[0])
             beta = np.arctan2(np.sqrt(saxis[0] ** 2 + saxis[1] ** 2), saxis[2])
@@ -435,7 +435,7 @@ class Magmom(MSONable):
             magmoms = Magmom.get_consistent_set_and_saxis(magmoms)[0]
 
         # Convert to numpy array for convenience
-        magmoms = np.array([list(cast(Magmom, magmom)) for magmom in magmoms])
+        magmoms = np.array([list(cast("Magmom", magmom)) for magmom in magmoms])
         magmoms = magmoms[np.any(magmoms, axis=1)]  # remove zero magmoms
         if len(magmoms) == 0:
             return True

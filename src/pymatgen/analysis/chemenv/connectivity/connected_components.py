@@ -22,6 +22,8 @@ from pymatgen.analysis.chemenv.utils.math_utils import get_linearly_independent_
 if TYPE_CHECKING:
     from typing_extensions import Self
 
+logger = logging.getLogger(__name__)
+
 
 def draw_network(env_graph, pos, ax, sg=None, periodicity_vectors=None):
     """Draw network of environments in a matplotlib figure axes.
@@ -142,8 +144,8 @@ def make_supergraph(graph, multiplicity, periodicity_vectors):
     if isinstance(multiplicity, int) or len(multiplicity) == 1:
         mult = multiplicity if isinstance(multiplicity, int) else multiplicity[0]
         nodes = graph.nodes(data=True)
-        inodes = [isite for isite, data in nodes]
-        indices_nodes = {isite: inodes.index(isite) for isite in inodes}
+        node_indices = [idx for idx, data in nodes]
+        indices_nodes = {idx: node_indices.index(idx) for idx in node_indices}
         edges = graph.edges(data=True, keys=True)
         connecting_edges = []
         other_edges = []
@@ -159,7 +161,14 @@ def make_supergraph(graph, multiplicity, periodicity_vectors):
                 connecting_edges.append((n1, n2, key, new_data))
             else:
                 if not np.all(np.array(data["delta"]) == 0):
-                    print("delta not equal to periodicity nor 0 ... : ", n1, n2, key, data["delta"], data)
+                    print(
+                        "delta not equal to periodicity nor 0 ... : ",
+                        n1,
+                        n2,
+                        key,
+                        data["delta"],
+                        data,
+                    )
                     input("Are we ok with this ?")
                 other_edges.append((n1, n2, key, data))
 
@@ -211,9 +220,6 @@ class ConnectedComponent(MSONable):
             environments_data: Data of environment nodes.
             links_data: Data of links between environment nodes.
             graph: Graph of the connected component.
-
-        Returns:
-            ConnectedComponent: Instance of this class
         """
         self._periodicity_vectors: list[list] | None = None
         self._primitive_reduced_connected_subgraph = None
@@ -522,7 +528,10 @@ class ConnectedComponent(MSONable):
         return make_supergraph(self._connected_subgraph, multiplicity, self._periodicity_vectors)
 
     def show_graph(
-        self, graph: nx.MultiGraph | None = None, save_file: str | None = None, drawing_type: str = "internal"
+        self,
+        graph: nx.MultiGraph | None = None,
+        save_file: str | None = None,
+        drawing_type: str = "internal",
     ) -> None:
         """
         Displays the graph using the specified drawing type.
@@ -643,7 +652,7 @@ class ConnectedComponent(MSONable):
         Returns:
             nx.MultiGraph: Elastic centered subgraph.
         """
-        logging.info("In elastic centering")
+        logger.info("In elastic centering")
         # Loop on start_nodes, sometimes some nodes cannot be elastically taken
         # inside the cell if you start from a specific node
         n_test_nodes = 0
@@ -663,17 +672,17 @@ class ConnectedComponent(MSONable):
         tree_level = 0
         while True:
             tree_level += 1
-            logging.debug(f"In tree level {tree_level} ({len(current_nodes)} nodes)")
+            logger.debug(f"In tree level {tree_level} ({len(current_nodes)} nodes)")
             new_current_nodes = []
             # Loop on nodes in this level of the tree
             for node in current_nodes:
                 inode += 1
-                logging.debug(f"  In node #{inode}/{len(current_nodes)} in level {tree_level} ({node})")
+                logger.debug(f"  In node #{inode}/{len(current_nodes)} in level {tree_level} ({node})")
                 node_neighbors = list(tree.neighbors(n=node))
                 node_edges = centered_connected_subgraph.edges(nbunch=[node], data=True, keys=True)
                 # Loop on neighbors of a node (from the tree used)
                 for inode_neighbor, node_neighbor in enumerate(node_neighbors):
-                    logging.debug(
+                    logger.debug(
                         f"    Testing neighbor #{inode_neighbor}/{len(node_neighbors)} ({node_neighbor}) of "
                         f"node #{inode} ({node})"
                     )
@@ -691,24 +700,23 @@ class ConnectedComponent(MSONable):
                             else:
                                 raise ValueError("Should not be here ...")
                             ddeltas.append(thisdelta)
-                    logging.debug(
+                    logger.debug(
                         "        ddeltas : " + ", ".join(f"({', '.join(str(ddd) for ddd in dd)})" for dd in ddeltas)
                     )
                     if ddeltas.count((0, 0, 0)) > 1:
                         raise ValueError("Should not have more than one 000 delta ...")
                     if already_inside:
-                        logging.debug("          Edge inside the cell ... continuing to next neighbor")
+                        logger.debug("          Edge inside the cell ... continuing to next neighbor")
                         continue
-                    logging.debug("          Edge outside the cell ... getting neighbor back inside")
+                    logger.debug("          Edge outside the cell ... getting neighbor back inside")
                     if (0, 0, 0) in ddeltas:
                         ddeltas.remove((0, 0, 0))
                     d_delta = np.array(ddeltas[0], int)
                     node_neighbor_edges = centered_connected_subgraph.edges(
                         nbunch=[node_neighbor], data=True, keys=True
                     )
-                    logging.debug(
-                        f"            Delta image from {node=} to {node_neighbor=} : "
-                        f"({', '.join(map(str, d_delta))})"
+                    logger.debug(
+                        f"            Delta image from {node=} to {node_neighbor=} : ({', '.join(map(str, d_delta))})"
                     )
                     # Loop on the edges of this neighbor
                     for n1, n2, key, edata in node_neighbor_edges:
@@ -725,7 +733,7 @@ class ConnectedComponent(MSONable):
                                 )
                             else:
                                 raise ValueError("DUHH")
-                            logging.debug(
+                            logger.debug(
                                 f"                  {n1} to node {n2} now has delta "
                                 f"{centered_connected_subgraph[n1][n2][key]['delta']}"
                             )

@@ -49,7 +49,7 @@ class BornEffectiveCharge:
         self.pointops = pointops
         self.BEC_operations = None
         if np.sum(self.bec) >= tol:
-            warnings.warn("Input born effective charge tensor does not satisfy charge neutrality")
+            warnings.warn("Input born effective charge tensor does not satisfy charge neutrality", stacklevel=2)
 
     def get_BEC_operations(self, eigtol=1e-5, opstol=1e-3):
         """Get the symmetry operations which maps the tensors
@@ -99,7 +99,7 @@ class BornEffectiveCharge:
             BEC_operations[atom].append([])
 
             for op in uniq_point_ops:
-                new = op.transform_tensor(self.bec[relations[atom][1]])
+                new = op.transform_tensor(self.bec[r[1]])
 
                 # Check the matrix it references
                 if np.allclose(new, self.bec[r[0]], atol=opstol):
@@ -133,7 +133,7 @@ class BornEffectiveCharge:
                     temp_fcm += op.transform_tensor(BEC[self.BEC_operations[atom][1]])
                 BEC[ops[0]] = temp_fcm
                 if len(ops[2]) != 0:
-                    BEC[ops[0]] = BEC[ops[0]] / len(ops[2])
+                    BEC[ops[0]] /= len(ops[2])
 
         # Enforce Acoustic Sum
         disp_charge = np.einsum("ijk->jk", BEC) / n_atoms
@@ -154,9 +154,9 @@ class BornEffectiveCharge:
                 add[ops[0]] = temp_tensor
 
                 if len(ops) != 0:
-                    add[ops[0]] = add[ops[0]] / len(ops[2])
+                    add[ops[0]] /= len(ops[2])
 
-        BEC = BEC - add
+        BEC -= add
 
         return BEC * max_charge
 
@@ -178,16 +178,16 @@ class InternalStrainTensor:
         self.structure = structure
         self.ist = ist
         self.pointops = pointops
-        self.IST_operations = None
+        self.IST_operations: list[list[list]] = []
 
         obj = self.ist
-        if not (obj - np.transpose(obj, (0, 1, 3, 2)) < tol).all():
-            warnings.warn("Input internal strain tensor does not satisfy standard symmetries")
+        if not np.allclose(obj, np.transpose(obj, (0, 1, 3, 2)), atol=tol, rtol=0):
+            warnings.warn("Input internal strain tensor does not satisfy standard symmetries", stacklevel=2)
 
-    def get_IST_operations(self, opstol=1e-3):
+    def get_IST_operations(self, opstol=1e-3) -> list[list[list]]:
         """Get the symmetry operations which maps the tensors
         belonging to equivalent sites onto each other in the form
-        [site index 1, site index 2, [Symmops mapping from site
+        [site index 1, site index 2, [SymmOps mapping from site
         index 1 to site index 2]].
 
         Args:
@@ -195,8 +195,7 @@ class InternalStrainTensor:
             operation relates two sites
 
         Returns:
-            list of symmetry operations mapping equivalent sites and
-            the indexes of those sites.
+            list[list[list]]: symmetry operations mapping equivalent sites and the indexes of those sites.
         """
         struct = self.structure
         ops = SpacegroupAnalyzer(struct).get_symmetry_operations(cartesian=True)
@@ -207,18 +206,19 @@ class InternalStrainTensor:
                 if op not in uniq_point_ops:
                     uniq_point_ops.append(op)
 
-        IST_operations = []
-        for atom in range(len(self.ist)):
+        IST_operations: list[list[list]] = []
+        for atom_idx in range(len(self.ist)):
             IST_operations.append([])
-            for j in range(atom):
+            for j in range(atom_idx):
                 for op in uniq_point_ops:
                     new = op.transform_tensor(self.ist[j])
 
                     # Check the matrix it references
-                    if np.allclose(new, self.ist[atom], atol=opstol):
-                        IST_operations[atom].append([j, op])
+                    if np.allclose(new, self.ist[atom_idx], atol=opstol):
+                        IST_operations[atom_idx].append([j, op])
 
         self.IST_operations = IST_operations
+        return IST_operations
 
     def get_rand_IST(self, max_force=1):
         """Generate a random internal strain tensor which obeys a structure's
@@ -246,7 +246,7 @@ class InternalStrainTensor:
                 )
             IST[atom] = temp_tensor
             if len(ops) != 0:
-                IST[atom] = IST[atom] / len(ops)
+                IST[atom] /= len(ops)
 
         return IST * max_force
 
@@ -360,8 +360,7 @@ class ForceConstantMatrix:
         n_sites = len(struct)
         D = (1 / max_force) * 2 * (np.ones([n_sites * 3, n_sites * 3]))
         for op in operations:
-            same = 0
-            transpose = 0
+            same = transpose = 0
             if op[0] == op[1] and op[0] == op[2] and op[0] == op[3]:
                 same = 1
             if op[0] == op[3] and op[1] == op[2]:
@@ -376,9 +375,7 @@ class ForceConstantMatrix:
                     D[3 * op[0] : 3 * op[0] + 3, 3 * op[1] : 3 * op[1] + 3] += temp_fcm
 
                 if len(op[4]) != 0:
-                    D[3 * op[0] : 3 * op[0] + 3, 3 * op[1] : 3 * op[1] + 3] = D[
-                        3 * op[0] : 3 * op[0] + 3, 3 * op[1] : 3 * op[1] + 3
-                    ] / len(op[4])
+                    D[3 * op[0] : 3 * op[0] + 3, 3 * op[1] : 3 * op[1] + 3] /= len(op[4])
 
                 D[3 * op[1] : 3 * op[1] + 3, 3 * op[0] : 3 * op[0] + 3] = D[
                     3 * op[0] : 3 * op[0] + 3, 3 * op[1] : 3 * op[1] + 3
@@ -388,7 +385,7 @@ class ForceConstantMatrix:
             temp_tensor = Tensor(np.random.default_rng().random((3, 3)) - 0.5) * max_force
 
             temp_tensor_sum = sum(temp_tensor.transform(symm_op) for symm_op in self.sharedops[op[0]][op[1]])
-            temp_tensor_sum = temp_tensor_sum / (len(self.sharedops[op[0]][op[1]]))
+            temp_tensor_sum /= len(self.sharedops[op[0]][op[1]])
             if op[0] != op[1]:
                 for pair in range(len(op[4])):
                     temp_tensor2 = temp_tensor_sum.T
@@ -415,8 +412,7 @@ class ForceConstantMatrix:
         """
         operations = self.FCM_operations
         for op in operations:
-            same = 0
-            transpose = 0
+            same = transpose = 0
             if op[0] == op[1] and op[0] == operations[2] and op[0] == op[3]:
                 same = 1
             if op[0] == op[3] and op[1] == op[2]:
@@ -425,15 +421,13 @@ class ForceConstantMatrix:
                 unsymmetrized_fcm[3 * op[0] : 3 * op[0] + 3, 3 * op[1] : 3 * op[1] + 3] = np.zeros([3, 3])
 
                 for symop in op[4]:
-                    tempfcm = unsymmetrized_fcm[3 * op[2] : 3 * op[2] + 3, 3 * op[3] : 3 * op[3] + 3]
-                    tempfcm = symop.transform_tensor(tempfcm)
+                    temp_fcm = unsymmetrized_fcm[3 * op[2] : 3 * op[2] + 3, 3 * op[3] : 3 * op[3] + 3]
+                    temp_fcm = symop.transform_tensor(temp_fcm)
 
-                    unsymmetrized_fcm[3 * op[0] : 3 * op[0] + 3, 3 * op[1] : 3 * op[1] + 3] += tempfcm
+                    unsymmetrized_fcm[3 * op[0] : 3 * op[0] + 3, 3 * op[1] : 3 * op[1] + 3] += temp_fcm
 
                 if len(op[4]) != 0:
-                    unsymmetrized_fcm[3 * op[0] : 3 * op[0] + 3, 3 * op[1] : 3 * op[1] + 3] = unsymmetrized_fcm[
-                        3 * op[0] : 3 * op[0] + 3, 3 * op[1] : 3 * op[1] + 3
-                    ] / len(op[4])
+                    unsymmetrized_fcm[3 * op[0] : 3 * op[0] + 3, 3 * op[1] : 3 * op[1] + 3] /= len(op[4])
                 unsymmetrized_fcm[3 * op[1] : 3 * op[1] + 3, 3 * op[0] : 3 * op[0] + 3] = unsymmetrized_fcm[
                     3 * op[0] : 3 * op[0] + 3, 3 * op[1] : 3 * op[1] + 3
                 ].T
@@ -442,7 +436,7 @@ class ForceConstantMatrix:
             temp_tensor = Tensor(unsymmetrized_fcm[3 * op[0] : 3 * op[0] + 3, 3 * op[1] : 3 * op[1] + 3])
             temp_tensor_sum = sum(temp_tensor.transform(symm_op) for symm_op in self.sharedops[op[0]][op[1]])
             if len(self.sharedops[op[0]][op[1]]) != 0:
-                temp_tensor_sum = temp_tensor_sum / (len(self.sharedops[op[0]][op[1]]))
+                temp_tensor_sum /= len(self.sharedops[op[0]][op[1]])
 
             # Apply the proper transformation if there is an equivalent already
             if op[0] != op[1]:
@@ -472,8 +466,7 @@ class ForceConstantMatrix:
         Returns:
             3Nx3N numpy array representing the force constant matrix
         """
-        check = 0
-        count = 0
+        check = count = 0
         while check == 0:
             # if re-symmetrizing brings back unstable modes 20 times, the method breaks
             if count > 20:
@@ -535,12 +528,11 @@ class ForceConstantMatrix:
             pastrow = 0
             total = np.zeros([3, 3])
             for col in range(n_sites):
-                total = total + X[:3, col * 3 : col * 3 + 3]
+                total += X[:3, col * 3 : col * 3 + 3]
 
-            total = total / (n_sites)
+            total /= n_sites
             for op in operations:
-                same = 0
-                transpose = 0
+                same = transpose = 0
                 if op[0] == op[1] and op[0] == op[2] and op[0] == op[3]:
                     same = 1
                 if op[0] == op[3] and op[1] == op[2]:
@@ -555,9 +547,7 @@ class ForceConstantMatrix:
                         D[3 * op[0] : 3 * op[0] + 3, 3 * op[1] : 3 * op[1] + 3] += tempfcm
 
                     if len(op[4]) != 0:
-                        D[3 * op[0] : 3 * op[0] + 3, 3 * op[1] : 3 * op[1] + 3] = D[
-                            3 * op[0] : 3 * op[0] + 3, 3 * op[1] : 3 * op[1] + 3
-                        ] / len(op[4])
+                        D[3 * op[0] : 3 * op[0] + 3, 3 * op[1] : 3 * op[1] + 3] /= len(op[4])
                     D[3 * op[1] : 3 * op[1] + 3, 3 * op[0] : 3 * op[0] + 3] = D[
                         3 * op[0] : 3 * op[0] + 3, 3 * op[1] : 3 * op[1] + 3
                     ].T
@@ -567,10 +557,10 @@ class ForceConstantMatrix:
                 if curr_row != pastrow:
                     total = np.zeros([3, 3])
                     for col in range(n_sites):
-                        total = total + X[curr_row * 3 : curr_row * 3 + 3, col * 3 : col * 3 + 3]
+                        total += X[curr_row * 3 : curr_row * 3 + 3, col * 3 : col * 3 + 3]
                     for col in range(curr_row):
-                        total = total - D[curr_row * 3 : curr_row * 3 + 3, col * 3 : col * 3 + 3]
-                    total = total / (n_sites - curr_row)
+                        total -= D[curr_row * 3 : curr_row * 3 + 3, col * 3 : col * 3 + 3]
+                    total /= n_sites - curr_row
                 pastrow = curr_row
 
                 # Apply the point symmetry operations of the site
@@ -578,7 +568,7 @@ class ForceConstantMatrix:
                 temp_tensor_sum = sum(temp_tensor.transform(symm_op) for symm_op in self.sharedops[op[0]][op[1]])
 
                 if len(self.sharedops[op[0]][op[1]]) != 0:
-                    temp_tensor_sum = temp_tensor_sum / (len(self.sharedops[op[0]][op[1]]))
+                    temp_tensor_sum /= len(self.sharedops[op[0]][op[1]])
 
                 # Apply the proper transformation if there is an equivalent already
                 if op[0] != op[1]:
@@ -592,7 +582,7 @@ class ForceConstantMatrix:
 
                 D[3 * op[0] : 3 * op[0] + 3, 3 * op[1] : 3 * op[1] + 3] = temp_tensor_sum
                 D[3 * op[1] : 3 * op[1] + 3, 3 * op[0] : 3 * op[0] + 3] = temp_tensor_sum.T
-            fcm = fcm - D
+            fcm -= D
 
         return fcm
 
@@ -630,17 +620,17 @@ class ForceConstantMatrix:
             for n in range(n_sites):
                 dyn_mass[m][n] = dyn[m][n] * np.sqrt(masses[m]) * np.sqrt(masses[n])
 
-        supercell = pn_struct.get_supercell()
-        primitive = pn_struct.get_primitive()
+        supercell = pn_struct.supercell
+        primitive = pn_struct.primitive
 
         converter = dyntofc.DynmatToForceConstants(primitive, supercell)
 
         dyn = np.reshape(np.swapaxes(dyn_mass, 1, 2), (n_sites * 3, n_sites * 3))
 
-        converter.set_dynamical_matrices(dynmat=[dyn])
+        converter.dynamical_matrices = [dyn]
 
         converter.run()
-        return converter.get_force_constants()
+        return converter.force_constants
 
 
 def get_piezo(BEC, IST, FCM, rcond=0.0001):
@@ -667,7 +657,7 @@ def get_piezo(BEC, IST, FCM, rcond=0.0001):
     )
 
     K = np.reshape(K, (n_sites, 3, n_sites, 3)).swapaxes(1, 2)
-    return np.einsum("ikl,ijlm,jmno->kno", BEC, K, IST) * 16.0216559424
+    return np.einsum("ikl,ijlm,jmno->kno", BEC, K, IST) * 16.0216559424  # codespell:ignore kno
 
 
 @requires(Phonopy, "phonopy not installed!")

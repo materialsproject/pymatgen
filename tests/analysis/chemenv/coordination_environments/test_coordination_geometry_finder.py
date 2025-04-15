@@ -106,7 +106,11 @@ class TestCoordinationGeometryFinder(PymatgenTest):
         ]
 
         # test to check that one can pass voronoi_distance_cutoff
-        struct = Structure(Lattice.cubic(25), ["O", "C", "O"], [[0.0, 0.0, 0.0], [0.0, 0.0, 1.17], [0.0, 0.0, 2.34]])
+        struct = Structure(
+            Lattice.cubic(25),
+            ["O", "C", "O"],
+            [[0.0, 0.0, 0.0], [0.0, 0.0, 1.17], [0.0, 0.0, 2.34]],
+        )
         self.lgf.setup_structure(structure=struct)
         self.lgf.compute_structure_environments(voronoi_distance_cutoff=25)
 
@@ -120,7 +124,13 @@ class TestCoordinationGeometryFinder(PymatgenTest):
         result = self.lgf.coordination_geometry_symmetry_measures_fallback_random(
             coordination_geometry=cg_tet, n_random=5, points_perfect=points_perfect_tet
         )
-        permutations_symmetry_measures, _permutations, _algos, _local2perfect_maps, _perfect2local_maps = result
+        (
+            permutations_symmetry_measures,
+            _permutations,
+            _algos,
+            _local2perfect_maps,
+            _perfect2local_maps,
+        ) = result
         for perm_csm_dict in permutations_symmetry_measures:
             assert perm_csm_dict["symmetry_measure"] == approx(0.140355832317)
 
@@ -130,9 +140,9 @@ class TestCoordinationGeometryFinder(PymatgenTest):
             files.extend(filenames)
             break
 
-        for _ifile, json_file in enumerate(files):
+        for json_file in files:
             with self.subTest(json_file=json_file):
-                with open(f"{json_dir}/{json_file}") as file:
+                with open(f"{json_dir}/{json_file}", encoding="utf-8") as file:
                     dct = json.load(file)
 
                 atom_indices = dct["atom_indices"]
@@ -204,9 +214,9 @@ class TestCoordinationGeometryFinder(PymatgenTest):
                     max_cn=cg.coordination_number,
                     only_symbols=[mp_symbol],
                 )
-                assert (
-                    abs(se.get_csm(0, mp_symbol)["symmetry_measure"] - 0.0) < 1e-8
-                ), f"Failed to get perfect environment with {mp_symbol=}"
+                assert abs(se.get_csm(0, mp_symbol)["symmetry_measure"] - 0.0) < 1e-8, (
+                    f"Failed to get perfect environment with {mp_symbol=}"
+                )
 
     def test_disable_hints(self):
         allcg = AllCoordinationGeometries()

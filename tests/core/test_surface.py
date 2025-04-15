@@ -8,7 +8,7 @@ import numpy as np
 from numpy.testing import assert_allclose
 from pytest import approx
 
-import pymatgen
+import pymatgen.core
 from pymatgen.analysis.structure_matcher import StructureMatcher
 from pymatgen.core import Lattice, Structure
 from pymatgen.core.surface import (
@@ -25,6 +25,8 @@ from pymatgen.core.surface import (
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
 from pymatgen.symmetry.groups import SpaceGroup
 from pymatgen.util.testing import TEST_FILES_DIR, PymatgenTest
+
+PMG_CORE_DIR = os.path.dirname(pymatgen.core.__file__)
 
 
 class TestSlab(PymatgenTest):
@@ -49,7 +51,13 @@ class TestSlab(PymatgenTest):
         )
 
         lattice = Lattice([[3.913449, 0, 0], [0, 3.913449, 0], [0, 0, 5.842644]])
-        frac_coords = [[0.5, 0, 0.222518], [0, 0.5, 0.777482], [0, 0, 0], [0, 0, 0.5], [0.5, 0.5, 0]]
+        frac_coords = [
+            [0.5, 0, 0.222518],
+            [0, 0.5, 0.777482],
+            [0, 0, 0],
+            [0, 0, 0.5],
+            [0.5, 0.5, 0],
+        ]
         non_laue = Structure(lattice, ["Nb", "Nb", "N", "N", "N"], frac_coords)
 
         self.ti = Ti
@@ -80,7 +88,13 @@ class TestSlab(PymatgenTest):
         # check reorient_lattice. get a slab not oriented and check that orientation
         # works even with Cartesian coordinates.
         zno_not_or = SlabGenerator(
-            self.zno1, [1, 0, 0], 5, 5, lll_reduce=False, center_slab=False, reorient_lattice=False
+            self.zno1,
+            [1, 0, 0],
+            5,
+            5,
+            lll_reduce=False,
+            center_slab=False,
+            reorient_lattice=False,
         ).get_slab()
         zno_slab_cart = Slab(
             zno_not_or.lattice,
@@ -138,7 +152,13 @@ class TestSlab(PymatgenTest):
         cscl = self.get_structure("CsCl")
         cscl.add_oxidation_state_by_element({"Cs": 1, "Cl": -1})
         slab = SlabGenerator(
-            cscl, [1, 0, 0], 5, 5, reorient_lattice=False, lll_reduce=False, center_slab=False
+            cscl,
+            [1, 0, 0],
+            5,
+            5,
+            reorient_lattice=False,
+            lll_reduce=False,
+            center_slab=False,
         ).get_slab()
         assert_allclose(slab.dipole, [-4.209, 0, 0])
         assert slab.is_polar()
@@ -207,8 +227,7 @@ class TestSlab(PymatgenTest):
         all_slabs = [all_Ti_slabs, all_Ag_fcc_slabs]
 
         for slabs in all_slabs:
-            asymmetric_count = 0
-            symmetric_count = 0
+            asymmetric_count = symmetric_count = 0
 
             for slab in slabs:
                 sg = SpacegroupAnalyzer(slab)
@@ -250,7 +269,7 @@ class TestSlab(PymatgenTest):
             sorted_sites = sorted(slab, key=lambda site: site.frac_coords[2])
             site = sorted_sites[-1]
             point = np.array(site.frac_coords)
-            point[2] = point[2] + 0.1
+            point[2] += 0.1
             point2 = slab.get_symmetric_site(point)
             slab.append("O", point)
             slab.append("O", point2)
@@ -382,7 +401,26 @@ class TestSlabGenerator(PymatgenTest):
                 and (
                     sg.hexagonal
                     or sg.int_number
-                    in (143, 144, 145, 147, 149, 150, 151, 152, 153, 154, 156, 157, 158, 159, 162, 163, 164, 165)
+                    in (
+                        143,
+                        144,
+                        145,
+                        147,
+                        149,
+                        150,
+                        151,
+                        152,
+                        153,
+                        154,
+                        156,
+                        157,
+                        158,
+                        159,
+                        162,
+                        163,
+                        164,
+                        165,
+                    )
                 )
             ):
                 lattice = Lattice.hexagonal(5, 10)
@@ -592,8 +630,8 @@ class TestSlabGenerator(PymatgenTest):
         # expect 2 and 6 bonds broken so we check for this.
         # Number of broken bonds are floats due to primitive
         # flag check and subsequent transformation of slabs.
-        assert slabs[0].energy, 2.0
-        assert slabs[1].energy, 6.0
+        assert slabs[0].energy == approx(8.0)
+        assert slabs[1].energy == approx(24.0)
 
 
 class ReconstructionGeneratorTests(PymatgenTest):
@@ -608,8 +646,7 @@ class ReconstructionGeneratorTests(PymatgenTest):
         self.Fe = Structure.from_spacegroup("Im-3m", lattice, species, coords)
         self.Si = Structure.from_spacegroup("Fd-3m", Lattice.cubic(5.430500), ["Si"], [(0, 0, 0.5)])
 
-        pmg_core_dir = os.path.dirname(pymatgen.core.__file__)
-        with open(f"{pmg_core_dir}/reconstructions_archive.json") as data_file:
+        with open(f"{PMG_CORE_DIR}/reconstructions_archive.json", encoding="utf-8") as data_file:
             self.rec_archive = json.load(data_file)
 
     def test_build_slab(self):
@@ -686,7 +723,7 @@ class ReconstructionGeneratorTests(PymatgenTest):
             assert any(len(match.group_structures([struct, slab])) == 1 for slab in slabs)
 
 
-class MillerIndexFinderTests(PymatgenTest):
+class TestMillerIndexFinder(PymatgenTest):
     def setUp(self):
         self.cscl = Structure.from_spacegroup("Pm-3m", Lattice.cubic(4.2), ["Cs", "Cl"], [[0, 0, 0], [0.5, 0.5, 0.5]])
         self.Fe = Structure.from_spacegroup("Im-3m", Lattice.cubic(2.82), ["Fe"], [[0, 0, 0]])
@@ -836,7 +873,11 @@ class MillerIndexFinderTests(PymatgenTest):
         assert miller_index_from_sites(cubic, [s1, s2, s3]) == (2, 1, 1)
 
         # test casting from matrix to Lattice
-        matrix = [[2.319, -4.01662582, 0.0], [2.319, 4.01662582, 0.0], [0.0, 0.0, 7.252]]
+        matrix = [
+            [2.319, -4.01662582, 0.0],
+            [2.319, 4.01662582, 0.0],
+            [0.0, 0.0, 7.252],
+        ]
 
         s1 = np.array([2.319, 1.33887527, 6.3455])
         s2 = np.array([1.1595, 0.66943764, 4.5325])

@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import importlib.util
 import unittest
 from unittest import TestCase
 
@@ -14,13 +15,16 @@ from pymatgen.io.zeopp import (
     get_free_sphere_params,
     get_high_accuracy_voronoi_nodes,
     get_voronoi_nodes,
+    zeo_found,
+    zeo_source,
 )
 from pymatgen.util.testing import TEST_FILES_DIR, VASP_IN_DIR
 
-try:
-    import zeo
-except ImportError:
-    zeo = None
+# Check if either zeo or pyzeo is available
+HAS_ZEO = importlib.util.find_spec("zeo") is not None or importlib.util.find_spec("pyzeo") is not None
+
+if not HAS_ZEO:
+    pytest.skip("neither zeo nor pyzeo is installed", allow_module_level=True)
 
 TEST_DIR = f"{TEST_FILES_DIR}/io/zeopp"
 
@@ -32,7 +36,6 @@ __email__ = "bkmedasani@lbl.gov"
 __date__ = "Aug 2, 2013"
 
 
-@pytest.mark.skipif(zeo is None, reason="zeo not present")
 class TestZeoCssr(TestCase):
     def setUp(self):
         filepath = f"{VASP_IN_DIR}/POSCAR"
@@ -75,7 +78,6 @@ class TestZeoCssr(TestCase):
         assert isinstance(zeo_cssr.structure, Structure)
 
 
-@pytest.mark.skipif(zeo is None, reason="zeo not present")
 class TestZeoCssrOxi(TestCase):
     def setUp(self):
         filepath = f"{VASP_IN_DIR}/POSCAR"
@@ -119,7 +121,6 @@ class TestZeoCssrOxi(TestCase):
         assert isinstance(zeocssr.structure, Structure)
 
 
-@pytest.mark.skipif(zeo is None, reason="zeo not present")
 class TestZeoVoronoiXYZ(TestCase):
     def setUp(self):
         coords = [
@@ -150,7 +151,6 @@ H -0.363000 -0.513360 0.889165 0.200000"""
         assert isinstance(voronoi.molecule, Molecule)
 
 
-@pytest.mark.skipif(zeo is None, reason="zeo not present")
 class TestGetVoronoiNodes(TestCase):
     def setUp(self):
         filepath = f"{VASP_IN_DIR}/POSCAR"
@@ -174,12 +174,19 @@ class TestGetVoronoiNodes(TestCase):
         assert isinstance(vor_face_center_struct, Structure)
 
 
-@unittest.skip("file free_sph.cif not present")
+@unittest.skip("TODO: file free_sph.cif not present")
 class TestGetFreeSphereParams(TestCase):
     def setUp(self):
         filepath = f"{TEST_FILES_DIR}/cif/free_sph.cif"
         self.structure = Structure.from_file(filepath)
-        self.rad_dict = {"Ge": 0.67, "P": 0.52, "S": 1.7, "La": 1.17, "Zr": 0.86, "O": 1.26}
+        self.rad_dict = {
+            "Ge": 0.67,
+            "P": 0.52,
+            "S": 1.7,
+            "La": 1.17,
+            "Zr": 0.86,
+            "O": 1.26,
+        }
 
     def test_get_free_sphere_params(self):
         free_sph_params = get_free_sphere_params(self.structure, rad_dict=self.rad_dict)
@@ -189,7 +196,6 @@ class TestGetFreeSphereParams(TestCase):
         assert free_sph_params["inc_sph_along_free_sph_path_max_dia"] == approx(2.58251, abs=1e-1)
 
 
-@pytest.mark.skipif(zeo is None, reason="zeo not present")
 class TestGetHighAccuracyVoronoiNodes(TestCase):
     def setUp(self):
         filepath = f"{VASP_IN_DIR}/POSCAR"
@@ -209,7 +215,6 @@ class TestGetHighAccuracyVoronoiNodes(TestCase):
         assert isinstance(vor_node_struct, Structure)
 
 
-@pytest.mark.skipif(zeo is None, reason="zeo not present")
 class TestGetVoronoiNodesMultiOxi(TestCase):
     def setUp(self):
         filepath = f"{VASP_IN_DIR}/POSCAR"
@@ -232,3 +237,15 @@ class TestGetVoronoiNodesMultiOxi(TestCase):
         assert isinstance(vor_node_struct, Structure)
         assert isinstance(vor_edge_center_struct, Structure)
         assert isinstance(vor_face_center_struct, Structure)
+
+
+class TestZeoSource(TestCase):
+    """Test for zeo_source to verify which library was imported."""
+
+    def test_zeo_source_is_defined(self):
+        """Test that zeo_source is defined and is either 'zeo' or 'pyzeo'."""
+        assert zeo_source in ["zeo", "pyzeo"]
+
+    def test_zeo_found_is_true(self):
+        """Test that zeo_found is True when either library is imported."""
+        assert zeo_found is True

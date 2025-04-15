@@ -4,7 +4,7 @@ import json
 import os
 
 import numpy as np
-from numpy.testing import assert_allclose
+from numpy.testing import assert_allclose, assert_array_equal
 from pytest import approx
 
 from pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies import (
@@ -26,7 +26,7 @@ TEST_DIR = f"{TEST_FILES_DIR}/analysis/chemenv/structure_environments"
 
 class TestStructureEnvironments(PymatgenTest):
     def test_structure_environments(self):
-        with open(f"{TEST_DIR}/se_mp-7000.json") as file:
+        with open(f"{TEST_DIR}/se_mp-7000.json", encoding="utf-8") as file:
             dct = json.load(file)
 
         struct_envs = StructureEnvironments.from_dict(dct)
@@ -39,15 +39,33 @@ class TestStructureEnvironments(PymatgenTest):
         _envs_fig, envs_ax = struct_envs.get_environments_figure(isite=isite)
         assert_allclose(
             envs_ax.patches[0].get_xy(),
-            [[1, 1], [1, 0.99301365], [1.00179228, 0.99301365], [1.00179228, 1], [1, 1]],
+            [
+                [1, 1],
+                [1, 0.99301365],
+                [1.00179228, 0.99301365],
+                [1.00179228, 1],
+                [1, 1],
+            ],
         )
         assert_allclose(
             envs_ax.patches[1].get_xy(),
-            [[1, 0.99301365], [1, 0], [1.00179228, 0], [1.00179228, 0.99301365], [1, 0.99301365]],
+            [
+                [1, 0.99301365],
+                [1, 0],
+                [1.00179228, 0],
+                [1.00179228, 0.99301365],
+                [1, 0.99301365],
+            ],
         )
         assert_allclose(
             envs_ax.patches[2].get_xy(),
-            [[1.00179228, 1], [1.00179228, 0.99301365], [2.25, 0.99301365], [2.25, 1], [1.00179228, 1]],
+            [
+                [1.00179228, 1],
+                [1.00179228, 0.99301365],
+                [2.25, 0.99301365],
+                [2.25, 1],
+                [1.00179228, 1],
+            ],
         )
         assert_allclose(
             envs_ax.patches[3].get_xy(),
@@ -64,7 +82,13 @@ class TestStructureEnvironments(PymatgenTest):
         )
         assert_allclose(
             envs_ax.patches[4].get_xy(),
-            [[2.22376156, 0.0060837], [2.22376156, 0], [2.25, 0], [2.25, 0.0060837], [2.22376156, 0.0060837]],
+            [
+                [2.22376156, 0.0060837],
+                [2.22376156, 0],
+                [2.25, 0],
+                [2.25, 0.0060837],
+                [2.22376156, 0.0060837],
+            ],
             atol=1e-8,
         )
 
@@ -77,7 +101,7 @@ class TestStructureEnvironments(PymatgenTest):
 
         ce = struct_envs.ce_list[isite][4][0]
 
-        assert len(ce), 4
+        assert len(ce) == 4
 
         symbol, min_geometry = ce.minimum_geometry(symmetry_measure_type="csm_wocs_ctwocc")
         assert symbol == "T:4"
@@ -119,7 +143,7 @@ class TestStructureEnvironments(PymatgenTest):
         assert ce != ce2
 
     def test_light_structure_environments(self):
-        with open(f"{TEST_DIR}/se_mp-7000.json") as file:
+        with open(f"{TEST_DIR}/se_mp-7000.json", encoding="utf-8") as file:
             dct = json.load(file)
 
         struct_envs = StructureEnvironments.from_dict(dct)
@@ -146,7 +170,7 @@ class TestStructureEnvironments(PymatgenTest):
         assert_allclose(neighb_indices, [sai["index"] for sai in nb_sai])
         nb_iai = nb_set.neighb_indices_and_images
         assert_allclose(neighb_indices, [iai["index"] for iai in nb_iai])
-        np.testing.assert_array_equal(neighb_images, [iai["image_cell"] for iai in nb_iai])
+        assert_array_equal(neighb_images, [iai["image_cell"] for iai in nb_iai])
 
         assert len(nb_set) == 4
         assert hash(nb_set) == 4
@@ -212,7 +236,9 @@ class TestStructureEnvironments(PymatgenTest):
         multi_strategy = MultiWeightsChemenvStrategy.stats_article_weights_parameters()
 
         lse_multi = LightStructureEnvironments.from_structure_environments(
-            strategy=multi_strategy, structure_environments=struct_envs, valences="undefined"
+            strategy=multi_strategy,
+            structure_environments=struct_envs,
+            valences="undefined",
         )
         assert lse_multi.coordination_environments[isite][0]["csm"] == approx(0.009887784240541068)
         assert lse_multi.coordination_environments[isite][0]["ce_fraction"] == approx(1)

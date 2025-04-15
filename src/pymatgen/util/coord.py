@@ -135,7 +135,7 @@ def get_linear_interpolated_value(x_values: ArrayLike, y_values: ArrayLike, x: f
     """
     arr = np.array(sorted(zip(x_values, y_values, strict=True), key=lambda d: d[0]))
 
-    indices = np.where(arr[:, 0] >= x)[0]
+    indices = np.where(arr[:, 0] > x)[0]
 
     if len(indices) == 0 or indices[0] == 0:
         raise ValueError(f"{x=} is out of range of provided x_values ({min(x_values)}, {max(x_values)})")
@@ -202,7 +202,7 @@ def pbc_shortest_vectors(lattice, frac_coords1, frac_coords2, mask=None, return_
         return_d2 (bool): whether to also return the squared distances
 
     Returns:
-        np.array: of displacement vectors from frac_coords1 to frac_coords2
+        np.ndarray: of displacement vectors from frac_coords1 to frac_coords2
             first index is frac_coords1 index, second is frac_coords2 index
     """
     return coord_cython.pbc_shortest_vectors(lattice, frac_coords1, frac_coords2, mask, return_d2)
@@ -285,7 +285,18 @@ def lattice_points_in_supercell(supercell_matrix):
     Returns:
         numpy array of the fractional coordinates
     """
-    diagonals = np.array([[0, 0, 0], [0, 0, 1], [0, 1, 0], [0, 1, 1], [1, 0, 0], [1, 0, 1], [1, 1, 0], [1, 1, 1]])
+    diagonals = np.array(
+        [
+            [0, 0, 0],
+            [0, 0, 1],
+            [0, 1, 0],
+            [0, 1, 1],
+            [1, 0, 0],
+            [1, 0, 1],
+            [1, 1, 0],
+            [1, 1, 1],
+        ]
+    )
     d_points = np.dot(diagonals, supercell_matrix)
 
     mins = np.min(d_points, axis=0)
@@ -445,7 +456,7 @@ class Simplex(MSONable):
                 found = False
                 # don't return duplicate points
                 for b in barys:
-                    if np.all(np.abs(b - p) < tolerance):
+                    if np.allclose(b, p, atol=tolerance, rtol=0):
                         found = True
                         break
                 if not found:

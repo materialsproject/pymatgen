@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import numpy as np
+from numpy.testing import assert_allclose
 from plotly.graph_objects import Figure
 from pytest import approx
 
@@ -51,7 +52,14 @@ class TestChemicalPotentialDiagram(PymatgenTest):
 
     def test_border_hyperplanes(self):
         desired = np.array(
-            [[-1, 0, 0, -25], [1, 0, 0, 0], [0, -1, 0, -25], [0, 1, 0, 0], [0, 0, -1, -25], [0, 0, 1, 0]]
+            [
+                [-1, 0, 0, -25],
+                [1, 0, 0, 0],
+                [0, -1, 0, -25],
+                [0, 1, 0, 0],
+                [0, 0, -1, -25],
+                [0, 0, 1, 0],
+            ]
         )
         assert self.cpd_ternary.border_hyperplanes == approx(desired)
         assert self.cpd_ternary_formal.border_hyperplanes == approx(desired)
@@ -215,7 +223,7 @@ class TestChemicalPotentialDiagram(PymatgenTest):
             dom = self.cpd_ternary.domains[formula]
             dom = dom.round(6)  # to get rid of numerical errors from qhull
             actual_domain_sorted = dom[np.lexsort((dom[:, 2], dom[:, 1], dom[:, 0]))]
-            assert actual_domain_sorted == approx(np.array(domain))
+            assert_allclose(actual_domain_sorted, domain)
 
         formal_domains = {
             "FeO": [
@@ -300,7 +308,7 @@ class TestChemicalPotentialDiagram(PymatgenTest):
         for formula, domain in formal_domains.items():
             dom = self.cpd_ternary_formal.domains[formula]
             dom = dom.round(6)  # to get rid of numerical errors from qhull
-            assert dom == approx(np.array(domain), abs=1e-5)
+            assert_allclose(dom, domain, atol=1e-5)
 
     def test_formal_chempots_get_plot(self):
         elems = [Element("Fe"), Element("O")]

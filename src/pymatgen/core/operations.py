@@ -2,10 +2,11 @@
 
 from __future__ import annotations
 
+import copy
+import math
 import re
 import string
 import warnings
-from math import cos, pi, sin, sqrt
 from typing import TYPE_CHECKING, Literal, cast
 
 import numpy as np
@@ -18,7 +19,7 @@ from pymatgen.util.string import transformation_to_string
 if TYPE_CHECKING:
     from typing import Any
 
-    from numpy.typing import ArrayLike
+    from numpy.typing import ArrayLike, NDArray
     from typing_extensions import Self
 
 __author__ = "Shyue Ping Ong, Shyam Dwaraknath, Matthew Horton"
@@ -30,7 +31,7 @@ class SymmOp(MSONable):
     for efficiency. Read: https://wikipedia.org/wiki/Affine_transformation.
 
     Attributes:
-        affine_matrix (np.ndarray): A 4x4 array representing the symmetry operation.
+        affine_matrix (NDArray): A 4x4 array representing the symmetry operation.
     """
 
     def __init__(
@@ -51,7 +52,7 @@ class SymmOp(MSONable):
         Raises:
             ValueError: if matrix is not 4x4.
         """
-        affine_transformation_matrix = np.array(affine_transformation_matrix)
+        affine_transformation_matrix = np.asarray(affine_transformation_matrix)
         shape = affine_transformation_matrix.shape
         if shape != (4, 4):
             raise ValueError(f"Affine Matrix must be a 4x4 numpy array, got {shape=}")
@@ -70,7 +71,14 @@ class SymmOp(MSONable):
         return f"{type(self).__name__}({self.affine_matrix=})"
 
     def __str__(self) -> str:
-        return "\n".join(["Rot:", str(self.affine_matrix[:3][:, :3]), "tau", str(self.affine_matrix[:3][:, 3])])
+        return "\n".join(
+            [
+                "Rot:",
+                str(self.affine_matrix[:3][:, :3]),
+                "tau",
+                str(self.affine_matrix[:3][:, 3]),
+            ]
+        )
 
     def __mul__(self, other) -> Self:
         """Get a new SymmOp which is equivalent to apply the "other" SymmOp
@@ -96,8 +104,8 @@ class SymmOp(MSONable):
         Returns:
             SymmOp object
         """
-        rotation_matrix = np.array(rotation_matrix)
-        translation_vec = np.array(translation_vec)
+        rotation_matrix = np.asarray(rotation_matrix)
+        translation_vec = np.asarray(translation_vec)
         if rotation_matrix.shape != (3, 3):
             raise ValueError("Rotation Matrix must be a 3x3 numpy array.")
         if translation_vec.shape != (3,):
@@ -108,7 +116,7 @@ class SymmOp(MSONable):
         affine_matrix[:3][:, 3] = translation_vec
         return cls(affine_matrix, tol)
 
-    def operate(self, point: ArrayLike) -> np.ndarray:
+    def operate(self, point: ArrayLike) -> NDArray:
         """Apply the operation on a point.
 
         Args:
@@ -117,10 +125,10 @@ class SymmOp(MSONable):
         Returns:
             Coordinates of point after operation.
         """
-        affine_point = np.array([*point, 1])
+        affine_point = np.asarray([*point, 1])
         return np.dot(self.affine_matrix, affine_point)[:3]
 
-    def operate_multi(self, points: ArrayLike) -> np.ndarray:
+    def operate_multi(self, points: ArrayLike) -> NDArray:
         """Apply the operation on a list of points.
 
         Args:
@@ -129,11 +137,11 @@ class SymmOp(MSONable):
         Returns:
             Numpy array of coordinates after operation
         """
-        points = np.array(points)
+        points = np.asarray(points)
         affine_points = np.concatenate([points, np.ones(points.shape[:-1] + (1,))], axis=-1)
         return np.inner(affine_points, self.affine_matrix)[..., :-1]
 
-    def apply_rotation_only(self, vector: ArrayLike) -> np.ndarray:
+    def apply_rotation_only(self, vector: ArrayLike) -> NDArray:
         """Vectors should only be operated by the rotation matrix and not the
         translation vector.
 
@@ -142,7 +150,7 @@ class SymmOp(MSONable):
         """
         return np.dot(self.rotation_matrix, vector)
 
-    def transform_tensor(self, tensor: np.ndarray) -> np.ndarray:
+    def transform_tensor(self, tensor: NDArray) -> NDArray:
         """Apply rotation portion to a tensor. Note that tensor has to be in
         full form, not the Voigt form.
 
@@ -221,8 +229,8 @@ class SymmOp(MSONable):
         floored[is_too_close] += 1
 
         r_c = self.apply_rotation_only(r_a) - floored[0] + floored[1]
-        from_c = from_c % 1
-        to_c = to_c % 1
+        from_c %= 1
+        to_c %= 1
 
         if np.allclose(from_b, from_c, atol=tol) and np.allclose(to_b, to_c) and np.allclose(r_b, r_c, atol=tol):
             return True, False
@@ -231,24 +239,28 @@ class SymmOp(MSONable):
         return False, False
 
     @property
-    def rotation_matrix(self) -> np.ndarray:
+    def rotation_matrix(self) -> NDArray:
         """A 3x3 numpy.array representing the rotation matrix."""
         return self.affine_matrix[:3][:, :3]
 
     @property
-    def translation_vector(self) -> np.ndarray:
+    def translation_vector(self) -> NDArray:
         """A rank 1 numpy.array of dim 3 representing the translation vector."""
         return self.affine_matrix[:3][:, 3]
 
     @property
     def inverse(self) -> Self:
         """Inverse of transformation."""
-        inverse = np.linalg.inv(self.affine_matrix)
-        return type(self)(inverse)
+        new_instance = copy.deepcopy(self)
+        new_instance.affine_matrix = np.linalg.inv(self.affine_matrix)
+        return new_instance
 
     @staticmethod
     def from_axis_angle_and_translation(
-        axis: ArrayLike, angle: float, angle_in_radians: bool = False, translation_vec: ArrayLike = (0, 0, 0)
+        axis: ArrayLike,
+        angle: float,
+        angle_in_radians: bool = False,
+        translation_vec: ArrayLike = (0, 0, 0),
     ) -> SymmOp:
         """Generate a SymmOp for a rotation about a given axis plus translation.
 
@@ -266,11 +278,11 @@ class SymmOp(MSONable):
         if isinstance(axis, tuple | list):
             axis = np.array(axis)
 
-        vec = np.array(translation_vec)
+        vec = np.asarray(translation_vec)
 
-        ang = angle if angle_in_radians else angle * pi / 180
-        cos_a = cos(ang)
-        sin_a = sin(ang)
+        ang = angle if angle_in_radians else angle * np.pi / 180
+        cos_a = math.cos(ang)
+        sin_a = math.sin(ang)
         unit_vec = axis / np.linalg.norm(axis)
         rot_mat = np.zeros((3, 3))
         rot_mat[0, 0] = cos_a + unit_vec[0] ** 2 * (1 - cos_a)
@@ -306,15 +318,15 @@ class SymmOp(MSONable):
         Returns:
             SymmOp.
         """
-        theta = angle if angle_in_radians else angle * pi / 180
+        theta = angle if angle_in_radians else angle * np.pi / 180
         a, b, c = origin
         ax_u, ax_v, ax_w = axis
         # Set some intermediate values.
         u2, v2, w2 = ax_u * ax_u, ax_v * ax_v, ax_w * ax_w
-        cos_t = cos(theta)
-        sin_t = sin(theta)
+        cos_t = math.cos(theta)
+        sin_t = math.sin(theta)
         l2 = u2 + v2 + w2
-        lsqrt = sqrt(l2)
+        lsqrt = math.sqrt(l2)
 
         # Build the matrix entries element by element.
         m11 = (u2 + (v2 + w2) * cos_t) / l2
@@ -347,7 +359,14 @@ class SymmOp(MSONable):
             + (a * ax_v - b * ax_u) * lsqrt * sin_t
         ) / l2
 
-        return SymmOp([[m11, m12, m13, m14], [m21, m22, m23, m24], [m31, m32, m33, m34], [0, 0, 0, 1]])
+        return SymmOp(
+            [
+                [m11, m12, m13, m14],
+                [m21, m22, m23, m24],
+                [m31, m32, m33, m34],
+                [0, 0, 0, 1],
+            ]
+        )
 
     @staticmethod
     def reflection(normal: ArrayLike, origin: ArrayLike = (0, 0, 0)) -> SymmOp:
@@ -368,7 +387,7 @@ class SymmOp(MSONable):
         u, v, w = normal
 
         translation = np.eye(4)
-        translation[:3, 3] = -np.array(origin)
+        translation[:3, 3] = -np.asarray(origin)
 
         xx = 1 - 2 * u**2
         yy = 1 - 2 * v**2
@@ -395,7 +414,7 @@ class SymmOp(MSONable):
         """
         mat = -np.eye(4)
         mat[3, 3] = 1
-        mat[:3, 3] = 2 * np.array(origin)
+        mat[:3, 3] = 2 * np.asarray(origin)
         return SymmOp(mat)
 
     @staticmethod
@@ -430,8 +449,8 @@ class SymmOp(MSONable):
         Only works for integer rotation matrices.
         """
         # Check for invalid rotation matrix
-        if not np.all(np.isclose(self.rotation_matrix, np.round(self.rotation_matrix))):
-            warnings.warn("Rotation matrix should be integer")
+        if not np.allclose(self.rotation_matrix, np.round(self.rotation_matrix)):
+            warnings.warn("Rotation matrix should be integer", stacklevel=2)
 
         return transformation_to_string(
             self.rotation_matrix,
@@ -443,16 +462,17 @@ class SymmOp(MSONable):
     def from_xyz_str(cls, xyz_str: str) -> Self:
         """
         Args:
-            xyz_str: string of the form 'x, y, z', '-x, -y, z', '-2y+1/2, 3x+1/2, z-y+1/2', etc.
+            xyz_str (str): "x, y, z", "-x, -y, z", "-2y+1/2, 3x+1/2, z-y+1/2", etc.
 
         Returns:
             SymmOp
         """
-        rot_matrix = np.zeros((3, 3))
-        trans = np.zeros(3)
-        tokens = xyz_str.strip().replace(" ", "").lower().split(",")
+        rot_matrix: NDArray = np.zeros((3, 3))
+        trans: NDArray = np.zeros(3)
+        tokens: list[str] = xyz_str.strip().replace(" ", "").lower().split(",")
         re_rot = re.compile(r"([+-]?)([\d\.]*)/?([\d\.]*)([x-z])")
         re_trans = re.compile(r"([+-]?)([\d\.]+)/?([\d\.]*)(?![x-z])")
+
         for idx, tok in enumerate(tokens):
             # Build the rotation matrix
             for match in re_rot.finditer(tok):
@@ -461,11 +481,13 @@ class SymmOp(MSONable):
                     factor *= float(match[2]) / float(match[3]) if match[3] != "" else float(match[2])
                 j = ord(match[4]) - 120
                 rot_matrix[idx, j] = factor
+
             # Build the translation vector
             for match in re_trans.finditer(tok):
                 factor = -1 if match[1] == "-" else 1
                 num = float(match[2]) / float(match[3]) if match[3] != "" else float(match[2])
                 trans[idx] = num * factor
+
         return cls.from_rotation_and_translation(rot_matrix, trans)
 
     @classmethod
@@ -505,10 +527,10 @@ class MagSymmOp(SymmOp):
             tol (float): Tolerance for determining if matrices are equal.
         """
         super().__init__(affine_transformation_matrix, tol=tol)
-        if time_reversal in {-1, 1}:
-            self.time_reversal = time_reversal
-        else:
+        if time_reversal not in {-1, 1}:
             raise RuntimeError(f"Invalid {time_reversal=}, must be 1 or -1")
+
+        self.time_reversal = time_reversal
 
     def __eq__(self, other: object) -> bool:
         if not isinstance(other, type(self)):
@@ -619,7 +641,7 @@ class MagSymmOp(SymmOp):
             raise RuntimeError("Time reversal operator could not be parsed.")
 
         if time_reversal in {-1, 1}:
-            return cls.from_symmop(symm_op, cast(Literal[-1, 1], time_reversal))
+            return cls.from_symmop(symm_op, cast("Literal[-1, 1]", time_reversal))
 
         raise RuntimeError("Time reversal should be -1 or 1.")
 

@@ -21,7 +21,7 @@
         "size": 16.0
       },
       "ticks": "inside",
-      "titlefont": {
+      "title.font": {
         "color": "#000000",
         "size": 20.0
       },
@@ -54,7 +54,7 @@
         "size": 16.0
       },
       "ticks": "inside",
-      "titlefont": {
+      "title.font": {
         "color": "#000000",
         "size": 20.0
       },
@@ -73,7 +73,7 @@
         "size": 16.0
       },
       "ticks": "inside",
-      "titlefont": {
+      "title.font": {
         "color": "#000000",
         "size": 20.0
       },

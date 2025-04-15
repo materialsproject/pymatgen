@@ -40,7 +40,7 @@ class MaterialsProjectDFTMixingScheme(Compatibility):
     may lead to unexpected results.
 
     This is the scheme used by the Materials Project to generate Phase Diagrams containing
-    a mixture of GGA(+U) and R2SCAN calculations. However in principle it can be used to
+    a mixture of GGA(+U) and r2SCAN calculations. However in principle it can be used to
     mix energies from any two functionals.
     """
 
@@ -48,8 +48,8 @@ class MaterialsProjectDFTMixingScheme(Compatibility):
         self,
         structure_matcher: StructureMatcher | None = None,
         run_type_1: str = "GGA(+U)",
-        run_type_2: str = "R2SCAN",
-        compat_1: Compatibility | None = MaterialsProject2020Compatibility(),  # noqa: B008
+        run_type_2: str = "r2SCAN",
+        compat_1: (Compatibility | None) = MaterialsProject2020Compatibility(),  # noqa: B008
         compat_2: Compatibility | None = None,
         fuzzy_matching: bool = True,
         check_potcar: bool = True,
@@ -64,7 +64,7 @@ class MaterialsProjectDFTMixingScheme(Compatibility):
             run_type_1: The first DFT run_type. Typically this is the majority or run type or
                 the "base case" onto which the other calculations are referenced. Valid choices
                 are any run_type recognized by Vasprun.run_type, such as "LDA", "GGA", "GGA+U",
-                "PBEsol", "SCAN", or "R2SCAN". The class will ignore any entries that have a
+                "PBEsol", "SCAN", or "r2SCAN". The class will ignore any entries that have a
                 run_type different than run_type_1 or run_type_2.
 
                 The list of run_type_1 entries provided to process_entries MUST form a complete
@@ -103,8 +103,10 @@ class MaterialsProjectDFTMixingScheme(Compatibility):
             raise ValueError(f"run_type_1={run_type_2=}. The mixing scheme is meaningless unless run_types different")
         self.run_type_1 = run_type_1
         self.run_type_2 = run_type_2
-        self.valid_rtypes_1 = ["GGA", "GGA+U"] if self.run_type_1 == "GGA(+U)" else [self.run_type_1]
-        self.valid_rtypes_2 = ["GGA", "GGA+U"] if self.run_type_2 == "GGA(+U)" else [self.run_type_2]
+        """Valid run_type, allowing for archive R2SCAN entries"""
+        valid_rtype_dict = {"GGA(+U)": ["GGA", "GGA+U"], "R2SCAN": ["r2SCAN", "R2SCAN"]}
+        self.valid_rtypes_1 = valid_rtype_dict.get(run_type_1.upper(), [self.run_type_1])
+        self.valid_rtypes_2 = valid_rtype_dict.get(run_type_2.upper(), [self.run_type_2])
 
         self.compat_1 = compat_1
         self.compat_2 = compat_2
@@ -156,7 +158,9 @@ class MaterialsProjectDFTMixingScheme(Compatibility):
 
         # We can't operate on single entries in this scheme
         if len(entries) == 1:
-            warnings.warn(f"{type(self).__name__} cannot process single entries. Supply a list of entries.")
+            warnings.warn(
+                f"{type(self).__name__} cannot process single entries. Supply a list of entries.", stacklevel=2
+            )
             return processed_entry_list
 
         # if inplace = False, process entries on a copy
@@ -210,7 +214,7 @@ class MaterialsProjectDFTMixingScheme(Compatibility):
                 adjustments = self.get_adjustments(entry, mixing_state_data)
             except CompatibilityError as exc:
                 if "WARNING!" in str(exc):
-                    warnings.warn(str(exc))
+                    warnings.warn(str(exc), stacklevel=2)
                 elif verbose:
                     print(f"  {exc}")
                 ignore_entry = True
@@ -228,7 +232,8 @@ class MaterialsProjectDFTMixingScheme(Compatibility):
                     warnings.warn(
                         f"Entry {entry.entry_id} already has an energy adjustment called {ea.name}, but its "
                         f"value differs from the value of {ea.value:.3f} calculated here. This "
-                        "Entry will be discarded."
+                        "Entry will be discarded.",
+                        stacklevel=2,
                     )
                 else:
                     # Add the correction to the energy_adjustments list
@@ -250,7 +255,7 @@ class MaterialsProjectDFTMixingScheme(Compatibility):
 
     def get_adjustments(self, entry, mixing_state_data: pd.DataFrame | None = None):
         """Get the corrections applied to a particular entry. Note that get_adjustments is not
-        intended to be called directly in the R2SCAN mixing scheme. Call process_entries instead,
+        intended to be called directly in the r2SCAN mixing scheme. Call process_entries instead,
         and it will pass the required arguments to get_adjustments.
 
         Args:
@@ -323,7 +328,7 @@ class MaterialsProjectDFTMixingScheme(Compatibility):
                 # For run_type_2 entries, there is no correction
                 return adjustments
 
-            # Discard GGA ground states whose structures already exist in R2SCAN.
+            # Discard GGA ground states whose structures already exist in r2SCAN.
             df_slice = mixing_state_data[(mixing_state_data["entry_id_1"] == entry.entry_id)]
 
             if df_slice["entry_id_2"].notna().item():
@@ -341,8 +346,8 @@ class MaterialsProjectDFTMixingScheme(Compatibility):
                     f"because there is a matching {self.run_type_2} material."
                 )
 
-            # If a GGA is not present in R2SCAN, correct its energy to give the same
-            # e_above_hull on the R2SCAN hull that it would have on the GGA hull
+            # If a GGA is not present in r2SCAN, correct its energy to give the same
+            # e_above_hull on the r2SCAN hull that it would have on the GGA hull
             hull_energy_1 = df_slice["hull_energy_1"].iloc[0]
             hull_energy_2 = df_slice["hull_energy_2"].iloc[0]
             correction = (hull_energy_2 - hull_energy_1) * entry.composition.num_atoms
@@ -481,7 +486,8 @@ class MaterialsProjectDFTMixingScheme(Compatibility):
             if not isinstance(entry, ComputedStructureEntry):
                 warnings.warn(
                     f"Entry {entry.entry_id} is not a ComputedStructureEntry and will be ignored. "
-                    "The DFT mixing scheme requires structures for all entries"
+                    "The DFT mixing scheme requires structures for all entries",
+                    stacklevel=2,
                 )
                 continue
 
@@ -496,12 +502,12 @@ class MaterialsProjectDFTMixingScheme(Compatibility):
         try:
             pd_type_1 = PhaseDiagram(entries_type_1)
         except ValueError:
-            warnings.warn(f"{self.run_type_1} entries do not form a complete PhaseDiagram.")
+            warnings.warn(f"{self.run_type_1} entries do not form a complete PhaseDiagram.", stacklevel=2)
 
         try:
             pd_type_2 = PhaseDiagram(entries_type_2)
         except ValueError:
-            warnings.warn(f"{self.run_type_2} entries do not form a complete PhaseDiagram.")
+            warnings.warn(f"{self.run_type_2} entries do not form a complete PhaseDiagram.", stacklevel=2)
 
         # Objective: loop through all the entries, group them by structure matching (or fuzzy structure matching
         # where relevant). For each group, put a row in a pandas DataFrame with the composition of the run_type_1 entry,
@@ -550,7 +556,15 @@ class MaterialsProjectDFTMixingScheme(Compatibility):
                     for idx, site_group in groupby(sorted(l_pre_group, key=len), key=len):
                         l_sitegroup = list(site_group)
                         row_list.append(
-                            self._populate_df_row(l_sitegroup, comp, sg, idx, pd_type_1, pd_type_2, all_entries)
+                            self._populate_df_row(
+                                l_sitegroup,
+                                comp,
+                                sg,
+                                idx,
+                                pd_type_1,
+                                pd_type_2,
+                                all_entries,
+                            )
                         )
                 else:
                     for group in self.structure_matcher.group_structures(l_pre_group):
@@ -574,7 +588,8 @@ class MaterialsProjectDFTMixingScheme(Compatibility):
             if not entry.parameters.get("run_type"):
                 warnings.warn(
                     f"Entry {entry_id} is missing parameters.run_type! This field"
-                    "is required. This entry will be ignored."
+                    "is required. This entry will be ignored.",
+                    stacklevel=2,
                 )
                 continue
 
@@ -582,7 +597,8 @@ class MaterialsProjectDFTMixingScheme(Compatibility):
             if run_type not in [*self.valid_rtypes_1, *self.valid_rtypes_2]:
                 warnings.warn(
                     f"Invalid {run_type=} for entry {entry_id}. Must be one of "
-                    f"{self.valid_rtypes_1 + self.valid_rtypes_2}. This entry will be ignored."
+                    f"{self.valid_rtypes_1 + self.valid_rtypes_2}. This entry will be ignored.",
+                    stacklevel=2,
                 )
                 continue
 
@@ -590,7 +606,8 @@ class MaterialsProjectDFTMixingScheme(Compatibility):
             if entry_id is None:
                 warnings.warn(
                     f"{entry_id=} for {formula=}. Unique entry_ids are required for every ComputedStructureEntry."
-                    " This entry will be ignored."
+                    " This entry will be ignored.",
+                    stacklevel=2,
                 )
                 continue
 
@@ -641,7 +658,8 @@ class MaterialsProjectDFTMixingScheme(Compatibility):
                 warnings.warn(
                     f"  {self.run_type_2} entries chemical system {entries_type_2.chemsys} is larger than "
                     f"{self.run_type_1} entries chemical system {entries_type_1.chemsys}. Entries outside the "
-                    f"{self.run_type_1} chemical system will be discarded"
+                    f"{self.run_type_1} chemical system will be discarded",
+                    stacklevel=2,
                 )
                 entries_type_2 = entries_type_2.get_subset_in_chemsys(chemsys)
         else:

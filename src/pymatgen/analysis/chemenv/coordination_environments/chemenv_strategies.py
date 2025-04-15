@@ -262,9 +262,9 @@ class AbstractChemenvStrategy(MSONable, abc.ABC):
                 uc_psite = psite.to_unit_cell()
                 site_idx = self.structure_environments.structure.index(uc_psite)
             except ValueError:
-                for isite2, site2 in enumerate(self.structure_environments.structure):
+                for site_idx2, site2 in enumerate(self.structure_environments.structure):
                     if psite.is_periodic_image(site2):
-                        site_idx = isite2
+                        site_idx = site_idx2
                         break
         # Get the translation between psite and its corresponding site in the unit cell (Translation I)
         this_site = self.structure_environments.structure[site_idx]
@@ -318,7 +318,12 @@ class AbstractChemenvStrategy(MSONable, abc.ABC):
             raise EquivalentSiteSearchError(psite)
 
         equivalent_site_map = self.structure_environments.sites_map[site_idx]
-        return equivalent_site_map, dist_equiv_site, dist_this_site + d_this_site2, sym_trafo
+        return (
+            equivalent_site_map,
+            dist_equiv_site,
+            dist_this_site + d_this_site2,
+            sym_trafo,
+        )
 
     @abc.abstractmethod
     def get_site_neighbors(self, site):
@@ -818,7 +823,12 @@ class SimplestChemenvStrategy(AbstractChemenvStrategy):
             List of coordination environment.
         """
         env = self.get_site_coordination_environment(
-            site=site, isite=isite, dequivsite=dequivsite, dthissite=dthissite, mysym=mysym, return_map=return_maps
+            site=site,
+            isite=isite,
+            dequivsite=dequivsite,
+            dthissite=dthissite,
+            mysym=mysym,
+            return_map=return_maps,
         )
         return [env]
 
@@ -831,7 +841,12 @@ class SimplestChemenvStrategy(AbstractChemenvStrategy):
             plot_type: Type of distance-angle plot.
         """
         subplot.plot(
-            self._distance_cutoff, self._angle_cutoff, "o", markeredgecolor=None, markerfacecolor="w", markersize=12
+            self._distance_cutoff,
+            self._angle_cutoff,
+            "o",
+            markeredgecolor=None,
+            markerfacecolor="w",
+            markersize=12,
         )
         subplot.plot(self._distance_cutoff, self._angle_cutoff, "x", linewidth=2, markersize=12)
 
@@ -1971,11 +1986,11 @@ class DeltaCSMNbSetWeight(NbSetWeight):
         return cls(
             effective_csm_estimator=dct["effective_csm_estimator"],
             weight_estimator=dct["weight_estimator"],
-            delta_cn_weight_estimators={
-                int(dcn): dcn_estimator for dcn, dcn_estimator in dct["delta_cn_weight_estimators"].items()
-            }
-            if dct.get("delta_cn_weight_estimators") is not None
-            else None,
+            delta_cn_weight_estimators=(
+                {int(dcn): dcn_estimator for dcn, dcn_estimator in dct["delta_cn_weight_estimators"].items()}
+                if dct.get("delta_cn_weight_estimators") is not None
+                else None
+            ),
             symmetry_measure_type=dct["symmetry_measure_type"],
         )
 
@@ -3082,16 +3097,18 @@ class MultiWeightsChemenvStrategy(WeightedNbSetChemenvStrategy):
             "@class": type(self).__name__,
             "additional_condition": self._additional_condition,
             "symmetry_measure_type": self.symmetry_measure_type,
-            "dist_ang_area_weight": self.dist_ang_area_weight.as_dict()
-            if self.dist_ang_area_weight is not None
-            else None,
-            "self_csm_weight": self.self_csm_weight.as_dict() if self.self_csm_weight is not None else None,
-            "delta_csm_weight": self.delta_csm_weight.as_dict() if self.delta_csm_weight is not None else None,
-            "cn_bias_weight": self.cn_bias_weight.as_dict() if self.cn_bias_weight is not None else None,
-            "angle_weight": self.angle_weight.as_dict() if self.angle_weight is not None else None,
-            "normalized_angle_distance_weight": self.normalized_angle_distance_weight.as_dict()
-            if self.normalized_angle_distance_weight is not None
-            else None,
+            "dist_ang_area_weight": (
+                self.dist_ang_area_weight.as_dict() if self.dist_ang_area_weight is not None else None
+            ),
+            "self_csm_weight": (self.self_csm_weight.as_dict() if self.self_csm_weight is not None else None),
+            "delta_csm_weight": (self.delta_csm_weight.as_dict() if self.delta_csm_weight is not None else None),
+            "cn_bias_weight": (self.cn_bias_weight.as_dict() if self.cn_bias_weight is not None else None),
+            "angle_weight": (self.angle_weight.as_dict() if self.angle_weight is not None else None),
+            "normalized_angle_distance_weight": (
+                self.normalized_angle_distance_weight.as_dict()
+                if self.normalized_angle_distance_weight is not None
+                else None
+            ),
             "ce_estimator": self.ce_estimator,
         }
 
@@ -3114,19 +3131,21 @@ class MultiWeightsChemenvStrategy(WeightedNbSetChemenvStrategy):
         return cls(
             additional_condition=dct["additional_condition"],
             symmetry_measure_type=dct["symmetry_measure_type"],
-            dist_ang_area_weight=DistanceAngleAreaNbSetWeight.from_dict(dct["dist_ang_area_weight"])
-            if dct["dist_ang_area_weight"] is not None
-            else None,
-            self_csm_weight=SelfCSMNbSetWeight.from_dict(dct["self_csm_weight"])
-            if dct["self_csm_weight"] is not None
-            else None,
-            delta_csm_weight=DeltaCSMNbSetWeight.from_dict(dct["delta_csm_weight"])
-            if dct["delta_csm_weight"] is not None
-            else None,
-            cn_bias_weight=CNBiasNbSetWeight.from_dict(dct["cn_bias_weight"])
-            if dct["cn_bias_weight"] is not None
-            else None,
-            angle_weight=AngleNbSetWeight.from_dict(dct["angle_weight"]) if dct["angle_weight"] is not None else None,
+            dist_ang_area_weight=(
+                DistanceAngleAreaNbSetWeight.from_dict(dct["dist_ang_area_weight"])
+                if dct["dist_ang_area_weight"] is not None
+                else None
+            ),
+            self_csm_weight=(
+                SelfCSMNbSetWeight.from_dict(dct["self_csm_weight"]) if dct["self_csm_weight"] is not None else None
+            ),
+            delta_csm_weight=(
+                DeltaCSMNbSetWeight.from_dict(dct["delta_csm_weight"]) if dct["delta_csm_weight"] is not None else None
+            ),
+            cn_bias_weight=(
+                CNBiasNbSetWeight.from_dict(dct["cn_bias_weight"]) if dct["cn_bias_weight"] is not None else None
+            ),
+            angle_weight=(AngleNbSetWeight.from_dict(dct["angle_weight"]) if dct["angle_weight"] is not None else None),
             normalized_angle_distance_weight=nad_w,
             ce_estimator=dct["ce_estimator"],
         )

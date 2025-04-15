@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import json
 import re
 
 import requests
@@ -16,7 +17,7 @@ except ImportError:
 class VaspDoc:
     """A VASP documentation helper."""
 
-    @requires(BeautifulSoup, "BeautifulSoup must be installed to fetch from the VASP wiki.")
+    @requires(BeautifulSoup, "BeautifulSoup4 must be installed to fetch from the VASP wiki.")
     def __init__(self) -> None:
         """Init for VaspDoc."""
         self.url_template = "https://www.vasp.at/wiki/index.php/%s"
@@ -55,10 +56,9 @@ class VaspDoc:
         tag = tag.upper()
         response = requests.get(
             f"https://www.vasp.at/wiki/index.php/{tag}",
-            verify=False,  # noqa: S501
-            timeout=600,
+            timeout=60,
         )
-        soup = BeautifulSoup(response.text)
+        soup = BeautifulSoup(response.text, features="html.parser")
         main_doc = soup.find(id="mw-content-text")
         if fmt == "text":
             output = main_doc.text
@@ -69,15 +69,32 @@ class VaspDoc:
     @classmethod
     def get_incar_tags(cls) -> list[str]:
         """Get a list of all INCAR tags from the VASP wiki."""
-        tags = []
-        for page in (
-            "https://www.vasp.at/wiki/index.php/Category:INCAR",
-            "https://www.vasp.at/wiki/index.php?title=Category:INCAR&pagefrom=ML+FF+LCONF+DISCARD#mw-pages",
-        ):
-            response = requests.get(page, verify=False, timeout=600)  # noqa: S501
-            soup = BeautifulSoup(response.text)
-            for div in soup.findAll("div", {"class": "mw-category-group"}):
-                children = div.findChildren("li")
-                for child in children:
-                    tags.append(child.text.strip())
+        # Use Mediawiki API as documented in
+        # https://www.vasp.at/wiki/api.php?action=help&modules=query
+        url = (
+            "https://www.vasp.at/wiki/api.php?"
+            "action=query&list=categorymembers"
+            "&cmtitle=Category:INCAR_tag"
+            "&cmlimit=500&format=json"
+        )
+        response = requests.get(url, timeout=60)
+        response_dict = json.loads(response.text)
+
+        def extract_titles(data):
+            """Extract keywords from from Wikimedia response data.
+            See https://www.vasp.at/wiki/api.php?action=help&modules=query%2Bcategorymembers
+            Returns: List of keywords as strings.
+            """
+            return [category_data["title"] for category_data in data["query"]["categorymembers"]]
+
+        tags = extract_titles(response_dict)
+
+        # If there are more than 500 items in the response, we will
+        # get 'continue' field in the response
+        # See https://www.mediawiki.org/wiki/API:Continue
+        while "continue" in response_dict:
+            response = requests.get(url + f"&cmcontinue={response_dict['continue']['cmcontinue']}", timeout=60)
+            response_dict = json.loads(response.text)
+            tags = tags + extract_titles(response_dict)
+
         return tags

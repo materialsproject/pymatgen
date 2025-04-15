@@ -91,11 +91,15 @@ class IRDielectricTensor(MSONable):
 
     def write_json(self, filename: str | PathLike) -> None:
         """Save a JSON file with this data."""
-        with open(filename, mode="w") as file:
+        with open(filename, mode="w", encoding="utf-8") as file:
             json.dump(self.as_dict(), file)
 
     def get_ir_spectra(
-        self, broad: list | float = 0.00005, emin: float = 0, emax: float | None = None, divs: int = 500
+        self,
+        broad: list | float = 0.00005,
+        emin: float = 0,
+        emax: float | None = None,
+        divs: int = 500,
     ) -> tuple:
         """The IR spectra is obtained for the different directions.
 
@@ -220,7 +224,13 @@ class IRDielectricTensor(MSONable):
                 if re_im in reim:
                     label = rf"{reim_label[re_im]}{{$\epsilon_{{{'xyz'[i]}{'xyz'[j]}}}$}}"
                     spectrum = self.get_spectrum(
-                        component, re_im, broad=broad, emin=emin, emax=emax, divs=divs, **kwargs
+                        component,
+                        re_im,
+                        broad=broad,
+                        emin=emin,
+                        emax=emax,
+                        divs=divs,
+                        **kwargs,
                     )
                     spectrum.XLABEL = r"Frequency (meV)"
                     spectrum.YLABEL = r"$\epsilon(\omega)$"

@@ -112,14 +112,18 @@ class Cp2kOutput:
         return self.data.get("global").get("Run_type")
 
     @property
-    def calculation_type(self):
+    def calculation_type(self) -> str:
         """The calculation type (what io.vasp.outputs calls run_type)."""
-        LDA_TYPES = {"LDA", "PADE", "BECKE88", "BECKE88_LR", "BECKE88_LR_ADIABATIC", "BECKE97"}
-
+        LDA_TYPES = {
+            "LDA",
+            "PADE",
+            "BECKE88",
+            "BECKE88_LR",
+            "BECKE88_LR_ADIABATIC",
+            "BECKE97",
+        }
         GGA_TYPES = {"PBE", "PW92"}
-
         HYBRID_TYPES = {"BLYP", "B3LYP"}
-
         METAGGA_TYPES = {
             "TPSS": "TPSS",
             "RTPSS": "revTPSS",
@@ -132,36 +136,36 @@ class Cp2kOutput:
         }
 
         functional = self.data.get("dft", {}).get("functional", [None])
-        ip = self.data.get("dft", {}).get("hfx", {}).get("Interaction_Potential")
+        inter_pot = self.data.get("dft", {}).get("hfx", {}).get("Interaction_Potential")
         frac = self.data.get("dft", {}).get("hfx", {}).get("FRACTION")
 
         if len(functional) > 1:
-            rt = "Mixed: " + ", ".join(functional)
+            run_type = "Mixed: " + ", ".join(functional)
             functional = " ".join(functional)
-            if "HYP" in functional or (ip and frac) or (functional in HYBRID_TYPES):
-                rt = "Hybrid"
+            if "HYP" in functional or (inter_pot and frac) or (functional in HYBRID_TYPES):
+                run_type = "Hybrid"
         else:
             functional = functional[0]
 
             if functional is None:
-                rt = "None"
-            elif "HYP" in functional or (ip and frac) or (functional) in HYBRID_TYPES:
-                rt = "Hybrid"
+                run_type = "None"
+            elif "HYP" in functional or (inter_pot and frac) or (functional) in HYBRID_TYPES:
+                run_type = "Hybrid"
             elif "MGGA" in functional or functional in METAGGA_TYPES:
-                rt = "METAGGA"
+                run_type = "METAGGA"
             elif "GGA" in functional or functional in GGA_TYPES:
-                rt = "GGA"
+                run_type = "GGA"
             elif "LDA" in functional or functional in LDA_TYPES:
-                rt = "LDA"
+                run_type = "LDA"
             else:
-                rt = "Unknown"
+                run_type = "Unknown"
 
         if self.is_hubbard:
-            rt += "+U"
-        if self.data.get("dft").get("vdw"):
-            rt += "+VDW"
+            run_type += "+U"
+        if self.data.get("dft", {}).get("vdw"):
+            run_type += "+VDW"
 
-        return rt
+        return run_type
 
     @property
     def project_name(self) -> str:
@@ -297,7 +301,7 @@ class Cp2kOutput:
             self.structures = []
             gs = self.initial_structure.site_properties.get("ghost")
             if not self.is_molecule:
-                for mol, latt in zip(mols, lattices, strict=True):
+                for mol, latt in zip(mols, lattices, strict=False):
                     self.structures.append(
                         Structure(
                             lattice=latt,
@@ -323,7 +327,7 @@ class Cp2kOutput:
         )
 
         coord_table = []
-        with zopen(self.filename, mode="rt") as file:
+        with zopen(self.filename, mode="rt", encoding="utf-8") as file:
             while True:
                 line = file.readline()
                 if re.search(r"Atom\s+Kind\s+Element\s+X\s+Y\s+Z\s+Z\(eff\)\s+Mass", line):
@@ -424,10 +428,10 @@ class Cp2kOutput:
         if not all(self.data["scf_converged"]):
             warnings.warn(
                 "There is at least one unconverged SCF cycle in the provided CP2K calculation",
-                UserWarning,
+                stacklevel=2,
             )
         if any(self.data["geo_opt_not_converged"]):
-            warnings.warn("Geometry optimization did not converge", UserWarning)
+            warnings.warn("Geometry optimization did not converge", stacklevel=2)
 
     def parse_energies(self):
         """Get the total energy from a CP2K calculation. Presently, the energy reported in the
@@ -492,7 +496,7 @@ class Cp2kOutput:
                 r"(-?\d+\.\d+E?[-|\+]?\d+)\s+(-?\d+\.\d+E?[-|\+]?\d+).*$"
             )
             footer_pattern = r"^$"
-            d = self.read_table_pattern(
+            dct = self.read_table_pattern(
                 header_pattern=header_pattern,
                 row_pattern=row_pattern,
                 footer_pattern=footer_pattern,
@@ -502,12 +506,12 @@ class Cp2kOutput:
 
             def chunks(lst, n):
                 """Yield successive n-sized chunks from lst."""
-                for i in range(0, len(lst), n):
-                    if i % 2 == 0:
-                        yield lst[i : i + n]
+                for idx in range(0, len(lst), n):
+                    if idx % 2 == 0:
+                        yield lst[idx : idx + n]
 
-            if d:
-                self.data["stress_tensor"] = list(chunks(d[0], 3))
+            if dct:
+                self.data["stress_tensor"] = list(chunks(dct[0], 3))
 
     def parse_ionic_steps(self):
         """Parse the ionic step info. If already parsed, this will just assimilate."""
@@ -520,13 +524,13 @@ class Cp2kOutput:
         if not self.data.get("stress_tensor"):
             self.parse_stresses()
 
-        for i, (structure, energy) in enumerate(zip(self.structures, self.data.get("total_energy"), strict=True)):
+        for idx, (structure, energy) in enumerate(zip(self.structures, self.data.get("total_energy"), strict=False)):
             self.ionic_steps.append(
                 {
                     "structure": structure,
                     "E": energy,
-                    "forces": self.data["forces"][i] if self.data.get("forces") else None,
-                    "stress_tensor": self.data["stress_tensor"][i] if self.data.get("stress_tensor") else None,
+                    "forces": (self.data["forces"][idx] if self.data.get("forces") else None),
+                    "stress_tensor": (self.data["stress_tensor"][idx] if self.data.get("stress_tensor") else None),
                 }
             )
 
@@ -562,7 +566,7 @@ class Cp2kOutput:
             if os.path.isfile(os.path.join(self.dir, input_filename + ext)):
                 self.input = Cp2kInput.from_file(os.path.join(self.dir, input_filename + ext))
                 return
-        warnings.warn("Original input file not found. Some info may be lost.")
+        warnings.warn("Original input file not found. Some info may be lost.", stacklevel=2)
 
     def parse_global_params(self):
         """Parse the GLOBAL section parameters from CP2K output file into a dictionary."""
@@ -611,7 +615,12 @@ class Cp2kOutput:
 
         # HF exchange info
         hfx = re.compile(r"\s+HFX_INFO\|\s+(.+):\s+(.*)$")
-        self.read_pattern({"hfx": hfx}, terminate_on_match=False, postprocess=postprocessor, reverse=False)
+        self.read_pattern(
+            {"hfx": hfx},
+            terminate_on_match=False,
+            postprocess=postprocessor,
+            reverse=False,
+        )
         self.data["dft"]["hfx"] = dict(self.data.pop("hfx"))
 
         # Van der waals correction
@@ -627,8 +636,8 @@ class Cp2kOutput:
             suffix = ""
             for ll in self.data.get("vdw"):
                 for _possible, _name in zip(
-                    ["RVV10", "LMKLL", "DRSLL", "DFT-D3", "DFT-D2"],
-                    ["RVV10", "LMKLL", "DRSLL", "D3", "D2"],
+                    ("RVV10", "LMKLL", "DRSLL", "DFT-D3", "DFT-D2"),
+                    ("RVV10", "LMKLL", "DRSLL", "D3", "D2"),
                     strict=True,
                 ):
                     if _possible in ll[0]:
@@ -652,11 +661,11 @@ class Cp2kOutput:
         )
         self.data["QS"] = dict(self.data["QS"])
         tmp = {}
-        i = 1
+        idx = 1
         for k in list(self.data["QS"]):
             if "grid_level" in str(k) and "Number" not in str(k):
-                tmp[i] = self.data["QS"].pop(k)
-                i += 1
+                tmp[idx] = self.data["QS"].pop(k)
+                idx += 1
         self.data["QS"]["Multi_grid_cutoffs_[a.u.]"] = tmp
 
     def parse_overlap_condition(self):
@@ -702,7 +711,8 @@ class Cp2kOutput:
             ]
 
         warnings.warn(
-            "Input file lost. Reading cell params from summary at top of output. Precision errors may result."
+            "Input file lost. Reading cell params from summary at top of output. Precision errors may result.",
+            stacklevel=2,
         )
         cell_volume = re.compile(r"\s+CELL\|\sVolume.*\s(\d+\.\d+)")
         vectors = re.compile(r"\s+CELL\| Vector.*\s(-?\d+\.\d+)\s+(-?\d+\.\d+)\s+(-?\d+\.\d+)")
@@ -714,8 +724,8 @@ class Cp2kOutput:
             postprocess=float,
             reverse=False,
         )
-        i = iter(self.data["lattice"])
-        lattices = list(zip(i, i, i, strict=True))
+        iterator = iter(self.data["lattice"])
+        lattices = list(zip(iterator, iterator, iterator, strict=True))
         return lattices[0]
 
     def parse_atomic_kind_info(self):
@@ -779,7 +789,7 @@ class Cp2kOutput:
             except (TypeError, IndexError, ValueError):
                 atomic_kind_info[kind]["total_pseudopotential_energy"] = None
 
-        with zopen(self.filename, mode="rt") as file:
+        with zopen(self.filename, mode="rt", encoding="utf-8") as file:
             j = -1
             lines = file.readlines()
             for k, line in enumerate(lines):
@@ -877,7 +887,7 @@ class Cp2kOutput:
         # "Information at step =" Summary block (floating point terms)
         total_energy = re.compile(r"\s+Total Energy\s+=\s+(-?\d+.\d+)")
         real_energy_change = re.compile(r"\s+Real energy change\s+=\s+(-?\d+.\d+)")
-        prediced_change_in_energy = re.compile(r"\s+Predicted change in energy\s+=\s+(-?\d+.\d+)")
+        predicted_change_in_energy = re.compile(r"\s+Predicted change in energy\s+=\s+(-?\d+.\d+)")
         scaling_factor = re.compile(r"\s+Scaling factor\s+=\s+(-?\d+.\d+)")
         step_size = re.compile(r"\s+Step size\s+=\s+(-?\d+.\d+)")
         trust_radius = re.compile(r"\s+Trust radius\s+=\s+(-?\d+.\d+)")
@@ -891,7 +901,7 @@ class Cp2kOutput:
             {
                 "total_energy": total_energy,
                 "real_energy_change": real_energy_change,
-                "predicted_change_in_energy": prediced_change_in_energy,
+                "predicted_change_in_energy": predicted_change_in_energy,
                 "scaling_factor": scaling_factor,
                 "step_size": step_size,
                 "trust_radius": trust_radius,
@@ -939,7 +949,7 @@ class Cp2kOutput:
             print("Found data, but not yet implemented!")
 
     def parse_hirshfeld(self):
-        """Parse the hirshfeld population analysis for each step."""
+        """Parse the Hirshfeld population analysis for each step."""
         uks = self.spin_polarized
         header = r"Hirshfeld Charges.+Net charge"
         footer = r"^$"
@@ -959,7 +969,7 @@ class Cp2kOutput:
                     population.append(site[4])
                     net_charge.append(site[5])
                 hirshfeld = [{"population": population[j], "net_charge": net_charge[j]} for j in range(len(population))]
-                self.structures[i].add_site_property("hirshfield", hirshfeld)
+                self.structures[i].add_site_property("hirshfeld", hirshfeld)
         else:
             pattern = (
                 r"\s+(\d)\s+(\w+)\s+(\d+)\s+(-?\d+\.\d+)\s+"
@@ -987,7 +997,7 @@ class Cp2kOutput:
                     }
                     for j in range(len(population))
                 ]
-                self.structures[i].add_site_property("hirshfield", hirshfeld)
+                self.structures[i].add_site_property("hirshfeld", hirshfeld)
 
     def parse_mo_eigenvalues(self):
         """Parse the MO eigenvalues from the CP2K output file. Will get the eigenvalues (and band gap)
@@ -1000,7 +1010,7 @@ class Cp2kOutput:
         eigenvalues = []
         efermi = []
 
-        with zopen(self.filename, mode="rt") as file:
+        with zopen(self.filename, mode="rt", encoding="utf-8") as file:
             lines = iter(file.readlines())
             for line in lines:
                 try:
@@ -1037,7 +1047,8 @@ class Cp2kOutput:
                         while True:
                             if "WARNING : did not converge" in line:
                                 warnings.warn(
-                                    "Convergence of eigenvalues for unoccupied subspace spin 1 did NOT converge"
+                                    "Convergence of eigenvalues for unoccupied subspace spin 1 did NOT converge",
+                                    stacklevel=2,
                                 )
                                 next(lines)
                                 next(lines)
@@ -1064,7 +1075,8 @@ class Cp2kOutput:
                             while True:
                                 if "WARNING : did not converge" in line:
                                     warnings.warn(
-                                        "Convergence of eigenvalues for unoccupied subspace spin 2 did NOT converge"
+                                        "Convergence of eigenvalues for unoccupied subspace spin 2 did NOT converge",
+                                        stacklevel=2,
                                     )
                                     next(lines)
                                     next(lines)
@@ -1096,7 +1108,7 @@ class Cp2kOutput:
                             "unoccupied": {Spin.up: None, Spin.down: None},
                         }
                     ]
-                    warnings.warn("Convergence of eigenvalues for one or more subspaces did NOT converge")
+                    warnings.warn("Convergence of eigenvalues for one or more subspaces did NOT converge", stacklevel=2)
 
         self.data["eigenvalues"] = eigenvalues
 
@@ -1308,10 +1320,16 @@ class Cp2kOutput:
         else:
             eigenvals = {Spin.up: bands_data.reshape((nbands, nkpts))}
 
-        occ = bands_data[:, 1][bands_data[:, -1] != 0.0]
+        # Filter out occupied and unoccupied states
+        occupied_mask = ~np.isclose(bands_data[:, -1], 0.0)
+        unoccupied_mask = np.isclose(bands_data[:, -1], 0.0)
+
+        occ = bands_data[:, 1][occupied_mask]
         homo = np.max(occ)
-        unocc = bands_data[:, 1][bands_data[:, -1] == 0.0]
+
+        unocc = bands_data[:, 1][unoccupied_mask]
         lumo = np.min(unocc)
+
         efermi = (lumo + homo) / 2
         self.efermi = efermi
 
@@ -1337,7 +1355,7 @@ class Cp2kOutput:
             else:
                 return None
 
-        with zopen(hyperfine_filename, mode="rt") as file:
+        with zopen(hyperfine_filename, mode="rt", encoding="utf-8") as file:
             lines = [line for line in file.read().split("\n") if line]
 
         hyperfine = [[] for _ in self.ionic_steps]
@@ -1358,7 +1376,7 @@ class Cp2kOutput:
             else:
                 return None
 
-        with zopen(gtensor_filename, mode="rt") as file:
+        with zopen(gtensor_filename, mode="rt", encoding="utf-8") as file:
             lines = [line for line in file.read().split("\n") if line]
 
         data = {}
@@ -1395,19 +1413,10 @@ class Cp2kOutput:
             else:
                 return None
 
-        with zopen(chi_filename, mode="rt") as file:
+        with zopen(chi_filename, mode="rt", encoding="utf-8") as file:
             lines = [line for line in file.read().split("\n") if line]
 
-        data = {}
-        data["chi_soft"] = []
-        data["chi_local"] = []
-        data["chi_total"] = []
-        data["chi_total_ppm_cgs"] = []
-        data["PV1"] = []
-        data["PV2"] = []
-        data["PV3"] = []
-        data["ISO"] = []
-        data["ANISO"] = []
+        data = {k: [] for k in "chi_soft chi_local chi_total chi_total_ppm_cgs PV1 PV2 PV3 ISO ANISO".split()}
         ionic = -1
         dat = None
         for line in lines:
@@ -1463,7 +1472,7 @@ class Cp2kOutput:
         dct = np.zeros(npts)
         e_s = np.linspace(min(energies), max(energies), npts)
 
-        for e, _pd in zip(energies, densities, strict=True):
+        for e, _pd in zip(energies, densities, strict=False):
             weight = np.exp(-(((e_s - e) / width) ** 2)) / (np.sqrt(np.pi) * width)
             dct += _pd * weight
 
@@ -1551,7 +1560,7 @@ class Cp2kOutput:
             row_pattern, or a dict in case that named capturing groups are defined by
             row_pattern.
         """
-        with zopen(self.filename, mode="rt") as file:
+        with zopen(self.filename, mode="rt", encoding="utf-8") as file:
             if strip:
                 lines = file.readlines()
                 text = "".join(
@@ -1637,9 +1646,9 @@ def parse_energy_file(energy_file):
         "used_time",
     ]
     df_energies = pd.read_csv(energy_file, skiprows=1, names=columns, sep=r"\s+")
-    df_energies["kinetic_energy"] = df_energies["kinetic_energy"] * Ha_to_eV
-    df_energies["potential_energy"] = df_energies["potential_energy"] * Ha_to_eV
-    df_energies["conserved_quantity"] = df_energies["conserved_quantity"] * Ha_to_eV
+    df_energies["kinetic_energy"] *= Ha_to_eV
+    df_energies["potential_energy"] *= Ha_to_eV
+    df_energies["conserved_quantity"] *= Ha_to_eV
     df_energies = df_energies.astype(float)
     return {c: df_energies[c].to_numpy() for c in columns}
 
@@ -1688,7 +1697,7 @@ def parse_pdos(dos_file=None, spin_channel=None, total=False):
     """
     spin = Spin(spin_channel) if spin_channel else Spin.down if "BETA" in os.path.split(dos_file)[-1] else Spin.up
 
-    with zopen(dos_file, mode="rt") as file:
+    with zopen(dos_file, mode="rt", encoding="utf-8") as file:
         lines = file.readlines()
         kind = re.search(r"atomic kind\s(.*)\sat iter", lines[0]) or re.search(r"list\s(\d+)\s(.*)\sat iter", lines[0])
         kind = kind.groups()[0]
@@ -1765,6 +1774,10 @@ def parse_pdos(dos_file=None, spin_channel=None, total=False):
             }
         }
         if total:
-            tdos = Dos(efermi=efermi, energies=energies, densities={spin: np.sum(data[:, 1:], axis=1)})
+            tdos = Dos(
+                efermi=efermi,
+                energies=energies,
+                densities={spin: np.sum(data[:, 1:], axis=1)},
+            )
             return pdos, tdos
         return pdos

@@ -32,6 +32,8 @@ __email__ = "ncfrey@lbl.gov"
 __status__ = "Development"
 __date__ = "June 2019"
 
+logger = logging.getLogger(__name__)
+
 
 class HeisenbergMapper:
     """Compute exchange parameters from low energy magnetic orderings.
@@ -320,6 +322,8 @@ class HeisenbergMapper:
 
                 # Ignore the row if it is a duplicate to avoid singular matrix
                 # Create a temporary DataFrame with the new row
+                ex_mat = ex_mat.dropna(how="all", axis=1)
+                ex_row = ex_row.dropna(how="all", axis=1)
                 temp_df = pd.concat([ex_mat, ex_row], ignore_index=True)
                 if temp_df[j_columns].equals(temp_df[j_columns].drop_duplicates(keep="first")):
                     e_index = self.ordered_structures.index(sgraph.structure)
@@ -394,10 +398,7 @@ class HeisenbergMapper:
         fm_struct, afm_struct = None, None
         mag_min = np.inf
         mag_max = 0.001
-        fm_e = 0
-        afm_e = 0
-        fm_e_min = 0
-        afm_e_min = 0
+        fm_e = afm_e = fm_e_min = afm_e_min = 0
 
         # epas = [e / len(s) for (e, s) in zip(self.energies, self.ordered_structures)]
 
@@ -476,7 +477,7 @@ class HeisenbergMapper:
 
         # If m_avg for FM config is < 1 we won't get sensible results.
         if m_avg < 1:
-            logging.warning(
+            logger.warning(
                 "Local magnetic moments are small (< 1 muB / atom). The exchange parameters may "
                 "be wrong, but <J> and the mean field critical temperature estimate may be OK."
             )
@@ -523,9 +524,8 @@ class HeisenbergMapper:
             mft_t = max(eigen_vals)
 
         if mft_t > 1500:  # Not sensible!
-            logging.warning(
-                "This mean field estimate is too high! Probably "
-                "the true low energy orderings were not given as inputs."
+            logger.warning(
+                "This mean field estimate is too high! Probably the true low energy orderings were not given as inputs."
             )
 
         return mft_t
@@ -552,7 +552,7 @@ class HeisenbergMapper:
                 Only <J> is available. The interaction graph will not tell
                 you much.
                 """
-            logging.warning(warning_msg)
+            logger.warning(warning_msg)
 
         # J_ij exchange interaction matrix
         for idx in range(len(sgraph.graph.nodes)):
@@ -589,8 +589,7 @@ class HeisenbergMapper:
             float: Exchange parameter J_exc in meV
         """
         # Get unique site identifiers
-        i_index = 0
-        j_index = 0
+        i_index = j_index = 0
         for k, v in self.unique_site_ids.items():
             if i in k:
                 i_index = v
@@ -774,7 +773,12 @@ class HeisenbergScreener:
         n_below_1ub = [sum(abs(m) < 1 for m in ms) for ms in magmoms]
 
         df_mag = pd.DataFrame(
-            {"structure": structures, "energy": energies, "magmoms": magmoms, "n_below_1ub": n_below_1ub}
+            {
+                "structure": structures,
+                "energy": energies,
+                "magmoms": magmoms,
+                "n_below_1ub": n_below_1ub,
+            }
         )
 
         # keep the ground and first excited state fixed to capture the

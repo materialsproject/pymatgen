@@ -36,9 +36,9 @@ __copyright__ = "Copyright 2011-2020, The Materials Project"
 __version__ = "1.1"
 __date__ = "April 2020"
 
-with open(os.path.join(os.path.dirname(__file__), "data/g_els.json")) as file:
+with open(os.path.join(os.path.dirname(__file__), "data/g_els.json"), encoding="utf-8") as file:
     G_ELEMS = json.load(file)
-with open(os.path.join(os.path.dirname(__file__), "data/nist_gas_gf.json")) as file:
+with open(os.path.join(os.path.dirname(__file__), "data/nist_gas_gf.json"), encoding="utf-8") as file:
     G_GASES = json.load(file)
 
 
@@ -94,7 +94,12 @@ class EnergyAdjustment(MSONable):
         """Return an explanation of how the energy adjustment is calculated."""
 
     def __repr__(self):
-        name, value, uncertainty, description = self.name, float(self.value), self.uncertainty, self.description
+        name, value, uncertainty, description = (
+            self.name,
+            float(self.value),
+            self.uncertainty,
+            self.description,
+        )
         # self.cls might not be a dict if monty decoding is enabled in the new MPRester
         # which hydrates all dicts with @class and @module keys into classes in which case
         # we expect a Compatibility subclass
@@ -383,7 +388,7 @@ class ComputedEntry(Entry):
         """
         # adds to ufloat(0.0, 0.0) to ensure that no corrections still result in ufloat object
         unc = ufloat(0.0, 0.0) + sum(
-            ufloat(ea.value, ea.uncertainty) if not np.isnan(ea.uncertainty) else ufloat(ea.value, 0)
+            (ufloat(ea.value, ea.uncertainty) if not np.isnan(ea.uncertainty) else ufloat(ea.value, 0))
             for ea in self.energy_adjustments
         )
 
@@ -455,7 +460,7 @@ class ComputedEntry(Entry):
         if not all(hasattr(other, attr) for attr in needed_attrs):
             return NotImplemented
 
-        other = cast(ComputedEntry, other)
+        other = cast("ComputedEntry", other)
 
         # Equality is defined based on composition and energy.
         # If structures are involved, it is assumed that a {composition, energy} is
@@ -464,7 +469,7 @@ class ComputedEntry(Entry):
         # However, if entry_id is same, they may have different corrections (e.g., due
         # to mixing scheme used) and thus should be compared on corrected energy.
 
-        if getattr(self, "entry_id", None) and getattr(other, "entry_id", None) and self.entry_id != other.entry_id:
+        if getattr(self, "entry_id", False) and getattr(other, "entry_id", False) and self.entry_id != other.entry_id:
             return False
 
         if not math.isclose(self.energy, other.energy):
@@ -656,7 +661,8 @@ class ComputedStructureEntry(ComputedEntry):
         warnings.warn(
             f"Normalization of a `{type(self).__name__}` makes "
             "`self.composition` and `self.structure.composition` inconsistent"
-            " - please use self.composition for all further calculations."
+            " - please use self.composition for all further calculations.",
+            stacklevel=2,
         )
         # TODO: find a better solution for creating copies instead of as/from dict
         factor = self._normalization_factor(mode)

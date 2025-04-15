@@ -4,7 +4,8 @@ import math
 
 import numpy as np
 import pytest
-from monty.serialization import MontyDecoder, loadfn
+from monty.json import MontyDecoder
+from monty.serialization import loadfn
 from numpy.testing import assert_allclose
 from pytest import approx
 
@@ -139,9 +140,21 @@ class TestTensor(PymatgenTest):
         assert_allclose(
             new_tensor,
             [
-                [[-0.871, -2.884, -1.928], [-2.152, -6.665, -4.196], [-1.026, -2.830, -1.572]],
-                [[0.044, 1.531, 1.804], [4.263, 21.008, 17.928], [5.170, 23.026, 18.722]],
-                [[1.679, 7.268, 5.821], [9.268, 38.321, 29.919], [8.285, 33.651, 26.000]],
+                [
+                    [-0.871, -2.884, -1.928],
+                    [-2.152, -6.665, -4.196],
+                    [-1.026, -2.830, -1.572],
+                ],
+                [
+                    [0.044, 1.531, 1.804],
+                    [4.263, 21.008, 17.928],
+                    [5.170, 23.026, 18.722],
+                ],
+                [
+                    [1.679, 7.268, 5.821],
+                    [9.268, 38.321, 29.919],
+                    [8.285, 33.651, 26.000],
+                ],
             ],
             3,
         )
@@ -226,7 +239,10 @@ class TestTensor(PymatgenTest):
         assert_allclose(rotated, transformed)
 
     def test_from_voigt(self):
-        with pytest.raises(ValueError, match="The requested array has an inhomogeneous shape after 1 dimensions."):
+        with pytest.raises(
+            ValueError,
+            match="The requested array has an inhomogeneous shape after 1 dimensions.",
+        ):
             Tensor.from_voigt(
                 [
                     [59.33, 28.08, 28.08, 0],
@@ -272,7 +288,7 @@ class TestTensor(PymatgenTest):
         tkey = Tensor.from_values_indices([0.01], [(0, 0)])
         tval = reduced[tkey]
         for tens_1, tens_2 in zip(tval, reduced[tbs[0]], strict=True):
-            assert approx(tens_1) == tens_2
+            assert tens_1 == approx(tens_2)
         # Test set
         reduced[tkey] = "test_val"
         assert reduced[tkey] == "test_val"
@@ -482,7 +498,10 @@ class TestSquareTensor(PymatgenTest):
             match="Pymatgen only supports 3-dimensional tensors, and default tensor constructor uses standard notation",
         ):
             SquareTensor(non_sq_matrix)
-        with pytest.raises(ValueError, match="The requested array has an inhomogeneous shape after 1 dimensions."):
+        with pytest.raises(
+            ValueError,
+            match="The requested array has an inhomogeneous shape after 1 dimensions.",
+        ):
             SquareTensor(bad_matrix)
         with pytest.raises(ValueError, match="SquareTensor input must be rank 2"):
             SquareTensor(too_high_rank)
@@ -499,8 +518,8 @@ class TestSquareTensor(PymatgenTest):
 
         # determinant
         assert self.rand_sqtensor.det == np.linalg.det(self.rand_sqtensor)
-        assert self.non_invertible.det == 0.0
-        assert self.non_symm.det == 0.009
+        assert self.non_invertible.det == approx(0)
+        assert self.non_symm.det == approx(0.009)
 
         # symmetrized
         assert self.rand_sqtensor.symmetrized == approx(0.5 * (self.rand_sqtensor + self.rand_sqtensor.trans))

@@ -56,6 +56,8 @@ def remove_identity_from_full_hermann_mauguin(symbol: str) -> str:
     if symbol in ("P 1", "C 1", "P 1 "):
         return symbol
     blickrichtungen = symbol.split(" ")
+    if blickrichtungen[1].startswith("3"):
+        return symbol
     blickrichtungen_new = []
     for br in blickrichtungen:
         if br != "1":
@@ -76,13 +78,18 @@ for k, v in SYMM_DATA["space_group_encoding"].items():
 
 SYMM_DATA["space_group_encoding"] = new_symm_data
 
-for spg_idx, spg in enumerate(SYMM_OPS):
-    if "(" in spg["hermann_mauguin"]:
-        SYMM_OPS[spg_idx]["hermann_mauguin"] = spg["hermann_mauguin"].split("(")[0]
+for sg_symbol in SYMM_DATA["space_group_encoding"]:
+    SYMM_DATA["space_group_encoding"][sg_symbol]["point_group"] = PointGroup.from_space_group(
+        sg_symbol=sg_symbol
+    ).symbol
 
-    short_h_m = remove_identity_from_full_hermann_mauguin(SYMM_OPS[spg_idx]["hermann_mauguin"])
-    SYMM_OPS[spg_idx]["short_h_m"] = convert_symmops_to_sg_encoding(short_h_m)
-    SYMM_OPS[spg_idx]["hermann_mauguin_u"] = convert_symmops_to_sg_encoding(spg["hermann_mauguin"])
+for spg in SYMM_OPS:
+    if "(" in spg["hermann_mauguin"]:
+        spg["hermann_mauguin"] = spg["hermann_mauguin"].split("(")[0]
+
+    short_h_m = remove_identity_from_full_hermann_mauguin(spg["hermann_mauguin"])
+    spg["short_h_m"] = convert_symmops_to_sg_encoding(short_h_m)
+    spg["hermann_mauguin_u"] = convert_symmops_to_sg_encoding(spg["hermann_mauguin"])
 
 for spg_idx, spg in enumerate(SYMM_OPS):
     try:

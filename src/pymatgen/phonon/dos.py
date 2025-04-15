@@ -406,7 +406,7 @@ class PhononDos(MSONable):
 
         # filter maxima based on the threshold
         max_dos = max(self.densities)
-        threshold = threshold * max_dos
+        threshold *= max_dos
         filtered_maxima_freqs = maxima_freqs[self.densities[:-1][maxima] >= threshold]
 
         if len(filtered_maxima_freqs) == 0:
@@ -452,7 +452,12 @@ class PhononDos(MSONable):
 
         if len(frequencies) < n_bins:
             inds = np.where((frequencies >= min_f) & (frequencies <= max_f))
-            return PhononDosFingerprint(frequencies[inds], densities[inds], len(frequencies), np.diff(frequencies)[0])
+            return PhononDosFingerprint(
+                frequencies[inds],
+                densities[inds],
+                len(frequencies),
+                np.diff(frequencies)[0],
+            )
 
         if binning:
             freq_bounds = np.linspace(min_f, max_f, n_bins + 1)
@@ -540,7 +545,8 @@ class PhononDos(MSONable):
 
         if not normalize and metric == "wasserstein":
             return wasserstein_distance(
-                u_values=np.cumsum(vec1 * fp1.bin_width), v_values=np.cumsum(vec2 * fp2.bin_width)
+                u_values=np.cumsum(vec1 * fp1.bin_width),
+                v_values=np.cumsum(vec2 * fp2.bin_width),
             )
 
         if normalize and metric == "cosine-sim":

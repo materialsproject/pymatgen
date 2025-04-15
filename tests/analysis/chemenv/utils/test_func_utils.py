@@ -61,14 +61,18 @@ class TestFuncUtils:
 
     def test_csm_infinite_ratio_function(self):
         max_csm = 8
-        with pytest.raises(ValueError, match="Option 'nn' not allowed for function 'power2_inverse_decreasing' in "):
+        with pytest.raises(
+            ValueError,
+            match="Option 'nn' not allowed for function 'power2_inverse_decreasing' in ",
+        ):
             CSMInfiniteRatioFunction(
                 function="power2_inverse_decreasing",
                 options_dict={"max_csm": max_csm, "nn": 2},
             )
 
         with pytest.raises(
-            ValueError, match="function='power2_tangent_decreasing' is not allowed in RatioFunction of type "
+            ValueError,
+            match="function='power2_tangent_decreasing' is not allowed in RatioFunction of type ",
         ):
             CSMInfiniteRatioFunction(
                 function="power2_tangent_decreasing",
@@ -81,7 +85,7 @@ class TestFuncUtils:
         # csm_infinite_ratio = CSMInfiniteRatioFunction(function='power2_inverse_decreasing')
         assert csm_infinite_ratio.evaluate(0) == np.inf
         assert csm_infinite_ratio.evaluate(2) == approx(2.25)
-        assert csm_infinite_ratio.evaluate(4) == 0.5
+        assert csm_infinite_ratio.evaluate(4) == approx(0.5)
         assert csm_infinite_ratio.evaluate(8) == 0
         assert csm_infinite_ratio.evaluate(9) == 0
 
@@ -108,10 +112,14 @@ class TestFuncUtils:
         assert csm_infinite_ratio.evaluate(20) == 0
 
     def test_delta_csm_ratio_function(self):
-        with pytest.raises(ValueError, match="function='smoothstep' is not allowed in RatioFunction of typ"):
+        with pytest.raises(
+            ValueError,
+            match="function='smoothstep' is not allowed in RatioFunction of typ",
+        ):
             DeltaCSMRatioFunction(function="smoothstep", options_dict={})
         with pytest.raises(
-            ValueError, match="Options 'delta_csm_min' and \"delta_csm_max\" should be provided for function"
+            ValueError,
+            match="Options 'delta_csm_min' and \"delta_csm_max\" should be provided for function",
         ):
             DeltaCSMRatioFunction(function="smootherstep", options_dict={})
         with pytest.raises(
@@ -137,7 +145,7 @@ class TestFuncUtils:
         )
         assert delta_csm_ratio_function.evaluate(0) == 0
         assert delta_csm_ratio_function.evaluate(1) == 0
-        assert delta_csm_ratio_function.evaluate(2.5) == 0.5
+        assert delta_csm_ratio_function.evaluate(2.5) == approx(0.5)
         assert delta_csm_ratio_function.evaluate(4) == 1
         assert delta_csm_ratio_function.evaluate(5) == 1
 
@@ -147,6 +155,6 @@ class TestFuncUtils:
         )
         assert delta_csm_ratio_function.evaluate(0) == 0
         assert delta_csm_ratio_function.evaluate(2) == 0
-        assert delta_csm_ratio_function.evaluate(5) == 0.5
+        assert delta_csm_ratio_function.evaluate(5) == approx(0.5)
         assert delta_csm_ratio_function.evaluate(8) == 1
         assert delta_csm_ratio_function.evaluate(12) == 1

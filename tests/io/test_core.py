@@ -5,7 +5,7 @@ import os
 from typing import TYPE_CHECKING
 
 import pytest
-from monty.serialization import MontyDecoder
+from monty.json import MontyDecoder
 
 from pymatgen.core.structure import Structure
 from pymatgen.io.cif import CifParser, CifWriter
@@ -153,7 +153,11 @@ class TestInputSet(PymatgenTest):
 
     def test_write_from_str(self):
         inp_set = InputSet(
-            {"cif1": self.sif1, "file_from_str": "hello you", "file_from_str_cast": FakeClass(a="Aha", b="Beh")}
+            {
+                "cif1": self.sif1,
+                "file_from_str": "hello you",
+                "file_from_str_cast": FakeClass(a="Aha", b="Beh"),
+            }
         )
         inp_set.write_input(directory="input_dir", make_dir=True, overwrite=True, zip_inputs=False)
         assert os.path.isfile("input_dir/cif1")
@@ -162,10 +166,10 @@ class TestInputSet(PymatgenTest):
         assert len(os.listdir("input_dir")) == 3
         parser = CifParser(filename="input_dir/cif1")
         assert parser.parse_structures()[0] == self.sif1.structure
-        with open("input_dir/file_from_str") as file:
+        with open("input_dir/file_from_str", encoding="utf-8") as file:
             file_from_str = file.read()
             assert file_from_str == "hello you"
-        with open("input_dir/file_from_str_cast") as file:
+        with open("input_dir/file_from_str_cast", encoding="utf-8") as file:
             file_from_str_cast = file.read()
             assert file_from_str_cast == "Aha\nBeh"
 

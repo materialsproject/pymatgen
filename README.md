@@ -12,7 +12,7 @@ height="70">
 [![codecov](https://codecov.io/gh/materialsproject/pymatgen/branch/master/graph/badge.svg?token=XC47Un1LV2)](https://codecov.io/gh/materialsproject/pymatgen)
 [![PyPI Downloads](https://img.shields.io/pypi/dm/pymatgen?logo=pypi&logoColor=white&color=blue&label=PyPI)](https://pypi.org/project/pymatgen)
 [![Conda Downloads](https://img.shields.io/conda/dn/conda-forge/pymatgen?logo=condaforge&color=blue&label=Conda)](https://anaconda.org/conda-forge/pymatgen)
-[![Requires Python 3.9+](https://img.shields.io/badge/Python-3.9+-blue.svg?logo=python&logoColor=white)](https://python.org/downloads)
+[![Requires Python 3.10+](https://img.shields.io/badge/Python-3.10+-blue.svg?logo=python&logoColor=white)](https://python.org/downloads)
 [![Paper](https://img.shields.io/badge/J.ComMatSci-2012.10.028-blue?logo=elsevier&logoColor=white)](https://doi.org/10.1016/j.commatsci.2012.10.028)
 
 </h4>
@@ -21,7 +21,7 @@ Pymatgen (Python Materials Genomics) is a robust, open-source Python
 library for materials analysis. These are some of the main features:
 
 1. Highly flexible classes for the representation of `Element`, `Site`, `Molecule` and `Structure` objects.
-2. Extensive input/output support, including support for [VASP](https://cms.mpi.univie.ac.at/vasp), [ABINIT](https://abinit.org), [CIF](https://wikipedia.org/wiki/Crystallographic_Information_File), [Gaussian](https://gaussian.com), [XYZ](https://wikipedia.org/wiki/XYZ_file_format), and many other file formats.
+2. Extensive input/output support, including support for [VASP](https://www.vasp.at/), [ABINIT](https://abinit.github.io/abinit_web/), [CIF](https://wikipedia.org/wiki/Crystallographic_Information_File), [Gaussian](https://gaussian.com), [XYZ](https://wikipedia.org/wiki/XYZ_file_format), and many other file formats.
 3. Powerful analysis tools, including generation of phase diagrams, Pourbaix diagrams, diffusion analyses, reactions, etc.
 4. Electronic structure analyses, such as density of states and band structure.
 5. Integration with the [Materials Project] REST API.
@@ -63,7 +63,7 @@ If you'd like to use the latest unreleased changes on the main branch, you can i
 pip install -U git+https://github.com/materialsproject/pymatgen
 ```
 
-The minimum Python version is 3.9. Some extra functionality (e.g., generation of POTCARs) does require additional setup (see the [`pymatgen` docs]).
+The minimum Python version is 3.10. Some extra functionality (e.g., generation of POTCARs) does require additional setup (see the [`pymatgen` docs]).
 
 ## Change Log
 
@@ -71,7 +71,10 @@ See [GitHub releases](https://github.com/materialsproject/pymatgen/releases), [`
 
 ## Using pymatgen
 
-Please refer to the official [`pymatgen` docs] for tutorials and examples.
+Please refer to the official [`pymatgen` docs] for tutorials and examples. Dr Anubhav Jain (@computron) has also created
+a series of [tutorials](https://github.com/computron/pymatgen_tutorials)
+and [YouTube videos](https://www.youtube.com/playlist?list=PL7gkuUui8u7_M47KrV4tS4pLwhe7mDAjT), which is a good
+resource, especially for beginners.
 
 ## How to cite pymatgen
 

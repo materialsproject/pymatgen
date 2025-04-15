@@ -47,8 +47,8 @@ class TestGruneisenPhononBandStructureSymmLine(PymatgenTest):
                 "x": [point[0] for point in ax._children[inx].get_offsets().data],
                 "y": [point[1] for point in ax._children[inx].get_offsets().data],
             }
-            assert band == pytest.approx(xy_data["y"])
-            assert plotter._bs.distance == pytest.approx(xy_data["x"])
+            assert band == approx(xy_data["y"])
+            assert plotter._bs.distance == approx(xy_data["x"])
 
         # check if color bar max value matches maximum gruneisen parameter value
         data = plotter.bs_plot_data()
@@ -64,7 +64,7 @@ class TestGruneisenPhononBandStructureSymmLine(PymatgenTest):
             linscale=1,
         )
 
-        assert max(norm.inverse(ax.get_figure()._localaxes[-1].get_yticks())) == pytest.approx(max_gruneisen)
+        assert max(norm.inverse(ax.get_figure()._localaxes[-1].get_yticks())) == approx(max_gruneisen)
         assert isinstance(ax, plt.Axes)
 
     def test_as_dict_from_dict(self):
@@ -114,8 +114,8 @@ class TestGruneisenParameter(PymatgenTest):
         assert self.gruneisen_obj_small.gruneisen[5] == approx(1.7574050911)
 
     def test_tdos(self):
-        tdos = self.gruneisen_obj.tdos
-        assert isinstance(tdos, phonopy.phonon.dos.TotalDos)
+        tot_dos = self.gruneisen_obj.tdos
+        assert isinstance(tot_dos, phonopy.phonon.dos.TotalDos)
 
     def test_phdos(self):
         assert self.gruneisen_obj.phdos.cv(298.15) == approx(45.17772584681599)

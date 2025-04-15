@@ -15,9 +15,9 @@ from collections import defaultdict
 
 import numpy as np
 from monty.dev import deprecated
+from scipy import linalg
 from scipy.constants import physical_constants
-from scipy.integrate import quadrature
-from scipy.misc import derivative
+from scipy.integrate import quad
 from scipy.optimize import minimize
 
 from pymatgen.analysis.eos import EOS, PolynomialEOS
@@ -261,7 +261,7 @@ class QuasiHarmonicDebyeApprox:
         # 6.4939394 (from wolfram alpha).
         factor = 3.0 / y**3
         if y < 155:
-            integral = quadrature(lambda x: x**3 / (np.exp(x) - 1.0), 0, y)
+            integral = quad(lambda x: x**3 / (np.exp(x) - 1.0), 0, y)
             return next(iter(integral)) * factor
         return 6.493939 * factor
 
@@ -298,8 +298,110 @@ class QuasiHarmonicDebyeApprox:
             # given volume, in eV/Ang^9
             d3EdV3 = np.polyder(p, 3)(volume)
         else:
+
+            def central_diff_weights(Np, ndiv):
+                """
+                Notes:
+                    This function is taken from SciPy's deprecated implementation of
+                    central difference weights. The original code can be found at:
+                    https://github.com/scipy/scipy/blob/ea916c6f7f487bd53e98de08264
+                    9d542cc6106ed/scipy/_lib/_finite_differences.py
+
+                    License: This code is distributed under the BSD 3-Clause license.
+
+                    Copyright (c) 2001-2002 Enthought, Inc. 2003-2024, SciPy Developers.
+                    All rights reserved.
+
+                Return weights for an Np-point central derivative.
+
+                Assumes equally-spaced function points.
+
+                If weights are in the vector w, then
+                derivative is w[0] * f(x-ho*dx) + ... + w[-1] * f(x+h0*dx)
+
+                Args:
+                    Np (int): Number of points for the central derivative.
+                    ndiv (int, optional): Number of divisions. Default is 1.
+
+                Returns:
+                    w (ndarray): Weights for an Np-point central derivative.
+                        Its size is `Np`.
+                """
+
+                ho = Np >> 1
+                x = np.arange(-ho, ho + 1.0)
+                x = x[:, np.newaxis]
+                X = x**0.0
+                for k in range(1, Np):
+                    X = np.hstack([X, x**k])
+                return np.prod(np.arange(1, ndiv + 1), axis=0) * linalg.inv(X)[ndiv]
+
+            def derivative(func, x0, dx=1.0, n=1, args=(), order=3):
+                """
+                Notes:
+                    This function is taken from SciPy's deprecated implementation of
+                    central difference weights. The original code can be found at:
+                    https://github.com/scipy/scipy/blob/ea916c6f7f487bd53e98de08264
+                    9d542cc6106ed/scipy/_lib/_finite_differences.py
+
+                    License: This code is distributed under the BSD 3-Clause license.
+
+                    Copyright (c) 2001-2002 Enthought, Inc. 2003-2024, SciPy Developers.
+                    All rights reserved.
+
+                Find the nth derivative of a function at a point.
+
+                Given a function, use a central difference formula with spacing `dx` to
+                compute the nth derivative at `x0`.
+
+                Args:
+                    func (function): Input function.
+                    x0 (float): The point at which the nth derivative is found.
+                    dx (float, optional): Spacing.
+                    n (int, optional): Order of the derivative. Default is 1.
+                    args (tuple, optional): Arguments
+                    order (int, optional): Number of points to use, must be odd.
+                """
+                if order < n + 1:
+                    raise ValueError(
+                        "'order' (the number of points used to compute the derivative), "
+                        "must be at least the derivative order 'n' + 1."
+                    )
+                if order % 2 == 0:
+                    raise ValueError("'order' (the number of points used to compute the derivative) must be odd.")
+                # pre-computed for n=1 and 2 and low-order for speed.
+                if n == 1:
+                    if order == 3:
+                        weights = np.array([-1, 0, 1]) / 2.0
+                    elif order == 5:
+                        weights = np.array([1, -8, 0, 8, -1]) / 12.0
+                    elif order == 7:
+                        weights = np.array([-1, 9, -45, 0, 45, -9, 1]) / 60.0
+                    elif order == 9:
+                        weights = np.array([3, -32, 168, -672, 0, 672, -168, 32, -3]) / 840.0
+                    else:
+                        weights = central_diff_weights(order, 1)
+                elif n == 2:
+                    if order == 3:
+                        weights = np.array([1, -2.0, 1])
+                    elif order == 5:
+                        weights = np.array([-1, 16, -30, 16, -1]) / 12.0
+                    elif order == 7:
+                        weights = np.array([2, -27, 270, -490, 270, -27, 2]) / 180.0
+                    elif order == 9:
+                        weights = np.array([-9, 128, -1008, 8064, -14350, 8064, -1008, 128, -9]) / 5040.0
+                    else:
+                        weights = central_diff_weights(order, 2)
+                else:
+                    weights = central_diff_weights(order, n)
+                val = 0.0
+                ho = order >> 1
+                for k in range(order):
+                    val += weights[k] * func(x0 + (k - ho) * dx, *args)
+                return val / np.prod((dx,) * n, axis=0)
+
             func = self.ev_eos_fit.func
-            dEdV = derivative(func, volume, dx=1e-3)
+            dEdV = derivative(func, volume, dx=1e-3, n=1)
             d2EdV2 = derivative(func, volume, dx=1e-3, n=2, order=5)
             d3EdV3 = derivative(func, volume, dx=1e-3, n=3, order=7)
 
@@ -357,6 +459,10 @@ class QuasiHarmonicDebyeApprox:
         return dct
 
 
-@deprecated(QuasiHarmonicDebyeApprox, message="Deprecated on 2024-03-27.", deadline=(2025, 3, 27))
+@deprecated(
+    QuasiHarmonicDebyeApprox,
+    message="Deprecated on 2024-03-27.",
+    deadline=(2025, 3, 27),
+)
 class QuasiharmonicDebyeApprox(QuasiHarmonicDebyeApprox):
     pass

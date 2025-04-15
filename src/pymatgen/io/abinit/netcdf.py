@@ -9,7 +9,7 @@ from typing import TYPE_CHECKING
 
 import numpy as np
 from monty.collections import AttrDict
-from monty.dev import requires
+from monty.dev import deprecated, requires
 from monty.functools import lazy_property
 from monty.string import marquee
 
@@ -25,7 +25,10 @@ try:
     import netCDF4
 except ImportError:
     netCDF4 = None
-    warnings.warn("Can't import netCDF4. Some features will be disabled unless you pip install netCDF4.")
+    warnings.warn(
+        "Can't import netCDF4. Some features will be disabled unless you pip install netCDF4.",
+        stacklevel=2,
+    )
 
 
 logger = logging.getLogger(__name__)
@@ -322,8 +325,7 @@ def structure_from_ncdata(ncdata, site_properties=None, cls=Structure):
         intgden = ncdata.read_value("intgden")
         nspden = intgden.shape[1]
     except NetcdfReaderError:
-        intgden = None
-        nspden = None
+        intgden = nspden = None
 
     if intgden is not None:
         if nspden == 2:
@@ -496,4 +498,6 @@ class AbinitHeader(AttrDict):
 
     # to_string alias required for backwards compatibility
     # PLEASE DO NOT REMOVE THIS LINE AS THIS API HAS BEEN AROUND FOR SEVERAL YEARS
-    to_string = to_str
+    @deprecated(to_str)
+    def to_string(self, *args, **kwargs):
+        return self.to_str(*args, **kwargs)

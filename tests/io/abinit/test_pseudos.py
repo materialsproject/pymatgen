@@ -99,7 +99,11 @@ class TestPseudo(PymatgenTest):
         file_name = f"{TEST_DIR}/28ni.paw.tar.xz"
         symbol = "Ni"
         with ScratchDir(".") as tmp_dir, tarfile.open(file_name, mode="r:xz") as t:
-            t.extractall(tmp_dir)  # noqa: S202
+            # TODO: remove attr check after only 3.12+
+            if hasattr(tarfile, "data_filter"):
+                t.extractall(tmp_dir, filter="data")
+            else:
+                t.extractall(tmp_dir)  # noqa: S202
             path = os.path.join(tmp_dir, "28ni.paw")
             pseudo = Pseudo.from_file(path)
 
@@ -161,8 +165,8 @@ class TestPseudo(PymatgenTest):
         ger.as_tmpfile()
 
         assert ger.symbol == "Ge"
-        assert ger.Z == 32.0
-        assert ger.Z_val == 4.0
+        assert ger.Z == approx(32.0)  # noqa: SIM300
+        assert ger.Z_val == approx(4.0)
         assert ger.isnc
         assert not ger.ispaw
         assert ger.l_max == 2
@@ -185,8 +189,8 @@ class TestPseudo(PymatgenTest):
         self.assert_msonable(pb)
 
         assert pb.symbol == "Pb"
-        assert pb.Z == 82.0
-        assert pb.Z_val == 14.0
+        assert pb.Z == approx(82.0)  # noqa: SIM300
+        assert pb.Z_val == approx(14.0)
         assert pb.isnc
         assert not pb.ispaw
         assert pb.l_max == 2

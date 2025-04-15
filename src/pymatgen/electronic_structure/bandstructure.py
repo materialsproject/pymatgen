@@ -143,7 +143,12 @@ class Kpoint(MSONable):
             Kpoint
         """
         lattice = Lattice.from_dict(dct["lattice"])
-        return cls(coords=dct["fcoords"], lattice=lattice, coords_are_cartesian=False, label=dct["label"])
+        return cls(
+            coords=dct["fcoords"],
+            lattice=lattice,
+            coords_are_cartesian=False,
+            label=dct["label"],
+        )
 
 
 class BandStructure:
@@ -351,7 +356,7 @@ class BandStructure:
         list_ind_band = defaultdict(list)
         for spin in self.bands:
             for idx in range(self.nb_bands):
-                if math.fabs(self.bands[spin][idx][index] - max_tmp) < 0.001:
+                if math.isclose(self.bands[spin][idx][index], max_tmp, abs_tol=1e-3, rel_tol=0):
                     list_ind_band[spin].append(idx)
         proj = {}
         for spin, value in self.projections.items():
@@ -417,7 +422,7 @@ class BandStructure:
         list_index_band = defaultdict(list)
         for spin in self.bands:
             for idx in range(self.nb_bands):
-                if math.fabs(self.bands[spin][idx][index] - max_tmp) < 0.001:
+                if math.isclose(self.bands[spin][idx][index], max_tmp, abs_tol=1e-3, rel_tol=0):
                     list_index_band[spin].append(idx)
         proj = {}
         for spin, value in self.projections.items():
@@ -460,7 +465,7 @@ class BandStructure:
 
         result["transition"] = "-".join(
             [
-                str(c.label) if c.label is not None else f"({','.join(f'{c.frac_coords[i]:.3f}' for i in range(3))})"
+                (str(c.label) if c.label is not None else f"({','.join(f'{c.frac_coords[i]:.3f}' for i in range(3))})")
                 for c in [vbm["kpoint"], cbm["kpoint"]]
             ]
         )
@@ -647,7 +652,8 @@ class BandStructure:
                 "Trying from_dict failed. Now we are trying the old "
                 "format. Please convert your BS dicts to the new "
                 "format. The old format will be retired in pymatgen "
-                "5.0."
+                "5.0.",
+                stacklevel=2,
             )
             return cls.from_old_dict(dct)
 
@@ -848,8 +854,7 @@ class BandStructureSymmLine(BandStructure, MSONable):
             max_index = -1000
             # spin_index = None
             for idx in range(self.nb_bands):
-                below = False
-                above = False
+                below = above = False
                 for j in range(len(self.kpoints)):
                     if self.bands[Spin.up][idx][j] < self.efermi:
                         below = True
@@ -859,8 +864,7 @@ class BandStructureSymmLine(BandStructure, MSONable):
                     max_index = idx
                     # spin_index = Spin.up
                 if self.is_spin_polarized:
-                    below = False
-                    above = False
+                    below = above = False
                     for j in range(len(self.kpoints)):
                         if self.bands[Spin.down][idx][j] < self.efermi:
                             below = True
@@ -875,7 +879,7 @@ class BandStructureSymmLine(BandStructure, MSONable):
                 for k in range(len(old_dict["bands"][spin])):
                     for v in range(len(old_dict["bands"][spin][k])):
                         if k >= max_index:
-                            old_dict["bands"][spin][k][v] = old_dict["bands"][spin][k][v] + shift
+                            old_dict["bands"][spin][k][v] += shift
 
         else:
             shift = new_band_gap - self.get_band_gap()["energy"]
@@ -884,8 +888,8 @@ class BandStructureSymmLine(BandStructure, MSONable):
                 for k in range(len(old_dict["bands"][spin])):
                     for v in range(len(old_dict["bands"][spin][k])):
                         if old_dict["bands"][spin][k][v] >= old_dict["cbm"]["energy"]:
-                            old_dict["bands"][spin][k][v] = old_dict["bands"][spin][k][v] + shift
-            old_dict["efermi"] = old_dict["efermi"] + shift
+                            old_dict["bands"][spin][k][v] += shift
+            old_dict["efermi"] += shift
 
         return self.from_dict(old_dict)
 
@@ -977,7 +981,8 @@ class LobsterBandStructureSymmLine(BandStructureSymmLine):
                 "Trying from_dict failed. Now we are trying the old "
                 "format. Please convert your BS dicts to the new "
                 "format. The old format will be retired in pymatgen "
-                "5.0."
+                "5.0.",
+                stacklevel=2,
             )
             return cls.from_old_dict(dct)
 

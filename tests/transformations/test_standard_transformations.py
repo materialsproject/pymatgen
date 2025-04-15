@@ -9,8 +9,10 @@ from unittest import TestCase
 import numpy as np
 import pytest
 from monty.json import MontyDecoder
+from numpy.testing import assert_allclose
 from pytest import approx
 
+from pymatgen.alchemy.transmuters import StandardTransmuter
 from pymatgen.core import Element, PeriodicSite
 from pymatgen.core.lattice import Lattice
 from pymatgen.symmetry.structure import SymmetrizedStructure
@@ -59,7 +61,7 @@ class TestRotationTransformations(TestCase):
         trafo = RotationTransformation([0, 1, 0], 30)
         s2 = trafo.apply_transformation(self.struct)
         s1 = trafo.inverse.apply_transformation(s2)
-        assert (abs(s1.lattice.matrix - self.struct.lattice.matrix) < 1e-8).all()
+        assert_allclose(s1.lattice.matrix, self.struct.lattice.matrix, atol=1e-8)
 
 
 class TestRemoveSpeciesTransformation:
@@ -180,7 +182,10 @@ class TestOxidationStateDecorationTransformation:
         assert struct_trafo[0].species_string == "Li+"
         assert struct_trafo[2].species_string == "O2-"
         dct = trafo.as_dict()
-        assert isinstance(OxidationStateDecorationTransformation.from_dict(dct), OxidationStateDecorationTransformation)
+        assert isinstance(
+            OxidationStateDecorationTransformation.from_dict(dct),
+            OxidationStateDecorationTransformation,
+        )
 
 
 class TestAutoOxiStateDecorationTransformation:
@@ -195,7 +200,16 @@ class TestAutoOxiStateDecorationTransformation:
         trafo = AutoOxiStateDecorationTransformation()
         dct = trafo.as_dict()
         trafo = AutoOxiStateDecorationTransformation.from_dict(dct)
-        assert trafo.analyzer.dist_scale_factor == 1.015
+        assert trafo.analyzer.dist_scale_factor == approx(1.015)
+
+    def test_failure(self):
+        trafo_fail = AutoOxiStateDecorationTransformation()
+        trafo_no_fail = AutoOxiStateDecorationTransformation(zeros_on_fail=True)
+        struct_metal = Structure.from_spacegroup("Fm-3m", Lattice.cubic(3.677), ["Cu"], [[0, 0, 0]])
+        with pytest.raises(ValueError, match="BVAnalyzer failed with error"):
+            trafo_fail.apply_transformation(struct_metal)
+        zero_oxi_struct = trafo_no_fail.apply_transformation(struct_metal)
+        assert all(site.specie.oxi_state == 0 for site in zero_oxi_struct)
 
 
 class TestOxidationStateRemovalTransformation:
@@ -213,7 +227,10 @@ class TestOxidationStateRemovalTransformation:
         assert struct_trafo[2].species_string == "O"
 
         dct = trafo.as_dict()
-        assert isinstance(OxidationStateRemovalTransformation.from_dict(dct), OxidationStateRemovalTransformation)
+        assert isinstance(
+            OxidationStateRemovalTransformation.from_dict(dct),
+            OxidationStateRemovalTransformation,
+        )
 
 
 @pytest.mark.skipif(not enumlib_present, reason="enum_lib not present.")
@@ -230,11 +247,21 @@ class TestPartialRemoveSpecieTransformation:
         assert len(trafo.apply_transformation(struct, 100)) == 2
 
         dct = trafo.as_dict()
-        assert isinstance(PartialRemoveSpecieTransformation.from_dict(dct), PartialRemoveSpecieTransformation)
+        assert isinstance(
+            PartialRemoveSpecieTransformation.from_dict(dct),
+            PartialRemoveSpecieTransformation,
+        )
 
     def test_apply_transformation_fast(self):
         trafo = PartialRemoveSpecieTransformation("Li+", 0.5)
-        coords = [[0, 0, 0], [0.75, 0.75, 0.75], [0.5, 0.5, 0.5], [0.25, 0.25, 0.25], [0.1, 0.1, 0.1], [0.3, 0.75, 0.3]]
+        coords = [
+            [0, 0, 0],
+            [0.75, 0.75, 0.75],
+            [0.5, 0.5, 0.5],
+            [0.25, 0.25, 0.25],
+            [0.1, 0.1, 0.1],
+            [0.3, 0.75, 0.3],
+        ]
         lattice = Lattice([[10, 0, 0], [0, 10, 0], [0, 0, 10]])
         struct = Structure(lattice, ["Li+"] * 6, coords)
         fast_opt_s = trafo.apply_transformation(struct)
@@ -304,7 +331,10 @@ class TestOrderDisorderedStructureTransformation:
         assert len(all_structs) == 3
 
         dct = trafo.as_dict()
-        assert isinstance(OrderDisorderedStructureTransformation.from_dict(dct), OrderDisorderedStructureTransformation)
+        assert isinstance(
+            OrderDisorderedStructureTransformation.from_dict(dct),
+            OrderDisorderedStructureTransformation,
+        )
 
     def test_no_oxidation(self):
         specie = {"Cu1+": 0.5, "Au2+": 0.5}
@@ -320,7 +350,13 @@ class TestOrderDisorderedStructureTransformation:
     def test_symmetrized_structure(self):
         trafo = OrderDisorderedStructureTransformation(symmetrized_structures=True)
         lattice = Lattice.cubic(5)
-        coords = [[0.5, 0.5, 0.5], [0.45, 0.45, 0.45], [0.56, 0.56, 0.56], [0.25, 0.75, 0.75], [0.75, 0.25, 0.25]]
+        coords = [
+            [0.5, 0.5, 0.5],
+            [0.45, 0.45, 0.45],
+            [0.56, 0.56, 0.56],
+            [0.25, 0.75, 0.75],
+            [0.75, 0.25, 0.25],
+        ]
         struct = Structure(lattice, [{"Si4+": 1}, *[{"Si4+": 0.5}] * 4], coords)
         test_site = PeriodicSite("Si4+", coords[2], lattice)
         struct = SymmetrizedStructure(struct, "not_real", [0, 1, 1, 2, 2], ["a", "b", "b", "c", "c"])
@@ -330,9 +366,18 @@ class TestOrderDisorderedStructureTransformation:
     def test_too_small_cell(self):
         trafo = OrderDisorderedStructureTransformation()
         coords = [[0.5, 0.5, 0.5]]
-        lattice = Lattice([[3.8401979337, 0, 0], [1.9200989668, 3.3257101909, 0], [0, -2.2171384943, 3.1355090603]])
+        lattice = Lattice(
+            [
+                [3.8401979337, 0, 0],
+                [1.9200989668, 3.3257101909, 0],
+                [0, -2.2171384943, 3.1355090603],
+            ]
+        )
         struct = Structure(lattice, [{"X4+": 0.33, "O2-": 0.33, "P5+": 0.33}], coords)
-        with pytest.raises(ValueError, match="Occupancy fractions not consistent with size of unit cell"):
+        with pytest.raises(
+            ValueError,
+            match="Occupancy fractions not consistent with size of unit cell",
+        ):
             trafo.apply_transformation(struct)
 
     def test_best_first(self):
@@ -356,6 +401,64 @@ class TestOrderDisorderedStructureTransformation:
         )
         output = trafo.apply_transformation(struct, return_ranked_list=3)
         assert output[0]["energy"] == approx(-234.57813667648315, abs=1e-4)
+
+    def test_random_sample(self):
+        struc_str = (
+            "3.333573 0.000000 1.924639\n"
+            "1.111191 3.142924 1.924639\n"
+            "0.000000 0.000000 3.849278\n"
+            "1.0 0.0 0.0\n"
+            "0.0 1.0 0.0\n"
+            "0.0 0.0 1.0\n"
+            "0.875000 0.875000 0.875000 Si=1\n"
+            "0.125000 0.125000 0.125000 Si=1"
+        )
+        si = Structure.from_str(struc_str, fmt="mcsqs")
+        struct = si * [3, 2, 1]
+        struct.replace(0, {"Fe": 0.5, "Ni": 0.5})
+        struct.replace(1, {"Fe": 0.5, "Ni": 0.5})
+        trafo = OrderDisorderedStructureTransformation(
+            algo=OrderDisorderedStructureTransformation.ALGO_RANDOM, no_oxi_states=True
+        )
+        output = trafo.apply_transformation(struct * [2, 2, 2], return_ranked_list=3)
+        assert len(output) == 3
+        for entry in output:
+            assert set(entry.keys()) == {"structure", "energy", "energy_above_minimum"}
+
+        output = trafo.apply_transformation(struct * [2, 2, 2], return_ranked_list=False)
+        assert output.composition.reduced_formula == struct.composition.reduced_formula
+
+    def test_occ_tol_with_supercell(self):
+        """Test occ_tol parameter behavior with supercell structures."""
+        # Create a disordered structure
+        coords = [[0.0, 0.0, 0.0], [0.5, 0.5, 0.5]]
+        lattice = Lattice(
+            [
+                [2.9823991724941643, 0.0, 1.8261928001873466e-16],
+                [4.796063659664723e-16, 2.9823991724941643, 1.8261928001873466e-16],
+                [0.0, 0.0, 2.9823991724941643],
+            ]
+        )
+        struct = Structure(lattice, [{"V": 0.75, "Ti": 0.25}, {"V": 0.75, "Ti": 0.25}], coords)
+
+        # Create a 5x5x5 supercell structure
+        supercell = struct * [5, 5, 5]
+
+        # Test 1: Default occ_tol (0.25) should raise error
+        ts_strict = OrderDisorderedStructureTransformation(algo=-1, no_oxi_states=True, occ_tol=0.25)
+        with pytest.raises(ValueError, match="Occupancy fractions not consistent with size of unit cell"):
+            StandardTransmuter.from_structures([supercell], transformations=[ts_strict], extend_collection=3)
+
+        # Test 2: Relaxed occ_tol (0.5) should work
+        ts_relaxed = OrderDisorderedStructureTransformation(algo=-1, no_oxi_states=True, occ_tol=0.5)
+        transmuter = StandardTransmuter.from_structures([supercell], transformations=[ts_relaxed], extend_collection=3)
+
+        # Verify the transformation worked and produced expected composition
+        transformed_structs = transmuter.transformed_structures
+        assert len(transformed_structs) == 3
+        # Check composition matches expected Ti31V94
+        composition = transformed_structs[0].final_structure.composition
+        assert composition.reduced_formula == "Ti31V94"
 
 
 class TestPrimitiveCellTransformation:
@@ -381,7 +484,7 @@ class TestPrimitiveCellTransformation:
         struct = trafo.apply_transformation(struct)
         assert len(struct) == 4
 
-        with open(f"{TEST_FILES_DIR}/transformations/TiO2_super.json") as file:
+        with open(f"{TEST_FILES_DIR}/transformations/TiO2_super.json", encoding="utf-8") as file:
             struct = json.load(file, cls=MontyDecoder)
             prim = trafo.apply_transformation(struct)
             assert prim.formula == "Ti4 O8"
@@ -429,7 +532,10 @@ class TestPerturbStructureTransformation:
             assert site.distance(struct[idx]) == approx(0.05)
 
         dct = trafo.as_dict()
-        assert isinstance(PerturbStructureTransformation.from_dict(dct), PerturbStructureTransformation)
+        assert isinstance(
+            PerturbStructureTransformation.from_dict(dct),
+            PerturbStructureTransformation,
+        )
 
         t2 = PerturbStructureTransformation(0.05, 0)
         transformed_s2 = t2.apply_transformation(struct)
@@ -438,7 +544,10 @@ class TestPerturbStructureTransformation:
             assert site.distance(struct[idx]) >= 0
 
         dct = t2.as_dict()
-        assert isinstance(PerturbStructureTransformation.from_dict(dct), PerturbStructureTransformation)
+        assert isinstance(
+            PerturbStructureTransformation.from_dict(dct),
+            PerturbStructureTransformation,
+        )
 
 
 class TestDeformStructureTransformation:
@@ -480,7 +589,11 @@ class TestDiscretizeOccupanciesTransformation:
         )
         dot = DiscretizeOccupanciesTransformation(max_denominator=5, tol=0.5)
         struct = dot.apply_transformation(struct_orig)
-        assert dict(struct[0].species) == {Element("Li"): 0.2, Element("Na"): 0.2, Element("K"): 0.6}
+        assert dict(struct[0].species) == {
+            Element("Li"): 0.2,
+            Element("Na"): 0.2,
+            Element("K"): 0.6,
+        }
 
         dot = DiscretizeOccupanciesTransformation(max_denominator=5, tol=0.01)
         with pytest.raises(RuntimeError, match="Cannot discretize structure within tolerance!"):

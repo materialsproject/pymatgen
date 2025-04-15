@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+import math
+import re
 from xml.etree import ElementTree as ET
 
 from numpy.testing import assert_allclose
@@ -70,7 +72,11 @@ class TestExcitingInput(PymatgenTest):
             ],
         )
         exc_in = ExcitingInput(structure)
-        for l1, l2 in zip(input_string.split("\n"), exc_in.write_string("unchanged").split("\n"), strict=True):
+        for l1, l2 in zip(
+            input_string.split("\n"),
+            exc_in.write_string("unchanged").split("\n"),
+            strict=True,
+        ):
             if not l1.strip().startswith("<crystal scale"):
                 assert l1.strip() == l2.strip()
 
@@ -101,7 +107,24 @@ class TestExcitingInput(PymatgenTest):
             [0.5, 0.5, 0.0],
             [0.5, 0.5, 0.5],
         ]
-        label_ref = ["GAMMA", "X", "S", "Y", "GAMMA", "Z", "U", "R", "T", "Z", "Y", "T", "U", "X", "S", "R"]
+        label_ref = [
+            "GAMMA",
+            "X",
+            "S",
+            "Y",
+            "GAMMA",
+            "Z",
+            "U",
+            "R",
+            "T",
+            "Z",
+            "Y",
+            "T",
+            "U",
+            "X",
+            "S",
+            "R",
+        ]
         root = ET.fromstring(band_str)
         for plot1d in root.iter("plot1d"):
             for point in plot1d.iter("point"):
@@ -125,12 +148,12 @@ class TestExcitingInput(PymatgenTest):
                 "xstype": "BSE",
                 "ngridk": "4 4 4",
                 "ngridq": "4 4 4",
-                "nempty": "30",
+                "nempty": "30",  # codespell:ignore: nempty
                 "gqmax": "3.0",
                 "broad": "0.07",
                 "tevout": "true",
                 "energywindow": {"intv": "0.0 1.0", "points": "1200"},
-                "screening": {"screentype": "full", "nempty": "100"},
+                "screening": {"screentype": "full", "nempty": "100"},  # codespell:ignore: nempty
                 "BSE": {"bsetype": "singlet", "nstlbse": "1 5 1 4"},
             },
         }
@@ -144,4 +167,12 @@ class TestExcitingInput(PymatgenTest):
         root = tree.getroot()
         ref_str = ET.tostring(root, encoding="unicode")
 
-        assert ref_str.strip() == test_str.strip()
+        ref_list = ref_str.strip().split()
+        test_list = test_str.strip().split()
+
+        # "scale" is float, direct compare might give surprising results
+        ref_scale = float(re.search(r'scale="([-+]?\d*\.\d+|\d+)"', ref_list.pop(7))[1])
+        test_scale = float(re.search(r'scale="([-+]?\d*\.\d+|\d+)"', test_list.pop(7))[1])
+
+        assert ref_list == test_list
+        assert math.isclose(ref_scale, test_scale)

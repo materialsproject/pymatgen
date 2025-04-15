@@ -89,8 +89,8 @@ C 1.16730636786 -1.38166622735 -2.771*^-06
 """
         xyz = XYZ.from_str(mol_str)
         mol = xyz.molecule
-        assert mol[0].z == -7.222e-06
-        assert mol[1].z == -2.771e-06
+        assert mol[0].z == approx(-7.222e-06)
+        assert mol[1].z == approx(-2.771e-06)
 
         mol_str = """3
 Random
@@ -130,8 +130,16 @@ C32-C2-1
             2.8569761204000002,
             0.44737723190000001,
         ]
-        assert list(mxyz.all_molecules[-1].cart_coords[-1]) == [5.5355550720000002, 0.0282305931, -0.30993102189999999]
-        assert list(mxyz.molecule.cart_coords[-1]) == [5.5355550720000002, 0.0282305931, -0.30993102189999999]
+        assert list(mxyz.all_molecules[-1].cart_coords[-1]) == [
+            5.5355550720000002,
+            0.0282305931,
+            -0.30993102189999999,
+        ]
+        assert list(mxyz.molecule.cart_coords[-1]) == [
+            5.5355550720000002,
+            0.0282305931,
+            -0.30993102189999999,
+        ]
 
     def test_init_from_structure(self):
         filepath = f"{VASP_IN_DIR}/POSCAR"

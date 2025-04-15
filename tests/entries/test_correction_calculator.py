@@ -12,7 +12,16 @@ TEST_DIR = f"{TEST_FILES_DIR}/entries/correction_calculator"
 
 class TestCorrectionCalculator(TestCase):
     def setUp(self):
-        self.exclude_polyanions = ["SO4", "CO3", "NO3", "OCl3", "SiO4", "SeO3", "TiO3", "TiO4"]
+        self.exclude_polyanions = [
+            "SO4",
+            "CO3",
+            "NO3",
+            "OCl3",
+            "SiO4",
+            "SeO3",
+            "TiO3",
+            "TiO4",
+        ]
 
         self.normal_corrections = {
             "oxide": (-0.74, 0.0017),

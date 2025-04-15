@@ -15,9 +15,14 @@ class TestCoordUtils:
     def test_get_linear_interpolated_value(self):
         x_vals = [0, 1, 2, 3, 4, 5]
         y_vals = [3, 6, 7, 8, 10, 12]
-        assert coord.get_linear_interpolated_value(x_vals, y_vals, 3.6) == 9.2
+        assert coord.get_linear_interpolated_value(x_vals, y_vals, 3.6) == approx(9.2)
         with pytest.raises(ValueError, match=r"x=6 is out of range of provided x_values \(0, 5\)"):
             coord.get_linear_interpolated_value(x_vals, y_vals, 6)
+
+        # test when x is equal to first value in x_vals (previously broke, fixed in #4299):
+        assert coord.get_linear_interpolated_value(x_vals, y_vals, 0) == approx(3)
+        with pytest.raises(ValueError, match=r"x=-0.5 is out of range of provided x_values \(0, 5\)"):
+            coord.get_linear_interpolated_value(x_vals, y_vals, -0.5)
 
     def test_in_coord_list(self):
         coords = [[0, 0, 0], [0.5, 0.5, 0.5]]
@@ -47,7 +52,10 @@ class TestCoordUtils:
         assert_allclose(a, b[inds])
         with pytest.raises(ValueError, match="not a subset of superset"):
             coord.coord_list_mapping([c1, c2], [c2, c3])
-        with pytest.raises(ValueError, match="Something wrong with the inputs, likely duplicates in superset"):
+        with pytest.raises(
+            ValueError,
+            match="Something wrong with the inputs, likely duplicates in superset",
+        ):
             coord.coord_list_mapping([c2], [c2, c2])
 
     def test_coord_list_mapping_pbc(self):
@@ -65,7 +73,10 @@ class TestCoordUtils:
         assert_allclose(diff, 0)
         with pytest.raises(ValueError, match="not a subset of superset"):
             coord.coord_list_mapping_pbc([c1, c2], [c2, c3])
-        with pytest.raises(ValueError, match="Something wrong with the inputs, likely duplicates in superset"):
+        with pytest.raises(
+            ValueError,
+            match="Something wrong with the inputs, likely duplicates in superset",
+        ):
             coord.coord_list_mapping_pbc([c2], [c2, c2])
         coord.coord_list_mapping_pbc([c1, c2], [c2, c1], pbc=(False, False, False))
         with pytest.raises(ValueError, match="not a subset of superset"):
@@ -90,9 +101,18 @@ class TestCoordUtils:
         assert_allclose(coord.pbc_diff([0.1, 0.1, 0.1], [0.3, 0.5, 0.9]), [-0.2, -0.4, 0.2])
         assert_allclose(coord.pbc_diff([0.9, 0.1, 1.01], [0.3, 0.5, 0.9]), [-0.4, -0.4, 0.11])
         assert_allclose(coord.pbc_diff([0.1, 0.6, 1.01], [0.6, 0.1, 0.9]), [-0.5, 0.5, 0.11])
-        assert_allclose(coord.pbc_diff([100.1, 0.2, 0.3], [0123123.4, 0.5, 502312.6]), [-0.3, -0.3, -0.3])
-        assert_allclose(coord.pbc_diff([0.1, 0.1, 0.1], [0.3, 0.5, 0.9], pbc=(True, True, False)), [-0.2, -0.4, -0.8])
-        assert_allclose(coord.pbc_diff([0.9, 0.1, 1.01], [0.3, 0.5, 0.9], pbc=(True, True, False)), [-0.4, -0.4, 0.11])
+        assert_allclose(
+            coord.pbc_diff([100.1, 0.2, 0.3], [0123123.4, 0.5, 502312.6]),
+            [-0.3, -0.3, -0.3],
+        )
+        assert_allclose(
+            coord.pbc_diff([0.1, 0.1, 0.1], [0.3, 0.5, 0.9], pbc=(True, True, False)),
+            [-0.2, -0.4, -0.8],
+        )
+        assert_allclose(
+            coord.pbc_diff([0.9, 0.1, 1.01], [0.3, 0.5, 0.9], pbc=(True, True, False)),
+            [-0.4, -0.4, 0.11],
+        )
 
     def test_in_coord_list_pbc(self):
         coords = [[0, 0, 0], [0.5, 0.5, 0.5]]
