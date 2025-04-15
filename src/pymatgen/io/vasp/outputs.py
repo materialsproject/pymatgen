@@ -393,6 +393,7 @@ class Vasprun(MSONable):
         md_data: list[dict] = []
         parsed_header: bool = False
         in_kpoints_opt: bool = False
+        ml_run: bool = False
         try:
             # When parsing XML, start tags tell us when we have entered a block
             # while end tags are when we have actually read the data.
@@ -421,6 +422,7 @@ class Vasprun(MSONable):
                             self.generator = self._parse_params(elem)
                         elif tag == "incar":
                             self.incar = self._parse_params(elem)
+                            ml_run = self.incar.get("ML_LMLFF")
                         elif tag == "kpoints":
                             if not hasattr(self, "kpoints"):
                                 (
@@ -542,7 +544,7 @@ class Vasprun(MSONable):
                         self.normalmode_eigenvals = np.array(eigenvalues)
                         self.normalmode_eigenvecs = np.array(phonon_eigenvectors)
 
-                    elif self.incar.get("ML_LMLFF"):
+                    elif ml_run:
                         if tag == "structure" and elem.attrib.get("name") is None:
                             md_data.append({})
                             md_data[-1]["structure"] = self._parse_structure(elem)
