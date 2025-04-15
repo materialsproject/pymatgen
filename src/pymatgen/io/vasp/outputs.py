@@ -159,9 +159,7 @@ def _vasprun_float(flt: float | str) -> float:
         return float(flt)
 
     except ValueError:
-        flt = cast("str", flt)
-        _flt: str = flt.strip()
-        if _flt == "*" * len(_flt):
+        if "*" in str(flt):
             warnings.warn(
                 "Float overflow (*******) encountered in vasprun",
                 stacklevel=2,
