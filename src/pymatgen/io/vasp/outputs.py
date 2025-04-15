@@ -138,8 +138,8 @@ def _parse_vasp_array(elem) -> list[list[float]] | NDArray[float]:
         return [[i == "T" for i in v.text.split()] for v in elem]
 
     try:
-        # numerical data, try parse with numpy fromstring for efficiency:
-        return np.loadtxt([e.text for e in elem])
+        # numerical data, try parse with numpy loadtxt for efficiency:
+        return np.loadtxt([e.text for e in elem], ndmin=2)
     except ValueError:  # unexpectedly couldn't re-shape to grid
         return [list(map(_vasprun_float, e.text.split())) for e in elem]
 
