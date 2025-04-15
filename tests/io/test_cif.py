@@ -12,12 +12,6 @@ from pymatgen.io.cif import CifBlock, CifParser, CifWriter
 from pymatgen.symmetry.structure import SymmetrizedStructure
 from pymatgen.util.testing import TEST_FILES_DIR, VASP_IN_DIR, PymatgenTest
 
-try:
-    import pybtex
-except ImportError:
-    pybtex = None
-
-
 MCIF_TEST_DIR = f"{TEST_FILES_DIR}/io/cif/mcif"
 
 
@@ -1139,7 +1133,6 @@ Gd1 5.05 5.05 0.0"""
         cw = CifWriter(s_manual, write_magmoms=True)
         assert str(cw) == cw_manual_oxi_string
 
-    @pytest.mark.skipif(pybtex is None, reason="pybtex not present")
     def test_bibtex(self):
         ref_bibtex_string = """@article{cifref0,
     author = "Blanco, J.A.",
