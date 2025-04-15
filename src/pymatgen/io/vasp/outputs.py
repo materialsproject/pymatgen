@@ -139,12 +139,7 @@ def _parse_vasp_array(elem) -> list[list[float]] | NDArray[float]:
 
     try:
         # numerical data, try parse with numpy fromstring for efficiency:
-        lines = [e.text for e in elem]
-        float_array = np.fromstring("\n".join(lines), sep=" ")
-        # reshape into grid for efficient parsing
-        nrow = len(lines)
-        ncol = len(elem[0].text.split())
-        return float_array.reshape(nrow, ncol)
+        return np.loadtxt([e.text for e in elem])
     except ValueError:  # unexpectedly couldn't re-shape to grid
         return [list(map(_vasprun_float, e.text.split())) for e in elem]
 
@@ -1530,7 +1525,7 @@ class Vasprun(MSONable):
             if name == "kpointlist":
                 actual_kpoints = cast("list[Tuple3Floats]", list(map(tuple, _parse_vasp_array(va))))
             elif name == "weights":
-                weights = [i[0] for i in _parse_vasp_array(va)]
+                weights = list(_parse_vasp_array(va))
         elem.clear()
 
         if kpoint.style == Kpoints.supported_modes.Reciprocal:
