@@ -61,7 +61,7 @@ dependencies = [
     "palettable>=3.3.3",
     "pandas>=2",
     "plotly>=5.0.0",
-    "pybtex>=0.24.0",
+    "bibtexparser",
     "requests>=2.32",
     "ruamel.yaml>=0.17.0",
     "scipy>=1.13.0",
