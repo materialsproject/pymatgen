@@ -437,7 +437,7 @@ class Smearing(AbivarAble, MSONable):
         if not all(hasattr(other, attr) for attr in needed_attrs):
             return NotImplemented
 
-        other = cast(Smearing, other)
+        other = cast("Smearing", other)
 
         return self.occopt == other.occopt and np.allclose(self.tsmear, other.tsmear)
 
@@ -1208,7 +1208,7 @@ class PPModel(AbivarAble, MSONable):
         needed_attrs = ("mode", "plasmon_freq")
         if not all(hasattr(other, attr) for attr in needed_attrs):
             return NotImplemented
-        other = cast(PPModel, other)
+        other = cast("PPModel", other)
 
         if self.mode != other.mode:
             return False

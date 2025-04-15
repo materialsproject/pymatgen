@@ -51,7 +51,7 @@ class TestPhonopyParser(MatSciTest):
             ph_bs.eigendisplacements[3][50][0],
             [0.0 + 0.0j, 0.14166569 + 0.04098339j, -0.14166569 - 0.04098339j],
         )
-        assert ph_bs.has_eigendisplacements, True
+        assert ph_bs.has_eigendisplacements
         assert_allclose(ph_bs.min_freq()[0].frac_coords, [0, 0, 0])
         assert ph_bs.min_freq()[1] == approx(-0.03700895020)
         assert ph_bs.has_imaginary_freq()

@@ -956,7 +956,7 @@ class TestCombinedData:
         assert ff["Pair Coeffs"].index[0] == 1
         assert ff["Bond Coeffs"].index[0] == 1
         assert ff["Angle Coeffs"].index[0] == 1
-        assert ff["Dihedral Coeffs"].index[0], 1
+        assert ff["Dihedral Coeffs"].index[0] == 1
         assert ff["Improper Coeffs"].index[0] == 1
         assert fec.atoms.index[0] == 1
         assert fec.atoms.loc[1, "molecule-ID"] == 1

@@ -174,7 +174,7 @@ class TestIon:
         assert dct == correct_dict
         assert dct["charge"] == correct_dict["charge"]
         correct_dict = {"Mn": 1.0, "O": 4.0, "charge": -1}
-        dct = ion.to_reduced_dict
+        dct = ion.as_reduced_dict()
         assert dct == correct_dict
         assert dct["charge"] == correct_dict["charge"]
 

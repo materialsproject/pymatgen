@@ -42,7 +42,6 @@ from pymatgen.io.vasp.inputs import Incar, Kpoints, KpointsSupportedModes, Posca
 from pymatgen.io.wannier90 import Unk
 from pymatgen.util.io_utils import clean_lines, micro_pyawk
 from pymatgen.util.num import make_symmetric_matrix_from_upper_tri
-from pymatgen.util.typing import Kpoint, Tuple3Floats, Vector3D
 
 try:
     import h5py
@@ -50,7 +49,7 @@ except ImportError:
     h5py = None
 
 if TYPE_CHECKING:
-    from collections.abc import Callable, Sequence
+    from collections.abc import Callable, Iterator, Sequence
     from typing import Literal, TypeAlias
 
     # Avoid name conflict with pymatgen.core.Element
@@ -59,7 +58,7 @@ if TYPE_CHECKING:
     from numpy.typing import NDArray
     from typing_extensions import Self
 
-    from pymatgen.util.typing import PathLike
+    from pymatgen.util.typing import Kpoint, PathLike, Tuple3Floats, Vector3D
 
 
 def _parse_parameters(val_type: str, val: str) -> bool | str | float | int:
@@ -160,7 +159,7 @@ def _vasprun_float(flt: float | str) -> float:
         return float(flt)
 
     except ValueError:
-        flt = cast(str, flt)
+        flt = cast("str", flt)
         _flt: str = flt.strip()
         if _flt == "*" * len(_flt):
             warnings.warn(
@@ -394,6 +393,7 @@ class Vasprun(MSONable):
         md_data: list[dict] = []
         parsed_header: bool = False
         in_kpoints_opt: bool = False
+        ml_run: bool = False
         try:
             # When parsing XML, start tags tell us when we have entered a block
             # while end tags are when we have actually read the data.
@@ -422,6 +422,7 @@ class Vasprun(MSONable):
                             self.generator = self._parse_params(elem)
                         elif tag == "incar":
                             self.incar = self._parse_params(elem)
+                            ml_run = self.incar.get("ML_LMLFF")
                         elif tag == "kpoints":
                             if not hasattr(self, "kpoints"):
                                 (
@@ -543,7 +544,7 @@ class Vasprun(MSONable):
                         self.normalmode_eigenvals = np.array(eigenvalues)
                         self.normalmode_eigenvecs = np.array(phonon_eigenvectors)
 
-                    elif self.incar.get("ML_LMLFF"):
+                    elif ml_run:
                         if tag == "structure" and elem.attrib.get("name") is None:
                             md_data.append({})
                             md_data[-1]["structure"] = self._parse_structure(elem)
@@ -1507,10 +1508,10 @@ class Vasprun(MSONable):
 
             if name == "divisions":
                 kpoint.kpts = [
-                    cast(Kpoint, tuple(int(i) for i in tokens)),
+                    cast("Kpoint", tuple(int(i) for i in tokens)),
                 ]
             elif name == "usershift":
-                kpoint.kpts_shift = cast(Vector3D, tuple(float(i) for i in tokens))
+                kpoint.kpts_shift = cast("Vector3D", tuple(float(i) for i in tokens))
             elif name in {"genvec1", "genvec2", "genvec3", "shift"}:
                 setattr(kpoint, name, [float(i) for i in tokens])
 
@@ -1519,7 +1520,7 @@ class Vasprun(MSONable):
         for va in elem.findall("varray"):
             name = va.attrib["name"]
             if name == "kpointlist":
-                actual_kpoints = cast(list[Tuple3Floats], list(map(tuple, _parse_vasp_array(va))))
+                actual_kpoints = cast("list[Tuple3Floats]", list(map(tuple, _parse_vasp_array(va))))
             elif name == "weights":
                 weights = [i[0] for i in _parse_vasp_array(va)]
         elem.clear()
@@ -4168,7 +4169,7 @@ class Procar(MSONable):
         kpoint_fields = [val for sublist in _kpoint_fields for val in sublist]  # flattened
 
         # tuple to make it hashable, rounded to 5 decimal places to ensure proper kpoint matching
-        return cast(Tuple3Floats, tuple(round(float(val), 5) for val in kpoint_fields))
+        return cast("Tuple3Floats", tuple(round(float(val), 5) for val in kpoint_fields))
 
     def _read(self, filename: PathLike, parsed_kpoints: set[tuple[Kpoint]] | None = None):
         """Main function for reading in the PROCAR projections data.
@@ -4670,6 +4671,27 @@ class Xdatcar:
 
     def __str__(self) -> str:
         return self.get_str()
+
+    def __len__(self) -> int:
+        return len(self.structures)
+
+    def __iter__(self) -> Iterator[Structure]:
+        """Iterator of Xdatcar, yielding a pymatgen Structure."""
+        for idx in range(len(self)):
+            yield self.structures[idx]
+
+    def __getitem__(self, frames: int | slice | list[int] | np.ndarray) -> Structure | list[Structure]:
+        """Get a subset of the Xdatcar.
+
+        Args:
+            frames (int, slice, list of int, or numpy Array): Indices of the Xdatcar to return.
+
+        Returns:
+            Structure, if frames is an int; otherwise, a list of Structure
+        """
+        if isinstance(frames, int | slice):
+            return self.structures[frames]
+        return [self.structures[idx] for idx in frames]
 
     @property
     def site_symbols(self) -> list[str]:

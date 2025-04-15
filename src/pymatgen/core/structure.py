@@ -320,7 +320,7 @@ class SiteCollection(collections.abc.Sequence, ABC):
                     types.append(sp)
 
         # Cannot use set since we want a deterministic algorithm
-        return cast(tuple[Element | Species | DummySpecies, ...], tuple(sorted(set(types))))
+        return cast("tuple[Element | Species | DummySpecies, ...]", tuple(sorted(set(types))))
 
     @property
     def types_of_specie(self) -> tuple[Element | Species | DummySpecies, ...]:
@@ -785,7 +785,7 @@ class SiteCollection(collections.abc.Sequence, ABC):
 
         Args:
             calculator (str | Calculator): An ASE Calculator or a string from the following case-insensitive
-                options: "m3gnet", "gfn2-xtb", "chgnet".
+                options: "m3gnet", "gfn2-xtb", "chgnet" or any string supported by MatGL.
             verbose (bool): whether to print stdout. Defaults to False.
                 Has no effect when calculator=='chgnet'.
 
@@ -795,7 +795,7 @@ class SiteCollection(collections.abc.Sequence, ABC):
         """
         from pymatgen.io.ase import AseAtomsAdaptor
 
-        if isinstance(self, Molecule) and isinstance(calculator, str) and calculator.lower() in ("chgnet", "m3gnet"):
+        if isinstance(self, Molecule) and isinstance(calculator, str) and calculator.lower() != "gfn2-xtb":
             raise ValueError(f"Can't use {calculator=} for a Molecule")
         calculator = self._prep_calculator(calculator)
 
@@ -815,7 +815,7 @@ class SiteCollection(collections.abc.Sequence, ABC):
 
     def _relax(
         self,
-        calculator: Literal["M3GNet", "gfn2-xtb"] | Calculator,
+        calculator: str | Calculator,
         relax_cell: bool = True,
         optimizer: (
             Literal[
@@ -871,10 +871,7 @@ class SiteCollection(collections.abc.Sequence, ABC):
         opt_kwargs = opt_kwargs or {}
         is_molecule = isinstance(self, Molecule)
         # UIP=universal interatomic potential
-        run_uip = isinstance(calculator, str) and calculator.lower() in (
-            "m3gnet",
-            "chgnet",
-        )
+        run_uip = isinstance(calculator, str)
 
         calc_params = {} if is_molecule else dict(stress_weight=stress_weight)
         calculator = self._prep_calculator(calculator, **calc_params)
@@ -953,21 +950,15 @@ class SiteCollection(collections.abc.Sequence, ABC):
         if not isinstance(calculator, str):
             return calculator
 
-        if calculator.lower() == "chgnet":
-            try:
-                from chgnet.model import CHGNetCalculator
-            except ImportError:
-                raise ImportError("chgnet not installed. Try `pip install chgnet`.")
-            return CHGNetCalculator()
-
-        if calculator.lower() == "m3gnet":
+        if "m3gnet" in calculator.lower() or "tensornet" in calculator.lower() or "chgnet" in calculator.lower():
             try:
                 import matgl
-                from matgl.ext.ase import M3GNetCalculator
+                from matgl.ext.ase import PESCalculator
             except ImportError:
                 raise ImportError("matgl not installed. Try `pip install matgl`.")
-            potential = matgl.load_model("M3GNet-MP-2021.2.8-PES")
-            return M3GNetCalculator(potential=potential, **params)
+            calculator = "M3GNet-MP-2021.2.8-PES" if calculator.lower() == "m3gnet" else calculator
+            potential = matgl.load_model(calculator)
+            return PESCalculator(potential=potential, **params)
 
         if calculator.lower() == "gfn2-xtb":
             try:
@@ -995,18 +986,20 @@ class SiteCollection(collections.abc.Sequence, ABC):
 
         return AseAtomsAdaptor.get_atoms(self, **kwargs)
 
-    def from_ase_atoms(self, **kwargs) -> Structure:
-        """Convert ase.Atoms to pymatgen Structure.
+    @classmethod
+    def from_ase_atoms(cls, atoms: Atoms, **kwargs) -> Self:
+        """Convert ase.Atoms to pymatgen (I)Structure/(I)Molecule.
 
         Args:
+            atoms (Atom): ASE Atoms object
             kwargs: Passed to AseAtomsAdaptor.get_structure.
 
         Returns:
-            Structure
+            Self
         """
         from pymatgen.io.ase import AseAtomsAdaptor
 
-        return AseAtomsAdaptor.get_structure(self, **kwargs)
+        return AseAtomsAdaptor.get_structure(atoms, cls=cls, **kwargs)
 
 
 class IStructure(SiteCollection, MSONable):
@@ -1109,7 +1102,7 @@ class IStructure(SiteCollection, MSONable):
             return NotImplemented
 
         # TODO (DanielYang59): fix below type
-        other = cast(Structure, other)  # make mypy happy
+        other = cast("Structure", other)  # make mypy happy
 
         if other is self:
             return True
@@ -2938,7 +2931,7 @@ class IStructure(SiteCollection, MSONable):
             str: String representation of structure in given format. If a filename
                 is provided, the same string is written to the file.
         """
-        filename, fmt = str(filename), cast(FileFormats, fmt.lower())
+        filename, fmt = str(filename), cast("FileFormats", fmt.lower())
 
         # Default to JSON if filename not specified
         if filename == "" and fmt == "":
@@ -3309,7 +3302,7 @@ class IStructure(SiteCollection, MSONable):
         struct.__class__ = cls
         return struct
 
-    CellType = Literal["primitive", "conventional"]
+    CellType: TypeAlias = Literal["primitive", "conventional"]
 
     def to_cell(self, cell_type: IStructure.CellType, **kwargs) -> Structure:
         """Get a cell based on the current structure.
@@ -3328,7 +3321,7 @@ class IStructure(SiteCollection, MSONable):
         if cell_type not in valid_cell_types:
             raise ValueError(f"Invalid {cell_type=}, valid values are {valid_cell_types}")
 
-        method_keys = ["international_monoclinic", "keep_site_properties"]
+        method_keys = ("international_monoclinic", "keep_site_properties")
         method_kwargs = {key: kwargs.pop(key) for key in method_keys if key in kwargs}
 
         sga = SpacegroupAnalyzer(self, **kwargs)
@@ -3526,7 +3519,7 @@ class IMolecule(SiteCollection, MSONable):
         if not all(hasattr(other, attr) for attr in needed_attrs):
             return NotImplemented
 
-        other = cast(IMolecule | Molecule, other)
+        other = cast("IMolecule | Molecule", other)
 
         if len(self) != len(other):
             return False
@@ -3651,14 +3644,14 @@ class IMolecule(SiteCollection, MSONable):
         at index ind1 and ind2.
 
         Args:
-            ind1 (int): 1st site index
-            ind2 (int): 2nd site index
+            ind1 (int): 1st site index.
+            ind2 (int): 2nd site index.
             tol (float): Relative tolerance to test. Basically, the code checks if the distance
                 between the sites is less than (1 + tol) * typical bond distances.
                 Defaults to 0.2, i.e. 20% longer.
 
         Returns:
-            tuple[IMolecule, IMolecule]: The clusters formed from breaking the bond.
+            tuple[Self, Self]: The clusters formed from breaking the bond.
         """
         clusters = ([self[ind1]], [self[ind2]])
 
@@ -3756,7 +3749,7 @@ class IMolecule(SiteCollection, MSONable):
             site_dict = site.as_dict()
             del site_dict["@module"]
             del site_dict["@class"]
-            cast(list, dct["sites"]).append(site_dict)
+            cast("list", dct["sites"]).append(site_dict)
         return dct
 
     @classmethod
@@ -4064,7 +4057,7 @@ class IMolecule(SiteCollection, MSONable):
             IMolecule or Molecule.
         """
         fmt = cast(
-            Literal["xyz", "gjf", "g03", "g09", "com", "inp", "json", "yaml"],
+            "Literal['xyz', 'gjf', 'g03', 'g09', 'com', 'inp', 'json', 'yaml']",
             fmt.lower(),
         )
 
@@ -4357,7 +4350,7 @@ class Structure(IStructure, collections.abc.MutableSequence):
                 if site.distance(new_site) < self.DISTANCE_TOLERANCE:
                     raise ValueError("New site is too close to an existing site!")
 
-        cast(list[PeriodicSite], self.sites).insert(idx, new_site)
+        cast("list[PeriodicSite]", self.sites).insert(idx, new_site)
 
         return self
 
@@ -4394,7 +4387,7 @@ class Structure(IStructure, collections.abc.MutableSequence):
             frac_coords = coords
 
         new_site = PeriodicSite(species, frac_coords, self._lattice, properties=properties, label=label)
-        cast(list[PeriodicSite], self.sites)[idx] = new_site
+        cast("list[PeriodicSite]", self.sites)[idx] = new_site
 
         return self
 
@@ -4894,7 +4887,7 @@ class Structure(IStructure, collections.abc.MutableSequence):
 
     def relax(
         self,
-        calculator: str | Calculator = "m3gnet",
+        calculator: str | Calculator = "TensorNet-MatPES-PBE-v2025.1-PES",
         relax_cell: bool = True,
         optimizer: str | Optimizer = "FIRE",
         steps: int = 500,
@@ -4907,8 +4900,8 @@ class Structure(IStructure, collections.abc.MutableSequence):
         """Perform a crystal structure relaxation using an ASE calculator.
 
         Args:
-            calculator: An ASE Calculator or a string from the following options: "m3gnet".
-                Defaults to 'm3gnet', i.e. the M3GNet universal potential.
+            calculator: An ASE Calculator or a string from the following options: "TensorNet-MatPES-PBE-v2025.1-PES".
+                Defaults to 'TensorNet-MatPES-PBE-v2025.1-PES' universal potential.
             relax_cell (bool): whether to relax the lattice cell. Defaults to True.
             optimizer (str): name of the ASE optimizer class to use
             steps (int): max number of steps for relaxation. Defaults to 500.
@@ -4939,14 +4932,14 @@ class Structure(IStructure, collections.abc.MutableSequence):
 
     def calculate(
         self,
-        calculator: str | Calculator = "m3gnet",
+        calculator: str | Calculator = "TensorNet-MatPES-PBE-v2025.1-PES",
         verbose: bool = False,
     ) -> Calculator:
         """Perform an ASE calculation.
 
         Args:
-            calculator: An ASE Calculator or a string from the following options: "m3gnet".
-                Defaults to 'm3gnet', i.e. the M3GNet universal potential.
+            calculator: An ASE Calculator or a string from the following options: "TensorNet-MatPES-PBE-v2025.1-PES".
+                Defaults to 'TensorNet-MatPES-PBE-v2025.1-PES' universal potential.
             verbose (bool): whether to print stdout. Defaults to False.
 
         Returns:
@@ -5181,6 +5174,7 @@ class Molecule(IMolecule, collections.abc.MutableSequence):
             Molecule: self with new charge and spin multiplicity set.
         """
         self._charge = charge
+
         n_electrons = 0.0
         for site in self:
             for sp, amt in site.species.items():
@@ -5188,6 +5182,7 @@ class Molecule(IMolecule, collections.abc.MutableSequence):
                     n_electrons += sp.Z * amt
         n_electrons -= charge
         self._nelectrons = n_electrons
+
         if spin_multiplicity:
             if self._charge_spin_check and (n_electrons + spin_multiplicity) % 2 != 1:
                 raise ValueError(
@@ -5228,7 +5223,7 @@ class Molecule(IMolecule, collections.abc.MutableSequence):
             for site in self:
                 if site.distance(new_site) < self.DISTANCE_TOLERANCE:
                     raise ValueError("New site is too close to an existing site!")
-        cast(list[PeriodicSite], self.sites).insert(idx, new_site)
+        cast("list[PeriodicSite]", self.sites).insert(idx, new_site)
 
         return self
 

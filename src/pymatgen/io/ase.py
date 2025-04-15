@@ -1,5 +1,5 @@
 """
-This module provides conversion between the Atomic Simulation Environment
+This module provides conversion between the Atomic Simulation Environment (ASE)
 Atoms object and pymatgen Structure objects.
 """
 
@@ -8,12 +8,12 @@ from __future__ import annotations
 import warnings
 from copy import deepcopy
 from importlib.metadata import PackageNotFoundError
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, TypeVar
 
 import numpy as np
 from monty.json import MontyDecoder, MSONable, jsanitize
 
-from pymatgen.core.structure import Lattice, Molecule, Structure
+from pymatgen.core.structure import IMolecule, IStructure, Lattice, Molecule, Structure
 
 try:
     from ase.atoms import Atoms
@@ -47,6 +47,9 @@ __version__ = "1.0"
 __maintainer__ = "Shyue Ping Ong"
 __email__ = "shyuep@gmail.com"
 __date__ = "Mar 8, 2012"
+
+StructT = TypeVar("StructT", bound=IStructure | IMolecule)
+MolT = TypeVar("MolT", bound=IMolecule)
 
 
 class MSONAtoms(Atoms, MSONable):
@@ -84,7 +87,11 @@ class AseAtomsAdaptor:
     """Adaptor serves as a bridge between ASE Atoms and pymatgen objects."""
 
     @staticmethod
-    def get_atoms(structure: SiteCollection, msonable: bool = True, **kwargs) -> MSONAtoms | Atoms:
+    def get_atoms(
+        structure: SiteCollection,
+        msonable: bool = True,
+        **kwargs,
+    ) -> MSONAtoms | Atoms:
         """Get ASE Atoms object from pymatgen structure or molecule.
 
         Args:
@@ -165,9 +172,9 @@ class AseAtomsAdaptor:
         if "selective_dynamics" in structure.site_properties:
             fix_atoms = {
                 str([xc, yc, zc]): ([xc, yc, zc], [])
-                for xc in [True, False]
-                for yc in [True, False]
-                for zc in [True, False]
+                for xc in (True, False)
+                for yc in (True, False)
+                for zc in (True, False)
             }
             # [False, False, False] is free to move - no constraint in ASE.
             del fix_atoms[str([False, False, False])]
@@ -192,13 +199,13 @@ class AseAtomsAdaptor:
 
         # Add any remaining site properties to the ASE Atoms object
         for prop in structure.site_properties:
-            if prop not in [
+            if prop not in {
                 "magmom",
                 "charge",
                 "final_magmom",
                 "final_charge",
                 "selective_dynamics",
-            ]:
+            }:
                 atoms.set_array(prop, np.array(structure.site_properties[prop]))
         if any(oxi_states):
             atoms.set_array("oxi_states", np.array(oxi_states))
@@ -230,16 +237,20 @@ class AseAtomsAdaptor:
         return atoms
 
     @staticmethod
-    def get_structure(atoms: Atoms, cls: type[Structure] = Structure, **cls_kwargs) -> Structure:
+    def get_structure(
+        atoms: Atoms,
+        cls: type[StructT] = Structure,
+        **cls_kwargs,
+    ) -> StructT:
         """Get pymatgen structure from ASE Atoms.
 
         Args:
-            atoms: ASE Atoms object
-            cls: The Structure class to instantiate (defaults to pymatgen Structure)
-            **cls_kwargs: Any additional kwargs to pass to the cls
+            atoms (Atoms): ASE Atoms object
+            cls: The structure class to instantiate (defaults to pymatgen Structure)
+            **cls_kwargs: Any additional kwargs to pass to the cls constructor
 
         Returns:
-            Structure: Equivalent pymatgen Structure
+            (I)Structure/(I)Molecule: Equivalent pymatgen (I)Structure/(I)Molecule
         """
         symbols = atoms.get_chemical_symbols()
         positions = atoms.get_positions()
@@ -268,9 +279,9 @@ class AseAtomsAdaptor:
             unsupported_constraint_type = False
             constraint_indices: dict = {
                 str([xc, yc, zc]): ([xc, yc, zc], [])
-                for xc in [True, False]
-                for yc in [True, False]
-                for zc in [True, False]
+                for xc in (True, False)
+                for yc in (True, False)
+                for zc in (True, False)
             }
             for constraint in atoms.constraints:
                 if isinstance(constraint, FixAtoms):
@@ -294,7 +305,7 @@ class AseAtomsAdaptor:
                         constrained = True
                         break  # Assume no duplicates
                 if not constrained:
-                    sel_dyn.append([False] * 3)
+                    sel_dyn.append([True] * 3)
         else:
             sel_dyn = None
 
@@ -304,11 +315,12 @@ class AseAtomsAdaptor:
         if properties.get("spacegroup") and isinstance(properties["spacegroup"], Spacegroup):
             properties["spacegroup"] = properties["spacegroup"].todict()
 
-        # Return a Molecule object if that was specifically requested;
-        # otherwise return a Structure object as expected
-        if cls == Molecule:
+        # Return a (I)Molecule object if that was specifically requested;
+        # otherwise return a (I)Structure object as expected
+        if issubclass(cls, IMolecule):
             structure = cls(symbols, positions, properties=properties, **cls_kwargs)
-        else:
+
+        elif issubclass(cls, IStructure):
             structure = cls(
                 Lattice(lattice, pbc=atoms.pbc),
                 symbols,
@@ -317,6 +329,9 @@ class AseAtomsAdaptor:
                 properties=properties,
                 **cls_kwargs,
             )
+
+        else:
+            raise TypeError(f"Unsupported {cls=}")
 
         # Atoms.calc <---> Structure.calc
         if calc := getattr(atoms, "calc", None):
@@ -361,7 +376,7 @@ class AseAtomsAdaptor:
 
         # Add any remaining site properties to the Pymatgen structure object
         for prop in atoms.arrays:
-            if prop not in [
+            if prop not in {
                 "numbers",
                 "positions",
                 "magmom",
@@ -371,22 +386,22 @@ class AseAtomsAdaptor:
                 "charge",
                 "final_charge",
                 "oxi_states",
-            ]:
+            }:
                 structure.add_site_property(prop, atoms.get_array(prop).tolist())
 
         return structure
 
     @staticmethod
-    def get_molecule(atoms: Atoms, cls: type[Molecule] = Molecule, **cls_kwargs) -> Molecule:
+    def get_molecule(atoms: Atoms, cls: type[MolT] = Molecule, **cls_kwargs) -> MolT:
         """Get pymatgen molecule from ASE Atoms.
 
         Args:
-            atoms: ASE Atoms object
-            cls: The Molecule class to instantiate (defaults to pymatgen molecule)
-            **cls_kwargs: Any additional kwargs to pass to the cls
+            atoms (Atom): ASE Atoms object
+            cls: The molecule class to instantiate (defaults to pymatgen Molecule)
+            **cls_kwargs: Any additional kwargs to pass to the cls constructor
 
         Returns:
-            Molecule: Equivalent pymatgen.core.structure.Molecule
+            (I)Molecule: Equivalent pymatgen (I)Molecule
         """
         molecule = AseAtomsAdaptor.get_structure(atoms, cls=cls, **cls_kwargs)
 

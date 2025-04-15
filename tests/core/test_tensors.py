@@ -4,7 +4,8 @@ import math
 
 import numpy as np
 import pytest
-from monty.serialization import MontyDecoder, loadfn
+from monty.json import MontyDecoder
+from monty.serialization import loadfn
 from numpy.testing import assert_allclose
 from pytest import approx
 

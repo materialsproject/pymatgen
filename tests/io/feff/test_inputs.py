@@ -234,6 +234,22 @@ class TestFeffPot:
         # Zn should only appear in the first row of the string representation
         assert str(pot).count("Zn") == 1
 
+    def test_radius_pot(self):
+        """
+        When a radius argument is passed into the Potential class, only atoms
+        within that radius of the absorber should be included in the potential
+        """
+        # one Zn+2, 9 triflate, plus water
+        xyz = f"{FEFF_TEST_DIR}/feff_radial_shell.xyz"
+        mol = Molecule.from_file(xyz)
+        mol.set_charge_and_spin(-7)
+        # radius of 2.2, Zn with a cluster of 6 O, should have 3 (header) + 2 (potential) lines
+        pot = Potential(mol, "Zn", 2.2)
+        assert len(str(pot).split("\n")) == 5
+        # undefined radius, full cluster around Zn, should have 3 (header) + 6 (potential) lines
+        pot = Potential(mol, "Zn")
+        assert len(str(pot).split("\n")) == 9
+
     def test_as_dict_and_from_dict(self):
         file_name = f"{FEFF_TEST_DIR}/HEADER"
         header = Header.from_file(file_name)

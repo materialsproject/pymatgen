@@ -61,7 +61,7 @@ class TestBasis(MatSciTest):
         basis_info3 = BasisInfo.from_str("cpFIT3")
         assert basis_info3.valence == 3
         assert basis_info3.polarization == 1
-        assert basis_info3.contracted, True
+        assert basis_info3.contracted
 
     def test_basis(self):
         # Ensure cp2k formatted string can be read for data correctly

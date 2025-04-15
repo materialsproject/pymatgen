@@ -1,5 +1,8 @@
 from __future__ import annotations
 
+import subprocess
+import sys
+
 import numpy as np
 import pytest
 from pytest import approx
@@ -285,3 +288,7 @@ class TestSpaceGroup:
                 match=f"International number must be between 1 and 230, got {num}",
             ):
                 SpaceGroup.from_int_number(num)
+
+    def test_import(self):
+        # Ensure no circular import
+        subprocess.run([sys.executable, "-c", "from pymatgen.symmetry.groups import SpaceGroup"], check=True)

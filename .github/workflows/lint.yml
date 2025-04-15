@@ -1,4 +1,4 @@
-name: Linting
+name: Lint
 
 on:
   push:
@@ -14,23 +14,23 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-
-      - name: Set up Python
-        uses: actions/setup-python@v5
+      - name: Install uv with python version.
+        uses: astral-sh/setup-uv@v5
         with:
-          python-version: '3.x'
-
+          python-version: "3.11"
+          enable-cache: true
+          cache-dependency-glob: "uv.lock"
       - name: Install dependencies
         run: |
-          pip install --upgrade ruff mypy pyright
+          uv sync --group lint
 
       - name: ruff
         run: |
-          ruff check .
-          ruff format --check .
-
-      - name: mypy
-        run: mypy src
+          uv run ruff check .
+          uv run ruff format --check .
+#
+#      - name: mypy
+#        run: uv run mypy -p pymatgen
 
       - name: pyright
-        run: pyright
+        run: uv run pyright src

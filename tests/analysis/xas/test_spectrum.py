@@ -137,7 +137,7 @@ class TestXAS(MatSciTest):
     def test_site_weighted_spectrum(self):
         weighted_spectrum = site_weighted_spectrum([self.site1_xanes, self.site2_xanes])
         assert isinstance(weighted_spectrum, XAS)
-        assert len(weighted_spectrum.x), 500
+        assert len(weighted_spectrum.x) == 500
         # The site multiplicities for site1 and site2 are 4 and 2, respectively.
         assert weighted_spectrum.y[0] == approx((4 * self.site1_xanes.y[0] + 2 * self.site2_xanes.y[0]) / 6, abs=1e-2)
         assert min(weighted_spectrum.x) == max(min(self.site1_xanes.x), min(self.site2_xanes.x))
