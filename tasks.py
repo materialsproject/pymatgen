@@ -43,7 +43,7 @@ def make_doc(ctx: Context) -> None:
 
         # Note: we use HTML building for the API docs to preserve search functionality.
         ctx.run("sphinx-build -b html apidoc html")  # HTML building.
-        ctx.run("rm apidocs/*.rst", warn=True)
+        ctx.run("rm apidoc/*.rst", warn=True)
         ctx.run("mv html/pymatgen*.html .")
         ctx.run("mv html/modules.html .")
 
@@ -230,9 +230,8 @@ def release(ctx: Context, version: str | None = None, nodoc: bool = False) -> No
     ctx.run("rm -f dist/*.*", warn=True)
     ctx.run("pip install -e .", warn=True)
     ctx.run("python -m build", warn=True)
-    ctx.run("twine upload --skip-existing dist/*.whl", warn=True)
-    ctx.run("twine upload --skip-existing dist/*.tar.gz", warn=True)
-    # post_discourse(ctx, warn=True)
+    ctx.run("uv build", warn=True)
+    ctx.run("uv publish", warn=True)
 
 
 @task

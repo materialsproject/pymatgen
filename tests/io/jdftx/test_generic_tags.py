@@ -43,7 +43,7 @@ def test_stringify():
     str_tag = StrTag(options=["ken"])
     out_str = str(str_tag)
     assert isinstance(out_str, str)
-    assert len(out_str)
+    assert out_str
 
 
 def test_bool_tag():

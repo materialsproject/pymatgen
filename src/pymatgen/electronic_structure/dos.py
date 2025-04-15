@@ -1539,9 +1539,9 @@ def add_densities(
 def _get_orb_type(orb: Orbital | OrbitalType) -> OrbitalType:
     """Get OrbitalType."""
     try:
-        return cast(Orbital, orb).orbital_type
+        return cast("Orbital", orb).orbital_type
     except AttributeError:
-        return cast(OrbitalType, orb)
+        return cast("OrbitalType", orb)
 
 
 def f0(E: float, fermi: float, T: float) -> float:

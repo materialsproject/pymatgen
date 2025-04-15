@@ -13,6 +13,7 @@ from dataclasses import dataclass
 from typing import TYPE_CHECKING, ClassVar
 
 import numpy as np
+from monty.dev import deprecated
 
 if TYPE_CHECKING:
     from pymatgen.core import Structure
@@ -39,7 +40,7 @@ from pymatgen.io.jdftx.joutstructures import JOutStructures
 
 __author__ = "Ben Rich"
 
-_jofs_atr_from_jstrucs = [
+_jofs_atr_from_jstrucs = (
     "structure",
     "eopt_type",
     "elecmindata",
@@ -58,7 +59,7 @@ _jofs_atr_from_jstrucs = [
     "elec_grad_k",
     "elec_alpha",
     "elec_linmin",
-]
+)
 
 
 @dataclass
@@ -630,7 +631,7 @@ class JDFTXOutfileSlice:
         lines1 = find_all_key("Dumping ", text)
         lines2 = find_all_key("eigStats' ...", text)
         lines3 = [lines1[i] for i in range(len(lines1)) if lines1[i] in lines2]
-        if not len(lines3):
+        if not lines3:
             varsdict["emin"] = None
             varsdict["homo"] = None
             varsdict["efermi"] = None
@@ -769,7 +770,7 @@ class JDFTXOutfileSlice:
                     started = False
             elif start_flag in line_text:
                 started = True
-            elif len(line_texts):
+            elif line_texts:
                 break
         return line_texts
 
@@ -1121,7 +1122,7 @@ class JDFTXOutfileSlice:
         """
         raise NotImplementedError("There is no need to write a JDFTx out file")
 
-    def to_dict(self) -> dict:
+    def as_dict(self) -> dict:
         """Convert dataclass to dictionary representation.
 
         Returns:
@@ -1130,11 +1131,15 @@ class JDFTXOutfileSlice:
         dct = {}
         for fld in self.__dataclass_fields__:
             value = getattr(self, fld)
-            if hasattr(value, "to_dict"):
-                dct[fld] = value.to_dict()
+            if hasattr(value, "as_dict"):
+                dct[fld] = value.as_dict()
             else:
                 dct[fld] = value
         return dct
+
+    @deprecated(as_dict, deadline=(2025, 10, 4))
+    def to_dict(self):
+        return self.as_dict()
 
     # TODO: Re-do this now that there are no properties
     def __repr__(self) -> str:

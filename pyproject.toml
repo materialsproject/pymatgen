@@ -57,7 +57,7 @@ dependencies = [
     "joblib>=1",
     "matplotlib>=3.8",
     "monty>=2025.1.9",
-    "networkx>=2.7",  # PR4116
+    "networkx>=2.7", # PR4116
     "palettable>=3.3.3",
     "pandas>=2",
     "plotly>=5.0.0",
@@ -69,7 +69,7 @@ dependencies = [
     # https://github.com/scipy/scipy/issues/21052
     "scipy>=1.14.1; platform_system == 'Windows'",
     "spglib>=2.5",
-    "sympy>=1.3",  # PR #4116
+    "sympy>=1.3", # PR #4116
     "tabulate>=0.9",
     "tqdm>=4.60",
     "uncertainties>=3.1.4",
@@ -77,7 +77,7 @@ dependencies = [
     # https://numpy.org/devdocs/dev/depending_on_numpy.html#runtime-dependency-version-ranges
     "numpy>=1.25.0,<3",
 ]
-version = "2025.3.10"
+version = "2025.4.10"
 
 [project.urls]
 Homepage = "https://pymatgen.org"
@@ -89,18 +89,16 @@ Pypi = "https://pypi.org/project/pymatgen"
 [project.optional-dependencies]
 abinit = ["netcdf4>=1.7.2"]
 ase = ["ase>=3.23.0"]
-ci = ["pytest-cov>=4", "pytest-split>=0.8", "pytest>=8", "pymatgen[symmetry]"]
-docs = ["invoke", "sphinx", "sphinx_markdown_builder", "sphinx_rtd_theme"]
 electronic_structure = ["fdint>=2.0.2"]
-mlp = ["chgnet>=0.3.8", "matgl>=1.1.3"]
+mlp = ["matgl>=1.2.5"]
 numba = ["numba>=0.55"]
 numpy-v1 = ["numpy>=1.25.0,<2"] # Test NP1 on Windows (quite buggy ATM)
-zeopp = ["pyzeo"]  # Note: requires voro++ and zeo++ to be installed as binaries
+zeopp = ["pyzeo"]  # Note: requires voro++ and zeo++ to be installed
 optional = [
     "pymatgen[abinit,ase,mlp,tblite]",
     "beautifulsoup4",
-    # BoltzTraP2 build fails on Windows GitHub runners
-    "BoltzTraP2>=24.9.4 ; platform_system != 'Windows'",
+    # PR4347: BoltzTraP2 needs to bump cmake version for spglib build
+    # "BoltzTraP2>=24.9.4",
     "chemview>=0.6",
     "f90nml>=1.1.2",
     "galore>=0.6.1",
@@ -111,12 +109,18 @@ optional = [
     "phonopy>=2.33.3",
     "seekpath>=2.0.1",
 ]
+prototypes = ["pyxtal>=1.0", "pymatgen[symmetry]"]
 # moyopy[interface] includes ase
 symmetry = ["moyopy[interface]>=0.3", "spglib>=2.5"]
 # tblite only support Python 3.12+ through conda-forge
 # https://github.com/tblite/tblite/issues/175
 tblite = [ "tblite[ase]>=0.3.0; platform_system=='Linux' and python_version<'3.12'"]
 vis = ["vtk>=6.0.0"]
+ci = [
+    "pytest>=8.3.5",
+    "pytest-cov>=6.0.0",
+    "pytest-split>=0.10.0",
+]
 
 [project.scripts]
 pmg = "pymatgen.cli.pmg:main"
@@ -141,6 +145,7 @@ include = ["pymatgen", "pymatgen.*"]
 "pymatgen.analysis.structure_prediction" = ["*.yaml", "data/*.json"]
 "pymatgen.analysis.diffraction" = ["*.json"]
 "pymatgen.analysis.magnetism" = ["default_magmoms.yaml"]
+"pymatgen.analysis.prototypes" = ["*.json.gz"]
 "pymatgen.analysis.solar" = ["am1.5G.dat"]
 "pymatgen.entries" = ["*.json.gz", "*.yaml", "data/*.json"]
 "pymatgen.core" = ["*.json"]
@@ -168,7 +173,6 @@ before-all = "ln -s /usr/lib64/libgfortran.so.5 /usr/lib64/libgfortran.so.3"
 repair-wheel-command = "delocate-wheel --require-archs {delocate_archs} -w {dest_dir} -v {wheel} --ignore-missing-dependencies"
 
 [tool.ruff]
-target-version = "py310"
 line-length = 120
 output-format = "concise"
 
@@ -220,6 +224,7 @@ ignore = [
     "S603",    # Check source for use of "subprocess" call
     "S607",    # Start process with relative path
     "SIM105",  # Use contextlib.suppress() instead of try-except-pass
+    "SIM905",  # Split static strings
     "TRY003",  # Avoid specifying long messages outside the exception class
     "TRY300",  # Check for return statements in try blocks
     "TRY301",  # Check for raise statements within try blocks
@@ -291,7 +296,8 @@ ignore_missing_imports = true
 namespace_packages = true
 explicit_package_bases = true
 no_implicit_optional = false
-disable_error_code = ["annotation-unchecked", "override"]
+disable_error_code = ["annotation-unchecked", "override", "assignment", "misc"] #, "union-attr", "operator", "arg-type", "index", "call-arg", "return-value", "assignment", "attr-defined"]
+exclude = ['src/pymatgen/analysis', 'src/pymatgen/io', 'src/pymatgen/cli', 'src/pymatgen/electronic_structure',]
 
 [[tool.mypy.overrides]]
 module = ["requests.*", "tabulate.*"]
@@ -319,3 +325,24 @@ reportMissingImports = false
 reportMissingModuleSource = false
 reportInvalidTypeForm = false
 exclude = ["**/tests"]
+
+[dependency-groups]
+dev = [
+    "jupyter>=1.1.1",
+    "pre-commit>=4.2.0",
+    "pytest>=8.3.5",
+    "pytest-cov>=6.0.0",
+    "pytest-split>=0.10.0",
+]
+lint = [
+    "mypy>=1.15.0",
+    "pyright>=1.1.398",
+    "ruff>=0.11.2",
+]
+maintain = [
+    "invoke>=2.2.0",
+    "ruff>=0.11.3",
+    "sphinx>=8.1.3",
+    "sphinx-markdown-builder>=0.6.8",
+    "sphinx-rtd-theme>=3.0.2",
+]

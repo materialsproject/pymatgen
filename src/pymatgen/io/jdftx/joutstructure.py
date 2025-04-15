@@ -9,6 +9,7 @@ import pprint
 from typing import ClassVar
 
 import numpy as np
+from monty.dev import deprecated
 
 from pymatgen.core.structure import Lattice, Structure
 from pymatgen.core.units import Ha_to_eV, bohr_to_ang
@@ -22,8 +23,8 @@ from pymatgen.io.jdftx.jelstep import JElSteps
 
 __author__ = "Ben Rich"
 
-_jos_atrs_from_elecmindata = ["mu", "nelectrons", "abs_magneticmoment", "tot_magneticmoment"]
-_jos_atrs_elec_from_elecmindata = ["nstep", "e", "grad_k", "alpha", "linmin"]
+_jos_atrs_from_elecmindata = ("mu", "nelectrons", "abs_magneticmoment", "tot_magneticmoment")
+_jos_atrs_elec_from_elecmindata = ("nstep", "e", "grad_k", "alpha", "linmin")
 
 
 class JOutStructure(Structure):
@@ -698,7 +699,7 @@ class JOutStructure(Structure):
             coords_are_cartesian=True,
         )
 
-    def to_dict(self) -> dict:
+    def as_dict(self) -> dict:
         """
         Convert the JOutStructure object to a dictionary.
 
@@ -708,11 +709,15 @@ class JOutStructure(Structure):
         dct = {}
         for fld in self.__dict__:
             value = getattr(self, fld)
-            if hasattr(value, "to_dict"):
-                dct[fld] = value.to_dict()
+            if hasattr(value, "as_dict"):
+                dct[fld] = value.as_dict()
             else:
                 dct[fld] = value
         return dct
+
+    @deprecated(as_dict, deadline=(2025, 10, 4))
+    def to_dict(self):
+        return self.as_dict()
 
     # TODO: Add string representation for JOutStructure-specific meta-data
     # This method currently only returns the Structure Summary as inherited from
