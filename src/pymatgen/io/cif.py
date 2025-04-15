@@ -1349,16 +1349,11 @@ class CifParser:
     def get_bibtex_string(self) -> str:
         """Get BibTeX reference from CIF file.
 
-        Args:
-            data:
-
         Returns:
             BibTeX string.
         """
-        try:
-            from pybtex.database import BibliographyData, Entry
-        except ImportError:
-            raise RuntimeError("Bibliographic data extraction requires pybtex.")
+        from bibtexparser.bibdatabase import BibDatabase
+        from bibtexparser.bwriter import BibTexWriter
 
         bibtex_keys: dict[str, tuple[str, ...]] = {
             "author": ("_publ_author_name", "_citation_author_name"),
@@ -1377,44 +1372,37 @@ class CifParser:
             "doi": ("_journal_DOI", "_citation_DOI"),
         }
 
-        entries: dict[str, Entry] = {}
-
-        # TODO: parse '_publ_section_references' when it exists?
-        # TODO: CIF specification supports multiple citations.
+        db = BibDatabase()
+        db.entries = []
 
         for idx, data in enumerate(self._cif.data.values()):
-            # Convert to lower-case keys, some CIF files inconsistent
             _data = {k.lower(): v for k, v in data.data.items()}
-
-            bibtex_entry = {}
+            entry = {"ENTRYTYPE": "article", "ID": f"cifref{idx}"}
 
             for field, tags in bibtex_keys.items():
                 for tag in tags:
                     if tag in _data:
-                        if isinstance(_data[tag], list):
-                            bibtex_entry[field] = _data[tag][0]
-                        else:
-                            bibtex_entry[field] = _data[tag]
+                        value = _data[tag]
+                        entry[field] = value[0] if isinstance(value, list) else value
+                        break
 
-            # Convert to bibtex author format ("and" delimited)
-            if "author" in bibtex_entry:
-                # Separate out semicolon authors
-                if isinstance(bibtex_entry["author"], str) and ";" in bibtex_entry["author"]:
-                    bibtex_entry["author"] = bibtex_entry["author"].split(";")
+            if "author" in entry:
+                if isinstance(entry["author"], str) and ";" in entry["author"]:
+                    entry["author"] = entry["author"].split(";")
+                if isinstance(entry["author"], list):
+                    entry["author"] = " and ".join(entry["author"])
 
-                if isinstance(bibtex_entry["author"], list):
-                    bibtex_entry["author"] = " and ".join(bibtex_entry["author"])
+            if "page_first" in entry or "page_last" in entry:
+                entry["pages"] = f"{entry.get('page_first', '')}--{entry.get('page_last', '')}"
+                entry.pop("page_first", None)
+                entry.pop("page_last", None)
 
-            # Convert to bibtex page range format, use empty string if not specified
-            if ("page_first" in bibtex_entry) or ("page_last" in bibtex_entry):
-                bibtex_entry["pages"] = bibtex_entry.get("page_first", "") + "--" + bibtex_entry.get("page_last", "")
-                bibtex_entry.pop("page_first", None)  # and remove page_first, page_list if present
-                bibtex_entry.pop("page_last", None)
+            db.entries.append(entry)
 
-            # Cite keys are given as cif-reference-idx in order they are found
-            entries[f"cifref{idx}"] = Entry("article", list(bibtex_entry.items()))
-
-        return BibliographyData(entries).to_string(bib_format="bibtex")
+        writer = BibTexWriter()
+        writer.indent = "    "
+        writer.display_order = ("author", "title", "journal", "volume", "year", "pages")
+        return writer.write(db)
 
     def as_dict(self) -> dict:
         """MSONable dict."""
