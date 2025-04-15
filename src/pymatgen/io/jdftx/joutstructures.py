@@ -51,6 +51,7 @@ _joss_atrs_from_last_slice = (
     "magnetic_moments",
     "selective_dynamics",
     "structure",
+    "t_s",
 )
 
 

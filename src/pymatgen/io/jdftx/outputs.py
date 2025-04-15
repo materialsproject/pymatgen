@@ -210,7 +210,7 @@ class JDFTXOutputs:
             self.eigenvals = self.eigenvals.reshape(nstates, self.outfile.nbands)
 
 
-_jof_atr_from_last_slice = [
+_jof_atr_from_last_slice = (
     "prefix",
     "jstrucs",
     "jsettings_fluid",
@@ -287,7 +287,7 @@ _jof_atr_from_last_slice = [
     "electronic_output",
     "t_s",
     "ecomponents",
-]
+)
 
 
 @dataclass
