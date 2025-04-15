@@ -325,7 +325,7 @@ class JDFTXOutfileSlice:
     # information as possible.
     @classmethod
     def _from_out_slice(
-        cls, text: list[str], is_bgw: bool = False, none_on_error: bool = False
+        cls, text: list[str], is_bgw: bool = False, none_on_error: bool = True
     ) -> JDFTXOutfileSlice | None:
         """
         Read slice of out file into a JDFTXOutfileSlice instance.

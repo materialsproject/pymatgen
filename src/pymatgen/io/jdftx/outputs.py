@@ -509,7 +509,7 @@ class JDFTXOutfile:
 
     @classmethod
     def from_calc_dir(
-        cls, calc_dir: str | Path, is_bgw: bool = False, none_slice_on_error: bool = False
+        cls, calc_dir: str | Path, is_bgw: bool = False, none_slice_on_error: bool | None = None
     ) -> JDFTXOutfile:
         """
         Create a JDFTXOutfile object from a directory containing JDFTx out files.
@@ -526,11 +526,7 @@ class JDFTXOutfile:
             JDFTXOutfile: The JDFTXOutfile object.
         """
         file_path = _find_jdftx_out_file(Path(calc_dir))
-        texts = read_outfile_slices(file_path)
-        slices = [
-            JDFTXOutfileSlice._from_out_slice(text, is_bgw=is_bgw, none_on_error=none_slice_on_error) for text in texts
-        ]
-        return cls(slices=slices)
+        return cls.from_file(file_path=file_path, is_bgw=is_bgw, none_slice_on_error=none_slice_on_error)
 
     @classmethod
     def from_file(
