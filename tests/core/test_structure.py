@@ -964,7 +964,11 @@ Direct
         assert isinstance(atoms, Atoms)
         assert len(atoms) == len(self.struct)
 
-        assert AseAtomsAdaptor.get_structure(atoms) == self.struct
+        structure = AseAtomsAdaptor.get_structure(atoms)
+        assert structure == self.struct
+
+        # Ensure PBC is `bool` type (not `np.bool_`) and JSON serializable
+        assert "pymatgen.core.structure" in structure.to(fmt="json")
 
         assert IStructure.from_ase_atoms(atoms) == self.struct
         assert type(IStructure.from_ase_atoms(atoms)) is IStructure
