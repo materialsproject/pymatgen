@@ -1380,6 +1380,7 @@ class CifParser:
         db.entries = []
 
         for idx, data in enumerate(self._cif.data.values()):
+            # Convert to lower-case keys, some CIF files inconsistent
             _data = {k.lower(): v for k, v in data.data.items()}
             entry = {"ENTRYTYPE": "article", "ID": f"cifref{idx}"}
 
@@ -1390,15 +1391,18 @@ class CifParser:
                         entry[field] = value[0] if isinstance(value, list) else value
                         break
 
+            # Convert to bibtex author format ("and" delimited)
             if "author" in entry:
+                # Separate out semicolon authors
                 if isinstance(entry["author"], str) and ";" in entry["author"]:
                     entry["author"] = entry["author"].split(";")
                 if isinstance(entry["author"], list):
                     entry["author"] = " and ".join(entry["author"])
 
+            # Convert to bibtex page range format, use empty string if not specified
             if "page_first" in entry or "page_last" in entry:
                 entry["pages"] = f"{entry.get('page_first', '')}--{entry.get('page_last', '')}"
-                entry.pop("page_first", None)
+                entry.pop("page_first", None)  # and remove page_first, page_list if present
                 entry.pop("page_last", None)
 
             db.entries.append(entry)
