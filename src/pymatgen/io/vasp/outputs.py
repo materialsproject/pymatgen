@@ -133,10 +133,20 @@ def _parse_v_parameters(
     return floats
 
 
-def _parse_vasp_array(elem) -> list[list[float]]:
+def _parse_vasp_array(elem) -> list[list[float]] | NDArray[float]:
     if elem.get("type") == "logical":
         return [[i == "T" for i in v.text.split()] for v in elem]
-    return [[_vasprun_float(i) for i in v.text.split()] for v in elem]
+
+    try:
+        # numerical data, try parse with numpy fromstring for efficiency:
+        lines = [e.text for e in elem]
+        float_array = np.fromstring("\n".join(lines), sep=" ")
+        # reshape into grid for efficient parsing
+        nrow = len(lines)
+        ncol = len(elem[0].text.split())
+        return float_array.reshape(nrow, ncol)
+    except ValueError:  # unexpectedly couldn't re-shape to grid
+        return [list(map(_vasprun_float, e.text.split())) for e in elem]
 
 
 def _parse_from_incar(filename: PathLike, key: str) -> Any:
