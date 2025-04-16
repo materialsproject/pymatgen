@@ -28,30 +28,23 @@ from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
 if TYPE_CHECKING:
     from collections.abc import Callable
 
-    from mp_api.client import MPRester as _MPResterNew
     from typing_extensions import Self
 
     from pymatgen.core.structure import Structure
     from pymatgen.entries.computed_entries import ComputedStructureEntry
-    from pymatgen.ext.matproj_legacy import _MPResterLegacy
 
 logger = logging.getLogger(__name__)
 
 MP_LOG_FILE = os.path.join(os.path.expanduser("~"), ".mprester.log.yaml")
 
 
-class _MPResterBasic:
+class MPRester:
     """
-    This is Pymatgen's own implement of a MPRester that supports the new MP API. If you are getting your API key from
-    the new dashboard of MP, you will need to use this instead of the original MPRester because the new API keys do
-    not work with the old MP API (???!).
+    This is pymatgen's implementation of MPRester.
 
-    The reason why this class exists is because it is the belief of the pymatgen maintainers that access to the MP API
-    remains a critical part of pymatgen functionality. However, the new mp-api package is written in a way that
-    prevents us from importing the mp-api package because of cyclic dependencies. It is also the opinion of Pymatgen
-    maintainers that the implementation of mp-api is too heavy duty for most users (few care about document models,
-    etc.). Further, this implementation serves as a simple reference for end developers who want to develop their own
-    interfaces to the MP API via the REST urls.
+    We have decided to drop support for the mp-api package and directly implement most of the relevant functionality
+    within pymatgen. This implementation mirrors the actual MP API REST fields, rather than having strange renamed
+    variables.
 
     If you are a power user, feel free to install the mp-api package. All issues regarding that implementation should
     be directed to the maintainers of that repository and not pymatgen. We will support only issues with regards to
@@ -78,6 +71,12 @@ class _MPResterBasic:
             self.api_key = api_key
         else:
             self.api_key = SETTINGS.get("PMG_MAPI_KEY", "")
+
+        if len(self.api_key) != 32:
+            raise ValueError(
+                "Invalid or old API key. Please obtain an updated API key at https://materialsproject.org/dashboard."
+            )
+
         self.preamble = SETTINGS.get("PMG_MAPI_ENDPOINT", "https://api.materialsproject.org/")
 
         self.session = requests.Session()
@@ -391,54 +390,6 @@ class _MPResterBasic:
         prop = "ph_dos"
         response = self.request(f"materials/phonon/?material_ids={material_id}&_fields={prop}")
         return response[0][prop]
-
-
-class MPRester:
-    """A class to conveniently interface with the new and legacy Materials Project REST interface.
-
-    The recommended way to use MPRester is as a context manager to ensure
-    that sessions are properly closed after usage:
-
-        with MPRester("API_KEY") as mpr:
-            docs = mpr.call_some_method()
-
-    MPRester uses the "requests" package, which provides HTTP connection
-    pooling. All connections are made via https for security.
-
-    For more advanced uses of the Materials API, please consult the API
-    documentation at https://materialsproject.org/api and https://docs.materialsproject.org.
-
-    This class handles the transition between old and new MP API, making it easy to switch between them
-    by passing a new (length 32) or old (15 <= length <= 17) API key. See https://docs.materialsproject.org
-    for which API to use.
-    """
-
-    def __new__(cls, *args, **kwargs) -> _MPResterNew | _MPResterBasic | _MPResterLegacy:  # type: ignore[misc]
-        """
-        Args:
-           *args: Pass through to either legacy or new MPRester.
-           **kwargs: Pass through to either legacy or new MPRester.
-        """
-        api_key = args[0] if len(args) > 0 else None
-
-        if api_key is None:
-            api_key = kwargs.get("api_key", SETTINGS.get("PMG_MAPI_KEY"))
-            kwargs["api_key"] = api_key
-
-        if not api_key:
-            raise ValueError("Please supply an API key. See https://materialsproject.org/api for details.")
-
-        if len(api_key) != 32:
-            from pymatgen.ext.matproj_legacy import _MPResterLegacy
-
-            return _MPResterLegacy(*args, **kwargs)
-
-        try:
-            from mp_api.client import MPRester as _MPResterNew
-
-            return _MPResterNew(*args, **kwargs)
-        except Exception:
-            return _MPResterBasic(*args, **kwargs)
 
 
 class MPRestError(Exception):
