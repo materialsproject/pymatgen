@@ -964,7 +964,11 @@ Direct
         assert isinstance(atoms, Atoms)
         assert len(atoms) == len(self.struct)
 
-        assert AseAtomsAdaptor.get_structure(atoms) == self.struct
+        structure = AseAtomsAdaptor.get_structure(atoms)
+        assert structure == self.struct
+
+        # Ensure PBC is `bool` type (not `np.bool_`) and JSON serializable
+        assert "pymatgen.core.structure" in structure.to(fmt="json")
 
         assert IStructure.from_ase_atoms(atoms) == self.struct
         assert type(IStructure.from_ase_atoms(atoms)) is IStructure
@@ -1918,60 +1922,6 @@ direct
         assert calculator.parameters == {"asap_cutoff": True}
         assert not hasattr(calculator, "dynamics")
         assert self.cu_structure == struct_copy, "original structure was modified"
-
-    @pytest.mark.skip(reason="chgnet is failing with Numpy 1, see #3992")
-    @pytest.mark.skipif(int(np.__version__[0]) >= 2, reason="chgnet is not built against NumPy 2.0")
-    def test_relax_chgnet(self):
-        pytest.importorskip("chgnet")
-        struct_copy = self.cu_structure.copy()
-        relaxed = self.cu_structure.relax(calculator="chgnet")
-        assert relaxed != self.cu_structure
-        assert relaxed.calc.results["energy"] == approx(-5.27792501, abs=1)
-        assert relaxed.calc.results["free_energy"] == approx(-5.27792501, abs=1)
-        assert relaxed.volume == approx(39.268401, abs=1)
-        assert relaxed.calc.parameters == {}
-        assert self.cu_structure == struct_copy, "original structure was modified"
-
-        # test custom params
-        custom_relaxed = self.cu_structure.relax(
-            calculator="chgnet",
-            optimizer="BFGS",
-            steps=1,
-            fmax=1,
-            stress_weight=0.1,
-        )
-        assert custom_relaxed != self.cu_structure
-        assert custom_relaxed.calc.results.get("energy") == approx(-6.0151076, abs=1e-4)
-        assert custom_relaxed.volume == approx(40.044794644, abs=1e-4)
-
-    @pytest.mark.skip(reason="chgnet is failing with Numpy 1, see #3992")
-    @pytest.mark.skipif(int(np.__version__[0]) >= 2, reason="chgnet is not built against NumPy 2.0")
-    def test_calculate_chgnet(self):
-        pytest.importorskip("chgnet")
-        struct = self.get_structure("Si")
-        calculator = struct.calculate(calculator="chgnet")
-        assert isinstance(calculator, Calculator)
-        preds = calculator.results
-        assert {*preds} >= {"stress", "energy", "free_energy", "magmoms", "forces"}
-        assert preds["energy"] == approx(-10.624556, abs=1e-5)
-        assert preds["magmoms"] == approx([0.005591631, 0.005591631], abs=1e-5)
-        assert np.linalg.norm(preds["forces"]) == approx(1.119554e-5, abs=1e-4)
-        assert not hasattr(calculator, "dynamics"), "static calculation should not have dynamics"
-        assert {*calculator.__dict__} >= {
-            *"atoms results parameters get_spin_polarized device model stress_weight".split()
-        }
-        assert len(calculator.parameters) == 0
-        assert isinstance(calculator.atoms, Atoms)
-        assert len(calculator.atoms) == len(struct)
-        assert AseAtomsAdaptor.get_structure(calculator.atoms) == struct
-        assert calculator.name == "chgnetcalculator"
-
-        from chgnet.model import CHGNetCalculator
-
-        calc_from_inst = struct.calculate(calculator=CHGNetCalculator())
-        calc_from_cls = struct.calculate(calculator=CHGNetCalculator)
-        assert calc_from_inst.results["energy"] == approx(calc_from_cls.results["energy"])
-        assert {*calc_from_inst.results} == {*calc_from_cls.results}
 
     def test_relax_ase(self):
         pytest.importorskip("ase")
