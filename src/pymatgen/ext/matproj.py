@@ -17,7 +17,7 @@ import platform
 import sys
 import warnings
 from collections import namedtuple
-from functools import partial
+from functools import lru_cache, partial
 from typing import TYPE_CHECKING, NamedTuple
 
 import requests
@@ -42,15 +42,16 @@ MP_LOG_FILE = os.path.join(os.path.expanduser("~"), ".mprester.log.yaml")
 
 class MPRester:
     """
-    This is pymatgen's implementation of MPRester.
+    Pymatgen's implementation of MPRester. Unlike mp-api, this implementation mirrors the exact MP-API end points
+    without modification. You just need to refer to https://api.materialsproject.org/docs and use the field names
+    exactly. No need to deal with strange renames of various fields. Featurity parity is close to 100% with mp-api.
 
-    We have decided to drop support for the mp-api package and directly implement most of the relevant functionality
-    within pymatgen. This implementation mirrors the actual MP API REST fields, rather than having strange renamed
-    variables.
+    Furthermore, we support both the mp-api as well as a simplified syntax. E.g., to query for a summary, you can use
+    mpr.summary.search(material_ids="mp-1234") or mpr.materials.summary.search(material_ids="mp-1234").
 
-    If you are a power user, feel free to install the mp-api package. All issues regarding that implementation should
-    be directed to the maintainers of that repository and not pymatgen. We will support only issues with regards to
-    our implementation only.
+    If you are a power user that requires some esoteric feature not covered, feel free to install the mp-api package.
+    All issues regarding that implementation should be directed to the maintainers of that repository and not
+    pymatgen. We will support only issues pertaining to our implementation only.
     """
 
     def __init__(self, api_key: str | None = None, include_user_agent: bool = True) -> None:
@@ -121,6 +122,7 @@ class MPRester:
         for doc in docs:
             setattr(self, doc, Search(partial(self.search, doc)))
 
+        # This hacks make the syntax similar to mp-api's MPRester.materials.search...
         Materials = namedtuple("Materials", " ".join(docs))  # noqa: PYI024
 
         self.materials = Materials(*[getattr(self, doc) for doc in docs])
@@ -167,6 +169,7 @@ class MPRester:
                 raise MPRestError(msg)
         return all_data
 
+    @lru_cache(maxsize=100)  # noqa:B019
     def search(self, doc, **kwargs) -> list[dict]:
         """
         Queries a Materials PI end point doc. A notable difference with the mp-api's implementation is that this uses

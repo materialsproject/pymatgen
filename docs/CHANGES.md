@@ -6,6 +6,15 @@ nav_order: 4
 
 # Changelog
 
+## v2025.4.16
+
+- Major new feature and breaking change: Legacy MP API is no longer supported. Pymatgen also no longer support mp-api in the backend. Instead, Pymatgen's MPRester now
+  has nearly 100% feature parity with mp-api's document searches. One major difference is that pymatgen's MPRester will follow the documented REST API end points exactly, i.e., users just need to refer to https://api.materialsproject.org/docs for the exact field names.
+- PR #4360 Speed up `Vasprun` parsing by @kavanase
+- PR #4343 Drop duplicate `iupac_ordering` entries in `core.periodic_table.json` by @DanielYang59
+- PR #4348 Remove deprecated grain boundary analysis by @DanielYang59
+- PR #4357 Fix circular import of `SymmOp` by @DanielYang59
+
 ## v2025.4.10
 
 - Parity with MPRester.materials.summary.search in MPResterBasic.

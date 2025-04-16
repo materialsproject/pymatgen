@@ -162,6 +162,8 @@ class TestMPRester(PymatgenTest):
             # We should have Al2O3 data for these properties.
             data = self.rester.materials.__getattribute__(doc).search(material_ids="mp-1143")
             assert len(data) > 0, f"No Al2O3 data returned for {doc}"
+            data = self.rester.__getattribute__(doc).search(material_ids="mp-1143")
+            assert len(data) > 0, f"No Al2O3 data returned for {doc}"
 
         docs = ["surface_properties"]
 
