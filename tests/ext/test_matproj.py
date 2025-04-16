@@ -138,6 +138,36 @@ class TestMPRester(PymatgenTest):
         assert Ni.lattice.beta == approx(90)
         assert Ni.lattice.gamma == approx(90)
 
-    def test_fake_mpapi_interface(self):
-        data = self.rester.materials.summary.search(formula="Al2O3")
-        assert len(data) > 0
+    def test_api_parity(self):
+        docs = [
+            "summary",
+            "core",
+            "elasticity",
+            "phonon",
+            "eos",
+            "similarity",
+            "xas",
+            "electronic_structure",
+            "robocrys",
+            "synthesis",
+            "magnetism",
+            "oxidation_states",
+            "provenance",
+            "alloys",
+            "chemenv",
+            "bonds",
+        ]
+
+        for doc in docs:
+            # We should have Al2O3 data for these properties.
+            data = self.rester.materials.__getattribute__(doc).search(material_ids="mp-1143")
+            assert len(data) > 0, f"No Al2O3 data returned for {doc}"
+
+        docs = ["surface_properties"]
+
+        for doc in docs:
+            data = self.rester.materials.__getattribute__(doc).search(material_ids="mp-135")
+            assert len(data) > 0, f"No Li data returned for {doc}"
+
+        # TODO: Test these docs: "tasks", "insertion_electrodes", "conversion_electrodes","substrates","absorption",
+        # "grain_boundaries",

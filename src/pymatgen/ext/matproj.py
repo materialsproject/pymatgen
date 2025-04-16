@@ -16,6 +16,8 @@ import os
 import platform
 import sys
 import warnings
+from collections import namedtuple
+from functools import partial
 from typing import TYPE_CHECKING, NamedTuple
 
 import requests
@@ -88,15 +90,40 @@ class MPRester:
             self.session.headers["user-agent"] = f"{pymatgen_info} ({python_info} {platform_info})"
 
         # This is a hack, but it fakes most of the functionality of mp-api's summary.search.
-        class Summary(NamedTuple):
+        class Search(NamedTuple):
             search: Callable
 
-        # This is a hack, but it fakes most of the functionality of mp-api's summary.search.
-        class Materials(NamedTuple):
-            summary: Summary
+        docs = [
+            "summary",
+            "core",
+            "elasticity",
+            "phonon",
+            "eos",
+            "similarity",
+            "xas",
+            "grain_boundaries",
+            "electronic_structure",
+            "tasks",
+            "substrates",
+            "surface_properties",
+            "robocrys",
+            "synthesis",
+            "magnetism",
+            "insertion_electrodes",
+            "conversion_electrodes",
+            "oxidation_states",
+            "provenance",
+            "alloys",
+            "absorption",
+            "chemenv",
+            "bonds",
+        ]
+        for doc in docs:
+            setattr(self, doc, Search(partial(self.search, doc)))
 
-        self.summary = Summary(self.summary_search)
-        self.materials = Materials(self.summary)
+        Materials = namedtuple("Materials", " ".join(docs))  # noqa: PYI024
+
+        self.materials = Materials(*[getattr(self, doc) for doc in docs])
 
     def __getattr__(self, item):
         raise AttributeError(
@@ -140,6 +167,34 @@ class MPRester:
                 raise MPRestError(msg)
         return all_data
 
+    def search(self, doc, **kwargs) -> list[dict]:
+        """
+        Queries a Materials PI end point doc. A notable difference with the mp-api's implementation is that this uses
+        the web API to do searches. So the keywords follow the actual API spec, which is as it should be. For
+        instance, number of sites is `nsites` and number of elements is `nelements`. The mp-api package has this
+        weird renaming that maps `num_elements` to `nelements` and `num_sites` to  `nsites`.
+
+        Parameters:
+        - **kwargs: keyword arguments for filtering materials. Fields that do not start with underscores are
+        filters, while those that start with underscores are fields to retrieve. Possible filters include:
+          - _fields (optional): list of fields to retrieve for each material
+          - Other parameters: filter criteria, where each parameter key corresponds to the field to filter and the
+            parameter value corresponds to the filter value
+
+        Returns:
+        - list of dictionaries, each dictionary representing a material retrieved based on the filtering criteria
+        """
+        criteria = {k: v for k, v in kwargs.items() if not k.startswith("_")}
+        params = [f"{k}={v}" for k, v in kwargs.items() if k.startswith("_") and k != "_fields"]
+        if "_fields" not in kwargs:
+            params.append("_all_fields=True")
+        else:
+            fields = ",".join(kwargs["_fields"]) if isinstance(kwargs["_fields"], list) else kwargs["_fields"]
+            params.extend((f"_fields={fields}", "_all_fields=False"))
+        get = "&".join(params)
+        logger.info(f"query={get}")
+        return self.request(f"materials/{doc}/?{get}", payload=criteria)
+
     def summary_search(self, **kwargs) -> list[dict]:
         """
         Mirrors mp-api's mpr.materials.summary.search functionality. Searches for materials based on the specified
@@ -159,16 +214,7 @@ class MPRester:
         - list of dictionaries, each dictionary representing a material retrieved based on the filtering criteria
 
         """
-        criteria = {k: v for k, v in kwargs.items() if not k.startswith("_")}
-        params = [f"{k}={v}" for k, v in kwargs.items() if k.startswith("_") and k != "_fields"]
-        if "_fields" not in kwargs:
-            params.append("_all_fields=True")
-        else:
-            fields = ",".join(kwargs["_fields"]) if isinstance(kwargs["_fields"], list) else kwargs["_fields"]
-            params.extend((f"_fields={fields}", "_all_fields=False"))
-        get = "&".join(params)
-        logger.info(f"query={get}")
-        return self.request(f"materials/summary/?{get}", payload=criteria)
+        return self.search("summary", **kwargs)
 
     def get_summary(self, criteria: dict, fields: list | None = None) -> list[dict]:
         """Get  a data corresponding to a criteria.
