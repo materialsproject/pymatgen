@@ -156,6 +156,7 @@ class TestMPRester(PymatgenTest):
             "alloys",
             "chemenv",
             "bonds",
+            "dielectric",
         ]
 
         for doc in docs:
@@ -165,11 +166,19 @@ class TestMPRester(PymatgenTest):
             data = self.rester.__getattribute__(doc).search(material_ids="mp-1143")
             assert len(data) > 0, f"No Al2O3 data returned for {doc}"
 
-        docs = ["surface_properties"]
+        data = self.rester.materials.substrates.search(sub_id="mp-1143")
+        assert len(data) > 0, "No substrate data returned."
+
+        data = self.rester.materials.tasks.search(task_ids="mp-1143")
+        assert len(data) > 0, "No tasks data returned."
+
+        docs = ["surface_properties", "alloys"]
 
         for doc in docs:
             data = self.rester.materials.__getattribute__(doc).search(material_ids="mp-135")
             assert len(data) > 0, f"No Li data returned for {doc}"
 
-        # TODO: Test these docs: "tasks", "insertion_electrodes", "conversion_electrodes","substrates","absorption",
-        # "grain_boundaries",
+        data = self.rester.materials.insertion_electrodes.search(formula="LiFePO4")
+        assert len(data) > 0, "No insertion electrode data returned."
+
+        # TODO: Test these docs: "grain_boundaries", "piezoelectric", "conversion_electrodes"

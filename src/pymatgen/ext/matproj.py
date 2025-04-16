@@ -16,7 +16,6 @@ import os
 import platform
 import sys
 import warnings
-from collections import namedtuple
 from functools import lru_cache, partial
 from typing import TYPE_CHECKING, NamedTuple
 
@@ -53,6 +52,34 @@ class MPRester:
     All issues regarding that implementation should be directed to the maintainers of that repository and not
     pymatgen. We will support only issues pertaining to our implementation only.
     """
+
+    MATERIALS_DOCS = (
+        "summary",
+        "core",
+        "elasticity",
+        "phonon",
+        "eos",
+        "similarity",
+        "xas",
+        "grain_boundaries",
+        "electronic_structure",
+        "tasks",
+        "substrates",
+        "surface_properties",
+        "robocrys",
+        "synthesis",
+        "magnetism",
+        "insertion_electrodes",
+        "conversion_electrodes",
+        "oxidation_states",
+        "provenance",
+        "alloys",
+        "absorption",
+        "chemenv",
+        "bonds",
+        "piezoelectric",
+        "dielectric",
+    )
 
     def __init__(self, api_key: str | None = None, include_user_agent: bool = True) -> None:
         """
@@ -94,38 +121,14 @@ class MPRester:
         class Search(NamedTuple):
             search: Callable
 
-        docs = [
-            "summary",
-            "core",
-            "elasticity",
-            "phonon",
-            "eos",
-            "similarity",
-            "xas",
-            "grain_boundaries",
-            "electronic_structure",
-            "tasks",
-            "substrates",
-            "surface_properties",
-            "robocrys",
-            "synthesis",
-            "magnetism",
-            "insertion_electrodes",
-            "conversion_electrodes",
-            "oxidation_states",
-            "provenance",
-            "alloys",
-            "absorption",
-            "chemenv",
-            "bonds",
-        ]
-        for doc in docs:
+        class Materials:
+            pass
+
+        self.materials = Materials()
+
+        for doc in MPRester.MATERIALS_DOCS:
             setattr(self, doc, Search(partial(self.search, doc)))
-
-        # This hacks make the syntax similar to mp-api's MPRester.materials.search...
-        Materials = namedtuple("Materials", " ".join(docs))  # noqa: PYI024
-
-        self.materials = Materials(*[getattr(self, doc) for doc in docs])
+            setattr(self.materials, doc, Search(partial(self.search, doc)))
 
     def __getattr__(self, item):
         raise AttributeError(
