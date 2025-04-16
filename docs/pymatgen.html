@@ -6,7 +6,7 @@
   <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>pymatgen namespace &mdash; pymatgen 2025.4.10 documentation</title>
+  <title>pymatgen namespace &mdash; pymatgen 2025.4.16 documentation</title>
       <link rel="stylesheet" type="text/css" href="assets/pygments.css?v=03e43079" />
       <link rel="stylesheet" type="text/css" href="assets/css/theme.css?v=e59714d7" />
       <link rel="stylesheet" type="text/css" href="assets/css/custom.css" />
@@ -15,7 +15,7 @@
     <link rel="canonical" href="https://pymatgen.orgpymatgen.html"/>
       <script src="assets/jquery.js?v=5d32c60e"></script>
       <script src="assets/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="assets/documentation_options.js?v=da43a515"></script>
+      <script src="assets/documentation_options.js?v=b5b2b1c1"></script>
       <script src="assets/doctools.js?v=9bcbadda"></script>
       <script src="assets/sphinx_highlight.js?v=dc90522c"></script>
     <script src="assets/js/theme.js"></script>
@@ -550,11 +550,6 @@
 <li class="toctree-l5"><a class="reference internal" href="pymatgen.analysis.ferroelectricity.html#pymatgen.analysis.ferroelectricity.polarization.zval_dict_from_potcar"><code class="docutils literal notranslate"><span class="pre">zval_dict_from_potcar()</span></code></a></li>
 </ul>
 </li>
-</ul>
-</li>
-<li class="toctree-l3"><a class="reference internal" href="pymatgen.analysis.gb.html">pymatgen.analysis.gb package</a><ul>
-<li class="toctree-l4"><a class="reference internal" href="pymatgen.analysis.gb.html#submodules">Submodules</a></li>
-<li class="toctree-l4"><a class="reference internal" href="pymatgen.analysis.gb.html#module-pymatgen.analysis.gb.grain">pymatgen.analysis.gb.grain module</a></li>
 </ul>
 </li>
 <li class="toctree-l3"><a class="reference internal" href="pymatgen.analysis.interfaces.html">pymatgen.analysis.interfaces package</a><ul>
@@ -4330,29 +4325,25 @@
 </li>
 <li class="toctree-l2"><a class="reference internal" href="pymatgen.ext.html#module-pymatgen.ext.matproj">pymatgen.ext.matproj module</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="pymatgen.ext.html#pymatgen.ext.matproj.MPRestError"><code class="docutils literal notranslate"><span class="pre">MPRestError</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="pymatgen.ext.html#pymatgen.ext.matproj.MPRester"><code class="docutils literal notranslate"><span class="pre">MPRester</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.ext.html#pymatgen.ext.matproj.MPRester"><code class="docutils literal notranslate"><span class="pre">MPRester</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="pymatgen.ext.html#pymatgen.ext.matproj.MPRester.get_doc"><code class="docutils literal notranslate"><span class="pre">MPRester.get_doc()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="pymatgen.ext.html#pymatgen.ext.matproj.MPRester.get_entries"><code class="docutils literal notranslate"><span class="pre">MPRester.get_entries()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="pymatgen.ext.html#pymatgen.ext.matproj.MPRester.get_entries_in_chemsys"><code class="docutils literal notranslate"><span class="pre">MPRester.get_entries_in_chemsys()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="pymatgen.ext.html#pymatgen.ext.matproj.MPRester.get_entry_by_material_id"><code class="docutils literal notranslate"><span class="pre">MPRester.get_entry_by_material_id()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="pymatgen.ext.html#pymatgen.ext.matproj.MPRester.get_initial_structures_by_material_id"><code class="docutils literal notranslate"><span class="pre">MPRester.get_initial_structures_by_material_id()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="pymatgen.ext.html#pymatgen.ext.matproj.MPRester.get_material_ids"><code class="docutils literal notranslate"><span class="pre">MPRester.get_material_ids()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="pymatgen.ext.html#pymatgen.ext.matproj.MPRester.get_materials_ids"><code class="docutils literal notranslate"><span class="pre">MPRester.get_materials_ids()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="pymatgen.ext.html#pymatgen.ext.matproj.MPRester.get_phonon_bandstructure_by_material_id"><code class="docutils literal notranslate"><span class="pre">MPRester.get_phonon_bandstructure_by_material_id()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="pymatgen.ext.html#pymatgen.ext.matproj.MPRester.get_phonon_dos_by_material_id"><code class="docutils literal notranslate"><span class="pre">MPRester.get_phonon_dos_by_material_id()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="pymatgen.ext.html#pymatgen.ext.matproj.MPRester.get_structure_by_material_id"><code class="docutils literal notranslate"><span class="pre">MPRester.get_structure_by_material_id()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="pymatgen.ext.html#pymatgen.ext.matproj.MPRester.get_structures"><code class="docutils literal notranslate"><span class="pre">MPRester.get_structures()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="pymatgen.ext.html#pymatgen.ext.matproj.MPRester.get_summary"><code class="docutils literal notranslate"><span class="pre">MPRester.get_summary()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="pymatgen.ext.html#pymatgen.ext.matproj.MPRester.get_summary_by_material_id"><code class="docutils literal notranslate"><span class="pre">MPRester.get_summary_by_material_id()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="pymatgen.ext.html#pymatgen.ext.matproj.MPRester.request"><code class="docutils literal notranslate"><span class="pre">MPRester.request()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="pymatgen.ext.html#pymatgen.ext.matproj.MPRester.search"><code class="docutils literal notranslate"><span class="pre">MPRester.search()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="pymatgen.ext.html#pymatgen.ext.matproj.MPRester.summary_search"><code class="docutils literal notranslate"><span class="pre">MPRester.summary_search()</span></code></a></li>
 </ul>
 </li>
-<li class="toctree-l2"><a class="reference internal" href="pymatgen.ext.html#module-pymatgen.ext.matproj_legacy">pymatgen.ext.matproj_legacy module</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="pymatgen.ext.html#pymatgen.ext.matproj_legacy.MPRestError"><code class="docutils literal notranslate"><span class="pre">MPRestError</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="pymatgen.ext.html#pymatgen.ext.matproj_legacy.TaskType"><code class="docutils literal notranslate"><span class="pre">TaskType</span></code></a><ul>
-<li class="toctree-l4"><a class="reference internal" href="pymatgen.ext.html#pymatgen.ext.matproj_legacy.TaskType.GGAU_DEF"><code class="docutils literal notranslate"><span class="pre">TaskType.GGAU_DEF</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="pymatgen.ext.html#pymatgen.ext.matproj_legacy.TaskType.GGAU_LINE"><code class="docutils literal notranslate"><span class="pre">TaskType.GGAU_LINE</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="pymatgen.ext.html#pymatgen.ext.matproj_legacy.TaskType.GGAU_OPT"><code class="docutils literal notranslate"><span class="pre">TaskType.GGAU_OPT</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="pymatgen.ext.html#pymatgen.ext.matproj_legacy.TaskType.GGAU_STATIC"><code class="docutils literal notranslate"><span class="pre">TaskType.GGAU_STATIC</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="pymatgen.ext.html#pymatgen.ext.matproj_legacy.TaskType.GGAU_STATIC_DIEL"><code class="docutils literal notranslate"><span class="pre">TaskType.GGAU_STATIC_DIEL</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="pymatgen.ext.html#pymatgen.ext.matproj_legacy.TaskType.GGAU_UNIFORM"><code class="docutils literal notranslate"><span class="pre">TaskType.GGAU_UNIFORM</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="pymatgen.ext.html#pymatgen.ext.matproj_legacy.TaskType.GGA_DEF"><code class="docutils literal notranslate"><span class="pre">TaskType.GGA_DEF</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="pymatgen.ext.html#pymatgen.ext.matproj_legacy.TaskType.GGA_LINE"><code class="docutils literal notranslate"><span class="pre">TaskType.GGA_LINE</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="pymatgen.ext.html#pymatgen.ext.matproj_legacy.TaskType.GGA_OPT"><code class="docutils literal notranslate"><span class="pre">TaskType.GGA_OPT</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="pymatgen.ext.html#pymatgen.ext.matproj_legacy.TaskType.GGA_STATIC"><code class="docutils literal notranslate"><span class="pre">TaskType.GGA_STATIC</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="pymatgen.ext.html#pymatgen.ext.matproj_legacy.TaskType.GGA_STATIC_DIEL"><code class="docutils literal notranslate"><span class="pre">TaskType.GGA_STATIC_DIEL</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="pymatgen.ext.html#pymatgen.ext.matproj_legacy.TaskType.GGA_UNIFORM"><code class="docutils literal notranslate"><span class="pre">TaskType.GGA_UNIFORM</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="pymatgen.ext.html#pymatgen.ext.matproj_legacy.TaskType.LDA_STATIC_DIEL"><code class="docutils literal notranslate"><span class="pre">TaskType.LDA_STATIC_DIEL</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="pymatgen.ext.html#pymatgen.ext.matproj_legacy.TaskType.SCAN_OPT"><code class="docutils literal notranslate"><span class="pre">TaskType.SCAN_OPT</span></code></a></li>
-</ul>
-</li>
-<li class="toctree-l3"><a class="reference internal" href="pymatgen.ext.html#pymatgen.ext.matproj_legacy.get_chunks"><code class="docutils literal notranslate"><span class="pre">get_chunks()</span></code></a></li>
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="pymatgen.ext.html#module-pymatgen.ext.optimade">pymatgen.ext.optimade module</a><ul>

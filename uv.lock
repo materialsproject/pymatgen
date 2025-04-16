@@ -2640,7 +2640,7 @@ wheels = [
 
 [[package]]
 name = "pymatgen"
-version = "2025.4.10"
+version = "2025.4.16"
 source = { editable = "." }
 dependencies = [
     { name = "joblib" },
