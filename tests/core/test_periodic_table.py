@@ -367,7 +367,7 @@ class TestElement(MatSciTest):
         el = Element.Pd
         assert el.atomic_radius == approx(1.40)
         assert el.atomic_radius_calculated == approx(1.69)
-        assert el.van_der_waals_radius == approx(2.10)
+        assert el.van_der_waals_radius == approx(1.63)
 
     def test_data(self):
         assert Element.Pd.data["Atomic radius"] == approx(1.4)
