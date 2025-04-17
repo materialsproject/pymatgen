@@ -1483,6 +1483,10 @@ class TestMVLSlabSet(MatSciTest):
         assert dipole_incar["LDIPOL"]
         assert_allclose(dipole_incar["DIPOL"], [0.2323, 0.2323, 0.2165], atol=1e-4)
         assert dipole_incar["IDIPOL"] == 3
+        # DIPOL must be a plain Python list of floats
+        assert isinstance(dipole_incar["DIPOL"], list)
+        for comp in dipole_incar["DIPOL"]:
+            assert isinstance(comp, float)
 
     def test_kpoints(self):
         kpoints_slab = self.d_slab["KPOINTS"].kpts[0]
