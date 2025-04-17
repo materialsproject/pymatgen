@@ -301,6 +301,7 @@ class TestVasprun(PymatgenTest):
         assert isinstance(vasp_run.kpoints, Kpoints), f"{vasp_run.kpoints=}"
         assert isinstance(vasp_run.actual_kpoints, list), f"{vasp_run.actual_kpoints=}"
         assert isinstance(vasp_run.actual_kpoints_weights, list), f"{vasp_run.actual_kpoints_weights=}"
+        assert isinstance(vasp_run.actual_kpoints_weights[0], float), f"{vasp_run.actual_kpoints_weights[0]=}"
         for atom_doses in vasp_run.pdos:
             for orbital_dos in atom_doses:
                 assert isinstance(orbital_dos, Orbital), f"{orbital_dos=}"
