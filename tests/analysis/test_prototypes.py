@@ -9,7 +9,7 @@ import pytest
 
 from pymatgen.core.structure import Composition, Lattice, Structure
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
-from pymatgen.util.testing import TEST_FILES_DIR, PymatgenTest
+from pymatgen.util.testing import TEST_FILES_DIR, MatSciTest
 
 try:
     from pymatgen.analysis.prototypes import (
@@ -43,7 +43,7 @@ except ImportError:
 TEST_DIR = f"{TEST_FILES_DIR}/analysis/prototypes"
 
 
-class TestAflowPrototypeMatcher(PymatgenTest):
+class TestAflowPrototypeMatcher(MatSciTest):
     def test_prototype_matching(self):
         af = AflowPrototypeMatcher()
 

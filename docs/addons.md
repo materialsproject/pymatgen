@@ -19,15 +19,22 @@ Please submit a pull request to update this page when if release a new add-on pa
 
 ## Add-ons for Analysis
 
-* [pymatgen-analysis-diffusion](http://pypi.org/project/pymatgen-analysis-diffusion): Provides modules for diffusion analysis, including path determination for NEB calculations, analysis of MD trajectories (RDF, van Hove, Arrhenius plots, etc.). This package is maintained by the Materials Virtual Lab.
-* [pymatgen-analysis-defects](https://pypi.org/project/pymatgen-analysis-defects): Provides functionality related to defect analysis. This package is maintained by Jimmy-Xuan Shen, and officially supported by the Materials Project.
+* [pymatgen-analysis-diffusion](http://pypi.org/project/pymatgen-analysis-diffusion): Provides modules for diffusion analysis, including path determination for NEB
+  calculations, analysis of MD trajectories (RDF, van Hove, Arrhenius plots, etc.). This package is maintained by the
+  Materials Virtual Lab.
+* [pymatgen-analysis-defects](https://pypi.org/project/pymatgen-analysis-defects): Provides functionality related to defect analysis. This package is maintained by
+  Jimmy-Xuan Shen, and officially supported by the Materials Project.
 
 ## Add-ons for Input/Output
 
-* [pymatgen-io-fleur](http://pypi.org/project/pymatgen-io-fleur): Provides modules for reading and writing files used by the [`fleur`](https://www.flapw.de/rel) DFT code. This package is maintained by the juDFT team.
-* [pymatgen-io-openmm](https://github.com/orionarcher/pymatgen-io-openmm): Provides easy IO for performing molecular dynamics on solutions with OpenMM. This package is maintained by Orion Archer Cohen.
-* [pymatgen-io-espresso](https://github.com/Griffin-Group/pymatgen-io-espresso): Provides support for the [Quantum ESPRESSO (QE)](https://www.quantum-espresso.org) DFT code. This package was created by [Omar Ashour](https://github.com/oashour) and maintained in the [Griffin Group](https://sineadgriffin.com) repository.
-* [pymatgen-io-validation](https://github.com/materialsproject/pymatgen-io-validation/): Provides comprehensive validation of VASP calculations. This package was created by [Matthew Kuner](https://github.com/matthewkuner) and maintained in the Materials Project repository.
+* [pymatgen-io-fleur](http://pypi.org/project/pymatgen-io-fleur): Provides modules for reading and writing files used by the [`fleur`](https://www.flapw.de/rel) DFT code. This
+  package is maintained by the juDFT team.
+* [pymatgen-io-openmm](https://github.com/orionarcher/pymatgen-io-openmm): Provides easy IO for performing molecular dynamics on solutions with OpenMM. This package
+  is maintained by Orion Archer Cohen.
+* [pymatgen-io-espresso](https://github.com/Griffin-Group/pymatgen-io-espresso): Provides support for the [Quantum ESPRESSO (QE)](https://www.quantum-espresso.org) DFT code. This package was created
+  by [Omar Ashour](https://github.com/oashour) and maintained in the [Griffin Group](https://sineadgriffin.com) repository.
+* [pymatgen-io-validation](https://github.com/materialsproject/pymatgen-io-validation/): Provides comprehensive validation of VASP calculations. This package was created by
+  [Matthew Kuner](https://github.com/matthewkuner) and maintained in the Materials Project repository.
 
 ## External Tools
 
@@ -36,7 +43,8 @@ look at [pymatgen dependents](https://github.com/materialsproject/pymatgen/netwo
 
 * [Atomate2](https://github.com/materialsproject/atomate2): atomate2 is a library of computational materials science workflows.
 * [LobsterPy](https://github.com/JaGeo/LobsterPy): Automatically analyze [Lobster runs](https://cohp.de).
-* [pymatviz](https://github.com/janosh/pymatviz): Complements `pymatgen` with additional plotting functionality for larger datasets common in materials informatics.
+* [pymatviz](https://github.com/janosh/pymatviz): Complements `pymatgen` with additional plotting functionality for larger datasets common in
+  materials informatics.
 * [DiSCoVeR](https://github.com/sparks-baird/mat_discover): A materials discovery algorithm geared towards exploring
   high-performance candidates in new chemical spaces.
 * [rxn-network](https://github.com/GENESIS-EFRC/reaction-network): Reaction Network is a Python package for predicting likely
@@ -46,4 +54,5 @@ look at [pymatgen dependents](https://github.com/materialsproject/pymatgen/netwo
 * [matgl](https://github.com/materialsvirtuallab/matgl): Graph deep learning library for materials. Implements M3GNet and MEGNet in DGL and Pytorch with more to come.
 * [chgnet](https://github.com/CederGroupHub/chgnet): Pretrained universal neural network potential for charge-informed atomistic modeling.
 * [DebyeCalculator](https://github.com/FrederikLizakJohansen/DebyeCalculator): A vectorised implementation of the Debye Scattering Equation on CPU and GPU.
-* [ramannoodle](https://github.com/wolearyc/ramannoodle): Efficiently compute off-resonance Raman spectra from first principles calculations (e.g. VASP) using polynomial and ML models. 
+* [ramannoodle](https://github.com/wolearyc/ramannoodle): Efficiently compute off-resonance Raman spectra from first principles calculations (e.g. VASP)
+  using polynomial and ML models.

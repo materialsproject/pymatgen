@@ -7,7 +7,6 @@ import os
 from collections import defaultdict
 from pathlib import Path
 from typing import TYPE_CHECKING
-from unittest import TestCase
 
 import pytest
 from monty.json import MontyDecoder
@@ -43,10 +42,10 @@ PMG_ENTRIES_DIR = os.path.dirname(os.path.abspath(pymatgen.entries.__file__))
 
 
 @pytest.mark.filterwarnings("ignore:MaterialsProjectCompatibility is deprecated")
-class TestCorrectionSpecificity(TestCase):
+class TestCorrectionSpecificity:
     """Make sure corrections are only applied to GGA or GGA+U entries."""
 
-    def setUp(self):
+    def setup_method(self):
         self.entry1 = ComputedEntry(
             "Fe2O3",
             -1,
@@ -204,8 +203,8 @@ def test_overlapping_adjustments():
 
 
 @pytest.mark.filterwarnings("ignore:MaterialsProjectCompatibility is deprecated")
-class TestMaterialsProjectCompatibility(TestCase):
-    def setUp(self):
+class TestMaterialsProjectCompatibility:
+    def setup_method(self):
         self.entry1 = ComputedEntry(
             "Fe2O3",
             -1,
@@ -621,8 +620,8 @@ class TestMaterialsProjectCompatibility(TestCase):
         assert isinstance(temp_compat, MaterialsProjectCompatibility)
 
 
-class TestMaterialsProjectCompatibility2020(TestCase):
-    def setUp(self):
+class TestMaterialsProjectCompatibility2020:
+    def setup_method(self):
         self.entry1 = ComputedEntry(
             "Fe2O3",
             -1,
@@ -1315,8 +1314,8 @@ class TestMaterialsProjectCompatibility2020(TestCase):
         assert processed_entry.energy == -1
 
 
-class TestMITCompatibility(TestCase):
-    def setUp(self):
+class TestMITCompatibility:
+    def setup_method(self):
         self.compat = MITCompatibility(check_potcar_hash=True)
         self.gga_compat = MITCompatibility("GGA", check_potcar_hash=True)
         self.entry_O = ComputedEntry(
@@ -1655,8 +1654,8 @@ class TestMITCompatibility(TestCase):
         assert isinstance(temp_compat, MITCompatibility)
 
 
-class TestOxideTypeCorrection(TestCase):
-    def setUp(self):
+class TestOxideTypeCorrection:
+    def setup_method(self):
         self.compat = MITCompatibility(check_potcar_hash=True)
 
     def test_no_struct_compat(self):
@@ -1826,8 +1825,8 @@ class TestOxideTypeCorrection(TestCase):
         assert li2o_entry_corrected.energy == approx(-3.0 - 0.66975)
 
 
-class TestSulfideTypeCorrection2020(TestCase):
-    def setUp(self):
+class TestSulfideTypeCorrection2020:
+    def setup_method(self):
         self.compat = MaterialsProject2020Compatibility(check_potcar_hash=False)
 
     def test_struct_no_struct(self):
@@ -1986,8 +1985,8 @@ class TestSulfideTypeCorrection2020(TestCase):
         assert struct_corrected.correction == approx(nostruct_corrected.correction)
 
 
-class TestOxideTypeCorrectionNoPeroxideCorr(TestCase):
-    def setUp(self):
+class TestOxideTypeCorrectionNoPeroxideCorr:
+    def setup_method(self):
         self.compat = MITCompatibility(correct_peroxide=False)
 
     def test_oxide_energy_corr(self):
@@ -2254,8 +2253,8 @@ class TestMaterialsProjectAqueousCompatibility:
         assert len(entries) == 2
 
 
-class TestAqueousCorrection(TestCase):
-    def setUp(self):
+class TestAqueousCorrection:
+    def setup_method(self):
         fp = f"{PMG_ENTRIES_DIR}/MITCompatibility.yaml"
         self.corr = AqueousCorrection(fp)
 
@@ -2281,8 +2280,8 @@ class TestAqueousCorrection(TestCase):
         assert entry.energy == approx(-24.344373)
 
 
-class TestMITAqueousCompatibility(TestCase):
-    def setUp(self):
+class TestMITAqueousCompatibility:
+    def setup_method(self):
         self.compat = MITCompatibility(check_potcar_hash=True)
         self.aqcompat = MITAqueousCompatibility(check_potcar_hash=True)
         fp = f"{PMG_ENTRIES_DIR}/MITCompatibility.yaml"
@@ -2392,8 +2391,8 @@ class TestMITAqueousCompatibility(TestCase):
         assert self.compat.process_entry(entry) is None
 
 
-class TestCorrectionErrors2020Compatibility(TestCase):
-    def setUp(self):
+class TestCorrectionErrors2020Compatibility:
+    def setup_method(self):
         self.compat = MaterialsProject2020Compatibility()
 
         params = {

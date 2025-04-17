@@ -1,7 +1,5 @@
 from __future__ import annotations
 
-from unittest import TestCase
-
 import pytest
 from pytest import approx
 
@@ -18,8 +16,8 @@ except ImportError:
 TEST_DIR = f"{TEST_FILES_DIR}/analysis/cost"
 
 
-class TestCostAnalyzer(TestCase):
-    def setUp(self):
+class TestCostAnalyzer:
+    def setup_method(self):
         self.ca1 = CostAnalyzer(CostDBCSV(f"{TEST_DIR}/costdb_1.csv"))
         self.ca2 = CostAnalyzer(CostDBCSV(f"{TEST_DIR}/costdb_2.csv"))
 
@@ -39,7 +37,7 @@ class TestCostAnalyzer(TestCase):
         assert self.ca1.get_cost_per_kg("Ag") == self.ca2.get_cost_per_kg("Ag")
 
 
-class TestCostDB(TestCase):
+class TestCostDB:
     def test_sanity(self):
         ca = CostAnalyzer(CostDBElements())
         assert ca.get_cost_per_kg("PtO") > ca.get_cost_per_kg("MgO")
