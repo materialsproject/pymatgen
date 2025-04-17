@@ -17,7 +17,7 @@ from pymatgen.analysis.piezo_sensitivity import (
     rand_piezo,
 )
 from pymatgen.io.phonopy import get_phonopy_structure
-from pymatgen.util.testing import TEST_FILES_DIR, PymatgenTest
+from pymatgen.util.testing import TEST_FILES_DIR, MatSciTest
 
 try:
     from phonopy import Phonopy
@@ -34,8 +34,8 @@ __date__ = "4/23/19"
 TEST_DIR = f"{TEST_FILES_DIR}/analysis/piezo_sensitivity"
 
 
-class TestPiezoSensitivity(PymatgenTest):
-    def setUp(self):
+class TestPiezoSensitivity(MatSciTest):
+    def setup_method(self):
         self.piezo_struct = self.get_structure("Pb2TiZrO6")
         self.IST = np.load(f"{TEST_DIR}/pztist.npy", allow_pickle=True)
         self.BEC = np.load(f"{TEST_DIR}/pztborn.npy", allow_pickle=True)

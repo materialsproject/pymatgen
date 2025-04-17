@@ -1,8 +1,7 @@
 """This module implements testing utilities for materials science codes.
 
-While the primary use is within pymatgen, the functionality is meant to
-be useful for external materials science codes as well. For instance, obtaining
-example crystal structures to perform tests, specialized assert methods for
+While the primary use is within pymatgen, the functionality is meant to be useful for external materials science
+codes as well. For instance, obtaining example crystal structures to perform tests, specialized assert methods for
 materials science, etc.
 """
 
@@ -16,6 +15,7 @@ from typing import TYPE_CHECKING
 from unittest import TestCase
 
 import pytest
+from monty.dev import deprecated
 from monty.json import MontyDecoder, MontyEncoder, MSONable
 from monty.serialization import loadfn
 
@@ -42,12 +42,14 @@ VASP_OUT_DIR: str = f"{TEST_FILES_DIR}/io/vasp/outputs"
 FAKE_POTCAR_DIR: str = f"{VASP_IN_DIR}/fake_potcars"
 
 
-class PymatgenTest(TestCase):
-    """Extends unittest.TestCase with several convenient methods for testing:
-    - assert_msonable: Test if an object is MSONable and return the serialized object.
-    - assert_str_content_equal: Test if two string are equal (ignore whitespaces).
-    - get_structure: Load a Structure with its formula.
-    - serialize_with_pickle: Test if object(s) can be (de)serialized with `pickle`.
+class MatSciTest:
+    """`pytest` based test framework extended to facilitate testing with
+    the following methods:
+    - tmp_path (attribute): Temporary directory.
+    - get_structure: Load a Structure from `util.structures` with its name.
+    - assert_str_content_equal: Check if two strings are equal (ignore whitespaces).
+    - serialize_with_pickle: Test whether object(s) can be (de)serialized with pickle.
+    - assert_msonable: Test if obj is MSONable and return its serialized string.
     """
 
     # dict of lazily-loaded test structures (initialized to None)
@@ -201,7 +203,15 @@ class PymatgenTest(TestCase):
         if errors:
             raise ValueError("\n".join(errors))
 
-        # Return list so that client code can perform additional tests
+        # Return nested list so that client code can perform additional tests.
         if got_single_object:
             return [o[0] for o in objects_by_protocol]
         return objects_by_protocol
+
+
+@deprecated(MatSciTest, deadline=(2026, 1, 1))
+class PymatgenTest(TestCase, MatSciTest):
+    """Extends unittest.TestCase with several assert methods for array and str comparison.
+
+    Deprecated: please use `MatSciTest` instead (migrate from `unittest` to `pytest`).
+    """
