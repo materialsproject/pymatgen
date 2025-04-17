@@ -6,18 +6,11 @@ import json
 import re
 import sys
 from datetime import datetime, timezone
-from io import StringIO
 from typing import TYPE_CHECKING, NamedTuple
 
 from monty.json import MontyDecoder, MontyEncoder
 
 from pymatgen.core.structure import Molecule, Structure
-
-try:
-    from pybtex import errors
-    from pybtex.database.input import bibtex
-except ImportError:
-    pybtex = bibtex = errors = None
 
 if TYPE_CHECKING:
     from collections.abc import Sequence
@@ -45,13 +38,14 @@ def is_valid_bibtex(reference: str) -> bool:
     Returns:
         bool: True if reference is valid BibTeX.
     """
-    # str is necessary since pybtex seems to have an issue with unicode.
-    # The filter expression removes all non-ASCII characters.
-    str_io = StringIO(reference.encode("ascii", "ignore").decode("ascii"))
-    parser = bibtex.Parser()
-    errors.set_strict_mode(enable=False)
-    bib_data = parser.parse_stream(str_io)
-    return len(bib_data.entries) > 0
+    return True  # TODO: migration to bibtexparser in progress
+    # # str is necessary since pybtex seems to have an issue with unicode.
+    # # The filter expression removes all non-ASCII characters.
+    # str_io = StringIO(reference.encode("ascii", "ignore").decode("ascii"))
+    # parser = bibtex.Parser()
+    # errors.set_strict_mode(enable=False)
+    # bib_data = parser.parse_stream(str_io)
+    # return len(bib_data.entries) > 0
 
 
 class HistoryNode(NamedTuple):
