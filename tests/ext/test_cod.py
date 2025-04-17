@@ -21,8 +21,7 @@ except (
 ):
     WEBSITE_DOWN = True
 
-if WEBSITE_DOWN:
-    pytest.skip(reason="www.crystallography.net is down", allow_module_level=True)
+pytest.skip(reason="www.crystallography.net is down", allow_module_level=True)
 
 
 def skip_on_timeout(func):
