@@ -16,7 +16,7 @@ import os
 import platform
 import sys
 import warnings
-from functools import lru_cache, partial
+from functools import partial
 from typing import TYPE_CHECKING, NamedTuple
 
 import requests
@@ -172,7 +172,6 @@ class MPRester:
                 raise MPRestError(msg)
         return all_data
 
-    @lru_cache(maxsize=100)  # noqa:B019
     def search(self, doc, **kwargs) -> list[dict]:
         """
         Queries a Materials PI end point doc. A notable difference with the mp-api's implementation is that this uses
@@ -190,12 +189,16 @@ class MPRester:
         Returns:
         - list of dictionaries, each dictionary representing a material retrieved based on the filtering criteria
         """
-        criteria = {k: v for k, v in kwargs.items() if not k.startswith("_")}
-        params = [f"{k}={v}" for k, v in kwargs.items() if k.startswith("_") and k != "_fields"]
+
+        def comma_cat(val):
+            return ",".join(val) if isinstance(val, list) else val
+
+        criteria = {k: comma_cat(v) for k, v in kwargs.items() if not k.startswith("_")}
+        params = [f"{k}={comma_cat(v)}" for k, v in kwargs.items() if k.startswith("_") and k != "_fields"]
         if "_fields" not in kwargs:
             params.append("_all_fields=True")
         else:
-            fields = ",".join(kwargs["_fields"]) if isinstance(kwargs["_fields"], list) else kwargs["_fields"]
+            fields = comma_cat(kwargs["_fields"])
             params.extend((f"_fields={fields}", "_all_fields=False"))
         get = "&".join(params)
         logger.info(f"query={get}")
