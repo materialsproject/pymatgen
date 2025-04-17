@@ -1407,10 +1407,14 @@ class CifParser:
 
             db.entries.append(entry)
 
+        # NOTE: the following is added to make output consistent with
+        # previous pybtex implementation
         writer = BibTexWriter()
         writer.indent = "    "
         writer.display_order = ("author", "title", "journal", "volume", "year", "pages")
-        return writer.write(db)
+
+        # Replace curly brackets with double quotes (skip the first and last one)
+        return re.sub(r"(^\s*\w+\s*=\s*)\{([^{}]*)\}", r'\1"\2"', writer.write(db), flags=re.MULTILINE)
 
     def as_dict(self) -> dict:
         """MSONable dict."""
