@@ -10,7 +10,7 @@ from pymatgen.entries.computed_entries import ComputedEntry
 from pymatgen.ext.matproj import MPRester
 from pymatgen.phonon.bandstructure import PhononBandStructureSymmLine
 from pymatgen.phonon.dos import CompletePhononDos
-from pymatgen.util.testing import PymatgenTest
+from pymatgen.util.testing import MatSciTest
 
 PMG_MAPI_KEY: str = SETTINGS.get("PMG_MAPI_KEY", "")
 
@@ -30,8 +30,8 @@ if skip_mprester_tests:
     not PMG_MAPI_KEY,
     reason="PMG_MAPI_KEY environment variable not set.",
 )
-class TestMPRester(PymatgenTest):
-    def setUp(self):
+class TestMPRester(MatSciTest):
+    def setup_method(self):
         self.rester = MPRester()
 
     def test_get_summary(self):

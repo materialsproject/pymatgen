@@ -9,13 +9,13 @@ from pytest import approx
 
 from pymatgen.core import Element
 from pymatgen.phonon.dos import CompletePhononDos, PhononDos
-from pymatgen.util.testing import TEST_FILES_DIR, PymatgenTest
+from pymatgen.util.testing import TEST_FILES_DIR, MatSciTest
 
 TEST_DIR = f"{TEST_FILES_DIR}/phonon/dos"
 
 
-class TestPhononDos(PymatgenTest):
-    def setUp(self):
+class TestPhononDos(MatSciTest):
+    def setup_method(self):
         with open(f"{TEST_DIR}/NaCl_ph_dos.json", encoding="utf-8") as file:
             self.dos = PhononDos.from_dict(json.load(file))
         with open(f"{TEST_DIR}/NaCl_complete_ph_dos.json", encoding="utf-8") as file:
@@ -182,8 +182,8 @@ class TestPhononDos(PymatgenTest):
             self.dos.get_dos_fp_similarity(dos_fp, dos_fp2, col=1, metric=metric, normalize=False)
 
 
-class TestCompletePhononDos(PymatgenTest):
-    def setUp(self):
+class TestCompletePhononDos(MatSciTest):
+    def setup_method(self):
         with open(f"{TEST_DIR}/NaCl_complete_ph_dos.json", encoding="utf-8") as file:
             self.cdos = CompletePhononDos.from_dict(json.load(file))
 
