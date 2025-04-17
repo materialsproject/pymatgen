@@ -5,14 +5,14 @@ from numpy.testing import assert_allclose
 from pytest import approx
 
 from pymatgen.io.shengbte import Control
-from pymatgen.util.testing import TEST_FILES_DIR, PymatgenTest
+from pymatgen.util.testing import TEST_FILES_DIR, MatSciTest
 
 f90nml = pytest.importorskip("f90nml")
 TEST_DIR = f"{TEST_FILES_DIR}/io/shengbte"
 
 
-class TestShengBTE(PymatgenTest):
-    def setUp(self):
+class TestShengBTE(MatSciTest):
+    def setup_method(self):
         self.filename = f"{TEST_DIR}/CONTROL-CSLD_Si"
         self.test_dict = {
             "nelements": 1,

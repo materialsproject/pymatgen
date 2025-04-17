@@ -3,11 +3,11 @@ from __future__ import annotations
 from pymatgen.analysis.structure_analyzer import SpacegroupAnalyzer
 from pymatgen.core import Lattice, Structure
 from pymatgen.symmetry.structure import SymmetrizedStructure
-from pymatgen.util.testing import PymatgenTest
+from pymatgen.util.testing import MatSciTest
 
 
-class TestSymmetrizedStructure(PymatgenTest):
-    def setUp(self):
+class TestSymmetrizedStructure(MatSciTest):
+    def setup_method(self):
         self.structure = Structure(
             lattice=Lattice.cubic(3),
             species=("Fe", "Fe"),

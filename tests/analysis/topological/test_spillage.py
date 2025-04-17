@@ -3,12 +3,12 @@ from __future__ import annotations
 from pytest import approx
 
 from pymatgen.analysis.topological.spillage import SOCSpillage
-from pymatgen.util.testing import TEST_FILES_DIR, PymatgenTest
+from pymatgen.util.testing import TEST_FILES_DIR, MatSciTest
 
 TEST_DIR = f"{TEST_FILES_DIR}/analysis/topological"
 
 
-class TestSolar(PymatgenTest):
+class TestSolar(MatSciTest):
     def test_spillage_from_vasprun(self):
         wf_noso = f"{TEST_DIR}/WAVECAR-NonSOC"
         wf_so = f"{TEST_DIR}/WAVECAR-SOC"

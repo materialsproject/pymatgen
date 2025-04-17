@@ -15,11 +15,11 @@ from pymatgen.analysis.dimensionality import (
 from pymatgen.analysis.graphs import StructureGraph
 from pymatgen.analysis.local_env import CrystalNN
 from pymatgen.core.structure import Structure
-from pymatgen.util.testing import TEST_FILES_DIR, PymatgenTest
+from pymatgen.util.testing import TEST_FILES_DIR, MatSciTest
 
 
-class TestLarsenDimensionality(PymatgenTest):
-    def setUp(self):
+class TestLarsenDimensionality(MatSciTest):
+    def setup_method(self):
         cnn = CrystalNN()
         self.lifepo = cnn.get_bonded_structure(self.get_structure("LiFePO4"))
         self.graphite = cnn.get_bonded_structure(self.get_structure("Graphite"))
@@ -114,7 +114,7 @@ class TestLarsenDimensionality(PymatgenTest):
         assert len(mol_graph.molecule) == 12
 
 
-class TestCheonDimensionality(PymatgenTest):
+class TestCheonDimensionality(MatSciTest):
     def test_get_dimensionality(self):
         struct = self.get_structure("LiFePO4")
         assert get_dimensionality_cheon(struct) == "intercalated ion"
@@ -152,7 +152,7 @@ class TestCheonDimensionality(PymatgenTest):
         assert get_dimensionality_cheon(tricky_structure, larger_cell=True) == "3D"
 
 
-class TestGoraiDimensionality(PymatgenTest):
+class TestGoraiDimensionality(MatSciTest):
     def test_get_dimensionality(self):
         struct = self.get_structure("LiFePO4")
         assert get_dimensionality_gorai(struct) == 3
