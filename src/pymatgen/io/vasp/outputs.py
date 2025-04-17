@@ -1525,7 +1525,10 @@ class Vasprun(MSONable):
             if name == "kpointlist":
                 actual_kpoints = cast("list[Tuple3Floats]", list(map(tuple, _parse_vasp_array(va))))
             elif name == "weights":
-                weights = list(_parse_vasp_array(va))
+                weights_array = _parse_vasp_array(va)
+                if isinstance(weights_array, np.ndarray):
+                    weights_array = weights_array.flatten()
+                weights = list(weights_array)
         elem.clear()
 
         if kpoint.style == Kpoints.supported_modes.Reciprocal:
