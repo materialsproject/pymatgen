@@ -209,9 +209,9 @@ def test_write():
         joutslice.write()
 
 
-def test_to_dict():
+def test_as_dict():
     joutslice = JDFTXOutfileSlice._from_out_slice(ex_slice1)
-    out_dict = joutslice.to_dict()
+    out_dict = joutslice.as_dict()
     assert isinstance(out_dict, dict)
 
 
