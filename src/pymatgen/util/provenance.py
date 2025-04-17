@@ -30,7 +30,7 @@ MAX_BIBTEX_CHARS: int = 20_000  # maximum number of characters for BibTeX refere
 
 
 def is_valid_bibtex(reference: str) -> bool:
-    """Use pybtex to validate that a reference is in proper BibTeX format.
+    """Validate that a reference is in proper BibTeX format.
 
     Args:
         reference (str): Reference in BibTeX format.
@@ -38,14 +38,14 @@ def is_valid_bibtex(reference: str) -> bool:
     Returns:
         bool: True if reference is valid BibTeX.
     """
-    return True  # TODO: migration to bibtexparser in progress
-    # # str is necessary since pybtex seems to have an issue with unicode.
-    # # The filter expression removes all non-ASCII characters.
-    # str_io = StringIO(reference.encode("ascii", "ignore").decode("ascii"))
-    # parser = bibtex.Parser()
-    # errors.set_strict_mode(enable=False)
-    # bib_data = parser.parse_stream(str_io)
-    # return len(bib_data.entries) > 0
+    from bibtexparser.bparser import BibTexParser
+
+    parser = BibTexParser()
+    try:
+        bib_database = parser.parse(reference)
+        return bool(bib_database.entries)
+    except Exception:
+        return False
 
 
 class HistoryNode(NamedTuple):
@@ -207,14 +207,14 @@ class StructureNL:
         self.structure = struct_or_mol
 
         # Turn `authors` into list of `Author` objects
-        authors = authors.split(",") if isinstance(authors, str) else authors
-        self.authors = [Author.parse_author(a) for a in authors]
+        _authors: list = authors.split(",") if isinstance(authors, str) else authors
+        self.authors: list[Author] = [Author.parse_author(a) for a in _authors]
 
         # Turn `projects` into list of strings
         projects = projects or []
         self.projects: list[str] = [projects] if isinstance(projects, str) else projects
 
-        # Check that references are valid BibTeX
+        # Check that references are valid BibTeX string
         if not isinstance(references, str):
             raise TypeError("Invalid format for SNL reference! Should be empty string or BibTeX string.")
 
