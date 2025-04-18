@@ -32,7 +32,7 @@ from pymatgen.io.ase import AseAtomsAdaptor
 from pymatgen.io.cif import CifParser
 from pymatgen.io.vasp.inputs import Poscar
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
-from pymatgen.util.testing import TEST_FILES_DIR, VASP_IN_DIR, PymatgenTest
+from pymatgen.util.testing import TEST_FILES_DIR, VASP_IN_DIR, MatSciTest
 
 try:
     from ase.atoms import Atoms
@@ -49,7 +49,7 @@ MCSQS_CMD = which("mcsqs")
 
 class TestNeighbor:
     def test_msonable(self):
-        struct = PymatgenTest.get_structure("Li2O")
+        struct = MatSciTest.get_structure("Li2O")
         nn = struct.get_neighbors(struct[0], r=3)
         assert isinstance(nn[0], PeriodicNeighbor)
         str_ = json.dumps(nn, cls=MontyEncoder)
@@ -66,8 +66,8 @@ class TestNeighbor:
             assert p_neighbor.label == label if label is not None else "C"
 
 
-class TestIStructure(PymatgenTest):
-    def setUp(self):
+class TestIStructure(MatSciTest):
+    def setup_method(self):
         coords = [[0, 0, 0], [0.75, 0.5, 0.75]]
         self.lattice = Lattice(
             [
@@ -1022,8 +1022,8 @@ Direct
             self.struct.get_symmetry_dataset(backend="42")
 
 
-class TestStructure(PymatgenTest):
-    def setUp(self):
+class TestStructure(MatSciTest):
+    def setup_method(self):
         coords = [[0, 0, 0], [0.75, 0.5, 0.75]]
         lattice = Lattice(
             [
@@ -1081,7 +1081,7 @@ class TestStructure(PymatgenTest):
         assert struct.formula == "Mn1"
 
         # Test slice replacement.
-        struct = PymatgenTest.get_structure("Li2O")
+        struct = MatSciTest.get_structure("Li2O")
         struct[:2] = "S"
         assert struct.formula == "Li1 S2"
 
@@ -1344,7 +1344,7 @@ class TestStructure(PymatgenTest):
         assert struct_elem == struct_specie, "Oxidation state remover failed"
 
     def test_add_oxidation_state_by_guess(self):
-        struct = PymatgenTest.get_structure("Li2O")
+        struct = MatSciTest.get_structure("Li2O")
         returned = struct.add_oxidation_state_by_guess()
         assert returned is struct
         expected = [Species("Li", 1), Species("O", -2)]
@@ -2096,8 +2096,8 @@ Sites (8)
         assert "Deuterium" not in [el.long_name for el in struct.composition.elements]
 
 
-class TestIMolecule(PymatgenTest):
-    def setUp(self):
+class TestIMolecule(MatSciTest):
+    def setup_method(self):
         coords = [
             [0, 0, 0],
             [0, 0, 1.089],
@@ -2399,8 +2399,8 @@ Site: H (-0.5134, 0.8892, -0.3630)"""
         assert type(IMolecule.from_ase_atoms(atoms)) is IMolecule
 
 
-class TestMolecule(PymatgenTest):
-    def setUp(self):
+class TestMolecule(MatSciTest):
+    def setup_method(self):
         coords = [
             [0, 0, 0],
             [0, 0, 1.089000],

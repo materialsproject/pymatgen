@@ -6,6 +6,19 @@ nav_order: 4
 
 # Changelog
 
+## v2025.4.17
+
+- Bug fix for list based searches in MPRester.
+
+## v2025.4.16
+
+- Major new feature and breaking change: Legacy MP API is no longer supported. Pymatgen also no longer support mp-api in the backend. Instead, Pymatgen's MPRester now
+  has nearly 100% feature parity with mp-api's document searches. One major difference is that pymatgen's MPRester will follow the documented REST API end points exactly, i.e., users just need to refer to https://api.materialsproject.org/docs for the exact field names.
+- PR #4360 Speed up `Vasprun` parsing by @kavanase
+- PR #4343 Drop duplicate `iupac_ordering` entries in `core.periodic_table.json` by @DanielYang59
+- PR #4348 Remove deprecated grain boundary analysis by @DanielYang59
+- PR #4357 Fix circular import of `SymmOp` by @DanielYang59
+
 ## v2025.4.10
 
 - Parity with MPRester.materials.summary.search in MPResterBasic.
@@ -81,14 +94,14 @@ nav_order: 4
 1. **PR #3680** - Add support for `vaspout.h5`, improvements to POTCAR handling by @esoteric-ephemera
    - Added support for parsing `vaspout.h5` and improvements in POTCAR handling.
    - Major additions include methods for processing `vaspout.h5` and ensuring compatibility with existing VASP I/O infrastructure.
-   
+
 2. **PR #4319** - Update `abitimer` in `io.abinit` by @gpetretto
    - Fixes parsing issues for newer versions of Abinit.
    - Updates compatibility with `pandas > 2` and includes test files for validation.
 
 3. **PR #4315** - Patch to allow `pyzeo` integration by @daniel-sintef
    - Provides a patch to swap out `zeo++` with `pyzeo`, which is a more actively maintained version.
-   
+
 4. **PR #4281** - Add method to get the Pearson symbol to `SpaceGroupAnalyzer` by @CompRhys
    - Introduced a new method to retrieve the Pearson Symbol in `SpaceGroupAnalyzer`.
 

@@ -1,7 +1,6 @@
 from __future__ import annotations
 
 import os
-from unittest import TestCase
 
 from numpy.testing import assert_allclose
 from pytest import approx
@@ -27,7 +26,7 @@ TITLE sites: 4
 * 4 O     0.333333     0.666667     0.378675"""
 
 
-class TestHeader(TestCase):
+class TestHeader:
     def test_init(self):
         filepath = f"{FEFF_TEST_DIR}/HEADER"
         header = Header.header_string_from_file(filepath)
@@ -56,9 +55,9 @@ class TestHeader(TestCase):
         assert str(header) == str(header2), "Header failed to and from dict test"
 
 
-class TestFeffAtoms(TestCase):
+class TestFeffAtoms:
     @classmethod
-    def setUpClass(cls):
+    def setup_class(cls):
         cls.structure = Structure.from_file(f"{TEST_FILES_DIR}/cif/CoO19128.cif")
         cls.atoms = Atoms(cls.structure, "O", 12.0)
 
@@ -143,7 +142,7 @@ class TestFeffAtoms(TestCase):
         assert atoms.formula == "Pt37"
 
 
-class TestFeffTags(TestCase):
+class TestFeffTags:
     def test_init(self):
         filepath = f"{FEFF_TEST_DIR}/PARAMETERS"
         parameters = Tags.from_file(filepath)
@@ -212,7 +211,7 @@ class TestFeffTags(TestCase):
         assert dict(tags_2) == ans_1
 
 
-class TestFeffPot(TestCase):
+class TestFeffPot:
     def test_init(self):
         filepath = f"{FEFF_TEST_DIR}/POTENTIALS"
         feff_pot = Potential.pot_string_from_file(filepath)
@@ -261,8 +260,8 @@ class TestFeffPot(TestCase):
         assert str(pot) == str(pot2), "Potential to and from dict does not match"
 
 
-class TestPaths(TestCase):
-    def setUp(self):
+class TestPaths:
+    def setup_method(self):
         feo = Structure.from_dict(
             {
                 "lattice": {

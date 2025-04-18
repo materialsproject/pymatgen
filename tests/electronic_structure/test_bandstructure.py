@@ -2,7 +2,6 @@ from __future__ import annotations
 
 import copy
 import json
-from unittest import TestCase
 
 import numpy as np
 import pytest
@@ -20,13 +19,13 @@ from pymatgen.electronic_structure.bandstructure import (
 from pymatgen.electronic_structure.core import Orbital, Spin
 from pymatgen.electronic_structure.plotter import BSPlotterProjected
 from pymatgen.io.vasp import BSVasprun
-from pymatgen.util.testing import TEST_FILES_DIR, VASP_IN_DIR, VASP_OUT_DIR, PymatgenTest
+from pymatgen.util.testing import TEST_FILES_DIR, VASP_IN_DIR, VASP_OUT_DIR, MatSciTest
 
 TEST_DIR = f"{TEST_FILES_DIR}/electronic_structure/bandstructure"
 
 
-class TestKpoint(TestCase):
-    def setUp(self):
+class TestKpoint:
+    def setup_method(self):
         self.lattice = Lattice.cubic(10.0)
         self.kpoint = Kpoint([0.1, 0.4, -0.5], self.lattice, label="X")
 
@@ -68,8 +67,8 @@ class TestKpoint(TestCase):
         assert kpoint.label == "X"
 
 
-class TestBandStructureSymmLine(PymatgenTest):
-    def setUp(self):
+class TestBandStructureSymmLine(MatSciTest):
+    def setup_method(self):
         self.bs: BandStructureSymmLine = loadfn(f"{TEST_DIR}/Cu2O_361_bandstructure.json")
         self.bs2: BandStructureSymmLine = loadfn(f"{TEST_DIR}/CaO_2605_bandstructure.json")
         self.bs_spin: BandStructureSymmLine = loadfn(f"{TEST_DIR}/NiO_19009_bandstructure.json")
@@ -258,8 +257,8 @@ class TestBandStructureSymmLine(PymatgenTest):
         assert bs_scissored.efermi != approx(orig_efermi)
 
 
-class TestReconstructBandStructure(PymatgenTest):
-    def setUp(self):
+class TestReconstructBandStructure(MatSciTest):
+    def setup_method(self):
         self.bs_cu: BandStructureSymmLine = loadfn(f"{TEST_DIR}/Cu_30_bandstructure.json")
         self.bs_cu2: BandStructureSymmLine = loadfn(f"{TEST_DIR}/Cu_30_bandstructure.json")
 
@@ -277,8 +276,8 @@ class TestReconstructBandStructure(PymatgenTest):
         bs.get_projection_on_elements()
 
 
-class TestLobsterBandStructureSymmLine(PymatgenTest):
-    def setUp(self):
+class TestLobsterBandStructureSymmLine(MatSciTest):
+    def setup_method(self):
         with open(
             f"{TEST_FILES_DIR}/electronic_structure/cohp/Fatband_SiO2/Test_p/lobster_band_structure_spin.json",
             encoding="utf-8",

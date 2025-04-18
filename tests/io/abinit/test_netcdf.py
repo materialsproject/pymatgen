@@ -11,7 +11,7 @@ from numpy.testing import assert_allclose, assert_array_equal
 from pymatgen.core.structure import Structure
 from pymatgen.io.abinit import EtsfReader
 from pymatgen.io.abinit.netcdf import AbinitHeader
-from pymatgen.util.testing import TEST_FILES_DIR, PymatgenTest
+from pymatgen.util.testing import TEST_FILES_DIR, MatSciTest
 
 try:
     import netCDF4
@@ -21,8 +21,8 @@ except ImportError:
 TEST_DIR = f"{TEST_FILES_DIR}/io/abinit"
 
 
-class TestEtsfReader(PymatgenTest):
-    def setUp(self):
+class TestEtsfReader(MatSciTest):
+    def setup_method(self):
         formulas = ["Si2"]
         self.GSR_paths = dct = {}
         for formula in formulas:
@@ -117,7 +117,7 @@ class TestEtsfReader(PymatgenTest):
                     assert structure.site_properties["magmom"] == ref_magmom_noncollinear
 
 
-class TestAbinitHeader(PymatgenTest):
+class TestAbinitHeader(MatSciTest):
     def test_api(self):
         head = AbinitHeader(foo=1, bar=2)
         assert head.foo == 1

@@ -133,10 +133,15 @@ def _parse_v_parameters(
     return floats
 
 
-def _parse_vasp_array(elem) -> list[list[float]]:
+def _parse_vasp_array(elem) -> list[list[float]] | NDArray[float]:
     if elem.get("type") == "logical":
         return [[i == "T" for i in v.text.split()] for v in elem]
-    return [[_vasprun_float(i) for i in v.text.split()] for v in elem]
+
+    try:
+        # numerical data, try parse with numpy loadtxt for efficiency:
+        return np.loadtxt([e.text for e in elem], ndmin=2)
+    except ValueError:  # unexpectedly couldn't re-shape to grid
+        return [list(map(_vasprun_float, e.text.split())) for e in elem]
 
 
 def _parse_from_incar(filename: PathLike, key: str) -> Any:
@@ -159,9 +164,7 @@ def _vasprun_float(flt: float | str) -> float:
         return float(flt)
 
     except ValueError:
-        flt = cast("str", flt)
-        _flt: str = flt.strip()
-        if _flt == "*" * len(_flt):
+        if "*" in str(flt):
             warnings.warn(
                 "Float overflow (*******) encountered in vasprun",
                 stacklevel=2,
@@ -1522,7 +1525,10 @@ class Vasprun(MSONable):
             if name == "kpointlist":
                 actual_kpoints = cast("list[Tuple3Floats]", list(map(tuple, _parse_vasp_array(va))))
             elif name == "weights":
-                weights = [i[0] for i in _parse_vasp_array(va)]
+                weights_array = _parse_vasp_array(va)
+                if isinstance(weights_array, np.ndarray):
+                    weights_array = weights_array.flatten()
+                weights = list(weights_array)
         elem.clear()
 
         if kpoint.style == Kpoints.supported_modes.Reciprocal:
