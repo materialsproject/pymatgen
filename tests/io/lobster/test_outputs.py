@@ -3,6 +3,7 @@ from __future__ import annotations
 import copy
 import json
 import os
+import tempfile
 
 import numpy as np
 import pytest
@@ -2170,6 +2171,23 @@ class TestIcohplist:
                 assert getattr(icohplist_from_dict, attr_name).as_dict() == attr_value.as_dict()
             else:
                 assert getattr(icohplist_from_dict, attr_name) == attr_value
+
+    def test_missing_trailing_newline(self):
+        content = (
+            "1   Co1   O1   1.00000   0   0   0   -0.50000   -1.00000\n"
+            "2   Co2   O2   1.10000   0   0   0   -0.60000   -1.10000"
+        )
+
+        with tempfile.NamedTemporaryFile("w+", delete=False) as tmp:
+            tmp.write(content)
+            tmp.flush()
+            fname = tmp.name
+        try:
+            ip = Icohplist(filename=fname)
+            assert len(ip.icohplist) == 2
+            assert ip.icohplist["1"]["icohp"][Spin.up] == approx(-0.5)
+        finally:
+            os.remove(fname)
 
 
 class TestNciCobiList:
