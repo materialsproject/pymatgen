@@ -2,7 +2,6 @@ from __future__ import annotations
 
 import gzip
 import json
-from unittest import TestCase
 
 import numpy as np
 import pandas as pd
@@ -14,14 +13,14 @@ from ruamel.yaml import YAML
 
 from pymatgen.core import Element, Lattice, Molecule, Structure
 from pymatgen.io.lammps.data import CombinedData, ForceField, LammpsBox, LammpsData, Topology, lattice_2_lmpbox
-from pymatgen.util.testing import TEST_FILES_DIR, PymatgenTest
+from pymatgen.util.testing import TEST_FILES_DIR, MatSciTest
 
 TEST_DIR = f"{TEST_FILES_DIR}/io/lammps"
 
 
-class TestLammpsBox(PymatgenTest):
+class TestLammpsBox(MatSciTest):
     @classmethod
-    def setUpClass(cls):
+    def setup_class(cls):
         cls.peptide = LammpsBox(
             bounds=[
                 [36.840194, 64.211560],
@@ -73,9 +72,9 @@ class TestLammpsBox(PymatgenTest):
         )
 
 
-class TestLammpsData(PymatgenTest):
+class TestLammpsData(MatSciTest):
     @classmethod
-    def setUpClass(cls):
+    def setup_class(cls):
         cls.peptide = LammpsData.from_file(filename=f"{TEST_DIR}/data.peptide")
         cls.ethane = LammpsData.from_file(filename=f"{TEST_DIR}/ethane.data")
         cls.quartz = LammpsData.from_file(filename=f"{TEST_DIR}/data.quartz", atom_style="atomic")
@@ -543,7 +542,7 @@ class TestLammpsData(PymatgenTest):
         assert pd.testing.assert_frame_equal(c2h6.topology[key], target_df) is None, key
 
 
-class TestTopology(TestCase):
+class TestTopology:
     def test_init(self):
         rng = np.random.default_rng()
         inner_charge = rng.random(10) - 0.5
@@ -665,9 +664,9 @@ class TestTopology(TestCase):
         assert "Dihedrals" not in topo_etoh2.topologies
 
 
-class TestForceField(PymatgenTest):
+class TestForceField(MatSciTest):
     @classmethod
-    def setUpClass(cls):
+    def setup_class(cls):
         mass_info = [
             ("A", "H"),
             ("B", Element("C")),
@@ -785,7 +784,7 @@ class TestForceField(PymatgenTest):
         assert decoded.topo_coeffs == self.ethane.topo_coeffs
 
 
-class TestFunc(TestCase):
+class TestFunc:
     def test_lattice_2_lmpbox(self):
         rng = np.random.default_rng()
         matrix = np.diag(rng.integers(5, 14, size=(3,))) + rng.random((3, 3)) * 0.2 - 0.1
@@ -818,9 +817,9 @@ class TestFunc(TestCase):
         )
 
 
-class TestCombinedData(TestCase):
+class TestCombinedData:
     @classmethod
-    def setUpClass(cls):
+    def setup_class(cls):
         cls.ec = LammpsData.from_file(filename=f"{TEST_DIR}/ec.data.gz")
         cls.fec = LammpsData.from_file(filename=f"{TEST_DIR}/fec.data.gz")
         cls.li = LammpsData.from_file(filename=f"{TEST_DIR}/li.data")
@@ -957,7 +956,7 @@ class TestCombinedData(TestCase):
         assert ff["Pair Coeffs"].index[0] == 1
         assert ff["Bond Coeffs"].index[0] == 1
         assert ff["Angle Coeffs"].index[0] == 1
-        assert ff["Dihedral Coeffs"].index[0], 1
+        assert ff["Dihedral Coeffs"].index[0] == 1
         assert ff["Improper Coeffs"].index[0] == 1
         assert fec.atoms.index[0] == 1
         assert fec.atoms.loc[1, "molecule-ID"] == 1

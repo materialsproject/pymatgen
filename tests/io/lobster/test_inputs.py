@@ -8,7 +8,7 @@ from pymatgen.core.structure import Structure
 from pymatgen.io.lobster import Lobsterin
 from pymatgen.io.lobster.inputs import get_all_possible_basis_combinations
 from pymatgen.io.vasp.inputs import Incar, Kpoints, Potcar
-from pymatgen.util.testing import FAKE_POTCAR_DIR, TEST_FILES_DIR, VASP_IN_DIR, VASP_OUT_DIR, PymatgenTest
+from pymatgen.util.testing import FAKE_POTCAR_DIR, TEST_FILES_DIR, VASP_IN_DIR, VASP_OUT_DIR, MatSciTest
 
 TEST_DIR = f"{TEST_FILES_DIR}/electronic_structure/cohp"
 
@@ -19,8 +19,8 @@ __email__ = "janine.george@uclouvain.be, esters@uoregon.edu"
 __date__ = "Dec 10, 2017"
 
 
-class TestLobsterin(PymatgenTest):
-    def setUp(self):
+class TestLobsterin(MatSciTest):
+    def setup_method(self):
         self.Lobsterin = Lobsterin.from_file(f"{TEST_DIR}/lobsterin.1")
         self.Lobsterin2 = Lobsterin.from_file(f"{TEST_DIR}/lobsterin.2")
         self.Lobsterin3 = Lobsterin.from_file(f"{TEST_DIR}/lobsterin.3")
@@ -183,7 +183,7 @@ class TestLobsterin(PymatgenTest):
                 assert "skipcohp" not in lobsterin1
                 assert "skipcoop" not in lobsterin1
             if option == "standard_from_projection":
-                assert lobsterin1["loadProjectionFromFile"], True
+                assert lobsterin1["loadProjectionFromFile"]
             if option in [
                 "onlyprojection",
                 "onlycohp",
@@ -192,33 +192,33 @@ class TestLobsterin(PymatgenTest):
                 "onlycohpcoop",
                 "onlycohpcoopcobi",
             ]:
-                assert lobsterin1["skipdos"], True
-                assert lobsterin1["skipPopulationAnalysis"], True
-                assert lobsterin1["skipGrossPopulation"], True
-                assert lobsterin1["skipMadelungEnergy"], True
+                assert lobsterin1["skipdos"]
+                assert lobsterin1["skipPopulationAnalysis"]
+                assert lobsterin1["skipGrossPopulation"]
+                assert lobsterin1["skipMadelungEnergy"]
 
             if option == "onlydos":
-                assert lobsterin1["skipPopulationAnalysis"], True
-                assert lobsterin1["skipGrossPopulation"], True
-                assert lobsterin1["skipcohp"], True
-                assert lobsterin1["skipcoop"], True
-                assert lobsterin1["skipcobi"], True
-                assert lobsterin1["skipMadelungEnergy"], True
+                assert lobsterin1["skipPopulationAnalysis"]
+                assert lobsterin1["skipGrossPopulation"]
+                assert lobsterin1["skipcohp"]
+                assert lobsterin1["skipcoop"]
+                assert lobsterin1["skipcobi"]
+                assert lobsterin1["skipMadelungEnergy"]
             if option == "onlycohp":
-                assert lobsterin1["skipcoop"], True
-                assert lobsterin1["skipcobi"], True
+                assert lobsterin1["skipcoop"]
+                assert lobsterin1["skipcobi"]
             if option == "onlycoop":
-                assert lobsterin1["skipcohp"], True
-                assert lobsterin1["skipcobi"], True
+                assert lobsterin1["skipcohp"]
+                assert lobsterin1["skipcobi"]
             if option == "onlyprojection":
-                assert lobsterin1["skipdos"], True
+                assert lobsterin1["skipdos"]
             if option == "onlymadelung":
-                assert lobsterin1["skipPopulationAnalysis"], True
-                assert lobsterin1["skipGrossPopulation"], True
-                assert lobsterin1["skipcohp"], True
-                assert lobsterin1["skipcoop"], True
-                assert lobsterin1["skipcobi"], True
-                assert lobsterin1["skipdos"], True
+                assert lobsterin1["skipPopulationAnalysis"]
+                assert lobsterin1["skipGrossPopulation"]
+                assert lobsterin1["skipcohp"]
+                assert lobsterin1["skipcoop"]
+                assert lobsterin1["skipcobi"]
+                assert lobsterin1["skipdos"]
         # test basis functions by dict
         lobsterin_new = Lobsterin.standard_calculations_from_vasp_files(
             f"{VASP_IN_DIR}/POSCAR_Fe3O4",
@@ -579,7 +579,7 @@ class TestLobsterin(PymatgenTest):
         new_lobsterin.to_json()
 
 
-class TestUtils(PymatgenTest):
+class TestUtils(MatSciTest):
     def test_get_all_possible_basis_combinations(self):
         # this basis is just for testing (not correct)
         min_basis = ["Li 1s 2s ", "Na 1s 2s", "Si 1s 2s"]

@@ -57,6 +57,8 @@ __email__ = "geoffroy@uclouvain.be"
 __status__ = "Development"
 __date__ = "August 23, 2013"
 
+logger = logging.getLogger(__name__)
+
 
 class BoltztrapRunner(MSONable):
     """This class is used to run BoltzTraP on a band structure object."""
@@ -577,13 +579,6 @@ class BoltztrapRunner(MSONable):
             for c in os.listdir(path_dir):
                 os.remove(os.path.join(path_dir, c))
 
-        FORMAT = "%(message)s"
-        logging.basicConfig(
-            level=logging.INFO,
-            format=FORMAT,
-            filename=f"{path_dir}/../boltztrap.out",
-        )
-
         with cd(path_dir):
             lpfac_start = self.lpfac
             converged = False
@@ -593,7 +588,7 @@ class BoltztrapRunner(MSONable):
                 if time.perf_counter() - self.start_time > self.timeout:
                     raise BoltztrapError(f"no doping convergence after timeout of {self.timeout} s")
 
-                logging.info(f"lpfac, energy_grid: {self.lpfac} {self.energy_grid}")
+                logger.info(f"lpfac, energy_grid: {self.lpfac} {self.energy_grid}")
 
                 while self.lpfac <= max_lpfac and not converged:
                     if time.perf_counter() - self.start_time > self.timeout:
@@ -615,7 +610,7 @@ class BoltztrapRunner(MSONable):
                         process.wait()
 
                         for c in process.communicate():
-                            logging.info(c.decode())
+                            logger.info(c.decode())
                             if "error in factorization" in c.decode():
                                 raise BoltztrapError("error in factorization")
 
@@ -659,14 +654,14 @@ class BoltztrapRunner(MSONable):
 
                     if warning:
                         self.lpfac += 10
-                        logging.warning(f"Warning detected: {warning}! Increase lpfac to {self.lpfac}")
+                        logger.warning(f"Warning detected: {warning}! Increase lpfac to {self.lpfac}")
 
                     else:
                         converged = True
 
                 if not converged:
                     self.energy_grid /= 10
-                    logging.info(f"Could not converge with max lpfac; Decrease egrid to {self.energy_grid}")
+                    logger.info(f"Could not converge with max lpfac; Decrease egrid to {self.energy_grid}")
 
             if not converged:
                 lpfac, energy_grid = self.lpfac, self.energy_grid

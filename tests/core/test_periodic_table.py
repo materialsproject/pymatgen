@@ -14,10 +14,10 @@ from pymatgen.core import DummySpecies, Element, Species, get_el_sp
 from pymatgen.core.periodic_table import ElementBase, ElementType
 from pymatgen.core.units import Ha_to_eV
 from pymatgen.io.core import ParseError
-from pymatgen.util.testing import PymatgenTest
+from pymatgen.util.testing import MatSciTest
 
 
-class TestElement(PymatgenTest):
+class TestElement(MatSciTest):
     def test_init(self):
         assert Element("Fe").symbol == "Fe"
 
@@ -367,7 +367,7 @@ class TestElement(PymatgenTest):
         el = Element.Pd
         assert el.atomic_radius == approx(1.40)
         assert el.atomic_radius_calculated == approx(1.69)
-        assert el.van_der_waals_radius == approx(2.10)
+        assert el.van_der_waals_radius == approx(1.63)
 
     def test_data(self):
         assert Element.Pd.data["Atomic radius"] == approx(1.4)
@@ -396,7 +396,7 @@ class TestElement(PymatgenTest):
         Element.print_periodic_table()
 
     def test_is(self):
-        assert Element("Bi").is_post_transition_metal, True
+        assert Element("Bi").is_post_transition_metal
 
     def test_isotope(self):
         elems = [Element(el) for el in ("H", "D", "T")]
@@ -413,8 +413,8 @@ class TestElement(PymatgenTest):
         assert Element.named_isotopes == (Element.D, Element.T)
 
 
-class TestSpecies(PymatgenTest):
-    def setUp(self):
+class TestSpecies(MatSciTest):
+    def setup_method(self):
         self.specie1 = Species.from_str("Fe2+")
         self.specie2 = Species("Fe", 3)
         self.specie3 = Species("Fe", 2)

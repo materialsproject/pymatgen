@@ -29,6 +29,8 @@ __maintainer__ = "Will Richards"
 __email__ = "wrichard@mit.edu"
 __date__ = "Aug 31, 2012"
 
+logger = logging.getLogger(__name__)
+
 
 @due.dcite(
     Doi("10.1021/ic102031h"),
@@ -244,7 +246,7 @@ class SubstitutionPredictor:
                     _recurse([*output_prob, prob], [*output_species, sp])
 
         _recurse([], [])
-        logging.info(f"{len(output)} substitutions found")
+        logger.info(f"{len(output)} substitutions found")
         return output
 
     def composition_prediction(self, composition, to_this_composition=True):
@@ -275,5 +277,5 @@ class SubstitutionPredictor:
                 charge += subs[k].oxi_state * v
             if abs(charge) < 1e-8:
                 output.append(p)
-        logging.info(f"{len(output)} charge balanced substitutions found")
+        logger.info(f"{len(output)} charge balanced substitutions found")
         return output

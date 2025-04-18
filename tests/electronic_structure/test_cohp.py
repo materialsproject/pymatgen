@@ -1,7 +1,6 @@
 from __future__ import annotations
 
 import json
-from unittest import TestCase
 
 import pytest
 from numpy.testing import assert_allclose
@@ -15,13 +14,13 @@ from pymatgen.electronic_structure.cohp import (
     get_integrated_cohp_in_energy_range,
 )
 from pymatgen.electronic_structure.core import Orbital, Spin
-from pymatgen.util.testing import TEST_FILES_DIR, PymatgenTest
+from pymatgen.util.testing import TEST_FILES_DIR, MatSciTest
 
 TEST_DIR = f"{TEST_FILES_DIR}/electronic_structure/cohp"
 
 
-class TestCohp(TestCase):
-    def setUp(self):
+class TestCohp:
+    def setup_method(self):
         with open(f"{TEST_DIR}/cohp.json", encoding="utf-8") as file:
             self.cohp = Cohp.from_dict(json.load(file))
         self.cohp_only = Cohp(self.cohp.efermi, self.cohp.energies, self.cohp.cohp)
@@ -90,8 +89,8 @@ class TestCohp(TestCase):
         assert self.cohp.has_antibnd_states_below_efermi(spin=Spin.up, limit=0.5) == {Spin.up: False}
 
 
-class TestIcohpValue(TestCase):
-    def setUp(self):
+class TestIcohpValue:
+    def setup_method(self):
         # without spin polarization
         label = "1"
         atom1 = "K1"
@@ -168,8 +167,8 @@ class TestIcohpValue(TestCase):
         assert str(self.icohpvalue_sp) == expected
 
 
-class TestCombinedIcohp(TestCase):
-    def setUp(self):
+class TestCombinedIcohp:
+    def setup_method(self):
         # without spin polarization:
         are_coops = are_cobis = is_spin_polarized = False
         list_atom2 = ["K2", "K2", "K2", "K2", "K2", "K2"]
@@ -796,8 +795,8 @@ class TestCombinedIcohp(TestCase):
         )
 
 
-class TestCompleteCohp(PymatgenTest):
-    def setUp(self):
+class TestCompleteCohp(MatSciTest):
+    def setup_method(self):
         filepath = f"{TEST_DIR}/complete_cohp_lobster.json"
         with open(filepath, encoding="utf-8") as file:
             self.cohp_lobster_dict = CompleteCohp.from_dict(json.load(file))
@@ -1263,8 +1262,8 @@ class TestCompleteCohp(PymatgenTest):
         ).are_coops
 
 
-class TestMethod(TestCase):
-    def setUp(self):
+class TestMethod:
+    def setup_method(self):
         filepath = f"{TEST_DIR}/COHPCAR.lobster.gz"
         structure = f"{TEST_DIR}/POSCAR"
         self.cohp_lobster = CompleteCohp.from_file("lobster", filename=filepath, structure_file=structure)

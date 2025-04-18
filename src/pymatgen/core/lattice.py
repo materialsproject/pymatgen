@@ -11,7 +11,7 @@ import warnings
 from collections import defaultdict
 from fractions import Fraction
 from functools import reduce
-from typing import TYPE_CHECKING, cast
+from typing import TYPE_CHECKING
 
 import numpy as np
 from monty.dev import deprecated
@@ -183,7 +183,7 @@ class Lattice(MSONable):
         if len(pbc) != 3 or any(item not in {True, False} for item in pbc):
             raise ValueError(f"pbc must be a tuple of three True/False values, got {pbc}")
 
-        self._pbc = cast(tuple[bool, bool, bool], tuple(pbc))
+        self._pbc = tuple(bool(item) for item in pbc)
 
     @property
     def is_3d_periodic(self) -> bool:

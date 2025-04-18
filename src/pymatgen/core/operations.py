@@ -641,7 +641,7 @@ class MagSymmOp(SymmOp):
             raise RuntimeError("Time reversal operator could not be parsed.")
 
         if time_reversal in {-1, 1}:
-            return cls.from_symmop(symm_op, cast(Literal[-1, 1], time_reversal))
+            return cls.from_symmop(symm_op, cast("Literal[-1, 1]", time_reversal))
 
         raise RuntimeError("Time reversal should be -1 or 1.")
 

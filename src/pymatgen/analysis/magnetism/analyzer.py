@@ -620,6 +620,7 @@ class MagneticStructureEnumerator:
         ),
         automatic: bool = True,
         truncate_by_symmetry: bool = True,
+        max_orderings: int | None = 64,
         transformation_kwargs: dict | None = None,
     ) -> None:
         """Generate different collinear magnetic orderings for a given input structure.
@@ -643,6 +644,7 @@ class MagneticStructureEnumerator:
             automatic (bool): if True, will automatically choose sensible strategies
             truncate_by_symmetry (bool): if True, will remove very unsymmetrical
                 orderings that are likely physically implausible
+            max_orderings (int): the maximum number of structures to return
             transformation_kwargs: keyword arguments to pass to
                 MagOrderingTransformation, to change automatic cell size limits, etc.
         """
@@ -662,7 +664,7 @@ class MagneticStructureEnumerator:
         self.truncate_by_symmetry = truncate_by_symmetry
 
         # other settings
-        self.num_orderings = 64
+        self.num_orderings = max_orderings
         self.max_unique_sites = 8
 
         # kwargs to pass to transformation (ultimately to enumlib)

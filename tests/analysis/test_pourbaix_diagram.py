@@ -1,7 +1,6 @@
 from __future__ import annotations
 
 import multiprocessing
-from unittest import TestCase
 
 import matplotlib.pyplot as plt
 import numpy as np
@@ -19,15 +18,15 @@ from pymatgen.analysis.pourbaix_diagram import (
 from pymatgen.core.composition import Composition
 from pymatgen.core.ion import Ion
 from pymatgen.entries.computed_entries import ComputedEntry
-from pymatgen.util.testing import TEST_FILES_DIR, PymatgenTest
+from pymatgen.util.testing import TEST_FILES_DIR, MatSciTest
 
 TEST_DIR = f"{TEST_FILES_DIR}/analysis/pourbaix_diagram"
 
 
-class TestPourbaixEntry(PymatgenTest):
+class TestPourbaixEntry(MatSciTest):
     """Test all functions using a fictitious entry"""
 
-    def setUp(self):
+    def setup_method(self):
         # comp = Composition("Mn2O3")
         self.sol_entry = ComputedEntry("Mn2O3", 49)
         ion = Ion.from_formula("MnO4-")
@@ -104,9 +103,9 @@ class TestPourbaixEntry(PymatgenTest):
         assert pb_entry.get_element_fraction("Mn") == approx(0.4)
 
 
-class TestPourbaixDiagram(TestCase):
+class TestPourbaixDiagram:
     @classmethod
-    def setUpClass(cls):
+    def setup_class(cls):
         cls.test_data = loadfn(f"{TEST_DIR}/pourbaix_test_data.json")
         cls.pbx = PourbaixDiagram(cls.test_data["Zn"], filter_solids=True)
         cls.pbx_no_filter = PourbaixDiagram(cls.test_data["Zn"], filter_solids=False)
@@ -300,8 +299,8 @@ class TestPourbaixDiagram(TestCase):
         assert len(pd_binary.stable_entries) == len(new_binary.stable_entries)
 
 
-class TestPourbaixPlotter(TestCase):
-    def setUp(self):
+class TestPourbaixPlotter:
+    def setup_method(self):
         self.test_data = loadfn(f"{TEST_DIR}/pourbaix_test_data.json")
         self.pd = PourbaixDiagram(self.test_data["Zn"])
         self.plotter = PourbaixPlotter(self.pd)

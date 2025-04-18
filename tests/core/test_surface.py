@@ -2,9 +2,9 @@ from __future__ import annotations
 
 import json
 import os
-import unittest
 
 import numpy as np
+import pytest
 from numpy.testing import assert_allclose
 from pytest import approx
 
@@ -24,13 +24,13 @@ from pymatgen.core.surface import (
 )
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
 from pymatgen.symmetry.groups import SpaceGroup
-from pymatgen.util.testing import TEST_FILES_DIR, PymatgenTest
+from pymatgen.util.testing import TEST_FILES_DIR, MatSciTest
 
 PMG_CORE_DIR = os.path.dirname(pymatgen.core.__file__)
 
 
-class TestSlab(PymatgenTest):
-    def setUp(self):
+class TestSlab(MatSciTest):
+    def setup_method(self):
         zno1 = Structure.from_file(f"{TEST_FILES_DIR}/surfaces/ZnO-wz.cif", primitive=False)
         zno55 = SlabGenerator(zno1, [1, 0, 0], 5, 5, lll_reduce=False, center_slab=False).get_slab()
 
@@ -346,8 +346,8 @@ class TestSlab(PymatgenTest):
         assert slab == Slab.from_dict(d)
 
 
-class TestSlabGenerator(PymatgenTest):
-    def setUp(self):
+class TestSlabGenerator(MatSciTest):
+    def setup_method(self):
         lattice = Lattice.cubic(3.010)
         frac_coords = [
             [0.00000, 0.00000, 0.00000],
@@ -630,12 +630,12 @@ class TestSlabGenerator(PymatgenTest):
         # expect 2 and 6 bonds broken so we check for this.
         # Number of broken bonds are floats due to primitive
         # flag check and subsequent transformation of slabs.
-        assert slabs[0].energy, 2.0
-        assert slabs[1].energy, 6.0
+        assert slabs[0].energy == approx(8.0)
+        assert slabs[1].energy == approx(24.0)
 
 
-class ReconstructionGeneratorTests(PymatgenTest):
-    def setUp(self):
+class ReconstructionGeneratorTests(MatSciTest):
+    def setup_method(self):
         lattice = Lattice.cubic(3.51)
         species = ["Ni"]
         coords = [[0, 0, 0]]
@@ -697,7 +697,7 @@ class ReconstructionGeneratorTests(PymatgenTest):
         s2 = recon2.get_unreconstructed_slabs()[0]
         assert get_d(s1) == approx(get_d(s2))
 
-    @unittest.skip("This test relies on neighbor orders and is hard coded. Disable temporarily")
+    @pytest.mark.skip("This test relies on neighbor orders and is hard coded. Disable temporarily")
     def test_previous_reconstructions(self):
         # Test to see if we generated all reconstruction types correctly and nothing changes
 
@@ -723,8 +723,8 @@ class ReconstructionGeneratorTests(PymatgenTest):
             assert any(len(match.group_structures([struct, slab])) == 1 for slab in slabs)
 
 
-class TestMillerIndexFinder(PymatgenTest):
-    def setUp(self):
+class TestMillerIndexFinder(MatSciTest):
+    def setup_method(self):
         self.cscl = Structure.from_spacegroup("Pm-3m", Lattice.cubic(4.2), ["Cs", "Cl"], [[0, 0, 0], [0.5, 0.5, 0.5]])
         self.Fe = Structure.from_spacegroup("Im-3m", Lattice.cubic(2.82), ["Fe"], [[0, 0, 0]])
         mg_lattice = Lattice.from_parameters(3.2, 3.2, 5.13, 90, 90, 120)

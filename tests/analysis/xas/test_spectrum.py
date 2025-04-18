@@ -10,7 +10,7 @@ from pytest import approx
 
 from pymatgen.analysis.xas.spectrum import XAS, site_weighted_spectrum
 from pymatgen.core import Element
-from pymatgen.util.testing import TEST_FILES_DIR, PymatgenTest
+from pymatgen.util.testing import TEST_FILES_DIR, MatSciTest
 
 TEST_DIR = f"{TEST_FILES_DIR}/analysis/spectrum_test"
 
@@ -28,8 +28,8 @@ with open(f"{TEST_DIR}/site2_k_xanes.json", encoding="utf-8") as file:
     site2_xanes_dict = json.load(file, cls=MontyDecoder)
 
 
-class TestXAS(PymatgenTest):
-    def setUp(self):
+class TestXAS(MatSciTest):
+    def setup_method(self):
         self.k_xanes = XAS.from_dict(k_xanes_dict)
         self.k_exafs = XAS.from_dict(k_exafs_dict)
         self.l2_xanes = XAS.from_dict(l2_xanes_dict)
@@ -137,7 +137,7 @@ class TestXAS(PymatgenTest):
     def test_site_weighted_spectrum(self):
         weighted_spectrum = site_weighted_spectrum([self.site1_xanes, self.site2_xanes])
         assert isinstance(weighted_spectrum, XAS)
-        assert len(weighted_spectrum.x), 500
+        assert len(weighted_spectrum.x) == 500
         # The site multiplicities for site1 and site2 are 4 and 2, respectively.
         assert weighted_spectrum.y[0] == approx((4 * self.site1_xanes.y[0] + 2 * self.site2_xanes.y[0]) / 6, abs=1e-2)
         assert min(weighted_spectrum.x) == max(min(self.site1_xanes.x), min(self.site2_xanes.x))

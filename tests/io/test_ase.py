@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import importlib
 from importlib.metadata import PackageNotFoundError
-from unittest import mock
+from unittest.mock import patch
 
 import numpy as np
 import pytest
@@ -105,6 +105,21 @@ def test_get_atoms_from_structure_dyn():
         assert len(c.index) == len([mask for mask in sel_dyn if np.array_equal(mask, ~np.array(ase_mask))])
 
 
+def test_get_atoms_from_structure_spacegroup():
+    # Get structure with space group dictionary in properties
+    space_group_info = STRUCTURE.get_space_group_info()
+    STRUCTURE.properties["spacegroup"] = {"number": space_group_info[1], "setting": 1}
+
+    # Convert to atoms and check that structure was not modified
+    atoms = AseAtomsAdaptor.get_atoms(STRUCTURE)
+    assert isinstance(STRUCTURE.properties["spacegroup"], dict)
+    assert isinstance(atoms.info["spacegroup"], ase.spacegroup.Spacegroup)
+
+    # Check that space group matches
+    assert atoms.info["spacegroup"].no == STRUCTURE.properties["spacegroup"]["number"]
+    assert atoms.info["spacegroup"].setting == STRUCTURE.properties["spacegroup"]["setting"]
+
+
 def test_get_atoms_from_molecule():
     mol = Molecule.from_file(XYZ_STRUCTURE)
     atoms = AseAtomsAdaptor.get_atoms(mol)
@@ -169,6 +184,10 @@ def test_get_structure():
     ):
         struct = AseAtomsAdaptor.get_structure(atoms, validate_proximity=True)
 
+    # Test invalid class type
+    with pytest.raises(TypeError, match="Unsupported cls="):
+        struct = AseAtomsAdaptor.get_structure(atoms, cls=Lattice)
+
 
 def test_get_structure_mag():
     atoms = ase.io.read(f"{VASP_IN_DIR}/POSCAR")
@@ -217,6 +236,23 @@ def test_get_structure_dyn(select_dyn):
     assert len(ase_atoms) == len(structure)
 
 
+def test_get_structure_spacegroup():
+    # set up Atoms object with spacegroup information
+    a = 4.05
+    atoms = ase.spacegroup.crystal("Al", [(0, 0, 0)], spacegroup=225, cellpar=[a, a, a, 90, 90, 90])
+    assert "spacegroup" in atoms.info
+    assert isinstance(atoms.info["spacegroup"], ase.spacegroup.Spacegroup)
+
+    # Test that get_structure does not mutate atoms
+    structure = AseAtomsAdaptor.get_structure(atoms)
+    assert isinstance(atoms.info["spacegroup"], ase.spacegroup.Spacegroup)
+    assert isinstance(structure.properties["spacegroup"], dict)
+
+    # Test that spacegroup info matches
+    assert atoms.info["spacegroup"].no == structure.properties["spacegroup"]["number"]
+    assert atoms.info["spacegroup"].setting == structure.properties["spacegroup"]["setting"]
+
+
 def test_get_molecule():
     atoms = ase.io.read(XYZ_STRUCTURE)
     molecule = AseAtomsAdaptor.get_molecule(atoms)
@@ -254,6 +290,21 @@ def test_back_forth(filename):
     atoms.set_initial_charges([1.0] * len(atoms))
     atoms.set_initial_magnetic_moments([2.0] * len(atoms))
     atoms.set_array("prop", np.array([3.0] * len(atoms)))
+    structure = AseAtomsAdaptor.get_structure(atoms)
+    atoms_back = AseAtomsAdaptor.get_atoms(structure)
+    structure_back = AseAtomsAdaptor.get_structure(atoms_back)
+    assert structure_back == structure
+    for key, val in atoms.todict().items():
+        assert str(atoms_back.todict()[key]) == str(val)
+
+
+@pytest.mark.parametrize("filename", ["io/vasp/outputs/OUTCAR.gz", "cif/V2O3.cif"])
+def test_back_forth_constraints(filename):
+    # Atoms --> Structure --> Atoms --> Structure
+    atoms = ase.io.read(f"{TEST_FILES_DIR}/{filename}")
+    mask = [True] * len(atoms)
+    mask[-1] = False
+    atoms.set_constraint(ase.constraints.FixAtoms(mask=mask))
     structure = AseAtomsAdaptor.get_structure(atoms)
     atoms_back = AseAtomsAdaptor.get_atoms(structure)
     structure_back = AseAtomsAdaptor.get_structure(atoms_back)
@@ -370,7 +421,7 @@ def test_msonable_atoms():
 def test_no_ase_err():
     import pymatgen.io.ase
 
-    with mock.patch.dict("sys.modules", {"ase.atoms": None}):
+    with patch.dict("sys.modules", {"ase.atoms": None}):
         importlib.reload(pymatgen.io.ase)
         from pymatgen.io.ase import MSONAtoms
 

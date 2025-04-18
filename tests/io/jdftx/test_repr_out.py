@@ -1,4 +1,4 @@
-"""This module tests the __dir__, __repr__, __str__, and to_dict methods of the objects in the outputs module.
+"""This module tests the __dir__, __repr__, __str__, and as_dict methods of the objects in the outputs module.
 
 The tests test that the desired objects do not raise errors upon calling the methods, and any additional checks
 that are needed for the objects to pass the tests.
@@ -119,8 +119,8 @@ def test_str_repr(init_meth: Callable, init_var: Any, add_checks: Callable) -> N
         ),
     ],
 )
-def test_to_dict_repr(init_meth: Callable, init_var: Any, add_checks: Callable) -> None:
-    """Test the to_dict method of the object.
+def test_as_dict_repr(init_meth: Callable, init_var: Any, add_checks: Callable) -> None:
+    """Test the as_dict method of the object.
 
     Args:
         init_meth: The method to initialize the object.
@@ -128,5 +128,5 @@ def test_to_dict_repr(init_meth: Callable, init_var: Any, add_checks: Callable) 
         add_checks: The checks to add to the test in case the output must pass additional checks.
     """
     dictable = init_meth(init_var)
-    dict_repr = dictable.to_dict()
+    dict_repr = dictable.as_dict()
     add_checks(dict_repr)

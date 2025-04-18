@@ -6,6 +6,120 @@ nav_order: 4
 
 # Changelog
 
+## v2025.4.17
+
+- Bug fix for list based searches in MPRester.
+
+## v2025.4.16
+
+- Major new feature and breaking change: Legacy MP API is no longer supported. Pymatgen also no longer support mp-api in the backend. Instead, Pymatgen's MPRester now
+  has nearly 100% feature parity with mp-api's document searches. One major difference is that pymatgen's MPRester will follow the documented REST API end points exactly, i.e., users just need to refer to https://api.materialsproject.org/docs for the exact field names.
+- PR #4360 Speed up `Vasprun` parsing by @kavanase
+- PR #4343 Drop duplicate `iupac_ordering` entries in `core.periodic_table.json` by @DanielYang59
+- PR #4348 Remove deprecated grain boundary analysis by @DanielYang59
+- PR #4357 Fix circular import of `SymmOp` by @DanielYang59
+
+## v2025.4.10
+
+- Parity with MPRester.materials.summary.search in MPResterBasic.
+- PR #4355 Fix round-trip constraints handling of `AseAtomsAdaptor` by @yantar92
+    * src/pymatgen/io/ase.py (AseAtomsAdaptor.get_structure): When no explicit constraint is given for a site in ASE Atoms object, use "T T T" selective dynamics (no constraint).  The old code is plain wrong.
+    * tests/io/test_ase.py (test_back_forth): Add new test case.
+    Fixes #4354.
+    Thanks to @yaoyi92 for reporting!
+- PR #4352 Replace `to_dict` with `as_dict` by @DanielYang59
+    - Deprecate `to_dict` with `as_dict`, to close #4351
+    - Updated `contributing.md` to note preferred naming convention
+    - [x] Regenerate `docs`
+    The recent additional of JDFTx IOs have a relatively short grace period of 6 months, and others have one year
+- PR #4342 Correct Mn "ionic radii" in `core.periodic_table.json` by @DanielYang59
+    - Correct Mn "ionic radii" in `core.periodic_table.json`
+    Our csv parser should copy the high spin ionic radii to the base entry:
+    <img width="858" alt="image" src="https://github.com/user-attachments/assets/00f3ecff-3c78-4583-90b8-106ed362b78b" />
+    https://github.com/materialsproject/pymatgen/blob/4c7892f5c9dcc51a1389b3ad2ada77632989a13e/dev_scripts/update_pt_data.py#L84-L87
+- PR #4341 Remove "Electrical resistivity" for Se as "high" by @DanielYang59
+    ### Summary
+    - Remove "Electrical resistivity" for Se as "high", to fix #4312
+    Current the data for Electrical resistivity of Se is "high" (with `10<sup>-8</sup> &Omega; m` as the unit), and our parser would interpret it to:
+    ```python
+    from pymatgen.core import Element
+    print(Element.Se.electrical_resistivity)  # 1e-08 m ohm
+    ```
+    This is the only data as "high" in `periodic_table.json` AFAIK.
+    After this, it would be None with a warning:
+    ```
+    /Users/yang/developer/pymatgen/debug/test_elements.py:3: UserWarning: No data available for electrical_resistivity for Se
+    print(Element.Se.electrical_resistivity)
+    None
+    ```
+- PR #4334 Updated Potentials Class in FEFF io to consider radius by @CharlesCardot
+    Changed the Potentials class to consider the same radius that is used in
+    the Atoms class. This is necessary to avoid a situation where the radius is small enough to only have a subset of the unique elements in a structure, but all the elements have potentials defined, which causes FEFF to fail when run.
+    Major changes:
+    - fix 1: **Previous behavior**: When creating a FEFFDictset using the feff.io tools, the potentials class defined a potential for every unique element in a structure, while the atoms class defined an atom coordinate for every atom in a radius around the absorbing atom. If the radius was defined to be small, only a subset of the unique atoms in the structure would be included in the atom class. **New behavior**: Updated the potentials class to only create potentials for atoms inside the radius specified when creating a FEFFDictset. Without this, a too small radius for a structure with unique elements outside of that radius would cause FEFF to fail, given that there was a Potential defined for an element that did not exist in the Atoms flag.
+    ## Todos
+    None, the work is complete
+- PR #4068 Fix `monty` imports, enhance test for `Outcar` parser to cover uncompressed format by @DanielYang59
+    ### Summary
+    - Test `monty` fix for reverse readline, close #4033 and close #4237
+    - Replace `reverse_readline` with faster `reverse_readfile`
+    - Fix incorrect `monty` imports
+    - [x] Enhance unit test for reported Outcar parser (need to test **unzipped format**)
+- PR #4331 Optimized cube file parsing in from_cube for improved speed by @OliMarc
+    # **Summary**
+    ### **Major Changes:**
+    This PR enhances the `from_cube` function in `io.common.VolumetricData` to significantly improve performance. When processing large `.cube` files, the original implementation took minutes to read and set Pymatgen objects. The optimized version incorporates several key improvements: file reading is now handled with `readlines()` instead of multiple `readline()` calls, reducing I/O operations. Voxel data parsing has been rewritten to use NumPy vectorized parsing instead of loops, making numerical processing faster. Atom site parsing has been improved by replacing the loop-based `readline()` approach with list comprehensions. Additionally, volumetric data parsing now leverages `np.fromstring()` instead of converting lists to NumPy arrays.
+- PR #4329 Add protostructure and prototype functions from aviary by @CompRhys
+    Adds functions to get protostructure labels from spglib, moyo and aflow-sym. This avoids users who wish to use this functionality from needing to download `aviary` [to use these functions](https://github.com/CompRhys/aviary/blob/main/aviary/wren/utils.py).
+- PR #4321 [Breaking] `from_ase_atoms` constructor for `(I)Structure/(I)Molecule` returns the corresponding type by @DanielYang59
+    ### Summary
+    - Fix `from_ase_atoms` for `Molecule`, to close #4320
+    - [x]  Add tests
+- PR #4296 Make dict representation of `SymmetrizedStructure` MSONable by @DanielYang59
+    ### Summary
+    - Make dict representation of `SymmetrizedStructure` MSONable, to fix #3018
+    - [x] Unit test
+- PR #4323 Tweak POSCAR / XDATCAR to accommodate malformed files by @esoteric-ephemera
+    Related to [this matsci.org issue](https://matsci.org/t/xdatcar-error-when-reading-xdatcar-could-not-convert-string-to-float/61831): sometimes the XDATCAR can be malformed because fortran uses fixed format floats when printing. In those cases, there's no space between coordinates:
+    ```
+    Direct configuration= 2
+    -0.63265286-0.11227753 -0.15402785
+    -0.12414874 -0.01213420 -0.28106824
+    ...
+    ```
+    In some cases, this issue is reparable (a negative sign separates coordinates). This PR implements a fix when it is reparable and adds a few Trajectory-like convenience features to `Xdatcar`
+
+## v2025.3.10
+
+1. **PR #3680** - Add support for `vaspout.h5`, improvements to POTCAR handling by @esoteric-ephemera
+   - Added support for parsing `vaspout.h5` and improvements in POTCAR handling.
+   - Major additions include methods for processing `vaspout.h5` and ensuring compatibility with existing VASP I/O infrastructure.
+
+2. **PR #4319** - Update `abitimer` in `io.abinit` by @gpetretto
+   - Fixes parsing issues for newer versions of Abinit.
+   - Updates compatibility with `pandas > 2` and includes test files for validation.
+
+3. **PR #4315** - Patch to allow `pyzeo` integration by @daniel-sintef
+   - Provides a patch to swap out `zeo++` with `pyzeo`, which is a more actively maintained version.
+
+4. **PR #4281** - Add method to get the Pearson symbol to `SpaceGroupAnalyzer` by @CompRhys
+   - Introduced a new method to retrieve the Pearson Symbol in `SpaceGroupAnalyzer`.
+
+6. **PR #4295** - Pass `kwargs` to `IStructure.to` method in JSON format by @DanielYang59
+   - Provides finer control over `json.dumps` behavior during format conversion.
+
+7. **PR #4306** - `IStructure.to` defaults to JSON when `filename` is unspecified by @DanielYang59
+   - Adjusts default file output behavior to JSON.
+
+8. **PR #4297** - Bugfix for `Structure/ase.Atoms` interconversion by @wolearyc
+   - Ensures deep copying to avoid shared memory issues between `Atoms.info` and `Structure.properties`.
+
+9. **PR #4304** - `MagneticStructureEnumerator`: Expose `max_orderings` argument by @mkhorton
+    - Makes `max_orderings` configurable via keyword argument.
+
+10. **PR #4299** - Update inequality in `get_linear_interpolated_value` by @kavanase
+    - Fixes interpolation logic to handle edge cases more robustly.
+
 ## v2025.2.18
 
 1. **PR #4288**: `Dos.get_cbm_vbm` updates by @kavanase
