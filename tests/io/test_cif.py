@@ -12,12 +12,6 @@ from pymatgen.io.cif import CifBlock, CifParser, CifWriter
 from pymatgen.symmetry.structure import SymmetrizedStructure
 from pymatgen.util.testing import TEST_FILES_DIR, VASP_IN_DIR, MatSciTest
 
-try:
-    import pybtex
-except ImportError:
-    pybtex = None
-
-
 MCIF_TEST_DIR = f"{TEST_FILES_DIR}/io/cif/mcif"
 
 
@@ -926,7 +920,7 @@ Si1 Si 0 0 0 1 0.0
 
         # test write_file append mode='a'
         struct2 = Structure.from_file(f"{TEST_FILES_DIR}/cif/Graphite.cif")
-        CifWriter(struct2).write_file(out_path, mode="a")
+        CifWriter(struct2).write_file(out_path, mode="at")
 
         read_structs = CifParser(out_path).parse_structures()
         assert len(read_structs) == 2
@@ -1139,7 +1133,6 @@ Gd1 5.05 5.05 0.0"""
         cw = CifWriter(s_manual, write_magmoms=True)
         assert str(cw) == cw_manual_oxi_string
 
-    @pytest.mark.skipif(pybtex is None, reason="pybtex not present")
     def test_bibtex(self):
         ref_bibtex_string = """@article{cifref0,
     author = "Blanco, J.A.",

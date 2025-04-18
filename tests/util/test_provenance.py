@@ -45,8 +45,7 @@ class TestStructureNL:
             ".com/retrieve/pii/S0927025612006295},\n volume = {68},"
             "\n year = {2013}\n}"
         )
-        repeat = "REPEAT" * 10000
-        self.superlong = f"@misc{{SuperLong,\ntitle = {{{repeat}}}}}"
+        self.superlong = f"@misc{{SuperLong,\ntitle = {{{'REPEAT' * 10000}}}}}"
         self.unicode_title = "@misc{Unicode_Title,\ntitle = {{A \u73ab is a rose}}}"
         self.junk = "This is junk text, not a BibTeX reference"
 
