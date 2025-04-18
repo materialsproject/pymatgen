@@ -1,29 +1,44 @@
+# Sample input script template for MD
+
 # Initialization
-units           metal
-atom_style      atomic
-dimension       3
-boundary        p p p
 
-# AtomDefinition
-read_data       system.data
+units           $units
+atom_style      $atom_style
+dimension       $dimension
+boundary        $boundary
 
-# ForceField
-include         forcefield.lammps
+# Atom definition
 
-# AdditionalData
-read_data       extra.data
-#extra data to be read by lammps
+$restart_flag   $read_restart
+$read_data_flag  system.data
 
-# Velocities
-velocity        all create 300 42 mom yes rot yes dist gaussian
+
+# Force field settings (consult official document for detailed formats)
+
+$pair_style_flag     $pair_style
+$bond_style_flag     $bond_style
+$angle_style_flag     $angle_style
+$dihedral_style_flag     $dihedral_style
+$improper_style_flag     $improper_style
+
+include forcefield.lammps
+$extra_data_flag    extra.data
+
+# Create velocities
+velocity        all create $start_temp 42 mom yes rot yes dist gaussian
 neigh_modify    delay 5 every 1 check yes
 
-# Ensemble
-fix             1 all nvt temp 300 300 0.1
+# Ensemble constraints
+$nve_flag             1 all nve
+$nvt_flag             2 all $thermostat $start_temp $end_temp $tfriction $thermseed
+$npt_flag             3 all $barostat $start_temp $end_temp $tfriction $psymm $start_pressure $end_pressure $pfriction
 
-# Outputs
-thermo          100
-dump            d1 all custom 1000 traj.dump id element x y z vx vy vz fx fy fz
+# Output settings
+thermo          $log_interval 
+dump            d1 all custom $traj_interval traj.dump id element x y z vx vy vz fx fy fz
+$dump_modify_flag     d1 sort id element $species
 
 # Actions
+timestep        $timestep
+run             $nsteps
 write_restart   md.restart
