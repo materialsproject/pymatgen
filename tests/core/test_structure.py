@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import itertools
 import json
 import math
 import os
@@ -1277,6 +1278,11 @@ class TestStructure(MatSciTest):
             cart_dist = site.distance(site_orig)
             # allow 1e-6 to account for numerical precision
             assert cart_dist <= 0.1 + 1e-6, f"Distance {cart_dist} > 0.1"
+
+        # Check that the perturbation does not result in the same translation
+        vecs = [site.coords - site_orig.coords for site, site_orig in zip(struct, struct_orig, strict=True)]
+        compare_vecs = [np.allclose(v1, v2) for v1, v2 in itertools.pairwise(vecs)]
+        assert not all(compare_vecs)
 
         # Test that same seed gives same perturbation
         s1 = self.get_structure("Li2O")
