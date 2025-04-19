@@ -4,11 +4,11 @@ import numpy as np
 
 from pymatgen.core.structure import Structure
 from pymatgen.io.xcrysden import XSF
-from pymatgen.util.testing import PymatgenTest
+from pymatgen.util.testing import MatSciTest
 
 
-class TestXSF(PymatgenTest):
-    def setUp(self):
+class TestXSF(MatSciTest):
+    def setup_method(self):
         self.coords = [[0, 0, 0], [0.75, 0.5, 0.75]]
         self.lattice = [
             [3.8401979337, 0.00, 0.00],

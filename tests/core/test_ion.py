@@ -1,7 +1,5 @@
 from __future__ import annotations
 
-from unittest import TestCase
-
 import numpy as np
 import pytest
 
@@ -9,8 +7,8 @@ from pymatgen.core import Composition, Element
 from pymatgen.core.ion import Ion
 
 
-class TestIon(TestCase):
-    def setUp(self):
+class TestIon:
+    def setup_method(self):
         self.comp = []
         self.comp.append(Ion.from_formula("Li+"))
         self.comp.append(Ion.from_formula("MnO4-"))
@@ -176,7 +174,7 @@ class TestIon(TestCase):
         assert dct == correct_dict
         assert dct["charge"] == correct_dict["charge"]
         correct_dict = {"Mn": 1.0, "O": 4.0, "charge": -1}
-        dct = ion.to_reduced_dict
+        dct = ion.as_reduced_dict()
         assert dct == correct_dict
         assert dct["charge"] == correct_dict["charge"]
 

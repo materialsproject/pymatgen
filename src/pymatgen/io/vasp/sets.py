@@ -2448,7 +2448,7 @@ class MVLSlabSet(VaspInputSet):
                 updates |= {"AMIN": 0.01, "AMIX": 0.2, "BMIX": 0.001}
             if self.auto_dipole and self.structure is not None:
                 weights = [struct.species.weight for struct in self.structure]
-                center_of_mass = np.average(self.structure.frac_coords, weights=weights, axis=0)
+                center_of_mass = np.average(self.structure.frac_coords, weights=weights, axis=0).tolist()
                 updates |= {"IDIPOL": 3, "LDIPOL": True, "DIPOL": center_of_mass}
         return updates
 

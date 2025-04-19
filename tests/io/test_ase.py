@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import importlib
 from importlib.metadata import PackageNotFoundError
-from unittest import mock
+from unittest.mock import patch
 
 import numpy as np
 import pytest
@@ -298,6 +298,21 @@ def test_back_forth(filename):
         assert str(atoms_back.todict()[key]) == str(val)
 
 
+@pytest.mark.parametrize("filename", ["io/vasp/outputs/OUTCAR.gz", "cif/V2O3.cif"])
+def test_back_forth_constraints(filename):
+    # Atoms --> Structure --> Atoms --> Structure
+    atoms = ase.io.read(f"{TEST_FILES_DIR}/{filename}")
+    mask = [True] * len(atoms)
+    mask[-1] = False
+    atoms.set_constraint(ase.constraints.FixAtoms(mask=mask))
+    structure = AseAtomsAdaptor.get_structure(atoms)
+    atoms_back = AseAtomsAdaptor.get_atoms(structure)
+    structure_back = AseAtomsAdaptor.get_structure(atoms_back)
+    assert structure_back == structure
+    for key, val in atoms.todict().items():
+        assert str(atoms_back.todict()[key]) == str(val)
+
+
 def test_back_forth_v2():
     # Structure --> Atoms --> Structure --> Atoms
     structure = Structure.from_file(f"{VASP_IN_DIR}/POSCAR")
@@ -406,7 +421,7 @@ def test_msonable_atoms():
 def test_no_ase_err():
     import pymatgen.io.ase
 
-    with mock.patch.dict("sys.modules", {"ase.atoms": None}):
+    with patch.dict("sys.modules", {"ase.atoms": None}):
         importlib.reload(pymatgen.io.ase)
         from pymatgen.io.ase import MSONAtoms
 

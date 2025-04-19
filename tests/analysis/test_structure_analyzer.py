@@ -1,7 +1,5 @@
 from __future__ import annotations
 
-from unittest import TestCase
-
 import numpy as np
 from numpy.testing import assert_allclose
 from pytest import approx
@@ -18,11 +16,11 @@ from pymatgen.analysis.structure_analyzer import (
 )
 from pymatgen.core import Element, Lattice, Structure
 from pymatgen.io.vasp.outputs import Xdatcar
-from pymatgen.util.testing import VASP_IN_DIR, VASP_OUT_DIR, PymatgenTest
+from pymatgen.util.testing import VASP_IN_DIR, VASP_OUT_DIR, MatSciTest
 
 
-class TestVoronoiAnalyzer(PymatgenTest):
-    def setUp(self):
+class TestVoronoiAnalyzer(MatSciTest):
+    def setup_method(self):
         self.structs = Xdatcar(f"{VASP_OUT_DIR}/XDATCAR.MD").structures
         self.struct = self.structs[1]
         self.va = VoronoiAnalyzer(cutoff=4)
@@ -40,8 +38,8 @@ class TestVoronoiAnalyzer(PymatgenTest):
         ) in ensemble, "Cannot find the right polyhedron in ensemble."
 
 
-class TestRelaxationAnalyzer(TestCase):
-    def setUp(self):
+class TestRelaxationAnalyzer:
+    def setup_method(self):
         s1 = Structure.from_file(f"{VASP_IN_DIR}/POSCAR_Li2O")
         s2 = Structure.from_file(f"{VASP_OUT_DIR}/CONTCAR_Li2O")
         self.analyzer = RelaxationAnalyzer(s1, s2)
@@ -62,7 +60,7 @@ class TestRelaxationAnalyzer(TestCase):
                 assert v2 == approx(-0.009204092115527862)
 
 
-class TestVoronoiConnectivity(PymatgenTest):
+class TestVoronoiConnectivity(MatSciTest):
     def test_connectivity_array(self):
         vc = VoronoiConnectivity(self.get_structure("LiFePO4"))
         ca = vc.connectivity_array
@@ -78,7 +76,7 @@ class TestVoronoiConnectivity(PymatgenTest):
         assert_allclose(site.frac_coords, expected)
 
 
-class TestMiscFunction(PymatgenTest):
+class TestMiscFunction(MatSciTest):
     def test_average_coordination_number(self):
         xdatcar = Xdatcar(f"{VASP_OUT_DIR}/XDATCAR.MD")
         coordination_numbers = average_coordination_number(xdatcar.structures, freq=1)

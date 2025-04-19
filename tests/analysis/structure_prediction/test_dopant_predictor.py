@@ -1,7 +1,5 @@
 from __future__ import annotations
 
-from unittest import TestCase
-
 from pytest import approx
 
 from pymatgen.analysis.local_env import CrystalNN
@@ -12,8 +10,8 @@ from pymatgen.analysis.structure_prediction.dopant_predictor import (
 from pymatgen.core import Species, Structure
 
 
-class TestDopantPrediction(TestCase):
-    def setUp(self):
+class TestDopantPrediction:
+    def setup_method(self):
         self.tin_dioxide = Structure(
             [3.24, 0, 0, 0, 4.83, 0, 0, 0, 4.84],
             ["O", "O", "O", "O", "Sn", "Sn"],

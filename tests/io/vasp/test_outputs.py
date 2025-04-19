@@ -47,7 +47,7 @@ from pymatgen.io.vasp.outputs import (
     get_band_structure_from_vasp_multiple_branches,
 )
 from pymatgen.io.wannier90 import Unk
-from pymatgen.util.testing import FAKE_POTCAR_DIR, TEST_FILES_DIR, VASP_IN_DIR, VASP_OUT_DIR, PymatgenTest
+from pymatgen.util.testing import FAKE_POTCAR_DIR, TEST_FILES_DIR, VASP_IN_DIR, VASP_OUT_DIR, MatSciTest
 
 try:
     import h5py
@@ -57,7 +57,7 @@ except ImportError:
 TEST_DIR = f"{TEST_FILES_DIR}/io/vasp"
 
 
-class TestVasprun(PymatgenTest):
+class TestVasprun(MatSciTest):
     def test_vasprun_soc(self):
         # Test that SOC vaspruns are parsed appropriately, giving just Spin.Up tdos, idos and pdos
         vasp_run = Vasprun(f"{VASP_OUT_DIR}/vasprun.int_Te_SOC.xml.gz")
@@ -302,6 +302,7 @@ class TestVasprun(PymatgenTest):
         assert isinstance(vasp_run.kpoints, Kpoints), f"{vasp_run.kpoints=}"
         assert isinstance(vasp_run.actual_kpoints, list), f"{vasp_run.actual_kpoints=}"
         assert isinstance(vasp_run.actual_kpoints_weights, list), f"{vasp_run.actual_kpoints_weights=}"
+        assert isinstance(vasp_run.actual_kpoints_weights[0], float), f"{vasp_run.actual_kpoints_weights[0]=}"
         for atom_doses in vasp_run.pdos:
             for orbital_dos in atom_doses:
                 assert isinstance(orbital_dos, Orbital), f"{orbital_dos=}"
@@ -1472,7 +1473,7 @@ class TestOutcar:
             )
 
 
-class TestBSVasprun(PymatgenTest):
+class TestBSVasprun(MatSciTest):
     def test_get_band_structure(self):
         filepath = f"{VASP_OUT_DIR}/vasprun_Si_bands.xml.gz"
         vasprun = BSVasprun(filepath, parse_potcar_file=False)
@@ -1528,7 +1529,7 @@ class TestBSVasprun(PymatgenTest):
         assert {*vrun_dct["output"]} >= {"eigenvalues", "eigenvalues_kpoints_opt"}
 
 
-class TestOszicar(PymatgenTest):
+class TestOszicar(MatSciTest):
     def test_init(self):
         fpath = f"{VASP_OUT_DIR}/OSZICAR"
         oszicar = Oszicar(fpath)
@@ -1581,7 +1582,7 @@ class TestGetBandStructureFromVaspMultipleBranches:
             get_band_structure_from_vasp_multiple_branches(".")
 
 
-class TestLocpot(PymatgenTest):
+class TestLocpot(MatSciTest):
     def test_init(self):
         filepath = f"{VASP_OUT_DIR}/LOCPOT.gz"
         locpot = Locpot.from_file(filepath)
@@ -1602,9 +1603,9 @@ class TestLocpot(PymatgenTest):
         assert {str(ele) for ele in locpot.structure.composition} == {"Mg", "Si"}
 
 
-class TestChgcar(PymatgenTest):
+class TestChgcar(MatSciTest):
     @classmethod
-    def setUpClass(cls):
+    def setup_class(cls):
         filepath = f"{VASP_OUT_DIR}/CHGCAR.nospin.gz"
         cls.chgcar_no_spin = Chgcar.from_file(filepath)
 
@@ -1726,7 +1727,7 @@ class TestChgcar(PymatgenTest):
         )
 
 
-class TestAeccars(PymatgenTest):
+class TestAeccars(MatSciTest):
     # https://github.com/materialsproject/pymatgen/pull/3343
     def test_read_write_file(self):
         aeccar0_test = Chgcar.from_file(f"{TEST_FILES_DIR}/command_line/bader/AECCAR0.gz")
@@ -1742,7 +1743,7 @@ class TestAeccars(PymatgenTest):
         assert_allclose(aeccar2.data["total"], aeccar2_read.data["total"])
 
 
-class TestElfcar(PymatgenTest):
+class TestElfcar(MatSciTest):
     def test_init(self):
         elfcar = Elfcar.from_file(f"{VASP_OUT_DIR}/ELFCAR.gz")
         assert np.mean(elfcar.data["total"]) == approx(0.19076207645194002)
@@ -1762,7 +1763,7 @@ class TestElfcar(PymatgenTest):
         assert len(elfcar.linear_slice([0.0, 0.0, 0.0], [1.0, 1.0, 1.0])) == 100
 
 
-class TestProcar(PymatgenTest):
+class TestProcar(MatSciTest):
     def test_init(self):
         filepath = f"{VASP_OUT_DIR}/PROCAR.simple"
         procar = Procar(filepath)
@@ -1916,8 +1917,8 @@ class TestDynmat:
         # TODO: test get_phonon_frequencies once cross-checked
 
 
-class TestWavecar(PymatgenTest):
-    def setUp(self):
+class TestWavecar(MatSciTest):
+    def setup_method(self):
         latt_mat = np.array(np.eye(3) * 10, dtype=float)  # lattice vectors
         self.vol = np.dot(latt_mat[0, :], np.cross(latt_mat[1, :], latt_mat[2, :]))  # unit cell volume
         # reciprocal lattice vectors
@@ -2194,7 +2195,7 @@ class TestWavecar(PymatgenTest):
         assert unk == unk_ncl
 
 
-class TestEigenval(PymatgenTest):
+class TestEigenval(MatSciTest):
     def test_init(self):
         eig = Eigenval(f"{VASP_OUT_DIR}/EIGENVAL.gz")
         assert eig.ispin == 1
@@ -2234,8 +2235,8 @@ class TestEigenval(PymatgenTest):
         assert props[3][1]
 
 
-class TestWaveder(PymatgenTest):
-    def setUp(self):
+class TestWaveder(MatSciTest):
+    def setup_method(self):
         wder = Waveder.from_binary(f"{VASP_OUT_DIR}/WAVEDER", "float64")
         assert wder.nbands == 36
         assert wder.nkpoints == 56
@@ -2267,8 +2268,8 @@ class TestWaveder(PymatgenTest):
         _check(wderf)
 
 
-class TestWSWQ(PymatgenTest):
-    def setUp(self):
+class TestWSWQ(MatSciTest):
+    def setup_method(self):
         self.wswq = WSWQ.from_file(f"{VASP_OUT_DIR}/WSWQ.gz")
 
     def test_consistency(self):
@@ -2291,8 +2292,8 @@ except ImportError:
 
 
 @pytest.mark.skipif(condition=h5py is None, reason="h5py must be installed to use the .Vaspout class.")
-class TestVaspout(PymatgenTest):
-    def setUp(self):
+class TestVaspout(MatSciTest):
+    def setup_method(self):
         self.vaspout = Vaspout(f"{VASP_OUT_DIR}/vaspout.line_mode_band_structure.h5.gz")
         self.vaspout_kpoints_opt = Vaspout(f"{VASP_OUT_DIR}/vaspout.kpoints_opt.h5.gz")
 

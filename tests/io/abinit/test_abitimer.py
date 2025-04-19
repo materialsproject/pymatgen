@@ -3,7 +3,7 @@ from __future__ import annotations
 import pytest
 
 from pymatgen.io.abinit.abitimer import AbinitTimerParser
-from pymatgen.util.testing import TEST_FILES_DIR, PymatgenTest
+from pymatgen.util.testing import TEST_FILES_DIR
 
 TEST_DIR = f"{TEST_FILES_DIR}/io/abinit"
 
@@ -13,7 +13,7 @@ def abiref_file(filename):
     return f"{TEST_DIR}/{filename}"
 
 
-class TestAbinitTimer(PymatgenTest):
+class TestAbinitTimer:
     def test_timer_parser(self):
         tparser = AbinitTimerParser()
         parsed = tparser.parse([abiref_file("mgb2_scf.abo")])
