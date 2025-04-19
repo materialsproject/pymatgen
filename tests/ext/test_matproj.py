@@ -70,8 +70,10 @@ class TestMPRester(MatSciTest):
 
         assert len(entries) > 1000
 
-        entries3 = self.rester.get_entries_in_chemsys("-".join(syms))
-        assert len(entries3) == len(entries)
+        # This gets everything in Li-Fe-O and within this subsystem. It should have more entries than
+        # get_entries("Li-Fe-O"), which just gets only the ternary compounds.
+        entries3 = self.rester.get_entries_in_chemsys(["Fe", "Li", "O"])
+        assert len(entries3) > len(entries2)
 
         for entry in entries2:
             assert isinstance(entry, ComputedEntry)
