@@ -61,7 +61,7 @@ dependencies = [
     "palettable>=3.3.3",
     "pandas>=2",
     "plotly>=5.0.0",
-    "pybtex>=0.24.0",
+    "bibtexparser>=1.4.0",
     "requests>=2.32",
     "ruamel.yaml>=0.17.0",
     "scipy>=1.13.0",
@@ -77,7 +77,7 @@ dependencies = [
     # https://numpy.org/devdocs/dev/depending_on_numpy.html#runtime-dependency-version-ranges
     "numpy>=1.25.0,<3",
 ]
-version = "2025.4.10"
+version = "2025.4.17"
 
 [project.urls]
 Homepage = "https://pymatgen.org"
@@ -114,7 +114,7 @@ prototypes = ["pyxtal>=1.0", "pymatgen[symmetry]"]
 symmetry = ["moyopy[interface]>=0.3", "spglib>=2.5"]
 # tblite only support Python 3.12+ through conda-forge
 # https://github.com/tblite/tblite/issues/175
-tblite = [ "tblite[ase]>=0.3.0; platform_system=='Linux' and python_version<'3.12'"]
+tblite = ["tblite[ase]>=0.3.0; platform_system=='Linux' and python_version<'3.12'"]
 vis = ["vtk>=6.0.0"]
 ci = [
     "pytest>=8.3.5",
@@ -186,27 +186,27 @@ ignore = [
     "C90", # Check for functions with a high McCabe complexity
     "COM", # flake8-commas (conflict with line wrapper)
     "CPY", # Missing copyright notice at top of file (need preview mode)
-    "EM",  # Format nice error messages
+    "EM", # Format nice error messages
     "ERA", # Check for commented-out code
     "FIX", # Check for FIXME, TODO and other developer notes
-    "G",   # Validate logging format strings
+    "G", # Validate logging format strings
     "INP", # Ban PEP-420 implicit namespace packages
-    "N",   # PEP8-naming (many var/arg names are intended)
+    "N", # PEP8-naming (many var/arg names are intended)
     "PTH", # Prefer pathlib over os.path
     "SLF", # Access "private" class members
     "T20", # Check for print/pprint
-    "TD",  # TODO tags related
+    "TD", # TODO tags related
 
     # Single rules
-    "B023",    # Function definition does not bind loop variable
-    "B904",    # Within an except clause, raise exceptions with ...
-    "C408",    # unnecessary-collection-call
-    "D105",    # Missing docstring in magic method
-    "D205",    # One blank line required between summary line and description
-    "D212",    # Multi-line docstring summary should start at the first line
-    "FBT001",  # Boolean-typed positional argument in function definition
-    "FBT002",  # Boolean default positional argument in function
-    "PD011",   # (A lot of false positive on non-Pandas objects)
+    "B023", # Function definition does not bind loop variable
+    "B904", # Within an except clause, raise exceptions with ...
+    "C408", # unnecessary-collection-call
+    "D105", # Missing docstring in magic method
+    "D205", # One blank line required between summary line and description
+    "D212", # Multi-line docstring summary should start at the first line
+    "FBT001", # Boolean-typed positional argument in function definition
+    "FBT002", # Boolean default positional argument in function
+    "PD011", # (A lot of false positive on non-Pandas objects)
     "PERF203", # Use of try-except in for/while loop
     "PERF401", # Replace "for" loops with list comprehension
     "PLR0911", # Too many return statements
@@ -216,18 +216,18 @@ ignore = [
     "PLR1702", # Too many nested blocks
     "PLR2004", # Magic-value-comparison TODO: fix these
     "PLW2901", # Outer for loop variable overwritten by inner assignment target
-    "PT013",   # Incorrect import of pytest
-    "S110",    # Log for try-except-pass
-    "S112",    # Log for try-except-continue
-    "S311",    # Use random module for cryptographic purposes
-    "S314",    # Replace xml with defusedxml to avoid XML attacks
-    "S603",    # Check source for use of "subprocess" call
-    "S607",    # Start process with relative path
-    "SIM105",  # Use contextlib.suppress() instead of try-except-pass
-    "SIM905",  # Split static strings
-    "TRY003",  # Avoid specifying long messages outside the exception class
-    "TRY300",  # Check for return statements in try blocks
-    "TRY301",  # Check for raise statements within try blocks
+    "PT013", # Incorrect import of pytest
+    "S110", # Log for try-except-pass
+    "S112", # Log for try-except-continue
+    "S311", # Use random module for cryptographic purposes
+    "S314", # Replace xml with defusedxml to avoid XML attacks
+    "S603", # Check source for use of "subprocess" call
+    "S607", # Start process with relative path
+    "SIM105", # Use contextlib.suppress() instead of try-except-pass
+    "SIM905", # Split static strings
+    "TRY003", # Avoid specifying long messages outside the exception class
+    "TRY300", # Check for return statements in try blocks
+    "TRY301", # Check for raise statements within try blocks
 ]
 pydocstyle.convention = "google"
 isort.required-imports = ["from __future__ import annotations"]
@@ -240,12 +240,12 @@ docstring-code-format = true
 [tool.ruff.lint.per-file-ignores]
 "__init__.py" = ["F401"] # unused-import
 "tests/**" = [
-    "ANN201",  # missing-return-type-undocumented-public-function
-    "D",       # pydocstyle
+    "ANN201", # missing-return-type-undocumented-public-function
+    "D", # pydocstyle
     "PLR0124", # comparison-with-itself
     "PLR2004", # magic-value-comparison
     "PLR6301", # no-self-use
-    "S101",    # Use of "assert"
+    "S101", # Use of "assert"
 ]
 "src/pymatgen/analysis/*" = ["D"]
 "src/pymatgen/io/*" = ["D"]
@@ -258,8 +258,9 @@ docstring-code-format = true
 addopts = "--durations=30 --quiet -r xXs --color=yes --import-mode=importlib"
 filterwarnings = [
     # NOTE: the LAST matching option would be used
-    "ignore::UserWarning",                                              # Ignore UserWarning
-    "error:We strongly encourage explicit `encoding`:EncodingWarning",  # Mark `zopen` EncodingWarning as error
+    "ignore::UserWarning", # Ignore UserWarning
+    "error:We strongly encourage explicit `encoding`:EncodingWarning", # Mark `zopen` EncodingWarning as error
+    "error:We strongly discourage using implicit binary/text:FutureWarning", # Mark `zopen` FutureWarning as error
     # TODO: remove the following filter once `monty.io` dropped custom EncodingWarning
     "error:We strongly encourage explicit `encoding`:monty.io.EncodingWarning",
     # TODO: pybtex (perhaps some others) emits the following warnings
@@ -297,7 +298,7 @@ namespace_packages = true
 explicit_package_bases = true
 no_implicit_optional = false
 disable_error_code = ["annotation-unchecked", "override", "assignment", "misc"] #, "union-attr", "operator", "arg-type", "index", "call-arg", "return-value", "assignment", "attr-defined"]
-exclude = ['src/pymatgen/analysis', 'src/pymatgen/io', 'src/pymatgen/cli', 'src/pymatgen/electronic_structure',]
+exclude = ['src/pymatgen/analysis', 'src/pymatgen/io', 'src/pymatgen/cli', 'src/pymatgen/electronic_structure', ]
 
 [[tool.mypy.overrides]]
 module = ["requests.*", "tabulate.*"]

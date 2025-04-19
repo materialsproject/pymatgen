@@ -10,18 +10,12 @@ from pymatgen.core import Composition, DummySpecies, Element, Lattice, Species, 
 from pymatgen.electronic_structure.core import Magmom
 from pymatgen.io.cif import CifBlock, CifParser, CifWriter
 from pymatgen.symmetry.structure import SymmetrizedStructure
-from pymatgen.util.testing import TEST_FILES_DIR, VASP_IN_DIR, PymatgenTest
-
-try:
-    import pybtex
-except ImportError:
-    pybtex = None
-
+from pymatgen.util.testing import TEST_FILES_DIR, VASP_IN_DIR, MatSciTest
 
 MCIF_TEST_DIR = f"{TEST_FILES_DIR}/io/cif/mcif"
 
 
-class TestCifBlock(PymatgenTest):
+class TestCifBlock(MatSciTest):
     def test_to_str(self):
         with open(f"{TEST_FILES_DIR}/cif/Graphite.cif", encoding="utf-8") as file:
             cif_str = file.read()
@@ -165,7 +159,7 @@ loop_
         assert str(CifBlock(data, loops, "test")) == cif_str
 
 
-class TestCifIO(PymatgenTest):
+class TestCifIO(MatSciTest):
     def test_cif_parser(self):
         parser = CifParser(f"{TEST_FILES_DIR}/cif/LiFePO4.cif")
         for struct in parser.parse_structures():
@@ -926,7 +920,7 @@ Si1 Si 0 0 0 1 0.0
 
         # test write_file append mode='a'
         struct2 = Structure.from_file(f"{TEST_FILES_DIR}/cif/Graphite.cif")
-        CifWriter(struct2).write_file(out_path, mode="a")
+        CifWriter(struct2).write_file(out_path, mode="at")
 
         read_structs = CifParser(out_path).parse_structures()
         assert len(read_structs) == 2
@@ -1017,8 +1011,8 @@ Si1 Si 0 0 0 1 0.0
         assert "O  O23  1  0.95662769  0.25000000  0.29286233  1  -1.0" in cif_str
 
 
-class TestMagCif(PymatgenTest):
-    def setUp(self):
+class TestMagCif(MatSciTest):
+    def setup_method(self):
         self.mcif = CifParser(f"{MCIF_TEST_DIR}/magnetic.example.NiO.mcif")
         self.mcif_ncl = CifParser(f"{MCIF_TEST_DIR}/magnetic.ncl.example.GdB4.mcif")
         self.mcif_incommensurate = CifParser(f"{MCIF_TEST_DIR}/magnetic.incommensurate.example.Cr.mcif")
@@ -1139,7 +1133,6 @@ Gd1 5.05 5.05 0.0"""
         cw = CifWriter(s_manual, write_magmoms=True)
         assert str(cw) == cw_manual_oxi_string
 
-    @pytest.mark.skipif(pybtex is None, reason="pybtex not present")
     def test_bibtex(self):
         ref_bibtex_string = """@article{cifref0,
     author = "Blanco, J.A.",

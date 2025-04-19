@@ -9,7 +9,6 @@ from __future__ import annotations
 import os
 import sys
 from shutil import which
-from unittest import TestCase
 
 import numpy as np
 import pytest
@@ -30,13 +29,15 @@ from pymatgen.util.testing import TEST_FILES_DIR, VASP_IN_DIR
 
 TEST_DIR = f"{TEST_FILES_DIR}/command_line/gulp"
 
-gulp_present = which("gulp") and os.getenv("GULP_LIB") and ("win" not in sys.platform)
-# disable gulp tests for now. Right now, it is compiled against libgfortran3, which is no longer supported in the new
-# Ubuntu 20.04.
-gulp_present = False
+GULP_PRESENT = which("gulp") and os.getenv("GULP_LIB") and ("win" not in sys.platform)
+# Disable GULP tests for now: it is compiled against `libgfortran3``,
+# which is no longer supported in Ubuntu 20.04 and onwards.
+GULP_PRESENT = False
+
+if not GULP_PRESENT:
+    pytest.skip(reason="GULP not available", allow_module_level=True)
 
 
-@pytest.mark.skipif(not gulp_present, reason="gulp not present.")
 class TestGulpCaller:
     def test_run(self):
         mgo_lattice = np.eye(3) * 4.212
@@ -105,9 +106,8 @@ class TestGulpCaller:
         caller.run(buckingham_input)
 
 
-@pytest.mark.skipif(not gulp_present, reason="gulp not present.")
-class TestGulpIO(TestCase):
-    def setUp(self):
+class TestGulpIO:
+    def setup_method(self):
         self.structure = Structure.from_file(f"{VASP_IN_DIR}/POSCAR_Al12O18")
         self.gio = GulpIO()
 
@@ -131,15 +131,6 @@ class TestGulpIO(TestCase):
         inp_str = self.gio.structure_lines(self.structure, cell_flg=False, frac_flg=False)
         assert "cell" not in inp_str
         assert "cart" in inp_str
-
-    @pytest.mark.skip("Not Implemented yet")
-    def test_specie_potential(self):
-        pass
-
-    @pytest.mark.xfail
-    def test_library_line_explicit_path(self):
-        gin = self.gio.library_line("/Users/mbkumar/Research/Defects/GulpExe/Libraries/catlow.lib")
-        assert "lib" in gin
 
     def test_library_line_wrong_file(self):
         with pytest.raises(GulpError, match="GULP library not found"):
@@ -285,9 +276,8 @@ class TestGulpIO(TestCase):
         self.gio.tersoff_input(self.structure)
 
 
-@pytest.mark.skipif(not gulp_present, reason="gulp not present.")
-class TestGlobalFunctions(TestCase):
-    def setUp(self):
+class TestGlobalFunctions:
+    def setup_method(self):
         mgo_latt = np.eye(3) * 4.212
         mgo_specie = ["Mg", "O"] * 4
         mgo_frac_cord = [
@@ -337,9 +327,8 @@ class TestGlobalFunctions(TestCase):
         assert site_len == len(self.mgo_uc)
 
 
-@pytest.mark.skipif(not gulp_present, reason="gulp not present.")
-class TestBuckinghamPotentialLewis(TestCase):
-    def setUp(self):
+class TestBuckinghamPotentialLewis:
+    def setup_method(self):
         self.bpl = BuckinghamPotential("lewis")
 
     def test_existing_element(self):
@@ -365,9 +354,8 @@ class TestBuckinghamPotentialLewis(TestCase):
         assert self.bpl.spring_dict["O"] != ""
 
 
-@pytest.mark.skipif(not gulp_present, reason="gulp not present.")
-class TestBuckinghamPotentialBush(TestCase):
-    def setUp(self):
+class TestBuckinghamPotentialBush:
+    def setup_method(self):
         self.bpb = BuckinghamPotential("bush")
 
     def test_existing_element(self):

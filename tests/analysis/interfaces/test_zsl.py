@@ -13,7 +13,7 @@ from pymatgen.analysis.interfaces.zsl import (
     vec_area,
 )
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
-from pymatgen.util.testing import PymatgenTest
+from pymatgen.util.testing import MatSciTest
 
 __author__ = "Shyam Dwaraknath"
 __copyright__ = "Copyright 2016, The Materials Project"
@@ -23,8 +23,8 @@ __email__ = "shyamd@lbl.gov"
 __date__ = "2/5/16"
 
 
-class TestZSLGen(PymatgenTest):
-    def setUp(self):
+class TestZSLGen(MatSciTest):
+    def setup_method(self):
         # Film VO2
         self.film = SpacegroupAnalyzer(self.get_structure("VO2"), symprec=0.1).get_conventional_standard_structure()
 
