@@ -34,7 +34,7 @@ $nvt_flag             2 all $thermostat $start_temp $end_temp $tfriction $therms
 $npt_flag             3 all $barostat $start_temp $end_temp $tfriction $psymm $start_pressure $end_pressure $pfriction
 
 # Output settings
-thermo          $log_interval 
+thermo          $log_interval
 dump            d1 all custom $traj_interval traj.dump id element x y z vx vy vz fx fy fz
 $dump_modify_flag     d1 sort id element $species
 
