@@ -345,17 +345,12 @@ class MPRester:
                 which performs adjustments to allow mixing of GGA and GGA+U
                 calculations for more accurate phase diagrams and reaction
                 energies.
-            inc_structure (str): If None, entries returned are
-                ComputedEntries. If inc_structure="initial",
-                ComputedStructureEntries with initial structures are returned.
-                Otherwise, ComputedStructureEntries with final structures
-                are returned.
+            inc_structure (str): Deprecated. ComputedStructureEntries are always returned now.
             property_data (list): Specify additional properties to include in
-                entry.data. If None, no data.
-            conventional_unit_cell (bool): Whether to get the standard
-                conventional unit cell
-            sort_by_e_above_hull (bool): Whether to sort the list of entries by
-                e_above_hull (will query e_above_hull as a property_data if True).
+                entry.data. If None, no data. This can be properties that are available in the /materials/summary
+                endpoint of the API.
+            conventional_unit_cell (bool): Deprecated. Use pymatgen.symmetry to convert to conventional unit cell.
+            sort_by_e_above_hull (bool): Deprecated. This can be done by user post analysis.
 
         Returns:
             List of ComputedStructureEntry objects.
@@ -379,6 +374,16 @@ class MPRester:
             with warnings.catch_warnings():
                 warnings.filterwarnings("ignore", message="Failed to guess oxidation states.*")
                 entries = MaterialsProject2020Compatibility().process_entries(entries, clean=True)
+
+        if property_data:
+            edata = self.search(
+                "summary",
+                material_ids=[e.data["material_id"] for e in entries],
+                _fields=[*property_data, "material_id"],
+            )
+            mapped_data = {d["material_id"]: {k: v for k, v in d.items() if k != "material_id"} for d in edata}
+            for e in entries:
+                e.data.update(mapped_data[e.data["material_id"]])
         return list(set(entries))
 
     def get_entry_by_material_id(self, material_id: str, *args, **kwargs) -> ComputedStructureEntry:
