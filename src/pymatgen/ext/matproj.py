@@ -384,7 +384,6 @@ class MPRester:
             criteria = ",".join([proc_crit(c) for c in criteria.split(",")])
         else:
             criteria = ",".join([proc_crit(c) for c in criteria])
-        print(criteria)
 
         if criteria.startswith("mp-"):
             query = f"material_ids={criteria}"
