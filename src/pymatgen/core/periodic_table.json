@@ -298,12 +298,12 @@
         },
         "Superconduction temperature": "no data K",
         "Thermal conductivity": "430 W m<sup>-1</sup> K<sup>-1</sup>",
-        "Van der waals radius": 2.11,
+        "Van der waals radius": 1.72,
         "Velocity of sound": "2600 m s<sup>-1</sup>",
         "Vickers hardness": "251 MN m<sup>-2</sup>",
         "X": 1.93,
         "Youngs modulus": "83 GPa",
-        "Metallic radius": 1.445,
+        "Metallic radius": 1.44,
         "IUPAC ordering": 72,
         "Ground level": "2S1/2",
         "Ionization energies": [
@@ -1110,12 +1110,12 @@
         },
         "Superconduction temperature": "no data K",
         "Thermal conductivity": "320 W m<sup>-1</sup> K<sup>-1</sup>",
-        "Van der waals radius": 2.14,
+        "Van der waals radius": 1.66,
         "Velocity of sound": "1740 m s<sup>-1</sup>",
         "Vickers hardness": "216 MN m<sup>-2</sup>",
         "X": 2.54,
         "Youngs modulus": "78 GPa",
-        "Metallic radius": 1.442,
+        "Metallic radius": 1.44,
         "IUPAC ordering": 71,
         "Ground level": "2S1/2",
         "Ionization energies": [
@@ -1397,7 +1397,7 @@
         "Vickers hardness": "no data MN m<sup>-2</sup>",
         "X": 0.89,
         "Youngs modulus": "13 GPa",
-        "Metallic radius": 2.236,
+        "Metallic radius": 2.22,
         "IUPAC ordering": 13,
         "Ground level": "1S0",
         "Ionization energies": [
@@ -1802,7 +1802,7 @@
         "Vickers hardness": "no data MN m<sup>-2</sup>",
         "X": 1.3,
         "Youngs modulus": "no data GPa",
-        "Metallic radius": 1.703,
+        "Metallic radius": 1.7,
         "IUPAC ordering": 24,
         "Ground level": "6H°15/2",
         "Ionization energies": [
@@ -2259,7 +2259,7 @@
             "Ca-41": -66.5,
             "Ca-43": -40.8
         },
-        "Metallic radius": 1.976,
+        "Metallic radius": 1.97,
         "IUPAC ordering": 15,
         "Ground level": "1S0",
         "Ionization energies": [
@@ -2379,7 +2379,7 @@
         },
         "Superconduction temperature": "0.517 K",
         "Thermal conductivity": "97 W m<sup>-1</sup> K<sup>-1</sup>",
-        "Van der waals radius": 2.18,
+        "Van der waals radius": 1.58,
         "Velocity of sound": "2310 m s<sup>-1</sup>",
         "Vickers hardness": "no data MN m<sup>-2</sup>",
         "X": 1.69,
@@ -2572,7 +2572,7 @@
         "Vickers hardness": "270 MN m<sup>-2</sup>",
         "X": 1.12,
         "Youngs modulus": "34 GPa",
-        "Metallic radius": 1.707,
+        "Metallic radius": 1.818,
         "IUPAC ordering": 46,
         "Ground level": "1G°4",
         "Ionization energies": [
@@ -3010,7 +3010,7 @@
         "Vickers hardness": "no data MN m<sup>-2</sup>",
         "X": 1.3,
         "Youngs modulus": "no data GPa",
-        "Metallic radius": 1.743,
+        "Metallic radius": 1.74,
         "IUPAC ordering": 25,
         "Ground level": "9D°2",
         "Ionization energies": [
@@ -3434,7 +3434,7 @@
         "NMR Quadrupole Moment": {
             "Cr-53": -150.5
         },
-        "Metallic radius": 1.285,
+        "Metallic radius": 1.28,
         "IUPAC ordering": 58,
         "Ground level": "7S3",
         "Ionization energies": [
@@ -3564,7 +3564,7 @@
         "Vickers hardness": "no data MN m<sup>-2</sup>",
         "X": 0.79,
         "Youngs modulus": "1.7 GPa",
-        "Metallic radius": 2.719,
+        "Metallic radius": 2.65,
         "IUPAC ordering": 7,
         "Ground level": "2S1/2",
         "Ionization energies": [
@@ -3740,7 +3740,7 @@
         },
         "Superconduction temperature": "no data K",
         "Thermal conductivity": "400 W m<sup>-1</sup> K<sup>-1</sup>",
-        "Van der waals radius": 1.96,
+        "Van der waals radius": 1.4,
         "Velocity of sound": "3570 m s<sup>-1</sup>",
         "Vickers hardness": "369 MN m<sup>-2</sup>",
         "X": 1.9,
@@ -3749,7 +3749,7 @@
             "Cu-63": -220.15,
             "Cu-65": -204.14
         },
-        "Metallic radius": 1.278,
+        "Metallic radius": 1.28,
         "IUPAC ordering": 73,
         "Ground level": "2S1/2",
         "Ionization energies": [
@@ -3895,7 +3895,7 @@
         "Vickers hardness": "540 MN m<sup>-2</sup>",
         "X": 1.22,
         "Youngs modulus": "61 GPa",
-        "Metallic radius": 1.773,
+        "Metallic radius": 1.781,
         "IUPAC ordering": 38,
         "Ground level": "5I8",
         "Ionization energies": [
@@ -4056,7 +4056,7 @@
         "Vickers hardness": "589 MN m<sup>-2</sup>",
         "X": 1.24,
         "Youngs modulus": "70 GPa",
-        "Metallic radius": 1.756,
+        "Metallic radius": 1.761,
         "IUPAC ordering": 36,
         "Ground level": "3H6",
         "Ionization energies": [
@@ -4403,7 +4403,7 @@
         "Vickers hardness": "167 MN m<sup>-2</sup>",
         "X": 1.2,
         "Youngs modulus": "18 GPa",
-        "Metallic radius": 2.041,
+        "Metallic radius": 1.804,
         "IUPAC ordering": 41,
         "Ground level": "8S°7/2",
         "Ionization energies": [
@@ -4735,7 +4735,7 @@
         "NMR Quadrupole Moment": {
             "Fe-57": 160
         },
-        "Metallic radius": 1.277,
+        "Metallic radius": 1.26,
         "IUPAC ordering": 64,
         "Ground level": "5D4",
         "Ionization energies": [
@@ -5289,7 +5289,7 @@
         "Vickers hardness": "570 MN m<sup>-2</sup>",
         "X": 1.2,
         "Youngs modulus": "55 GPa",
-        "Metallic radius": 1.802,
+        "Metallic radius": 1.804,
         "IUPAC ordering": 40,
         "Ground level": "9D°2",
         "Ionization energies": [
@@ -5551,7 +5551,7 @@
         },
         "Superconduction temperature": "no data K",
         "Thermal conductivity": "0.1805 W m<sup>-1</sup> K<sup>-1</sup>",
-        "Van der waals radius": 1.1,
+        "Van der waals radius": 1.2,
         "Velocity of sound": "1270 m s<sup>-1</sup>",
         "Vickers hardness": "no data MN m<sup>-2</sup>",
         "X": 2.2,
@@ -5703,7 +5703,7 @@
         "Vickers hardness": "1760 MN m<sup>-2</sup>",
         "X": 1.3,
         "Youngs modulus": "78 GPa",
-        "Metallic radius": 1.58,
+        "Metallic radius": 1.59,
         "IUPAC ordering": 50,
         "Ground level": "3F2",
         "Ionization energies": [
@@ -5886,7 +5886,7 @@
         },
         "Superconduction temperature": "3.95 K",
         "Thermal conductivity": "8.3 W m<sup>-1</sup> K<sup>-1</sup>",
-        "Van der waals radius": 2.23,
+        "Van der waals radius": 1.55,
         "Velocity of sound": "1407 m s<sup>-1</sup>",
         "Vickers hardness": "no data MN m<sup>-2</sup>",
         "X": 2,
@@ -6069,7 +6069,7 @@
         "Vickers hardness": "481 MN m<sup>-2</sup>",
         "X": 1.23,
         "Youngs modulus": "65 GPa",
-        "Metallic radius": 1.765,
+        "Metallic radius": 1.762,
         "IUPAC ordering": 37,
         "Ground level": "4I°15/2",
         "Ionization energies": [
@@ -6562,7 +6562,7 @@
         "Vickers hardness": "1760 MN m<sup>-2</sup>",
         "X": 2.2,
         "Youngs modulus": "528 GPa",
-        "Metallic radius": 1.357,
+        "Metallic radius": 1.355,
         "IUPAC ordering": 65,
         "Ground level": "4F9/2",
         "Ionization energies": [
@@ -6751,7 +6751,7 @@
             "K-40": -73,
             "K-41": 71.1
         },
-        "Metallic radius": 2.381,
+        "Metallic radius": 2.27,
         "IUPAC ordering": 9,
         "Ground level": "2S1/2",
         "Ionization energies": [
@@ -6969,7 +6969,7 @@
         "NMR Quadrupole Moment": {
             "La-139": 200.6
         },
-        "Metallic radius": 1.877,
+        "Metallic radius": 1.87,
         "IUPAC ordering": 47,
         "Ground level": "2D3/2",
         "Ionization energies": [
@@ -7351,7 +7351,7 @@
         "Vickers hardness": "1160 MN m<sup>-2</sup>",
         "X": 1.27,
         "Youngs modulus": "69 GPa",
-        "Metallic radius": 1.735,
+        "Metallic radius": 1.738,
         "IUPAC ordering": 33,
         "Ground level": "2D3/2",
         "Ionization energies": [
@@ -7867,7 +7867,7 @@
         "NMR Quadrupole Moment": {
             "Mn-55": 330.1
         },
-        "Metallic radius": 1.292,
+        "Metallic radius": 1.27,
         "IUPAC ordering": 61,
         "Ground level": "6S5/2",
         "Ionization energies": [
@@ -8031,7 +8031,7 @@
         "Vickers hardness": "1530 MN m<sup>-2</sup>",
         "X": 2.16,
         "Youngs modulus": "329 GPa",
-        "Metallic radius": 1.402,
+        "Metallic radius": 1.39,
         "IUPAC ordering": 57,
         "Ground level": "7S3",
         "Ionization energies": [
@@ -8432,7 +8432,7 @@
         "Vickers hardness": "1320 MN m<sup>-2</sup>",
         "X": 1.6,
         "Youngs modulus": "105 GPa",
-        "Metallic radius": 1.473,
+        "Metallic radius": 1.46,
         "IUPAC ordering": 54,
         "Ground level": "6D1/2",
         "Ionization energies": [
@@ -8585,7 +8585,7 @@
         "Vickers hardness": "343 MN m<sup>-2</sup>",
         "X": 1.14,
         "Youngs modulus": "41 GPa",
-        "Metallic radius": 1.821,
+        "Metallic radius": 1.814,
         "IUPAC ordering": 44,
         "Ground level": "5I4",
         "Ionization energies": [
@@ -8823,7 +8823,7 @@
         },
         "Superconduction temperature": "no data K",
         "Thermal conductivity": "91 W m<sup>-1</sup> K<sup>-1</sup>",
-        "Van der waals radius": 1.97,
+        "Van der waals radius": 1.63,
         "Velocity of sound": "4970 m s<sup>-1</sup>",
         "Vickers hardness": "638 MN m<sup>-2</sup>",
         "X": 1.91,
@@ -8831,7 +8831,7 @@
         "NMR Quadrupole Moment": {
             "Ni-61": 162.15
         },
-        "Metallic radius": 1.246,
+        "Metallic radius": 1.24,
         "IUPAC ordering": 70,
         "Ground level": "3F4",
         "Ionization energies": [
@@ -9134,7 +9134,7 @@
         "Vickers hardness": "no data MN m<sup>-2</sup>",
         "X": 1.36,
         "Youngs modulus": "no data GPa",
-        "Metallic radius": 1.503,
+        "Metallic radius": 1.55,
         "IUPAC ordering": 28,
         "Ground level": "6L11/2",
         "Ionization energies": [
@@ -9458,7 +9458,7 @@
         "Vickers hardness": "no data MN m<sup>-2</sup>",
         "X": 2.2,
         "Youngs modulus": "no data GPa",
-        "Metallic radius": 1.352,
+        "Metallic radius": 1.35,
         "IUPAC ordering": 62,
         "Ground level": "5D4",
         "Ionization energies": [
@@ -9772,7 +9772,7 @@
         "Vickers hardness": "no data MN m<sup>-2</sup>",
         "X": 1.5,
         "Youngs modulus": "no data GPa",
-        "Metallic radius": 1.642,
+        "Metallic radius": 1.63,
         "IUPAC ordering": 30,
         "Ground level": "4K11/2",
         "Ionization energies": [
@@ -10203,12 +10203,12 @@
         },
         "Superconduction temperature": "no data K",
         "Thermal conductivity": "72 W m<sup>-1</sup> K<sup>-1</sup>",
-        "Van der waals radius": 2.1,
+        "Van der waals radius": 1.63,
         "Velocity of sound": "3070 m s<sup>-1</sup>",
         "Vickers hardness": "461 MN m<sup>-2</sup>",
         "X": 2.2,
         "Youngs modulus": "121 GPa",
-        "Metallic radius": 1.376,
+        "Metallic radius": 1.37,
         "IUPAC ordering": 69,
         "Ground level": "1S0",
         "Ionization energies": [
@@ -10340,7 +10340,7 @@
         "Vickers hardness": "no data MN m<sup>-2</sup>",
         "X": 1.13,
         "Youngs modulus": "46 GPa",
-        "Metallic radius": 1.811,
+        "Metallic radius": 1.834,
         "IUPAC ordering": 43,
         "Ground level": "6H°5/2",
         "Ionization energies": [
@@ -10690,7 +10690,7 @@
         "Vickers hardness": "400 MN m<sup>-2</sup>",
         "X": 1.13,
         "Youngs modulus": "37 GPa",
-        "Metallic radius": 1.828,
+        "Metallic radius": 1.824,
         "IUPAC ordering": 45,
         "Ground level": "4I°9/2",
         "Ionization energies": [
@@ -10849,12 +10849,12 @@
         },
         "Superconduction temperature": "no data K",
         "Thermal conductivity": "72 W m<sup>-1</sup> K<sup>-1</sup>",
-        "Van der waals radius": 2.13,
+        "Van der waals radius": 1.75,
         "Velocity of sound": "2680 m s<sup>-1</sup>",
         "Vickers hardness": "549 MN m<sup>-2</sup>",
         "X": 2.28,
         "Youngs modulus": "168 GPa",
-        "Metallic radius": 1.387,
+        "Metallic radius": 1.385,
         "IUPAC ordering": 68,
         "Ground level": "3D3",
         "Ionization energies": [
@@ -11029,7 +11029,7 @@
         "Vickers hardness": "no data MN m<sup>-2</sup>",
         "X": 1.28,
         "Youngs modulus": "96 GPa",
-        "Metallic radius": 1.523,
+        "Metallic radius": 1.59,
         "IUPAC ordering": 27,
         "Ground level": "7F0",
         "Ionization energies": [
@@ -11412,7 +11412,7 @@
         "Vickers hardness": "no data MN m<sup>-2</sup>",
         "X": 0.82,
         "Youngs modulus": "2.4 GPa",
-        "Metallic radius": 2.537,
+        "Metallic radius": 2.48,
         "IUPAC ordering": 8,
         "Ground level": "2S1/2",
         "Ionization energies": [
@@ -11572,7 +11572,7 @@
         "Vickers hardness": "2450 MN m<sup>-2</sup>",
         "X": 1.9,
         "Youngs modulus": "463 GPa",
-        "Metallic radius": 1.375,
+        "Metallic radius": 1.37,
         "IUPAC ordering": 59,
         "Ground level": "6S5/2",
         "Ionization energies": [
@@ -11746,7 +11746,7 @@
         "Vickers hardness": "1246 MN m<sup>-2</sup>",
         "X": 2.28,
         "Youngs modulus": "275 GPa",
-        "Metallic radius": 1.345,
+        "Metallic radius": 1.34,
         "IUPAC ordering": 66,
         "Ground level": "4F9/2",
         "Ionization energies": [
@@ -12059,7 +12059,7 @@
         "Vickers hardness": "no data MN m<sup>-2</sup>",
         "X": 2.2,
         "Youngs modulus": "447 GPa",
-        "Metallic radius": 1.339,
+        "Metallic radius": 1.34,
         "IUPAC ordering": 63,
         "Ground level": "5F5",
         "Ionization energies": [
@@ -12469,7 +12469,7 @@
         },
         "Superconduction temperature": "0.05  (under pressure)K",
         "Thermal conductivity": "16 W m<sup>-1</sup> K<sup>-1</sup>",
-        "Van der waals radius": 2.15,
+        "Van der waals radius": 2.11,
         "Velocity of sound": "no data m s<sup>-1</sup>",
         "Vickers hardness": "no data MN m<sup>-2</sup>",
         "X": 1.36,
@@ -12477,7 +12477,7 @@
         "NMR Quadrupole Moment": {
             "Sc-45": -220.2
         },
-        "Metallic radius": 1.641,
+        "Metallic radius": 1.62,
         "IUPAC ordering": 49,
         "Ground level": "2D3/2",
         "Ionization energies": [
@@ -13190,7 +13190,7 @@
         "NMR Quadrupole Moment": {
             "Sr-87": 305.2
         },
-        "Metallic radius": 2.151,
+        "Metallic radius": 2.15,
         "IUPAC ordering": 14,
         "Ground level": "1S0",
         "Ionization energies": [
@@ -13342,7 +13342,7 @@
         "Vickers hardness": "873 MN m<sup>-2</sup>",
         "X": 1.5,
         "Youngs modulus": "186 GPa",
-        "Metallic radius": 1.47,
+        "Metallic radius": 1.46,
         "IUPAC ordering": 53,
         "Ground level": "4F3/2",
         "Ionization energies": [
@@ -13528,7 +13528,7 @@
         "Vickers hardness": "863 MN m<sup>-2</sup>",
         "X": 1.1,
         "Youngs modulus": "56 GPa",
-        "Metallic radius": 1.781,
+        "Metallic radius": 1.773,
         "IUPAC ordering": 39,
         "Ground level": "6H°15/2",
         "Ionization energies": [
@@ -13698,7 +13698,7 @@
         "Vickers hardness": "no data MN m<sup>-2</sup>",
         "X": 1.9,
         "Youngs modulus": "no data GPa",
-        "Metallic radius": 1.363,
+        "Metallic radius": 1.36,
         "IUPAC ordering": 60,
         "Ground level": "6S5/2",
         "Ionization energies": [
@@ -14030,7 +14030,7 @@
         "Vickers hardness": "350 MN m<sup>-2</sup>",
         "X": 1.3,
         "Youngs modulus": "79 GPa",
-        "Metallic radius": 1.798,
+        "Metallic radius": 1.79,
         "IUPAC ordering": 31,
         "Ground level": "3F2",
         "Ionization energies": [
@@ -14236,7 +14236,7 @@
             "Ti-47": 302.1,
             "Ti-49": 247.11
         },
-        "Metallic radius": 1.462,
+        "Metallic radius": 1.47,
         "IUPAC ordering": 52,
         "Ground level": "3F2",
         "Ionization energies": [
@@ -14560,7 +14560,7 @@
         "Vickers hardness": "520 MN m<sup>-2</sup>",
         "X": 1.25,
         "Youngs modulus": "74 GPa",
-        "Metallic radius": 1.747,
+        "Metallic radius": 1.759,
         "IUPAC ordering": 35,
         "Ground level": "2F°7/2",
         "Ionization energies": [
@@ -14793,12 +14793,12 @@
         },
         "Superconduction temperature": "0.2 K",
         "Thermal conductivity": "27 W m<sup>-1</sup> K<sup>-1</sup>",
-        "Van der waals radius": 2.41,
+        "Van der waals radius": 1.86,
         "Velocity of sound": "3155 m s<sup>-1</sup>",
         "Vickers hardness": "1960 MN m<sup>-2</sup>",
         "X": 1.38,
         "Youngs modulus": "208 GPa",
-        "Metallic radius": 1.542,
+        "Metallic radius": 1.56,
         "IUPAC ordering": 29,
         "Ground level": "5L°6",
         "Ionization energies": [
@@ -15027,7 +15027,7 @@
             "V-50": 210.4,
             "V-51": -52.1
         },
-        "Metallic radius": 1.347,
+        "Metallic radius": 1.34,
         "IUPAC ordering": 55,
         "Ground level": "4F3/2",
         "Ionization energies": [
@@ -15171,7 +15171,7 @@
         "Vickers hardness": "3430 MN m<sup>-2</sup>",
         "X": 2.36,
         "Youngs modulus": "411 GPa",
-        "Metallic radius": 1.41,
+        "Metallic radius": 1.39,
         "IUPAC ordering": 56,
         "Ground level": "5D0",
         "Ionization energies": [
@@ -15623,7 +15623,7 @@
         "Vickers hardness": "206 MN m<sup>-2</sup>",
         "X": 1.1,
         "Youngs modulus": "24 GPa",
-        "Metallic radius": 1.94,
+        "Metallic radius": 1.76,
         "IUPAC ordering": 34,
         "Ground level": "1S0",
         "Ionization energies": [
@@ -15778,7 +15778,7 @@
         },
         "Superconduction temperature": "0.85 K",
         "Thermal conductivity": "120 W m<sup>-1</sup> K<sup>-1</sup>",
-        "Van der waals radius": 2.01,
+        "Van der waals radius": 1.39,
         "Velocity of sound": "3700 m s<sup>-1</sup>",
         "Vickers hardness": "no data MN m<sup>-2</sup>",
         "X": 1.65,
@@ -15925,7 +15925,7 @@
         "Vickers hardness": "903 MN m<sup>-2</sup>",
         "X": 1.33,
         "Youngs modulus": "68 GPa",
-        "Metallic radius": 1.602,
+        "Metallic radius": 1.6,
         "IUPAC ordering": 51,
         "Ground level": "3F2",
         "Ionization energies": [

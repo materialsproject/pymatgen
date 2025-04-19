@@ -9,13 +9,13 @@ from monty.tempfile import ScratchDir
 from pytest import approx
 
 from pymatgen.io.abinit.pseudos import Pseudo, PseudoTable
-from pymatgen.util.testing import TEST_FILES_DIR, PymatgenTest
+from pymatgen.util.testing import TEST_FILES_DIR, MatSciTest
 
 TEST_DIR = f"{TEST_FILES_DIR}/io/abinit"
 
 
-class TestPseudo(PymatgenTest):
-    def setUp(self):
+class TestPseudo(MatSciTest):
+    def setup_method(self):
         nc_pseudo_fnames = defaultdict(list)
         nc_pseudo_fnames["Si"] = [f"{TEST_DIR}/{file}" for file in ("14si.pspnc", "14si.4.hgh", "14-Si.LDA.fhi")]
 
@@ -198,7 +198,7 @@ class TestPseudo(PymatgenTest):
         assert pb.supports_soc
 
 
-class TestPseudoTable(PymatgenTest):
+class TestPseudoTable(MatSciTest):
     def test_methods(self):
         """Test PseudoTable methods."""
         table = PseudoTable([f"{TEST_DIR}/{file}" for file in ("14si.pspnc", "14si.4.hgh", "14-Si.LDA.fhi")])

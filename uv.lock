@@ -264,6 +264,15 @@ wheels = [
 ]
 
 [[package]]
+name = "bibtexparser"
+version = "1.4.3"
+source = { registry = "https://pypi.org/simple" }
+dependencies = [
+    { name = "pyparsing" },
+]
+sdist = { url = "https://files.pythonhosted.org/packages/92/8d/e296c7af03757debd8fc80df2898cbed4fb69fc61ed2c9b4a1d42e923a9e/bibtexparser-1.4.3.tar.gz", hash = "sha256:a9c7ded64bc137720e4df0b1b7f12734edc1361185f1c9097048ff7c35af2b8f", size = 55582 }
+
+[[package]]
 name = "bleach"
 version = "6.2.0"
 source = { registry = "https://pypi.org/simple" }
@@ -1483,15 +1492,6 @@ wheels = [
 ]
 
 [[package]]
-name = "latexcodec"
-version = "3.0.0"
-source = { registry = "https://pypi.org/simple" }
-sdist = { url = "https://files.pythonhosted.org/packages/98/e7/ed339caf3662976949e4fdbfdf4a6db818b8d2aa1cf2b5f73af89e936bba/latexcodec-3.0.0.tar.gz", hash = "sha256:917dc5fe242762cc19d963e6548b42d63a118028cdd3361d62397e3b638b6bc5", size = 31023 }
-wheels = [
-    { url = "https://files.pythonhosted.org/packages/b0/bf/ea8887e9f31a8f93ca306699d11909c6140151393a4216f0d9f85a004077/latexcodec-3.0.0-py3-none-any.whl", hash = "sha256:6f3477ad5e61a0a99bd31a6a370c34e88733a6bad9c921a3ffcfacada12f41a7", size = 18150 },
-]
-
-[[package]]
 name = "lightning"
 version = "2.5.1"
 source = { registry = "https://pypi.org/simple" }
@@ -2522,20 +2522,6 @@ wheels = [
 ]
 
 [[package]]
-name = "pybtex"
-version = "0.24.0"
-source = { registry = "https://pypi.org/simple" }
-dependencies = [
-    { name = "latexcodec" },
-    { name = "pyyaml" },
-    { name = "six" },
-]
-sdist = { url = "https://files.pythonhosted.org/packages/46/9b/fd39836a6397fb363446d83075a7b9c2cc562f4c449292e039ed36084376/pybtex-0.24.0.tar.gz", hash = "sha256:818eae35b61733e5c007c3fcd2cfb75ed1bc8b4173c1f70b56cc4c0802d34755", size = 402879 }
-wheels = [
-    { url = "https://files.pythonhosted.org/packages/ad/5f/40d8e90f985a05133a8895fc454c6127ecec3de8b095dd35bba91382f803/pybtex-0.24.0-py2.py3-none-any.whl", hash = "sha256:e1e0c8c69998452fea90e9179aa2a98ab103f3eed894405b7264e517cc2fcc0f", size = 561354 },
-]
-
-[[package]]
 name = "pycparser"
 version = "2.22"
 source = { registry = "https://pypi.org/simple" }
@@ -2640,9 +2626,10 @@ wheels = [
 
 [[package]]
 name = "pymatgen"
-version = "2025.4.16"
+version = "2025.4.17"
 source = { editable = "." }
 dependencies = [
+    { name = "bibtexparser" },
     { name = "joblib" },
     { name = "matplotlib" },
     { name = "monty" },
@@ -2651,7 +2638,6 @@ dependencies = [
     { name = "palettable" },
     { name = "pandas" },
     { name = "plotly" },
-    { name = "pybtex" },
     { name = "requests" },
     { name = "ruamel-yaml" },
     { name = "scipy" },
@@ -2747,6 +2733,7 @@ maintain = [
 requires-dist = [
     { name = "ase", marker = "extra == 'ase'", specifier = ">=3.23.0" },
     { name = "beautifulsoup4", marker = "extra == 'optional'" },
+    { name = "bibtexparser", specifier = ">=1.4.0" },
     { name = "chemview", marker = "extra == 'optional'", specifier = ">=0.6" },
     { name = "f90nml", marker = "extra == 'optional'", specifier = ">=1.1.2" },
     { name = "fdint", marker = "extra == 'electronic-structure'", specifier = ">=2.0.2" },
@@ -2769,7 +2756,6 @@ requires-dist = [
     { name = "pandas", specifier = ">=2" },
     { name = "phonopy", marker = "extra == 'optional'", specifier = ">=2.33.3" },
     { name = "plotly", specifier = ">=5.0.0" },
-    { name = "pybtex", specifier = ">=0.24.0" },
     { name = "pymatgen", extras = ["abinit", "ase", "mlp", "tblite"], marker = "extra == 'optional'" },
     { name = "pymatgen", extras = ["symmetry"], marker = "extra == 'prototypes'" },
     { name = "pytest", marker = "extra == 'ci'", specifier = ">=8.3.5" },

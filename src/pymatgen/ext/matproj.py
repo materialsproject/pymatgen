@@ -16,7 +16,7 @@ import os
 import platform
 import sys
 import warnings
-from functools import lru_cache, partial
+from functools import partial
 from typing import TYPE_CHECKING, NamedTuple
 
 import requests
@@ -182,7 +182,6 @@ class MPRester:
                 raise MPRestError(msg)
         return all_data
 
-    @lru_cache(maxsize=100)  # noqa:B019
     def search(self, doc, **kwargs) -> list[dict]:
         """
         Queries a Materials PI end point doc. A notable difference with the mp-api's implementation is that this uses
@@ -200,12 +199,16 @@ class MPRester:
         Returns:
         - list of dictionaries, each dictionary representing a material retrieved based on the filtering criteria
         """
-        criteria = {k: v for k, v in kwargs.items() if not k.startswith("_")}
-        params = [f"{k}={v}" for k, v in kwargs.items() if k.startswith("_") and k != "_fields"]
+
+        def comma_cat(val):
+            return ",".join(val) if isinstance(val, list) else val
+
+        criteria = {k: comma_cat(v) for k, v in kwargs.items() if not k.startswith("_")}
+        params = [f"{k}={comma_cat(v)}" for k, v in kwargs.items() if k.startswith("_") and k != "_fields"]
         if "_fields" not in kwargs:
             params.append("_all_fields=True")
         else:
-            fields = ",".join(kwargs["_fields"]) if isinstance(kwargs["_fields"], list) else kwargs["_fields"]
+            fields = comma_cat(kwargs["_fields"])
             params.extend((f"_fields={fields}", "_all_fields=False"))
         get = "&".join(params)
         logger.info(f"query={get}")
@@ -352,18 +355,12 @@ class MPRester:
                 which performs adjustments to allow mixing of GGA and GGA+U
                 calculations for more accurate phase diagrams and reaction
                 energies.
-            inc_structure (str): If None, entries returned are
-                ComputedEntries. If inc_structure="initial",
-                ComputedStructureEntries with initial structures are returned.
-                Otherwise, ComputedStructureEntries with final structures
-                are returned.
+            inc_structure (str): Deprecated. ComputedStructureEntries are always returned now.
             property_data (list): Specify additional properties to include in
-                entry.data. If None, no data. Should be a subset of
-                supported_properties.
-            conventional_unit_cell (bool): Whether to get the standard
-                conventional unit cell
-            sort_by_e_above_hull (bool): Whether to sort the list of entries by
-                e_above_hull (will query e_above_hull as a property_data if True).
+                entry.data. If None, no data. This can be properties that are available in the /materials/summary
+                endpoint of the API.
+            conventional_unit_cell (bool): Deprecated. Use pymatgen.symmetry to convert to conventional unit cell.
+            sort_by_e_above_hull (bool): Deprecated. This can be done by user post analysis.
 
         Returns:
             List of ComputedStructureEntry objects.
@@ -387,6 +384,16 @@ class MPRester:
             with warnings.catch_warnings():
                 warnings.filterwarnings("ignore", message="Failed to guess oxidation states.*")
                 entries = MaterialsProject2020Compatibility().process_entries(entries, clean=True)
+
+        if property_data:
+            edata = self.search(
+                "summary",
+                material_ids=[e.data["material_id"] for e in entries],
+                _fields=[*property_data, "material_id"],
+            )
+            mapped_data = {d["material_id"]: {k: v for k, v in d.items() if k != "material_id"} for d in edata}
+            for e in entries:
+                e.data.update(mapped_data[e.data["material_id"]])
         return list(set(entries))
 
     def get_entry_by_material_id(self, material_id: str, *args, **kwargs) -> ComputedStructureEntry:
@@ -403,7 +410,7 @@ class MPRester:
         """
         return self.get_entries(material_id, *args, **kwargs)[0]
 
-    def get_entries_in_chemsys(self, elements, *args, **kwargs):
+    def get_entries_in_chemsys(self, elements: str | list[str], *args, **kwargs):
         """
         Helper method to get a list of ComputedEntries in a chemical system. For example, elements = ["Li", "Fe", "O"]
         will return a list of all entries in the Li-Fe-O chemical system, i.e., all LixOy, FexOy, LixFey, LixFeyOz,
@@ -419,6 +426,8 @@ class MPRester:
         Returns:
             List of ComputedEntries.
         """
+        if isinstance(elements, str):
+            elements = elements.split("-")
         chemsys = []
         for i in range(1, len(elements) + 1):
             for els in itertools.combinations(elements, i):

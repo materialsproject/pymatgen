@@ -9,7 +9,7 @@ from pytest import approx
 from pymatgen.io.phonopy import get_gruneisen_ph_bs_symm_line, get_gruneisenparameter
 from pymatgen.phonon.gruneisen import GruneisenParameter
 from pymatgen.phonon.plotter import GruneisenPhononBandStructureSymmLine, GruneisenPhononBSPlotter, GruneisenPlotter
-from pymatgen.util.testing import TEST_FILES_DIR, PymatgenTest
+from pymatgen.util.testing import TEST_FILES_DIR, MatSciTest
 
 try:
     import phonopy
@@ -21,8 +21,8 @@ except ImportError as exc:
 TEST_DIR = f"{TEST_FILES_DIR}/phonon/gruneisen"
 
 
-class TestGruneisenPhononBandStructureSymmLine(PymatgenTest):
-    def setUp(self) -> None:
+class TestGruneisenPhononBandStructureSymmLine(MatSciTest):
+    def setup_method(self) -> None:
         self.bs_symm_line = get_gruneisen_ph_bs_symm_line(
             gruneisen_path=f"{TEST_DIR}/gruneisen_eq_plus_minus_InP.yaml",
             structure_path=f"{TEST_DIR}/eq/POSCAR_InP",
@@ -76,8 +76,8 @@ class TestGruneisenPhononBandStructureSymmLine(PymatgenTest):
 
 
 @pytest.mark.skipif(TotalDos is None, reason="Phonopy not present")
-class TestGruneisenParameter(PymatgenTest):
-    def setUp(self) -> None:
+class TestGruneisenParameter(MatSciTest):
+    def setup_method(self) -> None:
         self.gruneisen_obj = get_gruneisenparameter(
             f"{TEST_DIR}/gruneisen_mesh_InP.yaml",
             structure_path=f"{TEST_DIR}/eq/POSCAR_InP",

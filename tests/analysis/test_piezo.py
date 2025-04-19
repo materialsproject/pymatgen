@@ -7,7 +7,7 @@ import pytest
 from numpy.testing import assert_allclose
 
 from pymatgen.analysis.piezo import PiezoTensor
-from pymatgen.util.testing import PymatgenTest
+from pymatgen.util.testing import MatSciTest
 
 __author__ = "Shyam Dwaraknath"
 __version__ = "0.1"
@@ -17,8 +17,8 @@ __status__ = "Development"
 __date__ = "4/1/16"
 
 
-class TestPiezo(PymatgenTest):
-    def setUp(self):
+class TestPiezo(MatSciTest):
+    def setup_method(self):
         self.piezo_struct = self.get_structure("BaNiO3")
         self.voigt_matrix = np.array(
             [
