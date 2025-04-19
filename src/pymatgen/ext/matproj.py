@@ -351,8 +351,7 @@ class MPRester:
                 Otherwise, ComputedStructureEntries with final structures
                 are returned.
             property_data (list): Specify additional properties to include in
-                entry.data. If None, no data. Should be a subset of
-                supported_properties.
+                entry.data. If None, no data.
             conventional_unit_cell (bool): Whether to get the standard
                 conventional unit cell
             sort_by_e_above_hull (bool): Whether to sort the list of entries by
@@ -396,7 +395,7 @@ class MPRester:
         """
         return self.get_entries(material_id, *args, **kwargs)[0]
 
-    def get_entries_in_chemsys(self, elements, *args, **kwargs):
+    def get_entries_in_chemsys(self, elements: str | list[str], *args, **kwargs):
         """
         Helper method to get a list of ComputedEntries in a chemical system. For example, elements = ["Li", "Fe", "O"]
         will return a list of all entries in the Li-Fe-O chemical system, i.e., all LixOy, FexOy, LixFey, LixFeyOz,
@@ -412,6 +411,8 @@ class MPRester:
         Returns:
             List of ComputedEntries.
         """
+        if isinstance(elements, str):
+            elements = elements.split("-")
         chemsys = []
         for i in range(1, len(elements) + 1):
             for els in itertools.combinations(elements, i):

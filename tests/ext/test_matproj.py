@@ -61,6 +61,7 @@ class TestMPRester(MatSciTest):
         # Small test.
         syms2 = "Fe-Li-O"
         entries = self.rester.get_entries_in_chemsys(syms)
+
         entries2 = self.rester.get_entries(syms2)
         elements = {Element(sym) for sym in syms}
         for entry in entries:
@@ -68,6 +69,9 @@ class TestMPRester(MatSciTest):
             assert set(entry.elements).issubset(elements)
 
         assert len(entries) > 1000
+
+        entries3 = self.rester.get_entries_in_chemsys("-".join(syms))
+        assert len(entries3) == len(entries)
 
         for entry in entries2:
             assert isinstance(entry, ComputedEntry)
