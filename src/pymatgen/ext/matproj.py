@@ -24,10 +24,11 @@ from monty.json import MontyDecoder
 
 from pymatgen.core import SETTINGS
 from pymatgen.core import __version__ as PMG_VERSION
+from pymatgen.core.composition import Composition
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
 
 if TYPE_CHECKING:
-    from collections.abc import Callable
+    from collections.abc import Callable, Sequence
 
     from typing_extensions import Self
 
@@ -337,12 +338,10 @@ class MPRester:
 
     def get_entries(
         self,
-        criteria,
-        compatible_only=True,
-        inc_structure=None,
-        property_data=None,
-        conventional_unit_cell=False,
-        sort_by_e_above_hull=False,
+        criteria: str | Sequence[str],
+        compatible_only: bool = True,
+        property_data: Sequence[str] | None = None,
+        **kwargs,
     ):
         """Get a list of ComputedEntries or ComputedStructureEntries corresponding
         to a chemical system, formula, or materials_id or full criteria.
@@ -355,16 +354,38 @@ class MPRester:
                 which performs adjustments to allow mixing of GGA and GGA+U
                 calculations for more accurate phase diagrams and reaction
                 energies.
-            inc_structure (str): Deprecated. ComputedStructureEntries are always returned now.
             property_data (list): Specify additional properties to include in
                 entry.data. If None, no data. This can be properties that are available in the /materials/summary
                 endpoint of the API.
-            conventional_unit_cell (bool): Deprecated. Use pymatgen.symmetry to convert to conventional unit cell.
-            sort_by_e_above_hull (bool): Deprecated. This can be done by user post analysis.
+            **kwargs: Used to catch deprecated kwargs.
 
         Returns:
             List of ComputedStructureEntry objects.
         """
+        if set(kwargs.keys()).intersection({"inc_structure", "conventional_unit_cell", "sort_by_e_above_hull"}):
+            warnings.warn(
+                "The inc_structure, conventional_unit_cell, and sort_by_e_above_hull arguments are deprecated. "
+                "These arguments have no effect and will be removed in 2026.1.1.",
+                DeprecationWarning,
+                stacklevel=2,
+            )
+
+        def proc_crit(val):
+            if val.startswith("mp-"):
+                return val
+            if "-" in val:
+                return "-".join(sorted(val.split("-")))
+            comp = Composition(val)
+            if len(comp) == 1:
+                return val
+            return comp.reduced_formula
+
+        if isinstance(criteria, str):
+            criteria = ",".join([proc_crit(c) for c in criteria.split(",")])
+        else:
+            criteria = ",".join([proc_crit(c) for c in criteria])
+        print(criteria)
+
         if criteria.startswith("mp-"):
             query = f"material_ids={criteria}"
         elif "-" in criteria:
