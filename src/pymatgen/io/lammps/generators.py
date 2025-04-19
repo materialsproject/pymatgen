@@ -25,6 +25,7 @@ from pymatgen.io.core import InputGenerator
 from pymatgen.io.lammps.data import CombinedData, LammpsData
 from pymatgen.io.lammps.inputs import LammpsInputFile
 from pymatgen.io.lammps.sets import LammpsInputSet
+from pymatgen.util.typing import PathLike
 
 MODULE_DIR = os.path.dirname(os.path.abspath(__file__))
 TEMPLATE_DIR = f"{MODULE_DIR}/templates"
@@ -48,6 +49,7 @@ _BASE_LAMMPS_SETTINGS = {'units': 'metal',
                          'nsteps': 1000,
                          'restart': '',
                          'tol' : 1e-6,
+                         'min_style': 'cg',
                          }
 
 FF_STYLE_KEYS = ["pair_style", "bond_style", "angle_style", "dihedral_style", "improper_style", "kspace_style"]
@@ -55,7 +57,10 @@ FF_COEFF_KEYS = ["pair_coeff", "bond_coeff", "angle_coeff", "dihedral_coeff", "i
 
 @dataclass
 class LammpsSettings(MSONable):
-    """Define schema for LAMMPS convience input class.
+    """Define schema for LAMMPS convience input class. The idea is to dynamically set the attributes of this class
+    based on the LAMMPS input file template and the settings dictionary provided by the user. This way, standard inputs
+    that do not typically vary (e.g., units, atom style, dimension, boundary conditions, styles) can be validated and set
+    while allowing the user to specify the rest of the settings in a flexible manner (which won't be explicitly validated here).
     Args:
     units : str
         LAMMPS units style.
@@ -98,7 +103,7 @@ class LammpsSettings(MSONable):
     nsteps : int
         Number of simulation steps. Default is 1000. This is also the maximum number of steps for minimization simulations.
     """
-    units : Literal["metal", "lj", "real", "si", "cgs", "electron", "micro", "nano"] = "metal"
+    ''' units : Literal["metal", "lj", "real", "si", "cgs", "electron", "micro", "nano"] = "metal"
     atom_style : Literal["atomic", "angle", "body", "bond", "charge", "electron", "full", "molecular"] = "atomic"
     dimension : int = 3
     boundary : tuple[str,str,str] = ("p", "p", "p")
@@ -120,11 +125,15 @@ class LammpsSettings(MSONable):
     nsteps : int = 1000
     restart : str = None
     tol : float = 1e-6
+    min_style : Literal["cg", "sd", "fire", "hftn", "quickmin", "spin"] = "cg"'''
     
-    def __init__(self, **kwargs):
+    validate_params: bool = field(default=True)
+    
+    def __init__(self, validate_params : bool = True, **kwargs):
         for key, value in kwargs.items():
             setattr(self, key, value)
-        self.__post_init__()
+        if validate_params:
+            self.__post_init__()
     
     def __post_init__(self) -> None:
         """ Validate input values."""
@@ -134,7 +143,8 @@ class LammpsSettings(MSONable):
             "boundary": {"p","f","s","m","fs","fm"},
             "ensemble" : {"nve","nvt","npt","nph", "minimize"},
             "thermostat": {"nose-hoover", "langevin", None},
-            "barostat": {"nose-hoover", "berendsen", None}
+            "barostat": {"nose-hoover", "berendsen", None},
+            "min_style": {"cg", "sd", "fire", "hftn", "quickmin", "spin", "spin/cg", "spin/lbfgs"},
         }
         for attr, accept_vals in lammps_defined_types.items():
             curr_val = getattr(self,attr, None)
@@ -145,19 +155,26 @@ class LammpsSettings(MSONable):
             if not is_ok:
                 raise ValueError(f"Error validating key {attr}: set to {curr_val}, should be one of {accept_vals}.")
         
-        if isinstance(self.start_pressure, (list, np.ndarray)):
-            if len(self.start_pressure) != 3:
-                raise ValueError(f"start_pressure should be a list of 3 values, got {self.start_pressure}.")
-        if isinstance(self.end_pressure, (list, np.ndarray)):
-            if len(self.end_pressure) != 3:
-                raise ValueError(f"end_pressure should be a list of 3 values, got {self.end_pressure}.")
-        
         if self.restart and not isinstance(self.restart, str):
             raise ValueError(f"restart should be the path to the restart file from the previous run, got {self.restart}.")
         
-        if (self.thermostat or self.barostat) and self.friction < self.timestep:
-            warnings.warn(f"Friction ({self.friction}) is smaller than the timestep ({self.timestep}). This may lead to numerical instability.")
+        
+        if self.ensemble not in ['nve', 'minimize']:
+            if isinstance(self.start_pressure, (list, np.ndarray)):
+                if len(self.start_pressure) != 3:
+                    raise ValueError(f"start_pressure should be a list of 3 values, got {self.start_pressure}.")
+            if isinstance(self.end_pressure, (list, np.ndarray)):
+                if len(self.end_pressure) != 3:
+                    raise ValueError(f"end_pressure should be a list of 3 values, got {self.end_pressure}.")
             
+            if (self.thermostat or self.barostat) and self.friction < self.timestep:
+                warnings.warn(f"Friction ({self.friction}) is smaller than the timestep ({self.timestep}). This may lead to numerical instability.")
+        
+        if self.ensemble == 'minimize':
+            if self.nsteps < 1:
+                raise ValueError(f"nsteps should be greater than 0 for minimization simulations, got {self.nsteps}.")
+            if self.tol > 1e-4:
+                warnings.warn(f"Tolerance for minimization ({self.tol}) is larger than 1e-4. This may lead to inaccurate results.")
 
     @property
     def dict(self) -> dict:
@@ -185,18 +202,20 @@ class BaseLammpsSetGenerator(InputGenerator):
         override_updates : bool
             Whether to override the updates to the input file, i.e., keep the input file as is. Default is False.
     """
-    inputfile : LammpsInputFile | str | Path = field(default=None)
+    inputfile : LammpsInputFile | str | PathLike = field(default=None)
     settings : dict | LammpsSettings = field(default_factory=dict)
     force_field : Path | dict = field(default=None)
     calc_type : str = field(default="lammps")
+    include_defaults : bool = field(default=True)
+    validate_params : bool = field(default=True)
     keep_stages : bool = field(default=True)
     
     def __post_init__(self):
         
-        #If not inputfile, we assume the user is going to use the default template for one the defined flows (NVT, NVE, NPT)
-        #Instead, if the user/another flow specifies a template, we'll use that and an optional settings dict with it 
-        #and not bother with validating the inputs in the inputfile due to the amount of flexibility LAMMPS allows
-        #If another flow is used that defines it's own inputfile template, we'll leave the validation of the user's inputs to that flow's init method
+        '''If not inputfile, we assume the user is going to use the default template for one the defined flows (NVT/NVE/NPT, Minimize, MeltQuench, etc.)
+        Instead, if the user/another flow specifies a template, we'll use that and an optional settings dict with it 
+        and not bother with validating the inputs in the inputfile due to the amount of flexibility LAMMPS allows
+        If another flow is used that defines it's own inputfile template, we'll leave the validation of the user's inputs to that flow's init method'''
         if self.inputfile is None:
             ensemble = self.settings.get('ensemble', 'nvt') if isinstance(self.settings, dict) else self.settings.ensemble
             if ensemble in ['nve', 'nvt', 'npt', 'nph']:
@@ -206,25 +225,17 @@ class BaseLammpsSetGenerator(InputGenerator):
             
             self.inputfile = LammpsInputFile.from_file(os.path.join(TEMPLATE_DIR, file), keep_stages=self.keep_stages)
             
-            if isinstance(self.settings, dict):
+        if isinstance(self.settings, dict):
+            settings = self.settings.copy()
+            if self.include_defaults:
                 base_settings = _BASE_LAMMPS_SETTINGS.copy()
-                base_settings.update(self.settings)
-                self.settings = LammpsSettings(**base_settings)                        
-         
-        if isinstance(self.inputfile, Path):
-            try:
-                self.inputfile = LammpsInputFile.from_file(self.inputfile, keep_stages=self.keep_stages)
-            except FileNotFoundError:
-                raise FileNotFoundError(f"Input file {self.inputfile} not found. Please check the path.")
-        
-        if isinstance(self.inputfile, str):
-            try:
-                self.inputfile = LammpsInputFile.from_str(self.inputfile, keep_stages=self.keep_stages)
-            except ValueError:
-                raise ValueError(f"Input file {self.inputfile} not recognized. Please check the format.")
+                for key, value in base_settings.items():
+                    if key not in settings:
+                        settings[key] = value
+            self.settings = LammpsSettings(validate_params=self.validate_params, **settings)                        
         
         if not self.force_field:
-            warnings.warn("Force field not specified! Ensure you have the correct force field parameters in the data file/settings.")
+            warnings.warn("Force field not specified! Ensure you have the correct force field parameters in the data file/settings or will specify it manually using maker.input_set_generator.force_field.")
             
                 
     def update_settings(self, updates : dict):
@@ -238,7 +249,7 @@ class BaseLammpsSetGenerator(InputGenerator):
             present_settings = self.settings.dict
             for k, v in updates.items():
                 present_settings.update({k: v})
-            self.settings = LammpsSettings(**present_settings)
+            self.settings = LammpsSettings(validate_params=self.validate_params, **present_settings)
         else:
             self.settings.update(updates)
                         
@@ -254,6 +265,16 @@ class BaseLammpsSetGenerator(InputGenerator):
             **kwargs : dict
                 Additional keyword arguments to pass to the InputSet from pmg.      
         """
+         
+        if isinstance(self.inputfile, PathLike):
+            try:
+                self.inputfile = LammpsInputFile.from_file(self.inputfile, keep_stages=self.keep_stages)
+            except FileNotFoundError:
+                try:
+                    self.inputfile = LammpsInputFile.from_str(self.inputfile, keep_stages=self.keep_stages)
+                except ValueError:
+                    raise FileNotFoundError(f"Input file {self.inputfile} not found. It was neither a path nor a string repr of the inputfile. Please check your inputs!")
+        
         settings_dict = self.settings.dict.copy() if isinstance(self.settings, LammpsSettings) else self.settings
         atom_style = settings_dict.get('atom_style', "full")
         print(f"Generating LAMMPS input set with settings: {settings_dict}")
