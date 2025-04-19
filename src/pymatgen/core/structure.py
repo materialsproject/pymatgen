@@ -4738,10 +4738,10 @@ class Structure(IStructure, collections.abc.MutableSequence):
         Returns:
             Structure: self with perturbed sites.
         """
+        rng = np.random.default_rng(seed=seed)
 
         def get_rand_vec():
             # Deal with zero vectors
-            rng = np.random.default_rng(seed=seed)
             vector = rng.standard_normal(3)
             vnorm = np.linalg.norm(vector)
             dist = distance
