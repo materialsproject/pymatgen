@@ -371,11 +371,9 @@ class BaseLammpsSetGenerator(InputGenerator):
         
         # Replace all variables
         input_str = Template(self.inputfile.get_str()).safe_substitute(**settings_dict)
-        print(f"Input file generated with the following settings: {settings_dict}")
         lines = input_str.split('\n')
         # Filter out the lines where the substitution resulted in a line starting with '#'
         filtered_input_str = '\n'.join([line for line in lines if not line.lstrip().startswith('#')])
-        print(f"Filtered input file:\n{filtered_input_str}")
         input_file = LammpsInputFile.from_str(filtered_input_str, keep_stages=self.keep_stages)
 
         return LammpsInputSet(
