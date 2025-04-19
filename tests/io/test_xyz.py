@@ -1,7 +1,5 @@
 from __future__ import annotations
 
-from unittest import TestCase
-
 import pandas as pd
 import pytest
 from pytest import approx
@@ -12,8 +10,8 @@ from pymatgen.io.xyz import XYZ
 from pymatgen.util.testing import TEST_FILES_DIR, VASP_IN_DIR
 
 
-class TestXYZ(TestCase):
-    def setUp(self):
+class TestXYZ:
+    def setup_method(self):
         coords = [
             [0, 0, 0],
             [0, 0, 1.089000],
@@ -89,8 +87,8 @@ C 1.16730636786 -1.38166622735 -2.771*^-06
 """
         xyz = XYZ.from_str(mol_str)
         mol = xyz.molecule
-        assert mol[0].z == -7.222e-06
-        assert mol[1].z == -2.771e-06
+        assert mol[0].z == approx(-7.222e-06)
+        assert mol[1].z == approx(-2.771e-06)
 
         mol_str = """3
 Random

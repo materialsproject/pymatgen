@@ -120,10 +120,7 @@ def _c2index_isreverse(c1, c2):
     elif c2_1_index == c2_0_index - 1:
         reverse = True
     else:
-        msg = (
-            "Second node of cycle c1 in cycle c2 is not just after or "
-            "just before first node of cycle c1 in cycle c2."
-        )
+        msg = "Second node of cycle c1 in cycle c2 is not just after or just before first node of cycle c1 in cycle c2."
         return None, None, msg
     return c2_0_index, reverse, ""
 

@@ -19,15 +19,15 @@ from pymatgen.analysis.chemenv.coordination_environments.coordination_geometry_f
     symmetry_measure,
 )
 from pymatgen.core.structure import Lattice, Structure
-from pymatgen.util.testing import TEST_FILES_DIR, PymatgenTest
+from pymatgen.util.testing import TEST_FILES_DIR, MatSciTest
 
 __author__ = "waroquiers"
 
 json_dir = f"{TEST_FILES_DIR}/analysis/chemenv/json"
 
 
-class TestCoordinationGeometryFinder(PymatgenTest):
-    def setUp(self):
+class TestCoordinationGeometryFinder(MatSciTest):
+    def setup_method(self):
         self.lgf = LocalGeometryFinder()
         self.lgf.setup_parameters(
             centering_type="standard",
@@ -142,7 +142,7 @@ class TestCoordinationGeometryFinder(PymatgenTest):
 
         for json_file in files:
             with self.subTest(json_file=json_file):
-                with open(f"{json_dir}/{json_file}") as file:
+                with open(f"{json_dir}/{json_file}", encoding="utf-8") as file:
                     dct = json.load(file)
 
                 atom_indices = dct["atom_indices"]
@@ -214,9 +214,9 @@ class TestCoordinationGeometryFinder(PymatgenTest):
                     max_cn=cg.coordination_number,
                     only_symbols=[mp_symbol],
                 )
-                assert (
-                    abs(se.get_csm(0, mp_symbol)["symmetry_measure"] - 0.0) < 1e-8
-                ), f"Failed to get perfect environment with {mp_symbol=}"
+                assert abs(se.get_csm(0, mp_symbol)["symmetry_measure"] - 0.0) < 1e-8, (
+                    f"Failed to get perfect environment with {mp_symbol=}"
+                )
 
     def test_disable_hints(self):
         allcg = AllCoordinationGeometries()

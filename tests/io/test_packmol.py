@@ -10,7 +10,7 @@ import pytest
 from pymatgen.analysis.molecule_matcher import MoleculeMatcher
 from pymatgen.core import Molecule
 from pymatgen.io.packmol import PackmolBoxGen
-from pymatgen.util.testing import TEST_FILES_DIR, PymatgenTest
+from pymatgen.util.testing import TEST_FILES_DIR, MatSciTest
 
 TEST_DIR = f"{TEST_FILES_DIR}/io/packmol"
 # error message is different in CI for unknown reasons (as of 2024-04-12)
@@ -48,7 +48,7 @@ water_atoms = ["H", "H", "O"]
 water = Molecule(water_atoms, water_coords)
 
 
-class TestPackmolSet(PymatgenTest):
+class TestPackmolSet(MatSciTest):
     def test_packmol_with_molecule(self):
         """Test coords input as Molecule."""
         pw = PackmolBoxGen().get_input_set(
@@ -91,7 +91,7 @@ class TestPackmolSet(PymatgenTest):
                 {"name": "LiTFSi", "number": 20, "coords": p2},
             ],
         )
-        # PymatgenTest makes each test change to a temporary directory
+        # MatSciTest makes each test change to a temporary directory
         # Check here we can run in the current directory
         pw.write_input(".")
         pw.run(".")
@@ -99,7 +99,7 @@ class TestPackmolSet(PymatgenTest):
         assert os.path.isfile(f"{self.tmp_path}/packmol.stdout")
         out = Molecule.from_file(f"{self.tmp_path}/packmol_out.xyz")
         assert out.composition.num_atoms == 10 * 15 + 20 * 16
-        # PymatgenTest makes each test change to a temporary directory
+        # MatSciTest makes each test change to a temporary directory
         # Check here we can run in a relative directory
         pw.write_input("somedir")
         pw.run("somedir")
@@ -122,7 +122,7 @@ class TestPackmolSet(PymatgenTest):
             ],
         )
         input_set.write_input(self.tmp_path)
-        with open(f"{self.tmp_path}/packmol.inp") as file:
+        with open(f"{self.tmp_path}/packmol.inp", encoding="utf-8") as file:
             input_string = file.read()
             assert "maxit 0" in input_string
             assert "nloop 0" in input_string
@@ -154,7 +154,7 @@ class TestPackmolSet(PymatgenTest):
             box=[0, 0, 0, 2, 2, 2],
         )
         pw.write_input(self.tmp_path)
-        with open(f"{self.tmp_path}/packmol.inp") as file:
+        with open(f"{self.tmp_path}/packmol.inp", encoding="utf-8") as file:
             input_string = file.read()
             assert "inside box 0 0 0 2 2 2" in input_string
         with pytest.raises(ValueError, match=ERR_MSG_173):

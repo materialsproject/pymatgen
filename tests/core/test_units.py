@@ -1,7 +1,5 @@
 from __future__ import annotations
 
-import warnings
-
 import pytest
 from numpy.testing import assert_array_equal
 from pytest import approx
@@ -26,7 +24,7 @@ from pymatgen.core.units import (
     eV_to_Ha,
     unitized,
 )
-from pymatgen.util.testing import PymatgenTest
+from pymatgen.util.testing import MatSciTest
 
 
 def test_unit_conversions():
@@ -37,7 +35,7 @@ def test_unit_conversions():
     assert amu_to_kg == approx(1.66053906660e-27)
 
 
-class TestUnit(PymatgenTest):
+class TestUnit(MatSciTest):
     def test_init(self):
         u1 = Unit((("m", 1), ("s", -1)))
         assert str(u1) == "m s^-1"
@@ -53,7 +51,7 @@ class TestUnit(PymatgenTest):
         assert str(newton * Unit("m")) == "N m"
 
 
-class TestFloatWithUnit(PymatgenTest):
+class TestFloatWithUnit(MatSciTest):
     def test_energy(self):
         a = Energy(1.1, "eV")
         b = a.to("Ha")
@@ -66,7 +64,7 @@ class TestFloatWithUnit(PymatgenTest):
         d = Energy(1, "Ha")
         assert a + d == approx(28.311386245987997)
         assert a - d == approx(-26.111386245987994)
-        assert a + 1 == 2.1
+        assert a + 1 == approx(2.1)
         assert str(a / d) == "1.1 eV Ha^-1"
 
         e_kj = Energy(1, "kJ")
@@ -82,7 +80,7 @@ class TestFloatWithUnit(PymatgenTest):
         b = a * 3
         assert float(b) == approx(60)
         assert str(b.unit) == "h"
-        assert float(3 * a) == 60.0
+        assert float(3 * a) == approx(60.0)
         a = Time(0.5, "d")
         assert float(a.to("s")) == approx(3600 * 24 * 0.5)
 
@@ -108,17 +106,6 @@ class TestFloatWithUnit(PymatgenTest):
 
         mega_3 = Memory.from_str("+1.0 MB")
         assert mega_0 == mega_1 == mega_2 == mega_3
-
-    def test_deprecated_memory(self):
-        # TODO: remove after 2025-01-01
-        for unit in ("Kb", "kb", "Mb", "mb", "Gb", "gb", "Tb", "tb"):
-            with pytest.warns(DeprecationWarning, match=f"Unit {unit} is deprecated"):
-                Memory(1, unit)
-
-        with warnings.catch_warnings():
-            warnings.simplefilter("error")
-            for unit in ("KB", "MB", "GB", "TB"):
-                Memory(1, unit)
 
     def test_unitized(self):
         @unitized("eV")
@@ -154,8 +141,8 @@ class TestFloatWithUnit(PymatgenTest):
 
         j_out = func5()
         assert j_out.unit == Unit("kg")
-        assert j_out[0] == 0.005
-        assert j_out[1] == 0.01
+        assert j_out[0] == approx(0.005)
+        assert j_out[1] == approx(0.01)
 
     def test_compound_operations(self):
         earth_acc = 9.81 * Length(1, "m") / (Time(1, "s") ** 2)
@@ -185,7 +172,7 @@ class TestFloatWithUnit(PymatgenTest):
         assert FloatWithUnit(-5, "MPa") == -x
 
 
-class TestArrayWithUnit(PymatgenTest):
+class TestArrayWithUnit(MatSciTest):
     def test_energy(self):
         """Similar to TestFloatWithUnit.test_energy.
         Check whether EnergyArray and FloatWithUnit have same behavior.
@@ -202,12 +189,11 @@ class TestArrayWithUnit(PymatgenTest):
         assert e_in_ha == approx(0.0404242579378)
         e_in_j = EnergyArray(3.14, "J")
         assert (e_in_j.to("eV")) == approx(1.9598338493806797e19)
-        # self.assertRaises(ValueError, Energy, 1, "m")
 
         e2_in_ha = EnergyArray(1, "Ha")
         assert (e_in_ev + e2_in_ha) == approx(28.311386245987997)
         assert (e_in_ev - e2_in_ha) == approx(-26.111386245987994)
-        assert float(e_in_ev + 1) == 2.1
+        assert float(e_in_ev + 1) == approx(2.1)
 
     def test_time(self):
         """Similar to FloatWithUnitTest.test_time.
@@ -290,10 +276,10 @@ class TestArrayWithUnit(PymatgenTest):
 
     def test_as_base_units(self):
         pressure_arr = ArrayWithUnit([5, 10], "MPa")
-        assert_array_equal(ArrayWithUnit([5000000, 10000000], "Pa"), pressure_arr.as_base_units)
+        assert_array_equal(ArrayWithUnit([5e6, 1e7], "Pa"), pressure_arr.as_base_units)
 
 
-class TestDataPersistence(PymatgenTest):
+class TestDataPersistence(MatSciTest):
     def test_pickle(self):
         """Test whether FloatWithUnit and ArrayWithUnit support pickle."""
         for cls in [FloatWithUnit, ArrayWithUnit]:

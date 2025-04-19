@@ -4,7 +4,6 @@ import functools
 import json
 import operator
 from shutil import which
-from unittest import TestCase
 
 import numpy as np
 import pytest
@@ -12,6 +11,7 @@ from monty.json import MontyDecoder
 from numpy.testing import assert_allclose
 from pytest import approx
 
+from pymatgen.alchemy.transmuters import StandardTransmuter
 from pymatgen.core import Element, PeriodicSite
 from pymatgen.core.lattice import Lattice
 from pymatgen.symmetry.structure import SymmetrizedStructure
@@ -41,8 +41,8 @@ from pymatgen.util.testing import TEST_FILES_DIR, VASP_IN_DIR
 enumlib_present = which("enum.x") and which("makestr.x")
 
 
-class TestRotationTransformations(TestCase):
-    def setUp(self):
+class TestRotationTransformations:
+    def setup_method(self):
         coords = [[0, 0, 0], [0.75, 0.5, 0.75]]
         lattice = [
             [3.8401979337, 0, 0],
@@ -108,8 +108,8 @@ class TestSubstitutionTransformation:
         assert struct_trafo.formula == "Na2 Se1 S1"
 
 
-class TestSupercellTransformation(TestCase):
-    def setUp(self):
+class TestSupercellTransformation:
+    def setup_method(self):
         coords = [[0, 0, 0], [0.75, 0.75, 0.75], [0.5, 0.5, 0.5], [0.25, 0.25, 0.25]]
         lattice = [
             [3.8401979337, 0, 0],
@@ -199,7 +199,7 @@ class TestAutoOxiStateDecorationTransformation:
         trafo = AutoOxiStateDecorationTransformation()
         dct = trafo.as_dict()
         trafo = AutoOxiStateDecorationTransformation.from_dict(dct)
-        assert trafo.analyzer.dist_scale_factor == 1.015
+        assert trafo.analyzer.dist_scale_factor == approx(1.015)
 
     def test_failure(self):
         trafo_fail = AutoOxiStateDecorationTransformation()
@@ -427,6 +427,38 @@ class TestOrderDisorderedStructureTransformation:
         output = trafo.apply_transformation(struct * [2, 2, 2], return_ranked_list=False)
         assert output.composition.reduced_formula == struct.composition.reduced_formula
 
+    def test_occ_tol_with_supercell(self):
+        """Test occ_tol parameter behavior with supercell structures."""
+        # Create a disordered structure
+        coords = [[0.0, 0.0, 0.0], [0.5, 0.5, 0.5]]
+        lattice = Lattice(
+            [
+                [2.9823991724941643, 0.0, 1.8261928001873466e-16],
+                [4.796063659664723e-16, 2.9823991724941643, 1.8261928001873466e-16],
+                [0.0, 0.0, 2.9823991724941643],
+            ]
+        )
+        struct = Structure(lattice, [{"V": 0.75, "Ti": 0.25}, {"V": 0.75, "Ti": 0.25}], coords)
+
+        # Create a 5x5x5 supercell structure
+        supercell = struct * [5, 5, 5]
+
+        # Test 1: Default occ_tol (0.25) should raise error
+        ts_strict = OrderDisorderedStructureTransformation(algo=-1, no_oxi_states=True, occ_tol=0.25)
+        with pytest.raises(ValueError, match="Occupancy fractions not consistent with size of unit cell"):
+            StandardTransmuter.from_structures([supercell], transformations=[ts_strict], extend_collection=3)
+
+        # Test 2: Relaxed occ_tol (0.5) should work
+        ts_relaxed = OrderDisorderedStructureTransformation(algo=-1, no_oxi_states=True, occ_tol=0.5)
+        transmuter = StandardTransmuter.from_structures([supercell], transformations=[ts_relaxed], extend_collection=3)
+
+        # Verify the transformation worked and produced expected composition
+        transformed_structs = transmuter.transformed_structures
+        assert len(transformed_structs) == 3
+        # Check composition matches expected Ti31V94
+        composition = transformed_structs[0].final_structure.composition
+        assert composition.reduced_formula == "Ti31V94"
+
 
 class TestPrimitiveCellTransformation:
     def test_apply_transformation(self):
@@ -451,7 +483,7 @@ class TestPrimitiveCellTransformation:
         struct = trafo.apply_transformation(struct)
         assert len(struct) == 4
 
-        with open(f"{TEST_FILES_DIR}/transformations/TiO2_super.json") as file:
+        with open(f"{TEST_FILES_DIR}/transformations/TiO2_super.json", encoding="utf-8") as file:
             struct = json.load(file, cls=MontyDecoder)
             prim = trafo.apply_transformation(struct)
             assert prim.formula == "Ti4 O8"

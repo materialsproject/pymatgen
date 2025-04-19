@@ -3,7 +3,6 @@ from __future__ import annotations
 import copy
 import json
 import os
-from unittest import TestCase
 
 import numpy as np
 import pytest
@@ -31,7 +30,7 @@ from pymatgen.io.lobster import (
     Wavefunction,
 )
 from pymatgen.io.vasp import Vasprun
-from pymatgen.util.testing import TEST_FILES_DIR, VASP_IN_DIR, VASP_OUT_DIR, PymatgenTest
+from pymatgen.util.testing import TEST_FILES_DIR, VASP_IN_DIR, VASP_OUT_DIR, MatSciTest
 
 TEST_DIR = f"{TEST_FILES_DIR}/electronic_structure/cohp"
 
@@ -42,8 +41,8 @@ __email__ = "janine.george@uclouvain.be, esters@uoregon.edu"
 __date__ = "Dec 10, 2017"
 
 
-class TestBwdf(PymatgenTest):
-    def setUp(self):
+class TestBwdf(MatSciTest):
+    def setup_method(self):
         self.bwdf_coop = Bwdf(filename=f"{TEST_DIR}/BWDF.lobster.AlN.gz")
         self.bwdf_cohp = Bwdf(filename=f"{TEST_DIR}/BWDFCOHP.lobster.NaCl.gz")
 
@@ -57,8 +56,8 @@ class TestBwdf(PymatgenTest):
         assert self.bwdf_cohp.bwdf[Spin.up][103] == approx(-0.01392, abs=1e-4)
 
 
-class TestCohpcar(PymatgenTest):
-    def setUp(self):
+class TestCohpcar(MatSciTest):
+    def setup_method(self):
         self.cohp_bise = Cohpcar(filename=f"{TEST_DIR}/COHPCAR.lobster.BiSe.gz")
         self.coop_bise = Cohpcar(
             filename=f"{TEST_DIR}/COOPCAR.lobster.BiSe.gz",
@@ -180,13 +179,13 @@ class TestCohpcar(PymatgenTest):
         efermi_KF = -2.87475
         elim_KF = (-11.25000 + efermi_KF, 7.5000 + efermi_KF)
 
-        assert self.cohp_bise.efermi == efermi_bise
-        assert self.coop_bise.efermi == efermi_bise
-        assert self.cohp_fe.efermi == efermi_fe
-        assert self.coop_fe.efermi == efermi_fe
+        assert self.cohp_bise.efermi == approx(efermi_bise)
+        assert self.coop_bise.efermi == approx(efermi_bise)
+        assert self.cohp_fe.efermi == approx(efermi_fe)
+        assert self.coop_fe.efermi == approx(efermi_fe)
         # Lobster 3.1
-        assert self.cohp_KF.efermi == efermi_KF
-        assert self.coop_KF.efermi == efermi_KF
+        assert self.cohp_KF.efermi == approx(efermi_KF)
+        assert self.coop_KF.efermi == approx(efermi_KF)
 
         assert self.cohp_bise.energies[0] + self.cohp_bise.efermi == approx(elim_bise[0], abs=1e-4)
         assert self.cohp_bise.energies[-1] + self.cohp_bise.efermi == approx(elim_bise[1], abs=1e-4)
@@ -398,8 +397,8 @@ class TestCohpcar(PymatgenTest):
         assert len(self.cobi6.orb_res_cohp["21"]["2py-1s-2s"]["COHP"][Spin.down]) == 12
 
 
-class TestDoscar(TestCase):
-    def setUp(self):
+class TestDoscar:
+    def setup_method(self):
         # first for spin polarized version
         doscar = f"{VASP_OUT_DIR}/DOSCAR.lobster.spin"
         poscar = f"{VASP_IN_DIR}/POSCAR.lobster.spin_DOS"
@@ -420,7 +419,7 @@ class TestDoscar(TestCase):
 
         self.DOSCAR_lcfo = Doscar(doscar=doscar3, structure_file=poscar3, is_lcfo=True)
 
-        with open(f"{TEST_FILES_DIR}/electronic_structure/dos/structure_KF.json") as file:
+        with open(f"{TEST_FILES_DIR}/electronic_structure/dos/structure_KF.json", encoding="utf-8") as file:
             data = json.load(file)
 
         self.structure = Structure.from_dict(data)
@@ -444,9 +443,9 @@ class TestDoscar(TestCase):
         pdos_f_2px_up = [0.00000, 0.00160, 0.00000, 0.25805, 0.00000, 0.00029]
         pdos_f_2px_down = [0.00000, 0.00161, 0.00000, 0.25814, 0.00000, 0.00029]
 
-        assert energies_spin == self.DOSCAR_spin_pol.completedos.energies.tolist()
-        assert tdos_up == self.DOSCAR_spin_pol.completedos.densities[Spin.up].tolist()
-        assert tdos_down == self.DOSCAR_spin_pol.completedos.densities[Spin.down].tolist()
+        assert_allclose(energies_spin, self.DOSCAR_spin_pol.completedos.energies)
+        assert_allclose(tdos_up, self.DOSCAR_spin_pol.completedos.densities[Spin.up])
+        assert_allclose(tdos_down, self.DOSCAR_spin_pol.completedos.densities[Spin.down])
         assert fermi == approx(self.DOSCAR_spin_pol.completedos.efermi)
 
         assert_allclose(
@@ -457,14 +456,14 @@ class TestDoscar(TestCase):
             self.DOSCAR_spin_pol2.completedos.structure.frac_coords,
             self.structure.frac_coords,
         )
-        assert self.DOSCAR_spin_pol.completedos.pdos[self.structure[0]]["2s"][Spin.up].tolist() == pdos_f_2s_up
-        assert self.DOSCAR_spin_pol.completedos.pdos[self.structure[0]]["2s"][Spin.down].tolist() == pdos_f_2s_down
-        assert self.DOSCAR_spin_pol.completedos.pdos[self.structure[0]]["2p_y"][Spin.up].tolist() == pdos_f_2py_up
-        assert self.DOSCAR_spin_pol.completedos.pdos[self.structure[0]]["2p_y"][Spin.down].tolist() == pdos_f_2py_down
-        assert self.DOSCAR_spin_pol.completedos.pdos[self.structure[0]]["2p_z"][Spin.up].tolist() == pdos_f_2pz_up
-        assert self.DOSCAR_spin_pol.completedos.pdos[self.structure[0]]["2p_z"][Spin.down].tolist() == pdos_f_2pz_down
-        assert self.DOSCAR_spin_pol.completedos.pdos[self.structure[0]]["2p_x"][Spin.up].tolist() == pdos_f_2px_up
-        assert self.DOSCAR_spin_pol.completedos.pdos[self.structure[0]]["2p_x"][Spin.down].tolist() == pdos_f_2px_down
+        assert_allclose(self.DOSCAR_spin_pol.completedos.pdos[self.structure[0]]["2s"][Spin.up], pdos_f_2s_up)
+        assert_allclose(self.DOSCAR_spin_pol.completedos.pdos[self.structure[0]]["2s"][Spin.down], pdos_f_2s_down)
+        assert_allclose(self.DOSCAR_spin_pol.completedos.pdos[self.structure[0]]["2p_y"][Spin.up], pdos_f_2py_up)
+        assert_allclose(self.DOSCAR_spin_pol.completedos.pdos[self.structure[0]]["2p_y"][Spin.down], pdos_f_2py_down)
+        assert_allclose(self.DOSCAR_spin_pol.completedos.pdos[self.structure[0]]["2p_z"][Spin.up], pdos_f_2pz_up)
+        assert_allclose(self.DOSCAR_spin_pol.completedos.pdos[self.structure[0]]["2p_z"][Spin.down], pdos_f_2pz_down)
+        assert_allclose(self.DOSCAR_spin_pol.completedos.pdos[self.structure[0]]["2p_x"][Spin.up], pdos_f_2px_up)
+        assert_allclose(self.DOSCAR_spin_pol.completedos.pdos[self.structure[0]]["2p_x"][Spin.down], pdos_f_2px_down)
 
         energies_nonspin = [-11.25000, -7.50000, -3.75000, 0.00000, 3.75000, 7.50000]
         tdos_nonspin = [0.00000, 1.60000, 0.00000, 1.60000, 0.00000, 0.02418]
@@ -473,18 +472,18 @@ class TestDoscar(TestCase):
         pdos_f_2pz = [0.00000, 0.00322, 0.00000, 0.51636, 0.00000, 0.00037]
         pdos_f_2px = [0.00000, 0.00322, 0.00000, 0.51634, 0.00000, 0.00037]
 
-        assert energies_nonspin == self.DOSCAR_nonspin_pol.completedos.energies.tolist()
+        assert_allclose(energies_nonspin, self.DOSCAR_nonspin_pol.completedos.energies)
 
-        assert tdos_nonspin == self.DOSCAR_nonspin_pol.completedos.densities[Spin.up].tolist()
+        assert_allclose(tdos_nonspin, self.DOSCAR_nonspin_pol.completedos.densities[Spin.up])
 
         assert fermi == approx(self.DOSCAR_nonspin_pol.completedos.efermi)
 
         assert self.DOSCAR_nonspin_pol.completedos.structure == self.structure
 
-        assert self.DOSCAR_nonspin_pol.completedos.pdos[self.structure[0]]["2s"][Spin.up].tolist() == pdos_f_2s
-        assert self.DOSCAR_nonspin_pol.completedos.pdos[self.structure[0]]["2p_y"][Spin.up].tolist() == pdos_f_2py
-        assert self.DOSCAR_nonspin_pol.completedos.pdos[self.structure[0]]["2p_z"][Spin.up].tolist() == pdos_f_2pz
-        assert self.DOSCAR_nonspin_pol.completedos.pdos[self.structure[0]]["2p_x"][Spin.up].tolist() == pdos_f_2px
+        assert_allclose(self.DOSCAR_nonspin_pol.completedos.pdos[self.structure[0]]["2s"][Spin.up], pdos_f_2s)
+        assert_allclose(self.DOSCAR_nonspin_pol.completedos.pdos[self.structure[0]]["2p_y"][Spin.up], pdos_f_2py)
+        assert_allclose(self.DOSCAR_nonspin_pol.completedos.pdos[self.structure[0]]["2p_z"][Spin.up], pdos_f_2pz)
+        assert_allclose(self.DOSCAR_nonspin_pol.completedos.pdos[self.structure[0]]["2p_x"][Spin.up], pdos_f_2px)
 
     def test_pdos(self):
         # first for spin polarized version
@@ -498,14 +497,14 @@ class TestDoscar(TestCase):
         pdos_f_2px_up = [0.00000, 0.00160, 0.00000, 0.25805, 0.00000, 0.00029]
         pdos_f_2px_down = [0.00000, 0.00161, 0.00000, 0.25814, 0.00000, 0.00029]
 
-        assert self.DOSCAR_spin_pol.pdos[0]["2s"][Spin.up].tolist() == pdos_f_2s_up
-        assert self.DOSCAR_spin_pol.pdos[0]["2s"][Spin.down].tolist() == pdos_f_2s_down
-        assert self.DOSCAR_spin_pol.pdos[0]["2p_y"][Spin.up].tolist() == pdos_f_2py_up
-        assert self.DOSCAR_spin_pol.pdos[0]["2p_y"][Spin.down].tolist() == pdos_f_2py_down
-        assert self.DOSCAR_spin_pol.pdos[0]["2p_z"][Spin.up].tolist() == pdos_f_2pz_up
-        assert self.DOSCAR_spin_pol.pdos[0]["2p_z"][Spin.down].tolist() == pdos_f_2pz_down
-        assert self.DOSCAR_spin_pol.pdos[0]["2p_x"][Spin.up].tolist() == pdos_f_2px_up
-        assert self.DOSCAR_spin_pol.pdos[0]["2p_x"][Spin.down].tolist() == pdos_f_2px_down
+        assert_allclose(self.DOSCAR_spin_pol.pdos[0]["2s"][Spin.up], pdos_f_2s_up)
+        assert_allclose(self.DOSCAR_spin_pol.pdos[0]["2s"][Spin.down], pdos_f_2s_down)
+        assert_allclose(self.DOSCAR_spin_pol.pdos[0]["2p_y"][Spin.up], pdos_f_2py_up)
+        assert_allclose(self.DOSCAR_spin_pol.pdos[0]["2p_y"][Spin.down], pdos_f_2py_down)
+        assert_allclose(self.DOSCAR_spin_pol.pdos[0]["2p_z"][Spin.up], pdos_f_2pz_up)
+        assert_allclose(self.DOSCAR_spin_pol.pdos[0]["2p_z"][Spin.down], pdos_f_2pz_down)
+        assert_allclose(self.DOSCAR_spin_pol.pdos[0]["2p_x"][Spin.up], pdos_f_2px_up)
+        assert_allclose(self.DOSCAR_spin_pol.pdos[0]["2p_x"][Spin.down], pdos_f_2px_down)
 
         # non spin
         pdos_f_2s = [0.00000, 0.00320, 0.00000, 0.00017, 0.00000, 0.00060]
@@ -513,10 +512,10 @@ class TestDoscar(TestCase):
         pdos_f_2pz = [0.00000, 0.00322, 0.00000, 0.51636, 0.00000, 0.00037]
         pdos_f_2px = [0.00000, 0.00322, 0.00000, 0.51634, 0.00000, 0.00037]
 
-        assert self.DOSCAR_nonspin_pol.pdos[0]["2s"][Spin.up].tolist() == pdos_f_2s
-        assert self.DOSCAR_nonspin_pol.pdos[0]["2p_y"][Spin.up].tolist() == pdos_f_2py
-        assert self.DOSCAR_nonspin_pol.pdos[0]["2p_z"][Spin.up].tolist() == pdos_f_2pz
-        assert self.DOSCAR_nonspin_pol.pdos[0]["2p_x"][Spin.up].tolist() == pdos_f_2px
+        assert_allclose(self.DOSCAR_nonspin_pol.pdos[0]["2s"][Spin.up], pdos_f_2s)
+        assert_allclose(self.DOSCAR_nonspin_pol.pdos[0]["2p_y"][Spin.up], pdos_f_2py)
+        assert_allclose(self.DOSCAR_nonspin_pol.pdos[0]["2p_z"][Spin.up], pdos_f_2pz)
+        assert_allclose(self.DOSCAR_nonspin_pol.pdos[0]["2p_x"][Spin.up], pdos_f_2px)
 
         # test with DOSCAR.LCFO.lobster file
         pdos_1a1_AlN = [
@@ -560,9 +559,9 @@ class TestDoscar(TestCase):
         ]
 
         assert self.DOSCAR_lcfo._is_lcfo
-        assert self.DOSCAR_lcfo.pdos[0]["1a1"][Spin.down].tolist() == pdos_1a1_AlN
-        assert self.DOSCAR_lcfo.pdos[1]["3p_y"][Spin.down].tolist() == pdos_3py_Al
-        assert self.DOSCAR_lcfo.pdos[2]["2s"][Spin.down].tolist() == pdos_2s_N
+        assert_allclose(self.DOSCAR_lcfo.pdos[0]["1a1"][Spin.down], pdos_1a1_AlN)
+        assert_allclose(self.DOSCAR_lcfo.pdos[1]["3p_y"][Spin.down], pdos_3py_Al)
+        assert_allclose(self.DOSCAR_lcfo.pdos[2]["2s"][Spin.down], pdos_2s_N)
 
     def test_tdos(self):
         # first for spin polarized version
@@ -571,38 +570,38 @@ class TestDoscar(TestCase):
         tdos_down = [0.00000, 0.79999, 0.00000, 0.79999, 0.00000, 0.02586]
         fermi = 0.0
 
-        assert energies_spin == self.DOSCAR_spin_pol.tdos.energies.tolist()
-        assert tdos_up == self.DOSCAR_spin_pol.tdos.densities[Spin.up].tolist()
-        assert tdos_down == self.DOSCAR_spin_pol.tdos.densities[Spin.down].tolist()
+        assert_allclose(energies_spin, self.DOSCAR_spin_pol.tdos.energies)
+        assert_allclose(tdos_up, self.DOSCAR_spin_pol.tdos.densities[Spin.up])
+        assert_allclose(tdos_down, self.DOSCAR_spin_pol.tdos.densities[Spin.down])
         assert fermi == approx(self.DOSCAR_spin_pol.tdos.efermi)
 
         energies_nonspin = [-11.25000, -7.50000, -3.75000, 0.00000, 3.75000, 7.50000]
         tdos_nonspin = [0.00000, 1.60000, 0.00000, 1.60000, 0.00000, 0.02418]
         fermi = 0.0
 
-        assert energies_nonspin == self.DOSCAR_nonspin_pol.tdos.energies.tolist()
-        assert tdos_nonspin == self.DOSCAR_nonspin_pol.tdos.densities[Spin.up].tolist()
+        assert_allclose(energies_nonspin, self.DOSCAR_nonspin_pol.tdos.energies)
+        assert_allclose(tdos_nonspin, self.DOSCAR_nonspin_pol.tdos.densities[Spin.up])
         assert fermi == approx(self.DOSCAR_nonspin_pol.tdos.efermi)
 
     def test_energies(self):
         # first for spin polarized version
         energies_spin = [-11.25000, -7.50000, -3.75000, 0.00000, 3.75000, 7.50000]
 
-        assert energies_spin == self.DOSCAR_spin_pol.energies.tolist()
+        assert_allclose(energies_spin, self.DOSCAR_spin_pol.energies)
 
         energies_nonspin = [-11.25000, -7.50000, -3.75000, 0.00000, 3.75000, 7.50000]
-        assert energies_nonspin == self.DOSCAR_nonspin_pol.energies.tolist()
+        assert_allclose(energies_nonspin, self.DOSCAR_nonspin_pol.energies)
 
     def test_tdensities(self):
         # first for spin polarized version
         tdos_up = [0.00000, 0.79999, 0.00000, 0.79999, 0.00000, 0.02577]
         tdos_down = [0.00000, 0.79999, 0.00000, 0.79999, 0.00000, 0.02586]
 
-        assert tdos_up == self.DOSCAR_spin_pol.tdensities[Spin.up].tolist()
-        assert tdos_down == self.DOSCAR_spin_pol.tdensities[Spin.down].tolist()
+        assert_allclose(tdos_up, self.DOSCAR_spin_pol.tdensities[Spin.up])
+        assert_allclose(tdos_down, self.DOSCAR_spin_pol.tdensities[Spin.down])
 
         tdos_nonspin = [0.00000, 1.60000, 0.00000, 1.60000, 0.00000, 0.02418]
-        assert tdos_nonspin == self.DOSCAR_nonspin_pol.tdensities[Spin.up].tolist()
+        assert_allclose(tdos_nonspin, self.DOSCAR_nonspin_pol.tdensities[Spin.up])
 
         # test with DOSCAR.LCFO.lobster file
         tdos_up = [
@@ -619,16 +618,16 @@ class TestDoscar(TestCase):
             1.04535,
         ]
 
-        assert tdos_up == self.DOSCAR_lcfo.tdensities[Spin.up].tolist()
+        assert_allclose(tdos_up, self.DOSCAR_lcfo.tdensities[Spin.up])
 
     def test_itdensities(self):
         itdos_up = [1.99997, 4.99992, 4.99992, 7.99987, 7.99987, 8.09650]
         itdos_down = [1.99997, 4.99992, 4.99992, 7.99987, 7.99987, 8.09685]
-        assert itdos_up == self.DOSCAR_spin_pol.itdensities[Spin.up].tolist()
-        assert itdos_down == self.DOSCAR_spin_pol.itdensities[Spin.down].tolist()
+        assert_allclose(itdos_up, self.DOSCAR_spin_pol.itdensities[Spin.up])
+        assert_allclose(itdos_down, self.DOSCAR_spin_pol.itdensities[Spin.down])
 
         itdos_nonspin = [4.00000, 10.00000, 10.00000, 16.00000, 16.00000, 16.09067]
-        assert itdos_nonspin == self.DOSCAR_nonspin_pol.itdensities[Spin.up].tolist()
+        assert_allclose(itdos_nonspin, self.DOSCAR_nonspin_pol.itdensities[Spin.up])
 
     def test_is_spin_polarized(self):
         # first for spin polarized version
@@ -637,8 +636,8 @@ class TestDoscar(TestCase):
         assert not self.DOSCAR_nonspin_pol.is_spin_polarized
 
 
-class TestCharge(PymatgenTest):
-    def setUp(self):
+class TestCharge(MatSciTest):
+    def setup_method(self):
         self.charge2 = Charge(filename=f"{TEST_DIR}/CHARGE.lobster.MnO")
         # gzipped file
         self.charge = Charge(filename=f"{TEST_DIR}/CHARGE.lobster.MnO2.gz")
@@ -661,7 +660,7 @@ class TestCharge(PymatgenTest):
         assert self.charge_lcfo.num_atoms == 3
         assert self.charge_lcfo.types == ["AlN", "Al", "N"]
         assert self.charge_lcfo.atomlist == ["AlN1", "Al2", "N3"]
-        assert self.charge_lcfo.loewdin == [0.0, 1.02, -1.02]
+        assert_allclose(self.charge_lcfo.loewdin, [0.0, 1.02, -1.02])
         assert not self.charge_lcfo.mulliken
 
     def test_get_structure_with_charges(self):
@@ -716,8 +715,8 @@ class TestCharge(PymatgenTest):
             assert getattr(charge_from_dict, attr_name) == attr_value
 
 
-class TestLobsterout(PymatgenTest):
-    def setUp(self):
+class TestLobsterout(MatSciTest):
+    def setup_method(self):
         self.lobsterout_normal = Lobsterout(filename=f"{TEST_DIR}/lobsterout.normal")
         # make sure .gz files are also read correctly
         self.lobsterout_normal = Lobsterout(filename=f"{TEST_DIR}/lobsterout.normal2.gz")
@@ -755,7 +754,7 @@ class TestLobsterout(PymatgenTest):
             ]
         ]
         assert self.lobsterout_normal.basis_type == ["pbeVaspFit2015"]
-        assert self.lobsterout_normal.charge_spilling == [0.0268]
+        assert_allclose(self.lobsterout_normal.charge_spilling, [0.0268])
         assert self.lobsterout_normal.dft_program == "VASP"
         assert self.lobsterout_normal.elements == ["Ti"]
         assert self.lobsterout_normal.has_charge
@@ -808,7 +807,7 @@ class TestLobsterout(PymatgenTest):
             ]
         ]
         assert self.lobsterout_fatband_grosspop_densityofenergies.basis_type == ["pbeVaspFit2015"]
-        assert self.lobsterout_fatband_grosspop_densityofenergies.charge_spilling == [0.0268]
+        assert_allclose(self.lobsterout_fatband_grosspop_densityofenergies.charge_spilling, [0.0268])
         assert self.lobsterout_fatband_grosspop_densityofenergies.dft_program == "VASP"
         assert self.lobsterout_fatband_grosspop_densityofenergies.elements == ["Ti"]
         assert self.lobsterout_fatband_grosspop_densityofenergies.has_charge
@@ -861,7 +860,7 @@ class TestLobsterout(PymatgenTest):
             ]
         ]
         assert self.lobsterout_saveprojection.basis_type == ["pbeVaspFit2015"]
-        assert self.lobsterout_saveprojection.charge_spilling == [0.0268]
+        assert_allclose(self.lobsterout_saveprojection.charge_spilling, [0.0268])
         assert self.lobsterout_saveprojection.dft_program == "VASP"
         assert self.lobsterout_saveprojection.elements == ["Ti"]
         assert self.lobsterout_saveprojection.has_charge
@@ -914,7 +913,7 @@ class TestLobsterout(PymatgenTest):
             ]
         ]
         assert self.lobsterout_skipping_all.basis_type == ["pbeVaspFit2015"]
-        assert self.lobsterout_skipping_all.charge_spilling == [0.0268]
+        assert_allclose(self.lobsterout_skipping_all.charge_spilling, [0.0268])
         assert self.lobsterout_skipping_all.dft_program == "VASP"
         assert self.lobsterout_skipping_all.elements == ["Ti"]
         assert not self.lobsterout_skipping_all.has_charge
@@ -1078,7 +1077,7 @@ class TestLobsterout(PymatgenTest):
             "user_time": {"h": "0", "min": "0", "s": "12", "ms": "370"},
             "sys_time": {"h": "0", "min": "0", "s": "0", "ms": "180"},
         }
-        assert self.lobsterout_GaAs.total_spilling[0] == approx([0.0859][0])
+        assert self.lobsterout_GaAs.total_spilling[0] == approx(0.0859)
 
         assert self.lobsterout_onethread.number_of_threads == 1
         # Test lobsterout of lobster-4.1.0
@@ -1245,8 +1244,8 @@ class TestLobsterout(PymatgenTest):
             Lobsterout(filename=None, invalid="val")
 
 
-class TestFatband(PymatgenTest):
-    def setUp(self):
+class TestFatband(MatSciTest):
+    def setup_method(self):
         self.structure = Vasprun(
             filename=f"{TEST_DIR}/Fatband_SiO2/Test_p_x/vasprun.xml",
             ionic_step_skip=None,
@@ -1292,35 +1291,35 @@ class TestFatband(PymatgenTest):
         self.bs_symmline_spin = self.vasprun_SiO2_p.get_band_structure(line_mode=True, force_hybrid_mode=True)
 
     def test_attributes(self):
-        assert list(self.fatband_SiO2_p_x.label_dict["M"]) == approx([0.5, 0.0, 0.0])
+        assert_allclose(list(self.fatband_SiO2_p_x.label_dict["M"]), [0.5, 0.0, 0.0])
         assert self.fatband_SiO2_p_x.efermi == self.vasprun_SiO2_p_x.efermi
         lattice1 = self.bs_symmline.lattice_rec.as_dict()
         lattice2 = self.fatband_SiO2_p_x.lattice.as_dict()
         for idx in range(3):
             assert lattice1["matrix"][idx] == approx(lattice2["matrix"][idx])
-        assert self.fatband_SiO2_p_x.eigenvals[Spin.up][1][1] - self.fatband_SiO2_p_x.efermi == -18.245
+        assert self.fatband_SiO2_p_x.eigenvals[Spin.up][1][1] - self.fatband_SiO2_p_x.efermi == approx(-18.245)
         assert self.fatband_SiO2_p_x.is_spinpolarized is False
-        assert self.fatband_SiO2_p_x.kpoints_array[3] == approx([0.03409091, 0, 0])
+        assert_allclose(self.fatband_SiO2_p_x.kpoints_array[3], [0.03409091, 0, 0])
         assert self.fatband_SiO2_p_x.nbands == 36
-        assert self.fatband_SiO2_p_x.p_eigenvals[Spin.up][2][1]["Si1"]["3p_x"] == 0.002
-        assert self.fatband_SiO2_p_x.structure[0].frac_coords == approx([0.0, 0.47634315, 0.666667])
+        assert self.fatband_SiO2_p_x.p_eigenvals[Spin.up][2][1]["Si1"]["3p_x"] == approx(0.002)
+        assert_allclose(self.fatband_SiO2_p_x.structure[0].frac_coords, [0.0, 0.47634315, 0.666667])
         assert self.fatband_SiO2_p_x.structure[0].species_string == "Si"
-        assert self.fatband_SiO2_p_x.structure[0].coords == approx([-1.19607309, 2.0716597, 3.67462144])
+        assert_allclose(self.fatband_SiO2_p_x.structure[0].coords, [-1.19607309, 2.0716597, 3.67462144])
 
-        assert list(self.fatband_SiO2_p.label_dict["M"]) == approx([0.5, 0.0, 0.0])
+        assert_allclose(list(self.fatband_SiO2_p.label_dict["M"]), [0.5, 0.0, 0.0])
         assert self.fatband_SiO2_p.efermi == self.vasprun_SiO2_p.efermi
         lattice1 = self.bs_symmline2.lattice_rec.as_dict()
         lattice2 = self.fatband_SiO2_p.lattice.as_dict()
         for idx in range(3):
             assert lattice1["matrix"][idx] == approx(lattice2["matrix"][idx])
-        assert self.fatband_SiO2_p.eigenvals[Spin.up][1][1] - self.fatband_SiO2_p.efermi == -18.245
+        assert self.fatband_SiO2_p.eigenvals[Spin.up][1][1] - self.fatband_SiO2_p.efermi == approx(-18.245)
         assert self.fatband_SiO2_p.is_spinpolarized is False
-        assert self.fatband_SiO2_p.kpoints_array[3] == approx([0.03409091, 0, 0])
+        assert_allclose(self.fatband_SiO2_p.kpoints_array[3], [0.03409091, 0, 0])
         assert self.fatband_SiO2_p.nbands == 36
-        assert self.fatband_SiO2_p.p_eigenvals[Spin.up][2][1]["Si1"]["3p"] == 0.042
-        assert self.fatband_SiO2_p.structure[0].frac_coords == approx([0.0, 0.47634315, 0.666667])
+        assert self.fatband_SiO2_p.p_eigenvals[Spin.up][2][1]["Si1"]["3p"] == approx(0.042)
+        assert_allclose(self.fatband_SiO2_p.structure[0].frac_coords, [0.0, 0.47634315, 0.666667])
         assert self.fatband_SiO2_p.structure[0].species_string == "Si"
-        assert self.fatband_SiO2_p.structure[0].coords == approx([-1.19607309, 2.0716597, 3.67462144])
+        assert_allclose(self.fatband_SiO2_p.structure[0].coords, [-1.19607309, 2.0716597, 3.67462144])
         assert self.fatband_SiO2_p.efermi == approx(1.0647039)
 
         assert list(self.fatband_SiO2_spin.label_dict["M"]) == approx([0.5, 0.0, 0.0])
@@ -1329,16 +1328,16 @@ class TestFatband(PymatgenTest):
         lattice2 = self.fatband_SiO2_spin.lattice.as_dict()
         for idx in range(3):
             assert lattice1["matrix"][idx] == approx(lattice2["matrix"][idx])
-        assert self.fatband_SiO2_spin.eigenvals[Spin.up][1][1] - self.fatband_SiO2_spin.efermi == -18.245
-        assert self.fatband_SiO2_spin.eigenvals[Spin.down][1][1] - self.fatband_SiO2_spin.efermi == -18.245
+        assert self.fatband_SiO2_spin.eigenvals[Spin.up][1][1] - self.fatband_SiO2_spin.efermi == approx(-18.245)
+        assert self.fatband_SiO2_spin.eigenvals[Spin.down][1][1] - self.fatband_SiO2_spin.efermi == approx(-18.245)
         assert self.fatband_SiO2_spin.is_spinpolarized
-        assert self.fatband_SiO2_spin.kpoints_array[3] == approx([0.03409091, 0, 0])
+        assert_allclose(self.fatband_SiO2_spin.kpoints_array[3], [0.03409091, 0, 0])
         assert self.fatband_SiO2_spin.nbands == 36
 
-        assert self.fatband_SiO2_spin.p_eigenvals[Spin.up][2][1]["Si1"]["3p"] == 0.042
-        assert self.fatband_SiO2_spin.structure[0].frac_coords == approx([0.0, 0.47634315, 0.666667])
+        assert self.fatband_SiO2_spin.p_eigenvals[Spin.up][2][1]["Si1"]["3p"] == approx(0.042)
+        assert_allclose(self.fatband_SiO2_spin.structure[0].frac_coords, [0.0, 0.47634315, 0.666667])
         assert self.fatband_SiO2_spin.structure[0].species_string == "Si"
-        assert self.fatband_SiO2_spin.structure[0].coords == approx([-1.19607309, 2.0716597, 3.67462144])
+        assert_allclose(self.fatband_SiO2_spin.structure[0].coords, [-1.19607309, 2.0716597, 3.67462144])
 
     def test_raises(self):
         with pytest.raises(ValueError, match="vasprun_file or efermi have to be provided"):
@@ -1480,8 +1479,8 @@ class TestFatband(PymatgenTest):
         assert bs_p_x.get_projection_on_elements()[Spin.up][0][0]["Si"] == approx(3 * (0.001 + 0.064), abs=1e-2)
 
 
-class TestBandoverlaps(TestCase):
-    def setUp(self):
+class TestBandoverlaps:
+    def setup_method(self):
         # test spin-polarized calc and non spin-polarized calc
 
         self.band_overlaps1 = Bandoverlaps(f"{TEST_DIR}/bandOverlaps.lobster.1")
@@ -1716,8 +1715,8 @@ class TestBandoverlaps(TestCase):
         assert len(bo_dict_new[Spin.down]["matrices"]) == 73
 
 
-class TestGrosspop(TestCase):
-    def setUp(self):
+class TestGrosspop:
+    def setup_method(self):
         self.grosspop1 = Grosspop(f"{TEST_DIR}/GROSSPOP.lobster")
         self.grosspop_511_sp = Grosspop(f"{TEST_DIR}/GROSSPOP_511_sp.lobster.AlN.gz")
         self.grosspop_511_nsp = Grosspop(f"{TEST_DIR}/GROSSPOP_511_nsp.lobster.NaCl.gz")
@@ -1866,8 +1865,8 @@ class TestGrosspop(TestCase):
             assert getattr(grosspop_from_dict, attr_name) == attr_value
 
 
-class TestIcohplist(TestCase):
-    def setUp(self):
+class TestIcohplist:
+    def setup_method(self):
         self.icohp_bise = Icohplist(filename=f"{TEST_DIR}/ICOHPLIST.lobster.BiSe")
         self.icoop_bise = Icohplist(
             filename=f"{TEST_DIR}/ICOOPLIST.lobster.BiSe",
@@ -2135,19 +2134,21 @@ class TestIcohplist(TestCase):
         }
 
         assert icohplist_bise == self.icohp_bise.icohplist
-        assert self.icohp_bise.icohpcollection.extremum_icohpvalue() == -2.38796
+        assert self.icohp_bise.icohpcollection.extremum_icohpvalue() == approx(-2.38796)
         assert icooplist_fe == self.icoop_fe.icohplist
-        assert self.icoop_fe.icohpcollection.extremum_icohpvalue() == -0.29919
+        assert self.icoop_fe.icohpcollection.extremum_icohpvalue() == approx(-0.29919)
         assert icooplist_bise == self.icoop_bise.icohplist
-        assert self.icoop_bise.icohpcollection.extremum_icohpvalue() == 0.24714
+        assert self.icoop_bise.icohpcollection.extremum_icohpvalue() == approx(0.24714)
         assert self.icobi.icohplist["1"]["icohp"][Spin.up] == approx(0.58649)
         assert self.icobi_orbitalwise.icohplist["2"]["icohp"][Spin.up] == approx(0.58649)
         assert self.icobi_orbitalwise.icohplist["1"]["icohp"][Spin.up] == approx(0.58649)
         assert self.icobi_orbitalwise_spinpolarized.icohplist["1"]["icohp"][Spin.up] == approx(0.58649 / 2, abs=1e-3)
         assert self.icobi_orbitalwise_spinpolarized.icohplist["1"]["icohp"][Spin.down] == approx(0.58649 / 2, abs=1e-3)
         assert self.icobi_orbitalwise_spinpolarized.icohplist["2"]["icohp"][Spin.down] == approx(0.58649 / 2, abs=1e-3)
-        assert self.icobi.icohpcollection.extremum_icohpvalue() == 0.58649
-        assert self.icobi_orbitalwise_spinpolarized.icohplist["2"]["orbitals"]["2s-6s"]["icohp"][Spin.up] == 0.0247
+        assert self.icobi.icohpcollection.extremum_icohpvalue() == approx(0.58649)
+        assert self.icobi_orbitalwise_spinpolarized.icohplist["2"]["orbitals"]["2s-6s"]["icohp"][Spin.up] == approx(
+            0.0247
+        )
 
         # >v5 ICOHPLIST
         assert self.icohp_aln_511_sp.icohplist["2"]["icohp"][Spin.up] == approx(-0.21482)
@@ -2171,8 +2172,8 @@ class TestIcohplist(TestCase):
                 assert getattr(icohplist_from_dict, attr_name) == attr_value
 
 
-class TestNciCobiList(TestCase):
-    def setUp(self):
+class TestNciCobiList:
+    def setup_method(self):
         self.ncicobi = NciCobiList(filename=f"{TEST_DIR}/NcICOBILIST.lobster")
         self.ncicobi_gz = NciCobiList(filename=f"{TEST_DIR}/NcICOBILIST.lobster.gz")
         self.ncicobi_no_spin = NciCobiList(filename=f"{TEST_DIR}/NcICOBILIST.lobster.nospin")
@@ -2207,7 +2208,7 @@ class TestNciCobiList(TestCase):
         )
 
 
-class TestWavefunction(PymatgenTest):
+class TestWavefunction(MatSciTest):
     def test_parse_file(self):
         grid, points, real, imaginary, distance = Wavefunction._parse_file(
             f"{TEST_DIR}/LCAOWaveFunctionAfterLSO1PlotOfSpin1Kpoint1band1.gz"
@@ -2275,8 +2276,8 @@ class TestWavefunction(PymatgenTest):
         assert os.path.isfile(density_wavecar_path)
 
 
-class TestSitePotentials(PymatgenTest):
-    def setUp(self) -> None:
+class TestSitePotentials(MatSciTest):
+    def setup_method(self) -> None:
         self.sitepotential = SitePotential(filename=f"{TEST_DIR}/SitePotentials.lobster.perovskite")
 
     def test_attributes(self):
@@ -2326,8 +2327,8 @@ class TestSitePotentials(PymatgenTest):
             assert getattr(sitepotential_from_dict, attr_name) == attr_value
 
 
-class TestMadelungEnergies(PymatgenTest):
-    def setUp(self) -> None:
+class TestMadelungEnergies(MatSciTest):
+    def setup_method(self) -> None:
         self.madelungenergies = MadelungEnergies(filename=f"{TEST_DIR}/MadelungEnergies.lobster.perovskite")
 
     def test_attributes(self):
@@ -2343,8 +2344,8 @@ class TestMadelungEnergies(PymatgenTest):
             assert getattr(madelung_from_dict, attr_name) == attr_value
 
 
-class TestLobsterMatrices(PymatgenTest):
-    def setUp(self) -> None:
+class TestLobsterMatrices(MatSciTest):
+    def setup_method(self) -> None:
         self.hamilton_matrices = LobsterMatrices(
             filename=f"{TEST_DIR}/Na_hamiltonMatrices.lobster.gz", e_fermi=-2.79650354
         )
@@ -2354,7 +2355,7 @@ class TestLobsterMatrices(PymatgenTest):
 
     def test_attributes(self):
         # hamilton matrices
-        assert self.hamilton_matrices.average_onsite_energies == pytest.approx(
+        assert self.hamilton_matrices.average_onsite_energies == approx(
             {
                 "Na1_3s": 0.58855353,
                 "Na1_2p_y": -25.72719646,
@@ -2387,7 +2388,7 @@ class TestLobsterMatrices(PymatgenTest):
         )
 
         # overlap matrices
-        assert self.overlap_matrices.average_onsite_overlaps == pytest.approx(
+        assert self.overlap_matrices.average_onsite_overlaps == approx(
             {
                 "Si1_3s": 1.00000009,
                 "Si1_3p_y": 0.99999995,
@@ -2449,7 +2450,7 @@ class TestLobsterMatrices(PymatgenTest):
             Spin.up,
             Spin.down,
         ]
-        assert self.coeff_matrices.average_onsite_coefficient == pytest.approx(
+        assert self.coeff_matrices.average_onsite_coefficient == approx(
             {
                 "Si1_3s": 0.6232626450000001,
                 "Si1_3p_y": -0.029367565000000012,
@@ -2493,8 +2494,8 @@ class TestLobsterMatrices(PymatgenTest):
             self.hamilton_matrices = LobsterMatrices(filename=f"{TEST_DIR}/hamiltonMatrices.lobster")
 
 
-class TestPolarization(PymatgenTest):
-    def setUp(self) -> None:
+class TestPolarization(MatSciTest):
+    def setup_method(self) -> None:
         self.polarization = Polarization(filename=f"{TEST_DIR}/POLARIZATION.lobster.AlN.gz")
 
     def test_attributes(self):

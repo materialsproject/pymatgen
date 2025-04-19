@@ -406,7 +406,7 @@ class BaseLammpsGenerator(InputGenerator):
 
         # Load the template
         if Path(self.template).is_file():
-            with zopen(self.template, mode="r") as file:
+            with zopen(self.template, mode="rt", encoding="utf-8") as file:
                 template_str = file.read()
         elif isinstance(self.template, LammpsInputFile):
             template_str = self.template.get_str()

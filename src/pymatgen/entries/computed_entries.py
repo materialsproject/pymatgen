@@ -36,9 +36,9 @@ __copyright__ = "Copyright 2011-2020, The Materials Project"
 __version__ = "1.1"
 __date__ = "April 2020"
 
-with open(os.path.join(os.path.dirname(__file__), "data/g_els.json")) as file:
+with open(os.path.join(os.path.dirname(__file__), "data/g_els.json"), encoding="utf-8") as file:
     G_ELEMS = json.load(file)
-with open(os.path.join(os.path.dirname(__file__), "data/nist_gas_gf.json")) as file:
+with open(os.path.join(os.path.dirname(__file__), "data/nist_gas_gf.json"), encoding="utf-8") as file:
     G_GASES = json.load(file)
 
 
@@ -460,7 +460,7 @@ class ComputedEntry(Entry):
         if not all(hasattr(other, attr) for attr in needed_attrs):
             return NotImplemented
 
-        other = cast(ComputedEntry, other)
+        other = cast("ComputedEntry", other)
 
         # Equality is defined based on composition and energy.
         # If structures are involved, it is assumed that a {composition, energy} is
@@ -469,7 +469,7 @@ class ComputedEntry(Entry):
         # However, if entry_id is same, they may have different corrections (e.g., due
         # to mixing scheme used) and thus should be compared on corrected energy.
 
-        if getattr(self, "entry_id", None) and getattr(other, "entry_id", None) and self.entry_id != other.entry_id:
+        if getattr(self, "entry_id", False) and getattr(other, "entry_id", False) and self.entry_id != other.entry_id:
             return False
 
         if not math.isclose(self.energy, other.energy):

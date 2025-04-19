@@ -293,10 +293,7 @@ def compute_environments(chemenv_configuration):
                         if ce is None:
                             continue
                         the_cg = all_cg.get_geometry_from_mp_symbol(ce[0])
-                        msg = (
-                            f"Environment for site #{site_idx} {reduced_formula}"
-                            f" ({comp}) : {the_cg.name} ({ce[0]})\n"
-                        )
+                        msg = f"Environment for site #{site_idx} {reduced_formula} ({comp}) : {the_cg.name} ({ce[0]})\n"
                     else:
                         msg = f"Environments for site #{site_idx} {reduced_formula} ({comp}) : \n"
                         for ce in ces:

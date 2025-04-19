@@ -40,7 +40,7 @@ from pymatgen.transformations.standard_transformations import (
     OxidationStateDecorationTransformation,
     SubstitutionTransformation,
 )
-from pymatgen.util.testing import TEST_FILES_DIR, VASP_IN_DIR, PymatgenTest
+from pymatgen.util.testing import TEST_FILES_DIR, VASP_IN_DIR, MatSciTest
 
 try:
     import hiphive
@@ -54,7 +54,7 @@ def get_table():
     default lambda table.
     """
     json_path = f"{TEST_FILES_DIR}/analysis/struct_predictor/test_lambda.json"
-    with open(json_path) as file:
+    with open(json_path, encoding="utf-8") as file:
         return json.load(file)
 
 
@@ -250,7 +250,7 @@ class TestEnumerateStructureTransformation:
         trans = EnumerateStructureTransformation()
         dct = trans.as_dict()
         trans = EnumerateStructureTransformation.from_dict(dct)
-        assert trans.symm_prec == 0.1
+        assert trans.symm_prec == approx(0.1)
 
 
 class TestSubstitutionPredictorTransformation:
@@ -276,8 +276,8 @@ class TestSubstitutionPredictorTransformation:
 
 
 @pytest.mark.skipif(not enumlib_present, reason="enum_lib not present.")
-class TestMagOrderingTransformation(PymatgenTest):
-    def setUp(self):
+class TestMagOrderingTransformation(MatSciTest):
+    def setup_method(self):
         lattice = Lattice.cubic(4.17)
         species = ["Ni", "O"]
         coords = [[0, 0, 0], [0.5, 0.5, 0.5]]
@@ -488,9 +488,9 @@ class TestMagOrderingTransformation(PymatgenTest):
 
 
 @pytest.mark.skipif(not enumlib_present, reason="enum_lib not present.")
-class TestDopingTransformation(PymatgenTest):
+class TestDopingTransformation(MatSciTest):
     def test_apply_transformation(self):
-        structure = PymatgenTest.get_structure("LiFePO4")
+        structure = MatSciTest.get_structure("LiFePO4")
         spga = SpacegroupAnalyzer(structure, 0.1)
         structure = spga.get_refined_structure()
         trafo = DopingTransformation("Ca2+", min_length=10)
@@ -507,7 +507,7 @@ class TestDopingTransformation(PymatgenTest):
             ss = trafo.apply_transformation(structure, 1000)
             assert len(ss) == n_structures
             for d in ss:
-                assert d["structure"].charge == 0
+                assert d["structure"].charge == approx(0)
 
         # Aliovalent doping with codopant
         for dopant, n_structures in [("Al3+", 3), ("N3-", 37), ("Cl-", 37)]:
@@ -521,10 +521,10 @@ class TestDopingTransformation(PymatgenTest):
             ss = trafo.apply_transformation(structure, 1000)
             assert len(ss) == n_structures
             for d in ss:
-                assert d["structure"].charge == 0
+                assert d["structure"].charge == approx(0)
 
         # Make sure compensation is done with lowest oxi state
-        structure = PymatgenTest.get_structure("SrTiO3")
+        structure = MatSciTest.get_structure("SrTiO3")
         trafo = DopingTransformation(
             "Nb5+",
             min_length=5,
@@ -551,7 +551,7 @@ class TestDopingTransformation(PymatgenTest):
         assert find_codopant(Species("Fe", 2), 3) == Species("In", 3)
 
 
-class TestSlabTransformation(PymatgenTest):
+class TestSlabTransformation(MatSciTest):
     def test_apply_transformation(self):
         struct = self.get_structure("LiFePO4")
         trans = SlabTransformation([0, 0, 1], 10, 10, shift=0.25)
@@ -570,7 +570,7 @@ class TestSlabTransformation(PymatgenTest):
         assert_allclose(slab_from_gen.cart_coords, slab_from_trans.cart_coords)
 
 
-class TestGrainBoundaryTransformation(PymatgenTest):
+class TestGrainBoundaryTransformation(MatSciTest):
     def test_apply_transformation(self):
         Al_bulk = Structure.from_spacegroup("Fm-3m", Lattice.cubic(2.8575585), ["Al"], [[0, 0, 0]])
         gb_gen_params_s5 = {
@@ -590,7 +590,7 @@ class TestGrainBoundaryTransformation(PymatgenTest):
         assert_allclose(gb_from_generator.cart_coords, gb_from_trans.cart_coords)
 
 
-class TestDisorderedOrderedTransformation(PymatgenTest):
+class TestDisorderedOrderedTransformation(MatSciTest):
     def test_apply_transformation(self):
         # nonsensical example just for testing purposes
         struct = self.get_structure("BaNiO3")
@@ -599,11 +599,11 @@ class TestDisorderedOrderedTransformation(PymatgenTest):
         output = trans.apply_transformation(struct)
 
         assert not output.is_ordered
-        assert output[-1].species.as_dict() == {"Ni": 0.5, "Ba": 0.5}
+        assert output[-1].species.as_dict() == approx({"Ni": 0.5, "Ba": 0.5})
 
 
 @pytest.mark.skipif(not mcsqs_cmd, reason="mcsqs not present.")
-class TestSQSTransformation(PymatgenTest):
+class TestSQSTransformation(MatSciTest):
     def test_apply_transformation(self):
         pzt_structs = loadfn(f"{TEST_FILES_DIR}/io/atat/mcsqs/pzt-structs.json")
         trans = SQSTransformation(scaling=[2, 1, 1], search_time=0.01, instances=1, wd=0)
@@ -649,7 +649,7 @@ class TestSQSTransformation(PymatgenTest):
 
 
 @pytest.mark.skipif(ClusterSpace is None, reason="icet not installed.")
-class TestSQSTransformationIcet(PymatgenTest):
+class TestSQSTransformationIcet(MatSciTest):
     stored_run: dict = loadfn(f"{TEST_FILES_DIR}/transformations/icet-sqs-fcc-Mg_75-Al_25-scaling_8.json.gz")
     scaling: int = 8
 
@@ -699,7 +699,7 @@ class TestSQSTransformationIcet(PymatgenTest):
             assert isinstance(sqs_output[0][key], val)
 
 
-class TestCubicSupercellTransformation(PymatgenTest):
+class TestCubicSupercellTransformation(MatSciTest):
     def test_apply_transformation_cubic_supercell(self):
         structure = self.get_structure("TlBiSe2")
         min_atoms = 100
@@ -724,7 +724,7 @@ class TestCubicSupercellTransformation(PymatgenTest):
         assert len(superstructure) == 448
         assert_array_equal(
             supercell_generator.transformation_matrix,
-            np.array([[4, 0, 0], [1, 4, -4], [0, 0, 1]]),
+            [[4, 0, 0], [1, 4, -4], [0, 0, 1]],
         )
 
         # Test the diagonal transformation
@@ -796,7 +796,7 @@ class TestCubicSupercellTransformation(PymatgenTest):
 
         assert_array_equal(
             supercell_generator_orthorhombic.transformation_matrix,
-            np.array([[0, -2, 1], [-2, 0, 0], [0, 0, -2]]),
+            [[0, -2, 1], [-2, 0, 0], [0, 0, -2]],
         )
 
         # make sure that the orthorhombic supercell is different from the cubic cell
@@ -804,8 +804,8 @@ class TestCubicSupercellTransformation(PymatgenTest):
             supercell_generator_cubic.transformation_matrix,
             supercell_generator_orthorhombic.transformation_matrix,
         )
-        assert transformed_cubic.lattice.angles != transformed_orthorhombic.lattice.angles
-        assert transformed_orthorhombic.lattice.abc != transformed_cubic.lattice.abc
+        assert not np.allclose(transformed_cubic.lattice.angles, transformed_orthorhombic.lattice.angles)
+        assert not np.allclose(transformed_orthorhombic.lattice.abc, transformed_cubic.lattice.abc)
 
         structure = self.get_structure("Si")
         min_atoms = 100
@@ -835,7 +835,7 @@ class TestCubicSupercellTransformation(PymatgenTest):
 
         assert_array_equal(
             supercell_generator_orthorhombic.transformation_matrix,
-            np.array([[3, 0, 0], [-2, 4, 0], [-2, 4, 6]]),
+            [[3, 0, 0], [-2, 4, 0], [-2, 4, 6]],
         )
 
         # make sure that the orthorhombic supercell is different from the cubic cell
@@ -843,12 +843,12 @@ class TestCubicSupercellTransformation(PymatgenTest):
             supercell_generator_cubic.transformation_matrix,
             supercell_generator_orthorhombic.transformation_matrix,
         )
-        assert transformed_orthorhombic.lattice.abc != transformed_cubic.lattice.abc
-        # only angels are expected to be the same because of force_90_degrees = True
-        assert transformed_cubic.lattice.angles == transformed_orthorhombic.lattice.angles
+        assert not np.allclose(transformed_orthorhombic.lattice.abc, transformed_cubic.lattice.abc)
+        # only angels are expected to be the same because of `force_90_degrees = True`
+        assert_allclose(transformed_cubic.lattice.angles, transformed_orthorhombic.lattice.angles)
 
 
-class TestAddAdsorbateTransformation(PymatgenTest):
+class TestAddAdsorbateTransformation(MatSciTest):
     def test_apply_transformation(self):
         co = Molecule(["C", "O"], [[0, 0, 0], [0, 0, 1.23]])
         trans = AddAdsorbateTransformation(co)
@@ -859,7 +859,7 @@ class TestAddAdsorbateTransformation(PymatgenTest):
         assert out.reduced_formula == "Pt4CO"
 
 
-class TestSubstituteSurfaceSiteTransformation(PymatgenTest):
+class TestSubstituteSurfaceSiteTransformation(MatSciTest):
     def test_apply_transformation(self):
         trans = SubstituteSurfaceSiteTransformation("Au")
         pt = Structure(Lattice.cubic(5), ["Pt"], [[0, 0, 0]])  # fictitious
@@ -870,7 +870,7 @@ class TestSubstituteSurfaceSiteTransformation(PymatgenTest):
 
 
 @pytest.mark.skipif(not hiphive, reason="hiphive not present")
-class TestMonteCarloRattleTransformation(PymatgenTest):
+class TestMonteCarloRattleTransformation(MatSciTest):
     def test_apply_transformation(self):
         struct = self.get_structure("Si")
         mcrt = MonteCarloRattleTransformation(0.01, 2, seed=1)

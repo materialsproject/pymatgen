@@ -53,11 +53,11 @@ class Site(collections.abc.Hashable, MSONable):
                 iii.Dict of elements/species and occupancies, e.g.
                     {"Fe" : 0.5, "Mn":0.5}. This allows the setup of
                     disordered structures.
-            coords: Cartesian coordinates of site.
-            properties: Properties associated with the site as a dict, e.g.
+            coords (ArrayLike): Cartesian coordinates of site.
+            properties (dict): Properties associated with the site, e.g.
                 {"magmom": 5}. Defaults to None.
-            label: Label for the site. Defaults to None.
-            skip_checks: Whether to ignore all the usual checks and just
+            label (str): Label for the site. Defaults to None.
+            skip_checks (bool): Whether to ignore all the usual checks and just
                 create the site. Use this if the Site is created in a controlled
                 manner and speed is desired.
         """
@@ -137,7 +137,7 @@ class Site(collections.abc.Hashable, MSONable):
     @property
     def species(self) -> Composition:
         """The species on the site as a composition, e.g. Fe0.5Mn0.5."""
-        return cast(Composition, self._species)
+        return cast("Composition", self._species)
 
     @species.setter
     def species(self, species: SpeciesLike | CompositionLike) -> None:
@@ -151,7 +151,7 @@ class Site(collections.abc.Hashable, MSONable):
         if total_occu > 1 + Composition.amount_tolerance:
             raise ValueError("Species occupancies sum to more than 1!")
 
-        self._species = cast(Composition, species)
+        self._species = cast("Composition", species)
 
     @property
     def label(self) -> str:
@@ -310,20 +310,20 @@ class PeriodicSite(Site, MSONable):
                     symbols, e.g. "Li", "Fe2+", "P" or atomic numbers,
                     e.g. 3, 56, or actual Element or Species objects.
                 iii.Dict of elements/species and occupancies, e.g.
-                    {"Fe" : 0.5, "Mn":0.5}. This allows the setup of
+                    {"Fe": 0.5, "Mn": 0.5}. This allows the setup of
                     disordered structures.
-            coords: Coordinates of site, fractional coordinates
+            coords (ArrayLike): Coordinates of site, fractional coordinates
                 by default. See ``coords_are_cartesian`` for more details.
-            lattice: Lattice associated with the site.
-            to_unit_cell: Translates fractional coordinate to the
+            lattice (Lattice): Lattice associated with the site.
+            to_unit_cell (bool): Translates fractional coordinate to the
                 basic unit cell, i.e. all fractional coordinates satisfy 0
                 <= a < 1. Defaults to False.
-            coords_are_cartesian: Set to True if you are providing
+            coords_are_cartesian (bool): Set to True if you are providing
                 Cartesian coordinates. Defaults to False.
-            properties: Properties associated with the site as a dict, e.g.
+            properties (dict): Properties associated with the site, e.g.
                 {"magmom": 5}. Defaults to None.
-            label: Label for the site. Defaults to None.
-            skip_checks: Whether to ignore all the usual checks and just
+            label (str): Label for the site. Defaults to None.
+            skip_checks (bool): Whether to ignore all the usual checks and just
                 create the site. Use this if the PeriodicSite is created in a
                 controlled manner and speed is desired.
         """
@@ -346,7 +346,7 @@ class PeriodicSite(Site, MSONable):
 
         self._lattice: Lattice = lattice
         self._frac_coords: np.ndarray = np.asarray(frac_coords)
-        self._species: Composition = cast(Composition, species)
+        self._species: Composition = cast("Composition", species)
         self._coords: np.ndarray | None = None
         self.properties: dict = properties or {}
         self._label = label

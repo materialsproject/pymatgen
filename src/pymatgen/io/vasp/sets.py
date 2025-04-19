@@ -33,7 +33,6 @@ import itertools
 import os
 import re
 import warnings
-from collections.abc import Sequence
 from copy import deepcopy
 from dataclasses import dataclass, field
 from glob import glob
@@ -54,15 +53,14 @@ from pymatgen.io.vasp.outputs import Outcar, Vasprun
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
 from pymatgen.symmetry.bandstructure import HighSymmKpath
 from pymatgen.util.due import Doi, due
-from pymatgen.util.typing import Kpoint
 
 if TYPE_CHECKING:
-    from collections.abc import Callable
+    from collections.abc import Callable, Sequence
     from typing import Literal
 
     from typing_extensions import Self
 
-    from pymatgen.util.typing import PathLike, Tuple3Ints, Vector3D
+    from pymatgen.util.typing import Kpoint, PathLike, Tuple3Ints, Vector3D
 
     UserPotcarFunctional = (
         Literal[
@@ -84,7 +82,10 @@ MODULE_DIR = os.path.dirname(__file__)
 
 
 def _load_yaml_config(fname):
-    config = loadfn(f"{MODULE_DIR}/{fname}.yaml")
+    fname = f"{MODULE_DIR}/{fname}"
+    if not fname.endswith(".yaml"):
+        fname += ".yaml"
+    config = loadfn(fname)
     if "PARENT" in config:
         parent_config = _load_yaml_config(config["PARENT"])
         for k, v in parent_config.items():
@@ -541,10 +542,10 @@ class VaspInputSet(InputGenerator, abc.ABC):
 
         prev_incar: dict[str, Any] = {}
         if self.inherit_incar is True and self.prev_incar:
-            prev_incar = cast(dict[str, Any], self.prev_incar)
+            prev_incar = cast("dict[str, Any]", self.prev_incar)
         elif isinstance(self.inherit_incar, list | tuple) and self.prev_incar:
             prev_incar = {
-                k: cast(dict[str, Any], self.prev_incar)[k] for k in self.inherit_incar if k in self.prev_incar
+                k: cast("dict[str, Any]", self.prev_incar)[k] for k in self.inherit_incar if k in self.prev_incar
             }
 
         incar_updates = self.incar_updates
@@ -623,7 +624,11 @@ class VaspInputSet(InputGenerator, abc.ABC):
             elif key == "KSPACING" and self.auto_kspacing:
                 # Default to metal if no prev calc available
                 bandgap = 0 if self.bandgap is None else self.bandgap
-                incar[key] = auto_kspacing(bandgap, self.bandgap_tol)
+                if new_kspacing := getattr(self, "kspacing_update", None):
+                    # allow custom KSPACING update
+                    incar[key] = new_kspacing
+                else:
+                    incar[key] = auto_kspacing(bandgap, self.bandgap_tol)
 
             else:
                 incar[key] = setting
@@ -1294,7 +1299,7 @@ class MPRelaxSet(VaspInputSet):
 
 @due.dcite(
     Doi("10.1021/acs.jpclett.0c02405"),
-    description="AccurAccurate and Numerically Efficient r2SCAN Meta-Generalized Gradient Approximation",
+    description="Accurate and Numerically Efficient r2SCAN Meta-Generalized Gradient Approximation",
 )
 @due.dcite(
     Doi("10.1103/PhysRevLett.115.036402"),
@@ -1352,7 +1357,7 @@ class MPScanRelaxSet(VaspInputSet):
 
         James W. Furness, Aaron D. Kaplan, Jinliang Ning, John P. Perdew, and Jianwei Sun.
         Accurate and Numerically Efficient r2SCAN Meta-Generalized Gradient Approximation.
-        The Journal of Physical Chemistry Letters 0, 11 DOI: 10.1021/acs.jpclett.0c02405
+        The Journal of Physical Chemistry Letters 11, 8208-8215 (2022) DOI: 10.1021/acs.jpclett.0c02405
     """
 
     bandgap: float | None = None
@@ -1373,6 +1378,149 @@ class MPScanRelaxSet(VaspInputSet):
             vdw_par = loadfn(f"{MODULE_DIR}/vdW_parameters.yaml")
             for k in vdw_par[self.vdw]:
                 self._config_dict["INCAR"].pop(k, None)
+
+
+@dataclass
+class MP24RelaxSet(VaspInputSet):
+    """
+    Materials Project relax set after a 2023-2024 benchmarking effort.
+
+    By default, this uses r2SCAN as the xc functional.
+    For discussion around this benchmarking effort, see:
+    https://github.com/materialsproject/foundation/pull/26
+
+    Citation info:
+    - r2SCAN:
+        James W. Furness, Aaron D. Kaplan, Jinliang Ning, John P. Perdew, and Jianwei Sun.
+        Accurate and Numerically Efficient r2SCAN Meta-Generalized Gradient Approximation.
+        J. Phys. Chem. Lett. 11, 8208-8215 (2022) DOI: 10.1021/acs.jpclett.0c02405
+    - r2SCAN-rVV10:
+        Jinliang Ning, Manish Kothakonda, James W. Furness, Aaron D. Kaplan, Sebastian Ehlert,
+            Jan Gerit Brandenburg, John P. Perdew, and Jianwei Sun.
+        Workhorse minimally empirical dispersion-corrected density functional with tests for
+            weakly bound systems: r2SCAN+rVV10.
+        Phys. Rev. B 106, 075422 (2022) DOI: 10.1103/PhysRevB.106.075422
+    - r2SCAN-D4:
+        Sebastian Ehlert, Uwe Huniar, Jinliang Ning, James W. Furness, Jianwei Sun,
+            Aaron D. Kaplan, John P. Perdew, and Jan Gerit Brandenburg.
+        r2SCAN-D4: Dispersion corrected meta-generalized gradient approximation for general chemical applications.
+        J. Chem. Phys. 154, 061101 (2021) DOI: 10.1063/5.0041008
+    - PBE:
+        John P. Perdew, Kieron Burke, and Matthias Ernzerhof,
+        Generalized Gradient Approximation Made Simple,
+        Phys. Rev. Lett. 77, 3865 (1996) DOI: 10.1103/PhysRevLett.77.3865
+    - PBEsol:
+        John P. Perdew, Adrienn Ruzsinszky, Gábor I. Csonka, Oleg A. Vydrov,
+            Gustavo E. Scuseria, Lucian A. Constantin, Xiaolan Zhou, and Kieron Burke.
+        Restoring the Density-Gradient Expansion for Exchange in Solids and Surfaces.
+        Phys. Rev. Lett. 100, 136406 (2009) DOI: 10.1103/PhysRevLett.100.136406
+    - PBE-D4 and PBEsol-D4:
+        Eike Caldeweyher,Jan-Michael Mewes, Sebastian Ehlert, and Stefan Grimme.
+        Extension and evaluation of the D4 London-dispersion model for periodic systems.
+        Phys. Chem. Chem. Phys. 22, 8499-8512 (2020) DOI: 10.1039/D0CP00502A
+    """
+
+    xc_functional: Literal["r2SCAN", "PBE", "PBEsol"] = "r2SCAN"
+    dispersion: Literal["rVV10", "D4"] | None = None
+    CONFIG = _load_yaml_config("MP24RelaxSet")
+    auto_ismear: bool = False
+    auto_kspacing: bool = True
+    inherit_incar: bool = False
+
+    def __post_init__(self) -> None:
+        super().__post_init__()
+
+        to_func = {
+            "r2SCAN": "R2SCAN",
+            "PBE": "PE",
+            "PBEsol": "PS",
+        }
+
+        config_updates: dict[str, Any] = {}
+        if self.xc_functional == "r2SCAN":
+            config_updates |= {"METAGGA": to_func[self.xc_functional]}
+            self._config_dict["INCAR"].pop("GGA", None)
+        elif self.xc_functional in ["PBE", "PBEsol"]:
+            config_updates |= {"GGA": to_func[self.xc_functional]}
+            self._config_dict["INCAR"].pop("METAGGA", None)
+        else:
+            raise ValueError(f"Unknown XC functional {self.xc_functional}!")
+
+        if self.dispersion == "rVV10":
+            if self.xc_functional == "r2SCAN":
+                config_updates |= {"BPARAM": 11.95, "CPARAM": 0.0093, "LUSE_VDW": True}
+            else:
+                raise ValueError(
+                    "Use of rVV10 with functionals other than r2 / SCAN is not currently supported in VASP."
+                )
+
+        elif self.dispersion == "D4":
+            d4_pars = {
+                "r2SCAN": {
+                    "S6": 1.0,
+                    "S8": 0.60187490,
+                    "A1": 0.51559235,
+                    "A2": 5.77342911,
+                },
+                "PBE": {
+                    "S6": 1.0,
+                    "S8": 0.95948085,
+                    "A1": 0.38574991,
+                    "A2": 4.80688534,
+                },
+                "PBEsol": {
+                    "S6": 1.0,
+                    "S8": 1.71885698,
+                    "A1": 0.47901421,
+                    "A2": 5.96771589,
+                },
+            }
+            config_updates |= {"IVDW": 13, **{f"VDW_{k}": v for k, v in d4_pars[self.xc_functional].items()}}
+
+        if len(config_updates) > 0:
+            self._config_dict["INCAR"].update(config_updates)
+
+    @staticmethod
+    def _sigmoid_interp(
+        bg, min_dk: float = 0.22, max_dk: float = 0.5, shape: float = 0.43, center: float = 4.15, fac: float = 12.0
+    ):
+        delta = shape * (bg - center)
+        sigmoid = delta / (1.0 + delta**fac) ** (1.0 / fac)
+        return 0.5 * (min_dk + max_dk + (max_dk - min_dk) * sigmoid)
+
+    def _multi_sigmoid_interp(
+        self,
+        bandgap: float,
+        dks: tuple[float, ...] = (0.22, 0.44, 0.5),
+        shape: tuple[float, ...] = (1.1, 2.5),
+        center: tuple[float, ...] = (2.35, 6.1),
+        fac: tuple[float, ...] = (8, 8),
+        bg_cut: tuple[float, ...] = (4.5,),
+    ):
+        if bandgap < self.bandgap_tol:
+            return dks[0]
+
+        min_bds = [self.bandgap_tol, *bg_cut]
+        max_bds = [*bg_cut, np.inf]
+
+        for icut, min_bd in enumerate(min_bds):
+            if min_bd <= bandgap < max_bds[icut]:
+                return self._sigmoid_interp(
+                    bandgap,
+                    min_dk=dks[icut],
+                    max_dk=dks[icut + 1],
+                    shape=shape[icut],
+                    center=center[icut],
+                    fac=fac[icut],
+                )
+
+        return None
+
+    @property
+    def kspacing_update(self):
+        if self.bandgap is None:
+            return 0.22
+        return self._multi_sigmoid_interp(self.bandgap)
 
 
 @dataclass
@@ -1495,7 +1643,7 @@ class MPStaticSet(VaspInputSet):
                 int(self.reciprocal_density * factor),
                 self.force_gamma,
             )
-            k_div = cast(Kpoint, tuple(kp + 1 if kp % 2 == 1 else kp for kp in kpoints.kpts[0]))
+            k_div = cast("Kpoint", tuple(kp + 1 if kp % 2 == 1 else kp for kp in kpoints.kpts[0]))
             return Kpoints.monkhorst_automatic(k_div)
 
         return {"reciprocal_density": self.reciprocal_density * factor}
@@ -1571,7 +1719,8 @@ class MatPESStaticSet(VaspInputSet):
             )
 
         if self.xc_functional.upper() == "R2SCAN":
-            self._config_dict["INCAR"].update({"METAGGA": "R2SCAN", "ALGO": "ALL", "GGA": None})
+            self._config_dict["INCAR"].update({"METAGGA": "R2SCAN", "ALGO": "ALL"})
+            self._config_dict["INCAR"].pop("GGA", None)
         if self.xc_functional.upper().endswith("+U"):
             self._config_dict["INCAR"]["LDAU"] = True
 
@@ -1601,6 +1750,7 @@ class MPScanStaticSet(MPScanRelaxSet):
     def incar_updates(self) -> dict[str, Any]:
         """Updates to the INCAR config for this calculation type."""
         updates: dict[str, Any] = {
+            "ALGO": "Fast",
             "LREAL": False,
             "NSW": 0,
             "LORBIT": 11,
@@ -1619,6 +1769,49 @@ class MPScanStaticSet(MPScanRelaxSet):
                 "NSW": 1,
                 "NPAR": None,
             }
+
+        if self.lcalcpol:
+            updates["LCALCPOL"] = True
+
+        return updates
+
+
+@dataclass
+class MP24StaticSet(MP24RelaxSet):
+    """Create input files for a static calculation using MP24 parameters.
+
+    For class information, refer to `MP24RelaxSet`.
+    If you use this set, please consider citing the appropriate papers in `MP24RelaxSet`.
+
+    Args:
+        structure (Structure): Structure from previous run.
+        bandgap (float): Bandgap of the structure in eV. The bandgap is used to
+            compute the appropriate k-point density and determine the smearing settings.
+        lepsilon (bool): Whether to add static dielectric calculation
+        lcalcpol (bool): Whether to turn on evaluation of the Berry phase approximations
+            for electronic polarization.
+        **kwargs: Keywords supported by MP24RelaxSet.
+    """
+
+    lepsilon: bool = False
+    lcalcpol: bool = False
+    inherit_incar: bool = False
+    auto_kspacing: bool = True
+
+    @property
+    def incar_updates(self) -> dict[str, Any]:
+        """Updates to the INCAR config for this calculation type."""
+        updates: dict[str, Any] = {
+            "NSW": 0,
+            "LORBIT": 11,
+            "ISMEAR": -5,
+        }
+
+        if self.lepsilon:
+            # LPEAD=T: numerical evaluation of overlap integral prevents
+            # LRF_COMMUTATOR errors and can lead to better expt. agreement
+            # but produces slightly different results
+            updates |= {"IBRION": 8, "LEPSILON": True, "LPEAD": True, "NSW": 1, "NPAR": None}
 
         if self.lcalcpol:
             updates["LCALCPOL"] = True
@@ -2254,7 +2447,7 @@ class MVLSlabSet(VaspInputSet):
                 updates |= {"AMIN": 0.01, "AMIX": 0.2, "BMIX": 0.001}
             if self.auto_dipole and self.structure is not None:
                 weights = [struct.species.weight for struct in self.structure]
-                center_of_mass = np.average(self.structure.frac_coords, weights=weights, axis=0)
+                center_of_mass = np.average(self.structure.frac_coords, weights=weights, axis=0).tolist()
                 updates |= {"IDIPOL": 3, "LDIPOL": True, "DIPOL": center_of_mass}
         return updates
 
@@ -2287,7 +2480,7 @@ class MVLSlabSet(VaspInputSet):
         return Kpoints(
             comment="Generated by pymatgen's MVLGBSet",
             style=Kpoints.supported_modes.Gamma,
-            kpts=[cast(Kpoint, tuple(kpt_calc))],
+            kpts=[cast("Kpoint", tuple(kpt_calc))],
         )
 
     def as_dict(self, verbosity: int = 2) -> dict[str, Any]:
@@ -2347,7 +2540,7 @@ class MVLGBSet(VaspInputSet):
         return Kpoints(
             comment="Generated by pymatgen's MVLGBSet",
             style=Kpoints.supported_modes.Gamma,
-            kpts=[cast(Kpoint, tuple(kpt_calc))],
+            kpts=[cast("Kpoint", tuple(kpt_calc))],
         )
 
     @property
@@ -2404,23 +2597,92 @@ class MVLRelax52Set(VaspInputSet):
     _valid_potcars: Sequence[str] | None = ("PBE_52", "PBE_54", "PBE_64")
 
 
-class MITNEBSet(VaspInputSet):
-    """Write NEB inputs.
+@dataclass
+class MITMDSet(VaspInputSet):
+    """Write a VASP MD run. This DOES NOT do multiple stage runs.
+
+    Args:
+        structure (Structure): Input structure.
+        start_temp (float): Starting temperature.
+        end_temp (float): Final temperature.
+        nsteps (int): Number of time steps for simulations. NSW parameter.
+        time_step (float): The time step for the simulation. The POTIM
+            parameter. Defaults to 2fs.
+        spin_polarized (bool): Whether to do spin polarized calculations.
+            The ISPIN parameter. Defaults to False.
+        **kwargs: Other kwargs supported by VaspInputSet.
+    """
+
+    structure: Structure | None = None
+    start_temp: float = 0.0
+    end_temp: float = 300.0
+    nsteps: int = 1000
+    time_step: float = 2
+    spin_polarized: bool = False
+    CONFIG = MITRelaxSet.CONFIG
+
+    @property
+    def incar_updates(self) -> dict[str, Any]:
+        """Updates to the INCAR config for this calculation type."""
+        # MD default settings
+        return {
+            "TEBEG": self.start_temp,
+            "TEEND": self.end_temp,
+            "NSW": self.nsteps,
+            "EDIFF_PER_ATOM": 0.000001,
+            "LSCALU": False,
+            "LCHARG": False,
+            "LPLANE": False,
+            "LWAVE": True,
+            "ISMEAR": 0,
+            "NELMIN": 4,
+            "LREAL": True,
+            "BMIX": 1,
+            "MAXMIX": 20,
+            "NELM": 500,
+            "NSIM": 4,
+            "ISYM": 0,
+            "ISIF": 0,
+            "IBRION": 0,
+            "NBLOCK": 1,
+            "KBLOCK": 100,
+            "SMASS": 0,
+            "POTIM": self.time_step,
+            "PREC": "Low",
+            "ISPIN": 2 if self.spin_polarized else 1,
+            "LDAU": False,
+            "ENCUT": None,
+        }
+
+    @property
+    def kpoints_updates(self) -> Kpoints:
+        """Updates to the kpoints configuration for this calculation type."""
+        return Kpoints.gamma_automatic()
+
+
+class NEBSet(VaspInputSet):
+    """An input set for NEB calculations. These are based on NEB parameters that have been extensively tested by the
+    Materials Virtual Lab.
 
     Note that EDIFF is not on a per atom basis for this input set.
     """
 
-    def __init__(self, structures: list[Structure], unset_encut: bool = False, **kwargs) -> None:
+    def __init__(
+        self, structures: list[Structure], unset_encut: bool = False, parent_set="MPRelaxSet", **kwargs
+    ) -> None:
         """
         Args:
             structures: List of Structure objects.
             unset_encut (bool): Whether to unset ENCUT.
+            parent_set (str): The parent input set to inherit from. Defaults to MPRelaxSet. This should be a string
+                name to support MSONable.
             **kwargs: Other kwargs supported by VaspInputSet.
         """
         if len(structures) < 3:
             raise ValueError(f"You need at least 3 structures for an NEB, got {len(structures)}")
         kwargs["sort_structure"] = False
-        super().__init__(structures[0], MITRelaxSet.CONFIG, **kwargs)
+        self.parent = globals()[parent_set]
+        super().__init__(structures[0], self.parent.CONFIG, **kwargs)
         self.structures = self._process_structures(structures)
 
         self.unset_encut = False
@@ -2432,13 +2694,22 @@ class MITNEBSet(VaspInputSet):
 
         # NEB specific defaults
         defaults = {
+            "EDIFF": 5e-5,
+            "EDIFFG": -0.02,
             "IMAGES": len(structures) - 2,
-            "IBRION": 1,
             "ISYM": 0,
+            "ISIF": 2,
             "LCHARG": False,
             "LDAU": False,
+            "LORBIT": 0,
+            "NSW": 200,
+            "ALGO": "Normal",
+            "IBRION": 3,
+            "IOPT": 1,
+            "POTIM": 0,
         }
         self._config_dict["INCAR"].update(defaults)
+        self.parent_set = parent_set
 
     @property
     def poscar(self) -> Poscar:
@@ -2503,7 +2774,7 @@ class MITNEBSet(VaspInputSet):
             if write_cif:
                 poscar.structure.to(filename=str(d / f"{idx}.cif"))
         if write_endpoint_inputs:
-            end_point_param = MITRelaxSet(self.structures[0], user_incar_settings=self.user_incar_settings)
+            end_point_param = self.parent(self.structures[0], user_incar_settings=self.user_incar_settings)
 
             for image in ("00", str(len(self.structures) - 1).zfill(2)):
                 end_point_param.incar.write_file(str(output_dir / image / "INCAR"))
@@ -2520,67 +2791,47 @@ class MITNEBSet(VaspInputSet):
             neb_path.to(filename=f"{output_dir}/path.cif")
 
 
-@dataclass
-class MITMDSet(VaspInputSet):
-    """Write a VASP MD run. This DOES NOT do multiple stage runs.
-
-    Args:
-        structure (Structure): Input structure.
-        start_temp (float): Starting temperature.
-        end_temp (float): Final temperature.
-        nsteps (int): Number of time steps for simulations. NSW parameter.
-        time_step (float): The time step for the simulation. The POTIM
-            parameter. Defaults to 2fs.
-        spin_polarized (bool): Whether to do spin polarized calculations.
-            The ISPIN parameter. Defaults to False.
-        **kwargs: Other kwargs supported by VaspInputSet.
+class CINEBSet(NEBSet):
+    """
+    MAVRL-tested settings for CI-NEB calculations. Note that these parameters
+    requires the VTST modification of VASP from the Henkelman group. See
+    http://theory.cm.utexas.edu/vtsttools/.
     """
 
-    structure: Structure | None = None
-    start_temp: float = 0.0
-    end_temp: float = 300.0
-    nsteps: int = 1000
-    time_step: float = 2
-    spin_polarized: bool = False
-    CONFIG = MITRelaxSet.CONFIG
+    def __init__(self, structures: list[Structure], **kwargs) -> None:
+        r"""
+        Args:
+            structures: Input structures.
+            **kwargs: Keyword args supported by VaspInputSets.
+        """
+        user_incar_settings = kwargs.get("user_incar_settings", {})
 
-    @property
-    def incar_updates(self) -> dict[str, Any]:
-        """Updates to the INCAR config for this calculation type."""
-        # MD default settings
-        return {
-            "TEBEG": self.start_temp,
-            "TEEND": self.end_temp,
-            "NSW": self.nsteps,
-            "EDIFF_PER_ATOM": 0.000001,
-            "LSCALU": False,
-            "LCHARG": False,
-            "LPLANE": False,
-            "LWAVE": True,
-            "ISMEAR": 0,
-            "NELMIN": 4,
-            "LREAL": True,
-            "BMIX": 1,
-            "MAXMIX": 20,
-            "NELM": 500,
-            "NSIM": 4,
-            "ISYM": 0,
-            "ISIF": 0,
-            "IBRION": 0,
-            "NBLOCK": 1,
-            "KBLOCK": 100,
-            "SMASS": 0,
-            "POTIM": self.time_step,
-            "PREC": "Low",
-            "ISPIN": 2 if self.spin_polarized else 1,
-            "LDAU": False,
-            "ENCUT": None,
+        # Additional CI-NEB settings
+        defaults = {
+            "ICHAIN": 0,
+            "LCLIMB": True,
+            "SPRING": -5,
         }
+        if user_incar_settings != {}:
+            defaults.update(user_incar_settings)
 
-    @property
-    def kpoints_updates(self) -> Kpoints:
-        """Updates to the kpoints configuration for this calculation type."""
-        return Kpoints.gamma_automatic()
+        kwargs["user_incar_settings"] = defaults
+
+        super().__init__(structures, **kwargs)
+
+
+class MITNEBSet(NEBSet):
+    """
+    NEBSet using MITRelaxSet as parent. Retained for compatibility.
+    """
+
+    def __init__(self, structures: list[Structure], **kwargs) -> None:
+        """
+        Args:
+            structures: List of Structure objects.
+            **kwargs: Other kwargs supported by VaspInputSet.
+        """
+        super().__init__(structures, parent_set="MITRelaxSet", **kwargs)
 
 
 @dataclass
@@ -3232,7 +3483,7 @@ class MPAbsorptionSet(VaspInputSet):
             # for cubic lattices, but using NKREDX, NKREDY, NKREDZ are more sensible for
             # other lattices.
             self.nkred = (
-                cast(tuple[int, int, int], self.prev_vasprun.kpoints.kpts[0]) if self.nkred is None else self.nkred
+                cast("tuple[int, int, int]", self.prev_vasprun.kpoints.kpts[0]) if self.nkred is None else self.nkred
             )
             updates |= {
                 "NKREDX": self.nkred[0],
@@ -3265,7 +3516,8 @@ def _combine_kpoints(*kpoints_objects: Kpoints | None) -> Kpoints:
     _kpoints: list[Sequence[Kpoint]] = []
     _weights = []
 
-    for kpoints_object in filter(None, kpoints_objects):  # type: ignore[var-annotated]
+    kpoints_object: Kpoints
+    for kpoints_object in filter(None, kpoints_objects):
         if kpoints_object.style != Kpoints.supported_modes.Reciprocal:
             raise ValueError("Can only combine kpoints with style=Kpoints.supported_modes.Reciprocal")
         if kpoints_object.labels is None:
@@ -3284,7 +3536,7 @@ def _combine_kpoints(*kpoints_objects: Kpoints | None) -> Kpoints:
         comment="Combined k-points",
         style=Kpoints.supported_modes.Reciprocal,
         num_kpts=len(kpoints),
-        kpts=cast(Sequence[Kpoint], kpoints),
+        kpts=cast("Sequence[Kpoint]", kpoints),
         labels=labels,
         kpts_weights=weights,
     )

@@ -1,26 +1,32 @@
 from __future__ import annotations
 
 import multiprocessing
-from unittest import TestCase
 
 import matplotlib.pyplot as plt
 import numpy as np
 from monty.serialization import dumpfn, loadfn
 from pytest import approx
 
-from pymatgen.analysis.pourbaix_diagram import IonEntry, MultiEntry, PourbaixDiagram, PourbaixEntry, PourbaixPlotter
+from pymatgen.analysis.pourbaix_diagram import (
+    IonEntry,
+    MultiEntry,
+    PourbaixDiagram,
+    PourbaixEntry,
+    PourbaixPlotter,
+    ion_or_solid_comp_object,
+)
 from pymatgen.core.composition import Composition
 from pymatgen.core.ion import Ion
 from pymatgen.entries.computed_entries import ComputedEntry
-from pymatgen.util.testing import TEST_FILES_DIR, PymatgenTest
+from pymatgen.util.testing import TEST_FILES_DIR, MatSciTest
 
 TEST_DIR = f"{TEST_FILES_DIR}/analysis/pourbaix_diagram"
 
 
-class TestPourbaixEntry(PymatgenTest):
+class TestPourbaixEntry(MatSciTest):
     """Test all functions using a fictitious entry"""
 
-    def setUp(self):
+    def setup_method(self):
         # comp = Composition("Mn2O3")
         self.sol_entry = ComputedEntry("Mn2O3", 49)
         ion = Ion.from_formula("MnO4-")
@@ -36,7 +42,7 @@ class TestPourbaixEntry(PymatgenTest):
         assert self.px_sol.entry.name == "Mn2O3", "Wrong Entry!"
         # assert self.PxIon.energy == 25, "Wrong Energy!"
         # assert self.PxSol.energy == 49, "Wrong Energy!"
-        assert self.px_ion.concentration == 1e-4, "Wrong concentration!"
+        assert self.px_ion.concentration == approx(1e-4), "Wrong concentration!"
 
     def test_calc_coeff_terms(self):
         assert self.px_ion.npH == -8, "Wrong npH!"
@@ -97,9 +103,9 @@ class TestPourbaixEntry(PymatgenTest):
         assert pb_entry.get_element_fraction("Mn") == approx(0.4)
 
 
-class TestPourbaixDiagram(TestCase):
+class TestPourbaixDiagram:
     @classmethod
-    def setUpClass(cls):
+    def setup_class(cls):
         cls.test_data = loadfn(f"{TEST_DIR}/pourbaix_test_data.json")
         cls.pbx = PourbaixDiagram(cls.test_data["Zn"], filter_solids=True)
         cls.pbx_no_filter = PourbaixDiagram(cls.test_data["Zn"], filter_solids=False)
@@ -203,9 +209,9 @@ class TestPourbaixDiagram(TestCase):
     def test_get_decomposition(self):
         # Test a stable entry to ensure that it's zero in the stable region
         entry = self.test_data["Zn"][12]  # Should correspond to mp-2133
-        assert self.pbx.get_decomposition_energy(entry, 10, 1) == approx(
-            0.0, 5
-        ), "Decomposition energy of ZnO is not 0."
+        assert self.pbx.get_decomposition_energy(entry, 10, 1) == approx(0.0, 5), (
+            "Decomposition energy of ZnO is not 0."
+        )
 
         # Test an unstable entry to ensure that it's never zero
         entry = self.test_data["Zn"][11]
@@ -293,8 +299,8 @@ class TestPourbaixDiagram(TestCase):
         assert len(pd_binary.stable_entries) == len(new_binary.stable_entries)
 
 
-class TestPourbaixPlotter(TestCase):
-    def setUp(self):
+class TestPourbaixPlotter:
+    def setup_method(self):
         self.test_data = loadfn(f"{TEST_DIR}/pourbaix_test_data.json")
         self.pd = PourbaixDiagram(self.test_data["Zn"])
         self.plotter = PourbaixPlotter(self.pd)
@@ -315,3 +321,34 @@ class TestPourbaixPlotter(TestCase):
         binary_plotter = PourbaixPlotter(pd_binary)
         ax = binary_plotter.plot_entry_stability(self.test_data["Ag-Te"][53])
         assert isinstance(ax, plt.Axes)
+
+
+class TestIonOrSolidCompObject:
+    def test_ion(self):
+        # Test cations
+        assert ion_or_solid_comp_object("Li+").charge == 1
+        assert ion_or_solid_comp_object("Li[+]").charge == 1
+        assert ion_or_solid_comp_object("Ca[2+]").charge == 2
+        assert ion_or_solid_comp_object("Ca[+2]").charge == 2
+        assert ion_or_solid_comp_object("Ca++").charge == 2
+        assert ion_or_solid_comp_object("Ca[++]").charge == 2
+        assert ion_or_solid_comp_object("Ca2+").charge == 1
+        assert ion_or_solid_comp_object("C2O4-2").charge == -2
+
+        # Test anions
+        assert ion_or_solid_comp_object("Cl-").charge == -1
+        assert ion_or_solid_comp_object("Cl[-]").charge == -1
+        assert ion_or_solid_comp_object("SO4[-2]").charge == -2
+        assert ion_or_solid_comp_object("SO4-2").charge == -2
+        assert ion_or_solid_comp_object("SO42-").charge == -1
+        assert ion_or_solid_comp_object("SO4--").charge == -2
+        assert ion_or_solid_comp_object("SO4[--]").charge == -2
+        assert ion_or_solid_comp_object("N3-").charge == -1
+
+    def test_solid(self):
+        # Test end with "(s)"
+        assert ion_or_solid_comp_object("Fe2O3(s)") == Composition("Fe2O3")
+        assert ion_or_solid_comp_object("Fe(s)") == Composition("Fe1")
+
+        # Test end without "(s)"
+        assert type(ion_or_solid_comp_object("Na2O")) is Composition

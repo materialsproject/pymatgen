@@ -41,7 +41,7 @@ class XYZ:
             mol (Molecule | Structure): Input molecule or structure or list thereof.
             coord_precision: Precision to be used for coordinates.
         """
-        self._mols = cast(list[SiteCollection], [mol] if isinstance(mol, SiteCollection) else mol)
+        self._mols = cast("list[SiteCollection]", [mol] if isinstance(mol, SiteCollection) else mol)
         self.precision = coord_precision
 
     @property
@@ -111,7 +111,7 @@ class XYZ:
         Returns:
             XYZ object
         """
-        with zopen(filename, mode="rt") as file:
+        with zopen(filename, mode="rt", encoding="utf-8") as file:
             return cls.from_str(file.read())
 
     def as_dataframe(self):
@@ -151,5 +151,5 @@ class XYZ:
         Args:
             filename (str): File name of output file.
         """
-        with zopen(filename, mode="wt") as file:
+        with zopen(filename, mode="wt", encoding="utf-8") as file:
             file.write(str(self))

@@ -5,7 +5,8 @@ import tempfile
 
 import numpy as np
 import pytest
-from numpy.testing import assert_array_equal
+from numpy.testing import assert_allclose, assert_array_equal
+from pytest import approx
 
 from pymatgen.core.structure import Structure
 from pymatgen.io.abinit.inputs import (
@@ -18,7 +19,7 @@ from pymatgen.io.abinit.inputs import (
     ion_ioncell_relax_input,
     num_valence_electrons,
 )
-from pymatgen.util.testing import TEST_FILES_DIR, PymatgenTest
+from pymatgen.util.testing import TEST_FILES_DIR, MatSciTest
 
 TEST_DIR = f"{TEST_FILES_DIR}/io/abinit"
 
@@ -33,7 +34,7 @@ def abiref_files(*filenames):
     return [f"{TEST_DIR}/{file}" for file in filenames]
 
 
-class TestAbinitInput(PymatgenTest):
+class TestAbinitInput(MatSciTest):
     """Unit tests for BasicAbinitInput."""
 
     def test_api(self):
@@ -52,7 +53,7 @@ class TestAbinitInput(PymatgenTest):
         inp = BasicAbinitInput(structure=unit_cell, pseudos=abiref_file("14si.pspnc"))
 
         shift_k = [[0.5, 0.5, 0.5], [0.5, 0.0, 0.0], [0.0, 0.5, 0.0], [0.0, 0.0, 0.5]]
-        assert_array_equal(calc_shiftk(inp.structure), shift_k)
+        assert_allclose(calc_shiftk(inp.structure), shift_k)
         assert num_valence_electrons(inp.structure, inp.pseudos) == 8
 
         assert len(inp) == 0
@@ -105,7 +106,7 @@ class TestAbinitInput(PymatgenTest):
 
         removed = inp.pop_tolerances()
         assert len(removed) == 1
-        assert removed["toldfe"] == 1e-6
+        assert removed["toldfe"] == approx(1e-6)
 
         # Test set_spin_mode
         old_vars = inp.set_spin_mode("polarized")
@@ -168,7 +169,7 @@ class TestAbinitInput(PymatgenTest):
         assert len(inp["kptbounds"]) == 12
 
 
-class TestMultiDataset(PymatgenTest):
+class TestMultiDataset(MatSciTest):
     """Unit tests for BasicMultiDataset."""
 
     def test_api(self):
@@ -251,7 +252,7 @@ class TestMultiDataset(PymatgenTest):
         self.serialize_with_pickle(multi, test_eq=False)
 
 
-class TestShiftMode(PymatgenTest):
+class TestShiftMode(MatSciTest):
     def test_shiftmode(self):
         gamma = ShiftMode.GammaCentered
         assert ShiftMode.from_object("G") == gamma
@@ -260,8 +261,8 @@ class TestShiftMode(PymatgenTest):
             ShiftMode.from_object({})
 
 
-class TestFactory(PymatgenTest):
-    def setUp(self):
+class TestFactory(MatSciTest):
+    def setup_method(self):
         # Si ebands
         self.si_structure = Structure.from_file(abiref_file("si.cif"))
         self.si_pseudo = abiref_file("14si.pspnc")

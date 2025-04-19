@@ -11,7 +11,7 @@ from pymatgen.analysis.chemenv.coordination_environments.coordination_geometries
     ExplicitPermutationsAlgorithm,
     SeparationPlane,
 )
-from pymatgen.util.testing import PymatgenTest
+from pymatgen.util.testing import MatSciTest
 
 __author__ = "waroquiers"
 
@@ -23,7 +23,7 @@ class FakeSite:
         self.coords = coords
 
 
-class TestCoordinationGeometries(PymatgenTest):
+class TestCoordinationGeometries(MatSciTest):
     def test_algorithms(self):
         expl_algo = ExplicitPermutationsAlgorithm(permutations=[[0, 1, 2], [1, 2, 3]])
         expl_algo2 = ExplicitPermutationsAlgorithm.from_dict(expl_algo.as_dict())
@@ -89,7 +89,7 @@ class TestCoordinationGeometries(PymatgenTest):
         assert cg_oct.IUCr_symbol_str == "[6o]"
 
         cg_oct.permutations_safe_override = True
-        assert cg_oct.number_of_permutations == 720.0
+        assert cg_oct.number_of_permutations == 720
         assert cg_oct.ref_permutation([0, 3, 2, 4, 5, 1]) == (0, 3, 1, 5, 2, 4)
 
         sites = [FakeSite(coords=pp) for pp in cg_oct.points]

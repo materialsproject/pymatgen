@@ -5,7 +5,6 @@ import re
 import warnings
 from glob import glob
 from shutil import which
-from unittest import TestCase
 
 import networkx as nx
 import networkx.algorithms.isomorphism as iso
@@ -25,7 +24,7 @@ from pymatgen.analysis.local_env import (
 from pymatgen.command_line.critic2_caller import Critic2Analysis
 from pymatgen.core import Lattice, Molecule, Site, Structure
 from pymatgen.core.structure import FunctionalGroups
-from pymatgen.util.testing import TEST_FILES_DIR, PymatgenTest
+from pymatgen.util.testing import TEST_FILES_DIR, MatSciTest
 
 try:
     from openbabel import openbabel
@@ -47,8 +46,8 @@ __date__ = "August 2017"
 TEST_DIR = f"{TEST_FILES_DIR}/analysis/graphs"
 
 
-class TestStructureGraph(PymatgenTest):
-    def setUp(self):
+class TestStructureGraph(MatSciTest):
+    def setup_method(self):
         # trivial example, simple square lattice for testing
         structure = Structure(Lattice.tetragonal(5, 50), ["H"], [[0, 0, 0]])
         self.square_sg = StructureGraph.from_empty_graph(structure, edge_weight_name="", edge_weight_units="")
@@ -87,7 +86,7 @@ class TestStructureGraph(PymatgenTest):
         # MoS2 example, structure graph obtained from critic2
         # (not ground state, from mp-1023924, single layer)
         stdout_file = f"{TEST_FILES_DIR}/command_line/critic2/MoS2_critic2_stdout.txt"
-        with open(stdout_file) as txt_file:
+        with open(stdout_file, encoding="utf-8") as txt_file:
             reference_stdout = txt_file.read()
         self.structure = Structure.from_file(f"{TEST_FILES_DIR}/command_line/critic2/MoS2.cif")
         c2o = Critic2Analysis(self.structure, reference_stdout)
@@ -162,7 +161,7 @@ class TestStructureGraph(PymatgenTest):
             new_edge_properties={"foo": "bar"},
         )
         new_edge = square.graph.get_edge_data(0, 0)[0]
-        assert new_edge["weight"] == 0.0
+        assert new_edge["weight"] == approx(0.0)
         assert new_edge["foo"] == "bar"
 
         square.break_edge(0, 0, to_jimage=(1, 0, 0))
@@ -232,7 +231,7 @@ class TestStructureGraph(PymatgenTest):
         sg_with_graph = StructureGraph.from_local_env_strategy(structure_copy_graph, MinimumDistanceNN())
         sg_with_graph.substitute_group(1, "methyl", MinimumDistanceNN, graph_dict=graph_dict)
         edge = sg_with_graph.graph.get_edge_data(11, 13)[0]
-        assert edge["weight"] == 0.5
+        assert edge["weight"] == approx(0.5)
 
     def test_auto_image_detection(self):
         struct_graph = StructureGraph.from_empty_graph(self.structure)
@@ -508,8 +507,8 @@ from    to  to_image
         assert list(sg.graph.edges)[-2:] == [(1, 3, 0), (1, 2, 0)]
 
 
-class TestMoleculeGraph(TestCase):
-    def setUp(self):
+class TestMoleculeGraph:
+    def setup_method(self):
         cyclohexene_xyz = f"{TEST_DIR}/cyclohexene.xyz"
         cyclohexene = Molecule.from_file(cyclohexene_xyz)
         self.cyclohexene = MoleculeGraph.from_empty_graph(
@@ -662,7 +661,7 @@ class TestMoleculeGraph(TestCase):
         cyclohexene = copy.deepcopy(self.cyclohexene)
         cyclohexene.alter_edge(0, 1, new_weight=0.0, new_edge_properties={"foo": "bar"})
         new_edge = cyclohexene.graph.get_edge_data(0, 1)[0]
-        assert new_edge["weight"] == 0.0
+        assert new_edge["weight"] == approx(0.0)
         assert new_edge["foo"] == "bar"
 
         cyclohexene.break_edge(0, 1)
@@ -897,7 +896,7 @@ class TestMoleculeGraph(TestCase):
         # Check that MoleculeGraph input is handled properly
         eth_graph.substitute_group(5, molecule, MinimumDistanceNN, graph_dict=graph_dict)
         eth_mg.substitute_group(5, mol_graph, MinimumDistanceNN)
-        assert eth_graph.graph.get_edge_data(5, 6)[0]["weight"] == 1.0
+        assert eth_graph.graph.get_edge_data(5, 6)[0]["weight"] == approx(1.0)
         assert eth_mg == eth_graph
 
     def test_replace(self):

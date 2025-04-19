@@ -94,7 +94,7 @@ def run_mcsqs(
 
     else:
         # Set supercell to identity (will make supercell with pymatgen)
-        with open("sqscell.out", mode="w") as file:
+        with open("sqscell.out", mode="w", encoding="utf-8") as file:
             file.write("1\n1 0 0\n0 1 0\n0 0 1\n")
         structure *= scaling
         mcsqs_find_sqs_cmd = ["mcsqs", "-rc", f"-n {n_atoms}"]
@@ -185,8 +185,8 @@ def _parse_sqs_path(path) -> Sqs:
 
     # Convert best SQS structure to CIF file and pymatgen Structure
     with (
-        open(os.path.join(path, "bestsqs.out")) as input_file,
-        open(os.path.join(path, "bestsqs.cif"), "w") as output_file,
+        open(path / "bestsqs.out", encoding="utf-8") as input_file,
+        open(path / "bestsqs.cif", "w", encoding="utf-8") as output_file,
     ):
         process = Popen(["str2cif"], stdin=input_file, stdout=output_file, cwd=path)
         process.communicate()
@@ -196,7 +196,7 @@ def _parse_sqs_path(path) -> Sqs:
         best_sqs = Structure.from_file(path / "bestsqs.out")
 
     # Get best SQS objective function
-    with open(path / "bestcorr.out") as file:
+    with open(path / "bestcorr.out", encoding="utf-8") as file:
         lines = file.readlines()
 
     objective_function_str = lines[-1].split("=")[-1].strip()
@@ -210,13 +210,13 @@ def _parse_sqs_path(path) -> Sqs:
         sqs_out = os.path.join(path, f"bestsqs{idx + 1}.out")
         sqs_cif = os.path.join(path, f"bestsqs{idx + 1}.cif")
 
-        with open(sqs_out) as input_file, open(sqs_cif, "w") as output_file:
+        with open(sqs_out, encoding="utf-8") as input_file, open(sqs_cif, "w", encoding="utf-8") as output_file:
             process = Popen(["str2cif"], stdin=input_file, stdout=output_file, cwd=path)
             process.communicate()
         sqs = Structure.from_file(path / sqs_out)
 
         corr_out = f"bestcorr{idx + 1}.out"
-        with open(path / corr_out) as file:
+        with open(path / corr_out, encoding="utf-8") as file:
             lines = file.readlines()
 
         objective_function_str = lines[-1].split("=")[-1].strip()
@@ -250,7 +250,7 @@ def _parse_clusters(filename):
                 num_possible_species: int
                 cluster_function: float
     """
-    with open(filename) as file:
+    with open(filename, encoding="utf-8") as file:
         lines = file.readlines()
 
     clusters = []

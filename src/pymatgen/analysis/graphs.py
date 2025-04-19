@@ -631,8 +631,7 @@ class StructureGraph(MSONable):
                 self.graph.remove_edge(to_index, from_index, edge_index)
             else:
                 raise ValueError(
-                    f"Edge cannot be broken between {from_index} and {to_index}; "
-                    f"no edge exists between those sites."
+                    f"Edge cannot be broken between {from_index} and {to_index}; no edge exists between those sites."
                 )
 
     def remove_nodes(self, indices: Sequence[int | None]) -> None:
@@ -791,7 +790,7 @@ class StructureGraph(MSONable):
 
             # from_site if jimage arg != (0, 0, 0)
             relative_jimage = np.subtract(to_jimage, jimage)
-            u_site = cast(PeriodicSite, self.structure[u])  # tell mypy that u_site is a PeriodicSite
+            u_site = cast("PeriodicSite", self.structure[u])  # tell mypy that u_site is a PeriodicSite
             dist = u_site.distance(self.structure[v], jimage=relative_jimage)
 
             weight = data.get("weight")
@@ -976,7 +975,7 @@ class StructureGraph(MSONable):
 
         write_dot(g, f"{basename}.dot")
 
-        with open(filename, mode="w") as file:
+        with open(filename, mode="w", encoding="utf-8") as file:
             args = [algo, "-T", extension, f"{basename}.dot"]
             with subprocess.Popen(args, stdout=file, stdin=subprocess.PIPE, close_fds=True) as rs:
                 rs.communicate()
@@ -1976,8 +1975,7 @@ class MoleculeGraph(MSONable):
                 self.graph.remove_edge(to_index, from_index)
             else:
                 raise ValueError(
-                    f"Edge cannot be broken between {from_index} and {to_index}; "
-                    f"no edge exists between those sites."
+                    f"Edge cannot be broken between {from_index} and {to_index}; no edge exists between those sites."
                 )
 
     def remove_nodes(self, indices: list[int]) -> None:
@@ -2646,7 +2644,7 @@ class MoleculeGraph(MSONable):
 
         write_dot(g, f"{basename}.dot")
 
-        with open(filename, mode="w") as file:
+        with open(filename, mode="w", encoding="utf-8") as file:
             args = [algo, "-T", extension, f"{basename}.dot"]
             with subprocess.Popen(args, stdout=file, stdin=subprocess.PIPE, close_fds=True) as rs:
                 rs.communicate()

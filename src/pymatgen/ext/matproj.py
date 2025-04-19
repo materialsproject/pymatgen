@@ -16,6 +16,7 @@ import os
 import platform
 import sys
 import warnings
+from functools import partial
 from typing import TYPE_CHECKING, NamedTuple
 
 import requests
@@ -28,35 +29,57 @@ from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
 if TYPE_CHECKING:
     from collections.abc import Callable
 
-    from mp_api.client import MPRester as _MPResterNew
     from typing_extensions import Self
 
     from pymatgen.core.structure import Structure
     from pymatgen.entries.computed_entries import ComputedStructureEntry
-    from pymatgen.ext.matproj_legacy import _MPResterLegacy
 
 logger = logging.getLogger(__name__)
 
 MP_LOG_FILE = os.path.join(os.path.expanduser("~"), ".mprester.log.yaml")
 
 
-class _MPResterBasic:
+class MPRester:
     """
-    This is Pymatgen's own implement of a MPRester that supports the new MP API. If you are getting your API key from
-    the new dashboard of MP, you will need to use this instead of the original MPRester because the new API keys do
-    not work with the old MP API (???!).
+    Pymatgen's implementation of MPRester. Unlike mp-api, this implementation mirrors the exact MP-API end points
+    without modification. You just need to refer to https://api.materialsproject.org/docs and use the field names
+    exactly. No need to deal with strange renames of various fields. Featurity parity is close to 100% with mp-api.
 
-    The reason why this class exists is because it is the belief of the pymatgen maintainers that access to the MP API
-    remains a critical part of pymatgen functionality. However, the new mp-api package is written in a way that
-    prevents us from importing the mp-api package because of cyclic dependencies. It is also the opinion of Pymatgen
-    maintainers that the implementation of mp-api is too heavy duty for most users (few care about document models,
-    etc.). Further, this implementation serves as a simple reference for end developers who want to develop their own
-    interfaces to the MP API via the REST urls.
+    Furthermore, we support both the mp-api as well as a simplified syntax. E.g., to query for a summary, you can use
+    mpr.summary.search(material_ids="mp-1234") or mpr.materials.summary.search(material_ids="mp-1234").
 
-    If you are a power user, feel free to install the mp-api package. All issues regarding that implementation should
-    be directed to the maintainers of that repository and not pymatgen. We will support only issues with regards to
-    our implementation only.
+    If you are a power user that requires some esoteric feature not covered, feel free to install the mp-api package.
+    All issues regarding that implementation should be directed to the maintainers of that repository and not
+    pymatgen. We will support only issues pertaining to our implementation only.
     """
+
+    MATERIALS_DOCS = (
+        "summary",
+        "core",
+        "elasticity",
+        "phonon",
+        "eos",
+        "similarity",
+        "xas",
+        "grain_boundaries",
+        "electronic_structure",
+        "tasks",
+        "substrates",
+        "surface_properties",
+        "robocrys",
+        "synthesis",
+        "magnetism",
+        "insertion_electrodes",
+        "conversion_electrodes",
+        "oxidation_states",
+        "provenance",
+        "alloys",
+        "absorption",
+        "chemenv",
+        "bonds",
+        "piezoelectric",
+        "dielectric",
+    )
 
     def __init__(self, api_key: str | None = None, include_user_agent: bool = True) -> None:
         """
@@ -78,6 +101,12 @@ class _MPResterBasic:
             self.api_key = api_key
         else:
             self.api_key = SETTINGS.get("PMG_MAPI_KEY", "")
+
+        if len(self.api_key) != 32:
+            raise ValueError(
+                "Invalid or old API key. Please obtain an updated API key at https://materialsproject.org/dashboard."
+            )
+
         self.preamble = SETTINGS.get("PMG_MAPI_ENDPOINT", "https://api.materialsproject.org/")
 
         self.session = requests.Session()
@@ -89,17 +118,23 @@ class _MPResterBasic:
             self.session.headers["user-agent"] = f"{pymatgen_info} ({python_info} {platform_info})"
 
         # This is a hack, but it fakes most of the functionality of mp-api's summary.search.
-        class Summary(NamedTuple):
+        class Search(NamedTuple):
             search: Callable
 
-        self.summary = Summary(self.summary_search)
+        class Materials:
+            pass
+
+        self.materials = Materials()
+
+        for doc in MPRester.MATERIALS_DOCS:
+            setattr(self, doc, Search(partial(self.search, doc)))
+            setattr(self.materials, doc, Search(partial(self.search, doc)))
 
     def __getattr__(self, item):
-        if item in ("summary", "materials", "thermo"):
-            raise AttributeError(
-                f"{item} is not an attribute of this implementation of MPRester, which only supports functionality"
-                "used by 80% of users. If you are looking for the full functionality MPRester, pls install the mp-api ."
-            )
+        raise AttributeError(
+            f"{item} is not an attribute of this implementation of MPRester, which only supports functionality "
+            "used by 80% of users. If you are looking for the full functionality MPRester, pls install the mp-api ."
+        )
 
     def __enter__(self) -> Self:
         """Support for "with" context."""
@@ -137,24 +172,58 @@ class _MPResterBasic:
                 raise MPRestError(msg)
         return all_data
 
-    def summary_search(self, **kwargs) -> list[dict]:
-        """This function mirrors the mp-api's summary.search functionality.
-
-        Args:
-            **kwargs: This function only takes kwargs. All kwargs that do not start with an underscore are treated as
-                search criteria and those with underscores are treated as params. Example usage:
-                MPRester().summary.search(material_ids="mp-19770,mp-19017", _fields="formula_pretty,energy_above_hull")
+    def search(self, doc, **kwargs) -> list[dict]:
         """
-        criteria = {k: v for k, v in kwargs.items() if not k.startswith("_")}
-        params = [f"{k}={v}" for k, v in kwargs.items() if k.startswith("_") and k != "_fields"]
+        Queries a Materials PI end point doc. A notable difference with the mp-api's implementation is that this uses
+        the web API to do searches. So the keywords follow the actual API spec, which is as it should be. For
+        instance, number of sites is `nsites` and number of elements is `nelements`. The mp-api package has this
+        weird renaming that maps `num_elements` to `nelements` and `num_sites` to  `nsites`.
+
+        Parameters:
+        - **kwargs: keyword arguments for filtering materials. Fields that do not start with underscores are
+        filters, while those that start with underscores are fields to retrieve. Possible filters include:
+          - _fields (optional): list of fields to retrieve for each material
+          - Other parameters: filter criteria, where each parameter key corresponds to the field to filter and the
+            parameter value corresponds to the filter value
+
+        Returns:
+        - list of dictionaries, each dictionary representing a material retrieved based on the filtering criteria
+        """
+
+        def comma_cat(val):
+            return ",".join(val) if isinstance(val, list) else val
+
+        criteria = {k: comma_cat(v) for k, v in kwargs.items() if not k.startswith("_")}
+        params = [f"{k}={comma_cat(v)}" for k, v in kwargs.items() if k.startswith("_") and k != "_fields"]
         if "_fields" not in kwargs:
             params.append("_all_fields=True")
         else:
-            fields = ",".join(kwargs["_fields"]) if isinstance(kwargs["_fields"], list) else kwargs["_fields"]
+            fields = comma_cat(kwargs["_fields"])
             params.extend((f"_fields={fields}", "_all_fields=False"))
         get = "&".join(params)
         logger.info(f"query={get}")
-        return self.request(f"materials/summary/?{get}", payload=criteria)
+        return self.request(f"materials/{doc}/?{get}", payload=criteria)
+
+    def summary_search(self, **kwargs) -> list[dict]:
+        """
+        Mirrors mp-api's mpr.materials.summary.search functionality. Searches for materials based on the specified
+        criteria. A notable difference with the mp-api's implementation is that this uses the web API to do searches.
+        So the keywords follow the actual API spec, which is as it should be. For instance, number of sites is `nsites`
+        and number of elements is `nelements`. The mp-api package has this weird renaming that maps `num_elements` to
+        `nelements` and `num_sites` to  `nsites`.
+
+        Parameters:
+        - **kwargs: keyword arguments for filtering materials. Fields that do not start with underscores are
+        filters, while those that start with underscores are fields to retrieve. Possible filters include:
+          - _fields (optional): list of fields to retrieve for each material
+          - Other parameters: filter criteria, where each parameter key corresponds to the field to filter and the
+            parameter value corresponds to the filter value
+
+        Returns:
+        - list of dictionaries, each dictionary representing a material retrieved based on the filtering criteria
+
+        """
+        return self.search("summary", **kwargs)
 
     def get_summary(self, criteria: dict, fields: list | None = None) -> list[dict]:
         """Get  a data corresponding to a criteria.
@@ -265,7 +334,7 @@ class _MPResterBasic:
         conventional_unit_cell=False,
         sort_by_e_above_hull=False,
     ):
-        """Get  a list of ComputedEntries or ComputedStructureEntries corresponding
+        """Get a list of ComputedEntries or ComputedStructureEntries corresponding
         to a chemical system, formula, or materials_id or full criteria.
 
         Args:
@@ -276,18 +345,12 @@ class _MPResterBasic:
                 which performs adjustments to allow mixing of GGA and GGA+U
                 calculations for more accurate phase diagrams and reaction
                 energies.
-            inc_structure (str): If None, entries returned are
-                ComputedEntries. If inc_structure="initial",
-                ComputedStructureEntries with initial structures are returned.
-                Otherwise, ComputedStructureEntries with final structures
-                are returned.
+            inc_structure (str): Deprecated. ComputedStructureEntries are always returned now.
             property_data (list): Specify additional properties to include in
-                entry.data. If None, no data. Should be a subset of
-                supported_properties.
-            conventional_unit_cell (bool): Whether to get the standard
-                conventional unit cell
-            sort_by_e_above_hull (bool): Whether to sort the list of entries by
-                e_above_hull (will query e_above_hull as a property_data if True).
+                entry.data. If None, no data. This can be properties that are available in the /materials/summary
+                endpoint of the API.
+            conventional_unit_cell (bool): Deprecated. Use pymatgen.symmetry to convert to conventional unit cell.
+            sort_by_e_above_hull (bool): Deprecated. This can be done by user post analysis.
 
         Returns:
             List of ComputedStructureEntry objects.
@@ -311,6 +374,16 @@ class _MPResterBasic:
             with warnings.catch_warnings():
                 warnings.filterwarnings("ignore", message="Failed to guess oxidation states.*")
                 entries = MaterialsProject2020Compatibility().process_entries(entries, clean=True)
+
+        if property_data:
+            edata = self.search(
+                "summary",
+                material_ids=[e.data["material_id"] for e in entries],
+                _fields=[*property_data, "material_id"],
+            )
+            mapped_data = {d["material_id"]: {k: v for k, v in d.items() if k != "material_id"} for d in edata}
+            for e in entries:
+                e.data.update(mapped_data[e.data["material_id"]])
         return list(set(entries))
 
     def get_entry_by_material_id(self, material_id: str, *args, **kwargs) -> ComputedStructureEntry:
@@ -327,7 +400,7 @@ class _MPResterBasic:
         """
         return self.get_entries(material_id, *args, **kwargs)[0]
 
-    def get_entries_in_chemsys(self, elements, *args, **kwargs):
+    def get_entries_in_chemsys(self, elements: str | list[str], *args, **kwargs):
         """
         Helper method to get a list of ComputedEntries in a chemical system. For example, elements = ["Li", "Fe", "O"]
         will return a list of all entries in the Li-Fe-O chemical system, i.e., all LixOy, FexOy, LixFey, LixFeyOz,
@@ -343,6 +416,8 @@ class _MPResterBasic:
         Returns:
             List of ComputedEntries.
         """
+        if isinstance(elements, str):
+            elements = elements.split("-")
         chemsys = []
         for i in range(1, len(elements) + 1):
             for els in itertools.combinations(elements, i):
@@ -376,54 +451,6 @@ class _MPResterBasic:
         prop = "ph_dos"
         response = self.request(f"materials/phonon/?material_ids={material_id}&_fields={prop}")
         return response[0][prop]
-
-
-class MPRester:
-    """A class to conveniently interface with the new and legacy Materials Project REST interface.
-
-    The recommended way to use MPRester is as a context manager to ensure
-    that sessions are properly closed after usage:
-
-        with MPRester("API_KEY") as mpr:
-            docs = mpr.call_some_method()
-
-    MPRester uses the "requests" package, which provides HTTP connection
-    pooling. All connections are made via https for security.
-
-    For more advanced uses of the Materials API, please consult the API
-    documentation at https://materialsproject.org/api and https://docs.materialsproject.org.
-
-    This class handles the transition between old and new MP API, making it easy to switch between them
-    by passing a new (length 32) or old (15 <= length <= 17) API key. See https://docs.materialsproject.org
-    for which API to use.
-    """
-
-    def __new__(cls, *args, **kwargs) -> _MPResterNew | _MPResterBasic | _MPResterLegacy:  # type: ignore[misc]
-        """
-        Args:
-           *args: Pass through to either legacy or new MPRester.
-           **kwargs: Pass through to either legacy or new MPRester.
-        """
-        api_key = args[0] if len(args) > 0 else None
-
-        if api_key is None:
-            api_key = kwargs.get("api_key", SETTINGS.get("PMG_MAPI_KEY"))
-            kwargs["api_key"] = api_key
-
-        if not api_key:
-            raise ValueError("Please supply an API key. See https://materialsproject.org/api for details.")
-
-        if len(api_key) != 32:
-            from pymatgen.ext.matproj_legacy import _MPResterLegacy
-
-            return _MPResterLegacy(*args, **kwargs)
-
-        try:
-            from mp_api.client import MPRester as _MPResterNew
-
-            return _MPResterNew(*args, **kwargs)
-        except Exception:
-            return _MPResterBasic(*args, **kwargs)
 
 
 class MPRestError(Exception):
