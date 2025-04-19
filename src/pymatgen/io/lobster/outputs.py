@@ -405,8 +405,14 @@ class Icohplist(MSONable):
         # and we don't need the header.
         if self._icohpcollection is None:
             with zopen(self._filename, mode="rt", encoding="utf-8") as file:
-                all_lines = file.read().split("\n")
-                lines = all_lines[1:-1] if "spin" not in all_lines[1] else all_lines[2:-1]
+                all_lines = file.read().splitlines()
+
+            # Remove empty line in the end of the file
+            all_lines = [line for line in all_lines if line.strip()]
+
+            # Determine the header length:
+            lines = all_lines[1:] if "spin" not in all_lines[1] else all_lines[2:]
+
             if len(lines) == 0:
                 raise RuntimeError("ICOHPLIST file contains no data.")
 
