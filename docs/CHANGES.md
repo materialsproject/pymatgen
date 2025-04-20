@@ -6,6 +6,16 @@ nav_order: 4
 
 # Changelog
 
+## v2025.4.19
+
+- MPRester.get_entries and get_entries_in_chemsys now supports property_data. inc_structure, conventional_only and 
+- PR #4367 fix perturb bug that displaced all atoms equally by @skasamatsu
+- PR #4361 Replace `pybtex` with `bibtexparser` by @DanielYang59
+- PR #4362 fix(MVLSlabSet): convert DIPOL vector to pure Python list before writing INCAR by @atulcthakur
+- PR #4363 Ensure `actual_kpoints_weights` is `list[float]` and add test by @kavanase
+- PR #4345 Fix inconsistent "Van der waals radius" and "Metallic radius" in `core.periodic_table.json` by @DanielYang59
+- PR #4212 Deprecate `PymatgenTest`, migrate tests to `pytest` from `unittest` by @DanielYang59
+
 ## v2025.4.17
 
 - Bug fix for list based searches in MPRester.

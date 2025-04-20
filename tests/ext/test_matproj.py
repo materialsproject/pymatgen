@@ -84,6 +84,9 @@ class TestMPRester(MatSciTest):
         e2 = {i.entry_id for i in entries2}
         assert e1.issuperset(e2)
 
+        with pytest.warns(DeprecationWarning, match="arguments are deprecated"):
+            self.rester.get_entries_in_chemsys("Li", inc_structure=True)
+
     def test_get_structure_by_material_id(self):
         s1 = self.rester.get_structure_by_material_id("mp-1")
         assert s1.formula == "Cs1"
