@@ -57,7 +57,7 @@ if TYPE_CHECKING:
     from ase.io.trajectory import Trajectory
     from ase.optimize.optimize import Optimizer
     from matgl.ext.ase import TrajectoryObserver
-    from numpy.typing import ArrayLike, NDArray
+    from numpy.typing import ArrayLike, NDArray, dtype
     from typing_extensions import Self
 
     from pymatgen.util.typing import CompositionLike, MillerIndex, PathLike, PbcLike, SpeciesLike
@@ -1730,7 +1730,12 @@ class IStructure(SiteCollection, MSONable):
         sites: list[PeriodicSite] | None = None,
         numerical_tol: float = 1e-8,
         exclude_self: bool = True,
-    ) -> tuple[np.ndarray, np.ndarray, np.ndarray, np.ndarray]:
+    ) -> tuple[
+        np.ndarray[Any, dtype[Any]],
+        np.ndarray[Any, dtype[Any]],
+        np.ndarray[Any, dtype[Any]],
+        np.ndarray[Any, dtype[Any]],
+    ]:
         """A python version of getting neighbor_list.
         Atom `center_indices[i]` has neighbor atom `points_indices[i]` that is
         translated by `offset_vectors[i]` lattice vectors, and the distance is
@@ -3893,8 +3898,8 @@ class IMolecule(SiteCollection, MSONable):
 
         if a <= x_range or b <= y_range or c <= z_range:
             raise ValueError("Box is not big enough to contain Molecule.")
-        lattice = Lattice.from_parameters(a * images[0], b * images[1], c * images[2], 90, 90, 90)
-        nimages: int = images[0] * images[1] * images[2]
+        lattice = Lattice.from_parameters(a * images[0], b * images[1], c * images[2], 90, 90, 90)  # type: ignore[operator]
+        nimages: int = images[0] * images[1] * images[2]  # type: ignore[operator]
         all_coords: list[ArrayLike] = []
 
         centered_coords = self.cart_coords - self.center_of_mass + offset
