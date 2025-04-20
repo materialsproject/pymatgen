@@ -2486,7 +2486,7 @@ class TestMolecule(MatSciTest):
         post_perturbation_sites = self.mol.sites
 
         for idx, site in enumerate(pre_perturbation_sites):
-            assert site.distance(post_perturbation_sites[idx]) <= dist, "Bad perturbation distance"
+            assert site.distance(post_perturbation_sites[idx]) == approx(dist), "Bad perturbation distance"
 
     def test_add_remove_site_property(self):
         returned = self.mol.add_site_property("charge", [4.1, -2, -2, -2, -2])
@@ -2689,11 +2689,11 @@ class TestMolecule(MatSciTest):
         mol = self.mol
         mol_orig = mol.copy()
         mol.perturb(0.1)
-        # Ensure all sites were perturbed by a distance of at most 0.1 Angstroms
+        # Ensure all sites were perturbed by a distance of 0.1 Angstroms
         for site, site_orig in zip(mol, mol_orig, strict=True):
             cart_dist = site.distance(site_orig)
             # allow 1e-6 to account for numerical precision
-            assert cart_dist <= 0.1 + 1e-6, f"Distance {cart_dist} > 0.1"
+            assert cart_dist == approx(0.1), f"Distance {cart_dist} > 0.1"
 
         # Check that the perturbation does not result in the same translation
         vecs = [site.coords - site_orig.coords for site, site_orig in zip(mol, mol_orig, strict=True)]

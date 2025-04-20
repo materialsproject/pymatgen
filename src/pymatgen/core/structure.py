@@ -4724,7 +4724,7 @@ class Structure(IStructure, collections.abc.MutableSequence):
 
         return self
 
-    def perturb(self, distance: float, min_distance: float = 0.0, seed: int | None = None) -> Self:
+    def perturb(self, distance: float, min_distance: float | None = 0.0, seed: int | None = None) -> Self:
         """
         Perturbs the positions of sites in the structure by translating each site by a random vector.
         The magnitude of the translation is determined by the specified distance and, optionally,
@@ -4732,8 +4732,8 @@ class Structure(IStructure, collections.abc.MutableSequence):
 
         :param distance: The maximum distance for the translation of each site. The corresponding
             random vector's magnitude will not exceed this distance.
-        :param min_distance: The minimum distance for the translation of each site. Random vectors' magnitudes will
-            range between min_distance and distance. Defaults to 0.0.
+        :param min_distance: Minimum distance for the perturbation range. Defaults to None, which means all
+            perturbations are the same magnitude.
         :param seed: Seed for the random number generator to ensure reproducibility. If None (the default for
             numpy's generator), the generator will be initialized without a specific seed.
         :return: The updated object with perturbed site positions.
@@ -4744,7 +4744,7 @@ class Structure(IStructure, collections.abc.MutableSequence):
             # Deal with zero vectors
             vector = rng.standard_normal(3)
             vnorm = np.linalg.norm(vector)
-            dist = rng.uniform(min_distance, distance)
+            dist = distance if min_distance is None else rng.uniform(min_distance, distance)
             return vector / vnorm * dist if vnorm != 0 else get_rand_vec()
 
         for idx in range(len(self._sites)):
@@ -5335,13 +5335,14 @@ class Molecule(IMolecule, collections.abc.MutableSequence):
 
         return self
 
-    def perturb(self, distance: float, min_distance: float = 0.0, seed: int | None = None) -> Self:
+    def perturb(self, distance: float, min_distance: float | None = None, seed: int | None = None) -> Self:
         """
         Perturbs the positions of sites by a random vector of specified distance and minimum distance.
         The perturbation is constrained within a norm range between min_distance and distance.
 
         :param distance: Maximum distance by which sites can be perturbed.
-        :param min_distance: Minimum distance for the perturbation range. Defaults to 0.0.
+        :param min_distance: Minimum distance for the perturbation range. Defaults to None, which means all
+            perturbations are the same magnitude.
         :param seed: The seed for the random number generator. Defaults to None.
         :return: The perturbed Molecule.
         """
@@ -5351,7 +5352,7 @@ class Molecule(IMolecule, collections.abc.MutableSequence):
             # Deal with zero vectors
             vector = rng.standard_normal(3)
             vnorm = np.linalg.norm(vector)
-            dist = rng.uniform(min_distance, distance)
+            dist = distance if min_distance is None else rng.uniform(min_distance, distance)
             return vector / vnorm * dist if vnorm != 0 else get_rand_vec()
 
         for idx in range(len(self)):
