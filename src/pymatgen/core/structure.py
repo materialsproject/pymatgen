@@ -4724,7 +4724,7 @@ class Structure(IStructure, collections.abc.MutableSequence):
 
         return self
 
-    def perturb(self, distance: float, min_distance: float | None = None, seed: int = 0) -> Self:
+    def perturb(self, distance: float, min_distance: float | None = None, seed: int | None = None) -> Self:
         """Perform a random perturbation of the sites in a structure to break
         symmetries. Modifies the structure in place.
 
