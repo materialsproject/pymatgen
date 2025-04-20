@@ -4724,19 +4724,19 @@ class Structure(IStructure, collections.abc.MutableSequence):
 
         return self
 
-    def perturb(self, distance: float, min_distance: float | None = None, seed: int | None = None) -> Self:
-        """Perform a random perturbation of the sites in a structure to break
-        symmetries. Modifies the structure in place.
+    def perturb(self, distance: float, min_distance: float = 0.0, seed: int | None = None) -> Self:
+        """
+        Perturbs the positions of sites in the structure by translating each site by a random vector.
+        The magnitude of the translation is determined by the specified distance and, optionally,
+        a minimum distance.
 
-        Args:
-            distance (float): Distance in angstroms by which to perturb each site.
-            min_distance (None, int, or float): if None, all displacements will
-                be equal amplitude. If int or float, perturb each site a distance drawn
-                from the uniform distribution between 'min_distance' and 'distance'.
-            seed (int): Seed for the random number generator. Defaults to 0.
-
-        Returns:
-            Structure: self with perturbed sites.
+        :param distance: The maximum distance for the translation of each site. The corresponding
+            random vector's magnitude will not exceed this distance.
+        :param min_distance: The minimum distance for the translation of each site. Random vectors' magnitudes will
+            range between min_distance and distance. Defaults to 0.0.
+        :param seed: Seed for the random number generator to ensure reproducibility. If None (the default for
+            numpy's generator), the generator will be initialized without a specific seed.
+        :return: The updated object with perturbed site positions.
         """
         rng = np.random.default_rng(seed=seed)
 
@@ -4744,9 +4744,7 @@ class Structure(IStructure, collections.abc.MutableSequence):
             # Deal with zero vectors
             vector = rng.standard_normal(3)
             vnorm = np.linalg.norm(vector)
-            dist = distance
-            if isinstance(min_distance, float | int):
-                dist = rng.uniform(min_distance, dist)
+            dist = rng.uniform(min_distance, distance)
             return vector / vnorm * dist if vnorm != 0 else get_rand_vec()
 
         for idx in range(len(self._sites)):
@@ -5337,22 +5335,24 @@ class Molecule(IMolecule, collections.abc.MutableSequence):
 
         return self
 
-    def perturb(self, distance: float) -> Self:
-        """Perform a random perturbation of the sites in a structure to break
-        symmetries.
-
-        Args:
-            distance (float): Distance in angstroms by which to perturb each site.
-
-        Returns:
-            Molecule: self with perturbed sites.
+    def perturb(self, distance: float, min_distance: float = 0.0, seed: int | None = None) -> Self:
         """
+        Perturbs the positions of sites by a random vector of specified distance and minimum distance.
+        The perturbation is constrained within a norm range between min_distance and distance.
+
+        :param distance: Maximum distance by which sites can be perturbed.
+        :param min_distance: Minimum distance for the perturbation range. Defaults to 0.0.
+        :param seed: The seed for the random number generator. Defaults to None.
+        :return: The perturbed Molecule.
+        """
+        rng = np.random.default_rng(seed=seed)
 
         def get_rand_vec():
             # Deal with zero vectors
-            vector = np.random.default_rng().standard_normal(3)
+            vector = rng.standard_normal(3)
             vnorm = np.linalg.norm(vector)
-            return vector / vnorm * distance if vnorm != 0 else get_rand_vec()
+            dist = rng.uniform(min_distance, distance)
+            return vector / vnorm * dist if vnorm != 0 else get_rand_vec()
 
         for idx in range(len(self)):
             self.translate_sites([idx], get_rand_vec())
