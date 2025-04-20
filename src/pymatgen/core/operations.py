@@ -283,7 +283,7 @@ class SymmOp(MSONable):
         ang = angle if angle_in_radians else angle * np.pi / 180
         cos_a = math.cos(ang)
         sin_a = math.sin(ang)
-        unit_vec = axis / np.linalg.norm(axis)
+        unit_vec: NDArray = axis / np.linalg.norm(axis)  # type:ignore[call-overload]
         rot_mat = np.zeros((3, 3))
         rot_mat[0, 0] = cos_a + unit_vec[0] ** 2 * (1 - cos_a)
         rot_mat[0, 1] = unit_vec[0] * unit_vec[1] * (1 - cos_a) - unit_vec[2] * sin_a
@@ -318,7 +318,13 @@ class SymmOp(MSONable):
         Returns:
             SymmOp.
         """
-        theta = angle if angle_in_radians else angle * np.pi / 180
+        theta: float = angle if angle_in_radians else angle * np.pi / 180
+        a: float
+        b: float
+        c: float
+        ax_u: float
+        ax_v: float
+        ax_w: float
         a, b, c = origin
         ax_u, ax_v, ax_w = axis
         # Set some intermediate values.
@@ -360,12 +366,14 @@ class SymmOp(MSONable):
         ) / l2
 
         return SymmOp(
-            [
-                [m11, m12, m13, m14],
-                [m21, m22, m23, m24],
-                [m31, m32, m33, m34],
-                [0, 0, 0, 1],
-            ]
+            np.array(
+                [
+                    [m11, m12, m13, m14],
+                    [m21, m22, m23, m24],
+                    [m31, m32, m33, m34],
+                    [0, 0, 0, 1],
+                ]
+            )
         )
 
     @staticmethod
@@ -383,7 +391,9 @@ class SymmOp(MSONable):
         """
         # Normalize the normal vector first.
         normal = np.array(normal, dtype=float) / np.linalg.norm(normal)
-
+        u: float
+        v: float
+        w: float
         u, v, w = normal
 
         translation = np.eye(4)
@@ -395,7 +405,7 @@ class SymmOp(MSONable):
         xy = -2 * u * v
         xz = -2 * u * w
         yz = -2 * v * w
-        mirror_mat = [[xx, xy, xz, 0], [xy, yy, yz, 0], [xz, yz, zz, 0], [0, 0, 0, 1]]
+        mirror_mat = np.array([[xx, xy, xz, 0], [xy, yy, yz, 0], [xz, yz, zz, 0], [0, 0, 0, 1]])
 
         if np.linalg.norm(origin) > 1e-6:
             mirror_mat = np.dot(np.linalg.inv(translation), np.dot(mirror_mat, translation))
