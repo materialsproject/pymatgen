@@ -6,6 +6,17 @@ nav_order: 4
 
 # Changelog
 
+## v2025.4.20
+
+- Updated `perturb` method to be in parity for Structure and Molecule.
+- PR #4226 Fix file existence check in ChargemolAnalysis to verify directory instead. by @lllangWV
+- PR #4324 GibbsComputedStructureEntry update to handle float temperature values by @slee-lab
+- PR #4303 Fix mcl kpoints by @dgaines2
+    Fixed errors in two of the k-points for the MCL reciprocal lattice (according to Table 16 in Setyawan-Curtarolo 2010)
+    M2 and D1 aren't included in the recommended k-point path, but third-party software that plots k-point paths using pymatgen labelled M2 in the path instead of M1 due to it being the "same" k-point.
+- PR #4344 Update "electron affinities" in `periodic_table.json` by @DanielYang59
+- PR #4365 Python 3.13 support by @DanielYang59
+
 ## v2025.4.19
 
 - MPRester.get_entries and get_entries_in_chemsys now supports property_data. inc_structure, conventional_only and 
