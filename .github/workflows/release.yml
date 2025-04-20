@@ -46,7 +46,7 @@ jobs:
     strategy:
       matrix:
         os: [ubuntu-latest, macos-latest, macos-13, windows-latest, ubuntu-24.04-arm]
-        python-version: ["310", "311", "312"]
+        python-version: ["310", "311", "312", "313"]
     runs-on: ${{ matrix.os }}
     steps:
       - name: Check out repo
