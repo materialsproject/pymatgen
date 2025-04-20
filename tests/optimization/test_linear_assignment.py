@@ -1,7 +1,5 @@
 from __future__ import annotations
 
-from unittest import TestCase
-
 import numpy as np
 import pytest
 from pytest import approx
@@ -9,7 +7,7 @@ from pytest import approx
 from pymatgen.optimization.linear_assignment import LinearAssignment
 
 
-class TestLinearAssignment(TestCase):
+class TestLinearAssignment:
     def test(self):
         w0 = np.array(
             [

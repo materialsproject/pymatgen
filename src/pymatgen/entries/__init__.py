@@ -46,7 +46,11 @@ class Entry(MSONable, ABC):
                 Composition, including a {symbol: amt} dict, a string formula, and others.
             energy (float): Energy of the entry.
         """
-        self._composition = Composition(composition)
+        if isinstance(composition, Composition):
+            self._composition = composition
+        else:
+            self._composition = Composition(composition)
+        # self._composition = Composition(composition)
         self._energy = energy
 
     @property
