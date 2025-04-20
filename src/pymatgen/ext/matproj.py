@@ -24,10 +24,11 @@ from monty.json import MontyDecoder
 
 from pymatgen.core import SETTINGS
 from pymatgen.core import __version__ as PMG_VERSION
+from pymatgen.core.composition import Composition
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
 
 if TYPE_CHECKING:
-    from collections.abc import Callable
+    from collections.abc import Callable, Sequence
 
     from typing_extensions import Self
 
@@ -51,6 +52,16 @@ class MPRester:
     If you are a power user that requires some esoteric feature not covered, feel free to install the mp-api package.
     All issues regarding that implementation should be directed to the maintainers of that repository and not
     pymatgen. We will support only issues pertaining to our implementation only.
+
+    Attributes:
+    :ivar api_key: API key for authenticating requests to the Materials Project API.
+    :type api_key: str
+    :ivar preamble: Base endpoint URL for the Materials Project API.
+    :type preamble: str
+    :ivar session: HTTP session object for managing API requests.
+    :type session: requests.Session
+    :ivar materials: Placeholder object for dynamically adding endpoints related to materials.
+    :type materials: Any
     """
 
     MATERIALS_DOCS = (
@@ -327,12 +338,10 @@ class MPRester:
 
     def get_entries(
         self,
-        criteria,
-        compatible_only=True,
-        inc_structure=None,
-        property_data=None,
-        conventional_unit_cell=False,
-        sort_by_e_above_hull=False,
+        criteria: str | Sequence[str],
+        compatible_only: bool = True,
+        property_data: Sequence[str] | None = None,
+        **kwargs,
     ):
         """Get a list of ComputedEntries or ComputedStructureEntries corresponding
         to a chemical system, formula, or materials_id or full criteria.
@@ -345,22 +354,37 @@ class MPRester:
                 which performs adjustments to allow mixing of GGA and GGA+U
                 calculations for more accurate phase diagrams and reaction
                 energies.
-            inc_structure (str): If None, entries returned are
-                ComputedEntries. If inc_structure="initial",
-                ComputedStructureEntries with initial structures are returned.
-                Otherwise, ComputedStructureEntries with final structures
-                are returned.
             property_data (list): Specify additional properties to include in
-                entry.data. If None, no data. Should be a subset of
-                supported_properties.
-            conventional_unit_cell (bool): Whether to get the standard
-                conventional unit cell
-            sort_by_e_above_hull (bool): Whether to sort the list of entries by
-                e_above_hull (will query e_above_hull as a property_data if True).
+                entry.data. If None, no data. This can be properties that are available in the /materials/summary
+                endpoint of the API.
+            **kwargs: Used to catch deprecated kwargs.
 
         Returns:
             List of ComputedStructureEntry objects.
         """
+        if set(kwargs.keys()).intersection({"inc_structure", "conventional_unit_cell", "sort_by_e_above_hull"}):
+            warnings.warn(
+                "The inc_structure, conventional_unit_cell, and sort_by_e_above_hull arguments are deprecated. "
+                "These arguments have no effect and will be removed in 2026.1.1.",
+                DeprecationWarning,
+                stacklevel=2,
+            )
+
+        def proc_crit(val):
+            if val.startswith("mp-"):
+                return val
+            if "-" in val:
+                return "-".join(sorted(val.split("-")))
+            comp = Composition(val)
+            if len(comp) == 1:
+                return val
+            return comp.reduced_formula
+
+        if isinstance(criteria, str):
+            criteria = ",".join([proc_crit(c) for c in criteria.split(",")])
+        else:
+            criteria = ",".join([proc_crit(c) for c in criteria])
+
         if criteria.startswith("mp-"):
             query = f"material_ids={criteria}"
         elif "-" in criteria:
@@ -380,6 +404,16 @@ class MPRester:
             with warnings.catch_warnings():
                 warnings.filterwarnings("ignore", message="Failed to guess oxidation states.*")
                 entries = MaterialsProject2020Compatibility().process_entries(entries, clean=True)
+
+        if property_data:
+            edata = self.search(
+                "summary",
+                material_ids=[e.data["material_id"] for e in entries],
+                _fields=[*property_data, "material_id"],
+            )
+            mapped_data = {d["material_id"]: {k: v for k, v in d.items() if k != "material_id"} for d in edata}
+            for e in entries:
+                e.data.update(mapped_data[e.data["material_id"]])
         return list(set(entries))
 
     def get_entry_by_material_id(self, material_id: str, *args, **kwargs) -> ComputedStructureEntry:
@@ -396,7 +430,7 @@ class MPRester:
         """
         return self.get_entries(material_id, *args, **kwargs)[0]
 
-    def get_entries_in_chemsys(self, elements, *args, **kwargs):
+    def get_entries_in_chemsys(self, elements: str | list[str], *args, **kwargs):
         """
         Helper method to get a list of ComputedEntries in a chemical system. For example, elements = ["Li", "Fe", "O"]
         will return a list of all entries in the Li-Fe-O chemical system, i.e., all LixOy, FexOy, LixFey, LixFeyOz,
@@ -412,6 +446,8 @@ class MPRester:
         Returns:
             List of ComputedEntries.
         """
+        if isinstance(elements, str):
+            elements = elements.split("-")
         chemsys = []
         for i in range(1, len(elements) + 1):
             for els in itertools.combinations(elements, i):

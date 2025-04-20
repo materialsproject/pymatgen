@@ -709,9 +709,8 @@ class PerturbStructureTransformation(AbstractTransformation):
             distance: Distance of perturbation in angstroms. All sites
                 will be perturbed by exactly that distance in a random
                 direction.
-            min_distance: if None, all displacements will be equidistant. If int
-                or float, perturb each site a distance drawn from the uniform
-                distribution between 'min_distance' and 'distance'.
+            min_distance: Minimum distance for the perturbation range. Defaults to None, which means all
+            perturbations are the same magnitude.
         """
         self.distance = distance
         self.min_distance = min_distance
