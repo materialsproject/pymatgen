@@ -5,10 +5,10 @@ name: test
 on:
   push:
     branches: [master]
-    paths-ignore: ["**/*.md", docs/**]
+    paths: ["src/**/*.*", "tests/**/*.*"]
   pull_request:
     branches: [master]
-    paths-ignore: ["**/*.md", docs/**]
+    paths: ["src/**/*.*", "tests/**/*.*"]
   workflow_dispatch:
   workflow_call: # make this workflow reusable by release.yml
 
@@ -28,22 +28,22 @@ jobs:
         # Maximize CI coverage of different platforms and python versions while minimizing the
         # total number of jobs. We run all pytest splits with the oldest supported python
         # version (currently 3.10) on windows (seems most likely to surface errors) and with
-        # newest version (currently 3.12) on ubuntu (to get complete coverage on unix).
+        # newest version (currently 3.13) on ubuntu (to get complete coverage on unix).
         config:
           - os: windows-latest
-            python: "3.10"
+            python: "3.11"
             resolution: highest
             extras: ci,optional,prototypes
           - os: windows-latest
-            python: "3.10"
+            python: "3.11"
             resolution: highest
             extras: ci,prototypes,optional,numpy-v1 # Test NP1 on Windows (quite buggy ATM)
           - os: ubuntu-latest
-            python: "3.12"
+            python: "3.13"
             resolution: lowest-direct
             extras: ci,prototypes,optional
           - os: macos-latest
-            python: "3.11"
+            python: "3.12"
             resolution: lowest-direct
             extras: ci,prototypes # test with only required dependencies installed
 
@@ -71,7 +71,8 @@ jobs:
         if: matrix.config.os == 'ubuntu-latest'
         run: |
           micromamba install -n pmg -c conda-forge bader enumlib \
-            openff-toolkit packmol pygraphviz tblite --yes
+            packmol pygraphviz tblite --yes
+            # openff-toolkit # TODO: doesn't support Python 3.13 yet
 
       - name: Install uv
         uses: astral-sh/setup-uv@v4
@@ -86,7 +87,7 @@ jobs:
           uv pip install $WHEEL_FILE[${{matrix.config.extras}}] --resolution=${{matrix.config.resolution}}
 
       - name: Install DGL and MatGL specially on ubuntu.
-        if: matrix.config.os == 'ubuntu-latest'
+        if: matrix.config.os == 'ubuntu-latest' && matrix.config.python < '3.13'
         run: |
           micromamba activate pmg
           pip install --upgrade dgl -f https://data.dgl.ai/wheels/torch-2.4/repo.html

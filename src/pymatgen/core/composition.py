@@ -872,7 +872,7 @@ class Composition(collections.abc.Hashable, collections.abc.Mapping, MSONable, S
         target_charge: float = 0,
         all_oxi_states: bool = False,
         max_sites: int | None = None,
-    ) -> tuple[dict[str, float]]:
+    ) -> tuple:
         """Check if the composition is charge-balanced and returns back all
         charge-balanced oxidation state combinations. Composition must have
         integer values. Note that more num_atoms in the composition gives
