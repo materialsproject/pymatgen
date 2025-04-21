@@ -1,6 +1,8 @@
 #!/usr/bin/env python3
 
-"""Create `core.periodic_table.json` from source files.
+"""Create `core.periodic_table.json` from source files, and as such
+you should NOT modify the JSON directly, but work on the data source
+and then run this script to regenerate the JSON/YAML.
 
 Each source file may be parsed using a common or custom parser. In cases where
 a custom parser is required, it should return either a single `Property` or
@@ -25,7 +27,7 @@ The JSON file is a compact, production-format structure (no metadata):
                 <property name>: <unit string>
             }
 
-TODO: this script is still WIP, it would now:
+TODO: this script is in a transitional state, it would now:
     - Generate a duplicate JSON instead of overwriting the one in `core` dir
     - Append unit as string instead of as a separate field
     - Unit should be converted to pymatgen Unit
@@ -274,7 +276,11 @@ def parse_shannon_radii(
 
 
 def get_and_parse_electronic_affinities(prop_name: str = "Electron affinity") -> Property:
-    """Get electronic affinities from Wikipedia and save a local YAML copy."""
+    """Get electronic affinities from Wikipedia and save a local YAML copy.
+
+    TODO:
+        current wikipedia crawler drops data for Deuterium.
+    """
     # Get data table from Wikipedia
     url: str = "https://en.wikipedia.org/wiki/Electron_affinity_(data_page)"
     tables = pd.read_html(StringIO(requests.get(url, timeout=5).text))
@@ -292,6 +298,7 @@ def get_and_parse_electronic_affinities(prop_name: str = "Electron affinity") ->
     ea_df = ea_df[pd.to_numeric(ea_df["Z"], errors="coerce") <= max_z]
 
     # Drop heavy isotopes
+    # TODO: correctly handle Deuterium
     ea_df = ea_df.drop_duplicates(subset="Z", keep="first")
 
     # Ensure we cover all elements up to Uranium (Z=92)
@@ -317,11 +324,13 @@ def get_and_parse_electronic_affinities(prop_name: str = "Electron affinity") ->
         for name, value in zip(ea_df["Name"], ea_df[f"{prop_name} (eV)"], strict=True)
     }
 
+    data[Element.D] = 0.754674  # TODO: fix this
+
     output_data = {
         prop_name: {
             "unit": "eV",
             "reference": url,
-            "data": {el.symbol: val for el, val in sorted(data.items(), key=lambda x: x[0].Z)},
+            "data": {el.name: val for el, val in sorted(data.items(), key=lambda x: x[0].Z)},
         }
     }
 
