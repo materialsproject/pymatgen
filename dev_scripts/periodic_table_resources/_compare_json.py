@@ -22,7 +22,7 @@ known_diff_properties: tuple[str, ...] = (
     # New: &gt; 10<sup>23</sup> 10<sup>-8</sup> &Omega; m (str)
 )
 
-ABS_TOL: float = 0.01
+ABS_TOL: float = 0.001
 
 
 def main():
