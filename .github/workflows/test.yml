@@ -5,10 +5,10 @@ name: test
 on:
   push:
     branches: [master]
-    paths-ignore: ["**/*.md", docs/**]
+    paths: ["src/**/*.*", "tests/**/*.*"]
   pull_request:
     branches: [master]
-    paths-ignore: ["**/*.md", docs/**]
+    paths: ["src/**/*.*", "tests/**/*.*"]
   workflow_dispatch:
   workflow_call: # make this workflow reusable by release.yml
 

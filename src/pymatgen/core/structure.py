@@ -1730,7 +1730,7 @@ class IStructure(SiteCollection, MSONable):
         sites: list[PeriodicSite] | None = None,
         numerical_tol: float = 1e-8,
         exclude_self: bool = True,
-    ) -> tuple[np.ndarray, np.ndarray, np.ndarray, np.ndarray]:
+    ) -> tuple[NDArray[np.float64], NDArray[np.float64], NDArray[np.float64], NDArray[np.float64]]:
         """A python version of getting neighbor_list.
         Atom `center_indices[i]` has neighbor atom `points_indices[i]` that is
         translated by `offset_vectors[i]` lattice vectors, and the distance is
@@ -1760,10 +1760,10 @@ class IStructure(SiteCollection, MSONable):
             sites=sites,
             numerical_tol=1e-8,
         )
-        center_indices = []
-        points_indices = []
-        offsets = []
-        distances = []
+        center_indices: list[int] = []
+        points_indices: list[int] = []
+        offsets: list[tuple] = []
+        distances: list[float] = []
         for idx, nns in enumerate(neighbors):
             if len(nns) > 0:
                 for nn in nns:
@@ -1773,7 +1773,7 @@ class IStructure(SiteCollection, MSONable):
                     points_indices.append(nn.index)
                     offsets.append(nn.image)
                     distances.append(nn.nn_distance)
-        return tuple(map(np.array, (center_indices, points_indices, offsets, distances)))
+        return np.array(center_indices), np.array(points_indices), np.array(offsets), np.array(distances)
 
     def get_neighbor_list(
         self,
@@ -2326,7 +2326,7 @@ class IStructure(SiteCollection, MSONable):
             return type(self)(
                 reduced_latt,
                 self.species_and_occu,
-                self.cart_coords,
+                self.cart_coords,  # type: ignore[arg-type]
                 coords_are_cartesian=True,
                 to_unit_cell=True,
                 site_properties=self.site_properties,
@@ -3846,7 +3846,7 @@ class IMolecule(SiteCollection, MSONable):
         a: float,
         b: float,
         c: float,
-        images: ArrayLike = (1, 1, 1),
+        images: tuple[int, int, int] = (1, 1, 1),
         random_rotation: bool = False,
         min_dist: float = 1.0,
         cls=None,
@@ -3893,8 +3893,8 @@ class IMolecule(SiteCollection, MSONable):
 
         if a <= x_range or b <= y_range or c <= z_range:
             raise ValueError("Box is not big enough to contain Molecule.")
-        lattice = Lattice.from_parameters(a * images[0], b * images[1], c * images[2], 90, 90, 90)
-        nimages: int = images[0] * images[1] * images[2]
+        lattice = Lattice.from_parameters(a * images[0], b * images[1], c * images[2], 90, 90, 90)  # type: ignore[operator]
+        nimages: int = images[0] * images[1] * images[2]  # type: ignore[operator]
         all_coords: list[ArrayLike] = []
 
         centered_coords = self.cart_coords - self.center_of_mass + offset
@@ -4188,7 +4188,7 @@ class Structure(IStructure, collections.abc.MutableSequence):
         super().__init__(
             lattice,
             species,
-            coords,
+            coords,  # type: ignore[arg-type]
             charge=charge,
             validate_proximity=validate_proximity,
             to_unit_cell=to_unit_cell,
