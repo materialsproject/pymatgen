@@ -55,13 +55,29 @@ _BASE_LAMMPS_SETTINGS = {
 FF_STYLE_KEYS = ["pair_style", "bond_style", "angle_style", "dihedral_style", "improper_style", "kspace_style"]
 FF_COEFF_KEYS = ["pair_coeff", "bond_coeff", "angle_coeff", "dihedral_coeff", "improper_coeff", "kspace_coeff"]
 
+LAMMPS_DEFINED_TYPES: dict[str, set[str | None]] = {
+    "units": {"metal", "lj", "real", "si", "cgs", "electron", "micro", "nano"},
+    "atom_style": {"atomic", "angle", "body", "bond", "charge", "electron", "full", "molecular"},
+    "boundary": {"p", "f", "s", "m", "fs", "fm"},
+    "ensemble": {"nve", "nvt", "npt", "nph", "minimize"},
+    "thermostat": {"nose-hoover", "langevin", None},
+    "barostat": {"nose-hoover", "berendsen", None},
+    "min_style": {"cg", "sd", "fire", "hftn", "quickmin", "spin", "spin/cg", "spin/lbfgs"},
+}
+
 
 @dataclass
 class LammpsSettings(MSONable):
-    """Define schema for LAMMPS convience input class. The idea is to dynamically set the attributes of this class
-    based on the LAMMPS input file template and the settings dictionary provided by the user. This way, standard inputs
-    that do not typically vary (e.g., units, atom style, dimension, boundary conditions, styles) can be validated and set
-    while allowing the user to specify the rest of the settings in a flexible manner (which won't be explicitly validated here).
+    """Define schema for LAMMPS convenience input class.
+
+    The idea is to dynamically set the attributes of this class
+    based on the LAMMPS input file template and the settings
+    dictionary provided by the user. This way, standard inputs
+    that do not typically vary (e.g., units, atom style, dimension,
+    boundary conditions, styles) can be validated and set
+    while allowing the user to specify the rest of the settings in
+    a flexible manner (which won't be explicitly validated here).
+
     Args:
     units : str
         LAMMPS units style.
@@ -92,9 +108,11 @@ class LammpsSettings(MSONable):
     friction : float
         Thermostat/Barostat friction coefficient. Default is 0.1 ps^-1.
     log_interval : int
-        Interval for logging thermodynamic data (energy, temperature, pressure, volume). Default is 100 steps.
+        Interval for logging thermodynamic data (energy, temperature, pressure, volume).
+        Default is 100 steps.
     traj_interval : int
-        Interval for writing trajectory data (positions, velocities, forces) to a dump file. Default is 100 steps.
+        Interval for writing trajectory data (positions, velocities, forces) to a dump file.
+        Default is 100 steps.
     ensemble : str
         Simulation ensemble. Default is 'nvt'.
     thermostat : str
@@ -102,11 +120,14 @@ class LammpsSettings(MSONable):
     barostat : str
         Barostat type. Default is 'nose-hoover'.
     nsteps : int
-        Number of simulation steps. Default is 1000. This is also the maximum number of steps for minimization simulations.
+        Number of simulation steps. Default is 1000. This is also the maximum number of
+        steps for minimization simulations.
     """
 
     ''' units : Literal["metal", "lj", "real", "si", "cgs", "electron", "micro", "nano"] = "metal"
-    atom_style : Literal["atomic", "angle", "body", "bond", "charge", "electron", "full", "molecular"] = "atomic"
+    atom_style : Literal[
+        "atomic", "angle", "body", "bond", "charge", "electron", "full", "molecular"
+    ] = "atomic"
     dimension : int = 3
     boundary : tuple[str,str,str] = ("p", "p", "p")
     pair_style : str = "lj/cut 10.0"
@@ -139,18 +160,10 @@ class LammpsSettings(MSONable):
 
     def __post_init__(self) -> None:
         """Validate input values."""
-        lammps_defined_types = {
-            "units": {"metal", "lj", "real", "si", "cgs", "electron", "micro", "nano"},
-            "atom_style": {"atomic", "angle", "body", "bond", "charge", "electron", "full", "molecular"},
-            "boundary": {"p", "f", "s", "m", "fs", "fm"},
-            "ensemble": {"nve", "nvt", "npt", "nph", "minimize"},
-            "thermostat": {"nose-hoover", "langevin", None},
-            "barostat": {"nose-hoover", "berendsen", None},
-            "min_style": {"cg", "sd", "fire", "hftn", "quickmin", "spin", "spin/cg", "spin/lbfgs"},
-        }
-        for attr, accept_vals in lammps_defined_types.items():
+
+        for attr, accept_vals in LAMMPS_DEFINED_TYPES.items():
             curr_val = getattr(self, attr, None)
-            if isinstance(curr_val, (list, tuple)):
+            if isinstance(curr_val, list | tuple):
                 is_ok = all(v in accept_vals for v in curr_val)
             else:
                 is_ok = curr_val in accept_vals
@@ -170,7 +183,8 @@ class LammpsSettings(MSONable):
 
             if (self.thermostat or self.barostat) and self.friction < self.timestep:
                 warnings.warn(
-                    f"Friction ({self.friction}) is smaller than the timestep ({self.timestep}). This may lead to numerical instability.",
+                    f"Friction ({self.friction}) is smaller than the timestep ({self.timestep}). "
+                    "This may lead to numerical instability.",
                     stacklevel=2,
                 )
 
@@ -179,7 +193,8 @@ class LammpsSettings(MSONable):
                 raise ValueError(f"nsteps should be greater than 0 for minimization simulations, got {self.nsteps}.")
             if self.tol > 1e-4:
                 warnings.warn(
-                    f"Tolerance for minimization ({self.tol}) is larger than 1e-4. This may lead to inaccurate results.",
+                    f"Tolerance for minimization ({self.tol}) is larger than 1e-4. "
+                    "This may lead to inaccurate results.",
                     stacklevel=2,
                 )
 
@@ -195,19 +210,23 @@ class BaseLammpsSetGenerator(InputGenerator):
 
     Args:
         inputfile : LammpsInputFile | str | Path
-            Premade input file for the LAMMPS simulation. Useful if the user wants to use a custom input file (to make use of Lammps' flexibility).
+            Premade input file for the LAMMPS simulation.
+            Useful if the user wants to use a custom input file
+            (to make use of Lammps' flexibility).
             Default format based on the md.template file in the templates directory.
         settings : dict | LammpsInputSettings
-            Settings for the LAMMPS simulation. Default settings are given in the _BASE_LAMMPS_SETTINGS object in 'metal' units for reference.
+            Settings for the LAMMPS simulation. Default settings are given in the
+            _BASE_LAMMPS_SETTINGS object in 'metal' units for reference.
         force_field : Path | dict | ForceField
-            Force field file or dictionary containing the force field parameters. Default is None.
-            If
+            Force field file or dictionary containing the force field parameters.
+            Default is None.
         calc_type : str
             Type of calculation to be performed by LAMMPS.
         keep_stages : bool
             Whether to keep the stages of the input file or not. Default is True.
         override_updates : bool
-            Whether to override the updates to the input file, i.e., keep the input file as is. Default is False.
+            Whether to override the updates to the input file, i.e.,
+            keep the input file as is. Default is False.
     """
 
     inputfile: LammpsInputFile | str | PathLike = field(default=None)
@@ -219,18 +238,31 @@ class BaseLammpsSetGenerator(InputGenerator):
     keep_stages: bool = field(default=True)
 
     def __post_init__(self):
-        """If not inputfile, we assume the user is going to use the default template for one the defined flows (NVT/NVE/NPT, Minimize, MeltQuench, etc.)
-        Instead, if the user/another flow specifies a template, we'll use that and an optional settings dict with it
-        and not bother with validating the inputs in the inputfile due to the amount of flexibility LAMMPS allows
-        If another flow is used that defines it's own inputfile template, we'll leave the validation of the user's inputs to that flow's init method"""
+        """Determine correct template requested by user.
+
+        If not inputfile, we assume the user is going to use the default template for
+        one the defined flows (NVT/NVE/NPT, Minimize, MeltQuench, etc.)
+        Instead, if the user/another flow specifies a template, we'll use that and an
+        optional settings dict with it and not bother with validating the inputs in the
+        inputfile due to the amount of flexibility LAMMPS allows
+        If another flow is used that defines it's own inputfile template, we'll leave the
+        validation of the user's inputs to that flow's init method.
+
+        """
         if self.inputfile is None:
             ensemble = (
                 self.settings.get("ensemble", "nvt") if isinstance(self.settings, dict) else self.settings.ensemble
             )
+
+            file: str | None = None
             if ensemble in ["nve", "nvt", "npt", "nph"]:
                 file = "md.template"
-            if ensemble in ["minimize"]:
+            elif ensemble in ["minimize"]:
                 file = "minimization.template"
+            if not file:
+                raise ValueError(
+                    f"Unknown {ensemble=}; acceptable values are\n{', '.join(LAMMPS_DEFINED_TYPES['ensemble'])}"
+                )
 
             self.inputfile = LammpsInputFile.from_file(os.path.join(TEMPLATE_DIR, file), keep_stages=self.keep_stages)
 
@@ -245,7 +277,9 @@ class BaseLammpsSetGenerator(InputGenerator):
 
         if not self.force_field:
             warnings.warn(
-                "Force field not specified! Ensure you have the correct force field parameters in the data file/settings or will specify it manually using maker.input_set_generator.force_field.",
+                "Force field not specified! Ensure you have the correct force field parameters "
+                "in the data file/settings or will specify it manually using "
+                "maker.input_set_generator.force_field.",
                 stacklevel=2,
             )
 
@@ -287,7 +321,8 @@ class BaseLammpsSetGenerator(InputGenerator):
                     self.inputfile = LammpsInputFile.from_str(self.inputfile, keep_stages=self.keep_stages)
                 except ValueError:
                     raise FileNotFoundError(
-                        f"Input file {self.inputfile} not found. It was neither a path nor a string repr of the inputfile. Please check your inputs!"
+                        f"Input file {self.inputfile} not found. It was neither a path "
+                        "nor a string repr of the inputfile. Please check your inputs!"
                     )
 
         settings_dict = self.settings.dict.copy() if isinstance(self.settings, LammpsSettings) else self.settings
@@ -333,7 +368,7 @@ class BaseLammpsSetGenerator(InputGenerator):
             settings_dict.update({"end_pressure": " ".join(map(str, settings_dict["end_pressure"])), "psymm": "aniso"})
 
         # Loop over the LammpsSettings object and update the settings dictionary
-        for attr, val in self.settings.dict.items():
+        for attr, val in self.settings.dict.items():  # type: ignore[union-attr]
             if attr == "boundary":
                 settings_dict.update({"boundary": " ".join(list(val))})
 
@@ -358,7 +393,8 @@ class BaseLammpsSetGenerator(InputGenerator):
             else:
                 settings_dict.update({attr: val})
 
-        # Handle the force field input by writing a seperate FF file and making the neccessary updates to the settings dict
+        # Handle the force field input by writing a separate FF file
+        # and making the necessary updates to the settings dict
         FF_string = ""
         if isinstance(self.force_field, str):
             FF_string += self.force_field
@@ -374,7 +410,7 @@ class BaseLammpsSetGenerator(InputGenerator):
                     warnings.warn(f"Force field key {key} not recognized, will be ignored.", stacklevel=2)
 
             for ff_key in FF_STYLE_KEYS:
-                if ff_key not in self.settings.dict or not self.settings.dict[ff_key]:
+                if ff_key not in self.settings.dict or not self.settings.dict[ff_key]:  # type: ignore[union-attr]
                     settings_dict.update({f"{ff_key}_flag": "#"})
                     warnings.warn(f"Force field key {ff_key} not found in the force field dictionary.", stacklevel=2)
 
@@ -384,7 +420,7 @@ class BaseLammpsSetGenerator(InputGenerator):
             settings_dict.update({"extra_data_flag": "include"})
 
         # Replace all variables
-        input_str = Template(self.inputfile.get_str()).safe_substitute(**settings_dict)
+        input_str = Template(self.inputfile.get_str()).safe_substitute(**settings_dict)  # type: ignore[union-attr]
         lines = input_str.split("\n")
         # Filter out the lines where the substitution resulted in a line starting with '#'
         filtered_input_str = "\n".join([line for line in lines if not line.lstrip().startswith("#")])
