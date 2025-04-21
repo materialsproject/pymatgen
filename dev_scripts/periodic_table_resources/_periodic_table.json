@@ -5169,7 +5169,7 @@
             }
         },
         "Thermal conductivity": "60 W m<sup>-1</sup> K<sup>-1</sup>",
-        "Van der waals radius": "no data",
+        "Van der waals radius": 2.11,
         "Velocity of sound": "5400 m s<sup>-1</sup>",
         "X": 2.01
     },

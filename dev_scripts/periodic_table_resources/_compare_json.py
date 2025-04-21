@@ -20,7 +20,6 @@ NEW_JSON = f"{Path(__file__).parent}/_periodic_table.json"
 OLD_JSON = f"{ROOT}/pymatgen/core/periodic_table.json"
 
 known_diff_properties: tuple[str, ...] = (
-    "Electron affinity",  # Wikipedia might have been updated at some point
     "Electrical resistivity",  # TODO: current recording would add an extra space, e.g.:
     # Old: &gt; 10<sup>23</sup>10<sup>-8</sup> &Omega; m (str)
     # New: &gt; 10<sup>23</sup> 10<sup>-8</sup> &Omega; m (str)
