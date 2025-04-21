@@ -28,10 +28,9 @@ The JSON file is a compact, production-format structure (no metadata):
             }
 
 TODO: this script is in a transitional state, it would now:
-    - Generate a duplicate JSON instead of overwriting the one in `core` dir
     - Append unit as string instead of as a separate field
     - Unit should be converted to pymatgen Unit
-    - "Electrical resistivity":  current recording would add an extra space, e.g.:
+    - "Electrical resistivity": current recording would add an extra space, e.g.:
         # Old: &gt; 10<sup>23</sup>10<sup>-8</sup> &Omega; m (str)
         # New: &gt; 10<sup>23</sup> 10<sup>-8</sup> &Omega; m (str)
 """
@@ -53,7 +52,7 @@ import pandas as pd
 import requests
 from ruamel.yaml import YAML
 
-from pymatgen.core import Element
+from pymatgen.core import PKG_DIR, Element
 
 if TYPE_CHECKING:
     from collections.abc import Callable, Iterable
@@ -475,8 +474,7 @@ def main():
     generate_yaml_and_json(
         properties,
         yaml_file=f"{RESOURCES_DIR}/_periodic_table.yaml",
-        json_file=f"{RESOURCES_DIR}/_periodic_table.json",
-        # json_file=f"{PKG_DIR}/core/periodic_table.json",
+        json_file=f"{PKG_DIR}/core/periodic_table.json",
     )
 
 
