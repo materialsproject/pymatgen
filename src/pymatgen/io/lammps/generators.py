@@ -348,11 +348,6 @@ class BaseLammpsSetGenerator(InputGenerator):
             data = LammpsData.from_structure(data, atom_style=atom_style)
             warnings.warn("Structure provided, converting to LammpsData object.", stacklevel=2)
 
-        # Housekeeping to fill up the default settings for the MD template
-        settings_dict.update({"dump_modify_flag": "dump_modify" if species else "#"})
-        settings_dict.update({f"{sys}_flag": "#" for sys in ["nve", "nvt", "npt", "nph", "restart", "extra_data"]})
-        settings_dict.update({"read_data_flag": "read_data", "species": species, "psymm": "iso"})
-
         # Accounts for the restart file
         if settings_dict.get("restart", None):
             settings_dict.update(
@@ -406,6 +401,8 @@ class BaseLammpsSetGenerator(InputGenerator):
                     settings_dict.update({f"{key}": value, f"{key}_flag": f"{key}"})
                 if key in FF_COEFF_KEYS and value:
                     FF_string += f"{key} {value}\n"
+                if key in ["species"]:
+                    species = value  # makes species specified in FF dict take precedence
                 else:
                     warnings.warn(f"Force field key {key} not recognized, will be ignored.", stacklevel=2)
 
@@ -413,6 +410,11 @@ class BaseLammpsSetGenerator(InputGenerator):
                 if ff_key not in self.settings.dict or not self.settings.dict[ff_key]:  # type: ignore[union-attr]
                     settings_dict.update({f"{ff_key}_flag": "#"})
                     warnings.warn(f"Force field key {ff_key} not found in the force field dictionary.", stacklevel=2)
+
+        # Housekeeping to fill up the default settings for the MD template
+        settings_dict.update({"dump_modify_flag": "dump_modify" if species else "#"})
+        settings_dict.update({f"{sys}_flag": "#" for sys in ["nve", "nvt", "npt", "nph", "restart", "extra_data"]})
+        settings_dict.update({"read_data_flag": "read_data", "species": species, "psymm": "iso"})
 
         write_data = {"forcefield.lammps": FF_string}
         if additional_data:
