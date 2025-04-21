@@ -3,9 +3,6 @@
 """Temporary dev script to compare two periodic table JSONs to make sure they're exactly the same.
 
 TODO: remove after finalizing JSON generator.
-
-Known differences:
-- New JSON has extra properties (present in current YAML, missing in JSON): "Ground level", "NMR Quadrupole Moment"
 """
 
 from __future__ import annotations
@@ -20,10 +17,6 @@ NEW_JSON = f"{Path(__file__).parent}/_periodic_table.json"
 OLD_JSON = f"{ROOT}/pymatgen/core/periodic_table.json"
 
 known_diff_properties: tuple[str, ...] = (
-    "iupac_ordering",  # duplicate, the `iupac_ordering` property for Element checks "IUPAC ordering"
-    "Van der waals radius",  # current JSON doesn't agree with source CSV
-    "Metallic radius",  # current JSON doesn't agree with source CSV
-    "Electron affinity",  # Wikipedia might have been updated at some point
     "Electrical resistivity",  # TODO: current recording would add an extra space, e.g.:
     # Old: &gt; 10<sup>23</sup>10<sup>-8</sup> &Omega; m (str)
     # New: &gt; 10<sup>23</sup> 10<sup>-8</sup> &Omega; m (str)
