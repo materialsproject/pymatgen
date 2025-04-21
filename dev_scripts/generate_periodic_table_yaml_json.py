@@ -450,6 +450,7 @@ def main():
     properties: tuple[Property, ...] = (
         *parse_yaml(f"{RESOURCES_DIR}/elemental_properties.yaml"),
         *parse_yaml(f"{RESOURCES_DIR}/oxidation_states.yaml"),
+        *parse_yaml(f"{RESOURCES_DIR}/nmr_quadrupole_moment.yaml"),
         *parse_yaml(f"{RESOURCES_DIR}/ionization_energies_nist.yaml"),  # Parsed from HTML
         get_and_parse_electronic_affinities(),
         *parse_csv(f"{RESOURCES_DIR}/radii.csv", transform=float, unit=None),
