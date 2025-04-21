@@ -1,6 +1,8 @@
 #!/usr/bin/env python3
 
-"""Create `core.periodic_table.json` from source files.
+"""Create `core.periodic_table.json` from source files, and as such
+you should NOT modify the JSON directly, but work on the data source
+and then run this script to regenerate the JSON/YAML.
 
 Each source file may be parsed using a common or custom parser. In cases where
 a custom parser is required, it should return either a single `Property` or
