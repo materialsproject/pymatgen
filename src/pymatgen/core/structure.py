@@ -57,7 +57,7 @@ if TYPE_CHECKING:
     from ase.io.trajectory import Trajectory
     from ase.optimize.optimize import Optimizer
     from matgl.ext.ase import TrajectoryObserver
-    from numpy.typing import ArrayLike, NDArray, dtype
+    from numpy.typing import ArrayLike, NDArray
     from typing_extensions import Self
 
     from pymatgen.util.typing import CompositionLike, MillerIndex, PathLike, PbcLike, SpeciesLike
@@ -1730,12 +1730,7 @@ class IStructure(SiteCollection, MSONable):
         sites: list[PeriodicSite] | None = None,
         numerical_tol: float = 1e-8,
         exclude_self: bool = True,
-    ) -> tuple[
-        np.ndarray[Any, dtype[Any]],
-        np.ndarray[Any, dtype[Any]],
-        np.ndarray[Any, dtype[Any]],
-        np.ndarray[Any, dtype[Any]],
-    ]:
+    ) -> tuple[NDArray[np.float64], NDArray[np.float64], NDArray[np.float64], NDArray[np.float64]]:
         """A python version of getting neighbor_list.
         Atom `center_indices[i]` has neighbor atom `points_indices[i]` that is
         translated by `offset_vectors[i]` lattice vectors, and the distance is
@@ -1765,10 +1760,10 @@ class IStructure(SiteCollection, MSONable):
             sites=sites,
             numerical_tol=1e-8,
         )
-        center_indices = []
-        points_indices = []
-        offsets = []
-        distances = []
+        center_indices: list[int] = []
+        points_indices: list[int] = []
+        offsets: list[tuple] = []
+        distances: list[float] = []
         for idx, nns in enumerate(neighbors):
             if len(nns) > 0:
                 for nn in nns:
@@ -1778,7 +1773,7 @@ class IStructure(SiteCollection, MSONable):
                     points_indices.append(nn.index)
                     offsets.append(nn.image)
                     distances.append(nn.nn_distance)
-        return tuple(map(np.array, (center_indices, points_indices, offsets, distances)))
+        return np.array(center_indices), np.array(points_indices), np.array(offsets), np.array(distances)
 
     def get_neighbor_list(
         self,
@@ -2331,7 +2326,7 @@ class IStructure(SiteCollection, MSONable):
             return type(self)(
                 reduced_latt,
                 self.species_and_occu,
-                self.cart_coords,
+                self.cart_coords,  # type: ignore[arg-type]
                 coords_are_cartesian=True,
                 to_unit_cell=True,
                 site_properties=self.site_properties,
@@ -3851,7 +3846,7 @@ class IMolecule(SiteCollection, MSONable):
         a: float,
         b: float,
         c: float,
-        images: ArrayLike = (1, 1, 1),
+        images: tuple[int, int, int] = (1, 1, 1),
         random_rotation: bool = False,
         min_dist: float = 1.0,
         cls=None,
@@ -4193,7 +4188,7 @@ class Structure(IStructure, collections.abc.MutableSequence):
         super().__init__(
             lattice,
             species,
-            coords,
+            coords,  # type: ignore[arg-type]
             charge=charge,
             validate_proximity=validate_proximity,
             to_unit_cell=to_unit_cell,
