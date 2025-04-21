@@ -1659,6 +1659,7 @@ Electronic structure:
 Ground level:
   unit:
   reference:
+    https://physics.nist.gov/cgi-bin/ASD/ie.pl?spectra=H-DS+i&units=1&at_num_out=on&el_name_out=on&shells_out=on&level_out=on&e_out=0&unc_out=on&biblio=on
   data: {H: 2S1/2, He: 1S0, Li: 2S1/2, Be: 1S0, B: 2P°1/2, C: 3P0, N: 4S°3/2, O: 3P2,
     F: 2P°3/2, Ne: 1S0, Na: 2S1/2, Mg: 1S0, Al: 2P°1/2, Si: 3P0, P: 4S°3/2, S: 3P2,
     Cl: 2P°3/2, Ar: 1S0, K: 2S1/2, Ca: 1S0, Sc: 2D3/2, Ti: 3F2, V: 4F3/2, Cr: 7S3,
