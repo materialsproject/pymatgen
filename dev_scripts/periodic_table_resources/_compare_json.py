@@ -19,12 +19,6 @@ from pymatgen.core import ROOT
 NEW_JSON = f"{Path(__file__).parent}/_periodic_table.json"
 OLD_JSON = f"{ROOT}/pymatgen/core/periodic_table.json"
 
-known_diff_properties: tuple[str, ...] = (
-    "Electrical resistivity",  # TODO: current recording would add an extra space, e.g.:
-    # Old: &gt; 10<sup>23</sup>10<sup>-8</sup> &Omega; m (str)
-    # New: &gt; 10<sup>23</sup> 10<sup>-8</sup> &Omega; m (str)
-)
-
 ABS_TOL: float = 0.001
 
 
@@ -44,9 +38,6 @@ def main():
 
         new_props = new_data[element]
         for prop_name, old_value in old_props.items():
-            if prop_name in known_diff_properties:
-                continue
-
             # Old JSON use "no data" as placeholder, new JSON just dropped NaN
             if isinstance(old_value, str) and old_value.startswith("no data"):
                 continue
@@ -78,7 +69,7 @@ def main():
             ):
                 continue  # Close enough
 
-            # Fallback strict comparison
+            # Fallback to strict comparison
             if old_coerced != new_coerced:
                 print(f"  ❌ Mismatch in property '{prop_name}':")
                 print(f"       Old: {old_value} ({type(old_value).__name__})")

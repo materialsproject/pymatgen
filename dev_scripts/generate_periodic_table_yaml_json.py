@@ -31,6 +31,9 @@ TODO: this script is in a transitional state, it would now:
     - Generate a duplicate JSON instead of overwriting the one in `core` dir
     - Append unit as string instead of as a separate field
     - Unit should be converted to pymatgen Unit
+    - "Electrical resistivity":  current recording would add an extra space, e.g.:
+        # Old: &gt; 10<sup>23</sup>10<sup>-8</sup> &Omega; m (str)
+        # New: &gt; 10<sup>23</sup> 10<sup>-8</sup> &Omega; m (str)
 """
 
 from __future__ import annotations
