@@ -37,7 +37,7 @@ if TYPE_CHECKING:
 # Note that you should not update this json file manually. EDits should be done on the `periodic_table.yaml`
 # file in the `dev_scripts` directory, and gen_pt_json.py can then be run to convert the yaml to json.
 with open(Path(__file__).absolute().parent / "periodic_table.json", encoding="utf-8") as ptable_json:
-    _PT_DATA: dict = json.load(ptable_json)
+    _PT_DATA: dict[str, Any] = json.load(ptable_json)
 
 _PT_ROW_SIZES: tuple[int, ...] = (2, 8, 8, 18, 18, 32, 32)
 
@@ -178,7 +178,7 @@ class ElementBase(Enum):
             item (str): Attribute name.
 
         Raises:
-            AttributeError: If item not in _pt_data.
+            AttributeError: If item not in _PT_DATA.
         """
         if item in {
             "mendeleev_no",
@@ -248,7 +248,7 @@ class ElementBase(Enum):
                             # Ignore error. val will just remain a string.
                             pass
                     if (
-                        item in ("refractive_index", "melting_point")
+                        item in {"refractive_index", "melting_point"}
                         and isinstance(val, str)
                         and (match := re.findall(r"[\.\d]+", val))
                     ):
@@ -439,19 +439,19 @@ class ElementBase(Enum):
     @property
     def oxidation_states(self) -> tuple[int, ...]:
         """Tuple of all known oxidation states."""
-        return tuple(map(int, self._data.get("Oxidation states", [])))
+        return tuple(map(int, self._data.get("Oxidation states", ())))
 
     @property
     def common_oxidation_states(self) -> tuple[int, ...]:
         """Tuple of common oxidation states."""
-        return tuple(self._data.get("Common oxidation states", []))
+        return tuple(self._data.get("Common oxidation states", ()))
 
     @property
     def icsd_oxidation_states(self) -> tuple[int, ...]:
         """Tuple of all oxidation states with at least 10 instances in
         ICSD database AND at least 1% of entries for that element.
         """
-        return tuple(self._data.get("ICSD oxidation states", []))
+        return tuple(self._data.get("ICSD oxidation states", ()))
 
     @property
     def full_electronic_structure(self) -> list[tuple[int, str, int]]:

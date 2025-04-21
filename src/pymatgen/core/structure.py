@@ -1730,7 +1730,7 @@ class IStructure(SiteCollection, MSONable):
         sites: list[PeriodicSite] | None = None,
         numerical_tol: float = 1e-8,
         exclude_self: bool = True,
-    ) -> tuple[np.ndarray, np.ndarray, np.ndarray, np.ndarray]:
+    ) -> tuple[NDArray[np.float64], NDArray[np.float64], NDArray[np.float64], NDArray[np.float64]]:
         """A python version of getting neighbor_list.
         Atom `center_indices[i]` has neighbor atom `points_indices[i]` that is
         translated by `offset_vectors[i]` lattice vectors, and the distance is
@@ -1760,10 +1760,10 @@ class IStructure(SiteCollection, MSONable):
             sites=sites,
             numerical_tol=1e-8,
         )
-        center_indices = []
-        points_indices = []
-        offsets = []
-        distances = []
+        center_indices: list[int] = []
+        points_indices: list[int] = []
+        offsets: list[tuple] = []
+        distances: list[float] = []
         for idx, nns in enumerate(neighbors):
             if len(nns) > 0:
                 for nn in nns:
@@ -1773,7 +1773,7 @@ class IStructure(SiteCollection, MSONable):
                     points_indices.append(nn.index)
                     offsets.append(nn.image)
                     distances.append(nn.nn_distance)
-        return tuple(map(np.array, (center_indices, points_indices, offsets, distances)))
+        return np.array(center_indices), np.array(points_indices), np.array(offsets), np.array(distances)
 
     def get_neighbor_list(
         self,
@@ -2326,7 +2326,7 @@ class IStructure(SiteCollection, MSONable):
             return type(self)(
                 reduced_latt,
                 self.species_and_occu,
-                self.cart_coords,
+                self.cart_coords,  # type: ignore[arg-type]
                 coords_are_cartesian=True,
                 to_unit_cell=True,
                 site_properties=self.site_properties,
@@ -3846,7 +3846,7 @@ class IMolecule(SiteCollection, MSONable):
         a: float,
         b: float,
         c: float,
-        images: ArrayLike = (1, 1, 1),
+        images: tuple[int, int, int] = (1, 1, 1),
         random_rotation: bool = False,
         min_dist: float = 1.0,
         cls=None,
@@ -3893,8 +3893,8 @@ class IMolecule(SiteCollection, MSONable):
 
         if a <= x_range or b <= y_range or c <= z_range:
             raise ValueError("Box is not big enough to contain Molecule.")
-        lattice = Lattice.from_parameters(a * images[0], b * images[1], c * images[2], 90, 90, 90)
-        nimages: int = images[0] * images[1] * images[2]
+        lattice = Lattice.from_parameters(a * images[0], b * images[1], c * images[2], 90, 90, 90)  # type: ignore[operator]
+        nimages: int = images[0] * images[1] * images[2]  # type: ignore[operator]
         all_coords: list[ArrayLike] = []
 
         centered_coords = self.cart_coords - self.center_of_mass + offset
@@ -4188,7 +4188,7 @@ class Structure(IStructure, collections.abc.MutableSequence):
         super().__init__(
             lattice,
             species,
-            coords,
+            coords,  # type: ignore[arg-type]
             charge=charge,
             validate_proximity=validate_proximity,
             to_unit_cell=to_unit_cell,
@@ -4724,29 +4724,27 @@ class Structure(IStructure, collections.abc.MutableSequence):
 
         return self
 
-    def perturb(self, distance: float, min_distance: float | None = None, seed: int = 0) -> Self:
-        """Perform a random perturbation of the sites in a structure to break
-        symmetries. Modifies the structure in place.
-
-        Args:
-            distance (float): Distance in angstroms by which to perturb each site.
-            min_distance (None, int, or float): if None, all displacements will
-                be equal amplitude. If int or float, perturb each site a distance drawn
-                from the uniform distribution between 'min_distance' and 'distance'.
-            seed (int): Seed for the random number generator. Defaults to 0.
-
-        Returns:
-            Structure: self with perturbed sites.
+    def perturb(self, distance: float, min_distance: float | None = 0.0, seed: int | None = None) -> Self:
         """
+        Perturbs the positions of sites in the structure by translating each site by a random vector.
+        The magnitude of the translation is determined by the specified distance and, optionally,
+        a minimum distance.
+
+        :param distance: The maximum distance for the translation of each site. The corresponding
+            random vector's magnitude will not exceed this distance.
+        :param min_distance: Minimum distance for the perturbation range. Defaults to None, which means all
+            perturbations are the same magnitude.
+        :param seed: Seed for the random number generator to ensure reproducibility. If None (the default for
+            numpy's generator), the generator will be initialized without a specific seed.
+        :return: The updated object with perturbed site positions.
+        """
+        rng = np.random.default_rng(seed=seed)
 
         def get_rand_vec():
             # Deal with zero vectors
-            rng = np.random.default_rng(seed=seed)
             vector = rng.standard_normal(3)
             vnorm = np.linalg.norm(vector)
-            dist = distance
-            if isinstance(min_distance, float | int):
-                dist = rng.uniform(min_distance, dist)
+            dist = distance if min_distance is None else rng.uniform(min_distance, distance)
             return vector / vnorm * dist if vnorm != 0 else get_rand_vec()
 
         for idx in range(len(self._sites)):
@@ -5337,22 +5335,25 @@ class Molecule(IMolecule, collections.abc.MutableSequence):
 
         return self
 
-    def perturb(self, distance: float) -> Self:
-        """Perform a random perturbation of the sites in a structure to break
-        symmetries.
-
-        Args:
-            distance (float): Distance in angstroms by which to perturb each site.
-
-        Returns:
-            Molecule: self with perturbed sites.
+    def perturb(self, distance: float, min_distance: float | None = None, seed: int | None = None) -> Self:
         """
+        Perturbs the positions of sites by a random vector of specified distance and minimum distance.
+        The perturbation is constrained within a norm range between min_distance and distance.
+
+        :param distance: Maximum distance by which sites can be perturbed.
+        :param min_distance: Minimum distance for the perturbation range. Defaults to None, which means all
+            perturbations are the same magnitude.
+        :param seed: The seed for the random number generator. Defaults to None.
+        :return: The perturbed Molecule.
+        """
+        rng = np.random.default_rng(seed=seed)
 
         def get_rand_vec():
             # Deal with zero vectors
-            vector = np.random.default_rng().standard_normal(3)
+            vector = rng.standard_normal(3)
             vnorm = np.linalg.norm(vector)
-            return vector / vnorm * distance if vnorm != 0 else get_rand_vec()
+            dist = distance if min_distance is None else rng.uniform(min_distance, distance)
+            return vector / vnorm * dist if vnorm != 0 else get_rand_vec()
 
         for idx in range(len(self)):
             self.translate_sites([idx], get_rand_vec())
