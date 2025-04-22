@@ -220,6 +220,15 @@ class ElementBase(Enum):
             return val
 
         try:
+            # TODO: with current separated val/unit, it's likely
+            # many vals that were not "floatable" (carrying unit)
+            # is now convertible, but this would lose the unit.
+
+            # Maybe just check if unit is available in _PT_UNIT,
+            # and return val (FloatWithUnit when unit is given)
+
+            # Also I believe many of the following "processing"
+            # steps could now be removed
             val = float(val)
         except ValueError:
             tokens = val.strip().split(" ", 1)  # TODO: maybe not needed anymore

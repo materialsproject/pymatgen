@@ -1,14 +1,14 @@
 #!/usr/bin/env python3
 
 """Create `core.periodic_table.json` from source files, and as such
-you should NOT modify the JSON directly, but work on the data source
-and then run this script to regenerate the JSON/YAML.
+you should NOT modify the final JSON directly, but work on the data
+source and then run this script to generate the JSON/YAML.
 
 Each source file may be parsed using a common or custom parser. In cases where
-a custom parser is required, it should return either a single `Property` or
+a custom parser is required, it should return a single `Property` or
 a sequence of `Property`.
 
-The YAML file is a readable aggregation of all properties in the following structure:
+The YAML file is a readable aggregation of all properties in the structure of:
     Property name -> {
         unit: <unit string or null>,
         reference: <reference string or null>,
@@ -17,20 +17,15 @@ The YAML file is a readable aggregation of all properties in the following struc
         }
     }
 
-The JSON file is a compact, production-format structure (no metadata):
+The JSON file is a compact, production-format structure without metadata:
     <element symbol> -> {
         <property name>: <value unit>
     }
 
     Units are stored separately in a special top-level key:
-            "_unit" -> {
-                <property name>: <unit string>
-            }
-
-TODO: this script is in a transitional state, it would now:
-    - "Electrical resistivity": current recording would add an extra space, e.g.:
-        # Old: &gt; 10<sup>23</sup>10<sup>-8</sup> &Omega; m (str)
-        # New: &gt; 10<sup>23</sup> 10<sup>-8</sup> &Omega; m (str)
+        "_unit" -> {
+            <property name>: <unit string>
+        }
 """
 
 from __future__ import annotations
