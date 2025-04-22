@@ -61,7 +61,7 @@ LAMMPS_DEFINED_TYPES: dict[str, set[str | None]] = {
     "boundary": {"p", "f", "s", "m", "fs", "fm"},
     "ensemble": {"nve", "nvt", "npt", "nph", "minimize"},
     "thermostat": {"nose-hoover", "langevin", None},
-    "barostat": {"nose-hoover", "berendsen", None},
+    "barostat": {"nose-hoover", "berendsen", "langevin", None},
     "min_style": {"cg", "sd", "fire", "hftn", "quickmin", "spin", "spin/cg", "spin/lbfgs"},
 }
 
@@ -144,7 +144,7 @@ class LammpsSettings(MSONable):
     traj_interval : int = 100
     ensemble : Literal["nve","nvt","npt","nph","minimize"] = "nvt"
     thermostat : Literal["nose-hoover", "langevin", None] = "nose-hoover"
-    barostat : Literal["nose-hoover", "berendsen", None] = "nose-hoover"
+    barostat : Literal["nose-hoover", "berendsen", "langevin", None] = "nose-hoover"
     nsteps : int = 1000
     restart : str = None
     tol : float = 1e-6
@@ -354,8 +354,10 @@ class BaseLammpsSetGenerator(InputGenerator):
                 {"read_restart": f"{settings_dict['restart']}", "restart_flag": "read_restart", "read_data_flag": "#"}
             )
 
+        # Housekeeping to fill up the default settings for the MD template
         settings_dict.update({f"{sys}_flag": "#" for sys in ["nve", "nvt", "npt", "nph", "restart", "extra_data"]})
-
+        settings_dict.update({"read_data_flag": "read_data", "psymm": "iso"})
+        # If the ensemble is not 'minimize', we set the read_data_flag to read_data
         # Convert start and end pressure to string if they are lists or arrays, and set psymm to accordingly
         if isinstance(settings_dict["start_pressure"], (list, np.ndarray)):
             settings_dict.update(
@@ -380,17 +382,28 @@ class BaseLammpsSetGenerator(InputGenerator):
 
             elif attr == "barostat":
                 if val == "nose-hoover":
-                    settings_dict.update({"barostat": "npt temp"})
-                if val == "berendsen":
                     settings_dict.update(
                         {
-                            "barostat": "press/berendsen",
-                            "nve_flag": "fix",
-                            "nvt_flag": "fix",
-                            "thermostat": "temp/berendsen",
-                            "thermseed": "",
+                            "barostat": "npt temp",
+                            "start_temp_barostat": settings_dict["start_temp"],
+                            "end_temp_barostat": settings_dict["end_temp"],
+                            "tfriction_barostat": settings_dict["friction"],
                         }
                     )
+
+                if val in ["berendsen", "langevin"]:
+                    settings_dict.update(
+                        {
+                            "barostat": "langevin" if val == "langevin" else "press/berendsen",
+                            "nve_flag": "fix",
+                            "nvt_flag": "fix",
+                            "start_temp_barostat": "",
+                            "end_temp_barostat": "",
+                            "tfriction_barostat": "",
+                            "thermostat": f"temp/{val}",
+                        }
+                    )
+                    settings_dict.update({"thermoseed": 42 if val == "langevin" else ""})
 
             elif attr == "friction":
                 settings_dict.update({"tfriction": val, "pfriction": val})
@@ -422,9 +435,7 @@ class BaseLammpsSetGenerator(InputGenerator):
                     settings_dict.update({f"{ff_key}_flag": "#"})
                     warnings.warn(f"Force field key {ff_key} not found in the force field dictionary.", stacklevel=2)
 
-        # Housekeeping to fill up the default settings for the MD template
-        settings_dict.update({"dump_modify_flag": "dump_modify" if species else "#"})
-        settings_dict.update({"read_data_flag": "read_data", "species": species, "psymm": "iso"})
+        settings_dict.update({"dump_modify_flag": "dump_modify" if species else "#", "species": species})
 
         write_data = {"forcefield.lammps": FF_string}
         if additional_data:

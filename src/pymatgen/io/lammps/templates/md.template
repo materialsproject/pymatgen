@@ -31,7 +31,7 @@ neigh_modify    delay 5 every 1 check yes
 # Ensemble constraints
 $nve_flag             1 all nve
 $nvt_flag             2 all $thermostat $start_temp $end_temp $tfriction $thermseed
-$npt_flag             3 all $barostat $start_temp $end_temp $tfriction $psymm $start_pressure $end_pressure $pfriction
+$npt_flag             3 all $barostat $start_temp_barostat $end_temp_barostat $tfriction_barostat $psymm $start_pressure $end_pressure $pfriction
 
 # Output settings
 thermo          $log_interval
