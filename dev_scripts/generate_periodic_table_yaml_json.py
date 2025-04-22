@@ -455,11 +455,11 @@ def main():
         *parse_yaml(f"{RESOURCES_DIR}/oxidation_states.yaml"),
         *parse_yaml(f"{RESOURCES_DIR}/ionization_energies_nist.yaml"),  # Parsed from HTML
         get_and_parse_electronic_affinities(),
-        *parse_csv(f"{RESOURCES_DIR}/radii.csv", transform=float, unit=None),
+        *parse_csv(f"{RESOURCES_DIR}/radii.csv", transform=float, unit="ang"),
         *parse_ionic_radii(
-            f"{RESOURCES_DIR}/ionic_radii.csv", unit=None, reference="https://en.wikipedia.org/wiki/Ionic_radius"
+            f"{RESOURCES_DIR}/ionic_radii.csv", unit="ang", reference="https://en.wikipedia.org/wiki/Ionic_radius"
         ),
-        parse_shannon_radii(f"{RESOURCES_DIR}/Shannon_Radii.csv", unit=None),
+        parse_shannon_radii(f"{RESOURCES_DIR}/Shannon_Radii.csv", unit="ang"),
         generate_iupac_ordering(),
     )
 

@@ -162,7 +162,7 @@ class ElementBase(Enum):
         if str(at_r).startswith("no data"):
             self._atomic_radius = None
         else:
-            self._atomic_radius = Length(at_r, "ang")
+            self._atomic_radius = Length(at_r, _PT_UNIT["Atomic radius"])
         self._atomic_mass = Mass(data["Atomic mass"], "amu")
 
         self._atomic_mass_number = None
@@ -391,7 +391,7 @@ class ElementBase(Enum):
             radius = sum(radii.values()) / len(radii)
         else:
             radius = 0.0
-        return FloatWithUnit(radius, "ang")
+        return FloatWithUnit(radius, _PT_UNIT["Ionic radii"])
 
     @property
     def average_cationic_radius(self) -> FloatWithUnit:
@@ -400,8 +400,8 @@ class ElementBase(Enum):
         data is present.
         """
         if "Ionic radii" in self._data and (radii := [v for k, v in self._data["Ionic radii"].items() if int(k) > 0]):
-            return FloatWithUnit(sum(radii) / len(radii), "ang")
-        return FloatWithUnit(0.0, "ang")
+            return FloatWithUnit(sum(radii) / len(radii), _PT_UNIT["Ionic radii"])
+        return FloatWithUnit(0.0, _PT_UNIT["Ionic radii"])
 
     @property
     def average_anionic_radius(self) -> FloatWithUnit:
@@ -410,8 +410,8 @@ class ElementBase(Enum):
         data is present.
         """
         if "Ionic radii" in self._data and (radii := [v for k, v in self._data["Ionic radii"].items() if int(k) < 0]):
-            return FloatWithUnit(sum(radii) / len(radii), "ang")
-        return FloatWithUnit(0.0, "ang")
+            return FloatWithUnit(sum(radii) / len(radii), _PT_UNIT["Ionic radii"])
+        return FloatWithUnit(0.0, _PT_UNIT["Ionic radii"])
 
     @property
     def ionic_radii(self) -> dict[int, FloatWithUnit]:
@@ -419,7 +419,7 @@ class ElementBase(Enum):
         {oxidation state: ionic radii}. Radii are given in angstrom.
         """
         if "Ionic radii" in self._data:
-            return {int(k): FloatWithUnit(v, "ang") for k, v in self._data["Ionic radii"].items()}
+            return {int(k): FloatWithUnit(v, _PT_UNIT["Ionic radii"]) for k, v in self._data["Ionic radii"].items()}
         return {}
 
     @property
