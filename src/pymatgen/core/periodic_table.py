@@ -129,11 +129,11 @@ class ElementBase(Enum):
 
         Notes:
             - This class supports handling of isotopes by incorporating named isotopes
-            and their respective properties.
+                and their respective properties.
             - Attributes are populated using a JSON file that stores data about all
-            known elements.
+                known elements.
             - Some attributes are calculated or derived based on predefined constants
-            and rules.
+                and rules.
         """
         self.symbol = str(symbol)
         data = _PT_DATA[symbol]
@@ -222,8 +222,7 @@ class ElementBase(Enum):
         try:
             val = float(val)
         except ValueError:
-            no_bracket = re.sub(r"\(.*\)", "", val)
-            tokens = no_bracket.strip().split(" ", 1)  # TODO: maybe not needed anymore
+            tokens = val.strip().split(" ", 1)  # TODO: maybe not needed anymore
             if len(tokens) == 2:
                 try:
                     if "10<sup>" in tokens[1]:
@@ -252,16 +251,6 @@ class ElementBase(Enum):
                     # `val` will just remain a string.
                     pass
 
-            if (
-                item in {"refractive_index", "melting_point"}
-                and isinstance(val, str)
-                and (match := re.findall(r"[\.\d]+", val))
-            ):
-                warnings.warn(
-                    f"Ambiguous values ({val}) for {item} of {self.symbol}. Returning first float value.",
-                    stacklevel=2,
-                )
-                return float(match[0])
         return val
 
     def __eq__(self, other: object) -> bool:

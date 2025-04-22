@@ -53,8 +53,6 @@ class TestElement(MatSciTest):
             _ = Element.H.metallic_radius
         with pytest.warns(UserWarning, match="No data available"):
             _ = Element.Og.ionization_energy
-        with pytest.warns(UserWarning, match="Ambiguous values"):
-            _ = Element.H.refractive_index
 
     def test_is_metal(self):
         for metal in ["Fe", "Eu", "Li", "Ca", "In"]:

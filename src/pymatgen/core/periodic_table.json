@@ -2017,7 +2017,7 @@
             4
         ],
         "Reflectivity": 27,
-        "Refractive index": "2.417 (diamond)",
+        "Refractive index": 2.417,
         "Shannon radii": {
             "4": {
                 "III": {
@@ -5214,7 +5214,7 @@
             -1,
             1
         ],
-        "Refractive index": "1.000132 (gas; liquid 1.12)",
+        "Refractive index": 1.000132,
         "Shannon radii": {
             "1": {
                 "I": {
@@ -5262,7 +5262,7 @@
         "Min oxidation state": 0,
         "Molar volume": 21.0,
         "Name": "Helium",
-        "Refractive index": "1.000035 (gas; liquid 1.028)",
+        "Refractive index": 1.000035,
         "Thermal conductivity": 0.1513,
         "Van der waals radius": 1.4,
         "Velocity of sound": 970
@@ -7668,7 +7668,7 @@
             4,
             5
         ],
-        "Refractive index": "1.000298 (gas; liquid 1.197)",
+        "Refractive index": 1.000298,
         "Shannon radii": {
             "-3": {
                 "IV": {
@@ -8727,7 +8727,7 @@
             1,
             2
         ],
-        "Refractive index": "1.000271 (gas; liquid 1.221)",
+        "Refractive index": 1.000271,
         "Shannon radii": {
             "-2": {
                 "II": {

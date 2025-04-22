@@ -2888,16 +2888,16 @@ Refractive index:
     Ar: 1.000281
     As: 1.001552
     Br: 1.001132
-    C: 2.417 (diamond)
+    C: 2.417  # diamond
     Cl: 1.000773
     F: 1.000195
-    H: 1.000132 (gas; liquid 1.12)
-    He: 1.000035 (gas; liquid 1.028)
+    H: 1.000132  # gas, liquid 1.12
+    He: 1.000035  # gas, liquid 1.028
     Hg: 1.000933
     Kr: 1.000427
-    N: 1.000298 (gas; liquid 1.197)
+    N: 1.000298  # gas, liquid 1.197
     Ne: 1.000067
-    O: 1.000271 (gas; liquid 1.221)
+    O: 1.000271  # gas, liquid 1.221
     P: 1.001212
     S: 1.001111
     Se: 1.000895
