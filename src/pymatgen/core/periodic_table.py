@@ -182,7 +182,7 @@ class ElementBase(Enum):
         Raises:
             AttributeError: If item not in _PT_DATA.
         """
-        if item in {
+        if item not in {
             "mendeleev_no",
             "electrical_resistivity",
             "velocity_of_sound",
@@ -213,57 +213,62 @@ class ElementBase(Enum):
             "ionization_energies",
             "metallic_radius",
         }:
-            key = item.capitalize().replace("_", " ")
-            val = self._data.get(key)
-            if val is None or str(val).startswith("no data"):
-                warnings.warn(f"No data available for {item} for {self.symbol}", stacklevel=2)
-                val = None
-            elif isinstance(val, list | dict):
-                pass
-            else:
-                try:
-                    val = float(val)
-                except ValueError:
-                    no_bracket = re.sub(r"\(.*\)", "", val)
-                    tokens = no_bracket.strip().split(" ", 1)  # TODO: maybe not needed anymore
-                    if len(tokens) == 2:
-                        try:
-                            if "10<sup>" in tokens[1]:
-                                base_power = re.findall(r"([+-]?\d+)", tokens[1])
-                                factor = "e" + base_power[1]
-                                if tokens[0] == "&gt;":
-                                    tokens[0] = "1"  # return the border value
-                                tokens[0] += factor
+            raise AttributeError(f"Element has no attribute {item}!")
 
-                                # TODO: get unit directly from _PT_UNIT
-                                if item == "electrical_resistivity":
-                                    unit = "ohm m"
-                                elif item == "coefficient_of_linear_thermal_expansion":
-                                    unit = "K^-1"
-                                else:
-                                    unit = tokens[1]
-                                val = FloatWithUnit(float(tokens[0]), unit)
-                            else:
-                                unit = tokens[1].replace("<sup>", "^").replace("</sup>", "").replace("&Omega;", "ohm")
-                                units = Unit(unit)
-                                if set(units).issubset(SUPPORTED_UNIT_NAMES):
-                                    val = FloatWithUnit(float(tokens[0]), unit)
-                        except ValueError:
-                            # Ignore error. val will just remain a string.
-                            pass
+        key: str = item.capitalize().replace("_", " ")
+        val: Any = self._data.get(key)
 
-                    if (
-                        item in {"refractive_index", "melting_point"}
-                        and isinstance(val, str)
-                        and (match := re.findall(r"[\.\d]+", val))
-                    ):
-                        warnings.warn(
-                            f"Ambiguous values ({val}) for {item} of {self.symbol}. Returning first float value.",
-                            stacklevel=2,
-                        )
-                        return float(match[0])
+        if val is None or str(val).startswith("no data"):
+            warnings.warn(f"No data available for {item} for {self.symbol}", stacklevel=2)
+            return None
+
+        if isinstance(val, list | dict):
             return val
-        raise AttributeError(f"Element has no attribute {item}!")
+
+        try:
+            val = float(val)
+        except ValueError:
+            no_bracket = re.sub(r"\(.*\)", "", val)
+            tokens = no_bracket.strip().split(" ", 1)  # TODO: maybe not needed anymore
+            if len(tokens) == 2:
+                try:
+                    if "10<sup>" in tokens[1]:
+                        base_power = re.findall(r"([+-]?\d+)", tokens[1])
+                        factor = "e" + base_power[1]
+                        if tokens[0] == "&gt;":
+                            # TODO: this only exists for "Electrical resistivity"
+                            tokens[0] = "1"  # return the border value
+                        tokens[0] += factor
+
+                        # TODO: get unit directly from _PT_UNIT
+                        if item == "electrical_resistivity":
+                            unit = "ohm m"
+                        elif item == "coefficient_of_linear_thermal_expansion":
+                            unit = "K^-1"
+                        else:
+                            unit = tokens[1]
+                        val = FloatWithUnit(float(tokens[0]), unit)
+                    else:
+                        # TODO: avoid post-processing following unit
+                        unit = tokens[1].replace("<sup>", "^").replace("</sup>", "").replace("&Omega;", "ohm")
+                        units = Unit(unit)
+                        if set(units).issubset(SUPPORTED_UNIT_NAMES):
+                            val = FloatWithUnit(float(tokens[0]), unit)
+                except ValueError:
+                    # Ignore error. val will just remain a string.
+                    pass
+
+            if (
+                item in {"refractive_index", "melting_point"}
+                and isinstance(val, str)
+                and (match := re.findall(r"[\.\d]+", val))
+            ):
+                warnings.warn(
+                    f"Ambiguous values ({val}) for {item} of {self.symbol}. Returning first float value.",
+                    stacklevel=2,
+                )
+                return float(match[0])
+        return val
 
     def __eq__(self, other: object) -> bool:
         return isinstance(self, Element) and isinstance(other, Element) and self.Z == other.Z and self.A == other.A
