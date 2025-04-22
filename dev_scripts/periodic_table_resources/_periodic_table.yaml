@@ -1106,13 +1106,12 @@ Bulk modulus:
   unit: GPa
   reference:
   data: {Li: 11, Be: 130, B: 320, C: 33, Na: 6.3, Mg: 45, Al: 76, Si: 100, P: 11,
-    S: 7.7, Cl: 1.1 (liquid), K: 3.1, Ca: 17, Sc: 57, Ti: 110, V: 160, Cr: 160, Mn: 120,
-    Fe: 170, Co: 180, Ni: 180, Cu: 140, Zn: 70, As: 22, Se: 8.3, Br: 1.9, Rb: 2.5,
-    Y: 41, Nb: 170, Mo: 230, Ru: 220, Rh: 380, Pd: 180, Ag: 100, Cd: 42, Sn: 58, Sb: 42,
-    Te: 65, I: 7.7, Cs: 1.6, Ba: 9.6, La: 28, Ce: 22, Pr: 29, Nd: 32, Pm: 33, Sm: 38,
-    Eu: 8.3, Gd: 38, Tb: 38.7, Dy: 41, Ho: 40, Er: 44, Tm: 45, Yb: 31, Lu: 48, Hf: 110,
-    Ta: 200, W: 310, Re: 370, Ir: 320, Pt: 230, Au: 220, Hg: 25, Tl: 43, Pb: 46, Bi: 31,
-    Th: 54, U: 100}
+    S: 7.7, Cl: 1.1, K: 3.1, Ca: 17, Sc: 57, Ti: 110, V: 160, Cr: 160, Mn: 120, Fe: 170,
+    Co: 180, Ni: 180, Cu: 140, Zn: 70, As: 22, Se: 8.3, Br: 1.9, Rb: 2.5, Y: 41, Nb: 170,
+    Mo: 230, Ru: 220, Rh: 380, Pd: 180, Ag: 100, Cd: 42, Sn: 58, Sb: 42, Te: 65, I: 7.7,
+    Cs: 1.6, Ba: 9.6, La: 28, Ce: 22, Pr: 29, Nd: 32, Pm: 33, Sm: 38, Eu: 8.3, Gd: 38,
+    Tb: 38.7, Dy: 41, Ho: 40, Er: 44, Tm: 45, Yb: 31, Lu: 48, Hf: 110, Ta: 200, W: 310,
+    Re: 370, Ir: 320, Pt: 230, Au: 220, Hg: 25, Tl: 43, Pb: 46, Bi: 31, Th: 54, U: 100}
 Coefficient of linear thermal expansion:
   unit: x10<sup>-6</sup>K<sup>-1</sup>
   reference:
@@ -4148,11 +4147,10 @@ Shannon radii:
 Superconduction temperature:
   unit: K
   reference:
-  data: {Be: 0.026, Al: 1.175, Sc: 0.05  (under pressure), Ti: 0.40, V: 5.40, Zn: 0.85,
-    Ga: 1.083, Y: 1.3  (under pressure), Zr: 0.61, Nb: 9.25, Mo: 0.915, Tc: 7.8, Ru: 0.49,
-    Cd: 0.517, In: 3.41, Sn: 3.72, La: 6.00, Ce: 0.022  (under pressure), Gd: 1.083,
-    Lu: 0.022, Hf: 0.128, Ta: 4.47, W: 0.015, Re: 1.70, Os: 0.66, Ir: 0.11, Hg: 3.95,
-    Tl: 2.38, Pb: 7.2, Th: 1.38, Pa: 1.4, U: 0.2, Am: 0.6}
+  data: {Be: 0.026, Al: 1.175, Sc: 0.05, Ti: 0.40, V: 5.40, Zn: 0.85, Ga: 1.083, Y: 1.3,
+    Zr: 0.61, Nb: 9.25, Mo: 0.915, Tc: 7.8, Ru: 0.49, Cd: 0.517, In: 3.41, Sn: 3.72,
+    La: 6.00, Ce: 0.022, Gd: 1.083, Lu: 0.022, Hf: 0.128, Ta: 4.47, W: 0.015, Re: 1.70,
+    Os: 0.66, Ir: 0.11, Hg: 3.95, Tl: 2.38, Pb: 7.2, Th: 1.38, Pa: 1.4, U: 0.2, Am: 0.6}
 Thermal conductivity:
   unit: W m<sup>-1</sup> K<sup>-1</sup>
   reference:
@@ -4165,8 +4163,8 @@ Thermal conductivity:
     Cs: 36, Ba: 18, La: 13, Ce: 11, Pr: 13, Nd: 17, Pm: 15, Sm: 13, Eu: 14, Gd: 11,
     Tb: 11, Dy: 11, Ho: 16, Er: 15, Tm: 17, Yb: 39, Lu: 16, Hf: 23, Ta: 57, W: 170,
     Re: 48, Os: 88, Ir: 150, Pt: 72, Au: 320, Hg: 8.3, Tl: 46, Pb: 35, Bi: 8, Po: 20,
-    At: 2 (estimate), Rn: 0.00361, Ra: 19, Ac: 12, Th: 54, Pa: 47, U: 27, Np: 6, Pu: 6,
-    Am: 10, Cm: 8.8, Bk: 10}
+    At: 2, Rn: 0.00361, Ra: 19, Ac: 12, Th: 54, Pa: 47, U: 27, Np: 6, Pu: 6, Am: 10,
+    Cm: 8.8, Bk: 10}
 Van der waals radius:
   unit: ang
   reference: https://wikipedia.org/wiki/Atomic_radii_of_the_elements_(data_page)

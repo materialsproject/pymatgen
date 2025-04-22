@@ -968,7 +968,7 @@
                 }
             }
         },
-        "Thermal conductivity": "2 (estimate)",
+        "Thermal conductivity": 2,
         "Van der waals radius": 2.02,
         "X": 2.2
     },
@@ -2503,7 +2503,7 @@
                 }
             }
         },
-        "Superconduction temperature": "0.022  (under pressure)",
+        "Superconduction temperature": 0.022,
         "Thermal conductivity": 11,
         "Van der waals radius": 2.42,
         "Velocity of sound": 2100,
@@ -2679,7 +2679,7 @@
         "Atomic radius": 1.0,
         "Atomic radius calculated": 0.79,
         "Boiling point": 239.11,
-        "Bulk modulus": "1.1 (liquid)",
+        "Bulk modulus": 1.1,
         "Common oxidation states": [
             -1,
             1,
@@ -11779,7 +11779,7 @@
                 }
             }
         },
-        "Superconduction temperature": "0.05  (under pressure)",
+        "Superconduction temperature": 0.05,
         "Thermal conductivity": 16,
         "Van der waals radius": 2.15,
         "X": 1.36,
@@ -14685,7 +14685,7 @@
                 }
             }
         },
-        "Superconduction temperature": "1.3  (under pressure)",
+        "Superconduction temperature": 1.3,
         "Thermal conductivity": 17,
         "Van der waals radius": 2.32,
         "Velocity of sound": 3300,

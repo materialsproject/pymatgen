@@ -1426,7 +1426,7 @@ Bulk modulus:
     Ca: 17
     Cd: 42
     Ce: 22
-    Cl: 1.1 (liquid)
+    Cl: 1.1  # liquid
     Co: 180
     Cr: 160
     Cs: 1.6
@@ -1767,7 +1767,7 @@ Electrical resistivity:
     Al: 2.7
     As: 33
     Au: 2.2
-    B: '&gt; 10<sup>12</sup>'
+    B: '&gt; 10<sup>12</sup>'  # TODO: double check value like this with &gt
     Ba: 34
     Be: 3.8
     Bi: 130
@@ -2975,7 +2975,7 @@ Superconduction temperature:
     Am: 0.6
     Be: 0.026
     Cd: 0.517
-    Ce: 0.022  (under pressure)
+    Ce: 0.022  # under pressure
     Ga: 1.083
     Gd: 1.083
     Hf: 0.128
@@ -2991,7 +2991,7 @@ Superconduction temperature:
     Pb: 7.2
     Re: 1.70
     Ru: 0.49
-    Sc: 0.05  (under pressure)
+    Sc: 0.05  # under pressure
     Sn: 3.72
     Ta: 4.47
     Tc: 7.8
@@ -3001,7 +3001,7 @@ Superconduction temperature:
     U: 0.2
     V: 5.40
     W: 0.015
-    Y: 1.3  (under pressure)
+    Y: 1.3  # under pressure
     Zn: 0.85
     Zr: 0.61
 Thermal conductivity:
@@ -3013,7 +3013,7 @@ Thermal conductivity:
     Am: 10
     Ar: 0.01772
     As: 50
-    At: 2 (estimate)
+    At: 2  # estimate
     Au: 320
     B: 27
     Ba: 18
