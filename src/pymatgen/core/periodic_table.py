@@ -225,7 +225,7 @@ class ElementBase(Enum):
                     val = float(val)
                 except ValueError:
                     no_bracket = re.sub(r"\(.*\)", "", val)
-                    tokens = no_bracket.replace("about", "").strip().split(" ", 1)
+                    tokens = no_bracket.strip().split(" ", 1)
                     if len(tokens) == 2:
                         try:
                             if "10<sup>" in tokens[1]:

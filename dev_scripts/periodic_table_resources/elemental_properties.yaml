@@ -1771,7 +1771,7 @@ Electrical resistivity:
     Be: 3.8
     Bi: 130
     Br: '&gt; 10<sup>18</sup>'
-    C: about 1000 - direction dependent
+    C: 1000  # direction dependent
     Ca: 3.4
     Cd: 7
     Ce: 74
@@ -1784,9 +1784,9 @@ Electrical resistivity:
     Er: 86.0
     Eu: 90
     Fe: 10
-    Ga: about  14
+    Ga: 14
     Gd: 131
-    Ge: about 50000
+    Ge: 50000
     Hf: 34
     Hg: 96
     Ho: 81.4
@@ -1806,11 +1806,11 @@ Electrical resistivity:
     Ni: 7.2
     Np: 120
     Os: 8.1
-    P: about 10
+    P: 10
     Pa: 18
     Pb: 21
     Pd: 10.8
-    Pm: about 75
+    Pm: 75
     Po: 40
     Pr: 70
     Pt: 10.6
@@ -1822,24 +1822,23 @@ Electrical resistivity:
     Ru: 7.1
     S: '&gt; 10<sup>23</sup>'
     Sb: 40
-    Sc: about 55
-    Se: high
-    Si: about 100000
+    Sc: 55
+    Si: 100000
     Sm: 94
     Sn: 11.5
     Sr: 13.5
     Ta: 13.5
     Tb: 115
-    Tc: about 22
-    Te: about 10000
+    Tc: 22
+    Te: 10000
     Th: 15
-    Ti: about 40
+    Ti: 40
     Tl: 15
     Tm: 67.6
     U: 28
     V: 20
     W: 5.4
-    Y: about 60
+    Y: 60
     Yb: 25.0
     Zn: 6.0
     Zr: 43.3
@@ -2343,8 +2342,8 @@ Melting point:
     Eu: 1099
     F: 53.53
     Fe: 1811
-    Fm: about 1800
-    Fr: maybe about 300
+    Fm: 1800
+    Fr: 300
     Ga: 302.91
     Gd: 1585
     Ge: 1211.4
@@ -2360,9 +2359,9 @@ Melting point:
     Kr: 115.79
     La: 1193
     Li: 453.69
-    Lr: about 1900
+    Lr: 1900
     Lu: 1925
-    Md: about 1100
+    Md: 1100
     Mg: 923
     Mn: 1519
     Mo: 2896
@@ -2372,11 +2371,11 @@ Melting point:
     Nd: 1297
     Ne: 24.56
     Ni: 1728
-    No: about 1100
+    No: 1100
     Np: 910
     O: 54.8
     Os: 3306
-    P: (white P) 317.3
+    P: 317.3  # white P
     Pa: 1841
     Pb: 600.61
     Pd: 1828.05
@@ -2530,7 +2529,7 @@ Mineral hardness:
     Ba: 1.25
     Be: 5.5
     Bi: 2.25
-    C: 0.5 (graphite; diamond is 10.0)
+    C: 0.5  # graphite; diamond is 10.0
     Ca: 1.75
     Cd: 2.0
     Ce: 2.5

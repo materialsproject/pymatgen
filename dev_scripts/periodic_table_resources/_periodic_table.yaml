@@ -1254,16 +1254,15 @@ Density of solid:
 Electrical resistivity:
   unit: 10<sup>-8</sup> &Omega; m
   reference:
-  data: {Li: 9.5, Be: 3.8, B: '&gt; 10<sup>12</sup>', C: about 1000 - direction dependent,
-    Na: 4.9, Mg: 4.4, Al: 2.7, Si: about 100000, P: about 10, S: '&gt; 10<sup>23</sup>',
-    Cl: '&gt; 10<sup>10</sup>', K: 7.5, Ca: 3.4, Sc: about 55, Ti: about 40, V: 20,
-    Cr: 12.7, Mn: 144, Fe: 10, Co: 6, Ni: 7.2, Cu: 1.72, Zn: 6.0, Ga: about  14, Ge: about
-      50000, As: 33, Se: high, Br: '&gt; 10<sup>18</sup>', Rb: 13.3, Sr: 13.5, Y: about
-      60, Zr: 43.3, Nb: 15.2, Mo: 5.5, Tc: about 22, Ru: 7.1, Rh: 4.3, Pd: 10.8, Ag: 1.63,
-    Cd: 7, In: 8, Sn: 11.5, Sb: 40, Te: about 10000, I: '&gt; 10<sup>15</sup>', Cs: 21,
-    Ba: 34, La: 61.5, Ce: 74, Pr: 70, Nd: 64.3, Pm: about 75, Sm: 94, Eu: 90, Gd: 131,
-    Tb: 115, Dy: 92.6, Ho: 81.4, Er: 86.0, Tm: 67.6, Yb: 25.0, Lu: 58, Hf: 34, Ta: 13.5,
-    W: 5.4, Re: 18, Os: 8.1, Ir: 4.7, Pt: 10.6, Au: 2.2, Hg: 96, Tl: 15, Pb: 21, Bi: 130,
+  data: {Li: 9.5, Be: 3.8, B: '&gt; 10<sup>12</sup>', C: 1000, Na: 4.9, Mg: 4.4, Al: 2.7,
+    Si: 100000, P: 10, S: '&gt; 10<sup>23</sup>', Cl: '&gt; 10<sup>10</sup>', K: 7.5,
+    Ca: 3.4, Sc: 55, Ti: 40, V: 20, Cr: 12.7, Mn: 144, Fe: 10, Co: 6, Ni: 7.2, Cu: 1.72,
+    Zn: 6.0, Ga: 14, Ge: 50000, As: 33, Br: '&gt; 10<sup>18</sup>', Rb: 13.3, Sr: 13.5,
+    Y: 60, Zr: 43.3, Nb: 15.2, Mo: 5.5, Tc: 22, Ru: 7.1, Rh: 4.3, Pd: 10.8, Ag: 1.63,
+    Cd: 7, In: 8, Sn: 11.5, Sb: 40, Te: 10000, I: '&gt; 10<sup>15</sup>', Cs: 21,
+    Ba: 34, La: 61.5, Ce: 74, Pr: 70, Nd: 64.3, Pm: 75, Sm: 94, Eu: 90, Gd: 131, Tb: 115,
+    Dy: 92.6, Ho: 81.4, Er: 86.0, Tm: 67.6, Yb: 25.0, Lu: 58, Hf: 34, Ta: 13.5, W: 5.4,
+    Re: 18, Os: 8.1, Ir: 4.7, Pt: 10.6, Au: 2.2, Hg: 96, Tl: 15, Pb: 21, Bi: 130,
     Po: 40, Ra: 100, Th: 15, Pa: 18, U: 28, Np: 120, Pu: 150}
 Electron affinity:
   unit: eV
@@ -2555,19 +2554,18 @@ Melting point:
   unit: K
   reference:
   data: {H: 14.01, He: 0.95, Li: 453.69, Be: 1560, B: 2349, C: 3800, N: 63.05, O: 54.8,
-    F: 53.53, Ne: 24.56, Na: 370.87, Mg: 923, Al: 933.47, Si: 1687, P: (white P) 317.3,
-    S: 388.36, Cl: 171.6, Ar: 83.8, K: 336.53, Ca: 1115, Sc: 1814, Ti: 1941, V: 2183,
-    Cr: 2180, Mn: 1519, Fe: 1811, Co: 1768, Ni: 1728, Cu: 1357.77, Zn: 692.68, Ga: 302.91,
-    Ge: 1211.4, As: 1090, Se: 494, Br: 265.8, Kr: 115.79, Rb: 312.46, Sr: 1050, Y: 1799,
-    Zr: 2128, Nb: 2750, Mo: 2896, Tc: 2430, Ru: 2607, Rh: 2237, Pd: 1828.05, Ag: 1234.93,
-    Cd: 594.22, In: 429.75, Sn: 505.08, Sb: 903.78, Te: 722.66, I: 386.85, Xe: 161.4,
-    Cs: 301.59, Ba: 1000, La: 1193, Ce: 1068, Pr: 1208, Nd: 1297, Pm: 1373, Sm: 1345,
-    Eu: 1099, Gd: 1585, Tb: 1629, Dy: 1680, Ho: 1734, Er: 1802, Tm: 1818, Yb: 1097,
-    Lu: 1925, Hf: 2506, Ta: 3290, W: 3695, Re: 3459, Os: 3306, Ir: 2739, Pt: 2041.4,
-    Au: 1337.33, Hg: 234.32, Tl: 577, Pb: 600.61, Bi: 544.4, Po: 527, At: 575, Rn: 202,
-    Fr: maybe about 300, Ra: 973, Ac: 1323, Th: 2115, Pa: 1841, U: 1405.3, Np: 910,
-    Pu: 912.5, Am: 1449, Cm: 1613, Bk: 1259, Cf: 1173, Es: 1133, Fm: about 1800, Md: about
-      1100, No: about 1100, Lr: about 1900}
+    F: 53.53, Ne: 24.56, Na: 370.87, Mg: 923, Al: 933.47, Si: 1687, P: 317.3, S: 388.36,
+    Cl: 171.6, Ar: 83.8, K: 336.53, Ca: 1115, Sc: 1814, Ti: 1941, V: 2183, Cr: 2180,
+    Mn: 1519, Fe: 1811, Co: 1768, Ni: 1728, Cu: 1357.77, Zn: 692.68, Ga: 302.91, Ge: 1211.4,
+    As: 1090, Se: 494, Br: 265.8, Kr: 115.79, Rb: 312.46, Sr: 1050, Y: 1799, Zr: 2128,
+    Nb: 2750, Mo: 2896, Tc: 2430, Ru: 2607, Rh: 2237, Pd: 1828.05, Ag: 1234.93, Cd: 594.22,
+    In: 429.75, Sn: 505.08, Sb: 903.78, Te: 722.66, I: 386.85, Xe: 161.4, Cs: 301.59,
+    Ba: 1000, La: 1193, Ce: 1068, Pr: 1208, Nd: 1297, Pm: 1373, Sm: 1345, Eu: 1099,
+    Gd: 1585, Tb: 1629, Dy: 1680, Ho: 1734, Er: 1802, Tm: 1818, Yb: 1097, Lu: 1925,
+    Hf: 2506, Ta: 3290, W: 3695, Re: 3459, Os: 3306, Ir: 2739, Pt: 2041.4, Au: 1337.33,
+    Hg: 234.32, Tl: 577, Pb: 600.61, Bi: 544.4, Po: 527, At: 575, Rn: 202, Fr: 300,
+    Ra: 973, Ac: 1323, Th: 2115, Pa: 1841, U: 1405.3, Np: 910, Pu: 912.5, Am: 1449,
+    Cm: 1613, Bk: 1259, Cf: 1173, Es: 1133, Fm: 1800, Md: 1100, No: 1100, Lr: 1900}
 Mendeleev no:
   unit:
   reference:
@@ -2605,13 +2603,13 @@ Min oxidation state:
 Mineral hardness:
   unit:
   reference:
-  data: {Li: 0.6, Be: 5.5, B: 9.3, C: 0.5 (graphite; diamond is 10.0), Na: 0.5, Mg: 2.5,
-    Al: 2.75, Si: 6.5, S: 2.0, K: 0.4, Ca: 1.75, Ti: 6.0, V: 7.0, Cr: 8.5, Mn: 6.0,
-    Fe: 4.0, Co: 5.0, Ni: 4.0, Cu: 3.0, Zn: 2.5, Ga: 1.5, Ge: 6.0, As: 3.5, Se: 2.0,
-    Rb: 0.3, Sr: 1.5, Zr: 5.0, Nb: 6.0, Mo: 5.5, Ru: 6.5, Rh: 6.0, Pd: 4.75, Ag: 2.5,
-    Cd: 2.0, In: 1.2, Sn: 1.5, Sb: 3.0, Te: 2.25, Cs: 0.2, Ba: 1.25, La: 2.5, Ce: 2.5,
-    Hf: 5.5, Ta: 6.5, W: 7.5, Re: 7.0, Os: 7.0, Ir: 6.5, Pt: 3.5, Au: 2.5, Hg: 1.5,
-    Tl: 1.2, Pb: 1.5, Bi: 2.25, Th: 3.0, U: 6.0}
+  data: {Li: 0.6, Be: 5.5, B: 9.3, C: 0.5, Na: 0.5, Mg: 2.5, Al: 2.75, Si: 6.5, S: 2.0,
+    K: 0.4, Ca: 1.75, Ti: 6.0, V: 7.0, Cr: 8.5, Mn: 6.0, Fe: 4.0, Co: 5.0, Ni: 4.0,
+    Cu: 3.0, Zn: 2.5, Ga: 1.5, Ge: 6.0, As: 3.5, Se: 2.0, Rb: 0.3, Sr: 1.5, Zr: 5.0,
+    Nb: 6.0, Mo: 5.5, Ru: 6.5, Rh: 6.0, Pd: 4.75, Ag: 2.5, Cd: 2.0, In: 1.2, Sn: 1.5,
+    Sb: 3.0, Te: 2.25, Cs: 0.2, Ba: 1.25, La: 2.5, Ce: 2.5, Hf: 5.5, Ta: 6.5, W: 7.5,
+    Re: 7.0, Os: 7.0, Ir: 6.5, Pt: 3.5, Au: 2.5, Hg: 1.5, Tl: 1.2, Pb: 1.5, Bi: 2.25,
+    Th: 3.0, U: 6.0}
 Molar volume:
   unit: cm<sup>3</sup>
   reference:
