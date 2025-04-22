@@ -402,7 +402,8 @@ class BaseLammpsSetGenerator(InputGenerator):
                 if key in FF_COEFF_KEYS and value:
                     FF_string += f"{key} {value}\n"
                 if key in ["species"]:
-                    species = value  # makes species specified in FF dict take precedence
+                    # makes species specified in FF dict take precedence
+                    species = " ".join(value) if isinstance(value, list) else value
                 else:
                     warnings.warn(f"Force field key {key} not recognized, will be ignored.", stacklevel=2)
 
