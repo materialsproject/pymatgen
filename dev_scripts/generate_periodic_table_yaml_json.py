@@ -28,9 +28,6 @@ The JSON file is a compact, production-format structure (no metadata):
             }
 
 TODO: this script is in a transitional state, it would now:
-    - Append unit as string instead of as a separate field
-    - Unit should be converted to pymatgen Unit
-    - radii seems to have a "no data" in final JSON
     - "Electrical resistivity": current recording would add an extra space, e.g.:
         # Old: &gt; 10<sup>23</sup>10<sup>-8</sup> &Omega; m (str)
         # New: &gt; 10<sup>23</sup> 10<sup>-8</sup> &Omega; m (str)
@@ -435,21 +432,16 @@ def generate_yaml_and_json(
     # Output to JSON (element -> property -> value format, and drop metadata)
     element_to_props: dict[str, dict[str, Any]] = defaultdict(dict)
 
-    # # Insert units under a special `_unit` key
-    # element_to_props["_unit"] = {}
+    # Insert units under a special `_unit` key
+    element_to_props["_unit"] = {}
 
     for prop in properties:
-        # # Store unit for this property if available
-        # if prop.unit is not None:
-        #     element_to_props["_unit"][prop.name] = str(prop.unit)
+        # Store unit for this property if available
+        if prop.unit is not None:
+            element_to_props["_unit"][prop.name] = str(prop.unit)
 
         for elem, prop_val in prop.data.items():
-            unit = prop.unit
-            if unit is None:
-                element_to_props[elem.name][prop.name] = prop_val.value
-            else:
-                output = str(prop_val.value) + " " + str(unit)
-                element_to_props[elem.name][prop.name] = output
+            element_to_props[elem.name][prop.name] = prop_val.value
 
     with open(json_file, "w", encoding="utf-8") as f:
         json.dump(element_to_props, f, indent=4)
