@@ -1051,7 +1051,7 @@ Atomic orbitals:
       7s: -0.130948
 Atomic radius:
   unit: ang
-  reference:
+  reference: https://wikipedia.org/wiki/Atomic_radii_of_the_elements_(data_page)
   data: {H: 0.25, Li: 1.45, Be: 1.05, B: 0.85, C: 0.7, N: 0.65, O: 0.6, F: 0.5, Na: 1.8,
     Mg: 1.5, Al: 1.25, Si: 1.1, P: 1.0, S: 1.0, Cl: 1.0, Ar: 0.71, K: 2.2, Ca: 1.8,
     Sc: 1.6, Ti: 1.4, V: 1.35, Cr: 1.4, Mn: 1.4, Fe: 1.4, Co: 1.35, Ni: 1.35, Cu: 1.35,
@@ -1065,7 +1065,7 @@ Atomic radius:
     Am: 1.75}
 Atomic radius calculated:
   unit: ang
-  reference:
+  reference: https://wikipedia.org/wiki/Atomic_radii_of_the_elements_(data_page)
   data: {H: 0.53, He: 0.31, Li: 1.67, Be: 1.12, B: 0.87, C: 0.67, N: 0.56, O: 0.48,
     F: 0.42, Ne: 0.38, Na: 1.9, Mg: 1.45, Al: 1.18, Si: 1.11, P: 0.98, S: 0.88, Cl: 0.79,
     Ar: 0.71, K: 2.43, Ca: 1.94, Sc: 1.84, Ti: 1.76, V: 1.71, Cr: 1.66, Mn: 1.61,
@@ -2564,7 +2564,8 @@ Melting point:
     Cm: 1613, Bk: 1259, Cf: 1173, Es: 1133, Fm: 1800, Md: 1100, No: 1100, Lr: 1900}
 Mendeleev no:
   unit:
-  reference:
+  reference: D. G. Pettifor, A chemical scale for crystal-structure maps, Solid State
+    Communications, 1984.
   data: {H: 103, He: 1, Li: 12, Be: 77, B: 86, C: 95, N: 100, O: 101, F: 102, Ne: 2,
     Na: 11, Mg: 73, Al: 80, Si: 85, P: 90, S: 94, Cl: 99, Ar: 3, K: 10, Ca: 16, Sc: 19,
     Ti: 51, V: 54, Cr: 57, Mn: 60, Fe: 61, Co: 64, Ni: 67, Cu: 72, Zn: 76, Ga: 81,
@@ -2577,7 +2578,7 @@ Mendeleev no:
     Am: 42, Cm: 41, Bk: 40, Cf: 39, Es: 38, Fm: 37, Md: 36, No: 35, Lr: 34}
 Metallic radius:
   unit: ang
-  reference:
+  reference: https://wikipedia.org/wiki/Atomic_radii_of_the_elements_(data_page)
   data: {Li: 1.52, Be: 1.12, Na: 1.86, Mg: 1.6, Al: 1.43, K: 2.27, Ca: 1.97, Sc: 1.62,
     Ti: 1.47, V: 1.34, Cr: 1.28, Mn: 1.27, Fe: 1.26, Co: 1.25, Ni: 1.24, Cu: 1.28,
     Zn: 1.34, Ga: 1.35, Rb: 2.48, Sr: 2.15, Y: 1.8, Zr: 1.6, Nb: 1.46, Mo: 1.39, Tc: 1.36,
@@ -4169,7 +4170,7 @@ Thermal conductivity:
     Am: 10, Cm: 8.8, Bk: 10}
 Van der waals radius:
   unit: ang
-  reference:
+  reference: https://wikipedia.org/wiki/Atomic_radii_of_the_elements_(data_page)
   data: {H: 1.1, He: 1.4, Li: 1.82, Be: 1.53, B: 1.92, C: 1.7, N: 1.55, O: 1.52, F: 1.47,
     Ne: 1.54, Na: 2.27, Mg: 1.73, Al: 1.84, Si: 2.1, P: 1.8, S: 1.8, Cl: 1.75, Ar: 1.88,
     K: 2.75, Ca: 2.31, Sc: 2.15, Ti: 2.11, V: 2.07, Cr: 2.06, Mn: 2.05, Fe: 2.04,

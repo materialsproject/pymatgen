@@ -134,12 +134,6 @@ class ElementBase(Enum):
             known elements.
             - Some attributes are calculated or derived based on predefined constants
             and rules.
-
-        References:
-            - Atomic radius data: https://wikipedia.org/wiki/Atomic_radii_of_the_elements_(data_page)
-            - Van der Waals radius: CRC Handbook of Chemistry and Physics, 91st Ed.
-            - Mendeleev number: D. G. Pettifor, "A chemical scale for crystal-structure maps,"
-            Solid State Communications, 1984.
         """
         self.symbol = str(symbol)
         data = _PT_DATA[symbol]
@@ -255,7 +249,7 @@ class ElementBase(Enum):
                         if set(units).issubset(SUPPORTED_UNIT_NAMES):
                             val = FloatWithUnit(float(tokens[0]), unit)
                 except ValueError:
-                    # Ignore error. val will just remain a string.
+                    # `val` will just remain a string.
                     pass
 
             if (

@@ -456,7 +456,12 @@ def main():
         *parse_yaml(f"{RESOURCES_DIR}/nmr_quadrupole_moment.yaml"),
         *parse_yaml(f"{RESOURCES_DIR}/ground_level_and_ionization_energies_nist.yaml"),  # Parsed from HTML
         get_and_parse_electronic_affinities(),
-        *parse_csv(f"{RESOURCES_DIR}/radii.csv", transform=float, unit="ang"),
+        *parse_csv(
+            f"{RESOURCES_DIR}/radii.csv",
+            transform=float,
+            unit="ang",
+            reference="https://wikipedia.org/wiki/Atomic_radii_of_the_elements_(data_page)",
+        ),
         *parse_ionic_radii(
             f"{RESOURCES_DIR}/ionic_radii.csv", unit="ang", reference="https://en.wikipedia.org/wiki/Ionic_radius"
         ),
