@@ -354,6 +354,8 @@ class BaseLammpsSetGenerator(InputGenerator):
                 {"read_restart": f"{settings_dict['restart']}", "restart_flag": "read_restart", "read_data_flag": "#"}
             )
 
+        settings_dict.update({f"{sys}_flag": "#" for sys in ["nve", "nvt", "npt", "nph", "restart", "extra_data"]})
+
         # Convert start and end pressure to string if they are lists or arrays, and set psymm to accordingly
         if isinstance(settings_dict["start_pressure"], (list, np.ndarray)):
             settings_dict.update(
@@ -414,7 +416,6 @@ class BaseLammpsSetGenerator(InputGenerator):
 
         # Housekeeping to fill up the default settings for the MD template
         settings_dict.update({"dump_modify_flag": "dump_modify" if species else "#"})
-        settings_dict.update({f"{sys}_flag": "#" for sys in ["nve", "nvt", "npt", "nph", "restart", "extra_data"]})
         settings_dict.update({"read_data_flag": "read_data", "species": species, "psymm": "iso"})
 
         write_data = {"forcefield.lammps": FF_string}
