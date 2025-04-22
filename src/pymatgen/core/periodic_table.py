@@ -379,7 +379,7 @@ class ElementBase(Enum):
             June 3]. National Institute of Standards and Technology, Gaithersburg,
             MD. DOI: https://doi.org/10.18434/T4W30F
         """
-        return re.sub("</*sup>", "", self._data["Electronic structure"]["0"])
+        return self._data["Electronic structure"]["0"]
 
     @property
     def average_ionic_radius(self) -> FloatWithUnit:
@@ -1176,7 +1176,7 @@ class Species(MSONable, Stringify):
             MD. DOI: https://doi.org/10.18434/T4W30F
         """
         if self._data["Electronic structure"].get(str(self._oxi_state)) is not None:
-            return re.sub("</*sup>", "", self._data["Electronic structure"][str(self._oxi_state)])
+            return self._data["Electronic structure"][str(self._oxi_state)]
 
         raise ValueError(f"No electronic structure data for oxidation state {self.oxi_state}")
 
