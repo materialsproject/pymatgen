@@ -1,4 +1,5 @@
 NMR Quadrupole Moment:
+  unit: mbarn
   data:
     Al:
       Al-27: 146.6

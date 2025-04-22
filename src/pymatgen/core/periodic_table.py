@@ -568,9 +568,7 @@ class ElementBase(Enum):
 
     @property
     def ground_state_term_symbol(self) -> str:
-        """Ground state term symbol.
-        Selected based on Hund's Rule.
-        """
+        """Ground state term symbol, selected based on Hund's Rule."""
         L_symbols = "SPDFGHIKLMNOQRTUVWXYZ"
 
         term_symbols = self.term_symbols
@@ -685,6 +683,7 @@ class ElementBase(Enum):
     @property
     def row(self) -> int:
         """The periodic table row of the element.
+
         Note: For lanthanoids and actinoids, the row is always 6 or 7,
         respectively.
         """
@@ -703,6 +702,7 @@ class ElementBase(Enum):
     @property
     def group(self) -> int:
         """The periodic table group of the element.
+
         Note: For lanthanoids and actinoids, the group is always 3.
         """
         z = self.Z
@@ -733,13 +733,13 @@ class ElementBase(Enum):
         return (z - 54) % 32
 
     @property
-    def block(self) -> str:
+    def block(self) -> Literal["s", "p", "d", "f"]:
         """The block character "s, p, d, f"."""
-        if (self.is_actinoid or self.is_lanthanoid) and self.Z not in [71, 103]:
+        if (self.is_actinoid or self.is_lanthanoid) and self.Z not in {71, 103}:
             return "f"
         if self.is_actinoid or self.is_lanthanoid or self.group in range(3, 13):
             return "d"
-        if self.group in [1, 2]:
+        if self.group in {1, 2}:
             return "s"
         if self.group in range(13, 19):
             return "p"
@@ -749,7 +749,7 @@ class ElementBase(Enum):
     @property
     def is_noble_gas(self) -> bool:
         """True if element is noble gas."""
-        return self.Z in (2, 10, 18, 36, 54, 86, 118)
+        return self.Z in {2, 10, 18, 36, 54, 86, 118}
 
     @property
     def is_transition_metal(self) -> bool:
@@ -760,7 +760,7 @@ class ElementBase(Enum):
     @property
     def is_post_transition_metal(self) -> bool:
         """True if element is a post-transition or poor metal."""
-        return self.symbol in ("Al", "Ga", "In", "Tl", "Sn", "Pb", "Bi")
+        return self.symbol in {"Al", "Ga", "In", "Tl", "Sn", "Pb", "Bi"}
 
     @property
     def is_rare_earth(self) -> bool:
@@ -831,7 +831,10 @@ class ElementBase(Enum):
         """A dictionary the nuclear electric quadrupole moment in units of
         e*millibarns for various isotopes.
         """
-        return {k: FloatWithUnit(v, "mbarn") for k, v in self.data.get("NMR Quadrupole Moment", {}).items()}
+        return {
+            k: FloatWithUnit(v, _PT_UNIT["NMR Quadrupole Moment"])
+            for k, v in self.data.get("NMR Quadrupole Moment", {}).items()
+        }
 
     @property
     def iupac_ordering(self) -> int:
