@@ -382,7 +382,15 @@ class BaseLammpsSetGenerator(InputGenerator):
                 if val == "nose-hoover":
                     settings_dict.update({"barostat": "npt temp"})
                 if val == "berendsen":
-                    settings_dict.update({"barostat": "press/berendsen", "nve_flag": "fix"})
+                    settings_dict.update(
+                        {
+                            "barostat": "press/berendsen",
+                            "nve_flag": "fix",
+                            "nvt_flag": "fix",
+                            "thermostat": "temp/berendsen",
+                            "thermseed": "",
+                        }
+                    )
 
             elif attr == "friction":
                 settings_dict.update({"tfriction": val, "pfriction": val})
