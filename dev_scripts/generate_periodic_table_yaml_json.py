@@ -172,16 +172,15 @@ def parse_csv(
         data: dict[Element, ElemPropertyValue] = {}
 
         for symbol, value in data_df[prop].items():
-            if pd.isna(value):
-                value = DEFAULT_VALUE
-            elif transform is not None:
-                try:
-                    value = transform(value)
-                except (ValueError, TypeError):
-                    warnings.warn(f"Cannot transform {value=}, keep as string", stacklevel=2)
-                    value = str(value)
+            if not pd.isna(value):
+                if transform is not None:
+                    try:
+                        value = transform(value)
+                    except (ValueError, TypeError):
+                        warnings.warn(f"Cannot transform {value=}, keep as string", stacklevel=2)
+                        value = str(value)
 
-            data[Element(symbol)] = ElemPropertyValue(value=value)
+                data[Element(symbol)] = ElemPropertyValue(value=value)
 
         result.append(Property(name=prop, unit=unit, reference=reference, data=data))
 

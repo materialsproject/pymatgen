@@ -225,7 +225,7 @@ class ElementBase(Enum):
                     val = float(val)
                 except ValueError:
                     no_bracket = re.sub(r"\(.*\)", "", val)
-                    tokens = no_bracket.strip().split(" ", 1)
+                    tokens = no_bracket.strip().split(" ", 1)  # TODO: maybe not needed anymore
                     if len(tokens) == 2:
                         try:
                             if "10<sup>" in tokens[1]:
@@ -234,6 +234,8 @@ class ElementBase(Enum):
                                 if tokens[0] == "&gt;":
                                     tokens[0] = "1"  # return the border value
                                 tokens[0] += factor
+
+                                # TODO: get unit directly from _PT_UNIT
                                 if item == "electrical_resistivity":
                                     unit = "ohm m"
                                 elif item == "coefficient_of_linear_thermal_expansion":
@@ -249,6 +251,7 @@ class ElementBase(Enum):
                         except ValueError:
                             # Ignore error. val will just remain a string.
                             pass
+
                     if (
                         item in {"refractive_index", "melting_point"}
                         and isinstance(val, str)

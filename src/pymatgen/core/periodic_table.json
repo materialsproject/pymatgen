@@ -42,7 +42,6 @@
             "7s": -0.126551
         },
         "Atomic radius": 1.95,
-        "Atomic radius calculated": "no data",
         "Boiling point": 3573,
         "Common oxidation states": [
             3
@@ -152,7 +151,6 @@
         "Liquid range": 2250,
         "Melting point": 1323,
         "Mendeleev no": 48,
-        "Metallic radius": "no data",
         "Molar volume": 22.55,
         "Name": "Actinium",
         "Oxidation states": [
@@ -460,7 +458,6 @@
         "Atomic mass": 243,
         "Atomic no": 95,
         "Atomic radius": 1.75,
-        "Atomic radius calculated": "no data",
         "Boiling point": 2880,
         "Common oxidation states": [
             3
@@ -686,7 +683,6 @@
         "Max oxidation state": 0,
         "Melting point": 83.8,
         "Mendeleev no": 3,
-        "Metallic radius": "no data",
         "Min oxidation state": 0,
         "Molar volume": 22.56,
         "Name": "Argon",
@@ -780,7 +776,6 @@
         "Liquid range": 203,
         "Melting point": 1090,
         "Mendeleev no": 89,
-        "Metallic radius": "no data",
         "Mineral hardness": 3.5,
         "Molar volume": 12.95,
         "Name": "Arsenic",
@@ -840,8 +835,6 @@
             "6p": -0.255453,
             "6s": -0.560189
         },
-        "Atomic radius": "no data",
-        "Atomic radius calculated": "no data",
         "Common oxidation states": [
             -1,
             1
@@ -946,7 +939,6 @@
         ],
         "Melting point": 575,
         "Mendeleev no": 96,
-        "Metallic radius": "no data",
         "Name": "Astatine",
         "Oxidation states": [
             -1,
@@ -1189,7 +1181,6 @@
         "Liquid range": 1851,
         "Melting point": 2349,
         "Mendeleev no": 86,
-        "Metallic radius": "no data",
         "Mineral hardness": 9.3,
         "Molar volume": 4.39,
         "NMR Quadrupole Moment": {
@@ -1609,7 +1600,6 @@
         "Liquid range": 1292.6,
         "Melting point": 544.4,
         "Mendeleev no": 87,
-        "Metallic radius": "no data",
         "Mineral hardness": 2.25,
         "Molar volume": 21.31,
         "Name": "Bismuth",
@@ -1659,8 +1649,6 @@
     "Bk": {
         "Atomic mass": 247,
         "Atomic no": 97,
-        "Atomic radius": "no data",
-        "Atomic radius calculated": "no data",
         "Common oxidation states": [
             3
         ],
@@ -1899,7 +1887,6 @@
         "Liquid range": 66.2,
         "Melting point": 265.8,
         "Mendeleev no": 98,
-        "Metallic radius": "no data",
         "Molar volume": 19.78,
         "Name": "Bromine",
         "Oxidation states": [
@@ -2004,7 +1991,6 @@
         "Liquid range": 500,
         "Melting point": 3800,
         "Mendeleev no": 95,
-        "Metallic radius": "no data",
         "Mineral hardness": 0.5,
         "Molar volume": 5.29,
         "NMR Quadrupole Moment": {
@@ -2339,7 +2325,6 @@
             "6s": -0.133974
         },
         "Atomic radius": 1.85,
-        "Atomic radius calculated": "no data",
         "Boiling point": 3633,
         "Brinell hardness": 412,
         "Bulk modulus": 22,
@@ -2517,8 +2502,6 @@
     "Cf": {
         "Atomic mass": 251,
         "Atomic no": 98,
-        "Atomic radius": "no data",
-        "Atomic radius calculated": "no data",
         "Common oxidation states": [
             3
         ],
@@ -2735,7 +2718,6 @@
         "Liquid range": 67.51,
         "Melting point": 171.6,
         "Mendeleev no": 99,
-        "Metallic radius": "no data",
         "Molar volume": 17.39,
         "NMR Quadrupole Moment": {
             "Cl-35": -81.65,
@@ -2793,8 +2775,6 @@
     "Cm": {
         "Atomic mass": 247,
         "Atomic no": 96,
-        "Atomic radius": "no data",
-        "Atomic radius calculated": "no data",
         "Boiling point": 3383,
         "Common oxidation states": [
             3
@@ -3940,8 +3920,6 @@
     "Es": {
         "Atomic mass": 252,
         "Atomic no": 99,
-        "Atomic radius": "no data",
-        "Atomic radius calculated": "no data",
         "Common oxidation states": [
             3
         ],
@@ -4298,7 +4276,6 @@
         "Liquid range": 31.5,
         "Melting point": 53.53,
         "Mendeleev no": 102,
-        "Metallic radius": "no data",
         "Molar volume": 11.2,
         "NMR Quadrupole Moment": {
             "F-19": -94.2
@@ -4537,8 +4514,6 @@
     "Fm": {
         "Atomic mass": 257,
         "Atomic no": 100,
-        "Atomic radius": "no data",
-        "Atomic radius calculated": "no data",
         "Common oxidation states": [
             3
         ],
@@ -4653,7 +4628,6 @@
         ],
         "Melting point": 1800,
         "Mendeleev no": 37,
-        "Metallic radius": "no data",
         "Name": "Fermium",
         "Oxidation states": [
             2,
@@ -4683,8 +4657,6 @@
             "6s": -0.841848,
             "7s": -0.076176
         },
-        "Atomic radius": "no data",
-        "Atomic radius calculated": "no data",
         "Common oxidation states": [
             1
         ],
@@ -4789,7 +4761,6 @@
         ],
         "Melting point": 300,
         "Mendeleev no": 7,
-        "Metallic radius": "no data",
         "Name": "Francium",
         "Oxidation states": [
             1
@@ -5153,7 +5124,6 @@
         "Liquid range": 1881.6,
         "Melting point": 1211.4,
         "Mendeleev no": 84,
-        "Metallic radius": "no data",
         "Mineral hardness": 6.0,
         "Molar volume": 13.63,
         "Name": "Germanium",
@@ -5226,7 +5196,6 @@
         "Liquid range": 6.27,
         "Melting point": 14.01,
         "Mendeleev no": 103,
-        "Metallic radius": "no data",
         "Molar volume": 11.42,
         "NMR Quadrupole Moment": {
             "H-2": 2.86
@@ -5264,7 +5233,6 @@
         "Atomic orbitals": {
             "1s": -0.570425
         },
-        "Atomic radius": "no data",
         "Atomic radius calculated": 0.31,
         "Boiling point": 4.22,
         "Critical temperature": 5.19,
@@ -5282,7 +5250,6 @@
         "Max oxidation state": 0,
         "Melting point": 0.95,
         "Mendeleev no": 1,
-        "Metallic radius": "no data",
         "Min oxidation state": 0,
         "Molar volume": 21.0,
         "Name": "Helium",
@@ -5669,7 +5636,6 @@
             "6s": -0.133845
         },
         "Atomic radius": 1.75,
-        "Atomic radius calculated": "no data",
         "Boiling point": 2993,
         "Brinell hardness": 746,
         "Bulk modulus": 40,
@@ -5915,7 +5881,6 @@
         "Liquid range": 70.55,
         "Melting point": 386.85,
         "Mendeleev no": 97,
-        "Metallic radius": "no data",
         "Molar volume": 25.72,
         "NMR Quadrupole Moment": {
             "I-127": -696.12,
@@ -6427,7 +6392,6 @@
             "4p": -0.34634,
             "4s": -0.820574
         },
-        "Atomic radius": "no data",
         "Atomic radius calculated": 0.88,
         "Boiling point": 119.93,
         "Critical temperature": 209.4,
@@ -6479,7 +6443,6 @@
         "Max oxidation state": 0,
         "Melting point": 115.79,
         "Mendeleev no": 4,
-        "Metallic radius": "no data",
         "Min oxidation state": 0,
         "Molar volume": 27.99,
         "Name": "Krypton",
@@ -6508,7 +6471,6 @@
             "6s": -0.132233
         },
         "Atomic radius": 1.95,
-        "Atomic radius calculated": "no data",
         "Boiling point": 3743,
         "Brinell hardness": 363,
         "Bulk modulus": 28,
@@ -7019,8 +6981,6 @@
     "Md": {
         "Atomic mass": 258,
         "Atomic no": 101,
-        "Atomic radius": "no data",
-        "Atomic radius calculated": "no data",
         "Common oxidation states": [
             3
         ],
@@ -7136,7 +7096,6 @@
         ],
         "Melting point": 1100,
         "Mendeleev no": 36,
-        "Metallic radius": "no data",
         "Name": "Mendelevium",
         "Oxidation states": [
             2,
@@ -7685,7 +7644,6 @@
         "Liquid range": 14.31,
         "Melting point": 63.05,
         "Mendeleev no": 100,
-        "Metallic radius": "no data",
         "Molar volume": 13.54,
         "NMR Quadrupole Moment": {
             "N-14": 20.44
@@ -8189,7 +8147,6 @@
             "2p": -0.498034,
             "2s": -1.322809
         },
-        "Atomic radius": "no data",
         "Atomic radius calculated": 0.38,
         "Boiling point": 27.07,
         "Critical temperature": 44.4,
@@ -8215,7 +8172,6 @@
         "Max oxidation state": 0,
         "Melting point": 24.56,
         "Mendeleev no": 2,
-        "Metallic radius": "no data",
         "Min oxidation state": 0,
         "Molar volume": 13.23,
         "NMR Quadrupole Moment": {
@@ -8383,8 +8339,6 @@
     "No": {
         "Atomic mass": 259,
         "Atomic no": 102,
-        "Atomic radius": "no data",
-        "Atomic radius calculated": "no data",
         "Common oxidation states": [
             3
         ],
@@ -8501,7 +8455,6 @@
         ],
         "Melting point": 1100,
         "Mendeleev no": 35,
-        "Metallic radius": "no data",
         "Name": "Nobelium",
         "Oxidation states": [
             2,
@@ -8524,7 +8477,6 @@
         "Atomic mass": 237,
         "Atomic no": 93,
         "Atomic radius": 1.75,
-        "Atomic radius calculated": "no data",
         "Boiling point": 4273,
         "Common oxidation states": [
             5
@@ -8755,7 +8707,6 @@
         "Liquid range": 35.4,
         "Melting point": 54.8,
         "Mendeleev no": 101,
-        "Metallic radius": "no data",
         "Molar volume": 17.36,
         "NMR Quadrupole Moment": {
             "O-17": -25.58
@@ -9066,7 +9017,6 @@
         "Liquid range": 232.7,
         "Melting point": 317.3,
         "Mendeleev no": 90,
-        "Metallic radius": "no data",
         "Molar volume": 17.02,
         "Name": "Phosphorus",
         "Oxidation states": [
@@ -9138,7 +9088,6 @@
             "7s": -0.129653
         },
         "Atomic radius": 1.8,
-        "Atomic radius calculated": "no data",
         "Common oxidation states": [
             5
         ],
@@ -9443,7 +9392,6 @@
         "Liquid range": 1421.39,
         "Melting point": 600.61,
         "Mendeleev no": 82,
-        "Metallic radius": "no data",
         "Mineral hardness": 1.5,
         "Molar volume": 18.26,
         "Name": "Lead",
@@ -9963,7 +9911,6 @@
         "Liquid range": 708,
         "Melting point": 527,
         "Mendeleev no": 91,
-        "Metallic radius": "no data",
         "Molar volume": 22.97,
         "Name": "Polonium",
         "Oxidation states": [
@@ -10345,7 +10292,6 @@
         "Atomic mass": 244,
         "Atomic no": 94,
         "Atomic radius": 1.75,
-        "Atomic radius calculated": "no data",
         "Boiling point": 3503,
         "Common oxidation states": [
             4
@@ -10544,7 +10490,6 @@
             "7s": -0.113732
         },
         "Atomic radius": 2.15,
-        "Atomic radius calculated": "no data",
         "Boiling point": 2010,
         "Common oxidation states": [
             2
@@ -10654,7 +10599,6 @@
         "Liquid range": 1037,
         "Melting point": 973,
         "Mendeleev no": 13,
-        "Metallic radius": "no data",
         "Molar volume": 41.09,
         "NMR Quadrupole Moment": {
             "Ra-223": 1210.3
@@ -11184,7 +11128,6 @@
             "6p": -0.29318,
             "6s": -0.62657
         },
-        "Atomic radius": "no data",
         "Atomic radius calculated": 1.2,
         "Boiling point": 211.3,
         "Critical temperature": 377,
@@ -11286,7 +11229,6 @@
         "Max oxidation state": 0,
         "Melting point": 202,
         "Mendeleev no": 6,
-        "Metallic radius": "no data",
         "Min oxidation state": 0,
         "Molar volume": 50.5,
         "Name": "Radon",
@@ -11524,7 +11466,6 @@
         "Liquid range": 329.51,
         "Melting point": 388.36,
         "Mendeleev no": 94,
-        "Metallic radius": "no data",
         "Mineral hardness": 2.0,
         "Molar volume": 15.53,
         "NMR Quadrupole Moment": {
@@ -11684,7 +11625,6 @@
         "Liquid range": 956.22,
         "Melting point": 903.78,
         "Mendeleev no": 88,
-        "Metallic radius": "no data",
         "Mineral hardness": 3.0,
         "Molar volume": 18.19,
         "NMR Quadrupole Moment": {
@@ -11919,7 +11859,6 @@
         "Liquid range": 464,
         "Melting point": 494,
         "Mendeleev no": 93,
-        "Metallic radius": "no data",
         "Mineral hardness": 2.0,
         "Molar volume": 16.42,
         "Name": "Selenium",
@@ -12025,7 +11964,6 @@
         "Liquid range": 1486,
         "Melting point": 1687,
         "Mendeleev no": 85,
-        "Metallic radius": "no data",
         "Mineral hardness": 6.5,
         "Molar volume": 12.06,
         "Name": "Silicon",
@@ -12344,7 +12282,6 @@
         "Liquid range": 2369.92,
         "Melting point": 505.08,
         "Mendeleev no": 83,
-        "Metallic radius": "no data",
         "Mineral hardness": 1.5,
         "Molar volume": 16.29,
         "NMR Quadrupole Moment": {
@@ -13136,7 +13073,6 @@
         "Liquid range": 538.34,
         "Melting point": 722.66,
         "Mendeleev no": 92,
-        "Metallic radius": "no data",
         "Mineral hardness": 2.25,
         "Molar volume": 20.46,
         "Name": "Tellurium",
@@ -13223,7 +13159,6 @@
             "7s": -0.135872
         },
         "Atomic radius": 1.8,
-        "Atomic radius calculated": "no data",
         "Boiling point": 5093,
         "Brinell hardness": 400,
         "Bulk modulus": 54,
@@ -13920,7 +13855,6 @@
             "7s": -0.130948
         },
         "Atomic radius": 1.75,
-        "Atomic radius calculated": "no data",
         "Boiling point": 4200,
         "Brinell hardness": 2400,
         "Bulk modulus": 100,
@@ -14521,7 +14455,6 @@
             "5p": -0.309835,
             "5s": -0.672086
         },
-        "Atomic radius": "no data",
         "Atomic radius calculated": 1.08,
         "Boiling point": 165.1,
         "Critical temperature": 289.7,
@@ -14594,7 +14527,6 @@
         "Max oxidation state": 8,
         "Melting point": 161.4,
         "Mendeleev no": 5,
-        "Metallic radius": "no data",
         "Min oxidation state": 2,
         "Molar volume": 35.92,
         "Name": "Xenon",
