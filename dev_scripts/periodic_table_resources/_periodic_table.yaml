@@ -1,5 +1,5 @@
 Atomic mass:
-  unit:
+  unit: amu
   reference:
   data: {H: 1.00794, D: 2.013553212712, T: 3.0155007134, He: 4.002602, Li: 6.941,
     Be: 9.012182, B: 10.811, C: 12.0107, N: 14.0067, O: 15.9994, F: 18.9984032, Ne: 20.1797,
@@ -20,7 +20,7 @@ Atomic mass:
     Lr: 262, Rf: 267, Db: 268, Sg: 269, Bh: 270, Hs: 270, Mt: 278, Ds: 281, Rg: 282,
     Cn: 285, Nh: 286, Fl: 289, Mc: 290, Lv: 293, Ts: 294, Og: 294}
 Atomic mass no:
-  unit:
+  unit: amu
   reference:
   data: {H: 1, D: 2, T: 3}
 Atomic no:

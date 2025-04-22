@@ -1,4 +1,5 @@
 Atomic mass:
+  unit: amu
   data:
     Ac: 227
     Ag: 107.8682
@@ -3481,6 +3482,7 @@ Min oxidation state:
     Rn: 0
     Xe: 2
 Atomic mass no:
+  unit: amu
   data:
     H: 1
     D: 2

@@ -34,12 +34,12 @@ if TYPE_CHECKING:
     from pymatgen.util.typing import SpeciesLike
 
 # Load element data (periodic table) from JSON file
-# NOTE: you should not update the JSON file manually, see `dev_scripts/generate_periodic_table_yaml_json.py`
-# on how to update it.
+# NOTE: you should not update the JSON file manually,
+# see `dev_scripts/generate_periodic_table_yaml_json.py`
 with open(Path(__file__).absolute().parent / "periodic_table.json", encoding="utf-8") as ptable_json:
-    raw_data: dict = json.load(ptable_json)
-    _PT_UNIT: dict[str, str] = raw_data.pop("_unit")
-    _PT_DATA: dict[str, Any] = raw_data
+    _RAW_PT_DATA: dict = json.load(ptable_json)
+    _PT_UNIT: dict[str, str] = _RAW_PT_DATA.pop("_unit")
+    _PT_DATA: dict[str, Any] = _RAW_PT_DATA
 
 _PT_ROW_SIZES: tuple[int, ...] = (2, 8, 8, 18, 18, 32, 32)
 
@@ -157,12 +157,12 @@ class ElementBase(Enum):
             self._atomic_radius = None
         else:
             self._atomic_radius = Length(at_r, _PT_UNIT["Atomic radius"])
-        self._atomic_mass = Mass(data["Atomic mass"], "amu")
+        self._atomic_mass = Mass(data["Atomic mass"], _PT_UNIT["Atomic mass"])
 
         self._atomic_mass_number = None
         self.A = data.get("Atomic mass no")
         if self.A:
-            self._atomic_mass_number = Mass(self.A, "amu")
+            self._atomic_mass_number = Mass(self.A, _PT_UNIT["Atomic mass no"])
 
         self.long_name = data["Name"]
         self._data = data

@@ -1,5 +1,7 @@
 {
     "_unit": {
+        "Atomic mass": "amu",
+        "Atomic mass no": "amu",
         "Atomic radius": "ang",
         "Atomic radius calculated": "ang",
         "Boiling point": "K",
