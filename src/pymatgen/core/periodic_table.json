@@ -7,10 +7,10 @@
         "Boiling point": "K",
         "Brinell hardness": "MN m<sup>-2</sup>",
         "Bulk modulus": "GPa",
-        "Coefficient of linear thermal expansion": "x10<sup>-6</sup>K<sup>-1</sup>",
+        "Coefficient of linear thermal expansion": "K^-1",
         "Critical temperature": "K",
         "Density of solid": "kg m<sup>-3</sup>",
-        "Electrical resistivity": "10<sup>-8</sup> &Omega; m",
+        "Electrical resistivity": "ohm m",
         "Electron affinity": "eV",
         "Ionic radii": "ang",
         "Ionic radii hs": "ang",
@@ -1168,7 +1168,7 @@
             3
         ],
         "Density of solid": 2460,
-        "Electrical resistivity": "&gt; 10<sup>12</sup>",
+        "Electrical resistivity": "1.5 10^12",
         "Electron affinity": 0.27972325,
         "Electronic structure": {
             "0": "[He].2s2.2p1",
@@ -1837,7 +1837,7 @@
             7
         ],
         "Critical temperature": 586,
-        "Electrical resistivity": "&gt; 10<sup>18</sup>",
+        "Electrical resistivity": "7.8 10^18",
         "Electron affinity": 3.3635883,
         "Electronic structure": {
             "0": "[Ar].3d10.4s2.4p5",
@@ -2688,7 +2688,7 @@
             7
         ],
         "Critical temperature": 417,
-        "Electrical resistivity": "&gt; 10<sup>10</sup>",
+        "Electrical resistivity": "1 10^9",
         "Electron affinity": 3.61272528,
         "Electronic structure": {
             "0": "[Ne].3s2.3p5",
@@ -5814,7 +5814,7 @@
         ],
         "Critical temperature": 819,
         "Density of solid": 4940,
-        "Electrical resistivity": "&gt; 10<sup>15</sup>",
+        "Electrical resistivity": "1.3 10^15",
         "Electron affinity": 3.059046537,
         "Electronic structure": {
             "0": "[Kr].4d10.5s2.5p5",
@@ -11434,7 +11434,7 @@
         ],
         "Critical temperature": 1314,
         "Density of solid": 1960,
-        "Electrical resistivity": "&gt; 10<sup>23</sup>",
+        "Electrical resistivity": "2 10^23",
         "Electron affinity": 2.07710426,
         "Electronic structure": {
             "0": "[Ne].3s2.3p4",

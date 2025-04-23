@@ -135,7 +135,7 @@ DERIVED_UNITS: dict[str, dict] = {
 }
 
 ALL_UNITS: dict[str, dict] = BASE_UNITS | DERIVED_UNITS
-SUPPORTED_UNIT_NAMES = tuple(i for d in ALL_UNITS.values() for i in d)
+SUPPORTED_UNIT_NAMES: tuple[str, ...] = tuple(i for d in ALL_UNITS.values() for i in d)
 
 # Mapping unit name --> unit type (unit names must be unique).
 _UNAME2UTYPE = {uname: utype for utype, dct in ALL_UNITS.items() for uname in dct}

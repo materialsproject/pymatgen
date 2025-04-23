@@ -209,8 +209,8 @@ class ElementBase(Enum):
         }:
             raise AttributeError(f"Element has no attribute {item}!")
 
-        key: str = item.capitalize().replace("_", " ")
-        val: Any = self._data.get(key)
+        prop_name: str = item.capitalize().replace("_", " ")
+        val: Any = self._data.get(prop_name)
 
         if val is None or str(val).startswith("no data"):
             warnings.warn(f"No data available for {item} for {self.symbol}", stacklevel=2)
@@ -219,48 +219,21 @@ class ElementBase(Enum):
         if isinstance(val, list | dict):
             return val
 
+        # TODO: implement factor support
+        # factor = "e" + base_power[1]
+
+        unit = _PT_UNIT.get(prop_name)
+
+        if unit is not None:
+            if unit in SUPPORTED_UNIT_NAMES:
+                unit = Unit(unit)
+            # TODO: any case val cannot be converted to float now (with unit given)?
+            return FloatWithUnit(float(val), unit)
+
         try:
-            # TODO: with current separated val/unit, it's likely
-            # many vals that were not "floatable" (carrying unit)
-            # is now convertible, but this would lose the unit.
-
-            # Maybe just check if unit is available in _PT_UNIT,
-            # and return val (FloatWithUnit when unit is given)
-
-            # Also I believe many of the following "processing"
-            # steps could now be removed
-            val = float(val)
+            return float(val)
         except ValueError:
-            tokens = val.strip().split(" ", 1)  # TODO: maybe not needed anymore
-            if len(tokens) == 2:
-                try:
-                    if "10<sup>" in tokens[1]:
-                        base_power = re.findall(r"([+-]?\d+)", tokens[1])
-                        factor = "e" + base_power[1]
-                        if tokens[0] == "&gt;":
-                            # TODO: this only exists for "Electrical resistivity"
-                            tokens[0] = "1"  # return the border value
-                        tokens[0] += factor
-
-                        # TODO: get unit directly from _PT_UNIT
-                        if item == "electrical_resistivity":
-                            unit = "ohm m"
-                        elif item == "coefficient_of_linear_thermal_expansion":
-                            unit = "K^-1"
-                        else:
-                            unit = tokens[1]
-                        val = FloatWithUnit(float(tokens[0]), unit)
-                    else:
-                        # TODO: avoid post-processing following unit
-                        unit = tokens[1].replace("<sup>", "^").replace("</sup>", "").replace("&Omega;", "ohm")
-                        units = Unit(unit)
-                        if set(units).issubset(SUPPORTED_UNIT_NAMES):
-                            val = FloatWithUnit(float(tokens[0]), unit)
-                except ValueError:
-                    # `val` will just remain a string.
-                    pass
-
-        return val
+            return val
 
     def __eq__(self, other: object) -> bool:
         return isinstance(self, Element) and isinstance(other, Element) and self.Z == other.Z and self.A == other.A

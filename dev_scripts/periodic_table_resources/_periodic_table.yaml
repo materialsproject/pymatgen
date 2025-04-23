@@ -1113,7 +1113,7 @@ Bulk modulus:
     Tb: 38.7, Dy: 41, Ho: 40, Er: 44, Tm: 45, Yb: 31, Lu: 48, Hf: 110, Ta: 200, W: 310,
     Re: 370, Ir: 320, Pt: 230, Au: 220, Hg: 25, Tl: 43, Pb: 46, Bi: 31, Th: 54, U: 100}
 Coefficient of linear thermal expansion:
-  unit: x10<sup>-6</sup>K<sup>-1</sup>
+  unit: K^-1
   reference:
   data: {Li: 46, Be: 11.3, B: 6, C: 7.1, Na: 71, Mg: 8.2, Al: 23.1, Si: 2.6, Ca: 22.3,
     Sc: 10.2, Ti: 8.6, V: 8.4, Cr: 4.9, Mn: 21.7, Fe: 11.8, Co: 13.0, Ni: 13.4, Cu: 16.5,
@@ -1246,18 +1246,17 @@ Density of solid:
     Ac: 10070, Th: 11724, Pa: 15370, U: 19050, Np: 20450, Pu: 19816, Cm: 13510, Bk: 14780,
     Cf: 15100}
 Electrical resistivity:
-  unit: 10<sup>-8</sup> &Omega; m
+  unit: ohm m
   reference:
-  data: {Li: 9.5, Be: 3.8, B: '&gt; 10<sup>12</sup>', C: 1000, Na: 4.9, Mg: 4.4, Al: 2.7,
-    Si: 100000, P: 10, S: '&gt; 10<sup>23</sup>', Cl: '&gt; 10<sup>10</sup>', K: 7.5,
-    Ca: 3.4, Sc: 55, Ti: 40, V: 20, Cr: 12.7, Mn: 144, Fe: 10, Co: 6, Ni: 7.2, Cu: 1.72,
-    Zn: 6.0, Ga: 14, Ge: 50000, As: 33, Br: '&gt; 10<sup>18</sup>', Rb: 13.3, Sr: 13.5,
-    Y: 60, Zr: 43.3, Nb: 15.2, Mo: 5.5, Tc: 22, Ru: 7.1, Rh: 4.3, Pd: 10.8, Ag: 1.63,
-    Cd: 7, In: 8, Sn: 11.5, Sb: 40, Te: 10000, I: '&gt; 10<sup>15</sup>', Cs: 21,
-    Ba: 34, La: 61.5, Ce: 74, Pr: 70, Nd: 64.3, Pm: 75, Sm: 94, Eu: 90, Gd: 131, Tb: 115,
-    Dy: 92.6, Ho: 81.4, Er: 86.0, Tm: 67.6, Yb: 25.0, Lu: 58, Hf: 34, Ta: 13.5, W: 5.4,
-    Re: 18, Os: 8.1, Ir: 4.7, Pt: 10.6, Au: 2.2, Hg: 96, Tl: 15, Pb: 21, Bi: 130,
-    Po: 40, Ra: 100, Th: 15, Pa: 18, U: 28, Np: 120, Pu: 150}
+  data: {Li: 9.5, Be: 3.8, B: 1.5 10^12, C: 1000, Na: 4.9, Mg: 4.4, Al: 2.7, Si: 100000,
+    P: 10, S: 2 10^23, Cl: 1 10^9, K: 7.5, Ca: 3.4, Sc: 55, Ti: 40, V: 20, Cr: 12.7,
+    Mn: 144, Fe: 10, Co: 6, Ni: 7.2, Cu: 1.72, Zn: 6.0, Ga: 14, Ge: 50000, As: 33,
+    Br: 7.8 10^18, Rb: 13.3, Sr: 13.5, Y: 60, Zr: 43.3, Nb: 15.2, Mo: 5.5, Tc: 22,
+    Ru: 7.1, Rh: 4.3, Pd: 10.8, Ag: 1.63, Cd: 7, In: 8, Sn: 11.5, Sb: 40, Te: 10000,
+    I: 1.3 10^15, Cs: 21, Ba: 34, La: 61.5, Ce: 74, Pr: 70, Nd: 64.3, Pm: 75, Sm: 94,
+    Eu: 90, Gd: 131, Tb: 115, Dy: 92.6, Ho: 81.4, Er: 86.0, Tm: 67.6, Yb: 25.0, Lu: 58,
+    Hf: 34, Ta: 13.5, W: 5.4, Re: 18, Os: 8.1, Ir: 4.7, Pt: 10.6, Au: 2.2, Hg: 96,
+    Tl: 15, Pb: 21, Bi: 130, Po: 40, Ra: 100, Th: 15, Pa: 18, U: 28, Np: 120, Pu: 150}
 Electron affinity:
   unit: eV
   reference: https://en.wikipedia.org/wiki/Electron_affinity_(data_page)
