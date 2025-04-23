@@ -355,7 +355,7 @@ class MPRester:
                 calculations for more accurate phase diagrams and reaction
                 energies.
             property_data (list): Specify additional properties to include in
-                entry.data. If None, no data. This can be properties that are available in the /materials/summary
+                entry.data. If None, no data. This can be properties that are available in the /materials/thermo
                 endpoint of the API.
             **kwargs: Used to catch deprecated kwargs.
 
@@ -393,9 +393,14 @@ class MPRester:
             query = f"formula={criteria}"
 
         entries = []
-        response = self.request(f"materials/thermo/?_fields=entries&{query}")
+        fields = ["entries", *property_data] if property_data is not None else ["entries"]
+        response = self.request(f"materials/thermo/?_fields={','.join(fields)}&{query}")
         for dct in response:
-            entries.extend(dct["entries"].values())
+            for e in dct["entries"].values():
+                if property_data:
+                    for prop in property_data:
+                        e.data[prop] = dct[prop]
+                entries.append(e)
 
         if compatible_only:
             from pymatgen.entries.compatibility import MaterialsProject2020Compatibility
@@ -405,15 +410,6 @@ class MPRester:
                 warnings.filterwarnings("ignore", message="Failed to guess oxidation states.*")
                 entries = MaterialsProject2020Compatibility().process_entries(entries, clean=True)
 
-        if property_data:
-            edata = self.search(
-                "summary",
-                material_ids=[e.data["material_id"] for e in entries],
-                _fields=[*property_data, "material_id"],
-            )
-            mapped_data = {d["material_id"]: {k: v for k, v in d.items() if k != "material_id"} for d in edata}
-            for e in entries:
-                e.data.update(mapped_data[e.data["material_id"]])
         return list(set(entries))
 
     def get_entry_by_material_id(self, material_id: str, *args, **kwargs) -> ComputedStructureEntry:
