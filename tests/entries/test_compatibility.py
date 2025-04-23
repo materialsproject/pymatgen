@@ -2235,6 +2235,7 @@ class TestMaterialsProjectAqueousCompatibility:
         MaterialsProjectAqueousCompatibility().process_entries(entries, inplace=False)
         assert all(e.correction == e_copy.correction for e, e_copy in zip(entries, entries_copy, strict=True))
 
+    @pytest.mark.skipif(sys.platform.startswith("win"), reason="Windows broken permissions.")
     def test_parallel_process_entries(self):
         hydrate_entry = ComputedEntry(Composition("FeH4O2"), -10)  # nH2O = 2
         hydrate_entry2 = ComputedEntry(Composition("Li2O2H2"), -10)  # nH2O = 0
