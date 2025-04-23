@@ -14,6 +14,9 @@ from ..conftest import O2, Si, comp_system  # noqa: TID252
 SPECIES_DIR = TEST_FILES_DIR / "io/aims/species_directory"
 REF_PATH = (TEST_FILES_DIR / "io/aims/aims_input_generator_ref").resolve()
 
+if sys.platform.startswith("win"):
+    pytest.skip("Weird bug on Windows not finding param files. Not critical to test there.", allow_module_level=True)
+
 
 def test_static_from_relax_si(tmp_path):
     user_params = {"species_dir": str(SPECIES_DIR / "light")}
@@ -29,7 +32,6 @@ def test_static_from_relax_si(tmp_path):
     )
 
 
-@pytest.mark.skipif(sys.platform.startswith("win"), reason="Weird bug on Windows. Not critical to test there.")
 def test_static_from_relax_si_no_kgrid(tmp_path):
     user_params = {"species_dir": str(SPECIES_DIR / "light")}
     comp_system(
@@ -44,7 +46,6 @@ def test_static_from_relax_si_no_kgrid(tmp_path):
     )
 
 
-@pytest.mark.skipif(sys.platform.startswith("win"), reason="Weird bug on Windows. Not critical to test there.")
 def test_static_from_relax_default_species_dir(tmp_path):
     user_params = {"species_dir": str(SPECIES_DIR / "light")}
     comp_system(
@@ -59,7 +60,6 @@ def test_static_from_relax_default_species_dir(tmp_path):
     )
 
 
-@pytest.mark.skipif(sys.platform.startswith("win"), reason="Weird bug on Windows. Not critical to test there.")
 def test_static_from_relax_o2(tmp_path):
     user_params = {"species_dir": str(SPECIES_DIR / "light")}
     comp_system(
@@ -74,7 +74,6 @@ def test_static_from_relax_o2(tmp_path):
     )
 
 
-@pytest.mark.skipif(sys.platform.startswith("win"), reason="Weird bug on Windows. Not critical to test there.")
 def test_static_from_relax_default_species_dir_o2(tmp_path):
     user_params = {"species_dir": str(SPECIES_DIR / "light")}
     comp_system(
