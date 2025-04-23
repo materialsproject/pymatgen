@@ -5,6 +5,7 @@ from __future__ import annotations
 import copy
 import json
 from dataclasses import dataclass, field
+from pathlib import Path
 from typing import TYPE_CHECKING, Any
 from warnings import warn
 
@@ -250,7 +251,7 @@ class AimsInputGenerator(InputGenerator):
             # Should be checked with Fireworks, will not for sure work with
             # jobflow_remote)
             split_prev_dir = str(prev_dir).split(":")[-1]
-            with open(f"{split_prev_dir}/parameters.json", encoding="utf-8") as param_file:
+            with open(Path(split_prev_dir) / "parameters.json", encoding="utf-8") as param_file:
                 prev_params = json.load(param_file, cls=MontyDecoder)
 
             try:
