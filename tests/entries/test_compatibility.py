@@ -4,6 +4,7 @@ import copy
 import json
 import math
 import os
+import sys
 from collections import defaultdict
 from pathlib import Path
 from typing import TYPE_CHECKING
@@ -592,6 +593,7 @@ class TestMaterialsProjectCompatibility:
         entries = self.compat.process_entries([self.entry1, self.entry2, self.entry3, self.entry4])
         assert len(entries) == 2
 
+    @pytest.skip(sys.platform.startswith("win"))
     def test_parallel_process_entries(self):
         # TODO: get DeprecationWarning: This process (pid=xxxx) is multi-threaded,
         # use of fork() may lead to deadlocks in the child.
