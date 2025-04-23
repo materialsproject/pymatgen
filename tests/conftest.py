@@ -13,6 +13,5 @@ def setup_teardown() -> typing.Generator:
     cwd = os.getcwd()
     with tempfile.TemporaryDirectory() as tmpdir:
         os.chdir(tmpdir)
-        print(os.getcwd())
         yield tmpdir
     os.chdir(cwd)
