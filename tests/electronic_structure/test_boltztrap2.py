@@ -5,7 +5,6 @@ import shutil
 import numpy as np
 import pytest
 from monty.serialization import loadfn
-from monty.tempfile import ScratchDir
 from pytest import approx
 
 from pymatgen.electronic_structure.core import OrbitalType, Spin
@@ -129,24 +128,23 @@ class TestVasprunLoader:
 
 class TestBztInterpolator:
     def setup_method(self):
-        with ScratchDir("."):
-            shutil.copy(BZT_INTERP_FN, ".")
+        shutil.copy(BZT_INTERP_FN, ".")
 
-            loader = VasprunBSLoader(VASP_RUN)
-            self.bztInterp = BztInterpolator(loader, lpfac=2)
-            assert self.bztInterp is not None
-            self.bztInterp = BztInterpolator(loader, lpfac=2, save_bztInterp=True)
-            assert self.bztInterp is not None
-            self.bztInterp = BztInterpolator(loader, load_bztInterp=True)
-            assert self.bztInterp is not None
+        loader = VasprunBSLoader(VASP_RUN)
+        self.bztInterp = BztInterpolator(loader, lpfac=2)
+        assert self.bztInterp is not None
+        self.bztInterp = BztInterpolator(loader, lpfac=2, save_bztInterp=True)
+        assert self.bztInterp is not None
+        self.bztInterp = BztInterpolator(loader, load_bztInterp=True)
+        assert self.bztInterp is not None
 
-            loader_sp = VasprunBSLoader(VASP_RUN_SPIN)
-            self.bztInterp_sp = BztInterpolator(loader_sp, lpfac=2)
-            assert self.bztInterp_sp is not None
-            self.bztInterp_sp = BztInterpolator(loader_sp, lpfac=2, save_bztInterp=True)
-            assert self.bztInterp_sp is not None
-            self.bztInterp_sp = BztInterpolator(loader_sp, lpfac=2, load_bztInterp=True)
-            assert self.bztInterp_sp is not None
+        loader_sp = VasprunBSLoader(VASP_RUN_SPIN)
+        self.bztInterp_sp = BztInterpolator(loader_sp, lpfac=2)
+        assert self.bztInterp_sp is not None
+        self.bztInterp_sp = BztInterpolator(loader_sp, lpfac=2, save_bztInterp=True)
+        assert self.bztInterp_sp is not None
+        self.bztInterp_sp = BztInterpolator(loader_sp, lpfac=2, load_bztInterp=True)
+        assert self.bztInterp_sp is not None
 
     def test_properties(self):
         assert self.bztInterp.cband.shape == (6, 3, 3, 3, 29791)
@@ -208,44 +206,43 @@ class TestBztInterpolator:
 
 class TestBztTransportProperties:
     def setup_method(self):
-        with ScratchDir("."):
-            shutil.copy(BZT_TRANSP_FN, ".")
+        shutil.copy(BZT_TRANSP_FN, ".")
 
-            # non spin polarized
-            loader = VasprunBSLoader(VASP_RUN)
-            bztInterp = BztInterpolator(loader, lpfac=2)
+        # non spin polarized
+        loader = VasprunBSLoader(VASP_RUN)
+        bztInterp = BztInterpolator(loader, lpfac=2)
 
-            self.bztTransp = BztTransportProperties(
-                bztInterp,
-                temp_r=np.arange(300, 600, 100),
-                save_bztTranspProps=True,
-            )
-            assert self.bztTransp is not None
+        self.bztTransp = BztTransportProperties(
+            bztInterp,
+            temp_r=np.arange(300, 600, 100),
+            save_bztTranspProps=True,
+        )
+        assert self.bztTransp is not None
 
-            bztInterp = BztInterpolator(loader, lpfac=2)
-            self.bztTransp = BztTransportProperties(
-                bztInterp,
-                load_bztTranspProps=True,
-            )
-            assert self.bztTransp is not None
+        bztInterp = BztInterpolator(loader, lpfac=2)
+        self.bztTransp = BztTransportProperties(
+            bztInterp,
+            load_bztTranspProps=True,
+        )
+        assert self.bztTransp is not None
 
-            # spin polarized
-            loader_sp = VasprunBSLoader(VASP_RUN_SPIN)
-            bztInterp_sp = BztInterpolator(loader_sp, lpfac=2)
+        # spin polarized
+        loader_sp = VasprunBSLoader(VASP_RUN_SPIN)
+        bztInterp_sp = BztInterpolator(loader_sp, lpfac=2)
 
-            self.bztTransp_sp = BztTransportProperties(
-                bztInterp_sp,
-                temp_r=np.arange(300, 600, 100),
-                save_bztTranspProps=True,
-            )
-            assert self.bztTransp_sp is not None
+        self.bztTransp_sp = BztTransportProperties(
+            bztInterp_sp,
+            temp_r=np.arange(300, 600, 100),
+            save_bztTranspProps=True,
+        )
+        assert self.bztTransp_sp is not None
 
-            bztInterp_sp = BztInterpolator(loader_sp, lpfac=2)
-            self.bztTransp_sp = BztTransportProperties(
-                bztInterp_sp,
-                load_bztTranspProps=True,
-            )
-            assert self.bztTransp_sp is not None
+        bztInterp_sp = BztInterpolator(loader_sp, lpfac=2)
+        self.bztTransp_sp = BztTransportProperties(
+            bztInterp_sp,
+            load_bztTranspProps=True,
+        )
+        assert self.bztTransp_sp is not None
 
     def test_init(self):
         # non spin polarized

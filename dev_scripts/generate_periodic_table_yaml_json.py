@@ -269,14 +269,16 @@ def parse_shannon_radii(
     return Property(name="Shannon radii", data=data, unit=unit, reference=reference)
 
 
-def get_and_parse_electronic_affinities(prop_name: str = "Electron affinity") -> Property:
+def get_and_parse_electronic_affinities(prop_name: str = "Electron affinity", unit: str = "eV") -> Property:
     """Get electronic affinities from Wikipedia and save a local YAML copy."""
+    yaml_path: str = f"{RESOURCES_DIR}/_electron_affinities.yaml"
+
     # Get data table from Wikipedia
     url: str = "https://en.wikipedia.org/wiki/Electron_affinity_(data_page)"
     tables = pd.read_html(StringIO(requests.get(url, timeout=5).text))
 
     # Get the "Elements Electron affinity" table (with unit eV)
-    ea_df = next(
+    ea_df: pd.DataFrame = next(
         table
         for table in tables
         if f"{prop_name} (kJ/mol)" in table.columns and table["Name"].astype(str).str.contains("Hydrogen").any()
@@ -314,16 +316,16 @@ def get_and_parse_electronic_affinities(prop_name: str = "Electron affinity") ->
 
     output_data = {
         prop_name: {
-            "unit": "eV",
+            "unit": unit,
             "reference": url,
             "data": {el.name: val for el, val in sorted(data.items(), key=lambda x: x[0].Z)},
         }
     }
 
-    with open(f"{RESOURCES_DIR}/_electron_affinities.yaml", "w", encoding="utf-8") as f:
+    with open(yaml_path, "w", encoding="utf-8") as f:
         yaml.dump(output_data, f)
 
-    return parse_yaml(f"{RESOURCES_DIR}/_electron_affinitIES.yaml")[0]
+    return parse_yaml(yaml_path)[0]
 
 
 def generate_iupac_ordering() -> Property:

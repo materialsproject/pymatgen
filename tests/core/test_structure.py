@@ -1809,6 +1809,12 @@ direct
             struct_1.append(site.species, site.frac_coords, properties=site.properties)
         struct_1.merge_sites(mode="average")
 
+        cu = Structure(
+            Lattice.from_parameters(2.545584, 2.545584, 2.545584, 60, 60, 60), species=["Cu"], coords=[[0, 0, 0]]
+        )
+        cu.merge_sites(mode="delete")
+        assert len(cu) == 1
+
     def test_properties(self):
         assert self.struct.num_sites == len(self.struct)
         self.struct.make_supercell(2)

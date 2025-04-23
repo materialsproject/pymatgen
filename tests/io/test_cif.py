@@ -2,7 +2,6 @@ from __future__ import annotations
 
 import numpy as np
 import pytest
-from monty.tempfile import ScratchDir
 from pytest import approx
 
 from pymatgen.analysis.structure_matcher import StructureMatcher
@@ -239,16 +238,15 @@ class TestCifIO(MatSciTest):
         assert set(sym_structure.labels) == {"O1", "Li1"}
 
     def test_no_sym_ops(self):
-        with ScratchDir("."):
-            with open(f"{TEST_FILES_DIR}/cif/Li2O.cif") as fin, open("test.cif", "w") as fout:
-                for line_num, line in enumerate(fin, start=1):
-                    # Skip "_symmetry_equiv_pos_as_xyz", "_symmetry_space_group_name_H-M"
-                    # and "_symmetry_Int_Tables_number" sections such that
-                    # no symmop info would be available
-                    if line_num not in range(44, 236) and line_num not in {40, 41}:
-                        fout.write(line)
+        with open(f"{TEST_FILES_DIR}/cif/Li2O.cif") as fin, open("test.cif", "w") as fout:
+            for line_num, line in enumerate(fin, start=1):
+                # Skip "_symmetry_equiv_pos_as_xyz", "_symmetry_space_group_name_H-M"
+                # and "_symmetry_Int_Tables_number" sections such that
+                # no symmop info would be available
+                if line_num not in range(44, 236) and line_num not in {40, 41}:
+                    fout.write(line)
 
-            parser = CifParser("test.cif")
+        parser = CifParser("test.cif")
 
         # Need `parse_structures` call to update `symmetry_operations`
         _structure = parser.parse_structures(primitive=False, symmetrized=False)[0]
