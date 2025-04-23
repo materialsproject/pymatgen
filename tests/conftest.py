@@ -1,13 +1,18 @@
 from __future__ import annotations
 
+import os
+import tempfile
 import typing
 
 import pytest
-from monty.tempfile import ScratchDir
 
 
 @pytest.fixture(autouse=True)
 def setup_teardown() -> typing.Generator:
-    """Use ScratchDir for all tests in this session."""
-    with ScratchDir(".", copy_from_current_on_enter=False, copy_to_current_on_exit=False) as tmpdir:
+    """Use tempdir for all tests."""
+    cwd = os.getcwd()
+    with tempfile.TemporaryDirectory() as tmpdir:
+        os.chdir(tmpdir)
+        print(os.getcwd())
         yield tmpdir
+    os.chdir(cwd)
