@@ -5,10 +5,10 @@ from numpy.testing import assert_allclose
 from pymatgen.analysis.elasticity.elastic import ElasticTensor
 from pymatgen.analysis.interfaces.substrate_analyzer import SubstrateAnalyzer
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
-from pymatgen.util.testing import PymatgenTest
+from pymatgen.util.testing import MatSciTest
 
-VO2 = PymatgenTest.get_structure("VO2")
-TiO2 = PymatgenTest.get_structure("TiO2")
+VO2 = MatSciTest.get_structure("VO2")
+TiO2 = MatSciTest.get_structure("TiO2")
 
 # Film VO2
 film = SpacegroupAnalyzer(VO2, symprec=0.1).get_conventional_standard_structure()
@@ -48,5 +48,13 @@ def test_generate_surface_vectors():
 
     assert [film_millers] == film_miller_indices
     assert [substrate_millers] == substrate_miller_indices
-    assert_allclose(film_vectors, [[0, 0, 3.035429], [-2.764654e-16, 4.515023, 2.764654e-16]], atol=1e-6)
-    assert_allclose(substrate_vectors, [[-3.766937, -1.928326, -6.328967], [3.766937, -12.307154, 0.0]], atol=1e-6)
+    assert_allclose(
+        film_vectors,
+        [[0, 0, 3.035429], [-2.764654e-16, 4.515023, 2.764654e-16]],
+        atol=1e-6,
+    )
+    assert_allclose(
+        substrate_vectors,
+        [[-3.766937, -1.928326, -6.328967], [3.766937, -12.307154, 0.0]],
+        atol=1e-6,
+    )

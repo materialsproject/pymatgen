@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import re
 from itertools import starmap
 
 import pytest
@@ -8,12 +9,12 @@ from monty.serialization import dumpfn, loadfn
 from pymatgen.core import Element
 from pymatgen.entries.computed_entries import ComputedEntry
 from pymatgen.entries.entry_tools import EntrySet, group_entries_by_composition, group_entries_by_structure
-from pymatgen.util.testing import TEST_FILES_DIR, PymatgenTest
+from pymatgen.util.testing import TEST_FILES_DIR, MatSciTest
 
 TEST_DIR = f"{TEST_FILES_DIR}/entries"
 
 
-class TestFunc(PymatgenTest):
+class TestFunc(MatSciTest):
     def test_group_entries_by_structure(self):
         entries = loadfn(f"{TEST_DIR}/TiO2_entries.json")
         groups = group_entries_by_structure(entries)
@@ -26,7 +27,15 @@ class TestFunc(PymatgenTest):
         entries = [
             *starmap(
                 ComputedEntry,
-                [("Na", -2), ("Na", -5), ("Cl", -1), ("Cl", -10), ("NaCl", -20), ("NaCl", -21), ("Na2Cl2", -50)],
+                [
+                    ("Na", -2),
+                    ("Na", -5),
+                    ("Cl", -1),
+                    ("Cl", -10),
+                    ("NaCl", -20),
+                    ("NaCl", -21),
+                    ("Na2Cl2", -50),
+                ],
             )
         ]
 
@@ -40,8 +49,8 @@ class TestFunc(PymatgenTest):
             assert group == sorted(group, key=lambda e: e.energy_per_atom)
 
 
-class TestEntrySet(PymatgenTest):
-    def setUp(self):
+class TestEntrySet(MatSciTest):
+    def setup_method(self):
         entries = loadfn(f"{TEST_DIR}/Li-Fe-P-O_entries.json")
         self.entry_set = EntrySet(entries)
 
@@ -52,9 +61,11 @@ class TestEntrySet(PymatgenTest):
         entries = self.entry_set.get_subset_in_chemsys(["Li", "O"])
         for ent in entries:
             assert {Element.Li, Element.O}.issuperset(ent.composition)
-        with pytest.raises(ValueError) as exc:  # noqa: PT011
+        with pytest.raises(
+            ValueError,
+            match=re.escape("['F', 'Fe'] is not a subset of ['Fe', 'Li', 'O', 'P'], extra: {'F'}"),
+        ):
             self.entry_set.get_subset_in_chemsys(["Fe", "F"])
-        assert "['F', 'Fe'] is not a subset of ['Fe', 'Li', 'O', 'P'], extra: {'F'}" in str(exc.value)
 
     def test_remove_non_ground_states(self):
         length = len(self.entry_set)

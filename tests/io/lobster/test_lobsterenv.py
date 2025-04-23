@@ -1,10 +1,8 @@
 from __future__ import annotations
 
-import os
-from unittest import TestCase
-
 import numpy as np
 import pytest
+from numpy.testing import assert_allclose
 from pytest import approx
 
 from pymatgen.analysis.graphs import StructureGraph
@@ -23,11 +21,10 @@ __email__ = "janine.george@uclouvain.be"
 __date__ = "Jan 14, 2021"
 
 TEST_DIR = f"{TEST_FILES_DIR}/electronic_structure/cohp/environments"
-module_dir = os.path.dirname(os.path.abspath(__file__))
 
 
-class TestLobsterNeighbors(TestCase):
-    def setUp(self):
+class TestLobsterNeighbors:
+    def setup_method(self):
         # test additional conditions first
         # only consider cation anion bonds
 
@@ -287,7 +284,8 @@ class TestLobsterNeighbors(TestCase):
 
     def test_cation_anion_mode_without_ions(self):
         with pytest.raises(
-            ValueError, match="Valences cannot be assigned, additional_conditions 1, 3, 5 and 6 will not work"
+            ValueError,
+            match="Valences cannot be assigned, additional_conditions 1, 3, 5 and 6 will not work",
         ):
             _ = LobsterNeighbors(
                 are_coops=False,
@@ -297,7 +295,8 @@ class TestLobsterNeighbors(TestCase):
                 additional_condition=1,
             )
         with pytest.raises(
-            ValueError, match="All valences are equal to 0, additional_conditions 1, 3, 5 and 6 will not work"
+            ValueError,
+            match="All valences are equal to 0, additional_conditions 1, 3, 5 and 6 will not work",
         ):
             _ = LobsterNeighbors(
                 are_coops=False,
@@ -310,7 +309,8 @@ class TestLobsterNeighbors(TestCase):
 
     def test_wrong_additional_correction(self):
         with pytest.raises(
-            ValueError, match=r"Unexpected additional_condition=10, must be one of \[0, 1, 2, 3, 4, 5, 6\]"
+            ValueError,
+            match=r"Unexpected additional_condition=10, must be one of \[0, 1, 2, 3, 4, 5, 6\]",
         ):
             LobsterNeighbors(
                 are_coops=False,
@@ -336,18 +336,19 @@ class TestLobsterNeighbors(TestCase):
     def test_molecules_allowed(self):
         assert not self.chem_env_lobster1.molecules_allowed
 
+    @pytest.mark.filterwarnings("ignore:get_anion_types is deprecated")
     def test_get_anion_types(self):
         assert self.chem_env_lobster0_second.get_anion_types() == {Element("O")}
         assert self.chem_env_lobster0_second.anion_types == {Element("O")}
 
     def test_get_nn_info(self):
-        # NO_ADDITIONAL_CONDITION = 0
-        # ONLY_ANION_CATION_BONDS = 1
-        # NO_ELEMENT_TO_SAME_ELEMENT_BONDS = 2
-        # ONLY_ANION_CATION_BONDS_AND_NO_ELEMENT_TO_SAME_ELEMENT_BONDS = 3
-        # ONLY_ELEMENT_TO_OXYGEN_BONDS = 4
-        # DO_NOT_CONSIDER_ANION_CATION_BONDS=5
-        # ONLY_CATION_CATION_BONDS=6
+        # 0: NO_ADDITIONAL_CONDITION
+        # 1: ONLY_ANION_CATION_BONDS
+        # 2: NO_ELEMENT_TO_SAME_ELEMENT_BONDS
+        # 3: ONLY_ANION_CATION_BONDS_AND_NO_ELEMENT_TO_SAME_ELEMENT_BONDS
+        # 4: ONLY_ELEMENT_TO_OXYGEN_BONDS
+        # 5: DO_NOT_CONSIDER_ANION_CATION_BONDS
+        # 6: ONLY_CATION_CATION_BONDS
 
         # All bonds
         # ReO3
@@ -369,7 +370,7 @@ class TestLobsterNeighbors(TestCase):
             )
             == 2
         )
-        # ONLY_ANION_CATION_BONDS = 1
+        # 1: ONLY_ANION_CATION_BONDS
         assert (
             len(
                 self.chem_env_lobster1.get_nn(
@@ -406,7 +407,7 @@ class TestLobsterNeighbors(TestCase):
             )
             == 8
         )
-        # NO_ELEMENT_TO_SAME_ELEMENT_BONDS = 2
+        # 2: NO_ELEMENT_TO_SAME_ELEMENT_BONDS
         assert (
             len(
                 self.chem_env_lobster2.get_nn(
@@ -425,7 +426,7 @@ class TestLobsterNeighbors(TestCase):
             )
             == 2
         )
-        # ONLY_ANION_CATION_BONDS_AND_NO_ELEMENT_TO_SAME_ELEMENT_BONDS = 3
+        # 3: ONLY_ANION_CATION_BONDS_AND_NO_ELEMENT_TO_SAME_ELEMENT_BONDS
         assert (
             len(
                 self.chem_env_lobster3.get_nn(
@@ -444,7 +445,7 @@ class TestLobsterNeighbors(TestCase):
             )
             == 2
         )
-        # ONLY_ELEMENT_TO_OXYGEN_BONDS = 4
+        # 4: ONLY_ELEMENT_TO_OXYGEN_BONDS
         assert (
             len(
                 self.chem_env_lobster4.get_nn(
@@ -463,7 +464,7 @@ class TestLobsterNeighbors(TestCase):
             )
             == 2
         )
-        # DO_NOT_CONSIDER_ANION_CATION_BONDS=5
+        # 5: DO_NOT_CONSIDER_ANION_CATION_BONDS
         assert (
             len(
                 self.chem_env_lobster5.get_nn(
@@ -482,7 +483,7 @@ class TestLobsterNeighbors(TestCase):
             )
             == 0
         )
-        # ONLY_CATION_CATION_BONDS=6
+        # 6: ONLY_CATION_CATION_BONDS
         assert (
             len(
                 self.chem_env_lobster6.get_nn(
@@ -516,7 +517,7 @@ class TestLobsterNeighbors(TestCase):
             == 8
         )
 
-        # ONLY_ANION_CATION_BONDS = 1
+        # 1: ONLY_ANION_CATION_BONDS
         assert (
             len(
                 self.chem_env_lobster1_second.get_nn(
@@ -557,7 +558,7 @@ class TestLobsterNeighbors(TestCase):
             == 3
         )
 
-        # NO_ELEMENT_TO_SAME_ELEMENT_BONDS = 2
+        # 2: NO_ELEMENT_TO_SAME_ELEMENT_BONDS
         assert (
             len(
                 self.chem_env_lobster2_second.get_nn(
@@ -577,7 +578,7 @@ class TestLobsterNeighbors(TestCase):
             == 4
         )
 
-        # DO_NOT_CONSIDER_ANION_CATION_BONDS=5
+        # 5: DO_NOT_CONSIDER_ANION_CATION_BONDS
         assert (
             len(
                 self.chem_env_lobster5_second.get_nn(
@@ -596,7 +597,7 @@ class TestLobsterNeighbors(TestCase):
             )
             == 0
         )
-        # ONLY_CATION_CATION_BONDS=6
+        # 6: ONLY_CATION_CATION_BONDS
         assert (
             len(
                 self.chem_env_lobster6_second.get_nn(
@@ -688,7 +689,7 @@ class TestLobsterNeighbors(TestCase):
         lse2 = self.chem_env_lobster1.get_light_structure_environment()
         assert lse2.coordination_environments[0][0]["ce_symbol"] == "O:6"
 
-    def test_get_strucuture_environments_further_tests(self):
+    def test_get_structure_environments_further_tests(self):
         lse = self.chem_env_lobster1_second.get_light_structure_environment()
         lse.as_dict()
         lse.get_statistics()
@@ -735,25 +736,53 @@ class TestLobsterNeighbors(TestCase):
 
     def test_get_plot_label(self):
         label = self.chem_env_lobster1._get_plot_label(
-            atoms=[["Re1", "O2"], ["Re1", "O2"], ["Re1", "O3"], ["Re1", "O3"], ["Re1", "O4"], ["Re1", "O4"]],
+            atoms=[
+                ["Re1", "O2"],
+                ["Re1", "O2"],
+                ["Re1", "O3"],
+                ["Re1", "O3"],
+                ["Re1", "O4"],
+                ["Re1", "O4"],
+            ],
             per_bond=False,
         )
         assert label == "6 x O-Re"
 
         label = self.chem_env_lobster1._get_plot_label(
-            atoms=[["Re1", "O2"], ["Re1", "O2"], ["Re1", "O3"], ["Re1", "O3"], ["Re1", "O4"], ["Si1", "O4"]],
+            atoms=[
+                ["Re1", "O2"],
+                ["Re1", "O2"],
+                ["Re1", "O3"],
+                ["Re1", "O3"],
+                ["Re1", "O4"],
+                ["Si1", "O4"],
+            ],
             per_bond=False,
         )
         assert label == "5 x O-Re, 1 x O-Si"
 
         label = self.chem_env_lobster1._get_plot_label(
-            atoms=[["Si1", "O2"], ["Si1", "O2"], ["Si1", "O3"], ["Re1", "O3"], ["Re1", "O4"], ["Si1", "O4"]],
+            atoms=[
+                ["Si1", "O2"],
+                ["Si1", "O2"],
+                ["Si1", "O3"],
+                ["Re1", "O3"],
+                ["Re1", "O4"],
+                ["Si1", "O4"],
+            ],
             per_bond=False,
         )
         assert label == "4 x O-Si, 2 x O-Re"
 
         label = self.chem_env_lobster1._get_plot_label(
-            atoms=[["Re1", "O2"], ["Re1", "O2"], ["Re1", "O3"], ["Re1", "O3"], ["Re1", "O4"], ["Re1", "O4"]],
+            atoms=[
+                ["Re1", "O2"],
+                ["Re1", "O2"],
+                ["Re1", "O3"],
+                ["Re1", "O3"],
+                ["Re1", "O4"],
+                ["Re1", "O4"],
+            ],
             per_bond=True,
         )
         assert label == "6 x O-Re (per bond)"
@@ -812,7 +841,9 @@ class TestLobsterNeighbors(TestCase):
         assert plot_label == "1 x Na-Si (per bond)"
 
         obj_cohpcar = CompleteCohp.from_file(
-            filename=f"{TEST_DIR}/COHPCAR.lobster.NaSi.gz", fmt="LOBSTER", structure_file=f"{TEST_DIR}/POSCAR.NaSi.gz"
+            filename=f"{TEST_DIR}/COHPCAR.lobster.NaSi.gz",
+            fmt="LOBSTER",
+            structure_file=f"{TEST_DIR}/POSCAR.NaSi.gz",
         )
         plot_label_obj, _summed_cohpcar_NaSi_obj = self.chem_env_w_obj.get_info_cohps_to_neighbors(
             obj_cohpcar=obj_cohpcar,
@@ -866,7 +897,17 @@ class TestLobsterNeighbors(TestCase):
             )
 
     def test_valences(self):
-        assert self.chem_env_lobster1_charges_noisecutoff.valences == [0.75, -0.75]  # Mulliken
-        assert self.chem_env_lobster1_charges_loewdin.valences == [0.27, 0.27, 0.27, 0.27, -0.54, -0.54]
-        assert self.chem_env_w_obj.valences == [0.67] * 4 + [0.7] * 4 + [-0.7] * 4 + [-0.68] * 4  # charge_obj
+        assert self.chem_env_lobster1_charges_noisecutoff.valences == [
+            0.75,
+            -0.75,
+        ]  # Mulliken
+        assert self.chem_env_lobster1_charges_loewdin.valences == [
+            0.27,
+            0.27,
+            0.27,
+            0.27,
+            -0.54,
+            -0.54,
+        ]
+        assert_allclose(self.chem_env_w_obj.valences, [0.67] * 4 + [0.7] * 4 + [-0.7] * 4 + [-0.68] * 4)  # charge_obj
         assert self.chem_env_lobster_NaSi_wo_charges.valences == [1] * 8 + [-1] * 8  # BVA

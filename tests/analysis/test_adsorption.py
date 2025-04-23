@@ -8,11 +8,11 @@ from pymatgen.core.lattice import Lattice
 from pymatgen.core.structure import Molecule, Structure
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
 from pymatgen.util.coord import in_coord_list
-from pymatgen.util.testing import PymatgenTest
+from pymatgen.util.testing import MatSciTest
 
 
-class TestAdsorbateSiteFinder(PymatgenTest):
-    def setUp(self):
+class TestAdsorbateSiteFinder(MatSciTest):
+    def setup_method(self):
         self.structure = Structure.from_spacegroup("Fm-3m", Lattice.cubic(3.5), ["Ni"], [[0, 0, 0]])
         lattice = Lattice.cubic(3.010)
         frac_coords = [
@@ -87,7 +87,7 @@ class TestAdsorbateSiteFinder(PymatgenTest):
         assert len(structures) == 4
         sites = self.asf_111.find_adsorption_sites()
         # Check repeat functionality
-        assert len([site for site in structures[0] if site.properties["surface_properties"] != "adsorbate"]) == 4 * len(
+        assert sum(site.properties["surface_properties"] != "adsorbate" for site in structures[0]) == 4 * len(
             self.asf_111.slab
         )
         for n, structure in enumerate(structures):

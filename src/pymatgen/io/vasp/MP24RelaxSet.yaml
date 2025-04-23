@@ -1,0 +1,31 @@
+# Default VASP settings for calculations in the Materials Project
+# using the Regularized-Restored Strongly Constrained and Appropriately
+# Normed functional (r2SCAN).
+PARENT: PBE64Base
+INCAR:
+  ALGO: Normal
+  EDIFF: 1.e-05
+  EDIFFG: -0.02
+  ENAUG: 1360
+  ENCUT: 680
+  GGA_COMPAT: False
+  IBRION: 2
+  ISIF: 3
+  ISMEAR: 0 # included to have some reasonable default
+  ISPIN: 2
+  KSPACING: 0.22 # included to have some reasonable default
+  LAECHG: True
+  LASPH: True
+  LCHARG: True
+  LELF: False # LELF = True restricts calculation to KPAR = 1
+  LMAXMIX: 6 # per benchmark
+  LMIXTAU: True
+  LORBIT: 11
+  LREAL: False # per benchmark
+  LVTOT: True
+  LWAVE: False
+  METAGGA: R2SCAN
+  NELM: 200
+  NSW: 99
+  PREC: Accurate
+  SIGMA: 0.05 # included to have some reasonable default

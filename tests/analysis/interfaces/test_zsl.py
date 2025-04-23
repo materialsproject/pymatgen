@@ -13,7 +13,7 @@ from pymatgen.analysis.interfaces.zsl import (
     vec_area,
 )
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
-from pymatgen.util.testing import PymatgenTest
+from pymatgen.util.testing import MatSciTest
 
 __author__ = "Shyam Dwaraknath"
 __copyright__ = "Copyright 2016, The Materials Project"
@@ -23,8 +23,8 @@ __email__ = "shyamd@lbl.gov"
 __date__ = "2/5/16"
 
 
-class TestZSLGen(PymatgenTest):
-    def setUp(self):
+class TestZSLGen(MatSciTest):
+    def setup_method(self):
         # Film VO2
         self.film = SpacegroupAnalyzer(self.get_structure("VO2"), symprec=0.1).get_conventional_standard_structure()
 
@@ -37,14 +37,19 @@ class TestZSLGen(PymatgenTest):
         zsl_gen = ZSLGenerator()
 
         assert fast_norm(np.array([3, 2, 1])) == approx(3.74165738)
-        assert_array_equal(reduce_vectors(np.array([1, 0, 0]), np.array([2, 2, 0])), [[1, 0, 0], [0, 2, 0]])
+        assert_array_equal(
+            reduce_vectors(np.array([1, 0, 0]), np.array([2, 2, 0])),
+            [[1, 0, 0], [0, 2, 0]],
+        )
         assert vec_area(np.array([1, 0, 0]), np.array([0, 2, 0])) == 2
         assert list(get_factors(18)) == [1, 2, 3, 6, 9, 18]
         assert is_same_vectors(
-            np.array([[1.01, 0, 0], [0, 2, 0]], dtype=float), np.array([[1, 0, 0], [0, 2.01, 0]], dtype=float)
+            np.array([[1.01, 0, 0], [0, 2, 0]], dtype=float),
+            np.array([[1, 0, 0], [0, 2.01, 0]], dtype=float),
         )
         assert not is_same_vectors(
-            np.array([[1.01, 2, 0], [0, 2, 0]], dtype=float), np.array([[1, 0, 0], [0, 2.01, 0]], dtype=float)
+            np.array([[1.01, 2, 0], [0, 2, 0]], dtype=float),
+            np.array([[1, 0, 0], [0, 2.01, 0]], dtype=float),
         )
 
         matches = list(zsl_gen(self.film.lattice.matrix[:2], self.substrate.lattice.matrix[:2]))

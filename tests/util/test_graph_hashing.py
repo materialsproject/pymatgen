@@ -37,19 +37,26 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 from __future__ import annotations
 
 import networkx as nx
-import pytest
+
+from pymatgen.util.graph_hashing import weisfeiler_lehman_graph_hash, weisfeiler_lehman_subgraph_hashes
 
 
 def test_graph_hash():
-    pytest.importorskip("emmet.core.graph_hashing")
-
-    from emmet.core.graph_hashing import weisfeiler_lehman_graph_hash
-
     g1 = nx.Graph()
-    edges = [(1, 2, {"label": "A"}), (2, 3, {"label": "A"}), (3, 1, {"label": "A"}), (1, 4, {"label": "B"})]
+    edges = [
+        (1, 2, {"label": "A"}),
+        (2, 3, {"label": "A"}),
+        (3, 1, {"label": "A"}),
+        (1, 4, {"label": "B"}),
+    ]
     g1.add_edges_from(edges)
     g2 = nx.Graph()
-    edges = [(5, 6, {"label": "B"}), (6, 7, {"label": "A"}), (7, 5, {"label": "A"}), (7, 8, {"label": "A"})]
+    edges = [
+        (5, 6, {"label": "B"}),
+        (6, 7, {"label": "A"}),
+        (7, 5, {"label": "A"}),
+        (7, 8, {"label": "A"}),
+    ]
     g2.add_edges_from(edges)
 
     assert weisfeiler_lehman_graph_hash(g1) == weisfeiler_lehman_graph_hash(g2)
@@ -58,10 +65,6 @@ def test_graph_hash():
 
 
 def test_subgraph_hashes():
-    pytest.importorskip("emmet.core.graph_hashing")
-
-    from emmet.core.graph_hashing import weisfeiler_lehman_subgraph_hashes
-
     g1 = nx.Graph()
     g1.add_edges_from([(1, 2), (2, 3), (2, 4), (3, 5), (4, 6), (5, 7), (6, 7)])
     g2 = nx.Graph()

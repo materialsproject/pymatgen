@@ -1,13 +1,15 @@
 from __future__ import annotations
 
 import matplotlib.pyplot as plt
+import numpy as np
 import pytest
+from matplotlib import colors
 from pytest import approx
 
 from pymatgen.io.phonopy import get_gruneisen_ph_bs_symm_line, get_gruneisenparameter
 from pymatgen.phonon.gruneisen import GruneisenParameter
 from pymatgen.phonon.plotter import GruneisenPhononBandStructureSymmLine, GruneisenPhononBSPlotter, GruneisenPlotter
-from pymatgen.util.testing import TEST_FILES_DIR, PymatgenTest
+from pymatgen.util.testing import TEST_FILES_DIR, MatSciTest
 
 try:
     import phonopy
@@ -19,8 +21,8 @@ except ImportError as exc:
 TEST_DIR = f"{TEST_FILES_DIR}/phonon/gruneisen"
 
 
-class TestGruneisenPhononBandStructureSymmLine(PymatgenTest):
-    def setUp(self) -> None:
+class TestGruneisenPhononBandStructureSymmLine(MatSciTest):
+    def setup_method(self) -> None:
         self.bs_symm_line = get_gruneisen_ph_bs_symm_line(
             gruneisen_path=f"{TEST_DIR}/gruneisen_eq_plus_minus_InP.yaml",
             structure_path=f"{TEST_DIR}/eq/POSCAR_InP",
@@ -32,6 +34,39 @@ class TestGruneisenPhononBandStructureSymmLine(PymatgenTest):
         ax = plotter.get_plot_gs()
         assert isinstance(ax, plt.Axes)
 
+    def test_ph_plot_w_gruneisen(self):
+        plotter = GruneisenPhononBSPlotter(bs=self.bs_symm_line)
+        ax = plotter.get_plot_gs(plot_ph_bs_with_gruneisen=True, units="THz", cmap=["red", "royalblue"])
+        assert ax.get_ylabel() == "Frequencies (THz)"
+        assert ax.get_xlabel() == "$\\mathrm{Wave\\ Vector}$"
+        assert ax.get_figure()._localaxes[-1].get_ylabel() == "$\\gamma \\ \\mathrm{(logarithmized)}$"
+        assert len(ax._children) == plotter.n_bands + 1  # check for number of bands
+        # check for x and y data is really the band-structure data
+        for inx, band in enumerate(plotter._bs.bands):
+            xy_data = {
+                "x": [point[0] for point in ax._children[inx].get_offsets().data],
+                "y": [point[1] for point in ax._children[inx].get_offsets().data],
+            }
+            assert band == approx(xy_data["y"])
+            assert plotter._bs.distance == approx(xy_data["x"])
+
+        # check if color bar max value matches maximum gruneisen parameter value
+        data = plotter.bs_plot_data()
+
+        # get reference min and max Grüneisen parameter values
+        max_gruneisen = np.array(data["gruneisen"]).max()
+        min_gruneisen = np.array(data["gruneisen"]).min()
+
+        norm = colors.SymLogNorm(
+            vmin=min_gruneisen,
+            vmax=max_gruneisen,
+            linthresh=1e-2,
+            linscale=1,
+        )
+
+        assert max(norm.inverse(ax.get_figure()._localaxes[-1].get_yticks())) == approx(max_gruneisen)
+        assert isinstance(ax, plt.Axes)
+
     def test_as_dict_from_dict(self):
         new_dict = self.bs_symm_line.as_dict()
         self.new_bs_symm_line = GruneisenPhononBandStructureSymmLine.from_dict(new_dict)
@@ -41,8 +76,8 @@ class TestGruneisenPhononBandStructureSymmLine(PymatgenTest):
 
 
 @pytest.mark.skipif(TotalDos is None, reason="Phonopy not present")
-class TestGruneisenParameter(PymatgenTest):
-    def setUp(self) -> None:
+class TestGruneisenParameter(MatSciTest):
+    def setup_method(self) -> None:
         self.gruneisen_obj = get_gruneisenparameter(
             f"{TEST_DIR}/gruneisen_mesh_InP.yaml",
             structure_path=f"{TEST_DIR}/eq/POSCAR_InP",
@@ -79,8 +114,8 @@ class TestGruneisenParameter(PymatgenTest):
         assert self.gruneisen_obj_small.gruneisen[5] == approx(1.7574050911)
 
     def test_tdos(self):
-        tdos = self.gruneisen_obj.tdos
-        assert isinstance(tdos, phonopy.phonon.dos.TotalDos)
+        tot_dos = self.gruneisen_obj.tdos
+        assert isinstance(tot_dos, phonopy.phonon.dos.TotalDos)
 
     def test_phdos(self):
         assert self.gruneisen_obj.phdos.cv(298.15) == approx(45.17772584681599)

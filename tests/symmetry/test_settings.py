@@ -1,7 +1,5 @@
 from __future__ import annotations
 
-from unittest import TestCase
-
 import numpy as np
 from numpy.testing import assert_allclose
 
@@ -16,8 +14,8 @@ __status__ = "Development"
 __date__ = "Apr 2017"
 
 
-class TestJonesFaithfulTransformation(TestCase):
-    def setUp(self):
+class TestJonesFaithfulTransformation:
+    def setup_method(self):
         self.test_strings = [
             "a,b,c;0,0,0",  # identity
             "a-b,a+b,2c;0,0,1/2",
@@ -32,7 +30,7 @@ class TestJonesFaithfulTransformation(TestCase):
         ]
 
     def test_init(self):
-        for test_str, test_Pp in zip(self.test_strings, self.test_Pps):
+        for test_str, test_Pp in zip(self.test_strings, self.test_Pps, strict=True):
             jft = JonesFaithfulTransformation.from_transformation_str(test_str)
             jft2 = JonesFaithfulTransformation(test_Pp[0], test_Pp[1])
             assert_allclose(jft.P, jft2.P)
@@ -56,7 +54,7 @@ class TestJonesFaithfulTransformation(TestCase):
             [[5.0, 0.0, 0.0], [0.0, 5.0, 0.0], [0.0, 0.0, 5.0]],
         ]
 
-        for ref_lattice, (P, p) in zip(all_ref_lattices, self.test_Pps):
+        for ref_lattice, (P, p) in zip(all_ref_lattices, self.test_Pps, strict=True):
             jft = JonesFaithfulTransformation(P, p)
             assert_allclose(jft.transform_lattice(lattice).matrix, ref_lattice)
 
@@ -70,15 +68,15 @@ class TestJonesFaithfulTransformation(TestCase):
             [[-0.25, -0.5, -0.75], [0.25, 0.0, -0.25]],
         ]
 
-        for ref_coords, (P, p) in zip(all_ref_coords, self.test_Pps):
+        for ref_coords, (P, p) in zip(all_ref_coords, self.test_Pps, strict=True):
             jft = JonesFaithfulTransformation(P, p)
             transformed_coords = jft.transform_coords(coords)
-            for coord, ref_coord in zip(transformed_coords, ref_coords):
+            for coord, ref_coord in zip(transformed_coords, ref_coords, strict=True):
                 assert_allclose(coord, ref_coord)
 
     def test_transform_symmops(self):
         # reference data for this test taken from GENPOS
-        # http://cryst.ehu.es/cryst/get_gen.html
+        # https://cryst.ehu.es/cryst/get_gen.html
 
         # Fm-3m
         input_symm_ops = """x,y,z
@@ -187,5 +185,5 @@ y,-x,-z+1/2
 
         transformed_symm_ops = [jft.transform_symmop(op) for op in input_symm_ops]
 
-        for transformed_op, ref_transformed_op in zip(transformed_symm_ops, ref_transformed_symm_ops):
+        for transformed_op, ref_transformed_op in zip(transformed_symm_ops, ref_transformed_symm_ops, strict=True):
             assert transformed_op == ref_transformed_op

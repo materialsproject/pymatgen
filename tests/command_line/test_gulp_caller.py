@@ -8,12 +8,11 @@ from __future__ import annotations
 
 import os
 import sys
-import unittest
 from shutil import which
-from unittest import TestCase
 
 import numpy as np
 import pytest
+from pytest import approx
 
 from pymatgen.analysis.bond_valence import BVAnalyzer
 from pymatgen.command_line.gulp_caller import (
@@ -30,13 +29,15 @@ from pymatgen.util.testing import TEST_FILES_DIR, VASP_IN_DIR
 
 TEST_DIR = f"{TEST_FILES_DIR}/command_line/gulp"
 
-gulp_present = which("gulp") and os.getenv("GULP_LIB") and ("win" not in sys.platform)
-# disable gulp tests for now. Right now, it is compiled against libgfortran3, which is no longer supported in the new
-# Ubuntu 20.04.
-gulp_present = False
+GULP_PRESENT = which("gulp") and os.getenv("GULP_LIB") and ("win" not in sys.platform)
+# Disable GULP tests for now: it is compiled against `libgfortran3``,
+# which is no longer supported in Ubuntu 20.04 and onwards.
+GULP_PRESENT = False
+
+if not GULP_PRESENT:
+    pytest.skip(reason="GULP not available", allow_module_level=True)
 
 
-@pytest.mark.skipif(not gulp_present, reason="gulp not present.")
 class TestGulpCaller:
     def test_run(self):
         mgo_lattice = np.eye(3) * 4.212
@@ -51,7 +52,13 @@ class TestGulpCaller:
             [0, 0, 0.5],
             [0.5, 0.5, 0.5],
         ]
-        mgo_uc = Structure(mgo_lattice, mgo_specie, mgo_frac_cord, validate_proximity=True, to_unit_cell=True)
+        mgo_uc = Structure(
+            mgo_lattice,
+            mgo_specie,
+            mgo_frac_cord,
+            validate_proximity=True,
+            to_unit_cell=True,
+        )
         gio = GulpIO()
         gin = gio.keyword_line("optimise", "conp")
         gin += gio.structure_lines(mgo_uc, symm_flg=False)
@@ -99,9 +106,8 @@ class TestGulpCaller:
         caller.run(buckingham_input)
 
 
-@pytest.mark.skipif(not gulp_present, reason="gulp not present.")
-class TestGulpIO(TestCase):
-    def setUp(self):
+class TestGulpIO:
+    def setup_method(self):
         self.structure = Structure.from_file(f"{VASP_IN_DIR}/POSCAR_Al12O18")
         self.gio = GulpIO()
 
@@ -126,15 +132,6 @@ class TestGulpIO(TestCase):
         assert "cell" not in inp_str
         assert "cart" in inp_str
 
-    @unittest.skip("Not Implemented yet")
-    def test_specie_potential(self):
-        pass
-
-    @unittest.expectedFailure
-    def test_library_line_explicit_path(self):
-        gin = self.gio.library_line("/Users/mbkumar/Research/Defects/GulpExe/Libraries/catlow.lib")
-        assert "lib" in gin
-
     def test_library_line_wrong_file(self):
         with pytest.raises(GulpError, match="GULP library not found"):
             self.gio.library_line("temp_to_fail.lib")
@@ -152,7 +149,13 @@ class TestGulpIO(TestCase):
             [0, 0.5, 0.5],
             [0.5, 0.5, 0.5],
         ]
-        mgo_uc = Structure(mgo_latt, mgo_specie, mgo_frac_cord, validate_proximity=True, to_unit_cell=True)
+        mgo_uc = Structure(
+            mgo_latt,
+            mgo_specie,
+            mgo_frac_cord,
+            validate_proximity=True,
+            to_unit_cell=True,
+        )
         gin = self.gio.buckingham_potential(mgo_uc)
         assert "specie" in gin
         assert "buck" in gin
@@ -179,7 +182,13 @@ class TestGulpIO(TestCase):
             [0, 0.5, 0.5],
             [0.5, 0.5, 0.5],
         ]
-        mgo_uc = Structure(mgo_latt, mgo_specie, mgo_frac_cord, validate_proximity=True, to_unit_cell=True)
+        mgo_uc = Structure(
+            mgo_latt,
+            mgo_specie,
+            mgo_frac_cord,
+            validate_proximity=True,
+            to_unit_cell=True,
+        )
         gin = self.gio.buckingham_input(mgo_uc, keywords=("optimise", "conp"))
         assert "optimise" in gin
         assert "cell" in gin
@@ -204,7 +213,13 @@ class TestGulpIO(TestCase):
             [0, 0.5, 0.5],
             [0.5, 0.5, 0.5],
         ]
-        mgo_uc = Structure(mgo_latt, mgo_specie, mgo_frac_cord, validate_proximity=True, to_unit_cell=True)
+        mgo_uc = Structure(
+            mgo_latt,
+            mgo_specie,
+            mgo_frac_cord,
+            validate_proximity=True,
+            to_unit_cell=True,
+        )
         gin = self.gio.tersoff_potential(mgo_uc)
         assert "specie" in gin
         assert "Mg core" in gin
@@ -243,27 +258,26 @@ class TestGulpIO(TestCase):
     Non-primitive unit cell  =          -16311.9732 kJ/(mole unit cells)
 --------------------------------------------------------------------------------"""
         energy = self.gio.get_energy(out_str)
-        assert energy == -169.06277218
+        assert energy == approx(-169.06277218)
 
     def test_get_relaxed_structure(self):
         # Output string obtained from running GULP on a terminal
 
-        with open(f"{TEST_DIR}/example21.gout") as file:
+        with open(f"{TEST_DIR}/example21.gout", encoding="utf-8") as file:
             out_str = file.read()
         struct = self.gio.get_relaxed_structure(out_str)
         assert isinstance(struct, Structure)
         assert len(struct) == 8
-        assert struct.lattice.a == 4.212
-        assert struct.lattice.alpha == 90
+        assert struct.lattice.a == approx(4.212)
+        assert struct.lattice.alpha == approx(90)
 
-    @unittest.skip("Test later")
+    @pytest.mark.skip("Test later")
     def test_tersoff_input(self):
         self.gio.tersoff_input(self.structure)
 
 
-@pytest.mark.skipif(not gulp_present, reason="gulp not present.")
-class TestGlobalFunctions(TestCase):
-    def setUp(self):
+class TestGlobalFunctions:
+    def setup_method(self):
         mgo_latt = np.eye(3) * 4.212
         mgo_specie = ["Mg", "O"] * 4
         mgo_frac_cord = [
@@ -276,11 +290,17 @@ class TestGlobalFunctions(TestCase):
             [0, 0.5, 0.5],
             [0.5, 0.5, 0.5],
         ]
-        self.mgo_uc = Structure(mgo_latt, mgo_specie, mgo_frac_cord, validate_proximity=True, to_unit_cell=True)
+        self.mgo_uc = Structure(
+            mgo_latt,
+            mgo_specie,
+            mgo_frac_cord,
+            validate_proximity=True,
+            to_unit_cell=True,
+        )
         bv = BVAnalyzer()
         val = bv.get_valences(self.mgo_uc)
         el = [site.species_string for site in self.mgo_uc]
-        self.val_dict = dict(zip(el, val))
+        self.val_dict = dict(zip(el, val, strict=True))
 
     def test_get_energy_tersoff(self):
         structure = Structure.from_file(f"{VASP_IN_DIR}/POSCAR_Al12O18")
@@ -307,9 +327,8 @@ class TestGlobalFunctions(TestCase):
         assert site_len == len(self.mgo_uc)
 
 
-@pytest.mark.skipif(not gulp_present, reason="gulp not present.")
-class TestBuckinghamPotentialLewis(TestCase):
-    def setUp(self):
+class TestBuckinghamPotentialLewis:
+    def setup_method(self):
         self.bpl = BuckinghamPotential("lewis")
 
     def test_existing_element(self):
@@ -335,9 +354,8 @@ class TestBuckinghamPotentialLewis(TestCase):
         assert self.bpl.spring_dict["O"] != ""
 
 
-@pytest.mark.skipif(not gulp_present, reason="gulp not present.")
-class TestBuckinghamPotentialBush(TestCase):
-    def setUp(self):
+class TestBuckinghamPotentialBush:
+    def setup_method(self):
         self.bpb = BuckinghamPotential("bush")
 
     def test_existing_element(self):

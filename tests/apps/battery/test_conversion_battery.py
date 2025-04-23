@@ -1,7 +1,6 @@
 from __future__ import annotations
 
 import json
-from unittest import TestCase
 
 from monty.json import MontyDecoder
 from pytest import approx
@@ -13,12 +12,12 @@ from pymatgen.util.testing import TEST_FILES_DIR
 TEST_DIR = f"{TEST_FILES_DIR}/apps/battery"
 
 
-class TestConversionElectrode(TestCase):
-    def setUp(self):
+class TestConversionElectrode:
+    def setup_method(self):
         self.formulas = ["LiCoO2", "FeF3", "MnO2"]
         self.conversion_electrodes = {}
         for formula in self.formulas:
-            with open(f"{TEST_DIR}/{formula}_batt.json") as fid:
+            with open(f"{TEST_DIR}/{formula}_batt.json", encoding="utf-8") as fid:
                 entries = json.load(fid, cls=MontyDecoder)
             if formula in ["LiCoO2", "FeF3"]:
                 working_ion = "Li"
@@ -27,7 +26,10 @@ class TestConversionElectrode(TestCase):
             conv_elec = ConversionElectrode.from_composition_and_entries(
                 Composition(formula), entries, working_ion_symbol=working_ion
             )
-            self.conversion_electrodes[formula] = {"working_ion": working_ion, "CE": conv_elec}
+            self.conversion_electrodes[formula] = {
+                "working_ion": working_ion,
+                "CE": conv_elec,
+            }
 
         self.expected_properties = {
             "LiCoO2": {
@@ -56,14 +58,29 @@ class TestConversionElectrode(TestCase):
         # expected composite upon discharge process, of which entry object has been simplified to reduced formula
         self.expected_composite = {
             "LiCoO2": {
-                "entries_charge": [["CoO2"], ["Li(CoO2)2"], ["LiCoO2"], ["Li6CoO4", "CoO"], ["Li6CoO4", "Co"]],
-                "entries_discharge": [["Li(CoO2)2"], ["LiCoO2"], ["Li6CoO4", "CoO"], ["Li6CoO4", "Co"], ["Co", "Li2O"]],
+                "entries_charge": [
+                    ["CoO2"],
+                    ["Li(CoO2)2"],
+                    ["LiCoO2"],
+                    ["Li6CoO4", "CoO"],
+                    ["Li6CoO4", "Co"],
+                ],
+                "entries_discharge": [
+                    ["Li(CoO2)2"],
+                    ["LiCoO2"],
+                    ["Li6CoO4", "CoO"],
+                    ["Li6CoO4", "Co"],
+                    ["Co", "Li2O"],
+                ],
             },
             "FeF3": {
                 "entries_charge": [["FeF3"], ["FeF2", "LiF"]],
                 "entries_discharge": [["FeF2", "LiF"], ["Fe", "LiF"]],
             },
-            "MnO2": {"entries_charge": [["MnO2"]], "entries_discharge": [["Mn", "MgO"]]},
+            "MnO2": {
+                "entries_charge": [["MnO2"]],
+                "entries_discharge": [["Mn", "MgO"]],
+            },
         }
 
     def test_init(self):
@@ -106,7 +123,7 @@ class TestConversionElectrode(TestCase):
             dct = pair.as_dict()
             pair2 = ConversionVoltagePair.from_dict(dct)
             for prop in ["voltage", "mass_charge", "mass_discharge"]:
-                assert getattr(pair, prop) == getattr(pair2, prop), 2
+                assert getattr(pair, prop) == getattr(pair2, prop)  # 2
 
             # try to create an electrode from a dict and test methods
             dct = conv_electrode.as_dict()

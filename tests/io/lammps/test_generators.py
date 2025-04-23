@@ -3,14 +3,14 @@ from __future__ import annotations
 from pymatgen.core.structure import Structure
 from pymatgen.io.lammps.data import LammpsData
 from pymatgen.io.lammps.generators import LammpsMinimization
-from pymatgen.util.testing import TEST_FILES_DIR, PymatgenTest
+from pymatgen.util.testing import TEST_FILES_DIR, MatSciTest
 
 TEST_DIR = f"{TEST_FILES_DIR}/io/lammps"
 
 
-class TestLammpsMinimization(PymatgenTest):
+class TestLammpsMinimization(MatSciTest):
     @classmethod
-    def setUpClass(cls):
+    def setup_class(cls):
         cls.filename = f"{TEST_DIR}/lgps.in"
         cls.cif = f"{TEST_DIR}/lgps.cif"
         cls.structure = Structure.from_file(cls.cif)
@@ -86,13 +86,24 @@ class TestLammpsMinimization(PymatgenTest):
         assert lmp_min.inputfile.stages == [
             {
                 "stage_name": "1) Initialization",
-                "commands": [("units", "metal"), ("atom_style", "full"), ("dimension", "3"), ("boundary", "p p p")],
+                "commands": [
+                    ("units", "metal"),
+                    ("atom_style", "full"),
+                    ("dimension", "3"),
+                    ("boundary", "p p p"),
+                ],
             },
             {
                 "stage_name": "2) System definition",
-                "commands": [("read_data", "system.data"), ("neigh_modify", "every 1 delay 5 check yes")],
+                "commands": [
+                    ("read_data", "system.data"),
+                    ("neigh_modify", "every 1 delay 5 check yes"),
+                ],
             },
-            {"stage_name": "3) Simulation settings", "commands": [("Unspecified", "force field!")]},
+            {
+                "stage_name": "3) Simulation settings",
+                "commands": [("Unspecified", "force field!")],
+            },
             {
                 "stage_name": "4) Energy minimization",
                 "commands": [
@@ -111,7 +122,10 @@ class TestLammpsMinimization(PymatgenTest):
             },
             {
                 "stage_name": "5) Write output data",
-                "commands": [("write_data", "run.data"), ("write_restart", "run.restart")],
+                "commands": [
+                    ("write_data", "run.data"),
+                    ("write_restart", "run.restart"),
+                ],
             },
         ]
 

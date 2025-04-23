@@ -5,33 +5,36 @@ from pytest import approx
 
 from pymatgen.analysis.bond_valence import BVAnalyzer, calculate_bv_sum, calculate_bv_sum_unordered
 from pymatgen.core import Composition, Species, Structure
-from pymatgen.util.testing import TEST_FILES_DIR, PymatgenTest
+from pymatgen.util.testing import TEST_FILES_DIR, MatSciTest
 
 TEST_DIR = f"{TEST_FILES_DIR}/analysis/bond_valence"
 
 
-class TestBVAnalyzer(PymatgenTest):
-    def setUp(self):
+class TestBVAnalyzer(MatSciTest):
+    def setup_method(self):
         self.analyzer = BVAnalyzer()
 
     def test_get_valences(self):
         struct = Structure.from_file(f"{TEST_DIR}/LiMn2O4.json")
-        ans = [1, 1, 3, 3, 4, 4, -2, -2, -2, -2, -2, -2, -2, -2]
-        assert self.analyzer.get_valences(struct) == ans
+        valences = [1, 1, 3, 3, 4, 4, -2, -2, -2, -2, -2, -2, -2, -2]
+        assert self.analyzer.get_valences(struct) == valences
         struct = self.get_structure("LiFePO4")
-        ans = [1] * 4 + [2] * 4 + [5] * 4 + [-2] * 16
-        assert self.analyzer.get_valences(struct) == ans
+        valences = [1] * 4 + [2] * 4 + [5] * 4 + [-2] * 16
+        assert self.analyzer.get_valences(struct) == valences
         struct = self.get_structure("Li3V2(PO4)3")
-        ans = [1] * 6 + [3] * 4 + [5] * 6 + [-2] * 24
-        assert self.analyzer.get_valences(struct) == ans
+        valences = [1] * 6 + [3] * 4 + [5] * 6 + [-2] * 24
+        assert self.analyzer.get_valences(struct) == valences
         struct = Structure.from_file(f"{TEST_DIR}/Li4Fe3Mn1(PO4)4.json")
-        ans = [1] * 4 + [2] * 4 + [5] * 4 + [-2] * 16
-        assert self.analyzer.get_valences(struct) == ans
+        valences = [1] * 4 + [2] * 4 + [5] * 4 + [-2] * 16
+        assert self.analyzer.get_valences(struct) == valences
         struct = self.get_structure("NaFePO4")
-        assert self.analyzer.get_valences(struct) == ans
+        assert self.analyzer.get_valences(struct) == valences
 
         # trigger ValueError Structure contains elements not in set of BV parameters
-        with pytest.raises(ValueError, match="Structure contains elements not in set of BV parameters: {Element Xe}"):
+        with pytest.raises(
+            ValueError,
+            match="Structure contains elements not in set of BV parameters: {Element Xe}",
+        ):
             self.analyzer.get_valences(self.get_structure("Li10GeP2S12").replace_species({"Li": "Xe"}, in_place=False))
 
     def test_get_oxi_state_structure(self):
@@ -41,7 +44,7 @@ class TestBVAnalyzer(PymatgenTest):
         assert Species("Mn4+") in oxi_struct.composition.elements
 
 
-class TestBondValenceSum(PymatgenTest):
+class TestBondValenceSum(MatSciTest):
     def test_calculate_bv_sum(self):
         struct = Structure.from_file(f"{TEST_DIR}/LiMn2O4.json")
         neighbors = struct.get_neighbors(struct[0], 3.0)

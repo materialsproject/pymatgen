@@ -7,8 +7,8 @@ from glob import glob
 from typing import TYPE_CHECKING
 
 import numpy as np
+from monty.io import zopen
 from monty.os.path import zpath
-from monty.serialization import zopen
 
 from pymatgen.core import SETTINGS
 from pymatgen.io.vasp import Potcar, PotcarSingle
@@ -21,13 +21,13 @@ if TYPE_CHECKING:
 
 class PotcarScrambler:
     """
-    Takes a POTCAR and replaces its values with completely random values
+    Takes a POTCAR and replaces its values with completely random values.
     Does type matching and attempts precision matching on floats to ensure
     file is read correctly by Potcar and PotcarSingle classes.
 
     Used to generate copyright-compliant POTCARs for PMG tests.
 
-    In case of questions, contact Aaron Kaplan <adkaplan@lbl.gov>.
+    In case of questions, contact Aaron Kaplan <aaron.kaplan.physics@gmail.com>.
 
     Recommended use:
         PotcarScrambler.from_file(
@@ -40,28 +40,30 @@ class PotcarScrambler:
 
     def __init__(self, potcars: Potcar | PotcarSingle) -> None:
         self.PSP_list = [potcars] if isinstance(potcars, PotcarSingle) else potcars
-        self.scrambled_potcars_str = ""
+        self.scrambled_potcars_str: str = ""
         for psp in self.PSP_list:
             scrambled_potcar_str = self.scramble_single_potcar(psp)
             self.scrambled_potcars_str += scrambled_potcar_str
 
     def _rand_float_from_str_with_prec(self, input_str: str, bloat: float = 1.5) -> float:
-        n_prec = len(input_str.split(".")[1])
-        bd = max(1, bloat * abs(float(input_str)))  # ensure we don't get 0
-        return round(bd * np.random.rand(1)[0], n_prec)
+        """Generate a random float from str to replace true values."""
+        n_prec: int = len(input_str.split(".")[1])
+        bd: float = max(1.0, bloat * abs(float(input_str)))  # ensure we don't get 0
+        return round(bd * np.random.default_rng().random(), n_prec)
 
     def _read_fortran_str_and_scramble(self, input_str: str, bloat: float = 1.5):
         input_str = input_str.strip()
+        rng = np.random.default_rng()
 
         if input_str.lower() in {"t", "f", "true", "false"}:
-            return bool(np.random.randint(2))
+            return rng.choice((True, False))
 
         if input_str.upper() == input_str.lower() and input_str[0].isnumeric():
             if "." in input_str:
                 return self._rand_float_from_str_with_prec(input_str, bloat=bloat)
             integer = int(input_str)
             fac = int(np.sign(integer))  # return int of same sign
-            return fac * np.random.randint(abs(max(1, int(np.ceil(bloat * integer)))))
+            return fac * rng.integers(abs(max(1, int(np.ceil(bloat * integer)))))
         try:
             float(input_str)
             return self._rand_float_from_str_with_prec(input_str, bloat=bloat)
@@ -123,14 +125,16 @@ class PotcarScrambler:
         return scrambled_potcar_str
 
     def to_file(self, filename: str) -> None:
-        with zopen(filename, mode="wt") as file:
+        """Write scrambled POTCAR to file."""
+        with zopen(filename, mode="wt", encoding="utf-8") as file:
             file.write(self.scrambled_potcars_str)
 
     @classmethod
     def from_file(cls, input_filename: str, output_filename: str | None = None) -> Self:
+        """Read a POTCAR from file and generate a scrambled version."""
         psp = Potcar.from_file(input_filename)
         psp_scrambled = cls(psp)
-        if output_filename:
+        if output_filename is not None:
             psp_scrambled.to_file(output_filename)
         return psp_scrambled
 
@@ -163,11 +167,14 @@ def generate_fake_potcar_libraries() -> None:
                 zpath(f"{func_dir}/{psp_name}/POTCAR"),
             ]
             if not any(map(os.path.isfile, paths_to_try)):
-                warnings.warn(f"Could not find {psp_name} in {paths_to_try}")
+                warnings.warn(f"Could not find {psp_name} in {paths_to_try}", stacklevel=2)
             for potcar_path in paths_to_try:
                 if os.path.isfile(potcar_path):
                     os.makedirs(rebase_dir, exist_ok=True)
-                    PotcarScrambler.from_file(input_filename=potcar_path, output_filename=f"{rebase_dir}/POTCAR.gz")
+                    PotcarScrambler.from_file(
+                        input_filename=potcar_path,
+                        output_filename=f"{rebase_dir}/POTCAR.gz",
+                    )
                     break
 
 
@@ -195,3 +202,21 @@ def potcar_cleanser() -> None:
 if __name__ == "__main__":
     potcar_cleanser()
     # generate_fake_potcar_libraries()
+
+    """
+    Note that vaspout.h5 files also contain full POTCARs. While the
+    Vaspout class in `pymatgen.io.vasp.outputs` contains a method to
+    replace the POTCAR with its spec (`remove_potcar_and_write_file`),
+    for test purposes, its often useful to have a fake POTCAR in place
+    of the real one.
+
+    To use the scrambler on a vaspout.h5:
+    ```
+    vout = Vaspout("< path to vaspout.h5>")
+    scrambled = PotcarScrambler(vout.potcar)
+    vout.remove_potcar_and_write_file(
+        filename = "< path to output vaspout.h5>",
+        fake_potcar_str = scrambled.scrambled_potcars_str
+    )
+    ```
+    """

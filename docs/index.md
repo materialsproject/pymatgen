@@ -12,7 +12,7 @@ nav_order: 1
 [![codecov](https://codecov.io/gh/materialsproject/pymatgen/branch/master/graph/badge.svg?token=XC47Un1LV2)](https://codecov.io/gh/materialsproject/pymatgen)
 [![PyPI Downloads](https://img.shields.io/pypi/dm/pymatgen?logo=pypi&logoColor=white&color=blue&label=PyPI)](https://pypi.org/project/pymatgen)
 [![Conda Downloads](https://img.shields.io/conda/dn/conda-forge/pymatgen?logo=condaforge&color=blue&label=Conda)](https://anaconda.org/conda-forge/pymatgen)
-[![Requires Python 3.9+](https://img.shields.io/badge/Python-3.9+-blue.svg?logo=python&logoColor=white)](https://python.org/downloads)
+[![Requires Python 3.10+](https://img.shields.io/badge/Python-3.10+-blue.svg?logo=python&logoColor=white)](https://python.org/downloads)
 [![Paper](https://img.shields.io/badge/J.ComMatSci-2012.10.028-blue?logo=elsevier&logoColor=white)](https://doi.org/10.1016/j.commatsci.2012.10.028)
 
 Pymatgen (Python Materials Genomics) is a robust, open-source Python library for materials analysis. These are some
@@ -30,6 +30,9 @@ of the main features:
 
 - [Official documentation](https://pymatgen.org)
 - [matgenb] provides example Jupyter notebooks that demonstrate pymatgen functionality. Examples are shown below.
+- Dr Anubhav Jain (@computron) has created a series of [tutorials](https://github.com/computron/pymatgen_tutorials)
+  and [YouTube videos](https://www.youtube.com/playlist?list=PL7gkuUui8u7_M47KrV4tS4pLwhe7mDAjT), which is a good
+  resource, especially for beginners.
 - [pymatgen MatSci forum] or [GitHub discussion]: for questions that are not bug reports or feature requests.
 - Follow us on [Twitter](https://twitter.com/pymatgen) to get news and tips.
 - Bug reports or feature requests: Please submit an issue on [Github Issues].
@@ -63,42 +66,12 @@ DiffusionAnalyzer.*
 
     *The code is mightier than the pen.*
 
-As of 2022, pymatgen supports Python 3.9 and above. Our support schedule follows closely that of the Scientific
-Python software stack, i.e., when packages such as numpy drops support for Python versions, we will drop support for
+As of 2024, pymatgen supports Python 3.10 and above. Our support schedule follows closely that of the Scientific
+Python software stack, i.e., when packages such as NumPy drops support for Python versions, we will drop support for
 newer versions. Similarly, support for new Python versions will be adopted only when most of the core dependencies
 support the new Python versions.
 
-
-
 ## Getting pymatgen
-
-### Conda (recommended)
-
-If you are absolutely new to Python and/or are using Windows, the easiest
-installation process is using [conda](http://conda.pydata.org). If you
-already have conda installed, pymatgen can be installed from the [conda-forge
-channel](https://anaconda.org/conda-forge) using the following command:
-
-```shell
-conda install --channel conda-forge pymatgen
-```
-
-Note that you might need to ensure a relatively recent version of gcc is
-available to compile pymatgen. You can use conda to get that::
-
-```shell
-conda install gcc
-```
-
-Pymatgen is under active development, and new features are added regularly. To
-upgrade pymatgen to the latest version, use the following command:
-
-```shell
-conda upgrade pymatgen
-```
-
-Step-by-step instructions for all platforms are available at the
-[installation page](/installation).
 
 ### pip
 
@@ -110,8 +83,7 @@ any system is to use pip:
 pip install pymatgen
 ```
 
-Wheels for Mac and Windows have been built for convenience. Similarly, you might
-need to ensure you have a relatively recent version of gcc.
+Wheels for all major platforms and python versions have been built for convenience.
 
 To upgrade pymatgen via pip:
 
@@ -120,7 +92,7 @@ pip install --upgrade pymatgen
 ```
 
 The bleeding edge developmental version is at the pymatgen [Github repo]. The developmental
-version is likely to be more buggy, but may contain new features. The Github version include complete test files.
+version is likely to be more buggy, but may contain new features. The GitHub version includes complete test files.
 After cloning the source, you can type in the root of the repo:
 
 ```shell
@@ -136,13 +108,22 @@ pip install -e .
 Detailed installation instructions, including installation of optional dependencies, set up for POTCAR generation,
 Materials Project REST interface usage, setup for developers, etc. are given on this [page](/installation).
 
-For some extras, you can also install the optional dependencies using:
+For an always up-to-date list of extras, consult the [pyproject.toml's optional_dependencies](https://github.com/materialsproject/pymatgen/blob/master/pyproject.toml).
+
+### Conda
+
+Pymatgen can be installed from the [conda-forge channel](https://anaconda.org/conda-forge) using the following command:
 
 ```shell
-pip install pymatgen[extra]
+conda install --channel conda-forge pymatgen
 ```
 
-For an always up-to-date list of extras, consult the [setup.py's extras_require](https://github.com/materialsproject/pymatgen/blob/master/setup.py).
+Note that you might need to ensure a relatively recent version of gcc is
+available to compile pymatgen. You can use conda to get that::
+
+```shell
+conda install gcc
+```
 
 ### Shared cluster installation
 
@@ -178,31 +159,32 @@ perform further structure manipulation or analyses.
 Here are some quick examples of the core capabilities and objects:
 
 ```python
-import pymatgen.core as pmg
+from pymatgen.core import Element, Composition, Lattice, Structure, Molecule
 
 # Integrated symmetry analysis tools from spglib
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
 
-si = pmg.Element("Si")
+
+si = Element("Si")
 si.atomic_mass  # 28.0855
 print(si.melting_point)
 # 1687.0 K
 
-comp = pmg.Composition("Fe2O3")
+comp = Composition("Fe2O3")
 comp.weight  # 159.6882
 # Note that Composition conveniently allows strings to be treated just like an Element object.
 comp["Fe"]  # 2.0
 comp.get_atomic_fraction("Fe")  # 0.4
-lattice = pmg.Lattice.cubic(4.2)
-structure = pmg.Structure(lattice, ["Cs", "Cl"], ...[[0, 0, 0], [0.5, 0.5, 0.5]])
+lattice = Lattice.cubic(4.2)
+structure = Structure(lattice, ["Cs", "Cl"], ...[[0, 0, 0], [0.5, 0.5, 0.5]])
 # structure.volume
 # 74.088000000000008
 # structure[0]
 # PeriodicSite: Cs (0.0000, 0.0000, 0.0000) [0.0000, 0.0000, 0.0000]
 
 # You can create a Structure using spacegroup symmetry as well.
-li2o = pmg.Structure.from_spacegroup(
-    "Fm-3m", pmg.Lattice.cubic(3), ["Li", "O"], [[0.25, 0.25, 0.25], [0, 0, 0]]
+li2o = Structure.from_spacegroup(
+    "Fm-3m", Lattice.cubic(3), ["Li", "O"], [[0.25, 0.25, 0.25], [0, 0, 0]]
 )
 
 finder = SpacegroupAnalyzer(structure)
@@ -218,13 +200,13 @@ structure.to(filename="POSCAR")
 structure.to(filename="CsCl.cif")
 
 # Reading a structure is similarly easy.
-structure = pmg.Structure.from_str(open("CsCl.cif").read(), fmt="cif")
-structure = pmg.Structure.from_file("CsCl.cif")
+structure = Structure.from_str(open("CsCl.cif").read(), fmt="cif")
+structure = Structure.from_file("CsCl.cif")
 
 # Reading and writing a molecule from a file. Supports XYZ and
 # Gaussian input and output by default. Support for many other
 # formats via the optional openbabel dependency (if installed).
-methane = pmg.Molecule.from_file("methane.xyz")
+methane = Molecule.from_file("methane.xyz")
 methane.to("methane.gjf")
 
 # Pythonic API for editing Structures and Molecules (v2.9.1 onwards)

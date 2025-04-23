@@ -16,14 +16,14 @@ from pymatgen.transformations.standard_transformations import (
     SupercellTransformation,
 )
 from pymatgen.util.provenance import StructureNL
-from pymatgen.util.testing import FAKE_POTCAR_DIR, TEST_FILES_DIR, PymatgenTest
+from pymatgen.util.testing import FAKE_POTCAR_DIR, TEST_FILES_DIR, MatSciTest
 
 TEST_DIR = f"{TEST_FILES_DIR}/alchemy"
 
 
-class TestTransformedStructure(PymatgenTest):
-    def setUp(self):
-        structure = PymatgenTest.get_structure("LiFePO4")
+class TestTransformedStructure(MatSciTest):
+    def setup_method(self):
+        structure = MatSciTest.get_structure("LiFePO4")
         self.structure = structure
         trafos = [SubstitutionTransformation({"Li": "Na"})]
         self.trans = TransformedStructure(structure, trafos)
@@ -43,7 +43,8 @@ class TestTransformedStructure(PymatgenTest):
         t_struct = TransformedStructure(struct, [])
         t_struct.append_transformation(SupercellTransformation.from_scaling_factors(2, 1, 1))
         alt = t_struct.append_transformation(
-            PartialRemoveSpecieTransformation("Si4+", 0.5, algo=PartialRemoveSpecieTransformation.ALGO_COMPLETE), 5
+            PartialRemoveSpecieTransformation("Si4+", 0.5, algo=PartialRemoveSpecieTransformation.ALGO_COMPLETE),
+            5,
         )
         assert len(alt) == 2
 
@@ -63,7 +64,7 @@ class TestTransformedStructure(PymatgenTest):
         assert isinstance(deepcopy(self.trans), TransformedStructure)
 
     def test_from_dict(self):
-        with open(f"{TEST_DIR}/transformations.json") as file:
+        with open(f"{TEST_DIR}/transformations.json", encoding="utf-8") as file:
             dct = json.load(file)
         dct["other_parameters"] = {"tags": ["test"]}
         t_struct = TransformedStructure.from_dict(dct)

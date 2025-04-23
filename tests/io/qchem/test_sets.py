@@ -14,7 +14,7 @@ from pymatgen.io.qchem.sets import (
     SinglePointSet,
     TransitionStateSet,
 )
-from pymatgen.util.testing import TEST_FILES_DIR, PymatgenTest
+from pymatgen.util.testing import TEST_FILES_DIR, MatSciTest
 
 __author__ = "Samuel Blau, Brandon Wood, Shyam Dwaraknath, Evan Spotte-Smith, Ryan Kingsbury"
 __copyright__ = "Copyright 2018-2022, The Materials Project"
@@ -26,7 +26,7 @@ __email__ = "samblau1@gmail.com"
 TEST_DIR = f"{TEST_FILES_DIR}/io/qchem/new_qchem_files"
 
 
-class TestQChemDictSet(PymatgenTest):
+class TestQChemDictSet(MatSciTest):
     def test_init(self):
         test_molecule = QCInput.from_file(f"{TEST_DIR}/pcm.qin").molecule
         test_dict_set = QChemDictSet(
@@ -253,7 +253,13 @@ class TestQChemDictSet(PymatgenTest):
             molecule=test_molecule,
             rem=rem,
             pcm_nonels=None,
-            svp={"RHOISO": 0.0009, "DIELST": 62, "NPTLEB": 1202, "ITRNGR": 2, "IROTGR": 2},
+            svp={
+                "RHOISO": 0.0009,
+                "DIELST": 62,
+                "NPTLEB": 1202,
+                "ITRNGR": 2,
+                "IROTGR": 2,
+            },
         )
         for k, v in qc_input.as_dict().items():
             assert v == test_dict[k]
@@ -338,7 +344,15 @@ class TestQChemDictSet(PymatgenTest):
             molecule=test_molecule,
             rem=rem,
             pcm_nonels=pcm_nonels,
-            svp={"RHOISO": 0.0005, "DIELST": 78.39, "NPTLEB": 1202, "ITRNGR": 2, "IROTGR": 2, "IPNRF": 1, "IDEFESR": 1},
+            svp={
+                "RHOISO": 0.0005,
+                "DIELST": 78.39,
+                "NPTLEB": 1202,
+                "ITRNGR": 2,
+                "IROTGR": 2,
+                "IPNRF": 1,
+                "IDEFESR": 1,
+            },
         )
         for k, v in qc_input.as_dict().items():
             assert v == test_dict[k]
@@ -377,10 +391,23 @@ class TestQChemDictSet(PymatgenTest):
         qc_input = QCInput(molecule=test_molecule, rem=rem, smx={"solvent": "other"})
         for k, v in qc_input.as_dict().items():
             assert v == test_dict[k]
-        with open("solvent_data") as sd:
+        with open("solvent_data", encoding="utf-8") as sd:
             lines = sd.readlines()
             assert lines[0] == "90.00,1.415,0.00,0.735,20.2,0.00,0.00"
         os.remove("solvent_data")
+
+    def test_output_wavefunction(self):
+        """Test function for outputting *.wfn files"""
+        test_molecule = QCInput.from_file(f"{TEST_DIR}/pcm.qin").molecule
+        test_dict_set = QChemDictSet(
+            molecule=test_molecule,
+            job_type="opt",
+            basis_set="6-31G*",
+            scf_algorithm="diis",
+            output_wavefunction=True,
+        )
+
+        assert test_dict_set.rem["write_wfn"] == "wavefunction"
 
     def test_solvation_warnings(self):
         """Test warnings / errors resulting from nonsensical overwrite_inputs."""
@@ -442,7 +469,7 @@ class TestQChemDictSet(PymatgenTest):
             )
 
 
-class TestSinglePointSet(PymatgenTest):
+class TestSinglePointSet(MatSciTest):
     def test_init(self):
         test_molecule = QCInput.from_file(f"{TEST_DIR}/pcm.qin").molecule
         test_sp_set = SinglePointSet(molecule=test_molecule)
@@ -538,7 +565,13 @@ class TestSinglePointSet(PymatgenTest):
             "resp_charges": "true",
         }
         assert test_sp_set.rem == ref_dict
-        ref_dict = {"dielst": "10.0", "rhoiso": "0.001", "nptleb": "1202", "itrngr": "2", "irotgr": "2"}
+        ref_dict = {
+            "dielst": "10.0",
+            "rhoiso": "0.001",
+            "nptleb": "1202",
+            "itrngr": "2",
+            "irotgr": "2",
+        }
         assert test_sp_set.svp == ref_dict
         assert test_sp_set.molecule == test_molecule
 
@@ -568,7 +601,9 @@ class TestSinglePointSet(PymatgenTest):
     def test_cmirs_init(self):
         test_molecule = QCInput.from_file(f"{TEST_DIR}/pcm.qin").molecule
         test_sp_set = SinglePointSet(
-            molecule=test_molecule, cmirs_solvent="benzene", overwrite_inputs={"svp": {"RHOISO": 0.0005}}
+            molecule=test_molecule,
+            cmirs_solvent="benzene",
+            overwrite_inputs={"svp": {"RHOISO": 0.0005}},
         )
         ref_dict = {
             "job_type": "sp",
@@ -636,7 +671,7 @@ class TestSinglePointSet(PymatgenTest):
         assert test_sp_set.molecule == test_molecule
 
 
-class TestOptSet(PymatgenTest):
+class TestOptSet(MatSciTest):
     def test_init(self):
         test_molecule = QCInput.from_file(f"{TEST_DIR}/pcm.qin").molecule
         test_opt_set = OptSet(molecule=test_molecule)
@@ -811,7 +846,7 @@ class TestOptSet(PymatgenTest):
         assert v6_opt_set_modified.geom_opt == ref_dict
 
 
-class TestTransitionStateSet(PymatgenTest):
+class TestTransitionStateSet(MatSciTest):
     def test_init(self):
         test_molecule = QCInput.from_file(f"{TEST_DIR}/pcm.qin").molecule
         test_ts_set = TransitionStateSet(molecule=test_molecule)
@@ -856,7 +891,13 @@ class TestTransitionStateSet(PymatgenTest):
             "symmetry": "false",
         }
         assert test_ts_set.rem == ref_dict
-        ref_dict = {"heavypoints": "194", "hpoints": "194", "radii": "uff", "theory": "cpcm", "vdwscale": "1.1"}
+        ref_dict = {
+            "heavypoints": "194",
+            "hpoints": "194",
+            "radii": "uff",
+            "theory": "cpcm",
+            "vdwscale": "1.1",
+        }
         assert test_ts_set.pcm == ref_dict
         assert test_ts_set.solvent == {"dielectric": "10.0"}
         assert test_ts_set.molecule == test_molecule
@@ -886,7 +927,7 @@ class TestTransitionStateSet(PymatgenTest):
         assert test_ts_set.molecule == test_molecule
 
 
-class TestForceSet(PymatgenTest):
+class TestForceSet(MatSciTest):
     def test_init(self):
         test_molecule = QCInput.from_file(f"{TEST_DIR}/pcm.qin").molecule
         test_forceset = ForceSet(molecule=test_molecule)
@@ -928,7 +969,13 @@ class TestForceSet(PymatgenTest):
             "resp_charges": "true",
         }
         assert test_forceset.rem == ref_dict
-        ref_dict = {"heavypoints": "194", "hpoints": "194", "radii": "uff", "theory": "cpcm", "vdwscale": "1.1"}
+        ref_dict = {
+            "heavypoints": "194",
+            "hpoints": "194",
+            "radii": "uff",
+            "theory": "cpcm",
+            "vdwscale": "1.1",
+        }
         assert test_forceset.pcm == ref_dict
         assert test_forceset.solvent == {"dielectric": "10.0"}
         assert test_forceset.molecule == test_molecule
@@ -957,7 +1004,7 @@ class TestForceSet(PymatgenTest):
         assert test_forceset.molecule == test_molecule
 
 
-class TestPESScanSet(PymatgenTest):
+class TestPESScanSet(MatSciTest):
     def test_init(self):
         test_molecule = QCInput.from_file(f"{TEST_DIR}/pes_scan.qin").molecule
 
@@ -987,7 +1034,9 @@ class TestPESScanSet(PymatgenTest):
     def test_pcm_init(self):
         test_molecule = QCInput.from_file(f"{TEST_DIR}/pes_scan.qin").molecule
         test_pes_scan = PESScanSet(
-            molecule=test_molecule, pcm_dielectric=10.0, scan_variables={"stre": ["3 6 1.5 1.9 0.01"]}
+            molecule=test_molecule,
+            pcm_dielectric=10.0,
+            scan_variables={"stre": ["3 6 1.5 1.9 0.01"]},
         )
         ref_dict = {
             "job_type": "pes_scan",
@@ -1006,7 +1055,13 @@ class TestPESScanSet(PymatgenTest):
             "symmetry": "false",
         }
         assert test_pes_scan.rem == ref_dict
-        ref_dict = {"heavypoints": "194", "hpoints": "194", "radii": "uff", "theory": "cpcm", "vdwscale": "1.1"}
+        ref_dict = {
+            "heavypoints": "194",
+            "hpoints": "194",
+            "radii": "uff",
+            "theory": "cpcm",
+            "vdwscale": "1.1",
+        }
         assert test_pes_scan.pcm == ref_dict
         assert test_pes_scan.solvent == {"dielectric": "10.0"}
         assert test_pes_scan.scan == {"stre": ["3 6 1.5 1.9 0.01"]}
@@ -1015,7 +1070,9 @@ class TestPESScanSet(PymatgenTest):
     def test_smd_init(self):
         test_molecule = QCInput.from_file(f"{TEST_DIR}/pes_scan.qin").molecule
         test_pes_scan = PESScanSet(
-            molecule=test_molecule, smd_solvent="water", scan_variables={"stre": ["3 6 1.5 1.9 0.01"]}
+            molecule=test_molecule,
+            smd_solvent="water",
+            scan_variables={"stre": ["3 6 1.5 1.9 0.01"]},
         )
         ref_dict = {
             "job_type": "pes_scan",
@@ -1040,7 +1097,7 @@ class TestPESScanSet(PymatgenTest):
         assert test_pes_scan.molecule == test_molecule
 
 
-class TestFreqSet(PymatgenTest):
+class TestFreqSet(MatSciTest):
     def test_init(self):
         test_molecule = QCInput.from_file(f"{TEST_DIR}/pcm.qin").molecule
         test_freq_set = FreqSet(molecule=test_molecule)

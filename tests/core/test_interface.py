@@ -8,13 +8,13 @@ from pymatgen.core.interface import GrainBoundary, GrainBoundaryGenerator, Inter
 from pymatgen.core.structure import Structure
 from pymatgen.core.surface import SlabGenerator
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
-from pymatgen.util.testing import TEST_FILES_DIR, PymatgenTest
+from pymatgen.util.testing import TEST_FILES_DIR, MatSciTest
 
 TEST_DIR = f"{TEST_FILES_DIR}/core/grain_boundary"
 
 
-class TestGrainBoundary(PymatgenTest):
-    def setUp(self):
+class TestGrainBoundary(MatSciTest):
+    def setup_method(self):
         self.Cu_conv = Structure.from_file(f"{TEST_DIR}/Cu_mp-30_conventional_standard.cif")
         GB_Cu_conv = GrainBoundaryGenerator(self.Cu_conv)
         self.Cu_GB1 = GB_Cu_conv.gb_from_parameters(
@@ -87,7 +87,9 @@ class TestGrainBoundary(PymatgenTest):
         assert Cu_GB1_new.gb_plane == self.Cu_GB1.gb_plane
         assert_allclose(Cu_GB1_new.init_cell.lattice.matrix, self.Cu_GB1.init_cell.lattice.matrix)
         assert_allclose(
-            Cu_GB1_new.oriented_unit_cell.lattice.matrix, self.Cu_GB1.oriented_unit_cell.lattice.matrix, atol=1e-9
+            Cu_GB1_new.oriented_unit_cell.lattice.matrix,
+            self.Cu_GB1.oriented_unit_cell.lattice.matrix,
+            atol=1e-9,
         )
         assert_allclose(Cu_GB1_new.lattice.matrix, self.Cu_GB1.lattice.matrix)
         assert Cu_GB2_new.sigma == approx(self.Cu_GB2.sigma)
@@ -102,9 +104,9 @@ class TestGrainBoundary(PymatgenTest):
         assert_allclose(Cu_GB2_new.lattice.matrix, self.Cu_GB2.lattice.matrix)
 
 
-class TestGrainBoundaryGenerator(PymatgenTest):
+class TestGrainBoundaryGenerator(MatSciTest):
     @classmethod
-    def setUpClass(cls):
+    def setup_class(cls):
         cls.Cu_prim = Structure.from_file(f"{TEST_DIR}/Cu_mp-30_primitive.cif")
         cls.GB_Cu_prim = GrainBoundaryGenerator(cls.Cu_prim)
         cls.Cu_conv = Structure.from_file(f"{TEST_DIR}/Cu_mp-30_conventional_standard.cif")
@@ -329,8 +331,8 @@ class TestGrainBoundaryGenerator(PymatgenTest):
         assert_allclose(close_angle, angle)
 
 
-class TestInterface(PymatgenTest):
-    def setUp(self):
+class TestInterface(MatSciTest):
+    def setup_method(self):
         self.interface: Interface = self.get_structure("Si_SiO2_Interface")
 
     def test_basic_props(self):
@@ -341,16 +343,23 @@ class TestInterface(PymatgenTest):
         assert len(interface.film_indices) == 36
         assert len(interface.film_sites) == len(interface.film_indices)
         assert len(interface.substrate_sites) == len(interface.substrate_indices)
-        assert interface.gap == 2.0
+        assert interface.gap == approx(2)
         assert_allclose(interface.in_plane_offset, [0, 0])
-        assert interface.vacuum_over_film == 20.0
+        assert interface.vacuum_over_film == approx(20)
         assert interface.film_termination == "O2_P6/mmm_4"
         assert interface.substrate_termination == "Si_P6/mmm_7"
         assert interface.film_layers == 6
         assert interface.substrate_layers == 2
 
         iface_dict = interface.as_dict()
-        expected_keys = {"lattice", "sites", "in_plane_offset", "gap", "vacuum_over_film", "interface_properties"}
+        expected_keys = {
+            "lattice",
+            "sites",
+            "in_plane_offset",
+            "gap",
+            "vacuum_over_film",
+            "interface_properties",
+        }
         assert expected_keys <= {*iface_dict}
         assert isinstance(interface.from_dict(iface_dict), Interface)
 

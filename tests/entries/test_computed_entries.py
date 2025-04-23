@@ -3,7 +3,6 @@ from __future__ import annotations
 import copy
 import json
 from collections import defaultdict
-from unittest import TestCase
 
 import pytest
 from monty.json import MontyDecoder
@@ -41,7 +40,11 @@ def test_energy_adjustment():
 def test_energy_adjustment_repr():
     comp_cls = MaterialsProject2020Compatibility()
     cls_name = type(comp_cls).__name__
-    for cls, label in ((None, "unknown"), (comp_cls, cls_name), ({"@class": cls_name}, cls_name)):
+    for cls, label in (
+        (None, "unknown"),
+        (comp_cls, cls_name),
+        ({"@class": cls_name}, cls_name),
+    ):
         ea = EnergyAdjustment(10, cls=cls)
         assert (
             repr(ea) == "EnergyAdjustment(name='Manual adjustment', value=10.0, uncertainty=nan, description='', "
@@ -82,7 +85,7 @@ def test_composition_energy_adjustment():
 def test_temp_energy_adjustment():
     ea = TemperatureEnergyAdjustment(-0.1, 298, 5, uncertainty_per_deg=0, name="entropy")
     assert ea.name == "entropy"
-    assert ea.value == -0.1 * 298 * 5
+    assert ea.value == approx(-0.1 * 298 * 5)
     assert ea.n_atoms == 5
     assert ea.temp == 298
     assert ea.explain == "Temperature-based energy adjustment (-0.1000 eV/K/atom x 298 K x 5 atoms)"
@@ -91,8 +94,8 @@ def test_temp_energy_adjustment():
     assert str(ea_dct) == str(ea2.as_dict())
 
 
-class TestComputedEntry(TestCase):
-    def setUp(self):
+class TestComputedEntry:
+    def setup_method(self):
         self.entry = ComputedEntry(
             vasp_run.final_structure.composition,
             vasp_run.final_energy,
@@ -238,9 +241,22 @@ class TestComputedEntry(TestCase):
             assert entry == copy
             assert str(entry) == str(copy)
 
+    def test_from_dict_null_fields(self):
+        ce_dict = self.entry.as_dict()
+        for k in (
+            "energy_adjustments",
+            "parameters",
+            "data",
+        ):
+            ce = ce_dict.copy()
+            ce[k] = None
+            new_ce = ComputedEntry.from_dict(ce)
+            assert new_ce == self.entry
+            assert getattr(new_ce, k, None) is not None
 
-class TestComputedStructureEntry(TestCase):
-    def setUp(self):
+
+class TestComputedStructureEntry:
+    def setup_method(self):
         self.entry = ComputedStructureEntry(vasp_run.final_structure, vasp_run.final_energy, parameters=vasp_run.incar)
 
     def test_energy(self):
@@ -436,8 +452,8 @@ class TestComputedStructureEntry(TestCase):
         assert copy3 != copy1
 
 
-class TestGibbsComputedStructureEntry(TestCase):
-    def setUp(self):
+class TestGibbsComputedStructureEntry:
+    def setup_method(self):
         self.temps = [300, 600, 900, 1200, 1500, 1800]
         self.struct = vasp_run.final_structure
         self.num_atoms = self.struct.composition.num_atoms
@@ -453,11 +469,13 @@ class TestGibbsComputedStructureEntry(TestCase):
             for temp in self.temps
         }
 
-        with open(f"{TEST_DIR}/Mn-O_entries.json") as file:
+        with open(f"{TEST_DIR}/Mn-O_entries.json", encoding="utf-8") as file:
             data = json.load(file)
-        with open(f"{TEST_DIR}/structure_CO2.json") as file:
+        with open(f"{TEST_DIR}/structure_CO2.json", encoding="utf-8") as file:
             self.co2_struct = MontyDecoder().process_decoded(json.load(file))
 
+        with open(f"{TEST_DIR}/Mn-O_entries.json") as file:
+            data = json.load(file)
         self.mp_entries = [MontyDecoder().process_decoded(d) for d in data]
 
     def test_gf_sisso(self):

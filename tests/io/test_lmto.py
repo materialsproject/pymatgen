@@ -3,14 +3,15 @@ from __future__ import annotations
 import os
 
 import numpy as np
-from numpy.testing import assert_array_equal
+from numpy.testing import assert_allclose
+from pytest import approx
 
 from pymatgen.core.structure import Structure
 from pymatgen.core.units import Ry_to_eV
 from pymatgen.electronic_structure.core import Spin
 from pymatgen.io.lmto import LMTOCopl, LMTOCtrl
 from pymatgen.util.num import round_to_sigfigs
-from pymatgen.util.testing import TEST_FILES_DIR, PymatgenTest
+from pymatgen.util.testing import TEST_FILES_DIR, MatSciTest
 
 __author__ = "Marco Esters"
 __copyright__ = "Copyright 2017, The Materials Project"
@@ -20,23 +21,19 @@ __date__ = "Nov 30, 2017"
 
 
 TEST_DIR = f"{TEST_FILES_DIR}/electronic_structure/cohp"
-module_dir = os.path.dirname(os.path.abspath(__file__))
+MODULE_DIR = os.path.dirname(os.path.abspath(__file__))
 
 
-class TestCtrl(PymatgenTest):
-    def setUp(self):
-        os.chdir(TEST_DIR)
-        self.ref_bise = LMTOCtrl.from_file(filename="CTRL.BiSe")
-        self.ref_fe = LMTOCtrl.from_file()
-
-    def tearDown(self):
-        os.chdir(module_dir)
+class TestCtrl(MatSciTest):
+    def setup_method(self):
+        self.ref_bise = LMTOCtrl.from_file(filename=f"{TEST_DIR}/CTRL.BiSe")
+        self.ref_fe = LMTOCtrl.from_file(filename=f"{TEST_DIR}/CTRL")
 
     def test_dict(self):
         assert self.ref_bise == LMTOCtrl.from_dict(self.ref_bise.as_dict())
 
     def test_structure(self):
-        bise_poscar = Structure.from_file("POSCAR.BiSe")
+        bise_poscar = Structure.from_file(f"{TEST_DIR}/POSCAR.BiSe")
         assert bise_poscar.matches(self.ref_bise.structure)
         assert self.ref_bise == LMTOCtrl(self.ref_bise.structure, header="Bi6Se6, hexagonal")
 
@@ -47,15 +44,11 @@ class TestCtrl(PymatgenTest):
         assert self.ref_bise.structure.matches(ctrl_file.structure)
 
 
-class TestCopl(PymatgenTest):
-    def setUp(self):
-        os.chdir(TEST_DIR)
-        self.copl_bise = LMTOCopl("COPL.BiSe")
-        self.copl_bise_eV = LMTOCopl(filename="COPL.BiSe", to_eV=True)
-        self.copl_fe = LMTOCopl()
-
-    def tearDown(self):
-        os.chdir(module_dir)
+class TestCopl(MatSciTest):
+    def setup_method(self):
+        self.copl_bise = LMTOCopl(f"{TEST_DIR}/COPL.BiSe")
+        self.copl_bise_eV = LMTOCopl(filename=f"{TEST_DIR}/COPL.BiSe", to_eV=True)
+        self.copl_fe = LMTOCopl(f"{TEST_DIR}/COPL")
 
     def test_attributes(self):
         assert not self.copl_bise.is_spin_polarized
@@ -81,19 +74,19 @@ class TestCopl(PymatgenTest):
         labels_fe = ["Fe1-Fe1"] + [f"Fe1-Fe1-{i}" for i in range(1, 8)]
         assert sorted(self.copl_fe.cohp_data) == labels_fe
         for bond in labels_fe:
-            assert self.copl_fe.cohp_data[bond]["length"] == 2.482
+            assert self.copl_fe.cohp_data[bond]["length"] == approx(2.482)
             assert self.copl_fe.cohp_data[bond]["sites"] == (0, 0)
 
     def test_energies(self):
-        assert self.copl_bise.efermi == -0.17223
-        assert self.copl_bise_eV.efermi == -2.3433
-        assert self.copl_fe.efermi == -0.085683
+        assert self.copl_bise.efermi == approx(-0.17223)
+        assert self.copl_bise_eV.efermi == approx(-2.3433)
+        assert self.copl_fe.efermi == approx(-0.085683)
         ener_eV = np.array(
             [round_to_sigfigs(energy, 5) for energy in self.copl_bise.energies * Ry_to_eV],
             dtype=float,
         )
-        assert_array_equal(ener_eV, self.copl_bise_eV.energies)
+        assert_allclose(ener_eV, self.copl_bise_eV.energies)
         copl_icohp = self.copl_bise.cohp_data["Bi1-Se7"]["ICOHP"][Spin.up]
         icohp = np.array([round_to_sigfigs(i, 5) for i in copl_icohp * Ry_to_eV], dtype=float)
         icohp_eV = self.copl_bise_eV.cohp_data["Bi1-Se7"]["ICOHP"][Spin.up]
-        assert_array_equal(icohp, icohp_eV)
+        assert_allclose(icohp, icohp_eV)

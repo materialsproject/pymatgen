@@ -5,11 +5,11 @@ from numpy.testing import assert_allclose
 from pytest import approx
 
 from pymatgen.analysis.eos import EOS, NumericalEOS
-from pymatgen.util.testing import PymatgenTest
+from pymatgen.util.testing import MatSciTest
 
 
-class TestEOS(PymatgenTest):
-    def setUp(self):
+class TestEOS(MatSciTest):
+    def setup_method(self):
         # Si data from Cormac
         self.volumes = [
             25.987454833,
@@ -276,9 +276,30 @@ class TestEOS(PymatgenTest):
         ]
 
         mp149_known_energies_vinet = [
-            *[-4.866834585, -4.711786499, -5.109642598, -5.420093739, -5.274605844, -5.201025714],
-            *[-5.331899365, -5.374315789, -5.419671568, -4.998827503, -5.383703409, -5.406038887],
-            *[-5.353926272, -5.317484252, -5.424963418, -5.175090887, -5.403166824, -5.275096644],
+            *[
+                -4.866834585,
+                -4.711786499,
+                -5.109642598,
+                -5.420093739,
+                -5.274605844,
+                -5.201025714,
+            ],
+            *[
+                -5.331899365,
+                -5.374315789,
+                -5.419671568,
+                -4.998827503,
+                -5.383703409,
+                -5.406038887,
+            ],
+            *[
+                -5.353926272,
+                -5.317484252,
+                -5.424963418,
+                -5.175090887,
+                -5.403166824,
+                -5.275096644,
+            ],
             *[-5.227427635, -5.058639193, -5.118654229],
         ]
 
@@ -405,9 +426,8 @@ class TestEOS(PymatgenTest):
         assert_allclose(self.num_eos_fit.e0, -10.84749, atol=1e-3)
         assert_allclose(self.num_eos_fit.v0, 40.857201, atol=1e-1)
         assert_allclose(self.num_eos_fit.b0, 0.55, atol=1e-2)
-        # TODO: why were these tests commented out?
-        # assert_allclose(self.num_eos_fit.b0_GPa, 89.0370727, atol=1e-1)
-        # assert_allclose(self.num_eos_fit.b1, 4.344039, atol=1e-2)
+        assert_allclose(self.num_eos_fit.b0_GPa, 89.0370727, atol=1e-1)
+        assert_allclose(self.num_eos_fit.b1, 4.344039, atol=1e-2)
 
     def test_eos_func(self):
         # list vs np.array arguments

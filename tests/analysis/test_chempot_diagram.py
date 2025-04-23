@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import numpy as np
+from numpy.testing import assert_allclose
 from plotly.graph_objects import Figure
 from pytest import approx
 
@@ -12,13 +13,13 @@ from pymatgen.analysis.chempot_diagram import (
 )
 from pymatgen.core.composition import Element
 from pymatgen.entries.entry_tools import EntrySet
-from pymatgen.util.testing import TEST_FILES_DIR, PymatgenTest
+from pymatgen.util.testing import TEST_FILES_DIR, MatSciTest
 
 TEST_DIR = f"{TEST_FILES_DIR}/analysis"
 
 
-class TestChemicalPotentialDiagram(PymatgenTest):
-    def setUp(self):
+class TestChemicalPotentialDiagram(MatSciTest):
+    def setup_method(self):
         self.entries = EntrySet.from_csv(f"{TEST_DIR}/pd_entries_test.csv")
         self.cpd_ternary, self.cpd_ternary_formal = (
             ChemicalPotentialDiagram(entries=self.entries, default_min_limit=-25, formal_chempots=formal)
@@ -38,7 +39,7 @@ class TestChemicalPotentialDiagram(PymatgenTest):
 
         elems = [Element("Li"), Element("Fe"), Element("O")]
         energies = [-1.91301487, -6.5961471, -25.54966885]
-        correct_el_refs = dict(zip(elems, energies))
+        correct_el_refs = dict(zip(elems, energies, strict=True))
 
         assert el_refs == approx(correct_el_refs)
 
@@ -46,12 +47,19 @@ class TestChemicalPotentialDiagram(PymatgenTest):
         el_refs = {elem: entry.energy for elem, entry in self.cpd_ternary_formal.el_refs.items()}
         elems = [Element("Li"), Element("Fe"), Element("O")]
         energies = [0, 0, 0]
-        correct_el_refs = dict(zip(elems, energies))
+        correct_el_refs = dict(zip(elems, energies, strict=True))
         assert el_refs == approx(correct_el_refs)
 
     def test_border_hyperplanes(self):
         desired = np.array(
-            [[-1, 0, 0, -25], [1, 0, 0, 0], [0, -1, 0, -25], [0, 1, 0, 0], [0, 0, -1, -25], [0, 0, 1, 0]]
+            [
+                [-1, 0, 0, -25],
+                [1, 0, 0, 0],
+                [0, -1, 0, -25],
+                [0, 1, 0, 0],
+                [0, 0, -1, -25],
+                [0, 0, 1, 0],
+            ]
         )
         assert self.cpd_ternary.border_hyperplanes == approx(desired)
         assert self.cpd_ternary_formal.border_hyperplanes == approx(desired)
@@ -215,7 +223,7 @@ class TestChemicalPotentialDiagram(PymatgenTest):
             dom = self.cpd_ternary.domains[formula]
             dom = dom.round(6)  # to get rid of numerical errors from qhull
             actual_domain_sorted = dom[np.lexsort((dom[:, 2], dom[:, 1], dom[:, 0]))]
-            assert actual_domain_sorted == approx(np.array(domain))
+            assert_allclose(actual_domain_sorted, domain)
 
         formal_domains = {
             "FeO": [
@@ -300,7 +308,7 @@ class TestChemicalPotentialDiagram(PymatgenTest):
         for formula, domain in formal_domains.items():
             dom = self.cpd_ternary_formal.domains[formula]
             dom = dom.round(6)  # to get rid of numerical errors from qhull
-            assert dom == approx(np.array(domain), abs=1e-5)
+            assert_allclose(dom, domain, atol=1e-5)
 
     def test_formal_chempots_get_plot(self):
         elems = [Element("Fe"), Element("O")]

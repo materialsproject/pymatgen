@@ -8,10 +8,10 @@ from pymatgen.transformations.standard_transformations import (
     RemoveSpeciesTransformation,
     SubstitutionTransformation,
 )
-from pymatgen.util.testing import TEST_FILES_DIR, VASP_IN_DIR, PymatgenTest
+from pymatgen.util.testing import TEST_FILES_DIR, VASP_IN_DIR, MatSciTest
 
 
-class TestCifTransmuter(PymatgenTest):
+class TestCifTransmuter(MatSciTest):
     def test_init(self):
         trafos = [SubstitutionTransformation({"Fe": "Mn", "Fe2+": "Mn2+"})]
         tsc = CifTransmuter.from_filenames([f"{TEST_FILES_DIR}/cif/MultiStructure.cif"], trafos)
@@ -22,7 +22,7 @@ class TestCifTransmuter(PymatgenTest):
             assert expected == els
 
 
-class TestPoscarTransmuter(PymatgenTest):
+class TestPoscarTransmuter(MatSciTest):
     def test_init(self):
         trafos = [SubstitutionTransformation({"Fe": "Mn"})]
         tsc = PoscarTransmuter.from_filenames([f"{VASP_IN_DIR}/POSCAR", f"{VASP_IN_DIR}/POSCAR"], trafos)
@@ -66,4 +66,7 @@ class TestPoscarTransmuter(PymatgenTest):
         tsc.set_parameter("para1", "hello")
         assert tsc.transformed_structures[0].as_dict()["other_parameters"]["para1"] == "hello"
         tsc.add_tags(["world", "universe"])
-        assert tsc.transformed_structures[0].as_dict()["other_parameters"]["tags"] == ["world", "universe"]
+        assert tsc.transformed_structures[0].as_dict()["other_parameters"]["tags"] == [
+            "world",
+            "universe",
+        ]
