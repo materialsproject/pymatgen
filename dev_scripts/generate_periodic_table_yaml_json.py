@@ -270,11 +270,7 @@ def parse_shannon_radii(
 
 
 def get_and_parse_electronic_affinities(prop_name: str = "Electron affinity") -> Property:
-    """Get electronic affinities from Wikipedia and save a local YAML copy.
-
-    TODO:
-        current wikipedia crawler drops data for Deuterium.
-    """
+    """Get electronic affinities from Wikipedia and save a local YAML copy."""
     # Get data table from Wikipedia
     url: str = "https://en.wikipedia.org/wiki/Electron_affinity_(data_page)"
     tables = pd.read_html(StringIO(requests.get(url, timeout=5).text))
@@ -285,15 +281,13 @@ def get_and_parse_electronic_affinities(prop_name: str = "Electron affinity") ->
         for table in tables
         if f"{prop_name} (kJ/mol)" in table.columns and table["Name"].astype(str).str.contains("Hydrogen").any()
     )
-    ea_df = ea_df.drop(columns=["References", f"{prop_name} (kJ/mol)", "Element"])
 
-    # Drop superheavy elements
+    # Drop superheavy elements (currently Z > 118)
     max_z: int = max(Element(element).Z for element in Element.__members__)
     ea_df = ea_df[pd.to_numeric(ea_df["Z"], errors="coerce") <= max_z]
 
-    # Drop heavy isotopes
-    # TODO: correctly handle Deuterium
-    ea_df = ea_df.drop_duplicates(subset="Z", keep="first")
+    # Drop heavy isotopes (except for Deuterium, which has a distinct "Name")
+    ea_df = ea_df.drop_duplicates(subset="Name", keep="first")
 
     # Ensure we cover all elements up to Uranium (Z=92)
     if not (z_values := set(ea_df["Z"])).issuperset(range(1, 93)):
@@ -317,8 +311,6 @@ def get_and_parse_electronic_affinities(prop_name: str = "Electron affinity") ->
         Element.from_name(name.strip()): value
         for name, value in zip(ea_df["Name"], ea_df[f"{prop_name} (eV)"], strict=True)
     }
-
-    data[Element.D] = 0.754674  # TODO: fix this
 
     output_data = {
         prop_name: {
