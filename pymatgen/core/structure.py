@@ -4554,7 +4554,6 @@ class Structure(IStructure, collections.abc.MutableSequence):
         if dist_mat.shape == (1, 1):
             return self
 
-        # ic(dist_mat)
         clusters = fcluster(linkage(squareform((dist_mat + dist_mat.T) / 2)), tol, "distance")
         sites = []
         for cluster in np.unique(clusters):
