@@ -123,8 +123,8 @@ ci = [
     "pytest-split>=0.10.0",
 ]
 matcalc = [
-    "matcalc>=0.4.0",
-    "matgl>=1.2.6",
+    "matcalc>=0.4.0; python_version<'3.13'",
+    "matgl>=1.2.6; python_version<'3.13'",
 ]
 
 [project.scripts]

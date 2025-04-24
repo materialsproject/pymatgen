@@ -1043,6 +1043,7 @@ class TestStructure(MatSciTest):
         self.labeled_structure = Structure(lattice, ["Si", "Si"], coords, labels=["Si1", "Si2"])
 
     def test_calc_property(self):
+        pytest.importorskip("matcalc")
         d = self.struct.calc_property("eos")
         assert "bulk_modulus_vrh" in d
 
