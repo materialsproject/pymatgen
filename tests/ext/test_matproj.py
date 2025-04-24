@@ -66,23 +66,26 @@ def test_get_entries_and_in_chemsys(mprester):
 
     assert len(entries) > 1000
 
-    # This gets everything in Li-Fe-O and within this subsystem. It should have more entries than
-    # get_entries("Li-Fe-O"), which just gets only the ternary compounds.
-    entries2 = mprester.get_entries(syms2, property_data=["formation_energy_per_atom", "uncorrected_energy_per_atom"])
-    entries3 = mprester.get_entries_in_chemsys(["Fe", "Li", "O"])
-
-    assert len(entries3) > len(entries2)
+    entries2 = mprester.get_entries(
+        syms2, property_data=["formation_energy_per_atom", "uncorrected_energy_per_atom"], summary_data=["band_gap"]
+    )
     for entry in entries2:
         assert isinstance(entry, ComputedEntry)
         assert set(entry.elements).issubset(elements)
         assert "formation_energy_per_atom" in entry.data
         assert entry.data["uncorrected_energy_per_atom"] == pytest.approx(entry.uncorrected_energy_per_atom, abs=1e-3)
+        assert "band_gap" in entry.data["summary"]
     assert len(entries2) < 1000
 
     e1 = {i.entry_id for i in entries}
     e2 = {i.entry_id for i in entries2}
     assert e1.issuperset(e2)
 
+    # This gets everything in Li-Fe-O and within this subsystem. It should have more entries than
+    # get_entries("Li-Fe-O"), which just gets only the ternary compounds.
+    entries3 = mprester.get_entries_in_chemsys(["Fe", "Li", "O"])
+
+    assert len(entries3) > len(entries2)
     with pytest.warns(DeprecationWarning, match="arguments are deprecated"):
         mprester.get_entries_in_chemsys("Li", inc_structure=True)
 

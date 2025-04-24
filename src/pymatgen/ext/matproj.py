@@ -339,8 +339,10 @@ class MPRester:
     def get_entries(
         self,
         criteria: str | Sequence[str],
+        *,
         compatible_only: bool = True,
         property_data: Sequence[str] | None = None,
+        summary_data: Sequence[str] | None = None,
         **kwargs,
     ):
         """Get a list of ComputedEntries or ComputedStructureEntries corresponding
@@ -354,9 +356,13 @@ class MPRester:
                 which performs adjustments to allow mixing of GGA and GGA+U
                 calculations for more accurate phase diagrams and reaction
                 energies.
-            property_data (list): Specify additional properties to include in
-                entry.data. If None, no data. This can be properties that are available in the /materials/thermo
+            property_data (list): Specify additional properties to include in entry.data from /materials/thermo
                 endpoint of the API.
+            summary_data (list): Specify additional properties to include in entry.data from /materials/summary
+                endpoint of the API. Note that unlike property_data, summary_data refers to the "best" calculation done
+                by MP. There are no guarantees that the summary_data will be consistent with the entry or property
+                data since the data can come from say a r2SCAN calculation but the entry is from a GGA calculation.
+                The data will be reported in the entry.data["summary"] dictionary.
             **kwargs: Used to catch deprecated kwargs.
 
         Returns:
@@ -409,6 +415,16 @@ class MPRester:
             with warnings.catch_warnings():
                 warnings.filterwarnings("ignore", message="Failed to guess oxidation states.*")
                 entries = MaterialsProject2020Compatibility().process_entries(entries, clean=True)
+
+        if summary_data:
+            edata = self.search(
+                "summary",
+                material_ids=[e.data["material_id"] for e in entries],
+                _fields=[*summary_data, "material_id"],
+            )
+            mapped_data = {d["material_id"]: {k: v for k, v in d.items() if k != "material_id"} for d in edata}
+            for e in entries:
+                e.data["summary"] = mapped_data[e.data["material_id"]]
 
         return list(set(entries))
 
