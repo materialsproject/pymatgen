@@ -1044,7 +1044,7 @@ class TestStructure(MatSciTest):
 
     def test_calc_property(self):
         pytest.importorskip("matcalc")
-        d = self.struct.calc_property("eos")
+        d = self.struct.calc_property("elasticity")
         assert "bulk_modulus_vrh" in d
 
     @pytest.mark.skipif(
