@@ -1042,6 +1042,10 @@ class TestStructure(MatSciTest):
         self.disordered = Structure.from_spacegroup("Im-3m", Lattice.cubic(3), [Composition("Fe0.5Mn0.5")], [[0, 0, 0]])
         self.labeled_structure = Structure(lattice, ["Si", "Si"], coords, labels=["Si1", "Si2"])
 
+    def test_calc_property(self):
+        d = self.struct.calc_property("eos")
+        assert "bulk_modulus_vrh" in d
+
     @pytest.mark.skipif(
         SETTINGS.get("PMG_MAPI_KEY", "") == "",
         reason="PMG_MAPI_KEY environment variable not set or MP API is down. This is also the case in a PR.",
