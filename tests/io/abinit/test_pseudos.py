@@ -5,7 +5,6 @@ import tarfile
 from collections import defaultdict
 
 import pytest
-from monty.tempfile import ScratchDir
 from pytest import approx
 
 from pymatgen.io.abinit.pseudos import Pseudo, PseudoTable
@@ -98,13 +97,13 @@ class TestPseudo(MatSciTest):
         """Test 28ni.paw."""
         file_name = f"{TEST_DIR}/28ni.paw.tar.xz"
         symbol = "Ni"
-        with ScratchDir(".") as tmp_dir, tarfile.open(file_name, mode="r:xz") as t:
+        with tarfile.open(file_name, mode="r:xz") as t:
             # TODO: remove attr check after only 3.12+
             if hasattr(tarfile, "data_filter"):
-                t.extractall(tmp_dir, filter="data")
+                t.extractall(".", filter="data")
             else:
-                t.extractall(tmp_dir)  # noqa: S202
-            path = os.path.join(tmp_dir, "28ni.paw")
+                t.extractall(".")  # noqa: S202
+            path = os.path.join(".", "28ni.paw")
             pseudo = Pseudo.from_file(path)
 
             assert repr(pseudo)

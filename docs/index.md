@@ -71,37 +71,7 @@ Python software stack, i.e., when packages such as NumPy drops support for Pytho
 newer versions. Similarly, support for new Python versions will be adopted only when most of the core dependencies
 support the new Python versions.
 
-
-
 ## Getting pymatgen
-
-### Conda (recommended)
-
-If you are absolutely new to Python and/or are using Windows, the easiest
-installation process is using [conda](http://conda.pydata.org). If you
-already have conda installed, pymatgen can be installed from the [conda-forge
-channel](https://anaconda.org/conda-forge) using the following command:
-
-```shell
-conda install --channel conda-forge pymatgen
-```
-
-Note that you might need to ensure a relatively recent version of gcc is
-available to compile pymatgen. You can use conda to get that::
-
-```shell
-conda install gcc
-```
-
-Pymatgen is under active development, and new features are added regularly. To
-upgrade pymatgen to the latest version, use the following command:
-
-```shell
-conda upgrade pymatgen
-```
-
-Step-by-step instructions for all platforms are available at the
-[installation page](/installation).
 
 ### pip
 
@@ -113,8 +83,7 @@ any system is to use pip:
 pip install pymatgen
 ```
 
-Wheels for Mac and Windows have been built for convenience. Similarly, you might
-need to ensure you have a relatively recent version of gcc.
+Wheels for all major platforms and python versions have been built for convenience.
 
 To upgrade pymatgen via pip:
 
@@ -123,7 +92,7 @@ pip install --upgrade pymatgen
 ```
 
 The bleeding edge developmental version is at the pymatgen [Github repo]. The developmental
-version is likely to be more buggy, but may contain new features. The Github version include complete test files.
+version is likely to be more buggy, but may contain new features. The GitHub version includes complete test files.
 After cloning the source, you can type in the root of the repo:
 
 ```shell
@@ -139,13 +108,22 @@ pip install -e .
 Detailed installation instructions, including installation of optional dependencies, set up for POTCAR generation,
 Materials Project REST interface usage, setup for developers, etc. are given on this [page](/installation).
 
-For some extras, you can also install the optional dependencies using:
+For an always up-to-date list of extras, consult the [pyproject.toml's optional_dependencies](https://github.com/materialsproject/pymatgen/blob/master/pyproject.toml).
+
+### Conda
+
+Pymatgen can be installed from the [conda-forge channel](https://anaconda.org/conda-forge) using the following command:
 
 ```shell
-pip install pymatgen[extra]
+conda install --channel conda-forge pymatgen
 ```
 
-For an always up-to-date list of extras, consult the [setup.py's extras_require](https://github.com/materialsproject/pymatgen/blob/master/setup.py).
+Note that you might need to ensure a relatively recent version of gcc is
+available to compile pymatgen. You can use conda to get that::
+
+```shell
+conda install gcc
+```
 
 ### Shared cluster installation
 

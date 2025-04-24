@@ -1042,6 +1042,11 @@ class TestStructure(MatSciTest):
         self.disordered = Structure.from_spacegroup("Im-3m", Lattice.cubic(3), [Composition("Fe0.5Mn0.5")], [[0, 0, 0]])
         self.labeled_structure = Structure(lattice, ["Si", "Si"], coords, labels=["Si1", "Si2"])
 
+    def test_calc_property(self):
+        pytest.importorskip("matcalc")
+        d = self.struct.calc_property("elasticity")
+        assert "bulk_modulus_vrh" in d
+
     @pytest.mark.skipif(
         SETTINGS.get("PMG_MAPI_KEY", "") == "",
         reason="PMG_MAPI_KEY environment variable not set or MP API is down. This is also the case in a PR.",
@@ -1808,6 +1813,12 @@ direct
         for site in struct_0:
             struct_1.append(site.species, site.frac_coords, properties=site.properties)
         struct_1.merge_sites(mode="average")
+
+        cu = Structure(
+            Lattice.from_parameters(2.545584, 2.545584, 2.545584, 60, 60, 60), species=["Cu"], coords=[[0, 0, 0]]
+        )
+        cu.merge_sites(mode="delete")
+        assert len(cu) == 1
 
     def test_properties(self):
         assert self.struct.num_sites == len(self.struct)

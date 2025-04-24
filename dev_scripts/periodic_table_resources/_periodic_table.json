@@ -149,7 +149,7 @@
             }
         },
         "Thermal conductivity": "12 W m<sup>-1</sup> K<sup>-1</sup>",
-        "Van der waals radius": "no data",
+        "Van der waals radius": 2.47,
         "X": 1.1
     },
     "Ag": {
@@ -334,7 +334,7 @@
             }
         },
         "Thermal conductivity": "430 W m<sup>-1</sup> K<sup>-1</sup>",
-        "Van der waals radius": 1.72,
+        "Van der waals radius": 2.11,
         "Velocity of sound": "2600 m s<sup>-1</sup>",
         "Vickers hardness": "251 MN m<sup>-2</sup>",
         "X": 1.93,
@@ -619,7 +619,7 @@
         },
         "Superconduction temperature": "0.6 K",
         "Thermal conductivity": "10 W m<sup>-1</sup> K<sup>-1</sup>",
-        "Van der waals radius": "no data",
+        "Van der waals radius": 2.44,
         "X": 1.3
     },
     "Ar": {
@@ -1121,7 +1121,7 @@
             }
         },
         "Thermal conductivity": "320 W m<sup>-1</sup> K<sup>-1</sup>",
-        "Van der waals radius": 1.66,
+        "Van der waals radius": 2.14,
         "Velocity of sound": "1740 m s<sup>-1</sup>",
         "Vickers hardness": "216 MN m<sup>-2</sup>",
         "X": 2.54,
@@ -1789,7 +1789,7 @@
             }
         },
         "Thermal conductivity": "10 W m<sup>-1</sup> K<sup>-1</sup>",
-        "Van der waals radius": "no data",
+        "Van der waals radius": 2.44,
         "X": 1.3
     },
     "Br": {
@@ -2294,7 +2294,7 @@
         },
         "Superconduction temperature": "0.517 K",
         "Thermal conductivity": "97 W m<sup>-1</sup> K<sup>-1</sup>",
-        "Van der waals radius": 1.58,
+        "Van der waals radius": 2.18,
         "Velocity of sound": "2310 m s<sup>-1</sup>",
         "X": 1.69,
         "Youngs modulus": "50 GPa"
@@ -2488,7 +2488,7 @@
         },
         "Superconduction temperature": "0.022  (under pressure) K",
         "Thermal conductivity": "11 W m<sup>-1</sup> K<sup>-1</sup>",
-        "Van der waals radius": "no data",
+        "Van der waals radius": 2.42,
         "Velocity of sound": "2100 m s<sup>-1</sup>",
         "Vickers hardness": "270 MN m<sup>-2</sup>",
         "X": 1.12,
@@ -2648,7 +2648,7 @@
                 }
             }
         },
-        "Van der waals radius": "no data",
+        "Van der waals radius": 2.45,
         "X": 1.3
     },
     "Cl": {
@@ -2924,7 +2924,7 @@
             }
         },
         "Thermal conductivity": "8.8 W m<sup>-1</sup> K<sup>-1</sup>",
-        "Van der waals radius": "no data",
+        "Van der waals radius": 2.45,
         "X": 1.3
     },
     "Co": {
@@ -3088,7 +3088,7 @@
             }
         },
         "Thermal conductivity": "100 W m<sup>-1</sup> K<sup>-1</sup>",
-        "Van der waals radius": "no data",
+        "Van der waals radius": 2.0,
         "Velocity of sound": "4720 m s<sup>-1</sup>",
         "Vickers hardness": "1043 MN m<sup>-2</sup>",
         "X": 1.88,
@@ -3266,7 +3266,7 @@
             }
         },
         "Thermal conductivity": "94 W m<sup>-1</sup> K<sup>-1</sup>",
-        "Van der waals radius": "no data",
+        "Van der waals radius": 2.06,
         "Velocity of sound": "5940 m s<sup>-1</sup>",
         "Vickers hardness": "1060 MN m<sup>-2</sup>",
         "X": 1.66,
@@ -3575,7 +3575,7 @@
             }
         },
         "Thermal conductivity": "400 W m<sup>-1</sup> K<sup>-1</sup>",
-        "Van der waals radius": 1.4,
+        "Van der waals radius": 1.96,
         "Velocity of sound": "3570 m s<sup>-1</sup>",
         "Vickers hardness": "369 MN m<sup>-2</sup>",
         "X": 1.9,
@@ -3753,7 +3753,7 @@
             }
         },
         "Thermal conductivity": "11 W m<sup>-1</sup> K<sup>-1</sup>",
-        "Van der waals radius": "no data",
+        "Van der waals radius": 2.31,
         "Velocity of sound": "2710 m s<sup>-1</sup>",
         "Vickers hardness": "540 MN m<sup>-2</sup>",
         "X": 1.22,
@@ -3911,7 +3911,7 @@
             }
         },
         "Thermal conductivity": "15 W m<sup>-1</sup> K<sup>-1</sup>",
-        "Van der waals radius": "no data",
+        "Van der waals radius": 2.29,
         "Velocity of sound": "2830 m s<sup>-1</sup>",
         "Vickers hardness": "589 MN m<sup>-2</sup>",
         "X": 1.24,
@@ -4042,7 +4042,7 @@
             2,
             3
         ],
-        "Van der waals radius": "no data",
+        "Van der waals radius": 2.45,
         "X": 1.3
     },
     "Eu": {
@@ -4230,7 +4230,7 @@
             }
         },
         "Thermal conductivity": "14 W m<sup>-1</sup> K<sup>-1</sup>",
-        "Van der waals radius": "no data",
+        "Van der waals radius": 2.35,
         "Vickers hardness": "167 MN m<sup>-2</sup>",
         "X": 1.2,
         "Youngs modulus": "18 GPa"
@@ -4508,7 +4508,7 @@
             }
         },
         "Thermal conductivity": "80 W m<sup>-1</sup> K<sup>-1</sup>",
-        "Van der waals radius": "no data",
+        "Van der waals radius": 2.04,
         "Velocity of sound": "4910 m s<sup>-1</sup>",
         "Vickers hardness": "608 MN m<sup>-2</sup>",
         "X": 1.83,
@@ -4517,6 +4517,8 @@
     "Fm": {
         "Atomic mass": 257,
         "Atomic no": 100,
+        "Atomic radius": "no data",
+        "Atomic radius calculated": "no data",
         "Common oxidation states": [
             3
         ],
@@ -4631,11 +4633,13 @@
         ],
         "Melting point": "about 1800 K",
         "Mendeleev no": 37,
+        "Metallic radius": "no data",
         "Name": "Fermium",
         "Oxidation states": [
             2,
             3
         ],
+        "Van der waals radius": 2.45,
         "X": 1.3
     },
     "Fr": {
@@ -5044,7 +5048,7 @@
         },
         "Superconduction temperature": "1.083 K",
         "Thermal conductivity": "11 W m<sup>-1</sup> K<sup>-1</sup>",
-        "Van der waals radius": "no data",
+        "Van der waals radius": 2.34,
         "Velocity of sound": "2680 m s<sup>-1</sup>",
         "Vickers hardness": "570 MN m<sup>-2</sup>",
         "X": 1.2,
@@ -5230,7 +5234,7 @@
             }
         },
         "Thermal conductivity": "0.1805 W m<sup>-1</sup> K<sup>-1</sup>",
-        "Van der waals radius": 1.2,
+        "Van der waals radius": 1.1,
         "Velocity of sound": "1270 m s<sup>-1</sup>",
         "X": 2.2
     },
@@ -5428,7 +5432,7 @@
         },
         "Superconduction temperature": "0.128 K",
         "Thermal conductivity": "23 W m<sup>-1</sup> K<sup>-1</sup>",
-        "Van der waals radius": "no data",
+        "Van der waals radius": 2.23,
         "Velocity of sound": "3010 m s<sup>-1</sup>",
         "Vickers hardness": "1760 MN m<sup>-2</sup>",
         "X": 1.3,
@@ -5622,7 +5626,7 @@
         },
         "Superconduction temperature": "3.95 K",
         "Thermal conductivity": "8.3 W m<sup>-1</sup> K<sup>-1</sup>",
-        "Van der waals radius": 1.55,
+        "Van der waals radius": 2.23,
         "Velocity of sound": "1407 m s<sup>-1</sup>",
         "X": 2
     },
@@ -5777,7 +5781,7 @@
             }
         },
         "Thermal conductivity": "16 W m<sup>-1</sup> K<sup>-1</sup>",
-        "Van der waals radius": "no data",
+        "Van der waals radius": 2.3,
         "Velocity of sound": "2760 m s<sup>-1</sup>",
         "Vickers hardness": "481 MN m<sup>-2</sup>",
         "X": 1.23,
@@ -6260,7 +6264,7 @@
         },
         "Superconduction temperature": "0.11 K",
         "Thermal conductivity": "150 W m<sup>-1</sup> K<sup>-1</sup>",
-        "Van der waals radius": "no data",
+        "Van der waals radius": 2.13,
         "Velocity of sound": "4825 m s<sup>-1</sup>",
         "Vickers hardness": "1760 MN m<sup>-2</sup>",
         "X": 2.2,
@@ -6625,7 +6629,7 @@
         },
         "Superconduction temperature": "6.0 K",
         "Thermal conductivity": "13 W m<sup>-1</sup> K<sup>-1</sup>",
-        "Van der waals radius": "no data",
+        "Van der waals radius": 2.43,
         "Velocity of sound": "2475 m s<sup>-1</sup>",
         "Vickers hardness": "491 MN m<sup>-2</sup>",
         "X": 1.1,
@@ -6987,7 +6991,7 @@
         },
         "Superconduction temperature": "0.022 K",
         "Thermal conductivity": "16 W m<sup>-1</sup> K<sup>-1</sup>",
-        "Van der waals radius": "no data",
+        "Van der waals radius": 2.24,
         "Vickers hardness": "1160 MN m<sup>-2</sup>",
         "X": 1.27,
         "Youngs modulus": "69 GPa"
@@ -6995,6 +6999,8 @@
     "Md": {
         "Atomic mass": 258,
         "Atomic no": 101,
+        "Atomic radius": "no data",
+        "Atomic radius calculated": "no data",
         "Common oxidation states": [
             3
         ],
@@ -7110,11 +7116,13 @@
         ],
         "Melting point": "about 1100 K",
         "Mendeleev no": 36,
+        "Metallic radius": "no data",
         "Name": "Mendelevium",
         "Oxidation states": [
             2,
             3
         ],
+        "Van der waals radius": 2.46,
         "X": 1.3
     },
     "Mg": {
@@ -7422,7 +7430,7 @@
             }
         },
         "Thermal conductivity": "7.8 W m<sup>-1</sup> K<sup>-1</sup>",
-        "Van der waals radius": "no data",
+        "Van der waals radius": 2.05,
         "Velocity of sound": "5150 m s<sup>-1</sup>",
         "X": 1.55,
         "Youngs modulus": "198 GPa"
@@ -7600,7 +7608,7 @@
         },
         "Superconduction temperature": "0.915 K",
         "Thermal conductivity": "139 W m<sup>-1</sup> K<sup>-1</sup>",
-        "Van der waals radius": "no data",
+        "Van der waals radius": 2.17,
         "Velocity of sound": "6190 m s<sup>-1</sup>",
         "Vickers hardness": "1530 MN m<sup>-2</sup>",
         "X": 2.16,
@@ -7980,7 +7988,7 @@
         },
         "Superconduction temperature": "9.25 K",
         "Thermal conductivity": "54 W m<sup>-1</sup> K<sup>-1</sup>",
-        "Van der waals radius": "no data",
+        "Van der waals radius": 2.18,
         "Velocity of sound": "3480 m s<sup>-1</sup>",
         "Vickers hardness": "1320 MN m<sup>-2</sup>",
         "X": 1.6,
@@ -8147,7 +8155,7 @@
             }
         },
         "Thermal conductivity": "17 W m<sup>-1</sup> K<sup>-1</sup>",
-        "Van der waals radius": "no data",
+        "Van der waals radius": 2.39,
         "Velocity of sound": "2330 m s<sup>-1</sup>",
         "Vickers hardness": "343 MN m<sup>-2</sup>",
         "X": 1.14,
@@ -8346,7 +8354,7 @@
             }
         },
         "Thermal conductivity": "91 W m<sup>-1</sup> K<sup>-1</sup>",
-        "Van der waals radius": 1.63,
+        "Van der waals radius": 1.97,
         "Velocity of sound": "4970 m s<sup>-1</sup>",
         "Vickers hardness": "638 MN m<sup>-2</sup>",
         "X": 1.91,
@@ -8355,6 +8363,8 @@
     "No": {
         "Atomic mass": 259,
         "Atomic no": 102,
+        "Atomic radius": "no data",
+        "Atomic radius calculated": "no data",
         "Common oxidation states": [
             3
         ],
@@ -8471,6 +8481,7 @@
         ],
         "Melting point": "about 1100 K",
         "Mendeleev no": 35,
+        "Metallic radius": "no data",
         "Name": "Nobelium",
         "Oxidation states": [
             2,
@@ -8486,6 +8497,7 @@
                 }
             }
         },
+        "Van der waals radius": 2.46,
         "X": 1.3
     },
     "Np": {
@@ -8679,7 +8691,7 @@
             }
         },
         "Thermal conductivity": "6 W m<sup>-1</sup> K<sup>-1</sup>",
-        "Van der waals radius": "no data",
+        "Van der waals radius": 2.39,
         "X": 1.36
     },
     "O": {
@@ -8967,7 +8979,7 @@
         },
         "Superconduction temperature": "0.66 K",
         "Thermal conductivity": "88 W m<sup>-1</sup> K<sup>-1</sup>",
-        "Van der waals radius": "no data",
+        "Van der waals radius": 2.16,
         "Velocity of sound": "4940 m s<sup>-1</sup>",
         "X": 2.2
     },
@@ -9273,7 +9285,7 @@
         },
         "Superconduction temperature": "1.4 K",
         "Thermal conductivity": "47 W m<sup>-1</sup> K<sup>-1</sup>",
-        "Van der waals radius": "no data",
+        "Van der waals radius": 2.43,
         "X": 1.5
     },
     "Pb": {
@@ -9654,7 +9666,7 @@
             }
         },
         "Thermal conductivity": "72 W m<sup>-1</sup> K<sup>-1</sup>",
-        "Van der waals radius": 1.63,
+        "Van der waals radius": 2.1,
         "Velocity of sound": "3070 m s<sup>-1</sup>",
         "Vickers hardness": "461 MN m<sup>-2</sup>",
         "X": 2.2,
@@ -9795,7 +9807,7 @@
             }
         },
         "Thermal conductivity": "15 W m<sup>-1</sup> K<sup>-1</sup>",
-        "Van der waals radius": "no data",
+        "Van der waals radius": 2.38,
         "X": 1.13,
         "Youngs modulus": "46 GPa"
     },
@@ -10123,7 +10135,7 @@
             }
         },
         "Thermal conductivity": "13 W m<sup>-1</sup> K<sup>-1</sup>",
-        "Van der waals radius": "no data",
+        "Van der waals radius": 2.4,
         "Velocity of sound": "2280 m s<sup>-1</sup>",
         "Vickers hardness": "400 MN m<sup>-2</sup>",
         "X": 1.13,
@@ -10303,7 +10315,7 @@
             }
         },
         "Thermal conductivity": "72 W m<sup>-1</sup> K<sup>-1</sup>",
-        "Van der waals radius": 1.75,
+        "Van der waals radius": 2.13,
         "Velocity of sound": "2680 m s<sup>-1</sup>",
         "Vickers hardness": "549 MN m<sup>-2</sup>",
         "X": 2.28,
@@ -10485,7 +10497,7 @@
             }
         },
         "Thermal conductivity": "6 W m<sup>-1</sup> K<sup>-1</sup>",
-        "Van der waals radius": "no data",
+        "Van der waals radius": 2.43,
         "Velocity of sound": "2260 m s<sup>-1</sup>",
         "X": 1.28,
         "Youngs modulus": "96 GPa"
@@ -10985,7 +10997,7 @@
         },
         "Superconduction temperature": "1.7 K",
         "Thermal conductivity": "48 W m<sup>-1</sup> K<sup>-1</sup>",
-        "Van der waals radius": "no data",
+        "Van der waals radius": 2.16,
         "Velocity of sound": "4700 m s<sup>-1</sup>",
         "Vickers hardness": "2450 MN m<sup>-2</sup>",
         "X": 1.9,
@@ -11126,7 +11138,7 @@
             }
         },
         "Thermal conductivity": "150 W m<sup>-1</sup> K<sup>-1</sup>",
-        "Van der waals radius": "no data",
+        "Van der waals radius": 2.1,
         "Velocity of sound": "4700 m s<sup>-1</sup>",
         "Vickers hardness": "1246 MN m<sup>-2</sup>",
         "X": 2.28,
@@ -11421,7 +11433,7 @@
         },
         "Superconduction temperature": "0.49 K",
         "Thermal conductivity": "120 W m<sup>-1</sup> K<sup>-1</sup>",
-        "Van der waals radius": "no data",
+        "Van der waals radius": 2.13,
         "Velocity of sound": "5970 m s<sup>-1</sup>",
         "X": 2.2,
         "Youngs modulus": "447 GPa"
@@ -11797,7 +11809,7 @@
         },
         "Superconduction temperature": "0.05  (under pressure) K",
         "Thermal conductivity": "16 W m<sup>-1</sup> K<sup>-1</sup>",
-        "Van der waals radius": 2.11,
+        "Van der waals radius": 2.15,
         "X": 1.36,
         "Youngs modulus": "74 GPa"
     },
@@ -12206,7 +12218,7 @@
             }
         },
         "Thermal conductivity": "13 W m<sup>-1</sup> K<sup>-1</sup>",
-        "Van der waals radius": "no data",
+        "Van der waals radius": 2.36,
         "Velocity of sound": "2130 m s<sup>-1</sup>",
         "Vickers hardness": "412 MN m<sup>-2</sup>",
         "X": 1.17,
@@ -12683,7 +12695,7 @@
         },
         "Superconduction temperature": "4.47 K",
         "Thermal conductivity": "57 W m<sup>-1</sup> K<sup>-1</sup>",
-        "Van der waals radius": "no data",
+        "Van der waals radius": 2.22,
         "Velocity of sound": "3400 m s<sup>-1</sup>",
         "Vickers hardness": "873 MN m<sup>-2</sup>",
         "X": 1.5,
@@ -12856,7 +12868,7 @@
             }
         },
         "Thermal conductivity": "11 W m<sup>-1</sup> K<sup>-1</sup>",
-        "Van der waals radius": "no data",
+        "Van der waals radius": 2.33,
         "Velocity of sound": "2620 m s<sup>-1</sup>",
         "Vickers hardness": "863 MN m<sup>-2</sup>",
         "X": 1.1,
@@ -12995,7 +13007,7 @@
         },
         "Superconduction temperature": "7.8 K",
         "Thermal conductivity": "51 W m<sup>-1</sup> K<sup>-1</sup>",
-        "Van der waals radius": "no data",
+        "Van der waals radius": 2.16,
         "X": 1.9
     },
     "Te": {
@@ -13363,7 +13375,7 @@
         },
         "Superconduction temperature": "1.38 K",
         "Thermal conductivity": "54 W m<sup>-1</sup> K<sup>-1</sup>",
-        "Van der waals radius": "no data",
+        "Van der waals radius": 2.45,
         "Velocity of sound": "2490 m s<sup>-1</sup>",
         "Vickers hardness": "350 MN m<sup>-2</sup>",
         "X": 1.3,
@@ -13498,7 +13510,7 @@
         },
         "Superconduction temperature": "0.4 K",
         "Thermal conductivity": "22 W m<sup>-1</sup> K<sup>-1</sup>",
-        "Van der waals radius": "no data",
+        "Van der waals radius": 2.11,
         "Velocity of sound": "4140 m s<sup>-1</sup>",
         "Vickers hardness": "970 MN m<sup>-2</sup>",
         "X": 1.54,
@@ -13860,7 +13872,7 @@
             }
         },
         "Thermal conductivity": "17 W m<sup>-1</sup> K<sup>-1</sup>",
-        "Van der waals radius": "no data",
+        "Van der waals radius": 2.27,
         "Vickers hardness": "520 MN m<sup>-2</sup>",
         "X": 1.25,
         "Youngs modulus": "74 GPa"
@@ -14117,7 +14129,7 @@
         },
         "Superconduction temperature": "0.2 K",
         "Thermal conductivity": "27 W m<sup>-1</sup> K<sup>-1</sup>",
-        "Van der waals radius": 1.86,
+        "Van der waals radius": 2.41,
         "Velocity of sound": "3155 m s<sup>-1</sup>",
         "Vickers hardness": "1960 MN m<sup>-2</sup>",
         "X": 1.38,
@@ -14275,7 +14287,7 @@
         },
         "Superconduction temperature": "5.4 K",
         "Thermal conductivity": "31 W m<sup>-1</sup> K<sup>-1</sup>",
-        "Van der waals radius": "no data",
+        "Van der waals radius": 2.07,
         "Velocity of sound": "4560 m s<sup>-1</sup>",
         "Vickers hardness": "628 MN m<sup>-2</sup>",
         "X": 1.63,
@@ -14468,7 +14480,7 @@
         },
         "Superconduction temperature": "0.015 K",
         "Thermal conductivity": "170 W m<sup>-1</sup> K<sup>-1</sup>",
-        "Van der waals radius": "no data",
+        "Van der waals radius": 2.18,
         "Velocity of sound": "5174 m s<sup>-1</sup>",
         "Vickers hardness": "3430 MN m<sup>-2</sup>",
         "X": 2.36,
@@ -14712,7 +14724,7 @@
         },
         "Superconduction temperature": "1.3  (under pressure) K",
         "Thermal conductivity": "17 W m<sup>-1</sup> K<sup>-1</sup>",
-        "Van der waals radius": "no data",
+        "Van der waals radius": 2.32,
         "Velocity of sound": "3300 m s<sup>-1</sup>",
         "X": 1.22,
         "Youngs modulus": "64 GPa"
@@ -14894,7 +14906,7 @@
             }
         },
         "Thermal conductivity": "39 W m<sup>-1</sup> K<sup>-1</sup>",
-        "Van der waals radius": "no data",
+        "Van der waals radius": 2.26,
         "Velocity of sound": "1590 m s<sup>-1</sup>",
         "Vickers hardness": "206 MN m<sup>-2</sup>",
         "X": 1.1,
@@ -15016,7 +15028,7 @@
         },
         "Superconduction temperature": "0.85 K",
         "Thermal conductivity": "120 W m<sup>-1</sup> K<sup>-1</sup>",
-        "Van der waals radius": 1.39,
+        "Van der waals radius": 2.01,
         "Velocity of sound": "3700 m s<sup>-1</sup>",
         "X": 1.65,
         "Youngs modulus": "108 GPa"
@@ -15160,7 +15172,7 @@
         },
         "Superconduction temperature": "0.61 K",
         "Thermal conductivity": "23 W m<sup>-1</sup> K<sup>-1</sup>",
-        "Van der waals radius": "no data",
+        "Van der waals radius": 2.23,
         "Velocity of sound": "3800 m s<sup>-1</sup>",
         "Vickers hardness": "903 MN m<sup>-2</sup>",
         "X": 1.33,
@@ -15937,6 +15949,7 @@
             -1,
             1
         ],
+        "Electron affinity": "0.754674 eV",
         "Is named isotope": true,
         "Name": "Deuterium",
         "Oxidation states": [

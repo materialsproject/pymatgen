@@ -4837,6 +4837,10 @@ class Structure(IStructure, collections.abc.MutableSequence):
 
         dist_mat: NDArray = self.distance_matrix
         np.fill_diagonal(dist_mat, 0)
+
+        if dist_mat.shape == (1, 1):
+            return self
+
         clusters = fcluster(linkage(squareform((dist_mat + dist_mat.T) / 2)), tol, "distance")
 
         sites: list[PeriodicSite] = []
@@ -4944,6 +4948,33 @@ class Structure(IStructure, collections.abc.MutableSequence):
             Calculator: ASE Calculator instance with a results attribute containing the output.
         """
         return self._calculate(calculator, verbose=verbose)
+
+    def calc_property(self, prop: str, calculator="TensorNet-MatPES-PBE-v2025.1-PES", **kwargs) -> dict:
+        """
+        Calculate the specified material property using the provided calculation method or
+        default calculator. This function dynamically maps the property to its corresponding
+        calculation class and performs the computation.
+
+        :param prop: The material property to calculate. Expected values are "elastic",
+            "phonon", or "eos".
+        :type prop: str
+        :param calculator: The specific calculator to use for the computation. Defaults to
+            "TensorNet-MatPES-PBE-v2025.1-PES".
+        :type calculator: str, optional
+        :param kwargs: Additional keyword arguments passed to the calculation method.
+        :return: A dictionary containing the calculated results.
+        :rtype: dict
+        """
+        prop_map = {
+            "elasticity": "ElasticityCalc",
+            "phonon": "PhononCalc",
+            "phonon3": "Phonon3Calc",
+            "eos": "EOSCalc",
+            "qha": "QHACalc",
+        }
+        mod = __import__("matcalc")
+        cls_ = getattr(mod, prop_map[prop.lower()])(calculator, **kwargs)
+        return cls_.calc(self)
 
     @classmethod
     def from_prototype(cls, prototype: str, species: Sequence, **kwargs) -> Self:
