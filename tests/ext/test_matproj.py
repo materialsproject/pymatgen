@@ -62,7 +62,6 @@ class TestMPRester(MatSciTest):
         syms2 = "Fe-Li-O"
         entries = self.rester.get_entries_in_chemsys(syms)
 
-        entries2 = self.rester.get_entries(syms2, property_data=["formation_energy_per_atom"])
         elements = {Element(sym) for sym in syms}
         for entry in entries:
             assert isinstance(entry, ComputedEntry)
@@ -72,12 +71,19 @@ class TestMPRester(MatSciTest):
 
         # This gets everything in Li-Fe-O and within this subsystem. It should have more entries than
         # get_entries("Li-Fe-O"), which just gets only the ternary compounds.
+        entries2 = self.rester.get_entries(
+            syms2, property_data=["formation_energy_per_atom", "uncorrected_energy_per_atom"]
+        )
         entries3 = self.rester.get_entries_in_chemsys(["Fe", "Li", "O"])
+
         assert len(entries3) > len(entries2)
         for entry in entries2:
             assert isinstance(entry, ComputedEntry)
             assert set(entry.elements).issubset(elements)
             assert "formation_energy_per_atom" in entry.data
+            assert entry.data["uncorrected_energy_per_atom"] == pytest.approx(
+                entry.uncorrected_energy_per_atom, abs=1e-3
+            )
         assert len(entries2) < 1000
 
         e1 = {i.entry_id for i in entries}
