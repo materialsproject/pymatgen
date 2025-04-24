@@ -26,6 +26,9 @@ The JSON file is a compact, production-format structure without metadata:
         "_unit" -> {
             <property name>: <unit string>
         }
+
+# TODO:
+    - accept factor in source, but merge to value for JSON/YAML?
 """
 
 from __future__ import annotations

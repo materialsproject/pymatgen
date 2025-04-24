@@ -1248,15 +1248,15 @@ Density of solid:
 Electrical resistivity:
   unit: ohm m
   reference:
-  data: {Li: 9.5, Be: 3.8, B: 1.5 10^12, C: 1000, Na: 4.9, Mg: 4.4, Al: 2.7, Si: 100000,
-    P: 10, S: 2 10^23, Cl: 1 10^9, K: 7.5, Ca: 3.4, Sc: 55, Ti: 40, V: 20, Cr: 12.7,
-    Mn: 144, Fe: 10, Co: 6, Ni: 7.2, Cu: 1.72, Zn: 6.0, Ga: 14, Ge: 50000, As: 33,
-    Br: 7.8 10^18, Rb: 13.3, Sr: 13.5, Y: 60, Zr: 43.3, Nb: 15.2, Mo: 5.5, Tc: 22,
-    Ru: 7.1, Rh: 4.3, Pd: 10.8, Ag: 1.63, Cd: 7, In: 8, Sn: 11.5, Sb: 40, Te: 10000,
-    I: 1.3 10^15, Cs: 21, Ba: 34, La: 61.5, Ce: 74, Pr: 70, Nd: 64.3, Pm: 75, Sm: 94,
-    Eu: 90, Gd: 131, Tb: 115, Dy: 92.6, Ho: 81.4, Er: 86.0, Tm: 67.6, Yb: 25.0, Lu: 58,
-    Hf: 34, Ta: 13.5, W: 5.4, Re: 18, Os: 8.1, Ir: 4.7, Pt: 10.6, Au: 2.2, Hg: 96,
-    Tl: 15, Pb: 21, Bi: 130, Po: 40, Ra: 100, Th: 15, Pa: 18, U: 28, Np: 120, Pu: 150}
+  data: {Li: 9.5, Be: 3.8, B: 1.5e12, C: 1000, Na: 4.9, Mg: 4.4, Al: 2.7, Si: 100000,
+    P: 10, S: 2e23, Cl: 1e9, K: 7.5, Ca: 3.4, Sc: 55, Ti: 40, V: 20, Cr: 12.7, Mn: 144,
+    Fe: 10, Co: 6, Ni: 7.2, Cu: 1.72, Zn: 6.0, Ga: 14, Ge: 50000, As: 33, Br: 7.8e18,
+    Rb: 13.3, Sr: 13.5, Y: 60, Zr: 43.3, Nb: 15.2, Mo: 5.5, Tc: 22, Ru: 7.1, Rh: 4.3,
+    Pd: 10.8, Ag: 1.63, Cd: 7, In: 8, Sn: 11.5, Sb: 40, Te: 10000, I: 1.3e15, Cs: 21,
+    Ba: 34, La: 61.5, Ce: 74, Pr: 70, Nd: 64.3, Pm: 75, Sm: 94, Eu: 90, Gd: 131, Tb: 115,
+    Dy: 92.6, Ho: 81.4, Er: 86.0, Tm: 67.6, Yb: 25.0, Lu: 58, Hf: 34, Ta: 13.5, W: 5.4,
+    Re: 18, Os: 8.1, Ir: 4.7, Pt: 10.6, Au: 2.2, Hg: 96, Tl: 15, Pb: 21, Bi: 130,
+    Po: 40, Ra: 100, Th: 15, Pa: 18, U: 28, Np: 120, Pu: 150}
 Electron affinity:
   unit: eV
   reference: https://en.wikipedia.org/wiki/Electron_affinity_(data_page)

@@ -1484,7 +1484,7 @@ Bulk modulus:
     Zn: 70
 Coefficient of linear thermal expansion:
   unit: K^-1
-  factor: 10^-6
+  factor: 1e-6
   data:
     Ag: 18.9
     Al: 23.1
@@ -1764,22 +1764,22 @@ Density of solid:
 Electrical resistivity:
   unit: ohm m
   # reference: https://en.wikipedia.org/wiki/Electrical_resistivities_of_the_elements_(data_page)
-  factor: 10^-8
+  factor: 1e-8
   data:  # 293 K (20 °C)
     Ag: 1.63
     Al: 2.7
     As: 33
     Au: 2.2
-    B: '1.5 10^12'  # TODO: value from above Wikipedia (source for others is largely unknown)
+    B: 1.5e12  # TODO: value from above Wikipedia (source for others is largely unknown)
     Ba: 34
     Be: 3.8
     Bi: 130
-    Br: '7.8 10^18'
+    Br: 7.8e18
     C: 1000  # direction dependent
     Ca: 3.4
     Cd: 7
     Ce: 74
-    Cl: '1 10^9'
+    Cl: 1e9
     Co: 6
     Cr: 12.7
     Cs: 21
@@ -1794,7 +1794,7 @@ Electrical resistivity:
     Hf: 34
     Hg: 96
     Ho: 81.4
-    I: '1.3 10^15'
+    I: 1.3e15
     In: 8
     Ir: 4.7
     K: 7.5
@@ -1824,7 +1824,7 @@ Electrical resistivity:
     Re: 18
     Rh: 4.3
     Ru: 7.1
-    S: '2 10^23'
+    S: 2e23
     Sb: 40
     Sc: 55
     Si: 100000
