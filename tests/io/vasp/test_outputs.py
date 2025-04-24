@@ -1546,37 +1546,35 @@ class TestOszicar(MatSciTest):
 class TestGetBandStructureFromVaspMultipleBranches:
     def test_read_multi_branches(self):
         """TODO: use real multi-branch bandstructure calculation."""
-        with ScratchDir("."):
-            # Create branches
-            for idx in range(3):  # simulate 3 branches
-                branch_name = f"branch_{idx}"
-                os.makedirs(branch_name)
-                copyfile(f"{VASP_OUT_DIR}/vasprun.force_hybrid_like_calc.xml.gz", f"./{branch_name}/vasprun.xml.gz")
-                decompress_file(f"./{branch_name}/vasprun.xml.gz")
+        # Create branches
+        for idx in range(3):  # simulate 3 branches
+            branch_name = f"branch_{idx}"
+            os.makedirs(branch_name)
+            copyfile(f"{VASP_OUT_DIR}/vasprun.force_hybrid_like_calc.xml.gz", f"./{branch_name}/vasprun.xml.gz")
+            decompress_file(f"./{branch_name}/vasprun.xml.gz")
 
-            get_band_structure_from_vasp_multiple_branches(".")
+        get_band_structure_from_vasp_multiple_branches(".")
 
     def test_missing_vasprun_in_branch_dir(self):
         """Test vasprun.xml missing from branch_*."""
-        with ScratchDir("."):
-            os.makedirs("no_vasp/branch_0", exist_ok=False)
+        os.makedirs("no_vasp/branch_0", exist_ok=False)
 
-            with pytest.raises(FileNotFoundError, match="cannot find vasprun.xml in directory"):
-                get_band_structure_from_vasp_multiple_branches("no_vasp")
+        with pytest.raises(FileNotFoundError, match="cannot find vasprun.xml in directory"):
+            get_band_structure_from_vasp_multiple_branches("no_vasp")
 
     def test_no_branch_head(self):
         """Test branch_0 is missing and read dir_name/vasprun.xml directly."""
-        with ScratchDir("."):
-            copyfile(f"{VASP_OUT_DIR}/vasprun.force_hybrid_like_calc.xml.gz", "./vasprun.xml.gz")
-            decompress_file("./vasprun.xml.gz")
 
-            with pytest.warns(DeprecationWarning, match="no branch dir found, reading directly from"):
-                bs = get_band_structure_from_vasp_multiple_branches(".")
-            assert isinstance(bs, BandStructure)
+        copyfile(f"{VASP_OUT_DIR}/vasprun.force_hybrid_like_calc.xml.gz", "./vasprun.xml.gz")
+        decompress_file("./vasprun.xml.gz")
+
+        with pytest.warns(DeprecationWarning, match="no branch dir found, reading directly from"):
+            bs = get_band_structure_from_vasp_multiple_branches(".")
+        assert isinstance(bs, BandStructure)
 
     def test_cannot_read_anything(self):
         """Test no branch_0/, no dir_name/vasprun.xml, no vasprun.xml at all."""
-        with pytest.raises(FileNotFoundError, match="failed to find any vasprun.xml in selected"), ScratchDir("."):
+        with pytest.raises(FileNotFoundError, match="failed to find any vasprun.xml in selected"):
             get_band_structure_from_vasp_multiple_branches(".")
 
 
