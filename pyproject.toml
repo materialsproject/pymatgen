@@ -78,7 +78,7 @@ dependencies = [
     # https://numpy.org/devdocs/dev/depending_on_numpy.html#runtime-dependency-version-ranges
     "numpy>=1.25.0,<3",
 ]
-version = "2025.4.20"
+version = "2025.4.24"
 
 [project.urls]
 Homepage = "https://pymatgen.org"
@@ -91,12 +91,12 @@ Pypi = "https://pypi.org/project/pymatgen"
 abinit = ["netcdf4>=1.7.2"]
 ase = ["ase>=3.23.0"]
 electronic_structure = ["fdint>=2.0.2"]
-mlp = ["matgl>=1.2.5 ; python_version<'3.13'"]
+mlp = ["matgl>=1.2.6 ; python_version<'3.13'"]
 numba = ["numba>=0.55"]
 numpy-v1 = ["numpy>=1.25.0,<2"] # Test NP1 on Windows (quite buggy ATM)
 zeopp = ["pyzeo"]  # Note: requires voro++ and zeo++ to be installed
 optional = [
-    "pymatgen[abinit,ase,mlp,tblite]",
+    "pymatgen[abinit,ase,mlp,tblite,matcalc]",
     "beautifulsoup4",
     # PR4347: BoltzTraP2 needs to bump cmake version for spglib build
     # "BoltzTraP2>=24.9.4",
@@ -121,6 +121,10 @@ ci = [
     "pytest>=8.3.5",
     "pytest-cov>=6.0.0",
     "pytest-split>=0.10.0",
+]
+matcalc = [
+    "matcalc>=0.4.0; python_version<'3.13'",
+    "matgl>=1.2.6; python_version<'3.13'",
 ]
 
 [project.scripts]

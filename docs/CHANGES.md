@@ -6,6 +6,21 @@ nav_order: 4
 
 # Changelog
 
+## v2025.4.24
+
+- Structure now has a calc_property method that enables one to get a wide range of elasticity, EOS, and phonon properties using matcalc. Requires matcalc to be 
+  installed.
+- Bug fix and expansion of pymatgen.ext.matproj.MPRester. Now property_data is always consistent with the returned entry in get_entries. Summary data, which is not
+  always consistent but is more comprehensive, can be obtained via a summary_data kwarg.
+- PR #4378 Avoid merging if a structure has only one site by @kmu
+    This PR fixes an error that occurs when calling `merge_sites` on a structure with only one site. For example:
+- PR #4372 Reapply update to ptable vdw radii CSV source and JSON with CRC handbook by @DanielYang59
+    - Update ptable vdw radii CSV source, to fix #4370
+    - [x] Revert #4345 and apply changes to CSV
+    vdw radii data source:
+    > John R. Rumble, ed., CRC Handbook of Chemistry and Physics, 105th Edition (Internet Version 2024), CRC Press/Taylor & Francis, Boca Raton, FL.
+    > If a specific table is cited, use the format: "Physical Constants of Organic Compounds," in CRC Handbook of Chemistry and Physics, 105th Edition (Internet Version 2024), John R. Rumble, ed., CRC Press/Taylor & Francis, Boca Raton, FL.
+
 ## v2025.4.20
 
 - Updated `perturb` method to be in parity for Structure and Molecule.
