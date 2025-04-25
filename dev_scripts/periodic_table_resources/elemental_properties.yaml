@@ -1847,6 +1847,7 @@ Electrical resistivity:
     Zn: 6.0
     Zr: 43.3
 Electronic structure:
+  reference: "Kramida, A., Ralchenko, Yu., Reader, J., and NIST ASD Team (2023). NIST Atomic Spectra Database (ver. 5.11). https://physics.nist.gov/asd [2024, June 3]. National Institute of Standards and Technology, Gaithersburg, MD. DOI: https://doi.org/10.18434/T4W30F"
   data:
     Ac:
       '0': '[Rn].6d1.7s2'

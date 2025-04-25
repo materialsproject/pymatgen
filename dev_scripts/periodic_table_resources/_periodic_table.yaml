@@ -1266,6 +1266,9 @@ Electron affinity:
     Md: 0.98, No: -2.33, Lr: -0.31, Rg: 1.565, Nh: 0.69, Mc: 0.366, Lv: 0.776, Ts: 1.719,
     Og: 0.0806}
 Electronic structure:
+  reference: 'Kramida, A., Ralchenko, Yu., Reader, J., and NIST ASD Team (2023). NIST
+    Atomic Spectra Database (ver. 5.11). https://physics.nist.gov/asd [2024, June
+    3]. National Institute of Standards and Technology, Gaithersburg, MD. DOI: https://doi.org/10.18434/T4W30F'
   data:
     H:
       '0': 1s1

@@ -336,12 +336,6 @@ class ElementBase(Enum):
          (orbital number), irrespective of the actual energy level,
         e.g., The electronic structure for Fe is represented as '[Ar].3d6.4s2'
         even though the 3d electrons are higher in energy than the 4s.
-
-        References:
-            Kramida, A., Ralchenko, Yu., Reader, J., and NIST ASD Team (2023). NIST
-            Atomic Spectra Database (ver. 5.11). https://physics.nist.gov/asd [2024,
-            June 3]. National Institute of Standards and Technology, Gaithersburg,
-            MD. DOI: https://doi.org/10.18434/T4W30F
         """
         return self._data["Electronic structure"]["0"]
 
@@ -431,12 +425,6 @@ class ElementBase(Enum):
         For example, the full electronic structure for Fe is:
             [(1, "s", 2), (2, "s", 2), (2, "p", 6), (3, "s", 2), (3, "p", 6),
             (4, "s", 2), (3, "d", 6)].
-
-        References:
-            Kramida, A., Ralchenko, Yu., Reader, J., and NIST ASD Team (2023). NIST
-            Atomic Spectra Database (ver. 5.11). https://physics.nist.gov/asd [2024,
-            June 3]. National Institute of Standards and Technology, Gaithersburg,
-            MD. DOI: https://doi.org/10.18434/T4W30F
 
         Returns:
             list[tuple[int, str, int]]: A list of tuples representing each subshell,
@@ -1135,12 +1123,6 @@ class Species(MSONable, Stringify):
          (orbital number), irrespective of the actual energy level,
         e.g., The electronic structure for Fe is represented as '[Ar].3d6.4s2'
         even though the 3d electrons are higher in energy than the 4s.
-
-        References:
-            Kramida, A., Ralchenko, Yu., Reader, J., and NIST ASD Team (2023). NIST
-            Atomic Spectra Database (ver. 5.11). https://physics.nist.gov/asd [2024,
-            June 3]. National Institute of Standards and Technology, Gaithersburg,
-            MD. DOI: https://doi.org/10.18434/T4W30F
         """
         if self._data["Electronic structure"].get(str(self._oxi_state)) is not None:
             return self._data["Electronic structure"][str(self._oxi_state)]
@@ -1158,12 +1140,6 @@ class Species(MSONable, Stringify):
         For example, the full electronic structure for Fe is:
             [(1, "s", 2), (2, "s", 2), (2, "p", 6), (3, "s", 2), (3, "p", 6),
             (4, "s", 2), (3, "d", 6)].
-
-        References:
-            Kramida, A., Ralchenko, Yu., Reader, J., and NIST ASD Team (2023). NIST
-            Atomic Spectra Database (ver. 5.11). https://physics.nist.gov/asd [2024,
-            June 3]. National Institute of Standards and Technology, Gaithersburg,
-            MD. DOI: https://doi.org/10.18434/T4W30F
 
         Returns:
             list[tuple[int, str, int]]: A list of tuples representing each subshell,
