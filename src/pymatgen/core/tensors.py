@@ -134,13 +134,18 @@ class Tensor(np.ndarray, MSONable):
 
     def einsum_sequence(
         self,
-        other_arrays: NDArray[np.float64],
+        other_arrays: list[NDArray[np.float64]],
         einsum_string: str | None = None,
     ) -> NDArray[np.float64]:
-        """Calculate the result of an einstein summation expression."""
-        if not isinstance(other_arrays, list):
-            raise TypeError("other tensors must be list of tensors or tensor input")
+        """
+        Performs a tensor contraction using the Einstein summation convention. The function either uses a provided
+        Einstein summation notation (``einsum_string``) or generates one based on the dimensions of the arrays involved.
 
+        :param other_arrays: A sequence of NumPy arrays to be included in the Einstein summation operation.
+        :param einsum_string: An optional string representing the Einstein summation notation. If not provided,
+            it will be auto-generated based on the ranks of the involved arrays.
+        :return: Resultant NumPy array after performing the Einstein summation operation.
+        """
         other_arrays = [np.array(a) for a in other_arrays]
         if not einsum_string:
             lc = string.ascii_lowercase
@@ -166,7 +171,7 @@ class Tensor(np.ndarray, MSONable):
                 the tensor into the vector
         """
         unit_vec = get_uvec(n)
-        return self.einsum_sequence(np.array([unit_vec] * self.rank))
+        return self.einsum_sequence(np.array([unit_vec] * self.rank))  # type:ignore[arg-type]
 
     def average_over_unit_sphere(self, quad: dict | None = None) -> Self:
         """Average the tensor projection over the unit with option for custom quadrature.
