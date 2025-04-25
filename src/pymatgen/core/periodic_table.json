@@ -70,7 +70,6 @@
         "Vickers hardness": "no data MN m<sup>-2</sup>",
         "X": 1.1,
         "Youngs modulus": "no data GPa",
-        "Metallic radius": 1.878,
         "IUPAC ordering": 32,
         "Ground level": "2D3/2",
         "Ionization energies": [
@@ -1643,7 +1642,6 @@
         "Vickers hardness": "no data MN m<sup>-2</sup>",
         "X": 2.02,
         "Youngs modulus": "32 GPa",
-        "Metallic radius": 1.82,
         "IUPAC ordering": 87,
         "Ground level": "4S°3/2",
         "Ionization energies": [
@@ -2018,7 +2016,6 @@
         "Vickers hardness": "no data MN m<sup>-2</sup>",
         "X": 2.96,
         "Youngs modulus": "no data GPa",
-        "Metallic radius": 1.14,
         "IUPAC ordering": 100,
         "Ground level": "2P°3/2",
         "Ionization energies": [
@@ -5450,7 +5447,6 @@
         "Vickers hardness": "no data MN m<sup>-2</sup>",
         "X": 2.01,
         "Youngs modulus": "no data GPa",
-        "Metallic radius": 1.39,
         "IUPAC ordering": 84,
         "Ground level": "3P0",
         "Ionization energies": [
@@ -10016,7 +10012,6 @@
         "Vickers hardness": "no data MN m<sup>-2</sup>",
         "X": 2.33,
         "Youngs modulus": "16 GPa",
-        "Metallic radius": 1.75,
         "IUPAC ordering": 82,
         "Ground level": "1/2,1/2)0",
         "Ionization energies": [
@@ -10499,7 +10494,6 @@
         "Vickers hardness": "no data MN m<sup>-2</sup>",
         "X": 2,
         "Youngs modulus": "no data GPa",
-        "Metallic radius": 1.53,
         "IUPAC ordering": 93,
         "Ground level": "3P2",
         "Ionization energies": [
@@ -11209,7 +11203,6 @@
         "NMR Quadrupole Moment": {
             "Ra-223": 1210.3
         },
-        "Metallic radius": 2.293,
         "IUPAC ordering": 12,
         "Ground level": "1S0",
         "Ionization energies": [
@@ -12343,7 +12336,6 @@
             "Sb-121": -543.11,
             "Sb-123": -692.14
         },
-        "Metallic radius": 1.61,
         "IUPAC ordering": 88,
         "Ground level": "4S°3/2",
         "Ionization energies": [
@@ -13034,7 +13026,6 @@
         "NMR Quadrupole Moment": {
             "Sn-119": -132.1
         },
-        "Metallic radius": 1.58,
         "IUPAC ordering": 83,
         "Ground level": "3P0",
         "Ionization energies": [
