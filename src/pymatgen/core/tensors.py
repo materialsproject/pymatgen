@@ -70,7 +70,7 @@ class Tensor(np.ndarray, MSONable):
             raise ValueError(f"{type(obj).__name__} input must be rank {check_rank}")
 
         vshape = tuple([3] * (rank % 2) + [6] * (rank // 2))
-        vscale = vscale or np.ones(vshape)
+        vscale = vscale if vscale is not None else np.ones(vshape)
         if vscale.shape != vshape:
             raise ValueError("Voigt scaling matrix must be the shape of the Voigt notation matrix or vector.")
         if any(dim != 3 for dim in obj.shape):

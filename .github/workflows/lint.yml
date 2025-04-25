@@ -30,7 +30,7 @@ jobs:
           uv run ruff format --check .
 
       - name: mypy
-        run: uv run mypy src/pymatgen/core
+        run: uv run mypy src/pymatgen
 
       - name: pyright
         run: uv run pyright src

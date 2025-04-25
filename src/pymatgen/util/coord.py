@@ -116,8 +116,7 @@ def coord_list_mapping_pbc(subset, superset, atol: float = 1e-8, pbc: PbcLike = 
     Returns:
         list of indices such that superset[indices] = subset
     """
-    atol = np.ones(3) * atol
-    return coord_cython.coord_list_mapping_pbc(subset, superset, atol, pbc)
+    return coord_cython.coord_list_mapping_pbc(subset, superset, np.ones(3) * atol, pbc)
 
 
 def get_linear_interpolated_value(x_values: ArrayLike, y_values: ArrayLike, x: float) -> float:
@@ -133,12 +132,12 @@ def get_linear_interpolated_value(x_values: ArrayLike, y_values: ArrayLike, x: f
     Returns:
         Value at x.
     """
-    arr = np.array(sorted(zip(x_values, y_values, strict=True), key=lambda d: d[0]))
+    arr = np.array(sorted(zip(x_values, y_values, strict=True), key=lambda d: d[0]))  # type:ignore[arg-type,return-value]
 
     indices = np.where(arr[:, 0] > x)[0]
 
     if len(indices) == 0 or indices[0] == 0:
-        raise ValueError(f"{x=} is out of range of provided x_values ({min(x_values)}, {max(x_values)})")
+        raise ValueError(f"{x} is out of range of provided x_values ({min(x_values)}, {max(x_values)})")  # type:ignore[type-var,arg-type,str-bytes-safe]
 
     idx = indices[0]
     x1, x2 = arr[idx - 1][0], arr[idx][0]
@@ -226,7 +225,7 @@ def find_in_coord_list_pbc(
         Indices of matches, e.g. [0, 1, 2, 3]. Empty list if not found.
     """
     if len(frac_coord_list) == 0:
-        return []
+        return np.array([], dtype=np.int_)
     frac_coords = np.tile(frac_coord, (len(frac_coord_list), 1))
     frac_dist = frac_coord_list - frac_coords
     frac_dist[:, pbc] -= np.round(frac_dist)[:, pbc]
@@ -270,8 +269,7 @@ def is_coord_subset_pbc(subset, superset, atol: float = 1e-8, mask=None, pbc: Pb
     mask_arr = (
         np.array(mask, dtype=np.int64) if mask is not None else np.zeros((len(subset), len(superset)), dtype=np.int64)
     )
-    atol = np.zeros(3, dtype=np.float64) + atol
-    return coord_cython.is_coord_subset_pbc(c1, c2, atol, mask_arr, pbc)
+    return coord_cython.is_coord_subset_pbc(c1, c2, np.zeros(3, dtype=np.float64) + atol, mask_arr, pbc)
 
 
 def lattice_points_in_supercell(supercell_matrix):
