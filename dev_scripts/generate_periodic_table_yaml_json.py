@@ -31,6 +31,7 @@ The JSON file is a compact, production-format structure without metadata:
 from __future__ import annotations
 
 import csv
+import gzip
 import json
 import os
 import warnings
@@ -436,8 +437,8 @@ def generate_yaml_and_json(
             else:
                 element_to_props[elem.name][prop.name] = prop_val.value
 
-    with open(json_file, "w", encoding="utf-8") as f:
-        json.dump(element_to_props, f, indent=4)
+    with gzip.open(json_file, "wt", encoding="utf-8") as f:
+        json.dump(element_to_props, f)
 
     print(f"Saved JSON to: {json_file}")
 
@@ -466,7 +467,7 @@ def main():
     generate_yaml_and_json(
         properties,
         yaml_file=f"{RESOURCES_DIR}/_periodic_table.yaml",
-        json_file=f"{PKG_DIR}/core/periodic_table.json",
+        json_file=f"{PKG_DIR}/core/periodic_table.json.gz",
     )
 
 

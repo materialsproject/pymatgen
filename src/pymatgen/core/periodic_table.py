@@ -9,6 +9,7 @@ from __future__ import annotations
 
 import ast
 import functools
+import gzip
 import json
 import re
 import warnings
@@ -36,10 +37,11 @@ if TYPE_CHECKING:
 # Load element data (periodic table) from JSON file
 # NOTE: you should not update the JSON file manually,
 # see `dev_scripts/generate_periodic_table_yaml_json.py`
-with open(Path(__file__).absolute().parent / "periodic_table.json", encoding="utf-8") as ptable_json:
+with gzip.open(Path(__file__).absolute().parent / "periodic_table.json.gz", mode="rt", encoding="utf-8") as ptable_json:
     _RAW_PT_DATA: dict = json.load(ptable_json)
-    _PT_UNIT: dict[str, str] = _RAW_PT_DATA.pop("_unit")
-    _PT_DATA: dict[str, Any] = _RAW_PT_DATA
+
+_PT_UNIT: dict[str, str] = _RAW_PT_DATA.pop("_unit")
+_PT_DATA: dict[str, Any] = _RAW_PT_DATA
 
 _PT_ROW_SIZES: tuple[int, ...] = (2, 8, 8, 18, 18, 32, 32)
 
