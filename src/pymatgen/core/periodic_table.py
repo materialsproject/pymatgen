@@ -152,16 +152,14 @@ class ElementBase(Enum):
             # entries for the named element.
             data = {**_PT_DATA[self.symbol], **data}
 
-        at_r = data.get("Atomic radius")
-        if at_r is None:
-            self._atomic_radius = None
-        else:
-            self._atomic_radius = Length(at_r, _PT_UNIT["Atomic radius"])
+        at_r: float | None = data.get("Atomic radius")
+        self._atomic_radius = None if at_r is None else Length(at_r, _PT_UNIT["Atomic radius"])
+
         self._atomic_mass = Mass(data["Atomic mass"], _PT_UNIT["Atomic mass"])
 
         self._atomic_mass_number = None
         self.A = data.get("Atomic mass no")
-        if self.A:
+        if self.A is not None:
             self._atomic_mass_number = Mass(self.A, _PT_UNIT["Atomic mass no"])
 
         self.long_name = data["Name"]
@@ -321,7 +319,7 @@ class ElementBase(Enum):
     @property
     def ionization_energy(self) -> float | None:
         """First ionization energy of element."""
-        if not self.ionization_energies:
+        if self.ionization_energies is None:
             warnings.warn(f"No data available for ionization_energy for {self.symbol}", stacklevel=2)
             return None
         return self.ionization_energies[0]
