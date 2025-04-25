@@ -219,9 +219,6 @@ class ElementBase(Enum):
         if isinstance(val, list | dict):
             return val
 
-        # TODO: implement factor support
-        # factor = "e" + base_power[1]
-
         unit = _PT_UNIT.get(prop_name)
 
         if unit is not None:

@@ -26,9 +26,6 @@ The JSON file is a compact, production-format structure without metadata:
         "_unit" -> {
             <property name>: <unit string>
         }
-
-# TODO:
-    - accept factor in source, but merge to value for JSON/YAML?
 """
 
 from __future__ import annotations
@@ -65,20 +62,16 @@ RESOURCES_DIR: str = f"{Path(__file__).parent}/periodic_table_resources"
 @dataclass
 class ElemPropertyValue:
     value: Any = DEFAULT_VALUE
-    reference: str | None = None  # Parser not implemented
+    reference: str | None = None  # per-value ref parser not implemented
 
 
 @dataclass
 class Property:
     name: str
     data: dict[Element, ElemPropertyValue]
+    factor: float | None = None
     unit: str | None = None
     reference: str | None = None
-
-    # TODO: don't do unit conversion for now
-    # def __post_init__(self):
-    #     if self.unit is not None and isinstance(self.unit, str):
-    #         self.unit = Unit(self.unit)
 
 
 def parse_yaml(file: PathLike) -> list[Property]:
@@ -87,8 +80,9 @@ def parse_yaml(file: PathLike) -> list[Property]:
     Expected YAML format:
         We expect each YAML file to contain one or more properties.
         Each property should follow this structure:
-            - `unit` (optional): The unit of measurement for the values.
+            - `unit` (str, optional): The unit of measurement for the values.
             - `data`: Dict mapping each element symbol (e.g., "Fe") to its corresponding value.
+            - `factor` (float, optional): A multiplier applied to each value in `data`.
 
     Args:
         working_dir (PathLike): directory containing all YAMLs.
@@ -117,6 +111,7 @@ def parse_yaml(file: PathLike) -> list[Property]:
                 name=prop_name,
                 unit=prop_info.get("unit"),
                 reference=prop_info.get("reference"),
+                factor=prop_info.get("factor"),
                 data=data,
             )
         )
@@ -431,8 +426,12 @@ def generate_yaml_and_json(
         if prop.unit is not None:
             element_to_props["_unit"][prop.name] = str(prop.unit)
 
+        # Apply `factor`
         for elem, prop_val in prop.data.items():
-            element_to_props[elem.name][prop.name] = prop_val.value
+            if prop.factor is not None:  # assume numerical if `factor` is given
+                element_to_props[elem.name][prop.name] = prop_val.value * prop.factor
+            else:
+                element_to_props[elem.name][prop.name] = prop_val.value
 
     with open(json_file, "w", encoding="utf-8") as f:
         json.dump(element_to_props, f, indent=4)

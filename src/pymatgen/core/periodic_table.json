@@ -202,12 +202,12 @@
         "Boiling point": 2435,
         "Brinell hardness": 24.5,
         "Bulk modulus": 100,
-        "Coefficient of linear thermal expansion": 18.9,
+        "Coefficient of linear thermal expansion": 1.89e-05,
         "Common oxidation states": [
             1
         ],
         "Density of solid": 10490,
-        "Electrical resistivity": 1.63,
+        "Electrical resistivity": 1.63e-08,
         "Electron affinity": 1.304473,
         "Electronic structure": {
             "0": "[Kr].4d10.5s1",
@@ -385,12 +385,12 @@
         "Boiling point": 2792,
         "Brinell hardness": 245,
         "Bulk modulus": 76,
-        "Coefficient of linear thermal expansion": 23.1,
+        "Coefficient of linear thermal expansion": 2.31e-05,
         "Common oxidation states": [
             3
         ],
         "Density of solid": 2700,
-        "Electrical resistivity": 2.7,
+        "Electrical resistivity": 2.7000000000000004e-08,
         "Electron affinity": 0.432835,
         "Electronic structure": {
             "0": "[Ne].3s2.3p1",
@@ -728,7 +728,7 @@
         ],
         "Critical temperature": 1700,
         "Density of solid": 5727,
-        "Electrical resistivity": 33,
+        "Electrical resistivity": 3.3e-07,
         "Electron affinity": 0.8044863,
         "Electronic structure": {
             "0": "[Ar].3d10.4s2.4p3",
@@ -996,12 +996,12 @@
         "Boiling point": 3129,
         "Brinell hardness": 2450,
         "Bulk modulus": 220,
-        "Coefficient of linear thermal expansion": 14.2,
+        "Coefficient of linear thermal expansion": 1.4199999999999998e-05,
         "Common oxidation states": [
             3
         ],
         "Density of solid": 19300,
-        "Electrical resistivity": 2.2,
+        "Electrical resistivity": 2.2000000000000002e-08,
         "Electron affinity": 2.30861025,
         "Electronic structure": {
             "0": "[Xe].4f14.5d10.6s1",
@@ -1163,12 +1163,12 @@
         "Atomic radius calculated": 0.87,
         "Boiling point": 4200,
         "Bulk modulus": 320,
-        "Coefficient of linear thermal expansion": 6,
+        "Coefficient of linear thermal expansion": 6e-06,
         "Common oxidation states": [
             3
         ],
         "Density of solid": 2460,
-        "Electrical resistivity": 1500000000000.0,
+        "Electrical resistivity": 15000.0,
         "Electron affinity": 0.27972325,
         "Electronic structure": {
             "0": "[He].2s2.2p1",
@@ -1254,12 +1254,12 @@
         "Atomic radius calculated": 2.53,
         "Boiling point": 2143,
         "Bulk modulus": 9.6,
-        "Coefficient of linear thermal expansion": 20.6,
+        "Coefficient of linear thermal expansion": 2.06e-05,
         "Common oxidation states": [
             2
         ],
         "Density of solid": 3510,
-        "Electrical resistivity": 34,
+        "Electrical resistivity": 3.4000000000000003e-07,
         "Electron affinity": 0.144626,
         "Electronic structure": {
             "0": "[Xe].6s2",
@@ -1406,12 +1406,12 @@
         "Boiling point": 2742,
         "Brinell hardness": 600,
         "Bulk modulus": 130,
-        "Coefficient of linear thermal expansion": 11.3,
+        "Coefficient of linear thermal expansion": 1.13e-05,
         "Common oxidation states": [
             2
         ],
         "Density of solid": 1848,
-        "Electrical resistivity": 3.8,
+        "Electrical resistivity": 3.7999999999999996e-08,
         "Electron affinity": -0.52,
         "Electronic structure": {
             "0": "[He].2s2",
@@ -1501,12 +1501,12 @@
         "Boiling point": 1837,
         "Brinell hardness": 94.2,
         "Bulk modulus": 31,
-        "Coefficient of linear thermal expansion": 13.4,
+        "Coefficient of linear thermal expansion": 1.34e-05,
         "Common oxidation states": [
             3
         ],
         "Density of solid": 9780,
-        "Electrical resistivity": 130,
+        "Electrical resistivity": 1.3e-06,
         "Electron affinity": 0.94236213,
         "Electronic structure": {
             "0": "[Xe].4f14.5d10.6s2.6p3",
@@ -1837,7 +1837,7 @@
             7
         ],
         "Critical temperature": 586,
-        "Electrical resistivity": 7.8e+18,
+        "Electrical resistivity": 78000000000.0,
         "Electron affinity": 3.3635883,
         "Electronic structure": {
             "0": "[Ar].3d10.4s2.4p5",
@@ -1966,13 +1966,13 @@
         "Atomic radius calculated": 0.67,
         "Boiling point": 4300,
         "Bulk modulus": 33,
-        "Coefficient of linear thermal expansion": 7.1,
+        "Coefficient of linear thermal expansion": 7.099999999999999e-06,
         "Common oxidation states": [
             -4,
             4
         ],
         "Density of solid": 2267,
-        "Electrical resistivity": 1000,
+        "Electrical resistivity": 1e-05,
         "Electron affinity": 1.262122611,
         "Electronic structure": {
             "0": "[He].2s2.2p2",
@@ -2064,12 +2064,12 @@
         "Boiling point": 1757,
         "Brinell hardness": 167,
         "Bulk modulus": 17,
-        "Coefficient of linear thermal expansion": 22.3,
+        "Coefficient of linear thermal expansion": 2.23e-05,
         "Common oxidation states": [
             2
         ],
         "Density of solid": 1550,
-        "Electrical resistivity": 3.4,
+        "Electrical resistivity": 3.4e-08,
         "Electron affinity": 0.024551,
         "Electronic structure": {
             "0": "[Ar].4s2",
@@ -2187,12 +2187,12 @@
         "Boiling point": 1040,
         "Brinell hardness": 203,
         "Bulk modulus": 42,
-        "Coefficient of linear thermal expansion": 30.8,
+        "Coefficient of linear thermal expansion": 3.0799999999999996e-05,
         "Common oxidation states": [
             2
         ],
         "Density of solid": 8650,
-        "Electrical resistivity": 7,
+        "Electrical resistivity": 7e-08,
         "Electron affinity": -0.72,
         "Electronic structure": {
             "0": "[Kr].4d10.5s2",
@@ -2340,13 +2340,13 @@
         "Boiling point": 3633,
         "Brinell hardness": 412,
         "Bulk modulus": 22,
-        "Coefficient of linear thermal expansion": 6.3,
+        "Coefficient of linear thermal expansion": 6.3e-06,
         "Common oxidation states": [
             3,
             4
         ],
         "Density of solid": 6689,
-        "Electrical resistivity": 74,
+        "Electrical resistivity": 7.4e-07,
         "Electron affinity": 0.60016027,
         "Electronic structure": {
             "0": "[Xe].4f1.5d1.6s2",
@@ -2688,7 +2688,7 @@
             7
         ],
         "Critical temperature": 417,
-        "Electrical resistivity": 1000000000.0,
+        "Electrical resistivity": 10.0,
         "Electron affinity": 3.61272528,
         "Electronic structure": {
             "0": "[Ne].3s2.3p5",
@@ -2956,13 +2956,13 @@
         "Boiling point": 3200,
         "Brinell hardness": 700,
         "Bulk modulus": 180,
-        "Coefficient of linear thermal expansion": 13.0,
+        "Coefficient of linear thermal expansion": 1.3e-05,
         "Common oxidation states": [
             2,
             3
         ],
         "Density of solid": 8900,
-        "Electrical resistivity": 6,
+        "Electrical resistivity": 6.000000000000001e-08,
         "Electron affinity": 0.66225547,
         "Electronic structure": {
             "0": "[Ar].3d7.4s2",
@@ -3123,13 +3123,13 @@
         "Boiling point": 2944,
         "Brinell hardness": 1120,
         "Bulk modulus": 160,
-        "Coefficient of linear thermal expansion": 4.9,
+        "Coefficient of linear thermal expansion": 4.9000000000000005e-06,
         "Common oxidation states": [
             3,
             6
         ],
         "Density of solid": 7140,
-        "Electrical resistivity": 12.7,
+        "Electrical resistivity": 1.2699999999999999e-07,
         "Electron affinity": 0.67592827,
         "Electronic structure": {
             "0": "[Ar].3d5.4s1",
@@ -3311,7 +3311,7 @@
         ],
         "Critical temperature": 1938,
         "Density of solid": 1879,
-        "Electrical resistivity": 21,
+        "Electrical resistivity": 2.1e-07,
         "Electron affinity": 0.471598338,
         "Electronic structure": {
             "0": "[Xe].6s1",
@@ -3454,12 +3454,12 @@
         "Boiling point": 3200,
         "Brinell hardness": 874,
         "Bulk modulus": 140,
-        "Coefficient of linear thermal expansion": 16.5,
+        "Coefficient of linear thermal expansion": 1.6499999999999998e-05,
         "Common oxidation states": [
             2
         ],
         "Density of solid": 8920,
-        "Electrical resistivity": 1.72,
+        "Electrical resistivity": 1.72e-08,
         "Electron affinity": 1.235784,
         "Electronic structure": {
             "0": "[Ar].3d10.4s1",
@@ -3616,12 +3616,12 @@
         "Boiling point": 2840,
         "Brinell hardness": 500,
         "Bulk modulus": 41,
-        "Coefficient of linear thermal expansion": 9.9,
+        "Coefficient of linear thermal expansion": 9.9e-06,
         "Common oxidation states": [
             3
         ],
         "Density of solid": 8551,
-        "Electrical resistivity": 92.6,
+        "Electrical resistivity": 9.26e-07,
         "Electron affinity": 0.0153,
         "Electronic structure": {
             "0": "[Xe].4f10.6s2",
@@ -3794,12 +3794,12 @@
         "Boiling point": 3141,
         "Brinell hardness": 814,
         "Bulk modulus": 44,
-        "Coefficient of linear thermal expansion": 12.2,
+        "Coefficient of linear thermal expansion": 1.2199999999999998e-05,
         "Common oxidation states": [
             3
         ],
         "Density of solid": 9066,
-        "Electrical resistivity": 86.0,
+        "Electrical resistivity": 8.6e-07,
         "Electron affinity": 0.312,
         "Electronic structure": {
             "0": "[Xe].4f12.6s2",
@@ -4077,13 +4077,13 @@
         "Atomic radius calculated": 2.31,
         "Boiling point": 1800,
         "Bulk modulus": 8.3,
-        "Coefficient of linear thermal expansion": 35,
+        "Coefficient of linear thermal expansion": 3.5e-05,
         "Common oxidation states": [
             2,
             3
         ],
         "Density of solid": 5244,
-        "Electrical resistivity": 90,
+        "Electrical resistivity": 9.000000000000001e-07,
         "Electron affinity": 0.11613,
         "Electronic structure": {
             "0": "[Xe].4f7.6s2",
@@ -4354,13 +4354,13 @@
         "Boiling point": 3134,
         "Brinell hardness": 490,
         "Bulk modulus": 170,
-        "Coefficient of linear thermal expansion": 11.8,
+        "Coefficient of linear thermal expansion": 1.18e-05,
         "Common oxidation states": [
             2,
             3
         ],
         "Density of solid": 7874,
-        "Electrical resistivity": 10,
+        "Electrical resistivity": 1e-07,
         "Electron affinity": 0.15323635,
         "Electronic structure": {
             "0": "[Ar].3d6.4s2",
@@ -4807,12 +4807,12 @@
         "Atomic radius calculated": 1.36,
         "Boiling point": 2477,
         "Brinell hardness": 60,
-        "Coefficient of linear thermal expansion": 120,
+        "Coefficient of linear thermal expansion": 0.00011999999999999999,
         "Common oxidation states": [
             3
         ],
         "Density of solid": 5904,
-        "Electrical resistivity": 14,
+        "Electrical resistivity": 1.4e-07,
         "Electron affinity": 0.30116615,
         "Electronic structure": {
             "0": "[Ar].3d10.4s2.4p1",
@@ -4923,12 +4923,12 @@
         "Atomic radius calculated": 2.33,
         "Boiling point": 3523,
         "Bulk modulus": 38,
-        "Coefficient of linear thermal expansion": 9.4,
+        "Coefficient of linear thermal expansion": 9.4e-06,
         "Common oxidation states": [
             3
         ],
         "Density of solid": 7901,
-        "Electrical resistivity": 131,
+        "Electrical resistivity": 1.31e-06,
         "Electron affinity": 0.2123,
         "Electronic structure": {
             "0": "[Xe].4f7.5d1.6s2",
@@ -5073,14 +5073,14 @@
         "Atomic radius": 1.25,
         "Atomic radius calculated": 1.25,
         "Boiling point": 3093,
-        "Coefficient of linear thermal expansion": 6,
+        "Coefficient of linear thermal expansion": 6e-06,
         "Common oxidation states": [
             -4,
             2,
             4
         ],
         "Density of solid": 5323,
-        "Electrical resistivity": 50000,
+        "Electrical resistivity": 0.0005,
         "Electron affinity": 1.232676413,
         "Electronic structure": {
             "0": "[Ar].3d10.4s2.4p2",
@@ -5294,12 +5294,12 @@
         "Boiling point": 4876,
         "Brinell hardness": 1700,
         "Bulk modulus": 110,
-        "Coefficient of linear thermal expansion": 5.9,
+        "Coefficient of linear thermal expansion": 5.9e-06,
         "Common oxidation states": [
             4
         ],
         "Density of solid": 13310,
-        "Electrical resistivity": 34,
+        "Electrical resistivity": 3.4000000000000003e-07,
         "Electron affinity": 0.17807,
         "Electronic structure": {
             "0": "[Xe].4f14.5d2.6s2",
@@ -5465,7 +5465,7 @@
             2
         ],
         "Critical temperature": 1750,
-        "Electrical resistivity": 96,
+        "Electrical resistivity": 9.600000000000001e-07,
         "Electron affinity": -0.52,
         "Electronic structure": {
             "0": "[Xe].4f14.5d10.6s2",
@@ -5651,12 +5651,12 @@
         "Boiling point": 2993,
         "Brinell hardness": 746,
         "Bulk modulus": 40,
-        "Coefficient of linear thermal expansion": 11.2,
+        "Coefficient of linear thermal expansion": 1.12e-05,
         "Common oxidation states": [
             3
         ],
         "Density of solid": 8795,
-        "Electrical resistivity": 81.4,
+        "Electrical resistivity": 8.140000000000001e-07,
         "Electron affinity": 0.338,
         "Electronic structure": {
             "0": "[Xe].4f11.6s2",
@@ -5814,7 +5814,7 @@
         ],
         "Critical temperature": 819,
         "Density of solid": 4940,
-        "Electrical resistivity": 1300000000000000.0,
+        "Electrical resistivity": 13000000.0,
         "Electron affinity": 3.059046537,
         "Electronic structure": {
             "0": "[Kr].4d10.5s2.5p5",
@@ -5968,12 +5968,12 @@
         "Atomic radius calculated": 1.56,
         "Boiling point": 2345,
         "Brinell hardness": 8.83,
-        "Coefficient of linear thermal expansion": 32.1,
+        "Coefficient of linear thermal expansion": 3.21e-05,
         "Common oxidation states": [
             3
         ],
         "Density of solid": 7310,
-        "Electrical resistivity": 8,
+        "Electrical resistivity": 8e-08,
         "Electron affinity": 0.299,
         "Electronic structure": {
             "0": "[Kr].4d10.5s2.5p1",
@@ -6109,13 +6109,13 @@
         "Boiling point": 4701,
         "Brinell hardness": 1670,
         "Bulk modulus": 320,
-        "Coefficient of linear thermal expansion": 6.4,
+        "Coefficient of linear thermal expansion": 6.4e-06,
         "Common oxidation states": [
             3,
             4
         ],
         "Density of solid": 22650,
-        "Electrical resistivity": 4.7,
+        "Electrical resistivity": 4.7000000000000004e-08,
         "Electron affinity": 1.56405712,
         "Electronic structure": {
             "0": "[Xe].4f14.5d7.6s2",
@@ -6288,7 +6288,7 @@
         ],
         "Critical temperature": 2223,
         "Density of solid": 856,
-        "Electrical resistivity": 7.5,
+        "Electrical resistivity": 7.5e-08,
         "Electron affinity": 0.50145913,
         "Electronic structure": {
             "0": "[Ar].4s1",
@@ -6486,12 +6486,12 @@
         "Boiling point": 3743,
         "Brinell hardness": 363,
         "Bulk modulus": 28,
-        "Coefficient of linear thermal expansion": 12.1,
+        "Coefficient of linear thermal expansion": 1.21e-05,
         "Common oxidation states": [
             3
         ],
         "Density of solid": 6146,
-        "Electrical resistivity": 61.5,
+        "Electrical resistivity": 6.15e-07,
         "Electron affinity": 0.5575462,
         "Electronic structure": {
             "0": "[Xe].5d1.6s2",
@@ -6640,13 +6640,13 @@
         "Atomic radius calculated": 1.67,
         "Boiling point": 1615,
         "Bulk modulus": 11,
-        "Coefficient of linear thermal expansion": 46,
+        "Coefficient of linear thermal expansion": 4.6e-05,
         "Common oxidation states": [
             1
         ],
         "Critical temperature": 3223,
         "Density of solid": 535,
-        "Electrical resistivity": 9.5,
+        "Electrical resistivity": 9.5e-08,
         "Electron affinity": 0.61804922,
         "Electronic structure": {
             "0": "[He].2s1",
@@ -6858,12 +6858,12 @@
         "Boiling point": 3675,
         "Brinell hardness": 893,
         "Bulk modulus": 48,
-        "Coefficient of linear thermal expansion": 9.9,
+        "Coefficient of linear thermal expansion": 9.9e-06,
         "Common oxidation states": [
             3
         ],
         "Density of solid": 9841,
-        "Electrical resistivity": 58,
+        "Electrical resistivity": 5.800000000000001e-07,
         "Electron affinity": 0.23887,
         "Electronic structure": {
             "0": "[Xe].4f14.5d1.6s2",
@@ -7130,12 +7130,12 @@
         "Boiling point": 1363,
         "Brinell hardness": 260,
         "Bulk modulus": 45,
-        "Coefficient of linear thermal expansion": 8.2,
+        "Coefficient of linear thermal expansion": 8.2e-06,
         "Common oxidation states": [
             2
         ],
         "Density of solid": 1738,
-        "Electrical resistivity": 4.4,
+        "Electrical resistivity": 4.4000000000000004e-08,
         "Electron affinity": -0.42,
         "Electronic structure": {
             "0": "[Ne].3s2",
@@ -7231,14 +7231,14 @@
         "Boiling point": 2334,
         "Brinell hardness": 196,
         "Bulk modulus": 120,
-        "Coefficient of linear thermal expansion": 21.7,
+        "Coefficient of linear thermal expansion": 2.17e-05,
         "Common oxidation states": [
             2,
             4,
             7
         ],
         "Density of solid": 7470,
-        "Electrical resistivity": 144,
+        "Electrical resistivity": 1.44e-06,
         "Electron affinity": -0.52,
         "Electronic structure": {
             "0": "[Ar].3d5.4s2",
@@ -7446,13 +7446,13 @@
         "Boiling point": 4912,
         "Brinell hardness": 1500,
         "Bulk modulus": 230,
-        "Coefficient of linear thermal expansion": 4.8,
+        "Coefficient of linear thermal expansion": 4.8e-06,
         "Common oxidation states": [
             4,
             6
         ],
         "Density of solid": 10280,
-        "Electrical resistivity": 5.5,
+        "Electrical resistivity": 5.5e-08,
         "Electron affinity": 0.747238,
         "Electronic structure": {
             "0": "[Kr].4d5.5s1",
@@ -7723,13 +7723,13 @@
         "Boiling point": 1156,
         "Brinell hardness": 0.69,
         "Bulk modulus": 6.3,
-        "Coefficient of linear thermal expansion": 71,
+        "Coefficient of linear thermal expansion": 7.099999999999999e-05,
         "Common oxidation states": [
             1
         ],
         "Critical temperature": 2573,
         "Density of solid": 968,
-        "Electrical resistivity": 4.9,
+        "Electrical resistivity": 4.9e-08,
         "Electron affinity": 0.54792625,
         "Electronic structure": {
             "0": "[Ne].3s1",
@@ -7843,12 +7843,12 @@
         "Boiling point": 5017,
         "Brinell hardness": 736,
         "Bulk modulus": 170,
-        "Coefficient of linear thermal expansion": 7.3,
+        "Coefficient of linear thermal expansion": 7.2999999999999996e-06,
         "Common oxidation states": [
             5
         ],
         "Density of solid": 8570,
-        "Electrical resistivity": 15.2,
+        "Electrical resistivity": 1.5199999999999998e-07,
         "Electron affinity": 0.917407,
         "Electronic structure": {
             "0": "[Kr].4d4.5s1",
@@ -8007,12 +8007,12 @@
         "Boiling point": 3373,
         "Brinell hardness": 265,
         "Bulk modulus": 32,
-        "Coefficient of linear thermal expansion": 9.6,
+        "Coefficient of linear thermal expansion": 9.6e-06,
         "Common oxidation states": [
             3
         ],
         "Density of solid": 6800,
-        "Electrical resistivity": 64.3,
+        "Electrical resistivity": 6.43e-07,
         "Electron affinity": 0.0974933,
         "Electronic structure": {
             "0": "[Xe].4f4.6s2",
@@ -8212,12 +8212,12 @@
         "Boiling point": 3186,
         "Brinell hardness": 700,
         "Bulk modulus": 180,
-        "Coefficient of linear thermal expansion": 13.4,
+        "Coefficient of linear thermal expansion": 1.34e-05,
         "Common oxidation states": [
             2
         ],
         "Density of solid": 8908,
-        "Electrical resistivity": 7.2,
+        "Electrical resistivity": 7.200000000000001e-08,
         "Electron affinity": 1.1571612,
         "Electronic structure": {
             "0": "[Ar].3d8.4s2",
@@ -8494,7 +8494,7 @@
             5
         ],
         "Density of solid": 20450,
-        "Electrical resistivity": 120,
+        "Electrical resistivity": 1.2e-06,
         "Electron affinity": 0.48,
         "Electronic structure": {
             "0": "[Rn].5f4.6d1.7s2",
@@ -8793,12 +8793,12 @@
         "Atomic radius calculated": 1.85,
         "Boiling point": 5285,
         "Brinell hardness": 3920,
-        "Coefficient of linear thermal expansion": 5.1,
+        "Coefficient of linear thermal expansion": 5.0999999999999995e-06,
         "Common oxidation states": [
             4
         ],
         "Density of solid": 22610,
-        "Electrical resistivity": 8.1,
+        "Electrical resistivity": 8.1e-08,
         "Electron affinity": 1.07766124,
         "Electronic structure": {
             "0": "[Xe].4f14.5d6.6s2",
@@ -8987,7 +8987,7 @@
         ],
         "Critical temperature": 994,
         "Density of solid": 1823,
-        "Electrical resistivity": 10,
+        "Electrical resistivity": 1e-07,
         "Electron affinity": 0.74660911,
         "Electronic structure": {
             "0": "[Ne].3s2.3p3",
@@ -9104,7 +9104,7 @@
             5
         ],
         "Density of solid": 15370,
-        "Electrical resistivity": 18,
+        "Electrical resistivity": 1.8e-07,
         "Electron affinity": 0.55,
         "Electronic structure": {
             "0": "[Rn].5f2.6d1.7s2",
@@ -9294,13 +9294,13 @@
         "Boiling point": 2022,
         "Brinell hardness": 38.3,
         "Bulk modulus": 46,
-        "Coefficient of linear thermal expansion": 28.9,
+        "Coefficient of linear thermal expansion": 2.8899999999999998e-05,
         "Common oxidation states": [
             2,
             4
         ],
         "Density of solid": 11340,
-        "Electrical resistivity": 21,
+        "Electrical resistivity": 2.1e-07,
         "Electron affinity": 0.3567212,
         "Electronic structure": {
             "0": "[Xe].4f14.5d10.6s2.6p2",
@@ -9518,13 +9518,13 @@
         "Boiling point": 3236,
         "Brinell hardness": 37.3,
         "Bulk modulus": 180,
-        "Coefficient of linear thermal expansion": 11.8,
+        "Coefficient of linear thermal expansion": 1.18e-05,
         "Common oxidation states": [
             2,
             4
         ],
         "Density of solid": 12023,
-        "Electrical resistivity": 10.8,
+        "Electrical resistivity": 1.0800000000000001e-07,
         "Electron affinity": 0.5621412,
         "Electronic structure": {
             "0": "[Kr].4d10",
@@ -9674,12 +9674,12 @@
         "Atomic radius calculated": 2.05,
         "Boiling point": 3273,
         "Bulk modulus": 33,
-        "Coefficient of linear thermal expansion": 11,
+        "Coefficient of linear thermal expansion": 1.1e-05,
         "Common oxidation states": [
             3
         ],
         "Density of solid": 7264,
-        "Electrical resistivity": 75,
+        "Electrical resistivity": 7.5e-07,
         "Electron affinity": 0.129,
         "Electronic structure": {
             "0": "[Xe].4f5.6s2",
@@ -9820,7 +9820,7 @@
             4
         ],
         "Density of solid": 9196,
-        "Electrical resistivity": 40,
+        "Electrical resistivity": 4e-07,
         "Electron affinity": 1.407,
         "Electronic structure": {
             "0": "[Xe].4f14.5d10.6s2.6p4",
@@ -9982,12 +9982,12 @@
         "Boiling point": 3563,
         "Brinell hardness": 481,
         "Bulk modulus": 29,
-        "Coefficient of linear thermal expansion": 6.7,
+        "Coefficient of linear thermal expansion": 6.7e-06,
         "Common oxidation states": [
             3
         ],
         "Density of solid": 6640,
-        "Electrical resistivity": 70,
+        "Electrical resistivity": 7e-07,
         "Electron affinity": 0.1092346,
         "Electronic structure": {
             "0": "[Xe].4f3.6s2",
@@ -10144,13 +10144,13 @@
         "Boiling point": 4098,
         "Brinell hardness": 392,
         "Bulk modulus": 230,
-        "Coefficient of linear thermal expansion": 8.8,
+        "Coefficient of linear thermal expansion": 8.8e-06,
         "Common oxidation states": [
             2,
             4
         ],
         "Density of solid": 21090,
-        "Electrical resistivity": 10.6,
+        "Electrical resistivity": 1.06e-07,
         "Electron affinity": 2.125105,
         "Electronic structure": {
             "0": "[Xe].4f14.5d9.6s1",
@@ -10309,7 +10309,7 @@
             4
         ],
         "Density of solid": 19816,
-        "Electrical resistivity": 150,
+        "Electrical resistivity": 1.5e-06,
         "Electron affinity": -0.5,
         "Electronic structure": {
             "0": "[Rn].5f6.7s2",
@@ -10507,7 +10507,7 @@
             2
         ],
         "Density of solid": 5000,
-        "Electrical resistivity": 100,
+        "Electrical resistivity": 1e-06,
         "Electron affinity": 0.1,
         "Electronic structure": {
             "0": "[Rn].7s2",
@@ -10663,7 +10663,7 @@
         ],
         "Critical temperature": 2093,
         "Density of solid": 1532,
-        "Electrical resistivity": 13.3,
+        "Electrical resistivity": 1.33e-07,
         "Electron affinity": 0.48591621,
         "Electronic structure": {
             "0": "[Kr].5s1",
@@ -10808,12 +10808,12 @@
         "Boiling point": 5869,
         "Brinell hardness": 1320,
         "Bulk modulus": 370,
-        "Coefficient of linear thermal expansion": 6.2,
+        "Coefficient of linear thermal expansion": 6.2e-06,
         "Common oxidation states": [
             4
         ],
         "Density of solid": 21020,
-        "Electrical resistivity": 18,
+        "Electrical resistivity": 1.8e-07,
         "Electron affinity": 0.06039664,
         "Electronic structure": {
             "0": "[Xe].4f14.5d5.6s2",
@@ -10999,12 +10999,12 @@
         "Boiling point": 3968,
         "Brinell hardness": 1100,
         "Bulk modulus": 380,
-        "Coefficient of linear thermal expansion": 8.2,
+        "Coefficient of linear thermal expansion": 8.2e-06,
         "Common oxidation states": [
             3
         ],
         "Density of solid": 12450,
-        "Electrical resistivity": 4.3,
+        "Electrical resistivity": 4.3e-08,
         "Electron affinity": 1.142892,
         "Electronic structure": {
             "0": "[Kr].4d8.5s1",
@@ -11268,13 +11268,13 @@
         "Boiling point": 4423,
         "Brinell hardness": 2160,
         "Bulk modulus": 220,
-        "Coefficient of linear thermal expansion": 6.4,
+        "Coefficient of linear thermal expansion": 6.4e-06,
         "Common oxidation states": [
             3,
             4
         ],
         "Density of solid": 12370,
-        "Electrical resistivity": 7.1,
+        "Electrical resistivity": 7.1e-08,
         "Electron affinity": 1.046272,
         "Electronic structure": {
             "0": "[Kr].4d7.5s1",
@@ -11434,7 +11434,7 @@
         ],
         "Critical temperature": 1314,
         "Density of solid": 1960,
-        "Electrical resistivity": 2e+23,
+        "Electrical resistivity": 1999999999999999.8,
         "Electron affinity": 2.07710426,
         "Electronic structure": {
             "0": "[Ne].3s2.3p4",
@@ -11553,14 +11553,14 @@
         "Boiling point": 1860,
         "Brinell hardness": 294,
         "Bulk modulus": 42,
-        "Coefficient of linear thermal expansion": 11,
+        "Coefficient of linear thermal expansion": 1.1e-05,
         "Common oxidation states": [
             -3,
             3,
             5
         ],
         "Density of solid": 6697,
-        "Electrical resistivity": 40,
+        "Electrical resistivity": 4e-07,
         "Electron affinity": 1.04740119,
         "Electronic structure": {
             "0": "[Kr].4d10.5s2.5p3",
@@ -11704,12 +11704,12 @@
         "Boiling point": 3103,
         "Brinell hardness": 750,
         "Bulk modulus": 57,
-        "Coefficient of linear thermal expansion": 10.2,
+        "Coefficient of linear thermal expansion": 1.0199999999999999e-05,
         "Common oxidation states": [
             3
         ],
         "Density of solid": 2985,
-        "Electrical resistivity": 55,
+        "Electrical resistivity": 5.5e-07,
         "Electron affinity": 0.17938023,
         "Electronic structure": {
             "0": "[Ar].3d1.4s2",
@@ -11935,13 +11935,13 @@
         "Atomic radius calculated": 1.11,
         "Boiling point": 3173,
         "Bulk modulus": 100,
-        "Coefficient of linear thermal expansion": 2.6,
+        "Coefficient of linear thermal expansion": 2.6e-06,
         "Common oxidation states": [
             -4,
             4
         ],
         "Density of solid": 2330,
-        "Electrical resistivity": 100000,
+        "Electrical resistivity": 0.001,
         "Electron affinity": 1.38952128,
         "Electronic structure": {
             "0": "[Ne].3s2.3p2",
@@ -12035,12 +12035,12 @@
         "Boiling point": 2076,
         "Brinell hardness": 441,
         "Bulk modulus": 38,
-        "Coefficient of linear thermal expansion": 12.7,
+        "Coefficient of linear thermal expansion": 1.2699999999999999e-05,
         "Common oxidation states": [
             3
         ],
         "Density of solid": 7353,
-        "Electrical resistivity": 94,
+        "Electrical resistivity": 9.4e-07,
         "Electron affinity": 0.162,
         "Electronic structure": {
             "0": "[Xe].4f6.6s2",
@@ -12214,14 +12214,14 @@
         "Boiling point": 2875,
         "Brinell hardness": 51,
         "Bulk modulus": 58,
-        "Coefficient of linear thermal expansion": 22,
+        "Coefficient of linear thermal expansion": 2.2e-05,
         "Common oxidation states": [
             -4,
             2,
             4
         ],
         "Density of solid": 7310,
-        "Electrical resistivity": 11.5,
+        "Electrical resistivity": 1.15e-07,
         "Electron affinity": 1.1120702,
         "Electronic structure": {
             "0": "[Kr].4d10.5s2.5p2",
@@ -12366,12 +12366,12 @@
         "Atomic radius": 2.0,
         "Atomic radius calculated": 2.19,
         "Boiling point": 1655,
-        "Coefficient of linear thermal expansion": 22.5,
+        "Coefficient of linear thermal expansion": 2.2499999999999998e-05,
         "Common oxidation states": [
             2
         ],
         "Density of solid": 2630,
-        "Electrical resistivity": 13.5,
+        "Electrical resistivity": 1.35e-07,
         "Electron affinity": 0.052066,
         "Electronic structure": {
             "0": "[Kr].5s2",
@@ -12508,12 +12508,12 @@
         "Boiling point": 5731,
         "Brinell hardness": 800,
         "Bulk modulus": 200,
-        "Coefficient of linear thermal expansion": 6.3,
+        "Coefficient of linear thermal expansion": 6.3e-06,
         "Common oxidation states": [
             5
         ],
         "Density of solid": 16650,
-        "Electrical resistivity": 13.5,
+        "Electrical resistivity": 1.35e-07,
         "Electron affinity": 0.32885923,
         "Electronic structure": {
             "0": "[Xe].4f14.5d3.6s2",
@@ -12692,12 +12692,12 @@
         "Boiling point": 3503,
         "Brinell hardness": 677,
         "Bulk modulus": 38.7,
-        "Coefficient of linear thermal expansion": 10.3,
+        "Coefficient of linear thermal expansion": 1.03e-05,
         "Common oxidation states": [
             3
         ],
         "Density of solid": 8219,
-        "Electrical resistivity": 115,
+        "Electrical resistivity": 1.15e-06,
         "Electron affinity": 0.131318,
         "Electronic structure": {
             "0": "[Xe].4f9.6s2",
@@ -12865,7 +12865,7 @@
             7
         ],
         "Density of solid": 11500,
-        "Electrical resistivity": 22,
+        "Electrical resistivity": 2.2e-07,
         "Electron affinity": 0.552,
         "Electronic structure": {
             "0": "[Kr].4d5.5s2",
@@ -13006,7 +13006,7 @@
             6
         ],
         "Density of solid": 6240,
-        "Electrical resistivity": 10000,
+        "Electrical resistivity": 0.0001,
         "Electron affinity": 1.9708757,
         "Electronic structure": {
             "0": "[Kr].4d10.5s2.5p4",
@@ -13174,12 +13174,12 @@
         "Boiling point": 5093,
         "Brinell hardness": 400,
         "Bulk modulus": 54,
-        "Coefficient of linear thermal expansion": 11.0,
+        "Coefficient of linear thermal expansion": 1.1e-05,
         "Common oxidation states": [
             4
         ],
         "Density of solid": 11724,
-        "Electrical resistivity": 15,
+        "Electrical resistivity": 1.5e-07,
         "Electron affinity": 0.607696,
         "Electronic structure": {
             "0": "[Rn].6d2.7s2",
@@ -13364,12 +13364,12 @@
         "Boiling point": 3560,
         "Brinell hardness": 716,
         "Bulk modulus": 110,
-        "Coefficient of linear thermal expansion": 8.6,
+        "Coefficient of linear thermal expansion": 8.599999999999999e-06,
         "Common oxidation states": [
             4
         ],
         "Density of solid": 4507,
-        "Electrical resistivity": 40,
+        "Electrical resistivity": 4e-07,
         "Electron affinity": 0.075545,
         "Electronic structure": {
             "0": "[Ar].3d2.4s2",
@@ -13507,13 +13507,13 @@
         "Boiling point": 1746,
         "Brinell hardness": 26.4,
         "Bulk modulus": 43,
-        "Coefficient of linear thermal expansion": 29.9,
+        "Coefficient of linear thermal expansion": 2.99e-05,
         "Common oxidation states": [
             1,
             3
         ],
         "Density of solid": 11850,
-        "Electrical resistivity": 15,
+        "Electrical resistivity": 1.5e-07,
         "Electron affinity": 0.32005319,
         "Electronic structure": {
             "0": "[Xe].4f14.5d10.6s2.6p1",
@@ -13698,12 +13698,12 @@
         "Boiling point": 2223,
         "Brinell hardness": 471,
         "Bulk modulus": 45,
-        "Coefficient of linear thermal expansion": 13.3,
+        "Coefficient of linear thermal expansion": 1.33e-05,
         "Common oxidation states": [
             3
         ],
         "Density of solid": 9321,
-        "Electrical resistivity": 67.6,
+        "Electrical resistivity": 6.76e-07,
         "Electron affinity": 1.02922,
         "Electronic structure": {
             "0": "[Xe].4f13.6s2",
@@ -13870,12 +13870,12 @@
         "Boiling point": 4200,
         "Brinell hardness": 2400,
         "Bulk modulus": 100,
-        "Coefficient of linear thermal expansion": 13.9,
+        "Coefficient of linear thermal expansion": 1.3899999999999999e-05,
         "Common oxidation states": [
             6
         ],
         "Density of solid": 19050,
-        "Electrical resistivity": 28,
+        "Electrical resistivity": 2.8e-07,
         "Electron affinity": 0.314979,
         "Electronic structure": {
             "0": "[Rn].5f3.6d1.7s2",
@@ -14117,12 +14117,12 @@
         "Boiling point": 3680,
         "Brinell hardness": 628,
         "Bulk modulus": 160,
-        "Coefficient of linear thermal expansion": 8.4,
+        "Coefficient of linear thermal expansion": 8.4e-06,
         "Common oxidation states": [
             5
         ],
         "Density of solid": 6110,
-        "Electrical resistivity": 20,
+        "Electrical resistivity": 2e-07,
         "Electron affinity": 0.527662,
         "Electronic structure": {
             "0": "[Ar].3d3.4s2",
@@ -14282,13 +14282,13 @@
         "Boiling point": 5828,
         "Brinell hardness": 2570,
         "Bulk modulus": 310,
-        "Coefficient of linear thermal expansion": 4.5,
+        "Coefficient of linear thermal expansion": 4.5e-06,
         "Common oxidation states": [
             4,
             6
         ],
         "Density of solid": 19250,
-        "Electrical resistivity": 5.4,
+        "Electrical resistivity": 5.400000000000001e-08,
         "Electron affinity": 0.81650082,
         "Electronic structure": {
             "0": "[Xe].4f14.5d4.6s2",
@@ -14584,12 +14584,12 @@
         "Boiling point": 3609,
         "Brinell hardness": 589,
         "Bulk modulus": 41,
-        "Coefficient of linear thermal expansion": 10.6,
+        "Coefficient of linear thermal expansion": 1.0599999999999998e-05,
         "Common oxidation states": [
             3
         ],
         "Density of solid": 4472,
-        "Electrical resistivity": 60,
+        "Electrical resistivity": 6e-07,
         "Electron affinity": 0.3112922,
         "Electronic structure": {
             "0": "[Kr].4d1.5s2",
@@ -14715,12 +14715,12 @@
         "Boiling point": 1469,
         "Brinell hardness": 343,
         "Bulk modulus": 31,
-        "Coefficient of linear thermal expansion": 26.3,
+        "Coefficient of linear thermal expansion": 2.63e-05,
         "Common oxidation states": [
             3
         ],
         "Density of solid": 6570,
-        "Electrical resistivity": 25.0,
+        "Electrical resistivity": 2.5e-07,
         "Electron affinity": -0.02,
         "Electronic structure": {
             "0": "[Xe].4f14.6s2",
@@ -14892,12 +14892,12 @@
         "Boiling point": 1180,
         "Brinell hardness": 412,
         "Bulk modulus": 70,
-        "Coefficient of linear thermal expansion": 30.2,
+        "Coefficient of linear thermal expansion": 3.02e-05,
         "Common oxidation states": [
             2
         ],
         "Density of solid": 7140,
-        "Electrical resistivity": 6.0,
+        "Electrical resistivity": 6.000000000000001e-08,
         "Electron affinity": -0.62,
         "Electronic structure": {
             "0": "[Ar].3d10.4s2",
@@ -15015,12 +15015,12 @@
         "Atomic radius calculated": 2.06,
         "Boiling point": 4682,
         "Brinell hardness": 650,
-        "Coefficient of linear thermal expansion": 5.7,
+        "Coefficient of linear thermal expansion": 5.7e-06,
         "Common oxidation states": [
             4
         ],
         "Density of solid": 6511,
-        "Electrical resistivity": 43.3,
+        "Electrical resistivity": 4.3299999999999997e-07,
         "Electron affinity": 0.433289,
         "Electronic structure": {
             "0": "[Kr].4d2.5s2",
