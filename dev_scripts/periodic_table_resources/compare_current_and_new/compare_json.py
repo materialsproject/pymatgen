@@ -12,6 +12,7 @@ KNOWN_DIFF = {
     "X",  # X for some elements is NaN, and cannot be compared correctly
     "coefficient_of_linear_thermal_expansion",  # rounding: 1.42e-05 → 1.4199999999999998e-05
     "ionization_energies",  # default changed from [] to None
+    "ionization_energy",  # int -> float
 }
 
 
@@ -44,7 +45,7 @@ def compare_jsons(path1: str, path2: str, log_path: str = "diff.log") -> bool:
             v1 = elements1.get(el)
             v2 = elements2.get(el)
 
-            if v1 != v2:
+            if v1 != v2 or type(v1) is not type(v2):
                 differences.append((prop, el, v1, v2))
 
     with open(log_path, "w", encoding="utf-8") as log:
