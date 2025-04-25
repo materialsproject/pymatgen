@@ -2230,7 +2230,7 @@ class IStructure(SiteCollection, MSONable):
         coords_in_cell = np.dot(all_frac_coords, matrix)
         site_coords = self.cart_coords
 
-        indices = list(range(len(self)))
+        indices = np.arange(len(self))
 
         for image in itertools.product(*all_ranges):
             coords = np.dot(image, matrix) + coords_in_cell
@@ -2240,10 +2240,10 @@ class IStructure(SiteCollection, MSONable):
             for j, d, within_r in zip(indices, all_dists, all_within_r, strict=True):
                 if include_site:
                     nnsite = PeriodicSite(
-                        self[j].species,
+                        self[j].species,  # type:ignore[index]
                         coords[j],
                         lattice,
-                        properties=self[j].properties,
+                        properties=self[j].properties,  # type:ignore[index]
                         coords_are_cartesian=True,
                         skip_checks=True,
                     )
