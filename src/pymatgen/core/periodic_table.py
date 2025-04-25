@@ -224,7 +224,6 @@ class ElementBase(Enum):
         if unit is not None:
             if unit in SUPPORTED_UNIT_NAMES:
                 unit = Unit(unit)
-            # TODO: any case val cannot be converted to float now (with unit given)?
             return FloatWithUnit(float(val), unit)
 
         try:
