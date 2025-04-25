@@ -10,6 +10,8 @@ KNOWN_DIFF = {
     "average_ionic_radius",  # rounding: 0.9674999999999999 → 0.9675
     "electron_affinity",  # in #4344 the tolerance was too high
     "X",  # X for some elements is NaN, and cannot be compared correctly
+    "coefficient_of_linear_thermal_expansion",  # rounding: 1.42e-05 → 1.4199999999999998e-05
+    "ionization_energies",  # default changed from [] to None
 }
 
 
