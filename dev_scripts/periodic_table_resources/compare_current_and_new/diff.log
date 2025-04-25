@@ -1,0 +1,2526 @@
+❌ Differences found:
+
+🔼 Added items:
+  + root['data']['Eu']['Shannon radii']['']
+
+🔽 Removed items:
+  - root['data']['Ac']['Atomic radius calculated']
+  - root['data']['Ac']['Brinell hardness']
+  - root['data']['Ac']['Bulk modulus']
+  - root['data']['Ac']['Coefficient of linear thermal expansion']
+  - root['data']['Ac']['Critical temperature']
+  - root['data']['Ac']['Electrical resistivity']
+  - root['data']['Ac']['Metallic radius']
+  - root['data']['Ac']['Mineral hardness']
+  - root['data']['Ac']['Poissons ratio']
+  - root['data']['Ac']['Reflectivity']
+  - root['data']['Ac']['Refractive index']
+  - root['data']['Ac']['Rigidity modulus']
+  - root['data']['Ac']['Superconduction temperature']
+  - root['data']['Ac']['Velocity of sound']
+  - root['data']['Ac']['Vickers hardness']
+  - root['data']['Ac']['Youngs modulus']
+  - root['data']['Ag']['Critical temperature']
+  - root['data']['Ag']['Refractive index']
+  - root['data']['Ag']['Superconduction temperature']
+  - root['data']['Al']['Critical temperature']
+  - root['data']['Al']['Refractive index']
+  - root['data']['Am']['Atomic orbitals']
+  - root['data']['Am']['Atomic radius calculated']
+  - root['data']['Am']['Brinell hardness']
+  - root['data']['Am']['Bulk modulus']
+  - root['data']['Am']['Coefficient of linear thermal expansion']
+  - root['data']['Am']['Critical temperature']
+  - root['data']['Am']['Density of solid']
+  - root['data']['Am']['Electrical resistivity']
+  - root['data']['Am']['Mineral hardness']
+  - root['data']['Am']['Poissons ratio']
+  - root['data']['Am']['Reflectivity']
+  - root['data']['Am']['Refractive index']
+  - root['data']['Am']['Rigidity modulus']
+  - root['data']['Am']['Velocity of sound']
+  - root['data']['Am']['Vickers hardness']
+  - root['data']['Am']['Youngs modulus']
+  - root['data']['Ar']['Brinell hardness']
+  - root['data']['Ar']['Bulk modulus']
+  - root['data']['Ar']['Coefficient of linear thermal expansion']
+  - root['data']['Ar']['Density of solid']
+  - root['data']['Ar']['Electrical resistivity']
+  - root['data']['Ar']['Metallic radius']
+  - root['data']['Ar']['Mineral hardness']
+  - root['data']['Ar']['Poissons ratio']
+  - root['data']['Ar']['Reflectivity']
+  - root['data']['Ar']['Rigidity modulus']
+  - root['data']['Ar']['Superconduction temperature']
+  - root['data']['Ar']['Vickers hardness']
+  - root['data']['Ar']['Youngs modulus']
+  - root['data']['As']['Coefficient of linear thermal expansion']
+  - root['data']['As']['Metallic radius']
+  - root['data']['As']['Poissons ratio']
+  - root['data']['As']['Reflectivity']
+  - root['data']['As']['Rigidity modulus']
+  - root['data']['As']['Superconduction temperature']
+  - root['data']['As']['Velocity of sound']
+  - root['data']['As']['Vickers hardness']
+  - root['data']['At']['Atomic radius']
+  - root['data']['At']['Atomic radius calculated']
+  - root['data']['At']['Boiling point']
+  - root['data']['At']['Brinell hardness']
+  - root['data']['At']['Bulk modulus']
+  - root['data']['At']['Coefficient of linear thermal expansion']
+  - root['data']['At']['Critical temperature']
+  - root['data']['At']['Density of solid']
+  - root['data']['At']['Electrical resistivity']
+  - root['data']['At']['Liquid range']
+  - root['data']['At']['Metallic radius']
+  - root['data']['At']['Mineral hardness']
+  - root['data']['At']['Molar volume']
+  - root['data']['At']['Poissons ratio']
+  - root['data']['At']['Reflectivity']
+  - root['data']['At']['Refractive index']
+  - root['data']['At']['Rigidity modulus']
+  - root['data']['At']['Superconduction temperature']
+  - root['data']['At']['Velocity of sound']
+  - root['data']['At']['Vickers hardness']
+  - root['data']['At']['Youngs modulus']
+  - root['data']['Au']['Critical temperature']
+  - root['data']['Au']['Refractive index']
+  - root['data']['Au']['Superconduction temperature']
+  - root['data']['B']['Brinell hardness']
+  - root['data']['B']['Critical temperature']
+  - root['data']['B']['Metallic radius']
+  - root['data']['B']['Poissons ratio']
+  - root['data']['B']['Reflectivity']
+  - root['data']['B']['Refractive index']
+  - root['data']['B']['Rigidity modulus']
+  - root['data']['B']['Superconduction temperature']
+  - root['data']['B']['Youngs modulus']
+  - root['data']['Ba']['Brinell hardness']
+  - root['data']['Ba']['Critical temperature']
+  - root['data']['Ba']['Poissons ratio']
+  - root['data']['Ba']['Reflectivity']
+  - root['data']['Ba']['Refractive index']
+  - root['data']['Ba']['Superconduction temperature']
+  - root['data']['Ba']['Vickers hardness']
+  - root['data']['Be']['Critical temperature']
+  - root['data']['Be']['Reflectivity']
+  - root['data']['Be']['Refractive index']
+  - root['data']['Bh']['Electron affinity']
+  - root['data']['Bh']['Van der waals radius']
+  - root['data']['Bi']['Critical temperature']
+  - root['data']['Bi']['Metallic radius']
+  - root['data']['Bi']['Reflectivity']
+  - root['data']['Bi']['Refractive index']
+  - root['data']['Bi']['Superconduction temperature']
+  - root['data']['Bi']['Vickers hardness']
+  - root['data']['Bk']['Atomic orbitals']
+  - root['data']['Bk']['Atomic radius']
+  - root['data']['Bk']['Atomic radius calculated']
+  - root['data']['Bk']['Boiling point']
+  - root['data']['Bk']['Brinell hardness']
+  - root['data']['Bk']['Bulk modulus']
+  - root['data']['Bk']['Coefficient of linear thermal expansion']
+  - root['data']['Bk']['Critical temperature']
+  - root['data']['Bk']['Electrical resistivity']
+  - root['data']['Bk']['Liquid range']
+  - root['data']['Bk']['Mineral hardness']
+  - root['data']['Bk']['Poissons ratio']
+  - root['data']['Bk']['Reflectivity']
+  - root['data']['Bk']['Refractive index']
+  - root['data']['Bk']['Rigidity modulus']
+  - root['data']['Bk']['Superconduction temperature']
+  - root['data']['Bk']['Velocity of sound']
+  - root['data']['Bk']['Vickers hardness']
+  - root['data']['Bk']['Youngs modulus']
+  - root['data']['Br']['Brinell hardness']
+  - root['data']['Br']['Coefficient of linear thermal expansion']
+  - root['data']['Br']['Density of solid']
+  - root['data']['Br']['Metallic radius']
+  - root['data']['Br']['Mineral hardness']
+  - root['data']['Br']['Poissons ratio']
+  - root['data']['Br']['Reflectivity']
+  - root['data']['Br']['Rigidity modulus']
+  - root['data']['Br']['Superconduction temperature']
+  - root['data']['Br']['Velocity of sound']
+  - root['data']['Br']['Vickers hardness']
+  - root['data']['Br']['Youngs modulus']
+  - root['data']['C']['Brinell hardness']
+  - root['data']['C']['Critical temperature']
+  - root['data']['C']['Metallic radius']
+  - root['data']['C']['Poissons ratio']
+  - root['data']['C']['Rigidity modulus']
+  - root['data']['C']['Superconduction temperature']
+  - root['data']['C']['Vickers hardness']
+  - root['data']['C']['Youngs modulus']
+  - root['data']['Ca']['Critical temperature']
+  - root['data']['Ca']['Reflectivity']
+  - root['data']['Ca']['Refractive index']
+  - root['data']['Ca']['Superconduction temperature']
+  - root['data']['Ca']['Vickers hardness']
+  - root['data']['Cd']['Critical temperature']
+  - root['data']['Cd']['Refractive index']
+  - root['data']['Cd']['Vickers hardness']
+  - root['data']['Ce']['Atomic radius calculated']
+  - root['data']['Ce']['Critical temperature']
+  - root['data']['Ce']['Reflectivity']
+  - root['data']['Ce']['Refractive index']
+  - root['data']['Cf']['Atomic orbitals']
+  - root['data']['Cf']['Atomic radius']
+  - root['data']['Cf']['Atomic radius calculated']
+  - root['data']['Cf']['Boiling point']
+  - root['data']['Cf']['Brinell hardness']
+  - root['data']['Cf']['Bulk modulus']
+  - root['data']['Cf']['Coefficient of linear thermal expansion']
+  - root['data']['Cf']['Critical temperature']
+  - root['data']['Cf']['Electrical resistivity']
+  - root['data']['Cf']['Liquid range']
+  - root['data']['Cf']['Mineral hardness']
+  - root['data']['Cf']['Poissons ratio']
+  - root['data']['Cf']['Reflectivity']
+  - root['data']['Cf']['Refractive index']
+  - root['data']['Cf']['Rigidity modulus']
+  - root['data']['Cf']['Superconduction temperature']
+  - root['data']['Cf']['Thermal conductivity']
+  - root['data']['Cf']['Velocity of sound']
+  - root['data']['Cf']['Vickers hardness']
+  - root['data']['Cf']['Youngs modulus']
+  - root['data']['Cl']['Brinell hardness']
+  - root['data']['Cl']['Coefficient of linear thermal expansion']
+  - root['data']['Cl']['Density of solid']
+  - root['data']['Cl']['Metallic radius']
+  - root['data']['Cl']['Mineral hardness']
+  - root['data']['Cl']['Poissons ratio']
+  - root['data']['Cl']['Reflectivity']
+  - root['data']['Cl']['Rigidity modulus']
+  - root['data']['Cl']['Superconduction temperature']
+  - root['data']['Cl']['Vickers hardness']
+  - root['data']['Cl']['Youngs modulus']
+  - root['data']['Cm']['Atomic orbitals']
+  - root['data']['Cm']['Atomic radius']
+  - root['data']['Cm']['Atomic radius calculated']
+  - root['data']['Cm']['Brinell hardness']
+  - root['data']['Cm']['Bulk modulus']
+  - root['data']['Cm']['Coefficient of linear thermal expansion']
+  - root['data']['Cm']['Critical temperature']
+  - root['data']['Cm']['Electrical resistivity']
+  - root['data']['Cm']['Mineral hardness']
+  - root['data']['Cm']['Poissons ratio']
+  - root['data']['Cm']['Reflectivity']
+  - root['data']['Cm']['Refractive index']
+  - root['data']['Cm']['Rigidity modulus']
+  - root['data']['Cm']['Superconduction temperature']
+  - root['data']['Cm']['Velocity of sound']
+  - root['data']['Cm']['Vickers hardness']
+  - root['data']['Cm']['Youngs modulus']
+  - root['data']['Cn']['Electron affinity']
+  - root['data']['Cn']['Ground level']
+  - root['data']['Cn']['Ionization energies']
+  - root['data']['Cn']['Van der waals radius']
+  - root['data']['Co']['Critical temperature']
+  - root['data']['Co']['Refractive index']
+  - root['data']['Co']['Superconduction temperature']
+  - root['data']['Cr']['Critical temperature']
+  - root['data']['Cr']['Reflectivity']
+  - root['data']['Cr']['Refractive index']
+  - root['data']['Cr']['Superconduction temperature']
+  - root['data']['Cs']['Coefficient of linear thermal expansion']
+  - root['data']['Cs']['Poissons ratio']
+  - root['data']['Cs']['Reflectivity']
+  - root['data']['Cs']['Refractive index']
+  - root['data']['Cs']['Rigidity modulus']
+  - root['data']['Cs']['Superconduction temperature']
+  - root['data']['Cs']['Velocity of sound']
+  - root['data']['Cs']['Vickers hardness']
+  - root['data']['Cu']['Critical temperature']
+  - root['data']['Cu']['Refractive index']
+  - root['data']['Cu']['Superconduction temperature']
+  - root['data']['Db']['Electron affinity']
+  - root['data']['Db']['Van der waals radius']
+  - root['data']['Ds']['Electron affinity']
+  - root['data']['Ds']['Ground level']
+  - root['data']['Ds']['Van der waals radius']
+  - root['data']['Dy']['Critical temperature']
+  - root['data']['Dy']['Mineral hardness']
+  - root['data']['Dy']['Reflectivity']
+  - root['data']['Dy']['Refractive index']
+  - root['data']['Dy']['Superconduction temperature']
+  - root['data']['Er']['Critical temperature']
+  - root['data']['Er']['Mineral hardness']
+  - root['data']['Er']['Reflectivity']
+  - root['data']['Er']['Refractive index']
+  - root['data']['Er']['Superconduction temperature']
+  - root['data']['Es']['Atomic orbitals']
+  - root['data']['Es']['Atomic radius']
+  - root['data']['Es']['Atomic radius calculated']
+  - root['data']['Es']['Boiling point']
+  - root['data']['Es']['Brinell hardness']
+  - root['data']['Es']['Bulk modulus']
+  - root['data']['Es']['Coefficient of linear thermal expansion']
+  - root['data']['Es']['Critical temperature']
+  - root['data']['Es']['Density of solid']
+  - root['data']['Es']['Electrical resistivity']
+  - root['data']['Es']['Liquid range']
+  - root['data']['Es']['Mineral hardness']
+  - root['data']['Es']['Poissons ratio']
+  - root['data']['Es']['Reflectivity']
+  - root['data']['Es']['Refractive index']
+  - root['data']['Es']['Rigidity modulus']
+  - root['data']['Es']['Superconduction temperature']
+  - root['data']['Es']['Thermal conductivity']
+  - root['data']['Es']['Velocity of sound']
+  - root['data']['Es']['Vickers hardness']
+  - root['data']['Es']['Youngs modulus']
+  - root['data']['Eu']['Brinell hardness']
+  - root['data']['Eu']['Critical temperature']
+  - root['data']['Eu']['Mineral hardness']
+  - root['data']['Eu']['Reflectivity']
+  - root['data']['Eu']['Refractive index']
+  - root['data']['Eu']['Superconduction temperature']
+  - root['data']['Eu']['Velocity of sound']
+  - root['data']['Eu']['Shannon radii']['3']['VII']
+  - root['data']['F']['Brinell hardness']
+  - root['data']['F']['Bulk modulus']
+  - root['data']['F']['Coefficient of linear thermal expansion']
+  - root['data']['F']['Density of solid']
+  - root['data']['F']['Electrical resistivity']
+  - root['data']['F']['Metallic radius']
+  - root['data']['F']['Mineral hardness']
+  - root['data']['F']['Poissons ratio']
+  - root['data']['F']['Reflectivity']
+  - root['data']['F']['Rigidity modulus']
+  - root['data']['F']['Superconduction temperature']
+  - root['data']['F']['Velocity of sound']
+  - root['data']['F']['Vickers hardness']
+  - root['data']['F']['Youngs modulus']
+  - root['data']['Fe']['Critical temperature']
+  - root['data']['Fe']['Refractive index']
+  - root['data']['Fe']['Superconduction temperature']
+  - root['data']['Fl']['Electron affinity']
+  - root['data']['Fl']['Ground level']
+  - root['data']['Fl']['Ionization energies']
+  - root['data']['Fl']['Van der waals radius']
+  - root['data']['Fm']['Atomic orbitals']
+  - root['data']['Fm']['Atomic radius']
+  - root['data']['Fm']['Atomic radius calculated']
+  - root['data']['Fm']['Boiling point']
+  - root['data']['Fm']['Brinell hardness']
+  - root['data']['Fm']['Bulk modulus']
+  - root['data']['Fm']['Coefficient of linear thermal expansion']
+  - root['data']['Fm']['Critical temperature']
+  - root['data']['Fm']['Density of solid']
+  - root['data']['Fm']['Electrical resistivity']
+  - root['data']['Fm']['Liquid range']
+  - root['data']['Fm']['Metallic radius']
+  - root['data']['Fm']['Mineral hardness']
+  - root['data']['Fm']['Molar volume']
+  - root['data']['Fm']['Poissons ratio']
+  - root['data']['Fm']['Reflectivity']
+  - root['data']['Fm']['Refractive index']
+  - root['data']['Fm']['Rigidity modulus']
+  - root['data']['Fm']['Superconduction temperature']
+  - root['data']['Fm']['Thermal conductivity']
+  - root['data']['Fm']['Velocity of sound']
+  - root['data']['Fm']['Vickers hardness']
+  - root['data']['Fm']['Youngs modulus']
+  - root['data']['Fr']['Atomic radius']
+  - root['data']['Fr']['Atomic radius calculated']
+  - root['data']['Fr']['Boiling point']
+  - root['data']['Fr']['Brinell hardness']
+  - root['data']['Fr']['Bulk modulus']
+  - root['data']['Fr']['Coefficient of linear thermal expansion']
+  - root['data']['Fr']['Critical temperature']
+  - root['data']['Fr']['Density of solid']
+  - root['data']['Fr']['Electrical resistivity']
+  - root['data']['Fr']['Liquid range']
+  - root['data']['Fr']['Metallic radius']
+  - root['data']['Fr']['Mineral hardness']
+  - root['data']['Fr']['Molar volume']
+  - root['data']['Fr']['Poissons ratio']
+  - root['data']['Fr']['Reflectivity']
+  - root['data']['Fr']['Refractive index']
+  - root['data']['Fr']['Rigidity modulus']
+  - root['data']['Fr']['Superconduction temperature']
+  - root['data']['Fr']['Thermal conductivity']
+  - root['data']['Fr']['Velocity of sound']
+  - root['data']['Fr']['Vickers hardness']
+  - root['data']['Fr']['Youngs modulus']
+  - root['data']['Ga']['Bulk modulus']
+  - root['data']['Ga']['Critical temperature']
+  - root['data']['Ga']['Poissons ratio']
+  - root['data']['Ga']['Reflectivity']
+  - root['data']['Ga']['Refractive index']
+  - root['data']['Ga']['Rigidity modulus']
+  - root['data']['Ga']['Vickers hardness']
+  - root['data']['Ga']['Youngs modulus']
+  - root['data']['Gd']['Brinell hardness']
+  - root['data']['Gd']['Critical temperature']
+  - root['data']['Gd']['Mineral hardness']
+  - root['data']['Gd']['Reflectivity']
+  - root['data']['Gd']['Refractive index']
+  - root['data']['Ge']['Brinell hardness']
+  - root['data']['Ge']['Bulk modulus']
+  - root['data']['Ge']['Critical temperature']
+  - root['data']['Ge']['Metallic radius']
+  - root['data']['Ge']['Poissons ratio']
+  - root['data']['Ge']['Reflectivity']
+  - root['data']['Ge']['Refractive index']
+  - root['data']['Ge']['Rigidity modulus']
+  - root['data']['Ge']['Superconduction temperature']
+  - root['data']['Ge']['Vickers hardness']
+  - root['data']['Ge']['Youngs modulus']
+  - root['data']['H']['Brinell hardness']
+  - root['data']['H']['Bulk modulus']
+  - root['data']['H']['Coefficient of linear thermal expansion']
+  - root['data']['H']['Density of solid']
+  - root['data']['H']['Electrical resistivity']
+  - root['data']['H']['Is named isotope']
+  - root['data']['H']['Metallic radius']
+  - root['data']['H']['Mineral hardness']
+  - root['data']['H']['Poissons ratio']
+  - root['data']['H']['Reflectivity']
+  - root['data']['H']['Rigidity modulus']
+  - root['data']['H']['Superconduction temperature']
+  - root['data']['H']['Vickers hardness']
+  - root['data']['H']['Youngs modulus']
+  - root['data']['He']['Atomic radius']
+  - root['data']['He']['Brinell hardness']
+  - root['data']['He']['Bulk modulus']
+  - root['data']['He']['Coefficient of linear thermal expansion']
+  - root['data']['He']['Density of solid']
+  - root['data']['He']['Electrical resistivity']
+  - root['data']['He']['Metallic radius']
+  - root['data']['He']['Mineral hardness']
+  - root['data']['He']['Poissons ratio']
+  - root['data']['He']['Reflectivity']
+  - root['data']['He']['Rigidity modulus']
+  - root['data']['He']['Superconduction temperature']
+  - root['data']['He']['Vickers hardness']
+  - root['data']['He']['Youngs modulus']
+  - root['data']['Hf']['Critical temperature']
+  - root['data']['Hf']['Reflectivity']
+  - root['data']['Hf']['Refractive index']
+  - root['data']['Hg']['Brinell hardness']
+  - root['data']['Hg']['Coefficient of linear thermal expansion']
+  - root['data']['Hg']['Density of solid']
+  - root['data']['Hg']['Poissons ratio']
+  - root['data']['Hg']['Rigidity modulus']
+  - root['data']['Hg']['Vickers hardness']
+  - root['data']['Hg']['Youngs modulus']
+  - root['data']['Ho']['Atomic radius calculated']
+  - root['data']['Ho']['Critical temperature']
+  - root['data']['Ho']['Mineral hardness']
+  - root['data']['Ho']['Reflectivity']
+  - root['data']['Ho']['Refractive index']
+  - root['data']['Ho']['Superconduction temperature']
+  - root['data']['Hs']['Electron affinity']
+  - root['data']['Hs']['Van der waals radius']
+  - root['data']['I']['Brinell hardness']
+  - root['data']['I']['Coefficient of linear thermal expansion']
+  - root['data']['I']['Metallic radius']
+  - root['data']['I']['Mineral hardness']
+  - root['data']['I']['Poissons ratio']
+  - root['data']['I']['Reflectivity']
+  - root['data']['I']['Refractive index']
+  - root['data']['I']['Rigidity modulus']
+  - root['data']['I']['Superconduction temperature']
+  - root['data']['I']['Velocity of sound']
+  - root['data']['I']['Vickers hardness']
+  - root['data']['I']['Youngs modulus']
+  - root['data']['In']['Bulk modulus']
+  - root['data']['In']['Critical temperature']
+  - root['data']['In']['Poissons ratio']
+  - root['data']['In']['Reflectivity']
+  - root['data']['In']['Refractive index']
+  - root['data']['In']['Rigidity modulus']
+  - root['data']['In']['Vickers hardness']
+  - root['data']['Ir']['Critical temperature']
+  - root['data']['Ir']['Refractive index']
+  - root['data']['K']['Coefficient of linear thermal expansion']
+  - root['data']['K']['Poissons ratio']
+  - root['data']['K']['Reflectivity']
+  - root['data']['K']['Refractive index']
+  - root['data']['K']['Superconduction temperature']
+  - root['data']['K']['Vickers hardness']
+  - root['data']['K']['Youngs modulus']
+  - root['data']['Kr']['Atomic radius']
+  - root['data']['Kr']['Brinell hardness']
+  - root['data']['Kr']['Bulk modulus']
+  - root['data']['Kr']['Coefficient of linear thermal expansion']
+  - root['data']['Kr']['Density of solid']
+  - root['data']['Kr']['Electrical resistivity']
+  - root['data']['Kr']['Metallic radius']
+  - root['data']['Kr']['Mineral hardness']
+  - root['data']['Kr']['Poissons ratio']
+  - root['data']['Kr']['Reflectivity']
+  - root['data']['Kr']['Rigidity modulus']
+  - root['data']['Kr']['Superconduction temperature']
+  - root['data']['Kr']['Vickers hardness']
+  - root['data']['Kr']['Youngs modulus']
+  - root['data']['La']['Atomic radius calculated']
+  - root['data']['La']['Critical temperature']
+  - root['data']['La']['Reflectivity']
+  - root['data']['La']['Refractive index']
+  - root['data']['Li']['Brinell hardness']
+  - root['data']['Li']['Poissons ratio']
+  - root['data']['Li']['Reflectivity']
+  - root['data']['Li']['Refractive index']
+  - root['data']['Li']['Superconduction temperature']
+  - root['data']['Li']['Vickers hardness']
+  - root['data']['Lr']['Atomic orbitals']
+  - root['data']['Lr']['Atomic radius']
+  - root['data']['Lr']['Atomic radius calculated']
+  - root['data']['Lr']['Boiling point']
+  - root['data']['Lr']['Brinell hardness']
+  - root['data']['Lr']['Bulk modulus']
+  - root['data']['Lr']['Coefficient of linear thermal expansion']
+  - root['data']['Lr']['Critical temperature']
+  - root['data']['Lr']['Density of solid']
+  - root['data']['Lr']['Electrical resistivity']
+  - root['data']['Lr']['Liquid range']
+  - root['data']['Lr']['Metallic radius']
+  - root['data']['Lr']['Mineral hardness']
+  - root['data']['Lr']['Molar volume']
+  - root['data']['Lr']['Poissons ratio']
+  - root['data']['Lr']['Reflectivity']
+  - root['data']['Lr']['Refractive index']
+  - root['data']['Lr']['Rigidity modulus']
+  - root['data']['Lr']['Superconduction temperature']
+  - root['data']['Lr']['Thermal conductivity']
+  - root['data']['Lr']['Van der waals radius']
+  - root['data']['Lr']['Velocity of sound']
+  - root['data']['Lr']['Vickers hardness']
+  - root['data']['Lr']['Youngs modulus']
+  - root['data']['Lu']['Critical temperature']
+  - root['data']['Lu']['Mineral hardness']
+  - root['data']['Lu']['Reflectivity']
+  - root['data']['Lu']['Refractive index']
+  - root['data']['Lu']['Velocity of sound']
+  - root['data']['Lv']['Ground level']
+  - root['data']['Lv']['Ionization energies']
+  - root['data']['Lv']['Van der waals radius']
+  - root['data']['Mc']['Ground level']
+  - root['data']['Mc']['Ionization energies']
+  - root['data']['Mc']['Van der waals radius']
+  - root['data']['Md']['Atomic orbitals']
+  - root['data']['Md']['Atomic radius']
+  - root['data']['Md']['Atomic radius calculated']
+  - root['data']['Md']['Boiling point']
+  - root['data']['Md']['Brinell hardness']
+  - root['data']['Md']['Bulk modulus']
+  - root['data']['Md']['Coefficient of linear thermal expansion']
+  - root['data']['Md']['Critical temperature']
+  - root['data']['Md']['Density of solid']
+  - root['data']['Md']['Electrical resistivity']
+  - root['data']['Md']['Liquid range']
+  - root['data']['Md']['Metallic radius']
+  - root['data']['Md']['Mineral hardness']
+  - root['data']['Md']['Molar volume']
+  - root['data']['Md']['Poissons ratio']
+  - root['data']['Md']['Reflectivity']
+  - root['data']['Md']['Refractive index']
+  - root['data']['Md']['Rigidity modulus']
+  - root['data']['Md']['Superconduction temperature']
+  - root['data']['Md']['Thermal conductivity']
+  - root['data']['Md']['Velocity of sound']
+  - root['data']['Md']['Vickers hardness']
+  - root['data']['Md']['Youngs modulus']
+  - root['data']['Mg']['Critical temperature']
+  - root['data']['Mg']['Refractive index']
+  - root['data']['Mg']['Superconduction temperature']
+  - root['data']['Mg']['Vickers hardness']
+  - root['data']['Mn']['Critical temperature']
+  - root['data']['Mn']['Poissons ratio']
+  - root['data']['Mn']['Reflectivity']
+  - root['data']['Mn']['Refractive index']
+  - root['data']['Mn']['Rigidity modulus']
+  - root['data']['Mn']['Superconduction temperature']
+  - root['data']['Mn']['Vickers hardness']
+  - root['data']['Mo']['Critical temperature']
+  - root['data']['Mo']['Refractive index']
+  - root['data']['Mt']['Electron affinity']
+  - root['data']['Mt']['Ground level']
+  - root['data']['Mt']['Van der waals radius']
+  - root['data']['N']['Brinell hardness']
+  - root['data']['N']['Bulk modulus']
+  - root['data']['N']['Coefficient of linear thermal expansion']
+  - root['data']['N']['Density of solid']
+  - root['data']['N']['Electrical resistivity']
+  - root['data']['N']['Metallic radius']
+  - root['data']['N']['Mineral hardness']
+  - root['data']['N']['Poissons ratio']
+  - root['data']['N']['Reflectivity']
+  - root['data']['N']['Rigidity modulus']
+  - root['data']['N']['Superconduction temperature']
+  - root['data']['N']['Vickers hardness']
+  - root['data']['N']['Youngs modulus']
+  - root['data']['Na']['Poissons ratio']
+  - root['data']['Na']['Reflectivity']
+  - root['data']['Na']['Refractive index']
+  - root['data']['Na']['Superconduction temperature']
+  - root['data']['Na']['Vickers hardness']
+  - root['data']['Nb']['Critical temperature']
+  - root['data']['Nb']['Reflectivity']
+  - root['data']['Nb']['Refractive index']
+  - root['data']['Nd']['Critical temperature']
+  - root['data']['Nd']['Mineral hardness']
+  - root['data']['Nd']['Reflectivity']
+  - root['data']['Nd']['Refractive index']
+  - root['data']['Nd']['Superconduction temperature']
+  - root['data']['Ne']['Atomic radius']
+  - root['data']['Ne']['Brinell hardness']
+  - root['data']['Ne']['Bulk modulus']
+  - root['data']['Ne']['Coefficient of linear thermal expansion']
+  - root['data']['Ne']['Density of solid']
+  - root['data']['Ne']['Electrical resistivity']
+  - root['data']['Ne']['Metallic radius']
+  - root['data']['Ne']['Mineral hardness']
+  - root['data']['Ne']['Poissons ratio']
+  - root['data']['Ne']['Reflectivity']
+  - root['data']['Ne']['Rigidity modulus']
+  - root['data']['Ne']['Superconduction temperature']
+  - root['data']['Ne']['Vickers hardness']
+  - root['data']['Ne']['Youngs modulus']
+  - root['data']['Nh']['Ground level']
+  - root['data']['Nh']['Ionization energies']
+  - root['data']['Nh']['Van der waals radius']
+  - root['data']['Ni']['Critical temperature']
+  - root['data']['Ni']['Refractive index']
+  - root['data']['Ni']['Superconduction temperature']
+  - root['data']['No']['Atomic orbitals']
+  - root['data']['No']['Atomic radius']
+  - root['data']['No']['Atomic radius calculated']
+  - root['data']['No']['Boiling point']
+  - root['data']['No']['Brinell hardness']
+  - root['data']['No']['Bulk modulus']
+  - root['data']['No']['Coefficient of linear thermal expansion']
+  - root['data']['No']['Critical temperature']
+  - root['data']['No']['Density of solid']
+  - root['data']['No']['Electrical resistivity']
+  - root['data']['No']['Liquid range']
+  - root['data']['No']['Metallic radius']
+  - root['data']['No']['Mineral hardness']
+  - root['data']['No']['Molar volume']
+  - root['data']['No']['Poissons ratio']
+  - root['data']['No']['Reflectivity']
+  - root['data']['No']['Refractive index']
+  - root['data']['No']['Rigidity modulus']
+  - root['data']['No']['Superconduction temperature']
+  - root['data']['No']['Thermal conductivity']
+  - root['data']['No']['Velocity of sound']
+  - root['data']['No']['Vickers hardness']
+  - root['data']['No']['Youngs modulus']
+  - root['data']['Np']['Atomic orbitals']
+  - root['data']['Np']['Atomic radius calculated']
+  - root['data']['Np']['Brinell hardness']
+  - root['data']['Np']['Bulk modulus']
+  - root['data']['Np']['Coefficient of linear thermal expansion']
+  - root['data']['Np']['Critical temperature']
+  - root['data']['Np']['Mineral hardness']
+  - root['data']['Np']['Poissons ratio']
+  - root['data']['Np']['Reflectivity']
+  - root['data']['Np']['Refractive index']
+  - root['data']['Np']['Rigidity modulus']
+  - root['data']['Np']['Superconduction temperature']
+  - root['data']['Np']['Velocity of sound']
+  - root['data']['Np']['Vickers hardness']
+  - root['data']['Np']['Youngs modulus']
+  - root['data']['O']['Brinell hardness']
+  - root['data']['O']['Bulk modulus']
+  - root['data']['O']['Coefficient of linear thermal expansion']
+  - root['data']['O']['Density of solid']
+  - root['data']['O']['Electrical resistivity']
+  - root['data']['O']['Metallic radius']
+  - root['data']['O']['Mineral hardness']
+  - root['data']['O']['Poissons ratio']
+  - root['data']['O']['Reflectivity']
+  - root['data']['O']['Rigidity modulus']
+  - root['data']['O']['Superconduction temperature']
+  - root['data']['O']['Vickers hardness']
+  - root['data']['O']['Youngs modulus']
+  - root['data']['Og']['Ground level']
+  - root['data']['Og']['Ionization energies']
+  - root['data']['Og']['Van der waals radius']
+  - root['data']['Os']['Bulk modulus']
+  - root['data']['Os']['Critical temperature']
+  - root['data']['Os']['Reflectivity']
+  - root['data']['Os']['Refractive index']
+  - root['data']['Os']['Vickers hardness']
+  - root['data']['Os']['Youngs modulus']
+  - root['data']['P']['Brinell hardness']
+  - root['data']['P']['Coefficient of linear thermal expansion']
+  - root['data']['P']['Metallic radius']
+  - root['data']['P']['Mineral hardness']
+  - root['data']['P']['Poissons ratio']
+  - root['data']['P']['Reflectivity']
+  - root['data']['P']['Rigidity modulus']
+  - root['data']['P']['Superconduction temperature']
+  - root['data']['P']['Velocity of sound']
+  - root['data']['P']['Vickers hardness']
+  - root['data']['P']['Youngs modulus']
+  - root['data']['Pa']['Atomic radius calculated']
+  - root['data']['Pa']['Boiling point']
+  - root['data']['Pa']['Brinell hardness']
+  - root['data']['Pa']['Bulk modulus']
+  - root['data']['Pa']['Coefficient of linear thermal expansion']
+  - root['data']['Pa']['Critical temperature']
+  - root['data']['Pa']['Liquid range']
+  - root['data']['Pa']['Mineral hardness']
+  - root['data']['Pa']['Poissons ratio']
+  - root['data']['Pa']['Reflectivity']
+  - root['data']['Pa']['Refractive index']
+  - root['data']['Pa']['Rigidity modulus']
+  - root['data']['Pa']['Velocity of sound']
+  - root['data']['Pa']['Vickers hardness']
+  - root['data']['Pa']['Youngs modulus']
+  - root['data']['Pb']['Critical temperature']
+  - root['data']['Pb']['Metallic radius']
+  - root['data']['Pb']['Reflectivity']
+  - root['data']['Pb']['Refractive index']
+  - root['data']['Pb']['Vickers hardness']
+  - root['data']['Pd']['Critical temperature']
+  - root['data']['Pd']['Refractive index']
+  - root['data']['Pd']['Superconduction temperature']
+  - root['data']['Pm']['Brinell hardness']
+  - root['data']['Pm']['Critical temperature']
+  - root['data']['Pm']['Mineral hardness']
+  - root['data']['Pm']['Reflectivity']
+  - root['data']['Pm']['Refractive index']
+  - root['data']['Pm']['Superconduction temperature']
+  - root['data']['Pm']['Velocity of sound']
+  - root['data']['Pm']['Vickers hardness']
+  - root['data']['Po']['Brinell hardness']
+  - root['data']['Po']['Bulk modulus']
+  - root['data']['Po']['Coefficient of linear thermal expansion']
+  - root['data']['Po']['Critical temperature']
+  - root['data']['Po']['Metallic radius']
+  - root['data']['Po']['Mineral hardness']
+  - root['data']['Po']['Poissons ratio']
+  - root['data']['Po']['Reflectivity']
+  - root['data']['Po']['Refractive index']
+  - root['data']['Po']['Rigidity modulus']
+  - root['data']['Po']['Superconduction temperature']
+  - root['data']['Po']['Velocity of sound']
+  - root['data']['Po']['Vickers hardness']
+  - root['data']['Po']['Youngs modulus']
+  - root['data']['Pr']['Critical temperature']
+  - root['data']['Pr']['Mineral hardness']
+  - root['data']['Pr']['Reflectivity']
+  - root['data']['Pr']['Refractive index']
+  - root['data']['Pr']['Superconduction temperature']
+  - root['data']['Pt']['Critical temperature']
+  - root['data']['Pt']['Refractive index']
+  - root['data']['Pt']['Superconduction temperature']
+  - root['data']['Pu']['Atomic orbitals']
+  - root['data']['Pu']['Atomic radius calculated']
+  - root['data']['Pu']['Brinell hardness']
+  - root['data']['Pu']['Bulk modulus']
+  - root['data']['Pu']['Coefficient of linear thermal expansion']
+  - root['data']['Pu']['Critical temperature']
+  - root['data']['Pu']['Mineral hardness']
+  - root['data']['Pu']['Reflectivity']
+  - root['data']['Pu']['Refractive index']
+  - root['data']['Pu']['Superconduction temperature']
+  - root['data']['Pu']['Vickers hardness']
+  - root['data']['Ra']['Atomic radius calculated']
+  - root['data']['Ra']['Brinell hardness']
+  - root['data']['Ra']['Bulk modulus']
+  - root['data']['Ra']['Coefficient of linear thermal expansion']
+  - root['data']['Ra']['Critical temperature']
+  - root['data']['Ra']['Metallic radius']
+  - root['data']['Ra']['Mineral hardness']
+  - root['data']['Ra']['Poissons ratio']
+  - root['data']['Ra']['Reflectivity']
+  - root['data']['Ra']['Refractive index']
+  - root['data']['Ra']['Rigidity modulus']
+  - root['data']['Ra']['Superconduction temperature']
+  - root['data']['Ra']['Velocity of sound']
+  - root['data']['Ra']['Vickers hardness']
+  - root['data']['Ra']['Youngs modulus']
+  - root['data']['Rb']['Coefficient of linear thermal expansion']
+  - root['data']['Rb']['Poissons ratio']
+  - root['data']['Rb']['Reflectivity']
+  - root['data']['Rb']['Refractive index']
+  - root['data']['Rb']['Rigidity modulus']
+  - root['data']['Rb']['Superconduction temperature']
+  - root['data']['Rb']['Vickers hardness']
+  - root['data']['Re']['Critical temperature']
+  - root['data']['Re']['Reflectivity']
+  - root['data']['Re']['Refractive index']
+  - root['data']['Rf']['Electron affinity']
+  - root['data']['Rf']['Van der waals radius']
+  - root['data']['Rg']['Ground level']
+  - root['data']['Rg']['Ionization energies']
+  - root['data']['Rg']['Van der waals radius']
+  - root['data']['Rh']['Critical temperature']
+  - root['data']['Rh']['Refractive index']
+  - root['data']['Rh']['Superconduction temperature']
+  - root['data']['Rn']['Atomic radius']
+  - root['data']['Rn']['Brinell hardness']
+  - root['data']['Rn']['Bulk modulus']
+  - root['data']['Rn']['Coefficient of linear thermal expansion']
+  - root['data']['Rn']['Density of solid']
+  - root['data']['Rn']['Electrical resistivity']
+  - root['data']['Rn']['Metallic radius']
+  - root['data']['Rn']['Mineral hardness']
+  - root['data']['Rn']['Poissons ratio']
+  - root['data']['Rn']['Reflectivity']
+  - root['data']['Rn']['Refractive index']
+  - root['data']['Rn']['Rigidity modulus']
+  - root['data']['Rn']['Superconduction temperature']
+  - root['data']['Rn']['Velocity of sound']
+  - root['data']['Rn']['Vickers hardness']
+  - root['data']['Rn']['Youngs modulus']
+  - root['data']['Ru']['Critical temperature']
+  - root['data']['Ru']['Reflectivity']
+  - root['data']['Ru']['Refractive index']
+  - root['data']['Ru']['Vickers hardness']
+  - root['data']['S']['Brinell hardness']
+  - root['data']['S']['Coefficient of linear thermal expansion']
+  - root['data']['S']['Metallic radius']
+  - root['data']['S']['Poissons ratio']
+  - root['data']['S']['Reflectivity']
+  - root['data']['S']['Rigidity modulus']
+  - root['data']['S']['Superconduction temperature']
+  - root['data']['S']['Velocity of sound']
+  - root['data']['S']['Vickers hardness']
+  - root['data']['S']['Youngs modulus']
+  - root['data']['Sb']['Critical temperature']
+  - root['data']['Sb']['Metallic radius']
+  - root['data']['Sb']['Poissons ratio']
+  - root['data']['Sb']['Refractive index']
+  - root['data']['Sb']['Superconduction temperature']
+  - root['data']['Sb']['Vickers hardness']
+  - root['data']['Sc']['Critical temperature']
+  - root['data']['Sc']['Mineral hardness']
+  - root['data']['Sc']['Reflectivity']
+  - root['data']['Sc']['Refractive index']
+  - root['data']['Sc']['Velocity of sound']
+  - root['data']['Sc']['Vickers hardness']
+  - root['data']['Se']['Coefficient of linear thermal expansion']
+  - root['data']['Se']['Metallic radius']
+  - root['data']['Se']['Reflectivity']
+  - root['data']['Se']['Superconduction temperature']
+  - root['data']['Se']['Vickers hardness']
+  - root['data']['Sg']['Electron affinity']
+  - root['data']['Sg']['Van der waals radius']
+  - root['data']['Si']['Brinell hardness']
+  - root['data']['Si']['Critical temperature']
+  - root['data']['Si']['Metallic radius']
+  - root['data']['Si']['Poissons ratio']
+  - root['data']['Si']['Refractive index']
+  - root['data']['Si']['Rigidity modulus']
+  - root['data']['Si']['Superconduction temperature']
+  - root['data']['Si']['Vickers hardness']
+  - root['data']['Sm']['Critical temperature']
+  - root['data']['Sm']['Mineral hardness']
+  - root['data']['Sm']['Reflectivity']
+  - root['data']['Sm']['Refractive index']
+  - root['data']['Sm']['Superconduction temperature']
+  - root['data']['Sn']['Critical temperature']
+  - root['data']['Sn']['Metallic radius']
+  - root['data']['Sn']['Refractive index']
+  - root['data']['Sn']['Vickers hardness']
+  - root['data']['Sr']['Brinell hardness']
+  - root['data']['Sr']['Bulk modulus']
+  - root['data']['Sr']['Critical temperature']
+  - root['data']['Sr']['Reflectivity']
+  - root['data']['Sr']['Refractive index']
+  - root['data']['Sr']['Superconduction temperature']
+  - root['data']['Sr']['Velocity of sound']
+  - root['data']['Sr']['Vickers hardness']
+  - root['data']['Sr']['Youngs modulus']
+  - root['data']['Ta']['Critical temperature']
+  - root['data']['Ta']['Refractive index']
+  - root['data']['Tb']['Critical temperature']
+  - root['data']['Tb']['Mineral hardness']
+  - root['data']['Tb']['Reflectivity']
+  - root['data']['Tb']['Refractive index']
+  - root['data']['Tb']['Superconduction temperature']
+  - root['data']['Tc']['Brinell hardness']
+  - root['data']['Tc']['Bulk modulus']
+  - root['data']['Tc']['Coefficient of linear thermal expansion']
+  - root['data']['Tc']['Critical temperature']
+  - root['data']['Tc']['Mineral hardness']
+  - root['data']['Tc']['Poissons ratio']
+  - root['data']['Tc']['Reflectivity']
+  - root['data']['Tc']['Refractive index']
+  - root['data']['Tc']['Rigidity modulus']
+  - root['data']['Tc']['Velocity of sound']
+  - root['data']['Tc']['Vickers hardness']
+  - root['data']['Tc']['Youngs modulus']
+  - root['data']['Te']['Coefficient of linear thermal expansion']
+  - root['data']['Te']['Critical temperature']
+  - root['data']['Te']['Metallic radius']
+  - root['data']['Te']['Poissons ratio']
+  - root['data']['Te']['Superconduction temperature']
+  - root['data']['Te']['Vickers hardness']
+  - root['data']['Th']['Atomic radius calculated']
+  - root['data']['Th']['Critical temperature']
+  - root['data']['Th']['Reflectivity']
+  - root['data']['Th']['Refractive index']
+  - root['data']['Ti']['Critical temperature']
+  - root['data']['Ti']['Reflectivity']
+  - root['data']['Ti']['Refractive index']
+  - root['data']['Tl']['Critical temperature']
+  - root['data']['Tl']['Reflectivity']
+  - root['data']['Tl']['Refractive index']
+  - root['data']['Tl']['Vickers hardness']
+  - root['data']['Tm']['Critical temperature']
+  - root['data']['Tm']['Mineral hardness']
+  - root['data']['Tm']['Reflectivity']
+  - root['data']['Tm']['Refractive index']
+  - root['data']['Tm']['Superconduction temperature']
+  - root['data']['Tm']['Velocity of sound']
+  - root['data']['Ts']['Ground level']
+  - root['data']['Ts']['Ionization energies']
+  - root['data']['Ts']['Van der waals radius']
+  - root['data']['U']['Atomic radius calculated']
+  - root['data']['U']['Critical temperature']
+  - root['data']['U']['Reflectivity']
+  - root['data']['U']['Refractive index']
+  - root['data']['V']['Critical temperature']
+  - root['data']['V']['Refractive index']
+  - root['data']['W']['Critical temperature']
+  - root['data']['W']['Refractive index']
+  - root['data']['Xe']['Atomic radius']
+  - root['data']['Xe']['Brinell hardness']
+  - root['data']['Xe']['Bulk modulus']
+  - root['data']['Xe']['Coefficient of linear thermal expansion']
+  - root['data']['Xe']['Density of solid']
+  - root['data']['Xe']['Electrical resistivity']
+  - root['data']['Xe']['Metallic radius']
+  - root['data']['Xe']['Mineral hardness']
+  - root['data']['Xe']['Poissons ratio']
+  - root['data']['Xe']['Reflectivity']
+  - root['data']['Xe']['Rigidity modulus']
+  - root['data']['Xe']['Superconduction temperature']
+  - root['data']['Xe']['Vickers hardness']
+  - root['data']['Xe']['Youngs modulus']
+  - root['data']['Y']['Critical temperature']
+  - root['data']['Y']['Mineral hardness']
+  - root['data']['Y']['Reflectivity']
+  - root['data']['Y']['Refractive index']
+  - root['data']['Y']['Vickers hardness']
+  - root['data']['Yb']['Critical temperature']
+  - root['data']['Yb']['Mineral hardness']
+  - root['data']['Yb']['Reflectivity']
+  - root['data']['Yb']['Refractive index']
+  - root['data']['Yb']['Superconduction temperature']
+  - root['data']['Zn']['Critical temperature']
+  - root['data']['Zn']['Vickers hardness']
+  - root['data']['Zr']['Bulk modulus']
+  - root['data']['Zr']['Critical temperature']
+  - root['data']['Zr']['Reflectivity']
+  - root['data']['Zr']['Refractive index']
+
+🌀 Changed values:
+  ~ root['coefficient_of_linear_thermal_expansion']['Cu']: 1.65e-05 → 1.6499999999999998e-05
+  ~ root['coefficient_of_linear_thermal_expansion']['Sr']: 2.25e-05 → 2.2499999999999998e-05
+  ~ root['data']['Ac']['Electronic structure']['0']: [Rn].6d<sup>1</sup>.7s<sup>2</sup> → [Rn].6d1.7s2
+  ~ root['data']['Ac']['Electronic structure']['3']: [Xe].4f<sup>14</sup>.5d<sup>10</sup>.6s<sup>2</sup>.6p<sup>6</sup> → [Xe].4f14.5d10.6s2.6p6
+  ~ root['data']['Ag']['Electronic structure']['0']: [Kr].4d<sup>10</sup>.5s<sup>1</sup> → [Kr].4d10.5s1
+  ~ root['data']['Ag']['Electronic structure']['1']: [Kr].4d<sup>10</sup> → [Kr].4d10
+  ~ root['data']['Al']['Electronic structure']['0']: [Ne].3s<sup>2</sup>.3p<sup>1</sup> → [Ne].3s2.3p1
+  ~ root['data']['Al']['Electronic structure']['3']: 1s<sup>2</sup>.2s<sup>2</sup>.2p<sup>6</sup> → 1s2.2s2.2p6
+  ~ root['data']['Am']['Electronic structure']['0']: [Rn].5f<sup>7</sup>.7s<sup>2</sup> → [Rn].5f7.7s2
+  ~ root['data']['Am']['Electronic structure']['3']: [Rn].5f<sup>6</sup> → [Rn].5f6
+  ~ root['data']['Ar']['Electronic structure']['0']: [Ne].3s<sup>2</sup>.3p<sup>6</sup> → [Ne].3s2.3p6
+  ~ root['data']['As']['Electronic structure']['-3']: [Ar].3d<sup>10</sup>.4s<sup>2</sup>.4p<sup>6</sup> → [Ar].3d10.4s2.4p6
+  ~ root['data']['As']['Electronic structure']['0']: [Ar].3d<sup>10</sup>.4s<sup>2</sup>.4p<sup>3</sup> → [Ar].3d10.4s2.4p3
+  ~ root['data']['As']['Electronic structure']['3']: [Ar].3d<sup>10</sup>.4s<sup>2</sup> → [Ar].3d10.4s2
+  ~ root['data']['As']['Electronic structure']['5']: [Ar].3d<sup>10</sup> → [Ar].3d10
+  ~ root['data']['At']['Electronic structure']['-1']: [Xe].4f<sup>14</sup>.5d<sup>10</sup>.6s<sup>2</sup>.6p<sup>6</sup> → [Xe].4f14.5d10.6s2.6p6
+  ~ root['data']['At']['Electronic structure']['0']: [Xe].4f<sup>14</sup>.5d<sup>10</sup>.6s<sup>2</sup>.6p<sup>5</sup> → [Xe].4f14.5d10.6s2.6p5
+  ~ root['data']['At']['Electronic structure']['1']: [Xe].4f<sup>14</sup>.5d<sup>10</sup>.6s<sup>2</sup>.6p<sup>4</sup> → [Xe].4f14.5d10.6s2.6p4
+  ~ root['data']['Au']['Electronic structure']['0']: [Xe].4f<sup>14</sup>.5d<sup>10</sup>.6s<sup>1</sup> → [Xe].4f14.5d10.6s1
+  ~ root['data']['Au']['Electronic structure']['3']: [Xe].4f<sup>14</sup>.5d<sup>8</sup> → [Xe].4f14.5d8
+  ~ root['data']['B']['Electronic structure']['0']: [He].2s<sup>2</sup>.2p<sup>1</sup> → [He].2s2.2p1
+  ~ root['data']['B']['Electronic structure']['3']: 1s<sup>2</sup> → 1s2
+  ~ root['data']['Ba']['Electronic structure']['0']: [Xe].6s<sup>2</sup> → [Xe].6s2
+  ~ root['data']['Ba']['Electronic structure']['2']: [Kr].4d<sup>10</sup>.5s<sup>2</sup>.5p<sup>6</sup> → [Kr].4d10.5s2.5p6
+  ~ root['data']['Be']['Electronic structure']['0']: [He].2s<sup>2</sup> → [He].2s2
+  ~ root['data']['Be']['Electronic structure']['2']: 1s<sup>2</sup> → 1s2
+  ~ root['data']['Bi']['Electronic structure']['0']: [Xe].4f<sup>14</sup>.5d<sup>10</sup>.6s<sup>2</sup>.6p<sup>3</sup> → [Xe].4f14.5d10.6s2.6p3
+  ~ root['data']['Bi']['Electronic structure']['3']: [Xe].4f<sup>14</sup>.5d<sup>10</sup>.6s<sup>2</sup> → [Xe].4f14.5d10.6s2
+  ~ root['data']['Bk']['Electronic structure']['0']: [Rn].5f<sup>9</sup>.7s<sup>2</sup> → [Rn].5f9.7s2
+  ~ root['data']['Bk']['Electronic structure']['3']: [Rn].5f<sup>8</sup> → [Rn].5f8
+  ~ root['data']['Br']['Electronic structure']['-1']: [Ar].3d<sup>10</sup>.4s<sup>2</sup>.4p<sup>6</sup> → [Ar].3d10.4s2.4p6
+  ~ root['data']['Br']['Electronic structure']['0']: [Ar].3d<sup>10</sup>.4s<sup>2</sup>.4p<sup>5</sup> → [Ar].3d10.4s2.4p5
+  ~ root['data']['Br']['Electronic structure']['1']: [Ar].3d<sup>10</sup>.4s<sup>2</sup>.4p<sup>4</sup> → [Ar].3d10.4s2.4p4
+  ~ root['data']['Br']['Electronic structure']['3']: [Ar].3d<sup>10</sup>.4s<sup>2</sup>.4p<sup>2</sup> → [Ar].3d10.4s2.4p2
+  ~ root['data']['Br']['Electronic structure']['5']: [Ar].3d<sup>10</sup>.4s<sup>2</sup> → [Ar].3d10.4s2
+  ~ root['data']['Br']['Electronic structure']['7']: [Ar].3d<sup>10</sup> → [Ar].3d10
+  ~ root['data']['C']['Electron affinity']: 1.262113612 → 1.262122611
+  ~ root['data']['C']['Electronic structure']['-4']: [He].2s<sup>2</sup>.2p<sup>6</sup> → [He].2s2.2p6
+  ~ root['data']['C']['Electronic structure']['0']: [He].2s<sup>2</sup>.2p<sup>2</sup> → [He].2s2.2p2
+  ~ root['data']['C']['Electronic structure']['4']: 1s<sup>2</sup> → 1s2
+  ~ root['data']['Ca']['Electronic structure']['0']: [Ar].4s<sup>2</sup> → [Ar].4s2
+  ~ root['data']['Ca']['Electronic structure']['2']: [Ne].3s<sup>2</sup>.3p<sup>6</sup> → [Ne].3s2.3p6
+  ~ root['data']['Cd']['Electronic structure']['0']: [Kr].4d<sup>10</sup>.5s<sup>2</sup> → [Kr].4d10.5s2
+  ~ root['data']['Cd']['Electronic structure']['2']: [Kr].4d<sup>10</sup> → [Kr].4d10
+  ~ root['data']['Ce']['Electronic structure']['0']: [Xe].4f<sup>1</sup>.5d<sup>1</sup>.6s<sup>2</sup> → [Xe].4f1.5d1.6s2
+  ~ root['data']['Ce']['Electronic structure']['3']: [Xe].4f<sup>1</sup> → [Xe].4f1
+  ~ root['data']['Ce']['Electronic structure']['4']: [Cd].5p<sup>6</sup> → [Cd].5p6
+  ~ root['data']['Cf']['Electronic structure']['0']: [Rn].5f<sup>10</sup>.7s<sup>2</sup> → [Rn].5f10.7s2
+  ~ root['data']['Cf']['Electronic structure']['3']: [Rn].5f<sup>9</sup> → [Rn].5f9
+  ~ root['data']['Cl']['Electronic structure']['-1']: [Ne].3s<sup>2</sup>.3p<sup>6</sup> → [Ne].3s2.3p6
+  ~ root['data']['Cl']['Electronic structure']['0']: [Ne].3s<sup>2</sup>.3p<sup>5</sup> → [Ne].3s2.3p5
+  ~ root['data']['Cl']['Electronic structure']['1']: [Ne].3s<sup>2</sup>.3p<sup>4</sup> → [Ne].3s2.3p4
+  ~ root['data']['Cl']['Electronic structure']['3']: [Ne].3s<sup>2</sup>.3p<sup>2</sup> → [Ne].3s2.3p2
+  ~ root['data']['Cl']['Electronic structure']['5']: [Ne].3s<sup>2</sup> → [Ne].3s2
+  ~ root['data']['Cl']['Electronic structure']['7']: 1s<sup>2</sup>.2s<sup>2</sup>.2p<sup>6</sup> → 1s2.2s2.2p6
+  ~ root['data']['Cm']['Electronic structure']['0']: [Rn].5f<sup>7</sup>.6d<sup>1</sup>.7s<sup>2</sup> → [Rn].5f7.6d1.7s2
+  ~ root['data']['Cm']['Electronic structure']['3']: [Rn].5f<sup>7</sup> → [Rn].5f7
+  ~ root['data']['Co']['Electron affinity']: 0.662265 → 0.66225547
+  ~ root['data']['Co']['Electronic structure']['0']: [Ar].3d<sup>7</sup>.4s<sup>2</sup> → [Ar].3d7.4s2
+  ~ root['data']['Co']['Electronic structure']['2']: [Ar].3d<sup>7</sup> → [Ar].3d7
+  ~ root['data']['Co']['Electronic structure']['3']: [Ar].3d<sup>6</sup> → [Ar].3d6
+  ~ root['data']['Cr']['Electron affinity']: 0.6758412 → 0.67592827
+  ~ root['data']['Cr']['Electronic structure']['0']: [Ar].3d<sup>5</sup>.4s<sup>1</sup> → [Ar].3d5.4s1
+  ~ root['data']['Cr']['Electronic structure']['2']: [Ar].3d<sup>4</sup> → [Ar].3d4
+  ~ root['data']['Cr']['Electronic structure']['3']: [Ar].3d<sup>3</sup> → [Ar].3d3
+  ~ root['data']['Cr']['Electronic structure']['6']: [Ne].3s<sup>2</sup>.3p<sup>6</sup> → [Ne].3s2.3p6
+  ~ root['data']['Cs']['Electron affinity']: 0.47163025 → 0.471598338
+  ~ root['data']['Cs']['Electronic structure']['0']: [Xe].6s<sup>1</sup> → [Xe].6s1
+  ~ root['data']['Cs']['Electronic structure']['1']: [Kr].4d<sup>10</sup>.5s<sup>2</sup>.5p<sup>6</sup> → [Kr].4d10.5s2.5p6
+  ~ root['data']['Cu']['Electronic structure']['0']: [Ar].3d<sup>10</sup>.4s<sup>1</sup> → [Ar].3d10.4s1
+  ~ root['data']['Cu']['Electronic structure']['1']: [Ar].3d<sup>10</sup> → [Ar].3d10
+  ~ root['data']['Cu']['Electronic structure']['2']: [Ar].3d<sup>9</sup> → [Ar].3d9
+  ~ root['data']['Cu']['Electronic structure']['3']: [Ar].3d<sup>8</sup> → [Ar].3d8
+  ~ root['data']['Dy']['Electronic structure']['0']: [Xe].4f<sup>10</sup>.6s<sup>2</sup> → [Xe].4f10.6s2
+  ~ root['data']['Dy']['Electronic structure']['3']: [Xe].4f<sup>9</sup> → [Xe].4f9
+  ~ root['data']['Er']['Electronic structure']['0']: [Xe].4f<sup>12</sup>.6s<sup>2</sup> → [Xe].4f12.6s2
+  ~ root['data']['Er']['Electronic structure']['3']: [Xe].4f<sup>11</sup> → [Xe].4f11
+  ~ root['data']['Es']['Electronic structure']['0']: [Rn].5f<sup>11</sup>.7s<sup>2</sup> → [Rn].5f11.7s2
+  ~ root['data']['Es']['Electronic structure']['3']: [Rn].5f<sup>10</sup> → [Rn].5f10
+  ~ root['data']['Eu']['Electronic structure']['0']: [Xe].4f<sup>7</sup>.6s<sup>2</sup> → [Xe].4f7.6s2
+  ~ root['data']['Eu']['Electronic structure']['2']: [Xe].4f<sup>7</sup> → [Xe].4f7
+  ~ root['data']['Eu']['Electronic structure']['3']: [Xe].4f<sup>6</sup> → [Xe].4f6
+  ~ root['data']['F']['Electronic structure']['-1']: [He].2s<sup>2</sup>.2p<sup>6</sup> → [He].2s2.2p6
+  ~ root['data']['F']['Electronic structure']['0']: [He].2s<sup>2</sup>.2p<sup>5</sup> → [He].2s2.2p5
+  ~ root['data']['Fe']['Electronic structure']['0']: [Ar].3d<sup>6</sup>.4s<sup>2</sup> → [Ar].3d6.4s2
+  ~ root['data']['Fe']['Electronic structure']['2']: [Ar].3d<sup>6</sup> → [Ar].3d6
+  ~ root['data']['Fe']['Electronic structure']['3']: [Ar].3d<sup>5</sup> → [Ar].3d5
+  ~ root['data']['Fm']['Electronic structure']['0']: [Rn].5f<sup>12</sup>.7s<sup>2</sup> → [Rn].5f12.7s2
+  ~ root['data']['Fm']['Electronic structure']['3']: [Rn].5f<sup>11</sup> → [Rn].5f11
+  ~ root['data']['Fr']['Electronic structure']['0']: [Rn].7s<sup>1</sup> → [Rn].7s1
+  ~ root['data']['Fr']['Electronic structure']['1']: [Hg].6p<sup>6</sup> → [Hg].6p6
+  ~ root['data']['Ga']['Electron affinity']: 0.3012011 → 0.30116615
+  ~ root['data']['Ga']['Electronic structure']['0']: [Ar].3d<sup>10</sup>.4s<sup>2</sup>.4p<sup>1</sup> → [Ar].3d10.4s2.4p1
+  ~ root['data']['Ga']['Electronic structure']['3']: [Ar].3d<sup>10</sup> → [Ar].3d10
+  ~ root['data']['Gd']['Electronic structure']['0']: [Xe].4f<sup>7</sup>.5d<sup>1</sup>.6s<sup>2</sup> → [Xe].4f7.5d1.6s2
+  ~ root['data']['Gd']['Electronic structure']['3']: [Xe].4f<sup>7</sup> → [Xe].4f7
+  ~ root['data']['Ge']['Electronic structure']['-4']: [Ar].3d<sup>10</sup>.4s<sup>2</sup>.4p<sup>6</sup> → [Ar].3d10.4s2.4p6
+  ~ root['data']['Ge']['Electronic structure']['0']: [Ar].3d<sup>10</sup>.4s<sup>2</sup>.4p<sup>2</sup> → [Ar].3d10.4s2.4p2
+  ~ root['data']['Ge']['Electronic structure']['2']: [Ar].3d<sup>10</sup>.4s<sup>2</sup> → [Ar].3d10.4s2
+  ~ root['data']['Ge']['Electronic structure']['4']: [Ar].3d<sup>10</sup> → [Ar].3d10
+  ~ root['data']['H']['Electronic structure']['-1']: 1s<sup>2</sup> → 1s2
+  ~ root['data']['H']['Electronic structure']['0']: 1s<sup>1</sup> → 1s1
+  ~ root['data']['He']['Electronic structure']['0']: 1s<sup>2</sup> → 1s2
+  ~ root['data']['Hf']['Electronic structure']['0']: [Xe].4f<sup>14</sup>.5d<sup>2</sup>.6s<sup>2</sup> → [Xe].4f14.5d2.6s2
+  ~ root['data']['Hf']['Electronic structure']['4']: [Xe].4f<sup>14</sup> → [Xe].4f14
+  ~ root['data']['Hg']['Electronic structure']['0']: [Xe].4f<sup>14</sup>.5d<sup>10</sup>.6s<sup>2</sup> → [Xe].4f14.5d10.6s2
+  ~ root['data']['Hg']['Electronic structure']['1']: [Xe].4f<sup>14</sup>.5d<sup>10</sup>.6s<sup>1</sup> → [Xe].4f14.5d10.6s1
+  ~ root['data']['Hg']['Electronic structure']['2']: [Xe].4f<sup>14</sup>.5d<sup>10</sup> → [Xe].4f14.5d10
+  ~ root['data']['Ho']['Electronic structure']['0']: [Xe].4f<sup>11</sup>.6s<sup>2</sup> → [Xe].4f11.6s2
+  ~ root['data']['Ho']['Electronic structure']['3']: [Xe].4f<sup>10</sup> → [Xe].4f10
+  ~ root['data']['I']['Electron affinity']: 3.05905238 → 3.059046537
+  ~ root['data']['I']['Electronic structure']['-1']: [Kr].4d<sup>10</sup>.5s<sup>2</sup>.5p<sup>6</sup> → [Kr].4d10.5s2.5p6
+  ~ root['data']['I']['Electronic structure']['0']: [Kr].4d<sup>10</sup>.5s<sup>2</sup>.5p<sup>5</sup> → [Kr].4d10.5s2.5p5
+  ~ root['data']['I']['Electronic structure']['1']: [Kr].4d<sup>10</sup>.5s<sup>2</sup>.5p<sup>4</sup> → [Kr].4d10.5s2.5p4
+  ~ root['data']['I']['Electronic structure']['3']: [Kr].4d<sup>10</sup>.5s<sup>2</sup>.5p<sup>2</sup> → [Kr].4d10.5s2.5p2
+  ~ root['data']['I']['Electronic structure']['5']: [Kr].4d<sup>10</sup>.5s<sup>2</sup> → [Kr].4d10.5s2
+  ~ root['data']['I']['Electronic structure']['7']: [Kr].4d<sup>10</sup> → [Kr].4d10
+  ~ root['data']['In']['Electronic structure']['0']: [Kr].4d<sup>10</sup>.5s<sup>2</sup>.5p<sup>1</sup> → [Kr].4d10.5s2.5p1
+  ~ root['data']['In']['Electronic structure']['3']: [Kr].4d<sup>10</sup> → [Kr].4d10
+  ~ root['data']['Ir']['Electronic structure']['0']: [Xe].4f<sup>14</sup>.5d<sup>7</sup>.6s<sup>2</sup> → [Xe].4f14.5d7.6s2
+  ~ root['data']['Ir']['Electronic structure']['3']: [Xe].4f<sup>14</sup>.5d<sup>6</sup> → [Xe].4f14.5d6
+  ~ root['data']['Ir']['Electronic structure']['4']: [Xe].4f<sup>14</sup>.5d<sup>5</sup> → [Xe].4f14.5d5
+  ~ root['data']['K']['Electronic structure']['0']: [Ar].4s<sup>1</sup> → [Ar].4s1
+  ~ root['data']['K']['Electronic structure']['1']: [Ne].3s<sup>2</sup>.3p<sup>6</sup> → [Ne].3s2.3p6
+  ~ root['data']['Kr']['Electronic structure']['0']: [Ar].3d<sup>10</sup>.4s<sup>2</sup>.4p<sup>6</sup> → [Ar].3d10.4s2.4p6
+  ~ root['data']['La']['Electronic structure']['0']: [Xe].5d<sup>1</sup>.6s<sup>2</sup> → [Xe].5d1.6s2
+  ~ root['data']['La']['Electronic structure']['3']: [Cd].5p<sup>6</sup> → [Cd].5p6
+  ~ root['data']['Li']['Electronic structure']['0']: [He].2s<sup>1</sup> → [He].2s1
+  ~ root['data']['Li']['Electronic structure']['1']: 1s<sup>2</sup> → 1s2
+  ~ root['data']['Lr']['Electronic structure']['0']: [Rn].5f<sup>14</sup>.7s<sup>2</sup>.7p<sup>1</sup> → [Rn].5f14.7s2.7p1
+  ~ root['data']['Lr']['Electronic structure']['3']: [Rn].5f<sup>14</sup> → [Rn].5f14
+  ~ root['data']['Lu']['Electronic structure']['0']: [Xe].4f<sup>14</sup>.5d<sup>1</sup>.6s<sup>2</sup> → [Xe].4f14.5d1.6s2
+  ~ root['data']['Lu']['Electronic structure']['3']: [Xe].4f<sup>14</sup> → [Xe].4f14
+  ~ root['data']['Md']['Electronic structure']['0']: [Rn].5f<sup>13</sup>.7s<sup>2</sup> → [Rn].5f13.7s2
+  ~ root['data']['Md']['Electronic structure']['3']: [Rn].5f<sup>12</sup> → [Rn].5f12
+  ~ root['data']['Mg']['Electronic structure']['0']: [Ne].3s<sup>2</sup> → [Ne].3s2
+  ~ root['data']['Mg']['Electronic structure']['2']: [He].2s<sup>2</sup>.2p<sup>6</sup> → [He].2s2.2p6
+  ~ root['data']['Mn']['Electronic structure']['0']: [Ar].3d<sup>5</sup>.4s<sup>2</sup> → [Ar].3d5.4s2
+  ~ root['data']['Mn']['Electronic structure']['2']: [Ar].3d<sup>5</sup> → [Ar].3d5
+  ~ root['data']['Mn']['Electronic structure']['3']: [Ar].3d<sup>4</sup> → [Ar].3d4
+  ~ root['data']['Mn']['Electronic structure']['4']: [Ar].3d<sup>3</sup> → [Ar].3d3
+  ~ root['data']['Mn']['Electronic structure']['7']: [Ne].3s<sup>2</sup>.3p<sup>6</sup> → [Ne].3s2.3p6
+  ~ root['data']['Mo']['Electron affinity']: 0.74733 → 0.747238
+  ~ root['data']['Mo']['Electronic structure']['0']: [Kr].4d<sup>5</sup>.5s<sup>1</sup> → [Kr].4d5.5s1
+  ~ root['data']['Mo']['Electronic structure']['3']: [Kr].4d<sup>3</sup> → [Kr].4d3
+  ~ root['data']['Mo']['Electronic structure']['4']: [Kr].4d<sup>2</sup> → [Kr].4d2
+  ~ root['data']['Mo']['Electronic structure']['6']: [Ar].3d<sup>10</sup>.4s<sup>2</sup>.4p<sup>6</sup> → [Ar].3d10.4s2.4p6
+  ~ root['data']['N']['Electronic structure']['-3']: [He].2s<sup>2</sup>.2p<sup>6</sup> → [He].2s2.2p6
+  ~ root['data']['N']['Electronic structure']['0']: [He].2s<sup>2</sup>.2p<sup>3</sup> → [He].2s2.2p3
+  ~ root['data']['N']['Electronic structure']['3']: 1s<sup>2</sup>.2s<sup>2</sup> → 1s2.2s2
+  ~ root['data']['N']['Electronic structure']['5']: 1s<sup>2</sup> → 1s2
+  ~ root['data']['Na']['Electronic structure']['0']: [Ne].3s<sup>1</sup> → [Ne].3s1
+  ~ root['data']['Na']['Electronic structure']['1']: [He].2s<sup>2</sup>.2p<sup>6</sup> → [He].2s2.2p6
+  ~ root['data']['Nb']['Electronic structure']['0']: [Kr].4d<sup>4</sup>.5s<sup>1</sup> → [Kr].4d4.5s1
+  ~ root['data']['Nb']['Electronic structure']['5']: [Ar].3d<sup>10</sup>.4s<sup>2</sup>.4p<sup>6</sup> → [Ar].3d10.4s2.4p6
+  ~ root['data']['Nd']['Electronic structure']['0']: [Xe].4f<sup>4</sup>.6s<sup>2</sup> → [Xe].4f4.6s2
+  ~ root['data']['Nd']['Electronic structure']['3']: [Xe].4f<sup>3</sup> → [Xe].4f3
+  ~ root['data']['Ne']['Electronic structure']['0']: [He].2s<sup>2</sup>.2p<sup>6</sup> → [He].2s2.2p6
+  ~ root['data']['Ni']['Electronic structure']['0']: [Ar].3d<sup>8</sup>.4s<sup>2</sup> → [Ar].3d8.4s2
+  ~ root['data']['Ni']['Electronic structure']['2']: [Ar].3d<sup>8</sup> → [Ar].3d8
+  ~ root['data']['Ni']['Electronic structure']['3']: [Ar].3d<sup>7</sup> → [Ar].3d7
+  ~ root['data']['No']['Electronic structure']['0']: [Rn].5f<sup>14</sup>.7s<sup>2</sup> → [Rn].5f14.7s2
+  ~ root['data']['No']['Electronic structure']['3']: [Rn].5f<sup>13</sup> → [Rn].5f13
+  ~ root['data']['Np']['Electronic structure']['0']: [Rn].5f<sup>4</sup>.6d<sup>1</sup>.7s<sup>2</sup> → [Rn].5f4.6d1.7s2
+  ~ root['data']['Np']['Electronic structure']['5']: [Rn].5f<sup>2</sup> → [Rn].5f2
+  ~ root['data']['O']['Electron affinity']: 1.4611053 → 1.461112979
+  ~ root['data']['O']['Electronic structure']['-2']: [He].2s<sup>2</sup>.2p<sup>6</sup> → [He].2s2.2p6
+  ~ root['data']['O']['Electronic structure']['0']: [He].2s<sup>2</sup>.2p<sup>4</sup> → [He].2s2.2p4
+  ~ root['data']['Os']['Electronic structure']['0']: [Xe].4f<sup>14</sup>.5d<sup>6</sup>.6s<sup>2</sup> → [Xe].4f14.5d6.6s2
+  ~ root['data']['Os']['Electronic structure']['4']: [Xe].4f<sup>14</sup>.5d<sup>4</sup> → [Xe].4f14.5d4
+  ~ root['data']['P']['Electron affinity']: 0.7466071 → 0.74660911
+  ~ root['data']['P']['Electronic structure']['-3']: [Ne].3s<sup>2</sup>.3p<sup>6</sup> → [Ne].3s2.3p6
+  ~ root['data']['P']['Electronic structure']['0']: [Ne].3s<sup>2</sup>.3p<sup>3</sup> → [Ne].3s2.3p3
+  ~ root['data']['P']['Electronic structure']['3']: [Ne].3s<sup>2</sup> → [Ne].3s2
+  ~ root['data']['P']['Electronic structure']['5']: 1s<sup>2</sup>.2s<sup>2</sup>.2p<sup>6</sup> → 1s2.2s2.2p6
+  ~ root['data']['Pa']['Electronic structure']['0']: [Rn].5f<sup>2</sup>.6d<sup>1</sup>.7s<sup>2</sup> → [Rn].5f2.6d1.7s2
+  ~ root['data']['Pa']['Electronic structure']['5']: [Hg].6p<sup>6</sup> → [Hg].6p6
+  ~ root['data']['Pb']['Electronic structure']['0']: [Xe].4f<sup>14</sup>.5d<sup>10</sup>.6s<sup>2</sup>.6p<sup>2</sup> → [Xe].4f14.5d10.6s2.6p2
+  ~ root['data']['Pb']['Electronic structure']['2']: [Xe].4f<sup>14</sup>.5d<sup>10</sup>.6s<sup>2</sup> → [Xe].4f14.5d10.6s2
+  ~ root['data']['Pb']['Electronic structure']['4']: [Xe].4f<sup>14</sup>.5d<sup>10</sup> → [Xe].4f14.5d10
+  ~ root['data']['Pd']['Electronic structure']['0']: [Kr].4d<sup>10</sup> → [Kr].4d10
+  ~ root['data']['Pd']['Electronic structure']['2']: [Kr].4d<sup>8</sup> → [Kr].4d8
+  ~ root['data']['Pd']['Electronic structure']['4']: [Kr].4d<sup>6</sup> → [Kr].4d6
+  ~ root['data']['Pm']['Electronic structure']['0']: [Xe].4f<sup>5</sup>.6s<sup>2</sup> → [Xe].4f5.6s2
+  ~ root['data']['Pm']['Electronic structure']['3']: [Xe].4f<sup>4</sup> → [Xe].4f4
+  ~ root['data']['Po']['Electronic structure']['-2']: [Xe].4f<sup>14</sup>.5d<sup>10</sup>.6s<sup>2</sup>.6p<sup>6</sup> → [Xe].4f14.5d10.6s2.6p6
+  ~ root['data']['Po']['Electronic structure']['0']: [Xe].4f<sup>14</sup>.5d<sup>10</sup>.6s<sup>2</sup>.6p<sup>4</sup> → [Xe].4f14.5d10.6s2.6p4
+  ~ root['data']['Po']['Electronic structure']['2']: [Xe].4f<sup>14</sup>.5d<sup>10</sup>.6s<sup>2</sup>.6p<sup>2</sup> → [Xe].4f14.5d10.6s2.6p2
+  ~ root['data']['Po']['Electronic structure']['4']: [Xe].4f<sup>14</sup>.5d<sup>10</sup>.6s<sup>2</sup> → [Xe].4f14.5d10.6s2
+  ~ root['data']['Pr']['Electronic structure']['0']: [Xe].4f<sup>3</sup>.6s<sup>2</sup> → [Xe].4f3.6s2
+  ~ root['data']['Pr']['Electronic structure']['3']: [Xe].4f<sup>2</sup> → [Xe].4f2
+  ~ root['data']['Pt']['Electronic structure']['0']: [Xe].4f<sup>14</sup>.5d<sup>9</sup>.6s<sup>1</sup> → [Xe].4f14.5d9.6s1
+  ~ root['data']['Pt']['Electronic structure']['2']: [Xe].4f<sup>14</sup>.5d<sup>8</sup> → [Xe].4f14.5d8
+  ~ root['data']['Pt']['Electronic structure']['4']: [Xe].4f<sup>14</sup>.5d<sup>6</sup> → [Xe].4f14.5d6
+  ~ root['data']['Pu']['Electronic structure']['0']: [Rn].5f<sup>6</sup>.7s<sup>2</sup> → [Rn].5f6.7s2
+  ~ root['data']['Pu']['Electronic structure']['4']: [Rn].5f<sup>4</sup> → [Rn].5f4
+  ~ root['data']['Ra']['Electronic structure']['0']: [Rn].7s<sup>2</sup> → [Rn].7s2
+  ~ root['data']['Ra']['Electronic structure']['2']: [Hg].6p<sup>6</sup> → [Hg].6p6
+  ~ root['data']['Rb']['Electronic structure']['0']: [Kr].5s<sup>1</sup> → [Kr].5s1
+  ~ root['data']['Rb']['Electronic structure']['1']: [Ar].3d<sup>10</sup>.4s<sup>2</sup>.4p<sup>6</sup> → [Ar].3d10.4s2.4p6
+  ~ root['data']['Re']['Electronic structure']['0']: [Xe].4f<sup>14</sup>.5d<sup>5</sup>.6s<sup>2</sup> → [Xe].4f14.5d5.6s2
+  ~ root['data']['Re']['Electronic structure']['4']: [Xe].4f<sup>14</sup>.5d<sup>3</sup> → [Xe].4f14.5d3
+  ~ root['data']['Rh']['Electronic structure']['0']: [Kr].4d<sup>8</sup>.5s<sup>1</sup> → [Kr].4d8.5s1
+  ~ root['data']['Rh']['Electronic structure']['3']: [Kr].4d<sup>6</sup> → [Kr].4d6
+  ~ root['data']['Rn']['Electronic structure']['0']: [Xe].4f<sup>14</sup>.5d<sup>10</sup>.6s<sup>2</sup>.6p<sup>6</sup> → [Xe].4f14.5d10.6s2.6p6
+  ~ root['data']['Ru']['Electronic structure']['0']: [Kr].4d<sup>7</sup>.5s<sup>1</sup> → [Kr].4d7.5s1
+  ~ root['data']['Ru']['Electronic structure']['3']: [Kr].4d<sup>5</sup> → [Kr].4d5
+  ~ root['data']['Ru']['Electronic structure']['4']: [Kr].4d<sup>4</sup> → [Kr].4d4
+  ~ root['data']['S']['Electron affinity']: 2.077104512 → 2.07710426
+  ~ root['data']['S']['Electronic structure']['-2']: [Ne].3s<sup>2</sup>.3p<sup>6</sup> → [Ne].3s2.3p6
+  ~ root['data']['S']['Electronic structure']['0']: [Ne].3s<sup>2</sup>.3p<sup>4</sup> → [Ne].3s2.3p4
+  ~ root['data']['S']['Electronic structure']['2']: [Ne].3s<sup>2</sup>.3p<sup>2</sup> → [Ne].3s2.3p2
+  ~ root['data']['S']['Electronic structure']['4']: [Ne].3s<sup>2</sup> → [Ne].3s2
+  ~ root['data']['S']['Electronic structure']['6']: 1s<sup>2</sup>.2s<sup>2</sup>.2p<sup>6</sup> → 1s2.2s2.2p6
+  ~ root['data']['Sb']['Electronic structure']['-3']: [Kr].4d<sup>10</sup>.5s<sup>2</sup>.5p<sup>6</sup> → [Kr].4d10.5s2.5p6
+  ~ root['data']['Sb']['Electronic structure']['0']: [Kr].4d<sup>10</sup>.5s<sup>2</sup>.5p<sup>3</sup> → [Kr].4d10.5s2.5p3
+  ~ root['data']['Sb']['Electronic structure']['3']: [Kr].4d<sup>10</sup>.5s<sup>2</sup> → [Kr].4d10.5s2
+  ~ root['data']['Sb']['Electronic structure']['5']: [Kr].4d<sup>10</sup> → [Kr].4d10
+  ~ root['data']['Sc']['Electronic structure']['0']: [Ar].3d<sup>1</sup>.4s<sup>2</sup> → [Ar].3d1.4s2
+  ~ root['data']['Sc']['Electronic structure']['3']: [Ne].3s<sup>2</sup>.3p<sup>6</sup> → [Ne].3s2.3p6
+  ~ root['data']['Se']['Electronic structure']['-2']: [Ar].3d<sup>10</sup>.4s<sup>2</sup>.4p<sup>6</sup> → [Ar].3d10.4s2.4p6
+  ~ root['data']['Se']['Electronic structure']['0']: [Ar].3d<sup>10</sup>.4s<sup>2</sup>.4p<sup>4</sup> → [Ar].3d10.4s2.4p4
+  ~ root['data']['Se']['Electronic structure']['2']: [Ar].3d<sup>10</sup>.4s<sup>2</sup>.4p<sup>2</sup> → [Ar].3d10.4s2.4p2
+  ~ root['data']['Se']['Electronic structure']['4']: [Ar].3d<sup>10</sup>.4s<sup>2</sup> → [Ar].3d10.4s2
+  ~ root['data']['Se']['Electronic structure']['6']: [Ar].3d<sup>10</sup> → [Ar].3d10
+  ~ root['data']['Si']['Electronic structure']['-4']: [Ne].3s<sup>2</sup>.3p<sup>6</sup> → [Ne].3s2.3p6
+  ~ root['data']['Si']['Electronic structure']['0']: [Ne].3s<sup>2</sup>.3p<sup>2</sup> → [Ne].3s2.3p2
+  ~ root['data']['Si']['Electronic structure']['4']: 1s<sup>2</sup>.2s<sup>2</sup>.2p<sup>6</sup> → 1s2.2s2.2p6
+  ~ root['data']['Sm']['Electronic structure']['0']: [Xe].4f<sup>6</sup>.6s<sup>2</sup> → [Xe].4f6.6s2
+  ~ root['data']['Sm']['Electronic structure']['3']: [Xe].4f<sup>5</sup> → [Xe].4f5
+  ~ root['data']['Sn']['Electronic structure']['-4']: [Kr].4d<sup>10</sup>.5s<sup>2</sup>.5p<sup>6</sup> → [Kr].4d10.5s2.5p6
+  ~ root['data']['Sn']['Electronic structure']['0']: [Kr].4d<sup>10</sup>.5s<sup>2</sup>.5p<sup>2</sup> → [Kr].4d10.5s2.5p2
+  ~ root['data']['Sn']['Electronic structure']['2']: [Kr].4d<sup>10</sup>.5s<sup>2</sup> → [Kr].4d10.5s2
+  ~ root['data']['Sn']['Electronic structure']['4']: [Kr].4d<sup>10</sup> → [Kr].4d10
+  ~ root['data']['Sr']['Electronic structure']['0']: [Kr].5s<sup>2</sup> → [Kr].5s2
+  ~ root['data']['Sr']['Electronic structure']['2']: [Ar].3d<sup>10</sup>.4s<sup>2</sup>.4p<sup>6</sup> → [Ar].3d10.4s2.4p6
+  ~ root['data']['Ta']['Electronic structure']['0']: [Xe].4f<sup>14</sup>.5d<sup>3</sup>.6s<sup>2</sup> → [Xe].4f14.5d3.6s2
+  ~ root['data']['Ta']['Electronic structure']['5']: [Xe].4f<sup>14</sup> → [Xe].4f14
+  ~ root['data']['Tb']['Electronic structure']['0']: [Xe].4f<sup>9</sup>.6s<sup>2</sup> → [Xe].4f9.6s2
+  ~ root['data']['Tb']['Electronic structure']['3']: [Xe].4f<sup>8</sup> → [Xe].4f8
+  ~ root['data']['Tc']['Electronic structure']['0']: [Kr].4d<sup>5</sup>.5s<sup>2</sup> → [Kr].4d5.5s2
+  ~ root['data']['Tc']['Electronic structure']['4']: [Kr].4d<sup>3</sup> → [Kr].4d3
+  ~ root['data']['Tc']['Electronic structure']['7']: [Ar].3d<sup>10</sup>.4s<sup>2</sup>.4p<sup>6</sup> → [Ar].3d10.4s2.4p6
+  ~ root['data']['Te']['Electronic structure']['-2']: [Kr].4d<sup>10</sup>.5s<sup>2</sup>.5p<sup>6</sup> → [Kr].4d10.5s2.5p6
+  ~ root['data']['Te']['Electronic structure']['0']: [Kr].4d<sup>10</sup>.5s<sup>2</sup>.5p<sup>4</sup> → [Kr].4d10.5s2.5p4
+  ~ root['data']['Te']['Electronic structure']['2']: [Kr].4d<sup>10</sup>.5s<sup>2</sup>.5p<sup>2</sup> → [Kr].4d10.5s2.5p2
+  ~ root['data']['Te']['Electronic structure']['4']: [Kr].4d<sup>10</sup>.5s<sup>2</sup> → [Kr].4d10.5s2
+  ~ root['data']['Te']['Electronic structure']['6']: [Kr].4d<sup>10</sup> → [Kr].4d10
+  ~ root['data']['Th']['Electronic structure']['0']: [Rn].6d<sup>2</sup>.7s<sup>2</sup> → [Rn].6d2.7s2
+  ~ root['data']['Th']['Electronic structure']['4']: [Hg].6p<sup>6</sup> → [Hg].6p6
+  ~ root['data']['Ti']['Electronic structure']['0']: [Ar].3d<sup>2</sup>.4s<sup>2</sup> → [Ar].3d2.4s2
+  ~ root['data']['Ti']['Electronic structure']['4']: [Ne].3s<sup>2</sup>.3p<sup>6</sup> → [Ne].3s2.3p6
+  ~ root['data']['Tl']['Electronic structure']['0']: [Xe].4f<sup>14</sup>.5d<sup>10</sup>.6s<sup>2</sup>.6p<sup>1</sup> → [Xe].4f14.5d10.6s2.6p1
+  ~ root['data']['Tl']['Electronic structure']['1']: [Xe].4f<sup>14</sup>.5d<sup>10</sup>.6s<sup>2</sup> → [Xe].4f14.5d10.6s2
+  ~ root['data']['Tl']['Electronic structure']['3']: [Xe].4f<sup>14</sup>.5d<sup>10</sup> → [Xe].4f14.5d10
+  ~ root['data']['Tm']['Electronic structure']['0']: [Xe].4f<sup>13</sup>.6s<sup>2</sup> → [Xe].4f13.6s2
+  ~ root['data']['Tm']['Electronic structure']['3']: [Xe].4f<sup>12</sup> → [Xe].4f12
+  ~ root['data']['U']['Electronic structure']['0']: [Rn].5f<sup>3</sup>.6d<sup>1</sup>.7s<sup>2</sup> → [Rn].5f3.6d1.7s2
+  ~ root['data']['U']['Electronic structure']['6']: [Hg].6p<sup>6</sup> → [Hg].6p6
+  ~ root['data']['V']['Electronic structure']['0']: [Ar].3d<sup>3</sup>.4s<sup>2</sup> → [Ar].3d3.4s2
+  ~ root['data']['V']['Electronic structure']['2']: [Ar].3d<sup>3</sup> → [Ar].3d3
+  ~ root['data']['V']['Electronic structure']['3']: [Ar].3d<sup>2</sup> → [Ar].3d2
+  ~ root['data']['V']['Electronic structure']['4']: [Ar].3d<sup>1</sup> → [Ar].3d1
+  ~ root['data']['V']['Electronic structure']['5']: [Ne].3s<sup>2</sup>.3p<sup>6</sup> → [Ne].3s2.3p6
+  ~ root['data']['W']['Electronic structure']['0']: [Xe].4f<sup>14</sup>.5d<sup>4</sup>.6s<sup>2</sup> → [Xe].4f14.5d4.6s2
+  ~ root['data']['W']['Electronic structure']['4']: [Xe].4f<sup>14</sup>.5d<sup>2</sup> → [Xe].4f14.5d2
+  ~ root['data']['W']['Electronic structure']['6']: [Xe].4f<sup>14</sup> → [Xe].4f14
+  ~ root['data']['Xe']['Electronic structure']['0']: [Kr].4d<sup>10</sup>.5s<sup>2</sup>.5p<sup>6</sup> → [Kr].4d10.5s2.5p6
+  ~ root['data']['Y']['Electronic structure']['0']: [Kr].4d<sup>1</sup>.5s<sup>2</sup> → [Kr].4d1.5s2
+  ~ root['data']['Y']['Electronic structure']['3']: [Ar].3d<sup>10</sup>.4s<sup>2</sup>.4p<sup>6</sup> → [Ar].3d10.4s2.4p6
+  ~ root['data']['Yb']['Electronic structure']['0']: [Xe].4f<sup>14</sup>.6s<sup>2</sup> → [Xe].4f14.6s2
+  ~ root['data']['Yb']['Electronic structure']['3']: [Xe].4f<sup>13</sup> → [Xe].4f13
+  ~ root['data']['Zn']['Electronic structure']['0']: [Ar].3d<sup>10</sup>.4s<sup>2</sup> → [Ar].3d10.4s2
+  ~ root['data']['Zn']['Electronic structure']['2']: [Ar].3d<sup>10</sup> → [Ar].3d10
+  ~ root['data']['Zr']['Electronic structure']['0']: [Kr].4d<sup>2</sup>.5s<sup>2</sup> → [Kr].4d2.5s2
+  ~ root['data']['Zr']['Electronic structure']['4']: [Ar].3d<sup>10</sup>.4s<sup>2</sup>.4p<sup>6</sup> → [Ar].3d10.4s2.4p6
+  ~ root['electrical_resistivity']['B']: 1000000000000.0 → 15000.0
+  ~ root['electrical_resistivity']['Br']: 1e+18 → 78000000000.0
+  ~ root['electrical_resistivity']['Cl']: 10000000000.0 → 10.0
+  ~ root['electrical_resistivity']['I']: 1000000000000000.0 → 13000000.0
+  ~ root['electrical_resistivity']['S']: 1e+23 → 1999999999999999.8
+  ~ root['electron_affinity']['C']: 1.262113612 → 1.262122611
+  ~ root['electron_affinity']['Co']: 0.662265 → 0.66225547
+  ~ root['electron_affinity']['Cr']: 0.6758412 → 0.67592827
+  ~ root['electron_affinity']['Cs']: 0.47163025 → 0.471598338
+  ~ root['electron_affinity']['Ga']: 0.3012011 → 0.30116615
+  ~ root['electron_affinity']['I']: 3.05905238 → 3.059046537
+  ~ root['electron_affinity']['Mo']: 0.74733 → 0.747238
+  ~ root['electron_affinity']['O']: 1.4611053 → 1.461112979
+  ~ root['electron_affinity']['P']: 0.7466071 → 0.74660911
+  ~ root['electron_affinity']['S']: 2.077104512 → 2.07710426
+
+⚠️ Type changes:
+  ! root['data']['Ac']['Boiling point']: <class 'str'> → <class 'int'>
+  ! root['data']['Ac']['Density of solid']: <class 'str'> → <class 'int'>
+  ! root['data']['Ac']['Liquid range']: <class 'str'> → <class 'int'>
+  ! root['data']['Ac']['Melting point']: <class 'str'> → <class 'int'>
+  ! root['data']['Ac']['Molar volume']: <class 'str'> → <class 'float'>
+  ! root['data']['Ac']['Thermal conductivity']: <class 'str'> → <class 'int'>
+  ! root['data']['Ag']['Boiling point']: <class 'str'> → <class 'int'>
+  ! root['data']['Ag']['Brinell hardness']: <class 'str'> → <class 'float'>
+  ! root['data']['Ag']['Bulk modulus']: <class 'str'> → <class 'int'>
+  ! root['data']['Ag']['Coefficient of linear thermal expansion']: <class 'str'> → <class 'float'>
+  ! root['data']['Ag']['Density of solid']: <class 'str'> → <class 'int'>
+  ! root['data']['Ag']['Electrical resistivity']: <class 'str'> → <class 'float'>
+  ! root['data']['Ag']['Liquid range']: <class 'str'> → <class 'float'>
+  ! root['data']['Ag']['Melting point']: <class 'str'> → <class 'float'>
+  ! root['data']['Ag']['Mineral hardness']: <class 'str'> → <class 'float'>
+  ! root['data']['Ag']['Molar volume']: <class 'str'> → <class 'float'>
+  ! root['data']['Ag']['Poissons ratio']: <class 'str'> → <class 'float'>
+  ! root['data']['Ag']['Reflectivity']: <class 'str'> → <class 'int'>
+  ! root['data']['Ag']['Rigidity modulus']: <class 'str'> → <class 'int'>
+  ! root['data']['Ag']['Shannon radii']['1']['IV']['']['ionic_radius']: <class 'int'> → <class 'float'>
+  ! root['data']['Ag']['Thermal conductivity']: <class 'str'> → <class 'int'>
+  ! root['data']['Ag']['Velocity of sound']: <class 'str'> → <class 'int'>
+  ! root['data']['Ag']['Vickers hardness']: <class 'str'> → <class 'int'>
+  ! root['data']['Ag']['Youngs modulus']: <class 'str'> → <class 'int'>
+  ! root['data']['Al']['Boiling point']: <class 'str'> → <class 'int'>
+  ! root['data']['Al']['Brinell hardness']: <class 'str'> → <class 'int'>
+  ! root['data']['Al']['Bulk modulus']: <class 'str'> → <class 'int'>
+  ! root['data']['Al']['Coefficient of linear thermal expansion']: <class 'str'> → <class 'float'>
+  ! root['data']['Al']['Density of solid']: <class 'str'> → <class 'int'>
+  ! root['data']['Al']['Electrical resistivity']: <class 'str'> → <class 'float'>
+  ! root['data']['Al']['Liquid range']: <class 'str'> → <class 'float'>
+  ! root['data']['Al']['Melting point']: <class 'str'> → <class 'float'>
+  ! root['data']['Al']['Mineral hardness']: <class 'str'> → <class 'float'>
+  ! root['data']['Al']['Molar volume']: <class 'str'> → <class 'float'>
+  ! root['data']['Al']['Poissons ratio']: <class 'str'> → <class 'float'>
+  ! root['data']['Al']['Reflectivity']: <class 'str'> → <class 'int'>
+  ! root['data']['Al']['Rigidity modulus']: <class 'str'> → <class 'int'>
+  ! root['data']['Al']['Superconduction temperature']: <class 'str'> → <class 'float'>
+  ! root['data']['Al']['Thermal conductivity']: <class 'str'> → <class 'int'>
+  ! root['data']['Al']['Velocity of sound']: <class 'str'> → <class 'int'>
+  ! root['data']['Al']['Vickers hardness']: <class 'str'> → <class 'int'>
+  ! root['data']['Al']['Youngs modulus']: <class 'str'> → <class 'int'>
+  ! root['data']['Am']['Boiling point']: <class 'str'> → <class 'int'>
+  ! root['data']['Am']['Liquid range']: <class 'str'> → <class 'int'>
+  ! root['data']['Am']['Melting point']: <class 'str'> → <class 'int'>
+  ! root['data']['Am']['Molar volume']: <class 'str'> → <class 'float'>
+  ! root['data']['Am']['Superconduction temperature']: <class 'str'> → <class 'float'>
+  ! root['data']['Am']['Thermal conductivity']: <class 'str'> → <class 'int'>
+  ! root['data']['Ar']['Boiling point']: <class 'str'> → <class 'float'>
+  ! root['data']['Ar']['Critical temperature']: <class 'str'> → <class 'float'>
+  ! root['data']['Ar']['Liquid range']: <class 'str'> → <class 'float'>
+  ! root['data']['Ar']['Melting point']: <class 'str'> → <class 'float'>
+  ! root['data']['Ar']['Molar volume']: <class 'str'> → <class 'float'>
+  ! root['data']['Ar']['Refractive index']: <class 'str'> → <class 'float'>
+  ! root['data']['Ar']['Thermal conductivity']: <class 'str'> → <class 'float'>
+  ! root['data']['Ar']['Velocity of sound']: <class 'str'> → <class 'int'>
+  ! root['data']['As']['Boiling point']: <class 'str'> → <class 'int'>
+  ! root['data']['As']['Brinell hardness']: <class 'str'> → <class 'int'>
+  ! root['data']['As']['Bulk modulus']: <class 'str'> → <class 'int'>
+  ! root['data']['As']['Critical temperature']: <class 'str'> → <class 'int'>
+  ! root['data']['As']['Density of solid']: <class 'str'> → <class 'int'>
+  ! root['data']['As']['Electrical resistivity']: <class 'str'> → <class 'float'>
+  ! root['data']['As']['Liquid range']: <class 'str'> → <class 'int'>
+  ! root['data']['As']['Melting point']: <class 'str'> → <class 'int'>
+  ! root['data']['As']['Mineral hardness']: <class 'str'> → <class 'float'>
+  ! root['data']['As']['Molar volume']: <class 'str'> → <class 'float'>
+  ! root['data']['As']['Refractive index']: <class 'str'> → <class 'float'>
+  ! root['data']['As']['Thermal conductivity']: <class 'str'> → <class 'int'>
+  ! root['data']['As']['Youngs modulus']: <class 'str'> → <class 'int'>
+  ! root['data']['At']['Melting point']: <class 'str'> → <class 'int'>
+  ! root['data']['At']['Thermal conductivity']: <class 'str'> → <class 'int'>
+  ! root['data']['Au']['Boiling point']: <class 'str'> → <class 'int'>
+  ! root['data']['Au']['Brinell hardness']: <class 'str'> → <class 'int'>
+  ! root['data']['Au']['Bulk modulus']: <class 'str'> → <class 'int'>
+  ! root['data']['Au']['Coefficient of linear thermal expansion']: <class 'str'> → <class 'float'>
+  ! root['data']['Au']['Density of solid']: <class 'str'> → <class 'int'>
+  ! root['data']['Au']['Electrical resistivity']: <class 'str'> → <class 'float'>
+  ! root['data']['Au']['Liquid range']: <class 'str'> → <class 'float'>
+  ! root['data']['Au']['Melting point']: <class 'str'> → <class 'float'>
+  ! root['data']['Au']['Mineral hardness']: <class 'str'> → <class 'float'>
+  ! root['data']['Au']['Molar volume']: <class 'str'> → <class 'float'>
+  ! root['data']['Au']['Poissons ratio']: <class 'str'> → <class 'float'>
+  ! root['data']['Au']['Reflectivity']: <class 'str'> → <class 'int'>
+  ! root['data']['Au']['Rigidity modulus']: <class 'str'> → <class 'int'>
+  ! root['data']['Au']['Thermal conductivity']: <class 'str'> → <class 'int'>
+  ! root['data']['Au']['Velocity of sound']: <class 'str'> → <class 'int'>
+  ! root['data']['Au']['Vickers hardness']: <class 'str'> → <class 'int'>
+  ! root['data']['Au']['Youngs modulus']: <class 'str'> → <class 'int'>
+  ! root['data']['B']['Boiling point']: <class 'str'> → <class 'int'>
+  ! root['data']['B']['Bulk modulus']: <class 'str'> → <class 'int'>
+  ! root['data']['B']['Coefficient of linear thermal expansion']: <class 'str'> → <class 'float'>
+  ! root['data']['B']['Density of solid']: <class 'str'> → <class 'int'>
+  ! root['data']['B']['Electrical resistivity']: <class 'str'> → <class 'float'>
+  ! root['data']['B']['Liquid range']: <class 'str'> → <class 'int'>
+  ! root['data']['B']['Melting point']: <class 'str'> → <class 'int'>
+  ! root['data']['B']['Mineral hardness']: <class 'str'> → <class 'float'>
+  ! root['data']['B']['Molar volume']: <class 'str'> → <class 'float'>
+  ! root['data']['B']['Thermal conductivity']: <class 'str'> → <class 'int'>
+  ! root['data']['B']['Velocity of sound']: <class 'str'> → <class 'int'>
+  ! root['data']['B']['Vickers hardness']: <class 'str'> → <class 'int'>
+  ! root['data']['Ba']['Boiling point']: <class 'str'> → <class 'int'>
+  ! root['data']['Ba']['Bulk modulus']: <class 'str'> → <class 'float'>
+  ! root['data']['Ba']['Coefficient of linear thermal expansion']: <class 'str'> → <class 'float'>
+  ! root['data']['Ba']['Density of solid']: <class 'str'> → <class 'int'>
+  ! root['data']['Ba']['Electrical resistivity']: <class 'str'> → <class 'float'>
+  ! root['data']['Ba']['Liquid range']: <class 'str'> → <class 'int'>
+  ! root['data']['Ba']['Melting point']: <class 'str'> → <class 'int'>
+  ! root['data']['Ba']['Mineral hardness']: <class 'str'> → <class 'float'>
+  ! root['data']['Ba']['Molar volume']: <class 'str'> → <class 'float'>
+  ! root['data']['Ba']['Rigidity modulus']: <class 'str'> → <class 'float'>
+  ! root['data']['Ba']['Thermal conductivity']: <class 'str'> → <class 'int'>
+  ! root['data']['Ba']['Velocity of sound']: <class 'str'> → <class 'int'>
+  ! root['data']['Ba']['Youngs modulus']: <class 'str'> → <class 'int'>
+  ! root['data']['Be']['Boiling point']: <class 'str'> → <class 'int'>
+  ! root['data']['Be']['Brinell hardness']: <class 'str'> → <class 'int'>
+  ! root['data']['Be']['Bulk modulus']: <class 'str'> → <class 'int'>
+  ! root['data']['Be']['Coefficient of linear thermal expansion']: <class 'str'> → <class 'float'>
+  ! root['data']['Be']['Density of solid']: <class 'str'> → <class 'int'>
+  ! root['data']['Be']['Electrical resistivity']: <class 'str'> → <class 'float'>
+  ! root['data']['Be']['Liquid range']: <class 'str'> → <class 'int'>
+  ! root['data']['Be']['Melting point']: <class 'str'> → <class 'int'>
+  ! root['data']['Be']['Mineral hardness']: <class 'str'> → <class 'float'>
+  ! root['data']['Be']['Molar volume']: <class 'str'> → <class 'float'>
+  ! root['data']['Be']['Poissons ratio']: <class 'str'> → <class 'float'>
+  ! root['data']['Be']['Rigidity modulus']: <class 'str'> → <class 'int'>
+  ! root['data']['Be']['Superconduction temperature']: <class 'str'> → <class 'float'>
+  ! root['data']['Be']['Thermal conductivity']: <class 'str'> → <class 'int'>
+  ! root['data']['Be']['Velocity of sound']: <class 'str'> → <class 'int'>
+  ! root['data']['Be']['Vickers hardness']: <class 'str'> → <class 'int'>
+  ! root['data']['Be']['Youngs modulus']: <class 'str'> → <class 'int'>
+  ! root['data']['Bi']['Boiling point']: <class 'str'> → <class 'int'>
+  ! root['data']['Bi']['Brinell hardness']: <class 'str'> → <class 'float'>
+  ! root['data']['Bi']['Bulk modulus']: <class 'str'> → <class 'int'>
+  ! root['data']['Bi']['Coefficient of linear thermal expansion']: <class 'str'> → <class 'float'>
+  ! root['data']['Bi']['Density of solid']: <class 'str'> → <class 'int'>
+  ! root['data']['Bi']['Electrical resistivity']: <class 'str'> → <class 'float'>
+  ! root['data']['Bi']['Liquid range']: <class 'str'> → <class 'float'>
+  ! root['data']['Bi']['Melting point']: <class 'str'> → <class 'float'>
+  ! root['data']['Bi']['Mineral hardness']: <class 'str'> → <class 'float'>
+  ! root['data']['Bi']['Molar volume']: <class 'str'> → <class 'float'>
+  ! root['data']['Bi']['Poissons ratio']: <class 'str'> → <class 'float'>
+  ! root['data']['Bi']['Rigidity modulus']: <class 'str'> → <class 'int'>
+  ! root['data']['Bi']['Thermal conductivity']: <class 'str'> → <class 'int'>
+  ! root['data']['Bi']['Velocity of sound']: <class 'str'> → <class 'int'>
+  ! root['data']['Bi']['Youngs modulus']: <class 'str'> → <class 'int'>
+  ! root['data']['Bk']['Density of solid']: <class 'str'> → <class 'int'>
+  ! root['data']['Bk']['Melting point']: <class 'str'> → <class 'int'>
+  ! root['data']['Bk']['Molar volume']: <class 'str'> → <class 'float'>
+  ! root['data']['Bk']['Thermal conductivity']: <class 'str'> → <class 'int'>
+  ! root['data']['Br']['Boiling point']: <class 'str'> → <class 'int'>
+  ! root['data']['Br']['Bulk modulus']: <class 'str'> → <class 'float'>
+  ! root['data']['Br']['Critical temperature']: <class 'str'> → <class 'int'>
+  ! root['data']['Br']['Electrical resistivity']: <class 'str'> → <class 'float'>
+  ! root['data']['Br']['Liquid range']: <class 'str'> → <class 'float'>
+  ! root['data']['Br']['Melting point']: <class 'str'> → <class 'float'>
+  ! root['data']['Br']['Molar volume']: <class 'str'> → <class 'float'>
+  ! root['data']['Br']['Refractive index']: <class 'str'> → <class 'float'>
+  ! root['data']['Br']['Thermal conductivity']: <class 'str'> → <class 'float'>
+  ! root['data']['C']['Boiling point']: <class 'str'> → <class 'int'>
+  ! root['data']['C']['Bulk modulus']: <class 'str'> → <class 'int'>
+  ! root['data']['C']['Coefficient of linear thermal expansion']: <class 'str'> → <class 'float'>
+  ! root['data']['C']['Density of solid']: <class 'str'> → <class 'int'>
+  ! root['data']['C']['Electrical resistivity']: <class 'str'> → <class 'float'>
+  ! root['data']['C']['Liquid range']: <class 'str'> → <class 'int'>
+  ! root['data']['C']['Melting point']: <class 'str'> → <class 'int'>
+  ! root['data']['C']['Mineral hardness']: <class 'str'> → <class 'float'>
+  ! root['data']['C']['Molar volume']: <class 'str'> → <class 'float'>
+  ! root['data']['C']['Reflectivity']: <class 'str'> → <class 'int'>
+  ! root['data']['C']['Refractive index']: <class 'str'> → <class 'float'>
+  ! root['data']['C']['Thermal conductivity']: <class 'str'> → <class 'int'>
+  ! root['data']['C']['Velocity of sound']: <class 'str'> → <class 'int'>
+  ! root['data']['Ca']['Boiling point']: <class 'str'> → <class 'int'>
+  ! root['data']['Ca']['Brinell hardness']: <class 'str'> → <class 'int'>
+  ! root['data']['Ca']['Bulk modulus']: <class 'str'> → <class 'int'>
+  ! root['data']['Ca']['Coefficient of linear thermal expansion']: <class 'str'> → <class 'float'>
+  ! root['data']['Ca']['Density of solid']: <class 'str'> → <class 'int'>
+  ! root['data']['Ca']['Electrical resistivity']: <class 'str'> → <class 'float'>
+  ! root['data']['Ca']['Liquid range']: <class 'str'> → <class 'int'>
+  ! root['data']['Ca']['Melting point']: <class 'str'> → <class 'int'>
+  ! root['data']['Ca']['Mineral hardness']: <class 'str'> → <class 'float'>
+  ! root['data']['Ca']['Molar volume']: <class 'str'> → <class 'float'>
+  ! root['data']['Ca']['Poissons ratio']: <class 'str'> → <class 'float'>
+  ! root['data']['Ca']['Rigidity modulus']: <class 'str'> → <class 'float'>
+  ! root['data']['Ca']['Shannon radii']['2']['VI']['']['ionic_radius']: <class 'int'> → <class 'float'>
+  ! root['data']['Ca']['Thermal conductivity']: <class 'str'> → <class 'int'>
+  ! root['data']['Ca']['Velocity of sound']: <class 'str'> → <class 'int'>
+  ! root['data']['Ca']['Youngs modulus']: <class 'str'> → <class 'int'>
+  ! root['data']['Cd']['Boiling point']: <class 'str'> → <class 'int'>
+  ! root['data']['Cd']['Brinell hardness']: <class 'str'> → <class 'int'>
+  ! root['data']['Cd']['Bulk modulus']: <class 'str'> → <class 'int'>
+  ! root['data']['Cd']['Coefficient of linear thermal expansion']: <class 'str'> → <class 'float'>
+  ! root['data']['Cd']['Density of solid']: <class 'str'> → <class 'int'>
+  ! root['data']['Cd']['Electrical resistivity']: <class 'str'> → <class 'float'>
+  ! root['data']['Cd']['Liquid range']: <class 'str'> → <class 'float'>
+  ! root['data']['Cd']['Melting point']: <class 'str'> → <class 'float'>
+  ! root['data']['Cd']['Mineral hardness']: <class 'str'> → <class 'float'>
+  ! root['data']['Cd']['Molar volume']: <class 'str'> → <class 'float'>
+  ! root['data']['Cd']['Poissons ratio']: <class 'str'> → <class 'float'>
+  ! root['data']['Cd']['Reflectivity']: <class 'str'> → <class 'int'>
+  ! root['data']['Cd']['Rigidity modulus']: <class 'str'> → <class 'int'>
+  ! root['data']['Cd']['Superconduction temperature']: <class 'str'> → <class 'float'>
+  ! root['data']['Cd']['Thermal conductivity']: <class 'str'> → <class 'int'>
+  ! root['data']['Cd']['Velocity of sound']: <class 'str'> → <class 'int'>
+  ! root['data']['Cd']['Youngs modulus']: <class 'str'> → <class 'int'>
+  ! root['data']['Ce']['Boiling point']: <class 'str'> → <class 'int'>
+  ! root['data']['Ce']['Brinell hardness']: <class 'str'> → <class 'int'>
+  ! root['data']['Ce']['Bulk modulus']: <class 'str'> → <class 'int'>
+  ! root['data']['Ce']['Coefficient of linear thermal expansion']: <class 'str'> → <class 'float'>
+  ! root['data']['Ce']['Density of solid']: <class 'str'> → <class 'int'>
+  ! root['data']['Ce']['Electrical resistivity']: <class 'str'> → <class 'float'>
+  ! root['data']['Ce']['Liquid range']: <class 'str'> → <class 'int'>
+  ! root['data']['Ce']['Melting point']: <class 'str'> → <class 'int'>
+  ! root['data']['Ce']['Mineral hardness']: <class 'str'> → <class 'float'>
+  ! root['data']['Ce']['Molar volume']: <class 'str'> → <class 'float'>
+  ! root['data']['Ce']['Poissons ratio']: <class 'str'> → <class 'float'>
+  ! root['data']['Ce']['Rigidity modulus']: <class 'str'> → <class 'int'>
+  ! root['data']['Ce']['Superconduction temperature']: <class 'str'> → <class 'float'>
+  ! root['data']['Ce']['Thermal conductivity']: <class 'str'> → <class 'int'>
+  ! root['data']['Ce']['Velocity of sound']: <class 'str'> → <class 'int'>
+  ! root['data']['Ce']['Vickers hardness']: <class 'str'> → <class 'int'>
+  ! root['data']['Ce']['Youngs modulus']: <class 'str'> → <class 'int'>
+  ! root['data']['Cf']['Density of solid']: <class 'str'> → <class 'int'>
+  ! root['data']['Cf']['Melting point']: <class 'str'> → <class 'int'>
+  ! root['data']['Cf']['Molar volume']: <class 'str'> → <class 'float'>
+  ! root['data']['Cl']['Atomic radius']: <class 'int'> → <class 'float'>
+  ! root['data']['Cl']['Boiling point']: <class 'str'> → <class 'float'>
+  ! root['data']['Cl']['Bulk modulus']: <class 'str'> → <class 'float'>
+  ! root['data']['Cl']['Critical temperature']: <class 'str'> → <class 'int'>
+  ! root['data']['Cl']['Electrical resistivity']: <class 'str'> → <class 'float'>
+  ! root['data']['Cl']['Liquid range']: <class 'str'> → <class 'float'>
+  ! root['data']['Cl']['Melting point']: <class 'str'> → <class 'float'>
+  ! root['data']['Cl']['Molar volume']: <class 'str'> → <class 'float'>
+  ! root['data']['Cl']['Refractive index']: <class 'str'> → <class 'float'>
+  ! root['data']['Cl']['Thermal conductivity']: <class 'str'> → <class 'float'>
+  ! root['data']['Cl']['Velocity of sound']: <class 'str'> → <class 'int'>
+  ! root['data']['Cm']['Boiling point']: <class 'str'> → <class 'int'>
+  ! root['data']['Cm']['Density of solid']: <class 'str'> → <class 'int'>
+  ! root['data']['Cm']['Liquid range']: <class 'str'> → <class 'int'>
+  ! root['data']['Cm']['Melting point']: <class 'str'> → <class 'int'>
+  ! root['data']['Cm']['Molar volume']: <class 'str'> → <class 'float'>
+  ! root['data']['Cm']['Thermal conductivity']: <class 'str'> → <class 'float'>
+  ! root['data']['Co']['Boiling point']: <class 'str'> → <class 'int'>
+  ! root['data']['Co']['Brinell hardness']: <class 'str'> → <class 'int'>
+  ! root['data']['Co']['Bulk modulus']: <class 'str'> → <class 'int'>
+  ! root['data']['Co']['Coefficient of linear thermal expansion']: <class 'str'> → <class 'float'>
+  ! root['data']['Co']['Density of solid']: <class 'str'> → <class 'int'>
+  ! root['data']['Co']['Electrical resistivity']: <class 'str'> → <class 'float'>
+  ! root['data']['Co']['Liquid range']: <class 'str'> → <class 'int'>
+  ! root['data']['Co']['Melting point']: <class 'str'> → <class 'int'>
+  ! root['data']['Co']['Mineral hardness']: <class 'str'> → <class 'float'>
+  ! root['data']['Co']['Molar volume']: <class 'str'> → <class 'float'>
+  ! root['data']['Co']['Poissons ratio']: <class 'str'> → <class 'float'>
+  ! root['data']['Co']['Reflectivity']: <class 'str'> → <class 'int'>
+  ! root['data']['Co']['Rigidity modulus']: <class 'str'> → <class 'int'>
+  ! root['data']['Co']['Thermal conductivity']: <class 'str'> → <class 'int'>
+  ! root['data']['Co']['Van der waals radius']: <class 'int'> → <class 'float'>
+  ! root['data']['Co']['Velocity of sound']: <class 'str'> → <class 'int'>
+  ! root['data']['Co']['Vickers hardness']: <class 'str'> → <class 'int'>
+  ! root['data']['Co']['Youngs modulus']: <class 'str'> → <class 'int'>
+  ! root['data']['Cr']['Boiling point']: <class 'str'> → <class 'int'>
+  ! root['data']['Cr']['Brinell hardness']: <class 'str'> → <class 'int'>
+  ! root['data']['Cr']['Bulk modulus']: <class 'str'> → <class 'int'>
+  ! root['data']['Cr']['Coefficient of linear thermal expansion']: <class 'str'> → <class 'float'>
+  ! root['data']['Cr']['Density of solid']: <class 'str'> → <class 'int'>
+  ! root['data']['Cr']['Electrical resistivity']: <class 'str'> → <class 'float'>
+  ! root['data']['Cr']['Liquid range']: <class 'str'> → <class 'int'>
+  ! root['data']['Cr']['Melting point']: <class 'str'> → <class 'int'>
+  ! root['data']['Cr']['Mineral hardness']: <class 'str'> → <class 'float'>
+  ! root['data']['Cr']['Molar volume']: <class 'str'> → <class 'float'>
+  ! root['data']['Cr']['Poissons ratio']: <class 'str'> → <class 'float'>
+  ! root['data']['Cr']['Rigidity modulus']: <class 'str'> → <class 'int'>
+  ! root['data']['Cr']['Thermal conductivity']: <class 'str'> → <class 'int'>
+  ! root['data']['Cr']['Velocity of sound']: <class 'str'> → <class 'int'>
+  ! root['data']['Cr']['Vickers hardness']: <class 'str'> → <class 'int'>
+  ! root['data']['Cr']['Youngs modulus']: <class 'str'> → <class 'int'>
+  ! root['data']['Cs']['Boiling point']: <class 'str'> → <class 'int'>
+  ! root['data']['Cs']['Brinell hardness']: <class 'str'> → <class 'float'>
+  ! root['data']['Cs']['Bulk modulus']: <class 'str'> → <class 'float'>
+  ! root['data']['Cs']['Critical temperature']: <class 'str'> → <class 'int'>
+  ! root['data']['Cs']['Density of solid']: <class 'str'> → <class 'int'>
+  ! root['data']['Cs']['Electrical resistivity']: <class 'str'> → <class 'float'>
+  ! root['data']['Cs']['Liquid range']: <class 'str'> → <class 'float'>
+  ! root['data']['Cs']['Melting point']: <class 'str'> → <class 'float'>
+  ! root['data']['Cs']['Mineral hardness']: <class 'str'> → <class 'float'>
+  ! root['data']['Cs']['Molar volume']: <class 'str'> → <class 'float'>
+  ! root['data']['Cs']['Thermal conductivity']: <class 'str'> → <class 'int'>
+  ! root['data']['Cs']['Youngs modulus']: <class 'str'> → <class 'float'>
+  ! root['data']['Cu']['Boiling point']: <class 'str'> → <class 'int'>
+  ! root['data']['Cu']['Brinell hardness']: <class 'str'> → <class 'int'>
+  ! root['data']['Cu']['Bulk modulus']: <class 'str'> → <class 'int'>
+  ! root['data']['Cu']['Coefficient of linear thermal expansion']: <class 'str'> → <class 'float'>
+  ! root['data']['Cu']['Density of solid']: <class 'str'> → <class 'int'>
+  ! root['data']['Cu']['Electrical resistivity']: <class 'str'> → <class 'float'>
+  ! root['data']['Cu']['Liquid range']: <class 'str'> → <class 'float'>
+  ! root['data']['Cu']['Melting point']: <class 'str'> → <class 'float'>
+  ! root['data']['Cu']['Mineral hardness']: <class 'str'> → <class 'float'>
+  ! root['data']['Cu']['Molar volume']: <class 'str'> → <class 'float'>
+  ! root['data']['Cu']['Poissons ratio']: <class 'str'> → <class 'float'>
+  ! root['data']['Cu']['Reflectivity']: <class 'str'> → <class 'int'>
+  ! root['data']['Cu']['Rigidity modulus']: <class 'str'> → <class 'int'>
+  ! root['data']['Cu']['Thermal conductivity']: <class 'str'> → <class 'int'>
+  ! root['data']['Cu']['Velocity of sound']: <class 'str'> → <class 'int'>
+  ! root['data']['Cu']['Vickers hardness']: <class 'str'> → <class 'int'>
+  ! root['data']['Cu']['Youngs modulus']: <class 'str'> → <class 'int'>
+  ! root['data']['Dy']['Boiling point']: <class 'str'> → <class 'int'>
+  ! root['data']['Dy']['Brinell hardness']: <class 'str'> → <class 'int'>
+  ! root['data']['Dy']['Bulk modulus']: <class 'str'> → <class 'int'>
+  ! root['data']['Dy']['Coefficient of linear thermal expansion']: <class 'str'> → <class 'float'>
+  ! root['data']['Dy']['Density of solid']: <class 'str'> → <class 'int'>
+  ! root['data']['Dy']['Electrical resistivity']: <class 'str'> → <class 'float'>
+  ! root['data']['Dy']['Liquid range']: <class 'str'> → <class 'int'>
+  ! root['data']['Dy']['Melting point']: <class 'str'> → <class 'int'>
+  ! root['data']['Dy']['Molar volume']: <class 'str'> → <class 'float'>
+  ! root['data']['Dy']['Poissons ratio']: <class 'str'> → <class 'float'>
+  ! root['data']['Dy']['Rigidity modulus']: <class 'str'> → <class 'int'>
+  ! root['data']['Dy']['Thermal conductivity']: <class 'str'> → <class 'int'>
+  ! root['data']['Dy']['Velocity of sound']: <class 'str'> → <class 'int'>
+  ! root['data']['Dy']['Vickers hardness']: <class 'str'> → <class 'int'>
+  ! root['data']['Dy']['Youngs modulus']: <class 'str'> → <class 'int'>
+  ! root['data']['Er']['Boiling point']: <class 'str'> → <class 'int'>
+  ! root['data']['Er']['Brinell hardness']: <class 'str'> → <class 'int'>
+  ! root['data']['Er']['Bulk modulus']: <class 'str'> → <class 'int'>
+  ! root['data']['Er']['Coefficient of linear thermal expansion']: <class 'str'> → <class 'float'>
+  ! root['data']['Er']['Density of solid']: <class 'str'> → <class 'int'>
+  ! root['data']['Er']['Electrical resistivity']: <class 'str'> → <class 'float'>
+  ! root['data']['Er']['Liquid range']: <class 'str'> → <class 'int'>
+  ! root['data']['Er']['Melting point']: <class 'str'> → <class 'int'>
+  ! root['data']['Er']['Molar volume']: <class 'str'> → <class 'float'>
+  ! root['data']['Er']['Poissons ratio']: <class 'str'> → <class 'float'>
+  ! root['data']['Er']['Rigidity modulus']: <class 'str'> → <class 'int'>
+  ! root['data']['Er']['Thermal conductivity']: <class 'str'> → <class 'int'>
+  ! root['data']['Er']['Velocity of sound']: <class 'str'> → <class 'int'>
+  ! root['data']['Er']['Vickers hardness']: <class 'str'> → <class 'int'>
+  ! root['data']['Er']['Youngs modulus']: <class 'str'> → <class 'int'>
+  ! root['data']['Es']['Melting point']: <class 'str'> → <class 'int'>
+  ! root['data']['Es']['Molar volume']: <class 'str'> → <class 'float'>
+  ! root['data']['Eu']['Boiling point']: <class 'str'> → <class 'int'>
+  ! root['data']['Eu']['Bulk modulus']: <class 'str'> → <class 'float'>
+  ! root['data']['Eu']['Coefficient of linear thermal expansion']: <class 'str'> → <class 'float'>
+  ! root['data']['Eu']['Density of solid']: <class 'str'> → <class 'int'>
+  ! root['data']['Eu']['Electrical resistivity']: <class 'str'> → <class 'float'>
+  ! root['data']['Eu']['Liquid range']: <class 'str'> → <class 'int'>
+  ! root['data']['Eu']['Melting point']: <class 'str'> → <class 'int'>
+  ! root['data']['Eu']['Molar volume']: <class 'str'> → <class 'float'>
+  ! root['data']['Eu']['Poissons ratio']: <class 'str'> → <class 'float'>
+  ! root['data']['Eu']['Rigidity modulus']: <class 'str'> → <class 'float'>
+  ! root['data']['Eu']['Thermal conductivity']: <class 'str'> → <class 'int'>
+  ! root['data']['Eu']['Vickers hardness']: <class 'str'> → <class 'int'>
+  ! root['data']['Eu']['Youngs modulus']: <class 'str'> → <class 'int'>
+  ! root['data']['F']['Boiling point']: <class 'str'> → <class 'float'>
+  ! root['data']['F']['Critical temperature']: <class 'str'> → <class 'int'>
+  ! root['data']['F']['Liquid range']: <class 'str'> → <class 'float'>
+  ! root['data']['F']['Melting point']: <class 'str'> → <class 'float'>
+  ! root['data']['F']['Molar volume']: <class 'str'> → <class 'float'>
+  ! root['data']['F']['Refractive index']: <class 'str'> → <class 'float'>
+  ! root['data']['F']['Thermal conductivity']: <class 'str'> → <class 'float'>
+  ! root['data']['Fe']['Boiling point']: <class 'str'> → <class 'int'>
+  ! root['data']['Fe']['Brinell hardness']: <class 'str'> → <class 'int'>
+  ! root['data']['Fe']['Bulk modulus']: <class 'str'> → <class 'int'>
+  ! root['data']['Fe']['Coefficient of linear thermal expansion']: <class 'str'> → <class 'float'>
+  ! root['data']['Fe']['Density of solid']: <class 'str'> → <class 'int'>
+  ! root['data']['Fe']['Electrical resistivity']: <class 'str'> → <class 'float'>
+  ! root['data']['Fe']['Liquid range']: <class 'str'> → <class 'int'>
+  ! root['data']['Fe']['Melting point']: <class 'str'> → <class 'int'>
+  ! root['data']['Fe']['Mineral hardness']: <class 'str'> → <class 'float'>
+  ! root['data']['Fe']['Molar volume']: <class 'str'> → <class 'float'>
+  ! root['data']['Fe']['Poissons ratio']: <class 'str'> → <class 'float'>
+  ! root['data']['Fe']['Reflectivity']: <class 'str'> → <class 'int'>
+  ! root['data']['Fe']['Rigidity modulus']: <class 'str'> → <class 'int'>
+  ! root['data']['Fe']['Thermal conductivity']: <class 'str'> → <class 'int'>
+  ! root['data']['Fe']['Velocity of sound']: <class 'str'> → <class 'int'>
+  ! root['data']['Fe']['Vickers hardness']: <class 'str'> → <class 'int'>
+  ! root['data']['Fe']['Youngs modulus']: <class 'str'> → <class 'int'>
+  ! root['data']['Fm']['Melting point']: <class 'str'> → <class 'int'>
+  ! root['data']['Fr']['Melting point']: <class 'str'> → <class 'int'>
+  ! root['data']['Ga']['Boiling point']: <class 'str'> → <class 'int'>
+  ! root['data']['Ga']['Brinell hardness']: <class 'str'> → <class 'int'>
+  ! root['data']['Ga']['Coefficient of linear thermal expansion']: <class 'str'> → <class 'float'>
+  ! root['data']['Ga']['Density of solid']: <class 'str'> → <class 'int'>
+  ! root['data']['Ga']['Electrical resistivity']: <class 'str'> → <class 'float'>
+  ! root['data']['Ga']['Liquid range']: <class 'str'> → <class 'float'>
+  ! root['data']['Ga']['Melting point']: <class 'str'> → <class 'float'>
+  ! root['data']['Ga']['Mineral hardness']: <class 'str'> → <class 'float'>
+  ! root['data']['Ga']['Molar volume']: <class 'str'> → <class 'float'>
+  ! root['data']['Ga']['Superconduction temperature']: <class 'str'> → <class 'float'>
+  ! root['data']['Ga']['Thermal conductivity']: <class 'str'> → <class 'int'>
+  ! root['data']['Ga']['Velocity of sound']: <class 'str'> → <class 'int'>
+  ! root['data']['Gd']['Boiling point']: <class 'str'> → <class 'int'>
+  ! root['data']['Gd']['Bulk modulus']: <class 'str'> → <class 'int'>
+  ! root['data']['Gd']['Coefficient of linear thermal expansion']: <class 'str'> → <class 'float'>
+  ! root['data']['Gd']['Density of solid']: <class 'str'> → <class 'int'>
+  ! root['data']['Gd']['Electrical resistivity']: <class 'str'> → <class 'float'>
+  ! root['data']['Gd']['Liquid range']: <class 'str'> → <class 'int'>
+  ! root['data']['Gd']['Melting point']: <class 'str'> → <class 'int'>
+  ! root['data']['Gd']['Molar volume']: <class 'str'> → <class 'float'>
+  ! root['data']['Gd']['Poissons ratio']: <class 'str'> → <class 'float'>
+  ! root['data']['Gd']['Rigidity modulus']: <class 'str'> → <class 'int'>
+  ! root['data']['Gd']['Shannon radii']['3']['VII']['']['ionic_radius']: <class 'int'> → <class 'float'>
+  ! root['data']['Gd']['Superconduction temperature']: <class 'str'> → <class 'float'>
+  ! root['data']['Gd']['Thermal conductivity']: <class 'str'> → <class 'int'>
+  ! root['data']['Gd']['Velocity of sound']: <class 'str'> → <class 'int'>
+  ! root['data']['Gd']['Vickers hardness']: <class 'str'> → <class 'int'>
+  ! root['data']['Gd']['Youngs modulus']: <class 'str'> → <class 'int'>
+  ! root['data']['Ge']['Boiling point']: <class 'str'> → <class 'int'>
+  ! root['data']['Ge']['Coefficient of linear thermal expansion']: <class 'str'> → <class 'float'>
+  ! root['data']['Ge']['Density of solid']: <class 'str'> → <class 'int'>
+  ! root['data']['Ge']['Electrical resistivity']: <class 'str'> → <class 'float'>
+  ! root['data']['Ge']['Liquid range']: <class 'str'> → <class 'float'>
+  ! root['data']['Ge']['Melting point']: <class 'str'> → <class 'float'>
+  ! root['data']['Ge']['Mineral hardness']: <class 'str'> → <class 'float'>
+  ! root['data']['Ge']['Molar volume']: <class 'str'> → <class 'float'>
+  ! root['data']['Ge']['Thermal conductivity']: <class 'str'> → <class 'int'>
+  ! root['data']['Ge']['Velocity of sound']: <class 'str'> → <class 'int'>
+  ! root['data']['H']['Boiling point']: <class 'str'> → <class 'float'>
+  ! root['data']['H']['Critical temperature']: <class 'str'> → <class 'int'>
+  ! root['data']['H']['Liquid range']: <class 'str'> → <class 'float'>
+  ! root['data']['H']['Melting point']: <class 'str'> → <class 'float'>
+  ! root['data']['H']['Molar volume']: <class 'str'> → <class 'float'>
+  ! root['data']['H']['Refractive index']: <class 'str'> → <class 'float'>
+  ! root['data']['H']['Thermal conductivity']: <class 'str'> → <class 'float'>
+  ! root['data']['H']['Velocity of sound']: <class 'str'> → <class 'int'>
+  ! root['data']['He']['Boiling point']: <class 'str'> → <class 'float'>
+  ! root['data']['He']['Critical temperature']: <class 'str'> → <class 'float'>
+  ! root['data']['He']['Liquid range']: <class 'str'> → <class 'float'>
+  ! root['data']['He']['Melting point']: <class 'str'> → <class 'float'>
+  ! root['data']['He']['Molar volume']: <class 'str'> → <class 'float'>
+  ! root['data']['He']['Refractive index']: <class 'str'> → <class 'float'>
+  ! root['data']['He']['Thermal conductivity']: <class 'str'> → <class 'float'>
+  ! root['data']['He']['Velocity of sound']: <class 'str'> → <class 'int'>
+  ! root['data']['Hf']['Boiling point']: <class 'str'> → <class 'int'>
+  ! root['data']['Hf']['Brinell hardness']: <class 'str'> → <class 'int'>
+  ! root['data']['Hf']['Bulk modulus']: <class 'str'> → <class 'int'>
+  ! root['data']['Hf']['Coefficient of linear thermal expansion']: <class 'str'> → <class 'float'>
+  ! root['data']['Hf']['Density of solid']: <class 'str'> → <class 'int'>
+  ! root['data']['Hf']['Electrical resistivity']: <class 'str'> → <class 'float'>
+  ! root['data']['Hf']['Liquid range']: <class 'str'> → <class 'int'>
+  ! root['data']['Hf']['Melting point']: <class 'str'> → <class 'int'>
+  ! root['data']['Hf']['Mineral hardness']: <class 'str'> → <class 'float'>
+  ! root['data']['Hf']['Molar volume']: <class 'str'> → <class 'float'>
+  ! root['data']['Hf']['Poissons ratio']: <class 'str'> → <class 'float'>
+  ! root['data']['Hf']['Rigidity modulus']: <class 'str'> → <class 'int'>
+  ! root['data']['Hf']['Superconduction temperature']: <class 'str'> → <class 'float'>
+  ! root['data']['Hf']['Thermal conductivity']: <class 'str'> → <class 'int'>
+  ! root['data']['Hf']['Velocity of sound']: <class 'str'> → <class 'int'>
+  ! root['data']['Hf']['Vickers hardness']: <class 'str'> → <class 'int'>
+  ! root['data']['Hf']['Youngs modulus']: <class 'str'> → <class 'int'>
+  ! root['data']['Hg']['Boiling point']: <class 'str'> → <class 'float'>
+  ! root['data']['Hg']['Bulk modulus']: <class 'str'> → <class 'int'>
+  ! root['data']['Hg']['Critical temperature']: <class 'str'> → <class 'int'>
+  ! root['data']['Hg']['Electrical resistivity']: <class 'str'> → <class 'float'>
+  ! root['data']['Hg']['Liquid range']: <class 'str'> → <class 'float'>
+  ! root['data']['Hg']['Melting point']: <class 'str'> → <class 'float'>
+  ! root['data']['Hg']['Mineral hardness']: <class 'str'> → <class 'float'>
+  ! root['data']['Hg']['Molar volume']: <class 'str'> → <class 'float'>
+  ! root['data']['Hg']['Reflectivity']: <class 'str'> → <class 'int'>
+  ! root['data']['Hg']['Refractive index']: <class 'str'> → <class 'float'>
+  ! root['data']['Hg']['Superconduction temperature']: <class 'str'> → <class 'float'>
+  ! root['data']['Hg']['Thermal conductivity']: <class 'str'> → <class 'float'>
+  ! root['data']['Hg']['Velocity of sound']: <class 'str'> → <class 'int'>
+  ! root['data']['Ho']['Boiling point']: <class 'str'> → <class 'int'>
+  ! root['data']['Ho']['Brinell hardness']: <class 'str'> → <class 'int'>
+  ! root['data']['Ho']['Bulk modulus']: <class 'str'> → <class 'int'>
+  ! root['data']['Ho']['Coefficient of linear thermal expansion']: <class 'str'> → <class 'float'>
+  ! root['data']['Ho']['Density of solid']: <class 'str'> → <class 'int'>
+  ! root['data']['Ho']['Electrical resistivity']: <class 'str'> → <class 'float'>
+  ! root['data']['Ho']['Liquid range']: <class 'str'> → <class 'int'>
+  ! root['data']['Ho']['Melting point']: <class 'str'> → <class 'int'>
+  ! root['data']['Ho']['Molar volume']: <class 'str'> → <class 'float'>
+  ! root['data']['Ho']['Poissons ratio']: <class 'str'> → <class 'float'>
+  ! root['data']['Ho']['Rigidity modulus']: <class 'str'> → <class 'int'>
+  ! root['data']['Ho']['Thermal conductivity']: <class 'str'> → <class 'int'>
+  ! root['data']['Ho']['Velocity of sound']: <class 'str'> → <class 'int'>
+  ! root['data']['Ho']['Vickers hardness']: <class 'str'> → <class 'int'>
+  ! root['data']['Ho']['Youngs modulus']: <class 'str'> → <class 'int'>
+  ! root['data']['I']['Boiling point']: <class 'str'> → <class 'float'>
+  ! root['data']['I']['Bulk modulus']: <class 'str'> → <class 'float'>
+  ! root['data']['I']['Critical temperature']: <class 'str'> → <class 'int'>
+  ! root['data']['I']['Density of solid']: <class 'str'> → <class 'int'>
+  ! root['data']['I']['Electrical resistivity']: <class 'str'> → <class 'float'>
+  ! root['data']['I']['Liquid range']: <class 'str'> → <class 'float'>
+  ! root['data']['I']['Melting point']: <class 'str'> → <class 'float'>
+  ! root['data']['I']['Molar volume']: <class 'str'> → <class 'float'>
+  ! root['data']['I']['Thermal conductivity']: <class 'str'> → <class 'float'>
+  ! root['data']['In']['Boiling point']: <class 'str'> → <class 'int'>
+  ! root['data']['In']['Brinell hardness']: <class 'str'> → <class 'float'>
+  ! root['data']['In']['Coefficient of linear thermal expansion']: <class 'str'> → <class 'float'>
+  ! root['data']['In']['Density of solid']: <class 'str'> → <class 'int'>
+  ! root['data']['In']['Electrical resistivity']: <class 'str'> → <class 'float'>
+  ! root['data']['In']['Liquid range']: <class 'str'> → <class 'float'>
+  ! root['data']['In']['Melting point']: <class 'str'> → <class 'float'>
+  ! root['data']['In']['Mineral hardness']: <class 'str'> → <class 'float'>
+  ! root['data']['In']['Molar volume']: <class 'str'> → <class 'float'>
+  ! root['data']['In']['Superconduction temperature']: <class 'str'> → <class 'float'>
+  ! root['data']['In']['Thermal conductivity']: <class 'str'> → <class 'int'>
+  ! root['data']['In']['Velocity of sound']: <class 'str'> → <class 'int'>
+  ! root['data']['In']['Youngs modulus']: <class 'str'> → <class 'int'>
+  ! root['data']['Ir']['Boiling point']: <class 'str'> → <class 'int'>
+  ! root['data']['Ir']['Brinell hardness']: <class 'str'> → <class 'int'>
+  ! root['data']['Ir']['Bulk modulus']: <class 'str'> → <class 'int'>
+  ! root['data']['Ir']['Coefficient of linear thermal expansion']: <class 'str'> → <class 'float'>
+  ! root['data']['Ir']['Density of solid']: <class 'str'> → <class 'int'>
+  ! root['data']['Ir']['Electrical resistivity']: <class 'str'> → <class 'float'>
+  ! root['data']['Ir']['Liquid range']: <class 'str'> → <class 'int'>
+  ! root['data']['Ir']['Melting point']: <class 'str'> → <class 'int'>
+  ! root['data']['Ir']['Mineral hardness']: <class 'str'> → <class 'float'>
+  ! root['data']['Ir']['Molar volume']: <class 'str'> → <class 'float'>
+  ! root['data']['Ir']['Poissons ratio']: <class 'str'> → <class 'float'>
+  ! root['data']['Ir']['Reflectivity']: <class 'str'> → <class 'int'>
+  ! root['data']['Ir']['Rigidity modulus']: <class 'str'> → <class 'int'>
+  ! root['data']['Ir']['Superconduction temperature']: <class 'str'> → <class 'float'>
+  ! root['data']['Ir']['Thermal conductivity']: <class 'str'> → <class 'int'>
+  ! root['data']['Ir']['Velocity of sound']: <class 'str'> → <class 'int'>
+  ! root['data']['Ir']['Vickers hardness']: <class 'str'> → <class 'int'>
+  ! root['data']['Ir']['Youngs modulus']: <class 'str'> → <class 'int'>
+  ! root['data']['K']['Boiling point']: <class 'str'> → <class 'int'>
+  ! root['data']['K']['Brinell hardness']: <class 'str'> → <class 'float'>
+  ! root['data']['K']['Bulk modulus']: <class 'str'> → <class 'float'>
+  ! root['data']['K']['Critical temperature']: <class 'str'> → <class 'int'>
+  ! root['data']['K']['Density of solid']: <class 'str'> → <class 'int'>
+  ! root['data']['K']['Electrical resistivity']: <class 'str'> → <class 'float'>
+  ! root['data']['K']['Liquid range']: <class 'str'> → <class 'float'>
+  ! root['data']['K']['Melting point']: <class 'str'> → <class 'float'>
+  ! root['data']['K']['Mineral hardness']: <class 'str'> → <class 'float'>
+  ! root['data']['K']['Molar volume']: <class 'str'> → <class 'float'>
+  ! root['data']['K']['Rigidity modulus']: <class 'str'> → <class 'float'>
+  ! root['data']['K']['Thermal conductivity']: <class 'str'> → <class 'int'>
+  ! root['data']['K']['Velocity of sound']: <class 'str'> → <class 'int'>
+  ! root['data']['Kr']['Boiling point']: <class 'str'> → <class 'float'>
+  ! root['data']['Kr']['Critical temperature']: <class 'str'> → <class 'float'>
+  ! root['data']['Kr']['Liquid range']: <class 'str'> → <class 'float'>
+  ! root['data']['Kr']['Melting point']: <class 'str'> → <class 'float'>
+  ! root['data']['Kr']['Molar volume']: <class 'str'> → <class 'float'>
+  ! root['data']['Kr']['Refractive index']: <class 'str'> → <class 'float'>
+  ! root['data']['Kr']['Thermal conductivity']: <class 'str'> → <class 'float'>
+  ! root['data']['Kr']['Velocity of sound']: <class 'str'> → <class 'int'>
+  ! root['data']['La']['Boiling point']: <class 'str'> → <class 'int'>
+  ! root['data']['La']['Brinell hardness']: <class 'str'> → <class 'int'>
+  ! root['data']['La']['Bulk modulus']: <class 'str'> → <class 'int'>
+  ! root['data']['La']['Coefficient of linear thermal expansion']: <class 'str'> → <class 'float'>
+  ! root['data']['La']['Density of solid']: <class 'str'> → <class 'int'>
+  ! root['data']['La']['Electrical resistivity']: <class 'str'> → <class 'float'>
+  ! root['data']['La']['Liquid range']: <class 'str'> → <class 'int'>
+  ! root['data']['La']['Melting point']: <class 'str'> → <class 'int'>
+  ! root['data']['La']['Mineral hardness']: <class 'str'> → <class 'float'>
+  ! root['data']['La']['Molar volume']: <class 'str'> → <class 'float'>
+  ! root['data']['La']['Poissons ratio']: <class 'str'> → <class 'float'>
+  ! root['data']['La']['Rigidity modulus']: <class 'str'> → <class 'int'>
+  ! root['data']['La']['Superconduction temperature']: <class 'str'> → <class 'float'>
+  ! root['data']['La']['Thermal conductivity']: <class 'str'> → <class 'int'>
+  ! root['data']['La']['Velocity of sound']: <class 'str'> → <class 'int'>
+  ! root['data']['La']['Vickers hardness']: <class 'str'> → <class 'int'>
+  ! root['data']['La']['Youngs modulus']: <class 'str'> → <class 'int'>
+  ! root['data']['Li']['Boiling point']: <class 'str'> → <class 'int'>
+  ! root['data']['Li']['Bulk modulus']: <class 'str'> → <class 'int'>
+  ! root['data']['Li']['Coefficient of linear thermal expansion']: <class 'str'> → <class 'float'>
+  ! root['data']['Li']['Critical temperature']: <class 'str'> → <class 'int'>
+  ! root['data']['Li']['Density of solid']: <class 'str'> → <class 'int'>
+  ! root['data']['Li']['Electrical resistivity']: <class 'str'> → <class 'float'>
+  ! root['data']['Li']['Liquid range']: <class 'str'> → <class 'float'>
+  ! root['data']['Li']['Melting point']: <class 'str'> → <class 'float'>
+  ! root['data']['Li']['Mineral hardness']: <class 'str'> → <class 'float'>
+  ! root['data']['Li']['Molar volume']: <class 'str'> → <class 'float'>
+  ! root['data']['Li']['Rigidity modulus']: <class 'str'> → <class 'float'>
+  ! root['data']['Li']['Thermal conductivity']: <class 'str'> → <class 'int'>
+  ! root['data']['Li']['Velocity of sound']: <class 'str'> → <class 'int'>
+  ! root['data']['Li']['Youngs modulus']: <class 'str'> → <class 'float'>
+  ! root['data']['Lr']['Melting point']: <class 'str'> → <class 'int'>
+  ! root['data']['Lu']['Boiling point']: <class 'str'> → <class 'int'>
+  ! root['data']['Lu']['Brinell hardness']: <class 'str'> → <class 'int'>
+  ! root['data']['Lu']['Bulk modulus']: <class 'str'> → <class 'int'>
+  ! root['data']['Lu']['Coefficient of linear thermal expansion']: <class 'str'> → <class 'float'>
+  ! root['data']['Lu']['Density of solid']: <class 'str'> → <class 'int'>
+  ! root['data']['Lu']['Electrical resistivity']: <class 'str'> → <class 'float'>
+  ! root['data']['Lu']['Liquid range']: <class 'str'> → <class 'int'>
+  ! root['data']['Lu']['Melting point']: <class 'str'> → <class 'int'>
+  ! root['data']['Lu']['Molar volume']: <class 'str'> → <class 'float'>
+  ! root['data']['Lu']['Poissons ratio']: <class 'str'> → <class 'float'>
+  ! root['data']['Lu']['Rigidity modulus']: <class 'str'> → <class 'int'>
+  ! root['data']['Lu']['Superconduction temperature']: <class 'str'> → <class 'float'>
+  ! root['data']['Lu']['Thermal conductivity']: <class 'str'> → <class 'int'>
+  ! root['data']['Lu']['Vickers hardness']: <class 'str'> → <class 'int'>
+  ! root['data']['Lu']['Youngs modulus']: <class 'str'> → <class 'int'>
+  ! root['data']['Md']['Melting point']: <class 'str'> → <class 'int'>
+  ! root['data']['Mg']['Boiling point']: <class 'str'> → <class 'int'>
+  ! root['data']['Mg']['Brinell hardness']: <class 'str'> → <class 'int'>
+  ! root['data']['Mg']['Bulk modulus']: <class 'str'> → <class 'int'>
+  ! root['data']['Mg']['Coefficient of linear thermal expansion']: <class 'str'> → <class 'float'>
+  ! root['data']['Mg']['Density of solid']: <class 'str'> → <class 'int'>
+  ! root['data']['Mg']['Electrical resistivity']: <class 'str'> → <class 'float'>
+  ! root['data']['Mg']['Liquid range']: <class 'str'> → <class 'int'>
+  ! root['data']['Mg']['Melting point']: <class 'str'> → <class 'int'>
+  ! root['data']['Mg']['Mineral hardness']: <class 'str'> → <class 'float'>
+  ! root['data']['Mg']['Molar volume']: <class 'str'> → <class 'float'>
+  ! root['data']['Mg']['Poissons ratio']: <class 'str'> → <class 'float'>
+  ! root['data']['Mg']['Reflectivity']: <class 'str'> → <class 'int'>
+  ! root['data']['Mg']['Rigidity modulus']: <class 'str'> → <class 'int'>
+  ! root['data']['Mg']['Thermal conductivity']: <class 'str'> → <class 'int'>
+  ! root['data']['Mg']['Velocity of sound']: <class 'str'> → <class 'int'>
+  ! root['data']['Mg']['Youngs modulus']: <class 'str'> → <class 'int'>
+  ! root['data']['Mn']['Boiling point']: <class 'str'> → <class 'int'>
+  ! root['data']['Mn']['Brinell hardness']: <class 'str'> → <class 'int'>
+  ! root['data']['Mn']['Bulk modulus']: <class 'str'> → <class 'int'>
+  ! root['data']['Mn']['Coefficient of linear thermal expansion']: <class 'str'> → <class 'float'>
+  ! root['data']['Mn']['Density of solid']: <class 'str'> → <class 'int'>
+  ! root['data']['Mn']['Electrical resistivity']: <class 'str'> → <class 'float'>
+  ! root['data']['Mn']['Liquid range']: <class 'str'> → <class 'int'>
+  ! root['data']['Mn']['Melting point']: <class 'str'> → <class 'int'>
+  ! root['data']['Mn']['Mineral hardness']: <class 'str'> → <class 'float'>
+  ! root['data']['Mn']['Molar volume']: <class 'str'> → <class 'float'>
+  ! root['data']['Mn']['Thermal conductivity']: <class 'str'> → <class 'float'>
+  ! root['data']['Mn']['Velocity of sound']: <class 'str'> → <class 'int'>
+  ! root['data']['Mn']['Youngs modulus']: <class 'str'> → <class 'int'>
+  ! root['data']['Mo']['Boiling point']: <class 'str'> → <class 'int'>
+  ! root['data']['Mo']['Brinell hardness']: <class 'str'> → <class 'int'>
+  ! root['data']['Mo']['Bulk modulus']: <class 'str'> → <class 'int'>
+  ! root['data']['Mo']['Coefficient of linear thermal expansion']: <class 'str'> → <class 'float'>
+  ! root['data']['Mo']['Density of solid']: <class 'str'> → <class 'int'>
+  ! root['data']['Mo']['Electrical resistivity']: <class 'str'> → <class 'float'>
+  ! root['data']['Mo']['Liquid range']: <class 'str'> → <class 'int'>
+  ! root['data']['Mo']['Melting point']: <class 'str'> → <class 'int'>
+  ! root['data']['Mo']['Mineral hardness']: <class 'str'> → <class 'float'>
+  ! root['data']['Mo']['Molar volume']: <class 'str'> → <class 'float'>
+  ! root['data']['Mo']['Poissons ratio']: <class 'str'> → <class 'float'>
+  ! root['data']['Mo']['Reflectivity']: <class 'str'> → <class 'int'>
+  ! root['data']['Mo']['Rigidity modulus']: <class 'str'> → <class 'int'>
+  ! root['data']['Mo']['Superconduction temperature']: <class 'str'> → <class 'float'>
+  ! root['data']['Mo']['Thermal conductivity']: <class 'str'> → <class 'int'>
+  ! root['data']['Mo']['Velocity of sound']: <class 'str'> → <class 'int'>
+  ! root['data']['Mo']['Vickers hardness']: <class 'str'> → <class 'int'>
+  ! root['data']['Mo']['Youngs modulus']: <class 'str'> → <class 'int'>
+  ! root['data']['N']['Boiling point']: <class 'str'> → <class 'float'>
+  ! root['data']['N']['Critical temperature']: <class 'str'> → <class 'float'>
+  ! root['data']['N']['Liquid range']: <class 'str'> → <class 'float'>
+  ! root['data']['N']['Melting point']: <class 'str'> → <class 'float'>
+  ! root['data']['N']['Molar volume']: <class 'str'> → <class 'float'>
+  ! root['data']['N']['Refractive index']: <class 'str'> → <class 'float'>
+  ! root['data']['N']['Thermal conductivity']: <class 'str'> → <class 'float'>
+  ! root['data']['N']['Velocity of sound']: <class 'str'> → <class 'float'>
+  ! root['data']['Na']['Boiling point']: <class 'str'> → <class 'int'>
+  ! root['data']['Na']['Brinell hardness']: <class 'str'> → <class 'float'>
+  ! root['data']['Na']['Bulk modulus']: <class 'str'> → <class 'float'>
+  ! root['data']['Na']['Coefficient of linear thermal expansion']: <class 'str'> → <class 'float'>
+  ! root['data']['Na']['Critical temperature']: <class 'str'> → <class 'int'>
+  ! root['data']['Na']['Density of solid']: <class 'str'> → <class 'int'>
+  ! root['data']['Na']['Electrical resistivity']: <class 'str'> → <class 'float'>
+  ! root['data']['Na']['Liquid range']: <class 'str'> → <class 'float'>
+  ! root['data']['Na']['Melting point']: <class 'str'> → <class 'float'>
+  ! root['data']['Na']['Mineral hardness']: <class 'str'> → <class 'float'>
+  ! root['data']['Na']['Molar volume']: <class 'str'> → <class 'float'>
+  ! root['data']['Na']['Rigidity modulus']: <class 'str'> → <class 'float'>
+  ! root['data']['Na']['Shannon radii']['1']['V']['']['ionic_radius']: <class 'int'> → <class 'float'>
+  ! root['data']['Na']['Thermal conductivity']: <class 'str'> → <class 'int'>
+  ! root['data']['Na']['Velocity of sound']: <class 'str'> → <class 'int'>
+  ! root['data']['Na']['Youngs modulus']: <class 'str'> → <class 'int'>
+  ! root['data']['Nb']['Boiling point']: <class 'str'> → <class 'int'>
+  ! root['data']['Nb']['Brinell hardness']: <class 'str'> → <class 'int'>
+  ! root['data']['Nb']['Bulk modulus']: <class 'str'> → <class 'int'>
+  ! root['data']['Nb']['Coefficient of linear thermal expansion']: <class 'str'> → <class 'float'>
+  ! root['data']['Nb']['Density of solid']: <class 'str'> → <class 'int'>
+  ! root['data']['Nb']['Electrical resistivity']: <class 'str'> → <class 'float'>
+  ! root['data']['Nb']['Liquid range']: <class 'str'> → <class 'int'>
+  ! root['data']['Nb']['Melting point']: <class 'str'> → <class 'int'>
+  ! root['data']['Nb']['Mineral hardness']: <class 'str'> → <class 'float'>
+  ! root['data']['Nb']['Molar volume']: <class 'str'> → <class 'float'>
+  ! root['data']['Nb']['Poissons ratio']: <class 'str'> → <class 'float'>
+  ! root['data']['Nb']['Rigidity modulus']: <class 'str'> → <class 'int'>
+  ! root['data']['Nb']['Superconduction temperature']: <class 'str'> → <class 'float'>
+  ! root['data']['Nb']['Thermal conductivity']: <class 'str'> → <class 'int'>
+  ! root['data']['Nb']['Velocity of sound']: <class 'str'> → <class 'int'>
+  ! root['data']['Nb']['Vickers hardness']: <class 'str'> → <class 'int'>
+  ! root['data']['Nb']['Youngs modulus']: <class 'str'> → <class 'int'>
+  ! root['data']['Nd']['Boiling point']: <class 'str'> → <class 'int'>
+  ! root['data']['Nd']['Brinell hardness']: <class 'str'> → <class 'int'>
+  ! root['data']['Nd']['Bulk modulus']: <class 'str'> → <class 'int'>
+  ! root['data']['Nd']['Coefficient of linear thermal expansion']: <class 'str'> → <class 'float'>
+  ! root['data']['Nd']['Density of solid']: <class 'str'> → <class 'int'>
+  ! root['data']['Nd']['Electrical resistivity']: <class 'str'> → <class 'float'>
+  ! root['data']['Nd']['Liquid range']: <class 'str'> → <class 'int'>
+  ! root['data']['Nd']['Melting point']: <class 'str'> → <class 'int'>
+  ! root['data']['Nd']['Molar volume']: <class 'str'> → <class 'float'>
+  ! root['data']['Nd']['Poissons ratio']: <class 'str'> → <class 'float'>
+  ! root['data']['Nd']['Rigidity modulus']: <class 'str'> → <class 'int'>
+  ! root['data']['Nd']['Thermal conductivity']: <class 'str'> → <class 'int'>
+  ! root['data']['Nd']['Velocity of sound']: <class 'str'> → <class 'int'>
+  ! root['data']['Nd']['Vickers hardness']: <class 'str'> → <class 'int'>
+  ! root['data']['Nd']['Youngs modulus']: <class 'str'> → <class 'int'>
+  ! root['data']['Ne']['Boiling point']: <class 'str'> → <class 'float'>
+  ! root['data']['Ne']['Critical temperature']: <class 'str'> → <class 'float'>
+  ! root['data']['Ne']['Liquid range']: <class 'str'> → <class 'float'>
+  ! root['data']['Ne']['Melting point']: <class 'str'> → <class 'float'>
+  ! root['data']['Ne']['Molar volume']: <class 'str'> → <class 'float'>
+  ! root['data']['Ne']['Refractive index']: <class 'str'> → <class 'float'>
+  ! root['data']['Ne']['Thermal conductivity']: <class 'str'> → <class 'float'>
+  ! root['data']['Ne']['Velocity of sound']: <class 'str'> → <class 'int'>
+  ! root['data']['Ni']['Boiling point']: <class 'str'> → <class 'int'>
+  ! root['data']['Ni']['Brinell hardness']: <class 'str'> → <class 'int'>
+  ! root['data']['Ni']['Bulk modulus']: <class 'str'> → <class 'int'>
+  ! root['data']['Ni']['Coefficient of linear thermal expansion']: <class 'str'> → <class 'float'>
+  ! root['data']['Ni']['Density of solid']: <class 'str'> → <class 'int'>
+  ! root['data']['Ni']['Electrical resistivity']: <class 'str'> → <class 'float'>
+  ! root['data']['Ni']['Liquid range']: <class 'str'> → <class 'int'>
+  ! root['data']['Ni']['Melting point']: <class 'str'> → <class 'int'>
+  ! root['data']['Ni']['Mineral hardness']: <class 'str'> → <class 'float'>
+  ! root['data']['Ni']['Molar volume']: <class 'str'> → <class 'float'>
+  ! root['data']['Ni']['Poissons ratio']: <class 'str'> → <class 'float'>
+  ! root['data']['Ni']['Reflectivity']: <class 'str'> → <class 'int'>
+  ! root['data']['Ni']['Rigidity modulus']: <class 'str'> → <class 'int'>
+  ! root['data']['Ni']['Thermal conductivity']: <class 'str'> → <class 'int'>
+  ! root['data']['Ni']['Velocity of sound']: <class 'str'> → <class 'int'>
+  ! root['data']['Ni']['Vickers hardness']: <class 'str'> → <class 'int'>
+  ! root['data']['Ni']['Youngs modulus']: <class 'str'> → <class 'int'>
+  ! root['data']['No']['Melting point']: <class 'str'> → <class 'int'>
+  ! root['data']['Np']['Boiling point']: <class 'str'> → <class 'int'>
+  ! root['data']['Np']['Density of solid']: <class 'str'> → <class 'int'>
+  ! root['data']['Np']['Electrical resistivity']: <class 'str'> → <class 'float'>
+  ! root['data']['Np']['Liquid range']: <class 'str'> → <class 'int'>
+  ! root['data']['Np']['Melting point']: <class 'str'> → <class 'int'>
+  ! root['data']['Np']['Molar volume']: <class 'str'> → <class 'float'>
+  ! root['data']['Np']['Thermal conductivity']: <class 'str'> → <class 'int'>
+  ! root['data']['O']['Boiling point']: <class 'str'> → <class 'float'>
+  ! root['data']['O']['Critical temperature']: <class 'str'> → <class 'float'>
+  ! root['data']['O']['Liquid range']: <class 'str'> → <class 'float'>
+  ! root['data']['O']['Melting point']: <class 'str'> → <class 'float'>
+  ! root['data']['O']['Molar volume']: <class 'str'> → <class 'float'>
+  ! root['data']['O']['Refractive index']: <class 'str'> → <class 'float'>
+  ! root['data']['O']['Thermal conductivity']: <class 'str'> → <class 'float'>
+  ! root['data']['O']['Velocity of sound']: <class 'str'> → <class 'float'>
+  ! root['data']['Os']['Boiling point']: <class 'str'> → <class 'int'>
+  ! root['data']['Os']['Brinell hardness']: <class 'str'> → <class 'int'>
+  ! root['data']['Os']['Coefficient of linear thermal expansion']: <class 'str'> → <class 'float'>
+  ! root['data']['Os']['Density of solid']: <class 'str'> → <class 'int'>
+  ! root['data']['Os']['Electrical resistivity']: <class 'str'> → <class 'float'>
+  ! root['data']['Os']['Liquid range']: <class 'str'> → <class 'int'>
+  ! root['data']['Os']['Melting point']: <class 'str'> → <class 'int'>
+  ! root['data']['Os']['Mineral hardness']: <class 'str'> → <class 'float'>
+  ! root['data']['Os']['Molar volume']: <class 'str'> → <class 'float'>
+  ! root['data']['Os']['Poissons ratio']: <class 'str'> → <class 'float'>
+  ! root['data']['Os']['Rigidity modulus']: <class 'str'> → <class 'int'>
+  ! root['data']['Os']['Superconduction temperature']: <class 'str'> → <class 'float'>
+  ! root['data']['Os']['Thermal conductivity']: <class 'str'> → <class 'int'>
+  ! root['data']['Os']['Velocity of sound']: <class 'str'> → <class 'int'>
+  ! root['data']['P']['Atomic radius']: <class 'int'> → <class 'float'>
+  ! root['data']['P']['Boiling point']: <class 'str'> → <class 'int'>
+  ! root['data']['P']['Bulk modulus']: <class 'str'> → <class 'int'>
+  ! root['data']['P']['Critical temperature']: <class 'str'> → <class 'int'>
+  ! root['data']['P']['Density of solid']: <class 'str'> → <class 'int'>
+  ! root['data']['P']['Electrical resistivity']: <class 'str'> → <class 'float'>
+  ! root['data']['P']['Liquid range']: <class 'str'> → <class 'float'>
+  ! root['data']['P']['Melting point']: <class 'str'> → <class 'float'>
+  ! root['data']['P']['Molar volume']: <class 'str'> → <class 'float'>
+  ! root['data']['P']['Refractive index']: <class 'str'> → <class 'float'>
+  ! root['data']['P']['Thermal conductivity']: <class 'str'> → <class 'float'>
+  ! root['data']['Pa']['Density of solid']: <class 'str'> → <class 'int'>
+  ! root['data']['Pa']['Electrical resistivity']: <class 'str'> → <class 'float'>
+  ! root['data']['Pa']['Melting point']: <class 'str'> → <class 'int'>
+  ! root['data']['Pa']['Molar volume']: <class 'str'> → <class 'float'>
+  ! root['data']['Pa']['Superconduction temperature']: <class 'str'> → <class 'float'>
+  ! root['data']['Pa']['Thermal conductivity']: <class 'str'> → <class 'int'>
+  ! root['data']['Pb']['Boiling point']: <class 'str'> → <class 'int'>
+  ! root['data']['Pb']['Brinell hardness']: <class 'str'> → <class 'float'>
+  ! root['data']['Pb']['Bulk modulus']: <class 'str'> → <class 'int'>
+  ! root['data']['Pb']['Coefficient of linear thermal expansion']: <class 'str'> → <class 'float'>
+  ! root['data']['Pb']['Density of solid']: <class 'str'> → <class 'int'>
+  ! root['data']['Pb']['Electrical resistivity']: <class 'str'> → <class 'float'>
+  ! root['data']['Pb']['Liquid range']: <class 'str'> → <class 'float'>
+  ! root['data']['Pb']['Melting point']: <class 'str'> → <class 'float'>
+  ! root['data']['Pb']['Mineral hardness']: <class 'str'> → <class 'float'>
+  ! root['data']['Pb']['Molar volume']: <class 'str'> → <class 'float'>
+  ! root['data']['Pb']['Poissons ratio']: <class 'str'> → <class 'float'>
+  ! root['data']['Pb']['Rigidity modulus']: <class 'str'> → <class 'float'>
+  ! root['data']['Pb']['Superconduction temperature']: <class 'str'> → <class 'float'>
+  ! root['data']['Pb']['Thermal conductivity']: <class 'str'> → <class 'int'>
+  ! root['data']['Pb']['Velocity of sound']: <class 'str'> → <class 'int'>
+  ! root['data']['Pb']['Youngs modulus']: <class 'str'> → <class 'int'>
+  ! root['data']['Pd']['Boiling point']: <class 'str'> → <class 'int'>
+  ! root['data']['Pd']['Brinell hardness']: <class 'str'> → <class 'float'>
+  ! root['data']['Pd']['Bulk modulus']: <class 'str'> → <class 'int'>
+  ! root['data']['Pd']['Coefficient of linear thermal expansion']: <class 'str'> → <class 'float'>
+  ! root['data']['Pd']['Density of solid']: <class 'str'> → <class 'int'>
+  ! root['data']['Pd']['Electrical resistivity']: <class 'str'> → <class 'float'>
+  ! root['data']['Pd']['Ionic radii']['2']: <class 'int'> → <class 'float'>
+  ! root['data']['Pd']['Liquid range']: <class 'str'> → <class 'float'>
+  ! root['data']['Pd']['Melting point']: <class 'str'> → <class 'float'>
+  ! root['data']['Pd']['Mineral hardness']: <class 'str'> → <class 'float'>
+  ! root['data']['Pd']['Molar volume']: <class 'str'> → <class 'float'>
+  ! root['data']['Pd']['Poissons ratio']: <class 'str'> → <class 'float'>
+  ! root['data']['Pd']['Reflectivity']: <class 'str'> → <class 'int'>
+  ! root['data']['Pd']['Rigidity modulus']: <class 'str'> → <class 'int'>
+  ! root['data']['Pd']['Shannon radii']['2']['VI']['']['crystal_radius']: <class 'int'> → <class 'float'>
+  ! root['data']['Pd']['Thermal conductivity']: <class 'str'> → <class 'int'>
+  ! root['data']['Pd']['Velocity of sound']: <class 'str'> → <class 'int'>
+  ! root['data']['Pd']['Vickers hardness']: <class 'str'> → <class 'int'>
+  ! root['data']['Pd']['Youngs modulus']: <class 'str'> → <class 'int'>
+  ! root['data']['Pm']['Boiling point']: <class 'str'> → <class 'int'>
+  ! root['data']['Pm']['Bulk modulus']: <class 'str'> → <class 'int'>
+  ! root['data']['Pm']['Coefficient of linear thermal expansion']: <class 'str'> → <class 'float'>
+  ! root['data']['Pm']['Density of solid']: <class 'str'> → <class 'int'>
+  ! root['data']['Pm']['Electrical resistivity']: <class 'str'> → <class 'float'>
+  ! root['data']['Pm']['Liquid range']: <class 'str'> → <class 'int'>
+  ! root['data']['Pm']['Melting point']: <class 'str'> → <class 'int'>
+  ! root['data']['Pm']['Molar volume']: <class 'str'> → <class 'float'>
+  ! root['data']['Pm']['Poissons ratio']: <class 'str'> → <class 'float'>
+  ! root['data']['Pm']['Rigidity modulus']: <class 'str'> → <class 'int'>
+  ! root['data']['Pm']['Thermal conductivity']: <class 'str'> → <class 'int'>
+  ! root['data']['Pm']['Youngs modulus']: <class 'str'> → <class 'int'>
+  ! root['data']['Po']['Boiling point']: <class 'str'> → <class 'int'>
+  ! root['data']['Po']['Density of solid']: <class 'str'> → <class 'int'>
+  ! root['data']['Po']['Electrical resistivity']: <class 'str'> → <class 'float'>
+  ! root['data']['Po']['Liquid range']: <class 'str'> → <class 'int'>
+  ! root['data']['Po']['Melting point']: <class 'str'> → <class 'int'>
+  ! root['data']['Po']['Molar volume']: <class 'str'> → <class 'float'>
+  ! root['data']['Po']['Thermal conductivity']: <class 'str'> → <class 'int'>
+  ! root['data']['Pr']['Boiling point']: <class 'str'> → <class 'int'>
+  ! root['data']['Pr']['Brinell hardness']: <class 'str'> → <class 'int'>
+  ! root['data']['Pr']['Bulk modulus']: <class 'str'> → <class 'int'>
+  ! root['data']['Pr']['Coefficient of linear thermal expansion']: <class 'str'> → <class 'float'>
+  ! root['data']['Pr']['Density of solid']: <class 'str'> → <class 'int'>
+  ! root['data']['Pr']['Electrical resistivity']: <class 'str'> → <class 'float'>
+  ! root['data']['Pr']['Liquid range']: <class 'str'> → <class 'int'>
+  ! root['data']['Pr']['Melting point']: <class 'str'> → <class 'int'>
+  ! root['data']['Pr']['Molar volume']: <class 'str'> → <class 'float'>
+  ! root['data']['Pr']['Poissons ratio']: <class 'str'> → <class 'float'>
+  ! root['data']['Pr']['Rigidity modulus']: <class 'str'> → <class 'int'>
+  ! root['data']['Pr']['Thermal conductivity']: <class 'str'> → <class 'int'>
+  ! root['data']['Pr']['Velocity of sound']: <class 'str'> → <class 'int'>
+  ! root['data']['Pr']['Vickers hardness']: <class 'str'> → <class 'int'>
+  ! root['data']['Pr']['Youngs modulus']: <class 'str'> → <class 'int'>
+  ! root['data']['Pt']['Boiling point']: <class 'str'> → <class 'int'>
+  ! root['data']['Pt']['Brinell hardness']: <class 'str'> → <class 'int'>
+  ! root['data']['Pt']['Bulk modulus']: <class 'str'> → <class 'int'>
+  ! root['data']['Pt']['Coefficient of linear thermal expansion']: <class 'str'> → <class 'float'>
+  ! root['data']['Pt']['Density of solid']: <class 'str'> → <class 'int'>
+  ! root['data']['Pt']['Electrical resistivity']: <class 'str'> → <class 'float'>
+  ! root['data']['Pt']['Liquid range']: <class 'str'> → <class 'float'>
+  ! root['data']['Pt']['Melting point']: <class 'str'> → <class 'float'>
+  ! root['data']['Pt']['Mineral hardness']: <class 'str'> → <class 'float'>
+  ! root['data']['Pt']['Molar volume']: <class 'str'> → <class 'float'>
+  ! root['data']['Pt']['Poissons ratio']: <class 'str'> → <class 'float'>
+  ! root['data']['Pt']['Reflectivity']: <class 'str'> → <class 'int'>
+  ! root['data']['Pt']['Rigidity modulus']: <class 'str'> → <class 'int'>
+  ! root['data']['Pt']['Thermal conductivity']: <class 'str'> → <class 'int'>
+  ! root['data']['Pt']['Velocity of sound']: <class 'str'> → <class 'int'>
+  ! root['data']['Pt']['Vickers hardness']: <class 'str'> → <class 'int'>
+  ! root['data']['Pt']['Youngs modulus']: <class 'str'> → <class 'int'>
+  ! root['data']['Pu']['Boiling point']: <class 'str'> → <class 'int'>
+  ! root['data']['Pu']['Density of solid']: <class 'str'> → <class 'int'>
+  ! root['data']['Pu']['Electrical resistivity']: <class 'str'> → <class 'float'>
+  ! root['data']['Pu']['Ionic radii']['4']: <class 'int'> → <class 'float'>
+  ! root['data']['Pu']['Liquid range']: <class 'str'> → <class 'float'>
+  ! root['data']['Pu']['Melting point']: <class 'str'> → <class 'float'>
+  ! root['data']['Pu']['Molar volume']: <class 'str'> → <class 'float'>
+  ! root['data']['Pu']['Poissons ratio']: <class 'str'> → <class 'float'>
+  ! root['data']['Pu']['Rigidity modulus']: <class 'str'> → <class 'int'>
+  ! root['data']['Pu']['Shannon radii']['3']['VI']['']['ionic_radius']: <class 'int'> → <class 'float'>
+  ! root['data']['Pu']['Shannon radii']['4']['VI']['']['crystal_radius']: <class 'int'> → <class 'float'>
+  ! root['data']['Pu']['Thermal conductivity']: <class 'str'> → <class 'int'>
+  ! root['data']['Pu']['Velocity of sound']: <class 'str'> → <class 'int'>
+  ! root['data']['Pu']['Youngs modulus']: <class 'str'> → <class 'int'>
+  ! root['data']['Ra']['Boiling point']: <class 'str'> → <class 'int'>
+  ! root['data']['Ra']['Density of solid']: <class 'str'> → <class 'int'>
+  ! root['data']['Ra']['Electrical resistivity']: <class 'str'> → <class 'float'>
+  ! root['data']['Ra']['Liquid range']: <class 'str'> → <class 'int'>
+  ! root['data']['Ra']['Melting point']: <class 'str'> → <class 'int'>
+  ! root['data']['Ra']['Molar volume']: <class 'str'> → <class 'float'>
+  ! root['data']['Ra']['Thermal conductivity']: <class 'str'> → <class 'int'>
+  ! root['data']['Rb']['Boiling point']: <class 'str'> → <class 'int'>
+  ! root['data']['Rb']['Brinell hardness']: <class 'str'> → <class 'float'>
+  ! root['data']['Rb']['Bulk modulus']: <class 'str'> → <class 'float'>
+  ! root['data']['Rb']['Critical temperature']: <class 'str'> → <class 'int'>
+  ! root['data']['Rb']['Density of solid']: <class 'str'> → <class 'int'>
+  ! root['data']['Rb']['Electrical resistivity']: <class 'str'> → <class 'float'>
+  ! root['data']['Rb']['Liquid range']: <class 'str'> → <class 'float'>
+  ! root['data']['Rb']['Melting point']: <class 'str'> → <class 'float'>
+  ! root['data']['Rb']['Mineral hardness']: <class 'str'> → <class 'float'>
+  ! root['data']['Rb']['Molar volume']: <class 'str'> → <class 'float'>
+  ! root['data']['Rb']['Thermal conductivity']: <class 'str'> → <class 'int'>
+  ! root['data']['Rb']['Velocity of sound']: <class 'str'> → <class 'int'>
+  ! root['data']['Rb']['Youngs modulus']: <class 'str'> → <class 'float'>
+  ! root['data']['Re']['Boiling point']: <class 'str'> → <class 'int'>
+  ! root['data']['Re']['Brinell hardness']: <class 'str'> → <class 'int'>
+  ! root['data']['Re']['Bulk modulus']: <class 'str'> → <class 'int'>
+  ! root['data']['Re']['Coefficient of linear thermal expansion']: <class 'str'> → <class 'float'>
+  ! root['data']['Re']['Density of solid']: <class 'str'> → <class 'int'>
+  ! root['data']['Re']['Electrical resistivity']: <class 'str'> → <class 'float'>
+  ! root['data']['Re']['Liquid range']: <class 'str'> → <class 'int'>
+  ! root['data']['Re']['Melting point']: <class 'str'> → <class 'int'>
+  ! root['data']['Re']['Mineral hardness']: <class 'str'> → <class 'float'>
+  ! root['data']['Re']['Molar volume']: <class 'str'> → <class 'float'>
+  ! root['data']['Re']['Poissons ratio']: <class 'str'> → <class 'float'>
+  ! root['data']['Re']['Rigidity modulus']: <class 'str'> → <class 'int'>
+  ! root['data']['Re']['Superconduction temperature']: <class 'str'> → <class 'float'>
+  ! root['data']['Re']['Thermal conductivity']: <class 'str'> → <class 'int'>
+  ! root['data']['Re']['Velocity of sound']: <class 'str'> → <class 'int'>
+  ! root['data']['Re']['Vickers hardness']: <class 'str'> → <class 'int'>
+  ! root['data']['Re']['Youngs modulus']: <class 'str'> → <class 'int'>
+  ! root['data']['Rh']['Boiling point']: <class 'str'> → <class 'int'>
+  ! root['data']['Rh']['Brinell hardness']: <class 'str'> → <class 'int'>
+  ! root['data']['Rh']['Bulk modulus']: <class 'str'> → <class 'int'>
+  ! root['data']['Rh']['Coefficient of linear thermal expansion']: <class 'str'> → <class 'float'>
+  ! root['data']['Rh']['Density of solid']: <class 'str'> → <class 'int'>
+  ! root['data']['Rh']['Electrical resistivity']: <class 'str'> → <class 'float'>
+  ! root['data']['Rh']['Liquid range']: <class 'str'> → <class 'int'>
+  ! root['data']['Rh']['Melting point']: <class 'str'> → <class 'int'>
+  ! root['data']['Rh']['Mineral hardness']: <class 'str'> → <class 'float'>
+  ! root['data']['Rh']['Molar volume']: <class 'str'> → <class 'float'>
+  ! root['data']['Rh']['Poissons ratio']: <class 'str'> → <class 'float'>
+  ! root['data']['Rh']['Reflectivity']: <class 'str'> → <class 'int'>
+  ! root['data']['Rh']['Rigidity modulus']: <class 'str'> → <class 'int'>
+  ! root['data']['Rh']['Thermal conductivity']: <class 'str'> → <class 'int'>
+  ! root['data']['Rh']['Velocity of sound']: <class 'str'> → <class 'int'>
+  ! root['data']['Rh']['Vickers hardness']: <class 'str'> → <class 'int'>
+  ! root['data']['Rh']['Youngs modulus']: <class 'str'> → <class 'int'>
+  ! root['data']['Rn']['Boiling point']: <class 'str'> → <class 'float'>
+  ! root['data']['Rn']['Critical temperature']: <class 'str'> → <class 'int'>
+  ! root['data']['Rn']['Liquid range']: <class 'str'> → <class 'float'>
+  ! root['data']['Rn']['Melting point']: <class 'str'> → <class 'int'>
+  ! root['data']['Rn']['Molar volume']: <class 'str'> → <class 'float'>
+  ! root['data']['Rn']['Thermal conductivity']: <class 'str'> → <class 'float'>
+  ! root['data']['Ru']['Boiling point']: <class 'str'> → <class 'int'>
+  ! root['data']['Ru']['Brinell hardness']: <class 'str'> → <class 'int'>
+  ! root['data']['Ru']['Bulk modulus']: <class 'str'> → <class 'int'>
+  ! root['data']['Ru']['Coefficient of linear thermal expansion']: <class 'str'> → <class 'float'>
+  ! root['data']['Ru']['Density of solid']: <class 'str'> → <class 'int'>
+  ! root['data']['Ru']['Electrical resistivity']: <class 'str'> → <class 'float'>
+  ! root['data']['Ru']['Liquid range']: <class 'str'> → <class 'int'>
+  ! root['data']['Ru']['Melting point']: <class 'str'> → <class 'int'>
+  ! root['data']['Ru']['Mineral hardness']: <class 'str'> → <class 'float'>
+  ! root['data']['Ru']['Molar volume']: <class 'str'> → <class 'float'>
+  ! root['data']['Ru']['Poissons ratio']: <class 'str'> → <class 'float'>
+  ! root['data']['Ru']['Rigidity modulus']: <class 'str'> → <class 'int'>
+  ! root['data']['Ru']['Superconduction temperature']: <class 'str'> → <class 'float'>
+  ! root['data']['Ru']['Thermal conductivity']: <class 'str'> → <class 'int'>
+  ! root['data']['Ru']['Velocity of sound']: <class 'str'> → <class 'int'>
+  ! root['data']['Ru']['Youngs modulus']: <class 'str'> → <class 'int'>
+  ! root['data']['S']['Atomic radius']: <class 'int'> → <class 'float'>
+  ! root['data']['S']['Boiling point']: <class 'str'> → <class 'float'>
+  ! root['data']['S']['Bulk modulus']: <class 'str'> → <class 'float'>
+  ! root['data']['S']['Critical temperature']: <class 'str'> → <class 'int'>
+  ! root['data']['S']['Density of solid']: <class 'str'> → <class 'int'>
+  ! root['data']['S']['Electrical resistivity']: <class 'str'> → <class 'float'>
+  ! root['data']['S']['Liquid range']: <class 'str'> → <class 'float'>
+  ! root['data']['S']['Melting point']: <class 'str'> → <class 'float'>
+  ! root['data']['S']['Mineral hardness']: <class 'str'> → <class 'float'>
+  ! root['data']['S']['Molar volume']: <class 'str'> → <class 'float'>
+  ! root['data']['S']['Refractive index']: <class 'str'> → <class 'float'>
+  ! root['data']['S']['Thermal conductivity']: <class 'str'> → <class 'float'>
+  ! root['data']['Sb']['Boiling point']: <class 'str'> → <class 'int'>
+  ! root['data']['Sb']['Brinell hardness']: <class 'str'> → <class 'int'>
+  ! root['data']['Sb']['Bulk modulus']: <class 'str'> → <class 'int'>
+  ! root['data']['Sb']['Coefficient of linear thermal expansion']: <class 'str'> → <class 'float'>
+  ! root['data']['Sb']['Density of solid']: <class 'str'> → <class 'int'>
+  ! root['data']['Sb']['Electrical resistivity']: <class 'str'> → <class 'float'>
+  ! root['data']['Sb']['Liquid range']: <class 'str'> → <class 'float'>
+  ! root['data']['Sb']['Melting point']: <class 'str'> → <class 'float'>
+  ! root['data']['Sb']['Mineral hardness']: <class 'str'> → <class 'float'>
+  ! root['data']['Sb']['Molar volume']: <class 'str'> → <class 'float'>
+  ! root['data']['Sb']['Reflectivity']: <class 'str'> → <class 'int'>
+  ! root['data']['Sb']['Rigidity modulus']: <class 'str'> → <class 'int'>
+  ! root['data']['Sb']['Thermal conductivity']: <class 'str'> → <class 'int'>
+  ! root['data']['Sb']['Velocity of sound']: <class 'str'> → <class 'int'>
+  ! root['data']['Sb']['Youngs modulus']: <class 'str'> → <class 'int'>
+  ! root['data']['Sc']['Boiling point']: <class 'str'> → <class 'int'>
+  ! root['data']['Sc']['Brinell hardness']: <class 'str'> → <class 'int'>
+  ! root['data']['Sc']['Bulk modulus']: <class 'str'> → <class 'int'>
+  ! root['data']['Sc']['Coefficient of linear thermal expansion']: <class 'str'> → <class 'float'>
+  ! root['data']['Sc']['Density of solid']: <class 'str'> → <class 'int'>
+  ! root['data']['Sc']['Electrical resistivity']: <class 'str'> → <class 'float'>
+  ! root['data']['Sc']['Liquid range']: <class 'str'> → <class 'int'>
+  ! root['data']['Sc']['Melting point']: <class 'str'> → <class 'int'>
+  ! root['data']['Sc']['Molar volume']: <class 'str'> → <class 'float'>
+  ! root['data']['Sc']['Poissons ratio']: <class 'str'> → <class 'float'>
+  ! root['data']['Sc']['Rigidity modulus']: <class 'str'> → <class 'int'>
+  ! root['data']['Sc']['Superconduction temperature']: <class 'str'> → <class 'float'>
+  ! root['data']['Sc']['Thermal conductivity']: <class 'str'> → <class 'int'>
+  ! root['data']['Sc']['Youngs modulus']: <class 'str'> → <class 'int'>
+  ! root['data']['Se']['Boiling point']: <class 'str'> → <class 'int'>
+  ! root['data']['Se']['Brinell hardness']: <class 'str'> → <class 'int'>
+  ! root['data']['Se']['Bulk modulus']: <class 'str'> → <class 'float'>
+  ! root['data']['Se']['Critical temperature']: <class 'str'> → <class 'int'>
+  ! root['data']['Se']['Density of solid']: <class 'str'> → <class 'int'>
+  ! root['data']['Se']['Liquid range']: <class 'str'> → <class 'int'>
+  ! root['data']['Se']['Melting point']: <class 'str'> → <class 'int'>
+  ! root['data']['Se']['Mineral hardness']: <class 'str'> → <class 'float'>
+  ! root['data']['Se']['Molar volume']: <class 'str'> → <class 'float'>
+  ! root['data']['Se']['Poissons ratio']: <class 'str'> → <class 'float'>
+  ! root['data']['Se']['Refractive index']: <class 'str'> → <class 'float'>
+  ! root['data']['Se']['Rigidity modulus']: <class 'str'> → <class 'float'>
+  ! root['data']['Se']['Thermal conductivity']: <class 'str'> → <class 'float'>
+  ! root['data']['Se']['Velocity of sound']: <class 'str'> → <class 'int'>
+  ! root['data']['Se']['Youngs modulus']: <class 'str'> → <class 'int'>
+  ! root['data']['Si']['Boiling point']: <class 'str'> → <class 'int'>
+  ! root['data']['Si']['Bulk modulus']: <class 'str'> → <class 'int'>
+  ! root['data']['Si']['Coefficient of linear thermal expansion']: <class 'str'> → <class 'float'>
+  ! root['data']['Si']['Density of solid']: <class 'str'> → <class 'int'>
+  ! root['data']['Si']['Electrical resistivity']: <class 'str'> → <class 'float'>
+  ! root['data']['Si']['Liquid range']: <class 'str'> → <class 'int'>
+  ! root['data']['Si']['Melting point']: <class 'str'> → <class 'int'>
+  ! root['data']['Si']['Mineral hardness']: <class 'str'> → <class 'float'>
+  ! root['data']['Si']['Molar volume']: <class 'str'> → <class 'float'>
+  ! root['data']['Si']['Reflectivity']: <class 'str'> → <class 'int'>
+  ! root['data']['Si']['Thermal conductivity']: <class 'str'> → <class 'int'>
+  ! root['data']['Si']['Velocity of sound']: <class 'str'> → <class 'int'>
+  ! root['data']['Si']['Youngs modulus']: <class 'str'> → <class 'int'>
+  ! root['data']['Sm']['Boiling point']: <class 'str'> → <class 'int'>
+  ! root['data']['Sm']['Brinell hardness']: <class 'str'> → <class 'int'>
+  ! root['data']['Sm']['Bulk modulus']: <class 'str'> → <class 'int'>
+  ! root['data']['Sm']['Coefficient of linear thermal expansion']: <class 'str'> → <class 'float'>
+  ! root['data']['Sm']['Density of solid']: <class 'str'> → <class 'int'>
+  ! root['data']['Sm']['Electrical resistivity']: <class 'str'> → <class 'float'>
+  ! root['data']['Sm']['Liquid range']: <class 'str'> → <class 'int'>
+  ! root['data']['Sm']['Melting point']: <class 'str'> → <class 'int'>
+  ! root['data']['Sm']['Molar volume']: <class 'str'> → <class 'float'>
+  ! root['data']['Sm']['Poissons ratio']: <class 'str'> → <class 'float'>
+  ! root['data']['Sm']['Rigidity modulus']: <class 'str'> → <class 'int'>
+  ! root['data']['Sm']['Thermal conductivity']: <class 'str'> → <class 'int'>
+  ! root['data']['Sm']['Velocity of sound']: <class 'str'> → <class 'int'>
+  ! root['data']['Sm']['Vickers hardness']: <class 'str'> → <class 'int'>
+  ! root['data']['Sm']['Youngs modulus']: <class 'str'> → <class 'int'>
+  ! root['data']['Sn']['Boiling point']: <class 'str'> → <class 'int'>
+  ! root['data']['Sn']['Brinell hardness']: <class 'str'> → <class 'int'>
+  ! root['data']['Sn']['Bulk modulus']: <class 'str'> → <class 'int'>
+  ! root['data']['Sn']['Coefficient of linear thermal expansion']: <class 'str'> → <class 'float'>
+  ! root['data']['Sn']['Density of solid']: <class 'str'> → <class 'int'>
+  ! root['data']['Sn']['Electrical resistivity']: <class 'str'> → <class 'float'>
+  ! root['data']['Sn']['Liquid range']: <class 'str'> → <class 'float'>
+  ! root['data']['Sn']['Melting point']: <class 'str'> → <class 'float'>
+  ! root['data']['Sn']['Mineral hardness']: <class 'str'> → <class 'float'>
+  ! root['data']['Sn']['Molar volume']: <class 'str'> → <class 'float'>
+  ! root['data']['Sn']['Poissons ratio']: <class 'str'> → <class 'float'>
+  ! root['data']['Sn']['Reflectivity']: <class 'str'> → <class 'int'>
+  ! root['data']['Sn']['Rigidity modulus']: <class 'str'> → <class 'int'>
+  ! root['data']['Sn']['Superconduction temperature']: <class 'str'> → <class 'float'>
+  ! root['data']['Sn']['Thermal conductivity']: <class 'str'> → <class 'int'>
+  ! root['data']['Sn']['Velocity of sound']: <class 'str'> → <class 'int'>
+  ! root['data']['Sn']['Youngs modulus']: <class 'str'> → <class 'int'>
+  ! root['data']['Sr']['Atomic radius']: <class 'int'> → <class 'float'>
+  ! root['data']['Sr']['Boiling point']: <class 'str'> → <class 'int'>
+  ! root['data']['Sr']['Coefficient of linear thermal expansion']: <class 'str'> → <class 'float'>
+  ! root['data']['Sr']['Density of solid']: <class 'str'> → <class 'int'>
+  ! root['data']['Sr']['Electrical resistivity']: <class 'str'> → <class 'float'>
+  ! root['data']['Sr']['Liquid range']: <class 'str'> → <class 'int'>
+  ! root['data']['Sr']['Melting point']: <class 'str'> → <class 'int'>
+  ! root['data']['Sr']['Mineral hardness']: <class 'str'> → <class 'float'>
+  ! root['data']['Sr']['Molar volume']: <class 'str'> → <class 'float'>
+  ! root['data']['Sr']['Poissons ratio']: <class 'str'> → <class 'float'>
+  ! root['data']['Sr']['Rigidity modulus']: <class 'str'> → <class 'float'>
+  ! root['data']['Sr']['Thermal conductivity']: <class 'str'> → <class 'int'>
+  ! root['data']['Ta']['Atomic radius calculated']: <class 'int'> → <class 'float'>
+  ! root['data']['Ta']['Boiling point']: <class 'str'> → <class 'int'>
+  ! root['data']['Ta']['Brinell hardness']: <class 'str'> → <class 'int'>
+  ! root['data']['Ta']['Bulk modulus']: <class 'str'> → <class 'int'>
+  ! root['data']['Ta']['Coefficient of linear thermal expansion']: <class 'str'> → <class 'float'>
+  ! root['data']['Ta']['Density of solid']: <class 'str'> → <class 'int'>
+  ! root['data']['Ta']['Electrical resistivity']: <class 'str'> → <class 'float'>
+  ! root['data']['Ta']['Liquid range']: <class 'str'> → <class 'int'>
+  ! root['data']['Ta']['Melting point']: <class 'str'> → <class 'int'>
+  ! root['data']['Ta']['Mineral hardness']: <class 'str'> → <class 'float'>
+  ! root['data']['Ta']['Molar volume']: <class 'str'> → <class 'float'>
+  ! root['data']['Ta']['Poissons ratio']: <class 'str'> → <class 'float'>
+  ! root['data']['Ta']['Reflectivity']: <class 'str'> → <class 'int'>
+  ! root['data']['Ta']['Rigidity modulus']: <class 'str'> → <class 'int'>
+  ! root['data']['Ta']['Superconduction temperature']: <class 'str'> → <class 'float'>
+  ! root['data']['Ta']['Thermal conductivity']: <class 'str'> → <class 'int'>
+  ! root['data']['Ta']['Velocity of sound']: <class 'str'> → <class 'int'>
+  ! root['data']['Ta']['Vickers hardness']: <class 'str'> → <class 'int'>
+  ! root['data']['Ta']['Youngs modulus']: <class 'str'> → <class 'int'>
+  ! root['data']['Tb']['Boiling point']: <class 'str'> → <class 'int'>
+  ! root['data']['Tb']['Brinell hardness']: <class 'str'> → <class 'int'>
+  ! root['data']['Tb']['Bulk modulus']: <class 'str'> → <class 'float'>
+  ! root['data']['Tb']['Coefficient of linear thermal expansion']: <class 'str'> → <class 'float'>
+  ! root['data']['Tb']['Density of solid']: <class 'str'> → <class 'int'>
+  ! root['data']['Tb']['Electrical resistivity']: <class 'str'> → <class 'float'>
+  ! root['data']['Tb']['Liquid range']: <class 'str'> → <class 'int'>
+  ! root['data']['Tb']['Melting point']: <class 'str'> → <class 'int'>
+  ! root['data']['Tb']['Molar volume']: <class 'str'> → <class 'float'>
+  ! root['data']['Tb']['Poissons ratio']: <class 'str'> → <class 'float'>
+  ! root['data']['Tb']['Rigidity modulus']: <class 'str'> → <class 'int'>
+  ! root['data']['Tb']['Thermal conductivity']: <class 'str'> → <class 'int'>
+  ! root['data']['Tb']['Velocity of sound']: <class 'str'> → <class 'int'>
+  ! root['data']['Tb']['Vickers hardness']: <class 'str'> → <class 'int'>
+  ! root['data']['Tb']['Youngs modulus']: <class 'str'> → <class 'int'>
+  ! root['data']['Tc']['Boiling point']: <class 'str'> → <class 'int'>
+  ! root['data']['Tc']['Density of solid']: <class 'str'> → <class 'int'>
+  ! root['data']['Tc']['Electrical resistivity']: <class 'str'> → <class 'float'>
+  ! root['data']['Tc']['Liquid range']: <class 'str'> → <class 'int'>
+  ! root['data']['Tc']['Melting point']: <class 'str'> → <class 'int'>
+  ! root['data']['Tc']['Molar volume']: <class 'str'> → <class 'float'>
+  ! root['data']['Tc']['Superconduction temperature']: <class 'str'> → <class 'float'>
+  ! root['data']['Tc']['Thermal conductivity']: <class 'str'> → <class 'int'>
+  ! root['data']['Te']['Boiling point']: <class 'str'> → <class 'int'>
+  ! root['data']['Te']['Brinell hardness']: <class 'str'> → <class 'int'>
+  ! root['data']['Te']['Bulk modulus']: <class 'str'> → <class 'int'>
+  ! root['data']['Te']['Density of solid']: <class 'str'> → <class 'int'>
+  ! root['data']['Te']['Electrical resistivity']: <class 'str'> → <class 'float'>
+  ! root['data']['Te']['Liquid range']: <class 'str'> → <class 'float'>
+  ! root['data']['Te']['Melting point']: <class 'str'> → <class 'float'>
+  ! root['data']['Te']['Mineral hardness']: <class 'str'> → <class 'float'>
+  ! root['data']['Te']['Molar volume']: <class 'str'> → <class 'float'>
+  ! root['data']['Te']['Reflectivity']: <class 'str'> → <class 'int'>
+  ! root['data']['Te']['Refractive index']: <class 'str'> → <class 'float'>
+  ! root['data']['Te']['Rigidity modulus']: <class 'str'> → <class 'int'>
+  ! root['data']['Te']['Thermal conductivity']: <class 'str'> → <class 'int'>
+  ! root['data']['Te']['Velocity of sound']: <class 'str'> → <class 'int'>
+  ! root['data']['Te']['Youngs modulus']: <class 'str'> → <class 'int'>
+  ! root['data']['Th']['Boiling point']: <class 'str'> → <class 'int'>
+  ! root['data']['Th']['Brinell hardness']: <class 'str'> → <class 'int'>
+  ! root['data']['Th']['Bulk modulus']: <class 'str'> → <class 'int'>
+  ! root['data']['Th']['Coefficient of linear thermal expansion']: <class 'str'> → <class 'float'>
+  ! root['data']['Th']['Density of solid']: <class 'str'> → <class 'int'>
+  ! root['data']['Th']['Electrical resistivity']: <class 'str'> → <class 'float'>
+  ! root['data']['Th']['Liquid range']: <class 'str'> → <class 'int'>
+  ! root['data']['Th']['Melting point']: <class 'str'> → <class 'int'>
+  ! root['data']['Th']['Mineral hardness']: <class 'str'> → <class 'float'>
+  ! root['data']['Th']['Molar volume']: <class 'str'> → <class 'float'>
+  ! root['data']['Th']['Poissons ratio']: <class 'str'> → <class 'float'>
+  ! root['data']['Th']['Rigidity modulus']: <class 'str'> → <class 'int'>
+  ! root['data']['Th']['Superconduction temperature']: <class 'str'> → <class 'float'>
+  ! root['data']['Th']['Thermal conductivity']: <class 'str'> → <class 'int'>
+  ! root['data']['Th']['Velocity of sound']: <class 'str'> → <class 'int'>
+  ! root['data']['Th']['Vickers hardness']: <class 'str'> → <class 'int'>
+  ! root['data']['Th']['Youngs modulus']: <class 'str'> → <class 'int'>
+  ! root['data']['Ti']['Boiling point']: <class 'str'> → <class 'int'>
+  ! root['data']['Ti']['Brinell hardness']: <class 'str'> → <class 'int'>
+  ! root['data']['Ti']['Bulk modulus']: <class 'str'> → <class 'int'>
+  ! root['data']['Ti']['Coefficient of linear thermal expansion']: <class 'str'> → <class 'float'>
+  ! root['data']['Ti']['Density of solid']: <class 'str'> → <class 'int'>
+  ! root['data']['Ti']['Electrical resistivity']: <class 'str'> → <class 'float'>
+  ! root['data']['Ti']['Ionic radii']['2']: <class 'int'> → <class 'float'>
+  ! root['data']['Ti']['Liquid range']: <class 'str'> → <class 'int'>
+  ! root['data']['Ti']['Melting point']: <class 'str'> → <class 'int'>
+  ! root['data']['Ti']['Mineral hardness']: <class 'str'> → <class 'float'>
+  ! root['data']['Ti']['Molar volume']: <class 'str'> → <class 'float'>
+  ! root['data']['Ti']['Poissons ratio']: <class 'str'> → <class 'float'>
+  ! root['data']['Ti']['Rigidity modulus']: <class 'str'> → <class 'int'>
+  ! root['data']['Ti']['Shannon radii']['2']['VI']['']['crystal_radius']: <class 'int'> → <class 'float'>
+  ! root['data']['Ti']['Superconduction temperature']: <class 'str'> → <class 'float'>
+  ! root['data']['Ti']['Thermal conductivity']: <class 'str'> → <class 'int'>
+  ! root['data']['Ti']['Velocity of sound']: <class 'str'> → <class 'int'>
+  ! root['data']['Ti']['Vickers hardness']: <class 'str'> → <class 'int'>
+  ! root['data']['Ti']['Youngs modulus']: <class 'str'> → <class 'int'>
+  ! root['data']['Tl']['Boiling point']: <class 'str'> → <class 'int'>
+  ! root['data']['Tl']['Brinell hardness']: <class 'str'> → <class 'float'>
+  ! root['data']['Tl']['Bulk modulus']: <class 'str'> → <class 'int'>
+  ! root['data']['Tl']['Coefficient of linear thermal expansion']: <class 'str'> → <class 'float'>
+  ! root['data']['Tl']['Density of solid']: <class 'str'> → <class 'int'>
+  ! root['data']['Tl']['Electrical resistivity']: <class 'str'> → <class 'float'>
+  ! root['data']['Tl']['Liquid range']: <class 'str'> → <class 'int'>
+  ! root['data']['Tl']['Melting point']: <class 'str'> → <class 'int'>
+  ! root['data']['Tl']['Mineral hardness']: <class 'str'> → <class 'float'>
+  ! root['data']['Tl']['Molar volume']: <class 'str'> → <class 'float'>
+  ! root['data']['Tl']['Poissons ratio']: <class 'str'> → <class 'float'>
+  ! root['data']['Tl']['Rigidity modulus']: <class 'str'> → <class 'float'>
+  ! root['data']['Tl']['Superconduction temperature']: <class 'str'> → <class 'float'>
+  ! root['data']['Tl']['Thermal conductivity']: <class 'str'> → <class 'int'>
+  ! root['data']['Tl']['Velocity of sound']: <class 'str'> → <class 'int'>
+  ! root['data']['Tl']['Youngs modulus']: <class 'str'> → <class 'int'>
+  ! root['data']['Tm']['Boiling point']: <class 'str'> → <class 'int'>
+  ! root['data']['Tm']['Brinell hardness']: <class 'str'> → <class 'int'>
+  ! root['data']['Tm']['Bulk modulus']: <class 'str'> → <class 'int'>
+  ! root['data']['Tm']['Coefficient of linear thermal expansion']: <class 'str'> → <class 'float'>
+  ! root['data']['Tm']['Density of solid']: <class 'str'> → <class 'int'>
+  ! root['data']['Tm']['Electrical resistivity']: <class 'str'> → <class 'float'>
+  ! root['data']['Tm']['Liquid range']: <class 'str'> → <class 'int'>
+  ! root['data']['Tm']['Melting point']: <class 'str'> → <class 'int'>
+  ! root['data']['Tm']['Molar volume']: <class 'str'> → <class 'float'>
+  ! root['data']['Tm']['Poissons ratio']: <class 'str'> → <class 'float'>
+  ! root['data']['Tm']['Rigidity modulus']: <class 'str'> → <class 'int'>
+  ! root['data']['Tm']['Thermal conductivity']: <class 'str'> → <class 'int'>
+  ! root['data']['Tm']['Vickers hardness']: <class 'str'> → <class 'int'>
+  ! root['data']['Tm']['Youngs modulus']: <class 'str'> → <class 'int'>
+  ! root['data']['U']['Boiling point']: <class 'str'> → <class 'int'>
+  ! root['data']['U']['Brinell hardness']: <class 'str'> → <class 'int'>
+  ! root['data']['U']['Bulk modulus']: <class 'str'> → <class 'int'>
+  ! root['data']['U']['Coefficient of linear thermal expansion']: <class 'str'> → <class 'float'>
+  ! root['data']['U']['Density of solid']: <class 'str'> → <class 'int'>
+  ! root['data']['U']['Electrical resistivity']: <class 'str'> → <class 'float'>
+  ! root['data']['U']['Liquid range']: <class 'str'> → <class 'float'>
+  ! root['data']['U']['Melting point']: <class 'str'> → <class 'float'>
+  ! root['data']['U']['Mineral hardness']: <class 'str'> → <class 'float'>
+  ! root['data']['U']['Molar volume']: <class 'str'> → <class 'float'>
+  ! root['data']['U']['Poissons ratio']: <class 'str'> → <class 'float'>
+  ! root['data']['U']['Rigidity modulus']: <class 'str'> → <class 'int'>
+  ! root['data']['U']['Shannon radii']['4']['VIII']['']['ionic_radius']: <class 'int'> → <class 'float'>
+  ! root['data']['U']['Shannon radii']['6']['VIII']['']['crystal_radius']: <class 'int'> → <class 'float'>
+  ! root['data']['U']['Superconduction temperature']: <class 'str'> → <class 'float'>
+  ! root['data']['U']['Thermal conductivity']: <class 'str'> → <class 'int'>
+  ! root['data']['U']['Velocity of sound']: <class 'str'> → <class 'int'>
+  ! root['data']['U']['Vickers hardness']: <class 'str'> → <class 'int'>
+  ! root['data']['U']['Youngs modulus']: <class 'str'> → <class 'int'>
+  ! root['data']['V']['Boiling point']: <class 'str'> → <class 'int'>
+  ! root['data']['V']['Brinell hardness']: <class 'str'> → <class 'int'>
+  ! root['data']['V']['Bulk modulus']: <class 'str'> → <class 'int'>
+  ! root['data']['V']['Coefficient of linear thermal expansion']: <class 'str'> → <class 'float'>
+  ! root['data']['V']['Density of solid']: <class 'str'> → <class 'int'>
+  ! root['data']['V']['Electrical resistivity']: <class 'str'> → <class 'float'>
+  ! root['data']['V']['Liquid range']: <class 'str'> → <class 'int'>
+  ! root['data']['V']['Melting point']: <class 'str'> → <class 'int'>
+  ! root['data']['V']['Mineral hardness']: <class 'str'> → <class 'float'>
+  ! root['data']['V']['Molar volume']: <class 'str'> → <class 'float'>
+  ! root['data']['V']['Poissons ratio']: <class 'str'> → <class 'float'>
+  ! root['data']['V']['Reflectivity']: <class 'str'> → <class 'int'>
+  ! root['data']['V']['Rigidity modulus']: <class 'str'> → <class 'int'>
+  ! root['data']['V']['Superconduction temperature']: <class 'str'> → <class 'float'>
+  ! root['data']['V']['Thermal conductivity']: <class 'str'> → <class 'int'>
+  ! root['data']['V']['Velocity of sound']: <class 'str'> → <class 'int'>
+  ! root['data']['V']['Vickers hardness']: <class 'str'> → <class 'int'>
+  ! root['data']['V']['Youngs modulus']: <class 'str'> → <class 'int'>
+  ! root['data']['W']['Boiling point']: <class 'str'> → <class 'int'>
+  ! root['data']['W']['Brinell hardness']: <class 'str'> → <class 'int'>
+  ! root['data']['W']['Bulk modulus']: <class 'str'> → <class 'int'>
+  ! root['data']['W']['Coefficient of linear thermal expansion']: <class 'str'> → <class 'float'>
+  ! root['data']['W']['Density of solid']: <class 'str'> → <class 'int'>
+  ! root['data']['W']['Electrical resistivity']: <class 'str'> → <class 'float'>
+  ! root['data']['W']['Liquid range']: <class 'str'> → <class 'int'>
+  ! root['data']['W']['Melting point']: <class 'str'> → <class 'int'>
+  ! root['data']['W']['Mineral hardness']: <class 'str'> → <class 'float'>
+  ! root['data']['W']['Molar volume']: <class 'str'> → <class 'float'>
+  ! root['data']['W']['Poissons ratio']: <class 'str'> → <class 'float'>
+  ! root['data']['W']['Reflectivity']: <class 'str'> → <class 'int'>
+  ! root['data']['W']['Rigidity modulus']: <class 'str'> → <class 'int'>
+  ! root['data']['W']['Superconduction temperature']: <class 'str'> → <class 'float'>
+  ! root['data']['W']['Thermal conductivity']: <class 'str'> → <class 'int'>
+  ! root['data']['W']['Velocity of sound']: <class 'str'> → <class 'int'>
+  ! root['data']['W']['Vickers hardness']: <class 'str'> → <class 'int'>
+  ! root['data']['W']['Youngs modulus']: <class 'str'> → <class 'int'>
+  ! root['data']['Xe']['Boiling point']: <class 'str'> → <class 'float'>
+  ! root['data']['Xe']['Critical temperature']: <class 'str'> → <class 'float'>
+  ! root['data']['Xe']['Liquid range']: <class 'str'> → <class 'float'>
+  ! root['data']['Xe']['Melting point']: <class 'str'> → <class 'float'>
+  ! root['data']['Xe']['Molar volume']: <class 'str'> → <class 'float'>
+  ! root['data']['Xe']['Refractive index']: <class 'str'> → <class 'float'>
+  ! root['data']['Xe']['Thermal conductivity']: <class 'str'> → <class 'float'>
+  ! root['data']['Xe']['Velocity of sound']: <class 'str'> → <class 'int'>
+  ! root['data']['Y']['Boiling point']: <class 'str'> → <class 'int'>
+  ! root['data']['Y']['Brinell hardness']: <class 'str'> → <class 'int'>
+  ! root['data']['Y']['Bulk modulus']: <class 'str'> → <class 'int'>
+  ! root['data']['Y']['Coefficient of linear thermal expansion']: <class 'str'> → <class 'float'>
+  ! root['data']['Y']['Density of solid']: <class 'str'> → <class 'int'>
+  ! root['data']['Y']['Electrical resistivity']: <class 'str'> → <class 'float'>
+  ! root['data']['Y']['Liquid range']: <class 'str'> → <class 'int'>
+  ! root['data']['Y']['Melting point']: <class 'str'> → <class 'int'>
+  ! root['data']['Y']['Molar volume']: <class 'str'> → <class 'float'>
+  ! root['data']['Y']['Poissons ratio']: <class 'str'> → <class 'float'>
+  ! root['data']['Y']['Rigidity modulus']: <class 'str'> → <class 'int'>
+  ! root['data']['Y']['Superconduction temperature']: <class 'str'> → <class 'float'>
+  ! root['data']['Y']['Thermal conductivity']: <class 'str'> → <class 'int'>
+  ! root['data']['Y']['Velocity of sound']: <class 'str'> → <class 'int'>
+  ! root['data']['Y']['Youngs modulus']: <class 'str'> → <class 'int'>
+  ! root['data']['Yb']['Boiling point']: <class 'str'> → <class 'int'>
+  ! root['data']['Yb']['Brinell hardness']: <class 'str'> → <class 'int'>
+  ! root['data']['Yb']['Bulk modulus']: <class 'str'> → <class 'int'>
+  ! root['data']['Yb']['Coefficient of linear thermal expansion']: <class 'str'> → <class 'float'>
+  ! root['data']['Yb']['Density of solid']: <class 'str'> → <class 'int'>
+  ! root['data']['Yb']['Electrical resistivity']: <class 'str'> → <class 'float'>
+  ! root['data']['Yb']['Liquid range']: <class 'str'> → <class 'int'>
+  ! root['data']['Yb']['Melting point']: <class 'str'> → <class 'int'>
+  ! root['data']['Yb']['Molar volume']: <class 'str'> → <class 'float'>
+  ! root['data']['Yb']['Poissons ratio']: <class 'str'> → <class 'float'>
+  ! root['data']['Yb']['Rigidity modulus']: <class 'str'> → <class 'float'>
+  ! root['data']['Yb']['Thermal conductivity']: <class 'str'> → <class 'int'>
+  ! root['data']['Yb']['Velocity of sound']: <class 'str'> → <class 'int'>
+  ! root['data']['Yb']['Vickers hardness']: <class 'str'> → <class 'int'>
+  ! root['data']['Yb']['Youngs modulus']: <class 'str'> → <class 'int'>
+  ! root['data']['Zn']['Boiling point']: <class 'str'> → <class 'int'>
+  ! root['data']['Zn']['Brinell hardness']: <class 'str'> → <class 'int'>
+  ! root['data']['Zn']['Bulk modulus']: <class 'str'> → <class 'int'>
+  ! root['data']['Zn']['Coefficient of linear thermal expansion']: <class 'str'> → <class 'float'>
+  ! root['data']['Zn']['Density of solid']: <class 'str'> → <class 'int'>
+  ! root['data']['Zn']['Electrical resistivity']: <class 'str'> → <class 'float'>
+  ! root['data']['Zn']['Liquid range']: <class 'str'> → <class 'float'>
+  ! root['data']['Zn']['Melting point']: <class 'str'> → <class 'float'>
+  ! root['data']['Zn']['Mineral hardness']: <class 'str'> → <class 'float'>
+  ! root['data']['Zn']['Molar volume']: <class 'str'> → <class 'float'>
+  ! root['data']['Zn']['Poissons ratio']: <class 'str'> → <class 'float'>
+  ! root['data']['Zn']['Reflectivity']: <class 'str'> → <class 'int'>
+  ! root['data']['Zn']['Refractive index']: <class 'str'> → <class 'float'>
+  ! root['data']['Zn']['Rigidity modulus']: <class 'str'> → <class 'int'>
+  ! root['data']['Zn']['Superconduction temperature']: <class 'str'> → <class 'float'>
+  ! root['data']['Zn']['Thermal conductivity']: <class 'str'> → <class 'int'>
+  ! root['data']['Zn']['Velocity of sound']: <class 'str'> → <class 'int'>
+  ! root['data']['Zn']['Youngs modulus']: <class 'str'> → <class 'int'>
+  ! root['data']['Zr']['Boiling point']: <class 'str'> → <class 'int'>
+  ! root['data']['Zr']['Brinell hardness']: <class 'str'> → <class 'int'>
+  ! root['data']['Zr']['Coefficient of linear thermal expansion']: <class 'str'> → <class 'float'>
+  ! root['data']['Zr']['Density of solid']: <class 'str'> → <class 'int'>
+  ! root['data']['Zr']['Electrical resistivity']: <class 'str'> → <class 'float'>
+  ! root['data']['Zr']['Liquid range']: <class 'str'> → <class 'int'>
+  ! root['data']['Zr']['Melting point']: <class 'str'> → <class 'int'>
+  ! root['data']['Zr']['Mineral hardness']: <class 'str'> → <class 'float'>
+  ! root['data']['Zr']['Molar volume']: <class 'str'> → <class 'float'>
+  ! root['data']['Zr']['Poissons ratio']: <class 'str'> → <class 'float'>
+  ! root['data']['Zr']['Rigidity modulus']: <class 'str'> → <class 'int'>
+  ! root['data']['Zr']['Superconduction temperature']: <class 'str'> → <class 'float'>
+  ! root['data']['Zr']['Thermal conductivity']: <class 'str'> → <class 'int'>
+  ! root['data']['Zr']['Velocity of sound']: <class 'str'> → <class 'int'>
+  ! root['data']['Zr']['Vickers hardness']: <class 'str'> → <class 'int'>
+  ! root['data']['Zr']['Youngs modulus']: <class 'str'> → <class 'int'>
+  ! root['ionization_energies']['Cn']: <class 'list'> → <class 'NoneType'>
+  ! root['ionization_energies']['Fl']: <class 'list'> → <class 'NoneType'>
+  ! root['ionization_energies']['Lv']: <class 'list'> → <class 'NoneType'>
+  ! root['ionization_energies']['Mc']: <class 'list'> → <class 'NoneType'>
+  ! root['ionization_energies']['Nh']: <class 'list'> → <class 'NoneType'>
+  ! root['ionization_energies']['Og']: <class 'list'> → <class 'NoneType'>
+  ! root['ionization_energies']['Rg']: <class 'list'> → <class 'NoneType'>
+  ! root['ionization_energies']['Ts']: <class 'list'> → <class 'NoneType'>
+  ! root['ionization_energy']['Ds']: <class 'int'> → <class 'float'>
+  ! root['ionization_energy']['Mt']: <class 'int'> → <class 'float'>
+  ! root['metallic_radius']['Ac']: <class 'float'> → <class 'NoneType'>
+  ! root['metallic_radius']['Bi']: <class 'float'> → <class 'NoneType'>
+  ! root['metallic_radius']['Br']: <class 'float'> → <class 'NoneType'>
+  ! root['metallic_radius']['Ge']: <class 'float'> → <class 'NoneType'>
+  ! root['metallic_radius']['Pb']: <class 'float'> → <class 'NoneType'>
+  ! root['metallic_radius']['Po']: <class 'float'> → <class 'NoneType'>
+  ! root['metallic_radius']['Ra']: <class 'float'> → <class 'NoneType'>
+  ! root['metallic_radius']['Sb']: <class 'float'> → <class 'NoneType'>
+  ! root['metallic_radius']['Sn']: <class 'float'> → <class 'NoneType'>
+  ! root['mineral_hardness']['C']: <class 'str'> → <class 'float'>
