@@ -1,3 +1,8 @@
+"""TODOs:
+- also check type (floatwithunit vs float, str vs float)
+- factor seems to cause some rounding issues
+"""
+
 from __future__ import annotations
 
 import shutil
@@ -8,13 +13,16 @@ from pathlib import Path
 from compare_json import compare_jsons
 
 ROOT = Path(__file__).parent.resolve()
+
 VENV_PYPI = ROOT / ".venv_pypi"
 VENV_PR = ROOT / ".venv_pr"
+
 OUTPUT_PYPI = ROOT / "element_properties_pypi.json"
 OUTPUT_PR = ROOT / "element_properties_pr.json"
 
 PR_URL = "https://github.com/DanielYang59/pymatgen.git"
 PR_BRANCH = "directly-overwrite-json-in-core"
+
 PYPI_VERSION = "2025.4.24"
 
 

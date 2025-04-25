@@ -1,11 +1,10 @@
-# dump_all_properties.py
 from __future__ import annotations
 
 import json
 
 from pymatgen.core.periodic_table import Element
 
-element_property_names = [
+element_properties = [
     "X",
     "atomic_mass",
     "atomic_mass_number",
@@ -16,7 +15,6 @@ element_property_names = [
     "average_ionic_radius",
     "block",
     "common_oxidation_states",
-    "data",
     "electron_affinity",
     "electronic_structure",
     "full_electronic_structure",
@@ -51,7 +49,7 @@ element_property_names = [
     "valence",
 ]
 
-EXTRA_PROPS = [
+extra_properties = [
     "mendeleev_no",
     "electrical_resistivity",
     "velocity_of_sound",
@@ -83,7 +81,7 @@ EXTRA_PROPS = [
     "metallic_radius",
 ]
 
-all_properties = sorted(set(element_property_names + EXTRA_PROPS))
+all_properties = sorted(set(element_properties + extra_properties))
 
 
 def dump_properties(path: str):
@@ -97,7 +95,8 @@ def dump_properties(path: str):
                 data[prop][el.symbol] = val
             except Exception:
                 data[prop][el.symbol] = None
-    with open(path, "w") as f:
+
+    with open(path, "w", encoding="utf-8") as f:
         json.dump(data, f, indent=2, sort_keys=True)
 
 
