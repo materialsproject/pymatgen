@@ -2,6 +2,16 @@ from __future__ import annotations
 
 import json
 
+KNOWN_DIFF = {
+    "metallic_radius",  # https://github.com/materialsproject/pymatgen/pull/4380
+    "mineral_hardness",  # comment dropped from value: 0.5 (graphite; diamond is 10.0)(no units) → 0.5
+    "ionic_radii",  # rounding: {'2': 1.36, '3': 1.0979999999999999} → {'2': 1.36, '3': 1.098}
+    "average_cationic_radius",  # rounding: 0.9674999999999999 → 0.9675
+    "average_ionic_radius",  # rounding: 0.9674999999999999 → 0.9675
+    "electron_affinity",  # in #4344 the tolerance was too high
+    "X",  # X for some elements is NaN, and cannot be compared correctly
+}
+
 
 def compare_jsons(path1: str, path2: str, log_path: str = "diff.log") -> bool:
     """
@@ -43,7 +53,8 @@ def compare_jsons(path1: str, path2: str, log_path: str = "diff.log") -> bool:
 
         log.write("❌ Differences found:\n")
         for prop, el, v1, v2 in differences:
-            log.write(f"[{prop}][{el}]: {v1} → {v2}\n")
+            if prop not in KNOWN_DIFF:
+                log.write(f"[{prop}][{el}]: {v1} → {v2}\n")
 
     print(f"❌ Differences written to {log_path}")
     return True
