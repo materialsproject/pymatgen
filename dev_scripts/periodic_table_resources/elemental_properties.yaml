@@ -1763,14 +1763,14 @@ Density of solid:
     Zr: 6511
 Electrical resistivity:
   unit: ohm m
-  # reference: https://en.wikipedia.org/wiki/Electrical_resistivities_of_the_elements_(data_page)
+  # reference: TODO: need to validate/update (haven't been updated for 13 years)
   factor: 1e-8
   data:  # 293 K (20 °C)
     Ag: 1.63
     Al: 2.7
     As: 33
     Au: 2.2
-    B: 1.5e12  # TODO: value from above Wikipedia (source for others is largely unknown)
+    B: 1.5e12
     Ba: 34
     Be: 3.8
     Bi: 130
