@@ -400,12 +400,15 @@ def generate_yaml_and_json(
             sorted(((elem.name, val.value) for elem, val in prop.data.items()), key=lambda pair: Element(pair[0]).Z)
         )
 
-        yaml_data[prop.name] = {
+        prop_dict = {
             "unit": str(prop.unit) if prop.unit is not None else None,
             "reference": prop.reference,
             "data": sorted_data,
             "factor": prop.factor,
         }
+
+        # Filter out fields with None
+        yaml_data[prop.name] = {k: v for k, v in prop_dict.items() if v is not None}
 
     yaml = YAML()
     yaml.default_flow_style = None
