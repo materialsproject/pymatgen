@@ -19,10 +19,12 @@ Atomic mass:
     Pu: 244, Am: 243, Cm: 247, Bk: 247, Cf: 251, Es: 252, Fm: 257, Md: 258, No: 259,
     Lr: 262, Rf: 267, Db: 268, Sg: 269, Bh: 270, Hs: 270, Mt: 278, Ds: 281, Rg: 282,
     Cn: 285, Nh: 286, Fl: 289, Mc: 290, Lv: 293, Ts: 294, Og: 294}
+  factor:
 Atomic mass no:
   unit: amu
   reference:
   data: {H: 1, D: 2, T: 3}
+  factor:
 Atomic no:
   unit:
   reference:
@@ -38,6 +40,7 @@ Atomic no:
     U: 92, Np: 93, Pu: 94, Am: 95, Cm: 96, Bk: 97, Cf: 98, Es: 99, Fm: 100, Md: 101,
     No: 102, Lr: 103, Rf: 104, Db: 105, Sg: 106, Bh: 107, Hs: 108, Mt: 109, Ds: 110,
     Rg: 111, Cn: 112, Nh: 113, Fl: 114, Mc: 115, Lv: 116, Ts: 117, Og: 118}
+  factor:
 Atomic orbitals:
   unit:
   reference:
@@ -1049,6 +1052,7 @@ Atomic orbitals:
       6p: -0.822538
       6s: -1.325976
       7s: -0.130948
+  factor:
 Atomic radius:
   unit: ang
   reference: https://wikipedia.org/wiki/Atomic_radii_of_the_elements_(data_page)
@@ -1063,6 +1067,7 @@ Atomic radius:
     W: 1.35, Re: 1.35, Os: 1.3, Ir: 1.35, Pt: 1.35, Au: 1.35, Hg: 1.5, Tl: 1.9, Pb: 1.8,
     Bi: 1.6, Po: 1.9, Ra: 2.15, Ac: 1.95, Th: 1.8, Pa: 1.8, U: 1.75, Np: 1.75, Pu: 1.75,
     Am: 1.75}
+  factor:
 Atomic radius calculated:
   unit: ang
   reference: https://wikipedia.org/wiki/Atomic_radii_of_the_elements_(data_page)
@@ -1077,6 +1082,7 @@ Atomic radius calculated:
     Tm: 2.22, Yb: 2.22, Lu: 2.17, Hf: 2.08, Ta: 2.0, W: 1.93, Re: 1.88, Os: 1.85,
     Ir: 1.8, Pt: 1.77, Au: 1.74, Hg: 1.71, Tl: 1.56, Pb: 1.54, Bi: 1.43, Po: 1.35,
     Rn: 1.2}
+  factor:
 Boiling point:
   unit: K
   reference:
@@ -1092,6 +1098,7 @@ Boiling point:
     W: 5828, Re: 5869, Os: 5285, Ir: 4701, Pt: 4098, Au: 3129, Hg: 629.88, Tl: 1746,
     Pb: 2022, Bi: 1837, Po: 1235, Rn: 211.3, Ra: 2010, Ac: 3573, Th: 5093, U: 4200,
     Np: 4273, Pu: 3503, Am: 2880, Cm: 3383}
+  factor:
 Brinell hardness:
   unit: MN m^-2
   reference:
@@ -1102,6 +1109,7 @@ Brinell hardness:
     Ce: 412, Pr: 481, Nd: 265, Sm: 441, Tb: 677, Dy: 500, Ho: 746, Er: 814, Tm: 471,
     Yb: 343, Lu: 893, Hf: 1700, Ta: 800, W: 2570, Re: 1320, Os: 3920, Ir: 1670, Pt: 392,
     Au: 2450, Tl: 26.4, Pb: 38.3, Bi: 94.2, Th: 400, U: 2400}
+  factor:
 Bulk modulus:
   unit: GPa
   reference:
@@ -1112,6 +1120,7 @@ Bulk modulus:
     Cs: 1.6, Ba: 9.6, La: 28, Ce: 22, Pr: 29, Nd: 32, Pm: 33, Sm: 38, Eu: 8.3, Gd: 38,
     Tb: 38.7, Dy: 41, Ho: 40, Er: 44, Tm: 45, Yb: 31, Lu: 48, Hf: 110, Ta: 200, W: 310,
     Re: 370, Ir: 320, Pt: 230, Au: 220, Hg: 25, Tl: 43, Pb: 46, Bi: 31, Th: 54, U: 100}
+  factor:
 Coefficient of linear thermal expansion:
   unit: K^-1
   reference:
@@ -1122,6 +1131,7 @@ Coefficient of linear thermal expansion:
     Ce: 6.3, Pr: 6.7, Nd: 9.6, Pm: 11, Sm: 12.7, Eu: 35, Gd: 9.4, Tb: 10.3, Dy: 9.9,
     Ho: 11.2, Er: 12.2, Tm: 13.3, Yb: 26.3, Lu: 9.9, Hf: 5.9, Ta: 6.3, W: 4.5, Re: 6.2,
     Os: 5.1, Ir: 6.4, Pt: 8.8, Au: 14.2, Tl: 29.9, Pb: 28.9, Bi: 13.4, Th: 11.0, U: 13.9}
+  factor: 1e-6
 Common oxidation states:
   unit:
   reference:
@@ -1225,12 +1235,14 @@ Common oxidation states:
     Md: [3]
     No: [3]
     Lr: [3]
+  factor:
 Critical temperature:
   unit: K
   reference:
   data: {H: 33, He: 5.19, Li: 3223, N: 126.2, O: 154.6, F: 144, Ne: 44.4, Na: 2573,
     P: 994, S: 1314, Cl: 417, Ar: 150.8, K: 2223, As: 1700, Se: 1766, Br: 586, Kr: 209.4,
     Rb: 2093, I: 819, Xe: 289.7, Cs: 1938, Hg: 1750, Rn: 377}
+  factor:
 Density of solid:
   unit: kg m^-3
   reference:
@@ -1245,6 +1257,7 @@ Density of solid:
     Ir: 22650, Pt: 21090, Au: 19300, Tl: 11850, Pb: 11340, Bi: 9780, Po: 9196, Ra: 5000,
     Ac: 10070, Th: 11724, Pa: 15370, U: 19050, Np: 20450, Pu: 19816, Cm: 13510, Bk: 14780,
     Cf: 15100}
+  factor:
 Electrical resistivity:
   unit: ohm m
   reference:
@@ -1257,6 +1270,7 @@ Electrical resistivity:
     Dy: 92.6, Ho: 81.4, Er: 86.0, Tm: 67.6, Yb: 25.0, Lu: 58, Hf: 34, Ta: 13.5, W: 5.4,
     Re: 18, Os: 8.1, Ir: 4.7, Pt: 10.6, Au: 2.2, Hg: 96, Tl: 15, Pb: 21, Bi: 130,
     Po: 40, Ra: 100, Th: 15, Pa: 18, U: 28, Np: 120, Pu: 150}
+  factor: 1e-8
 Electron affinity:
   unit: eV
   reference: https://en.wikipedia.org/wiki/Electron_affinity_(data_page)
@@ -1278,6 +1292,7 @@ Electron affinity:
     Np: 0.48, Pu: -0.5, Am: 0.1, Cm: 0.28, Bk: -1.72, Cf: -1.01, Es: -0.3, Fm: 0.35,
     Md: 0.98, No: -2.33, Lr: -0.31, Rg: 1.565, Nh: 0.69, Mc: 0.366, Lv: 0.776, Ts: 1.719,
     Og: 0.0806}
+  factor:
 Electronic structure:
   unit:
   reference:
@@ -1650,6 +1665,7 @@ Electronic structure:
     Lr:
       '0': '[Rn].5f14.7s2.7p1'
       '3': '[Rn].5f14'
+  factor:
 Ground level:
   unit:
   reference:
@@ -1668,6 +1684,7 @@ Ground level:
     Ra: 1S0, Ac: 2D3/2, Th: 3F2, Pa: 4K11/2, U: 5L°6, Np: 6L11/2, Pu: 7F0, Am: 8S°7/2,
     Cm: 9D°2, Bk: 6H°15/2, Cf: 5I8, Es: 4I°15/2, Fm: 3H6, Md: 2F°7/2, No: 1S0, Lr: 2P°1/2,
     Rf: 3F2, Db: 4F3/2, Sg: '0', Bh: 5/2, Hs: '4'}
+  factor:
 ICSD oxidation states:
   unit:
   reference:
@@ -1747,6 +1764,7 @@ ICSD oxidation states:
     Bi: [1, 2, 3, 5]
     Th: [4]
     U: [3, 4, 5, 6]
+  factor:
 IUPAC ordering:
   unit:
   reference:
@@ -1760,6 +1778,7 @@ IUPAC ordering:
     Ta: 53, W: 56, Re: 59, Os: 62, Ir: 65, Pt: 68, Au: 71, Hg: 74, Tl: 77, Pb: 82,
     Bi: 87, Po: 93, At: 98, Rn: 0, Fr: 6, Ra: 12, Ac: 32, Th: 31, Pa: 30, U: 29, Np: 28,
     Pu: 27, Am: 26, Cm: 25, Bk: 24, Cf: 23, Es: 22, Fm: 21, Md: 20, No: 19, Lr: 18}
+  factor:
 Ionic radii:
   unit: ang
   reference: https://en.wikipedia.org/wiki/Ionic_radius
@@ -1856,6 +1875,7 @@ Ionic radii:
     Cm: {'3': 1.11, '4': 0.99}
     Bk: {'3': 1.1, '4': 0.97}
     Cf: {'3': 1.09, '4': 0.961}
+  factor:
 Ionic radii hs:
   unit: ang
   reference: https://en.wikipedia.org/wiki/Ionic_radius
@@ -1865,6 +1885,7 @@ Ionic radii hs:
     Fe: *id003
     Co: *id004
     Ni: *id005
+  factor:
 Ionic radii ls:
   unit: ang
   reference: https://en.wikipedia.org/wiki/Ionic_radius
@@ -1874,6 +1895,7 @@ Ionic radii ls:
     Fe: {'2': 0.75, '3': 0.69, '4': 0.725, '6': 0.39}
     Co: {'2': 0.79, '3': 0.685}
     Ni: {'2': 0.83, '3': 0.7, '4': 0.62}
+  factor:
 Ionization energies:
   unit: kJ/mol
   reference: https://www.nist.gov/pml/atomic-spectra-database
@@ -2521,10 +2543,12 @@ Ionization energies:
       11930.0, 12140.0, 12380.0, 12600.0, 12810.0, 13500.0, 13700.0, 14000.0, 14200.0,
       14800.0, 15000.0, 15300.0, 15500.0, 18400.0, 18600.0, 19100.0, 19400.0, 37400.0,
       37900.0, 38500.0, 39100.0, 49800.0, 50700.0, 51600.0, null, null, 204400.0]
+  factor:
 Is named isotope:
   unit:
   reference:
   data: {D: true, T: true}
+  factor:
 Liquid range:
   unit: K
   reference:
@@ -2540,10 +2564,12 @@ Liquid range:
     Hf: 2370, Ta: 2441, W: 2133, Re: 2410, Os: 1979, Ir: 1962, Pt: 2056.6, Au: 1791.67,
     Hg: 395.56, Tl: 1169, Pb: 1421.39, Bi: 1292.6, Po: 708, Rn: 9.3, Ra: 1037, Ac: 2250,
     Th: 2978, U: 2794.7, Np: 3363, Pu: 2590.5, Am: 1431, Cm: 1770}
+  factor:
 Max oxidation state:
   unit:
   reference:
   data: {He: 0, Ne: 0, Ar: 0, Kr: 0, Xe: 8, Rn: 0}
+  factor:
 Melting point:
   unit: K
   reference:
@@ -2560,6 +2586,7 @@ Melting point:
     Hg: 234.32, Tl: 577, Pb: 600.61, Bi: 544.4, Po: 527, At: 575, Rn: 202, Fr: 300,
     Ra: 973, Ac: 1323, Th: 2115, Pa: 1841, U: 1405.3, Np: 910, Pu: 912.5, Am: 1449,
     Cm: 1613, Bk: 1259, Cf: 1173, Es: 1133, Fm: 1800, Md: 1100, No: 1100, Lr: 1900}
+  factor:
 Mendeleev no:
   unit:
   reference: D. G. Pettifor, A chemical scale for crystal-structure maps, Solid State
@@ -2574,6 +2601,7 @@ Mendeleev no:
     W: 55, Re: 58, Os: 63, Ir: 66, Pt: 68, Au: 70, Hg: 74, Tl: 78, Pb: 82, Bi: 87,
     Po: 91, At: 96, Rn: 6, Fr: 7, Ra: 13, Ac: 48, Th: 47, Pa: 46, U: 45, Np: 44, Pu: 43,
     Am: 42, Cm: 41, Bk: 40, Cf: 39, Es: 38, Fm: 37, Md: 36, No: 35, Lr: 34}
+  factor:
 Metallic radius:
   unit: ang
   reference: https://wikipedia.org/wiki/Atomic_radii_of_the_elements_(data_page)
@@ -2586,10 +2614,12 @@ Metallic radius:
     Ta: 1.46, W: 1.39, Re: 1.37, Os: 1.35, Ir: 1.355, Pt: 1.385, Au: 1.44, Hg: 1.51,
     Tl: 1.7, Th: 1.79, Pa: 1.63, U: 1.56, Np: 1.55, Pu: 1.59, Am: 1.73, Cm: 1.74,
     Bk: 1.7, Cf: 1.86, Es: 1.86}
+  factor:
 Min oxidation state:
   unit:
   reference:
   data: {He: 0, Ne: 0, Ar: 0, Kr: 0, Xe: 2, Rn: 0}
+  factor:
 Mineral hardness:
   unit:
   reference:
@@ -2600,6 +2630,7 @@ Mineral hardness:
     Sb: 3.0, Te: 2.25, Cs: 0.2, Ba: 1.25, La: 2.5, Ce: 2.5, Hf: 5.5, Ta: 6.5, W: 7.5,
     Re: 7.0, Os: 7.0, Ir: 6.5, Pt: 3.5, Au: 2.5, Hg: 1.5, Tl: 1.2, Pb: 1.5, Bi: 2.25,
     Th: 3.0, U: 6.0}
+  factor:
 Molar volume:
   unit: cm^3
   reference:
@@ -2616,6 +2647,7 @@ Molar volume:
     Tl: 17.22, Pb: 18.26, Bi: 21.31, Po: 22.97, Rn: 50.50, Ra: 41.09, Ac: 22.55, Th: 19.80,
     Pa: 15.18, U: 12.49, Np: 11.59, Pu: 12.29, Am: 17.63, Cm: 18.05, Bk: 16.84, Cf: 16.50,
     Es: 28.52}
+  factor:
 NMR Quadrupole Moment:
   unit: mbarn
   reference:
@@ -2701,6 +2733,7 @@ NMR Quadrupole Moment:
       Hg-201: 387.6
     Ra:
       Ra-223: 1210.3
+  factor:
 Name:
   unit:
   reference:
@@ -2724,6 +2757,7 @@ Name:
     Db: Dubnium, Sg: Seaborgium, Bh: Bohrium, Hs: Hassium, Mt: Meitnerium, Ds: Darmstadtium,
     Rg: Roentgenium, Cn: Copernicium, Nh: Nihonium, Fl: Flerovium, Mc: Moscovium,
     Lv: Livermorium, Ts: Tennessine, Og: Oganesson}
+  factor:
 Oxidation states:
   unit:
   reference: https://en.wikipedia.org/wiki/Template:List_of_oxidation_states_of_the_elements
@@ -2827,6 +2861,7 @@ Oxidation states:
     Md: [2, 3]
     No: [2, 3]
     Lr: [3]
+  factor:
 Poissons ratio:
   unit:
   reference:
@@ -2837,12 +2872,14 @@ Poissons ratio:
     Gd: 0.26, Tb: 0.26, Dy: 0.25, Ho: 0.23, Er: 0.24, Tm: 0.21, Yb: 0.21, Lu: 0.26,
     Hf: 0.37, Ta: 0.34, W: 0.28, Re: 0.30, Os: 0.25, Ir: 0.26, Pt: 0.38, Au: 0.44,
     Tl: 0.45, Pb: 0.44, Bi: 0.33, Th: 0.27, U: 0.23, Pu: 0.21}
+  factor:
 Reflectivity:
   unit: '%'
   reference:
   data: {C: 27, Mg: 74, Al: 71, Si: 28, V: 61, Fe: 65, Co: 67, Ni: 72, Cu: 90, Zn: 80,
     Mo: 58, Rh: 84, Pd: 72, Ag: 97, Cd: 67, Sn: 54, Sb: 55, Te: 50, Ta: 78, W: 62,
     Ir: 78, Pt: 73, Au: 95, Hg: 73}
+  factor:
 Refractive index:
   unit:
   reference:
@@ -2850,6 +2887,7 @@ Refractive index:
     Ne: 1.000067, P: 1.001212, S: 1.001111, Cl: 1.000773, Ar: 1.000281, Zn: 1.002050,
     As: 1.001552, Se: 1.000895, Br: 1.001132, Kr: 1.000427, Te: 1.000991, Xe: 1.000702,
     Hg: 1.000933}
+  factor:
 Rigidity modulus:
   unit: GPa
   reference:
@@ -2860,6 +2898,7 @@ Rigidity modulus:
     Tb: 22, Dy: 25, Ho: 26, Er: 28, Tm: 31, Yb: 9.9, Lu: 27, Hf: 30, Ta: 69, W: 161,
     Re: 178, Os: 222, Ir: 210, Pt: 61, Au: 27, Tl: 2.8, Pb: 5.6, Bi: 12, Th: 31, U: 111,
     Pu: 43}
+  factor:
 Shannon radii:
   unit: ang
   reference:
@@ -4143,6 +4182,7 @@ Shannon radii:
       '2':
         VI:
           '': {crystal_radius: 1.24, ionic_radius: 1.1}
+  factor:
 Superconduction temperature:
   unit: K
   reference:
@@ -4150,6 +4190,7 @@ Superconduction temperature:
     Zr: 0.61, Nb: 9.25, Mo: 0.915, Tc: 7.8, Ru: 0.49, Cd: 0.517, In: 3.41, Sn: 3.72,
     La: 6.00, Ce: 0.022, Gd: 1.083, Lu: 0.022, Hf: 0.128, Ta: 4.47, W: 0.015, Re: 1.70,
     Os: 0.66, Ir: 0.11, Hg: 3.95, Tl: 2.38, Pb: 7.2, Th: 1.38, Pa: 1.4, U: 0.2, Am: 0.6}
+  factor:
 Thermal conductivity:
   unit: W m^-1 K^-1
   reference:
@@ -4164,6 +4205,7 @@ Thermal conductivity:
     Re: 48, Os: 88, Ir: 150, Pt: 72, Au: 320, Hg: 8.3, Tl: 46, Pb: 35, Bi: 8, Po: 20,
     At: 2, Rn: 0.00361, Ra: 19, Ac: 12, Th: 54, Pa: 47, U: 27, Np: 6, Pu: 6, Am: 10,
     Cm: 8.8, Bk: 10}
+  factor:
 Van der waals radius:
   unit: ang
   reference: https://wikipedia.org/wiki/Atomic_radii_of_the_elements_(data_page)
@@ -4180,6 +4222,7 @@ Van der waals radius:
     Bi: 2.07, Po: 1.97, At: 2.02, Rn: 2.2, Fr: 3.48, Ra: 2.83, Ac: 2.47, Th: 2.45,
     Pa: 2.43, U: 2.41, Np: 2.39, Pu: 2.43, Am: 2.44, Cm: 2.45, Bk: 2.44, Cf: 2.45,
     Es: 2.45, Fm: 2.45, Md: 2.46, No: 2.46}
+  factor:
 Velocity of sound:
   unit: m s^-1
   reference:
@@ -4192,6 +4235,7 @@ Velocity of sound:
     Nd: 2330, Sm: 2130, Gd: 2680, Tb: 2620, Dy: 2710, Ho: 2760, Er: 2830, Yb: 1590,
     Hf: 3010, Ta: 3400, W: 5174, Re: 4700, Os: 4940, Ir: 4825, Pt: 2680, Au: 1740,
     Hg: 1407, Tl: 818, Pb: 1260, Bi: 1790, Th: 2490, U: 3155, Pu: 2260}
+  factor:
 Vickers hardness:
   unit: MN m^-2
   reference:
@@ -4200,6 +4244,7 @@ Vickers hardness:
     Ce: 270, Pr: 400, Nd: 343, Sm: 412, Eu: 167, Gd: 570, Tb: 863, Dy: 540, Ho: 481,
     Er: 589, Tm: 520, Yb: 206, Lu: 1160, Hf: 1760, Ta: 873, W: 3430, Re: 2450, Ir: 1760,
     Pt: 549, Au: 216, Th: 350, U: 1960}
+  factor:
 X:
   unit:
   reference:
@@ -4215,6 +4260,7 @@ X:
     Pb: 2.33, Bi: 2.02, Po: 2, At: 2.2, Rn: 2.2, Fr: 0.7, Ra: 0.9, Ac: 1.1, Th: 1.3,
     Pa: 1.5, U: 1.38, Np: 1.36, Pu: 1.28, Am: 1.3, Cm: 1.3, Bk: 1.3, Cf: 1.3, Es: 1.3,
     Fm: 1.3, Md: 1.3, No: 1.3, Lr: 1.3}
+  factor:
 Youngs modulus:
   unit: GPa
   reference:
@@ -4225,3 +4271,4 @@ Youngs modulus:
     Nd: 41, Pm: 46, Sm: 50, Eu: 18, Gd: 55, Tb: 56, Dy: 61, Ho: 65, Er: 70, Tm: 74,
     Yb: 24, Lu: 69, Hf: 78, Ta: 186, W: 411, Re: 463, Ir: 528, Pt: 168, Au: 78, Tl: 8,
     Pb: 16, Bi: 32, Th: 79, U: 208, Pu: 96}
+  factor:
