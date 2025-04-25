@@ -22,7 +22,7 @@ if TYPE_CHECKING:
     from matplotlib.axes import Axes
     from matplotlib.figure import Figure
     from mpl_toolkits.mplot3d.axes3d import Axes3D
-    from numpy.typing import ArrayLike
+    from numpy.typing import NDArray
 
 
 def pretty_plot(
@@ -170,7 +170,7 @@ def pretty_plot_two_axis(
     return ax1
 
 
-def pretty_polyfit_plot(x: ArrayLike, y: ArrayLike, deg: int = 1, xlabel=None, ylabel=None, **kwargs):
+def pretty_polyfit_plot(x: NDArray, y: NDArray, deg: int = 1, xlabel=None, ylabel=None, **kwargs):
     """Convenience method to plot data with trend lines based on polynomial fit.
 
     Args:
@@ -366,7 +366,7 @@ def periodic_table_heatmap(
 
     # Label each block with corresponding element and value
     for ii, row in enumerate(value_table):
-        for jj, el in enumerate(row):
+        for jj, el in enumerate(row):  # type: ignore[arg-type]
             if not np.isnan(el):
                 symbol = Element.from_row_and_group(ii + 1, jj + 1).symbol
                 rgba = scalar_cmap.to_rgba(el)

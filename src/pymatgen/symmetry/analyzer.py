@@ -527,7 +527,7 @@ class SpacegroupAnalyzer:
             # rhombohedral
             lengths = conv.lattice.lengths
             if abs(lengths[0] - lengths[2]) < 1e-4:
-                return np.eye
+                return np.eye(3)
             return np.array([[-1, 1, 1], [2, 1, 1], [-1, -2, 1]], dtype=np.float64) / 3
 
         if "I" in self.get_space_group_symbol():
@@ -657,7 +657,7 @@ class SpacegroupAnalyzer:
             The structure in a conventional standardized cell
         """
         tol = 1e-5
-        transf = None
+        transf = np.zeros(shape=(3, 3), dtype=np.float64)
         struct = self.get_refined_structure(keep_site_properties=keep_site_properties)
         lattice = struct.lattice
         latt_type = self.get_lattice_type()
@@ -670,7 +670,6 @@ class SpacegroupAnalyzer:
         if latt_type in {"orthorhombic", "cubic"}:
             # you want to keep the c axis where it is
             # to keep the C- settings
-            transf = np.zeros(shape=(3, 3))
             if self.get_space_group_symbol().startswith("C"):
                 transf[2] = [0, 0, 1]
                 a, b = sorted(lattice.abc[:2])
@@ -716,7 +715,6 @@ class SpacegroupAnalyzer:
         elif latt_type == "tetragonal":
             # find the "a" vectors
             # it is basically the vector repeated two times
-            transf = np.zeros(shape=(3, 3))
             a, b, c = sorted_lengths
             for idx, dct in enumerate(sorted_dic):
                 transf[idx][dct["orig_index"]] = 1
@@ -746,13 +744,12 @@ class SpacegroupAnalyzer:
                 [0, 0, c],
             ]
             lattice = Lattice(new_matrix)
-            transf = np.eye(3, 3)
+            transf = np.eye(3, dtype=np.float64)  # type:ignore[assignment]
 
         elif latt_type == "monoclinic":
             # You want to keep the c axis where it is to keep the C- settings
 
             if self.get_space_group_operations().int_symbol.startswith("C"):
-                transf = np.zeros(shape=(3, 3))
                 transf[2] = [0, 0, 1]
                 sorted_dic = sorted(
                     (
@@ -864,13 +861,13 @@ class SpacegroupAnalyzer:
                 # The following will convert to proper international convention
                 # that beta is the non-right angle.
                 op = [[0, 1, 0], [1, 0, 0], [0, 0, -1]]
-                transf = np.dot(op, transf)
+                transf = np.dot(op, transf)  # type: ignore[arg-type]
                 new_matrix = np.dot(op, new_matrix)
                 beta = Lattice(new_matrix).beta
                 if beta < 90:
                     op = [[-1, 0, 0], [0, -1, 0], [0, 0, 1]]
-                    transf = np.dot(op, transf)
-                    new_matrix = np.dot(op, new_matrix)
+                    transf = np.dot(op, transf)  # type: ignore[arg-type]
+                    new_matrix = np.dot(op, new_matrix)  # type: ignore[arg-type]
 
             lattice = Lattice(new_matrix)
 
@@ -901,7 +898,7 @@ class SpacegroupAnalyzer:
                 return all(recp_angles <= 90) or all(recp_angles > 90)
 
             if is_all_acute_or_obtuse(test_matrix):
-                transf = np.eye(3)
+                transf = np.eye(3, dtype=np.float64)  # type:ignore[assignment]
                 new_matrix = test_matrix
 
             test_matrix = [
@@ -919,7 +916,7 @@ class SpacegroupAnalyzer:
             ]
 
             if is_all_acute_or_obtuse(test_matrix):
-                transf = [[-1, 0, 0], [0, 1, 0], [0, 0, -1]]
+                transf = np.array([[-1, 0, 0], [0, 1, 0], [0, 0, -1]])  # type:ignore[assignment]
                 new_matrix = test_matrix
 
             test_matrix = [
@@ -937,7 +934,7 @@ class SpacegroupAnalyzer:
             ]
 
             if is_all_acute_or_obtuse(test_matrix):
-                transf = [[-1, 0, 0], [0, -1, 0], [0, 0, 1]]
+                transf = np.array([[-1, 0, 0], [0, -1, 0], [0, 0, 1]])  # type:ignore[assignment]
                 new_matrix = test_matrix
 
             test_matrix = [
@@ -954,12 +951,12 @@ class SpacegroupAnalyzer:
                 ],
             ]
             if is_all_acute_or_obtuse(test_matrix):
-                transf = [[1, 0, 0], [0, -1, 0], [0, 0, -1]]
+                transf = np.array([[1, 0, 0], [0, -1, 0], [0, 0, -1]])  # type:ignore[assignment]
                 new_matrix = test_matrix
 
             lattice = Lattice(new_matrix)
 
-        new_coords = np.dot(transf, np.transpose(struct.frac_coords)).T
+        new_coords = np.dot(transf, np.transpose(struct.frac_coords)).T  # type: ignore[arg-type]
         new_struct = Structure(
             lattice,
             struct.species_and_occu,

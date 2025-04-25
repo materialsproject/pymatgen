@@ -380,7 +380,7 @@ class EnumlibAdaptor:
                 sites = []
 
                 if len(self.ordered_sites) > 0:
-                    transformation = np.dot(new_latt.matrix, inv_org_latt)
+                    transformation = np.dot(new_latt.matrix, inv_org_latt)  # type:ignore[arg-type]
                     transformation = [[round(cell) for cell in row] for row in transformation]
                     logger.debug(f"Supercell matrix: {transformation}")
                     struct = ordered_structure * transformation

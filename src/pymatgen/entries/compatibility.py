@@ -721,8 +721,7 @@ class Compatibility(MSONable, abc.ABC):
 
         return processed_entry_list
 
-    @staticmethod
-    def explain(entry: ComputedEntry) -> None:
+    def explain(self, entry: ComputedEntry) -> None:
         """Print an explanation of the energy adjustments applied by the
         Compatibility class. Inspired by the "explain" methods in many database
         methodologies.

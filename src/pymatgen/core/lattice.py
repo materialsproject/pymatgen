@@ -159,7 +159,7 @@ class Lattice(MSONable):
             jj = (dim + 1) % 3
             kk = (dim + 2) % 3
             angles[dim] = np.clip(np.dot(matrix[jj], matrix[kk]) / (lengths[jj] * lengths[kk]), -1, 1)
-        angles = np.arccos(angles) * 180.0 / np.pi
+        angles = np.arccos(angles) * 180.0 / np.pi  # type: ignore[assignment]
         return tuple(angles.tolist())  # type: ignore[return-value]
 
     @property
@@ -897,7 +897,7 @@ class Lattice(MSONable):
         for reflection_matrix in reflection_matrices:
             all_reflections.append(np.dot(selling1, reflection_matrix))
 
-        return min(np.linalg.norm(reflection - selling2) for reflection in all_reflections)  # type: ignore[return-value]
+        return min(np.linalg.norm(reflection - selling2) for reflection in all_reflections)  # type: ignore[return-value, type-var]
 
     def as_dict(self, verbosity: int = 0) -> dict:
         """MSONable dict representation of the Lattice.
@@ -960,7 +960,7 @@ class Lattice(MSONable):
         lengths = other_lattice.lengths
         alpha, beta, gamma = other_lattice.angles
 
-        frac, dist, _, _ = self.get_points_in_sphere(
+        frac, dist, _, _ = self.get_points_in_sphere(  # type: ignore[misc]
             [[0, 0, 0]], [0, 0, 0], max(lengths) * (1 + ltol), zip_results=False
         )
         cart = self.get_cartesian_coords(frac)  # type: ignore[arg-type]
@@ -1082,7 +1082,7 @@ class Lattice(MSONable):
                     a[:, k - 1] -= q * a[:, i - 1]
                     mapping[:, k - 1] -= q * mapping[:, i - 1]
                     uu = list(u[i - 1, 0 : (i - 1)])
-                    uu.append(1)
+                    uu.append(1)  # type:ignore[arg-type]
                     # Update the GS coefficients
                     u[k - 1, 0:i] -= q * np.array(uu)
 
@@ -1561,9 +1561,9 @@ class Lattice(MSONable):
         arange = np.arange(start=mins[0], stop=maxes[0], dtype=np.int64)
         brange = np.arange(start=mins[1], stop=maxes[1], dtype=np.int64)
         crange = np.arange(start=mins[2], stop=maxes[2], dtype=np.int64)
-        arange = arange[:, None] * np.array([1, 0, 0], dtype=np.int64)[None, :]
-        brange = brange[:, None] * np.array([0, 1, 0], dtype=np.int64)[None, :]
-        crange = crange[:, None] * np.array([0, 0, 1], dtype=np.int64)[None, :]
+        arange = arange[:, None] * np.array([1, 0, 0], dtype=np.int64)[None, :]  # type:ignore[assignment]
+        brange = brange[:, None] * np.array([0, 1, 0], dtype=np.int64)[None, :]  # type:ignore[assignment]
+        crange = crange[:, None] * np.array([0, 0, 1], dtype=np.int64)[None, :]  # type:ignore[assignment]
         images = arange[:, None, None] + brange[None, :, None] + crange[None, None, :]
 
         # Generate the coordinates of all atoms within these images
@@ -1814,8 +1814,8 @@ def get_integer_index(
 
 
 def get_points_in_spheres(
-    all_coords: np.ndarray,
-    center_coords: np.ndarray,
+    all_coords: NDArray[np.float64],
+    center_coords: NDArray[np.float64],
     r: float,
     pbc: bool | list[bool] | PbcLike = True,
     numerical_tol: float = 1e-8,
@@ -1898,9 +1898,9 @@ def get_points_in_spheres(
         valid_images = np.concatenate(valid_images, axis=0)
 
     else:
-        valid_coords = all_coords
+        valid_coords = all_coords  # type: ignore[assignment]
         valid_images = [[0, 0, 0]] * len(valid_coords)
-        valid_indices = np.arange(len(valid_coords))
+        valid_indices = np.arange(len(valid_coords))  # type: ignore[assignment]
 
     # Divide the valid 3D space into cubes and compute the cube ids
     all_cube_index = _compute_cube_index(valid_coords, global_min, r)  # type: ignore[arg-type]
@@ -1929,9 +1929,9 @@ def get_points_in_spheres(
         if not ks:
             neighbors.append([])
             continue
-        nn_coords = np.concatenate([cube_to_coords[k] for k in ks], axis=0)
-        nn_images = itertools.chain(*(cube_to_images[k] for k in ks))
-        nn_indices = itertools.chain(*(cube_to_indices[k] for k in ks))
+        nn_coords = np.concatenate([cube_to_coords[k] for k in ks], axis=0)  # type:ignore[index]
+        nn_images = itertools.chain(*(cube_to_images[k] for k in ks))  # type:ignore[index]
+        nn_indices = itertools.chain(*(cube_to_indices[k] for k in ks))  # type:ignore[index]
         distances = np.linalg.norm(nn_coords - ii[None, :], axis=1)
         nns: list[tuple[np.ndarray, float, int, np.ndarray]] = []
         for coord, index, image, dist in zip(nn_coords, nn_indices, nn_images, distances, strict=True):
@@ -1941,7 +1941,7 @@ def get_points_in_spheres(
                 if return_fcoords and (lattice is not None):
                     coord = np.round(lattice.get_fractional_coords(coord), 10)
                 nn = (coord, float(dist), int(index), image)
-                nns.append(nn)
+                nns.append(nn)  # type:ignore[arg-type]
         neighbors.append(nns)
     return neighbors
 

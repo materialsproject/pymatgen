@@ -23,14 +23,15 @@ jobs:
       - name: Install dependencies
         run: |
           uv sync --group lint
+          uv pip install -e .
 
       - name: ruff
         run: |
           uv run ruff check .
           uv run ruff format --check .
-#
-#      - name: mypy
-#        run: uv run mypy -p pymatgen
+
+      - name: mypy
+        run: uv run mypy -p pymatgen
 
       - name: pyright
         run: uv run pyright src

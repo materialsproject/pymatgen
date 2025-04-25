@@ -20,7 +20,7 @@ from pymatgen.io.vasp.outputs import Dynmat, Oszicar, Vasprun
 
 if TYPE_CHECKING:
     from collections.abc import Sequence
-    from typing import Any, Literal
+    from typing import Any
 
     from typing_extensions import Self
 
@@ -115,7 +115,7 @@ class VaspToComputedEntryDrone(AbstractDrone):
             self._parameters.update(parameters)
         self._data = data or []
 
-    def __str__(self) -> Literal["VaspToComputedEntryDrone"]:
+    def __str__(self) -> str:
         return "VaspToComputedEntryDrone"
 
     def assimilate(self, path: PathLike) -> ComputedStructureEntry | ComputedEntry | None:
@@ -215,7 +215,7 @@ class SimpleVaspToComputedEntryDrone(VaspToComputedEntryDrone):
         self._inc_structure = inc_structure
         self._parameters = {"is_hubbard", "hubbards", "potcar_spec", "run_type"}
 
-    def __str__(self) -> Literal["SimpleVaspToComputedEntryDrone"]:
+    def __str__(self) -> str:
         return "SimpleVaspToComputedEntryDrone"
 
     def assimilate(self, path: PathLike) -> ComputedStructureEntry | ComputedEntry | None:
@@ -368,7 +368,7 @@ class GaussianToComputedEntryDrone(AbstractDrone):
 
         self._file_extensions = file_extensions
 
-    def __str__(self) -> Literal["GaussianToComputedEntryDrone"]:
+    def __str__(self) -> str:
         return "GaussianToComputedEntryDrone"
 
     def assimilate(self, path: PathLike) -> ComputedStructureEntry | ComputedEntry | None:

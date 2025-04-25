@@ -16,7 +16,7 @@ if TYPE_CHECKING:
     from collections.abc import Sequence
     from typing import Any, Literal, TextIO
 
-    from numpy.typing import ArrayLike
+    from numpy.typing import NDArray
 
     from pymatgen.core import Structure
     from pymatgen.util.typing import Vector3D
@@ -322,7 +322,7 @@ def stream_has_colors(stream: TextIO) -> bool:
 
 
 def transformation_to_string(
-    matrix: ArrayLike,
+    matrix: NDArray,
     translation_vec: Vector3D = (0, 0, 0),
     components: tuple[str, str, str] = ("x", "y", "z"),
     c: str = "",
