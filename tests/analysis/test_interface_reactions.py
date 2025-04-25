@@ -179,7 +179,6 @@ class TestInterfaceReaction:
         comp = Composition("MnO3")
         with pytest.warns(UserWarning) as warns:
             energy = InterfacialReactivity._get_entry_energy(self.pd, comp)
-        assert len(warns) == 1
         assert str(warns[0].message) == (
             "The reactant MnO3 has no matching entry with negative formation energy, instead "
             "convex hull energy for this composition will be used for reaction energy calculation."

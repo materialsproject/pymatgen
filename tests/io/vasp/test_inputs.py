@@ -14,7 +14,6 @@ import pytest
 import scipy.constants as const
 from monty.io import zopen
 from monty.serialization import loadfn
-from monty.tempfile import ScratchDir
 from numpy.testing import assert_allclose
 from pytest import approx
 
@@ -844,11 +843,10 @@ class TestIncar(MatSciTest):
         SYSTEM = This should NOT BE capitalized
         """
 
-        with ScratchDir("."):
-            with open("INCAR", "w", encoding="utf-8") as f:
-                f.write(incar_str)
+        with open("INCAR", "w", encoding="utf-8") as f:
+            f.write(incar_str)
 
-            incar_from_file = Incar.from_file("INCAR")
+        incar_from_file = Incar.from_file("INCAR")
 
         # Make sure int/float is cast to correct type when init from dict
         assert incar_from_dict["GGA"] == "Ps"
