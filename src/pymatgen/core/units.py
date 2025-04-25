@@ -49,7 +49,7 @@ kb = const.physical_constants["Boltzmann constant in eV/K"][0]
 # Definitions of supported units. Values below are essentially scaling and
 # conversion factors. What matters is the relative values, not the absolute.
 # The SI units must have factor 1.
-BASE_UNITS: dict[str, dict] = {
+BASE_UNITS: dict[str, dict[str, float]] = {
     "length": {
         "m": 1,
         "km": 1000,
@@ -87,7 +87,7 @@ BASE_UNITS: dict[str, dict] = {
 
 # This current list are supported derived units defined in terms of powers of
 # SI base units and constants.
-DERIVED_UNITS: dict[str, dict] = {
+DERIVED_UNITS: dict[str, dict[str, dict]] = {
     "energy": {
         "eV": {"kg": 1, "m": 2, "s": -2, const.e: 1},
         "meV": {"kg": 1, "m": 2, "s": -2, const.e * 1e-3: 1},
