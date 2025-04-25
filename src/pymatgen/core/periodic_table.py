@@ -1049,7 +1049,7 @@ class Species(MSONable, Stringify):
         self._spin = spin
 
     def __getattr__(self, attr: str) -> Any:
-        """Allow Specie to inherit properties of underlying element."""
+        """Allow Species to inherit properties of underlying Element."""
         return getattr(self._el, attr)
 
     def __getstate__(self) -> dict:
@@ -1337,7 +1337,7 @@ class Species(MSONable, Stringify):
             radius_type (str): Either "crystal" or "ionic" (default).
 
         Returns:
-            Shannon radius for specie in the specified environment.
+            Shannon radius for species in the specified environment.
         """
         radii = self._el.data["Shannon radii"]
         if self._oxi_state is None:
@@ -1436,7 +1436,7 @@ class Species(MSONable, Stringify):
 
 @functools.total_ordering
 class DummySpecies(Species):
-    """A special specie for representing non-traditional elements or species. For
+    """A special species for representing non-traditional elements or species. For
     example, representation of vacancies (charged or otherwise), or special
     sites, etc.
 
@@ -1444,7 +1444,7 @@ class DummySpecies(Species):
         oxi_state (int): Oxidation state associated with Species.
         Z (int): DummySpecies is always assigned an atomic number equal to the hash
             number of the symbol. Obviously, it makes no sense whatsoever to use
-            the atomic number of a Dummy specie for anything scientific. The purpose
+            the atomic number of a Dummy species for anything scientific. The purpose
             of this is to ensure that for most use cases, a DummySpecies behaves no
             differently from an Element or Species.
         A (int): Just as for Z, to get a DummySpecies to behave like an Element,
