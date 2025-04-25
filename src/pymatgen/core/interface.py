@@ -1922,7 +1922,7 @@ class GrainBoundaryGenerator:
             "Normal tilt": [],
             "Mixed": [],
         }
-        sym_plane = symm_group_cubic([[1, 0, 0], [1, 1, 0]])
+        sym_plane = symm_group_cubic(np.array([[1, 0, 0], [1, 1, 0]]))
         j = np.arange(0, plane_cutoff + 1)
         combination = []
         for idx in product(j, repeat=3):
@@ -2184,7 +2184,7 @@ class GrainBoundaryGenerator:
         # Check if the init c vector perpendicular to the surface
         if normal:
             c_cross = np.cross(np.matmul(t_matrix[2], trans), np.matmul(surface, ctrans))
-            normal_init = np.linalg.norm(c_cross) < 1e-8
+            normal_init = bool(np.linalg.norm(c_cross) < 1e-8)
         else:
             normal_init = False
 
@@ -2286,7 +2286,7 @@ class GrainBoundaryGenerator:
                     t_matrix[1] = ii[1]
 
                 elif area_temp < area or (
-                    math.isclose(area, area_temp, abs_tol=1e-8, rel_tol=0) and ab_norm_temp < ab_norm
+                    math.isclose(area, area_temp, abs_tol=1e-8, rel_tol=0) and ab_norm_temp < ab_norm  # type:ignore[call-overload]
                 ):
                     t_matrix[0] = ii[0]
                     t_matrix[1] = ii[1]

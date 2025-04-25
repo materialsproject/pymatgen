@@ -1987,8 +1987,8 @@ class IStructure(SiteCollection, MSONable):
             bonds[2][idcs_symid],
             bonds[3][idcs_symid],
         )
-        symmetry_indices = symmetry_indices[idcs_symid]
-        symmetry_ops = symmetry_ops[idcs_symid]
+        symmetry_indices = symmetry_indices[idcs_symid]  # type:ignore[assignment]
+        symmetry_ops = symmetry_ops[idcs_symid]  # type:ignore[assignment]
 
         # The groups of neighbors with the same symmetry index are ordered such that neighbors
         # that are the first occurrence of a new symmetry index in the ordered output are the ones
@@ -2230,7 +2230,7 @@ class IStructure(SiteCollection, MSONable):
         coords_in_cell = np.dot(all_frac_coords, matrix)
         site_coords = self.cart_coords
 
-        indices = np.arange(len(self))
+        indices = list(range(len(self)))
 
         for image in itertools.product(*all_ranges):
             coords = np.dot(image, matrix) + coords_in_cell
@@ -3065,7 +3065,7 @@ class IStructure(SiteCollection, MSONable):
         raise ValueError(f"Invalid source: {source}")
 
     @classmethod
-    def from_str(
+    def from_str(  # type:ignore[override]
         cls,
         input_string: str,
         fmt: FileFormats,
@@ -3153,7 +3153,7 @@ class IStructure(SiteCollection, MSONable):
         return cls.from_sites(struct, properties=struct.properties)
 
     @classmethod
-    def from_file(
+    def from_file(  # type:ignore[override]
         cls,
         filename: PathLike,
         primitive: bool = False,
@@ -4038,7 +4038,7 @@ class IMolecule(SiteCollection, MSONable):
         return str(writer)
 
     @classmethod
-    def from_str(
+    def from_str(  # type:ignore[override]
         cls,
         input_string: str,
         fmt: Literal["xyz", "gjf", "g03", "g09", "com", "inp", "json", "yaml"],
@@ -4088,7 +4088,7 @@ class IMolecule(SiteCollection, MSONable):
         return cls.from_sites(mol, properties=mol.properties)
 
     @classmethod
-    def from_file(cls, filename: PathLike) -> Self | None:
+    def from_file(cls, filename: PathLike) -> Self | None:  # type:ignore[override]
         """Read a molecule from a file. Supported formats include xyz,
         gaussian input (gjf|g03|g09|com|inp), Gaussian output (.out|and
         pymatgen's JSON-serialized molecules. Using openbabel,
@@ -4285,7 +4285,7 @@ class Structure(IStructure, collections.abc.MutableSequence):
         for site in self:
             site.lattice = lattice
 
-    def append(
+    def append(  # type:ignore[override]
         self,
         species: CompositionLike,
         coords: ArrayLike,
@@ -4316,7 +4316,7 @@ class Structure(IStructure, collections.abc.MutableSequence):
             properties=properties,
         )
 
-    def insert(
+    def insert(  # type:ignore[override]
         self,
         idx: int,
         species: CompositionLike,
@@ -4853,15 +4853,15 @@ class Structure(IStructure, collections.abc.MutableSequence):
             for site_idx, clust_idx in enumerate(indexes[1:]):
                 # Sum occupancies in "sum" mode
                 if mode.lower()[0] == "s":
-                    species += self[clust_idx].species
+                    species += self[clust_idx].species  # type:ignore[index]
 
-                offset = self[clust_idx].frac_coords - coords
+                offset = self[clust_idx].frac_coords - coords  # type:ignore[index]
                 coords += ((offset - np.round(offset)) / (site_idx + 2)).astype(coords.dtype)
                 for key, val in props.items():
-                    if val is not None and not np.array_equal(self[clust_idx].properties[key], val):
+                    if val is not None and not np.array_equal(self[clust_idx].properties[key], val):  # type:ignore[index]
                         if mode.lower()[0] == "a" and isinstance(val, float | int):
                             # update a running total
-                            props[key] = val * (site_idx + 1) / (site_idx + 2) + self[clust_idx].properties[key] / (
+                            props[key] = val * (site_idx + 1) / (site_idx + 2) + self[clust_idx].properties[key] / (  # type:ignore[index]
                                 site_idx + 2
                             )
                         else:
@@ -5158,7 +5158,7 @@ class Molecule(IMolecule, collections.abc.MutableSequence):
         """Deletes a site from the Structure."""
         self._sites.__delitem__(idx)
 
-    def append(
+    def append(  # type:ignore[override]
         self,
         species: CompositionLike,
         coords: ArrayLike,
@@ -5224,7 +5224,7 @@ class Molecule(IMolecule, collections.abc.MutableSequence):
 
         return self
 
-    def insert(
+    def insert(  # type:ignore[override]
         self,
         idx: int,
         species: CompositionLike,

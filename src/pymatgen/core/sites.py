@@ -18,7 +18,7 @@ from pymatgen.util.misc import is_np_dict_equal
 if TYPE_CHECKING:
     from typing import Any
 
-    from numpy.typing import ArrayLike
+    from numpy.typing import NDArray
     from typing_extensions import Self
 
     from pymatgen.util.typing import CompositionLike, SpeciesLike, Vector3D
@@ -37,7 +37,7 @@ class Site(collections.abc.Hashable, MSONable):
     def __init__(
         self,
         species: SpeciesLike | CompositionLike,
-        coords: ArrayLike,
+        coords: NDArray[np.float64],
         properties: dict | None = None,
         label: str | None = None,
         skip_checks: bool = False,
@@ -53,7 +53,7 @@ class Site(collections.abc.Hashable, MSONable):
                 iii.Dict of elements/species and occupancies, e.g.
                     {"Fe" : 0.5, "Mn":0.5}. This allows the setup of
                     disordered structures.
-            coords (ArrayLike): Cartesian coordinates of site.
+            coords (NDArray): Cartesian coordinates of site.
             properties (dict): Properties associated with the site, e.g.
                 {"magmom": 5}. Defaults to None.
             label (str): Label for the site. Defaults to None.
@@ -293,7 +293,7 @@ class PeriodicSite(Site, MSONable):
     def __init__(
         self,
         species: SpeciesLike | CompositionLike,
-        coords: ArrayLike,
+        coords: NDArray[np.float64],
         lattice: Lattice,
         to_unit_cell: bool = False,
         coords_are_cartesian: bool = False,
@@ -312,7 +312,7 @@ class PeriodicSite(Site, MSONable):
                 iii.Dict of elements/species and occupancies, e.g.
                     {"Fe": 0.5, "Mn": 0.5}. This allows the setup of
                     disordered structures.
-            coords (ArrayLike): Coordinates of site, fractional coordinates
+            coords (NDArray[np.float_]): Coordinates of site, fractional coordinates
                 by default. See ``coords_are_cartesian`` for more details.
             lattice (Lattice): Lattice associated with the site.
             to_unit_cell (bool): Translates fractional coordinate to the
@@ -476,9 +476,11 @@ class PeriodicSite(Site, MSONable):
 
     def to_unit_cell(self, in_place: bool = False) -> Self | None:
         """Move frac coords to within the unit cell."""
-        frac_coords = [np.mod(f, 1) if p else f for p, f in zip(self.lattice.pbc, self.frac_coords, strict=True)]
+        frac_coords = np.array(
+            [np.mod(f, 1) if p else f for p, f in zip(self.lattice.pbc, self.frac_coords, strict=True)]
+        )
         if in_place:
-            self.frac_coords = np.array(frac_coords)
+            self.frac_coords = frac_coords
             return None
         return type(self)(
             self.species,
@@ -515,8 +517,8 @@ class PeriodicSite(Site, MSONable):
 
     def distance_and_image_from_frac_coords(
         self,
-        fcoords: ArrayLike,
-        jimage: ArrayLike | None = None,
+        fcoords: NDArray[np.float64],
+        jimage: NDArray | None = None,
     ) -> tuple[float, np.ndarray]:
         """Get distance between site and a fractional coordinate assuming
         periodic boundary conditions. If the index jimage of two sites atom j
@@ -542,7 +544,7 @@ class PeriodicSite(Site, MSONable):
     def distance_and_image(
         self,
         other: Self,
-        jimage: ArrayLike | None = None,
+        jimage: NDArray[np.int_] | None = None,
     ) -> tuple[float, np.ndarray]:
         """Get distance and instance between two sites assuming periodic boundary
         conditions. If the index jimage of two sites atom j is not specified it
@@ -567,7 +569,7 @@ class PeriodicSite(Site, MSONable):
     def distance(
         self,
         other: Self,
-        jimage: ArrayLike | None = None,
+        jimage: NDArray | None = None,
     ) -> float:
         """Get distance between two sites assuming periodic boundary conditions.
 

@@ -74,13 +74,13 @@ class Slab(Structure):
 
     def __init__(
         self,
-        lattice: Lattice | np.ndarray,
+        lattice: Lattice,
         species: Sequence[Any],
-        coords: np.ndarray,
+        coords: NDArray[np.float64],
         miller_index: MillerIndex,
         oriented_unit_cell: Structure,
         shift: float,
-        scale_factor: np.ndarray,
+        scale_factor: NDArray[np.float64],
         reorient_lattice: bool = True,
         validate_proximity: bool = False,
         to_unit_cell: bool = False,
@@ -213,7 +213,7 @@ class Slab(Structure):
     def surface_area(self) -> float:
         """The surface area of the Slab."""
         matrix = self.lattice.matrix
-        return np.linalg.norm(np.cross(matrix[0], matrix[1]))
+        return float(np.linalg.norm(np.cross(matrix[0], matrix[1])))
 
     @classmethod
     def from_dict(cls, dct: dict[str, Any]) -> Self:
@@ -396,9 +396,9 @@ class Slab(Structure):
 
     def get_symmetric_site(
         self,
-        point: ArrayLike,
+        point: NDArray[np.float64],
         cartesian: bool = False,
-    ) -> ArrayLike:
+    ) -> NDArray[np.float64]:
         """Use symmetry operations to find an equivalent site on the other side of
         the slab. Works mainly for slabs with Laue symmetry.
 
@@ -565,7 +565,7 @@ class Slab(Structure):
                 slab = type(self)(
                     self.lattice,
                     species,
-                    frac_coords,
+                    np.array(frac_coords),
                     self.miller_index,
                     self.oriented_unit_cell,
                     self.shift,
@@ -643,7 +643,7 @@ class Slab(Structure):
     def symmetrically_add_atom(
         self,
         species: str | Element | Species,
-        point: ArrayLike,
+        point: NDArray[np.float64],
         specie: str | Element | Species | None = None,
         coords_are_cartesian: bool = False,
     ) -> None:
@@ -652,7 +652,7 @@ class Slab(Structure):
 
         Args:
             species (str | Element | Species): The species to add.
-            point (ArrayLike): The coordinate of the target site.
+            point (NDArray[np.float_]): The coordinate of the target site.
             specie: Deprecated argument name in #3691. Use 'species' instead.
             coords_are_cartesian (bool): If the site is in Cartesian coordinates.
         """
@@ -1029,7 +1029,7 @@ class SlabGenerator:
                 uvw, cosine, osdm = max(candidates, key=lambda x: (x[1], -x[2]))
                 slab_scale_factor.append(uvw)
 
-            slab_scale_factor = np.array(slab_scale_factor)
+            slab_scale_factor = np.array(slab_scale_factor)  # type: ignore[assignment]
 
             # Let's make sure we have a left-handed crystallographic system
             if np.linalg.det(slab_scale_factor) < 0:
@@ -1321,7 +1321,7 @@ class SlabGenerator:
 
                                 # Neglect overlapping positions
                                 elif not math.isclose(z_range[0], z_range[1], abs_tol=ztol):
-                                    z_ranges.append(z_range)
+                                    z_ranges.append(z_range)  # type:ignore[arg-type]
 
             return z_ranges
 
