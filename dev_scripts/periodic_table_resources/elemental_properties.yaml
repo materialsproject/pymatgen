@@ -1349,7 +1349,7 @@ Boiling point:
     Zn: 1180
     Zr: 4682
 Brinell hardness:
-  unit: MN m<sup>-2</sup>
+  unit: MN m^-2
   data:
     Ag: 24.5
     Al: 245
@@ -1677,7 +1677,7 @@ Critical temperature:
     Se: 1766
     Xe: 289.7
 Density of solid:
-  unit: kg m<sup>-3</sup>
+  unit: kg m^-3
   data:
     Ac: 10070
     Ag: 10490
@@ -2583,7 +2583,7 @@ Mineral hardness:
     Zn: 2.5
     Zr: 5.0
 Molar volume:
-  unit: cm<sup>3</sup>
+  unit: cm^3
   data:
     Ac: 22.55
     Ag: 10.27
@@ -3008,7 +3008,7 @@ Superconduction temperature:
     Zn: 0.85
     Zr: 0.61
 Thermal conductivity:
-  unit: W m<sup>-1</sup> K<sup>-1</sup>
+  unit: W m^-1 K^-1
   data:
     Ac: 12
     Ag: 430
@@ -3107,7 +3107,7 @@ Thermal conductivity:
     Zn: 120
     Zr: 23
 Velocity of sound:
-  unit: m s<sup>-1</sup>
+  unit: m s^-1
   data:
     Ag: 2600
     Al: 5100
@@ -3182,7 +3182,7 @@ Velocity of sound:
     Zn: 3700
     Zr: 3800
 Vickers hardness:
-  unit: MN m<sup>-2</sup>
+  unit: MN m^-2
   data:
     Ag: 251
     Al: 167
