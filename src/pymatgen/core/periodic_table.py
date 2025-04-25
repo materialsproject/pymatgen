@@ -152,8 +152,8 @@ class ElementBase(Enum):
             # entries for the named element.
             data = {**_PT_DATA[self.symbol], **data}
 
-        at_r = data.get("Atomic radius", "no data")
-        if str(at_r).startswith("no data"):
+        at_r = data.get("Atomic radius")
+        if at_r is None:
             self._atomic_radius = None
         else:
             self._atomic_radius = Length(at_r, _PT_UNIT["Atomic radius"])
@@ -212,7 +212,7 @@ class ElementBase(Enum):
         prop_name: str = item.capitalize().replace("_", " ")
         val: Any = self._data.get(prop_name)
 
-        if val is None or str(val).startswith("no data"):
+        if val is None:
             warnings.warn(f"No data available for {item} for {self.symbol}", stacklevel=2)
             return None
 

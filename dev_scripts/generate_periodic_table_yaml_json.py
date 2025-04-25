@@ -54,14 +54,12 @@ if TYPE_CHECKING:
     from pymatgen.util.typing import PathLike
 
 
-DEFAULT_VALUE: str = "no data"  # The default value if not provided
-
 RESOURCES_DIR: str = f"{Path(__file__).parent}/periodic_table_resources"
 
 
 @dataclass
 class ElemPropertyValue:
-    value: Any = DEFAULT_VALUE
+    value: Any = None
     reference: str | None = None  # per-value ref parser not implemented
 
 
@@ -165,6 +163,7 @@ def parse_csv(
         data: dict[Element, ElemPropertyValue] = {}
 
         for symbol, value in data_df[prop].items():
+            # NaN would be skipped instead of writing "no data"
             if not pd.isna(value):
                 if transform is not None:
                     try:
