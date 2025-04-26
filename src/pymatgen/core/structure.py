@@ -2555,7 +2555,7 @@ class IStructure(SiteCollection, MSONable):
         tolerance: float = 0.25,
         use_site_props: bool = False,
         constrain_latt: list | dict | None = None,
-    ) -> Self:
+    ) -> Self | Structure:
         """Find a smaller unit cell than the input. Sometimes it doesn't
         find the smallest possible one, so this method is recursively called
         until it is unable to find a smaller cell.
@@ -3190,7 +3190,7 @@ class IStructure(SiteCollection, MSONable):
 
         fname = os.path.basename(filename)
         with zopen(filename, mode="rt", errors="replace", encoding="utf-8") as file:
-            contents = file.read()
+            contents: str = file.read()
             if fnmatch(fname.lower(), "*.cif*") or fnmatch(fname.lower(), "*.mcif*"):
                 return cls.from_str(
                     contents,
@@ -4013,7 +4013,7 @@ class IMolecule(SiteCollection, MSONable):
             json_str = json.dumps(self.as_dict())
             if filename:
                 with zopen(filename, mode="wt", encoding="utf-8") as file:
-                    file.write(json_str)
+                    file.write(json_str.encode("utf-8"))
             return json_str
         elif fmt in {"yaml", "yml"} or fnmatch(filename, "*.yaml*") or fnmatch(filename, "*.yml*"):
             yaml = YAML()
@@ -4022,7 +4022,7 @@ class IMolecule(SiteCollection, MSONable):
             yaml_str = str_io.getvalue()
             if filename:
                 with zopen(filename, mode="wt", encoding="utf-8") as file:
-                    file.write(yaml_str)
+                    file.write(yaml_str.encode("utf-8"))
             return yaml_str
         else:
             from pymatgen.io.babel import BabelMolAdaptor
@@ -4088,7 +4088,7 @@ class IMolecule(SiteCollection, MSONable):
         return cls.from_sites(mol, properties=mol.properties)
 
     @classmethod
-    def from_file(cls, filename: PathLike) -> Self | None:  # type:ignore[override]
+    def from_file(cls, filename: PathLike) -> IMolecule | Molecule:  # type:ignore[override]
         """Read a molecule from a file. Supported formats include xyz,
         gaussian input (gjf|g03|g09|com|inp), Gaussian output (.out|and
         pymatgen's JSON-serialized molecules. Using openbabel,
@@ -4104,7 +4104,7 @@ class IMolecule(SiteCollection, MSONable):
         filename = str(filename)
 
         with zopen(filename, mode="rt", encoding="utf-8") as file:
-            contents = file.read()
+            contents: str = file.read().decode("utf-8")
         fname = filename.lower()
         if fnmatch(fname, "*.xyz*"):
             return cls.from_str(contents, fmt="xyz")
