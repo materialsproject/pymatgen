@@ -1056,6 +1056,7 @@ class Species(MSONable, Stringify):
             ValueError: If oxidation state passed both in symbol string and via
                 oxidation_state kwarg.
         """
+        symbol = str(symbol)  # First ensure that any symbol is converted to a string.
         if oxidation_state is not None and symbol.endswith(("+", "-")):
             raise ValueError(
                 f"Oxidation state should be specified either in {symbol=} or as {oxidation_state=}, not both."
