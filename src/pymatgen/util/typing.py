@@ -21,12 +21,7 @@ if TYPE_CHECKING:  # needed to avoid circular imports
     from pymatgen.entries.computed_entries import ComputedEntry, ComputedStructureEntry, GibbsComputedStructureEntry
     from pymatgen.entries.exp_entries import ExpEntry
 
-# Commonly used composite types
-Tuple3Ints: TypeAlias = tuple[int, int, int]
-Tuple3Floats: TypeAlias = tuple[float, float, float]
-
 PathLike: TypeAlias = str | OsPathLike
-PbcLike: TypeAlias = tuple[bool, bool, bool]
 
 # Things that can be cast to a Spin
 SpinLike: TypeAlias = Spin | Literal[-1, 1, "up", "down"]
@@ -54,18 +49,18 @@ EntryLike: TypeAlias = Union[
     "GibbsComputedStructureEntry",
 ]
 
-Vector3D: TypeAlias = Tuple3Floats
+Vector3D: TypeAlias = tuple[float, float, float]
 Matrix3D: TypeAlias = tuple[Vector3D, Vector3D, Vector3D]
 
 SitePropsType: TypeAlias = list[dict[Any, Sequence[Any]]] | dict[Any, Sequence[Any]]
 
 # Types specific to io.vasp
 Kpoint: TypeAlias = (
-    Tuple3Ints
+    tuple[int, int, int]
     | tuple[int]  # Automatic k-point mesh
     | Vector3D  # Line-mode and explicit k-point mesh
 )
 
 
 # Miller index
-MillerIndex: TypeAlias = Tuple3Ints
+MillerIndex: TypeAlias = tuple[int, int, int]

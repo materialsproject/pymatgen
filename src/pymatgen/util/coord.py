@@ -20,8 +20,6 @@ if TYPE_CHECKING:
 
     from numpy.typing import ArrayLike
 
-    from pymatgen.util.typing import PbcLike
-
 
 # array size threshold for looping instead of broadcasting
 LOOP_THRESHOLD = 1e6
@@ -102,7 +100,7 @@ def coord_list_mapping(subset: ArrayLike, superset: ArrayLike, atol: float = 1e-
     return inds
 
 
-def coord_list_mapping_pbc(subset, superset, atol: float = 1e-8, pbc: PbcLike = (True, True, True)):
+def coord_list_mapping_pbc(subset, superset, atol: float = 1e-8, pbc: tuple[bool, bool, bool] = (True, True, True)):
     """Get the index mapping from a subset to a superset.
     Superset cannot contain duplicate matching rows.
 
@@ -163,7 +161,7 @@ def all_distances(coords1: ArrayLike, coords2: ArrayLike) -> np.ndarray:
     return np.sum(z, axis=-1) ** 0.5
 
 
-def pbc_diff(frac_coords1: ArrayLike, frac_coords2: ArrayLike, pbc: PbcLike = (True, True, True)):
+def pbc_diff(frac_coords1: ArrayLike, frac_coords2: ArrayLike, pbc: tuple[bool, bool, bool] = (True, True, True)):
     """Get the 'fractional distance' between two coordinates taking into
     account periodic boundary conditions.
 
@@ -208,7 +206,7 @@ def pbc_shortest_vectors(lattice, frac_coords1, frac_coords2, mask=None, return_
 
 
 def find_in_coord_list_pbc(
-    frac_coord_list, frac_coord, atol: float = 1e-8, pbc: PbcLike = (True, True, True)
+    frac_coord_list, frac_coord, atol: float = 1e-8, pbc: tuple[bool, bool, bool] = (True, True, True)
 ) -> np.ndarray:
     """Get the indices of all points in a fractional coord list that are
     equal to a fractional coord (with a tolerance), taking into account
@@ -232,7 +230,9 @@ def find_in_coord_list_pbc(
     return np.where(np.all(np.abs(frac_dist) < atol, axis=1))[0]
 
 
-def in_coord_list_pbc(fcoord_list, fcoord, atol: float = 1e-8, pbc: PbcLike = (True, True, True)) -> bool:
+def in_coord_list_pbc(
+    fcoord_list, fcoord, atol: float = 1e-8, pbc: tuple[bool, bool, bool] = (True, True, True)
+) -> bool:
     """Test if a particular fractional coord is within a fractional coord_list.
 
     Args:
@@ -248,7 +248,9 @@ def in_coord_list_pbc(fcoord_list, fcoord, atol: float = 1e-8, pbc: PbcLike = (T
     return len(find_in_coord_list_pbc(fcoord_list, fcoord, atol=atol, pbc=pbc)) > 0
 
 
-def is_coord_subset_pbc(subset, superset, atol: float = 1e-8, mask=None, pbc: PbcLike = (True, True, True)) -> bool:
+def is_coord_subset_pbc(
+    subset, superset, atol: float = 1e-8, mask=None, pbc: tuple[bool, bool, bool] = (True, True, True)
+) -> bool:
     """Test if all fractional coords in subset are contained in superset.
 
     Args:

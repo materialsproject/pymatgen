@@ -35,6 +35,7 @@ if TYPE_CHECKING:
     from numpy.typing import NDArray
     from typing_extensions import Self
 
+    from pymatgen.core import IStructure
     from pymatgen.util.typing import PathLike, Vector3D
 
 __author__ = "Shyue Ping Ong, Will Richards, Matthew Horton"
@@ -1095,7 +1096,7 @@ class CifParser:
                 else:
                     coord_to_species[match] += comp
                     # Disordered magnetic currently not supported
-                    coord_to_magmoms[match] = None
+                    coord_to_magmoms[match] = None  # type:ignore[assignment]
                     labels[match] = label
 
         # Check occupancy
@@ -1395,7 +1396,7 @@ class CifParser:
             if "author" in entry:
                 # Separate out semicolon authors
                 if isinstance(entry["author"], str) and ";" in entry["author"]:
-                    entry["author"] = entry["author"].split(";")
+                    entry["author"] = entry["author"].split(";")  # type:ignore[assignment]
                 if isinstance(entry["author"], list):
                     entry["author"] = " and ".join(entry["author"])
 
@@ -1533,7 +1534,7 @@ class CifWriter:
 
     def __init__(
         self,
-        struct: Structure,
+        struct: Structure | IStructure,
         symprec: float | None = None,
         write_magmoms: bool = False,
         significant_figures: int = 8,

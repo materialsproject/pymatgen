@@ -60,7 +60,7 @@ if TYPE_CHECKING:
     from numpy.typing import ArrayLike, NDArray
     from typing_extensions import Self
 
-    from pymatgen.util.typing import CompositionLike, MillerIndex, PathLike, PbcLike, SpeciesLike
+    from pymatgen.util.typing import CompositionLike, MillerIndex, PathLike, SpeciesLike
 
 FileFormats: TypeAlias = Literal[
     "cif",
@@ -1539,7 +1539,7 @@ class IStructure(SiteCollection, MSONable):
         return mass.to("g") / (self.volume * Length(1, "ang").to("cm") ** 3)
 
     @property
-    def pbc(self) -> PbcLike:
+    def pbc(self) -> tuple[bool, bool, bool]:
         """The periodicity of the structure."""
         return self._lattice.pbc
 

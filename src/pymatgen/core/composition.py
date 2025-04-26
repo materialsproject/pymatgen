@@ -549,7 +549,7 @@ class Composition(collections.abc.Hashable, collections.abc.Mapping, MSONable, S
     @property
     def weight(self) -> float:
         """Total molecular weight of Composition."""
-        return Mass(sum(amount * el.atomic_mass for el, amount in self.items()), "amu")  # type: ignore[operator]
+        return Mass(sum(amount * el.atomic_mass for el, amount in self.items()), "amu")  # type: ignore[operator,misc]
 
     def get_atomic_fraction(self, el: SpeciesLike) -> float:
         """Calculate atomic fraction of an Element or Species.
@@ -749,7 +749,7 @@ class Composition(collections.abc.Hashable, collections.abc.Mapping, MSONable, S
             if val < -cls.amount_tolerance:
                 raise ValueError("Weights in Composition cannot be negative!")
 
-        return cls.from_weight_dict(elem_map, strict=strict)
+        return cls.from_weight_dict(elem_map, strict=strict)  # type:ignore[arg-type]
 
     def get_el_amt_dict(self) -> dict[str, float]:
         """
