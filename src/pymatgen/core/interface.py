@@ -31,7 +31,7 @@ if TYPE_CHECKING:
     from numpy.typing import ArrayLike, NDArray
     from typing_extensions import Self
 
-    from pymatgen.core import Element
+    from pymatgen.core import Element, Species
     from pymatgen.util.typing import CompositionLike
 
 logger = logging.getLogger(__name__)
@@ -250,7 +250,7 @@ class GrainBoundary(Structure):
         return Structure.from_sites(bottom_sites)
 
     @property
-    def coincidents(self) -> list[Site]:
+    def coincidents(self) -> list[PeriodicSite]:
         """A list of coincident sites."""
         coincident_sites = []
         for idx, tag in enumerate(self.site_properties["grain_label"]):
@@ -810,7 +810,7 @@ class GrainBoundaryGenerator:
             _rotation_axis,
             rotation_angle,
             _plane,
-            join_plane,
+            join_plane,  # type: ignore[arg-type]
             self.initial_structure,
             vacuum_thickness,
             ab_shift,
@@ -2087,7 +2087,7 @@ class GrainBoundaryGenerator:
         trans_cry: NDArray,
         max_search: int = 20,
         quick_gen: bool = False,
-    ) -> Sequence[Sequence[float, float, float], Sequence[float, float, float], Sequence[float, float, float]]:
+    ) -> NDArray:
         """By linear operation of csl lattice vectors to get the best corresponding
         slab lattice. That is the area of a,b vectors (within the surface plane)
         is the smallest, the c vector first, has shortest length perpendicular
@@ -2159,14 +2159,14 @@ class GrainBoundaryGenerator:
         if len(miller_nonzero) > 1:
             t_matrix[2] = csl[c_index]
             index_len = len(miller_nonzero)
-            lcm_miller = []
+            lcm_miller = []  # type: ignore[assignment]
             for i in range(index_len):
                 for j in range(i + 1, index_len):
                     com_gcd = math.gcd(miller_nonzero[i], miller_nonzero[j])
                     mil1 = round(miller_nonzero[i] / com_gcd)
                     mil2 = round(miller_nonzero[j] / com_gcd)
                     lcm_miller.append(max(abs(mil1), abs(mil2)))
-            lcm_sorted = sorted(lcm_miller)
+            lcm_sorted = sorted(lcm_miller)  # type: ignore[call-overload]
             max_j = lcm_sorted[0] if index_len == 2 else lcm_sorted[1]
         else:
             if not normal:
@@ -2576,7 +2576,7 @@ class Interface(Structure):
         return [i for i, tag in enumerate(self.site_properties["interface_label"]) if "substrate" in tag]
 
     @property
-    def substrate_sites(self) -> list[Site]:
+    def substrate_sites(self) -> list[PeriodicSite]:
         """The site objects in the substrate."""
         return [
             site for site, tag in zip(self, self.site_properties["interface_label"], strict=True) if "substrate" in tag
@@ -2593,7 +2593,7 @@ class Interface(Structure):
         return [i for i, tag in enumerate(self.site_properties["interface_label"]) if "film" in tag]
 
     @property
-    def film_sites(self) -> list[Site]:
+    def film_sites(self) -> list[PeriodicSite]:
         """The film sites of the interface."""
         return [site for site, tag in zip(self, self.site_properties["interface_label"], strict=True) if "film" in tag]
 
@@ -2905,7 +2905,7 @@ def label_termination(slab: Structure, ftol: float = 0.25, t_idx: int | None = N
     z = linkage(condensed_m)
     clusters = fcluster(z, ftol, criterion="distance")
 
-    clustered_sites: dict[int, list[Site]] = {c: [] for c in clusters}
+    clustered_sites: dict[int, list[PeriodicSite]] = {c: [] for c in clusters}
     for idx, cluster in enumerate(clusters):
         clustered_sites[cluster].append(slab[idx])
 
@@ -2923,7 +2923,7 @@ def label_termination(slab: Structure, ftol: float = 0.25, t_idx: int | None = N
     return f"{t_idx}_{form}_{sp_symbol}_{len(top_plane)}"
 
 
-def count_layers(struct: Structure, el: Element | None = None) -> int:
+def count_layers(struct: Structure, el: Element | Species | None = None) -> int:
     """Count the number of layers along the c-axis."""
     el = el or struct.elements[0]
     frac_coords = [site.frac_coords for site in struct if site.species_string == str(el)]

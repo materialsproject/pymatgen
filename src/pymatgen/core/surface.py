@@ -43,6 +43,7 @@ if TYPE_CHECKING:
     from typing_extensions import Self
 
     from pymatgen.core.composition import Element, Species
+    from pymatgen.core.structure import IStructure
     from pymatgen.symmetry.groups import CrystalSystem
 
 __author__ = "Richard Tran, Wenhao Sun, Zihan Xu, Shyue Ping Ong"
@@ -77,7 +78,7 @@ class Slab(Structure):
         species: Sequence[Any],
         coords: NDArray[np.float64],
         miller_index: tuple[int, ...],
-        oriented_unit_cell: Structure,
+        oriented_unit_cell: Structure | IStructure,
         shift: float,
         scale_factor: NDArray[np.float64],
         reorient_lattice: bool = True,
@@ -885,7 +886,7 @@ class SlabGenerator:
 
     def __init__(
         self,
-        initial_structure: Structure,
+        initial_structure: Structure | IStructure,
         miller_index: tuple[int, ...],
         min_slab_size: float,
         min_vacuum_size: float,
@@ -1567,7 +1568,7 @@ class SlabGenerator:
 
 
 def generate_all_slabs(
-    structure: Structure,
+    structure: Structure | IStructure,
     max_index: int,
     min_slab_size: float,
     min_vacuum_size: float,
@@ -1736,7 +1737,7 @@ class ReconstructionGenerator:
 
     def __init__(
         self,
-        initial_structure: Structure,
+        initial_structure: Structure | IStructure,
         min_slab_size: float,
         min_vacuum_size: float,
         reconstruction_name: str,
@@ -1954,7 +1955,7 @@ class ReconstructionGenerator:
 
 
 def get_symmetrically_equivalent_miller_indices(
-    structure: Structure,
+    structure: Structure | IStructure,
     miller_index: tuple[int, ...],
     return_hkil: bool = True,
     system: CrystalSystem | None = None,
@@ -2001,7 +2002,7 @@ def get_symmetrically_equivalent_miller_indices(
     else:
         symm_ops = structure.lattice.get_recp_symmetry_operation()
 
-    equivalent_millers: list[tuple[int, int, int]] = [_miller_index]
+    equivalent_millers: list[tuple[int, int, int]] = [_miller_index]  # type: ignore[list-item]
     for miller in itertools.product(idx_range, idx_range, idx_range):
         if miller == _miller_index:
             continue
@@ -2026,7 +2027,7 @@ def get_symmetrically_equivalent_miller_indices(
 
 
 def get_symmetrically_distinct_miller_indices(
-    structure: Structure,
+    structure: Structure | IStructure,
     max_index: int,
     return_hkil: bool = False,
 ) -> list:
@@ -2088,15 +2089,15 @@ def get_symmetrically_distinct_miller_indices(
 
 
 def _is_in_miller_family(
-    miller_index: tuple[int, ...],
-    miller_list: list[tuple[int, ...]],
+    miller_index: tuple[int, int, int],
+    miller_list: Sequence[tuple[int, int, int]],
     symm_ops: list,
 ) -> bool:
     """Helper function to check if the given Miller index belongs
     to the same family of any index in the provided list.
 
     Args:
-        miller_index (tuple[int, ...]): The Miller index to analyze.
+        miller_index (tuple[int, int, int]): The Miller index to analyze.
         miller_list (list): List of Miller indices.
         symm_ops (list): Symmetry operations for a lattice,
             used to define the indices family.
