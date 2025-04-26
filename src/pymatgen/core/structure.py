@@ -4104,7 +4104,7 @@ class IMolecule(SiteCollection, MSONable):
         filename = str(filename)
 
         with zopen(filename, mode="rt", encoding="utf-8") as file:
-            contents: str = file.read().decode("utf-8")
+            contents: str = file.read()
         fname = filename.lower()
         if fnmatch(fname, "*.xyz*"):
             return cls.from_str(contents, fmt="xyz")
