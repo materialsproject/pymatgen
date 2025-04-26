@@ -29,6 +29,8 @@ if TYPE_CHECKING:
 
     from typing_extensions import Self
 
+    from pymatgen.core.structure import IStructure
+
 
 @dataclass(frozen=True)
 class AirssTITL:
@@ -651,7 +653,7 @@ class ResIO:
         return str(ResWriter(structure))
 
     @classmethod
-    def structure_to_file(cls, structure: Structure, filename: str) -> None:
+    def structure_to_file(cls, structure: Structure | IStructure, filename: str) -> None:
         """Write a pymatgen Structure to a res file."""
         return ResWriter(structure).write(filename)
 

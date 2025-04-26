@@ -60,6 +60,7 @@ if TYPE_CHECKING:
 
     from typing_extensions import Self
 
+    from pymatgen.core.structure import IStructure
     from pymatgen.util.typing import Kpoint, PathLike
 
     UserPotcarFunctional = (
@@ -3214,7 +3215,7 @@ def get_structure_from_prev_run(vasprun: Vasprun, outcar: Outcar | None = None) 
 
 
 def standardize_structure(
-    structure: Structure,
+    structure: Structure | IStructure,
     sym_prec: float = 0.1,
     international_monoclinic: bool = True,
 ) -> Structure:
@@ -3323,7 +3324,7 @@ _dummy_structure = Structure(
 
 
 def get_valid_magmom_struct(
-    structure: Structure,
+    structure: Structure | IStructure,
     inplace: bool = True,
     spin_mode: str = "auto",
 ) -> Structure:

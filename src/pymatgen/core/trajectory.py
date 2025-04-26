@@ -475,7 +475,7 @@ class Trajectory(MSONable):
         xdatcar_str = "\n".join(lines) + "\n"
 
         with zopen(filename, mode="wt", encoding="utf-8") as file:
-            file.write(xdatcar_str)
+            file.write(xdatcar_str)  # type:ignore[arg-type]
 
     def as_dict(self) -> dict:
         """Return the trajectory as a MSONable dict."""

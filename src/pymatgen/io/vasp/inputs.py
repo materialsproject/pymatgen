@@ -44,6 +44,7 @@ if TYPE_CHECKING:
     from numpy.typing import ArrayLike
     from typing_extensions import Self
 
+    from pymatgen.core.structure import IStructure
     from pymatgen.symmetry.bandstructure import HighSymmKpath
     from pymatgen.util.typing import Kpoint, PathLike
 
@@ -78,7 +79,7 @@ class Poscar(MSONable):
 
     def __init__(
         self,
-        structure: Structure,
+        structure: Structure | IStructure,
         comment: str | None = None,
         selective_dynamics: ArrayLike | None = None,
         true_names: bool = True,
@@ -1434,7 +1435,7 @@ class Kpoints(MSONable):
     @classmethod
     def automatic_density(
         cls,
-        structure: Structure,
+        structure: Structure | IStructure,
         kppa: float,
         force_gamma: bool = False,
         comment: str | None = None,
@@ -1490,7 +1491,7 @@ class Kpoints(MSONable):
     @classmethod
     def automatic_gamma_density(
         cls,
-        structure: Structure,
+        structure: Structure | IStructure,
         kppa: float,
         comment: str | None = None,
     ) -> Self:
@@ -1536,7 +1537,7 @@ class Kpoints(MSONable):
     @classmethod
     def automatic_density_by_vol(
         cls,
-        structure: Structure,
+        structure: Structure | IStructure,
         kppvol: int,
         force_gamma: bool = False,
         comment: str | None = None,
@@ -1563,7 +1564,7 @@ class Kpoints(MSONable):
     @classmethod
     def automatic_density_by_lengths(
         cls,
-        structure: Structure,
+        structure: Structure | IStructure,
         length_densities: Sequence[float],
         force_gamma: bool = False,
         comment: str | None = None,

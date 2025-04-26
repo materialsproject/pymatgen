@@ -27,6 +27,8 @@ if TYPE_CHECKING:
     from _icet import _ClusterSpace
     from ase import Atoms
 
+    from pymatgen.core.structure import IStructure
+
 
 class IcetSQS:
     """Interface to the Icet library of SQS structure generation tools.
@@ -57,7 +59,7 @@ class IcetSQS:
 
     def __init__(
         self,
-        structure: Structure,
+        structure: Structure | IStructure,
         scaling: int,
         instances: int | None,
         cluster_cutoffs: dict[int, float],

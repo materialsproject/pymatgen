@@ -35,6 +35,7 @@ if TYPE_CHECKING:
     from typing_extensions import Self
 
     from pymatgen.core.composition import Composition
+    from pymatgen.core.structure import IStructure
     from pymatgen.util.typing import PathLike
 
 MODULE_DIR = os.path.dirname(os.path.abspath(__file__))
@@ -358,7 +359,7 @@ class Lobsterin(UserDict, MSONable):
 
     @staticmethod
     def get_basis(
-        structure: Structure,
+        structure: Structure | IStructure,
         potcar_symbols: list[str],
         address_basis_file: PathLike | None = None,
     ) -> list[str]:
@@ -395,7 +396,7 @@ class Lobsterin(UserDict, MSONable):
 
     @staticmethod
     def get_all_possible_basis_functions(
-        structure: Structure,
+        structure: Structure | IStructure,
         potcar_symbols: list[str],
         address_basis_file_min: PathLike | None = None,
         address_basis_file_max: PathLike | None = None,

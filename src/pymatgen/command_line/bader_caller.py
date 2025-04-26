@@ -37,7 +37,7 @@ if TYPE_CHECKING:
 
     from typing_extensions import Self
 
-    from pymatgen.core import Structure
+    from pymatgen.core import IStructure, Structure
 
 __author__ = "shyuepingong"
 __version__ = "0.1"
@@ -351,7 +351,7 @@ class BaderAnalysis:
         """
         return -self.get_charge_transfer(atom_index, nelect)
 
-    def get_charge_decorated_structure(self) -> Structure:
+    def get_charge_decorated_structure(self) -> Structure | IStructure:
         """Get a charge decorated structure.
 
         Note, this assumes that the Bader analysis was correctly performed on a file

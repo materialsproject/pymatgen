@@ -15,6 +15,8 @@ if TYPE_CHECKING:
 
     from typing_extensions import Self
 
+    from pymatgen.core.structure import IStructure
+
 __author__ = "Shyue Ping Ong"
 __copyright__ = "Copyright 2012, The Materials Project"
 __version__ = "0.1"
@@ -29,7 +31,7 @@ class Cssr:
     a Structure to a Cssr file is supported.
     """
 
-    def __init__(self, structure: Structure):
+    def __init__(self, structure: Structure | IStructure):
         """
         Args:
             structure (Structure | IStructure): A structure to create the Cssr object.
