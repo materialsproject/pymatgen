@@ -73,7 +73,18 @@ class Lattice(MSONable):
         self._lll_matrix_mappings: dict[float, tuple[np.ndarray, np.ndarray]] = {}
         self._lll_inverse = None
 
-        self.pbc = pbc
+        self._pbc = tuple(bool(item) for item in pbc)
+
+    @property
+    def pbc(self) -> tuple[bool, bool, bool]:
+        """Tuple defining the periodicity of the Lattice."""
+        return self._pbc  # type:ignore[return-value]
+
+    @pbc.setter
+    def pbc(self, pbc: tuple[bool, bool, bool]) -> None:
+        if len(pbc) != 3 or any(item not in {True, False} for item in pbc):
+            raise ValueError(f"pbc must be a tuple of three True/False values, got {pbc}")
+            self._pbc = tuple(bool(item) for item in pbc)
 
     def __repr__(self) -> str:
         return "\n".join(
