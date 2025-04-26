@@ -1217,7 +1217,7 @@ class IStructure(SiteCollection, MSONable):
     @classmethod
     def from_sites(
         cls,
-        sites: list[PeriodicSite],
+        sites: Sequence[PeriodicSite],
         charge: float | None = None,
         validate_proximity: bool = False,
         to_unit_cell: bool = False,
