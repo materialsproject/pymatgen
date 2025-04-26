@@ -430,7 +430,7 @@ class SiteCollection(collections.abc.Sequence, ABC):
     @property
     def composition(self) -> Composition:
         """The structure's corresponding Composition object."""
-        elem_map: dict[Species, float] = defaultdict(float)
+        elem_map: dict[SpeciesLike, float] = defaultdict(float)
         for site in self:
             for species, occu in site.species.items():
                 elem_map[species] += occu
@@ -453,7 +453,7 @@ class SiteCollection(collections.abc.Sequence, ABC):
         """The net charge of the structure based on oxidation states. If
         Elements are found, a charge of 0 is assumed.
         """
-        charge = 0
+        charge = 0.0
         for site in self:
             for specie, amt in site.species.items():
                 charge += (getattr(specie, "oxi_state", 0) or 0) * amt
@@ -3442,7 +3442,7 @@ class IMolecule(SiteCollection, MSONable):
     def __init__(
         self,
         species: Sequence[CompositionLike],
-        coords: Sequence[ArrayLike],
+        coords: Sequence[np.ndarray] | np.ndarray,
         charge: float = 0.0,
         spin_multiplicity: int | None = None,
         validate_proximity: bool = False,
@@ -5062,7 +5062,7 @@ class Molecule(IMolecule, collections.abc.MutableSequence):
     def __init__(
         self,
         species: Sequence[SpeciesLike],
-        coords: Sequence[ArrayLike],
+        coords: Sequence[NDArray] | NDArray,
         charge: float = 0.0,
         spin_multiplicity: int | None = None,
         validate_proximity: bool = False,

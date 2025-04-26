@@ -712,8 +712,8 @@ class Composition(collections.abc.Hashable, collections.abc.Mapping, MSONable, S
             >>> Composition.from_weights({"Ti": 60, "Ni": 40})
             Composition('Ti0.647796 Ni0.352204')
         """
-        weight_sum = sum(val / Element(el).atomic_mass for el, val in weight_dict.items())
-        comp_dict = {el: val / Element(el).atomic_mass / weight_sum for el, val in weight_dict.items()}
+        weight_sum = sum(val / Element(str(el)).atomic_mass for el, val in weight_dict.items())
+        comp_dict = {el: val / Element(str(el)).atomic_mass / weight_sum for el, val in weight_dict.items()}
 
         return cls(comp_dict, strict=strict, **kwargs)
 
@@ -1004,7 +1004,7 @@ class Composition(collections.abc.Hashable, collections.abc.Mapping, MSONable, S
 
         # Special case: No charged compound is possible
         if not oxidation_states:
-            return type(self)({Species(e, 0): f for e, f in self.items()})
+            return type(self)({Species(str(e), 0): f for e, f in self.items()})
 
         # Generate the species
         species = []

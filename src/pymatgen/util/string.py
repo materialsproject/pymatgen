@@ -322,7 +322,7 @@ def stream_has_colors(stream: TextIO) -> bool:
 
 def transformation_to_string(
     matrix: NDArray,
-    translation_vec: tuple[float, float, float] = (0, 0, 0),
+    translation_vec: tuple[float, float, float] | NDArray = (0, 0, 0),
     components: tuple[str, str, str] = ("x", "y", "z"),
     c: str = "",
     delim: str = ",",
