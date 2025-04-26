@@ -27,7 +27,6 @@ if TYPE_CHECKING:
     from typing_extensions import Self
 
     from pymatgen.core.operations import SymmOp
-    from pymatgen.util.typing import MillerIndex
 
 __author__ = "Shyue Ping Ong, Michael Kocher"
 __copyright__ = "Copyright 2011, The Materials Project"
@@ -249,11 +248,11 @@ class Lattice(MSONable):
         """
         return self.get_fractional_coords(cart_coords) * self.lengths
 
-    def d_hkl(self, miller_index: MillerIndex) -> float:
+    def d_hkl(self, miller_index: tuple[int, ...]) -> float:
         """Get the distance between the hkl plane and the origin.
 
         Args:
-            miller_index (MillerIndex): Miller index of plane
+            miller_index (tuple[int, ...]): Miller index of plane
 
         Returns:
             float: distance between hkl plane and origin
@@ -1697,7 +1696,7 @@ class Lattice(MSONable):
         coords_are_cartesian: bool = True,
         round_dp: int = 4,
         verbose: bool = True,
-    ) -> MillerIndex:
+    ) -> tuple[int, ...]:
         """Get the Miller index of a plane from a list of site coordinates.
 
         A minimum of 3 sets of coordinates are required. If more than 3 sets of
@@ -1758,20 +1757,20 @@ class Lattice(MSONable):
 
 
 def get_integer_index(
-    miller_index: MillerIndex,
+    miller_index: tuple[int, ...],
     round_dp: int = 4,
     verbose: bool = True,
-) -> MillerIndex:
+) -> tuple[int, ...]:
     """Attempt to convert a vector of floats to whole numbers.
 
     Args:
-        miller_index (MillerIndex): Miller index.
+        miller_index (tuple[int, ...]): Miller index.
         round_dp (int, optional): The number of decimal places to round the
             miller index to.
         verbose (bool, optional): Whether to print warnings.
 
     Returns:
-        MillerIndex: The Miller index.
+        tuple[int, ...]: The Miller index.
     """
     mi = np.asarray(miller_index)
     # Deal with the case we have small irregular floats

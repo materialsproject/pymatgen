@@ -31,7 +31,7 @@ if TYPE_CHECKING:
     from typing_extensions import Self
 
     from pymatgen.core.sites import PeriodicSite
-    from pymatgen.util.typing import SpeciesLike, Tuple3Floats
+    from pymatgen.util.typing import SpeciesLike
 
 
 class DOS(Spectrum):
@@ -285,7 +285,7 @@ class Dos(MSONable):
         tol: float = 1e-4,
         abs_tol: bool = False,
         spin: Spin | None = None,
-    ) -> Tuple3Floats:
+    ) -> tuple[float, float, float]:
         """Find the interpolated band gap.
 
         Args:

@@ -6,7 +6,7 @@ change until best practices are established.
 from __future__ import annotations
 
 from collections.abc import Sequence
-from os import PathLike as OsPathLike
+from pathlib import Path
 from typing import TYPE_CHECKING, Any, Literal, TypeAlias, Union
 
 from numpy.typing import NDArray
@@ -21,7 +21,7 @@ if TYPE_CHECKING:  # needed to avoid circular imports
     from pymatgen.entries.computed_entries import ComputedEntry, ComputedStructureEntry, GibbsComputedStructureEntry
     from pymatgen.entries.exp_entries import ExpEntry
 
-PathLike: TypeAlias = str | OsPathLike
+PathLike: TypeAlias = str | Path
 
 # Things that can be cast to a Spin
 SpinLike: TypeAlias = Spin | Literal[-1, 1, "up", "down"]
@@ -49,18 +49,5 @@ EntryLike: TypeAlias = Union[
     "GibbsComputedStructureEntry",
 ]
 
-Vector3D: TypeAlias = tuple[float, float, float]
-Matrix3D: TypeAlias = tuple[Vector3D, Vector3D, Vector3D]
 
 SitePropsType: TypeAlias = list[dict[Any, Sequence[Any]]] | dict[Any, Sequence[Any]]
-
-# Types specific to io.vasp
-Kpoint: TypeAlias = (
-    tuple[int, int, int]
-    | tuple[int]  # Automatic k-point mesh
-    | Vector3D  # Line-mode and explicit k-point mesh
-)
-
-
-# Miller index
-MillerIndex: TypeAlias = tuple[int, int, int]

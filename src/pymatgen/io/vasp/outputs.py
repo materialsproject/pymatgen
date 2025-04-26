@@ -58,7 +58,7 @@ if TYPE_CHECKING:
     from numpy.typing import NDArray
     from typing_extensions import Self
 
-    from pymatgen.util.typing import Kpoint, PathLike, Tuple3Floats, Vector3D
+    from pymatgen.util.typing import Kpoint, PathLike
 
 
 def _parse_parameters(val_type: str, val: str) -> bool | str | float | int:
@@ -1499,7 +1499,7 @@ class Vasprun(MSONable):
     @staticmethod
     def _parse_kpoints(
         elem: XML_Element,
-    ) -> tuple[Kpoints, list[Tuple3Floats], list[float]]:
+    ) -> tuple[Kpoints, list[tuple[float, float, float]], list[float]]:
         """Parse Kpoints."""
         e = elem if elem.find("generation") is None else elem.find("generation")
         kpoint = Kpoints("Kpoints from vasprun.xml")
@@ -1514,7 +1514,7 @@ class Vasprun(MSONable):
                     cast("Kpoint", tuple(int(i) for i in tokens)),
                 ]
             elif name == "usershift":
-                kpoint.kpts_shift = cast("Vector3D", tuple(float(i) for i in tokens))
+                kpoint.kpts_shift = cast("tuple[float, float, float]", tuple(float(i) for i in tokens))
             elif name in {"genvec1", "genvec2", "genvec3", "shift"}:
                 setattr(kpoint, name, [float(i) for i in tokens])
 
@@ -1523,7 +1523,7 @@ class Vasprun(MSONable):
         for va in elem.findall("varray"):
             name = va.attrib["name"]
             if name == "kpointlist":
-                actual_kpoints = cast("list[Tuple3Floats]", list(map(tuple, _parse_vasp_array(va))))
+                actual_kpoints = cast("list[tuple[float, float, float]]", list(map(tuple, _parse_vasp_array(va))))
             elif name == "weights":
                 weights_array = _parse_vasp_array(va)
                 if isinstance(weights_array, np.ndarray):
@@ -4161,7 +4161,7 @@ class Procar(MSONable):
         else:
             self.xyz_data = None
 
-    def _parse_kpoint_line(self, line: str) -> Tuple3Floats:
+    def _parse_kpoint_line(self, line: str) -> tuple[float, float, float]:
         """
         Parse k-point vector from a PROCAR line.
 
@@ -4175,7 +4175,7 @@ class Procar(MSONable):
         kpoint_fields = [val for sublist in _kpoint_fields for val in sublist]  # flattened
 
         # tuple to make it hashable, rounded to 5 decimal places to ensure proper kpoint matching
-        return cast("Tuple3Floats", tuple(round(float(val), 5) for val in kpoint_fields))
+        return cast("tuple[float, float, float]", tuple(round(float(val), 5) for val in kpoint_fields))
 
     def _read(self, filename: PathLike, parsed_kpoints: set[tuple[Kpoint]] | None = None):
         """Main function for reading in the PROCAR projections data.

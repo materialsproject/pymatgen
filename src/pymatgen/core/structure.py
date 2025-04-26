@@ -60,7 +60,7 @@ if TYPE_CHECKING:
     from numpy.typing import ArrayLike, NDArray
     from typing_extensions import Self
 
-    from pymatgen.util.typing import CompositionLike, MillerIndex, PathLike, SpeciesLike
+    from pymatgen.util.typing import CompositionLike, PathLike, SpeciesLike
 
 FileFormats: TypeAlias = Literal[
     "cif",
@@ -2524,7 +2524,7 @@ class IStructure(SiteCollection, MSONable):
         site_ids: list[int],
         round_dp: int = 4,
         verbose: bool = True,
-    ) -> MillerIndex:
+    ) -> tuple[int, ...]:
         """Get the Miller index of a plane from a set of sites indexes.
 
         A minimum of 3 sites are required. If more than 3 sites are given
@@ -2541,7 +2541,7 @@ class IStructure(SiteCollection, MSONable):
             verbose (bool, optional): Whether to print warnings.
 
         Returns:
-            MillerIndex: The Miller index.
+            tuple[int, ...]: The Miller index.
         """
         return self.lattice.get_miller_index_from_coords(
             self.frac_coords[site_ids],
