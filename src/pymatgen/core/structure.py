@@ -697,7 +697,7 @@ class SiteCollection(collections.abc.Sequence, ABC):
             **kwargs: parameters to pass into oxi_state_guesses()
         """
         oxi_guess = self.composition.oxi_state_guesses(**kwargs)
-        oxi_guess = oxi_guess or [{e.symbol: 0 for e in self.composition}]
+        oxi_guess = oxi_guess or [{e.symbol: 0 for e in self.composition}]  # type:ignore[assignment]
         self.add_oxidation_state_by_element(oxi_guess[0])
 
         return self
@@ -749,7 +749,7 @@ class SiteCollection(collections.abc.Sequence, ABC):
             new_sp: dict[Element, float] = defaultdict(float)
             for sp, occu in site.species.items():
                 oxi_state = getattr(sp, "oxi_state", None)
-                new_sp[Species(sp.symbol, oxidation_state=oxi_state)] += occu
+                new_sp[Species(sp.symbol, oxidation_state=oxi_state)] += occu  # type:ignore[index]
             site.species = Composition(new_sp)
 
         return self
@@ -1014,9 +1014,9 @@ class IStructure(SiteCollection, MSONable):
 
     def __init__(
         self,
-        lattice: ArrayLike | Lattice,
+        lattice: NDArray[np.float64] | Lattice,
         species: Sequence[CompositionLike],
-        coords: Sequence[ArrayLike],
+        coords: Sequence[NDArray[np.float64]],
         charge: float | None = None,
         validate_proximity: bool = False,
         to_unit_cell: bool = False,
@@ -1352,7 +1352,7 @@ class IStructure(SiteCollection, MSONable):
         props = {} if site_properties is None else site_properties
 
         all_sp: list[str | Element | Species | DummySpecies | Composition] = []
-        all_coords: list[list[float]] = []
+        all_coords: list[NDArray[np.float64]] = []
         all_site_properties: dict[str, list] = defaultdict(list)
         all_labels: list[str | None] = []
         for idx, (sp, c) in enumerate(zip(species, frac_coords, strict=True)):
@@ -3106,7 +3106,7 @@ class IStructure(SiteCollection, MSONable):
             from pymatgen.io.cssr import Cssr
 
             cssr = Cssr.from_str(input_string, **kwargs)
-            struct = cssr.structure
+            struct = cssr.structure  # type:ignore[assignment]
         elif fmt_low == "json":
             dct = json.loads(input_string)
             struct = Structure.from_dict(dct)
@@ -3125,7 +3125,7 @@ class IStructure(SiteCollection, MSONable):
         elif fmt == "aims":
             from pymatgen.io.aims.inputs import AimsGeometryIn
 
-            struct = AimsGeometryIn.from_str(input_string).structure
+            struct = AimsGeometryIn.from_str(input_string).structure  # type:ignore[assignment]
         # fleur support implemented in external namespace pkg https://github.com/JuDFTteam/pymatgen-io-fleur
         elif fmt == "fleur-inpgen":
             from pymatgen.io.fleur import FleurInput
@@ -3190,7 +3190,7 @@ class IStructure(SiteCollection, MSONable):
 
         fname = os.path.basename(filename)
         with zopen(filename, mode="rt", errors="replace", encoding="utf-8") as file:
-            contents: str = file.read()
+            contents: str = file.read()  # type:ignore[assignment]
             if fnmatch(fname.lower(), "*.cif*") or fnmatch(fname.lower(), "*.mcif*"):
                 return cls.from_str(
                     contents,
@@ -3257,7 +3257,7 @@ class IStructure(SiteCollection, MSONable):
             elif fnmatch(fname, "input*.xml"):
                 from pymatgen.io.exciting import ExcitingInput
 
-                return ExcitingInput.from_file(fname, **kwargs).structure
+                return ExcitingInput.from_file(fname, **kwargs).structure  # type:ignore[assignment]
             elif fnmatch(fname, "*rndstr.in*") or fnmatch(fname, "*lat.in*") or fnmatch(fname, "*bestsqs*"):
                 return cls.from_str(
                     contents,
@@ -3270,7 +3270,7 @@ class IStructure(SiteCollection, MSONable):
             elif fnmatch(fname, "CTRL*"):
                 from pymatgen.io.lmto import LMTOCtrl
 
-                return LMTOCtrl.from_file(filename=filename, **kwargs).structure
+                return LMTOCtrl.from_file(filename=filename, **kwargs).structure  # type:ignore[assignment]
             elif fnmatch(fname, "geometry.in*"):
                 return cls.from_str(
                     contents,
@@ -5228,7 +5228,7 @@ class Molecule(IMolecule, collections.abc.MutableSequence):
         self,
         idx: int,
         species: CompositionLike,
-        coords: ArrayLike,
+        coords: NDArray[np.float64],
         validate_proximity: bool = False,
         properties: dict | None = None,
         label: str | None = None,
