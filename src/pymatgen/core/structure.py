@@ -273,7 +273,7 @@ class SiteCollection(collections.abc.Sequence, ABC):
         raise NotImplementedError
 
     @property
-    def distance_matrix(self) -> np.ndarray:
+    def distance_matrix(self) -> NDArray[np.float64]:
         """The distance matrix between all sites in the structure. For
         periodic structures, this is overwritten to return the nearest image
         distance.
@@ -403,7 +403,7 @@ class SiteCollection(collections.abc.Sequence, ABC):
         return len(self)
 
     @property
-    def cart_coords(self) -> np.ndarray:
+    def cart_coords(self) -> NDArray[np.float64]:
         """An np.array of the Cartesian coordinates of sites in the structure."""
         return np.array([site.coords for site in self])
 
@@ -3889,9 +3889,9 @@ class IMolecule(SiteCollection, MSONable):
             offset = np.array([0, 0, 0])
 
         coords = np.array(self.cart_coords)
-        x_range = max(coords[:, 0]) - min(coords[:, 0])
-        y_range = max(coords[:, 1]) - min(coords[:, 1])
-        z_range = max(coords[:, 2]) - min(coords[:, 2])
+        x_range = max(coords[:, 0]) - min(coords[:, 0])  # type:ignore[type-var]
+        y_range = max(coords[:, 1]) - min(coords[:, 1])  # type:ignore[type-var]
+        z_range = max(coords[:, 2]) - min(coords[:, 2])  # type:ignore[type-var]
 
         if a <= x_range or b <= y_range or c <= z_range:
             raise ValueError("Box is not big enough to contain Molecule.")
