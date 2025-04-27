@@ -3787,7 +3787,7 @@ class IMolecule(SiteCollection, MSONable):
         """
         return self[i].distance(self[j])
 
-    def get_sites_in_sphere(self, pt: NDArray, r: float) -> list[Neighbor]:
+    def get_sites_in_sphere(self, pt: ArrayLike, r: float) -> list[Neighbor]:
         """Find all sites within a sphere from a point.
 
         Args:
@@ -3827,7 +3827,7 @@ class IMolecule(SiteCollection, MSONable):
         nns = self.get_sites_in_sphere(site.coords, r)
         return [nn for nn in nns if nn != site]
 
-    def get_neighbors_in_shell(self, origin: NDArray, r: float, dr: float) -> list[Neighbor]:
+    def get_neighbors_in_shell(self, origin: ArrayLike, r: float, dr: float) -> list[Neighbor]:
         """Get all sites in a shell centered on origin (coords) between radii
         r-dr and r+dr.
 
@@ -4136,9 +4136,9 @@ class Structure(IStructure, collections.abc.MutableSequence):
 
     def __init__(
         self,
-        lattice: NDArray | Lattice,
+        lattice: ArrayLike | Lattice,
         species: Sequence[CompositionLike],
-        coords: Sequence[NDArray] | NDArray,
+        coords: Sequence[ArrayLike] | ArrayLike,
         charge: float | None = None,
         validate_proximity: bool = False,
         to_unit_cell: bool = False,
@@ -4290,7 +4290,7 @@ class Structure(IStructure, collections.abc.MutableSequence):
     def append(  # type:ignore[override]
         self,
         species: CompositionLike,
-        coords: NDArray,
+        coords: ArrayLike,
         coords_are_cartesian: bool = False,
         validate_proximity: bool = False,
         properties: dict | None = None,
@@ -4322,7 +4322,7 @@ class Structure(IStructure, collections.abc.MutableSequence):
         self,
         idx: int,
         species: CompositionLike,
-        coords: NDArray,
+        coords: ArrayLike,
         coords_are_cartesian: bool = False,
         validate_proximity: bool = False,
         properties: dict | None = None,
@@ -4360,7 +4360,7 @@ class Structure(IStructure, collections.abc.MutableSequence):
         self,
         idx: int,
         species: CompositionLike,
-        coords: NDArray | None = None,
+        coords: ArrayLike | None = None,
         coords_are_cartesian: bool = False,
         properties: dict | None = None,
         label: str | None = None,
@@ -4837,7 +4837,7 @@ class Structure(IStructure, collections.abc.MutableSequence):
         if mode.lower()[0] not in {"s", "d", "a"}:
             raise ValueError(f"Illegal {mode=}, should start with a/d/s.")
 
-        dist_mat: NDArray = self.distance_matrix
+        dist_mat: NDArray[np.float64] = self.distance_matrix
         np.fill_diagonal(dist_mat, 0)
 
         if dist_mat.shape == (1, 1):
@@ -4849,7 +4849,7 @@ class Structure(IStructure, collections.abc.MutableSequence):
         for cluster in np.unique(clusters):
             indexes = np.where(clusters == cluster)[0]
             species: Composition = self[indexes[0]].species
-            coords: NDArray = self[indexes[0]].frac_coords
+            coords: NDArray[np.float64] = self[indexes[0]].frac_coords
             props: dict = self[indexes[0]].properties
 
             for site_idx, clust_idx in enumerate(indexes[1:]):
@@ -5064,7 +5064,7 @@ class Molecule(IMolecule, collections.abc.MutableSequence):
     def __init__(
         self,
         species: Sequence[SpeciesLike],
-        coords: Sequence[NDArray] | NDArray,
+        coords: Sequence[ArrayLike] | ArrayLike,
         charge: float = 0.0,
         spin_multiplicity: int | None = None,
         validate_proximity: bool = False,
@@ -5163,7 +5163,7 @@ class Molecule(IMolecule, collections.abc.MutableSequence):
     def append(  # type:ignore[override]
         self,
         species: CompositionLike,
-        coords: NDArray,
+        coords: ArrayLike,
         validate_proximity: bool = False,
         properties: dict | None = None,
     ) -> Self:
@@ -5230,7 +5230,7 @@ class Molecule(IMolecule, collections.abc.MutableSequence):
         self,
         idx: int,
         species: CompositionLike,
-        coords: NDArray[np.float64],
+        coords: ArrayLike,
         validate_proximity: bool = False,
         properties: dict | None = None,
         label: str | None = None,
