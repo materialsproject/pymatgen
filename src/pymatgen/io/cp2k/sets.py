@@ -73,6 +73,7 @@ from pymatgen.io.vasp.inputs import KpointsSupportedModes
 if TYPE_CHECKING:
     from typing import Literal
 
+    from pymatgen.core.structure import IStructure
 __author__ = "Nicholas Winner"
 __version__ = "2.0"
 __email__ = "nwinner@berkeley.edu"
@@ -369,7 +370,7 @@ class DftSet(Cp2kInput):
     @typing.no_type_check
     @staticmethod
     def get_basis_and_potential(
-        structure: Structure,
+        structure: Structure | IStructure,
         basis_and_potential: dict[str, dict[str, Any]],
         cp2k_data_dir: str | None = None,
     ) -> dict[str, dict[str, Any]]:

@@ -29,7 +29,7 @@ if TYPE_CHECKING:
 
     from typing_extensions import Self
 
-    from pymatgen.util.typing import Tuple3Ints, Vector3D
+    from pymatgen.core.structure import IStructure
 
 
 @dataclass(frozen=True)
@@ -72,7 +72,7 @@ class ResCELL:
 class Ion:
     specie: str
     specie_num: int
-    pos: Vector3D
+    pos: tuple[float, float, float]
     occupancy: float
     spin: float | None
 
@@ -509,12 +509,11 @@ class AirssProvider(ResProvider):
 
     def get_mpgrid_offset_nkpts_spacing(
         self,
-    ) -> tuple[Tuple3Ints, Vector3D, int, float] | None:
+    ) -> tuple[tuple[int, int, int], tuple[float, float, float], int, float] | None:
         """
         Retrieves the MP grid, the grid offsets, number of kpoints, and maximum kpoint spacing.
 
-        Returns:
-            tuple[tuple[int, int, int], Vector3D, int, float]: (MP grid), (offsets), No. kpts, max spacing)
+        Returns: (MP grid), (offsets), No. kpts, max spacing
         """
         for rem in self._res.REMS:
             if rem.strip().startswith("MP grid"):
@@ -654,7 +653,7 @@ class ResIO:
         return str(ResWriter(structure))
 
     @classmethod
-    def structure_to_file(cls, structure: Structure, filename: str) -> None:
+    def structure_to_file(cls, structure: Structure | IStructure, filename: str) -> None:
         """Write a pymatgen Structure to a res file."""
         return ResWriter(structure).write(filename)
 

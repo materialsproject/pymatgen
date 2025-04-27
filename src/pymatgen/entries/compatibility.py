@@ -773,7 +773,7 @@ class CorrectionsList(Compatibility):
         self.run_types = run_types
         super().__init__()
 
-    def get_adjustments(self, entry: AnyComputedEntry) -> list[EnergyAdjustment]:
+    def get_adjustments(self, entry: AnyComputedEntry) -> list[ConstantEnergyAdjustment]:
         """Get the list of energy adjustments to be applied to an entry."""
         adjustment_list = []
         if entry.parameters.get("run_type") not in self.run_types:
@@ -1053,7 +1053,7 @@ class MaterialsProject2020Compatibility(Compatibility):
             self.u_corrections = {}
             self.u_errors = {}
 
-    def get_adjustments(self, entry: AnyComputedEntry) -> list[EnergyAdjustment]:
+    def get_adjustments(self, entry: AnyComputedEntry) -> list[CompositionEnergyAdjustment]:
         """Get the energy adjustments for a ComputedEntry or ComputedStructureEntry.
 
         Energy corrections are implemented directly in this method instead of in
@@ -1439,7 +1439,7 @@ class MaterialsProjectAqueousCompatibility(Compatibility):
         self.name = "MP Aqueous free energy adjustment"
         super().__init__()
 
-    def get_adjustments(self, entry: ComputedEntry) -> list[EnergyAdjustment]:
+    def get_adjustments(self, entry: ComputedEntry) -> list[TemperatureEnergyAdjustment]:
         """Get the corrections applied to a particular entry.
 
         Args:

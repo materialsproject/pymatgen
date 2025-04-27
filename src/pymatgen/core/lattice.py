@@ -27,7 +27,6 @@ if TYPE_CHECKING:
     from typing_extensions import Self
 
     from pymatgen.core.operations import SymmOp
-    from pymatgen.util.typing import MillerIndex, PbcLike
 
 __author__ = "Shyue Ping Ong, Michael Kocher"
 __copyright__ = "Copyright 2011, The Materials Project"
@@ -46,7 +45,7 @@ class Lattice(MSONable):
     def __init__(
         self,
         matrix: ArrayLike,
-        pbc: PbcLike = (True, True, True),
+        pbc: tuple[bool, bool, bool] = (True, True, True),
     ) -> None:
         """Create a lattice from any sequence of 9 numbers. Note that the sequence
         is assumed to be read one row at a time. Each row represents one
@@ -74,6 +73,17 @@ class Lattice(MSONable):
         self._lll_inverse = None
 
         self.pbc = pbc
+
+    @property
+    def pbc(self) -> tuple[bool, bool, bool]:
+        """Tuple defining the periodicity of the Lattice."""
+        return self._pbc  # type:ignore[return-value]
+
+    @pbc.setter
+    def pbc(self, pbc: tuple[bool, bool, bool]) -> None:
+        if len(pbc) != 3 or any(item not in {True, False} for item in pbc):
+            raise ValueError(f"pbc must be a tuple of three True/False values, got {pbc}")
+        self._pbc = tuple(bool(item) for item in pbc)
 
     def __repr__(self) -> str:
         return "\n".join(
@@ -173,18 +183,6 @@ class Lattice(MSONable):
         return self._matrix
 
     @property
-    def pbc(self) -> PbcLike:
-        """Tuple defining the periodicity of the Lattice."""
-        return self._pbc
-
-    @pbc.setter
-    def pbc(self, pbc: PbcLike) -> None:
-        if len(pbc) != 3 or any(item not in {True, False} for item in pbc):
-            raise ValueError(f"pbc must be a tuple of three True/False values, got {pbc}")
-
-        self._pbc = tuple(bool(item) for item in pbc)
-
-    @property
     def is_3d_periodic(self) -> bool:
         """True if the Lattice is periodic in all directions."""
         return all(self.pbc)
@@ -250,11 +248,11 @@ class Lattice(MSONable):
         """
         return self.get_fractional_coords(cart_coords) * self.lengths
 
-    def d_hkl(self, miller_index: MillerIndex) -> float:
+    def d_hkl(self, miller_index: tuple[int, ...]) -> float:
         """Get the distance between the hkl plane and the origin.
 
         Args:
-            miller_index (MillerIndex): Miller index of plane
+            miller_index (tuple[int, ...]): Miller index of plane
 
         Returns:
             float: distance between hkl plane and origin
@@ -264,7 +262,7 @@ class Lattice(MSONable):
         return 1 / ((np.dot(np.dot(hkl, g_star), hkl.T)) ** (1 / 2))
 
     @classmethod
-    def cubic(cls, a: float, pbc: PbcLike = (True, True, True)) -> Self:
+    def cubic(cls, a: float, pbc: tuple[bool, bool, bool] = (True, True, True)) -> Self:
         """Convenience constructor for a cubic lattice.
 
         Args:
@@ -282,7 +280,7 @@ class Lattice(MSONable):
         cls,
         a: float,
         c: float,
-        pbc: PbcLike = (True, True, True),
+        pbc: tuple[bool, bool, bool] = (True, True, True),
     ) -> Self:
         """Convenience constructor for a tetragonal lattice.
 
@@ -303,7 +301,7 @@ class Lattice(MSONable):
         a: float,
         b: float,
         c: float,
-        pbc: PbcLike = (True, True, True),
+        pbc: tuple[bool, bool, bool] = (True, True, True),
     ) -> Self:
         """Convenience constructor for an orthorhombic lattice.
 
@@ -326,7 +324,7 @@ class Lattice(MSONable):
         b: float,
         c: float,
         beta: float,
-        pbc: PbcLike = (True, True, True),
+        pbc: tuple[bool, bool, bool] = (True, True, True),
     ) -> Self:
         """Convenience constructor for a monoclinic lattice.
 
@@ -346,7 +344,7 @@ class Lattice(MSONable):
         return cls.from_parameters(a, b, c, 90, beta, 90, pbc=pbc)
 
     @classmethod
-    def hexagonal(cls, a: float, c: float, pbc: PbcLike = (True, True, True)) -> Self:
+    def hexagonal(cls, a: float, c: float, pbc: tuple[bool, bool, bool] = (True, True, True)) -> Self:
         """Convenience constructor for a hexagonal lattice.
 
         Args:
@@ -365,7 +363,7 @@ class Lattice(MSONable):
         cls,
         a: float,
         alpha: float,
-        pbc: PbcLike = (True, True, True),
+        pbc: tuple[bool, bool, bool] = (True, True, True),
     ) -> Self:
         """Convenience constructor for a rhombohedral lattice.
 
@@ -391,7 +389,7 @@ class Lattice(MSONable):
         gamma: float,
         *,
         vesta: bool = False,
-        pbc: PbcLike = (True, True, True),
+        pbc: tuple[bool, bool, bool] = (True, True, True),
     ) -> Self:
         """Create a Lattice using unit cell lengths (in Angstrom) and angles (in degrees).
 
@@ -1267,7 +1265,7 @@ class Lattice(MSONable):
         mapped = self.find_mapping(lattice, e, skip_rotation_matrix=True)
         if mapped is not None:
             if np.linalg.det(mapped[0].matrix) > 0:
-                return mapped[0]
+                return mapped[0]  # type:ignore[return-value]
             return type(self)(-mapped[0].matrix)
 
         raise ValueError("can't find niggli")
@@ -1698,7 +1696,7 @@ class Lattice(MSONable):
         coords_are_cartesian: bool = True,
         round_dp: int = 4,
         verbose: bool = True,
-    ) -> MillerIndex:
+    ) -> tuple[int, ...]:
         """Get the Miller index of a plane from a list of site coordinates.
 
         A minimum of 3 sets of coordinates are required. If more than 3 sets of
@@ -1759,20 +1757,20 @@ class Lattice(MSONable):
 
 
 def get_integer_index(
-    miller_index: MillerIndex,
+    miller_index: tuple[int, ...],
     round_dp: int = 4,
     verbose: bool = True,
-) -> MillerIndex:
+) -> tuple[int, ...]:
     """Attempt to convert a vector of floats to whole numbers.
 
     Args:
-        miller_index (MillerIndex): Miller index.
+        miller_index (tuple[int, ...]): Miller index.
         round_dp (int, optional): The number of decimal places to round the
             miller index to.
         verbose (bool, optional): Whether to print warnings.
 
     Returns:
-        MillerIndex: The Miller index.
+        tuple[int, ...]: The Miller index.
     """
     mi = np.asarray(miller_index)
     # Deal with the case we have small irregular floats
@@ -1817,7 +1815,7 @@ def get_points_in_spheres(
     all_coords: NDArray[np.float64],
     center_coords: NDArray[np.float64],
     r: float,
-    pbc: bool | list[bool] | PbcLike = True,
+    pbc: bool | list[bool] | tuple[bool, bool, bool] = True,
     numerical_tol: float = 1e-8,
     lattice: Lattice | None = None,
     return_fcoords: bool = False,
@@ -1839,7 +1837,7 @@ def get_points_in_spheres(
     """
     if isinstance(pbc, bool):
         pbc = [pbc] * 3
-    _pbc: PbcLike = np.array(pbc, dtype=bool)
+    _pbc = np.array(pbc, dtype=bool)
     if return_fcoords and lattice is None:
         raise ValueError("Lattice needs to be supplied to compute fractional coordinates")
     center_coords_min = np.min(center_coords, axis=0)

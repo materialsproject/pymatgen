@@ -24,6 +24,8 @@ if TYPE_CHECKING:
 
     from typing_extensions import Self
 
+    from pymatgen.core.structure import IStructure
+
 __author__ = "Marco Esters"
 __copyright__ = "Copyright 2017, The Materials Project"
 __version__ = "0.1"
@@ -37,7 +39,7 @@ class LMTOCtrl:
     Currently, only HEADER, VERS and the structure can be used.
     """
 
-    def __init__(self, structure: Structure, header: str | None = None, version: str = "LMASA-47") -> None:
+    def __init__(self, structure: Structure | IStructure, header: str | None = None, version: str = "LMASA-47") -> None:
         """
         Args:
             structure (Structure): pymatgen object.

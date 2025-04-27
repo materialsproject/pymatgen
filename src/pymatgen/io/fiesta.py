@@ -25,7 +25,6 @@ if TYPE_CHECKING:
 
     from typing_extensions import Self
 
-    from pymatgen.util.typing import Tuple3Ints
 
 __author__ = "ndardenne"
 __copyright__ = "Copyright 2012, The Materials Project"
@@ -108,7 +107,7 @@ class FiestaRun(MSONable):
     def __init__(
         self,
         folder: str | None = None,
-        grid: Tuple3Ints = (2, 2, 2),
+        grid: tuple[int, int, int] = (2, 2, 2),
         log_file: str = "log",
     ) -> None:
         """

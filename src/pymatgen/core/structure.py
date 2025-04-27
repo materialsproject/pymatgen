@@ -60,7 +60,7 @@ if TYPE_CHECKING:
     from numpy.typing import ArrayLike, NDArray
     from typing_extensions import Self
 
-    from pymatgen.util.typing import CompositionLike, MillerIndex, PathLike, PbcLike, SpeciesLike
+    from pymatgen.util.typing import CompositionLike, PathLike, SpeciesLike
 
 FileFormats: TypeAlias = Literal[
     "cif",
@@ -156,7 +156,7 @@ class PeriodicNeighbor(PeriodicSite):
         properties: dict | None = None,
         nn_distance: float = 0.0,
         index: int = 0,
-        image: tuple = (0, 0, 0),
+        image: tuple[int, int, int] = (0, 0, 0),
         label: str | None = None,
     ) -> None:
         """
@@ -430,7 +430,7 @@ class SiteCollection(collections.abc.Sequence, ABC):
     @property
     def composition(self) -> Composition:
         """The structure's corresponding Composition object."""
-        elem_map: dict[Species, float] = defaultdict(float)
+        elem_map: dict[SpeciesLike, float] = defaultdict(float)
         for site in self:
             for species, occu in site.species.items():
                 elem_map[species] += occu
@@ -453,7 +453,7 @@ class SiteCollection(collections.abc.Sequence, ABC):
         """The net charge of the structure based on oxidation states. If
         Elements are found, a charge of 0 is assumed.
         """
-        charge = 0
+        charge = 0.0
         for site in self:
             for specie, amt in site.species.items():
                 charge += (getattr(specie, "oxi_state", 0) or 0) * amt
@@ -697,7 +697,7 @@ class SiteCollection(collections.abc.Sequence, ABC):
             **kwargs: parameters to pass into oxi_state_guesses()
         """
         oxi_guess = self.composition.oxi_state_guesses(**kwargs)
-        oxi_guess = oxi_guess or [{e.symbol: 0 for e in self.composition}]
+        oxi_guess = oxi_guess or [{e.symbol: 0 for e in self.composition}]  # type:ignore[assignment]
         self.add_oxidation_state_by_element(oxi_guess[0])
 
         return self
@@ -749,7 +749,7 @@ class SiteCollection(collections.abc.Sequence, ABC):
             new_sp: dict[Element, float] = defaultdict(float)
             for sp, occu in site.species.items():
                 oxi_state = getattr(sp, "oxi_state", None)
-                new_sp[Species(sp.symbol, oxidation_state=oxi_state)] += occu
+                new_sp[Species(sp.symbol, oxidation_state=oxi_state)] += occu  # type:ignore[index]
             site.species = Composition(new_sp)
 
         return self
@@ -1014,9 +1014,9 @@ class IStructure(SiteCollection, MSONable):
 
     def __init__(
         self,
-        lattice: ArrayLike | Lattice,
+        lattice: NDArray[np.float64] | Lattice,
         species: Sequence[CompositionLike],
-        coords: Sequence[ArrayLike],
+        coords: Sequence[NDArray[np.float64]] | Sequence[Sequence[float]],
         charge: float | None = None,
         validate_proximity: bool = False,
         to_unit_cell: bool = False,
@@ -1081,7 +1081,7 @@ class IStructure(SiteCollection, MSONable):
 
             site = PeriodicSite(
                 specie,
-                coords[idx],
+                np.array(coords[idx]),
                 self._lattice,
                 to_unit_cell,
                 coords_are_cartesian=coords_are_cartesian,
@@ -1217,7 +1217,7 @@ class IStructure(SiteCollection, MSONable):
     @classmethod
     def from_sites(
         cls,
-        sites: list[PeriodicSite],
+        sites: Sequence[PeriodicSite],
         charge: float | None = None,
         validate_proximity: bool = False,
         to_unit_cell: bool = False,
@@ -1352,7 +1352,7 @@ class IStructure(SiteCollection, MSONable):
         props = {} if site_properties is None else site_properties
 
         all_sp: list[str | Element | Species | DummySpecies | Composition] = []
-        all_coords: list[list[float]] = []
+        all_coords: list[NDArray[np.float64]] = []
         all_site_properties: dict[str, list] = defaultdict(list)
         all_labels: list[str | None] = []
         for idx, (sp, c) in enumerate(zip(species, frac_coords, strict=True)):
@@ -1539,7 +1539,7 @@ class IStructure(SiteCollection, MSONable):
         return mass.to("g") / (self.volume * Length(1, "ang").to("cm") ** 3)
 
     @property
-    def pbc(self) -> PbcLike:
+    def pbc(self) -> tuple[bool, bool, bool]:
         """The periodicity of the structure."""
         return self._lattice.pbc
 
@@ -1580,7 +1580,7 @@ class IStructure(SiteCollection, MSONable):
 
     def matches(
         self,
-        other: Self | Structure,
+        other: Structure | IStructure,
         anonymous: bool = False,
         **kwargs,
     ) -> bool:
@@ -1675,7 +1675,7 @@ class IStructure(SiteCollection, MSONable):
                 self._lattice,
                 properties=self[idx].properties,
                 nn_distance=dist,
-                image=img,
+                image=tuple(img),
                 index=idx,
                 label=self[idx].label,
             )
@@ -2524,7 +2524,7 @@ class IStructure(SiteCollection, MSONable):
         site_ids: list[int],
         round_dp: int = 4,
         verbose: bool = True,
-    ) -> MillerIndex:
+    ) -> tuple[int, ...]:
         """Get the Miller index of a plane from a set of sites indexes.
 
         A minimum of 3 sites are required. If more than 3 sites are given
@@ -2541,7 +2541,7 @@ class IStructure(SiteCollection, MSONable):
             verbose (bool, optional): Whether to print warnings.
 
         Returns:
-            MillerIndex: The Miller index.
+            tuple[int, ...]: The Miller index.
         """
         return self.lattice.get_miller_index_from_coords(
             self.frac_coords[site_ids],
@@ -2555,7 +2555,7 @@ class IStructure(SiteCollection, MSONable):
         tolerance: float = 0.25,
         use_site_props: bool = False,
         constrain_latt: list | dict | None = None,
-    ) -> Self:
+    ) -> Self | Structure:
         """Find a smaller unit cell than the input. Sometimes it doesn't
         find the smallest possible one, so this method is recursively called
         until it is unable to find a smaller cell.
@@ -2764,7 +2764,7 @@ class IStructure(SiteCollection, MSONable):
         self,
         mode: Literal["enum", "sqs"] = "enum",
         **kwargs,
-    ) -> list[Structure]:
+    ) -> list[Structure | IStructure]:
         """Get list of orderings for a disordered structure. If structure
         does not contain disorder, the default structure is returned.
 
@@ -2961,7 +2961,7 @@ class IStructure(SiteCollection, MSONable):
             json_str = json.dumps(self.as_dict(), **kwargs)
             if filename:
                 with zopen(filename, mode="wt", encoding="utf-8") as file:
-                    file.write(json_str)
+                    file.write(json_str)  # type:ignore[arg-type]
             return json_str
 
         elif fmt == "xsf" or fnmatch(filename.lower(), "*.xsf*"):
@@ -2970,7 +2970,7 @@ class IStructure(SiteCollection, MSONable):
             res_str = XSF(self).to_str()
             if filename:
                 with zopen(filename, mode="wt", encoding="utf-8") as file:
-                    file.write(res_str)
+                    file.write(res_str)  # type:ignore[arg-type]
             return res_str
 
         elif (
@@ -2984,7 +2984,7 @@ class IStructure(SiteCollection, MSONable):
             res_str = Mcsqs(self).to_str()
             if filename:
                 with zopen(filename, mode="wt", encoding="ascii") as file:
-                    file.write(res_str)
+                    file.write(res_str)  # type:ignore[arg-type]
             return res_str
 
         elif fmt == "prismatic" or fnmatch(filename, "*prismatic*"):
@@ -2999,7 +2999,7 @@ class IStructure(SiteCollection, MSONable):
             yaml_str = str_io.getvalue()
             if filename:
                 with zopen(filename, mode="wt", encoding="utf-8") as file:
-                    file.write(yaml_str)
+                    file.write(yaml_str)  # type:ignore[arg-type]
             return yaml_str
 
         elif fmt == "aims" or fnmatch(filename, "geometry.in"):
@@ -3008,9 +3008,9 @@ class IStructure(SiteCollection, MSONable):
             geom_in = AimsGeometryIn.from_structure(self)
             if filename:
                 with zopen(filename, mode="wt", encoding="utf-8") as file:
-                    file.write(geom_in.get_header(filename))
-                    file.write(geom_in.content)
-                    file.write("\n")
+                    file.write(geom_in.get_header(filename))  # type:ignore[arg-type]
+                    file.write(geom_in.content)  # type:ignore[arg-type]
+                    file.write("\n")  # type:ignore[arg-type]
             return geom_in.content
 
         # fleur support implemented in external namespace pkg https://github.com/JuDFTteam/pymatgen-io-fleur
@@ -3025,7 +3025,7 @@ class IStructure(SiteCollection, MSONable):
             res_str = ResIO.structure_to_str(self)
             if filename:
                 with zopen(filename, mode="wt", encoding="utf-8") as file:
-                    file.write(res_str)
+                    file.write(res_str)  # type:ignore[arg-type]
             return res_str
 
         elif fmt == "pwmat" or fnmatch(filename.lower(), "*.pwmat") or fnmatch(filename.lower(), "*.config"):
@@ -3106,7 +3106,7 @@ class IStructure(SiteCollection, MSONable):
             from pymatgen.io.cssr import Cssr
 
             cssr = Cssr.from_str(input_string, **kwargs)
-            struct = cssr.structure
+            struct = cssr.structure  # type:ignore[assignment]
         elif fmt_low == "json":
             dct = json.loads(input_string)
             struct = Structure.from_dict(dct)
@@ -3125,7 +3125,7 @@ class IStructure(SiteCollection, MSONable):
         elif fmt == "aims":
             from pymatgen.io.aims.inputs import AimsGeometryIn
 
-            struct = AimsGeometryIn.from_str(input_string).structure
+            struct = AimsGeometryIn.from_str(input_string).structure  # type:ignore[assignment]
         # fleur support implemented in external namespace pkg https://github.com/JuDFTteam/pymatgen-io-fleur
         elif fmt == "fleur-inpgen":
             from pymatgen.io.fleur import FleurInput
@@ -3190,110 +3190,110 @@ class IStructure(SiteCollection, MSONable):
 
         fname = os.path.basename(filename)
         with zopen(filename, mode="rt", errors="replace", encoding="utf-8") as file:
-            contents = file.read()
-        if fnmatch(fname.lower(), "*.cif*") or fnmatch(fname.lower(), "*.mcif*"):
-            return cls.from_str(
-                contents,
-                fmt="cif",
-                primitive=primitive,
-                sort=sort,
-                merge_tol=merge_tol,
-                **kwargs,
-            )
-        if fnmatch(fname, "*POSCAR*") or fnmatch(fname, "*CONTCAR*") or fnmatch(fname, "*.vasp"):
-            struct = cls.from_str(
-                contents,
-                fmt="poscar",
-                primitive=primitive,
-                sort=sort,
-                merge_tol=merge_tol,
-                **kwargs,
-            )
+            contents: str = file.read()  # type:ignore[assignment]
+            if fnmatch(fname.lower(), "*.cif*") or fnmatch(fname.lower(), "*.mcif*"):
+                return cls.from_str(
+                    contents,
+                    fmt="cif",
+                    primitive=primitive,
+                    sort=sort,
+                    merge_tol=merge_tol,
+                    **kwargs,
+                )
+            if fnmatch(fname, "*POSCAR*") or fnmatch(fname, "*CONTCAR*") or fnmatch(fname, "*.vasp"):
+                struct = cls.from_str(
+                    contents,
+                    fmt="poscar",
+                    primitive=primitive,
+                    sort=sort,
+                    merge_tol=merge_tol,
+                    **kwargs,
+                )
 
-        elif fnmatch(fname, "CHGCAR*") or fnmatch(fname, "LOCPOT*"):
-            from pymatgen.io.vasp import Chgcar
+            elif fnmatch(fname, "CHGCAR*") or fnmatch(fname, "LOCPOT*"):
+                from pymatgen.io.vasp import Chgcar
 
-            struct = Chgcar.from_file(filename, **kwargs).structure
-        elif fnmatch(fname, "vasprun*.xml*"):
-            from pymatgen.io.vasp import Vasprun
+                struct = Chgcar.from_file(filename, **kwargs).structure
+            elif fnmatch(fname, "vasprun*.xml*"):
+                from pymatgen.io.vasp import Vasprun
 
-            struct = Vasprun(filename, **kwargs).final_structure
-        elif fnmatch(fname.lower(), "*.cssr*"):
-            return cls.from_str(
-                contents,
-                fmt="cssr",
-                primitive=primitive,
-                sort=sort,
-                merge_tol=merge_tol,
-                **kwargs,
-            )
-        elif fnmatch(fname, "*.json*") or fnmatch(fname, "*.mson*"):
-            return cls.from_str(
-                contents,
-                fmt="json",
-                primitive=primitive,
-                sort=sort,
-                merge_tol=merge_tol,
-                **kwargs,
-            )
-        elif fnmatch(fname, "*.yaml*") or fnmatch(fname, "*.yml*"):
-            return cls.from_str(
-                contents,
-                fmt="yaml",
-                primitive=primitive,
-                sort=sort,
-                merge_tol=merge_tol,
-                **kwargs,
-            )
-        elif fnmatch(fname, "*.xsf"):
-            return cls.from_str(
-                contents,
-                fmt="xsf",
-                primitive=primitive,
-                sort=sort,
-                merge_tol=merge_tol,
-                **kwargs,
-            )
-        elif fnmatch(fname, "input*.xml"):
-            from pymatgen.io.exciting import ExcitingInput
+                struct = Vasprun(filename, **kwargs).final_structure
+            elif fnmatch(fname.lower(), "*.cssr*"):
+                return cls.from_str(
+                    contents,
+                    fmt="cssr",
+                    primitive=primitive,
+                    sort=sort,
+                    merge_tol=merge_tol,
+                    **kwargs,
+                )
+            elif fnmatch(fname, "*.json*") or fnmatch(fname, "*.mson*"):
+                return cls.from_str(
+                    contents,
+                    fmt="json",
+                    primitive=primitive,
+                    sort=sort,
+                    merge_tol=merge_tol,
+                    **kwargs,
+                )
+            elif fnmatch(fname, "*.yaml*") or fnmatch(fname, "*.yml*"):
+                return cls.from_str(
+                    contents,
+                    fmt="yaml",
+                    primitive=primitive,
+                    sort=sort,
+                    merge_tol=merge_tol,
+                    **kwargs,
+                )
+            elif fnmatch(fname, "*.xsf"):
+                return cls.from_str(
+                    contents,
+                    fmt="xsf",
+                    primitive=primitive,
+                    sort=sort,
+                    merge_tol=merge_tol,
+                    **kwargs,
+                )
+            elif fnmatch(fname, "input*.xml"):
+                from pymatgen.io.exciting import ExcitingInput
 
-            return ExcitingInput.from_file(fname, **kwargs).structure
-        elif fnmatch(fname, "*rndstr.in*") or fnmatch(fname, "*lat.in*") or fnmatch(fname, "*bestsqs*"):
-            return cls.from_str(
-                contents,
-                fmt="mcsqs",
-                primitive=primitive,
-                sort=sort,
-                merge_tol=merge_tol,
-                **kwargs,
-            )
-        elif fnmatch(fname, "CTRL*"):
-            from pymatgen.io.lmto import LMTOCtrl
+                return ExcitingInput.from_file(fname, **kwargs).structure  # type:ignore[assignment]
+            elif fnmatch(fname, "*rndstr.in*") or fnmatch(fname, "*lat.in*") or fnmatch(fname, "*bestsqs*"):
+                return cls.from_str(
+                    contents,
+                    fmt="mcsqs",
+                    primitive=primitive,
+                    sort=sort,
+                    merge_tol=merge_tol,
+                    **kwargs,
+                )
+            elif fnmatch(fname, "CTRL*"):
+                from pymatgen.io.lmto import LMTOCtrl
 
-            return LMTOCtrl.from_file(filename=filename, **kwargs).structure
-        elif fnmatch(fname, "geometry.in*"):
-            return cls.from_str(
-                contents,
-                fmt="aims",
-                primitive=primitive,
-                sort=sort,
-                merge_tol=merge_tol,
-                **kwargs,
-            )
-        elif fnmatch(fname, "inp*.xml") or fnmatch(fname, "*.in*") or fnmatch(fname, "inp_*"):
-            from pymatgen.io.fleur import FleurInput
+                return LMTOCtrl.from_file(filename=filename, **kwargs).structure  # type:ignore[assignment]
+            elif fnmatch(fname, "geometry.in*"):
+                return cls.from_str(
+                    contents,
+                    fmt="aims",
+                    primitive=primitive,
+                    sort=sort,
+                    merge_tol=merge_tol,
+                    **kwargs,
+                )
+            elif fnmatch(fname, "inp*.xml") or fnmatch(fname, "*.in*") or fnmatch(fname, "inp_*"):
+                from pymatgen.io.fleur import FleurInput
 
-            struct = FleurInput.from_file(filename, **kwargs).structure
-        elif fnmatch(fname, "*.res"):
-            from pymatgen.io.res import ResIO
+                struct = FleurInput.from_file(filename, **kwargs).structure
+            elif fnmatch(fname, "*.res"):
+                from pymatgen.io.res import ResIO
 
-            struct = ResIO.structure_from_file(filename, **kwargs)
-        elif fnmatch(fname.lower(), "*.config*") or fnmatch(fname.lower(), "*.pwmat*"):
-            from pymatgen.io.pwmat import AtomConfig
+                struct = ResIO.structure_from_file(filename, **kwargs)
+            elif fnmatch(fname.lower(), "*.config*") or fnmatch(fname.lower(), "*.pwmat*"):
+                from pymatgen.io.pwmat import AtomConfig
 
-            struct = AtomConfig.from_file(filename, **kwargs).structure
-        else:
-            raise ValueError(f"Unrecognized extension in {filename=}")
+                struct = AtomConfig.from_file(filename, **kwargs).structure
+            else:
+                raise ValueError(f"Unrecognized extension in {filename=}")
         if sort:
             struct = struct.get_sorted_structure()
         if merge_tol:
@@ -3442,7 +3442,7 @@ class IMolecule(SiteCollection, MSONable):
     def __init__(
         self,
         species: Sequence[CompositionLike],
-        coords: Sequence[ArrayLike],
+        coords: Sequence[np.ndarray] | np.ndarray,
         charge: float = 0.0,
         spin_multiplicity: int | None = None,
         validate_proximity: bool = False,
@@ -4013,7 +4013,7 @@ class IMolecule(SiteCollection, MSONable):
             json_str = json.dumps(self.as_dict())
             if filename:
                 with zopen(filename, mode="wt", encoding="utf-8") as file:
-                    file.write(json_str)
+                    file.write(json_str)  # type:ignore[arg-type]
             return json_str
         elif fmt in {"yaml", "yml"} or fnmatch(filename, "*.yaml*") or fnmatch(filename, "*.yml*"):
             yaml = YAML()
@@ -4022,7 +4022,7 @@ class IMolecule(SiteCollection, MSONable):
             yaml_str = str_io.getvalue()
             if filename:
                 with zopen(filename, mode="wt", encoding="utf-8") as file:
-                    file.write(yaml_str)
+                    file.write(yaml_str)  # type:ignore[arg-type]
             return yaml_str
         else:
             from pymatgen.io.babel import BabelMolAdaptor
@@ -4088,7 +4088,7 @@ class IMolecule(SiteCollection, MSONable):
         return cls.from_sites(mol, properties=mol.properties)
 
     @classmethod
-    def from_file(cls, filename: PathLike) -> Self | None:  # type:ignore[override]
+    def from_file(cls, filename: PathLike) -> IMolecule | Molecule:  # type:ignore[override]
         """Read a molecule from a file. Supported formats include xyz,
         gaussian input (gjf|g03|g09|com|inp), Gaussian output (.out|and
         pymatgen's JSON-serialized molecules. Using openbabel,
@@ -4104,7 +4104,7 @@ class IMolecule(SiteCollection, MSONable):
         filename = str(filename)
 
         with zopen(filename, mode="rt", encoding="utf-8") as file:
-            contents = file.read()
+            contents: str = file.read()
         fname = filename.lower()
         if fnmatch(fname, "*.xyz*"):
             return cls.from_str(contents, fmt="xyz")
@@ -5062,7 +5062,7 @@ class Molecule(IMolecule, collections.abc.MutableSequence):
     def __init__(
         self,
         species: Sequence[SpeciesLike],
-        coords: Sequence[ArrayLike],
+        coords: Sequence[NDArray] | NDArray,
         charge: float = 0.0,
         spin_multiplicity: int | None = None,
         validate_proximity: bool = False,
@@ -5228,7 +5228,7 @@ class Molecule(IMolecule, collections.abc.MutableSequence):
         self,
         idx: int,
         species: CompositionLike,
-        coords: ArrayLike,
+        coords: NDArray[np.float64],
         validate_proximity: bool = False,
         properties: dict | None = None,
         label: str | None = None,

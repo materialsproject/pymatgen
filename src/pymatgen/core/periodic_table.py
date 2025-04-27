@@ -74,7 +74,7 @@ _MADELUNG: list[tuple[int, str]] = [
 class ElementBase(Enum):
     """Element class defined without any enum values so it can be subclassed."""
 
-    def __init__(self, symbol: SpeciesLike) -> None:
+    def __init__(self, symbol: str) -> None:
         """
         This class provides a basic, immutable representation of an element, including
         all relevant chemical and physical properties. It ensures that elements are
@@ -137,7 +137,7 @@ class ElementBase(Enum):
             - Some attributes are calculated or derived based on predefined constants
                 and rules.
         """
-        self.symbol = str(symbol)
+        self.symbol = symbol
         data = _PT_DATA[symbol]
 
         # Store key variables for quick access
@@ -527,8 +527,8 @@ class ElementBase(Enum):
             for ML in range(-L, L - 1, -1):
                 for MS in np.arange(S, -S + 1, 1):
                     if (ML, MS) in comb_counter:
-                        comb_counter[ML, MS] -= 1
-                        if comb_counter[ML, MS] == 0:
+                        comb_counter[ML, MS] -= 1  # type:ignore[index]
+                        if comb_counter[ML, MS] == 0:  # type:ignore[index]
                             del comb_counter[ML, MS]
         return term_symbols
 
@@ -811,7 +811,7 @@ class ElementBase(Enum):
         """
         return self._data["IUPAC ordering"]
 
-    def as_dict(self) -> dict[Literal["element", "@module", "@class"], str]:
+    def as_dict(self) -> dict[str, Any]:
         """Serialize to MSONable dict representation e.g. to write to disk as JSON."""
         return {
             "@module": type(self).__module__,
@@ -1003,7 +1003,7 @@ class Species(MSONable, Stringify):
 
     def __init__(
         self,
-        symbol: SpeciesLike,
+        symbol: str,
         oxidation_state: float | None = None,
         spin: float | None = None,
     ) -> None:
@@ -1018,11 +1018,11 @@ class Species(MSONable, Stringify):
             ValueError: If oxidation state passed both in symbol string and via
                 oxidation_state kwarg.
         """
-        if oxidation_state is not None and isinstance(symbol, str) and symbol.endswith(("+", "-")):
+        if oxidation_state is not None and symbol.endswith(("+", "-")):
             raise ValueError(
                 f"Oxidation state should be specified either in {symbol=} or as {oxidation_state=}, not both."
             )
-        if isinstance(symbol, str) and symbol.endswith(("+", "-")):
+        if symbol.endswith(("+", "-")):
             # Extract oxidation state from symbol
             try:
                 symbol, oxi = re.match(r"([A-Za-z]+)([0-9\.0-9]*[\+\-])", symbol).groups()  # type: ignore[union-attr]
@@ -1092,7 +1092,7 @@ class Species(MSONable, Stringify):
         if self.oxi_state is not None:
             abs_charge = formula_double_format(abs(self.oxi_state))
             if isinstance(abs_charge, float):
-                abs_charge = f"{abs_charge:.2f}"
+                abs_charge = f"{abs_charge:.2f}"  # type: ignore[assignment]
             output += f"{abs_charge}{'+' if self.oxi_state >= 0 else '-'}"
 
         if self._spin is not None:
@@ -1269,7 +1269,7 @@ class Species(MSONable, Stringify):
         if self.oxi_state is not None:
             abs_charge = formula_double_format(abs(self.oxi_state))
             if isinstance(abs_charge, float):
-                abs_charge = f"{abs_charge:.2f}"
+                abs_charge = f"{abs_charge:.2f}"  # type: ignore[assignment]
             output += f"{abs_charge}{'+' if self.oxi_state >= 0 else '-'}"
         return output
 

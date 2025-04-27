@@ -39,7 +39,7 @@ if TYPE_CHECKING:
     from numpy.typing import NDArray
     from spglib import SpglibDataset
 
-    from pymatgen.core import Element, Species
+    from pymatgen.core import Element, IStructure, Species
     from pymatgen.core.sites import Site
     from pymatgen.symmetry.groups import CrystalSystem
     from pymatgen.util.typing import Kpoint
@@ -89,7 +89,7 @@ class SpacegroupAnalyzer:
 
     def __init__(
         self,
-        structure: Structure,
+        structure: Structure | IStructure,
         symprec: float | None = 0.01,
         angle_tolerance: float = 5,
     ) -> None:

@@ -40,6 +40,7 @@ if TYPE_CHECKING:
     from numpy.typing import ArrayLike
     from typing_extensions import Self
 
+    from pymatgen.core.structure import IStructure
     from pymatgen.util.typing import PathLike
 
 __author__ = "Jacob Clary, Ben Rich"
@@ -313,7 +314,7 @@ class JDFTXInfile(dict, MSONable):
     @classmethod
     def from_structure(
         cls,
-        structure: Structure,
+        structure: Structure | IStructure,
         selective_dynamics: ArrayLike | None = None,
         write_cart_coords: bool = False,
     ) -> JDFTXInfile:

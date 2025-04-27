@@ -21,7 +21,7 @@ if TYPE_CHECKING:
     from numpy.typing import NDArray
     from typing_extensions import Self
 
-    from pymatgen.util.typing import CompositionLike, SpeciesLike, Vector3D
+    from pymatgen.util.typing import CompositionLike, SpeciesLike
 
 
 class Site(collections.abc.Hashable, MSONable):
@@ -200,7 +200,7 @@ class Site(collections.abc.Hashable, MSONable):
         """
         return float(np.linalg.norm(other.coords - self.coords))
 
-    def distance_from_point(self, pt: Vector3D) -> float:
+    def distance_from_point(self, pt: tuple[float, float, float]) -> float:
         """Get distance between the site and a point in space.
 
         Args:

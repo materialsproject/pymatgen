@@ -19,7 +19,6 @@ if TYPE_CHECKING:
     from numpy.typing import NDArray
 
     from pymatgen.core import Structure
-    from pymatgen.util.typing import Vector3D
 
 SUBSCRIPT_UNICODE: dict[str, str] = {
     "0": "₀",
@@ -323,7 +322,7 @@ def stream_has_colors(stream: TextIO) -> bool:
 
 def transformation_to_string(
     matrix: NDArray,
-    translation_vec: Vector3D = (0, 0, 0),
+    translation_vec: tuple[float, float, float] | NDArray = (0, 0, 0),
     components: tuple[str, str, str] = ("x", "y", "z"),
     c: str = "",
     delim: str = ",",
@@ -332,7 +331,7 @@ def transformation_to_string(
 
     Args:
         matrix (ArrayLike): A 3x3 matrix.
-        translation_vec (Vector3D): The translation vector. Defaults to (0, 0, 0).
+        translation_vec (tuple[float, float, float]): The translation vector. Defaults to (0, 0, 0).
         components(tuple[str, str, str]): The components. Either ('x', 'y', 'z') or ('a', 'b', 'c').
             Defaults to ('x', 'y', 'z').
         c (str): An optional additional character to print (used for magmoms). Defaults to "".

@@ -30,7 +30,7 @@ if TYPE_CHECKING:
 
     from typing_extensions import Self
 
-    from pymatgen.util.typing import Matrix3D, PathLike, SitePropsType, Vector3D
+    from pymatgen.util.typing import PathLike, SitePropsType
 
 __author__ = "Eric Sivonxay, Shyam Dwaraknath, Mingjian Wen, Evan Spotte-Smith"
 __version__ = "0.1"
@@ -49,17 +49,17 @@ class Trajectory(MSONable):
     def __init__(
         self,
         species: list[str | Element | Species | DummySpecies | Composition],
-        coords: list[list[Vector3D]] | np.ndarray | list[np.ndarray],
+        coords: list[list[tuple[float, float, float]]] | np.ndarray | list[np.ndarray],
         charge: float | None = None,
         spin_multiplicity: float | None = None,
-        lattice: (Lattice | Matrix3D | list[Lattice] | list[Matrix3D] | np.ndarray | None) = None,
+        lattice: (Lattice | list[Lattice] | list[np.ndarray] | np.ndarray | None) = None,
         *,
         site_properties: SitePropsType | None = None,
         frame_properties: list[dict] | None = None,
         constant_lattice: bool | None = True,
         time_step: float | None = None,
         coords_are_displacement: bool = False,
-        base_positions: list[list[Vector3D]] | np.ndarray | None = None,
+        base_positions: list[list[tuple[float, float, float]]] | np.ndarray | None = None,
     ) -> None:
         """In below, N denotes the number of sites in the structure, and M denotes the
         number of frames in the trajectory.
@@ -475,7 +475,7 @@ class Trajectory(MSONable):
         xdatcar_str = "\n".join(lines) + "\n"
 
         with zopen(filename, mode="wt", encoding="utf-8") as file:
-            file.write(xdatcar_str)
+            file.write(xdatcar_str)  # type:ignore[arg-type]
 
     def as_dict(self) -> dict:
         """Return the trajectory as a MSONable dict."""

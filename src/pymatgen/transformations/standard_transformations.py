@@ -24,7 +24,7 @@ from pymatgen.transformations.transformation_abc import AbstractTransformation
 
 if TYPE_CHECKING:
     from numpy.random import Generator
-    from typing_extensions import Self
+    from typing_extensions import Any, Self
 
     from pymatgen.core.sites import PeriodicSite
     from pymatgen.util.typing import SpeciesLike
@@ -473,7 +473,9 @@ class OrderDisorderedStructureTransformation(AbstractTransformation):
         self.symmetrized_structures = symmetrized_structures
         self.occ_tol = occ_tol
 
-    def apply_transformation(self, structure: Structure, return_ranked_list: bool | int = False) -> Structure:
+    def apply_transformation(
+        self, structure: Structure, return_ranked_list: bool | int = False
+    ) -> Structure | list[Structure] | list[dict[str, Any]]:
         """For this transformation, the apply_transformation method will return
         only the ordered structure with the lowest Ewald energy, to be
         consistent with the method signature of the other transformations.
@@ -521,7 +523,7 @@ class OrderDisorderedStructureTransformation(AbstractTransformation):
                 if not site.species.almost_equals(sp):
                     continue
                 if self.symmetrized_structures:
-                    sym_equiv = structure.find_equivalent_sites(ex)
+                    sym_equiv = structure.find_equivalent_sites(ex)  # type:ignore[attr-defined]
                     sym_test = site in sym_equiv
                 else:
                     sym_test = True
@@ -557,14 +559,14 @@ class OrderDisorderedStructureTransformation(AbstractTransformation):
                     raise ValueError("Occupancy fractions not consistent with size of unit cell")
                 total_occupancy[key] = round(val)
             # start with an ordered structure
-            initial_sp = max(total_occupancy, key=lambda x: abs(x.oxi_state))
+            initial_sp = max(total_occupancy, key=lambda x: abs(x.oxi_state))  # type:ignore[arg-type]
             for idx in group:
                 struct[idx] = initial_sp
             # determine the manipulations
             for key, val in total_occupancy.items():
                 if key == initial_sp:
                     continue
-                oxi_ratio = key.oxi_state / initial_sp.oxi_state if initial_sp.oxi_state else 0
+                oxi_ratio = key.oxi_state / initial_sp.oxi_state if initial_sp.oxi_state else 0  # type:ignore[operator]
                 manipulation = [oxi_ratio, val, list(group), key]
                 manipulations.append(manipulation)
             # determine the number of empty sites
@@ -599,8 +601,8 @@ class OrderDisorderedStructureTransformation(AbstractTransformation):
                 if manipulation[1] is None:
                     del_indices.append(manipulation[0])
                 else:
-                    struct_copy[manipulation[0]] = manipulation[1]
-            struct_copy.remove_sites(del_indices)
+                    struct_copy[manipulation[0]] = manipulation[1]  # type:ignore[index, assignment]
+            struct_copy.remove_sites(del_indices)  # type:ignore[arg-type]
 
             if self.no_oxi_states:
                 struct_copy.remove_oxidation_states()

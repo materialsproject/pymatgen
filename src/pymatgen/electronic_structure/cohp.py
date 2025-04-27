@@ -37,7 +37,7 @@ if TYPE_CHECKING:
     from numpy.typing import NDArray
     from typing_extensions import Self
 
-    from pymatgen.util.typing import PathLike, SpinLike, Vector3D
+    from pymatgen.util.typing import PathLike, SpinLike
 
 __author__ = "Marco Esters, Janine George"
 __copyright__ = "Copyright 2017, The Materials Project"
@@ -945,7 +945,7 @@ class IcohpValue(MSONable):
         atom1: str,
         atom2: str,
         length: float,
-        translation: Vector3D,
+        translation: tuple[float, float, float],
         num: int,
         icohp: dict[Spin, float],
         are_coops: bool = False,
@@ -958,7 +958,7 @@ class IcohpValue(MSONable):
             atom1 (str): The first atom that contributes to the bond.
             atom2 (str): The second atom that contributes to the bond.
             length (float): Bond length.
-            translation (Vector3D): cell translation vector, e.g. (0, 0, 0).
+            translation (tuple[float, float, float]): cell translation vector, e.g. (0, 0, 0).
             num (int): The number of equivalent bonds.
             icohp (dict[Spin, float]): {Spin.up: ICOHP_up, Spin.down: ICOHP_down}
             are_coops (bool): Whether these are COOPs.
@@ -1129,7 +1129,7 @@ class IcohpCollection(MSONable):
         list_atom1: list[str],
         list_atom2: list[str],
         list_length: list[float],
-        list_translation: list[Vector3D],
+        list_translation: list[tuple[float, float, float]],
         list_num: list[int],
         list_icohp: list[dict[Spin, float]],
         is_spin_polarized: bool,
@@ -1143,7 +1143,7 @@ class IcohpCollection(MSONable):
             list_atom1 (list[str]): Atom names, e.g. "O1".
             list_atom2 (list[str]): Atom names, e.g. "O1".
             list_length (list[float]): Bond lengths in Angstrom.
-            list_translation (list[Vector3D]): Cell translation vectors.
+            list_translation (list[tuple[float, float, float]]): Cell translation vectors.
             list_num (list[int]): Numbers of equivalent bonds, usually 1 starting from LOBSTER 3.0.0.
             list_icohp (list[dict]): Dicts as {Spin.up: ICOHP_up, Spin.down: ICOHP_down}.
             is_spin_polarized (bool): Whether the calculation is spin polarized.
