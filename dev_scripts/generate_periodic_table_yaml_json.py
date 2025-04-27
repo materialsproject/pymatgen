@@ -33,6 +33,7 @@ from __future__ import annotations
 import csv
 import gzip
 import json
+import math
 import os
 import warnings
 from collections import Counter, defaultdict
@@ -56,6 +57,9 @@ if TYPE_CHECKING:
 
 
 RESOURCES_DIR: str = f"{Path(__file__).parent}/periodic_table_resources"
+
+# The number of significant digits after applying `factor`
+SIGNIFICANT_DIGITS: int = 4
 
 
 @dataclass
@@ -385,6 +389,14 @@ def generate_yaml_and_json(
     Raises:
         ValueError: If duplicate property names are found in the input.
     """
+
+    def apply_factor_and_round(value: float, factor: float, digits: int) -> float:
+        """Apply a factor to a value and round it to the given number of significant digits."""
+        result = value * factor
+        if result == 0:
+            return 0.0
+        return round(result, digits - math.floor(math.log10(abs(result))) - 1)
+
     # Check for duplicate
     counter: Counter = Counter([prop.name for prop in properties])
     if duplicates := [name for name, count in counter.items() if count > 1]:
@@ -403,7 +415,9 @@ def generate_yaml_and_json(
 
         # Apply factor to data to be consistent with final JSON
         if prop.factor is not None:
-            sorted_data = {k: v * prop.factor for k, v in sorted_data.items()}
+            sorted_data = {
+                k: apply_factor_and_round(v, prop.factor, SIGNIFICANT_DIGITS) for k, v in sorted_data.items()
+            }
 
         prop_dict = {
             "unit": str(prop.unit) if prop.unit is not None else None,
@@ -437,7 +451,9 @@ def generate_yaml_and_json(
         # Apply `factor`
         for elem, prop_val in prop.data.items():
             if prop.factor is not None:  # assume numeric if `factor` is given
-                element_to_props[elem.name][prop.name] = prop_val.value * prop.factor
+                element_to_props[elem.name][prop.name] = apply_factor_and_round(
+                    prop_val.value, prop.factor, SIGNIFICANT_DIGITS
+                )
             else:
                 element_to_props[elem.name][prop.name] = prop_val.value
 
