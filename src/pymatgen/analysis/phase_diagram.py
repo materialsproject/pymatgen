@@ -392,7 +392,7 @@ class PhaseDiagram(MSONable):
         return {
             "@module": type(self).__module__,
             "@class": type(self).__name__,
-            "all_entries": [e.as_dict() for e in self.all_entries],
+            # "all_entries": [e.as_dict() for e in self.all_entries], # Removed redundant serialization
             "elements": [e.as_dict() for e in self.elements],
             "computed_data": self.computed_data,
         }
