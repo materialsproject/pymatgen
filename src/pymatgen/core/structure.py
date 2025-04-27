@@ -1014,9 +1014,9 @@ class IStructure(SiteCollection, MSONable):
 
     def __init__(
         self,
-        lattice: NDArray[np.float64] | Lattice,
+        lattice: ArrayLike | Lattice,
         species: Sequence[CompositionLike],
-        coords: Sequence[NDArray[np.float64]] | Sequence[Sequence[float]],
+        coords: Sequence[ArrayLike],
         charge: float | None = None,
         validate_proximity: bool = False,
         to_unit_cell: bool = False,
@@ -1276,9 +1276,9 @@ class IStructure(SiteCollection, MSONable):
     def from_spacegroup(
         cls,
         sg: str | int,
-        lattice: list | np.ndarray | Lattice,
+        lattice: ArrayLike | Lattice,
         species: Sequence[str | Element | Species | DummySpecies | Composition],
-        coords: Sequence[Sequence[float]],
+        coords: Sequence[ArrayLike],
         site_properties: dict[str, Sequence] | None = None,
         coords_are_cartesian: bool = False,
         tol: float = 1e-5,
@@ -1346,7 +1346,9 @@ class IStructure(SiteCollection, MSONable):
             raise ValueError(f"Supplied species and coords lengths ({len(species)} vs {len(coords)}) are different!")
 
         frac_coords = (
-            lattice.get_fractional_coords(coords) if coords_are_cartesian else np.array(coords, dtype=np.float64)
+            lattice.get_fractional_coords(np.asarray(coords, dtype=np.float64))
+            if coords_are_cartesian
+            else np.asarray(coords, dtype=np.float64)
         )
 
         props = {} if site_properties is None else site_properties
@@ -1376,7 +1378,7 @@ class IStructure(SiteCollection, MSONable):
     def from_magnetic_spacegroup(
         cls,
         msg: str | MagneticSpaceGroup,
-        lattice: list | np.ndarray | Lattice,
+        lattice: ArrayLike | Lattice,
         species: Sequence[str | Element | Species | DummySpecies | Composition],
         coords: Sequence[Sequence[float]],
         site_properties: dict[str, Sequence],
@@ -1521,7 +1523,7 @@ class IStructure(SiteCollection, MSONable):
         return self._charge
 
     @property
-    def distance_matrix(self) -> np.ndarray:
+    def distance_matrix(self) -> NDArray[np.float64]:
         """The distance matrix between all sites in the structure. For
         periodic structures, this should return the nearest image distance.
         """
@@ -2798,7 +2800,7 @@ class IStructure(SiteCollection, MSONable):
                 disordered_sites = [site for site in self if not site.is_ordered]
                 subset_structure = Structure.from_sites(disordered_sites)
                 dist_matrix = subset_structure.distance_matrix
-                dists = sorted(set(dist_matrix.ravel()))
+                dists = sorted(set(dist_matrix.ravel()))  # type:ignore[type-var]
                 unique_dists = []
                 for idx in range(1, len(dists)):
                     if dists[idx] - dists[idx - 1] > 0.1:
@@ -3442,7 +3444,7 @@ class IMolecule(SiteCollection, MSONable):
     def __init__(
         self,
         species: Sequence[CompositionLike],
-        coords: Sequence[np.ndarray] | np.ndarray,
+        coords: Sequence[ArrayLike] | ArrayLike,
         charge: float = 0.0,
         spin_multiplicity: int | None = None,
         validate_proximity: bool = False,
@@ -3480,10 +3482,10 @@ class IMolecule(SiteCollection, MSONable):
             properties (dict): dictionary containing properties associated
                 with the whole molecule.
         """
-        if len(species) != len(coords):
+        if len(species) != len(coords):  # type:ignore[arg-type]
             raise StructureError(
-                f"len(species) != len(coords) ({len(species)} != {len(coords)}). List of atomic species must "
-                "have same length as list of fractional coordinates."
+                f"len(species) != len(coords) ({len(species)} != {len(coords)}). "  # type:ignore[arg-type]
+                f"List of atomic species must have same length as list of fractional coordinates."
             )
 
         self._charge_spin_check = charge_spin_check
@@ -3494,7 +3496,7 @@ class IMolecule(SiteCollection, MSONable):
             if site_properties:
                 prop = {k: v[idx] for k, v in site_properties.items()}
             label = labels[idx] if labels else None
-            sites.append(Site(species[idx], coords[idx], properties=prop, label=label))
+            sites.append(Site(species[idx], coords[idx], properties=prop, label=label))  # type:ignore[index]
 
         self._sites = tuple(sites)  # type:ignore[arg-type]
         if validate_proximity and not self.is_valid():
@@ -3571,7 +3573,7 @@ class IMolecule(SiteCollection, MSONable):
         return n_electrons
 
     @property
-    def center_of_mass(self) -> NDArray:
+    def center_of_mass(self) -> NDArray[np.float64]:
         """Center of mass of molecule."""
         center = np.zeros(3)
         total_weight: float = 0
