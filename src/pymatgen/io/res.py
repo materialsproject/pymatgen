@@ -292,7 +292,7 @@ class ResWriter:
         return ResSFAC(species, ions)
 
     @classmethod
-    def _res_from_structure(cls, structure: Structure) -> Res:
+    def _res_from_structure(cls, structure: Structure | IStructure) -> Res:
         """Produce a res file structure from a pymatgen Structure."""
         return Res(
             None,
@@ -317,7 +317,7 @@ class ResWriter:
             cls._sfac_from_sites(list(entry.structure)),
         )
 
-    def __init__(self, entry: Structure | ComputedStructureEntry):
+    def __init__(self, entry: Structure | IStructure | ComputedStructureEntry):
         """This class can be constructed from either a pymatgen Structure or ComputedStructureEntry object."""
         func: Callable[[Structure], Res] | Callable[[ComputedStructureEntry], Res]
         func = self._res_from_structure
@@ -648,7 +648,7 @@ class ResIO:
         return ResProvider.from_file(filename).structure
 
     @classmethod
-    def structure_to_str(cls, structure: Structure) -> str:
+    def structure_to_str(cls, structure: Structure | IStructure) -> str:
         """Produce the contents of a res file from a pymatgen Structure."""
         return str(ResWriter(structure))
 

@@ -262,7 +262,7 @@ class SymmOp(MSONable):
         axis: NDArray,
         angle: float,
         angle_in_radians: bool = False,
-        translation_vec: Sequence[float] = (0, 0, 0),
+        translation_vec: Sequence[float] | NDArray = (0, 0, 0),
     ) -> SymmOp:
         """Generate a SymmOp for a rotation about a given axis plus translation.
 
@@ -301,8 +301,8 @@ class SymmOp(MSONable):
 
     @staticmethod
     def from_origin_axis_angle(
-        origin: Sequence[float],
-        axis: Sequence[float],
+        origin: Sequence[float] | NDArray,
+        axis: Sequence[float] | NDArray,
         angle: float,
         angle_in_radians: bool = False,
     ) -> SymmOp:

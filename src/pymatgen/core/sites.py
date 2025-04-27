@@ -16,6 +16,7 @@ from pymatgen.util.coord import pbc_diff
 from pymatgen.util.misc import is_np_dict_equal
 
 if TYPE_CHECKING:
+    from collections.abc import Sequence
     from typing import Any
 
     from numpy.typing import NDArray
@@ -200,7 +201,7 @@ class Site(collections.abc.Hashable, MSONable):
         """
         return float(np.linalg.norm(other.coords - self.coords))
 
-    def distance_from_point(self, pt: tuple[float, float, float]) -> float:
+    def distance_from_point(self, pt: Sequence[float] | NDArray) -> float:
         """Get distance between the site and a point in space.
 
         Args:

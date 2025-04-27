@@ -29,6 +29,8 @@ if TYPE_CHECKING:
 
     from typing_extensions import Self
 
+    from pymatgen.core.structure import IStructure
+
 
 __author__ = "Thomas A. R. Purcell"
 __version__ = "1.0"
@@ -138,7 +140,7 @@ class AimsGeometryIn(MSONable):
         return cls.from_str(content)
 
     @classmethod
-    def from_structure(cls, structure: Structure | Molecule) -> Self:
+    def from_structure(cls, structure: Structure | IStructure | Molecule) -> Self:
         """Construct an input file from an input structure.
 
         Args:

@@ -28,7 +28,7 @@ if TYPE_CHECKING:
     from collections.abc import Callable, Sequence
     from typing import Any
 
-    from numpy.typing import ArrayLike, NDArray
+    from numpy.typing import NDArray
     from typing_extensions import Self
 
     from pymatgen.core import Element, Species
@@ -63,7 +63,7 @@ class GrainBoundary(Structure):
         self,
         lattice: np.ndarray | Lattice,
         species: Sequence[CompositionLike],
-        coords: Sequence[ArrayLike],
+        coords: Sequence[NDArray] | NDArray,
         rotation_axis: tuple[int, ...],
         rotation_angle: float,
         gb_plane: tuple[int, int, int],

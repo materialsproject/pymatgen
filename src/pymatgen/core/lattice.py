@@ -1696,12 +1696,12 @@ class Lattice(MSONable):
         coords_are_cartesian: bool = True,
         round_dp: int = 4,
         verbose: bool = True,
-    ) -> tuple[int, ...]:
+    ) -> tuple[int, int, int]:
         """Get the Miller index of a plane from a list of site coordinates.
 
         A minimum of 3 sets of coordinates are required. If more than 3 sets of
-        coordinates are given, the best plane that minimises the distance to all
-        points will be calculated.
+        coordinates are given, the best plane that minimizes the distance to all
+        Points will be calculated.
 
         Args:
             coords (iterable): A list or numpy array of coordinates. Can be
@@ -1729,7 +1729,7 @@ class Lattice(MSONable):
 
         # Get unitary normal vector
         u_norm = vh[2, :]
-        return get_integer_index(u_norm, round_dp=round_dp, verbose=verbose)
+        return get_integer_index(u_norm, round_dp=round_dp, verbose=verbose)  # type: ignore[return-value]
 
     def get_recp_symmetry_operation(self, symprec: float = 0.01) -> list[SymmOp]:
         """Find the symmetric operations of the reciprocal lattice,
@@ -1749,7 +1749,7 @@ class Lattice(MSONable):
         from pymatgen.core.structure import Structure
         from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
 
-        recp = Structure(recp_lattice, ["H"], [[0, 0, 0]])
+        recp = Structure(recp_lattice, ["H"], [[0, 0, 0]])  # type:ignore[list-item]
         # Create a function that uses the symmetry operations in the
         # structure to find Miller indices that might give repetitive slabs
         analyzer = SpacegroupAnalyzer(recp, symprec=symprec)

@@ -47,6 +47,8 @@ from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
 if TYPE_CHECKING:
     from typing import ClassVar
 
+    from pymatgen.core.structure import IStructure
+
 logger = logging.getLogger(__name__)
 
 # Favor the use of the newer "enum.x" by Gus Hart over "multienum.x"
@@ -73,7 +75,7 @@ class EnumlibAdaptor:
 
     def __init__(
         self,
-        structure: Structure,
+        structure: Structure | IStructure,
         min_cell_size: int = 1,
         max_cell_size: int = 1,
         symm_prec: float = 0.1,

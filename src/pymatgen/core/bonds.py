@@ -145,7 +145,7 @@ def obtain_all_bond_lengths(
         sp2 = sp2.symbol
     syms = tuple(sorted([sp1, sp2]))
     if syms in bond_lengths:
-        return bond_lengths[syms].copy()
+        return bond_lengths[syms].copy()  # type:ignore[index]
     if default_bl is not None:
         return {1.0: default_bl}
     raise ValueError(f"No bond data for elements {syms[0]} - {syms[1]}")

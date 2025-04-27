@@ -230,7 +230,7 @@ class SiteCollection(collections.abc.Sequence, ABC):
         return iter(self.sites)
 
     # TODO return type needs fixing (can be Sequence[PeriodicSite] but raises lots of mypy errors)
-    def __getitem__(self, ind: int | slice) -> PeriodicSite:
+    def __getitem__(self, ind: int | slice):
         return self.sites[ind]  # type: ignore[return-value]
 
     def __len__(self) -> int:
@@ -999,7 +999,7 @@ class SiteCollection(collections.abc.Sequence, ABC):
         """
         from pymatgen.io.ase import AseAtomsAdaptor
 
-        return AseAtomsAdaptor.get_structure(atoms, cls=cls, **kwargs)
+        return AseAtomsAdaptor.get_structure(atoms, cls=cls, **kwargs)  # type:ignore[type-var]
 
 
 class IStructure(SiteCollection, MSONable):
@@ -2764,7 +2764,7 @@ class IStructure(SiteCollection, MSONable):
         self,
         mode: Literal["enum", "sqs"] = "enum",
         **kwargs,
-    ) -> list[Structure | IStructure]:
+    ) -> list[Structure]:
         """Get list of orderings for a disordered structure. If structure
         does not contain disorder, the default structure is returned.
 
@@ -2784,7 +2784,7 @@ class IStructure(SiteCollection, MSONable):
             List[Structure]
         """
         if self.is_ordered:
-            return [self]
+            return [self]  # type:ignore[list-item]
         if mode.startswith("enum"):
             from pymatgen.command_line.enumlib_caller import EnumlibAdaptor
 
@@ -2903,7 +2903,7 @@ class IStructure(SiteCollection, MSONable):
         if fmt == "abivars":
             from pymatgen.io.abinit.abiobjects import structure_from_abivars
 
-            return structure_from_abivars(cls=cls, **dct)
+            return structure_from_abivars(cls=cls, **dct)  # type:ignore[return-value]
 
         lattice = Lattice.from_dict(dct["lattice"])
         sites = [PeriodicSite.from_dict(sd, lattice) for sd in dct["sites"]]
@@ -3117,7 +3117,7 @@ class IStructure(SiteCollection, MSONable):
         elif fmt_low == "xsf":
             from pymatgen.io.xcrysden import XSF
 
-            struct = XSF.from_str(input_string, **kwargs).structure
+            struct = XSF.from_str(input_string, **kwargs).structure  # type:ignore[assignment]
         elif fmt_low == "mcsqs":
             from pymatgen.io.atat import Mcsqs
 
@@ -3257,7 +3257,7 @@ class IStructure(SiteCollection, MSONable):
             elif fnmatch(fname, "input*.xml"):
                 from pymatgen.io.exciting import ExcitingInput
 
-                return ExcitingInput.from_file(fname, **kwargs).structure  # type:ignore[assignment]
+                return ExcitingInput.from_file(fname, **kwargs).structure  # type:ignore[assignment, return-value]
             elif fnmatch(fname, "*rndstr.in*") or fnmatch(fname, "*lat.in*") or fnmatch(fname, "*bestsqs*"):
                 return cls.from_str(
                     contents,
@@ -3270,7 +3270,7 @@ class IStructure(SiteCollection, MSONable):
             elif fnmatch(fname, "CTRL*"):
                 from pymatgen.io.lmto import LMTOCtrl
 
-                return LMTOCtrl.from_file(filename=filename, **kwargs).structure  # type:ignore[assignment]
+                return LMTOCtrl.from_file(filename=filename, **kwargs).structure  # type:ignore[assignment,return-value]
             elif fnmatch(fname, "geometry.in*"):
                 return cls.from_str(
                     contents,
@@ -3496,7 +3496,7 @@ class IMolecule(SiteCollection, MSONable):
             label = labels[idx] if labels else None
             sites.append(Site(species[idx], coords[idx], properties=prop, label=label))
 
-        self._sites = tuple(sites)
+        self._sites = tuple(sites)  # type:ignore[arg-type]
         if validate_proximity and not self.is_valid():
             raise StructureError("Molecule contains sites that are less than 0.01 Angstrom apart!")
 
@@ -3785,7 +3785,7 @@ class IMolecule(SiteCollection, MSONable):
         """
         return self[i].distance(self[j])
 
-    def get_sites_in_sphere(self, pt: ArrayLike, r: float) -> list[Neighbor]:
+    def get_sites_in_sphere(self, pt: NDArray, r: float) -> list[Neighbor]:
         """Find all sites within a sphere from a point.
 
         Args:
@@ -3825,7 +3825,7 @@ class IMolecule(SiteCollection, MSONable):
         nns = self.get_sites_in_sphere(site.coords, r)
         return [nn for nn in nns if nn != site]
 
-    def get_neighbors_in_shell(self, origin: ArrayLike, r: float, dr: float) -> list[Neighbor]:
+    def get_neighbors_in_shell(self, origin: NDArray, r: float, dr: float) -> list[Neighbor]:
         """Get all sites in a shell centered on origin (coords) between radii
         r-dr and r+dr.
 
@@ -3925,7 +3925,7 @@ class IMolecule(SiteCollection, MSONable):
                         break
                     distances = lattice.get_all_distances(
                         lattice.get_fractional_coords(new_coords),
-                        lattice.get_fractional_coords(all_coords),
+                        lattice.get_fractional_coords(all_coords),  # type:ignore[arg-type]
                     )
                     if np.amin(distances) > min_dist:
                         break
@@ -4104,7 +4104,7 @@ class IMolecule(SiteCollection, MSONable):
         filename = str(filename)
 
         with zopen(filename, mode="rt", encoding="utf-8") as file:
-            contents: str = file.read()
+            contents: str = file.read()  # type:ignore[assignment]
         fname = filename.lower()
         if fnmatch(fname, "*.xyz*"):
             return cls.from_str(contents, fmt="xyz")
@@ -4134,9 +4134,9 @@ class Structure(IStructure, collections.abc.MutableSequence):
 
     def __init__(
         self,
-        lattice: ArrayLike | Lattice,
+        lattice: NDArray | Lattice,
         species: Sequence[CompositionLike],
-        coords: Sequence[ArrayLike] | np.ndarray,
+        coords: Sequence[NDArray] | NDArray,
         charge: float | None = None,
         validate_proximity: bool = False,
         to_unit_cell: bool = False,
@@ -4264,7 +4264,7 @@ class Structure(IStructure, collections.abc.MutableSequence):
             else:
                 self._sites[ii].species = site[0]  # type: ignore[assignment, index]
                 if len(site) > 1:
-                    self._sites[ii].frac_coords = site[1]  # type: ignore[index]
+                    self._sites[ii].frac_coords = site[1]  # type: ignore[index,assignment]
                 if len(site) > 2:
                     self._sites[ii].properties = site[2]  # type: ignore[assignment, index]
 
@@ -4288,7 +4288,7 @@ class Structure(IStructure, collections.abc.MutableSequence):
     def append(  # type:ignore[override]
         self,
         species: CompositionLike,
-        coords: ArrayLike,
+        coords: NDArray,
         coords_are_cartesian: bool = False,
         validate_proximity: bool = False,
         properties: dict | None = None,
@@ -4320,7 +4320,7 @@ class Structure(IStructure, collections.abc.MutableSequence):
         self,
         idx: int,
         species: CompositionLike,
-        coords: ArrayLike,
+        coords: NDArray,
         coords_are_cartesian: bool = False,
         validate_proximity: bool = False,
         properties: dict | None = None,
@@ -4358,7 +4358,7 @@ class Structure(IStructure, collections.abc.MutableSequence):
         self,
         idx: int,
         species: CompositionLike,
-        coords: ArrayLike | None = None,
+        coords: NDArray | None = None,
         coords_are_cartesian: bool = False,
         properties: dict | None = None,
         label: str | None = None,
@@ -4757,7 +4757,7 @@ class Structure(IStructure, collections.abc.MutableSequence):
         scaling_matrix: ArrayLike,
         to_unit_cell: bool = True,
         in_place: bool = True,
-    ) -> Self:
+    ) -> Structure:
         """Create a supercell.
 
         Args:
@@ -4793,7 +4793,7 @@ class Structure(IStructure, collections.abc.MutableSequence):
 
         return struct
 
-    def scale_lattice(self, volume: float) -> Self:
+    def scale_lattice(self, volume: float) -> Structure:
         """Perform scaling of the lattice vectors so that length proportions
         and angles are preserved.
 
@@ -4920,7 +4920,7 @@ class Structure(IStructure, collections.abc.MutableSequence):
             Structure | tuple[Structure, Trajectory]: Relaxed structure or if return_trajectory=True,
                 2-tuple of Structure and matgl TrajectoryObserver.
         """
-        return self._relax(
+        return self._relax(  # type:ignore[return-value]
             calculator,
             relax_cell=relax_cell,
             optimizer=optimizer,
@@ -5111,7 +5111,7 @@ class Molecule(IMolecule, collections.abc.MutableSequence):
             charge_spin_check=charge_spin_check,
             properties=properties,
         )
-        self._sites: list[Site] = list(self._sites)
+        self._sites: list[Site] = list(self._sites)  # type:ignore[assignment]
 
     def __setitem__(
         self,
@@ -5161,7 +5161,7 @@ class Molecule(IMolecule, collections.abc.MutableSequence):
     def append(  # type:ignore[override]
         self,
         species: CompositionLike,
-        coords: ArrayLike,
+        coords: NDArray,
         validate_proximity: bool = False,
         properties: dict | None = None,
     ) -> Self:
@@ -5250,9 +5250,9 @@ class Molecule(IMolecule, collections.abc.MutableSequence):
         new_site = Site(species, coords, properties=properties, label=label)
         if validate_proximity:
             for site in self:
-                if site.distance(new_site) < self.DISTANCE_TOLERANCE:
+                if site.distance(new_site) < self.DISTANCE_TOLERANCE:  # type:ignore[arg-type]
                     raise ValueError("New site is too close to an existing site!")
-        cast("list[PeriodicSite]", self.sites).insert(idx, new_site)
+        cast("list[PeriodicSite]", self.sites).insert(idx, new_site)  # type:ignore[arg-type]
 
         return self
 
@@ -5278,7 +5278,7 @@ class Molecule(IMolecule, collections.abc.MutableSequence):
                         label=site.label,
                     )
                 )
-        self.sites = new_sites
+        self.sites = new_sites  # type:ignore[assignment]
         return self
 
     def remove_sites(self, indices: Sequence[int]) -> Self:
@@ -5466,7 +5466,7 @@ class Molecule(IMolecule, collections.abc.MutableSequence):
             # Check whether the functional group is in database.
             if func_group not in FunctionalGroups:
                 raise RuntimeError("Can't find functional group in list. Provide explicit coordinate instead")
-            functional_group = FunctionalGroups[func_group]
+            functional_group = FunctionalGroups[func_group]  # type:ignore[assignment]
 
         # If a bond length can be found, modify func_grp so that the X-group
         # bond length is equal to the bond length.
@@ -5536,7 +5536,7 @@ class Molecule(IMolecule, collections.abc.MutableSequence):
             Molecule | tuple[Molecule, Trajectory]: Relaxed Molecule or if return_trajectory=True,
                 2-tuple of Molecule and ASE TrajectoryObserver.
         """
-        return self._relax(
+        return self._relax(  # type:ignore[return-value]
             calculator,
             relax_cell=False,
             optimizer=optimizer,
