@@ -401,11 +401,15 @@ def generate_yaml_and_json(
             sorted(((elem.name, val.value) for elem, val in prop.data.items()), key=lambda pair: Element(pair[0]).Z)
         )
 
+        # Apply factor to data to be consistent with final JSON
+        if prop.factor is not None:
+            sorted_data = {k: v * prop.factor for k, v in sorted_data.items()}
+
         prop_dict = {
             "unit": str(prop.unit) if prop.unit is not None else None,
             "reference": prop.reference,
             "data": sorted_data,
-            "factor": prop.factor,
+            # "factor": prop.factor,
         }
 
         # Filter out fields with None
