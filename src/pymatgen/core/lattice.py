@@ -1893,19 +1893,12 @@ def get_points_in_spheres(
         if not valid_coords:
             return [[]] * len(center_coords)
         valid_coords = np.concatenate(valid_coords, axis=0)
-        return get_points_in_spheres(
-            valid_coords,  # type:ignore[arg-type]
-            center_coords,
-            r,
-            pbc,
-            numerical_tol,
-            lattice,
-            return_fcoords=return_fcoords,
-        )
+        valid_images = np.concatenate(valid_images, axis=0)  # type:ignore[assignment]
 
-    valid_coords = all_coords  # type: ignore[assignment]
-    valid_images = [[0, 0, 0]] * len(valid_coords)  # type: ignore[list-item]
-    valid_indices = np.arange(len(valid_coords))  # type: ignore[assignment]
+    else:
+        valid_coords = all_coords  # type: ignore[assignment]
+        valid_images = [[0, 0, 0]] * len(valid_coords)  # type: ignore[list-item]
+        valid_indices = np.arange(len(valid_coords))  # type: ignore[assignment]
 
     # Divide the valid 3D space into cubes and compute the cube ids
     all_cube_index = _compute_cube_index(valid_coords, global_min, r)  # type: ignore[arg-type]
