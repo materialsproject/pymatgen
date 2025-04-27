@@ -156,7 +156,7 @@ class PeriodicNeighbor(PeriodicSite):
         properties: dict | None = None,
         nn_distance: float = 0.0,
         index: int = 0,
-        image: tuple = (0, 0, 0),
+        image: tuple[int, int, int] = (0, 0, 0),
         label: str | None = None,
     ) -> None:
         """
@@ -1016,7 +1016,7 @@ class IStructure(SiteCollection, MSONable):
         self,
         lattice: NDArray[np.float64] | Lattice,
         species: Sequence[CompositionLike],
-        coords: Sequence[NDArray[np.float64]],
+        coords: Sequence[NDArray[np.float64]] | Sequence[Sequence[float]],
         charge: float | None = None,
         validate_proximity: bool = False,
         to_unit_cell: bool = False,
@@ -1081,7 +1081,7 @@ class IStructure(SiteCollection, MSONable):
 
             site = PeriodicSite(
                 specie,
-                coords[idx],
+                np.array(coords[idx]),
                 self._lattice,
                 to_unit_cell,
                 coords_are_cartesian=coords_are_cartesian,
@@ -1580,7 +1580,7 @@ class IStructure(SiteCollection, MSONable):
 
     def matches(
         self,
-        other: Self | Structure,
+        other: Structure | IStructure,
         anonymous: bool = False,
         **kwargs,
     ) -> bool:
@@ -1675,7 +1675,7 @@ class IStructure(SiteCollection, MSONable):
                 self._lattice,
                 properties=self[idx].properties,
                 nn_distance=dist,
-                image=img,
+                image=tuple(img),
                 index=idx,
                 label=self[idx].label,
             )
@@ -2764,7 +2764,7 @@ class IStructure(SiteCollection, MSONable):
         self,
         mode: Literal["enum", "sqs"] = "enum",
         **kwargs,
-    ) -> list[Structure]:
+    ) -> list[Structure | IStructure]:
         """Get list of orderings for a disordered structure. If structure
         does not contain disorder, the default structure is returned.
 
