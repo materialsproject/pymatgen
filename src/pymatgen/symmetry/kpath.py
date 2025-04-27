@@ -931,7 +931,7 @@ class KPathSeek(KPathBase):
         cell = (self._latt.matrix, positions, numbers)
 
         lattice, scale_pos, atom_num = spglib.standardize_cell(
-            cell,
+            cell,  # type: ignore[arg-type]
             to_primitive=False,
             no_idealize=True,
             symprec=symprec,  # type: ignore[arg-type]
