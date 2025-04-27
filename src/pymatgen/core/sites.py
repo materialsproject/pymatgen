@@ -16,10 +16,9 @@ from pymatgen.util.coord import pbc_diff
 from pymatgen.util.misc import is_np_dict_equal
 
 if TYPE_CHECKING:
-    from collections.abc import Sequence
     from typing import Any
 
-    from numpy.typing import NDArray
+    from numpy.typing import ArrayLike, NDArray
     from typing_extensions import Self
 
     from pymatgen.util.typing import CompositionLike, SpeciesLike
@@ -38,7 +37,7 @@ class Site(collections.abc.Hashable, MSONable):
     def __init__(
         self,
         species: SpeciesLike | CompositionLike,
-        coords: NDArray[np.float64],
+        coords: ArrayLike,
         properties: dict | None = None,
         label: str | None = None,
         skip_checks: bool = False,
@@ -74,7 +73,7 @@ class Site(collections.abc.Hashable, MSONable):
             coords = np.array(coords)
 
         self._species = species
-        self.coords: np.ndarray = coords
+        self.coords: NDArray[np.float64] = np.asarray(coords, dtype=np.float64)
         self.properties: dict = properties or {}
         self._label = label
 
@@ -201,7 +200,7 @@ class Site(collections.abc.Hashable, MSONable):
         """
         return float(np.linalg.norm(other.coords - self.coords))
 
-    def distance_from_point(self, pt: Sequence[float] | NDArray) -> float:
+    def distance_from_point(self, pt: ArrayLike) -> float:
         """Get distance between the site and a point in space.
 
         Args:
@@ -294,7 +293,7 @@ class PeriodicSite(Site, MSONable):
     def __init__(
         self,
         species: SpeciesLike | CompositionLike,
-        coords: NDArray[np.float64],
+        coords: ArrayLike,
         lattice: Lattice,
         to_unit_cell: bool = False,
         coords_are_cartesian: bool = False,
@@ -313,7 +312,7 @@ class PeriodicSite(Site, MSONable):
                 iii.Dict of elements/species and occupancies, e.g.
                     {"Fe": 0.5, "Mn": 0.5}. This allows the setup of
                     disordered structures.
-            coords (NDArray[np.float_]): Coordinates of site, fractional coordinates
+            coords (ArrayLike): Coordinates of site, fractional coordinates
                 by default. See ``coords_are_cartesian`` for more details.
             lattice (Lattice): Lattice associated with the site.
             to_unit_cell (bool): Translates fractional coordinate to the
@@ -331,7 +330,7 @@ class PeriodicSite(Site, MSONable):
         frac_coords = lattice.get_fractional_coords(coords) if coords_are_cartesian else coords
 
         if to_unit_cell:
-            frac_coords = np.array([np.mod(f, 1) if p else f for p, f in zip(lattice.pbc, frac_coords, strict=True)])
+            frac_coords = np.array([np.mod(f, 1) if p else f for p, f in zip(lattice.pbc, frac_coords, strict=True)])  # type: ignore[arg-type]
 
         if not skip_checks:
             frac_coords = np.array(frac_coords)
@@ -346,9 +345,9 @@ class PeriodicSite(Site, MSONable):
                 raise ValueError("Species occupancies sum to more than 1!")
 
         self._lattice: Lattice = lattice
-        self._frac_coords: np.ndarray = np.asarray(frac_coords)
+        self._frac_coords: NDArray[np.float64] = np.asarray(frac_coords, dtype=np.float64)
         self._species: Composition = cast("Composition", species)
-        self._coords: np.ndarray | None = None
+        self._coords: NDArray[np.float64] | None = None
         self.properties: dict = properties or {}
         self._label = label
 
@@ -392,27 +391,27 @@ class PeriodicSite(Site, MSONable):
         self._coords = self._lattice.get_cartesian_coords(self._frac_coords)
 
     @property
-    def coords(self) -> np.ndarray:
+    def coords(self) -> NDArray[np.float64]:
         """Cartesian coordinates."""
         if self._coords is None:
             self._coords = self._lattice.get_cartesian_coords(self._frac_coords)
         return self._coords
 
     @coords.setter
-    def coords(self, coords: np.ndarray) -> None:
+    def coords(self, coords: ArrayLike) -> None:
         """Set Cartesian coordinates."""
-        self._coords = np.array(coords)
+        self._coords = np.asarray(coords, dtype=np.float64)
         self._frac_coords = self._lattice.get_fractional_coords(self._coords)
 
     @property
-    def frac_coords(self) -> np.ndarray:
+    def frac_coords(self) -> NDArray[np.float64]:
         """Fractional coordinates."""
         return self._frac_coords
 
     @frac_coords.setter
-    def frac_coords(self, frac_coords: np.ndarray) -> None:
+    def frac_coords(self, frac_coords: ArrayLike) -> None:
         """Set fractional coordinates."""
-        self._frac_coords = np.array(frac_coords)
+        self._frac_coords = np.array(frac_coords, dtype=np.float64)
         self._coords = self._lattice.get_cartesian_coords(self._frac_coords)
 
     @property
@@ -518,9 +517,9 @@ class PeriodicSite(Site, MSONable):
 
     def distance_and_image_from_frac_coords(
         self,
-        fcoords: NDArray[np.float64],
-        jimage: NDArray | None = None,
-    ) -> tuple[float, np.ndarray]:
+        fcoords: ArrayLike,
+        jimage: ArrayLike | None = None,
+    ) -> tuple[float, NDArray[np.int_]]:
         """Get distance between site and a fractional coordinate assuming
         periodic boundary conditions. If the index jimage of two sites atom j
         is not specified it selects the j image nearest to the i atom and
@@ -545,8 +544,8 @@ class PeriodicSite(Site, MSONable):
     def distance_and_image(
         self,
         other: Self,
-        jimage: NDArray[np.int_] | None = None,
-    ) -> tuple[float, np.ndarray]:
+        jimage: ArrayLike | None = None,
+    ) -> tuple[float, NDArray[np.int_]]:
         """Get distance and instance between two sites assuming periodic boundary
         conditions. If the index jimage of two sites atom j is not specified it
         selects the j image nearest to the i atom and returns the distance and
@@ -570,7 +569,7 @@ class PeriodicSite(Site, MSONable):
     def distance(
         self,
         other: Self,
-        jimage: NDArray | None = None,
+        jimage: ArrayLike | None = None,
     ) -> float:
         """Get distance between two sites assuming periodic boundary conditions.
 
