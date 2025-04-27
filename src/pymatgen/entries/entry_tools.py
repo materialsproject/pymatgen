@@ -29,6 +29,7 @@ if TYPE_CHECKING:
 
     from pymatgen.entries import Entry
     from pymatgen.entries.computed_entries import ComputedEntry, ComputedStructureEntry
+    from pymatgen.util.typing import SpeciesLike
 
 logger = logging.getLogger(__name__)
 
@@ -309,7 +310,7 @@ class EntrySet(collections.abc.MutableSet, MSONable):
             latexify_names: Format entry names to be LaTex compatible,
                 e.g. Li_{2}O
         """
-        els: set[Element] = set()
+        els: set[SpeciesLike] = set()
         for entry in self.entries:
             els.update(entry.elements)
         elements = sorted(els, key=lambda a: a.X)

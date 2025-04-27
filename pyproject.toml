@@ -302,7 +302,7 @@ ignore_missing_imports = true
 namespace_packages = true
 no_implicit_optional = false
 disable_error_code = ["annotation-unchecked", "override", "operator", "attr-defined", "union-attr", "misc"] #, "operator", "arg-type", "index", "call-arg", "return-value", "assignment", "attr-defined"]
-exclude = ['src/pymatgen/analysis', 'src/pymatgen/io', 'src/pymatgen/cli', 'src/pymatgen/electronic_structure', 'src/pymatgen/phonon']
+exclude = ['src/pymatgen/analysis', 'src/pymatgen/io', 'src/pymatgen/cli', 'src/pymatgen/electronic_structure', 'src/pymatgen/phonon', 'src/pymatgen/apps', 'src/pymatgen/vis', "src/pymatgen/alchemy"]
 plugins = ["numpy.typing.mypy_plugin"]
 
 [[tool.mypy.overrides]]

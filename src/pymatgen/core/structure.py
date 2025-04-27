@@ -5063,7 +5063,7 @@ class Molecule(IMolecule, collections.abc.MutableSequence):
 
     def __init__(
         self,
-        species: Sequence[SpeciesLike],
+        species: Sequence[CompositionLike],
         coords: Sequence[ArrayLike] | ArrayLike,
         charge: float = 0.0,
         spin_multiplicity: int | None = None,

@@ -31,7 +31,7 @@ jobs:
           uv run ruff format --check .
 
       - name: mypy
-        run: uv run mypy -p pymatgen.core
+        run: uv run mypy -p pymatgen.core -p pymatgen.symmetry -p pymatgen.util
 
       - name: pyright
         run: uv run pyright src

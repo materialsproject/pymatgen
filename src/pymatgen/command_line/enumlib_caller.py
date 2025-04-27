@@ -58,7 +58,7 @@ MAKESTR_CMD = which("makestr.x") or which("makeStr.x") or which("makeStr.py")
 
 
 @requires(
-    ENUM_CMD and MAKESTR_CMD,
+    ENUM_CMD and MAKESTR_CMD,  # type: ignore[arg-type]
     "EnumlibAdaptor requires the executables 'enum.x' or 'multienum.x' "
     "and 'makestr.x' or 'makeStr.py' to be in the path. Please download the "
     "library at https://github.com/msg-byu/enumlib and follow the instructions "
@@ -120,7 +120,7 @@ class EnumlibAdaptor:
             finder = SpacegroupAnalyzer(structure, symm_prec)
             self.structure = finder.get_refined_structure()
         else:
-            self.structure = structure
+            self.structure = structure  # type: ignore[assignment]
 
         self.min_cell_size = min_cell_size
         self.max_cell_size = max_cell_size
@@ -372,7 +372,7 @@ class EnumlibAdaptor:
                 data = _file.read()
                 data = re.sub(r"scale factor", "1", data)
                 data = re.sub(r"(\d+)-(\d+)", r"\1 -\2", data)
-                poscar = Poscar.from_str(data, self.index_species)
+                poscar = Poscar.from_str(data, self.index_species)  # type: ignore[arg-type]
                 sub_structure = poscar.structure
                 # Enumeration may have resulted in a super lattice. We need to
                 # find the mapping from the new lattice to the old lattice, and

@@ -27,7 +27,7 @@ if TYPE_CHECKING:
     from typing import Any
 
     from pymatgen.core import Composition, Structure
-    from pymatgen.util.typing import SpeciesLike
+    from pymatgen.util.typing import CompositionLike
 
 __author__ = "Geoffroy Hautier, Katherine Latimer, Jason Munro"
 __copyright__ = "Copyright 2020, The Materials Project"
@@ -917,21 +917,24 @@ class KPathSeek(KPathBase):
             warn("Non-zero 'magmom' data will be used to define unique atoms in the cell.", stacklevel=2)
             site_data = zip(species, [tuple(vec) for vec in sp["magmom"]], strict=True)  # type: ignore[assignment]
 
-        unique_species: list[SpeciesLike] = []
+        unique_species: list[CompositionLike] = []
         numbers = []
 
-        for species, group in itertools.groupby(site_data):
-            if species in unique_species:
-                ind = unique_species.index(species)
+        for sps, group in itertools.groupby(site_data):
+            if sps in unique_species:
+                ind = unique_species.index(sps)
                 numbers.extend([ind + 1] * len(tuple(group)))
             else:
-                unique_species.append(species)
+                unique_species.append(sps)
                 numbers.extend([len(unique_species)] * len(tuple(group)))
 
         cell = (self._latt.matrix, positions, numbers)
 
         lattice, scale_pos, atom_num = spglib.standardize_cell(
-            cell, to_primitive=False, no_idealize=True, symprec=symprec
+            cell,
+            to_primitive=False,
+            no_idealize=True,
+            symprec=symprec,  # type: ignore[arg-type]
         )
 
         spg_struct = (lattice, scale_pos, atom_num)
