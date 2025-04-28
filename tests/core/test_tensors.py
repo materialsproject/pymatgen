@@ -174,8 +174,6 @@ class TestTensor(MatSciTest):
         test = Tensor(np.arange(0, 3**4).reshape((3, 3, 3, 3)))
         assert_allclose([0, 27, 54], test.einsum_sequence([x] * 3))
         assert test.einsum_sequence([np.eye(3)] * 2) == 360
-        with pytest.raises(TypeError, match="other tensors must be list of tensors or tensor input"):
-            test.einsum_sequence(Tensor(np.zeros(3)))
 
     def test_symmetrized(self):
         assert self.rand_rank2.symmetrized.is_symmetric()

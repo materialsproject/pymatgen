@@ -25,6 +25,8 @@ from pymatgen.electronic_structure.core import Spin
 if TYPE_CHECKING:
     from typing_extensions import Any, Self
 
+    from pymatgen.core.structure import IStructure
+
 
 class VolumetricData(MSONable):
     """
@@ -58,7 +60,7 @@ class VolumetricData(MSONable):
 
     def __init__(
         self,
-        structure: Structure,
+        structure: Structure | IStructure,
         data: dict[str, np.ndarray],
         distance_matrix: np.ndarray | None = None,
         data_aug: np.ndarray | None = None,

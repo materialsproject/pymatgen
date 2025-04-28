@@ -61,7 +61,7 @@ if TYPE_CHECKING:
     from pathlib import Path
     from typing import Literal
 
-    from pymatgen.core import Structure
+    from pymatgen.core import IStructure, Structure
 
 __author__ = "Martin Siron, Andrew S. Rosen"
 __version__ = "0.1"
@@ -121,7 +121,7 @@ class ChargemolAnalysis:
 
         if self._chgcar_path:
             self.chgcar: Chgcar | None = Chgcar.from_file(self._chgcar_path)
-            self.structure: Structure | None = self.chgcar.structure
+            self.structure: Structure | IStructure | None = self.chgcar.structure
             self.natoms: list[int] | None = self.chgcar.poscar.natoms
 
         else:

@@ -20,6 +20,8 @@ if TYPE_CHECKING:
 
     from typing_extensions import Self
 
+    from pymatgen.core.structure import IStructure
+
 
 def lattice_from_abivars(cls=None, *args, **kwargs):
     """Get a `Lattice` object from a dictionary with the Abinit variables `acell`
@@ -185,7 +187,7 @@ def species_by_znucl(structure: Structure) -> list[Species]:
 
 
 def structure_to_abivars(
-    structure: Structure,
+    structure: Structure | IStructure,
     enforce_znucl: list | None = None,
     enforce_typat: list | None = None,
     **kwargs,

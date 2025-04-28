@@ -416,12 +416,17 @@ class MPRester:
                 warnings.filterwarnings("ignore", message="Failed to guess oxidation states.*")
                 entries = MaterialsProject2020Compatibility().process_entries(entries, clean=True)
 
-        if summary_data:
-            edata = self.search(
-                "summary",
-                material_ids=[e.data["material_id"] for e in entries],
-                _fields=[*summary_data, "material_id"],
-            )
+        if summary_data and len(entries) > 0:
+            mids = [e.data["material_id"] for e in entries]
+            edata = []
+            for i in range(0, len(mids), 100):
+                edata.extend(
+                    self.search(
+                        "summary",
+                        material_ids=mids[i : i + 100],
+                        _fields=[*summary_data, "material_id"],
+                    )
+                )
             mapped_data = {d["material_id"]: {k: v for k, v in d.items() if k != "material_id"} for d in edata}
             for e in entries:
                 e.data["summary"] = mapped_data[e.data["material_id"]]

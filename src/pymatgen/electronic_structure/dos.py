@@ -24,14 +24,13 @@ if version.parse(np.__version__) < version.parse("2.0.0"):
     np.trapezoid = np.trapz  # noqa: NPY201
 
 if TYPE_CHECKING:
-    from collections.abc import Sequence
     from typing import Any, Literal
 
-    from numpy.typing import NDArray
+    from numpy.typing import ArrayLike, NDArray
     from typing_extensions import Self
 
     from pymatgen.core.sites import PeriodicSite
-    from pymatgen.util.typing import SpeciesLike, Tuple3Floats
+    from pymatgen.util.typing import SpeciesLike
 
 
 class DOS(Spectrum):
@@ -48,7 +47,7 @@ class DOS(Spectrum):
     XLABEL = "Energy"
     YLABEL = "Density"
 
-    def __init__(self, energies: Sequence[float], densities: NDArray, efermi: float) -> None:
+    def __init__(self, energies: ArrayLike, densities: ArrayLike, efermi: float) -> None:
         """
         Args:
             energies (Sequence[float]): The Energies.
@@ -181,8 +180,8 @@ class Dos(MSONable):
     def __init__(
         self,
         efermi: float,
-        energies: Sequence[float],
-        densities: dict[Spin, NDArray],
+        energies: ArrayLike,
+        densities: dict[Spin, ArrayLike],
         norm_vol: float | None = None,
     ) -> None:
         """
@@ -196,10 +195,10 @@ class Dos(MSONable):
                 otherwise will be in states/eV/Angstrom^3.
         """
         self.efermi = efermi
-        self.energies = np.array(energies)
+        self.energies = np.asarray(energies)
         self.norm_vol = norm_vol
         vol = norm_vol or 1
-        self.densities = {k: np.array(d) / vol for k, d in densities.items()}
+        self.densities = {k: np.asarray(d) / vol for k, d in densities.items()}
 
     def __add__(self, other):
         """Add two Dos.
@@ -285,7 +284,7 @@ class Dos(MSONable):
         tol: float = 1e-4,
         abs_tol: bool = False,
         spin: Spin | None = None,
-    ) -> Tuple3Floats:
+    ) -> tuple[float, float, float]:
         """Find the interpolated band gap.
 
         Args:

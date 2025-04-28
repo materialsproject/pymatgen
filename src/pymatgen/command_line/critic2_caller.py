@@ -81,7 +81,7 @@ class Critic2Caller:
     """Call critic2 and store standard output for further processing."""
 
     @requires(
-        which("critic2"),
+        which("critic2"),  # type: ignore[arg-type]
         "Critic2Caller requires the executable critic to be in the path. "
         "Please follow the instructions at https://github.com/aoterodelaroza/critic2.",
     )

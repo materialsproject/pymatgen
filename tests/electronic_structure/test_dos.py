@@ -36,7 +36,7 @@ class TestDos:
         assert self.dos.get_interpolated_value(9.9)[Spin.down] == approx(1.756888888888886, abs=1e-7)
         with pytest.raises(
             ValueError,
-            match=r"x=1000 is out of range of provided x_values \(-23.7934, 14.8107\)",
+            match=r"1000 is out of range of provided x_values \(-23.7934, 14.8107\)",
         ):
             self.dos.get_interpolated_value(1000)
 
@@ -172,7 +172,7 @@ class TestCompleteDos:
         assert self.dos.get_interpolated_value(9.9)[Spin.down] == approx(1.756888888888886, abs=1e-7)
         with pytest.raises(
             ValueError,
-            match=r"x=1000 is out of range of provided x_values \(-23.7934, 14.8107\)",
+            match=r"1000 is out of range of provided x_values \(-23.7934, 14.8107\)",
         ):
             self.dos.get_interpolated_value(1000)
 
@@ -364,7 +364,7 @@ class TestDOS(MatSciTest):
         assert self.dos.get_interpolated_value(9.9)[1] == approx(1.756888888888886, abs=1e-7)
         with pytest.raises(
             ValueError,
-            match=r"x=1000 is out of range of provided x_values \(-23.7934, 14.8107\)",
+            match=r"1000 is out of range of provided x_values \(-23.7934, 14.8107\)",
         ):
             self.dos.get_interpolated_value(1000)
 

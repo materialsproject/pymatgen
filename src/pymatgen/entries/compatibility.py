@@ -721,8 +721,7 @@ class Compatibility(MSONable, abc.ABC):
 
         return processed_entry_list
 
-    @staticmethod
-    def explain(entry: ComputedEntry) -> None:
+    def explain(self, entry: ComputedEntry) -> None:
         """Print an explanation of the energy adjustments applied by the
         Compatibility class. Inspired by the "explain" methods in many database
         methodologies.
@@ -774,7 +773,7 @@ class CorrectionsList(Compatibility):
         self.run_types = run_types
         super().__init__()
 
-    def get_adjustments(self, entry: AnyComputedEntry) -> list[EnergyAdjustment]:
+    def get_adjustments(self, entry: AnyComputedEntry) -> list[ConstantEnergyAdjustment]:
         """Get the list of energy adjustments to be applied to an entry."""
         adjustment_list = []
         if entry.parameters.get("run_type") not in self.run_types:
@@ -1054,7 +1053,7 @@ class MaterialsProject2020Compatibility(Compatibility):
             self.u_corrections = {}
             self.u_errors = {}
 
-    def get_adjustments(self, entry: AnyComputedEntry) -> list[EnergyAdjustment]:
+    def get_adjustments(self, entry: AnyComputedEntry) -> list[CompositionEnergyAdjustment]:
         """Get the energy adjustments for a ComputedEntry or ComputedStructureEntry.
 
         Energy corrections are implemented directly in this method instead of in
@@ -1453,7 +1452,7 @@ class MaterialsProjectAqueousCompatibility(Compatibility):
             CompatibilityError if the required O2 and H2O energies have not been provided to
             MaterialsProjectAqueousCompatibility during init or in the list of entries passed to process_entries.
         """
-        adjustments = []
+        adjustments: list[EnergyAdjustment] = []
         if self.o2_energy is None or self.h2o_energy is None or self.h2o_adjustments is None:
             raise CompatibilityError(
                 "You did not provide the required O2 and H2O energies. "
