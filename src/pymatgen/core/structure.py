@@ -230,7 +230,7 @@ class SiteCollection(collections.abc.Sequence, ABC):
         return iter(self.sites)
 
     # TODO return type needs fixing (can be Sequence[PeriodicSite] but raises lots of mypy errors)
-    def __getitem__(self, ind: int | slice) -> PeriodicSite:
+    def __getitem__(self, ind: int | slice):
         return self.sites[ind]  # type: ignore[return-value]
 
     def __len__(self) -> int:
@@ -273,7 +273,7 @@ class SiteCollection(collections.abc.Sequence, ABC):
         raise NotImplementedError
 
     @property
-    def distance_matrix(self) -> np.ndarray:
+    def distance_matrix(self) -> NDArray[np.float64]:
         """The distance matrix between all sites in the structure. For
         periodic structures, this is overwritten to return the nearest image
         distance.
@@ -403,7 +403,7 @@ class SiteCollection(collections.abc.Sequence, ABC):
         return len(self)
 
     @property
-    def cart_coords(self) -> np.ndarray:
+    def cart_coords(self) -> NDArray[np.float64]:
         """An np.array of the Cartesian coordinates of sites in the structure."""
         return np.array([site.coords for site in self])
 
@@ -999,7 +999,7 @@ class SiteCollection(collections.abc.Sequence, ABC):
         """
         from pymatgen.io.ase import AseAtomsAdaptor
 
-        return AseAtomsAdaptor.get_structure(atoms, cls=cls, **kwargs)
+        return AseAtomsAdaptor.get_structure(atoms, cls=cls, **kwargs)  # type:ignore[type-var]
 
 
 class IStructure(SiteCollection, MSONable):
@@ -1014,9 +1014,9 @@ class IStructure(SiteCollection, MSONable):
 
     def __init__(
         self,
-        lattice: NDArray[np.float64] | Lattice,
+        lattice: ArrayLike | Lattice,
         species: Sequence[CompositionLike],
-        coords: Sequence[NDArray[np.float64]] | Sequence[Sequence[float]],
+        coords: Sequence[ArrayLike],
         charge: float | None = None,
         validate_proximity: bool = False,
         to_unit_cell: bool = False,
@@ -1276,9 +1276,9 @@ class IStructure(SiteCollection, MSONable):
     def from_spacegroup(
         cls,
         sg: str | int,
-        lattice: list | np.ndarray | Lattice,
+        lattice: ArrayLike | Lattice,
         species: Sequence[str | Element | Species | DummySpecies | Composition],
-        coords: Sequence[Sequence[float]],
+        coords: Sequence[ArrayLike],
         site_properties: dict[str, Sequence] | None = None,
         coords_are_cartesian: bool = False,
         tol: float = 1e-5,
@@ -1346,7 +1346,9 @@ class IStructure(SiteCollection, MSONable):
             raise ValueError(f"Supplied species and coords lengths ({len(species)} vs {len(coords)}) are different!")
 
         frac_coords = (
-            lattice.get_fractional_coords(coords) if coords_are_cartesian else np.array(coords, dtype=np.float64)
+            lattice.get_fractional_coords(np.asarray(coords, dtype=np.float64))
+            if coords_are_cartesian
+            else np.asarray(coords, dtype=np.float64)
         )
 
         props = {} if site_properties is None else site_properties
@@ -1376,7 +1378,7 @@ class IStructure(SiteCollection, MSONable):
     def from_magnetic_spacegroup(
         cls,
         msg: str | MagneticSpaceGroup,
-        lattice: list | np.ndarray | Lattice,
+        lattice: ArrayLike | Lattice,
         species: Sequence[str | Element | Species | DummySpecies | Composition],
         coords: Sequence[Sequence[float]],
         site_properties: dict[str, Sequence],
@@ -1521,7 +1523,7 @@ class IStructure(SiteCollection, MSONable):
         return self._charge
 
     @property
-    def distance_matrix(self) -> np.ndarray:
+    def distance_matrix(self) -> NDArray[np.float64]:
         """The distance matrix between all sites in the structure. For
         periodic structures, this should return the nearest image distance.
         """
@@ -2764,7 +2766,7 @@ class IStructure(SiteCollection, MSONable):
         self,
         mode: Literal["enum", "sqs"] = "enum",
         **kwargs,
-    ) -> list[Structure | IStructure]:
+    ) -> list[Structure]:
         """Get list of orderings for a disordered structure. If structure
         does not contain disorder, the default structure is returned.
 
@@ -2784,7 +2786,7 @@ class IStructure(SiteCollection, MSONable):
             List[Structure]
         """
         if self.is_ordered:
-            return [self]
+            return [self]  # type:ignore[list-item]
         if mode.startswith("enum"):
             from pymatgen.command_line.enumlib_caller import EnumlibAdaptor
 
@@ -2798,7 +2800,7 @@ class IStructure(SiteCollection, MSONable):
                 disordered_sites = [site for site in self if not site.is_ordered]
                 subset_structure = Structure.from_sites(disordered_sites)
                 dist_matrix = subset_structure.distance_matrix
-                dists = sorted(set(dist_matrix.ravel()))
+                dists = sorted(set(dist_matrix.ravel()))  # type:ignore[type-var]
                 unique_dists = []
                 for idx in range(1, len(dists)):
                     if dists[idx] - dists[idx - 1] > 0.1:
@@ -2903,7 +2905,7 @@ class IStructure(SiteCollection, MSONable):
         if fmt == "abivars":
             from pymatgen.io.abinit.abiobjects import structure_from_abivars
 
-            return structure_from_abivars(cls=cls, **dct)
+            return structure_from_abivars(cls=cls, **dct)  # type:ignore[return-value]
 
         lattice = Lattice.from_dict(dct["lattice"])
         sites = [PeriodicSite.from_dict(sd, lattice) for sd in dct["sites"]]
@@ -3117,7 +3119,7 @@ class IStructure(SiteCollection, MSONable):
         elif fmt_low == "xsf":
             from pymatgen.io.xcrysden import XSF
 
-            struct = XSF.from_str(input_string, **kwargs).structure
+            struct = XSF.from_str(input_string, **kwargs).structure  # type:ignore[assignment]
         elif fmt_low == "mcsqs":
             from pymatgen.io.atat import Mcsqs
 
@@ -3257,7 +3259,7 @@ class IStructure(SiteCollection, MSONable):
             elif fnmatch(fname, "input*.xml"):
                 from pymatgen.io.exciting import ExcitingInput
 
-                return ExcitingInput.from_file(fname, **kwargs).structure  # type:ignore[assignment]
+                return ExcitingInput.from_file(fname, **kwargs).structure  # type:ignore[assignment, return-value]
             elif fnmatch(fname, "*rndstr.in*") or fnmatch(fname, "*lat.in*") or fnmatch(fname, "*bestsqs*"):
                 return cls.from_str(
                     contents,
@@ -3270,7 +3272,7 @@ class IStructure(SiteCollection, MSONable):
             elif fnmatch(fname, "CTRL*"):
                 from pymatgen.io.lmto import LMTOCtrl
 
-                return LMTOCtrl.from_file(filename=filename, **kwargs).structure  # type:ignore[assignment]
+                return LMTOCtrl.from_file(filename=filename, **kwargs).structure  # type:ignore[assignment,return-value]
             elif fnmatch(fname, "geometry.in*"):
                 return cls.from_str(
                     contents,
@@ -3442,7 +3444,7 @@ class IMolecule(SiteCollection, MSONable):
     def __init__(
         self,
         species: Sequence[CompositionLike],
-        coords: Sequence[np.ndarray] | np.ndarray,
+        coords: Sequence[ArrayLike] | ArrayLike,
         charge: float = 0.0,
         spin_multiplicity: int | None = None,
         validate_proximity: bool = False,
@@ -3480,10 +3482,10 @@ class IMolecule(SiteCollection, MSONable):
             properties (dict): dictionary containing properties associated
                 with the whole molecule.
         """
-        if len(species) != len(coords):
+        if len(species) != len(coords):  # type:ignore[arg-type]
             raise StructureError(
-                f"len(species) != len(coords) ({len(species)} != {len(coords)}). List of atomic species must "
-                "have same length as list of fractional coordinates."
+                f"len(species) != len(coords) ({len(species)} != {len(coords)}). "  # type:ignore[arg-type]
+                f"List of atomic species must have same length as list of fractional coordinates."
             )
 
         self._charge_spin_check = charge_spin_check
@@ -3494,9 +3496,9 @@ class IMolecule(SiteCollection, MSONable):
             if site_properties:
                 prop = {k: v[idx] for k, v in site_properties.items()}
             label = labels[idx] if labels else None
-            sites.append(Site(species[idx], coords[idx], properties=prop, label=label))
+            sites.append(Site(species[idx], coords[idx], properties=prop, label=label))  # type:ignore[index]
 
-        self._sites = tuple(sites)
+        self._sites = tuple(sites)  # type:ignore[arg-type]
         if validate_proximity and not self.is_valid():
             raise StructureError("Molecule contains sites that are less than 0.01 Angstrom apart!")
 
@@ -3571,7 +3573,7 @@ class IMolecule(SiteCollection, MSONable):
         return n_electrons
 
     @property
-    def center_of_mass(self) -> NDArray:
+    def center_of_mass(self) -> NDArray[np.float64]:
         """Center of mass of molecule."""
         center = np.zeros(3)
         total_weight: float = 0
@@ -3887,9 +3889,9 @@ class IMolecule(SiteCollection, MSONable):
             offset = np.array([0, 0, 0])
 
         coords = np.array(self.cart_coords)
-        x_range = max(coords[:, 0]) - min(coords[:, 0])
-        y_range = max(coords[:, 1]) - min(coords[:, 1])
-        z_range = max(coords[:, 2]) - min(coords[:, 2])
+        x_range = max(coords[:, 0]) - min(coords[:, 0])  # type:ignore[type-var]
+        y_range = max(coords[:, 1]) - min(coords[:, 1])  # type:ignore[type-var]
+        z_range = max(coords[:, 2]) - min(coords[:, 2])  # type:ignore[type-var]
 
         if a <= x_range or b <= y_range or c <= z_range:
             raise ValueError("Box is not big enough to contain Molecule.")
@@ -3925,7 +3927,7 @@ class IMolecule(SiteCollection, MSONable):
                         break
                     distances = lattice.get_all_distances(
                         lattice.get_fractional_coords(new_coords),
-                        lattice.get_fractional_coords(all_coords),
+                        lattice.get_fractional_coords(all_coords),  # type:ignore[arg-type]
                     )
                     if np.amin(distances) > min_dist:
                         break
@@ -4104,7 +4106,7 @@ class IMolecule(SiteCollection, MSONable):
         filename = str(filename)
 
         with zopen(filename, mode="rt", encoding="utf-8") as file:
-            contents: str = file.read()
+            contents: str = file.read()  # type:ignore[assignment]
         fname = filename.lower()
         if fnmatch(fname, "*.xyz*"):
             return cls.from_str(contents, fmt="xyz")
@@ -4136,7 +4138,7 @@ class Structure(IStructure, collections.abc.MutableSequence):
         self,
         lattice: ArrayLike | Lattice,
         species: Sequence[CompositionLike],
-        coords: Sequence[ArrayLike] | np.ndarray,
+        coords: Sequence[ArrayLike] | ArrayLike,
         charge: float | None = None,
         validate_proximity: bool = False,
         to_unit_cell: bool = False,
@@ -4264,7 +4266,7 @@ class Structure(IStructure, collections.abc.MutableSequence):
             else:
                 self._sites[ii].species = site[0]  # type: ignore[assignment, index]
                 if len(site) > 1:
-                    self._sites[ii].frac_coords = site[1]  # type: ignore[index]
+                    self._sites[ii].frac_coords = site[1]  # type: ignore[index,assignment]
                 if len(site) > 2:
                     self._sites[ii].properties = site[2]  # type: ignore[assignment, index]
 
@@ -4757,7 +4759,7 @@ class Structure(IStructure, collections.abc.MutableSequence):
         scaling_matrix: ArrayLike,
         to_unit_cell: bool = True,
         in_place: bool = True,
-    ) -> Self:
+    ) -> Structure:
         """Create a supercell.
 
         Args:
@@ -4793,7 +4795,7 @@ class Structure(IStructure, collections.abc.MutableSequence):
 
         return struct
 
-    def scale_lattice(self, volume: float) -> Self:
+    def scale_lattice(self, volume: float) -> Structure:
         """Perform scaling of the lattice vectors so that length proportions
         and angles are preserved.
 
@@ -4835,7 +4837,7 @@ class Structure(IStructure, collections.abc.MutableSequence):
         if mode.lower()[0] not in {"s", "d", "a"}:
             raise ValueError(f"Illegal {mode=}, should start with a/d/s.")
 
-        dist_mat: NDArray = self.distance_matrix
+        dist_mat: NDArray[np.float64] = self.distance_matrix
         np.fill_diagonal(dist_mat, 0)
 
         if dist_mat.shape == (1, 1):
@@ -4847,7 +4849,7 @@ class Structure(IStructure, collections.abc.MutableSequence):
         for cluster in np.unique(clusters):
             indexes = np.where(clusters == cluster)[0]
             species: Composition = self[indexes[0]].species
-            coords: NDArray = self[indexes[0]].frac_coords
+            coords: NDArray[np.float64] = self[indexes[0]].frac_coords
             props: dict = self[indexes[0]].properties
 
             for site_idx, clust_idx in enumerate(indexes[1:]):
@@ -4920,7 +4922,7 @@ class Structure(IStructure, collections.abc.MutableSequence):
             Structure | tuple[Structure, Trajectory]: Relaxed structure or if return_trajectory=True,
                 2-tuple of Structure and matgl TrajectoryObserver.
         """
-        return self._relax(
+        return self._relax(  # type:ignore[return-value]
             calculator,
             relax_cell=relax_cell,
             optimizer=optimizer,
@@ -5061,8 +5063,8 @@ class Molecule(IMolecule, collections.abc.MutableSequence):
 
     def __init__(
         self,
-        species: Sequence[SpeciesLike],
-        coords: Sequence[NDArray] | NDArray,
+        species: Sequence[CompositionLike],
+        coords: Sequence[ArrayLike] | ArrayLike,
         charge: float = 0.0,
         spin_multiplicity: int | None = None,
         validate_proximity: bool = False,
@@ -5111,7 +5113,7 @@ class Molecule(IMolecule, collections.abc.MutableSequence):
             charge_spin_check=charge_spin_check,
             properties=properties,
         )
-        self._sites: list[Site] = list(self._sites)
+        self._sites: list[Site] = list(self._sites)  # type:ignore[assignment]
 
     def __setitem__(
         self,
@@ -5228,7 +5230,7 @@ class Molecule(IMolecule, collections.abc.MutableSequence):
         self,
         idx: int,
         species: CompositionLike,
-        coords: NDArray[np.float64],
+        coords: ArrayLike,
         validate_proximity: bool = False,
         properties: dict | None = None,
         label: str | None = None,
@@ -5250,9 +5252,9 @@ class Molecule(IMolecule, collections.abc.MutableSequence):
         new_site = Site(species, coords, properties=properties, label=label)
         if validate_proximity:
             for site in self:
-                if site.distance(new_site) < self.DISTANCE_TOLERANCE:
+                if site.distance(new_site) < self.DISTANCE_TOLERANCE:  # type:ignore[arg-type]
                     raise ValueError("New site is too close to an existing site!")
-        cast("list[PeriodicSite]", self.sites).insert(idx, new_site)
+        cast("list[PeriodicSite]", self.sites).insert(idx, new_site)  # type:ignore[arg-type]
 
         return self
 
@@ -5278,7 +5280,7 @@ class Molecule(IMolecule, collections.abc.MutableSequence):
                         label=site.label,
                     )
                 )
-        self.sites = new_sites
+        self.sites = new_sites  # type:ignore[assignment]
         return self
 
     def remove_sites(self, indices: Sequence[int]) -> Self:
@@ -5466,7 +5468,7 @@ class Molecule(IMolecule, collections.abc.MutableSequence):
             # Check whether the functional group is in database.
             if func_group not in FunctionalGroups:
                 raise RuntimeError("Can't find functional group in list. Provide explicit coordinate instead")
-            functional_group = FunctionalGroups[func_group]
+            functional_group = FunctionalGroups[func_group]  # type:ignore[assignment]
 
         # If a bond length can be found, modify func_grp so that the X-group
         # bond length is equal to the bond length.
@@ -5536,7 +5538,7 @@ class Molecule(IMolecule, collections.abc.MutableSequence):
             Molecule | tuple[Molecule, Trajectory]: Relaxed Molecule or if return_trajectory=True,
                 2-tuple of Molecule and ASE TrajectoryObserver.
         """
-        return self._relax(
+        return self._relax(  # type:ignore[return-value]
             calculator,
             relax_cell=False,
             optimizer=optimizer,

@@ -90,7 +90,7 @@ class SpacegroupAnalyzer:
     def __init__(
         self,
         structure: Structure | IStructure,
-        symprec: float | None = 0.01,
+        symprec: float = 0.01,
         angle_tolerance: float = 5,
     ) -> None:
         """
@@ -197,7 +197,7 @@ class SpacegroupAnalyzer:
         # passing a 0-length rotations list to spglib can segfault
         if len(rotations) == 0:
             return "1"
-        return spglib.get_pointgroup(rotations)[0].strip()
+        return spglib.get_pointgroup(rotations)[0].strip()  # type:ignore[index]
 
     def get_crystal_system(self) -> CrystalSystem:
         """Get the crystal system for the structure, e.g. (triclinic, orthorhombic,
@@ -573,9 +573,9 @@ class SpacegroupAnalyzer:
             international_monoclinic=international_monoclinic,
             keep_site_properties=keep_site_properties,
         )
-        lattice = self.get_lattice_type()
+        lattype = self.get_lattice_type()
 
-        if "P" in self.get_space_group_symbol() or lattice == "hexagonal":
+        if "P" in self.get_space_group_symbol() or lattype == "hexagonal":
             return conv
 
         transf = self.get_conventional_to_primitive_transformation_matrix(
@@ -861,15 +861,15 @@ class SpacegroupAnalyzer:
                 # The following will convert to proper international convention
                 # that beta is the non-right angle.
                 op = [[0, 1, 0], [1, 0, 0], [0, 0, -1]]
-                transf = np.dot(op, transf)  # type: ignore[arg-type]
+                transf = np.dot(op, transf)
                 new_matrix = np.dot(op, new_matrix)
-                beta = Lattice(new_matrix).beta
+                beta = Lattice(new_matrix).beta  # type:ignore[arg-type]
                 if beta < 90:
                     op = [[-1, 0, 0], [0, -1, 0], [0, 0, 1]]
                     transf = np.dot(op, transf)  # type: ignore[arg-type]
                     new_matrix = np.dot(op, new_matrix)  # type: ignore[arg-type]
 
-            lattice = Lattice(new_matrix)
+            lattice = Lattice(new_matrix)  # type:ignore[arg-type]
 
         elif latt_type == "triclinic":
             # we use a LLL Minkowski-like reduction for the triclinic cells
@@ -954,7 +954,7 @@ class SpacegroupAnalyzer:
                 transf = np.array([[1, 0, 0], [0, -1, 0], [0, 0, -1]])  # type:ignore[assignment]
                 new_matrix = test_matrix
 
-            lattice = Lattice(new_matrix)
+            lattice = Lattice(new_matrix)  # type:ignore[arg-type]
 
         new_coords = np.dot(transf, np.transpose(struct.frac_coords)).T  # type: ignore[arg-type]
         new_struct = Structure(
@@ -998,7 +998,7 @@ class SpacegroupAnalyzer:
                 shift.append(1)
 
         mapping, grid = spglib.get_ir_reciprocal_mesh(np.array(mesh), self._cell, is_shift=shift, symprec=self._symprec)
-        mapping = list(mapping)
+        mapping = list(mapping)  # type:ignore[assignment]
         grid = (np.array(grid) + np.array(shift) * (0.5, 0.5, 0.5)) / mesh
         weights = []
         mapped: dict[tuple, int] = defaultdict(int)
@@ -1623,7 +1623,7 @@ def cluster_sites(
     mol: Molecule,
     tol: float,
     give_only_index: bool = False,
-) -> tuple[Site | None, dict]:
+) -> tuple[int | Site | None, dict]:
     """Cluster sites based on distance and species type.
 
     Args:

@@ -12,11 +12,13 @@ import re
 from fractions import Fraction
 from typing import TYPE_CHECKING
 
+import numpy as np
+
 if TYPE_CHECKING:
     from collections.abc import Sequence
     from typing import Any, Literal, TextIO
 
-    from numpy.typing import NDArray
+    from numpy.typing import ArrayLike
 
     from pymatgen.core import Structure
 
@@ -321,8 +323,8 @@ def stream_has_colors(stream: TextIO) -> bool:
 
 
 def transformation_to_string(
-    matrix: NDArray,
-    translation_vec: tuple[float, float, float] | NDArray = (0, 0, 0),
+    matrix: ArrayLike,
+    translation_vec: ArrayLike = (0, 0, 0),
     components: tuple[str, str, str] = ("x", "y", "z"),
     c: str = "",
     delim: str = ",",
@@ -341,6 +343,8 @@ def transformation_to_string(
         str: xyz string.
     """
     parts = []
+    matrix = np.asarray(matrix)
+    translation_vec = np.asarray(translation_vec)
     for idx in range(3):
         string = ""
         mat = matrix[idx]
@@ -411,7 +415,7 @@ def disordered_formula(
 
     comp = disordered_struct.composition.get_el_amt_dict().items()
     # sort by electronegativity, as per composition
-    comp = sorted(comp, key=lambda x: get_el_sp(x[0]).X)
+    comp = sorted(comp, key=lambda x: get_el_sp(x[0]).X)  # type:ignore[assignment]
 
     disordered_comp: list[tuple[str, str]] = []
     variable_map = {}
@@ -423,7 +427,7 @@ def disordered_formula(
     factor_comp["X"] = total_disordered_occu
     for sp in disordered_species:
         del factor_comp[str(sp)]
-    factor_comp = Composition.from_dict(factor_comp)
+    factor_comp = Composition.from_dict(factor_comp)  # type:ignore[assignment]
     factor = factor_comp.get_reduced_formula_and_factor()[1]
 
     total_disordered_occu /= factor
@@ -453,12 +457,12 @@ def disordered_formula(
         raise ValueError("Unsupported output format, choose from: LaTeX, HTML, plain")
 
     disordered_formulas = []
-    for sp, occu in disordered_comp:
+    for sp, occu in disordered_comp:  # type:ignore[assignment]
         disordered_formulas.append(sp)
         if occu:  # can be empty string if 1
             if fmt != "plain":
                 disordered_formulas.append(sub_start)
-            disordered_formulas.append(occu)
+            disordered_formulas.append(occu)  # type:ignore[arg-type]
             if fmt != "plain":
                 disordered_formulas.append(sub_end)
     disordered_formulas.append(" ")

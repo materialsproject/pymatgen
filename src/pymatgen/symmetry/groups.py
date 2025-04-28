@@ -23,7 +23,7 @@ from pymatgen.util.string import Stringify
 if TYPE_CHECKING:
     from typing import ClassVar, Literal, TypeAlias
 
-    from numpy.typing import ArrayLike
+    from numpy.typing import ArrayLike, NDArray
     from typing_extensions import Self
 
     from pymatgen.core.lattice import Lattice
@@ -177,7 +177,7 @@ class PointGroup(SymmetryGroup):
         """
         return self._symmetry_ops
 
-    def _generate_full_symmetry_ops(self) -> list[SymmOp]:
+    def _generate_full_symmetry_ops(self) -> list[NDArray]:
         symm_ops = list(self.generators)
         new_ops = self.generators
         while len(new_ops) > 0:
@@ -521,7 +521,7 @@ class SpaceGroup(SymmetryGroup):
 
         orbit: list[np.ndarray] = [np.array(p, dtype=float)]
         identity = SymmOp.from_rotation_and_translation(np.eye(3), np.zeros(3))
-        generators: list[np.ndarray] = [identity]
+        generators: list[SymmOp] = [identity]
         for o in self.symmetry_ops:
             pp = o.operate(p)
             pp = np.mod(np.round(pp, decimals=10), 1)

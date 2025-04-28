@@ -13,7 +13,7 @@ from monty.json import MSONable
 if TYPE_CHECKING:
     from collections.abc import Sequence
 
-    from numpy.typing import NDArray
+    from numpy.typing import ArrayLike, NDArray
     from typing_extensions import Self
 
     from pymatgen.core import Lattice
@@ -127,7 +127,7 @@ class Magmom(MSONable):
     def __init__(
         self,
         moment: MagMomentLike,
-        saxis: tuple[float, float, float] = (0, 0, 1),
+        saxis: ArrayLike = (0, 0, 1),
     ) -> None:
         """
         Args:
@@ -137,10 +137,10 @@ class Magmom(MSONable):
         """
         # Init from another Magmom instance
         if isinstance(moment, type(self)):
-            saxis = moment.saxis  # type: ignore[has-type]
-            moment = moment.moment  # type: ignore[has-type]
+            saxis = moment.saxis
+            moment = moment.moment
 
-        magmom: NDArray = np.array(moment, dtype="d")
+        magmom = np.array(moment, dtype="d")
         if magmom.ndim == 0:
             magmom = magmom * (0, 0, 1)  # (ruff-preview) noqa: PLR6104
 

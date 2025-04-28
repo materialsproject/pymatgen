@@ -31,11 +31,11 @@ class Sqs(NamedTuple):
 
 
 @requires(
-    which("mcsqs") and which("str2cif"),
+    which("mcsqs") and which("str2cif"),  # type: ignore[arg-type]
     "run_mcsqs requires first installing AT-AT, see https://www.brown.edu/Departments/Engineering/Labs/avdw/atat/",
 )
 def run_mcsqs(
-    structure: Structure,
+    structure: Structure | IStructure,
     clusters: dict[int, float],
     scaling: int | list[int] = 1,
     search_time: float = 60,

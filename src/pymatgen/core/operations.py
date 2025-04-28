@@ -117,7 +117,7 @@ class SymmOp(MSONable):
         affine_matrix[:3][:, 3] = translation_vec
         return cls(affine_matrix, tol)
 
-    def operate(self, point: NDArray[np.float64]) -> NDArray[np.float64]:
+    def operate(self, point: ArrayLike) -> NDArray[np.float64]:
         """Apply the operation on a point.
 
         Args:
@@ -129,7 +129,7 @@ class SymmOp(MSONable):
         affine_point = np.asarray([*point, 1])
         return np.dot(self.affine_matrix, affine_point)[:3]
 
-    def operate_multi(self, points: NDArray[np.float64]) -> NDArray[np.float64]:
+    def operate_multi(self, points: ArrayLike) -> NDArray[np.float64]:
         """Apply the operation on a list of points.
 
         Args:
@@ -262,7 +262,7 @@ class SymmOp(MSONable):
         axis: NDArray,
         angle: float,
         angle_in_radians: bool = False,
-        translation_vec: Sequence[float] = (0, 0, 0),
+        translation_vec: Sequence[float] | NDArray = (0, 0, 0),
     ) -> SymmOp:
         """Generate a SymmOp for a rotation about a given axis plus translation.
 
@@ -301,8 +301,8 @@ class SymmOp(MSONable):
 
     @staticmethod
     def from_origin_axis_angle(
-        origin: Sequence[float],
-        axis: Sequence[float],
+        origin: Sequence[float] | NDArray,
+        axis: Sequence[float] | NDArray,
         angle: float,
         angle_in_radians: bool = False,
     ) -> SymmOp:

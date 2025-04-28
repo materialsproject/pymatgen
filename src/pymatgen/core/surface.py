@@ -574,8 +574,8 @@ class Slab(Structure):
                     reorient_lattice=self.reorient_lattice,
                 )
                 slabs.append(slab)
-        struct_matcher = StructureMatcher()
-        return [ss[0] for ss in struct_matcher.group_structures(slabs)]
+        stm = StructureMatcher()
+        return [ss[0] for ss in stm.group_structures(slabs)]
 
     def get_sorted_structure(self, key=None, reverse: bool = False) -> Self:
         """Get a sorted copy of the structure. The parameters have the same
@@ -727,7 +727,7 @@ class Slab(Structure):
         slab_copy = SpacegroupAnalyzer(self.copy()).get_symmetrized_structure()
         sites = [slab_copy[i].frac_coords for i in indices]
 
-        equi_sites = get_equi_sites(slab_copy, sites)
+        equi_sites = get_equi_sites(slab_copy, sites)  # type:ignore[arg-type]
 
         # Check if found any equivalent sites
         if len(equi_sites) == len(indices):
@@ -1133,7 +1133,7 @@ class SlabGenerator:
         props = {k: v * n_layers_slab for k, v in props.items()}
 
         # Generate Slab
-        struct: Structure = Structure(new_lattice, species * n_layers_slab, all_coords, site_properties=props)
+        struct: Structure = Structure(new_lattice, species * n_layers_slab, all_coords, site_properties=props)  # type:ignore[arg-type]
 
         # (Optionally) Post-process the Slab
         # Orthogonalize the structure (through LLL lattice basis reduction)

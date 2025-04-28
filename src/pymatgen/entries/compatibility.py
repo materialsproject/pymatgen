@@ -1439,7 +1439,7 @@ class MaterialsProjectAqueousCompatibility(Compatibility):
         self.name = "MP Aqueous free energy adjustment"
         super().__init__()
 
-    def get_adjustments(self, entry: ComputedEntry) -> list[TemperatureEnergyAdjustment]:
+    def get_adjustments(self, entry: ComputedEntry) -> list[EnergyAdjustment]:
         """Get the corrections applied to a particular entry.
 
         Args:
@@ -1452,7 +1452,7 @@ class MaterialsProjectAqueousCompatibility(Compatibility):
             CompatibilityError if the required O2 and H2O energies have not been provided to
             MaterialsProjectAqueousCompatibility during init or in the list of entries passed to process_entries.
         """
-        adjustments = []
+        adjustments: list[EnergyAdjustment] = []
         if self.o2_energy is None or self.h2o_energy is None or self.h2o_adjustments is None:
             raise CompatibilityError(
                 "You did not provide the required O2 and H2O energies. "

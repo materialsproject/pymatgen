@@ -256,7 +256,7 @@ class StructureVis:
                     if sp.symbol in self.excluded_bonding_elements or sp == anion:
                         exclude = True
                         break
-                    max_radius = max(max_radius, sp.average_ionic_radius)
+                    max_radius = max(max_radius, sp.average_ionic_radius)  # type:ignore[type-var,assignment]
                     color += occu * np.array(self.el_color_mapping.get(sp.symbol, [0, 0, 0]))
 
                 if not exclude:
@@ -982,7 +982,7 @@ class MultiStructuresVis(StructureVis):
             struct_radii = []
             struct_vis_radii = []
             for site in struct:
-                radius = 0
+                radius = 0.0
                 vis_radius = 0.2
                 for species, occu in site.species.items():
                     radius += occu * (

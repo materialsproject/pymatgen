@@ -51,10 +51,10 @@ class ThermalDisplacementMatrices(MSONable):
 
     def __init__(
         self,
-        thermal_displacement_matrix_cart: ArrayLike[ArrayLike],
+        thermal_displacement_matrix_cart: ArrayLike,
         structure: Structure,
         temperature: float | None,
-        thermal_displacement_matrix_cif: ArrayLike[ArrayLike] = None,
+        thermal_displacement_matrix_cif: ArrayLike | None = None,
     ) -> None:
         """
         Args:
@@ -89,8 +89,8 @@ class ThermalDisplacementMatrices(MSONable):
 
     @staticmethod
     def get_full_matrix(
-        thermal_displacement: ArrayLike[ArrayLike],
-    ) -> np.ndarray[np.ndarray]:
+        thermal_displacement: ArrayLike,
+    ) -> np.ndarray:
         """Transfers the reduced matrix to the full matrix (order of reduced matrix U11, U22, U33, U23, U13, U12).
 
         Args:
@@ -115,8 +115,8 @@ class ThermalDisplacementMatrices(MSONable):
 
     @staticmethod
     def get_reduced_matrix(
-        thermal_displacement: ArrayLike[ArrayLike],
-    ) -> np.ndarray[np.ndarray]:
+        thermal_displacement: ArrayLike,
+    ) -> np.ndarray:
         """Transfers the full matrix to reduced matrix (order of reduced matrix U11, U22, U33, U23, U13, U12).
 
         Args:
@@ -420,7 +420,7 @@ class ThermalDisplacementMatrices(MSONable):
     @classmethod
     def from_Ucif(
         cls,
-        thermal_displacement_matrix_cif: ArrayLike[ArrayLike],
+        thermal_displacement_matrix_cif: ArrayLike,
         structure: Structure,
         temperature: float | None = None,
     ) -> Self:
