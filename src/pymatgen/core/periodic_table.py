@@ -219,7 +219,7 @@ class ElementBase(Enum):
         if isinstance(val, list | dict):
             return val
 
-        unit = _PT_UNIT.get(prop_name)
+        unit: str | Unit | None = _PT_UNIT.get(prop_name)
 
         if unit is not None:
             if unit in SUPPORTED_UNIT_NAMES:
