@@ -106,7 +106,7 @@ class DosPlotter:
         efermi = dos.efermi
         self._doses[label] = {
             "energies": energies,
-            "densities": densities,
+            "densities": densities,  # type:ignore[dict-item]
             "efermi": efermi,
         }
 
@@ -176,10 +176,10 @@ class DosPlotter:
             for spin in [Spin.up, Spin.down]:
                 if spin in densities:
                     if self.stack:
-                        ys[spin] += densities[spin]
+                        ys[spin] += densities[spin]  # type:ignore[index, arg-type]
                         new_dens[spin] = ys[spin].copy()
                     else:
-                        new_dens[spin] = densities[spin]
+                        new_dens[spin] = densities[spin]  # type:ignore[index, assignment]
             all_energies.append(energies)
             all_densities.append(new_dens)
 
@@ -197,9 +197,9 @@ class DosPlotter:
                         x = densities
                         y = energy
                     else:
-                        x = energy
+                        x = energy  # type:ignore[assignment]
                         y = densities
-                    all_pts.extend(list(zip(x, y, strict=True)))
+                    all_pts.extend(list(zip(x, y, strict=True)))  # type:ignore[arg-type]
                     if self.stack:
                         ax.fill(x, y, color=colors[idx % n_colors], label=str(key))
                     elif spin == Spin.down and beta_dashed:
@@ -229,13 +229,13 @@ class DosPlotter:
             if xlim is None:
                 raise RuntimeError("xlim cannot be None.")
             relevant_y = [p[1] for p in all_pts if xlim[0] < p[0] < xlim[1]]
-            ax.set_ylim((min(relevant_y), max(relevant_y)))
+            ax.set_ylim((min(relevant_y), max(relevant_y)))  # type:ignore[arg-type,type-var]
         if not xlim and invert_axes:
             ylim = ax.get_ylim()
             if ylim is None:
                 raise RuntimeError("ylim cannot be None.")
             relevant_y = [p[0] for p in all_pts if ylim[0] < p[1] < ylim[1]]
-            ax.set_xlim((min(relevant_y), max(relevant_y)))
+            ax.set_xlim((min(relevant_y), max(relevant_y)))  # type:ignore[arg-type,type-var]
 
         if self.zero_at_efermi:
             xlim = ax.get_xlim()
@@ -937,7 +937,7 @@ class BSPlotterProjected(BSPlotter):
         if len(bs.projections) == 0:
             raise ValueError("Can't plot projections on a band structure without projections data")
 
-        self._bs: BandStructureSymmLine = bs
+        self._bs: BandStructureSymmLine = bs  # type: ignore[assignment]
         self._nb_bands: int = bs.nb_bands  # type: ignore[assignment]
 
     def _get_projections_by_branches(self, project_onto):
@@ -982,7 +982,7 @@ class BSPlotterProjected(BSPlotter):
         vbm_cbm_marker: bool = False,
         band_linewidth: float = 1.0,
         marker_size: float = 15.0,
-    ) -> plt.Axes:
+    ) -> list[plt.Axes]:
         """Generate a plot with subplots for each element-orbital pair.
 
         The orbitals are named as in the FATBAND file, e.g. "2p" or "2p_x".
@@ -2392,7 +2392,7 @@ class BSDOSPlotter:
             left_kpoint = bs.kpoints[branch["start_index"]].cart_coords
             right_kpoint = bs.kpoints[branch["end_index"]].cart_coords
             distance = np.linalg.norm(right_kpoint - left_kpoint)
-            xlabel_distances.append(xlabel_distances[-1] + distance)
+            xlabel_distances.append(xlabel_distances[-1] + distance)  # type: ignore[arg-type]
 
             # add x-coordinates for kpoint data
             npts = branch["end_index"] - branch["start_index"]
@@ -3052,7 +3052,7 @@ class BoltztrapPlotter:
         temp: float = 600,
         output: str = "eig",
         relaxation_time: float = 1e-14,
-        xlim: Sequence[float] | None = None,
+        xlim: tuple[float, float] | None = None,
     ):
         """Plot the conductivity in function of Fermi level. Semi-log plot.
 
@@ -3077,7 +3077,7 @@ class BoltztrapPlotter:
             ax.set_xlim(-0.5, self._bz.gap + 0.5)
         else:
             ax.set_xlim(xlim)
-        ax.set_ylim([1e13 * relaxation_time, 1e20 * relaxation_time])
+        ax.set_ylim((1e13 * relaxation_time, 1e20 * relaxation_time))
         ax.set_ylabel("conductivity,\n $\\Sigma$ (1/($\\Omega$ m))", fontsize=30.0)
         ax.set_xlabel("E-E$_f$ (eV)", fontsize=30.0)
         ax.set_xticks(fontsize=25)
@@ -3090,7 +3090,7 @@ class BoltztrapPlotter:
         temp: float = 600,
         output: str = "eig",
         relaxation_time: float = 1e-14,
-        xlim: Sequence[float] | None = None,
+        xlim: tuple[float, float] | None = None,
     ):
         """Plot the power factor in function of Fermi level. Semi-log plot.
 
@@ -3129,7 +3129,7 @@ class BoltztrapPlotter:
         temp: float = 600,
         output: str = "eig",
         relaxation_time: float = 1e-14,
-        xlim: Sequence[float] | None = None,
+        xlim: tuple[float, float] | None = None,
     ) -> plt.Axes:
         """Plot the ZT as function of Fermi level.
 
