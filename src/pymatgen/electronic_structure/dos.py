@@ -1381,7 +1381,7 @@ class CompleteDos(Dos):
             for at in self.structure:
                 dd = {}
                 for orb, pdos in self.pdos[at].items():
-                    dd[str(orb)] = {"densities": {str(int(spin)): dens.tolist() for spin, dens in pdos.items()}}
+                    dd[str(orb)] = {"densities": {str(int(spin)): list(dens) for spin, dens in pdos.items()}}  # type:ignore[arg-type]
                 dct["pdos"].append(dd)
             dct["atom_dos"] = {str(at): dos.as_dict() for at, dos in self.get_element_dos().items()}
             dct["spd_dos"] = {str(orb): dos.as_dict() for orb, dos in self.get_spd_dos().items()}
