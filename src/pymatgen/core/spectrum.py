@@ -62,8 +62,8 @@ class Spectrum(MSONable):
                 etc. operators work properly.
             **kwargs: Same as that for *args.
         """
-        self.x = np.asarray(x)
-        self.y = np.asarray(y)
+        self.x = np.array(x)
+        self.y = np.array(y)
         self.ydim = self.y.shape
         if self.x.shape[0] != self.ydim[0]:
             raise ValueError("x and y values have different first dimension!")
