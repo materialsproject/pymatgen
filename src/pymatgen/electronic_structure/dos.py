@@ -388,7 +388,7 @@ class Dos(MSONable):
             "@class": type(self).__name__,
             "efermi": self.efermi,
             "energies": self.energies.tolist(),
-            "densities": {str(spin): dens.tolist() for spin, dens in self.densities.items()},
+            "densities": {str(spin): list(dens) for spin, dens in self.densities.items()},
         }
 
 
