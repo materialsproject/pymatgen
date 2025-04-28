@@ -17,7 +17,7 @@ if TYPE_CHECKING:
     from collections.abc import Callable
     from typing import Literal
 
-    from numpy.typing import NDArray
+    from numpy.typing import ArrayLike, NDArray
     from typing_extensions import Self
 
 
@@ -50,7 +50,7 @@ class Spectrum(MSONable):
     XLABEL = "x"
     YLABEL = "y"
 
-    def __init__(self, x: NDArray, y: NDArray, *args, **kwargs) -> None:
+    def __init__(self, x: ArrayLike, y: ArrayLike, *args, **kwargs) -> None:
         """
         Args:
             x (ndarray): A ndarray of N values.
@@ -62,8 +62,8 @@ class Spectrum(MSONable):
                 etc. operators work properly.
             **kwargs: Same as that for *args.
         """
-        self.x = np.array(x)
-        self.y = np.array(y)
+        self.x = np.asarray(x)
+        self.y = np.asarray(y)
         self.ydim = self.y.shape
         if self.x.shape[0] != self.ydim[0]:
             raise ValueError("x and y values have different first dimension!")
