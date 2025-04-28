@@ -16,7 +16,8 @@ from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
 if TYPE_CHECKING:
     from typing_extensions import Self
 
-    from pymatgen.core import Structure
+    from pymatgen.core import IStructure, Structure
+    from pymatgen.util.typing import SpeciesLike
 
 
 class AbstractStructureFilter(MSONable, abc.ABC):
@@ -25,7 +26,7 @@ class AbstractStructureFilter(MSONable, abc.ABC):
     """
 
     @abc.abstractmethod
-    def test(self, structure: Structure):
+    def test(self, structure: Structure | IStructure):
         """Structures that return true are kept in the Transmuter object during filtering.
 
         Args:
@@ -41,7 +42,7 @@ class ContainsSpecieFilter(AbstractStructureFilter):
     By default compares by atomic number.
     """
 
-    def __init__(self, species, strict_compare=False, AND=True, exclude=False):
+    def __init__(self, species: SpeciesLike, strict_compare: bool = False, AND: bool = True, exclude: bool = False):
         """
         Args:
             species (list[SpeciesLike]): species to look for
@@ -51,12 +52,12 @@ class ContainsSpecieFilter(AbstractStructureFilter):
             exclude: If true, returns false for any structures with the specie
                 (excludes them from the Transmuter).
         """
-        self._species = list(map(get_el_sp, species))
+        self._species = list(map(get_el_sp, species))  # type:ignore[arg-type]
         self._strict = strict_compare
         self._AND = AND
         self._exclude = exclude
 
-    def test(self, structure: Structure):
+    def test(self, structure: Structure | IStructure):
         """True if structure does not contain specified species."""
         # set up lists to compare
         if not self._strict:
@@ -203,7 +204,7 @@ class RemoveDuplicatesFilter(AbstractStructureFilter):
             return True
 
         def get_spg_num(struct: Structure) -> int:
-            finder = SpacegroupAnalyzer(struct, symprec=self.symprec)
+            finder = SpacegroupAnalyzer(struct, symprec=self.symprec)  # type:ignore[arg-type]
             return finder.get_space_group_number()
 
         for struct in self.structure_list[hash_comp]:
