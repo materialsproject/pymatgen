@@ -275,14 +275,6 @@ class BaseLammpsSetGenerator(InputGenerator):
                         settings[key] = value
             self.settings = LammpsSettings(validate_params=self.validate_params, **settings)
 
-        if not self.force_field:
-            warnings.warn(
-                "Force field not specified! Ensure you have the correct force field parameters "
-                "in the data file/settings or will specify it manually using "
-                "maker.input_set_generator.force_field.",
-                stacklevel=2,
-            )
-
     def update_settings(self, updates: dict):
         """
         Update the settings for the LammpsSettings object.
@@ -312,6 +304,14 @@ class BaseLammpsSetGenerator(InputGenerator):
             **kwargs : dict
                 Additional keyword arguments to pass to the InputSet from pmg.
         """
+
+        if not self.force_field:
+            warnings.warn(
+                "Force field not specified! Ensure you have the correct force field parameters "
+                "in the data file/settings or will specify it manually using "
+                "maker.input_set_generator.force_field.",
+                stacklevel=2,
+            )
 
         if isinstance(self.inputfile, PathLike):
             try:
@@ -359,11 +359,11 @@ class BaseLammpsSetGenerator(InputGenerator):
         settings_dict.update({"read_data_flag": "read_data", "psymm": "iso"})
         # If the ensemble is not 'minimize', we set the read_data_flag to read_data
         # Convert start and end pressure to string if they are lists or arrays, and set psymm to accordingly
-        if isinstance(settings_dict["start_pressure"], (list, np.ndarray)):
+        if isinstance(settings_dict.get("start_pressure", None), (list, np.ndarray)):
             settings_dict.update(
                 {"start_pressure": " ".join(map(str, settings_dict["start_pressure"])), "psymm": "aniso"}
             )
-        if isinstance(settings_dict["end_pressure"], (list, np.ndarray)):
+        if isinstance(settings_dict.get("end_pressure", None), (list, np.ndarray)):
             settings_dict.update({"end_pressure": " ".join(map(str, settings_dict["end_pressure"])), "psymm": "aniso"})
 
         # Loop over the LammpsSettings object and update the settings dictionary
@@ -436,7 +436,6 @@ class BaseLammpsSetGenerator(InputGenerator):
                     warnings.warn(f"Force field key {ff_key} not found in the force field dictionary.", stacklevel=2)
 
         settings_dict.update({"dump_modify_flag": "dump_modify" if species else "#", "species": species})
-
         write_data = {"forcefield.lammps": FF_string}
         if additional_data:
             write_data.update({"extra.data": additional_data})
