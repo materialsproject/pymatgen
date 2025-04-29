@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import itertools
 import json
 import math
 import os
@@ -990,6 +991,9 @@ Direct
         """Test getting symmetry dataset from structure using different backends."""
         # Test spglib backend
         for backend in ("spglib", "moyopy"):
+            pytest.importorskip(
+                backend,
+            )
             dataset = self.struct.get_symmetry_dataset(backend=backend)
             assert isinstance(dataset, dict)
             assert dataset["number"] == 227
@@ -1037,6 +1041,11 @@ class TestStructure(MatSciTest):
         self.cu_structure = Structure(lattice, ["Cu", "Cu"], coords)
         self.disordered = Structure.from_spacegroup("Im-3m", Lattice.cubic(3), [Composition("Fe0.5Mn0.5")], [[0, 0, 0]])
         self.labeled_structure = Structure(lattice, ["Si", "Si"], coords, labels=["Si1", "Si2"])
+
+    def test_calc_property(self):
+        pytest.importorskip("matcalc")
+        d = self.struct.calc_property("elasticity")
+        assert "bulk_modulus_vrh" in d
 
     @pytest.mark.skipif(
         SETTINGS.get("PMG_MAPI_KEY", "") == "",
@@ -1277,6 +1286,11 @@ class TestStructure(MatSciTest):
             cart_dist = site.distance(site_orig)
             # allow 1e-6 to account for numerical precision
             assert cart_dist <= 0.1 + 1e-6, f"Distance {cart_dist} > 0.1"
+
+        # Check that the perturbation does not result in the same translation
+        vecs = [site.coords - site_orig.coords for site, site_orig in zip(struct, struct_orig, strict=True)]
+        compare_vecs = [np.allclose(v1, v2) for v1, v2 in itertools.pairwise(vecs)]
+        assert not all(compare_vecs)
 
         # Test that same seed gives same perturbation
         s1 = self.get_structure("Li2O")
@@ -1799,6 +1813,12 @@ direct
         for site in struct_0:
             struct_1.append(site.species, site.frac_coords, properties=site.properties)
         struct_1.merge_sites(mode="average")
+
+        cu = Structure(
+            Lattice.from_parameters(2.545584, 2.545584, 2.545584, 60, 60, 60), species=["Cu"], coords=[[0, 0, 0]]
+        )
+        cu.merge_sites(mode="delete")
+        assert len(cu) == 1
 
     def test_properties(self):
         assert self.struct.num_sites == len(self.struct)
@@ -2675,3 +2695,46 @@ class TestMolecule(MatSciTest):
         # Make sure kwargs are correctly passed
         atoms = molecule("CH3")
         assert type(Molecule.from_ase_atoms(atoms, charge_spin_check=False)) is Molecule
+
+    def test_perturb(self):
+        mol = self.mol
+        mol_orig = mol.copy()
+        mol.perturb(0.1)
+        # Ensure all sites were perturbed by a distance of 0.1 Angstroms
+        for site, site_orig in zip(mol, mol_orig, strict=True):
+            cart_dist = site.distance(site_orig)
+            # allow 1e-6 to account for numerical precision
+            assert cart_dist == approx(0.1), f"Distance {cart_dist} > 0.1"
+
+        # Check that the perturbation does not result in the same translation
+        vecs = [site.coords - site_orig.coords for site, site_orig in zip(mol, mol_orig, strict=True)]
+        compare_vecs = [np.allclose(v1, v2) for v1, v2 in itertools.pairwise(vecs)]
+        assert not all(compare_vecs)
+
+        # Test that same seed gives same perturbation
+        s1 = self.mol.copy()
+        s2 = self.mol.copy()
+        s1.perturb(0.1, seed=42)
+        s2.perturb(0.1, seed=42)
+        for site1, site2 in zip(s1, s2, strict=True):
+            assert site1.distance(site2) < 1e-7  # should be exactly equal up to numerical precision
+
+        # Test that different seeds give different perturbations
+        s3 = self.mol.copy()
+        s3.perturb(0.1, seed=100)
+        any_different = False
+        for site1, site3 in zip(s1, s3, strict=True):
+            if site1.distance(site3) > 1e-7:
+                any_different = True
+                break
+        assert any_different, "Different seeds should give different perturbations"
+
+        # Test min_distance
+        s4 = self.mol.copy()
+        s4.perturb(0.1, min_distance=0.05, seed=42)
+        any_different = False
+        for site1, site4 in zip(s1, s4, strict=True):
+            if site1.distance(site4) > 1e-7:
+                any_different = True
+                break
+        assert any_different, "Using min_distance should give different perturbations"

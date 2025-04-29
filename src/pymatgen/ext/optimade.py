@@ -19,6 +19,8 @@ if TYPE_CHECKING:
 
     from typing_extensions import Self
 
+    from pymatgen.core.structure import Molecule
+
 _logger = logging.getLogger(__name__)
 _handler = logging.StreamHandler(sys.stdout)
 _logger.addHandler(_handler)
@@ -235,7 +237,7 @@ class OptimadeRester:
         nsites: int | None = None,
         chemical_formula_anonymous: str | None = None,
         chemical_formula_hill: str | None = None,
-    ) -> dict[str, dict[str, Structure]]:
+    ) -> dict[str, dict[str, Structure | Molecule]]:
         """Retrieve Structures from OPTIMADE providers.
 
         Not all functionality of OPTIMADE is currently exposed in this convenience method. To
@@ -307,7 +309,7 @@ class OptimadeRester:
 
         return self.get_snls_with_filter(optimade_filter, additional_response_fields=additional_response_fields)
 
-    def get_structures_with_filter(self, optimade_filter: str) -> dict[str, dict[str, Structure]]:
+    def get_structures_with_filter(self, optimade_filter: str) -> dict[str, dict[str, Structure | Molecule]]:
         """Get structures satisfying a given OPTIMADE filter.
 
         Args:
@@ -416,7 +418,7 @@ class OptimadeRester:
                 # TODO: follow `references` to add reference information here
                 snl = StructureNL(
                     structure,
-                    authors={},
+                    authors=[],
                     history=[
                         {
                             "name": identifier,
@@ -455,7 +457,7 @@ class OptimadeRester:
                     # TODO: follow `references` to add reference information here
                     snl = StructureNL(
                         structure,
-                        authors={},
+                        authors=[],
                         history=[
                             {
                                 "name": identifier,

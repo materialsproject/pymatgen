@@ -37,7 +37,7 @@ if TYPE_CHECKING:
 # Note that you should not update this json file manually. EDits should be done on the `periodic_table.yaml`
 # file in the `dev_scripts` directory, and gen_pt_json.py can then be run to convert the yaml to json.
 with open(Path(__file__).absolute().parent / "periodic_table.json", encoding="utf-8") as ptable_json:
-    _PT_DATA: dict = json.load(ptable_json)
+    _PT_DATA: dict[str, Any] = json.load(ptable_json)
 
 _PT_ROW_SIZES: tuple[int, ...] = (2, 8, 8, 18, 18, 32, 32)
 
@@ -70,7 +70,7 @@ _MADELUNG: list[tuple[int, str]] = [
 class ElementBase(Enum):
     """Element class defined without any enum values so it can be subclassed."""
 
-    def __init__(self, symbol: SpeciesLike) -> None:
+    def __init__(self, symbol: str) -> None:
         """
         This class provides a basic, immutable representation of an element, including
         all relevant chemical and physical properties. It ensures that elements are
@@ -139,7 +139,7 @@ class ElementBase(Enum):
             - Mendeleev number: D. G. Pettifor, "A chemical scale for crystal-structure maps,"
             Solid State Communications, 1984.
         """
-        self.symbol = str(symbol)
+        self.symbol = symbol
         data = _PT_DATA[symbol]
 
         # Store key variables for quick access
@@ -178,7 +178,7 @@ class ElementBase(Enum):
             item (str): Attribute name.
 
         Raises:
-            AttributeError: If item not in _pt_data.
+            AttributeError: If item not in _PT_DATA.
         """
         if item in {
             "mendeleev_no",
@@ -248,7 +248,7 @@ class ElementBase(Enum):
                             # Ignore error. val will just remain a string.
                             pass
                     if (
-                        item in ("refractive_index", "melting_point")
+                        item in {"refractive_index", "melting_point"}
                         and isinstance(val, str)
                         and (match := re.findall(r"[\.\d]+", val))
                     ):
@@ -439,19 +439,19 @@ class ElementBase(Enum):
     @property
     def oxidation_states(self) -> tuple[int, ...]:
         """Tuple of all known oxidation states."""
-        return tuple(map(int, self._data.get("Oxidation states", [])))
+        return tuple(map(int, self._data.get("Oxidation states", ())))
 
     @property
     def common_oxidation_states(self) -> tuple[int, ...]:
         """Tuple of common oxidation states."""
-        return tuple(self._data.get("Common oxidation states", []))
+        return tuple(self._data.get("Common oxidation states", ()))
 
     @property
     def icsd_oxidation_states(self) -> tuple[int, ...]:
         """Tuple of all oxidation states with at least 10 instances in
         ICSD database AND at least 1% of entries for that element.
         """
-        return tuple(self._data.get("ICSD oxidation states", []))
+        return tuple(self._data.get("ICSD oxidation states", ()))
 
     @property
     def full_electronic_structure(self) -> list[tuple[int, str, int]]:
@@ -568,8 +568,8 @@ class ElementBase(Enum):
             for ML in range(-L, L - 1, -1):
                 for MS in np.arange(S, -S + 1, 1):
                     if (ML, MS) in comb_counter:
-                        comb_counter[ML, MS] -= 1
-                        if comb_counter[ML, MS] == 0:
+                        comb_counter[ML, MS] -= 1  # type:ignore[index]
+                        if comb_counter[ML, MS] == 0:  # type:ignore[index]
                             del comb_counter[ML, MS]
         return term_symbols
 
@@ -849,7 +849,7 @@ class ElementBase(Enum):
         """
         return self._data["IUPAC ordering"]
 
-    def as_dict(self) -> dict[Literal["element", "@module", "@class"], str]:
+    def as_dict(self) -> dict[str, Any]:
         """Serialize to MSONable dict representation e.g. to write to disk as JSON."""
         return {
             "@module": type(self).__module__,
@@ -1041,7 +1041,7 @@ class Species(MSONable, Stringify):
 
     def __init__(
         self,
-        symbol: SpeciesLike,
+        symbol: str,
         oxidation_state: float | None = None,
         spin: float | None = None,
     ) -> None:
@@ -1056,11 +1056,11 @@ class Species(MSONable, Stringify):
             ValueError: If oxidation state passed both in symbol string and via
                 oxidation_state kwarg.
         """
-        if oxidation_state is not None and isinstance(symbol, str) and symbol.endswith(("+", "-")):
+        if oxidation_state is not None and symbol.endswith(("+", "-")):
             raise ValueError(
                 f"Oxidation state should be specified either in {symbol=} or as {oxidation_state=}, not both."
             )
-        if isinstance(symbol, str) and symbol.endswith(("+", "-")):
+        if symbol.endswith(("+", "-")):
             # Extract oxidation state from symbol
             try:
                 symbol, oxi = re.match(r"([A-Za-z]+)([0-9\.0-9]*[\+\-])", symbol).groups()  # type: ignore[union-attr]
@@ -1130,7 +1130,7 @@ class Species(MSONable, Stringify):
         if self.oxi_state is not None:
             abs_charge = formula_double_format(abs(self.oxi_state))
             if isinstance(abs_charge, float):
-                abs_charge = f"{abs_charge:.2f}"
+                abs_charge = f"{abs_charge:.2f}"  # type: ignore[assignment]
             output += f"{abs_charge}{'+' if self.oxi_state >= 0 else '-'}"
 
         if self._spin is not None:
@@ -1319,7 +1319,7 @@ class Species(MSONable, Stringify):
         if self.oxi_state is not None:
             abs_charge = formula_double_format(abs(self.oxi_state))
             if isinstance(abs_charge, float):
-                abs_charge = f"{abs_charge:.2f}"
+                abs_charge = f"{abs_charge:.2f}"  # type: ignore[assignment]
             output += f"{abs_charge}{'+' if self.oxi_state >= 0 else '-'}"
         return output
 

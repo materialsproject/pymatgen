@@ -13,7 +13,6 @@ import numpy as np
 import pytest
 from monty.io import zopen
 from monty.shutil import decompress_file
-from monty.tempfile import ScratchDir
 from numpy.testing import assert_allclose
 from pytest import approx
 
@@ -860,13 +859,12 @@ class TestOutcar:
         """Test from both compressed and uncompressed versions,
         as there was a bug in monty causing different behaviours.
         """
-        with ScratchDir("."):
-            if compressed:
-                outcar = Outcar(f"{VASP_OUT_DIR}/OUTCAR.gz")
-            else:
-                copyfile(f"{VASP_OUT_DIR}/OUTCAR.gz", "./OUTCAR.gz")
-                decompress_file("./OUTCAR.gz")
-                outcar = Outcar("./OUTCAR")
+        if compressed:
+            outcar = Outcar(f"{VASP_OUT_DIR}/OUTCAR.gz")
+        else:
+            copyfile(f"{VASP_OUT_DIR}/OUTCAR.gz", "./OUTCAR.gz")
+            decompress_file("./OUTCAR.gz")
+            outcar = Outcar("./OUTCAR")
 
         expected_mag = (
             {"d": 0.0, "p": 0.003, "s": 0.002, "tot": 0.005},

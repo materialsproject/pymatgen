@@ -13,6 +13,8 @@ if TYPE_CHECKING:
     from collections.abc import Sequence
     from typing import Any
 
+    from pymatgen.core.structure import IStructure
+
 
 class _SegmentDict(TypedDict):
     coords: list[list[float]]
@@ -20,7 +22,7 @@ class _SegmentDict(TypedDict):
     length: int
 
 
-def prepare_band_input(structure: Structure, density: float = 20):
+def prepare_band_input(structure: Structure | IStructure, density: float = 20):
     """Prepare the band information needed for the FHI-aims control.in file.
 
     Args:

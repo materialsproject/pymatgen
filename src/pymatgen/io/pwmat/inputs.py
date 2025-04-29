@@ -15,6 +15,7 @@ from pymatgen.symmetry.kpath import KPathSeek
 if TYPE_CHECKING:
     from typing_extensions import Self
 
+    from pymatgen.core.structure import IStructure
     from pymatgen.util.typing import PathLike
 
 __author__ = "Hanyu Liu"
@@ -359,7 +360,7 @@ class ACstrExtractor(ACExtractorBase):
 class AtomConfig(MSONable):
     """Object for representing the data in a atom.config or final.config file."""
 
-    def __init__(self, structure: Structure, sort_structure: bool = False):
+    def __init__(self, structure: Structure | IStructure, sort_structure: bool = False):
         """Initialization function.
 
         Args:
@@ -507,7 +508,7 @@ class GenKpt(MSONable):
         self.density = density
 
     @classmethod
-    def from_structure(cls, structure: Structure, dim: int, density: float = 0.01) -> Self:
+    def from_structure(cls, structure: Structure | IStructure, dim: int, density: float = 0.01) -> Self:
         """Obtain a AtomConfig object from Structure object.
 
         Args:
@@ -617,7 +618,7 @@ class HighSymmetryPoint(MSONable):
         self.density = density
 
     @classmethod
-    def from_structure(cls, structure: Structure, dim: int, density: float = 0.01) -> Self:
+    def from_structure(cls, structure: Structure | IStructure, dim: int, density: float = 0.01) -> Self:
         """Obtain HighSymmetry object from Structure object.
 
         Args:

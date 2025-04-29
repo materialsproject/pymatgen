@@ -39,7 +39,7 @@ if TYPE_CHECKING:
     from numpy.typing import NDArray
     from spglib import SpglibDataset
 
-    from pymatgen.core import Element, Species
+    from pymatgen.core import Element, IStructure, Species
     from pymatgen.core.sites import Site
     from pymatgen.symmetry.groups import CrystalSystem
     from pymatgen.util.typing import Kpoint
@@ -89,8 +89,8 @@ class SpacegroupAnalyzer:
 
     def __init__(
         self,
-        structure: Structure,
-        symprec: float | None = 0.01,
+        structure: Structure | IStructure,
+        symprec: float = 0.01,
         angle_tolerance: float = 5,
     ) -> None:
         """
@@ -197,7 +197,7 @@ class SpacegroupAnalyzer:
         # passing a 0-length rotations list to spglib can segfault
         if len(rotations) == 0:
             return "1"
-        return spglib.get_pointgroup(rotations)[0].strip()
+        return spglib.get_pointgroup(rotations)[0].strip()  # type:ignore[index]
 
     def get_crystal_system(self) -> CrystalSystem:
         """Get the crystal system for the structure, e.g. (triclinic, orthorhombic,
@@ -527,7 +527,7 @@ class SpacegroupAnalyzer:
             # rhombohedral
             lengths = conv.lattice.lengths
             if abs(lengths[0] - lengths[2]) < 1e-4:
-                return np.eye
+                return np.eye(3)
             return np.array([[-1, 1, 1], [2, 1, 1], [-1, -2, 1]], dtype=np.float64) / 3
 
         if "I" in self.get_space_group_symbol():
@@ -573,9 +573,9 @@ class SpacegroupAnalyzer:
             international_monoclinic=international_monoclinic,
             keep_site_properties=keep_site_properties,
         )
-        lattice = self.get_lattice_type()
+        lattype = self.get_lattice_type()
 
-        if "P" in self.get_space_group_symbol() or lattice == "hexagonal":
+        if "P" in self.get_space_group_symbol() or lattype == "hexagonal":
             return conv
 
         transf = self.get_conventional_to_primitive_transformation_matrix(
@@ -657,7 +657,7 @@ class SpacegroupAnalyzer:
             The structure in a conventional standardized cell
         """
         tol = 1e-5
-        transf = None
+        transf = np.zeros(shape=(3, 3), dtype=np.float64)
         struct = self.get_refined_structure(keep_site_properties=keep_site_properties)
         lattice = struct.lattice
         latt_type = self.get_lattice_type()
@@ -670,7 +670,6 @@ class SpacegroupAnalyzer:
         if latt_type in {"orthorhombic", "cubic"}:
             # you want to keep the c axis where it is
             # to keep the C- settings
-            transf = np.zeros(shape=(3, 3))
             if self.get_space_group_symbol().startswith("C"):
                 transf[2] = [0, 0, 1]
                 a, b = sorted(lattice.abc[:2])
@@ -716,7 +715,6 @@ class SpacegroupAnalyzer:
         elif latt_type == "tetragonal":
             # find the "a" vectors
             # it is basically the vector repeated two times
-            transf = np.zeros(shape=(3, 3))
             a, b, c = sorted_lengths
             for idx, dct in enumerate(sorted_dic):
                 transf[idx][dct["orig_index"]] = 1
@@ -746,13 +744,12 @@ class SpacegroupAnalyzer:
                 [0, 0, c],
             ]
             lattice = Lattice(new_matrix)
-            transf = np.eye(3, 3)
+            transf = np.eye(3, dtype=np.float64)  # type:ignore[assignment]
 
         elif latt_type == "monoclinic":
             # You want to keep the c axis where it is to keep the C- settings
 
             if self.get_space_group_operations().int_symbol.startswith("C"):
-                transf = np.zeros(shape=(3, 3))
                 transf[2] = [0, 0, 1]
                 sorted_dic = sorted(
                     (
@@ -866,13 +863,13 @@ class SpacegroupAnalyzer:
                 op = [[0, 1, 0], [1, 0, 0], [0, 0, -1]]
                 transf = np.dot(op, transf)
                 new_matrix = np.dot(op, new_matrix)
-                beta = Lattice(new_matrix).beta
+                beta = Lattice(new_matrix).beta  # type:ignore[arg-type]
                 if beta < 90:
                     op = [[-1, 0, 0], [0, -1, 0], [0, 0, 1]]
-                    transf = np.dot(op, transf)
-                    new_matrix = np.dot(op, new_matrix)
+                    transf = np.dot(op, transf)  # type: ignore[arg-type]
+                    new_matrix = np.dot(op, new_matrix)  # type: ignore[arg-type]
 
-            lattice = Lattice(new_matrix)
+            lattice = Lattice(new_matrix)  # type:ignore[arg-type]
 
         elif latt_type == "triclinic":
             # we use a LLL Minkowski-like reduction for the triclinic cells
@@ -901,7 +898,7 @@ class SpacegroupAnalyzer:
                 return all(recp_angles <= 90) or all(recp_angles > 90)
 
             if is_all_acute_or_obtuse(test_matrix):
-                transf = np.eye(3)
+                transf = np.eye(3, dtype=np.float64)  # type:ignore[assignment]
                 new_matrix = test_matrix
 
             test_matrix = [
@@ -919,7 +916,7 @@ class SpacegroupAnalyzer:
             ]
 
             if is_all_acute_or_obtuse(test_matrix):
-                transf = [[-1, 0, 0], [0, 1, 0], [0, 0, -1]]
+                transf = np.array([[-1, 0, 0], [0, 1, 0], [0, 0, -1]])  # type:ignore[assignment]
                 new_matrix = test_matrix
 
             test_matrix = [
@@ -937,7 +934,7 @@ class SpacegroupAnalyzer:
             ]
 
             if is_all_acute_or_obtuse(test_matrix):
-                transf = [[-1, 0, 0], [0, -1, 0], [0, 0, 1]]
+                transf = np.array([[-1, 0, 0], [0, -1, 0], [0, 0, 1]])  # type:ignore[assignment]
                 new_matrix = test_matrix
 
             test_matrix = [
@@ -954,12 +951,12 @@ class SpacegroupAnalyzer:
                 ],
             ]
             if is_all_acute_or_obtuse(test_matrix):
-                transf = [[1, 0, 0], [0, -1, 0], [0, 0, -1]]
+                transf = np.array([[1, 0, 0], [0, -1, 0], [0, 0, -1]])  # type:ignore[assignment]
                 new_matrix = test_matrix
 
-            lattice = Lattice(new_matrix)
+            lattice = Lattice(new_matrix)  # type:ignore[arg-type]
 
-        new_coords = np.dot(transf, np.transpose(struct.frac_coords)).T
+        new_coords = np.dot(transf, np.transpose(struct.frac_coords)).T  # type: ignore[arg-type]
         new_struct = Structure(
             lattice,
             struct.species_and_occu,
@@ -1001,7 +998,7 @@ class SpacegroupAnalyzer:
                 shift.append(1)
 
         mapping, grid = spglib.get_ir_reciprocal_mesh(np.array(mesh), self._cell, is_shift=shift, symprec=self._symprec)
-        mapping = list(mapping)
+        mapping = list(mapping)  # type:ignore[assignment]
         grid = (np.array(grid) + np.array(shift) * (0.5, 0.5, 0.5)) / mesh
         weights = []
         mapped: dict[tuple, int] = defaultdict(int)
@@ -1626,7 +1623,7 @@ def cluster_sites(
     mol: Molecule,
     tol: float,
     give_only_index: bool = False,
-) -> tuple[Site | None, dict]:
+) -> tuple[int | Site | None, dict]:
     """Cluster sites based on distance and species type.
 
     Args:

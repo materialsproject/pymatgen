@@ -298,7 +298,7 @@
         },
         "Superconduction temperature": "no data K",
         "Thermal conductivity": "430 W m<sup>-1</sup> K<sup>-1</sup>",
-        "Van der waals radius": 1.72,
+        "Van der waals radius": 2.11,
         "Velocity of sound": "2600 m s<sup>-1</sup>",
         "Vickers hardness": "251 MN m<sup>-2</sup>",
         "X": 1.93,
@@ -851,7 +851,7 @@
             14447.678,
             15028.907
         ],
-        "Electron affinity": 0.80482
+        "Electron affinity": 0.8044863
     },
     "At": {
         "Atomic mass": 210,
@@ -1110,7 +1110,7 @@
         },
         "Superconduction temperature": "no data K",
         "Thermal conductivity": "320 W m<sup>-1</sup> K<sup>-1</sup>",
-        "Van der waals radius": 1.66,
+        "Van der waals radius": 2.14,
         "Velocity of sound": "1740 m s<sup>-1</sup>",
         "Vickers hardness": "216 MN m<sup>-2</sup>",
         "X": 2.54,
@@ -2379,7 +2379,7 @@
         },
         "Superconduction temperature": "0.517 K",
         "Thermal conductivity": "97 W m<sup>-1</sup> K<sup>-1</sup>",
-        "Van der waals radius": 1.58,
+        "Van der waals radius": 2.18,
         "Velocity of sound": "2310 m s<sup>-1</sup>",
         "Vickers hardness": "no data MN m<sup>-2</sup>",
         "X": 1.69,
@@ -2635,7 +2635,7 @@
             46840.306,
             47965.72
         ],
-        "Electron affinity": 0.572
+        "Electron affinity": 0.60016027
     },
     "Cf": {
         "Atomic mass": 251,
@@ -3740,7 +3740,7 @@
         },
         "Superconduction temperature": "no data K",
         "Thermal conductivity": "400 W m<sup>-1</sup> K<sup>-1</sup>",
-        "Van der waals radius": 1.4,
+        "Van der waals radius": 1.96,
         "Velocity of sound": "3570 m s<sup>-1</sup>",
         "Vickers hardness": "369 MN m<sup>-2</sup>",
         "X": 1.9,
@@ -3966,7 +3966,7 @@
             61736.56,
             63073.5
         ],
-        "Electron affinity": 0.352
+        "Electron affinity": 0.0153
     },
     "Er": {
         "Atomic mass": 167.259,
@@ -5358,7 +5358,7 @@
             57783.9,
             59065.53
         ],
-        "Electron affinity": 0.137
+        "Electron affinity": 0.21230
     },
     "Ge": {
         "Atomic mass": 72.64,
@@ -5551,7 +5551,7 @@
         },
         "Superconduction temperature": "no data K",
         "Thermal conductivity": "0.1805 W m<sup>-1</sup> K<sup>-1</sup>",
-        "Van der waals radius": 1.2,
+        "Van der waals radius": 1.1,
         "Velocity of sound": "1270 m s<sup>-1</sup>",
         "Vickers hardness": "no data MN m<sup>-2</sup>",
         "X": 2.2,
@@ -5565,7 +5565,7 @@
         "Ionization energies": [
             13.598434599702
         ],
-        "Electron affinity": 0.754598
+        "Electron affinity": 0.75419519
     },
     "He": {
         "Atomic mass": 4.002602,
@@ -5886,7 +5886,7 @@
         },
         "Superconduction temperature": "3.95 K",
         "Thermal conductivity": "8.3 W m<sup>-1</sup> K<sup>-1</sup>",
-        "Van der waals radius": 1.55,
+        "Van der waals radius": 2.23,
         "Velocity of sound": "1407 m s<sup>-1</sup>",
         "Vickers hardness": "no data MN m<sup>-2</sup>",
         "X": 2,
@@ -6460,7 +6460,7 @@
             32837.592,
             33750.31
         ],
-        "Electron affinity": 0.383926
+        "Electron affinity": 0.299
     },
     "Ir": {
         "Atomic mass": 192.217,
@@ -6644,7 +6644,7 @@
             86438.9,
             88113.3
         ],
-        "Electron affinity": 1.5643615
+        "Electron affinity": 1.56405712
     },
     "K": {
         "Atomic mass": 39.0983,
@@ -8823,7 +8823,7 @@
         },
         "Superconduction temperature": "no data K",
         "Thermal conductivity": "91 W m<sup>-1</sup> K<sup>-1</sup>",
-        "Van der waals radius": 1.63,
+        "Van der waals radius": 1.97,
         "Velocity of sound": "4970 m s<sup>-1</sup>",
         "Vickers hardness": "638 MN m<sup>-2</sup>",
         "X": 1.91,
@@ -9539,7 +9539,7 @@
             83976.21,
             85614.4
         ],
-        "Electron affinity": 1.0778013
+        "Electron affinity": 1.07766124
     },
     "P": {
         "Atomic mass": 30.973762,
@@ -9767,7 +9767,7 @@
         },
         "Superconduction temperature": "1.4 K",
         "Thermal conductivity": "47 W m<sup>-1</sup> K<sup>-1</sup>",
-        "Van der waals radius": 2.1,
+        "Van der waals radius": 2.43,
         "Velocity of sound": "no data m s<sup>-1</sup>",
         "Vickers hardness": "no data MN m<sup>-2</sup>",
         "X": 1.5,
@@ -10203,7 +10203,7 @@
         },
         "Superconduction temperature": "no data K",
         "Thermal conductivity": "72 W m<sup>-1</sup> K<sup>-1</sup>",
-        "Van der waals radius": 1.63,
+        "Van der waals radius": 2.1,
         "Velocity of sound": "3070 m s<sup>-1</sup>",
         "Vickers hardness": "461 MN m<sup>-2</sup>",
         "X": 2.2,
@@ -10849,7 +10849,7 @@
         },
         "Superconduction temperature": "no data K",
         "Thermal conductivity": "72 W m<sup>-1</sup> K<sup>-1</sup>",
-        "Van der waals radius": 1.75,
+        "Van der waals radius": 2.13,
         "Velocity of sound": "2680 m s<sup>-1</sup>",
         "Vickers hardness": "549 MN m<sup>-2</sup>",
         "X": 2.28,
@@ -12108,7 +12108,7 @@
             26229.895,
             27033.502
         ],
-        "Electron affinity": 1.0463825
+        "Electron affinity": 1.046272
     },
     "S": {
         "Atomic mass": 32.065,
@@ -12469,7 +12469,7 @@
         },
         "Superconduction temperature": "0.05  (under pressure)K",
         "Thermal conductivity": "16 W m<sup>-1</sup> K<sup>-1</sup>",
-        "Van der waals radius": 2.11,
+        "Van der waals radius": 2.15,
         "Velocity of sound": "no data m s<sup>-1</sup>",
         "Vickers hardness": "no data MN m<sup>-2</sup>",
         "X": 1.36,
@@ -12503,7 +12503,7 @@
             5674.9037,
             6033.7542
         ],
-        "Electron affinity": 0.1882
+        "Electron affinity": 0.17938023
     },
     "Se": {
         "Atomic mass": 78.96,
@@ -13420,7 +13420,7 @@
             76852.03,
             78394.7
         ],
-        "Electron affinity": 0.32312
+        "Electron affinity": 0.32885923
     },
     "Tb": {
         "Atomic mass": 158.92535,
@@ -14125,7 +14125,7 @@
             123086.4,
             125253.4
         ],
-        "Electron affinity": 1.17
+        "Electron affinity": 0.607696
     },
     "Ti": {
         "Atomic mass": 47.867,
@@ -14793,7 +14793,7 @@
         },
         "Superconduction temperature": "0.2 K",
         "Thermal conductivity": "27 W m<sup>-1</sup> K<sup>-1</sup>",
-        "Van der waals radius": 1.86,
+        "Van der waals radius": 2.41,
         "Velocity of sound": "3155 m s<sup>-1</sup>",
         "Vickers hardness": "1960 MN m<sup>-2</sup>",
         "X": 1.38,
@@ -14895,7 +14895,7 @@
             129570.3,
             131821
         ],
-        "Electron affinity": 0.53
+        "Electron affinity": 0.314979
     },
     "V": {
         "Atomic mass": 50.9415,
@@ -15250,7 +15250,7 @@
             79181.94,
             80755.6
         ],
-        "Electron affinity": 0.816268
+        "Electron affinity": 0.81650082
     },
     "Xe": {
         "Atomic mass": 131.293,
@@ -15510,7 +15510,7 @@
             20415.717,
             21115.55
         ],
-        "Electron affinity": 0.30712
+        "Electron affinity": 0.3112922
     },
     "Yb": {
         "Atomic mass": 173.04,
@@ -15778,7 +15778,7 @@
         },
         "Superconduction temperature": "0.85 K",
         "Thermal conductivity": "120 W m<sup>-1</sup> K<sup>-1</sup>",
-        "Van der waals radius": 1.39,
+        "Van der waals radius": 2.01,
         "Velocity of sound": "3700 m s<sup>-1</sup>",
         "Vickers hardness": "no data MN m<sup>-2</sup>",
         "X": 1.65,
@@ -16774,7 +16774,7 @@
         "Name": "Oganesson",
         "Ground level": null,
         "Ionization energies": [],
-        "Electron affinity": 0.0561,
+        "Electron affinity": 0.0806,
         "Van der waals radius": "no data"
     },
     "D": {

@@ -396,7 +396,7 @@ class PartialRemoveSitesTransformation(AbstractTransformation):
         for indices, fraction in zip(self.indices, self.fractions, strict=True):
             for ind in indices:
                 new_sp = {sp: occu * fraction for sp, occu in structure[ind].species.items()}
-                struct[ind] = new_sp
+                struct[ind] = new_sp  # type: ignore[assignment]
         # Perform enumeration
         from pymatgen.transformations.advanced_transformations import EnumerateStructureTransformation
 

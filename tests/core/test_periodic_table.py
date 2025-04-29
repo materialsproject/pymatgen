@@ -367,7 +367,7 @@ class TestElement(MatSciTest):
         el = Element.Pd
         assert el.atomic_radius == approx(1.40)
         assert el.atomic_radius_calculated == approx(1.69)
-        assert el.van_der_waals_radius == approx(1.63)
+        assert el.van_der_waals_radius == approx(2.10)
 
     def test_data(self):
         assert Element.Pd.data["Atomic radius"] == approx(1.4)
@@ -719,7 +719,7 @@ class TestDummySpecies:
                 if str(el) == "H" and ox == 1:
                     continue
                 n_electron_el = sum(orb[-1] for orb in el.full_electronic_structure)
-                n_electron_sp = sum(orb[-1] for orb in Species(el, ox).full_electronic_structure)
+                n_electron_sp = sum(orb[-1] for orb in Species(el.symbol, ox).full_electronic_structure)
                 assert n_electron_el - n_electron_sp == ox, f"Failure for {el} {ox}"
 
 

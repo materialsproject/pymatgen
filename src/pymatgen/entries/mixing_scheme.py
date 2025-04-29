@@ -157,7 +157,7 @@ class MaterialsProjectDFTMixingScheme(Compatibility):
         processed_entry_list: list = []
 
         # We can't operate on single entries in this scheme
-        if len(entries) == 1:
+        if len(entries) == 1:  # type: ignore[arg-type]
             warnings.warn(
                 f"{type(self).__name__} cannot process single entries. Supply a list of entries.", stacklevel=2
             )
@@ -500,12 +500,12 @@ class MaterialsProjectDFTMixingScheme(Compatibility):
         # construct PhaseDiagram for each run_type, if possible
         pd_type_1, pd_type_2 = None, None
         try:
-            pd_type_1 = PhaseDiagram(entries_type_1)
+            pd_type_1 = PhaseDiagram(entries_type_1)  # type: ignore[arg-type]
         except ValueError:
             warnings.warn(f"{self.run_type_1} entries do not form a complete PhaseDiagram.", stacklevel=2)
 
         try:
-            pd_type_2 = PhaseDiagram(entries_type_2)
+            pd_type_2 = PhaseDiagram(entries_type_2)  # type: ignore[arg-type]
         except ValueError:
             warnings.warn(f"{self.run_type_2} entries do not form a complete PhaseDiagram.", stacklevel=2)
 

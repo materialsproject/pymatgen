@@ -30,7 +30,7 @@ if TYPE_CHECKING:
 
     from typing_extensions import Self
 
-    from pymatgen.util.typing import Matrix3D, PathLike, SitePropsType, Vector3D
+    from pymatgen.util.typing import PathLike, SitePropsType
 
 __author__ = "Eric Sivonxay, Shyam Dwaraknath, Mingjian Wen, Evan Spotte-Smith"
 __version__ = "0.1"
@@ -49,17 +49,17 @@ class Trajectory(MSONable):
     def __init__(
         self,
         species: list[str | Element | Species | DummySpecies | Composition],
-        coords: list[list[Vector3D]] | np.ndarray | list[np.ndarray],
+        coords: list[list[tuple[float, float, float]]] | np.ndarray | list[np.ndarray],
         charge: float | None = None,
         spin_multiplicity: float | None = None,
-        lattice: (Lattice | Matrix3D | list[Lattice] | list[Matrix3D] | np.ndarray | None) = None,
+        lattice: (Lattice | list[Lattice] | list[np.ndarray] | np.ndarray | None) = None,
         *,
         site_properties: SitePropsType | None = None,
         frame_properties: list[dict] | None = None,
         constant_lattice: bool | None = True,
         time_step: float | None = None,
         coords_are_displacement: bool = False,
-        base_positions: list[list[Vector3D]] | np.ndarray | None = None,
+        base_positions: list[list[tuple[float, float, float]]] | np.ndarray | None = None,
     ) -> None:
         """In below, N denotes the number of sites in the structure, and M denotes the
         number of frames in the trajectory.
@@ -196,7 +196,7 @@ class Trajectory(MSONable):
         """Number of frames in the trajectory."""
         return len(self.coords)
 
-    def __getitem__(self, frames: ValidIndex) -> Molecule | Structure | Self:
+    def __getitem__(self, frames: ValidIndex) -> Molecule | Structure:
         """Get a subset of the trajectory.
 
         The output depends on the type of the input frames. If an int is given, return
@@ -222,7 +222,7 @@ class Trajectory(MSONable):
                 spin = None if self.spin_multiplicity is None else int(self.spin_multiplicity)
 
                 return Molecule(
-                    self.species,
+                    self.species,  # type:ignore[arg-type]
                     self.coords[frames],
                     charge=charge,
                     spin_multiplicity=spin,
@@ -260,7 +260,7 @@ class Trajectory(MSONable):
             )
 
             if self.lattice is None:
-                return type(self)(
+                return type(self)(  # type:ignore[return-value]
                     species=self.species,
                     coords=coords,
                     charge=self.charge,
@@ -274,7 +274,7 @@ class Trajectory(MSONable):
 
             lattice = self.lattice if self.constant_lattice else self.lattice[selected]
 
-            return type(self)(
+            return type(self)(  # type:ignore[return-value]
                 species=self.species,
                 coords=coords,
                 lattice=lattice,
@@ -288,7 +288,7 @@ class Trajectory(MSONable):
 
         raise TypeError(f"bad index={frames!r}, expected one of [{', '.join(str(ValidIndex).split(' | '))}]")
 
-    def get_structure(self, idx: int) -> Structure:
+    def get_structure(self, idx: int) -> Structure | Trajectory:
         """Get structure at specified index.
 
         Args:
@@ -303,7 +303,7 @@ class Trajectory(MSONable):
 
         return struct
 
-    def get_molecule(self, idx: int) -> Molecule:
+    def get_molecule(self, idx: int) -> Molecule | Trajectory:
         """Get molecule at specified index.
 
         Args:
@@ -475,7 +475,7 @@ class Trajectory(MSONable):
         xdatcar_str = "\n".join(lines) + "\n"
 
         with zopen(filename, mode="wt", encoding="utf-8") as file:
-            file.write(xdatcar_str)
+            file.write(xdatcar_str)  # type:ignore[arg-type]
 
     def as_dict(self) -> dict:
         """Return the trajectory as a MSONable dict."""
@@ -584,7 +584,7 @@ class Trajectory(MSONable):
 
         elif fnmatch(filename, "*.traj"):
             if NO_ASE_ERR is None:
-                return cls.from_ase(
+                return cls.from_ase(  # type:ignore[return-value]
                     filename,
                     constant_lattice=constant_lattice,
                     store_frame_properties=True,
@@ -779,7 +779,7 @@ class Trajectory(MSONable):
 
         adaptor = AseAtomsAdaptor()
 
-        structures = []
+        structures: list[Structure] = []
         frame_properties = []
         converter = adaptor.get_structure if (is_pbc := any(trajectory[0].pbc)) else adaptor.get_molecule
 
@@ -807,7 +807,7 @@ class Trajectory(MSONable):
         if is_pbc:
             return cls.from_structures(structures, constant_lattice=constant_lattice, frame_properties=frame_properties)
         return cls.from_molecules(
-            structures,
+            structures,  # type:ignore[arg-type]
             constant_lattice=constant_lattice,
             frame_properties=frame_properties,
         )
