@@ -270,9 +270,7 @@ class BaseLammpsSetGenerator(InputGenerator):
             settings = self.settings.copy()
             if self.include_defaults:
                 base_settings = _BASE_LAMMPS_SETTINGS.copy()
-                for key, value in base_settings.items():
-                    if key not in settings:
-                        settings[key] = value
+                settings = base_settings | settings
             self.settings = LammpsSettings(validate_params=self.validate_params, **settings)
 
     def update_settings(self, updates: dict):
@@ -348,16 +346,17 @@ class BaseLammpsSetGenerator(InputGenerator):
             data = LammpsData.from_structure(data, atom_style=atom_style)
             warnings.warn("Structure provided, converting to LammpsData object.", stacklevel=2)
 
+        # Housekeeping to fill up the default settings for the MD template
+        settings_dict.update({f"{sys}_flag": "###" for sys in ["nve", "nvt", "npt", "nph", "restart", "extra_data"]})
+        settings_dict.update({"read_data_flag": "read_data", "psymm": "iso"})
+        # If the ensemble is not 'minimize', we set the read_data_flag to read_data
+
         # Accounts for the restart file
         if settings_dict.get("restart", None):
             settings_dict.update(
-                {"read_restart": f"{settings_dict['restart']}", "restart_flag": "read_restart", "read_data_flag": "#"}
+                {"read_restart": f"{settings_dict['restart']}", "restart_flag": "read_restart", "read_data_flag": "###"}
             )
 
-        # Housekeeping to fill up the default settings for the MD template
-        settings_dict.update({f"{sys}_flag": "#" for sys in ["nve", "nvt", "npt", "nph", "restart", "extra_data"]})
-        settings_dict.update({"read_data_flag": "read_data", "psymm": "iso"})
-        # If the ensemble is not 'minimize', we set the read_data_flag to read_data
         # Convert start and end pressure to string if they are lists or arrays, and set psymm to accordingly
         if isinstance(settings_dict.get("start_pressure", None), (list, np.ndarray)):
             settings_dict.update(
@@ -416,7 +415,7 @@ class BaseLammpsSetGenerator(InputGenerator):
         FF_string = ""
         if isinstance(self.force_field, str):
             FF_string += self.force_field
-            settings_dict.update({f"{ff}_flag": "#" for ff in FF_STYLE_KEYS})
+            settings_dict.update({f"{ff}_flag": "###" for ff in FF_STYLE_KEYS})
 
         if isinstance(self.force_field, dict):
             for key, value in self.force_field.items():
@@ -432,10 +431,10 @@ class BaseLammpsSetGenerator(InputGenerator):
 
             for ff_key in FF_STYLE_KEYS:
                 if ff_key not in self.settings.dict or not self.settings.dict[ff_key]:  # type: ignore[union-attr]
-                    settings_dict.update({f"{ff_key}_flag": "#"})
+                    settings_dict.update({f"{ff_key}_flag": "###"})
                     warnings.warn(f"Force field key {ff_key} not found in the force field dictionary.", stacklevel=2)
 
-        settings_dict.update({"dump_modify_flag": "dump_modify" if species else "#", "species": species})
+        settings_dict.update({"dump_modify_flag": "dump_modify" if species else "###", "species": species})
         write_data = {"forcefield.lammps": FF_string}
         if additional_data:
             write_data.update({"extra.data": additional_data})
@@ -444,8 +443,8 @@ class BaseLammpsSetGenerator(InputGenerator):
         # Replace all variables
         input_str = Template(self.inputfile.get_str()).safe_substitute(**settings_dict)  # type: ignore[union-attr]
         lines = input_str.split("\n")
-        # Filter out the lines where the substitution resulted in a line starting with '#'
-        filtered_input_str = "\n".join([line for line in lines if not line.lstrip().startswith("#")])
+        # Filter out the lines where the substitution resulted in a line starting with '###'
+        filtered_input_str = "\n".join([line for line in lines if not line.lstrip().startswith("###")])
         input_file = LammpsInputFile.from_str(filtered_input_str, keep_stages=self.keep_stages)
 
         return LammpsInputSet(
