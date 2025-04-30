@@ -1956,7 +1956,7 @@ class TestIcohplist:
         assert self.icohp_lcfo.is_spin_polarized
         assert len(self.icohp_lcfo.icohplist) == 28
         assert not self.icohp_lcfo_non_orbitalwise.orbitalwise
-        assert len(self.icohp_lcfo_non_orbitalwise.icohplist) == 27
+        assert len(self.icohp_lcfo_non_orbitalwise.icohplist) == 28
 
     def test_values(self):
         icohplist_bise = {
