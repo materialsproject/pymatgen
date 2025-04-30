@@ -991,7 +991,7 @@ class BztPlotter:
         temps: list[float] | None = None,
         xlim: tuple[float, float] = (-2, 2),
         ax: plt.Axes | None = None,
-    ) -> plt.Axes | plt.Figure:
+    ) -> plt.Axes | plt.Figure | None:
         """Plot the transport properties.
 
         Args:

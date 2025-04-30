@@ -137,8 +137,8 @@ class Magmom(MSONable):
         """
         # Init from another Magmom instance
         if isinstance(moment, type(self)):
-            saxis = moment.saxis
-            moment = moment.moment
+            saxis = moment.saxis  # type:ignore[has-type]
+            moment = moment.moment  # type:ignore[has-type]
 
         magmom = np.array(moment, dtype="d")
         if magmom.ndim == 0:
@@ -157,12 +157,12 @@ class Magmom(MSONable):
         return iter(self.moment)
 
     def __abs__(self) -> float:
-        return np.linalg.norm(self.moment)
+        return np.linalg.norm(self.moment)  # type: ignore[return-value]
 
     def __eq__(self, other: object) -> bool:
         """Whether global magnetic moments are the same, saxis can differ."""
         try:
-            other_magmom = type(self)(other)
+            other_magmom = type(self)(other)  # type: ignore[arg-type]
         except (TypeError, ValueError):
             return NotImplemented
 
@@ -379,7 +379,7 @@ class Magmom(MSONable):
     def get_consistent_set_and_saxis(
         magmoms: Sequence[MagMomentLike],
         saxis: tuple[float, float, float] | None = None,
-    ) -> tuple[list[Magmom], NDArray]:
+    ) -> tuple[list[NDArray], NDArray]:
         """Ensure magmoms use the same spin axis.
 
         Args:
@@ -391,7 +391,7 @@ class Magmom(MSONable):
         """
         _magmoms: list[Magmom] = [Magmom(magmom) for magmom in magmoms]
         _saxis: NDArray = Magmom.get_suggested_saxis(_magmoms) if saxis is None else saxis / np.linalg.norm(saxis)
-        moments: list[NDArray] = [magmom.get_moment(saxis=_saxis) for magmom in _magmoms]
+        moments: list[NDArray] = [magmom.get_moment(saxis=_saxis) for magmom in _magmoms]  # type: ignore[arg-type]
         return moments, _saxis
 
     @staticmethod
@@ -435,15 +435,15 @@ class Magmom(MSONable):
             magmoms = Magmom.get_consistent_set_and_saxis(magmoms)[0]
 
         # Convert to numpy array for convenience
-        magmoms = np.array([list(cast("Magmom", magmom)) for magmom in magmoms])
-        magmoms = magmoms[np.any(magmoms, axis=1)]  # remove zero magmoms
+        magmoms = np.array([list(cast("Magmom", magmom)) for magmom in magmoms])  # type: ignore[assignment]
+        magmoms = magmoms[np.any(magmoms, axis=1)]  # type:ignore[assignment,arg-type]
         if len(magmoms) == 0:
             return True
 
         # Use first moment as reference to compare against
         ref_magmom = magmoms[0]
         # Magnitude of cross products != 0 if non-collinear with reference
-        num_ncl = np.count_nonzero(np.linalg.norm(np.cross(ref_magmom, magmoms), axis=1))
+        num_ncl = np.count_nonzero(np.linalg.norm(np.cross(ref_magmom, magmoms), axis=1))  # type: ignore[arg-type]
         return num_ncl == 0
 
     @classmethod

@@ -31,10 +31,10 @@ from pymatgen.util.due import Doi, due
 from pymatgen.util.num import round_to_sigfigs
 
 if TYPE_CHECKING:
-    from collections.abc import Sequence
+    from collections.abc import Mapping
     from typing import Any, Literal
 
-    from numpy.typing import NDArray
+    from numpy.typing import ArrayLike, NDArray
     from typing_extensions import Self
 
     from pymatgen.util.typing import PathLike, SpinLike
@@ -58,12 +58,12 @@ class Cohp(MSONable):
     def __init__(
         self,
         efermi: float,
-        energies: Sequence[float],
-        cohp: dict[Spin, NDArray],
+        energies: ArrayLike,
+        cohp: Mapping[Spin, NDArray],
         are_coops: bool = False,
         are_cobis: bool = False,
         are_multi_center_cobis: bool = False,
-        icohp: dict[Spin, NDArray] | None = None,
+        icohp: Mapping[Spin, NDArray] | None = None,
     ) -> None:
         """
         Args:
@@ -146,7 +146,7 @@ class Cohp(MSONable):
         if populations is None:
             return None
         if spin is None:
-            return populations
+            return populations  # type: ignore[return-value]
         if isinstance(spin, int):
             spin = Spin(spin)
         elif isinstance(spin, str):
@@ -378,8 +378,8 @@ class CompleteCohp(Cohp):
             The Cohp.
         """
         if label.lower() == "average":
-            divided_cohp: dict[Spin, Any] | None = self.cohp
-            divided_icohp: dict[Spin, Any] | None = self.icohp
+            divided_cohp: Mapping[Spin, NDArray] | None = self.cohp
+            divided_icohp: Mapping[Spin, NDArray] | None = self.icohp
         else:
             divided_cohp = self.all_cohps[label].get_cohp(spin=None, integrated=False)
             divided_icohp = self.all_cohps[label].get_icohp(spin=None)
@@ -390,8 +390,10 @@ class CompleteCohp(Cohp):
         if summed_spin_channels and Spin.down in self.cohp:
             if divided_icohp is None:
                 raise ValueError("divided_icohp is None")
-            final_cohp: dict[Spin, Any] = {Spin.up: np.sum([divided_cohp[Spin.up], divided_cohp[Spin.down]], axis=0)}
-            final_icohp: dict[Spin, Any] | None = {
+            final_cohp: Mapping[Spin, NDArray] = {
+                Spin.up: np.sum([divided_cohp[Spin.up], divided_cohp[Spin.down]], axis=0)
+            }
+            final_icohp: Mapping[Spin, NDArray] | None = {
                 Spin.up: np.sum([divided_icohp[Spin.up], divided_icohp[Spin.down]], axis=0)
             }
         else:
@@ -1418,7 +1420,7 @@ def get_integrated_cohp_in_energy_range(
         _icohps = cohp.get_orbital_resolved_cohp(label=label, orbitals=orbital)
         if _icohps is None:
             raise ValueError("_icohps is None")
-        icohps = _icohps.icohp
+        icohps = _icohps.icohp  # type: ignore[assignment]
 
     if icohps is None:
         raise ValueError("ichops is None")
