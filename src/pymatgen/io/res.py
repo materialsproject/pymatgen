@@ -29,7 +29,7 @@ if TYPE_CHECKING:
 
     from typing_extensions import Self
 
-    from pymatgen.util.typing import Tuple3Ints, Vector3D
+    from pymatgen.core.structure import IStructure
 
 
 @dataclass(frozen=True)
@@ -72,7 +72,7 @@ class ResCELL:
 class Ion:
     specie: str
     specie_num: int
-    pos: Vector3D
+    pos: tuple[float, float, float]
     occupancy: float
     spin: float | None
 
@@ -292,7 +292,7 @@ class ResWriter:
         return ResSFAC(species, ions)
 
     @classmethod
-    def _res_from_structure(cls, structure: Structure) -> Res:
+    def _res_from_structure(cls, structure: Structure | IStructure) -> Res:
         """Produce a res file structure from a pymatgen Structure."""
         return Res(
             None,
@@ -317,7 +317,7 @@ class ResWriter:
             cls._sfac_from_sites(list(entry.structure)),
         )
 
-    def __init__(self, entry: Structure | ComputedStructureEntry):
+    def __init__(self, entry: Structure | IStructure | ComputedStructureEntry):
         """This class can be constructed from either a pymatgen Structure or ComputedStructureEntry object."""
         func: Callable[[Structure], Res] | Callable[[ComputedStructureEntry], Res]
         func = self._res_from_structure
@@ -509,12 +509,11 @@ class AirssProvider(ResProvider):
 
     def get_mpgrid_offset_nkpts_spacing(
         self,
-    ) -> tuple[Tuple3Ints, Vector3D, int, float] | None:
+    ) -> tuple[tuple[int, int, int], tuple[float, float, float], int, float] | None:
         """
         Retrieves the MP grid, the grid offsets, number of kpoints, and maximum kpoint spacing.
 
-        Returns:
-            tuple[tuple[int, int, int], Vector3D, int, float]: (MP grid), (offsets), No. kpts, max spacing)
+        Returns: (MP grid), (offsets), No. kpts, max spacing
         """
         for rem in self._res.REMS:
             if rem.strip().startswith("MP grid"):
@@ -649,12 +648,12 @@ class ResIO:
         return ResProvider.from_file(filename).structure
 
     @classmethod
-    def structure_to_str(cls, structure: Structure) -> str:
+    def structure_to_str(cls, structure: Structure | IStructure) -> str:
         """Produce the contents of a res file from a pymatgen Structure."""
         return str(ResWriter(structure))
 
     @classmethod
-    def structure_to_file(cls, structure: Structure, filename: str) -> None:
+    def structure_to_file(cls, structure: Structure | IStructure, filename: str) -> None:
         """Write a pymatgen Structure to a res file."""
         return ResWriter(structure).write(filename)
 

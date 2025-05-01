@@ -1,14 +1,14 @@
 #!/usr/bin/env python3
 
 """Create `core.periodic_table.json` from source files, and as such
-you should NOT modify the JSON directly, but work on the data source
-and then run this script to regenerate the JSON/YAML.
+you should NOT modify the final JSON directly, but work on the data
+source and then run this script to generate the JSON/YAML.
 
 Each source file may be parsed using a common or custom parser. In cases where
-a custom parser is required, it should return either a single `Property` or
+a custom parser is required, it should return a single `Property` or
 a sequence of `Property`.
 
-The YAML file is a readable aggregation of all properties in the following structure:
+The YAML file is a readable aggregation of all properties in the structure of:
     Property name -> {
         unit: <unit string or null>,
         reference: <reference string or null>,
@@ -17,26 +17,23 @@ The YAML file is a readable aggregation of all properties in the following struc
         }
     }
 
-The JSON file is a compact, production-format structure (no metadata):
+The JSON file is a compact, production-format structure without metadata:
     <element symbol> -> {
         <property name>: <value unit>
     }
 
     Units are stored separately in a special top-level key:
-            "_unit" -> {
-                <property name>: <unit string>
-            }
-
-TODO: this script is in a transitional state, it would now:
-    - Generate a duplicate JSON instead of overwriting the one in `core` dir
-    - Append unit as string instead of as a separate field
-    - Unit should be converted to pymatgen Unit
+        "_unit" -> {
+            <property name>: <unit string>
+        }
 """
 
 from __future__ import annotations
 
 import csv
+import gzip
 import json
+import math
 import os
 import warnings
 from collections import Counter, defaultdict
@@ -50,7 +47,7 @@ import pandas as pd
 import requests
 from ruamel.yaml import YAML
 
-from pymatgen.core import Element
+from pymatgen.core import PKG_DIR, Element
 
 if TYPE_CHECKING:
     from collections.abc import Callable, Iterable
@@ -59,28 +56,25 @@ if TYPE_CHECKING:
     from pymatgen.util.typing import PathLike
 
 
-DEFAULT_VALUE: str = "no data"  # The default value if not provided
-
 RESOURCES_DIR: str = f"{Path(__file__).parent}/periodic_table_resources"
+
+# The number of significant digits after applying `factor`
+SIGNIFICANT_DIGITS: int = 4
 
 
 @dataclass
 class ElemPropertyValue:
-    value: Any = DEFAULT_VALUE
-    reference: str | None = None  # Parser not implemented
+    value: Any = None
+    reference: str | None = None  # per-value ref parser not implemented
 
 
 @dataclass
 class Property:
     name: str
     data: dict[Element, ElemPropertyValue]
+    factor: float | None = None
     unit: str | None = None
     reference: str | None = None
-
-    # TODO: don't do unit conversion for now
-    # def __post_init__(self):
-    #     if self.unit is not None and isinstance(self.unit, str):
-    #         self.unit = Unit(self.unit)
 
 
 def parse_yaml(file: PathLike) -> list[Property]:
@@ -89,8 +83,9 @@ def parse_yaml(file: PathLike) -> list[Property]:
     Expected YAML format:
         We expect each YAML file to contain one or more properties.
         Each property should follow this structure:
-            - `unit` (optional): The unit of measurement for the values.
+            - `unit` (str, optional): The unit of measurement for the values.
             - `data`: Dict mapping each element symbol (e.g., "Fe") to its corresponding value.
+            - `factor` (float, optional): A multiplier applied to each value in `data`.
 
     Args:
         working_dir (PathLike): directory containing all YAMLs.
@@ -119,6 +114,7 @@ def parse_yaml(file: PathLike) -> list[Property]:
                 name=prop_name,
                 unit=prop_info.get("unit"),
                 reference=prop_info.get("reference"),
+                factor=prop_info.get("factor"),
                 data=data,
             )
         )
@@ -172,16 +168,16 @@ def parse_csv(
         data: dict[Element, ElemPropertyValue] = {}
 
         for symbol, value in data_df[prop].items():
-            if pd.isna(value):
-                value = DEFAULT_VALUE
-            elif transform is not None:
-                try:
-                    value = transform(value)
-                except (ValueError, TypeError):
-                    warnings.warn(f"Cannot transform {value=}, keep as string", stacklevel=2)
-                    value = str(value)
+            # NaN would be skipped instead of writing "no data"
+            if not pd.isna(value):
+                if transform is not None:
+                    try:
+                        value = transform(value)
+                    except (ValueError, TypeError):
+                        warnings.warn(f"Cannot transform {value=}, keep as string", stacklevel=2)
+                        value = str(value)
 
-            data[Element(symbol)] = ElemPropertyValue(value=value)
+                data[Element(symbol)] = ElemPropertyValue(value=value)
 
         result.append(Property(name=prop, unit=unit, reference=reference, data=data))
 
@@ -275,31 +271,27 @@ def parse_shannon_radii(
     return Property(name="Shannon radii", data=data, unit=unit, reference=reference)
 
 
-def get_and_parse_electronic_affinities(prop_name: str = "Electron affinity") -> Property:
-    """Get electronic affinities from Wikipedia and save a local YAML copy.
+def get_and_parse_electronic_affinities(prop_name: str = "Electron affinity", unit: str = "eV") -> Property:
+    """Get electronic affinities from Wikipedia and save a local YAML copy."""
+    yaml_path: str = f"{RESOURCES_DIR}/_electron_affinities.yaml"
 
-    TODO:
-        current wikipedia crawler drops data for Deuterium.
-    """
     # Get data table from Wikipedia
     url: str = "https://en.wikipedia.org/wiki/Electron_affinity_(data_page)"
     tables = pd.read_html(StringIO(requests.get(url, timeout=5).text))
 
     # Get the "Elements Electron affinity" table (with unit eV)
-    ea_df = next(
+    ea_df: pd.DataFrame = next(
         table
         for table in tables
         if f"{prop_name} (kJ/mol)" in table.columns and table["Name"].astype(str).str.contains("Hydrogen").any()
     )
-    ea_df = ea_df.drop(columns=["References", f"{prop_name} (kJ/mol)", "Element"])
 
-    # Drop superheavy elements
+    # Drop superheavy elements (currently Z > 118)
     max_z: int = max(Element(element).Z for element in Element.__members__)
     ea_df = ea_df[pd.to_numeric(ea_df["Z"], errors="coerce") <= max_z]
 
-    # Drop heavy isotopes
-    # TODO: correctly handle Deuterium
-    ea_df = ea_df.drop_duplicates(subset="Z", keep="first")
+    # Drop heavy isotopes (except for Deuterium, which has a distinct "Name")
+    ea_df = ea_df.drop_duplicates(subset="Name", keep="first")
 
     # Ensure we cover all elements up to Uranium (Z=92)
     if not (z_values := set(ea_df["Z"])).issuperset(range(1, 93)):
@@ -324,20 +316,18 @@ def get_and_parse_electronic_affinities(prop_name: str = "Electron affinity") ->
         for name, value in zip(ea_df["Name"], ea_df[f"{prop_name} (eV)"], strict=True)
     }
 
-    data[Element.D] = 0.754674  # TODO: fix this
-
     output_data = {
         prop_name: {
-            "unit": "eV",
+            "unit": unit,
             "reference": url,
             "data": {el.name: val for el, val in sorted(data.items(), key=lambda x: x[0].Z)},
         }
     }
 
-    with open(f"{RESOURCES_DIR}/_electron_affinities.yaml", "w", encoding="utf-8") as f:
+    with open(yaml_path, "w", encoding="utf-8") as f:
         yaml.dump(output_data, f)
 
-    return parse_yaml(f"{RESOURCES_DIR}/_electron_affinitIES.yaml")[0]
+    return parse_yaml(yaml_path)[0]
 
 
 def generate_iupac_ordering() -> Property:
@@ -399,6 +389,14 @@ def generate_yaml_and_json(
     Raises:
         ValueError: If duplicate property names are found in the input.
     """
+
+    def apply_factor_and_round(value: float, factor: float, digits: int) -> float:
+        """Apply a factor to a value and round it to the given number of significant digits."""
+        result = value * factor
+        if result == 0:
+            return 0.0
+        return round(result, digits - math.floor(math.log10(abs(result))) - 1)
+
     # Check for duplicate
     counter: Counter = Counter([prop.name for prop in properties])
     if duplicates := [name for name, count in counter.items() if count > 1]:
@@ -408,18 +406,28 @@ def generate_yaml_and_json(
     properties = sorted(properties, key=lambda prop: prop.name)
 
     # Save a YAML copy for development
-    yaml_data: dict[str, dict[Literal["unit", "reference", "data"], Any]] = {}
+    yaml_data: dict[str, dict[Literal["unit", "reference", "data", "factor"], Any]] = {}
     for prop in properties:
         # Sort elements by atomic number (Z)
         sorted_data: dict[str, Any] = dict(
             sorted(((elem.name, val.value) for elem, val in prop.data.items()), key=lambda pair: Element(pair[0]).Z)
         )
 
-        yaml_data[prop.name] = {
+        # Apply factor to data to be consistent with final JSON
+        if prop.factor is not None:
+            sorted_data = {
+                k: apply_factor_and_round(v, prop.factor, SIGNIFICANT_DIGITS) for k, v in sorted_data.items()
+            }
+
+        prop_dict = {
             "unit": str(prop.unit) if prop.unit is not None else None,
             "reference": prop.reference,
             "data": sorted_data,
+            # "factor": prop.factor,
         }
+
+        # Filter out fields with None
+        yaml_data[prop.name] = {k: v for k, v in prop_dict.items() if v is not None}
 
     yaml = YAML()
     yaml.default_flow_style = None
@@ -432,24 +440,25 @@ def generate_yaml_and_json(
     # Output to JSON (element -> property -> value format, and drop metadata)
     element_to_props: dict[str, dict[str, Any]] = defaultdict(dict)
 
-    # # Insert units under a special `_unit` key
-    # element_to_props["_unit"] = {}
+    # Insert units under a special `_unit` key
+    element_to_props["_unit"] = {}
 
     for prop in properties:
-        # # Store unit for this property if available
-        # if prop.unit is not None:
-        #     element_to_props["_unit"][prop.name] = str(prop.unit)
+        # Store unit for this property if available
+        if prop.unit is not None:
+            element_to_props["_unit"][prop.name] = str(prop.unit)
 
+        # Apply `factor`
         for elem, prop_val in prop.data.items():
-            unit = prop.unit
-            if unit is None:
-                element_to_props[elem.name][prop.name] = prop_val.value
+            if prop.factor is not None:  # assume numeric if `factor` is given
+                element_to_props[elem.name][prop.name] = apply_factor_and_round(
+                    prop_val.value, prop.factor, SIGNIFICANT_DIGITS
+                )
             else:
-                output = str(prop_val.value) + " " + str(unit)
-                element_to_props[elem.name][prop.name] = output
+                element_to_props[elem.name][prop.name] = prop_val.value
 
-    with open(json_file, "w", encoding="utf-8") as f:
-        json.dump(element_to_props, f, indent=4)
+    with gzip.open(json_file, "wt", encoding="utf-8") as f:
+        json.dump(element_to_props, f)
 
     print(f"Saved JSON to: {json_file}")
 
@@ -459,21 +468,26 @@ def main():
     properties: tuple[Property, ...] = (
         *parse_yaml(f"{RESOURCES_DIR}/elemental_properties.yaml"),
         *parse_yaml(f"{RESOURCES_DIR}/oxidation_states.yaml"),
-        *parse_yaml(f"{RESOURCES_DIR}/ionization_energies_nist.yaml"),  # Parsed from HTML
+        *parse_yaml(f"{RESOURCES_DIR}/nmr_quadrupole_moment.yaml"),
+        *parse_yaml(f"{RESOURCES_DIR}/ground_level_and_ionization_energies_nist.yaml"),  # Parsed from HTML
         get_and_parse_electronic_affinities(),
-        *parse_csv(f"{RESOURCES_DIR}/radii.csv", transform=float, unit=None),
-        *parse_ionic_radii(
-            f"{RESOURCES_DIR}/ionic_radii.csv", unit=None, reference="https://en.wikipedia.org/wiki/Ionic_radius"
+        *parse_csv(
+            f"{RESOURCES_DIR}/radii.csv",
+            transform=float,
+            unit="ang",
+            reference="https://wikipedia.org/wiki/Atomic_radii_of_the_elements_(data_page)",
         ),
-        parse_shannon_radii(f"{RESOURCES_DIR}/Shannon_Radii.csv", unit=None),
+        *parse_ionic_radii(
+            f"{RESOURCES_DIR}/ionic_radii.csv", unit="ang", reference="https://en.wikipedia.org/wiki/Ionic_radius"
+        ),
+        parse_shannon_radii(f"{RESOURCES_DIR}/Shannon_Radii.csv", unit="ang"),
         generate_iupac_ordering(),
     )
 
     generate_yaml_and_json(
         properties,
         yaml_file=f"{RESOURCES_DIR}/_periodic_table.yaml",
-        json_file=f"{RESOURCES_DIR}/_periodic_table.json",
-        # json_file=f"{PKG_DIR}/core/periodic_table.json",
+        json_file=f"{PKG_DIR}/core/periodic_table.json.gz",
     )
 
 

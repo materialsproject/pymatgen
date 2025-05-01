@@ -77,8 +77,9 @@ dependencies = [
     # NumPy documentation suggests pinning the current major version as the C API is used
     # https://numpy.org/devdocs/dev/depending_on_numpy.html#runtime-dependency-version-ranges
     "numpy>=1.25.0,<3",
+    "lxml>=5.3.1",
 ]
-version = "2025.4.24"
+version = "2025.5.1"
 
 [project.urls]
 Homepage = "https://pymatgen.org"
@@ -153,7 +154,7 @@ include = ["pymatgen", "pymatgen.*"]
 "pymatgen.analysis.prototypes" = ["*.json.gz"]
 "pymatgen.analysis.solar" = ["am1.5G.dat"]
 "pymatgen.entries" = ["*.json.gz", "*.yaml", "data/*.json"]
-"pymatgen.core" = ["*.json"]
+"pymatgen.core" = ["*.json", "*.json.gz"]
 "pymatgen" = ["py.typed"]
 "pymatgen.io.vasp" = ["*.json", "*.json.bz2", "*.json.gz", "*.yaml"]
 "pymatgen.io.feff" = ["*.yaml"]
@@ -300,13 +301,13 @@ exclude_also = [
 [tool.mypy]
 ignore_missing_imports = true
 namespace_packages = true
-explicit_package_bases = true
 no_implicit_optional = false
-disable_error_code = ["annotation-unchecked", "override", "assignment", "misc"] #, "union-attr", "operator", "arg-type", "index", "call-arg", "return-value", "assignment", "attr-defined"]
-exclude = ['src/pymatgen/analysis', 'src/pymatgen/io', 'src/pymatgen/cli', 'src/pymatgen/electronic_structure', ]
+disable_error_code = ["annotation-unchecked", "override", "operator", "attr-defined", "union-attr", "misc", "call-overload", "call-arg"] #, "operator", "arg-type", "index", "call-arg", "return-value", "assignment", "attr-defined"]
+exclude = ['src/pymatgen/analysis', 'src/pymatgen/io', 'src/pymatgen/cli', 'src/pymatgen/phonon']
+plugins = ["numpy.typing.mypy_plugin"]
 
 [[tool.mypy.overrides]]
-module = ["requests.*", "tabulate.*"]
+module = ["requests.*", "tabulate.*", "monty.*", "matplotlib.*"]
 ignore_missing_imports = true
 
 [tool.codespell]

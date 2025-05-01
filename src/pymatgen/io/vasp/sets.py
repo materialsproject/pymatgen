@@ -60,7 +60,8 @@ if TYPE_CHECKING:
 
     from typing_extensions import Self
 
-    from pymatgen.util.typing import Kpoint, PathLike, Tuple3Ints, Vector3D
+    from pymatgen.core.structure import IStructure
+    from pymatgen.util.typing import Kpoint, PathLike
 
     UserPotcarFunctional = (
         Literal[
@@ -1861,7 +1862,7 @@ class MPHSEBSSet(VaspInputSet):
         **kwargs: Keywords supported by VaspInputSet.
     """
 
-    added_kpoints: list[Vector3D] = field(default_factory=list)
+    added_kpoints: list[tuple[float, float, float]] = field(default_factory=list)
     mode: str = "gap"
     reciprocal_density: float = 50
     copy_chgcar: bool = True
@@ -2096,13 +2097,13 @@ class MPSOCSet(VaspInputSet):
         **kwargs: Keywords supported by VaspInputSet.
     """
 
-    saxis: Tuple3Ints = (0, 0, 1)
+    saxis: tuple[int, int, int] = (0, 0, 1)
     nbands_factor: float = 1.2
     lepsilon: bool = False
     lcalcpol: bool = False
     reciprocal_density: float = 100
     small_gap_multiply: tuple[float, float] | None = None
-    magmom: list[Vector3D] | None = None
+    magmom: list[tuple[float, float, float]] | None = None
     inherit_incar: bool = True
     copy_chgcar: bool = True
     CONFIG = MPRelaxSet.CONFIG
@@ -2409,6 +2410,11 @@ class MVLGWSet(VaspInputSet):
         return input_set.override_from_prev_calc(prev_calc_dir=prev_calc_dir)
 
 
+"""
+Parameters for MVLSlabSet class set were updated in March 2025 to match the MPSurfaceSet in atomate1
+"""
+
+
 @dataclass
 class MVLSlabSet(VaspInputSet):
     """Write a set of slab VASP runs, including both slabs (along the c direction)
@@ -2434,14 +2440,42 @@ class MVLSlabSet(VaspInputSet):
     @property
     def incar_updates(self) -> dict[str, Any]:
         """Updates to the INCAR config for this calculation type."""
+
+        """Determine LDAU based on slab chemistry without adsorbates"""
+
+        # Define elements that require LDA+U
+        ldau_elts = {"O", "F"}
+
+        # Initialize non_adsorbate_elts as an empty set
+        non_adsorbate_elts = set()
+
+        # Check if self.structure is not None
+        if self.structure is not None:
+            # Determine non-adsorbate elements
+            if self.structure.site_properties and self.structure.site_properties.get("surface_properties"):
+                non_adsorbate_elts = {
+                    s.specie.symbol for s in self.structure if s.properties["surface_properties"] != "adsorbate"
+                }
+            else:
+                non_adsorbate_elts = {s.specie.symbol for s in self.structure}
+
+        # Determine if LDA+U should be applied
+        ldau = bool(non_adsorbate_elts & ldau_elts)
+
         updates = {
-            "EDIFF": 1e-4,
-            "EDIFFG": -0.02,
+            "EDIFF": 1e-5,
+            "EDIFFG": -0.05,
+            "ENAUG": 4000,
+            "IBRION": 1,
+            "POTIM": 1.0,
+            "LDAU": ldau,
             "ENCUT": 400,
             "ISMEAR": 0,
             "SIGMA": 0.05,
             "ISIF": 3,
+            "ISYM": 0,
         }
+
         if not self.bulk:
             updates |= {"ISIF": 2, "LVTOT": True, "NELMIN": 8}
             if self.set_mix:
@@ -3215,7 +3249,7 @@ def get_structure_from_prev_run(vasprun: Vasprun, outcar: Outcar | None = None) 
 
 
 def standardize_structure(
-    structure: Structure,
+    structure: Structure | IStructure,
     sym_prec: float = 0.1,
     international_monoclinic: bool = True,
 ) -> Structure:
@@ -3324,7 +3358,7 @@ _dummy_structure = Structure(
 
 
 def get_valid_magmom_struct(
-    structure: Structure,
+    structure: Structure | IStructure,
     inplace: bool = True,
     spin_mode: str = "auto",
 ) -> Structure:
@@ -3417,7 +3451,7 @@ class MPAbsorptionSet(VaspInputSet):
     copy_wavecar: bool = True
     nbands_factor: float = 2
     reciprocal_density: float = 400
-    nkred: Tuple3Ints | None = None
+    nkred: tuple[int, int, int] | None = None
     nedos: int = 2001
     inherit_incar: bool = True
     force_gamma: bool = True

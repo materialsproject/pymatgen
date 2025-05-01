@@ -1,6 +1,5 @@
 Atomic mass:
-  unit:
-  reference:
+  unit: amu
   data: {H: 1.00794, D: 2.013553212712, T: 3.0155007134, He: 4.002602, Li: 6.941,
     Be: 9.012182, B: 10.811, C: 12.0107, N: 14.0067, O: 15.9994, F: 18.9984032, Ne: 20.1797,
     Na: 22.98976928, Mg: 24.305, Al: 26.9815386, Si: 28.0855, P: 30.973762, S: 32.065,
@@ -20,12 +19,9 @@ Atomic mass:
     Lr: 262, Rf: 267, Db: 268, Sg: 269, Bh: 270, Hs: 270, Mt: 278, Ds: 281, Rg: 282,
     Cn: 285, Nh: 286, Fl: 289, Mc: 290, Lv: 293, Ts: 294, Og: 294}
 Atomic mass no:
-  unit:
-  reference:
+  unit: amu
   data: {H: 1, D: 2, T: 3}
 Atomic no:
-  unit:
-  reference:
   data: {H: 1, D: 1, T: 1, He: 2, Li: 3, Be: 4, B: 5, C: 6, N: 7, O: 8, F: 9, Ne: 10,
     Na: 11, Mg: 12, Al: 13, Si: 14, P: 15, S: 16, Cl: 17, Ar: 18, K: 19, Ca: 20, Sc: 21,
     Ti: 22, V: 23, Cr: 24, Mn: 25, Fe: 26, Co: 27, Ni: 28, Cu: 29, Zn: 30, Ga: 31,
@@ -39,8 +35,6 @@ Atomic no:
     No: 102, Lr: 103, Rf: 104, Db: 105, Sg: 106, Bh: 107, Hs: 108, Mt: 109, Ds: 110,
     Rg: 111, Cn: 112, Nh: 113, Fl: 114, Mc: 115, Lv: 116, Ts: 117, Og: 118}
 Atomic orbitals:
-  unit:
-  reference:
   data:
     H:
       1s: -0.233471
@@ -1050,41 +1044,35 @@ Atomic orbitals:
       6s: -1.325976
       7s: -0.130948
 Atomic radius:
-  unit:
-  reference:
-  data: {H: 0.25, He: no data, Li: 1.45, Be: 1.05, B: 0.85, C: 0.7, N: 0.65, O: 0.6,
-    F: 0.5, Ne: no data, Na: 1.8, Mg: 1.5, Al: 1.25, Si: 1.1, P: 1.0, S: 1.0, Cl: 1.0,
-    Ar: 0.71, K: 2.2, Ca: 1.8, Sc: 1.6, Ti: 1.4, V: 1.35, Cr: 1.4, Mn: 1.4, Fe: 1.4,
-    Co: 1.35, Ni: 1.35, Cu: 1.35, Zn: 1.35, Ga: 1.3, Ge: 1.25, As: 1.15, Se: 1.15,
-    Br: 1.15, Kr: no data, Rb: 2.35, Sr: 2.0, Y: 1.8, Zr: 1.55, Nb: 1.45, Mo: 1.45,
-    Tc: 1.35, Ru: 1.3, Rh: 1.35, Pd: 1.4, Ag: 1.6, Cd: 1.55, In: 1.55, Sn: 1.45, Sb: 1.45,
-    Te: 1.4, I: 1.4, Xe: no data, Cs: 2.6, Ba: 2.15, La: 1.95, Ce: 1.85, Pr: 1.85,
-    Nd: 1.85, Pm: 1.85, Sm: 1.85, Eu: 1.85, Gd: 1.8, Tb: 1.75, Dy: 1.75, Ho: 1.75,
-    Er: 1.75, Tm: 1.75, Yb: 1.75, Lu: 1.75, Hf: 1.55, Ta: 1.45, W: 1.35, Re: 1.35,
-    Os: 1.3, Ir: 1.35, Pt: 1.35, Au: 1.35, Hg: 1.5, Tl: 1.9, Pb: 1.8, Bi: 1.6, Po: 1.9,
-    At: no data, Rn: no data, Fr: no data, Ra: 2.15, Ac: 1.95, Th: 1.8, Pa: 1.8, U: 1.75,
-    Np: 1.75, Pu: 1.75, Am: 1.75, Cm: no data, Bk: no data, Cf: no data, Es: no data,
-    Fm: no data, Md: no data, No: no data}
+  unit: ang
+  reference: https://wikipedia.org/wiki/Atomic_radii_of_the_elements_(data_page)
+  data: {H: 0.25, Li: 1.45, Be: 1.05, B: 0.85, C: 0.7, N: 0.65, O: 0.6, F: 0.5, Na: 1.8,
+    Mg: 1.5, Al: 1.25, Si: 1.1, P: 1.0, S: 1.0, Cl: 1.0, Ar: 0.71, K: 2.2, Ca: 1.8,
+    Sc: 1.6, Ti: 1.4, V: 1.35, Cr: 1.4, Mn: 1.4, Fe: 1.4, Co: 1.35, Ni: 1.35, Cu: 1.35,
+    Zn: 1.35, Ga: 1.3, Ge: 1.25, As: 1.15, Se: 1.15, Br: 1.15, Rb: 2.35, Sr: 2.0,
+    Y: 1.8, Zr: 1.55, Nb: 1.45, Mo: 1.45, Tc: 1.35, Ru: 1.3, Rh: 1.35, Pd: 1.4, Ag: 1.6,
+    Cd: 1.55, In: 1.55, Sn: 1.45, Sb: 1.45, Te: 1.4, I: 1.4, Cs: 2.6, Ba: 2.15, La: 1.95,
+    Ce: 1.85, Pr: 1.85, Nd: 1.85, Pm: 1.85, Sm: 1.85, Eu: 1.85, Gd: 1.8, Tb: 1.75,
+    Dy: 1.75, Ho: 1.75, Er: 1.75, Tm: 1.75, Yb: 1.75, Lu: 1.75, Hf: 1.55, Ta: 1.45,
+    W: 1.35, Re: 1.35, Os: 1.3, Ir: 1.35, Pt: 1.35, Au: 1.35, Hg: 1.5, Tl: 1.9, Pb: 1.8,
+    Bi: 1.6, Po: 1.9, Ra: 2.15, Ac: 1.95, Th: 1.8, Pa: 1.8, U: 1.75, Np: 1.75, Pu: 1.75,
+    Am: 1.75}
 Atomic radius calculated:
-  unit:
-  reference:
+  unit: ang
+  reference: https://wikipedia.org/wiki/Atomic_radii_of_the_elements_(data_page)
   data: {H: 0.53, He: 0.31, Li: 1.67, Be: 1.12, B: 0.87, C: 0.67, N: 0.56, O: 0.48,
     F: 0.42, Ne: 0.38, Na: 1.9, Mg: 1.45, Al: 1.18, Si: 1.11, P: 0.98, S: 0.88, Cl: 0.79,
     Ar: 0.71, K: 2.43, Ca: 1.94, Sc: 1.84, Ti: 1.76, V: 1.71, Cr: 1.66, Mn: 1.61,
     Fe: 1.56, Co: 1.52, Ni: 1.49, Cu: 1.45, Zn: 1.42, Ga: 1.36, Ge: 1.25, As: 1.14,
     Se: 1.03, Br: 0.94, Kr: 0.88, Rb: 2.65, Sr: 2.19, Y: 2.12, Zr: 2.06, Nb: 1.98,
     Mo: 1.9, Tc: 1.83, Ru: 1.78, Rh: 1.73, Pd: 1.69, Ag: 1.65, Cd: 1.61, In: 1.56,
-    Sn: 1.45, Sb: 1.33, Te: 1.23, I: 1.15, Xe: 1.08, Cs: 2.98, Ba: 2.53, La: no data,
-    Ce: no data, Pr: 2.47, Nd: 2.06, Pm: 2.05, Sm: 2.38, Eu: 2.31, Gd: 2.33, Tb: 2.25,
-    Dy: 2.28, Ho: no data, Er: 2.26, Tm: 2.22, Yb: 2.22, Lu: 2.17, Hf: 2.08, Ta: 2.0,
-    W: 1.93, Re: 1.88, Os: 1.85, Ir: 1.8, Pt: 1.77, Au: 1.74, Hg: 1.71, Tl: 1.56,
-    Pb: 1.54, Bi: 1.43, Po: 1.35, At: no data, Rn: 1.2, Fr: no data, Ra: no data,
-    Ac: no data, Th: no data, Pa: no data, U: no data, Np: no data, Pu: no data, Am: no
-      data, Cm: no data, Bk: no data, Cf: no data, Es: no data, Fm: no data, Md: no
-      data, No: no data}
+    Sn: 1.45, Sb: 1.33, Te: 1.23, I: 1.15, Xe: 1.08, Cs: 2.98, Ba: 2.53, Pr: 2.47,
+    Nd: 2.06, Pm: 2.05, Sm: 2.38, Eu: 2.31, Gd: 2.33, Tb: 2.25, Dy: 2.28, Er: 2.26,
+    Tm: 2.22, Yb: 2.22, Lu: 2.17, Hf: 2.08, Ta: 2.0, W: 1.93, Re: 1.88, Os: 1.85,
+    Ir: 1.8, Pt: 1.77, Au: 1.74, Hg: 1.71, Tl: 1.56, Pb: 1.54, Bi: 1.43, Po: 1.35,
+    Rn: 1.2}
 Boiling point:
   unit: K
-  reference:
   data: {H: 20.28, He: 4.22, Li: 1615, Be: 2742, B: 4200, C: 4300, N: 77.36, O: 90.2,
     F: 85.03, Ne: 27.07, Na: 1156, Mg: 1363, Al: 2792, Si: 3173, P: 550, S: 717.87,
     Cl: 239.11, Ar: 87.3, K: 1032, Ca: 1757, Sc: 3103, Ti: 3560, V: 3680, Cr: 2944,
@@ -1098,8 +1086,7 @@ Boiling point:
     Pb: 2022, Bi: 1837, Po: 1235, Rn: 211.3, Ra: 2010, Ac: 3573, Th: 5093, U: 4200,
     Np: 4273, Pu: 3503, Am: 2880, Cm: 3383}
 Brinell hardness:
-  unit: MN m<sup>-2</sup>
-  reference:
+  unit: MN m^-2
   data: {Be: 600, Na: 0.69, Mg: 260, Al: 245, K: 0.363, Ca: 167, Sc: 750, Ti: 716,
     V: 628, Cr: 1120, Mn: 196, Fe: 490, Co: 700, Ni: 700, Cu: 874, Zn: 412, Ga: 60,
     As: 1440, Se: 736, Rb: 0.216, Y: 589, Zr: 650, Nb: 736, Mo: 1500, Ru: 2160, Rh: 1100,
@@ -1109,28 +1096,27 @@ Brinell hardness:
     Au: 2450, Tl: 26.4, Pb: 38.3, Bi: 94.2, Th: 400, U: 2400}
 Bulk modulus:
   unit: GPa
-  reference:
   data: {Li: 11, Be: 130, B: 320, C: 33, Na: 6.3, Mg: 45, Al: 76, Si: 100, P: 11,
-    S: 7.7, Cl: 1.1 (liquid), K: 3.1, Ca: 17, Sc: 57, Ti: 110, V: 160, Cr: 160, Mn: 120,
-    Fe: 170, Co: 180, Ni: 180, Cu: 140, Zn: 70, As: 22, Se: 8.3, Br: 1.9, Rb: 2.5,
-    Y: 41, Nb: 170, Mo: 230, Ru: 220, Rh: 380, Pd: 180, Ag: 100, Cd: 42, Sn: 58, Sb: 42,
-    Te: 65, I: 7.7, Cs: 1.6, Ba: 9.6, La: 28, Ce: 22, Pr: 29, Nd: 32, Pm: 33, Sm: 38,
-    Eu: 8.3, Gd: 38, Tb: 38.7, Dy: 41, Ho: 40, Er: 44, Tm: 45, Yb: 31, Lu: 48, Hf: 110,
-    Ta: 200, W: 310, Re: 370, Ir: 320, Pt: 230, Au: 220, Hg: 25, Tl: 43, Pb: 46, Bi: 31,
-    Th: 54, U: 100}
+    S: 7.7, Cl: 1.1, K: 3.1, Ca: 17, Sc: 57, Ti: 110, V: 160, Cr: 160, Mn: 120, Fe: 170,
+    Co: 180, Ni: 180, Cu: 140, Zn: 70, As: 22, Se: 8.3, Br: 1.9, Rb: 2.5, Y: 41, Nb: 170,
+    Mo: 230, Ru: 220, Rh: 380, Pd: 180, Ag: 100, Cd: 42, Sn: 58, Sb: 42, Te: 65, I: 7.7,
+    Cs: 1.6, Ba: 9.6, La: 28, Ce: 22, Pr: 29, Nd: 32, Pm: 33, Sm: 38, Eu: 8.3, Gd: 38,
+    Tb: 38.7, Dy: 41, Ho: 40, Er: 44, Tm: 45, Yb: 31, Lu: 48, Hf: 110, Ta: 200, W: 310,
+    Re: 370, Ir: 320, Pt: 230, Au: 220, Hg: 25, Tl: 43, Pb: 46, Bi: 31, Th: 54, U: 100}
 Coefficient of linear thermal expansion:
-  unit: x10<sup>-6</sup>K<sup>-1</sup>
-  reference:
-  data: {Li: 46, Be: 11.3, B: 6, C: 7.1, Na: 71, Mg: 8.2, Al: 23.1, Si: 2.6, Ca: 22.3,
-    Sc: 10.2, Ti: 8.6, V: 8.4, Cr: 4.9, Mn: 21.7, Fe: 11.8, Co: 13.0, Ni: 13.4, Cu: 16.5,
-    Zn: 30.2, Ga: 120, Ge: 6, Sr: 22.5, Y: 10.6, Zr: 5.7, Nb: 7.3, Mo: 4.8, Ru: 6.4,
-    Rh: 8.2, Pd: 11.8, Ag: 18.9, Cd: 30.8, In: 32.1, Sn: 22, Sb: 11, Ba: 20.6, La: 12.1,
-    Ce: 6.3, Pr: 6.7, Nd: 9.6, Pm: 11, Sm: 12.7, Eu: 35, Gd: 9.4, Tb: 10.3, Dy: 9.9,
-    Ho: 11.2, Er: 12.2, Tm: 13.3, Yb: 26.3, Lu: 9.9, Hf: 5.9, Ta: 6.3, W: 4.5, Re: 6.2,
-    Os: 5.1, Ir: 6.4, Pt: 8.8, Au: 14.2, Tl: 29.9, Pb: 28.9, Bi: 13.4, Th: 11.0, U: 13.9}
+  unit: K^-1
+  data: {Li: 4.6e-05, Be: 1.13e-05, B: 6e-06, C: 7.1e-06, Na: 7.1e-05, Mg: 8.2e-06,
+    Al: 2.31e-05, Si: 2.6e-06, Ca: 2.23e-05, Sc: 1.02e-05, Ti: 8.6e-06, V: 8.4e-06,
+    Cr: 4.9e-06, Mn: 2.17e-05, Fe: 1.18e-05, Co: 1.3e-05, Ni: 1.34e-05, Cu: 1.65e-05,
+    Zn: 3.02e-05, Ga: 0.00012, Ge: 6e-06, Sr: 2.25e-05, Y: 1.06e-05, Zr: 5.7e-06,
+    Nb: 7.3e-06, Mo: 4.8e-06, Ru: 6.4e-06, Rh: 8.2e-06, Pd: 1.18e-05, Ag: 1.89e-05,
+    Cd: 3.08e-05, In: 3.21e-05, Sn: 2.2e-05, Sb: 1.1e-05, Ba: 2.06e-05, La: 1.21e-05,
+    Ce: 6.3e-06, Pr: 6.7e-06, Nd: 9.6e-06, Pm: 1.1e-05, Sm: 1.27e-05, Eu: 3.5e-05,
+    Gd: 9.4e-06, Tb: 1.03e-05, Dy: 9.9e-06, Ho: 1.12e-05, Er: 1.22e-05, Tm: 1.33e-05,
+    Yb: 2.63e-05, Lu: 9.9e-06, Hf: 5.9e-06, Ta: 6.3e-06, W: 4.5e-06, Re: 6.2e-06,
+    Os: 5.1e-06, Ir: 6.4e-06, Pt: 8.8e-06, Au: 1.42e-05, Tl: 2.99e-05, Pb: 2.89e-05,
+    Bi: 1.34e-05, Th: 1.1e-05, U: 1.39e-05}
 Common oxidation states:
-  unit:
-  reference:
   data:
     H: [-1, 1]
     D: [-1, 1]
@@ -1233,13 +1219,11 @@ Common oxidation states:
     Lr: [3]
 Critical temperature:
   unit: K
-  reference:
   data: {H: 33, He: 5.19, Li: 3223, N: 126.2, O: 154.6, F: 144, Ne: 44.4, Na: 2573,
     P: 994, S: 1314, Cl: 417, Ar: 150.8, K: 2223, As: 1700, Se: 1766, Br: 586, Kr: 209.4,
     Rb: 2093, I: 819, Xe: 289.7, Cs: 1938, Hg: 1750, Rn: 377}
 Density of solid:
-  unit: kg m<sup>-3</sup>
-  reference:
+  unit: kg m^-3
   data: {Li: 535, Be: 1848, B: 2460, C: 2267, Na: 968, Mg: 1738, Al: 2700, Si: 2330,
     P: 1823, S: 1960, K: 856, Ca: 1550, Sc: 2985, Ti: 4507, V: 6110, Cr: 7140, Mn: 7470,
     Fe: 7874, Co: 8900, Ni: 8908, Cu: 8920, Zn: 7140, Ga: 5904, Ge: 5323, As: 5727,
@@ -1252,19 +1236,20 @@ Density of solid:
     Ac: 10070, Th: 11724, Pa: 15370, U: 19050, Np: 20450, Pu: 19816, Cm: 13510, Bk: 14780,
     Cf: 15100}
 Electrical resistivity:
-  unit: 10<sup>-8</sup> &Omega; m
-  reference:
-  data: {Li: 9.5, Be: 3.8, B: '&gt; 10<sup>12</sup>', C: about 1000 - direction dependent,
-    Na: 4.9, Mg: 4.4, Al: 2.7, Si: about 100000, P: about 10, S: '&gt; 10<sup>23</sup>',
-    Cl: '&gt; 10<sup>10</sup>', K: 7.5, Ca: 3.4, Sc: about 55, Ti: about 40, V: 20,
-    Cr: 12.7, Mn: 144, Fe: 10, Co: 6, Ni: 7.2, Cu: 1.72, Zn: 6.0, Ga: about  14, Ge: about
-      50000, As: 33, Se: high, Br: '&gt; 10<sup>18</sup>', Rb: 13.3, Sr: 13.5, Y: about
-      60, Zr: 43.3, Nb: 15.2, Mo: 5.5, Tc: about 22, Ru: 7.1, Rh: 4.3, Pd: 10.8, Ag: 1.63,
-    Cd: 7, In: 8, Sn: 11.5, Sb: 40, Te: about 10000, I: '&gt; 10<sup>15</sup>', Cs: 21,
-    Ba: 34, La: 61.5, Ce: 74, Pr: 70, Nd: 64.3, Pm: about 75, Sm: 94, Eu: 90, Gd: 131,
-    Tb: 115, Dy: 92.6, Ho: 81.4, Er: 86.0, Tm: 67.6, Yb: 25.0, Lu: 58, Hf: 34, Ta: 13.5,
-    W: 5.4, Re: 18, Os: 8.1, Ir: 4.7, Pt: 10.6, Au: 2.2, Hg: 96, Tl: 15, Pb: 21, Bi: 130,
-    Po: 40, Ra: 100, Th: 15, Pa: 18, U: 28, Np: 120, Pu: 150}
+  unit: ohm m
+  data: {Li: 9.5e-08, Be: 3.8e-08, B: 15000.0, C: 1e-05, Na: 4.9e-08, Mg: 4.4e-08,
+    Al: 2.7e-08, Si: 0.001, P: 1e-07, S: 2000000000000000.0, Cl: 10.0, K: 7.5e-08,
+    Ca: 3.4e-08, Sc: 5.5e-07, Ti: 4e-07, V: 2e-07, Cr: 1.27e-07, Mn: 1.44e-06, Fe: 1e-07,
+    Co: 6e-08, Ni: 7.2e-08, Cu: 1.72e-08, Zn: 6e-08, Ga: 1.4e-07, Ge: 0.0005, As: 3.3e-07,
+    Br: 78000000000.0, Rb: 1.33e-07, Sr: 1.35e-07, Y: 6e-07, Zr: 4.33e-07, Nb: 1.52e-07,
+    Mo: 5.5e-08, Tc: 2.2e-07, Ru: 7.1e-08, Rh: 4.3e-08, Pd: 1.08e-07, Ag: 1.63e-08,
+    Cd: 7e-08, In: 8e-08, Sn: 1.15e-07, Sb: 4e-07, Te: 0.0001, I: 13000000.0, Cs: 2.1e-07,
+    Ba: 3.4e-07, La: 6.15e-07, Ce: 7.4e-07, Pr: 7e-07, Nd: 6.43e-07, Pm: 7.5e-07,
+    Sm: 9.4e-07, Eu: 9e-07, Gd: 1.31e-06, Tb: 1.15e-06, Dy: 9.26e-07, Ho: 8.14e-07,
+    Er: 8.6e-07, Tm: 6.76e-07, Yb: 2.5e-07, Lu: 5.8e-07, Hf: 3.4e-07, Ta: 1.35e-07,
+    W: 5.4e-08, Re: 1.8e-07, Os: 8.1e-08, Ir: 4.7e-08, Pt: 1.06e-07, Au: 2.2e-08,
+    Hg: 9.6e-07, Tl: 1.5e-07, Pb: 2.1e-07, Bi: 1.3e-06, Po: 4e-07, Ra: 1e-06, Th: 1.5e-07,
+    Pa: 1.8e-07, U: 2.8e-07, Np: 1.2e-06, Pu: 1.5e-06}
 Electron affinity:
   unit: eV
   reference: https://en.wikipedia.org/wiki/Electron_affinity_(data_page)
@@ -1287,380 +1272,381 @@ Electron affinity:
     Md: 0.98, No: -2.33, Lr: -0.31, Rg: 1.565, Nh: 0.69, Mc: 0.366, Lv: 0.776, Ts: 1.719,
     Og: 0.0806}
 Electronic structure:
-  unit:
-  reference:
+  reference: 'Kramida, A., Ralchenko, Yu., Reader, J., and NIST ASD Team (2023). NIST
+    Atomic Spectra Database (ver. 5.11). https://physics.nist.gov/asd [2024, June
+    3]. National Institute of Standards and Technology, Gaithersburg, MD. DOI: https://doi.org/10.18434/T4W30F'
   data:
     H:
-      '0': 1s<sup>1</sup>
-      '-1': 1s<sup>2</sup>
+      '0': 1s1
+      '-1': 1s2
       '1':
     He:
-      '0': 1s<sup>2</sup>
+      '0': 1s2
     Li:
-      '0': '[He].2s<sup>1</sup>'
-      '1': 1s<sup>2</sup>
+      '0': '[He].2s1'
+      '1': 1s2
     Be:
-      '0': '[He].2s<sup>2</sup>'
-      '2': 1s<sup>2</sup>
+      '0': '[He].2s2'
+      '2': 1s2
     B:
-      '0': '[He].2s<sup>2</sup>.2p<sup>1</sup>'
-      '3': 1s<sup>2</sup>
+      '0': '[He].2s2.2p1'
+      '3': 1s2
     C:
-      '0': '[He].2s<sup>2</sup>.2p<sup>2</sup>'
-      '-4': '[He].2s<sup>2</sup>.2p<sup>6</sup>'
-      '4': 1s<sup>2</sup>
+      '0': '[He].2s2.2p2'
+      '-4': '[He].2s2.2p6'
+      '4': 1s2
     N:
-      '0': '[He].2s<sup>2</sup>.2p<sup>3</sup>'
-      '-3': '[He].2s<sup>2</sup>.2p<sup>6</sup>'
-      '3': 1s<sup>2</sup>.2s<sup>2</sup>
-      '5': 1s<sup>2</sup>
+      '0': '[He].2s2.2p3'
+      '-3': '[He].2s2.2p6'
+      '3': 1s2.2s2
+      '5': 1s2
     O:
-      '0': '[He].2s<sup>2</sup>.2p<sup>4</sup>'
-      '-2': '[He].2s<sup>2</sup>.2p<sup>6</sup>'
+      '0': '[He].2s2.2p4'
+      '-2': '[He].2s2.2p6'
     F:
-      '0': '[He].2s<sup>2</sup>.2p<sup>5</sup>'
-      '-1': '[He].2s<sup>2</sup>.2p<sup>6</sup>'
+      '0': '[He].2s2.2p5'
+      '-1': '[He].2s2.2p6'
     Ne:
-      '0': '[He].2s<sup>2</sup>.2p<sup>6</sup>'
+      '0': '[He].2s2.2p6'
     Na:
-      '0': '[Ne].3s<sup>1</sup>'
-      '1': '[He].2s<sup>2</sup>.2p<sup>6</sup>'
+      '0': '[Ne].3s1'
+      '1': '[He].2s2.2p6'
     Mg:
-      '0': '[Ne].3s<sup>2</sup>'
-      '2': '[He].2s<sup>2</sup>.2p<sup>6</sup>'
+      '0': '[Ne].3s2'
+      '2': '[He].2s2.2p6'
     Al:
-      '0': '[Ne].3s<sup>2</sup>.3p<sup>1</sup>'
-      '3': 1s<sup>2</sup>.2s<sup>2</sup>.2p<sup>6</sup>
+      '0': '[Ne].3s2.3p1'
+      '3': 1s2.2s2.2p6
     Si:
-      '0': '[Ne].3s<sup>2</sup>.3p<sup>2</sup>'
-      '-4': '[Ne].3s<sup>2</sup>.3p<sup>6</sup>'
-      '4': 1s<sup>2</sup>.2s<sup>2</sup>.2p<sup>6</sup>
+      '0': '[Ne].3s2.3p2'
+      '-4': '[Ne].3s2.3p6'
+      '4': 1s2.2s2.2p6
     P:
-      '0': '[Ne].3s<sup>2</sup>.3p<sup>3</sup>'
-      '-3': '[Ne].3s<sup>2</sup>.3p<sup>6</sup>'
-      '3': '[Ne].3s<sup>2</sup>'
-      '5': 1s<sup>2</sup>.2s<sup>2</sup>.2p<sup>6</sup>
+      '0': '[Ne].3s2.3p3'
+      '-3': '[Ne].3s2.3p6'
+      '3': '[Ne].3s2'
+      '5': 1s2.2s2.2p6
     S:
-      '0': '[Ne].3s<sup>2</sup>.3p<sup>4</sup>'
-      '-2': '[Ne].3s<sup>2</sup>.3p<sup>6</sup>'
-      '2': '[Ne].3s<sup>2</sup>.3p<sup>2</sup>'
-      '4': '[Ne].3s<sup>2</sup>'
-      '6': 1s<sup>2</sup>.2s<sup>2</sup>.2p<sup>6</sup>
+      '0': '[Ne].3s2.3p4'
+      '-2': '[Ne].3s2.3p6'
+      '2': '[Ne].3s2.3p2'
+      '4': '[Ne].3s2'
+      '6': 1s2.2s2.2p6
     Cl:
-      '0': '[Ne].3s<sup>2</sup>.3p<sup>5</sup>'
-      '-1': '[Ne].3s<sup>2</sup>.3p<sup>6</sup>'
-      '1': '[Ne].3s<sup>2</sup>.3p<sup>4</sup>'
-      '3': '[Ne].3s<sup>2</sup>.3p<sup>2</sup>'
-      '5': '[Ne].3s<sup>2</sup>'
-      '7': 1s<sup>2</sup>.2s<sup>2</sup>.2p<sup>6</sup>
+      '0': '[Ne].3s2.3p5'
+      '-1': '[Ne].3s2.3p6'
+      '1': '[Ne].3s2.3p4'
+      '3': '[Ne].3s2.3p2'
+      '5': '[Ne].3s2'
+      '7': 1s2.2s2.2p6
     Ar:
-      '0': '[Ne].3s<sup>2</sup>.3p<sup>6</sup>'
+      '0': '[Ne].3s2.3p6'
     K:
-      '0': '[Ar].4s<sup>1</sup>'
-      '1': '[Ne].3s<sup>2</sup>.3p<sup>6</sup>'
+      '0': '[Ar].4s1'
+      '1': '[Ne].3s2.3p6'
     Ca:
-      '0': '[Ar].4s<sup>2</sup>'
-      '2': '[Ne].3s<sup>2</sup>.3p<sup>6</sup>'
+      '0': '[Ar].4s2'
+      '2': '[Ne].3s2.3p6'
     Sc:
-      '0': '[Ar].3d<sup>1</sup>.4s<sup>2</sup>'
-      '3': '[Ne].3s<sup>2</sup>.3p<sup>6</sup>'
+      '0': '[Ar].3d1.4s2'
+      '3': '[Ne].3s2.3p6'
     Ti:
-      '0': '[Ar].3d<sup>2</sup>.4s<sup>2</sup>'
-      '4': '[Ne].3s<sup>2</sup>.3p<sup>6</sup>'
+      '0': '[Ar].3d2.4s2'
+      '4': '[Ne].3s2.3p6'
     V:
-      '0': '[Ar].3d<sup>3</sup>.4s<sup>2</sup>'
-      '2': '[Ar].3d<sup>3</sup>'
-      '3': '[Ar].3d<sup>2</sup>'
-      '4': '[Ar].3d<sup>1</sup>'
-      '5': '[Ne].3s<sup>2</sup>.3p<sup>6</sup>'
+      '0': '[Ar].3d3.4s2'
+      '2': '[Ar].3d3'
+      '3': '[Ar].3d2'
+      '4': '[Ar].3d1'
+      '5': '[Ne].3s2.3p6'
     Cr:
-      '0': '[Ar].3d<sup>5</sup>.4s<sup>1</sup>'
-      '2': '[Ar].3d<sup>4</sup>'
-      '3': '[Ar].3d<sup>3</sup>'
-      '6': '[Ne].3s<sup>2</sup>.3p<sup>6</sup>'
+      '0': '[Ar].3d5.4s1'
+      '2': '[Ar].3d4'
+      '3': '[Ar].3d3'
+      '6': '[Ne].3s2.3p6'
     Mn:
-      '0': '[Ar].3d<sup>5</sup>.4s<sup>2</sup>'
-      '2': '[Ar].3d<sup>5</sup>'
-      '3': '[Ar].3d<sup>4</sup>'
-      '4': '[Ar].3d<sup>3</sup>'
-      '7': '[Ne].3s<sup>2</sup>.3p<sup>6</sup>'
+      '0': '[Ar].3d5.4s2'
+      '2': '[Ar].3d5'
+      '3': '[Ar].3d4'
+      '4': '[Ar].3d3'
+      '7': '[Ne].3s2.3p6'
     Fe:
-      '0': '[Ar].3d<sup>6</sup>.4s<sup>2</sup>'
-      '2': '[Ar].3d<sup>6</sup>'
-      '3': '[Ar].3d<sup>5</sup>'
+      '0': '[Ar].3d6.4s2'
+      '2': '[Ar].3d6'
+      '3': '[Ar].3d5'
     Co:
-      '0': '[Ar].3d<sup>7</sup>.4s<sup>2</sup>'
-      '2': '[Ar].3d<sup>7</sup>'
-      '3': '[Ar].3d<sup>6</sup>'
+      '0': '[Ar].3d7.4s2'
+      '2': '[Ar].3d7'
+      '3': '[Ar].3d6'
     Ni:
-      '0': '[Ar].3d<sup>8</sup>.4s<sup>2</sup>'
-      '2': '[Ar].3d<sup>8</sup>'
-      '3': '[Ar].3d<sup>7</sup>'
+      '0': '[Ar].3d8.4s2'
+      '2': '[Ar].3d8'
+      '3': '[Ar].3d7'
     Cu:
-      '0': '[Ar].3d<sup>10</sup>.4s<sup>1</sup>'
-      '1': '[Ar].3d<sup>10</sup>'
-      '2': '[Ar].3d<sup>9</sup>'
-      '3': '[Ar].3d<sup>8</sup>'
+      '0': '[Ar].3d10.4s1'
+      '1': '[Ar].3d10'
+      '2': '[Ar].3d9'
+      '3': '[Ar].3d8'
     Zn:
-      '0': '[Ar].3d<sup>10</sup>.4s<sup>2</sup>'
-      '2': '[Ar].3d<sup>10</sup>'
+      '0': '[Ar].3d10.4s2'
+      '2': '[Ar].3d10'
     Ga:
-      '0': '[Ar].3d<sup>10</sup>.4s<sup>2</sup>.4p<sup>1</sup>'
-      '3': '[Ar].3d<sup>10</sup>'
+      '0': '[Ar].3d10.4s2.4p1'
+      '3': '[Ar].3d10'
     Ge:
-      '0': '[Ar].3d<sup>10</sup>.4s<sup>2</sup>.4p<sup>2</sup>'
-      '-4': '[Ar].3d<sup>10</sup>.4s<sup>2</sup>.4p<sup>6</sup>'
-      '2': '[Ar].3d<sup>10</sup>.4s<sup>2</sup>'
-      '4': '[Ar].3d<sup>10</sup>'
+      '0': '[Ar].3d10.4s2.4p2'
+      '-4': '[Ar].3d10.4s2.4p6'
+      '2': '[Ar].3d10.4s2'
+      '4': '[Ar].3d10'
     As:
-      '0': '[Ar].3d<sup>10</sup>.4s<sup>2</sup>.4p<sup>3</sup>'
-      '3': '[Ar].3d<sup>10</sup>.4s<sup>2</sup>'
-      '5': '[Ar].3d<sup>10</sup>'
-      '-3': '[Ar].3d<sup>10</sup>.4s<sup>2</sup>.4p<sup>6</sup>'
+      '0': '[Ar].3d10.4s2.4p3'
+      '3': '[Ar].3d10.4s2'
+      '5': '[Ar].3d10'
+      '-3': '[Ar].3d10.4s2.4p6'
     Se:
-      '0': '[Ar].3d<sup>10</sup>.4s<sup>2</sup>.4p<sup>4</sup>'
-      '-2': '[Ar].3d<sup>10</sup>.4s<sup>2</sup>.4p<sup>6</sup>'
-      '2': '[Ar].3d<sup>10</sup>.4s<sup>2</sup>.4p<sup>2</sup>'
-      '4': '[Ar].3d<sup>10</sup>.4s<sup>2</sup>'
-      '6': '[Ar].3d<sup>10</sup>'
+      '0': '[Ar].3d10.4s2.4p4'
+      '-2': '[Ar].3d10.4s2.4p6'
+      '2': '[Ar].3d10.4s2.4p2'
+      '4': '[Ar].3d10.4s2'
+      '6': '[Ar].3d10'
     Br:
-      '0': '[Ar].3d<sup>10</sup>.4s<sup>2</sup>.4p<sup>5</sup>'
-      '-1': '[Ar].3d<sup>10</sup>.4s<sup>2</sup>.4p<sup>6</sup>'
-      '1': '[Ar].3d<sup>10</sup>.4s<sup>2</sup>.4p<sup>4</sup>'
-      '3': '[Ar].3d<sup>10</sup>.4s<sup>2</sup>.4p<sup>2</sup>'
-      '5': '[Ar].3d<sup>10</sup>.4s<sup>2</sup>'
-      '7': '[Ar].3d<sup>10</sup>'
+      '0': '[Ar].3d10.4s2.4p5'
+      '-1': '[Ar].3d10.4s2.4p6'
+      '1': '[Ar].3d10.4s2.4p4'
+      '3': '[Ar].3d10.4s2.4p2'
+      '5': '[Ar].3d10.4s2'
+      '7': '[Ar].3d10'
     Kr:
-      '0': '[Ar].3d<sup>10</sup>.4s<sup>2</sup>.4p<sup>6</sup>'
+      '0': '[Ar].3d10.4s2.4p6'
     Rb:
-      '0': '[Kr].5s<sup>1</sup>'
-      '1': '[Ar].3d<sup>10</sup>.4s<sup>2</sup>.4p<sup>6</sup>'
+      '0': '[Kr].5s1'
+      '1': '[Ar].3d10.4s2.4p6'
     Sr:
-      '0': '[Kr].5s<sup>2</sup>'
-      '2': '[Ar].3d<sup>10</sup>.4s<sup>2</sup>.4p<sup>6</sup>'
+      '0': '[Kr].5s2'
+      '2': '[Ar].3d10.4s2.4p6'
     Y:
-      '0': '[Kr].4d<sup>1</sup>.5s<sup>2</sup>'
-      '3': '[Ar].3d<sup>10</sup>.4s<sup>2</sup>.4p<sup>6</sup>'
+      '0': '[Kr].4d1.5s2'
+      '3': '[Ar].3d10.4s2.4p6'
     Zr:
-      '0': '[Kr].4d<sup>2</sup>.5s<sup>2</sup>'
-      '4': '[Ar].3d<sup>10</sup>.4s<sup>2</sup>.4p<sup>6</sup>'
+      '0': '[Kr].4d2.5s2'
+      '4': '[Ar].3d10.4s2.4p6'
     Nb:
-      '0': '[Kr].4d<sup>4</sup>.5s<sup>1</sup>'
-      '5': '[Ar].3d<sup>10</sup>.4s<sup>2</sup>.4p<sup>6</sup>'
+      '0': '[Kr].4d4.5s1'
+      '5': '[Ar].3d10.4s2.4p6'
     Mo:
-      '0': '[Kr].4d<sup>5</sup>.5s<sup>1</sup>'
-      '3': '[Kr].4d<sup>3</sup>'
-      '4': '[Kr].4d<sup>2</sup>'
-      '6': '[Ar].3d<sup>10</sup>.4s<sup>2</sup>.4p<sup>6</sup>'
+      '0': '[Kr].4d5.5s1'
+      '3': '[Kr].4d3'
+      '4': '[Kr].4d2'
+      '6': '[Ar].3d10.4s2.4p6'
     Tc:
-      '0': '[Kr].4d<sup>5</sup>.5s<sup>2</sup>'
-      '4': '[Kr].4d<sup>3</sup>'
-      '7': '[Ar].3d<sup>10</sup>.4s<sup>2</sup>.4p<sup>6</sup>'
+      '0': '[Kr].4d5.5s2'
+      '4': '[Kr].4d3'
+      '7': '[Ar].3d10.4s2.4p6'
     Ru:
-      '0': '[Kr].4d<sup>7</sup>.5s<sup>1</sup>'
-      '3': '[Kr].4d<sup>5</sup>'
-      '4': '[Kr].4d<sup>4</sup>'
+      '0': '[Kr].4d7.5s1'
+      '3': '[Kr].4d5'
+      '4': '[Kr].4d4'
     Rh:
-      '0': '[Kr].4d<sup>8</sup>.5s<sup>1</sup>'
-      '3': '[Kr].4d<sup>6</sup>'
+      '0': '[Kr].4d8.5s1'
+      '3': '[Kr].4d6'
     Pd:
-      '0': '[Kr].4d<sup>10</sup>'
-      '2': '[Kr].4d<sup>8</sup>'
-      '4': '[Kr].4d<sup>6</sup>'
+      '0': '[Kr].4d10'
+      '2': '[Kr].4d8'
+      '4': '[Kr].4d6'
     Ag:
-      '0': '[Kr].4d<sup>10</sup>.5s<sup>1</sup>'
-      '1': '[Kr].4d<sup>10</sup>'
+      '0': '[Kr].4d10.5s1'
+      '1': '[Kr].4d10'
     Cd:
-      '0': '[Kr].4d<sup>10</sup>.5s<sup>2</sup>'
-      '2': '[Kr].4d<sup>10</sup>'
+      '0': '[Kr].4d10.5s2'
+      '2': '[Kr].4d10'
     In:
-      '0': '[Kr].4d<sup>10</sup>.5s<sup>2</sup>.5p<sup>1</sup>'
-      '3': '[Kr].4d<sup>10</sup>'
+      '0': '[Kr].4d10.5s2.5p1'
+      '3': '[Kr].4d10'
     Sn:
-      '0': '[Kr].4d<sup>10</sup>.5s<sup>2</sup>.5p<sup>2</sup>'
-      '-4': '[Kr].4d<sup>10</sup>.5s<sup>2</sup>.5p<sup>6</sup>'
-      '2': '[Kr].4d<sup>10</sup>.5s<sup>2</sup>'
-      '4': '[Kr].4d<sup>10</sup>'
+      '0': '[Kr].4d10.5s2.5p2'
+      '-4': '[Kr].4d10.5s2.5p6'
+      '2': '[Kr].4d10.5s2'
+      '4': '[Kr].4d10'
     Sb:
-      '0': '[Kr].4d<sup>10</sup>.5s<sup>2</sup>.5p<sup>3</sup>'
-      '-3': '[Kr].4d<sup>10</sup>.5s<sup>2</sup>.5p<sup>6</sup>'
-      '3': '[Kr].4d<sup>10</sup>.5s<sup>2</sup>'
-      '5': '[Kr].4d<sup>10</sup>'
+      '0': '[Kr].4d10.5s2.5p3'
+      '-3': '[Kr].4d10.5s2.5p6'
+      '3': '[Kr].4d10.5s2'
+      '5': '[Kr].4d10'
     Te:
-      '0': '[Kr].4d<sup>10</sup>.5s<sup>2</sup>.5p<sup>4</sup>'
-      '-2': '[Kr].4d<sup>10</sup>.5s<sup>2</sup>.5p<sup>6</sup>'
-      '2': '[Kr].4d<sup>10</sup>.5s<sup>2</sup>.5p<sup>2</sup>'
-      '4': '[Kr].4d<sup>10</sup>.5s<sup>2</sup>'
-      '6': '[Kr].4d<sup>10</sup>'
+      '0': '[Kr].4d10.5s2.5p4'
+      '-2': '[Kr].4d10.5s2.5p6'
+      '2': '[Kr].4d10.5s2.5p2'
+      '4': '[Kr].4d10.5s2'
+      '6': '[Kr].4d10'
     I:
-      '0': '[Kr].4d<sup>10</sup>.5s<sup>2</sup>.5p<sup>5</sup>'
-      '-1': '[Kr].4d<sup>10</sup>.5s<sup>2</sup>.5p<sup>6</sup>'
-      '1': '[Kr].4d<sup>10</sup>.5s<sup>2</sup>.5p<sup>4</sup>'
-      '3': '[Kr].4d<sup>10</sup>.5s<sup>2</sup>.5p<sup>2</sup>'
-      '5': '[Kr].4d<sup>10</sup>.5s<sup>2</sup>'
-      '7': '[Kr].4d<sup>10</sup>'
+      '0': '[Kr].4d10.5s2.5p5'
+      '-1': '[Kr].4d10.5s2.5p6'
+      '1': '[Kr].4d10.5s2.5p4'
+      '3': '[Kr].4d10.5s2.5p2'
+      '5': '[Kr].4d10.5s2'
+      '7': '[Kr].4d10'
     Xe:
-      '0': '[Kr].4d<sup>10</sup>.5s<sup>2</sup>.5p<sup>6</sup>'
+      '0': '[Kr].4d10.5s2.5p6'
     Cs:
-      '0': '[Xe].6s<sup>1</sup>'
-      '1': '[Kr].4d<sup>10</sup>.5s<sup>2</sup>.5p<sup>6</sup>'
+      '0': '[Xe].6s1'
+      '1': '[Kr].4d10.5s2.5p6'
     Ba:
-      '0': '[Xe].6s<sup>2</sup>'
-      '2': '[Kr].4d<sup>10</sup>.5s<sup>2</sup>.5p<sup>6</sup>'
+      '0': '[Xe].6s2'
+      '2': '[Kr].4d10.5s2.5p6'
     La:
-      '0': '[Xe].5d<sup>1</sup>.6s<sup>2</sup>'
-      '3': '[Cd].5p<sup>6</sup>'
+      '0': '[Xe].5d1.6s2'
+      '3': '[Cd].5p6'
     Ce:
-      '0': '[Xe].4f<sup>1</sup>.5d<sup>1</sup>.6s<sup>2</sup>'
-      '3': '[Xe].4f<sup>1</sup>'
-      '4': '[Cd].5p<sup>6</sup>'
+      '0': '[Xe].4f1.5d1.6s2'
+      '3': '[Xe].4f1'
+      '4': '[Cd].5p6'
     Pr:
-      '0': '[Xe].4f<sup>3</sup>.6s<sup>2</sup>'
-      '3': '[Xe].4f<sup>2</sup>'
+      '0': '[Xe].4f3.6s2'
+      '3': '[Xe].4f2'
     Nd:
-      '0': '[Xe].4f<sup>4</sup>.6s<sup>2</sup>'
-      '3': '[Xe].4f<sup>3</sup>'
+      '0': '[Xe].4f4.6s2'
+      '3': '[Xe].4f3'
     Pm:
-      '0': '[Xe].4f<sup>5</sup>.6s<sup>2</sup>'
-      '3': '[Xe].4f<sup>4</sup>'
+      '0': '[Xe].4f5.6s2'
+      '3': '[Xe].4f4'
     Sm:
-      '0': '[Xe].4f<sup>6</sup>.6s<sup>2</sup>'
-      '3': '[Xe].4f<sup>5</sup>'
+      '0': '[Xe].4f6.6s2'
+      '3': '[Xe].4f5'
     Eu:
-      '0': '[Xe].4f<sup>7</sup>.6s<sup>2</sup>'
-      '2': '[Xe].4f<sup>7</sup>'
-      '3': '[Xe].4f<sup>6</sup>'
+      '0': '[Xe].4f7.6s2'
+      '2': '[Xe].4f7'
+      '3': '[Xe].4f6'
     Gd:
-      '0': '[Xe].4f<sup>7</sup>.5d<sup>1</sup>.6s<sup>2</sup>'
-      '3': '[Xe].4f<sup>7</sup>'
+      '0': '[Xe].4f7.5d1.6s2'
+      '3': '[Xe].4f7'
     Tb:
-      '0': '[Xe].4f<sup>9</sup>.6s<sup>2</sup>'
-      '3': '[Xe].4f<sup>8</sup>'
+      '0': '[Xe].4f9.6s2'
+      '3': '[Xe].4f8'
     Dy:
-      '0': '[Xe].4f<sup>10</sup>.6s<sup>2</sup>'
-      '3': '[Xe].4f<sup>9</sup>'
+      '0': '[Xe].4f10.6s2'
+      '3': '[Xe].4f9'
     Ho:
-      '0': '[Xe].4f<sup>11</sup>.6s<sup>2</sup>'
-      '3': '[Xe].4f<sup>10</sup>'
+      '0': '[Xe].4f11.6s2'
+      '3': '[Xe].4f10'
     Er:
-      '0': '[Xe].4f<sup>12</sup>.6s<sup>2</sup>'
-      '3': '[Xe].4f<sup>11</sup>'
+      '0': '[Xe].4f12.6s2'
+      '3': '[Xe].4f11'
     Tm:
-      '0': '[Xe].4f<sup>13</sup>.6s<sup>2</sup>'
-      '3': '[Xe].4f<sup>12</sup>'
+      '0': '[Xe].4f13.6s2'
+      '3': '[Xe].4f12'
     Yb:
-      '0': '[Xe].4f<sup>14</sup>.6s<sup>2</sup>'
-      '3': '[Xe].4f<sup>13</sup>'
+      '0': '[Xe].4f14.6s2'
+      '3': '[Xe].4f13'
     Lu:
-      '0': '[Xe].4f<sup>14</sup>.5d<sup>1</sup>.6s<sup>2</sup>'
-      '3': '[Xe].4f<sup>14</sup>'
+      '0': '[Xe].4f14.5d1.6s2'
+      '3': '[Xe].4f14'
     Hf:
-      '0': '[Xe].4f<sup>14</sup>.5d<sup>2</sup>.6s<sup>2</sup>'
-      '4': '[Xe].4f<sup>14</sup>'
+      '0': '[Xe].4f14.5d2.6s2'
+      '4': '[Xe].4f14'
     Ta:
-      '0': '[Xe].4f<sup>14</sup>.5d<sup>3</sup>.6s<sup>2</sup>'
-      '5': '[Xe].4f<sup>14</sup>'
+      '0': '[Xe].4f14.5d3.6s2'
+      '5': '[Xe].4f14'
     W:
-      '0': '[Xe].4f<sup>14</sup>.5d<sup>4</sup>.6s<sup>2</sup>'
-      '4': '[Xe].4f<sup>14</sup>.5d<sup>2</sup>'
-      '6': '[Xe].4f<sup>14</sup>'
+      '0': '[Xe].4f14.5d4.6s2'
+      '4': '[Xe].4f14.5d2'
+      '6': '[Xe].4f14'
     Re:
-      '0': '[Xe].4f<sup>14</sup>.5d<sup>5</sup>.6s<sup>2</sup>'
-      '4': '[Xe].4f<sup>14</sup>.5d<sup>3</sup>'
+      '0': '[Xe].4f14.5d5.6s2'
+      '4': '[Xe].4f14.5d3'
     Os:
-      '0': '[Xe].4f<sup>14</sup>.5d<sup>6</sup>.6s<sup>2</sup>'
-      '4': '[Xe].4f<sup>14</sup>.5d<sup>4</sup>'
+      '0': '[Xe].4f14.5d6.6s2'
+      '4': '[Xe].4f14.5d4'
     Ir:
-      '0': '[Xe].4f<sup>14</sup>.5d<sup>7</sup>.6s<sup>2</sup>'
-      '3': '[Xe].4f<sup>14</sup>.5d<sup>6</sup>'
-      '4': '[Xe].4f<sup>14</sup>.5d<sup>5</sup>'
+      '0': '[Xe].4f14.5d7.6s2'
+      '3': '[Xe].4f14.5d6'
+      '4': '[Xe].4f14.5d5'
     Pt:
-      '0': '[Xe].4f<sup>14</sup>.5d<sup>9</sup>.6s<sup>1</sup>'
-      '2': '[Xe].4f<sup>14</sup>.5d<sup>8</sup>'
-      '4': '[Xe].4f<sup>14</sup>.5d<sup>6</sup>'
+      '0': '[Xe].4f14.5d9.6s1'
+      '2': '[Xe].4f14.5d8'
+      '4': '[Xe].4f14.5d6'
     Au:
-      '0': '[Xe].4f<sup>14</sup>.5d<sup>10</sup>.6s<sup>1</sup>'
-      '3': '[Xe].4f<sup>14</sup>.5d<sup>8</sup>'
+      '0': '[Xe].4f14.5d10.6s1'
+      '3': '[Xe].4f14.5d8'
     Hg:
-      '0': '[Xe].4f<sup>14</sup>.5d<sup>10</sup>.6s<sup>2</sup>'
-      '1': '[Xe].4f<sup>14</sup>.5d<sup>10</sup>.6s<sup>1</sup>'
-      '2': '[Xe].4f<sup>14</sup>.5d<sup>10</sup>'
+      '0': '[Xe].4f14.5d10.6s2'
+      '1': '[Xe].4f14.5d10.6s1'
+      '2': '[Xe].4f14.5d10'
     Tl:
-      '0': '[Xe].4f<sup>14</sup>.5d<sup>10</sup>.6s<sup>2</sup>.6p<sup>1</sup>'
-      '1': '[Xe].4f<sup>14</sup>.5d<sup>10</sup>.6s<sup>2</sup>'
-      '3': '[Xe].4f<sup>14</sup>.5d<sup>10</sup>'
+      '0': '[Xe].4f14.5d10.6s2.6p1'
+      '1': '[Xe].4f14.5d10.6s2'
+      '3': '[Xe].4f14.5d10'
     Pb:
-      '0': '[Xe].4f<sup>14</sup>.5d<sup>10</sup>.6s<sup>2</sup>.6p<sup>2</sup>'
-      '2': '[Xe].4f<sup>14</sup>.5d<sup>10</sup>.6s<sup>2</sup>'
-      '4': '[Xe].4f<sup>14</sup>.5d<sup>10</sup>'
+      '0': '[Xe].4f14.5d10.6s2.6p2'
+      '2': '[Xe].4f14.5d10.6s2'
+      '4': '[Xe].4f14.5d10'
     Bi:
-      '0': '[Xe].4f<sup>14</sup>.5d<sup>10</sup>.6s<sup>2</sup>.6p<sup>3</sup>'
-      '3': '[Xe].4f<sup>14</sup>.5d<sup>10</sup>.6s<sup>2</sup>'
+      '0': '[Xe].4f14.5d10.6s2.6p3'
+      '3': '[Xe].4f14.5d10.6s2'
     Po:
-      '0': '[Xe].4f<sup>14</sup>.5d<sup>10</sup>.6s<sup>2</sup>.6p<sup>4</sup>'
-      '-2': '[Xe].4f<sup>14</sup>.5d<sup>10</sup>.6s<sup>2</sup>.6p<sup>6</sup>'
-      '2': '[Xe].4f<sup>14</sup>.5d<sup>10</sup>.6s<sup>2</sup>.6p<sup>2</sup>'
-      '4': '[Xe].4f<sup>14</sup>.5d<sup>10</sup>.6s<sup>2</sup>'
+      '0': '[Xe].4f14.5d10.6s2.6p4'
+      '-2': '[Xe].4f14.5d10.6s2.6p6'
+      '2': '[Xe].4f14.5d10.6s2.6p2'
+      '4': '[Xe].4f14.5d10.6s2'
     At:
-      '0': '[Xe].4f<sup>14</sup>.5d<sup>10</sup>.6s<sup>2</sup>.6p<sup>5</sup>'
-      '1': '[Xe].4f<sup>14</sup>.5d<sup>10</sup>.6s<sup>2</sup>.6p<sup>4</sup>'
-      '-1': '[Xe].4f<sup>14</sup>.5d<sup>10</sup>.6s<sup>2</sup>.6p<sup>6</sup>'
+      '0': '[Xe].4f14.5d10.6s2.6p5'
+      '1': '[Xe].4f14.5d10.6s2.6p4'
+      '-1': '[Xe].4f14.5d10.6s2.6p6'
     Rn:
-      '0': '[Xe].4f<sup>14</sup>.5d<sup>10</sup>.6s<sup>2</sup>.6p<sup>6</sup>'
+      '0': '[Xe].4f14.5d10.6s2.6p6'
     Fr:
-      '0': '[Rn].7s<sup>1</sup>'
-      '1': '[Hg].6p<sup>6</sup>'
+      '0': '[Rn].7s1'
+      '1': '[Hg].6p6'
     Ra:
-      '0': '[Rn].7s<sup>2</sup>'
-      '2': '[Hg].6p<sup>6</sup>'
+      '0': '[Rn].7s2'
+      '2': '[Hg].6p6'
     Ac:
-      '0': '[Rn].6d<sup>1</sup>.7s<sup>2</sup>'
-      '3': '[Xe].4f<sup>14</sup>.5d<sup>10</sup>.6s<sup>2</sup>.6p<sup>6</sup>'
+      '0': '[Rn].6d1.7s2'
+      '3': '[Xe].4f14.5d10.6s2.6p6'
     Th:
-      '0': '[Rn].6d<sup>2</sup>.7s<sup>2</sup>'
-      '4': '[Hg].6p<sup>6</sup>'
+      '0': '[Rn].6d2.7s2'
+      '4': '[Hg].6p6'
     Pa:
-      '0': '[Rn].5f<sup>2</sup>.6d<sup>1</sup>.7s<sup>2</sup>'
-      '5': '[Hg].6p<sup>6</sup>'
+      '0': '[Rn].5f2.6d1.7s2'
+      '5': '[Hg].6p6'
     U:
-      '0': '[Rn].5f<sup>3</sup>.6d<sup>1</sup>.7s<sup>2</sup>'
-      '6': '[Hg].6p<sup>6</sup>'
+      '0': '[Rn].5f3.6d1.7s2'
+      '6': '[Hg].6p6'
     Np:
-      '0': '[Rn].5f<sup>4</sup>.6d<sup>1</sup>.7s<sup>2</sup>'
-      '5': '[Rn].5f<sup>2</sup>'
+      '0': '[Rn].5f4.6d1.7s2'
+      '5': '[Rn].5f2'
     Pu:
-      '0': '[Rn].5f<sup>6</sup>.7s<sup>2</sup>'
-      '4': '[Rn].5f<sup>4</sup>'
+      '0': '[Rn].5f6.7s2'
+      '4': '[Rn].5f4'
     Am:
-      '0': '[Rn].5f<sup>7</sup>.7s<sup>2</sup>'
-      '3': '[Rn].5f<sup>6</sup>'
+      '0': '[Rn].5f7.7s2'
+      '3': '[Rn].5f6'
     Cm:
-      '0': '[Rn].5f<sup>7</sup>.6d<sup>1</sup>.7s<sup>2</sup>'
-      '3': '[Rn].5f<sup>7</sup>'
+      '0': '[Rn].5f7.6d1.7s2'
+      '3': '[Rn].5f7'
     Bk:
-      '0': '[Rn].5f<sup>9</sup>.7s<sup>2</sup>'
-      '3': '[Rn].5f<sup>8</sup>'
+      '0': '[Rn].5f9.7s2'
+      '3': '[Rn].5f8'
     Cf:
-      '0': '[Rn].5f<sup>10</sup>.7s<sup>2</sup>'
-      '3': '[Rn].5f<sup>9</sup>'
+      '0': '[Rn].5f10.7s2'
+      '3': '[Rn].5f9'
     Es:
-      '0': '[Rn].5f<sup>11</sup>.7s<sup>2</sup>'
-      '3': '[Rn].5f<sup>10</sup>'
+      '0': '[Rn].5f11.7s2'
+      '3': '[Rn].5f10'
     Fm:
-      '0': '[Rn].5f<sup>12</sup>.7s<sup>2</sup>'
-      '3': '[Rn].5f<sup>11</sup>'
+      '0': '[Rn].5f12.7s2'
+      '3': '[Rn].5f11'
     Md:
-      '0': '[Rn].5f<sup>13</sup>.7s<sup>2</sup>'
-      '3': '[Rn].5f<sup>12</sup>'
+      '0': '[Rn].5f13.7s2'
+      '3': '[Rn].5f12'
     No:
-      '0': '[Rn].5f<sup>14</sup>.7s<sup>2</sup>'
-      '3': '[Rn].5f<sup>13</sup>'
+      '0': '[Rn].5f14.7s2'
+      '3': '[Rn].5f13'
     Lr:
-      '0': '[Rn].5f<sup>14</sup>.7s<sup>2</sup>.7p<sup>1</sup>'
-      '3': '[Rn].5f<sup>14</sup>'
+      '0': '[Rn].5f14.7s2.7p1'
+      '3': '[Rn].5f14'
 Ground level:
-  unit:
   reference:
+    https://physics.nist.gov/cgi-bin/ASD/ie.pl?spectra=H-DS+i&units=1&at_num_out=on&el_name_out=on&shells_out=on&level_out=on&e_out=0&unc_out=on&biblio=on
   data: {H: 2S1/2, He: 1S0, Li: 2S1/2, Be: 1S0, B: 2P°1/2, C: 3P0, N: 4S°3/2, O: 3P2,
     F: 2P°3/2, Ne: 1S0, Na: 2S1/2, Mg: 1S0, Al: 2P°1/2, Si: 3P0, P: 4S°3/2, S: 3P2,
     Cl: 2P°3/2, Ar: 1S0, K: 2S1/2, Ca: 1S0, Sc: 2D3/2, Ti: 3F2, V: 4F3/2, Cr: 7S3,
@@ -1676,8 +1662,6 @@ Ground level:
     Cm: 9D°2, Bk: 6H°15/2, Cf: 5I8, Es: 4I°15/2, Fm: 3H6, Md: 2F°7/2, No: 1S0, Lr: 2P°1/2,
     Rf: 3F2, Db: 4F3/2, Sg: '0', Bh: 5/2, Hs: '4'}
 ICSD oxidation states:
-  unit:
-  reference:
   data:
     H: [1, -1]
     Li: [1]
@@ -1755,8 +1739,6 @@ ICSD oxidation states:
     Th: [4]
     U: [3, 4, 5, 6]
 IUPAC ordering:
-  unit:
-  reference:
   data: {H: 92, He: 5, Li: 11, Be: 17, B: 81, C: 86, N: 91, O: 97, F: 102, Ne: 4,
     Na: 10, Mg: 16, Al: 80, Si: 85, P: 90, S: 96, Cl: 101, Ar: 3, K: 9, Ca: 15, Sc: 49,
     Ti: 52, V: 55, Cr: 58, Mn: 61, Fe: 64, Co: 67, Ni: 70, Cu: 73, Zn: 76, Ga: 79,
@@ -1768,7 +1750,7 @@ IUPAC ordering:
     Bi: 87, Po: 93, At: 98, Rn: 0, Fr: 6, Ra: 12, Ac: 32, Th: 31, Pa: 30, U: 29, Np: 28,
     Pu: 27, Am: 26, Cm: 25, Bk: 24, Cf: 23, Es: 22, Fm: 21, Md: 20, No: 19, Lr: 18}
 Ionic radii:
-  unit:
+  unit: ang
   reference: https://en.wikipedia.org/wiki/Ionic_radius
   data:
     Li: {'1': 0.9}
@@ -1864,7 +1846,7 @@ Ionic radii:
     Bk: {'3': 1.1, '4': 0.97}
     Cf: {'3': 1.09, '4': 0.961}
 Ionic radii hs:
-  unit:
+  unit: ang
   reference: https://en.wikipedia.org/wiki/Ionic_radius
   data:
     Cr: *id001
@@ -1873,7 +1855,7 @@ Ionic radii hs:
     Co: *id004
     Ni: *id005
 Ionic radii ls:
-  unit:
+  unit: ang
   reference: https://en.wikipedia.org/wiki/Ionic_radius
   data:
     Cr: {'2': 0.87, '3': 0.755, '4': 0.69, '5': 0.63, '6': 0.58}
@@ -1882,7 +1864,7 @@ Ionic radii ls:
     Co: {'2': 0.79, '3': 0.685}
     Ni: {'2': 0.83, '3': 0.7, '4': 0.62}
 Ionization energies:
-  unit:
+  unit: kJ/mol
   reference: https://www.nist.gov/pml/atomic-spectra-database
   data:
     H: [13.598434599702]
@@ -2529,12 +2511,9 @@ Ionization energies:
       14800.0, 15000.0, 15300.0, 15500.0, 18400.0, 18600.0, 19100.0, 19400.0, 37400.0,
       37900.0, 38500.0, 39100.0, 49800.0, 50700.0, 51600.0, null, null, 204400.0]
 Is named isotope:
-  unit:
-  reference:
   data: {D: true, T: true}
 Liquid range:
   unit: K
-  reference:
   data: {H: 6.27, He: 3.27, Li: 1161.31, Be: 1182, B: 1851, C: 500, N: 14.31, O: 35.4,
     F: 31.5, Ne: 2.51, Na: 785.13, Mg: 440, Al: 1858.53, Si: 1486, P: 232.7, S: 329.51,
     Cl: 67.51, Ar: 3.5, K: 695.47, Ca: 642, Sc: 1289, Ti: 1619, V: 1497, Cr: 764,
@@ -2548,29 +2527,25 @@ Liquid range:
     Hg: 395.56, Tl: 1169, Pb: 1421.39, Bi: 1292.6, Po: 708, Rn: 9.3, Ra: 1037, Ac: 2250,
     Th: 2978, U: 2794.7, Np: 3363, Pu: 2590.5, Am: 1431, Cm: 1770}
 Max oxidation state:
-  unit:
-  reference:
   data: {He: 0, Ne: 0, Ar: 0, Kr: 0, Xe: 8, Rn: 0}
 Melting point:
   unit: K
-  reference:
   data: {H: 14.01, He: 0.95, Li: 453.69, Be: 1560, B: 2349, C: 3800, N: 63.05, O: 54.8,
-    F: 53.53, Ne: 24.56, Na: 370.87, Mg: 923, Al: 933.47, Si: 1687, P: (white P) 317.3,
-    S: 388.36, Cl: 171.6, Ar: 83.8, K: 336.53, Ca: 1115, Sc: 1814, Ti: 1941, V: 2183,
-    Cr: 2180, Mn: 1519, Fe: 1811, Co: 1768, Ni: 1728, Cu: 1357.77, Zn: 692.68, Ga: 302.91,
-    Ge: 1211.4, As: 1090, Se: 494, Br: 265.8, Kr: 115.79, Rb: 312.46, Sr: 1050, Y: 1799,
-    Zr: 2128, Nb: 2750, Mo: 2896, Tc: 2430, Ru: 2607, Rh: 2237, Pd: 1828.05, Ag: 1234.93,
-    Cd: 594.22, In: 429.75, Sn: 505.08, Sb: 903.78, Te: 722.66, I: 386.85, Xe: 161.4,
-    Cs: 301.59, Ba: 1000, La: 1193, Ce: 1068, Pr: 1208, Nd: 1297, Pm: 1373, Sm: 1345,
-    Eu: 1099, Gd: 1585, Tb: 1629, Dy: 1680, Ho: 1734, Er: 1802, Tm: 1818, Yb: 1097,
-    Lu: 1925, Hf: 2506, Ta: 3290, W: 3695, Re: 3459, Os: 3306, Ir: 2739, Pt: 2041.4,
-    Au: 1337.33, Hg: 234.32, Tl: 577, Pb: 600.61, Bi: 544.4, Po: 527, At: 575, Rn: 202,
-    Fr: maybe about 300, Ra: 973, Ac: 1323, Th: 2115, Pa: 1841, U: 1405.3, Np: 910,
-    Pu: 912.5, Am: 1449, Cm: 1613, Bk: 1259, Cf: 1173, Es: 1133, Fm: about 1800, Md: about
-      1100, No: about 1100, Lr: about 1900}
+    F: 53.53, Ne: 24.56, Na: 370.87, Mg: 923, Al: 933.47, Si: 1687, P: 317.3, S: 388.36,
+    Cl: 171.6, Ar: 83.8, K: 336.53, Ca: 1115, Sc: 1814, Ti: 1941, V: 2183, Cr: 2180,
+    Mn: 1519, Fe: 1811, Co: 1768, Ni: 1728, Cu: 1357.77, Zn: 692.68, Ga: 302.91, Ge: 1211.4,
+    As: 1090, Se: 494, Br: 265.8, Kr: 115.79, Rb: 312.46, Sr: 1050, Y: 1799, Zr: 2128,
+    Nb: 2750, Mo: 2896, Tc: 2430, Ru: 2607, Rh: 2237, Pd: 1828.05, Ag: 1234.93, Cd: 594.22,
+    In: 429.75, Sn: 505.08, Sb: 903.78, Te: 722.66, I: 386.85, Xe: 161.4, Cs: 301.59,
+    Ba: 1000, La: 1193, Ce: 1068, Pr: 1208, Nd: 1297, Pm: 1373, Sm: 1345, Eu: 1099,
+    Gd: 1585, Tb: 1629, Dy: 1680, Ho: 1734, Er: 1802, Tm: 1818, Yb: 1097, Lu: 1925,
+    Hf: 2506, Ta: 3290, W: 3695, Re: 3459, Os: 3306, Ir: 2739, Pt: 2041.4, Au: 1337.33,
+    Hg: 234.32, Tl: 577, Pb: 600.61, Bi: 544.4, Po: 527, At: 575, Rn: 202, Fr: 300,
+    Ra: 973, Ac: 1323, Th: 2115, Pa: 1841, U: 1405.3, Np: 910, Pu: 912.5, Am: 1449,
+    Cm: 1613, Bk: 1259, Cf: 1173, Es: 1133, Fm: 1800, Md: 1100, No: 1100, Lr: 1900}
 Mendeleev no:
-  unit:
-  reference:
+  reference: D. G. Pettifor, A chemical scale for crystal-structure maps, Solid State
+    Communications, 1984.
   data: {H: 103, He: 1, Li: 12, Be: 77, B: 86, C: 95, N: 100, O: 101, F: 102, Ne: 2,
     Na: 11, Mg: 73, Al: 80, Si: 85, P: 90, S: 94, Cl: 99, Ar: 3, K: 10, Ca: 16, Sc: 19,
     Ti: 51, V: 54, Cr: 57, Mn: 60, Fe: 61, Co: 64, Ni: 67, Cu: 72, Zn: 76, Ga: 81,
@@ -2582,39 +2557,29 @@ Mendeleev no:
     Po: 91, At: 96, Rn: 6, Fr: 7, Ra: 13, Ac: 48, Th: 47, Pa: 46, U: 45, Np: 44, Pu: 43,
     Am: 42, Cm: 41, Bk: 40, Cf: 39, Es: 38, Fm: 37, Md: 36, No: 35, Lr: 34}
 Metallic radius:
-  unit:
-  reference:
-  data: {H: no data, He: no data, Li: 1.52, Be: 1.12, B: no data, C: no data, N: no
-      data, O: no data, F: no data, Ne: no data, Na: 1.86, Mg: 1.6, Al: 1.43, Si: no
-      data, P: no data, S: no data, Cl: no data, Ar: no data, K: 2.27, Ca: 1.97, Sc: 1.62,
+  unit: ang
+  reference: https://wikipedia.org/wiki/Atomic_radii_of_the_elements_(data_page)
+  data: {Li: 1.52, Be: 1.12, Na: 1.86, Mg: 1.6, Al: 1.43, K: 2.27, Ca: 1.97, Sc: 1.62,
     Ti: 1.47, V: 1.34, Cr: 1.28, Mn: 1.27, Fe: 1.26, Co: 1.25, Ni: 1.24, Cu: 1.28,
-    Zn: 1.34, Ga: 1.35, Ge: no data, As: no data, Se: no data, Br: no data, Kr: no
-      data, Rb: 2.48, Sr: 2.15, Y: 1.8, Zr: 1.6, Nb: 1.46, Mo: 1.39, Tc: 1.36, Ru: 1.34,
-    Rh: 1.34, Pd: 1.37, Ag: 1.44, Cd: 1.51, In: 1.67, Sn: no data, Sb: no data, Te: no
-      data, I: no data, Xe: no data, Cs: 2.65, Ba: 2.22, La: 1.87, Ce: 1.818, Pr: 1.824,
-    Nd: 1.814, Pm: 1.834, Sm: 1.804, Eu: 1.804, Gd: 1.804, Tb: 1.773, Dy: 1.781, Ho: 1.762,
-    Er: 1.761, Tm: 1.759, Yb: 1.76, Lu: 1.738, Hf: 1.59, Ta: 1.46, W: 1.39, Re: 1.37,
-    Os: 1.35, Ir: 1.355, Pt: 1.385, Au: 1.44, Hg: 1.51, Tl: 1.7, Pb: no data, Bi: no
-      data, Po: no data, At: no data, Rn: no data, Fr: no data, Ra: no data, Ac: no
-      data, Th: 1.79, Pa: 1.63, U: 1.56, Np: 1.55, Pu: 1.59, Am: 1.73, Cm: 1.74, Bk: 1.7,
-    Cf: 1.86, Es: 1.86, Fm: no data, Md: no data, No: no data}
+    Zn: 1.34, Ga: 1.35, Rb: 2.48, Sr: 2.15, Y: 1.8, Zr: 1.6, Nb: 1.46, Mo: 1.39, Tc: 1.36,
+    Ru: 1.34, Rh: 1.34, Pd: 1.37, Ag: 1.44, Cd: 1.51, In: 1.67, Cs: 2.65, Ba: 2.22,
+    La: 1.87, Ce: 1.818, Pr: 1.824, Nd: 1.814, Pm: 1.834, Sm: 1.804, Eu: 1.804, Gd: 1.804,
+    Tb: 1.773, Dy: 1.781, Ho: 1.762, Er: 1.761, Tm: 1.759, Yb: 1.76, Lu: 1.738, Hf: 1.59,
+    Ta: 1.46, W: 1.39, Re: 1.37, Os: 1.35, Ir: 1.355, Pt: 1.385, Au: 1.44, Hg: 1.51,
+    Tl: 1.7, Th: 1.79, Pa: 1.63, U: 1.56, Np: 1.55, Pu: 1.59, Am: 1.73, Cm: 1.74,
+    Bk: 1.7, Cf: 1.86, Es: 1.86}
 Min oxidation state:
-  unit:
-  reference:
   data: {He: 0, Ne: 0, Ar: 0, Kr: 0, Xe: 2, Rn: 0}
 Mineral hardness:
-  unit:
-  reference:
-  data: {Li: 0.6, Be: 5.5, B: 9.3, C: 0.5 (graphite; diamond is 10.0), Na: 0.5, Mg: 2.5,
-    Al: 2.75, Si: 6.5, S: 2.0, K: 0.4, Ca: 1.75, Ti: 6.0, V: 7.0, Cr: 8.5, Mn: 6.0,
-    Fe: 4.0, Co: 5.0, Ni: 4.0, Cu: 3.0, Zn: 2.5, Ga: 1.5, Ge: 6.0, As: 3.5, Se: 2.0,
-    Rb: 0.3, Sr: 1.5, Zr: 5.0, Nb: 6.0, Mo: 5.5, Ru: 6.5, Rh: 6.0, Pd: 4.75, Ag: 2.5,
-    Cd: 2.0, In: 1.2, Sn: 1.5, Sb: 3.0, Te: 2.25, Cs: 0.2, Ba: 1.25, La: 2.5, Ce: 2.5,
-    Hf: 5.5, Ta: 6.5, W: 7.5, Re: 7.0, Os: 7.0, Ir: 6.5, Pt: 3.5, Au: 2.5, Hg: 1.5,
-    Tl: 1.2, Pb: 1.5, Bi: 2.25, Th: 3.0, U: 6.0}
+  data: {Li: 0.6, Be: 5.5, B: 9.3, C: 0.5, Na: 0.5, Mg: 2.5, Al: 2.75, Si: 6.5, S: 2.0,
+    K: 0.4, Ca: 1.75, Ti: 6.0, V: 7.0, Cr: 8.5, Mn: 6.0, Fe: 4.0, Co: 5.0, Ni: 4.0,
+    Cu: 3.0, Zn: 2.5, Ga: 1.5, Ge: 6.0, As: 3.5, Se: 2.0, Rb: 0.3, Sr: 1.5, Zr: 5.0,
+    Nb: 6.0, Mo: 5.5, Ru: 6.5, Rh: 6.0, Pd: 4.75, Ag: 2.5, Cd: 2.0, In: 1.2, Sn: 1.5,
+    Sb: 3.0, Te: 2.25, Cs: 0.2, Ba: 1.25, La: 2.5, Ce: 2.5, Hf: 5.5, Ta: 6.5, W: 7.5,
+    Re: 7.0, Os: 7.0, Ir: 6.5, Pt: 3.5, Au: 2.5, Hg: 1.5, Tl: 1.2, Pb: 1.5, Bi: 2.25,
+    Th: 3.0, U: 6.0}
 Molar volume:
-  unit: cm<sup>3</sup>
-  reference:
+  unit: cm^3
   data: {H: 11.42, He: 21.0, Li: 13.02, Be: 4.85, B: 4.39, C: 5.29, N: 13.54, O: 17.36,
     F: 11.20, Ne: 13.23, Na: 23.78, Mg: 14.00, Al: 10.00, Si: 12.06, P: 17.02, S: 15.53,
     Cl: 17.39, Ar: 22.56, K: 45.94, Ca: 26.20, Sc: 15.00, Ti: 10.64, V: 8.32, Cr: 7.23,
@@ -2629,8 +2594,7 @@ Molar volume:
     Pa: 15.18, U: 12.49, Np: 11.59, Pu: 12.29, Am: 17.63, Cm: 18.05, Bk: 16.84, Cf: 16.50,
     Es: 28.52}
 NMR Quadrupole Moment:
-  unit:
-  reference:
+  unit: mbarn
   data:
     H:
       H-2: 2.86
@@ -2714,8 +2678,6 @@ NMR Quadrupole Moment:
     Ra:
       Ra-223: 1210.3
 Name:
-  unit:
-  reference:
   data: {H: Hydrogen, D: Deuterium, T: Tritium, He: Helium, Li: Lithium, Be: Beryllium,
     B: Boron, C: Carbon, N: Nitrogen, O: Oxygen, F: Fluorine, Ne: Neon, Na: Sodium,
     Mg: Magnesium, Al: Aluminum, Si: Silicon, P: Phosphorus, S: Sulfur, Cl: Chlorine,
@@ -2737,7 +2699,6 @@ Name:
     Rg: Roentgenium, Cn: Copernicium, Nh: Nihonium, Fl: Flerovium, Mc: Moscovium,
     Lv: Livermorium, Ts: Tennessine, Og: Oganesson}
 Oxidation states:
-  unit:
   reference: https://en.wikipedia.org/wiki/Template:List_of_oxidation_states_of_the_elements
   data:
     H: [-1, 1]
@@ -2840,8 +2801,6 @@ Oxidation states:
     No: [2, 3]
     Lr: [3]
 Poissons ratio:
-  unit:
-  reference:
   data: {Be: 0.032, Mg: 0.29, Al: 0.35, Ca: 0.31, Sc: 0.28, Ti: 0.32, V: 0.37, Cr: 0.21,
     Fe: 0.29, Co: 0.31, Ni: 0.31, Cu: 0.34, Zn: 0.25, Se: 0.33, Sr: 0.28, Y: 0.24,
     Zr: 0.34, Nb: 0.40, Mo: 0.31, Ru: 0.30, Rh: 0.26, Pd: 0.39, Ag: 0.37, Cd: 0.30,
@@ -2851,21 +2810,16 @@ Poissons ratio:
     Tl: 0.45, Pb: 0.44, Bi: 0.33, Th: 0.27, U: 0.23, Pu: 0.21}
 Reflectivity:
   unit: '%'
-  reference:
   data: {C: 27, Mg: 74, Al: 71, Si: 28, V: 61, Fe: 65, Co: 67, Ni: 72, Cu: 90, Zn: 80,
     Mo: 58, Rh: 84, Pd: 72, Ag: 97, Cd: 67, Sn: 54, Sb: 55, Te: 50, Ta: 78, W: 62,
     Ir: 78, Pt: 73, Au: 95, Hg: 73}
 Refractive index:
-  unit:
-  reference:
-  data: {H: 1.000132 (gas; liquid 1.12), He: 1.000035 (gas; liquid 1.028), C: 2.417
-      (diamond), N: 1.000298 (gas; liquid 1.197), O: 1.000271 (gas; liquid 1.221),
-    F: 1.000195, Ne: 1.000067, P: 1.001212, S: 1.001111, Cl: 1.000773, Ar: 1.000281,
-    Zn: 1.002050, As: 1.001552, Se: 1.000895, Br: 1.001132, Kr: 1.000427, Te: 1.000991,
-    Xe: 1.000702, Hg: 1.000933}
+  data: {H: 1.000132, He: 1.000035, C: 2.417, N: 1.000298, O: 1.000271, F: 1.000195,
+    Ne: 1.000067, P: 1.001212, S: 1.001111, Cl: 1.000773, Ar: 1.000281, Zn: 1.002050,
+    As: 1.001552, Se: 1.000895, Br: 1.001132, Kr: 1.000427, Te: 1.000991, Xe: 1.000702,
+    Hg: 1.000933}
 Rigidity modulus:
   unit: GPa
-  reference:
   data: {Li: 4.2, Be: 132, Na: 3.3, Mg: 17, Al: 26, K: 1.3, Ca: 7.4, Sc: 29, Ti: 44,
     V: 47, Cr: 115, Fe: 82, Co: 75, Ni: 76, Cu: 48, Zn: 43, Se: 3.7, Sr: 6.1, Y: 26,
     Zr: 33, Nb: 38, Mo: 20, Ru: 173, Rh: 150, Pd: 44, Ag: 30, Cd: 19, Sn: 18, Sb: 20,
@@ -2874,8 +2828,7 @@ Rigidity modulus:
     Re: 178, Os: 222, Ir: 210, Pt: 61, Au: 27, Tl: 2.8, Pb: 5.6, Bi: 12, Th: 31, U: 111,
     Pu: 43}
 Shannon radii:
-  unit:
-  reference:
+  unit: ang
   data:
     D:
       '1':
@@ -4158,15 +4111,12 @@ Shannon radii:
           '': {crystal_radius: 1.24, ionic_radius: 1.1}
 Superconduction temperature:
   unit: K
-  reference:
-  data: {Be: 0.026, Al: 1.175, Sc: 0.05  (under pressure), Ti: 0.40, V: 5.40, Zn: 0.85,
-    Ga: 1.083, Y: 1.3  (under pressure), Zr: 0.61, Nb: 9.25, Mo: 0.915, Tc: 7.8, Ru: 0.49,
-    Cd: 0.517, In: 3.41, Sn: 3.72, La: 6.00, Ce: 0.022  (under pressure), Gd: 1.083,
-    Lu: 0.022, Hf: 0.128, Ta: 4.47, W: 0.015, Re: 1.70, Os: 0.66, Ir: 0.11, Hg: 3.95,
-    Tl: 2.38, Pb: 7.2, Th: 1.38, Pa: 1.4, U: 0.2, Am: 0.6}
+  data: {Be: 0.026, Al: 1.175, Sc: 0.05, Ti: 0.40, V: 5.40, Zn: 0.85, Ga: 1.083, Y: 1.3,
+    Zr: 0.61, Nb: 9.25, Mo: 0.915, Tc: 7.8, Ru: 0.49, Cd: 0.517, In: 3.41, Sn: 3.72,
+    La: 6.00, Ce: 0.022, Gd: 1.083, Lu: 0.022, Hf: 0.128, Ta: 4.47, W: 0.015, Re: 1.70,
+    Os: 0.66, Ir: 0.11, Hg: 3.95, Tl: 2.38, Pb: 7.2, Th: 1.38, Pa: 1.4, U: 0.2, Am: 0.6}
 Thermal conductivity:
-  unit: W m<sup>-1</sup> K<sup>-1</sup>
-  reference:
+  unit: W m^-1 K^-1
   data: {H: 0.1805, He: 0.1513, Li: 85, Be: 190, B: 27, C: 140, N: 0.02583, O: 0.02658,
     F: 0.0277, Ne: 0.0491, Na: 140, Mg: 160, Al: 235, Si: 150, P: 0.236, S: 0.205,
     Cl: 0.0089, Ar: 0.01772, K: 100, Ca: 200, Sc: 16, Ti: 22, V: 31, Cr: 94, Mn: 7.8,
@@ -4176,11 +4126,11 @@ Thermal conductivity:
     Cs: 36, Ba: 18, La: 13, Ce: 11, Pr: 13, Nd: 17, Pm: 15, Sm: 13, Eu: 14, Gd: 11,
     Tb: 11, Dy: 11, Ho: 16, Er: 15, Tm: 17, Yb: 39, Lu: 16, Hf: 23, Ta: 57, W: 170,
     Re: 48, Os: 88, Ir: 150, Pt: 72, Au: 320, Hg: 8.3, Tl: 46, Pb: 35, Bi: 8, Po: 20,
-    At: 2 (estimate), Rn: 0.00361, Ra: 19, Ac: 12, Th: 54, Pa: 47, U: 27, Np: 6, Pu: 6,
-    Am: 10, Cm: 8.8, Bk: 10}
+    At: 2, Rn: 0.00361, Ra: 19, Ac: 12, Th: 54, Pa: 47, U: 27, Np: 6, Pu: 6, Am: 10,
+    Cm: 8.8, Bk: 10}
 Van der waals radius:
-  unit:
-  reference:
+  unit: ang
+  reference: https://wikipedia.org/wiki/Atomic_radii_of_the_elements_(data_page)
   data: {H: 1.1, He: 1.4, Li: 1.82, Be: 1.53, B: 1.92, C: 1.7, N: 1.55, O: 1.52, F: 1.47,
     Ne: 1.54, Na: 2.27, Mg: 1.73, Al: 1.84, Si: 2.1, P: 1.8, S: 1.8, Cl: 1.75, Ar: 1.88,
     K: 2.75, Ca: 2.31, Sc: 2.15, Ti: 2.11, V: 2.07, Cr: 2.06, Mn: 2.05, Fe: 2.04,
@@ -4195,8 +4145,7 @@ Van der waals radius:
     Pa: 2.43, U: 2.41, Np: 2.39, Pu: 2.43, Am: 2.44, Cm: 2.45, Bk: 2.44, Cf: 2.45,
     Es: 2.45, Fm: 2.45, Md: 2.46, No: 2.46}
 Velocity of sound:
-  unit: m s<sup>-1</sup>
-  reference:
+  unit: m s^-1
   data: {H: 1270, He: 970, Li: 6000, Be: 13000, B: 16200, C: 18350, N: 333.6, O: 317.5,
     Ne: 936, Na: 3200, Mg: 4602, Al: 5100, Si: 2200, Cl: 206, Ar: 319, K: 2000, Ca: 3810,
     Ti: 4140, V: 4560, Cr: 5940, Mn: 5150, Fe: 4910, Co: 4720, Ni: 4970, Cu: 3570,
@@ -4207,16 +4156,13 @@ Velocity of sound:
     Hf: 3010, Ta: 3400, W: 5174, Re: 4700, Os: 4940, Ir: 4825, Pt: 2680, Au: 1740,
     Hg: 1407, Tl: 818, Pb: 1260, Bi: 1790, Th: 2490, U: 3155, Pu: 2260}
 Vickers hardness:
-  unit: MN m<sup>-2</sup>
-  reference:
+  unit: MN m^-2
   data: {Be: 1670, B: 49000, Al: 167, Ti: 970, V: 628, Cr: 1060, Fe: 608, Co: 1043,
     Ni: 638, Cu: 369, Zr: 903, Nb: 1320, Mo: 1530, Rh: 1246, Pd: 461, Ag: 251, La: 491,
     Ce: 270, Pr: 400, Nd: 343, Sm: 412, Eu: 167, Gd: 570, Tb: 863, Dy: 540, Ho: 481,
     Er: 589, Tm: 520, Yb: 206, Lu: 1160, Hf: 1760, Ta: 873, W: 3430, Re: 2450, Ir: 1760,
     Pt: 549, Au: 216, Th: 350, U: 1960}
 X:
-  unit:
-  reference:
   data: {H: 2.2, Li: 0.98, Be: 1.57, B: 2.04, C: 2.55, N: 3.04, O: 3.44, F: 3.98,
     Na: 0.93, Mg: 1.31, Al: 1.61, Si: 1.9, P: 2.19, S: 2.58, Cl: 3.16, K: 0.82, Ca: 1,
     Sc: 1.36, Ti: 1.54, V: 1.63, Cr: 1.66, Mn: 1.55, Fe: 1.83, Co: 1.88, Ni: 1.91,
@@ -4231,7 +4177,6 @@ X:
     Fm: 1.3, Md: 1.3, No: 1.3, Lr: 1.3}
 Youngs modulus:
   unit: GPa
-  reference:
   data: {Li: 4.9, Be: 287, Na: 10, Mg: 45, Al: 70, Si: 47, Ca: 20, Sc: 74, Ti: 116,
     V: 128, Cr: 279, Mn: 198, Fe: 211, Co: 209, Ni: 200, Cu: 130, Zn: 108, As: 8,
     Se: 10, Rb: 2.4, Y: 64, Zr: 68, Nb: 105, Mo: 329, Ru: 447, Rh: 275, Pd: 121, Ag: 83,
