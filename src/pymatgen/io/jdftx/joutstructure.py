@@ -505,16 +505,29 @@ class JOutStructure(Structure):
             posns: list[np.ndarray] = []
             names: list[str] = []
             selective_dynamics: list[list[int]] = []
+            velocities: list[np.ndarray] = []
             for i in range(natoms):
                 line = posns_lines[i + 1].rstrip("\n")
                 name = line.split()[1].strip()
                 posn = np.array([float(x.strip()) for x in line.split()[2:5]])
-                sd = [int(v) for v in line.split()[5:]]
-                if len(sd) == 1:
-                    sd = [sd[0], sd[0], sd[0]]
                 names.append(name)
                 posns.append(posn)
-                selective_dynamics.append(sd)
+                offset = 0
+                # Expecting a line to looks like "ion Ir   0.087   0.23   0.285 0"
+                # Protecting additional data in a try/except block to
+                try:
+                    # If that last (6th) element is "v", we are dealing with an MD calculation and line might look like
+                    # "ion Ir   0.087481227766366   0.236770029479291   0.285789315528821 v   0.002  0.10   0.03 1"
+                    if line.split()[5] == "v":
+                        offset = 4
+                        velocity = np.array([float(x.strip()) for x in line.split()[5:8]])
+                        velocities.append(velocity)
+                    sd = [int(v) for v in line.split()[offset + 5 :]]
+                    if len(sd) == 1:
+                        sd = [sd[0], sd[0], sd[0]]
+                    selective_dynamics.append(sd)
+                except (IndexError, ValueError, TypeError):
+                    pass
             posns = np.array(posns)
             if coords_type.lower() != "cartesian":
                 posns = np.dot(posns, self.lattice.matrix)
