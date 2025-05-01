@@ -2,6 +2,8 @@
 
 from __future__ import annotations
 
+import typing
+
 import numpy as np
 from monty.dev import requires
 from monty.serialization import loadfn
@@ -13,6 +15,9 @@ from pymatgen.phonon.dos import CompletePhononDos, PhononDos
 from pymatgen.phonon.gruneisen import GruneisenParameter, GruneisenPhononBandStructureSymmLine
 from pymatgen.phonon.thermal_displacements import ThermalDisplacementMatrices
 from pymatgen.symmetry.bandstructure import HighSymmKpath
+
+if typing.TYPE_CHECKING:
+    from pymatgen.core.structure import IStructure
 
 try:
     from phonopy import Phonopy
@@ -289,7 +294,7 @@ def get_displaced_structures(pmg_structure, atom_disp=0.01, supercell_matrix=Non
 
 @requires(Phonopy, "phonopy is required to calculate phonon density of states")
 def get_phonon_dos_from_fc(
-    structure: Structure,
+    structure: Structure | IStructure,
     supercell_matrix: np.ndarray,
     force_constants: np.ndarray,
     mesh_density: float = 100.0,
@@ -338,7 +343,7 @@ def get_phonon_dos_from_fc(
 
 @requires(Phonopy, "phonopy is required to calculate phonon band structures")
 def get_phonon_band_structure_from_fc(
-    structure: Structure,
+    structure: Structure | IStructure,
     supercell_matrix: np.ndarray,
     force_constants: np.ndarray,
     mesh_density: float = 100.0,
@@ -369,7 +374,7 @@ def get_phonon_band_structure_from_fc(
 
 @requires(Phonopy, "phonopy is required to calculate phonon band structures")
 def get_phonon_band_structure_symm_line_from_fc(
-    structure: Structure,
+    structure: Structure | IStructure,
     supercell_matrix: np.ndarray,
     force_constants: np.ndarray,
     line_density: float = 20.0,

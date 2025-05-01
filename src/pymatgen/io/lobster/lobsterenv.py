@@ -38,7 +38,7 @@ if TYPE_CHECKING:
     from numpy.typing import NDArray
     from typing_extensions import Self
 
-    from pymatgen.core import PeriodicNeighbor, PeriodicSite, Structure
+    from pymatgen.core import IStructure, PeriodicNeighbor, PeriodicSite, Structure
     from pymatgen.core.periodic_table import Element
     from pymatgen.electronic_structure.cohp import IcohpCollection, IcohpValue
     from pymatgen.util.typing import PathLike
@@ -65,7 +65,7 @@ class LobsterNeighbors(NearNeighbors):
 
     def __init__(
         self,
-        structure: Structure,
+        structure: Structure | IStructure,
         filename_icohp: PathLike | None = "ICOHPLIST.lobster",
         obj_icohp: Icohplist | None = None,
         are_coops: bool = False,
@@ -265,7 +265,7 @@ class LobsterNeighbors(NearNeighbors):
 
     def get_nn_info(
         self,
-        structure: Structure,
+        structure: Structure | IStructure,
         n: int,
         use_weights: bool = False,
     ) -> dict[str, Any]:
@@ -1377,7 +1377,7 @@ class LobsterLightStructureEnvironments(LightStructureEnvironments):
         list_permutation: list,
         list_neighsite: list[PeriodicSite],
         list_neighisite: list[list[int]],
-        structure: Structure,
+        structure: Structure | IStructure,
         valences: list[float] | None = None,
     ) -> Self:
         """Set up a LightStructureEnvironments from LOBSTER.

@@ -43,8 +43,8 @@ if TYPE_CHECKING:
     from typing_extensions import Self
 
     from pymatgen.core.composition import Element, Species
+    from pymatgen.core.structure import IStructure
     from pymatgen.symmetry.groups import CrystalSystem
-    from pymatgen.util.typing import MillerIndex, Tuple3Ints
 
 __author__ = "Richard Tran, Wenhao Sun, Zihan Xu, Shyue Ping Ong"
 
@@ -74,13 +74,13 @@ class Slab(Structure):
 
     def __init__(
         self,
-        lattice: Lattice | np.ndarray,
+        lattice: Lattice,
         species: Sequence[Any],
-        coords: np.ndarray,
-        miller_index: MillerIndex,
-        oriented_unit_cell: Structure,
+        coords: NDArray[np.float64],
+        miller_index: tuple[int, ...],
+        oriented_unit_cell: Structure | IStructure,
         shift: float,
-        scale_factor: np.ndarray,
+        scale_factor: NDArray[np.float64],
         reorient_lattice: bool = True,
         validate_proximity: bool = False,
         to_unit_cell: bool = False,
@@ -108,7 +108,7 @@ class Slab(Structure):
                     [{"Fe": 0.5, "Mn": 0.5}, ...]. This allows the setup of
                     disordered structures.
             coords (Nx3 array): list of fractional/cartesian coordinates of each species.
-            miller_index (MillerIndex): Miller index of plane parallel to
+            miller_index (tuple[int, ...]): Miller index of plane parallel to
                 surface. Note that this is referenced to the input structure. If
                 you need this to be based on the conventional cell,
                 you should supply the conventional structure.
@@ -213,7 +213,7 @@ class Slab(Structure):
     def surface_area(self) -> float:
         """The surface area of the Slab."""
         matrix = self.lattice.matrix
-        return np.linalg.norm(np.cross(matrix[0], matrix[1]))
+        return float(np.linalg.norm(np.cross(matrix[0], matrix[1])))
 
     @classmethod
     def from_dict(cls, dct: dict[str, Any]) -> Self:
@@ -396,9 +396,9 @@ class Slab(Structure):
 
     def get_symmetric_site(
         self,
-        point: ArrayLike,
+        point: NDArray[np.float64],
         cartesian: bool = False,
-    ) -> ArrayLike:
+    ) -> NDArray[np.float64]:
         """Use symmetry operations to find an equivalent site on the other side of
         the slab. Works mainly for slabs with Laue symmetry.
 
@@ -565,7 +565,7 @@ class Slab(Structure):
                 slab = type(self)(
                     self.lattice,
                     species,
-                    frac_coords,
+                    np.array(frac_coords),
                     self.miller_index,
                     self.oriented_unit_cell,
                     self.shift,
@@ -574,8 +574,8 @@ class Slab(Structure):
                     reorient_lattice=self.reorient_lattice,
                 )
                 slabs.append(slab)
-        struct_matcher = StructureMatcher()
-        return [ss[0] for ss in struct_matcher.group_structures(slabs)]
+        stm = StructureMatcher()
+        return [ss[0] for ss in stm.group_structures(slabs)]
 
     def get_sorted_structure(self, key=None, reverse: bool = False) -> Self:
         """Get a sorted copy of the structure. The parameters have the same
@@ -643,7 +643,7 @@ class Slab(Structure):
     def symmetrically_add_atom(
         self,
         species: str | Element | Species,
-        point: ArrayLike,
+        point: NDArray[np.float64],
         specie: str | Element | Species | None = None,
         coords_are_cartesian: bool = False,
     ) -> None:
@@ -652,7 +652,7 @@ class Slab(Structure):
 
         Args:
             species (str | Element | Species): The species to add.
-            point (ArrayLike): The coordinate of the target site.
+            point (NDArray[np.float_]): The coordinate of the target site.
             specie: Deprecated argument name in #3691. Use 'species' instead.
             coords_are_cartesian (bool): If the site is in Cartesian coordinates.
         """
@@ -727,7 +727,7 @@ class Slab(Structure):
         slab_copy = SpacegroupAnalyzer(self.copy()).get_symmetrized_structure()
         sites = [slab_copy[i].frac_coords for i in indices]
 
-        equi_sites = get_equi_sites(slab_copy, sites)
+        equi_sites = get_equi_sites(slab_copy, sites)  # type:ignore[arg-type]
 
         # Check if found any equivalent sites
         if len(equi_sites) == len(indices):
@@ -886,8 +886,8 @@ class SlabGenerator:
 
     def __init__(
         self,
-        initial_structure: Structure,
-        miller_index: MillerIndex,
+        initial_structure: Structure | IStructure,
+        miller_index: tuple[int, ...],
         min_slab_size: float,
         min_vacuum_size: float,
         lll_reduce: bool = False,
@@ -943,10 +943,10 @@ class SlabGenerator:
                 the c direction is parallel to the third lattice vector
         """
 
-        def reduce_vector(vector: MillerIndex) -> MillerIndex:
+        def reduce_vector(vector: tuple[int, ...]) -> tuple[int, ...]:
             """Helper function to reduce vectors."""
             divisor = abs(reduce(math.gcd, vector))  # type: ignore[arg-type]
-            return cast("Tuple3Ints", tuple(int(idx / divisor) for idx in vector))
+            return cast("tuple[int, int, int]", tuple(int(idx / divisor) for idx in vector))
 
         def add_site_types() -> None:
             """Add Wyckoff symbols and equivalent sites to the initial structure."""
@@ -1029,7 +1029,7 @@ class SlabGenerator:
                 uvw, cosine, osdm = max(candidates, key=lambda x: (x[1], -x[2]))
                 slab_scale_factor.append(uvw)
 
-            slab_scale_factor = np.array(slab_scale_factor)
+            slab_scale_factor = np.array(slab_scale_factor)  # type: ignore[assignment]
 
             # Let's make sure we have a left-handed crystallographic system
             if np.linalg.det(slab_scale_factor) < 0:
@@ -1133,7 +1133,7 @@ class SlabGenerator:
         props = {k: v * n_layers_slab for k, v in props.items()}
 
         # Generate Slab
-        struct: Structure = Structure(new_lattice, species * n_layers_slab, all_coords, site_properties=props)
+        struct: Structure = Structure(new_lattice, species * n_layers_slab, all_coords, site_properties=props)  # type:ignore[arg-type]
 
         # (Optionally) Post-process the Slab
         # Orthogonalize the structure (through LLL lattice basis reduction)
@@ -1321,7 +1321,7 @@ class SlabGenerator:
 
                                 # Neglect overlapping positions
                                 elif not math.isclose(z_range[0], z_range[1], abs_tol=ztol):
-                                    z_ranges.append(z_range)
+                                    z_ranges.append(z_range)  # type:ignore[arg-type]
 
             return z_ranges
 
@@ -1568,7 +1568,7 @@ class SlabGenerator:
 
 
 def generate_all_slabs(
-    structure: Structure,
+    structure: Structure | IStructure,
     max_index: int,
     min_slab_size: float,
     min_vacuum_size: float,
@@ -1737,7 +1737,7 @@ class ReconstructionGenerator:
 
     def __init__(
         self,
-        initial_structure: Structure,
+        initial_structure: Structure | IStructure,
         min_slab_size: float,
         min_vacuum_size: float,
         reconstruction_name: str,
@@ -1955,7 +1955,7 @@ class ReconstructionGenerator:
 
 
 def get_symmetrically_equivalent_miller_indices(
-    structure: Structure,
+    structure: Structure | IStructure,
     miller_index: tuple[int, ...],
     return_hkil: bool = True,
     system: CrystalSystem | None = None,
@@ -1973,7 +1973,7 @@ def get_symmetrically_equivalent_miller_indices(
     """
     # Convert to hkl if hkil, because in_coord_list only handles tuples of 3
     if len(miller_index) >= 3:
-        _miller_index: MillerIndex = (
+        _miller_index: tuple[int, ...] = (
             miller_index[0],
             miller_index[1],
             miller_index[-1],
@@ -2002,7 +2002,7 @@ def get_symmetrically_equivalent_miller_indices(
     else:
         symm_ops = structure.lattice.get_recp_symmetry_operation()
 
-    equivalent_millers: list[Tuple3Ints] = [_miller_index]
+    equivalent_millers: list[tuple[int, int, int]] = [_miller_index]  # type: ignore[list-item]
     for miller in itertools.product(idx_range, idx_range, idx_range):
         if miller == _miller_index:
             continue
@@ -2027,7 +2027,7 @@ def get_symmetrically_equivalent_miller_indices(
 
 
 def get_symmetrically_distinct_miller_indices(
-    structure: Structure,
+    structure: Structure | IStructure,
     max_index: int,
     return_hkil: bool = False,
 ) -> list:
@@ -2055,7 +2055,7 @@ def get_symmetrically_distinct_miller_indices(
     spg_analyzer = SpacegroupAnalyzer(structure)
     if spg_analyzer.get_crystal_system() == "trigonal":
         transf = spg_analyzer.get_conventional_to_primitive_transformation_matrix()
-        miller_list: list[Tuple3Ints] = [hkl_transformation(transf, hkl) for hkl in conv_hkl_list]
+        miller_list: list[tuple[int, int, int]] = [hkl_transformation(transf, hkl) for hkl in conv_hkl_list]
         prim_structure = SpacegroupAnalyzer(structure).get_primitive_standard_structure()
         symm_ops = prim_structure.lattice.get_recp_symmetry_operation()
 
@@ -2068,7 +2068,7 @@ def get_symmetrically_distinct_miller_indices(
 
     for idx, miller in enumerate(miller_list):
         denom = abs(reduce(math.gcd, miller))  # type: ignore[arg-type]
-        miller = cast("Tuple3Ints", tuple(int(idx / denom) for idx in miller))
+        miller = cast("tuple[int, int, int]", tuple(int(idx / denom) for idx in miller))
         if not _is_in_miller_family(miller, unique_millers, symm_ops):
             if spg_analyzer.get_crystal_system() == "trigonal":
                 # Now we find the distinct primitive hkls using
@@ -2089,15 +2089,15 @@ def get_symmetrically_distinct_miller_indices(
 
 
 def _is_in_miller_family(
-    miller_index: MillerIndex,
-    miller_list: list[MillerIndex],
+    miller_index: tuple[int, int, int],
+    miller_list: Sequence[tuple[int, int, int]],
     symm_ops: list,
 ) -> bool:
     """Helper function to check if the given Miller index belongs
     to the same family of any index in the provided list.
 
     Args:
-        miller_index (MillerIndex): The Miller index to analyze.
+        miller_index (tuple[int, int, int]): The Miller index to analyze.
         miller_list (list): List of Miller indices.
         symm_ops (list): Symmetry operations for a lattice,
             used to define the indices family.
@@ -2107,13 +2107,13 @@ def _is_in_miller_family(
 
 def hkl_transformation(
     transf: np.ndarray,
-    miller_index: MillerIndex,
-) -> Tuple3Ints:
+    miller_index: tuple[int, ...],
+) -> tuple[int, int, int]:
     """Transform the Miller index from setting A to B with a transformation matrix.
 
     Args:
         transf (3x3 array): The matrix that transforms a lattice from A to B.
-        miller_index (MillerIndex): The Miller index [h, k, l] to transform.
+        miller_index (tuple[int, ...]): The Miller index [h, k, l] to transform.
     """
 
     def math_lcm(a: int, b: int) -> int:
@@ -2142,7 +2142,7 @@ def miller_index_from_sites(
     coords_are_cartesian: bool = True,
     round_dp: int = 4,
     verbose: bool = True,
-) -> Tuple3Ints:
+) -> tuple[int, int, int]:
     """Get the Miller index of a plane, determined by a given set of coordinates.
 
     A minimum of 3 sets of coordinates are required. If more than 3

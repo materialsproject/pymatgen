@@ -6,7 +6,7 @@ from pytest import approx
 from pymatgen.analysis.diffraction.xrd import XRDCalculator
 from pymatgen.core.lattice import Lattice
 from pymatgen.core.structure import Structure
-from pymatgen.util.testing import PymatgenTest
+from pymatgen.util.testing import MatSciTest
 
 __author__ = "Shyue Ping Ong"
 __copyright__ = "Copyright 2012, The Materials Project"
@@ -16,7 +16,7 @@ __email__ = "shyuep@gmail.com"
 __date__ = "5/22/14"
 
 
-class TestXRDCalculator(PymatgenTest):
+class TestXRDCalculator(MatSciTest):
     def test_type_wavelength(self):
         """Test TypeError is raised if wavelength is unaccepted type."""
         wavelength = [1.78, 2.78]  # just a list

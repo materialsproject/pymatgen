@@ -14,10 +14,10 @@ from pymatgen.core import DummySpecies, Element, Species, get_el_sp
 from pymatgen.core.periodic_table import ElementBase, ElementType
 from pymatgen.core.units import Ha_to_eV
 from pymatgen.io.core import ParseError
-from pymatgen.util.testing import PymatgenTest
+from pymatgen.util.testing import MatSciTest
 
 
-class TestElement(PymatgenTest):
+class TestElement(MatSciTest):
     def test_init(self):
         assert Element("Fe").symbol == "Fe"
 
@@ -413,8 +413,8 @@ class TestElement(PymatgenTest):
         assert Element.named_isotopes == (Element.D, Element.T)
 
 
-class TestSpecies(PymatgenTest):
-    def setUp(self):
+class TestSpecies(MatSciTest):
+    def setup_method(self):
         self.specie1 = Species.from_str("Fe2+")
         self.specie2 = Species("Fe", 3)
         self.specie3 = Species("Fe", 2)
@@ -719,7 +719,7 @@ class TestDummySpecies:
                 if str(el) == "H" and ox == 1:
                     continue
                 n_electron_el = sum(orb[-1] for orb in el.full_electronic_structure)
-                n_electron_sp = sum(orb[-1] for orb in Species(el, ox).full_electronic_structure)
+                n_electron_sp = sum(orb[-1] for orb in Species(el.symbol, ox).full_electronic_structure)
                 assert n_electron_el - n_electron_sp == ox, f"Failure for {el} {ox}"
 
 

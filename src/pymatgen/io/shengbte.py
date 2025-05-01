@@ -22,6 +22,8 @@ if TYPE_CHECKING:
 
     from typing_extensions import Self
 
+    from pymatgen.core.structure import IStructure
+
 __author__ = "Rees Chang, Alex Ganose"
 __copyright__ = "Copyright 2019, The Materials Project"
 __version__ = "0.1"
@@ -205,7 +207,9 @@ class Control(MSONable, dict):
             file.write(control_str)
 
     @classmethod
-    def from_structure(cls, structure: Structure, reciprocal_density: int | None = 50000, **kwargs) -> Self:
+    def from_structure(
+        cls, structure: Structure | IStructure, reciprocal_density: int | None = 50000, **kwargs
+    ) -> Self:
         """Get a ShengBTE control object from a structure.
 
         Args:

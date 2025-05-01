@@ -3,12 +3,11 @@
 from __future__ import annotations
 
 from pathlib import Path
-from types import GenericAlias
-from typing import TYPE_CHECKING, get_args
+from typing import TYPE_CHECKING
 
 from pymatgen.core import Composition, DummySpecies, Element, Species
 from pymatgen.entries import Entry
-from pymatgen.util.typing import CompositionLike, EntryLike, PathLike, PbcLike, SpeciesLike
+from pymatgen.util.typing import CompositionLike, EntryLike, PathLike, SpeciesLike
 
 if TYPE_CHECKING:
     from typing import Any
@@ -57,11 +56,6 @@ def test_composition_like():
     assert isinstance(Composition("H"), CompositionLike)
     assert isinstance({"H": 1}, CompositionLike)
     assert isinstance(DummySpecies("X"), CompositionLike)
-
-
-def test_pbc_like():
-    assert isinstance(PbcLike, GenericAlias)
-    assert get_args(PbcLike) == (bool, bool, bool)
 
 
 def test_pathlike():

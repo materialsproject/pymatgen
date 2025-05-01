@@ -22,6 +22,7 @@ if TYPE_CHECKING:
     from numpy.typing import ArrayLike, NDArray
     from typing_extensions import Self
 
+    from pymatgen.core.structure import IStructure
     from pymatgen.util.typing import PathLike
 
 __author__ = "Christian Vorwerk"
@@ -49,7 +50,7 @@ class ExcitingInput(MSONable):
 
     def __init__(
         self,
-        structure: Structure,
+        structure: Structure | IStructure,
         title: str | None = None,
         lockxyz: ArrayLike | None = None,
     ) -> None:

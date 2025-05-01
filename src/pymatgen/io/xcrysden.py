@@ -4,10 +4,12 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING
 
-from pymatgen.core import Element, Structure
+from pymatgen.core import Element, IStructure, Structure
 
 if TYPE_CHECKING:
     from typing_extensions import Self
+
+    from pymatgen.core.structure import IStructure
 
 __author__ = "Matteo Giantomassi"
 __copyright__ = "Copyright 2013, The Materials Project"
@@ -18,7 +20,7 @@ __maintainer__ = "Matteo Giantomassi"
 class XSF:
     """Parse XCrysden files."""
 
-    def __init__(self, structure: Structure):
+    def __init__(self, structure: Structure | IStructure):
         """
         Args:
             structure (Structure): Structure object.
