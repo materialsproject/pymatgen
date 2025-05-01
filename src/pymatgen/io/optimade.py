@@ -23,6 +23,7 @@ if TYPE_CHECKING:
     from collections.abc import Generator
     from typing import Any
 
+    from pymatgen.core.structure import IStructure
 
 __author__ = "Matthew Evans"
 
@@ -107,7 +108,7 @@ class OptimadeStructureAdapter:
     """Adapter serves as a bridge between OPTIMADE structures and pymatgen objects."""
 
     @staticmethod
-    def get_optimade_structure(structure: Structure, **kwargs) -> dict[str, str | dict[str, Any]]:
+    def get_optimade_structure(structure: Structure | IStructure, **kwargs) -> dict[str, str | dict[str, Any]]:
         """Get a dictionary in the OPTIMADE Structure format from a pymatgen structure or molecule.
 
         Args:

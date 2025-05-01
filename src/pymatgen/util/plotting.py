@@ -22,7 +22,7 @@ if TYPE_CHECKING:
     from matplotlib.axes import Axes
     from matplotlib.figure import Figure
     from mpl_toolkits.mplot3d.axes3d import Axes3D
-    from numpy.typing import ArrayLike
+    from numpy.typing import NDArray
 
 
 def pretty_plot(
@@ -170,7 +170,7 @@ def pretty_plot_two_axis(
     return ax1
 
 
-def pretty_polyfit_plot(x: ArrayLike, y: ArrayLike, deg: int = 1, xlabel=None, ylabel=None, **kwargs):
+def pretty_polyfit_plot(x: NDArray, y: NDArray, deg: int = 1, xlabel=None, ylabel=None, **kwargs):
     """Convenience method to plot data with trend lines based on polynomial fit.
 
     Args:
@@ -366,11 +366,11 @@ def periodic_table_heatmap(
 
     # Label each block with corresponding element and value
     for ii, row in enumerate(value_table):
-        for jj, el in enumerate(row):
+        for jj, el in enumerate(row):  # type: ignore[arg-type]
             if not np.isnan(el):
                 symbol = Element.from_row_and_group(ii + 1, jj + 1).symbol
                 rgba = scalar_cmap.to_rgba(el)
-                fontcolor = _decide_fontcolor(rgba) if readable_fontcolor else "black"
+                fontcolor = _decide_fontcolor(tuple(rgba)) if readable_fontcolor else "black"
                 plt.text(
                     jj + 0.5,
                     ii + 0.25,
@@ -473,9 +473,9 @@ def van_arkel_triangle(list_of_materials: Sequence, annotate: bool = True):
     # set labels and appropriate limits for plot
     plt.xlim(pt2[0] - 0.45, -b2 / slope2 + 0.45)
     plt.ylim(-0.45, pt1[1] + 0.45)
-    plt.annotate("Ionic", xy=[pt1[0] - 0.3, pt1[1] + 0.05], fontsize=20)
-    plt.annotate("Covalent", xy=[-b2 / slope2 - 0.65, -0.4], fontsize=20)
-    plt.annotate("Metallic", xy=[pt2[0] - 0.4, -0.4], fontsize=20)
+    plt.annotate("Ionic", xy=(pt1[0] - 0.3, pt1[1] + 0.05), fontsize=20)
+    plt.annotate("Covalent", xy=(-b2 / slope2 - 0.65, -0.4), fontsize=20)
+    plt.annotate("Metallic", xy=(pt2[0] - 0.4, -0.4), fontsize=20)
     plt.xlabel(r"$\frac{\chi_{A}+\chi_{B}}{2}$", fontsize=25)
     plt.ylabel(r"$|\chi_{A}-\chi_{B}|$", fontsize=25)
 
@@ -555,7 +555,7 @@ def van_arkel_triangle(list_of_materials: Sequence, annotate: bool = True):
             plt.annotate(
                 formatted_formula,
                 fontsize=15,
-                xy=[np.mean(X_pair) + 0.005, abs(X_pair[0] - X_pair[1])],
+                xy=(np.mean(X_pair) + 0.005, abs(X_pair[0] - X_pair[1])),  # type: ignore[arg-type]
             )
 
     plt.tight_layout()

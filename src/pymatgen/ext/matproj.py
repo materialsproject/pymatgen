@@ -39,6 +39,8 @@ logger = logging.getLogger(__name__)
 
 MP_LOG_FILE = os.path.join(os.path.expanduser("~"), ".mprester.log.yaml")
 
+CHUNK_SIZE = 200
+
 
 class MPRester:
     """
@@ -416,15 +418,18 @@ class MPRester:
                 warnings.filterwarnings("ignore", message="Failed to guess oxidation states.*")
                 entries = MaterialsProject2020Compatibility().process_entries(entries, clean=True)
 
-        if summary_data:
-            edata = self.search(
-                "summary",
-                material_ids=[e.data["material_id"] for e in entries],
-                _fields=[*summary_data, "material_id"],
-            )
-            mapped_data = {d["material_id"]: {k: v for k, v in d.items() if k != "material_id"} for d in edata}
-            for e in entries:
-                e.data["summary"] = mapped_data[e.data["material_id"]]
+        if summary_data and len(entries) > 0:
+            for i in range(0, len(entries), CHUNK_SIZE):
+                chunked_entries = entries[i : i + CHUNK_SIZE]
+                mids = [e.data["material_id"] for e in chunked_entries]
+                edata = self.search(
+                    "summary",
+                    material_ids=mids,
+                    _fields=[*summary_data, "material_id"],
+                )
+                mapped_data = {d["material_id"]: {k: v for k, v in d.items() if k != "material_id"} for d in edata}
+                for e in chunked_entries:
+                    e.data["summary"] = mapped_data[e.data["material_id"]]
 
         return list(set(entries))
 

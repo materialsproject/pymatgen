@@ -18,7 +18,6 @@ if TYPE_CHECKING:
     from io import TextIOWrapper
     from typing import Any
 
-    from pymatgen.util.typing import Matrix3D, Tuple3Floats, Vector3D
 
 __author__ = "Thomas A. R. Purcell and Andrey Sobolev"
 __version__ = "1.0"
@@ -400,7 +399,7 @@ class AimsOutHeaderChunk(AimsOutChunk):
         return float(line.split("=")[-1].strip().split()[0])
 
     @property
-    def k_points(self) -> Sequence[Vector3D]:
+    def k_points(self) -> Sequence[tuple[float, float, float]]:
         """All k-points listed in the calculation."""
         if "k_points" not in self._cache:
             self._parse_k_points()
@@ -521,19 +520,19 @@ class AimsOutCalcChunk(AimsOutChunk):
 
     def _parse_lattice_atom_pos(
         self,
-    ) -> tuple[list[str], list[Vector3D], list[Vector3D], Lattice | None]:
+    ) -> tuple[list[str], list[tuple[float, float, float]], list[tuple[float, float, float]], Lattice | None]:
         """Parse the lattice and atomic positions of the structure.
 
         Returns:
             list[str]: The species symbols for the atoms in the structure
-            list[Vector3D]: The Cartesian coordinates of the atoms
-            list[Vector3D]: The velocities of the atoms
+            list[tuple[float, float, float]]: The Cartesian coordinates of the atoms
+            list[tuple[float, float, float]]: The velocities of the atoms
             Lattice or None: The Lattice for the structure
         """
         lattice_vectors = []
-        velocities: list[Vector3D] = []
+        velocities: list[tuple[float, float, float]] = []
         species: list[str] = []
-        coords: list[Vector3D] = []
+        coords: list[tuple[float, float, float]] = []
 
         start_keys = [
             "Atomic structure (and velocities) as used in the preceding time step",
@@ -564,9 +563,9 @@ class AimsOutCalcChunk(AimsOutChunk):
             elif "atom   " in line:
                 line_split = line.split()
                 species.append(line_split[4])
-                coords.append(cast("Tuple3Floats", tuple(float(inp) for inp in line_split[1:4])))
+                coords.append(cast("tuple[float, float, float]", tuple(float(inp) for inp in line_split[1:4])))
             elif "velocity   " in line:
-                velocities.append(cast("Tuple3Floats", tuple(float(inp) for inp in line.split()[1:4])))
+                velocities.append(cast("tuple[float, float, float]", tuple(float(inp) for inp in line.split()[1:4])))
 
         lattice = Lattice(lattice_vectors) if len(lattice_vectors) == 3 else None
         return species, coords, velocities, lattice
@@ -584,7 +583,7 @@ class AimsOutCalcChunk(AimsOutChunk):
         return self._cache["species"]
 
     @property
-    def coords(self) -> list[Vector3D]:
+    def coords(self) -> list[tuple[float, float, float]]:
         """The cartesian coordinates of the atoms."""
         if "coords" not in self._cache:
             (
@@ -596,7 +595,7 @@ class AimsOutCalcChunk(AimsOutChunk):
         return self._cache["coords"]
 
     @property
-    def velocities(self) -> list[Vector3D]:
+    def velocities(self) -> list[tuple[float, float, float]]:
         """The velocities of the atoms."""
         if "velocities" not in self._cache:
             (
@@ -647,7 +646,9 @@ class AimsOutCalcChunk(AimsOutChunk):
         return np.array(stresses) * EV_PER_A3_TO_KBAR
 
     @property
-    def stress(self) -> Matrix3D | None:
+    def stress(
+        self,
+    ) -> Sequence[Sequence[float, float, float], Sequence[float, float, float], Sequence[float, float, float]] | None:
         """The stress from the aims.out file and convert to kBar."""
         line_start = self.reverse_search_for(
             ["Analytical stress tensor - Symmetrized", "Numerical stress tensor"]
@@ -679,7 +680,7 @@ class AimsOutCalcChunk(AimsOutChunk):
         return float(self.lines[line_ind].split()[5])
 
     @property
-    def dipole(self) -> Vector3D | None:
+    def dipole(self) -> tuple[float, float, float] | None:
         """The electric dipole moment from the aims.out file."""
         line_start = self.reverse_search_for(["Total dipole moment [eAng]"])
         if line_start == LINE_NOT_FOUND:
@@ -689,7 +690,9 @@ class AimsOutCalcChunk(AimsOutChunk):
         return np.array([float(inp) for inp in line.split()[6:9]])
 
     @property
-    def dielectric_tensor(self) -> Matrix3D | None:
+    def dielectric_tensor(
+        self,
+    ) -> Sequence[Sequence[float, float, float], Sequence[float, float, float], Sequence[float, float, float]] | None:
         """The dielectric tensor from the aims.out file."""
         line_start = self.reverse_search_for(["PARSE DFPT_dielectric_tensor"])
         if line_start == LINE_NOT_FOUND:
@@ -702,7 +705,7 @@ class AimsOutCalcChunk(AimsOutChunk):
         return np.array([np.fromstring(line, sep=" ") for line in lines])
 
     @property
-    def polarization(self) -> Vector3D | None:
+    def polarization(self) -> tuple[float, float, float] | None:
         """The polarization vector from the aims.out file."""
         line_start = self.reverse_search_for(["| Cartesian Polarization"])
         if line_start == LINE_NOT_FOUND:
@@ -885,7 +888,7 @@ class AimsOutCalcChunk(AimsOutChunk):
         return self._header["n_k_points"]
 
     @property
-    def k_points(self) -> Sequence[Vector3D]:
+    def k_points(self) -> Sequence[tuple[float, float, float]]:
         """All k-points listed in the calculation."""
         return self._header["k_points"]
 
@@ -944,7 +947,7 @@ class AimsOutCalcChunk(AimsOutChunk):
         return self._cache["hirshfeld_charges"]
 
     @property
-    def hirshfeld_atomic_dipoles(self) -> Sequence[Vector3D] | None:
+    def hirshfeld_atomic_dipoles(self) -> Sequence[tuple[float, float, float]] | None:
         """The Hirshfeld atomic dipoles of the system."""
         if "hirshfeld_atomic_dipoles" not in self._cache:
             self._parse_hirshfeld()
@@ -958,7 +961,7 @@ class AimsOutCalcChunk(AimsOutChunk):
         return self._cache["hirshfeld_volumes"]
 
     @property
-    def hirshfeld_dipole(self) -> None | Vector3D:
+    def hirshfeld_dipole(self) -> None | tuple[float, float, float]:
         """The Hirshfeld dipole of the system."""
         if "hirshfeld_dipole" not in self._cache:
             self._parse_hirshfeld()

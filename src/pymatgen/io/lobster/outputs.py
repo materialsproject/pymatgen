@@ -39,7 +39,7 @@ if TYPE_CHECKING:
 
     from pymatgen.core.structure import IStructure
     from pymatgen.electronic_structure.cohp import IcohpCollection
-    from pymatgen.util.typing import PathLike, Tuple3Ints, Vector3D
+    from pymatgen.util.typing import PathLike
 
 __author__ = "Janine George, Marco Esters"
 __copyright__ = "Copyright 2017, The Materials Project"
@@ -470,7 +470,7 @@ class Icohplist(MSONable):
             atom1_list: list[str] = []
             atom2_list: list[str] = []
             lens: list[float] = []
-            translations: list[Tuple3Ints] = []
+            translations: list[tuple[int, int, int]] = []
             nums: list[int] = []
             icohps: list[dict[Spin, float]] = []
 
@@ -1883,7 +1883,7 @@ class Wavefunction:
     @staticmethod
     def _parse_file(
         filename: PathLike,
-    ) -> tuple[Tuple3Ints, list[Vector3D], list[float], list[float], list[float]]:
+    ) -> tuple[tuple[int, int, int], list[tuple[float, float, float]], list[float], list[float], list[float]]:
         """Parse wave function file.
 
         Args:
@@ -1904,7 +1904,7 @@ class Wavefunction:
         reals = []
         imaginaries = []
         line_parts = lines[0].split()
-        grid: Tuple3Ints = (int(line_parts[7]), int(line_parts[8]), int(line_parts[9]))
+        grid: tuple[int, int, int] = (int(line_parts[7]), int(line_parts[8]), int(line_parts[9]))
 
         for line in lines[1:]:
             line_parts = line.split()
@@ -1919,7 +1919,7 @@ class Wavefunction:
 
         return grid, points, reals, imaginaries, distances
 
-    def set_volumetric_data(self, grid: Tuple3Ints, structure: Structure) -> None:
+    def set_volumetric_data(self, grid: tuple[int, int, int], structure: Structure) -> None:
         """Create the VolumetricData instances.
 
         Args:

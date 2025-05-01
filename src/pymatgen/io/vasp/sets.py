@@ -60,7 +60,8 @@ if TYPE_CHECKING:
 
     from typing_extensions import Self
 
-    from pymatgen.util.typing import Kpoint, PathLike, Tuple3Ints, Vector3D
+    from pymatgen.core.structure import IStructure
+    from pymatgen.util.typing import Kpoint, PathLike
 
     UserPotcarFunctional = (
         Literal[
@@ -1860,7 +1861,7 @@ class MPHSEBSSet(VaspInputSet):
         **kwargs: Keywords supported by VaspInputSet.
     """
 
-    added_kpoints: list[Vector3D] = field(default_factory=list)
+    added_kpoints: list[tuple[float, float, float]] = field(default_factory=list)
     mode: str = "gap"
     reciprocal_density: float = 50
     copy_chgcar: bool = True
@@ -2095,13 +2096,13 @@ class MPSOCSet(VaspInputSet):
         **kwargs: Keywords supported by VaspInputSet.
     """
 
-    saxis: Tuple3Ints = (0, 0, 1)
+    saxis: tuple[int, int, int] = (0, 0, 1)
     nbands_factor: float = 1.2
     lepsilon: bool = False
     lcalcpol: bool = False
     reciprocal_density: float = 100
     small_gap_multiply: tuple[float, float] | None = None
-    magmom: list[Vector3D] | None = None
+    magmom: list[tuple[float, float, float]] | None = None
     inherit_incar: bool = True
     copy_chgcar: bool = True
     CONFIG = MPRelaxSet.CONFIG
@@ -3214,7 +3215,7 @@ def get_structure_from_prev_run(vasprun: Vasprun, outcar: Outcar | None = None) 
 
 
 def standardize_structure(
-    structure: Structure,
+    structure: Structure | IStructure,
     sym_prec: float = 0.1,
     international_monoclinic: bool = True,
 ) -> Structure:
@@ -3323,7 +3324,7 @@ _dummy_structure = Structure(
 
 
 def get_valid_magmom_struct(
-    structure: Structure,
+    structure: Structure | IStructure,
     inplace: bool = True,
     spin_mode: str = "auto",
 ) -> Structure:
@@ -3416,7 +3417,7 @@ class MPAbsorptionSet(VaspInputSet):
     copy_wavecar: bool = True
     nbands_factor: float = 2
     reciprocal_density: float = 400
-    nkred: Tuple3Ints | None = None
+    nkred: tuple[int, int, int] | None = None
     nedos: int = 2001
     inherit_incar: bool = True
     force_gamma: bool = True
