@@ -405,24 +405,35 @@ class Icohplist(MSONable):
         # and we don't need the header.
         if self._icohpcollection is None:
             with zopen(self._filename, mode="rt", encoding="utf-8") as file:
-                all_lines = file.read().split("\n")
-                lines = all_lines[1:-1] if "spin" not in all_lines[1] else all_lines[2:-1]
-            if len(lines) == 0:
-                raise RuntimeError("ICOHPLIST file contains no data.")
+                all_lines = file.read().splitlines()
 
-            # Determine LOBSTER version
-            if len(lines[0].split()) == 8 and "spin" not in all_lines[1]:
-                version = "3.1.1"
-            elif (len(lines[0].split()) == 8 or len(lines[0].split()) == 9) and "spin" in all_lines[1]:
-                version = "5.1.0"
-            elif len(lines[0].split()) == 6:
-                version = "2.2.1"
-                warnings.warn(
-                    "Please consider using a newer LOBSTER version. See www.cohp.de.",
-                    stacklevel=2,
-                )
-            else:
-                raise ValueError("Unsupported LOBSTER version.")
+                # strip *trailing* blank lines only
+                all_lines = [line for line in all_lines if line.strip()]
+                # --- detect header length robustly ---
+                header_len = 0
+                try:
+                    int(all_lines[0].split()[0])
+                except ValueError:
+                    header_len += 1
+                if header_len < len(all_lines) and "spin" in all_lines[header_len].lower():
+                    header_len += 1
+                lines = all_lines[header_len:]
+                if not lines:
+                    raise RuntimeError("ICOHPLIST file contains no data.")
+                # --- version by column count only ---
+                ncol = len(lines[0].split())
+                if ncol == 6:
+                    version = "2.2.1"
+                    warnings.warn(
+                        "Please consider using a newer LOBSTER version. See www.cohp.de.",
+                        stacklevel=2,
+                    )
+                elif ncol == 8:
+                    version = "3.1.1"
+                elif ncol == 9:
+                    version = "5.1.0"
+                else:
+                    raise ValueError(f"Unsupported LOBSTER version ({ncol} columns).")
 
             # If the calculation is spin polarized, the line in the middle
             # of the file will be another header line.
@@ -587,6 +598,10 @@ class Icohplist(MSONable):
                 "translation": value._translation,
                 "orbitals": value._orbitals,
             }
+
+        # for LCFO only files drop the single orbital resolved entry when not in orbitalwise mode
+        if self.is_lcfo and not self.orbitalwise:
+            icohp_dict = {k: d for k, d in icohp_dict.items() if d.get("orbitals") is None}
         return icohp_dict
 
     @property
@@ -1720,7 +1735,12 @@ class Bandoverlaps(MSONable):
             raise ValueError("number_occ_bands_spin_down has to be specified")
 
         for spin in (Spin.up, Spin.down) if spin_polarized else (Spin.up,):
-            num_occ_bands = number_occ_bands_spin_up if spin is Spin.up else number_occ_bands_spin_down
+            if spin is Spin.up:
+                num_occ_bands = number_occ_bands_spin_up
+            else:
+                if number_occ_bands_spin_down is None:
+                    raise ValueError("number_occ_bands_spin_down has to be specified")
+                num_occ_bands = number_occ_bands_spin_down
 
             for overlap_matrix in self.band_overlaps_dict[spin]["matrices"]:
                 sub_array = np.asarray(overlap_matrix)[:num_occ_bands, :num_occ_bands]
@@ -2333,7 +2353,7 @@ class LobsterMatrices:
         file_data: list[str],
         pattern: str,
         e_fermi: float,
-    ) -> tuple[list[float], dict, dict]:
+    ) -> tuple[list[np.ndarray], dict[Any, Any], dict[Any, Any]]:
         complex_matrices: dict = {}
         matrix_diagonal_values = []
         start_inxs_real = []
