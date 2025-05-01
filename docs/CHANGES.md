@@ -6,6 +6,14 @@ nav_order: 4
 
 # Changelog
 
+## v2025.5.1
+
+- lxml is now used for faster Vasprun parsing.
+- Minor bug fix for MPRester.get_entries summary_data for larger queries.
+- New JSON for ptable with better value/unit handling (also slightly faster) (@DanielYang59)
+- Handle missing trailing newline in ICOHPLIST.lobster (@alibh95)
+- Updated MVLSlabSet with MPSurfaceSet parameters from atomate1 (@abhardwaj73)
+
 ## v2025.4.24
 
 - Structure now has a calc_property method that enables one to get a wide range of elasticity, EOS, and phonon properties using matcalc. Requires matcalc to be 
