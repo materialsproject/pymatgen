@@ -6,7 +6,7 @@
   <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>pymatgen &mdash; pymatgen 2025.4.16 documentation</title>
+  <title>pymatgen &mdash; pymatgen 2025.4.20 documentation</title>
       <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=03e43079" />
       <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=e59714d7" />
       <link rel="stylesheet" type="text/css" href="_static/css/custom.css" />
@@ -15,7 +15,7 @@
     <link rel="canonical" href="https://pymatgen.orgmodules.html"/>
       <script src="_static/jquery.js?v=5d32c60e"></script>
       <script src="_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="_static/documentation_options.js?v=b5b2b1c1"></script>
+      <script src="_static/documentation_options.js?v=7713d5d9"></script>
       <script src="_static/doctools.js?v=9bcbadda"></script>
       <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="_static/js/theme.js"></script>
@@ -2909,6 +2909,7 @@
 <li class="toctree-l6"><a class="reference internal" href="pymatgen.core.html#pymatgen.core.structure.Structure.append"><code class="docutils literal notranslate"><span class="pre">Structure.append()</span></code></a></li>
 <li class="toctree-l6"><a class="reference internal" href="pymatgen.core.html#pymatgen.core.structure.Structure.apply_operation"><code class="docutils literal notranslate"><span class="pre">Structure.apply_operation()</span></code></a></li>
 <li class="toctree-l6"><a class="reference internal" href="pymatgen.core.html#pymatgen.core.structure.Structure.apply_strain"><code class="docutils literal notranslate"><span class="pre">Structure.apply_strain()</span></code></a></li>
+<li class="toctree-l6"><a class="reference internal" href="pymatgen.core.html#pymatgen.core.structure.Structure.calc_property"><code class="docutils literal notranslate"><span class="pre">Structure.calc_property()</span></code></a></li>
 <li class="toctree-l6"><a class="reference internal" href="pymatgen.core.html#pymatgen.core.structure.Structure.calculate"><code class="docutils literal notranslate"><span class="pre">Structure.calculate()</span></code></a></li>
 <li class="toctree-l6"><a class="reference internal" href="pymatgen.core.html#pymatgen.core.structure.Structure.from_prototype"><code class="docutils literal notranslate"><span class="pre">Structure.from_prototype()</span></code></a></li>
 <li class="toctree-l6"><a class="reference internal" href="pymatgen.core.html#pymatgen.core.structure.Structure.insert"><code class="docutils literal notranslate"><span class="pre">Structure.insert()</span></code></a></li>
@@ -4386,7 +4387,6 @@
 <li class="toctree-l6"><a class="reference internal" href="pymatgen.io.html#pymatgen.io.ase.AseAtomsAdaptor.get_structure"><code class="docutils literal notranslate"><span class="pre">AseAtomsAdaptor.get_structure()</span></code></a></li>
 </ul>
 </li>
-<li class="toctree-l5"><a class="reference internal" href="pymatgen.io.html#pymatgen.io.ase.Atoms"><code class="docutils literal notranslate"><span class="pre">Atoms</span></code></a></li>
 <li class="toctree-l5"><a class="reference internal" href="pymatgen.io.html#pymatgen.io.ase.MSONAtoms"><code class="docutils literal notranslate"><span class="pre">MSONAtoms</span></code></a><ul>
 <li class="toctree-l6"><a class="reference internal" href="pymatgen.io.html#pymatgen.io.ase.MSONAtoms.as_dict"><code class="docutils literal notranslate"><span class="pre">MSONAtoms.as_dict()</span></code></a></li>
 <li class="toctree-l6"><a class="reference internal" href="pymatgen.io.html#pymatgen.io.ase.MSONAtoms.from_dict"><code class="docutils literal notranslate"><span class="pre">MSONAtoms.from_dict()</span></code></a></li>
@@ -5738,14 +5738,15 @@
 </ul>
 </li>
 <li class="toctree-l4"><a class="reference internal" href="pymatgen.util.html#module-pymatgen.util.testing">pymatgen.util.testing module</a><ul>
-<li class="toctree-l5"><a class="reference internal" href="pymatgen.util.html#pymatgen.util.testing.PymatgenTest"><code class="docutils literal notranslate"><span class="pre">PymatgenTest</span></code></a><ul>
-<li class="toctree-l6"><a class="reference internal" href="pymatgen.util.html#pymatgen.util.testing.PymatgenTest.TEST_STRUCTURES"><code class="docutils literal notranslate"><span class="pre">PymatgenTest.TEST_STRUCTURES</span></code></a></li>
-<li class="toctree-l6"><a class="reference internal" href="pymatgen.util.html#pymatgen.util.testing.PymatgenTest.assert_msonable"><code class="docutils literal notranslate"><span class="pre">PymatgenTest.assert_msonable()</span></code></a></li>
-<li class="toctree-l6"><a class="reference internal" href="pymatgen.util.html#pymatgen.util.testing.PymatgenTest.assert_str_content_equal"><code class="docutils literal notranslate"><span class="pre">PymatgenTest.assert_str_content_equal()</span></code></a></li>
-<li class="toctree-l6"><a class="reference internal" href="pymatgen.util.html#pymatgen.util.testing.PymatgenTest.get_structure"><code class="docutils literal notranslate"><span class="pre">PymatgenTest.get_structure()</span></code></a></li>
-<li class="toctree-l6"><a class="reference internal" href="pymatgen.util.html#pymatgen.util.testing.PymatgenTest.serialize_with_pickle"><code class="docutils literal notranslate"><span class="pre">PymatgenTest.serialize_with_pickle()</span></code></a></li>
+<li class="toctree-l5"><a class="reference internal" href="pymatgen.util.html#pymatgen.util.testing.MatSciTest"><code class="docutils literal notranslate"><span class="pre">MatSciTest</span></code></a><ul>
+<li class="toctree-l6"><a class="reference internal" href="pymatgen.util.html#pymatgen.util.testing.MatSciTest.TEST_STRUCTURES"><code class="docutils literal notranslate"><span class="pre">MatSciTest.TEST_STRUCTURES</span></code></a></li>
+<li class="toctree-l6"><a class="reference internal" href="pymatgen.util.html#pymatgen.util.testing.MatSciTest.assert_msonable"><code class="docutils literal notranslate"><span class="pre">MatSciTest.assert_msonable()</span></code></a></li>
+<li class="toctree-l6"><a class="reference internal" href="pymatgen.util.html#pymatgen.util.testing.MatSciTest.assert_str_content_equal"><code class="docutils literal notranslate"><span class="pre">MatSciTest.assert_str_content_equal()</span></code></a></li>
+<li class="toctree-l6"><a class="reference internal" href="pymatgen.util.html#pymatgen.util.testing.MatSciTest.get_structure"><code class="docutils literal notranslate"><span class="pre">MatSciTest.get_structure()</span></code></a></li>
+<li class="toctree-l6"><a class="reference internal" href="pymatgen.util.html#pymatgen.util.testing.MatSciTest.serialize_with_pickle"><code class="docutils literal notranslate"><span class="pre">MatSciTest.serialize_with_pickle()</span></code></a></li>
 </ul>
 </li>
+<li class="toctree-l5"><a class="reference internal" href="pymatgen.util.html#pymatgen.util.testing.PymatgenTest"><code class="docutils literal notranslate"><span class="pre">PymatgenTest</span></code></a></li>
 </ul>
 </li>
 <li class="toctree-l4"><a class="reference internal" href="pymatgen.util.html#module-pymatgen.util.typing">pymatgen.util.typing module</a></li>

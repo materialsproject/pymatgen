@@ -61,7 +61,7 @@ if TYPE_CHECKING:
     from pathlib import Path
     from typing import Literal
 
-    from pymatgen.core import Structure
+    from pymatgen.core import IStructure, Structure
 
 __author__ = "Martin Siron, Andrew S. Rosen"
 __version__ = "0.1"
@@ -121,7 +121,7 @@ class ChargemolAnalysis:
 
         if self._chgcar_path:
             self.chgcar: Chgcar | None = Chgcar.from_file(self._chgcar_path)
-            self.structure: Structure | None = self.chgcar.structure
+            self.structure: Structure | IStructure | None = self.chgcar.structure
             self.natoms: list[int] | None = self.chgcar.poscar.natoms
 
         else:
@@ -387,7 +387,7 @@ class ChargemolAnalysis:
                 "The DDEC6_ATOMIC_DENSITIES_DIR environment variable must be set or the atomic_densities_path must"
                 " be specified"
             )
-        if not os.path.isfile(atomic_densities_path):
+        if not os.path.isdir(atomic_densities_path):
             raise FileNotFoundError(f"{atomic_densities_path=} does not exist")
 
         # This is to fix a Chargemol filepath nuance

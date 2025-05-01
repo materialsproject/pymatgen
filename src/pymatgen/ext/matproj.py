@@ -24,10 +24,11 @@ from monty.json import MontyDecoder
 
 from pymatgen.core import SETTINGS
 from pymatgen.core import __version__ as PMG_VERSION
+from pymatgen.core.composition import Composition
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
 
 if TYPE_CHECKING:
-    from collections.abc import Callable
+    from collections.abc import Callable, Sequence
 
     from typing_extensions import Self
 
@@ -37,6 +38,8 @@ if TYPE_CHECKING:
 logger = logging.getLogger(__name__)
 
 MP_LOG_FILE = os.path.join(os.path.expanduser("~"), ".mprester.log.yaml")
+
+CHUNK_SIZE = 200
 
 
 class MPRester:
@@ -51,6 +54,16 @@ class MPRester:
     If you are a power user that requires some esoteric feature not covered, feel free to install the mp-api package.
     All issues regarding that implementation should be directed to the maintainers of that repository and not
     pymatgen. We will support only issues pertaining to our implementation only.
+
+    Attributes:
+    :ivar api_key: API key for authenticating requests to the Materials Project API.
+    :type api_key: str
+    :ivar preamble: Base endpoint URL for the Materials Project API.
+    :type preamble: str
+    :ivar session: HTTP session object for managing API requests.
+    :type session: requests.Session
+    :ivar materials: Placeholder object for dynamically adding endpoints related to materials.
+    :type materials: Any
     """
 
     MATERIALS_DOCS = (
@@ -327,12 +340,12 @@ class MPRester:
 
     def get_entries(
         self,
-        criteria,
-        compatible_only=True,
-        inc_structure=None,
-        property_data=None,
-        conventional_unit_cell=False,
-        sort_by_e_above_hull=False,
+        criteria: str | Sequence[str],
+        *,
+        compatible_only: bool = True,
+        property_data: Sequence[str] | None = None,
+        summary_data: Sequence[str] | None = None,
+        **kwargs,
     ):
         """Get a list of ComputedEntries or ComputedStructureEntries corresponding
         to a chemical system, formula, or materials_id or full criteria.
@@ -345,16 +358,41 @@ class MPRester:
                 which performs adjustments to allow mixing of GGA and GGA+U
                 calculations for more accurate phase diagrams and reaction
                 energies.
-            inc_structure (str): Deprecated. ComputedStructureEntries are always returned now.
-            property_data (list): Specify additional properties to include in
-                entry.data. If None, no data. This can be properties that are available in the /materials/summary
+            property_data (list): Specify additional properties to include in entry.data from /materials/thermo
                 endpoint of the API.
-            conventional_unit_cell (bool): Deprecated. Use pymatgen.symmetry to convert to conventional unit cell.
-            sort_by_e_above_hull (bool): Deprecated. This can be done by user post analysis.
+            summary_data (list): Specify additional properties to include in entry.data from /materials/summary
+                endpoint of the API. Note that unlike property_data, summary_data refers to the "best" calculation done
+                by MP. There are no guarantees that the summary_data will be consistent with the entry or property
+                data since the data can come from say a r2SCAN calculation but the entry is from a GGA calculation.
+                The data will be reported in the entry.data["summary"] dictionary.
+            **kwargs: Used to catch deprecated kwargs.
 
         Returns:
             List of ComputedStructureEntry objects.
         """
+        if set(kwargs.keys()).intersection({"inc_structure", "conventional_unit_cell", "sort_by_e_above_hull"}):
+            warnings.warn(
+                "The inc_structure, conventional_unit_cell, and sort_by_e_above_hull arguments are deprecated. "
+                "These arguments have no effect and will be removed in 2026.1.1.",
+                DeprecationWarning,
+                stacklevel=2,
+            )
+
+        def proc_crit(val):
+            if val.startswith("mp-"):
+                return val
+            if "-" in val:
+                return "-".join(sorted(val.split("-")))
+            comp = Composition(val)
+            if len(comp) == 1:
+                return val
+            return comp.reduced_formula
+
+        if isinstance(criteria, str):
+            criteria = ",".join([proc_crit(c) for c in criteria.split(",")])
+        else:
+            criteria = ",".join([proc_crit(c) for c in criteria])
+
         if criteria.startswith("mp-"):
             query = f"material_ids={criteria}"
         elif "-" in criteria:
@@ -363,9 +401,14 @@ class MPRester:
             query = f"formula={criteria}"
 
         entries = []
-        response = self.request(f"materials/thermo/?_fields=entries&{query}")
+        fields = ["entries", *property_data] if property_data is not None else ["entries"]
+        response = self.request(f"materials/thermo/?_fields={','.join(fields)}&{query}")
         for dct in response:
-            entries.extend(dct["entries"].values())
+            for e in dct["entries"].values():
+                if property_data:
+                    for prop in property_data:
+                        e.data[prop] = dct[prop]
+                entries.append(e)
 
         if compatible_only:
             from pymatgen.entries.compatibility import MaterialsProject2020Compatibility
@@ -375,15 +418,19 @@ class MPRester:
                 warnings.filterwarnings("ignore", message="Failed to guess oxidation states.*")
                 entries = MaterialsProject2020Compatibility().process_entries(entries, clean=True)
 
-        if property_data:
-            edata = self.search(
-                "summary",
-                material_ids=[e.data["material_id"] for e in entries],
-                _fields=[*property_data, "material_id"],
-            )
-            mapped_data = {d["material_id"]: {k: v for k, v in d.items() if k != "material_id"} for d in edata}
-            for e in entries:
-                e.data.update(mapped_data[e.data["material_id"]])
+        if summary_data and len(entries) > 0:
+            for i in range(0, len(entries), CHUNK_SIZE):
+                chunked_entries = entries[i : i + CHUNK_SIZE]
+                mids = [e.data["material_id"] for e in chunked_entries]
+                edata = self.search(
+                    "summary",
+                    material_ids=mids,
+                    _fields=[*summary_data, "material_id"],
+                )
+                mapped_data = {d["material_id"]: {k: v for k, v in d.items() if k != "material_id"} for d in edata}
+                for e in chunked_entries:
+                    e.data["summary"] = mapped_data[e.data["material_id"]]
+
         return list(set(entries))
 
     def get_entry_by_material_id(self, material_id: str, *args, **kwargs) -> ComputedStructureEntry:

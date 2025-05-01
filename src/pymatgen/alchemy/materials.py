@@ -21,7 +21,7 @@ from pymatgen.transformations.transformation_abc import AbstractTransformation
 from pymatgen.util.provenance import StructureNL
 
 if TYPE_CHECKING:
-    from collections.abc import Sequence
+    from collections.abc import Mapping, Sequence
     from typing import Any
 
     from typing_extensions import Self
@@ -40,7 +40,7 @@ class TransformedStructure(MSONable):
         self,
         structure: Structure,
         transformations: (AbstractTransformation | Sequence[AbstractTransformation] | None) = None,
-        history: list[AbstractTransformation | dict[str, Any]] | None = None,
+        history: list[AbstractTransformation | Mapping[str, Any]] | None = None,
         other_parameters: dict[str, Any] | None = None,
     ) -> None:
         """Initialize a transformed structure from a structure.
@@ -54,7 +54,7 @@ class TransformedStructure(MSONable):
         self.final_structure = structure
         self.history = history or []
         self.other_parameters = other_parameters or {}
-        self._undone: list[tuple[AbstractTransformation | dict[str, Any], Structure]] = []
+        self._undone: list[tuple[AbstractTransformation | Mapping[str, Any], Structure]] = []
 
         if isinstance(transformations, AbstractTransformation):
             transformations = [transformations]
@@ -74,7 +74,7 @@ class TransformedStructure(MSONable):
             raise IndexError("Can't undo. Latest history has no input_structure")
         h = self.history.pop()
         self._undone.append((h, self.final_structure))
-        struct = h["input_structure"]
+        struct = h["input_structure"]  # type:ignore[index]
         if isinstance(struct, dict):
             struct = Structure.from_dict(struct)
         self.final_structure = struct
@@ -259,7 +259,7 @@ class TransformedStructure(MSONable):
         """Copy of all structures in the TransformedStructure. A
         structure is stored after every single transformation.
         """
-        h_structs = [Structure.from_dict(s["input_structure"]) for s in self.history if "input_structure" in s]
+        h_structs = [Structure.from_dict(s["input_structure"]) for s in self.history if "input_structure" in s]  # type: ignore[index]
         return [*h_structs, self.final_structure]
 
     @classmethod
@@ -386,9 +386,9 @@ class TransformedStructure(MSONable):
         Returns:
             TransformedStructure
         """
-        history: list[dict] = []
+        history: list = []
         for hist in snl.history:
             dct = hist.description
-            dct["_snl"] = {"url": hist.url, "name": hist.name}
-            history.append(dct)
-        return cls(snl.structure, history=history)
+            dct["_snl"] = {"url": hist.url, "name": hist.name}  # type:ignore[index]
+            history.append(dct)  # type:ignore[arg-type]
+        return cls(snl.structure, history=history)  # type:ignore[arg-type]

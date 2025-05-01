@@ -15,12 +15,14 @@ from pymatgen.analysis.phase_diagram import PDEntry, PhaseDiagram
 from pymatgen.apps.battery.battery_abc import AbstractElectrode, AbstractVoltagePair
 from pymatgen.core import Composition, Element
 from pymatgen.core.units import Charge, Time
-from pymatgen.entries.computed_entries import ComputedEntry, ComputedStructureEntry
+from pymatgen.entries.computed_entries import ComputedEntry
 
 if TYPE_CHECKING:
     from collections.abc import Iterable
 
     from typing_extensions import Self
+
+    from pymatgen.entries import Entry
 
 __author__ = "Anubhav Jain, Shyue Ping Ong"
 __copyright__ = "Copyright 2012, The Materials Project"
@@ -33,14 +35,14 @@ class InsertionElectrode(AbstractElectrode):
     insertion battery electrode.
     """
 
-    stable_entries: Iterable[ComputedEntry]
-    unstable_entries: Iterable[ComputedEntry]
+    stable_entries: Iterable[Entry]
+    unstable_entries: Iterable[Entry]
 
     @classmethod
     def from_entries(
         cls,
-        entries: Iterable[ComputedEntry | ComputedStructureEntry],
-        working_ion_entry: ComputedEntry | ComputedStructureEntry | PDEntry,
+        entries: Iterable[Entry],
+        working_ion_entry: Entry,
         strip_structures: bool = False,
     ) -> Self:
         """Create a new InsertionElectrode.
@@ -80,7 +82,7 @@ class InsertionElectrode(AbstractElectrode):
         # Set an artificial high energy for each element for convex hull generation
         element_energy = max(entry.energy_per_atom for entry in entries) + 10
 
-        pdentries: list[ComputedEntry | ComputedStructureEntry | PDEntry] = []
+        pdentries: list[Entry] = []
         pdentries.extend(entries)
         pdentries.extend([PDEntry(Composition({el: 1}), element_energy) for el in elements])
 
@@ -88,7 +90,7 @@ class InsertionElectrode(AbstractElectrode):
         # For each working ion concentration, we want one stable entry
         # to use in forming voltage pairs. PhaseDiagram allows for easy comparison
         # of entry energies.
-        pd = PhaseDiagram(pdentries)
+        pd = PhaseDiagram(pdentries)  # type:ignore[arg-type]
 
         def lifrac(e):
             return e.composition.get_atomic_fraction(_working_ion)
@@ -364,7 +366,7 @@ class InsertionElectrode(AbstractElectrode):
         Returns:
             InsertionElectrode
         """
-        return InsertionElectrode(
+        return InsertionElectrode(  # type:ignore[return-value,call-arg]
             MontyDecoder().process_decoded(dct["entries"]),
             MontyDecoder().process_decoded(dct["working_ion_entry"]),
         )
@@ -387,7 +389,7 @@ class InsertionVoltagePair(AbstractVoltagePair):
     entry_discharge: ComputedEntry
 
     @classmethod
-    def from_entries(cls, entry1, entry2, working_ion_entry) -> Self:
+    def from_entries(cls, entry1, entry2, working_ion_entry) -> InsertionVoltagePair:
         """
         Args:
             entry1: Entry corresponding to one of the entries in the voltage step.

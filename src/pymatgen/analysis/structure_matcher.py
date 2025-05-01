@@ -590,16 +590,16 @@ class StructureMatcher(MSONable):
 
     def fit(
         self,
-        struct1: Structure,
-        struct2: Structure,
+        struct1: Structure | IStructure,
+        struct2: Structure | IStructure,
         symmetric: bool = False,
         skip_structure_reduction: bool = False,
     ) -> bool:
         """Fit two structures.
 
         Args:
-            struct1 (Structure): 1st structure
-            struct2 (Structure): 2nd structure
+            struct1 (Structure | IStructure): 1st structure
+            struct2 (Structure | IStructure): 2nd structure
             symmetric (bool): Defaults to False
                 If True, check the equality both ways.
                 This only impacts a small percentage of structures
@@ -984,7 +984,9 @@ class StructureMatcher(MSONable):
         return reduced
 
     @classmethod
-    def _get_reduced_structure(cls, struct: Structure, primitive_cell: bool = True, niggli: bool = True) -> Structure:
+    def _get_reduced_structure(
+        cls, struct: Structure | IStructure, primitive_cell: bool = True, niggli: bool = True
+    ) -> Structure:
         """Helper method to find a reduced structure."""
         return Structure.from_sites(
             cls._get_reduced_istructure(SiteOrderedIStructure.from_sites(struct), primitive_cell, niggli)
@@ -1015,7 +1017,9 @@ class StructureMatcher(MSONable):
 
         return None, None
 
-    def get_best_electronegativity_anonymous_mapping(self, struct1: Structure, struct2: Structure) -> dict | None:
+    def get_best_electronegativity_anonymous_mapping(
+        self, struct1: Structure | IStructure, struct2: Structure | IStructure
+    ) -> dict | None:
         """
         Performs an anonymous fitting, which allows distinct species in one
         structure to map to another. e.g. to compare if the Li2O and Na2O
@@ -1075,8 +1079,8 @@ class StructureMatcher(MSONable):
 
     def fit_anonymous(
         self,
-        struct1: Structure,
-        struct2: Structure,
+        struct1: Structure | IStructure,
+        struct2: Structure | IStructure,
         niggli: bool = True,
         skip_structure_reduction: bool = False,
     ) -> bool:

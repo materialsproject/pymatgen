@@ -5,6 +5,7 @@ from __future__ import annotations
 import copy
 import json
 from dataclasses import dataclass, field
+from pathlib import Path
 from typing import TYPE_CHECKING, Any
 from warnings import warn
 
@@ -19,6 +20,7 @@ from pymatgen.io.core import InputFile, InputGenerator, InputSet
 if TYPE_CHECKING:
     from collections.abc import Iterable, Sequence
 
+    from pymatgen.core.structure import IStructure
     from pymatgen.util.typing import PathLike
 
 TMPDIR_NAME: str = "tmpdir"
@@ -250,7 +252,7 @@ class AimsInputGenerator(InputGenerator):
             # Should be checked with Fireworks, will not for sure work with
             # jobflow_remote)
             split_prev_dir = str(prev_dir).split(":")[-1]
-            with open(f"{split_prev_dir}/parameters.json", encoding="utf-8") as param_file:
+            with open(Path(split_prev_dir) / "parameters.json", encoding="utf-8") as param_file:
                 prev_params = json.load(param_file, cls=MontyDecoder)
 
             try:
@@ -373,7 +375,7 @@ class AimsInputGenerator(InputGenerator):
 
     def d2k(
         self,
-        structure: Structure,
+        structure: Structure | IStructure,
         kpt_density: float | tuple[float, float, float] = 5.0,
         even: bool = True,
     ) -> Iterable[float]:
@@ -394,7 +396,7 @@ class AimsInputGenerator(InputGenerator):
         recip_cell = structure.lattice.inv_matrix.transpose()
         return self.d2k_recip_cell(recip_cell, structure.lattice.pbc, kpt_density, even)
 
-    def k2d(self, structure: Structure, k_grid: np.ndarray[int]):
+    def k2d(self, structure: Structure | IStructure, k_grid: np.ndarray[int]):
         """Generate the kpoint density in each direction from given k_grid.
 
         Args:

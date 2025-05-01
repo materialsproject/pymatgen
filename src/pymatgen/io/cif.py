@@ -35,7 +35,8 @@ if TYPE_CHECKING:
     from numpy.typing import NDArray
     from typing_extensions import Self
 
-    from pymatgen.util.typing import PathLike, Vector3D
+    from pymatgen.core import IStructure
+    from pymatgen.util.typing import PathLike
 
 __author__ = "Shyue Ping Ong, Will Richards, Matthew Horton"
 
@@ -598,10 +599,10 @@ class CifParser:
 
     def _unique_coords(
         self,
-        coords: list[Vector3D],
+        coords: list[tuple[float, float, float]],
         magmoms: list[Magmom] | None = None,
         lattice: Lattice | None = None,
-        labels: dict[Vector3D, str] | None = None,
+        labels: dict[tuple[float, float, float], str] | None = None,
     ) -> tuple[list[NDArray], list[Magmom], list[str]]:
         """Generate unique coordinates using coordinates and symmetry
         positions, and their corresponding magnetic moments if supplied.
@@ -992,11 +993,11 @@ class CifParser:
             return num_h.get(symbol[:3], 0)
 
         def get_matching_coord(
-            coord_to_species: dict[Vector3D, Composition],
-            coord: Vector3D,
-        ) -> Vector3D | Literal[False]:
+            coord_to_species: dict[tuple[float, float, float], Composition],
+            coord: tuple[float, float, float],
+        ) -> tuple[float, float, float] | Literal[False]:
             """Find site by coordinate."""
-            coords: list[Vector3D] = list(coord_to_species)
+            coords: list[tuple[float, float, float]] = list(coord_to_species)
             for op in self.symmetry_operations:
                 frac_coord = op.operate(coord)
                 indices: NDArray = find_in_coord_list_pbc(coords, frac_coord, atol=self._site_tolerance)
@@ -1029,9 +1030,9 @@ class CifParser:
 
         oxi_states = self._parse_oxi_states(data)
 
-        coord_to_species: dict[Vector3D, Composition] = {}
-        coord_to_magmoms: dict[Vector3D, NDArray] = {}
-        labels: dict[Vector3D, str] = {}
+        coord_to_species: dict[tuple[float, float, float], Composition] = {}
+        coord_to_magmoms: dict[tuple[float, float, float], NDArray] = {}
+        labels: dict[tuple[float, float, float], str] = {}
 
         for idx, label in enumerate(data["_atom_site_label"]):
             # If site type symbol exists, use it. Otherwise use the label
@@ -1068,7 +1069,7 @@ class CifParser:
             # If don't check_occu or the occupancy is greater than 0, create comp_dict
             if not check_occu or occu > 0:
                 # Create site coordinate
-                coord: Vector3D = (
+                coord: tuple[float, float, float] = (
                     str2float(data["_atom_site_fract_x"][idx]),
                     str2float(data["_atom_site_fract_y"][idx]),
                     str2float(data["_atom_site_fract_z"][idx]),
@@ -1086,7 +1087,7 @@ class CifParser:
                 comp = Composition(comp_dict)
 
                 # Find matching site by coordinate
-                match: Vector3D | Literal[False] = get_matching_coord(coord_to_species, coord)
+                match: tuple[float, float, float] | Literal[False] = get_matching_coord(coord_to_species, coord)
                 if not match:
                     coord_to_species[coord] = comp
                     coord_to_magmoms[coord] = magmoms.get(label, np.array([0, 0, 0]))
@@ -1095,7 +1096,7 @@ class CifParser:
                 else:
                     coord_to_species[match] += comp
                     # Disordered magnetic currently not supported
-                    coord_to_magmoms[match] = None
+                    coord_to_magmoms[match] = None  # type:ignore[assignment]
                     labels[match] = label
 
         # Check occupancy
@@ -1117,7 +1118,7 @@ class CifParser:
         # Collect info for building Structure
         all_species: list[Composition] = []
         all_species_noedit: list[Composition] = []
-        all_coords: list[Vector3D] = []
+        all_coords: list[tuple[float, float, float]] = []
         all_magmoms: list[Magmom] = []
         all_hydrogens: list[float] = []
         equivalent_indices: list[int] = []
@@ -1141,7 +1142,7 @@ class CifParser:
                     key=lambda x: x[1],
                 )
             ):
-                tmp_coords: list[Vector3D] = [site[0] for site in group]
+                tmp_coords: list[tuple[float, float, float]] = [site[0] for site in group]
                 tmp_magmom: list[Magmom] = [coord_to_magmoms[tmp_coord] for tmp_coord in tmp_coords]
 
                 if self.feature_flags["magcif"]:
@@ -1395,7 +1396,7 @@ class CifParser:
             if "author" in entry:
                 # Separate out semicolon authors
                 if isinstance(entry["author"], str) and ";" in entry["author"]:
-                    entry["author"] = entry["author"].split(";")
+                    entry["author"] = entry["author"].split(";")  # type:ignore[assignment]
                 if isinstance(entry["author"], list):
                     entry["author"] = " and ".join(entry["author"])
 
@@ -1533,7 +1534,7 @@ class CifWriter:
 
     def __init__(
         self,
-        struct: Structure,
+        struct: Structure | IStructure,
         symprec: float | None = None,
         write_magmoms: bool = False,
         significant_figures: int = 8,

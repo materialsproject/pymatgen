@@ -549,7 +549,7 @@ class Composition(collections.abc.Hashable, collections.abc.Mapping, MSONable, S
     @property
     def weight(self) -> float:
         """Total molecular weight of Composition."""
-        return Mass(sum(amount * el.atomic_mass for el, amount in self.items()), "amu")  # type: ignore[operator]
+        return Mass(sum(amount * el.atomic_mass for el, amount in self.items()), "amu")  # type: ignore[operator,misc]
 
     def get_atomic_fraction(self, el: SpeciesLike) -> float:
         """Calculate atomic fraction of an Element or Species.
@@ -712,8 +712,8 @@ class Composition(collections.abc.Hashable, collections.abc.Mapping, MSONable, S
             >>> Composition.from_weights({"Ti": 60, "Ni": 40})
             Composition('Ti0.647796 Ni0.352204')
         """
-        weight_sum = sum(val / Element(el).atomic_mass for el, val in weight_dict.items())
-        comp_dict = {el: val / Element(el).atomic_mass / weight_sum for el, val in weight_dict.items()}
+        weight_sum = sum(val / Element(str(el)).atomic_mass for el, val in weight_dict.items())
+        comp_dict = {el: val / Element(str(el)).atomic_mass / weight_sum for el, val in weight_dict.items()}
 
         return cls(comp_dict, strict=strict, **kwargs)
 
@@ -749,7 +749,7 @@ class Composition(collections.abc.Hashable, collections.abc.Mapping, MSONable, S
             if val < -cls.amount_tolerance:
                 raise ValueError("Weights in Composition cannot be negative!")
 
-        return cls.from_weight_dict(elem_map, strict=strict)
+        return cls.from_weight_dict(elem_map, strict=strict)  # type:ignore[arg-type]
 
     def get_el_amt_dict(self) -> dict[str, float]:
         """
@@ -872,7 +872,7 @@ class Composition(collections.abc.Hashable, collections.abc.Mapping, MSONable, S
         target_charge: float = 0,
         all_oxi_states: bool = False,
         max_sites: int | None = None,
-    ) -> tuple[dict[str, float]]:
+    ) -> tuple:
         """Check if the composition is charge-balanced and returns back all
         charge-balanced oxidation state combinations. Composition must have
         integer values. Note that more num_atoms in the composition gives
@@ -1004,7 +1004,7 @@ class Composition(collections.abc.Hashable, collections.abc.Mapping, MSONable, S
 
         # Special case: No charged compound is possible
         if not oxidation_states:
-            return type(self)({Species(e, 0): f for e, f in self.items()})
+            return type(self)({Species(str(e), 0): f for e, f in self.items()})
 
         # Generate the species
         species = []

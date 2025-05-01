@@ -20,7 +20,7 @@ from pymatgen.io.vasp.outputs import Dynmat, Oszicar, Vasprun
 
 if TYPE_CHECKING:
     from collections.abc import Sequence
-    from typing import Any, Literal
+    from typing import Any
 
     from typing_extensions import Self
 
@@ -89,7 +89,7 @@ class VaspToComputedEntryDrone(AbstractDrone):
         self,
         inc_structure: bool = False,
         parameters: list[str] | None = None,
-        data: list[str] | None = None,
+        data: dict | None = None,
     ) -> None:
         """
         Args:
@@ -113,9 +113,9 @@ class VaspToComputedEntryDrone(AbstractDrone):
         }
         if parameters:
             self._parameters.update(parameters)
-        self._data = data or []
+        self._data = data or {}
 
-    def __str__(self) -> Literal["VaspToComputedEntryDrone"]:
+    def __str__(self) -> str:
         return "VaspToComputedEntryDrone"
 
     def assimilate(self, path: PathLike) -> ComputedStructureEntry | ComputedEntry | None:
@@ -132,10 +132,9 @@ class VaspToComputedEntryDrone(AbstractDrone):
             filepath = glob(f"{path}/relax2/vasprun.xml*")[0]
         else:
             vasprun_files = glob(f"{path}/vasprun.xml*")
-            filepath = None
             if len(vasprun_files) == 1:
                 filepath = vasprun_files[0]
-            elif len(vasprun_files) > 1:
+            else:
                 # Since multiple files are ambiguous, we will always read
                 # the last one alphabetically.
                 filepath = max(vasprun_files)
@@ -147,7 +146,7 @@ class VaspToComputedEntryDrone(AbstractDrone):
             logger.debug(f"error in {filepath}: {exc}")
             return None
 
-        return vasp_run.get_computed_entry(self._inc_structure, parameters=self._parameters, data=self._data)
+        return vasp_run.get_computed_entry(self._inc_structure, parameters=list(self._parameters), data=self._data)
 
         # entry.parameters["history"] = _get_transformation_history(path)
 
@@ -215,7 +214,7 @@ class SimpleVaspToComputedEntryDrone(VaspToComputedEntryDrone):
         self._inc_structure = inc_structure
         self._parameters = {"is_hubbard", "hubbards", "potcar_spec", "run_type"}
 
-    def __str__(self) -> Literal["SimpleVaspToComputedEntryDrone"]:
+    def __str__(self) -> str:
         return "SimpleVaspToComputedEntryDrone"
 
     def assimilate(self, path: PathLike) -> ComputedStructureEntry | ComputedEntry | None:
@@ -280,7 +279,7 @@ class SimpleVaspToComputedEntryDrone(VaspToComputedEntryDrone):
             initial_vol = poscar.structure.volume
             final_vol = contcar.structure.volume
             delta_volume = final_vol / initial_vol - 1
-            data = {"filename": path, "delta_volume": delta_volume}
+            data: dict[str, Any] = {"filename": path, "delta_volume": delta_volume}
             if "DYNMAT" in files_to_parse:
                 dynmat = Dynmat(files_to_parse["DYNMAT"])
                 data["phonon_frequencies"] = dynmat.get_phonon_frequencies()
@@ -368,7 +367,7 @@ class GaussianToComputedEntryDrone(AbstractDrone):
 
         self._file_extensions = file_extensions
 
-    def __str__(self) -> Literal["GaussianToComputedEntryDrone"]:
+    def __str__(self) -> str:
         return "GaussianToComputedEntryDrone"
 
     def assimilate(self, path: PathLike) -> ComputedStructureEntry | ComputedEntry | None:

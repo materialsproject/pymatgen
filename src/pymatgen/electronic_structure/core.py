@@ -13,11 +13,11 @@ from monty.json import MSONable
 if TYPE_CHECKING:
     from collections.abc import Sequence
 
-    from numpy.typing import NDArray
+    from numpy.typing import ArrayLike, NDArray
     from typing_extensions import Self
 
     from pymatgen.core import Lattice
-    from pymatgen.util.typing import MagMomentLike, Vector3D
+    from pymatgen.util.typing import MagMomentLike
 
 
 @unique
@@ -127,20 +127,20 @@ class Magmom(MSONable):
     def __init__(
         self,
         moment: MagMomentLike,
-        saxis: Vector3D = (0, 0, 1),
+        saxis: ArrayLike = (0, 0, 1),
     ) -> None:
         """
         Args:
             moment (float | Sequence[float] | NDArray, Magmom): Magnetic moment.
-            saxis (Vector3D): Spin axis, and will be converted to unit
+            saxis (tuple[float, float, float]): Spin axis, and will be converted to unit
                 vector (default is (0, 0, 1)).
         """
         # Init from another Magmom instance
         if isinstance(moment, type(self)):
-            saxis = moment.saxis  # type: ignore[has-type]
-            moment = moment.moment  # type: ignore[has-type]
+            saxis = moment.saxis  # type:ignore[has-type]
+            moment = moment.moment  # type:ignore[has-type]
 
-        magmom: NDArray = np.array(moment, dtype="d")
+        magmom = np.array(moment, dtype="d")
         if magmom.ndim == 0:
             magmom = magmom * (0, 0, 1)  # (ruff-preview) noqa: PLR6104
 
@@ -157,12 +157,12 @@ class Magmom(MSONable):
         return iter(self.moment)
 
     def __abs__(self) -> float:
-        return np.linalg.norm(self.moment)
+        return np.linalg.norm(self.moment)  # type: ignore[return-value]
 
     def __eq__(self, other: object) -> bool:
         """Whether global magnetic moments are the same, saxis can differ."""
         try:
-            other_magmom = type(self)(other)
+            other_magmom = type(self)(other)  # type: ignore[arg-type]
         except (TypeError, ValueError):
             return NotImplemented
 
@@ -211,7 +211,7 @@ class Magmom(MSONable):
     def from_global_moment_and_saxis(
         cls,
         global_moment: MagMomentLike,
-        saxis: Vector3D,
+        saxis: tuple[float, float, float],
     ) -> Self:
         """Initialize Magmom from a given global magnetic moment,
         i.e. magnetic moment with saxis=(0, 0, 1), and provided saxis.
@@ -221,27 +221,27 @@ class Magmom(MSONable):
 
         Args:
             global_moment (MagMomentLike): Global magnetic moment.
-            saxis (Vector3D): Spin axis.
+            saxis (tuple[float, float, float]): Spin axis.
         """
         magmom = cls(global_moment)
         return cls(magmom.get_moment(saxis=saxis), saxis=saxis)
 
-    def get_moment(self, saxis: Vector3D = (0, 0, 1)) -> NDArray:
+    def get_moment(self, saxis: tuple[float, float, float] = (0, 0, 1)) -> NDArray:
         """Get magnetic moment relative to a given spin quantization axis.
         If no axis is provided, moment will be given relative to the
         Magmom's internal spin quantization axis, i.e. equivalent to
         Magmom.moment.
 
         Args:
-            saxis (Vector3D): Spin quantization axis.
+            saxis (tuple[float, float, float]): Spin quantization axis.
 
         Returns:
             NDArray of length 3.
         """
 
         def get_transformation_matrix(
-            saxis: Vector3D,
-        ) -> tuple[Vector3D, Vector3D, Vector3D]:
+            saxis: tuple[float, float, float],
+        ) -> tuple[tuple[float, float, float], tuple[float, float, float], tuple[float, float, float]]:
             """Get the matrix to transform spin axis to z-axis."""
             saxis /= np.linalg.norm(saxis)
 
@@ -260,8 +260,8 @@ class Magmom(MSONable):
             )
 
         def get_transformation_matrix_inv(
-            saxis: Vector3D,
-        ) -> tuple[Vector3D, Vector3D, Vector3D]:
+            saxis: tuple[float, float, float],
+        ) -> tuple[tuple[float, float, float], tuple[float, float, float], tuple[float, float, float]]:
             """Get the inverse of matrix to transform spin axis to z-axis."""
             saxis /= np.linalg.norm(saxis)
 
@@ -378,20 +378,20 @@ class Magmom(MSONable):
     @staticmethod
     def get_consistent_set_and_saxis(
         magmoms: Sequence[MagMomentLike],
-        saxis: Vector3D | None = None,
-    ) -> tuple[list[Magmom], NDArray]:
+        saxis: tuple[float, float, float] | None = None,
+    ) -> tuple[list[NDArray], NDArray]:
         """Ensure magmoms use the same spin axis.
 
         Args:
             magmoms (Sequence[MagMomentLike]): Magmoms, floats or vectors.
-            saxis (Vector3D): An optional global spin axis.
+            saxis (tuple[float, float, float]): An optional global spin axis.
 
         Returns:
             tuple[list[Magmom], NDArray]: Magmoms and their global spin axes.
         """
         _magmoms: list[Magmom] = [Magmom(magmom) for magmom in magmoms]
         _saxis: NDArray = Magmom.get_suggested_saxis(_magmoms) if saxis is None else saxis / np.linalg.norm(saxis)
-        moments: list[NDArray] = [magmom.get_moment(saxis=_saxis) for magmom in _magmoms]
+        moments: list[NDArray] = [magmom.get_moment(saxis=_saxis) for magmom in _magmoms]  # type: ignore[arg-type]
         return moments, _saxis
 
     @staticmethod
@@ -435,21 +435,21 @@ class Magmom(MSONable):
             magmoms = Magmom.get_consistent_set_and_saxis(magmoms)[0]
 
         # Convert to numpy array for convenience
-        magmoms = np.array([list(cast("Magmom", magmom)) for magmom in magmoms])
-        magmoms = magmoms[np.any(magmoms, axis=1)]  # remove zero magmoms
+        magmoms = np.array([list(cast("Magmom", magmom)) for magmom in magmoms])  # type: ignore[assignment]
+        magmoms = magmoms[np.any(magmoms, axis=1)]  # type:ignore[assignment,arg-type]
         if len(magmoms) == 0:
             return True
 
         # Use first moment as reference to compare against
         ref_magmom = magmoms[0]
         # Magnitude of cross products != 0 if non-collinear with reference
-        num_ncl = np.count_nonzero(np.linalg.norm(np.cross(ref_magmom, magmoms), axis=1))
+        num_ncl = np.count_nonzero(np.linalg.norm(np.cross(ref_magmom, magmoms), axis=1))  # type: ignore[arg-type]
         return num_ncl == 0
 
     @classmethod
     def from_moment_relative_to_crystal_axes(
         cls,
-        moment: Vector3D,
+        moment: tuple[float, float, float],
         lattice: Lattice,
     ) -> Self:
         """Obtain a Magmom object from a magnetic moment provided
@@ -458,7 +458,7 @@ class Magmom(MSONable):
         Used for obtaining moments from magCIF file.
 
         Args:
-            moment (Vector3D): Magnetic moment.
+            moment (tuple[float, float, float]): Magnetic moment.
             lattice (Lattice): Lattice.
 
         Returns:
@@ -471,7 +471,7 @@ class Magmom(MSONable):
         _moment[np.abs(_moment) < 1e-8] = 0
         return cls(_moment)
 
-    def get_moment_relative_to_crystal_axes(self, lattice: Lattice) -> Vector3D:
+    def get_moment_relative_to_crystal_axes(self, lattice: Lattice) -> tuple[float, float, float]:
         """If scalar magmoms, moments will be given arbitrarily along z.
 
         Used for writing moments to magCIF file.
@@ -480,7 +480,7 @@ class Magmom(MSONable):
             lattice (Lattice): The lattice.
 
         Returns:
-            Vector3D
+            tuple[float, float, float]
         """
         # Get matrix representing unit lattice vectors
         unit_m = lattice.matrix / np.linalg.norm(lattice.matrix, axis=1)[:, None]

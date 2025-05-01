@@ -6,6 +6,42 @@ nav_order: 4
 
 # Changelog
 
+## v2025.4.24
+
+- Structure now has a calc_property method that enables one to get a wide range of elasticity, EOS, and phonon properties using matcalc. Requires matcalc to be 
+  installed.
+- Bug fix and expansion of pymatgen.ext.matproj.MPRester. Now property_data is always consistent with the returned entry in get_entries. Summary data, which is not
+  always consistent but is more comprehensive, can be obtained via a summary_data kwarg.
+- PR #4378 Avoid merging if a structure has only one site by @kmu
+    This PR fixes an error that occurs when calling `merge_sites` on a structure with only one site. For example:
+- PR #4372 Reapply update to ptable vdw radii CSV source and JSON with CRC handbook by @DanielYang59
+    - Update ptable vdw radii CSV source, to fix #4370
+    - [x] Revert #4345 and apply changes to CSV
+    vdw radii data source:
+    > John R. Rumble, ed., CRC Handbook of Chemistry and Physics, 105th Edition (Internet Version 2024), CRC Press/Taylor & Francis, Boca Raton, FL.
+    > If a specific table is cited, use the format: "Physical Constants of Organic Compounds," in CRC Handbook of Chemistry and Physics, 105th Edition (Internet Version 2024), John R. Rumble, ed., CRC Press/Taylor & Francis, Boca Raton, FL.
+
+## v2025.4.20
+
+- Updated `perturb` method to be in parity for Structure and Molecule.
+- PR #4226 Fix file existence check in ChargemolAnalysis to verify directory instead. by @lllangWV
+- PR #4324 GibbsComputedStructureEntry update to handle float temperature values by @slee-lab
+- PR #4303 Fix mcl kpoints by @dgaines2
+    Fixed errors in two of the k-points for the MCL reciprocal lattice (according to Table 16 in Setyawan-Curtarolo 2010)
+    M2 and D1 aren't included in the recommended k-point path, but third-party software that plots k-point paths using pymatgen labelled M2 in the path instead of M1 due to it being the "same" k-point.
+- PR #4344 Update "electron affinities" in `periodic_table.json` by @DanielYang59
+- PR #4365 Python 3.13 support by @DanielYang59
+
+## v2025.4.19
+
+- MPRester.get_entries and get_entries_in_chemsys now supports property_data. inc_structure, conventional_only and 
+- PR #4367 fix perturb bug that displaced all atoms equally by @skasamatsu
+- PR #4361 Replace `pybtex` with `bibtexparser` by @DanielYang59
+- PR #4362 fix(MVLSlabSet): convert DIPOL vector to pure Python list before writing INCAR by @atulcthakur
+- PR #4363 Ensure `actual_kpoints_weights` is `list[float]` and add test by @kavanase
+- PR #4345 Fix inconsistent "Van der waals radius" and "Metallic radius" in `core.periodic_table.json` by @DanielYang59
+- PR #4212 Deprecate `PymatgenTest`, migrate tests to `pytest` from `unittest` by @DanielYang59
+
 ## v2025.4.17
 
 - Bug fix for list based searches in MPRester.

@@ -28,6 +28,7 @@ from monty.dev import deprecated
 from monty.shutil import decompress_file
 from monty.tempfile import ScratchDir
 
+from pymatgen.core import Structure
 from pymatgen.io.common import VolumetricData
 from pymatgen.io.vasp.inputs import Potcar
 from pymatgen.io.vasp.outputs import Chgcar
@@ -37,7 +38,7 @@ if TYPE_CHECKING:
 
     from typing_extensions import Self
 
-    from pymatgen.core import Structure
+    from pymatgen.core import IStructure
 
 __author__ = "shyuepingong"
 __version__ = "0.1"
@@ -351,7 +352,7 @@ class BaderAnalysis:
         """
         return -self.get_charge_transfer(atom_index, nelect)
 
-    def get_charge_decorated_structure(self) -> Structure:
+    def get_charge_decorated_structure(self) -> Structure | IStructure:
         """Get a charge decorated structure.
 
         Note, this assumes that the Bader analysis was correctly performed on a file
@@ -375,7 +376,7 @@ class BaderAnalysis:
         Returns:
             Structure: with bader-analysis-based oxidation states.
         """
-        struct = self.structure.copy()
+        struct = Structure.from_sites(self.structure)
         charges = [self.get_partial_charge(idx, None if not nelects else nelects[idx]) for idx in range(len(struct))]
         struct.add_oxidation_state_by_site(charges)
         return struct
@@ -407,12 +408,12 @@ class BaderAnalysis:
             structure with site properties assigned via Bader Analysis
         """
         vals = np.array([self.get_charge(i) for i in range(len(self.structure))])
-        struct = self.structure.copy()
+        struct = Structure.from_sites(self.structure)
         if average:
             vals = np.divide(vals, [d["atomic_vol"] for d in self.data])
         struct.add_site_property(property_name, vals)
         if property_name == "spin":
-            struct.add_spin_by_site(vals)
+            struct.add_spin_by_site(list(vals))
         return struct
 
     @property

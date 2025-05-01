@@ -17,7 +17,6 @@ if TYPE_CHECKING:
     from collections.abc import Iterator, Sequence
 
     from pymatgen.core import Structure
-    from pymatgen.util.typing import Tuple3Ints
 
 
 class CoherentInterfaceBuilder:
@@ -30,8 +29,8 @@ class CoherentInterfaceBuilder:
         self,
         substrate_structure: Structure,
         film_structure: Structure,
-        film_miller: Tuple3Ints,
-        substrate_miller: Tuple3Ints,
+        film_miller: tuple[int, int, int],
+        substrate_miller: tuple[int, int, int],
         zslgen: ZSLGenerator | None = None,
         termination_ftol: float = 0.25,
         label_index: bool = False,  # necessary to add index to termination
