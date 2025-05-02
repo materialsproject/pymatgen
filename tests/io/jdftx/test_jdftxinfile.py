@@ -249,6 +249,10 @@ def test_jdftxstructure():
     assert isinstance(struct, JDFTXStructure)
     struc_str = str(struct)
     assert isinstance(struc_str, str)
+    newstruct = JDFTXStructure.from_str(struc_str)
+    assert isinstance(newstruct, JDFTXStructure)
+    # Double checking I got the column/row order right
+    assert_same_value(struct.structure.lattice, newstruct.structure.lattice)
     assert struct.natoms == 16
     with open(ex_infile2_fname) as f:
         lines = list.copy(list(f))

@@ -691,6 +691,8 @@ class TagContainer(AbstractTag):
                         tempdict[subtag].append(subtag_type.read(subtag, subtag_value))
                         del value_list[idx_start:idx_end]
 
+        # TODO: This breaks for TagContainers with optional StrTags that are not at the end of the line (ie
+        # modification subtag for lattice tag). We need to figure out a fix.
         for subtag, subtag_type in (
             (subtag, subtag_type) for subtag, subtag_type in self.subtags.items() if not subtag_type.write_tagname
         ):
