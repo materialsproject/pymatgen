@@ -65,22 +65,89 @@ MASTER_TAG_LIST: dict[str, dict[str, Any]] = {
         ),
         "coords-type": StrTag(options=["Cartesian", "Lattice"]),
         # TODO: change lattice tag into MultiformatTag for different symmetry options
-        "lattice": TagContainer(
-            linebreak_nth_entry=3,
+        "lattice": MultiformatTag(
+            can_repeat=False,
             optional=False,
-            allow_list_representation=True,
-            subtags={
-                "R00": FloatTag(write_tagname=False, optional=False, prec=12),
-                "R01": FloatTag(write_tagname=False, optional=False, prec=12),
-                "R02": FloatTag(write_tagname=False, optional=False, prec=12),
-                "R10": FloatTag(write_tagname=False, optional=False, prec=12),
-                "R11": FloatTag(write_tagname=False, optional=False, prec=12),
-                "R12": FloatTag(write_tagname=False, optional=False, prec=12),
-                "R20": FloatTag(write_tagname=False, optional=False, prec=12),
-                "R21": FloatTag(write_tagname=False, optional=False, prec=12),
-                "R22": FloatTag(write_tagname=False, optional=False, prec=12),
-            },
+            format_options=[
+                # Explicitly define the lattice vectors
+                TagContainer(
+                    linebreak_nth_entry=3,
+                    allow_list_representation=True,
+                    subtags={
+                        "R00": FloatTag(write_tagname=False, optional=False, prec=12),
+                        "R01": FloatTag(write_tagname=False, optional=False, prec=12),
+                        "R02": FloatTag(write_tagname=False, optional=False, prec=12),
+                        "R10": FloatTag(write_tagname=False, optional=False, prec=12),
+                        "R11": FloatTag(write_tagname=False, optional=False, prec=12),
+                        "R12": FloatTag(write_tagname=False, optional=False, prec=12),
+                        "R20": FloatTag(write_tagname=False, optional=False, prec=12),
+                        "R21": FloatTag(write_tagname=False, optional=False, prec=12),
+                        "R22": FloatTag(write_tagname=False, optional=False, prec=12),
+                    },
+                ),
+                TagContainer(
+                    subtags={
+                        "Triclinic": BoolTag(write_tagname=True, optional=False, write_value=False),
+                        "a": FloatTag(write_tagname=False, optional=False),
+                        "b": FloatTag(write_tagname=False, optional=False),
+                        "c": FloatTag(write_tagname=False, optional=False),
+                        "alpha": FloatTag(write_tagname=False, optional=False),
+                        "beta": FloatTag(write_tagname=False, optional=False),
+                        "gamma": FloatTag(write_tagname=False, optional=False),
+                    }
+                ),
+                # TagContainer(
+                #     subtags={
+                #         "Monoclinic": BoolTag(write_tagname=True, optional=False, write_value=False),
+                #     }
+                # )
+                # TagContainer(
+                #     subtags={
+                #         "Monoclinic": BoolTag(write_tagname=True, optional=False, write_value=False),
+                #     }
+                # )
+                # TagContainer(
+                #     subtags={
+                #         "Monoclinic": BoolTag(write_tagname=True, optional=False, write_value=False),
+                #     }
+                # )
+                TagContainer(
+                    subtags={
+                        "Rhombohedral": BoolTag(write_tagname=True, optional=False, write_value=False),
+                        "a": FloatTag(write_tagname=False, optional=False),
+                        "alpha": FloatTag(write_tagname=False, optional=False),
+                    }
+                ),
+                TagContainer(
+                    subtags={
+                        "Hexagonal": BoolTag(write_tagname=True, optional=False, write_value=False),
+                        "a": FloatTag(write_tagname=False, optional=False),
+                        "c": FloatTag(write_tagname=False, optional=False),
+                    }
+                ),
+                # TagContainer(
+                #     subtags={
+                #         "Monoclinic": BoolTag(write_tagname=True, optional=False, write_value=False),
+                #     }
+                # )
+            ],
         ),
+        # "lattice": TagContainer(
+        #     linebreak_nth_entry=3,
+        #     optional=False,
+        #     allow_list_representation=True,
+        #     subtags={
+        #         "R00": FloatTag(write_tagname=False, optional=False, prec=12),
+        #         "R01": FloatTag(write_tagname=False, optional=False, prec=12),
+        #         "R02": FloatTag(write_tagname=False, optional=False, prec=12),
+        #         "R10": FloatTag(write_tagname=False, optional=False, prec=12),
+        #         "R11": FloatTag(write_tagname=False, optional=False, prec=12),
+        #         "R12": FloatTag(write_tagname=False, optional=False, prec=12),
+        #         "R20": FloatTag(write_tagname=False, optional=False, prec=12),
+        #         "R21": FloatTag(write_tagname=False, optional=False, prec=12),
+        #         "R22": FloatTag(write_tagname=False, optional=False, prec=12),
+        #     },
+        # ),
         "ion": TagContainer(
             can_repeat=True,
             optional=False,
@@ -1235,4 +1302,3 @@ def get_tag_object(tag: str) -> AbstractTag:
         AbstractTag: The tag object.
     """
     return MASTER_TAG_LIST[__TAG_GROUPS__[tag]][tag]
-
