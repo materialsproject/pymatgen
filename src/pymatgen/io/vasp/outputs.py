@@ -133,15 +133,15 @@ def _parse_v_parameters(
     return floats
 
 
-def _parse_vasp_array(elem) -> list[list[float]] | NDArray[float]:
+def _parse_vasp_array(elem) -> list[list[bool]] | NDArray[np.float64]:
     if elem.get("type") == "logical":
         return [[i == "T" for i in v.text.split()] for v in elem]
 
     try:
         # numerical data, try parse with numpy loadtxt for efficiency:
-        return np.loadtxt([e.text for e in elem], ndmin=2)
+        return np.loadtxt([e.text for e in elem], ndmin=2, dtype=np.float64)
     except ValueError:  # unexpectedly couldn't re-shape to grid
-        return [list(map(_vasprun_float, e.text.split())) for e in elem]
+        return np.array([list(map(_vasprun_float, e.text.split())) for e in elem])
 
 
 def _parse_from_incar(filename: PathLike, key: str) -> Any:
@@ -526,7 +526,7 @@ class Vasprun(MSONable):
                         self.dielectric_data[label] = self._parse_diel(elem)
 
                     elif tag == "varray" and elem.attrib.get("name") == "opticaltransitions":
-                        self.optical_transition = np.array(_parse_vasp_array(elem))
+                        self.optical_transition = _parse_vasp_array(elem)
 
                     elif tag == "structure" and elem.attrib.get("name") == "finalpos":
                         self.final_structure = self._parse_structure(elem)
@@ -536,7 +536,7 @@ class Vasprun(MSONable):
                         # n_atoms is not the total number of atoms, only those for which force constants were calculated
                         # https://github.com/materialsproject/pymatgen/issues/3084
                         n_atoms = len(hessian) // 3
-                        hessian = np.array(hessian)
+                        hessian = np.array(hessian)  # type:ignore[assignment]
                         self.force_constants = np.zeros((n_atoms, n_atoms, 3, 3), dtype="double")
                         for ii in range(n_atoms):
                             for jj in range(n_atoms):
@@ -1191,7 +1191,7 @@ class Vasprun(MSONable):
         def crosses_band(fermi: float) -> bool:
             eigs_below = np.any(all_eigs < fermi, axis=1)
             eigs_above = np.any(all_eigs > fermi, axis=1)
-            return np.any(eigs_above & eigs_below)
+            return np.any(eigs_above & eigs_below)  # type:ignore[return-value]
 
         def get_vbm_cbm(fermi):
             return np.max(all_eigs[all_eigs < fermi]), np.min(all_eigs[all_eigs > fermi])
@@ -1501,7 +1501,8 @@ class Vasprun(MSONable):
         elem: XML_Element,
     ) -> tuple[Kpoints, list[tuple[float, float, float]], list[float]]:
         """Parse Kpoints."""
-        e = elem if elem.find("generation") is None else elem.find("generation")
+        gen = elem.find("generation")
+        e = elem if gen is None else gen
         kpoint = Kpoints("Kpoints from vasprun.xml")
         kpoint.style = Kpoints.supported_modes.from_str(e.attrib.get("param", "Reciprocal"))  # type: ignore[union-attr]
 
@@ -1523,7 +1524,7 @@ class Vasprun(MSONable):
         for va in elem.findall("varray"):
             name = va.attrib["name"]
             if name == "kpointlist":
-                actual_kpoints = cast("list[tuple[float, float, float]]", list(map(tuple, _parse_vasp_array(va))))
+                actual_kpoints = cast("list[tuple[float, float, float]]", list(map(tuple, _parse_vasp_array(va))))  # type:ignore[arg-type]
             elif name == "weights":
                 weights_array = _parse_vasp_array(va)
                 if isinstance(weights_array, np.ndarray):
@@ -1539,7 +1540,7 @@ class Vasprun(MSONable):
                 kpts=actual_kpoints,
                 kpts_weights=weights,
             )
-        return kpoint, actual_kpoints, weights
+        return kpoint, actual_kpoints, weights  # type:ignore[return-value]
 
     def _parse_structure(self, elem: XML_Element) -> Structure:
         """Parse Structure with lattice, positions and selective dynamics info."""
@@ -1547,7 +1548,7 @@ class Vasprun(MSONable):
         pos = _parse_vasp_array(elem.find("varray"))
         struct = Structure(lattice, self.atomic_symbols, pos)
         selective_dyn = elem.find("varray/[@name='selective']")
-
+        elem.clear()
         if selective_dyn is not None:
             struct.add_site_property("selective_dynamics", _parse_vasp_array(selective_dyn))
         return struct
@@ -1555,14 +1556,16 @@ class Vasprun(MSONable):
     @staticmethod
     def _parse_diel(elem: XML_Element) -> tuple[list, list, list]:
         """Parse dielectric properties."""
-        if elem.find("real") is not None and elem.find("imag") is not None:
+        real_elem = elem.find("real")
+        imag_elem = elem.find("imag")
+        if real_elem is not None and imag_elem is not None:
             imag = [
                 [_vasprun_float(line) for line in r.text.split()]  # type: ignore[union-attr]
-                for r in elem.find("imag").find("array").find("set").findall("r")  # type: ignore[union-attr]
+                for r in imag_elem.find("array").find("set").findall("r")  # type: ignore[union-attr]
             ]
             real = [
                 [_vasprun_float(line) for line in r.text.split()]  # type: ignore[union-attr]
-                for r in elem.find("real").find("array").find("set").findall("r")  # type: ignore[union-attr]
+                for r in real_elem.find("array").find("set").findall("r")  # type: ignore[union-attr]
             ]
             elem.clear()
             return [e[0] for e in imag], [e[1:] for e in real], [e[1:] for e in imag]
@@ -1574,10 +1577,10 @@ class Vasprun(MSONable):
         for va in elem.findall("varray"):
             if va.attrib.get("name") == "opticaltransitions":
                 # optical transitions array contains oscillator strength and probability of transition
-                oscillator_strength = np.array(_parse_vasp_array(va))[:]
-                probability_transition = np.array(_parse_vasp_array(va))[:, 1]
+                oscillator_strength = _parse_vasp_array(va)[:]
+                probability_transition = _parse_vasp_array(va)[:, 1]
 
-                return oscillator_strength, probability_transition
+                return oscillator_strength, probability_transition  # type:ignore[return-value]
 
         raise RuntimeError("Failed to parse optical transitions.")
 
@@ -1590,6 +1593,9 @@ class Vasprun(MSONable):
 
         for va in elem.findall("varray"):
             istep[va.attrib["name"]] = _parse_vasp_array(va)
+
+        elem.clear()
+
         istep["structure"] = struct
         istep["electronic_steps"] = []
         calculation = [
@@ -1655,7 +1661,7 @@ class Vasprun(MSONable):
 
         soc_run = len(elem.find("total").find("array").find("set").findall("set")) > 2  # type: ignore[union-attr]
         for s in elem.find("total").find("array").find("set").findall("set"):  # type: ignore[union-attr]
-            data = np.array(_parse_vasp_array(s))
+            data = _parse_vasp_array(s)
             energies = data[:, 0]
             spin = Spin.up if s.attrib["comment"] == "spin 1" else Spin.down
             if spin != Spin.up and soc_run:  # other 'spins' are x,y,z SOC projections
@@ -1676,7 +1682,7 @@ class Vasprun(MSONable):
                     spin = Spin.up if ss.attrib["comment"] == "spin 1" else Spin.down
                     if spin != Spin.up and soc_run:  # other 'spins' are x,y,z SOC projections
                         continue
-                    data = np.array(_parse_vasp_array(ss))
+                    data = _parse_vasp_array(ss)
                     _n_row, n_col = data.shape
                     for col_idx in range(1, n_col):
                         orb = Orbital(col_idx - 1) if lm else OrbitalType(col_idx - 1)
@@ -1695,7 +1701,7 @@ class Vasprun(MSONable):
     @staticmethod
     def _parse_eigen(elem: XML_Element) -> dict[Spin, NDArray]:
         """Parse eigenvalues."""
-        eigenvalues: dict[Spin, NDArray] = defaultdict(list)
+        eigenvalues: dict[Spin, NDArray] = defaultdict(list)  # type:ignore[arg-type]
         for s in elem.find("array").find("set").findall("set"):  # type: ignore[union-attr]
             spin = Spin.up if s.attrib["comment"] == "spin 1" else Spin.down
             for ss in s.findall("set"):
@@ -1710,7 +1716,7 @@ class Vasprun(MSONable):
     ) -> tuple[dict[Spin, NDArray], NDArray | None]:
         """Parse projected eigenvalues."""
         root = elem.find("array").find("set")  # type: ignore[union-attr]
-        _proj_eigen: dict[int, NDArray] = defaultdict(list)
+        _proj_eigen: dict[int, NDArray] = defaultdict(list)  # type:ignore[arg-type]
         for s in root.findall("set"):  # type: ignore[union-attr]
             spin: int = int(re.match(r"spin(\d+)", s.attrib["comment"])[1])  # type: ignore[index]
 
@@ -1807,7 +1813,7 @@ class BSVasprun(Vasprun):
             self.kpoints_opt_props = None
             for event, elem in ET.iterparse(file, events=["start", "end"]):
                 tag = elem.tag
-                if event == "start":
+                if event == "start" and not in_kpoints_opt:
                     # The start event tells us when we have entered blocks
                     if tag in {"eigenvalues_kpoints_opt", "projected_kpoints_opt"} or (
                         tag == "dos" and elem.attrib.get("comment") == "kpoints_opt"
@@ -3038,8 +3044,8 @@ class Outcar:
             search.append([ionic_dipole_moment_pattern, None, p_ion])
 
             self.context = None
-            self.er_ev = {Spin.up: None, Spin.down: None}
-            self.er_bp = {Spin.up: None, Spin.down: None}
+            self.er_ev = {Spin.up: None, Spin.down: None}  # type:ignore[dict-item]
+            self.er_bp = {Spin.up: None, Spin.down: None}  # type:ignore[dict-item]
 
             micro_pyawk(self.filename, search, self)
 
@@ -4299,7 +4305,7 @@ class Procar(MSONable):
                         )
                     )
                     if self.is_soc:  # dict keys are now "x", "y", "z" rather than Spin.up/down
-                        xyz_data = defaultdict(lambda: np.zeros((n_kpoints, n_bands, n_ions, len(headers))))
+                        xyz_data = defaultdict(lambda: np.zeros((n_kpoints, n_bands, n_ions, len(headers))))  # type:ignore[arg-type, type-var]
 
                 elif expr.match(line):
                     tokens = line.split()
