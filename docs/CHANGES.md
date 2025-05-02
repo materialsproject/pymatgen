@@ -6,6 +6,10 @@ nav_order: 4
 
 # Changelog
 
+## 2025.5.2
+
+- Remove lxml since it is slower for many Vasprun parsing situations.
+
 ## v2025.5.1
 
 - lxml is now used for faster Vasprun parsing.
