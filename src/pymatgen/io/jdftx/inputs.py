@@ -14,7 +14,7 @@ import warnings
 from copy import deepcopy
 from dataclasses import dataclass
 from pathlib import Path
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, cast
 
 import numpy as np
 import scipy.constants as const
@@ -803,7 +803,7 @@ class JDFTXStructure(MSONable):
         lattice = lattice.T  # transpose to get into column-vector format
         lattice /= const.value("Bohr radius") * 10**10  # Bohr radius in Ang; convert to Bohr
 
-        jdftx_tag_dict["lattice"] = lattice
+        jdftx_tag_dict["lattice"] = {f"R{i}{j}": lattice[i][j] for i in range(3) for j in range(3)}
         jdftx_tag_dict["ion"] = []
         jdftx_tag_dict["coords-type"] = "Cartesian" if in_cart_coords else "Lattice"
         valid_labels = [
@@ -811,7 +811,8 @@ class JDFTXStructure(MSONable):
         ]
         for i, site in enumerate(self.structure):
             coords = site.coords * (1 / bohr_to_ang) if in_cart_coords else site.frac_coords
-            sd = self.selective_dynamics[i] if self.selective_dynamics is not None else 1
+            # sd = int(bool(self.selective_dynamics[i])) if self.selective_dynamics is not None else 1
+            sd = int(bool(cast("np.ndarray", self.selective_dynamics)[i])) if self.selective_dynamics is not None else 1
             label = site.label
             # TODO: This is needlessly complicated, simplify this
             if label not in valid_labels:
