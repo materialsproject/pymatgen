@@ -408,7 +408,7 @@ class Vasprun(MSONable):
             # whether they are nested within another block. This is why we
             # must read both start and end tags and have flags to tell us
             # when we have entered or left a block. (2024-01-26)
-            for event, elem in ET.iterparse(stream, events=["start", "end"]):
+            for event, elem in ET.iterparse(stream, events=["start", "end"], remove_blank_text=True):
                 tag = elem.tag
                 if event == "start":
                     # The start event tells us when we have entered blocks
@@ -1805,7 +1805,7 @@ class BSVasprun(Vasprun):
             in_kpoints_opt = False
             self.eigenvalues = self.projected_eigenvalues = None
             self.kpoints_opt_props = None
-            for event, elem in ET.iterparse(file, events=["start", "end"]):
+            for event, elem in ET.iterparse(file, events=["start", "end"], remove_blank_text=True):
                 tag = elem.tag
                 if event == "start":
                     # The start event tells us when we have entered blocks

@@ -3014,7 +3014,7 @@ wheels = [
 
 [[package]]
 name = "pymatgen"
-version = "2025.4.24"
+version = "2025.5.1"
 source = { editable = "." }
 dependencies = [
     { name = "bibtexparser" },
