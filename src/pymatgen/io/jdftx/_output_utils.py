@@ -11,12 +11,14 @@ from __future__ import annotations
 
 from functools import wraps
 from pathlib import Path
-from typing import TYPE_CHECKING, Any
+from typing import TYPE_CHECKING, Any, TypeAlias
 
 import numpy as np
 
 if TYPE_CHECKING:
     from collections.abc import Callable
+
+    from numpy.typing import NDArray
 
 
 def check_file_exists(func: Callable) -> Any:
@@ -136,7 +138,8 @@ def get_colon_val(linetext: str, lkey: str) -> float | None:
     """
     colon_var = None
     if lkey in linetext:
-        colon_var = float(linetext.split(lkey)[1].strip().split(" ")[0])
+        val = linetext.split(lkey)[1].strip().split(" ")[0]
+        colon_var = np.nan if val == "nan" else float(linetext.split(lkey)[1].strip().split(" ")[0])
     return colon_var
 
 
@@ -164,6 +167,8 @@ def is_lowdin_start_line(line_text: str) -> bool:
     return "#--- Lowdin population analysis ---" in line_text
 
 
+# TODO: Figure out if this ever actually gets called, (I think I added it to make JOutStructure user friendly
+# but JOutStructure is not intended to be a user-initialized class)
 def correct_geom_opt_type(opt_type: str | None) -> str | None:
     """Return recognizable opt_type string.
 
@@ -183,7 +188,7 @@ def correct_geom_opt_type(opt_type: str | None) -> str | None:
         if "lattice" in opt_type.lower():
             opt_type = "LatticeMinimize"
         elif "ionic" in opt_type.lower():
-            opt_type = "IonicMinimize"
+            opt_type = "IonicDynamics" if "dyn" in opt_type.lower() else "IonicMinimize"
         else:
             opt_type = None
     return opt_type
@@ -325,16 +330,16 @@ def find_all_key(key_input: str, tempfile: list[str], startline: int = 0) -> lis
     return [i for i in range(startline, len(tempfile)) if key_input in tempfile[i]]
 
 
-def _parse_bandfile_complex(bandfile_filepath: str | Path) -> np.ndarray[np.complex64]:
-    dtype = np.complex64
+def _parse_bandfile_complex(bandfile_filepath: str | Path) -> NDArray[np.complex64]:
+    Dtype: TypeAlias = np.complex64
     token_parser = _complex_token_parser
-    return _parse_bandfile_reader(bandfile_filepath, dtype, token_parser)
+    return _parse_bandfile_reader(bandfile_filepath, Dtype, token_parser)
 
 
-def _parse_bandfile_normalized(bandfile_filepath: str | Path) -> np.ndarray[np.float32]:
-    dtype = np.float32
+def _parse_bandfile_normalized(bandfile_filepath: str | Path) -> NDArray[np.float32]:
+    Dtype: TypeAlias = np.float32
     token_parser = _normalized_token_parser
-    return _parse_bandfile_reader(bandfile_filepath, dtype, token_parser)
+    return _parse_bandfile_reader(bandfile_filepath, Dtype, token_parser)
 
 
 def _get__from_bandfile_filepath(bandfile_filepath: Path | str, tok_idx: int) -> int:
@@ -417,9 +422,7 @@ def _get_nspecies_from_bandfile_filepath(bandfile_filepath: Path | str) -> int:
     return _get__from_bandfile_filepath(bandfile_filepath, 6)
 
 
-def _parse_bandfile_reader(
-    bandfile_filepath: str | Path, dtype: type, token_parser: Callable
-) -> np.ndarray[np.complex64] | np.ndarray[np.float32]:
+def _parse_bandfile_reader(bandfile_filepath: str | Path, arr_dtype: TypeAlias, token_parser: Callable) -> NDArray:
     nstates = _get_nstates_from_bandfile_filepath(bandfile_filepath)
     nbands = _get_nbands_from_bandfile_filepath(bandfile_filepath)
     nproj = _get_nproj_from_bandfile_filepath(bandfile_filepath)
@@ -429,7 +432,7 @@ def _parse_bandfile_reader(
     expected_length = 2 + nspecies + (nstates * (1 + nbands))
     if not expected_length == len(bandfile):
         raise RuntimeError("Bandprojections file does not match expected length - ensure no edits have been made.")
-    proj_tju = np.zeros((nstates, nbands, nproj), dtype=dtype)
+    proj_tju: NDArray[arr_dtype] = np.zeros((nstates, nbands, nproj), dtype=arr_dtype)
     for line, text in enumerate(bandfile):
         tokens = text.split()
         if line >= nspecies + 2:
@@ -440,7 +443,7 @@ def _parse_bandfile_reader(
     return proj_tju
 
 
-def _complex_token_parser(tokens: list[str]) -> np.ndarray[np.complex64]:
+def _complex_token_parser(tokens: list[str]) -> NDArray[np.complex64]:
     out = np.zeros(int(len(tokens) / 2), dtype=np.complex64)
     ftokens = np.array(tokens, dtype=np.float32)
     out += 1j * ftokens[1::2]
@@ -448,8 +451,9 @@ def _complex_token_parser(tokens: list[str]) -> np.ndarray[np.complex64]:
     return out
 
 
-def _normalized_token_parser(tokens: list[str]) -> np.ndarray[np.float32]:
-    return np.array(tokens, dtype=np.float32)
+def _normalized_token_parser(tokens: list[str]) -> NDArray[np.float32]:
+    normalized_tokens: NDArray[np.float32] = np.array(tokens, dtype=np.float32)
+    return normalized_tokens
 
 
 def get_proj_tju_from_file(bandfile_filepath: Path | str) -> np.ndarray:

@@ -29,6 +29,7 @@ from pymatgen.io.jdftx._output_utils import (
     get_colon_val,
     key_exists,
 )
+from pymatgen.io.jdftx.inputs import JDFTXInfile
 from pymatgen.io.jdftx.jminsettings import (
     JMinSettings,
     JMinSettingsElectronic,
@@ -264,9 +265,9 @@ class JDFTXOutfileSlice:
     spintype: str | None = None
     nspin: int | None = None
     nat: int | None = None
-    atom_coords_initial: list[list[float]] | None = None
-    atom_coords_final: list[list[float]] | None = None
-    atom_coords: list[list[float]] | None = None
+    atom_coords_initial: np.ndarray | None = None
+    atom_coords_final: np.ndarray | None = None
+    atom_coords: np.ndarray | None = None
 
     has_solvation: bool = False
     fluid: str | None = None
@@ -350,6 +351,7 @@ class JDFTXOutfileSlice:
         return instance
 
     def _from_out_slice_init_all(self, text: list[str]) -> None:
+        self._set_internal_infile(text)
         self._set_min_settings(text)
         self._set_geomopt_vars(text)
         self._set_jstrucs(text)
@@ -386,6 +388,26 @@ class JDFTXOutfileSlice:
 
         # Previously were properties, but are now set as attributes
         self._from_out_slice_init_all_post_init()
+
+    def _set_internal_infile(self, text: list[str]) -> None:
+        """Set the internal infile for the JDFTXOutfileSlice.
+
+        Args:
+            text (list[str]): Output of read_file for out file.
+        """
+        start_line_idx = find_key("Input parsed successfully", text) + 2
+        end_line_idx = None
+        for i in range(start_line_idx, len(text)):
+            if not len(text[i].strip()):
+                end_line_idx = i
+                break
+        if end_line_idx is None:
+            raise ValueError("Calculation did not begin for this out file slice.")
+        self.infile = JDFTXInfile.from_str("\n".join(text[start_line_idx:end_line_idx]))
+        self.constant_lattice = True
+        if "lattice-minimize" in self.infile:
+            latsteps = self.infile["lattice-minimize"]["nIterations"]
+            self.constant_lattice = not (int(latsteps) > 0)
 
     def _set_t_s(self) -> None:
         """Return the total time in seconds for the calculation.
@@ -829,8 +851,8 @@ class JDFTXOutfileSlice:
         self.jsettings_electronic = self._get_settings_object(text, JMinSettingsElectronic)
         self.jsettings_lattice = self._get_settings_object(text, JMinSettingsLattice)
         self.jsettings_ionic = self._get_settings_object(text, JMinSettingsIonic)
-        if self.jsettings_lattice is not None and "niterations" in self.jsettings_lattice.params:
-            self.constant_lattice = int(self.jsettings_lattice.params["niterations"]) == 0
+        # if self.jsettings_lattice is not None and "niterations" in self.jsettings_lattice.params:
+        #     self.constant_lattice = int(self.jsettings_lattice.params["niterations"]) == 0
 
     def _set_geomopt_vars(self, text: list[str]) -> None:
         """Set the geom_opt and geom_opt_type class variables.
@@ -840,19 +862,41 @@ class JDFTXOutfileSlice:
         Args:
             text (list[str]): Output of read_file for out file.
         """
-        # Attempts to set all self.jsettings_x class variables
-        self._set_min_settings(text)
-        if self.jsettings_ionic is None or self.jsettings_lattice is None:
-            raise ValueError("Unknown issue in setting settings objects")
-        if int(self.jsettings_lattice.params["niterations"]) > 0:
-            self.geom_opt = True
-            self.geom_opt_type = "lattice"
-        elif int(self.jsettings_ionic.params["niterations"]) > 0:
+        found = False
+        if "ionic-dynamics" in self.infile and int(self.infile["ionic-dynamics"]["nSteps"]) > 0:
             self.geom_opt = True
             self.geom_opt_type = "ionic"
-        else:
+            self.geom_opt_label = "IonicDynamics"
+            found = True
+        if (not found and "lattice-minimize" in self.infile) and int(
+            self.infile["lattice-minimize"]["nIterations"] > 0
+        ):
+            self.geom_opt = True
+            self.geom_opt_label = "LatticeMinimize"
+            self.geom_opt_type = "lattice"
+            found = True
+        if (not found and "ionic-minimize" in self.infile) and int(self.infile["ionic-minimize"]["nIterations"] > 0):
+            self.geom_opt = True
+            self.geom_opt_label = "IonicMinimize"
+            self.geom_opt_type = "ionic"
+            found = True
+        if not found:
             self.geom_opt = False
             self.geom_opt_type = "single point"
+            self.geom_opt_label = "IonicMinimize"
+        # # Attempts to set all self.jsettings_x class variables
+        # self._set_min_settings(text)
+        # if self.jsettings_ionic is None or self.jsettings_lattice is None:
+        #     raise ValueError("Unknown issue in setting settings objects")
+        # if int(self.jsettings_lattice.params["niterations"]) > 0:
+        #     self.geom_opt = True
+        #     self.geom_opt_type = "lattice"
+        # elif int(self.jsettings_ionic.params["niterations"]) > 0:
+        #     self.geom_opt = True
+        #     self.geom_opt_type = "ionic"
+        # else:
+        #     self.geom_opt = False
+        #     self.geom_opt_type = "single point"
 
     def _get_initial_structure(self, text: list[str]) -> Structure | None:
         """Get the initial structure from the out file text.

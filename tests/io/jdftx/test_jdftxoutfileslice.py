@@ -129,11 +129,12 @@ def test_set_pseudo_vars_t1():
         joutslice._set_pseudo_vars_t1(text)
 
 
-def test_set_geomopt_vars():
-    joutslice = JDFTXOutfileSlice._from_out_slice(ex_slice1)
-    joutslice.jsettings_ionic = None
-    with pytest.raises(ValueError, match="Unknown issue in setting settings objects"):
-        joutslice._set_geomopt_vars([])
+# This error is no longer possible as _set_geomopt_vars refers to JDFTXInfile attributes now
+# def test_set_geomopt_vars():
+#     joutslice = JDFTXOutfileSlice._from_out_slice(ex_slice1)
+#     joutslice.jsettings_ionic = None
+#     with pytest.raises(ValueError, match="Unknown issue in setting settings objects"):
+#         joutslice._set_geomopt_vars([])
 
 
 def test_set_orb_fillings_nobroad():
