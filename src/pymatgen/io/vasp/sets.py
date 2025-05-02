@@ -2409,6 +2409,11 @@ class MVLGWSet(VaspInputSet):
         return input_set.override_from_prev_calc(prev_calc_dir=prev_calc_dir)
 
 
+"""
+Parameters for MVLSlabSet class set were updated in March 2025 to match the MPSurfaceSet in atomate1
+"""
+
+
 @dataclass
 class MVLSlabSet(VaspInputSet):
     """Write a set of slab VASP runs, including both slabs (along the c direction)
@@ -2434,14 +2439,42 @@ class MVLSlabSet(VaspInputSet):
     @property
     def incar_updates(self) -> dict[str, Any]:
         """Updates to the INCAR config for this calculation type."""
+
+        """Determine LDAU based on slab chemistry without adsorbates"""
+
+        # Define elements that require LDA+U
+        ldau_elts = {"O", "F"}
+
+        # Initialize non_adsorbate_elts as an empty set
+        non_adsorbate_elts = set()
+
+        # Check if self.structure is not None
+        if self.structure is not None:
+            # Determine non-adsorbate elements
+            if self.structure.site_properties and self.structure.site_properties.get("surface_properties"):
+                non_adsorbate_elts = {
+                    s.specie.symbol for s in self.structure if s.properties["surface_properties"] != "adsorbate"
+                }
+            else:
+                non_adsorbate_elts = {s.specie.symbol for s in self.structure}
+
+        # Determine if LDA+U should be applied
+        ldau = bool(non_adsorbate_elts & ldau_elts)
+
         updates = {
-            "EDIFF": 1e-4,
-            "EDIFFG": -0.02,
+            "EDIFF": 1e-5,
+            "EDIFFG": -0.05,
+            "ENAUG": 4000,
+            "IBRION": 1,
+            "POTIM": 1.0,
+            "LDAU": ldau,
             "ENCUT": 400,
             "ISMEAR": 0,
             "SIGMA": 0.05,
             "ISIF": 3,
+            "ISYM": 0,
         }
+
         if not self.bulk:
             updates |= {"ISIF": 2, "LVTOT": True, "NELMIN": 8}
             if self.set_mix:

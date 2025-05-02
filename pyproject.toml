@@ -77,8 +77,9 @@ dependencies = [
     # NumPy documentation suggests pinning the current major version as the C API is used
     # https://numpy.org/devdocs/dev/depending_on_numpy.html#runtime-dependency-version-ranges
     "numpy>=1.25.0,<3",
+    "lxml>=5.3.1",
 ]
-version = "2025.4.24"
+version = "2025.5.1"
 
 [project.urls]
 Homepage = "https://pymatgen.org"
@@ -153,7 +154,7 @@ include = ["pymatgen", "pymatgen.*"]
 "pymatgen.analysis.prototypes" = ["*.json.gz"]
 "pymatgen.analysis.solar" = ["am1.5G.dat"]
 "pymatgen.entries" = ["*.json.gz", "*.yaml", "data/*.json"]
-"pymatgen.core" = ["*.json"]
+"pymatgen.core" = ["*.json", "*.json.gz"]
 "pymatgen" = ["py.typed"]
 "pymatgen.io.vasp" = ["*.json", "*.json.bz2", "*.json.gz", "*.yaml"]
 "pymatgen.io.feff" = ["*.yaml"]
