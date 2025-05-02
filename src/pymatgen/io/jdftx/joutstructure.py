@@ -68,6 +68,7 @@ class JOutStructure(Structure):
         elec_linmin (float | None): The most recent electronic linmin.
         structure (Structure | None): The Structure object of the system. (helpful for uses where the JOutStructure
                                       metadata causes issues)
+        is_md (bool): Whether the optimization step is a molecular dynamics step.
     """
 
     opt_type: str | None = None
@@ -77,6 +78,7 @@ class JOutStructure(Structure):
     ecomponents: dict | None = None
     elecmindata: JElSteps | None = None
     stress: np.ndarray | None = None
+    kinetic_stress: np.ndarray | None = None
     strain: np.ndarray | None = None
     forces: np.ndarray | None = None
     nstep: int | None = None
@@ -91,6 +93,7 @@ class JOutStructure(Structure):
         "emin",
         "lattice",
         "strain",
+        "kinetic_stress",
         "stress",
         "posns",
         "forces",
@@ -108,6 +111,8 @@ class JOutStructure(Structure):
     elec_alpha: float | None = None
     elec_linmin: float | None = None
     structure: Structure | None = None
+    is_md: bool = False
+    thermostat_velocity: np.ndarray | None = None
 
     def _elecmindata_postinit(self) -> None:
         """Post-initialization method for attributes taken from elecmindata."""
@@ -186,12 +191,105 @@ class JOutStructure(Structure):
         """Set the selective dynamics.
 
         Args:
-            magnetic_moments (np.ndarray): The selective dynamics of the atoms in the system.
+            selective_dynamics (np.ndarray | list[list[int]]): The selective dynamics of the atoms in the system.
         """
         if selective_dynamics is not None:
             self.add_site_property("selective_dynamics", list(selective_dynamics))
         elif "selective_dynamics" in self.site_properties:
             self.remove_site_property("selective_dynamics")
+
+    @property
+    def velocities(self) -> list[np.ndarray | None] | None:
+        """Return the velocities.
+
+        Returns:
+            list[np.ndarray | None] | None: The velocities of the atoms in the system.
+        """
+        if "velocities" not in self.site_properties:
+            return None
+        return self.site_properties["velocities"]
+
+    @velocities.setter
+    def velocities(self, velocities: list[np.ndarray | None] | None) -> None:
+        """Set the velocities.
+
+        Args:
+            velocities (list[np.ndarray | None] | None): The velocities of the atoms in the system.
+        """
+        if velocities is not None:
+            self.add_site_property("velocities", list(velocities))
+        elif "velocities" in self.site_properties:
+            self.remove_site_property("velocities")
+
+    @property
+    def constraint_types(self) -> list[str | None] | None:
+        """Return the constraint_types.
+
+        Returns:
+            list[str | None] | None: The constraint_types of the atoms in the system.
+        """
+        if "constraint_types" not in self.site_properties:
+            return None
+        return self.site_properties["constraint_types"]
+
+    @constraint_types.setter
+    def constraint_types(self, constraint_types: list[str | None] | None) -> None:
+        """Set the constraint_types.
+
+        Args:
+            constraint_types (list[str | None] | None): The constraint_types of the atoms in the system.
+        """
+        if constraint_types is not None:
+            self.add_site_property("constraint_types", list(constraint_types))
+        elif "constraint_types" in self.site_properties:
+            self.remove_site_property("constraint_types")
+
+    @property
+    def constraint_vectors(self) -> list[np.ndarray | list[np.ndarray] | None] | None:
+        """Return the velocities.
+
+        Returns:
+            list[np.ndarray | list[np.ndarray] | None] | None: The constraint_vectors of the atoms in the system.
+        """
+        if "constraint_vectors" not in self.site_properties:
+            return None
+        return self.site_properties["constraint_vectors"]
+
+    @constraint_vectors.setter
+    def constraint_vectors(self, constraint_vectors: list[np.ndarray | list[np.ndarray] | None] | None) -> None:
+        """Set the constraint_vectors.
+
+        Args:
+            constraint_vectors (list[np.ndarray | list[np.ndarray] | None] | None): The constraint_vectors of the
+            atoms in the system.
+        """
+        if constraint_vectors is not None:
+            self.add_site_property("constraint_vectors", list(constraint_vectors))
+        elif "constraint_vectors" in self.site_properties:
+            self.remove_site_property("constraint_vectors")
+
+    @property
+    def group_names(self) -> list[list[str] | None] | None:
+        """Return the group_names.
+
+        Returns:
+            list[list[str] | None] | None: The group_names of the atoms in the system.
+        """
+        if "group_names" not in self.site_properties:
+            return None
+        return self.site_properties["group_names"]
+
+    @group_names.setter
+    def group_names(self, group_names: list[list[str] | None] | None) -> None:
+        """Set the group_names.
+
+        Args:
+            group_names (list[list[str] | None] | None): The group_names of the atoms in the system.
+        """
+        if group_names is not None:
+            self.add_site_property("group_names", list(group_names))
+        elif "group_names" in self.site_properties:
+            self.remove_site_property("group_names")
 
     def __init__(
         self,
@@ -217,6 +315,7 @@ class JOutStructure(Structure):
         opt_type: str = "IonicMinimize",
         emin_flag: str = "---- Electronic minimization -------",
         init_structure: Structure | None = None,
+        is_md: bool = False,
     ) -> JOutStructure:
         """
         Return JOutStructure object.
@@ -231,6 +330,8 @@ class JOutStructure(Structure):
             opt_type (str): The type of optimization step.
             emin_flag (str): The flag that indicates the start of a log message for a JDFTx
             optimization step.
+            init_structure (Structure | None): The initial structure of the system.
+            is_md (bool): Whether the optimization step is a molecular dynamics step.
 
         Returns:
             JOutStructure: The created JOutStructure object.
@@ -245,27 +346,34 @@ class JOutStructure(Structure):
                 coords=init_structure.cart_coords,
                 site_properties=init_structure.site_properties,
             )
-        if opt_type not in ["IonicMinimize", "LatticeMinimize"]:
+        if opt_type not in ["IonicMinimize", "LatticeMinimize", "IonicDynamics"]:
             opt_type = correct_geom_opt_type(opt_type)
         instance.eopt_type = eopt_type
         instance.opt_type = opt_type
         instance.emin_flag = emin_flag
+        instance.is_md = is_md
         line_collections = instance._init_line_collections()
         line_collections = instance._gather_line_collections(line_collections, text_slice)
 
         # ecomponents needs to be parsed before emin and opt to set etype
         instance._parse_ecomp_lines(line_collections["ecomp"]["lines"])
-        instance._parse_opt_lines(line_collections["opt"]["lines"])
+        if instance.is_md:
+            instance._parse_md_opt_lines(line_collections["opt"]["lines"])
+        else:
+            instance._parse_opt_lines(line_collections["opt"]["lines"])
         instance._parse_emin_lines(line_collections["emin"]["lines"])
         # Lattice must be parsed before posns/forces in case of direct coordinates
         instance._parse_lattice_lines(line_collections["lattice"]["lines"])
         instance._parse_forces_lines(line_collections["forces"]["lines"])
         instance._parse_posns_lines(line_collections["posns"]["lines"])
+        # Thermostat-velocity dumped alongside positions
+        instance._parse_thermostat_line(line_collections["posns"]["lines"])
         # Lowdin must be parsed after posns
         instance._parse_lowdin_lines(line_collections["lowdin"]["lines"])
         # Strain and stress can be parsed at any point
         instance._parse_strain_lines(line_collections["strain"]["lines"])
         instance._parse_stress_lines(line_collections["stress"]["lines"])
+        instance._parse_kinetic_stress_lines(line_collections["kinetic_stress"]["lines"])
 
         # In case of single-point calculation
         instance._init_e_sp_backup()
@@ -370,6 +478,8 @@ class JOutStructure(Structure):
             bool: True if the line_text is the start of a log message for a JDFTx optimization step.
         """
         is_line = f"{self.opt_type}:" in line_text
+        if self.is_md:
+            return is_line and "Step:" in line_text
         return is_line and "Iter:" in line_text
 
     def _get_etype_from_emin_lines(self, emin_lines: list[str]) -> str | None:
@@ -483,6 +593,43 @@ class JOutStructure(Structure):
             st *= Ha_to_eV / (bohr_to_ang**3)
         self.stress = st
 
+    def _parse_kinetic_stress_lines(self, stress_lines: list[str]) -> None:
+        """Parse stress (including kinetic component) lines.
+
+        Parse the lines of text corresponding to the kinetic stress tensor of a
+        JDFTx out file and converts from Ha/Bohr^3 to eV/Ang^3.
+
+        Args:
+            stress_lines (list[str]): A list of lines of text from a JDFTx out file containing the
+            stress tensor.
+        """
+        # TODO: Lattice optimizations dump stress in cartesian coordinates in units
+        # "[Eh/a0^3]" (Hartree per bohr cubed). Check if this changes for direct
+        # coordinates.
+        st = None
+        if len(stress_lines):
+            st = _brkt_list_of_3x3_to_nparray(stress_lines, i_start=1)
+            st = st.T
+            st *= Ha_to_eV / (bohr_to_ang**3)
+        self.kinetic_stress = st
+
+    def _parse_thermostat_line(self, posns_lines: list[str]) -> None:
+        """Parse thermostat velocity line.
+
+        Parse the lines of text corresponding to the thermostat velocity of a
+        JDFTx out file.
+        Args:
+            posns_lines (list[str]): A list of lines of text from a JDFTx out file.
+        """
+        if len(posns_lines):
+            for line in posns_lines[::-1]:
+                if "thermostat-velocity" in line:
+                    self.thermostat_velocity = np.array([float(x.strip()) for x in line.split()[1:]])
+                elif "ion" in line:
+                    break
+        else:
+            self.thermostat_velocity = None
+
     def _parse_posns_lines(self, posns_lines: list[str]) -> None:
         """Parse positions lines.
 
@@ -499,23 +646,29 @@ class JOutStructure(Structure):
         """
         if len(posns_lines):
             self.remove_sites(list(range(len(self.species))))
-            natoms = len(posns_lines) - 1
             coords_type = posns_lines[0].split("positions in")[1]
             coords_type = coords_type.strip().split()[0].strip()
-            posns: list[np.ndarray] = []
+            _posns: list[np.ndarray] = []
             names: list[str] = []
             selective_dynamics: list[list[int]] = []
+            velocities: list[np.ndarray | None] = []
+            constraint_types: list[str | None] = []
+            constraint_vectors: list[list[np.ndarray] | np.ndarray | None] = []
+            group_names_list: list[list[str] | None] = []
+            natoms = len(posns_lines) - 1
+            if "thermostat-velocity" in posns_lines[-1]:
+                natoms -= 1
             for i in range(natoms):
                 line = posns_lines[i + 1].rstrip("\n")
-                name = line.split()[1].strip()
-                posn = np.array([float(x.strip()) for x in line.split()[2:5]])
-                sd = [int(v) for v in line.split()[5:]]
-                if len(sd) == 1:
-                    sd = [sd[0], sd[0], sd[0]]
+                name, posn, sd, velocity, constraint_type, constraint_vector, group_names = _parse_posn_line(line)
                 names.append(name)
-                posns.append(posn)
+                _posns.append(posn)
                 selective_dynamics.append(sd)
-            posns = np.array(posns)
+                velocities.append(velocity)
+                constraint_types.append(constraint_type)
+                constraint_vectors.append(constraint_vector)
+                group_names_list.append(group_names)
+            posns = np.array(_posns)
             if coords_type.lower() != "cartesian":
                 posns = np.dot(posns, self.lattice.matrix)
             else:
@@ -523,6 +676,10 @@ class JOutStructure(Structure):
             for i in range(natoms):
                 self.append(species=names[i], coords=posns[i], coords_are_cartesian=True)
             self.selective_dynamics = selective_dynamics
+            self.velocities = velocities
+            self.constraint_types = constraint_types
+            self.constraint_vectors = constraint_vectors
+            self.group_names = group_names_list
 
     def _parse_forces_lines(self, forces_lines: list[str]) -> None:
         """Parse forces lines.
@@ -534,12 +691,12 @@ class JOutStructure(Structure):
             natoms = len(forces_lines) - 1
             coords_type = forces_lines[0].split("Forces in")[1]
             coords_type = coords_type.strip().split()[0].strip()
-            forces = []
+            _forces: list[np.ndarray] = []
             for i in range(natoms):
                 line = forces_lines[i + 1]
                 force = np.array([float(x.strip()) for x in line.split()[2:5]])
-                forces.append(force)
-            forces = np.array(forces)
+                _forces.append(force)
+            forces = np.array(_forces)
             if coords_type.lower() != "cartesian":
                 forces = np.dot(forces, np.linalg.inv(self.lattice.matrix))
             else:
@@ -664,6 +821,26 @@ class JOutStructure(Structure):
                     self.geom_converged = True
                     self.geom_converged_reason = line.split("(")[1].split(")")[0].strip()
 
+    def _parse_md_opt_lines(self, opt_lines: list[str]) -> None:
+        """Parse MD optimization lines.
+
+        Parse the lines of text corresponding to the optimization step of a MD
+        JDFTx out file.
+
+        Args:
+            opt_lines (list[str]): A list of lines of text from a JDFTx out file.
+        """
+        if len(opt_lines):
+            for line in opt_lines:
+                if self._is_opt_start_line(line):
+                    self.nstep = int(get_colon_val(line, "Step:"))
+                    self.t_s = get_colon_val(line, "t[s]: ")
+                    self.pe = get_colon_val(line, "PE:") * Ha_to_eV
+                    self.ke = get_colon_val(line, "KE:") * Ha_to_eV
+                    self.t_k = get_colon_val(line, "T[K]:")
+                    self.p_bar = get_colon_val(line, "P[Bar]:")
+                    self.tmd_fs = get_colon_val(line, "tMD[fs]:")
+
     def _is_generic_start_line(self, line_text: str, line_type: str) -> bool:
         """Return True if the line_text is start of line_type log message.
 
@@ -690,6 +867,8 @@ class JOutStructure(Structure):
             return _is_posns_start_line(line_text)
         if line_type == "stress":
             return _is_stress_start_line(line_text)
+        if line_type == "kinetic_stress":
+            return _is_kinetic_stress_start_line(line_text)
         if line_type == "strain":
             return _is_strain_start_line(line_text)
         if line_type == "lattice":
@@ -765,34 +944,115 @@ class JOutStructure(Structure):
         return pprint.pformat(self)
 
 
+# If constraint type is set to "None", it is not printed in out file
+constraint_types = ["HyperPlane", "Linear", "Planar"]
+
+
+def _parse_posn_line(
+    posn_line: str,
+    is_md: bool = False,
+) -> tuple[
+    str, np.ndarray, list[int], np.ndarray | None, str | None, list[np.ndarray] | np.ndarray | None, list[str] | None
+]:
+    """Parse a single position line.
+
+    Parse a line of text corresponding to the position of an ion (atom) in a
+    JDFTx out file. Returns ion name, ion position, selective dynamics, velocity (optional), constraint
+    type (optional), constraint vector(s) (optional, may be a list if multiple HyperPlane constraints), and group names
+    (if multiple HyperPlane constraints).
+
+    tuple: A tuple containing the following elements:
+        - str: Ion name (element symbol)
+        - np.ndarray: Ion position coordinates as a 3D vector
+        - list[int]: Selective dynamics flags (list of 0/1 values)
+        - np.ndarray | None: Velocity as a 3D vector if present, otherwise None
+        - str | None: Constraint type (e.g., "HyperPlane") if constrained, otherwise None
+        - list[np.ndarray] | np.ndarray | None: Constraint vector(s), returns:
+            - list[np.ndarray]: Multiple constraint vectors if multiple HyperPlane constraints
+            - np.ndarray: Single constraint vector for a single constraint
+            - None: If no constraints are present
+        - list[str] | None: Group names for constraints if multiple HyperPlane constraints, otherwise None
+    """
+    psplit: list[str] = list(posn_line.split())
+    name: str = psplit[1]
+    posn: np.ndarray = np.array([float(x) for x in psplit[2:5]])
+    velocity: np.ndarray | None = None
+    sd: list[int] = []
+    constraint_type: str | None = None
+    constraint_vector: np.ndarray | list[np.ndarray] | None = None
+    group_names: list[str] | None = None
+    # Expecting a line to looks like "ion Ir   0.087   0.23   0.285 0"
+    # If that last (6th) element is "v", we are dealing with an MD calculation and line might look like
+    # "ion Ir   0.087481227766366   0.236770029479291   0.285789315528821 v   0.002  0.10   0.03 1"
+    offset: int = 0
+    if psplit[5] == "v":
+        offset = 4
+        velocity = np.array([float(x) for x in psplit[5:8]])
+    # Convert the movescale tag to a redundant selective_dynamics tag to match the expected shape
+    # (int(bool(v)) used since technically something like "0.1" can be passed to JDFTx to indicate non-freezing)
+    sd = [int(bool(posn_line.split()[offset + 5])) for _ in range(3)]
+    # Check for constraints (protected by try/except since its genuinely more likely that an accidental edit
+    # triggers this since this is a rarely used feature)
+    try:
+        if len(psplit) > offset + 6:
+            constraint_type = psplit[offset + 6]
+            if constraint_type in constraint_types:
+                # Check for multiple HyperPlane constraints
+                if constraint_type == "HyperPlane":
+                    if psplit.count("HyperPlane") > 1:
+                        idcs = [i for i, v in enumerate(psplit) if v == "HyperPlane"]
+                        constraint_vector = [np.ndarray([float(x) for x in psplit[i + 1 : i + 4]]) for i in idcs]
+                        group_names = [psplit[i + 4] for i in idcs]
+                    else:
+                        constraint_vector = np.array([float(x) for x in psplit[offset + 7 : offset + 10]])
+                else:
+                    constraint_vector = np.array([float(x) for x in psplit[offset + 7 : offset + 10]])
+            else:
+                # Ignore unrecognized constraint types
+                constraint_type = None
+    except (IndexError, ValueError, TypeError):
+        pass
+    return name, posn, sd, velocity, constraint_type, constraint_vector, group_names
+
+
 def _is_stress_start_line(line_text: str) -> bool:
     """Return True if the line_text is the start of stress log message.
 
-    Return True if the line_text is the start of a log message for a JDFTx
-    optimization step.
+    Return True if the line_text is the start of stress log message.
 
     Args:
         line_text (str): A line of text from a JDFTx out file.
 
     Returns:
-        bool: True if the line_text is the start of a log message for a JDFTx
-        optimization step.
+        bool: True if the line_text is the start of stress log message.
     """
     return "# Stress tensor in" in line_text
+
+
+def _is_kinetic_stress_start_line(line_text: str) -> bool:
+    """Return True if the line_text is the start of kinetic stress log message.
+
+    Return True if the line_text is the start of kinetic stress log message.
+
+    Args:
+        line_text (str): A line of text from a JDFTx out file.
+
+    Returns:
+        bool: True if the line_text is the start of kinetic stress log message.
+    """
+    return "# Stress tensor including kinetic" in line_text
 
 
 def _is_strain_start_line(line_text: str) -> bool:
     """Return True if the line_text is the start of strain log message.
 
-    Return True if the line_text is the start of a log message for a JDFTx
-    optimization step.
+    Return True if the line_text is the start of strain log message.
 
     Args:
         line_text (str): A line of text from a JDFTx out file.
 
     Returns:
-        bool: True if the line_text is the start of a log message for a JDFTx
-        optimization step.
+        bool: True if the line_text is the start of strain log message.
     """
     return "# Strain tensor in" in line_text
 

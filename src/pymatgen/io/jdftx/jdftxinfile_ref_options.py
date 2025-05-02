@@ -771,10 +771,12 @@ jdftxdumpvaroptions = [
 # simple dictionaries deepcopied multiple times into MASTER_TAG_LIST later for
 # different tags
 jdftxminimize_subtagdict = {
+    "abortOnFailedStep": BoolTag(),  # 5/1/25 - not a documented option, but shows up in out file input dump
     "alphaTincreaseFactor": FloatTag(),
     "alphaTmin": FloatTag(),
     "alphaTreduceFactor": FloatTag(),
     "alphaTstart": FloatTag(),
+    "convergeAll": BoolTag(),  # 5/1/25 - not a documented option, but shows up in out file input dump
     "dirUpdateScheme": StrTag(
         options=[
             "FletcherReeves",
@@ -789,6 +791,7 @@ jdftxminimize_subtagdict = {
     "history": IntTag(),
     "knormThreshold": FloatTag(),
     "linminMethod": StrTag(options=["CubicWolfe", "DirUpdateRecommended", "Quad", "Relax"]),
+    "maxThreshold": BoolTag(),
     "nAlphaAdjustMax": FloatTag(),
     "nEnergyDiff": IntTag(),
     "nIterations": IntTag(),
