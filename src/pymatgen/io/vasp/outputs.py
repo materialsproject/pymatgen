@@ -15,9 +15,9 @@ from glob import glob
 from io import BytesIO
 from pathlib import Path
 from typing import TYPE_CHECKING, Any, cast
+from xml.etree import ElementTree as ET
 
 import numpy as np
-from lxml import etree as ET
 from monty.dev import requires
 from monty.io import reverse_readfile, zopen
 from monty.json import MSONable, jsanitize
@@ -331,10 +331,10 @@ class Vasprun(MSONable):
         self.separate_spins = separate_spins
         self.exception_on_bad_xml = exception_on_bad_xml
 
-        with zopen(filename, mode="rb") as file:
+        with zopen(filename, mode="rt", encoding="utf-8") as file:
             if ionic_step_skip or ionic_step_offset:
                 # Remove parts of the xml file and parse the string
-                content: str = file.read().decode("utf-8")
+                content: str = file.read()
                 steps: list[str] = content.split("<calculation>")
 
                 # The text before the first <calculation> is the preamble!
@@ -408,7 +408,7 @@ class Vasprun(MSONable):
             # whether they are nested within another block. This is why we
             # must read both start and end tags and have flags to tell us
             # when we have entered or left a block. (2024-01-26)
-            for event, elem in ET.iterparse(stream, events=["start", "end"], remove_blank_text=True):
+            for event, elem in ET.iterparse(stream, events=["start", "end"]):
                 tag = elem.tag
                 if event == "start":
                     # The start event tells us when we have entered blocks
@@ -1799,13 +1799,13 @@ class BSVasprun(Vasprun):
         self.occu_tol = occu_tol
         self.separate_spins = separate_spins
 
-        with zopen(filename, mode="rb") as file:
+        with zopen(filename, mode="rt", encoding="utf-8") as file:
             self.efermi = None
             parsed_header = False
             in_kpoints_opt = False
             self.eigenvalues = self.projected_eigenvalues = None
             self.kpoints_opt_props = None
-            for event, elem in ET.iterparse(file, events=["start", "end"], remove_blank_text=True):
+            for event, elem in ET.iterparse(file, events=["start", "end"]):
                 tag = elem.tag
                 if event == "start":
                     # The start event tells us when we have entered blocks

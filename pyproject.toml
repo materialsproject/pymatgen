@@ -77,7 +77,6 @@ dependencies = [
     # NumPy documentation suggests pinning the current major version as the C API is used
     # https://numpy.org/devdocs/dev/depending_on_numpy.html#runtime-dependency-version-ranges
     "numpy>=1.25.0,<3",
-    "lxml>=5.3.1",
 ]
 version = "2025.5.1"
 

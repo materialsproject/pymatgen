@@ -3019,7 +3019,6 @@ source = { editable = "." }
 dependencies = [
     { name = "bibtexparser" },
     { name = "joblib" },
-    { name = "lxml" },
     { name = "matplotlib" },
     { name = "monty" },
     { name = "networkx" },
@@ -3136,7 +3135,6 @@ requires-dist = [
     { name = "hiphive", marker = "extra == 'optional'", specifier = ">=1.3.1" },
     { name = "jarvis-tools", marker = "extra == 'optional'", specifier = ">=2020.7.14" },
     { name = "joblib", specifier = ">=1" },
-    { name = "lxml", specifier = ">=5.3.1" },
     { name = "matcalc", marker = "python_full_version < '3.13' and extra == 'matcalc'", specifier = ">=0.4.0" },
     { name = "matgl", marker = "python_full_version < '3.13' and extra == 'matcalc'", specifier = ">=1.2.6" },
     { name = "matgl", marker = "python_full_version < '3.13' and extra == 'mlp'", specifier = ">=1.2.6" },
