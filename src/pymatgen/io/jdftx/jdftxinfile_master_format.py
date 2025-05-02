@@ -96,21 +96,80 @@ MASTER_TAG_LIST: dict[str, dict[str, Any]] = {
                         "gamma": FloatTag(write_tagname=False, optional=False),
                     }
                 ),
-                # TagContainer(
-                #     subtags={
-                #         "Monoclinic": BoolTag(write_tagname=True, optional=False, write_value=False),
-                #     }
-                # )
-                # TagContainer(
-                #     subtags={
-                #         "Monoclinic": BoolTag(write_tagname=True, optional=False, write_value=False),
-                #     }
-                # )
-                # TagContainer(
-                #     subtags={
-                #         "Monoclinic": BoolTag(write_tagname=True, optional=False, write_value=False),
-                #     }
-                # )
+                TagContainer(
+                    subtags={
+                        "modification": StrTag(
+                            options=["Base-Centered"],  # Single-option modification could be a boolean tag, but keeping
+                            # as a string tagfor consistency with the other modified lattice tags
+                            optional=False,
+                            write_tagname=False,
+                            write_value=True,
+                        ),
+                        "Monoclinic": BoolTag(write_tagname=True, optional=False, write_value=False),
+                        "a": FloatTag(write_tagname=False, optional=False),
+                        "b": FloatTag(write_tagname=False, optional=False),
+                        "c": FloatTag(write_tagname=False, optional=False),
+                        "beta": FloatTag(write_tagname=False, optional=False),
+                    }
+                ),
+                # This is a duplicate of the above tag, but without the modification subtag.
+                # This is not an elegant solution, but this approach only adds < 50 lines of code. The long term fix
+                # will be to make major changes to the TagContainer `read` implementation in the way it expects
+                # values to be ordered/present after parsing subtags with write_tagname=True.
+                # Another option would be to make all modification options boolean tags, but this would allow mutually
+                # exclusive tags to be present in the same tag, which is not ideal.
+                TagContainer(
+                    subtags={
+                        "Monoclinic": BoolTag(write_tagname=True, optional=False, write_value=False),
+                        "a": FloatTag(write_tagname=False, optional=False),
+                        "b": FloatTag(write_tagname=False, optional=False),
+                        "c": FloatTag(write_tagname=False, optional=False),
+                        "beta": FloatTag(write_tagname=False, optional=False),
+                    }
+                ),
+                TagContainer(
+                    subtags={
+                        "modification": StrTag(
+                            options=["Base-Centered", "Body-Centered", "Face-Centered"],
+                            optional=False,
+                            write_tagname=False,
+                            write_value=True,
+                        ),
+                        "Orthorhombic": BoolTag(write_tagname=True, optional=False, write_value=False),
+                        "a": FloatTag(write_tagname=False, optional=False),
+                        "b": FloatTag(write_tagname=False, optional=False),
+                        "c": FloatTag(write_tagname=False, optional=False),
+                    }
+                ),
+                TagContainer(
+                    subtags={
+                        "Orthorhombic": BoolTag(write_tagname=True, optional=False, write_value=False),
+                        "a": FloatTag(write_tagname=False, optional=False),
+                        "b": FloatTag(write_tagname=False, optional=False),
+                        "c": FloatTag(write_tagname=False, optional=False),
+                    }
+                ),
+                TagContainer(
+                    subtags={
+                        "modification": StrTag(
+                            options=["Body-Centered"],  # This could be a boolean tag, but keeping a string tag
+                            # for consistency with the other modified lattice tags
+                            optional=False,
+                            write_tagname=False,
+                            write_value=True,
+                        ),
+                        "Tetragonal": BoolTag(write_tagname=True, optional=False, write_value=False),
+                        "a": FloatTag(write_tagname=False, optional=False),
+                        "c": FloatTag(write_tagname=False, optional=False),
+                    }
+                ),
+                TagContainer(
+                    subtags={
+                        "Tetragonal": BoolTag(write_tagname=True, optional=False, write_value=False),
+                        "a": FloatTag(write_tagname=False, optional=False),
+                        "c": FloatTag(write_tagname=False, optional=False),
+                    }
+                ),
                 TagContainer(
                     subtags={
                         "Rhombohedral": BoolTag(write_tagname=True, optional=False, write_value=False),
@@ -125,11 +184,24 @@ MASTER_TAG_LIST: dict[str, dict[str, Any]] = {
                         "c": FloatTag(write_tagname=False, optional=False),
                     }
                 ),
-                # TagContainer(
-                #     subtags={
-                #         "Monoclinic": BoolTag(write_tagname=True, optional=False, write_value=False),
-                #     }
-                # )
+                TagContainer(
+                    subtags={
+                        "modification": StrTag(
+                            options=["Body-Centered", "Face-Centered"],
+                            optional=False,
+                            write_tagname=False,
+                            write_value=True,
+                        ),
+                        "Cubic": BoolTag(write_tagname=True, optional=False, write_value=False),
+                        "a": FloatTag(write_tagname=False, optional=False),
+                    }
+                ),
+                TagContainer(
+                    subtags={
+                        "Cubic": BoolTag(write_tagname=True, optional=False, write_value=False),
+                        "a": FloatTag(write_tagname=False, optional=False),
+                    }
+                ),
             ],
         ),
         # "lattice": TagContainer(
