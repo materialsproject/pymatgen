@@ -1548,7 +1548,7 @@ class Vasprun(MSONable):
         pos = _parse_vasp_array(elem.find("varray"))
         struct = Structure(lattice, self.atomic_symbols, pos)
         selective_dyn = elem.find("varray/[@name='selective']")
-        elem.clear()
+
         if selective_dyn is not None:
             struct.add_site_property("selective_dynamics", _parse_vasp_array(selective_dyn))
         return struct
@@ -1567,7 +1567,6 @@ class Vasprun(MSONable):
                 [_vasprun_float(line) for line in r.text.split()]  # type: ignore[union-attr]
                 for r in real_elem.find("array").find("set").findall("r")  # type: ignore[union-attr]
             ]
-            elem.clear()
             return [e[0] for e in imag], [e[1:] for e in real], [e[1:] for e in imag]
         return [], [], []
 
@@ -1579,7 +1578,7 @@ class Vasprun(MSONable):
                 # optical transitions array contains oscillator strength and probability of transition
                 oscillator_strength = _parse_vasp_array(va)[:]
                 probability_transition = _parse_vasp_array(va)[:, 1]
-
+                elem.clear()
                 return oscillator_strength, probability_transition  # type:ignore[return-value]
 
         raise RuntimeError("Failed to parse optical transitions.")
@@ -1593,8 +1592,6 @@ class Vasprun(MSONable):
 
         for va in elem.findall("varray"):
             istep[va.attrib["name"]] = _parse_vasp_array(va)
-
-        elem.clear()
 
         istep["structure"] = struct
         istep["electronic_steps"] = []
@@ -1617,6 +1614,7 @@ class Vasprun(MSONable):
             except AttributeError:  # not all calculations have an energy
                 pass
         calculation[-1].update(calculation[-1]["electronic_steps"][-1])
+        elem.clear()
         return calculation
 
     def _parse_ionic_step(self, elem: XML_Element) -> dict[str, float]:
@@ -1761,7 +1759,6 @@ class Vasprun(MSONable):
             elif va.attrib["name"] == "eigenvectors":
                 for v in va.findall("v"):
                     eigenvectors.append([float(i) for i in v.text.split()])  # type: ignore[union-attr]
-
         return hessian, eigenvalues, eigenvectors
 
 
