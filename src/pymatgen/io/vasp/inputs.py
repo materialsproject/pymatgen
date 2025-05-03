@@ -629,7 +629,7 @@ class Poscar(MSONable):
             coords: ArrayLike = site.frac_coords if direct else site.coords
             line: str = " ".join(format_str.format(c) for c in coords)
             if self.selective_dynamics is not None:
-                sd: list[str] = ["T" if j else "F" for j in self.selective_dynamics[idx]]
+                sd: list[str] = ["T" if j else "F" for j in self.selective_dynamics[idx]]  # type:ignore[index]
                 line += f" {sd[0]} {sd[1]} {sd[2]}"
             line += f" {site.species_string}"
             lines.append(line)
@@ -639,7 +639,7 @@ class Poscar(MSONable):
                 lines.extend(["Lattice velocities and vectors", "  1"])
                 for velo in self.lattice_velocities:
                     # VASP is strict about the format when reading this quantity
-                    lines.append(" ".join(f" {val: .7E}" for val in velo))
+                    lines.append(" ".join(f" {val: .7E}" for val in velo))  # type:ignore[str-bytes-safe]
             except Exception:
                 warnings.warn(
                     "Lattice velocities are missing or corrupted.",
