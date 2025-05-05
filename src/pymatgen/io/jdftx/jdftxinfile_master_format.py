@@ -64,7 +64,6 @@ MASTER_TAG_LIST: dict[str, dict[str, Any]] = {
             },
         ),
         "coords-type": StrTag(options=["Cartesian", "Lattice"]),
-        # TODO: change lattice tag into MultiformatTag for different symmetry options
         "lattice": MultiformatTag(
             can_repeat=False,
             optional=False,
@@ -204,50 +203,68 @@ MASTER_TAG_LIST: dict[str, dict[str, Any]] = {
                 ),
             ],
         ),
-        # "lattice": TagContainer(
-        #     linebreak_nth_entry=3,
+        "ion": MultiformatTag(
+            can_repeat=True,
+            optional=False,
+            allow_list_representation=False,
+            format_options=[
+                TagContainer(
+                    allow_list_representation=False,
+                    can_repeat=True,
+                    subtags={
+                        "species-id": StrTag(
+                            write_tagname=False,
+                            optional=False,
+                            options=[
+                                value.symbol
+                                for key, value in Element.__dict__.items()
+                                if not key.startswith("_") and not callable(value)
+                            ],  # Required in case bad species names gets fed
+                        ),
+                        "x0": FloatTag(write_tagname=False, optional=False, prec=12),
+                        "x1": FloatTag(write_tagname=False, optional=False, prec=12),
+                        "x2": FloatTag(write_tagname=False, optional=False, prec=12),
+                        "v": TagContainer(
+                            allow_list_representation=True,
+                            subtags={
+                                "vx0": FloatTag(write_tagname=False, optional=False, prec=12),
+                                "vx1": FloatTag(write_tagname=False, optional=False, prec=12),
+                                "vx2": FloatTag(write_tagname=False, optional=False, prec=12),
+                            },
+                        ),
+                        "moveScale": IntTag(write_tagname=False, optional=False),
+                    },
+                ),
+            ],
+        ),
+        # "ion": TagContainer(
+        #     can_repeat=True,
         #     optional=False,
         #     allow_list_representation=True,
         #     subtags={
-        #         "R00": FloatTag(write_tagname=False, optional=False, prec=12),
-        #         "R01": FloatTag(write_tagname=False, optional=False, prec=12),
-        #         "R02": FloatTag(write_tagname=False, optional=False, prec=12),
-        #         "R10": FloatTag(write_tagname=False, optional=False, prec=12),
-        #         "R11": FloatTag(write_tagname=False, optional=False, prec=12),
-        #         "R12": FloatTag(write_tagname=False, optional=False, prec=12),
-        #         "R20": FloatTag(write_tagname=False, optional=False, prec=12),
-        #         "R21": FloatTag(write_tagname=False, optional=False, prec=12),
-        #         "R22": FloatTag(write_tagname=False, optional=False, prec=12),
+        #         "species-id": StrTag(
+        #             write_tagname=False,
+        #             optional=False,
+        #             options=[
+        #                 value.symbol
+        #                 for key, value in Element.__dict__.items()
+        #                 if not key.startswith("_") and not callable(value)
+        #             ],  # Required in case bad species names gets fed
+        #         ),
+        #         "x0": FloatTag(write_tagname=False, optional=False, prec=12),
+        #         "x1": FloatTag(write_tagname=False, optional=False, prec=12),
+        #         "x2": FloatTag(write_tagname=False, optional=False, prec=12),
+        #         "v": TagContainer(
+        #             allow_list_representation=True,
+        #             subtags={
+        #                 "vx0": FloatTag(write_tagname=False, optional=False, prec=12),
+        #                 "vx1": FloatTag(write_tagname=False, optional=False, prec=12),
+        #                 "vx2": FloatTag(write_tagname=False, optional=False, prec=12),
+        #             },
+        #         ),
+        #         "moveScale": IntTag(write_tagname=False, optional=False),
         #     },
         # ),
-        "ion": TagContainer(
-            can_repeat=True,
-            optional=False,
-            allow_list_representation=True,
-            subtags={
-                "species-id": StrTag(
-                    write_tagname=False,
-                    optional=False,
-                    options=[
-                        value.symbol
-                        for key, value in Element.__dict__.items()
-                        if not key.startswith("_") and not callable(value)
-                    ],  # Required in case bad species names gets fed
-                ),
-                "x0": FloatTag(write_tagname=False, optional=False, prec=12),
-                "x1": FloatTag(write_tagname=False, optional=False, prec=12),
-                "x2": FloatTag(write_tagname=False, optional=False, prec=12),
-                "v": TagContainer(
-                    allow_list_representation=True,
-                    subtags={
-                        "vx0": FloatTag(write_tagname=False, optional=False, prec=12),
-                        "vx1": FloatTag(write_tagname=False, optional=False, prec=12),
-                        "vx2": FloatTag(write_tagname=False, optional=False, prec=12),
-                    },
-                ),
-                "moveScale": IntTag(write_tagname=False, optional=False),
-            },
-        ),
         "perturb-ion": TagContainer(
             subtags={
                 "species": StrTag(write_tagname=False, optional=False),

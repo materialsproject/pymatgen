@@ -823,8 +823,7 @@ class JDFTXStructure(MSONable):
                 if label not in valid_labels:
                     raise ValueError(f"Could not correct site label {label} for site (index {i})")
             jdftx_tag_dict["ion"].append([label, *coords, sd])
-
-        return str(JDFTXInfile._from_dict(jdftx_tag_dict))
+        return str(JDFTXInfile.from_dict(jdftx_tag_dict))
 
     def write_file(self, filename: PathLike, **kwargs) -> None:
         """Write JDFTXStructure to a file.
