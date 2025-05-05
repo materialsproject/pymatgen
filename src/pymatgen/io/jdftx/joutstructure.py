@@ -987,7 +987,7 @@ def _parse_posn_line(
     offset: int = 0
     if psplit[5] == "v":
         offset = 4
-        velocity = np.array([float(x) for x in psplit[5:8]])
+        velocity = np.array([float(x) for x in psplit[6:9]])
     # Convert the movescale tag to a redundant selective_dynamics tag to match the expected shape
     # (int(bool(v)) used since technically something like "0.1" can be passed to JDFTx to indicate non-freezing)
     sd = [int(bool(posn_line.split()[offset + 5])) for _ in range(3)]
