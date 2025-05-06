@@ -84,7 +84,7 @@ def read_outfile_slices(file_name: str) -> list[list[str]]:
     return texts
 
 
-def _brkt_list_of_3_to_nparray(line: str) -> np.ndarray:
+def _brkt_list_of_3_to_nparray(line: str) -> NDArray[np.float64]:
     """Return 3x1 numpy array.
 
     Convert a string of the form "[ x y z ]" to a 3x1 numpy array
@@ -97,7 +97,7 @@ def _brkt_list_of_3_to_nparray(line: str) -> np.ndarray:
     return np.array([float(x) for x in line.split()[1:-1]])
 
 
-def _brkt_list_of_3x3_to_nparray(lines: list[str], i_start: int = 0) -> np.ndarray:
+def _brkt_list_of_3x3_to_nparray(lines: list[str], i_start: int = 0) -> NDArray[np.float64]:
     """Return 3x3 numpy array.
 
     Convert a list of strings of the form "[ x y z ]" to a 3x3 numpy array
@@ -460,7 +460,7 @@ def _normalized_token_parser(tokens: list[str]) -> NDArray[np.float32]:
     return normalized_tokens
 
 
-def get_proj_tju_from_file(bandfile_filepath: Path | str) -> np.ndarray:
+def get_proj_tju_from_file(bandfile_filepath: Path | str) -> NDArray[np.float32 | np.complex64]:
     """Return projections from file in tju shape.
 
     Return projections from file in (state, band, proj) shape. Collected in this shape before sabcju shape due to ready

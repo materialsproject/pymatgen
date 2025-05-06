@@ -7,10 +7,13 @@ from __future__ import annotations
 
 import pprint
 import warnings
-from typing import ClassVar
+from typing import TYPE_CHECKING, ClassVar
 
 import numpy as np
 from monty.dev import deprecated
+
+if TYPE_CHECKING:
+    from numpy.typing import NDArray
 
 from pymatgen.core.structure import Lattice, Structure
 from pymatgen.core.units import Ha_to_eV, bohr_to_ang
@@ -85,10 +88,10 @@ class JOutStructure(Structure):
     emin_flag: str | None = None
     ecomponents: dict | None = None
     elecmindata: JElSteps | None = None
-    stress: np.ndarray | None = None
-    kinetic_stress: np.ndarray | None = None
-    strain: np.ndarray | None = None
-    forces: np.ndarray | None = None
+    stress: NDArray[np.float64] | None = None
+    kinetic_stress: NDArray[np.float64] | None = None
+    strain: NDArray[np.float64] | None = None
+    forces: NDArray[np.float64] | None = None
     nstep: int | None = None
     e: float | None = None
     grad_k: float | None = None
@@ -121,8 +124,8 @@ class JOutStructure(Structure):
     structure: Structure | None = None
     is_md: bool = False
     thermostat_velocity: np.ndarray | None = None
-    _velocities: list[np.ndarray | None] | None = None
-    _constraint_vectors: list[np.ndarray | list[np.ndarray] | None] | None = None
+    _velocities: list[NDArray[np.float64] | None] | None = None
+    _constraint_vectors: list[NDArray[np.float64] | list[NDArray[np.float64]] | None] | None = None
     _constraint_types: list[str | None] | None = None
     _group_names: list[list[str] | None] | None = None
 
@@ -142,7 +145,7 @@ class JOutStructure(Structure):
                 setattr(self, f"elec_{var}", None)
 
     @property
-    def charges(self) -> np.ndarray | None:
+    def charges(self) -> NDArray[np.float64] | None:
         """Return the Lowdin charges.
 
         Returns:
@@ -153,7 +156,7 @@ class JOutStructure(Structure):
         return self.site_properties["charges"]
 
     @charges.setter
-    def charges(self, charges: np.ndarray | None) -> None:
+    def charges(self, charges: NDArray[np.float64] | None) -> None:
         """Set the Lowdin charges.
 
         Args:
@@ -165,7 +168,7 @@ class JOutStructure(Structure):
             self.remove_site_property("charges")
 
     @property
-    def magnetic_moments(self) -> np.ndarray | None:
+    def magnetic_moments(self) -> NDArray[np.float64] | None:
         """Return the magnetic moments.
 
         Returns:
@@ -176,7 +179,7 @@ class JOutStructure(Structure):
         return self.site_properties["magmom"]
 
     @magnetic_moments.setter
-    def magnetic_moments(self, magnetic_moments: np.ndarray) -> None:
+    def magnetic_moments(self, magnetic_moments: NDArray[np.float64]) -> None:
         """Set the magnetic moments.
 
         Args:
@@ -662,12 +665,12 @@ class JOutStructure(Structure):
             self.remove_sites(list(range(len(self.species))))
             coords_type = posns_lines[0].split("positions in")[1]
             coords_type = coords_type.strip().split()[0].strip()
-            _posns: list[np.ndarray] = []
+            _posns: list[NDArray[np.float64]] = []
             names: list[str] = []
             selective_dynamics: list[list[int]] = []
-            velocities: list[np.ndarray | None] = []
+            velocities: list[NDArray[np.float64] | None] = []
             constraint_types: list[str | None] = []
-            constraint_vectors: list[list[np.ndarray] | np.ndarray | None] = []
+            constraint_vectors: list[list[NDArray[np.float64]] | NDArray[np.float64] | None] = []
             group_names_list: list[list[str] | None] = []
             natoms = len(posns_lines) - 1
             if "thermostat-velocity" in posns_lines[-1]:
@@ -966,7 +969,13 @@ def _parse_posn_line(
     posn_line: str,
     is_md: bool = False,
 ) -> tuple[
-    str, np.ndarray, list[int], np.ndarray | None, str | None, list[np.ndarray] | np.ndarray | None, list[str] | None
+    str,
+    NDArray[np.float64],
+    list[int],
+    NDArray[np.float64] | None,
+    str | None,
+    list[NDArray[np.float64]] | NDArray[np.float64] | None,
+    list[str] | None,
 ]:
     """Parse a single position line.
 
@@ -989,11 +998,11 @@ def _parse_posn_line(
     """
     psplit: list[str] = list(posn_line.split())
     name: str = psplit[1]
-    posn: np.ndarray = np.array([float(x) for x in psplit[2:5]])
-    velocity: np.ndarray | None = None
+    posn: NDArray[np.float64] = np.array([float(x) for x in psplit[2:5]])
+    velocity: NDArray[np.float64] | None = None
     sd: list[int] = []
     constraint_type: str | None = None
-    constraint_vector: np.ndarray | list[np.ndarray] | None = None
+    constraint_vector: NDArray[np.float64] | list[NDArray[np.float64]] | None = None
     group_names: list[str] | None = None
     # Expecting a line to looks like "ion Ir   0.087   0.23   0.285 0"
     # If that last (6th) element is "v", we are dealing with an MD calculation and line might look like
@@ -1015,7 +1024,7 @@ def _parse_posn_line(
                 if constraint_type == "HyperPlane":
                     if psplit.count("HyperPlane") > 1:
                         idcs = [i for i, v in enumerate(psplit) if v == "HyperPlane"]
-                        constraint_vector = [np.ndarray([float(x) for x in psplit[i + 1 : i + 4]]) for i in idcs]
+                        constraint_vector = [np.array([float(x) for x in psplit[i + 1 : i + 4]]) for i in idcs]
                         group_names = [psplit[i + 4] for i in idcs]
                     else:
                         constraint_vector = np.array([float(x) for x in psplit[offset + 7 : offset + 10]])
