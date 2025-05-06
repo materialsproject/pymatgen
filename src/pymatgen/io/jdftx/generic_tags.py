@@ -648,15 +648,15 @@ class TagContainer(AbstractTag):
         """
         self._general_read_validate(tag, value)
         value_list = value.split()
-        if tag == "ion":
-            special_constraints = [x in ["HyperPlane", "Linear", "None", "Planar"] for x in value_list]
-            if any(special_constraints):
-                value_list = value_list[: special_constraints.index(True)]
-                warnings.warn(
-                    "Found special constraints reading an 'ion' tag, these were dropped; reading them has not been "
-                    "implemented!",
-                    stacklevel=2,
-                )
+        # if tag == "ion":
+        #     special_constraints = [x in ["HyperPlane", "Linear", "None", "Planar"] for x in value_list]
+        #     if any(special_constraints):
+        #         value_list = value_list[: special_constraints.index(True)]
+        #         warnings.warn(
+        #             "Found special constraints reading an 'ion' tag, these were dropped; reading them has not been "
+        #             "implemented!",
+        #             stacklevel=2,
+        #         )
 
         tempdict = {}  # temporarily store read tags out of order they are processed
 

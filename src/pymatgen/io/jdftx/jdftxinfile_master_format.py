@@ -208,7 +208,6 @@ MASTER_TAG_LIST: dict[str, dict[str, Any]] = {
             optional=False,
             allow_list_representation=False,
             format_options=[
-                # No special constraints
                 TagContainer(
                     allow_list_representation=False,
                     can_repeat=True,
@@ -236,7 +235,6 @@ MASTER_TAG_LIST: dict[str, dict[str, Any]] = {
                         "moveScale": IntTag(write_tagname=False, optional=False),
                     },
                 ),
-                # Single special constraints
                 TagContainer(
                     allow_list_representation=False,
                     can_repeat=True,
@@ -262,23 +260,16 @@ MASTER_TAG_LIST: dict[str, dict[str, Any]] = {
                             },
                         ),
                         "moveScale": IntTag(write_tagname=False, optional=False),
-                        "constraint": TagContainer(
-                            allow_list_representation=True,
-                            can_repeat=False,
-                            subtags={
-                                "constraint type": StrTag(
-                                    options=["HyperPlane", "Linear", "Planar"],
-                                    write_tagname=False,
-                                    optional=False,
-                                ),
-                                "d0": FloatTag(write_tagname=False, optional=False),
-                                "d1": FloatTag(write_tagname=False, optional=False),
-                                "d2": FloatTag(write_tagname=False, optional=False),
-                            },
+                        "constraint type": StrTag(
+                            options=["Linear", "Planar", "HyperPlane"],
+                            write_tagname=False,
+                            optional=False,
                         ),
+                        "d0": FloatTag(write_tagname=False, optional=False),
+                        "d1": FloatTag(write_tagname=False, optional=False),
+                        "d2": FloatTag(write_tagname=False, optional=False),
                     },
                 ),
-                # Multiple special constraints (only supported for HyperPlane)
                 TagContainer(
                     allow_list_representation=False,
                     can_repeat=True,
@@ -304,15 +295,10 @@ MASTER_TAG_LIST: dict[str, dict[str, Any]] = {
                             },
                         ),
                         "moveScale": IntTag(write_tagname=False, optional=False),
-                        "constraint": TagContainer(
-                            allow_list_representation=True,
+                        "HyperPlane": TagContainer(
+                            write_tagname=True,
                             can_repeat=True,
                             subtags={
-                                "constraint type": StrTag(
-                                    options=["HyperPlane"],
-                                    write_tagname=False,
-                                    optional=False,
-                                ),
                                 "d0": FloatTag(write_tagname=False, optional=False),
                                 "d1": FloatTag(write_tagname=False, optional=False),
                                 "d2": FloatTag(write_tagname=False, optional=False),
@@ -323,34 +309,6 @@ MASTER_TAG_LIST: dict[str, dict[str, Any]] = {
                 ),
             ],
         ),
-        # "ion": TagContainer(
-        #     can_repeat=True,
-        #     optional=False,
-        #     allow_list_representation=True,
-        #     subtags={
-        #         "species-id": StrTag(
-        #             write_tagname=False,
-        #             optional=False,
-        #             options=[
-        #                 value.symbol
-        #                 for key, value in Element.__dict__.items()
-        #                 if not key.startswith("_") and not callable(value)
-        #             ],  # Required in case bad species names gets fed
-        #         ),
-        #         "x0": FloatTag(write_tagname=False, optional=False, prec=12),
-        #         "x1": FloatTag(write_tagname=False, optional=False, prec=12),
-        #         "x2": FloatTag(write_tagname=False, optional=False, prec=12),
-        #         "v": TagContainer(
-        #             allow_list_representation=True,
-        #             subtags={
-        #                 "vx0": FloatTag(write_tagname=False, optional=False, prec=12),
-        #                 "vx1": FloatTag(write_tagname=False, optional=False, prec=12),
-        #                 "vx2": FloatTag(write_tagname=False, optional=False, prec=12),
-        #             },
-        #         ),
-        #         "moveScale": IntTag(write_tagname=False, optional=False),
-        #     },
-        # ),
         "perturb-ion": TagContainer(
             subtags={
                 "species": StrTag(write_tagname=False, optional=False),
