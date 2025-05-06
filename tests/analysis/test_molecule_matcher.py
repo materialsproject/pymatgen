@@ -760,7 +760,7 @@ class TestBruteForceOrderMatcherSi2O:
         _, rmsd = self.mol_matcher.fit(mol2, break_on_tol=1e-5)
         assert rmsd == approx(0.2434045087608993, abs=1e-6)
 
-        _, rmsd = self.mol_matcher.fit(mol2, break_on_tol=1e5)
+        _, rmsd = self.mol_matcher.fit(mol2, break_on_tol=0.25)
         assert rmsd == approx(0.2434045087608993, abs=1e-6)
 
         mol2 = Molecule.from_file(f"{TEST_DIR}/Si2O_cluster_permuted.xyz")
