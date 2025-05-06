@@ -143,6 +143,10 @@ def get_colon_val(linetext: str, lkey: str) -> float | None:
     return colon_var
 
 
+# Temporary alias until the outside modules are merged with the renaming
+get_colon_val_t1 = get_colon_val
+
+
 # This function matches the format of the generic "is_<x>_start_line" functions specific to
 # the JOutStructure object initialization, but is not moved to the joutstructure module
 # as it is also used in methods for other JDFTx IO modules (e.g. JOutStructures) so it
