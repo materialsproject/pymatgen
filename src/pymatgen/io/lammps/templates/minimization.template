@@ -5,7 +5,7 @@ dimension $dimension
 boundary $boundary
 
 # 2) System definition
-read_data system.data
+read_data input.data
 neigh_modify every 1 delay 0 check yes
 
 # 3) Simulation settings
@@ -28,5 +28,5 @@ fix 1 all box/relax $psymm $start_pressure vmax 0.001
 minimize $tol $tol $nsteps 10000000
 
 # 5) Write output data
-write_data run.data
+write_data output.data
 write_restart run.restart

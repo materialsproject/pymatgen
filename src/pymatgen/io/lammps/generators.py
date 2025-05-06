@@ -352,9 +352,14 @@ class BaseLammpsSetGenerator(InputGenerator):
         # If the ensemble is not 'minimize', we set the read_data_flag to read_data
 
         # Accounts for the restart file
-        if settings_dict.get("restart", None):
+        if settings_dict.get("read_restart", None):
+            print("Restart file provided, setting read_restart flag.")
             settings_dict.update(
-                {"read_restart": f"{settings_dict['restart']}", "restart_flag": "read_restart", "read_data_flag": "###"}
+                {
+                    "read_restart": f"{settings_dict['read_restart']}",
+                    "restart_flag": "read_restart",
+                    "read_data_flag": "###",
+                }
             )
 
         # Convert start and end pressure to string if they are lists or arrays, and set psymm to accordingly
@@ -407,7 +412,7 @@ class BaseLammpsSetGenerator(InputGenerator):
             elif attr == "friction":
                 settings_dict.update({"tfriction": val, "pfriction": val})
 
-            else:
+            elif val:
                 settings_dict.update({attr: val})
 
         # Handle the force field input by writing a separate FF file

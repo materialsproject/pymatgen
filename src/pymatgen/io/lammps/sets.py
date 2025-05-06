@@ -71,7 +71,7 @@ class LammpsInputSet(InputSet):
         self.keep_stages = keep_stages
         self.additional_data = additional_data
 
-        inputs = {"in.lammps": self.inputfile, "system.data": self.data}
+        inputs = {"in.lammps": self.inputfile, "input.data": self.data}
         if self.additional_data:
             inputs.update(self.additional_data)
 

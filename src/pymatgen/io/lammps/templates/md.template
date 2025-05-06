@@ -10,7 +10,7 @@ boundary        $boundary
 # Atom definition
 
 $restart_flag   $read_restart
-$read_data_flag  system.data
+$read_data_flag  input.data
 
 
 # Force field settings (consult official document for detailed formats)
@@ -42,3 +42,4 @@ $dump_modify_flag     d1 sort id element $species
 timestep        $timestep
 run             $nsteps
 write_restart   md.restart
+write_data      output.data
