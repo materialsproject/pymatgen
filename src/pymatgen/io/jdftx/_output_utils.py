@@ -144,7 +144,7 @@ def get_colon_val(linetext: str, lkey: str) -> float | None:
 
 
 # Temporary alias until the outside modules are merged with the renaming
-get_colon_val_t1 = get_colon_val
+get_colon_var_t1 = get_colon_val
 
 
 # This function matches the format of the generic "is_<x>_start_line" functions specific to
