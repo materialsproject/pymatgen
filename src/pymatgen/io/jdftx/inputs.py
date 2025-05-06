@@ -647,6 +647,15 @@ class JDFTXStructure(MSONable):
 
     Attributes:
         structure (Structure): Associated Structure.
+            If you wish to pass velocities or constraints for JDFTXInfile construction, store them in
+            the site_properties of the structure. The typing of these site_properties are as follows:
+                structure.site_properties["velocities]: list[np.ndarray | list[float] | None]
+                structure.site_properties["constraint_types"]: list[str | None]
+                structure.site_properties["constraint_vectors"]: list[np.ndarray | list[np.ndarray] | None]
+                    For structure sites with "HyperPlane" as constraint type, the constraint_vectors must be a list of
+                    vectors. Otherwise, a single vector is expected.
+                structure.site_properties["group_names"]: list[list[str] | None]
+                    Only accessed if the site has a constraint type of "HyperPlane".
         selective_dynamics (ArrayLike): Selective dynamics attribute for each site if available. Shape Nx1.
         sort_structure (bool): Whether to sort the structure. Useful if species are not grouped properly together.
             Defaults to False.
@@ -844,13 +853,16 @@ class JDFTXStructure(MSONable):
                 if label not in valid_labels:
                     raise ValueError(f"Could not correct site label {label} for site (index {i})")
             ion_list_rep = [label, *coords]
+            # Gather velocities if present
             if ("velocities" in self.structure.site_properties) and (
                 self.structure.site_properties["velocities"][i] is not None
             ):
                 ion_list_rep.append("v")
                 for j in range(3):
                     ion_list_rep.append(self.structure.site_properties["velocities"][i][j] * (1 / bohr_to_ang))
+            # Append movescale regardless
             ion_list_rep.append(sd)
+            # Gather constraints if present
             if ("constraint_types" in self.structure.site_properties) and (
                 self.structure.site_properties["constraint_types"][i] is not None
             ):
