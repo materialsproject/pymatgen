@@ -122,7 +122,7 @@ def _brkt_list_of_3x3_to_nparray(lines: list[str], i_start: int = 0) -> np.ndarr
 
 # Named "t1" in unmet anticipation of multiple ways that a float would be needed
 # to be read following the variable string with a colon.
-def get_colon_val(linetext: str, lkey: str) -> float | None:
+def get_colon_val(linetext: str, lkey: str) -> float | np.float64 | None:
     """Return float val from '...lkey: val...' in linetext.
 
     Read a float from an elec minimization line assuming value appears as
@@ -144,7 +144,7 @@ def get_colon_val(linetext: str, lkey: str) -> float | None:
 
 
 # Temporary alias until the outside modules are merged with the renaming
-get_colon_val_t1 = get_colon_val
+get_colon_var_t1 = get_colon_val
 
 
 # This function matches the format of the generic "is_<x>_start_line" functions specific to
@@ -503,9 +503,9 @@ def _is_complex_bandfile_filepath(bandfile_filepath: str | Path) -> bool:
 # TODO: This is very likely redundant to something in pymatgen - replace with that if possible.
 orb_ref_list = [
     ["s"],
-    ["px", "py", "pz"],
-    ["dxy", "dxz", "dyz", "dx2y2", "dz2"],
-    ["fx3-3xy2", "fyx2-yz2", "fxz2", "fz3", "fyz2", "fxyz", "f3yx2-y3"],
+    ["py", "pz", "px"],
+    ["dxy", "dyz", "dz2", "dxz", "dx2-y2"],
+    ["fy(3x2-y2)", "fxyz", "fyz2", "fz3", "fxz2", "fz(x2-y2)", "fx(x2-3y2)"],
 ]
 
 
