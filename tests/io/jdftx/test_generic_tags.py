@@ -294,9 +294,9 @@ def test_tagcontainer_read():
     ):
         tagcontainer.read(tag, value)
     ###
-    tagcontainer = get_tag_object("ion")
-    with pytest.warns(Warning):
-        tagcontainer.read("ion", "Fe 1 1 1 1 HyperPlane")
+    # tagcontainer = get_tag_object("ion")
+    # with pytest.warns(Warning):
+    #     tagcontainer.read("ion", "Fe 1 1 1 1 HyperPlane")
 
 
 def test_tagcontainer_write():

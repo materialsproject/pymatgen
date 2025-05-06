@@ -648,15 +648,6 @@ class TagContainer(AbstractTag):
         """
         self._general_read_validate(tag, value)
         value_list = value.split()
-        if tag == "ion":
-            special_constraints = [x in ["HyperPlane", "Linear", "None", "Planar"] for x in value_list]
-            if any(special_constraints):
-                value_list = value_list[: special_constraints.index(True)]
-                warnings.warn(
-                    "Found special constraints reading an 'ion' tag, these were dropped; reading them has not been "
-                    "implemented!",
-                    stacklevel=2,
-                )
 
         tempdict = {}  # temporarily store read tags out of order they are processed
 
@@ -754,7 +745,6 @@ class TagContainer(AbstractTag):
             else:
                 final_value += f"{print_str}"
         if self.linebreak_nth_entry is not None:  # handles special formatting for lattice tag
-            # if self.multiline_tag or self.linebreak_nth_entry is not None:
             final_value = final_value[:-2]  # exclude final \\n from final print call
 
         return self._write(
@@ -762,7 +752,6 @@ class TagContainer(AbstractTag):
             final_value,
             multiline_override=self.linebreak_nth_entry is not None,
             strip_override=(self.linebreak_nth_entry is not None),
-            # strip_override=((self.linebreak_nth_entry is not None) or self.multiline_tag),
         )
 
     def get_token_len(self) -> int:
