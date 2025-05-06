@@ -122,7 +122,7 @@ def _brkt_list_of_3x3_to_nparray(lines: list[str], i_start: int = 0) -> np.ndarr
 
 # Named "t1" in unmet anticipation of multiple ways that a float would be needed
 # to be read following the variable string with a colon.
-def get_colon_val(linetext: str, lkey: str) -> float | None:
+def get_colon_val(linetext: str, lkey: str) -> float | np.float64 | None:
     """Return float val from '...lkey: val...' in linetext.
 
     Read a float from an elec minimization line assuming value appears as
