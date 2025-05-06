@@ -570,7 +570,7 @@ class TestKabschMatcherSi:
         mol2 = Molecule.from_file(f"{TEST_DIR}/Si2O_cluster.xyz")
         with pytest.raises(
             ValueError,
-            match="The order of the species aren't matching! Please try using PermInvMatcher",
+            match="The order of the species aren't matching! Please try using BruteForceOrderMatcher",
         ):
             self.mol_matcher.fit(mol2)
 
@@ -699,7 +699,7 @@ class TestKabschMatcherSi2O:
         mol2 = Molecule.from_file(f"{TEST_DIR}/Si_cluster_rotated.xyz")
         with pytest.raises(
             ValueError,
-            match="The order of the species aren't matching! Please try using PermInvMatcher",
+            match="The order of the species aren't matching! Please try using BruteForceOrderMatcher",
         ):
             self.mol_matcher.fit(mol2)
 
@@ -719,7 +719,7 @@ class TestKabschMatcherSi2O:
         mol2 = Molecule.from_file(f"{TEST_DIR}/Si2O_cluster_permuted.xyz")
         with pytest.raises(
             ValueError,
-            match="The order of the species aren't matching! Please try using PermInvMatcher",
+            match="The order of the species aren't matching! Please try using BruteForceOrderMatcher",
         ):
             self.mol_matcher.fit(mol2)
 
