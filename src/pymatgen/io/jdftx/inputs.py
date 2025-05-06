@@ -641,6 +641,22 @@ class JDFTXInfile(dict, MSONable):
         self.update(params)
 
 
+def _allnone(val) -> bool:
+    """Check if all elements in a list are None.
+
+    Args:
+        val (list | None): List to check.
+
+    Returns:
+        bool: Whether all elements in the list are None.
+    """
+    if val is None:
+        return True
+    if isinstance(val, list):
+        return all(_allnone(x) for x in val)
+    return False
+
+
 @dataclass
 class JDFTXStructure(MSONable):
     """Object for representing the data in JDFTXStructure tags.
@@ -710,6 +726,16 @@ class JDFTXStructure(MSONable):
                 self.structure = self.structure.get_sorted_structure()
         else:
             raise ValueError("Disordered structure with partial occupancies cannot be converted into JDFTXStructure!")
+        if _allnone(self.selective_dynamics):
+            self.selective_dynamics = None
+        if _allnone(self.velocities):
+            self.velocities = None
+        if _allnone(self.constraint_types):
+            self.constraint_types = None
+        if _allnone(self.constraint_vectors):
+            self.constraint_vectors = None
+        if _allnone(self.hyperplane_group_names):
+            self.hyperplane_group_names = None
 
     def __repr__(self) -> str:
         """Return representation of JDFTXStructure file.
