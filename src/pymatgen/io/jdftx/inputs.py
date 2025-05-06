@@ -171,7 +171,6 @@ class JDFTXInfile(dict, MSONable):
                     i, _ = tag_object._determine_format_option(tag, self_as_dict[tag])
                     tag_object = tag_object.format_options[i]
                 if tag_object.can_repeat and isinstance(self_as_dict[tag], list):
-                    # text += " ".join([tag_object.write(tag, entry) for entry in self_as_dict[tag]])
                     text += [tag_object.write(tag, entry) for entry in self_as_dict[tag]]
                 else:
                     text.append(tag_object.write(tag, self_as_dict[tag]))
@@ -811,7 +810,6 @@ class JDFTXStructure(MSONable):
         ]
         for i, site in enumerate(self.structure):
             coords = site.coords * (1 / bohr_to_ang) if in_cart_coords else site.frac_coords
-            # sd = int(bool(self.selective_dynamics[i])) if self.selective_dynamics is not None else 1
             sd = int(bool(cast("np.ndarray", self.selective_dynamics)[i])) if self.selective_dynamics is not None else 1
             label = site.label
             # TODO: This is needlessly complicated, simplify this
