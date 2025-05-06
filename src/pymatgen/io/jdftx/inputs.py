@@ -647,24 +647,35 @@ class JDFTXStructure(MSONable):
 
     Attributes:
         structure (Structure): Associated Structure.
-            If you wish to pass velocities or constraints for JDFTXInfile construction, store them in
-            the site_properties of the structure. The typing of these site_properties are as follows:
-                structure.site_properties["velocities]: list[np.ndarray | list[float] | None]
-                structure.site_properties["constraint_types"]: list[str | None]
-                structure.site_properties["constraint_vectors"]: list[np.ndarray | list[np.ndarray] | None]
-                    For structure sites with "HyperPlane" as constraint type, the constraint_vectors must be a list of
-                    vectors. Otherwise, a single vector is expected.
-                structure.site_properties["group_names"]: list[list[str] | None]
-                    Only accessed if the site has a constraint type of "HyperPlane".
         selective_dynamics (ArrayLike): Selective dynamics attribute for each site if available. Shape Nx1.
         sort_structure (bool): Whether to sort the structure. Useful if species are not grouped properly together.
             Defaults to False.
+        write_cart_coords (bool): Whether to write cartesian coordinates. Defaults to False.
+        velocities (list[np.ndarray | list[float] | None]): Velocities for each site if available. Kept separate from
+            structure.site_properties["velocities"] to allow inhomogeneous shaping.
+        constraint_types (list[str | None]): Constraint types for each site if available. Kept separate from
+            structure.site_properties["constraint_types"] to allow inhomogeneous shaping.
+        constraint_vectors (list[np.ndarray | list[np.ndarray] | None]): Constraint vectors for each site if
+            available. Kept separate from structure.site_properties["constraint_vectors"] to allow inhomogeneous
+            shaping. i'th entry must be a list of vectors if the i'th constraint_type is "HyperPlane". Otherwise,
+            a single vector is expected.
+        hyperplane_group_names (list[list[str] | None]): Group names for each site if available. Kept separate from
+            structure.site_properties["group_names"] to allow inhomogeneous shaping. i'th entry must be a list of group
+            names if the i'th constraint_type is "HyperPlane". Otherwise, None is expected.
     """
 
     structure: Structure = None
     selective_dynamics: ArrayLike | None = None
     sort_structure: bool = False
     write_cart_coords: bool = False
+    # velocities: list[np.ndarray | list[float] | None] | None = None
+    velocities: list | None = None
+    # constraint_types: list[str | None] | None = None
+    constraint_types: list | None = None
+    # constraint_vectors: list[np.ndarray | list[np.ndarray] | None] | None = None
+    constraint_vectors: list | None = None
+    # hyperplane_group_names: list[list[str] | None] | None = None
+    hyperplane_group_names: list | None = None
 
     def __post_init__(self) -> None:
         """Post init function for JDFTXStructure.
@@ -777,7 +788,10 @@ class JDFTXStructure(MSONable):
         coords *= const.value("Bohr radius") * 10**10  # Bohr radius in Ang; convert to Ang
         selective_dynamics = np.array([x["moveScale"] for x in jdftxinfile["ion"]])
         # Gather optional tags
-        velocities = [[x["v"]["vx0"], x["v"]["vx1"], x["v"]["vx2"]] if "v" in x else None for x in jdftxinfile["ion"]]
+        velocities = [
+            np.array([float(v) for v in [x["v"]["vx0"], x["v"]["vx1"], x["v"]["vx2"]]]) if "v" in x else None
+            for x in jdftxinfile["ion"]
+        ]
         constraint_types = [x.get("constraint-type", None) for x in jdftxinfile["ion"]]
         constraint_vectors = [
             [x["d0"], x["d1"], x["d2"]] if "constraint-type" in x else None for x in jdftxinfile["ion"]
@@ -808,11 +822,19 @@ class JDFTXStructure(MSONable):
             validate_proximity=False,
             coords_are_cartesian=coords_are_cartesian,
         )
-        struct.add_site_property("hyperplane_groups", hyperplane_groups)
-        struct.add_site_property("constraint_types", constraint_types)
-        struct.add_site_property("constraint_vectors", constraint_vectors)
-        struct.add_site_property("velocities", velocities)
-        return cls(struct, selective_dynamics, sort_structure=sort_structure)
+        # struct.add_site_property("hyperplane_groups", hyperplane_groups)
+        # struct.add_site_property("constraint_types", constraint_types)
+        # struct.add_site_property("constraint_vectors", constraint_vectors)
+        # struct.add_site_property("velocities", velocities)
+        return cls(
+            structure=struct,
+            selective_dynamics=selective_dynamics,
+            sort_structure=sort_structure,
+            velocities=velocities,
+            constraint_types=constraint_types,
+            constraint_vectors=constraint_vectors,
+            hyperplane_group_names=hyperplane_groups,
+        )
 
     def get_str(self, in_cart_coords: bool | None = None) -> str:
         """Return a string to be written as JDFTXInfile tags.
@@ -840,6 +862,10 @@ class JDFTXStructure(MSONable):
         valid_labels = [
             value.symbol for key, value in Element.__dict__.items() if not key.startswith("_") and not callable(value)
         ]
+        if (self.constraint_types is not None) and (self.constraint_vectors is None):
+            raise ValueError("Constraint types are present but constraint vectors are not!")
+        if (self.constraint_vectors is not None) and (self.constraint_types is None):
+            raise ValueError("Constraint vectors are present but constraint types are not!")
         for i, site in enumerate(self.structure):
             label = site.label
             coords = site.coords * (1 / bohr_to_ang) if in_cart_coords else site.frac_coords
@@ -854,29 +880,34 @@ class JDFTXStructure(MSONable):
                     raise ValueError(f"Could not correct site label {label} for site (index {i})")
             ion_list_rep = [label, *coords]
             # Gather velocities if present
-            if ("velocities" in self.structure.site_properties) and (
-                self.structure.site_properties["velocities"][i] is not None
-            ):
+            # if ("velocities" in self.structure.site_properties) and (
+            #     self.structure.site_properties["velocities"][i] is not None
+            # ):
+            if (self.velocities is not None) and (self.velocities[i] is not None):
                 ion_list_rep.append("v")
                 for j in range(3):
-                    ion_list_rep.append(self.structure.site_properties["velocities"][i][j] * (1 / bohr_to_ang))
+                    ion_list_rep.append(self.velocities[i][j] * (1 / bohr_to_ang))
             # Append movescale regardless
             ion_list_rep.append(sd)
             # Gather constraints if present
-            if ("constraint_types" in self.structure.site_properties) and (
-                self.structure.site_properties["constraint_types"][i] is not None
+            # if ("constraint_types" in self.structure.site_properties) and (
+            #     self.structure.site_properties["constraint_types"][i] is not None
+            # ):
+            if ((self.constraint_types is not None) and (self.constraint_vectors is not None)) and (
+                self.constraint_types[i] is not None
             ):
-                ctype = self.structure.site_properties["constraint_types"][i]
+                ctype = self.constraint_types[i]
                 if ctype == "HyperPlane":
-                    for j, hyperplane in enumerate(self.structure.site_properties["constraint_vectors"][i]):
-                        ion_list_rep.append("HyperPlane")
-                        for k in range(3):
-                            ion_list_rep.append(hyperplane[k])
-                        ion_list_rep.append(self.structure.site_properties["hyperplane_groups"][i][j])
+                    if self.constraint_vectors[i] is not None:
+                        for j, hyperplane in enumerate(self.constraint_vectors[i]):
+                            ion_list_rep.append("HyperPlane")
+                            for k in range(3):
+                                ion_list_rep.append(hyperplane[k])
+                            ion_list_rep.append(self.hyperplane_groups[i][j])
                 else:
                     ion_list_rep.append(ctype)
                     for j in range(3):
-                        ion_list_rep.append(self.structure.site_properties["constraint_vectors"][i][j])
+                        ion_list_rep.append(self.constraint_vectors[i][j])
             jdftx_tag_dict["ion"].append(ion_list_rep)
         return str(JDFTXInfile.from_dict(jdftx_tag_dict))
 
@@ -904,6 +935,10 @@ class JDFTXStructure(MSONable):
             "@class": type(self).__name__,
             "structure": self.structure.as_dict(),
             "selective_dynamics": np.array(self.selective_dynamics).tolist(),
+            "velocities": self.velocities,
+            "constraint_types": self.constraint_types,
+            "constraint_vectors": self.constraint_vectors,
+            "hyperplane_group_names": self.hyperplane_group_names,
         }
 
     @classmethod
