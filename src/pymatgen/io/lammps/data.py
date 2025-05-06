@@ -259,8 +259,8 @@ class LammpsData(MSONable):
                 keys, and each value is a DataFrame.
             atom_style (str): Output atom_style. Default to "full".
         """
-        if velocities is not None and len(atoms) != len(velocities):
-            raise ValueError(f"{len(atoms)=} and {len(velocities)=} mismatch")
+        # if velocities is not None and len(atoms) != len(velocities):
+        #    raise ValueError(f"{len(atoms)=} and {len(velocities)=} mismatch")
 
         if force_field:
             all_ff_kws = SECTION_KEYWORDS["ff"] + SECTION_KEYWORDS["class2"]
