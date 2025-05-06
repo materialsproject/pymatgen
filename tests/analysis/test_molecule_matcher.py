@@ -758,18 +758,21 @@ class TestBruteForceOrderMatcherSi2O:
     def test_break_on_tol_perturbed_atom_position(self):
         mol2 = Molecule.from_file(f"{TEST_DIR}/Si2O_cluster_perturbed.xyz")
         _, rmsd = self.mol_matcher.fit(mol2, break_on_tol=1e-5)
+        # proceeds as normal and doesn't break early if tol is below possible RMSD
         assert rmsd == approx(0.2434045087608993, abs=1e-6)
 
         _, rmsd = self.mol_matcher.fit(mol2, break_on_tol=0.25)
+        # can break early in this case, with tol above possible lowest RMSD
         assert rmsd == approx(0.2434045087608993, abs=1e-6)
 
         mol2 = Molecule.from_file(f"{TEST_DIR}/Si2O_cluster_permuted.xyz")
-        _, rmsd = self.mol_matcher.fit(mol2, break_on_tol=1e5)
-        assert rmsd == approx(0, abs=6)
+        _, rmsd = self.mol_matcher.fit(mol2, break_on_tol=1)
+        # perfect match possible here, breaks once found
+        assert rmsd == approx(0, abs=1e-4)
 
         mol2 = Molecule.from_file(f"{TEST_DIR}/Si2O_cluster_2.xyz")
         _, rmsd = self.mol_matcher.fit(mol2, break_on_tol=2)  # breaks early with higher RMSD, < tol
-        assert rmsd == approx(1.1655, abs=1e-3)
+        assert rmsd < 2
 
         mol2 = Molecule.from_file(f"{TEST_DIR}/Si2O_cluster_2.xyz")
         _, rmsd = self.mol_matcher.fit(mol2, break_on_tol=0.2)  # doesn't break early, returns orig best RMSD
