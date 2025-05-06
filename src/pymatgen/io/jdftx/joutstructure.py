@@ -28,6 +28,14 @@ _jos_atrs_from_elecmindata = ("mu", "nelectrons", "abs_magneticmoment", "tot_mag
 _jos_atrs_elec_from_elecmindata = ("nstep", "e", "grad_k", "alpha", "linmin")
 
 
+def _is_homogenous(val: list):
+    try:
+        np.array(val)
+        return True
+    except ValueError:
+        return False
+
+
 class JOutStructure(Structure):
     """Class object for storing a single JDFTx optimization step.
 
@@ -113,6 +121,10 @@ class JOutStructure(Structure):
     structure: Structure | None = None
     is_md: bool = False
     thermostat_velocity: np.ndarray | None = None
+    _velocities: list[np.ndarray | None] | None = None
+    _constraint_vectors: list[np.ndarray | list[np.ndarray] | None] | None = None
+    _constraint_types: list[str | None] | None = None
+    _group_names: list[list[str] | None] | None = None
 
     def _elecmindata_postinit(self) -> None:
         """Post-initialization method for attributes taken from elecmindata."""
@@ -206,7 +218,7 @@ class JOutStructure(Structure):
             list[np.ndarray | None] | None: The velocities of the atoms in the system.
         """
         if "velocities" not in self.site_properties:
-            return None
+            return self._velocities
         return self.site_properties["velocities"]
 
     @velocities.setter
@@ -216,7 +228,8 @@ class JOutStructure(Structure):
         Args:
             velocities (list[np.ndarray | None] | None): The velocities of the atoms in the system.
         """
-        if velocities is not None:
+        self._velocities = velocities
+        if (velocities is not None) and _is_homogenous(velocities):
             self.add_site_property("velocities", list(velocities))
         elif "velocities" in self.site_properties:
             self.remove_site_property("velocities")
@@ -229,7 +242,7 @@ class JOutStructure(Structure):
             list[str | None] | None: The constraint_types of the atoms in the system.
         """
         if "constraint_types" not in self.site_properties:
-            return None
+            return self._constraint_types
         return self.site_properties["constraint_types"]
 
     @constraint_types.setter
@@ -239,7 +252,8 @@ class JOutStructure(Structure):
         Args:
             constraint_types (list[str | None] | None): The constraint_types of the atoms in the system.
         """
-        if constraint_types is not None:
+        self._constraint_types = constraint_types
+        if (constraint_types is not None) and _is_homogenous(constraint_types):
             self.add_site_property("constraint_types", list(constraint_types))
         elif "constraint_types" in self.site_properties:
             self.remove_site_property("constraint_types")
@@ -252,7 +266,7 @@ class JOutStructure(Structure):
             list[np.ndarray | list[np.ndarray] | None] | None: The constraint_vectors of the atoms in the system.
         """
         if "constraint_vectors" not in self.site_properties:
-            return None
+            return self._constraint_vectors
         return self.site_properties["constraint_vectors"]
 
     @constraint_vectors.setter
@@ -263,7 +277,7 @@ class JOutStructure(Structure):
             constraint_vectors (list[np.ndarray | list[np.ndarray] | None] | None): The constraint_vectors of the
             atoms in the system.
         """
-        if constraint_vectors is not None:
+        if (constraint_vectors is not None) and _is_homogenous(constraint_vectors):
             self.add_site_property("constraint_vectors", list(constraint_vectors))
         elif "constraint_vectors" in self.site_properties:
             self.remove_site_property("constraint_vectors")
@@ -276,7 +290,7 @@ class JOutStructure(Structure):
             list[list[str] | None] | None: The group_names of the atoms in the system.
         """
         if "group_names" not in self.site_properties:
-            return None
+            return self._group_names
         return self.site_properties["group_names"]
 
     @group_names.setter
@@ -286,7 +300,7 @@ class JOutStructure(Structure):
         Args:
             group_names (list[list[str] | None] | None): The group_names of the atoms in the system.
         """
-        if group_names is not None:
+        if (group_names is not None) and _is_homogenous(group_names):
             self.add_site_property("group_names", list(group_names))
         elif "group_names" in self.site_properties:
             self.remove_site_property("group_names")
