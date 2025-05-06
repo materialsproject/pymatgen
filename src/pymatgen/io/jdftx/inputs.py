@@ -767,6 +767,25 @@ class JDFTXStructure(MSONable):
         coords = np.array([[x["x0"], x["x1"], x["x2"]] for x in jdftxinfile["ion"]])
         coords *= const.value("Bohr radius") * 10**10  # Bohr radius in Ang; convert to Ang
         selective_dynamics = np.array([x["moveScale"] for x in jdftxinfile["ion"]])
+        # Gather optional tags
+        velocities = [[x["v"]["vx0"], x["v"]["vx1"], x["v"]["vx2"]] if "v" in x else None for x in jdftxinfile["ion"]]
+        constraint_types = [x.get("constraint-type", None) for x in jdftxinfile["ion"]]
+        constraint_vectors = [
+            [x["d0"], x["d1"], x["d2"]] if "constraint-type" in x else None for x in jdftxinfile["ion"]
+        ]
+        hyperplane_vectors = [
+            [[[y["d0"], y["d1"], y["d2"]] for y in x["HyperPlane"]]] if "HyperPlane" in x else None
+            for x in jdftxinfile["ion"]
+        ]
+        hyperplane_groups = [None for _ in range(len(hyperplane_vectors))]
+        if not all(x is None for x in hyperplane_vectors):
+            for i in range(len(hyperplane_vectors)):
+                if hyperplane_vectors[i] is not None:
+                    constraint_types[i] = "HyperPlane"
+                    constraint_vectors[i] = hyperplane_vectors[i]
+            hyperplane_groups = [
+                [[y["group"] for y in x["HyperPlane"]] if "HyperPlane" in x else None] for x in jdftxinfile["ion"]
+            ]
 
         coords_are_cartesian = False  # is default for JDFTx
         if "coords-type" in jdftxinfile:
@@ -780,6 +799,10 @@ class JDFTXStructure(MSONable):
             validate_proximity=False,
             coords_are_cartesian=coords_are_cartesian,
         )
+        struct.add_site_property("hyperplane_groups", hyperplane_groups)
+        struct.add_site_property("constraint_types", constraint_types)
+        struct.add_site_property("constraint_vectors", constraint_vectors)
+        struct.add_site_property("velocities", velocities)
         return cls(struct, selective_dynamics, sort_structure=sort_structure)
 
     def get_str(self, in_cart_coords: bool | None = None) -> str:
@@ -809,9 +832,9 @@ class JDFTXStructure(MSONable):
             value.symbol for key, value in Element.__dict__.items() if not key.startswith("_") and not callable(value)
         ]
         for i, site in enumerate(self.structure):
+            label = site.label
             coords = site.coords * (1 / bohr_to_ang) if in_cart_coords else site.frac_coords
             sd = int(bool(cast("np.ndarray", self.selective_dynamics)[i])) if self.selective_dynamics is not None else 1
-            label = site.label
             # TODO: This is needlessly complicated, simplify this
             if label not in valid_labels:
                 for varname in ["species_string", "specie.name"]:
@@ -820,7 +843,29 @@ class JDFTXStructure(MSONable):
                         break
                 if label not in valid_labels:
                     raise ValueError(f"Could not correct site label {label} for site (index {i})")
-            jdftx_tag_dict["ion"].append([label, *coords, sd])
+            ion_list_rep = [label, *coords]
+            if ("velocities" in self.structure.site_properties) and (
+                self.structure.site_properties["velocities"][i] is not None
+            ):
+                ion_list_rep.append("v")
+                for j in range(3):
+                    ion_list_rep.append(self.structure.site_properties["velocities"][i][j] * (1 / bohr_to_ang))
+            ion_list_rep.append(sd)
+            if ("constraint_types" in self.structure.site_properties) and (
+                self.structure.site_properties["constraint_types"][i] is not None
+            ):
+                ctype = self.structure.site_properties["constraint_types"][i]
+                if ctype == "HyperPlane":
+                    for j, hyperplane in enumerate(self.structure.site_properties["constraint_vectors"][i]):
+                        ion_list_rep.append("HyperPlane")
+                        for k in range(3):
+                            ion_list_rep.append(hyperplane[k])
+                        ion_list_rep.append(self.structure.site_properties["hyperplane_groups"][i][j])
+                else:
+                    ion_list_rep.append(ctype)
+                    for j in range(3):
+                        ion_list_rep.append(self.structure.site_properties["constraint_vectors"][i][j])
+            jdftx_tag_dict["ion"].append(ion_list_rep)
         return str(JDFTXInfile.from_dict(jdftx_tag_dict))
 
     def write_file(self, filename: PathLike, **kwargs) -> None:
