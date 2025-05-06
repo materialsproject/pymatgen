@@ -1395,33 +1395,38 @@ class IcohpCollection(MSONable):
             new_icohp_dict = {}
             for spin_key, value in icohp_dict.items():
                 # Convert string/int to Spin enum
-                spin_enum = Spin(int(spin_key)) if isinstance(spin_key, int) or spin_key in ("1", "-1") else Spin[spin_key]
+                spin_enum = (
+                    Spin(int(spin_key)) if isinstance(spin_key, int) or spin_key in ("1", "-1") else Spin[spin_key]
+                )
                 new_icohp_dict[spin_enum] = value
             list_icohp.append(new_icohp_dict)
-            
+
         new_list_orb = [{orb_label: {} for orb_label in bond} for bond in dct["list_orb_icohp"]]
         for bond_num, lab_orb_icohp in enumerate(dct["list_orb_icohp"]):
             for orb in lab_orb_icohp:
                 for key in lab_orb_icohp[orb]:
                     sub_dict = {}
                     if key == "icohp":
-                        sub_dict[key] = {Spin.up : lab_orb_icohp[orb][key]["1"],
-                          Spin.down : lab_orb_icohp[orb][key]["-1"]}
-                
+                        sub_dict[key] = {
+                            Spin.up: lab_orb_icohp[orb][key]["1"],
+                            Spin.down: lab_orb_icohp[orb][key]["-1"],
+                        }
+
                     if key == "orbitals":
                         orb_temp = []
-                
+
                         for item in lab_orb_icohp[orb][key]:
                             item[1] = Orbital(item[1])
                             orb_temp.append(item)
                         sub_dict[key] = orb_temp
-            
+
                     new_list_orb[bond_num][orb].update(sub_dict)
-        
+
         dct["list_icohp"] = list_icohp
         dct["list_orb_icohp"] = new_list_orb
-        
+
         return cls(**dct)
+
 
 def get_integrated_cohp_in_energy_range(
     cohp: CompleteCohp,
