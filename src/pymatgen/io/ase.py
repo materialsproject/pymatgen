@@ -48,7 +48,7 @@ __maintainer__ = "Shyue Ping Ong"
 __email__ = "shyuep@gmail.com"
 __date__ = "Mar 8, 2012"
 
-StructT = TypeVar("StructT", bound=IStructure | IMolecule)
+StructT = TypeVar("StructT", bound=IStructure | IMolecule | Structure | Molecule)
 MolT = TypeVar("MolT", bound=IMolecule)
 
 
@@ -239,9 +239,9 @@ class AseAtomsAdaptor:
     @staticmethod
     def get_structure(
         atoms: Atoms,
-        cls: type[StructT] = Structure,
+        cls=Structure,
         **cls_kwargs,
-    ) -> StructT:
+    ) -> Structure | Molecule:
         """Get pymatgen structure from ASE Atoms.
 
         Args:
@@ -392,7 +392,7 @@ class AseAtomsAdaptor:
         return structure
 
     @staticmethod
-    def get_molecule(atoms: Atoms, cls: type[MolT] = Molecule, **cls_kwargs) -> MolT:
+    def get_molecule(atoms: Atoms, cls: type[MolT] = Molecule, **cls_kwargs) -> Molecule | IMolecule:  # type:ignore[assignment]
         """Get pymatgen molecule from ASE Atoms.
 
         Args:
@@ -418,4 +418,4 @@ class AseAtomsAdaptor:
 
         molecule.set_charge_and_spin(charge, spin_multiplicity=spin_mult)
 
-        return molecule
+        return molecule  # type:ignore[return-value]

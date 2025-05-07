@@ -788,7 +788,7 @@ class Trajectory(MSONable):
             if "velocities" in additional_fields:
                 site_properties["velocities"] = atoms.get_velocities()
 
-            structures.append(converter(atoms, site_properties=site_properties))
+            structures.append(converter(atoms, site_properties=site_properties))  # type:ignore[arg-type]
 
             if store_frame_properties and atoms.calc:
                 props = {v: atoms.calc.get_property(k) for k, v in property_map.items()}

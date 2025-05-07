@@ -209,7 +209,7 @@ class Control(MSONable, dict):
     @classmethod
     def from_structure(
         cls, structure: Structure | IStructure, reciprocal_density: int | None = 50000, **kwargs
-    ) -> Self:
+    ) -> Control:
         """Get a ShengBTE control object from a structure.
 
         Args:

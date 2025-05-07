@@ -176,7 +176,7 @@ class BandStructure:
 
     def __init__(
         self,
-        kpoints: NDArray,
+        kpoints: ArrayLike,
         eigenvals: Mapping[Spin, ArrayLike],
         lattice: Lattice,
         efermi: float,
@@ -711,14 +711,14 @@ class BandStructureSymmLine(BandStructure, MSONable):
 
     def __init__(
         self,
-        kpoints: NDArray,
-        eigenvals: dict[Spin, ArrayLike],
+        kpoints: ArrayLike,
+        eigenvals: Mapping[Spin, ArrayLike],
         lattice: Lattice,
         efermi: float,
-        labels_dict: dict[str, Kpoint],
+        labels_dict: Mapping[str, Kpoint],
         coords_are_cartesian: bool = False,
         structure: Structure | None = None,
-        projections: dict[Spin, NDArray] | None = None,
+        projections: Mapping[Spin, NDArray] | None = None,
     ) -> None:
         """
         Args:

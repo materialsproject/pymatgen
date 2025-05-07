@@ -918,7 +918,7 @@ class SiteCollection(collections.abc.Sequence, ABC):
             dyn.run(fmax=fmax, steps=steps)
 
         # Get pymatgen Structure or Molecule
-        system: Structure | Molecule = adaptor.get_molecule(atoms) if is_molecule else adaptor.get_structure(atoms)
+        system: Structure | Molecule = adaptor.get_molecule(atoms) if is_molecule else adaptor.get_structure(atoms)  # type:ignore[assignment]
 
         # Attach important ASE results
         system.calc = atoms.calc
@@ -999,7 +999,7 @@ class SiteCollection(collections.abc.Sequence, ABC):
         """
         from pymatgen.io.ase import AseAtomsAdaptor
 
-        return AseAtomsAdaptor.get_structure(atoms, cls=cls, **kwargs)  # type:ignore[type-var]
+        return AseAtomsAdaptor.get_structure(atoms, cls=cls, **kwargs)  # type:ignore[type-var,return-value]
 
 
 class IStructure(SiteCollection, MSONable):
