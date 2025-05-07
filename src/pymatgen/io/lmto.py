@@ -157,7 +157,7 @@ class LMTOCtrl:
         """
         with zopen(filename, mode="rt", encoding="utf-8") as file:
             contents = file.read()
-        return cls.from_str(contents, **kwargs)
+        return cls.from_str(contents, **kwargs)  # type:ignore[arg-type]
 
     @classmethod
     def from_str(cls, data: str, sigfigs: int = 8) -> Self:

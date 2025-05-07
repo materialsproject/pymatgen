@@ -60,7 +60,7 @@ class QCOutput(MSONable):
         self.data["warnings"] = {}
         self.text = ""
         with zopen(filename, mode="rt", encoding="ISO-8859-1") as file:
-            self.text = file.read()
+            self.text = file.read()  # type:ignore[assignment]
 
         # Check if output file contains multiple output files. If so, print an error message and exit
         self.data["multiple_outputs"] = read_pattern(
@@ -2954,7 +2954,7 @@ def nbo_parser(filename: str | Path) -> dict[str, list[pd.DataFrame]]:
     """
     # Open the lines
     with zopen(filename, mode="rt", encoding="ISO-8859-1") as file:
-        lines = file.readlines()
+        lines: list[str] = file.readlines()  # type:ignore[assignment]
 
     # Compile the dataframes
     dfs = {}

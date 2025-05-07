@@ -644,7 +644,7 @@ class QChemDictSet(QCInput):
         self.write_file(input_file)
         if self.smd_solvent in {"custom", "other"} and self.qchem_version == 5:
             with zopen(os.path.join(os.path.dirname(input_file), "solvent_data"), mode="wt", encoding="utf-8") as file:
-                file.write(self.custom_smd)
+                file.write(self.custom_smd)  # type:ignore[arg-type]
 
 
 class SinglePointSet(QChemDictSet):
