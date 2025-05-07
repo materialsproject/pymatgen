@@ -334,7 +334,7 @@ class Vasprun(MSONable):
         with zopen(filename, mode="rt", encoding="utf-8") as file:
             if ionic_step_skip or ionic_step_offset:
                 # Remove parts of the xml file and parse the string
-                content: str = file.read()
+                content: str = file.read()  # type:ignore[assignment]
                 steps: list[str] = content.split("<calculation>")
 
                 # The text before the first <calculation> is the preamble!
@@ -389,7 +389,7 @@ class Vasprun(MSONable):
         self.projected_eigenvalues: dict[Any, NDArray] | None = None
         self.projected_magnetisation: NDArray | None = None
         self.dielectric_data: dict[str, tuple] = {}
-        self.incar: Incar = {}
+        self.incar: Incar = Incar({})
         self.kpoints_opt_props: KpointOptProps | None = None
         ionic_steps: list[dict[str, Any]] = []
 
