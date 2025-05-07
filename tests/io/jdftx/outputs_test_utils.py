@@ -137,7 +137,7 @@ n2_ex_calc_dir_known_paths = {
     "eigenvals": n2_ex_calc_dir / Path("eigenvals"),
 }
 n2_ex_calc_dir_bandprojections_metadata = {
-    "orb_label_list": ["N#1(s)", "N#1(px)", "N#1(py)", "N#1(pz)", "N#2(s)", "N#2(px)", "N#2(py)", "N#2(pz)"],
+    "orb_label_list": ["N#1(s)", "N#1(py)", "N#1(pz)", "N#1(px)", "N#2(s)", "N#2(py)", "N#2(pz)", "N#2(px)"],
     "shape": (54, 15, 8),
     "first val": -0.1331527 + 0.5655596j,
 }
@@ -149,7 +149,7 @@ nh3_ex_calc_dir_known_paths = {
     "eigenvals": nh3_ex_calc_dir / Path("eigenvals"),
 }
 nh3_ex_calc_dir_bandprojections_metadata = {
-    "orb_label_list": ["N#1(s)", "N#1(px)", "N#1(py)", "N#1(pz)", "H#1(s)", "H#2(s)", "H#3(s)"],
+    "orb_label_list": ["N#1(s)", "N#1(py)", "N#1(pz)", "N#1(px)", "H#1(s)", "H#2(s)", "H#3(s)"],
     "shape": (16, 14, 7),
     "first val": -0.0688767 + 0.9503786j,
 }
