@@ -848,10 +848,6 @@ class JDFTXStructure(MSONable):
             validate_proximity=False,
             coords_are_cartesian=coords_are_cartesian,
         )
-        # struct.add_site_property("hyperplane_groups", hyperplane_groups)
-        # struct.add_site_property("constraint_types", constraint_types)
-        # struct.add_site_property("constraint_vectors", constraint_vectors)
-        # struct.add_site_property("velocities", velocities)
         return cls(
             structure=struct,
             selective_dynamics=selective_dynamics,
@@ -906,9 +902,6 @@ class JDFTXStructure(MSONable):
                     raise ValueError(f"Could not correct site label {label} for site (index {i})")
             ion_list_rep = [label, *coords]
             # Gather velocities if present
-            # if ("velocities" in self.structure.site_properties) and (
-            #     self.structure.site_properties["velocities"][i] is not None
-            # ):
             if (self.velocities is not None) and (self.velocities[i] is not None):
                 ion_list_rep.append("v")
                 for j in range(3):
@@ -916,9 +909,6 @@ class JDFTXStructure(MSONable):
             # Append movescale regardless
             ion_list_rep.append(sd)
             # Gather constraints if present
-            # if ("constraint_types" in self.structure.site_properties) and (
-            #     self.structure.site_properties["constraint_types"][i] is not None
-            # ):
             if ((self.constraint_types is not None) and (self.constraint_vectors is not None)) and (
                 self.constraint_types[i] is not None
             ):
