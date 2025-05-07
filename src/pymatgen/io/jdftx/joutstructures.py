@@ -13,6 +13,10 @@ from typing import TYPE_CHECKING, Any
 from monty.dev import deprecated
 
 if TYPE_CHECKING:
+    import numpy as np
+    from numpy.typing import NDArray
+
+    from pymatgen.core.structure import Structure
     from pymatgen.io.jdftx.jelstep import JElSteps
 
 import numpy as np
@@ -117,9 +121,9 @@ class JOutStructures:
     emin_flag: str | None = None
     ecomponents: list[str] | None = None
     elecmindata: JElSteps = None
-    stress: np.ndarray | None = None
-    strain: np.ndarray | None = None
-    forces: np.ndarray | None = None
+    stress: NDArray[np.float64] | None = None
+    strain: NDArray[np.float64] | None = None
+    forces: NDArray[np.float64] | None = None
     nstep: int | None = None
     e: float | None = None
     grad_k: float | None = None
@@ -134,8 +138,8 @@ class JOutStructures:
     elec_grad_k: float | None = None
     elec_alpha: float | None = None
     elec_linmin: float | None = None
-    charges: np.ndarray[float] | None = None
-    magnetic_moments: np.ndarray[float] | None = None
+    charges: NDArray[np.float64] | None = None
+    magnetic_moments: NDArray[np.float64] | None = None
     selective_dynamics: list[int] | None = None
     structure: Structure | None = None
 

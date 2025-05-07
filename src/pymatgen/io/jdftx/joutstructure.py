@@ -6,10 +6,13 @@ A mutant of the pymatgen Structure class for flexibility in holding JDFTx.
 from __future__ import annotations
 
 import pprint
-from typing import ClassVar
+from typing import TYPE_CHECKING, ClassVar
 
 import numpy as np
 from monty.dev import deprecated
+
+if TYPE_CHECKING:
+    from numpy.typing import NDArray
 
 from pymatgen.core.structure import Lattice, Structure
 from pymatgen.core.units import Ha_to_eV, bohr_to_ang
@@ -75,9 +78,9 @@ class JOutStructure(Structure):
     emin_flag: str | None = None
     ecomponents: dict | None = None
     elecmindata: JElSteps | None = None
-    stress: np.ndarray | None = None
-    strain: np.ndarray | None = None
-    forces: np.ndarray | None = None
+    stress: NDArray[np.float64] | None = None
+    strain: NDArray[np.float64] | None = None
+    forces: NDArray[np.float64] | None = None
     nstep: int | None = None
     e: float | None = None
     grad_k: float | None = None
@@ -120,7 +123,7 @@ class JOutStructure(Structure):
                     setattr(self, f"elec_{var}", getattr(self.elecmindata, var))
 
     @property
-    def charges(self) -> np.ndarray | None:
+    def charges(self) -> NDArray[np.float64] | None:
         """Return the Lowdin charges.
 
         Returns:
@@ -131,7 +134,7 @@ class JOutStructure(Structure):
         return self.site_properties["charges"]
 
     @charges.setter
-    def charges(self, charges: np.ndarray | None) -> None:
+    def charges(self, charges: NDArray[np.float64] | None) -> None:
         """Set the Lowdin charges.
 
         Args:
@@ -143,7 +146,7 @@ class JOutStructure(Structure):
             self.remove_site_property("charges")
 
     @property
-    def magnetic_moments(self) -> np.ndarray | None:
+    def magnetic_moments(self) -> NDArray[np.float64] | None:
         """Return the magnetic moments.
 
         Returns:
@@ -154,7 +157,7 @@ class JOutStructure(Structure):
         return self.site_properties["magmom"]
 
     @magnetic_moments.setter
-    def magnetic_moments(self, magnetic_moments: np.ndarray) -> None:
+    def magnetic_moments(self, magnetic_moments: NDArray[np.float64]) -> None:
         """Set the magnetic moments.
 
         Args:
@@ -167,9 +170,9 @@ class JOutStructure(Structure):
 
     def __init__(
         self,
-        lattice: np.ndarray,
+        lattice: NDArray[np.float64],
         species: list[str],
-        coords: list[np.ndarray],
+        coords: list[NDArray[np.float64]],
         site_properties: dict[str, list],
         **kwargs,
     ) -> None:
@@ -469,7 +472,7 @@ class JOutStructure(Structure):
             natoms = len(posns_lines) - 1
             coords_type = posns_lines[0].split("positions in")[1]
             coords_type = coords_type.strip().split()[0].strip()
-            posns: list[np.ndarray] = []
+            _posns: list[NDArray[np.float64]] = []
             names: list[str] = []
             selective_dynamics: list[int] = []
             for i in range(natoms):
@@ -478,9 +481,9 @@ class JOutStructure(Structure):
                 posn = np.array([float(x.strip()) for x in line.split()[2:5]])
                 sd = int(line.split()[5])
                 names.append(name)
-                posns.append(posn)
+                _posns.append(posn)
                 selective_dynamics.append(sd)
-            posns = np.array(posns)
+            posns = np.array(_posns)
             if coords_type.lower() != "cartesian":
                 posns = np.dot(posns, self.lattice.matrix)
             else:
@@ -499,12 +502,12 @@ class JOutStructure(Structure):
             natoms = len(forces_lines) - 1
             coords_type = forces_lines[0].split("Forces in")[1]
             coords_type = coords_type.strip().split()[0].strip()
-            forces = []
+            _forces = []
             for i in range(natoms):
                 line = forces_lines[i + 1]
                 force = np.array([float(x.strip()) for x in line.split()[2:5]])
-                forces.append(force)
-            forces = np.array(forces)
+                _forces.append(force)
+            forces = np.array(_forces)
             if coords_type.lower() != "cartesian":
                 # TODO: Double check if forces are ever actually given in direct coordinates.
                 forces = np.dot(forces, self.lattice.matrix)

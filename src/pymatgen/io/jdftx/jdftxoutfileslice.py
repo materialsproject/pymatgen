@@ -16,6 +16,8 @@ import numpy as np
 from monty.dev import deprecated
 
 if TYPE_CHECKING:
+    from numpy.typing import NDArray
+
     from pymatgen.core import Structure
     from pymatgen.io.jdftx.jelstep import JElSteps
 from pymatgen.core.periodic_table import Element
@@ -262,9 +264,9 @@ class JDFTXOutfileSlice:
     spintype: str | None = None
     nspin: int | None = None
     nat: int | None = None
-    atom_coords_initial: list[list[float]] | None = None
-    atom_coords_final: list[list[float]] | None = None
-    atom_coords: list[list[float]] | None = None
+    atom_coords_initial: NDArray[np.float64] | None = None
+    atom_coords_final: NDArray[np.float64] | None = None
+    atom_coords: NDArray[np.float64] | None = None
 
     has_solvation: bool = False
     fluid: str | None = None
@@ -285,9 +287,9 @@ class JDFTXOutfileSlice:
     electronic_output: dict | None = None
     eopt_type: str | None = None
     elecmindata: JElSteps | None = None
-    stress: np.ndarray | None = None
-    strain: np.ndarray | None = None
-    forces: np.ndarray | None = None
+    stress: NDArray[np.float64] | None = None
+    strain: NDArray[np.float64] | None = None
+    forces: NDArray[np.float64] | None = None
     nstep: int | None = None
     e: float | None = None
     grad_k: float | None = None
