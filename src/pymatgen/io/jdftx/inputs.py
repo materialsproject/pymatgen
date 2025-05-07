@@ -570,8 +570,6 @@ class JDFTXInfile(dict, MSONable):
             tag_object = get_tag_object(key)
         except KeyError:
             raise KeyError(f"The {key} tag is not in MASTER_TAG_LIST")
-        # if tag_object.can_repeat and not isinstance(value, list):
-        #     value = [value]
         if isinstance(tag_object, MultiformatTag):
             if isinstance(value, str):
                 i = tag_object.get_format_index_for_str_value(key, value)
@@ -592,10 +590,6 @@ class JDFTXInfile(dict, MSONable):
             params = self._store_value(params, tag_object, key, processed_value)
             self.update(params)
             self.validate_tags(try_auto_type_fix=True, error_on_failed_fix=True)
-        # processed_value = tag_object.read(key, value) if isinstance(value, str) else value
-        # params = self._store_value(params, tag_object, key, processed_value)
-        # self.update(params)
-        # self.validate_tags(try_auto_type_fix=True, error_on_failed_fix=True)
 
     def _is_numeric(self, value: Any) -> bool:
         """Check if a value is numeric.
@@ -684,13 +678,9 @@ class JDFTXStructure(MSONable):
     selective_dynamics: ArrayLike | None = None
     sort_structure: bool = False
     write_cart_coords: bool = False
-    # velocities: list[np.ndarray | list[float] | None] | None = None
     velocities: list | None = None
-    # constraint_types: list[str | None] | None = None
     constraint_types: list | None = None
-    # constraint_vectors: list[np.ndarray | list[np.ndarray] | None] | None = None
     constraint_vectors: list | None = None
-    # hyperplane_group_names: list[list[str] | None] | None = None
     hyperplane_group_names: list | None = None
 
     def __post_init__(self) -> None:
