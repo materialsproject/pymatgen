@@ -1087,13 +1087,13 @@ class Vasprun(MSONable):
                 labels_dict.pop(None, None)  # type: ignore[call-overload]
 
             return BandStructureSymmLine(
-                kpoints,
+                np.array(kpoints),
                 eigenvals,
                 lattice_new,
                 e_fermi,
-                labels_dict,  # type: ignore[arg-type]
+                labels_dict,
                 structure=self.final_structure,
-                projections=p_eig_vals,
+                projections=p_eig_vals,  # type:ignore[arg-type]
             )
 
         return BandStructure(
@@ -1102,7 +1102,7 @@ class Vasprun(MSONable):
             lattice_new,
             e_fermi,
             structure=self.final_structure,
-            projections=p_eig_vals,
+            projections=p_eig_vals,  # type:ignore[arg-type]
         )
 
     @property
@@ -1434,7 +1434,7 @@ class Vasprun(MSONable):
         dct["output"] = vout
         return jsanitize(dct, strict=True)
 
-    def _parse_params(self, elem: XML_Element) -> Incar[str, Any]:
+    def _parse_params(self, elem: XML_Element) -> Incar:
         """Parse INCAR parameters and more."""
         params: dict[str, Any] = {}
         for c in elem:
@@ -1446,7 +1446,7 @@ class Vasprun(MSONable):
                 if name == "response functions":
                     # Delete duplicate fields from "response functions",
                     # which overrides the values in the root params.
-                    p = {k: v for k, v in p.items() if k not in params}
+                    p = {k: v for k, v in p.items() if k not in params}  # type:ignore[assignment]
                 params |= p
 
             else:
@@ -2176,12 +2176,12 @@ class Outcar:
             for idx in range(len(mag_x)):
                 mag.append({key: Magmom([mag_x[idx][key], mag_y[idx][key], mag_z[idx][key]]) for key in mag_x[0]})
         else:
-            mag = mag_x
+            mag = mag_x  # type:ignore[assignment]
 
         # Data from beginning of OUTCAR
         run_stats["cores"] = None
         with zopen(filename, mode="rt", encoding="utf-8") as file:
-            for line in file:
+            for line in file:  # type:ignore[assignment]
                 if "serial" in line:
                     # Activate serial parallelization
                     run_stats["cores"] = 1
@@ -2523,7 +2523,7 @@ class Outcar:
             raise ValueError("last_one_only and first_one_only options are incompatible")
 
         with zopen(self.filename, mode="rt", encoding="utf-8") as file:
-            text = file.read()
+            text: str = file.read()  # type:ignore[assignment]
         table_pattern_text = header_pattern + r"\s*^(?P<table_body>(?:\s+" + row_pattern + r")+)\s+" + footer_pattern
         table_pattern = re.compile(table_pattern_text, re.MULTILINE | re.DOTALL)
         rp = re.compile(row_pattern)
@@ -2603,7 +2603,8 @@ class Outcar:
         count = 0
         component = "IMAGINARY"
         with zopen(self.filename, mode="rt", encoding="utf-8") as file:
-            for line in file:
+            line: str
+            for line in file:  # type:ignore[assignment]
                 line = line.strip()
                 if re.match(plasma_pattern, line):
                     read_plasma = "intraband" if "intraband" in line else "interband"
@@ -2621,7 +2622,7 @@ class Outcar:
                     if re.match(row_pattern, line.strip()):
                         tokens = line.strip().split()
                     elif type(self)._parse_sci_notation(line.strip()):
-                        tokens = type(self)._parse_sci_notation(line.strip())
+                        tokens = type(self)._parse_sci_notation(line.strip())  # type:ignore[assignment]
                     elif re.match(r"\s*-+\s*", line):
                         count += 1
 
@@ -2735,7 +2736,7 @@ class Outcar:
         unsym_footer_pattern = r"^\s+SYMMETRIZED TENSORS\s+$"
 
         with zopen(self.filename, mode="rt", encoding="utf-8") as file:
-            text = file.read()
+            text: str = file.read()  # type:ignore[assignment]
         unsym_table_pattern_text = header_pattern + first_part_pattern + r"(?P<table_body>.+)" + unsym_footer_pattern
         table_pattern = re.compile(unsym_table_pattern_text, re.MULTILINE | re.DOTALL)
         row_pat = re.compile(row_pattern)
@@ -2961,8 +2962,8 @@ class Outcar:
         # Variables to be filled
         self.er_ev: dict[Spin, NDArray[np.float64]] = {}  # array(3*float)
         self.er_bp: dict[Spin, NDArray[np.float64]] = {}  # array(3*float)
-        self.er_ev_tot: NDArray[np.ndarray] | None = None  # array(3*float)
-        self.er_bp_tot: NDArray[np.ndarray] | None = None  # array(3*float)
+        self.er_ev_tot: NDArray | None = None  # array(3*float)
+        self.er_bp_tot: NDArray | None = None  # array(3*float)
         self.p_elec: int | None = None
         self.p_ion: int | None = None
         try:
@@ -3044,13 +3045,13 @@ class Outcar:
             self.er_ev = {Spin.up: None, Spin.down: None}  # type:ignore[dict-item]
             self.er_bp = {Spin.up: None, Spin.down: None}  # type:ignore[dict-item]
 
-            micro_pyawk(self.filename, search, self)
+            micro_pyawk(self.filename, search, self)  # type:ignore[arg-type]
 
             if self.er_ev[Spin.up] is not None and self.er_ev[Spin.down] is not None:
-                self.er_ev_tot = self.er_ev[Spin.up] + self.er_ev[Spin.down]  # type: ignore[operator]
+                self.er_ev_tot = self.er_ev[Spin.up] + self.er_ev[Spin.down]  # type: ignore[operator,assignment]
 
             if self.er_bp[Spin.up] is not None and self.er_bp[Spin.down] is not None:
-                self.er_bp_tot = self.er_bp[Spin.up] + self.er_bp[Spin.down]  # type: ignore[operator]
+                self.er_bp_tot = self.er_bp[Spin.up] + self.er_bp[Spin.down]  # type: ignore[operator,assignment]
 
         except Exception as exc:
             raise RuntimeError("IGPAR OUTCAR could not be parsed.") from exc
@@ -3100,7 +3101,7 @@ class Outcar:
 
         self.internal_strain_ion = None
         self.internal_strain_tensor: list[NDArray[np.float64]] = []
-        micro_pyawk(self.filename, search, self)
+        micro_pyawk(self.filename, search, self)  # type:ignore[arg-type]
 
     def read_lepsilon(self) -> None:
         """Read a LEPSILON run.
@@ -3250,12 +3251,12 @@ class Outcar:
             self.born_ion = None
             self.born: list | NDArray = []
 
-            micro_pyawk(self.filename, search, self)
+            micro_pyawk(self.filename, search, self)  # type:ignore[arg-type]
 
             self.born = np.array(self.born)
 
-            self.dielectric_tensor = self.dielectric_tensor.tolist()
-            self.piezo_tensor = self.piezo_tensor.tolist()
+            self.dielectric_tensor = self.dielectric_tensor.tolist()  # type:ignore[assignment]
+            self.piezo_tensor = self.piezo_tensor.tolist()  # type:ignore[assignment]
 
         except Exception as exc:
             raise RuntimeError("LEPSILON OUTCAR could not be parsed.") from exc
@@ -3380,10 +3381,10 @@ class Outcar:
             self.piezo_ionic_index = None
             self.piezo_ionic_tensor = np.zeros((3, 6))
 
-            micro_pyawk(self.filename, search, self)
+            micro_pyawk(self.filename, search, self)  # type:ignore[arg-type]
 
-            self.dielectric_ionic_tensor = self.dielectric_ionic_tensor.tolist()
-            self.piezo_ionic_tensor = self.piezo_ionic_tensor.tolist()
+            self.dielectric_ionic_tensor = self.dielectric_ionic_tensor.tolist()  # type:ignore[assignment]
+            self.piezo_ionic_tensor = self.piezo_ionic_tensor.tolist()  # type:ignore[assignment]
 
         except Exception as exc:
             raise RuntimeError("ionic part of LEPSILON OUTCAR could not be parsed.") from exc
@@ -3480,12 +3481,12 @@ class Outcar:
                 ]
             )
 
-            micro_pyawk(self.filename, search, self)
+            micro_pyawk(self.filename, search, self)  # type:ignore[arg-type]
 
             # Fix polarization units in new versions of VASP
             regex = r"^.*Ionic dipole moment: .*"
             search = [[regex, None, lambda x, y: x.append(y.group(0))]]
-            results = micro_pyawk(self.filename, search, [])
+            results = micro_pyawk(self.filename, search, [])  # type:ignore[arg-type]
 
             if "|e|" in results[0]:
                 self.p_elec *= -1  # type: ignore[operator]
@@ -3523,7 +3524,7 @@ class Outcar:
                 )
             )
 
-            micro_pyawk(self.filename, search, self)
+            micro_pyawk(self.filename, search, self)  # type:ignore[arg-type]
 
             self.zval_dict: dict[str, float] = dict(zip(self.atom_symbols, self.zvals, strict=True))  # type: ignore[attr-defined]
 
@@ -3546,11 +3547,11 @@ class Outcar:
             structure at the last ionic step is [5]["2s"][-1].
         """
         with zopen(self.filename, mode="rt", encoding="utf-8") as foutcar:
-            line = foutcar.readline()
+            line: str = foutcar.readline()  # type:ignore[assignment]
             core_state_eigs: list[dict[str, list[float]]] = []
 
             while line != "":
-                line = foutcar.readline()
+                line = foutcar.readline()  # type:ignore[assignment]
 
                 if "NIONS =" in line:
                     natom = int(line.split("NIONS =")[1])
@@ -3559,7 +3560,7 @@ class Outcar:
                 if "the core state eigen" in line:
                     iat = -1
                     while line != "":
-                        line = foutcar.readline()
+                        line = foutcar.readline()  # type:ignore[assignment]
                         # don't know number of lines to parse without knowing
                         # specific species, so stop parsing when we reach
                         # "E-fermi" instead
@@ -3744,7 +3745,7 @@ class VolumetricData(BaseVolumetricData):
 
                 elif not poscar_read:
                     if line != "" or len(poscar_string) == 0:
-                        poscar_string.append(line)
+                        poscar_string.append(line)  # type:ignore[arg-type]
                     elif line == "":
                         poscar = Poscar.from_str("\n".join(poscar_string))
                         poscar_read = True
@@ -3752,7 +3753,7 @@ class VolumetricData(BaseVolumetricData):
                 elif not dim:
                     dim = [int(i) for i in line.split()]
                     ngrid_pts = dim[0] * dim[1] * dim[2]
-                    dimline = line
+                    dimline = line  # type:ignore[assignment]
                     read_dataset = True
                     dataset = np.zeros(dim)
 
@@ -3769,7 +3770,7 @@ class VolumetricData(BaseVolumetricData):
                     key = len(all_dataset) - 1
                     if key not in all_dataset_aug:
                         all_dataset_aug[key] = []
-                    all_dataset_aug[key].append(original_line)
+                    all_dataset_aug[key].append(original_line)  # type:ignore[arg-type]
 
             if len(all_dataset) == 4:
                 data = {
@@ -3842,21 +3843,21 @@ class VolumetricData(BaseVolumetricData):
         def write_spin(data_type: str) -> None:
             lines = []
             count = 0
-            file.write(f"   {dim[0]}   {dim[1]}   {dim[2]}\n")
+            file.write(f"   {dim[0]}   {dim[1]}   {dim[2]}\n")  # type:ignore[arg-type]
             for k, j, i in itertools.product(list(range(dim[2])), list(range(dim[1])), list(range(dim[0]))):
                 lines.append(format_fortran_float(self.data[data_type][i, j, k]))
                 count += 1
                 if count % 5 == 0:
-                    file.write(" " + "".join(lines) + "\n")
+                    file.write(" " + "".join(lines) + "\n")  # type:ignore[arg-type]
                     lines = []
                 else:
                     lines.append(" ")
             if count % 5 != 0:
-                file.write(" " + "".join(lines) + " \n")
+                file.write(" " + "".join(lines) + " \n")  # type:ignore[arg-type]
 
             data = self.data_aug.get(data_type, [])
             if isinstance(data, Iterable):
-                file.write("".join(data))
+                file.write("".join(data))  # type:ignore[arg-type]
 
         with zopen(file_name, mode="wt", encoding="utf-8") as file:
             poscar = Poscar(self.structure)
@@ -3876,7 +3877,7 @@ class VolumetricData(BaseVolumetricData):
                 dim, b, c = site.frac_coords
                 lines += f"{dim:10.6f}{b:10.6f}{c:10.6f}\n"
             lines += " \n"
-            file.write(lines)
+            file.write(lines)  # type:ignore[arg-type]
             dim = self.dim
 
             write_spin("total")
@@ -3892,7 +3893,7 @@ class VolumetricData(BaseVolumetricData):
 class Locpot(VolumetricData):
     """LOCPOT file reader."""
 
-    def __init__(self, poscar: Poscar, data: NDArray, **kwargs) -> None:
+    def __init__(self, poscar: Poscar, data: dict[str, NDArray], **kwargs) -> None:
         """
         Args:
             poscar (Poscar): Poscar object containing structure.
@@ -3956,7 +3957,7 @@ class Chgcar(VolumetricData):
             Chgcar
         """
         poscar, data, data_aug = VolumetricData.parse_file(filename)
-        return cls(poscar, data, data_aug=data_aug)
+        return cls(poscar, data, data_aug=data_aug)  # type:ignore[arg-type]
 
     @property
     def net_magnetization(self) -> float | None:
@@ -4190,7 +4191,7 @@ class Procar(MSONable):
         """
         if parsed_kpoints is None:
             parsed_kpoints = set()
-
+        line: str
         with zopen(filename, mode="rt", encoding="utf-8") as file:
             preamble_expr = re.compile(r"# of k-points:\s*(\d+)\s+# of bands:\s*(\d+)\s+# of ions:\s*(\d+)")
             kpoint_expr = re.compile(r"^k-point\s+(\d+).*weight = ([0-9\.]+)")
@@ -4206,7 +4207,7 @@ class Procar(MSONable):
             kpoints: list[tuple[float, float, float]] = []
             n_bands = None
             n_ions = None
-            weights: NDArray[float] | None = None
+            weights: NDArray[np.float64] | None = None
             headers = None
             data: dict[Spin, NDArray] = {}
             eigenvalues: dict[Spin, NDArray] | None = None
@@ -4222,7 +4223,7 @@ class Procar(MSONable):
             # total and x,y,z) for each band, while non-SOC have only 1 list of projections:
             tot_count = 0
             band_count = 0
-            for line in file:
+            for line in file:  # type:ignore[assignment]
                 if total_expr.match(line):
                     tot_count += 1
                 elif band_expr.match(line):
@@ -4247,8 +4248,8 @@ class Procar(MSONable):
             skipping_kpoint = False  # true when skipping projections for a previously-parsed kpoint
             ion_line_count = 0  # printed twice when phase factors present
             proj_data_parsed_for_band = 0  # 0 for non-SOC, 1-4 for SOC/phase factors
-            for line in file:
-                line = line.strip()
+            for line in file:  # type:ignore[assignment]
+                line = line.strip()  # type:ignore[assignment]
                 if ion_expr.match(line):
                     ion_line_count += 1
 
@@ -4293,10 +4294,10 @@ class Procar(MSONable):
                     headers.pop(0)
                     headers.pop(-1)
 
-                    data = defaultdict(lambda: np.zeros((n_kpoints, n_bands, n_ions, len(headers))))
+                    data = defaultdict(lambda: np.zeros((n_kpoints, n_bands, n_ions, len(headers))))  # type:ignore[arg-type, type-var]
                     phase_factors = defaultdict(
-                        lambda: np.full(
-                            (n_kpoints, n_bands, n_ions, len(headers)),
+                        lambda: np.full(  # type:ignore[type-var]
+                            (n_kpoints, n_bands, n_ions, len(headers)),  # type:ignore[arg-type]
                             np.nan,
                             dtype=np.complex128,
                         )
@@ -4356,7 +4357,7 @@ class Procar(MSONable):
             self.nions = n_ions  # attributes that should be consistent between multiple files are set here
             if self.orbitals is not None and self.orbitals != headers:  # multiple PROCARs but orbitals mismatch!
                 raise ValueError(f"Mismatch in orbital headers in supplied PROCARs: {headers} vs {self.orbitals}!")
-            self.orbitals = headers
+            self.orbitals = headers  # type:ignore[assignment]
             if self.nspins is not None and self.nspins != len(data):  # parsing multiple PROCARs but nspins mismatch!
                 raise ValueError("Mismatch in number of spin channels in supplied PROCARs!")
             self.nspins = len(data)
@@ -4482,7 +4483,8 @@ class Oszicar:
 
         header: list = []
         with zopen(filename, mode="rt", encoding="utf-8") as file:
-            for line in file:
+            line: str
+            for line in file:  # type:ignore[assignment]
                 if match := electronic_pattern.match(line.strip()):
                     tokens = match[1].split()
                     data = {header[idx]: smart_convert(header[idx], tokens[idx]) for idx in range(len(tokens))}
@@ -4762,7 +4764,7 @@ class Xdatcar:
                     else:
                         preamble.append(line)
                 elif line == "" or "Direct configuration=" in line:
-                    poscar = Poscar.from_str("\n".join([*preamble, "Direct", *coords_str]))
+                    poscar = Poscar.from_str("\n".join([*preamble, "Direct", *coords_str]))  # type:ignore[list-item]
                     if (ionicstep_end is None and ionicstep_cnt >= ionicstep_start) or (
                         ionicstep_end is not None and ionicstep_start <= ionicstep_cnt < ionicstep_end
                     ):
@@ -4770,11 +4772,11 @@ class Xdatcar:
                     ionicstep_cnt += 1
                     coords_str = []
                 else:
-                    coords_str.append(line)
+                    coords_str.append(line)  # type:ignore[arg-type]
 
             if preamble is None:
                 raise ValueError("preamble is None")
-            poscar = Poscar.from_str("\n".join([*preamble, "Direct", *coords_str]))
+            poscar = Poscar.from_str("\n".join([*preamble, "Direct", *coords_str]))  # type:ignore[list-item]
 
             if (
                 (ionicstep_end is None and ionicstep_cnt >= ionicstep_start)
@@ -4836,7 +4838,7 @@ class Xdatcar:
                 method and are passed through directly.
         """
         with zopen(filename, mode="wt", encoding="utf-8") as file:
-            file.write(self.get_str(**kwargs))
+            file.write(self.get_str(**kwargs))  # type:ignore[arg-type]
 
 
 class Dynmat:
@@ -4858,7 +4860,7 @@ class Dynmat:
             filename: Name of file containing DYNMAT.
         """
         with zopen(filename, mode="rt", encoding="utf-8") as file:
-            lines = list(clean_lines(file.readlines()))
+            lines: list[str] = list(clean_lines(file.readlines()))  # type:ignore[arg-type]
             self._nspecs, self._natoms, self._ndisps = map(int, lines[0].split())
             self._masses = map(float, lines[1].split())
             self.data: dict[int, dict] = defaultdict(dict)
@@ -6060,7 +6062,7 @@ class Vaspout(Vasprun):
         self.vasp_version = ".".join(f"{vasp_version.get(tag, '')}" for tag in ("major", "minor", "patch"))
 
         # TODO: are the other generator tags, like computer platform, stored in vaspout.h5?
-        self.generator = {"version": self.vasp_version}
+        self.generator = {"version": self.vasp_version}  # type:ignore[assignment]
 
     @staticmethod
     def _parse_structure(positions: dict) -> Structure:  # type: ignore[override]
@@ -6473,7 +6475,7 @@ class Vaspout(Vasprun):
 
         # now compress the file
         if is_compressed:
-            with open(filename, "rb") as f:
-                byte_data = f.read()
-            with zopen(filename, "wb") as f:
-                f.write(byte_data)
+            with open(filename, "rb") as fin:
+                byte_data = fin.read()
+            with zopen(filename, "wb") as fout:
+                fout.write(byte_data)

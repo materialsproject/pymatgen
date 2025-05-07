@@ -56,5 +56,5 @@ class TemplateInputGen(InputGenerator):
             template_str = file.read()
 
         # Replace all variables
-        self.data = Template(template_str).safe_substitute(**self.variables)
+        self.data = Template(template_str).safe_substitute(**self.variables)  # type:ignore[arg-type]
         return InputSet({self.filename: self.data})
