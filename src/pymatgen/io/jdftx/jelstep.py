@@ -8,7 +8,10 @@ from __future__ import annotations
 import pprint
 import warnings
 from dataclasses import dataclass, field
-from typing import Any
+from typing import TYPE_CHECKING, Any
+
+if TYPE_CHECKING:
+    import numpy as np
 
 from monty.dev import deprecated
 
@@ -47,16 +50,16 @@ class JElStep:
     opt_type: str | None = None
     etype: str | None = None
     nstep: int | None = None
-    e: float | None = None
-    grad_k: float | None = None
-    alpha: float | None = None
-    linmin: float | None = None
-    t_s: float | None = None
-    mu: float | None = None
-    nelectrons: float | None = None
-    abs_magneticmoment: float | None = None
-    tot_magneticmoment: float | None = None
-    subspacerotationadjust: float | None = None
+    e: float | np.float64 | None = None
+    grad_k: float | np.float64 | None = None
+    alpha: float | np.float64 | None = None
+    linmin: float | np.float64 | None = None
+    t_s: float | np.float64 | None = None
+    mu: float | np.float64 | None = None
+    nelectrons: float | np.float64 | None = None
+    abs_magneticmoment: float | np.float64 | None = None
+    tot_magneticmoment: float | np.float64 | None = None
+    subspacerotationadjust: float | np.float64 | None = None
     converged: bool = False
     converged_reason: str | None = None
 
@@ -296,16 +299,16 @@ class JElSteps:
     converged: bool | None = field(default=None, init=True)
     converged_reason: str | None = field(default=None, init=True)
     slices: list[JElStep] = field(default_factory=list, init=True)
-    e: float | None = field(default=None, init=False)
-    grad_k: float | None = field(default=None, init=False)
-    alpha: float | None = field(default=None, init=False)
-    linmin: float | None = field(default=None, init=False)
-    t_s: float | None = field(default=None, init=False)
-    mu: float | None = field(default=None, init=False)
-    nelectrons: float | None = field(default=None, init=False)
-    abs_magneticmoment: float | None = field(default=None, init=False)
-    tot_magneticmoment: float | None = field(default=None, init=False)
-    subspacerotationadjust: float | None = field(default=None, init=False)
+    e: float | np.float64 | None = field(default=None, init=False)
+    grad_k: float | np.float64 | None = field(default=None, init=False)
+    alpha: float | np.float64 | None = field(default=None, init=False)
+    linmin: float | np.float64 | None = field(default=None, init=False)
+    t_s: float | np.float64 | None = field(default=None, init=False)
+    mu: float | np.float64 | None = field(default=None, init=False)
+    nelectrons: float | np.float64 | None = field(default=None, init=False)
+    abs_magneticmoment: float | np.float64 | None = field(default=None, init=False)
+    tot_magneticmoment: float | np.float64 | None = field(default=None, init=False)
+    subspacerotationadjust: float | np.float64 | None = field(default=None, init=False)
     nstep: int | None = field(default=None, init=False)
 
     def _get_nstep(self) -> int | None:
