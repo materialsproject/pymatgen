@@ -1,7 +1,5 @@
 from __future__ import annotations
 
-from unittest import TestCase
-
 from pymatgen.core.structure import Molecule
 from pymatgen.io.fiesta import FiestaInput, FiestaOutput
 from pymatgen.util.testing import TEST_FILES_DIR
@@ -9,8 +7,8 @@ from pymatgen.util.testing import TEST_FILES_DIR
 TEST_DIR = f"{TEST_FILES_DIR}/io/fiesta"
 
 
-class TestFiestaInput(TestCase):
-    def setUp(self):
+class TestFiestaInput:
+    def setup_method(self):
         coords = [
             [0.000000, 0.000000, 0.000000],
             [0.000000, 0.000000, 1.089000],
@@ -71,8 +69,8 @@ class TestFiestaInput(TestCase):
         assert cell_in.cohsex_options["eigMethod"] == "C"
 
 
-class TestFiestaOutput(TestCase):
-    def setUp(self):
+class TestFiestaOutput:
+    def setup_method(self):
         self.log_fiesta = FiestaOutput(f"{TEST_DIR}/log_fiesta")
 
     def test_props(self):

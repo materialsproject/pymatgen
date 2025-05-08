@@ -157,7 +157,7 @@ class ZeoCssr(Cssr):
             ZeoCssr object.
         """
         with zopen(filename, mode="rt", encoding="utf-8") as file:
-            return cls.from_str(file.read())
+            return cls.from_str(file.read())  # type:ignore[arg-type]
 
 
 class ZeoVoronoiXYZ(XYZ):
@@ -211,7 +211,7 @@ class ZeoVoronoiXYZ(XYZ):
             XYZ object
         """
         with zopen(filename, mode="rt", encoding="utf-8") as file:
-            return cls.from_str(file.read())
+            return cls.from_str(file.read())  # type:ignore[arg-type]
 
     def __str__(self) -> str:
         output = [str(len(self._mols[0])), self._mols[0].formula]

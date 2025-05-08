@@ -22,6 +22,7 @@ if TYPE_CHECKING:
     from numpy.typing import ArrayLike, NDArray
     from typing_extensions import Self
 
+    from pymatgen.core.structure import IStructure
     from pymatgen.util.typing import PathLike
 
 __author__ = "Christian Vorwerk"
@@ -49,7 +50,7 @@ class ExcitingInput(MSONable):
 
     def __init__(
         self,
-        structure: Structure,
+        structure: Structure | IStructure,
         title: str | None = None,
         lockxyz: ArrayLike | None = None,
     ) -> None:
@@ -71,13 +72,13 @@ class ExcitingInput(MSONable):
             raise ValueError("Structure with partial occupancies cannot be converted into exciting input!")
 
     @property
-    def lockxyz(self) -> NDArray:
+    def lockxyz(self) -> NDArray | None:
         """Selective dynamics site properties."""
-        return self.structure.site_properties.get("selective_dynamics")
+        return self.structure.site_properties.get("selective_dynamics")  # type:ignore[return-value]
 
     @lockxyz.setter
-    def lockxyz(self, lockxyz: ArrayLike) -> NDArray:
-        self.structure.add_site_property("selective_dynamics", lockxyz)
+    def lockxyz(self, lockxyz: ArrayLike):
+        self.structure.add_site_property("selective_dynamics", np.array(lockxyz))
 
     @classmethod
     def from_str(cls, data: str) -> Self:
@@ -182,8 +183,8 @@ class ExcitingInput(MSONable):
             ExcitingInput
         """
         with zopen(filename, mode="rt", encoding="utf-8") as file:
-            data = file.read().replace("\n", "")
-        return cls.from_str(data)
+            data = file.read().replace("\n", "")  # type:ignore[arg-type]
+        return cls.from_str(data)  # type:ignore[arg-type]
 
     def write_etree(
         self,

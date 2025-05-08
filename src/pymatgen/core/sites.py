@@ -18,10 +18,10 @@ from pymatgen.util.misc import is_np_dict_equal
 if TYPE_CHECKING:
     from typing import Any
 
-    from numpy.typing import ArrayLike
+    from numpy.typing import ArrayLike, NDArray
     from typing_extensions import Self
 
-    from pymatgen.util.typing import CompositionLike, SpeciesLike, Vector3D
+    from pymatgen.util.typing import CompositionLike, SpeciesLike
 
 
 class Site(collections.abc.Hashable, MSONable):
@@ -53,7 +53,7 @@ class Site(collections.abc.Hashable, MSONable):
                 iii.Dict of elements/species and occupancies, e.g.
                     {"Fe" : 0.5, "Mn":0.5}. This allows the setup of
                     disordered structures.
-            coords (ArrayLike): Cartesian coordinates of site.
+            coords (NDArray): Cartesian coordinates of site.
             properties (dict): Properties associated with the site, e.g.
                 {"magmom": 5}. Defaults to None.
             label (str): Label for the site. Defaults to None.
@@ -73,7 +73,7 @@ class Site(collections.abc.Hashable, MSONable):
             coords = np.array(coords)
 
         self._species = species
-        self.coords: np.ndarray = coords
+        self.coords: NDArray[np.float64] = np.asarray(coords, dtype=np.float64)
         self.properties: dict = properties or {}
         self._label = label
 
@@ -200,7 +200,7 @@ class Site(collections.abc.Hashable, MSONable):
         """
         return float(np.linalg.norm(other.coords - self.coords))
 
-    def distance_from_point(self, pt: Vector3D) -> float:
+    def distance_from_point(self, pt: ArrayLike) -> float:
         """Get distance between the site and a point in space.
 
         Args:
@@ -330,7 +330,7 @@ class PeriodicSite(Site, MSONable):
         frac_coords = lattice.get_fractional_coords(coords) if coords_are_cartesian else coords
 
         if to_unit_cell:
-            frac_coords = np.array([np.mod(f, 1) if p else f for p, f in zip(lattice.pbc, frac_coords, strict=True)])
+            frac_coords = np.array([np.mod(f, 1) if p else f for p, f in zip(lattice.pbc, frac_coords, strict=True)])  # type: ignore[arg-type]
 
         if not skip_checks:
             frac_coords = np.array(frac_coords)
@@ -345,9 +345,9 @@ class PeriodicSite(Site, MSONable):
                 raise ValueError("Species occupancies sum to more than 1!")
 
         self._lattice: Lattice = lattice
-        self._frac_coords: np.ndarray = np.asarray(frac_coords)
+        self._frac_coords: NDArray[np.float64] = np.asarray(frac_coords, dtype=np.float64)
         self._species: Composition = cast("Composition", species)
-        self._coords: np.ndarray | None = None
+        self._coords: NDArray[np.float64] | None = None
         self.properties: dict = properties or {}
         self._label = label
 
@@ -391,27 +391,27 @@ class PeriodicSite(Site, MSONable):
         self._coords = self._lattice.get_cartesian_coords(self._frac_coords)
 
     @property
-    def coords(self) -> np.ndarray:
+    def coords(self) -> NDArray[np.float64]:
         """Cartesian coordinates."""
         if self._coords is None:
             self._coords = self._lattice.get_cartesian_coords(self._frac_coords)
         return self._coords
 
     @coords.setter
-    def coords(self, coords: np.ndarray) -> None:
+    def coords(self, coords: ArrayLike) -> None:
         """Set Cartesian coordinates."""
-        self._coords = np.array(coords)
+        self._coords = np.asarray(coords, dtype=np.float64)
         self._frac_coords = self._lattice.get_fractional_coords(self._coords)
 
     @property
-    def frac_coords(self) -> np.ndarray:
+    def frac_coords(self) -> NDArray[np.float64]:
         """Fractional coordinates."""
         return self._frac_coords
 
     @frac_coords.setter
-    def frac_coords(self, frac_coords: np.ndarray) -> None:
+    def frac_coords(self, frac_coords: ArrayLike) -> None:
         """Set fractional coordinates."""
-        self._frac_coords = np.array(frac_coords)
+        self._frac_coords = np.array(frac_coords, dtype=np.float64)
         self._coords = self._lattice.get_cartesian_coords(self._frac_coords)
 
     @property
@@ -476,9 +476,11 @@ class PeriodicSite(Site, MSONable):
 
     def to_unit_cell(self, in_place: bool = False) -> Self | None:
         """Move frac coords to within the unit cell."""
-        frac_coords = [np.mod(f, 1) if p else f for p, f in zip(self.lattice.pbc, self.frac_coords, strict=True)]
+        frac_coords = np.array(
+            [np.mod(f, 1) if p else f for p, f in zip(self.lattice.pbc, self.frac_coords, strict=True)]
+        )
         if in_place:
-            self.frac_coords = np.array(frac_coords)
+            self.frac_coords = frac_coords
             return None
         return type(self)(
             self.species,
@@ -517,7 +519,7 @@ class PeriodicSite(Site, MSONable):
         self,
         fcoords: ArrayLike,
         jimage: ArrayLike | None = None,
-    ) -> tuple[float, np.ndarray]:
+    ) -> tuple[float, NDArray[np.int_]]:
         """Get distance between site and a fractional coordinate assuming
         periodic boundary conditions. If the index jimage of two sites atom j
         is not specified it selects the j image nearest to the i atom and
@@ -543,7 +545,7 @@ class PeriodicSite(Site, MSONable):
         self,
         other: Self,
         jimage: ArrayLike | None = None,
-    ) -> tuple[float, np.ndarray]:
+    ) -> tuple[float, NDArray[np.int_]]:
         """Get distance and instance between two sites assuming periodic boundary
         conditions. If the index jimage of two sites atom j is not specified it
         selects the j image nearest to the i atom and returns the distance and

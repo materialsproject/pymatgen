@@ -2,9 +2,14 @@
 
 from __future__ import annotations
 
+import typing
+
 import numpy as np
 
 from pymatgen.core import Lattice, Structure, get_el_sp
+
+if typing.TYPE_CHECKING:
+    from pymatgen.core.structure import IStructure
 
 __author__ = "Matthew Horton"
 __copyright__ = "Copyright 2017, The Materials Project"
@@ -20,7 +25,7 @@ class Mcsqs:
     used by mcsqs and other ATAT codes.
     """
 
-    def __init__(self, structure: Structure):
+    def __init__(self, structure: Structure | IStructure):
         """
         Args:
             Structure: input Structure.

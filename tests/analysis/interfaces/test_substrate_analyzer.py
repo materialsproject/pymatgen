@@ -5,10 +5,10 @@ from numpy.testing import assert_allclose
 from pymatgen.analysis.elasticity.elastic import ElasticTensor
 from pymatgen.analysis.interfaces.substrate_analyzer import SubstrateAnalyzer
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
-from pymatgen.util.testing import PymatgenTest
+from pymatgen.util.testing import MatSciTest
 
-VO2 = PymatgenTest.get_structure("VO2")
-TiO2 = PymatgenTest.get_structure("TiO2")
+VO2 = MatSciTest.get_structure("VO2")
+TiO2 = MatSciTest.get_structure("TiO2")
 
 # Film VO2
 film = SpacegroupAnalyzer(VO2, symprec=0.1).get_conventional_standard_structure()

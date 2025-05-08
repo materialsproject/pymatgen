@@ -14,10 +14,10 @@ from pymatgen.core import DummySpecies, Element, Species, get_el_sp
 from pymatgen.core.periodic_table import ElementBase, ElementType
 from pymatgen.core.units import Ha_to_eV
 from pymatgen.io.core import ParseError
-from pymatgen.util.testing import PymatgenTest
+from pymatgen.util.testing import MatSciTest
 
 
-class TestElement(PymatgenTest):
+class TestElement(MatSciTest):
     def test_init(self):
         assert Element("Fe").symbol == "Fe"
 
@@ -53,8 +53,6 @@ class TestElement(PymatgenTest):
             _ = Element.H.metallic_radius
         with pytest.warns(UserWarning, match="No data available"):
             _ = Element.Og.ionization_energy
-        with pytest.warns(UserWarning, match="Ambiguous values"):
-            _ = Element.H.refractive_index
 
     def test_is_metal(self):
         for metal in ["Fe", "Eu", "Li", "Ca", "In"]:
@@ -320,7 +318,7 @@ class TestElement(PymatgenTest):
             el = Element.from_Z(idx)
             for elements in keys:
                 key_str = elements.capitalize().replace("_", " ")
-                if key_str in el.data and (not str(el.data[key_str]).startswith("no data")):
+                if key_str in el.data and (el.data[key_str] is not None):
                     assert getattr(el, elements) is not None
                 elif elements == "long_name":
                     assert el.long_name == el.data["Name"]
@@ -335,7 +333,7 @@ class TestElement(PymatgenTest):
             if el.symbol not in {"He", "Ne", "Ar"}:
                 assert el.X > 0, f"No electroneg for {el}"
 
-            # check atomic_orbitals_eV is Ha_to_eV * atomic_orbitals
+        # Check atomic_orbitals_eV is Ha_to_eV * atomic_orbitals
         for el in Element:
             if el.atomic_orbitals is None:
                 continue
@@ -413,8 +411,8 @@ class TestElement(PymatgenTest):
         assert Element.named_isotopes == (Element.D, Element.T)
 
 
-class TestSpecies(PymatgenTest):
-    def setUp(self):
+class TestSpecies(MatSciTest):
+    def setup_method(self):
         self.specie1 = Species.from_str("Fe2+")
         self.specie2 = Species("Fe", 3)
         self.specie3 = Species("Fe", 2)
@@ -719,7 +717,7 @@ class TestDummySpecies:
                 if str(el) == "H" and ox == 1:
                     continue
                 n_electron_el = sum(orb[-1] for orb in el.full_electronic_structure)
-                n_electron_sp = sum(orb[-1] for orb in Species(el, ox).full_electronic_structure)
+                n_electron_sp = sum(orb[-1] for orb in Species(el.symbol, ox).full_electronic_structure)
                 assert n_electron_el - n_electron_sp == ox, f"Failure for {el} {ox}"
 
 

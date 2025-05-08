@@ -9,6 +9,7 @@ from __future__ import annotations
 
 import ast
 import functools
+import gzip
 import json
 import re
 import warnings
@@ -34,10 +35,13 @@ if TYPE_CHECKING:
     from pymatgen.util.typing import SpeciesLike
 
 # Load element data (periodic table) from JSON file
-# Note that you should not update this json file manually. EDits should be done on the `periodic_table.yaml`
-# file in the `dev_scripts` directory, and gen_pt_json.py can then be run to convert the yaml to json.
-with open(Path(__file__).absolute().parent / "periodic_table.json", encoding="utf-8") as ptable_json:
-    _PT_DATA: dict = json.load(ptable_json)
+# NOTE: you should not update the JSON file manually,
+# see `dev_scripts/generate_periodic_table_yaml_json.py`
+with gzip.open(Path(__file__).absolute().parent / "periodic_table.json.gz", mode="rt", encoding="utf-8") as ptable_json:
+    _RAW_PT_DATA: dict = json.load(ptable_json)
+
+_PT_UNIT: dict[str, str] = _RAW_PT_DATA.pop("_unit")
+_PT_DATA: dict[str, Any] = _RAW_PT_DATA
 
 _PT_ROW_SIZES: tuple[int, ...] = (2, 8, 8, 18, 18, 32, 32)
 
@@ -70,7 +74,7 @@ _MADELUNG: list[tuple[int, str]] = [
 class ElementBase(Enum):
     """Element class defined without any enum values so it can be subclassed."""
 
-    def __init__(self, symbol: SpeciesLike) -> None:
+    def __init__(self, symbol: str) -> None:
         """
         This class provides a basic, immutable representation of an element, including
         all relevant chemical and physical properties. It ensures that elements are
@@ -127,19 +131,13 @@ class ElementBase(Enum):
 
         Notes:
             - This class supports handling of isotopes by incorporating named isotopes
-            and their respective properties.
+                and their respective properties.
             - Attributes are populated using a JSON file that stores data about all
-            known elements.
+                known elements.
             - Some attributes are calculated or derived based on predefined constants
-            and rules.
-
-        References:
-            - Atomic radius data: https://wikipedia.org/wiki/Atomic_radii_of_the_elements_(data_page)
-            - Van der Waals radius: CRC Handbook of Chemistry and Physics, 91st Ed.
-            - Mendeleev number: D. G. Pettifor, "A chemical scale for crystal-structure maps,"
-            Solid State Communications, 1984.
+                and rules.
         """
-        self.symbol = str(symbol)
+        self.symbol = symbol
         data = _PT_DATA[symbol]
 
         # Store key variables for quick access
@@ -156,17 +154,15 @@ class ElementBase(Enum):
             # entries for the named element.
             data = {**_PT_DATA[self.symbol], **data}
 
-        at_r = data.get("Atomic radius", "no data")
-        if str(at_r).startswith("no data"):
-            self._atomic_radius = None
-        else:
-            self._atomic_radius = Length(at_r, "ang")
-        self._atomic_mass = Mass(data["Atomic mass"], "amu")
+        at_r: float | None = data.get("Atomic radius")
+        self._atomic_radius = None if at_r is None else Length(at_r, _PT_UNIT["Atomic radius"])
+
+        self._atomic_mass = Mass(data["Atomic mass"], _PT_UNIT["Atomic mass"])
 
         self._atomic_mass_number = None
         self.A = data.get("Atomic mass no")
-        if self.A:
-            self._atomic_mass_number = Mass(self.A, "amu")
+        if self.A is not None:
+            self._atomic_mass_number = Mass(self.A, _PT_UNIT["Atomic mass no"])
 
         self.long_name = data["Name"]
         self._data = data
@@ -178,9 +174,9 @@ class ElementBase(Enum):
             item (str): Attribute name.
 
         Raises:
-            AttributeError: If item not in _pt_data.
+            AttributeError: If item not in _PT_DATA.
         """
-        if item in {
+        if item not in {
             "mendeleev_no",
             "electrical_resistivity",
             "velocity_of_sound",
@@ -211,54 +207,29 @@ class ElementBase(Enum):
             "ionization_energies",
             "metallic_radius",
         }:
-            key = item.capitalize().replace("_", " ")
-            val = self._data.get(key)
-            if val is None or str(val).startswith("no data"):
-                warnings.warn(f"No data available for {item} for {self.symbol}", stacklevel=2)
-                val = None
-            elif isinstance(val, list | dict):
-                pass
-            else:
-                try:
-                    val = float(val)
-                except ValueError:
-                    no_bracket = re.sub(r"\(.*\)", "", val)
-                    tokens = no_bracket.replace("about", "").strip().split(" ", 1)
-                    if len(tokens) == 2:
-                        try:
-                            if "10<sup>" in tokens[1]:
-                                base_power = re.findall(r"([+-]?\d+)", tokens[1])
-                                factor = "e" + base_power[1]
-                                if tokens[0] == "&gt;":
-                                    tokens[0] = "1"  # return the border value
-                                tokens[0] += factor
-                                if item == "electrical_resistivity":
-                                    unit = "ohm m"
-                                elif item == "coefficient_of_linear_thermal_expansion":
-                                    unit = "K^-1"
-                                else:
-                                    unit = tokens[1]
-                                val = FloatWithUnit(float(tokens[0]), unit)
-                            else:
-                                unit = tokens[1].replace("<sup>", "^").replace("</sup>", "").replace("&Omega;", "ohm")
-                                units = Unit(unit)
-                                if set(units).issubset(SUPPORTED_UNIT_NAMES):
-                                    val = FloatWithUnit(float(tokens[0]), unit)
-                        except ValueError:
-                            # Ignore error. val will just remain a string.
-                            pass
-                    if (
-                        item in ("refractive_index", "melting_point")
-                        and isinstance(val, str)
-                        and (match := re.findall(r"[\.\d]+", val))
-                    ):
-                        warnings.warn(
-                            f"Ambiguous values ({val}) for {item} of {self.symbol}. Returning first float value.",
-                            stacklevel=2,
-                        )
-                        return float(match[0])
+            raise AttributeError(f"Element has no attribute {item}!")
+
+        prop_name: str = item.capitalize().replace("_", " ")
+        val: Any = self._data.get(prop_name)
+
+        if val is None:
+            warnings.warn(f"No data available for {item} for {self.symbol}", stacklevel=2)
+            return None
+
+        if isinstance(val, list | dict):
             return val
-        raise AttributeError(f"Element has no attribute {item}!")
+
+        unit: str | None = _PT_UNIT.get(prop_name)
+
+        if unit is not None:
+            if unit in SUPPORTED_UNIT_NAMES:
+                return FloatWithUnit(float(val), Unit(unit))
+            return FloatWithUnit(float(val), unit)
+
+        try:
+            return float(val)
+        except ValueError:
+            return val
 
     def __eq__(self, other: object) -> bool:
         return isinstance(self, Element) and isinstance(other, Element) and self.Z == other.Z and self.A == other.A
@@ -350,7 +321,7 @@ class ElementBase(Enum):
     @property
     def ionization_energy(self) -> float | None:
         """First ionization energy of element."""
-        if not self.ionization_energies:
+        if self.ionization_energies is None:
             warnings.warn(f"No data available for ionization_energy for {self.symbol}", stacklevel=2)
             return None
         return self.ionization_energies[0]
@@ -367,14 +338,8 @@ class ElementBase(Enum):
          (orbital number), irrespective of the actual energy level,
         e.g., The electronic structure for Fe is represented as '[Ar].3d6.4s2'
         even though the 3d electrons are higher in energy than the 4s.
-
-        References:
-            Kramida, A., Ralchenko, Yu., Reader, J., and NIST ASD Team (2023). NIST
-            Atomic Spectra Database (ver. 5.11). https://physics.nist.gov/asd [2024,
-            June 3]. National Institute of Standards and Technology, Gaithersburg,
-            MD. DOI: https://doi.org/10.18434/T4W30F
         """
-        return re.sub("</*sup>", "", self._data["Electronic structure"]["0"])
+        return self._data["Electronic structure"]["0"]
 
     @property
     def average_ionic_radius(self) -> FloatWithUnit:
@@ -386,7 +351,7 @@ class ElementBase(Enum):
             radius = sum(radii.values()) / len(radii)
         else:
             radius = 0.0
-        return FloatWithUnit(radius, "ang")
+        return FloatWithUnit(radius, _PT_UNIT["Ionic radii"])
 
     @property
     def average_cationic_radius(self) -> FloatWithUnit:
@@ -395,8 +360,8 @@ class ElementBase(Enum):
         data is present.
         """
         if "Ionic radii" in self._data and (radii := [v for k, v in self._data["Ionic radii"].items() if int(k) > 0]):
-            return FloatWithUnit(sum(radii) / len(radii), "ang")
-        return FloatWithUnit(0.0, "ang")
+            return FloatWithUnit(sum(radii) / len(radii), _PT_UNIT["Ionic radii"])
+        return FloatWithUnit(0.0, _PT_UNIT["Ionic radii"])
 
     @property
     def average_anionic_radius(self) -> FloatWithUnit:
@@ -405,8 +370,8 @@ class ElementBase(Enum):
         data is present.
         """
         if "Ionic radii" in self._data and (radii := [v for k, v in self._data["Ionic radii"].items() if int(k) < 0]):
-            return FloatWithUnit(sum(radii) / len(radii), "ang")
-        return FloatWithUnit(0.0, "ang")
+            return FloatWithUnit(sum(radii) / len(radii), _PT_UNIT["Ionic radii"])
+        return FloatWithUnit(0.0, _PT_UNIT["Ionic radii"])
 
     @property
     def ionic_radii(self) -> dict[int, FloatWithUnit]:
@@ -414,7 +379,7 @@ class ElementBase(Enum):
         {oxidation state: ionic radii}. Radii are given in angstrom.
         """
         if "Ionic radii" in self._data:
-            return {int(k): FloatWithUnit(v, "ang") for k, v in self._data["Ionic radii"].items()}
+            return {int(k): FloatWithUnit(v, _PT_UNIT["Ionic radii"]) for k, v in self._data["Ionic radii"].items()}
         return {}
 
     @property
@@ -439,19 +404,19 @@ class ElementBase(Enum):
     @property
     def oxidation_states(self) -> tuple[int, ...]:
         """Tuple of all known oxidation states."""
-        return tuple(map(int, self._data.get("Oxidation states", [])))
+        return tuple(map(int, self._data.get("Oxidation states", ())))
 
     @property
     def common_oxidation_states(self) -> tuple[int, ...]:
         """Tuple of common oxidation states."""
-        return tuple(self._data.get("Common oxidation states", []))
+        return tuple(self._data.get("Common oxidation states", ()))
 
     @property
     def icsd_oxidation_states(self) -> tuple[int, ...]:
         """Tuple of all oxidation states with at least 10 instances in
         ICSD database AND at least 1% of entries for that element.
         """
-        return tuple(self._data.get("ICSD oxidation states", []))
+        return tuple(self._data.get("ICSD oxidation states", ()))
 
     @property
     def full_electronic_structure(self) -> list[tuple[int, str, int]]:
@@ -462,12 +427,6 @@ class ElementBase(Enum):
         For example, the full electronic structure for Fe is:
             [(1, "s", 2), (2, "s", 2), (2, "p", 6), (3, "s", 2), (3, "p", 6),
             (4, "s", 2), (3, "d", 6)].
-
-        References:
-            Kramida, A., Ralchenko, Yu., Reader, J., and NIST ASD Team (2023). NIST
-            Atomic Spectra Database (ver. 5.11). https://physics.nist.gov/asd [2024,
-            June 3]. National Institute of Standards and Technology, Gaithersburg,
-            MD. DOI: https://doi.org/10.18434/T4W30F
 
         Returns:
             list[tuple[int, str, int]]: A list of tuples representing each subshell,
@@ -568,16 +527,14 @@ class ElementBase(Enum):
             for ML in range(-L, L - 1, -1):
                 for MS in np.arange(S, -S + 1, 1):
                     if (ML, MS) in comb_counter:
-                        comb_counter[ML, MS] -= 1
-                        if comb_counter[ML, MS] == 0:
+                        comb_counter[ML, MS] -= 1  # type:ignore[index]
+                        if comb_counter[ML, MS] == 0:  # type:ignore[index]
                             del comb_counter[ML, MS]
         return term_symbols
 
     @property
     def ground_state_term_symbol(self) -> str:
-        """Ground state term symbol.
-        Selected based on Hund's Rule.
-        """
+        """Ground state term symbol, selected based on Hund's Rule."""
         L_symbols = "SPDFGHIKLMNOQRTUVWXYZ"
 
         term_symbols = self.term_symbols
@@ -692,6 +649,7 @@ class ElementBase(Enum):
     @property
     def row(self) -> int:
         """The periodic table row of the element.
+
         Note: For lanthanoids and actinoids, the row is always 6 or 7,
         respectively.
         """
@@ -710,6 +668,7 @@ class ElementBase(Enum):
     @property
     def group(self) -> int:
         """The periodic table group of the element.
+
         Note: For lanthanoids and actinoids, the group is always 3.
         """
         z = self.Z
@@ -740,13 +699,13 @@ class ElementBase(Enum):
         return (z - 54) % 32
 
     @property
-    def block(self) -> str:
+    def block(self) -> Literal["s", "p", "d", "f"]:
         """The block character "s, p, d, f"."""
-        if (self.is_actinoid or self.is_lanthanoid) and self.Z not in [71, 103]:
+        if (self.is_actinoid or self.is_lanthanoid) and self.Z not in {71, 103}:
             return "f"
         if self.is_actinoid or self.is_lanthanoid or self.group in range(3, 13):
             return "d"
-        if self.group in [1, 2]:
+        if self.group in {1, 2}:
             return "s"
         if self.group in range(13, 19):
             return "p"
@@ -756,7 +715,7 @@ class ElementBase(Enum):
     @property
     def is_noble_gas(self) -> bool:
         """True if element is noble gas."""
-        return self.Z in (2, 10, 18, 36, 54, 86, 118)
+        return self.Z in {2, 10, 18, 36, 54, 86, 118}
 
     @property
     def is_transition_metal(self) -> bool:
@@ -767,7 +726,7 @@ class ElementBase(Enum):
     @property
     def is_post_transition_metal(self) -> bool:
         """True if element is a post-transition or poor metal."""
-        return self.symbol in ("Al", "Ga", "In", "Tl", "Sn", "Pb", "Bi")
+        return self.symbol in {"Al", "Ga", "In", "Tl", "Sn", "Pb", "Bi"}
 
     @property
     def is_rare_earth(self) -> bool:
@@ -838,7 +797,10 @@ class ElementBase(Enum):
         """A dictionary the nuclear electric quadrupole moment in units of
         e*millibarns for various isotopes.
         """
-        return {k: FloatWithUnit(v, "mbarn") for k, v in self.data.get("NMR Quadrupole Moment", {}).items()}
+        return {
+            k: FloatWithUnit(v, _PT_UNIT["NMR Quadrupole Moment"])
+            for k, v in self.data.get("NMR Quadrupole Moment", {}).items()
+        }
 
     @property
     def iupac_ordering(self) -> int:
@@ -849,7 +811,7 @@ class ElementBase(Enum):
         """
         return self._data["IUPAC ordering"]
 
-    def as_dict(self) -> dict[Literal["element", "@module", "@class"], str]:
+    def as_dict(self) -> dict[str, Any]:
         """Serialize to MSONable dict representation e.g. to write to disk as JSON."""
         return {
             "@module": type(self).__module__,
@@ -1041,7 +1003,7 @@ class Species(MSONable, Stringify):
 
     def __init__(
         self,
-        symbol: SpeciesLike,
+        symbol: str,
         oxidation_state: float | None = None,
         spin: float | None = None,
     ) -> None:
@@ -1056,11 +1018,11 @@ class Species(MSONable, Stringify):
             ValueError: If oxidation state passed both in symbol string and via
                 oxidation_state kwarg.
         """
-        if oxidation_state is not None and isinstance(symbol, str) and symbol.endswith(("+", "-")):
+        if oxidation_state is not None and symbol.endswith(("+", "-")):
             raise ValueError(
                 f"Oxidation state should be specified either in {symbol=} or as {oxidation_state=}, not both."
             )
-        if isinstance(symbol, str) and symbol.endswith(("+", "-")):
+        if symbol.endswith(("+", "-")):
             # Extract oxidation state from symbol
             try:
                 symbol, oxi = re.match(r"([A-Za-z]+)([0-9\.0-9]*[\+\-])", symbol).groups()  # type: ignore[union-attr]
@@ -1075,7 +1037,7 @@ class Species(MSONable, Stringify):
         self._spin = spin
 
     def __getattr__(self, attr: str) -> Any:
-        """Allow Specie to inherit properties of underlying element."""
+        """Allow Species to inherit properties of underlying Element."""
         return getattr(self._el, attr)
 
     def __getstate__(self) -> dict:
@@ -1130,7 +1092,7 @@ class Species(MSONable, Stringify):
         if self.oxi_state is not None:
             abs_charge = formula_double_format(abs(self.oxi_state))
             if isinstance(abs_charge, float):
-                abs_charge = f"{abs_charge:.2f}"
+                abs_charge = f"{abs_charge:.2f}"  # type: ignore[assignment]
             output += f"{abs_charge}{'+' if self.oxi_state >= 0 else '-'}"
 
         if self._spin is not None:
@@ -1163,15 +1125,9 @@ class Species(MSONable, Stringify):
          (orbital number), irrespective of the actual energy level,
         e.g., The electronic structure for Fe is represented as '[Ar].3d6.4s2'
         even though the 3d electrons are higher in energy than the 4s.
-
-        References:
-            Kramida, A., Ralchenko, Yu., Reader, J., and NIST ASD Team (2023). NIST
-            Atomic Spectra Database (ver. 5.11). https://physics.nist.gov/asd [2024,
-            June 3]. National Institute of Standards and Technology, Gaithersburg,
-            MD. DOI: https://doi.org/10.18434/T4W30F
         """
         if self._data["Electronic structure"].get(str(self._oxi_state)) is not None:
-            return re.sub("</*sup>", "", self._data["Electronic structure"][str(self._oxi_state)])
+            return self._data["Electronic structure"][str(self._oxi_state)]
 
         raise ValueError(f"No electronic structure data for oxidation state {self.oxi_state}")
 
@@ -1186,12 +1142,6 @@ class Species(MSONable, Stringify):
         For example, the full electronic structure for Fe is:
             [(1, "s", 2), (2, "s", 2), (2, "p", 6), (3, "s", 2), (3, "p", 6),
             (4, "s", 2), (3, "d", 6)].
-
-        References:
-            Kramida, A., Ralchenko, Yu., Reader, J., and NIST ASD Team (2023). NIST
-            Atomic Spectra Database (ver. 5.11). https://physics.nist.gov/asd [2024,
-            June 3]. National Institute of Standards and Technology, Gaithersburg,
-            MD. DOI: https://doi.org/10.18434/T4W30F
 
         Returns:
             list[tuple[int, str, int]]: A list of tuples representing each subshell,
@@ -1319,7 +1269,7 @@ class Species(MSONable, Stringify):
         if self.oxi_state is not None:
             abs_charge = formula_double_format(abs(self.oxi_state))
             if isinstance(abs_charge, float):
-                abs_charge = f"{abs_charge:.2f}"
+                abs_charge = f"{abs_charge:.2f}"  # type: ignore[assignment]
             output += f"{abs_charge}{'+' if self.oxi_state >= 0 else '-'}"
         return output
 
@@ -1363,7 +1313,7 @@ class Species(MSONable, Stringify):
             radius_type (str): Either "crystal" or "ionic" (default).
 
         Returns:
-            Shannon radius for specie in the specified environment.
+            Shannon radius for species in the specified environment.
         """
         radii = self._el.data["Shannon radii"]
         if self._oxi_state is None:
@@ -1462,7 +1412,7 @@ class Species(MSONable, Stringify):
 
 @functools.total_ordering
 class DummySpecies(Species):
-    """A special specie for representing non-traditional elements or species. For
+    """A special species for representing non-traditional elements or species. For
     example, representation of vacancies (charged or otherwise), or special
     sites, etc.
 
@@ -1470,7 +1420,7 @@ class DummySpecies(Species):
         oxi_state (int): Oxidation state associated with Species.
         Z (int): DummySpecies is always assigned an atomic number equal to the hash
             number of the symbol. Obviously, it makes no sense whatsoever to use
-            the atomic number of a Dummy specie for anything scientific. The purpose
+            the atomic number of a Dummy species for anything scientific. The purpose
             of this is to ensure that for most use cases, a DummySpecies behaves no
             differently from an Element or Species.
         A (int): Just as for Z, to get a DummySpecies to behave like an Element,

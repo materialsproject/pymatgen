@@ -210,7 +210,7 @@ class JDFTXOutputs:
             self.eigenvals = self.eigenvals.reshape(nstates, self.outfile.nbands)
 
 
-_jof_atr_from_last_slice = [
+_jof_atr_from_last_slice = (
     "prefix",
     "jstrucs",
     "jsettings_fluid",
@@ -287,7 +287,7 @@ _jof_atr_from_last_slice = [
     "electronic_output",
     "t_s",
     "ecomponents",
-]
+)
 
 
 @dataclass
@@ -430,7 +430,7 @@ class JDFTXOutfile:
         __str__() -> str: Returns a string representation of the JDFTXOutfile object.
     """
 
-    slices: list[JDFTXOutfileSlice] = field(default_factory=list)
+    slices: list[JDFTXOutfileSlice | None] = field(default_factory=list)
     prefix: str = field(init=False)
     jstrucs: JOutStructures = field(init=False)
     jsettings_fluid: JMinSettingsFluid = field(init=False)
@@ -509,7 +509,7 @@ class JDFTXOutfile:
 
     @classmethod
     def from_calc_dir(
-        cls, calc_dir: str | Path, is_bgw: bool = False, none_slice_on_error: bool = False
+        cls, calc_dir: str | Path, is_bgw: bool = False, none_slice_on_error: bool | None = None
     ) -> JDFTXOutfile:
         """
         Create a JDFTXOutfile object from a directory containing JDFTx out files.
@@ -526,11 +526,7 @@ class JDFTXOutfile:
             JDFTXOutfile: The JDFTXOutfile object.
         """
         file_path = _find_jdftx_out_file(Path(calc_dir))
-        texts = read_outfile_slices(file_path)
-        slices = [
-            JDFTXOutfileSlice._from_out_slice(text, is_bgw=is_bgw, none_on_error=none_slice_on_error) for text in texts
-        ]
-        return cls(slices=slices)
+        return cls.from_file(file_path=file_path, is_bgw=is_bgw, none_slice_on_error=none_slice_on_error)
 
     @classmethod
     def from_file(
@@ -551,7 +547,7 @@ class JDFTXOutfile:
         Returns:
             JDFTXOutfile: The JDFTXOutfile object.
         """
-        texts = read_outfile_slices(file_path)
+        texts = read_outfile_slices(str(file_path))
         if none_slice_on_error is None:
             none_slice_bools = [i != len(texts) - 1 for i in range(len(texts))]
         else:
@@ -575,7 +571,7 @@ class JDFTXOutfile:
             if outfile_slice is not None:
                 if traj is None:
                     traj = outfile_slice.trajectory
-                else:
+                elif outfile_slice.trajectory is not None:
                     traj.extend(outfile_slice.trajectory)
         return traj
 

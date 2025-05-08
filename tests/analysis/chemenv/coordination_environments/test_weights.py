@@ -16,7 +16,7 @@ from pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies impo
     SelfCSMNbSetWeight,
 )
 from pymatgen.analysis.chemenv.coordination_environments.structure_environments import StructureEnvironments
-from pymatgen.util.testing import TEST_FILES_DIR, PymatgenTest
+from pymatgen.util.testing import TEST_FILES_DIR, MatSciTest
 
 __author__ = "waroquiers"
 
@@ -39,7 +39,7 @@ class DummyVoronoiContainer:
     pass
 
 
-class StrategyWeights(PymatgenTest):
+class StrategyWeights(MatSciTest):
     def test_angle_weight(self):
         fake_nb_set = FakeNbSet()
         dummy_se = DummyStructureEnvironments()

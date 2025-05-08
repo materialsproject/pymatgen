@@ -17,6 +17,7 @@ from pymatgen.util.due import Doi, due
 from pymatgen.util.string import transformation_to_string
 
 if TYPE_CHECKING:
+    from collections.abc import Sequence
     from typing import Any
 
     from numpy.typing import ArrayLike, NDArray
@@ -116,7 +117,7 @@ class SymmOp(MSONable):
         affine_matrix[:3][:, 3] = translation_vec
         return cls(affine_matrix, tol)
 
-    def operate(self, point: ArrayLike) -> NDArray:
+    def operate(self, point: ArrayLike) -> NDArray[np.float64]:
         """Apply the operation on a point.
 
         Args:
@@ -128,7 +129,7 @@ class SymmOp(MSONable):
         affine_point = np.asarray([*point, 1])
         return np.dot(self.affine_matrix, affine_point)[:3]
 
-    def operate_multi(self, points: ArrayLike) -> NDArray:
+    def operate_multi(self, points: ArrayLike) -> NDArray[np.float64]:
         """Apply the operation on a list of points.
 
         Args:
@@ -141,7 +142,7 @@ class SymmOp(MSONable):
         affine_points = np.concatenate([points, np.ones(points.shape[:-1] + (1,))], axis=-1)
         return np.inner(affine_points, self.affine_matrix)[..., :-1]
 
-    def apply_rotation_only(self, vector: ArrayLike) -> NDArray:
+    def apply_rotation_only(self, vector: NDArray) -> NDArray:
         """Vectors should only be operated by the rotation matrix and not the
         translation vector.
 
@@ -176,8 +177,8 @@ class SymmOp(MSONable):
 
     def are_symmetrically_related(
         self,
-        point_a: ArrayLike,
-        point_b: ArrayLike,
+        point_a: NDArray[np.float64],
+        point_b: NDArray[np.float64],
         tol: float = 0.001,
     ) -> bool:
         """Check if two points are symmetrically related.
@@ -194,12 +195,12 @@ class SymmOp(MSONable):
 
     def are_symmetrically_related_vectors(
         self,
-        from_a: ArrayLike,
-        to_a: ArrayLike,
-        r_a: ArrayLike,
-        from_b: ArrayLike,
-        to_b: ArrayLike,
-        r_b: ArrayLike,
+        from_a: NDArray[np.float64],
+        to_a: NDArray[np.float64],
+        r_a: NDArray[np.float64],
+        from_b: NDArray[np.float64],
+        to_b: NDArray[np.float64],
+        r_b: NDArray[np.float64],
         tol: float = 0.001,
     ) -> tuple[bool, bool]:
         """Check if two vectors, or rather two vectors that connect two points
@@ -224,8 +225,9 @@ class SymmOp(MSONable):
         from_c = self.operate(from_a)
         to_c = self.operate(to_a)
 
-        floored = np.floor([from_c, to_c])
-        is_too_close = np.abs([from_c, to_c] - floored) > 1 - tol
+        vec = np.array([from_c, to_c])
+        floored = np.floor(vec)
+        is_too_close = np.abs(vec - floored) > 1 - tol
         floored[is_too_close] += 1
 
         r_c = self.apply_rotation_only(r_a) - floored[0] + floored[1]
@@ -257,10 +259,10 @@ class SymmOp(MSONable):
 
     @staticmethod
     def from_axis_angle_and_translation(
-        axis: ArrayLike,
+        axis: NDArray,
         angle: float,
         angle_in_radians: bool = False,
-        translation_vec: ArrayLike = (0, 0, 0),
+        translation_vec: Sequence[float] | NDArray = (0, 0, 0),
     ) -> SymmOp:
         """Generate a SymmOp for a rotation about a given axis plus translation.
 
@@ -283,7 +285,7 @@ class SymmOp(MSONable):
         ang = angle if angle_in_radians else angle * np.pi / 180
         cos_a = math.cos(ang)
         sin_a = math.sin(ang)
-        unit_vec = axis / np.linalg.norm(axis)
+        unit_vec: NDArray = axis / np.linalg.norm(axis)  # type:ignore[call-overload]
         rot_mat = np.zeros((3, 3))
         rot_mat[0, 0] = cos_a + unit_vec[0] ** 2 * (1 - cos_a)
         rot_mat[0, 1] = unit_vec[0] * unit_vec[1] * (1 - cos_a) - unit_vec[2] * sin_a
@@ -299,8 +301,8 @@ class SymmOp(MSONable):
 
     @staticmethod
     def from_origin_axis_angle(
-        origin: ArrayLike,
-        axis: ArrayLike,
+        origin: Sequence[float] | NDArray,
+        axis: Sequence[float] | NDArray,
         angle: float,
         angle_in_radians: bool = False,
     ) -> SymmOp:
@@ -318,7 +320,13 @@ class SymmOp(MSONable):
         Returns:
             SymmOp.
         """
-        theta = angle if angle_in_radians else angle * np.pi / 180
+        theta: float = angle if angle_in_radians else angle * np.pi / 180
+        a: float
+        b: float
+        c: float
+        ax_u: float
+        ax_v: float
+        ax_w: float
         a, b, c = origin
         ax_u, ax_v, ax_w = axis
         # Set some intermediate values.
@@ -360,12 +368,14 @@ class SymmOp(MSONable):
         ) / l2
 
         return SymmOp(
-            [
-                [m11, m12, m13, m14],
-                [m21, m22, m23, m24],
-                [m31, m32, m33, m34],
-                [0, 0, 0, 1],
-            ]
+            np.array(
+                [
+                    [m11, m12, m13, m14],
+                    [m21, m22, m23, m24],
+                    [m31, m32, m33, m34],
+                    [0, 0, 0, 1],
+                ]
+            )
         )
 
     @staticmethod
@@ -382,9 +392,10 @@ class SymmOp(MSONable):
             SymmOp for the reflection about the plane
         """
         # Normalize the normal vector first.
-        normal = np.array(normal, dtype=float) / np.linalg.norm(normal)
-
-        u, v, w = normal
+        u: float
+        v: float
+        w: float
+        u, v, w = np.array(normal, dtype=float) / np.linalg.norm(normal)
 
         translation = np.eye(4)
         translation[:3, 3] = -np.asarray(origin)
@@ -395,7 +406,7 @@ class SymmOp(MSONable):
         xy = -2 * u * v
         xz = -2 * u * w
         yz = -2 * v * w
-        mirror_mat = [[xx, xy, xz, 0], [xy, yy, yz, 0], [xz, yz, zz, 0], [0, 0, 0, 1]]
+        mirror_mat = np.array([[xx, xy, xz, 0], [xy, yy, yz, 0], [xz, yz, zz, 0], [0, 0, 0, 1]])
 
         if np.linalg.norm(origin) > 1e-6:
             mirror_mat = np.dot(np.linalg.inv(translation), np.dot(mirror_mat, translation))
@@ -418,7 +429,7 @@ class SymmOp(MSONable):
         return SymmOp(mat)
 
     @staticmethod
-    def rotoreflection(axis: ArrayLike, angle: float, origin: ArrayLike = (0, 0, 0)) -> SymmOp:
+    def rotoreflection(axis: Sequence[float], angle: float, origin: Sequence[float] = (0, 0, 0)) -> SymmOp:
         """Get a roto-reflection symmetry operation.
 
         Args:

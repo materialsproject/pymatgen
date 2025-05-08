@@ -159,6 +159,118 @@ func_x_options = [
     "gga-x-ssb-sw",  # Swart, Sola and Bickelhaupt correction to PBE
     "gga-x-vmt-ge",  # Vela, Medel, and Trickey with mu = mu_GE
     "gga-x-vmt-pbe",  # Vela, Medel, and Trickey with mu = mu_PBE
+    "hyb-gga-x-cam-s12g",  # Swart 2012 range-separated hybrid GGA exchange
+    "hyb-gga-x-cam-s12h",  # Swart 2012 range-separated hybrid GGA exchange
+    "hyb-gga-x-n12-sx",  # Minnesota N12-SX exchange functional
+    "hyb-gga-x-s12h",  # Swart 2012 hybrid exchange
+    "hyb-gga-x-sogga11-x",  # Hybrid based on SOGGA11 form
+    "hyb-mgga-x-bmk",  # Boese-Martin for kinetics
+    "hyb-mgga-x-dldf",  # Dispersionless Density Functional
+    "hyb-mgga-x-js18",  # Jana and Samal 2018, screened range-separated TM exchange
+    "hyb-mgga-x-m05",  # Minnesota M05 hybrid exchange functional
+    "hyb-mgga-x-m05-2x",  # Minnesota M05-2X hybrid exchange functional
+    "hyb-mgga-x-m06",  # Minnesota M06 hybrid exchange functional
+    "hyb-mgga-x-m06-2x",  # Minnesota M06-2X hybrid exchange functional
+    "hyb-mgga-x-m06-hf",  # Minnesota M06-HF hybrid exchange functional
+    "hyb-mgga-x-m06-sx",  # Minnesota M06-SX short-range hybrid exchange functional
+    "hyb-mgga-x-m08-hx",  # Minnesota M08-HX hybrid exchange functional
+    "hyb-mgga-x-m08-so",  # Minnesota M08-SO hybrid exchange functional
+    "hyb-mgga-x-m11",  # Minnesota M11 hybrid exchange functional
+    "hyb-mgga-x-mn12-sx",  # Minnesota MN12-SX hybrid exchange functional
+    "hyb-mgga-x-mn15",  # Minnesota MN15 hybrid exchange functional
+    "hyb-mgga-x-ms2h",  # MS2 hybrid exchange of Sun, et al
+    "hyb-mgga-x-mvsh",  # MVSh hybrid exchange functional
+    "hyb-mgga-x-pjs18",  # Patra, Jana and Samal 2018, screened range-separated TM exchange
+    "hyb-mgga-x-revm06",  # Revised Minnesota M06 hybrid exchange functional
+    "hyb-mgga-x-revm11",  # Revised Minnesota M11 hybrid exchange functional
+    "hyb-mgga-x-revscan0",  # revised SCAN hybrid exchange (SCAN0)
+    "hyb-mgga-x-scan0",  # SCAN hybrid exchange (SCAN0)
+    "hyb-mgga-x-tau-hcth",  # Hybrid version of tau-HCTH
+    "lda-x",  # Slater exchange
+    "lda-x-1d-exponential",  # Exchange in 1D for an exponentially screened interaction
+    "lda-x-1d-soft",  # Exchange in 1D for an soft-Coulomb interaction
+    "lda-x-2d",  # Slater exchange
+    "lda-x-erf",  # Short-range LDA exchange with error function kernel (erfc)
+    "lda-x-rae",  # Rae self-energy corrected exchange
+    "lda-x-rel",  # Slater exchange with relativistic corrections
+    "lda-x-sloc",  # simple local model for Slater potential
+    "lda-x-yukawa",  # Short-range LDA exchange with Yukawa attenuation
+    "mgga-x-2d-js17",  # JS17 meta-GGA for 2D
+    "mgga-x-2d-prhg07",  # Pittalis-Rasanen-Helbig-Gross 2007
+    "mgga-x-2d-prhg07-prp10",  # PRHG07 with Pittalis-Rasanen-Proetto 2010 correction
+    "mgga-x-b00",  # Becke 2000
+    "mgga-x-bj06",  # Becke & Johnson 06
+    "mgga-x-bloc",  # functional with balanced localization
+    "mgga-x-br89",  # Becke-Roussel 89, gamma = 0.8
+    "mgga-x-br89-1",  # Becke-Roussel 89, gamma = 1.0
+    "mgga-x-br89-explicit",  # Becke-Roussel 89 with an explicit inversion of x(y), gamma = 0.8
+    "mgga-x-br89-explicit-1",  # Becke-Roussel 89 with an explicit inversion of x(y), gamma = 1.0
+    "mgga-x-edmgga",  # Tao 2001
+    "mgga-x-ft98",  # Filatov and Thiel 1998 meta-GGA exchange
+    "mgga-x-gdme-0",  # Generalized density-matrix with a=0
+    "mgga-x-gdme-kos",  # Generalized density-matrix with a=0.00638
+    "mgga-x-gdme-nv",  # Generalized density-matrix with a=1/2
+    "mgga-x-gdme-vt",  # Varied-terms (VT) mGGA of Koehl, Odom, and Scuseria
+    "mgga-x-gvt4",  # GVT4 (X part of VSXC)
+    "mgga-x-gx",  # GX functional of _Loos
+    "mgga-x-hlta",  # Half-and-half meta-LDAized LDA exchange by Lehtola and Marques
+    "mgga-x-jk",  # Jemmer-Knowles meta-GGA exchange
+    "mgga-x-lta",  # Local tau approximation
+    "mgga-x-m06-l",  # Minnesota M06-L exchange functional
+    "mgga-x-m11-l",  # Minnesota M11-L exchange functional
+    "mgga-x-mbeef",  # mBEEF exchange
+    "mgga-x-mbeefvdw",  # mBEEF-vdW exchange
+    "mgga-x-mbr",  # modified Becke-Roussel by Patra et al
+    "mgga-x-mbrbg",  # Modified Becke-Roussel for band gaps - cuspless hole
+    "mgga-x-mbrxh-bg",  # Modified Becke-Roussel for band gaps - hydrogen hole
+    "mgga-x-mcml",  # MCML exchange
+    "mgga-x-mggac",  # MGGAC exchange of Patra et al
+    "mgga-x-mk00",  # Exchange for accurate virtual orbital energies
+    "mgga-x-mk00b",  # Exchange for accurate virtual orbital energies (v. B)
+    "mgga-x-mn12-l",  # Minnesota MN12-L exchange functional
+    "mgga-x-mn15-l",  # Minnesota MN15-L exchange functional
+    "mgga-x-modtpss",  # Modified Tao, Perdew, Staroverov & Scuseria
+    "mgga-x-ms0",  # MS exchange of Sun, Xiao, and Ruzsinszky
+    "mgga-x-ms1",  # MS1 exchange of Sun, et al
+    "mgga-x-ms2",  # MS2 exchange of Sun, et al
+    "mgga-x-ms2-rev",  # MS2 exchange of Sun, et al with revised value for c
+    "mgga-x-ms2b",  # MS2beta exchange of Furness and Sun
+    "mgga-x-ms2bs",  # MS2beta* exchange of Furness and Sun
+    "mgga-x-mtask",  # modified TASK exchange
+    "mgga-x-mvs",  # MVS exchange of Sun, Perdew, and Ruzsinszky
+    "mgga-x-mvsb",  # MVSbeta exchange by Furness and Sun
+    "mgga-x-mvsbs",  # MVSbeta* exchange by Furness and Sun
+    "mgga-x-pbe-gx",  # PBE-GX functional of _Loos
+    "mgga-x-pkzb",  # Perdew, Kurth, Zupan, and Blaha
+    "mgga-x-r2scan",  # Re-regularized SCAN exchange by Furness et al
+    "mgga-x-r2scan01",  # Re-regularized SCAN exchange by Furness et al with larger value for eta
+    "mgga-x-r2scanl",  # Deorbitalized re-regularized SCAN (r2SCAN-L) exchange
+    "mgga-x-r4scan",  # r$^{4}$SCAN, a functional that satisfies the same exact constraints that SCAN does
+    "mgga-x-regtm",  # Regularized Tao and Mo exchange
+    "mgga-x-regtpss",  # Regularized TPSS
+    "mgga-x-revm06-l",  # Minnesota revM06-L exchange functional
+    "mgga-x-revscan",  # revised SCAN
+    "mgga-x-revscanl",  # Deorbitalized revised SCAN (revSCAN-L) exchange
+    "mgga-x-revtm",  # revised Tao and Mo 2016 exchange
+    "mgga-x-revtpss",  # revised Tao, Perdew, Staroverov & Scuseria
+    "mgga-x-rlda",  # Reparametrized local-density approximation
+    "mgga-x-rpp09",  # Rasanen, Pittalis & Proetto 09
+    "mgga-x-rppscan",  # r++SCAN: rSCAN with uniform density limit and coordinate scaling behavior
+    "mgga-x-rscan",  # Regularized SCAN exchange by Bartok and Yates
+    "mgga-x-rtpss",  # TPSS for surface adsorption
+    "mgga-x-sa-tpss",  # TPSS with correct surface asymptotics
+    "mgga-x-scan",  # SCAN exchange of Sun, Ruzsinszky, and Perdew
+    "mgga-x-scanl",  # Deorbitalized SCAN (SCAN-L) exchange
+    "mgga-x-task",  # TASK exchange of Aschebrock and Kuemmel
+    "mgga-x-tau-hcth",  # tau-HCTH from Boese and Handy
+    "mgga-x-tb09",  # Tran & Blaha 09
+    "mgga-x-th",  # Tsuneda and Hirao
+    "mgga-x-tlda",  # LDA-type exchange with tau-dependent potential
+    "mgga-x-tm",  # Tao and Mo 2016 exchange
+    "mgga-x-tpss",  # Tao, Perdew, Staroverov & Scuseria
+    "mgga-x-vcml",  # Exchange part of VCML-rVV10 by Trepte and Voss
+    "mgga-x-vt84",  # meta-GGA version of VT{8,4} GGA
+    "x-none",  # no exchange,
 ]
 
 # Generated by ChatGPT to include all options for <funcC> in https://jdftx.org/CommandElecExCorr.html
@@ -659,10 +771,12 @@ jdftxdumpvaroptions = [
 # simple dictionaries deepcopied multiple times into MASTER_TAG_LIST later for
 # different tags
 jdftxminimize_subtagdict = {
+    "abortOnFailedStep": BoolTag(),  # 5/1/25 - not a documented option, but shows up in out file input dump
     "alphaTincreaseFactor": FloatTag(),
     "alphaTmin": FloatTag(),
     "alphaTreduceFactor": FloatTag(),
     "alphaTstart": FloatTag(),
+    "convergeAll": BoolTag(),  # 5/1/25 - not a documented option, but shows up in out file input dump
     "dirUpdateScheme": StrTag(
         options=[
             "FletcherReeves",
@@ -677,6 +791,7 @@ jdftxminimize_subtagdict = {
     "history": IntTag(),
     "knormThreshold": FloatTag(),
     "linminMethod": StrTag(options=["CubicWolfe", "DirUpdateRecommended", "Quad", "Relax"]),
+    "maxThreshold": BoolTag(),
     "nAlphaAdjustMax": FloatTag(),
     "nEnergyDiff": IntTag(),
     "nIterations": IntTag(),

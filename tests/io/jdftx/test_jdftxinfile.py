@@ -25,6 +25,7 @@ from .shared_test_utils import assert_same_value
 if TYPE_CHECKING:
     from collections.abc import Callable
 
+    from pymatgen.io.jdftx.generic_tags import MultiformatTag, TagContainer
     from pymatgen.util.typing import PathLike
 
 
@@ -249,6 +250,10 @@ def test_jdftxstructure():
     assert isinstance(struct, JDFTXStructure)
     struc_str = str(struct)
     assert isinstance(struc_str, str)
+    newstruct = JDFTXStructure.from_str(struc_str)
+    assert isinstance(newstruct, JDFTXStructure)
+    # Double checking I got the column/row order right
+    assert_same_value(struct.structure.lattice, newstruct.structure.lattice)
     assert struct.natoms == 16
     with open(ex_infile2_fname) as f:
         lines = list.copy(list(f))
@@ -279,3 +284,225 @@ def test_jdftxtructure_naming():
     jstruct = JDFTXStructure(structure=struct)
     JDFTXInfile.from_jdftxstructure(jstruct)
     JDFTXInfile.from_structure(struct)
+
+
+@pytest.mark.parametrize(
+    ("value_str", "expected_dict"),
+    [
+        (
+            "H 1.0 1.0 1.0 0",
+            {
+                "species-id": "H",
+                "x0": 1.0,
+                "x1": 1.0,
+                "x2": 1.0,
+                "moveScale": 0,
+            },
+        ),
+        (
+            "H 1.0 1.0 1.0 v 1.0 1.0 1.0 0",
+            {
+                "species-id": "H",
+                "x0": 1.0,
+                "x1": 1.0,
+                "x2": 1.0,
+                "v": {
+                    "vx0": 1.0,
+                    "vx1": 1.0,
+                    "vx2": 1.0,
+                },
+                "moveScale": 0,
+            },
+        ),
+        (
+            "H 1.0 1.0 1.0 1 Linear 1.0 1.0 1.0",
+            {
+                "species-id": "H",
+                "x0": 1.0,
+                "x1": 1.0,
+                "x2": 1.0,
+                "moveScale": 1,
+                "constraint type": "Linear",
+                "d0": 1.0,
+                "d1": 1.0,
+                "d2": 1.0,
+            },
+        ),
+        (
+            "H 1.0 1.0 1.0 1 HyperPlane 1.0 1.0 1.0 g1 HyperPlane 1.0 1.0 1.0 g1",
+            {
+                "species-id": "H",
+                "x0": 1.0,
+                "x1": 1.0,
+                "x2": 1.0,
+                "moveScale": 1,
+                "HyperPlane": [
+                    {
+                        "d0": 1.0,
+                        "d1": 1.0,
+                        "d2": 1.0,
+                        "group": "g1",
+                    },
+                    {
+                        "d0": 1.0,
+                        "d1": 1.0,
+                        "d2": 1.0,
+                        "group": "g1",
+                    },
+                ],
+            },
+        ),
+    ],
+)
+def test_ion_reading(value_str: str, expected_dict: dict):
+    ion_tag: MultiformatTag = get_tag_object("ion")
+    i = ion_tag.get_format_index_for_str_value("ion", value_str)
+    tag_object: TagContainer = ion_tag.format_options[i]
+    parsed_tag = tag_object.read("ion", value_str)
+    assert_same_value(parsed_tag, expected_dict)
+
+
+@pytest.mark.parametrize(
+    ("expected_out", "stored_dict"),
+    [
+        (
+            "ion H 1.000000000000 1.000000000000 1.000000000000 0",
+            {
+                "species-id": "H",
+                "x0": 1.0,
+                "x1": 1.0,
+                "x2": 1.0,
+                "moveScale": 0,
+            },
+        ),
+        (
+            "ion H 1.000000000000 1.000000000000 1.000000000000 v 1.000000000000 1.000000000000 1.000000000000 0",
+            {
+                "species-id": "H",
+                "x0": 1.0,
+                "x1": 1.0,
+                "x2": 1.0,
+                "v": {
+                    "vx0": 1.0,
+                    "vx1": 1.0,
+                    "vx2": 1.0,
+                },
+                "moveScale": 0,
+            },
+        ),
+        (
+            "ion H 1.000000000000 1.000000000000 1.000000000000 1 Linear 1.000000000000 1.000000000000 1.000000000000",
+            {
+                "species-id": "H",
+                "x0": 1.0,
+                "x1": 1.0,
+                "x2": 1.0,
+                "moveScale": 1,
+                "constraint type": "Linear",
+                "d0": 1.0,
+                "d1": 1.0,
+                "d2": 1.0,
+            },
+        ),
+        (
+            "ion H 1.000000000000 1.000000000000 1.000000000000 1 HyperPlane 1.000000000000 1.000000000000 "
+            "1.000000000000 g1 HyperPlane 1.000000000000 1.000000000000 1.000000000000 g1",
+            {
+                "species-id": "H",
+                "x0": 1.0,
+                "x1": 1.0,
+                "x2": 1.0,
+                "moveScale": 1,
+                "HyperPlane": [
+                    {
+                        "d0": 1.0,
+                        "d1": 1.0,
+                        "d2": 1.0,
+                        "group": "g1",
+                    },
+                    {
+                        "d0": 1.0,
+                        "d1": 1.0,
+                        "d2": 1.0,
+                        "group": "g1",
+                    },
+                ],
+            },
+        ),
+    ],
+)
+def test_ion_writing(expected_out: str, stored_dict: dict):
+    ion_tag: MultiformatTag = get_tag_object("ion")
+    i, _ = ion_tag._determine_format_option("ion", stored_dict)
+    tag_object: TagContainer = ion_tag.format_options[i]
+    output = tag_object.write("ion", stored_dict)
+    assert_same_value(output.strip().split(), expected_out.strip().split())
+
+
+@pytest.mark.parametrize(
+    ("lattice_type", "value_str"),
+    [
+        ("Rhombohedral", "Rhombohedral 1.0 1.0"),
+        ("Triclinic", "Triclinic 1.0 1.0 1.0 1.0 1.0 1.0"),
+        ("Hexagonal", "Hexagonal 1.0 1.0"),
+        ("Cubic", "Body-Centered Cubic 1.0"),
+        ("Cubic", "Cubic 1.0"),
+    ],
+)
+def test_lattice_reading(lattice_type: str, value_str: str):
+    mft_lattice_tag = get_tag_object("lattice")
+    assert mft_lattice_tag is not None
+    i = mft_lattice_tag.get_format_index_for_str_value("lattice", value_str)
+    tag_object = mft_lattice_tag.format_options[i]
+    parsed_tag = tag_object.read("lattice", value_str)
+    assert lattice_type in parsed_tag
+
+
+@pytest.mark.parametrize(
+    ("value_str"),
+    [
+        ("Rhombohedral 1.0 1.0"),
+        ("Triclinic 1.0 1.0 1.0 1.0 1.0 1.0"),
+        ("Hexagonal 1.0 1.0"),
+        ("Body-Centered Cubic 1.0"),
+        ("Cubic 1.0"),
+        ("Orthorhombic 1.0 1.0 1.0"),
+        ("Base-Centered Orthorhombic 1.0 1.0 1.0"),
+        ("Monoclinic 1.0 1.0 1.0 1.0"),
+        ("Base-Centered Monoclinic 1.0 1.0 1.0 1.0"),
+        ("Tetragonal 1.0 1.0"),
+        ("Body-Centered Tetragonal 1.0 1.0"),
+    ],
+)
+def test_lattice_writing(value_str: str):
+    mft_lattice_tag = get_tag_object("lattice")
+    assert mft_lattice_tag is not None
+    i = mft_lattice_tag.get_format_index_for_str_value("lattice", value_str)
+    tag_object = mft_lattice_tag.format_options[i]
+    parsed_tag = tag_object.read("lattice", value_str)
+    output = tag_object.write("lattice", parsed_tag)
+    assert_same_value(
+        ("lattice " + value_str).strip().split(),
+        output.strip().split(),
+    )
+
+
+# This fails, but I don't think we need to support this
+# @pytest.mark.parametrize(
+#     ("unordered_dict", "expected_out"),
+#     [
+#         (
+#             {"a": 1.0, "Cubic-type": "Body-Centered", "Cubic": True},
+#             "Body-Centered Cubic 1.0",
+#         ),
+#     ],
+# )
+# def test_arg_ordering(unordered_dict, expected_out):
+#     mft_lattice_tag = get_tag_object("lattice")
+#     i = mft_lattice_tag.get_format_index_for_str_value("lattice", expected_out)
+#     tag_object = mft_lattice_tag.format_options[i]
+#     output = tag_object.write("lattice", unordered_dict)
+#     assert_same_value(
+#         ("lattice " + expected_out).strip().split(),
+#         output.strip().split(),
+#     )

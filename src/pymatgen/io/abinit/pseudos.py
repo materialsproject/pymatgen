@@ -92,13 +92,13 @@ class Pseudo(MSONable, abc.ABC):
     """
 
     @classmethod
-    def as_pseudo(cls, obj: Self | str) -> Self:
+    def as_pseudo(cls, obj: Pseudo | str) -> Pseudo:
         """Convert obj into a Pseudo.
 
         Args:
             obj (str | Pseudo): Path to the pseudo file or a Pseudo object.
         """
-        return obj if isinstance(obj, cls) else cls.from_file(obj)
+        return obj if isinstance(obj, cls) else cls.from_file(obj)  # type:ignore[arg-type]
 
     @classmethod
     def from_file(cls, filename: str) -> Self:
@@ -1558,9 +1558,9 @@ class PseudoTable(collections.abc.Sequence, MSONable):
             if exts is None:
                 exts = ("psp8",)
 
-            for pseudo in find_exts(top, exts, exclude_dirs=exclude_dirs):
+            for pseudo in find_exts(top, exts, exclude_dirs=exclude_dirs):  # type:ignore[assignment]
                 try:
-                    pseudos.append(Pseudo.from_file(pseudo))
+                    pseudos.append(Pseudo.from_file(pseudo))  # type:ignore[arg-type]
                 except Exception as exc:
                     logger.critical(f"Error in {pseudo}:\n{exc}")
 

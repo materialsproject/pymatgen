@@ -11,7 +11,7 @@ from pymatgen.analysis.chemenv.coordination_environments.coordination_geometries
     ExplicitPermutationsAlgorithm,
     SeparationPlane,
 )
-from pymatgen.util.testing import PymatgenTest
+from pymatgen.util.testing import MatSciTest
 
 __author__ = "waroquiers"
 
@@ -23,7 +23,7 @@ class FakeSite:
         self.coords = coords
 
 
-class TestCoordinationGeometries(PymatgenTest):
+class TestCoordinationGeometries(MatSciTest):
     def test_algorithms(self):
         expl_algo = ExplicitPermutationsAlgorithm(permutations=[[0, 1, 2], [1, 2, 3]])
         expl_algo2 = ExplicitPermutationsAlgorithm.from_dict(expl_algo.as_dict())

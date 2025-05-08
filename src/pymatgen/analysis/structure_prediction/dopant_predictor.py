@@ -81,7 +81,7 @@ def get_dopants_from_shannon_radii(bonded_structure, num_dopants=5, match_oxi_si
             - "original_species": The substituted species.
     """
     # get a list of all Species for all elements in all their common oxidation states
-    all_species = [Species(el, oxi) for el in Element for oxi in el.common_oxidation_states]
+    all_species = [Species(el.symbol, oxi) for el in Element for oxi in el.common_oxidation_states]
 
     # get a series of tuples with (coordination number, specie)
     cn_and_species = {

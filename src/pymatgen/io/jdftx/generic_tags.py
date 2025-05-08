@@ -179,7 +179,7 @@ class AbstractTag(ClassPrintFormatter, ABC):
 
     def _write(self, tag: str, value: Any, multiline_override: bool = False, strip_override: bool = False) -> str:
         tag_str = f"{tag} " if self.write_tagname else ""
-        if self.multiline_tag or multiline_override:
+        if multiline_override:
             tag_str += "\\\n"
         if self.write_value:
             if not strip_override:
@@ -647,15 +647,6 @@ class TagContainer(AbstractTag):
         """
         self._general_read_validate(tag, value)
         value_list = value.split()
-        if tag == "ion":
-            special_constraints = [x in ["HyperPlane", "Linear", "None", "Planar"] for x in value_list]
-            if any(special_constraints):
-                value_list = value_list[: special_constraints.index(True)]
-                warnings.warn(
-                    "Found special constraints reading an 'ion' tag, these were dropped; reading them has not been "
-                    "implemented!",
-                    stacklevel=2,
-                )
 
         tempdict = {}  # temporarily store read tags out of order they are processed
 
@@ -690,6 +681,8 @@ class TagContainer(AbstractTag):
                         tempdict[subtag].append(subtag_type.read(subtag, subtag_value))
                         del value_list[idx_start:idx_end]
 
+        # TODO: This breaks for TagContainers with optional StrTags that are not at the end of the line (ie
+        # modification subtag for lattice tag). We need to figure out a fix.
         for subtag, subtag_type in (
             (subtag, subtag_type) for subtag, subtag_type in self.subtags.items() if not subtag_type.write_tagname
         ):
@@ -726,38 +719,35 @@ class TagContainer(AbstractTag):
 
         final_value = ""
         indent = "    "
-        for count, (subtag, subvalue) in enumerate(value.items()):
+        # Gather all subtag print values into a list
+        print_str_list = []
+        for subtag, subvalue in value.items():
             if self.subtags[subtag].can_repeat and isinstance(subvalue, list):
-                # if a subtag.can_repeat, it is assumed that subvalue is a list
-                # the 2nd condition ensures this
-                # if it is not a list, then the tag will still be printed by the else
-                # this could be relevant if someone manually sets the tag's can_repeat value to a non-list.
-                print_str_list = [self.subtags[subtag].write(subtag, entry) for entry in subvalue]
-                print_str = " ".join([v.strip() for v in print_str_list]) + " "
+                print_str_list += [self.subtags[subtag].write(subtag, entry).strip() + " " for entry in subvalue]
             else:
-                print_str = self.subtags[subtag].write(subtag, subvalue).strip() + " "
-
-            if self.multiline_tag:
-                final_value += f"{indent}{print_str}\\\n"
-            elif self.linebreak_nth_entry is not None:
+                print_str_list.append(self.subtags[subtag].write(subtag.strip() + " ", subvalue))
+        # Concatenate all subtag print values into a single string, with line breaks at appropriate
+        # locations if needed
+        for count, print_str in enumerate(print_str_list):
+            if self.linebreak_nth_entry is not None:
                 # handles special formatting with extra linebreak, e.g. for lattice tag
                 i_column = count % self.linebreak_nth_entry
                 if i_column == 0:
                     final_value += f"{indent}{print_str}"
-                elif i_column == self.linebreak_nth_entry - 1:
-                    final_value += f"{print_str}\\\n"
                 else:
                     final_value += f"{print_str}"
+                if i_column == self.linebreak_nth_entry - 1:
+                    final_value += "\\\n"
             else:
                 final_value += f"{print_str}"
-        if self.multiline_tag or self.linebreak_nth_entry is not None:  # handles special formatting for lattice tag
+        if self.linebreak_nth_entry is not None:  # handles special formatting for lattice tag
             final_value = final_value[:-2]  # exclude final \\n from final print call
 
         return self._write(
             tag,
             final_value,
             multiline_override=self.linebreak_nth_entry is not None,
-            strip_override=self.linebreak_nth_entry is not None,
+            strip_override=(self.linebreak_nth_entry is not None),
         )
 
     def get_token_len(self) -> int:

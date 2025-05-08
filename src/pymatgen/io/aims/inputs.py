@@ -29,7 +29,8 @@ if TYPE_CHECKING:
 
     from typing_extensions import Self
 
-    from pymatgen.util.typing import Tuple3Floats, Tuple3Ints
+    from pymatgen.core.structure import IStructure
+
 
 __author__ = "Thomas A. R. Purcell"
 __version__ = "1.0"
@@ -139,7 +140,7 @@ class AimsGeometryIn(MSONable):
         return cls.from_str(content)
 
     @classmethod
-    def from_structure(cls, structure: Structure | Molecule) -> Self:
+    def from_structure(cls, structure: Structure | IStructure | Molecule) -> Self:
         """Construct an input file from an input structure.
 
         Args:
@@ -301,9 +302,9 @@ class AimsCube(MSONable):
     """
 
     type: str = field(default_factory=str)
-    origin: Sequence[float] | Tuple3Floats = field(default_factory=lambda: [0.0, 0.0, 0.0])
+    origin: Sequence[float] | tuple[float, float, float] = field(default_factory=lambda: [0.0, 0.0, 0.0])
     edges: Sequence[Sequence[float]] = field(default_factory=lambda: 0.1 * np.eye(3))
-    points: Sequence[int] | Tuple3Ints = field(default_factory=lambda: [0, 0, 0])
+    points: Sequence[int] | tuple[int, int, int] = field(default_factory=lambda: [0, 0, 0])
     format: str = "cube"
     spin_state: int | None = None
     kpoint: int | None = None

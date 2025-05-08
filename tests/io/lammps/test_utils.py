@@ -1,7 +1,5 @@
 from __future__ import annotations
 
-from unittest import TestCase
-
 from pymatgen.core.structure import Molecule
 from pymatgen.io.lammps.data import Topology
 from pymatgen.io.lammps.utils import Polymer
@@ -10,9 +8,9 @@ from pymatgen.util.testing import TEST_FILES_DIR
 TEST_DIR = f"{TEST_FILES_DIR}/io/lammps"
 
 
-class TestPolymer(TestCase):
+class TestPolymer:
     @classmethod
-    def setUpClass(cls):
+    def setup_class(cls):
         # head molecule
         cls.peo_head = Molecule.from_file(f"{TEST_DIR}/peo_head.xyz")
         charges = [-0.1187, 0.0861, 0.0861, 0.0861, -0.2792, -0.0326, 0.0861, 0.0861]
@@ -82,9 +80,9 @@ class TestPolymer(TestCase):
         assert topology_linear.topologies["Dihedrals"] != topology_random.topologies["Dihedrals"]
 
 
-class TestPackmolOutput(TestCase):
+class TestPackmolOutput:
     @classmethod
-    def setUpClass(cls):
+    def setup_class(cls):
         ethanol_coords = [
             [0.00720, -0.56870, 0.00000],
             [-1.28540, 0.24990, 0.00000],

@@ -30,7 +30,7 @@ jobs:
       - name: Install Python
         uses: actions/setup-python@v5
         with:
-          python-version: "3.12"
+          python-version: "3.13"
 
       - name: Build source distribution
         run: |
@@ -46,14 +46,14 @@ jobs:
     strategy:
       matrix:
         os: [ubuntu-latest, macos-latest, macos-13, windows-latest, ubuntu-24.04-arm]
-        python-version: ["310", "311", "312"]
+        python-version: ["310", "311", "312", "313"]
     runs-on: ${{ matrix.os }}
     steps:
       - name: Check out repo
         uses: actions/checkout@v4
 
       - name: Build wheels
-        uses: pypa/cibuildwheel@v2.16.5
+        uses: pypa/cibuildwheel@v2.23.2
         env:
           CIBW_BUILD: cp${{ matrix.python-version }}-*
 
@@ -76,7 +76,7 @@ jobs:
       - name: Set up Python
         uses: actions/setup-python@v5
         with:
-          python-version: "3.12"
+          python-version: "3.13"
 
       - name: Get build artifacts
         uses: actions/download-artifact@v4

@@ -30,16 +30,16 @@ def get_dos_plot(args) -> plt.Axes:
 
     if args.site:
         for idx, site in enumerate(structure):
-            all_dos[f"Site {idx} {site.specie.symbol}"] = dos.get_site_dos(site)
+            all_dos[f"Site {idx} {site.specie.symbol}"] = dos.get_site_dos(site)  # type:ignore[assignment]
 
     if args.element:
         syms = [tok.strip() for tok in args.element[0].split(",")]
         all_dos = {}
         for el, el_dos in dos.get_element_dos().items():
             if el.symbol in syms:
-                all_dos[el] = el_dos
+                all_dos[el] = el_dos  # type:ignore[assignment,index]
     if args.orbital:
-        all_dos = dos.get_spd_dos()
+        all_dos = dos.get_spd_dos()  # type:ignore[assignment]
 
     plotter = DosPlotter()
     plotter.add_dos_dict(all_dos)
@@ -95,7 +95,7 @@ def plot(args) -> None:
         args (dict): Args from argparse.
     """
     if args.chgcar_file:
-        fig: plt.Figure | None = get_chgint_plot(args).figure
+        fig: plt.Figure | plt.SubFigure | None = get_chgint_plot(args).figure
     elif args.xrd_structure_file:
         fig = get_xrd_plot(args).figure
     elif args.dos_file:
