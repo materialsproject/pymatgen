@@ -300,7 +300,7 @@ class AimsOutHeaderChunk(AimsOutChunk):
                     magmoms = None
                 else:
                     charges[ll] = float(inp[3])
-                    magmoms[ll] = float(inp[2])
+                    magmoms[ll] = float(inp[2])  # type:ignore[index]
 
         self._cache["initial_charges"] = charges
         self._cache["initial_magnetic_moments"] = magmoms
@@ -476,7 +476,7 @@ class AimsOutCalcChunk(AimsOutChunk):
 
         site_properties: dict[str, Sequence[Any]] = {}
         if len(velocities) > 0:
-            site_properties["velocity"] = np.array(velocities)
+            site_properties["velocity"] = np.array(velocities)  # type:ignore [assignment]
 
         results = self.results
         site_prop_keys = {
@@ -641,14 +641,14 @@ class AimsOutCalcChunk(AimsOutChunk):
         stresses = []
         for line in self.lines[line_start : line_start + self.n_atoms]:
             xx, yy, zz, xy, xz, yz = (float(d) for d in line.split()[2:8])
-            stresses.append(Tensor.from_voigt([xx, yy, zz, yz, xz, xy]))
+            stresses.append(Tensor.from_voigt([xx, yy, zz, yz, xz, xy]))  # type:ignore [arg-type]
 
         return np.array(stresses) * EV_PER_A3_TO_KBAR
 
     @property
     def stress(
         self,
-    ) -> Sequence[Sequence[float, float, float], Sequence[float, float, float], Sequence[float, float, float]] | None:
+    ) -> np.ndarray | None:
         """The stress from the aims.out file and convert to kBar."""
         line_start = self.reverse_search_for(
             ["Analytical stress tensor - Symmetrized", "Numerical stress tensor"]
@@ -680,7 +680,7 @@ class AimsOutCalcChunk(AimsOutChunk):
         return float(self.lines[line_ind].split()[5])
 
     @property
-    def dipole(self) -> tuple[float, float, float] | None:
+    def dipole(self) -> np.ndarray | None:
         """The electric dipole moment from the aims.out file."""
         line_start = self.reverse_search_for(["Total dipole moment [eAng]"])
         if line_start == LINE_NOT_FOUND:
@@ -692,7 +692,7 @@ class AimsOutCalcChunk(AimsOutChunk):
     @property
     def dielectric_tensor(
         self,
-    ) -> Sequence[Sequence[float, float, float], Sequence[float, float, float], Sequence[float, float, float]] | None:
+    ) -> np.ndarray | None:
         """The dielectric tensor from the aims.out file."""
         line_start = self.reverse_search_for(["PARSE DFPT_dielectric_tensor"])
         if line_start == LINE_NOT_FOUND:
@@ -705,7 +705,7 @@ class AimsOutCalcChunk(AimsOutChunk):
         return np.array([np.fromstring(line, sep=" ") for line in lines])
 
     @property
-    def polarization(self) -> tuple[float, float, float] | None:
+    def polarization(self) -> np.ndarray | None:
         """The polarization vector from the aims.out file."""
         line_start = self.reverse_search_for(["| Cartesian Polarization"])
         if line_start == LINE_NOT_FOUND:
