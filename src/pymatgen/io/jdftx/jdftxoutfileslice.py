@@ -826,40 +826,6 @@ class JDFTXOutfileSlice:
             settings_dict[key] = value
         return settings_dict
 
-    # def _get_settings_object(
-    #     self,
-    #     text: list[str],
-    #     settings_class: type[JMinSettingsElectronic | JMinSettingsFluid | JMinSettingsIonic | JMinSettingsLattice],
-    # ) -> JMinSettingsElectronic | JMinSettingsFluid | JMinSettingsIonic | JMinSettingsLattice:
-    #     """Get appropriate JMinSettings mutant.
-
-    #     Get the settings object from the out file text.
-
-    #     Args:
-    #         text (list[str]): Output of read_file for out file.
-    #         settings_class (Type[JMinSettings]): Settings class to create object from.
-
-    #     Returns:
-    #         JMinSettingsElectronic | JMinSettingsFluid | JMinSettingsIonic | JMinSettingsLattice: Settings object.
-    #     """
-    #     settings_dict = self._create_settings_dict(text, settings_class.start_flag)
-    #     return settings_class(params=settings_dict) if len(settings_dict) else None
-
-    # def _set_min_settings(self, text: list[str]) -> None:
-    #     """Set the settings objects from the out file text.
-
-    #     Set the settings objects from the out file text.
-
-    #     Args:
-    #         text (list[str]): Output of read_file for out file.
-    #     """
-    #     self.jsettings_fluid = self._get_settings_object(text, JMinSettingsFluid)
-    #     self.jsettings_electronic = self._get_settings_object(text, JMinSettingsElectronic)
-    #     self.jsettings_lattice = self._get_settings_object(text, JMinSettingsLattice)
-    #     self.jsettings_ionic = self._get_settings_object(text, JMinSettingsIonic)
-    #     # if self.jsettings_lattice is not None and "niterations" in self.jsettings_lattice.params:
-    #     #     self.constant_lattice = int(self.jsettings_lattice.params["niterations"]) == 0
-
     def _set_geomopt_vars(self, text: list[str]) -> None:
         """Set the geom_opt and geom_opt_type class variables.
 
@@ -890,19 +856,6 @@ class JDFTXOutfileSlice:
             self.geom_opt = False
             self.geom_opt_type = "single point"
             self.geom_opt_label = "IonicMinimize"
-        # # Attempts to set all self.jsettings_x class variables
-        # self._set_min_settings(text)
-        # if self.jsettings_ionic is None or self.jsettings_lattice is None:
-        #     raise ValueError("Unknown issue in setting settings objects")
-        # if int(self.jsettings_lattice.params["niterations"]) > 0:
-        #     self.geom_opt = True
-        #     self.geom_opt_type = "lattice"
-        # elif int(self.jsettings_ionic.params["niterations"]) > 0:
-        #     self.geom_opt = True
-        #     self.geom_opt_type = "ionic"
-        # else:
-        #     self.geom_opt = False
-        #     self.geom_opt_type = "single point"
 
     def _get_initial_structure(self, text: list[str]) -> Structure | None:
         """Get the initial structure from the out file text.
@@ -982,11 +935,6 @@ class JDFTXOutfileSlice:
                 mval = float(_val)
             else:
                 mval = None
-            # val = None
-            # for line in lines[::-1]:
-            #     val = get_colon_val(text[line], "mu:")
-            #     if val is not None:
-            #         break
             self._mu_backup = mval
 
     def _set_orb_fillings_nobroad(self, nspin: float) -> None:
