@@ -40,7 +40,6 @@ if TYPE_CHECKING:
     from numpy.typing import ArrayLike
     from typing_extensions import Self
 
-    from pymatgen.core.structure import IStructure
     from pymatgen.util.typing import PathLike
 
 __author__ = "Jacob Clary, Ben Rich"
@@ -194,7 +193,7 @@ class JDFTXInfile(dict, MSONable):
         dont_require_structure: bool = False,
         sort_tags: bool = True,
         assign_path_parent: bool = True,
-    ) -> Self:
+    ) -> JDFTXInfile:
         """Read a JDFTXInfile object from a file.
 
         Args:
@@ -302,7 +301,7 @@ class JDFTXInfile(dict, MSONable):
         return gathered_strings
 
     @property
-    def structure(self) -> Structure:
+    def structure(self) -> Structure | None:
         """Return a pymatgen Structure object.
 
         Returns:
@@ -313,7 +312,7 @@ class JDFTXInfile(dict, MSONable):
     @classmethod
     def from_structure(
         cls,
-        structure: Structure | IStructure,
+        structure: Structure,
         selective_dynamics: ArrayLike | None = None,
         write_cart_coords: bool = False,
     ) -> JDFTXInfile:
@@ -416,7 +415,7 @@ class JDFTXInfile(dict, MSONable):
         return JDFTXStructure.from_jdftxinfile(jdftxinfile_dict, sort_structure=sort_structure)
 
     @classmethod
-    def to_pmg_structure(cls, jdftxinfile: JDFTXInfile, sort_structure: bool = False) -> Structure:
+    def to_pmg_structure(cls, jdftxinfile: JDFTXInfile, sort_structure: bool = False) -> Structure | None:
         """Convert JDFTXInfile to pymatgen Structure object.
 
         Converts JDFTx lattice, lattice-scale, ion tags into pymatgen Structure.
@@ -674,7 +673,7 @@ class JDFTXStructure(MSONable):
             names if the i'th constraint_type is "HyperPlane". Otherwise, None is expected.
     """
 
-    structure: Structure = None
+    structure: Structure | None = None
     selective_dynamics: ArrayLike | None = None
     sort_structure: bool = False
     write_cart_coords: bool = False
@@ -691,13 +690,14 @@ class JDFTXStructure(MSONable):
         for i in range(len(self.structure.species)):
             name = ""
             if isinstance(self.structure.species[i], str):
-                name_str = self.structure.species[i]
+                _name_str = self.structure.species[i]
             elif isinstance(self.structure.species[i], SpeciesLike):
-                name_str = self.structure.species[i].symbol
-                if not isinstance(name_str, str):
-                    name_str = name_str.symbol
+                _name_str = self.structure.species[i].symbol
+                if not isinstance(_name_str, str):
+                    _name_str = _name_str.symbol
             else:
                 raise TypeError("Species must be a string or SpeciesLike object")
+            name_str = str(_name_str)
             for j in range(len(name_str)):
                 if not name_str[j].isdigit():
                     name += name_str[j]
@@ -710,7 +710,7 @@ class JDFTXStructure(MSONable):
                     site_properties["selective_dynamics"] = selective_dynamics
 
             # create new copy of structure so can add selective dynamics and sort atoms if needed
-            structure = Structure.from_sites(self.structure)
+            structure = Structure.from_sites(self.structure.sites)
             self.structure = structure.copy(site_properties=site_properties)
             if self.sort_structure:
                 self.structure = self.structure.get_sorted_structure()
@@ -878,6 +878,8 @@ class JDFTXStructure(MSONable):
             raise ValueError("Constraint types are present but constraint vectors are not!")
         if (self.constraint_vectors is not None) and (self.constraint_types is None):
             raise ValueError("Constraint vectors are present but constraint types are not!")
+        if self.structure is None:
+            return ""
         for i, site in enumerate(self.structure):
             label = site.label
             coords = site.coords * (1 / bohr_to_ang) if in_cart_coords else site.frac_coords

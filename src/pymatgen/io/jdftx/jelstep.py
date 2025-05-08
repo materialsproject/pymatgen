@@ -8,7 +8,10 @@ from __future__ import annotations
 import pprint
 import warnings
 from dataclasses import dataclass, field
-from typing import Any
+from typing import TYPE_CHECKING, Any
+
+if TYPE_CHECKING:
+    import numpy as np
 
 from monty.dev import deprecated
 
@@ -48,15 +51,15 @@ class JElStep:
     etype: str | None = None
     nstep: int | None = None
     e: float | None = None
-    grad_k: float | None = None
-    alpha: float | None = None
-    linmin: float | None = None
-    t_s: float | None = None
-    mu: float | None = None
-    nelectrons: float | None = None
-    abs_magneticmoment: float | None = None
-    tot_magneticmoment: float | None = None
-    subspacerotationadjust: float | None = None
+    grad_k: float | np.float64 | None = None
+    alpha: float | np.float64 | None = None
+    linmin: float | np.float64 | None = None
+    t_s: float | np.float64 | None = None
+    mu: float | np.float64 | None = None
+    nelectrons: float | np.float64 | None = None
+    abs_magneticmoment: float | np.float64 | None = None
+    tot_magneticmoment: float | np.float64 | None = None
+    subspacerotationadjust: float | np.float64 | None = None
     converged: bool = False
     converged_reason: str | None = None
 
