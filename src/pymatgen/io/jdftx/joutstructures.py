@@ -119,7 +119,7 @@ class JOutStructures:
     etype: str | None = None
     emin_flag: str | None = None
     ecomponents: list[str] | None = None
-    elecmindata: JElSteps = None
+    elecmindata: JElSteps | None = None
     stress: NDArray[np.float64] | None = None
     strain: NDArray[np.float64] | None = None
     forces: NDArray[np.float64] | None = None
@@ -160,7 +160,7 @@ class JOutStructures:
             JOutStructures: The created JOutStructures object.
         """
         if opt_type not in ["IonicMinimize", "LatticeMinimize"]:
-            opt_type = correct_geom_opt_type(opt_type)
+            _opt_type = correct_geom_opt_type(opt_type)
         start_idx = _get_joutstructures_start_idx(out_slice)
         slices = _get_joutstructure_list(out_slice[start_idx:], opt_type, init_structure=init_struc)
         return cls(slices=slices)
@@ -359,7 +359,7 @@ def _get_joutstructures_start_idx(
 
 def _get_joutstructure_list(
     out_slice: list[str],
-    opt_type: str,
+    opt_type: str | None,
     init_structure: Structure | None = None,
 ) -> list[JOutStructure]:
     """Return list of JOutStructure objects.
@@ -375,7 +375,7 @@ def _get_joutstructure_list(
         list[JOutStructure]: The list of JOutStructure objects.
     """
     out_bounds = _get_joutstructure_step_bounds(out_slice)
-    joutstructure_list: list[Structure | JOutStructure] = []
+    joutstructure_list: list[JOutStructure] = []
     if not len(out_bounds):
         # This case should only be called if no optimization steps are found to avoid errors down the line.
         # If this is changed to always be the first structure, logic down the line on what is considered

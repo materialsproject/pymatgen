@@ -13,7 +13,11 @@ import numpy as np
 from monty.dev import deprecated
 
 if TYPE_CHECKING:
-    from numpy.typing import NDArray
+    from collections.abc import Sequence
+
+    from numpy.typing import ArrayLike, NDArray
+
+    from pymatgen.util.typing import CompositionLike
 
 from pymatgen.core.structure import Lattice, Structure
 from pymatgen.core.units import Ha_to_eV, bohr_to_ang
@@ -93,11 +97,11 @@ class JOutStructure(Structure):
     strain: NDArray[np.float64] | None = None
     forces: NDArray[np.float64] | None = None
     nstep: int | None = None
-    e: float | None = None
-    grad_k: float | None = None
-    alpha: float | None = None
-    linmin: float | None = None
-    t_s: float | None = None
+    e: float | np.float64 | None = None
+    grad_k: float | np.float64 | None = None
+    alpha: float | np.float64 | None = None
+    linmin: float | np.float64 | None = None
+    t_s: float | np.float64 | None = None
     geom_converged: bool = False
     geom_converged_reason: str | None = None
     line_types: ClassVar[list[str]] = [
@@ -112,15 +116,15 @@ class JOutStructure(Structure):
         "lowdin",
         "opt",
     ]
-    mu: float | None = None
-    nelectrons: float | None = None
-    abs_magneticmoment: float | None = None
-    tot_magneticmoment: float | None = None
+    mu: float | np.float64 | None = None
+    nelectrons: float | np.float64 | None = None
+    abs_magneticmoment: float | np.float64 | None = None
+    tot_magneticmoment: float | np.float64 | None = None
     elec_nstep: int | None = None
-    elec_e: float | None = None
-    elec_grad_k: float | None = None
-    elec_alpha: float | None = None
-    elec_linmin: float | None = None
+    elec_e: float | np.float64 | None = None
+    elec_grad_k: float | np.float64 | None = None
+    elec_alpha: float | np.float64 | None = None
+    elec_linmin: float | np.float64 | None = None
     structure: Structure | None = None
     is_md: bool = False
     thermostat_velocity: np.ndarray | None = None
@@ -153,7 +157,7 @@ class JOutStructure(Structure):
         """
         if "charges" not in self.site_properties:
             return None
-        return self.site_properties["charges"]
+        return np.array(self.site_properties["charges"])
 
     @charges.setter
     def charges(self, charges: NDArray[np.float64] | None) -> None:
@@ -176,7 +180,7 @@ class JOutStructure(Structure):
         """
         if "magmom" not in self.site_properties:
             return None
-        return self.site_properties["magmom"]
+        return np.array(self.site_properties["magmom"])
 
     @magnetic_moments.setter
     def magnetic_moments(self, magnetic_moments: NDArray[np.float64]) -> None:
@@ -191,7 +195,7 @@ class JOutStructure(Structure):
             self.remove_site_property("magmom")
 
     @property
-    def selective_dynamics(self) -> list[list[int]] | None:
+    def selective_dynamics(self) -> Sequence | None:
         """Return the selective dynamics.
 
         Returns:
@@ -214,7 +218,7 @@ class JOutStructure(Structure):
             self.remove_site_property("selective_dynamics")
 
     @property
-    def velocities(self) -> list[np.ndarray | None] | None:
+    def velocities(self) -> Sequence | list[np.ndarray | None] | None:
         """Return the velocities.
 
         Returns:
@@ -238,7 +242,7 @@ class JOutStructure(Structure):
             self.remove_site_property("velocities")
 
     @property
-    def constraint_types(self) -> list[str | None] | None:
+    def constraint_types(self) -> Sequence | list[str | None] | None:
         """Return the constraint_types.
 
         Returns:
@@ -262,7 +266,7 @@ class JOutStructure(Structure):
             self.remove_site_property("constraint_types")
 
     @property
-    def constraint_vectors(self) -> list[np.ndarray | list[np.ndarray] | None] | None:
+    def constraint_vectors(self) -> Sequence | list[np.ndarray | list[np.ndarray] | None] | None:
         """Return the velocities.
 
         Returns:
@@ -286,7 +290,7 @@ class JOutStructure(Structure):
             self.remove_site_property("constraint_vectors")
 
     @property
-    def group_names(self) -> list[list[str] | None] | None:
+    def group_names(self) -> Sequence | list[list[str] | None] | None:
         """Return the group_names.
 
         Returns:
@@ -310,10 +314,10 @@ class JOutStructure(Structure):
 
     def __init__(
         self,
-        lattice: np.ndarray,
-        species: list[str],
-        coords: list[np.ndarray],
-        site_properties: dict[str, list],
+        lattice: ArrayLike | Lattice,
+        species: Sequence[CompositionLike],
+        coords: ArrayLike | Sequence[ArrayLike],
+        site_properties: dict | None = None,
         **kwargs,
     ) -> None:
         super().__init__(
@@ -328,8 +332,8 @@ class JOutStructure(Structure):
     def _from_text_slice(
         cls,
         text_slice: list[str],
-        eopt_type: str = "ElecMinimize",
-        opt_type: str = "IonicMinimize",
+        eopt_type: str | None = "ElecMinimize",
+        opt_type: str | None = "IonicMinimize",
         emin_flag: str = "---- Electronic minimization -------",
         init_structure: Structure | None = None,
         is_md: bool = False,
@@ -558,8 +562,16 @@ class JOutStructure(Structure):
         if len(emin_lines):
             if self.etype is None:
                 self._set_etype_from_emin_lines(emin_lines)
+            if self.eopt_type is None:
+                raise ValueError("eopt_type is not set")
+            if self.etype is None:
+                raise ValueError("etype is not set")
             self.elecmindata = JElSteps._from_text_slice(emin_lines, opt_type=self.eopt_type, etype=self.etype)
         else:
+            if self.eopt_type is None:
+                raise ValueError("eopt_type is not set")
+            if self.etype is None:
+                raise ValueError("etype is not set")
             self.elecmindata = JElSteps._from_nothing(opt_type=self.eopt_type, etype=self.etype)
 
     def _parse_lattice_lines(self, lattice_lines: list[str]) -> None:
@@ -575,7 +587,7 @@ class JOutStructure(Structure):
         if len(lattice_lines):
             r = _brkt_list_of_3x3_to_nparray(lattice_lines, i_start=2)
             r = r.T * bohr_to_ang
-            self.lattice = Lattice(r)
+            self.lattice = Lattice(np.array(r))
 
     def _parse_strain_lines(self, strain_lines: list[str]) -> None:
         """Parse strain lines.
@@ -822,7 +834,12 @@ class JOutStructure(Structure):
         if len(opt_lines):
             for line in opt_lines:
                 if self._is_opt_start_line(line):
-                    nstep = int(get_colon_val(line, "Iter:"))
+                    _nstep = get_colon_val(line, "Iter:")
+                    if _nstep is None:
+                        raise ValueError("Could not find Iter in line")
+                    if np.isnan(_nstep):
+                        raise ValueError("Could not convert Iter to int")
+                    nstep = int(_nstep)
                     self.nstep = nstep
                     en = get_colon_val(line, f"{self.etype}:")
                     self.e = en * Ha_to_eV
@@ -850,7 +867,13 @@ class JOutStructure(Structure):
         if len(opt_lines):
             for line in opt_lines:
                 if self._is_opt_start_line(line):
-                    self.nstep = int(get_colon_val(line, "Step:"))
+                    _nstep = get_colon_val(line, "Step:")
+                    if _nstep is None:
+                        raise ValueError("Could not find Step in line")
+                    if np.isnan(_nstep):
+                        raise ValueError("Could not convert Iter to int")
+                    nstep = int(_nstep)
+                    self.nstep = nstep
                     self.t_s = get_colon_val(line, "t[s]: ")
                     self.pe = get_colon_val(line, "PE:") * Ha_to_eV
                     self.ke = get_colon_val(line, "KE:") * Ha_to_eV
