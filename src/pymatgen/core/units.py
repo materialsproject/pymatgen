@@ -24,7 +24,7 @@ if TYPE_CHECKING:
     from collections.abc import Iterator
     from typing import Any
 
-    from numpy.typing import NDArray
+    from numpy.typing import ArrayLike
     from typing_extensions import Self
 
 __author__ = "Shyue Ping Ong, Matteo Giantomassi"
@@ -511,7 +511,7 @@ class ArrayWithUnit(np.ndarray):
 
     def __new__(
         cls,
-        input_array: NDArray,
+        input_array: ArrayLike,
         unit: str | Unit,
         unit_type: str | None = None,
     ) -> Self:
