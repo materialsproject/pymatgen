@@ -302,7 +302,7 @@ ignore_missing_imports = true
 namespace_packages = true
 no_implicit_optional = false
 disable_error_code = ["annotation-unchecked", "override", "operator", "attr-defined", "union-attr", "misc", "call-overload", "call-arg", "var-annotated"] #, "operator", "arg-type", "index", "call-arg", "return-value", "assignment", "attr-defined"]
-exclude = ['src/pymatgen/analysis', 'src/pymatgen/phonon', 'src/pymatgen/io/lobster', 'src/pymatgen/io/jdftx', 'src/pymatgen/io/cp2k', 'src/pymatgen/io/aims', 'src/pymatgen/io/lammps', 'src/pymatgen/io/feff', 'src/pymatgen/io/xr', 'src/pymatgen/io/pwmat', 'src/pymatgen/io/fiesta' , 'src/pymatgen/io/nwchem', 'src/pymatgen/io/phonopy', 'src/pymatgen/io/abinit', 'src/pymatgen/io/exciting']
+exclude = ['src/pymatgen/analysis', 'src/pymatgen/phonon', 'src/pymatgen/io/lobster', 'src/pymatgen/io/cp2k', 'src/pymatgen/io/aims', 'src/pymatgen/io/lammps', 'src/pymatgen/io/feff', 'src/pymatgen/io/xr', 'src/pymatgen/io/pwmat', 'src/pymatgen/io/fiesta' , 'src/pymatgen/io/nwchem', 'src/pymatgen/io/phonopy', 'src/pymatgen/io/abinit', 'src/pymatgen/io/exciting']
 plugins = ["numpy.typing.mypy_plugin"]
 
 [[tool.mypy.overrides]]

@@ -14,7 +14,7 @@ import warnings
 from copy import deepcopy
 from dataclasses import dataclass
 from pathlib import Path
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, cast
 
 import numpy as np
 import scipy.constants as const
@@ -40,7 +40,6 @@ if TYPE_CHECKING:
     from numpy.typing import ArrayLike
     from typing_extensions import Self
 
-    from pymatgen.core.structure import IStructure
     from pymatgen.util.typing import PathLike
 
 __author__ = "Jacob Clary, Ben Rich"
@@ -171,7 +170,6 @@ class JDFTXInfile(dict, MSONable):
                     i, _ = tag_object._determine_format_option(tag, self_as_dict[tag])
                     tag_object = tag_object.format_options[i]
                 if tag_object.can_repeat and isinstance(self_as_dict[tag], list):
-                    # text += " ".join([tag_object.write(tag, entry) for entry in self_as_dict[tag]])
                     text += [tag_object.write(tag, entry) for entry in self_as_dict[tag]]
                 else:
                     text.append(tag_object.write(tag, self_as_dict[tag]))
@@ -195,7 +193,7 @@ class JDFTXInfile(dict, MSONable):
         dont_require_structure: bool = False,
         sort_tags: bool = True,
         assign_path_parent: bool = True,
-    ) -> Self:
+    ) -> JDFTXInfile:
         """Read a JDFTXInfile object from a file.
 
         Args:
@@ -303,7 +301,7 @@ class JDFTXInfile(dict, MSONable):
         return gathered_strings
 
     @property
-    def structure(self) -> Structure:
+    def structure(self) -> Structure | None:
         """Return a pymatgen Structure object.
 
         Returns:
@@ -314,7 +312,7 @@ class JDFTXInfile(dict, MSONable):
     @classmethod
     def from_structure(
         cls,
-        structure: Structure | IStructure,
+        structure: Structure,
         selective_dynamics: ArrayLike | None = None,
         write_cart_coords: bool = False,
     ) -> JDFTXInfile:
@@ -417,7 +415,7 @@ class JDFTXInfile(dict, MSONable):
         return JDFTXStructure.from_jdftxinfile(jdftxinfile_dict, sort_structure=sort_structure)
 
     @classmethod
-    def to_pmg_structure(cls, jdftxinfile: JDFTXInfile, sort_structure: bool = False) -> Structure:
+    def to_pmg_structure(cls, jdftxinfile: JDFTXInfile, sort_structure: bool = False) -> Structure | None:
         """Convert JDFTXInfile to pymatgen Structure object.
 
         Converts JDFTx lattice, lattice-scale, ion tags into pymatgen Structure.
@@ -571,8 +569,6 @@ class JDFTXInfile(dict, MSONable):
             tag_object = get_tag_object(key)
         except KeyError:
             raise KeyError(f"The {key} tag is not in MASTER_TAG_LIST")
-        # if tag_object.can_repeat and not isinstance(value, list):
-        #     value = [value]
         if isinstance(tag_object, MultiformatTag):
             if isinstance(value, str):
                 i = tag_object.get_format_index_for_str_value(key, value)
@@ -593,10 +589,6 @@ class JDFTXInfile(dict, MSONable):
             params = self._store_value(params, tag_object, key, processed_value)
             self.update(params)
             self.validate_tags(try_auto_type_fix=True, error_on_failed_fix=True)
-        # processed_value = tag_object.read(key, value) if isinstance(value, str) else value
-        # params = self._store_value(params, tag_object, key, processed_value)
-        # self.update(params)
-        # self.validate_tags(try_auto_type_fix=True, error_on_failed_fix=True)
 
     def _is_numeric(self, value: Any) -> bool:
         """Check if a value is numeric.
@@ -642,6 +634,22 @@ class JDFTXInfile(dict, MSONable):
         self.update(params)
 
 
+def _allnone(val) -> bool:
+    """Check if all elements in a list are None.
+
+    Args:
+        val (list | None): List to check.
+
+    Returns:
+        bool: Whether all elements in the list are None.
+    """
+    if val is None:
+        return True
+    if isinstance(val, list):
+        return all(_allnone(x) for x in val)
+    return False
+
+
 @dataclass
 class JDFTXStructure(MSONable):
     """Object for representing the data in JDFTXStructure tags.
@@ -651,12 +659,28 @@ class JDFTXStructure(MSONable):
         selective_dynamics (ArrayLike): Selective dynamics attribute for each site if available. Shape Nx1.
         sort_structure (bool): Whether to sort the structure. Useful if species are not grouped properly together.
             Defaults to False.
+        write_cart_coords (bool): Whether to write cartesian coordinates. Defaults to False.
+        velocities (list[np.ndarray | list[float] | None]): Velocities for each site if available. Kept separate from
+            structure.site_properties["velocities"] to allow inhomogeneous shaping.
+        constraint_types (list[str | None]): Constraint types for each site if available. Kept separate from
+            structure.site_properties["constraint_types"] to allow inhomogeneous shaping.
+        constraint_vectors (list[np.ndarray | list[np.ndarray] | None]): Constraint vectors for each site if
+            available. Kept separate from structure.site_properties["constraint_vectors"] to allow inhomogeneous
+            shaping. i'th entry must be a list of vectors if the i'th constraint_type is "HyperPlane". Otherwise,
+            a single vector is expected.
+        hyperplane_group_names (list[list[str] | None]): Group names for each site if available. Kept separate from
+            structure.site_properties["group_names"] to allow inhomogeneous shaping. i'th entry must be a list of group
+            names if the i'th constraint_type is "HyperPlane". Otherwise, None is expected.
     """
 
-    structure: Structure = None
+    structure: Structure | None = None
     selective_dynamics: ArrayLike | None = None
     sort_structure: bool = False
     write_cart_coords: bool = False
+    velocities: list | None = None
+    constraint_types: list | None = None
+    constraint_vectors: list | None = None
+    hyperplane_group_names: list | None = None
 
     def __post_init__(self) -> None:
         """Post init function for JDFTXStructure.
@@ -666,13 +690,14 @@ class JDFTXStructure(MSONable):
         for i in range(len(self.structure.species)):
             name = ""
             if isinstance(self.structure.species[i], str):
-                name_str = self.structure.species[i]
+                _name_str = self.structure.species[i]
             elif isinstance(self.structure.species[i], SpeciesLike):
-                name_str = self.structure.species[i].symbol
-                if not isinstance(name_str, str):
-                    name_str = name_str.symbol
+                _name_str = self.structure.species[i].symbol
+                if not isinstance(_name_str, str):
+                    _name_str = _name_str.symbol
             else:
                 raise TypeError("Species must be a string or SpeciesLike object")
+            name_str = str(_name_str)
             for j in range(len(name_str)):
                 if not name_str[j].isdigit():
                     name += name_str[j]
@@ -685,12 +710,22 @@ class JDFTXStructure(MSONable):
                     site_properties["selective_dynamics"] = selective_dynamics
 
             # create new copy of structure so can add selective dynamics and sort atoms if needed
-            structure = Structure.from_sites(self.structure)
+            structure = Structure.from_sites(self.structure.sites)
             self.structure = structure.copy(site_properties=site_properties)
             if self.sort_structure:
                 self.structure = self.structure.get_sorted_structure()
         else:
             raise ValueError("Disordered structure with partial occupancies cannot be converted into JDFTXStructure!")
+        if _allnone(self.selective_dynamics):
+            self.selective_dynamics = None
+        if _allnone(self.velocities):
+            self.velocities = None
+        if _allnone(self.constraint_types):
+            self.constraint_types = None
+        if _allnone(self.constraint_vectors):
+            self.constraint_vectors = None
+        if _allnone(self.hyperplane_group_names):
+            self.hyperplane_group_names = None
 
     def __repr__(self) -> str:
         """Return representation of JDFTXStructure file.
@@ -768,6 +803,28 @@ class JDFTXStructure(MSONable):
         coords = np.array([[x["x0"], x["x1"], x["x2"]] for x in jdftxinfile["ion"]])
         coords *= const.value("Bohr radius") * 10**10  # Bohr radius in Ang; convert to Ang
         selective_dynamics = np.array([x["moveScale"] for x in jdftxinfile["ion"]])
+        # Gather optional tags
+        velocities = [
+            np.array([float(v) for v in [x["v"]["vx0"], x["v"]["vx1"], x["v"]["vx2"]]]) if "v" in x else None
+            for x in jdftxinfile["ion"]
+        ]
+        constraint_types = [x.get("constraint-type", None) for x in jdftxinfile["ion"]]
+        constraint_vectors = [
+            [x["d0"], x["d1"], x["d2"]] if "constraint-type" in x else None for x in jdftxinfile["ion"]
+        ]
+        hyperplane_vectors = [
+            [[[y["d0"], y["d1"], y["d2"]] for y in x["HyperPlane"]]] if "HyperPlane" in x else None
+            for x in jdftxinfile["ion"]
+        ]
+        hyperplane_groups = [None for _ in range(len(hyperplane_vectors))]
+        if not all(x is None for x in hyperplane_vectors):
+            for i in range(len(hyperplane_vectors)):
+                if hyperplane_vectors[i] is not None:
+                    constraint_types[i] = "HyperPlane"
+                    constraint_vectors[i] = hyperplane_vectors[i]
+            hyperplane_groups = [
+                [[y["group"] for y in x["HyperPlane"]] if "HyperPlane" in x else None] for x in jdftxinfile["ion"]
+            ]
 
         coords_are_cartesian = False  # is default for JDFTx
         if "coords-type" in jdftxinfile:
@@ -781,7 +838,15 @@ class JDFTXStructure(MSONable):
             validate_proximity=False,
             coords_are_cartesian=coords_are_cartesian,
         )
-        return cls(struct, selective_dynamics, sort_structure=sort_structure)
+        return cls(
+            structure=struct,
+            selective_dynamics=selective_dynamics,
+            sort_structure=sort_structure,
+            velocities=velocities,
+            constraint_types=constraint_types,
+            constraint_vectors=constraint_vectors,
+            hyperplane_group_names=hyperplane_groups,
+        )
 
     def get_str(self, in_cart_coords: bool | None = None) -> str:
         """Return a string to be written as JDFTXInfile tags.
@@ -803,16 +868,22 @@ class JDFTXStructure(MSONable):
         lattice = lattice.T  # transpose to get into column-vector format
         lattice /= const.value("Bohr radius") * 10**10  # Bohr radius in Ang; convert to Bohr
 
-        jdftx_tag_dict["lattice"] = lattice
+        jdftx_tag_dict["lattice"] = {f"R{i}{j}": lattice[i][j] for i in range(3) for j in range(3)}
         jdftx_tag_dict["ion"] = []
         jdftx_tag_dict["coords-type"] = "Cartesian" if in_cart_coords else "Lattice"
         valid_labels = [
             value.symbol for key, value in Element.__dict__.items() if not key.startswith("_") and not callable(value)
         ]
+        if (self.constraint_types is not None) and (self.constraint_vectors is None):
+            raise ValueError("Constraint types are present but constraint vectors are not!")
+        if (self.constraint_vectors is not None) and (self.constraint_types is None):
+            raise ValueError("Constraint vectors are present but constraint types are not!")
+        if self.structure is None:
+            return ""
         for i, site in enumerate(self.structure):
-            coords = site.coords * (1 / bohr_to_ang) if in_cart_coords else site.frac_coords
-            sd = self.selective_dynamics[i] if self.selective_dynamics is not None else 1
             label = site.label
+            coords = site.coords * (1 / bohr_to_ang) if in_cart_coords else site.frac_coords
+            sd = int(bool(cast("np.ndarray", self.selective_dynamics)[i])) if self.selective_dynamics is not None else 1
             # TODO: This is needlessly complicated, simplify this
             if label not in valid_labels:
                 for varname in ["species_string", "specie.name"]:
@@ -821,9 +892,32 @@ class JDFTXStructure(MSONable):
                         break
                 if label not in valid_labels:
                     raise ValueError(f"Could not correct site label {label} for site (index {i})")
-            jdftx_tag_dict["ion"].append([label, *coords, sd])
-
-        return str(JDFTXInfile._from_dict(jdftx_tag_dict))
+            ion_list_rep = [label, *coords]
+            # Gather velocities if present
+            if (self.velocities is not None) and (self.velocities[i] is not None):
+                ion_list_rep.append("v")
+                for j in range(3):
+                    ion_list_rep.append(self.velocities[i][j] * (1 / bohr_to_ang))
+            # Append movescale regardless
+            ion_list_rep.append(sd)
+            # Gather constraints if present
+            if ((self.constraint_types is not None) and (self.constraint_vectors is not None)) and (
+                self.constraint_types[i] is not None
+            ):
+                ctype = self.constraint_types[i]
+                if ctype == "HyperPlane":
+                    if self.constraint_vectors[i] is not None:
+                        for j, hyperplane in enumerate(self.constraint_vectors[i]):
+                            ion_list_rep.append("HyperPlane")
+                            for k in range(3):
+                                ion_list_rep.append(hyperplane[k])
+                            ion_list_rep.append(self.hyperplane_groups[i][j])
+                else:
+                    ion_list_rep.append(ctype)
+                    for j in range(3):
+                        ion_list_rep.append(self.constraint_vectors[i][j])
+            jdftx_tag_dict["ion"].append(ion_list_rep)
+        return str(JDFTXInfile.from_dict(jdftx_tag_dict))
 
     def write_file(self, filename: PathLike, **kwargs) -> None:
         """Write JDFTXStructure to a file.
@@ -849,6 +943,10 @@ class JDFTXStructure(MSONable):
             "@class": type(self).__name__,
             "structure": self.structure.as_dict(),
             "selective_dynamics": np.array(self.selective_dynamics).tolist(),
+            "velocities": self.velocities,
+            "constraint_types": self.constraint_types,
+            "constraint_vectors": self.constraint_vectors,
+            "hyperplane_group_names": self.hyperplane_group_names,
         }
 
     @classmethod
