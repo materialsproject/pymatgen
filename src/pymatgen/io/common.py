@@ -85,11 +85,11 @@ class VolumetricData(MSONable):
         # convert data to numpy arrays in case they were jsanitized as lists
         self.data = {k: np.array(v) for k, v in data.items()}
         self.dim = self.data["total"].shape
-        self.data_aug = data_aug or {}
+        self.data_aug = data_aug
         self.ngridpts = self.dim[0] * self.dim[1] * self.dim[2]
         # lazy init the spin data since this is not always needed.
         self._spin_data: dict[Spin, float] = {}
-        self._distance_matrix = distance_matrix or {}
+        self._distance_matrix = distance_matrix
         self.xpoints = np.linspace(0.0, 1.0, num=self.dim[0])
         self.ypoints = np.linspace(0.0, 1.0, num=self.dim[1])
         self.zpoints = np.linspace(0.0, 1.0, num=self.dim[2])
@@ -168,7 +168,7 @@ class VolumetricData(MSONable):
 
         new = deepcopy(self)
         new.data = data
-        new.data_aug = {}
+        new.data_aug = None
         return new
 
     def scale(self, factor):
