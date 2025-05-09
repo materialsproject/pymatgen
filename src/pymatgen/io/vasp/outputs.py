@@ -3855,7 +3855,7 @@ class VolumetricData(BaseVolumetricData):
             if count % 5 != 0:
                 file.write(" " + "".join(lines) + " \n")  # type:ignore[arg-type]
 
-            data = self.data_aug.get(data_type, [])
+            data = self.data_aug.get(data_type, []) if self.data_aug is not None else []
             if isinstance(data, Iterable):
                 file.write("".join(data))  # type:ignore[arg-type]
 
