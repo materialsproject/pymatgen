@@ -441,7 +441,7 @@ class TestComputedReaction:
     def test_calculated_reaction_energy_uncertainty_for_no_uncertainty(self):
         # test that reaction_energy_uncertainty property doesn't cause errors
         # when products/reactants have no uncertainties
-        assert self.rxn.calculated_reaction_energy_uncertainty == 0
+        assert np.isnan(self.rxn.calculated_reaction_energy_uncertainty)
 
     def test_calculated_reaction_energy_uncertainty_for_nan(self):
         # test that reaction_energy_uncertainty property is nan when the uncertainty
