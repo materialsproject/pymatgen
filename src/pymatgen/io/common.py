@@ -23,6 +23,7 @@ from pymatgen.core.units import ang_to_bohr, bohr_to_angstrom
 from pymatgen.electronic_structure.core import Spin
 
 if TYPE_CHECKING:
+    from numpy.typing import NDArray
     from typing_extensions import Any, Self
 
     from pymatgen.core.structure import IStructure
@@ -62,8 +63,8 @@ class VolumetricData(MSONable):
         self,
         structure: Structure | IStructure,
         data: dict[str, np.ndarray],
-        distance_matrix: np.ndarray | None = None,
-        data_aug: np.ndarray | None = None,
+        distance_matrix: dict | None = None,
+        data_aug: dict[str, NDArray] | None = None,
     ) -> None:
         """
         Typically, this constructor is not used directly and the static
@@ -85,11 +86,11 @@ class VolumetricData(MSONable):
         # convert data to numpy arrays in case they were jsanitized as lists
         self.data = {k: np.array(v) for k, v in data.items()}
         self.dim = self.data["total"].shape
-        self.data_aug = data_aug
+        self.data_aug = data_aug or {}
         self.ngridpts = self.dim[0] * self.dim[1] * self.dim[2]
         # lazy init the spin data since this is not always needed.
         self._spin_data: dict[Spin, float] = {}
-        self._distance_matrix = distance_matrix
+        self._distance_matrix = distance_matrix if distance_matrix is not None else {}
         self.xpoints = np.linspace(0.0, 1.0, num=self.dim[0])
         self.ypoints = np.linspace(0.0, 1.0, num=self.dim[1])
         self.zpoints = np.linspace(0.0, 1.0, num=self.dim[2])
@@ -168,7 +169,7 @@ class VolumetricData(MSONable):
 
         new = deepcopy(self)
         new.data = data
-        new.data_aug = None
+        new.data_aug = {}
         return new
 
     def scale(self, factor):
@@ -247,6 +248,7 @@ class VolumetricData(MSONable):
 
         struct = self.structure
         a = self.dim
+        self._distance_matrix = {} if self._distance_matrix is None else self._distance_matrix
         if ind not in self._distance_matrix or self._distance_matrix[ind]["max_radius"] < radius:
             coords = []
             for x, y, z in itertools.product(*(list(range(i)) for i in a)):
