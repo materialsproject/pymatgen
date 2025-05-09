@@ -3855,7 +3855,7 @@ class VolumetricData(BaseVolumetricData):
             if count % 5 != 0:
                 file.write(" " + "".join(lines) + " \n")  # type:ignore[arg-type]
 
-            data = self.data_aug.get(data_type, []) if self.data_aug is not None else []
+            data: list | NDArray = self.data_aug.get(data_type, []) if self.data_aug is not None else []
             if isinstance(data, Iterable):
                 file.write("".join(data))  # type:ignore[arg-type]
 
@@ -3923,7 +3923,7 @@ class Chgcar(VolumetricData):
         self,
         poscar: Poscar | Structure,
         data: dict[str, NDArray],
-        data_aug: NDArray | None = None,
+        data_aug: dict[str, NDArray] | None = None,
     ) -> None:
         """
         Args:
@@ -3944,7 +3944,7 @@ class Chgcar(VolumetricData):
             raise TypeError("Unsupported POSCAR type.")
 
         super().__init__(struct, data, data_aug=data_aug)
-        self._distance_matrix = None
+        self._distance_matrix = {}
 
     @classmethod
     def from_file(cls, filename: str) -> Self:

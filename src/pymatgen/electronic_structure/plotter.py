@@ -2942,7 +2942,7 @@ class BoltztrapPlotter:
         ax.set_xlabel("E-E$_f$ (eV)", fontsize=30)
         ax.set_ylabel("Seebeck effective mass", fontsize=30)
         ax.set_xticks(ax.get_xticks(), fontsize=25)
-        ax.set_xticks(ax.get_yticks(), fontsize=25)
+        ax.set_yticks(ax.get_yticks(), fontsize=25)
         if output == "tensor":
             ax.legend(
                 [f"{dim}_{T}K" for T in temps for dim in ("x", "y", "z")],
@@ -3001,7 +3001,7 @@ class BoltztrapPlotter:
         ax.set_xlabel("E-E$_f$ (eV)", fontsize=30)
         ax.set_ylabel("Complexity Factor", fontsize=30)
         ax.set_xticks(ax.get_xticks(), fontsize=25)
-        ax.set_xticks(ax.get_yticks(), fontsize=25)
+        ax.set_yticks(ax.get_yticks(), fontsize=25)
         if output == "tensor":
             ax.legend(
                 [f"{dim}_{T}K" for T in temps for dim in ("x", "y", "z")],
@@ -3120,7 +3120,7 @@ class BoltztrapPlotter:
         ax.set_ylabel("Power factor, ($\\mu$W/(mK$^2$))", fontsize=30.0)
         ax.set_xlabel("E-E$_f$ (eV)", fontsize=30.0)
         ax.set_xticks(ax.get_xticks(), fontsize=25)
-        ax.set_xticks(ax.get_yticks(), fontsize=25)
+        ax.set_yticks(ax.get_yticks(), fontsize=25)
         plt.tight_layout()
         return ax
 
@@ -3157,7 +3157,7 @@ class BoltztrapPlotter:
         ax.set_ylabel("ZT", fontsize=30.0)
         ax.set_xlabel("E-E$_f$ (eV)", fontsize=30.0)
         ax.set_xticks(ax.get_xticks(), fontsize=25)
-        ax.set_xticks(ax.get_yticks(), fontsize=25)
+        ax.set_yticks(ax.get_yticks(), fontsize=25)
         plt.tight_layout()
         return ax
 
@@ -3204,7 +3204,7 @@ class BoltztrapPlotter:
             ax.legend(loc="best", fontsize=15)
             ax.grid()
             ax.set_xticks(ax.get_xticks(), fontsize=25)
-            ax.set_xticks(ax.get_yticks(), fontsize=25)
+            ax.set_yticks(ax.get_yticks(), fontsize=25)
 
         plt.tight_layout()
 
@@ -3261,7 +3261,7 @@ class BoltztrapPlotter:
             ax.legend(loc="best", fontsize=15)
             ax.grid()
             ax.set_xticks(ax.get_xticks(), fontsize=25)
-            ax.set_xticks(ax.get_yticks(), fontsize=25)
+            ax.set_yticks(ax.get_yticks(), fontsize=25)
             ax.ticklabel_format(style="sci", axis="y", scilimits=(0, 0))
 
         plt.tight_layout()
@@ -3319,7 +3319,7 @@ class BoltztrapPlotter:
             ax.legend(loc="best", fontsize=15)
             ax.grid()
             ax.set_xticks(ax.get_xticks(), fontsize=25)
-            ax.set_xticks(ax.get_yticks(), fontsize=25)
+            ax.set_yticks(ax.get_yticks(), fontsize=25)
             ax.ticklabel_format(style="sci", axis="y", scilimits=(0, 0))
 
         plt.tight_layout()
@@ -3378,7 +3378,7 @@ class BoltztrapPlotter:
             ax.legend(loc="best", fontsize=15)
             ax.grid()
             ax.set_xticks(ax.get_xticks(), fontsize=25)
-            ax.set_xticks(ax.get_yticks(), fontsize=25)
+            ax.set_yticks(ax.get_yticks(), fontsize=25)
 
         plt.tight_layout()
         return ax
@@ -3474,7 +3474,7 @@ class BoltztrapPlotter:
             ax.legend(loc=p, fontsize=15)
             ax.grid()
             ax.set_xticks(ax.get_xticks(), fontsize=25)
-            ax.set_xticks(ax.get_yticks(), fontsize=25)
+            ax.set_yticks(ax.get_yticks(), fontsize=25)
 
         plt.tight_layout()
 
@@ -3532,7 +3532,7 @@ class BoltztrapPlotter:
             ax.legend(fontsize=15)
             ax.grid()
             ax.set_xticks(ax.get_xticks(), fontsize=25)
-            ax.set_xticks(ax.get_yticks(), fontsize=25)
+            ax.set_yticks(ax.get_yticks(), fontsize=25)
 
         plt.tight_layout()
 
@@ -3590,7 +3590,7 @@ class BoltztrapPlotter:
             ax.legend(loc=p, fontsize=15)
             ax.grid()
             ax.set_xticks(ax.get_xticks(), fontsize=25)
-            ax.set_xticks(ax.get_yticks(), fontsize=25)
+            ax.set_yticks(ax.get_yticks(), fontsize=25)
 
         plt.tight_layout()
 
@@ -3649,7 +3649,7 @@ class BoltztrapPlotter:
             ax.legend(loc=p, fontsize=15)
             ax.grid()
             ax.set_xticks(ax.get_xticks(), fontsize=25)
-            ax.set_xticks(ax.get_yticks(), fontsize=25)
+            ax.set_yticks(ax.get_yticks(), fontsize=25)
 
         plt.tight_layout()
 
@@ -3703,7 +3703,7 @@ class BoltztrapPlotter:
             ax.legend(loc=p, fontsize=15)
             ax.grid()
             ax.set_xticks(ax.get_xticks(), fontsize=25)
-            ax.set_xticks(ax.get_yticks(), fontsize=25)
+            ax.set_yticks(ax.get_yticks(), fontsize=25)
 
         plt.tight_layout()
 
@@ -3741,7 +3741,7 @@ class BoltztrapPlotter:
         ax.set_ylabel("carrier concentration (cm-3)", fontsize=30.0)
         ax.set_xlabel("E-E$_f$ (eV)", fontsize=30)
         ax.set_xticks(ax.get_xticks(), fontsize=25)
-        ax.set_xticks(ax.get_yticks(), fontsize=25)
+        ax.set_yticks(ax.get_yticks(), fontsize=25)
         plt.tight_layout()
         return ax
 
@@ -3764,7 +3764,7 @@ class BoltztrapPlotter:
         ax.set_ylabel("Hall carrier concentration (cm-3)", fontsize=30.0)
         ax.set_xlabel("E-E$_f$ (eV)", fontsize=30)
         ax.set_xticks(ax.get_xticks(), fontsize=25)
-        ax.set_xticks(ax.get_yticks(), fontsize=25)
+        ax.set_yticks(ax.get_yticks(), fontsize=25)
         plt.tight_layout()
         return ax
 
