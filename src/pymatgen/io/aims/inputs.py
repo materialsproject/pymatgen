@@ -109,7 +109,7 @@ class AimsGeometryIn(MSONable):
 
         site_props = {"magmom": magmom, "charge": charge}
         if velocities_dct:
-            site_props["velocity"] = np.array(velocity)  # type:ignore[assignment]
+            site_props["velocity"] = velocity  # type:ignore[assignment]
 
         if lattice is None:
             structure = Molecule(species, coords, np.sum(charge), site_properties=site_props)  # type:ignore[arg-type]
