@@ -789,6 +789,11 @@ class JDFTXStructure(MSONable):
             JDFTXStructure: The created JDFTXStructure object.
         """
         jl = jdftxinfile["lattice"]
+        if "R00" not in jl:
+            raise NotImplementedError(
+                "JDFTXStructure construction from JDFTXInfile currently only implemented for "
+                "lattices defined as a 3x3 matrix. "
+            )
         lattice = np.zeros([3, 3])
         for i in range(3):
             for j in range(3):
