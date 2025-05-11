@@ -20,7 +20,7 @@ import numpy as np
 import scipy.constants as const
 from monty.json import MSONable
 
-from pymatgen.core import Structure
+from pymatgen.core import Lattice, Structure
 from pymatgen.core.periodic_table import Element
 from pymatgen.core.units import bohr_to_ang
 from pymatgen.io.jdftx.generic_tags import AbstractTag, BoolTagContainer, DumpTagContainer, MultiformatTag, TagContainer
@@ -788,22 +788,8 @@ class JDFTXStructure(MSONable):
         Returns:
             JDFTXStructure: The created JDFTXStructure object.
         """
-        jl = jdftxinfile["lattice"]
-        if "R00" not in jl:
-            raise NotImplementedError(
-                "JDFTXStructure construction from JDFTXInfile currently only implemented for "
-                "lattices defined as a 3x3 matrix. "
-            )
-        lattice = np.zeros([3, 3])
-        for i in range(3):
-            for j in range(3):
-                lattice[i][j] += float(jl[f"R{i}{j}"])
-        if "latt-scale" in jdftxinfile:
-            latt_scale = np.array([jdftxinfile["latt-scale"][x] for x in ["s0", "s1", "s2"]])
-            lattice *= latt_scale
-        lattice = lattice.T  # convert to row vector format
-        lattice *= const.value("Bohr radius") * 10**10  # Bohr radius in Ang; convert to Ang
 
+        lattice = _infile_to_pmg_lattice(jdftxinfile)
         atomic_symbols = [x["species-id"] for x in jdftxinfile["ion"]]
         coords = np.array([[x["x0"], x["x1"], x["x2"]] for x in jdftxinfile["ion"]])
         coords *= const.value("Bohr radius") * 10**10  # Bohr radius in Ang; convert to Ang
@@ -1021,3 +1007,58 @@ def _multi_getattr(varbase: Any, varname: str):
     for var in varlist:
         varbase = getattr(varbase, var)
     return varbase
+
+
+def _infile_to_pmg_lattice(jdftxinfile: JDFTXInfile) -> Lattice:
+    jl = jdftxinfile["lattice"]
+    if "R00" not in jl:
+        return _infile_special_format_to_pmg_lattice(jdftxinfile)
+    return _infile_matrix_format_to_pmg_lattice(jdftxinfile)
+
+
+def _infile_special_format_to_pmg_lattice(jdftxinfile: JDFTXInfile) -> Lattice:
+    jl = jdftxinfile["lattice"]
+    if "modification" in jl:
+        raise NotImplementedError("Special case lattices with modification not implemented yet")
+    # Second boolean to check if latt-scale was passed but does nothing
+    if ("latt-scale" in jl) and (not all(np.isclose(float(x), 1) in jl for x in ["s0", "s1", "s2"])):
+        raise NotImplementedError("latt-scale for special case lattices not implemented yet")
+    if "Monoclinic" in jl:
+        lattice = Lattice.monoclinic(jl["a"], jl["b"], jl["c"], jl["beta"])
+    elif "Orthorhombic" in jl:
+        lattice = Lattice.orthorhombic(jl["a"], jl["b"], jl["c"])
+    elif "Cubic" in jl:
+        lattice = Lattice.cubic(jl["a"])
+    elif "Hexagonal" in jl:
+        lattice = Lattice.hexagonal(jl["a"], jl["c"])
+    elif "Rhombohedral" in jl:
+        lattice = Lattice.rhombohedral(jl["a"], jl["alpha"])
+    elif "Tetragonal" in jl:
+        lattice = Lattice.tetragonal(jl["a"], jl["c"])
+    elif "Triclinic" in jl:
+        lattice = Lattice.from_parameters(jl["a"], jl["b"], jl["c"], jl["alpha"], jl["beta"], jl["gamma"])
+    else:
+        raise ValueError(f"Unable to convert JDFTX lattice tag {jl} to pymatgen Lattice object")
+    return lattice
+
+
+def _infile_matrix_format_to_pmg_lattice(jdftxinfile: JDFTXInfile) -> Lattice:
+    """Convert JDFTX lattice tag to pymatgen Lattice object.
+
+    Args:
+        jl (dict[str, Any]): JDFTX lattice tag.
+
+    Returns:
+        Lattice: Pymatgen Lattice object.
+    """
+    _lattice = np.zeros([3, 3])
+    jl = jdftxinfile["lattice"]
+    for i in range(3):
+        for j in range(3):
+            _lattice[i][j] += float(jl[f"R{i}{j}"])
+    if "latt-scale" in jdftxinfile:
+        latt_scale = np.array([jdftxinfile["latt-scale"][x] for x in ["s0", "s1", "s2"]])
+        _lattice *= latt_scale
+    _lattice = _lattice.T  # convert to row vector format
+    _lattice *= const.value("Bohr radius") * 10**10  # Bohr radius in Ang; convert to Ang
+    return Lattice(_lattice)
