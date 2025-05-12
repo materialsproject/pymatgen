@@ -19,6 +19,7 @@ from pymatgen.core import Composition, get_el_sp
 from pymatgen.core.operations import SymmOp
 from pymatgen.core.structure import Lattice, Structure
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
+from pymatgen.symmetry.structure import SymmetrizedStructure
 from pymatgen.transformations.site_transformations import PartialRemoveSitesTransformation
 from pymatgen.transformations.transformation_abc import AbstractTransformation
 
@@ -454,7 +455,15 @@ class OrderDisorderedStructureTransformation(AbstractTransformation):
     ALGO_BEST_FIRST = 2
     ALGO_RANDOM = -1
 
-    def __init__(self, algo=ALGO_FAST, symmetrized_structures=False, no_oxi_states=False, occ_tol=0.25):
+    def __init__(
+        self,
+        algo: int = ALGO_FAST,
+        symmetrized_structures: bool = False,
+        no_oxi_states: bool = False,
+        occ_tol: float = 0.25,
+        symprec: float | None = None,
+        angle_tolerance: float | None = None,
+    ):
         """
         Args:
             algo (int): Algorithm to use.
@@ -466,11 +475,19 @@ class OrderDisorderedStructureTransformation(AbstractTransformation):
             occ_tol (float): Occupancy tolerance. If the total occupancy of a group is within this value
                 of an integer, it will be rounded to that integer otherwise raise a ValueError.
                 Defaults to 0.25.
+            symprec : float or None (default)
+                If a float, and symmetrized_structures is True, the linear tolerance
+                used to symmetrize structures with SpacegroupAnalyzer.
+            angle_tolerance : float or None (default)
+                If a float, and symmetrized_structures is True, the angle tolerance
+                used to symmetrize structures with SpacegroupAnalyzer.
         """
         self.algo = algo
         self._all_structures: list = []
         self.no_oxi_states = no_oxi_states
         self.symmetrized_structures = symmetrized_structures
+        self.symprec = symprec
+        self.angle_tolerance = angle_tolerance
         self.occ_tol = occ_tol
 
     def apply_transformation(
@@ -523,6 +540,11 @@ class OrderDisorderedStructureTransformation(AbstractTransformation):
                 if not site.species.almost_equals(sp):
                     continue
                 if self.symmetrized_structures:
+                    if not isinstance(structure, SymmetrizedStructure):
+                        sga_kwargs = {
+                            k: getattr(self, k) for k in ("symprec", "angle_tolerance") if getattr(self, k, None)
+                        }
+                        structure = SpacegroupAnalyzer(structure, **sga_kwargs).get_symmetrized_structure()
                     sym_equiv = structure.find_equivalent_sites(ex)  # type:ignore[attr-defined]
                     sym_test = site in sym_equiv
                 else:

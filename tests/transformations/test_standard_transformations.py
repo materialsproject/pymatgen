@@ -14,6 +14,7 @@ from pytest import approx
 from pymatgen.alchemy.transmuters import StandardTransmuter
 from pymatgen.core import Element, PeriodicSite
 from pymatgen.core.lattice import Lattice
+from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
 from pymatgen.symmetry.structure import SymmetrizedStructure
 from pymatgen.transformations.standard_transformations import (
     AutoOxiStateDecorationTransformation,
@@ -358,9 +359,27 @@ class TestOrderDisorderedStructureTransformation:
         ]
         struct = Structure(lattice, [{"Si4+": 1}, *[{"Si4+": 0.5}] * 4], coords)
         test_site = PeriodicSite("Si4+", coords[2], lattice)
-        struct = SymmetrizedStructure(struct, "not_real", [0, 1, 1, 2, 2], ["a", "b", "b", "c", "c"])
-        output = trafo.apply_transformation(struct)
+        symm_struct = SymmetrizedStructure(struct, "not_real", [0, 1, 1, 2, 2], ["a", "b", "b", "c", "c"])
+        output = trafo.apply_transformation(symm_struct)
         assert test_site in output
+
+        ds_coords = [
+            [0.0, 0.0, 0.0],
+            [0.0, 0.5, 0.5],
+            [0.5, 0.0, 0.5],
+            [0.5, 0.5, 0.0],
+            [0.25, 0.25, 0.75],
+            [0.25, 0.75, 0.25],
+            [0.75, 0.25, 0.25],
+            [0.75, 0.75, 0.75],
+        ]
+        structure = Structure(
+            Lattice.cubic(5),
+            [*[{"Si4-": 1}] * 4, *[{"Si4+": 0.5, "Ge4+": 0.5}] * 4],
+            ds_coords,
+        )
+        symm_struct = SpacegroupAnalyzer(structure).get_symmetrized_structure()
+        assert trafo.apply_transformation(symm_struct) == trafo.apply_transformation(structure)
 
     def test_too_small_cell(self):
         trafo = OrderDisorderedStructureTransformation()
