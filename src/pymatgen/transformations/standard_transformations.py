@@ -491,7 +491,7 @@ class OrderDisorderedStructureTransformation(AbstractTransformation):
         self.occ_tol = occ_tol
 
     def apply_transformation(
-        self, structure: Structure, return_ranked_list: bool | int = False
+        self, structure: Structure | SymmetrizedStructure, return_ranked_list: bool | int = False
     ) -> Structure | list[Structure] | list[dict[str, Any]]:
         """For this transformation, the apply_transformation method will return
         only the ordered structure with the lowest Ewald energy, to be
@@ -527,6 +527,11 @@ class OrderDisorderedStructureTransformation(AbstractTransformation):
             for idx, site in enumerate(structure):
                 structure[idx] = {f"{k.symbol}0+": v for k, v in site.species.items()}  # type: ignore[assignment]
 
+        if self.symmetrized_structures and not isinstance(structure, SymmetrizedStructure):
+            structure = SpacegroupAnalyzer(
+                structure, **{k: getattr(self, k) for k in ("symprec", "angle_tolerance") if getattr(self, k, None)}
+            ).get_symmetrized_structure()
+
         equivalent_sites: list[list[int]] = []
         exemplars: list[PeriodicSite] = []
         # generate list of equivalent sites to order
@@ -540,11 +545,6 @@ class OrderDisorderedStructureTransformation(AbstractTransformation):
                 if not site.species.almost_equals(sp):
                     continue
                 if self.symmetrized_structures:
-                    if not isinstance(structure, SymmetrizedStructure):
-                        sga_kwargs = {
-                            k: getattr(self, k) for k in ("symprec", "angle_tolerance") if getattr(self, k, None)
-                        }
-                        structure = SpacegroupAnalyzer(structure, **sga_kwargs).get_symmetrized_structure()
                     sym_equiv = structure.find_equivalent_sites(ex)  # type:ignore[attr-defined]
                     sym_test = site in sym_equiv
                 else:

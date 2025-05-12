@@ -379,7 +379,12 @@ class TestOrderDisorderedStructureTransformation:
             ds_coords,
         )
         symm_struct = SpacegroupAnalyzer(structure).get_symmetrized_structure()
-        assert trafo.apply_transformation(symm_struct) == trafo.apply_transformation(structure)
+
+        for no_oxi_states in (True, False):
+            _kwargs = {"symmetrized_structures": True, "no_oxi_states": no_oxi_states}
+            assert OrderDisorderedStructureTransformation(**_kwargs).apply_transformation(
+                symm_struct
+            ) == OrderDisorderedStructureTransformation(**_kwargs).apply_transformation(structure)
 
     def test_too_small_cell(self):
         trafo = OrderDisorderedStructureTransformation()
