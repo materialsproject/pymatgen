@@ -109,16 +109,16 @@ class AimsGeometryIn(MSONable):
 
         site_props = {"magmom": magmom, "charge": charge}
         if velocities_dct:
-            site_props["velocity"] = velocity
+            site_props["velocity"] = velocity  # type:ignore[assignment]
 
         if lattice is None:
-            structure = Molecule(species, coords, np.sum(charge), site_properties=site_props)
+            structure = Molecule(species, coords, np.sum(charge), site_properties=site_props)  # type:ignore[arg-type]
         else:
-            structure = Structure(
+            structure = Structure(  # type:ignore[assignment]
                 lattice,
                 species,
                 coords,
-                np.sum(charge),
+                np.sum(charge),  # type:ignore[arg-type]
                 coords_are_cartesian=True,
                 site_properties=site_props,
             )
@@ -137,7 +137,7 @@ class AimsGeometryIn(MSONable):
         """
         with zopen(filepath, mode="rt", encoding="utf-8") as in_file:
             content = in_file.read()
-        return cls.from_str(content)
+        return cls.from_str(content)  # type:ignore[arg-type]
 
     @classmethod
     def from_structure(cls, structure: Structure | IStructure | Molecule) -> Self:
@@ -180,7 +180,7 @@ class AimsGeometryIn(MSONable):
             if (v is not None) and any(v_i != 0.0 for v_i in v):
                 content_lines.append(f"     velocity   {'  '.join([f'{v_i:.12e}' for v_i in v])}")
 
-        return cls(_content="\n".join(content_lines), _structure=structure)
+        return cls(_content="\n".join(content_lines), _structure=structure)  # type:ignore[arg-type]
 
     @property
     def structure(self) -> Structure | Molecule:
@@ -232,7 +232,7 @@ class AimsGeometryIn(MSONable):
         dct["@module"] = type(self).__module__
         dct["@class"] = type(self).__name__
         dct["content"] = self.content
-        dct["structure"] = self.structure
+        dct["structure"] = self.structure  # type:ignore[assignment]
         return dct
 
     @classmethod
@@ -303,7 +303,7 @@ class AimsCube(MSONable):
 
     type: str = field(default_factory=str)
     origin: Sequence[float] | tuple[float, float, float] = field(default_factory=lambda: [0.0, 0.0, 0.0])
-    edges: Sequence[Sequence[float]] = field(default_factory=lambda: 0.1 * np.eye(3))
+    edges: Sequence[Sequence[float]] = field(default_factory=lambda: 0.1 * np.eye(3))  # type:ignore[return-value, arg-type]
     points: Sequence[int] | tuple[int, int, int] = field(default_factory=lambda: [0, 0, 0])
     format: str = "cube"
     spin_state: int | None = None
@@ -766,7 +766,7 @@ class AimsSpeciesFile:
             AimsSpeciesFile
         """
         with zopen(filename, mode="rt", encoding="utf-8") as file:
-            return cls(data=file.read(), label=label)
+            return cls(data=file.read(), label=label)  # type:ignore[arg-type]
 
     @classmethod
     def from_element_and_basis_name(

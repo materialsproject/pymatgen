@@ -188,14 +188,14 @@ class Header(MSONable):
         # if Structure, check symmetry
         if isinstance(self.struct, Structure):
             self.periodic = True
-            sym = SpacegroupAnalyzer(struct, **self.spacegroup_analyzer_settings)
+            sym = SpacegroupAnalyzer(struct, **self.spacegroup_analyzer_settings)  # type:ignore[arg-type]
             data = sym.get_symmetry_dataset()
             self.space_number = data.number
             self.space_group = data.international
         # for Molecule, skip the symmetry check
         elif isinstance(self.struct, Molecule):
             self.periodic = False
-            self.space_number = self.space_group = None
+            self.space_number = self.space_group = None  # type:ignore[assignment]
         else:
             raise TypeError("'struct' argument must be a Structure or Molecule!")
         self.comment = comment or "None given"
@@ -247,7 +247,7 @@ class Header(MSONable):
             Reads header string.
         """
         with zopen(filename, mode="rt", encoding="utf-8") as file:
-            lines = file.readlines()
+            lines: list[str] = file.readlines()  # type:ignore[assignment]
             feff_header_str = []
             ln = 0
 
@@ -669,7 +669,7 @@ class Tags(dict):
             Tags
         """
         with zopen(filename, mode="rt", encoding="utf-8") as file:
-            lines = list(clean_lines(file.readlines()))
+            lines: list[str] = list(clean_lines(file.readlines()))  # type:ignore[arg-type]
         params = {}
         eels_params = []
         ieels = -1

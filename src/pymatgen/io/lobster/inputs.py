@@ -512,7 +512,7 @@ class Lobsterin(UserDict, MSONable):
         # For now, we are setting MAGMOM to zero. (Taken from INCAR class)
         cell = matrix, positions, zs, magmoms
         # TODO: what about this shift?
-        mapping, grid = spglib.get_ir_reciprocal_mesh(mesh, cell, is_shift=[0, 0, 0])
+        mapping, grid = spglib.get_ir_reciprocal_mesh(mesh, cell, is_shift=[0, 0, 0])  # type:ignore[arg-type]
 
         # Get the KPOINTS for the grid
         if isym == -1:
@@ -530,7 +530,7 @@ class Lobsterin(UserDict, MSONable):
             weights = []
             all_labels = []
             newlist = [list(gp) for gp in list(grid)]
-            mapping = []
+            mapping = []  # type:ignore[assignment]
             for gp in newlist:
                 minus_gp = [-k for k in gp]
                 if minus_gp in newlist and minus_gp != [0, 0, 0]:
@@ -590,7 +590,7 @@ class Lobsterin(UserDict, MSONable):
             Lobsterin object
         """
         with zopen(lobsterin, mode="rt", encoding="utf-8") as file:
-            lines = file.read().split("\n")
+            lines: list[str] = file.read().split("\n")  # type:ignore[arg-type,assignment]
         if not lines:
             raise RuntimeError("lobsterin file contains no data.")
 
@@ -640,7 +640,7 @@ class Lobsterin(UserDict, MSONable):
         Returns:
             list[str]: names of the species
         """
-        potcar = Potcar.from_file(POTCAR_input)
+        potcar = Potcar.from_file(POTCAR_input)  # type:ignore[arg-type]
         for pot in potcar:
             if pot.potential_type != "PAW":
                 raise ValueError("Lobster only works with PAW! Use different POTCARs")

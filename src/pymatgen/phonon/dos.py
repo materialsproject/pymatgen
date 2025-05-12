@@ -16,7 +16,7 @@ from pymatgen.core.structure import Structure
 from pymatgen.util.coord import get_linear_interpolated_value
 
 if version.parse(np.__version__) < version.parse("2.0.0"):
-    np.trapezoid = np.trapz  # noqa: NPY201
+    np.trapezoid = np.trapz  # type:ignore[assignment]  # noqa: NPY201
 
 if TYPE_CHECKING:
     from numpy.typing import ArrayLike, NDArray
@@ -155,7 +155,7 @@ class PhononDos(MSONable):
     @lazy_property
     def ind_zero_freq(self) -> int:
         """Index of the first point for which the frequencies are >= 0."""
-        ind = np.searchsorted(self.frequencies, 0)
+        ind = np.searchsorted(self.frequencies, 0).astype(int)
         if ind >= len(self.frequencies):
             raise ValueError("No positive frequencies found")
         return ind

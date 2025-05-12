@@ -250,7 +250,7 @@ class ResParser:
         """Parse the res file as a file."""
         self = cls()
         with zopen(filename, mode="rt", encoding="utf-8") as file:
-            self.source = file.read()
+            self.source = file.read()  # type:ignore[assignment]
             return self._parse_txt()
 
 
@@ -279,15 +279,15 @@ class ResWriter:
         for site in sites:
             for specie, occ in site.species.items():
                 try:
-                    i = species.index(specie) + 1
+                    i = species.index(specie) + 1  # type:ignore[arg-type]
                 except ValueError:
-                    species.append(specie)
+                    species.append(specie)  # type:ignore[arg-type]
                     i = len(species)
 
                 x, y, z = map(float, site.frac_coords)
                 spin = site.properties.get("magmom")
                 spin = spin and float(spin)
-                ions.append(Ion(specie, i, (x, y, z), occ, spin))
+                ions.append(Ion(specie, i, (x, y, z), occ, spin))  # type:ignore[arg-type]
 
         return ResSFAC(species, ions)
 
@@ -323,7 +323,7 @@ class ResWriter:
         func = self._res_from_structure
         if isinstance(entry, ComputedStructureEntry):
             func = self._res_from_entry
-        self._res = func(entry)
+        self._res = func(entry)  # type:ignore[arg-type]
 
     def __str__(self):
         return str(self._res)
@@ -336,7 +336,7 @@ class ResWriter:
     def write(self, filename: str) -> None:
         """Write the res data to a file."""
         with zopen(filename, mode="wt", encoding="utf-8") as file:
-            file.write(str(self))
+            file.write(str(self))  # type:ignore[arg-type]
 
 
 class ResProvider(MSONable):

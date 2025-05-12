@@ -258,7 +258,7 @@ class Report(MSONable):
         row_idx: int = LineLocator.locate_all_lines(self.filename, content)[0]
         kpts: np.ndarray = np.zeros((self._num_kpts, 3))
         kpts_weight: np.ndarray = np.zeros(self._num_kpts)
-        hsps: dict[str, np.array] = {}
+        hsps: dict[str, np.ndarray] = {}
         for ii in range(num_rows):
             #  0.00000     0.00000    0.00000     0.03704           G
             tmp_row_lst: list[str] = linecache.getline(str(self.filename), row_idx + ii + 1).split()

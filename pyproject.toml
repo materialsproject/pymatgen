@@ -301,8 +301,8 @@ exclude_also = [
 ignore_missing_imports = true
 namespace_packages = true
 no_implicit_optional = false
-disable_error_code = ["annotation-unchecked", "override", "operator", "attr-defined", "union-attr", "misc", "call-overload", "call-arg"] #, "operator", "arg-type", "index", "call-arg", "return-value", "assignment", "attr-defined"]
-exclude = ['src/pymatgen/analysis', 'src/pymatgen/io', 'src/pymatgen/cli', 'src/pymatgen/phonon']
+disable_error_code = ["annotation-unchecked", "override", "operator", "attr-defined", "union-attr", "misc", "call-overload", "index"]
+exclude = ['src/pymatgen/analysis', 'src/pymatgen/io/cp2k', 'src/pymatgen/io/lammps']
 plugins = ["numpy.typing.mypy_plugin"]
 
 [[tool.mypy.overrides]]
@@ -311,7 +311,7 @@ ignore_missing_imports = true
 
 [tool.codespell]
 # TODO: un-ignore "ist/nd/ot/ontop/CoO" once support file-level ignore with pattern
-ignore-words-list = """Nd, Te, titel, Mater,
+ignore-words-list = """Nd, Te, titel, Mater, nax,
 Hart, Lew, Rute, atomate,
 ist, nd, ot, ontop, CoO
 """

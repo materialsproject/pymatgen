@@ -206,22 +206,19 @@ class AimsOutput(MSONable):
     @property
     def stress(
         self,
-    ) -> Sequence[Sequence[float, float, float], Sequence[float, float, float], Sequence[float, float, float]]:
+    ) -> np.ndarray:
         """The stress for the final image of the calculation."""
         return self.get_results_for_image(-1).properties.get("stress", None)
 
     @property
     def stresses(
         self,
-    ) -> (
-        Sequence[Sequence[Sequence[float, float, float], Sequence[float, float, float], Sequence[float, float, float]]]
-        | None
-    ):
+    ) -> list[list[float]] | None:
         """The atomic virial stresses for the final image of the calculation."""
         stresses_array = self.get_results_for_image(-1).site_properties.get("atomic_virial_stress", None)
         if isinstance(stresses_array, np.ndarray):
             return stresses_array.tolist()
-        return stresses_array
+        return stresses_array  # type:ignore[return-value]
 
     @property
     def all_forces(self) -> list[list[tuple[float, float, float]]]:

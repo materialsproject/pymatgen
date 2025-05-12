@@ -301,7 +301,7 @@ class CifFile:
             CifFile
         """
         with zopen(filename, mode="rt", errors="replace", encoding="utf-8") as file:
-            return cls.from_str(file.read())
+            return cls.from_str(file.read())  # type:ignore[arg-type]
 
 
 class CifParser:
@@ -1025,7 +1025,7 @@ class CifParser:
             magmoms = self._parse_magmoms(data)
 
         else:
-            self.symmetry_operations = self.get_symops(data)
+            self.symmetry_operations = self.get_symops(data)  # type:ignore[assignment]
             magmoms = {}
 
         oxi_states = self._parse_oxi_states(data)
@@ -1175,7 +1175,7 @@ class CifParser:
                 equivalent_indices += len(coords) * [idx]
 
                 all_hydrogens.extend(len(coords) * [im_h])
-                all_coords.extend(coords)
+                all_coords.extend(coords)  # type:ignore[arg-type]
                 all_species.extend(len(coords) * [species])
                 all_magmoms.extend(_magmoms)
                 all_labels.extend(new_labels)
@@ -1210,7 +1210,7 @@ class CifParser:
                 all_labels = None  # type: ignore[assignment]
 
             struct: Structure = Structure(
-                lattice,
+                lattice,  # type:ignore[arg-type]
                 all_species,
                 all_coords,
                 site_properties=site_properties,
@@ -1766,4 +1766,4 @@ class CifWriter:
     ) -> None:
         """Write the CIF file."""
         with zopen(filename, mode=mode, encoding="utf-8") as file:
-            file.write(str(self))
+            file.write(str(self))  # type:ignore[arg-type]

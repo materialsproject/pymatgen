@@ -24,7 +24,7 @@ if TYPE_CHECKING:
     from os import PathLike
     from typing import Literal
 
-    from numpy.typing import ArrayLike
+    from numpy.typing import ArrayLike, NDArray
     from typing_extensions import Self
 
 __author__ = "J. George"
@@ -69,11 +69,11 @@ class ThermalDisplacementMatrices(MSONable):
                 U11, U22, U33, U23, U13, U12 (xx, yy, zz, yz, xz, xy)
                 convention similar to "thermal_displacement_matrices.yaml" in phonopy.
         """
-        self.thermal_displacement_matrix_cart = np.array(thermal_displacement_matrix_cart)
+        self.thermal_displacement_matrix_cart = np.asarray(thermal_displacement_matrix_cart)
         self.structure = structure
         self.temperature = temperature
         if thermal_displacement_matrix_cif is not None:
-            self.thermal_displacement_matrix_cif = np.array(thermal_displacement_matrix_cif)
+            self.thermal_displacement_matrix_cif: None | NDArray = np.asarray(thermal_displacement_matrix_cif)
         else:
             self.thermal_displacement_matrix_cif = None
 
@@ -99,8 +99,9 @@ class ThermalDisplacementMatrices(MSONable):
         Returns:
             3d numpy array including thermal displacements, first dimensions are the atoms
         """
-        matrix_form = np.zeros((len(thermal_displacement), 3, 3))
-        for idx, mat in enumerate(thermal_displacement):
+        td = np.array(thermal_displacement)
+        matrix_form = np.zeros((len(td), 3, 3))
+        for idx, mat in enumerate(td):
             # xx, yy, zz, yz, xz, xy
             matrix_form[idx][0][0] = mat[0]
             matrix_form[idx][1][1] = mat[1]
@@ -125,8 +126,9 @@ class ThermalDisplacementMatrices(MSONable):
         Returns:
             3d numpy array including thermal displacements, first dimensions are the atoms
         """
-        reduced_matrix = np.zeros((len(thermal_displacement), 6))
-        for idx, mat in enumerate(thermal_displacement):
+        td = np.array(thermal_displacement)
+        reduced_matrix = np.zeros((len(td), 6))
+        for idx, mat in enumerate(td):
             # xx, yy, zz, yz, xz, xy
             reduced_matrix[idx][0] = mat[0][0]
             reduced_matrix[idx][1] = mat[1][1]
