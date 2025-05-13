@@ -771,29 +771,38 @@ class SpacegroupAnalyzer:
                     latt2 = Lattice([m[tp2[0]], m[tp2[1]], m[2]])
                     lengths = latt2.lengths
                     angles = latt2.angles
-                    if angles[0] == 90:
+                    alpha_degrees = angles[0]
+                    if alpha_degrees == 90:
                         continue
 
                     transf = np.zeros(shape=(3, 3))
                     transf[2][2] = 1
 
-                    if angles[0] > 90:
+                    if alpha_degrees > 90:
                         # if the angle is > 90 we invert a and b to get an angle < 90
-                        a, b, c, alpha, beta, gamma = Lattice([-m[tp2[0]], -m[tp2[1]], m[2]]).parameters
+                        a, b, c, alpha_degrees, beta, gamma = Lattice([-m[tp2[0]], -m[tp2[1]], m[2]]).parameters
                         transf[0][tp2[0]] = -1
                         transf[1][tp2[1]] = -1
 
-                    elif angles[0] < 90:  # otherwise no inversion
+                    elif alpha_degrees < 90:  # otherwise no inversion
                         transf[0][tp2[0]] = 1
                         transf[1][tp2[1]] = 1
                         a, b, c = lengths
+                        alpha_degrees = angles[0]
 
-                    alpha = math.pi * angles[0] / 180
+                    alpha_radians = math.pi * alpha_degrees / 180
                     new_matrix = [
                         [a, 0, 0],
                         [0, b, 0],
-                        [0, c * cos(alpha), c * sin(alpha)],
+                        [0, c * cos(alpha_radians), c * sin(alpha_radians)],
                     ]
+
+                if new_matrix is None:
+                    # this if is to treat the case where alpha==90 (but we still have a monoclinic sg), with C unchanged
+                    # transf is already defined as [[0,0,0],[0,0,0],[0,0,1]], and sorted_dic only contains a & b:
+                    new_matrix = [[a, 0, 0], [0, b, 0], [0, 0, c]]
+                    for idx, dct in enumerate(sorted_dic):
+                        transf[idx][dct["orig_index"]] = 1
 
             # if not C-setting
             else:
@@ -815,7 +824,6 @@ class SpacegroupAnalyzer:
                         transf[1][tp3[1]] = -1
 
                     elif alpha < 90 and b < c:
-                        transf = np.zeros(shape=(3, 3))
                         transf[0][tp3[0]] = 1
                         transf[1][tp3[1]] = 1
 
@@ -826,13 +834,12 @@ class SpacegroupAnalyzer:
                         [0, c * cos(alpha), c * sin(alpha)],
                     ]
 
-            if new_matrix is None:
-                # this if is to treat the case where alpha==90 (but we still have a monoclinic sg)
-                new_matrix = list(np.zeros(shape=(3, 3)))
-                transf = np.zeros(shape=(3, 3))
-                for idx, dct in enumerate(sorted_dic):
-                    new_matrix[idx] = dct["vec"]
-                    transf[idx][dct["orig_index"]] = 1
+                if new_matrix is None:
+                    # this if is to treat the case where alpha==90 (but we still have a monoclinic sg)
+                    new_matrix = list(np.zeros(shape=(3, 3)))
+                    for idx, dct in enumerate(sorted_dic):  # vectors sorted by length (a<=b<=c)
+                        new_matrix[idx] = dct["vec"]
+                        transf[idx][dct["orig_index"]] = 1
 
             if international_monoclinic:
                 # The above code makes alpha the non-right angle.

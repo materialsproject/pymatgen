@@ -46,7 +46,7 @@ class TestBandStructureSC(MatSciTest):
         struct_file_path = f"{TEST_DIR}/ICSD_170.cif"
         struct = Structure.from_file(struct_file_path)
         hkp = KPathSetyawanCurtarolo(struct)
-        assert hkp.name == "MCLC3"
+        assert hkp.name == "MCLC5"
 
     def test_kpath_acentered(self):
         species = ["K", "La", "Ti"]
