@@ -364,7 +364,9 @@ class ComputedEntry(Entry):
             float: the total energy correction / adjustment applied to the entry in eV.
         """
         # either sum of adjustments or ufloat with nan std_dev, so that no corrections still result in ufloat object:
-        corr = sum(ufloat(ea.value, ea.uncertainty) for ea in self.energy_adjustments) or ufloat(0.0, np.nan)
+        corr = sum(ufloat(ea.value, ea.uncertainty) for ea in self.energy_adjustments if ea.value) or ufloat(
+            0.0, np.nan
+        )
         return corr.nominal_value
 
     @correction.setter
@@ -388,7 +390,7 @@ class ComputedEntry(Entry):
         """
         # either sum of adjustments or ufloat with nan std_dev, so that no corrections still result in ufloat object:
         unc = sum(
-            (ufloat(ea.value, ea.uncertainty) if not np.isnan(ea.uncertainty) else ufloat(ea.value, 0))
+            (ufloat(ea.value, ea.uncertainty) if not np.isnan(ea.uncertainty) and ea.value else ufloat(ea.value, 0))
             for ea in self.energy_adjustments
         ) or ufloat(0.0, np.nan)
 

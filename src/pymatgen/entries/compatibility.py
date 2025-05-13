@@ -288,7 +288,9 @@ class AnionCorrection(Correction):
         if len(comp) == 1:  # Skip element entry
             return ufloat(0.0, np.nan)
 
-        correction = ufloat(0.0, 0.0)
+        with warnings.catch_warnings():
+            warnings.filterwarnings("ignore", message="Using UFloat")
+            correction = ufloat(0.0, 0.0)
 
         # Check for sulfide corrections
         if Element("S") in comp:
