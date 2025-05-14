@@ -487,6 +487,40 @@ def test_lattice_writing(value_str: str):
     )
 
 
+@pytest.mark.parametrize(
+    ("value_str"),
+    [
+        ("Rhombohedral 1.0 1.0"),
+        ("Triclinic 1.0 1.0 1.0 1.0 1.0 1.0"),
+        ("Hexagonal 1.0 1.0"),
+        ("Body-Centered Cubic 1.0"),
+        ("Cubic 1.0"),
+        ("Orthorhombic 1.0 1.0 1.0"),
+        ("Base-Centered Orthorhombic 1.0 1.0 1.0"),
+        ("Monoclinic 1.0 1.0 1.0 1.0"),
+        ("Base-Centered Monoclinic 1.0 1.0 1.0 1.0"),
+        ("Tetragonal 1.0 1.0"),
+        ("Body-Centered Tetragonal 1.0 1.0"),
+    ],
+)
+def test_jdftxstructure_lattice_conversion(value_str: str):
+    test_vars = ["a", "b", "c", "alpha", "beta", "gamma"]
+    mft_lattice_tag = get_tag_object("lattice")
+    assert mft_lattice_tag is not None
+    i = mft_lattice_tag.get_format_index_for_str_value("lattice", value_str)
+    tag_object = mft_lattice_tag.format_options[i]
+    parsed_tag = tag_object.read("lattice", value_str)
+    infile = JDFTXInfile.from_str("lattice " + value_str + "\n ion H 0.0 0.0 0.0 0", dont_require_structure=True)
+    if "modification" in parsed_tag:
+        with pytest.raises(NotImplementedError):
+            _ = infile.to_pmg_structure(infile)
+    else:
+        structure = infile.to_pmg_structure(infile)
+        for var in test_vars:
+            if var in parsed_tag:
+                assert_same_value(float(getattr(structure.lattice, var)), float(parsed_tag[var]))
+
+
 # This fails, but I don't think we need to support this
 # @pytest.mark.parametrize(
 #     ("unordered_dict", "expected_out"),

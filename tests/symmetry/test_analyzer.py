@@ -379,6 +379,23 @@ class TestSpacegroupAnalyzer(MatSciTest):
         conventional = spga.get_conventional_standard_structure(keep_site_properties=False)
         assert conventional.site_properties.get("magmom") is None
 
+        mono_struct = Structure(
+            lattice=np.array(
+                [
+                    [-0.00000000e00, -0.00000000e00, -6.43473000e00],
+                    [3.78586000e00, 6.30170000e00, -0.00000000e00],
+                    [3.78586000e00, -6.30170000e00, -1.77635684e-15],
+                ]
+            ),
+            species=["O"] * 3,
+            coords=np.array([[0.5, 0.5, 0.66666667], [0.5, 0.0, 0.0], [0.5, 0.0, 0.33333333]]),
+        )
+        sga = SpacegroupAnalyzer(mono_struct)
+        assert abs(np.linalg.det(sga.get_symmetry_dataset().primitive_lattice)) == approx(307.03126)
+        assert abs(np.linalg.det(sga.get_primitive_standard_structure().lattice.matrix)) == approx(307.03126)
+        assert abs(np.linalg.det(sga.get_conventional_standard_structure().lattice.matrix)) == approx(307.03126)
+        assert abs(np.linalg.det(sga.get_refined_structure().lattice.matrix)) == approx(307.03126)
+
     def test_get_primitive_standard_structure(self):
         for file_name, expected_angles, expected_abc in [
             ("bcc_1927.cif", [109.47122063400001] * 3, [7.9657251015812145] * 3),

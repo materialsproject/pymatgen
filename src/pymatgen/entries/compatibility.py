@@ -121,16 +121,14 @@ class Correction(abc.ABC):
         """
         new_corr = self.get_correction(entry)
         old_std_dev = entry.correction_uncertainty
-        if np.isnan(old_std_dev):
-            old_std_dev = 0
-        old_corr = ufloat(entry.correction, old_std_dev)
+        old_corr = ufloat(entry.correction, 0 if np.isnan(old_std_dev) else old_std_dev)
         updated_corr = new_corr + old_corr
 
         # if there are no error values available for the corrections applied,
         # set correction uncertainty to not a number
-        uncertainty = np.nan if updated_corr.nominal_value != 0 and updated_corr.std_dev == 0 else updated_corr.std_dev
-
-        entry.energy_adjustments.append(ConstantEnergyAdjustment(updated_corr.nominal_value, uncertainty))
+        entry.energy_adjustments.append(
+            ConstantEnergyAdjustment(updated_corr.nominal_value, updated_corr.std_dev or np.nan)
+        )
 
         return entry
 
@@ -195,7 +193,7 @@ class PotcarCorrection(Correction):
             ufloat: 0.0 +/- 0.0 (from uncertainties package)
         """
         if SETTINGS.get("PMG_POTCAR_CHECKS") is False or not self.check_potcar:
-            return ufloat(0.0, 0.0)
+            return ufloat(0.0, np.nan)
 
         potcar_spec = entry.parameters.get("potcar_spec")
         if self.check_hash:
@@ -211,7 +209,7 @@ class PotcarCorrection(Correction):
         expected_psp = {self.valid_potcars.get(el.symbol) for el in entry.elements}
         if expected_psp != psp_settings:
             raise CompatibilityError(f"Incompatible POTCAR {psp_settings}, expected {expected_psp}")
-        return ufloat(0.0, 0.0)
+        return ufloat(0.0, np.nan)
 
 
 @cached_class
@@ -249,6 +247,8 @@ class GasCorrection(Correction):
         if rform in self.cpd_energies:
             correction += self.cpd_energies[rform] * comp.num_atoms - entry.uncorrected_energy
 
+        if correction.std_dev == 0:
+            correction = ufloat(correction.nominal_value, np.nan)  # set std_dev to nan if no uncertainty
         return correction
 
 
@@ -286,9 +286,11 @@ class AnionCorrection(Correction):
         """
         comp = entry.composition
         if len(comp) == 1:  # Skip element entry
-            return ufloat(0.0, 0.0)
+            return ufloat(0.0, np.nan)
 
-        correction = ufloat(0.0, 0.0)
+        with warnings.catch_warnings():
+            warnings.filterwarnings("ignore", message="Using UFloat")
+            correction = ufloat(0.0, 0.0)
 
         # Check for sulfide corrections
         if Element("S") in comp:
@@ -345,6 +347,8 @@ class AnionCorrection(Correction):
             else:
                 correction += self.oxide_correction["oxide"] * comp["O"]
 
+        if correction.std_dev == 0:
+            correction = ufloat(correction.nominal_value, np.nan)  # set std_dev to nan if no uncertainty
         return correction
 
 
@@ -432,6 +436,8 @@ class AqueousCorrection(Correction):
                 correction += ufloat(-1 * MU_H2O * nH2O, 0.0)
                 # correction += 0.5 * 2.46 * nH2O  # this is the old way this correction was calculated
 
+        if correction.std_dev == 0:
+            correction = ufloat(correction.nominal_value, np.nan)  # set std_dev to nan if no uncertainty
         return correction
 
 
@@ -537,6 +543,8 @@ class UCorrection(Correction):
             if sym in u_corr:
                 correction += ufloat(u_corr[sym], u_errors[sym]) * comp[el]
 
+        if correction.std_dev == 0:
+            correction = ufloat(correction.nominal_value, np.nan)  # set std_dev to nan if no uncertainty
         return correction
 
 
@@ -1076,7 +1084,7 @@ class MaterialsProject2020Compatibility(Compatibility):
             )
 
         # check the POTCAR symbols
-        # this should return ufloat(0, 0) or raise a CompatibilityError or ValueError
+        # this should return ufloat(0, np.nan) or raise a CompatibilityError or ValueError
         if entry.parameters.get("software", "vasp") == "vasp":
             pc = PotcarCorrection(
                 MPRelaxSet,
