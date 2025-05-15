@@ -771,95 +771,79 @@ class SpacegroupAnalyzer:
                     latt2 = Lattice([m[tp2[0]], m[tp2[1]], m[2]])
                     lengths = latt2.lengths
                     angles = latt2.angles
-                    if angles[0] > 90:
-                        # if the angle is > 90 we invert a and b to get
-                        # an angle < 90
-                        a, b, c, alpha, beta, gamma = Lattice([-m[tp2[0]], -m[tp2[1]], m[2]]).parameters
-                        transf = np.zeros(shape=(3, 3))
-                        transf[0][tp2[0]] = -1
-                        transf[1][tp2[1]] = -1
-                        transf[2][2] = 1
-                        alpha = math.pi * alpha / 180
-                        new_matrix = [
-                            [a, 0, 0],
-                            [0, b, 0],
-                            [0, c * cos(alpha), c * sin(alpha)],
-                        ]
+                    alpha_degrees = angles[0]
+                    if alpha_degrees == 90:
                         continue
 
-                    if angles[0] < 90:
-                        transf = np.zeros(shape=(3, 3))
+                    transf = np.zeros(shape=(3, 3))
+                    transf[2][2] = 1
+
+                    if alpha_degrees > 90:
+                        # if the angle is > 90 we invert a and b to get an angle < 90
+                        a, b, c, alpha_degrees, beta, gamma = Lattice([-m[tp2[0]], -m[tp2[1]], m[2]]).parameters
+                        transf[0][tp2[0]] = -1
+                        transf[1][tp2[1]] = -1
+
+                    elif alpha_degrees < 90:  # otherwise no inversion
                         transf[0][tp2[0]] = 1
                         transf[1][tp2[1]] = 1
-                        transf[2][2] = 1
                         a, b, c = lengths
-                        alpha = math.pi * angles[0] / 180
-                        new_matrix = [
-                            [a, 0, 0],
-                            [0, b, 0],
-                            [0, c * cos(alpha), c * sin(alpha)],
-                        ]
+                        alpha_degrees = angles[0]
+
+                    alpha_radians = math.pi * alpha_degrees / 180
+                    new_matrix = [
+                        [a, 0, 0],
+                        [0, b, 0],
+                        [0, c * cos(alpha_radians), c * sin(alpha_radians)],
+                    ]
 
                 if new_matrix is None:
-                    # this if is to treat the case
-                    # where alpha==90 (but we still have a monoclinic sg
+                    # this if is to treat the case where alpha==90 (but we still have a monoclinic sg), with C unchanged
+                    # transf is already defined as [[0,0,0],[0,0,0],[0,0,1]], and sorted_dic only contains a & b:
                     new_matrix = [[a, 0, 0], [0, b, 0], [0, 0, c]]
-                    transf = np.zeros(shape=(3, 3))
-                    transf[2] = [0, 0, 1]  # see issue #1929
                     for idx, dct in enumerate(sorted_dic):
                         transf[idx][dct["orig_index"]] = 1
+
             # if not C-setting
             else:
                 # try all permutations of the axis
-                # keep the ones with the non-90 angle=alpha
-                # and b<c
+                # keep the ones with the non-90 angle=alpha and b<c
                 new_matrix = None
 
                 for tp3 in itertools.permutations(list(range(3)), 3):
                     m = lattice.matrix
                     a, b, c, alpha, beta, gamma = Lattice([m[tp3[0]], m[tp3[1]], m[tp3[2]]]).parameters
+                    if alpha == 90 or b >= c:
+                        continue
+                    transf = np.zeros(shape=(3, 3))
+                    transf[2][tp3[2]] = 1
+
                     if alpha > 90 and b < c:
                         a, b, c, alpha, beta, gamma = Lattice([-m[tp3[0]], -m[tp3[1]], m[tp3[2]]]).parameters
-                        transf = np.zeros(shape=(3, 3))
                         transf[0][tp3[0]] = -1
                         transf[1][tp3[1]] = -1
-                        transf[2][tp3[2]] = 1
-                        alpha = math.pi * alpha / 180
-                        new_matrix = [
-                            [a, 0, 0],
-                            [0, b, 0],
-                            [0, c * cos(alpha), c * sin(alpha)],
-                        ]
-                        continue
 
-                    if alpha < 90 and b < c:
-                        transf = np.zeros(shape=(3, 3))
+                    elif alpha < 90 and b < c:
                         transf[0][tp3[0]] = 1
                         transf[1][tp3[1]] = 1
-                        transf[2][tp3[2]] = 1
-                        alpha = math.pi * alpha / 180
-                        new_matrix = [
-                            [a, 0, 0],
-                            [0, b, 0],
-                            [0, c * cos(alpha), c * sin(alpha)],
-                        ]
+
+                    alpha = math.pi * alpha / 180
+                    new_matrix = [
+                        [a, 0, 0],
+                        [0, b, 0],
+                        [0, c * cos(alpha), c * sin(alpha)],
+                    ]
 
                 if new_matrix is None:
-                    # this if is to treat the case
-                    # where alpha==90 (but we still have a monoclinic sg
-                    new_matrix = [
-                        [sorted_lengths[0], 0, 0],
-                        [0, sorted_lengths[1], 0],
-                        [0, 0, sorted_lengths[2]],
-                    ]
-                    transf = np.zeros(shape=(3, 3))
-                    for idx, dct in enumerate(sorted_dic):
+                    # this if is to treat the case where alpha==90 (but we still have a monoclinic sg)
+                    new_matrix = list(np.zeros(shape=(3, 3)))
+                    for idx, dct in enumerate(sorted_dic):  # vectors sorted by length (a<=b<=c)
+                        new_matrix[idx] = dct["vec"]
                         transf[idx][dct["orig_index"]] = 1
 
             if international_monoclinic:
                 # The above code makes alpha the non-right angle.
-                # The following will convert to proper international convention
-                # that beta is the non-right angle.
+                # The following will convert to proper international convention that beta is the non-right angle
                 op = [[0, 1, 0], [1, 0, 0], [0, 0, -1]]
                 transf = np.dot(op, transf)
                 new_matrix = np.dot(op, new_matrix)
