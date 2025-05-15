@@ -80,6 +80,7 @@ class JDFTXInfile(dict, MSONable):
         """Add existing JDFTXInfile object to method caller JDFTXInfile object.
 
         Add all the values of another JDFTXInfile object to this object. Facilitate the use of "standard" JDFTXInfiles.
+        Repeatable tags are appended together. Non-repeatable tags are replaced with their value from the other object.
 
         Args:
             other (JDFTXInfile): JDFTXInfile object to add to the method caller object.
@@ -87,11 +88,26 @@ class JDFTXInfile(dict, MSONable):
         Returns:
             JDFTXInfile: The combined JDFTXInfile object.
         """
-        params: dict[str, Any] = dict(self.items())
+        # Deepcopy needed here, or else in `jif1 = jif2 + jif3`, `jif1` will become a reference to `jif2`
+        params: dict[str, Any] = deepcopy(dict(self.items()))
         for key, val in other.items():
-            if key in self and val != self[key]:
-                raise ValueError(f"JDFTXInfiles have conflicting values for {key}: {self[key]} != {val}")
-            params[key] = val
+            if key in self:
+                if val is params[key]:
+                    # Unlinking the two objects fully cannot be done by deepcopy for some reason
+                    continue
+                tag_object = get_tag_object(key)
+                if tag_object.can_repeat:
+                    if isinstance(val, list):
+                        for subval in list(val):
+                            # Minimum effort to avoid duplicates
+                            if subval not in params[key]:
+                                params[key].append(subval)
+                    else:
+                        params[key].append(val)
+                else:
+                    params[key] = val
+            else:
+                params[key] = val
         return type(self)(params)
 
     def as_dict(self, sort_tags: bool = True, skip_module_keys: bool = False) -> dict:
