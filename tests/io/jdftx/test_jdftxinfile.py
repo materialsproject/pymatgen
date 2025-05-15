@@ -214,6 +214,7 @@ def test_JDFTXInfile_add_method():
     # repeatable values, repeatable tags are not append to each other
     jif = JDFTXInfile.from_file(ex_infile1_fname)
     jif2 = jif.copy()
+    assert jif2 is not jif  # Testing robustness of copy method while we are at it
     jif3 = jif + jif2
     assert_idential_jif(jif, jif3)
     # If a tag is repeated, the values must be the same since choice of value is ambiguous
@@ -222,9 +223,17 @@ def test_JDFTXInfile_add_method():
     val_new = "lda"
     assert val_old != val_new
     jif2[key] = val_new
-    err_str = f"JDFTXInfiles have conflicting values for {key}: {val_old} != {val_new}"
-    with pytest.raises(ValueError, match=re.escape(err_str)):
-        jif3 = jif + jif2
+    jif4 = jif + jif2
+    assert_same_value(jif4[key], val_new)  # Make sure addition chooses second value for non-repeatable tags
+    del jif4
+    jif2.append_tag("dump", "Fluid State")
+    jif.append_tag("dump", "Fluid Berry")
+    jif4 = jif + jif2
+    assert len(jif4["dump"]) == len(jif2["dump"]) + 1
+    assert {"Fluid": {"State": True}} in jif4["dump"]
+    assert {"Fluid": {"State": True}} not in jif["dump"]
+    assert {"Fluid": {"Berry": True}} in jif4["dump"]
+    assert {"Fluid": {"Berry": True}} not in jif2["dump"]
     # Normal expected behavior
     key_add = "target-mu"
     val_add = 0.5
