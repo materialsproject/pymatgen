@@ -391,7 +391,10 @@ class JDFTXOutfileSlice:
         Args:
             text (list[str]): Output of read_file for out file.
         """
-        start_line_idx = find_key("Input parsed successfully", text) + 2
+        start_line_idx = find_key("Input parsed successfully", text)
+        if start_line_idx is None:
+            raise ValueError("JDFTx input parsing failed on most recent call.")
+        start_line_idx += 2
         end_line_idx = None
         for i in range(start_line_idx, len(text)):
             if not len(text[i].strip()):
