@@ -792,7 +792,7 @@ jdftxminimize_subtagdict = {
     "knormThreshold": FloatTag(),
     "linminMethod": StrTag(options=["CubicWolfe", "DirUpdateRecommended", "Quad", "Relax"]),
     "maxThreshold": BoolTag(),
-    "nAlphaAdjustMax": FloatTag(),
+    "nAlphaAdjustMax": IntTag(),
     "nEnergyDiff": IntTag(),
     "nIterations": IntTag(),
     "updateTestStepSize": BoolTag(),
