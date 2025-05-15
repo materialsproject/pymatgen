@@ -46,6 +46,10 @@ __author__ = "Jacob Clary, Ben Rich"
 
 # TODO: Add check for whether all ions have or lack velocities.
 # TODO: Add default value filling like JDFTx does.
+# TODO: Add more robust checking for if two repeatable tag values represent the
+# same information. This is likely fixed by implementing filling of default values.
+# TODO: Incorporate something to collapse repeated dump tags of the same frequency
+# into a single value.
 
 
 class JDFTXInfile(dict, MSONable):
