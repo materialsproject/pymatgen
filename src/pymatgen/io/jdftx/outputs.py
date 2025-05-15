@@ -596,6 +596,7 @@ class JDFTXOutfile:
         ]
         return cls(slices=slices)
 
+    # TODO: Write testing for this function
     def to_jdftxinfile(self) -> JDFTXInfile:
         """
         Convert the JDFTXOutfile object to a JDFTXInfile object with the most recent structure.
