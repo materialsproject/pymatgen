@@ -186,6 +186,14 @@ def test_JDFTXInfile_expected_exceptions():
         jif[1.2] = 3.4
 
 
+def test_JDFTXInfile_strip_structure():
+    jif = JDFTXInfile.from_file(ex_infile1_fname)
+    structural_tags = ["lattice", "ion", "coords-type"]
+    assert all(tag in jif for tag in structural_tags)
+    jif.strip_structure_tags()
+    assert all(tag not in jif for tag in structural_tags)
+
+
 def test_JDFTXInfile_niche_cases():
     jif = JDFTXInfile.from_file(ex_infile1_fname)
     tag_object, tag, value = jif._preprocess_line("dump-only")
