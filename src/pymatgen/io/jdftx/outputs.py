@@ -27,6 +27,7 @@ from pymatgen.io.jdftx.jdftxoutfileslice import JDFTXOutfileSlice
 if TYPE_CHECKING:
     from pymatgen.core.structure import Structure
     from pymatgen.core.trajectory import Trajectory
+    from pymatgen.io.jdftx.inputs import JDFTXInfile
     from pymatgen.io.jdftx.jelstep import JElSteps
     from pymatgen.io.jdftx.jminsettings import (
         JMinSettingsElectronic,
@@ -287,7 +288,42 @@ _jof_atr_from_last_slice = (
     "electronic_output",
     "t_s",
     "ecomponents",
+    "infile",
 )
+
+# TODO: Remove references to the deprecated 'jsettings_*' attributes in `JDFTXOutfile` and `JDFTXOutfileSlice`
+# TODO: JDFTXOutfile and JDFTXOutfileSlice are VERY bloated. The following attributes are redundant
+# to fields of the `Structure` object and their removal likely won't cause any confusion.
+# - lattice
+# - lattice_final
+# - atom_coords
+# - atom_coords_final
+# - a/b/c
+# The following attributes are redundant to the internal `JDFTXInfile` object, but since the JDFTXInfile
+# object is not a standard pymatgen object, it may be better to decorate them with a deprecated decorator
+# until end of year. Additionally, it should be made certain which of these are dumped in the outfile's
+# input section regardless of what was set in the input file - for those that are not, they need to be kept.
+# - lattice_initial
+# - atom_coords_initial
+# - broadening
+# - broadening_type
+# - kgrid
+# - truncation_type
+# - truncation_radius
+# - fluid
+# - pwcut
+# - rhocut
+# The following are attributes that come from the electronic/fluid/ionic/lattice optimization step
+# logs. I am not sure if it is actually helpful to have access to these from the `JDFTXOutfile` object,
+# as they are only informative for analyzing optimization convergence. Additionally, the fields are
+# less universal than I thought, and can change depending on the optimization settings, so it might
+# be smarter to store them in a dictionary of arbitrary keys instead within the contained substructures.
+# - grad_k
+# - alpha
+# - linmin
+# - elec_grad_k
+# - elec_alpha
+# - elec_linmin
 
 
 @dataclass
@@ -420,6 +456,7 @@ class JDFTXOutfile:
         elec_alpha (float): The step size of the final electronic step in the most recent JDFTx call.
         elec_linmin (float): The final normalized projection of the electronic step direction onto the gradient for the
             most recent JDFTx call.
+        infile (JDFTXInfile): The JDFTXInfile object representing the input parameters of the JDFTXOutfile.
 
     Magic Methods:
         __getitem__(key: str | int) -> Any: Decides behavior of how JDFTXOutfile objects are indexed. If the key is a
@@ -506,6 +543,7 @@ class JDFTXOutfile:
     elec_alpha: float = field(init=False)
     elec_linmin: float = field(init=False)
     electronic_output: float = field(init=False)
+    infile: JDFTXInfile = field(init=False)
 
     @classmethod
     def from_calc_dir(
@@ -557,6 +595,17 @@ class JDFTXOutfile:
             for i, text in enumerate(texts)
         ]
         return cls(slices=slices)
+
+    # TODO: Write testing for this function
+    def to_jdftxinfile(self) -> JDFTXInfile:
+        """
+        Convert the JDFTXOutfile object to a JDFTXInfile object with the most recent structure.
+        If the input structure is desired, simply fetch JDFTXOutfile.infile
+
+        Returns:
+            JDFTXInfile: A JDFTXInfile object representing the input parameters of the JDFTXOutfile.
+        """
+        return self.slices[-1].to_jdftxinfile()
 
     def __post_init__(self):
         last_slice = None

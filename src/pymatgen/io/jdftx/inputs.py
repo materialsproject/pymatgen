@@ -573,6 +573,17 @@ class JDFTXInfile(dict, MSONable):
                     warnmsg += "(Check earlier warnings for more details)\n"
                 warnings.warn(warnmsg, stacklevel=2)
 
+    def strip_structure_tags(self) -> None:
+        """Strip all structural tags from the JDFTXInfile.
+
+        Strip all structural tags from the JDFTXInfile. This is useful for preparing a JDFTXInfile object
+        from a pre-existing calculation for a new structure.
+        """
+        strucural_tags = ["lattice", "ion", "lattice-scale", "coords-type"]
+        for tag in strucural_tags:
+            if tag in self:
+                del self[tag]
+
     def __setitem__(self, key: str, value: Any) -> None:
         """Set an item in the JDFTXInfile.
 
