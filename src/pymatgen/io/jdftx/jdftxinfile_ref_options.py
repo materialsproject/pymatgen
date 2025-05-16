@@ -792,7 +792,7 @@ jdftxminimize_subtagdict = {
     "knormThreshold": FloatTag(),
     "linminMethod": StrTag(options=["CubicWolfe", "DirUpdateRecommended", "Quad", "Relax"]),
     "maxThreshold": BoolTag(),
-    "nAlphaAdjustMax": FloatTag(),
+    "nAlphaAdjustMax": IntTag(),
     "nEnergyDiff": IntTag(),
     "nIterations": IntTag(),
     "updateTestStepSize": BoolTag(),
@@ -800,7 +800,7 @@ jdftxminimize_subtagdict = {
     "wolfeGradient": FloatTag(),
 }
 jdftxfluid_subtagdict = {
-    "epsBulk": FloatTag(),
+    "epsBulk": FloatTag(minval=1.0),
     "epsInf": FloatTag(),
     "epsLJ": FloatTag(),
     "Nnorm": FloatTag(),
@@ -814,12 +814,12 @@ jdftxfluid_subtagdict = {
             "A0": FloatTag(write_tagname=False, optional=False),
         },
     ),
-    "Pvap": FloatTag(),
+    "Pvap": FloatTag(minval=0.0),
     "quad_nAlpha": FloatTag(),
     "quad_nBeta": FloatTag(),
     "quad_nGamma": FloatTag(),
     "representation": TagContainer(subtags={"MuEps": FloatTag(), "Pomega": FloatTag(), "PsiAlpha": FloatTag()}),
-    "Res": FloatTag(),
+    "Res": FloatTag(minval=0.0),
     "Rvdw": FloatTag(),
     "s2quadType": StrTag(
         options=[
@@ -844,7 +844,7 @@ jdftxfluid_subtagdict = {
             "Tetrahedron",
         ]
     ),
-    "sigmaBulk": FloatTag(),
+    "sigmaBulk": FloatTag(minval=0.0),
     "tauNuc": FloatTag(),
     "translation": StrTag(options=["ConstantSpline", "Fourier", "LinearSpline"]),
 }
