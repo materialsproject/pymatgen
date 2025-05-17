@@ -3115,7 +3115,7 @@ class IStructure(SiteCollection, MSONable):
             cssr = Cssr.from_str(input_string, **kwargs)
             struct = cssr.structure  # type:ignore[assignment]
         elif fmt_low == "json":
-            dct = json.loads(input_string)
+            dct = orjson.loads(input_string)
             struct = Structure.from_dict(dct)
         elif fmt_low in ("yaml", "yml"):
             yaml = YAML()
@@ -4079,7 +4079,7 @@ class IMolecule(SiteCollection, MSONable):
             mol = GaussianInput.from_str(input_string).molecule
 
         elif fmt == "json":
-            dct = json.loads(input_string)
+            dct = orjson.loads(input_string)
             return cls.from_dict(dct)
 
         elif fmt in {"yaml", "yml"}:

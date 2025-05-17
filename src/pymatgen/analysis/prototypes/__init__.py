@@ -42,6 +42,7 @@ from shutil import which
 from string import ascii_uppercase, digits
 from typing import TYPE_CHECKING, Literal
 
+import orjson
 from monty.fractions import gcd
 from monty.serialization import loadfn
 
@@ -325,7 +326,7 @@ def get_protostructure_label_from_aflow(
         check=True,
     )
 
-    aflow_proto = json.loads(output.stdout)
+    aflow_proto = orjson.loads(output.stdout)
 
     aflow_label = aflow_proto["aflow_prototype_label"]
     chemsys = struct.chemical_system

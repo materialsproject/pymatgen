@@ -5,7 +5,6 @@ from __future__ import annotations
 import collections
 import importlib
 import itertools
-import json
 import os
 import typing
 import warnings
@@ -348,7 +347,7 @@ class VolumetricData(MSONable):
             data_aug = None
             if "vdata_aug" in file:
                 data_aug = {k: np.array(v) for k, v in file["vdata_aug"].items()}
-            structure = Structure.from_dict(json.loads(file.attrs["structure_json"]))
+            structure = Structure.from_dict(orjson.loads(file.attrs["structure_json"]))
             return cls(structure, data=data, data_aug=data_aug, **kwargs)  # type:ignore[arg-type]
 
     def to_cube(self, filename, comment: str = ""):

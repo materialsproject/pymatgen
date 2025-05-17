@@ -6,6 +6,7 @@ from shutil import which
 
 import matplotlib.pyplot as plt
 import numpy as np
+import orjson
 import pytest
 from matplotlib import rc
 from numpy.testing import assert_allclose
@@ -93,18 +94,18 @@ class TestDosPlotter(MatSciTest):
 class TestBSPlotter(MatSciTest):
     def setup_method(self):
         with open(f"{BAND_TEST_DIR}/CaO_2605_bandstructure.json", encoding="utf-8") as file:
-            dct = json.loads(file.read())
+            dct = orjson.loads(file.read())
             self.bs = BandStructureSymmLine.from_dict(dct)
             self.plotter = BSPlotter(self.bs)
 
         assert len(self.plotter._bs) == 1, "wrong number of band objects"
 
         with open(f"{BAND_TEST_DIR}/N2_12103_bandstructure.json", encoding="utf-8") as file:
-            dct = json.loads(file.read())
+            dct = orjson.loads(file.read())
             self.sbs_sc = BandStructureSymmLine.from_dict(dct)
 
         with open(f"{BAND_TEST_DIR}/C_48_bandstructure.json", encoding="utf-8") as file:
-            dct = json.loads(file.read())
+            dct = orjson.loads(file.read())
             self.sbs_met = BandStructureSymmLine.from_dict(dct)
 
         self.plotter_multi = BSPlotter([self.sbs_sc, self.sbs_met])

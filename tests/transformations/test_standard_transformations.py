@@ -599,7 +599,7 @@ class TestDeformStructureTransformation:
         assert transformed_s.lattice.b == approx(3.84379750)
         assert transformed_s.lattice.c == approx(3.75022981)
 
-        dct = json.loads(orjson.dumps(trafo.as_dict()).decode())
+        dct = orjson.loads(orjson.dumps(trafo.as_dict()).decode())
         assert isinstance(DeformStructureTransformation.from_dict(dct), DeformStructureTransformation)
 
 

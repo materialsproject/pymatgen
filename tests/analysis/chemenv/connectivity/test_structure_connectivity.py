@@ -32,13 +32,13 @@ class TestStructureConnectivity(MatSciTest):
         assert set(sc._graph.nodes()) == set(sc_from_dict._graph.nodes())
         assert set(sc._graph.edges()) == set(sc_from_dict._graph.edges())
 
-        sc_from_json = StructureConnectivity.from_dict(json.loads(orjson.dumps(sc.as_dict()).decode()))
+        sc_from_json = StructureConnectivity.from_dict(orjson.loads(orjson.dumps(sc.as_dict()).decode()))
         assert sc.light_structure_environments == sc_from_json.light_structure_environments
         assert set(sc._graph.nodes()) == set(sc_from_json._graph.nodes())
         assert set(sc._graph.edges()) == set(sc_from_json._graph.edges())
 
         json_str = self.assert_msonable(sc)
-        sc_from_json = StructureConnectivity.from_dict(json.loads(json_str))
+        sc_from_json = StructureConnectivity.from_dict(orjson.loads(json_str))
         assert sc.light_structure_environments == sc_from_json.light_structure_environments
         assert set(sc._graph.nodes()) == set(sc_from_json._graph.nodes())
         assert set(sc._graph.edges()) == set(sc_from_json._graph.edges())

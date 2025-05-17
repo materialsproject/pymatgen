@@ -779,7 +779,7 @@ class TestForceField(MatSciTest):
     def test_from_dict(self):
         dct = self.ethane.as_dict()
         json_str = json.dumps(dct)
-        decoded = ForceField.from_dict(json.loads(json_str))
+        decoded = ForceField.from_dict(orjson.loads(json_str))
         assert decoded.mass_info == self.ethane.mass_info
         assert decoded.nonbond_coeffs == self.ethane.nonbond_coeffs
         assert decoded.topo_coeffs == self.ethane.topo_coeffs

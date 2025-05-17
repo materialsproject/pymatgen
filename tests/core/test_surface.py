@@ -329,7 +329,7 @@ class TestSlab(MatSciTest):
         )
         slab = slabs[0]
         dict_str = orjson.dumps(slab.as_dict(), option=orjson.OPT_SERIALIZE_NUMPY).decode()
-        d = json.loads(dict_str)
+        d = orjson.loads(dict_str)
         assert slab == Slab.from_dict(d)
 
         # test initializing with a list scale_factor
@@ -343,7 +343,7 @@ class TestSlab(MatSciTest):
             self.zno55.scale_factor,
         )
         dict_str = orjson.dumps(slab.as_dict()).decode()
-        d = json.loads(dict_str)
+        d = orjson.loads(dict_str)
         assert slab == Slab.from_dict(d)
 
 

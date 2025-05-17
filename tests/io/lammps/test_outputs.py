@@ -1,6 +1,5 @@
 from __future__ import annotations
 
-import json
 import os
 
 import numpy as np
@@ -46,7 +45,7 @@ class TestLammpsDump:
 
     def test_json_dict(self):
         encoded = orjson.dumps(self.rdx.as_dict()).decode()
-        decoded = json.loads(encoded)
+        decoded = orjson.loads(encoded)
         rdx = LammpsDump.from_dict(decoded)
         assert rdx.timestep == 100
         assert rdx.natoms == 21

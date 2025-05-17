@@ -30,7 +30,7 @@ class TestNEBAnalysis(MatSciTest):
         neb_analysis1_from_dict = NEBAnalysis.from_dict(neb_analysis1.as_dict())
         json_data = orjson.dumps(neb_analysis1.as_dict()).decode()
 
-        neb_dict = json.loads(json_data)
+        neb_dict = orjson.loads(json_data)
         neb_analysis1_from_json_data = NEBAnalysis.from_dict(neb_dict)
 
         assert_allclose(neb_analysis1.energies[0], -255.97992669000001)

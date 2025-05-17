@@ -3,6 +3,7 @@ from __future__ import annotations
 import json
 
 import matplotlib.pyplot as plt
+import orjson
 import pytest
 from numpy.testing import assert_allclose
 
@@ -58,13 +59,13 @@ class TestPhononBSPlotter:
         with open(
             f"{TEST_FILES_DIR}/electronic_structure/bandstructure/NaCl_phonon_bandstructure.json", encoding="utf-8"
         ) as file:
-            dct = json.loads(file.read())
+            dct = orjson.loads(file.read())
         self.bs = PhononBandStructureSymmLine.from_dict(dct)
         self.plotter = PhononBSPlotter(self.bs, label="NaCl")
         with open(
             f"{TEST_FILES_DIR}/electronic_structure/bandstructure/SrTiO3_phonon_bandstructure.json", encoding="utf-8"
         ) as file:
-            dct = json.loads(file.read())
+            dct = orjson.loads(file.read())
         self.bs_sto = PhononBandStructureSymmLine.from_dict(dct)
         self.plotter_sto = PhononBSPlotter(self.bs_sto)
 

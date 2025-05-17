@@ -6191,9 +6191,8 @@ class Vaspout(Vasprun):
 
         elif input_data["potcar"].get("spec"):
             # modified vaspout.h5 with only POTCAR spec
-            import json
 
-            self.potcar_spec = json.loads(input_data["potcar"]["spec"])
+            self.potcar_spec = orjson.loads(input_data["potcar"]["spec"])
             self.potcar_symbols = [spec["titel"] for spec in self.potcar_spec]
 
         # TODO: do we want POSCAR stored?
