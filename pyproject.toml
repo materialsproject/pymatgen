@@ -90,11 +90,19 @@ Pypi = "https://pypi.org/project/pymatgen"
 [project.optional-dependencies]
 abinit = ["netcdf4>=1.7.2"]
 ase = ["ase>=3.23.0"]
+ci = [
+    "pytest>=8.3.5",
+    "pytest-cov>=6.0.0",
+    "pytest-split>=0.10.0",
+]
 electronic_structure = ["fdint>=2.0.2"]
+matcalc = [
+    "matcalc>=0.4.0; python_version<'3.13'",
+    "matgl>=1.2.6; python_version<'3.13'",
+]
 mlp = ["matgl>=1.2.6 ; python_version<'3.13'"]
 numba = ["numba>=0.55"]
 numpy-v1 = ["numpy>=1.25.0,<2"] # Test NP1 on Windows (quite buggy ATM)
-zeopp = ["pyzeo"]  # Note: requires voro++ and zeo++ to be installed
 optional = [
     "pymatgen[abinit,ase,mlp,tblite,matcalc]",
     "beautifulsoup4",
@@ -116,15 +124,7 @@ symmetry = ["moyopy[interface]>=0.3", "spglib>=2.5"]
 # https://github.com/tblite/tblite/issues/175
 tblite = ["tblite[ase]>=0.3.0; platform_system=='Linux' and python_version<'3.12'"]
 vis = ["vtk>=6.0.0"]
-ci = [
-    "pytest>=8.3.5",
-    "pytest-cov>=6.0.0",
-    "pytest-split>=0.10.0",
-]
-matcalc = [
-    "matcalc>=0.4.0; python_version<'3.13'",
-    "matgl>=1.2.6; python_version<'3.13'",
-]
+zeopp = ["pyzeo"]  # Note: requires Voro++ and Zeo++ to be installed
 
 [project.scripts]
 pmg = "pymatgen.cli.pmg:main"
