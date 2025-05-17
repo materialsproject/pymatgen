@@ -4,6 +4,7 @@ import gzip
 import json
 
 import numpy as np
+import orjson
 import pandas as pd
 import pytest
 from monty.json import MontyDecoder, MontyEncoder
@@ -653,7 +654,7 @@ class TestTopology:
             [8, 1, 2, 3],
         ]
         assert_array_equal(tp_etoh["Dihedrals"], etoh_dihedrals)
-        assert json.dumps(topo_etoh.as_dict()) is not None
+        assert orjson.dumps(topo_etoh.as_dict()).decode() is not None
         # bond flag to off
         topo_etoh0 = Topology.from_bonding(molecule=etoh, bond=False, angle=True, dihedral=True)
         assert topo_etoh0.topologies is None

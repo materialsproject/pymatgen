@@ -4,6 +4,7 @@ import json
 import os
 
 import numpy as np
+import orjson
 import pytest
 from numpy.testing import assert_allclose
 from pytest import approx
@@ -327,7 +328,7 @@ class TestSlab(MatSciTest):
             primitive=True,
         )
         slab = slabs[0]
-        dict_str = json.dumps(slab.as_dict())
+        dict_str = orjson.dumps(slab.as_dict(), option=orjson.OPT_SERIALIZE_NUMPY).decode()
         d = json.loads(dict_str)
         assert slab == Slab.from_dict(d)
 
@@ -341,7 +342,7 @@ class TestSlab(MatSciTest):
             0,
             self.zno55.scale_factor,
         )
-        dict_str = json.dumps(slab.as_dict())
+        dict_str = orjson.dumps(slab.as_dict()).decode()
         d = json.loads(dict_str)
         assert slab == Slab.from_dict(d)
 

@@ -5,6 +5,7 @@ import json
 
 import networkx as nx
 import numpy as np
+import orjson
 import pytest
 from numpy.testing import assert_allclose
 
@@ -121,7 +122,7 @@ class TestConnectedComponent(MatSciTest):
         assert sorted_edges == ref_sorted_edges
 
         cc_from_dict = ConnectedComponent.from_dict(cc.as_dict())
-        cc_from_json = ConnectedComponent.from_dict(json.loads(json.dumps(cc.as_dict())))
+        cc_from_json = ConnectedComponent.from_dict(json.loads(orjson.dumps(cc.as_dict()).decode()))
         loaded_cc_list = [cc_from_dict, cc_from_json]
         json_str = self.assert_msonable(cc)
         cc_from_json = ConnectedComponent.from_dict(json.loads(json_str))

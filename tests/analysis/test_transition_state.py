@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import json
 
+import orjson
 from matplotlib import pyplot as plt
 from numpy.testing import assert_allclose
 
@@ -27,7 +28,7 @@ class TestNEBAnalysis(MatSciTest):
     def test_run(self):
         neb_analysis1 = NEBAnalysis.from_dir(f"{TEST_DIR}/neb1/neb")
         neb_analysis1_from_dict = NEBAnalysis.from_dict(neb_analysis1.as_dict())
-        json_data = json.dumps(neb_analysis1.as_dict())
+        json_data = orjson.dumps(neb_analysis1.as_dict()).decode()
 
         neb_dict = json.loads(json_data)
         neb_analysis1_from_json_data = NEBAnalysis.from_dict(neb_dict)

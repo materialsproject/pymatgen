@@ -4,6 +4,7 @@ import json
 from shutil import which
 
 import numpy as np
+import orjson
 import pytest
 from monty.serialization import loadfn
 from numpy.testing import assert_allclose, assert_array_equal
@@ -343,7 +344,7 @@ class TestMagOrderingTransformation(MatSciTest):
         trans = MagOrderingTransformation({"Fe": 5}, order_parameter=0.75)
         dct = trans.as_dict()
         # Check JSON encodability
-        _ = json.dumps(dct)
+        _ = orjson.dumps(dct).decode()
         trans = MagOrderingTransformation.from_dict(dct)
         assert trans.mag_species_spin == {"Fe": 5}
 
@@ -541,7 +542,7 @@ class TestDopingTransformation(MatSciTest):
         trans = DopingTransformation("Al3+", min_length=5, alio_tol=1, codopant=False, max_structures_per_enum=1)
         dct = trans.as_dict()
         # Check JSON encodability
-        _ = json.dumps(dct)
+        _ = orjson.dumps(dct).decode()
         trans = DopingTransformation.from_dict(dct)
         assert str(trans.dopant) == "Al3+"
         assert trans.max_structures_per_enum == 1

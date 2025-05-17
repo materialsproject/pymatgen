@@ -23,6 +23,7 @@ from fnmatch import fnmatch
 from typing import TYPE_CHECKING, Literal, cast, get_args, overload
 
 import numpy as np
+import orjson
 from monty.dev import deprecated
 from monty.io import zopen
 from monty.json import MSONable
@@ -2960,7 +2961,11 @@ class IStructure(SiteCollection, MSONable):
             writer = Cssr(self)
 
         elif fmt == "json" or fnmatch(filename.lower(), "*.json*"):
-            json_str = json.dumps(self.as_dict(), **kwargs)
+            if kwargs:
+                json_str = json.dumps(self.as_dict(), **kwargs)
+            else:
+                json_str = orjson.dumps(self.as_dict(), option=orjson.OPT_INDENT_2).decode()
+
             if filename:
                 with zopen(filename, mode="wt", encoding="utf-8") as file:
                     file.write(json_str)  # type:ignore[arg-type]
@@ -4012,7 +4017,7 @@ class IMolecule(SiteCollection, MSONable):
 
             writer = GaussianInput(self)
         elif fmt == "json" or fnmatch(filename, "*.json*") or fnmatch(filename, "*.mson*"):
-            json_str = json.dumps(self.as_dict())
+            json_str = orjson.dumps(self.as_dict(), option=orjson.OPT_INDENT_2).decode()
             if filename:
                 with zopen(filename, mode="wt", encoding="utf-8") as file:
                     file.write(json_str)  # type:ignore[arg-type]

@@ -3,6 +3,7 @@ from __future__ import annotations
 import json
 from shutil import which
 
+import orjson
 import pytest
 from monty.serialization import loadfn
 from numpy.testing import assert_allclose
@@ -252,6 +253,6 @@ class TestBoltztrapAnalyzer:
 
     def test_as_from_dict(self):
         btr_dict = self.btr.as_dict()
-        json_str = json.dumps(btr_dict)
+        json_str = orjson.dumps(btr_dict).decode()
         assert json_str is not None
         assert btr_dict["bs"] is not None

@@ -6,6 +6,7 @@ import operator
 from shutil import which
 
 import numpy as np
+import orjson
 import pytest
 from monty.json import MontyDecoder
 from numpy.testing import assert_allclose
@@ -598,7 +599,7 @@ class TestDeformStructureTransformation:
         assert transformed_s.lattice.b == approx(3.84379750)
         assert transformed_s.lattice.c == approx(3.75022981)
 
-        dct = json.loads(json.dumps(trafo.as_dict()))
+        dct = json.loads(orjson.dumps(trafo.as_dict()).decode())
         assert isinstance(DeformStructureTransformation.from_dict(dct), DeformStructureTransformation)
 
 

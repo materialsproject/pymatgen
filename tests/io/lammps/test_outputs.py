@@ -4,6 +4,7 @@ import json
 import os
 
 import numpy as np
+import orjson
 import pandas as pd
 from numpy.testing import assert_allclose, assert_array_equal
 
@@ -44,7 +45,7 @@ class TestLammpsDump:
         assert_allclose(tatb_data, tatb_data_target)
 
     def test_json_dict(self):
-        encoded = json.dumps(self.rdx.as_dict())
+        encoded = orjson.dumps(self.rdx.as_dict()).decode()
         decoded = json.loads(encoded)
         rdx = LammpsDump.from_dict(decoded)
         assert rdx.timestep == 100

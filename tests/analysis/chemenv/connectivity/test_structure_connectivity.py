@@ -2,6 +2,8 @@ from __future__ import annotations
 
 import json
 
+import orjson
+
 from pymatgen.analysis.chemenv.connectivity.connectivity_finder import ConnectivityFinder
 from pymatgen.analysis.chemenv.connectivity.structure_connectivity import StructureConnectivity
 from pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies import SimplestChemenvStrategy
@@ -30,7 +32,7 @@ class TestStructureConnectivity(MatSciTest):
         assert set(sc._graph.nodes()) == set(sc_from_dict._graph.nodes())
         assert set(sc._graph.edges()) == set(sc_from_dict._graph.edges())
 
-        sc_from_json = StructureConnectivity.from_dict(json.loads(json.dumps(sc.as_dict())))
+        sc_from_json = StructureConnectivity.from_dict(json.loads(orjson.dumps(sc.as_dict()).decode()))
         assert sc.light_structure_environments == sc_from_json.light_structure_environments
         assert set(sc._graph.nodes()) == set(sc_from_json._graph.nodes())
         assert set(sc._graph.edges()) == set(sc_from_json._graph.edges())

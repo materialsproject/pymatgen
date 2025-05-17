@@ -18,6 +18,7 @@ from typing import TYPE_CHECKING, Any, cast
 from xml.etree import ElementTree as ET
 
 import numpy as np
+import orjson
 from monty.dev import requires
 from monty.io import reverse_readfile, zopen
 from monty.json import MSONable, jsanitize
@@ -3944,7 +3945,7 @@ class Chgcar(VolumetricData):
             raise TypeError("Unsupported POSCAR type.")
 
         super().__init__(struct, data, data_aug=data_aug)
-        self._distance_matrix = {}
+        self._distance_matrix: dict = {}
 
     @classmethod
     def from_file(cls, filename: str) -> Self:
@@ -6434,7 +6435,6 @@ class Vaspout(Vasprun):
                 a POTCAR with a scrambled/fake POTCAR. If None, the Vaspout.potcar Field
                 ("/input/potcar/content" field of vaspout.h5) is removed.
         """
-        import json
 
         def recursive_to_dataset(h5_obj, level, obj):
             if hasattr(obj, "items"):
@@ -6467,7 +6467,9 @@ class Vaspout(Vasprun):
             potcar_spec = self.potcar_spec
 
         # rather than define custom HDF5 hierarchy for POTCAR spec, just dump JSONable dict to str
-        hdf5_data["input"]["potcar"]["spec"] = json.dumps(potcar_spec)
+        hdf5_data["input"]["potcar"]["spec"] = orjson.dumps(
+            potcar_spec, option=orjson.OPT_INDENT_2 | orjson.OPT_SERIALIZE_NUMPY
+        ).decode()
 
         # if file is to be compressed, first write uncompressed file
         with h5py.File(filename, "w") as h5_file:

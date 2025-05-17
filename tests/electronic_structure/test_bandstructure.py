@@ -4,6 +4,7 @@ import copy
 import json
 
 import numpy as np
+import orjson
 import pytest
 from monty.serialization import loadfn
 from numpy.testing import assert_allclose
@@ -454,9 +455,9 @@ class TestLobsterBandStructureSymmLine(MatSciTest):
         assert bs.get_kpoint_degeneracy(vbm_k) == 3
 
     def test_as_dict(self):
-        dict_str = json.dumps(self.bs_p.as_dict())
+        dict_str = orjson.dumps(self.bs_p.as_dict()).decode()
         assert dict_str is not None
-        dict_str = json.dumps(self.bs_spin.as_dict())
+        dict_str = orjson.dumps(self.bs_spin.as_dict()).decode()
         assert dict_str is not None
 
     def test_old_format_load(self):
