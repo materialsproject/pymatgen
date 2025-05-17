@@ -59,7 +59,7 @@ class JDFTXInfile(dict, MSONable):
     Essentially a dictionary with some helper functions.
     """
 
-    path_parent: str | None = None  # Only gets a value if JDFTXInfile is initializedf with from_file
+    path_parent: str | None = None  # Only gets a value if JDFTXInfile is initialized with from_file
 
     def __init__(self, params: dict[str, Any] | None = None) -> None:
         """
