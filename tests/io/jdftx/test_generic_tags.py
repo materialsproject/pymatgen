@@ -441,3 +441,47 @@ def test_multiformattagcontainer():
     "Check your inputs and/or MASTER_TAG_LIST!"
     with pytest.raises(ValueError, match=re.escape(err_str)):
         mftg._determine_format_option(tag, value)
+
+
+def test_boundary_checking():
+    # Check that non-numeric tag returns valid always
+    tag = "barbie"
+    value = "notanumber"
+    valtag = StrTag()
+    assert valtag.validate_value_bounds(tag, value)[0] is True
+    # Check that numeric tags can return False
+    value = 0.0
+    valtag = FloatTag(lb=1.0)
+    assert valtag.validate_value_bounds(tag, value)[0] is False
+    valtag = FloatTag(lb=0.0, lb_incl=False)
+    assert valtag.validate_value_bounds(tag, value)[0] is False
+    valtag = FloatTag(ub=-1.0)
+    assert valtag.validate_value_bounds(tag, value)[0] is False
+    valtag = FloatTag(ub=0.0, ub_incl=False)
+    assert valtag.validate_value_bounds(tag, value)[0] is False
+    # Check that numeric tags can return True
+    valtag = FloatTag(lb=0.0, lb_incl=True)
+    assert valtag.validate_value_bounds(tag, value)[0] is True
+    valtag = FloatTag(ub=0.0, ub_incl=True)
+    assert valtag.validate_value_bounds(tag, value)[0] is True
+    valtag = FloatTag(lb=-1.0, ub=1.0)
+    assert valtag.validate_value_bounds(tag, value)[0] is True
+    # Check functionality for tagcontainers
+    tagcontainer = TagContainer(
+        subtags={
+            "ken": FloatTag(lb=0.0, lb_incl=True),
+            "allan": StrTag(),
+            "skipper": FloatTag(ub=1.0, ub_incl=True, lb=-1.0, lb_incl=False),
+        },
+    )
+    valid, errors = tagcontainer.validate_value_bounds(tag, {"ken": -1.0, "allan": "notanumber", "skipper": 2.0})
+    assert valid is False
+    assert "allan" not in errors
+    assert "ken" in errors
+    assert "x >= 0.0" in errors
+    assert "skipper" in errors
+    assert "1.0 >= x > -1.0" in errors
+    # Make sure tags will never write a value that is out of bounds
+    valtag = FloatTag(lb=-1.0, ub=1.0)
+    assert len(valtag.write(tag, 0.0))
+    assert not len(valtag.write(tag, 2.0))
