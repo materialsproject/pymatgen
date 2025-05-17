@@ -594,9 +594,10 @@ class JDFTXInfile(dict, MSONable):
             if not is_valid:
                 error_strs.append(error_str)
         if len(error_strs) > 0:
+            err_cat = "\n".join(error_strs)
             raise ValueError(
-                f"The following boundary errors were found in the JDFTXInfile:\n{'\n'.join(error_strs)}\n"
-                "Hint - if you are reading from a JDFTX out file, you need to set validate_value_boundaries "
+                f"The following boundary errors were found in the JDFTXInfile:\n{err_cat}\n"
+                "\n Hint - if you are reading from a JDFTX out file, you need to set validate_value_boundaries "
                 "to False, as JDFTx will dump values at non-inclusive boundaries (ie 0.0 for values strictly > 0.0)."
             )
 
