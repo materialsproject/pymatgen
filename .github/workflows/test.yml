@@ -5,10 +5,10 @@ name: test
 on:
   push:
     branches: [master]
-    paths: ["src/**/*.*", "tests/**/*.*", "pyproject.toml"]
+    paths: ["src/**/*.*", "tests/**/*.*", ".github/workflows/*" ,"pyproject.toml", "setup.py"]
   pull_request:
     branches: [master]
-    paths: ["src/**/*.*", "tests/**/*.*", "pyproject.toml"]
+    paths: ["src/**/*.*", "tests/**/*.*", ".github/workflows/*", "pyproject.toml", "setup.py" ]
   workflow_dispatch:
   workflow_call: # make this workflow reusable by release.yml
 
