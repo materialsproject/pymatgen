@@ -673,7 +673,6 @@ class TagContainer(AbstractTag):
         return tags_checked, types_checks, reported_errors
 
     def validate_value_bounds(self, tag: str, value: Any) -> tuple[bool, str]:
-        # value_dict = self.get_dict_representation(tag, value)
         value_dict = value
         if self.can_repeat:
             self._validate_repeat(tag, value_dict)
@@ -681,7 +680,6 @@ class TagContainer(AbstractTag):
             tags_list_list: list[list[str]] = [result[0] for result in results]
             is_valids_list_list: list[list[bool]] = [result[1] for result in results]
             reported_errors_list: list[list[str]] = [result[2] for result in results]
-            # tag_out = ",".join([",".join(x) for x in tags_list_list])
             is_valid_out = all(all(x) for x in is_valids_list_list)
             errors_out = ",".join([",".join(x) for x in reported_errors_list])
             if not is_valid_out:
@@ -694,7 +692,6 @@ class TagContainer(AbstractTag):
                 warnings.warn(warnmsg, stacklevel=2)
         else:
             tags, is_valids, reported_errors = self._validate_bounds_single_entry(value_dict)
-            # tag_out = ",".join(tags)
             is_valid_out = all(is_valids)
             errors_out = ",".join(reported_errors)
             if not is_valid_out:
