@@ -265,10 +265,6 @@ filterwarnings = [
     "ignore::UserWarning", # Ignore UserWarning
     # TODO: remove the following filter once `monty.io` dropped custom EncodingWarning (python 3.10+ only)
     "error:We strongly encourage explicit `encoding`:monty.io.EncodingWarning",
-    # TODO: pybtex (perhaps some others) emits the following warnings
-    'ignore:pkg_resources is deprecated as an API:DeprecationWarning',
-    'ignore:distutils Version classes are deprecated:DeprecationWarning',
-    'ignore:Deprecated call to `pkg_resources.declare_namespace:DeprecationWarning',
 ]
 
 [tool.coverage.run]
