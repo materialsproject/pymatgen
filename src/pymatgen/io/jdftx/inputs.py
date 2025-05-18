@@ -4,8 +4,6 @@ Classes for reading/manipulating/writing JDFTx input files.
 
 Note: JDFTXInfile will be moved back to its own module once a more broad inputs
 class is written.
-
-@mkhorton - This file is ready to review.
 """
 
 from __future__ import annotations

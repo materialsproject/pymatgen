@@ -38,7 +38,7 @@ from itertools import chain, groupby, permutations, product
 from operator import itemgetter
 from shutil import which
 from string import ascii_uppercase, digits
-from typing import TYPE_CHECKING, Literal
+from typing import TYPE_CHECKING
 
 import orjson
 from monty.fractions import gcd
@@ -50,6 +50,8 @@ from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
 from pymatgen.util.due import Doi, due
 
 if TYPE_CHECKING:
+    from typing import Literal
+
     from pymatgen.core.structure import Structure
 
 try:

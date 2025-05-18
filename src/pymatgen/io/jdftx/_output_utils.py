@@ -3,8 +3,6 @@
 Module for JDFTx IO module output utils. Functions kept in this module are here if they are
 used by multiple submodules, or if they are anticipated to be used by multiple
 submodules in the future.
-
-@mkhorton - this file is ready to review.
 """
 
 from __future__ import annotations
