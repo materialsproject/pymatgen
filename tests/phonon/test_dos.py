@@ -48,8 +48,8 @@ class TestPhononDos(MatSciTest):
         assert self.dos.get_smeared_densities(0) is self.dos.densities
 
     def test_dict_methods(self):
-        json_str = orjson.dumps(self.dos.as_dict()).decode()
-        assert json_str.startswith('{"@module": "pymatgen.phonon.dos", "@class": "PhononDos", "frequencies":')
+        json_str = orjson.dumps(self.dos.as_dict(), option=orjson.OPT_SERIALIZE_NUMPY).decode()
+        assert json_str.startswith('{"@module":"pymatgen.phonon.dos","@class":"PhononDos","frequencies":')
         self.assert_msonable(self.dos)
 
     def test_thermodynamic_functions(self):
@@ -205,7 +205,7 @@ class TestCompletePhononDos(MatSciTest):
         assert sum_dos.densities == approx(self.cdos.densities)
 
     def test_dict_methods(self):
-        json_str = orjson.dumps(self.cdos.as_dict()).decode()
+        json_str = orjson.dumps(self.cdos.as_dict(), option=orjson.OPT_SERIALIZE_NUMPY).decode()
         assert json_str is not None
         self.assert_msonable(self.cdos)
 
