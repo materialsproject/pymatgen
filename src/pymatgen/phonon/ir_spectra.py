@@ -6,10 +6,10 @@ where it was originally done by Guido Petretto and Matteo Giantomassi.
 
 from __future__ import annotations
 
-import json
 from typing import TYPE_CHECKING
 
 import numpy as np
+import orjson
 from monty.json import MSONable
 
 from pymatgen.core.spectrum import Spectrum
@@ -91,8 +91,8 @@ class IRDielectricTensor(MSONable):
 
     def write_json(self, filename: str | PathLike) -> None:
         """Save a JSON file with this data."""
-        with open(filename, mode="w", encoding="utf-8") as file:
-            json.dump(self.as_dict(), file)
+        with open(filename, "wb") as file:
+            file.write(orjson.dumps(self.as_dict()))
 
     def get_ir_spectra(
         self,

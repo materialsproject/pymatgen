@@ -1,7 +1,5 @@
 from __future__ import annotations
 
-import json
-
 import orjson
 from numpy.testing import assert_allclose
 from pytest import approx
@@ -49,8 +47,8 @@ class TestReadWriteChemenv(MatSciTest):
             only_indices=atom_indices, maximum_distance_factor=2.25, get_from_hints=True
         )
 
-        with open(f"{self.tmp_path}/se.json", mode="w", encoding="utf-8") as file:
-            json.dump(se.as_dict(), file)
+        with open(f"{self.tmp_path}/se.json", "wb") as file:
+            file.write(orjson.dumps(se.as_dict(), option=orjson.OPT_SERIALIZE_NUMPY))
 
         with open(f"{self.tmp_path}/se.json", "rb") as file:
             dd = orjson.loads(file.read())
@@ -64,12 +62,12 @@ class TestReadWriteChemenv(MatSciTest):
             structure_environments=se, strategy=strategy, valences="undefined"
         )
 
-        with open(f"{self.tmp_path}/lse.json", mode="w", encoding="utf-8") as file:
-            json.dump(
-                lse.as_dict(),
-                file,
-                default=lambda obj: getattr(obj, "tolist", lambda: obj)(),
-            )
+        with open(f"{self.tmp_path}/lse.json", "wb") as file:
+
+            def default(obj):
+                return getattr(obj, "tolist", lambda: obj)()
+
+            file.write(orjson.dumps(lse.as_dict(), default=default))
 
         with open(f"{self.tmp_path}/lse.json", "rb") as file:
             LightStructureEnvironments.from_dict(orjson.loads(file.read()))
@@ -231,8 +229,8 @@ class TestReadWriteChemenv(MatSciTest):
 
         detailed_voronoi_container = DetailedVoronoiContainer(structure=struct, valences=valences)
 
-        with open(f"{self.tmp_path}/se.json", mode="w", encoding="utf-8") as file:
-            json.dump(detailed_voronoi_container.as_dict(), file)
+        with open(f"{self.tmp_path}/se.json", "wb") as file:
+            file.write(orjson.dumps(detailed_voronoi_container.as_dict(), option=orjson.OPT_SERIALIZE_NUMPY))
 
         with open(f"{self.tmp_path}/se.json", "rb") as file:
             dd = orjson.loads(file.read())
