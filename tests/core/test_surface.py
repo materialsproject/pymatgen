@@ -1,6 +1,5 @@
 from __future__ import annotations
 
-import json
 import os
 
 import numpy as np
@@ -647,8 +646,8 @@ class ReconstructionGeneratorTests(MatSciTest):
         self.Fe = Structure.from_spacegroup("Im-3m", lattice, species, coords)
         self.Si = Structure.from_spacegroup("Fd-3m", Lattice.cubic(5.430500), ["Si"], [(0, 0, 0.5)])
 
-        with open(f"{PMG_CORE_DIR}/reconstructions_archive.json", encoding="utf-8") as data_file:
-            self.rec_archive = json.load(data_file)
+        with open(f"{PMG_CORE_DIR}/reconstructions_archive.json", "rb") as data_file:
+            self.rec_archive = orjson.loads(data_file.read())
 
     def test_build_slab(self):
         # First lets test a reconstruction where we only remove atoms

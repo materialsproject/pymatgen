@@ -1,9 +1,9 @@
 from __future__ import annotations
 
 import copy
-import json
 from collections import defaultdict
 
+import orjson
 import pytest
 from monty.json import MontyDecoder
 from pytest import approx
@@ -469,13 +469,13 @@ class TestGibbsComputedStructureEntry:
             for temp in self.temps
         }
 
-        with open(f"{TEST_DIR}/Mn-O_entries.json", encoding="utf-8") as file:
-            data = json.load(file)
-        with open(f"{TEST_DIR}/structure_CO2.json", encoding="utf-8") as file:
-            self.co2_struct = MontyDecoder().process_decoded(json.load(file))
+        with open(f"{TEST_DIR}/Mn-O_entries.json", "rb") as file:
+            data = orjson.loads(file.read())
+        with open(f"{TEST_DIR}/structure_CO2.json", "rb") as file:
+            self.co2_struct = MontyDecoder().process_decoded(orjson.loads(file.read()))
 
-        with open(f"{TEST_DIR}/Mn-O_entries.json") as file:
-            data = json.load(file)
+        with open(f"{TEST_DIR}/Mn-O_entries.json", "rb") as file:
+            data = orjson.loads(file.read())
         self.mp_entries = [MontyDecoder().process_decoded(d) for d in data]
 
     def test_gf_sisso(self):

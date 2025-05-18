@@ -1,6 +1,5 @@
 from __future__ import annotations
 
-import json
 import re
 
 import numpy as np
@@ -17,10 +16,10 @@ TEST_DIR = f"{TEST_FILES_DIR}/phonon/dos"
 
 class TestPhononDos(MatSciTest):
     def setup_method(self):
-        with open(f"{TEST_DIR}/NaCl_ph_dos.json", encoding="utf-8") as file:
-            self.dos = PhononDos.from_dict(json.load(file))
-        with open(f"{TEST_DIR}/NaCl_complete_ph_dos.json", encoding="utf-8") as file:
-            self.structure = CompletePhononDos.from_dict(json.load(file)).structure
+        with open(f"{TEST_DIR}/NaCl_ph_dos.json", "rb") as file:
+            self.dos = PhononDos.from_dict(orjson.loads(file.read()))
+        with open(f"{TEST_DIR}/NaCl_complete_ph_dos.json", "rb") as file:
+            self.structure = CompletePhononDos.from_dict(orjson.loads(file.read())).structure
 
     def test_repr(self):
         assert repr(self.dos) == "PhononDos(frequencies=(201,), densities=(201,), n_positive_freqs=183)"
@@ -185,8 +184,8 @@ class TestPhononDos(MatSciTest):
 
 class TestCompletePhononDos(MatSciTest):
     def setup_method(self):
-        with open(f"{TEST_DIR}/NaCl_complete_ph_dos.json", encoding="utf-8") as file:
-            self.cdos = CompletePhononDos.from_dict(json.load(file))
+        with open(f"{TEST_DIR}/NaCl_complete_ph_dos.json", "rb") as file:
+            self.cdos = CompletePhononDos.from_dict(orjson.loads(file.read()))
 
     def test_properties(self):
         site_Na = self.cdos.structure[0]

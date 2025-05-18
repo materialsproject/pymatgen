@@ -1,12 +1,12 @@
 from __future__ import annotations
 
 import gzip
-import json
 from glob import glob
 from pathlib import Path
 from typing import TYPE_CHECKING
 
 import numpy as np
+import orjson
 import pytest
 from monty.io import zopen
 
@@ -69,13 +69,13 @@ def compare_files(test_name: str, work_dir: Path, ref_dir: Path) -> None:
             else:
                 assert test_line == ref_line
 
-    with open(f"{ref_dir / test_name}/parameters.json", encoding="utf-8") as ref_file:
-        ref = json.load(ref_file)
+    with open(f"{ref_dir / test_name}/parameters.json", "rb") as ref_file:
+        ref = orjson.loads(ref_file.read())
     ref.pop("species_dir", None)
     ref_output = ref.pop("output", None)
 
-    with open(f"{work_dir / test_name}/parameters.json", encoding="utf-8") as check_file:
-        check = json.load(check_file)
+    with open(f"{work_dir / test_name}/parameters.json", "rb") as check_file:
+        check = orjson.loads(check_file.read())
 
     check.pop("species_dir", None)
     check_output = check.pop("output", None)

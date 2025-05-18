@@ -16,7 +16,6 @@ from __future__ import annotations
 
 import copy
 import itertools
-import json
 import logging
 import math
 import os
@@ -25,6 +24,7 @@ from functools import reduce
 from typing import TYPE_CHECKING, cast
 
 import numpy as np
+import orjson
 from monty.fractions import lcm
 from scipy.cluster.hierarchy import fcluster, linkage
 from scipy.spatial.distance import squareform
@@ -1693,8 +1693,8 @@ def generate_all_slabs(
 
 # Load the reconstructions_archive JSON file
 MODULE_DIR = os.path.dirname(os.path.abspath(__file__))
-with open(f"{MODULE_DIR}/reconstructions_archive.json", encoding="utf-8") as data_file:
-    RECONSTRUCTIONS_ARCHIVE = json.load(data_file)
+with open(f"{MODULE_DIR}/reconstructions_archive.json", "rb") as data_file:
+    RECONSTRUCTIONS_ARCHIVE = orjson.loads(data_file.read())
 
 
 def get_d(slab: Slab) -> float:

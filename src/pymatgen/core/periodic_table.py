@@ -10,7 +10,6 @@ from __future__ import annotations
 import ast
 import functools
 import gzip
-import json
 import re
 import warnings
 from collections import Counter
@@ -20,6 +19,7 @@ from pathlib import Path
 from typing import TYPE_CHECKING, overload
 
 import numpy as np
+import orjson
 from monty.json import MSONable
 
 from pymatgen.core.units import SUPPORTED_UNIT_NAMES, FloatWithUnit, Ha_to_eV, Length, Mass, Unit
@@ -37,8 +37,8 @@ if TYPE_CHECKING:
 # Load element data (periodic table) from JSON file
 # NOTE: you should not update the JSON file manually,
 # see `dev_scripts/generate_periodic_table_yaml_json.py`
-with gzip.open(Path(__file__).absolute().parent / "periodic_table.json.gz", mode="rt", encoding="utf-8") as ptable_json:
-    _RAW_PT_DATA: dict = json.load(ptable_json)
+with gzip.open(Path(__file__).absolute().parent / "periodic_table.json.gz", mode="rb") as ptable_json:
+    _RAW_PT_DATA: dict = orjson.loads(ptable_json.read())
 
 _PT_UNIT: dict[str, str] = _RAW_PT_DATA.pop("_unit")
 _PT_DATA: dict[str, Any] = _RAW_PT_DATA

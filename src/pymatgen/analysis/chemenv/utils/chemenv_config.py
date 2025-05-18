@@ -7,6 +7,8 @@ from os import makedirs
 from os.path import exists, expanduser
 from typing import TYPE_CHECKING
 
+import orjson
+
 from pymatgen.analysis.chemenv.utils.scripts_utils import strategies_class_lookup
 from pymatgen.core import SETTINGS
 
@@ -171,8 +173,8 @@ class ChemEnvConfig:
             root_dir = f"{home}/.chemenv"
         config_file = f"{root_dir}/config.json"
         try:
-            with open(config_file, encoding="utf-8") as file:
-                config_dict = json.load(file)
+            with open(config_file, "rb") as file:
+                config_dict = orjson.loads(file.read())
             return ChemEnvConfig(package_options=config_dict["package_options"])
 
         except OSError:

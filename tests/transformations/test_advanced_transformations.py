@@ -1,6 +1,5 @@
 from __future__ import annotations
 
-import json
 from shutil import which
 
 import numpy as np
@@ -55,8 +54,8 @@ def get_table():
     default lambda table.
     """
     json_path = f"{TEST_FILES_DIR}/analysis/struct_predictor/test_lambda.json"
-    with open(json_path, encoding="utf-8") as file:
-        return json.load(file)
+    with open(json_path, "rb") as file:
+        return orjson.loads(file.read())
 
 
 enum_cmd = which("enum.x") or which("multienum.x")

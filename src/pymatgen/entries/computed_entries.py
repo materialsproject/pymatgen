@@ -16,6 +16,7 @@ from itertools import combinations
 from typing import TYPE_CHECKING, cast
 
 import numpy as np
+import orjson
 from monty.json import MontyDecoder, MontyEncoder, MSONable
 from scipy.interpolate import interp1d
 from uncertainties import ufloat
@@ -36,10 +37,10 @@ __copyright__ = "Copyright 2011-2020, The Materials Project"
 __version__ = "1.1"
 __date__ = "April 2020"
 
-with open(os.path.join(os.path.dirname(__file__), "data/g_els.json"), encoding="utf-8") as file:
-    G_ELEMS = json.load(file)
-with open(os.path.join(os.path.dirname(__file__), "data/nist_gas_gf.json"), encoding="utf-8") as file:
-    G_GASES = json.load(file)
+with open(os.path.join(os.path.dirname(__file__), "data/g_els.json"), "rb") as file:
+    G_ELEMS = orjson.loads(file.read())
+with open(os.path.join(os.path.dirname(__file__), "data/nist_gas_gf.json"), "rb") as file:
+    G_GASES = orjson.loads(file.read())
 
 
 class EnergyAdjustment(MSONable):

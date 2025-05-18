@@ -1,7 +1,6 @@
 from __future__ import annotations
 
 import copy
-import json
 
 import networkx as nx
 import numpy as np
@@ -839,8 +838,8 @@ Node #3 Li (O:6), connected to :
 
     def test_coordination_sequences(self):
         BaTiO3_se_fpath = f"{TEST_FILES_DIR}/analysis/chemenv/structure_environments/se_mp-5020.json"
-        with open(BaTiO3_se_fpath, encoding="utf-8") as file:
-            dct = json.load(file)
+        with open(BaTiO3_se_fpath, "rb") as file:
+            dct = orjson.loads(file.read())
         struct_envs = StructureEnvironments.from_dict(dct)
         lse = LightStructureEnvironments.from_structure_environments(
             strategy=SimplestChemenvStrategy(), structure_environments=struct_envs

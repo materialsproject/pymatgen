@@ -5574,5 +5574,5 @@ class StructureError(Exception):
     """
 
 
-with open(os.path.join(os.path.dirname(__file__), "func_groups.json"), encoding="utf-8") as file:
-    FunctionalGroups = {k: Molecule(v["species"], v["coords"]) for k, v in json.load(file).items()}
+with open(os.path.join(os.path.dirname(__file__), "func_groups.json"), "rb") as file:
+    FunctionalGroups = {k: Molecule(v["species"], v["coords"]) for k, v in orjson.loads(file.read()).items()}

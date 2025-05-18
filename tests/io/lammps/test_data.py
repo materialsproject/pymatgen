@@ -454,8 +454,8 @@ class TestLammpsData(MatSciTest):
             "Angle Coeffs": [{"coeffs": [42.1845, 109.4712], "types": [("H", "O", "H")]}],
         }
         ff = ForceField(mass.items(), non_bond_coeffs, topo_coeffs)
-        with gzip.open(f"{TEST_DIR}/topologies_ice.json.gz") as file:
-            topo_dicts = json.load(file)
+        with gzip.open(f"{TEST_DIR}/topologies_ice.json.gz", "rb") as file:
+            topo_dicts = orjson.loads(file.read())
         topologies = [Topology.from_dict(d) for d in topo_dicts]
         box = LammpsBox([[-0.75694412, 44.165558], [0.38127473, 47.066074], [0.17900842, 44.193867]])
         ice = LammpsData.from_ff_and_topologies(box=box, ff=ff, topologies=topologies)

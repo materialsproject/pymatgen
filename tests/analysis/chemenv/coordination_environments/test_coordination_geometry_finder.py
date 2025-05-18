@@ -1,9 +1,9 @@
 from __future__ import annotations
 
-import json
 import os
 
 import numpy as np
+import orjson
 import pytest
 from numpy.testing import assert_allclose
 from pytest import approx
@@ -142,8 +142,8 @@ class TestCoordinationGeometryFinder(MatSciTest):
 
         for json_file in files:
             with self.subTest(json_file=json_file):
-                with open(f"{json_dir}/{json_file}", encoding="utf-8") as file:
-                    dct = json.load(file)
+                with open(f"{json_dir}/{json_file}", "rb") as file:
+                    dct = orjson.loads(file.read())
 
                 atom_indices = dct["atom_indices"]
                 expected_geoms = dct["expected_geoms"]

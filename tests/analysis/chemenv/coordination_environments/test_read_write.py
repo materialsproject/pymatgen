@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import json
 
+import orjson
 from numpy.testing import assert_allclose
 from pytest import approx
 
@@ -37,8 +38,8 @@ class TestReadWriteChemenv(MatSciTest):
         cls.lgf.setup_parameters(centering_type="standard")
 
     def test_read_write_structure_environments(self):
-        with open(f"{json_dir}/test_T--4_FePO4_icsd_4266.json", encoding="utf-8") as file:
-            dd = json.load(file)
+        with open(f"{json_dir}/test_T--4_FePO4_icsd_4266.json", "rb") as file:
+            dd = orjson.loads(file.read())
 
         atom_indices = dd["atom_indices"]
 
@@ -51,8 +52,8 @@ class TestReadWriteChemenv(MatSciTest):
         with open(f"{self.tmp_path}/se.json", mode="w", encoding="utf-8") as file:
             json.dump(se.as_dict(), file)
 
-        with open(f"{self.tmp_path}/se.json", encoding="utf-8") as file:
-            dd = json.load(file)
+        with open(f"{self.tmp_path}/se.json", "rb") as file:
+            dd = orjson.loads(file.read())
 
         se2 = StructureEnvironments.from_dict(dd)
 
@@ -70,14 +71,14 @@ class TestReadWriteChemenv(MatSciTest):
                 default=lambda obj: getattr(obj, "tolist", lambda: obj)(),
             )
 
-        with open(f"{self.tmp_path}/lse.json", encoding="utf-8") as file:
-            LightStructureEnvironments.from_dict(json.load(file))
+        with open(f"{self.tmp_path}/lse.json", "rb") as file:
+            LightStructureEnvironments.from_dict(orjson.loads(file.read()))
 
         # assert lse == lse2
 
     def test_structure_environments_neighbors_sets(self):
-        with open(f"{struct_env_dir}/se_mp-7000.json", encoding="utf-8") as file:
-            dct = json.load(file)
+        with open(f"{struct_env_dir}/se_mp-7000.json", "rb") as file:
+            dct = orjson.loads(file.read())
 
         struct_envs = StructureEnvironments.from_dict(dct)
 
@@ -221,8 +222,8 @@ class TestReadWriteChemenv(MatSciTest):
         assert multi_weights_strategy_2 != multi_weights_strategy_3
 
     def test_read_write_voronoi(self):
-        with open(f"{json_dir}/test_T--4_FePO4_icsd_4266.json", encoding="utf-8") as file:
-            dd = json.load(file)
+        with open(f"{json_dir}/test_T--4_FePO4_icsd_4266.json", "rb") as file:
+            dd = orjson.loads(file.read())
 
         struct = Structure.from_dict(dd["structure"])
 
@@ -233,8 +234,8 @@ class TestReadWriteChemenv(MatSciTest):
         with open(f"{self.tmp_path}/se.json", mode="w", encoding="utf-8") as file:
             json.dump(detailed_voronoi_container.as_dict(), file)
 
-        with open(f"{self.tmp_path}/se.json", encoding="utf-8") as file:
-            dd = json.load(file)
+        with open(f"{self.tmp_path}/se.json", "rb") as file:
+            dd = orjson.loads(file.read())
 
         detailed_voronoi_container2 = DetailedVoronoiContainer.from_dict(dd)
 

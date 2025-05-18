@@ -1,7 +1,6 @@
 from __future__ import annotations
 
 import copy
-import json
 
 import orjson
 from numpy.testing import assert_allclose, assert_array_equal
@@ -16,12 +15,12 @@ TEST_DIR = f"{TEST_FILES_DIR}/electronic_structure/bandstructure"
 
 class TestPhononBandStructureSymmLine(MatSciTest):
     def setup_method(self):
-        with open(f"{TEST_DIR}/NaCl_phonon_bandstructure.json", encoding="utf-8") as file:
-            dct = json.load(file)
+        with open(f"{TEST_DIR}/NaCl_phonon_bandstructure.json", "rb") as file:
+            dct = orjson.loads(file.read())
         self.bs = PhononBandStructureSymmLine.from_dict(dct)
 
-        with open(f"{TEST_DIR}/Si_phonon_bandstructure.json", encoding="utf-8") as file:
-            dct = json.load(file)
+        with open(f"{TEST_DIR}/Si_phonon_bandstructure.json", "rb") as file:
+            dct = orjson.loads(file.read())
         self.bs2 = PhononBandStructureSymmLine.from_dict(dct)
 
     def test_repr(self):

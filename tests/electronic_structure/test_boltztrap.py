@@ -1,6 +1,5 @@
 from __future__ import annotations
 
-import json
 from shutil import which
 
 import orjson
@@ -33,10 +32,8 @@ class TestBoltztrapAnalyzer:
         cls.bz_dw = BoltztrapAnalyzer.from_files(f"{TEST_DIR}/dos_dw/", dos_spin=-1)
         cls.bz_fermi = BoltztrapAnalyzer.from_files(f"{TEST_DIR}/fermi/")
 
-        with open(
-            f"{TEST_FILES_DIR}/electronic_structure/bandstructure/Cu2O_361_bandstructure.json", encoding="utf-8"
-        ) as file:
-            dct = json.load(file)
+        with open(f"{TEST_FILES_DIR}/electronic_structure/bandstructure/Cu2O_361_bandstructure.json", "rb") as file:
+            dct = orjson.loads(file.read())
             cls.bs = BandStructure.from_dict(dct)
             cls.btr = BoltztrapRunner(cls.bs, 1)
 

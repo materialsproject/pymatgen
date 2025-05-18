@@ -4,11 +4,12 @@ Molecule analysis.
 
 from __future__ import annotations
 
-import json
 import os
 import warnings
 from collections import defaultdict
 from typing import TYPE_CHECKING
+
+import orjson
 
 from pymatgen.core import Element
 
@@ -42,10 +43,10 @@ def _load_bond_length_data() -> dict[tuple[str, ...], dict[float, float]]:
     """
     with open(
         os.path.join(os.path.dirname(__file__), "bond_lengths.json"),
-        encoding="utf-8",
+        "rb",
     ) as file:
         data: dict[tuple, dict] = defaultdict(dict)
-        for row in json.load(file):
+        for row in orjson.loads(file.read()):
             els = sorted(row["elements"])
             data[tuple(els)][row["bond_order"]] = row["length"]
         return data

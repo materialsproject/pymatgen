@@ -1,7 +1,5 @@
 from __future__ import annotations
 
-import json
-
 import matplotlib.pyplot as plt
 import orjson
 import pytest
@@ -18,8 +16,8 @@ plt.rc("text", usetex=False)  # Disabling latex for testing
 
 class TestPhononDosPlotter:
     def setup_method(self):
-        with open(f"{TEST_DIR}/NaCl_complete_ph_dos.json", encoding="utf-8") as file:
-            self.dos = CompletePhononDos.from_dict(json.load(file))
+        with open(f"{TEST_DIR}/NaCl_complete_ph_dos.json", "rb") as file:
+            self.dos = CompletePhononDos.from_dict(orjson.loads(file.read()))
         self.plotter = PhononDosPlotter(sigma=0.2, stack=True)
         self.plotter_no_stack = PhononDosPlotter(sigma=0.2, stack=False)
         self.plotter_no_sigma = PhononDosPlotter(sigma=None, stack=False)
@@ -119,8 +117,8 @@ class TestPhononBSPlotter:
 
 class TestThermoPlotter:
     def setup_method(self):
-        with open(f"{TEST_DIR}/NaCl_complete_ph_dos.json", encoding="utf-8") as file:
-            self.dos = CompletePhononDos.from_dict(json.load(file))
+        with open(f"{TEST_DIR}/NaCl_complete_ph_dos.json", "rb") as file:
+            self.dos = CompletePhononDos.from_dict(orjson.loads(file.read()))
         self.plotter = ThermoPlotter(self.dos, self.dos.structure)
 
     @pytest.mark.filterwarnings("ignore:More than 20 figures have been opened")

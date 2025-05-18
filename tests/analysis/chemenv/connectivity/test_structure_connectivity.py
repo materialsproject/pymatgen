@@ -1,7 +1,5 @@
 from __future__ import annotations
 
-import json
-
 import orjson
 
 from pymatgen.analysis.chemenv.connectivity.connectivity_finder import ConnectivityFinder
@@ -19,8 +17,8 @@ __author__ = "waroquiers"
 class TestStructureConnectivity(MatSciTest):
     def test_serialization(self):
         BaTiO3_se_fpath = f"{TEST_FILES_DIR}/analysis/chemenv/structure_environments/se_mp-5020.json"
-        with open(BaTiO3_se_fpath, encoding="utf-8") as file:
-            dd = json.load(file)
+        with open(BaTiO3_se_fpath, "rb") as file:
+            dd = orjson.loads(file.read())
         struct_envs = StructureEnvironments.from_dict(dd)
         lse = LightStructureEnvironments.from_structure_environments(
             strategy=SimplestChemenvStrategy(), structure_environments=struct_envs
