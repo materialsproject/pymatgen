@@ -144,11 +144,11 @@ class ChemEnvConfig:
         if root_dir is None:
             home = os.expanduser("~")
             root_dir = f"{home}/.chemenv"
-        if not os.exists(root_dir):
+        if not os.path.exists(root_dir):
             os.makedirs(root_dir)
         config_dict = {"package_options": self.package_options}
         config_file = f"{root_dir}/config.json"
-        if os.exists(config_file):
+        if os.path.exists(config_file):
             test = input("Overwrite existing configuration ? (<Y> + <ENTER> to confirm)")
             if test != "Y":
                 print("Configuration not saved")
