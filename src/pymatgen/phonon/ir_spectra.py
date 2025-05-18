@@ -19,11 +19,12 @@ from pymatgen.vis.plotters import SpectrumPlotter
 
 if TYPE_CHECKING:
     from collections.abc import Sequence
-    from os import PathLike
 
     from matplotlib.axes import Axes
     from numpy.typing import ArrayLike
     from typing_extensions import Self
+
+    from pymatgen.util.typing import PathLike
 
 __author__ = "Henrique Miranda, Guido Petretto, Matteo Giantomassi"
 __copyright__ = "Copyright 2018, The Materials Project"

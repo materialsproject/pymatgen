@@ -20,7 +20,6 @@ from pymatgen.util.plotting import add_fig_kwargs, get_ax_fig, pretty_plot
 
 if TYPE_CHECKING:
     from collections.abc import Callable, Sequence
-    from os import PathLike
     from typing import Any, Literal
 
     from matplotlib.axes import Axes
@@ -30,6 +29,7 @@ if TYPE_CHECKING:
     from pymatgen.core import Structure
     from pymatgen.phonon.dos import PhononDos
     from pymatgen.phonon.gruneisen import GruneisenParameter
+    from pymatgen.util.typing import PathLike
 
 logger = logging.getLogger(__name__)
 

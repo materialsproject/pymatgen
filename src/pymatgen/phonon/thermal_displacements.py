@@ -16,11 +16,12 @@ from pymatgen.symmetry.groups import SYMM_DATA
 from pymatgen.util.due import Doi, due
 
 if TYPE_CHECKING:
-    from os import PathLike
     from typing import Literal
 
     from numpy.typing import ArrayLike, NDArray
     from typing_extensions import Self
+
+    from pymatgen.util.typing import PathLike
 
 __author__ = "J. George"
 __copyright__ = "Copyright 2022, The Materials Project"
@@ -316,9 +317,9 @@ class ThermalDisplacementMatrices(MSONable):
 
         Args:
             other: ThermalDisplacementMatrices
-            filename:           Filename of the VESTA file
-            which_structure:    0 means structure of the self object will be used, 1 means structure of the other
-                                object will be used
+            filename: Filename of the VESTA file
+            which_structure: 0 means structure of the self object will be used,
+                1 means structure of the other object will be used
         """
         # will return a VESTA file including vectors to visualize the quality criterion
         result = self.compute_directionality_quality_criterion(other=other)
