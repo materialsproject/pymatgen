@@ -194,7 +194,7 @@ class TransformedStructure(MSONable):
             **kwargs: All keyword args supported by the VASP input set.
         """
         dct = vasp_input_set(self.final_structure, **kwargs).get_input_set()
-        dct["transformations.json"] = orjson.dumps(self.as_dict(), option=orjson.OPT_INDENT_2).decode()
+        dct["transformations.json"] = orjson.dumps(self.as_dict()).decode()
         return dct
 
     def write_vasp_input(

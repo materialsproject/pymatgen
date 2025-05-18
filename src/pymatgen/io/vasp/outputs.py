@@ -6466,9 +6466,7 @@ class Vaspout(Vasprun):
             potcar_spec = self.potcar_spec
 
         # rather than define custom HDF5 hierarchy for POTCAR spec, just dump JSONable dict to str
-        hdf5_data["input"]["potcar"]["spec"] = orjson.dumps(
-            potcar_spec, option=orjson.OPT_INDENT_2 | orjson.OPT_SERIALIZE_NUMPY
-        ).decode()
+        hdf5_data["input"]["potcar"]["spec"] = orjson.dumps(potcar_spec, option=orjson.OPT_SERIALIZE_NUMPY).decode()
 
         # if file is to be compressed, first write uncompressed file
         with h5py.File(filename, "w") as h5_file:

@@ -2961,10 +2961,7 @@ class IStructure(SiteCollection, MSONable):
             writer = Cssr(self)
 
         elif fmt == "json" or fnmatch(filename.lower(), "*.json*"):
-            if kwargs:
-                json_str = json.dumps(self.as_dict(), **kwargs)
-            else:
-                json_str = orjson.dumps(self.as_dict(), option=orjson.OPT_INDENT_2).decode()
+            json_str = json.dumps(self.as_dict(), **kwargs) if kwargs else orjson.dumps(self.as_dict()).decode()
 
             if filename:
                 with zopen(filename, mode="wt", encoding="utf-8") as file:
@@ -4017,7 +4014,7 @@ class IMolecule(SiteCollection, MSONable):
 
             writer = GaussianInput(self)
         elif fmt == "json" or fnmatch(filename, "*.json*") or fnmatch(filename, "*.mson*"):
-            json_str = orjson.dumps(self.as_dict(), option=orjson.OPT_INDENT_2).decode()
+            json_str = orjson.dumps(self.as_dict()).decode()
             if filename:
                 with zopen(filename, mode="wt", encoding="utf-8") as file:
                     file.write(json_str)  # type:ignore[arg-type]

@@ -327,7 +327,7 @@ class VolumetricData(MSONable):
                 ds = grp.create_dataset(k, self.data[k].shape, dtype="float")
                 ds[...] = self.data[k]
             file.attrs["name"] = self.name
-            file.attrs["structure_json"] = orjson.dumps(self.structure.as_dict(), option=orjson.OPT_INDENT_2).decode()
+            file.attrs["structure_json"] = orjson.dumps(self.structure.as_dict()).decode()
 
     @classmethod
     def from_hdf5(cls, filename: str, **kwargs) -> VolumetricData:
