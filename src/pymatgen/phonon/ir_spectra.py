@@ -89,7 +89,7 @@ class IRDielectricTensor(MSONable):
             "epsilon_infinity": self.epsilon_infinity.tolist(),
         }
 
-    def write_json(self, filename: str | PathLike) -> None:
+    def write_json(self, filename: PathLike) -> None:
         """Save a JSON file with this data."""
         with open(filename, "wb") as file:
             file.write(orjson.dumps(self.as_dict()))

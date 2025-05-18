@@ -540,7 +540,7 @@ class LammpsInputFile(InputFile):
 
     def write_file(
         self,
-        filename: str | PathLike,
+        filename: PathLike,
         ignore_comments: bool = False,
         keep_stages: bool = True,
     ) -> None:

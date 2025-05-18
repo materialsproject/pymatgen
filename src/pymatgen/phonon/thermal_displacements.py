@@ -15,11 +15,6 @@ from pymatgen.io.cif import CifFile, CifParser, CifWriter, str2float
 from pymatgen.symmetry.groups import SYMM_DATA
 from pymatgen.util.due import Doi, due
 
-try:
-    import phonopy
-except ImportError:
-    phonopy = None
-
 if TYPE_CHECKING:
     from os import PathLike
     from typing import Literal
@@ -314,7 +309,7 @@ class ThermalDisplacementMatrices(MSONable):
     def visualize_directionality_quality_criterion(
         self,
         other: ThermalDisplacementMatrices,
-        filename: str | PathLike = "visualization.vesta",
+        filename: PathLike = "visualization.vesta",
         which_structure: Literal[0, 1] = 0,
     ) -> None:
         """Will create a VESTA file for visualization of the directionality criterion.

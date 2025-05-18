@@ -261,7 +261,7 @@ class PhononDosPlotter:
 
     def save_plot(
         self,
-        filename: str | PathLike,
+        filename: PathLike,
         img_format: str = "eps",
         xlim: float | None = None,
         ylim: float | None = None,
@@ -577,7 +577,7 @@ class PhononBSPlotter:
 
     def save_plot(
         self,
-        filename: str | PathLike,
+        filename: PathLike,
         ylim: float | None = None,
         units: Literal["thz", "ev", "mev", "ha", "cm-1", "cm^-1"] = "thz",
     ) -> None:
@@ -1056,7 +1056,7 @@ class GruneisenPlotter:
 
     def save_plot(
         self,
-        filename: str | PathLike,
+        filename: PathLike,
         img_format: str = "pdf",
         units: Literal["thz", "ev", "mev", "ha", "cm-1", "cm^-1"] = "thz",
     ) -> None:
@@ -1239,7 +1239,7 @@ class GruneisenPhononBSPlotter(PhononBSPlotter):
 
     def save_plot_gs(
         self,
-        filename: str | PathLike,
+        filename: PathLike,
         img_format: str = "eps",
         ylim: float | None = None,
         plot_ph_bs_with_gruneisen: bool = False,
