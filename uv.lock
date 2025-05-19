@@ -726,17 +726,44 @@ wheels = [
 
 [[package]]
 name = "dgl"
+version = "2.1.0"
+source = { registry = "https://pypi.org/simple" }
+resolution-markers = [
+    "python_full_version >= '3.12' and sys_platform == 'win32'",
+    "python_full_version == '3.11.*' and sys_platform == 'win32'",
+    "python_full_version < '3.11' and sys_platform == 'win32'",
+]
+dependencies = [
+    { name = "networkx", marker = "sys_platform == 'win32'" },
+    { name = "numpy", marker = "sys_platform == 'win32'" },
+    { name = "psutil", marker = "sys_platform == 'win32'" },
+    { name = "requests", marker = "sys_platform == 'win32'" },
+    { name = "scipy", marker = "sys_platform == 'win32'" },
+    { name = "torchdata", marker = "sys_platform == 'win32'" },
+    { name = "tqdm", marker = "sys_platform == 'win32'" },
+]
+
+[[package]]
+name = "dgl"
 version = "2.2.0"
 source = { registry = "https://pypi.org/simple" }
+resolution-markers = [
+    "python_full_version >= '3.12' and sys_platform != 'linux' and sys_platform != 'win32'",
+    "python_full_version >= '3.12' and sys_platform == 'linux'",
+    "python_full_version == '3.11.*' and sys_platform != 'linux' and sys_platform != 'win32'",
+    "python_full_version == '3.11.*' and sys_platform == 'linux'",
+    "python_full_version < '3.11' and sys_platform != 'linux' and sys_platform != 'win32'",
+    "python_full_version < '3.11' and sys_platform == 'linux'",
+]
 dependencies = [
-    { name = "networkx" },
-    { name = "numpy" },
-    { name = "pandas" },
-    { name = "psutil" },
-    { name = "requests" },
-    { name = "scipy" },
-    { name = "torchdata" },
-    { name = "tqdm" },
+    { name = "networkx", marker = "sys_platform != 'win32'" },
+    { name = "numpy", marker = "sys_platform != 'win32'" },
+    { name = "pandas", marker = "sys_platform != 'win32'" },
+    { name = "psutil", marker = "sys_platform != 'win32'" },
+    { name = "requests", marker = "sys_platform != 'win32'" },
+    { name = "scipy", marker = "sys_platform != 'win32'" },
+    { name = "torchdata", marker = "sys_platform != 'win32'" },
+    { name = "tqdm", marker = "sys_platform != 'win32'" },
 ]
 wheels = [
     { url = "https://files.pythonhosted.org/packages/90/09/522060351a971927ae5db1b265219055a836f0c2da81079fe4d68e2c8a45/dgl-2.2.0-cp310-cp310-macosx_11_0_arm64.whl", hash = "sha256:eece51bbc2b7f951c78b2e53cb5ac7e645f30ea142729bb613a9c9e3ef9ca338", size = 7400188, upload-time = "2024-05-08T07:16:07.462Z" },
@@ -1882,13 +1909,13 @@ sdist = { url = "https://files.pythonhosted.org/packages/62/7f/20c215d55170b52d4
 
 [[package]]
 name = "matgl"
-version = "1.2.6"
+version = "1.2.7"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "ase" },
     { name = "boto3" },
-    { name = "dgl" },
-    { name = "fsspec" },
+    { name = "dgl", version = "2.1.0", source = { registry = "https://pypi.org/simple" }, marker = "sys_platform == 'win32'" },
+    { name = "dgl", version = "2.2.0", source = { registry = "https://pypi.org/simple" }, marker = "sys_platform == 'darwin' or sys_platform == 'linux'" },
     { name = "lightning" },
     { name = "numpy" },
     { name = "pydantic" },
@@ -1896,7 +1923,7 @@ dependencies = [
     { name = "torch" },
     { name = "torchdata" },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/d3/df/4df95d47854508618fbc55fda0a9233bb77fb1ad38b6a4f1b815ee5b4871/matgl-1.2.6.tar.gz", hash = "sha256:b2cda0c67f90e1659da8acf833046f377ffba4f80ed3ccdf2bcff85ccd286934", size = 219569, upload-time = "2025-04-07T16:22:08.175Z" }
+sdist = { url = "https://files.pythonhosted.org/packages/12/1a/0f6840261bc3307402bb4b7c1f4965627598993cfe52feeb55cc8e4cf481/matgl-1.2.7.tar.gz", hash = "sha256:1566a04716790f9053c3d9081bad1dd7dc3bf147fcdda79a5a21408a85d419e0", size = 220767, upload-time = "2025-05-19T16:06:48.907Z" }
 
 [[package]]
 name = "matplotlib"
@@ -3175,8 +3202,8 @@ requires-dist = [
     { name = "jarvis-tools", marker = "extra == 'optional'", specifier = ">=2020.7.14" },
     { name = "joblib", specifier = ">=1" },
     { name = "matcalc", marker = "python_full_version < '3.13' and extra == 'matcalc'", specifier = ">=0.4.0" },
-    { name = "matgl", marker = "python_full_version < '3.13' and extra == 'matcalc'", specifier = ">=1.2.6" },
-    { name = "matgl", marker = "python_full_version < '3.13' and extra == 'mlp'", specifier = ">=1.2.6" },
+    { name = "matgl", marker = "python_full_version < '3.13' and extra == 'matcalc'", specifier = ">=1.2.7" },
+    { name = "matgl", marker = "python_full_version < '3.13' and extra == 'mlp'", specifier = ">=1.2.7" },
     { name = "matplotlib", specifier = ">=3.8" },
     { name = "matplotlib", marker = "extra == 'optional'", specifier = ">=3.8" },
     { name = "monty", specifier = ">=2025.1.9" },
@@ -4218,8 +4245,8 @@ name = "tblite"
 version = "0.4.0"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
-    { name = "cffi", marker = "sys_platform != 'win32'" },
-    { name = "numpy", marker = "sys_platform != 'win32'" },
+    { name = "cffi", marker = "python_full_version < '3.12' and sys_platform == 'linux'" },
+    { name = "numpy", marker = "python_full_version < '3.12' and sys_platform == 'linux'" },
 ]
 sdist = { url = "https://files.pythonhosted.org/packages/e2/e6/b374321b2d480cda450911d4122073ff67ebb5284b31d8fbfcfd3f08f144/tblite-0.4.0.tar.gz", hash = "sha256:c2334dced8e61e26cd24e1ddb53d10aa0d685cf4df451fc8547192163cddc113", size = 657027, upload-time = "2024-11-17T20:19:04.803Z" }
 wheels = [
@@ -4232,7 +4259,7 @@ wheels = [
 
 [package.optional-dependencies]
 ase = [
-    { name = "ase", marker = "sys_platform != 'win32'" },
+    { name = "ase", marker = "python_full_version < '3.12' and sys_platform == 'linux'" },
 ]
 
 [[package]]

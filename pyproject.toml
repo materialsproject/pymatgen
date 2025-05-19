@@ -91,7 +91,7 @@ Pypi = "https://pypi.org/project/pymatgen"
 abinit = ["netcdf4>=1.7.2"]
 ase = ["ase>=3.23.0"]
 electronic_structure = ["fdint>=2.0.2"]
-mlp = ["matgl>=1.2.6 ; python_version<'3.13'"]
+mlp = ["matgl>=1.2.7 ; python_version<'3.13'"]
 numba = ["numba>=0.55"]
 numpy-v1 = ["numpy>=1.25.0,<2"] # Test NP1 on Windows (quite buggy ATM)
 zeopp = ["pyzeo"]  # Note: requires voro++ and zeo++ to be installed
@@ -124,7 +124,7 @@ ci = [
 ]
 matcalc = [
     "matcalc>=0.4.0; python_version<'3.13'",
-    "matgl>=1.2.6; python_version<'3.13'",
+    "matgl>=1.2.7; python_version<'3.13'",
 ]
 
 [project.scripts]
