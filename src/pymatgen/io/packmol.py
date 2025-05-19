@@ -158,13 +158,18 @@ class PackmolBoxGen(InputGenerator):
 
         Args:
             molecules (list[dict]): Information about molecules to pack
-                into the box. Each dict requires three keys + 1 optional key:
+                into the box. Each dict requires three keys + 2 optional keys:
                     1. "name" - the structure name.
                     2. "number" - the number of that molecule to pack into the box.
                     3. "coords" - Coordinates in the form of either a Molecule
                         object or a path to a file.
                     4. "constraints" - (optional) the list of constraints for this
                         group of molecules.
+                    5. "atoms_constraints" - (optional) the list of constraints for
+                        specific atoms of this group of molecules. Each item in the
+                        list is a dictionary with keys 'indices' and 'constraints'.
+                        The 'indices' key contains the atom indices (0-based) of the
+                        atoms to which the list of 'constraints' applies.
                 Example:
                     {
                         "name": "water",
@@ -208,11 +213,19 @@ class PackmolBoxGen(InputGenerator):
         individual_constraints = all(bool(dct.get("constraints")) for dct in molecules)
         if not individual_constraints and any(bool(dct.get("constraints")) for dct in molecules):
             raise ValueError("Either specify constraints for all molecules or for none of them.")
+        has_atoms_constraints = any(bool(dct.get("atoms_constraints")) for dct in molecules)
+        if has_atoms_constraints and not individual_constraints:
+            raise ValueError("You must use individual_constraints to use atoms_constraints.")
         if individual_constraints:
             for dct in molecules:
                 for constraint in dct["constraints"]:
                     if not any(pmc in constraint for pmc in PACKMOL_CONSTRAINTS):
                         raise ValueError(f"Wrong packmol constraint: {constraint}")
+                if dct.get("atoms_constraints"):
+                    for atoms_constraints_dict in dct.get("atoms_constraints"):
+                        for constraint in atoms_constraints_dict["constraints"]:
+                            if not any(pmc in constraint for pmc in PACKMOL_CONSTRAINTS):
+                                raise ValueError(f"Wrong packmol constraint for specific atoms: {constraint}")
         box_list = None
         if box:
             if individual_constraints:
@@ -263,10 +276,19 @@ class PackmolBoxGen(InputGenerator):
                     )
                 )
             else:
+                atoms_constraints = []
+                if dct.get("atoms_constraints"):
+                    for atoms_constraints_dict in dct.get("atoms_constraints"):
+                        atoms_constraints.append(
+                            f"  atoms {' '.join([str(idx + 1) for idx in atoms_constraints_dict['indices']])}"
+                        )
+                        atoms_constraints.extend(["    " + c.strip() for c in atoms_constraints_dict["constraints"]])
+                        atoms_constraints.append("  end atoms")
                 file_contents.extend(
                     (
                         f"  number {dct['number']}",
                         *["  " + c.strip() for c in dct["constraints"]],
+                        *atoms_constraints,
                         "end structure\n\n",
                     )
                 )
