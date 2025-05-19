@@ -430,6 +430,7 @@ class FloatTag(AbstractTag):
     """
 
     prec: int | None = None
+    minval: float | None = None
 
     def validate_value_type(self, tag: str, value: Any, try_auto_type_fix: bool = False) -> tuple[str, bool, Any]:
         """Validate the type of the value for this tag.
@@ -472,6 +473,11 @@ class FloatTag(AbstractTag):
         Returns:
             str: The tag and its value as a string.
         """
+        # Returning an empty string instead of raising an error as value == self.minval
+        # will cause JDFTx to throw an error, but the internal infile dumps the value as
+        # as the minval if not set by the user.
+        if (self.minval is not None) and (not value > self.minval):
+            return ""
         # pre-convert to string: self.prec+3 is minimum room for:
         # - sign, 1 integer left of decimal, decimal, and precision.
         # larger numbers auto add places to left of decimal
