@@ -396,7 +396,8 @@ class PhaseDiagram(MSONable):
             "@module": type(self).__module__,
             "@class": type(self).__name__,
             "elements": [e.as_dict() for e in self.elements],
-            "computed_data": self.computed_data | {
+            "computed_data": self.computed_data
+            | {
                 "qhull_entries": qhull_entry_indices,
             },
         }
