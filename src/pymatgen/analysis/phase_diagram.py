@@ -392,7 +392,6 @@ class PhaseDiagram(MSONable):
         return {
             "@module": type(self).__module__,
             "@class": type(self).__name__,
-            "all_entries": [e.as_dict() for e in self.all_entries],
             "elements": [e.as_dict() for e in self.elements],
             "computed_data": self.computed_data,
         }
@@ -406,9 +405,9 @@ class PhaseDiagram(MSONable):
         Returns:
             PhaseDiagram
         """
-        entries = [MontyDecoder().process_decoded(entry) for entry in dct["all_entries"]]
-        elements = [Element.from_dict(elem) for elem in dct["elements"]]
         computed_data = dct.get("computed_data")
+        elements = [Element.from_dict(elem) for elem in dct["elements"]]
+        entries = [MontyDecoder().process_decoded(entry) for entry in computed_data["all_entries"]]
         return cls(entries, elements, computed_data=computed_data)
 
     def _compute(self) -> dict[str, Any]:
