@@ -99,9 +99,9 @@ ci = [
 electronic_structure = ["fdint>=2.0.2"]
 matcalc = [
     "matcalc>=0.4.0; python_version<'3.13'",
-    "matgl>=1.2.6; python_version<'3.13'",
+    "matgl>=1.2.7; python_version<'3.13'",
 ]
-mlp = ["matgl>=1.2.6 ; python_version<'3.13'"]
+mlp = ["matgl>=1.2.7 ; python_version<'3.13'"]
 numba = ["numba>=0.55"]
 numpy-v1 = ["numpy>=1.25.0,<2"] # Test NP1 on Windows (quite buggy ATM)
 optional = [

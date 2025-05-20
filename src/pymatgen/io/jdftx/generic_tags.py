@@ -110,6 +110,13 @@ class AbstractTag(ClassPrintFormatter, ABC):
         if not isinstance(value, list):
             raise TypeError(f"The '{tag}' tag can repeat but is not a list: '{value}'")
 
+    def validate_value_bounds(
+        self,
+        tag: str,
+        value: Any,
+    ) -> tuple[bool, str]:
+        return True, ""
+
     @abstractmethod
     def read(self, tag: str, value_str: str) -> Any:
         """Read and parse the value string for this tag.
@@ -363,7 +370,62 @@ class StrTag(AbstractTag):
 
 
 @dataclass
-class IntTag(AbstractTag):
+class AbstractNumericTag(AbstractTag):
+    """Abstract base class for numeric tags."""
+
+    lb: float | None = None  # lower bound
+    ub: float | None = None  # upper bound
+    lb_incl: bool = True  # lower bound inclusive
+    ub_incl: bool = True  # upper bound inclusive
+
+    def val_is_within_bounds(self, value: float) -> bool:
+        """Check if the value is within the bounds.
+
+        Args:
+            value (float | int): The value to check.
+
+        Returns:
+            bool: True if the value is within the bounds, False otherwise.
+        """
+        good = True
+        if self.lb is not None:
+            good = good and value >= self.lb if self.lb_incl else good and value > self.lb
+        if self.ub is not None:
+            good = good and value <= self.ub if self.ub_incl else good and value < self.ub
+        return good
+
+    def get_invalid_value_error_str(self, tag: str, value: float) -> str:
+        """Raise a ValueError for the invalid value.
+
+        Args:
+            tag (str): The tag to raise the ValueError for.
+            value (float | int): The value to raise the ValueError for.
+        """
+        err_str = f"Value '{value}' for tag '{tag}' is not within bounds"
+        if self.ub is not None:
+            err_str += f" {self.ub} >"
+            if self.ub_incl:
+                err_str += "="
+        err_str += " x "
+        if self.lb is not None:
+            err_str += ">"
+            if self.lb_incl:
+                err_str += "="
+        err_str += f" {self.lb}"
+        return err_str
+
+    def validate_value_bounds(
+        self,
+        tag: str,
+        value: Any,
+    ) -> tuple[bool, str]:
+        if not self.val_is_within_bounds(value):
+            return False, self.get_invalid_value_error_str(tag, value)
+        return True, ""
+
+
+@dataclass
+class IntTag(AbstractNumericTag):
     """Tag for integer values in JDFTx input files.
 
     Tag for integer values in JDFTx input files.
@@ -409,6 +471,8 @@ class IntTag(AbstractTag):
         Returns:
             str: The tag and its value as a string.
         """
+        if not self.val_is_within_bounds(value):
+            return ""
         return self._write(tag, value)
 
     def get_token_len(self) -> int:
@@ -421,14 +485,13 @@ class IntTag(AbstractTag):
 
 
 @dataclass
-class FloatTag(AbstractTag):
+class FloatTag(AbstractNumericTag):
     """Tag for float values in JDFTx input files.
 
     Tag for float values in JDFTx input files.
     """
 
     prec: int | None = None
-    minval: float | None = None
 
     def validate_value_type(self, tag: str, value: Any, try_auto_type_fix: bool = False) -> tuple[str, bool, Any]:
         """Validate the type of the value for this tag.
@@ -471,10 +534,7 @@ class FloatTag(AbstractTag):
         Returns:
             str: The tag and its value as a string.
         """
-        # Returning an empty string instead of raising an error as value == self.minval
-        # will cause JDFTx to throw an error, but the internal infile dumps the value as
-        # as the minval if not set by the user.
-        if (self.minval is not None) and (not value > self.minval):
+        if not self.val_is_within_bounds(value):
             return ""
         # pre-convert to string: self.prec+3 is minimum room for:
         # - sign, 1 integer left of decimal, decimal, and precision.
@@ -595,6 +655,50 @@ class TagContainer(AbstractTag):
             tags_checked.append(tag)
             types_checks.append(check)
         return tags_checked, types_checks, updated_value
+
+    def _validate_bounds_single_entry(self, value: dict | list[dict]) -> tuple[list[str], list[bool], list[str]]:
+        if not isinstance(value, dict):
+            raise TypeError(f"The value '{value}' (of type {type(value)}) must be a dict for this TagContainer!")
+        tags_checked: list[str] = []
+        types_checks: list[bool] = []
+        reported_errors: list[str] = []
+        for subtag, subtag_value in value.items():
+            subtag_object = self.subtags[subtag]
+            check, err_str = subtag_object.validate_value_bounds(subtag, subtag_value)
+            tags_checked.append(subtag)
+            types_checks.append(check)
+            reported_errors.append(err_str)
+        return tags_checked, types_checks, reported_errors
+
+    def validate_value_bounds(self, tag: str, value: Any) -> tuple[bool, str]:
+        value_dict = value
+        if self.can_repeat:
+            self._validate_repeat(tag, value_dict)
+            results = [self._validate_bounds_single_entry(x) for x in value_dict]
+            tags_list_list: list[list[str]] = [result[0] for result in results]
+            is_valids_list_list: list[list[bool]] = [result[1] for result in results]
+            reported_errors_list: list[list[str]] = [result[2] for result in results]
+            is_valid_out = all(all(x) for x in is_valids_list_list)
+            errors_out = ",".join([",".join(x) for x in reported_errors_list])
+            if not is_valid_out:
+                warnmsg = "Invalid value(s) found for: "
+                for i, x in enumerate(is_valids_list_list):
+                    if not all(x):
+                        for j, y in enumerate(x):
+                            if not y:
+                                warnmsg += f"{tags_list_list[i][j]} ({reported_errors_list[i][j]}) "
+                warnings.warn(warnmsg, stacklevel=2)
+        else:
+            tags, is_valids, reported_errors = self._validate_bounds_single_entry(value_dict)
+            is_valid_out = all(is_valids)
+            errors_out = ",".join(reported_errors)
+            if not is_valid_out:
+                warnmsg = "Invalid value(s) found for: "
+                for ii, xx in enumerate(is_valids):
+                    if not xx:
+                        warnmsg += f"{tags[ii]} ({reported_errors[ii]}) "
+                warnings.warn(warnmsg, stacklevel=2)
+        return is_valid_out, f"{tag}: {errors_out}"
 
     def validate_value_type(self, tag: str, value: Any, try_auto_type_fix: bool = False) -> tuple[str, bool, Any]:
         """Validate the type of the value for this tag.
