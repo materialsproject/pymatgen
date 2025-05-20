@@ -391,7 +391,10 @@ class JDFTXOutfileSlice:
         Args:
             text (list[str]): Output of read_file for out file.
         """
-        start_line_idx = find_key("Input parsed successfully", text) + 2
+        start_line_idx = find_key("Input parsed successfully", text)
+        if start_line_idx is None:
+            raise ValueError("JDFTx input parsing failed on most recent call.")
+        start_line_idx += 2
         end_line_idx = None
         for i in range(start_line_idx, len(text)):
             if not len(text[i].strip()):
@@ -399,7 +402,9 @@ class JDFTXOutfileSlice:
                 break
         if end_line_idx is None:
             raise ValueError("Calculation did not begin for this out file slice.")
-        self.infile = JDFTXInfile.from_str("\n".join(text[start_line_idx:end_line_idx]))
+        self.infile = JDFTXInfile.from_str(
+            "\n".join(text[start_line_idx:end_line_idx]), validate_value_boundaries=False
+        )
         self.constant_lattice = True
         if "lattice-minimize" in self.infile:
             latsteps = self.infile["lattice-minimize"]["nIterations"]
@@ -1156,6 +1161,24 @@ class JDFTXOutfileSlice:
                 raise ValueError("Cannot determine if system is metal - self.homo_filling undefined")
             raise ValueError("Cannot determine if system is metal - self.nspin undefined")
         return None
+
+    def to_jdftxinfile(self) -> JDFTXInfile:
+        """
+        Convert the JDFTXOutfile object to a JDFTXInfile object with the most recent structure.
+        If the input structure is desired, simply fetch JDFTXOutfile.infile
+
+        Returns:
+            JDFTXInfile: A JDFTXInfile object representing the input parameters of the JDFTXOutfile.
+        """
+        # Use internal infile as a reference for calculation parameters
+        base_infile = self.infile.copy()
+        # Strip references to the input
+        base_infile.strip_structure_tags()
+        if self.structure is None:
+            return base_infile
+        infile = JDFTXInfile.from_structure(self.structure)
+        infile += base_infile
+        return infile
 
     def _check_solvation(self) -> bool:
         """Check for implicit solvation.

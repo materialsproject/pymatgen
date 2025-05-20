@@ -792,7 +792,7 @@ jdftxminimize_subtagdict = {
     "knormThreshold": FloatTag(),
     "linminMethod": StrTag(options=["CubicWolfe", "DirUpdateRecommended", "Quad", "Relax"]),
     "maxThreshold": BoolTag(),
-    "nAlphaAdjustMax": FloatTag(),
+    "nAlphaAdjustMax": IntTag(),
     "nEnergyDiff": IntTag(),
     "nIterations": IntTag(),
     "updateTestStepSize": BoolTag(),
@@ -800,11 +800,11 @@ jdftxminimize_subtagdict = {
     "wolfeGradient": FloatTag(),
 }
 jdftxfluid_subtagdict = {
-    "epsBulk": FloatTag(),
-    "epsInf": FloatTag(),
+    "epsBulk": FloatTag(lb=0.0, lb_incl=False),
+    "epsInf": FloatTag(lb=1.0, lb_incl=True),
     "epsLJ": FloatTag(),
     "Nnorm": FloatTag(),
-    "pMol": FloatTag(),
+    "pMol": FloatTag(lb=0.0, lb_incl=True),
     "poleEl": TagContainer(
         can_repeat=True,
         write_tagname=True,
@@ -814,13 +814,13 @@ jdftxfluid_subtagdict = {
             "A0": FloatTag(write_tagname=False, optional=False),
         },
     ),
-    "Pvap": FloatTag(),
+    "Pvap": FloatTag(lb=0.0, lb_incl=False),
     "quad_nAlpha": FloatTag(),
     "quad_nBeta": FloatTag(),
     "quad_nGamma": FloatTag(),
     "representation": TagContainer(subtags={"MuEps": FloatTag(), "Pomega": FloatTag(), "PsiAlpha": FloatTag()}),
-    "Res": FloatTag(),
-    "Rvdw": FloatTag(),
+    "Res": FloatTag(lb=0.0, lb_incl=False),
+    "Rvdw": FloatTag(lb=0.0, lb_incl=False),
     "s2quadType": StrTag(
         options=[
             "10design60",
@@ -844,7 +844,7 @@ jdftxfluid_subtagdict = {
             "Tetrahedron",
         ]
     ),
-    "sigmaBulk": FloatTag(),
-    "tauNuc": FloatTag(),
+    "sigmaBulk": FloatTag(lb=0.0, lb_incl=False),
+    "tauNuc": FloatTag(lb=0.0, lb_incl=False),
     "translation": StrTag(options=["ConstantSpline", "Fourier", "LinearSpline"]),
 }
