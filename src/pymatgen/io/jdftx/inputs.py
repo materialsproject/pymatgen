@@ -59,7 +59,7 @@ class JDFTXInfile(dict, MSONable):
     Essentially a dictionary with some helper functions.
     """
 
-    path_parent: str | None = None  # Only gets a value if JDFTXInfile is initializedf with from_file
+    path_parent: str | None = None  # Only gets a value if JDFTXInfile is initialized with from_file
 
     def __init__(self, params: dict[str, Any] | None = None) -> None:
         """
@@ -147,7 +147,7 @@ class JDFTXInfile(dict, MSONable):
         return cls.get_list_representation(temp)
 
     @classmethod
-    def from_dict(cls, d: dict[str, Any]) -> JDFTXInfile:
+    def from_dict(cls, d: dict[str, Any], validate_value_boundaries=True) -> JDFTXInfile:
         """Create JDFTXInfile from a dictionary.
 
         Args:
@@ -160,6 +160,8 @@ class JDFTXInfile(dict, MSONable):
         for k, v in d.items():
             if k not in ("@module", "@class"):
                 instance[k] = v
+        if validate_value_boundaries:
+            instance.validate_boundaries()
         return instance
 
     def copy(self) -> JDFTXInfile:
@@ -213,6 +215,7 @@ class JDFTXInfile(dict, MSONable):
         dont_require_structure: bool = False,
         sort_tags: bool = True,
         assign_path_parent: bool = True,
+        validate_value_boundaries: bool = True,
     ) -> JDFTXInfile:
         """Read a JDFTXInfile object from a file.
 
@@ -235,6 +238,7 @@ class JDFTXInfile(dict, MSONable):
                 dont_require_structure=dont_require_structure,
                 sort_tags=sort_tags,
                 path_parent=path_parent,
+                validate_value_boundaries=validate_value_boundaries,
             )
 
     @staticmethod
@@ -373,6 +377,7 @@ class JDFTXInfile(dict, MSONable):
         dont_require_structure: bool = False,
         sort_tags: bool = True,
         path_parent: Path | None = None,
+        validate_value_boundaries: bool = True,
     ) -> JDFTXInfile:
         """Read a JDFTXInfile object from a string.
 
@@ -382,6 +387,7 @@ class JDFTXInfile(dict, MSONable):
             sort_tags (bool, optional): Whether to sort the tags. Defaults to True.
             path_parent (Path, optional): Path to the parent directory of the input file for include tags.
                                           Defaults to None.
+            validate_value_boundaries (bool, optional): Whether to validate the value boundaries. Defaults to True.
 
         Returns:
             JDFTXInfile: The created JDFTXInfile object.
@@ -416,7 +422,10 @@ class JDFTXInfile(dict, MSONable):
             raise ValueError("This input file is missing required structure tags")
         if sort_tags:
             params = {tag: params[tag] for tag in __TAG_LIST__ if tag in params}
-        return cls(params)
+        instance = cls(params)
+        if validate_value_boundaries:
+            instance.validate_boundaries()
+        return instance
 
     @classmethod
     def to_jdftxstructure(cls, jdftxinfile: JDFTXInfile, sort_structure: bool = False) -> JDFTXStructure:
@@ -573,6 +582,25 @@ class JDFTXInfile(dict, MSONable):
                     warnmsg += "(Check earlier warnings for more details)\n"
                 warnings.warn(warnmsg, stacklevel=2)
 
+    def validate_boundaries(self) -> None:
+        """Validate the boundaries of the JDFTXInfile.
+
+        Validate the boundaries of the JDFTXInfile. This is a placeholder for future functionality.
+        """
+        error_strs: list[str] = []
+        for tag in self:
+            tag_object = get_tag_object(tag)
+            is_valid, error_str = tag_object.validate_value_bounds(tag, self[tag])
+            if not is_valid:
+                error_strs.append(error_str)
+        if len(error_strs) > 0:
+            err_cat = "\n".join(error_strs)
+            raise ValueError(
+                f"The following boundary errors were found in the JDFTXInfile:\n{err_cat}\n"
+                "\n Hint - if you are reading from a JDFTX out file, you need to set validate_value_boundaries "
+                "to False, as JDFTx will dump values at non-inclusive boundaries (ie 0.0 for values strictly > 0.0)."
+            )
+
     def strip_structure_tags(self) -> None:
         """Strip all structural tags from the JDFTXInfile.
 
@@ -614,7 +642,7 @@ class JDFTXInfile(dict, MSONable):
         if self._is_numeric(value):
             value = str(value)
         if not tag_object.can_repeat:
-            value = [value]
+            value = [value]  # Shortcut to avoid writing a separate block for non-repeatable tags
         for v in value:
             processed_value = tag_object.read(key, v) if isinstance(v, str) else v
             params = self._store_value(params, tag_object, key, processed_value)
