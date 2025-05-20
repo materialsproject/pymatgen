@@ -2,12 +2,12 @@
 
 from __future__ import annotations
 
-import json
 import os
 import warnings
 from pathlib import Path
 from unittest.mock import patch
 
+import orjson
 import pytest
 from monty.json import MontyDecoder
 
@@ -75,7 +75,7 @@ class TestAssertMSONable(MatSciTest):
         kpts_obj = Kpoints.monkhorst_automatic((2, 2, 2), [0, 0, 0])
 
         result = self.assert_msonable(kpts_obj)
-        serialized = json.loads(result)
+        serialized = orjson.loads(result)
 
         expected_result = {
             "@module": "pymatgen.io.vasp.inputs",

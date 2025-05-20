@@ -1,8 +1,7 @@
 from __future__ import annotations
 
-import json
-
 import matplotlib.pyplot as plt
+import orjson
 import pytest
 from numpy.testing import assert_allclose
 
@@ -17,8 +16,8 @@ plt.rc("text", usetex=False)  # Disabling latex for testing
 
 class TestPhononDosPlotter:
     def setup_method(self):
-        with open(f"{TEST_DIR}/NaCl_complete_ph_dos.json", encoding="utf-8") as file:
-            self.dos = CompletePhononDos.from_dict(json.load(file))
+        with open(f"{TEST_DIR}/NaCl_complete_ph_dos.json", "rb") as file:
+            self.dos = CompletePhononDos.from_dict(orjson.loads(file.read()))
         self.plotter = PhononDosPlotter(sigma=0.2, stack=True)
         self.plotter_no_stack = PhononDosPlotter(sigma=0.2, stack=False)
         self.plotter_no_sigma = PhononDosPlotter(sigma=None, stack=False)
@@ -58,13 +57,13 @@ class TestPhononBSPlotter:
         with open(
             f"{TEST_FILES_DIR}/electronic_structure/bandstructure/NaCl_phonon_bandstructure.json", encoding="utf-8"
         ) as file:
-            dct = json.loads(file.read())
+            dct = orjson.loads(file.read())
         self.bs = PhononBandStructureSymmLine.from_dict(dct)
         self.plotter = PhononBSPlotter(self.bs, label="NaCl")
         with open(
             f"{TEST_FILES_DIR}/electronic_structure/bandstructure/SrTiO3_phonon_bandstructure.json", encoding="utf-8"
         ) as file:
-            dct = json.loads(file.read())
+            dct = orjson.loads(file.read())
         self.bs_sto = PhononBandStructureSymmLine.from_dict(dct)
         self.plotter_sto = PhononBSPlotter(self.bs_sto)
 
@@ -118,8 +117,8 @@ class TestPhononBSPlotter:
 
 class TestThermoPlotter:
     def setup_method(self):
-        with open(f"{TEST_DIR}/NaCl_complete_ph_dos.json", encoding="utf-8") as file:
-            self.dos = CompletePhononDos.from_dict(json.load(file))
+        with open(f"{TEST_DIR}/NaCl_complete_ph_dos.json", "rb") as file:
+            self.dos = CompletePhononDos.from_dict(orjson.loads(file.read()))
         self.plotter = ThermoPlotter(self.dos, self.dos.structure)
 
     @pytest.mark.filterwarnings("ignore:More than 20 figures have been opened")

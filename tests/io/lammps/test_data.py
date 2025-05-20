@@ -4,6 +4,7 @@ import gzip
 import json
 
 import numpy as np
+import orjson
 import pandas as pd
 import pytest
 from monty.json import MontyDecoder, MontyEncoder
@@ -453,8 +454,8 @@ class TestLammpsData(MatSciTest):
             "Angle Coeffs": [{"coeffs": [42.1845, 109.4712], "types": [("H", "O", "H")]}],
         }
         ff = ForceField(mass.items(), non_bond_coeffs, topo_coeffs)
-        with gzip.open(f"{TEST_DIR}/topologies_ice.json.gz") as file:
-            topo_dicts = json.load(file)
+        with gzip.open(f"{TEST_DIR}/topologies_ice.json.gz", "rb") as file:
+            topo_dicts = orjson.loads(file.read())
         topologies = [Topology.from_dict(d) for d in topo_dicts]
         box = LammpsBox([[-0.75694412, 44.165558], [0.38127473, 47.066074], [0.17900842, 44.193867]])
         ice = LammpsData.from_ff_and_topologies(box=box, ff=ff, topologies=topologies)
@@ -653,7 +654,7 @@ class TestTopology:
             [8, 1, 2, 3],
         ]
         assert_array_equal(tp_etoh["Dihedrals"], etoh_dihedrals)
-        assert json.dumps(topo_etoh.as_dict()) is not None
+        assert orjson.dumps(topo_etoh.as_dict()).decode() is not None
         # bond flag to off
         topo_etoh0 = Topology.from_bonding(molecule=etoh, bond=False, angle=True, dihedral=True)
         assert topo_etoh0.topologies is None
@@ -778,7 +779,7 @@ class TestForceField(MatSciTest):
     def test_from_dict(self):
         dct = self.ethane.as_dict()
         json_str = json.dumps(dct)
-        decoded = ForceField.from_dict(json.loads(json_str))
+        decoded = ForceField.from_dict(orjson.loads(json_str))
         assert decoded.mass_info == self.ethane.mass_info
         assert decoded.nonbond_coeffs == self.ethane.nonbond_coeffs
         assert decoded.topo_coeffs == self.ethane.topo_coeffs

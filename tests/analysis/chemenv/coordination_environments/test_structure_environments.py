@@ -1,9 +1,9 @@
 from __future__ import annotations
 
-import json
 import os
 
 import numpy as np
+import orjson
 from numpy.testing import assert_allclose, assert_array_equal
 from pytest import approx
 
@@ -26,8 +26,8 @@ TEST_DIR = f"{TEST_FILES_DIR}/analysis/chemenv/structure_environments"
 
 class TestStructureEnvironments(MatSciTest):
     def test_structure_environments(self):
-        with open(f"{TEST_DIR}/se_mp-7000.json", encoding="utf-8") as file:
-            dct = json.load(file)
+        with open(f"{TEST_DIR}/se_mp-7000.json", "rb") as file:
+            dct = orjson.loads(file.read())
 
         struct_envs = StructureEnvironments.from_dict(dct)
         isite = 6
@@ -143,8 +143,8 @@ class TestStructureEnvironments(MatSciTest):
         assert ce != ce2
 
     def test_light_structure_environments(self):
-        with open(f"{TEST_DIR}/se_mp-7000.json", encoding="utf-8") as file:
-            dct = json.load(file)
+        with open(f"{TEST_DIR}/se_mp-7000.json", "rb") as file:
+            dct = orjson.loads(file.read())
 
         struct_envs = StructureEnvironments.from_dict(dct)
 

@@ -1,9 +1,9 @@
 from __future__ import annotations
 
-import json
 import re
 
 import numpy as np
+import orjson
 import pytest
 from pytest import approx
 
@@ -16,10 +16,10 @@ TEST_DIR = f"{TEST_FILES_DIR}/phonon/dos"
 
 class TestPhononDos(MatSciTest):
     def setup_method(self):
-        with open(f"{TEST_DIR}/NaCl_ph_dos.json", encoding="utf-8") as file:
-            self.dos = PhononDos.from_dict(json.load(file))
-        with open(f"{TEST_DIR}/NaCl_complete_ph_dos.json", encoding="utf-8") as file:
-            self.structure = CompletePhononDos.from_dict(json.load(file)).structure
+        with open(f"{TEST_DIR}/NaCl_ph_dos.json", "rb") as file:
+            self.dos = PhononDos.from_dict(orjson.loads(file.read()))
+        with open(f"{TEST_DIR}/NaCl_complete_ph_dos.json", "rb") as file:
+            self.structure = CompletePhononDos.from_dict(orjson.loads(file.read())).structure
 
     def test_repr(self):
         assert repr(self.dos) == "PhononDos(frequencies=(201,), densities=(201,), n_positive_freqs=183)"
@@ -47,8 +47,8 @@ class TestPhononDos(MatSciTest):
         assert self.dos.get_smeared_densities(0) is self.dos.densities
 
     def test_dict_methods(self):
-        json_str = json.dumps(self.dos.as_dict())
-        assert json_str.startswith('{"@module": "pymatgen.phonon.dos", "@class": "PhononDos", "frequencies":')
+        json_str = orjson.dumps(self.dos.as_dict(), option=orjson.OPT_SERIALIZE_NUMPY).decode()
+        assert json_str.startswith('{"@module":"pymatgen.phonon.dos","@class":"PhononDos","frequencies":')
         self.assert_msonable(self.dos)
 
     def test_thermodynamic_functions(self):
@@ -184,8 +184,8 @@ class TestPhononDos(MatSciTest):
 
 class TestCompletePhononDos(MatSciTest):
     def setup_method(self):
-        with open(f"{TEST_DIR}/NaCl_complete_ph_dos.json", encoding="utf-8") as file:
-            self.cdos = CompletePhononDos.from_dict(json.load(file))
+        with open(f"{TEST_DIR}/NaCl_complete_ph_dos.json", "rb") as file:
+            self.cdos = CompletePhononDos.from_dict(orjson.loads(file.read()))
 
     def test_properties(self):
         site_Na = self.cdos.structure[0]
@@ -204,7 +204,7 @@ class TestCompletePhononDos(MatSciTest):
         assert sum_dos.densities == approx(self.cdos.densities)
 
     def test_dict_methods(self):
-        json_str = json.dumps(self.cdos.as_dict())
+        json_str = orjson.dumps(self.cdos.as_dict(), option=orjson.OPT_SERIALIZE_NUMPY).decode()
         assert json_str is not None
         self.assert_msonable(self.cdos)
 

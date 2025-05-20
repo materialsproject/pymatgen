@@ -1,8 +1,8 @@
 from __future__ import annotations
 
 import copy
-import json
 
+import orjson
 import pytest
 
 from pymatgen.core import Structure
@@ -279,27 +279,27 @@ def test_input_set():
 
     assert check_file(geometry_in_str, in_set.geometry_in)
     assert check_file(control_in_str, in_set.control_in)
-    assert params_json == json.loads(in_set.params_json)
+    assert params_json == orjson.loads(in_set.params_json)
 
     in_set_copy = copy.deepcopy(in_set)
     assert check_file(geometry_in_str, in_set_copy.geometry_in)
     assert check_file(control_in_str, in_set_copy.control_in)
-    assert params_json == json.loads(in_set_copy.params_json)
+    assert params_json == orjson.loads(in_set_copy.params_json)
 
     in_set.set_parameters(**parameters, relax_geometry="trm 1e-3")
     assert check_file(control_in_str_rel, in_set.control_in)
     assert check_file(control_in_str, in_set_copy.control_in)
 
-    assert params_json_rel == json.loads(in_set.params_json)
-    assert params_json == json.loads(in_set_copy.params_json)
+    assert params_json_rel == orjson.loads(in_set.params_json)
+    assert params_json == orjson.loads(in_set_copy.params_json)
 
     in_set.remove_parameters(keys=["relax_geometry"])
     assert check_file(control_in_str, in_set.control_in)
-    assert params_json == json.loads(in_set.params_json)
+    assert params_json == orjson.loads(in_set.params_json)
 
     in_set.remove_parameters(keys=["relax_geometry"], strict=False)
     assert check_file(control_in_str, in_set.control_in)
-    assert params_json == json.loads(in_set.params_json)
+    assert params_json == orjson.loads(in_set.params_json)
 
     with pytest.raises(ValueError, match="key='relax_geometry' not in list"):
         in_set.remove_parameters(keys=["relax_geometry"], strict=True)

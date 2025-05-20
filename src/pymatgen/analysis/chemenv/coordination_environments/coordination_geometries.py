@@ -11,11 +11,11 @@ from __future__ import annotations
 
 import abc
 import itertools
-import json
 import os
 from typing import TYPE_CHECKING
 
 import numpy as np
+import orjson
 from monty.json import MontyDecoder, MSONable
 from scipy.special import factorial
 
@@ -865,15 +865,15 @@ class AllCoordinationGeometries(dict):
                 data = file.readlines()
             for line in data:
                 cg_file = f"{MODULE_DIR}/{line.strip()}"
-                with open(cg_file, encoding="utf-8") as file:
-                    dd = json.load(file)
+                with open(cg_file, "rb") as file:
+                    dd = orjson.loads(file.read())
                 self.cg_list.append(CoordinationGeometry.from_dict(dd))
         else:
             for symbol in only_symbols:
                 fsymbol = symbol.replace(":", "#")
                 cg_file = f"{MODULE_DIR}/coordination_geometries_files/{fsymbol}.json"
-                with open(cg_file, encoding="utf-8") as file:
-                    dd = json.load(file)
+                with open(cg_file, "rb") as file:
+                    dd = orjson.loads(file.read())
                 self.cg_list.append(CoordinationGeometry.from_dict(dd))
 
         self.cg_list.append(CoordinationGeometry(UNKNOWN_ENVIRONMENT_SYMBOL, "Unknown environment", deactivate=True))

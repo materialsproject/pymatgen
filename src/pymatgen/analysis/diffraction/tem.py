@@ -2,12 +2,12 @@
 
 from __future__ import annotations
 
-import json
 import os
 from fractions import Fraction
 from typing import TYPE_CHECKING, NamedTuple, cast
 
 import numpy as np
+import orjson
 import pandas as pd
 import plotly.graph_objects as go
 import scipy.constants as sc
@@ -30,8 +30,8 @@ __date__ = "03/31/2020"
 
 
 MODULE_DIR = os.path.dirname(__file__)
-with open(f"{MODULE_DIR}/atomic_scattering_params.json", encoding="utf-8") as file:
-    ATOMIC_SCATTERING_PARAMS = json.load(file)
+with open(f"{MODULE_DIR}/atomic_scattering_params.json", "rb") as file:
+    ATOMIC_SCATTERING_PARAMS = orjson.loads(file.read())
 
 
 class TEMCalculator(AbstractDiffractionPatternCalculator):

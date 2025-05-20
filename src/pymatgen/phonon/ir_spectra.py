@@ -6,10 +6,10 @@ where it was originally done by Guido Petretto and Matteo Giantomassi.
 
 from __future__ import annotations
 
-import json
 from typing import TYPE_CHECKING
 
 import numpy as np
+import orjson
 from monty.json import MSONable
 
 from pymatgen.core.spectrum import Spectrum
@@ -19,11 +19,12 @@ from pymatgen.vis.plotters import SpectrumPlotter
 
 if TYPE_CHECKING:
     from collections.abc import Sequence
-    from os import PathLike
 
     from matplotlib.axes import Axes
     from numpy.typing import ArrayLike
     from typing_extensions import Self
+
+    from pymatgen.util.typing import PathLike
 
 __author__ = "Henrique Miranda, Guido Petretto, Matteo Giantomassi"
 __copyright__ = "Copyright 2018, The Materials Project"
@@ -89,10 +90,10 @@ class IRDielectricTensor(MSONable):
             "epsilon_infinity": self.epsilon_infinity.tolist(),
         }
 
-    def write_json(self, filename: str | PathLike) -> None:
+    def write_json(self, filename: PathLike) -> None:
         """Save a JSON file with this data."""
-        with open(filename, mode="w", encoding="utf-8") as file:
-            json.dump(self.as_dict(), file)
+        with open(filename, "wb") as file:
+            file.write(orjson.dumps(self.as_dict()))
 
     def get_ir_spectra(
         self,

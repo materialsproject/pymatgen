@@ -19,6 +19,7 @@ import warnings
 from functools import partial
 from typing import TYPE_CHECKING, NamedTuple
 
+import orjson
 import requests
 from monty.json import MontyDecoder
 
@@ -173,7 +174,7 @@ class MPRester:
                 else:
                     response = self.session.get(actual_url, params=payload, verify=True)
                 if response.status_code in [200, 400]:
-                    data = json.loads(response.text, cls=MontyDecoder) if mp_decode else json.loads(response.text)
+                    data = json.loads(response.text, cls=MontyDecoder) if mp_decode else orjson.loads(response.text)
                 else:
                     raise MPRestError(f"REST query returned with error status code {response.status_code}")
                 all_data.extend(data["data"])

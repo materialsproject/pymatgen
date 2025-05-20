@@ -2,9 +2,9 @@
 
 from __future__ import annotations
 
-import json
 import re
 
+import orjson
 import requests
 from monty.dev import requires
 
@@ -78,7 +78,7 @@ class VaspDoc:
             "&cmlimit=500&format=json"
         )
         response = requests.get(url, timeout=60)
-        response_dict = json.loads(response.text)
+        response_dict = orjson.loads(response.text)
 
         def extract_titles(data):
             """Extract keywords from from Wikimedia response data.
@@ -94,7 +94,7 @@ class VaspDoc:
         # See https://www.mediawiki.org/wiki/API:Continue
         while "continue" in response_dict:
             response = requests.get(url + f"&cmcontinue={response_dict['continue']['cmcontinue']}", timeout=60)
-            response_dict = json.loads(response.text)
+            response_dict = orjson.loads(response.text)
             tags = tags + extract_titles(response_dict)
 
         return tags

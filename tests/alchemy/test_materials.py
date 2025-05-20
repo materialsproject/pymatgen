@@ -1,8 +1,8 @@
 from __future__ import annotations
 
-import json
 from copy import deepcopy
 
+import orjson
 import pytest
 
 from pymatgen.alchemy.filters import ContainsSpecieFilter
@@ -64,8 +64,8 @@ class TestTransformedStructure(MatSciTest):
         assert isinstance(deepcopy(self.trans), TransformedStructure)
 
     def test_from_dict(self):
-        with open(f"{TEST_DIR}/transformations.json", encoding="utf-8") as file:
-            dct = json.load(file)
+        with open(f"{TEST_DIR}/transformations.json", "rb") as file:
+            dct = orjson.loads(file.read())
         dct["other_parameters"] = {"tags": ["test"]}
         t_struct = TransformedStructure.from_dict(dct)
         t_struct.other_parameters["author"] = "Will"

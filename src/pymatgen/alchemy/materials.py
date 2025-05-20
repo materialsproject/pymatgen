@@ -11,6 +11,7 @@ from datetime import datetime, timezone
 from typing import TYPE_CHECKING
 from warnings import warn
 
+import orjson
 from monty.json import MSONable, jsanitize
 
 from pymatgen.core.structure import Structure
@@ -193,7 +194,7 @@ class TransformedStructure(MSONable):
             **kwargs: All keyword args supported by the VASP input set.
         """
         dct = vasp_input_set(self.final_structure, **kwargs).get_input_set()
-        dct["transformations.json"] = json.dumps(self.as_dict())
+        dct["transformations.json"] = orjson.dumps(self.as_dict()).decode()
         return dct
 
     def write_vasp_input(

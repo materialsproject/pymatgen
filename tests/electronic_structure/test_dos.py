@@ -1,11 +1,11 @@
 from __future__ import annotations
 
-import json
+import gzip
 import re
 
 import numpy as np
+import orjson
 import pytest
-from monty.io import zopen
 from monty.serialization import loadfn
 from numpy.testing import assert_allclose
 from pytest import approx
@@ -20,8 +20,8 @@ TEST_DIR = f"{TEST_FILES_DIR}/electronic_structure/dos"
 
 class TestDos:
     def setup_method(self):
-        with open(f"{TEST_DIR}/complete_dos.json", encoding="utf-8") as file:
-            self.dos = CompleteDos.from_dict(json.load(file))
+        with open(f"{TEST_DIR}/complete_dos.json", "rb") as file:
+            self.dos = CompleteDos.from_dict(orjson.loads(file.read()))
 
     def test_get_gap(self):
         assert self.dos.get_gap() == approx(2.0698, abs=1e-4)
@@ -59,8 +59,8 @@ class TestDos:
 
 class TestFermiDos:
     def setup_method(self):
-        with open(f"{TEST_DIR}/complete_dos.json", encoding="utf-8") as file:
-            self.dos = CompleteDos.from_dict(json.load(file))
+        with open(f"{TEST_DIR}/complete_dos.json", "rb") as file:
+            self.dos = CompleteDos.from_dict(orjson.loads(file.read()))
         self.dos = FermiDos(self.dos)
 
     def test_doping_fermi(self):
@@ -126,10 +126,10 @@ class TestFermiDos:
 
 class TestCompleteDos:
     def setup_method(self):
-        with open(f"{TEST_DIR}/complete_dos.json", encoding="utf-8") as file:
-            self.dos = CompleteDos.from_dict(json.load(file))
-        with zopen(f"{TEST_DIR}/pdag3_complete_dos.json.gz", mode="rt", encoding="utf-8") as file:
-            self.dos_pdag3 = CompleteDos.from_dict(json.load(file))
+        with open(f"{TEST_DIR}/complete_dos.json", "rb") as file:
+            self.dos = CompleteDos.from_dict(orjson.loads(file.read()))
+        with gzip.open(f"{TEST_DIR}/pdag3_complete_dos.json.gz", "rb") as file:
+            self.dos_pdag3 = CompleteDos.from_dict(orjson.loads(file.read()))
 
     def test_get_gap(self):
         assert self.dos.get_gap() == approx(2.0698, abs=1e-4), "Wrong gap from dos!"
@@ -346,8 +346,8 @@ class TestCompleteDos:
 
 class TestDOS(MatSciTest):
     def setup_method(self):
-        with open(f"{TEST_DIR}/complete_dos.json", encoding="utf-8") as file:
-            dct = json.load(file)
+        with open(f"{TEST_DIR}/complete_dos.json", "rb") as file:
+            dct = orjson.loads(file.read())
             ys = list(zip(dct["densities"]["1"], dct["densities"]["-1"], strict=True))
             self.dos = DOS(dct["energies"], ys, dct["efermi"])
 
@@ -381,28 +381,28 @@ class TestSpinPolarization:
 
 class TestLobsterCompleteDos:
     def setup_method(self):
-        with open(f"{TEST_DIR}/LobsterCompleteDos_spin.json", encoding="utf-8") as file:
-            data_spin = json.load(file)
+        with open(f"{TEST_DIR}/LobsterCompleteDos_spin.json", "rb") as file:
+            data_spin = orjson.loads(file.read())
         self.LobsterCompleteDOS_spin = LobsterCompleteDos.from_dict(data_spin)
 
-        with open(f"{TEST_DIR}/LobsterCompleteDos_nonspin.json", encoding="utf-8") as file:
-            data_nonspin = json.load(file)
+        with open(f"{TEST_DIR}/LobsterCompleteDos_nonspin.json", "rb") as file:
+            data_nonspin = orjson.loads(file.read())
         self.LobsterCompleteDOS_nonspin = LobsterCompleteDos.from_dict(data_nonspin)
 
-        with open(f"{TEST_DIR}/structure_KF.json", encoding="utf-8") as file:
-            data_structure = json.load(file)
+        with open(f"{TEST_DIR}/structure_KF.json", "rb") as file:
+            data_structure = orjson.loads(file.read())
         self.structure = Structure.from_dict(data_structure)
 
-        with open(f"{TEST_DIR}/LobsterCompleteDos_MnO.json", encoding="utf-8") as file:
-            data_MnO = json.load(file)
+        with open(f"{TEST_DIR}/LobsterCompleteDos_MnO.json", "rb") as file:
+            data_MnO = orjson.loads(file.read())
         self.LobsterCompleteDOS_MnO = LobsterCompleteDos.from_dict(data_MnO)
 
-        with open(f"{TEST_DIR}/LobsterCompleteDos_MnO_nonspin.json", encoding="utf-8") as file:
-            data_MnO_nonspin = json.load(file)
+        with open(f"{TEST_DIR}/LobsterCompleteDos_MnO_nonspin.json", "rb") as file:
+            data_MnO_nonspin = orjson.loads(file.read())
         self.LobsterCompleteDOS_MnO_nonspin = LobsterCompleteDos.from_dict(data_MnO_nonspin)
 
-        with open(f"{TEST_DIR}/structure_MnO.json", encoding="utf-8") as file:
-            data_MnO = json.load(file)
+        with open(f"{TEST_DIR}/structure_MnO.json", "rb") as file:
+            data_MnO = orjson.loads(file.read())
         self.structure_MnO = Structure.from_dict(data_MnO)
 
     def test_get_site_orbital_dos(self):

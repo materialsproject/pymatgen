@@ -1,7 +1,6 @@
 from __future__ import annotations
 
-import json
-
+import orjson
 from pytest import approx
 
 from pymatgen.analysis.structure_prediction.substitution_probability import (
@@ -21,8 +20,8 @@ def get_table():
     default lambda table.
     """
     json_path = f"{TEST_DIR}/test_lambda.json"
-    with open(json_path, encoding="utf-8") as file:
-        return json.load(file)
+    with open(json_path, "rb") as file:
+        return orjson.loads(file.read())
 
 
 class TestSubstitutionProbability:

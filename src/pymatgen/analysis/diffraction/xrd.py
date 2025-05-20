@@ -2,12 +2,12 @@
 
 from __future__ import annotations
 
-import json
 import math
 import os
 from typing import TYPE_CHECKING
 
 import numpy as np
+import orjson
 
 from pymatgen.analysis.diffraction.core import (
     AbstractDiffractionPatternCalculator,
@@ -49,9 +49,9 @@ WAVELENGTHS = {
 
 with open(
     os.path.join(os.path.dirname(__file__), "atomic_scattering_params.json"),
-    encoding="utf-8",
+    "rb",
 ) as file:
-    ATOMIC_SCATTERING_PARAMS = json.load(file)
+    ATOMIC_SCATTERING_PARAMS = orjson.loads(file.read())
 
 
 class XRDCalculator(AbstractDiffractionPatternCalculator):

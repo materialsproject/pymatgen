@@ -1,11 +1,11 @@
 from __future__ import annotations
 
 import copy
-import json
 import os
 import tempfile
 
 import numpy as np
+import orjson
 import pytest
 from numpy.testing import assert_allclose, assert_array_equal
 from pytest import approx
@@ -420,8 +420,8 @@ class TestDoscar:
 
         self.DOSCAR_lcfo = Doscar(doscar=doscar3, structure_file=poscar3, is_lcfo=True)
 
-        with open(f"{TEST_FILES_DIR}/electronic_structure/dos/structure_KF.json", encoding="utf-8") as file:
-            data = json.load(file)
+        with open(f"{TEST_FILES_DIR}/electronic_structure/dos/structure_KF.json", "rb") as file:
+            data = orjson.loads(file.read())
 
         self.structure = Structure.from_dict(data)
 

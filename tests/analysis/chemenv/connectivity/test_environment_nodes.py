@@ -1,14 +1,9 @@
 from __future__ import annotations
 
-import json
+import orjson
 
 from pymatgen.analysis.chemenv.connectivity.environment_nodes import EnvironmentNode
 from pymatgen.util.testing import MatSciTest
-
-try:
-    import bson
-except ModuleNotFoundError:
-    bson = None  # type: ignore[assignment]
 
 __author__ = "waroquiers"
 
@@ -42,7 +37,7 @@ class TestEnvironmentNodes(MatSciTest):
         assert env_node.everything_equal(env_node_from_dict)
 
         json_str = self.assert_msonable(env_node)
-        env_node_from_json = EnvironmentNode.from_dict(json.loads(json_str))
+        env_node_from_json = EnvironmentNode.from_dict(orjson.loads(json_str))
         assert env_node.everything_equal(env_node_from_json)
 
     def test_str(self):

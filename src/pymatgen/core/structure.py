@@ -23,6 +23,7 @@ from fnmatch import fnmatch
 from typing import TYPE_CHECKING, Literal, cast, get_args, overload
 
 import numpy as np
+import orjson
 from monty.dev import deprecated
 from monty.io import zopen
 from monty.json import MSONable
@@ -2960,7 +2961,8 @@ class IStructure(SiteCollection, MSONable):
             writer = Cssr(self)
 
         elif fmt == "json" or fnmatch(filename.lower(), "*.json*"):
-            json_str = json.dumps(self.as_dict(), **kwargs)
+            json_str = json.dumps(self.as_dict(), **kwargs) if kwargs else orjson.dumps(self.as_dict()).decode()
+
             if filename:
                 with zopen(filename, mode="wt", encoding="utf-8") as file:
                     file.write(json_str)  # type:ignore[arg-type]
@@ -3110,7 +3112,7 @@ class IStructure(SiteCollection, MSONable):
             cssr = Cssr.from_str(input_string, **kwargs)
             struct = cssr.structure  # type:ignore[assignment]
         elif fmt_low == "json":
-            dct = json.loads(input_string)
+            dct = orjson.loads(input_string)
             struct = Structure.from_dict(dct)
         elif fmt_low in ("yaml", "yml"):
             yaml = YAML()
@@ -4012,7 +4014,7 @@ class IMolecule(SiteCollection, MSONable):
 
             writer = GaussianInput(self)
         elif fmt == "json" or fnmatch(filename, "*.json*") or fnmatch(filename, "*.mson*"):
-            json_str = json.dumps(self.as_dict())
+            json_str = orjson.dumps(self.as_dict()).decode()
             if filename:
                 with zopen(filename, mode="wt", encoding="utf-8") as file:
                     file.write(json_str)  # type:ignore[arg-type]
@@ -4074,7 +4076,7 @@ class IMolecule(SiteCollection, MSONable):
             mol = GaussianInput.from_str(input_string).molecule
 
         elif fmt == "json":
-            dct = json.loads(input_string)
+            dct = orjson.loads(input_string)
             return cls.from_dict(dct)
 
         elif fmt in {"yaml", "yml"}:
@@ -5572,5 +5574,5 @@ class StructureError(Exception):
     """
 
 
-with open(os.path.join(os.path.dirname(__file__), "func_groups.json"), encoding="utf-8") as file:
-    FunctionalGroups = {k: Molecule(v["species"], v["coords"]) for k, v in json.load(file).items()}
+with open(os.path.join(os.path.dirname(__file__), "func_groups.json"), "rb") as file:
+    FunctionalGroups = {k: Molecule(v["species"], v["coords"]) for k, v in orjson.loads(file.read()).items()}

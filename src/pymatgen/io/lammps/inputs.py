@@ -26,11 +26,10 @@ from pymatgen.io.lammps.data import CombinedData, LammpsData
 from pymatgen.io.template import TemplateInputGen
 
 if TYPE_CHECKING:
-    from os import PathLike
-
     from typing_extensions import Self
 
     from pymatgen.io.core import InputSet
+    from pymatgen.util.typing import PathLike
 
 __author__ = "Kiran Mathew, Brandon Wood, Zhi Deng, Manas Likhit, Guillaume Brunin (Matgenix)"
 __copyright__ = "Copyright 2018, The Materials Virtual Lab"
@@ -540,7 +539,7 @@ class LammpsInputFile(InputFile):
 
     def write_file(
         self,
-        filename: str | PathLike,
+        filename: PathLike,
         ignore_comments: bool = False,
         keep_stages: bool = True,
     ) -> None:

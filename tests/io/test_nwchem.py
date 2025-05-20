@@ -1,7 +1,6 @@
 from __future__ import annotations
 
-import json
-
+import orjson
 import pytest
 from numpy.testing import assert_allclose
 from pytest import approx
@@ -320,11 +319,11 @@ task dft energy
         nwi = NwInput.from_dict(dct)
         assert isinstance(nwi, NwInput)
         # Ensure it is json-serializable.
-        json.dumps(dct)
+        orjson.dumps(dct).decode()
         dct = self.nwi_symm.as_dict()
         nwi_symm = NwInput.from_dict(dct)
         assert isinstance(nwi_symm, NwInput)
-        json.dumps(dct)
+        orjson.dumps(dct).decode()
 
     def test_from_str_and_file(self):
         nwi = NwInput.from_file(f"{TEST_DIR}/ch4.nw")

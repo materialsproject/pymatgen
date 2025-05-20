@@ -1,8 +1,8 @@
 from __future__ import annotations
 
 import gzip
-import json
 
+import orjson
 from monty.json import MontyDecoder
 
 from pymatgen.symmetry import site_symmetries as ss
@@ -20,11 +20,11 @@ TEST_DIR = f"{TEST_FILES_DIR}/symmetry/site_symmetries"
 
 class TestSiteSymmetries(MatSciTest):
     def setup_method(self):
-        with gzip.open(f"{TEST_DIR}/point_ops.json.gz", mode="rt") as file:
-            self.point_ops = MontyDecoder().process_decoded(json.load(file))
+        with gzip.open(f"{TEST_DIR}/point_ops.json.gz", mode="rb") as file:
+            self.point_ops = MontyDecoder().process_decoded(orjson.loads(file.read()))
 
-        with gzip.open(f"{TEST_DIR}/shared_ops.json.gz", mode="rt") as file:
-            self.shared_ops = MontyDecoder().process_decoded(json.load(file))
+        with gzip.open(f"{TEST_DIR}/shared_ops.json.gz", mode="rb") as file:
+            self.shared_ops = MontyDecoder().process_decoded(orjson.loads(file.read()))
 
         self.piezo_struct = self.get_structure("Pb2TiZrO6")
 

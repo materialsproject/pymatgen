@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-import json
+import orjson
 
 from pymatgen.analysis.structure_prediction.substitutor import Substitutor
 from pymatgen.core import Composition, Species
@@ -16,8 +16,8 @@ def get_table():
     default lambda table.
     """
     json_path = f"{TEST_DIR}/test_lambda.json"
-    with open(json_path, encoding="utf-8") as file:
-        return json.load(file)
+    with open(json_path, "rb") as file:
+        return orjson.loads(file.read())
 
 
 class TestSubstitutor(MatSciTest):

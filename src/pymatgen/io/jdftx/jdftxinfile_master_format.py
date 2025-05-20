@@ -5,8 +5,6 @@ This module contains;
     tag names to AbstractTag-type objects.
 - get_tag_object: a function that returns an AbstractTag-type object from
     MASTER_TAG_LIST given a tag name.
-
-@mkhorton - this file is ready to review.
 """
 
 from __future__ import annotations

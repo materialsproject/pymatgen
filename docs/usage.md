@@ -71,8 +71,8 @@ Similarly, to get the structure back from a json, you can do the following to
 restore the structure (or any object with an as_dict method) from the json as
 follows::
 
-    with open("structure.json", encoding="utf-8") as file:
-        dct = json.load(file)
+    with open("structure.json", "rb") as file:
+        dct = orjson.loads(file.read())
         structure = Structure.from_dict(dct)
 
 You may replace any of the above json commands with yaml in the PyYAML package

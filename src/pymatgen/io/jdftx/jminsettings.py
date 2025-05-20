@@ -3,8 +3,6 @@
 This module contains the JMinSettings class for storing generic minimization
 and mutants for storing specific minimization settings read from a JDFTx out
 file.
-
-@mkhorton - this file is ready to review.
 """
 
 from __future__ import annotations

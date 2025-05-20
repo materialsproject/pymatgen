@@ -2,12 +2,12 @@
 
 from __future__ import annotations
 
-import json
 import math
 import os
 from typing import TYPE_CHECKING
 
 import numpy as np
+import orjson
 
 from pymatgen.analysis.diffraction.core import (
     AbstractDiffractionPatternCalculator,
@@ -29,9 +29,9 @@ __date__ = "4/19/18"
 # This table was cited from "Neutron Data Booklet" 2nd ed (Old City 2003).
 with open(
     os.path.join(os.path.dirname(__file__), "neutron_scattering_length.json"),
-    encoding="utf-8",
+    "rb",
 ) as file:
-    ATOMIC_SCATTERING_LEN = json.load(file)
+    ATOMIC_SCATTERING_LEN = orjson.loads(file.read())
 
 
 class NDCalculator(AbstractDiffractionPatternCalculator):

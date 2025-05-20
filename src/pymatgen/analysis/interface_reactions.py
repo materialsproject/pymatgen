@@ -5,12 +5,12 @@ solids, with or without an open element (e.g., flowing O2).
 
 from __future__ import annotations
 
-import json
 import warnings
 from typing import TYPE_CHECKING
 
 import matplotlib.pyplot as plt
 import numpy as np
+import orjson
 from monty.json import MSONable
 from pandas import DataFrame
 from plotly.graph_objects import Figure, Scatter
@@ -31,8 +31,8 @@ __maintainer__ = "Matthew McDermott"
 __email__ = "mcdermott@lbl.gov"
 __date__ = "Sep 1, 2021"
 
-with open(f"{PKG_DIR}/util/plotly_interface_rxn_layouts.json", encoding="utf-8") as file:
-    plotly_layouts = json.load(file)
+with open(f"{PKG_DIR}/util/plotly_interface_rxn_layouts.json", "rb") as file:
+    plotly_layouts = orjson.loads(file.read())
 
 
 @due.dcite(

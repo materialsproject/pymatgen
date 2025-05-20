@@ -3,13 +3,13 @@
 from __future__ import annotations
 
 import abc
-import json
 import logging
 import os
 import warnings
 from glob import glob
 from typing import TYPE_CHECKING
 
+import orjson
 from monty.io import zopen
 from monty.json import MSONable
 
@@ -444,8 +444,8 @@ def _get_transformation_history(path: PathLike):
     """Check for a transformations.json* file and return the history."""
     if trans_json := glob(f"{path!s}/transformations.json*"):
         try:
-            with zopen(trans_json[0], mode="rt", encoding="utf-8") as file:
-                return json.load(file)["history"]
+            with zopen(trans_json[0], "rb") as file:
+                return orjson.loads(file.read())["history"]
         except Exception:
             return None
     return None

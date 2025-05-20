@@ -1,7 +1,6 @@
 from __future__ import annotations
 
 import copy
-import json
 import os
 import pickle
 import re
@@ -10,6 +9,7 @@ from shutil import copyfile
 from unittest.mock import patch
 
 import numpy as np
+import orjson
 import pytest
 import scipy.constants as const
 from monty.io import zopen
@@ -1202,7 +1202,7 @@ Cartesian
         kpts = Kpoints.from_file(file_name)
         dct = kpts.as_dict()
 
-        json.dumps(dct)
+        assert orjson.dumps(dct).decode()
         # This doesn't work
         k2 = Kpoints.from_dict(dct)
         assert kpts.kpts == k2.kpts

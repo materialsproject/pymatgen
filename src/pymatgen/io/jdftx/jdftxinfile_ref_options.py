@@ -2,8 +2,6 @@
 
 This module contains reference data for JDFTx tags, such as valid options for
 functionals, pseudopotentials, etc.
-
-@mkhorton - this file is ready to review.
 """
 
 from __future__ import annotations
