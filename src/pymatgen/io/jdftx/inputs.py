@@ -24,6 +24,7 @@ from pymatgen.core import Lattice, Structure
 from pymatgen.core.periodic_table import Element
 from pymatgen.core.units import bohr_to_ang
 from pymatgen.io.jdftx.generic_tags import AbstractTag, BoolTagContainer, DumpTagContainer, MultiformatTag, TagContainer
+from pymatgen.io.jdftx.jdftxinfile_default_inputs import default_inputs
 from pymatgen.io.jdftx.jdftxinfile_master_format import (
     __PHONON_TAGS__,
     __TAG_LIST__,
@@ -544,6 +545,11 @@ class JDFTXInfile(dict, MSONable):
         Returns:
             bool: Whether the two JDFTXInfile objects are comparable.
         """
+        # for tag in self:
+        #     val1 = self[tag]
+        #     obj1 = get_tag_object(tag)
+        #     if not tag in other:
+        #         if tag in ref_infile:
         # TODO: Write this method
         return False
 
@@ -703,6 +709,9 @@ class JDFTXInfile(dict, MSONable):
         except (ValueError, TypeError):
             is_numeric = False
         return is_numeric
+
+
+ref_infile = JDFTXInfile.from_dict(default_inputs, validate_value_boundaries=False)
 
 
 def _allnone(val) -> bool:
