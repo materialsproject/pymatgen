@@ -70,8 +70,8 @@ class AbstractTag(ClassPrintFormatter, ABC):
             tuple[str, bool, Any]: The tag, whether the value is of the correct type, and the possibly fixed value.
         """
 
-    @abstractmethod
-    def is_equal_to(self, val1: Any, obj2: AbstractTag, val2: Any) -> bool:
+    # @abstractmethod
+    def is_equal_to(self, val1: Any | list[Any], obj2: AbstractTag, val2: Any | list[Any]) -> bool:
         """Check if the two values are equal.
 
         Args:
@@ -82,8 +82,32 @@ class AbstractTag(ClassPrintFormatter, ABC):
         Returns:
             bool: True if the two tag object/value pairs are equal, False otherwise.
         """
+        if self.can_repeat:
+            if not obj2.can_repeat:
+                return False
+            val1 = val1 if isinstance(val1, list) else [val1]
+            val2 = val2 if isinstance(val2, list) else [val2]
+            if len(val1) != len(val2):
+                return False
+            return all(True in [self._is_equal_to(v1, obj2, v2) for v2 in val2] for v1 in val1)
+        return self._is_equal_to(val1, obj2, val2)
 
-    def _is_equal_to(
+    @abstractmethod
+    def _is_equal_to(self, val1: Any, obj2: AbstractTag, val2: Any) -> bool:
+        """Check if the two values are equal.
+
+        Used to check if the two values are equal. Assumes val1 and val2 are single elements.
+
+        Args:
+            val1 (Any): The value of this tag object.
+            obj2 (AbstractTag): The other tag object.
+            val2 (Any): The value of the other tag object.
+
+        Returns:
+            bool: True if the two tag object/value pairs are equal, False otherwise.
+        """
+
+    def _is_same_tagtype(
         self,
         obj2: AbstractTag,
     ) -> bool:
@@ -285,7 +309,7 @@ class BoolTag(AbstractTag):
         """
         return self._validate_value_type(bool, tag, value, try_auto_type_fix=try_auto_type_fix)
 
-    def is_equal_to(self, val1: Any, obj2: AbstractTag, val2: Any) -> bool:
+    def _is_equal_to(self, val1: Any, obj2: AbstractTag, val2: Any) -> bool:
         """Check if the two values are equal.
 
         Args:
@@ -296,7 +320,7 @@ class BoolTag(AbstractTag):
         Returns:
             bool: True if the two tag object/value pairs are equal, False otherwise.
         """
-        return self._is_equal_to(obj2) and val1 == val2
+        return self._is_same_tagtype(obj2) and val1 == val2
 
     def raise_value_error(self, tag: str, value: str) -> None:
         """Raise a ValueError for the value string.
@@ -375,7 +399,7 @@ class StrTag(AbstractTag):
         """
         return self._validate_value_type(str, tag, value, try_auto_type_fix=try_auto_type_fix)
 
-    def is_equal_to(self, val1: Any, obj2: AbstractTag, val2: Any) -> bool:
+    def _is_equal_to(self, val1: Any, obj2: AbstractTag, val2: Any) -> bool:
         """Check if the two values are equal.
 
         Args:
@@ -386,7 +410,7 @@ class StrTag(AbstractTag):
         Returns:
             bool: True if the two tag object/value pairs are equal, False otherwise.
         """
-        if self._is_equal_to(obj2):
+        if self._is_same_tagtype(obj2):
             if not all(isinstance(x, str) for x in (val1, val2)):
                 raise ValueError("Both values must be strings for StrTag comparison")
             return val1.strip() == val2.strip()
@@ -436,6 +460,8 @@ class AbstractNumericTag(AbstractTag):
     ub: float | None = None  # upper bound
     lb_incl: bool = True  # lower bound inclusive
     ub_incl: bool = True  # upper bound inclusive
+    eq_atol: float = 1.0e-8  # absolute tolerance for equality check
+    eq_rtol: float = 1.0e-5  # relative tolerance for equality check
 
     def val_is_within_bounds(self, value: float) -> bool:
         """Check if the value is within the bounds.
@@ -482,7 +508,7 @@ class AbstractNumericTag(AbstractTag):
             return False, self.get_invalid_value_error_str(tag, value)
         return True, ""
 
-    def is_equal_to(self, val1, obj2, val2, rtol=1.0e-5, atol=1.0e-8):
+    def _is_equal_to(self, val1, obj2, val2):
         """Check if the two values are equal.
 
         Used to check if the two values are equal. Doesn't need to be redefined for IntTag and FloatTag.
@@ -496,7 +522,7 @@ class AbstractNumericTag(AbstractTag):
         Returns:
             bool: True if the two tag object/value pairs are equal, False otherwise.
         """
-        return self._is_equal_to(obj2) and np.isclose(val1, val2, rtol=rtol, atol=atol)
+        return self._is_same_tagtype(obj2) and np.isclose(val1, val2, rtol=self.eq_rtol, atol=self.eq_atol)
 
 
 @dataclass
@@ -693,7 +719,7 @@ class InitMagMomTag(AbstractTag):
         """
         return self._get_token_len()
 
-    def is_equal_to(self, val1, obj2, val2):
+    def _is_equal_to(self, val1, obj2, val2):
         raise NotImplementedError("equality not yet implemented for InitMagMomTag")
 
 
@@ -1089,8 +1115,8 @@ class TagContainer(AbstractTag):
         list_value = self._make_str_for_dict(tag, value)
         return self.read(tag, list_value)
 
-    def is_equal_to(self, val1, obj2, val2):
-        if self._is_equal_to(obj2):
+    def _is_equal_to(self, val1, obj2, val2):
+        if self._is_same_tagtype(obj2):
             if isinstance(val1, dict) and isinstance(val2, dict):
                 if all(subtag in val1 for subtag in self.subtags):
                     for subtag, subtag_type in self.subtags.items():
@@ -1250,7 +1276,7 @@ class MultiformatTag(AbstractTag):
         """
         raise NotImplementedError("This method is not supposed to be called directly on MultiformatTag objects!")
 
-    def is_equal_to(self, val1, obj2, val2):
+    def _is_equal_to(self, val1, obj2, val2):
         raise NotImplementedError("This method is not supposed to be called directly on MultiformatTag objects!")
 
 

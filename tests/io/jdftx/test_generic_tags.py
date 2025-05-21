@@ -510,7 +510,8 @@ def test_tag_is_equal_to():
     # Test some float tag equalities
     assert floattag1.is_equal_to(1.0, floattag2, 1.0)
     assert not floattag1.is_equal_to(1.0, floattag2, 2.0)
-    assert floattag1.is_equal_to(1.0, floattag2, 1.01, atol=0.1)
+    floattag3 = FloatTag(eq_atol=0.1)
+    assert floattag3.is_equal_to(1.0, floattag2, 1.01)
     # Test some int tag equalities
     assert inttag1.is_equal_to(1, inttag2, 1)
     assert not inttag1.is_equal_to(1, inttag2, 2)
