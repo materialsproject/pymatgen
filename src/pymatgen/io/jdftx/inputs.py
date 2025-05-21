@@ -535,6 +535,18 @@ class JDFTXInfile(dict, MSONable):
         params = self._store_value(params, tag_object, tag, processed_value)
         self.update(params)
 
+    def is_comparable_to(self, other: JDFTXInfile) -> bool:
+        """Check if two JDFTXInfile objects are comparable.
+
+        Args:
+            other (JDFTXInfile): Other JDFTXInfile object to compare to.
+
+        Returns:
+            bool: Whether the two JDFTXInfile objects are comparable.
+        """
+        # TODO: Write this method
+        return False
+
     @property
     def structure(self) -> Structure | None:
         """Return a pymatgen Structure object.
