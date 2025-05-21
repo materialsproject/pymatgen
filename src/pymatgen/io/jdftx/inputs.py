@@ -31,6 +31,7 @@ from pymatgen.io.jdftx.jdftxinfile_master_format import (
     __WANNIER_TAGS__,
     MASTER_TAG_LIST,
     get_tag_object,
+    get_tag_object_on_val,
 )
 from pymatgen.util.io_utils import clean_lines
 from pymatgen.util.typing import SpeciesLike
@@ -128,15 +129,23 @@ class JDFTXInfile(dict, MSONable):
         if not isinstance(key, str):
             raise TypeError(f"{key} is not a string!")
         try:
+            # tag_object = get_tag_object_on_val(key, value)
             tag_object = get_tag_object(key)
         except KeyError:
             raise KeyError(f"The {key} tag is not in MASTER_TAG_LIST")
-        if isinstance(tag_object, MultiformatTag):
-            if isinstance(value, str):
-                i = tag_object.get_format_index_for_str_value(key, value)
-            else:
-                i, _ = tag_object._determine_format_option(key, value)
-            tag_object = tag_object.format_options[i]
+        _remaining_values = None
+        if tag_object.can_repeat and isinstance(value, list):
+            if len(value) > 1:
+                _remaining_values = value[1:]
+            value = value[0]
+        tag_object = get_tag_object_on_val(key, value)
+
+        # if isinstance(tag_object, MultiformatTag):
+        #     if isinstance(value, str):
+        #         i = tag_object.get_format_index_for_str_value(key, value)
+        #     else:
+        #         i, _ = tag_object._determine_format_option(key, value)
+        #     tag_object = tag_object.format_options[i]
         if tag_object.can_repeat and key in self:
             del self[key]
         if tag_object.can_repeat and not isinstance(value, list):
@@ -151,6 +160,9 @@ class JDFTXInfile(dict, MSONable):
             params = self._store_value(params, tag_object, key, processed_value)
             self.update(params)
             self.validate_tags(try_auto_type_fix=True, error_on_failed_fix=True)
+        if _remaining_values is not None:
+            for v in _remaining_values:
+                self.append_tag(key, v)
 
     @classmethod
     def from_dict(cls, d: dict[str, Any], validate_value_boundaries=True) -> JDFTXInfile:
@@ -963,31 +975,39 @@ class JDFTXStructure(MSONable):
                         break
                 if label not in valid_labels:
                     raise ValueError(f"Could not correct site label {label} for site (index {i})")
-            ion_list_rep = [label, *coords]
+            ion_dict_rep = {
+                "species-id": label,
+                "x0": coords[0],
+                "x1": coords[1],
+                "x2": coords[2],
+                "moveScale": sd,
+            }
             # Gather velocities if present
             if (self.velocities is not None) and (self.velocities[i] is not None):
-                ion_list_rep.append("v")
-                for j in range(3):
-                    ion_list_rep.append(self.velocities[i][j] * (1 / bohr_to_ang))
-            # Append movescale regardless
-            ion_list_rep.append(sd)
+                ion_dict_rep["v"] = {
+                    "vx0": self.velocities[i][0] * (1 / bohr_to_ang),
+                    "vx1": self.velocities[i][1] * (1 / bohr_to_ang),
+                    "vx2": self.velocities[i][2] * (1 / bohr_to_ang),
+                }
             # Gather constraints if present
             if ((self.constraint_types is not None) and (self.constraint_vectors is not None)) and (
                 self.constraint_types[i] is not None
             ):
                 ctype = self.constraint_types[i]
                 if ctype == "HyperPlane":
+                    ion_dict_rep["HyperPlane"] = []
                     if self.constraint_vectors[i] is not None:
                         for j, hyperplane in enumerate(self.constraint_vectors[i]):
-                            ion_list_rep.append("HyperPlane")
+                            _hyperplane = {}
                             for k in range(3):
-                                ion_list_rep.append(hyperplane[k])
-                            ion_list_rep.append(self.hyperplane_groups[i][j])
+                                _hyperplane["d" + str(k)] = hyperplane[k]
+                            _hyperplane["group"] = self.hyperplane_groups[i][j]
+                            ion_dict_rep["HyperPlane"].append(_hyperplane)
                 else:
-                    ion_list_rep.append(ctype)
+                    ion_dict_rep["constraint-type"] = ctype
                     for j in range(3):
-                        ion_list_rep.append(self.constraint_vectors[i][j])
-            jdftx_tag_dict["ion"].append(ion_list_rep)
+                        ion_dict_rep["d" + str(j)] = self.constraint_vectors[i][j]
+            jdftx_tag_dict["ion"].append(ion_dict_rep)
         return str(JDFTXInfile.from_dict(jdftx_tag_dict))
 
     def write_file(self, filename: PathLike, **kwargs) -> None:

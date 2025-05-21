@@ -72,16 +72,18 @@ default_inputs = {
             "sigmaBulk": 4.62e-05,
             "Rvdw": 2.61727,
             "Res": 1.42,
-            "tauNuc": 343133,
-            "poleEl": {
-                "omega0": 15.0,
-                "gamma0": 7.0,
-                "A0": 1.0,
-            },
+            "tauNuc": 343133.0,  # Dumped as an int but should be a float
+            "poleEl": [
+                {
+                    "omega0": 15.0,
+                    "gamma0": 7.0,
+                    "A0": 1.0,
+                },
+            ],
         },
     ],
     "forces-output-coords": "Positions",
-    "ion-width": 0,
+    "ion-width": 0.0,  # Dumped as an int but should be a float
     "ionic-minimize": {
         "dirUpdateScheme": "L-BFGS",
         "linminMethod": "DirUpdateRecommended",
