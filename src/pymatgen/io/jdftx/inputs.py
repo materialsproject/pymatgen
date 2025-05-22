@@ -548,22 +548,100 @@ class JDFTXInfile(dict, MSONable):
         params = self._store_value(params, tag_object, tag, processed_value)
         self.update(params)
 
-    def is_comparable_to(self, other: JDFTXInfile) -> bool:
-        """Check if two JDFTXInfile objects are comparable.
+    # def is_comparable_to(
+    #         self, other: JDFTXInfile,
+    #         exclude_tags: list[str] | None = None, exclude_tag_categories: list[str] | None = None) -> bool:
+    #     """Check if two JDFTXInfile objects are comparable.
+
+    #     Args:
+    #         other (JDFTXInfile): Other JDFTXInfile object to compare to.
+    #         exclude_tags (list[str], optional): Tags to exclude from comparison. Defaults to None.
+    #             Set to contain tags you are already accounting for being different to exclude them.
+    #         exclude_tag_categories (list[str], optional): Tag categories to exclude from comparison. Defaults to None.
+    #             Add all tags of specified tag categories to be excluded in the comparison.
+
+    #     Returns:
+    #         bool: Whether the two JDFTXInfile objects are comparable.
+    #     """
+    #     if exclude_tag_categories is None:
+    #         exclude_tag_categories = ["export", "restart"]
+    #     differing_tags = self.get_filtered_differing_tags(
+    #         other, exclude_tags=exclude_tags, exclude_tag_categories=exclude_tag_categories
+    #         )
+    #     return len(differing_tags) == 0
+
+    def get_filtered_differing_tags(
+        self, other: JDFTXInfile, exclude_tags: list[str] | None = None, exclude_tag_categories: list[str] | None = None
+    ) -> list[str]:
+        """Return which tags differ between self and other JDFTXInfile.
+
+        Returns a list of tags that differ between the two JDFTXInfile objects, excluding any tags specified in
+        exclude_tags or exclude_tag_categories. This is useful for comparing two JDFTXInfile objects while ignoring
+        certain tags that are expected to differ.
+
+        Args:
+            other (JDFTXInfile): Other JDFTXInfile object to compare to.
+            exclude_tags (list[str], optional): Tags to exclude from comparison. Defaults to None.
+                Set to contain tags you are already accounting for being different to exclude them.
+            exclude_tag_categories (list[str], optional): Tag categories to exclude from comparison. Defaults to None.
+                Add all tags of specified tag categories to be excluded in the comparison.
+        Returns:
+            list[str]: Tags that differ between the two JDFTXInfile objects.
+        """
+        if exclude_tags is None:
+            exclude_tags = []
+        if exclude_tag_categories is None:
+            exclude_tag_categories = []
+        for category in exclude_tag_categories:
+            exclude_tags += list(MASTER_TAG_LIST[category].keys())
+        differing_tags = self.get_differing_tags(other)
+        for exclude_tag in exclude_tags:
+            if exclude_tag in differing_tags:
+                differing_tags.remove(exclude_tag)
+        return differing_tags
+
+    # get_differing_tags for a full list of tags that differ between two JDFTXInfile objects
+    def get_differing_tags(self, other: JDFTXInfile) -> list[str]:
+        """Return which tags differ between self and other JDFTXInfile.
 
         Args:
             other (JDFTXInfile): Other JDFTXInfile object to compare to.
 
         Returns:
-            bool: Whether the two JDFTXInfile objects are comparable.
+            list[str]: Tags that differ between the two JDFTXInfile objects.
         """
-        # for tag in self:
-        #     val1 = self[tag]
-        #     obj1 = get_tag_object(tag)
-        #     if not tag in other:
-        #         if tag in ref_infile:
-        # TODO: Write this method
-        return False
+        list1 = self.get_differing_tags_from(other)
+        list2 = other.get_differing_tags_from(self)
+        return list(set(list1 + list2))
+
+    # get_differing_tags_from for only tags contained in self that differ from other JDFTXInfile
+    def get_differing_tags_from(self, other: JDFTXInfile) -> list[str]:
+        """Return which self-contained tags differ from other JDFTXInfile.
+
+        Args:
+            other (JDFTXInfile): Other JDFTXInfile object to compare to.
+
+        Returns:
+            list[str]: Tags from this JDFTXInfile that differ from the other JDFTXInfile.
+        """
+        differing_tags = []
+        for tag in self:
+            val1 = self[tag]
+            obj1 = get_tag_object_on_val(tag, val1)
+            val2 = None
+            obj2 = None
+            if tag not in other:
+                if tag in ref_infile:
+                    val2 = ref_infile[tag]
+                    obj2 = get_tag_object_on_val(tag, val2)
+                else:
+                    differing_tags.append(tag)
+            else:
+                val2 = other[tag]
+                obj2 = get_tag_object_on_val(tag, val2)
+            if not obj1.is_equal_to(val1, obj2, val2):
+                differing_tags.append(tag)
+        return differing_tags
 
     @property
     def structure(self) -> Structure | None:

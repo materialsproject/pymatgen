@@ -720,7 +720,8 @@ class InitMagMomTag(AbstractTag):
         return self._get_token_len()
 
     def _is_equal_to(self, val1, obj2, val2):
-        raise NotImplementedError("equality not yet implemented for InitMagMomTag")
+        return True  # TODO: We still need to actually implement initmagmom as a multi-format tag
+        # raise NotImplementedError("equality not yet implemented for InitMagMomTag")
 
 
 @dataclass
@@ -1116,11 +1117,21 @@ class TagContainer(AbstractTag):
         return self.read(tag, list_value)
 
     def _is_equal_to(self, val1, obj2, val2):
+        """Check if the two values are equal.
+
+        Return False if (checked in following order)
+        - obj2 is not a TagContainer
+        - all of val1's subtags are not in val2
+        - val1 and val2 are not the same length (different number of subtags)
+        - at least one subtag in val1 is not equal to the corresponding subtag in val2
+        """
         if self._is_same_tagtype(obj2):
             if isinstance(val1, dict) and isinstance(val2, dict):
-                if all(subtag in val1 for subtag in self.subtags):
+                if all(subtag in val2 for subtag in val1) and (len(list(val1.keys())) == len(list(val2.keys()))):
                     for subtag, subtag_type in self.subtags.items():
-                        if not subtag_type.is_equal_to(val1[subtag], obj2.subtags[subtag], val2[subtag]):
+                        if (subtag in val1) and (
+                            not subtag_type.is_equal_to(val1[subtag], obj2.subtags[subtag], val2[subtag])
+                        ):
                             return False
                     return True
                 return False
