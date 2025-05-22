@@ -1,5 +1,10 @@
 from __future__ import annotations
 
+# TODO: These default values only represent what is filled in by JDFTx when a tag as a whole is missing.
+# Subtags have different default values depending on other subtags of the same tag.
+# One example is fluid-minimize, which has different convergence thresholds and max iterations depending
+# on the algorithm specified. For these tags, a second set of default values which can map partially
+# filled tagcontainers to the set as filled by JDFTx is needed.
 default_inputs = {
     "basis": "kpoint-dependent",
     "coords-type": "Lattice",

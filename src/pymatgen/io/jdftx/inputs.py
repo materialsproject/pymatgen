@@ -548,6 +548,7 @@ class JDFTXInfile(dict, MSONable):
                 "to False, as JDFTx will dump values at non-inclusive boundaries (ie 0.0 for values strictly > 0.0)."
             )
 
+    # TODO: Add examples in the docustring on how to use this function
     def is_comparable_to(
         self,
         other: JDFTXInfile,
