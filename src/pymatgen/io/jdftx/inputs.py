@@ -574,7 +574,7 @@ class JDFTXInfile(dict, MSONable):
         if exclude_tag_categories is None:
             exclude_tag_categories = ["export", "restart", "structure"]
         if ensure_include_tags is None:
-            ensure_include_tags = ["ion-species"]
+            ensure_include_tags = []
         differing_tags = self.get_filtered_differing_tags(
             other,
             exclude_tags=exclude_tags,
