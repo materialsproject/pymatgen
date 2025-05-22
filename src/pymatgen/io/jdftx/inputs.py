@@ -456,6 +456,41 @@ class JDFTXInfile(dict, MSONable):
         )
         return jdftxstructure.structure
 
+    def strip_structure_tags(self) -> None:
+        """Strip all structural tags from the JDFTXInfile.
+
+        Strip all structural tags from the JDFTXInfile. This is useful for preparing a JDFTXInfile object
+        from a pre-existing calculation for a new structure.
+        """
+        strucural_tags = ["lattice", "ion", "lattice-scale", "coords-type"]
+        for tag in strucural_tags:
+            if tag in self:
+                del self[tag]
+
+    def append_tag(self, tag: str, value: Any) -> None:
+        """Append a value to a tag.
+
+        Append a value to a tag. Use this method instead of directly appending the list contained in the tag, such that
+        the value is properly processed.
+
+        Args:
+            tag (str): Tag to append to.
+            value (Any): Value to append.
+        """
+        tag_object = get_tag_object(tag)
+        if isinstance(tag_object, MultiformatTag):
+            if isinstance(value, str):
+                i = tag_object.get_format_index_for_str_value(tag, value)
+            else:
+                i, _ = tag_object._determine_format_option(tag, value)
+            tag_object = tag_object.format_options[i]
+        if not tag_object.can_repeat:
+            raise ValueError(f"The tag '{tag}' cannot be repeated and thus cannot be appended")
+        params: dict[str, Any] = self.as_dict(skip_module_keys=True)
+        processed_value = tag_object.read(tag, value) if isinstance(value, str) else value
+        params = self._store_value(params, tag_object, tag, processed_value)
+        self.update(params)
+
     # This method is called by setitem, but setitem is circumvented by update,
     # so this method's parameters is still necessary
     def validate_tags(
@@ -512,41 +547,6 @@ class JDFTXInfile(dict, MSONable):
                 "\n Hint - if you are reading from a JDFTX out file, you need to set validate_value_boundaries "
                 "to False, as JDFTx will dump values at non-inclusive boundaries (ie 0.0 for values strictly > 0.0)."
             )
-
-    def strip_structure_tags(self) -> None:
-        """Strip all structural tags from the JDFTXInfile.
-
-        Strip all structural tags from the JDFTXInfile. This is useful for preparing a JDFTXInfile object
-        from a pre-existing calculation for a new structure.
-        """
-        strucural_tags = ["lattice", "ion", "lattice-scale", "coords-type"]
-        for tag in strucural_tags:
-            if tag in self:
-                del self[tag]
-
-    def append_tag(self, tag: str, value: Any) -> None:
-        """Append a value to a tag.
-
-        Append a value to a tag. Use this method instead of directly appending the list contained in the tag, such that
-        the value is properly processed.
-
-        Args:
-            tag (str): Tag to append to.
-            value (Any): Value to append.
-        """
-        tag_object = get_tag_object(tag)
-        if isinstance(tag_object, MultiformatTag):
-            if isinstance(value, str):
-                i = tag_object.get_format_index_for_str_value(tag, value)
-            else:
-                i, _ = tag_object._determine_format_option(tag, value)
-            tag_object = tag_object.format_options[i]
-        if not tag_object.can_repeat:
-            raise ValueError(f"The tag '{tag}' cannot be repeated and thus cannot be appended")
-        params: dict[str, Any] = self.as_dict(skip_module_keys=True)
-        processed_value = tag_object.read(tag, value) if isinstance(value, str) else value
-        params = self._store_value(params, tag_object, tag, processed_value)
-        self.update(params)
 
     def is_comparable_to(
         self,
