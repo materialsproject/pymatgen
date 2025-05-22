@@ -138,6 +138,7 @@ class PackmolBoxGen(InputGenerator):
             tolerance (float): Tolerance for packmol, in Å.
             seed (int): Random seed for packmol. Use 1 (default) for deterministic
                 output, or -1 to generate a new random seed from the current time.
+            control_params (dict): Additional parameters to be added to the input file.
             inputfile (PathLike): Path to the input file. Default to "packmol.inp".
             outputfile (PathLike): Path to the output file. Default to "packmol_out.xyz".
             stdoutfile (PathLike): Path to the file where stdout will be recorded. Default to "packmol.stdout".
