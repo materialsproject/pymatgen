@@ -639,7 +639,7 @@ class JDFTXInfile(dict, MSONable):
             else:
                 val2 = other[tag]
                 obj2 = get_tag_object_on_val(tag, val2)
-            if not obj1.is_equal_to(val1, obj2, val2):
+            if not (val2 is None or obj2 is None) and not obj1.is_equal_to(val1, obj2, val2):
                 differing_tags.append(tag)
         return differing_tags
 
