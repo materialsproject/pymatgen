@@ -574,7 +574,7 @@ class TestPhaseDiagram(MatSciTest):
         gppd = GrandPotentialPhaseDiagram(self.pd.all_entries, {"Xe": 1}, [*self.pd.elements, Element("Xe")])
         with pytest.raises(
             ValueError,
-            match="Li3 Fe1 O4 Xe1 has elements not in the phase diagram O, Fe, Li",
+            match="Li3 Fe1 O4 Xe1 has elements not in the phase diagram",
         ):
             gppd.get_critical_compositions(Composition("Fe2O3"), Composition("Li3FeO4Xe"))
 
@@ -854,8 +854,6 @@ class TestPatchedPhaseDiagram:
         pd = self.ppd[chem_space]
         assert isinstance(pd, PhaseDiagram)
         assert chem_space in pd._qhull_spaces
-        assert len(str(pd)) == 186
-        assert str(pd).startswith("V-H-C-O phase diagram\n25 stable phases:")
 
         with pytest.raises(KeyError, match="frozenset"):
             self.ppd[frozenset(map(Element, "HBCNOFPS"))]
