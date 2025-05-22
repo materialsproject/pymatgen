@@ -852,6 +852,25 @@ def _allnone(val) -> bool:
     return False
 
 
+def selective_dynamics_site_prop_to_jdftx_interpretable(selective_dynamics: list[list[bool]]) -> ArrayLike:
+    """Convert selective dynamics site property to JDFTX interpretable format.
+
+    Args:
+        selective_dynamics (list[list[bool]]): Selective dynamics site property.
+
+    Returns:
+        ArrayLike: JDFTX interpretable format of selective dynamics.
+    """
+    _selective_dynamics = []
+    for i in range(len(selective_dynamics)):
+        # Not worrying about partial free axes for now, just setting movescale to 0 if any axis is fixed
+        if any(not x for x in selective_dynamics[i]):
+            _selective_dynamics.append(0)
+        else:
+            _selective_dynamics.append(1)
+    return np.array(_selective_dynamics)
+
+
 @dataclass
 class JDFTXStructure(MSONable):
     """Object for representing the data in JDFTXStructure tags.
@@ -889,6 +908,12 @@ class JDFTXStructure(MSONable):
 
         Asserts self.structure is ordered, and adds selective dynamics if needed.
         """
+        if ((self.structure is not None) and ("selective_dynamics" in self.structure.site_properties)) and (
+            self.selective_dynamics is None
+        ):
+            self.selective_dynamics = selective_dynamics_site_prop_to_jdftx_interpretable(
+                self.structure.site_properties["selective_dynamics"]
+            )
         for i in range(len(self.structure.species)):
             name = ""
             if isinstance(self.structure.species[i], str):
