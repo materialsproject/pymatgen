@@ -649,6 +649,13 @@ class JDFTXInfile(dict, MSONable):
         Returns:
             list[str]: Tags from this JDFTXInfile that differ from the other JDFTXInfile.
         """
+        # TODO: `TagContainer.is_equal_to(val1, tc2, val2)`, where val2 is the fetched default
+        # value for the tag, will return a false negative if val1 does not specify all the
+        # possible values for a tag. To fix this, missing subtags in both vals for tagcontainer
+        # comparisons should be populated with the default values for the tag.
+        # (ie if val1 = {a: 1}, val2 = {b: 2}, and the default value for the tag is {a: 1, b: 2},
+        # then val1 -> {a: 1, b: 2}, val2 -> {a: 1, b: 2} and the comparison will return True, but
+        # if val2 = {b: 3}, then val2 -> {a: 1, b: 3} and the comparison will return False)
         differing_tags = []
         for tag in self:
             val1 = self[tag]
