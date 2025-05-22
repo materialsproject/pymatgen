@@ -548,30 +548,47 @@ class JDFTXInfile(dict, MSONable):
         params = self._store_value(params, tag_object, tag, processed_value)
         self.update(params)
 
-    # def is_comparable_to(
-    #         self, other: JDFTXInfile,
-    #         exclude_tags: list[str] | None = None, exclude_tag_categories: list[str] | None = None) -> bool:
-    #     """Check if two JDFTXInfile objects are comparable.
+    def is_comparable_to(
+        self,
+        other: JDFTXInfile,
+        exclude_tags: list[str] | None = None,
+        exclude_tag_categories: list[str] | None = None,
+        ensure_include_tags: list[str] | None = None,
+    ) -> bool:
+        """Check if two JDFTXInfile objects are comparable.
 
-    #     Args:
-    #         other (JDFTXInfile): Other JDFTXInfile object to compare to.
-    #         exclude_tags (list[str], optional): Tags to exclude from comparison. Defaults to None.
-    #             Set to contain tags you are already accounting for being different to exclude them.
-    #         exclude_tag_categories (list[str], optional): Tag categories to exclude from comparison. Defaults to None.
-    #             Add all tags of specified tag categories to be excluded in the comparison.
+        Args:
+            other (JDFTXInfile): Other JDFTXInfile object to compare to.
+            exclude_tags (list[str], optional): Tags to exclude from comparison. Defaults to None.
+                Set to contain tags you are already accounting for being different to exclude them.
+            exclude_tag_categories (list[str], optional): Tag categories to exclude from comparison. Defaults to None.
+                If left as None, will exclude all tags in the "export", "restart", and "structure" categories.
+                Add all tags of specified tag categories to be excluded in the comparison.
+            ensure_include_tags (list[str], optional): Tags to ensure are included in the comparison. Defaults to None.
+                If left as None, will make sure 'ion-species' is included in comparison.
+                Helpful for tags in categories you want to exclude but want to ensure are included in the comparison.
 
-    #     Returns:
-    #         bool: Whether the two JDFTXInfile objects are comparable.
-    #     """
-    #     if exclude_tag_categories is None:
-    #         exclude_tag_categories = ["export", "restart"]
-    #     differing_tags = self.get_filtered_differing_tags(
-    #         other, exclude_tags=exclude_tags, exclude_tag_categories=exclude_tag_categories
-    #         )
-    #     return len(differing_tags) == 0
+        Returns:
+            bool: Whether the two JDFTXInfile objects are comparable.
+        """
+        if exclude_tag_categories is None:
+            exclude_tag_categories = ["export", "restart", "structure"]
+        if ensure_include_tags is None:
+            ensure_include_tags = ["ion-species"]
+        differing_tags = self.get_filtered_differing_tags(
+            other,
+            exclude_tags=exclude_tags,
+            exclude_tag_categories=exclude_tag_categories,
+            ensure_include_tags=ensure_include_tags,
+        )
+        return len(differing_tags) == 0
 
     def get_filtered_differing_tags(
-        self, other: JDFTXInfile, exclude_tags: list[str] | None = None, exclude_tag_categories: list[str] | None = None
+        self,
+        other: JDFTXInfile,
+        exclude_tags: list[str] | None = None,
+        exclude_tag_categories: list[str] | None = None,
+        ensure_include_tags: list[str] | None = None,
     ) -> list[str]:
         """Return which tags differ between self and other JDFTXInfile.
 
@@ -585,6 +602,8 @@ class JDFTXInfile(dict, MSONable):
                 Set to contain tags you are already accounting for being different to exclude them.
             exclude_tag_categories (list[str], optional): Tag categories to exclude from comparison. Defaults to None.
                 Add all tags of specified tag categories to be excluded in the comparison.
+            ensure_include_tags (list[str], optional): Tags to ensure are included in the comparison. Defaults to None.
+                Helpful for tags in categories you want to exclude but want to ensure are included in the comparison.
         Returns:
             list[str]: Tags that differ between the two JDFTXInfile objects.
         """
@@ -592,8 +611,13 @@ class JDFTXInfile(dict, MSONable):
             exclude_tags = []
         if exclude_tag_categories is None:
             exclude_tag_categories = []
+        if ensure_include_tags is None:
+            ensure_include_tags = []
         for category in exclude_tag_categories:
             exclude_tags += list(MASTER_TAG_LIST[category].keys())
+        for tag in ensure_include_tags:
+            if tag in exclude_tags:
+                exclude_tags.remove(tag)
         differing_tags = self.get_differing_tags(other)
         for exclude_tag in exclude_tags:
             if exclude_tag in differing_tags:
