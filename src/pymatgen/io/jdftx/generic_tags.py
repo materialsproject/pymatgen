@@ -70,7 +70,6 @@ class AbstractTag(ClassPrintFormatter, ABC):
             tuple[str, bool, Any]: The tag, whether the value is of the correct type, and the possibly fixed value.
         """
 
-    # @abstractmethod
     def is_equal_to(self, val1: Any | list[Any], obj2: AbstractTag, val2: Any | list[Any]) -> bool:
         """Check if the two values are equal.
 

@@ -539,29 +539,7 @@ def test_jdftxstructure_lattice_conversion(value_str: str):
                 assert_same_value(float(getattr(structure.lattice, var)), float(parsed_tag[var]))
 
 
-# This fails, but I don't think we need to support this
-# @pytest.mark.parametrize(
-#     ("unordered_dict", "expected_out"),
-#     [
-#         (
-#             {"a": 1.0, "Cubic-type": "Body-Centered", "Cubic": True},
-#             "Body-Centered Cubic 1.0",
-#         ),
-#     ],
-# )
-# def test_arg_ordering(unordered_dict, expected_out):
-#     mft_lattice_tag = get_tag_object("lattice")
-#     i = mft_lattice_tag.get_format_index_for_str_value("lattice", expected_out)
-#     tag_object = mft_lattice_tag.format_options[i]
-#     output = tag_object.write("lattice", unordered_dict)
-#     assert_same_value(
-#         ("lattice " + expected_out).strip().split(),
-#         output.strip().split(),
-#     )
-
-
 def test_jdftxinfile_comparison():
-    """Test the __eq__ method"""
     jif1 = JDFTXInfile.from_file(ex_infile1_fname)
     jif2 = JDFTXInfile.from_file(ex_infile2_fname)
     assert len(jif1.get_differing_tags(jif2))  # At least one tag should be different
