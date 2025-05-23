@@ -129,6 +129,15 @@ class VolumetricData(MSONable):
     def __add__(self, other):
         return self.linear_add(other, 1.0)
 
+    def __radd__(self, other):
+        if other == 0 or other is None:
+            # sum() calls 0 + self first; we treat 0 as the identity element
+            return self
+        if isinstance(other, self.__class__):
+            return self.__add__(other)
+
+        raise TypeError(f"Unsupported operand type(s) for +: '{type(other).__name__}' and '{type(self).__name__}'")
+
     def __sub__(self, other):
         return self.linear_add(other, -1.0)
 
