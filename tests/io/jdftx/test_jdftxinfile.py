@@ -9,6 +9,7 @@ import pytest
 
 from pymatgen.core.structure import Structure
 from pymatgen.io.jdftx.inputs import JDFTXInfile, JDFTXStructure
+from pymatgen.io.jdftx.jdftxinfile_default_inputs import default_inputs
 from pymatgen.io.jdftx.jdftxinfile_master_format import get_tag_object
 
 from .inputs_test_utils import (
@@ -538,22 +539,22 @@ def test_jdftxstructure_lattice_conversion(value_str: str):
                 assert_same_value(float(getattr(structure.lattice, var)), float(parsed_tag[var]))
 
 
-# This fails, but I don't think we need to support this
-# @pytest.mark.parametrize(
-#     ("unordered_dict", "expected_out"),
-#     [
-#         (
-#             {"a": 1.0, "Cubic-type": "Body-Centered", "Cubic": True},
-#             "Body-Centered Cubic 1.0",
-#         ),
-#     ],
-# )
-# def test_arg_ordering(unordered_dict, expected_out):
-#     mft_lattice_tag = get_tag_object("lattice")
-#     i = mft_lattice_tag.get_format_index_for_str_value("lattice", expected_out)
-#     tag_object = mft_lattice_tag.format_options[i]
-#     output = tag_object.write("lattice", unordered_dict)
-#     assert_same_value(
-#         ("lattice " + expected_out).strip().split(),
-#         output.strip().split(),
-#     )
+def test_jdftxinfile_comparison():
+    jif1 = JDFTXInfile.from_file(ex_infile1_fname)
+    jif2 = JDFTXInfile.from_file(ex_infile2_fname)
+    assert len(jif1.get_differing_tags(jif2))  # At least one tag should be different
+    jif1copy = jif1.copy()
+    assert not len(jif1.get_differing_tags(jif1copy))  # No tags should be different
+    default_test_tag = "davidson-band-ratio"
+    default_test_val = default_inputs[default_test_tag]
+    jif1[default_test_tag] = default_test_val
+    assert not len(jif1.get_differing_tags(jif1copy))  # Even though jif1copy doesn't have the tag,
+    # it won't be recognized as a difference since it is in the default_inputs and matches the default value
+    jif1copy["elec-n-bands"] = 20001
+    assert len(jif1.get_filtered_differing_tags(jif1copy))  # Change in elec-n-bands should be recognized
+    assert not len(
+        jif1.get_filtered_differing_tags(jif1copy, exclude_tags=["elec-n-bands"])
+    )  # Specific tags can be filtered out
+    assert not len(
+        jif1.get_filtered_differing_tags(jif1copy, exclude_tag_categories=["electronic"])
+    )  # Tag categories can be filtered out

@@ -16,15 +16,24 @@ from typing import TYPE_CHECKING, Any
 import numpy as np
 from monty.dev import deprecated
 
+from pymatgen.core import Lattice
+from pymatgen.core.units import Ha_to_eV
+from pymatgen.electronic_structure.bandstructure import BandStructure
+from pymatgen.electronic_structure.core import Spin
 from pymatgen.io.jdftx._output_utils import (
     _get_nbands_from_bandfile_filepath,
     _get_orb_label_list,
+    _get_u_to_oa_map,
+    _parse_kptsfrom_bandprojections_file,
     get_proj_tju_from_file,
+    orb_ref_list,
     read_outfile_slices,
 )
 from pymatgen.io.jdftx.jdftxoutfileslice import JDFTXOutfileSlice
 
 if TYPE_CHECKING:
+    from numpy.typing import NDArray
+
     from pymatgen.core.structure import Structure
     from pymatgen.core.trajectory import Trajectory
     from pymatgen.io.jdftx.inputs import JDFTXInfile
@@ -68,6 +77,8 @@ dump_file_names = (
 implemented_store_vars = (
     "bandProjections",
     "eigenvals",
+    "kpts",
+    "bandstructure",
 )
 
 
@@ -104,6 +115,8 @@ class JDFTXOutputs:
             0-based index will appear mimicking a principle quantum number (ie "0px" for first shell and "1px" for
             second shell). The actual principal quantum number is not stored in the JDFTx output files and must be
             inferred by the user.
+        kpts (list[np.ndarray]): A list of the k-points used in the calculation. Each k-point is a 3D numpy array.
+        wk_list (list[np.ndarray]): A list of the weights for the k-points used in the calculation.
     """
 
     calc_dir: str | Path = field(init=True)
@@ -111,10 +124,13 @@ class JDFTXOutputs:
     store_vars: list[str] = field(default_factory=list, init=True)
     paths: dict[str, Path] = field(init=False)
     outfile: JDFTXOutfile = field(init=False)
-    bandProjections: np.ndarray | None = field(init=False)
-    eigenvals: np.ndarray | None = field(init=False)
+    bandProjections: NDArray | None = field(init=False)
+    eigenvals: NDArray | None = field(init=False)
+    kpts: list[NDArray] | None = field(init=False)
+    wk_list: list[NDArray] | None = field(init=False)
     # Misc metadata for interacting with the data
     orb_label_list: tuple[str, ...] | None = field(init=False)
+    bandstructure: BandStructure | None = field(init=False)
 
     @classmethod
     def from_calc_dir(
@@ -136,13 +152,21 @@ class JDFTXOutputs:
         Returns:
             JDFTXOutputs: The JDFTXOutputs object.
         """
-        if store_vars is None:
-            store_vars = []
+        store_vars = cls._check_store_vars(store_vars)
         return cls(calc_dir=Path(calc_dir), store_vars=store_vars, outfile_name=outfile_name)
 
     def __post_init__(self):
         self._init_paths()
         self._store_vars()
+        self._init_bandstructure()
+
+    def _check_store_vars(store_vars: list[str] | None) -> list[str]:
+        if store_vars is None:
+            return []
+        if "bandstructure" in store_vars:
+            store_vars += ["kpts", "eigenvals"]
+            store_vars.pop(store_vars.index("bandstructure"))
+        return list(set(store_vars))
 
     def _init_paths(self):
         self.paths = {}
@@ -208,7 +232,101 @@ class JDFTXOutputs:
         if "eigenvals" in self.paths:
             self.eigenvals = np.fromfile(self.paths["eigenvals"])
             nstates = int(len(self.eigenvals) / self.outfile.nbands)
-            self.eigenvals = self.eigenvals.reshape(nstates, self.outfile.nbands)
+            self.eigenvals = self.eigenvals.reshape(nstates, self.outfile.nbands) * Ha_to_eV
+
+    def _check_kpts(self):
+        if "bandProjections" in self.paths and self.paths["bandProjections"].exists():
+            # TODO: Write kpt file inconsistency checking
+            return
+        if "kPts" in self.paths and self.paths["kPts"].exists():
+            raise NotImplementedError("kPts file parsing not yet implemented.")
+        raise RuntimeError("No k-point data found in JDFTx output files.")
+
+    def _store_kpts(self):
+        if "bandProjections" in self.paths and self.paths["bandProjections"].exists():
+            wk_list, kpts_list = _parse_kptsfrom_bandprojections_file(self.paths["bandProjections"])
+            self.kpts = kpts_list
+            self.wk_list = wk_list
+
+    def _init_bandstructure(self):
+        if True in [v is None for v in [self.kpts, self.eigenvals]]:
+            return
+        kpoints = np.array(self.kpts)
+        eigenvals = self._get_pmg_eigenvals()
+        projections = None
+        if self.bandProjections is not None:
+            projections = self._get_pmg_projections()
+        self.bandstructure = BandStructure(
+            kpoints,
+            eigenvals,
+            Lattice(self.outfile.structure.lattice.reciprocal_lattice.matrix),
+            self.outfile.mu,
+            projections=projections,
+            structure=self.outfile.structure,
+        )
+
+    def _get_lmax(self) -> tuple[str | None, int | None]:
+        """Get the maximum l quantum number and projection array orbital length.
+
+        Returns:
+            tuple[str | None, int | None]: The maximum l quantum number and projection array orbital length.
+                Both are None if no bandProjections file is available.
+        """
+        if self.orb_label_list is None:
+            return None, None
+        orbs = [label.split("(")[1].split(")")[0] for label in self.orb_label_list]
+        if orb_ref_list[-1][0] in orbs:
+            return "f", 16
+        if orb_ref_list[-2][0] in orbs:
+            return "d", 9
+        if orb_ref_list[-3][0] in orbs:
+            return "p", 4
+        if orb_ref_list[-4][0] in orbs:
+            return "s", 1
+        raise ValueError("Unrecognized orbital labels in orb_label_list.")
+
+    def _get_pmg_eigenvals(self) -> dict | None:
+        if self.eigenvals is None:
+            return None
+        _e_skj = self.eigenvals.copy().reshape(self.outfile.nspin, -1, self.outfile.nbands)
+        _e_sjk = np.swapaxes(_e_skj, 1, 2)
+        spins = [Spin.up, Spin.down]
+        eigenvals = {}
+        for i in range(self.outfile.nspin):
+            eigenvals[spins[i]] = _e_sjk[i]
+        return eigenvals
+
+    def _get_pmg_projections(self) -> dict | None:
+        """Return pymatgen-compatible projections dictionary.
+
+        Converts the bandProjections array to a pymatgen-compatible dictionary
+
+        Returns:
+            dict | None:
+        """
+        lmax, norbmax = self._get_lmax()
+        if norbmax is None:
+            return None
+        if self.orb_label_list is None:
+            return None
+        _proj_tju = self.bandProjections.copy()
+        if _proj_tju.dtype is np.complex64:
+            # Convert <orb|band(state)> to |<orb|band(state)>|^2
+            _proj_tju = np.abs(_proj_tju) ** 2
+        # Convert to standard datatype - using np.real to suppress warnings
+        proj_tju = np.array(np.real(_proj_tju), dtype=float)
+        proj_skju = proj_tju.reshape([self.outfile.nspin, -1, self.outfile.nbands, len(self.orb_label_list)])
+        proj_sjku = np.swapaxes(proj_skju, 1, 2)
+        nspin, nbands, nkpt, nproj = proj_sjku.shape
+        u_to_oa_map = _get_u_to_oa_map(self.paths["bandProjections"])
+        projections = {}
+        spins = [Spin.up, Spin.down]
+        for i in range(nspin):
+            projections[spins[i]] = np.zeros([nbands, nkpt, norbmax, len(self.outfile.structure)])
+            # TODO: Consider jitting this loop
+            for u in range(nproj):
+                projections[spins[i]][:, :, *u_to_oa_map[u]] += proj_sjku[i, :, :, u]
+        return projections
 
 
 _jof_atr_from_last_slice = (
