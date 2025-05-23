@@ -1387,6 +1387,75 @@ class IcohpCollection(MSONable):
         """Whether this is COBI."""
         return self._are_cobis
 
+    def as_dict(self) -> dict[str, Any]:
+        """JSON-serializable dict representation of COHP."""
+        return {
+            "@module": type(self).__module__,
+            "@class": type(self).__name__,
+            "are_coops": self._are_coops,
+            "are_cobis": self._are_cobis,
+            "list_labels": self._list_labels,
+            "list_atom1": self._list_atom1,
+            "list_atom2": self._list_atom2,
+            "list_length": self._list_length,
+            "list_translation": self._list_translation,
+            "list_num": self._list_num,
+            "list_icohp": [{str(spin): value for spin, value in icohp.items()} for icohp in self._list_icohp],
+            "is_spin_polarized": self._is_spin_polarized,
+            "list_orb_icohp": [
+                {
+                    key: {
+                        "icohp": {str(spin): value for spin, value in val["icohp"].items()},
+                        "orbitals": [[n, int(orb)] for n, orb in val["orbitals"]],
+                    }
+                    for key, val in entry.items()
+                }
+                for entry in self._list_orb_icohp
+            ],
+        }
+
+    @classmethod
+    def from_dict(cls, dct: dict[str, Any]) -> Self:
+        """Generate IcohpCollection from a dict representation."""
+        list_icohp = []
+        for icohp_dict in dct["list_icohp"]:
+            new_icohp_dict = {}
+            for spin_key, value in icohp_dict.items():
+                # Convert string/int to Spin enum
+                spin_enum = (
+                    Spin(int(spin_key)) if isinstance(spin_key, int) or spin_key in ("1", "-1") else Spin[spin_key]
+                )
+                new_icohp_dict[spin_enum] = value
+            list_icohp.append(new_icohp_dict)
+
+        new_list_orb = [{orb_label: {} for orb_label in bond} for bond in dct["list_orb_icohp"]]  # type:ignore[var-annotated]
+        for bond_num, lab_orb_icohp in enumerate(dct["list_orb_icohp"]):
+            for orb in lab_orb_icohp:
+                for key in lab_orb_icohp[orb]:
+                    sub_dict = {}
+                    if key == "icohp":
+                        sub_dict[key] = {
+                            Spin.up: lab_orb_icohp[orb][key]["1"],
+                            Spin.down: lab_orb_icohp[orb][key]["-1"],
+                        }
+
+                    if key == "orbitals":
+                        orb_temp = []
+
+                        for item in lab_orb_icohp[orb][key]:
+                            item[1] = Orbital(item[1])
+                            orb_temp.append(item)
+                        sub_dict[key] = orb_temp  # type: ignore[assignment]
+
+                    new_list_orb[bond_num][orb].update(sub_dict)
+
+        dct["list_icohp"] = list_icohp
+        dct["list_orb_icohp"] = new_list_orb
+
+        init_dict = {k: v for k, v in dct.items() if "@" not in k}
+
+        return cls(**init_dict)
+
 
 def get_integrated_cohp_in_energy_range(
     cohp: CompleteCohp,
