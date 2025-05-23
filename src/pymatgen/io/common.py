@@ -129,6 +129,11 @@ class VolumetricData(MSONable):
     def __add__(self, other):
         return self.linear_add(other, 1.0)
 
+    def __radd__(self, other):
+        if other == 0:
+            return self
+        return self.__add__(other)
+
     def __sub__(self, other):
         return self.linear_add(other, -1.0)
 
