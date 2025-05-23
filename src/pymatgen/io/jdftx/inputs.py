@@ -24,17 +24,20 @@ from pymatgen.core import Lattice, Structure
 from pymatgen.core.periodic_table import Element
 from pymatgen.core.units import bohr_to_ang
 from pymatgen.io.jdftx.generic_tags import AbstractTag, BoolTagContainer, DumpTagContainer, MultiformatTag, TagContainer
+from pymatgen.io.jdftx.jdftxinfile_default_inputs import default_inputs
 from pymatgen.io.jdftx.jdftxinfile_master_format import (
     __PHONON_TAGS__,
     __TAG_LIST__,
     __WANNIER_TAGS__,
     MASTER_TAG_LIST,
     get_tag_object,
+    get_tag_object_on_val,
 )
 from pymatgen.util.io_utils import clean_lines
 from pymatgen.util.typing import SpeciesLike
 
 if TYPE_CHECKING:
+    from collections.abc import Sequence
     from typing import Any
 
     from numpy.typing import ArrayLike
@@ -114,37 +117,53 @@ class JDFTXInfile(dict, MSONable):
                 params[key] = val
         return type(self)(params)
 
-    def as_dict(self, sort_tags: bool = True, skip_module_keys: bool = False) -> dict:
-        """Return JDFTXInfile as MSONable dict.
+    def __setitem__(self, key: str, value: Any) -> None:
+        """Set an item in the JDFTXInfile.
+
+        Set an item in the JDFTXInfile. This magic method is set explicitly to immediately validate when a user sets a
+        tag's value, and to perform any conversion necessary.
 
         Args:
-            sort_tags (bool, optional): Whether to sort the tags. Defaults to True.
-            skip_module_keys (bool, optional): Whether to skip the module keys. Defaults to False.
-
-        Returns:
-            dict: JDFTXInfile as MSONable dict.
+            key (str): Key to set.
+            value (Any): Value to set.
         """
-        params = dict(self)
-        if sort_tags:
-            params = {tag: params[tag] for tag in __TAG_LIST__ if tag in params}
-        if not skip_module_keys:
-            params["@module"] = type(self).__module__
-            params["@class"] = type(self).__name__
-        return params
+        if not isinstance(key, str):
+            raise TypeError(f"{key} is not a string!")
+        try:
+            # tag_object = get_tag_object_on_val(key, value)
+            tag_object = get_tag_object(key)
+        except KeyError:
+            raise KeyError(f"The {key} tag is not in MASTER_TAG_LIST")
+        _remaining_values = None
+        if tag_object.can_repeat and isinstance(value, list):
+            if len(value) > 1:
+                _remaining_values = value[1:]
+            value = value[0]
+        tag_object = get_tag_object_on_val(key, value)
 
-    @classmethod
-    def _from_dict(cls, dct: dict[str, Any]) -> JDFTXInfile:
-        """Parse a dictionary to create a JDFTXInfile object.
-
-        Args:
-            dct (dict): Dictionary to parse.
-
-        Returns:
-            JDFTXInfile: The created JDFTXInfile object.
-        """
-        temp = cls({k: v for k, v in dct.items() if k not in ("@module", "@class")})
-        temp = cls.get_dict_representation(cls.get_list_representation(temp))
-        return cls.get_list_representation(temp)
+        # if isinstance(tag_object, MultiformatTag):
+        #     if isinstance(value, str):
+        #         i = tag_object.get_format_index_for_str_value(key, value)
+        #     else:
+        #         i, _ = tag_object._determine_format_option(key, value)
+        #     tag_object = tag_object.format_options[i]
+        if tag_object.can_repeat and key in self:
+            del self[key]
+        if tag_object.can_repeat and not isinstance(value, list):
+            value = [value]
+        params: dict[str, Any] = {}
+        if self._is_numeric(value):
+            value = str(value)
+        if not tag_object.can_repeat:
+            value = [value]  # Shortcut to avoid writing a separate block for non-repeatable tags
+        for v in value:
+            processed_value = tag_object.read(key, v) if isinstance(v, str) else v
+            params = self._store_value(params, tag_object, key, processed_value)
+            self.update(params)
+            self.validate_tags(try_auto_type_fix=True, error_on_failed_fix=True)
+        if _remaining_values is not None:
+            for v in _remaining_values:
+                self.append_tag(key, v)
 
     @classmethod
     def from_dict(cls, d: dict[str, Any], validate_value_boundaries=True) -> JDFTXInfile:
@@ -163,50 +182,6 @@ class JDFTXInfile(dict, MSONable):
         if validate_value_boundaries:
             instance.validate_boundaries()
         return instance
-
-    def copy(self) -> JDFTXInfile:
-        """Return a copy of the JDFTXInfile object.
-
-        Returns:
-            JDFTXInfile: Copy of the JDFTXInfile object.
-        """
-        return type(self)(self)
-
-    def get_text_list(self) -> list[str]:
-        """Get a list of strings representation of the JDFTXInfile.
-
-        Returns:
-            list[str]: List of strings representation of the JDFTXInfile.
-        """
-        self_as_dict = self.get_dict_representation(self)
-
-        text: list[str] = []
-        for tag_group in MASTER_TAG_LIST:
-            added_tag_in_group = False
-            for tag in MASTER_TAG_LIST[tag_group]:
-                if tag not in self:
-                    continue
-                added_tag_in_group = True
-                tag_object: AbstractTag = MASTER_TAG_LIST[tag_group][tag]
-                if isinstance(tag_object, MultiformatTag):
-                    i, _ = tag_object._determine_format_option(tag, self_as_dict[tag])
-                    tag_object = tag_object.format_options[i]
-                if tag_object.can_repeat and isinstance(self_as_dict[tag], list):
-                    text += [tag_object.write(tag, entry) for entry in self_as_dict[tag]]
-                else:
-                    text.append(tag_object.write(tag, self_as_dict[tag]))
-            if added_tag_in_group:
-                text.append("")
-        return text
-
-    def write_file(self, filename: PathLike) -> None:
-        """Write JDFTXInfile to an in file.
-
-        Args:
-            filename (PathLike): Filename to write to.
-        """
-        with open(filename, mode="w") as file:
-            file.write(str(self))
 
     @classmethod
     def from_file(
@@ -240,98 +215,6 @@ class JDFTXInfile(dict, MSONable):
                 path_parent=path_parent,
                 validate_value_boundaries=validate_value_boundaries,
             )
-
-    @staticmethod
-    def _preprocess_line(line: str) -> tuple[AbstractTag, str, str]:
-        """Preprocess a line from a JDFTXInfile, splitting it into a tag object, tag name, and value.
-
-        Args:
-            line (str): Line from the input file.
-
-        Returns:
-            tuple[AbstractTag, str, str]: Tag object, tag name, and value.
-        """
-        line_list = line.strip().split(maxsplit=1)
-        tag: str = line_list[0].strip()
-        if tag in __PHONON_TAGS__:
-            raise ValueError("Phonon functionality has not been added!")
-        if tag in __WANNIER_TAGS__:
-            raise ValueError("Wannier functionality has not been added!")
-        if tag not in __TAG_LIST__:
-            err_str = f"The {tag} tag in {line_list} is not in MASTER_TAG_LIST and is not a comment, "
-            err_str += "something is wrong with this input data!"
-            raise ValueError(err_str)
-        tag_object = get_tag_object(tag)
-        value: str = ""
-        if len(line_list) == 2:
-            value = line_list[1].strip()
-        elif len(line_list) == 1:
-            value = ""  # exception for tags where only tagname is used, e.g. dump-only tag
-        if isinstance(tag_object, MultiformatTag):
-            i = tag_object.get_format_index_for_str_value(tag, value)
-            tag_object = tag_object.format_options[i]
-        return tag_object, tag, value
-
-    @staticmethod
-    def _store_value(
-        params: dict[str, list | list[dict[str, dict]] | Any],
-        tag_object: AbstractTag,
-        tag: str,
-        value: Any,
-    ) -> dict:
-        """Store the value in the params dictionary.
-
-        Args:
-            params (dict): Dictionary to store the value in.
-            tag_object (AbstractTag): Tag object for holding tag/value pair. This tag object should be the tag object
-                which the "tag" string maps to in MASTER_TAG_LIST.
-            tag (str): Tag name.
-            value (Any): Value to store.
-
-        Returns:
-            dict: Updated dictionary with the stored value.
-        """
-        if tag_object.can_repeat:  # store tags that can repeat in a list
-            if tag not in params:
-                params[tag] = []
-            params[tag].append(value)
-        else:
-            if tag in params:
-                raise ValueError(f"The '{tag}' tag appears multiple times in this input when it should not!")
-            params[tag] = value
-        return params
-
-    @staticmethod
-    def _gather_tags(lines: list[str]) -> list[str]:
-        """Gather broken lines into single string for processing later.
-
-        Args:
-            lines (list[str]): List of lines from the input file.
-
-        Returns:
-            list[str]: List of strings with tags broken across lines combined into single string.
-        """
-        total_tag = ""
-        gathered_strings = []
-        for line in lines:
-            if line[-1] == "\\":  # "\" indicates line continuation (the first "\" needed to be escaped)
-                total_tag += line[:-1].strip() + " "  # remove \ and any extra whitespace
-            elif total_tag:  # then finished with line continuations
-                total_tag += line
-                gathered_strings.append(total_tag)
-                total_tag = ""
-            else:  # then append line like normal
-                gathered_strings.append(line)
-        return gathered_strings
-
-    @property
-    def structure(self) -> Structure | None:
-        """Return a pymatgen Structure object.
-
-        Returns:
-            Structure: Pymatgen structure object.
-        """
-        return self.to_pmg_structure(self)
 
     @classmethod
     def from_structure(
@@ -428,77 +311,6 @@ class JDFTXInfile(dict, MSONable):
         return instance
 
     @classmethod
-    def to_jdftxstructure(cls, jdftxinfile: JDFTXInfile, sort_structure: bool = False) -> JDFTXStructure:
-        """Convert JDFTXInfile to JDFTXStructure object.
-
-        Converts JDFTx lattice, lattice-scale, ion tags into JDFTXStructure, with Pymatgen structure as attribute.
-
-        Args:
-            jdftxinfile (JDFTXInfile): JDFTXInfile object to convert.
-            sort_structure (bool, optional): Whether to sort the structure. Useful if species are not grouped properly
-                together. Defaults to False.
-        """
-        # use dict representation so it's easy to get the right column for moveScale,
-        # rather than checking for velocities
-        jdftxinfile_dict = cls.get_dict_representation(jdftxinfile)
-        return JDFTXStructure.from_jdftxinfile(jdftxinfile_dict, sort_structure=sort_structure)
-
-    @classmethod
-    def to_pmg_structure(cls, jdftxinfile: JDFTXInfile, sort_structure: bool = False) -> Structure | None:
-        """Convert JDFTXInfile to pymatgen Structure object.
-
-        Converts JDFTx lattice, lattice-scale, ion tags into pymatgen Structure.
-
-        Args:
-            jdftxinfile (JDFTXInfile): JDFTXInfile object to convert.
-            sort_structure (bool, optional): Whether to sort the structure. Useful if species are not grouped properly
-                together. Defaults to False.
-
-        Returns:
-            Structure: The created pymatgen Structure object.
-        """
-        # use dict representation so it's easy to get the right column for
-        # moveScale, rather than checking for velocities
-        print(jdftxinfile.get_dict_representation(jdftxinfile), "INPUT DICT REP")
-        jdftxstructure = JDFTXStructure.from_jdftxinfile(
-            jdftxinfile.get_dict_representation(jdftxinfile),
-            sort_structure=sort_structure,
-        )
-        return jdftxstructure.structure
-
-    @staticmethod
-    def _needs_conversion(conversion: str, value: dict | list[dict] | list | list[list]) -> bool:
-        """Determine if a value needs to be converted.
-
-        This method is only ever called by cls.get_list/dict_representation.
-
-        Args:
-            conversion (str): Conversion type. ('dict-to-list' (value : dict | list[dict]) or
-                                'list-to-dict' (value : list | list[list]))
-            value (dict | list[dict] | list | list[list]): Value to check.
-
-        Returns:
-            bool: Whether the value needs to be converted.
-        """
-        # Check if value is not iterable
-        try:
-            iter(value)
-        except TypeError:
-            # This is triggered when JDFTXInfile is attempting to convert a non-tagcontainer to list/dict representation
-            # The return boolean is meaningless in this case, so just returning False to avoid the value hitting the
-            # "for x in value" loop below.
-            return False
-        if conversion == "list-to-dict":
-            flag = False
-        elif conversion == "dict-to-list":
-            flag = True
-        else:
-            raise ValueError(f"Conversion type {conversion} is not 'list-to-dict' or 'dict-to-list'")
-        if isinstance(value, dict) or all(isinstance(x, dict) for x in value):
-            return flag
-        return not flag
-
-    @classmethod
     def get_list_representation(cls, jdftxinfile: JDFTXInfile) -> JDFTXInfile:
         """Convert JDFTXInfile object properties into list representation.
 
@@ -543,6 +355,142 @@ class JDFTXInfile(dict, MSONable):
             ):
                 reformatted_params.update({tag: tag_object.get_dict_representation(tag, value)})
         return cls(reformatted_params)
+
+    def as_dict(self, sort_tags: bool = True, skip_module_keys: bool = False) -> dict:
+        """Return JDFTXInfile as MSONable dict.
+
+        Args:
+            sort_tags (bool, optional): Whether to sort the tags. Defaults to True.
+            skip_module_keys (bool, optional): Whether to skip the module keys. Defaults to False.
+
+        Returns:
+            dict: JDFTXInfile as MSONable dict.
+        """
+        params = dict(self)
+        if sort_tags:
+            params = {tag: params[tag] for tag in __TAG_LIST__ if tag in params}
+        if not skip_module_keys:
+            params["@module"] = type(self).__module__
+            params["@class"] = type(self).__name__
+        return params
+
+    def copy(self) -> JDFTXInfile:
+        """Return a copy of the JDFTXInfile object.
+
+        Returns:
+            JDFTXInfile: Copy of the JDFTXInfile object.
+        """
+        return type(self)(self)
+
+    def get_text_list(self) -> list[str]:
+        """Get a list of strings representation of the JDFTXInfile.
+
+        Returns:
+            list[str]: List of strings representation of the JDFTXInfile.
+        """
+        self_as_dict = self.get_dict_representation(self)
+
+        text: list[str] = []
+        for tag_group in MASTER_TAG_LIST:
+            added_tag_in_group = False
+            for tag in MASTER_TAG_LIST[tag_group]:
+                if tag not in self:
+                    continue
+                added_tag_in_group = True
+                tag_object: AbstractTag = MASTER_TAG_LIST[tag_group][tag]
+                if isinstance(tag_object, MultiformatTag):
+                    i, _ = tag_object._determine_format_option(tag, self_as_dict[tag])
+                    tag_object = tag_object.format_options[i]
+                if tag_object.can_repeat and isinstance(self_as_dict[tag], list):
+                    text += [tag_object.write(tag, entry) for entry in self_as_dict[tag]]
+                else:
+                    text.append(tag_object.write(tag, self_as_dict[tag]))
+            if added_tag_in_group:
+                text.append("")
+        return text
+
+    def write_file(self, filename: PathLike) -> None:
+        """Write JDFTXInfile to an in file.
+
+        Args:
+            filename (PathLike): Filename to write to.
+        """
+        with open(filename, mode="w") as file:
+            file.write(str(self))
+
+    @classmethod
+    def to_jdftxstructure(cls, jdftxinfile: JDFTXInfile, sort_structure: bool = False) -> JDFTXStructure:
+        """Convert JDFTXInfile to JDFTXStructure object.
+
+        Converts JDFTx lattice, lattice-scale, ion tags into JDFTXStructure, with Pymatgen structure as attribute.
+
+        Args:
+            jdftxinfile (JDFTXInfile): JDFTXInfile object to convert.
+            sort_structure (bool, optional): Whether to sort the structure. Useful if species are not grouped properly
+                together. Defaults to False.
+        """
+        # use dict representation so it's easy to get the right column for moveScale,
+        # rather than checking for velocities
+        jdftxinfile_dict = cls.get_dict_representation(jdftxinfile)
+        return JDFTXStructure.from_jdftxinfile(jdftxinfile_dict, sort_structure=sort_structure)
+
+    @classmethod
+    def to_pmg_structure(cls, jdftxinfile: JDFTXInfile, sort_structure: bool = False) -> Structure | None:
+        """Convert JDFTXInfile to pymatgen Structure object.
+
+        Converts JDFTx lattice, lattice-scale, ion tags into pymatgen Structure.
+
+        Args:
+            jdftxinfile (JDFTXInfile): JDFTXInfile object to convert.
+            sort_structure (bool, optional): Whether to sort the structure. Useful if species are not grouped properly
+                together. Defaults to False.
+
+        Returns:
+            Structure: The created pymatgen Structure object.
+        """
+        # use dict representation so it's easy to get the right column for
+        # moveScale, rather than checking for velocities
+        print(jdftxinfile.get_dict_representation(jdftxinfile), "INPUT DICT REP")
+        jdftxstructure = JDFTXStructure.from_jdftxinfile(
+            jdftxinfile.get_dict_representation(jdftxinfile),
+            sort_structure=sort_structure,
+        )
+        return jdftxstructure.structure
+
+    def strip_structure_tags(self) -> None:
+        """Strip all structural tags from the JDFTXInfile.
+
+        Strip all structural tags from the JDFTXInfile. This is useful for preparing a JDFTXInfile object
+        from a pre-existing calculation for a new structure.
+        """
+        strucural_tags = ["lattice", "ion", "lattice-scale", "coords-type"]
+        for tag in strucural_tags:
+            if tag in self:
+                del self[tag]
+
+    def append_tag(self, tag: str, value: Any) -> None:
+        """Append a value to a tag.
+
+        Append a value to a tag. Use this method instead of directly appending the list contained in the tag, such that
+        the value is properly processed.
+
+        Args:
+            tag (str): Tag to append to.
+            value (Any): Value to append.
+        """
+        tag_object = get_tag_object(tag)
+        if isinstance(tag_object, MultiformatTag):
+            if isinstance(value, str):
+                i = tag_object.get_format_index_for_str_value(tag, value)
+            else:
+                i, _ = tag_object._determine_format_option(tag, value)
+            tag_object = tag_object.format_options[i]
+        if not tag_object.can_repeat:
+            raise ValueError(f"The tag '{tag}' cannot be repeated and thus cannot be appended")
+        params: dict[str, Any] = self.as_dict(skip_module_keys=True)
+        processed_value = tag_object.read(tag, value) if isinstance(value, str) else value
+        params = self._store_value(params, tag_object, tag, processed_value)
+        self.update(params)
 
     # This method is called by setitem, but setitem is circumvented by update,
     # so this method's parameters is still necessary
@@ -601,53 +549,270 @@ class JDFTXInfile(dict, MSONable):
                 "to False, as JDFTx will dump values at non-inclusive boundaries (ie 0.0 for values strictly > 0.0)."
             )
 
-    def strip_structure_tags(self) -> None:
-        """Strip all structural tags from the JDFTXInfile.
-
-        Strip all structural tags from the JDFTXInfile. This is useful for preparing a JDFTXInfile object
-        from a pre-existing calculation for a new structure.
-        """
-        strucural_tags = ["lattice", "ion", "lattice-scale", "coords-type"]
-        for tag in strucural_tags:
-            if tag in self:
-                del self[tag]
-
-    def __setitem__(self, key: str, value: Any) -> None:
-        """Set an item in the JDFTXInfile.
-
-        Set an item in the JDFTXInfile. This magic method is set explicitly to immediately validate when a user sets a
-        tag's value, and to perform any conversion necessary.
+    # TODO: Add examples in the docustring on how to use this function
+    def is_comparable_to(
+        self,
+        other: JDFTXInfile,
+        exclude_tags: list[str] | None = None,
+        exclude_tag_categories: list[str] | None = None,
+        ensure_include_tags: list[str] | None = None,
+    ) -> bool:
+        """Check if two JDFTXInfile objects are comparable.
 
         Args:
-            key (str): Key to set.
-            value (Any): Value to set.
+            other (JDFTXInfile): Other JDFTXInfile object to compare to.
+            exclude_tags (list[str], optional): Tags to exclude from comparison. Defaults to None.
+                Set to contain tags you are already accounting for being different to exclude them.
+            exclude_tag_categories (list[str], optional): Tag categories to exclude from comparison. Defaults to None.
+                If left as None, will exclude all tags in the "export", "restart", and "structure" categories.
+                Add all tags of specified tag categories to be excluded in the comparison.
+            ensure_include_tags (list[str], optional): Tags to ensure are included in the comparison. Defaults to None.
+                If left as None, will make sure 'ion-species' is included in comparison.
+                Helpful for tags in categories you want to exclude but want to ensure are included in the comparison.
+
+        Returns:
+            bool: Whether the two JDFTXInfile objects are comparable.
         """
-        if not isinstance(key, str):
-            raise TypeError(f"{key} is not a string!")
-        try:
-            tag_object = get_tag_object(key)
-        except KeyError:
-            raise KeyError(f"The {key} tag is not in MASTER_TAG_LIST")
-        if isinstance(tag_object, MultiformatTag):
-            if isinstance(value, str):
-                i = tag_object.get_format_index_for_str_value(key, value)
+        if exclude_tag_categories is None:
+            exclude_tag_categories = ["export", "restart", "structure"]
+        if ensure_include_tags is None:
+            ensure_include_tags = []
+        differing_tags = self.get_filtered_differing_tags(
+            other,
+            exclude_tags=exclude_tags,
+            exclude_tag_categories=exclude_tag_categories,
+            ensure_include_tags=ensure_include_tags,
+        )
+        return len(differing_tags) == 0
+
+    def get_filtered_differing_tags(
+        self,
+        other: JDFTXInfile,
+        exclude_tags: list[str] | None = None,
+        exclude_tag_categories: list[str] | None = None,
+        ensure_include_tags: list[str] | None = None,
+    ) -> list[str]:
+        """Return which tags differ between self and other JDFTXInfile.
+
+        Returns a list of tags that differ between the two JDFTXInfile objects, excluding any tags specified in
+        exclude_tags or exclude_tag_categories. This is useful for comparing two JDFTXInfile objects while ignoring
+        certain tags that are expected to differ.
+
+        Args:
+            other (JDFTXInfile): Other JDFTXInfile object to compare to.
+            exclude_tags (list[str], optional): Tags to exclude from comparison. Defaults to None.
+                Set to contain tags you are already accounting for being different to exclude them.
+            exclude_tag_categories (list[str], optional): Tag categories to exclude from comparison. Defaults to None.
+                Add all tags of specified tag categories to be excluded in the comparison.
+            ensure_include_tags (list[str], optional): Tags to ensure are included in the comparison. Defaults to None.
+                Helpful for tags in categories you want to exclude but want to ensure are included in the comparison.
+        Returns:
+            list[str]: Tags that differ between the two JDFTXInfile objects.
+        """
+        if exclude_tags is None:
+            exclude_tags = []
+        if exclude_tag_categories is None:
+            exclude_tag_categories = []
+        if ensure_include_tags is None:
+            ensure_include_tags = []
+        for category in exclude_tag_categories:
+            exclude_tags += list(MASTER_TAG_LIST[category].keys())
+        for tag in ensure_include_tags:
+            if tag in exclude_tags:
+                exclude_tags.remove(tag)
+        differing_tags = self.get_differing_tags(other)
+        for exclude_tag in exclude_tags:
+            if exclude_tag in differing_tags:
+                differing_tags.remove(exclude_tag)
+        return differing_tags
+
+    # get_differing_tags for a full list of tags that differ between two JDFTXInfile objects
+    def get_differing_tags(self, other: JDFTXInfile) -> list[str]:
+        """Return which tags differ between self and other JDFTXInfile.
+
+        Args:
+            other (JDFTXInfile): Other JDFTXInfile object to compare to.
+
+        Returns:
+            list[str]: Tags that differ between the two JDFTXInfile objects.
+        """
+        list1 = self.get_differing_tags_from(other)
+        list2 = other.get_differing_tags_from(self)
+        return list(set(list1 + list2))
+
+    # get_differing_tags_from for only tags contained in self that differ from other JDFTXInfile
+    def get_differing_tags_from(self, other: JDFTXInfile) -> list[str]:
+        """Return which self-contained tags differ from other JDFTXInfile.
+
+        Args:
+            other (JDFTXInfile): Other JDFTXInfile object to compare to.
+
+        Returns:
+            list[str]: Tags from this JDFTXInfile that differ from the other JDFTXInfile.
+        """
+        # TODO: `TagContainer.is_equal_to(val1, tc2, val2)`, where val2 is the fetched default
+        # value for the tag, will return a false negative if val1 does not specify all the
+        # possible values for a tag. To fix this, missing subtags in both vals for tagcontainer
+        # comparisons should be populated with the default values for the tag.
+        # (ie if val1 = {a: 1}, val2 = {b: 2}, and the default value for the tag is {a: 1, b: 2},
+        # then val1 -> {a: 1, b: 2}, val2 -> {a: 1, b: 2} and the comparison will return True, but
+        # if val2 = {b: 3}, then val2 -> {a: 1, b: 3} and the comparison will return False)
+        differing_tags = []
+        for tag in self:
+            val1 = self[tag]
+            obj1 = get_tag_object_on_val(tag, val1)
+            val2 = None
+            obj2 = None
+            if tag not in other:
+                if tag in ref_infile:
+                    val2 = ref_infile[tag]
+                    obj2 = get_tag_object_on_val(tag, val2)
+                else:
+                    differing_tags.append(tag)
             else:
-                i, _ = tag_object._determine_format_option(key, value)
+                val2 = other[tag]
+                obj2 = get_tag_object_on_val(tag, val2)
+            if not (val2 is None or obj2 is None) and not obj1.is_equal_to(val1, obj2, val2):
+                differing_tags.append(tag)
+        return differing_tags
+
+    @property
+    def structure(self) -> Structure | None:
+        """Return a pymatgen Structure object.
+
+        Returns:
+            Structure: Pymatgen structure object.
+        """
+        return self.to_pmg_structure(self)
+
+    @classmethod
+    def _from_dict(cls, dct: dict[str, Any]) -> JDFTXInfile:
+        """Parse a dictionary to create a JDFTXInfile object.
+
+        Args:
+            dct (dict): Dictionary to parse.
+
+        Returns:
+            JDFTXInfile: The created JDFTXInfile object.
+        """
+        temp = cls({k: v for k, v in dct.items() if k not in ("@module", "@class")})
+        temp = cls.get_dict_representation(cls.get_list_representation(temp))
+        return cls.get_list_representation(temp)
+
+    @staticmethod
+    def _preprocess_line(line: str) -> tuple[AbstractTag, str, str]:
+        """Preprocess a line from a JDFTXInfile, splitting it into a tag object, tag name, and value.
+
+        Args:
+            line (str): Line from the input file.
+
+        Returns:
+            tuple[AbstractTag, str, str]: Tag object, tag name, and value.
+        """
+        line_list = line.strip().split(maxsplit=1)
+        tag: str = line_list[0].strip()
+        if tag in __PHONON_TAGS__:
+            raise ValueError("Phonon functionality has not been added!")
+        if tag in __WANNIER_TAGS__:
+            raise ValueError("Wannier functionality has not been added!")
+        if tag not in __TAG_LIST__:
+            err_str = f"The {tag} tag in {line_list} is not in MASTER_TAG_LIST and is not a comment, "
+            err_str += "something is wrong with this input data!"
+            raise ValueError(err_str)
+        tag_object = get_tag_object(tag)
+        value: str = ""
+        if len(line_list) == 2:
+            value = line_list[1].strip()
+        elif len(line_list) == 1:
+            value = ""  # exception for tags where only tagname is used, e.g. dump-only tag
+        if isinstance(tag_object, MultiformatTag):
+            i = tag_object.get_format_index_for_str_value(tag, value)
             tag_object = tag_object.format_options[i]
-        if tag_object.can_repeat and key in self:
-            del self[key]
-        if tag_object.can_repeat and not isinstance(value, list):
-            value = [value]
-        params: dict[str, Any] = {}
-        if self._is_numeric(value):
-            value = str(value)
-        if not tag_object.can_repeat:
-            value = [value]  # Shortcut to avoid writing a separate block for non-repeatable tags
-        for v in value:
-            processed_value = tag_object.read(key, v) if isinstance(v, str) else v
-            params = self._store_value(params, tag_object, key, processed_value)
-            self.update(params)
-            self.validate_tags(try_auto_type_fix=True, error_on_failed_fix=True)
+        return tag_object, tag, value
+
+    @staticmethod
+    def _store_value(
+        params: dict[str, list | list[dict[str, dict]] | Any],
+        tag_object: AbstractTag,
+        tag: str,
+        value: Any,
+    ) -> dict:
+        """Store the value in the params dictionary.
+
+        Args:
+            params (dict): Dictionary to store the value in.
+            tag_object (AbstractTag): Tag object for holding tag/value pair. This tag object should be the tag object
+                which the "tag" string maps to in MASTER_TAG_LIST.
+            tag (str): Tag name.
+            value (Any): Value to store.
+
+        Returns:
+            dict: Updated dictionary with the stored value.
+        """
+        if tag_object.can_repeat:  # store tags that can repeat in a list
+            if tag not in params:
+                params[tag] = []
+            params[tag].append(value)
+        else:
+            if tag in params:
+                raise ValueError(f"The '{tag}' tag appears multiple times in this input when it should not!")
+            params[tag] = value
+        return params
+
+    @staticmethod
+    def _gather_tags(lines: list[str]) -> list[str]:
+        """Gather broken lines into single string for processing later.
+
+        Args:
+            lines (list[str]): List of lines from the input file.
+
+        Returns:
+            list[str]: List of strings with tags broken across lines combined into single string.
+        """
+        total_tag = ""
+        gathered_strings = []
+        for line in lines:
+            if line[-1] == "\\":  # "\" indicates line continuation (the first "\" needed to be escaped)
+                total_tag += line[:-1].strip() + " "  # remove \ and any extra whitespace
+            elif total_tag:  # then finished with line continuations
+                total_tag += line
+                gathered_strings.append(total_tag)
+                total_tag = ""
+            else:  # then append line like normal
+                gathered_strings.append(line)
+        return gathered_strings
+
+    @staticmethod
+    def _needs_conversion(conversion: str, value: dict | list[dict] | list | list[list]) -> bool:
+        """Determine if a value needs to be converted.
+
+        This method is only ever called by cls.get_list/dict_representation.
+
+        Args:
+            conversion (str): Conversion type. ('dict-to-list' (value : dict | list[dict]) or
+                                'list-to-dict' (value : list | list[list]))
+            value (dict | list[dict] | list | list[list]): Value to check.
+
+        Returns:
+            bool: Whether the value needs to be converted.
+        """
+        # Check if value is not iterable
+        try:
+            iter(value)
+        except TypeError:
+            # This is triggered when JDFTXInfile is attempting to convert a non-tagcontainer to list/dict representation
+            # The return boolean is meaningless in this case, so just returning False to avoid the value hitting the
+            # "for x in value" loop below.
+            return False
+        if conversion == "list-to-dict":
+            flag = False
+        elif conversion == "dict-to-list":
+            flag = True
+        else:
+            raise ValueError(f"Conversion type {conversion} is not 'list-to-dict' or 'dict-to-list'")
+        if isinstance(value, dict) or all(isinstance(x, dict) for x in value):
+            return flag
+        return not flag
 
     def _is_numeric(self, value: Any) -> bool:
         """Check if a value is numeric.
@@ -668,29 +833,8 @@ class JDFTXInfile(dict, MSONable):
             is_numeric = False
         return is_numeric
 
-    def append_tag(self, tag: str, value: Any) -> None:
-        """Append a value to a tag.
 
-        Append a value to a tag. Use this method instead of directly appending the list contained in the tag, such that
-        the value is properly processed.
-
-        Args:
-            tag (str): Tag to append to.
-            value (Any): Value to append.
-        """
-        tag_object = get_tag_object(tag)
-        if isinstance(tag_object, MultiformatTag):
-            if isinstance(value, str):
-                i = tag_object.get_format_index_for_str_value(tag, value)
-            else:
-                i, _ = tag_object._determine_format_option(tag, value)
-            tag_object = tag_object.format_options[i]
-        if not tag_object.can_repeat:
-            raise ValueError(f"The tag '{tag}' cannot be repeated and thus cannot be appended")
-        params: dict[str, Any] = self.as_dict(skip_module_keys=True)
-        processed_value = tag_object.read(tag, value) if isinstance(value, str) else value
-        params = self._store_value(params, tag_object, tag, processed_value)
-        self.update(params)
+ref_infile = JDFTXInfile.from_dict(default_inputs, validate_value_boundaries=False)
 
 
 def _allnone(val) -> bool:
@@ -707,6 +851,25 @@ def _allnone(val) -> bool:
     if isinstance(val, list):
         return all(_allnone(x) for x in val)
     return False
+
+
+def selective_dynamics_site_prop_to_jdftx_interpretable(selective_dynamics: Sequence[Any]) -> ArrayLike:
+    """Convert selective dynamics site property to JDFTX interpretable format.
+
+    Args:
+        selective_dynamics (list[list[bool]]): Selective dynamics site property.
+
+    Returns:
+        ArrayLike: JDFTX interpretable format of selective dynamics.
+    """
+    _selective_dynamics = []
+    for i in range(len(selective_dynamics)):
+        # Not worrying about partial free axes for now, just setting movescale to 0 if any axis is fixed
+        if any(not x for x in selective_dynamics[i]):
+            _selective_dynamics.append(0)
+        else:
+            _selective_dynamics.append(1)
+    return np.array(_selective_dynamics)
 
 
 @dataclass
@@ -746,6 +909,12 @@ class JDFTXStructure(MSONable):
 
         Asserts self.structure is ordered, and adds selective dynamics if needed.
         """
+        if ((self.structure is not None) and ("selective_dynamics" in self.structure.site_properties)) and (
+            self.selective_dynamics is None
+        ):
+            self.selective_dynamics = selective_dynamics_site_prop_to_jdftx_interpretable(
+                self.structure.site_properties["selective_dynamics"]
+            )
         for i in range(len(self.structure.species)):
             name = ""
             if isinstance(self.structure.species[i], str):
@@ -942,31 +1111,39 @@ class JDFTXStructure(MSONable):
                         break
                 if label not in valid_labels:
                     raise ValueError(f"Could not correct site label {label} for site (index {i})")
-            ion_list_rep = [label, *coords]
+            ion_dict_rep = {
+                "species-id": label,
+                "x0": coords[0],
+                "x1": coords[1],
+                "x2": coords[2],
+                "moveScale": sd,
+            }
             # Gather velocities if present
             if (self.velocities is not None) and (self.velocities[i] is not None):
-                ion_list_rep.append("v")
-                for j in range(3):
-                    ion_list_rep.append(self.velocities[i][j] * (1 / bohr_to_ang))
-            # Append movescale regardless
-            ion_list_rep.append(sd)
+                ion_dict_rep["v"] = {
+                    "vx0": self.velocities[i][0] * (1 / bohr_to_ang),
+                    "vx1": self.velocities[i][1] * (1 / bohr_to_ang),
+                    "vx2": self.velocities[i][2] * (1 / bohr_to_ang),
+                }
             # Gather constraints if present
             if ((self.constraint_types is not None) and (self.constraint_vectors is not None)) and (
                 self.constraint_types[i] is not None
             ):
                 ctype = self.constraint_types[i]
                 if ctype == "HyperPlane":
+                    ion_dict_rep["HyperPlane"] = []
                     if self.constraint_vectors[i] is not None:
                         for j, hyperplane in enumerate(self.constraint_vectors[i]):
-                            ion_list_rep.append("HyperPlane")
+                            _hyperplane = {}
                             for k in range(3):
-                                ion_list_rep.append(hyperplane[k])
-                            ion_list_rep.append(self.hyperplane_groups[i][j])
+                                _hyperplane["d" + str(k)] = hyperplane[k]
+                            _hyperplane["group"] = self.hyperplane_groups[i][j]
+                            ion_dict_rep["HyperPlane"].append(_hyperplane)
                 else:
-                    ion_list_rep.append(ctype)
+                    ion_dict_rep["constraint-type"] = ctype
                     for j in range(3):
-                        ion_list_rep.append(self.constraint_vectors[i][j])
-            jdftx_tag_dict["ion"].append(ion_list_rep)
+                        ion_dict_rep["d" + str(j)] = self.constraint_vectors[i][j]
+            jdftx_tag_dict["ion"].append(ion_dict_rep)
         return str(JDFTXInfile.from_dict(jdftx_tag_dict))
 
     def write_file(self, filename: PathLike, **kwargs) -> None:
