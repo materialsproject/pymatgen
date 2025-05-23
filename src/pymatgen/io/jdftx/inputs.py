@@ -37,6 +37,7 @@ from pymatgen.util.io_utils import clean_lines
 from pymatgen.util.typing import SpeciesLike
 
 if TYPE_CHECKING:
+    from collections.abc import Sequence
     from typing import Any
 
     from numpy.typing import ArrayLike
@@ -852,7 +853,7 @@ def _allnone(val) -> bool:
     return False
 
 
-def selective_dynamics_site_prop_to_jdftx_interpretable(selective_dynamics: list[list[bool]]) -> ArrayLike:
+def selective_dynamics_site_prop_to_jdftx_interpretable(selective_dynamics: Sequence[Any]) -> ArrayLike:
     """Convert selective dynamics site property to JDFTX interpretable format.
 
     Args:
