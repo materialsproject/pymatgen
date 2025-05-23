@@ -41,7 +41,6 @@ from pymatgen.io.vasp.inputs import Incar, Kpoints, Poscar, Potcar
 from pymatgen.io.wannier90 import Unk
 from pymatgen.util.io_utils import clean_lines, micro_pyawk
 from pymatgen.util.num import make_symmetric_matrix_from_upper_tri
-from pymatgen.util.typing import Kpoint, Tuple3Floats, Vector3D
 
 if TYPE_CHECKING:
     from collections.abc import Callable
@@ -53,7 +52,7 @@ if TYPE_CHECKING:
     from numpy.typing import NDArray
     from typing_extensions import Self
 
-    from pymatgen.util.typing import PathLike
+    from pymatgen.util.typing import Kpoint, PathLike, Tuple3Floats, Vector3D
 
 
 def _parse_parameters(val_type: str, val: str) -> bool | str | float | int:
@@ -154,7 +153,7 @@ def _vasprun_float(flt: float | str) -> float:
         return float(flt)
 
     except ValueError:
-        flt = cast(str, flt)
+        flt = cast("str", flt)
         _flt: str = flt.strip()
         if _flt == "*" * len(_flt):
             warnings.warn(
@@ -1490,10 +1489,10 @@ class Vasprun(MSONable):
 
             if name == "divisions":
                 kpoint.kpts = [
-                    cast(Kpoint, tuple(int(i) for i in tokens)),
+                    cast("Kpoint", tuple(int(i) for i in tokens)),
                 ]
             elif name == "usershift":
-                kpoint.kpts_shift = cast(Vector3D, tuple(float(i) for i in tokens))
+                kpoint.kpts_shift = cast("Vector3D", tuple(float(i) for i in tokens))
             elif name in {"genvec1", "genvec2", "genvec3", "shift"}:
                 setattr(kpoint, name, [float(i) for i in tokens])
 
@@ -1502,7 +1501,7 @@ class Vasprun(MSONable):
         for va in elem.findall("varray"):
             name = va.attrib["name"]
             if name == "kpointlist":
-                actual_kpoints = cast(list[Tuple3Floats], list(map(tuple, _parse_vasp_array(va))))
+                actual_kpoints = cast("list[Tuple3Floats]", list(map(tuple, _parse_vasp_array(va))))
             elif name == "weights":
                 weights = [i[0] for i in _parse_vasp_array(va)]
         elem.clear()
@@ -2216,7 +2215,7 @@ class Outcar:
             self.dfpt = True
             self.fd = False
             self.read_internal_strain_tensor()
-        elif self.data.get("ibrion", [[0]])[0][0] in [5,6]:
+        elif self.data.get("ibrion", [[0]])[0][0] in [5, 6]:
             self.dfpt = False
             self.fd = True
             self.read_internal_strain_tensor()
@@ -2225,7 +2224,8 @@ class Outcar:
             self.fd = False
 
         # Check for variable cell calculation
-        self.read_pattern({"isif": r"ISIF\s+=\s+([\-\d]+)"},
+        self.read_pattern(
+            {"isif": r"ISIF\s+=\s+([\-\d]+)"},
             terminate_on_match=True,
             postprocess=int,
         )
@@ -2237,7 +2237,7 @@ class Outcar:
         # Check if LRPA is True
         self.lrpa = False
         self.read_pattern({"rpa": r"LRPA\s*=\s*T"})
-        if self.data.get("rpa",False):
+        if self.data.get("rpa", False):
             self.lrpa = True
 
         # Check if LEPSILON is True and read piezo data if so
@@ -3057,17 +3057,18 @@ class Outcar:
 
             def piezo_section_start(results, _match):
                 results.piezo_index = 0
+
             if not self.lrpa:
                 search.append(
-                [
-                    (
-                        r"PIEZOELECTRIC TENSOR \(including local field effects\)"
-                        r"(?:\s*for\s*field\s*in\s*x,\s*y,\s*z\s*)? \(C/m\^2\)"
-                    ),
-                    None,
-                    piezo_section_start,
-                ]
-            )
+                    [
+                        (
+                            r"PIEZOELECTRIC TENSOR \(including local field effects\)"
+                            r"(?:\s*for\s*field\s*in\s*x,\s*y,\s*z\s*)? \(C/m\^2\)"
+                        ),
+                        None,
+                        piezo_section_start,
+                    ]
+                )
 
             def piezo_data(results, match):
                 results.piezo_tensor[results.piezo_index, :] = np.array([float(match[i]) for i in range(1, 7)])
@@ -3534,9 +3535,7 @@ class Outcar:
                 "dielectric_ionic_tensor": self.dielectric_ionic_tensor,
             }
         if self.fd and self.varcell:
-            dct |= {
-                "elastic_tensor": self.data["elastic_tensor"]
-            }
+            dct |= {"elastic_tensor": self.data["elastic_tensor"]}
 
         if self.dfpt:
             dct["internal_strain_tensor"] = self.internal_strain_tensor
