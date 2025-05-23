@@ -3060,8 +3060,10 @@ class Outcar:
             if not self.lrpa:
                 search.append(
                 [
-                    r"PIEZOELECTRIC TENSOR \(including local field effects\)"+
-                    r"(?:\s*for\s*field\s*in\s*x,\s*y,\s*z\s*)? \(C/m\^2\)",
+                    (
+                        r"PIEZOELECTRIC TENSOR \(including local field effects\)"
+                        r"(?:\s*for\s*field\s*in\s*x,\s*y,\s*z\s*)? \(C/m\^2\)"
+                    ),
                     None,
                     piezo_section_start,
                 ]
