@@ -1069,12 +1069,6 @@ class JDFTXOutfileSlice:
         if isinstance(self.structure, Structure):
             self.atom_coords = self.structure.cart_coords
             self.atom_coords_final = self.structure.cart_coords
-        # line = find_key("# Ionic positions in", text)
-        # if line is not None:
-        #     line += 1
-        #     coords = np.array([text[i].split()[2:5] for i in range(line, line + self.nat)], dtype=float)
-        #     self.atom_coords_final = coords
-        #     self.atom_coords = coords.copy()
 
     def _set_lattice_vars(self, text: list[str]) -> None:
         """Set the lattice variables.
