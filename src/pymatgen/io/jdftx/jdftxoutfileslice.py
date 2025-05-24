@@ -25,6 +25,7 @@ from pymatgen.core.periodic_table import Element
 from pymatgen.core.trajectory import Trajectory
 from pymatgen.core.units import Ha_to_eV, ang_to_bohr, bohr_to_ang
 from pymatgen.io.jdftx._output_utils import (
+    _init_dict_from_colon_dump_lines,
     find_all_key,
     find_first_range_key,
     find_key,
@@ -220,6 +221,7 @@ class JDFTXOutfileSlice:
     _electronic_output: ClassVar[list[str]] = [
         "efermi",
         "egap",
+        "optical_egap",
         "emin",
         "emax",
         "homo",
@@ -230,6 +232,7 @@ class JDFTXOutfileSlice:
     ]
     efermi: float | None = None
     egap: float | None = None
+    optical_egap: float | None = None
     emin: float | None = None
     emax: float | None = None
     homo: float | None = None
@@ -665,22 +668,25 @@ class JDFTXOutfileSlice:
         lines1 = find_all_key("Dumping ", text)
         lines2 = find_all_key("eigStats' ...", text)
         lines3 = [lines1[i] for i in range(len(lines1)) if lines1[i] in lines2]
+        keymap = {
+            "eMin": "emin",
+            "HOMO": "homo",
+            "mu": "efermi",
+            "LUMO": "lumo",
+            "eMax": "emax",
+            "HOMO-LUMO gap": "egap",
+            "Optical gap": "optical_egap",
+        }
         if not lines3:
-            varsdict["emin"] = None
-            varsdict["homo"] = None
-            varsdict["efermi"] = None
-            varsdict["lumo"] = None
-            varsdict["emax"] = None
-            varsdict["egap"] = None
+            for key in list(keymap.keys()):
+                varsdict[keymap[key]] = None
             self.has_eigstats = False
         else:
-            line = lines3[-1]
-            varsdict["emin"] = float(text[line + 1].split()[1]) * Ha_to_eV
-            varsdict["homo"] = float(text[line + 2].split()[1]) * Ha_to_eV
-            varsdict["efermi"] = float(text[line + 3].split()[2]) * Ha_to_eV
-            varsdict["lumo"] = float(text[line + 4].split()[1]) * Ha_to_eV
-            varsdict["emax"] = float(text[line + 5].split()[1]) * Ha_to_eV
-            varsdict["egap"] = float(text[line + 6].split()[2]) * Ha_to_eV
+            line_start = lines3[-1]
+            line_end = lines1[lines1.index(line_start) + 1]
+            _varsdict = _init_dict_from_colon_dump_lines([text[idx] for idx in range(line_start, line_end)])
+            for key in _varsdict:
+                varsdict[keymap[key]] = float(_varsdict[key]) * Ha_to_eV
             self.has_eigstats = True
         return varsdict
 
@@ -697,6 +703,7 @@ class JDFTXOutfileSlice:
         self.lumo = eigstats["lumo"]
         self.emax = eigstats["emax"]
         self.egap = eigstats["egap"]
+        self.optical_egap = eigstats["optical_egap"]
         if self.efermi is None:
             if self.mu is None:
                 self.mu = self._get_mu()
