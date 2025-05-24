@@ -693,13 +693,6 @@ class JDFTXOutfileSlice:
         eigstats = self._get_eigstats_varsdict(text, self.prefix)
         for key, val in eigstats.items():
             setattr(self, key, val)
-        # self.emin = eigstats["emin"]
-        # self.homo = eigstats["homo"]
-        # self.efermi = eigstats["efermi"]
-        # self.lumo = eigstats["lumo"]
-        # self.emax = eigstats["emax"]
-        # self.egap = eigstats["egap"]
-        # self.optical_egap = eigstats["optical_egap"]
         if self.efermi is None:
             if self.mu is None:
                 self.mu = self._get_mu()
