@@ -668,26 +668,20 @@ class JDFTXOutfileSlice:
         lines1 = find_all_key("Dumping ", text)
         lines2 = find_all_key("eigStats' ...", text)
         lines3 = [lines1[i] for i in range(len(lines1)) if lines1[i] in lines2]
-        keymap = {
-            "eMin": "emin",
-            "HOMO": "homo",
-            "mu": "efermi",
-            "LUMO": "lumo",
-            "eMax": "emax",
-            "HOMO-LUMO gap": "egap",
-            "Optical gap": "optical_egap",
-        }
         if not lines3:
-            for key in list(keymap.keys()):
-                varsdict[keymap[key]] = None
+            for key in list(eigstats_keymap.keys()):
+                varsdict[eigstats_keymap[key]] = None
             self.has_eigstats = False
         else:
             line_start = lines3[-1]
-            line_end = lines1[lines1.index(line_start) + 1]
+            line_start_rel_idx = lines1.index(line_start)
+            line_end = lines1[line_start_rel_idx + 1] if len(lines1) >= line_start_rel_idx + 2 else len(lines1) - 1
             _varsdict = _init_dict_from_colon_dump_lines([text[idx] for idx in range(line_start, line_end)])
             for key in _varsdict:
-                varsdict[keymap[key]] = float(_varsdict[key]) * Ha_to_eV
-            self.has_eigstats = True
+                varsdict[eigstats_keymap[key]] = float(_varsdict[key]) * Ha_to_eV
+            self.has_eigstats = all(eigstats_keymap[key] in varsdict for key in eigstats_keymap) and all(
+                eigstats_keymap[key] is not None for key in eigstats_keymap
+            )
         return varsdict
 
     def _set_eigvars(self, text: list[str]) -> None:
@@ -697,13 +691,15 @@ class JDFTXOutfileSlice:
             text (list[str]): Output of read_file for out file.
         """
         eigstats = self._get_eigstats_varsdict(text, self.prefix)
-        self.emin = eigstats["emin"]
-        self.homo = eigstats["homo"]
-        self.efermi = eigstats["efermi"]
-        self.lumo = eigstats["lumo"]
-        self.emax = eigstats["emax"]
-        self.egap = eigstats["egap"]
-        self.optical_egap = eigstats["optical_egap"]
+        for key, val in eigstats.items():
+            setattr(self, key, val)
+        # self.emin = eigstats["emin"]
+        # self.homo = eigstats["homo"]
+        # self.efermi = eigstats["efermi"]
+        # self.lumo = eigstats["lumo"]
+        # self.emax = eigstats["emax"]
+        # self.egap = eigstats["egap"]
+        # self.optical_egap = eigstats["optical_egap"]
         if self.efermi is None:
             if self.mu is None:
                 self.mu = self._get_mu()
@@ -1070,12 +1066,15 @@ class JDFTXOutfileSlice:
         self.atom_elements = atom_elements
         self.atom_elements_int = [Element(x).Z for x in self.atom_elements]
         self.atom_types = atom_types
-        line = find_key("# Ionic positions in", text)
-        if line is not None:
-            line += 1
-            coords = np.array([text[i].split()[2:5] for i in range(line, line + self.nat)], dtype=float)
-            self.atom_coords_final = coords
-            self.atom_coords = coords.copy()
+        if isinstance(self.structure, Structure):
+            self.atom_coords = self.structure.cart_coords
+            self.atom_coords_final = self.structure.cart_coords
+        # line = find_key("# Ionic positions in", text)
+        # if line is not None:
+        #     line += 1
+        #     coords = np.array([text[i].split()[2:5] for i in range(line, line + self.nat)], dtype=float)
+        #     self.atom_coords_final = coords
+        #     self.atom_coords = coords.copy()
 
     def _set_lattice_vars(self, text: list[str]) -> None:
         """Set the lattice variables.
@@ -1251,6 +1250,17 @@ class JDFTXOutfileSlice:
             str: String representation of the JDFTXOutfileSlice.
         """
         return pprint.pformat(self)
+
+
+eigstats_keymap = {
+    "eMin": "emin",
+    "HOMO": "homo",
+    "mu": "efermi",
+    "LUMO": "lumo",
+    "eMax": "emax",
+    "HOMO-LUMO gap": "egap",
+    "Optical gap": "optical_egap",
+}
 
 
 def get_pseudo_read_section_bounds(text: list[str]) -> list[list[int]]:
