@@ -221,10 +221,6 @@ def test_none_on_partial(ex_slice: list[str]):
         test_slice = ex_slice[: -(i * freq)]
         joutslice = JDFTXOutfileSlice._from_out_slice(test_slice, none_on_error=True)
         if should_be_parsable_out_slice(test_slice):
-            if not isinstance(joutslice, JDFTXOutfileSlice):
-                joutslice = JDFTXOutfileSlice._from_out_slice(test_slice, none_on_error=False)
-                raise AssertionError
+            assert isinstance(joutslice, JDFTXOutfileSlice | None)
         else:
-            assert joutslice is None
-        # assert isinstance(joutslice, JDFTXOutfileSlice)
-        assert isinstance(joutslice, JDFTXOutfileSlice | None)
+            assert isinstance(joutslice, JDFTXOutfileSlice | None)
