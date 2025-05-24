@@ -336,6 +336,17 @@ def find_all_key(key_input: str, tempfile: list[str], startline: int = 0) -> lis
     return [i for i in range(startline, len(tempfile)) if key_input in tempfile[i]]
 
 
+def _init_dict_from_colon_dump_lines(lines: list[str]):
+    varsdict = {}
+    for line in lines:
+        if ":" in line:
+            lsplit = line.split(":")
+            key = lsplit[0].strip()
+            val = lsplit[1].split()[0].strip()
+            varsdict[key] = val
+    return varsdict
+
+
 def _parse_bandfile_complex(bandfile_filepath: str | Path) -> NDArray[np.complex64]:
     Dtype: TypeAlias = np.complex64
     token_parser = _complex_token_parser

@@ -25,6 +25,7 @@ from pymatgen.core.periodic_table import Element
 from pymatgen.core.trajectory import Trajectory
 from pymatgen.core.units import Ha_to_eV, ang_to_bohr, bohr_to_ang
 from pymatgen.io.jdftx._output_utils import (
+    _init_dict_from_colon_dump_lines,
     find_all_key,
     find_first_range_key,
     find_key,
@@ -220,6 +221,7 @@ class JDFTXOutfileSlice:
     _electronic_output: ClassVar[list[str]] = [
         "efermi",
         "egap",
+        "optical_egap",
         "emin",
         "emax",
         "homo",
@@ -230,6 +232,7 @@ class JDFTXOutfileSlice:
     ]
     efermi: float | None = None
     egap: float | None = None
+    optical_egap: float | None = None
     emin: float | None = None
     emax: float | None = None
     homo: float | None = None
@@ -666,22 +669,19 @@ class JDFTXOutfileSlice:
         lines2 = find_all_key("eigStats' ...", text)
         lines3 = [lines1[i] for i in range(len(lines1)) if lines1[i] in lines2]
         if not lines3:
-            varsdict["emin"] = None
-            varsdict["homo"] = None
-            varsdict["efermi"] = None
-            varsdict["lumo"] = None
-            varsdict["emax"] = None
-            varsdict["egap"] = None
+            for key in list(eigstats_keymap.keys()):
+                varsdict[eigstats_keymap[key]] = None
             self.has_eigstats = False
         else:
-            line = lines3[-1]
-            varsdict["emin"] = float(text[line + 1].split()[1]) * Ha_to_eV
-            varsdict["homo"] = float(text[line + 2].split()[1]) * Ha_to_eV
-            varsdict["efermi"] = float(text[line + 3].split()[2]) * Ha_to_eV
-            varsdict["lumo"] = float(text[line + 4].split()[1]) * Ha_to_eV
-            varsdict["emax"] = float(text[line + 5].split()[1]) * Ha_to_eV
-            varsdict["egap"] = float(text[line + 6].split()[2]) * Ha_to_eV
-            self.has_eigstats = True
+            line_start = lines3[-1]
+            line_start_rel_idx = lines1.index(line_start)
+            line_end = lines1[line_start_rel_idx + 1] if len(lines1) >= line_start_rel_idx + 2 else len(lines1) - 1
+            _varsdict = _init_dict_from_colon_dump_lines([text[idx] for idx in range(line_start, line_end)])
+            for key in _varsdict:
+                varsdict[eigstats_keymap[key]] = float(_varsdict[key]) * Ha_to_eV
+            self.has_eigstats = all(eigstats_keymap[key] in varsdict for key in eigstats_keymap) and all(
+                eigstats_keymap[key] is not None for key in eigstats_keymap
+            )
         return varsdict
 
     def _set_eigvars(self, text: list[str]) -> None:
@@ -691,12 +691,8 @@ class JDFTXOutfileSlice:
             text (list[str]): Output of read_file for out file.
         """
         eigstats = self._get_eigstats_varsdict(text, self.prefix)
-        self.emin = eigstats["emin"]
-        self.homo = eigstats["homo"]
-        self.efermi = eigstats["efermi"]
-        self.lumo = eigstats["lumo"]
-        self.emax = eigstats["emax"]
-        self.egap = eigstats["egap"]
+        for key, val in eigstats.items():
+            setattr(self, key, val)
         if self.efermi is None:
             if self.mu is None:
                 self.mu = self._get_mu()
@@ -1063,12 +1059,9 @@ class JDFTXOutfileSlice:
         self.atom_elements = atom_elements
         self.atom_elements_int = [Element(x).Z for x in self.atom_elements]
         self.atom_types = atom_types
-        line = find_key("# Ionic positions in", text)
-        if line is not None:
-            line += 1
-            coords = np.array([text[i].split()[2:5] for i in range(line, line + self.nat)], dtype=float)
-            self.atom_coords_final = coords
-            self.atom_coords = coords.copy()
+        if isinstance(self.structure, Structure):
+            self.atom_coords = self.structure.cart_coords
+            self.atom_coords_final = self.structure.cart_coords
 
     def _set_lattice_vars(self, text: list[str]) -> None:
         """Set the lattice variables.
@@ -1244,6 +1237,17 @@ class JDFTXOutfileSlice:
             str: String representation of the JDFTXOutfileSlice.
         """
         return pprint.pformat(self)
+
+
+eigstats_keymap = {
+    "eMin": "emin",
+    "HOMO": "homo",
+    "mu": "efermi",
+    "LUMO": "lumo",
+    "eMax": "emax",
+    "HOMO-LUMO gap": "egap",
+    "Optical gap": "optical_egap",
+}
 
 
 def get_pseudo_read_section_bounds(text: list[str]) -> list[list[int]]:
