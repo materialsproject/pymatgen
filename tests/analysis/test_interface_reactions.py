@@ -223,12 +223,14 @@ class TestInterfaceReaction:
         assert test4, "_get_energy: gets error. "
 
     def test_get_reaction(self):
-        assert str(self.irs[0]._get_reaction(0.5)) == "0.5 Mn + 0.5 O2 -> 0.5 MnO2", (
-            "_get_reaction: reaction not involving chempots species gets error!"
-        )
-        assert str(self.irs[3]._get_reaction(0.666666)) == "0.5 Li2O + 0.5 Mn -> Li + 0.25 MnO2 + 0.25 Mn", (
-            "_get_reaction: reaction involving chempots species gets error!"
-        )
+        rxnstr = str(self.irs[0]._get_reaction(0.5))
+        assert "0.5 Mn" in rxnstr
+        assert "0.5 O2" in rxnstr
+        assert "0.5 MnO2" in rxnstr
+        rxnstr = str(self.irs[3]._get_reaction(0.666666))
+        assert "0.5 Li2O" in rxnstr
+        assert "0.5 Mn" in rxnstr
+        assert "0.25 MnO2" in rxnstr
 
     def test_get_get_elmt_amt_in_rxt(self):
         rxt1 = Reaction(

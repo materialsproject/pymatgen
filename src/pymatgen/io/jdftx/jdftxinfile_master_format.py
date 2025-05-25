@@ -1433,3 +1433,22 @@ def get_tag_object(tag: str) -> AbstractTag:
         AbstractTag: The tag object.
     """
     return MASTER_TAG_LIST[__TAG_GROUPS__[tag]][tag]
+
+
+def get_tag_object_on_val(tag: str, val: Any) -> AbstractTag:
+    """Get the tag object for a given tag name.
+
+    Args:
+        tag (str): The tag name.
+
+    Returns:
+        AbstractTag: The tag object.
+    """
+    tag_object = get_tag_object(tag)
+    if isinstance(tag_object, MultiformatTag):
+        if isinstance(val, str):
+            i = tag_object.get_format_index_for_str_value(tag, val)
+        else:
+            i, _ = tag_object._determine_format_option(tag, val)
+        tag_object = tag_object.format_options[i]
+    return tag_object

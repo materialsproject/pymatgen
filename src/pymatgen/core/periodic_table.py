@@ -236,7 +236,7 @@ class ElementBase(Enum):
 
     def __hash__(self) -> int:
         # multiply Z by 1000 to avoid hash collisions of element N with isotopes of elements N+/-1,2,3...
-        return self.Z * 1000 + self.A if self._is_named_isotope else self.Z
+        return self.Z * 1000 + self.A if self._is_named_isotope else self.Z * 137 * 100
 
     def __repr__(self) -> str:
         return f"Element {self.symbol}"
@@ -1605,7 +1605,7 @@ def get_el_sp(obj: SpeciesLike) -> Element | Species | DummySpecies:
     pass
 
 
-@functools.lru_cache
+@functools.lru_cache(maxsize=1024)
 def get_el_sp(obj: int | SpeciesLike) -> Element | Species | DummySpecies:
     """Utility function to get an Element, Species or DummySpecies from any input.
 

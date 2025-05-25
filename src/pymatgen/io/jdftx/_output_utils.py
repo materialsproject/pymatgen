@@ -13,6 +13,8 @@ from typing import TYPE_CHECKING, Any, TypeAlias
 
 import numpy as np
 
+from pymatgen.electronic_structure.core import Orbital
+
 if TYPE_CHECKING:
     from collections.abc import Callable
 
@@ -474,6 +476,34 @@ def get_proj_tju_from_file(bandfile_filepath: Path | str) -> NDArray[np.float32 
     return _parse_bandfile_complex(bandfile_filepath) if is_complex else _parse_bandfile_normalized(bandfile_filepath)
 
 
+def _parse_kptsfrom_bandprojections_file(bandfile_filepath: str | Path) -> tuple[list[float], list[NDArray]]:
+    """Parse kpts from bandprojections file.
+
+    Parse kpts from bandprojections file.
+
+    Args:
+        bandfile_filepath (Path | str): Path to bandprojections file.
+
+    Returns:
+        tuple[list[float], list[np.ndarray[float]]]: Tuple of k-point weights and k-points
+    """
+    wk_list: list[float] = []
+    k_points_list: list[NDArray] = []
+    kpt_lines = []
+    with open(bandfile_filepath) as f:
+        for line in f:
+            if line.startswith("#") and ";" in line:
+                _line = line.split(";")[0].lstrip("#")
+                kpt_lines.append(_line)
+    for line in kpt_lines:
+        k_points = line.split("[")[1].split("]")[0].strip().split()
+        _k_points_floats: list[float] = [float(v) for v in k_points]
+        k_points_list.append(np.array(_k_points_floats))
+        wk = float(line.split("]")[1].strip().split()[0])
+        wk_list.append(wk)
+    return wk_list, k_points_list
+
+
 def _is_complex_bandfile_filepath(bandfile_filepath: str | Path) -> bool:
     """Determine if bandprojections file is complex.
 
@@ -505,6 +535,64 @@ orb_ref_list = [
     ["dxy", "dyz", "dz2", "dxz", "dx2-y2"],
     ["fy(3x2-y2)", "fxyz", "fyz2", "fz3", "fxz2", "fz(x2-y2)", "fx(x2-3y2)"],
 ]
+orb_ref_to_o_dict = {
+    "s": int(Orbital.s),
+    "py": int(Orbital.py),
+    "pz": int(Orbital.pz),
+    "px": int(Orbital.px),
+    "dxy": int(Orbital.dxy),
+    "dyz": int(Orbital.dyz),
+    "dz2": int(Orbital.dz2),
+    "dxz": int(Orbital.dxz),
+    "dx2-y2": int(Orbital.dx2),
+    # Keep the f-orbitals arbitrary-ish until they get designated names in pymatgen.
+    orb_ref_list[-1][0]: int(Orbital.f_3),
+    orb_ref_list[-1][1]: int(Orbital.f_2),
+    orb_ref_list[-1][2]: int(Orbital.f_1),
+    orb_ref_list[-1][3]: int(Orbital.f0),
+    orb_ref_list[-1][4]: int(Orbital.f1),
+    orb_ref_list[-1][5]: int(Orbital.f2),
+}
+
+
+def _get_atom_orb_labels_map_dict(bandfile_filepath: Path) -> dict[str, list[str]]:
+    """
+    Return a dictionary mapping each atom symbol to pymatgen-compatible orbital projection string representations.
+
+    Identical to _get_atom_orb_labels_ref_dict, but doesn't include the numbers in the labels.
+
+
+
+    Args:
+        bandfile_filepath (str | Path): The path to the bandfile.
+
+    Returns:
+        dict[str, list[str]]: A dictionary mapping each atom symbol to all atomic orbital projection string
+        representations.
+    """
+    bandfile = read_file(bandfile_filepath)
+    labels_dict: dict[str, list[str]] = {}
+
+    for i, line in enumerate(bandfile):
+        if i > 1:
+            if "#" in line:
+                break
+            lsplit = line.strip().split()
+            sym = lsplit[0]
+            labels_dict[sym] = []
+            lmax = int(lsplit[3])
+            # Would prefer to use "l" rather than "L" here (as uppercase "L" means something else entirely) but
+            # pr*-c*mm*t thinks "l" is an ambiguous variable name.
+            for L in range(lmax + 1):
+                mls = orb_ref_list[L]
+                nshells = int(lsplit[4 + L])
+                for _n in range(nshells):
+                    if nshells > 1:
+                        for ml in mls:
+                            labels_dict[sym].append(f"{ml}")
+                    else:
+                        labels_dict[sym] += mls
+    return labels_dict
 
 
 def _get_atom_orb_labels_ref_dict(bandfile_filepath: Path) -> dict[str, list[str]]:
@@ -619,6 +707,28 @@ def _get_orb_label(ion: str, idx: int, orb: str) -> str:
         str: The atomic orbital projection string representation for the atom.
     """
     return f"{ion}#{idx + 1}({orb})"
+
+
+def _get_u_to_oa_map(bandfile_filepath: Path) -> list[tuple[int, int]]:
+    """
+    Return a list, where the u'th element is a tuple of the atomic orbital index and the ion index.
+
+    Args:
+        bandfile_filepath (str | Path): The path to the bandfile.
+
+    Returns:
+        list[tuple[int, int]]: A list, where the u'th element is a tuple of the atomic orbital index and the ion index.
+    """
+    map_labels_dict = _get_atom_orb_labels_map_dict(bandfile_filepath)
+    atom_count_list = _get_atom_count_list(bandfile_filepath)
+    u_to_oa_map = []
+    a = 0
+    for ion, ion_count in atom_count_list:
+        for _i in range(ion_count):
+            for orb in map_labels_dict[ion]:
+                u_to_oa_map.append((orb_ref_to_o_dict[orb], a))
+            a += 1
+    return u_to_oa_map
 
 
 def _get_orb_label_list(bandfile_filepath: Path) -> tuple[str, ...]:
