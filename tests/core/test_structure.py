@@ -2237,6 +2237,7 @@ Site: H (-0.5134, 0.8892, -0.3630)"""
         no_reorder = self.mol.get_boxed_structure(10, 10, 10, reorder=False)
         assert str(s3[0].specie) == "H"
         assert str(no_reorder[0].specie) == "C"
+        assert_allclose(no_reorder[2].frac_coords, [0.60267191, 0.5, 0.4637])
 
     def test_get_distance(self):
         assert self.mol.get_distance(0, 1) == approx(1.089)
