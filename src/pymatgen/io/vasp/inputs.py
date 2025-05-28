@@ -8,7 +8,6 @@ from __future__ import annotations
 import codecs
 import hashlib
 import itertools
-import json
 import math
 import os
 import re
@@ -24,6 +23,7 @@ from typing import TYPE_CHECKING, NamedTuple, cast
 from zipfile import ZipFile
 
 import numpy as np
+import orjson
 import scipy.constants as const
 from monty.io import zopen
 from monty.json import MontyDecoder, MSONable
@@ -1117,7 +1117,7 @@ class Incar(UserDict, MSONable):
         """
         # Load INCAR tag/value check reference file
         with open(os.path.join(MODULE_DIR, "incar_parameters.json"), encoding="utf-8") as json_file:
-            incar_params = json.loads(json_file.read())
+            incar_params = orjson.loads(json_file.read())
 
         for tag, val in self.items():
             # Check if the tag exists

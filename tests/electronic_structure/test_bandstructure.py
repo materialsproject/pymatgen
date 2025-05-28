@@ -1,9 +1,9 @@
 from __future__ import annotations
 
 import copy
-import json
 
 import numpy as np
+import orjson
 import pytest
 from monty.serialization import loadfn
 from numpy.testing import assert_allclose
@@ -231,8 +231,8 @@ class TestBandStructureSymmLine(MatSciTest):
         assert set(d3) >= expected_keys, f"{expected_keys - set(d3)=}"
 
     def test_old_format_load(self):
-        with open(f"{TEST_DIR}/bs_ZnS_old.json", encoding="utf-8") as file:
-            dct = json.load(file)
+        with open(f"{TEST_DIR}/bs_ZnS_old.json", "rb") as file:
+            dct = orjson.loads(file.read())
             bs_old = BandStructureSymmLine.from_dict(dct)
             assert bs_old.get_projection_on_elements()[Spin.up][0][0]["Zn"] == approx(0.0971)
 
@@ -280,16 +280,16 @@ class TestLobsterBandStructureSymmLine(MatSciTest):
     def setup_method(self):
         with open(
             f"{TEST_FILES_DIR}/electronic_structure/cohp/Fatband_SiO2/Test_p/lobster_band_structure_spin.json",
-            encoding="utf-8",
+            "rb",
         ) as file:
-            bs_spin_dict = json.load(file)
+            bs_spin_dict = orjson.loads(file.read())
         self.bs_spin = LobsterBandStructureSymmLine.from_dict(bs_spin_dict)
 
         with open(
             f"{TEST_FILES_DIR}/electronic_structure/cohp/Fatband_SiO2/Test_p/lobster_band_structure.json",
-            encoding="utf-8",
+            "rb",
         ) as file:
-            bs_dict = json.load(file)
+            bs_dict = orjson.loads(file.read())
         self.bs_p = LobsterBandStructureSymmLine.from_dict(bs_dict)
 
     def test_basic(self):
@@ -454,9 +454,9 @@ class TestLobsterBandStructureSymmLine(MatSciTest):
         assert bs.get_kpoint_degeneracy(vbm_k) == 3
 
     def test_as_dict(self):
-        dict_str = json.dumps(self.bs_p.as_dict())
+        dict_str = orjson.dumps(self.bs_p.as_dict()).decode()
         assert dict_str is not None
-        dict_str = json.dumps(self.bs_spin.as_dict())
+        dict_str = orjson.dumps(self.bs_spin.as_dict()).decode()
         assert dict_str is not None
 
     def test_old_format_load(self):

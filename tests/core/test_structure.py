@@ -1272,7 +1272,7 @@ class TestStructure(MatSciTest):
         assert dct == struct.as_dict()
 
         json_str = struct_with_props.to(fmt="json")
-        assert '"test_property": 42' in json_str
+        assert '"test_property":42' in json_str
         struct = Structure.from_str(json_str, fmt="json")
         assert struct.properties == props
         assert dct == struct.as_dict()

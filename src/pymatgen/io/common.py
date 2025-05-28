@@ -5,7 +5,6 @@ from __future__ import annotations
 import collections
 import importlib
 import itertools
-import json
 import os
 import typing
 import warnings
@@ -14,6 +13,7 @@ from pathlib import Path
 from typing import TYPE_CHECKING
 
 import numpy as np
+import orjson
 from monty.io import zopen
 from monty.json import MSONable
 from scipy.interpolate import RegularGridInterpolator
@@ -336,7 +336,7 @@ class VolumetricData(MSONable):
                 ds = grp.create_dataset(k, self.data[k].shape, dtype="float")
                 ds[...] = self.data[k]
             file.attrs["name"] = self.name
-            file.attrs["structure_json"] = json.dumps(self.structure.as_dict())
+            file.attrs["structure_json"] = orjson.dumps(self.structure.as_dict()).decode()
 
     @classmethod
     def from_hdf5(cls, filename: str, **kwargs) -> VolumetricData:
@@ -356,7 +356,7 @@ class VolumetricData(MSONable):
             data_aug = None
             if "vdata_aug" in file:
                 data_aug = {k: np.array(v) for k, v in file["vdata_aug"].items()}
-            structure = Structure.from_dict(json.loads(file.attrs["structure_json"]))
+            structure = Structure.from_dict(orjson.loads(file.attrs["structure_json"]))
             return cls(structure, data=data, data_aug=data_aug, **kwargs)  # type:ignore[arg-type]
 
     def to_cube(self, filename, comment: str = ""):
