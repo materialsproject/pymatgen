@@ -3959,7 +3959,7 @@ class IMolecule(SiteCollection, MSONable):
         return cls(
             lattice,
             self.species * nimages,
-            coords,
+            all_coords,
             coords_are_cartesian=True,
             site_properties=site_props,
             labels=self.labels * nimages,
