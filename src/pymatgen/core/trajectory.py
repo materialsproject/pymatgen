@@ -477,6 +477,21 @@ class Trajectory(MSONable):
         with zopen(filename, mode="wt", encoding="utf-8") as file:
             file.write(xdatcar_str)  # type:ignore[arg-type]
 
+    def write_Gaussian_log(
+        self,
+        filename: PathLike = "calc.log",
+    ) -> None:
+        """Write Trajectory object to a Gaussian-formatted log file.
+
+        The produced file will be readable by Gaussview.
+
+        Args:
+            filename: File to write. File does not need to end with '.log' to be readable by Gaussview.
+                The suffix ".logx" is recommended to distinguish from real Gaussian log files.
+        """
+        # TODO: Write me! :)
+        print(f"Writing {filename} ...")
+
     def as_dict(self) -> dict:
         """Return the trajectory as a MSONable dict."""
         lat = self.lattice.tolist() if self.lattice is not None else None
