@@ -255,7 +255,7 @@ class Site(collections.abc.Hashable, MSONable):
         dct = {
             "name": self.species_string,
             "species": species,
-            "xyz": [float(c) for c in self.coords],
+            "xyz": self.coords.astype(float).tolist(),
             "properties": self.properties,
             "@module": type(self).__module__,
             "@class": type(self).__name__,
@@ -603,7 +603,7 @@ class PeriodicSite(Site, MSONable):
 
         dct = {
             "species": species,
-            "abc": [float(c) for c in self._frac_coords],
+            "abc": self._frac_coords.astype(float).tolist(),
             "lattice": self._lattice.as_dict(verbosity=verbosity),
             "@module": type(self).__module__,
             "@class": type(self).__name__,
@@ -619,7 +619,7 @@ class PeriodicSite(Site, MSONable):
                 stacklevel=2,
             )
         if verbosity > 0:  # TODO: explicitly check `verbosity == 1`
-            dct["xyz"] = [float(c) for c in self.coords]
+            dct["xyz"] = self.coords.astype(float).tolist()
 
         return dct
 
