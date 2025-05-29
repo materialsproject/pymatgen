@@ -235,29 +235,29 @@ class TestCombinedIcohp:
                 "list_translation": [[0, 0, -1], [0, 0, 0]],
                 "list_num": [1, 1],
                 "list_icohp": [
-                    {Spin.up: 0.29324, Spin.down: 0.29324},
-                    {Spin.up: 0.29324, Spin.down: 0.29324},
+                    {"1": 0.29324, "-1": 0.29324},
+                    {"1": 0.29324, "-1": 0.29324},
                 ],
                 "is_spin_polarized": True,
                 "list_orb_icohp": [
                     {
                         "2s-6s": {
-                            "icohp": {Spin.up: 0.0247, Spin.down: 0.0247},
-                            "orbitals": [[2, Orbital.s], [6, Orbital.s]],
+                            "icohp": {"1": 0.0247, "-1": 0.0247},
+                            "orbitals": [[2, 0], [6, 0]],
                         },
                         "2s-5py": {
-                            "icohp": {Spin.up: 8e-05, Spin.down: 8e-05},
-                            "orbitals": [[2, Orbital.s], [5, Orbital.py]],
+                            "icohp": {"1": 8e-05, "-1": 8e-05},
+                            "orbitals": [[2, 0], [5, 1]],
                         },
                     },
                     {
                         "2s-6s": {
-                            "icohp": {Spin.up: 0.0247, Spin.down: 0.0247},
-                            "orbitals": [[2, Orbital.s], [6, Orbital.s]],
+                            "icohp": {"1": 0.0247, "-1": 0.0247},
+                            "orbitals": [[2, 0], [6, 0]],
                         },
                         "2s-5py": {
-                            "icohp": {Spin.up: 0.5, Spin.down: 0},
-                            "orbitals": [[2, Orbital.s], [5, Orbital.py]],
+                            "icohp": {"1": 0.5, "-1": 0},
+                            "orbitals": [[2, 0], [5, 1]],
                         },
                     },
                 ],
