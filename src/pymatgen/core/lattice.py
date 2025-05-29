@@ -22,6 +22,7 @@ from pymatgen.util.due import Doi, due
 
 if TYPE_CHECKING:
     from collections.abc import Iterator
+    from typing import Literal
 
     from numpy.typing import ArrayLike, NDArray
     from typing_extensions import Self
@@ -897,11 +898,11 @@ class Lattice(MSONable):
 
         return min(np.linalg.norm(reflection - selling2) for reflection in all_reflections)  # type: ignore[return-value, type-var]
 
-    def as_dict(self, verbosity: int = 0) -> dict:
+    def as_dict(self, verbosity: Literal[0, 1] = 0) -> dict:
         """MSONable dict representation of the Lattice.
 
         Args:
-            verbosity (int): Default of 0 only includes the matrix representation.
+            verbosity (0 | 1): Default of 0 only includes the matrix representation.
                 Set to 1 to include the lattice parameters.
         """
         dct = {
@@ -910,7 +911,15 @@ class Lattice(MSONable):
             "matrix": self._matrix.tolist(),
             "pbc": self.pbc,
         }
-        if verbosity > 0:
+
+        if verbosity not in {0, 1}:
+            warnings.warn(
+                f"`verbosity={verbosity}` is deprecated and will be disallowed in a future version. "
+                "Please use 0 (silent) or 1 (verbose) explicitly.",
+                DeprecationWarning,
+                stacklevel=2,
+            )
+        if verbosity > 0:  # TODO: explicit check `verbosity == 1`
             dct |= self.params_dict
             dct["volume"] = self.volume
 

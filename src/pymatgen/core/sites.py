@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import collections
 import json
+import warnings
 from typing import TYPE_CHECKING, cast
 
 import numpy as np
@@ -589,7 +590,7 @@ class PeriodicSite(Site, MSONable):
         """JSON-serializable dict representation of PeriodicSite.
 
         Args:
-            verbosity (int): Verbosity level. Default of 0 only includes the matrix
+            verbosity (0 | 1): Verbosity level. Default of 0 only includes the matrix
                 representation. Set to 1 for more details such as Cartesian coordinates, etc.
         """
         species = []
@@ -610,7 +611,14 @@ class PeriodicSite(Site, MSONable):
             "label": self.label,
         }
 
-        if verbosity > 0:
+        if verbosity not in {0, 1}:
+            warnings.warn(
+                f"`verbosity={verbosity}` is deprecated and will be disallowed in a future version. "
+                "Please use 0 (silent) or 1 (verbose) explicitly.",
+                DeprecationWarning,
+                stacklevel=2,
+            )
+        if verbosity > 0:  # TODO: explicitly check `verbosity == 1`
             dct["xyz"] = [float(c) for c in self.coords]
 
         return dct
