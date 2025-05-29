@@ -10,7 +10,7 @@ import operator
 import warnings
 from collections import defaultdict
 from fractions import Fraction
-from functools import reduce
+from functools import cached_property, reduce
 from typing import TYPE_CHECKING
 
 import numpy as np
@@ -75,17 +75,6 @@ class Lattice(MSONable):
 
         self.pbc = pbc
 
-    @property
-    def pbc(self) -> tuple[bool, bool, bool]:
-        """Tuple defining the periodicity of the Lattice."""
-        return self._pbc  # type:ignore[return-value]
-
-    @pbc.setter
-    def pbc(self, pbc: tuple[bool, bool, bool]) -> None:
-        if len(pbc) != 3 or any(item not in {True, False} for item in pbc):
-            raise ValueError(f"pbc must be a tuple of three True/False values, got {pbc}")
-        self._pbc = tuple(bool(item) for item in pbc)
-
     def __repr__(self) -> str:
         return "\n".join(
             [
@@ -149,6 +138,30 @@ class Lattice(MSONable):
         return fmt.format(*(format(c, fmt_spec) for row in matrix for c in row))
 
     @property
+    def pbc(self) -> tuple[bool, bool, bool]:
+        """Tuple defining the periodicity of the Lattice."""
+        return self._pbc  # type:ignore[return-value]
+
+    @pbc.setter
+    def pbc(self, pbc: tuple[bool, bool, bool]) -> None:
+        if len(pbc) != 3 or any(item not in {True, False} for item in pbc):
+            raise ValueError(f"pbc must be a tuple of three True/False values, got {pbc}")
+        self._pbc = tuple(bool(item) for item in pbc)
+
+    @property
+    def matrix(self) -> NDArray[np.float64]:
+        """Copy of matrix representing the Lattice."""
+        return self._matrix
+
+    @matrix.setter
+    def matrix(self, matrix: NDArray[np.float64]) -> None:
+        self._matrix = matrix
+
+        # Invalid cached property when matrix changes
+        for attr in ("lengths", "angles", "volume"):
+            self.__dict__.pop(attr, None)
+
+    @cached_property
     def lengths(self) -> tuple[float, float, float]:
         """Lattice lengths.
 
@@ -157,7 +170,7 @@ class Lattice(MSONable):
         """
         return tuple(np.sqrt(np.sum(self._matrix**2, axis=1)).tolist())  # type: ignore[return-value]
 
-    @property
+    @cached_property
     def angles(self) -> tuple[float, float, float]:
         """Lattice angles.
 
@@ -173,15 +186,16 @@ class Lattice(MSONable):
         angles = np.arccos(angles) * 180.0 / np.pi  # type: ignore[assignment]
         return tuple(angles.tolist())  # type: ignore[return-value]
 
+    @cached_property
+    def volume(self) -> float:
+        """Volume of the unit cell in Angstrom^3."""
+        matrix = self._matrix
+        return float(abs(np.dot(np.cross(matrix[0], matrix[1]), matrix[2])))
+
     @property
     def is_orthogonal(self) -> bool:
         """Whether all angles are 90 degrees."""
         return all(abs(a - 90) < 1e-5 for a in self.angles)
-
-    @property
-    def matrix(self) -> NDArray[np.float64]:
-        """Copy of matrix representing the Lattice."""
-        return self._matrix
 
     @property
     def is_3d_periodic(self) -> bool:
@@ -509,12 +523,6 @@ class Lattice(MSONable):
         return self.angles[2]
 
     @property
-    def volume(self) -> float:
-        """Volume of the unit cell in Angstrom^3."""
-        matrix = self._matrix
-        return float(abs(np.dot(np.cross(matrix[0], matrix[1]), matrix[2])))
-
-    @property
     def parameters(self) -> tuple[float, float, float, float, float, float]:
         """6-tuple of floats (a, b, c, alpha, beta, gamma)."""
         return (*self.lengths, *self.angles)
@@ -522,7 +530,7 @@ class Lattice(MSONable):
     @property
     def params_dict(self) -> dict[str, float]:
         """Dictionary of lattice parameters."""
-        return dict(zip("a b c alpha beta gamma".split(), self.parameters, strict=True))
+        return dict(zip(("a", "b", "c", "alpha", "beta", "gamma"), self.parameters, strict=True))
 
     @property
     def reciprocal_lattice(self) -> Self:
