@@ -532,7 +532,7 @@ class PeriodicSite(Site, MSONable):
         Args:
             fcoords (3x1 array): fractional coordinates to get distance from.
             jimage (3x1 array): Specific periodic image in terms of
-                lattice translations, e.g. [1,0,0] implies to take periodic
+                lattice translations, e.g. [1, 0, 0] implies to take periodic
                 image that is one a-lattice vector away. If jimage is None,
                 the image that is nearest to the site is found.
 
@@ -557,7 +557,7 @@ class PeriodicSite(Site, MSONable):
         Args:
             other (PeriodicSite): Other site to get distance from.
             jimage (3x1 array): Specific periodic image in terms of lattice
-                translations, e.g. [1,0,0] implies to take periodic image
+                translations, e.g. [1, 0, 0] implies to take periodic image
                 that is one a-lattice vector away. If jimage is None,
                 the image that is nearest to the site is found.
 
@@ -577,7 +577,7 @@ class PeriodicSite(Site, MSONable):
         Args:
             other (PeriodicSite): Other site to get distance from.
             jimage (3x1 array): Specific periodic image in terms of lattice
-                translations, e.g. [1,0,0] implies to take periodic image
+                translations, e.g. [1, 0, 0] implies to take periodic image
                 that is one a-lattice vector away. If jimage is None,
                 the image that is nearest to the site is found.
 
