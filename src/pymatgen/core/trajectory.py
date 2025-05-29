@@ -491,6 +491,8 @@ class Trajectory(MSONable):
         """
         # TODO: Write me! :)
         print(f"Writing {filename} ...")
+        # Ensure trajectory is in position form
+        self.to_positions()
 
     def as_dict(self) -> dict:
         """Return the trajectory as a MSONable dict."""
