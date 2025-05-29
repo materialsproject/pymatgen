@@ -182,6 +182,22 @@ class JOutStructures:
         self.t_s = self._get_t_s()
         self._check_convergence()
 
+    def get_frame_property_list(self, prop: str) -> list[Any] | None:
+        """Return list of named property.
+
+        Get a property from the last JOutStructure in the list. If the property is not
+        defined, return None.
+
+        Args:
+            prop (str): The name of the property to get.
+
+        Returns:
+            Any: The value of the property or None if not defined.
+        """
+        if len(self) == 0:
+            return []
+        return [getattr(s, prop, None) for s in self.slices]
+
     def _get_initial_structure(self) -> Structure | None:
         """Return initial structure.
 
