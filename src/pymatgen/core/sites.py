@@ -17,7 +17,7 @@ from pymatgen.util.coord import pbc_diff
 from pymatgen.util.misc import is_np_dict_equal
 
 if TYPE_CHECKING:
-    from typing import Any
+    from typing import Any, Literal
 
     from numpy.typing import ArrayLike, NDArray
     from typing_extensions import Self
@@ -586,7 +586,7 @@ class PeriodicSite(Site, MSONable):
         """
         return self.distance_and_image(other, jimage)[0]
 
-    def as_dict(self, verbosity: int = 0) -> dict:
+    def as_dict(self, verbosity: Literal[0, 1] = 0) -> dict:
         """JSON-serializable dict representation of PeriodicSite.
 
         Args:
