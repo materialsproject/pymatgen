@@ -5,6 +5,7 @@ from pathlib import Path
 from shutil import which
 from subprocess import TimeoutExpired
 
+import numpy as np
 import pytest
 
 from pymatgen.analysis.molecule_matcher import MoleculeMatcher
@@ -46,6 +47,10 @@ water_coords = [
 ]
 water_atoms = ["H", "H", "O"]
 water = Molecule(water_atoms, water_coords)
+
+
+helium = Molecule(["He"], [[0.0, 0.0, 0.0]])
+xeon = Molecule(["Xe"], [[0.0, 0.0, 0.0]])
 
 
 class TestPackmolSet(MatSciTest):
@@ -160,6 +165,16 @@ class TestPackmolSet(MatSciTest):
         with pytest.raises(ValueError, match=ERR_MSG_173):
             pw.run(self.tmp_path)
 
+    def test_same_names(self):
+        """Test failure when names are the same."""
+        with pytest.raises(ValueError, match=r"Names of the molecules should all be different."):
+            PackmolBoxGen().get_input_set(
+                molecules=[
+                    {"name": "water", "number": 10, "coords": water},
+                    {"name": "water", "number": 20, "coords": ethanol},
+                ],
+            )
+
     def test_chdir_behavior(self):
         """
         Make sure the code returns to the starting directory whether
@@ -255,3 +270,160 @@ class TestPackmolSet(MatSciTest):
         assert os.path.isfile(f"{self.tmp_path}/subdirectory with spaces/stdout.txt")
         out = Molecule.from_file(f"{self.tmp_path}/subdirectory with spaces/output.xyz")
         assert out.composition.num_atoms == 10 * 3 + 20 * 9
+
+    def test_raise_individual_constraints(self):
+        """
+        Make sure it fails when providing individual constraints but not for all
+        molecules.
+        """
+        with pytest.raises(
+            ValueError,
+            match=r"Either specify constraints for all molecules "
+            r"or for none of them.",
+        ):
+            PackmolBoxGen(
+                inputfile="input.in",
+                outputfile=Path("output.xyz"),
+                stdoutfile=Path("stdout.txt"),
+            ).get_input_set(
+                molecules=[
+                    {"name": "water", "number": 10, "coords": water, "constraints": []},
+                    {"name": "ethanol", "number": 20, "coords": ethanol, "constraints": ["inside sphere 1 2 3 4"]},
+                ],
+            )
+        with pytest.raises(ValueError, match=r"Wrong packmol constraint: outsdie sphere 1 2 3 4"):
+            PackmolBoxGen(
+                inputfile="input.in",
+                outputfile=Path("output.xyz"),
+                stdoutfile=Path("stdout.txt"),
+            ).get_input_set(
+                molecules=[
+                    {
+                        "name": "water",
+                        "number": 10,
+                        "coords": water,
+                        "constraints": ["outsdie sphere 1 2 3 4"],  # typo
+                    },
+                    {"name": "ethanol", "number": 20, "coords": ethanol, "constraints": ["inside sphere 1 2 3 4"]},
+                ],
+            )
+        with pytest.raises(ValueError, match=r"Either specify individual constraints or box."):
+            PackmolBoxGen(
+                inputfile="input.in",
+                outputfile=Path("output.xyz"),
+                stdoutfile=Path("stdout.txt"),
+            ).get_input_set(
+                molecules=[
+                    {"name": "water", "number": 10, "coords": water, "constraints": ["outside sphere 1 2 3 4"]},
+                    {"name": "ethanol", "number": 20, "coords": ethanol, "constraints": ["inside sphere 1 2 3 4"]},
+                ],
+                box=[0, 0, 0, 5, 5, 5],
+            )
+        with pytest.raises(ValueError, match=r"You must use individual_constraints to use atoms_constraints."):
+            PackmolBoxGen(
+                inputfile="input.in",
+                outputfile=Path("output.xyz"),
+                stdoutfile=Path("stdout.txt"),
+            ).get_input_set(
+                molecules=[
+                    {
+                        "name": "water",
+                        "number": 10,
+                        "coords": water,
+                        "atoms_constraints": [{"indices": [0, 2], "constraints": ["outside sphere 1 2 3 4"]}],
+                    },
+                    {"name": "ethanol", "number": 20, "coords": ethanol},
+                ],
+            )
+        with pytest.raises(ValueError, match=r"Wrong packmol constraint for specific atoms: outsdie sphere 1 2 3 4"):
+            PackmolBoxGen(
+                inputfile="input.in",
+                outputfile=Path("output.xyz"),
+                stdoutfile=Path("stdout.txt"),
+            ).get_input_set(
+                molecules=[
+                    {
+                        "name": "water",
+                        "number": 10,
+                        "coords": water,
+                        "constraints": ["inside cube 0 0 0 5"],
+                        "atoms_constraints": [{"indices": [0, 2], "constraints": ["outsdie sphere 1 2 3 4"]}],
+                    },
+                    {"name": "ethanol", "number": 20, "coords": ethanol, "constraints": ["inside cube 0 0 0 5"]},
+                ],
+            )
+
+    def test_individual_constraints(self):
+        """
+        Test individual constraints.
+        """
+        pw = PackmolBoxGen(
+            inputfile="input.in",
+            outputfile=Path("output.xyz"),
+            stdoutfile=Path("stdout.txt"),
+        ).get_input_set(
+            molecules=[
+                {"name": "helium", "number": 10, "coords": helium, "constraints": ["inside sphere 0 0 0 5"]},
+                {
+                    "name": "xeon",
+                    "number": 100,
+                    "coords": xeon,
+                    "constraints": ["inside sphere 0 0 0 10", "outside sphere 0 0 0 5"],
+                },
+            ],
+        )
+        pw.write_input(f"{self.tmp_path}/with_constraints")
+        assert os.path.isfile(f"{self.tmp_path}/with_constraints/input.in")
+        with open(f"{self.tmp_path}/with_constraints/input.in") as f:
+            inp = f.read()
+        assert "  inside sphere 0 0 0 10\n  outside sphere 0 0 0 5" in inp
+        pw.run(f"{self.tmp_path}/with_constraints")
+        assert os.path.isfile(f"{self.tmp_path}/with_constraints/output.xyz")
+        assert os.path.isfile(f"{self.tmp_path}/with_constraints/stdout.txt")
+        out = Molecule.from_file(f"{self.tmp_path}/with_constraints/output.xyz")
+        assert out.composition.num_atoms == 110
+        for site in out:
+            if site.specie.symbol == "He":
+                assert np.linalg.norm(site.coords) <= 5.01
+            else:
+                assert 4.99 <= np.linalg.norm(site.coords) <= 10.01
+
+    def test_atoms_constraints(self):
+        """
+        Test individual constraints.
+        """
+        pw = PackmolBoxGen(
+            inputfile="input.in",
+            outputfile=Path("output.xyz"),
+            stdoutfile=Path("stdout.txt"),
+            control_params={"precision": 0.001},
+        ).get_input_set(
+            molecules=[
+                {
+                    "name": "water",
+                    "number": 5,
+                    "coords": water,
+                    "constraints": ["inside sphere 0 0 0 10"],
+                    "atoms_constraints": [
+                        {"indices": [2], "constraints": ["inside sphere 0 0 0 5"]},
+                        {"indices": [0, 1], "constraints": ["outside sphere 0 0 0 5.5"]},
+                    ],
+                },
+            ],
+        )
+        pw.write_input(f"{self.tmp_path}/with_atoms_constraints")
+        assert os.path.isfile(f"{self.tmp_path}/with_atoms_constraints/input.in")
+        with open(f"{self.tmp_path}/with_atoms_constraints/input.in") as f:
+            inp = f.read()
+        assert ("\n  atoms 3\n    inside sphere 0 0 0 5\n  end atoms\n") in inp
+        assert ("\n  atoms 1 2\n    outside sphere 0 0 0 5.5\n  end atoms\n") in inp
+        pw.run(f"{self.tmp_path}/with_atoms_constraints")
+        assert os.path.isfile(f"{self.tmp_path}/with_atoms_constraints/output.xyz")
+        assert os.path.isfile(f"{self.tmp_path}/with_atoms_constraints/stdout.txt")
+        out = Molecule.from_file(f"{self.tmp_path}/with_atoms_constraints/output.xyz")
+        assert out.composition.num_atoms == 15
+        for site in out:
+            if site.specie.symbol == "H":
+                assert np.linalg.norm(site.coords) >= 5.49
+            else:
+                assert np.linalg.norm(site.coords) <= 5.01
