@@ -1299,11 +1299,11 @@ class Lattice(MSONable):
         Returns:
             New lattice with desired volume.
         """
-        versors = self.matrix / self.abc
+        versors = self.matrix / self.lengths
 
         geo_factor = abs(np.dot(np.cross(versors[0], versors[1]), versors[2]))
 
-        ratios = np.array(self.abc) / self.c
+        ratios = np.array(self.lengths) / self.c
 
         new_c = (new_volume / (geo_factor * np.prod(ratios))) ** (1 / 3.0)
 
@@ -1558,7 +1558,7 @@ class Lattice(MSONable):
         # TODO: refactor to use lll matrix (nmax will be smaller)
         # Determine the maximum number of supercells in each direction
         # required to contain a sphere of radius n
-        recp_len = np.array(self.reciprocal_lattice.abc) / (2 * np.pi)
+        recp_len = np.array(self.reciprocal_lattice.lengths) / (2 * np.pi)
         nmax = float(r) * recp_len + 0.01
 
         # Get the fractional coordinates of the center of the sphere
@@ -1866,7 +1866,7 @@ def get_points_in_spheres(
     if np.any(_pbc):
         if lattice is None:
             raise ValueError("Lattice needs to be supplied when considering periodic boundary")
-        recp_len = np.array(lattice.reciprocal_lattice.abc)
+        recp_len = np.array(lattice.reciprocal_lattice.lengths)
         maxr = np.ceil((r + 0.15) * recp_len / (2 * math.pi))
         frac_coords = lattice.get_fractional_coords(center_coords)
         nmin_temp = np.floor(np.min(frac_coords, axis=0)) - maxr
