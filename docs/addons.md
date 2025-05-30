@@ -28,6 +28,7 @@ Please submit a pull request to update this page when if release a new add-on pa
 * [pymatgen-io-openmm](https://github.com/orionarcher/pymatgen-io-openmm): Provides easy IO for performing molecular dynamics on solutions with OpenMM. This package is maintained by Orion Archer Cohen.
 * [pymatgen-io-espresso](https://github.com/Griffin-Group/pymatgen-io-espresso): Provides support for the [Quantum ESPRESSO (QE)](https://www.quantum-espresso.org) DFT code. This package was created by [Omar Ashour](https://github.com/oashour) and maintained in the [Griffin Group](https://sineadgriffin.com) repository.
 * [pymatgen-io-validation](https://github.com/materialsproject/pymatgen-io-validation/): Provides comprehensive validation of VASP calculations. This package was created by [Matthew Kuner](https://github.com/matthewkuner) and maintained in the Materials Project repository.
+* [pymatgen-io-aims](https://gitlab.com/FHI-aims-club/pymatgen-io-aims): Provides support for the [FHI-aims](https://fhi-aims.org/) DFT code. Thie package is created and maintained by Thomas A. R. Purcell, Andrey Sobol, and the MS1P team.
 
 ## External Tools
 
@@ -46,4 +47,4 @@ look at [pymatgen dependents](https://github.com/materialsproject/pymatgen/netwo
 * [matgl](https://github.com/materialsvirtuallab/matgl): Graph deep learning library for materials. Implements M3GNet and MEGNet in DGL and Pytorch with more to come.
 * [chgnet](https://github.com/CederGroupHub/chgnet): Pretrained universal neural network potential for charge-informed atomistic modeling.
 * [DebyeCalculator](https://github.com/FrederikLizakJohansen/DebyeCalculator): A vectorised implementation of the Debye Scattering Equation on CPU and GPU.
-* [ramannoodle](https://github.com/wolearyc/ramannoodle): Efficiently compute off-resonance Raman spectra from first principles calculations (e.g. VASP) using polynomial and ML models. 
+* [ramannoodle](https://github.com/wolearyc/ramannoodle): Efficiently compute off-resonance Raman spectra from first principles calculations (e.g. VASP) using polynomial and ML models.
