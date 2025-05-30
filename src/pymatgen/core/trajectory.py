@@ -932,17 +932,15 @@ class Trajectory(MSONable):
         return ase_traj
 
 
-_logx_init_lines = ["", " Entering Link 1 ", " "]
-_logx_finish_lines = [" Normal termination of Gaussian 16"]
 gview_mulliken_charges_key = "mulliken charges"
 gview_esp_charges_key = "esp charges"
 gview_nbo_charges_key = "nbo charges"
 
 
 def _traj_to_logx_lines(
-    traj: Trajectory, do_cell, energies: list[float], site_property_map: dict, is_done: bool = False
-):
-    dump_lines = _logx_init_lines + _log_input_orientation(traj[0], do_cell=do_cell)
+    traj: Trajectory, do_cell: bool, energies: list[float], site_property_map: dict, is_done: bool = False
+) -> list[str]:
+    dump_lines = ["", " Entering Link 1 ", " ", *_log_input_orientation(traj[0], do_cell=do_cell)]
     for i in range(len(traj)):
         dump_lines += _log_input_orientation(traj[i], do_cell=do_cell)
         dump_lines += [f" SCF Done:  E =  {energies[i]}", "", ""]
@@ -956,11 +954,11 @@ def _traj_to_logx_lines(
         dump_lines += _opt_spacer(i, len(traj))
     if is_done:
         dump_lines += _log_input_orientation(traj[-1])
-        dump_lines += _logx_finish_lines
+        dump_lines += [" Normal termination of Gaussian 16"]
     return dump_lines
 
 
-def _log_input_orientation(frame: Structure | Molecule, do_cell=False):
+def _log_input_orientation(frame: Structure | Molecule, do_cell=False) -> list[str]:
     dump_lines = [
         "                        Standard orientation:                          ",
         " ---------------------------------------------------------------------",
@@ -987,7 +985,7 @@ def _log_input_orientation(frame: Structure | Molecule, do_cell=False):
     return dump_lines
 
 
-def _opt_spacer(i, nSteps):
+def _opt_spacer(i, nSteps) -> list[str]:
     dump_lines = [
         "",
         " GradGradGradGradGradGradGradGradGradGradGradGradGradGradGradGradGradGrad",
@@ -1000,12 +998,12 @@ def _opt_spacer(i, nSteps):
     return dump_lines
 
 
-def _log_mulliken_charges(structure: Structure, site_property: str = "charges"):
+def _log_mulliken_charges(frame: Structure | Molecule, site_property: str = "charges") -> list[str]:
     dump_lines = []
-    if site_property in structure.site_properties:
-        charges = np.array(structure.site_properties[site_property])
+    if site_property in frame.site_properties:
+        charges = np.array(frame.site_properties[site_property])
         nAtoms = len(charges)
-        symbols = [site.specie.symbol for site in structure.sites]
+        symbols = [site.specie.symbol for site in frame.sites]
         dump_lines = [
             " **********************************************************************",
             "",
@@ -1022,12 +1020,12 @@ def _log_mulliken_charges(structure: Structure, site_property: str = "charges"):
     return dump_lines
 
 
-def _log_esp_charges(structure: Structure, site_property: str = "charges"):
+def _log_esp_charges(frame: Structure | Molecule, site_property: str = "charges") -> list[str]:
     dump_lines = []
-    if site_property in structure.site_properties:
-        posns = structure.cart_coords
-        symbols = [site.specie.symbol for site in structure.sites]
-        charges = np.array(structure.site_properties[site_property])
+    if site_property in frame.site_properties:
+        posns = frame.cart_coords
+        symbols = [site.specie.symbol for site in frame.sites]
+        charges = np.array(frame.site_properties[site_property])
         dump_lines = [
             " **********************************************************************",
             "            Electrostatic Properties Using The SCF Density.",
@@ -1047,9 +1045,9 @@ def _log_esp_charges(structure: Structure, site_property: str = "charges"):
     return dump_lines
 
 
-def _log_nbo_charges(structure: Structure, site_property: str = "charges"):
+def _log_nbo_charges(frame: Structure | Molecule, site_property: str = "charges") -> list[str]:
     dump_lines = []
-    if site_property in structure.site_properties:
+    if site_property in frame.site_properties:
         dump_lines = [
             " Summary of Natural Population Analysis:  ",
             "",
@@ -1058,9 +1056,9 @@ def _log_nbo_charges(structure: Structure, site_property: str = "charges"):
             "    Atom  No    Charge         Core      Valence    Rydberg      Total",
             " -----------------------------------------------------------------------",
         ]
-        nbo_charges = np.array(structure.site_properties[site_property])
+        nbo_charges = np.array(frame.site_properties[site_property])
         nAtoms = len(nbo_charges)
-        symbols = [site.specie.symbol for site in structure.sites]
+        symbols = [site.specie.symbol for site in frame.sites]
         for i in range(nAtoms):
             dump_lines.append(f"{symbols[i]} {i + 1} {nbo_charges[i]} {0.0} {0.0} {0.0} {0.0}")
         dump_lines.append(" =======================================================================")
@@ -1068,28 +1066,30 @@ def _log_nbo_charges(structure: Structure, site_property: str = "charges"):
     return dump_lines
 
 
-def _log_forces(structure: Structure):
-    dump_lines = [
-        "-------------------------------------------------------------------",
-        " Center     Atomic                   Forces (Hartrees/Bohr)",
-        " Number     Number              X              Y              Z",
-        " -------------------------------------------------------------------",
-    ]
-    forces = []
-    if "forces" in structure.site_properties:
-        forces = structure.site_properties["forces"]
-    atomic_numbers = [site.specie.number for site in structure.sites]
-    for i, number in enumerate(atomic_numbers):
-        add_str = f" {i + 1} {number}"
-        force = forces[i]
-        for j in range(3):
-            add_str += f"\t{force[j]:.9f}"
-        dump_lines.append(add_str)
-    lattice_forces = np.zeros((3, 3))
-    for ilat in range(3):
-        dump_lines.append("              -2          " + "   ".join(f"{lattice_forces[ilat][j]:.9f}" for j in range(3)))
-    dump_lines.append(" -------------------------------------------------------------------")
-    aforces = np.array(forces)
-    nforces = np.linalg.norm(aforces, axis=1)
-    dump_lines.append(f" Cartesian Forces:  Max {max(nforces):.9f} RMS {np.std(nforces):.9f}")
+def _log_forces(frame: Structure | Molecule) -> list[str]:
+    dump_lines = []
+    if "forces" in frame.site_properties:
+        dump_lines = [
+            "-------------------------------------------------------------------",
+            " Center     Atomic                   Forces (Hartrees/Bohr)",
+            " Number     Number              X              Y              Z",
+            " -------------------------------------------------------------------",
+        ]
+        forces = frame.site_properties["forces"]
+        atomic_numbers = [site.specie.number for site in frame.sites]
+        for i, number in enumerate(atomic_numbers):
+            add_str = f" {i + 1} {number}"
+            force = forces[i]
+            for j in range(3):
+                add_str += f"\t{force[j]:.9f}"
+            dump_lines.append(add_str)
+        lattice_forces = np.zeros((3, 3))
+        for ilat in range(3):
+            dump_lines.append(
+                "              -2          " + "   ".join(f"{lattice_forces[ilat][j]:.9f}" for j in range(3))
+            )
+        dump_lines.append(" -------------------------------------------------------------------")
+        aforces = np.array(forces)
+        nforces = np.linalg.norm(aforces, axis=1)
+        dump_lines.append(f" Cartesian Forces:  Max {max(nforces):.9f} RMS {np.std(nforces):.9f}")
     return dump_lines
