@@ -2857,7 +2857,10 @@ class IStructure(SiteCollection, MSONable):
             del site_dict["lattice"]
             del site_dict["@module"]
             del site_dict["@class"]
+            if verbosity == 0:
+                del site_dict["label"]
             sites.append(site_dict)
+
         dct["sites"] = sites
         return dct
 
