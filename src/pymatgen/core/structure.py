@@ -2813,14 +2813,14 @@ class IStructure(SiteCollection, MSONable):
 
     def as_dict(
         self,
-        verbosity: int = 1,
+        verbosity: Literal[0, 1] = 1,
         fmt: Literal["abivars"] | None = None,
         **kwargs,
     ) -> dict[str, Any]:
         """Dict representation of Structure.
 
         Args:
-            verbosity (int): Verbosity level. Default of 1 includes both
+            verbosity (0 | 1): Verbosity level. Default of 1 includes both
                 direct and Cartesian coordinates for all sites, lattice
                 parameters, etc. Useful for reading and for insertion into a
                 database. Set to 0 for an extremely lightweight version
@@ -2857,7 +2857,10 @@ class IStructure(SiteCollection, MSONable):
             del site_dict["lattice"]
             del site_dict["@module"]
             del site_dict["@class"]
+            if verbosity == 0:
+                del site_dict["label"]
             sites.append(site_dict)
+
         dct["sites"] = sites
         return dct
 
