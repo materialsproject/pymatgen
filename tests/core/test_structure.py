@@ -268,6 +268,7 @@ class TestIStructure(MatSciTest):
         dct = struct.as_dict(0)
         assert "volume" not in dct["lattice"]
         assert "xyz" not in dct["sites"][0]
+        assert "label" not in dct["sites"][0]
 
     def test_from_dict(self):
         dct = self.propertied_structure.as_dict()
