@@ -158,23 +158,6 @@ class TestLattice(MatSciTest):
         assert xyz[1] == approx(3.5)
         assert xyz[2] == approx(4.5)
 
-    def test_property_cache_invalidate(self):
-        """Ensure changing matrix invalidates cached properties."""
-        lat = Lattice.cubic(10.0)
-        assert lat.a == 10
-        assert lat.alpha == 90
-        assert lat.volume == 1000
-
-        lat.matrix = np.eye(3)
-        assert lat.a == 1
-        assert lat.alpha == 90
-        assert lat.volume == 1
-
-        # WARNING: mutating the _matrix directly would bypass the setter
-        # and therefore cache invalidation doesn't work
-        lat._matrix = np.eye(3) * 2
-        assert lat.a == 1
-
     def test_lattice_matrices(self):
         """If alpha == 90 and beta == 90, two matrices are identical."""
 

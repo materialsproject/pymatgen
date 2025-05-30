@@ -153,14 +153,6 @@ class Lattice(MSONable):
         """Copy of matrix representing the Lattice."""
         return self._matrix
 
-    @matrix.setter
-    def matrix(self, matrix: NDArray[np.float64]) -> None:
-        self._matrix = matrix
-
-        # Invalid cached property when matrix changes
-        for attr in ("lengths", "angles", "volume"):
-            self.__dict__.pop(attr, None)
-
     @cached_property
     def lengths(self) -> tuple[float, float, float]:
         """Lattice lengths.
