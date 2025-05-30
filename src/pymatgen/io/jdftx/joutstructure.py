@@ -43,6 +43,7 @@ def _is_homogenous(val: list):
         return False
 
 
+# TODO: Phase out redundant class attributes to data stored in `properties` and `site_properties` dicts.
 class JOutStructure(Structure):
     """Class object for storing a single JDFTx optimization step.
 

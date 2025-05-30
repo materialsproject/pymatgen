@@ -25,6 +25,7 @@ from pymatgen.io.jdftx.joutstructure import JOutStructure
 
 __author__ = "Ben Rich"
 
+# TODO: Break this up into data also stored in `properties` and `site_properties`
 _joss_atrs_from_last_slice = (
     "etype",
     "eopt_type",
@@ -171,6 +172,7 @@ class JOutStructures:
         self.opt_type = self.slices[-1].opt_type
         if self.opt_type is None and len(self) > 1:
             raise Warning("iter type interpreted as single-point calculation, but multiple structures found")
+        # TODO: Change this to fetch from `properties` or `site_properties` instead of a slices attributes.
         for var in _joss_atrs_from_last_slice:
             val = None
             for i in range(1, len(self.slices) + 1):
