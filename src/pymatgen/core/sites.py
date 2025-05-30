@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import collections
 import json
+import warnings
 from typing import TYPE_CHECKING, cast
 
 import numpy as np
@@ -16,7 +17,7 @@ from pymatgen.util.coord import pbc_diff
 from pymatgen.util.misc import is_np_dict_equal
 
 if TYPE_CHECKING:
-    from typing import Any
+    from typing import Any, Literal
 
     from numpy.typing import ArrayLike, NDArray
     from typing_extensions import Self
@@ -254,7 +255,7 @@ class Site(collections.abc.Hashable, MSONable):
         dct = {
             "name": self.species_string,
             "species": species,
-            "xyz": [float(c) for c in self.coords],
+            "xyz": self.coords.astype(float).tolist(),
             "properties": self.properties,
             "@module": type(self).__module__,
             "@class": type(self).__name__,
@@ -531,7 +532,7 @@ class PeriodicSite(Site, MSONable):
         Args:
             fcoords (3x1 array): fractional coordinates to get distance from.
             jimage (3x1 array): Specific periodic image in terms of
-                lattice translations, e.g. [1,0,0] implies to take periodic
+                lattice translations, e.g. [1, 0, 0] implies to take periodic
                 image that is one a-lattice vector away. If jimage is None,
                 the image that is nearest to the site is found.
 
@@ -556,7 +557,7 @@ class PeriodicSite(Site, MSONable):
         Args:
             other (PeriodicSite): Other site to get distance from.
             jimage (3x1 array): Specific periodic image in terms of lattice
-                translations, e.g. [1,0,0] implies to take periodic image
+                translations, e.g. [1, 0, 0] implies to take periodic image
                 that is one a-lattice vector away. If jimage is None,
                 the image that is nearest to the site is found.
 
@@ -576,7 +577,7 @@ class PeriodicSite(Site, MSONable):
         Args:
             other (PeriodicSite): Other site to get distance from.
             jimage (3x1 array): Specific periodic image in terms of lattice
-                translations, e.g. [1,0,0] implies to take periodic image
+                translations, e.g. [1, 0, 0] implies to take periodic image
                 that is one a-lattice vector away. If jimage is None,
                 the image that is nearest to the site is found.
 
@@ -585,11 +586,11 @@ class PeriodicSite(Site, MSONable):
         """
         return self.distance_and_image(other, jimage)[0]
 
-    def as_dict(self, verbosity: int = 0) -> dict:
+    def as_dict(self, verbosity: Literal[0, 1] = 0) -> dict:
         """JSON-serializable dict representation of PeriodicSite.
 
         Args:
-            verbosity (int): Verbosity level. Default of 0 only includes the matrix
+            verbosity (0 | 1): Verbosity level. Default of 0 only includes the matrix
                 representation. Set to 1 for more details such as Cartesian coordinates, etc.
         """
         species = []
@@ -602,7 +603,7 @@ class PeriodicSite(Site, MSONable):
 
         dct = {
             "species": species,
-            "abc": [float(c) for c in self._frac_coords],
+            "abc": self._frac_coords.astype(float).tolist(),
             "lattice": self._lattice.as_dict(verbosity=verbosity),
             "@module": type(self).__module__,
             "@class": type(self).__name__,
@@ -610,8 +611,15 @@ class PeriodicSite(Site, MSONable):
             "label": self.label,
         }
 
-        if verbosity > 0:
-            dct["xyz"] = [float(c) for c in self.coords]
+        if verbosity not in {0, 1}:
+            warnings.warn(
+                f"`verbosity={verbosity}` is deprecated and will be disallowed in a future version. "
+                "Please use 0 (silent) or 1 (verbose) explicitly.",
+                DeprecationWarning,
+                stacklevel=2,
+            )
+        if verbosity > 0:  # TODO: explicitly check `verbosity == 1`
+            dct["xyz"] = self.coords.astype(float).tolist()
 
         return dct
 

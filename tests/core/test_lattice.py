@@ -148,7 +148,6 @@ class TestLattice(MatSciTest):
         assert lattice.angles == approx(expected_angles)
 
     def test_attributes(self):
-        """Docstring for test_attributes."""
         lattice = Lattice.cubic(10.0)
         assert lattice.a == approx(10)
         assert lattice.b == approx(10)
