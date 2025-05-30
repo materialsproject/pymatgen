@@ -385,17 +385,15 @@ class JOutStructure(Structure):
         instance._parse_emin_lines(line_collections["emin"]["lines"])
         # Lattice must be parsed before posns/forces in case of direct coordinates
         instance._parse_lattice_lines(line_collections["lattice"]["lines"])
+        # Posns must be parsed before forces and lowdin analysis so that they can be stored in site_properties
         instance._parse_posns_lines(line_collections["posns"]["lines"])
         instance._parse_forces_lines(line_collections["forces"]["lines"])
-        # Thermostat-velocity dumped alongside positions
-        instance._parse_thermostat_line(line_collections["posns"]["lines"])
-        # Lowdin must be parsed after posns
         instance._parse_lowdin_lines(line_collections["lowdin"]["lines"])
-        # Strain and stress can be parsed at any point
+        # Can be parsed at any point
         instance._parse_strain_lines(line_collections["strain"]["lines"])
         instance._parse_stress_lines(line_collections["stress"]["lines"])
         instance._parse_kinetic_stress_lines(line_collections["kinetic_stress"]["lines"])
-
+        instance._parse_thermostat_line(line_collections["posns"]["lines"])  # Thermostat-velocity dumped with positions
         # In case of single-point calculation
         instance._init_e_sp_backup()
         # Setting attributes from elecmindata (set during _parse_emin_lines)
