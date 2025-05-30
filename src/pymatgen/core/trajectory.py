@@ -960,6 +960,33 @@ def _traj_to_logx_lines(
     return dump_lines
 
 
+def _log_input_orientation(frame: Structure | Molecule, do_cell=False):
+    dump_lines = [
+        "                        Standard orientation:                          ",
+        " ---------------------------------------------------------------------",
+        " Center     Atomic      Atomic             Coordinates (Angstroms)",
+        " Number     Number       Type             X           Y           Z",
+        " ---------------------------------------------------------------------",
+    ]
+    at_ns = [site.specie.number for site in frame.sites]
+    at_posns = frame.cart_coords
+    nAtoms = len(at_ns)
+    for i in range(nAtoms):
+        dump_lines.append(f" {i + 1} {at_ns[i]} 0 ")
+        for j in range(3):
+            dump_lines[-1] += f"{at_posns[i][j]} "
+    # TODO: Gaussian also logs the a/b/c angles and lattice vector lengths, but I don't know
+    # if those are read by Gaussview.
+    if do_cell:
+        cell = frame.lattice.matrix
+        for i in range(3):
+            dump_lines.append(f"{i + nAtoms + 1} -2 0 ")
+            for j in range(3):
+                dump_lines[-1] += f"{cell[i][j]} "
+    dump_lines.append(" ---------------------------------------------------------------------")
+    return dump_lines
+
+
 def _opt_spacer(i, nSteps):
     dump_lines = [
         "",
@@ -1038,33 +1065,6 @@ def _log_nbo_charges(structure: Structure, site_property: str = "charges"):
             dump_lines.append(f"{symbols[i]} {i + 1} {nbo_charges[i]} {0.0} {0.0} {0.0} {0.0}")
         dump_lines.append(" =======================================================================")
         dump_lines.append(f"   * Total *   {np.sum(nbo_charges)}      0.00000     0.00000    0.00000    0.00000")
-    return dump_lines
-
-
-def _log_input_orientation(structure: Structure, do_cell=False):
-    dump_lines = [
-        "                        Standard orientation:                          ",
-        " ---------------------------------------------------------------------",
-        " Center     Atomic      Atomic             Coordinates (Angstroms)",
-        " Number     Number       Type             X           Y           Z",
-        " ---------------------------------------------------------------------",
-    ]
-    at_ns = [site.specie.number for site in structure.sites]
-    at_posns = structure.cart_coords
-    nAtoms = len(at_ns)
-    for i in range(nAtoms):
-        dump_lines.append(f" {i + 1} {at_ns[i]} 0 ")
-        for j in range(3):
-            dump_lines[-1] += f"{at_posns[i][j]} "
-    # TODO: Gaussian also logs the a/b/c angles and lattice vector lengths, but I don't know
-    # if those are read by Gaussview.
-    if do_cell:
-        cell = structure.lattice.matrix
-        for i in range(3):
-            dump_lines.append(f"{i + nAtoms + 1} -2 0 ")
-            for j in range(3):
-                dump_lines[-1] += f"{cell[i][j]} "
-    dump_lines.append(" ---------------------------------------------------------------------")
     return dump_lines
 
 
