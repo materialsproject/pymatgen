@@ -74,12 +74,16 @@ def test_constant_energy_adjustment():
     ea2 = ConstantEnergyAdjustment.from_dict(ea_dct)
     assert str(ea_dct) == str(ea2.as_dict())
 
+    ea3 = ConstantEnergyAdjustment(8, uncertainty=0)
+    assert "uncertainty=0.0" in repr(ea3)
+
 
 def test_composition_energy_adjustment():
     ea = CompositionEnergyAdjustment(2, 2, uncertainty_per_atom=0, name="H")
     assert ea.name == "H"
     assert ea.value == 4
     assert ea.explain == "Composition-based energy adjustment (2.000 eV/atom x 2 atoms)"
+    assert "uncertainty=0.0" in repr(ea)
     ea_dct = ea.as_dict()
     ea2 = CompositionEnergyAdjustment.from_dict(ea_dct)
     assert str(ea_dct) == str(ea2.as_dict())
@@ -92,6 +96,7 @@ def test_temp_energy_adjustment():
     assert ea.n_atoms == 5
     assert ea.temp == 298
     assert ea.explain == "Temperature-based energy adjustment (-0.1000 eV/K/atom x 298 K x 5 atoms)"
+    assert "uncertainty=0.0" in repr(ea)
     ea_dct = ea.as_dict()
     ea2 = TemperatureEnergyAdjustment.from_dict(ea_dct)
     assert str(ea_dct) == str(ea2.as_dict())
