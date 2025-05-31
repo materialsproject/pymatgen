@@ -191,7 +191,7 @@ class CompositionEnergyAdjustment(EnergyAdjustment):
             description: str, human-readable explanation of the energy adjustment.
         """
         self._adj_per_atom = adj_per_atom
-        self.uncertainty_per_atom = uncertainty_per_atom
+        self.uncertainty_per_atom = float(uncertainty_per_atom)
         self.n_atoms = n_atoms
         self.cls = cls or {}
         self.name = name
@@ -519,6 +519,7 @@ class ComputedEntry(Entry):
         return_dict |= {
             "entry_id": self.entry_id,
             "correction": self.correction,
+            # "energy_adjustments": json.loads(orjson.dumps(self.energy_adjustments, default=MontyEncoder().default)),
             "energy_adjustments": json.loads(json.dumps(self.energy_adjustments, cls=MontyEncoder)),
             "parameters": json.loads(json.dumps(self.parameters, cls=MontyEncoder)),
             "data": json.loads(json.dumps(self.data, cls=MontyEncoder)),
