@@ -477,6 +477,59 @@ class Trajectory(MSONable):
         with zopen(filename, mode="wt", encoding="utf-8") as file:
             file.write(xdatcar_str)  # type:ignore[arg-type]
 
+    # TODO: This needs testing. The actual reading can't be tested automatically, but writing different
+    # trajectories without errors can be tested.
+    def write_Gaussian_log(
+        self,
+        filename: PathLike = "calc.log",
+        site_property_map: dict[str, str] | None = None,
+        write_lattice: bool = True,
+    ) -> None:
+        """Write Trajectory object to a Gaussian-formatted log file.
+
+        The produced file will be readable by Gaussview.
+
+        Args:
+            filename: File to write. File does not need to end with '.log' to be readable by Gaussview.
+                The suffix ".logx" is recommended to distinguish from real Gaussian log files.
+            site_property_map: A mapping between implemented Gaussian properties and pymatgen properties.
+                i.e. providing {`gview_mulliken_charges_key`: `charges`} will write the data stored in
+                `Trajectory[i].site_properties["charges"]` as Gaussian logs the Mulliken charges for each site.
+                    The keys of implemented Gaussian properties are stored in `pymatgen.core.trajectory` as constants
+                in the form of `gview_<property>_key`, e.g. `gview_mulliken_charges_key`. The current implemented
+                Gaussian properties and the data format they expect are:
+                        - `gview_mulliken_charges_key`: list[float]
+                        - `gview_esp_charges_key`: list[float]
+                        - `gview_nbo_charges_key`: list[float]
+                    If None (default), the mapping will be set to fill all currently implemented Gaussian properties
+                with the "charges" property from the site properties.
+            write_lattice: Whether to write the lattice information in the log file. This will enable the logged
+                forces to be readable by Gaussview.
+        """
+        if site_property_map is None:
+            # Default mapping fills all currently implemented Gaussian properties
+            site_property_map = {
+                gview_mulliken_charges_key: "charges",
+                gview_esp_charges_key: "charges",
+                gview_nbo_charges_key: "charges",
+            }
+        # Each frame must have an energy to be read properly by Gaussview.
+        if hasattr(self, "frame_properties") and self.frame_properties is not None:
+            energies = []
+            for fp in self.frame_properties:
+                if "energy" in fp:
+                    energies.append(fp["energy"])
+                else:
+                    energies.append(0)
+        else:
+            energies = [0] * len(self)
+        # Ensure trajectory is in position form
+        self.to_positions()
+        lines = _traj_to_logx_lines(self, write_lattice, energies, site_property_map, is_done=True)
+        with open(filename, "w") as file:
+            file.write("\n".join(lines))
+        file.close()
+
     def as_dict(self) -> dict:
         """Return the trajectory as a MSONable dict."""
         lat = self.lattice.tolist() if self.lattice is not None else None
@@ -877,3 +930,166 @@ class Trajectory(MSONable):
             temp_file.close()
 
         return ase_traj
+
+
+gview_mulliken_charges_key = "mulliken charges"
+gview_esp_charges_key = "esp charges"
+gview_nbo_charges_key = "nbo charges"
+
+
+def _traj_to_logx_lines(
+    traj: Trajectory, do_cell: bool, energies: list[float], site_property_map: dict, is_done: bool = False
+) -> list[str]:
+    dump_lines = ["", " Entering Link 1 ", " ", *_log_input_orientation(traj[0], do_cell=do_cell)]
+    for i in range(len(traj)):
+        dump_lines += _log_input_orientation(traj[i], do_cell=do_cell)
+        dump_lines += [f" SCF Done:  E =  {energies[i]}", "", ""]
+        if gview_mulliken_charges_key in site_property_map:
+            dump_lines += _log_mulliken_charges(traj[i], site_property_map[gview_mulliken_charges_key])
+        if gview_esp_charges_key in site_property_map:
+            dump_lines += _log_esp_charges(traj[i], site_property_map[gview_esp_charges_key])
+        if gview_nbo_charges_key in site_property_map:
+            dump_lines += _log_nbo_charges(traj[i], site_property_map[gview_nbo_charges_key])
+        dump_lines += _log_forces(traj[i])
+        dump_lines += _opt_spacer(i, len(traj))
+    if is_done:
+        dump_lines += _log_input_orientation(traj[-1])
+        dump_lines += [" Normal termination of Gaussian 16"]
+    return dump_lines
+
+
+def _log_input_orientation(frame: Structure | Molecule, do_cell=False) -> list[str]:
+    dump_lines = [
+        "                        Standard orientation:                          ",
+        " ---------------------------------------------------------------------",
+        " Center     Atomic      Atomic             Coordinates (Angstroms)",
+        " Number     Number       Type             X           Y           Z",
+        " ---------------------------------------------------------------------",
+    ]
+    at_ns = [site.specie.number for site in frame.sites]
+    at_posns = frame.cart_coords
+    nAtoms = len(at_ns)
+    for i in range(nAtoms):
+        dump_lines.append(f" {i + 1} {at_ns[i]} 0 ")
+        for j in range(3):
+            dump_lines[-1] += f"{at_posns[i][j]} "
+    # TODO: Gaussian also logs the a/b/c angles and lattice vector lengths, but I don't know
+    # if those are read by Gaussview.
+    if do_cell:
+        cell = frame.lattice.matrix
+        for i in range(3):
+            dump_lines.append(f"{i + nAtoms + 1} -2 0 ")
+            for j in range(3):
+                dump_lines[-1] += f"{cell[i][j]} "
+    dump_lines.append(" ---------------------------------------------------------------------")
+    return dump_lines
+
+
+def _opt_spacer(i, nSteps) -> list[str]:
+    dump_lines = [
+        "",
+        " GradGradGradGradGradGradGradGradGradGradGradGradGradGradGradGradGradGrad",
+        "",
+        f" Step number   {i + 1}",
+    ]
+    if i + 1 == nSteps:
+        dump_lines += [" Optimization completed.", "    -- Stationary point found."]
+    dump_lines += ["", " GradGradGradGradGradGradGradGradGradGradGradGradGradGradGradGradGradGrad"]
+    return dump_lines
+
+
+def _log_mulliken_charges(frame: Structure | Molecule, site_property: str = "charges") -> list[str]:
+    dump_lines = []
+    if site_property in frame.site_properties:
+        charges = np.array(frame.site_properties[site_property])
+        nAtoms = len(charges)
+        symbols = [site.specie.symbol for site in frame.sites]
+        dump_lines = [
+            " **********************************************************************",
+            "",
+            "            Population analysis using the SCF Density.",
+            "",
+            " **********************************************************************",
+            "",
+            " Mulliken charges:",
+            "    1",
+        ]
+        for i in range(nAtoms):
+            dump_lines.append(f"{int(i + 1)} {symbols[i]} {charges[i]} ")
+        dump_lines.append(f" Sum of Mulliken charges = {np.sum(charges)}")
+    return dump_lines
+
+
+def _log_esp_charges(frame: Structure | Molecule, site_property: str = "charges") -> list[str]:
+    dump_lines = []
+    if site_property in frame.site_properties:
+        posns = frame.cart_coords
+        symbols = [site.specie.symbol for site in frame.sites]
+        charges = np.array(frame.site_properties[site_property])
+        dump_lines = [
+            " **********************************************************************",
+            "            Electrostatic Properties Using The SCF Density.",
+            " **********************************************************************",
+        ]
+        for i, posn in enumerate(posns):
+            dump_lines.append(f"       Atomic Center    {i + 1} is at  {' '.join(f'{x:.6f}' for x in posn)}")
+        dump_lines += ["", " Charges from ESP fit", "  ESP charges:", "               1"]
+        for i, symbol in enumerate(symbols):
+            dump_lines.append(f"     {i + 1} {symbol} {charges[i]:.6f}")
+        charge = np.sum(charges)
+        dipole = np.zeros(3)
+        for i, posn in enumerate(posns):
+            dipole += posn * charges[i]
+        tot = np.linalg.norm(dipole)
+        dump_lines.append(f" Charge= {charge:.6f} Dipole= {' '.join(str(v) for v in dipole)} Tot=   {tot}")
+    return dump_lines
+
+
+def _log_nbo_charges(frame: Structure | Molecule, site_property: str = "charges") -> list[str]:
+    dump_lines = []
+    if site_property in frame.site_properties:
+        dump_lines = [
+            " Summary of Natural Population Analysis:  ",
+            "",
+            "                                       Natural Population ",
+            "                Natural  ----------------------------------------------- ",
+            "    Atom  No    Charge         Core      Valence    Rydberg      Total",
+            " -----------------------------------------------------------------------",
+        ]
+        nbo_charges = np.array(frame.site_properties[site_property])
+        nAtoms = len(nbo_charges)
+        symbols = [site.specie.symbol for site in frame.sites]
+        for i in range(nAtoms):
+            dump_lines.append(f"{symbols[i]} {i + 1} {nbo_charges[i]} {0.0} {0.0} {0.0} {0.0}")
+        dump_lines.append(" =======================================================================")
+        dump_lines.append(f"   * Total *   {np.sum(nbo_charges)}      0.00000     0.00000    0.00000    0.00000")
+    return dump_lines
+
+
+def _log_forces(frame: Structure | Molecule) -> list[str]:
+    dump_lines = []
+    if "forces" in frame.site_properties:
+        dump_lines = [
+            "-------------------------------------------------------------------",
+            " Center     Atomic                   Forces (Hartrees/Bohr)",
+            " Number     Number              X              Y              Z",
+            " -------------------------------------------------------------------",
+        ]
+        forces = frame.site_properties["forces"]
+        atomic_numbers = [site.specie.number for site in frame.sites]
+        for i, number in enumerate(atomic_numbers):
+            add_str = f" {i + 1} {number}"
+            force = forces[i]
+            for j in range(3):
+                add_str += f"\t{force[j]:.9f}"
+            dump_lines.append(add_str)
+        lattice_forces = np.zeros((3, 3))
+        for ilat in range(3):
+            dump_lines.append(
+                "              -2          " + "   ".join(f"{lattice_forces[ilat][j]:.9f}" for j in range(3))
+            )
+        dump_lines.append(" -------------------------------------------------------------------")
+        aforces = np.array(forces)
+        nforces = np.linalg.norm(aforces, axis=1)
+        dump_lines.append(f" Cartesian Forces:  Max {max(nforces):.9f} RMS {np.std(nforces):.9f}")
+    return dump_lines
