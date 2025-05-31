@@ -1054,14 +1054,6 @@ _gview_nbo_header_lines = [
 ]
 
 
-def _gview_nbo_spin_title_lines(spin: str):
-    return [
-        "***************************************************",
-        f"*******         {spin} spin orbitals         *******",
-        "***************************************************",
-    ]
-
-
 def _gview_log_nbo_fields(
     frame: Structure | Molecule,
     charges: NDArray,
@@ -1106,7 +1098,7 @@ def _log_nbo_charges(
             alpha_spins = np.maximum(np.zeros(len(spins)), spins)
             beta_spins = np.abs(np.minimum(np.zeros(len(spins)), spins))
             for spin_type, spin_arr in zip(("Alpha", "Beta"), (alpha_spins, beta_spins), strict=False):
-                dump_lines += _gview_nbo_spin_title_lines(spin_type)
+                dump_lines += [f" {spin_type} spin orbitals "]
                 dump_lines += _gview_log_nbo_fields(
                     frame, np.zeros_like(spin_arr), cores=None, valences=None, rydbergs=None, totals=spin_arr
                 )
