@@ -1038,13 +1038,6 @@ def _log_esp_charges(frame: Structure | Molecule, site_property: str = "charges"
         posns = frame.cart_coords
         symbols = [site.specie.symbol for site in frame.sites]
         charges = np.array(frame.site_properties[site_property])
-        dump_lines = [
-            " **********************************************************************",
-            "            Electrostatic Properties Using The SCF Density.",
-            " **********************************************************************",
-        ]
-        for i, posn in enumerate(posns):
-            dump_lines.append(f"       Atomic Center    {i + 1} is at  {' '.join(f'{x:.6f}' for x in posn)}")
         dump_lines += ["", " Charges from ESP fit", "  ESP charges:", "               1"]
         for i, symbol in enumerate(symbols):
             dump_lines.append(f"     {i + 1} {symbol} {charges[i]:.6f}")
