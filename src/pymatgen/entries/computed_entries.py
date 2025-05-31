@@ -322,7 +322,7 @@ class ComputedEntry(Entry):
         super().__init__(composition, energy)
         self.energy_adjustments = energy_adjustments or []
 
-        if correction != 0.0:
+        if not math.isclose(correction, 0.0):
             if energy_adjustments:
                 raise ValueError(
                     f"Argument conflict! Setting correction = {correction:.3f} conflicts "
@@ -395,7 +395,7 @@ class ComputedEntry(Entry):
             for ea in self.energy_adjustments
         ) or ufloat(0.0, np.nan)
 
-        if unc.nominal_value != 0 and unc.std_dev == 0:
+        if not math.isclose(unc.nominal_value, 0) and math.isclose(unc.std_dev, 0):
             return np.nan
 
         return unc.std_dev
@@ -498,7 +498,7 @@ class ComputedEntry(Entry):
         # we don't pass correction explicitly because it will be calculated
         # on the fly from energy_adjustments
         correction = 0
-        if dct["correction"] != 0 and len(energy_adj) == 0:
+        if not math.isclose(dct["correction"], 0) and len(energy_adj) == 0:
             # this block is for legacy ComputedEntry that were
             # serialized before we had the energy_adjustments attribute.
             correction = dct["correction"]
@@ -629,7 +629,7 @@ class ComputedStructureEntry(ComputedEntry):
         """
         # the first block here is for legacy ComputedEntry that were
         # serialized before we had the energy_adjustments attribute.
-        if dct["correction"] != 0 and not dct.get("energy_adjustments"):
+        if not math.isclose(dct["correction"], 0) and not dct.get("energy_adjustments"):
             struct = MontyDecoder().process_decoded(dct["structure"])
             return cls(
                 struct,
