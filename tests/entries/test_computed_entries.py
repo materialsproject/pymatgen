@@ -51,6 +51,9 @@ def test_energy_adjustment_repr():
             f"generated_by='{label}')"
         )
 
+    # Make sure int uncertainty also works
+    assert "uncertainty=0.0" in repr(EnergyAdjustment(10, uncertainty=0))
+
 
 def test_manual_energy_adjustment():
     ea = ManualEnergyAdjustment(10)

@@ -50,12 +50,12 @@ class EnergyAdjustment(MSONable):
 
     def __init__(
         self,
-        value,
-        uncertainty=np.nan,
-        name="Manual adjustment",
-        cls=None,
-        description="",
-    ):
+        value: float,
+        uncertainty: float = np.nan,
+        name: str = "Manual adjustment",
+        cls: dict | None = None,
+        description: str = "",
+    ) -> None:
         """
         Args:
             value (float): value of the energy adjustment in eV
@@ -69,7 +69,7 @@ class EnergyAdjustment(MSONable):
         self.cls = cls or {}
         self.description = description
         self._value = value
-        self._uncertainty = uncertainty
+        self._uncertainty = float(uncertainty)
 
     @property
     def value(self):
@@ -133,7 +133,7 @@ class ConstantEnergyAdjustment(EnergyAdjustment):
         """
         super().__init__(value, uncertainty, name=name, cls=cls, description=description)
         self._value = value
-        self._uncertainty = uncertainty
+        self._uncertainty = float(uncertainty)
 
     @property
     def explain(self):
@@ -251,7 +251,7 @@ class TemperatureEnergyAdjustment(EnergyAdjustment):
             description: str, human-readable explanation of the energy adjustment.
         """
         self._adj_per_deg = adj_per_deg
-        self.uncertainty_per_deg = uncertainty_per_deg
+        self.uncertainty_per_deg = float(uncertainty_per_deg)
         self.temp = temp
         self.n_atoms = n_atoms
         self.name = name
@@ -519,7 +519,6 @@ class ComputedEntry(Entry):
         return_dict |= {
             "entry_id": self.entry_id,
             "correction": self.correction,
-            # "energy_adjustments": json.loads(orjson.dumps(self.energy_adjustments, default=MontyEncoder().default)),
             "energy_adjustments": json.loads(json.dumps(self.energy_adjustments, cls=MontyEncoder)),
             "parameters": json.loads(json.dumps(self.parameters, cls=MontyEncoder)),
             "data": json.loads(json.dumps(self.data, cls=MontyEncoder)),
