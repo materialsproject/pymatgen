@@ -1008,20 +1008,14 @@ def _log_mulliken_charges(
         nAtoms = len(charges)
         symbols = [site.specie.symbol for site in frame.sites]
         dump_lines = [
-            " **********************************************************************",
-            "",
-            "            Population analysis using the SCF Density.",
-            "",
-            " **********************************************************************",
-            "",
-            " Mulliken charges:",
-            "    1",
+            "Mulliken charges:",
+            "1",
         ]
         spins: None | NDArray = None
         if spin_site_property in frame.site_properties:
             spins = np.array(frame.site_properties[spin_site_property])
             dump_lines[-2] = dump_lines[-2].replace(":", " and spin densities:")
-            dump_lines[-1] += "          2"
+            dump_lines[-1] += " 2"
         for i in range(nAtoms):
             dump_lines.append(f"{int(i + 1)} {symbols[i]} {charges[i]} ")
             if spins is not None:
