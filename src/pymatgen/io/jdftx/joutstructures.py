@@ -25,6 +25,7 @@ from pymatgen.io.jdftx.joutstructure import JOutStructure
 
 __author__ = "Ben Rich"
 
+# TODO: Break this up into data also stored in `properties` and `site_properties`
 _joss_atrs_from_last_slice = (
     "etype",
     "eopt_type",
@@ -171,6 +172,7 @@ class JOutStructures:
         self.opt_type = self.slices[-1].opt_type
         if self.opt_type is None and len(self) > 1:
             raise Warning("iter type interpreted as single-point calculation, but multiple structures found")
+        # TODO: Change this to fetch from `properties` or `site_properties` instead of a slices attributes.
         for var in _joss_atrs_from_last_slice:
             val = None
             for i in range(1, len(self.slices) + 1):
@@ -181,6 +183,22 @@ class JOutStructures:
         self.initial_structure = self._get_initial_structure()
         self.t_s = self._get_t_s()
         self._check_convergence()
+
+    def get_frame_property_list(self, prop: str) -> list[Any] | None:
+        """Return list of named property.
+
+        Get a property from the last JOutStructure in the list. If the property is not
+        defined, return None.
+
+        Args:
+            prop (str): The name of the property to get.
+
+        Returns:
+            Any: The value of the property or None if not defined.
+        """
+        if len(self) == 0:
+            return []
+        return [getattr(s, prop, None) for s in self.slices]
 
     def _get_initial_structure(self) -> Structure | None:
         """Return initial structure.
