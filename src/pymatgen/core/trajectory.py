@@ -28,6 +28,7 @@ if TYPE_CHECKING:
     from collections.abc import Iterator, Sequence
     from typing import Any
 
+    from numpy.typing import NDArray
     from typing_extensions import Self
 
     from pymatgen.util.typing import PathLike, SitePropsType
@@ -998,7 +999,9 @@ def _opt_spacer(i, nSteps) -> list[str]:
     return dump_lines
 
 
-def _log_mulliken_charges(frame: Structure | Molecule, site_property: str = "charges") -> list[str]:
+def _log_mulliken_charges(
+    frame: Structure | Molecule, site_property: str = "charges", spin_site_property: str = "magmom"
+) -> list[str]:
     dump_lines = []
     if site_property in frame.site_properties:
         charges = np.array(frame.site_properties[site_property])
@@ -1014,9 +1017,18 @@ def _log_mulliken_charges(frame: Structure | Molecule, site_property: str = "cha
             " Mulliken charges:",
             "    1",
         ]
+        spins: None | NDArray = None
+        if spin_site_property in frame.site_properties:
+            spins = np.array(frame.site_properties[spin_site_property])
+            dump_lines[-2].replace(":", " and spin densities:")
+            dump_lines[-1] += "          2"
         for i in range(nAtoms):
             dump_lines.append(f"{int(i + 1)} {symbols[i]} {charges[i]} ")
+            if spins is not None:
+                dump_lines[-1] += f"{spins[i]} "
         dump_lines.append(f" Sum of Mulliken charges = {np.sum(charges)}")
+        if spins is not None:
+            dump_lines[-1] += f" {np.sum(spins)}"
     return dump_lines
 
 
@@ -1045,28 +1057,79 @@ def _log_esp_charges(frame: Structure | Molecule, site_property: str = "charges"
     return dump_lines
 
 
-def _log_nbo_charges(frame: Structure | Molecule, site_property: str = "charges") -> list[str]:
+_gview_nbo_header_lines = [
+    " Summary of Natural Population Analysis:  ",
+    "",
+    "                                       Natural Population ",
+    "                Natural  ----------------------------------------------- ",
+    "    Atom  No    Charge         Core      Valence    Rydberg      Total",
+    " -----------------------------------------------------------------------",
+]
+
+
+def _gview_nbo_spin_title_lines(spin: str):
+    return [
+        "***************************************************",
+        f"*******         {spin} spin orbitals         *******",
+        "***************************************************",
+    ]
+
+
+def _gview_log_nbo_fields(
+    frame: Structure | Molecule,
+    charges: NDArray,
+    cores: NDArray | None = None,
+    valences: NDArray | None = None,
+    rydbergs: NDArray | None = None,
+    totals: NDArray | None = None,
+) -> list[str]:
+    # As far as I can tell, cores, valences, and rydbergs don't affect anything in gview.
+    if cores is None:
+        cores = np.zeros_like(charges)
+    if valences is None:
+        valences = np.zeros_like(charges)
+    if rydbergs is None:
+        rydbergs = np.zeros_like(charges)
+    if totals is None:
+        totals = cores + valences + rydbergs
+    dump_lines = _gview_nbo_header_lines.copy()
+    symbols = [site.specie.symbol for site in frame.sites]
+    for i, symbol in enumerate(symbols):
+        dump_lines.append(
+            f"{symbol} {i + 1} {charges[i]:.6f} {cores[i]:.6f} {valences[i]:.6f} {rydbergs[i]:.6f} {totals[i]:.6f}"
+        )
+    dump_lines.append(" =======================================================================")
+    dump_lines.append(
+        "   * Total *   " + " ".join(f"{np.sum(arr):.6f}" for arr in (charges, cores, valences, rydbergs, totals))
+    )
+    return dump_lines
+
+
+def _log_nbo_charges(
+    frame: Structure | Molecule, site_property: str = "charges", spin_site_property: str = "magmom"
+) -> list[str]:
     dump_lines = []
     if site_property in frame.site_properties:
-        dump_lines = [
-            " Summary of Natural Population Analysis:  ",
-            "",
-            "                                       Natural Population ",
-            "                Natural  ----------------------------------------------- ",
-            "    Atom  No    Charge         Core      Valence    Rydberg      Total",
-            " -----------------------------------------------------------------------",
-        ]
         nbo_charges = np.array(frame.site_properties[site_property])
-        nAtoms = len(nbo_charges)
-        symbols = [site.specie.symbol for site in frame.sites]
-        for i in range(nAtoms):
-            dump_lines.append(f"{symbols[i]} {i + 1} {nbo_charges[i]} {0.0} {0.0} {0.0} {0.0}")
-        dump_lines.append(" =======================================================================")
-        dump_lines.append(f"   * Total *   {np.sum(nbo_charges)}      0.00000     0.00000    0.00000    0.00000")
+        dump_lines += _gview_log_nbo_fields(frame, nbo_charges)
+        spins: None | NDArray = None
+        if spin_site_property in frame.site_properties:
+            spins = np.array(frame.site_properties[spin_site_property])
+            # NBO spins are evaluated as the difference between the "total" nbo fields for alpha and beta densities.
+            alpha_spins = np.maximum(np.zeros(len(spins)), spins)
+            beta_spins = np.abs(np.minimum(np.zeros(len(spins)), spins))
+            for spin_type, spin_arr in zip(("Alpha", "Beta"), (alpha_spins, beta_spins), strict=False):
+                dump_lines += _gview_nbo_spin_title_lines(spin_type)
+                dump_lines += _gview_log_nbo_fields(
+                    frame, np.zeros_like(spin_arr), cores=None, valences=None, rydbergs=None, totals=spin_arr
+                )
     return dump_lines
 
 
 def _log_forces(frame: Structure | Molecule) -> list[str]:
+    # Gaussian calculations with periodic boundary conditions will log forces on lattice vectors, but these forces
+    # do not appear to be read by Gaussview, and writing forces for lattice vectors does not seem to fix the issue
+    # of atomic forces not being read by Gaussview (for log files with lattice vectors).
     dump_lines = []
     if "forces" in frame.site_properties:
         dump_lines = [
