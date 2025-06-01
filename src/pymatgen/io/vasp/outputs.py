@@ -4571,13 +4571,13 @@ def get_band_structure_from_vasp_multiple_branches(
         return get_reconstructed_band_structure(bs_branches, efermi)
 
     # Read vasprun.xml directly if no branch head (branch_0) is found
-    # TODO: remove this branch and raise error directly after 2025-09-14
+    # TODO: remove this branch and raise error directly after 2026-06-01
     vasprun_file = f"{dir_name}/vasprun.xml"
     if os.path.isfile(vasprun_file):
         warnings.warn(
             (
                 f"no branch dir found, reading directly from {dir_name=}\n"
-                "this fallback branch would be removed after 2025-09-14\n"
+                "this fallback branch would be removed after 2026-06-01\n"
                 "please check your data dir or use Vasprun.get_band_structure directly"
             ),
             DeprecationWarning,
