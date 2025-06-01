@@ -369,7 +369,7 @@ class GaussianInput:
             GaussianInput object
         """
         with zopen(filename, mode="rt", encoding="utf-8") as file:
-            return cls.from_str(file.read())
+            return cls.from_str(file.read())  # type:ignore[arg-type]
 
     def get_zmatrix(self):
         """Get a z-matrix representation of the molecule."""

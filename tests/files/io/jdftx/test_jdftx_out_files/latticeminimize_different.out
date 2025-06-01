@@ -72,7 +72,7 @@ fluid-cation Na+ 0.5 MeanFieldLJ \
 	Rvdw 2.19208 \
 	Res 0 \
 	tauNuc 343133
-fluid-ex-corr (null) lda-PZ
+fluid-ex-corr lda-TF lda-PZ
 fluid-gummel-loop 10 1.000000e-05
 fluid-minimize  \
 	dirUpdateScheme      PolakRibiere \

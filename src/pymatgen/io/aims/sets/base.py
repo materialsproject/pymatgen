@@ -396,7 +396,7 @@ class AimsInputGenerator(InputGenerator):
         recip_cell = structure.lattice.inv_matrix.transpose()
         return self.d2k_recip_cell(recip_cell, structure.lattice.pbc, kpt_density, even)
 
-    def k2d(self, structure: Structure | IStructure, k_grid: np.ndarray[int]):
+    def k2d(self, structure: Structure | IStructure, k_grid: np.ndarray):
         """Generate the kpoint density in each direction from given k_grid.
 
         Args:

@@ -3,11 +3,11 @@
 from __future__ import annotations
 
 import copy
-import json
 from typing import TYPE_CHECKING
 
 import matplotlib.pyplot as plt
 import numpy as np
+import orjson
 
 from pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies import (
     AngleNbSetWeight,
@@ -299,8 +299,8 @@ if __name__ == "__main__":
         "+-------------------------------------------------------------+\n"
     )
 
-    with open("ce_pairs.json", encoding="utf-8") as file:
-        ce_pairs = json.load(file)
+    with open("ce_pairs.json", "rb") as file:
+        ce_pairs = orjson.loads(file.read())
     self_weight_max_csms: dict[str, list[float]] = {}
     self_weight_max_csms_per_cn: dict[str, list[float]] = {}
     all_self_max_csms = []

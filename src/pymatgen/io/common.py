@@ -5,7 +5,6 @@ from __future__ import annotations
 import collections
 import importlib
 import itertools
-import json
 import os
 import typing
 import warnings
@@ -14,6 +13,7 @@ from pathlib import Path
 from typing import TYPE_CHECKING
 
 import numpy as np
+import orjson
 from monty.io import zopen
 from monty.json import MSONable
 from scipy.interpolate import RegularGridInterpolator
@@ -23,6 +23,7 @@ from pymatgen.core.units import ang_to_bohr, bohr_to_angstrom
 from pymatgen.electronic_structure.core import Spin
 
 if TYPE_CHECKING:
+    from numpy.typing import NDArray
     from typing_extensions import Any, Self
 
     from pymatgen.core.structure import IStructure
@@ -62,8 +63,8 @@ class VolumetricData(MSONable):
         self,
         structure: Structure | IStructure,
         data: dict[str, np.ndarray],
-        distance_matrix: np.ndarray | None = None,
-        data_aug: np.ndarray | None = None,
+        distance_matrix: dict | None = None,
+        data_aug: dict[str, NDArray] | None = None,
     ) -> None:
         """
         Typically, this constructor is not used directly and the static
@@ -89,7 +90,7 @@ class VolumetricData(MSONable):
         self.ngridpts = self.dim[0] * self.dim[1] * self.dim[2]
         # lazy init the spin data since this is not always needed.
         self._spin_data: dict[Spin, float] = {}
-        self._distance_matrix = distance_matrix or {}
+        self._distance_matrix = distance_matrix if distance_matrix is not None else {}
         self.xpoints = np.linspace(0.0, 1.0, num=self.dim[0])
         self.ypoints = np.linspace(0.0, 1.0, num=self.dim[1])
         self.zpoints = np.linspace(0.0, 1.0, num=self.dim[2])
@@ -128,19 +129,28 @@ class VolumetricData(MSONable):
     def __add__(self, other):
         return self.linear_add(other, 1.0)
 
+    def __radd__(self, other):
+        if other == 0 or other is None:
+            # sum() calls 0 + self first; we treat 0 as the identity element
+            return self
+        if isinstance(other, self.__class__):
+            return self.__add__(other)
+
+        raise TypeError(f"Unsupported operand type(s) for +: '{type(other).__name__}' and '{type(self).__name__}'")
+
     def __sub__(self, other):
         return self.linear_add(other, -1.0)
 
-    def copy(self) -> Self:
+    def copy(self) -> VolumetricData:
         """Make a copy of VolumetricData object."""
         return VolumetricData(
             self.structure,
             {k: v.copy() for k, v in self.data.items()},
-            distance_matrix=self._distance_matrix,
-            data_aug=self.data_aug,
+            distance_matrix=self._distance_matrix,  # type:ignore[arg-type]
+            data_aug=self.data_aug,  # type:ignore[arg-type]
         )
 
-    def linear_add(self, other, scale_factor=1.0):
+    def linear_add(self, other, scale_factor=1.0) -> VolumetricData:
         """
         Method to do a linear sum of volumetric objects. Used by + and -
         operators as well. Returns a VolumetricData object containing the
@@ -247,6 +257,7 @@ class VolumetricData(MSONable):
 
         struct = self.structure
         a = self.dim
+        self._distance_matrix = {} if self._distance_matrix is None else self._distance_matrix
         if ind not in self._distance_matrix or self._distance_matrix[ind]["max_radius"] < radius:
             coords = []
             for x, y, z in itertools.product(*(list(range(i)) for i in a)):
@@ -325,10 +336,10 @@ class VolumetricData(MSONable):
                 ds = grp.create_dataset(k, self.data[k].shape, dtype="float")
                 ds[...] = self.data[k]
             file.attrs["name"] = self.name
-            file.attrs["structure_json"] = json.dumps(self.structure.as_dict())
+            file.attrs["structure_json"] = orjson.dumps(self.structure.as_dict()).decode()
 
     @classmethod
-    def from_hdf5(cls, filename: str, **kwargs) -> Self:
+    def from_hdf5(cls, filename: str, **kwargs) -> VolumetricData:
         """
         Reads VolumetricData from HDF5 file.
 
@@ -345,8 +356,8 @@ class VolumetricData(MSONable):
             data_aug = None
             if "vdata_aug" in file:
                 data_aug = {k: np.array(v) for k, v in file["vdata_aug"].items()}
-            structure = Structure.from_dict(json.loads(file.attrs["structure_json"]))
-            return cls(structure, data=data, data_aug=data_aug, **kwargs)
+            structure = Structure.from_dict(orjson.loads(file.attrs["structure_json"]))
+            return cls(structure, data=data, data_aug=data_aug, **kwargs)  # type:ignore[arg-type]
 
     def to_cube(self, filename, comment: str = ""):
         """Write the total volumetric data to a cube file format, which consists of two comment lines,
@@ -357,28 +368,28 @@ class VolumetricData(MSONable):
             comment (str): If provided, this will be added to the second comment line
         """
         with zopen(filename, mode="wt", encoding="utf-8") as file:
-            file.write(f"# Cube file for {self.structure.formula} generated by Pymatgen\n")
-            file.write(f"# {comment}\n")
-            file.write(f"\t {len(self.structure)} 0.000000 0.000000 0.000000\n")
+            file.write(f"# Cube file for {self.structure.formula} generated by Pymatgen\n")  # type:ignore[arg-type]
+            file.write(f"# {comment}\n")  # type:ignore[arg-type]  # type:ignore[arg-type]
+            file.write(f"\t {len(self.structure)} 0.000000 0.000000 0.000000\n")  # type:ignore[arg-type]
 
             for idx in range(3):
                 lattice_matrix = self.structure.lattice.matrix[idx] / self.dim[idx] * ang_to_bohr
                 file.write(
-                    f"\t {self.dim[idx]} {lattice_matrix[0]:.6f} {lattice_matrix[1]:.6f} {lattice_matrix[2]:.6f}\n"
+                    f"\t {self.dim[idx]} {lattice_matrix[0]:.6f} {lattice_matrix[1]:.6f} {lattice_matrix[2]:.6f}\n"  # type:ignore[arg-type]
                 )
 
             for site in self.structure:
                 file.write(
-                    f"\t {Element(site.species_string).Z} 0.000000 "
-                    f"{ang_to_bohr * site.coords[0]} "
-                    f"{ang_to_bohr * site.coords[1]} "
-                    f"{ang_to_bohr * site.coords[2]} \n"
+                    f"\t {Element(site.species_string).Z} 0.000000 "  # type:ignore[arg-type]
+                    f"{ang_to_bohr * site.coords[0]} "  # type:ignore[arg-type]
+                    f"{ang_to_bohr * site.coords[1]} "  # type:ignore[arg-type]
+                    f"{ang_to_bohr * site.coords[2]} \n"  # type:ignore[arg-type]
                 )
 
             for idx, dat in enumerate(self.data["total"].flatten(), start=1):
-                file.write(f"{' ' if dat > 0 else ''}{dat:.6e} ")
+                file.write(f"{' ' if dat > 0 else ''}{dat:.6e} ")  # type:ignore[arg-type]
                 if idx % 6 == 0:
-                    file.write("\n")
+                    file.write("\n")  # type:ignore[arg-type]
 
     @classmethod
     def from_cube(cls, filename: str | Path) -> Self:
@@ -410,7 +421,7 @@ class VolumetricData(MSONable):
         atom_data_start = 6
         atom_data_end = atom_data_start + n_atoms
         sites = [
-            Site(line.split()[0], np.array(line.split()[2:], dtype=float) * bohr_to_angstrom)
+            Site(line.split()[0], np.array(line.split()[2:], dtype=float) * bohr_to_angstrom)  # type:ignore[arg-type]
             for line in lines[atom_data_start:atom_data_end]
         ]
 
@@ -427,7 +438,7 @@ class VolumetricData(MSONable):
         volumetric_data_lines = lines[volumetric_data_start:]
 
         # Convert the text-based volumetric data into a NumPy array (much faster)
-        volumetric_data = np.fromstring(" ".join(volumetric_data_lines), sep=" ", dtype=float)
+        volumetric_data = np.fromstring(" ".join(volumetric_data_lines), sep=" ", dtype=float)  # type:ignore[arg-type, type-var]
 
         # Reshape 1D data array into a 3D grid matching the voxel dimensions
         data = volumetric_data.reshape((num_x_voxels, num_y_voxels, num_z_voxels))

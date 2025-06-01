@@ -55,14 +55,18 @@ classifiers = [
     "Topic :: Software Development :: Libraries :: Python Modules",
 ]
 dependencies = [
+    "bibtexparser>=1.4.0",
     "joblib>=1",
     "matplotlib>=3.8",
     "monty>=2025.1.9",
     "networkx>=2.7", # PR4116
+    # NumPy documentation suggests pinning the current major version as the C API is used
+    # https://numpy.org/devdocs/dev/depending_on_numpy.html#runtime-dependency-version-ranges
+    "numpy>=1.25.0,<3",
+    "orjson>=3.10,<4",
     "palettable>=3.3.3",
     "pandas>=2",
     "plotly>=5.0.0",
-    "bibtexparser>=1.4.0",
     "requests>=2.32",
     "ruamel.yaml>=0.17.0",
     "scipy>=1.13.0",
@@ -74,11 +78,8 @@ dependencies = [
     "tabulate>=0.9",
     "tqdm>=4.60",
     "uncertainties>=3.1.4",
-    # NumPy documentation suggests pinning the current major version as the C API is used
-    # https://numpy.org/devdocs/dev/depending_on_numpy.html#runtime-dependency-version-ranges
-    "numpy>=1.25.0,<3",
 ]
-version = "2025.5.2"
+version = "2025.5.28"
 
 [project.urls]
 Homepage = "https://pymatgen.org"
@@ -90,11 +91,19 @@ Pypi = "https://pypi.org/project/pymatgen"
 [project.optional-dependencies]
 abinit = ["netcdf4>=1.7.2"]
 ase = ["ase>=3.23.0"]
+ci = [
+    "pytest>=8.3.5",
+    "pytest-cov>=6.0.0",
+    "pytest-split>=0.10.0",
+]
 electronic_structure = ["fdint>=2.0.2"]
-mlp = ["matgl>=1.2.6 ; python_version<'3.13'"]
+matcalc = [
+    "matcalc>=0.4.0; python_version<'3.13'",
+    "matgl>=1.2.7; python_version<'3.13'",
+]
+mlp = ["matgl>=1.2.7 ; python_version<'3.13'"]
 numba = ["numba>=0.55"]
 numpy-v1 = ["numpy>=1.25.0,<2"] # Test NP1 on Windows (quite buggy ATM)
-zeopp = ["pyzeo"]  # Note: requires voro++ and zeo++ to be installed
 optional = [
     "pymatgen[abinit,ase,mlp,tblite,matcalc]",
     "beautifulsoup4",
@@ -106,7 +115,6 @@ optional = [
     "h5py>=3.11.0",
     "hiphive>=1.3.1",
     "jarvis-tools>=2020.7.14",
-    "matplotlib>=3.8",
     "phonopy>=2.33.3",
     "seekpath>=2.0.1",
 ]
@@ -117,15 +125,7 @@ symmetry = ["moyopy[interface]>=0.3", "spglib>=2.5"]
 # https://github.com/tblite/tblite/issues/175
 tblite = ["tblite[ase]>=0.3.0; platform_system=='Linux' and python_version<'3.12'"]
 vis = ["vtk>=6.0.0"]
-ci = [
-    "pytest>=8.3.5",
-    "pytest-cov>=6.0.0",
-    "pytest-split>=0.10.0",
-]
-matcalc = [
-    "matcalc>=0.4.0; python_version<'3.13'",
-    "matgl>=1.2.6; python_version<'3.13'",
-]
+zeopp = ["pyzeo"]  # Note: requires Voro++ and Zeo++ to be installed
 
 [project.scripts]
 pmg = "pymatgen.cli.pmg:main"
@@ -264,14 +264,8 @@ addopts = "--durations=30 --quiet -r xXs --color=yes --import-mode=importlib"
 filterwarnings = [
     # NOTE: the LAST matching option would be used
     "ignore::UserWarning", # Ignore UserWarning
-    "error:We strongly encourage explicit `encoding`:EncodingWarning", # Mark `zopen` EncodingWarning as error
-    "error:We strongly discourage using implicit binary/text:FutureWarning", # Mark `zopen` FutureWarning as error
-    # TODO: remove the following filter once `monty.io` dropped custom EncodingWarning
+    # TODO: remove the following filter once `monty.io` dropped custom EncodingWarning (python 3.10+ only)
     "error:We strongly encourage explicit `encoding`:monty.io.EncodingWarning",
-    # TODO: pybtex (perhaps some others) emits the following warnings
-    'ignore:pkg_resources is deprecated as an API:DeprecationWarning',
-    'ignore:distutils Version classes are deprecated:DeprecationWarning',
-    'ignore:Deprecated call to `pkg_resources.declare_namespace:DeprecationWarning',
 ]
 
 [tool.coverage.run]
@@ -301,8 +295,8 @@ exclude_also = [
 ignore_missing_imports = true
 namespace_packages = true
 no_implicit_optional = false
-disable_error_code = ["annotation-unchecked", "override", "operator", "attr-defined", "union-attr", "misc", "call-overload", "call-arg"] #, "operator", "arg-type", "index", "call-arg", "return-value", "assignment", "attr-defined"]
-exclude = ['src/pymatgen/analysis', 'src/pymatgen/io', 'src/pymatgen/cli', 'src/pymatgen/phonon']
+disable_error_code = ["annotation-unchecked", "override", "operator", "attr-defined", "union-attr", "misc", "call-overload", "index"]
+exclude = ['src/pymatgen/analysis', 'src/pymatgen/io/cp2k', 'src/pymatgen/io/lammps']
 plugins = ["numpy.typing.mypy_plugin"]
 
 [[tool.mypy.overrides]]
@@ -311,7 +305,7 @@ ignore_missing_imports = true
 
 [tool.codespell]
 # TODO: un-ignore "ist/nd/ot/ontop/CoO" once support file-level ignore with pattern
-ignore-words-list = """Nd, Te, titel, Mater,
+ignore-words-list = """Nd, Te, titel, Mater, nax,
 Hart, Lew, Rute, atomate,
 ist, nd, ot, ontop, CoO
 """
@@ -334,21 +328,19 @@ exclude = ["**/tests"]
 
 [dependency-groups]
 dev = [
+    "invoke>=2.2.0",
     "jupyter>=1.1.1",
     "pre-commit>=4.2.0",
     "pytest>=8.3.5",
     "pytest-cov>=6.0.0",
     "pytest-split>=0.10.0",
+    "ruff>=0.11.3",
+    "sphinx>=8.1.3",
+    "sphinx-markdown-builder>=0.6.8",
+    "sphinx-rtd-theme>=3.0.2",
 ]
 lint = [
     "mypy>=1.15.0",
     "pyright>=1.1.398",
     "ruff>=0.11.2",
-]
-maintain = [
-    "invoke>=2.2.0",
-    "ruff>=0.11.3",
-    "sphinx>=8.1.3",
-    "sphinx-markdown-builder>=0.6.8",
-    "sphinx-rtd-theme>=3.0.2",
 ]

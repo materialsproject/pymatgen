@@ -129,13 +129,6 @@ def test_set_pseudo_vars_t1():
         joutslice._set_pseudo_vars_t1(text)
 
 
-def test_set_geomopt_vars():
-    joutslice = JDFTXOutfileSlice._from_out_slice(ex_slice1)
-    joutslice.jsettings_ionic = None
-    with pytest.raises(ValueError, match="Unknown issue in setting settings objects"):
-        joutslice._set_geomopt_vars([])
-
-
 def test_set_orb_fillings_nobroad():
     joutslice = JDFTXOutfileSlice._from_out_slice(ex_slice1)
     joutslice._set_orb_fillings_nobroad(1)
@@ -215,6 +208,10 @@ def test_as_dict():
     assert isinstance(out_dict, dict)
 
 
+def should_be_parsable_out_slice(out_slice: list[str]):
+    return any("ElecMinimize: Iter:" in line for line in out_slice[::-1])
+
+
 # Make sure all possible exceptions are caught when none_on_error is True
 @pytest.mark.parametrize(("ex_slice"), [(ex_slice1)])
 def test_none_on_partial(ex_slice: list[str]):
@@ -223,4 +220,7 @@ def test_none_on_partial(ex_slice: list[str]):
     for i in range(int(len(ex_slice) / freq)):
         test_slice = ex_slice[: -(i * freq)]
         joutslice = JDFTXOutfileSlice._from_out_slice(test_slice, none_on_error=True)
-        assert isinstance(joutslice, JDFTXOutfileSlice | None)
+        if should_be_parsable_out_slice(test_slice):
+            assert isinstance(joutslice, JDFTXOutfileSlice | None)
+        else:
+            assert isinstance(joutslice, JDFTXOutfileSlice | None)

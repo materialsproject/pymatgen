@@ -16,27 +16,25 @@ import numpy as np
 from monty.dev import deprecated
 
 if TYPE_CHECKING:
-    from pymatgen.core import Structure
+    from typing import Any
+
     from pymatgen.io.jdftx.jelstep import JElSteps
+    from pymatgen.io.jdftx.jminsettings import JMinSettings
+from pymatgen.core import Structure
 from pymatgen.core.periodic_table import Element
 from pymatgen.core.trajectory import Trajectory
-from pymatgen.core.units import Ha_to_eV, ang_to_bohr
+from pymatgen.core.units import Ha_to_eV, ang_to_bohr, bohr_to_ang
 from pymatgen.io.jdftx._output_utils import (
+    _init_dict_from_colon_dump_lines,
     find_all_key,
     find_first_range_key,
     find_key,
     find_key_first,
-    get_colon_var_t1,
+    get_colon_val,
     key_exists,
 )
-from pymatgen.io.jdftx.jminsettings import (
-    JMinSettings,
-    JMinSettingsElectronic,
-    JMinSettingsFluid,
-    JMinSettingsIonic,
-    JMinSettingsLattice,
-)
-from pymatgen.io.jdftx.joutstructures import JOutStructures
+from pymatgen.io.jdftx.inputs import JDFTXInfile
+from pymatgen.io.jdftx.joutstructures import JOutStructures, _get_joutstructures_start_idx
 
 __author__ = "Ben Rich"
 
@@ -59,6 +57,7 @@ _jofs_atr_from_jstrucs = (
     "elec_grad_k",
     "elec_alpha",
     "elec_linmin",
+    "t_s",
 )
 
 
@@ -159,6 +158,7 @@ class JDFTXOutfileSlice:
             calculation.
         electronic_output (dict): Dictionary with all relevant electronic information dumped from an eigstats log.
         structure (Structure): Calculation result as pymatgen Structure.
+        initial_structure (Structure): Initial structure of the calculation, as read from inputs portion of out file.
         eopt_type (str | None): eopt_type from most recent JOutStructure.
         elecmindata (JElSteps): elecmindata from most recent JOutStructure.
         stress (np.ndarray | None): Stress tensor from most recent JOutStructure in units eV/Ang^3.
@@ -221,6 +221,7 @@ class JDFTXOutfileSlice:
     _electronic_output: ClassVar[list[str]] = [
         "efermi",
         "egap",
+        "optical_egap",
         "emin",
         "emax",
         "homo",
@@ -231,6 +232,7 @@ class JDFTXOutfileSlice:
     ]
     efermi: float | None = None
     egap: float | None = None
+    optical_egap: float | None = None
     emin: float | None = None
     emax: float | None = None
     homo: float | None = None
@@ -262,9 +264,9 @@ class JDFTXOutfileSlice:
     spintype: str | None = None
     nspin: int | None = None
     nat: int | None = None
-    atom_coords_initial: list[list[float]] | None = None
-    atom_coords_final: list[list[float]] | None = None
-    atom_coords: list[list[float]] | None = None
+    atom_coords_initial: np.ndarray | None = None
+    atom_coords_final: np.ndarray | None = None
+    atom_coords: np.ndarray | None = None
 
     has_solvation: bool = False
     fluid: str | None = None
@@ -276,11 +278,12 @@ class JDFTXOutfileSlice:
 
     _total_electrons_backup: int | None = None
     total_electrons: float | None = None
-    _mu_backup: int | None = None
+    _mu_backup: float | None = None
 
     t_s: float | None = None
     converged: bool | None = None
     structure: Structure | None = None
+    initial_structure: Structure | None = None
     trajectory: Trajectory | None = None
     electronic_output: dict | None = None
     eopt_type: str | None = None
@@ -322,7 +325,7 @@ class JDFTXOutfileSlice:
     # information as possible.
     @classmethod
     def _from_out_slice(
-        cls, text: list[str], is_bgw: bool = False, none_on_error: bool = False
+        cls, text: list[str], is_bgw: bool = False, none_on_error: bool = True
     ) -> JDFTXOutfileSlice | None:
         """
         Read slice of out file into a JDFTXOutfileSlice instance.
@@ -347,7 +350,8 @@ class JDFTXOutfileSlice:
         return instance
 
     def _from_out_slice_init_all(self, text: list[str]) -> None:
-        self._set_min_settings(text)
+        self._set_internal_infile(text)
+        # self._set_min_settings(text)
         self._set_geomopt_vars(text)
         self._set_jstrucs(text)
         self._set_backup_vars(text)
@@ -384,6 +388,31 @@ class JDFTXOutfileSlice:
         # Previously were properties, but are now set as attributes
         self._from_out_slice_init_all_post_init()
 
+    def _set_internal_infile(self, text: list[str]) -> None:
+        """Set the internal infile for the JDFTXOutfileSlice.
+
+        Args:
+            text (list[str]): Output of read_file for out file.
+        """
+        start_line_idx = find_key("Input parsed successfully", text)
+        if start_line_idx is None:
+            raise ValueError("JDFTx input parsing failed on most recent call.")
+        start_line_idx += 2
+        end_line_idx = None
+        for i in range(start_line_idx, len(text)):
+            if not len(text[i].strip()):
+                end_line_idx = i
+                break
+        if end_line_idx is None:
+            raise ValueError("Calculation did not begin for this out file slice.")
+        self.infile = JDFTXInfile.from_str(
+            "\n".join(text[start_line_idx:end_line_idx]), validate_value_boundaries=False
+        )
+        self.constant_lattice = True
+        if "lattice-minimize" in self.infile:
+            latsteps = self.infile["lattice-minimize"]["nIterations"]
+            self.constant_lattice = not (int(latsteps) > 0)
+
     def _set_t_s(self) -> None:
         """Return the total time in seconds for the calculation.
 
@@ -409,15 +438,19 @@ class JDFTXOutfileSlice:
             converged = converged and self.jstrucs.geom_converged
         self.converged = converged
 
-    def _set_trajectory(self) -> Trajectory:
+    def _set_trajectory(self) -> None:
         """Return pymatgen trajectory object.
 
         Returns:
             Trajectory: pymatgen Trajectory object containing intermediate Structure's of outfile slice calculation.
         """
         if self.jstrucs is not None:
-            structures = [slc.structure for slc in self.jstrucs.slices]
-            self.trajectory = Trajectory.from_structures(structures=structures, constant_lattice=self.constant_lattice)
+            _structures = [slc.structure for slc in self.jstrucs.slices]
+            structures = [s for s in _structures if s is not None]
+            self.trajectory = Trajectory.from_structures(
+                structures=structures,
+                constant_lattice=self.constant_lattice if self.constant_lattice is not None else False,
+            )
 
     def _set_electronic_output(self) -> None:
         """Return a dictionary with all relevant electronic information.
@@ -484,6 +517,8 @@ class JDFTXOutfileSlice:
             nspin (int): Number of spin types in calculation.
         """
         line = find_key("spintype ", text)
+        if line is None:
+            return "no-spin", 1
         spintype = text[line].split()[1]
         if spintype == "no-spin":
             nspin = 1
@@ -493,7 +528,7 @@ class JDFTXOutfileSlice:
             raise NotImplementedError("have not considered this spin yet")
         return spintype, nspin
 
-    def _get_broadeningvars(self, text: list[str]) -> tuple[str, float]:
+    def _get_broadeningvars(self, text: list[str]) -> tuple[str | None, float]:
         """Get broadening type and value from out file text.
 
         Args:
@@ -511,7 +546,7 @@ class JDFTXOutfileSlice:
             broadening = 0
         return broadening_type, broadening
 
-    def _get_truncationvars(self, text: list[str]) -> tuple[str, float] | tuple[None, None]:
+    def _get_truncationvars(self, text: list[str]) -> tuple[str | None, Any | None]:
         """Get truncation type and value from out file text.
 
         Args:
@@ -549,6 +584,8 @@ class JDFTXOutfileSlice:
                     raise ValueError("BGW wire Coulomb truncation must be periodic in z!")
             if truncation_type == "spherical":
                 line = find_key("Initialized spherical truncation of radius", text)
+                if line is None:
+                    raise ValueError("No spherical truncation found in out file.")
                 truncation_radius = float(text[line].split()[5]) / ang_to_bohr
         else:
             raise ValueError("No truncation type found in out file.")
@@ -632,22 +669,19 @@ class JDFTXOutfileSlice:
         lines2 = find_all_key("eigStats' ...", text)
         lines3 = [lines1[i] for i in range(len(lines1)) if lines1[i] in lines2]
         if not lines3:
-            varsdict["emin"] = None
-            varsdict["homo"] = None
-            varsdict["efermi"] = None
-            varsdict["lumo"] = None
-            varsdict["emax"] = None
-            varsdict["egap"] = None
+            for key in list(eigstats_keymap.keys()):
+                varsdict[eigstats_keymap[key]] = None
             self.has_eigstats = False
         else:
-            line = lines3[-1]
-            varsdict["emin"] = float(text[line + 1].split()[1]) * Ha_to_eV
-            varsdict["homo"] = float(text[line + 2].split()[1]) * Ha_to_eV
-            varsdict["efermi"] = float(text[line + 3].split()[2]) * Ha_to_eV
-            varsdict["lumo"] = float(text[line + 4].split()[1]) * Ha_to_eV
-            varsdict["emax"] = float(text[line + 5].split()[1]) * Ha_to_eV
-            varsdict["egap"] = float(text[line + 6].split()[2]) * Ha_to_eV
-            self.has_eigstats = True
+            line_start = lines3[-1]
+            line_start_rel_idx = lines1.index(line_start)
+            line_end = lines1[line_start_rel_idx + 1] if len(lines1) >= line_start_rel_idx + 2 else len(lines1) - 1
+            _varsdict = _init_dict_from_colon_dump_lines([text[idx] for idx in range(line_start, line_end)])
+            for key in _varsdict:
+                varsdict[eigstats_keymap[key]] = float(_varsdict[key]) * Ha_to_eV
+            self.has_eigstats = all(eigstats_keymap[key] in varsdict for key in eigstats_keymap) and all(
+                eigstats_keymap[key] is not None for key in eigstats_keymap
+            )
         return varsdict
 
     def _set_eigvars(self, text: list[str]) -> None:
@@ -657,12 +691,8 @@ class JDFTXOutfileSlice:
             text (list[str]): Output of read_file for out file.
         """
         eigstats = self._get_eigstats_varsdict(text, self.prefix)
-        self.emin = eigstats["emin"]
-        self.homo = eigstats["homo"]
-        self.efermi = eigstats["efermi"]
-        self.lumo = eigstats["lumo"]
-        self.emax = eigstats["emax"]
-        self.egap = eigstats["egap"]
+        for key, val in eigstats.items():
+            setattr(self, key, val)
         if self.efermi is None:
             if self.mu is None:
                 self.mu = self._get_mu()
@@ -680,6 +710,8 @@ class JDFTXOutfileSlice:
         """
         skey = "Reading pseudopotential file"
         line = find_key(skey, text)
+        if line is None:
+            raise ValueError("Unable to find pseudopotential dump lines")
         ppfile_example = text[line].split(skey)[1].split(":")[0].strip("'").strip()
         pptype = None
         readable = self.parsable_pseudos
@@ -795,40 +827,6 @@ class JDFTXOutfileSlice:
             settings_dict[key] = value
         return settings_dict
 
-    def _get_settings_object(
-        self,
-        text: list[str],
-        settings_class: type[JMinSettingsElectronic | JMinSettingsFluid | JMinSettingsIonic | JMinSettingsLattice],
-    ) -> JMinSettingsElectronic | JMinSettingsFluid | JMinSettingsIonic | JMinSettingsLattice:
-        """Get appropriate JMinSettings mutant.
-
-        Get the settings object from the out file text.
-
-        Args:
-            text (list[str]): Output of read_file for out file.
-            settings_class (Type[JMinSettings]): Settings class to create object from.
-
-        Returns:
-            JMinSettingsElectronic | JMinSettingsFluid | JMinSettingsIonic | JMinSettingsLattice: Settings object.
-        """
-        settings_dict = self._create_settings_dict(text, settings_class.start_flag)
-        return settings_class(params=settings_dict) if len(settings_dict) else None
-
-    def _set_min_settings(self, text: list[str]) -> None:
-        """Set the settings objects from the out file text.
-
-        Set the settings objects from the out file text.
-
-        Args:
-            text (list[str]): Output of read_file for out file.
-        """
-        self.jsettings_fluid = self._get_settings_object(text, JMinSettingsFluid)
-        self.jsettings_electronic = self._get_settings_object(text, JMinSettingsElectronic)
-        self.jsettings_lattice = self._get_settings_object(text, JMinSettingsLattice)
-        self.jsettings_ionic = self._get_settings_object(text, JMinSettingsIonic)
-        if self.jsettings_lattice is not None and "niterations" in self.jsettings_lattice.params:
-            self.constant_lattice = int(self.jsettings_lattice.params["niterations"]) != 0
-
     def _set_geomopt_vars(self, text: list[str]) -> None:
         """Set the geom_opt and geom_opt_type class variables.
 
@@ -837,19 +835,46 @@ class JDFTXOutfileSlice:
         Args:
             text (list[str]): Output of read_file for out file.
         """
-        # Attempts to set all self.jsettings_x class variables
-        self._set_min_settings(text)
-        if self.jsettings_ionic is None or self.jsettings_lattice is None:
-            raise ValueError("Unknown issue in setting settings objects")
-        if int(self.jsettings_lattice.params["niterations"]) > 0:
-            self.geom_opt = True
-            self.geom_opt_type = "lattice"
-        elif int(self.jsettings_ionic.params["niterations"]) > 0:
+        found = False
+        if "ionic-dynamics" in self.infile and int(self.infile["ionic-dynamics"]["nSteps"]) > 0:
             self.geom_opt = True
             self.geom_opt_type = "ionic"
-        else:
+            self.geom_opt_label = "IonicDynamics"
+            found = True
+        if (not found and "lattice-minimize" in self.infile) and int(
+            self.infile["lattice-minimize"]["nIterations"] > 0
+        ):
+            self.geom_opt = True
+            self.geom_opt_label = "LatticeMinimize"
+            self.geom_opt_type = "lattice"
+            found = True
+        if (not found and "ionic-minimize" in self.infile) and int(self.infile["ionic-minimize"]["nIterations"] > 0):
+            self.geom_opt = True
+            self.geom_opt_label = "IonicMinimize"
+            self.geom_opt_type = "ionic"
+            found = True
+        if not found:
             self.geom_opt = False
             self.geom_opt_type = "single point"
+            self.geom_opt_label = "IonicMinimize"
+
+    def _get_initial_structure(self, text: list[str]) -> Structure | None:
+        """Get the initial structure from the out file text.
+
+        Args:
+            text (list[str]): Output of read_file for out file.
+
+        Returns:
+            Structure | None: Initial structure of the calculation.
+        """
+        output_start_idx = _get_joutstructures_start_idx(text)
+        if output_start_idx is None:
+            init_struc = _get_init_structure(text)
+        else:
+            init_struc = _get_init_structure(text[:output_start_idx])
+        if init_struc is None:
+            raise ValueError("Provided out file slice's inputs preamble does not contain input structure data.")
+        return init_struc
 
     def _set_jstrucs(self, text: list[str]) -> None:
         """Set the jstrucs class variable.
@@ -859,7 +884,13 @@ class JDFTXOutfileSlice:
         Args:
             text (list[str]): Output of read_file for out file.
         """
-        self.jstrucs = JOutStructures._from_out_slice(text, opt_type=self.geom_opt_type)
+        self.initial_structure = self._get_initial_structure(text)
+        # In the case where no ion optimization updates are printed, JOutStructures
+        if self.geom_opt_type is None:
+            raise ValueError("geom_opt_type not set yet.")
+        self.jstrucs = JOutStructures._from_out_slice(
+            text, opt_type=self.geom_opt_type, init_struc=self.initial_structure
+        )
         if self.etype is None:
             self.etype = self.jstrucs[-1].etype
         if self.jstrucs is not None:
@@ -879,21 +910,33 @@ class JDFTXOutfileSlice:
         """
         if self.total_electrons is None:
             lines = find_all_key("nElectrons", text)
-            val = None
+            _val = None
             for line in lines[::-1]:
-                val = get_colon_var_t1(text[line], "nElectrons:")
-                if val is not None:
+                _val = get_colon_val(text[line], "nElectrons:")
+                if _val is not None:
                     break
-            self._total_electrons_backup = val
+            if _val is not None and np.isnan(_val):
+                nval = None
+            elif _val is not None:
+                nval = int(_val)
+            else:
+                nval = None
+            self._total_electrons_backup = nval
 
         if self.mu is None:
             lines = find_all_key("mu", text)
-            val = None
+            _val = None
             for line in lines[::-1]:
-                val = get_colon_var_t1(text[line], "mu:")
-                if val is not None:
+                _val = get_colon_val(text[line], "mu:")
+                if _val is not None:
                     break
-            self._mu_backup = val
+            if _val is not None and np.isnan(_val):
+                mval = None
+            elif _val is not None:
+                mval = float(_val)
+            else:
+                mval = None
+            self._mu_backup = mval
 
     def _set_orb_fillings_nobroad(self, nspin: float) -> None:
         """Set the orbital fillings without broadening.
@@ -962,7 +1005,8 @@ class JDFTXOutfileSlice:
             text (list[str]): Output of read_file for out file.
         """
         line = find_first_range_key("fluid ", text)
-        self.fluid = text[line[0]].split()[1]
+        val = text[line[0]].split()[1]
+        self.fluid = None if val.lower() == "none" else val
 
     def _set_total_electrons(self) -> None:
         """Sets total_electrons from most recent JOutStructure."""
@@ -998,7 +1042,11 @@ class JDFTXOutfileSlice:
             text (list[str]): Output of read_file for out file.
         """
         startline = find_key("Input parsed successfully", text)
+        if startline is None:
+            raise ValueError("Unable to find start line for atom lines")
         endline = find_key("---------- Initializing the Grid ----------", text)
+        if endline is None:
+            raise ValueError("Unable to find end line for atom lines")
         lines = find_first_range_key("ion ", text, startline=startline, endline=endline)
         atom_elements = [text[x].split()[1] for x in lines]
         self.nat = len(atom_elements)
@@ -1011,12 +1059,9 @@ class JDFTXOutfileSlice:
         self.atom_elements = atom_elements
         self.atom_elements_int = [Element(x).Z for x in self.atom_elements]
         self.atom_types = atom_types
-        line = find_key("# Ionic positions in", text)
-        if line is not None:
-            line += 1
-            coords = np.array([text[i].split()[2:5] for i in range(line, line + self.nat)], dtype=float)
-            self.atom_coords_final = coords
-            self.atom_coords = coords.copy()
+        if isinstance(self.structure, Structure):
+            self.atom_coords = self.structure.cart_coords
+            self.atom_coords_final = self.structure.cart_coords
 
     def _set_lattice_vars(self, text: list[str]) -> None:
         """Set the lattice variables.
@@ -1041,7 +1086,11 @@ class JDFTXOutfileSlice:
         """
         if self.jstrucs is not None:
             ecomp = self.jstrucs[-1].ecomponents
+            if not isinstance(ecomp, dict):
+                ecomp = {}
             if self.etype not in ecomp:
+                if self.etype is None:
+                    raise ValueError("etype not set yet.")
                 ecomp[self.etype] = self.jstrucs[-1].e
             self.ecomponents = ecomp
         else:
@@ -1105,6 +1154,24 @@ class JDFTXOutfileSlice:
                 raise ValueError("Cannot determine if system is metal - self.homo_filling undefined")
             raise ValueError("Cannot determine if system is metal - self.nspin undefined")
         return None
+
+    def to_jdftxinfile(self) -> JDFTXInfile:
+        """
+        Convert the JDFTXOutfile object to a JDFTXInfile object with the most recent structure.
+        If the input structure is desired, simply fetch JDFTXOutfile.infile
+
+        Returns:
+            JDFTXInfile: A JDFTXInfile object representing the input parameters of the JDFTXOutfile.
+        """
+        # Use internal infile as a reference for calculation parameters
+        base_infile = self.infile.copy()
+        # Strip references to the input
+        base_infile.strip_structure_tags()
+        if self.structure is None:
+            return base_infile
+        infile = JDFTXInfile.from_structure(self.structure)
+        infile += base_infile
+        return infile
 
     def _check_solvation(self) -> bool:
         """Check for implicit solvation.
@@ -1172,6 +1239,17 @@ class JDFTXOutfileSlice:
         return pprint.pformat(self)
 
 
+eigstats_keymap = {
+    "eMin": "emin",
+    "HOMO": "homo",
+    "mu": "efermi",
+    "LUMO": "lumo",
+    "eMax": "emax",
+    "HOMO-LUMO gap": "egap",
+    "Optical gap": "optical_egap",
+}
+
+
 def get_pseudo_read_section_bounds(text: list[str]) -> list[list[int]]:
     """Get the boundary line numbers for the pseudopotential read section.
 
@@ -1191,3 +1269,126 @@ def get_pseudo_read_section_bounds(text: list[str]) -> list[list[int]]:
                 break
         section_bounds.append(bounds)
     return section_bounds
+
+
+def _get_init_structure(pre_out_slice: list[str]) -> Structure | None:
+    """
+    Return initial structure.
+
+    Return the initial structure from the pre_out_slice, corresponding to all data cut from JOutStructure list
+    initialization. This is needed to ensure structural data that is not being updated (and therefore not being
+    logged in the out file) is still available.
+
+    Args:
+        pre_out_slice (list[str]): A slice of a JDFTx out file (individual call of JDFTx) that
+        contains the initial structure information.
+
+    Returns:
+        Structure | None: The initial structure if available, otherwise None.
+    """
+    try:
+        lat_mat = _get_initial_lattice(pre_out_slice)
+        coords = _get_initial_coords(pre_out_slice)
+        species = _get_initial_species(pre_out_slice)
+        return Structure(lattice=lat_mat, species=species, coords=coords, coords_are_cartesian=True)
+    except AttributeError:
+        return None
+
+
+def _get_initial_lattice(pre_out_slice: list[str]) -> np.ndarray:
+    """Return initial lattice.
+
+    Return the initial lattice from the pre_out_slice, corresponding to all data cut from JOutStructure list
+    initialization. This is needed to ensure lattice data that is not being updated (and therefore not being
+    logged in the out file) is still available.
+
+    Args:
+        pre_out_slice (list[str]): A slice of a JDFTx out file (individual call of JDFTx) that
+            contains the initial lattice information.
+
+    Returns:
+        np.ndarray: The initial lattice matrix.
+    """
+    lat_lines = find_first_range_key("lattice  ", pre_out_slice)
+    if len(lat_lines):
+        lat_line = lat_lines[0]
+        lat_mat = np.zeros([3, 3])
+        for i in range(3):
+            line_text = pre_out_slice[lat_line + i + 1].strip().split()
+            for j in range(3):
+                lat_mat[i, j] = float(line_text[j])
+        return lat_mat.T * bohr_to_ang
+    raise AttributeError("Lattice not found in pre_out_slice")
+
+
+def _get_initial_coords(pre_out_slice: list[str]) -> np.ndarray:
+    """Return initial coordinates.
+
+    Return the initial coordinates from the pre_out_slice, corresponding to all data cut from JOutStructure list
+    initialization. This is needed to ensure coordinate data that is not being updated (and therefore not being
+    logged in the out file) is still available.
+
+    Args:
+        pre_out_slice (list[str]): A slice of a JDFTx out file (individual call of JDFTx) that
+            contains the initial coordinates information.
+
+    Returns:
+        np.ndarray: The initial coordinates.
+    """
+    lines = _get_ion_lines(pre_out_slice)
+    coords = np.zeros([len(lines), 3])
+    for i, line in enumerate(lines):
+        line_text = pre_out_slice[line].strip().split()[2:]
+        for j in range(3):
+            coords[i, j] = float(line_text[j])
+    coords_type_lines = find_first_range_key("coords-type", pre_out_slice)
+    if len(coords_type_lines):
+        coords_type = pre_out_slice[coords_type_lines[0]].strip().split()[1]
+        if coords_type.lower() != "cartesian":
+            coords = np.dot(coords, _get_initial_lattice(pre_out_slice))
+        else:
+            coords *= bohr_to_ang
+    return coords
+
+
+def _get_initial_species(pre_out_slice: list[str]) -> list[str]:
+    """Return initial species.
+
+    Return the initial species from the pre_out_slice, corresponding to all data cut from JOutStructure list
+    initialization. This is needed to ensure species data that is not being updated (and therefore not being
+    logged in the out file) is still available.
+
+    Args:
+        pre_out_slice (list[str]): A slice of a JDFTx out file (individual call of JDFTx) that
+            contains the initial species information.
+
+    Returns:
+        list[str]: The initial species.
+    """
+    lines = _get_ion_lines(pre_out_slice)
+    species_strs = []
+    for line in lines:
+        species_strs.append(pre_out_slice[line].strip().split()[1])
+    return species_strs
+
+
+def _get_ion_lines(pre_out_slice: list[str]) -> list[int]:
+    """Return ion lines.
+
+    Return the ion lines from the pre_out_slice, ensuring that all the ion lines are consecutive.
+
+    Args:
+        pre_out_slice (list[str]): A slice of a JDFTx out file (individual call of JDFTx) that
+            contains the ion lines information.
+
+    Returns:
+        list[int]: The ion lines.
+    """
+    _lines = find_first_range_key("ion ", pre_out_slice)
+    if not len(_lines):
+        raise AttributeError("Ion lines not found in pre_out_slice")
+    gaps = [_lines[i + 1] - _lines[i] for i in range(len(_lines) - 1)]
+    if not all(g == 1 for g in gaps):
+        # TODO: Write the fix for this case
+        raise AttributeError("Ion lines not consecutive in pre_out_slice")
+    return _lines

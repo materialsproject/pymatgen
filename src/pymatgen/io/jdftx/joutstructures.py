@@ -13,13 +13,14 @@ from typing import TYPE_CHECKING, Any
 from monty.dev import deprecated
 
 if TYPE_CHECKING:
+    import numpy as np
+    from numpy.typing import NDArray
+
+    from pymatgen.core.structure import Structure
     from pymatgen.io.jdftx.jelstep import JElSteps
 
-import numpy as np
 
-from pymatgen.core.structure import Structure
-from pymatgen.core.units import bohr_to_ang
-from pymatgen.io.jdftx._output_utils import correct_geom_opt_type, find_first_range_key, is_lowdin_start_line
+from pymatgen.io.jdftx._output_utils import correct_geom_opt_type, is_lowdin_start_line
 from pymatgen.io.jdftx.joutstructure import JOutStructure
 
 __author__ = "Ben Rich"
@@ -51,6 +52,7 @@ _joss_atrs_from_last_slice = (
     "magnetic_moments",
     "selective_dynamics",
     "structure",
+    "t_s",
 )
 
 
@@ -102,6 +104,7 @@ class JOutStructures:
         magnetic_moments (np.ndarray[float] | None): The most recent Lowdin-magnetic moments.
         selective_dynamics (list[int] | None): The selective dynamics flags for the most recent JDFTx call.
         structure (Structure | None): Cleaned pymatgen Structure object of final JOutStructure
+        initial_structure (Structure | None): Cleaned pymatgen Structure object of initial JOutStructure
     """
 
     out_slice_start_flag = "-------- Electronic minimization -----------"
@@ -110,16 +113,16 @@ class JOutStructures:
     geom_converged_reason: str | None = None
     elec_converged: bool = False
     elec_converged_reason: str | None = None
-    _t_s: float | None = None
+    t_s: float | None = None
     slices: list[JOutStructure] = field(default_factory=list, init=True)
     eopt_type: str | None = None
     etype: str | None = None
     emin_flag: str | None = None
     ecomponents: list[str] | None = None
-    elecmindata: JElSteps = None
-    stress: np.ndarray | None = None
-    strain: np.ndarray | None = None
-    forces: np.ndarray | None = None
+    elecmindata: JElSteps | None = None
+    stress: NDArray[np.float64] | None = None
+    strain: NDArray[np.float64] | None = None
+    forces: NDArray[np.float64] | None = None
     nstep: int | None = None
     e: float | None = None
     grad_k: float | None = None
@@ -134,13 +137,16 @@ class JOutStructures:
     elec_grad_k: float | None = None
     elec_alpha: float | None = None
     elec_linmin: float | None = None
-    charges: np.ndarray[float] | None = None
-    magnetic_moments: np.ndarray[float] | None = None
+    charges: NDArray[np.float64] | None = None
+    magnetic_moments: NDArray[np.float64] | None = None
     selective_dynamics: list[int] | None = None
     structure: Structure | None = None
+    initial_structure: Structure | None = None
 
     @classmethod
-    def _from_out_slice(cls, out_slice: list[str], opt_type: str = "IonicMinimize") -> JOutStructures:
+    def _from_out_slice(
+        cls, out_slice: list[str], opt_type: str = "IonicMinimize", init_struc: Structure | None = None
+    ) -> JOutStructures:
         """
         Return JStructures object.
 
@@ -154,35 +160,51 @@ class JOutStructures:
             JOutStructures: The created JOutStructures object.
         """
         if opt_type not in ["IonicMinimize", "LatticeMinimize"]:
-            opt_type = correct_geom_opt_type(opt_type)
+            _opt_type = correct_geom_opt_type(opt_type)
         start_idx = _get_joutstructures_start_idx(out_slice)
-        init_struc = _get_init_structure(out_slice[:start_idx])
         slices = _get_joutstructure_list(out_slice[start_idx:], opt_type, init_structure=init_struc)
         return cls(slices=slices)
 
     def __post_init__(self):
+        # Calling "self.slices[-1].opt_type" is safe since the "initial_structure" argument
+        # ensure a length of at least 1, and opt_type has a default value
         self.opt_type = self.slices[-1].opt_type
         if self.opt_type is None and len(self) > 1:
             raise Warning("iter type interpreted as single-point calculation, but multiple structures found")
-        self.t_s = self._get_t_s()
         for var in _joss_atrs_from_last_slice:
-            setattr(self, var, getattr(self.slices[-1], var))
+            val = None
+            for i in range(1, len(self.slices) + 1):
+                val = getattr(self.slices[-i], var)
+                if val is not None:
+                    break
+            setattr(self, var, val)
+        self.initial_structure = self._get_initial_structure()
+        self.t_s = self._get_t_s()
         self._check_convergence()
+
+    def _get_initial_structure(self) -> Structure | None:
+        """Return initial structure.
+
+        Returns:
+            Structure | None: The initial structure.
+        """
+        if len(self):
+            return self.slices[0].structure
+        return None
 
     def _get_t_s(self) -> float | None:
         """Return time of calculation.
 
+        Return time of calculation. Backup function to reference elecmindata for t_s for single point calculations.
+
         Returns:
             float: The total time in seconds for the calculation.
         """
-        if self._t_s is not None:
-            return self._t_s
-        if len(self):
-            if (self.opt_type in ["single point", None]) and (isinstance(self[-1].elecmindata[-1].t_s, float)):
-                self._t_s = self[-1].elecmindata[-1].t_s
-            else:
-                self._t_s = self[-1].t_s
-        return self._t_s
+        if self.t_s is not None:
+            return self.t_s
+        if len(self) and ((self.opt_type in ["single point", None]) and (isinstance(self.elecmindata.t_s, float))):
+            return self.elecmindata.t_s
+        return None
 
     def _check_convergence(self) -> None:
         """Set convergence flags.
@@ -335,132 +357,9 @@ def _get_joutstructures_start_idx(
     return None
 
 
-def _get_init_structure(pre_out_slice: list[str]) -> Structure | None:
-    """
-    Return initial structure.
-
-    Return the initial structure from the pre_out_slice, corresponding to all data cut from JOutStructure list
-    initialization. This is needed to ensure structural data that is not being updated (and therefore not being
-    logged in the out file) is still available.
-
-    Args:
-        pre_out_slice (list[str]): A slice of a JDFTx out file (individual call of JDFTx) that
-        contains the initial structure information.
-
-    Returns:
-        Structure | None: The initial structure if available, otherwise None.
-    """
-    try:
-        lat_mat = _get_initial_lattice(pre_out_slice)
-        coords = _get_initial_coords(pre_out_slice)
-        species = _get_initial_species(pre_out_slice)
-        return Structure(lattice=lat_mat, species=species, coords=coords, coords_are_cartesian=True)
-    except AttributeError:
-        return None
-
-
-def _get_initial_lattice(pre_out_slice: list[str]) -> np.ndarray:
-    """Return initial lattice.
-
-    Return the initial lattice from the pre_out_slice, corresponding to all data cut from JOutStructure list
-    initialization. This is needed to ensure lattice data that is not being updated (and therefore not being
-    logged in the out file) is still available.
-
-    Args:
-        pre_out_slice (list[str]): A slice of a JDFTx out file (individual call of JDFTx) that
-            contains the initial lattice information.
-
-    Returns:
-        np.ndarray: The initial lattice matrix.
-    """
-    lat_lines = find_first_range_key("lattice  ", pre_out_slice)
-    if len(lat_lines):
-        lat_line = lat_lines[0]
-        lat_mat = np.zeros([3, 3])
-        for i in range(3):
-            line_text = pre_out_slice[lat_line + i + 1].strip().split()
-            for j in range(3):
-                lat_mat[i, j] = float(line_text[j])
-        return lat_mat.T * bohr_to_ang
-    raise AttributeError("Lattice not found in pre_out_slice")
-
-
-def _get_initial_coords(pre_out_slice: list[str]) -> np.ndarray:
-    """Return initial coordinates.
-
-    Return the initial coordinates from the pre_out_slice, corresponding to all data cut from JOutStructure list
-    initialization. This is needed to ensure coordinate data that is not being updated (and therefore not being
-    logged in the out file) is still available.
-
-    Args:
-        pre_out_slice (list[str]): A slice of a JDFTx out file (individual call of JDFTx) that
-            contains the initial coordinates information.
-
-    Returns:
-        np.ndarray: The initial coordinates.
-    """
-    lines = _get_ion_lines(pre_out_slice)
-    coords = np.zeros([len(lines), 3])
-    for i, line in enumerate(lines):
-        line_text = pre_out_slice[line].strip().split()[2:]
-        for j in range(3):
-            coords[i, j] = float(line_text[j])
-    coords_type_lines = find_first_range_key("coords-type", pre_out_slice)
-    if len(coords_type_lines):
-        coords_type = pre_out_slice[coords_type_lines[0]].strip().split()[1]
-        if coords_type.lower() != "cartesian":
-            coords = np.dot(coords, _get_initial_lattice(pre_out_slice))
-        else:
-            coords *= bohr_to_ang
-    return coords
-
-
-def _get_initial_species(pre_out_slice: list[str]) -> list[str]:
-    """Return initial species.
-
-    Return the initial species from the pre_out_slice, corresponding to all data cut from JOutStructure list
-    initialization. This is needed to ensure species data that is not being updated (and therefore not being
-    logged in the out file) is still available.
-
-    Args:
-        pre_out_slice (list[str]): A slice of a JDFTx out file (individual call of JDFTx) that
-            contains the initial species information.
-
-    Returns:
-        list[str]: The initial species.
-    """
-    lines = _get_ion_lines(pre_out_slice)
-    species_strs = []
-    for line in lines:
-        species_strs.append(pre_out_slice[line].strip().split()[1])
-    return species_strs
-
-
-def _get_ion_lines(pre_out_slice: list[str]) -> list[int]:
-    """Return ion lines.
-
-    Return the ion lines from the pre_out_slice, ensuring that all the ion lines are consecutive.
-
-    Args:
-        pre_out_slice (list[str]): A slice of a JDFTx out file (individual call of JDFTx) that
-            contains the ion lines information.
-
-    Returns:
-        list[int]: The ion lines.
-    """
-    _lines = find_first_range_key("ion ", pre_out_slice)
-    if not len(_lines):
-        raise AttributeError("Ion lines not found in pre_out_slice")
-    gaps = [_lines[i + 1] - _lines[i] for i in range(len(_lines) - 1)]
-    if not all(g == 1 for g in gaps):
-        # TODO: Write the fix for this case
-        raise AttributeError("Ion lines not consecutive in pre_out_slice")
-    return _lines
-
-
 def _get_joutstructure_list(
     out_slice: list[str],
-    opt_type: str,
+    opt_type: str | None,
     init_structure: Structure | None = None,
 ) -> list[JOutStructure]:
     """Return list of JOutStructure objects.
@@ -476,15 +375,27 @@ def _get_joutstructure_list(
         list[JOutStructure]: The list of JOutStructure objects.
     """
     out_bounds = _get_joutstructure_step_bounds(out_slice)
-    joutstructure_list: list[Structure | JOutStructure] = []
+    joutstructure_list: list[JOutStructure] = []
+    if not len(out_bounds):
+        # This case should only be called if no optimization steps are found to avoid errors down the line.
+        # If this is changed to always be the first structure, logic down the line on what is considered
+        # a "single point" calculation will be broken.
+        joutstructure_list.append(JOutStructure._from_text_slice([], init_structure=init_structure, opt_type=opt_type))
     for i, bounds in enumerate(out_bounds):
         if i > 0:
             init_structure = joutstructure_list[-1]
-        joutstructure_list.append(
-            JOutStructure._from_text_slice(
+        joutstructure = None
+        # The final out_slice slice is protected by the try/except block, as this slice has a high
+        # chance of being empty or malformed.
+        try:
+            joutstructure = JOutStructure._from_text_slice(
                 out_slice[bounds[0] : bounds[1]],
                 init_structure=init_structure,
                 opt_type=opt_type,
             )
-        )
+        except (ValueError, IndexError, TypeError, KeyError, AttributeError):
+            if not i == len(out_bounds) - 1:
+                raise
+        if joutstructure is not None:
+            joutstructure_list.append(joutstructure)
     return joutstructure_list

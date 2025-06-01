@@ -1621,6 +1621,9 @@ class TestChgcar(MatSciTest):
         chgcar = self.chgcar_spin + self.chgcar_spin
         assert chgcar.get_integrated_diff(0, 1)[0, 1] == approx(-0.0043896932237534022 * 2)
 
+        chgcar = sum([self.chgcar_spin, self.chgcar_spin])
+        assert chgcar.get_integrated_diff(0, 1)[0, 1] == approx(-0.0043896932237534022 * 2)
+
         chgcar = self.chgcar_spin - self.chgcar_spin
         assert chgcar.get_integrated_diff(0, 1)[0, 1] == approx(0)
 

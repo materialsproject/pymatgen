@@ -8,7 +8,6 @@ from __future__ import annotations
 import codecs
 import hashlib
 import itertools
-import json
 import math
 import os
 import re
@@ -24,6 +23,7 @@ from typing import TYPE_CHECKING, NamedTuple, cast
 from zipfile import ZipFile
 
 import numpy as np
+import orjson
 import scipy.constants as const
 from monty.io import zopen
 from monty.json import MontyDecoder, MSONable
@@ -38,10 +38,10 @@ from pymatgen.util.io_utils import clean_lines
 from pymatgen.util.string import str_delimited
 
 if TYPE_CHECKING:
-    from collections.abc import Sequence
+    from collections.abc import Mapping, Sequence
     from typing import Any, ClassVar, Literal
 
-    from numpy.typing import ArrayLike
+    from numpy.typing import ArrayLike, NDArray
     from typing_extensions import Self
 
     from pymatgen.core.structure import IStructure
@@ -168,7 +168,7 @@ class Poscar(MSONable):
         return self.structure.site_properties.get("velocities")
 
     @velocities.setter
-    def velocities(self, velocities: ArrayLike | None) -> None:
+    def velocities(self, velocities: NDArray) -> None:
         self.structure.add_site_property("velocities", velocities)
 
     @property
@@ -177,7 +177,7 @@ class Poscar(MSONable):
         return self.structure.site_properties.get("selective_dynamics")
 
     @selective_dynamics.setter
-    def selective_dynamics(self, selective_dynamics: ArrayLike | None) -> None:
+    def selective_dynamics(self, selective_dynamics: NDArray) -> None:
         self.structure.add_site_property("selective_dynamics", selective_dynamics)
 
     @property
@@ -186,7 +186,7 @@ class Poscar(MSONable):
         return self.structure.site_properties.get("predictor_corrector")
 
     @predictor_corrector.setter
-    def predictor_corrector(self, predictor_corrector: ArrayLike | None) -> None:
+    def predictor_corrector(self, predictor_corrector: NDArray) -> None:
         self.structure.add_site_property("predictor_corrector", predictor_corrector)
 
     @property
@@ -286,7 +286,7 @@ class Poscar(MSONable):
                 names = None
 
         with zopen(filename, mode="rt", encoding="utf-8") as file:
-            return cls.from_str(file.read(), names, read_velocities=read_velocities)
+            return cls.from_str(file.read(), names, read_velocities=read_velocities)  # type:ignore[arg-type]
 
     @classmethod
     def from_str(
@@ -683,7 +683,7 @@ class Poscar(MSONable):
         the Poscar.get_str method and are passed through directly.
         """
         with zopen(filename, mode="wt", encoding="utf-8") as file:
-            file.write(self.get_str(**kwargs))
+            file.write(self.get_str(**kwargs))  # type:ignore[arg-type]
 
     def as_dict(self) -> dict:
         """MSONable dict."""
@@ -773,7 +773,7 @@ class Incar(UserDict, MSONable):
         in the `lower_str_keys/as_is_str_keys` of the `proc_val` method.
     """
 
-    def __init__(self, params: dict[str, Any] | None = None) -> None:
+    def __init__(self, params: Mapping[str, Any] | None = None) -> None:
         """
         Clean up params and create an Incar object.
 
@@ -802,7 +802,7 @@ class Incar(UserDict, MSONable):
             val: list[list] = []
             for idx in range(len(params["MAGMOM"]) // 3):
                 val.append(params["MAGMOM"][idx * 3 : (idx + 1) * 3])
-            params["MAGMOM"] = val
+            params["MAGMOM"] = val  # type:ignore[index]
 
         super().__init__(params)
 
@@ -872,7 +872,7 @@ class Incar(UserDict, MSONable):
         return cls({k: v for k, v in dct.items() if k not in ("@module", "@class")})
 
     def copy(self) -> Self:
-        return type(self)(self)
+        return type(self)(self)  # type:ignore[arg-type]
 
     def get_str(self, sort_keys: bool = False, pretty: bool = False) -> str:
         """Get a string representation of the INCAR. Differ from the
@@ -918,7 +918,7 @@ class Incar(UserDict, MSONable):
             filename (str): filename to write to.
         """
         with zopen(filename, mode="wt", encoding="utf-8") as file:
-            file.write(str(self))
+            file.write(str(self))  # type:ignore[arg-type]
 
     @classmethod
     def from_file(cls, filename: PathLike) -> Self:
@@ -931,7 +931,7 @@ class Incar(UserDict, MSONable):
             Incar object
         """
         with zopen(filename, mode="rt", encoding="utf-8") as file:
-            return cls.from_str(file.read())
+            return cls.from_str(file.read())  # type:ignore[arg-type]
 
     @classmethod
     def from_str(cls, string: str) -> Self:
@@ -1117,7 +1117,7 @@ class Incar(UserDict, MSONable):
         """
         # Load INCAR tag/value check reference file
         with open(os.path.join(MODULE_DIR, "incar_parameters.json"), encoding="utf-8") as json_file:
-            incar_params = json.loads(json_file.read())
+            incar_params = orjson.loads(json_file.read())
 
         for tag, val in self.items():
             # Check if the tag exists
@@ -1596,7 +1596,7 @@ class Kpoints(MSONable):
         lattice = structure.lattice
 
         abc = lattice.abc
-        num_div: tuple[int, int, int] = tuple(math.ceil(ld / abc[idx]) for idx, ld in enumerate(length_densities))
+        num_div: tuple[int, int, int] = tuple(math.ceil(ld / abc[idx]) for idx, ld in enumerate(length_densities))  # type:ignore[assignment]
 
         is_hexagonal: bool = lattice.is_hexagonal()
         is_face_centered: bool = structure.get_space_group_info()[0][0] == "F"
@@ -1673,7 +1673,7 @@ class Kpoints(MSONable):
             Kpoints object
         """
         with zopen(filename, mode="rt", encoding="utf-8") as file:
-            return cls.from_str(file.read())
+            return cls.from_str(file.read())  # type:ignore[arg-type]
 
     @classmethod
     def from_str(cls, string: str) -> Self:
@@ -1814,7 +1814,7 @@ class Kpoints(MSONable):
             filename (PathLike): Filename to write to.
         """
         with zopen(filename, mode="wt", encoding="utf-8") as file:
-            file.write(str(self))
+            file.write(str(self))  # type:ignore[arg-type]
 
     def as_dict(self) -> dict[str, Any]:
         """MSONable dict."""
@@ -2478,7 +2478,7 @@ class PotcarSingle:
             filename (str): File to write to.
         """
         with zopen(filename, mode="wt", encoding="utf-8") as file:
-            file.write(str(self))
+            file.write(str(self))  # type:ignore[arg-type]
 
     def copy(self) -> Self:
         """Return a copy of the PotcarSingle.
@@ -2503,7 +2503,7 @@ class PotcarSingle:
 
         try:
             with zopen(filename, mode="rt", encoding="utf-8") as file:
-                return cls(file.read(), symbol=symbol or None)
+                return cls(file.read(), symbol=symbol or None)  # type:ignore[arg-type]
 
         except UnicodeDecodeError:
             warnings.warn(
@@ -2833,7 +2833,7 @@ def _gen_potcar_summary_stats(
     # Use append = True if a new POTCAR library is released to add new summary stats
     # without completely regenerating the dict of summary stats
     # Use append = False to completely regenerate the summary stats dict
-    new_summary_stats = loadfn(summary_stats_filename) if append else {}
+    new_summary_stats = loadfn(summary_stats_filename) if append else {}  # type:ignore[arg-type]
 
     for func, func_dir in func_dir_exist.items():
         new_summary_stats.setdefault(func, {})  # initialize dict if key missing
@@ -2944,7 +2944,7 @@ class Potcar(list, MSONable):
         }
 
     @classmethod
-    def from_dict(cls, dct: dict) -> Self:
+    def from_dict(cls, dct: dict) -> Potcar:
         """
         Args:
             dct (dict): Dict representation.
@@ -2991,7 +2991,7 @@ class Potcar(list, MSONable):
         """
         with zopen(filename, mode="rt", encoding="utf-8") as file:
             fdata = file.read()
-        return cls.from_str(fdata)
+        return cls.from_str(fdata)  # type:ignore[arg-type]
 
     def write_file(self, filename: PathLike) -> None:
         """Write Potcar to a file.
@@ -3000,7 +3000,7 @@ class Potcar(list, MSONable):
             filename (PathLike): filename to write to.
         """
         with zopen(filename, mode="wt", encoding="utf-8") as file:
-            file.write(str(self))
+            file.write(str(self))  # type:ignore[arg-type]
 
     def set_symbols(
         self,
@@ -3075,7 +3075,7 @@ class VaspInput(dict, MSONable):
 
     def __init__(
         self,
-        incar: dict | Incar,
+        incar: Mapping[str, Any],
         kpoints: Kpoints | None,
         poscar: Poscar,
         potcar: Potcar | str | None,
@@ -3103,7 +3103,7 @@ class VaspInput(dict, MSONable):
         self._potcar_filename = "POTCAR" + (".spec" if potcar_spec else "")
         self.update(
             {
-                "INCAR": Incar(incar),
+                "INCAR": Incar(incar),  # type:ignore[arg-type]
                 "KPOINTS": kpoints,
                 "POSCAR": poscar,
                 self._potcar_filename: potcar,
@@ -3172,7 +3172,7 @@ class VaspInput(dict, MSONable):
         for key, value in self.items():
             if value is not None:
                 with zopen(os.path.join(output_dir, key), mode="wt", encoding="utf-8") as file:
-                    file.write(str(value))
+                    file.write(str(value))  # type:ignore[arg-type]
 
         if cif_name:
             self["POSCAR"].structure.to(filename=cif_name)
@@ -3182,7 +3182,7 @@ class VaspInput(dict, MSONable):
             with ZipFile(os.path.join(output_dir, zip_name), mode="w") as zip_file:
                 for file in files_to_zip:
                     try:
-                        zip_file.write(os.path.join(output_dir, file), arcname=file)
+                        zip_file.write(os.path.join(output_dir, file), arcname=file)  # type:ignore[arg-type]
                     except FileNotFoundError:
                         pass
 

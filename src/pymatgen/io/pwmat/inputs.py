@@ -360,7 +360,7 @@ class ACstrExtractor(ACExtractorBase):
 class AtomConfig(MSONable):
     """Object for representing the data in a atom.config or final.config file."""
 
-    def __init__(self, structure: Structure | IStructure, sort_structure: bool = False):
+    def __init__(self, structure: IStructure | Structure, sort_structure: bool = False):
         """Initialization function.
 
         Args:
@@ -368,7 +368,7 @@ class AtomConfig(MSONable):
             sort_structure (bool, optional): Whether to sort the structure. Useful if species
                 are not grouped properly together. Defaults to False.
         """
-        self.structure: Structure = structure
+        self.structure: Structure = Structure.from_sites(structure)
         if sort_structure:
             self.structure = self.structure.get_sorted_structure()
         elements_counter = dict(sorted(Counter(self.structure.species).items()))
@@ -396,7 +396,7 @@ class AtomConfig(MSONable):
         properties: dict[str, float] = {}
         structure = Structure(
             lattice=ac_extractor.get_lattice(),
-            species=ac_extractor.get_types(),
+            species=ac_extractor.get_types(),  # type:ignore[arg-type]
             coords=ac_extractor.get_coords().reshape(-1, 3),
             coords_are_cartesian=False,
             properties=properties,
@@ -420,7 +420,7 @@ class AtomConfig(MSONable):
             AtomConfig object.
         """
         with zopen(filename, mode="rt", encoding="utf-8") as file:
-            return cls.from_str(data=file.read(), mag=mag)
+            return cls.from_str(data=file.read(), mag=mag)  # type:ignore[arg-type]
 
     @classmethod
     def from_dict(cls, dct: dict) -> Self:
@@ -468,7 +468,7 @@ class AtomConfig(MSONable):
     def write_file(self, filename: PathLike, **kwargs):
         """Write AtomConfig to a file."""
         with zopen(filename, mode="wt", encoding="utf-8") as file:
-            file.write(self.get_str(**kwargs))
+            file.write(self.get_str(**kwargs))  # type:ignore[arg-type]
 
     def as_dict(self):
         """
@@ -696,4 +696,4 @@ class HighSymmetryPoint(MSONable):
     def write_file(self, filename: PathLike):
         """Write HighSymmetryPoint to a file."""
         with zopen(filename, mode="wt", encoding="utf-8") as file:
-            file.write(self.get_str())
+            file.write(self.get_str())  # type:ignore[arg-type]

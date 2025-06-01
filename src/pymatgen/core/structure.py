@@ -23,6 +23,7 @@ from fnmatch import fnmatch
 from typing import TYPE_CHECKING, Literal, cast, get_args, overload
 
 import numpy as np
+import orjson
 from monty.dev import deprecated
 from monty.io import zopen
 from monty.json import MSONable
@@ -541,7 +542,7 @@ class SiteCollection(collections.abc.Sequence, ABC):
         """Read in SiteCollection from a filename."""
         raise NotImplementedError
 
-    def add_site_property(self, property_name: str, values: Sequence | np.ndarray) -> Self:
+    def add_site_property(self, property_name: str, values: Sequence | NDArray) -> Self:
         """Add a property to a site. Note: This is the preferred method
         for adding magnetic moments, selective dynamics, and related
         site-specific properties to a structure/molecule object.
@@ -918,7 +919,7 @@ class SiteCollection(collections.abc.Sequence, ABC):
             dyn.run(fmax=fmax, steps=steps)
 
         # Get pymatgen Structure or Molecule
-        system: Structure | Molecule = adaptor.get_molecule(atoms) if is_molecule else adaptor.get_structure(atoms)
+        system: Structure | Molecule = adaptor.get_molecule(atoms) if is_molecule else adaptor.get_structure(atoms)  # type:ignore[assignment]
 
         # Attach important ASE results
         system.calc = atoms.calc
@@ -999,7 +1000,7 @@ class SiteCollection(collections.abc.Sequence, ABC):
         """
         from pymatgen.io.ase import AseAtomsAdaptor
 
-        return AseAtomsAdaptor.get_structure(atoms, cls=cls, **kwargs)  # type:ignore[type-var]
+        return AseAtomsAdaptor.get_structure(atoms, cls=cls, **kwargs)  # type:ignore[type-var,return-value]
 
 
 class IStructure(SiteCollection, MSONable):
@@ -2812,14 +2813,14 @@ class IStructure(SiteCollection, MSONable):
 
     def as_dict(
         self,
-        verbosity: int = 1,
+        verbosity: Literal[0, 1] = 1,
         fmt: Literal["abivars"] | None = None,
         **kwargs,
     ) -> dict[str, Any]:
         """Dict representation of Structure.
 
         Args:
-            verbosity (int): Verbosity level. Default of 1 includes both
+            verbosity (0 | 1): Verbosity level. Default of 1 includes both
                 direct and Cartesian coordinates for all sites, lattice
                 parameters, etc. Useful for reading and for insertion into a
                 database. Set to 0 for an extremely lightweight version
@@ -2856,7 +2857,10 @@ class IStructure(SiteCollection, MSONable):
             del site_dict["lattice"]
             del site_dict["@module"]
             del site_dict["@class"]
+            if verbosity == 0:
+                del site_dict["label"]
             sites.append(site_dict)
+
         dct["sites"] = sites
         return dct
 
@@ -2960,7 +2964,8 @@ class IStructure(SiteCollection, MSONable):
             writer = Cssr(self)
 
         elif fmt == "json" or fnmatch(filename.lower(), "*.json*"):
-            json_str = json.dumps(self.as_dict(), **kwargs)
+            json_str = json.dumps(self.as_dict(), **kwargs) if kwargs else orjson.dumps(self.as_dict()).decode()
+
             if filename:
                 with zopen(filename, mode="wt", encoding="utf-8") as file:
                     file.write(json_str)  # type:ignore[arg-type]
@@ -3110,7 +3115,7 @@ class IStructure(SiteCollection, MSONable):
             cssr = Cssr.from_str(input_string, **kwargs)
             struct = cssr.structure  # type:ignore[assignment]
         elif fmt_low == "json":
-            dct = json.loads(input_string)
+            dct = orjson.loads(input_string)
             struct = Structure.from_dict(dct)
         elif fmt_low in ("yaml", "yml"):
             yaml = YAML()
@@ -3959,7 +3964,7 @@ class IMolecule(SiteCollection, MSONable):
         return cls(
             lattice,
             self.species * nimages,
-            coords,
+            all_coords,
             coords_are_cartesian=True,
             site_properties=site_props,
             labels=self.labels * nimages,
@@ -4012,7 +4017,7 @@ class IMolecule(SiteCollection, MSONable):
 
             writer = GaussianInput(self)
         elif fmt == "json" or fnmatch(filename, "*.json*") or fnmatch(filename, "*.mson*"):
-            json_str = json.dumps(self.as_dict())
+            json_str = orjson.dumps(self.as_dict()).decode()
             if filename:
                 with zopen(filename, mode="wt", encoding="utf-8") as file:
                     file.write(json_str)  # type:ignore[arg-type]
@@ -4074,7 +4079,7 @@ class IMolecule(SiteCollection, MSONable):
             mol = GaussianInput.from_str(input_string).molecule
 
         elif fmt == "json":
-            dct = json.loads(input_string)
+            dct = orjson.loads(input_string)
             return cls.from_dict(dct)
 
         elif fmt in {"yaml", "yml"}:
@@ -5572,5 +5577,5 @@ class StructureError(Exception):
     """
 
 
-with open(os.path.join(os.path.dirname(__file__), "func_groups.json"), encoding="utf-8") as file:
-    FunctionalGroups = {k: Molecule(v["species"], v["coords"]) for k, v in json.load(file).items()}
+with open(os.path.join(os.path.dirname(__file__), "func_groups.json"), "rb") as file:
+    FunctionalGroups = {k: Molecule(v["species"], v["coords"]) for k, v in orjson.loads(file.read()).items()}

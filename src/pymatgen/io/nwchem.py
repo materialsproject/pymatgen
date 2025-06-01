@@ -535,7 +535,7 @@ class NwInput(MSONable):
             NwInput object
         """
         with zopen(filename, mode="rt", encoding="utf-8") as file:
-            return cls.from_str(file.read())
+            return cls.from_str(file.read())  # type:ignore[arg-type]
 
 
 class NwInputError(Exception):

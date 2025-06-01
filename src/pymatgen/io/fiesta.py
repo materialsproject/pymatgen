@@ -533,7 +533,7 @@ $geometry
             filename: Filename.
         """
         with zopen(filename, mode="wt", encoding="utf-8") as file:
-            file.write(str(self))
+            file.write(str(self))  # type:ignore[arg-type]
 
     def as_dict(self):
         """MSONable dict."""
@@ -565,7 +565,7 @@ $geometry
         )
 
     @classmethod
-    def from_str(cls, string_input: str) -> Self:
+    def from_str(cls, string_input: str) -> FiestaInput:
         """
         Read an FiestaInput from a string. Currently tested to work with
         files generated from this class itself.
@@ -700,7 +700,7 @@ $geometry
         )
 
     @classmethod
-    def from_file(cls, filename: str | Path) -> Self:
+    def from_file(cls, filename: str | Path) -> FiestaInput:
         """
         Read an Fiesta input from a file. Currently tested to work with
         files generated from this class itself.
@@ -712,7 +712,7 @@ $geometry
             FiestaInput object
         """
         with zopen(filename, mode="rt", encoding="utf-8") as file:
-            return cls.from_str(file.read())
+            return cls.from_str(file.read())  # type:ignore[arg-type]
 
 
 class FiestaOutput:

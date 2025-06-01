@@ -4,11 +4,12 @@ Molecule analysis.
 
 from __future__ import annotations
 
-import json
 import os
 import warnings
 from collections import defaultdict
 from typing import TYPE_CHECKING
+
+import orjson
 
 from pymatgen.core import Element
 
@@ -18,13 +19,34 @@ if TYPE_CHECKING:
 
 
 def _load_bond_length_data() -> dict[tuple[str, ...], dict[float, float]]:
-    """Load bond length data from bond_lengths.json file."""
+    """
+    Loads bond length data from a JSON file.
+
+    This function reads a `bond_lengths.json` file located in the same
+    directory as the current script. The file contains bond length data
+    for different combinations of elements and bond orders. The data
+    is processed and structured into a dictionary format for further
+    use in the application.
+
+    Returns:
+        dict[tuple[str, ...], dict[float, float]]:
+            A nested dictionary where the keys of the outer dictionary
+            are tuples containing sorted element symbols, and the values
+            are dictionaries that map bond orders (float) to bond lengths
+            (float).
+
+    Raises:
+        FileNotFoundError: If the `bond_lengths.json` file is not found
+            in the expected location.
+        JSONDecodeError: If the file is corrupted or not a valid JSON
+            format.
+    """
     with open(
         os.path.join(os.path.dirname(__file__), "bond_lengths.json"),
-        encoding="utf-8",
+        "rb",
     ) as file:
         data: dict[tuple, dict] = defaultdict(dict)
-        for row in json.load(file):
+        for row in orjson.loads(file.read()):
             els = sorted(row["elements"])
             data[tuple(els)][row["bond_order"]] = row["length"]
         return data
@@ -37,11 +59,16 @@ class CovalentBond:
     """A covalent bond between two sites."""
 
     def __init__(self, site1: Site, site2: Site) -> None:
-        """Initialize a covalent bond between two sites.
+        """
+        Initializes the object with two site instances.
+
+        This constructor method assigns the provided `site1` and `site2`
+        parameters to the instance attributes, enabling interaction
+        with two separate `Site` objects.
 
         Args:
-            site1 (Site): First site.
-            site2 (Site): Second site.
+            site1: The first site object.
+            site2: The second site object.
         """
         self.site1 = site1
         self.site2 = site2
