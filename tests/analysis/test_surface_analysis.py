@@ -2,10 +2,11 @@ from __future__ import annotations
 
 import json
 
+import matplotlib.pyplot as plt
 from numpy.testing import assert_allclose
 from pytest import approx
 from sympy import Number, Symbol
-import matplotlib.pyplot as plt
+
 from pymatgen.analysis.surface_analysis import NanoscaleStability, SlabEntry, SurfaceEnergyPlotter, WorkFunctionAnalyzer
 from pymatgen.entries.computed_entries import ComputedStructureEntry
 from pymatgen.util.testing import TEST_FILES_DIR, PymatgenTest
@@ -354,11 +355,11 @@ class TestNanoscaleStability(PymatgenTest):
         assert approx(w2.effective_radius) == 10
 
     def test_plot(self):
-        ax = self.nanoscale_stability.plot_all_stability_map(max_r=1.0)
+        ax = self.nanoscale_stability.plot_all_stability_map(max_r=10.0, labels=["La_hcp", "La_fcc"])
 
         assert isinstance(ax, plt.Axes)
-        assert "Chemical potential" in ax.get_xlabel()
-        assert "Area fraction" in ax.get_ylabel()
+        assert "Particle radius" in ax.get_xlabel()
+        assert "$G_{form}$" in ax.get_ylabel()
 
 
 def get_entry_dict(filename):
