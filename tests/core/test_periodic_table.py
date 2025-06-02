@@ -14,10 +14,10 @@ from pymatgen.core import DummySpecies, Element, Species, get_el_sp
 from pymatgen.core.periodic_table import ElementBase, ElementType
 from pymatgen.core.units import Ha_to_eV
 from pymatgen.io.core import ParseError
-from pymatgen.util.testing import PymatgenTest
+from pymatgen.util.testing import MatSciTest
 
 
-class TestElement(PymatgenTest):
+class TestElement(MatSciTest):
     def test_init(self):
         assert Element("Fe").symbol == "Fe"
 
@@ -28,6 +28,25 @@ class TestElement(PymatgenTest):
                 Element(sym)
 
         assert id(Element("Fe")) == id(Element("Fe"))  # Test caching
+
+    def test_iter(self):
+        # Make sure isotopes don't show during iteration
+        assert [elem.name for elem in Element] == (
+            "H,He,Li,Be,B,C,N,O,F,Ne,Na,Mg,Al,Si,P,S,Cl,Ar,K,Ca,Sc,Ti,V,Cr,"
+            "Mn,Fe,Co,Ni,Cu,Zn,Ga,Ge,As,Se,Br,Kr,Rb,Sr,Y,Zr,Nb,Mo,Tc,Ru,Rh,Pd,"
+            "Ag,Cd,In,Sn,Sb,Te,I,Xe,Cs,Ba,La,Ce,Pr,Nd,Pm,Sm,Eu,Gd,Tb,Dy,Ho,Er,Tm,"
+            "Yb,Lu,Hf,Ta,W,Re,Os,Ir,Pt,Au,Hg,Tl,Pb,Bi,Po,At,Rn,Fr,Ra,Ac,Th,Pa,U,Np,"
+            "Pu,Am,Cm,Bk,Cf,Es,Fm,Md,No,Lr,Rf,Db,Sg,Bh,Hs,Mt,Ds,Rg,Cn,Nh,Fl,Mc,Lv,Ts,Og"
+        ).split(",")
+
+        # Make sure isotopes are still in members
+        assert list(Element.__members__) == (
+            "H,D,T,He,Li,Be,B,C,N,O,F,Ne,Na,Mg,Al,Si,P,S,Cl,Ar,K,Ca,Sc,Ti,V,Cr,"
+            "Mn,Fe,Co,Ni,Cu,Zn,Ga,Ge,As,Se,Br,Kr,Rb,Sr,Y,Zr,Nb,Mo,Tc,Ru,Rh,Pd,"
+            "Ag,Cd,In,Sn,Sb,Te,I,Xe,Cs,Ba,La,Ce,Pr,Nd,Pm,Sm,Eu,Gd,Tb,Dy,Ho,Er,Tm,"
+            "Yb,Lu,Hf,Ta,W,Re,Os,Ir,Pt,Au,Hg,Tl,Pb,Bi,Po,At,Rn,Fr,Ra,Ac,Th,Pa,U,Np,"
+            "Pu,Am,Cm,Bk,Cf,Es,Fm,Md,No,Lr,Rf,Db,Sg,Bh,Hs,Mt,Ds,Rg,Cn,Nh,Fl,Mc,Lv,Ts,Og"
+        ).split(",")
 
     def test_missing_and_confusing_data(self):
         with pytest.warns(UserWarning, match="No data available"):
@@ -75,8 +94,8 @@ class TestElement(PymatgenTest):
                 (2, "p", 6),
                 (3, "s", 2),
                 (3, "p", 6),
-                (3, "d", 6),
                 (4, "s", 2),
+                (3, "d", 6),
             ],
             "Li": [(1, "s", 2), (2, "s", 1)],
             "U": [
@@ -85,19 +104,19 @@ class TestElement(PymatgenTest):
                 (2, "p", 6),
                 (3, "s", 2),
                 (3, "p", 6),
-                (3, "d", 10),
                 (4, "s", 2),
+                (3, "d", 10),
                 (4, "p", 6),
-                (4, "d", 10),
                 (5, "s", 2),
+                (4, "d", 10),
                 (5, "p", 6),
+                (6, "s", 2),
                 (4, "f", 14),
                 (5, "d", 10),
-                (6, "s", 2),
                 (6, "p", 6),
+                (7, "s", 2),
                 (5, "f", 3),
                 (6, "d", 1),
-                (7, "s", 2),
             ],
         }
         for k, v in cases.items():
@@ -169,6 +188,11 @@ class TestElement(PymatgenTest):
         }
         for k, v in cases.items():
             assert ElementBase.from_row_and_group(v[0], v[1]) == Element(k)
+
+    def test_n_electrons(self):
+        cases = {"O": 8, "Fe": 26, "Li": 3, "Be": 4}
+        for k, v in cases.items():
+            assert Element(k).n_electrons == v
 
     def test_valence(self):
         cases = {"O": (1, 4), "Fe": (2, 6), "Li": (0, 1), "Be": (0, 2)}
@@ -341,18 +365,18 @@ class TestElement(PymatgenTest):
 
     def test_radii(self):
         el = Element.Pd
-        assert el.atomic_radius == 1.40
-        assert el.atomic_radius_calculated == 1.69
-        assert el.van_der_waals_radius == 2.10
+        assert el.atomic_radius == approx(1.40)
+        assert el.atomic_radius_calculated == approx(1.69)
+        assert el.van_der_waals_radius == approx(2.10)
 
     def test_data(self):
-        assert Element.Pd.data["Atomic radius"] == 1.4
+        assert Element.Pd.data["Atomic radius"] == approx(1.4)
         al = Element.Al
         val = al.thermal_conductivity
         assert val == 235
         assert str(val.unit) == "W K^-1 m^-1"
         val = al.electrical_resistivity
-        assert val == 2.7e-08
+        assert val == approx(2.7e-08)
         assert str(val.unit) == "m ohm"
 
     def test_sort(self):
@@ -361,17 +385,18 @@ class TestElement(PymatgenTest):
 
     def test_pickle(self):
         pickled = pickle.dumps(Element.Fe)
-        assert Element.Fe == pickle.loads(pickled)
+        assert Element.Fe == pickle.loads(pickled)  # noqa: S301
 
         # Test 5 random elements
-        for idx in np.random.randint(1, 104, size=5):
+        rng = np.random.default_rng()
+        for idx in rng.integers(1, 104, size=5):
             self.serialize_with_pickle(Element.from_Z(idx))
 
     def test_print_periodic_table(self):
         Element.print_periodic_table()
 
     def test_is(self):
-        assert Element("Bi").is_post_transition_metal, True
+        assert Element("Bi").is_post_transition_metal
 
     def test_isotope(self):
         elems = [Element(el) for el in ("H", "D", "T")]
@@ -379,11 +404,17 @@ class TestElement(PymatgenTest):
         assert list(map(str, elems)) == ["H", "H", "H"]
         assert [el.A for el in elems] == [1, 2, 3]
         assert all(abs(el.atomic_mass - idx - 1) < 0.1 for idx, el in enumerate(elems))
-        assert [el.atomic_mass for el in elems] == [1.00794, 2.013553212712, 3.0155007134]
+        assert [el.atomic_mass for el in elems] == [
+            1.00794,
+            2.013553212712,
+            3.0155007134,
+        ]
+
+        assert Element.named_isotopes == (Element.D, Element.T)
 
 
-class TestSpecies(PymatgenTest):
-    def setUp(self):
+class TestSpecies(MatSciTest):
+    def setup_method(self):
         self.specie1 = Species.from_str("Fe2+")
         self.specie2 = Species("Fe", 3)
         self.specie3 = Species("Fe", 2)
@@ -396,8 +427,8 @@ class TestSpecies(PymatgenTest):
         assert Species("O0+", spin=2) == Species("O", 0, spin=2)
 
     def test_ionic_radius(self):
-        assert self.specie2.ionic_radius == 78.5 / 100
-        assert self.specie3.ionic_radius == 92 / 100
+        assert self.specie2.ionic_radius == approx(78.5 / 100)
+        assert self.specie3.ionic_radius == approx(92 / 100)
         assert Species("Mn", 4).ionic_radius == approx(0.67)
 
     def test_eq(self):
@@ -423,7 +454,7 @@ class TestSpecies(PymatgenTest):
         assert elem_list == deepcopy(elem_list), "Deepcopy operation doesn't produce exact copy."
 
     def test_pickle(self):
-        assert self.specie1 == pickle.loads(pickle.dumps(self.specie1))
+        assert self.specie1 == pickle.loads(pickle.dumps(self.specie1))  # noqa: S301
         for idx in range(1, 5):
             self.serialize_with_pickle(getattr(self, f"specie{idx}"))
         cs = Species("Cs1+")
@@ -433,7 +464,7 @@ class TestSpecies(PymatgenTest):
             pickle.dump((cs, cl), file)
 
         with open(f"{self.tmp_path}/cscl.pickle", "rb") as file:
-            tup = pickle.load(file)
+            tup = pickle.load(file)  # noqa: S301
             assert tup == (cs, cl)
 
     def test_get_crystal_field_spin(self):
@@ -461,18 +492,18 @@ class TestSpecies(PymatgenTest):
         assert spin == 2
 
     def test_get_nmr_mom(self):
-        assert Species("H").get_nmr_quadrupole_moment() == 2.860
-        assert Species("Li").get_nmr_quadrupole_moment() == -0.808
-        assert Species("Li").get_nmr_quadrupole_moment("Li-7") == -40.1
-        assert Species("Si").get_nmr_quadrupole_moment() == 0.0
+        assert Species("H").get_nmr_quadrupole_moment() == approx(2.860)
+        assert Species("Li").get_nmr_quadrupole_moment() == approx(-0.808)
+        assert Species("Li").get_nmr_quadrupole_moment("Li-7") == approx(-40.1)
+        assert Species("Si").get_nmr_quadrupole_moment() == approx(0)
         with pytest.raises(ValueError, match="No quadrupole moment for isotope='Li-109'"):
             Species("Li").get_nmr_quadrupole_moment("Li-109")
 
     def test_get_shannon_radius(self):
-        assert Species("Li", 1).get_shannon_radius("IV") == 0.59
+        assert Species("Li", 1).get_shannon_radius("IV") == approx(0.59)
         mn2 = Species("Mn", 2)
-        assert mn2.get_shannon_radius("IV", "High Spin") == 0.66
-        assert mn2.get_shannon_radius("V", "High Spin") == 0.75
+        assert mn2.get_shannon_radius("IV", "High Spin") == approx(0.66)
+        assert mn2.get_shannon_radius("V", "High Spin") == approx(0.75)
 
         with pytest.warns(
             UserWarning,
@@ -481,12 +512,12 @@ class TestSpecies(PymatgenTest):
         ) as warns:
             radius = mn2.get_shannon_radius("V")
             assert len(warns) == 1
-            assert radius == 0.75
+            assert radius == approx(0.75)
 
-        assert mn2.get_shannon_radius("VI", "Low Spin") == 0.67
-        assert mn2.get_shannon_radius("VI", "High Spin") == 0.83
-        assert mn2.get_shannon_radius("VII", "High Spin") == 0.9
-        assert mn2.get_shannon_radius("VIII") == 0.96
+        assert mn2.get_shannon_radius("VI", "Low Spin") == approx(0.67)
+        assert mn2.get_shannon_radius("VI", "High Spin") == approx(0.83)
+        assert mn2.get_shannon_radius("VII", "High Spin") == approx(0.9)
+        assert mn2.get_shannon_radius("VIII") == approx(0.96)
 
     def test_sort(self):
         els = map(get_el_sp, ["N3-", "Si4+", "Si3+"])
@@ -538,7 +569,7 @@ class TestSpecies(PymatgenTest):
 def test_symbol_oxi_state_str(symbol_oxi, expected_element, expected_oxi_state):
     species = Species(symbol_oxi)
     assert species._el.symbol == expected_element
-    assert species._oxi_state == pytest.approx(expected_oxi_state, rel=1.0e-6)
+    assert species._oxi_state == approx(expected_oxi_state, rel=1.0e-6)
 
 
 def test_symbol_oxi_state_str_raises():
@@ -584,7 +615,7 @@ class TestDummySpecies:
     def test_pickle(self):
         el1 = DummySpecies("X", 3)
         pickled = pickle.dumps(el1)
-        assert el1 == pickle.loads(pickled)
+        assert el1 == pickle.loads(pickled)  # noqa: S301
 
     def test_sort(self):
         Fe, X = Element.Fe, DummySpecies("X")
@@ -601,13 +632,95 @@ class TestDummySpecies:
         )
         assert sp.spin == 5
 
-    def test_not_implemented(self):
-        with pytest.raises(NotImplementedError):
-            _ = Species("Fe", 2).full_electronic_structure
-        with pytest.raises(NotImplementedError):
-            _ = Species("Fe", 2).electronic_structure
-        with pytest.raises(NotImplementedError):
-            _ = Species("Fe", 2).valence
+    def test_species_electronic_structure(self):
+        assert Species("Fe", 0).electronic_structure == "[Ar].3d6.4s2"
+        assert Species("Fe", 0).n_electrons == 26
+        assert Species("Fe", 0).full_electronic_structure == [
+            (1, "s", 2),
+            (2, "s", 2),
+            (2, "p", 6),
+            (3, "s", 2),
+            (3, "p", 6),
+            (4, "s", 2),
+            (3, "d", 6),
+        ]
+        assert Species("Fe", 0).valence == (2, 6)
+
+        assert Species("Fe", 2).electronic_structure == "[Ar].3d6"
+        assert Species("Fe", 2).n_electrons == 24
+        assert Species("Fe", 2).full_electronic_structure == [
+            (1, "s", 2),
+            (2, "s", 2),
+            (2, "p", 6),
+            (3, "s", 2),
+            (3, "p", 6),
+            (3, "d", 6),
+        ]
+        assert Species("Fe", 2).valence == (2, 6)
+
+        assert Species("Fe", 3).electronic_structure == "[Ar].3d5"
+        assert Species("Fe", 3).n_electrons == 23
+        assert Species("Fe", 3).full_electronic_structure == [
+            (1, "s", 2),
+            (2, "s", 2),
+            (2, "p", 6),
+            (3, "s", 2),
+            (3, "p", 6),
+            (3, "d", 5),
+        ]
+        assert Species("Fe", 3).valence == (2, 5)
+
+        assert Species("Th", 4).electronic_structure == "[Hg].6p6"
+        assert Species("Th", 4).full_electronic_structure == [
+            (1, "s", 2),
+            (2, "s", 2),
+            (2, "p", 6),
+            (3, "s", 2),
+            (3, "p", 6),
+            (4, "s", 2),
+            (3, "d", 10),
+            (4, "p", 6),
+            (5, "s", 2),
+            (4, "d", 10),
+            (5, "p", 6),
+            (6, "s", 2),
+            (4, "f", 14),
+            (5, "d", 10),
+            (6, "p", 6),
+        ]
+        assert Species("Th", 4).valence == (1, 6)
+
+        assert Species("Li", 1).electronic_structure == "1s2"
+        assert Species("Li", 1).n_electrons == 2
+        # alkali metals, all p
+        for el in ["Na", "K", "Rb", "Cs"]:
+            assert Species(el, 1).electronic_structure.split(".")[-1][1::] == "p6", f"Failure for {el} +1"
+        for el in ["Ca", "Mg", "Ba", "Sr"]:
+            assert Species(el, 2).electronic_structure.split(".")[-1][1::] == "p6", f"Failure for {el} +2"
+        # valence shell should be f (l=3) for all lanthanide ions except La+3 and Lu+3
+        for el in [
+            "Ce",
+            "Nd",
+            "Sm",
+            "Eu",
+            "Gd",
+            "Tb",
+            "Dy",
+            "Ho",
+            "Er",
+            "Tm",
+            "Yb",
+            "Lu",
+        ]:
+            assert Species(el, 3).valence[0] == 3, f"Failure for {el} +3"
+
+        for el in Element:
+            for ox in el.common_oxidation_states:
+                if str(el) == "H" and ox == 1:
+                    continue
+                n_electron_el = sum(orb[-1] for orb in el.full_electronic_structure)
+                n_electron_sp = sum(orb[-1] for orb in Species(el, ox).full_electronic_structure)
+                assert n_electron_el - n_electron_sp == ox, f"Failure for {el} {ox}"
 
 
 def test_get_el_sp():

@@ -1,20 +1,19 @@
 from __future__ import annotations
 
 import itertools
-import random
 
 import numpy as np
 from numpy.testing import assert_allclose
 from pytest import approx
 
 from pymatgen.analysis.chemenv.utils.coordination_geometry_utils import Plane
-from pymatgen.util.testing import PymatgenTest
+from pymatgen.util.testing import MatSciTest
 
 __author__ = "David Waroquiers"
 
 
-class TestPlanesUtils(PymatgenTest):
-    def setUp(self):
+class TestPlanesUtils(MatSciTest):
+    def setup_method(self):
         # Test of plane 4x + 2y - 4z + 3 = 0 (used in most test cases)
         self.expected_coefficients = np.array([4, 2, -4, 3], float)
         self.p1 = np.array([0, 0, 0.75])
@@ -246,7 +245,14 @@ class TestPlanesUtils(PymatgenTest):
         distances, indices_sorted = self.plane.distances_indices_sorted(plist)
         assert_allclose(
             distances,
-            [0.5, 0, 1.16666666666666, 21.1666666666666, 3.8333333333333, 67.1666666666666],
+            [
+                0.5,
+                0,
+                1.16666666666666,
+                21.1666666666666,
+                3.8333333333333,
+                67.1666666666666,
+            ],
             atol=1e-9,
         )
         assert indices_sorted == [1, 0, 2, 4, 3, 5]
@@ -276,8 +282,9 @@ class TestPlanesUtils(PymatgenTest):
         plane = Plane.from_coefficients(0, 0, 1, 0)
         zzs = [0.1, -0.2, 0.7, -2.1, -1.85, 0, -0.71, -0.82, -6.5, 1.8]
         plist = []
+        rng = np.random.default_rng()
         for zz in zzs:
-            plist.append([random.uniform(-20, 20), random.uniform(-20, 20), zz])
+            plist.append([rng.uniform(-20, 20), rng.uniform(-20, 20), zz])
         distances, indices_sorted, groups = plane.distances_indices_groups(points=plist, delta=0.25)
         assert indices_sorted == [5, 0, 1, 2, 6, 7, 9, 4, 3, 8]
         assert groups == [[5, 0, 1], [2, 6, 7], [9, 4, 3], [8]]
@@ -287,7 +294,18 @@ class TestPlanesUtils(PymatgenTest):
         assert groups == [[5, 0, 1, 2, 6, 7], [9, 4, 3], [8]]
         assert_allclose(distances, zzs)
         distances, indices_sorted, groups = plane.distances_indices_groups(points=plist, delta_factor=0.1, sign=True)
-        assert indices_sorted == [(5, 0), (0, 1), (1, -1), (2, 1), (6, -1), (7, -1), (9, 1), (4, -1), (3, -1), (8, -1)]
+        assert indices_sorted == [
+            (5, 0),
+            (0, 1),
+            (1, -1),
+            (2, 1),
+            (6, -1),
+            (7, -1),
+            (9, 1),
+            (4, -1),
+            (3, -1),
+            (8, -1),
+        ]
         assert groups == [
             [(5, 0), (0, 1), (1, -1), (2, 1), (6, -1), (7, -1)],
             [(9, 1), (4, -1), (3, -1)],

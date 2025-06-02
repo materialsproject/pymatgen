@@ -7,7 +7,7 @@ from monty.serialization import loadfn
 
 from pymatgen.command_line.mcsqs_caller import run_mcsqs
 from pymatgen.core.structure import Structure
-from pymatgen.util.testing import TEST_FILES_DIR, PymatgenTest
+from pymatgen.util.testing import TEST_FILES_DIR, MatSciTest
 
 __author__ = "Handong Ling, Rachel Woods-Robinson"
 __maintainer__ = "Handong Ling, Rachel Woods-Robinson"
@@ -18,8 +18,8 @@ TEST_DIR = f"{TEST_FILES_DIR}/io/atat/mcsqs"
 
 
 @pytest.mark.skipif(not (which("mcsqs") and which("str2cif")), reason="mcsqs executable not present")
-class TestMcsqsCaller(PymatgenTest):
-    def setUp(self):
+class TestMcsqsCaller(MatSciTest):
+    def setup_method(self):
         self.pzt_structs = loadfn(f"{TEST_DIR}/pzt-structs.json")
         self.pzt_structs2 = loadfn(f"{TEST_DIR}/pzt-structs-2.json")
         self.struct = self.get_structure("Pb2TiZrO6")
@@ -42,7 +42,11 @@ class TestMcsqsCaller(PymatgenTest):
             "longest_pair_length",
             "num_points_in_cluster",
         }
-        assert set(sqs.clusters[0]["coordinates"][0]) == {"cluster_function", "coordinates", "num_possible_species"}
+        assert set(sqs.clusters[0]["coordinates"][0]) == {
+            "cluster_function",
+            "coordinates",
+            "num_possible_species",
+        }
 
     def test_mcsqs_caller_total_atoms(self):
         struct = self.struct.copy()

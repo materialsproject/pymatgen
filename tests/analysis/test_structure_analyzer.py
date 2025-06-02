@@ -1,7 +1,5 @@
 from __future__ import annotations
 
-from unittest import TestCase
-
 import numpy as np
 from numpy.testing import assert_allclose
 from pytest import approx
@@ -18,11 +16,11 @@ from pymatgen.analysis.structure_analyzer import (
 )
 from pymatgen.core import Element, Lattice, Structure
 from pymatgen.io.vasp.outputs import Xdatcar
-from pymatgen.util.testing import VASP_IN_DIR, VASP_OUT_DIR, PymatgenTest
+from pymatgen.util.testing import VASP_IN_DIR, VASP_OUT_DIR, MatSciTest
 
 
-class TestVoronoiAnalyzer(PymatgenTest):
-    def setUp(self):
+class TestVoronoiAnalyzer(MatSciTest):
+    def setup_method(self):
         self.structs = Xdatcar(f"{VASP_OUT_DIR}/XDATCAR.MD").structures
         self.struct = self.structs[1]
         self.va = VoronoiAnalyzer(cutoff=4)
@@ -34,21 +32,24 @@ class TestVoronoiAnalyzer(PymatgenTest):
         # Check for the presence of a Voronoi index and its frequency in
         # a ensemble (list) of Structures
         ensemble = self.va.analyze_structures(self.structs, step_freq=2, most_frequent_polyhedra=10)
-        assert ("[1 3 4 7 1 0 0 0]", 3) in ensemble, "Cannot find the right polyhedron in ensemble."
+        assert (
+            "[1 3 4 7 1 0 0 0]",
+            3,
+        ) in ensemble, "Cannot find the right polyhedron in ensemble."
 
 
-class TestRelaxationAnalyzer(TestCase):
-    def setUp(self):
+class TestRelaxationAnalyzer:
+    def setup_method(self):
         s1 = Structure.from_file(f"{VASP_IN_DIR}/POSCAR_Li2O")
         s2 = Structure.from_file(f"{VASP_OUT_DIR}/CONTCAR_Li2O")
         self.analyzer = RelaxationAnalyzer(s1, s2)
 
     def test_vol_and_para_changes(self):
         for val in self.analyzer.get_percentage_lattice_parameter_changes().values():
-            assert approx(val) == -0.0092040921155279731
+            assert val == approx(-0.0092040921155279731)
             latt_change = val
         vol_change = self.analyzer.get_percentage_volume_change()
-        assert approx(vol_change) == -0.0273589101391
+        assert vol_change == approx(-0.0273589101391)
         # This is a simple cubic cell, so the latt and vol change are simply
         # Related. So let's test that.
         assert (1 + latt_change) ** 3 - 1 == approx(vol_change)
@@ -56,10 +57,10 @@ class TestRelaxationAnalyzer(TestCase):
     def test_get_percentage_bond_dist_changes(self):
         for v in self.analyzer.get_percentage_bond_dist_changes().values():
             for v2 in v.values():
-                assert approx(v2) == -0.009204092115527862
+                assert v2 == approx(-0.009204092115527862)
 
 
-class TestVoronoiConnectivity(PymatgenTest):
+class TestVoronoiConnectivity(MatSciTest):
     def test_connectivity_array(self):
         vc = VoronoiConnectivity(self.get_structure("LiFePO4"))
         ca = vc.connectivity_array
@@ -75,13 +76,13 @@ class TestVoronoiConnectivity(PymatgenTest):
         assert_allclose(site.frac_coords, expected)
 
 
-class TestMiscFunction(PymatgenTest):
+class TestMiscFunction(MatSciTest):
     def test_average_coordination_number(self):
         xdatcar = Xdatcar(f"{VASP_OUT_DIR}/XDATCAR.MD")
         coordination_numbers = average_coordination_number(xdatcar.structures, freq=1)
-        assert coordination_numbers["Fe"] == approx(
-            4.771903318390836, 5
-        ), "Coordination number not calculated properly."
+        assert coordination_numbers["Fe"] == approx(4.771903318390836, 5), (
+            "Coordination number not calculated properly."
+        )
 
     def test_solid_angle(self):
         center = [2.294508207929496, 4.4078057081404, 2.299997773791287]

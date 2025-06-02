@@ -9,7 +9,7 @@ from pymatgen.core.lattice import Lattice
 from pymatgen.core.structure import Structure
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
 from pymatgen.util.coord import in_coord_list
-from pymatgen.util.testing import TEST_FILES_DIR, PymatgenTest
+from pymatgen.util.testing import TEST_FILES_DIR, MatSciTest
 
 __author__ = "Zihan Xu, Richard Tran, Balachandran Radhakrishnan"
 __copyright__ = "Copyright 2013, The Materials Virtual Lab"
@@ -21,9 +21,9 @@ __date__ = "May 05 2016"
 TEST_DIR = f"{TEST_FILES_DIR}/analysis/wulff"
 
 
-class TestWulffShape(PymatgenTest):
-    def setUp(self):
-        with open(f"{TEST_DIR}/surface_samples.json") as data_file:
+class TestWulffShape(MatSciTest):
+    def setup_method(self):
+        with open(f"{TEST_DIR}/surface_samples.json", encoding="utf-8") as data_file:
             surface_properties = json.load(data_file)
 
         surface_energies, miller_indices = {}, {}
@@ -132,7 +132,7 @@ class TestWulffShape(PymatgenTest):
         for hkl in Nb_area_fraction_dict:
             assert Nb_area_fraction_dict[hkl] == (1 if hkl == (3, 1, 0) else 0)
 
-        assert self.wulff_Nb.miller_energy_dict[(3, 1, 0)] == self.wulff_Nb.weighted_surface_energy
+        assert self.wulff_Nb.miller_energy_dict[3, 1, 0] == self.wulff_Nb.weighted_surface_energy
 
     def symmetry_test(self):
         # Maintains that all wulff shapes have the same point
@@ -159,7 +159,11 @@ class TestWulffShape(PymatgenTest):
         # Simple test to check if the values of some
         # properties are consistent with what we already have
 
-        wulff_shapes = {"mp-8636": self.wulff_Nb, "mp-72": self.wulff_Ti, "mp-101": self.wulff_Ir}
+        wulff_shapes = {
+            "mp-8636": self.wulff_Nb,
+            "mp-72": self.wulff_Ti,
+            "mp-101": self.wulff_Ir,
+        }
         for mp_id, wulff in wulff_shapes.items():
             properties = self.surface_properties[mp_id]
             assert round(wulff.weighted_surface_energy, 3) == round(properties["weighted_surface_energy"], 3)

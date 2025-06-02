@@ -1,8 +1,8 @@
 from __future__ import annotations
 
 import os
-from unittest import TestCase
 
+import pytest
 from pytest import approx
 
 from pymatgen.apps.borg.hive import (
@@ -18,8 +18,8 @@ TEST_DIR = f"{TEST_FILES_DIR}/apps/borg"
 MOL_TEST_DIR = f"{TEST_FILES_DIR}/io/gaussian"
 
 
-class TestVaspToComputedEntryDrone(TestCase):
-    def setUp(self):
+class TestVaspToComputedEntryDrone:
+    def setup_method(self):
         self.drone = VaspToComputedEntryDrone(data=["efermi"])
         self.structure_drone = VaspToComputedEntryDrone(inc_structure=True)
 
@@ -51,8 +51,8 @@ class TestVaspToComputedEntryDrone(TestCase):
         assert isinstance(drone, VaspToComputedEntryDrone)
 
 
-class TestSimpleVaspToComputedEntryDrone(TestCase):
-    def setUp(self):
+class TestSimpleVaspToComputedEntryDrone:
+    def setup_method(self):
         self.drone = SimpleVaspToComputedEntryDrone()
         self.structure_drone = SimpleVaspToComputedEntryDrone(inc_structure=True)
 
@@ -61,14 +61,18 @@ class TestSimpleVaspToComputedEntryDrone(TestCase):
             if path[0] == VASP_OUT_DIR:
                 assert len(self.drone.get_valid_paths(path)) > 0
 
+    def test_assimilate_miss_core_file(self):
+        with pytest.raises(ValueError, match="not all necessary files are present"):
+            self.drone.assimilate(".")
+
     def test_as_from_dict(self):
         dct = self.structure_drone.as_dict()
         drone = SimpleVaspToComputedEntryDrone.from_dict(dct)
         assert isinstance(drone, SimpleVaspToComputedEntryDrone)
 
 
-class TestGaussianToComputedEntryDrone(TestCase):
-    def setUp(self):
+class TestGaussianToComputedEntryDrone:
+    def setup_method(self):
         self.drone = GaussianToComputedEntryDrone(data=["corrections"])
         self.structure_drone = GaussianToComputedEntryDrone(inc_structure=True)
 

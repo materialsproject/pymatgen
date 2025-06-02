@@ -2,19 +2,17 @@ from __future__ import annotations
 
 import os
 from pathlib import Path
-from unittest import TestCase
 
 import numpy as np
 import pytest
 from numpy.testing import assert_allclose, assert_array_equal
 from pytest import approx
 
-from pymatgen.core import Element
+from pymatgen.core import Element, Structure
 from pymatgen.io.phonopy import (
     CompletePhononDos,
     PhononBandStructure,
     PhononBandStructureSymmLine,
-    Structure,
     get_complete_ph_dos,
     get_displaced_structures,
     get_gruneisen_ph_bs_symm_line,
@@ -28,7 +26,7 @@ from pymatgen.io.phonopy import (
     get_pmg_structure,
     get_thermal_displacement_matrices,
 )
-from pymatgen.util.testing import TEST_FILES_DIR, PymatgenTest
+from pymatgen.util.testing import TEST_FILES_DIR, MatSciTest
 
 try:
     from phonopy import Phonopy
@@ -41,7 +39,7 @@ TEST_DIR = f"{TEST_FILES_DIR}/io/phonopy"
 PHONON_DIR = f"{TEST_FILES_DIR}/phonon"
 
 
-class TestPhonopyParser(PymatgenTest):
+class TestPhonopyParser(MatSciTest):
     def test_get_ph_bs(self):
         ph_bs = get_ph_bs_symm_line(f"{TEST_DIR}/NaCl_band.yaml", has_nac=True)
 
@@ -53,8 +51,8 @@ class TestPhonopyParser(PymatgenTest):
             ph_bs.eigendisplacements[3][50][0],
             [0.0 + 0.0j, 0.14166569 + 0.04098339j, -0.14166569 - 0.04098339j],
         )
-        assert ph_bs.has_eigendisplacements, True
-        assert_array_equal(ph_bs.min_freq()[0].frac_coords, [0, 0, 0])
+        assert ph_bs.has_eigendisplacements
+        assert_allclose(ph_bs.min_freq()[0].frac_coords, [0, 0, 0])
         assert ph_bs.min_freq()[1] == approx(-0.03700895020)
         assert ph_bs.has_imaginary_freq()
         assert not ph_bs.has_imaginary_freq(tol=0.5)
@@ -97,26 +95,26 @@ class TestPhonopyParser(PymatgenTest):
 
 
 @pytest.mark.skipif(Phonopy is None, reason="Phonopy not present")
-class TestStructureConversion(PymatgenTest):
+class TestStructureConversion(MatSciTest):
     def test_structure_conversion(self):
-        struct_pmg = PymatgenTest.get_structure("LiFePO4")
+        struct_pmg = MatSciTest.get_structure("LiFePO4")
         # add magmoms to site_properties
         struct_pmg.add_site_property("magmom", magmoms := [1] * len(struct_pmg))
         struct_ph = get_phonopy_structure(struct_pmg)
         struct_pmg_round_trip = get_pmg_structure(struct_ph)
         assert struct_pmg_round_trip.matches(struct_pmg)
 
-        coords_ph = struct_ph.get_scaled_positions()
+        coords_ph = struct_ph.scaled_positions
         symbols_pmg = {*map(str, struct_pmg.composition)}
         symbols_pmg2 = {*map(str, struct_pmg_round_trip.composition)}
 
-        assert struct_ph.get_cell()[1, 1] == approx(struct_pmg.lattice._matrix[1, 1], abs=1e-7)
+        assert struct_ph.cell[1, 1] == approx(struct_pmg.lattice._matrix[1, 1], abs=1e-7)
         assert struct_pmg.lattice._matrix[1, 1] == approx(struct_pmg_round_trip.lattice._matrix[1, 1], abs=1e-7)
         assert symbols_pmg == set(struct_ph.symbols)
         assert symbols_pmg == symbols_pmg2
         assert_allclose(coords_ph[3], struct_pmg.frac_coords[3])
         assert_allclose(struct_pmg.frac_coords[3], struct_pmg_round_trip.frac_coords[3])
-        assert struct_ph.get_number_of_atoms() == len(struct_pmg)
+        assert len(struct_ph) == len(struct_pmg)
         assert len(struct_pmg) == len(struct_pmg_round_trip)
 
         # https://github.com/materialsproject/pymatgen/pull/3555
@@ -125,7 +123,7 @@ class TestStructureConversion(PymatgenTest):
 
 
 @pytest.mark.skipif(Phonopy is None, reason="Phonopy not present")
-class TestGetDisplacedStructures(PymatgenTest):
+class TestGetDisplacedStructures(MatSciTest):
     def test_get_displaced_structures(self):
         pmg_s = Structure.from_file(f"{TEST_DIR}/POSCAR-unitcell", primitive=False)
         supercell_matrix = np.diag((2, 1, 2))
@@ -157,8 +155,8 @@ class TestGetDisplacedStructures(PymatgenTest):
 
 
 @pytest.mark.skipif(Phonopy is None, reason="Phonopy not present")
-class TestPhonopyFromForceConstants(TestCase):
-    def setUp(self) -> None:
+class TestPhonopyFromForceConstants:
+    def setup_method(self) -> None:
         test_path = Path(TEST_DIR)
         structure_file = test_path / "POSCAR-NaCl"
         fc_file = test_path / "FORCE_CONSTANTS"
@@ -241,7 +239,7 @@ class TestGruneisen:
 
 
 @pytest.mark.skipif(Phonopy is None, reason="Phonopy not present")
-class TestThermalDisplacementMatrices(PymatgenTest):
+class TestThermalDisplacementMatrices(MatSciTest):
     def test_get_thermal_displacement_matrix(self):
         list_matrices = get_thermal_displacement_matrices(
             f"{PHONON_DIR}/thermal_displacement_matrices/thermal_displacement_matrices.yaml",

@@ -20,7 +20,20 @@ if __name__ == "__main__":
 
     # I:12
     if cg_symbol == "I:12":
-        opposite_points = {0: 3, 1: 2, 2: 1, 3: 0, 4: 7, 5: 6, 6: 5, 7: 4, 8: 11, 9: 10, 10: 9, 11: 8}
+        opposite_points = {
+            0: 3,
+            1: 2,
+            2: 1,
+            3: 0,
+            4: 7,
+            5: 6,
+            6: 5,
+            7: 4,
+            8: 11,
+            9: 10,
+            10: 9,
+            11: 8,
+        }
         edges = cg._edges
         for edge in edges:
             opposite_edge = [opposite_points[edge[0]], opposite_points[edge[1]]]

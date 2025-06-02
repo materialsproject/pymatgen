@@ -4,11 +4,11 @@ import numpy as np
 
 from pymatgen.core.lattice import Lattice
 from pymatgen.optimization.neighbors import find_points_in_spheres
-from pymatgen.util.testing import PymatgenTest
+from pymatgen.util.testing import MatSciTest
 
 
-class TestNeighbors(PymatgenTest):
-    def setUp(self):
+class TestNeighbors(MatSciTest):
+    def setup_method(self):
         self.lattice = Lattice.cubic(10.0)
         self.cubic = self.lattice
         self.tetragonal = Lattice.tetragonal(10, 20)
@@ -38,7 +38,7 @@ class TestNeighbors(PymatgenTest):
             all_coords=np.array(points),
             center_coords=np.array(center_points),
             r=3,
-            pbc=np.array([0, 0, 0], dtype=int),
+            pbc=np.array([0, 0, 0], dtype=np.int64),
             lattice=np.array(lattice.matrix),
             tol=1e-8,
         )
@@ -48,7 +48,7 @@ class TestNeighbors(PymatgenTest):
             all_coords=np.array(points),
             center_coords=np.array(center_points),
             r=3,
-            pbc=np.array([1, 1, 1], dtype=int),
+            pbc=np.array([1, 1, 1], dtype=np.int64),
             lattice=np.array(lattice.matrix),
         )
         assert len(nns[0]) == 12
@@ -57,7 +57,7 @@ class TestNeighbors(PymatgenTest):
             all_coords=np.array(points),
             center_coords=np.array(center_points),
             r=3,
-            pbc=np.array([True, False, False], dtype=int),
+            pbc=np.array([True, False, False], dtype=np.int64),
             lattice=np.array(lattice.matrix),
         )
         assert len(nns[0]) == 4

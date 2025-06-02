@@ -4,22 +4,25 @@ import math
 
 import numpy as np
 import pytest
-from monty.serialization import MontyDecoder, loadfn
+from monty.json import MontyDecoder
+from monty.serialization import loadfn
 from numpy.testing import assert_allclose
 from pytest import approx
 
 from pymatgen.core.operations import SymmOp
 from pymatgen.core.tensors import SquareTensor, Tensor, TensorCollection, TensorMapping, itertools, symmetry_reduce
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
-from pymatgen.util.testing import TEST_FILES_DIR, PymatgenTest
+from pymatgen.util.testing import TEST_FILES_DIR, MatSciTest
 
 
-class TestTensor(PymatgenTest):
-    def setUp(self):
+class TestTensor(MatSciTest):
+    def setup_method(self):
+        rng = np.random.default_rng()
+
         self.vec = Tensor([1.0, 0.0, 0.0])
-        self.rand_rank2 = Tensor(np.random.randn(3, 3))
-        self.rand_rank3 = Tensor(np.random.randn(3, 3, 3))
-        self.rand_rank4 = Tensor(np.random.randn(3, 3, 3, 3))
+        self.rand_rank2 = Tensor(rng.standard_normal((3, 3)))
+        self.rand_rank3 = Tensor(rng.standard_normal((3, 3, 3)))
+        self.rand_rank4 = Tensor(rng.standard_normal((3, 3, 3, 3)))
         a = 3.14 * 42.5 / 180
         self.non_symm = SquareTensor([[0.1, 0.2, 0.3], [0.4, 0.5, 0.6], [0.2, 0.5, 0.5]])
         self.rotation = SquareTensor([[math.cos(a), 0, math.sin(a)], [0, 1, 0], [-math.sin(a), 0, math.cos(a)]])
@@ -137,9 +140,21 @@ class TestTensor(PymatgenTest):
         assert_allclose(
             new_tensor,
             [
-                [[-0.871, -2.884, -1.928], [-2.152, -6.665, -4.196], [-1.026, -2.830, -1.572]],
-                [[0.044, 1.531, 1.804], [4.263, 21.008, 17.928], [5.170, 23.026, 18.722]],
-                [[1.679, 7.268, 5.821], [9.268, 38.321, 29.919], [8.285, 33.651, 26.000]],
+                [
+                    [-0.871, -2.884, -1.928],
+                    [-2.152, -6.665, -4.196],
+                    [-1.026, -2.830, -1.572],
+                ],
+                [
+                    [0.044, 1.531, 1.804],
+                    [4.263, 21.008, 17.928],
+                    [5.170, 23.026, 18.722],
+                ],
+                [
+                    [1.679, 7.268, 5.821],
+                    [9.268, 38.321, 29.919],
+                    [8.285, 33.651, 26.000],
+                ],
             ],
             3,
         )
@@ -159,7 +174,7 @@ class TestTensor(PymatgenTest):
         test = Tensor(np.arange(0, 3**4).reshape((3, 3, 3, 3)))
         assert_allclose([0, 27, 54], test.einsum_sequence([x] * 3))
         assert test.einsum_sequence([np.eye(3)] * 2) == 360
-        with pytest.raises(ValueError, match="other tensors must be list of tensors or tensor input"):
+        with pytest.raises(TypeError, match="other tensors must be list of tensors or tensor input"):
             test.einsum_sequence(Tensor(np.zeros(3)))
 
     def test_symmetrized(self):
@@ -224,7 +239,10 @@ class TestTensor(PymatgenTest):
         assert_allclose(rotated, transformed)
 
     def test_from_voigt(self):
-        with pytest.raises(ValueError, match="The requested array has an inhomogeneous shape after 1 dimensions."):
+        with pytest.raises(
+            ValueError,
+            match="The requested array has an inhomogeneous shape after 1 dimensions.",
+        ):
             Tensor.from_voigt(
                 [
                     [59.33, 28.08, 28.08, 0],
@@ -269,8 +287,8 @@ class TestTensor(PymatgenTest):
         reduced = symmetry_reduce(tbs, self.get_structure("Sn"))
         tkey = Tensor.from_values_indices([0.01], [(0, 0)])
         tval = reduced[tkey]
-        for tens_1, tens_2 in zip(tval, reduced[tbs[0]]):
-            assert approx(tens_1) == tens_2
+        for tens_1, tens_2 in zip(tval, reduced[tbs[0]], strict=True):
+            assert tens_1 == approx(tens_2)
         # Test set
         reduced[tkey] = "test_val"
         assert reduced[tkey] == "test_val"
@@ -302,7 +320,7 @@ class TestTensor(PymatgenTest):
         vtens = np.zeros([6] * 3)
         indices = [(0, 0, 0), (0, 0, 1), (0, 1, 2), (0, 3, 3), (0, 5, 5), (3, 4, 5)]
         values = [-1271.0, -814.0, -50.0, -3.0, -780.0, -95.0]
-        for v, idx in zip(values, indices):
+        for v, idx in zip(values, indices, strict=True):
             vtens[idx] = v
         toec = Tensor.from_voigt(vtens)
         toec = toec.populate(sn, prec=1e-3, verbose=True)
@@ -362,11 +380,11 @@ class TestTensor(PymatgenTest):
         assert isinstance(rounded, Tensor)
 
 
-class TestTensorCollection(PymatgenTest):
-    def setUp(self):
+class TestTensorCollection(MatSciTest):
+    def setup_method(self):
         self.seq_tc = list(np.arange(4 * 3**3).reshape((4, 3, 3, 3)))
         self.seq_tc = TensorCollection(self.seq_tc)
-        self.rand_tc = TensorCollection(list(np.random.random((4, 3, 3))))
+        self.rand_tc = TensorCollection(list(np.random.default_rng().random((4, 3, 3))))
         self.diff_rank = TensorCollection([np.ones([3] * i) for i in range(2, 5)])
         self.struct = self.get_structure("Si")
         ieee_file_path = f"{TEST_FILES_DIR}/core/tensors/ieee_conversion_data.json"
@@ -380,7 +398,7 @@ class TestTensorCollection(PymatgenTest):
         tc_mod = getattr(tc_orig, attribute)
         if callable(tc_mod):
             tc_mod = tc_mod(*args, **kwargs)
-        for t_orig, t_mod in zip(tc_orig, tc_mod):
+        for t_orig, t_mod in zip(tc_orig, tc_mod, strict=True):
             this_mod = getattr(t_orig, attribute)
             if callable(this_mod):
                 this_mod = this_mod(*args, **kwargs)
@@ -436,28 +454,28 @@ class TestTensorCollection(PymatgenTest):
             self.list_based_function_check("convert_to_ieee", tc, struct)
 
         # from_voigt
-        tc_input = list(np.random.random((3, 6, 6)))
+        tc_input = list(np.random.default_rng().random((3, 6, 6)))
         tc = TensorCollection.from_voigt(tc_input)
-        for t_input, tensor in zip(tc_input, tc):
+        for t_input, tensor in zip(tc_input, tc, strict=True):
             assert_allclose(Tensor.from_voigt(t_input), tensor)
 
     def test_serialization(self):
         # Test base serialize-deserialize
         dct = self.seq_tc.as_dict()
         new = TensorCollection.from_dict(dct)
-        for t, t_new in zip(self.seq_tc, new):
+        for t, t_new in zip(self.seq_tc, new, strict=True):
             assert_allclose(t, t_new)
 
         voigt_symmetrized = self.rand_tc.voigt_symmetrized
         dct = voigt_symmetrized.as_dict(voigt=True)
         new_vsym = TensorCollection.from_dict(dct)
-        for t, t_new in zip(voigt_symmetrized, new_vsym):
+        for t, t_new in zip(voigt_symmetrized, new_vsym, strict=True):
             assert_allclose(t, t_new)
 
 
-class TestSquareTensor(PymatgenTest):
-    def setUp(self):
-        self.rand_sqtensor = SquareTensor(np.random.randn(3, 3))
+class TestSquareTensor(MatSciTest):
+    def setup_method(self):
+        self.rand_sqtensor = SquareTensor(np.random.default_rng().standard_normal((3, 3)))
         self.symm_sqtensor = SquareTensor([[0.1, 0.3, 0.4], [0.3, 0.5, 0.2], [0.4, 0.2, 0.6]])
         self.non_invertible = SquareTensor([[0.1, 0, 0], [0.2, 0, 0], [0, 0, 0]])
         self.non_symm = SquareTensor([[0.1, 0.2, 0.3], [0.4, 0.5, 0.6], [0.2, 0.5, 0.5]])
@@ -480,7 +498,10 @@ class TestSquareTensor(PymatgenTest):
             match="Pymatgen only supports 3-dimensional tensors, and default tensor constructor uses standard notation",
         ):
             SquareTensor(non_sq_matrix)
-        with pytest.raises(ValueError, match="The requested array has an inhomogeneous shape after 1 dimensions."):
+        with pytest.raises(
+            ValueError,
+            match="The requested array has an inhomogeneous shape after 1 dimensions.",
+        ):
             SquareTensor(bad_matrix)
         with pytest.raises(ValueError, match="SquareTensor input must be rank 2"):
             SquareTensor(too_high_rank)
@@ -497,8 +518,8 @@ class TestSquareTensor(PymatgenTest):
 
         # determinant
         assert self.rand_sqtensor.det == np.linalg.det(self.rand_sqtensor)
-        assert self.non_invertible.det == 0.0
-        assert self.non_symm.det == 0.009
+        assert self.non_invertible.det == approx(0)
+        assert self.non_symm.det == approx(0.009)
 
         # symmetrized
         assert self.rand_sqtensor.symmetrized == approx(0.5 * (self.rand_sqtensor + self.rand_sqtensor.trans))

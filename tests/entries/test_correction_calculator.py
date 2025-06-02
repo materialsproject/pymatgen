@@ -1,7 +1,5 @@
 from __future__ import annotations
 
-from unittest import TestCase
-
 import pytest
 
 from pymatgen.entries.correction_calculator import CorrectionCalculator
@@ -10,9 +8,18 @@ from pymatgen.util.testing import TEST_FILES_DIR
 TEST_DIR = f"{TEST_FILES_DIR}/entries/correction_calculator"
 
 
-class TestCorrectionCalculator(TestCase):
-    def setUp(self):
-        self.exclude_polyanions = ["SO4", "CO3", "NO3", "OCl3", "SiO4", "SeO3", "TiO3", "TiO4"]
+class TestCorrectionCalculator:
+    def setup_method(self):
+        self.exclude_polyanions = [
+            "SO4",
+            "CO3",
+            "NO3",
+            "OCl3",
+            "SiO4",
+            "SeO3",
+            "TiO3",
+            "TiO4",
+        ]
 
         self.normal_corrections = {
             "oxide": (-0.74, 0.0017),

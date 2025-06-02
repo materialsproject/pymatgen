@@ -1,16 +1,14 @@
 from __future__ import annotations
 
-import random
-from unittest import TestCase
-
+import numpy as np
 import pytest
 
 from pymatgen.core import Composition, Element
 from pymatgen.core.ion import Ion
 
 
-class TestIon(TestCase):
-    def setUp(self):
+class TestIon:
+    def setup_method(self):
         self.comp = []
         self.comp.append(Ion.from_formula("Li+"))
         self.comp.append(Ion.from_formula("MnO4-"))
@@ -39,6 +37,8 @@ class TestIon(TestCase):
         assert Ion.from_formula("Ca++").charge == 2
         assert Ion.from_formula("Ca[++]").charge == 2
         assert Ion.from_formula("Ca2+").charge == 1
+        assert Ion.from_formula("C2O4-2").charge == -2
+        assert Ion.from_formula("CO2").charge == 0
 
         assert Ion.from_formula("Cl-").charge == -1
         assert Ion.from_formula("Cl[-]").charge == -1
@@ -47,6 +47,7 @@ class TestIon(TestCase):
         assert Ion.from_formula("SO42-").charge == -1
         assert Ion.from_formula("SO4--").charge == -2
         assert Ion.from_formula("SO4[--]").charge == -2
+        assert Ion.from_formula("N3-").charge == -1
 
         assert Ion.from_formula("Na[+-+]").charge == 1
 
@@ -55,30 +56,45 @@ class TestIon(TestCase):
             ("Cl-", "Cl[-1]"),
             ("H+", "H[+1]"),
             ("F-", "F[-1]"),
+            ("I-", "I[-1]"),
             ("F2", "F2(aq)"),
             ("H2", "H2(aq)"),
             ("O3", "O3(aq)"),
             ("O2", "O2(aq)"),
             ("N2", "N2(aq)"),
+            ("NaOH", "NaOH(aq)"),
             ("H4O4", "H2O2(aq)"),
             ("OH-", "OH[-1]"),
+            ("H2PO4-", "H2PO4[-1]"),
             ("CH3COO-", "CH3COO[-1]"),
             ("CH3COOH", "CH3COOH(aq)"),
             ("CH3OH", "CH3OH(aq)"),
             ("H4CO", "CH3OH(aq)"),
+            ("C2O4--", "C2O4[-2]"),
+            ("CO2", "CO2(aq)"),
+            ("CO3--", "CO3[-2]"),
+            ("CH4", "CH4(aq)"),
+            ("NH4+", "NH4[+1]"),
+            ("NH3", "NH3(aq)"),
+            ("N3-", "N3[-1]"),
+            ("HCOO-", "HCO2[-1]"),
             ("C2H6O", "C2H5OH(aq)"),
             ("C3H8O", "C3H7OH(aq)"),
             ("C4H10O", "C4H9OH(aq)"),
             ("Fe(OH)4+", "Fe(OH)4[+1]"),
             ("Zr(OH)4", "Zr(OH)4(aq)"),
         ]
-
         for tup in special_formulas:
-            assert Ion.from_formula(tup[0]).reduced_formula == tup[1]
+            assert Ion.from_formula(tup[0]).reduced_formula == tup[1], (
+                f"Expected {tup[1]} but got {Ion.from_formula(tup[0]).reduced_formula}"
+            )
 
         assert Ion.from_formula("Fe(OH)4+").get_reduced_formula_and_factor(hydrates=True) == ("FeO2.2H2O", 1)
         assert Ion.from_formula("Zr(OH)4").get_reduced_formula_and_factor(hydrates=True) == ("ZrO2.2H2O", 1)
-        assert Ion.from_formula("O").get_reduced_formula_and_factor(hydrates=False) == ("O", 1)
+        assert Ion.from_formula("O").get_reduced_formula_and_factor(hydrates=False) == (
+            "O",
+            1,
+        )
         assert Ion.from_formula("O2").get_reduced_formula_and_factor(hydrates=False) == ("O2", 1)
         assert Ion.from_formula("O3").get_reduced_formula_and_factor(hydrates=False) == ("O3", 1)
         assert Ion.from_formula("O6").get_reduced_formula_and_factor(hydrates=False) == ("O3", 2)
@@ -158,20 +174,21 @@ class TestIon(TestCase):
         assert dct == correct_dict
         assert dct["charge"] == correct_dict["charge"]
         correct_dict = {"Mn": 1.0, "O": 4.0, "charge": -1}
-        dct = ion.to_reduced_dict
+        dct = ion.as_reduced_dict()
         assert dct == correct_dict
         assert dct["charge"] == correct_dict["charge"]
 
     def test_equals(self):
-        random_z = random.randint(1, 92)
+        rng = np.random.default_rng()
+        random_z = rng.integers(1, 93)
         fixed_el = Element.from_Z(random_z)
-        other_z = random.randint(1, 92)
+        other_z = rng.integers(1, 93)
         while other_z == random_z:
-            other_z = random.randint(1, 92)
+            other_z = rng.integers(1, 93)
         comp1 = Ion(Composition({fixed_el: 1, Element.from_Z(other_z): 0}), 1)
-        other_z = random.randint(1, 92)
+        other_z = rng.integers(1, 93)
         while other_z == random_z:
-            other_z = random.randint(1, 92)
+            other_z = rng.integers(1, 93)
         comp2 = Ion(Composition({fixed_el: 1, Element.from_Z(other_z): 0}), 1)
         assert comp1 == comp2, f"Composition equality test failed. {comp1.formula} should be equal to {comp2.formula}"
         assert hash(comp1) == hash(comp2), "Hash equality test failed!"

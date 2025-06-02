@@ -9,11 +9,11 @@ from pytest import approx
 
 from pymatgen.core.lattice import Lattice, get_points_in_spheres
 from pymatgen.core.operations import SymmOp
-from pymatgen.util.testing import PymatgenTest
+from pymatgen.util.testing import MatSciTest
 
 
-class TestLattice(PymatgenTest):
-    def setUp(self):
+class TestLattice(MatSciTest):
+    def setup_method(self):
         self.lattice = Lattice.cubic(10.0)
         self.cubic = self.lattice
         self.tetragonal = Lattice.tetragonal(10, 20)
@@ -25,7 +25,14 @@ class TestLattice(PymatgenTest):
         self.cubic_partial_pbc = Lattice.cubic(10.0, pbc=(True, True, False))
 
         self.families = {}
-        for name in ("cubic", "tetragonal", "orthorhombic", "monoclinic", "hexagonal", "rhombohedral"):
+        for name in (
+            "cubic",
+            "tetragonal",
+            "orthorhombic",
+            "monoclinic",
+            "hexagonal",
+            "rhombohedral",
+        ):
             self.families[name] = getattr(self, name)
 
     def test_init(self):
@@ -80,7 +87,7 @@ class TestLattice(PymatgenTest):
         )
 
         # Random testing that get_cart and get_frac coords reverses each other.
-        rand_coord = np.random.random_sample(3)
+        rand_coord = np.random.default_rng().random(3)
         coord = self.tetragonal.get_cartesian_coords(rand_coord)
         frac_coord = self.tetragonal.get_fractional_coords(coord)
         assert_allclose(frac_coord, rand_coord)
@@ -143,14 +150,14 @@ class TestLattice(PymatgenTest):
     def test_attributes(self):
         """Docstring for test_attributes."""
         lattice = Lattice.cubic(10.0)
-        assert lattice.a == 10.0
-        assert lattice.b == 10.0
-        assert lattice.c == 10.0
-        assert lattice.volume == 1000.0
+        assert lattice.a == approx(10)
+        assert lattice.b == approx(10)
+        assert lattice.c == approx(10)
+        assert lattice.volume == approx(1000)
         xyz = lattice.get_cartesian_coords([0.25, 0.35, 0.45])
-        assert xyz[0] == 2.5
-        assert xyz[1] == 3.5
-        assert xyz[2] == 4.5
+        assert xyz[0] == approx(2.5)
+        assert xyz[1] == approx(3.5)
+        assert xyz[2] == approx(4.5)
 
     def test_lattice_matrices(self):
         """If alpha == 90 and beta == 90, two matrices are identical."""
@@ -177,8 +184,30 @@ class TestLattice(PymatgenTest):
         assert np.linalg.det(np.linalg.solve(expected.matrix, reduced_latt.matrix)) == approx(1)
         assert_allclose(sorted(reduced_latt.abc), sorted(expected.abc))
         assert reduced_latt.volume == approx(lattice.volume)
-        lattice = [7.164750, 2.481942, 0.000000, -4.298850, 2.481942, 0.000000, 0.000000, 0.000000, 14.253000]
-        expected = Lattice([-4.298850, 2.481942, 0.000000, 2.865900, 4.963884, 0.000000, 0.000000, 0.000000, 14.253000])
+        lattice = [
+            7.164750,
+            2.481942,
+            0.000000,
+            -4.298850,
+            2.481942,
+            0.000000,
+            0.000000,
+            0.000000,
+            14.253000,
+        ]
+        expected = Lattice(
+            [
+                -4.298850,
+                2.481942,
+                0.000000,
+                2.865900,
+                4.963884,
+                0.000000,
+                0.000000,
+                0.000000,
+                14.253000,
+            ]
+        )
         reduced_latt = Lattice(lattice).get_lll_reduced_lattice()
         assert np.linalg.det(np.linalg.solve(expected.matrix, reduced_latt.matrix)) == approx(1)
         assert_allclose(sorted(reduced_latt.abc), sorted(expected.abc))
@@ -192,7 +221,7 @@ class TestLattice(PymatgenTest):
         assert np.linalg.det(np.linalg.solve(expected.matrix, reduced_latt.matrix)) == approx(1)
         assert_allclose(sorted(reduced_latt.abc), sorted(expected.abc))
 
-        random_latt = Lattice(np.random.random((3, 3)))
+        random_latt = Lattice(np.random.default_rng().random((3, 3)))
         if np.linalg.det(random_latt.matrix) > 1e-8:
             reduced_random_latt = random_latt.get_lll_reduced_lattice()
             assert reduced_random_latt.volume == approx(random_latt.volume)
@@ -210,7 +239,19 @@ class TestLattice(PymatgenTest):
         assert reduced_cell.lengths == approx([5, 5, 5])
         assert reduced_cell.angles == approx([90, 90, 90])
 
-        lattice = Lattice([1.432950, 0.827314, 4.751000, -1.432950, 0.827314, 4.751000, 0.0, -1.654628, 4.751000])
+        lattice = Lattice(
+            [
+                1.432950,
+                0.827314,
+                4.751000,
+                -1.432950,
+                0.827314,
+                4.751000,
+                0.0,
+                -1.654628,
+                4.751000,
+            ]
+        )
         expected = [
             [-1.43295, -2.481942, 0.0],
             [-2.8659, 0.0, 0.0],
@@ -300,7 +341,15 @@ class TestLattice(PymatgenTest):
 
         # Make sure old style dicts work.
         dct = self.tetragonal.as_dict(verbosity=1)
-        assert {*dct} == expected_keys | {"a", "b", "c", "alpha", "beta", "gamma", "volume"}
+        assert {*dct} == expected_keys | {
+            "a",
+            "b",
+            "c",
+            "alpha",
+            "beta",
+            "gamma",
+            "volume",
+        }
         del dct["matrix"]
         tetragonal = Lattice.from_dict(dct)
         assert tetragonal.abc == self.tetragonal.abc
@@ -308,7 +357,14 @@ class TestLattice(PymatgenTest):
 
     def test_parameters(self):
         params_dict = self.tetragonal.params_dict
-        assert params_dict == {"a": 10, "b": 10, "c": 20, "alpha": 90, "beta": 90, "gamma": 90}
+        assert params_dict == {
+            "a": 10,
+            "b": 10,
+            "c": 20,
+            "alpha": 90,
+            "beta": 90,
+            "gamma": 90,
+        }
         params = self.tetragonal.parameters
         assert params == (10, 10, 20, 90, 90, 90)
         assert tuple(params_dict.values()) == params
@@ -324,7 +380,7 @@ class TestLattice(PymatgenTest):
         ws_cell = Lattice(np.diag([10, 5, 1])).get_wigner_seitz_cell()
         assert len(ws_cell) == 6
         for vec in ws_cell[3]:
-            assert [abs(i) for i in vec] == [5.0, 2.5, 0.5]
+            assert_allclose([abs(i) for i in vec], [5.0, 2.5, 0.5])
 
     def test_dot_and_norm(self):
         frac_basis = np.eye(3)
@@ -332,9 +388,9 @@ class TestLattice(PymatgenTest):
         for lattice in self.families.values():
             assert_allclose(lattice.norm(lattice.matrix, frac_coords=False), lattice.abc, 5)
             assert_allclose(lattice.norm(frac_basis), lattice.abc, 5)
-            for i, vec in enumerate(frac_basis):
+            for idx, vec in enumerate(frac_basis):
                 length = lattice.norm(vec)
-                assert_allclose(length[0], lattice.abc[i], 5)
+                assert_allclose(length[0], lattice.abc[idx], 5)
                 # We always get a ndarray.
                 assert length.shape == (1,)
 
@@ -387,10 +443,10 @@ class TestLattice(PymatgenTest):
         assert len(result) == 4
         assert all(len(arr) == 0 for arr in result)
         types = {*map(type, result)}
-        assert types == {np.ndarray}, f"Expected only np.ndarray, got {types}"
+        assert types == {np.ndarray}, f"Expected only np.ndarray, got {[t.__name__ for t in types]}"
 
     def test_get_all_distances(self):
-        fcoords = np.array(
+        frac_coords = np.array(
             [
                 [0.3, 0.3, 0.5],
                 [0.1, 0.1, 0.3],
@@ -409,10 +465,10 @@ class TestLattice(PymatgenTest):
                 [3.245, 4.453, 1.788, 3.852, 0.000],
             ]
         )
-        output = lattice.get_all_distances(fcoords, fcoords)
+        output = lattice.get_all_distances(frac_coords, frac_coords)
         assert_allclose(output, expected, 3)
         # test just one input point
-        output2 = lattice.get_all_distances(fcoords[0], fcoords)
+        output2 = lattice.get_all_distances(frac_coords[0], frac_coords)
         assert_allclose(output2, [expected[0]], 2)
         # test distance when initial points are not in unit cell
         f1 = [0, 0, 17]
@@ -429,7 +485,7 @@ class TestLattice(PymatgenTest):
                 [3.519, 1.131, 2.251, 0.000, 4.235],
             ]
         )
-        output3 = lattice_pbc.get_all_distances(fcoords[:-1], fcoords)
+        output3 = lattice_pbc.get_all_distances(frac_coords[:-1], frac_coords)
         assert_allclose(output3, expected_pbc, 3)
 
     def test_monoclinic(self):
@@ -450,13 +506,14 @@ class TestLattice(PymatgenTest):
         assert_allclose(image, [0, 0, -1])
 
     def test_get_distance_and_image_strict(self):
+        rng = np.random.default_rng()
         for _ in range(10):
-            lengths = np.random.randint(1, 100, 3)
-            lattice = np.random.rand(3, 3) * lengths
+            lengths = rng.integers(1, 100, 3)
+            lattice = rng.random((3, 3)) * lengths
             lattice = Lattice(lattice)
 
-            f1 = np.random.rand(3)
-            f2 = np.random.rand(3)
+            f1 = rng.random(3)
+            f2 = rng.random(3)
 
             scope = list(range(-3, 4))
             min_image_dist = (float("inf"), None)
@@ -480,20 +537,23 @@ class TestLattice(PymatgenTest):
         l2 = Lattice([a + b, b + c, c])
 
         cart_coords = np.array([[1, 1, 2], [2, 2, 1.5]])
-        l1_fcoords = l1.get_fractional_coords(cart_coords)
-        l2_fcoords = l2.get_fractional_coords(cart_coords)
+        l1_frac_coords = l1.get_fractional_coords(cart_coords)
+        l2_frac_coords = l2.get_fractional_coords(cart_coords)
 
         assert_allclose(l1.matrix, l2.lll_matrix)
         assert_allclose(np.dot(l2.lll_mapping, l2.matrix), l1.matrix)
 
-        assert_allclose(np.dot(l2_fcoords, l2.matrix), np.dot(l1_fcoords, l1.matrix))
+        assert_allclose(np.dot(l2_frac_coords, l2.matrix), np.dot(l1_frac_coords, l1.matrix))
 
-        lll_fcoords = l2.get_lll_frac_coords(l2_fcoords)
+        lll_frac_coords = l2.get_lll_frac_coords(l2_frac_coords)
 
-        assert_allclose(lll_fcoords, l1_fcoords)
-        assert_allclose(l1.get_cartesian_coords(lll_fcoords), np.dot(lll_fcoords, l2.lll_matrix))
+        assert_allclose(lll_frac_coords, l1_frac_coords)
+        assert_allclose(
+            l1.get_cartesian_coords(lll_frac_coords),
+            np.dot(lll_frac_coords, l2.lll_matrix),
+        )
 
-        assert_allclose(l2.get_frac_coords_from_lll(lll_fcoords), l2_fcoords)
+        assert_allclose(l2.get_frac_coords_from_lll(lll_frac_coords), l2_frac_coords)
 
     def test_get_miller_index_from_sites(self):
         # test on a cubic system
@@ -533,7 +593,7 @@ class TestLattice(PymatgenTest):
             all_coords=np.array(points),
             center_coords=np.array(center_points),
             r=3,
-            pbc=np.array([0, 0, 0], dtype=int),
+            pbc=np.array([0, 0, 0], dtype=np.int64),
             lattice=lattice,
             numerical_tol=1e-8,
         )
@@ -554,7 +614,7 @@ class TestLattice(PymatgenTest):
             all_coords=np.array(points),
             center_coords=np.array(center_points),
             r=3,
-            pbc=np.array([True, False, False], dtype=int),
+            pbc=np.array([True, False, False], dtype=np.int64),
             lattice=lattice,
         )
         assert len(nns[0]) == 4

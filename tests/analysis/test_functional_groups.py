@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from unittest import TestCase
+import platform
 
 import pytest
 
@@ -24,8 +24,8 @@ __date__ = "July 2018"
 __credit__ = "Peiyuan Yu"
 
 
-class TestFunctionalGroupExtractor(TestCase):
-    def setUp(self):
+class TestFunctionalGroupExtractor:
+    def setup_method(self):
         self.file = f"{TEST_DIR}/func_group_test.mol"
         self.mol = Molecule.from_file(self.file)
         self.strategy = OpenBabelNN()
@@ -110,6 +110,7 @@ class TestFunctionalGroupExtractor(TestCase):
         assert len(all_func) == (len(link) + len(basics))
         assert sorted(all_func) == sorted(link + basics)
 
+    @pytest.mark.skipif(platform.system() == "Windows", reason="Tests for openbabel failing on Win")
     def test_categorize_functional_groups(self):
         all_func = self.extractor.get_all_functional_groups()
         categorized = self.extractor.categorize_functional_groups(all_func)

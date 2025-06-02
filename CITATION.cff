@@ -5,7 +5,7 @@ message: |
 
   In addition, some of pymatgen's functionality is based on scientific advances
   / principles developed by the computational materials scientists in our team.
-  Please refer to pymatgen's docs at http://pymatgen.org on how to cite them.
+  Please refer to pymatgen's docs at https://pymatgen.org on how to cite them.
 authors:
 - family-names: Ong
   given-names: Shyue Ping

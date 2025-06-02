@@ -1,15 +1,17 @@
 from __future__ import annotations
 
 import numpy as np
+import pytest
 from numpy.testing import assert_allclose
+from pytest import approx
 
 from pymatgen.core.operations import MagSymmOp, SymmOp
 from pymatgen.electronic_structure.core import Magmom
-from pymatgen.util.testing import PymatgenTest
+from pymatgen.util.testing import MatSciTest
 
 
-class TestSymmOp(PymatgenTest):
-    def setUp(self):
+class TestSymmOp(MatSciTest):
+    def setup_method(self):
         self.op = SymmOp.from_axis_angle_and_translation([0, 0, 1], 30, translation_vec=[0, 0, 1])
 
     def test_properties(self):
@@ -31,21 +33,27 @@ class TestSymmOp(PymatgenTest):
         assert_allclose(new_coords, [[[-0.1339746, 2.23205081, 4.0]] * 2] * 2, 2)
 
     def test_inverse(self):
-        point = np.random.rand(3)
+        point = np.random.default_rng().random(3)
         new_coord = self.op.operate(point)
-        assert_allclose(self.op.inverse.operate(new_coord), point, 2)
+
+        # Make sure tol is passed correctly
+        self.op.tol = 0.02  # non-default
+        inverse_op = self.op.inverse
+        assert_allclose(inverse_op.operate(new_coord), point, 2)
+        assert_allclose(self.op.tol, inverse_op.tol)
 
     def test_reflection(self):
-        normal = np.random.rand(3)
-        origin = np.random.rand(3)
+        rng = np.random.default_rng()
+        normal = rng.random(3)
+        origin = rng.random(3)
         refl = SymmOp.reflection(normal, origin)
-        point = np.random.rand(3)
+        point = rng.random(3)
         new_coord = refl.operate(point)
         # Distance to the plane should be negatives of each other.
         assert_allclose(np.dot(new_coord - origin, normal), -np.dot(point - origin, normal))
 
     def test_apply_rotation_only(self):
-        point = np.random.rand(3)
+        point = np.random.default_rng().random(3)
         new_coord = self.op.operate(point)
         rotate_only = self.op.apply_rotation_only(point)
         assert_allclose(rotate_only + self.op.translation_vector, new_coord, 2)
@@ -150,24 +158,25 @@ class TestSymmOp(PymatgenTest):
         )
 
     def test_are_symmetrically_related(self):
-        point = np.random.rand(3)
+        point = np.random.default_rng().random(3)
         new_coord = self.op.operate(point)
         assert self.op.are_symmetrically_related(point, new_coord)
         assert self.op.are_symmetrically_related(new_coord, point)
 
     def test_are_symmetrically_related_vectors(self):
         tol = 0.001
-        from_a = np.random.rand(3)
-        to_a = np.random.rand(3)
-        r_a = np.random.randint(0, 10, 3)
+        rng = np.random.default_rng()
+        from_a = rng.random(3)
+        to_a = rng.random(3)
+        r_a = rng.integers(0, 10, 3)
         from_b = self.op.operate(from_a)
         to_b = self.op.operate(to_a)
         floored = np.floor([from_b, to_b])
         is_too_close = np.abs([from_b, to_b] - floored) > 1 - tol
         floored[is_too_close] += 1
         r_b = self.op.apply_rotation_only(r_a) - floored[0] + floored[1]
-        from_b = from_b % 1
-        to_b = to_b % 1
+        from_b %= 1
+        to_b %= 1
         assert self.op.are_symmetrically_related_vectors(from_a, to_a, r_a, from_b, to_b, r_b)[0]
         assert not self.op.are_symmetrically_related_vectors(from_a, to_a, r_a, from_b, to_b, r_b)[1]
         assert self.op.are_symmetrically_related_vectors(to_a, from_a, -r_a, from_b, to_b, r_b)[0]
@@ -176,14 +185,15 @@ class TestSymmOp(PymatgenTest):
     def test_as_from_dict(self):
         dct = self.op.as_dict()
         op = SymmOp.from_dict(dct)
-        point = np.random.rand(3)
+        point = np.random.default_rng().random(3)
         new_coord = self.op.operate(point)
         assert op.are_symmetrically_related(point, new_coord)
 
     def test_inversion(self):
-        origin = np.random.rand(3)
+        rng = np.random.default_rng()
+        origin = rng.random(3)
         op = SymmOp.inversion(origin)
-        pt = np.random.rand(3)
+        pt = rng.random(3)
         inv_pt = op.operate(pt)
         assert_allclose(pt - origin, origin - inv_pt)
 
@@ -198,7 +208,14 @@ class TestSymmOp(PymatgenTest):
         assert s2 == "-y+1/2, x+1/2, z+1/2"
         assert op2 == SymmOp.from_xyz_str(s2)
 
-        op2 = SymmOp([[3, -2, -1, 0.5], [-1, 0, 0, 12.0 / 13], [0, 0, 1, 0.5 + 1e-7], [0, 0, 0, 1]])
+        op2 = SymmOp(
+            [
+                [3, -2, -1, 0.5],
+                [-1, 0, 0, 12.0 / 13],
+                [0, 0, 1, 0.5 + 1e-7],
+                [0, 0, 0, 1],
+            ]
+        )
         s2 = op2.as_xyz_str()
         assert s2 == "3x-2y-z+1/2, -x+12/13, z+1/2"
         assert op2 == SymmOp.from_xyz_str(s2)
@@ -213,9 +230,8 @@ class TestSymmOp(PymatgenTest):
         assert op4 == op5
         assert op3 == op5
 
-        # TODO: assertWarns not in Python 2.x unittest
-        # update PymatgenTest for unittest2?
-        # self.assertWarns(UserWarning, self.op.as_xyz_str)
+        with pytest.warns(UserWarning, match="Rotation matrix should be integer"):
+            self.op.as_xyz_str()
 
         symm_op = SymmOp.from_xyz_str("0.5+x, 0.25+y, 0.75+z")
         assert_allclose(symm_op.translation_vector, [0.5, 0.25, 0.75])
@@ -223,7 +239,7 @@ class TestSymmOp(PymatgenTest):
         assert_allclose(symm_op.translation_vector, [0.5, 0.25, 0.75])
 
 
-class TestMagSymmOp(PymatgenTest):
+class TestMagSymmOp(MatSciTest):
     def test_xyzt_string(self):
         xyzt_strings = ["x, y, z, +1", "x, y, z, -1", "-y+1/2, x+1/2, x+1/2, +1"]
 
@@ -232,15 +248,28 @@ class TestMagSymmOp(PymatgenTest):
             xyzt_string_out = op.as_xyzt_str()
             assert xyzt_string == xyzt_string_out
 
-        op = SymmOp([[3, -2, -1, 0.5], [-1, 0, 0, 12.0 / 13], [0, 0, 1, 0.5 + 1e-7], [0, 0, 0, 1]])
+        op = SymmOp(
+            [
+                [3, -2, -1, 0.5],
+                [-1, 0, 0, 12.0 / 13],
+                [0, 0, 1, 0.5 + 1e-7],
+                [0, 0, 0, 1],
+            ]
+        )
 
         magop = MagSymmOp.from_symmop(op, -1)
         magop_str = magop.as_xyzt_str()
-        assert magop.time_reversal == -1
         assert magop_str == "3x-2y-z+1/2, -x+12/13, z+1/2, -1"
 
     def test_as_from_dict(self):
-        op = SymmOp([[3, -2, -1, 0.5], [-1, 0, 0, 12.0 / 13], [0, 0, 1, 0.5 + 1e-7], [0, 0, 0, 1]])
+        op = SymmOp(
+            [
+                [3, -2, -1, 0.5],
+                [-1, 0, 0, 12.0 / 13],
+                [0, 0, 1, 0.5 + 1e-7],
+                [0, 0, 0, 1],
+            ]
+        )
         magop = MagSymmOp.from_symmop(op, -1)
         magop2 = MagSymmOp.from_dict(magop.as_dict())
         assert magop2.time_reversal == -1
@@ -258,7 +287,23 @@ class TestMagSymmOp(PymatgenTest):
 
         transformed_magmoms = [[1, 2, 3], [-1, -2, -3], [1, -2, 3], [1, 2, -3]]
 
-        for xyzt_string, transformed_magmom in zip(xyzt_strings, transformed_magmoms):
+        for xyzt_string, transformed_magmom in zip(xyzt_strings, transformed_magmoms, strict=True):
             for magmom in magmoms:
                 op = MagSymmOp.from_xyzt_str(xyzt_string)
                 assert_allclose(transformed_magmom, op.operate_magmom(magmom).global_moment)
+
+    def test_inverse(self):
+        op = SymmOp(
+            [
+                [3, -2, -1, 0.5],
+                [-1, 0, 0, 12.0 / 13],
+                [0, 0, 1, 0.5 + 1e-7],
+                [0, 0, 0, 1],
+            ],
+            tol=0.02,
+        )
+
+        magop = MagSymmOp.from_symmop(op, -1)
+        assert magop.time_reversal == -1
+        assert magop.tol == approx(0.02)
+        assert_allclose(magop.inverse.affine_matrix, np.linalg.inv(magop.affine_matrix))
