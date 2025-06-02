@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import matplotlib.pyplot as plt
 import orjson
 import pytest
 from numpy.testing import assert_allclose
@@ -358,6 +359,13 @@ class TestNanoscaleStability(MatSciTest):
         assert w1.effective_radius == approx(w2.effective_radius)
         assert w1.effective_radius == approx(10)
         assert w2.effective_radius == approx(10)
+
+    def test_plot(self):
+        ax = self.nanoscale_stability.plot_all_stability_map(max_r=10.0, labels=["La_hcp", "La_fcc"])
+
+        assert isinstance(ax, plt.Axes)
+        assert "Particle radius" in ax.get_xlabel()
+        assert "$G_{form}$" in ax.get_ylabel()
 
 
 def get_entry_dict(filename):
