@@ -88,7 +88,6 @@ Pypi = "https://pypi.org/project/pymatgen"
 
 [project.optional-dependencies]
 abinit = ["netcdf4>=1.7.2"]
-aims = ["pyfhiaims"]
 ase = ["ase>=3.23.0"]
 ci = ["pytest-cov>=4", "pytest-split>=0.8", "pytest>=8", "pymatgen[symmetry]"]
 docs = ["invoke", "sphinx", "sphinx_markdown_builder", "sphinx_rtd_theme"]
