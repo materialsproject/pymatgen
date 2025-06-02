@@ -137,7 +137,7 @@ n2_ex_calc_dir_known_paths = {
     "eigenvals": n2_ex_calc_dir / Path("eigenvals"),
 }
 n2_ex_calc_dir_bandprojections_metadata = {
-    "orb_label_list": ["N#1(s)", "N#1(px)", "N#1(py)", "N#1(pz)", "N#2(s)", "N#2(px)", "N#2(py)", "N#2(pz)"],
+    "orb_label_list": ["N#1(s)", "N#1(py)", "N#1(pz)", "N#1(px)", "N#2(s)", "N#2(py)", "N#2(pz)", "N#2(px)"],
     "shape": (54, 15, 8),
     "first val": -0.1331527 + 0.5655596j,
 }
@@ -149,7 +149,7 @@ nh3_ex_calc_dir_known_paths = {
     "eigenvals": nh3_ex_calc_dir / Path("eigenvals"),
 }
 nh3_ex_calc_dir_bandprojections_metadata = {
-    "orb_label_list": ["N#1(s)", "N#1(px)", "N#1(py)", "N#1(pz)", "H#1(s)", "H#2(s)", "H#3(s)"],
+    "orb_label_list": ["N#1(s)", "N#1(py)", "N#1(pz)", "N#1(px)", "H#1(s)", "H#2(s)", "H#3(s)"],
     "shape": (16, 14, 7),
     "first val": -0.0688767 + 0.9503786j,
 }
@@ -187,7 +187,7 @@ example_sp_outfile_known_simple = {
     "emax": 0.113409 * Ha_to_eV,
     "egap": 0.003011 * Ha_to_eV,
     "is_metal": True,
-    "fluid": "None",
+    "fluid": None,
     "total_electrons": 288.0,
     "nbands": 174,
     "nat": 16,
@@ -231,7 +231,7 @@ example_latmin_outfile_known_simple = {
     "emax": 0.949497 * Ha_to_eV,
     "egap": 0.000362 * Ha_to_eV,
     "is_metal": True,
-    "fluid": "None",
+    "fluid": None,
     "total_electrons": 64.0,
     "nbands": 42,
     "nat": 8,

@@ -22,7 +22,6 @@ if TYPE_CHECKING:
     from typing_extensions import Self
 
     from pymatgen.core import Molecule, Structure
-    from pymatgen.util.typing import Matrix3D, Vector3D
 
 __author__ = "Andrey Sobolev and Thomas A. R. Purcell"
 __version__ = "1.0"
@@ -196,7 +195,7 @@ class AimsOutput(MSONable):
         return self._metadata["version_number"]
 
     @property
-    def forces(self) -> Sequence[Vector3D] | None:
+    def forces(self) -> Sequence[tuple[float, float, float]] | None:
         """The forces for the final image of the calculation."""
         force_array = self.get_results_for_image(-1).site_properties.get("force", None)
         if isinstance(force_array, np.ndarray):
@@ -205,20 +204,24 @@ class AimsOutput(MSONable):
         return force_array
 
     @property
-    def stress(self) -> Matrix3D:
+    def stress(
+        self,
+    ) -> np.ndarray:
         """The stress for the final image of the calculation."""
         return self.get_results_for_image(-1).properties.get("stress", None)
 
     @property
-    def stresses(self) -> Sequence[Matrix3D] | None:
+    def stresses(
+        self,
+    ) -> list[list[float]] | None:
         """The atomic virial stresses for the final image of the calculation."""
         stresses_array = self.get_results_for_image(-1).site_properties.get("atomic_virial_stress", None)
         if isinstance(stresses_array, np.ndarray):
             return stresses_array.tolist()
-        return stresses_array
+        return stresses_array  # type:ignore[return-value]
 
     @property
-    def all_forces(self) -> list[list[Vector3D]]:
+    def all_forces(self) -> list[list[tuple[float, float, float]]]:
         """The forces for all images in the calculation."""
         all_forces_array = [res.site_properties.get("force", None) for res in self._results]
         return [af.tolist() if isinstance(af, np.ndarray) else af for af in all_forces_array]

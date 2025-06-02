@@ -30,18 +30,17 @@ Physical Review Materials, 8(10), 103801. https://doi.org/10.1103/PhysRevMateria
 
 from __future__ import annotations
 
-import json
 import os
 import re
 import subprocess
 from collections import Counter, defaultdict
 from itertools import chain, groupby, permutations, product
 from operator import itemgetter
-from os.path import abspath, dirname, join
 from shutil import which
 from string import ascii_uppercase, digits
-from typing import TYPE_CHECKING, Literal
+from typing import TYPE_CHECKING
 
+import orjson
 from monty.fractions import gcd
 from monty.serialization import loadfn
 
@@ -51,6 +50,8 @@ from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
 from pymatgen.util.due import Doi, due
 
 if TYPE_CHECKING:
+    from typing import Literal
+
     from pymatgen.core.structure import Structure
 
 try:
@@ -325,7 +326,7 @@ def get_protostructure_label_from_aflow(
         check=True,
     )
 
-    aflow_proto = json.loads(output.stdout)
+    aflow_proto = orjson.loads(output.stdout)
 
     aflow_label = aflow_proto["aflow_prototype_label"]
     chemsys = struct.chemical_system

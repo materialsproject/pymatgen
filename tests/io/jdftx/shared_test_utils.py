@@ -10,6 +10,7 @@ import shutil
 from pathlib import Path
 
 import pytest
+from numpy import allclose, ndarray
 
 from pymatgen.util.testing import TEST_FILES_DIR
 
@@ -27,6 +28,8 @@ def assert_same_value(testval, knownval):
                 assert_same_value(testval[k], knownval[k])
         elif testval is None:
             assert knownval is None
+        elif isinstance(testval, ndarray):
+            assert allclose(testval, knownval)
         else:
             assert testval == knownval
     else:

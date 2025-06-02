@@ -16,12 +16,10 @@ from pymatgen.core.structure import Structure
 from pymatgen.util.coord import get_linear_interpolated_value
 
 if version.parse(np.__version__) < version.parse("2.0.0"):
-    np.trapezoid = np.trapz  # noqa: NPY201
+    np.trapezoid = np.trapz  # type:ignore[assignment]  # noqa: NPY201
 
 if TYPE_CHECKING:
-    from collections.abc import Sequence
-
-    from numpy.typing import NDArray
+    from numpy.typing import ArrayLike, NDArray
     from typing_extensions import Self
 
 BOLTZ_THZ_PER_K = const.value("Boltzmann constant in Hz/K") / const.tera  # Boltzmann constant in THz/K
@@ -31,7 +29,7 @@ THZ_TO_J = const.value("hertz-joule relationship") * const.tera
 class PhononDos(MSONable):
     """Basic DOS object. All other DOS objects are extended versions of this object."""
 
-    def __init__(self, frequencies: Sequence, densities: Sequence) -> None:
+    def __init__(self, frequencies: ArrayLike, densities: ArrayLike) -> None:
         """
         Args:
             frequencies: A sequence of frequencies in THz
@@ -141,7 +139,7 @@ class PhononDos(MSONable):
         return "\n".join(str_arr)
 
     @classmethod
-    def from_dict(cls, dct: dict[str, Sequence]) -> Self:
+    def from_dict(cls, dct: dict[str, ArrayLike]) -> Self:
         """Get PhononDos object from dict representation of PhononDos."""
         return cls(dct["frequencies"], dct["densities"])
 
@@ -157,7 +155,7 @@ class PhononDos(MSONable):
     @lazy_property
     def ind_zero_freq(self) -> int:
         """Index of the first point for which the frequencies are >= 0."""
-        ind = np.searchsorted(self.frequencies, 0)
+        ind = np.searchsorted(self.frequencies, 0).astype(int)
         if ind >= len(self.frequencies):
             raise ValueError("No positive frequencies found")
         return ind

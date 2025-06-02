@@ -53,7 +53,7 @@ class VampireCaller:
     """
 
     @requires(
-        VAMP_EXE,
+        VAMP_EXE,  # type: ignore[arg-type]
         "VampireCaller requires vampire-serial to be in the path."
         "Please follow the instructions at https://vampire.york.ac.uk/download/.",
     )

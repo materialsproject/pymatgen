@@ -21,17 +21,17 @@ from pymatgen.electronic_structure.core import Orbital, OrbitalType, Spin
 from pymatgen.util.coord import get_linear_interpolated_value
 
 if version.parse(np.__version__) < version.parse("2.0.0"):
-    np.trapezoid = np.trapz  # noqa: NPY201
+    np.trapezoid = np.trapz  # type:ignore[assignment] # noqa: NPY201
 
 if TYPE_CHECKING:
-    from collections.abc import Sequence
+    from collections.abc import Mapping
     from typing import Any, Literal
 
-    from numpy.typing import NDArray
+    from numpy.typing import ArrayLike, NDArray
     from typing_extensions import Self
 
     from pymatgen.core.sites import PeriodicSite
-    from pymatgen.util.typing import SpeciesLike, Tuple3Floats
+    from pymatgen.util.typing import SpeciesLike
 
 
 class DOS(Spectrum):
@@ -48,7 +48,7 @@ class DOS(Spectrum):
     XLABEL = "Energy"
     YLABEL = "Density"
 
-    def __init__(self, energies: Sequence[float], densities: NDArray, efermi: float) -> None:
+    def __init__(self, energies: ArrayLike, densities: ArrayLike, efermi: float) -> None:
         """
         Args:
             energies (Sequence[float]): The Energies.
@@ -181,8 +181,8 @@ class Dos(MSONable):
     def __init__(
         self,
         efermi: float,
-        energies: Sequence[float],
-        densities: dict[Spin, NDArray],
+        energies: ArrayLike,
+        densities: Mapping[Spin, ArrayLike],
         norm_vol: float | None = None,
     ) -> None:
         """
@@ -196,10 +196,10 @@ class Dos(MSONable):
                 otherwise will be in states/eV/Angstrom^3.
         """
         self.efermi = efermi
-        self.energies = np.array(energies)
+        self.energies = np.asarray(energies)
         self.norm_vol = norm_vol
         vol = norm_vol or 1
-        self.densities = {k: np.array(d) / vol for k, d in densities.items()}
+        self.densities = {k: np.asarray(d) / vol for k, d in densities.items()}
 
     def __add__(self, other):
         """Add two Dos.
@@ -285,7 +285,7 @@ class Dos(MSONable):
         tol: float = 1e-4,
         abs_tol: bool = False,
         spin: Spin | None = None,
-    ) -> Tuple3Floats:
+    ) -> tuple[float, float, float]:
         """Find the interpolated band gap.
 
         Args:
@@ -388,7 +388,7 @@ class Dos(MSONable):
             "@class": type(self).__name__,
             "efermi": self.efermi,
             "energies": self.energies.tolist(),
-            "densities": {str(spin): dens.tolist() for spin, dens in self.densities.items()},
+            "densities": {str(spin): list(dens) for spin, dens in self.densities.items()},
         }
 
 
@@ -523,7 +523,7 @@ class FermiDos(Dos, MSONable):
                 the default Dos.efermi.
         """
         fermi = self.efermi  # initialize target Fermi
-        relative_error = [float("inf")]
+        relative_error: list | NDArray = [float("inf")]
         for _ in range(precision):
             fermi_range = np.arange(-nstep, nstep + 1) * step + fermi
             calc_doping = np.array([self.get_doping(fermi_lvl, temperature) for fermi_lvl in fermi_range])
@@ -656,7 +656,7 @@ class CompleteDos(Dos):
         self,
         structure: Structure,
         total_dos: Dos,
-        pdoss: dict[PeriodicSite, dict[Orbital, dict[Spin, NDArray]]],
+        pdoss: Mapping[PeriodicSite, Mapping[Orbital, Mapping[Spin, ArrayLike]]],
         normalize: bool = False,
     ) -> None:
         """
@@ -783,11 +783,11 @@ class CompleteDos(Dos):
         Returns:
             dict[Element, Dos]
         """
-        el_dos: dict[SpeciesLike, dict[Spin, NDArray]] = {}
+        el_dos: dict[SpeciesLike, dict[Spin, ArrayLike]] = {}
         for site, atom_dos in self.pdos.items():
             el = site.specie
             for pdos in atom_dos.values():
-                el_dos[el] = add_densities(el_dos[el], pdos) if el in el_dos else pdos
+                el_dos[el] = add_densities(el_dos[el], pdos) if el in el_dos else pdos  # type: ignore[assignment]
 
         return {el: Dos(self.efermi, self.energies, densities) for el, densities in el_dos.items()}
 
@@ -1230,7 +1230,7 @@ class CompleteDos(Dos):
 
         pdos = {key.name: pdos_obj[key].get_densities() for key in pdos_obj}
 
-        pdos["summed_pdos"] = np.sum(list(pdos.values()), axis=0)
+        pdos["summed_pdos"] = np.sum(list(pdos.values()), axis=0)  # type:ignore[arg-type]
         pdos["tdos"] = self.get_densities()
 
         try:
@@ -1381,7 +1381,7 @@ class CompleteDos(Dos):
             for at in self.structure:
                 dd = {}
                 for orb, pdos in self.pdos[at].items():
-                    dd[str(orb)] = {"densities": {str(int(spin)): list(dens) for spin, dens in pdos.items()}}
+                    dd[str(orb)] = {"densities": {str(int(spin)): list(dens) for spin, dens in pdos.items()}}  # type:ignore[arg-type]
                 dct["pdos"].append(dd)
             dct["atom_dos"] = {str(at): dos.as_dict() for at, dos in self.get_element_dos().items()}
             dct["spd_dos"] = {str(orb): dos.as_dict() for orb, dos in self.get_spd_dos().items()}
@@ -1521,8 +1521,8 @@ class LobsterCompleteDos(CompleteDos):
 
 
 def add_densities(
-    density1: dict[Spin, NDArray],
-    density2: dict[Spin, NDArray],
+    density1: Mapping[Spin, ArrayLike],
+    density2: Mapping[Spin, ArrayLike],
 ) -> dict[Spin, NDArray]:
     """Sum two DOS along each spin channel.
 
@@ -1544,7 +1544,7 @@ def _get_orb_type(orb: Orbital | OrbitalType) -> OrbitalType:
         return cast("OrbitalType", orb)
 
 
-def f0(E: float, fermi: float, T: float) -> float:
+def f0(E: float | NDArray, fermi: float, T: float) -> float:
     """Fermi-Dirac distribution function.
 
     Args:

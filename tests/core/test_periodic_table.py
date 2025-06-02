@@ -53,8 +53,6 @@ class TestElement(MatSciTest):
             _ = Element.H.metallic_radius
         with pytest.warns(UserWarning, match="No data available"):
             _ = Element.Og.ionization_energy
-        with pytest.warns(UserWarning, match="Ambiguous values"):
-            _ = Element.H.refractive_index
 
     def test_is_metal(self):
         for metal in ["Fe", "Eu", "Li", "Ca", "In"]:
@@ -320,7 +318,7 @@ class TestElement(MatSciTest):
             el = Element.from_Z(idx)
             for elements in keys:
                 key_str = elements.capitalize().replace("_", " ")
-                if key_str in el.data and (not str(el.data[key_str]).startswith("no data")):
+                if key_str in el.data and (el.data[key_str] is not None):
                     assert getattr(el, elements) is not None
                 elif elements == "long_name":
                     assert el.long_name == el.data["Name"]
@@ -335,7 +333,7 @@ class TestElement(MatSciTest):
             if el.symbol not in {"He", "Ne", "Ar"}:
                 assert el.X > 0, f"No electroneg for {el}"
 
-            # check atomic_orbitals_eV is Ha_to_eV * atomic_orbitals
+        # Check atomic_orbitals_eV is Ha_to_eV * atomic_orbitals
         for el in Element:
             if el.atomic_orbitals is None:
                 continue
@@ -719,7 +717,7 @@ class TestDummySpecies:
                 if str(el) == "H" and ox == 1:
                     continue
                 n_electron_el = sum(orb[-1] for orb in el.full_electronic_structure)
-                n_electron_sp = sum(orb[-1] for orb in Species(el, ox).full_electronic_structure)
+                n_electron_sp = sum(orb[-1] for orb in Species(el.symbol, ox).full_electronic_structure)
                 assert n_electron_el - n_electron_sp == ox, f"Failure for {el} {ox}"
 
 

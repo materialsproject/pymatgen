@@ -19,6 +19,7 @@ import warnings
 from functools import partial
 from typing import TYPE_CHECKING, NamedTuple
 
+import orjson
 import requests
 from monty.json import MontyDecoder
 
@@ -38,6 +39,8 @@ if TYPE_CHECKING:
 logger = logging.getLogger(__name__)
 
 MP_LOG_FILE = os.path.join(os.path.expanduser("~"), ".mprester.log.yaml")
+
+CHUNK_SIZE = 200
 
 
 class MPRester:
@@ -171,7 +174,7 @@ class MPRester:
                 else:
                     response = self.session.get(actual_url, params=payload, verify=True)
                 if response.status_code in [200, 400]:
-                    data = json.loads(response.text, cls=MontyDecoder) if mp_decode else json.loads(response.text)
+                    data = json.loads(response.text, cls=MontyDecoder) if mp_decode else orjson.loads(response.text)
                 else:
                     raise MPRestError(f"REST query returned with error status code {response.status_code}")
                 all_data.extend(data["data"])
@@ -339,8 +342,10 @@ class MPRester:
     def get_entries(
         self,
         criteria: str | Sequence[str],
+        *,
         compatible_only: bool = True,
         property_data: Sequence[str] | None = None,
+        summary_data: Sequence[str] | None = None,
         **kwargs,
     ):
         """Get a list of ComputedEntries or ComputedStructureEntries corresponding
@@ -354,9 +359,13 @@ class MPRester:
                 which performs adjustments to allow mixing of GGA and GGA+U
                 calculations for more accurate phase diagrams and reaction
                 energies.
-            property_data (list): Specify additional properties to include in
-                entry.data. If None, no data. This can be properties that are available in the /materials/summary
+            property_data (list): Specify additional properties to include in entry.data from /materials/thermo
                 endpoint of the API.
+            summary_data (list): Specify additional properties to include in entry.data from /materials/summary
+                endpoint of the API. Note that unlike property_data, summary_data refers to the "best" calculation done
+                by MP. There are no guarantees that the summary_data will be consistent with the entry or property
+                data since the data can come from say a r2SCAN calculation but the entry is from a GGA calculation.
+                The data will be reported in the entry.data["summary"] dictionary.
             **kwargs: Used to catch deprecated kwargs.
 
         Returns:
@@ -393,9 +402,14 @@ class MPRester:
             query = f"formula={criteria}"
 
         entries = []
-        response = self.request(f"materials/thermo/?_fields=entries&{query}")
+        fields = ["entries", *property_data] if property_data is not None else ["entries"]
+        response = self.request(f"materials/thermo/?_fields={','.join(fields)}&{query}")
         for dct in response:
-            entries.extend(dct["entries"].values())
+            for e in dct["entries"].values():
+                if property_data:
+                    for prop in property_data:
+                        e.data[prop] = dct[prop]
+                entries.append(e)
 
         if compatible_only:
             from pymatgen.entries.compatibility import MaterialsProject2020Compatibility
@@ -405,15 +419,19 @@ class MPRester:
                 warnings.filterwarnings("ignore", message="Failed to guess oxidation states.*")
                 entries = MaterialsProject2020Compatibility().process_entries(entries, clean=True)
 
-        if property_data:
-            edata = self.search(
-                "summary",
-                material_ids=[e.data["material_id"] for e in entries],
-                _fields=[*property_data, "material_id"],
-            )
-            mapped_data = {d["material_id"]: {k: v for k, v in d.items() if k != "material_id"} for d in edata}
-            for e in entries:
-                e.data.update(mapped_data[e.data["material_id"]])
+        if summary_data and len(entries) > 0:
+            for i in range(0, len(entries), CHUNK_SIZE):
+                chunked_entries = entries[i : i + CHUNK_SIZE]
+                mids = [e.data["material_id"] for e in chunked_entries]
+                edata = self.search(
+                    "summary",
+                    material_ids=mids,
+                    _fields=[*summary_data, "material_id"],
+                )
+                mapped_data = {d["material_id"]: {k: v for k, v in d.items() if k != "material_id"} for d in edata}
+                for e in chunked_entries:
+                    e.data["summary"] = mapped_data[e.data["material_id"]]
+
         return list(set(entries))
 
     def get_entry_by_material_id(self, material_id: str, *args, **kwargs) -> ComputedStructureEntry:

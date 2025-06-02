@@ -173,7 +173,8 @@ class Ion(Composition, MSONable, Stringify):
                 comp = self.composition - nH2O * Composition("H2O")
 
         el_amt_dict = {k: round(v) for k, v in comp.get_el_amt_dict().items()}
-        formula, factor = reduce_formula(el_amt_dict, iupac_ordering=iupac_ordering)
+        formula, factor_int = reduce_formula(el_amt_dict, iupac_ordering=iupac_ordering)
+        factor = float(factor_int)
 
         # This line checks specifically that the contains an equal amount of O and H. When that is the case,
         # they should be displayed as "OH" rather than "HO".

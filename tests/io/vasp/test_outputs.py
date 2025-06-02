@@ -4,10 +4,10 @@ import gzip
 import json
 import os
 import sys
+import xml
 from io import StringIO
 from pathlib import Path
 from shutil import copyfile, copyfileobj
-from xml.etree import ElementTree as ET
 
 import numpy as np
 import pytest
@@ -142,7 +142,7 @@ class TestVasprun(MatSciTest):
             assert "unlabelled" in vr.dielectric_data
 
     def test_bad_vasprun(self):
-        with pytest.raises(ET.ParseError):
+        with pytest.raises(xml.etree.ElementTree.ParseError):
             Vasprun(f"{VASP_OUT_DIR}/vasprun.bad.xml.gz")
 
         with pytest.warns(
@@ -1583,6 +1583,9 @@ class TestChgcar(MatSciTest):
         assert self.chgcar_spin.get_integrated_diff(0, 1)[0, 1] == approx(-0.0043896932237534022)
         # test sum
         chgcar = self.chgcar_spin + self.chgcar_spin
+        assert chgcar.get_integrated_diff(0, 1)[0, 1] == approx(-0.0043896932237534022 * 2)
+
+        chgcar = sum([self.chgcar_spin, self.chgcar_spin])
         assert chgcar.get_integrated_diff(0, 1)[0, 1] == approx(-0.0043896932237534022 * 2)
 
         chgcar = self.chgcar_spin - self.chgcar_spin

@@ -268,6 +268,7 @@ class TestIStructure(MatSciTest):
         dct = struct.as_dict(0)
         assert "volume" not in dct["lattice"]
         assert "xyz" not in dct["sites"][0]
+        assert "label" not in dct["sites"][0]
 
     def test_from_dict(self):
         dct = self.propertied_structure.as_dict()
@@ -1042,6 +1043,11 @@ class TestStructure(MatSciTest):
         self.disordered = Structure.from_spacegroup("Im-3m", Lattice.cubic(3), [Composition("Fe0.5Mn0.5")], [[0, 0, 0]])
         self.labeled_structure = Structure(lattice, ["Si", "Si"], coords, labels=["Si1", "Si2"])
 
+    def test_calc_property(self):
+        pytest.importorskip("matcalc")
+        d = self.struct.calc_property("elasticity")
+        assert "bulk_modulus_vrh" in d
+
     @pytest.mark.skipif(
         SETTINGS.get("PMG_MAPI_KEY", "") == "",
         reason="PMG_MAPI_KEY environment variable not set or MP API is down. This is also the case in a PR.",
@@ -1267,7 +1273,7 @@ class TestStructure(MatSciTest):
         assert dct == struct.as_dict()
 
         json_str = struct_with_props.to(fmt="json")
-        assert '"test_property": 42' in json_str
+        assert '"test_property":42' in json_str
         struct = Structure.from_str(json_str, fmt="json")
         assert struct.properties == props
         assert dct == struct.as_dict()
@@ -1809,6 +1815,12 @@ direct
             struct_1.append(site.species, site.frac_coords, properties=site.properties)
         struct_1.merge_sites(mode="average")
 
+        cu = Structure(
+            Lattice.from_parameters(2.545584, 2.545584, 2.545584, 60, 60, 60), species=["Cu"], coords=[[0, 0, 0]]
+        )
+        cu.merge_sites(mode="delete")
+        assert len(cu) == 1
+
     def test_properties(self):
         assert self.struct.num_sites == len(self.struct)
         self.struct.make_supercell(2)
@@ -2226,6 +2238,7 @@ Site: H (-0.5134, 0.8892, -0.3630)"""
         no_reorder = self.mol.get_boxed_structure(10, 10, 10, reorder=False)
         assert str(s3[0].specie) == "H"
         assert str(no_reorder[0].specie) == "C"
+        assert_allclose(no_reorder[2].frac_coords, [0.60267191, 0.5, 0.4637])
 
     def test_get_distance(self):
         assert self.mol.get_distance(0, 1) == approx(1.089)

@@ -1,7 +1,6 @@
 from __future__ import annotations
 
-import json
-
+import orjson
 import pytest
 from numpy.testing import assert_allclose
 from pytest import approx
@@ -21,21 +20,21 @@ TEST_DIR = f"{TEST_FILES_DIR}/electronic_structure/cohp"
 
 class TestCohp:
     def setup_method(self):
-        with open(f"{TEST_DIR}/cohp.json", encoding="utf-8") as file:
-            self.cohp = Cohp.from_dict(json.load(file))
+        with open(f"{TEST_DIR}/cohp.json", "rb") as file:
+            self.cohp = Cohp.from_dict(orjson.loads(file.read()))
         self.cohp_only = Cohp(self.cohp.efermi, self.cohp.energies, self.cohp.cohp)
-        with open(f"{TEST_DIR}/coop.json", encoding="utf-8") as file:
-            self.coop = Cohp.from_dict(json.load(file))
-        with open(f"{TEST_DIR}/cobi.json", encoding="utf-8") as file:
-            self.cobi = Cohp.from_dict(json.load(file))
+        with open(f"{TEST_DIR}/coop.json", "rb") as file:
+            self.coop = Cohp.from_dict(orjson.loads(file.read()))
+        with open(f"{TEST_DIR}/cobi.json", "rb") as file:
+            self.cobi = Cohp.from_dict(orjson.loads(file.read()))
 
     def test_as_from_dict(self):
-        with open(f"{TEST_DIR}/cohp.json", encoding="utf-8") as file:
-            cohp_dict = json.load(file)
+        with open(f"{TEST_DIR}/cohp.json", "rb") as file:
+            cohp_dict = orjson.loads(file.read())
         assert self.cohp.as_dict() == cohp_dict
 
-        with open(f"{TEST_DIR}/cobi.json", encoding="utf-8") as file:
-            cobi_dict = json.load(file)
+        with open(f"{TEST_DIR}/cobi.json", "rb") as file:
+            cobi_dict = orjson.loads(file.read())
         assert self.cobi.as_dict() == cobi_dict
 
     def test_attributes(self):
@@ -236,29 +235,29 @@ class TestCombinedIcohp:
                 "list_translation": [[0, 0, -1], [0, 0, 0]],
                 "list_num": [1, 1],
                 "list_icohp": [
-                    {Spin.up: 0.29324, Spin.down: 0.29324},
-                    {Spin.up: 0.29324, Spin.down: 0.29324},
+                    {"1": 0.29324, "-1": 0.29324},
+                    {"1": 0.29324, "-1": 0.29324},
                 ],
                 "is_spin_polarized": True,
                 "list_orb_icohp": [
                     {
                         "2s-6s": {
-                            "icohp": {Spin.up: 0.0247, Spin.down: 0.0247},
-                            "orbitals": [[2, Orbital.s], [6, Orbital.s]],
+                            "icohp": {"1": 0.0247, "-1": 0.0247},
+                            "orbitals": [[2, 0], [6, 0]],
                         },
                         "2s-5py": {
-                            "icohp": {Spin.up: 8e-05, Spin.down: 8e-05},
-                            "orbitals": [[2, Orbital.s], [5, Orbital.py]],
+                            "icohp": {"1": 8e-05, "-1": 8e-05},
+                            "orbitals": [[2, 0], [5, 1]],
                         },
                     },
                     {
                         "2s-6s": {
-                            "icohp": {Spin.up: 0.0247, Spin.down: 0.0247},
-                            "orbitals": [[2, Orbital.s], [6, Orbital.s]],
+                            "icohp": {"1": 0.0247, "-1": 0.0247},
+                            "orbitals": [[2, 0], [6, 0]],
                         },
                         "2s-5py": {
-                            "icohp": {Spin.up: 0.5, Spin.down: 0},
-                            "orbitals": [[2, Orbital.s], [5, Orbital.py]],
+                            "icohp": {"1": 0.5, "-1": 0},
+                            "orbitals": [[2, 0], [5, 1]],
                         },
                     },
                 ],
@@ -798,21 +797,21 @@ class TestCombinedIcohp:
 class TestCompleteCohp(MatSciTest):
     def setup_method(self):
         filepath = f"{TEST_DIR}/complete_cohp_lobster.json"
-        with open(filepath, encoding="utf-8") as file:
-            self.cohp_lobster_dict = CompleteCohp.from_dict(json.load(file))
+        with open(filepath, "rb") as file:
+            self.cohp_lobster_dict = CompleteCohp.from_dict(orjson.loads(file.read()))
         filepath = f"{TEST_DIR}/complete_coop_lobster.json"
-        with open(filepath, encoding="utf-8") as file:
-            self.coop_lobster_dict = CompleteCohp.from_dict(json.load(file))
+        with open(filepath, "rb") as file:
+            self.coop_lobster_dict = CompleteCohp.from_dict(orjson.loads(file.read()))
         filepath = f"{TEST_DIR}/complete_cohp_lmto.json"
-        with open(filepath, encoding="utf-8") as file:
-            self.cohp_lmto_dict = CompleteCohp.from_dict(json.load(file))
+        with open(filepath, "rb") as file:
+            self.cohp_lmto_dict = CompleteCohp.from_dict(orjson.loads(file.read()))
         filepath = f"{TEST_DIR}/complete_cohp_orbitalwise.json"
-        with open(filepath, encoding="utf-8") as file:
-            self.cohp_orb_dict = CompleteCohp.from_dict(json.load(file))
+        with open(filepath, "rb") as file:
+            self.cohp_orb_dict = CompleteCohp.from_dict(orjson.loads(file.read()))
         # Lobster 3.0
         filepath = f"{TEST_DIR}/complete_cohp_forb.json"
-        with open(filepath, encoding="utf-8") as file:
-            self.cohp_lobster_forb_dict = CompleteCohp.from_dict(json.load(file))
+        with open(filepath, "rb") as file:
+            self.cohp_lobster_forb_dict = CompleteCohp.from_dict(orjson.loads(file.read()))
 
             # Lobster 2.0
         filepath = f"{TEST_DIR}/COPL.BiSe"

@@ -12,6 +12,8 @@ import re
 from fractions import Fraction
 from typing import TYPE_CHECKING
 
+import numpy as np
+
 if TYPE_CHECKING:
     from collections.abc import Sequence
     from typing import Any, Literal, TextIO
@@ -19,7 +21,6 @@ if TYPE_CHECKING:
     from numpy.typing import ArrayLike
 
     from pymatgen.core import Structure
-    from pymatgen.util.typing import Vector3D
 
 SUBSCRIPT_UNICODE: dict[str, str] = {
     "0": "₀",
@@ -323,7 +324,7 @@ def stream_has_colors(stream: TextIO) -> bool:
 
 def transformation_to_string(
     matrix: ArrayLike,
-    translation_vec: Vector3D = (0, 0, 0),
+    translation_vec: ArrayLike = (0, 0, 0),
     components: tuple[str, str, str] = ("x", "y", "z"),
     c: str = "",
     delim: str = ",",
@@ -332,7 +333,7 @@ def transformation_to_string(
 
     Args:
         matrix (ArrayLike): A 3x3 matrix.
-        translation_vec (Vector3D): The translation vector. Defaults to (0, 0, 0).
+        translation_vec (tuple[float, float, float]): The translation vector. Defaults to (0, 0, 0).
         components(tuple[str, str, str]): The components. Either ('x', 'y', 'z') or ('a', 'b', 'c').
             Defaults to ('x', 'y', 'z').
         c (str): An optional additional character to print (used for magmoms). Defaults to "".
@@ -342,6 +343,8 @@ def transformation_to_string(
         str: xyz string.
     """
     parts = []
+    matrix = np.asarray(matrix)
+    translation_vec = np.asarray(translation_vec)
     for idx in range(3):
         string = ""
         mat = matrix[idx]
@@ -412,7 +415,7 @@ def disordered_formula(
 
     comp = disordered_struct.composition.get_el_amt_dict().items()
     # sort by electronegativity, as per composition
-    comp = sorted(comp, key=lambda x: get_el_sp(x[0]).X)
+    comp = sorted(comp, key=lambda x: get_el_sp(x[0]).X)  # type:ignore[assignment]
 
     disordered_comp: list[tuple[str, str]] = []
     variable_map = {}
@@ -424,7 +427,7 @@ def disordered_formula(
     factor_comp["X"] = total_disordered_occu
     for sp in disordered_species:
         del factor_comp[str(sp)]
-    factor_comp = Composition.from_dict(factor_comp)
+    factor_comp = Composition.from_dict(factor_comp)  # type:ignore[assignment]
     factor = factor_comp.get_reduced_formula_and_factor()[1]
 
     total_disordered_occu /= factor
@@ -454,12 +457,12 @@ def disordered_formula(
         raise ValueError("Unsupported output format, choose from: LaTeX, HTML, plain")
 
     disordered_formulas = []
-    for sp, occu in disordered_comp:
+    for sp, occu in disordered_comp:  # type:ignore[assignment]
         disordered_formulas.append(sp)
         if occu:  # can be empty string if 1
             if fmt != "plain":
                 disordered_formulas.append(sub_start)
-            disordered_formulas.append(occu)
+            disordered_formulas.append(occu)  # type:ignore[arg-type]
             if fmt != "plain":
                 disordered_formulas.append(sub_end)
     disordered_formulas.append(" ")

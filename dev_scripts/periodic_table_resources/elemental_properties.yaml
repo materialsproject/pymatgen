@@ -1,4 +1,5 @@
 Atomic mass:
+  unit: amu
   data:
     Ac: 227
     Ag: 107.8682
@@ -1348,7 +1349,7 @@ Boiling point:
     Zn: 1180
     Zr: 4682
 Brinell hardness:
-  unit: MN m<sup>-2</sup>
+  unit: MN m^-2
   data:
     Ag: 24.5
     Al: 245
@@ -1425,7 +1426,7 @@ Bulk modulus:
     Ca: 17
     Cd: 42
     Ce: 22
-    Cl: 1.1 (liquid)
+    Cl: 1.1  # liquid
     Co: 180
     Cr: 160
     Cs: 1.6
@@ -1482,7 +1483,8 @@ Bulk modulus:
     Yb: 31
     Zn: 70
 Coefficient of linear thermal expansion:
-  unit: x10<sup>-6</sup>K<sup>-1</sup>
+  unit: K^-1
+  factor: 1e-6
   data:
     Ag: 18.9
     Al: 23.1
@@ -1675,7 +1677,7 @@ Critical temperature:
     Se: 1766
     Xe: 289.7
 Density of solid:
-  unit: kg m<sup>-3</sup>
+  unit: kg m^-3
   data:
     Ac: 10070
     Ag: 10490
@@ -1760,22 +1762,24 @@ Density of solid:
     Zn: 7140
     Zr: 6511
 Electrical resistivity:
-  unit: 10<sup>-8</sup> &Omega; m
-  data:
+  unit: ohm m
+  # reference: TODO: need to validate/update (haven't been updated for 13 years)
+  factor: 1e-8
+  data:  # 293 K (20 °C)
     Ag: 1.63
     Al: 2.7
     As: 33
     Au: 2.2
-    B: '&gt; 10<sup>12</sup>'
+    B: 1.5e12
     Ba: 34
     Be: 3.8
     Bi: 130
-    Br: '&gt; 10<sup>18</sup>'
-    C: about 1000 - direction dependent
+    Br: 7.8e18
+    C: 1000  # direction dependent
     Ca: 3.4
     Cd: 7
     Ce: 74
-    Cl: '&gt; 10<sup>10</sup>'
+    Cl: 1e9
     Co: 6
     Cr: 12.7
     Cs: 21
@@ -1784,13 +1788,13 @@ Electrical resistivity:
     Er: 86.0
     Eu: 90
     Fe: 10
-    Ga: about  14
+    Ga: 14
     Gd: 131
-    Ge: about 50000
+    Ge: 50000
     Hf: 34
     Hg: 96
     Ho: 81.4
-    I: '&gt; 10<sup>15</sup>'
+    I: 1.3e15
     In: 8
     Ir: 4.7
     K: 7.5
@@ -1806,11 +1810,11 @@ Electrical resistivity:
     Ni: 7.2
     Np: 120
     Os: 8.1
-    P: about 10
+    P: 10
     Pa: 18
     Pb: 21
     Pd: 10.8
-    Pm: about 75
+    Pm: 75
     Po: 40
     Pr: 70
     Pt: 10.6
@@ -1820,399 +1824,399 @@ Electrical resistivity:
     Re: 18
     Rh: 4.3
     Ru: 7.1
-    S: '&gt; 10<sup>23</sup>'
+    S: 2e23
     Sb: 40
-    Sc: about 55
-    Se: high
-    Si: about 100000
+    Sc: 55
+    Si: 100000
     Sm: 94
     Sn: 11.5
     Sr: 13.5
     Ta: 13.5
     Tb: 115
-    Tc: about 22
-    Te: about 10000
+    Tc: 22
+    Te: 10000
     Th: 15
-    Ti: about 40
+    Ti: 40
     Tl: 15
     Tm: 67.6
     U: 28
     V: 20
     W: 5.4
-    Y: about 60
+    Y: 60
     Yb: 25.0
     Zn: 6.0
     Zr: 43.3
 Electronic structure:
+  reference: "Kramida, A., Ralchenko, Yu., Reader, J., and NIST ASD Team (2023). NIST Atomic Spectra Database (ver. 5.11). https://physics.nist.gov/asd [2024, June 3]. National Institute of Standards and Technology, Gaithersburg, MD. DOI: https://doi.org/10.18434/T4W30F"
   data:
     Ac:
-      '0': '[Rn].6d<sup>1</sup>.7s<sup>2</sup>'
-      '3': '[Xe].4f<sup>14</sup>.5d<sup>10</sup>.6s<sup>2</sup>.6p<sup>6</sup>'
+      '0': '[Rn].6d1.7s2'
+      '3': '[Xe].4f14.5d10.6s2.6p6'
     Ag:
-      '0': '[Kr].4d<sup>10</sup>.5s<sup>1</sup>'
-      '1': '[Kr].4d<sup>10</sup>'
+      '0': '[Kr].4d10.5s1'
+      '1': '[Kr].4d10'
     Al:
-      '0': '[Ne].3s<sup>2</sup>.3p<sup>1</sup>'
-      '3': 1s<sup>2</sup>.2s<sup>2</sup>.2p<sup>6</sup>
+      '0': '[Ne].3s2.3p1'
+      '3': 1s2.2s2.2p6
     Am:
-      '0': '[Rn].5f<sup>7</sup>.7s<sup>2</sup>'
-      '3': '[Rn].5f<sup>6</sup>'
+      '0': '[Rn].5f7.7s2'
+      '3': '[Rn].5f6'
     Ar:
-      '0': '[Ne].3s<sup>2</sup>.3p<sup>6</sup>'
+      '0': '[Ne].3s2.3p6'
     As:
-      '0': '[Ar].3d<sup>10</sup>.4s<sup>2</sup>.4p<sup>3</sup>'
-      '3': '[Ar].3d<sup>10</sup>.4s<sup>2</sup>'
-      '5': '[Ar].3d<sup>10</sup>'
-      '-3': '[Ar].3d<sup>10</sup>.4s<sup>2</sup>.4p<sup>6</sup>'
+      '0': '[Ar].3d10.4s2.4p3'
+      '3': '[Ar].3d10.4s2'
+      '5': '[Ar].3d10'
+      '-3': '[Ar].3d10.4s2.4p6'
     At:
-      '0': '[Xe].4f<sup>14</sup>.5d<sup>10</sup>.6s<sup>2</sup>.6p<sup>5</sup>'
-      '1': '[Xe].4f<sup>14</sup>.5d<sup>10</sup>.6s<sup>2</sup>.6p<sup>4</sup>'
-      '-1': '[Xe].4f<sup>14</sup>.5d<sup>10</sup>.6s<sup>2</sup>.6p<sup>6</sup>'
+      '0': '[Xe].4f14.5d10.6s2.6p5'
+      '1': '[Xe].4f14.5d10.6s2.6p4'
+      '-1': '[Xe].4f14.5d10.6s2.6p6'
     Au:
-      '0': '[Xe].4f<sup>14</sup>.5d<sup>10</sup>.6s<sup>1</sup>'
-      '3': '[Xe].4f<sup>14</sup>.5d<sup>8</sup>'
+      '0': '[Xe].4f14.5d10.6s1'
+      '3': '[Xe].4f14.5d8'
     B:
-      '0': '[He].2s<sup>2</sup>.2p<sup>1</sup>'
-      '3': 1s<sup>2</sup>
+      '0': '[He].2s2.2p1'
+      '3': 1s2
     Ba:
-      '0': '[Xe].6s<sup>2</sup>'
-      '2': '[Kr].4d<sup>10</sup>.5s<sup>2</sup>.5p<sup>6</sup>'
+      '0': '[Xe].6s2'
+      '2': '[Kr].4d10.5s2.5p6'
     Be:
-      '0': '[He].2s<sup>2</sup>'
-      '2': 1s<sup>2</sup>
+      '0': '[He].2s2'
+      '2': 1s2
     Bi:
-      '0': '[Xe].4f<sup>14</sup>.5d<sup>10</sup>.6s<sup>2</sup>.6p<sup>3</sup>'
-      '3': '[Xe].4f<sup>14</sup>.5d<sup>10</sup>.6s<sup>2</sup>'
+      '0': '[Xe].4f14.5d10.6s2.6p3'
+      '3': '[Xe].4f14.5d10.6s2'
     Bk:
-      '0': '[Rn].5f<sup>9</sup>.7s<sup>2</sup>'
-      '3': '[Rn].5f<sup>8</sup>'
+      '0': '[Rn].5f9.7s2'
+      '3': '[Rn].5f8'
     Br:
-      '0': '[Ar].3d<sup>10</sup>.4s<sup>2</sup>.4p<sup>5</sup>'
-      '-1': '[Ar].3d<sup>10</sup>.4s<sup>2</sup>.4p<sup>6</sup>'
-      '1': '[Ar].3d<sup>10</sup>.4s<sup>2</sup>.4p<sup>4</sup>'
-      '3': '[Ar].3d<sup>10</sup>.4s<sup>2</sup>.4p<sup>2</sup>'
-      '5': '[Ar].3d<sup>10</sup>.4s<sup>2</sup>'
-      '7': '[Ar].3d<sup>10</sup>'
+      '0': '[Ar].3d10.4s2.4p5'
+      '-1': '[Ar].3d10.4s2.4p6'
+      '1': '[Ar].3d10.4s2.4p4'
+      '3': '[Ar].3d10.4s2.4p2'
+      '5': '[Ar].3d10.4s2'
+      '7': '[Ar].3d10'
     C:
-      '0': '[He].2s<sup>2</sup>.2p<sup>2</sup>'
-      '-4': '[He].2s<sup>2</sup>.2p<sup>6</sup>'
-      '4': 1s<sup>2</sup>
+      '0': '[He].2s2.2p2'
+      '-4': '[He].2s2.2p6'
+      '4': 1s2
     Ca:
-      '0': '[Ar].4s<sup>2</sup>'
-      '2': '[Ne].3s<sup>2</sup>.3p<sup>6</sup>'
+      '0': '[Ar].4s2'
+      '2': '[Ne].3s2.3p6'
     Cd:
-      '0': '[Kr].4d<sup>10</sup>.5s<sup>2</sup>'
-      '2': '[Kr].4d<sup>10</sup>'
+      '0': '[Kr].4d10.5s2'
+      '2': '[Kr].4d10'
     Ce:
-      '0': '[Xe].4f<sup>1</sup>.5d<sup>1</sup>.6s<sup>2</sup>'
-      '3': '[Xe].4f<sup>1</sup>'
-      '4': '[Cd].5p<sup>6</sup>'
+      '0': '[Xe].4f1.5d1.6s2'
+      '3': '[Xe].4f1'
+      '4': '[Cd].5p6'
     Cf:
-      '0': '[Rn].5f<sup>10</sup>.7s<sup>2</sup>'
-      '3': '[Rn].5f<sup>9</sup>'
+      '0': '[Rn].5f10.7s2'
+      '3': '[Rn].5f9'
     Cl:
-      '0': '[Ne].3s<sup>2</sup>.3p<sup>5</sup>'
-      '-1': '[Ne].3s<sup>2</sup>.3p<sup>6</sup>'
-      '1': '[Ne].3s<sup>2</sup>.3p<sup>4</sup>'
-      '3': '[Ne].3s<sup>2</sup>.3p<sup>2</sup>'
-      '5': '[Ne].3s<sup>2</sup>'
-      '7': 1s<sup>2</sup>.2s<sup>2</sup>.2p<sup>6</sup>
+      '0': '[Ne].3s2.3p5'
+      '-1': '[Ne].3s2.3p6'
+      '1': '[Ne].3s2.3p4'
+      '3': '[Ne].3s2.3p2'
+      '5': '[Ne].3s2'
+      '7': 1s2.2s2.2p6
     Cm:
-      '0': '[Rn].5f<sup>7</sup>.6d<sup>1</sup>.7s<sup>2</sup>'
-      '3': '[Rn].5f<sup>7</sup>'
+      '0': '[Rn].5f7.6d1.7s2'
+      '3': '[Rn].5f7'
     Co:
-      '0': '[Ar].3d<sup>7</sup>.4s<sup>2</sup>'
-      '2': '[Ar].3d<sup>7</sup>'
-      '3': '[Ar].3d<sup>6</sup>'
+      '0': '[Ar].3d7.4s2'
+      '2': '[Ar].3d7'
+      '3': '[Ar].3d6'
     Cr:
-      '0': '[Ar].3d<sup>5</sup>.4s<sup>1</sup>'
-      '2': '[Ar].3d<sup>4</sup>'
-      '3': '[Ar].3d<sup>3</sup>'
-      '6': '[Ne].3s<sup>2</sup>.3p<sup>6</sup>'
+      '0': '[Ar].3d5.4s1'
+      '2': '[Ar].3d4'
+      '3': '[Ar].3d3'
+      '6': '[Ne].3s2.3p6'
     Cs:
-      '0': '[Xe].6s<sup>1</sup>'
-      '1': '[Kr].4d<sup>10</sup>.5s<sup>2</sup>.5p<sup>6</sup>'
+      '0': '[Xe].6s1'
+      '1': '[Kr].4d10.5s2.5p6'
     Cu:
-      '0': '[Ar].3d<sup>10</sup>.4s<sup>1</sup>'
-      '1': '[Ar].3d<sup>10</sup>'
-      '2': '[Ar].3d<sup>9</sup>'
-      '3': '[Ar].3d<sup>8</sup>'
+      '0': '[Ar].3d10.4s1'
+      '1': '[Ar].3d10'
+      '2': '[Ar].3d9'
+      '3': '[Ar].3d8'
     Dy:
-      '0': '[Xe].4f<sup>10</sup>.6s<sup>2</sup>'
-      '3': '[Xe].4f<sup>9</sup>'
+      '0': '[Xe].4f10.6s2'
+      '3': '[Xe].4f9'
     Er:
-      '0': '[Xe].4f<sup>12</sup>.6s<sup>2</sup>'
-      '3': '[Xe].4f<sup>11</sup>'
+      '0': '[Xe].4f12.6s2'
+      '3': '[Xe].4f11'
     Es:
-      '0': '[Rn].5f<sup>11</sup>.7s<sup>2</sup>'
-      '3': '[Rn].5f<sup>10</sup>'
+      '0': '[Rn].5f11.7s2'
+      '3': '[Rn].5f10'
     Eu:
-      '0': '[Xe].4f<sup>7</sup>.6s<sup>2</sup>'
-      '2': '[Xe].4f<sup>7</sup>'
-      '3': '[Xe].4f<sup>6</sup>'
+      '0': '[Xe].4f7.6s2'
+      '2': '[Xe].4f7'
+      '3': '[Xe].4f6'
     F:
-      '0': '[He].2s<sup>2</sup>.2p<sup>5</sup>'
-      '-1': '[He].2s<sup>2</sup>.2p<sup>6</sup>'
+      '0': '[He].2s2.2p5'
+      '-1': '[He].2s2.2p6'
     Fe:
-      '0': '[Ar].3d<sup>6</sup>.4s<sup>2</sup>'
-      '2': '[Ar].3d<sup>6</sup>'
-      '3': '[Ar].3d<sup>5</sup>'
+      '0': '[Ar].3d6.4s2'
+      '2': '[Ar].3d6'
+      '3': '[Ar].3d5'
     Fm:
-      '0': '[Rn].5f<sup>12</sup>.7s<sup>2</sup>'
-      '3': '[Rn].5f<sup>11</sup>'
+      '0': '[Rn].5f12.7s2'
+      '3': '[Rn].5f11'
     Fr:
-      '0': '[Rn].7s<sup>1</sup>'
-      '1': '[Hg].6p<sup>6</sup>'
+      '0': '[Rn].7s1'
+      '1': '[Hg].6p6'
     Ga:
-      '0': '[Ar].3d<sup>10</sup>.4s<sup>2</sup>.4p<sup>1</sup>'
-      '3': '[Ar].3d<sup>10</sup>'
+      '0': '[Ar].3d10.4s2.4p1'
+      '3': '[Ar].3d10'
     Gd:
-      '0': '[Xe].4f<sup>7</sup>.5d<sup>1</sup>.6s<sup>2</sup>'
-      '3': '[Xe].4f<sup>7</sup>'
+      '0': '[Xe].4f7.5d1.6s2'
+      '3': '[Xe].4f7'
     Ge:
-      '0': '[Ar].3d<sup>10</sup>.4s<sup>2</sup>.4p<sup>2</sup>'
-      '-4': '[Ar].3d<sup>10</sup>.4s<sup>2</sup>.4p<sup>6</sup>'
-      '2': '[Ar].3d<sup>10</sup>.4s<sup>2</sup>'
-      '4': '[Ar].3d<sup>10</sup>'
+      '0': '[Ar].3d10.4s2.4p2'
+      '-4': '[Ar].3d10.4s2.4p6'
+      '2': '[Ar].3d10.4s2'
+      '4': '[Ar].3d10'
     H:
-      '0': 1s<sup>1</sup>
-      '-1': 1s<sup>2</sup>
+      '0': 1s1
+      '-1': 1s2
       '1':
     He:
-      '0': 1s<sup>2</sup>
+      '0': 1s2
     Hf:
-      '0': '[Xe].4f<sup>14</sup>.5d<sup>2</sup>.6s<sup>2</sup>'
-      '4': '[Xe].4f<sup>14</sup>'
+      '0': '[Xe].4f14.5d2.6s2'
+      '4': '[Xe].4f14'
     Hg:
-      '0': '[Xe].4f<sup>14</sup>.5d<sup>10</sup>.6s<sup>2</sup>'
-      '1': '[Xe].4f<sup>14</sup>.5d<sup>10</sup>.6s<sup>1</sup>'
-      '2': '[Xe].4f<sup>14</sup>.5d<sup>10</sup>'
+      '0': '[Xe].4f14.5d10.6s2'
+      '1': '[Xe].4f14.5d10.6s1'
+      '2': '[Xe].4f14.5d10'
     Ho:
-      '0': '[Xe].4f<sup>11</sup>.6s<sup>2</sup>'
-      '3': '[Xe].4f<sup>10</sup>'
+      '0': '[Xe].4f11.6s2'
+      '3': '[Xe].4f10'
     I:
-      '0': '[Kr].4d<sup>10</sup>.5s<sup>2</sup>.5p<sup>5</sup>'
-      '-1': '[Kr].4d<sup>10</sup>.5s<sup>2</sup>.5p<sup>6</sup>'
-      '1': '[Kr].4d<sup>10</sup>.5s<sup>2</sup>.5p<sup>4</sup>'
-      '3': '[Kr].4d<sup>10</sup>.5s<sup>2</sup>.5p<sup>2</sup>'
-      '5': '[Kr].4d<sup>10</sup>.5s<sup>2</sup>'
-      '7': '[Kr].4d<sup>10</sup>'
+      '0': '[Kr].4d10.5s2.5p5'
+      '-1': '[Kr].4d10.5s2.5p6'
+      '1': '[Kr].4d10.5s2.5p4'
+      '3': '[Kr].4d10.5s2.5p2'
+      '5': '[Kr].4d10.5s2'
+      '7': '[Kr].4d10'
     In:
-      '0': '[Kr].4d<sup>10</sup>.5s<sup>2</sup>.5p<sup>1</sup>'
-      '3': '[Kr].4d<sup>10</sup>'
+      '0': '[Kr].4d10.5s2.5p1'
+      '3': '[Kr].4d10'
     Ir:
-      '0': '[Xe].4f<sup>14</sup>.5d<sup>7</sup>.6s<sup>2</sup>'
-      '3': '[Xe].4f<sup>14</sup>.5d<sup>6</sup>'
-      '4': '[Xe].4f<sup>14</sup>.5d<sup>5</sup>'
+      '0': '[Xe].4f14.5d7.6s2'
+      '3': '[Xe].4f14.5d6'
+      '4': '[Xe].4f14.5d5'
     K:
-      '0': '[Ar].4s<sup>1</sup>'
-      '1': '[Ne].3s<sup>2</sup>.3p<sup>6</sup>'
+      '0': '[Ar].4s1'
+      '1': '[Ne].3s2.3p6'
     Kr:
-      '0': '[Ar].3d<sup>10</sup>.4s<sup>2</sup>.4p<sup>6</sup>'
+      '0': '[Ar].3d10.4s2.4p6'
     La:
-      '0': '[Xe].5d<sup>1</sup>.6s<sup>2</sup>'
-      '3': '[Cd].5p<sup>6</sup>'
+      '0': '[Xe].5d1.6s2'
+      '3': '[Cd].5p6'
     Li:
-      '0': '[He].2s<sup>1</sup>'
-      '1': 1s<sup>2</sup>
+      '0': '[He].2s1'
+      '1': 1s2
     Lr:
-      '0': '[Rn].5f<sup>14</sup>.7s<sup>2</sup>.7p<sup>1</sup>'
-      '3': '[Rn].5f<sup>14</sup>'
+      '0': '[Rn].5f14.7s2.7p1'
+      '3': '[Rn].5f14'
     Lu:
-      '0': '[Xe].4f<sup>14</sup>.5d<sup>1</sup>.6s<sup>2</sup>'
-      '3': '[Xe].4f<sup>14</sup>'
+      '0': '[Xe].4f14.5d1.6s2'
+      '3': '[Xe].4f14'
     Md:
-      '0': '[Rn].5f<sup>13</sup>.7s<sup>2</sup>'
-      '3': '[Rn].5f<sup>12</sup>'
+      '0': '[Rn].5f13.7s2'
+      '3': '[Rn].5f12'
     Mg:
-      '0': '[Ne].3s<sup>2</sup>'
-      '2': '[He].2s<sup>2</sup>.2p<sup>6</sup>'
+      '0': '[Ne].3s2'
+      '2': '[He].2s2.2p6'
     Mn:
-      '0': '[Ar].3d<sup>5</sup>.4s<sup>2</sup>'
-      '2': '[Ar].3d<sup>5</sup>'
-      '3': '[Ar].3d<sup>4</sup>'
-      '4': '[Ar].3d<sup>3</sup>'
-      '7': '[Ne].3s<sup>2</sup>.3p<sup>6</sup>'
+      '0': '[Ar].3d5.4s2'
+      '2': '[Ar].3d5'
+      '3': '[Ar].3d4'
+      '4': '[Ar].3d3'
+      '7': '[Ne].3s2.3p6'
     Mo:
-      '0': '[Kr].4d<sup>5</sup>.5s<sup>1</sup>'
-      '3': '[Kr].4d<sup>3</sup>'
-      '4': '[Kr].4d<sup>2</sup>'
-      '6': '[Ar].3d<sup>10</sup>.4s<sup>2</sup>.4p<sup>6</sup>'
+      '0': '[Kr].4d5.5s1'
+      '3': '[Kr].4d3'
+      '4': '[Kr].4d2'
+      '6': '[Ar].3d10.4s2.4p6'
     N:
-      '0': '[He].2s<sup>2</sup>.2p<sup>3</sup>'
-      '-3': '[He].2s<sup>2</sup>.2p<sup>6</sup>'
-      '3': 1s<sup>2</sup>.2s<sup>2</sup>
-      '5': 1s<sup>2</sup>
+      '0': '[He].2s2.2p3'
+      '-3': '[He].2s2.2p6'
+      '3': 1s2.2s2
+      '5': 1s2
     Na:
-      '0': '[Ne].3s<sup>1</sup>'
-      '1': '[He].2s<sup>2</sup>.2p<sup>6</sup>'
+      '0': '[Ne].3s1'
+      '1': '[He].2s2.2p6'
     Nb:
-      '0': '[Kr].4d<sup>4</sup>.5s<sup>1</sup>'
-      '5': '[Ar].3d<sup>10</sup>.4s<sup>2</sup>.4p<sup>6</sup>'
+      '0': '[Kr].4d4.5s1'
+      '5': '[Ar].3d10.4s2.4p6'
     Nd:
-      '0': '[Xe].4f<sup>4</sup>.6s<sup>2</sup>'
-      '3': '[Xe].4f<sup>3</sup>'
+      '0': '[Xe].4f4.6s2'
+      '3': '[Xe].4f3'
     Ne:
-      '0': '[He].2s<sup>2</sup>.2p<sup>6</sup>'
+      '0': '[He].2s2.2p6'
     Ni:
-      '0': '[Ar].3d<sup>8</sup>.4s<sup>2</sup>'
-      '2': '[Ar].3d<sup>8</sup>'
-      '3': '[Ar].3d<sup>7</sup>'
+      '0': '[Ar].3d8.4s2'
+      '2': '[Ar].3d8'
+      '3': '[Ar].3d7'
     No:
-      '0': '[Rn].5f<sup>14</sup>.7s<sup>2</sup>'
-      '3': '[Rn].5f<sup>13</sup>'
+      '0': '[Rn].5f14.7s2'
+      '3': '[Rn].5f13'
     Np:
-      '0': '[Rn].5f<sup>4</sup>.6d<sup>1</sup>.7s<sup>2</sup>'
-      '5': '[Rn].5f<sup>2</sup>'
+      '0': '[Rn].5f4.6d1.7s2'
+      '5': '[Rn].5f2'
     O:
-      '0': '[He].2s<sup>2</sup>.2p<sup>4</sup>'
-      '-2': '[He].2s<sup>2</sup>.2p<sup>6</sup>'
+      '0': '[He].2s2.2p4'
+      '-2': '[He].2s2.2p6'
     Os:
-      '0': '[Xe].4f<sup>14</sup>.5d<sup>6</sup>.6s<sup>2</sup>'
-      '4': '[Xe].4f<sup>14</sup>.5d<sup>4</sup>'
+      '0': '[Xe].4f14.5d6.6s2'
+      '4': '[Xe].4f14.5d4'
     P:
-      '0': '[Ne].3s<sup>2</sup>.3p<sup>3</sup>'
-      '-3': '[Ne].3s<sup>2</sup>.3p<sup>6</sup>'
-      '3': '[Ne].3s<sup>2</sup>'
-      '5': 1s<sup>2</sup>.2s<sup>2</sup>.2p<sup>6</sup>
+      '0': '[Ne].3s2.3p3'
+      '-3': '[Ne].3s2.3p6'
+      '3': '[Ne].3s2'
+      '5': 1s2.2s2.2p6
     Pa:
-      '0': '[Rn].5f<sup>2</sup>.6d<sup>1</sup>.7s<sup>2</sup>'
-      '5': '[Hg].6p<sup>6</sup>'
+      '0': '[Rn].5f2.6d1.7s2'
+      '5': '[Hg].6p6'
     Pb:
-      '0': '[Xe].4f<sup>14</sup>.5d<sup>10</sup>.6s<sup>2</sup>.6p<sup>2</sup>'
-      '2': '[Xe].4f<sup>14</sup>.5d<sup>10</sup>.6s<sup>2</sup>'
-      '4': '[Xe].4f<sup>14</sup>.5d<sup>10</sup>'
+      '0': '[Xe].4f14.5d10.6s2.6p2'
+      '2': '[Xe].4f14.5d10.6s2'
+      '4': '[Xe].4f14.5d10'
     Pd:
-      '0': '[Kr].4d<sup>10</sup>'
-      '2': '[Kr].4d<sup>8</sup>'
-      '4': '[Kr].4d<sup>6</sup>'
+      '0': '[Kr].4d10'
+      '2': '[Kr].4d8'
+      '4': '[Kr].4d6'
     Pm:
-      '0': '[Xe].4f<sup>5</sup>.6s<sup>2</sup>'
-      '3': '[Xe].4f<sup>4</sup>'
+      '0': '[Xe].4f5.6s2'
+      '3': '[Xe].4f4'
     Po:
-      '0': '[Xe].4f<sup>14</sup>.5d<sup>10</sup>.6s<sup>2</sup>.6p<sup>4</sup>'
-      '-2': '[Xe].4f<sup>14</sup>.5d<sup>10</sup>.6s<sup>2</sup>.6p<sup>6</sup>'
-      '2': '[Xe].4f<sup>14</sup>.5d<sup>10</sup>.6s<sup>2</sup>.6p<sup>2</sup>'
-      '4': '[Xe].4f<sup>14</sup>.5d<sup>10</sup>.6s<sup>2</sup>'
+      '0': '[Xe].4f14.5d10.6s2.6p4'
+      '-2': '[Xe].4f14.5d10.6s2.6p6'
+      '2': '[Xe].4f14.5d10.6s2.6p2'
+      '4': '[Xe].4f14.5d10.6s2'
     Pr:
-      '0': '[Xe].4f<sup>3</sup>.6s<sup>2</sup>'
-      '3': '[Xe].4f<sup>2</sup>'
+      '0': '[Xe].4f3.6s2'
+      '3': '[Xe].4f2'
     Pt:
-      '0': '[Xe].4f<sup>14</sup>.5d<sup>9</sup>.6s<sup>1</sup>'
-      '2': '[Xe].4f<sup>14</sup>.5d<sup>8</sup>'
-      '4': '[Xe].4f<sup>14</sup>.5d<sup>6</sup>'
+      '0': '[Xe].4f14.5d9.6s1'
+      '2': '[Xe].4f14.5d8'
+      '4': '[Xe].4f14.5d6'
     Pu:
-      '0': '[Rn].5f<sup>6</sup>.7s<sup>2</sup>'
-      '4': '[Rn].5f<sup>4</sup>'
+      '0': '[Rn].5f6.7s2'
+      '4': '[Rn].5f4'
     Ra:
-      '0': '[Rn].7s<sup>2</sup>'
-      '2': '[Hg].6p<sup>6</sup>'
+      '0': '[Rn].7s2'
+      '2': '[Hg].6p6'
     Rb:
-      '0': '[Kr].5s<sup>1</sup>'
-      '1': '[Ar].3d<sup>10</sup>.4s<sup>2</sup>.4p<sup>6</sup>'
+      '0': '[Kr].5s1'
+      '1': '[Ar].3d10.4s2.4p6'
     Re:
-      '0': '[Xe].4f<sup>14</sup>.5d<sup>5</sup>.6s<sup>2</sup>'
-      '4': '[Xe].4f<sup>14</sup>.5d<sup>3</sup>'
+      '0': '[Xe].4f14.5d5.6s2'
+      '4': '[Xe].4f14.5d3'
     Rh:
-      '0': '[Kr].4d<sup>8</sup>.5s<sup>1</sup>'
-      '3': '[Kr].4d<sup>6</sup>'
+      '0': '[Kr].4d8.5s1'
+      '3': '[Kr].4d6'
     Rn:
-      '0': '[Xe].4f<sup>14</sup>.5d<sup>10</sup>.6s<sup>2</sup>.6p<sup>6</sup>'
+      '0': '[Xe].4f14.5d10.6s2.6p6'
     Ru:
-      '0': '[Kr].4d<sup>7</sup>.5s<sup>1</sup>'
-      '3': '[Kr].4d<sup>5</sup>'
-      '4': '[Kr].4d<sup>4</sup>'
+      '0': '[Kr].4d7.5s1'
+      '3': '[Kr].4d5'
+      '4': '[Kr].4d4'
     S:
-      '0': '[Ne].3s<sup>2</sup>.3p<sup>4</sup>'
-      '-2': '[Ne].3s<sup>2</sup>.3p<sup>6</sup>'
-      '2': '[Ne].3s<sup>2</sup>.3p<sup>2</sup>'
-      '4': '[Ne].3s<sup>2</sup>'
-      '6': 1s<sup>2</sup>.2s<sup>2</sup>.2p<sup>6</sup>
+      '0': '[Ne].3s2.3p4'
+      '-2': '[Ne].3s2.3p6'
+      '2': '[Ne].3s2.3p2'
+      '4': '[Ne].3s2'
+      '6': 1s2.2s2.2p6
     Sb:
-      '0': '[Kr].4d<sup>10</sup>.5s<sup>2</sup>.5p<sup>3</sup>'
-      '-3': '[Kr].4d<sup>10</sup>.5s<sup>2</sup>.5p<sup>6</sup>'
-      '3': '[Kr].4d<sup>10</sup>.5s<sup>2</sup>'
-      '5': '[Kr].4d<sup>10</sup>'
+      '0': '[Kr].4d10.5s2.5p3'
+      '-3': '[Kr].4d10.5s2.5p6'
+      '3': '[Kr].4d10.5s2'
+      '5': '[Kr].4d10'
     Sc:
-      '0': '[Ar].3d<sup>1</sup>.4s<sup>2</sup>'
-      '3': '[Ne].3s<sup>2</sup>.3p<sup>6</sup>'
+      '0': '[Ar].3d1.4s2'
+      '3': '[Ne].3s2.3p6'
     Se:
-      '0': '[Ar].3d<sup>10</sup>.4s<sup>2</sup>.4p<sup>4</sup>'
-      '-2': '[Ar].3d<sup>10</sup>.4s<sup>2</sup>.4p<sup>6</sup>'
-      '2': '[Ar].3d<sup>10</sup>.4s<sup>2</sup>.4p<sup>2</sup>'
-      '4': '[Ar].3d<sup>10</sup>.4s<sup>2</sup>'
-      '6': '[Ar].3d<sup>10</sup>'
+      '0': '[Ar].3d10.4s2.4p4'
+      '-2': '[Ar].3d10.4s2.4p6'
+      '2': '[Ar].3d10.4s2.4p2'
+      '4': '[Ar].3d10.4s2'
+      '6': '[Ar].3d10'
     Si:
-      '0': '[Ne].3s<sup>2</sup>.3p<sup>2</sup>'
-      '-4': '[Ne].3s<sup>2</sup>.3p<sup>6</sup>'
-      '4': 1s<sup>2</sup>.2s<sup>2</sup>.2p<sup>6</sup>
+      '0': '[Ne].3s2.3p2'
+      '-4': '[Ne].3s2.3p6'
+      '4': 1s2.2s2.2p6
     Sm:
-      '0': '[Xe].4f<sup>6</sup>.6s<sup>2</sup>'
-      '3': '[Xe].4f<sup>5</sup>'
+      '0': '[Xe].4f6.6s2'
+      '3': '[Xe].4f5'
     Sn:
-      '0': '[Kr].4d<sup>10</sup>.5s<sup>2</sup>.5p<sup>2</sup>'
-      '-4': '[Kr].4d<sup>10</sup>.5s<sup>2</sup>.5p<sup>6</sup>'
-      '2': '[Kr].4d<sup>10</sup>.5s<sup>2</sup>'
-      '4': '[Kr].4d<sup>10</sup>'
+      '0': '[Kr].4d10.5s2.5p2'
+      '-4': '[Kr].4d10.5s2.5p6'
+      '2': '[Kr].4d10.5s2'
+      '4': '[Kr].4d10'
     Sr:
-      '0': '[Kr].5s<sup>2</sup>'
-      '2': '[Ar].3d<sup>10</sup>.4s<sup>2</sup>.4p<sup>6</sup>'
+      '0': '[Kr].5s2'
+      '2': '[Ar].3d10.4s2.4p6'
     Ta:
-      '0': '[Xe].4f<sup>14</sup>.5d<sup>3</sup>.6s<sup>2</sup>'
-      '5': '[Xe].4f<sup>14</sup>'
+      '0': '[Xe].4f14.5d3.6s2'
+      '5': '[Xe].4f14'
     Tb:
-      '0': '[Xe].4f<sup>9</sup>.6s<sup>2</sup>'
-      '3': '[Xe].4f<sup>8</sup>'
+      '0': '[Xe].4f9.6s2'
+      '3': '[Xe].4f8'
     Tc:
-      '0': '[Kr].4d<sup>5</sup>.5s<sup>2</sup>'
-      '4': '[Kr].4d<sup>3</sup>'
-      '7': '[Ar].3d<sup>10</sup>.4s<sup>2</sup>.4p<sup>6</sup>'
+      '0': '[Kr].4d5.5s2'
+      '4': '[Kr].4d3'
+      '7': '[Ar].3d10.4s2.4p6'
     Te:
-      '0': '[Kr].4d<sup>10</sup>.5s<sup>2</sup>.5p<sup>4</sup>'
-      '-2': '[Kr].4d<sup>10</sup>.5s<sup>2</sup>.5p<sup>6</sup>'
-      '2': '[Kr].4d<sup>10</sup>.5s<sup>2</sup>.5p<sup>2</sup>'
-      '4': '[Kr].4d<sup>10</sup>.5s<sup>2</sup>'
-      '6': '[Kr].4d<sup>10</sup>'
+      '0': '[Kr].4d10.5s2.5p4'
+      '-2': '[Kr].4d10.5s2.5p6'
+      '2': '[Kr].4d10.5s2.5p2'
+      '4': '[Kr].4d10.5s2'
+      '6': '[Kr].4d10'
     Th:
-      '0': '[Rn].6d<sup>2</sup>.7s<sup>2</sup>'
-      '4': '[Hg].6p<sup>6</sup>'
+      '0': '[Rn].6d2.7s2'
+      '4': '[Hg].6p6'
     Ti:
-      '0': '[Ar].3d<sup>2</sup>.4s<sup>2</sup>'
-      '4': '[Ne].3s<sup>2</sup>.3p<sup>6</sup>'
+      '0': '[Ar].3d2.4s2'
+      '4': '[Ne].3s2.3p6'
     Tl:
-      '0': '[Xe].4f<sup>14</sup>.5d<sup>10</sup>.6s<sup>2</sup>.6p<sup>1</sup>'
-      '1': '[Xe].4f<sup>14</sup>.5d<sup>10</sup>.6s<sup>2</sup>'
-      '3': '[Xe].4f<sup>14</sup>.5d<sup>10</sup>'
+      '0': '[Xe].4f14.5d10.6s2.6p1'
+      '1': '[Xe].4f14.5d10.6s2'
+      '3': '[Xe].4f14.5d10'
     Tm:
-      '0': '[Xe].4f<sup>13</sup>.6s<sup>2</sup>'
-      '3': '[Xe].4f<sup>12</sup>'
+      '0': '[Xe].4f13.6s2'
+      '3': '[Xe].4f12'
     U:
-      '0': '[Rn].5f<sup>3</sup>.6d<sup>1</sup>.7s<sup>2</sup>'
-      '6': '[Hg].6p<sup>6</sup>'
+      '0': '[Rn].5f3.6d1.7s2'
+      '6': '[Hg].6p6'
     V:
-      '0': '[Ar].3d<sup>3</sup>.4s<sup>2</sup>'
-      '2': '[Ar].3d<sup>3</sup>'
-      '3': '[Ar].3d<sup>2</sup>'
-      '4': '[Ar].3d<sup>1</sup>'
-      '5': '[Ne].3s<sup>2</sup>.3p<sup>6</sup>'
+      '0': '[Ar].3d3.4s2'
+      '2': '[Ar].3d3'
+      '3': '[Ar].3d2'
+      '4': '[Ar].3d1'
+      '5': '[Ne].3s2.3p6'
     W:
-      '0': '[Xe].4f<sup>14</sup>.5d<sup>4</sup>.6s<sup>2</sup>'
-      '4': '[Xe].4f<sup>14</sup>.5d<sup>2</sup>'
-      '6': '[Xe].4f<sup>14</sup>'
+      '0': '[Xe].4f14.5d4.6s2'
+      '4': '[Xe].4f14.5d2'
+      '6': '[Xe].4f14'
     Xe:
-      '0': '[Kr].4d<sup>10</sup>.5s<sup>2</sup>.5p<sup>6</sup>'
+      '0': '[Kr].4d10.5s2.5p6'
     Y:
-      '0': '[Kr].4d<sup>1</sup>.5s<sup>2</sup>'
-      '3': '[Ar].3d<sup>10</sup>.4s<sup>2</sup>.4p<sup>6</sup>'
+      '0': '[Kr].4d1.5s2'
+      '3': '[Ar].3d10.4s2.4p6'
     Yb:
-      '0': '[Xe].4f<sup>14</sup>.6s<sup>2</sup>'
-      '3': '[Xe].4f<sup>13</sup>'
+      '0': '[Xe].4f14.6s2'
+      '3': '[Xe].4f13'
     Zn:
-      '0': '[Ar].3d<sup>10</sup>.4s<sup>2</sup>'
-      '2': '[Ar].3d<sup>10</sup>'
+      '0': '[Ar].3d10.4s2'
+      '2': '[Ar].3d10'
     Zr:
-      '0': '[Kr].4d<sup>2</sup>.5s<sup>2</sup>'
-      '4': '[Ar].3d<sup>10</sup>.4s<sup>2</sup>.4p<sup>6</sup>'
+      '0': '[Kr].4d2.5s2'
+      '4': '[Ar].3d10.4s2.4p6'
 Liquid range:
   unit: K
   data:
@@ -2343,8 +2347,8 @@ Melting point:
     Eu: 1099
     F: 53.53
     Fe: 1811
-    Fm: about 1800
-    Fr: maybe about 300
+    Fm: 1800
+    Fr: 300
     Ga: 302.91
     Gd: 1585
     Ge: 1211.4
@@ -2360,9 +2364,9 @@ Melting point:
     Kr: 115.79
     La: 1193
     Li: 453.69
-    Lr: about 1900
+    Lr: 1900
     Lu: 1925
-    Md: about 1100
+    Md: 1100
     Mg: 923
     Mn: 1519
     Mo: 2896
@@ -2372,11 +2376,11 @@ Melting point:
     Nd: 1297
     Ne: 24.56
     Ni: 1728
-    No: about 1100
+    No: 1100
     Np: 910
     O: 54.8
     Os: 3306
-    P: (white P) 317.3
+    P: 317.3  # white P
     Pa: 1841
     Pb: 600.61
     Pd: 1828.05
@@ -2416,6 +2420,7 @@ Melting point:
     Zn: 692.68
     Zr: 2128
 Mendeleev no:
+  reference: D. G. Pettifor, A chemical scale for crystal-structure maps, Solid State Communications, 1984.
   data:
     Ac: 48
     Ag: 71
@@ -2530,7 +2535,7 @@ Mineral hardness:
     Ba: 1.25
     Be: 5.5
     Bi: 2.25
-    C: 0.5 (graphite; diamond is 10.0)
+    C: 0.5  # graphite, diamond is 10.0
     Ca: 1.75
     Cd: 2.0
     Ce: 2.5
@@ -2579,7 +2584,7 @@ Mineral hardness:
     Zn: 2.5
     Zr: 5.0
 Molar volume:
-  unit: cm<sup>3</sup>
+  unit: cm^3
   data:
     Ac: 22.55
     Ag: 10.27
@@ -2888,16 +2893,16 @@ Refractive index:
     Ar: 1.000281
     As: 1.001552
     Br: 1.001132
-    C: 2.417 (diamond)
+    C: 2.417  # diamond
     Cl: 1.000773
     F: 1.000195
-    H: 1.000132 (gas; liquid 1.12)
-    He: 1.000035 (gas; liquid 1.028)
+    H: 1.000132  # gas, liquid 1.12
+    He: 1.000035  # gas, liquid 1.028
     Hg: 1.000933
     Kr: 1.000427
-    N: 1.000298 (gas; liquid 1.197)
+    N: 1.000298  # gas, liquid 1.197
     Ne: 1.000067
-    O: 1.000271 (gas; liquid 1.221)
+    O: 1.000271  # gas, liquid 1.221
     P: 1.001212
     S: 1.001111
     Se: 1.000895
@@ -2974,7 +2979,7 @@ Superconduction temperature:
     Am: 0.6
     Be: 0.026
     Cd: 0.517
-    Ce: 0.022  (under pressure)
+    Ce: 0.022  # under pressure
     Ga: 1.083
     Gd: 1.083
     Hf: 0.128
@@ -2990,7 +2995,7 @@ Superconduction temperature:
     Pb: 7.2
     Re: 1.70
     Ru: 0.49
-    Sc: 0.05  (under pressure)
+    Sc: 0.05  # under pressure
     Sn: 3.72
     Ta: 4.47
     Tc: 7.8
@@ -3000,11 +3005,11 @@ Superconduction temperature:
     U: 0.2
     V: 5.40
     W: 0.015
-    Y: 1.3  (under pressure)
+    Y: 1.3  # under pressure
     Zn: 0.85
     Zr: 0.61
 Thermal conductivity:
-  unit: W m<sup>-1</sup> K<sup>-1</sup>
+  unit: W m^-1 K^-1
   data:
     Ac: 12
     Ag: 430
@@ -3012,7 +3017,7 @@ Thermal conductivity:
     Am: 10
     Ar: 0.01772
     As: 50
-    At: 2 (estimate)
+    At: 2  # estimate
     Au: 320
     B: 27
     Ba: 18
@@ -3103,7 +3108,7 @@ Thermal conductivity:
     Zn: 120
     Zr: 23
 Velocity of sound:
-  unit: m s<sup>-1</sup>
+  unit: m s^-1
   data:
     Ag: 2600
     Al: 5100
@@ -3178,7 +3183,7 @@ Velocity of sound:
     Zn: 3700
     Zr: 3800
 Vickers hardness:
-  unit: MN m<sup>-2</sup>
+  unit: MN m^-2
   data:
     Ag: 251
     Al: 167
@@ -3387,116 +3392,6 @@ Youngs modulus:
     Yb: 24
     Zn: 108
     Zr: 68
-Ground level:
-  data:
-    Ac: 2D3/2
-    Ag: 2S1/2
-    Al: 2P°1/2
-    Am: 8S°7/2
-    Ar: 1S0
-    As: 4S°3/2
-    At: 2P°3/2
-    Au: 2S1/2
-    B: 2P°1/2
-    Ba: 1S0
-    Be: 1S0
-    Bi: 4S°3/2
-    Bk: 6H°15/2
-    Br: 2P°3/2
-    C: 3P0
-    Ca: 1S0
-    Cd: 1S0
-    Ce: 1G°4
-    Cf: 5I8
-    Cl: 2P°3/2
-    Cm: 9D°2
-    Co: 4F9/2
-    Cr: 7S3
-    Cs: 2S1/2
-    Cu: 2S1/2
-    Dy: 5I8
-    Er: 3H6
-    Es: 4I°15/2
-    Eu: 8S°7/2
-    F: 2P°3/2
-    Fe: 5D4
-    Fm: 3H6
-    Fr: 2S1/2
-    Ga: 2P°1/2
-    Gd: 9D°2
-    Ge: 3P0
-    H: 2S1/2
-    He: 1S0
-    Hf: 3F2
-    Hg: 1S0
-    Ho: 4I°15/2
-    I: 2P°3/2
-    In: 2P°1/2
-    Ir: 4F9/2
-    K: 2S1/2
-    Kr: 1S0
-    La: 2D3/2
-    Li: 2S1/2
-    Lr: 2P°1/2
-    Lu: 2D3/2
-    Md: 2F°7/2
-    Mg: 1S0
-    Mn: 6S5/2
-    Mo: 7S3
-    N: 4S°3/2
-    Na: 2S1/2
-    Nb: 6D1/2
-    Nd: 5I4
-    Ne: 1S0
-    Ni: 3F4
-    No: 1S0
-    Np: 6L11/2
-    O: 3P2
-    Os: 5D4
-    P: 4S°3/2
-    Pa: 4K11/2
-    Pb: 1/2,1/2)0
-    Pd: 1S0
-    Pm: 6H°5/2
-    Po: 3P2
-    Pr: 4I°9/2
-    Pt: 3D3
-    Pu: 7F0
-    Ra: 1S0
-    Rb: 2S1/2
-    Re: 6S5/2
-    Rh: 4F9/2
-    Rn: 1S0
-    Ru: 5F5
-    S: 3P2
-    Sb: 4S°3/2
-    Sc: 2D3/2
-    Se: 3P2
-    Si: 3P0
-    Sm: 7F0
-    Sn: 3P0
-    Sr: 1S0
-    Ta: 4F3/2
-    Tb: 6H°15/2
-    Tc: 6S5/2
-    Te: 3P2
-    Th: 3F2
-    Ti: 3F2
-    Tl: 2P°1/2
-    Tm: 2F°7/2
-    U: 5L°6
-    V: 4F3/2
-    W: 5D0
-    Xe: 1S0
-    Y: 2D3/2
-    Yb: 1S0
-    Zn: 1S0
-    Zr: 3F2
-    Rf: 3F2
-    Db: 4F3/2
-    Sg: '0'
-    Bh: 5/2
-    Hs: '4'
 ICSD oxidation states:
   data:
     Ag: [1, 2, 3]
@@ -3574,89 +3469,6 @@ ICSD oxidation states:
     Yb: [2, 3]
     Zn: [2]
     Zr: [2, 3, 4]
-NMR Quadrupole Moment:
-  data:
-    Al:
-      Al-27: 146.6
-    B:
-      B-10: 84.59
-      B-11: 40.59
-    Be:
-      Be-9: 52.88
-    C:
-      C-11: 33.27
-    Ca:
-      Ca-41: -66.5
-      Ca-43: -40.8
-    Cl:
-      Cl-35: -81.65
-      Cl-37: -64.35
-    Co:
-      Co-59: 420.3
-    Cr:
-      Cr-53: -150.5
-    Cu:
-      Cu-63: -220.15
-      Cu-65: -204.14
-    F:
-      F-19: -94.2
-    Fe:
-      Fe-57: 160
-    H:
-      H-2: 2.86
-    Hg:
-      Hg-201: 387.6
-    I:
-      I-127: -696.12
-      I-129: -604.1
-    In:
-      In-113: 759.8
-      In-115: 770.8
-    K:
-      K-39: 58.5
-      K-40: -73
-      K-41: 71.1
-    La:
-      La-139: 200.6
-    Li:
-      Li-6: -0.808
-      Li-7: -40.1
-    Mg:
-      Mg-25: 199.4
-    Mn:
-      Mn-55: 330.1
-    N:
-      N-14: 20.44
-    Na:
-      Na-23: 104.1
-    Ne:
-      Ne-21: 101.55
-    Ni:
-      Ni-61: 162.15
-    O:
-      O-17: -25.58
-    Ra:
-      Ra-223: 1210.3
-    S:
-      S-33: -67.8
-      S-35: 47.1
-    Sb:
-      Sb-121: -543.11
-      Sb-123: -692.14
-    Sc:
-      Sc-45: -220.2
-    Sn:
-      Sn-119: -132.1
-    Sr:
-      Sr-87: 305.2
-    Ti:
-      Ti-47: 302.1
-      Ti-49: 247.11
-    V:
-      V-50: 210.4
-      V-51: -52.1
-    Zn:
-      Zn-67: 150.15
 Max oxidation state:
   data:
     Ar: 0
@@ -3674,6 +3486,7 @@ Min oxidation state:
     Rn: 0
     Xe: 2
 Atomic mass no:
+  unit: amu
   data:
     H: 1
     D: 2

@@ -3,8 +3,6 @@
 This module contains class objects for containing JDFTx tags. These class objects
 are used to validate the type of the value for the tag, read the value string for
 the tag, write the tag and its value as a string, and get the token length of the tag.
-
-@mkhorton - This file is ready to review.
 """
 
 from __future__ import annotations
@@ -70,6 +68,56 @@ class AbstractTag(ClassPrintFormatter, ABC):
             tuple[str, bool, Any]: The tag, whether the value is of the correct type, and the possibly fixed value.
         """
 
+    def is_equal_to(self, val1: Any | list[Any], obj2: AbstractTag, val2: Any | list[Any]) -> bool:
+        """Check if the two values are equal.
+
+        Args:
+            val1 (Any): The value of this tag object.
+            obj2 (AbstractTag): The other tag object.
+            val2 (Any): The value of the other tag object.
+
+        Returns:
+            bool: True if the two tag object/value pairs are equal, False otherwise.
+        """
+        if self.can_repeat:
+            if not obj2.can_repeat:
+                return False
+            val1 = val1 if isinstance(val1, list) else [val1]
+            val2 = val2 if isinstance(val2, list) else [val2]
+            if len(val1) != len(val2):
+                return False
+            return all(True in [self._is_equal_to(v1, obj2, v2) for v2 in val2] for v1 in val1)
+        return self._is_equal_to(val1, obj2, val2)
+
+    @abstractmethod
+    def _is_equal_to(self, val1: Any, obj2: AbstractTag, val2: Any) -> bool:
+        """Check if the two values are equal.
+
+        Used to check if the two values are equal. Assumes val1 and val2 are single elements.
+
+        Args:
+            val1 (Any): The value of this tag object.
+            obj2 (AbstractTag): The other tag object.
+            val2 (Any): The value of the other tag object.
+
+        Returns:
+            bool: True if the two tag object/value pairs are equal, False otherwise.
+        """
+
+    def _is_same_tagtype(
+        self,
+        obj2: AbstractTag,
+    ) -> bool:
+        """Check if the two values are equal.
+
+        Args:
+            obj2 (AbstractTag): The other tag object.
+
+        Returns:
+            bool: True if the two tag object/value pairs are equal, False otherwise.
+        """
+        return isinstance(self, type(obj2))
+
     def _validate_value_type(
         self, type_check: type, tag: str, value: Any, try_auto_type_fix: bool = False
     ) -> tuple[str, bool, Any]:
@@ -111,6 +159,13 @@ class AbstractTag(ClassPrintFormatter, ABC):
     def _validate_repeat(self, tag: str, value: Any) -> None:
         if not isinstance(value, list):
             raise TypeError(f"The '{tag}' tag can repeat but is not a list: '{value}'")
+
+    def validate_value_bounds(
+        self,
+        tag: str,
+        value: Any,
+    ) -> tuple[bool, str]:
+        return True, ""
 
     @abstractmethod
     def read(self, tag: str, value_str: str) -> Any:
@@ -179,7 +234,7 @@ class AbstractTag(ClassPrintFormatter, ABC):
 
     def _write(self, tag: str, value: Any, multiline_override: bool = False, strip_override: bool = False) -> str:
         tag_str = f"{tag} " if self.write_tagname else ""
-        if self.multiline_tag or multiline_override:
+        if multiline_override:
             tag_str += "\\\n"
         if self.write_value:
             if not strip_override:
@@ -250,6 +305,19 @@ class BoolTag(AbstractTag):
             tuple[str, bool, Any]: The tag, whether the value is of the correct type, and the possibly fixed value.
         """
         return self._validate_value_type(bool, tag, value, try_auto_type_fix=try_auto_type_fix)
+
+    def _is_equal_to(self, val1: Any, obj2: AbstractTag, val2: Any) -> bool:
+        """Check if the two values are equal.
+
+        Args:
+            val1 (Any): The value of this tag object.
+            obj2 (AbstractTag): The other tag object.
+            val2 (Any): The value of the other tag object.
+
+        Returns:
+            bool: True if the two tag object/value pairs are equal, False otherwise.
+        """
+        return self._is_same_tagtype(obj2) and val1 == val2
 
     def raise_value_error(self, tag: str, value: str) -> None:
         """Raise a ValueError for the value string.
@@ -328,6 +396,23 @@ class StrTag(AbstractTag):
         """
         return self._validate_value_type(str, tag, value, try_auto_type_fix=try_auto_type_fix)
 
+    def _is_equal_to(self, val1: Any, obj2: AbstractTag, val2: Any) -> bool:
+        """Check if the two values are equal.
+
+        Args:
+            val1 (Any): The value of this tag object.
+            obj2 (AbstractTag): The other tag object.
+            val2 (Any): The value of the other tag object.
+
+        Returns:
+            bool: True if the two tag object/value pairs are equal, False otherwise.
+        """
+        if self._is_same_tagtype(obj2):
+            if not all(isinstance(x, str) for x in (val1, val2)):
+                raise ValueError("Both values must be strings for StrTag comparison")
+            return val1.strip() == val2.strip()
+        return False
+
     def read(self, tag: str, value: str) -> str:
         """Read the value string for this tag.
 
@@ -365,7 +450,80 @@ class StrTag(AbstractTag):
 
 
 @dataclass
-class IntTag(AbstractTag):
+class AbstractNumericTag(AbstractTag):
+    """Abstract base class for numeric tags."""
+
+    lb: float | None = None  # lower bound
+    ub: float | None = None  # upper bound
+    lb_incl: bool = True  # lower bound inclusive
+    ub_incl: bool = True  # upper bound inclusive
+    eq_atol: float = 1.0e-8  # absolute tolerance for equality check
+    eq_rtol: float = 1.0e-5  # relative tolerance for equality check
+
+    def val_is_within_bounds(self, value: float) -> bool:
+        """Check if the value is within the bounds.
+
+        Args:
+            value (float | int): The value to check.
+
+        Returns:
+            bool: True if the value is within the bounds, False otherwise.
+        """
+        good = True
+        if self.lb is not None:
+            good = good and value >= self.lb if self.lb_incl else good and value > self.lb
+        if self.ub is not None:
+            good = good and value <= self.ub if self.ub_incl else good and value < self.ub
+        return good
+
+    def get_invalid_value_error_str(self, tag: str, value: float) -> str:
+        """Raise a ValueError for the invalid value.
+
+        Args:
+            tag (str): The tag to raise the ValueError for.
+            value (float | int): The value to raise the ValueError for.
+        """
+        err_str = f"Value '{value}' for tag '{tag}' is not within bounds"
+        if self.ub is not None:
+            err_str += f" {self.ub} >"
+            if self.ub_incl:
+                err_str += "="
+        err_str += " x "
+        if self.lb is not None:
+            err_str += ">"
+            if self.lb_incl:
+                err_str += "="
+        err_str += f" {self.lb}"
+        return err_str
+
+    def validate_value_bounds(
+        self,
+        tag: str,
+        value: Any,
+    ) -> tuple[bool, str]:
+        if not self.val_is_within_bounds(value):
+            return False, self.get_invalid_value_error_str(tag, value)
+        return True, ""
+
+    def _is_equal_to(self, val1, obj2, val2):
+        """Check if the two values are equal.
+
+        Used to check if the two values are equal. Doesn't need to be redefined for IntTag and FloatTag.
+
+        Args:
+            val1 (Any): The value of this tag object.
+            obj2 (AbstractTag): The other tag object.
+            val2 (Any): The value of the other tag object.
+            rtol (float, optional): Relative tolerance. Defaults to 1.e-5.
+            atol (float, optional): Absolute tolerance. Defaults to 1.e-8.
+        Returns:
+            bool: True if the two tag object/value pairs are equal, False otherwise.
+        """
+        return self._is_same_tagtype(obj2) and np.isclose(val1, val2, rtol=self.eq_rtol, atol=self.eq_atol)
+
+
+@dataclass
+class IntTag(AbstractNumericTag):
     """Tag for integer values in JDFTx input files.
 
     Tag for integer values in JDFTx input files.
@@ -411,6 +569,8 @@ class IntTag(AbstractTag):
         Returns:
             str: The tag and its value as a string.
         """
+        if not self.val_is_within_bounds(value):
+            return ""
         return self._write(tag, value)
 
     def get_token_len(self) -> int:
@@ -423,7 +583,7 @@ class IntTag(AbstractTag):
 
 
 @dataclass
-class FloatTag(AbstractTag):
+class FloatTag(AbstractNumericTag):
     """Tag for float values in JDFTx input files.
 
     Tag for float values in JDFTx input files.
@@ -472,6 +632,8 @@ class FloatTag(AbstractTag):
         Returns:
             str: The tag and its value as a string.
         """
+        if not self.val_is_within_bounds(value):
+            return ""
         # pre-convert to string: self.prec+3 is minimum room for:
         # - sign, 1 integer left of decimal, decimal, and precision.
         # larger numbers auto add places to left of decimal
@@ -554,6 +716,10 @@ class InitMagMomTag(AbstractTag):
         """
         return self._get_token_len()
 
+    def _is_equal_to(self, val1, obj2, val2):
+        return True  # TODO: We still need to actually implement initmagmom as a multi-format tag
+        # raise NotImplementedError("equality not yet implemented for InitMagMomTag")
+
 
 @dataclass
 class TagContainer(AbstractTag):
@@ -591,6 +757,50 @@ class TagContainer(AbstractTag):
             tags_checked.append(tag)
             types_checks.append(check)
         return tags_checked, types_checks, updated_value
+
+    def _validate_bounds_single_entry(self, value: dict | list[dict]) -> tuple[list[str], list[bool], list[str]]:
+        if not isinstance(value, dict):
+            raise TypeError(f"The value '{value}' (of type {type(value)}) must be a dict for this TagContainer!")
+        tags_checked: list[str] = []
+        types_checks: list[bool] = []
+        reported_errors: list[str] = []
+        for subtag, subtag_value in value.items():
+            subtag_object = self.subtags[subtag]
+            check, err_str = subtag_object.validate_value_bounds(subtag, subtag_value)
+            tags_checked.append(subtag)
+            types_checks.append(check)
+            reported_errors.append(err_str)
+        return tags_checked, types_checks, reported_errors
+
+    def validate_value_bounds(self, tag: str, value: Any) -> tuple[bool, str]:
+        value_dict = value
+        if self.can_repeat:
+            self._validate_repeat(tag, value_dict)
+            results = [self._validate_bounds_single_entry(x) for x in value_dict]
+            tags_list_list: list[list[str]] = [result[0] for result in results]
+            is_valids_list_list: list[list[bool]] = [result[1] for result in results]
+            reported_errors_list: list[list[str]] = [result[2] for result in results]
+            is_valid_out = all(all(x) for x in is_valids_list_list)
+            errors_out = ",".join([",".join(x) for x in reported_errors_list])
+            if not is_valid_out:
+                warnmsg = "Invalid value(s) found for: "
+                for i, x in enumerate(is_valids_list_list):
+                    if not all(x):
+                        for j, y in enumerate(x):
+                            if not y:
+                                warnmsg += f"{tags_list_list[i][j]} ({reported_errors_list[i][j]}) "
+                warnings.warn(warnmsg, stacklevel=2)
+        else:
+            tags, is_valids, reported_errors = self._validate_bounds_single_entry(value_dict)
+            is_valid_out = all(is_valids)
+            errors_out = ",".join(reported_errors)
+            if not is_valid_out:
+                warnmsg = "Invalid value(s) found for: "
+                for ii, xx in enumerate(is_valids):
+                    if not xx:
+                        warnmsg += f"{tags[ii]} ({reported_errors[ii]}) "
+                warnings.warn(warnmsg, stacklevel=2)
+        return is_valid_out, f"{tag}: {errors_out}"
 
     def validate_value_type(self, tag: str, value: Any, try_auto_type_fix: bool = False) -> tuple[str, bool, Any]:
         """Validate the type of the value for this tag.
@@ -647,15 +857,6 @@ class TagContainer(AbstractTag):
         """
         self._general_read_validate(tag, value)
         value_list = value.split()
-        if tag == "ion":
-            special_constraints = [x in ["HyperPlane", "Linear", "None", "Planar"] for x in value_list]
-            if any(special_constraints):
-                value_list = value_list[: special_constraints.index(True)]
-                warnings.warn(
-                    "Found special constraints reading an 'ion' tag, these were dropped; reading them has not been "
-                    "implemented!",
-                    stacklevel=2,
-                )
 
         tempdict = {}  # temporarily store read tags out of order they are processed
 
@@ -690,6 +891,8 @@ class TagContainer(AbstractTag):
                         tempdict[subtag].append(subtag_type.read(subtag, subtag_value))
                         del value_list[idx_start:idx_end]
 
+        # TODO: This breaks for TagContainers with optional StrTags that are not at the end of the line (ie
+        # modification subtag for lattice tag). We need to figure out a fix.
         for subtag, subtag_type in (
             (subtag, subtag_type) for subtag, subtag_type in self.subtags.items() if not subtag_type.write_tagname
         ):
@@ -726,38 +929,35 @@ class TagContainer(AbstractTag):
 
         final_value = ""
         indent = "    "
-        for count, (subtag, subvalue) in enumerate(value.items()):
+        # Gather all subtag print values into a list
+        print_str_list = []
+        for subtag, subvalue in value.items():
             if self.subtags[subtag].can_repeat and isinstance(subvalue, list):
-                # if a subtag.can_repeat, it is assumed that subvalue is a list
-                # the 2nd condition ensures this
-                # if it is not a list, then the tag will still be printed by the else
-                # this could be relevant if someone manually sets the tag's can_repeat value to a non-list.
-                print_str_list = [self.subtags[subtag].write(subtag, entry) for entry in subvalue]
-                print_str = " ".join([v.strip() for v in print_str_list]) + " "
+                print_str_list += [self.subtags[subtag].write(subtag, entry).strip() + " " for entry in subvalue]
             else:
-                print_str = self.subtags[subtag].write(subtag, subvalue).strip() + " "
-
-            if self.multiline_tag:
-                final_value += f"{indent}{print_str}\\\n"
-            elif self.linebreak_nth_entry is not None:
+                print_str_list.append(self.subtags[subtag].write(subtag.strip() + " ", subvalue))
+        # Concatenate all subtag print values into a single string, with line breaks at appropriate
+        # locations if needed
+        for count, print_str in enumerate(print_str_list):
+            if self.linebreak_nth_entry is not None:
                 # handles special formatting with extra linebreak, e.g. for lattice tag
                 i_column = count % self.linebreak_nth_entry
                 if i_column == 0:
                     final_value += f"{indent}{print_str}"
-                elif i_column == self.linebreak_nth_entry - 1:
-                    final_value += f"{print_str}\\\n"
                 else:
                     final_value += f"{print_str}"
+                if i_column == self.linebreak_nth_entry - 1:
+                    final_value += "\\\n"
             else:
                 final_value += f"{print_str}"
-        if self.multiline_tag or self.linebreak_nth_entry is not None:  # handles special formatting for lattice tag
+        if self.linebreak_nth_entry is not None:  # handles special formatting for lattice tag
             final_value = final_value[:-2]  # exclude final \\n from final print call
 
         return self._write(
             tag,
             final_value,
             multiline_override=self.linebreak_nth_entry is not None,
-            strip_override=self.linebreak_nth_entry is not None,
+            strip_override=(self.linebreak_nth_entry is not None),
         )
 
     def get_token_len(self) -> int:
@@ -913,6 +1113,28 @@ class TagContainer(AbstractTag):
         list_value = self._make_str_for_dict(tag, value)
         return self.read(tag, list_value)
 
+    def _is_equal_to(self, val1, obj2, val2):
+        """Check if the two values are equal.
+
+        Return False if (checked in following order)
+        - obj2 is not a TagContainer
+        - all of val1's subtags are not in val2
+        - val1 and val2 are not the same length (different number of subtags)
+        - at least one subtag in val1 is not equal to the corresponding subtag in val2
+        """
+        if self._is_same_tagtype(obj2):
+            if isinstance(val1, dict) and isinstance(val2, dict):
+                if all(subtag in val2 for subtag in val1) and (len(list(val1.keys())) == len(list(val2.keys()))):
+                    for subtag, subtag_type in self.subtags.items():
+                        if (subtag in val1) and (
+                            not subtag_type.is_equal_to(val1[subtag], obj2.subtags[subtag], val2[subtag])
+                        ):
+                            return False
+                    return True
+                return False
+            raise ValueError("Values must be in dictionary format for TagContainer comparison")
+        return False
+
 
 # TODO: Write StructureDefferedTagContainer back in (commented out code block removed
 # on 11/4/24) and make usable for tags like initial-magnetic-moments
@@ -1060,6 +1282,9 @@ class MultiformatTag(AbstractTag):
         Raises:
             NotImplementedError: If the method is called directly on MultiformatTag objects.
         """
+        raise NotImplementedError("This method is not supposed to be called directly on MultiformatTag objects!")
+
+    def _is_equal_to(self, val1, obj2, val2):
         raise NotImplementedError("This method is not supposed to be called directly on MultiformatTag objects!")
 
 

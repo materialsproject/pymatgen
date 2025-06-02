@@ -752,7 +752,7 @@ class KabschMatcher(MSONable):
             RMSD : Root mean squared deviation between P and Q
         """
         if self.target.atomic_numbers != p.atomic_numbers:
-            raise ValueError("The order of the species aren't matching! Please try using PermInvMatcher.")
+            raise ValueError("The order of the species aren't matching! Please try using BruteForceOrderMatcher")
 
         p_coord, q_coord = p.cart_coords, self.target.cart_coords
 
@@ -832,16 +832,22 @@ class BruteForceOrderMatcher(KabschMatcher):
         of atoms from the same species.
     """
 
-    def match(self, mol: Molecule, ignore_warning: bool = False) -> tuple[np.ndarray, np.ndarray, np.ndarray, float]:
+    def match(
+        self, mol: Molecule, ignore_warning: bool = False, break_on_tol: float | None = None
+    ) -> tuple[np.ndarray, np.ndarray, np.ndarray, float]:
         """Similar as `KabschMatcher.match` but this method also finds the order of
         atoms which belongs to the best match.
 
         A `ValueError` will be raised when the total number of possible combinations
         become unfeasible (more than a million combination).
 
+        The `break_on_tol` option can be used for efficiency, to stop searching over
+        permutations if the RMSD becomes smaller than `break_on_tol`.
+
         Args:
             mol: a `Molecule` object what will be matched with the target one.
-            ignore_warning: ignoring error when the number of combination is too large
+            ignore_warning: ignoring error when the number of combination is too large.
+            break_on_tol: return the first match with an RMSD value less than this tolerance.
 
         Returns:
             inds: The indices of atoms
@@ -892,6 +898,9 @@ class BruteForceOrderMatcher(KabschMatcher):
             if rmsd_test < rmsd:
                 p_inds, U, rmsd = p_inds_test, U_test, rmsd_test
 
+            if break_on_tol and rmsd < break_on_tol:
+                break
+
         # Rotate and translate matrix P unto matrix Q using Kabsch algorithm.
         # P' = P * U + V
         V = q_trans - np.dot(p_trans, U)
@@ -901,21 +910,25 @@ class BruteForceOrderMatcher(KabschMatcher):
 
         return indices, U, V, rmsd
 
-    def fit(self, p: Molecule, ignore_warning=False):
+    def fit(self, p: Molecule, ignore_warning=False, break_on_tol: float | None = None):
         """Order, rotate and transform `p` molecule according to the best match.
 
         A `ValueError` will be raised when the total number of possible combinations
         become unfeasible (more than a million combinations).
 
+        The `break_on_tol` option can be used for efficiency, to stop searching over
+        permutations if the RMSD becomes smaller than `break_on_tol`.
+
         Args:
             p: a `Molecule` object what will be matched with the target one.
-            ignore_warning: ignoring error when the number of combination is too large
+            ignore_warning: ignoring error when the number of combination is too large.
+            break_on_tol: return the first match with an RMSD value less than this tolerance.
 
         Returns:
             p_prime: Rotated and translated of the `p` `Molecule` object
             rmsd: Root-mean-square-deviation between `p_prime` and the `target`
         """
-        inds, U, V, rmsd = self.match(p, ignore_warning=ignore_warning)
+        inds, U, V, rmsd = self.match(p, ignore_warning=ignore_warning, break_on_tol=break_on_tol)
 
         p_prime = Molecule.from_sites([p[idx] for idx in inds])
         for site in p_prime:

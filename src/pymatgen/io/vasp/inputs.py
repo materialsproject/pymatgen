@@ -8,7 +8,6 @@ from __future__ import annotations
 import codecs
 import hashlib
 import itertools
-import json
 import math
 import os
 import re
@@ -24,6 +23,7 @@ from typing import TYPE_CHECKING, NamedTuple, cast
 from zipfile import ZipFile
 
 import numpy as np
+import orjson
 import scipy.constants as const
 from monty.io import zopen
 from monty.json import MontyDecoder, MSONable
@@ -38,14 +38,15 @@ from pymatgen.util.io_utils import clean_lines
 from pymatgen.util.string import str_delimited
 
 if TYPE_CHECKING:
-    from collections.abc import Sequence
+    from collections.abc import Mapping, Sequence
     from typing import Any, ClassVar, Literal
 
-    from numpy.typing import ArrayLike
+    from numpy.typing import ArrayLike, NDArray
     from typing_extensions import Self
 
+    from pymatgen.core.structure import IStructure
     from pymatgen.symmetry.bandstructure import HighSymmKpath
-    from pymatgen.util.typing import Kpoint, PathLike, Tuple3Floats, Tuple3Ints, Vector3D
+    from pymatgen.util.typing import Kpoint, PathLike
 
 
 __author__ = "Shyue Ping Ong, Geoffroy Hautier, Rickard Armiento, Vincent L Chevrier, Stephen Dacek"
@@ -78,7 +79,7 @@ class Poscar(MSONable):
 
     def __init__(
         self,
-        structure: Structure,
+        structure: Structure | IStructure,
         comment: str | None = None,
         selective_dynamics: ArrayLike | None = None,
         true_names: bool = True,
@@ -167,7 +168,7 @@ class Poscar(MSONable):
         return self.structure.site_properties.get("velocities")
 
     @velocities.setter
-    def velocities(self, velocities: ArrayLike | None) -> None:
+    def velocities(self, velocities: NDArray) -> None:
         self.structure.add_site_property("velocities", velocities)
 
     @property
@@ -176,7 +177,7 @@ class Poscar(MSONable):
         return self.structure.site_properties.get("selective_dynamics")
 
     @selective_dynamics.setter
-    def selective_dynamics(self, selective_dynamics: ArrayLike | None) -> None:
+    def selective_dynamics(self, selective_dynamics: NDArray) -> None:
         self.structure.add_site_property("selective_dynamics", selective_dynamics)
 
     @property
@@ -185,7 +186,7 @@ class Poscar(MSONable):
         return self.structure.site_properties.get("predictor_corrector")
 
     @predictor_corrector.setter
-    def predictor_corrector(self, predictor_corrector: ArrayLike | None) -> None:
+    def predictor_corrector(self, predictor_corrector: NDArray) -> None:
         self.structure.add_site_property("predictor_corrector", predictor_corrector)
 
     @property
@@ -285,7 +286,7 @@ class Poscar(MSONable):
                 names = None
 
         with zopen(filename, mode="rt", encoding="utf-8") as file:
-            return cls.from_str(file.read(), names, read_velocities=read_velocities)
+            return cls.from_str(file.read(), names, read_velocities=read_velocities)  # type:ignore[arg-type]
 
     @classmethod
     def from_str(
@@ -628,7 +629,7 @@ class Poscar(MSONable):
             coords: ArrayLike = site.frac_coords if direct else site.coords
             line: str = " ".join(format_str.format(c) for c in coords)
             if self.selective_dynamics is not None:
-                sd: list[str] = ["T" if j else "F" for j in self.selective_dynamics[idx]]
+                sd: list[str] = ["T" if j else "F" for j in self.selective_dynamics[idx]]  # type:ignore[index]
                 line += f" {sd[0]} {sd[1]} {sd[2]}"
             line += f" {site.species_string}"
             lines.append(line)
@@ -638,7 +639,7 @@ class Poscar(MSONable):
                 lines.extend(["Lattice velocities and vectors", "  1"])
                 for velo in self.lattice_velocities:
                     # VASP is strict about the format when reading this quantity
-                    lines.append(" ".join(f" {val: .7E}" for val in velo))
+                    lines.append(" ".join(f" {val: .7E}" for val in velo))  # type:ignore[str-bytes-safe]
             except Exception:
                 warnings.warn(
                     "Lattice velocities are missing or corrupted.",
@@ -682,7 +683,7 @@ class Poscar(MSONable):
         the Poscar.get_str method and are passed through directly.
         """
         with zopen(filename, mode="wt", encoding="utf-8") as file:
-            file.write(self.get_str(**kwargs))
+            file.write(self.get_str(**kwargs))  # type:ignore[arg-type]
 
     def as_dict(self) -> dict:
         """MSONable dict."""
@@ -772,7 +773,7 @@ class Incar(UserDict, MSONable):
         in the `lower_str_keys/as_is_str_keys` of the `proc_val` method.
     """
 
-    def __init__(self, params: dict[str, Any] | None = None) -> None:
+    def __init__(self, params: Mapping[str, Any] | None = None) -> None:
         """
         Clean up params and create an Incar object.
 
@@ -801,7 +802,7 @@ class Incar(UserDict, MSONable):
             val: list[list] = []
             for idx in range(len(params["MAGMOM"]) // 3):
                 val.append(params["MAGMOM"][idx * 3 : (idx + 1) * 3])
-            params["MAGMOM"] = val
+            params["MAGMOM"] = val  # type:ignore[index]
 
         super().__init__(params)
 
@@ -871,7 +872,7 @@ class Incar(UserDict, MSONable):
         return cls({k: v for k, v in dct.items() if k not in ("@module", "@class")})
 
     def copy(self) -> Self:
-        return type(self)(self)
+        return type(self)(self)  # type:ignore[arg-type]
 
     def get_str(self, sort_keys: bool = False, pretty: bool = False) -> str:
         """Get a string representation of the INCAR. Differ from the
@@ -917,7 +918,7 @@ class Incar(UserDict, MSONable):
             filename (str): filename to write to.
         """
         with zopen(filename, mode="wt", encoding="utf-8") as file:
-            file.write(str(self))
+            file.write(str(self))  # type:ignore[arg-type]
 
     @classmethod
     def from_file(cls, filename: PathLike) -> Self:
@@ -930,7 +931,7 @@ class Incar(UserDict, MSONable):
             Incar object
         """
         with zopen(filename, mode="rt", encoding="utf-8") as file:
-            return cls.from_str(file.read())
+            return cls.from_str(file.read())  # type:ignore[arg-type]
 
     @classmethod
     def from_str(cls, string: str) -> Self:
@@ -1116,7 +1117,7 @@ class Incar(UserDict, MSONable):
         """
         # Load INCAR tag/value check reference file
         with open(os.path.join(MODULE_DIR, "incar_parameters.json"), encoding="utf-8") as json_file:
-            incar_params = json.loads(json_file.read())
+            incar_params = orjson.loads(json_file.read())
 
         for tag, val in self.items():
             # Check if the tag exists
@@ -1195,7 +1196,7 @@ class Kpoints(MSONable):
         num_kpts: int = 0,
         style: KpointsSupportedModes = supported_modes.Gamma,
         kpts: Sequence[Kpoint] = ((1, 1, 1),),
-        kpts_shift: Vector3D = (0, 0, 0),
+        kpts_shift: tuple[float, float, float] = (0, 0, 0),
         kpts_weights: list[float] | None = None,
         coord_type: Literal["Reciprocal", "Cartesian"] | None = None,
         labels: list[str] | None = None,
@@ -1380,8 +1381,8 @@ class Kpoints(MSONable):
     @classmethod
     def gamma_automatic(
         cls,
-        kpts: Tuple3Ints = (1, 1, 1),
-        shift: Vector3D = (0, 0, 0),
+        kpts: tuple[int, int, int] = (1, 1, 1),
+        shift: tuple[float, float, float] = (0, 0, 0),
         comment: str = "Automatic kpoint scheme",
     ) -> Self:
         """
@@ -1407,8 +1408,8 @@ class Kpoints(MSONable):
     @classmethod
     def monkhorst_automatic(
         cls,
-        kpts: Tuple3Ints = (2, 2, 2),
-        shift: Vector3D = (0, 0, 0),
+        kpts: tuple[int, int, int] = (2, 2, 2),
+        shift: tuple[float, float, float] = (0, 0, 0),
         comment: str = "Automatic kpoint scheme",
     ) -> Self:
         """
@@ -1434,7 +1435,7 @@ class Kpoints(MSONable):
     @classmethod
     def automatic_density(
         cls,
-        structure: Structure,
+        structure: Structure | IStructure,
         kppa: float,
         force_gamma: bool = False,
         comment: str | None = None,
@@ -1463,11 +1464,13 @@ class Kpoints(MSONable):
         if abs((math.floor(kppa ** (1 / 3) + 0.5)) ** 3 - kppa) < 1:
             kppa += kppa * 0.01
         lattice = structure.lattice
-        lengths: Vector3D = lattice.abc
+        lengths: tuple[float, float, float] = lattice.abc
         ngrid = kppa / len(structure)
         mult: float = (ngrid * lengths[0] * lengths[1] * lengths[2]) ** (1 / 3)
 
-        num_div: Tuple3Ints = cast("Tuple3Ints", [math.floor(max(mult / length, 1)) for length in lengths])
+        num_div: tuple[int, int, int] = cast(
+            "tuple[int, int, int]", [math.floor(max(mult / length, 1)) for length in lengths]
+        )
 
         is_hexagonal: bool = lattice.is_hexagonal()
         is_face_centered: bool = structure.get_space_group_info()[0][0] == "F"
@@ -1488,7 +1491,7 @@ class Kpoints(MSONable):
     @classmethod
     def automatic_gamma_density(
         cls,
-        structure: Structure,
+        structure: Structure | IStructure,
         kppa: float,
         comment: str | None = None,
     ) -> Self:
@@ -1527,14 +1530,14 @@ class Kpoints(MSONable):
             comment,
             n_kpts,
             style,
-            [cast("Tuple3Ints", tuple(n_div))],
+            [cast("tuple[int, int, int]", tuple(n_div))],
             (0, 0, 0),
         )
 
     @classmethod
     def automatic_density_by_vol(
         cls,
-        structure: Structure,
+        structure: Structure | IStructure,
         kppvol: int,
         force_gamma: bool = False,
         comment: str | None = None,
@@ -1561,7 +1564,7 @@ class Kpoints(MSONable):
     @classmethod
     def automatic_density_by_lengths(
         cls,
-        structure: Structure,
+        structure: Structure | IStructure,
         length_densities: Sequence[float],
         force_gamma: bool = False,
         comment: str | None = None,
@@ -1593,7 +1596,7 @@ class Kpoints(MSONable):
         lattice = structure.lattice
 
         abc = lattice.abc
-        num_div: Tuple3Ints = tuple(math.ceil(ld / abc[idx]) for idx, ld in enumerate(length_densities))
+        num_div: tuple[int, int, int] = tuple(math.ceil(ld / abc[idx]) for idx, ld in enumerate(length_densities))  # type:ignore[assignment]
 
         is_hexagonal: bool = lattice.is_hexagonal()
         is_face_centered: bool = structure.get_space_group_info()[0][0] == "F"
@@ -1670,7 +1673,7 @@ class Kpoints(MSONable):
             Kpoints object
         """
         with zopen(filename, mode="rt", encoding="utf-8") as file:
-            return cls.from_str(file.read())
+            return cls.from_str(file.read())  # type:ignore[arg-type]
 
     @classmethod
     def from_str(cls, string: str) -> Self:
@@ -1700,9 +1703,9 @@ class Kpoints(MSONable):
             _kpt: list[int] = [int(i) for i in lines[3].split()]
             if len(_kpt) != 3:
                 raise ValueError("Invalid Kpoint length.")
-            kpt: Tuple3Ints = cast("Tuple3Ints", tuple(_kpt))
+            kpt: tuple[int, int, int] = cast("tuple[int, int, int]", tuple(_kpt))
 
-            kpts_shift: Vector3D = (0, 0, 0)
+            kpts_shift: tuple[float, float, float] = (0, 0, 0)
             if len(lines) > 4 and coord_pattern.match(lines[4]):
                 try:
                     _kpts_shift: list[float] = [float(i) for i in lines[4].split()]
@@ -1712,7 +1715,7 @@ class Kpoints(MSONable):
                 if len(_kpts_shift) != 3:
                     raise ValueError("Invalid kpoint shift length.")
 
-                kpts_shift = cast("Vector3D", tuple(_kpts_shift))
+                kpts_shift = cast("tuple[float, float, float]", tuple(_kpts_shift))
 
             return (
                 cls.gamma_automatic(kpt, kpts_shift, comment=comment)
@@ -1724,7 +1727,7 @@ class Kpoints(MSONable):
         if num_kpts <= 0:
             _style = cls.supported_modes.Cartesian if style in "ck" else cls.supported_modes.Reciprocal
             _kpts_shift = [float(i) for i in lines[6].split()]
-            kpts_shift = cast("Vector3D", tuple(_kpts_shift)) if len(_kpts_shift) == 3 else (0, 0, 0)
+            kpts_shift = cast("tuple[float, float, float]", tuple(_kpts_shift)) if len(_kpts_shift) == 3 else (0, 0, 0)
 
             kpts: list[Kpoint] = [
                 cast("Kpoint", tuple(float(j) for j in lines[line_idx].split())) for line_idx in range(3, 6)
@@ -1744,7 +1747,7 @@ class Kpoints(MSONable):
                 "Cartesian" if lines[3].lower()[0] in "ck" else "Reciprocal"
             )
             _style = cls.supported_modes.Line_mode
-            _kpts: list[Tuple3Floats] = []
+            _kpts: list[tuple[float, float, float]] = []
             labels = []
             patt = re.compile(r"([e0-9.\-]+)\s+([e0-9.\-]+)\s+([e0-9.\-]+)\s*!*\s*(.*)")
             for idx in range(4, len(lines)):
@@ -1773,7 +1776,7 @@ class Kpoints(MSONable):
 
         for idx in range(3, 3 + num_kpts):
             tokens = lines[idx].split()
-            kpts.append(cast("Tuple3Floats", tuple(float(i) for i in tokens[:3])))
+            kpts.append(cast("tuple[float, float, float]", tuple(float(i) for i in tokens[:3])))
             kpts_weights.append(float(tokens[3]))
             if len(tokens) > 4:
                 labels.append(tokens[4])
@@ -1811,7 +1814,7 @@ class Kpoints(MSONable):
             filename (PathLike): Filename to write to.
         """
         with zopen(filename, mode="wt", encoding="utf-8") as file:
-            file.write(str(self))
+            file.write(str(self))  # type:ignore[arg-type]
 
     def as_dict(self) -> dict[str, Any]:
         """MSONable dict."""
@@ -2475,7 +2478,7 @@ class PotcarSingle:
             filename (str): File to write to.
         """
         with zopen(filename, mode="wt", encoding="utf-8") as file:
-            file.write(str(self))
+            file.write(str(self))  # type:ignore[arg-type]
 
     def copy(self) -> Self:
         """Return a copy of the PotcarSingle.
@@ -2500,7 +2503,7 @@ class PotcarSingle:
 
         try:
             with zopen(filename, mode="rt", encoding="utf-8") as file:
-                return cls(file.read(), symbol=symbol or None)
+                return cls(file.read(), symbol=symbol or None)  # type:ignore[arg-type]
 
         except UnicodeDecodeError:
             warnings.warn(
@@ -2830,7 +2833,7 @@ def _gen_potcar_summary_stats(
     # Use append = True if a new POTCAR library is released to add new summary stats
     # without completely regenerating the dict of summary stats
     # Use append = False to completely regenerate the summary stats dict
-    new_summary_stats = loadfn(summary_stats_filename) if append else {}
+    new_summary_stats = loadfn(summary_stats_filename) if append else {}  # type:ignore[arg-type]
 
     for func, func_dir in func_dir_exist.items():
         new_summary_stats.setdefault(func, {})  # initialize dict if key missing
@@ -2941,7 +2944,7 @@ class Potcar(list, MSONable):
         }
 
     @classmethod
-    def from_dict(cls, dct: dict) -> Self:
+    def from_dict(cls, dct: dict) -> Potcar:
         """
         Args:
             dct (dict): Dict representation.
@@ -2988,7 +2991,7 @@ class Potcar(list, MSONable):
         """
         with zopen(filename, mode="rt", encoding="utf-8") as file:
             fdata = file.read()
-        return cls.from_str(fdata)
+        return cls.from_str(fdata)  # type:ignore[arg-type]
 
     def write_file(self, filename: PathLike) -> None:
         """Write Potcar to a file.
@@ -2997,7 +3000,7 @@ class Potcar(list, MSONable):
             filename (PathLike): filename to write to.
         """
         with zopen(filename, mode="wt", encoding="utf-8") as file:
-            file.write(str(self))
+            file.write(str(self))  # type:ignore[arg-type]
 
     def set_symbols(
         self,
@@ -3072,7 +3075,7 @@ class VaspInput(dict, MSONable):
 
     def __init__(
         self,
-        incar: dict | Incar,
+        incar: Mapping[str, Any],
         kpoints: Kpoints | None,
         poscar: Poscar,
         potcar: Potcar | str | None,
@@ -3100,7 +3103,7 @@ class VaspInput(dict, MSONable):
         self._potcar_filename = "POTCAR" + (".spec" if potcar_spec else "")
         self.update(
             {
-                "INCAR": Incar(incar),
+                "INCAR": Incar(incar),  # type:ignore[arg-type]
                 "KPOINTS": kpoints,
                 "POSCAR": poscar,
                 self._potcar_filename: potcar,
@@ -3169,7 +3172,7 @@ class VaspInput(dict, MSONable):
         for key, value in self.items():
             if value is not None:
                 with zopen(os.path.join(output_dir, key), mode="wt", encoding="utf-8") as file:
-                    file.write(str(value))
+                    file.write(str(value))  # type:ignore[arg-type]
 
         if cif_name:
             self["POSCAR"].structure.to(filename=cif_name)
@@ -3179,7 +3182,7 @@ class VaspInput(dict, MSONable):
             with ZipFile(os.path.join(output_dir, zip_name), mode="w") as zip_file:
                 for file in files_to_zip:
                     try:
-                        zip_file.write(os.path.join(output_dir, file), arcname=file)
+                        zip_file.write(os.path.join(output_dir, file), arcname=file)  # type:ignore[arg-type]
                     except FileNotFoundError:
                         pass
 

@@ -20,6 +20,7 @@ from pymatgen.io.core import InputFile, InputGenerator, InputSet
 if TYPE_CHECKING:
     from collections.abc import Iterable, Sequence
 
+    from pymatgen.core.structure import IStructure
     from pymatgen.util.typing import PathLike
 
 TMPDIR_NAME: str = "tmpdir"
@@ -374,7 +375,7 @@ class AimsInputGenerator(InputGenerator):
 
     def d2k(
         self,
-        structure: Structure,
+        structure: Structure | IStructure,
         kpt_density: float | tuple[float, float, float] = 5.0,
         even: bool = True,
     ) -> Iterable[float]:
@@ -395,7 +396,7 @@ class AimsInputGenerator(InputGenerator):
         recip_cell = structure.lattice.inv_matrix.transpose()
         return self.d2k_recip_cell(recip_cell, structure.lattice.pbc, kpt_density, even)
 
-    def k2d(self, structure: Structure, k_grid: np.ndarray[int]):
+    def k2d(self, structure: Structure | IStructure, k_grid: np.ndarray):
         """Generate the kpoint density in each direction from given k_grid.
 
         Args:
