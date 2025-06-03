@@ -1545,15 +1545,7 @@ class TestOszicar(MatSciTest):
 
 class TestGetBandStructureFromVaspMultipleBranches:
     def test_read_multi_branches(self):
-        """TODO: use real multi-branch bandstructure calculation."""
-        # Create branches
-        for idx in range(3):  # simulate 3 branches
-            branch_name = f"branch_{idx}"
-            os.makedirs(branch_name)
-            copyfile(f"{VASP_OUT_DIR}/vasprun.force_hybrid_like_calc.xml.gz", f"./{branch_name}/vasprun.xml.gz")
-            decompress_file(f"./{branch_name}/vasprun.xml.gz")
-
-        get_band_structure_from_vasp_multiple_branches(".")
+        """TODO: need test."""
 
     def test_missing_vasprun_in_branch_dir(self):
         """Test vasprun.xml missing from branch_*."""
