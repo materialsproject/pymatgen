@@ -1,7 +1,7 @@
 from __future__ import annotations
 
-import json
-
+import matplotlib.pyplot as plt
+import orjson
 import pytest
 from numpy.testing import assert_allclose
 from pytest import approx
@@ -25,7 +25,7 @@ TEST_DIR = f"{TEST_FILES_DIR}/surfaces"
 class TestSlabEntry(MatSciTest):
     def setup_method(self):
         with open(f"{TEST_DIR}/ucell_entries.txt", encoding="utf-8") as file:
-            ucell_entries = json.loads(file.read())
+            ucell_entries = orjson.loads(file.read())
         self.ucell_entries = ucell_entries
 
         # Load objects for O adsorption tests
@@ -59,7 +59,7 @@ class TestSlabEntry(MatSciTest):
 
                         # Determine the correct binding energy
                         with open(f"{TEST_DIR}/isolated_O_entry.txt", encoding="utf-8") as txt_file:
-                            isolated_O_entry = json.loads(txt_file.read())
+                            isolated_O_entry = orjson.loads(txt_file.read())
                         O_cse = ComputedStructureEntry.from_dict(isolated_O_entry)
                         g_bind = (ads.energy - ml * clean.energy) / Nads - O_cse.energy_per_atom
                         assert g_bind == ads.gibbs_binding_energy()
@@ -123,7 +123,7 @@ class TestSurfaceEnergyPlotter(MatSciTest):
         entry_dict = get_entry_dict(f"{TEST_DIR}/Cu_entries.txt")
         self.Cu_entry_dict = entry_dict
         with open(f"{TEST_DIR}/ucell_entries.txt", encoding="utf-8") as file:
-            ucell_entries = json.loads(file.read())
+            ucell_entries = orjson.loads(file.read())
 
         self.Cu_ucell_entry = ComputedStructureEntry.from_dict(ucell_entries["Cu"])
         self.Cu_analyzer = SurfaceEnergyPlotter(entry_dict, self.Cu_ucell_entry)
@@ -315,7 +315,7 @@ class TestNanoscaleStability(MatSciTest):
         La_hcp_entry_dict = get_entry_dict(f"{TEST_DIR}/La_hcp_entries.txt")
         La_fcc_entry_dict = get_entry_dict(f"{TEST_DIR}/La_fcc_entries.txt")
         with open(f"{TEST_DIR}/ucell_entries.txt", encoding="utf-8") as txt_file:
-            ucell_entries = json.loads(txt_file.read())
+            ucell_entries = orjson.loads(txt_file.read())
         La_hcp_ucell_entry = ComputedStructureEntry.from_dict(ucell_entries["La_hcp"])
         La_fcc_ucell_entry = ComputedStructureEntry.from_dict(ucell_entries["La_fcc"])
 
@@ -360,13 +360,20 @@ class TestNanoscaleStability(MatSciTest):
         assert w1.effective_radius == approx(10)
         assert w2.effective_radius == approx(10)
 
+    def test_plot(self):
+        ax = self.nanoscale_stability.plot_all_stability_map(max_r=10.0, labels=["La_hcp", "La_fcc"])
+
+        assert isinstance(ax, plt.Axes)
+        assert "Particle radius" in ax.get_xlabel()
+        assert "$G_{form}$" in ax.get_ylabel()
+
 
 def get_entry_dict(filename):
     # helper to generate an entry_dict
 
     entry_dict = {}
     with open(filename, encoding="utf-8") as file:
-        entries = json.loads(file.read())
+        entries = orjson.loads(file.read())
     for entry in entries:
         sub_str = entry[25:]
         miller_index = []
@@ -393,7 +400,7 @@ def load_O_adsorption():
 
     # Load the adsorbate as an entry
     with open(f"{TEST_DIR}/isolated_O_entry.txt", encoding="utf-8") as file:
-        isolated_O_entry = json.loads(file.read())
+        isolated_O_entry = orjson.loads(file.read())
     O_entry = ComputedStructureEntry.from_dict(isolated_O_entry)
 
     # entry_dict for the adsorption case, O adsorption on Ni, Rh and Pt
@@ -404,7 +411,7 @@ def load_O_adsorption():
     }
 
     with open(f"{TEST_DIR}/cs_entries_slabs.json", encoding="utf-8") as file:
-        entries = json.loads(file.read())
+        entries = orjson.loads(file.read())
     for key in entries:
         entry = ComputedStructureEntry.from_dict(entries[key])
         for el in metals_O_entry_dict:
@@ -420,7 +427,7 @@ def load_O_adsorption():
                     metals_O_entry_dict[el][1, 0, 0][clean] = []
 
     with open(f"{TEST_DIR}/cs_entries_o_ads.json", encoding="utf-8") as file:
-        entries = json.loads(file.read())
+        entries = orjson.loads(file.read())
     for key in entries:
         entry = ComputedStructureEntry.from_dict(entries[key])
         for el, val in metals_O_entry_dict.items():

@@ -1,11 +1,11 @@
 from __future__ import annotations
 
-import json
 import os
 from shutil import which
 
 import matplotlib.pyplot as plt
 import numpy as np
+import orjson
 import pytest
 from matplotlib import rc
 from numpy.testing import assert_allclose
@@ -38,8 +38,8 @@ rc("text", usetex=False)  # Disabling latex is needed for this test to work.
 
 class TestDosPlotter(MatSciTest):
     def setup_method(self):
-        with open(f"{BAND_TEST_DIR}/../dos/complete_dos.json", encoding="utf-8") as file:
-            self.dos = CompleteDos.from_dict(json.load(file))
+        with open(f"{BAND_TEST_DIR}/../dos/complete_dos.json", "rb") as file:
+            self.dos = CompleteDos.from_dict(orjson.loads(file.read()))
             self.plotter = DosPlotter(sigma=0.2, stack=True)
 
     def test_add_dos_dict(self):
@@ -69,8 +69,8 @@ class TestDosPlotter(MatSciTest):
         # reproduces the same energy and DOS axis limits
         self.plotter.add_dos_dict(self.dos.get_element_dos(), key_sort_func=lambda x: x.X)
         # Contains energy and DOS limits and expected results
-        with open(f"{BAND_TEST_DIR}/../plotter/complete_dos_limits.json", encoding="utf-8") as file:
-            limits_results = json.load(file)
+        with open(f"{BAND_TEST_DIR}/../plotter/complete_dos_limits.json", "rb") as file:
+            limits_results = orjson.loads(file.read())
 
         for item in limits_results:
             ax = self.plotter.get_plot(xlim=item["energy_limit"], ylim=item["DOS_limit"])
@@ -93,18 +93,18 @@ class TestDosPlotter(MatSciTest):
 class TestBSPlotter(MatSciTest):
     def setup_method(self):
         with open(f"{BAND_TEST_DIR}/CaO_2605_bandstructure.json", encoding="utf-8") as file:
-            dct = json.loads(file.read())
+            dct = orjson.loads(file.read())
             self.bs = BandStructureSymmLine.from_dict(dct)
             self.plotter = BSPlotter(self.bs)
 
         assert len(self.plotter._bs) == 1, "wrong number of band objects"
 
         with open(f"{BAND_TEST_DIR}/N2_12103_bandstructure.json", encoding="utf-8") as file:
-            dct = json.loads(file.read())
+            dct = orjson.loads(file.read())
             self.sbs_sc = BandStructureSymmLine.from_dict(dct)
 
         with open(f"{BAND_TEST_DIR}/C_48_bandstructure.json", encoding="utf-8") as file:
-            dct = json.loads(file.read())
+            dct = orjson.loads(file.read())
             self.sbs_met = BandStructureSymmLine.from_dict(dct)
 
         self.plotter_multi = BSPlotter([self.sbs_sc, self.sbs_met])
@@ -185,14 +185,12 @@ class TestBSPlotter(MatSciTest):
 
 class TestBSPlotterProjected:
     def setup_method(self):
-        with open(f"{BAND_TEST_DIR}/Cu2O_361_bandstructure.json", encoding="utf-8") as file:
-            self.bs_Cu2O = BandStructureSymmLine.from_dict(json.load(file))
+        with open(f"{BAND_TEST_DIR}/Cu2O_361_bandstructure.json", "rb") as file:
+            self.bs_Cu2O = BandStructureSymmLine.from_dict(orjson.loads(file.read()))
         self.plotter_Cu2O = BSPlotterProjected(self.bs_Cu2O)
 
-        with open(
-            f"{TEST_FILES_DIR}/electronic_structure/boltztrap2/PbTe_bandstructure.json", encoding="utf-8"
-        ) as file:
-            self.bs_PbTe = BandStructureSymmLine.from_dict(json.load(file))
+        with open(f"{TEST_FILES_DIR}/electronic_structure/boltztrap2/PbTe_bandstructure.json", "rb") as file:
+            self.bs_PbTe = BandStructureSymmLine.from_dict(orjson.loads(file.read()))
 
     def test_methods(self):
         # Minimal baseline testing for get_plot. not a true test. Just checks that
@@ -233,8 +231,8 @@ class TestBSDOSPlotter:
         assert isinstance(dos_ax, plt.Axes)
         plt.close("all")
 
-        with open(f"{TEST_FILES_DIR}/electronic_structure/plotter/SrBa2Sn2O7.json", encoding="utf-8") as file:
-            band_struct_dict = json.load(file)
+        with open(f"{TEST_FILES_DIR}/electronic_structure/plotter/SrBa2Sn2O7.json", "rb") as file:
+            band_struct_dict = orjson.loads(file.read())
         # generate random projections
         data_structure = [[[[0 for _ in range(12)] for _ in range(9)] for _ in range(70)] for _ in range(90)]
         band_struct_dict["projections"]["1"] = data_structure
@@ -448,11 +446,11 @@ class TestBoltztrapPlotter:
 class TestCohpPlotter(MatSciTest):
     def setup_method(self):
         path = f"{TEST_FILES_DIR}/electronic_structure/cohp/complete_cohp_lobster.json"
-        with open(path, encoding="utf-8") as file:
-            self.cohp = CompleteCohp.from_dict(json.load(file))
+        with open(path, "rb") as file:
+            self.cohp = CompleteCohp.from_dict(orjson.loads(file.read()))
         path = f"{TEST_FILES_DIR}/electronic_structure/cohp/complete_coop_lobster.json"
-        with open(path, encoding="utf-8") as file:
-            self.coop = CompleteCohp.from_dict(json.load(file))
+        with open(path, "rb") as file:
+            self.coop = CompleteCohp.from_dict(orjson.loads(file.read()))
         self.cohp_plot = CohpPlotter(zero_at_efermi=False)
         self.coop_plot = CohpPlotter(are_coops=True)
 

@@ -14,11 +14,12 @@ from pymatgen.electronic_structure.bandstructure import Kpoint
 
 if TYPE_CHECKING:
     from collections.abc import Sequence
-    from os import PathLike
     from typing import Any
 
     from numpy.typing import ArrayLike
     from typing_extensions import Self
+
+    from pymatgen.util.typing import PathLike
 
 
 def get_reasonable_repetitions(n_atoms: int) -> tuple[int, int, int]:
@@ -521,7 +522,7 @@ class PhononBandStructureSymmLine(PhononBandStructure):
                     )
         return lst
 
-    def write_phononwebsite(self, filename: str | PathLike) -> None:
+    def write_phononwebsite(self, filename: PathLike) -> None:
         """Write a JSON file for the phononwebsite:
         https://henriquemiranda.github.io/phononwebsite.
         """

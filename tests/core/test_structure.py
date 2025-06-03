@@ -268,6 +268,7 @@ class TestIStructure(MatSciTest):
         dct = struct.as_dict(0)
         assert "volume" not in dct["lattice"]
         assert "xyz" not in dct["sites"][0]
+        assert "label" not in dct["sites"][0]
 
     def test_from_dict(self):
         dct = self.propertied_structure.as_dict()
@@ -1272,7 +1273,7 @@ class TestStructure(MatSciTest):
         assert dct == struct.as_dict()
 
         json_str = struct_with_props.to(fmt="json")
-        assert '"test_property": 42' in json_str
+        assert '"test_property":42' in json_str
         struct = Structure.from_str(json_str, fmt="json")
         assert struct.properties == props
         assert dct == struct.as_dict()
@@ -2237,6 +2238,7 @@ Site: H (-0.5134, 0.8892, -0.3630)"""
         no_reorder = self.mol.get_boxed_structure(10, 10, 10, reorder=False)
         assert str(s3[0].specie) == "H"
         assert str(no_reorder[0].specie) == "C"
+        assert_allclose(no_reorder[2].frac_coords, [0.60267191, 0.5, 0.4637])
 
     def test_get_distance(self):
         assert self.mol.get_distance(0, 1) == approx(1.089)
