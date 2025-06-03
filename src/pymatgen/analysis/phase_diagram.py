@@ -413,9 +413,14 @@ class PhaseDiagram(MSONable):
         """
         computed_data = dct.get("computed_data")
         elements = [Element.from_dict(elem) for elem in dct["elements"]]
-        entries = [MontyDecoder().process_decoded(entry) for entry in computed_data["all_entries"]]
 
-        computed_data["qhull_entries"] = [computed_data["all_entries"][i] for i in computed_data["qhull_entries"]]
+        # for backwards compatibility, check for old format
+        if "all_entries" in dct:
+            entries = [MontyDecoder().process_decoded(entry) for entry in dct["all_entries"]]
+        else:
+            entries = [MontyDecoder().process_decoded(entry) for entry in computed_data["all_entries"]]
+
+            computed_data["qhull_entries"] = [computed_data["all_entries"][i] for i in computed_data["qhull_entries"]]
 
         return cls(entries, elements, computed_data=computed_data)
 
