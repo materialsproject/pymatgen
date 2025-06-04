@@ -181,10 +181,11 @@ class VaspInputSet(InputGenerator, abc.ABC):
             Curtarolo) for monoclinic. Defaults True.
         validate_magmom (bool): Ensure that the missing magmom values are filled in with
             the VASP default value of 1.0.
-        inherit_incar (bool): Whether to inherit INCAR settings from previous
+        inherit_incar (bool | list[str]): Whether to inherit INCAR settings from previous
             calculation. This might be useful to port Custodian fixes to child jobs but
             can also be dangerous e.g. when switching from GGA to meta-GGA or relax to
             static jobs. Defaults to True.
+            Can also be a list of strings to specify which parameters are inherited.
         auto_kspacing (bool): If true, determines the value of KSPACING from the bandgap
             of a previous calculation.
         auto_ismear (bool): If true, the values for ISMEAR and SIGMA will be set
