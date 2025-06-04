@@ -1546,7 +1546,6 @@ class TestOszicar(MatSciTest):
 class TestGetBandStructureFromVaspMultipleBranches:
     def test_read_multi_branches(self):
         """TODO: This functionality still needs a test."""
-        pass
 
     def test_missing_vasprun_in_branch_dir(self):
         """Test vasprun.xml missing from branch_*."""
