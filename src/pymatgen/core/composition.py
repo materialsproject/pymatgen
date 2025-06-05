@@ -450,12 +450,9 @@ class Composition(collections.abc.Hashable, collections.abc.Mapping, MSONable, S
         factor: float
         formula, factor = reduce_formula(el_amt_dict, iupac_ordering=iupac_ordering)
 
-        # Do not "completely reduce" certain formulas, unless they contain more
-        # more atoms than the specified composition
-        if (red_formula := type(self).special_formulas.get(formula)) and type(self)(
-            red_formula
-        ).num_atoms <= self.num_atoms:
-            formula = red_formula
+        # Do not "completely reduce" certain formulas
+        if formula in type(self).special_formulas:
+            formula = type(self).special_formulas[formula]
             factor /= 2
 
         return formula, factor
