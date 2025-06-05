@@ -159,7 +159,7 @@ perform further structure manipulation or analyses.
 Here are some quick examples of the core capabilities and objects:
 
 ```python
-from pymatgen.core import Element, Composition, Lattice, Structure, Molecule
+from pymatgen.core import Composition, Element, Lattice, Molecule, Structure
 
 # Integrated symmetry analysis tools from spglib
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
