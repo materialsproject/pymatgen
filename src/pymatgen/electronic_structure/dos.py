@@ -1202,7 +1202,7 @@ class CompleteDos(Dos):
             Source - https://gitlab.com/vibes-developers/vibes/-/tree/master/vibes/materials_fp
             Copyright (c) 2020 Florian Knoop, Thomas A.R.Purcell, Matthias Scheffler, Christian Carbogno.
             Please also see and cite related work by:
-            M. Kuban, S. Rigamonti, C. Draxl, Digital Discovery 2024, 3, 2448–2457.
+            M. Kuban, S. Rigamonti, C. Draxl, Digital Discovery 2024, 3, 2448.
 
         Args:
             fp_type (str): The FingerPrint type, can be "{s/p/d/f/summed}_{pdos/tdos}"
