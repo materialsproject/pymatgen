@@ -12,12 +12,12 @@ BeautifulSoup = pytest.importorskip("bs4").BeautifulSoup
 
 
 try:
-    website_down = requests.get("https://www.vasp.at", timeout=5).status_code != 200
+    website_down = requests.get("https://www.vasp.at/wiki/index.php/The_VASP_Manual", timeout=5).status_code != 200
 except (requests.exceptions.ConnectionError, requests.exceptions.ReadTimeout):
     website_down = True
 
 
-@pytest.mark.skipif(website_down, reason="www.vasp.at is down")
+@pytest.mark.skipif(website_down, reason="www.vasp.at or the VASP manual is down")
 class TestVaspDoc:
     @pytest.mark.parametrize("tag", ["ISYM"])
     def test_print_help(self, tag):
