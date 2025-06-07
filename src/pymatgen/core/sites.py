@@ -514,7 +514,10 @@ class PeriodicSite(Site, MSONable):
             return False
 
         frac_diff = pbc_diff(self.frac_coords, other.frac_coords, self.lattice.pbc)
-        return np.allclose(frac_diff, [0, 0, 0], atol=tolerance)
+        for diff in frac_diff:  # pure Python loop faster than np.allclose here
+            if abs(diff) > tolerance:  # break early if outside tolerance
+                return False
+        return True
 
     def distance_and_image_from_frac_coords(
         self,
