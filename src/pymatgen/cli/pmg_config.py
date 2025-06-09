@@ -17,6 +17,7 @@ from monty.serialization import dumpfn, loadfn
 from pymatgen.core import OLD_SETTINGS_FILE, SETTINGS_FILE, Element
 from pymatgen.io.cp2k.inputs import GaussianTypeOrbitalBasisSet, GthPotential
 from pymatgen.io.cp2k.utils import chunk
+from pymatgen.io.vasp.inputs import POTCAR_FUNCTIONAL_MAP
 
 if TYPE_CHECKING:
     from argparse import Namespace
@@ -117,24 +118,29 @@ def setup_potcars(potcar_dirs: list[str]):
 
     print("Generating pymatgen resources directory...")
 
+    # name_mappings ensures consistency with the POTCAR directory structure
+    # expected by pymatgen.io.vasp.inputs.PotcarSingle
     name_mappings = {
-        "potpaw_PBE": "POT_GGA_PAW_PBE",
-        "potpaw_PBE_52": "POT_GGA_PAW_PBE_52",
-        "potpaw_PBE_54": "POT_GGA_PAW_PBE_54",
-        "potpaw_PBE.52": "POT_GGA_PAW_PBE_52",
-        "potpaw_PBE.54": "POT_GGA_PAW_PBE_54",
-        "potpaw_PBE_64": "POT_GGA_PAW_PBE_64",
-        "potpaw_PBE.64": "POT_GGA_PAW_PBE_64",
-        "potpaw_LDA": "POT_LDA_PAW",
-        "potpaw_LDA.52": "POT_LDA_PAW_52",
-        "potpaw_LDA.54": "POT_LDA_PAW_54",
-        "potpaw_LDA_52": "POT_LDA_PAW_52",
-        "potpaw_LDA_54": "POT_LDA_PAW_54",
-        "potpaw_LDA_64": "POT_LDA_PAW_64",
-        "potpaw_LDA.64": "POT_LDA_PAW_64",
-        "potUSPP_LDA": "POT_LDA_US",
-        "potpaw_GGA": "POT_GGA_PAW_PW91",
-        "potUSPP_GGA": "POT_GGA_US_PW91",
+        k: POTCAR_FUNCTIONAL_MAP[v]
+        for k, v in {
+            "potpaw_PBE": "PBE",
+            "potpaw_PBE_52": "PBE_52",
+            "potpaw_PBE.52": "PBE_52",
+            "potpaw_PBE_54": "PBE_54",
+            "potpaw_PBE.54": "PBE_54",
+            "potpaw_PBE_64": "PBE_64",
+            "potpaw_PBE.64": "PBE_64",
+            "potpaw_LDA": "LDA",
+            "potpaw_LDA.52": "LDA_52",
+            "potpaw_LDA_52": "LDA_52",
+            "potpaw_LDA.54": "LDA_54",
+            "potpaw_LDA_54": "LDA_54",
+            "potpaw_LDA_64": "LDA_64",
+            "potpaw_LDA.64": "LDA_64",
+            "potpaw_GGA": "PW91",
+            "potUSPP_LDA": "LDA_US",
+            "potUSPP_GGA": "PW91_US",
+        }.items()
     }
 
     for parent, subdirs, _files in os.walk(psp_dir):
