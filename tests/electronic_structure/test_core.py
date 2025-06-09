@@ -98,7 +98,7 @@ class TestMagmom:
         for magmom in magmoms:
             assert Magmom.are_collinear(magmom)
         ncl_magmoms = [[[0, 0, 1], [0, 0, 1], [1, 2, 3]]]
-        assert Magmom.are_collinear(ncl_magmoms) is False
+        assert not Magmom.are_collinear(ncl_magmoms)
 
     def test_have_consistent_saxis(self):
         magmom1 = Magmom([1, 2, 3])
