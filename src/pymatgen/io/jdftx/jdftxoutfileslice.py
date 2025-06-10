@@ -445,11 +445,13 @@ class JDFTXOutfileSlice:
             Trajectory: pymatgen Trajectory object containing intermediate Structure's of outfile slice calculation.
         """
         if self.jstrucs is not None:
-            _structures = [slc.structure for slc in self.jstrucs.slices]
-            structures = [s for s in _structures if s is not None]
+            structures = [slc.structure for slc in self.jstrucs]
+            constant_lattice = self.constant_lattice if self.constant_lattice is not None else False
+            frame_properties = [slc.properties for slc in self.jstrucs]
             self.trajectory = Trajectory.from_structures(
                 structures=structures,
-                constant_lattice=self.constant_lattice if self.constant_lattice is not None else False,
+                constant_lattice=constant_lattice,
+                frame_properties=frame_properties,
             )
 
     def _set_electronic_output(self) -> None:
