@@ -18,6 +18,7 @@ from typing import TYPE_CHECKING, Any, cast
 from xml.etree import ElementTree as ET
 
 import numpy as np
+import orjson
 from monty.dev import requires
 from monty.io import reverse_readfile, zopen
 from monty.json import MSONable, jsanitize
@@ -3944,7 +3945,7 @@ class Chgcar(VolumetricData):
             raise TypeError("Unsupported POSCAR type.")
 
         super().__init__(struct, data, data_aug=data_aug)
-        self._distance_matrix = {}
+        self._distance_matrix: dict = {}
 
     @classmethod
     def from_file(cls, filename: str) -> Self:
@@ -4534,58 +4535,62 @@ class VaspParseError(ParseError):
 
 
 def get_band_structure_from_vasp_multiple_branches(
-    dir_name: str,
+    dir_name: PathLike,
     efermi: float | None = None,
     projections: bool = False,
 ) -> BandStructureSymmLine | BandStructure | None:
     """Get band structure info from a VASP directory.
 
-    It takes into account that a run can be divided in several branches named
-    "branch_x". If the run has not been divided in branches the method will
-    turn to parsing vasprun.xml directly.
+    It takes into account that a run can be divided in several branches,
+    each inside a directory named "branch_x". If the run has not been
+    divided in branches the function will turn to parse vasprun.xml
+    directly from the selected directory.
 
     Args:
-        dir_name: Directory containing all bandstructure runs.
-        efermi: Efermi for bandstructure.
-        projections: True if you want to get the data on site projections if
-            any. Note that this is sometimes very large
+        dir_name (PathLike): Parent directory containing all bandstructure runs.
+        efermi (float): Fermi level for bandstructure.
+        projections (bool): True if you want to get the data on site
+            projections if any. Note that this is sometimes very large
 
     Returns:
-        A BandStructure Object.
-        None is there's a parsing error.
+        A BandStructure/BandStructureSymmLine Object.
+        None if no vasprun.xml found in given directory and branch directory.
     """
-    # TODO: Add better error handling!!!
-    if os.path.isfile(f"{dir_name}/branch_0"):
-        # Get all branch dir names
+    if os.path.isdir(f"{dir_name}/branch_0"):
+        # Get and sort all branch directories
         branch_dir_names = [os.path.abspath(d) for d in glob(f"{dir_name}/branch_*") if os.path.isdir(d)]
-
-        # Sort by the directory name (e.g, branch_10)
         sorted_branch_dir_names = sorted(branch_dir_names, key=lambda x: int(x.split("_")[-1]))
 
-        # Populate branches with Bandstructure instances
-        branches = []
-        for dname in sorted_branch_dir_names:
-            xml_file = f"{dname}/vasprun.xml"
-            if os.path.isfile(xml_file):
-                run = Vasprun(xml_file, parse_projected_eigen=projections)
-                branches.append(run.get_band_structure(efermi=efermi))
-            else:
-                # TODO: It might be better to throw an exception
-                warnings.warn(
-                    f"Skipping {dname}. Unable to find {xml_file}",
-                    stacklevel=2,
-                )
+        # Collect BandStructure from all branches
+        bs_branches: list[BandStructure | BandStructureSymmLine] = []
+        for directory in sorted_branch_dir_names:
+            vasprun_file = f"{directory}/vasprun.xml"
+            if not os.path.isfile(vasprun_file):
+                raise FileNotFoundError(f"cannot find vasprun.xml in {directory=}")
 
-        return get_reconstructed_band_structure(branches, efermi)
+            run = Vasprun(vasprun_file, parse_projected_eigen=projections)
+            bs_branches.append(run.get_band_structure(efermi=efermi))
 
-    xml_file = f"{dir_name}/vasprun.xml"
-    # Better handling of Errors
-    if os.path.isfile(xml_file):
-        return Vasprun(xml_file, parse_projected_eigen=projections).get_band_structure(
+        return get_reconstructed_band_structure(bs_branches, efermi)
+
+    # Read vasprun.xml directly if no branch head (branch_0) is found
+    # TODO: remove this branch and raise error directly after 2026-06-01
+    vasprun_file = f"{dir_name}/vasprun.xml"
+    if os.path.isfile(vasprun_file):
+        warnings.warn(
+            (
+                f"no branch dir found, reading directly from {dir_name=}\n"
+                "this fallback branch would be removed after 2026-06-01\n"
+                "please check your data dir or use Vasprun.get_band_structure directly"
+            ),
+            DeprecationWarning,
+            stacklevel=2,
+        )
+        return Vasprun(vasprun_file, parse_projected_eigen=projections).get_band_structure(
             kpoints_filename=None, efermi=efermi
         )
 
-    return None
+    raise FileNotFoundError(f"failed to find any vasprun.xml in selected {dir_name=}")
 
 
 class Xdatcar:
@@ -6190,9 +6195,8 @@ class Vaspout(Vasprun):
 
         elif input_data["potcar"].get("spec"):
             # modified vaspout.h5 with only POTCAR spec
-            import json
 
-            self.potcar_spec = json.loads(input_data["potcar"]["spec"])
+            self.potcar_spec = orjson.loads(input_data["potcar"]["spec"])
             self.potcar_symbols = [spec["titel"] for spec in self.potcar_spec]
 
         # TODO: do we want POSCAR stored?
@@ -6434,7 +6438,6 @@ class Vaspout(Vasprun):
                 a POTCAR with a scrambled/fake POTCAR. If None, the Vaspout.potcar Field
                 ("/input/potcar/content" field of vaspout.h5) is removed.
         """
-        import json
 
         def recursive_to_dataset(h5_obj, level, obj):
             if hasattr(obj, "items"):
@@ -6467,7 +6470,7 @@ class Vaspout(Vasprun):
             potcar_spec = self.potcar_spec
 
         # rather than define custom HDF5 hierarchy for POTCAR spec, just dump JSONable dict to str
-        hdf5_data["input"]["potcar"]["spec"] = json.dumps(potcar_spec)
+        hdf5_data["input"]["potcar"]["spec"] = orjson.dumps(potcar_spec, option=orjson.OPT_SERIALIZE_NUMPY).decode()
 
         # if file is to be compressed, first write uncompressed file
         with h5py.File(filename, "w") as h5_file:

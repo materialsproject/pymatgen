@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from os import remove
+import os
 
 import pytest
 
@@ -80,7 +80,7 @@ def test_find_jdftx_out_file(tmp_path):
     # out file has to match "*.out" or "out" exactly
     write_mt_file(tmp_path, "tinyout")
     assert _find_jdftx_out_file(tmp_path) == tmp_path / "test.out"
-    remove(_find_jdftx_out_file(tmp_path))
+    os.remove(_find_jdftx_out_file(tmp_path))
     write_mt_file(tmp_path, "out")
     assert _find_jdftx_out_file(tmp_path) == tmp_path / "out"
     write_mt_file(tmp_path, "tinyout.out")
