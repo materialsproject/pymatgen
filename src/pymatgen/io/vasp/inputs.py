@@ -1019,7 +1019,7 @@ class Incar(UserDict, MSONable):
         )
         lower_str_keys = ("ML_MODE",)
         # String keywords to read "as is" (no case transformation, only stripped)
-        as_is_str_keys = ("SYSTEM",)
+        as_is_str_keys = ("SYSTEM", "LATTICE_CONSTRAINTS")
 
         def smart_int_or_float(num_str: str) -> float:
             """Determine whether a string represents an integer or a float."""
