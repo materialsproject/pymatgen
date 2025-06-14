@@ -1821,9 +1821,9 @@ class NanoscaleStability:
             r_list.append(radius)
 
         ru = "nm" if r_units == "nanometers" else r"\AA"
-        ax.xlabel(rf"Particle radius (${ru}$)")
+        ax.set_xlabel(rf"Particle radius (${ru}$)")
         eu = f"${e_units}/{ru}^3$"
-        ax.ylabel(rf"$G_{{form}}$ ({eu})")
+        ax.set_ylabel(rf"$G_{{form}}$ ({eu})")
 
         ax.plot(r_list, gform_list, label=label)
 
@@ -1882,6 +1882,8 @@ class NanoscaleStability:
                 scale_per_atom=scale_per_atom,
             )
 
+        # Add legend after all plots are added
+        ax.legend()
         return ax
 
 
