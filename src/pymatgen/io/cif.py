@@ -19,8 +19,19 @@ import numpy as np
 from monty.dev import deprecated
 from monty.io import zopen
 from monty.serialization import loadfn
+from spglib import __version__ as __spglib_version__
 
-from pymatgen.core import Composition, DummySpecies, Element, Lattice, PeriodicSite, Species, Structure, get_el_sp
+from pymatgen.core import (
+    Composition,
+    DummySpecies,
+    Element,
+    Lattice,
+    PeriodicSite,
+    Species,
+    Structure,
+    __version__,
+    get_el_sp,
+)
 from pymatgen.core.operations import MagSymmOp, SymmOp
 from pymatgen.electronic_structure.core import Magmom
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer, SpacegroupOperations
@@ -256,7 +267,7 @@ class CifFile:
         """
         self.data = data
         self.orig_string = orig_string
-        self.comment: str = comment or "# generated using pymatgen"
+        self.comment: str = comment or f"# generated using pymatgen {__version__} (spglib {__spglib_version__})"
 
     def __str__(self) -> str:
         out = "\n".join(map(str, self.data.values()))
