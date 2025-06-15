@@ -994,6 +994,7 @@ class Incar(UserDict, MSONable):
             "LANGEVIN_GAMMA",
             "QUAD_EFG",
             "EINT",
+            "LATTICE_CONSTRAINTS",
         )
         bool_keys = (
             "LDAU",
@@ -1043,25 +1044,29 @@ class Incar(UserDict, MSONable):
         )
         lower_str_keys = ("ML_MODE",)
         # String keywords to read "as is" (no case transformation, only stripped)
-        as_is_str_keys = ("SYSTEM", "LATTICE_CONSTRAINTS")
+        as_is_str_keys = ("SYSTEM",)
 
-        def smart_int_or_float(num_str: str) -> float:
+        def smart_int_or_float_bool(str_: str) -> float | int | bool:
             """Determine whether a string represents an integer or a float."""
-            if "." in num_str or "e" in num_str.lower():
-                return float(num_str)
-            return int(num_str)
+            if str_.lower().startswith(".t") or str_.lower().startswith("t"):
+                return True
+            if str_.lower().startswith(".f") or str_.lower().startswith("f"):
+                return False
+            if "." in str_ or "e" in str_.lower():
+                return float(str_)
+            return int(str_)
 
         try:
             if key in list_keys:
                 output = []
-                tokens = re.findall(r"(-?\d+\.?\d*)\*?(-?\d+\.?\d*)?\*?(-?\d+\.?\d*)?", val)
+                tokens = re.findall(r"(-?\d+\.?\d*|[\.A-Z]+)\*?(-?\d+\.?\d*|[\.A-Z]+)?\*?(-?\d+\.?\d*|[\.A-Z]+)?", val)
                 for tok in tokens:
                     if tok[2] and "3" in tok[0]:
-                        output.extend([smart_int_or_float(tok[2])] * int(tok[0]) * int(tok[1]))
+                        output.extend([smart_int_or_float_bool(tok[2])] * int(tok[0]) * int(tok[1]))
                     elif tok[1]:
-                        output.extend([smart_int_or_float(tok[1])] * int(tok[0]))
+                        output.extend([smart_int_or_float_bool(tok[1])] * int(tok[0]))
                     else:
-                        output.append(smart_int_or_float(tok[0]))
+                        output.append(smart_int_or_float_bool(tok[0]))
                 return output
 
             if key in bool_keys:
@@ -1082,8 +1087,8 @@ class Incar(UserDict, MSONable):
             if key in as_is_str_keys:
                 return val.strip()
 
-        except ValueError:
-            pass
+        except ValueError as ex:
+            print(ex)
 
         # Not in known keys. We will try a hierarchy of conversions.
         try:
@@ -1096,7 +1101,7 @@ class Incar(UserDict, MSONable):
         except ValueError:
             pass
 
-        if "true" in val.lower():
+        if "true" in val.strip().lower():
             return True
 
         if "false" in val.lower():

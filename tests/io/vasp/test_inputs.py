@@ -678,7 +678,8 @@ NSW = 99
 PREC = Accurate
 SIGMA = 0.05"""
         incar = Incar.from_str(incar_str)
-        assert incar["LATTICE_CONSTRAINTS"] == "False False True"
+        assert incar["LATTICE_CONSTRAINTS"] == [False, False, True]
+        print(incar)
 
     def test_check_for_duplicate(self):
         incar_str: str = """encut = 400
