@@ -1087,8 +1087,8 @@ class Incar(UserDict, MSONable):
             if key in as_is_str_keys:
                 return val.strip()
 
-        except ValueError as ex:
-            print(ex)
+        except ValueError:
+            pass
 
         # Not in known keys. We will try a hierarchy of conversions.
         try:
@@ -1101,7 +1101,7 @@ class Incar(UserDict, MSONable):
         except ValueError:
             pass
 
-        if "true" in val.strip().lower():
+        if "true" in val.lower():
             return True
 
         if "false" in val.lower():
