@@ -3143,7 +3143,7 @@ wheels = [
 
 [[package]]
 name = "pymatgen"
-version = "2025.5.28"
+version = "2025.6.14"
 source = { editable = "." }
 dependencies = [
     { name = "bibtexparser" },
@@ -4310,8 +4310,8 @@ name = "tblite"
 version = "0.4.0"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
-    { name = "cffi", marker = "sys_platform != 'win32'" },
-    { name = "numpy", marker = "sys_platform != 'win32'" },
+    { name = "cffi", marker = "python_full_version < '3.12' and sys_platform == 'linux'" },
+    { name = "numpy", marker = "python_full_version < '3.12' and sys_platform == 'linux'" },
 ]
 sdist = { url = "https://files.pythonhosted.org/packages/e2/e6/b374321b2d480cda450911d4122073ff67ebb5284b31d8fbfcfd3f08f144/tblite-0.4.0.tar.gz", hash = "sha256:c2334dced8e61e26cd24e1ddb53d10aa0d685cf4df451fc8547192163cddc113", size = 657027, upload-time = "2024-11-17T20:19:04.803Z" }
 wheels = [
@@ -4324,7 +4324,7 @@ wheels = [
 
 [package.optional-dependencies]
 ase = [
-    { name = "ase", marker = "sys_platform != 'win32'" },
+    { name = "ase", marker = "python_full_version < '3.12' and sys_platform == 'linux'" },
 ]
 
 [[package]]

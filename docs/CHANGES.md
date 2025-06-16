@@ -6,6 +6,115 @@ nav_order: 4
 
 # Changelog
 
+## v2025.6.14
+
+- Treat LATTICE_CONSTRAINTS as is for INCARs.
+- PR #4425 `JDFTXOutfileSlice.trajectory` revision by @benrich37
+    Major changes:
+    - feature 1: `JDFTXOutfileSlice.trajectory` is now initialized with `frame_properties` set
+    -- `JOutStructure.properties` filled with relevant data for `frame_properties`
+    -- More properties added to `JOutStructure.site_properties`
+    ## Todos
+    - Remove class attributes in `JOutStructure` now redundant to data stored in `JOutStructure.properties` and `JOutStructure.site_properties`
+- PR #4431 Single source of truth for POTCAR directory structure by @esoteric-ephemera
+    Modifies the pymatgen CLI to use the same POTCAR library directory structure as in `pymatgen.io.vasp.inputs` to close #4430. Possibly breaking from the CLI side (the directory structure will change)
+    Pinging @mkhorton since #4424 was probably motivated by similar concerns?
+- PR #4433 Speed up symmetry functions with faster `is_periodic_image` algorithm by @kavanase
+    I noticed that in some of our `doped` testing workflows, `SpacegroupAnalyzer.get_primitive_standard_structure()` is one of the main bottlenecks (as to be expected). One of the dominant cost factors here is the usage of `is_periodic_image`, which can be expensive for large structures due to many `np.allclose()` calls.
+    This PR implements a small change to instead use an equivalent (but faster) pure Python loop, which also breaks early if the tolerance is exceeded.
+    In my test case, this reduced the time spent on `is_periodic_image` (and thus `SpacegroupAnalyzer.get_primitive_standard_structure()`) from 35s to 10s.
+- PR #4432 Fingerprint sources by @JaGeo
+    Add correct papers to tanimoto fingerprints
+- PR #4061 Fix branch directory check in `io.vasp.outputs.get_band_structure_from_vasp_multiple_branches` by @DanielYang59
+    ### Summary
+    - Fix branch directory check in `io.vasp.outputs.get_band_structure_from_vasp_multiple_branches`, to fix #4060
+    - [ ] Improve unit test (waiting for data, I don't have experience with "VASP multi-branch bandstructure calculation")
+- PR #4409 Packmol constraints by @davidwaroquiers
+    Added possibility to set individual constraints in packmol.
+    Added some sanity checks.
+    Added unit tests.
+- PR #4428 Fixes a bug in `NanoscaleStability.plot_one_stability_map` and `plot_all_stability_map`. by @kmu
+    Major changes:
+    - Replaced incorrect `ax.xlabel()` and `ax.ylabel()` calls with correct `ax.set_xlabel()` and `ax.set_ylabel()`.
+    - Added `ax.legend()` to `plot_all_stability_map` so that labels passed via `ax.plot(..., label=...)` are displayed.
+    - Added `test_plot()` to `test_surface_analysis.py`.
+- PR #4424 Add additional name mappings for new LDA v64 potcars by @mkhorton
+    As title.
+- PR #4426 Fix uncertainty as int for `EnergyAdjustment` by @DanielYang59
+    - Avoid `==` or `!=` for possible float comparison
+    - Fix uncertainty as int for `EnergyAdjustment` cannot generate repr:
+    ```python
+    from pymatgen.entries.computed_entries import EnergyAdjustment
+    print(EnergyAdjustment(10, uncertainty=0))
+    ```
+    Gives:
+    ```
+    Traceback (most recent call last):
+    File "/Users/yang/developer/pymatgen/test_json.py", line 25, in <module>
+    print(EnergyAdjustment(10, uncertainty=0))
+    File "/Users/yang/developer/pymatgen/src/pymatgen/entries/computed_entries.py", line 108, in __repr__
+    return f"{type(self).__name__}({name=}, {value=:.3}, {uncertainty=:.3}, {description=}, {generated_by=})"
+    ^^^^^^^^^^^^^^^^^
+    ValueError: Precision not allowed in integer format specifier
+    ```
+- PR #4421 Cache `Lattice` property (`lengths/angles/volume`) for much faster `Structure.as_dict` by @DanielYang59
+    ### Summary
+    - `lengths/angles/volume` of `Lattice` would now be cached, related to #4385
+    - `verbosity` in `as_dict` of `PeriodicSite/Lattice` now explicitly requires literal 0 or 1 to be consistent with docstring, instead of checking `if verbosity > 0` (currently in grace period, only warning issued) https://github.com/materialsproject/pymatgen/blob/34608d0b92166e5fc4a9dd52ed465ae7dccfa525/src/pymatgen/core/lattice.py#L904-L905
+    ---
+    ### Cache frequently used `Lattice` properties
+    Currently `length/angles/volume` is not cached and is frequently used, for example accessing all lattice parameter related property would lead to `length/angles` being repeatedly calculated: https://github.com/materialsproject/pymatgen/blob/34608d0b92166e5fc4a9dd52ed465ae7dccfa525/src/pymatgen/core/lattice.py#L475-L524
+    `structure.as_dict` now around 8x faster
+    Before (1000 structure, each has 10-100 atoms):
+    ```
+    Total time: 3.29617 s
+    File: create_dummp_json_structure.py
+    Function: generate_and_save_structures at line 34
+    Line #      Hits         Time  Per Hit   % Time  Line Contents
+    ==============================================================
+    34                                           @profile
+    35                                           def generate_and_save_structures(n, output_dir):
+    36         1         20.0     20.0      0.0      os.makedirs(output_dir, exist_ok=True)
+    37
+    38      1001        222.0      0.2      0.0      for i in range(n):
+    39      1000     291789.0    291.8      8.9          structure = generate_dummy_structure()
+    40      1000        583.0      0.6      0.0          filename = f"structure_{i:04d}.json.gz"
+    41      1000       1942.0      1.9      0.1          filepath = os.path.join(output_dir, filename)
+    42
+    43      2000     224549.0    112.3      6.8          with gzip.open(filepath, "wb") as f:
+    44      1000    2761900.0   2761.9     83.8              dct = structure.as_dict()
+    45      1000      15163.0     15.2      0.5              f.write(orjson.dumps(dct))
+    ```
+    Now:
+    ```
+    Total time: 0.949622 s
+    File: create_dummp_json_structure.py
+    Function: generate_and_save_structures at line 34
+    Line #      Hits         Time  Per Hit   % Time  Line Contents
+    ==============================================================
+    34                                           @profile
+    35                                           def generate_and_save_structures(n, output_dir):
+    36         1         37.0     37.0      0.0      os.makedirs(output_dir, exist_ok=True)
+    37
+    38      1001        195.0      0.2      0.0      for i in range(n):
+    39      1000     286696.0    286.7     30.2          structure = generate_dummy_structure()
+    40      1000        511.0      0.5      0.1          filename = f"structure_{i:04d}.json.gz"
+    41      1000       1843.0      1.8      0.2          filepath = os.path.join(output_dir, filename)
+    42
+    43      2000     214130.0    107.1     22.5          with gzip.open(filepath, "wb") as f:
+    44      1000     431677.0    431.7     45.5              dct = structure.as_dict()
+    45      1000      14533.0     14.5      1.5              f.write(orjson.dumps(dct))
+    ```
+    ---
+    Also note `lattice` (the performance bottleneck) is not used in the dict for site: https://github.com/materialsproject/pymatgen/blob/34608d0b92166e5fc4a9dd52ed465ae7dccfa525/src/pymatgen/core/structure.py#L2856-L2857
+    So we could modify `as_dict` to control whether lattice would be generated at all
+    This could reduce the runtime slightly so I guess it's not worth the effort:
+    ```
+    Total time: 0.867376 s
+    ```
+- PR #4391 Add custom as_dict/from_dict method for proper initialization of attributes of IcohpCollection by @naik-aakash
+    Currently `IcohpCollection` instance is not serialized correctly, thus I added custom  from_dict  and as_dict methods here.
+
 ## v2025.5.28
 
 - PR #4411 Add `orjson` as required dependency as default JSON handler when custom encoder/decoder is not needed by @DanielYang59
