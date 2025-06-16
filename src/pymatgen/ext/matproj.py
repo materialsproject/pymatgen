@@ -483,8 +483,8 @@ class MPRester:
         Returns:
             PhononBandStructureSymmLine: A phonon band structure.
         """
-        prop = "ph_bs"
-        response = self.request(f"materials/phonon/?material_ids={material_id}&_fields={prop}")
+        prop = "phonon_bandstructure"
+        response = self.materials.phonon.search(material_ids=material_id)
         return response[0][prop]
 
     def get_phonon_dos_by_material_id(self, material_id: str):
@@ -496,7 +496,7 @@ class MPRester:
         Returns:
             CompletePhononDos: A phonon DOS object.
         """
-        prop = "ph_dos"
+        prop = "phonon_dos"
         response = self.request(f"materials/phonon/?material_ids={material_id}&_fields={prop}")
         return response[0][prop]
 
