@@ -352,7 +352,7 @@ class GruneisenPhononBandStructureSymmLine(GruneisenPhononBandStructure, PhononB
 
     def __init__(
         self,
-        qpoints: ArrayLike,
+        qpoints: Sequence[Kpoint],
         frequencies: ArrayLike,
         gruneisenparameters: ArrayLike,
         lattice: Lattice,
