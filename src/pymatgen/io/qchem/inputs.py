@@ -265,7 +265,7 @@ class QCInput(InputFile):
         if self.nbo is not None:
             combined_list.extend((self.nbo_template(self.nbo), ""))
         # geom_opt section
-        if self.geom_opt:
+        if self.geom_opt is not None:
             combined_list.extend((self.geom_opt_template(self.geom_opt), ""))
         # cdft section
         if self.cdft is not None:
