@@ -68,7 +68,7 @@ class PhononBandStructure(MSONable):
 
     def __init__(
         self,
-        qpoints: ArrayLike,
+        qpoints: Sequence[Kpoint],
         frequencies: ArrayLike,
         lattice: Lattice,
         nac_frequencies: ArrayLike | None = None,
@@ -80,8 +80,7 @@ class PhononBandStructure(MSONable):
     ) -> None:
         """
         Args:
-            qpoints: list of qpoint as numpy arrays, in frac_coords of the
-                given lattice by default
+            qpoints: list of qpoints as Kpoint objects.
             frequencies: list of phonon frequencies in THz as a numpy array with shape
                 (3*len(structure), len(qpoints)). The First index of the array
                 refers to the band and the second to the index of the qpoint.
@@ -354,7 +353,7 @@ class PhononBandStructureSymmLine(PhononBandStructure):
 
     def __init__(
         self,
-        qpoints: ArrayLike,
+        qpoints: Sequence[Kpoint],
         frequencies: ArrayLike,
         lattice: Lattice,
         has_nac: bool = False,
@@ -365,8 +364,7 @@ class PhononBandStructureSymmLine(PhononBandStructure):
     ) -> None:
         """
         Args:
-            qpoints: list of qpoints as numpy arrays, in frac_coords of the
-                given lattice by default
+            qpoints: list of qpoints as Kpoint objects
             frequencies: list of phonon frequencies in eV as a numpy array with shape
                 (3*len(structure), len(qpoints))
             lattice: The reciprocal lattice as a pymatgen Lattice object.
