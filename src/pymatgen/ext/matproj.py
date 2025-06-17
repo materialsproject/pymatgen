@@ -500,7 +500,7 @@ class MPRester:
             f"https://s3.us-east-1.amazonaws.com/{bucket}/{prefix}/{material_id}.json.gz",
             timeout=timeout,
         )
-        if response.status_code != 200:
+        if response.status_code not in {200, 400}:
             raise MPRestError(
                 f"Failed to retrieve data from OpenData with status code {response.status_code}:\n{response.reason}"
             )
