@@ -29,8 +29,6 @@ if TYPE_CHECKING:
     from numpy.typing import ArrayLike
     from typing_extensions import Self
 
-    from pymatgen.electronic_structure.bandstructure import Kpoint
-
 __author__ = "A. Bonkowski, J. George, G. Petretto"
 __copyright__ = "Copyright 2021, The Materials Project"
 __version__ = "0.1"
@@ -249,7 +247,7 @@ class GruneisenPhononBandStructure(PhononBandStructure):
 
     def __init__(
         self,
-        qpoints: Sequence[Kpoint],
+        qpoints: ArrayLike,
         frequencies: ArrayLike,
         gruneisenparameters: ArrayLike,
         lattice: Lattice,
@@ -352,7 +350,7 @@ class GruneisenPhononBandStructureSymmLine(GruneisenPhononBandStructure, PhononB
 
     def __init__(
         self,
-        qpoints: Sequence[Kpoint],
+        qpoints: ArrayLike,
         frequencies: ArrayLike,
         gruneisenparameters: ArrayLike,
         lattice: Lattice,
