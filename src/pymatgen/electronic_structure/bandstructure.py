@@ -18,7 +18,7 @@ from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
 from pymatgen.util.coord import pbc_diff
 
 if TYPE_CHECKING:
-    from collections.abc import Mapping, Sequence
+    from collections.abc import Mapping
     from typing import Any
 
     from numpy.typing import ArrayLike, NDArray
@@ -176,7 +176,7 @@ class BandStructure:
 
     def __init__(
         self,
-        kpoints: Sequence[Kpoint],
+        kpoints: ArrayLike,
         eigenvals: Mapping[Spin, ArrayLike],
         lattice: Lattice,
         efermi: float,
@@ -711,7 +711,7 @@ class BandStructureSymmLine(BandStructure, MSONable):
 
     def __init__(
         self,
-        kpoints: Sequence[Kpoint],
+        kpoints: ArrayLike,
         eigenvals: Mapping[Spin, ArrayLike],
         lattice: Lattice,
         efermi: float,
