@@ -9,6 +9,7 @@ https://materialsproject.org/dashboard.
 
 from __future__ import annotations
 
+import gzip
 import itertools
 import json
 import logging
@@ -19,17 +20,21 @@ import warnings
 from functools import partial
 from typing import TYPE_CHECKING, NamedTuple
 
+import numpy as np
 import orjson
 import requests
 from monty.json import MontyDecoder
 
-from pymatgen.core import SETTINGS
+from pymatgen.core import SETTINGS, Lattice
 from pymatgen.core import __version__ as PMG_VERSION
 from pymatgen.core.composition import Composition
+from pymatgen.electronic_structure.bandstructure import Kpoint
+from pymatgen.phonon import CompletePhononDos, PhononBandStructureSymmLine
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
 
 if TYPE_CHECKING:
     from collections.abc import Callable, Sequence
+    from typing import Any
 
     from typing_extensions import Self
 
@@ -474,8 +479,39 @@ class MPRester:
 
         return self.get_entries(criteria, *args, **kwargs)
 
-    def get_phonon_bandstructure_by_material_id(self, material_id: str):
+    def _retrieve_object_from_s3(self, material_id: str, bucket: str, prefix: str, timeout: float = 60) -> Any:
+        """
+        Retrieve data from Amazon S3 OpenData the non-canonical way, using requests.
+
+        This should be transitioned to boto3 if long-term support is desired,
+        or to expand pymatgen support of, e.g., electronic DOS, bandstructure, etc.
+
+        Args:
+            material_id (str): Materials Project material_id
+            bucket (str): the Materials Project bucket, either materialsproject-parsed
+                or materialsproject-build
+            prefix (str) : the prefix of the particular S3 key.
+            timeout (float = 60) : timeout in seconds for the requests command.
+
+        Returns:
+            json loaded object
+        """
+        response = requests.get(
+            f"https://s3.us-east-1.amazonaws.com/{bucket}/{prefix}/{material_id}.json.gz",
+            timeout=timeout,
+        )
+        if response.status_code not in {200, 400}:
+            raise MPRestError(
+                f"Failed to retrieve data from OpenData with status code {response.status_code}:\n{response.reason}"
+            )
+        return orjson.loads(gzip.decompress(response.content))
+
+    def get_phonon_bandstructure_by_material_id(self, material_id: str) -> PhononBandStructureSymmLine:
         """Get phonon bandstructure by material_id.
+
+        Note that this method borrows constructor methods built into
+        in the emmet-core model for this data. Calling the `to_pmg`
+        method of the emmet-core data model handles this.
 
         Args:
             material_id (str): Materials Project material_id
@@ -483,12 +519,27 @@ class MPRester:
         Returns:
             PhononBandStructureSymmLine: A phonon band structure.
         """
-        prop = "phonon_bandstructure"
-        response = self.materials.phonon.search(material_ids=material_id)
-        return response[0][prop]
+        data = self._retrieve_object_from_s3(
+            material_id, bucket="materialsproject-parsed", prefix="ph-bandstructures/dfpt"
+        )
+        rlatt = Lattice(data["reciprocal_lattice"])
+        return PhononBandStructureSymmLine(
+            [Kpoint(q, lattice=rlatt).frac_coords for q in data["qpoints"]],
+            np.array(data["frequencies"]),
+            rlatt,
+            has_nac=data["has_nac"],
+            eigendisplacements=np.array(data["eigendisplacements"]),
+            structure=data["structure"],
+            labels_dict={k: Kpoint(v, lattice=rlatt).frac_coords for k, v in (data["labels_dict"] or {}).items()},
+            coords_are_cartesian=False,
+        )
 
-    def get_phonon_dos_by_material_id(self, material_id: str):
+    def get_phonon_dos_by_material_id(self, material_id: str) -> CompletePhononDos:
         """Get phonon density of states by material_id.
+
+        Note that this method borrows constructor methods built into
+        in the emmet-core model for this data. Calling the `to_pmg`
+        method of the emmet-core data model handles this.
 
         Args:
             material_id (str): Materials Project material_id
@@ -496,9 +547,9 @@ class MPRester:
         Returns:
             CompletePhononDos: A phonon DOS object.
         """
-        prop = "phonon_dos"
-        response = self.request(f"materials/phonon/?material_ids={material_id}&_fields={prop}")
-        return response[0][prop]
+        data = self._retrieve_object_from_s3(material_id, bucket="materialsproject-parsed", prefix="ph-dos/dfpt")
+        data["pdos"] = data.pop("projected_densities", None)
+        return CompletePhononDos.from_dict(data)
 
 
 class MPRestError(Exception):
