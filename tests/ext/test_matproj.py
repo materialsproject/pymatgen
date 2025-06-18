@@ -104,10 +104,13 @@ def test_get_entry_by_material_id(mprester):
         mprester.get_entry_by_material_id("mp-2022")  # "mp-2022" does not exist
 
 
+@pytest.mark.skip(reason="MP staff broke the API: Jun 2025")
 def test_get_phonon_data_by_material_id(mprester):
     bs = mprester.get_phonon_bandstructure_by_material_id("mp-661")
+    print(type(bs))
     assert isinstance(bs, PhononBandStructureSymmLine)
     dos = mprester.get_phonon_dos_by_material_id("mp-661")
+    print(type(dos))
     assert isinstance(dos, CompletePhononDos)
 
 

@@ -43,6 +43,7 @@ def _is_homogenous(val: list):
         return False
 
 
+# TODO: Phase out redundant class attributes to data stored in `properties` and `site_properties` dicts.
 class JOutStructure(Structure):
     """Class object for storing a single JDFTx optimization step.
 
@@ -385,21 +386,21 @@ class JOutStructure(Structure):
         instance._parse_emin_lines(line_collections["emin"]["lines"])
         # Lattice must be parsed before posns/forces in case of direct coordinates
         instance._parse_lattice_lines(line_collections["lattice"]["lines"])
-        instance._parse_forces_lines(line_collections["forces"]["lines"])
+        # Posns must be parsed before forces and lowdin analysis so that they can be stored in site_properties
         instance._parse_posns_lines(line_collections["posns"]["lines"])
-        # Thermostat-velocity dumped alongside positions
-        instance._parse_thermostat_line(line_collections["posns"]["lines"])
-        # Lowdin must be parsed after posns
+        instance._parse_forces_lines(line_collections["forces"]["lines"])
         instance._parse_lowdin_lines(line_collections["lowdin"]["lines"])
-        # Strain and stress can be parsed at any point
+        # Can be parsed at any point
         instance._parse_strain_lines(line_collections["strain"]["lines"])
         instance._parse_stress_lines(line_collections["stress"]["lines"])
         instance._parse_kinetic_stress_lines(line_collections["kinetic_stress"]["lines"])
-
+        instance._parse_thermostat_line(line_collections["posns"]["lines"])  # Thermostat-velocity dumped with positions
         # In case of single-point calculation
         instance._init_e_sp_backup()
         # Setting attributes from elecmindata (set during _parse_emin_lines)
         instance._elecmindata_postinit()
+        # Set relevant properties in self.properties
+        instance._fill_properties()
         # Done last in case of any changes to site-properties
         instance._init_structure()
         return instance
@@ -749,6 +750,7 @@ class JOutStructure(Structure):
                 forces *= 1 / bohr_to_ang
             forces *= Ha_to_eV
             self.forces = forces
+            self.add_site_property("forces", list(forces))
 
     def _parse_ecomp_lines(self, ecomp_lines: list[str]) -> None:
         """Parse energy component lines.
@@ -959,6 +961,22 @@ class JOutStructure(Structure):
             generic_lines.append(line_text)
         return generic_lines, collecting, collected
 
+    def _fill_properties(self) -> None:
+        """Fill properties attribute."""
+        self.properties = {
+            "eopt_type": self.eopt_type,
+            "opt_type": self.opt_type,
+            "etype": self.etype,
+            "energy": self.e,
+            "t_s": self.t_s,
+            "geom_converged": self.geom_converged,
+            "geom_converged_reason": self.geom_converged_reason,
+            "stress": self.stress,
+            "kinetic_stress": self.kinetic_stress,
+            "strain": self.strain,
+            "thermostat_velocity": self.thermostat_velocity,
+        }
+
     def _init_structure(self) -> None:
         """Initialize structure attribute."""
         self.structure = Structure(
@@ -967,6 +985,7 @@ class JOutStructure(Structure):
             coords=self.cart_coords,
             site_properties=self.site_properties,
             coords_are_cartesian=True,
+            properties=self.properties,
         )
 
     def as_dict(self) -> dict:
