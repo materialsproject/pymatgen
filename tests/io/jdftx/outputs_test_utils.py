@@ -514,14 +514,6 @@ for known2 in [ex_fillings_line2_known, ex_iter_line2_known, ex_subspace_line2_k
 
 example_vib_outfile_path = ex_out_files_dir / Path("vib.out")
 example_vib_modes_known = [
-    #     Imaginary mode 1:
-    # Frequency: 0.003211i Eh [ 705i cm^-1 ]
-    # Degeneracy: 1 of 1
-    # IR intensity: 0.1015 e^2/amu [ 99.0 km/mol ]
-    # Displacements:
-    # disp H  -0.001502301500021   0.016139807700462   0.004794115920733
-    # disp H  -0.003227666066075  -0.003444853384899  -0.005623654997270
-    # disp H   0.003563062362181  -0.009568755195267  -0.010017876395276
     {
         "Type": "Imaginary",
         "Type index": 1,
@@ -537,14 +529,6 @@ example_vib_modes_known = [
         )
         * bohr_to_ang,
     },
-    # Imaginary mode 2:
-    # Frequency: 0.001816i Eh [ 399i cm^-1 ]
-    # Degeneracy: 1 of 1
-    # IR intensity: 0.0014 e^2/amu [ 1.3 km/mol ]
-    # Displacements:
-    # disp H   0.011897355539145   0.001393779704454  -0.010870152434402
-    # disp H  -0.014950015017923   0.003952780094546   0.004794677356827
-    # disp H   0.002882750977633  -0.003471024246565   0.000366070625853
     {
         "Type": "Imaginary",
         "Type index": 2,
@@ -560,14 +544,6 @@ example_vib_modes_known = [
         )
         * bohr_to_ang,
     },
-    # Imaginary mode 3:
-    # Frequency: 0.000986i Eh [ 217i cm^-1 ]
-    # Degeneracy: 1 of 1
-    # IR intensity: 0.0003 e^2/amu [ 0.2 km/mol ]
-    # Displacements:
-    # disp H   0.001831896775059  -0.000519493708404  -0.000826114063229
-    # disp H   0.008215382766313   0.013135969275973   0.003002047268263
-    # disp H  -0.008612872298526  -0.014707651990282   0.000628692658427
     {
         "Type": "Imaginary",
         "Type index": 3,
@@ -583,14 +559,6 @@ example_vib_modes_known = [
         )
         * bohr_to_ang,
     },
-    # Imaginary mode 4:
-    # Frequency: 0.000584i Eh [ 128i cm^-1 ]
-    # Degeneracy: 1 of 1
-    # IR intensity: 0.0009 e^2/amu [ 0.9 km/mol ]
-    # Displacements:
-    # disp H  -0.002873587752642  -0.000357270159722   0.009507035658568
-    # disp H  -0.002773621141597  -0.002278652939269   0.008444977841195
-    # disp H   0.010719232053596  -0.008451829956361   0.013226919526156
     {
         "Type": "Imaginary",
         "Type index": 4,
@@ -606,14 +574,6 @@ example_vib_modes_known = [
         )
         * bohr_to_ang,
     },
-    # Zero mode 1:
-    # Frequency: 0.000010i Eh [ 2i cm^-1 ]
-    # Degeneracy: 1 of 2
-    # IR intensity: 0.0000 e^2/amu [ 0.0 km/mol ]
-    # Displacements:
-    # disp H   0.007597327520746   0.010712391019933   0.002704566793247
-    # disp H   0.007881150132850   0.010845838899770   0.002620013897312
-    # disp H   0.007765190577341   0.010591653551291   0.002319182104746
     {
         "Type": "Zero",
         "Type index": 1,
@@ -629,14 +589,6 @@ example_vib_modes_known = [
         )
         * bohr_to_ang,
     },
-    # Zero mode 2:
-    # Frequency: 0.000050 Eh [ 11 cm^-1 ]
-    # Degeneracy: 2 of 2
-    # IR intensity: 0.0000 e^2/amu [ 0.0 km/mol ]
-    # Displacements:
-    # disp H   0.010928992861829  -0.007092818205113  -0.003874657684275
-    # disp H   0.010923114633010  -0.007525781466854  -0.004091667059576
-    # disp H   0.010694926666458  -0.006058360112810  -0.003964322783956
     {
         "Type": "Zero",
         "Type index": 2,
@@ -652,14 +604,6 @@ example_vib_modes_known = [
         )
         * bohr_to_ang,
     },
-    # Real mode 1:
-    # Frequency: 0.001795 Eh [ 394 cm^-1 ]
-    # Degeneracy: 1 of 1
-    # IR intensity: 0.0050 e^2/amu [ 4.9 km/mol ]
-    # Displacements:
-    # disp H   0.004689955512831  -0.004561918723060   0.010223393583369
-    # disp H  -0.001077029836943  -0.001525888489046   0.014555134211414
-    # disp H  -0.002282652762669   0.001952724669842  -0.013136592620777
     {
         "Type": "Real",
         "Type index": 1,
@@ -675,14 +619,6 @@ example_vib_modes_known = [
         )
         * bohr_to_ang,
     },
-    # Real mode 2:
-    # Frequency: 0.002701 Eh [ 593 cm^-1 ]
-    # Degeneracy: 1 of 1
-    # IR intensity: 0.0896 e^2/amu [ 87.4 km/mol ]
-    # Displacements:
-    # disp H   0.011841920013071   0.006471479676558   0.004038350981094
-    # disp H   0.002080302463227  -0.010601817998144   0.000214161706513
-    # disp H  -0.012420751778051   0.000399317651251   0.008639012103301
     {
         "Type": "Real",
         "Type index": 2,
@@ -698,14 +634,6 @@ example_vib_modes_known = [
         )
         * bohr_to_ang,
     },
-    # Real mode 3:
-    # Frequency: 0.019827 Eh [ 4352 cm^-1 ]
-    # Degeneracy: 1 of 1
-    # IR intensity: 0.0376 e^2/amu [ 36.6 km/mol ]
-    # Displacements:
-    # disp H   0.007032223801816  -0.007326012017446   0.012995955668716
-    # disp H  -0.006945332786266   0.007072807313742  -0.013183707786736
-    # disp H  -0.000064297833090   0.000203820782562   0.000350655054206
     {
         "Type": "Real",
         "Type index": 3,
