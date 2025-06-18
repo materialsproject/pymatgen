@@ -1178,7 +1178,6 @@ class JDFTXOutfileSlice:
             end_line = start_line + 1
             while end_line < len(text) and text[end_line].strip():
                 end_line += 1
-            # start_line += 1
             mode_dicts.append(self._parse_vibrational_mode_lines(text[start_line:end_line]))
         self.vibrational_modes = mode_dicts
 
