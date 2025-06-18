@@ -513,6 +513,13 @@ for known2 in [ex_fillings_line2_known, ex_iter_line2_known, ex_subspace_line2_k
 
 
 example_vib_outfile_path = ex_out_files_dir / Path("vib.out")
+example_vib_nrg_components = {
+    "T": 298.0,
+    "ZPE": 0.012162 * Ha_to_eV,
+    "Evib": 0.012641 * Ha_to_eV,
+    "TSvib": 0.000686 * Ha_to_eV,
+    "Avib": 0.011954 * Ha_to_eV,
+}
 example_vib_modes_known = [
     {
         "Type": "Imaginary",

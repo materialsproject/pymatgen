@@ -305,6 +305,7 @@ class JDFTXOutfileSlice:
     elec_alpha: float | None = None
     elec_linmin: float | None = None
     vibrational_modes: list[dict[str, Any]] | None = None
+    vibrational_energy_components: dict[str, float] | None = None
 
     def _get_mu(self) -> None | float:
         """Sets mu from most recent JOutStructure. (Equivalent to efermi)"""
@@ -1180,6 +1181,30 @@ class JDFTXOutfileSlice:
                 end_line += 1
             mode_dicts.append(self._parse_vibrational_mode_lines(text[start_line:end_line]))
         self.vibrational_modes = mode_dicts
+        vib_nrg_components_start_line = find_all_key("Vibrational free energy components", text)[-1]
+        end_line = vib_nrg_components_start_line + 1
+        while end_line < len(text) and text[end_line].strip():
+            end_line += 1
+        vib_nrg_lines = text[vib_nrg_components_start_line:end_line]
+        self.vibrational_energy_components = self._parse_vibrational_energy_components_lines(vib_nrg_lines)
+
+    def _parse_vibrational_energy_components_lines(self, text: list[str]) -> dict:
+        """Parse vibrational energy components from the output file.
+
+        Args:
+            text (list[str]): Output of read_file for out file.
+
+        Returns:
+            dict: Dictionary containing vibrational energy components.
+        """
+        vib_nrg_components = {}
+        if "T" in text[0]:
+            vib_nrg_components["T"] = float(text[0].split("=")[1].split("K")[0].strip())
+        for line in text[1:]:
+            if ":" in line:
+                key, value = line.split(":", 1)
+                vib_nrg_components[key.strip()] = float(value.strip()) * Ha_to_eV
+        return vib_nrg_components
 
     def _parse_vibrational_mode_lines(self, text: list[str]) -> dict:
         """Parse vibrational mode lines from the output file.
