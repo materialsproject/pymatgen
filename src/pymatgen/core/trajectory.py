@@ -17,7 +17,7 @@ from monty.json import MSONable
 
 from pymatgen.core.structure import Composition, DummySpecies, Element, Lattice, Molecule, Species, Structure
 from pymatgen.io.ase import NO_ASE_ERR, AseAtomsAdaptor
-from pymatgen.io.gaussian import _traj_to_gaussian_log_lines
+from pymatgen.io.gaussian import _traj_to_gaussian_log
 
 if NO_ASE_ERR is None:
     from ase.io.trajectory import Trajectory as AseTrajectory
@@ -494,39 +494,22 @@ class Trajectory(MSONable):
             filename: File to write. File does not need to end with '.log' to be readable by Gaussview.
                 The suffix ".logx" is recommended to distinguish from real Gaussian log files.
             site_property_map: A mapping between implemented Gaussian properties and pymatgen properties.
-                i.e. providing {`gview_mulliken_charges_key`: `charges`} will write the data stored in
+                i.e. providing {"mulliken charges": "charges"} will write the data stored in
                 `Trajectory[i].site_properties["charges"]` as Gaussian logs the Mulliken charges for each site.
-                    The keys of implemented Gaussian properties are stored in `pymatgen.core.trajectory` as constants
-                in the form of `gview_<property>_key`, e.g. `gview_mulliken_charges_key`. The current implemented
-                Gaussian properties and the data format they expect are:
-                        - `gview_mulliken_charges_key`: list[float]
-                        - ` "esp charges"`: list[float]
-                        - `"nbo charges"`: list[float]
-                    If None (default), the mapping will be set to fill all currently implemented Gaussian properties
-                with the "charges" property from the site properties.
-            write_lattice: Whether to write the lattice information in the log file. This will enable the logged
-                forces to be readable by Gaussview.
+                The currently implemented property keys are "mulliken charges", "mulliken spin", "nbo charges",
+                "nbo spin", and "esp charges". By default all charge keys are mapped to "charges", and all spin
+                keys are mapped to "magmom". All keys must map to site properties of `list[float]`
+            write_lattice: Whether to write the lattice information in the log file. Setting this to false will
+                not write the lattice information in the log file, but will enable the "forces" site properties
+                to be readable by Gaussview.
         """
-        if site_property_map is None:
-            # Default mapping fills all currently implemented Gaussian properties
-            site_property_map = {
-                "mulliken charges": "charges",
-                "esp charges": "charges",
-                "nbo charges": "charges",
-            }
         # Each frame must have an energy to be read properly by Gaussview.
         if hasattr(self, "frame_properties") and self.frame_properties is not None:
-            energies = []
-            for fp in self.frame_properties:
-                if "energy" in fp:
-                    energies.append(fp["energy"])
-                else:
-                    energies.append(0)
+            energies = [fp.get("energy", 0) for fp in self.frame_properties]
         else:
             energies = [0] * len(self)
-        # Ensure trajectory is in position form
         self.to_positions()
-        lines = _traj_to_gaussian_log_lines(self, write_lattice, energies, site_property_map)
+        lines = _traj_to_gaussian_log(self, write_lattice, energies, site_property_map)
         with open(filename, "w") as file:
             file.write(lines)
         file.close()
