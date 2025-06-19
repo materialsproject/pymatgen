@@ -17,6 +17,7 @@ from monty.json import MSONable
 
 from pymatgen.core.structure import Composition, DummySpecies, Element, Lattice, Molecule, Species, Structure
 from pymatgen.io.ase import NO_ASE_ERR, AseAtomsAdaptor
+from pymatgen.io.gaussian import _traj_to_gaussian_log_lines
 
 if NO_ASE_ERR is None:
     from ase.io.trajectory import Trajectory as AseTrajectory
@@ -28,7 +29,6 @@ if TYPE_CHECKING:
     from collections.abc import Iterator, Sequence
     from typing import Any
 
-    from numpy.typing import NDArray
     from typing_extensions import Self
 
     from pymatgen.util.typing import PathLike, SitePropsType
@@ -500,8 +500,8 @@ class Trajectory(MSONable):
                 in the form of `gview_<property>_key`, e.g. `gview_mulliken_charges_key`. The current implemented
                 Gaussian properties and the data format they expect are:
                         - `gview_mulliken_charges_key`: list[float]
-                        - `gview_esp_charges_key`: list[float]
-                        - `gview_nbo_charges_key`: list[float]
+                        - ` "esp charges"`: list[float]
+                        - `"nbo charges"`: list[float]
                     If None (default), the mapping will be set to fill all currently implemented Gaussian properties
                 with the "charges" property from the site properties.
             write_lattice: Whether to write the lattice information in the log file. This will enable the logged
@@ -510,9 +510,9 @@ class Trajectory(MSONable):
         if site_property_map is None:
             # Default mapping fills all currently implemented Gaussian properties
             site_property_map = {
-                gview_mulliken_charges_key: "charges",
-                gview_esp_charges_key: "charges",
-                gview_nbo_charges_key: "charges",
+                "mulliken charges": "charges",
+                "esp charges": "charges",
+                "nbo charges": "charges",
             }
         # Each frame must have an energy to be read properly by Gaussview.
         if hasattr(self, "frame_properties") and self.frame_properties is not None:
@@ -526,9 +526,9 @@ class Trajectory(MSONable):
             energies = [0] * len(self)
         # Ensure trajectory is in position form
         self.to_positions()
-        lines = _traj_to_logx_lines(self, write_lattice, energies, site_property_map, is_done=True)
+        lines = _traj_to_gaussian_log_lines(self, write_lattice, energies, site_property_map)
         with open(filename, "w") as file:
-            file.write("\n".join(lines))
+            file.write(lines)
         file.close()
 
     def as_dict(self) -> dict:
@@ -931,207 +931,3 @@ class Trajectory(MSONable):
             temp_file.close()
 
         return ase_traj
-
-
-gview_mulliken_charges_key = "mulliken charges"
-gview_esp_charges_key = "esp charges"
-gview_nbo_charges_key = "nbo charges"
-
-
-def _traj_to_logx_lines(
-    traj: Trajectory, do_cell: bool, energies: list[float], site_property_map: dict, is_done: bool = False
-) -> list[str]:
-    dump_lines = ["", " Entering Link 1 ", " ", *_log_input_orientation(traj[0], do_cell=do_cell)]
-    for i in range(len(traj)):
-        dump_lines += _log_input_orientation(traj[i], do_cell=do_cell)
-        dump_lines += [f" SCF Done:  E =  {energies[i]}", "", ""]
-        if gview_mulliken_charges_key in site_property_map:
-            dump_lines += _log_mulliken_charges(traj[i], site_property_map[gview_mulliken_charges_key])
-        if gview_esp_charges_key in site_property_map:
-            dump_lines += _log_esp_charges(traj[i], site_property_map[gview_esp_charges_key])
-        if gview_nbo_charges_key in site_property_map:
-            dump_lines += _log_nbo_charges(traj[i], site_property_map[gview_nbo_charges_key])
-        dump_lines += _log_forces(traj[i])
-        dump_lines += _opt_spacer(i, len(traj))
-    if is_done:
-        dump_lines += _log_input_orientation(traj[-1])
-        dump_lines += [" Normal termination of Gaussian 16"]
-    return dump_lines
-
-
-def _log_input_orientation(frame: Structure | Molecule, do_cell=False) -> list[str]:
-    dump_lines = [
-        "                        Standard orientation:                          ",
-        " ---------------------------------------------------------------------",
-        " Center     Atomic      Atomic             Coordinates (Angstroms)",
-        " Number     Number       Type             X           Y           Z",
-        " ---------------------------------------------------------------------",
-    ]
-    at_ns = [site.specie.number for site in frame.sites]
-    at_posns = frame.cart_coords
-    nAtoms = len(at_ns)
-    for i in range(nAtoms):
-        dump_lines.append(f" {i + 1} {at_ns[i]} 0 ")
-        for j in range(3):
-            dump_lines[-1] += f"{at_posns[i][j]} "
-    # TODO: Gaussian also logs the a/b/c angles and lattice vector lengths, but I don't know
-    # if those are read by Gaussview.
-    if do_cell:
-        cell = frame.lattice.matrix
-        for i in range(3):
-            dump_lines.append(f"{i + nAtoms + 1} -2 0 ")
-            for j in range(3):
-                dump_lines[-1] += f"{cell[i][j]} "
-    dump_lines.append(" ---------------------------------------------------------------------")
-    return dump_lines
-
-
-def _opt_spacer(i, nSteps) -> list[str]:
-    dump_lines = [
-        "",
-        " GradGradGradGradGradGradGradGradGradGradGradGradGradGradGradGradGradGrad",
-        "",
-        f" Step number   {i + 1}",
-    ]
-    if i + 1 == nSteps:
-        dump_lines += [" Optimization completed.", "    -- Stationary point found."]
-    dump_lines += ["", " GradGradGradGradGradGradGradGradGradGradGradGradGradGradGradGradGradGrad"]
-    return dump_lines
-
-
-def _log_mulliken_charges(
-    frame: Structure | Molecule, site_property: str = "charges", spin_site_property: str = "magmom"
-) -> list[str]:
-    dump_lines = []
-    if site_property in frame.site_properties:
-        charges = np.array(frame.site_properties[site_property])
-        nAtoms = len(charges)
-        symbols = [site.specie.symbol for site in frame.sites]
-        dump_lines = [
-            "Mulliken charges:",
-            "1",
-        ]
-        spins: None | NDArray = None
-        if spin_site_property in frame.site_properties:
-            spins = np.array(frame.site_properties[spin_site_property])
-            dump_lines[-2] = dump_lines[-2].replace(":", " and spin densities:")
-            dump_lines[-1] += " 2"
-        for i in range(nAtoms):
-            dump_lines.append(f"{int(i + 1)} {symbols[i]} {charges[i]} ")
-            if spins is not None:
-                dump_lines[-1] += f"{spins[i]} "
-        dump_lines.append(f" Sum of Mulliken charges = {np.sum(charges)}")
-        if spins is not None:
-            dump_lines[-1] += f" {np.sum(spins)}"
-    return dump_lines
-
-
-def _log_esp_charges(frame: Structure | Molecule, site_property: str = "charges") -> list[str]:
-    dump_lines = []
-    if site_property in frame.site_properties:
-        posns = frame.cart_coords
-        symbols = [site.specie.symbol for site in frame.sites]
-        charges = np.array(frame.site_properties[site_property])
-        dump_lines += ["", " Charges from ESP fit", "  ESP charges:", "               1"]
-        for i, symbol in enumerate(symbols):
-            dump_lines.append(f"     {i + 1} {symbol} {charges[i]:.6f}")
-        charge = np.sum(charges)
-        dipole = np.zeros(3)
-        for i, posn in enumerate(posns):
-            dipole += posn * charges[i]
-        tot = np.linalg.norm(dipole)
-        dump_lines.append(f" Charge= {charge:.6f} Dipole= {' '.join(str(v) for v in dipole)} Tot=   {tot}")
-    return dump_lines
-
-
-_gview_nbo_header_lines = [
-    " Summary of Natural Population Analysis:  ",
-    "",
-    "                                       Natural Population ",
-    "                Natural  ----------------------------------------------- ",
-    "    Atom  No    Charge         Core      Valence    Rydberg      Total",
-    " -----------------------------------------------------------------------",
-]
-
-
-def _gview_log_nbo_fields(
-    frame: Structure | Molecule,
-    charges: NDArray,
-    cores: NDArray | None = None,
-    valences: NDArray | None = None,
-    rydbergs: NDArray | None = None,
-    totals: NDArray | None = None,
-) -> list[str]:
-    # As far as I can tell, cores, valences, and rydbergs don't affect anything in gview.
-    if cores is None:
-        cores = np.zeros_like(charges)
-    if valences is None:
-        valences = np.zeros_like(charges)
-    if rydbergs is None:
-        rydbergs = np.zeros_like(charges)
-    if totals is None:
-        totals = cores + valences + rydbergs
-    dump_lines = _gview_nbo_header_lines.copy()
-    symbols = [site.specie.symbol for site in frame.sites]
-    for i, symbol in enumerate(symbols):
-        dump_lines.append(
-            f"{symbol} {i + 1} {charges[i]:.6f} {cores[i]:.6f} {valences[i]:.6f} {rydbergs[i]:.6f} {totals[i]:.6f}"
-        )
-    dump_lines.append(" =======================================================================")
-    dump_lines.append(
-        "   * Total *   " + " ".join(f"{np.sum(arr):.6f}" for arr in (charges, cores, valences, rydbergs, totals))
-    )
-    return dump_lines
-
-
-def _log_nbo_charges(
-    frame: Structure | Molecule, site_property: str = "charges", spin_site_property: str = "magmom"
-) -> list[str]:
-    dump_lines = []
-    if site_property in frame.site_properties:
-        nbo_charges = np.array(frame.site_properties[site_property])
-        dump_lines += _gview_log_nbo_fields(frame, nbo_charges)
-        spins: None | NDArray = None
-        if spin_site_property in frame.site_properties:
-            spins = np.array(frame.site_properties[spin_site_property])
-            # NBO spins are evaluated as the difference between the "total" nbo fields for alpha and beta densities.
-            alpha_spins = np.maximum(np.zeros(len(spins)), spins)
-            beta_spins = np.abs(np.minimum(np.zeros(len(spins)), spins))
-            for spin_type, spin_arr in zip(("Alpha", "Beta"), (alpha_spins, beta_spins), strict=False):
-                dump_lines += [f" {spin_type} spin orbitals "]
-                dump_lines += _gview_log_nbo_fields(
-                    frame, np.zeros_like(spin_arr), cores=None, valences=None, rydbergs=None, totals=spin_arr
-                )
-    return dump_lines
-
-
-def _log_forces(frame: Structure | Molecule) -> list[str]:
-    # Gaussian calculations with periodic boundary conditions will log forces on lattice vectors, but these forces
-    # do not appear to be read by Gaussview, and writing forces for lattice vectors does not seem to fix the issue
-    # of atomic forces not being read by Gaussview (for log files with lattice vectors).
-    dump_lines = []
-    if "forces" in frame.site_properties:
-        dump_lines = [
-            "-------------------------------------------------------------------",
-            " Center     Atomic                   Forces (Hartrees/Bohr)",
-            " Number     Number              X              Y              Z",
-            " -------------------------------------------------------------------",
-        ]
-        forces = frame.site_properties["forces"]
-        atomic_numbers = [site.specie.number for site in frame.sites]
-        for i, number in enumerate(atomic_numbers):
-            add_str = f" {i + 1} {number}"
-            force = forces[i]
-            for j in range(3):
-                add_str += f"\t{force[j]:.9f}"
-            dump_lines.append(add_str)
-        lattice_forces = np.zeros((3, 3))
-        for ilat in range(3):
-            dump_lines.append(
-                "              -2          " + "   ".join(f"{lattice_forces[ilat][j]:.9f}" for j in range(3))
-            )
-        dump_lines.append(" -------------------------------------------------------------------")
-        aforces = np.array(forces)
-        nforces = np.linalg.norm(aforces, axis=1)
-        dump_lines.append(f" Cartesian Forces:  Max {max(nforces):.9f} RMS {np.std(nforces):.9f}")
-    return dump_lines
