@@ -420,7 +420,9 @@ class PhaseDiagram(MSONable):
         else:
             entries = [MontyDecoder().process_decoded(entry) for entry in computed_data["all_entries"]]
 
-            computed_data["qhull_entries"] = [computed_data["all_entries"][i] for i in computed_data["qhull_entries"]]
+            complete_qhull_entries = [computed_data["all_entries"][i] for i in computed_data["qhull_entries"]]
+
+            computed_data = computed_data | {"qhull_entries": complete_qhull_entries}
 
         return cls(entries, elements, computed_data=computed_data)
 
