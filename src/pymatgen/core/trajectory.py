@@ -509,7 +509,8 @@ class Trajectory(MSONable):
         else:
             energies = [0] * len(self)
         self.to_positions()
-        lines = _traj_to_gaussian_log(self, write_lattice, energies, site_property_map)
+        _sp_map = site_property_map or {}
+        lines = _traj_to_gaussian_log(self, write_lattice, energies, _sp_map)
         with open(filename, "w") as file:
             file.write(lines)
         file.close()

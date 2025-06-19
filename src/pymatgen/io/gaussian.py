@@ -1339,21 +1339,13 @@ class GaussianOutput:
 
 
 def _traj_to_gaussian_log(traj: Trajectory, do_cell: bool, energies: list[float], sp_map: dict | None) -> str:
-    _sp_map = {
-        "mulliken charges": "charges",
-        "mulliken spin": "magmom",
-        "nbo charges": "charges",
-        "nbo spin": "magmom",
-        "esp charges": "charges",
-    }
-    _sp_map.update(sp_map or {})
     dump_lines = ["", " Entering Link 1 ", " ", *_log_input_orientation(traj[0], do_cell=do_cell)]
     for i in range(len(traj)):
         dump_lines += [
             *[*_log_input_orientation(traj[i], do_cell=do_cell), f"SCF Done:  E =  {energies[i]:.6f}  "],
-            *_log_mulliken(traj[i], _sp_map["mulliken charges"], _sp_map["mulliken spin"]),
-            *_log_esp(traj[i], _sp_map["esp charges"]),
-            *_log_nbo(traj[i], _sp_map["nbo charges"], _sp_map["nbo spin"]),
+            *_log_mulliken(traj[i], "charges", "spin"),
+            *_log_esp(traj[i], "charges"),
+            *_log_nbo(traj[i], "charges", "spin"),
             *[*_log_forces(traj[i]), "", " " + "Grad" * 18, "", f" Step number {i + 1}", "", " " + "Grad" * 18],
         ]
     dump_lines[-2:-2] = [" Optimization completed.", "    -- Stationary point found."]
