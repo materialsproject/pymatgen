@@ -1436,9 +1436,7 @@ def _log_nbo(frame: Structure | Molecule, charge_key: str, spin_key: str) -> lis
 
 
 def _log_forces(frame: Structure | Molecule, do_cell: bool = True) -> list[str]:
-    # Gaussian calculations with periodic boundary conditions will log forces on lattice vectors, but these forces
-    # do not appear to be read by Gaussview, and writing forces for lattice vectors does not seem to fix the issue
-    # of atomic forces not being read by Gaussview (for log files with lattice vectors).
+    # TODO: Find the trick for getting Gaussview to read forces on PBC calculations
     dump_lines = []
     if "forces" in frame.site_properties:
         forces = np.array(frame.site_properties["forces"])
