@@ -1371,14 +1371,11 @@ def _log_input_orientation(frame: Structure | Molecule, do_cell=False) -> list[s
         " " + "-" * 69,
     ]
     at_ns = [site.specie.number for site in frame.sites]
-    at_posns = frame.cart_coords
-    nAtoms = len(at_ns)
-    for i in range(nAtoms):
-        dump_lines.append(f" {i + 1} {at_ns[i]} 0 " + " ".join(f"{at_posns[i][j]:.6f}" for j in range(3)) + " ")
+    dump_lines += [f"{i + 1} {at_ns[i]} 0 {p[0]:.6f} {p[1]:.6f} {p[2]:.6f} " for i, p in enumerate(frame.cart_coords)]
     if do_cell:
         cell = frame.lattice.matrix
         for i in range(3):
-            dump_lines.append(f"{i + nAtoms + 1} -2 0 {cell[i][0]:.6f} {cell[i][1]:.6f} {cell[i][2]:.6f} ")
+            dump_lines.append(f"{i + len(at_ns) + 1} -2 0 {cell[i][0]:.6f} {cell[i][1]:.6f} {cell[i][2]:.6f} ")
     dump_lines.append(" ---------------------------------------------------------------------")
     return dump_lines
 
