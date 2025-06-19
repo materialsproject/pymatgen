@@ -1355,12 +1355,7 @@ def _traj_to_gaussian_log_lines(traj: Trajectory, do_cell: bool, energies: list[
             *_log_esp_charges(traj[i], _site_property_map["esp charges"]),
             *_log_nbo_fields(traj[i], _site_property_map["nbo charges"], _site_property_map["nbo spin"]),
             *_log_forces(traj[i]),
-            "",
-            " " + "Grad" * 18,
-            "",
-            f" Step number {i + 1}",
-            "",
-            " " + "Grad" * 18,
+            *["", " " + "Grad" * 18, "", f" Step number {i + 1}", "", " " + "Grad" * 18],
         ]
     dump_lines[-2:-2] = [" Optimization completed.", "    -- Stationary point found."]
     dump_lines += [*_log_input_orientation(traj[-1], do_cell=do_cell), " Normal termination of Gaussian 16"]
