@@ -1350,13 +1350,11 @@ def _traj_to_gaussian_log(traj: Trajectory, do_cell: bool, energies: list[float]
     dump_lines = ["", " Entering Link 1 ", " ", *_log_input_orientation(traj[0], do_cell=do_cell)]
     for i in range(len(traj)):
         dump_lines += [
-            *_log_input_orientation(traj[i], do_cell=do_cell),
-            f"SCF Done:  E =  {energies[i]:.6f}  ",
+            *[*_log_input_orientation(traj[i], do_cell=do_cell), f"SCF Done:  E =  {energies[i]:.6f}  "],
             *_log_mulliken(traj[i], _sp_map["mulliken charges"], _sp_map["mulliken spin"]),
             *_log_esp(traj[i], _sp_map["esp charges"]),
             *_log_nbo(traj[i], _sp_map["nbo charges"], _sp_map["nbo spin"]),
-            *_log_forces(traj[i]),
-            *["", " " + "Grad" * 18, "", f" Step number {i + 1}", "", " " + "Grad" * 18],
+            *[*_log_forces(traj[i]), "", " " + "Grad" * 18, "", f" Step number {i + 1}", "", " " + "Grad" * 18],
         ]
     dump_lines[-2:-2] = [" Optimization completed.", "    -- Stationary point found."]
     dump_lines += [*_log_input_orientation(traj[-1], do_cell=do_cell), " Normal termination of Gaussian 16"]
@@ -1368,8 +1366,7 @@ def _log_input_orientation(frame: Structure | Molecule, do_cell=True) -> list[st
     dump_lines = [
         *[" " * 24 + "Standard orientation:" + " " * 26, " " + "-" * 69],
         " Center     Atomic      Atomic             Coordinates (Angstroms)",
-        " Number     Number       Type             X           Y           Z",
-        " " + "-" * 69,
+        *[" Number     Number       Type             X           Y           Z", " " + "-" * 69],
         *[f"{i + 1} {at_ns[i]} 0 {p[0]:.6f} {p[1]:.6f} {p[2]:.6f} " for i, p in enumerate(frame.cart_coords)],
     ]
     if do_cell:
@@ -1403,20 +1400,20 @@ def _log_esp(frame: Structure | Molecule, charge_key: str) -> list[str]:
         dump_lines += [f"     {i + 1} {s} {charges[i]:.6f}" for i, s in enumerate(frame.symbol_set)]
         dipole = np.sum(frame.cart_coords * charges[:, np.newaxis], axis=0)
         tot = np.linalg.norm(dipole)
-        dump_lines.append(f" Charge= {np.sum(charges):.6f} Dipole= {' '.join(str(v) for v in dipole)} Tot=   {tot}")
+        dump_lines.append(f" Charge= {np.sum(charges)} Dipole= {' '.join(str(v) for v in dipole)} Tot=   {tot}")
     return dump_lines
 
 
 def _log_nbo_fields(frame: Structure | Molecule, charges: NDArray, totals: NDArray | None = None) -> list[str]:
+    _totals = totals if isinstance(totals, np.ndarray) else np.zeros_like(charges)
     dump_lines = [
         *[" Summary of Natural Population Analysis:  ", "", " " * 39 + "Natural Population "],
         " " * 17 + "Natural " + "-" * 47 + " ",
         *["    Atom  No    Charge         Core      Valence    Rydberg      Total", " " + "-" * 71],
     ]
-    _totals = totals if isinstance(totals, np.ndarray) else np.zeros_like(charges)
-    for i, symbol in enumerate(frame.symbol_set):
+    for i, s in enumerate(frame.symbol_set):
         # Values for core, valence, and rydberg fields don't affect anything in gview.
-        dump_lines.append(f"{symbol} {i + 1} {charges[i]:.6f} {0.0:.6f} {0.0:.6f} {0.0:.6f} {_totals[i]:.6f}")
+        dump_lines.append(f"{s} {i + 1} {charges[i]:.6f} {0.0:.6f} {0.0:.6f} {0.0:.6f} {_totals[i]:.6f}")
     dump_lines += [
         *[" " + "-" * 71, f"   * Total *   {np.sum(charges):.6f} " + f"{0.0:.6f} " * 3 + f"{np.sum(_totals):.6f}"],
     ]
@@ -1428,9 +1425,8 @@ def _log_nbo(frame: Structure | Molecule, charge_key: str, spin_key: str) -> lis
     if charge_key in frame.site_properties:
         nbo_charges = np.array(frame.site_properties[charge_key])
         dump_lines += _log_nbo_fields(frame, nbo_charges)
-        if spin_key in frame.site_properties:
+        if spin_key in frame.site_properties:  # NBO spins read as difference between alpha/beta totals
             spins = np.array(frame.site_properties[spin_key])
-            # NBO spins are evaluated as the difference between the "total" nbo fields for alpha and beta densities.
             alpha_spins = np.maximum(np.zeros(len(spins)), spins)
             beta_spins = np.abs(np.minimum(np.zeros(len(spins)), spins))
             for spin_type, spin_arr in zip(("Alpha", "Beta"), (alpha_spins, beta_spins), strict=False):
@@ -1445,15 +1441,15 @@ def _log_forces(frame: Structure | Molecule, do_cell: bool = True) -> list[str]:
     # of atomic forces not being read by Gaussview (for log files with lattice vectors).
     dump_lines = []
     if "forces" in frame.site_properties:
+        forces = np.array(frame.site_properties["forces"])
         dump_lines = [
             *["-" * 67, " Center     Atomic" + " " * 19 + "Forces (Hartrees/Bohr)"],
             *[" Number     " + (" " * 14).join(["Number", "X", "Y", "Z"]), "-" * 67],
         ]
-        forces = frame.site_properties["forces"]
         for i, n in enumerate(frame.atomic_numbers):
             dump_lines.append(f" {i + 1} {n}\t" + "\t".join(f"{forces[i][j]:.9f}" for j in range(3)))
         if do_cell:
             dump_lines += [" " * 25 + "-2" + " " * 10 + "   ".join(f"{0.0:.9f}" for j in range(3)) for i in range(3)]
-        nforces = np.linalg.norm(np.array(forces), axis=1)
+        nforces = np.linalg.norm(forces, axis=1)
         dump_lines += [" " + "-" * 67, f" Cartesian Forces:  Max {max(nforces):.9f} RMS {np.std(nforces):.9f}"]
     return dump_lines
